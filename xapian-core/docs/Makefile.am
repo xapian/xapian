@@ -109,9 +109,12 @@ APIDOC_DEPS = $(APIDOC_SRC) doxygen_api.conf \
 		$(srcdir)/doxygen_api_footer.html_tmpl
 
 apidoc/html/index.html: $(APIDOC_DEPS)
-	rm -rf apidoc
-	sed 's/^\(GENERATE_HTML\)\>.*/\1 = YES/;s/^\(GENERATE_LATEX\)\>.*/\1 = NO/' doxygen_api.conf |\
-	    top_srcdir='$(top_srcdir)' top_builddir='$(top_builddir)' $(DOXYGEN) -
+	rm -rf apidoc doxygen_api_html.conf.tmp
+	## Use a temporary file to work around doxygen 1.8.19 bug which
+	## truncates a config file read from stdin to 4096 bytes.
+	sed 's/^\(GENERATE_HTML\)\>.*/\1 = YES/;s/^\(GENERATE_LATEX\)\>.*/\1 = NO/' doxygen_api.conf > doxygen_api_html.conf.tmp
+	top_srcdir='$(top_srcdir)' top_builddir='$(top_builddir)' $(DOXYGEN) doxygen_api_html.conf.tmp
+	rm -f doxygen_api_html.conf.tmp
 	## Regression test - 1.0.17 failed to generate docs from error.h in a
 	## VPATH build.
 	test -f apidoc/html/classXapian_1_1RuntimeError.html || \
@@ -127,8 +130,12 @@ apidoc/html/index.html: $(APIDOC_DEPS)
 # Not built by default, but available in case users want to build it for
 # themselves.
 apidoc.pdf: $(APIDOC_DEPS)
-	sed 's/^\(GENERATE_HTML\)\>.*/\1 = NO/;s/^\(GENERATE_LATEX\)\>.*/\1 = YES/' doxygen_api.conf |\
-	    top_srcdir='$(top_srcdir)' top_builddir='$(top_builddir)' $(DOXYGEN) -
+	rm -f doxygen_api_pdf.conf.tmp
+	## Use a temporary file to work around doxygen 1.8.19 bug which
+	## truncates a config file read from stdin to 4096 bytes.
+	sed 's/^\(GENERATE_HTML\)\>.*/\1 = NO/;s/^\(GENERATE_LATEX\)\>.*/\1 = YES/' doxygen_api.conf > doxygen_api_pdf.conf.tmp
+	top_srcdir='$(top_srcdir)' top_builddir='$(top_builddir)' $(DOXYGEN) doxygen_api_pdf.conf.tmp
+	rm -f doxygen_api_pdf.conf.tmp
 	cd apidoc/latex && (pool_size=750000 $(MAKE) refman.pdf||(cat refman.log;exit 1))
 	mv apidoc/latex/refman.pdf apidoc.pdf
 
