@@ -180,17 +180,6 @@ class XAPIAN_VISIBILITY_DEFAULT FreqSource
     }
 };
 
-/** A class for dummy frequency source for construction of termlists
- *  This returns 1 as the term frequency for any term
- */
-class XAPIAN_VISIBILITY_DEFAULT DummyFreqSource : public FreqSource {
-  public:
-    /// Return the value 1 as a dummy term frequency
-    doccount get_termfreq(const std::string &) const;
-
-    doccount get_doccount() const;
-};
-
 /** A class for construction of termlists which store the terms for a
  *  document along with the number of documents it indexes i.e. term
  *  frequency

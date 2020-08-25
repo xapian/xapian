@@ -60,20 +60,6 @@ TermListGroup::TermListGroup(const MSet& docs, const Stopper* stopper)
     num_of_documents = docs.size();
 }
 
-doccount
-DummyFreqSource::get_termfreq(const string&) const
-{
-    LOGCALL(API, doccount, "DummyFreqSource::get_termfreq", NO_ARGS);
-    return 1;
-}
-
-doccount
-DummyFreqSource::get_doccount() const
-{
-    LOGCALL(API, doccount, "DummyFreqSource::get_doccount", NO_ARGS);
-    return 1;
-}
-
 void
 TermListGroup::add_document(const Document& document, const Stopper* stopper)
 {
