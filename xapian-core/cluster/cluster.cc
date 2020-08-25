@@ -304,17 +304,17 @@ Point::get_document() const
     return document;
 }
 
-Point::Point(const TermListGroup& tlg, const Document& document_)
+Point::Point(const FreqSource& freqsource, const Document& document_)
 {
-    LOGCALL_CTOR(API, "Point::initialize", tlg | document_);
-    doccount size = tlg.get_doccount();
+    LOGCALL_CTOR(API, "Point::initialize", freqsource | document_);
+    doccount size = freqsource.get_doccount();
     document = document_;
     for (TermIterator it = document.termlist_begin();
 	 it != document.termlist_end();
 	 ++it) {
 	doccount wdf = it.get_wdf();
 	string term = *it;
-	double termfreq = tlg.get_termfreq(term);
+	double termfreq = freqsource.get_termfreq(term);
 
 	// If the term exists in only one document, or if it exists in
 	// every document within the MSet, or if it is a filter term, then

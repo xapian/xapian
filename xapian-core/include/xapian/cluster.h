@@ -326,13 +326,13 @@ class XAPIAN_VISIBILITY_DEFAULT Point : public PointType {
     /** Constructor
      *  Initialise the point with terms and corresponding TF-IDF weights
      *
-     *  @param tlg		TermListGroup object which provides the term
+     *  @param freqsource	FreqSource object which provides the term
      *				frequencies.  It is used for TF-IDF weight
      *				calculations
      *  @param document		The Document object over which the Point object
      *				will be initialised
      */
-    Point(const TermListGroup &tlg, const Document &document);
+    Point(const FreqSource& freqsource, const Document& document);
 
     /// Returns the document corresponding to this Point
     Document get_document() const;
