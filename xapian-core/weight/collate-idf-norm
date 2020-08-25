@@ -23,15 +23,19 @@ EOF
 use Tokeniseise;
 
 my $hdr = Tokeniseise->new('weight/idf-norm-dispatch.h', 'Map string to idf normalisation code', $copyright, 'XAPIAN_INCLUDED_IDF_NORM_DISPATCH_H', 'idf_norm', 2, 'false');
-$hdr->add('NONE', 'static_cast<unsigned char>(Xapian::TfIdfWeight::idf_norm::NONE)');
-$hdr->add('TFIDF', 'static_cast<unsigned char>(Xapian::TfIdfWeight::idf_norm::TFIDF)');
-$hdr->add('SQUARE', 'static_cast<unsigned char>(Xapian::TfIdfWeight::idf_norm::SQUARE)');
-$hdr->add('FREQ', 'static_cast<unsigned char>(Xapian::TfIdfWeight::idf_norm::FREQ)');
-$hdr->add('PROB', 'static_cast<unsigned char>(Xapian::TfIdfWeight::idf_norm::PROB)');
-$hdr->add('PIVOTED', 'static_cast<unsigned char>(Xapian::TfIdfWeight::idf_norm::PIVOTED)');
-$hdr->add('GLOBAL_FREQ', 'static_cast<unsigned char>(Xapian::TfIdfWeight::idf_norm::GLOBAL_FREQ)');
-$hdr->add('LOG_GLOBAL_FREQ', 'static_cast<unsigned char>(Xapian::TfIdfWeight::idf_norm::LOG_GLOBAL_FREQ)');
-$hdr->add('INCREMENTED_GLOBAL_FREQ', 'static_cast<unsigned char>(Xapian::TfIdfWeight::idf_norm::INCREMENTED_GLOBAL_FREQ)');
-$hdr->add('SQRT_GLOBAL_FREQ', 'static_cast<unsigned char>(Xapian::TfIdfWeight::idf_norm::SQRT_GLOBAL_FREQ)');
+for my $enum (qw/
+    NONE
+    TFIDF
+    SQUARE
+    FREQ
+    PROB
+    PIVOTED
+    GLOBAL_FREQ
+    LOG_GLOBAL_FREQ
+    INCREMENTED_GLOBAL_FREQ
+    SQRT_GLOBAL_FREQ /)
+{
+    $hdr->add($enum, "static_cast<unsigned char>(Xapian::TfIdfWeight::idf_norm::$enum)");
+}
 
 $hdr->write('false', 'idf_norm_tab');
