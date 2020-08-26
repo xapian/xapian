@@ -23,9 +23,9 @@
 #include <config.h>
 
 #include "xapian/weight.h"
-#include "idf-norm-dispatch.h"
 #include "keyword.h"
-#include "wdf-norm-dispatch.h"
+#include "weight/idf-norm-dispatch.h"
+#include "weight/wdf-norm-dispatch.h"
 #include "weightinternal.h"
 #include <cmath>
 #include <cstring>
