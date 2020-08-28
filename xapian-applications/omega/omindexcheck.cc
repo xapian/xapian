@@ -67,7 +67,7 @@ index_test()
     tests.insert({"fb2/lang2.fb2",
 		  {FAIL_IF_NO_TERMS, {"Adavid", "Atardon", "ZAtardon",
 				      "Zúhořů", "Zhovercraft", "Zlanguag",
-				      "Zmój", "Zof", "Zpełen", "Zwęgorzi"
+				      "Zmój", "Zof", "Zpełen", "Zwęgorzi",
 				      "Zpoduszkowiec", "Zvznášedlo"}}});
     tests.insert({"lrf/hello.lrf",
 		  {FAIL_IF_NO_TERMS, {"ZFhello", "Zhello", "Zworld"}}});
