@@ -30,158 +30,188 @@
 
 using namespace std;
 
-typedef vector<string> testcase;
+enum test_result { PASS, FAIL, SKIP };
+enum flag { FAIL_IF_NO_TERMS = 1, SKIP_IF_NO_TERMS = 2, PASS_IF_NO_TERMS = 4 };
+
+struct testcase {
+    unsigned int flags;
+    vector<string> terms;
+};
 
 static unordered_map<string, testcase> tests;
-
-enum test_result { PASS, FAIL, SKIP };
 
 static void
 index_test()
 {
     tests.insert({"test.txt",
-		  {"Zjoey", "Zfood", "Zедой", "Z喬伊不分享食物"}});
+		  {FAIL_IF_NO_TERMS, {"Zjoey", "Zfood", "Zедой",
+				      "Z喬伊不分享食物"}}});
     tests.insert({"test-csv.csv",
-		  {"ZFcsv", "Zbreak", "Zwere"}});
+		  {FAIL_IF_NO_TERMS, {"ZFcsv", "Zbreak", "Zwere"}}});
     tests.insert({"test-html.html",
-		  {"Ajeroen", "ZAoom", "ZSworld", "Shello", "Zchapter"}});
+		  {FAIL_IF_NO_TERMS, {"Ajeroen", "ZAoom", "ZSworld", "Shello",
+				      "Zchapter"}}});
 #if defined HAVE_POPPLER
     tests.insert({"pdf/poppler.pdf",
-		  {"ZFpoppler", "Zsub", "Ztext", "Ztitl", "Zpie"}});
+		  {FAIL_IF_NO_TERMS, {"ZFpoppler", "Zsub", "Ztext", "Ztitl",
+				      "Zpie"}}});
 #endif
 #if defined HAVE_LIBEBOOK
     tests.insert({"fb2/hello.fb2",
-		  {"Ajeroen", "Aooms", "Zbeauti", "Zchapter", "Zdocument",
-		   "Zooms3", "Zsubsect", "Ztoday", "ZFhello", "Zoutlin"}});
+		  {FAIL_IF_NO_TERMS, {"Ajeroen", "Aooms", "Zbeauti", "Zchapter",
+				      "Zdocument", "Zooms3", "Zsubsect",
+				      "Ztoday", "ZFhello", "Zoutlin"}}});
     tests.insert({"fb2/lang-name.fb2",
-		  {"Adavid", "Atardon", "ZAdavid", "ZFlang", "Zeel",
-		   "Zhovercraft", "Zlanguag"}});
+		  {FAIL_IF_NO_TERMS, {"Adavid", "Atardon", "ZAdavid", "ZFlang",
+				      "Zeel", "Zhovercraft", "Zlanguag"}}});
     tests.insert({"fb2/lang2.fb2",
-		  {"Adavid", "Atardon", "ZAtardon", "Zúhořů", "Zhovercraft",
-		   "Zlanguag", "Zmój", "Zof", "Zpełen", "Zpoduszkowiec",
-		   "Zvznášedlo", "Zwęgorzi"}});
+		  {FAIL_IF_NO_TERMS, {"Adavid", "Atardon", "ZAtardon",
+				      "Zúhořů", "Zhovercraft", "Zlanguag",
+				      "Zmój", "Zof", "Zpełen", "Zwęgorzi"
+				      "Zpoduszkowiec", "Zvznášedlo"}}});
     tests.insert({"lrf/hello.lrf",
-		  {"ZFhello", "Zhello", "Zworld"}});
+		  {FAIL_IF_NO_TERMS, {"ZFhello", "Zhello", "Zworld"}}});
     tests.insert({"pdb/PalmDOC-hello.pdb",
-		  {"Shello", "Sworld", "ZFpalmdoc", "Zworld"}});
+		  {FAIL_IF_NO_TERMS, {"Shello", "Sworld", "ZFpalmdoc",
+				      "Zworld"}}});
     tests.insert({"pdb/PeanutPress-hello.pdb",
-		  {"Fpeanutpress", "ZFhello", "Zhello"}});
+		  {FAIL_IF_NO_TERMS, {"Fpeanutpress", "ZFhello", "Zhello"}}});
     tests.insert({"pdb/test.pdb",
-		  {"Sdemodemo", "ZFtest", "Zwherearew"}});
+		  {FAIL_IF_NO_TERMS, {"Sdemodemo", "ZFtest", "Zwherearew"}}});
 #endif
 #if defined HAVE_LIBETONYEK
     tests.insert({"keynotes/test-keynote.key",
-		  {"ZFkeynot", "Zbold", "Znow", "Zsubtitl"}});
+		  {FAIL_IF_NO_TERMS, {"ZFkeynot", "Zbold", "Znow",
+				      "Zsubtitl"}}});
     tests.insert({"pages/test-pages.pages",
-		  {"ZFpage", "Zfull", "Zhovercraft", "Zwęgorzi"}});
+		  {FAIL_IF_NO_TERMS, {"ZFpage", "Zfull", "Zhovercraft",
+				      "Zwęgorzi"}}});
 #endif
 #if defined HAVE_TESSERACT
     tests.insert({"img/Test1.gif",
-		  {"Znoisyimag", "Zocr", "Ztesseract"}});
+		  {FAIL_IF_NO_TERMS, {"Znoisyimag", "Zocr", "Ztesseract"}}});
     tests.insert({"img/Test2.pgm",
-		  {"ZFtest2", "Znoisyimag", "Ztesseract"}});
+		  {FAIL_IF_NO_TERMS, {"ZFtest2", "Znoisyimag", "Ztesseract"}}});
     tests.insert({"img/Test3.ppm",
-		  {"ZFtest3", "Zocr", "Ztest"}});
+		  {FAIL_IF_NO_TERMS, {"ZFtest3", "Zocr", "Ztest"}}});
     tests.insert({"img/Test4.tiff",
-		  {"Znoisyimag", "Ztesseract", "Zto"}});
+		  {FAIL_IF_NO_TERMS, {"Znoisyimag", "Ztesseract", "Zto"}}});
     tests.insert({"img/Test5.webp",
-		  {"Znoisyimag", "Ztesseract", "Ztest"}});
+		  {FAIL_IF_NO_TERMS, {"Znoisyimag", "Ztesseract", "Ztest"}}});
     tests.insert({"img/poster-2.jpg",
-		  {"ZFposter", "Zby", "Zproperti", "Zsurveil", "Zvideo"}});
+		  {FAIL_IF_NO_TERMS, {"ZFposter", "Zby", "Zproperti",
+				      "Zsurveil", "Zvideo"}}});
     tests.insert({"img/poster.jpg",
-		  {"Zbicycl", "Zride", "Zroller", "Zskateboard"}});
+		  {FAIL_IF_NO_TERMS, {"Zbicycl", "Zride", "Zroller",
+				      "Zskateboard"}}});
     tests.insert({"img/scan-page.png",
-		  {"Zannual", "Zfed", "Zreturn", "Zwhile"}});
+		  {FAIL_IF_NO_TERMS, {"Zannual", "Zfed", "Zreturn",
+				      "Zwhile"}}});
 #endif
 #if defined HAVE_LIBARCHIVE
-    // blank file - will skip the test as no terms will be found.
-    // tests.insert({"odf/blank.odt", {}});
+    // blank file
+    // pass the test if no terms are found
+    tests.insert({"odf/blank.odt",
+		  {PASS_IF_NO_TERMS, {}}});
     // corrupted file (ODP)
     // tests.insert({"corrupt_file.odp", {"ZSnatur"}});
 
     // ODF
     tests.insert({"odf/test.odt",
-		  {"Zедой", "Z喬伊不分享食物"}});
+		  {FAIL_IF_NO_TERMS, {"Zедой", "Z喬伊不分享食物"}}});
     tests.insert({"odf/libarchive_text.odt",
-		  {"Stesttitle", "Atestauthor", "Zsampl", "Zhead", "Ztext",
-		   "Zhello", "Zworld"}});
+		  {FAIL_IF_NO_TERMS, {"Stesttitle", "Atestauthor", "Zsampl",
+				      "Zhead", "Ztext", "Zhello", "Zworld"}}});
     tests.insert({"odf/libarchive_text_template.ott",
-		  {"Zjane", "Zdoe", "Zstructur"}});
+		  {FAIL_IF_NO_TERMS, {"Zjane", "Zdoe", "Zstructur"}}});
     tests.insert({"odf/libarchive_presentation.odp",
-		  {"Zfascin", "Zfact", "Zpustak", "Zmahal", "Zmillion",
-		   "Zpeopl", "Zbirthday", "501"}});
+		  {FAIL_IF_NO_TERMS, {"Zfascin", "Zfact", "Zpustak", "Zmahal",
+				      "Zmillion", "Zpeopl", "Zbirthday",
+				      "501"}}});
     tests.insert({"odf/libarchive_presentation_template.otp",
-		  {"ZSalizarin", "Zhead", "Zworld", "Ztext"}});
+		  {FAIL_IF_NO_TERMS, {"ZSalizarin", "Zhead", "Zworld",
+				      "Ztext"}}});
     tests.insert({"odf/libarchive_spreadsheet.ods",
-		  {"Zhello", "Zworld", "Zsampl", "2"}});
+		  {FAIL_IF_NO_TERMS, {"Zhello", "Zworld", "Zsampl", "2"}}});
     tests.insert({"odf/libarchive_spreadsheet_template.ots",
-		  {"Zfood", "Zpasta", "Zpercentag", "40"}});
+		  {FAIL_IF_NO_TERMS, {"Zfood", "Zpasta", "Zpercentag", "40"}}});
     tests.insert({"odf/libarchive_draw.odg",
-		  {"Zparth", "Zkapadia"}});
+		  {FAIL_IF_NO_TERMS, {"Zparth", "Zkapadia"}}});
 
     // Apache OpenOffice
     tests.insert({"sof/libarchive_openoffice_calc.sxc",
-		  {"Ztoy", "Zproduct", "Zcost", "Zquantiti", "Zcardboard"}});
+		  {FAIL_IF_NO_TERMS, {"Ztoy", "Zproduct", "Zcost", "Zquantiti",
+				      "Zcardboard"}}});
     tests.insert({"sof/libarchive_openoffice_calc_template.stc",
-		  {"ZSpurchas", "ZStemplat", "Zproduct", "Zquantiti",
-		   "Zsampl"}});
+		  {FAIL_IF_NO_TERMS, {"ZSpurchas", "ZStemplat", "Zproduct",
+				      "Zquantiti", "Zsampl"}}});
     tests.insert({"sof/libarchive_openoffice_text.sxw",
-		  {"Zhello", "Zsampl", "Zopenoffic", "Zwriter"}});
+		  {FAIL_IF_NO_TERMS, {"Zhello", "Zsampl", "Zopenoffic",
+				      "Zwriter"}}});
     tests.insert({"sof/libarchive_openoffice_text_template.stw",
-		  {"Zhello", "Zworld", "Zsampl", "Zhead", "ZStemplat",
-		   "ZStext"}});
+		  {FAIL_IF_NO_TERMS, {"Zhello", "Zworld", "Zsampl", "Zhead",
+				      "ZStemplat", "ZStext"}}});
     tests.insert({"sof/libarchive_openoffice_presentation.sxi",
-		  {"Zhead", "Zhello", "Zopenoffic", "Zimpress"}});
+		  {FAIL_IF_NO_TERMS, {"Zhead", "Zhello", "Zopenoffic",
+				      "Zimpress"}}});
     tests.insert({"sof/libarchive_openoffice_presentation_template.sti",
-		  {"ZSproject", "ZSresearch", "Zhead", "Ztext"}});
+		  {FAIL_IF_NO_TERMS, {"ZSproject", "ZSresearch", "Zhead",
+				      "Ztext"}}});
 
     // OOXML formats
     tests.insert({"ooxml/book.xlsx",
-		  {"Zmodi", "Zgood", "Zemploye"}});
+		  {FAIL_IF_NO_TERMS, {"Zmodi", "Zgood", "Zemploye"}}});
     tests.insert({"ooxml/doc.docx",
-		  {"Zедой", "Z喬伊不分享食物", "ZSbakeri"}});
+		  {FAIL_IF_NO_TERMS, {"Zедой", "Z喬伊不分享食物",
+				      "ZSbakeri"}}});
     tests.insert({"ooxml/nature.pptx",
-		  {"ZSnatur", "Zbeauti", "Zsampl"}});
+		  {FAIL_IF_NO_TERMS, {"ZSnatur", "Zbeauti", "Zsampl"}}});
 #endif
 #if defined HAVE_LIBABW
     // Title term is not being tested here because some older versions of Libabw
     // lack a bug fix for the title to be handled properly. (< libabw-0.1.2)
     tests.insert({"abw/test.abw",
-		  {"ZAparth", "Zabiword", "Zsampl", "Zdocument"}});
+		  {FAIL_IF_NO_TERMS, {"ZAparth", "Zabiword", "Zsampl",
+				      "Zdocument"}}});
     tests.insert({"abw/test1.abw",
-		  {"Zедой", "Z喬伊不分享食物"}});
+		  {FAIL_IF_NO_TERMS, {"Zедой", "Z喬伊不分享食物"}}});
 #endif
 #if defined HAVE_LIBCDR
     // .cdr versions >= 16 are not included in the tests as they will work
     // correctly only with libcdr >= 0.1.6
     tests.insert({"cdr/test1.cdr",
-		  {"Zalgerian", "Zcalibri"}});
+		  {FAIL_IF_NO_TERMS, {"Zalgerian", "Zcalibri"}}});
     tests.insert({"cdr/test2.cdr",
-		  {"Zедой", "Z喬伊不分享食物", "Zdocument"}});
+		  {FAIL_IF_NO_TERMS, {"Zедой", "Z喬伊不分享食物",
+				      "Zdocument"}}});
 #endif
 #if defined HAVE_LIBEXTRACTOR
+    // skip the test if no terms are not found
+    // tests for libextractor may be skipped if proper plugins are not installed
     tests.insert({"video/file_example_OGG_480_1_7mg.ogg",
-		  {"lavf58.29.100", "Zogg"}});
+		  {SKIP_IF_NO_TERMS, {"lavf58.29.100", "Zogg"}}});
     tests.insert({"video/file_example_AVI_480_750kB.avi",
-		  {"Zcodec", "Zh264", "480x270", "msvideo", "30", "fps"}});
+		  {SKIP_IF_NO_TERMS, {"Zcodec", "Zh264", "480x270", "msvideo",
+				      "30", "fps"}}});
     tests.insert({"audio/file_example_OOG_1MG.ogg",
-		  {"Akevin", "Amacleod", "Simpact", "ZSmoderato", "Zlibrari",
-		   "Zcinemat"}});
+		  {SKIP_IF_NO_TERMS, {"Akevin", "Amacleod", "Simpact",
+				      "ZSmoderato", "Zlibrari", "Zcinemat"}}});
     tests.insert({"audio/file_example_WAV_1MG.wav",
-		  {"Zstereo", "wav", "Zms"}});
+		  {SKIP_IF_NO_TERMS, {"Zstereo", "wav", "Zms"}}});
 #endif
 }
 
 static test_result
 compare_test(testcase& test, const Xapian::Document& doc, const string& file)
 {
-    // Skips if no term is found
-    // Passes if all terms are found
-    // Fails if only some terms are found
-    sort(test.begin(), test.end());
+    // when all terms are found - PASS
+    // when no terms are found - SKIP/PASS/FAIL depending on the value of
+    // testcase flags.
+    // when no terms are found - FAIL
+    sort(test.terms.begin(), test.terms.end());
     Xapian::TermIterator term_iterator = doc.termlist_begin();
     bool term_found = false, exists = true;
-    for (auto& t : test) {
+    for (auto& t : test.terms) {
 	term_iterator.skip_to(t);
 	if (term_iterator == doc.termlist_end() || *term_iterator != t) {
 	    cerr << "Error in " << file << ": Term " << t <<
@@ -196,10 +226,14 @@ compare_test(testcase& test, const Xapian::Document& doc, const string& file)
 	    return PASS;
 	else
 	    return FAIL;
-    } else {
-	// no terms found
-	return SKIP;
     }
+    // no terms found
+    if (test.flags & FAIL_IF_NO_TERMS)
+	return FAIL;
+    if (test.flags & SKIP_IF_NO_TERMS)
+	return SKIP;
+    else
+	return PASS;
 }
 
 int
