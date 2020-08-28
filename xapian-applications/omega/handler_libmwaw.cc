@@ -152,15 +152,14 @@ extract_spreadsheet(string& dump,
     if (result != MWAWDocument::MWAW_R_OK) {
 	error = "Libmwaw Error: Failed to extract metadata";
 	return false;
-    } else {
-	string meta_temp;
-	for (unsigned i = 0; i < pages_metadata.size(); ++i) {
-	    meta_temp.append(pages_metadata[i].cstr());
-	}
-	const char* data = meta_temp.c_str();
-	size_t len = meta_temp.size();
-	parse_metadata(data, len, author, title, keywords);
     }
+    string meta_temp;
+    for (unsigned i = 0; i < pages_metadata.size(); ++i) {
+	meta_temp.append(pages_metadata[i].cstr());
+    }
+    const char* data = meta_temp.c_str();
+    size_t len = meta_temp.size();
+    parse_metadata(data, len, author, title, keywords);
 
     RVNGStringVector pages_content;
     RVNGTextSpreadsheetGenerator content(pages_content, false);
@@ -168,12 +167,11 @@ extract_spreadsheet(string& dump,
     if (result != MWAWDocument::MWAW_R_OK) {
 	error = "Libmwaw Error: Failed to extract text";
 	return false;
-    } else {
-	for (unsigned i = 0; i < pages_content.size(); ++i) {
-	    dump.append(pages_content[i].cstr());
-	}
-	pages = pages_content.size();
     }
+    for (unsigned i = 0; i < pages_content.size(); ++i) {
+	dump.append(pages_content[i].cstr());
+    }
+    pages = pages_content.size();
     return true;
 }
 
@@ -189,12 +187,11 @@ extract_presentation(string& dump,
     if (result != MWAWDocument::MWAW_R_OK) {
 	error = "Libmwaw Error: Failed to extract text";
 	return false;
-    } else {
-	for (unsigned i = 0; i < pages_content.size(); ++i) {
-	    dump.append(pages_content[i].cstr());
-	}
-	pages = pages_content.size();
     }
+    for (unsigned i = 0; i < pages_content.size(); ++i) {
+	dump.append(pages_content[i].cstr());
+    }
+    pages = pages_content.size();
     return true;
 }
 
@@ -210,12 +207,11 @@ extract_drawing(string& dump,
     if (result != MWAWDocument::MWAW_R_OK) {
 	error = "Libmwaw Error: Failed to extract text";
 	return false;
-    } else {
-	for (unsigned i = 0; i < pages_content.size(); ++i) {
-	    dump.append(pages_content[i].cstr());
-	}
-	pages = pages_content.size();
     }
+    for (unsigned i = 0; i < pages_content.size(); ++i) {
+	dump.append(pages_content[i].cstr());
+    }
+    pages = pages_content.size();
     return true;
 }
 
@@ -255,7 +251,6 @@ extract(const string& filename,
 	    default:
 		return extract_drawing(dump, pages, error, &input);
 	}
-
     } catch (...) {
 	error = "Libmwaw threw an exception";
 	return false;
