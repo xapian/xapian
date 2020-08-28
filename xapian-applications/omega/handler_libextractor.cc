@@ -38,12 +38,12 @@ struct metadata {
 
 /** Store metadata in its corresponding variable.
  *
- *  @param cls			passed as last parameter from EXTRACTOR_extract
- *  @param plugin_name		name of the plugin
- *  @param type		mime-type of file according to libextractor
+ *  @param cls  		passed as last parameter from EXTRACTOR_extract
+ *  @param plugin_name  	name of the plugin
+ *  @param type  		mime-type of file according to libextractor
  *  @param format		format information about data
  *  @param data_mime_type	mimetype of data according to libextractor
- *  @param data		actual meta-data found
+ *  @param data 		actual meta-data found
  *  @param data_len		number of bytes in data
  */
 static int
