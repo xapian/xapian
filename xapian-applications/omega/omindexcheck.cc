@@ -207,22 +207,22 @@ compare_test(testcase& test, const Xapian::Document& doc, const string& file)
     // when all terms are found - PASS
     // when no terms are found - SKIP/PASS/FAIL depending on the value of
     // testcase flags.
-    // when no terms are found - FAIL
+    // when only some terms are found - FAIL
     sort(test.terms.begin(), test.terms.end());
     Xapian::TermIterator term_iterator = doc.termlist_begin();
-    bool term_found = false, exists = true;
+    bool term_found = false, all_terms_exist = true;
     for (auto& t : test.terms) {
 	term_iterator.skip_to(t);
 	if (term_iterator == doc.termlist_end() || *term_iterator != t) {
 	    cerr << "Error in " << file << ": Term " << t <<
 		 " does not belong to this file" << endl;
-	    exists = false;
+	    all_terms_exist = false;
 	} else {
 	    term_found = true;
 	}
     }
     if (term_found) {
-	if (exists)
+	if (all_terms_exist)
 	    return PASS;
 	else
 	    return FAIL;
@@ -257,10 +257,11 @@ main(int argc, char** argv)
 	Xapian::Document doc = db.get_document(did);
 	auto iter = tests.find(url);
 	if (iter != tests.end()) {
-	    test_result outcome = compare_test(iter->second, doc, url);
-	    if (outcome == FAIL)
+	    test_result individual_result = compare_test(iter->second, doc,
+							 url);
+	    if (individual_result == FAIL)
 		result = FAIL;
-	    else if (result == PASS && outcome == SKIP)
+	    else if (result == PASS && individual_result == SKIP)
 		result = SKIP;
 	}
     }
