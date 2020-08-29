@@ -31,7 +31,9 @@
 using namespace std;
 
 enum test_result { PASS, FAIL, SKIP };
-enum test_flag { FAIL_IF_NO_TERMS = 1, SKIP_IF_NO_TERMS = 2, PASS_IF_NO_TERMS = 4 };
+enum test_flag { FAIL_IF_NO_TERMS = 1,
+		 SKIP_IF_NO_TERMS = 2,
+		 PASS_IF_NO_TERMS = 4 };
 
 struct testcase {
     unsigned int flags;
