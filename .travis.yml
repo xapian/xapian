@@ -36,6 +36,7 @@ matrix:
             - libarchive-dev
             - libabw-dev
             - libcdr-dev
+            - libvorbis-dev
             - libextractor-dev
       env: CPPFLAGS=-D_GLIBCXX_DEBUG
     - compiler: clang
