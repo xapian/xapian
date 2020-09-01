@@ -292,6 +292,7 @@ TfIdfWeight::get_wdfn(Xapian::termcount wdf, Xapian::termcount doclen,
 	    return 0.9 + 0.1 * (double(wdf) / (double(doclen) / uniqterms));
 	}
 	case wdf_norm::MAX:
+	    if (rare(wdfdocmax == 0)) return 0;
 	    return double(wdf) / wdfdocmax;
 	case wdf_norm::AUG: {
 	    if (wdf == 0) return 0;
