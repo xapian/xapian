@@ -992,6 +992,7 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
      *   - Xapian::DB_NO_SYNC don't call fsync() or similar
      *   - Xapian::DB_FULL_SYNC try harder to ensure data is safe
      *   - Xapian::DB_DANGEROUS don't be crash-safe, no concurrent readers
+     *   - Xapian::DB_NO_TERMLIST don't use a termlist table
      *   - Xapian::DB_RETRY_LOCK to wait to get a write lock
      *
      *  @param block_size  The block size in bytes to use when creating a
