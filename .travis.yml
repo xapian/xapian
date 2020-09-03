@@ -36,9 +36,8 @@ matrix:
             - libarchive-dev
             - libabw-dev
             - libcdr-dev
-            - libvorbis-dev
             - libextractor-dev
-      env: CPPFLAGS=-D_GLIBCXX_DEBUG
+      env: CPPFLAGS=-D_GLIBCXX_DEBUG LIBEXTRACTOR_PREFIX='/usr/lib/x86_64-linux-gnu/libextractor'
     - compiler: clang
       os: linux
       # Clang is already installed, but we want to build using the
@@ -70,7 +69,7 @@ matrix:
             - libabw-dev
             - libcdr-dev
             - libextractor-dev
-      env: USE_CC=clang USE_CXX='clang++ -stdlib=libc++'
+      env: USE_CC=clang USE_CXX='clang++ -stdlib=libc++' LIBEXTRACTOR_PREFIX='/usr/lib/x86_64-linux-gnu/libextractor'
     - compiler: gcc
       os: linux
       name: "GCC 4.8"
@@ -100,6 +99,7 @@ matrix:
             - libtesseract-dev
             - libarchive-dev
             - libextractor-dev
+      env: LIBEXTRACTOR_PREFIX='/usr/lib/x86_64-linux-gnu/libextractor'
     - os: linux
       name: "Emscripten"
       addons:
