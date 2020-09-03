@@ -170,5 +170,24 @@ WRAP_INPUT_ITERATOR(PositionIterator)
 %warnfilter(WARN_CSHARP_COVARIANT_RET) Xapian::TradWeight::create_from_parameters;
 %warnfilter(WARN_CSHARP_COVARIANT_RET) Xapian::Weight::create_from_parameters;
 
+// For QueryParser::add_boolean_prefix() and add_rangeprocessor().
+%typemap(ctype) const std::string* "char*"
+%typemap(imtype) const std::string* "string"
+%typemap(cstype) const std::string* "string"
+
+%typemap(in) const std::string* %{
+    $*1_ltype $1_str;
+    if ($input) {
+        $1_str.assign($input);
+        $1 = &$1_str;
+    } else {
+        $1 = nullptr;
+    }
+%}
+
+%typemap(csin) const std::string* "$csinput"
+
+%typecheck(SWIG_TYPECHECK_STRING) const std::string* ""
+
 %include ../generic/except.i
 %include ../xapian-headers.i

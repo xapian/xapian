@@ -95,9 +95,10 @@ class SmokeTest {
 		}
 	    }
 
+	    Xapian.QueryParser qp = new Xapian.QueryParser();
+
 	    // Check QueryParser parsing error.
 	    try {
-		Xapian.QueryParser qp = new Xapian.QueryParser();
 		qp.ParseQuery("test AND");
 		System.Console.WriteLine("Successfully parsed bad query");
 		System.Environment.Exit(1);
@@ -108,12 +109,20 @@ class SmokeTest {
 		}
 	    }
 
-	    {
-		Xapian.QueryParser qp = new Xapian.QueryParser();
-		// FIXME: It would be better if the (uint) cast wasn't required
-		// here.
-		qp.ParseQuery("hello world", (uint)Xapian.QueryParser.feature_flag.FLAG_BOOLEAN);
-	    }
+	    // FIXME: It would be better if the (uint) cast wasn't required here.
+	    qp.ParseQuery("hello world", (uint)Xapian.QueryParser.feature_flag.FLAG_BOOLEAN);
+
+	    // Test wrapping of null-able grouping parameter.
+	    qp.AddBooleanPrefix("colour", "XC");
+	    qp.AddBooleanPrefix("color", "XC");
+	    qp.AddBooleanPrefix("foo", "XFOO", null);
+	    qp.AddBooleanPrefix("bar", "XBAR", "XBA*");
+	    qp.AddBooleanPrefix("baa", "XBAA", "XBA*");
+	    // FIXME: It would be better if the (uint) cast wasn't required here.
+	    Xapian.DateRangeProcessor rpdate = new Xapian.DateRangeProcessor(1, (uint)Xapian.Xapian.RP_DATE_PREFER_MDY, 1960);
+	    qp.AddRangeprocessor(rpdate);
+	    qp.AddRangeprocessor(rpdate, null);
+	    qp.AddRangeprocessor(rpdate, "foo");
 
             if (Xapian.Query.MatchAll.GetDescription() != "Query(<alldocuments>)") {
 		System.Console.WriteLine("Unexpected Query.MatchAll.toString()");
