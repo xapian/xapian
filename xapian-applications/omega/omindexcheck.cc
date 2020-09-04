@@ -214,10 +214,10 @@ compare_test(testcase& test, const Xapian::Document& doc, const string& file)
 	    return FAIL;
     }
     // no terms found
-    if (test.flags & !test.terms.empty())
-	return FAIL;
     if (test.flags & SKIP_IF_NO_TERMS)
 	return SKIP;
+    if (!test.terms.empty())
+	return FAIL;
     else
 	return PASS;
 }
