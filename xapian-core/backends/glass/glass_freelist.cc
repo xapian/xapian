@@ -315,7 +315,7 @@ GlassFreeListChecker::count_set_bits(uint4 * p_first_bad_blk) const
 	    c += __builtin_popcount(elt);
 #elif HAVE_DECL___POPCNT
 	} else if (sizeof(elt_type) == sizeof(unsigned)) {
-	    c += __popcnt(elt);
+	    c += static_cast<uint4>(__popcnt(elt));
 #endif
 #if HAVE_DECL___BUILTIN_POPCOUNTL
 	} else if (sizeof(elt_type) == sizeof(unsigned long)) {
@@ -326,7 +326,7 @@ GlassFreeListChecker::count_set_bits(uint4 * p_first_bad_blk) const
 	    c += __builtin_popcountll(elt);
 #elif HAVE_DECL___POPCNT64
 	} else if (sizeof(elt_type) == sizeof(unsigned long long)) {
-	    c += __popcnt64(elt);
+	    c += static_cast<uint4>(__popcnt64(elt));
 #endif
 	} else {
 	    do {
