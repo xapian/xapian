@@ -44,7 +44,7 @@ add_popcount(A& accumulator, V value)
 	accumulator += __builtin_popcount(value);
 #elif HAVE_DECL___POPCNT
     } else if (sizeof(V) == sizeof(unsigned)) {
-	accumulator += __popcnt(value);
+	accumulator += static_cast<A>(__popcnt(value));
 #endif
 #if HAVE_DECL___BUILTIN_POPCOUNTL
     } else if (sizeof(V) == sizeof(unsigned long)) {
@@ -55,7 +55,7 @@ add_popcount(A& accumulator, V value)
 	accumulator += __builtin_popcountll(value);
 #elif HAVE_DECL___POPCNT64
     } else if (sizeof(V) == sizeof(unsigned long long)) {
-	accumulator += __popcnt64(value);
+	accumulator += static_cast<A>(__popcnt64(value));
 #endif
     } else {
 	while (value) {
