@@ -100,6 +100,19 @@ public class SmokeTest {
 		System.exit(1);
 	    }
 
+	    QueryParser qp = new QueryParser();
+
+	    // Test wrapping of null-able grouping parameter.
+	    qp.addBooleanPrefix("colour", "XC");
+	    qp.addBooleanPrefix("color", "XC");
+	    qp.addBooleanPrefix("foo", "XFOO", null);
+	    qp.addBooleanPrefix("bar", "XBAR", "XBA*");
+	    qp.addBooleanPrefix("baa", "XBAA", "XBA*");
+	    DateRangeProcessor rpdate = new DateRangeProcessor(1, Xapian.RP_DATE_PREFER_MDY, 1960);
+	    qp.addRangeprocessor(rpdate);
+	    qp.addRangeprocessor(rpdate, null);
+	    qp.addRangeprocessor(rpdate, "foo");
+
             if (!Query.MatchAll.toString().equals("Query(<alldocuments>)")) {
 		System.err.println("Unexpected Query.MatchAll.toString()");
 		System.exit(1);
@@ -228,7 +241,6 @@ public class SmokeTest {
 	    }
 
 	    {
-		QueryParser qp = new QueryParser();
 		qp.addPrefix("food", new MyFieldProcessor());
 		if (!qp.parseQuery("food:spam").toString().equals("Query(eggs)")) {
 		    System.err.println("FieldProcessor subclass doesn't work as expected");
