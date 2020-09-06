@@ -450,6 +450,25 @@ typedef std::string binary_std_string;
 
 #pragma SWIG nowarn=822 /* Suppress warning about covariant return types (FIXME - check if this is a problem!) */
 
+// For QueryParser::add_boolean_prefix() and add_rangeprocessor().
+%typemap(jni) const std::string* "char*"
+%typemap(jtype) const std::string* "String"
+%typemap(jstype) const std::string* "String"
+
+%typemap(in) const std::string* %{
+    $*1_ltype $1_str;
+    if ($input) {
+        $1_str.assign($input);
+        $1 = &$1_str;
+    } else {
+        $1 = nullptr;
+    }
+%}
+
+%typemap(javain) const std::string* "$javainput"
+
+%typecheck(SWIG_TYPECHECK_STRING) const std::string* ""
+
 %include ../generic/except.i
 %include ../xapian-headers.i
 %include ../fake_dbfactory.i
