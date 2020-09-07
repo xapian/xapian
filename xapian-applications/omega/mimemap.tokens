@@ -86,6 +86,8 @@ potx		application/vnd.openxmlformats-officedocument.presentationml.template
 vsdx		application/vnd.ms-visio.drawing
 vssx		application/vnd.ms-visio.stencil
 vstx		application/vnd.ms-visio.template
+# OpenXPS and MS-specific older XPS format
+oxps		application/oxps
 xps		application/vnd.ms-xpsdocument
 
 # Macro-enabled variants - these appear to be the same formats as the
