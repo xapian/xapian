@@ -301,7 +301,7 @@ other filters too - see below):
 * Markdown (.md, .markdown) if markdown is available
 * TeX DVI files (.dvi) if catdvi is available
 * DjVu files (.djv, .djvu) if djvutxt is available
-* XPS files (.xps) if unzip is available
+* OpenXPS and XPS files (.oxps, .xps) if unzip is available
 * Debian packages (.deb, .udeb) if dpkg-deb is available
 * RPM packages (.rpm) if rpm is available
 * Atom feeds (.atom)

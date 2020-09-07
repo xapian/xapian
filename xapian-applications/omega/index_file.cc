@@ -1156,7 +1156,8 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	    XmlParser xmlparser;
 	    xmlparser.parse_xml(d.gzfile_to_string());
 	    dump = xmlparser.dump;
-	} else if (mimetype == "application/vnd.ms-xpsdocument") {
+	} else if (mimetype == "application/oxps" ||
+		   mimetype == "application/vnd.ms-xpsdocument") {
 	    string cmd = "unzip -p";
 	    append_filename_argument(cmd, file);
 	    cmd += " 'Documents/1/Pages/*.fpage'";
