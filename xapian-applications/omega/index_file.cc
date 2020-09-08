@@ -686,6 +686,119 @@ index_add_document(const string & urlterm, time_t last_altered,
     }
 }
 
+static void
+index_ctime_terms(Xapian::Document& doc, DirectoryIterator& d,
+		  time_t mtime, time_t ctime)
+{
+    bool inc_tag_added = false;
+    if (d.is_other_readable()) {
+	inc_tag_added = true;
+	doc.add_boolean_term("I*");
+    } else if (d.is_group_readable()) {
+	const char* group = d.get_group();
+	if (group) {
+	    doc.add_boolean_term(string("I#") + group);
+	}
+    }
+    const char* owner = d.get_owner();
+    if (owner) {
+	doc.add_boolean_term(string("O") + owner);
+	if (!inc_tag_added && d.is_owner_readable())
+	    doc.add_boolean_term(string("I@") + owner);
+    }
+    // Update document mtime and ctime
+    doc.add_value(VALUE_LASTMOD,
+		  int_to_binary_string(uint32_t(mtime)));
+    if (use_ctime) {
+	doc.add_value(VALUE_CTIME,
+		      int_to_binary_string(uint32_t(ctime)));
+    }
+}
+
+/// Update a document without re-extracting text
+static bool
+index_update_entry(const string& urlterm,
+		   DirectoryIterator& d,
+		   Xapian::docid& did,
+		   string& md5)
+{
+    if (!did) {
+	Xapian::PostingIterator p = db.postlist_begin(urlterm);
+	if (p != db.postlist_end(urlterm))
+	    did = *p;
+	else
+	    return false;
+    }
+
+    time_t mtime = d.get_mtime();
+    time_t ctime = d.get_ctime();
+
+    const string& value_lower_ctime = db.get_value_lower_bound(VALUE_CTIME);
+    const string& value_upper_mtime = db.get_value_upper_bound(VALUE_LASTMOD);
+    time_t lower_ctime = binary_string_to_int(value_lower_ctime);
+    time_t upper_mtime = binary_string_to_int(value_upper_mtime);
+
+    if (upper_mtime < mtime || ctime < lower_ctime)
+	return false;
+
+    Xapian::Document doc = db.get_document(did);
+    const string& value_ctime = doc.get_value(VALUE_CTIME);
+    const string& value_mtime = doc.get_value(VALUE_LASTMOD);
+    time_t doc_ctime = binary_string_to_int(value_ctime);
+    time_t doc_mtime = binary_string_to_int(value_mtime);
+
+    if (doc_mtime == mtime && doc_ctime <= ctime) {
+	// Check the size of the document
+	const string& value_size = doc.get_value(VALUE_SIZE);
+	off_t doc_size = Xapian::sortable_unserialise(value_size);
+	off_t size = d.get_size();
+	if (size != doc_size)
+	    return false;
+	// Check the MD5 of the document
+	const string& text = d.file_to_string();
+	const string& doc_md5 = doc.get_value(VALUE_MD5);
+	md5_string(text, md5);
+	if (doc_md5 != md5)
+	    return false;
+	// Here we are sure that the content of the file hasn't change
+	if (verbose)
+	    cout << "Updating " << urlterm
+		 << " without re-extracting text" << endl;
+	// Remove terms from the document
+	Xapian::TermIterator term_iterator = doc.termlist_begin();
+	term_iterator.skip_to("I");
+	while (term_iterator != doc.termlist_end()) {
+	    const string& term = *term_iterator;
+	    if (startswith(term, "I")) {
+		doc.remove_term(term);
+	    } else {
+		break;
+	    }
+	    term_iterator++;
+	}
+
+	term_iterator.skip_to("O");
+	while (term_iterator != doc.termlist_end()) {
+	    const string& term = *term_iterator;
+	    if (startswith(term, "O")) {
+		doc.remove_term(term);
+	    } else {
+		break;
+	    }
+	    term_iterator++;
+	}
+	// Updating document terms
+	index_ctime_terms(doc, d, mtime, ctime);
+
+	db.replace_document(did, doc);
+	mark_as_seen(did);
+	return true;
+    }
+
+    return false;
+}
+
+
 void
 index_mimetype(const string & file, const string & urlterm, const string & url,
 	       const string & ext,
@@ -696,9 +809,6 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 {
     string context(file, root.size(), string::npos);
 
-    // FIXME: We could be cleverer here and check mtime too when use_ctime is
-    // set - if the ctime has changed but the mtime is unchanged, we can just
-    // update the existing Document and avoid having to re-extract text, etc.
     time_t last_altered = use_ctime ? d.get_ctime() : d.get_mtime();
 
     Xapian::docid did = 0;
@@ -722,6 +832,14 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	    // again on this attempt, we'll add a new one.
 	    failed.del(urlterm);
 	}
+    }
+
+    // if the ctime has changed but the mtime is unchanged, we can just
+    // update the existing Document and avoid having to re-extract text, etc.
+    string md5;
+    if (use_ctime && d.get_ctime() != d.get_mtime()) {
+	if (index_update_entry(urlterm, d, did, md5))
+	    return;
     }
 
     // If we didn't get the mime type from the extension, call libmagic to get
@@ -756,7 +874,6 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
     }
 
     string author, title, sample, keywords, topic, dump;
-    string md5;
     time_t created = time_t(-1);
     int pages = -1;
 
@@ -968,12 +1085,14 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	    sample = p.sample;
 	    author = p.author;
 	    created = p.created;
-	    md5_string(text, md5);
+	    if (md5.empty())
+		md5_string(text, md5);
 	} else if (mimetype == "text/plain") {
 	    // Currently we assume that text files are UTF-8 unless they have a
 	    // byte-order mark.
 	    dump = d.file_to_string();
-	    md5_string(dump, md5);
+	    if (md5.empty())
+		md5_string(dump, md5);
 
 	    // Look for Byte-Order Mark (BOM).
 	    if (startswith(dump, "\xfe\xff") || startswith(dump, "\xff\xfe")) {
@@ -1150,7 +1269,8 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	    const string & text = d.file_to_string();
 	    xmlparser.parse_xml(text);
 	    dump = xmlparser.dump;
-	    md5_string(text, md5);
+	    if (md5.empty())
+		md5_string(text, md5);
 	} else if (mimetype == "application/x-abiword-compressed") {
 	    // FIXME: Implement support for metadata.
 	    XmlParser xmlparser;
@@ -1183,7 +1303,8 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	    // Currently we assume that text files are UTF-8 unless they have a
 	    // byte-order mark.
 	    dump = d.file_to_string();
-	    md5_string(dump, md5);
+	    if (md5.empty())
+		md5_string(dump, md5);
 
 	    // Look for Byte-Order Mark (BOM).
 	    if (startswith(dump, "\xfe\xff") || startswith(dump, "\xff\xfe")) {
@@ -1203,7 +1324,8 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	} else if (mimetype == "image/svg+xml") {
 	    SvgParser svgparser;
 	    const string & text = d.file_to_string();
-	    md5_string(text, md5);
+	    if (md5.empty())
+		md5_string(text, md5);
 	    svgparser.parse(text);
 	    dump = svgparser.dump;
 	    title = svgparser.title;
@@ -1236,7 +1358,8 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	} else if (mimetype == "application/atom+xml") {
 	    AtomParser atomparser;
 	    const string & text = d.file_to_string();
-	    md5_string(text, md5);
+	    if (md5.empty())
+		md5_string(text, md5);
 	    atomparser.parse(text);
 	    dump = atomparser.dump;
 	    title = atomparser.title;
@@ -1315,6 +1438,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	record += "\ntype=";
 	record += mimetype;
 	time_t mtime = d.get_mtime();
+	time_t ctime = d.get_ctime();
 	if (mtime != static_cast<time_t>(-1)) {
 	    record += "\nmodtime=";
 	    record += str(mtime);
@@ -1400,17 +1524,6 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	}
 
 	newdocument.add_boolean_term(urlterm); // Url
-
-	// Add mtime as a value to allow "sort by date".
-	newdocument.add_value(VALUE_LASTMOD,
-			      int_to_binary_string(uint32_t(mtime)));
-	if (use_ctime) {
-	    // Add ctime as a value to track modifications.
-	    time_t ctime = d.get_ctime();
-	    newdocument.add_value(VALUE_CTIME,
-				  int_to_binary_string(uint32_t(ctime)));
-	}
-
 	// Add MD5 as a value to allow duplicate documents to be collapsed
 	// together.
 	newdocument.add_value(VALUE_MD5, md5);
@@ -1419,22 +1532,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	newdocument.add_value(VALUE_SIZE,
 			      Xapian::sortable_serialise(size));
 
-	bool inc_tag_added = false;
-	if (d.is_other_readable()) {
-	    inc_tag_added = true;
-	    newdocument.add_boolean_term("I*");
-	} else if (d.is_group_readable()) {
-	    const char * group = d.get_group();
-	    if (group) {
-		newdocument.add_boolean_term(string("I#") + group);
-	    }
-	}
-	const char * owner = d.get_owner();
-	if (owner) {
-	    newdocument.add_boolean_term(string("O") + owner);
-	    if (!inc_tag_added && d.is_owner_readable())
-		newdocument.add_boolean_term(string("I@") + owner);
-	}
+	index_ctime_terms(newdocument, d, mtime, ctime);
 
 	string ext_term("E");
 	for (string::const_iterator i = ext.begin(); i != ext.end(); ++i) {
