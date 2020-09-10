@@ -22,7 +22,7 @@ EOF
 
 use Tokeniseise;
 
-my $hdr = Tokeniseise->new('weight/idf-norm-dispatch.h', 'Map string to idf normalisation code', $copyright, 'XAPIAN_INCLUDED_IDF_NORM_DISPATCH_H', 'idf_norm', 2, 'false');
+my $hdr = Tokeniseise->new('weight/idf-norm-dispatch.h', 'Map string to idf normalisation code', $copyright, 'XAPIAN_INCLUDED_IDF_NORM_DISPATCH_H', 'idf_norm', 1, 'false');
 for my $enum (qw/
     NONE
     TFIDF
