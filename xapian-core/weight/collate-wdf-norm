@@ -22,7 +22,7 @@ EOF
 
 use Tokeniseise;
 
-my $hdr = Tokeniseise->new('weight/wdf-norm-dispatch.h', 'Map string to wdf normalisation code', $copyright, 'XAPIAN_INCLUDED_WDF_NORM_DISPATCH_H', 'wdf_norm', 2, 'false');
+my $hdr = Tokeniseise->new('weight/wdf-norm-dispatch.h', 'Map string to wdf normalisation code', $copyright, 'XAPIAN_INCLUDED_WDF_NORM_DISPATCH_H', 'wdf_norm', 1, 'false');
 for my $enum (qw/
     NONE
     BOOLEAN
