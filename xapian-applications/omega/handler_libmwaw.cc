@@ -21,6 +21,7 @@
  */
 #include <config.h>
 #include "handler.h"
+#include "str.h"
 #include "stringutils.h"
 
 #include <librevenge-generators/librevenge-generators.h>
@@ -107,6 +108,17 @@ parse_metadata(const char* data,
     }
 }
 
+static void
+parse_content(string &dump,
+	      string &pages,
+	      RVNGStringVector &pages_content)
+{
+    for (unsigned i = 0; i < pages_content.size(); ++i) {
+	dump.append(pages_content[i].cstr());
+    }
+    pages = str(pages_content.size());
+}
+
 static bool
 extract_word(string& dump,
 	     string& title,
@@ -168,10 +180,7 @@ extract_spreadsheet(string& dump,
 	error = "Libmwaw Error: Failed to extract text";
 	return false;
     }
-    for (unsigned i = 0; i < pages_content.size(); ++i) {
-	dump.append(pages_content[i].cstr());
-    }
-    pages = pages_content.size();
+    parse_content(dump, pages, pages_content);
     return true;
 }
 
@@ -188,10 +197,7 @@ extract_presentation(string& dump,
 	error = "Libmwaw Error: Failed to extract text";
 	return false;
     }
-    for (unsigned i = 0; i < pages_content.size(); ++i) {
-	dump.append(pages_content[i].cstr());
-    }
-    pages = pages_content.size();
+    parse_content(dump, pages, pages_content);
     return true;
 }
 
@@ -208,10 +214,7 @@ extract_drawing(string& dump,
 	error = "Libmwaw Error: Failed to extract text";
 	return false;
     }
-    for (unsigned i = 0; i < pages_content.size(); ++i) {
-	dump.append(pages_content[i].cstr());
-    }
-    pages = pages_content.size();
+    parse_content(dump, pages, pages_content);
     return true;
 }
 
