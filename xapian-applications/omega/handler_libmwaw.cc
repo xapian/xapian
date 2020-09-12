@@ -109,9 +109,9 @@ parse_metadata(const char* data,
 }
 
 static void
-parse_content(string &dump,
-	      string &pages,
-	      RVNGStringVector &pages_content)
+parse_content(string& dump,
+	      string& pages,
+	      RVNGStringVector& pages_content)
 {
     for (unsigned i = 0; i < pages_content.size(); ++i) {
 	dump.append(pages_content[i].cstr());
