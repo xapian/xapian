@@ -659,6 +659,21 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
 	 */
 	FLAG_FUZZY = 32768,
 
+	/** Accumulate unstem and stoplist results.
+	 *
+	 *  By default, the unstem and stoplist data is reset by a call to
+	 *  parse_query(), which makes sense if you use the same QueryParser
+	 *  object to parse a series of independent queries.
+	 *
+	 *  If you're using the same QueryParser object to parse several
+	 *  fields on the same query form, you may want to have the unstem
+	 *  and stoplist data combined for all of them, in which case you
+	 *  can use this flag to prevent this data from being reset.
+	 *
+	 *  @since Added in Xapian 1.4.18.
+	 */
+	FLAG_ACCUMULATE = 65536,
+
 	/** The default flags.
 	 *
 	 *  Used if you don't explicitly pass any to @a parse_query().

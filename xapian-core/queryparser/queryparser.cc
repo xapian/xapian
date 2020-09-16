@@ -171,8 +171,10 @@ Query
 QueryParser::parse_query(const string &query_string, unsigned flags,
 			 const string &default_prefix)
 {
-    internal->stoplist.clear();
-    internal->unstem.clear();
+    if (!(flags & FLAG_ACCUMULATE)) {
+	internal->stoplist.clear();
+	internal->unstem.clear();
+    }
     internal->errmsg = NULL;
 
     if (query_string.empty()) return Query();

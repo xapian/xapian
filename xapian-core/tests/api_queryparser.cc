@@ -1714,6 +1714,110 @@ DEFINE_TESTCASE(qp_unstem_boolean_prefix, !backend) {
     TEST(u == qp.unstem_end("XTESTfoo"));
 }
 
+// Feature test for FLAG_ACCUMULATE.
+DEFINE_TESTCASE(qp_accumulate, !backend) {
+    Xapian::QueryParser qp;
+    Xapian::SimpleStopper stopper;
+    stopper.add("a");
+    stopper.add("the");
+    qp.set_stopper(&stopper);
+    qp.set_stemmer(Xapian::Stem("en"));
+    qp.add_boolean_prefix("test", "XTEST");
+    qp.add_prefix("foo", "XFOO");
+    Xapian::Query q = qp.parse_query("a plains test:bools foo:fielded");
+    tout << q.get_description() << '\n';
+    {
+	Xapian::TermIterator t = qp.unstem_begin("Zplain");
+	TEST(t != qp.unstem_end("Zplain"));
+	TEST_EQUAL(*t, "plains");
+	++t;
+	TEST(t == qp.unstem_end("Zplain"));
+    }
+    {
+	Xapian::TermIterator t = qp.unstem_begin("XTESTbools");
+	TEST(t != qp.unstem_end("XTESTbools"));
+	TEST_EQUAL(*t, "test:bools");
+	++t;
+	TEST(t == qp.unstem_end("XTESTbools"));
+    }
+    {
+	Xapian::TermIterator t = qp.unstem_begin("ZXFOOfield");
+	TEST(t != qp.unstem_end("ZXFOOfield"));
+	TEST_EQUAL(*t, "fielded");
+	++t;
+	TEST(t == qp.unstem_end("ZXFOOfield"));
+    }
+    {
+	Xapian::TermIterator t = qp.stoplist_begin();
+	TEST(t != qp.stoplist_end());
+	TEST_EQUAL(*t, "a");
+	++t;
+	TEST(t == qp.stoplist_end());
+    }
+    q = qp.parse_query("the plain foo:fields",
+		       qp.FLAG_DEFAULT | qp.FLAG_ACCUMULATE);
+    tout << q.get_description() << '\n';
+    {
+	Xapian::TermIterator t = qp.unstem_begin("Zplain");
+	TEST(t != qp.unstem_end("Zplain"));
+	TEST_EQUAL(*t, "plains");
+	++t;
+	TEST(t != qp.unstem_end("Zplain"));
+	TEST_EQUAL(*t, "plain");
+	++t;
+	TEST(t == qp.unstem_end("Zplain"));
+    }
+    {
+	Xapian::TermIterator t = qp.unstem_begin("XTESTbools");
+	TEST(t != qp.unstem_end("XTESTbools"));
+	TEST_EQUAL(*t, "test:bools");
+	++t;
+	TEST(t == qp.unstem_end("XTESTbools"));
+    }
+    {
+	Xapian::TermIterator t = qp.unstem_begin("ZXFOOfield");
+	TEST(t != qp.unstem_end("ZXFOOfield"));
+	TEST_EQUAL(*t, "fielded");
+	++t;
+	TEST(t != qp.unstem_end("ZXFOOfield"));
+	TEST_EQUAL(*t, "fields");
+	++t;
+	TEST(t == qp.unstem_end("ZXFOOfield"));
+    }
+    {
+	Xapian::TermIterator t = qp.stoplist_begin();
+	TEST(t != qp.stoplist_end());
+	TEST_EQUAL(*t, "a");
+	++t;
+	TEST(t != qp.stoplist_end());
+	TEST_EQUAL(*t, "the");
+	++t;
+	TEST(t == qp.stoplist_end());
+    }
+    // Check things are reset without FLAG_ACCUMULATE.
+    q = qp.parse_query("plains");
+    tout << q.get_description() << '\n';
+    {
+	Xapian::TermIterator t = qp.unstem_begin("Zplain");
+	TEST(t != qp.unstem_end("Zplain"));
+	TEST_EQUAL(*t, "plains");
+	++t;
+	TEST(t == qp.unstem_end("Zplain"));
+    }
+    {
+	Xapian::TermIterator t = qp.unstem_begin("XTESTboolean");
+	TEST(t == qp.unstem_end("XTESTboolean"));
+    }
+    {
+	Xapian::TermIterator t = qp.unstem_begin("ZXFOOfield");
+	TEST(t == qp.unstem_end("ZXFOOfield"));
+    }
+    {
+	Xapian::TermIterator t = qp.stoplist_begin();
+	TEST(t == qp.stoplist_end());
+    }
+}
+
 static const test test_value_range1_queries[] = {
     { "a..b", "VALUE_RANGE 1 a b" },
     { "$50..100", "VALUE_RANGE 1 $50 100" },
