@@ -329,7 +329,10 @@ read_qp_flags(const string & opt_pfx, unsigned f)
 	    f |= mask;
 	}
     }
-    return f;
+    // Always enable FLAG_ACCUMULATE so that $stoplist and $unstem report
+    // values accumulated over all query strings parsed as part of a query, not
+    // just the last one parsed.
+    return f | Xapian::QueryParser::FLAG_ACCUMULATE;
 }
 
 static querytype

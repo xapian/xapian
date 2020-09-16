@@ -617,6 +617,10 @@ $set{OPT,VALUE}
 	* flag_synonym
 	* flag_wildcard
 
+        Note that the ``Xapian::QueryParser::FLAG_ACCUMULATE`` flag is always
+        enabled by Omega because it's needed for ``$stoplist`` and ``$unstem``
+        to work correctly, and is deliberately not included in the above list.
+
 	Omega 1.2.7 added support for parsing different query fields with
 	different prefixes and you can specify different QueryParser flags for
 	each prefix - for example, for the ``XFOO`` prefix use
@@ -752,7 +756,12 @@ $split{SPLIT,STRING}
 
 $stoplist
 	returns a list of any terms in the query which were ignored as
-	stopwords.
+	stopwords.  Since Omega 1.4.18 ``$stoplist`` reports such terms for
+        all query strings parsed as part of the current query - in previous
+        versions only this only reported stopwords for the query string
+        which was parsed last (which would be the one with the prefix sorting
+        last in byte sort order, and if there were multiple such query strings
+        then the one specified last).
 
 $subdb[{DOCID}]
         return the name from a ``DB`` parameter for the sub-database containing
@@ -876,7 +885,12 @@ $unprefix{TERM}
 
 $unstem{TERM}
 	maps a stemmed term to a list of the unstemmed forms of it used in
-	the query
+	the query.  Since Omega 1.4.18 ``$unstem`` reports unstemmed forms in
+        all query strings parsed as part of the current query - in previous
+        versions only this only reported unstemmed forms from the query string
+        which was parsed last (which would be the one with the prefix sorting
+        last in byte sort order, and if there were multiple such query strings
+        then the one specified last).
 
 $upper{TEXT}
 	return UTF-8 text ``TEXT`` converted to upper case.
