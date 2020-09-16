@@ -1150,6 +1150,14 @@ testcase '{
  "KEY3": [0]
 }'
 
+# Feature tests for $stoplist
+printf '%s' '$setmap{prefix,foo,XFOO}[$list{$stoplist,|}]' > "$TEST_TEMPLATE"
+testcase '[a|the]' P.XFOO='the test' P='a test'
+
+# Feature tests for $unstem
+printf '%s' '$setmap{prefix,foo,XFOO}[$list{$unstem{$cgi{TERM}},|}]' > "$TEST_TEMPLATE"
+testcase '[pots|pot|potting]' P.XFOO='(foo:pot OR luck) (potting OR shed)' P='flower OR foo:pots' TERM=ZXFOOpot
+
 # Feature tests of scriptindex.
 
 # Regression test: non-zero exit status for unknown option.
