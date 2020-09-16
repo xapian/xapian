@@ -230,16 +230,14 @@ QueryParser::stoplist_begin() const
 TermIterator
 QueryParser::unstem_begin(const string &term) const
 {
-    pair<multimap<string, string>::iterator,
-	 multimap<string, string>::iterator> range;
-    range = internal->unstem.equal_range(term);
-    list<string> l;
-    multimap<string, string>::iterator & i = range.first;
-    while (i != range.second) {
-	l.push_back(i->second);
-	++i;
-    }
-    return TermIterator(new VectorTermList(l.begin(), l.end()));
+    struct range_adaptor : public multimap<string, string>::iterator {
+	range_adaptor(multimap<string, string>::iterator i) :
+	    multimap<string, string>::iterator(i) {}
+	const string & operator*() const { return (*this)->second; }
+    };
+    auto range = internal->unstem.equal_range(term);
+    return TermIterator(new VectorTermList(range_adaptor(range.first),
+					   range_adaptor(range.second)));
 }
 
 void
