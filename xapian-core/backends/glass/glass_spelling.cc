@@ -414,8 +414,6 @@ GlassSpellingTermList::next()
 	return NULL;
     }
     if (!current_term.empty()) {
-	if (p == data.size())
-	    throw Xapian::DatabaseCorruptError("Bad spelling termlist");
 	current_term.resize(uint8_t(data[p++]) ^ MAGIC_XOR_VALUE);
     }
     size_t add;
