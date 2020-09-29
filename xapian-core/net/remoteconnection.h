@@ -30,7 +30,7 @@
 
 #ifdef __WIN32__
 # include "safewinsock2.h"
-
+# include <winerror.h>
 # include <xapian/error.h>
 
 /** Class to initialise winsock and keep it initialised while we use it.

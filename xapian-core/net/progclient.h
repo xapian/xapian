@@ -23,6 +23,10 @@
 
 #include <sys/types.h>
 
+#ifdef __WIN32__
+#include <winerror.h>
+#endif
+
 #include "backends/remote/remote-database.h"
 
 /** Implementation of RemoteDatabase using a spawned server.
