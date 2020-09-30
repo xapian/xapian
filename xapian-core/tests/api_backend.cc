@@ -397,7 +397,11 @@ DEFINE_TESTCASE(testlock3, inmemory) {
 /// Test locked() on closed WritableDatabase.
 DEFINE_TESTCASE(testlock4, glass) {
     Xapian::Database db = get_writable_database("apitest_simpledata");
-    TEST(db.locked());
+    try {
+	TEST(db.locked());
+    } catch (const Xapian::FeatureUnavailableError&) {
+	SKIP_TEST("Database::locked() not supported on this platform");
+    }
     db.close();
     TEST(!db.locked());
 }
