@@ -45,7 +45,6 @@ class NetworkPostList : public LeafPostList {
 
     Xapian::docid lastdocid;
     Xapian::termcount lastwdf;
-    Xapian::Internal::intrusive_ptr<PositionList> lastposlist;
 
     Xapian::doccount termfreq;
 
@@ -81,10 +80,6 @@ class NetworkPostList : public LeafPostList {
 
     /// Get the Within Document Frequency of the term in the current document.
     Xapian::termcount get_wdf() const;
-
-    /// Read the position list for the term in the current document and
-    /// return a pointer to it (owned by the PostList).
-    PositionList * read_position_list();
 
     /// Read the position list for the term in the current document and
     /// return a pointer to it (not owned by the PostList).
