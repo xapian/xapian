@@ -395,7 +395,7 @@ DEFINE_TESTCASE(testlock3, inmemory) {
 }
 
 /// Test locked() on closed WritableDatabase.
-DEFINE_TESTCASE(testlock4, glass) {
+DEFINE_TESTCASE(testlock4, chert || glass) {
     Xapian::Database db = get_writable_database("apitest_simpledata");
     // Even if we don't have a way to test the lock on the current platform,
     // this should know the database is locked because this object holds the
