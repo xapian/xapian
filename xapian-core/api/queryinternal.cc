@@ -658,9 +658,7 @@ AndContext::postlist()
     // first?
 
     // Apply any positional filters.
-    list<PosFilter>::const_iterator i;
-    for (i = pos_filters.begin(); i != pos_filters.end(); ++i) {
-	const PosFilter & filter = *i;
+    for (const PosFilter& filter : pos_filters) {
 	pl.reset(filter.postlist(pl.release(), pls, matcher));
     }
 
