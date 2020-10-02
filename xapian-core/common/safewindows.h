@@ -1,7 +1,7 @@
 /** @file safewindows.h
  * @brief #include <windows.h> without all the bloat and damage.
  */
-/* Copyright (C) 2005,2007,2013 Olly Betts
+/* Copyright (C) 2005,2007,2013,2020 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -37,5 +37,12 @@
 #define WIN32_LEAN_AND_MEAN
 #define NOGDI
 #include <windows.h>
+
+// The mingw.org headers don't reach <winerror.h> from <windows.h> (verified
+// with w32api 5.4.1).  MSVC does, so we treat this as a flaw to workaround and
+// include <winerror.h> if we detect it hasn't been implicitly included.
+#ifndef ERROR_PIPE_CONNECTED
+# include <winerror.h>
+#endif
 
 #endif // XAPIAN_INCLUDED_SAFEWINDOWS_H
