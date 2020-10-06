@@ -762,7 +762,11 @@ QUOTELOOP:  while (1) {
 		    # ~Foo()
 		    # Foo::~Foo()
 		} else {
-		    diagnostic('error', "Should have exactly one space after '$op'");
+		    # Don't complain about this if it's actually whitespace at
+		    # line end.
+		    if (substr($l, $post[1]) !~ /^\s*$/) {
+			diagnostic('error', "Should have exactly one space after '$op'");
+		    }
 		}
 	    }
 	}
