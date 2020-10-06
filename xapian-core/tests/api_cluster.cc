@@ -153,7 +153,7 @@ DEFINE_TESTCASE(round_robin1, generated)
     }
 }
 
-DEFINE_TESTCASE(stem_stopper1, backend)
+DEFINE_TESTCASE(stem_stopper1, !backend)
 {
     Xapian::Stem stemmer("english");
     // By default, stemming strategy used is STEM_SOME
