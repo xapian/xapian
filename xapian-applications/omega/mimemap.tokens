@@ -135,6 +135,9 @@ apxl		application/vnd.apple.keynote
 pages		application/vnd.apple.pages
 numbers		application/vnd.apple.numbers
 
+# Apple Works / Claris Works:
+cwk		application/clarisworks
+
 # Visio:
 vsd		application/vnd.visio
 vss		application/vnd.visio

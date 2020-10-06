@@ -37,6 +37,7 @@ matrix:
             - libabw-dev
             - libcdr-dev
             - libextractor-dev
+            - libmwaw-dev
       env: CPPFLAGS=-D_GLIBCXX_DEBUG LIBEXTRACTOR_PREFIX='/usr/lib/x86_64-linux-gnu/libextractor'
     - compiler: clang
       os: linux
@@ -69,6 +70,7 @@ matrix:
             - libabw-dev
             - libcdr-dev
             - libextractor-dev
+            - libmwaw-dev
       env: USE_CC=clang USE_CXX='clang++ -stdlib=libc++' LIBEXTRACTOR_PREFIX='/usr/lib/x86_64-linux-gnu/libextractor'
     - compiler: gcc
       os: linux
@@ -99,6 +101,7 @@ matrix:
             - libtesseract-dev
             - libarchive-dev
             - libextractor-dev
+            - libmwaw-dev
       env: LIBEXTRACTOR_PREFIX='/usr/lib/x86_64-linux-gnu/libextractor'
     - os: linux
       name: "Emscripten"
@@ -146,6 +149,7 @@ matrix:
             - libextractor
             - libiconv
             - libmagic
+            - libmwaw
             - libsvm
             - lua
             - mono
