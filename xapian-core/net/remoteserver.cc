@@ -412,7 +412,7 @@ RemoteServer::msg_positionlistcount(const string &message)
     if (termit != db->termlist_end(did)) {
 	string term(p, p_end - p);
 	termit.skip_to(term);
-	if (termit != db->termlist_end(did)) {
+	if (termit != db->termlist_end(did) && *termit == term) {
 	    result = termit.positionlist_count();
 	}
     }
