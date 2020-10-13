@@ -486,6 +486,21 @@ testcase 'one' x=1
 testcase 'two' x=2
 testcase 'errdefault' x=3
 
+# Feature tests for $include.
+# Test inclusion works and evaluates the included file.
+printf '$set{c,$add{$or{$opt{c},0},1}}$opt{c},$if{$lt{$opt{c},10},$include{'"$TEST_TEMPLATE"'}}X' > "$TEST_TEMPLATE"
+testcase '1,2,3,4,5,6,7,8,9,10,XXXXXXXXXX'
+# Test fallback action when trying to $include a file which doesn't exist or
+# with a prohibited name.
+printf '$include{$cgi{template},foo$set{data,bar}}-$opt{data}' > "$TEST_TEMPLATE"
+testcase 'foo-bar' template=non_existent.template
+testcase 'foo-bar' template=../secret/file
+# Test exception is thrown when there's no fallback action when trying to
+# $include a file which doesn't exist or with a prohibited name.
+printf '$include{$cgi{template}}-$opt{data}' > "$TEST_TEMPLATE"
+testcase "Exception: Couldn't read format template 'non_existent.template' (No such file or directory)" template=non_existent.template
+testcase "Exception: Couldn't read format template '../secret/file' (name contains '..')" template=../secret/file
+
 # Feature tests for $map.
 printf '$list{$map{$split{-,$cgi{a}},$list{$map{$split{,$cgi{b}},$_},-}},|}' > "$TEST_TEMPLATE"
 testcase '1-2-3|1-2-3' P=text a=ab-cd b=123
@@ -1469,15 +1484,6 @@ END
 printf '$hitlist{$list{$terms{T},|}/$field{tag1}|$field{tag2}|$field{tag3}}' > "$TEST_TEMPLATE"
 testcase 'Tone/one|two|three' B=Tone
 testcase 'Tthree|Ttwo/one|two|three' B=Ttwo B=Tthree
-
-# Test fallback action when trying to $include a non-existent file.
-printf '$include{non_existent.template,foo$set{data,bar}}-$opt{data}' > "$TEST_TEMPLATE"
-testcase 'foo-bar' B=Tone
-
-# Test exception is thrown when non-existent template file is passed in
-# $include and there's no fallback action.
-printf '$include{non_existent.template}-$opt{data}' > "$TEST_TEMPLATE"
-testcase "Exception: Couldn't read format template 'non_existent.template' (No such file or directory)" B=Tone
 
 rm "$OMEGA_CONFIG_FILE" "$TEST_INDEXSCRIPT" "$TEST_TEMPLATE"
 rm -rf "$TEST_DB"
