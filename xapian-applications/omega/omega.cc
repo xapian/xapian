@@ -241,7 +241,13 @@ try {
 	    Xapian::ESet eset(enquire->get_eset(40, tmprset, &decider));
 	    string morelike_query;
 	    for (auto&& term : eset) {
-		if (!morelike_query.empty()) morelike_query += ' ';
+		if (!morelike_query.empty()) {
+		    if (default_op == Xapian::Query::OP_OR) {
+			morelike_query += ' ';
+		    } else {
+			morelike_query += " OR ";
+		    }
+		}
 		morelike_query += pretty_term(term);
 	    }
 	    add_query_string(string(), morelike_query);
