@@ -65,10 +65,14 @@ R
 	relevant document(s) (multiple values separated by ".")
 
 MORELIKE
-	value is a document id to return similar pages to, or a term name
-	(which will be looked up and the document id of the first document it
-	indexes will be used - this allows a MORELIKE query based on the
-	unique id from an external database)
+        value is a numeric Xapian document id to return similar pages to, or a
+        term name (which will be looked up and the document id of the first
+        document it indexes will be used - this allows a MORELIKE query based
+        on the unique id from an external database).
+
+        Since Omega 1.4.18, MORELIKE queries are built with explicit ``OR``
+        operators if ``DEFAULTOP`` isn't ``OR`` (which it isn't by default
+        since 1.3.0).
 
 RAWSEARCH
 	when set to non-zero value, this prevents TOPDOC being snapped to a
