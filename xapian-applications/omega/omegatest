@@ -717,6 +717,39 @@ testcase 'x:y:z:y|x:y:z' text='x y z z y'
 printf '$map{foo}' > "$TEST_TEMPLATE"
 testcase 'Exception: too few arguments to $map'
 
+# Test MORELIKE CGI parameter.
+printf '%s\n' 'id : boolean=Q' 'text : index field' > "$TEST_INDEXSCRIPT"
+rm -rf "$TEST_DB"
+$SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null <<'END'
+id=a1
+text=First document
+
+id=b2
+text=Second article
+
+id=c3
+text=Piece of writing three
+
+id=dummy
+text=Inflating termfreqs since Omega excludes terms with termfreq of one
+=first document second piece of writing three
+END
+printf '$querydescription|$query' > "$TEST_TEMPLATE"
+testcase 'Query((Zfirst@1 OR Zdocument@2))|first document' MORELIKE='Qa1' DEFAULTOP=or
+testcase 'Query((Zfirst@1 OR Zdocument@2))|first OR document' MORELIKE='Qa1'
+testcase 'Query((Zfirst@1 OR Zdocument@2))|first OR document' MORELIKE='Qa1' DEFAULTOP=and
+# Test with docid.
+testcase 'Query((Zfirst@1 OR Zdocument@2))|first document' MORELIKE='1' DEFAULTOP=OR
+testcase 'Query((Zfirst@1 OR Zdocument@2))|first OR document' MORELIKE='1'
+testcase 'Query((Zfirst@1 OR Zdocument@2))|first OR document' MORELIKE='1' DEFAULTOP=phrase
+# "article" is excluded by OmegaExpandDecider because it has termfreq 1.
+testcase 'Query(Zsecond@1)|second' MORELIKE='Qb2' DEFAULTOP=or
+testcase 'Query(Zsecond@1)|second' MORELIKE='Qb2'
+# "of" is excluded because it's a stopword.
+testcase 'Query((Zwrite@1 OR Zthree@2 OR Zpiec@3))|writing OR three OR piece' MORELIKE='Qc3'
+# Test with absent term.
+testcase 'Query()|' MORELIKE='Qx9'
+
 # Feature tests for split command scriptindex.
 printf 'STATUS : field split=| field=SPLITSTATUS\nSTATUS : field=x' > "$TEST_INDEXSCRIPT"
 rm -rf "$TEST_DB"
