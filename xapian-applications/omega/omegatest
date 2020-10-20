@@ -749,6 +749,11 @@ testcase 'Query(Zsecond@1)|second' MORELIKE='Qb2'
 testcase 'Query((Zwrite@1 OR Zthree@2 OR Zpiec@3))|writing OR three OR piece' MORELIKE='Qc3'
 # Test with absent term.
 testcase 'Query()|' MORELIKE='Qx9'
+# Test multiple MORELIKE parameters.  We need to include the dummy document for
+# any terms to get a positive weight and be returned.
+testcase 'Query((Zsecond@1 OR Zfirst@2 OR Zdocument@3))|second OR first OR document' MORELIKE=1 MORELIKE=2 MORELIKE=4
+testcase 'Query((Zsecond@1 OR Zfirst@2 OR Zdocument@3))|second OR first OR document' MORELIKE=Qa1 MORELIKE=2 MORELIKE=4
+testcase 'Query((Zsecond@1 OR Zfirst@2 OR Zdocument@3))|second OR first OR document' MORELIKE=Qa1 MORELIKE=Qb2 MORELIKE=Qdummy
 
 # Feature tests for split command scriptindex.
 printf 'STATUS : field split=| field=SPLITSTATUS\nSTATUS : field=x' > "$TEST_INDEXSCRIPT"
