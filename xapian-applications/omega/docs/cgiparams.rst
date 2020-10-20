@@ -74,6 +74,10 @@ MORELIKE
         operators if ``DEFAULTOP`` isn't ``OR`` (which it isn't by default
         since 1.3.0).
 
+        Also since Omega 1.4.18, ``MORELIKE`` can be specified multiple times
+        to find more documents like a specified set of documents.  In earlier
+        versions, only one of the values would be used in this case.
+
 RAWSEARCH
 	when set to non-zero value, this prevents TOPDOC being snapped to a
 	multiple of HITSPERPAGE.  Normally we snap TOPDOC like this so that
