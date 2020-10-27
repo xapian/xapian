@@ -479,7 +479,7 @@ This module is mostly compatible with Search::Xapian.  The following are known
 differences, with details of how to write code which works with both.
 
 Search::Xapian overloads stringification - e.g. C<"$query"> is equivalent to
-C<$query->get_description()>, which C<"$termiterator"> is equivalent to
+C<$query->get_description()>, while C<"$termiterator"> is equivalent to
 C<$termiterator->get_term()>.  This module doesn't support overloaded
 stringification, so you should instead explicitly call the method you
 want.  The technical reason for this change is that stringification is hard to
