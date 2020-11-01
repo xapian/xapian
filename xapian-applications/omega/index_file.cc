@@ -325,6 +325,9 @@ index_add_default_filters()
     // option suppresses exporting picture files as pictNNNN.wmf in the current
     // directory.  Note that this option was ignored in some older versions,
     // but it was fixed in unrtf 0.20.4.
+    index_command("application/rtf",
+		  Filter("unrtf --nopict --html 2>/dev/null", "text/html",
+			 PIPE_IN));
     index_command("text/rtf",
 		  Filter("unrtf --nopict --html 2>/dev/null", "text/html",
 			 PIPE_IN));

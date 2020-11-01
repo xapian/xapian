@@ -123,6 +123,9 @@ wpt		application/vnd.ms-works
 abw		application/x-abiword
 # AbiWord compressed
 zabw		application/x-abiword-compressed
+# RTF -- application/rtf is also registered with IANA and understood by
+# omindex >= 1.4.18), but libmagic seems to always report text/rtf, so
+# we map to that.
 rtf		text/rtf
 # Leave .doc files to libmagic, as they may actually be RTF (AbiWord
 # actually saves RTF when asked to save as .doc, and Microsoft Word
