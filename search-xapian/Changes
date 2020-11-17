@@ -1,6 +1,6 @@
 Revision history for Perl extension Search::Xapian.
 
-1.2.25.3
+1.2.25.3  Tue Nov 17 00:33:44 UTC 2020
 	[Changes contributed by Alyssa Ross]
 	- Allow AUTOMATED_TESTING builds against xapian-core 1.4.x.
 	[Changes contributed by Olly Betts]
