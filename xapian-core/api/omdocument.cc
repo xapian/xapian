@@ -38,6 +38,7 @@
 #include <xapian/valueiterator.h>
 
 #include <algorithm>
+#include <limits>
 #include <string>
 
 using namespace std;
