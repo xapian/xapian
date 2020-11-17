@@ -10,6 +10,8 @@ Revision history for Perl extension Search::Xapian.
 	  DatabaseClosedError and DatabaseNotFoundError also weren't known, but
 	  these would instead be reported as their base classes DatabaseError
 	  and DatabaseOpeningError respectively.  Reported by Adam Sjøgren.
+	- README: Update to reflect that the SWIG-generated Perl bindings are
+	  stable since xapian-bindings 1.4.16.
 
 1.2.25.2  Wed Sep 19 23:58:12 UTC 2018
 	[Changes contributed by Olly Betts]

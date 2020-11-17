@@ -3,12 +3,16 @@ Search::Xapian version 1.2.25.2
 
 This is Search::Xapian, a Perl XS interface to the Xapian C++ search library.
 
-Xapian 1.4.x aims to replace these hand-coded XS wrappers with wrappers
-generated with SWIG, which will allow new C++ API features to be wrapped for
-Perl more quickly and easily than currently.  These aren't currently quite
-ready, and because of this (and also to assist people with migration) the
-XS bindings can also be compiled against xapian-core 1.4.x, and aim to
-present the same Perl API as when compiled against xapian-core 1.2.x.
+We're working to replace these hand-coded XS wrappers with wrappers generated
+with SWIG, which will allow new C++ API features to be wrapped for Perl more
+quickly and easily than currently.  These new bindings are available in
+xapian-bindings 1.4.16 and later.  They are mostly compatible with these
+bindings, but there are some differences - see the documentation of the new
+bindings for a list of the known differences.
+
+To assist people with migration these XS bindings can also be compiled against
+xapian-core 1.4.x, and aim to present the same Perl API as when compiled
+against xapian-core 1.2.x.
 
 INSTALLATION
 
