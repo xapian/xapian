@@ -59,6 +59,7 @@
 
 #include <algorithm>
 #include <functional>
+#include <limits>
 #include <list>
 #include <memory>
 #include <string>

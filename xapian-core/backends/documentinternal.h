@@ -30,6 +30,7 @@
 #include "backends/databaseinternal.h"
 #include "overflow.h"
 
+#include <limits>
 #include <map>
 #include <memory>
 #include <string>

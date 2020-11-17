@@ -25,6 +25,7 @@
 #include "omassert.h"
 
 #include <algorithm>
+#include <limits>
 
 using namespace std;
 
