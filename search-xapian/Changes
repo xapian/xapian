@@ -3,6 +3,13 @@ Revision history for Perl extension Search::Xapian.
 1.2.25.3
 	[Changes contributed by Alyssa Ross]
 	- Allow AUTOMATED_TESTING builds against xapian-core 1.4.x.
+	[Changes contributed by Olly Betts]
+	- Properly handle newer exceptions.  The C++ exception class
+	  WildcardError wasn't known to the Perl bindings, and would result in
+	  croak("something terrible happened").  The C++ exception classes
+	  DatabaseClosedError and DatabaseNotFoundError also weren't known, but
+	  these would instead be reported as their base classes DatabaseError
+	  and DatabaseOpeningError respectively.  Reported by Adam Sjøgren.
 
 1.2.25.2  Wed Sep 19 23:58:12 UTC 2018
 	[Changes contributed by Olly Betts]

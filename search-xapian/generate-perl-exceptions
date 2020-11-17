@@ -5,11 +5,11 @@ use strict;
 # Donated as is to xapian project. Use and modify as see fit
 
 BEGIN {
-    my $dir = shift || '../xapian-core';
+    my $dir = shift || '.';
     if ($dir eq '--help') {
-	print "Syntax: $0 [<path to xapian-core source directory>]\n\n";
-	print "This script needs to know the xapian-core source directory to find\n";
-	print "exception_data.pm - by default it looks in '../xapian-core'.\n";
+	print "Syntax: $0 [<path to srcdir>]\n\n";
+	print "This script needs to know the source directory to find\n";
+	print "exception_data.pm - by default it looks in '.'.\n";
 	exit 0;
     }
     push(@INC, $dir);

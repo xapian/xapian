@@ -8,7 +8,7 @@ use strict;
 
 use Test;
 use Devel::Peek;
-BEGIN { plan tests => 4 };
+BEGIN { plan tests => 6 };
 use Search::Xapian qw(:standard);
 ok(1); # If we made it this far, we're ok.
 
@@ -43,5 +43,22 @@ eval {
   my $other_database = Search::Xapian::WritableDatabase->new( $db_dir, Search::Xapian::DB_CREATE );
 };
 ok( $@ );
+
+# Check that our exception list includes exceptions new in 1.4.x.
+# Regression test for bug fixed in 1.2.25.3.
+my $doc = Search::Xapian::Document->new();
+$doc->add_term("foo");
+$doc->add_term("food");
+$database->add_document($doc);
+my $qp = Search::Xapian::QueryParser->new();
+$qp->set_max_wildcard_expansion(1);
+my $enquire = Search::Xapian::Enquire->new($database);
+eval {
+    my $query = $qp->parse_query('fo*', FLAG_WILDCARD);
+    $enquire->set_query($query);
+    my $mset = $enquire->get_mset(0, 10);
+};
+ok( $@ );
+ok( $@ !~ /something terrible happened/);
 
 1;
