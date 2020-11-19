@@ -72,14 +72,17 @@ XS/DateValueRangeProcessor.xs
 XS/NumberValueRangeProcessor.xs
 XS/StringValueRangeProcessor.xs
 
+exception_data.pm
 generate-perl-exceptions
 handle_exception.cc
 Xapian/AssertionError.pm
+Xapian/DatabaseClosedError.pm
 Xapian/DatabaseCorruptError.pm
 Xapian/DatabaseCreateError.pm
 Xapian/DatabaseError.pm
 Xapian/DatabaseLockError.pm
 Xapian/DatabaseModifiedError.pm
+Xapian/DatabaseNotFoundError.pm
 Xapian/DatabaseOpeningError.pm
 Xapian/DatabaseVersionError.pm
 Xapian/DocNotFoundError.pm
@@ -96,12 +99,15 @@ Xapian/RangeError.pm
 Xapian/RuntimeError.pm
 Xapian/SerialisationError.pm
 Xapian/UnimplementedError.pm
+Xapian/WildcardError.pm
 XS/AssertionError.xs
+XS/DatabaseClosedError.xs
 XS/DatabaseCorruptError.xs
 XS/DatabaseCreateError.xs
 XS/DatabaseError.xs
 XS/DatabaseLockError.xs
 XS/DatabaseModifiedError.xs
+XS/DatabaseNotFoundError.xs
 XS/DatabaseOpeningError.xs
 XS/DatabaseVersionError.xs
 XS/DocNotFoundError.xs
@@ -118,6 +124,7 @@ XS/RangeError.xs
 XS/RuntimeError.xs
 XS/SerialisationError.xs
 XS/UnimplementedError.xs
+XS/WildcardError.xs
 
 t/01use.t
 t/02pod.t
