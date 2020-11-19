@@ -27,7 +27,7 @@ dnl MACOSX_DEPLOYMENT_TARGET.
 AC_CANONICAL_HOST
 OVERRIDE_MACOSX_DEPLOYMENT_TARGET=
 case $host in
-*86*-darwin8*|*-darwin[[91]]*)
+*86*-darwin8*|*-darwin[[912]]*)
   dnl On 10.5 or later, and 10.4 on x86, the deployment target defaults to the
   dnl OS version, so we don't need to override on these.
   ;;
