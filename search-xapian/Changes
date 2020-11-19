@@ -4,6 +4,8 @@ Revision history for Perl extension Search::Xapian.
 	[Changes contributed by Olly Betts]
 	- Add exception-related files which were new in 1.2.25.3 to MANIFEST
 	  so they're shipped.  Reported by Tina Müller and Leah Neukirchen.
+	- Add metadata links to homepage, bugtracker and VCS.  Suggested by
+	  Gabor Szabo.
 
 1.2.25.3  Tue Nov 17 00:33:44 UTC 2020
 	[Changes contributed by Alyssa Ross]

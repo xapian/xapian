@@ -160,6 +160,19 @@ push @writemakefile_args, (
       (ABSTRACT_FROM => 'Xapian.pm', # retrieve abstract from module
        AUTHOR     => 'Alex Bowley <xapian-discuss@lists.xapian.org>') : ()),
 #       AUTHOR     => 'Alex Bowley <kilinrax@cpan.org>') : ()),
+    'META_MERGE' => {
+        'meta-spec' => { version => 2 },
+         resources => {
+             repository => {
+                 type => 'git',
+                 web  => 'https://git.xapian.org/?p=xapian;a=tree;f=search-xapian;hb=refs/heads/svn/1.2'
+             },
+             bugtracker => {
+                 web => 'https://trac.xapian.org/'
+             },
+             homepage   => 'https://xapian.org/',
+         },
+    },
     $libsvar		=> $libs, # e.g., '-lm'
     'LICENSE'		=> 'perl',
     'MIN_PERL_VERSION'	=> '5.6.0',
