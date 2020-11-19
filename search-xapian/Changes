@@ -1,6 +1,6 @@
 Revision history for Perl extension Search::Xapian.
 
-1.2.25.4
+1.2.25.4  Thu Nov 19 23:37:21 UTC 2020
 	[Changes contributed by Olly Betts]
 	- Add exception-related files which were new in 1.2.25.3 to MANIFEST
 	  so they're shipped.  Reported by Tina Müller and Leah Neukirchen.
