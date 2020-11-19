@@ -16,36 +16,7 @@ AC_CONFIG_HEADERS([config.h])
 
 AC_CONFIG_MACRO_DIR([m4])
 
-dnl Mac OS X needs MACOSX_DEPLOYMENT_TARGET set to 10.3 (or higher) to
-dnl successfully link the SWIG generated modules.  The link always fails on
-dnl earlier versions of Mac OS X (10.1.4 and 10.2.8 tested), and these versions
-dnl are long obsolete now, so we just ensure that MACOSX_DEPLOYMENT_TARGET is
-dnl set to at least 10.3.
-dnl
-dnl NB we must do this *BEFORE* LT_INIT since that is what checks
-dnl MACOSX_DEPLOYMENT_TARGET.
 AC_CANONICAL_HOST
-OVERRIDE_MACOSX_DEPLOYMENT_TARGET=
-case $host in
-*86*-darwin8*|*-darwin[[912]]*)
-  dnl On 10.5 or later, and 10.4 on x86, the deployment target defaults to the
-  dnl OS version, so we don't need to override on these.
-  ;;
-*-darwin*)
-  case $MACOSX_DEPLOYMENT_TARGET in
-  "")
-    OVERRIDE_MACOSX_DEPLOYMENT_TARGET=10.3 ;;
-  10.[[012]])
-    AC_MSG_WARN([Overriding MACOSX_DEPLOYMENT_TARGET from $MACOSX_DEPLOYMENT_TARGET to 10.3])
-    OVERRIDE_MACOSX_DEPLOYMENT_TARGET=10.3 ;;
-  esac
-  ;;
-esac
-AM_CONDITIONAL(OVERRIDE_MACOSX_DEPLOYMENT_TARGET, test -n "$OVERRIDE_MACOSX_DEPLOYMENT_TARGET")
-AC_SUBST(OVERRIDE_MACOSX_DEPLOYMENT_TARGET)
-if test -n "$OVERRIDE_MACOSX_DEPLOYMENT_TARGET" ; then
-  MACOSX_DEPLOYMENT_TARGET=$OVERRIDE_MACOSX_DEPLOYMENT_TARGET
-fi
 
 dnl Use libtool to manage our libraries, but don't build static libraries as
 dnl the bindings only have a use for dynamic ones.

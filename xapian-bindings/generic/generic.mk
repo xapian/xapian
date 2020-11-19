@@ -20,11 +20,6 @@ if NEED_INTREE_DYLD
 export MACOS_SIP_HACK_ENV=env DYLD_LIBRARY_PATH=$(INTREE_DYLD_PATH)
 endif
 
-if OVERRIDE_MACOSX_DEPLOYMENT_TARGET
-# This requires GNU make, but apparently that's the default on OS X.
-export MACOSX_DEPLOYMENT_TARGET=@OVERRIDE_MACOSX_DEPLOYMENT_TARGET@
-endif
-
 # Define separately to allow overriding easily with: make SWIG_WERROR=
 SWIG_WERROR = -Werror
 
