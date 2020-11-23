@@ -21,6 +21,7 @@ pm_to_blib
 Xapian\.c
 Xapian\.bs
 Xapian\.lo
+handle_exception.cc
 handle_exception\.lo
 Search-Xapian-[0-9.]+\.tar\.gz
 Search-Xapian-[0-9.]+

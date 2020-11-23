@@ -130,6 +130,9 @@ END
     );
 }
 
+system($^X, "generate-perl-exceptions", ".", $xver) == 0
+    or die "Running generate-perl-exceptions failed: $?";
+
 # Filter out some gcc options which g++ doesn't support.
 my $CCFLAGS = $Config{'ccflags'};
 # Perl is built with -Wdeclaration-after-statement on RHEL5 - this isn't

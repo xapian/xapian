@@ -183,17 +183,17 @@ errorclass('RangeError', 'RuntimeError', <<'DOC');
  */
 DOC
 
-errorclass('WildcardError', 'RuntimeError', <<'DOC');
+$::version >= 1003003 and errorclass('WildcardError', 'RuntimeError', <<'DOC');
 /** WildcardError indicates an error expanding a wildcarded query.
  */
 DOC
 
-errorclass('DatabaseNotFoundError', 'DatabaseOpeningError', <<'DOC');
+$::version >= 1004010 and errorclass('DatabaseNotFoundError', 'DatabaseOpeningError', <<'DOC');
 /** Indicates an attempt to access a database not present.
  */
 DOC
 
-errorclass('DatabaseClosedError', 'DatabaseError', <<'DOC');
+$::version >= 1004010 and errorclass('DatabaseClosedError', 'DatabaseError', <<'DOC');
 /** Indicates an attempt to access a closed database.
  */
 DOC

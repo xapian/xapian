@@ -74,7 +74,6 @@ XS/StringValueRangeProcessor.xs
 
 exception_data.pm
 generate-perl-exceptions
-handle_exception.cc
 Xapian/AssertionError.pm
 Xapian/DatabaseClosedError.pm
 Xapian/DatabaseCorruptError.pm

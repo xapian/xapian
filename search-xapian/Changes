@@ -1,5 +1,12 @@
 Revision history for Perl extension Search::Xapian.
 
+1.2.25.5
+	[Changes contributed by Olly Betts]
+	- The exception fix in 1.2.25.3 unintentionally broke the build with
+	  xapian-core < 1.4.10.  To fix this we now generate the exception
+	  handling code at build time, and enable the new exceptions based on
+	  the version of xapian-core we're building against.
+
 1.2.25.4  Thu Nov 19 23:37:21 UTC 2020
 	[Changes contributed by Olly Betts]
 	- Add exception-related files which were new in 1.2.25.3 to MANIFEST
