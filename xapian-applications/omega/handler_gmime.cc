@@ -40,12 +40,12 @@ extract_html(const string& text, string& charset, string& dump)
 	charset = "UTF-8";
     try {
 	parser.ignore_metarobots();
-	parser.parse_html(text, charset, false);
+	parser.parse(text, charset, false);
 	dump += parser.dump;
     } catch (const string& newcharset) {
 	parser.reset();
 	parser.ignore_metarobots();
-	parser.parse_html(text, newcharset, true);
+	parser.parse(text, newcharset, true);
 	dump += parser.dump;
     }
 }

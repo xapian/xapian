@@ -30,7 +30,7 @@ class MSXmlParser : public MyHtmlParser {
     bool closing_tag(const string& tag);
     void parse(const string& text) {
 	// Ignore overriding charsets in meta tags.
-	MyHtmlParser::parse_html(text, "utf-8", true);
+	MyHtmlParser::parse(text, "utf-8", true);
     }
 };
 

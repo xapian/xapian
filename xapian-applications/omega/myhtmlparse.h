@@ -48,8 +48,9 @@ class MyHtmlParser : public HtmlParser {
     void process_text(const string &text);
     bool opening_tag(const string &tag);
     bool closing_tag(const string &tag);
-    void parse_html(const string &text, const string &charset_,
-		    bool charset_from_meta_);
+    void parse(const string& text,
+	       const string& charset_,
+	       bool charset_from_meta_);
     void ignore_metarobots() { ignoring_metarobots = true; }
 
     MyHtmlParser() : target(&dump) { }

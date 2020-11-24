@@ -58,7 +58,7 @@ AtomParser::process_text(const string& text)
 
     if (type == "html") {
 	MyHtmlParser p;
-	p.parse_html(text, charset, true);
+	p.parse(text, charset, true);
 	*target += p.dump;
     } else {
 	*target += text;

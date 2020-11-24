@@ -153,7 +153,7 @@ To add a new filter to omega we have to follow a series of steps:
      try {
        (void)stdout_to_string(cmd);
        dump = file_to_string(tmpfile);
-       p.parse_html(dump, "UTF-16", false);
+       p.parse(dump, "UTF-16", false);
        unlink(tmpfile.c_str());
      } catch (ReadError) {
        skip_cmd_failed(urlterm, context, cmd, d.get_size(), d.get_mtime());

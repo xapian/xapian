@@ -120,10 +120,10 @@ main()
 	}
 	string html(html_begin, html_len);
 	try {
-	    p.parse_html(html, "iso-8859-1", false);
+	    p.parse(html, "iso-8859-1", false);
 	} catch (const string &newcharset) {
 	    p.reset();
-	    p.parse_html(html, newcharset, true);
+	    p.parse(html, newcharset, true);
 	}
 	if (!p.indexing_allowed) {
 	    cout << "indexing disallowed by meta tag - skipping\n";

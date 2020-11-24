@@ -910,12 +910,12 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 		    p.ignore_metarobots();
 		    p.description_as_sample = description_as_sample;
 		    try {
-			p.parse_html(dump, charset, false);
+			p.parse(dump, charset, false);
 		    } catch (const string & newcharset) {
 			p.reset();
 			p.ignore_metarobots();
 			p.description_as_sample = description_as_sample;
-			p.parse_html(dump, newcharset, true);
+			p.parse(dump, newcharset, true);
 		    } catch (const ReadError&) {
 			skip_cmd_failed(urlterm, context, cmd,
 					d.get_size(), d.get_mtime());
@@ -952,12 +952,12 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	    try {
 		// Default HTML character set is latin 1, though not specifying
 		// one is deprecated these days.
-		p.parse_html(text, "iso-8859-1", false);
+		p.parse(text, "iso-8859-1", false);
 	    } catch (const string & newcharset) {
 		p.reset();
 		if (ignore_exclusions) p.ignore_metarobots();
 		p.description_as_sample = description_as_sample;
-		p.parse_html(text, newcharset, true);
+		p.parse(text, newcharset, true);
 	    }
 	    if (!p.indexing_allowed) {
 		skip_meta_tag(urlterm, context,

@@ -45,12 +45,13 @@ lowercase_string(string &str)
 }
 
 void
-MyHtmlParser::parse_html(const string &text, const string &charset_,
-			 bool charset_from_meta_)
+MyHtmlParser::parse(const string& text,
+		    const string& charset_,
+		    bool charset_from_meta_)
 {
     charset = charset_;
     charset_from_meta = charset_from_meta_;
-    parse(text);
+    HtmlParser::parse(text);
 }
 
 void

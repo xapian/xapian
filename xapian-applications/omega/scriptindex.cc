@@ -987,10 +987,10 @@ badhex:
 		try {
 		    // Default HTML character set is latin 1, though
 		    // not specifying one is deprecated these days.
-		    p.parse_html(value, "iso-8859-1", false);
+		    p.parse(value, "iso-8859-1", false);
 		} catch (const string & newcharset) {
 		    p.reset();
-		    p.parse_html(value, newcharset, true);
+		    p.parse(value, newcharset, true);
 		}
 		if (p.indexing_allowed)
 		    value = p.dump;
