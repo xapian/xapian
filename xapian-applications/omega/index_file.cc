@@ -49,6 +49,7 @@
 
 #include <xapian.h>
 
+#include "abiwordparser.h"
 #include "append_filename_arg.h"
 #include "atomparse.h"
 #include "datetime.h"
@@ -71,7 +72,6 @@
 #include "utf8convert.h"
 #include "values.h"
 #include "worker.h"
-#include "xmlparse.h"
 #include "xlsxparse.h"
 #include "xpsxmlparse.h"
 
@@ -1148,17 +1148,15 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 		// It's probably best to index the document even if this fails.
 	    }
 	} else if (mimetype == "application/x-abiword") {
-	    // FIXME: Implement support for metadata.
-	    XmlParser xmlparser;
-	    const string & text = d.file_to_string();
-	    xmlparser.parse_xml(text);
-	    dump = xmlparser.dump;
+	    AbiwordParser abiwordparser;
+	    const string& text = d.file_to_string();
+	    abiwordparser.parse(text);
+	    dump = abiwordparser.dump;
 	    md5_string(text, md5);
 	} else if (mimetype == "application/x-abiword-compressed") {
-	    // FIXME: Implement support for metadata.
-	    XmlParser xmlparser;
-	    xmlparser.parse_xml(d.gzfile_to_string());
-	    dump = xmlparser.dump;
+	    AbiwordParser abiwordparser;
+	    abiwordparser.parse(d.gzfile_to_string());
+	    dump = abiwordparser.dump;
 	} else if (mimetype == "application/oxps" ||
 		   mimetype == "application/vnd.ms-xpsdocument") {
 	    string cmd = "unzip -p";

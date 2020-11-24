@@ -1,7 +1,7 @@
-/** @file xmlparse.cc
- * @brief subclass of HtmlParser for parsing XML.
+/** @file abiwordparser.cc
+ * @brief Extract text from Abiword documents.
  */
-/* Copyright (C) 2006,2009,2011,2012,2013,2020 Olly Betts
+/* Copyright (C) 2020 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,16 +20,12 @@
 
 #include <config.h>
 
-#include "xmlparse.h"
+#include "abiwordparser.h"
 
-bool
-XmlParser::opening_tag(const string &)
-{
-    return true;
-}
+// FIXME: Implement support for metadata.
 
-bool
-XmlParser::closing_tag(const string &)
+void
+AbiwordParser::process_text(const string& content)
 {
-    return true;
+    dump += content;
 }

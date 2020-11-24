@@ -1,7 +1,7 @@
-/** @file xmlparse.cc
- * @brief subclass of HtmlParser for parsing XML.
+/** @file abiwordparser.h
+ * @brief Extract text from Abiword documents.
  */
-/* Copyright (C) 2006,2009,2011,2012,2013,2020 Olly Betts
+/* Copyright (C) 2020 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,18 +18,23 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
-#include <config.h>
+#ifndef OMEGA_INCLUDED_ABIWORDPARSER_H
+#define OMEGA_INCLUDED_ABIWORDPARSER_H
 
-#include "xmlparse.h"
+#include "htmlparse.h"
 
-bool
-XmlParser::opening_tag(const string &)
-{
-    return true;
-}
+class AbiwordParser : public HtmlParser {
+  public:
+    string dump;
 
-bool
-XmlParser::closing_tag(const string &)
-{
-    return true;
-}
+    AbiwordParser() { }
+
+    void process_text(const string& content);
+
+    void parse(const string& text) {
+	charset = "utf-8";
+	HtmlParser::parse(text);
+    }
+};
+
+#endif // OMEGA_INCLUDED_ABIWORDPARSER_H

@@ -117,7 +117,7 @@ dist_sysconf_DATA = omega.conf
 noinst_HEADERS = omega.h query.h cgiparam.h index_file.h mime.h\
  myhtmlparse.h htmlparse.h utils.h configfile.h date.h datetime.h\
  commonhelp.h cdb.h cdb_int.h failed.h fields.h hashterm.h jsonescape.h\
- loadfile.h md5.h md5wrap.h xmlparse.h metaxmlparse.h values.h utf8convert.h\
+ loadfile.h md5.h md5wrap.h abiwordparser.h xmlparse.h metaxmlparse.h values.h utf8convert.h\
  namedents.h pkglibbindir.h datevalue.h sample.h strcasecmp.h\
  utf8truncate.h diritor.h runfilter.h freemem.h xpsxmlparse.h transform.h\
  weight.h expand.h svgparse.h tmpdir.h urldecode.h urlencode.h unixperm.h atomparse.h\
@@ -176,7 +176,7 @@ omega_LDADD = $(XAPIAN_LIBS) libtransform.la
 
 omindex_SOURCES = omindex.cc myhtmlparse.cc htmlparse.cc index_file.cc mime.cc\
  common/getopt.cc commonhelp.cc utils.cc hashterm.cc loadfile.cc md5.cc\
- md5wrap.cc xmlparse.cc metaxmlparse.cc sample.cc diritor.cc\
+ md5wrap.cc abiwordparser.cc xmlparse.cc metaxmlparse.cc sample.cc diritor.cc\
  runfilter.cc freemem.cc common/msvc_dirent.cc xpsxmlparse.cc common/str.cc\
  pkglibbindir.cc svgparse.cc tmpdir.cc urlencode.cc atomparse.cc xlsxparse.cc\
  opendocparse.cc common/keyword.cc msxmlparse.cc common/safe.cc timegm.cc\
