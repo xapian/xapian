@@ -22,7 +22,7 @@
 #include "handler.h"
 
 #include "metaxmlparse.h"
-#include "msxmlparse.h"
+#include "msxmlparser.h"
 #include "opendocparse.h"
 #include "stringutils.h"
 #include "xlsxparse.h"
@@ -231,7 +231,7 @@ extract_open_xml(struct archive* archive_obj,
     // XlsxParser to parse .spreadsheetml
     if (msxml) {
 	MSXmlParser xmlparser;
-	xmlparser.parse_xml(content);
+	xmlparser.parse(content);
 	dump = xmlparser.dump;
     } else {
 	XlsxParser parser;

@@ -117,11 +117,11 @@ dist_sysconf_DATA = omega.conf
 noinst_HEADERS = omega.h query.h cgiparam.h index_file.h mime.h\
  myhtmlparse.h htmlparse.h utils.h configfile.h date.h datetime.h\
  commonhelp.h cdb.h cdb_int.h failed.h fields.h hashterm.h jsonescape.h\
- loadfile.h md5.h md5wrap.h abiwordparser.h xmlparse.h metaxmlparse.h values.h utf8convert.h\
+ loadfile.h md5.h md5wrap.h abiwordparser.h metaxmlparse.h values.h utf8convert.h\
  namedents.h pkglibbindir.h datevalue.h sample.h strcasecmp.h\
  utf8truncate.h diritor.h runfilter.h freemem.h xpsxmlparse.h transform.h\
  weight.h expand.h svgparse.h tmpdir.h urldecode.h urlencode.h unixperm.h atomparse.h\
- xlsxparse.h opendocparse.h msxmlparse.h sort.h timegm.h csvescape.h\
+ xlsxparse.h opendocparse.h msxmlparser.h sort.h timegm.h csvescape.h\
  portability/mkdtemp.h portability/strptime.h\
  clickmodel/simplifieddbn.h clickmodel/session.h worker.h worker_comms.h handler.h
 
@@ -176,10 +176,10 @@ omega_LDADD = $(XAPIAN_LIBS) libtransform.la
 
 omindex_SOURCES = omindex.cc myhtmlparse.cc htmlparse.cc index_file.cc mime.cc\
  common/getopt.cc commonhelp.cc utils.cc hashterm.cc loadfile.cc md5.cc\
- md5wrap.cc abiwordparser.cc xmlparse.cc metaxmlparse.cc sample.cc diritor.cc\
+ md5wrap.cc abiwordparser.cc metaxmlparse.cc sample.cc diritor.cc\
  runfilter.cc freemem.cc common/msvc_dirent.cc xpsxmlparse.cc common/str.cc\
  pkglibbindir.cc svgparse.cc tmpdir.cc urlencode.cc atomparse.cc xlsxparse.cc\
- opendocparse.cc common/keyword.cc msxmlparse.cc common/safe.cc timegm.cc\
+ opendocparse.cc common/keyword.cc msxmlparser.cc common/safe.cc timegm.cc\
  datetime.cc common/closefrom.cc worker.cc worker_comms.cc
 if NEED_MKDTEMP
 omindex_SOURCES += portability/mkdtemp.cc
@@ -206,7 +206,7 @@ omindex_gmime_SOURCES = assistant.cc worker_comms.cc myhtmlparse.cc datetime.cc 
 omindex_gmime_LDADD = $(GMIME_LIBS) libutf8convert.la
 omindex_gmime_CXXFLAGS = $(GMIME_CFLAGS) $(XAPIAN_CXXFLAGS)
 
-omindex_libarchive_SOURCES = assistant.cc worker_comms.cc metaxmlparse.cc opendocparse.cc datetime.cc htmlparse.cc myhtmlparse.cc xmlparse.cc msxmlparse.cc xlsxparse.cc common/keyword.cc common/str.cc handler_libarchive.cc
+omindex_libarchive_SOURCES = assistant.cc worker_comms.cc metaxmlparse.cc opendocparse.cc datetime.cc htmlparse.cc myhtmlparse.cc msxmlparser.cc xlsxparse.cc common/keyword.cc common/str.cc handler_libarchive.cc
 omindex_libarchive_LDADD = $(LIBARCHIVE_LIBS) libutf8convert.la
 omindex_libarchive_CXXFLAGS = $(LIBARCHIVE_CFLAGS) $(XAPIAN_CXXFLAGS)
 

@@ -59,7 +59,7 @@
 #include "md5wrap.h"
 #include "metaxmlparse.h"
 #include "mimemap.h"
-#include "msxmlparse.h"
+#include "msxmlparser.h"
 #include "myhtmlparse.h"
 #include "opendocparse.h"
 #include "pkglibbindir.h"
@@ -1124,7 +1124,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 		    // Treat exit status 11 from unzip as success - this is
 		    // what we get if one of the listed filenames to extract
 		    // doesn't match anything in the zip file.
-		    xmlparser.parse_xml(stdout_to_string(cmd, false, 11));
+		    xmlparser.parse(stdout_to_string(cmd, false, 11));
 		    dump = xmlparser.dump;
 		} catch (const ReadError&) {
 		    skip_cmd_failed(urlterm, context, cmd,

@@ -1,5 +1,5 @@
-/** @file xmlparse.cc
- * @brief subclass of HtmlParser for parsing XML.
+/** @file msxmlparser.cc
+ * @brief Parser for Microsoft XML formats (.docx, etc).
  */
 /* Copyright (C) 2006,2009,2011,2012,2013,2020 Olly Betts
  *
@@ -20,16 +20,19 @@
 
 #include <config.h>
 
-#include "xmlparse.h"
+#include "msxmlparser.h"
 
 bool
-XmlParser::opening_tag(const string &)
+MSXmlParser::opening_tag(const string&)
 {
     return true;
 }
 
 bool
-XmlParser::closing_tag(const string &)
+MSXmlParser::closing_tag(const string& tag)
 {
+    // For .docx and .pptx respectively.
+    if (tag == "w:t" || tag == "a:t")
+	pending_space = true;
     return true;
 }

@@ -1,4 +1,4 @@
-/** @file msxmlparse.h
+/** @file msxmlparser.h
  * @brief Parser for Microsoft XML formats (.docx, etc).
  */
 /* Copyright (C) 2006,2008,2009,2011,2013 Olly Betts
@@ -21,12 +21,17 @@
 #ifndef OMEGA_INCLUDED_MSXMLPARSE_H
 #define OMEGA_INCLUDED_MSXMLPARSE_H
 
-#include "xmlparse.h"
+#include "myhtmlparse.h"
 
-class MSXmlParser : public XmlParser {
+class MSXmlParser : public MyHtmlParser {
   public:
-    MSXmlParser() : XmlParser() { }
-    bool closing_tag(const string &tag);
+    MSXmlParser() { }
+    bool opening_tag(const string& tag);
+    bool closing_tag(const string& tag);
+    void parse(const string& text) {
+	// Ignore overriding charsets in meta tags.
+	MyHtmlParser::parse_html(text, "utf-8", true);
+    }
 };
 
 #endif // OMEGA_INCLUDED_MSXMLPARSE_H
