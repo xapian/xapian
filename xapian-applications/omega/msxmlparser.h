@@ -21,16 +21,16 @@
 #ifndef OMEGA_INCLUDED_MSXMLPARSE_H
 #define OMEGA_INCLUDED_MSXMLPARSE_H
 
-#include "myhtmlparse.h"
+#include "htmlparser.h"
 
-class MSXmlParser : public MyHtmlParser {
+class MSXmlParser : public HtmlParser {
   public:
     MSXmlParser() { }
     bool opening_tag(const string& tag);
     bool closing_tag(const string& tag);
     void parse(const string& text) {
 	// Ignore overriding charsets in meta tags.
-	MyHtmlParser::parse(text, "utf-8", true);
+	HtmlParser::parse(text, "utf-8", true);
     }
 };
 

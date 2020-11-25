@@ -21,7 +21,7 @@
 #include <config.h>
 #include "handler.h"
 
-#include "myhtmlparse.h"
+#include "htmlparser.h"
 #include "utf8convert.h"
 
 #include <glib.h>
@@ -35,7 +35,7 @@ constexpr unsigned SIZE = 4096;
 static void
 extract_html(const string& text, string& charset, string& dump)
 {
-    MyHtmlParser parser;
+    HtmlParser parser;
     if (charset.empty())
 	charset = "UTF-8";
     try {

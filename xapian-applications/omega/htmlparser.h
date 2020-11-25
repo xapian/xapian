@@ -1,5 +1,5 @@
-/** @file myhtmlparse.h
- * @brief subclass of XmlParser for extracting text
+/** @file htmlparser.h
+ * @brief subclass of XmlParser for extracting text from HTML.
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002,2003,2004,2006,2008,2010,2011,2012,2013,2016,2017,2019 Olly Betts
@@ -20,8 +20,8 @@
  * USA
  */
 
-#ifndef OMEGA_INCLUDED_MYHTMLPARSE_H
-#define OMEGA_INCLUDED_MYHTMLPARSE_H
+#ifndef OMEGA_INCLUDED_HTMLPARSER_H
+#define OMEGA_INCLUDED_HTMLPARSER_H
 
 #include "xmlparser.h"
 
@@ -32,7 +32,7 @@
 // \xa0?
 #define WHITESPACE " \t\n\r"
 
-class MyHtmlParser : public XmlParser {
+class HtmlParser : public XmlParser {
   public:
     int pending_space = 0;
     bool in_script_tag = false;
@@ -53,7 +53,7 @@ class MyHtmlParser : public XmlParser {
 	       bool charset_from_meta_);
     void ignore_metarobots() { ignoring_metarobots = true; }
 
-    MyHtmlParser() : target(&dump) { }
+    HtmlParser() : target(&dump) { }
 
     void reset() {
 	pending_space = 0;
@@ -74,4 +74,4 @@ class MyHtmlParser : public XmlParser {
     }
 };
 
-#endif // OMEGA_INCLUDED_MYHTMLPARSE_H
+#endif // OMEGA_INCLUDED_HTMLPARSER_H

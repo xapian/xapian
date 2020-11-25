@@ -56,11 +56,11 @@
 #include "diritor.h"
 #include "failed.h"
 #include "hashterm.h"
+#include "htmlparser.h"
 #include "md5wrap.h"
 #include "metaxmlparse.h"
 #include "mimemap.h"
 #include "msxmlparser.h"
-#include "myhtmlparse.h"
 #include "opendocparse.h"
 #include "pkglibbindir.h"
 #include "runfilter.h"
@@ -906,7 +906,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 		}
 		const string & charset = filter.output_charset;
 		if (filter.output_type == "text/html") {
-		    MyHtmlParser p;
+		    HtmlParser p;
 		    p.ignore_metarobots();
 		    p.description_as_sample = description_as_sample;
 		    try {
@@ -946,7 +946,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	    }
 	} else if (mimetype == "text/html" || mimetype == "text/x-php") {
 	    const string & text = d.file_to_string();
-	    MyHtmlParser p;
+	    HtmlParser p;
 	    if (ignore_exclusions) p.ignore_metarobots();
 	    p.description_as_sample = description_as_sample;
 	    try {

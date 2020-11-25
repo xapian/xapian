@@ -45,8 +45,8 @@
 #include "commonhelp.h"
 #include "datetime.h"
 #include "hashterm.h"
+#include "htmlparser.h"
 #include "loadfile.h"
-#include "myhtmlparse.h"
 #include "parseint.h"
 #include "setenv.h"
 #include "str.h"
@@ -983,7 +983,7 @@ badhex:
 		break;
 	    }
 	    case Action::UNHTML: {
-		MyHtmlParser p;
+		HtmlParser p;
 		try {
 		    // Default HTML character set is latin 1, though
 		    // not specifying one is deprecated these days.

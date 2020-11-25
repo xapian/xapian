@@ -1,8 +1,8 @@
-/** @file myhtmlparse.cc
- * @brief subclass of XmlParser for extracting text.
+/** @file htmlparser.cc
+ * @brief subclass of XmlParser for extracting text from HTML.
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2006,2007,2008,2010,2011,2012,2013,2014,2015,2017 Olly Betts
+ * Copyright 2002,2003,2004,2006,2007,2008,2010,2011,2012,2013,2014,2015,2017,2020 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,11 +22,11 @@
 
 #include <config.h>
 
-#include "myhtmlparse.h"
+#include "htmlparser.h"
 
 #include "datetime.h"
+#include "html-tok.h"
 #include "keyword.h"
-#include "my-html-tok.h"
 #include "stringutils.h"
 #include "utf8convert.h"
 
@@ -45,9 +45,9 @@ lowercase_string(string &str)
 }
 
 void
-MyHtmlParser::parse(const string& text,
-		    const string& charset_,
-		    bool charset_from_meta_)
+HtmlParser::parse(const string& text,
+		  const string& charset_,
+		  bool charset_from_meta_)
 {
     charset = charset_;
     charset_from_meta = charset_from_meta_;
@@ -55,7 +55,7 @@ MyHtmlParser::parse(const string& text,
 }
 
 void
-MyHtmlParser::process_text(const string &text)
+HtmlParser::process_text(const string& text)
 {
     if (!text.empty() && !in_script_tag && !in_style_tag) {
 	string::size_type b = text.find_first_not_of(WHITESPACE);
@@ -77,7 +77,7 @@ MyHtmlParser::process_text(const string &text)
 }
 
 bool
-MyHtmlParser::opening_tag(const string &tag)
+HtmlParser::opening_tag(const string& tag)
 {
     int k = keyword(tab, tag.data(), tag.size());
     if (k < 0)
@@ -238,7 +238,7 @@ MyHtmlParser::opening_tag(const string &tag)
 }
 
 bool
-MyHtmlParser::closing_tag(const string &tag)
+HtmlParser::closing_tag(const string& tag)
 {
     int k = keyword(tab, tag.data(), tag.size());
     if (k < 0 || (token_space[k] & NOCLOSE))

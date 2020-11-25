@@ -22,7 +22,7 @@
 #include <config.h>
 
 #include "atomparse.h"
-#include "myhtmlparse.h"
+#include "htmlparser.h"
 #include "stringutils.h"
 
 using namespace std;
@@ -57,7 +57,7 @@ AtomParser::process_text(const string& text)
 	*target += ' ';
 
     if (type == "html") {
-	MyHtmlParser p;
+	HtmlParser p;
 	p.parse(text, charset, true);
 	*target += p.dump;
     } else {

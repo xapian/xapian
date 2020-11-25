@@ -149,7 +149,7 @@ To add a new filter to omega we have to follow a series of steps:
      string cmd = "foo2utf16 --content";
      append_filename_argument(cmd, file);
      append_filename_argument(cmd, tmpfile);
-     MyHtmlParser p;
+     HtmlParser p;
      try {
        (void)stdout_to_string(cmd);
        dump = file_to_string(tmpfile);
@@ -177,7 +177,7 @@ To add a new filter to omega we have to follow a series of steps:
 
      convert_to_utf8(string, "UTF-16");
 
-   In this case, ``MyHtmlParser`` will convert the text of the file to UTF-8 if necessary.
+   In this case, ``HtmlParser`` will convert the text of the file to UTF-8 if necessary.
 
 If you find a reliable external filter or library and think it might be useful to other people, please let us know about it.
 
