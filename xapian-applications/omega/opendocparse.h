@@ -1,5 +1,5 @@
 /** @file opendocparse.h
- * @brief Extract text from XML from an OPENDOC spreadsheet.
+ * @brief Extract text from OpenDocument XML.
  */
 /* Copyright (C) 2012,2019 Olly Betts
  *
@@ -21,11 +21,11 @@
 #ifndef OMEGA_INCLUDED_OPENDOCPARSE_H
 #define OMEGA_INCLUDED_OPENDOCPARSE_H
 
-#include "htmlparse.h"
+#include "xmlparser.h"
 
 #include <vector>
 
-class OpenDocParser : public HtmlParser {
+class OpenDocParser : public XmlParser {
     bool indexing = false;
     bool pending_space = false;
     std::string master_page_name;

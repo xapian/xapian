@@ -1,5 +1,5 @@
 /** @file xpsxmlparse.h
- * @brief Subclass of HtmlParser for parsing XPS .fpage files.
+ * @brief Parser for XPS .fpage files.
  */
 /* Copyright (C) 2009,2011 Olly Betts
  *
@@ -21,9 +21,9 @@
 #ifndef OMEGA_INCLUDED_XPSXMLPARSE_H
 #define OMEGA_INCLUDED_XPSXMLPARSE_H
 
-#include "htmlparse.h"
+#include "xmlparser.h"
 
-class XpsXmlParser : public HtmlParser {
+class XpsXmlParser : public XmlParser {
   public:
     XpsXmlParser() { }
     bool opening_tag(const string &tag);

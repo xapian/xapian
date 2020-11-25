@@ -21,9 +21,9 @@
 #ifndef OMEGA_INCLUDED_SVGPARSE_H
 #define OMEGA_INCLUDED_SVGPARSE_H
 
-#include "htmlparse.h"
+#include "xmlparser.h"
 
-class SvgParser : public HtmlParser {
+class SvgParser : public XmlParser {
     enum { OTHER, TEXT, METADATA, TITLE, KEYWORDS, AUTHOR } state = OTHER;
     string dc_tag;
 

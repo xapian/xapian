@@ -115,7 +115,7 @@ dist_omegadata_DATA = htdig2omega.script mbox2omega.script
 dist_sysconf_DATA = omega.conf
 
 noinst_HEADERS = omega.h query.h cgiparam.h index_file.h mime.h\
- myhtmlparse.h htmlparse.h utils.h configfile.h date.h datetime.h\
+ myhtmlparse.h xmlparser.h utils.h configfile.h date.h datetime.h\
  commonhelp.h cdb.h cdb_int.h failed.h fields.h hashterm.h jsonescape.h\
  loadfile.h md5.h md5wrap.h abiwordparser.h metaxmlparse.h values.h utf8convert.h\
  namedents.h pkglibbindir.h datevalue.h sample.h strcasecmp.h\
@@ -174,7 +174,7 @@ omega_SOURCES = omega.cc query.cc cgiparam.cc utils.cc configfile.cc date.cc\
 # Not currently used, and we ought to handle non-Unix perms too: unixperm.cc
 omega_LDADD = $(XAPIAN_LIBS) libtransform.la
 
-omindex_SOURCES = omindex.cc myhtmlparse.cc htmlparse.cc index_file.cc mime.cc\
+omindex_SOURCES = omindex.cc myhtmlparse.cc xmlparser.cc index_file.cc mime.cc\
  common/getopt.cc commonhelp.cc utils.cc hashterm.cc loadfile.cc md5.cc\
  md5wrap.cc abiwordparser.cc metaxmlparse.cc sample.cc diritor.cc\
  runfilter.cc freemem.cc common/msvc_dirent.cc xpsxmlparse.cc common/str.cc\
@@ -202,11 +202,11 @@ omindex_tesseract_SOURCES = assistant.cc worker_comms.cc handler_tesseract.cc
 omindex_tesseract_LDADD = $(TESSERACT_LIBS)
 omindex_tesseract_CXXFLAGS = $(TESSERACT_CFLAGS)
 
-omindex_gmime_SOURCES = assistant.cc worker_comms.cc myhtmlparse.cc datetime.cc htmlparse.cc common/keyword.cc handler_gmime.cc
+omindex_gmime_SOURCES = assistant.cc worker_comms.cc myhtmlparse.cc datetime.cc xmlparser.cc common/keyword.cc handler_gmime.cc
 omindex_gmime_LDADD = $(GMIME_LIBS) libutf8convert.la
 omindex_gmime_CXXFLAGS = $(GMIME_CFLAGS) $(XAPIAN_CXXFLAGS)
 
-omindex_libarchive_SOURCES = assistant.cc worker_comms.cc metaxmlparse.cc opendocparse.cc datetime.cc htmlparse.cc myhtmlparse.cc msxmlparser.cc xlsxparse.cc common/keyword.cc common/str.cc handler_libarchive.cc
+omindex_libarchive_SOURCES = assistant.cc worker_comms.cc metaxmlparse.cc opendocparse.cc datetime.cc xmlparser.cc myhtmlparse.cc msxmlparser.cc xlsxparse.cc common/keyword.cc common/str.cc handler_libarchive.cc
 omindex_libarchive_LDADD = $(LIBARCHIVE_LIBS) libutf8convert.la
 omindex_libarchive_CXXFLAGS = $(LIBARCHIVE_CFLAGS) $(XAPIAN_CXXFLAGS)
 
@@ -222,7 +222,7 @@ omindex_libextractor_SOURCES = assistant.cc worker_comms.cc handler_libextractor
 omindex_libextractor_LDADD = $(LIBEXTRACTOR_LIBS)
 omindex_libextractor_CXXFLAGS = $(LIBEXTRACTOR_CFLAGS)
 
-scriptindex_SOURCES = scriptindex.cc myhtmlparse.cc htmlparse.cc\
+scriptindex_SOURCES = scriptindex.cc myhtmlparse.cc xmlparser.cc\
  common/getopt.cc common/str.cc commonhelp.cc utils.cc hashterm.cc loadfile.cc\
  utf8truncate.cc\
  common/keyword.cc timegm.cc datetime.cc
@@ -238,11 +238,11 @@ generate_qrel_file_SOURCES = generate-qrel-file.cc clickmodel/simplifieddbn.cc\
  common/getopt.cc
 generate_qrel_file_LDADD = $(XAPIAN_LIBS)
 
-atomparsetest_SOURCES = atomparsetest.cc atomparse.cc htmlparse.cc\
+atomparsetest_SOURCES = atomparsetest.cc atomparse.cc xmlparser.cc\
  myhtmlparse.cc common/keyword.cc datetime.cc timegm.cc
 atomparsetest_LDADD = $(NO_INSTALL) $(XAPIAN_LIBS) libutf8convert.la
 
-htmlparsetest_SOURCES = htmlparsetest.cc myhtmlparse.cc htmlparse.cc\
+htmlparsetest_SOURCES = htmlparsetest.cc myhtmlparse.cc xmlparser.cc\
  common/keyword.cc datetime.cc timegm.cc
 htmlparsetest_LDADD = $(NO_INSTALL) $(XAPIAN_LIBS) libutf8convert.la
 

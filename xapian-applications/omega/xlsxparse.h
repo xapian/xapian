@@ -21,13 +21,13 @@
 #ifndef OMEGA_INCLUDED_XLSXPARSE_H
 #define OMEGA_INCLUDED_XLSXPARSE_H
 
-#include "htmlparse.h"
+#include "xmlparser.h"
 
 #include <vector>
 #include <set>
 #include <string>
 
-class XlsxParser : public HtmlParser {
+class XlsxParser : public XmlParser {
     std::vector<std::string> sst;
     std::set<unsigned> date_style;
     std::set<unsigned long> date_format;

@@ -1,5 +1,5 @@
-/** @file htmlparse.cc
- * @brief simple HTML parser for omega indexer
+/** @file xmlparser.cc
+ * @brief XML (and HTML) parser for omega indexer
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Ananova Ltd
@@ -23,7 +23,7 @@
 
 #include <config.h>
 
-#include "htmlparse.h"
+#include "xmlparser.h"
 
 #include <xapian.h>
 
@@ -73,7 +73,7 @@ p_whitespaceeqgt(char c)
 }
 
 bool
-HtmlParser::get_parameter(const string & param, string & value) const
+XmlParser::get_parameter(const string& param, string& value) const
 {
     map<string, string>::const_iterator i = parameters.find(param);
     if (i == parameters.end()) return false;
@@ -96,7 +96,7 @@ HtmlParser::get_parameter(const string & param, string & value) const
 // string.
 
 void
-HtmlParser::decode_entities(string &s)
+XmlParser::decode_entities(string& s)
 {
     string::iterator out = s.begin();
     string::iterator in = out;
@@ -151,7 +151,7 @@ HtmlParser::decode_entities(string &s)
 }
 
 void
-HtmlParser::parse(const string &body)
+XmlParser::parse(const string& body)
 {
     // Check for BOM.
     string::const_iterator begin_after_bom = body.begin();

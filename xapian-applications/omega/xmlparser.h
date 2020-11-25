@@ -1,5 +1,5 @@
-/** @file htmlparse.h
- * @brief simple HTML parser for omega indexer
+/** @file xmlparser.h
+ * @brief XML (and HTML) parser for omega indexer
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002,2006,2008,2009,2011,2016 Olly Betts
@@ -20,8 +20,8 @@
  * USA
  */
 
-#ifndef OMEGA_INCLUDED_HTMLPARSE_H
-#define OMEGA_INCLUDED_HTMLPARSE_H
+#ifndef OMEGA_INCLUDED_XMLPARSER_H
+#define OMEGA_INCLUDED_XMLPARSER_H
 
 #include <string>
 #include <map>
@@ -29,7 +29,7 @@
 using std::string;
 using std::map;
 
-class HtmlParser {
+class XmlParser {
     map<string, string> parameters;
 
   protected:
@@ -44,8 +44,8 @@ class HtmlParser {
     virtual bool opening_tag(const string &/*tag*/) { return true; }
     virtual bool closing_tag(const string &/*tag*/) { return true; }
     void parse(const string& text);
-    HtmlParser() { }
-    virtual ~HtmlParser() { }
+    XmlParser() { }
+    virtual ~XmlParser() { }
 };
 
-#endif // OMEGA_INCLUDED_HTMLPARSE_H
+#endif // OMEGA_INCLUDED_XMLPARSER_H

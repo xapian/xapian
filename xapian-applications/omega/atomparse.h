@@ -22,9 +22,9 @@
 #ifndef OMEGA_INCLUDED_ATOMPARSE_H
 #define OMEGA_INCLUDED_ATOMPARSE_H
 
-#include "htmlparse.h"
+#include "xmlparser.h"
 
-class AtomParser : public HtmlParser {
+class AtomParser : public XmlParser {
     enum { OTHER, TITLE, AUTHOR, KEYWORDS, TEXT } state = OTHER;
     bool in_entry = false;
     bool is_ignored = false;

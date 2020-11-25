@@ -1,5 +1,5 @@
 /** @file metaxmlparse.h
- * @brief subclass of HtmlParser for parsing OpenDocument's meta.xml.
+ * @brief Parser for OpenDocument's meta.xml.
  */
 /* Copyright (C) 2006,2009,2010,2011,2016,2019 Olly Betts
  *
@@ -21,11 +21,11 @@
 #ifndef OMEGA_INCLUDED_METAXMLPARSE_H
 #define OMEGA_INCLUDED_METAXMLPARSE_H
 
-#include "htmlparse.h"
+#include "xmlparser.h"
 
 #include <ctime>
 
-class MetaXmlParser : public HtmlParser {
+class MetaXmlParser : public XmlParser {
     enum { NONE, KEYWORDS, TITLE, SAMPLE, AUTHOR, TOPIC, CREATED } field = NONE;
   public:
     MetaXmlParser() { }

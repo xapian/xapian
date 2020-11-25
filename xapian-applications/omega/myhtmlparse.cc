@@ -1,5 +1,5 @@
 /** @file myhtmlparse.cc
- * @brief subclass of HtmlParser for extracting text.
+ * @brief subclass of XmlParser for extracting text.
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002,2003,2004,2006,2007,2008,2010,2011,2012,2013,2014,2015,2017 Olly Betts
@@ -51,7 +51,7 @@ MyHtmlParser::parse(const string& text,
 {
     charset = charset_;
     charset_from_meta = charset_from_meta_;
-    HtmlParser::parse(text);
+    XmlParser::parse(text);
 }
 
 void

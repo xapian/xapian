@@ -21,9 +21,9 @@
 #ifndef OMEGA_INCLUDED_ABIWORDPARSER_H
 #define OMEGA_INCLUDED_ABIWORDPARSER_H
 
-#include "htmlparse.h"
+#include "xmlparser.h"
 
-class AbiwordParser : public HtmlParser {
+class AbiwordParser : public XmlParser {
   public:
     string dump;
 
@@ -33,7 +33,7 @@ class AbiwordParser : public HtmlParser {
 
     void parse(const string& text) {
 	charset = "utf-8";
-	HtmlParser::parse(text);
+	XmlParser::parse(text);
     }
 };
 

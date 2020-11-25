@@ -1,5 +1,5 @@
 /** @file myhtmlparse.h
- * @brief subclass of HtmlParser for extracting text
+ * @brief subclass of XmlParser for extracting text
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002,2003,2004,2006,2008,2010,2011,2012,2013,2016,2017,2019 Olly Betts
@@ -23,7 +23,7 @@
 #ifndef OMEGA_INCLUDED_MYHTMLPARSE_H
 #define OMEGA_INCLUDED_MYHTMLPARSE_H
 
-#include "htmlparse.h"
+#include "xmlparser.h"
 
 #include <ctime>
 
@@ -32,7 +32,7 @@
 // \xa0?
 #define WHITESPACE " \t\n\r"
 
-class MyHtmlParser : public HtmlParser {
+class MyHtmlParser : public XmlParser {
   public:
     int pending_space = 0;
     bool in_script_tag = false;
