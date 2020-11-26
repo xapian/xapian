@@ -22,17 +22,19 @@
 
 #include "msxmlparser.h"
 
-bool
-MSXmlParser::opening_tag(const string&)
+void
+MSXmlParser::process_text(const string& text)
 {
-    return true;
+    dump += text;
 }
 
 bool
 MSXmlParser::closing_tag(const string& tag)
 {
     // For .docx and .pptx respectively.
-    if (tag == "w:t" || tag == "a:t")
-	pending_space = true;
+    if (tag == "w:t" || tag == "a:t") {
+	if (!dump.empty())
+	    dump += ' ';
+    }
     return true;
 }

@@ -1,7 +1,7 @@
 /** @file msxmlparser.h
  * @brief Parser for Microsoft XML formats (.docx, etc).
  */
-/* Copyright (C) 2006,2008,2009,2011,2013 Olly Betts
+/* Copyright (C) 2006,2008,2009,2011,2013,2020 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,15 +23,12 @@
 
 #include "htmlparser.h"
 
-class MSXmlParser : public HtmlParser {
+class MSXmlParser : public XmlParser {
   public:
     MSXmlParser() { }
-    bool opening_tag(const string& tag);
+    void process_text(const string& text);
     bool closing_tag(const string& tag);
-    void parse(const string& text) {
-	// Ignore overriding charsets in meta tags.
-	HtmlParser::parse(text, "utf-8", true);
-    }
+    string dump;
 };
 
 #endif // OMEGA_INCLUDED_MSXMLPARSE_H
