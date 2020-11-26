@@ -95,9 +95,9 @@ dist_pkglibbin_SCRIPTS = mhtml2html outlookmsg2html rfc822tohtml vcard2text
 bin_PROGRAMS = omindex scriptindex omindex-list generate-qrel-file
 dist_bin_SCRIPTS = dbi2omega htdig2omega mbox2omega postprocess
 
-check_PROGRAMS = atomparsetest csvesctest htmlparsertest jsonesctest md5test sdbntest urlenctest utf8converttest omindexcheck
+check_PROGRAMS = atomparsertest csvesctest htmlparsertest jsonesctest md5test sdbntest urlenctest utf8converttest omindexcheck
 dist_check_SCRIPTS = omegatest sourcetest omindextest
-TESTS =	atomparsetest$(EXEEXT)\
+TESTS =	atomparsertest$(EXEEXT)\
 	csvesctest$(EXEEXT)\
 	htmlparsertest$(EXEEXT)\
 	jsonesctest$(EXEEXT)\
@@ -117,11 +117,11 @@ dist_sysconf_DATA = omega.conf
 noinst_HEADERS = omega.h query.h cgiparam.h index_file.h mime.h\
  htmlparser.h xmlparser.h utils.h configfile.h date.h datetime.h\
  commonhelp.h cdb.h cdb_int.h failed.h fields.h hashterm.h jsonescape.h\
- loadfile.h md5.h md5wrap.h abiwordparser.h metaxmlparse.h values.h utf8convert.h\
+ loadfile.h md5.h md5wrap.h abiwordparser.h opendocmetaparser.h values.h utf8convert.h\
  namedents.h pkglibbindir.h datevalue.h sample.h strcasecmp.h\
- utf8truncate.h diritor.h runfilter.h freemem.h xpsxmlparse.h transform.h\
- weight.h expand.h svgparse.h tmpdir.h urldecode.h urlencode.h unixperm.h atomparse.h\
- xlsxparse.h opendocparse.h msxmlparser.h sort.h timegm.h csvescape.h\
+ utf8truncate.h diritor.h runfilter.h freemem.h xpsparser.h transform.h\
+ weight.h expand.h svgparser.h tmpdir.h urldecode.h urlencode.h unixperm.h atomparser.h\
+ xlsxparser.h opendocparser.h msxmlparser.h sort.h timegm.h csvescape.h\
  portability/mkdtemp.h portability/strptime.h\
  clickmodel/simplifieddbn.h clickmodel/session.h worker.h worker_comms.h handler.h
 
@@ -176,10 +176,10 @@ omega_LDADD = $(XAPIAN_LIBS) libtransform.la
 
 omindex_SOURCES = omindex.cc htmlparser.cc xmlparser.cc index_file.cc mime.cc\
  common/getopt.cc commonhelp.cc utils.cc hashterm.cc loadfile.cc md5.cc\
- md5wrap.cc abiwordparser.cc metaxmlparse.cc sample.cc diritor.cc\
- runfilter.cc freemem.cc common/msvc_dirent.cc xpsxmlparse.cc common/str.cc\
- pkglibbindir.cc svgparse.cc tmpdir.cc urlencode.cc atomparse.cc xlsxparse.cc\
- opendocparse.cc common/keyword.cc msxmlparser.cc common/safe.cc timegm.cc\
+ md5wrap.cc abiwordparser.cc opendocmetaparser.cc sample.cc diritor.cc\
+ runfilter.cc freemem.cc common/msvc_dirent.cc xpsparser.cc common/str.cc\
+ pkglibbindir.cc svgparser.cc tmpdir.cc urlencode.cc atomparser.cc xlsxparser.cc\
+ opendocparser.cc common/keyword.cc msxmlparser.cc common/safe.cc timegm.cc\
  datetime.cc common/closefrom.cc worker.cc worker_comms.cc
 if NEED_MKDTEMP
 omindex_SOURCES += portability/mkdtemp.cc
@@ -206,7 +206,7 @@ omindex_gmime_SOURCES = assistant.cc worker_comms.cc htmlparser.cc datetime.cc x
 omindex_gmime_LDADD = $(GMIME_LIBS) libutf8convert.la
 omindex_gmime_CXXFLAGS = $(GMIME_CFLAGS) $(XAPIAN_CXXFLAGS)
 
-omindex_libarchive_SOURCES = assistant.cc worker_comms.cc metaxmlparse.cc opendocparse.cc datetime.cc xmlparser.cc htmlparser.cc msxmlparser.cc xlsxparse.cc common/keyword.cc common/str.cc handler_libarchive.cc
+omindex_libarchive_SOURCES = assistant.cc worker_comms.cc opendocmetaparser.cc opendocparser.cc datetime.cc xmlparser.cc htmlparser.cc msxmlparser.cc xlsxparser.cc common/keyword.cc common/str.cc handler_libarchive.cc
 omindex_libarchive_LDADD = $(LIBARCHIVE_LIBS) libutf8convert.la
 omindex_libarchive_CXXFLAGS = $(LIBARCHIVE_CFLAGS) $(XAPIAN_CXXFLAGS)
 
@@ -238,9 +238,9 @@ generate_qrel_file_SOURCES = generate-qrel-file.cc clickmodel/simplifieddbn.cc\
  common/getopt.cc
 generate_qrel_file_LDADD = $(XAPIAN_LIBS)
 
-atomparsetest_SOURCES = atomparsetest.cc atomparse.cc xmlparser.cc\
+atomparsertest_SOURCES = atomparsertest.cc atomparser.cc xmlparser.cc\
  htmlparser.cc common/keyword.cc datetime.cc timegm.cc
-atomparsetest_LDADD = $(NO_INSTALL) $(XAPIAN_LIBS) libutf8convert.la
+atomparsertest_LDADD = $(NO_INSTALL) $(XAPIAN_LIBS) libutf8convert.la
 
 htmlparsertest_SOURCES = htmlparsertest.cc htmlparser.cc xmlparser.cc\
  common/keyword.cc datetime.cc timegm.cc

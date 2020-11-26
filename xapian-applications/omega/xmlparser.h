@@ -1,8 +1,8 @@
 /** @file xmlparser.h
- * @brief XML (and HTML) parser for omega indexer
+ * @brief XML (and HTML) parser
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2006,2008,2009,2011,2016 Olly Betts
+ * Copyright 2002,2006,2008,2009,2011,2016,2020 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,26 +26,51 @@
 #include <string>
 #include <map>
 
-using std::string;
-using std::map;
-
 class XmlParser {
-    map<string, string> parameters;
+    std::map<std::string, std::string> attributes;
 
   protected:
-    void decode_entities(string &s);
     bool in_script;
-    string charset;
 
-    bool get_parameter(const string & param, string & value) const;
+    std::string charset;
+
+    static void decode_entities(std::string& s);
+
+    bool get_attribute(const std::string& name, std::string& value) const;
+
+    /** Process an opening tag.
+     *
+     *  Return false to stop parsing of the rest of the document.
+     */
+    virtual bool opening_tag(const std::string& tag) {
+	(void)tag;
+	return true;
+    }
+
+    /** Process a closing tag.
+     *
+     *  Return false to stop parsing of the rest of the document.
+     */
+    virtual bool closing_tag(const std::string& tag) {
+	(void)tag;
+	return true;
+    }
+
+    /// Process text between tags.
+    virtual void process_content(const std::string& content) {
+	(void)content;
+    }
 
   public:
-    virtual void process_text(const string &/*text*/) { }
-    virtual bool opening_tag(const string &/*tag*/) { return true; }
-    virtual bool closing_tag(const string &/*tag*/) { return true; }
-    void parse(const string& text);
     XmlParser() { }
+
+    XmlParser(const XmlParser&) = delete;
+
+    XmlParser& operator=(const XmlParser&) = delete;
+
     virtual ~XmlParser() { }
+
+    void parse(const std::string& text);
 };
 
 #endif // OMEGA_INCLUDED_XMLPARSER_H

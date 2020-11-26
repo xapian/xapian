@@ -18,17 +18,17 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
-#ifndef OMEGA_INCLUDED_MSXMLPARSE_H
-#define OMEGA_INCLUDED_MSXMLPARSE_H
+#ifndef OMEGA_INCLUDED_MSXMLPARSER_H
+#define OMEGA_INCLUDED_MSXMLPARSER_H
 
 #include "htmlparser.h"
 
 class MSXmlParser : public XmlParser {
   public:
     MSXmlParser() { }
-    void process_text(const string& text);
-    bool closing_tag(const string& tag);
-    string dump;
+    void process_content(const std::string& content);
+    bool closing_tag(const std::string& tag);
+    std::string dump;
 };
 
-#endif // OMEGA_INCLUDED_MSXMLPARSE_H
+#endif // OMEGA_INCLUDED_MSXMLPARSER_H

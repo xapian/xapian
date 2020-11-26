@@ -51,29 +51,29 @@
 
 #include "abiwordparser.h"
 #include "append_filename_arg.h"
-#include "atomparse.h"
+#include "atomparser.h"
 #include "datetime.h"
 #include "diritor.h"
 #include "failed.h"
 #include "hashterm.h"
 #include "htmlparser.h"
 #include "md5wrap.h"
-#include "metaxmlparse.h"
 #include "mimemap.h"
 #include "msxmlparser.h"
-#include "opendocparse.h"
+#include "opendocmetaparser.h"
+#include "opendocparser.h"
 #include "pkglibbindir.h"
 #include "runfilter.h"
 #include "sample.h"
 #include "str.h"
 #include "stringutils.h"
-#include "svgparse.h"
+#include "svgparser.h"
 #include "tmpdir.h"
 #include "utf8convert.h"
 #include "values.h"
 #include "worker.h"
-#include "xlsxparse.h"
-#include "xpsxmlparse.h"
+#include "xlsxparser.h"
+#include "xpsparser.h"
 
 using namespace std;
 
@@ -1067,13 +1067,13 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	    append_filename_argument(cmd, file);
 	    cmd += " meta.xml";
 	    try {
-		MetaXmlParser metaxmlparser;
-		metaxmlparser.parse(stdout_to_string(cmd, false));
-		title = metaxmlparser.title;
-		keywords = metaxmlparser.keywords;
-		// FIXME: topic = metaxmlparser.topic;
-		sample = metaxmlparser.sample;
-		author = metaxmlparser.author;
+		OpenDocMetaParser metaparser;
+		metaparser.parse(stdout_to_string(cmd, false));
+		title = metaparser.title;
+		keywords = metaparser.keywords;
+		// FIXME: topic = metaparser.topic;
+		sample = metaparser.sample;
+		author = metaparser.author;
 	    } catch (const ReadError&) {
 		// It's probably best to index the document even if this fails.
 	    }
@@ -1137,13 +1137,13 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	    append_filename_argument(cmd, file);
 	    cmd += " docProps/core.xml";
 	    try {
-		MetaXmlParser metaxmlparser;
-		metaxmlparser.parse(stdout_to_string(cmd, false));
-		title = metaxmlparser.title;
-		keywords = metaxmlparser.keywords;
-		// FIXME: topic = metaxmlparser.topic;
-		sample = metaxmlparser.sample;
-		author = metaxmlparser.author;
+		OpenDocMetaParser metaparser;
+		metaparser.parse(stdout_to_string(cmd, false));
+		title = metaparser.title;
+		keywords = metaparser.keywords;
+		// FIXME: topic = metaparser.topic;
+		sample = metaparser.sample;
+		author = metaparser.author;
 	    } catch (const ReadError&) {
 		// It's probably best to index the document even if this fails.
 	    }
@@ -1163,7 +1163,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	    append_filename_argument(cmd, file);
 	    cmd += " 'Documents/1/Pages/*.fpage'";
 	    try {
-		XpsXmlParser xpsparser;
+		XpsParser xpsparser;
 		run_filter(cmd, false, &dump);
 		// Look for Byte-Order Mark (BOM).
 		if (startswith(dump, "\xfe\xff") || startswith(dump, "\xff\xfe")) {

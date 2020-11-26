@@ -1,7 +1,8 @@
-/** @file svgparse.h
- * @brief Extract text from an SVG file.
+/** @file atomparser.h
+ * @brief Extract text from an RSS atom file.
  */
-/* Copyright (C) 2010,2011,2019 Olly Betts
+/* Copyright (C) 2010,2011,2012,2019 Olly Betts
+ * Copyright (C) 2012 Mihai Bivol
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,21 +19,23 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
-#ifndef OMEGA_INCLUDED_SVGPARSE_H
-#define OMEGA_INCLUDED_SVGPARSE_H
+#ifndef OMEGA_INCLUDED_ATOMPARSER_H
+#define OMEGA_INCLUDED_ATOMPARSER_H
 
 #include "xmlparser.h"
 
-class SvgParser : public XmlParser {
-    enum { OTHER, TEXT, METADATA, TITLE, KEYWORDS, AUTHOR } state = OTHER;
-    string dc_tag;
+class AtomParser : public XmlParser {
+    enum { OTHER, TITLE, AUTHOR, KEYWORDS, TEXT } state = OTHER;
+    bool in_entry = false;
+    bool is_ignored = false;
+    std::string type;
 
   public:
-    SvgParser() { }
-    void process_text(const string &text);
-    bool opening_tag(const string &tag);
-    bool closing_tag(const string &tag);
-    string title, keywords, dump, author;
+    AtomParser() { }
+    void process_content(const std::string& text);
+    bool opening_tag(const std::string& tag);
+    bool closing_tag(const std::string& tag);
+    std::string title, keywords, dump, author;
 };
 
-#endif // OMEGA_INCLUDED_SVGPARSE_H
+#endif // OMEGA_INCLUDED_ATOMPARSER_H

@@ -1,4 +1,4 @@
-/** @file metaxmlparse.cc
+/** @file opendocmetaparser.cc
  * @brief Parser for OpenDocument's meta.xml.
  */
 /* Copyright (C) 2006,2009,2010,2011,2013,2015,2020 Olly Betts
@@ -20,39 +20,39 @@
 
 #include <config.h>
 
-#include "metaxmlparse.h"
+#include "opendocmetaparser.h"
 
 #include "datetime.h"
 
 using namespace std;
 
 void
-MetaXmlParser::process_text(const string &text)
+OpenDocMetaParser::process_content(const string& content)
 {
     switch (field) {
 	case KEYWORDS:
 	    if (!keywords.empty()) keywords += ' ';
-	    keywords += text;
+	    keywords += content;
 	    break;
 	case TITLE:
 	    if (!title.empty()) title += ' ';
-	    title += text;
+	    title += content;
 	    break;
 	case SAMPLE:
 	    if (!sample.empty()) sample += ' ';
-	    sample += text;
+	    sample += content;
 	    break;
 	case AUTHOR:
 	    if (!author.empty()) author += ' ';
-	    author += text;
+	    author += content;
 	    break;
 	case TOPIC:
 	    if (!topic.empty()) topic += ' ';
-	    topic += text;
+	    topic += content;
 	    break;
 	case CREATED: {
 	    // E.g. 2013-03-04T22:57:00
-	    created = parse_datetime(text);
+	    created = parse_datetime(content);
 	    break;
 	}
 	case NONE:
@@ -62,7 +62,7 @@ MetaXmlParser::process_text(const string &text)
 }
 
 bool
-MetaXmlParser::opening_tag(const string &tag)
+OpenDocMetaParser::opening_tag(const string& tag)
 {
     if (tag.size() < 8) return true;
     if (tag[0] == 'd' && tag[1] == 'c') {
@@ -98,7 +98,7 @@ MetaXmlParser::opening_tag(const string &tag)
 }
 
 bool
-MetaXmlParser::closing_tag(const string &)
+OpenDocMetaParser::closing_tag(const string&)
 {
     field = NONE;
     return true;

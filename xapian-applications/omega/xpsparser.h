@@ -1,7 +1,7 @@
-/** @file metaxmlparse.h
- * @brief Parser for OpenDocument's meta.xml.
+/** @file xpsparser.h
+ * @brief Parser for XPS .fpage files.
  */
-/* Copyright (C) 2006,2009,2010,2011,2016,2019 Olly Betts
+/* Copyright (C) 2009,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,22 +18,16 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
-#ifndef OMEGA_INCLUDED_METAXMLPARSE_H
-#define OMEGA_INCLUDED_METAXMLPARSE_H
+#ifndef OMEGA_INCLUDED_XPSPARSER_H
+#define OMEGA_INCLUDED_XPSPARSER_H
 
 #include "xmlparser.h"
 
-#include <ctime>
-
-class MetaXmlParser : public XmlParser {
-    enum { NONE, KEYWORDS, TITLE, SAMPLE, AUTHOR, TOPIC, CREATED } field = NONE;
+class XpsParser : public XmlParser {
   public:
-    MetaXmlParser() { }
-    void process_text(const string &text);
-    bool opening_tag(const string &tag);
-    bool closing_tag(const string &tag);
-    string title, keywords, sample, author, topic;
-    time_t created = time_t(-1);
+    XpsParser() { }
+    bool opening_tag(const std::string& tag);
+    std::string dump;
 };
 
-#endif // OMEGA_INCLUDED_METAXMLPARSE_H
+#endif // OMEGA_INCLUDED_XPSPARSER_H

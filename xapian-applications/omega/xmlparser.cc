@@ -1,5 +1,5 @@
 /** @file xmlparser.cc
- * @brief XML (and HTML) parser for omega indexer
+ * @brief XML (and HTML) parser
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Ananova Ltd
@@ -73,10 +73,10 @@ p_whitespaceeqgt(char c)
 }
 
 bool
-XmlParser::get_parameter(const string& param, string& value) const
+XmlParser::get_attribute(const string& name, string& value) const
 {
-    map<string, string>::const_iterator i = parameters.find(param);
-    if (i == parameters.end()) return false;
+    auto i = attributes.find(name);
+    if (i == attributes.end()) return false;
     value = i->second;
     return true;
 }
@@ -136,7 +136,7 @@ XmlParser::decode_entities(string& s)
 	    if (val < 0x80) {
 		*out++ = char(val);
 	    } else {
-		// Convert unicode value val to UTF-8.
+		// Convert Unicode value val to UTF-8.
 		char seq[4];
 		unsigned len = Xapian::Unicode::nonascii_to_utf8(val, seq);
 		out = copy(seq, seq + len, out);
@@ -151,33 +151,33 @@ XmlParser::decode_entities(string& s)
 }
 
 void
-XmlParser::parse(const string& body)
+XmlParser::parse(const string& text)
 {
     // Check for BOM.
-    string::const_iterator begin_after_bom = body.begin();
-    if (body.size() >= 3) {
-	switch (body[0]) {
+    string::const_iterator begin_after_bom = text.begin();
+    if (text.size() >= 3) {
+	switch (text[0]) {
 	  case '\xef':
-	    if (body[1] == '\xbb' && body[2] == '\xbf') {
+	    if (text[1] == '\xbb' && text[2] == '\xbf') {
 		charset = "utf-8";
 		begin_after_bom += 3;
 	    }
 	    break;
 	  case '\xfe':
-	    if (body[1] == '\xff') {
-		string utf8_body(body, 2);
-		convert_to_utf8(utf8_body, "utf-16le");
+	    if (text[1] == '\xff') {
+		string utf8_text(text, 2);
+		convert_to_utf8(utf8_text, "utf-16le");
 		charset = "utf-8";
-		parse(utf8_body);
+		parse(utf8_text);
 		return;
 	    }
 	    break;
 	  case '\xff':
-	    if (body[1] == '\xfe') {
-		string utf8_body(body, 2);
-		convert_to_utf8(utf8_body, "utf-16be");
+	    if (text[1] == '\xfe') {
+		string utf8_text(text, 2);
+		convert_to_utf8(utf8_text, "utf-16be");
 		charset = "utf-8";
-		parse(utf8_body);
+		parse(utf8_text);
 		return;
 	    }
 	    break;
@@ -186,34 +186,34 @@ XmlParser::parse(const string& body)
 
     in_script = false;
 
-    parameters.clear();
+    attributes.clear();
     string::const_iterator start = begin_after_bom;
 
     while (true) {
-	// Skip through until we find an HTML tag, a comment, or the end of
-	// document.  Ignore isolated occurrences of '<' which don't start
-	// a tag or comment.
+	// Skip through until we find a tag, a comment, or the end of document.
+	// Ignore isolated occurrences of '<' which don't start a tag or
+	// comment.
 	string::const_iterator p = start;
 	while (true) {
-	    p = find(p, body.end(), '<');
-	    if (p == body.end()) break;
+	    p = find(p, text.end(), '<');
+	    if (p == text.end()) break;
 	    unsigned char ch = *(p + 1);
 
-	    // Tag, closing tag, or comment (or SGML declaration).
+	    // Opening tag, closing tag, or comment/SGML declaration.
 	    if ((!in_script && C_isalpha(ch)) || ch == '/' || ch == '!') break;
 
 	    if (ch == '?') {
 		// PHP code or XML declaration.
 		// XML declaration is only valid at the start of the first line.
-		if (p != begin_after_bom || body.size() < 20) break;
+		if (p != begin_after_bom || text.size() < 20) break;
 
 		// XML declaration looks something like this:
 		// <?xml version="1.0" encoding="UTF-8"?>
 		if (p[2] != 'x' || p[3] != 'm' || p[4] != 'l') break;
 		if (strchr(" \t\r\n", p[5]) == NULL) break;
 
-		string::const_iterator decl_end = find(p + 6, body.end(), '?');
-		if (decl_end == body.end()) break;
+		string::const_iterator decl_end = find(p + 6, text.end(), '?');
+		if (decl_end == text.end()) break;
 
 		// Default charset for XML is UTF-8.
 		charset = "utf-8";
@@ -243,47 +243,47 @@ XmlParser::parse(const string& body)
 	    ++p;
 	}
 
-	// Process text up to start of tag.
+	// Process content up to start of tag.
 	if (p > start) {
-	    string text(body, start - body.begin(), p - start);
-	    convert_to_utf8(text, charset);
-	    decode_entities(text);
-	    process_text(text);
+	    string content(text, start - text.begin(), p - start);
+	    convert_to_utf8(content, charset);
+	    decode_entities(content);
+	    process_content(content);
 	}
 
-	if (p == body.end()) break;
+	if (p == text.end()) break;
 
 	start = p + 1;
 
-	if (start == body.end()) break;
+	if (start == text.end()) break;
 
 	if (*start == '!') {
-	    if (++start == body.end()) break;
+	    if (++start == text.end()) break;
 
 	    // Comment, SGML declaration, or HTML5 DTD.
 	    char first_ch = *start;
-	    if (++start == body.end()) break;
+	    if (++start == text.end()) break;
 	    if (first_ch == '-' && *start == '-') {
 		++start;
-		string::const_iterator close = find(start, body.end(), '>');
+		string::const_iterator close = find(start, text.end(), '>');
 		// An unterminated comment swallows rest of document
 		// (like Netscape, but unlike MSIE IIRC)
-		if (close == body.end()) break;
+		if (close == text.end()) break;
 
 		p = close;
 		// look for -->
-		while (p != body.end() && (*(p - 1) != '-' || *(p - 2) != '-'))
-		    p = find(p + 1, body.end(), '>');
+		while (p != text.end() && (*(p - 1) != '-' || *(p - 2) != '-'))
+		    p = find(p + 1, text.end(), '>');
 
-		if (p != body.end()) {
+		if (p != text.end()) {
 		    // Check for htdig's "ignore this bit" comments.
 		    if (p - start == CONST_STRLEN("htdig_noindex") + 2 &&
 			memcmp(&*start, "htdig_noindex",
 			       CONST_STRLEN("htdig_noindex")) == 0) {
-			auto i = body.find("<!--/htdig_noindex-->",
-					   p + 1 - body.begin());
+			auto i = text.find("<!--/htdig_noindex-->",
+					   p + 1 - text.begin());
 			if (i == string::npos) break;
-			start = body.begin() + i +
+			start = text.begin() + i +
 			    CONST_STRLEN("<!--/htdig_noindex-->");
 			continue;
 		    }
@@ -291,10 +291,10 @@ XmlParser::parse(const string& body)
 		    if (p - start == CONST_STRLEN("UdmComment") + 2 &&
 			memcmp(&*start, "UdmComment",
 			       CONST_STRLEN("UdmComment")) == 0) {
-			auto i = body.find("<!--/UdmComment-->",
-					   p + 1 - body.begin());
+			auto i = text.find("<!--/UdmComment-->",
+					   p + 1 - text.begin());
 			if (i == string::npos) break;
-			start = body.begin() + i +
+			start = text.begin() + i +
 			    CONST_STRLEN("<!--/UdmComment-->");
 			continue;
 		    }
@@ -305,19 +305,19 @@ XmlParser::parse(const string& body)
 		    start = close;
 		}
 	    } else if (first_ch == '[' &&
-		       body.size() - (start - body.begin()) > 6 &&
-		       body.compare(start - body.begin(), 6, "CDATA[", 6) == 0) {
+		       text.size() - (start - text.begin()) > 6 &&
+		       memcmp(&*start, "CDATA[", CONST_STRLEN("CDATA[")) == 0) {
 		start += 6;
-		string::size_type b = start - body.begin();
+		string::size_type b = start - text.begin();
 		string::size_type i;
-		i = body.find("]]>", b);
-		string text(body, b, i - b);
-		convert_to_utf8(text, charset);
-		process_text(text);
+		i = text.find("]]>", b);
+		string content(text, b, i - b);
+		convert_to_utf8(content, charset);
+		process_content(content);
 		if (i == string::npos) break;
-		start = body.begin() + i + 2;
+		start = text.begin() + i + 2;
 	    } else if (C_tolower(first_ch) == 'd' &&
-		       body.end() - start > 6 &&
+		       text.end() - start > 6 &&
 		       C_tolower(start[0]) == 'o' &&
 		       C_tolower(start[1]) == 'c' &&
 		       C_tolower(start[2]) == 't' &&
@@ -327,11 +327,11 @@ XmlParser::parse(const string& body)
 		       C_isspace(start[6])) {
 		// DOCTYPE declaration.
 		start += 7;
-		while (start != body.end() && C_isspace(*start)) {
+		while (start != text.end() && C_isspace(*start)) {
 		    ++start;
 		}
-		if (start == body.end()) break;
-		if (body.end() - start >= 5 &&
+		if (start == text.end()) break;
+		if (text.end() - start >= 5 &&
 		    C_tolower(start[0]) == 'h' &&
 		    C_tolower(start[1]) == 't' &&
 		    C_tolower(start[2]) == 'm' &&
@@ -340,17 +340,17 @@ XmlParser::parse(const string& body)
 		    start += 4;
 
 		    // HTML doctype.
-		    while (start != body.end() && C_isspace(*start)) {
+		    while (start != text.end() && C_isspace(*start)) {
 			++start;
 		    }
-		    if (start == body.end()) break;
+		    if (start == text.end()) break;
 
 		    if (*start == '>') {
 			// <!DOCTYPE html>
 			// Default charset for HTML5 is UTF-8.
 			charset = "utf-8";
 		    }
-		} else if (body.end() - start >= 29 &&
+		} else if (text.end() - start >= 29 &&
 			   C_tolower(start[0]) == 's' &&
 			   C_tolower(start[1]) == 'y' &&
 			   C_tolower(start[2]) == 's' &&
@@ -359,14 +359,14 @@ XmlParser::parse(const string& body)
 			   C_tolower(start[5]) == 'm' &&
 			   C_isspace(start[6])) {
 		    start += 7;
-		    while (start != body.end() && C_isspace(*start)) {
+		    while (start != text.end() && C_isspace(*start)) {
 			++start;
 		    }
-		    size_t left = body.end() - start;
+		    size_t left = text.end() - start;
 		    if (left >= HTML5_LEGACY_COMPAT_LEN + 3 &&
 			(*start == '\'' || *start == '"') &&
 			start[HTML5_LEGACY_COMPAT_LEN + 1] == *start &&
-			body.compare(start - body.begin() + 1,
+			text.compare(start - text.begin() + 1,
 				     HTML5_LEGACY_COMPAT_LEN,
 				     HTML5_LEGACY_COMPAT,
 				     HTML5_LEGACY_COMPAT_LEN) == 0) {
@@ -377,39 +377,39 @@ XmlParser::parse(const string& body)
 			charset = "utf-8";
 		    }
 		}
-		start = find(start - 1, body.end(), '>');
-		if (start == body.end()) break;
+		start = find(start - 1, text.end(), '>');
+		if (start == text.end()) break;
 	    } else {
 		// Some other SGML declaration - ignore it.
-		start = find(start - 1, body.end(), '>');
-		if (start == body.end()) break;
+		start = find(start - 1, text.end(), '>');
+		if (start == text.end()) break;
 	    }
 	    ++start;
 	} else if (*start == '?') {
-	    if (++start == body.end()) break;
+	    if (++start == text.end()) break;
 	    // PHP - swallow until ?> or EOF
-	    start = find(start + 1, body.end(), '>');
+	    start = find(start + 1, text.end(), '>');
 
 	    // look for ?>
-	    while (start != body.end() && *(start - 1) != '?')
-		start = find(start + 1, body.end(), '>');
+	    while (start != text.end() && *(start - 1) != '?')
+		start = find(start + 1, text.end(), '>');
 
-	    // unterminated PHP swallows rest of document (rather arbitrarily
+	    // Unterminated PHP swallows rest of document (rather arbitrarily
 	    // but it avoids polluting the database when things go wrong)
-	    if (start != body.end()) ++start;
+	    if (start != text.end()) ++start;
 	} else {
-	    // opening or closing tag
+	    // Opening or closing tag.
 	    int closing = 0;
 
 	    if (*start == '/') {
 		closing = 1;
-		start = find_if(start + 1, body.end(), C_isnotspace);
+		start = find_if(start + 1, text.end(), C_isnotspace);
 	    }
 
 	    p = start;
-	    start = find_if(start, body.end(), p_nottag);
-	    string tag(body, p - body.begin(), start - p);
-	    // convert tagname to lowercase
+	    start = find_if(start, text.end(), p_nottag);
+	    string tag(text, p - text.begin(), start - p);
+	    // Convert tagname to lowercase.
 	    lowercase_string(tag);
 
 	    if (closing) {
@@ -417,21 +417,21 @@ XmlParser::parse(const string& body)
 		    return;
 		if (in_script && tag == "script") in_script = false;
 
-		/* ignore any bogus parameters on closing tags */
-		p = find(start, body.end(), '>');
-		if (p == body.end()) break;
+		/* ignore any bogus attributes on closing tags */
+		p = find(start, text.end(), '>');
+		if (p == text.end()) break;
 		start = p + 1;
 	    } else {
 		bool empty_element = false;
-		// FIXME: parse parameters lazily.
-		while (start < body.end() && *start != '>') {
+		// FIXME: parse attributes lazily.
+		while (start < text.end() && *start != '>') {
 		    string name, value;
 
-		    p = find_if(start, body.end(), p_whitespaceeqgt);
+		    p = find_if(start, text.end(), p_whitespaceeqgt);
 
 		    size_t name_len = p - start;
 		    if (name_len == 1) {
-			if (*start == '/' && p < body.end() && *p == '>') {
+			if (*start == '/' && p < text.end() && *p == '>') {
 			    // E.g. <tag foo="bar" />
 			    start = p;
 			    empty_element = true;
@@ -439,59 +439,58 @@ XmlParser::parse(const string& body)
 			}
 		    }
 
-		    name.assign(body, start - body.begin(), name_len);
+		    name.assign(text, start - text.begin(), name_len);
 
-		    p = find_if(p, body.end(), C_isnotspace);
+		    p = find_if(p, text.end(), C_isnotspace);
 
 		    start = p;
-		    if (start != body.end() && *start == '=') {
-			start = find_if(start + 1, body.end(), C_isnotspace);
+		    if (start != text.end() && *start == '=') {
+			start = find_if(start + 1, text.end(), C_isnotspace);
 
-			p = body.end();
+			p = text.end();
 
 			int quote = *start;
 			if (quote == '"' || quote == '\'') {
 			    ++start;
-			    p = find(start, body.end(), quote);
+			    p = find(start, text.end(), quote);
 			}
 
-			if (p != body.end()) {
+			if (p != text.end()) {
 			    // quoted
-			    value.assign(body, start - body.begin(), p - start);
+			    value.assign(text, start - text.begin(), p - start);
 			    ++p;
 			} else {
 			    // unquoted or no closing quote
-			    p = find_if(start, body.end(), p_whitespacegt);
-			    value.assign(body, start - body.begin(), p - start);
+			    p = find_if(start, text.end(), p_whitespacegt);
+			    value.assign(text, start - text.begin(), p - start);
 			}
-			start = find_if(p, body.end(), C_isnotspace);
+			start = find_if(p, text.end(), C_isnotspace);
 
 			if (!name.empty()) {
-			    // convert parameter name to lowercase
+			    // Convert attribute name to lowercase.
 			    lowercase_string(name);
-			    // in case of multiple entries, use the first
-			    // (as Netscape does)
-			    parameters.insert(make_pair(name, value));
+			    // In case of multiple entries, use the first
+			    // (as Netscape does).
+			    attributes.insert(make_pair(name, value));
 			}
 		    } else if (!name.empty()) {
 			// Boolean attribute - e.g. <input type=checkbox checked>
 
-			// convert parameter name to lowercase
+			// Convert attribute name to lowercase.
 			lowercase_string(name);
-			parameters.insert(make_pair(name, string()));
+			attributes.insert(make_pair(name, string()));
 		    }
 		}
 #if 0
 		cout << "<" << tag;
-		map<string, string>::const_iterator x;
-		for (x = parameters.begin(); x != parameters.end(); ++x) {
+		for (auto x = attributes.begin(); x != attributes.end(); ++x) {
 		    cout << " " << x->first << "=\"" << x->second << "\"";
 		}
 		cout << ">\n";
 #endif
 		if (!opening_tag(tag))
 		    return;
-		parameters.clear();
+		attributes.clear();
 
 		if (empty_element) {
 		    if (!closing_tag(tag))
@@ -502,7 +501,7 @@ XmlParser::parse(const string& body)
 		// with "a<b".
 		if (tag == "script") in_script = true;
 
-		if (start != body.end() && *start == '>') ++start;
+		if (start != text.end() && *start == '>') ++start;
 	    }
 	}
     }

@@ -22,10 +22,12 @@
 
 #include "msxmlparser.h"
 
+using namespace std;
+
 void
-MSXmlParser::process_text(const string& text)
+MSXmlParser::process_content(const string& content)
 {
-    dump += text;
+    dump += content;
 }
 
 bool

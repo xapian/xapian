@@ -1,4 +1,4 @@
-/** @file opendocparse.h
+/** @file opendocparser.h
  * @brief Extract text from OpenDocument XML.
  */
 /* Copyright (C) 2012,2019 Olly Betts
@@ -18,8 +18,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
-#ifndef OMEGA_INCLUDED_OPENDOCPARSE_H
-#define OMEGA_INCLUDED_OPENDOCPARSE_H
+#ifndef OMEGA_INCLUDED_OPENDOCPARSER_H
+#define OMEGA_INCLUDED_OPENDOCPARSER_H
 
 #include "xmlparser.h"
 
@@ -34,9 +34,9 @@ class OpenDocParser : public XmlParser {
     std::string dump;
 
     OpenDocParser() { }
-    bool opening_tag(const std::string &tag);
-    bool closing_tag(const std::string &tag);
-    void process_text(const std::string &text);
+    bool opening_tag(const std::string& tag);
+    bool closing_tag(const std::string& tag);
+    void process_content(const std::string& content);
 };
 
-#endif // OMEGA_INCLUDED_OPENDOCPARSE_H
+#endif // OMEGA_INCLUDED_OPENDOCPARSER_H

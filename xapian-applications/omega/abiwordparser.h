@@ -25,13 +25,13 @@
 
 class AbiwordParser : public XmlParser {
   public:
-    string dump;
+    std::string dump;
 
     AbiwordParser() { }
 
-    void process_text(const string& content);
+    void process_content(const std::string& content);
 
-    void parse(const string& text) {
+    void parse(const std::string& text) {
 	charset = "utf-8";
 	XmlParser::parse(text);
     }

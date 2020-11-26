@@ -41,15 +41,15 @@ class HtmlParser : public XmlParser {
     bool ignoring_metarobots = false;
     bool charset_from_meta = false;
     bool description_as_sample = false;
-    string title, sample, keywords, dump, author, topic;
+    std::string title, sample, keywords, dump, author, topic;
     time_t created = time_t(-1);
-    string* target;
+    std::string* target;
 
-    void process_text(const string &text);
-    bool opening_tag(const string &tag);
-    bool closing_tag(const string &tag);
-    void parse(const string& text,
-	       const string& charset_,
+    void process_content(const std::string& content);
+    bool opening_tag(const std::string& tag);
+    bool closing_tag(const std::string& tag);
+    void parse(const std::string& text,
+	       const std::string& charset_,
 	       bool charset_from_meta_);
     void ignore_metarobots() { ignoring_metarobots = true; }
 

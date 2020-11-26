@@ -21,11 +21,11 @@
 #include <config.h>
 #include "handler.h"
 
-#include "metaxmlparse.h"
 #include "msxmlparser.h"
-#include "opendocparse.h"
+#include "opendocmetaparser.h"
+#include "opendocparser.h"
 #include "stringutils.h"
-#include "xlsxparse.h"
+#include "xlsxparser.h"
 
 #include <archive.h>
 #include <archive_entry.h>
@@ -40,11 +40,11 @@ parse_metadata(string& metadata,
 	       string& keywords,
 	       string& author)
 {
-    MetaXmlParser metaxmlparser;
-    metaxmlparser.parse(metadata);
-    title = metaxmlparser.title;
-    keywords = metaxmlparser.keywords;
-    author = metaxmlparser.author;
+    OpenDocMetaParser metaparser;
+    metaparser.parse(metadata);
+    title = metaparser.title;
+    keywords = metaparser.keywords;
+    author = metaparser.author;
 }
 
 static bool

@@ -1,4 +1,4 @@
-/** @file svgparse.cc
+/** @file svgparser.cc
  * @brief Extract text from an SVG file.
  */
 /* Copyright (C) 2010,2011,2018 Olly Betts
@@ -20,13 +20,13 @@
 
 #include <config.h>
 
-#include "svgparse.h"
+#include "svgparser.h"
 #include "stringutils.h"
 
 using namespace std;
 
 void
-SvgParser::process_text(const string &text)
+SvgParser::process_content(const string& content)
 {
     string * target = NULL;
     switch (state) {
@@ -48,11 +48,11 @@ SvgParser::process_text(const string &text)
     }
     if (!target->empty())
 	*target += ' ';
-    *target += text;
+    *target += content;
 }
 
 bool
-SvgParser::opening_tag(const string &tag)
+SvgParser::opening_tag(const string& tag)
 {
     switch (state) {
 	case OTHER:
@@ -82,7 +82,7 @@ SvgParser::opening_tag(const string &tag)
 }
 
 bool
-SvgParser::closing_tag(const string &tag)
+SvgParser::closing_tag(const string& tag)
 {
     if (tag == "text" || tag == "svg:text" ||
 	tag == "metadata" || tag == "svg:metadata") {

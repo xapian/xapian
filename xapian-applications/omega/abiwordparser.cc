@@ -22,10 +22,12 @@
 
 #include "abiwordparser.h"
 
+using namespace std;
+
 // FIXME: Implement support for metadata.
 
 void
-AbiwordParser::process_text(const string& content)
+AbiwordParser::process_content(const string& content)
 {
     dump += content;
 }
