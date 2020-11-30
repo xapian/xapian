@@ -1,4 +1,4 @@
-/** @file xlsxparse.h
+/** @file xlsxparser.h
  * @brief Extract fields from XLSX sheet*.xml.
  */
 /* Copyright (C) 2012,2013,2019 Olly Betts
@@ -18,16 +18,16 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
-#ifndef OMEGA_INCLUDED_XLSXPARSE_H
-#define OMEGA_INCLUDED_XLSXPARSE_H
+#ifndef OMEGA_INCLUDED_XLSXPARSER_H
+#define OMEGA_INCLUDED_XLSXPARSER_H
 
-#include "htmlparse.h"
+#include "xmlparser.h"
 
 #include <vector>
 #include <set>
 #include <string>
 
-class XlsxParser : public HtmlParser {
+class XlsxParser : public XmlParser {
     std::vector<std::string> sst;
     std::set<unsigned> date_style;
     std::set<unsigned long> date_format;
@@ -48,7 +48,7 @@ class XlsxParser : public HtmlParser {
 
     unsigned style_index = 0;
 
-    void append_field(const std::string &text) {
+    void append_field(const std::string& text) {
 	if (!text.empty()) {
 	    if (!dump.empty()) dump += ' ';
 	    dump += text;
@@ -59,8 +59,8 @@ class XlsxParser : public HtmlParser {
     std::string dump;
 
     XlsxParser() { }
-    bool opening_tag(const std::string &tag);
-    void process_text(const std::string &text);
+    bool opening_tag(const std::string& tag);
+    void process_content(const std::string& content);
 };
 
-#endif // OMEGA_INCLUDED_XLSXPARSE_H
+#endif // OMEGA_INCLUDED_XLSXPARSER_H

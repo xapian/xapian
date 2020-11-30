@@ -1,4 +1,4 @@
-/** @file atomparsetest.cc
+/** @file atomparsertest.cc
  * @brief test the AtomParser class
  */
 /* Copyright (C) 2006,2008,2011,2012 Olly Betts
@@ -25,7 +25,7 @@
 #include <iostream>
 #include <string>
 
-#include "atomparse.h"
+#include "atomparser.h"
 
 using namespace std;
 

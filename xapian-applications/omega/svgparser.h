@@ -1,7 +1,7 @@
-/** @file xpsxmlparse.h
- * @brief Subclass of HtmlParser for parsing XPS .fpage files.
+/** @file svgparser.h
+ * @brief Extract text from an SVG file.
  */
-/* Copyright (C) 2009,2011 Olly Betts
+/* Copyright (C) 2010,2011,2019 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,16 +18,21 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
-#ifndef OMEGA_INCLUDED_XPSXMLPARSE_H
-#define OMEGA_INCLUDED_XPSXMLPARSE_H
+#ifndef OMEGA_INCLUDED_SVGPARSER_H
+#define OMEGA_INCLUDED_SVGPARSER_H
 
-#include "htmlparse.h"
+#include "xmlparser.h"
 
-class XpsXmlParser : public HtmlParser {
+class SvgParser : public XmlParser {
+    enum { OTHER, TEXT, METADATA, TITLE, KEYWORDS, AUTHOR } state = OTHER;
+    std::string dc_tag;
+
   public:
-    XpsXmlParser() { }
-    bool opening_tag(const string &tag);
-    string dump;
+    SvgParser() { }
+    void process_content(const std::string& content);
+    bool opening_tag(const std::string& tag);
+    bool closing_tag(const std::string& tag);
+    std::string title, keywords, dump, author;
 };
 
-#endif // OMEGA_INCLUDED_XPSXMLPARSE_H
+#endif // OMEGA_INCLUDED_SVGPARSER_H

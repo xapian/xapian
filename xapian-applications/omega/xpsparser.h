@@ -1,5 +1,5 @@
-/** @file xpsxmlparse.cc
- * @brief Subclass of HtmlParser for parsing XPS .fpage files.
+/** @file xpsparser.h
+ * @brief Parser for XPS .fpage files.
  */
 /* Copyright (C) 2009,2011 Olly Betts
  *
@@ -18,17 +18,16 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
-#include <config.h>
+#ifndef OMEGA_INCLUDED_XPSPARSER_H
+#define OMEGA_INCLUDED_XPSPARSER_H
 
-#include "xpsxmlparse.h"
+#include "xmlparser.h"
 
-bool
-XpsXmlParser::opening_tag(const string &tag)
-{
-    if (tag == "glyphs") {
-	string unicodestring;
-	if (get_parameter("unicodestring", unicodestring))
-	    dump += unicodestring;
-    }
-    return true;
-}
+class XpsParser : public XmlParser {
+  public:
+    XpsParser() { }
+    bool opening_tag(const std::string& tag);
+    std::string dump;
+};
+
+#endif // OMEGA_INCLUDED_XPSPARSER_H

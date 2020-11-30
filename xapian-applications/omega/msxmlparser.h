@@ -1,7 +1,7 @@
-/** @file msxmlparse.cc
+/** @file msxmlparser.h
  * @brief Parser for Microsoft XML formats (.docx, etc).
  */
-/* Copyright (C) 2006,2009,2011,2012,2013 Olly Betts
+/* Copyright (C) 2006,2008,2009,2011,2013,2020 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,15 +18,17 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
-#include <config.h>
+#ifndef OMEGA_INCLUDED_MSXMLPARSER_H
+#define OMEGA_INCLUDED_MSXMLPARSER_H
 
-#include "msxmlparse.h"
+#include "htmlparser.h"
 
-bool
-MSXmlParser::closing_tag(const string &tag)
-{
-    // For .docx and .pptx respectively.
-    if (tag == "w:t" || tag == "a:t")
-	pending_space = true;
-    return true;
-}
+class MSXmlParser : public XmlParser {
+  public:
+    MSXmlParser() { }
+    void process_content(const std::string& content);
+    bool closing_tag(const std::string& tag);
+    std::string dump;
+};
+
+#endif // OMEGA_INCLUDED_MSXMLPARSER_H

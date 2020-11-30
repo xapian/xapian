@@ -1,5 +1,5 @@
-/** @file opendocparse.cc
- * @brief Extract text from XML from an OpenDocument document.
+/** @file opendocparser.cc
+ * @brief Extract text from OpenDocument XML.
  */
 /* Copyright (C) 2012 Olly Betts
  *
@@ -20,27 +20,27 @@
 
 #include <config.h>
 
-#include "opendocparse.h"
+#include "opendocparser.h"
 
 using namespace std;
 
 bool
-OpenDocParser::opening_tag(const string &tag)
+OpenDocParser::opening_tag(const string& tag)
 {
     if (tag == "office:body") {
 	indexing = true;
     } else if (tag == "style:style") {
-	(void)get_parameter("style:master-page-name", master_page_name);
+	(void)get_attribute("style:master-page-name", master_page_name);
     } else if (tag == "style:master-page") {
 	string n;
-	if (get_parameter("style:name", n) && n == master_page_name)
+	if (get_attribute("style:name", n) && n == master_page_name)
 	    indexing = true;
     }
     return true;
 }
 
 bool
-OpenDocParser::closing_tag(const string &tag)
+OpenDocParser::closing_tag(const string& tag)
 {
     if (!indexing)
 	return true;
@@ -54,13 +54,13 @@ OpenDocParser::closing_tag(const string &tag)
 }
 
 void
-OpenDocParser::process_text(const string &text)
+OpenDocParser::process_content(const string& content)
 {
-    if (indexing && !text.empty()) {
+    if (indexing && !content.empty()) {
 	if (pending_space) {
 	    pending_space = false;
 	    dump += ' ';
 	}
-	dump += text;
+	dump += content;
     }
 }

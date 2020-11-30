@@ -1,4 +1,4 @@
-/** @file atomparse.cc
+/** @file atomparser.cc
  * @brief Extract text from an RSS atom file.
  */
 /* Copyright (C) 2010,2011,2012 Olly Betts
@@ -21,14 +21,14 @@
 
 #include <config.h>
 
-#include "atomparse.h"
-#include "myhtmlparse.h"
+#include "atomparser.h"
+#include "htmlparser.h"
 #include "stringutils.h"
 
 using namespace std;
 
 void
-AtomParser::process_text(const string& text)
+AtomParser::process_content(const string& content)
 {
     if (is_ignored)
 	return;
@@ -57,11 +57,11 @@ AtomParser::process_text(const string& text)
 	*target += ' ';
 
     if (type == "html") {
-	MyHtmlParser p;
-	p.parse_html(text, charset, true);
+	HtmlParser p;
+	p.parse(content, charset, true);
 	*target += p.dump;
     } else {
-	*target += text;
+	*target += content;
     }
 }
 
@@ -80,7 +80,7 @@ AtomParser::opening_tag(const string& tag)
 	else if (tag == "category") {
 	    // Handle category term separately.
 	    string new_keyword;
-	    get_parameter("term", new_keyword);
+	    get_attribute("term", new_keyword);
 	    if (!keywords.empty())
 		keywords += ' ';
 	    keywords += new_keyword;
@@ -90,7 +90,7 @@ AtomParser::opening_tag(const string& tag)
 	    is_ignored = true;
     }
 
-    if (!get_parameter("type", type))
+    if (!get_attribute("type", type))
 	type = "text";
     return true;
 }

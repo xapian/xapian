@@ -49,31 +49,31 @@
 
 #include <xapian.h>
 
+#include "abiwordparser.h"
 #include "append_filename_arg.h"
-#include "atomparse.h"
+#include "atomparser.h"
 #include "datetime.h"
 #include "diritor.h"
 #include "failed.h"
 #include "hashterm.h"
+#include "htmlparser.h"
 #include "md5wrap.h"
-#include "metaxmlparse.h"
 #include "mimemap.h"
-#include "msxmlparse.h"
-#include "myhtmlparse.h"
-#include "opendocparse.h"
+#include "msxmlparser.h"
+#include "opendocmetaparser.h"
+#include "opendocparser.h"
 #include "pkglibbindir.h"
 #include "runfilter.h"
 #include "sample.h"
 #include "str.h"
 #include "stringutils.h"
-#include "svgparse.h"
+#include "svgparser.h"
 #include "tmpdir.h"
 #include "utf8convert.h"
 #include "values.h"
 #include "worker.h"
-#include "xmlparse.h"
-#include "xlsxparse.h"
-#include "xpsxmlparse.h"
+#include "xlsxparser.h"
+#include "xpsparser.h"
 
 using namespace std;
 
@@ -906,16 +906,16 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 		}
 		const string & charset = filter.output_charset;
 		if (filter.output_type == "text/html") {
-		    MyHtmlParser p;
+		    HtmlParser p;
 		    p.ignore_metarobots();
 		    p.description_as_sample = description_as_sample;
 		    try {
-			p.parse_html(dump, charset, false);
+			p.parse(dump, charset, false);
 		    } catch (const string & newcharset) {
 			p.reset();
 			p.ignore_metarobots();
 			p.description_as_sample = description_as_sample;
-			p.parse_html(dump, newcharset, true);
+			p.parse(dump, newcharset, true);
 		    } catch (const ReadError&) {
 			skip_cmd_failed(urlterm, context, cmd,
 					d.get_size(), d.get_mtime());
@@ -946,18 +946,18 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	    }
 	} else if (mimetype == "text/html" || mimetype == "text/x-php") {
 	    const string & text = d.file_to_string();
-	    MyHtmlParser p;
+	    HtmlParser p;
 	    if (ignore_exclusions) p.ignore_metarobots();
 	    p.description_as_sample = description_as_sample;
 	    try {
 		// Default HTML character set is latin 1, though not specifying
 		// one is deprecated these days.
-		p.parse_html(text, "iso-8859-1", false);
+		p.parse(text, "iso-8859-1", false);
 	    } catch (const string & newcharset) {
 		p.reset();
 		if (ignore_exclusions) p.ignore_metarobots();
 		p.description_as_sample = description_as_sample;
-		p.parse_html(text, newcharset, true);
+		p.parse(text, newcharset, true);
 	    }
 	    if (!p.indexing_allowed) {
 		skip_meta_tag(urlterm, context,
@@ -1067,13 +1067,13 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	    append_filename_argument(cmd, file);
 	    cmd += " meta.xml";
 	    try {
-		MetaXmlParser metaxmlparser;
-		metaxmlparser.parse(stdout_to_string(cmd, false));
-		title = metaxmlparser.title;
-		keywords = metaxmlparser.keywords;
-		// FIXME: topic = metaxmlparser.topic;
-		sample = metaxmlparser.sample;
-		author = metaxmlparser.author;
+		OpenDocMetaParser metaparser;
+		metaparser.parse(stdout_to_string(cmd, false));
+		title = metaparser.title;
+		keywords = metaparser.keywords;
+		// FIXME: topic = metaparser.topic;
+		sample = metaparser.sample;
+		author = metaparser.author;
 	    } catch (const ReadError&) {
 		// It's probably best to index the document even if this fails.
 	    }
@@ -1124,7 +1124,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 		    // Treat exit status 11 from unzip as success - this is
 		    // what we get if one of the listed filenames to extract
 		    // doesn't match anything in the zip file.
-		    xmlparser.parse_xml(stdout_to_string(cmd, false, 11));
+		    xmlparser.parse(stdout_to_string(cmd, false, 11));
 		    dump = xmlparser.dump;
 		} catch (const ReadError&) {
 		    skip_cmd_failed(urlterm, context, cmd,
@@ -1137,35 +1137,33 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	    append_filename_argument(cmd, file);
 	    cmd += " docProps/core.xml";
 	    try {
-		MetaXmlParser metaxmlparser;
-		metaxmlparser.parse(stdout_to_string(cmd, false));
-		title = metaxmlparser.title;
-		keywords = metaxmlparser.keywords;
-		// FIXME: topic = metaxmlparser.topic;
-		sample = metaxmlparser.sample;
-		author = metaxmlparser.author;
+		OpenDocMetaParser metaparser;
+		metaparser.parse(stdout_to_string(cmd, false));
+		title = metaparser.title;
+		keywords = metaparser.keywords;
+		// FIXME: topic = metaparser.topic;
+		sample = metaparser.sample;
+		author = metaparser.author;
 	    } catch (const ReadError&) {
 		// It's probably best to index the document even if this fails.
 	    }
 	} else if (mimetype == "application/x-abiword") {
-	    // FIXME: Implement support for metadata.
-	    XmlParser xmlparser;
-	    const string & text = d.file_to_string();
-	    xmlparser.parse_xml(text);
-	    dump = xmlparser.dump;
+	    AbiwordParser abiwordparser;
+	    const string& text = d.file_to_string();
+	    abiwordparser.parse(text);
+	    dump = abiwordparser.dump;
 	    md5_string(text, md5);
 	} else if (mimetype == "application/x-abiword-compressed") {
-	    // FIXME: Implement support for metadata.
-	    XmlParser xmlparser;
-	    xmlparser.parse_xml(d.gzfile_to_string());
-	    dump = xmlparser.dump;
+	    AbiwordParser abiwordparser;
+	    abiwordparser.parse(d.gzfile_to_string());
+	    dump = abiwordparser.dump;
 	} else if (mimetype == "application/oxps" ||
 		   mimetype == "application/vnd.ms-xpsdocument") {
 	    string cmd = "unzip -p";
 	    append_filename_argument(cmd, file);
 	    cmd += " 'Documents/1/Pages/*.fpage'";
 	    try {
-		XpsXmlParser xpsparser;
+		XpsParser xpsparser;
 		run_filter(cmd, false, &dump);
 		// Look for Byte-Order Mark (BOM).
 		if (startswith(dump, "\xfe\xff") || startswith(dump, "\xff\xfe")) {

@@ -1,8 +1,8 @@
-/** @file myhtmlparse.cc
- * @brief subclass of HtmlParser for extracting text.
+/** @file htmlparser.cc
+ * @brief subclass of XmlParser for extracting text from HTML.
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2006,2007,2008,2010,2011,2012,2013,2014,2015,2017 Olly Betts
+ * Copyright 2002,2003,2004,2006,2007,2008,2010,2011,2012,2013,2014,2015,2017,2020 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,11 +22,11 @@
 
 #include <config.h>
 
-#include "myhtmlparse.h"
+#include "htmlparser.h"
 
 #include "datetime.h"
+#include "html-tok.h"
 #include "keyword.h"
-#include "my-html-tok.h"
 #include "stringutils.h"
 #include "utf8convert.h"
 
@@ -45,38 +45,39 @@ lowercase_string(string &str)
 }
 
 void
-MyHtmlParser::parse_html(const string &text, const string &charset_,
-			 bool charset_from_meta_)
+HtmlParser::parse(const string& text,
+		  const string& charset_,
+		  bool charset_from_meta_)
 {
     charset = charset_;
     charset_from_meta = charset_from_meta_;
-    parse(text);
+    XmlParser::parse(text);
 }
 
 void
-MyHtmlParser::process_text(const string &text)
+HtmlParser::process_content(const string& content)
 {
-    if (!text.empty() && !in_script_tag && !in_style_tag) {
-	string::size_type b = text.find_first_not_of(WHITESPACE);
+    if (!content.empty() && !in_script_tag && !in_style_tag) {
+	string::size_type b = content.find_first_not_of(WHITESPACE);
 	if (b && !pending_space) pending_space = SPACE;
 	while (b != string::npos) {
 	    if (pending_space && !target->empty())
 		*target += whitespace[pending_space];
-	    string::size_type e = text.find_first_of(WHITESPACE, b);
+	    string::size_type e = content.find_first_of(WHITESPACE, b);
 	    if (e == string::npos) {
-		target->append(text.data() + b, text.size() - b);
+		target->append(content.data() + b, content.size() - b);
 		pending_space = 0;
 		return;
 	    }
-	    target->append(text.data() + b, e - b);
+	    target->append(content.data() + b, e - b);
 	    pending_space = SPACE;
-	    b = text.find_first_not_of(WHITESPACE, e + 1);
+	    b = content.find_first_not_of(WHITESPACE, e + 1);
 	}
     }
 }
 
 bool
-MyHtmlParser::opening_tag(const string &tag)
+HtmlParser::opening_tag(const string& tag)
 {
     int k = keyword(tab, tag.data(), tag.size());
     if (k < 0)
@@ -85,10 +86,10 @@ MyHtmlParser::opening_tag(const string &tag)
     switch (html_tag(k)) {
 	case INPUT: {
 	    string type;
-	    if (!get_parameter("type", type))
+	    if (!get_attribute("type", type))
 		break;
 	    if (type == "checkbox") {
-		if (get_parameter("checked", type)) {
+		if (get_attribute("checked", type)) {
 		    *target += "\xe2\x98\x91"; // U+2611 BALLOT BOX WITH CHECK
 		} else {
 		    *target += "\xe2\x98\x90"; // U+2610 BALLOT BOX
@@ -99,7 +100,7 @@ MyHtmlParser::opening_tag(const string &tag)
 	case P:
 	    if (pending_space < PAGE) {
 		string style;
-		if (get_parameter("style", style)) {
+		if (get_attribute("style", style)) {
 		    // As produced by Libreoffice's HTML export:
 		    if (style.find("page-break-before: always") != string::npos)
 			pending_space = PAGE;
@@ -108,9 +109,9 @@ MyHtmlParser::opening_tag(const string &tag)
 	    break;
 	case META: {
 	    string content;
-	    if (get_parameter("content", content)) {
+	    if (get_attribute("content", content)) {
 		string name;
-		if (get_parameter("name", name)) {
+		if (get_attribute("name", name)) {
 		    lowercase_string(name);
 		    if (name == "description") {
 			convert_to_utf8(content, charset);
@@ -173,7 +174,7 @@ MyHtmlParser::opening_tag(const string &tag)
 		// force reparsing again!
 		if (charset_from_meta) break;
 		string hdr;
-		if (get_parameter("http-equiv", hdr)) {
+		if (get_attribute("http-equiv", hdr)) {
 		    lowercase_string(hdr);
 		    if (hdr == "content-type") {
 			lowercase_string(content);
@@ -210,7 +211,7 @@ MyHtmlParser::opening_tag(const string &tag)
 	    }
 	    if (charset_from_meta) break;
 	    string newcharset;
-	    if (get_parameter("charset", newcharset)) {
+	    if (get_attribute("charset", newcharset)) {
 		// HTML5 added: <meta charset="...">
 		lowercase_string(newcharset);
 		if (charset != newcharset) {
@@ -237,7 +238,7 @@ MyHtmlParser::opening_tag(const string &tag)
 }
 
 bool
-MyHtmlParser::closing_tag(const string &tag)
+HtmlParser::closing_tag(const string& tag)
 {
     int k = keyword(tab, tag.data(), tag.size());
     if (k < 0 || (token_space[k] & NOCLOSE))

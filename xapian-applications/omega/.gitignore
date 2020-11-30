@@ -32,9 +32,9 @@
 /omindex
 /omindex-list
 /scriptindex
-/atomparsetest
+/atomparsertest
 /csvesctest
-/htmlparsetest
+/htmlparsertest
 /jsonesctest
 /md5test
 /omindexcheck
@@ -54,7 +54,7 @@
 /mimemap.h
 /mimemap.stamp
 /namedents.h
-/my-html-tok.h
+/html-tok.h
 /*.1
 /clickmodel/.deps
 /clickmodel/.dirstamp

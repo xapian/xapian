@@ -1,4 +1,4 @@
-/** @file xlsxparse.cc
+/** @file xlsxparser.cc
  * @brief Extract fields from XLSX sheet*.xml.
  */
 /* Copyright (C) 2012,2013 Olly Betts
@@ -20,7 +20,7 @@
 
 #include <config.h>
 
-#include "xlsxparse.h"
+#include "xlsxparser.h"
 
 #include <cstdlib>
 #include <cstring>
@@ -35,11 +35,11 @@ XlsxParser::opening_tag(const string &tag)
 	// We need to distinguish <v> tags which are inside <c t="s">, as these
 	// are numeric references to shared strings.
 	string type;
-	if (get_parameter("t", type) && type == "s") {
+	if (get_attribute("t", type) && type == "s") {
 	    mode = MODE_C_STRING;
 	} else {
 	    mode = MODE_C_LITERAL;
-	    if (get_parameter("s", type)) {
+	    if (get_attribute("s", type)) {
 		unsigned long style_id = strtoul(type.c_str(), NULL, 10);
 		if (date_style.find(style_id) != date_style.end()) {
 		    mode = MODE_C_DATE;
@@ -58,7 +58,7 @@ XlsxParser::opening_tag(const string &tag)
 	mode = MODE_SI;
     } else if (tag == "sst") {
 	string unique_count;
-	if (get_parameter("uniquecount", unique_count)) {
+	if (get_attribute("uniquecount", unique_count)) {
 	    unsigned long c = strtoul(unique_count.c_str(), NULL, 10);
 	    // This reserving is just a performance tweak, so don't go
 	    // reserving ludicrous amounts of space just because an XML
@@ -67,18 +67,18 @@ XlsxParser::opening_tag(const string &tag)
 	}
     } else if (tag == "workbookpr") {
 	string v;
-	if (get_parameter("date1904", v)) {
+	if (get_attribute("date1904", v)) {
 	    date1904 = (v == "true" || v == "1");
 	}
     } else if (tag == "numfmt") {
 	string formatcode;
-	if (get_parameter("formatcode", formatcode)) {
+	if (get_attribute("formatcode", formatcode)) {
 	    // Heuristic for "date format" (FIXME: implement properly)
 	    if (strchr(formatcode.c_str(), 'd') &&
 		strchr(formatcode.c_str(), 'm') &&
 		strchr(formatcode.c_str(), 'y')) {
 		string v;
-		if (get_parameter("numfmtid", v)) {
+		if (get_attribute("numfmtid", v)) {
 		    unsigned long id = strtoul(v.c_str(), NULL, 10);
 		    date_format.insert(id);
 		}
@@ -89,9 +89,9 @@ XlsxParser::opening_tag(const string &tag)
     } else if (tag == "xf") {
 	if (mode == MODE_CELLXFS) {
 	    string v;
-	    if (get_parameter("applynumberformat", v)) {
+	    if (get_attribute("applynumberformat", v)) {
 		if (v == "true" || v == "1") {
-		    if (get_parameter("numfmtid", v)) {
+		    if (get_attribute("numfmtid", v)) {
 			unsigned long id = strtoul(v.c_str(), NULL, 10);
 			if ((id >= 14 && id <= 17) ||
 			    date_format.find(id) != date_format.end()) {
@@ -107,12 +107,12 @@ XlsxParser::opening_tag(const string &tag)
 }
 
 void
-XlsxParser::process_text(const string &text)
+XlsxParser::process_content(const string& content)
 {
     switch (mode) {
 	case MODE_V_DATE: {
 	    // Date field.
-	    unsigned long c = strtoul(text.c_str(), NULL, 10);
+	    unsigned long c = strtoul(content.c_str(), NULL, 10);
 	    if (date1904) {
 		c -= 24107;
 	    } else {
@@ -133,7 +133,7 @@ XlsxParser::process_text(const string &text)
 	}
 	case MODE_V_STRING: {
 	    // Shared string use.
-	    unsigned long c = strtoul(text.c_str(), NULL, 10);
+	    unsigned long c = strtoul(content.c_str(), NULL, 10);
 	    if (c < sst.size()) {
 		append_field(sst[c]);
 	    }
@@ -142,12 +142,12 @@ XlsxParser::process_text(const string &text)
 	}
 	case MODE_V_LITERAL:
 	    // Literal (possibly calculated) field value.
-	    append_field(text);
+	    append_field(content);
 	    mode = MODE_NONE;
 	    return;
 	case MODE_SI:
 	    // Shared string definition.
-	    sst.push_back(text);
+	    sst.push_back(content);
 	    mode = MODE_NONE;
 	    return;
 	default:

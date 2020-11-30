@@ -1,7 +1,7 @@
-/** @file msxmlparse.h
- * @brief Parser for Microsoft XML formats (.docx, etc).
+/** @file opendocmetaparser.h
+ * @brief Parser for OpenDocument's meta.xml.
  */
-/* Copyright (C) 2006,2008,2009,2011,2013 Olly Betts
+/* Copyright (C) 2006,2009,2010,2011,2016,2019 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,15 +18,22 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
-#ifndef OMEGA_INCLUDED_MSXMLPARSE_H
-#define OMEGA_INCLUDED_MSXMLPARSE_H
+#ifndef OMEGA_INCLUDED_OPENDOCMETAPARSER_H
+#define OMEGA_INCLUDED_OPENDOCMETAPARSER_H
 
-#include "xmlparse.h"
+#include "xmlparser.h"
 
-class MSXmlParser : public XmlParser {
+#include <ctime>
+
+class OpenDocMetaParser : public XmlParser {
+    enum { NONE, KEYWORDS, TITLE, SAMPLE, AUTHOR, TOPIC, CREATED } field = NONE;
   public:
-    MSXmlParser() : XmlParser() { }
-    bool closing_tag(const string &tag);
+    OpenDocMetaParser() { }
+    void process_content(const std::string& content);
+    bool opening_tag(const std::string& tag);
+    bool closing_tag(const std::string& tag);
+    std::string title, keywords, sample, author, topic;
+    time_t created = time_t(-1);
 };
 
-#endif // OMEGA_INCLUDED_MSXMLPARSE_H
+#endif // OMEGA_INCLUDED_OPENDOCMETAPARSER_H
