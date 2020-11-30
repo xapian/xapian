@@ -74,6 +74,8 @@ static const testcase tests[] = {
     { "<?xml version=\"1.0\"?><html><head><title>\xc2\xae</title></head><body>\xc2\xa3</body></html>", "\xc2\xa3", "\xc2\xae", "", "" },
     // Check we handle specify a charset for XML.
     { "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?><html><head><title>\xc2\xae</title></head><body>\xc2\xa3</body></html>", "\xc3\x82\xc2\xa3", "\xc3\x82\xc2\xae", "", "" },
+    // Check the XML gets case-sensitive handling.
+    { "<?xml version=\"1.0\"?><html><head><TITLE>Not really a title</TITLE><meta Name='keywords' value='not really keywords'/></head><body>test</body></html>", "Not really a titletest", "", "", "" },
     { "<!--UdmComment-->test<!--/UdmComment--><div id='body'>test</div>", "test", "", "", "" },
     { "Foo<![CDATA[ & bar <literal>\"]]> ok", "Foo & bar <literal>\" ok", "", "", "" },
     { "Foo<![CDATA", "Foo", "", "", "" },

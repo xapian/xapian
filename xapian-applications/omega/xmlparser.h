@@ -30,9 +30,20 @@ class XmlParser {
     mutable size_t attribute_len;
 
   protected:
-    bool in_script;
+    /** Control HTML-specific handling.
+     *
+     *  Defaults to XML, which means no HTML-specific handling.
+     *
+     *  The HtmlParser subclass overrides this to HTML at construction time,
+     *  and then it can change to HTML_IN_SCRIPT and back to HTML as we
+     *  move in and out of parsing script elements.
+     */
+    enum { XML, HTML, HTML_IN_SCRIPT } state = XML;
 
     std::string charset;
+
+    /// Protected constructor for HtmlParser subclass.
+    explicit XmlParser(bool) : state(HTML) { }
 
     static void decode_entities(std::string& s);
 

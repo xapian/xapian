@@ -53,7 +53,7 @@ class HtmlParser : public XmlParser {
 	       bool charset_from_meta_);
     void ignore_metarobots() { ignoring_metarobots = true; }
 
-    HtmlParser() : target(&dump) { }
+    HtmlParser() : XmlParser(false), target(&dump) { }
 
     void reset() {
 	pending_space = 0;

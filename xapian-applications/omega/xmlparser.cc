@@ -87,11 +87,16 @@ XmlParser::get_attribute(const string& name, string& value) const
 	size_t len = p - start;
 	bool found = (name.size() == len);
 	if (found) {
-	    // Compare with lower-cased version of attribute name from tag.
-	    for (size_t i = 0; i != len; ++i) {
-		if (C_tolower(start[i]) != name[i]) {
-		    found = false;
-		    break;
+	    if (state == XML) {
+		// XML attribute names are case sensitive.
+		found = memcmp(start, name.data(), len) == 0;
+	    } else {
+		// Compare with lower-cased version of attribute name from tag.
+		for (size_t i = 0; i != len; ++i) {
+		    if (C_tolower(start[i]) != name[i]) {
+			found = false;
+			break;
+		    }
 		}
 	    }
 	}
@@ -235,8 +240,6 @@ XmlParser::parse(const string& text)
 	}
     }
 
-    in_script = false;
-
     attribute_len = 0;
 
     string::const_iterator start = begin_after_bom;
@@ -252,7 +255,8 @@ XmlParser::parse(const string& text)
 	    unsigned char ch = *(p + 1);
 
 	    // Opening tag, closing tag, or comment/SGML declaration.
-	    if ((!in_script && C_isalpha(ch)) || ch == '/' || ch == '!') break;
+	    if ((state != HTML_IN_SCRIPT && C_isalpha(ch)) || ch == '/' || ch == '!')
+		break;
 
 	    if (ch == '?') {
 		// PHP code or XML declaration.
@@ -263,6 +267,9 @@ XmlParser::parse(const string& text)
 		// <?xml version="1.0" encoding="UTF-8"?>
 		if (p[2] != 'x' || p[3] != 'm' || p[4] != 'l') break;
 		if (strchr(" \t\r\n", p[5]) == NULL) break;
+
+		// Switch for XML mode for XHTML.
+		state = XML;
 
 		string::const_iterator decl_end = find(p + 6, text.end(), '?');
 		if (decl_end == text.end()) break;
@@ -328,27 +335,29 @@ XmlParser::parse(const string& text)
 		    p = find(p + 1, text.end(), '>');
 
 		if (p != text.end()) {
-		    // Check for htdig's "ignore this bit" comments.
-		    if (p - start == CONST_STRLEN("htdig_noindex") + 2 &&
-			memcmp(&*start, "htdig_noindex",
-			       CONST_STRLEN("htdig_noindex")) == 0) {
-			auto i = text.find("<!--/htdig_noindex-->",
-					   p + 1 - text.begin());
-			if (i == string::npos) break;
-			start = text.begin() + i +
-			    CONST_STRLEN("<!--/htdig_noindex-->");
-			continue;
-		    }
-		    // Check for udmcomment (similar to htdig's)
-		    if (p - start == CONST_STRLEN("UdmComment") + 2 &&
-			memcmp(&*start, "UdmComment",
-			       CONST_STRLEN("UdmComment")) == 0) {
-			auto i = text.find("<!--/UdmComment-->",
-					   p + 1 - text.begin());
-			if (i == string::npos) break;
-			start = text.begin() + i +
-			    CONST_STRLEN("<!--/UdmComment-->");
-			continue;
+		    if (state != XML) {
+			// Check for htdig's "ignore this bit" comments.
+			if (p - start == CONST_STRLEN("htdig_noindex") + 2 &&
+			    memcmp(&*start, "htdig_noindex",
+				   CONST_STRLEN("htdig_noindex")) == 0) {
+			    auto i = text.find("<!--/htdig_noindex-->",
+					       p + 1 - text.begin());
+			    if (i == string::npos) break;
+			    start = text.begin() + i +
+				CONST_STRLEN("<!--/htdig_noindex-->");
+			    continue;
+			}
+			// Check for udmcomment (similar to htdig's)
+			if (p - start == CONST_STRLEN("UdmComment") + 2 &&
+			    memcmp(&*start, "UdmComment",
+				   CONST_STRLEN("UdmComment")) == 0) {
+			    auto i = text.find("<!--/UdmComment-->",
+					       p + 1 - text.begin());
+			    if (i == string::npos) break;
+			    start = text.begin() + i +
+				CONST_STRLEN("<!--/UdmComment-->");
+			    continue;
+			}
 		    }
 		    // If we found --> skip to there.
 		    start = p;
@@ -460,13 +469,16 @@ XmlParser::parse(const string& text)
 
 	    p = find_if(start, text.end(), p_nottag);
 	    string tag(start, p);
-	    // Convert tagname to lowercase.
-	    lowercase_string(tag);
+	    if (state != XML) {
+		// Convert tagname to lowercase.
+		lowercase_string(tag);
+	    }
 
 	    if (closing) {
 		if (!closing_tag(tag))
 		    return;
-		if (in_script && tag == "script") in_script = false;
+		if (state == HTML_IN_SCRIPT && tag == "script")
+		    state = HTML;
 	    }
 
 	    start = p;
@@ -525,9 +537,11 @@ XmlParser::parse(const string& text)
 			return;
 		}
 
-		// In <script> tags we ignore opening tags to avoid problems
-		// with "a<b".
-		if (tag == "script") in_script = true;
+		if (state == HTML && tag == "script") {
+		    // In HTML <script> tags we ignore opening tags to avoid
+		    // problems with "a<b".
+		    state = HTML_IN_SCRIPT;
+		}
 
 		if (start != text.end() && *start == '>') ++start;
 	    }
