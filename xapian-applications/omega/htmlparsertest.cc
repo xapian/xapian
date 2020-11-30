@@ -102,6 +102,11 @@ static const testcase tests[] = {
     { "<head><title xml:lang='en-US\" /></head><body><p>Body</p></body>", "Body", "", "", "" },
     { "<head><title/></head><body><p>Body</p></body>", "Body", "", "", "" },
     { "<head><title /></head><body><p>Body</p></body>", "Body", "", "", "" },
+    // Test attribute names are handled case-insensitively in HTML but not XHTML.
+    { "<html><head><MeTa Name=KeywordS CONTENT='testing'></head><body>Body</body></html>", "Body", "", "testing", "" },
+    { "<?xml version=\"1.0\"?><html><head><meta name=keywords content='testing'/></head><body>Body</body></html>", "Body", "", "testing", "" },
+    { "<?xml version=\"1.0\"?><html><head><meta Name=keywords content='testing'/></head><body>Body</body></html>", "Body", "", "", "" },
+    { "<?xml version=\"1.0\"?><html><head><meta name=keywords Content='testing'/></head><body>Body</body></html>", "Body", "", "", "" },
     { 0, 0, 0, 0, 0 }
 };
 
