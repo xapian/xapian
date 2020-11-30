@@ -24,10 +24,10 @@
 #define OMEGA_INCLUDED_XMLPARSER_H
 
 #include <string>
-#include <map>
 
 class XmlParser {
-    std::map<std::string, std::string> attributes;
+    const char* attribute_data;
+    mutable size_t attribute_len;
 
   protected:
     bool in_script;

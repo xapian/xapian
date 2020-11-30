@@ -61,12 +61,6 @@ p_nottag(char c)
 }
 
 static inline bool
-p_whitespacegt(char c)
-{
-    return C_isspace(c) || c == '>';
-}
-
-static inline bool
 p_whitespaceeqgt(char c)
 {
     return C_isspace(c) || c == '=' || c == '>';
@@ -75,10 +69,67 @@ p_whitespaceeqgt(char c)
 bool
 XmlParser::get_attribute(const string& name, string& value) const
 {
-    auto i = attributes.find(name);
-    if (i == attributes.end()) return false;
-    value = i->second;
-    return true;
+    // Search the data each time an attribute is requested - in practice we
+    // aren't often asked for more than one attribute, and this way we can stop
+    // once we find the requested one, and avoid the overhead building up a
+    // data structure to hold the parsed attributes.
+    //
+    // In both XML and HTML it's invalid for the same attribute name to occur
+    // more than once on the same start tag (ignoring ASCII case for HTML) - in
+    // this situation, we just take the first (which is what browsers seem to
+    // do).
+    const char* p = attribute_data;
+    const char* end = p + attribute_len;
+    while (p != end) {
+	const char* start = p;
+	p = find_if(p, end, p_whitespaceeqgt);
+
+	size_t len = p - start;
+	bool found = (name.size() == len);
+	if (found) {
+	    // Compare with lower-cased version of attribute name from tag.
+	    for (size_t i = 0; i != len; ++i) {
+		if (C_tolower(start[i]) != name[i]) {
+		    found = false;
+		    break;
+		}
+	    }
+	}
+
+	p = find_if(p, end, [](char ch) { return !C_isspace(ch); });
+
+	if (p == end || *p != '=') {
+	    // Boolean attribute - e.g. <input type=checkbox checked>
+	    if (found) {
+		value.clear();
+		return true;
+	    }
+	    continue;
+	}
+
+	p = find_if(p + 1, end, [](char ch) { return !C_isspace(ch); });
+	if (p == end) break;
+
+	start = p;
+	char quote = *p;
+	if (quote == '"' || quote == '\'') {
+	    p = find(++start, end, quote);
+	} else {
+	    quote = 0;
+	    p = find_if(start, end, [](char ch) { return C_isspace(ch); });
+	}
+
+	if (found) {
+	    value.assign(start, p);
+	    return true;
+	}
+
+	if (p == end) break;
+
+	if (quote) ++p;
+	p = find_if(p, end, [](char ch) { return !C_isspace(ch); });
+    }
+    return false;
 }
 
 // UTF-8 encoded entity is always <= the entity itself in length, even if the
@@ -186,7 +237,8 @@ XmlParser::parse(const string& text)
 
     in_script = false;
 
-    attributes.clear();
+    attribute_len = 0;
+
     string::const_iterator start = begin_after_bom;
 
     while (true) {
@@ -399,16 +451,15 @@ XmlParser::parse(const string& text)
 	    if (start != text.end()) ++start;
 	} else {
 	    // Opening or closing tag.
-	    int closing = 0;
+	    bool closing = false;
 
 	    if (*start == '/') {
-		closing = 1;
+		closing = true;
 		start = find_if(start + 1, text.end(), C_isnotspace);
 	    }
 
-	    p = start;
-	    start = find_if(start, text.end(), p_nottag);
-	    string tag(text, p - text.begin(), start - p);
+	    p = find_if(start, text.end(), p_nottag);
+	    string tag(start, p);
 	    // Convert tagname to lowercase.
 	    lowercase_string(tag);
 
@@ -416,81 +467,58 @@ XmlParser::parse(const string& text)
 		if (!closing_tag(tag))
 		    return;
 		if (in_script && tag == "script") in_script = false;
+	    }
 
-		/* ignore any bogus attributes on closing tags */
-		p = find(start, text.end(), '>');
-		if (p == text.end()) break;
-		start = p + 1;
-	    } else {
+	    start = p;
+	    if (p < text.end() && *p != '>') {
+		// We often aren't asked for the attributes, so parse them
+		// lazily - for now we just need to skip balanced single and
+		// double quotes.
+		//
+		// Ignore attributes on closing tags (they're bogus) but still
+		// skip balanced quotes, since that's what browsers do.
+		while (true) {
+		    p = find_if(p, text.end(),
+				[](char ch) {
+				    return ch == '"' || ch == '\'' || ch == '>';
+				});
+		    if (p == text.end() || *p == '>') {
+			break;
+		    }
+		    if (*p == '"') {
+			p = find_if(p, text.end(),
+				    [](char ch) {
+					return ch == '\'' || ch == '>';
+				    });
+		    } else {
+			p = find_if(p, text.end(),
+				    [](char ch) {
+					return ch == '"' || ch == '>';
+				    });
+		    }
+		}
+	    }
+
+	    if (!closing) {
+		attribute_len = p - start;
 		bool empty_element = false;
-		// FIXME: parse attributes lazily.
-		while (start < text.end() && *start != '>') {
-		    string name, value;
-
-		    p = find_if(start, text.end(), p_whitespaceeqgt);
-
-		    size_t name_len = p - start;
-		    if (name_len == 1) {
-			if (*start == '/' && p < text.end() && *p == '>') {
-			    // E.g. <tag foo="bar" />
-			    start = p;
+		if (attribute_len > 0) {
+		    // Check for empty element (e.g. <br/>).
+		    attribute_data = &*start;
+		    if (p[-1] == '/') {
+			// <a href=foo/> isn't an empty element though
+			if (attribute_len == 1 ||
+			    C_isspace(p[-2]) ||
+			    p[-2] == '"' ||
+			    p[-2] == '\'') {
 			    empty_element = true;
-			    break;
+			    --attribute_len;
 			}
 		    }
-
-		    name.assign(text, start - text.begin(), name_len);
-
-		    p = find_if(p, text.end(), C_isnotspace);
-
-		    start = p;
-		    if (start != text.end() && *start == '=') {
-			start = find_if(start + 1, text.end(), C_isnotspace);
-
-			p = text.end();
-
-			int quote = *start;
-			if (quote == '"' || quote == '\'') {
-			    ++start;
-			    p = find(start, text.end(), quote);
-			}
-
-			if (p != text.end()) {
-			    // quoted
-			    value.assign(text, start - text.begin(), p - start);
-			    ++p;
-			} else {
-			    // unquoted or no closing quote
-			    p = find_if(start, text.end(), p_whitespacegt);
-			    value.assign(text, start - text.begin(), p - start);
-			}
-			start = find_if(p, text.end(), C_isnotspace);
-
-			if (!name.empty()) {
-			    // Convert attribute name to lowercase.
-			    lowercase_string(name);
-			    // In case of multiple entries, use the first
-			    // (as Netscape does).
-			    attributes.insert(make_pair(name, value));
-			}
-		    } else if (!name.empty()) {
-			// Boolean attribute - e.g. <input type=checkbox checked>
-
-			// Convert attribute name to lowercase.
-			lowercase_string(name);
-			attributes.insert(make_pair(name, string()));
-		    }
 		}
-#if 0
-		cout << "<" << tag;
-		for (auto x = attributes.begin(); x != attributes.end(); ++x) {
-		    cout << " " << x->first << "=\"" << x->second << "\"";
-		}
-		cout << ">\n";
-#endif
 		if (!opening_tag(tag))
 		    return;
-		attributes.clear();
+		attribute_len = 0;
 
 		if (empty_element) {
 		    if (!closing_tag(tag))
@@ -503,6 +531,9 @@ XmlParser::parse(const string& text)
 
 		if (start != text.end() && *start == '>') ++start;
 	    }
+
+	    if (p == text.end()) break;
+	    start = p + 1;
 	}
     }
 }
