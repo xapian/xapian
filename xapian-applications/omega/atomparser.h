@@ -33,7 +33,7 @@ class AtomParser : public XmlParser {
 
   public:
     AtomParser() { }
-    void process_content(const std::string& text);
+    void process_content(const std::string& content);
     bool opening_tag(const std::string& tag);
     bool closing_tag(const std::string& tag);
     std::string title, keywords, dump, author;
