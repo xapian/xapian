@@ -1,7 +1,7 @@
 /** @file atomparser.cc
  * @brief Extract text from an RSS atom file.
  */
-/* Copyright (C) 2010,2011,2012 Olly Betts
+/* Copyright (C) 2010,2011,2012,2020 Olly Betts
  * Copyright (C) 2012 Mihai Bivol
  *
  * This program is free software; you can redistribute it and/or modify
@@ -30,33 +30,13 @@ using namespace std;
 void
 AtomParser::process_content(const string& content)
 {
-    if (is_ignored)
+    if (!target)
 	return;
-
-    string* target = NULL;
-
-    switch (state) {
-	case TEXT:
-	    target = &dump;
-	    break;
-	case TITLE:
-	    target = &title;
-	    break;
-	case KEYWORDS:
-	    target = &keywords;
-	    break;
-	case AUTHOR:
-	    target = &author;
-	    break;
-	case OTHER:
-	    // Ignore context in other places.
-	    return;
-    }
 
     if (!target->empty())
 	*target += ' ';
 
-    if (type == "html") {
+    if (html_content) {
 	HtmlParser p;
 	p.parse(content, charset, true);
 	*target += p.dump;
@@ -68,16 +48,29 @@ AtomParser::process_content(const string& content)
 bool
 AtomParser::opening_tag(const string& tag)
 {
-    if (state == OTHER) {
-	if (tag == "title")
-	    state = in_entry ? KEYWORDS : TITLE;
-	else if (tag == "summary" || tag == "subtitle" || tag == "content")
-	    state = TEXT;
-	else if (tag == "author")
+    if (state == INACTIVE) {
+	if (tag == "title") {
+	    if (in_entry) {
+		// Treat <title> inside <entry> as more keywords.
+		target = &keywords;
+	    } else {
+		target = &title;
+	    }
+	    goto check_type_attribute;
+	} else if (tag == "summary" || tag == "subtitle" || tag == "content") {
+	    target = &dump;
+check_type_attribute:
+	    string type;
+	    html_content = (get_attribute("type", type) &&
+			    (type == "html" || type == "xhtml"));
+	    state = OTHER;
+	} else if (tag == "author") {
+	    target = &author;
+	    html_content = false;
 	    state = AUTHOR;
-	else if (tag == "entry")
+	} else if (tag == "entry") {
 	    in_entry = true;
-	else if (tag == "category") {
+	} else if (tag == "category") {
 	    // Handle category term separately.
 	    string new_keyword;
 	    get_attribute("term", new_keyword);
@@ -85,25 +78,28 @@ AtomParser::opening_tag(const string& tag)
 		keywords += ' ';
 	    keywords += new_keyword;
 	}
+	if (state != INACTIVE) {
+	    active_tag = tag;
+	}
     } else if (state == AUTHOR) {
 	if (tag == "uri")
-	    is_ignored = true;
+	    target = NULL;
     }
 
-    if (!get_attribute("type", type))
-	type = "text";
     return true;
 }
 
 bool
 AtomParser::closing_tag(const string& tag)
 {
-    if (tag == "entry")
+    if (state != INACTIVE && tag == active_tag) {
+	active_tag = string();
+	state = INACTIVE;
+	target = NULL;
+    } else if (in_entry && tag == "entry") {
 	in_entry = false;
-    else if (tag == "uri")
-	is_ignored = false;
-    else if (tag == "title" || tag == "summary" || tag == "subtitle" ||
-	     tag == "author" || tag == "content")
-	state = OTHER;
+    } else if (state == AUTHOR && tag == "uri") {
+	target = &author;
+    }
     return true;
 }
