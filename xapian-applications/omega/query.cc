@@ -495,6 +495,13 @@ parse_queries(const string& oldp)
 
 static multimap<string, string> filter_map;
 static set<string> neg_filters;
+static unordered_map<string, double> boost_terms;
+
+void add_boost_term(const string& term, double boost) {
+    if (!term.empty()) {
+	boost_terms.insert({term, boost});
+    }
+}
 
 void add_bterm(const string &term) {
     string prefix;
@@ -621,6 +628,22 @@ run_query()
 	    force_boolean = true;
 	}
 	query = Xapian::Query(Xapian::Query::OP_AND_NOT, query, filter);
+    }
+
+    if (!boost_terms.empty()) {
+	Xapian::Query boost;
+	const Xapian::Weight* wt = Xapian::Weight::create("coord");
+	for (auto bterm = boost_terms.begin(); bterm != boost_terms.end();
+	     ++bterm) {
+	    auto termquery = Xapian::Query(bterm->first, wt);
+	    boost |= Xapian::Query(bterm->second, termquery);
+	}
+	if (query.empty() && !date_filter_set) {
+	    std::swap(query, boost);
+	} else {
+	    query = Xapian::Query(Xapian::Query::OP_AND_MAYBE, query, boost);
+	}
+	delete wt;
     }
 
     if (!enquire || !error_msg.empty()) return;

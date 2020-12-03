@@ -20,12 +20,13 @@
 
 #ifndef XAPIAN_INCLUDED_QUERYINTERNAL_H
 #define XAPIAN_INCLUDED_QUERYINTERNAL_H
-
+#include <memory>
 #include "api/editdistance.h"
 #include "queryvector.h"
 #include "stringutils.h"
 #include "xapian/intrusive_ptr.h"
 #include "xapian/query.h"
+#include "xapian/weight.h"
 
 /// Default set_size for OP_ELITE_SET:
 const Xapian::termcount DEFAULT_ELITE_SET_SIZE = 10;
@@ -43,6 +44,8 @@ class QueryTerm : public Query::Internal {
 
     Xapian::termpos pos;
 
+    std::unique_ptr<Xapian::Weight> weight;
+
   public:
     // Construct a "MatchAll" QueryTerm.
     QueryTerm() : term(), wqf(1), pos(0) { }
@@ -51,6 +54,14 @@ class QueryTerm : public Query::Internal {
 	      Xapian::termcount wqf_,
 	      Xapian::termpos pos_)
 	: term(term_), wqf(wqf_), pos(pos_) { }
+
+    QueryTerm(const std::string& term_,
+	      const Xapian::Weight* wt,
+	      Xapian::termcount wqf_,
+	      Xapian::termpos pos_)
+	: term(term_), wqf(wqf_), pos(pos_) {
+	    weight.reset(wt->clone());
+	}
 
     Xapian::Query::op get_type() const noexcept XAPIAN_PURE_FUNCTION;
 

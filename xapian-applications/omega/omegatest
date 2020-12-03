@@ -683,6 +683,7 @@ testcase '.~~X' DOCIDORDER=A # Buggy, but kept for compatibility.
 testcase '.~~D' DOCIDORDER=D
 testcase '.~~' DOCIDORDER=X # Buggy, but kept for compatibility.
 testcase '.~~' DOCIDORDER=x # Buggy, but kept for compatibility.
+testcase 'and,40.000000~five,1.000000~work,34.344200~.~~' BOOST=1,five BOOST=40,and BOOST=34.3442,work
 
 tab=`printf '\t'`
 printf '$cgi{AZ}|$cgi{AZ B}|$cgi{AZ.x}|$cgi{AZ.y}|$cgi{[}|$cgi{#}' > "$TEST_TEMPLATE"
@@ -1522,6 +1523,35 @@ END
 printf '$hitlist{$list{$terms{T},|}/$field{tag1}|$field{tag2}|$field{tag3}}' > "$TEST_TEMPLATE"
 testcase 'Tone/one|two|three' B=Tone
 testcase 'Tthree|Ttwo/one|two|three' B=Ttwo B=Tthree
+
+
+
+printf 'text: index\n boost: boolean\npfx_boost: boolean=T' > "$TEST_INDEXSCRIPT"
+rm -rf "$TEST_DB"
+$SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null <<'END'
+text=one
+text=two
+boost=three
+
+text=one
+text=nine
+boost=four
+boost=five
+boost=six
+pfx_boost=ten
+
+END
+
+# Test CGI param BOOST, boost boolean terms weight by scaling factor.
+printf '|$hitlist{$id|}$error' "$i"> "$TEST_TEMPLATE"
+testcase '|1|2|' P="one"
+testcase '|2|1|' P="one" BOOST=1,four BOOST=1,five BOOST=1,nine
+testcase '|2|1|' P="one" BOOST=1,four BOOST=1,five BOOST=1,six
+testcase '|2|1|' P="one" BOOST=1,four BOOST=1,five BOOST=1,Tten
+testcase '|1|2|' P="one" BOOST=100.44,two BOOST=4.2,five BOOST=8,Tten
+testcase '|2|1|' P="one" BOOST=100,two BOOST=40,five BOOST=190,Tten
+# TODO: how to supress header to test throw.
+# testcase "Exception: Can't convert boost value to double for two" P="one" BOOST=klj,two BOOST=40,five BOOST=190,Tten
 
 rm "$OMEGA_CONFIG_FILE" "$TEST_INDEXSCRIPT" "$TEST_TEMPLATE"
 rm -rf "$TEST_DB"

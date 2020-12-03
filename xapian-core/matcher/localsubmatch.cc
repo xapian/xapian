@@ -247,7 +247,8 @@ LocalSubMatch::open_post_list(const string& term,
 			      bool need_positions,
 			      bool in_synonym,
 			      QueryOptimiser * qopt,
-			      bool lazy_weight)
+			      bool lazy_weight,
+			      const Xapian::Weight* weight)
 {
     LOGCALL(MATCH, PostList *, "LocalSubMatch::open_post_list", term | wqf | factor | need_positions | qopt | lazy_weight);
 
@@ -305,7 +306,7 @@ LocalSubMatch::open_post_list(const string& term,
     }
 
     if (weighted) {
-	Xapian::Weight * wt = wt_factory.clone();
+	Xapian::Weight* wt = weight != 0 ? weight->clone() : wt_factory.clone();
 	if (!lazy_weight) {
 	    wt->init_(*total_stats, qlen, term, wqf, factor);
 	    if (pl->get_termfreq() > 0)

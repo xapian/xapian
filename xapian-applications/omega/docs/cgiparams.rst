@@ -239,6 +239,14 @@ DOCIDORDER
 	DONT_CARE (the Xapian database backend will use whichever order is most
 	efficient).  Any characters after the first are ignored.
 
+BOOST
+        specify terms to be considered in weight contribution (using coord) for
+        a document without affecting selection using Query operation `OP_AND_MAYBE`.
+
+        User provided boost is used to scale term weight using `OP_SCALE_WEIGHT`
+        e.g `BOOST=2,Tten` will add weight contribution of term `Tten` scaled
+        by a factor of two.
+
 Display parameters and navigation
 ---------------------------------
 
