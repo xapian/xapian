@@ -59,7 +59,7 @@ class XAPIAN_VISIBILITY_DEFAULT RemoteTcpServer : public TcpServer {
     /** Registry used for (un)serialisation. */
     Xapian::Registry reg;
 
-    /** Accept a connection and return the filedescriptor for it. */
+    /** Accept a connection and return the file descriptor for it. */
     int accept_connection();
 
   public:
