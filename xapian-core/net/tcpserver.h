@@ -74,7 +74,7 @@ class XAPIAN_VISIBILITY_DEFAULT TcpServer SOCKET_INITIALIZER_MIXIN {
     /** Should we produce output when connections are made or lost? */
     bool verbose;
 
-    /** Accept a connection and return the filedescriptor for it. */
+    /** Accept a connection and return the file descriptor for it. */
     XAPIAN_VISIBILITY_INTERNAL
     int accept_connection();
 

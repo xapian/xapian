@@ -46,7 +46,7 @@ create_changeset_file(const std::string & changeset_dir,
 
 /** Write some changes from a buffer, and then drop them from the buffer.
  *
- *  @param changes_fd The filedescriptor to write to (-1 to skip writing).
+ *  @param changes_fd The file descriptor to write to (-1 to skip writing).
  *  @param buf The buffer holding the changes.
  *  @param bytes The number of bytes to write and drop.
  */

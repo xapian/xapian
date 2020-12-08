@@ -52,7 +52,7 @@ class ProgClient : public RemoteDatabase {
      *  @param args	Any arguments to the program.
      *  @param child	Reference to store the child process pid/HANDLE in.
      *
-     *  @return	filedescriptor for reading from/writing to the child process.
+     *  @return	file descriptor for reading from/writing to the child process.
      *
      *  Note: this method is called early on during class construction before
      *  any member variables or even the base class have been initialised.
