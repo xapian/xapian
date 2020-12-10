@@ -368,7 +368,7 @@ $log{LOGFILE[,ENTRY]}
         append to the log file ``LOGFILE``.  ``LOGFILE`` will be resolved as a
         relative path starting from directory ``log_dir`` (as specified in
         ``omega.conf``).  ``LOGFILE`` may not contain the substring ``..``.
-        
+
         ``ENTRY`` is the OmegaScript for the log entry, which is evaluated and
         a linefeed appended.  ``ENTRY`` defaults to a format similar to the
         Common Log Format used by webservers.  If an error occurs when trying
@@ -381,7 +381,7 @@ $log{LOGFILE[,ENTRY]}
         wrapping ``$log`` using ``$if`` with no action like so::
 
          $if{$log{example.log}}
- 
+
 $lookup{CDBFILE,KEY}
         Return the tag corresponding to key ``KEY`` in the CDB file
         ``CDBFILE``.  If the file doesn't exist, or ``KEY`` isn't a key in it,
