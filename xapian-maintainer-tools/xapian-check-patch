@@ -543,7 +543,7 @@ QUOTELOOP:  while (1) {
 		}
 	    }
 	}
-	if (m!^\+\s*(case|catch|class|do|for|if|namespace|struct|switch|try|union)\b([^ ]| \s)!) {
+	if (m!^\+\s*(case|class|do|for|if|namespace|struct|switch|try|union)\b([^ ]| \s)!) {
 	    diagnostic('error', "'$1' not followed by exactly one space");
 	}
 	if (m!^\+.*;[^\s\\]!) {
@@ -566,7 +566,7 @@ QUOTELOOP:  while (1) {
 	if (m!^\+.*?\b(else)\b([^ \n]| \s)!) {
 	    diagnostic('error', "'$1' not followed by exactly one space");
 	}
-	if (m!^\+.*?\b(while)\b([^ ]| \s)!) {
+	if (m!^\+.*?\b(catch|while)\b([^ ]| \s)!) {
 	    diagnostic('error', "'$1' not followed by exactly one space");
 	}
 	if (m!^\+.*?(?:}|}\s{2,}|}\t|^[^}]*)\b(catch)\b!) {
