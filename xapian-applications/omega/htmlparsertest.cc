@@ -1,4 +1,4 @@
-/** @file htmlparsetest.cc
+/** @file htmlparsertest.cc
  * @brief test the HtmlParser class
  */
 /* Copyright (C) 2006,2008,2011,2012,2013,2015,2016,2018,2019,2020 Olly Betts
