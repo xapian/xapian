@@ -215,6 +215,9 @@ while (<>) {
 	    if ($fnm =~ m!/testdata/etext\.txt$!) {
 		$check_trailing = 0;
 	    }
+	} elsif ($fnm =~ m!(?:^|/)Makefile!) {
+	    $lang = 'make';
+	    $want_tabs = 1;
 	} elsif ($fnm =~ m!(?:^|/)ChangeLog\b!) {
 	    $lang = 'changelog';
 	    $want_tabs = 1;
@@ -901,6 +904,10 @@ QUOTELOOP:  while (1) {
     } elsif (defined $lang && $lang eq 'rb') {
 	if (/^\+.*;\s*$/) {
 	    diagnostic('error', "';' at end of line of ruby code");
+	}
+    } elsif (defined $lang && $lang eq 'make') {
+	if (/^\+.*[A-Za-z0-9)}]  +\s*$/) {
+	    diagnostic('error', "multiple spaces in Makefile");
 	}
     }
     if (defined $fnm && $fnm !~ m!xapian-check-patch|ChangeLog|NEWS|stemming/.*/(?:voc2?|output2?)\.txt$|unicode/UnicodeData\.txt!) {
