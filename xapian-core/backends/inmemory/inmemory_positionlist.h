@@ -1,5 +1,5 @@
-/** @file inmemory_positionlist.h
- * @brief Iterate positions in an inmemory db
+/** @file
+ * @brief PositionList from an InMemory DB or a Document object
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2003,2008,2009,2011 Olly Betts

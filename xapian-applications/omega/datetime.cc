@@ -1,4 +1,4 @@
-/** @file datetime.cc
+/** @file
  * @brief Parse date/time strings
  */
 /* Copyright (c) 2013,2014,2015 Olly Betts

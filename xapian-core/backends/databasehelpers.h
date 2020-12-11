@@ -1,4 +1,4 @@
-/** @file databasehelpers.h
+/** @file
  * @brief Helper functions for database handling
  */
 /* Copyright 2002-2019 Olly Betts

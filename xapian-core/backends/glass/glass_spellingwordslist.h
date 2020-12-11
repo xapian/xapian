@@ -1,4 +1,4 @@
-/** @file glass_spellingwordslist.h
+/** @file
  * @brief A termlist containing all words which are spelling targets.
  */
 /* Copyright (C) 2005,2008,2009,2010,2011 Olly Betts

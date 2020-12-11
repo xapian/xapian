@@ -1,4 +1,4 @@
-/** @file orpostlist.h
+/** @file
  * @brief OR of two posting lists
  */
 /* Copyright 1999,2000,2001 BrightStation PLC

@@ -1,4 +1,4 @@
-/** @file resolver.h
+/** @file
  * @brief Resolve hostnames and ip addresses
  */
 /* Copyright (C) 2017 Olly Betts

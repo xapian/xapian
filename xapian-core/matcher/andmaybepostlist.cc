@@ -1,6 +1,7 @@
-/* andmaybepostlist.cc: Merged postlist; items from one list, weights from both
- *
- * Copyright 1999,2000,2001 BrightStation PLC
+/** @file
+ * @brief Merged postlist; items from one list, weights from both
+ */
+/* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
  * Copyright 2003,2004,2005,2008,2009,2011,2017 Olly Betts
  * Copyright 2009 Lemur Consulting Ltd

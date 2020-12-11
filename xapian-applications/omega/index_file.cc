@@ -1,4 +1,4 @@
-/** @file index_file.cc
+/** @file
  * @brief Handle indexing a document from a file
  */
 /* Copyright 1999,2000,2001 BrightStation PLC

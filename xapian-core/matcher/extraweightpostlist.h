@@ -1,4 +1,4 @@
-/** @file extraweightpostlist.h
+/** @file
  * @brief add on extra weight contribution
  */
 /* Copyright 1999,2000,2001 BrightStation PLC

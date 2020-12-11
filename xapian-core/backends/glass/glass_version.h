@@ -1,4 +1,4 @@
-/** @file glass_version.h
+/** @file
  * @brief GlassVersion class
  */
 /* Copyright (C) 2006,2007,2008,2009,2010,2013,2014,2015,2016,2018 Olly Betts

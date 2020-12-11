@@ -1,4 +1,4 @@
-/** @file xapian-pos.cc
+/** @file
  * @brief Debug positional data
  */
 /* Copyright 2018 Olly Betts

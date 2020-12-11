@@ -1,4 +1,4 @@
-/** @file zlib-vg.c
+/** @file
  * @brief LD_PRELOAD hack to avoid bogus valgrind errors caused by zlib.
  */
 /* Copyright (C) 2010,2013 Olly Betts

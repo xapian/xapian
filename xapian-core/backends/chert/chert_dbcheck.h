@@ -1,4 +1,4 @@
-/** @file chert_dbcheck.h
+/** @file
  * @brief Check a chert table.
  */
 /* Copyright (C) 2008,2009,2012,2013,2014,2016 Olly Betts

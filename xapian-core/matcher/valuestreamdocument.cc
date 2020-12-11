@@ -1,4 +1,4 @@
-/** @file valuestreamdocument.cc
+/** @file
  * @brief A document which gets its values from a ValueStreamManager.
  */
 /* Copyright (C) 2009,2011,2014 Olly Betts

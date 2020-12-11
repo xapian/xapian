@@ -1,4 +1,4 @@
-/** @file tfidfweight.cc
+/** @file
  * @brief Xapian::TfIdfWeight class - The TfIdf weighting scheme
  */
 /* Copyright (C) 2013 Aarsh Shah

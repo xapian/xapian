@@ -1,4 +1,4 @@
-/** @file api_collapse.cc
+/** @file
  * @brief Test collapsing during the match.
  */
 /* Copyright (C) 2009 Olly Betts

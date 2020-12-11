@@ -1,4 +1,4 @@
-/** @file replicatetcpserver.h
+/** @file
  * @brief TCP/IP replication server class.
  */
 /* Copyright (C) 2008,2011 Olly Betts

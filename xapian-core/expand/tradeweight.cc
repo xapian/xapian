@@ -1,4 +1,4 @@
-/** @file tradeweight.cc
+/** @file
  * @brief Xapian::TradEWeight class - The TradWeight scheme for query expansion.
  */
 /* Copyright (C) 2013 Aarsh Shah

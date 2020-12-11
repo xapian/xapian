@@ -1,4 +1,4 @@
-/** @file stringutils.h
+/** @file
  * @brief Various handy helpers which std::string really should provide.
  */
 /* Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2015 Olly Betts

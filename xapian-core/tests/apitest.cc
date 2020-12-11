@@ -1,6 +1,7 @@
-/* apitest.cc: tests the Xapian API
- *
- * Copyright 1999,2000,2001 BrightStation PLC
+/** @file
+ * @brief tests the Xapian API
+ */
+/* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
  * Copyright 2003,2004,2006,2007,2008,2009,2018 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd

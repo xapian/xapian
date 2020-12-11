@@ -1,4 +1,4 @@
-/** @file multiandpostlist.h
+/** @file
  * @brief N-way AND postlist
  */
 /* Copyright (C) 2007,2009,2011,2017 Olly Betts

@@ -1,4 +1,4 @@
-/** @file safesyswait.h
+/** @file
  * @brief #include <sys/wait.h>, with portability stuff.
  */
 /* Copyright (C) 2010 Olly Betts

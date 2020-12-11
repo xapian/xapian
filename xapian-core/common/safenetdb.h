@@ -1,4 +1,4 @@
-/** @file safenetdb.h
+/** @file
  *  @brief #include <netdb.h>, with portability workarounds.
  */
 /* Copyright (C) 2013,2015,2018 Olly Betts

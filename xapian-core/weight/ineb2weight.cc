@@ -1,4 +1,4 @@
-/** @file ineb2weight.cc
+/** @file
  * @brief Xapian::IneB2Weight class - the IneB2 weighting scheme of the DFR framework.
  */
 /* Copyright (C) 2013,2014 Aarsh Shah

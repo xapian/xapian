@@ -1,6 +1,6 @@
 #!@PERL@
 # @configure_input@
-# @file rfc822tohtml
+# @file
 # @brief Extract HTML from an RFC-822 email
 #
 # Copyright (C) 2010,2015,2018 Olly Betts

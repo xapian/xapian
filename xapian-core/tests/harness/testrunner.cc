@@ -1,4 +1,4 @@
-/** @file testrunner.cc
+/** @file
  * @brief Run multiple tests for different backends.
  */
 /* Copyright 2008,2009 Lemur Consulting Ltd

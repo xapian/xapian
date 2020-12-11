@@ -1,5 +1,5 @@
-/** @file opendocparse.cc
- * @brief Extract text from XML from an OpenDocument document.
+/** @file
+ * @brief Extract text from OpenDocument XML.
  */
 /* Copyright (C) 2012 Olly Betts
  *

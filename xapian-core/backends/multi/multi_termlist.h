@@ -1,4 +1,4 @@
-/** @file multi_termlist.h
+/** @file
  * @brief C++ class declaration for multiple database access
  */
 /* Copyright 1999,2000,2001 BrightStation PLC

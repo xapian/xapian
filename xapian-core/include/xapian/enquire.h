@@ -1,4 +1,4 @@
-/** @file enquire.h
+/** @file
  * @brief API for running queries
  */
 /* Copyright 1999,2000,2001 BrightStation PLC

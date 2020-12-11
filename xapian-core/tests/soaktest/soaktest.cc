@@ -1,4 +1,4 @@
-/** @file soaktest.cc
+/** @file
  * @brief Long-running "soak" tests for Xapian.
  */
 /* Copyright (C) 2010 Richard Boulton

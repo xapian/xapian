@@ -1,6 +1,7 @@
-/* perftest_randomidx.cc: performance tests involving a randomly generated index
- *
- * Copyright 2008 Lemur Consulting Ltd
+/** @file
+ * @brief performance tests involving a randomly generated index
+ */
+/* Copyright 2008 Lemur Consulting Ltd
  * Copyright 2009,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or

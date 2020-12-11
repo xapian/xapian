@@ -1,4 +1,4 @@
-/** @file valuelist.cc
+/** @file
  * @brief Abstract base class for value streams.
  */
 /* Copyright (C) 2008 Olly Betts

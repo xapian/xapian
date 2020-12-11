@@ -1,4 +1,4 @@
-/** @file valuegepostlist.h
+/** @file
  * @brief Return document ids matching a >= test on a specified doc value.
  */
 /* Copyright 2007,2011 Olly Betts

@@ -1,5 +1,5 @@
-/** @file output.h
- * @brief Functions for output of strings describing Xapian objects.
+/** @file
+ * @brief std::ostream operator<< template for Xapian objects
  */
 /*
  * Copyright 1999,2000,2001 BrightStation PLC

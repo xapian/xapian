@@ -1,4 +1,4 @@
-/** @file xapian-replicate-server.cc
+/** @file
  * @brief Service database replication requests from clients.
  */
 /* Copyright (C) 2008,2011 Olly Betts

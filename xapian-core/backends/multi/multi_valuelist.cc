@@ -1,4 +1,4 @@
-/** @file multi_valuelist.cc
+/** @file
  * @brief Class for merging ValueList objects from subdatabases.
  */
 /* Copyright (C) 2007,2008,2009,2011 Olly Betts

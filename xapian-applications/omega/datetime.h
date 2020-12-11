@@ -1,4 +1,4 @@
-/** @file datetime.h
+/** @file
  * @brief Parse date/time strings
  */
 /* Copyright (c) 2015 Olly Betts

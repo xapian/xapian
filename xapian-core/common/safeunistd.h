@@ -1,4 +1,4 @@
-/** @file safeunistd.h
+/** @file
  * @brief <unistd.h>, but with compat. and large file support for MSVC.
  */
 /* Copyright (C) 2007,2015 Olly Betts

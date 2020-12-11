@@ -1,4 +1,4 @@
-/** @file lmweight.cc
+/** @file
  * @brief Xapian::LMWeight class - the Unigram Language Modelling formula.
  */
 /* Copyright (C) 2012 Gaurav Arora

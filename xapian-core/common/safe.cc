@@ -1,4 +1,4 @@
-/** @file safe.cc
+/** @file
  * @brief Helper functions for safe*.h
  */
 /* Copyright (C) 2007 Olly Betts

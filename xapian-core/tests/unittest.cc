@@ -1,4 +1,4 @@
-/** @file unittest.cc
+/** @file
  * @brief Unit tests of non-Xapian-specific internal code.
  */
 /* Copyright (C) 2006,2007,2009,2010,2012,2015,2016,2018,2019 Olly Betts

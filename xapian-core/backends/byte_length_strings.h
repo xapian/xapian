@@ -1,4 +1,4 @@
-/** @file byte_length_strings.h
+/** @file
  * @brief Handle decoding lists of strings with byte lengths
  */
 /* Copyright (C) 2004,2005,2006,2007,2008,2009,2010 Olly Betts

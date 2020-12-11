@@ -1,4 +1,4 @@
-/** @file andnotpostlist.h
+/** @file
  * @brief Return items which are in A, unless they're in B
  */
 /* Copyright 1999,2000,2001 BrightStation PLC

@@ -1,4 +1,4 @@
-/** @file tcpserver.h
+/** @file
  *  @brief Generic TCP/IP socket based server base class.
  */
 /* Copyright (C) 2007,2008 Olly Betts

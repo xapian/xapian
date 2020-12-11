@@ -1,4 +1,4 @@
-/** @file expandweight.cc
+/** @file
  * @brief Calculate term weights for the ESet.
  */
 /* Copyright (C) 2007,2008,2011,2017 Olly Betts

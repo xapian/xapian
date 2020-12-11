@@ -1,4 +1,4 @@
-/** @file atomparse.h
+/** @file
  * @brief Extract text from an RSS atom file.
  */
 /* Copyright (C) 2010,2011,2012 Olly Betts

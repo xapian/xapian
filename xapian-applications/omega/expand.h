@@ -1,4 +1,4 @@
-/** @file expand.h
+/** @file
  * @brief Set the expansion scheme for Omega
  */
 /* Copyright (C) 2009 Olly Betts

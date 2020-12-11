@@ -1,4 +1,4 @@
-/** @file bitstream.h
+/** @file
  * @brief Classes to encode/decode a bitstream.
  */
 /* Copyright (C) 2004,2005,2006,2008,2012,2013,2014,2018 Olly Betts

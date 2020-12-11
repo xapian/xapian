@@ -1,4 +1,4 @@
-/** @file description_append.cc
+/** @file
  *  @brief Append a string to an object description, escaping invalid UTF-8
  */
 /* Copyright (C) 2013 Olly Betts

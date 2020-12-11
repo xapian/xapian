@@ -1,4 +1,4 @@
-/** @file weight.h
+/** @file
  * @brief Weighting scheme API.
  */
 /* Copyright (C) 2004,2007,2008,2009,2010,2011,2012,2015,2016,2019 Olly Betts

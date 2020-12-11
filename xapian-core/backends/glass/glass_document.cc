@@ -1,4 +1,5 @@
-/* glass_document.cc: Implementation of document for Glass database
+/** @file
+ * @brief Implementation of document for Glass database
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd

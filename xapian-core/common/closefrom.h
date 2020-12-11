@@ -1,4 +1,4 @@
-/** @file closefrom.h
+/** @file
  * @brief Implementation of closefrom() function.
  */
 /* Copyright (C) 2010,2011 Olly Betts

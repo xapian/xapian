@@ -1,4 +1,4 @@
-/** @file glass_positionlist.h
+/** @file
  * @brief A position list in a glass database.
  */
 /* Copyright (C) 2005,2006,2008,2009,2010,2011,2013,2016,2019 Olly Betts

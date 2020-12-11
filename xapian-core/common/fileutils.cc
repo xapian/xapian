@@ -1,4 +1,4 @@
-/** @file fileutils.cc
+/** @file
  *  @brief File and path manipulation routines.
  */
 /* Copyright (C) 2008 Lemur Consulting Ltd

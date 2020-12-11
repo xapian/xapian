@@ -1,4 +1,4 @@
-/** @file termlist.cc
+/** @file
  * @brief Abstract base class for termlists.
  */
 /* Copyright (C) 2007,2010,2013 Olly Betts

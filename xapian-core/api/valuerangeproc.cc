@@ -1,5 +1,5 @@
-/** @file valuerangeproc.cc
- * @brief Standard ValueRangeProcessor subclass implementations
+/** @file
+ * @brief Standard ValueRangeProcessor and RangeProcessor subclasses
  */
 /* Copyright (C) 2007,2008,2009,2010,2012,2016,2018 Olly Betts
  *

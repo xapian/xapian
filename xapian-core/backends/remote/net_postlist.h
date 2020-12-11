@@ -1,4 +1,4 @@
-/** @file net_postlist.h
+/** @file
  *  @brief Postlists for remote databases
  */
 /* Copyright (C) 2007,2009 Lemur Consulting Ltd

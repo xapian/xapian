@@ -1,4 +1,4 @@
-/** @file alignment_cast.h
+/** @file
  * @brief Cast a pointer we know is suitably aligned
  */
 /* Copyright (C) 2016 Olly Betts

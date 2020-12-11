@@ -1,4 +1,4 @@
-/** @file runfilter.h
+/** @file
  * @brief run an external filter and capture its output in a std::string.
  */
 /* Copyright (C) 2007,2013,2015 Olly Betts

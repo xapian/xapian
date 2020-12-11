@@ -1,4 +1,4 @@
-/** @file errno_to_string.cc
+/** @file
  * @brief Convert errno value to std::string, thread-safely if possible
  */
 /* Copyright (C) 2014,2015,2016 Olly Betts

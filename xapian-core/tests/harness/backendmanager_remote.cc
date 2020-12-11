@@ -1,4 +1,4 @@
-/** @file backendmanager_remote.cc
+/** @file
  * @brief BackendManager subclass for remote databases.
  */
 /* Copyright (C) 2006,2007,2008,2009,2011,2015 Olly Betts

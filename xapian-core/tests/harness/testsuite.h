@@ -1,4 +1,4 @@
-/** @file testsuite.h
+/** @file
  * @brief a generic test suite engine
  */
 /* Copyright 1999,2000,2001 BrightStation PLC

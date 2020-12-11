@@ -1,4 +1,4 @@
-/** @file alltermslist.h
+/** @file
  * @brief Abstract base class for iterating all terms in a database.
  */
 /* Copyright (C) 2007,2008,2011 Olly Betts

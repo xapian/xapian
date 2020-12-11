@@ -1,4 +1,4 @@
-/** @file selectpostlist.h
+/** @file
  * @brief Parent class for classes which only return selected docs
  */
 /* Copyright 1999,2000,2001 BrightStation PLC

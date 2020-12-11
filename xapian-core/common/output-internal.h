@@ -1,4 +1,4 @@
-/** @file output-internal.h
+/** @file
  * @brief Functions for output of strings describing internal Xapian objects.
  */
 /*

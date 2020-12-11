@@ -1,4 +1,4 @@
-/** @file api_geospatial.cc
+/** @file
  * @brief Tests of geospatial functionality.
  */
 /* Copyright 2008 Lemur Consulting Ltd

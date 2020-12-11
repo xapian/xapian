@@ -1,4 +1,4 @@
-/** @file latlong_posting_source.cc
+/** @file
  * @brief LatLongDistancePostingSource implementation.
  */
 /* Copyright 2008 Lemur Consulting Ltd

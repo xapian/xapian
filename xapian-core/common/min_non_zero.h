@@ -1,4 +1,4 @@
-/** @file min_non_zero.h
+/** @file
  * @brief Return the smaller of two numbers which isn't zero.
  */
 /* Copyright (C) 2018 Olly Betts

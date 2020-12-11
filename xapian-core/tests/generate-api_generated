@@ -88,7 +88,7 @@ my %no_get_description = (
 );
 
 print <<'END';
-/** @file api_generated.cc
+/** @file
  * @brief test common features of API classes
  */
 END

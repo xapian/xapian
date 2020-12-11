@@ -1,4 +1,4 @@
-/** @file termiterator.cc
+/** @file
  *  @brief Class for iterating over a list of terms.
  */
 /* Copyright (C) 2008,2009,2010,2011,2013 Olly Betts

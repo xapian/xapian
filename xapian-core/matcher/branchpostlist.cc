@@ -1,4 +1,4 @@
-/** @file branchpostlist.cc
+/** @file
  * @brief Virtual base class for branched types of postlist.
  */
 /* Copyright (C) 2007 Olly Betts

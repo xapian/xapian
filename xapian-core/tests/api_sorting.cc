@@ -1,4 +1,4 @@
-/** @file api_sorting.cc
+/** @file
  * @brief tests of MSet sorting
  */
 /* Copyright (C) 2007,2008,2009,2012,2017 Olly Betts

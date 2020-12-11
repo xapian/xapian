@@ -1,6 +1,7 @@
-/* selectpostlist.cc: Parent class for classes which only return selected docs
- *
- * Copyright 1999,2000,2001 BrightStation PLC
+/** @file
+ * @brief Parent class for classes which only return selected docs
+ */
+/* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
  * Copyright 2003,2004,2007,2010,2011,2012,2013,2019 Olly Betts
  *

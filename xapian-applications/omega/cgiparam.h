@@ -1,6 +1,7 @@
-/* functions to deal with CGI parameters
- *
- * Copyright 1999,2000,2001 BrightStation PLC
+/** @file
+ * @brief functions to deal with CGI parameters
+ */
+/* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002,2007,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or

@@ -1,4 +1,4 @@
-/** @file chert_spellingwordslist.h
+/** @file
  * @brief A termlist containing all words which are spelling targets.
  */
 /* Copyright (C) 2005,2008,2011 Olly Betts

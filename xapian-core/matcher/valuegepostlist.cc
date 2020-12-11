@@ -1,4 +1,4 @@
-/** @file valuegepostlist.cc
+/** @file
  * @brief Return document ids matching a range test on a specified doc value.
  */
 /* Copyright 2007,2008,2011,2013 Olly Betts

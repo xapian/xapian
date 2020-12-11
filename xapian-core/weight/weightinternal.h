@@ -1,4 +1,4 @@
-/** @file weightinternal.h
+/** @file
  * @brief Xapian::Weight::Internal class, holding database and term statistics.
  */
 /* Copyright (C) 2007 Lemur Consulting Ltd

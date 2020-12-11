@@ -1,4 +1,4 @@
-/** @file dphweight.cc
+/** @file
  * @brief Xapian::DPHWeight class - The DPH weighting scheme of the DFR framework.
  */
 /* Copyright (C) 2013, 2014 Aarsh Shah

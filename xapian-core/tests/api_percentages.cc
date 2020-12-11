@@ -1,4 +1,4 @@
-/** @file api_percentages.cc
+/** @file
  * @brief Tests of percentage calculations.
  */
 /* Copyright (C) 2008,2009 Lemur Consulting Ltd

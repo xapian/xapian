@@ -1,4 +1,4 @@
-/** @file expand.cc
+/** @file
  * @brief Set the query expansion scheme for Omega
  */
 /* Copyright (C) 2009,2013,2014,2015 Olly Betts

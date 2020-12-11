@@ -1,4 +1,4 @@
-/** @file progclient.h
+/** @file
  *  @brief Implementation of RemoteDatabase using a spawned server.
  */
 /* Copyright (C) 2007,2010,2011,2014,2019 Olly Betts

@@ -1,4 +1,4 @@
-/** @file contiguousalldocspostlist.cc
+/** @file
  * @brief Iterate all document ids when they form a contiguous range.
  */
 /* Copyright (C) 2007,2008,2009,2011 Olly Betts

@@ -1,4 +1,4 @@
-/** @file api_transdb.cc
+/** @file
  * @brief tests requiring a database backend supporting transactions
  */
 /* Copyright (C) 2006,2009,2018 Olly Betts

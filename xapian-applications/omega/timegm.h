@@ -1,4 +1,4 @@
-/** @file timegm.h
+/** @file
  * @brief Portable implementation of timegm().
  */
 /* Copyright (c) 2013 Olly Betts

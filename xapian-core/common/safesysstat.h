@@ -1,4 +1,4 @@
-/** @file safesysstat.h
+/** @file
  * @brief #include <sys/stat.h> with portability enhancements
  */
 /* Copyright (C) 2007,2012,2017 Olly Betts

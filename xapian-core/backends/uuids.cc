@@ -1,4 +1,4 @@
-/** @file uuids.cc
+/** @file
  * @brief Class for handling UUIDs
  */
 /* Copyright (C) 2008 Lemur Consulting Ltd

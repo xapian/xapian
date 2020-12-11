@@ -1,4 +1,4 @@
-/** @file overflow.h
+/** @file
  * @brief Arithmetic operations with overflow checks
  *
  * The operations are implemented with compiler builtins or equivalent where

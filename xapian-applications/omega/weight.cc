@@ -1,4 +1,4 @@
-/** @file weight.cc
+/** @file
  * @brief Set the weighting scheme for Omega
  */
 /* Copyright (C) 2009,2013,2016 Olly Betts

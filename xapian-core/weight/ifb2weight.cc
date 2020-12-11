@@ -1,4 +1,4 @@
-/** @file ifb2weight.cc
+/** @file
  * @brief Xapian::IfB2Weight class - the IfB2 weighting scheme of the DFR framework.
  */
 /* Copyright (C) 2013,2014 Aarsh Shah

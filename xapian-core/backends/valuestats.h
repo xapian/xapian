@@ -1,4 +1,4 @@
-/** @file valuestats.h
+/** @file
  * @brief Statistics about values.
  */
 /* Copyright 2008 Lemur Consulting Ltd

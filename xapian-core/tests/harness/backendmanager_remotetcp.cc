@@ -1,4 +1,4 @@
-/** @file backendmanager_remotetcp.cc
+/** @file
  * @brief BackendManager subclass for remotetcp databases.
  */
 /* Copyright (C) 2006,2007,2008,2009,2013,2015 Olly Betts

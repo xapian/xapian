@@ -1,4 +1,4 @@
-/** @file xapian/constinfo.h
+/** @file
  *  @brief Mechanism for accessing a struct of constant information
  */
 // Copyright (C) 2003,2004,2005,2007,2008,2009,2010,2012,2013,2015 Olly Betts

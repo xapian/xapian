@@ -1,4 +1,4 @@
-/** @file slowvaluelist.cc
+/** @file
  * @brief Slow implementation for backends which don't streamed values.
  */
 /* Copyright (C) 2008,2011,2013,2014,2018 Olly Betts

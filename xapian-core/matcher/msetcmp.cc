@@ -1,4 +1,4 @@
-/** @file msetcmp.cc
+/** @file
  * @brief MSetItem comparison functions.
  */
 /* Copyright (C) 2006,2009,2013,2017 Olly Betts

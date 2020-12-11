@@ -1,4 +1,4 @@
-/** @file document.h
+/** @file
  * @brief API for working with documents
  */
 /* Copyright 1999,2000,2001 BrightStation PLC

@@ -1,4 +1,4 @@
-/** @file str.h
+/** @file
  * @brief Convert types to std::string
  */
 /* Copyright (C) 2009,2015 Olly Betts

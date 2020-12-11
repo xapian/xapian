@@ -1,4 +1,4 @@
-/** @file steminternal.h
+/** @file
  *  @brief Base class for implementations of stemming algorithms
  */
 /* Copyright (C) 2007,2009,2010,2016 Olly Betts

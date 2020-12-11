@@ -1,4 +1,4 @@
-/** @file weight.h
+/** @file
  * @brief Set the weighting scheme for Omega
  */
 /* Copyright (C) 2009,2016 Olly Betts

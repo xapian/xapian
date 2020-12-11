@@ -1,4 +1,4 @@
-/** @file pack.h
+/** @file
  * @brief Pack types into strings and unpack them again.
  */
 /* Copyright (C) 2009,2015,2016,2017 Olly Betts

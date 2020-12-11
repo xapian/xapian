@@ -1,4 +1,4 @@
-/** @file omindex-list.cc
+/** @file
  * @brief List URLs of documents indexed by omindex
  */
 /* Copyright 2014 Olly Betts

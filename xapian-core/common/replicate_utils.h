@@ -1,4 +1,4 @@
-/** @file replicate_utils.h
+/** @file
  * @brief Utility functions for replication implementations
  */
 /* Copyright (C) 2010 Richard Boulton

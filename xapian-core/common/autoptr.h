@@ -1,4 +1,4 @@
-/** @file autoptr.h
+/** @file
  * @brief Wrapper around standard unique_ptr template.
  */
 /* Copyright (C) 2009,2011,2014,2015 Olly Betts

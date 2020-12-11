@@ -1,4 +1,4 @@
-/** @file remote-database.h
+/** @file
  *  @brief RemoteDatabase is the baseclass for remote database implementations.
  */
 /* Copyright (C) 2006,2007,2009,2010,2011,2014,2015,2019,2020 Olly Betts

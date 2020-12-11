@@ -1,4 +1,4 @@
-/** @file constants.h
+/** @file
  * @brief Constants in the Xapian namespace
  */
 /* Copyright (C) 2012,2013,2014,2015,2016 Olly Betts

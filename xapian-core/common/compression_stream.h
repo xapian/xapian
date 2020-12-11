@@ -1,4 +1,4 @@
-/** @file compression_stream.h
+/** @file
  * @brief class wrapper around zlib
  */
 /* Copyright (C) 2012 Dan Colish

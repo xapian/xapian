@@ -1,4 +1,4 @@
-/** @file glass_inverter.cc
+/** @file
  * @brief Inverter class which "inverts the file".
  */
 /* Copyright (C) 2009,2013 Olly Betts

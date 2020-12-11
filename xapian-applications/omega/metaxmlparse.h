@@ -1,6 +1,7 @@
-/* metaxmlparse.h: subclass of HtmlParser for parsing OpenDocument's meta.xml.
- *
- * Copyright (C) 2006,2009,2010,2011,2016 Olly Betts
+/** @file
+ * @brief Parser for OpenDocument's meta.xml.
+ */
+/* Copyright (C) 2006,2009,2010,2011,2016 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

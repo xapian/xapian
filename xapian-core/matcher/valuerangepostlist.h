@@ -1,4 +1,4 @@
-/** @file valuerangepostlist.h
+/** @file
  * @brief Return document ids matching a range test on a specified doc value.
  */
 /* Copyright 2007,2008,2009,2011 Olly Betts

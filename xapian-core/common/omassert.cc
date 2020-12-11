@@ -1,4 +1,4 @@
-/** @file omassert.cc
+/** @file
  * @brief Helper functions for omassert.h
  */
 /* Copyright (C) 2007,2012 Olly Betts

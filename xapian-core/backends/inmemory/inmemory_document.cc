@@ -1,4 +1,4 @@
-/** @file inmemory_document.cc
+/** @file
  * @brief A document read from a InMemoryDatabase.
  */
 /* Copyright (C) 2008,2009,2016 Olly Betts

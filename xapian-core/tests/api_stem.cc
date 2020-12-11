@@ -1,4 +1,4 @@
-/** @file api_stem.cc
+/** @file
  * @brief Test the stemming API
  */
 /* Copyright (C) 2010,2012,2019 Olly Betts

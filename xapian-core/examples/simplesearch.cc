@@ -1,4 +1,4 @@
-/** @file simplesearch.cc
+/** @file
  * @brief Simple command-line search utility.
  *
  * See "quest" for a more sophisticated example.

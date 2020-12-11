@@ -1,4 +1,4 @@
-/** @file api_spelling.cc
+/** @file
  * @brief Test the spelling correction suggestion API.
  */
 /* Copyright (C) 2007,2008,2009,2010,2011 Olly Betts

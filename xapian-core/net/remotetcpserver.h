@@ -1,4 +1,4 @@
-/** @file remotetcpserver.h
+/** @file
  *  @brief TCP/IP socket based server for RemoteDatabase.
  */
 /* Copyright (C) 2007,2008,2010,2015 Olly Betts

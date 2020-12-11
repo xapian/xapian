@@ -1,4 +1,4 @@
-/** @file andmaybepostlist.h
+/** @file
  * @brief Merged postlist: items from one list, weights from both
  *
  * AND MAYBE of two posting lists

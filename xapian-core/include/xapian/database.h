@@ -1,4 +1,4 @@
-/** @file database.h
+/** @file
  * @brief API for working with Xapian databases
  */
 /* Copyright 1999,2000,2001 BrightStation PLC

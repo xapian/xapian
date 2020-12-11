@@ -1,4 +1,4 @@
-/** @file phrasepostlist.cc
+/** @file
  * @brief Return docs containing terms forming a particular phrase.
  */
 /* Copyright (C) 2006,2007,2009,2010,2011,2014,2015,2017 Olly Betts

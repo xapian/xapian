@@ -1,4 +1,4 @@
-/** @file  remoteconnection.cc
+/** @file
  *  @brief RemoteConnection class used by the remote backend.
  */
 /* Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2017 Olly Betts

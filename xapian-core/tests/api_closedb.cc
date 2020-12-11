@@ -1,4 +1,4 @@
-/** @file api_closedb.cc
+/** @file
  * @brief Tests of closing databases.
  */
 /* Copyright 2008,2009 Lemur Consulting Ltd

@@ -1,4 +1,4 @@
-/** @file safefcntl.h
+/** @file
  * @brief #include <fcntl.h>, but working around broken platforms.
  */
 /* Copyright (C) 2006,2007,2012,2018 Olly Betts

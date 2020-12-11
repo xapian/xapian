@@ -1,6 +1,7 @@
-/* internaltest.cc: test of the Xapian internals
- *
- * Copyright 1999,2000,2001 BrightStation PLC
+/** @file
+ * @brief test of the Xapian internals
+ */
+/* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
  * Copyright 2002,2003,2006,2007,2008,2009,2010,2011,2012,2015 Olly Betts
  * Copyright 2006 Lemur Consulting Ltd

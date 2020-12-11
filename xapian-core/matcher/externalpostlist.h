@@ -1,4 +1,4 @@
-/** @file externalpostlist.h
+/** @file
  * @brief Return document ids from an external source.
  */
 /* Copyright 2008,2009,2011 Olly Betts

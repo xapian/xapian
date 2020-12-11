@@ -1,4 +1,4 @@
-/** @file keymaker.h
+/** @file
  * @brief Build key strings for MSet ordering or collapsing.
  */
 /* Copyright (C) 2007,2009,2011,2013,2014,2015,2016 Olly Betts

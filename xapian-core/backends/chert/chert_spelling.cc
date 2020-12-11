@@ -1,4 +1,4 @@
-/** @file chert_spelling.cc
+/** @file
  * @brief Spelling correction data for a chert database.
  */
 /* Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2011 Olly Betts

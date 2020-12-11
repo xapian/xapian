@@ -1,4 +1,4 @@
-/** @file chert_replicate_internal.h
+/** @file
  * @brief Internal definitions for chert database replication
  */
 /* Copyright 2008 Lemur Consulting Ltd

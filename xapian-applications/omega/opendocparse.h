@@ -1,5 +1,5 @@
-/** @file opendocparse.h
- * @brief Extract text from XML from an OPENDOC spreadsheet.
+/** @file
+ * @brief Extract text from OpenDocument XML.
  */
 /* Copyright (C) 2012 Olly Betts
  *

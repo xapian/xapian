@@ -1,6 +1,7 @@
-/* inmemory_positionlist.cc
- *
- * Copyright 1999,2000,2001 BrightStation PLC
+/** @file
+ * @brief PositionList from an InMemory DB or a Document object
+ */
+/* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2003,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or

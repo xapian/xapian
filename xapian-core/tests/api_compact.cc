@@ -1,4 +1,4 @@
-/** @file api_compact.cc
+/** @file
  * @brief Tests of Database::compact()
  */
 /* Copyright (C) 2009,2010,2011,2012,2013,2015,2016,2017,2018,2019 Olly Betts

@@ -1,4 +1,4 @@
-/** @file exactphrasepostlist.h
+/** @file
  * @brief Return docs containing terms forming a particular exact phrase.
  *
  * Copyright (C) 2006 Olly Betts

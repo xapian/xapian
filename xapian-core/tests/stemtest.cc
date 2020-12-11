@@ -1,6 +1,7 @@
-/* stemtest.cc
- *
- * Copyright 1999,2000,2001 BrightStation PLC
+/** @file
+ * @brief Test stemming algorithms
+ */
+/* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
  * Copyright 2002,2003,2004,2007,2008,2009,2012,2015 Olly Betts
  *

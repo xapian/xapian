@@ -1,5 +1,5 @@
 %{
-/** @file xapian-head.i
+/** @file
  * @brief Header for SWIG interface file for Xapian.
  */
 /* Copyright (C) 2005,2006,2007,2008,2009,2011,2012,2013,2014,2015,2016 Olly Betts

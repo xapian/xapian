@@ -1,4 +1,4 @@
-/** @file  derefwrapper.h
+/** @file
  *  @brief Class for wrapping type returned by an input_iterator.
  */
 /* Copyright (C) 2004,2008,2009,2013,2014 Olly Betts

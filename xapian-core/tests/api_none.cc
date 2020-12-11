@@ -1,4 +1,4 @@
-/** @file api_none.cc
+/** @file
  * @brief tests which don't need a backend
  */
 /* Copyright (C) 2009 Richard Boulton

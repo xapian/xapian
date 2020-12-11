@@ -1,4 +1,4 @@
-/** @file simpleexpand.cc
+/** @file
  * @brief Simple example program demonstrating query expansion.
  */
 /* Copyright (C) 2007,2010,2015 Olly Betts

@@ -1,4 +1,4 @@
-/** @file chert_termlisttable.cc
+/** @file
  * @brief Subclass of ChertTable which holds termlists.
  */
 /* Copyright (C) 2007,2008 Olly Betts

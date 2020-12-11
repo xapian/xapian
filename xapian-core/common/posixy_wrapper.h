@@ -1,4 +1,4 @@
-/** @file posixy_wrapper.h
+/** @file
  * @brief Provides wrappers with POSIXy semantics.
  */
 /* Copyright 2007 Lemur Consulting Ltd

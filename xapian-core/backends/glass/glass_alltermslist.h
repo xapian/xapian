@@ -1,4 +1,4 @@
-/** @file glass_alltermslist.h
+/** @file
  * @brief A termlist containing all terms in a glass database.
  */
 /* Copyright (C) 2005,2007,2008,2009,2010,2011 Olly Betts

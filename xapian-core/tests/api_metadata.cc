@@ -1,4 +1,4 @@
-/** @file api_metadata.cc
+/** @file
  * @brief Test the user metadata functionality.
  */
 /* Copyright (C) 2007,2009,2011 Olly Betts

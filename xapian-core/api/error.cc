@@ -1,4 +1,4 @@
-/** @file error.cc
+/** @file
  *  @brief Xapian::Error base class.
  */
 /* Copyright (C) 2007,2008,2011,2013,2014,2015 Olly Betts

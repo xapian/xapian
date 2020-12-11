@@ -1,4 +1,4 @@
-/** @file glass_changes.h
+/** @file
  * @brief Glass changesets
  */
 /* Copyright 2014 Olly Betts

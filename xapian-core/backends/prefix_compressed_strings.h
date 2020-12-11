@@ -1,4 +1,4 @@
-/** @file prefix_compressed_strings.h
+/** @file
  * @brief Handle encoding and decoding prefix-compressed lists of strings
  */
 /* Copyright (C) 2004,2005,2006,2007,2008,2009,2010 Olly Betts

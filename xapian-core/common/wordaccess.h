@@ -1,4 +1,4 @@
-/** @file wordaccess.h
+/** @file
  * @brief functions for reading and writing different width words
  */
 /* Copyright (C) 2016,2018,2019 Olly Betts

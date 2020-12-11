@@ -1,4 +1,4 @@
-/** @file api_query.cc
+/** @file
  * @brief Query-related tests.
  */
 /* Copyright (C) 2008,2009,2012,2013,2015,2016,2017,2019 Olly Betts

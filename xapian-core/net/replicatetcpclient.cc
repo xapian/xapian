@@ -1,4 +1,4 @@
-/** @file replicatetcpclient.cc
+/** @file
  *  @brief TCP/IP replication client class.
  */
 /* Copyright (C) 2008,2010,2011,2015 Olly Betts

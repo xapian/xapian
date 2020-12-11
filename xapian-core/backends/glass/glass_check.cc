@@ -1,6 +1,7 @@
-/* glass_check.cc: Btree checking
- *
- * Copyright 1999,2000,2001 BrightStation PLC
+/** @file
+ * @brief Btree checking
+ */
+/* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
  * Copyright 2002,2004,2005,2008,2009,2011,2012,2013,2014,2016 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd

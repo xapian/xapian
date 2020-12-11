@@ -1,4 +1,4 @@
-/** @file maxpostlist.cc
+/** @file
  * @brief N-way OR postlist with wt=max(wt_i)
  */
 /* Copyright (C) 2007,2009,2010,2011,2012,2013,2014 Olly Betts

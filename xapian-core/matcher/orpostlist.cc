@@ -1,6 +1,7 @@
-/* orpostlist.cc: OR of two posting lists
- *
- * Copyright 1999,2000,2001 BrightStation PLC
+/** @file
+ * @brief OR of two posting lists
+ */
+/* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
  * Copyright 2003,2004,2007,2008,2009,2010,2011,2012,2016,2017 Olly Betts
  * Copyright 2009 Lemur Consulting Ltd

@@ -1,4 +1,4 @@
-/** @file expandweight.h
+/** @file
  * @brief Collate statistics and calculate the term weights for the ESet.
  */
 /* Copyright (C) 2007,2008,2009,2011,2016 Olly Betts

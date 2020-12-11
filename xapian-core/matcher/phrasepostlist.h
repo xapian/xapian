@@ -1,4 +1,4 @@
-/** @file phrasepostlist.h
+/** @file
  * @brief Return docs containing terms forming a particular phrase.
  *
  * Copyright (C) 2006,2015 Olly Betts

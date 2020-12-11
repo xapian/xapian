@@ -1,4 +1,4 @@
-/** @file glass_table.h
+/** @file
  * @brief Btree implementation
  */
 /* Copyright 1999,2000,2001 BrightStation PLC

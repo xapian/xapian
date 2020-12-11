@@ -1,4 +1,4 @@
-/** @file glass_synonym.h
+/** @file
  * @brief Synonym data for a glass database.
  */
 /* Copyright (C) 2005,2007,2008,2009,2011,2014,2016 Olly Betts

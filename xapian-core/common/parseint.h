@@ -1,4 +1,4 @@
-/** @file parseint.h
+/** @file
  * @brief Parse signed and unsigned type from string and check for trailing characters.
  */
 /* Copyright (C) 2019 Olly Betts

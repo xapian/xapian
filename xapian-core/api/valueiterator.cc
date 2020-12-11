@@ -1,4 +1,4 @@
-/** @file valueiterator.cc
+/** @file
  *  @brief Class for iterating over document values.
  */
 /* Copyright (C) 2008,2009,2011,2013 Olly Betts

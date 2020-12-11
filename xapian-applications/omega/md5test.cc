@@ -1,6 +1,7 @@
-/* md5test.cc: test cases for the MD5 code
- *
- * Copyright (C) 2006 Olly Betts
+/** @file
+ * @brief test cases for the MD5 code
+ */
+/* Copyright (C) 2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

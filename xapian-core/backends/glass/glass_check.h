@@ -1,4 +1,4 @@
-/** @file glass_check.h
+/** @file
  * @brief Btree checking
  */
 /* Copyright 1999,2000,2001 BrightStation PLC

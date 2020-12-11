@@ -1,4 +1,4 @@
-/** @file chert_valuelist.h
+/** @file
  * @brief Chert class for value streams.
  */
 /* Copyright (C) 2007,2008,2011 Olly Betts

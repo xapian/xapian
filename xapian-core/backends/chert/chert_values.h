@@ -1,4 +1,4 @@
-/** @file chert_values.h
+/** @file
  * @brief ChertValueManager class
  */
 /* Copyright (C) 2008,2011 Olly Betts

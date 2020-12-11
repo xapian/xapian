@@ -1,4 +1,4 @@
-/** @file editdistance.h
+/** @file
  * @brief Edit distance calculation algorithm.
  */
 /* Copyright (C) 2003 Richard Boulton

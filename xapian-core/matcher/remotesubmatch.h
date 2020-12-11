@@ -1,4 +1,4 @@
-/** @file remotesubmatch.h
+/** @file
  *  @brief SubMatch class for a remote database.
  */
 /* Copyright (C) 2006,2007,2009,2011,2014,2015 Olly Betts

@@ -1,4 +1,4 @@
-/** @file ortermlist.h
+/** @file
  * @brief Merge two TermList objects using an OR operation.
  */
 /* Copyright (C) 2007,2010 Olly Betts

@@ -1,4 +1,4 @@
-/** @file chert_termlist.h
+/** @file
  * @brief A TermList in a chert database.
  */
 /* Copyright (C) 2007,2008,2010,2011 Olly Betts

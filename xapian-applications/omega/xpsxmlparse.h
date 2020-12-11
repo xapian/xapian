@@ -1,5 +1,5 @@
-/** @file xpsxmlparse.h
- * @brief Subclass of HtmlParser for parsing XPS .fpage files.
+/** @file
+ * @brief Parser for XPS .fpage files.
  */
 /* Copyright (C) 2009,2011 Olly Betts
  *

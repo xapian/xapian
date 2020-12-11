@@ -1,4 +1,4 @@
-/** @file svgparse.h
+/** @file
  * @brief Extract text from an SVG file.
  */
 /* Copyright (C) 2010,2011 Olly Betts

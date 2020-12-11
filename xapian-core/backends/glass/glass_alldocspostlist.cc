@@ -1,4 +1,4 @@
-/** @file glass_alldocspostlist.cc
+/** @file
  * @brief A PostList which iterates over all documents in a GlassDatabase.
  */
 /* Copyright (C) 2006,2007,2008,2009 Olly Betts

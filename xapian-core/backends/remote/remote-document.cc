@@ -1,4 +1,4 @@
-/** @file remote-document.cc
+/** @file
  * @brief A document read from a RemoteDatabase.
  */
 /* Copyright (C) 2008 Olly Betts

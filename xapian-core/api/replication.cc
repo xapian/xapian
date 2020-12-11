@@ -1,4 +1,4 @@
-/** @file replication.cc
+/** @file
  * @brief Replication support for Xapian databases.
  */
 /* Copyright (C) 2008 Lemur Consulting Ltd

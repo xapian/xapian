@@ -1,6 +1,7 @@
-/* xmlparse.h: subclass of HtmlParser for parsing XML.
- *
- * Copyright (C) 2006,2008,2009,2011 Olly Betts
+/** @file
+ * @brief Extract text from Abiword documents.
+ */
+/* Copyright (C) 2020 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

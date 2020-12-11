@@ -1,4 +1,4 @@
-/** @file utf8convert.cc
+/** @file
  * @brief convert a string to UTF-8 encoding.
  */
 /* Copyright (C) 2006,2007,2008,2010,2013,2017,2019 Olly Betts

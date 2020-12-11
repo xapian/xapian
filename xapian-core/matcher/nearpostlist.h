@@ -1,4 +1,4 @@
-/** @file nearpostlist.h
+/** @file
  * @brief Return docs containing terms within a specified window.
  *
  * Copyright (C) 2006,2015 Olly Betts

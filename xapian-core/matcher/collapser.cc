@@ -1,4 +1,4 @@
-/** @file collapser.cc
+/** @file
  * @brief Collapse documents with the same collapse key during the match.
  */
 /* Copyright (C) 2009,2011 Olly Betts

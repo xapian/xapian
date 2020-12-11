@@ -1,4 +1,4 @@
-/** @file deprecated.h
+/** @file
  * @brief Define XAPIAN_DEPRECATED() and related macros.
  */
 // Copyright (C) 2006,2007,2009,2011,2012,2013,2014 Olly Betts

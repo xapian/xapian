@@ -1,4 +1,4 @@
-/** @file glass_document.h
+/** @file
  * @brief A document read from a GlassDatabase.
  */
 /* Copyright (C) 2008,2009,2010,2011 Olly Betts

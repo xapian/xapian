@@ -1,4 +1,4 @@
-/** @file copydatabase.cc
+/** @file
  * @brief Perform a document-by-document copy of one or more Xapian databases.
  */
 /* Copyright (C) 2006,2007,2008,2009,2010,2011,2019 Olly Betts

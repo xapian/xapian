@@ -1,4 +1,4 @@
-/** @file api_qpbackend.cc
+/** @file
  * @brief QueryParser tests which need a backend
  */
 /* Copyright (c) 2009,2015 Olly Betts

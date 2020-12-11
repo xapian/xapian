@@ -1,4 +1,4 @@
-/** @file bm25plusweight.cc
+/** @file
  * @brief Xapian::BM25PlusWeight class - the BM25+ probabilistic formula
  */
 /* Copyright (C) 2009,2010,2011,2012,2014,2015,2016 Olly Betts

@@ -1,4 +1,4 @@
-/** @file compression_stream.cc
+/** @file
  * @brief class wrapper around zlib
  */
 /* Copyright (C) 2007,2009,2012,2013,2014,2016,2019 Olly Betts

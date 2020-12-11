@@ -1,4 +1,4 @@
-/** @file synonympostlist.cc
+/** @file
  * @brief Combine subqueries, weighting as if they are synonyms
  */
 /* Copyright 2007,2009 Lemur Consulting Ltd

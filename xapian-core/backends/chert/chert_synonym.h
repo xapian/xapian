@@ -1,4 +1,4 @@
-/** @file chert_synonym.h
+/** @file
  * @brief Synonym data for a chert database.
  */
 /* Copyright (C) 2005,2007,2008,2009,2011 Olly Betts

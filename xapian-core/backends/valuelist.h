@@ -1,4 +1,4 @@
-/** @file valuelist.h
+/** @file
  * @brief Abstract base class for value streams.
  */
 /* Copyright (C) 2007,2008 Olly Betts

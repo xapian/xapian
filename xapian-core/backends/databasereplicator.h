@@ -1,4 +1,4 @@
-/** @file databasereplicator.h
+/** @file
  * @brief Class to manage replication of databases.
  */
 /* Copyright (C) 2008 Lemur Consulting Ltd

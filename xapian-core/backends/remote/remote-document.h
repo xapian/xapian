@@ -1,4 +1,4 @@
-/** @file remote-document.h
+/** @file
  * @brief A document read from a RemoteDatabase.
  */
 /* Copyright (C) 2008,2011 Olly Betts

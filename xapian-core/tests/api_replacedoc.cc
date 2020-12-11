@@ -1,6 +1,7 @@
-/* api_replacedoc.cc: tests of document replacing.
- *
- * Copyright 2009 Richard Boulton
+/** @file
+ * @brief tests of document replacing.
+ */
+/* Copyright 2009 Richard Boulton
  * Copyright 2015,2016 Olly Betts
  *
  * This program is free software; you can redistribute it and/or

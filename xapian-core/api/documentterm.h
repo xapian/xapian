@@ -1,4 +1,4 @@
-/** @file documentterm.h
+/** @file
  * @brief internal class representing a term in a modified document
  */
 /* Copyright 1999,2000,2001 BrightStation PLC

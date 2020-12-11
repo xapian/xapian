@@ -1,4 +1,4 @@
-/** @file backends.h
+/** @file
  * @brief BACKEND_* constants
  */
 /* Copyright (C) 2015 Olly Betts

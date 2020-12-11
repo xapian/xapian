@@ -1,4 +1,4 @@
-/** @file backendmanager_chert.h
+/** @file
  * @brief BackendManager subclass for chert databases.
  */
 /* Copyright (C) 2007,2008,2009,2018 Olly Betts

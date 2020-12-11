@@ -1,6 +1,7 @@
-/* configfile.cc: Read a config file for omega.
- *
- * Copyright 2001 Lemur Consulting Ltd.
+/** @file
+ * @brief Read a config file for omega.
+ */
+/* Copyright 2001 Lemur Consulting Ltd.
  * Copyright 2002 Ananova Ltd
  * Copyright 2003,2005,2007,2010,2015 Olly Betts
  *
