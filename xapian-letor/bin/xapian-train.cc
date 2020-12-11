@@ -1,4 +1,4 @@
-/** @file xapian-train.cc
+/** @file
  * @brief Command line tool to train and save the LTR model
  */
 /* Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2015 Olly Betts

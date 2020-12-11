@@ -1,4 +1,4 @@
-/** @file listmle_ranker.cc
+/** @file
  *  @brief Implementation of ListMLERanker
  *
  *  ListMLE is adapted from the paper:

@@ -1,4 +1,4 @@
-/** @file geoencode.cc
+/** @file
  * @brief Encodings for geospatial coordinates.
  */
 /* Copyright (C) 2011 Richard Boulton

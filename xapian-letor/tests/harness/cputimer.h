@@ -1,4 +1,4 @@
-/** @file cputimer.h
+/** @file
  * @brief Measure CPU time.
  */
 /* Copyright (C) 2009 Olly Betts

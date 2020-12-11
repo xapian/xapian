@@ -1,4 +1,4 @@
-/** @file api_wrdb.cc
+/** @file
  * @brief tests which need a writable backend
  */
 /* Copyright 1999,2000,2001 BrightStation PLC

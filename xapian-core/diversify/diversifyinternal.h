@@ -1,4 +1,4 @@
-/** @file diversifyinternal.h
+/** @file
  * @brief Xapian::Diversify internals
  */
 /* Copyright (C) 2018 Uppinder Chugh

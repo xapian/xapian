@@ -1,4 +1,4 @@
-/** @file protomset.h
+/** @file
  * @brief ProtoMSet class
  */
 /* Copyright (C) 2004,2007,2017,2018,2019 Olly Betts

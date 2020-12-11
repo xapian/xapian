@@ -1,4 +1,4 @@
-/** @file svgparser.h
+/** @file
  * @brief Extract text from an SVG file.
  */
 /* Copyright (C) 2010,2011,2019 Olly Betts

@@ -1,4 +1,4 @@
-/** @file api_postingsource.cc
+/** @file
  * @brief tests of posting sources
  */
 /* Copyright 2008,2009,2011,2015,2016,2019 Olly Betts

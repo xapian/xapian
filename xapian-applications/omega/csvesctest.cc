@@ -1,4 +1,4 @@
-/** @file csvesctest.cc
+/** @file
  * @brief Test CSV escaping routines
  */
 /* Copyright (C) 2011,2012,2013,2015 Olly Betts

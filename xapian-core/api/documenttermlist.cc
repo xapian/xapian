@@ -1,4 +1,4 @@
-/** @file documenttermlist.cc
+/** @file
  * @brief Iteration over terms in a document
  */
 /* Copyright 2017 Olly Betts

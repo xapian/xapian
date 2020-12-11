@@ -1,4 +1,4 @@
-/** @file multixorpostlist.cc
+/** @file
  * @brief N-way XOR postlist
  */
 /* Copyright (C) 2007,2009,2010,2011,2012,2016,2017 Olly Betts

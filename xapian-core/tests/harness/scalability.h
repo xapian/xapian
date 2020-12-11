@@ -1,4 +1,4 @@
-/** @file scalability.h
+/** @file
  * @brief Test how an operation scales.
  */
 /* Copyright (C) 2009 Olly Betts

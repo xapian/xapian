@@ -1,4 +1,4 @@
-/** @file inmemory_positionlist.cc
+/** @file
  * @brief PositionList from an InMemory DB or a Document object
  */
 /* Copyright 2017 Olly Betts

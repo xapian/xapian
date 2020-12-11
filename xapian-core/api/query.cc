@@ -1,4 +1,4 @@
-/** @file query.cc
+/** @file
  * @brief Xapian::Query API class
  */
 /* Copyright (C) 2011,2012,2013,2015,2016,2017,2018 Olly Betts

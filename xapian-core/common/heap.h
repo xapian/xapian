@@ -1,4 +1,4 @@
-/** @file heap.h
+/** @file
  * @brief C++ STL heap implementation with extensions
  *
  * Adapted from libc++'s <algorithm>, with the following additions:

@@ -1,4 +1,4 @@
-/** @file strcasecmp.h
+/** @file
  * @brief Provide strcasecmp() and strncasecmp().
  */
 /* Copyright (C) 2007 Olly Betts

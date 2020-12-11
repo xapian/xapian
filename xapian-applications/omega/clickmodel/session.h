@@ -1,4 +1,4 @@
-/** @file session.h
+/** @file
  * @brief Session class for handling search session data.
  */
 /* Copyright (C) 2017 Vivek Pal

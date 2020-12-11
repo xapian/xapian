@@ -1,4 +1,4 @@
-/** @file registry.cc
+/** @file
  * @brief Class for looking up user subclasses during unserialisation.
  */
 /* Copyright (C) 2006,2007,2008,2009,2010,2016 Olly Betts

@@ -1,4 +1,4 @@
-/** @file dbcheck.h
+/** @file
  * @brief test database contents and consistency.
  */
 /* Copyright (C) 2010 Richard Boulton

@@ -1,4 +1,4 @@
-/** @file feature.cc
+/** @file
  * @brief Description of Feature class
  */
 /* Copyright (C) 2016 Ayush Tomar

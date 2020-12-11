@@ -1,4 +1,4 @@
-/** @file honey_termlisttable.h
+/** @file
  * @brief Subclass of HoneyTable which holds termlists.
  */
 /* Copyright (C) 2007,2008,2009,2010,2013,2014,2015,2016 Olly Betts

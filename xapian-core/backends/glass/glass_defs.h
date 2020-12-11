@@ -1,4 +1,4 @@
-/** @file glass_defs.h
+/** @file
  * @brief Definitions, types, etc for use inside glass.
  */
 /* Copyright (C) 2010,2014,2015,2017 Olly Betts

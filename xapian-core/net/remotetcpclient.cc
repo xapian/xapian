@@ -1,4 +1,4 @@
-/** @file remotetcpclient.cc
+/** @file
  *  @brief TCP/IP socket based RemoteDatabase implementation
  */
 /* Copyright (C) 2008,2010 Olly Betts

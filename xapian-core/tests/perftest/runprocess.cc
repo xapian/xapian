@@ -1,4 +1,4 @@
-/** @file runprocess.cc
+/** @file
  * @brief run an external process and capture its output in a string.
  */
 /* Copyright (C) 2003,2006,2007 Olly Betts

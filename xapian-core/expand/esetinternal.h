@@ -1,4 +1,4 @@
-/** @file esetinternal.h
+/** @file
  * @brief Xapian::ESet::Internal class
  */
 /* Copyright (C) 2008,2010,2011 Olly Betts

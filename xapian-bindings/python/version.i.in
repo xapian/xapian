@@ -1,5 +1,5 @@
 %{
-/** @file python/version.i.in
+/** @file
  * @brief Set xapian.__version__ to the bindings version
  */
 /* Copyright (C) 2013 Olly Betts

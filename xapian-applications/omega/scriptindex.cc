@@ -1,4 +1,4 @@
-/** @file scriptindex.cc
+/** @file
  * @brief index arbitrary data as described by an index script
  */
 /* Copyright 1999,2000,2001 BrightStation PLC

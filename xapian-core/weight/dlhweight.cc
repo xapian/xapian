@@ -1,4 +1,4 @@
-/** @file dlhweight.cc
+/** @file
  * @brief Xapian::DLHWeight class - The DLH weighting scheme of the DFR framework.
  */
 /* Copyright (C) 2013, 2014 Aarsh Shah

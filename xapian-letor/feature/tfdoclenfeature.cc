@@ -1,4 +1,4 @@
-/** @file tfdoclenfeature.cc
+/** @file
  * @brief TfDoclenFeature class
  */
 /* Copyright (C) 2012 Parth Gupta

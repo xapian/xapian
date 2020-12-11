@@ -1,4 +1,4 @@
-/** @file dbfactory_remote.cc
+/** @file
  * @brief Database factories for remote databases.
  */
 /* Copyright (C) 2006,2007,2008,2010,2011,2014 Olly Betts

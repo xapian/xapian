@@ -1,4 +1,4 @@
-/** @file hashterm.h
+/** @file
  * @brief replace the end of a long term with a hash.
  */
 /* Copyright (C) 2006,2007 Olly Betts

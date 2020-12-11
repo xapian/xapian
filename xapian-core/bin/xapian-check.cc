@@ -1,4 +1,4 @@
-/** @file xapian-check.cc
+/** @file
  * @brief Tool to check the consistency of a database or table.
  */
 /* Copyright 1999,2000,2001 BrightStation PLC

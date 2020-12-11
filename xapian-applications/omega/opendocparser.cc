@@ -1,4 +1,4 @@
-/** @file opendocparser.cc
+/** @file
  * @brief Extract text from OpenDocument XML.
  */
 /* Copyright (C) 2012 Olly Betts

@@ -1,4 +1,4 @@
-/** @file postingiteratorinternal.h
+/** @file
  * @brief Xapian::PostingIterator internals
  */
 /* Copyright 2017 Olly Betts

@@ -1,4 +1,4 @@
-/** @file featurelist.cc
+/** @file
  *  @brief Definition of FeatureList class
  */
 /* Copyright (C) 2016 Ayush Tomar

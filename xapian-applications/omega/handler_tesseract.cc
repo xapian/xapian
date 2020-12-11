@@ -1,4 +1,4 @@
-/** @file handler_tesseract.cc
+/** @file
  * @brief Extract text from Images using tesseract.
  */
 /* Copyright (C) 2019 Bruno Baruffaldi

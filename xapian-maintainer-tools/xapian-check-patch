@@ -261,19 +261,14 @@ while (<>) {
 	    if ($doxygen_first_line == 1 && m,^\+%include\b\s*\{,) {
 		# If the first line is %include{... check the second.
 		$doxygen_first_line = 2;
-	    } elsif (m!^\+/\*\*\s+\@file\s+(\S+)!) {
-		my $at_file = $1;
-		if ($fnm eq $at_file ||
-		    (length $fnm > length($at_file) && substr($fnm, -length($at_file) - 1, 1) eq '/') &&
-		    substr($fnm, -length $at_file) eq $at_file) {
-		    # @file matches
-		} else {
-		    diagnostic('error', "\@file doesn't match filename");
+	    } elsif (m!^\+/\*\*\s+\@file\s*(.*)!) {
+		if (length($1)) {
+		    diagnostic('error', "Doxygen \@file should not list explicit filename");
 		}
 	    } elsif ($fnm =~ m!\bomega/md5\.h$!) {
 		# Imported file.
 	    } else {
-		diagnostic('error', "\@file missing");
+		diagnostic('error', "Doxygen \@file missing");
 	    }
 	}
 

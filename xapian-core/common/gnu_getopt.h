@@ -1,4 +1,4 @@
-/** @file gnu_getopt.h
+/** @file
  * @brief Wrappers to allow GNU getopt to be used cleanly from C++ code.
  */
 /* Copyright (C) 2004,2009,2010 Olly Betts

@@ -1,4 +1,4 @@
-/** @file backendmanager_singlefile.h
+/** @file
  * @brief BackendManager subclass for singlefile databases.
  */
 /* Copyright (C) 2007,2009,2015,2018 Olly Betts

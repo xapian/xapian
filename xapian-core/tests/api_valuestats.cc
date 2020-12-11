@@ -1,4 +1,4 @@
-/** @file api_valuestats.cc
+/** @file
  * @brief tests of the value statistics functions.
  */
 /* Copyright 2008 Lemur Consulting Ltd

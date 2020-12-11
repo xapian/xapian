@@ -1,4 +1,4 @@
-/** @file date.h
+/** @file
  * @brief date range parsing routines for omega
  */
 /* Copyright 2003,2007 Olly Betts

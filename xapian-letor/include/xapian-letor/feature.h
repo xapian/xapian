@@ -1,4 +1,4 @@
-/** @file feature.h
+/** @file
  * @brief Abstract base class for features in learning to rank
  */
 /* Copyright (C) 2016 Ayush Tomar

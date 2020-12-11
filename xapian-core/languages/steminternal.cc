@@ -1,4 +1,4 @@
-/** @file steminternal.cc
+/** @file
  *  @brief Base class for implementations of stemming algorithms
  */
 /* Derived from snowball's runtime/api.c:

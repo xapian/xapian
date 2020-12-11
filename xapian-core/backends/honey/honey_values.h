@@ -1,4 +1,4 @@
-/** @file honey_values.h
+/** @file
  * @brief HoneyValueManager class
  */
 /* Copyright (C) 2008,2009,2011,2018 Olly Betts

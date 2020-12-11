@@ -1,4 +1,4 @@
-/** @file featurevector_internal.h
+/** @file
  * @brief Internals of FeatureVector class
  */
 /* Copyright (C) 2012 Parth Gupta

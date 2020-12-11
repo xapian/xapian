@@ -1,4 +1,4 @@
-/** @file remotesubmatch.cc
+/** @file
  *  @brief SubMatch class for a remote database.
  */
 /* Copyright (C) 2006,2007,2009,2010,2011,2014,2015,2018,2019 Olly Betts

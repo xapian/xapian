@@ -1,4 +1,4 @@
-/** @file glass_valuelist.cc
+/** @file
  * @brief Glass class for value streams.
  */
 /* Copyright (C) 2007,2008,2009 Olly Betts

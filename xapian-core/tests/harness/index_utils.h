@@ -1,4 +1,4 @@
-/** @file index_utils.h
+/** @file
  * @brief utility functions for indexing testcase data
  */
 /* Copyright (C) 2005,2007,2013 Olly Betts

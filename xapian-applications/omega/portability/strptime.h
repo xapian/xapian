@@ -1,4 +1,4 @@
-/** @file strptime.h
+/** @file
  * @brief Implement strptime() using std::get_time()
  */
 /* Copyright 2019 Olly Betts

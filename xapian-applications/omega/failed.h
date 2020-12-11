@@ -1,4 +1,4 @@
-/** @file failed.h
+/** @file
  * @brief Track files we failed to index
  */
 /* Copyright (C) 2014,2015 Olly Betts

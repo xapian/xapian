@@ -1,4 +1,4 @@
-/** @file selectpostlist.h
+/** @file
  * @brief Base class for classes which filter another PostList
  */
 /* Copyright 2017 Olly Betts

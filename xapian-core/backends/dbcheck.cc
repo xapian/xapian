@@ -1,4 +1,4 @@
-/** @file dbcheck.cc
+/** @file
  * @brief Check the consistency of a database or table.
  */
 /* Copyright 2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2019 Olly Betts

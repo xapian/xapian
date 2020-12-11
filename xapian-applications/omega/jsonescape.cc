@@ -1,4 +1,4 @@
-/** @file jsonescape.cc
+/** @file
  * @brief JSON escape a string
  */
 /* Copyright (C) 2013 Olly Betts

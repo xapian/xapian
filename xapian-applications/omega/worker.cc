@@ -1,4 +1,4 @@
-/** @file worker.cc
+/** @file
  * @brief Class representing worker process.
  */
 /* Copyright (C) 2005,2006,2007,2008,2009,2010,2011 Olly Betts

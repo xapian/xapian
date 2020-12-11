@@ -1,4 +1,4 @@
-/** @file honey_positionlist.h
+/** @file
  * @brief A position list in a honey database.
  */
 /* Copyright (C) 2005,2006,2008,2009,2010,2011,2013,2016,2017,2019 Olly Betts

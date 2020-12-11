@@ -1,4 +1,4 @@
-/** @file utils.cc
+/** @file
  * @brief string conversion utility functions for omega
  */
 /* Copyright 1999,2000,2001 BrightStation PLC

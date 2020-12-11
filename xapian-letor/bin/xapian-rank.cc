@@ -1,4 +1,4 @@
-/** @file xapian-rank.cc
+/** @file
  * @brief Command line search tool using Xapian::QueryParser and Xapian::Letor
  */
 /* Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2015 Olly Betts

@@ -1,4 +1,4 @@
-/** @file runprocess.h
+/** @file
  * @brief run an external process and capture its output in a string.
  */
 /* Copyright (C) 2007 Olly Betts

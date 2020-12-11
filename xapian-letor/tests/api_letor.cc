@@ -1,4 +1,4 @@
-/** @file api_letor.cc
+/** @file
  * @brief test common features of API classes
  */
 /* Copyright (C) 2007,2009,2012,2014,2015,2016 Olly Betts

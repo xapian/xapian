@@ -1,4 +1,4 @@
-/** @file msxmlparser.h
+/** @file
  * @brief Parser for Microsoft XML formats (.docx, etc).
  */
 /* Copyright (C) 2006,2008,2009,2011,2013,2020 Olly Betts

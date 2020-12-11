@@ -1,4 +1,4 @@
-/** @file omega.cc
+/** @file
  * @brief Main module for omega (example CGI frontend for Xapian)
  */
 /* Copyright 1999,2000,2001 BrightStation PLC

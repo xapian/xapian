@@ -1,4 +1,4 @@
-/** @file debuglog.h
+/** @file
  * @brief Debug logging macros.
  */
 /* Copyright (C) 2008,2009,2010,2011,2014,2015 Olly Betts

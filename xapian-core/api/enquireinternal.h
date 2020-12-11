@@ -1,4 +1,4 @@
-/** @file enquireinternal.h
+/** @file
  * @brief Xapian::Enquire internals
  */
 /* Copyright 2017 Olly Betts

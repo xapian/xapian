@@ -1,4 +1,4 @@
-/** @file terminfo.cc
+/** @file
  * @brief Metadata for a term in a document
  */
 /* Copyright 2017,2018 Olly Betts

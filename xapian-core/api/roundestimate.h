@@ -1,4 +1,4 @@
-/** @file roundestimate.h
+/** @file
  * @brief Round a bounded estimate to an appropriate number of S.F.
  */
 /* Copyright 2017,2019 Olly Betts

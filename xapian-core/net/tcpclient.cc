@@ -1,4 +1,4 @@
-/** @file tcpclient.cc
+/** @file
  * @brief Open a TCP connection to a server.
  */
 /* Copyright 1999,2000,2001 BrightStation PLC

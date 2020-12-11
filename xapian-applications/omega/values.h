@@ -1,4 +1,4 @@
-/** @file values.h
+/** @file
  * @brief constants and functions for document value handling.
  */
 /* Copyright (C) 2006,2010,2015,2019 Olly Betts

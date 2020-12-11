@@ -1,4 +1,4 @@
-/** @file stemtest.cc
+/** @file
  * @brief Test stemming algorithms
  */
 /* Copyright 1999,2000,2001 BrightStation PLC

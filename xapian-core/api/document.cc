@@ -1,4 +1,4 @@
-/** @file document.cc
+/** @file
  * @brief Class representing a document
  */
 /* Copyright 2008,2017,2018 Olly Betts

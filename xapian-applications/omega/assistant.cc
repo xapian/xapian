@@ -1,4 +1,4 @@
-/** @file assistant.cc
+/** @file
  * @brief Worker module for putting text extraction into a separate process.
  */
 /* Copyright (C) 2011 Olly Betts

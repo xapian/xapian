@@ -1,4 +1,4 @@
-/** @file xapian-tcpsrv.cc
+/** @file
  * @brief tcp daemon for use with Xapian's remote backend
  */
 /* Copyright 1999,2000,2001 BrightStation PLC

@@ -1,4 +1,4 @@
-/** @file multi_termlist.h
+/** @file
  * @brief Adapter class for a TermList in a multidatabase
  */
 /* Copyright (C) 2007,2010,2013,2017 Olly Betts

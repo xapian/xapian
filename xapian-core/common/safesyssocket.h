@@ -1,4 +1,4 @@
-/** @file safesyssocket.h
+/** @file
  * @brief #include <sys/socket.h> with portability workarounds.
  */
 /* Copyright (C) 2012,2013,2014,2018,2019 Olly Betts

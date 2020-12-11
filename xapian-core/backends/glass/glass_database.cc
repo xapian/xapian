@@ -1,4 +1,4 @@
-/** @file glass_database.cc
+/** @file
  * @brief glass database
  */
 /* Copyright 1999,2000,2001 BrightStation PLC

@@ -1,4 +1,4 @@
-/** @file deciderpostlist.cc
+/** @file
  * @brief PostList which applies a MatchDecider
  */
 /* Copyright 2017 Olly Betts

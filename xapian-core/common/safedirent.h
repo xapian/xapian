@@ -1,4 +1,4 @@
-/** @file safedirent.h
+/** @file
  *  @brief #include <dirent.h>, with alternative implementation for windows.
  */
 /* Copyright (C) 2008 Lemur Consulting Ltd

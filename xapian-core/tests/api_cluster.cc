@@ -1,4 +1,4 @@
-/** @file api_cluster.cc
+/** @file
  *  @brief Cluster API tests
  */
 /* Copyright (C) 2016 Richhiey Thomas

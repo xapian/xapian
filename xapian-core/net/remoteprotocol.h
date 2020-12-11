@@ -1,4 +1,4 @@
-/** @file remoteprotocol.h
+/** @file
  *  @brief Remote protocol version and message numbers
  */
 /* Copyright (C) 2006,2007,2008,2009,2010,2011,2013,2014,2015,2017,2018,2019 Olly Betts

@@ -1,4 +1,4 @@
-/** @file utf8converttest.cc
+/** @file
  * @brief test convert_to_utf8()
  */
 /* Copyright (C) 2008,2009,2013,2019 Olly Betts

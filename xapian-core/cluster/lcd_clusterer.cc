@@ -1,4 +1,4 @@
-/** @file lcd_clusterer.cc
+/** @file
  *  @brief LCD clustering API
  */
 /* Copyright (C) 2018 Uppinder Chugh

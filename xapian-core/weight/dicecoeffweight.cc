@@ -1,4 +1,4 @@
-/** @file dicecoeffweight.cc
+/** @file
  * @brief Xapian::DiceCoeffWeight class
  */
 /* Copyright (C) 2018 Guruprasad Hegde

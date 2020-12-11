@@ -1,4 +1,4 @@
-/** @file xmlparser.h
+/** @file
  * @brief XML (and HTML) parser
  */
 /* Copyright 1999,2000,2001 BrightStation PLC

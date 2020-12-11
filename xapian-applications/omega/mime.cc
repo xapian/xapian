@@ -1,4 +1,4 @@
-/** @file mime.cc
+/** @file
  * @brief Find MIME type for a file
  */
 /* Copyright 1999,2000,2001 BrightStation PLC

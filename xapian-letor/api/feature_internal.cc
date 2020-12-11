@@ -1,4 +1,4 @@
-/** @file feature_internal.cc
+/** @file
  * @brief Definition of Feature::Internal class.
  */
 /* Copyright (C) 2019 Vaibhav Kansagara

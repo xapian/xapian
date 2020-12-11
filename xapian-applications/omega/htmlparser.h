@@ -1,4 +1,4 @@
-/** @file htmlparser.h
+/** @file
  * @brief subclass of XmlParser for extracting text from HTML.
  */
 /* Copyright 1999,2000,2001 BrightStation PLC

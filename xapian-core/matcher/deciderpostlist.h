@@ -1,4 +1,4 @@
-/** @file deciderpostlist.h
+/** @file
  * @brief PostList which applies a MatchDecider
  */
 /* Copyright (C) 2017 Olly Betts

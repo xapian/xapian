@@ -1,4 +1,4 @@
-/** @file honey_cursor.h
+/** @file
  * @brief HoneyCursor class
  */
 /* Copyright (C) 2017,2018 Olly Betts

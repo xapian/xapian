@@ -1,4 +1,4 @@
-/** @file queryparser.cc
+/** @file
  * @brief The non-lemon-generated parts of the QueryParser class.
  */
 /* Copyright (C) 2005,2006,2007,2008,2010,2011,2012,2013,2015,2016 Olly Betts

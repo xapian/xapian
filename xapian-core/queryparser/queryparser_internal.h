@@ -1,4 +1,4 @@
-/** @file queryparser_internal.h
+/** @file
  * @brief The non-lemon-generated parts of the QueryParser class.
  */
 /* Copyright (C) 2005,2006,2007,2010,2011,2012,2013,2015,2016,2018,2019 Olly Betts

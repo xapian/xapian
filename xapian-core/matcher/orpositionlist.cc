@@ -1,4 +1,4 @@
-/** @file orpositionlist.cc
+/** @file
  * @brief Merge two PositionList objects using an OR operation.
  */
 /* Copyright (C) 2007,2010,2016,2017 Olly Betts

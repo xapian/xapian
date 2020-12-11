@@ -1,4 +1,4 @@
-/** @file honey_postlist_encodings.h
+/** @file
  * @brief Encoding and decoding functions for honey postlists
  */
 /* Copyright (C) 2015,2018 Olly Betts

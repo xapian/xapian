@@ -1,4 +1,4 @@
-/** @file honey_table.h
+/** @file
  * @brief HoneyTable class
  */
 /* Copyright (C) 2017,2018 Olly Betts

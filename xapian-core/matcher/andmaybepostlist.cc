@@ -1,4 +1,4 @@
-/** @file andmaybepostlist.cc
+/** @file
  * @brief PostList class implementing Query::OP_AND_MAYBE
  */
 /* Copyright 2017 Olly Betts

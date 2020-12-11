@@ -1,4 +1,4 @@
-/** @file md5test.cc
+/** @file
  * @brief test cases for the MD5 code
  */
 /* Copyright (C) 2006 Olly Betts

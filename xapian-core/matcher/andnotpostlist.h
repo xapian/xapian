@@ -1,4 +1,4 @@
-/** @file andnotpostlist.h
+/** @file
  * @brief PostList class implementing Query::OP_AND_NOT
  */
 /* Copyright 2017 Olly Betts

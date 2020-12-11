@@ -1,4 +1,4 @@
-/** @file honey_dbcheck.h
+/** @file
  * @brief Check a honey table.
  */
 /* Copyright (C) 2008,2009,2012,2013,2014,2016 Olly Betts

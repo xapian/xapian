@@ -1,4 +1,4 @@
-/** @file cluster.cc
+/** @file
  *  @brief Cluster API
  */
 /* Copyright (C) 2010 Richard Boulton

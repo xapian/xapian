@@ -1,4 +1,4 @@
-/** @file featurelist.h
+/** @file
  *  @brief FeatureList class
  */
 /* Copyright (C) 2016 Ayush Tomar

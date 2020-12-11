@@ -1,4 +1,4 @@
-/** @file glass_termlisttable.cc
+/** @file
  * @brief Subclass of GlassTable which holds termlists.
  */
 /* Copyright (C) 2007,2008,2009,2010 Olly Betts

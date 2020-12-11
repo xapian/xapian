@@ -1,4 +1,4 @@
-/** @file fields.h
+/** @file
  * @brief Field parsing for Omega.
  */
 /* Copyright 2018 Olly Betts

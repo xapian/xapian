@@ -1,4 +1,4 @@
-/** @file tmpdir.cc
+/** @file
  * @brief create a temporary directory securely
  */
 /* Copyright (C) 2007,2011,2016 Olly Betts

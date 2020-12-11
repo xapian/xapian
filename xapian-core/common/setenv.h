@@ -1,4 +1,4 @@
-/** @file setenv.h
+/** @file
  * @brief Provide setenv() with compatibility versions
  */
 /* Copyright (C) 2019 Olly Betts

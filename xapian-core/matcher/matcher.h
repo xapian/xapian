@@ -1,4 +1,4 @@
-/** @file matcher.h
+/** @file
  * @brief Matcher class
  */
 /* Copyright (C) 2017,2018,2019 Olly Betts

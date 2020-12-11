@@ -1,4 +1,4 @@
-/** @file configfile.h
+/** @file
  * @brief Read a config file for omega.
  */
 /* Copyright 2001 Lemur Consulting Ltd.

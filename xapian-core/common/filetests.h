@@ -1,4 +1,4 @@
-/** @file filetests.h
+/** @file
  * @brief Utility functions for testing files.
  */
 /* Copyright (C) 2012,2018 Olly Betts

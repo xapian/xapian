@@ -1,4 +1,4 @@
-/** @file api_queryopt.cc
+/** @file
  * @brief Tests of the query optimiser.
  */
 /* Copyright (C) 2009 Lemur Consulting Ltd

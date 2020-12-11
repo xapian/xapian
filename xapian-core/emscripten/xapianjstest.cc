@@ -1,4 +1,4 @@
-/** @file xapianjstest.cc
+/** @file
  * @brief Emscripten main program test
  */
 #include <emscripten.h>

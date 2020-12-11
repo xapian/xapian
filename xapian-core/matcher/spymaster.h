@@ -1,4 +1,4 @@
-/** @file spymaster.h
+/** @file
  * @brief Class for managing MatchSpy objects during the match
  */
 /* Copyright 2017 Olly Betts

@@ -1,4 +1,4 @@
-/** @file handler_libabw.cc
+/** @file
  * @brief Extract text and metadata using libabw.
  */
 /* Copyright (C) 2019 Bruno Baruffaldi

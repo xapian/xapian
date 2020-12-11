@@ -1,4 +1,4 @@
-/** @file stem.h
+/** @file
  * @brief stemming algorithms
  */
 /* Copyright (C) 2005,2007,2010,2011,2013,2014,2015,2018,2019 Olly Betts

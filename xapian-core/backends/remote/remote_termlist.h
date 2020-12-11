@@ -1,4 +1,4 @@
-/** @file remote_termlist.h
+/** @file
  * @brief Iterate terms in a remote document
  */
 /* Copyright (C) 2007,2008,2011,2018 Olly Betts

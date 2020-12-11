@@ -1,4 +1,4 @@
-/** @file bo1eweight.cc
+/** @file
  * @brief Xapian::Bo1EWeight class - The Bo1 scheme of the DFR framework
  *				     for query expansion.
  */

@@ -1,4 +1,4 @@
-/** @file worker_comms.cc
+/** @file
  * @brief Communication with worker processes
  */
 /* Copyright (C) 2011 Olly Betts

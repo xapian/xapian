@@ -1,4 +1,4 @@
-/** @file featurevector.h
+/** @file
  * @brief The class for transforming the document into the feature space.
  */
 /* Copyright (C) 2012 Parth Gupta

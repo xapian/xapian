@@ -1,4 +1,4 @@
-/** @file popcount.h
+/** @file
  * @brief Count the number of set bits in an integer type
  */
 /* Copyright (C) 2014-2020 Olly Betts

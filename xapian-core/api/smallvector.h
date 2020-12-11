@@ -1,4 +1,4 @@
-/** @file smallvector.h
+/** @file
  * @brief Custom vector implementations using small vector optimisation
  */
 /* Copyright (C) 2012,2013,2014,2017,2018,2019 Olly Betts

@@ -1,4 +1,4 @@
-/** @file safesysselect.h
+/** @file
  * @brief #include <sys/select.h> with portability workarounds.
  */
 /* Copyright (C) 2007,2011,2018 Olly Betts

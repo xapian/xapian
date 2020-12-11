@@ -1,4 +1,4 @@
-/** @file backendmanager.cc
+/** @file
  * @brief manage backends for testsuite
  */
 /* Copyright 1999,2000,2001 BrightStation PLC

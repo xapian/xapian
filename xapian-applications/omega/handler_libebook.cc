@@ -1,4 +1,4 @@
-/** @file handler_libebook.cc
+/** @file
  * @brief Extract text and metadata using libe-book.
  */
 /* Copyright (C) 2019 Bruno Baruffaldi

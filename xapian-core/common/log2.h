@@ -1,4 +1,4 @@
-/** @file log2.h
+/** @file
  * @brief Defines a log2() function to find the logarithm to base 2 if not already defined in the library.
  */
 /* Copyright (C) 2013 Aarsh Shah

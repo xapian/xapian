@@ -1,4 +1,4 @@
-/** @file xapian-inspect-honey.cc
+/** @file
  * @brief Inspect the contents of a honey table for development or debugging.
  */
 /* Copyright (C) 2007,2008,2009,2010,2011,2012,2017,2018 Olly Betts

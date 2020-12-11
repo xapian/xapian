@@ -1,4 +1,4 @@
-/** @file cgiparam.cc
+/** @file
  * @brief functions to deal with CGI parameters
  */
 /* Copyright 1999,2000,2001 BrightStation PLC

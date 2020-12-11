@@ -1,4 +1,4 @@
-/** @file api_snippets.cc
+/** @file
  * @brief tests snippets
  */
 /* Copyright 2012 Mihai Bivol

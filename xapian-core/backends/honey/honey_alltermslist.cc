@@ -1,4 +1,4 @@
-/** @file honey_alltermslist.cc
+/** @file
  * @brief A termlist containing all terms in a honey database.
  */
 /* Copyright (C) 2005,2007,2008,2009,2010,2017,2018 Olly Betts

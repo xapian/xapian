@@ -1,4 +1,4 @@
-/** @file soaktest_queries.cc
+/** @file
  * @brief Soaktest generating lots of random queries.
  */
 /* Copyright (C) 2010 Richard Boulton

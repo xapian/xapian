@@ -1,4 +1,4 @@
-/** @file freemem.cc
+/** @file
  * @brief determine how much free physical memory there is.
  */
 /* Copyright (C) 2007,2008,2009,2010,2020 Olly Betts

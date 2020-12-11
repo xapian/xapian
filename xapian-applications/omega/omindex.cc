@@ -1,4 +1,4 @@
-/** @file omindex.cc
+/** @file
  * @brief index static documents into the omega db
  */
 /* Copyright 1999,2000,2001 BrightStation PLC

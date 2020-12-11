@@ -1,4 +1,4 @@
-/** @file inmemory_alltermslist.cc
+/** @file
  * @brief Iterate all terms in an inmemory db
  */
 /* Copyright 1999,2000,2001 BrightStation PLC

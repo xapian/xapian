@@ -1,4 +1,4 @@
-/** @file urlenctest.cc
+/** @file
  * @brief Test URL encoding and decoding functions
  */
 /* Copyright (C) 2011,2012,2015 Olly Betts

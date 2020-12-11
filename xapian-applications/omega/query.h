@@ -1,4 +1,4 @@
-/** @file query.h
+/** @file
  * @brief: Omega functions for running queries, etc.
  */
 /* Copyright (C) 2007,2011,2016,2018 Olly Betts

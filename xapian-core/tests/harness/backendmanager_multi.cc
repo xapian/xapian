@@ -1,4 +1,4 @@
-/** @file backendmanager_multi.cc
+/** @file
  * @brief BackendManager subclass for multi databases.
  */
 /* Copyright (C) 2007,2008,2009,2011,2012,2013,2015,2017,2018,2019,2020 Olly Betts

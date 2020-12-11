@@ -1,4 +1,4 @@
-/** @file handler_libcdr.cc
+/** @file
  * @brief Extract text using libcdr.
  */
 /* Copyright (C) 2020 Parth Kapadia

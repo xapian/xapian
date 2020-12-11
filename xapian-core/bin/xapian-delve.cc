@@ -1,4 +1,4 @@
-/** @file xapian-delve.cc
+/** @file
  * @brief Allow inspection of the contents of a Xapian database
  */
 /* Copyright 1999,2000,2001 BrightStation PLC

@@ -1,4 +1,4 @@
-/** @file termlist.h
+/** @file
  * @brief Abstract base class for termlists.
  */
 /* Copyright (C) 2007,2010,2013,2020 Olly Betts

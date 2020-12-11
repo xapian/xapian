@@ -1,4 +1,4 @@
-/** @file backendmanager_glass.h
+/** @file
  * @brief BackendManager subclass for glass databases.
  */
 /* Copyright (C) 2007,2008,2009,2018 Olly Betts

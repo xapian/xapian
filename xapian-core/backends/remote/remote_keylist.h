@@ -1,4 +1,4 @@
-/** @file remote_keylist.h
+/** @file
  * @brief Iterate keys in a remote database.
  */
 /* Copyright (C) 2007,2008,2011,2018,2020 Olly Betts

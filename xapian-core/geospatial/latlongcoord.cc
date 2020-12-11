@@ -1,4 +1,4 @@
-/** @file latlongcoord.cc
+/** @file
  * @brief Latitude and longitude representations.
  */
 /* Copyright 2008 Lemur Consulting Ltd

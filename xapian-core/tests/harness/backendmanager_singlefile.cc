@@ -1,4 +1,4 @@
-/** @file backendmanager_singlefile.cc
+/** @file
  * @brief BackendManager subclass for singlefile databases.
  */
 /* Copyright (C) 2007,2008,2009,2011,2012,2013,2015,2018 Olly Betts

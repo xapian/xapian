@@ -1,4 +1,4 @@
-/** @file api_opvalue.cc
+/** @file
  * @brief Tests of the OP_VALUE_* query operators.
  */
 /* Copyright 2007,2008,2009,2010,2010,2011,2017,2019 Olly Betts

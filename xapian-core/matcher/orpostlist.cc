@@ -1,4 +1,4 @@
-/** @file orpostlist.cc
+/** @file
  * @brief PostList class implementing Query::OP_OR
  */
 /* Copyright 2017 Olly Betts

@@ -1,4 +1,4 @@
-/** @file api_weight.cc
+/** @file
  * @brief tests of Xapian::Weight subclasses
  */
 /* Copyright (C) 2004,2012,2013,2016,2017,2018,2019 Olly Betts

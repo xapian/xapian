@@ -1,4 +1,4 @@
-/** @file boolorpostlist.cc
+/** @file
  * @brief PostList class implementing unweighted Query::OP_OR
  */
 /* Copyright 2017,2018 Olly Betts

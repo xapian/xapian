@@ -1,4 +1,4 @@
-/** @file editdistance.cc
+/** @file
  * @brief Edit distance calculation algorithm.
  *
  *  Based on that described in:

@@ -1,4 +1,4 @@
-/** @file handler.h
+/** @file
  * @brief Extract text and metadata using an external library.
  */
 /* Copyright (C) 2011 Olly Betts

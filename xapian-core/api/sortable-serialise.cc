@@ -1,4 +1,4 @@
-/** @file sortable-serialise.cc
+/** @file
  * @brief Serialise floating point values to string which sort the same way.
  */
 /* Copyright (C) 2007,2009,2015,2016 Olly Betts

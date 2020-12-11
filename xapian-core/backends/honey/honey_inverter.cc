@@ -1,4 +1,4 @@
-/** @file honey_inverter.cc
+/** @file
  * @brief HoneyInverter class which "inverts the file".
  */
 /* Copyright (C) 2009,2013 Olly Betts

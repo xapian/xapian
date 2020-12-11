@@ -1,4 +1,4 @@
-/** @file remoteserver.h
+/** @file
  *  @brief Xapian remote backend server base class
  */
 /* Copyright (C) 2006,2007,2008,2009,2010,2014,2017 Olly Betts

@@ -1,4 +1,4 @@
-/** @file utf8convert.h
+/** @file
  * @brief convert a string to UTF-8 encoding.
  */
 /* Copyright (C) 2006 Olly Betts

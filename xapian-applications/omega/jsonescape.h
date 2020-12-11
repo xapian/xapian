@@ -1,4 +1,4 @@
-/** @file jsonescape.h
+/** @file
  * @brief JSON escaping
  */
 /* Copyright (C) 2013,2018,2019 Olly Betts

@@ -1,4 +1,4 @@
-/** @file honey_termlist.cc
+/** @file
  * @brief A TermList in a honey database.
  */
 /* Copyright (C) 2007,2008,2009,2010,2011,2018 Olly Betts

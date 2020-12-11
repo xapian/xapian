@@ -1,4 +1,4 @@
-/** @file testsuite.cc
+/** @file
  * @brief a test suite engine
  */
 /* Copyright 1999,2000,2001 BrightStation PLC

@@ -1,4 +1,4 @@
-/** @file opendocmetaparser.h
+/** @file
  * @brief Parser for OpenDocument's meta.xml.
  */
 /* Copyright (C) 2006,2009,2010,2011,2016,2019 Olly Betts

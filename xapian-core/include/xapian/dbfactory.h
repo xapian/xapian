@@ -1,4 +1,4 @@
-/** @file dbfactory.h
+/** @file
  * @brief Factory functions for constructing Database and WritableDatabase objects
  */
 /* Copyright (C) 2005,2006,2007,2008,2009,2011,2013,2014,2016 Olly Betts

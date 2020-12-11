@@ -1,4 +1,4 @@
-/** @file pretty.h
+/** @file
  * @brief Convert types to pretty representations
  */
 /* Copyright (C) 2010,2011,2012,2014,2016,2017,2019 Olly Betts

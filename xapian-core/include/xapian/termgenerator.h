@@ -1,4 +1,4 @@
-/** @file termgenerator.h
+/** @file
  * @brief parse free text and generate terms
  */
 /* Copyright (C) 2007,2009,2011,2012,2013,2014,2018 Olly Betts

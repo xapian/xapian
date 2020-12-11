@@ -1,4 +1,4 @@
-/** @file honey_spellingwordslist.cc
+/** @file
  * @brief Iterator for the spelling correction words in a honey database.
  */
 /* Copyright (C) 2004,2005,2006,2007,2008,2009,2017,2018 Olly Betts

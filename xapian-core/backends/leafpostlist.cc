@@ -1,4 +1,4 @@
-/** @file leafpostlist.cc
+/** @file
  * @brief Abstract base class for leaf postlists.
  */
 /* Copyright (C) 2007,2009,2011,2013,2014,2017 Olly Betts

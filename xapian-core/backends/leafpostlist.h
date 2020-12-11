@@ -1,4 +1,4 @@
-/** @file leafpostlist.h
+/** @file
  * @brief Abstract base class for leaf postlists.
  */
 /* Copyright (C) 2007,2009,2011,2013,2015,2016,2017,2020 Olly Betts

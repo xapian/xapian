@@ -1,4 +1,4 @@
-/** @file colltfcolllenfeature.cc
+/** @file
  * @brief CollTfCollLenFeature class
  */
 /* Copyright (C) 2012 Parth Gupta

@@ -1,4 +1,4 @@
-/** @file datevalue.cc
+/** @file
  * @brief date filtering using value ranges
  */
 /* Copyright (C) 2006,2015 Olly Betts

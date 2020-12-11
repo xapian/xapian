@@ -1,4 +1,4 @@
-/** @file featurelist_internal.cc
+/** @file
  * @brief Definition of Feature::Internal class.
  */
 /* Copyright (C) 2012 Parth Gupta

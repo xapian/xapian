@@ -1,4 +1,4 @@
-/** @file xapian-prepare-trainingfile.cc
+/** @file
  * @brief Command line tool to prepare Letor training file
  */
 /* Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2015 Olly Betts

@@ -1,4 +1,4 @@
-/** @file wrapperpostlist.h
+/** @file
  * @brief Base class for a PostList which wraps another PostList
  */
 /* Copyright 2017 Olly Betts

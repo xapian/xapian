@@ -1,4 +1,4 @@
-/** @file honey_freelist.cc
+/** @file
  * @brief Honey freelist
  */
 /* Copyright 2014,2015,2016,2020 Olly Betts

@@ -1,4 +1,4 @@
-/** @file inmemory_database.cc
+/** @file
  * @brief C++ class definition for inmemory database access
  */
 /* Copyright 1999,2000,2001 BrightStation PLC

@@ -1,4 +1,4 @@
-/** @file md5wrap.cc
+/** @file
  * @brief wrapper functions to allow easy use of MD5 from C++.
  */
 /* Copyright (C) 2006,2010,2012,2013,2015,2018 Olly Betts

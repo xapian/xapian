@@ -1,4 +1,4 @@
-/** @file perftest_diversify.cc
+/** @file
  * @brief performance tests for diversification
  */
 /* Copyright 2018 Uppinder Chugh

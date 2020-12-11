@@ -1,4 +1,4 @@
-/** @file simplifieddbn.h
+/** @file
  * @brief SimplifiedDBN class - the Simplified DBN click model.
  */
 /* Copyright (C) 2017 Vivek Pal

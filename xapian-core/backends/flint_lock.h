@@ -1,4 +1,4 @@
-/** @file flint_lock.h
+/** @file
  * @brief Flint-compatible database locking.
  */
 /* Copyright (C) 2005,2006,2007,2008,2009,2012,2014,2016,2017 Olly Betts

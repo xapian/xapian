@@ -1,4 +1,4 @@
-/** @file databasereplicator.cc
+/** @file
  * @brief Support class for database replication.
  */
 /* Copyright 2008 Lemur Consulting Ltd

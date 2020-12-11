@@ -1,4 +1,4 @@
-/** @file ranker.cc
+/** @file
  * @brief Implementation of Ranker class
  */
 /* Copyright (C) 2012 Parth Gupta

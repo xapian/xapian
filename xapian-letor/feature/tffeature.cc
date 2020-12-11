@@ -1,4 +1,4 @@
-/** @file tffeature.cc
+/** @file
  * @brief TfFeature class
  */
 /* Copyright (C) 2012 Parth Gupta

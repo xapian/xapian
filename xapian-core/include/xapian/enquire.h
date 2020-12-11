@@ -1,4 +1,4 @@
-/** @file enquire.h
+/** @file
  * @brief Querying session
  */
 /* Copyright (C) 2005,2013,2016,2017 Olly Betts

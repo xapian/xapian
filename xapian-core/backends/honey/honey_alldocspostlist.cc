@@ -1,4 +1,4 @@
-/** @file honey_alldocspostlist.cc
+/** @file
  * @brief A PostList which iterates over all documents in a HoneyDatabase.
  */
 /* Copyright (C) 2006,2007,2008,2009,2018 Olly Betts

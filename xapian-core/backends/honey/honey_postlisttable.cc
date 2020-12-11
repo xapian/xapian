@@ -1,4 +1,4 @@
-/** @file honey_postlisttable.cc
+/** @file
  * @brief Subclass of HoneyTable which holds postlists.
  */
 /* Copyright (C) 2007,2008,2009,2010,2013,2014,2015,2016,2017,2018,2019 Olly Betts

@@ -1,4 +1,4 @@
-/** @file honey_metadata.cc
+/** @file
  * @brief Access to metadata for a honey database.
  */
 /* Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2011,2017 Olly Betts

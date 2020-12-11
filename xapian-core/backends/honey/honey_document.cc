@@ -1,4 +1,4 @@
-/** @file honey_document.cc
+/** @file
  * @brief A document read from a HoneyDatabase.
  */
 /* Copyright 2017 Olly Betts

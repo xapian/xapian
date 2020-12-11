@@ -1,4 +1,4 @@
-/** @file  msvcignoreinvalidparam.h
+/** @file
  *  @brief Work around MSVC's unhelpful non-standard invalid parameter handling.
  */
 /* Copyright (C) 2006,2007,2008,2015,2018 Olly Betts

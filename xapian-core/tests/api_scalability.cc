@@ -1,4 +1,4 @@
-/** @file api_scalability.cc
+/** @file
  * @brief Tests of scalability.
  */
 /* Copyright (C) 2008,2009,2011,2013,2015 Olly Betts

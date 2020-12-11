@@ -1,4 +1,4 @@
-/** @file svmranker.cc
+/** @file
  *  @brief Implementation of Ranking-SVM
  */
 /* Copyright (C) 2012 Parth Gupta

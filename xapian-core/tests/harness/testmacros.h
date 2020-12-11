@@ -1,4 +1,4 @@
-/** @file testmacros.h
+/** @file
  * @brief Macros for testing conditions hold.
  */
 /* Copyright (C) 2009,2012 Olly Betts

@@ -1,4 +1,4 @@
-/** @file multi_termlist.cc
+/** @file
  * @brief Adapter class for a TermList in a multidatabase
  */
 /* Copyright (C) 2007,2008,2009,2011,2017 Olly Betts

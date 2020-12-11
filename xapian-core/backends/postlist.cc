@@ -1,4 +1,4 @@
-/** @file postlist.cc
+/** @file
  * @brief Abstract base class for postlists.
  */
 /* Copyright (C) 2007,2009,2011,2015,2017 Olly Betts

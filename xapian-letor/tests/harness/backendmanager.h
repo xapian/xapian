@@ -1,4 +1,4 @@
-/** @file backendmanager.h
+/** @file
  * @brief Base class for backend handling in test harness
  */
 /* Copyright 1999,2000,2001 BrightStation PLC

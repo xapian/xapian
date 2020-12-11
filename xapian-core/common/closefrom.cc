@@ -1,4 +1,4 @@
-/** @file closefrom.cc
+/** @file
  * @brief Implementation of closefrom() function.
  */
 /* Copyright (C) 2010,2011,2012,2016,2018,2019 Olly Betts

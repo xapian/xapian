@@ -1,4 +1,4 @@
-/** @file transform.h
+/** @file
  * @brief Implement OmegaScript $transform function.
  */
 /* Copyright (C) 2009 Olly Betts

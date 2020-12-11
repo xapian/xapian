@@ -1,4 +1,4 @@
-/** @file api_nodb.cc
+/** @file
  * @brief tests which don't use any of the backends
  */
 /* Copyright 1999,2000,2001 BrightStation PLC

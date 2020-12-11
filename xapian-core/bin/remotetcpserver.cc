@@ -1,4 +1,4 @@
-/** @file remotetcpserver.cc
+/** @file
  * @brief class for TCP/IP-based remote server.
  */
 /* Copyright 1999,2000,2001 BrightStation PLC

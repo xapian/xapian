@@ -1,4 +1,4 @@
-/** @file err_score.cc
+/** @file
  *  @brief Implementation of ERRScore
  *
  *  ERR Score is adapted from the paper: http://olivier.chapelle.cc/pub/err.pdf

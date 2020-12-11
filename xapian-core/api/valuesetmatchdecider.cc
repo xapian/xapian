@@ -1,4 +1,4 @@
-/** @file valuesetmatchdecider.cc
+/** @file
  * @brief MatchDecider subclass for filtering results by value.
  */
 /* Copyright 2008 Lemur Consulting Ltd

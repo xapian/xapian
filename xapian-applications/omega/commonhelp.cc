@@ -1,4 +1,4 @@
-/** @file commonhelp.cc
+/** @file
  * @brief handle command line help common to omindex and scriptindex
  */
 /* Copyright (C) 2005,2006,2008,2009,2010,2013 Olly Betts

@@ -1,4 +1,4 @@
-/** @file registry.h
+/** @file
  * @brief Class for looking up user subclasses during unserialisation.
  */
 /* Copyright 2009 Lemur Consulting Ltd

@@ -1,4 +1,4 @@
-/** @file serialise-error.h
+/** @file
  * @brief functions to convert classes to strings and back
  */
 /* Copyright (C) 2006,2007,2008,2009,2012,2014 Olly Betts

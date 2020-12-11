@@ -1,4 +1,4 @@
-/** @file cputimer.cc
+/** @file
  * @brief Measure CPU time.
  */
 /* Copyright (C) 2009,2015,2018,2020 Olly Betts

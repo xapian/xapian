@@ -1,4 +1,4 @@
-/** @file mset.cc
+/** @file
  * @brief Xapian::MSet class
  */
 /* Copyright (C) 2017 Olly Betts

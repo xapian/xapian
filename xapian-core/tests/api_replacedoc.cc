@@ -1,4 +1,4 @@
-/** @file api_replacedoc.cc
+/** @file
  * @brief tests of document replacing.
  */
 /* Copyright 2009 Richard Boulton

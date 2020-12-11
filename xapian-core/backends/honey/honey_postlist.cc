@@ -1,4 +1,4 @@
-/** @file honey_postlist.cc
+/** @file
  * @brief PostList in a honey database.
  */
 /* Copyright (C) 2017,2018 Olly Betts

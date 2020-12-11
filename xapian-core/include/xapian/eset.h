@@ -1,4 +1,4 @@
-/** @file  eset.h
+/** @file
  *  @brief Class representing a list of query expansion terms
  */
 /* Copyright (C) 2015,2016,2017 Olly Betts

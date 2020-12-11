@@ -1,4 +1,4 @@
-/** @file enquire.cc
+/** @file
  * @brief Xapian::Enquire class
  */
 /* Copyright (C) 2009,2017 Olly Betts

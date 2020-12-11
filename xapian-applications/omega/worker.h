@@ -1,4 +1,4 @@
-/** @file worker.h
+/** @file
  * @brief Class representing worker process.
  */
 /* Copyright (C) 2011,2019 Olly Betts

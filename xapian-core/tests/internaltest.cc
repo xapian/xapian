@@ -1,4 +1,4 @@
-/** @file internaltest.cc
+/** @file
  * @brief test of the Xapian internals
  */
 /* Copyright 1999,2000,2001 BrightStation PLC

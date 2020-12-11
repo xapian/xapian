@@ -1,4 +1,4 @@
-/** @file hashterm.cc
+/** @file
  * @brief generate a URL term, truncating and hashing very long URLs.
  */
 /* Copyright (C) 2003 Lemur Consulting Ltd.

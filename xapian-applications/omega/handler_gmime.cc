@@ -1,4 +1,4 @@
-/** @file handler_gmime.cc
+/** @file
  * @brief Extract text and metadata using gmime.
  */
 /* Copyright (C) 2019 Bruno Baruffaldi

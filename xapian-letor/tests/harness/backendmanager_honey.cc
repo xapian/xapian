@@ -1,4 +1,4 @@
-/** @file backendmanager_honey.cc
+/** @file
  * @brief BackendManager subclass for honey databases
  */
 /* Copyright (C) 2007,2008,2009,2013,2017,2018 Olly Betts

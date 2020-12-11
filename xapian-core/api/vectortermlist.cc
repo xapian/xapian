@@ -1,4 +1,4 @@
-/** @file vectortermlist.cc
+/** @file
  * @brief A vector-like container of terms which can be iterated.
  */
 /* Copyright (C) 2011,2015 Olly Betts

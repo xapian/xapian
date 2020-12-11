@@ -1,4 +1,4 @@
-/** @file nearpostlist.cc
+/** @file
  * @brief Return docs containing terms within a specified window.
  */
 /* Copyright (C) 2006,2007,2009,2010,2011,2014,2015,2017,2018 Olly Betts

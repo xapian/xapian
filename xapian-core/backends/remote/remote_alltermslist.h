@@ -1,4 +1,4 @@
-/** @file remote_alltermslist.h
+/** @file
  * @brief Iterate all terms in a remote database.
  */
 /* Copyright (C) 2007,2008,2011,2018 Olly Betts

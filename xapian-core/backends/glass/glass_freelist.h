@@ -1,4 +1,4 @@
-/** @file glass_freelist.h
+/** @file
  * @brief Glass freelist
  */
 /* Copyright 2014 Olly Betts

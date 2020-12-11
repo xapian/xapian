@@ -1,4 +1,4 @@
-/** @file freemem.h
+/** @file
  * @brief determine how much free physical memory there is.
  */
 /* Copyright (C) 2007 Olly Betts

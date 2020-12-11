@@ -1,4 +1,4 @@
-/** @file profiler.c
+/** @file
  * @brief C file implementing IO logging
  */
 /* Compile the profiler with:

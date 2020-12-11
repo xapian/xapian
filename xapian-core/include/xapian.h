@@ -1,4 +1,4 @@
-/** @file xapian.h
+/** @file
  *  @brief Public interfaces for the Xapian library.
  */
 // Copyright (C) 2003,2004,2005,2007,2008,2009,2010,2012,2013,2015,2016,2019 Olly Betts

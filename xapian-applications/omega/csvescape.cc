@@ -1,4 +1,4 @@
-/** @file csvescape.cc
+/** @file
  * @brief Escape a string for use in a CSV file
  */
 /* Copyright (C) 2015 Olly Betts

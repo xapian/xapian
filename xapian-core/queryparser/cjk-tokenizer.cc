@@ -1,4 +1,4 @@
-/** @file cjk-tokenizer.cc
+/** @file
  * @brief Tokenise CJK text as n-grams
  */
 /* Copyright (c) 2007, 2008 Yung-chung Lin (henearkrxern@gmail.com)

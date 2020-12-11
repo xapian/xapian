@@ -1,4 +1,4 @@
-/** @file queryoptimiser.h
+/** @file
  * @brief Details passed around while building PostList tree from Query tree
  */
 /* Copyright (C) 2007,2008,2009,2010,2011,2013,2014,2015,2016,2018 Olly Betts

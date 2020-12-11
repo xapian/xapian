@@ -1,4 +1,4 @@
-/** @file honey_database.cc
+/** @file
  * @brief Honey backend database class
  */
 /* Copyright 2015,2017,2018 Olly Betts

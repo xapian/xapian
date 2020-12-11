@@ -1,4 +1,4 @@
-/** @file glass_cursor.h
+/** @file
  * @brief Interface to Btree cursors
  */
 /* Copyright 1999,2000,2001 BrightStation PLC

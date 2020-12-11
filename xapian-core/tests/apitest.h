@@ -1,4 +1,4 @@
-/** @file apitest.h
+/** @file
  * @brief test functionality of the Xapian API
  */
 /* Copyright (C) 2007,2009,2011,2018 Olly Betts

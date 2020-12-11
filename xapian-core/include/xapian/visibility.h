@@ -1,4 +1,4 @@
-/** @file visibility.h
+/** @file
  * @brief Define XAPIAN_VISIBILITY_* macros.
  */
 // Copyright (C) 2007,2010,2014,2017,2019 Olly Betts

@@ -1,4 +1,4 @@
-/** @file result.cc
+/** @file
  * @brief A result inside an MSet
  */
 /* Copyright 2017 Olly Betts

@@ -1,4 +1,4 @@
-/** @file api_replicate.cc
+/** @file
  * @brief tests of replication functionality
  */
 /* Copyright 2008 Lemur Consulting Ltd

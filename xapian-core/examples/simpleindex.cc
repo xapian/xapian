@@ -1,4 +1,4 @@
-/** @file simpleindex.cc
+/** @file
  * @brief Index each paragraph of a text file as a Xapian document.
  */
 /* Copyright (C) 2007,2010,2015 Olly Betts

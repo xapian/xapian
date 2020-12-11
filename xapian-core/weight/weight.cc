@@ -1,4 +1,4 @@
-/** @file weight.cc
+/** @file
  * @brief Xapian::Weight base class
  */
 /* Copyright (C) 2007,2008,2009,2014,2017,2019 Olly Betts

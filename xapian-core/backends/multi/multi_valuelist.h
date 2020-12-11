@@ -1,4 +1,4 @@
-/** @file multi_valuelist.h
+/** @file
  * @brief Class for merging ValueList objects from subdatabases.
  */
 /* Copyright (C) 2007,2008,2009,2017 Olly Betts

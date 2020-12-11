@@ -1,4 +1,4 @@
-/** @file replicationprotocol.h
+/** @file
  *  @brief Replication protocol version and message numbers
  */
 /* Copyright (C) 2008 Lemur Consulting Ltd

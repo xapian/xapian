@@ -1,4 +1,4 @@
-/** @file glass_values.cc
+/** @file
  * @brief GlassValueManager class
  */
 /* Copyright (C) 2008,2009,2010,2011,2012,2016,2017 Olly Betts

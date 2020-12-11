@@ -1,4 +1,4 @@
-/** @file posixy_wrapper.cc
+/** @file
  * @brief Provides wrappers with POSIXy semantics.
  */
 /* Copyright (C) 2007 Lemur Consulting Ltd

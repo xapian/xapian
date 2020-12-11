@@ -1,4 +1,4 @@
-/** @file expanddecider.h
+/** @file
  * @brief Allow rejection of terms during ESet generation.
  */
 /* Copyright (C) 2007,2011,2013,2014,2015,2016 Olly Betts

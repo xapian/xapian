@@ -1,4 +1,4 @@
-/** @file xapian-metadata.cc
+/** @file
  * @brief Read and write user metadata
  */
 /* Copyright (C) 2007,2010,2015 Olly Betts

@@ -1,4 +1,4 @@
-/** @file boolweight.cc
+/** @file
  * @brief Xapian::BoolWeight class - boolean weighting
  */
 /* Copyright (C) 2009,2011,2016 Olly Betts

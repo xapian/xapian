@@ -1,4 +1,4 @@
-/** @file attributes.h
+/** @file
  * @brief Compiler attribute macros
  */
 // Copyright (C) 2012,2013,2014,2015,2017 Olly Betts

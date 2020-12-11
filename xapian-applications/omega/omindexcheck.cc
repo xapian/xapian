@@ -1,4 +1,4 @@
-/** @file omindexcheck.cc
+/** @file
  * @brief Auxiliary program of omindextest
  */
 /* Copyright (C) 2019 Bruno Baruffaldi

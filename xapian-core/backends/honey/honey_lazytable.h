@@ -1,4 +1,4 @@
-/** @file honey_lazytable.h
+/** @file
  * @brief Subclass of HoneyTable for deriving lazy tables from.
  */
 /* Copyright (C) 2009,2013,2014,2015,2016 Olly Betts

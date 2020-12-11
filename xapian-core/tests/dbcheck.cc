@@ -1,4 +1,4 @@
-/** @file dbcheck.cc
+/** @file
  * @brief test database contents and consistency.
  */
 /* Copyright 2009 Richard Boulton

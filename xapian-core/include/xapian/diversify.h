@@ -1,4 +1,4 @@
-/** @file diversify.h
+/** @file
  *  @brief Diversification API
  */
 /* Copyright (C) 2018 Uppinder Chugh

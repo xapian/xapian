@@ -1,4 +1,4 @@
-/** @file unixcmds.h
+/** @file
  *  @brief C++ function versions of useful Unix commands.
  */
 /* Copyright (C) 2007 Olly Betts

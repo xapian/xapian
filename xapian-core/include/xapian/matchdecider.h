@@ -1,4 +1,4 @@
-/** @file matchdecider.h
+/** @file
  * @brief Abstract base class for match deciders
  */
 /* Copyright (C) 2017 Olly Betts

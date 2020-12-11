@@ -1,4 +1,4 @@
-/** @file honey_synonym.cc
+/** @file
  * @brief Synonym data for a honey database.
  */
 /* Copyright (C) 2004,2005,2006,2007,2008,2009,2011,2017 Olly Betts

@@ -1,4 +1,4 @@
-/** @file feature_internal.h
+/** @file
  * @brief Internals of Feature class
  */
 /* Copyright (C) 2019 Vaibhav Kansagara

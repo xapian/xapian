@@ -1,4 +1,4 @@
-/** @file cosine_sim.cc
+/** @file
  *  @brief Cosine similarity calculation between documents
  */
 /* Copyright (C) 2016 Richhiey Thomas

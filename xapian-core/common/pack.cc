@@ -1,4 +1,4 @@
-/** @file pack.cc
+/** @file
  * @brief Pack types into strings and unpack them again.
  */
 /* Copyright (C) 2019 Olly Betts

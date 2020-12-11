@@ -1,4 +1,4 @@
-/** @file tmpdir.h
+/** @file
  * @brief create a temporary directory securely
  */
 /* Copyright (C) 2011,2014 Olly Betts

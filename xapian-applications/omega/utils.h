@@ -1,4 +1,4 @@
-/** @file utils.h
+/** @file
  * @brief string conversion utility functions for omega
  */
 /* Copyright (C) 2006,2011 Olly Betts

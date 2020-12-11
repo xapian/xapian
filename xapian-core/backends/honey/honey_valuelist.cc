@@ -1,4 +1,4 @@
-/** @file honey_valuelist.cc
+/** @file
  * @brief Honey class for value streams.
  */
 /* Copyright (C) 2007,2008,2009 Olly Betts

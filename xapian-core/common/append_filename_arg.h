@@ -1,4 +1,4 @@
-/** @file append_filename_arg.h
+/** @file
  *  @brief Append filename argument to a command string with suitable escaping
  */
 /* Copyright (C) 2003,2004,2007,2012,2019 Olly Betts

@@ -1,4 +1,4 @@
-/** @file honey_spelling.cc
+/** @file
  * @brief Spelling correction data for a honey database.
  */
 /* Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2011,2015,2017,2018,2020 Olly Betts

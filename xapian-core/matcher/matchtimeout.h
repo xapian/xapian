@@ -1,4 +1,4 @@
-/** @file matchtimeout.h
+/** @file
  * @brief Time limits for the matcher
  */
 /* Copyright (C) 2013,2014,2015,2016,2017 Olly Betts

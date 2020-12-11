@@ -1,4 +1,4 @@
-/** @file testutils.h
+/** @file
  * @brief Xapian-specific test helper functions and macros.
  */
 /* Copyright 1999,2000,2001 BrightStation PLC

@@ -1,4 +1,4 @@
-/** @file date.cc
+/** @file
  * @brief date range parsing routines for omega
  */
 /* Copyright 1999,2000,2001 BrightStation PLC

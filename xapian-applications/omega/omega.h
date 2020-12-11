@@ -1,4 +1,4 @@
-/** @file omega.h
+/** @file
  * @brief Main header for omega
  */
 /* Copyright 1999,2000,2001 BrightStation PLC

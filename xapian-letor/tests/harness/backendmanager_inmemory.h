@@ -1,4 +1,4 @@
-/** @file backendmanager_inmemory.h
+/** @file
  * @brief BackendManager subclass for inmemory databases.
  */
 /* Copyright (C) 2007,2009,2018 Olly Betts

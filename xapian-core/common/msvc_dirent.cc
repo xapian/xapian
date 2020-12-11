@@ -1,4 +1,4 @@
-/** @file msvc_dirent.cc
+/** @file
  *  @brief Implementation of dirent functions using WIN32 API.
  */
 /*

@@ -1,4 +1,4 @@
-/** @file postlisttree.h
+/** @file
  * @brief Class for managing a tree of PostList objects
  */
 /* Copyright 2017,2019 Olly Betts

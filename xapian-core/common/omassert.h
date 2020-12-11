@@ -1,4 +1,4 @@
-/** @file omassert.h
+/** @file
  * @brief Various assertion macros.
  */
 /* Copyright (C) 2007,2008,2009,2012,2013,2015 Olly Betts

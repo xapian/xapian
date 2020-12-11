@@ -1,4 +1,4 @@
-/** @file glass_postlist.cc
+/** @file
  * @brief Postlists in a glass database
  */
 /* Copyright 1999,2000,2001 BrightStation PLC

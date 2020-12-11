@@ -1,4 +1,4 @@
-/** @file commonhelp.h
+/** @file
  * @brief handle command line help common to omindex and scriptindex
  */
 /* Copyright (C) 2005,2006,2007 Olly Betts

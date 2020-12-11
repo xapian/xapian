@@ -1,4 +1,4 @@
-/** @file backendmanager_remoteprog.cc
+/** @file
  * @brief BackendManager subclass for remoteprog databases.
  */
 /* Copyright (C) 2007,2008,2009 Olly Betts

@@ -1,4 +1,4 @@
-/** @file api_opsynonym.cc
+/** @file
  * @brief tests of OP_SYNONYM and OP_MAX.
  */
 /* Copyright 2009,2011,2014 Olly Betts

@@ -1,4 +1,4 @@
-/** @file glass_dbcheck.cc
+/** @file
  * @brief Check consistency of a glass table.
  */
 /* Copyright 1999,2000,2001 BrightStation PLC

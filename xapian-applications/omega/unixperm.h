@@ -1,4 +1,4 @@
-/** @file unixperm.h
+/** @file
  * @brief Filter results according to Unix-style access permissions
  */
 /* Copyright (C) 2010 Olly Betts

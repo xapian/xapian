@@ -1,4 +1,4 @@
-/** @file clusterinternal.h
+/** @file
  *  @brief Cluster API
  */
 /* Copyright (C) 2017 Richhiey Thomas

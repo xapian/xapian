@@ -1,4 +1,4 @@
-/** @file documentinternal.h
+/** @file
  * @brief Abstract base class for a document
  */
 /* Copyright 2017,2018,2019 Olly Betts

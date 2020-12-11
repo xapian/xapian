@@ -1,4 +1,4 @@
-/** @file  rset.h
+/** @file
  *  @brief Set of documents judged as relevant
  */
 /* Copyright (C) 2015,2016,2017 Olly Betts

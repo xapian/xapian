@@ -1,4 +1,4 @@
-/** @file idffeature.cc
+/** @file
  * @brief IdfFeature class
  */
 /* Copyright (C) 2012 Parth Gupta

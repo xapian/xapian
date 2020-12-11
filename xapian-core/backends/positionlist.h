@@ -1,4 +1,4 @@
-/** @file positionlist.h
+/** @file
  * @brief Abstract base class for iterating term positions in a document.
  */
 /* Copyright (C) 2007,2010,2017 Olly Betts

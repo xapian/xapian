@@ -1,4 +1,4 @@
-/** @file xapian-progsrv.cc
+/** @file
  * @brief Remote server for use with ProgClient.
  */
 /* Copyright (C) 2002,2003,2006,2007,2008,2010,2011 Olly Betts

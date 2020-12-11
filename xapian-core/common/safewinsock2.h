@@ -1,4 +1,4 @@
-/** @file safewinsock2.h
+/** @file
  * @brief #include <winsock2.h> but working around problems.
  */
 /* Copyright (C) 2007 Olly Betts

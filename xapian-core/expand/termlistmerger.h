@@ -1,4 +1,4 @@
-/** @file termlistmerger.h
+/** @file
  * @brief Build tree to merge TermList objects
  */
 /* Copyright (C) 2008,2010,2011,2013,2016,2017,2018 Olly Betts

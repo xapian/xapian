@@ -1,4 +1,4 @@
-/** @file api_anydb.cc
+/** @file
  * @brief tests which work with any backend
  */
 /* Copyright 1999,2000,2001 BrightStation PLC

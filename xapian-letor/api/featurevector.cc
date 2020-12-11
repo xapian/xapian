@@ -1,4 +1,4 @@
-/** @file featurevector.cc
+/** @file
  * @brief The file responsible for transforming the document into the feature space.
  */
 /* Copyright (C) 2012 Parth Gupta

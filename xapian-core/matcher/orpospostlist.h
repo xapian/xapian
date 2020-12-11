@@ -1,4 +1,4 @@
-/** @file orpospostlist.h
+/** @file
  * @brief Wrapper postlist providing positions for an OR
  */
 /* Copyright 2017 Olly Betts

@@ -1,4 +1,4 @@
-/** @file scorer.h
+/** @file
  * @brief Scorer class. Measure of ranking quality.
  */
 /* Copyright (C) 2016 Ayush Tomar

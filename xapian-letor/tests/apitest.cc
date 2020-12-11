@@ -1,4 +1,4 @@
-/** @file apitest.cc
+/** @file
  * @brief tests the Xapian Letor API
  */
 /* Copyright 1999,2000,2001 BrightStation PLC

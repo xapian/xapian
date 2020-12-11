@@ -1,4 +1,4 @@
-/** @file honey_database.h
+/** @file
  * @brief Database using honey backend
  */
 /* Copyright 2004,2006,2007,2008,2009,2011,2014,2015,2016,2017 Olly Betts

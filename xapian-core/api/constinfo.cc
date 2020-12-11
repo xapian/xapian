@@ -1,4 +1,4 @@
-/** @file constinfo.cc
+/** @file
  * @brief Mechanism for accessing a struct of constant information
  */
 /* Copyright (C) 2013,2015 Olly Betts

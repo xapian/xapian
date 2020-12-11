@@ -1,4 +1,4 @@
-/** @file multi_postlist.h
+/** @file
  * @brief Class for merging PostList objects from subdatabases.
  */
 /* Copyright (C) 2007,2008,2009,2011,2015,2017,2020 Olly Betts

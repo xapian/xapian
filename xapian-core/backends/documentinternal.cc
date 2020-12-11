@@ -1,4 +1,4 @@
-/** @file documentinternal.cc
+/** @file
  * @brief Abstract base class for a document
  */
 /* Copyright 2017 Olly Betts

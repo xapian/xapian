@@ -1,4 +1,4 @@
-/** @file exp10.h
+/** @file
  * @brief Define exp10() if not provided by <cmath>
  */
 /* Copyright (C) 2017 Olly Betts

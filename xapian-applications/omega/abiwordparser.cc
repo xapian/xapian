@@ -1,4 +1,4 @@
-/** @file abiwordparser.cc
+/** @file
  * @brief Extract text from Abiword documents.
  */
 /* Copyright (C) 2020 Olly Betts

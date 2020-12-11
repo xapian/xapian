@@ -1,4 +1,4 @@
-/** @file glass_docdata.h
+/** @file
  * @brief Subclass of GlassTable which holds document data.
  */
 /* Copyright (C) 2007,2008,2009,2010,2014,2016 Olly Betts

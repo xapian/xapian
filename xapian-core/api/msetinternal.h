@@ -1,4 +1,4 @@
-/** @file msetinternal.h
+/** @file
  * @brief Xapian::MSet internals
  */
 /* Copyright 2016,2017 Olly Betts

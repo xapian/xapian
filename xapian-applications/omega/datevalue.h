@@ -1,4 +1,4 @@
-/** @file datevalue.h
+/** @file
  * @brief date filtering using value ranges
  */
 /* Copyright (C) 2015 Olly Betts

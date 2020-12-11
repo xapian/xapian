@@ -1,4 +1,4 @@
-/** @file glass_termlist.cc
+/** @file
  * @brief Termlists in a glass database
  */
 /* Copyright 1999,2000,2001 BrightStation PLC

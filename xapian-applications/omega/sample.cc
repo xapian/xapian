@@ -1,4 +1,4 @@
-/** @file sample.cc
+/** @file
  * @brief generate a sample from a utf-8 string.
  */
 /* Copyright (C) 2007,2013 Olly Betts

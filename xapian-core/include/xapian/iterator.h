@@ -1,4 +1,4 @@
-/** @file  iterator.h
+/** @file
  *  @brief Functions to assist creating language-idiomatic iterator wrappers.
  */
 /* Copyright (C) 2014,2016,2017,2019 Olly Betts

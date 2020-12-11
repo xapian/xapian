@@ -1,4 +1,4 @@
-/** @file glass_databasereplicator.cc
+/** @file
  * @brief Support for glass database replication
  */
 /* Copyright 2008 Lemur Consulting Ltd

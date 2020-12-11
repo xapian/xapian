@@ -1,4 +1,4 @@
-/** @file  mset.h
+/** @file
  *  @brief Class representing a list of search results
  */
 /* Copyright (C) 2015,2016,2017,2019 Olly Betts

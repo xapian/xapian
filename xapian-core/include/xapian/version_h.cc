@@ -1,11 +1,11 @@
-/** @file version_h.cc
+/** @file
  * @brief Template used by configure to generate xapian/version.h
  *
  * (For portability, files run through $CXXCPP must have extension .c .cc or .C)
  */
 #include <config.h>
 const char * dummy[] = {
-"/** @file version.h",
+"/** @file
 " * @brief Define preprocessor symbols for the library version",
 " */",
 "// Copyright (C) 2002,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2015,2016,2017,2018,2020 Olly Betts",

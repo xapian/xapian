@@ -1,4 +1,4 @@
-/** @file glass_values.h
+/** @file
  * @brief GlassValueManager class
  */
 /* Copyright (C) 2008,2009,2011 Olly Betts

@@ -1,4 +1,4 @@
-/** @file geospatial.h
+/** @file
  * @brief Geospatial search support routines.
  */
 /* Copyright 2008,2009 Lemur Consulting Ltd

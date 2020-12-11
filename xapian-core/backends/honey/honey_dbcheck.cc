@@ -1,4 +1,4 @@
-/** @file honey_dbcheck.cc
+/** @file
  * @brief Check a honey table.
  */
 /* Copyright (C) 2019 Olly Betts

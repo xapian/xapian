@@ -1,4 +1,4 @@
-/** @file api_posdb.cc
+/** @file
  * @brief tests which need a backend with positional information
  */
 /* Copyright 1999,2000,2001 BrightStation PLC

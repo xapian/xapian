@@ -1,4 +1,4 @@
-/** @file ranker.h
+/** @file
  * @brief Ranker class - weighting scheme based on Learning to Rank
  */
 /* Copyright (C) 2012 Parth Gupta

@@ -1,4 +1,4 @@
-/** @file xapian-replicate.cc
+/** @file
  * @brief Replicate a database from a master server to a local copy.
  */
 /* Copyright (C) 2008,2011,2012,2015 Olly Betts

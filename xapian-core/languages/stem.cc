@@ -1,4 +1,4 @@
-/** @file stem.cc
+/** @file
  *  @brief Implementation of Xapian::Stem API class.
  */
 /* Copyright (C) 2007,2008,2010,2011,2012,2015,2018,2019 Olly Betts

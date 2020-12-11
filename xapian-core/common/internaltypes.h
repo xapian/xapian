@@ -1,4 +1,4 @@
-/** @file internaltypes.h
+/** @file
  * @brief Types used internally.
  */
 /* Copyright (C) 2009,2010,2014,2016 Olly Betts

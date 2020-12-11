@@ -1,4 +1,4 @@
-/** @file generate-qrel-file.cc
+/** @file
  * @brief generates qrel file needed to prepare training file for letor
  */
 /* Copyright (C) 2017 Vivek Pal

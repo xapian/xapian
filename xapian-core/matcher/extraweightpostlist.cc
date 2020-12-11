@@ -1,4 +1,4 @@
-/** @file extraweightpostlist.cc
+/** @file
  * @brief PostList which adds on a term-independent weight contribution
  */
 /* Copyright 2017 Olly Betts

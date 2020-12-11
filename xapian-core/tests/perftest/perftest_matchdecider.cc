@@ -1,4 +1,4 @@
-/** @file perftest_matchdecider.cc
+/** @file
  * @brief performance tests for match decider
  */
 /* Copyright 2008 Lemur Consulting Ltd

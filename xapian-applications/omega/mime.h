@@ -1,4 +1,4 @@
-/** @file mime.h
+/** @file
  * @brief Find MIME type for a file
  */
 /* Copyright 1999,2000,2001 BrightStation PLC

@@ -1,4 +1,4 @@
-/** @file stdclamp.h
+/** @file
  * @brief Defines STD_CLAMP like C++17's std::clamp
  */
 /* Copyright (C) 2017 Olly Betts

@@ -1,4 +1,4 @@
-/** @file xapian/types.h
+/** @file
  *  @brief typedefs for Xapian
  */
 /* Copyright (C) 2007,2010,2011,2013,2014,2017,2018 Olly Betts

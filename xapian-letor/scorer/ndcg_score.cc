@@ -1,4 +1,4 @@
-/** @file ndcg_score.cc
+/** @file
  *  @brief Implementation of NDCGScore
  */
 /* Copyright (C) 2014 Hanxiao Sun

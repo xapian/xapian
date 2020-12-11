@@ -1,4 +1,4 @@
-/** @file xapian-letor-update.cc
+/** @file
  * @brief Update statistics in user meta-data used by letor module.
  */
 /* Copyright (C) 2011 Parth Gupta

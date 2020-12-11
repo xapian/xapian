@@ -1,4 +1,4 @@
-/** @file tcpserver.cc
+/** @file
  * @brief class for TCP/IP-based server.
  */
 /* Copyright 1999,2000,2001 BrightStation PLC

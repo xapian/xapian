@@ -1,4 +1,4 @@
-/** @file kmeans.cc
+/** @file
  *  @brief KMeans clustering API
  */
 /* Copyright (C) 2016 Richhiey Thomas

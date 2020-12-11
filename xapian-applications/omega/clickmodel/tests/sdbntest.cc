@@ -1,4 +1,4 @@
-/** @file sdbntest.cc
+/** @file
  * @brief tests for the Simplified DBN clickmodel class.
  */
 /* Copyright (C) 2017 Vivek Pal

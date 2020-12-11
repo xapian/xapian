@@ -1,4 +1,4 @@
-/** @file decvalwtsource.cc
+/** @file
  * @brief A posting source which returns decreasing weights from a value.
  */
 /* Copyright (C) 2009 Lemur Consulting Ltd

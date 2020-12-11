@@ -1,4 +1,4 @@
-/** @file multi_alltermslist.h
+/** @file
  * @brief Class for merging AllTermsList objects from subdatabases.
  */
 /* Copyright (C) 2007,2008,2011,2017 Olly Betts

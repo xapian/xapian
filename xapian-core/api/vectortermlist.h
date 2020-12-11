@@ -1,4 +1,4 @@
-/** @file vectortermlist.h
+/** @file
  * @brief A vector-like container of terms which can be iterated.
  */
 /* Copyright (C) 2011,2012,2017 Olly Betts

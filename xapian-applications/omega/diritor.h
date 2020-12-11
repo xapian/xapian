@@ -1,4 +1,4 @@
-/** @file diritor.h
+/** @file
  * @brief Iterator through entries in a directory.
  */
 /* Copyright (C) 2007,2008,2010,2011,2012,2013,2014,2015,2018,2019 Olly Betts

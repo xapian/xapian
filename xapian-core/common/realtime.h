@@ -1,4 +1,4 @@
-/** @file realtime.h
+/** @file
  *  @brief Functions for handling a time or time interval in a double.
  */
 /* Copyright (C) 2010,2011,2013,2014,2015,2020 Olly Betts

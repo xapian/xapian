@@ -1,4 +1,4 @@
-/** @file result.h
+/** @file
  * @brief A result in an MSet
  */
 /* Copyright 2017,2019 Olly Betts

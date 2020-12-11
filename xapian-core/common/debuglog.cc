@@ -1,4 +1,4 @@
-/** @file debuglog.cc
+/** @file
  * @brief Debug logging macros.
  */
 /* Copyright (C) 2008,2011,2012,2014,2015,2019 Olly Betts

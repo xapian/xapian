@@ -1,4 +1,4 @@
-/** @file backendmanager_remote.h
+/** @file
  * @brief BackendManager subclass for remote databases.
  */
 /* Copyright (C) 2008 Lemur Consulting Ltd

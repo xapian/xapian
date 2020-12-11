@@ -1,4 +1,4 @@
-/** @file backendmanager_multi.h
+/** @file
  * @brief BackendManager subclass for multi databases.
  */
 /* Copyright (C) 2007,2009,2017,2018,2019,2020 Olly Betts

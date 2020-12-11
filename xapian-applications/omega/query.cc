@@ -1,4 +1,4 @@
-/** @file query.cc
+/** @file
  * @brief query executor for omega
  */
 /* Copyright 1999,2000,2001 BrightStation PLC

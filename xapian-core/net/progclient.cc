@@ -1,4 +1,4 @@
-/** @file progclient.cc
+/** @file
  * @brief implementation of NetClient which spawns a program.
  */
 /* Copyright 1999,2000,2001 BrightStation PLC

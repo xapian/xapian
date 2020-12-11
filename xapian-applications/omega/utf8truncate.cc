@@ -1,4 +1,4 @@
-/** @file utf8truncate.cc
+/** @file
  * @brief truncate a utf-8 string, ideally without splitting words.
  */
 /* Copyright (C) 2007 Olly Betts

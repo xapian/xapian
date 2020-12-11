@@ -1,4 +1,4 @@
-/** @file msetiterator.cc
+/** @file
  *  @brief Iterator over a Xapian::MSet.
  */
 /* Copyright (C) 2017 Olly Betts

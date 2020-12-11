@@ -1,4 +1,4 @@
-/** @file api_diversify.cc
+/** @file
  *  @brief Diversification API tests
  */
 /* Copyright (C) 2018 Uppinder Chugh

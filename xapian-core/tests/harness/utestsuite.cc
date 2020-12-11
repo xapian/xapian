@@ -1,4 +1,4 @@
-/** @file utestsuite.cc
+/** @file
  * @brief Disable Xapian-dependent parts of testsuite.cc
  */
 /* Copyright (C) 2012 Olly Betts

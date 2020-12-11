@@ -1,4 +1,4 @@
-/** @file multi.h
+/** @file
  * @brief Multi-database support functions
  */
 /* Copyright (C) 2017 Olly Betts

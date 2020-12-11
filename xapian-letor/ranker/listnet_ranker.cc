@@ -1,4 +1,4 @@
-/** @file listnet_ranker.cc
+/** @file
  *  @brief Implementation of ListNetRanker
  *
  *  ListNET is adapted from the paper:

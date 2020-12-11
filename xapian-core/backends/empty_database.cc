@@ -1,4 +1,4 @@
-/** @file empty_database.cc
+/** @file
  * @brief Empty database internals
  */
 /* Copyright (C) 2017 Olly Betts

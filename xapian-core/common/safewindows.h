@@ -1,4 +1,4 @@
-/** @file safewindows.h
+/** @file
  * @brief #include <windows.h> without all the bloat and damage.
  */
 /* Copyright (C) 2005,2007,2013,2020 Olly Betts

@@ -1,4 +1,4 @@
-/** @file atomparsertest.cc
+/** @file
  * @brief test the AtomParser class
  */
 /* Copyright (C) 2006,2008,2011,2012 Olly Betts

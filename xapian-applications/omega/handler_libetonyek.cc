@@ -1,4 +1,4 @@
-/** @file handler_libetonyek.cc
+/** @file
  * @brief Extract text and metadata from Apple documents using libtonyek.
  */
 /* Copyright (C) 2019 Bruno Baruffaldi

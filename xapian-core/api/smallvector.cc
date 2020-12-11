@@ -1,4 +1,4 @@
-/** @file smallvector.cc
+/** @file
  * @brief Append only vector of Xapian PIMPL objects
  */
 /* Copyright (C) 2012,2013,2014,2017 Olly Betts

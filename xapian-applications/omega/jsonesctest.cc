@@ -1,4 +1,4 @@
-/** @file jsonesctest.cc
+/** @file
  * @brief Test JSON escaping
  */
 /* Copyright (C) 2011,2012,2013 Olly Betts

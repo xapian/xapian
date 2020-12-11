@@ -1,4 +1,4 @@
-/** @file api_serialise.cc
+/** @file
  * @brief Tests of serialisation functionality.
  */
 /* Copyright 2009 Lemur Consulting Ltd

@@ -1,4 +1,4 @@
-/** @file bitstream.cc
+/** @file
  * @brief Classes to encode/decode a bitstream.
  */
 /* Copyright (C) 2004,2005,2006,2008,2013,2014,2016,2017,2018 Olly Betts

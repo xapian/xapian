@@ -1,4 +1,4 @@
-/** @file handler_libarchive.cc
+/** @file
  * @brief Extract text and metadata using libarchive.
  */
 /* Copyright (C) 2020 Parth Kapadia

@@ -1,4 +1,4 @@
-/** @file loadfile.h
+/** @file
  * @brief load a file into a std::string.
  */
 /* Copyright (C) 2006,2010,2012,2018 Olly Betts
