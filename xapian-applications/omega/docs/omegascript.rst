@@ -184,13 +184,15 @@ $error
         ``$seterror``.
 
 $field{NAME[,DOCID]}
-	lookup field ``NAME`` in document ``DOCID``.  If ``DOCID`` is omitted
-	then the current hit is used (which only works inside ``$hitlist``).
+        lookup field ``NAME`` in document ``DOCID``.  If ``DOCID`` is omitted
+        then the field is looked up in the current hit (which only works inside
+        ``$hitlist``).
 
-	If multiple instances of field exist the field values are returned tab
-	separated, which means you can pass the results to ``$map``, e.g.::
-
-            $map{$field{keywords},<b>$html{$_}</b><br>}
+        If multiple instances of field exist the field values are returned as
+        an OmegaScript list (i.e. tab separated), which means you can pass the
+        results to other commands which take a list, such as ``$foreach``, e.g.
+        ::
+            $foreach{$field{keywords},<b>$html{$_}</b><br>}
 
 $filesize{SIZE}
 	pretty printed filesize (e.g. ``1 byte``, ``100 bytes``, ``2.1K``,
@@ -212,8 +214,8 @@ $filterterms{PREFIX}
              <SELECT NAME="B">
              <OPTION VALUE=""
              $if{$map{$cgilist{B},$eq{$substr{$_,0,1},H}},,SELECTED}> Any
-             $map{$filterterms{H},
-             <OPTION VALUE="$html{$_}" $if{$find{$cgilist{B},$html{$_}},SELECTED}>
+             $foreach{$filterterms{H},
+             <OPTION VALUE="$html{$_}" $if{$find{$cgilist{B},$_},SELECTED}>
              $html{$substr{$_,1}}
              </OPTION>
              }
@@ -225,6 +227,15 @@ $find{LIST,STRING}
 
 $fmt
 	name of current format (as set by CGI parameter ``FMT``, or the default)
+
+$foreach{LIST,STUFF)
+        evaluated argument ``STUFF`` for each entry in list ``LIST``. If
+        ``LIST`` contains the entries ``15``, ``13``, ``5``, ``7``, ``1``
+        then::
+
+            "$foreach{LIST,$chr{$add{$_,64}}}" = "OMEGA"
+
+        If you want a list as output instead then see ``$map``.
 
 $freq{term}
 	frequency of a term
@@ -409,14 +420,15 @@ $lower{TEXT}
 	return UTF-8 text ``TEXT`` converted to lower case.
 
 $map{LIST,STUFF)
-	map a list into the evaluated argument. If ``LIST`` is
-	1, 2 then::
+        map a list into the evaluated argument. If ``LIST`` contains ``1``,
+        ``2`` then::
 
-	 "$map{LIST,x$_ = $_; }" = "x1 = 1;	x2 = 2; "
+            "$map{LIST,x$_=$_;}" = "x1=1;	x2=2;"
 
-	Note that $map{} returns a list (this is a change from older
-	versions). If the tabs are a problem, use $list{$map{...},}
-	to get rid of them.
+        Note that $map{} returns a list (since Omega 0.5.0). If the tabs are a
+        problem, then ``$foreach{LIST,STUFF}`` does the same thing but just
+        concatenates the results directly rather than adding tabs to make a
+        list.
 
 $match{REGEX,STRING[,OPTIONS]}
 	perform a regex match using Perl-compatible regular expressions. Returns

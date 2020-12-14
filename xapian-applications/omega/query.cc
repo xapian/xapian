@@ -5,7 +5,7 @@
  * Copyright 2001 James Aylett
  * Copyright 2001,2002 Ananova Ltd
  * Copyright 2002 Intercede 1749 Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2013,2014,2015,2016,2017,2018,2019 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2013,2014,2015,2016,2017,2018,2019,2020 Olly Betts
  * Copyright 2008 Thomas Viehmann
  *
  * This program is free software; you can redistribute it and/or
@@ -912,7 +912,7 @@ static int percent;
 static double weight;
 static Xapian::doccount collapsed;
 
-static string print_caption(const string &fmt, const vector<string> &param);
+static string print_caption(const string& fmt, vector<string>& param);
 
 enum tagval {
 CMD_,
@@ -944,6 +944,7 @@ CMD_filters,
 CMD_filterterms,
 CMD_find,
 CMD_fmt,
+CMD_foreach,
 CMD_freq,
 CMD_ge,
 CMD_gt,
@@ -1087,6 +1088,7 @@ T(filters,	   0, 0, N, 0), // serialisation of current filters
 T(filterterms,	   1, 1, N, 0), // list of terms with a given prefix
 T(find,		   2, 2, N, 0), // find entry in list
 T(fmt,		   0, 0, N, 0), // name of current format
+T(foreach,	   2, 2, 1, 0), // evaluate something for every entry in a list
 T(freq,		   1, 1, N, 0), // frequency of a term
 T(ge,		   2, 2, N, 0), // test >=
 T(gt,		   2, 2, N, 0), // test >
@@ -1205,8 +1207,32 @@ write_all(int fd, const char * buf, size_t count)
     return 0;
 }
 
+static string eval(const string& fmt, vector<string>& param);
+
+/** Implements $foreach{} and $map{}. */
 static string
-eval(const string &fmt, const vector<string> &param)
+foreach(const string& list,
+	const string& pat,
+	vector<string>& param,
+	char sep = '\0')
+{
+    string result;
+    string saved_arg0 = std::move(param[0]);
+    string::size_type i = 0, j;
+    while (true) {
+	j = list.find('\t', i);
+	param[0].assign(list, i, j - i);
+	result += eval(pat, param);
+	if (j == string::npos) break;
+	if (sep) result += sep;
+	i = j + 1;
+    }
+    param[0] = std::move(saved_arg0);
+    return result;
+}
+
+static string
+eval(const string& fmt, vector<string>& param)
 {
     static map<string, const struct func_attrib *> func_map;
     if (func_map.empty()) {
@@ -1588,6 +1614,11 @@ eval(const string &fmt, const vector<string> &param)
 	    case CMD_fmt:
 		value = fmtname;
 		break;
+	    case CMD_foreach:
+		if (!args[0].empty()) {
+		    value = foreach(args[0], args[1], param);
+		}
+		break;
 	    case CMD_freq: {
 		const string& term = args[0];
 		Xapian::doccount termfreq = 0;
@@ -1938,17 +1969,7 @@ eval(const string &fmt, const vector<string> &param)
 		break;
 	    case CMD_map:
 		if (!args[0].empty()) {
-		    string l = args[0], pat = args[1];
-		    vector<string> new_args(param);
-		    string::size_type i = 0, j;
-		    while (true) {
-			j = l.find('\t', i);
-			new_args[0] = l.substr(i, j - i);
-			value += eval(pat, new_args);
-			if (j == string::npos) break;
-			value += '\t';
-			i = j + 1;
-		    }
+		    value = foreach(args[0], args[1], param, '\t');
 		}
 		break;
 	    case CMD_match:
@@ -2590,7 +2611,7 @@ pretty_term(string term)
 }
 
 static string
-print_caption(const string &fmt, const vector<string> &param)
+print_caption(const string& fmt, vector<string>& param)
 {
     q0 = *(mset[hit_no]);
 

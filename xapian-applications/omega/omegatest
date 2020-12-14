@@ -1,7 +1,7 @@
 #!/bin/sh
 # omegatest: Test omega CGI
 #
-# Copyright (C) 2015,2016,2017,2018,2019 Olly Betts
+# Copyright (C) 2015,2016,2017,2018,2019,2020 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -498,6 +498,13 @@ testcase 'foo-bar' template=../secret/file
 printf '$include{$cgi{template}}-$opt{data}' > "$TEST_TEMPLATE"
 testcase "Exception: Couldn't read format template 'non_existent.template' (No such file or directory)" template=non_existent.template
 testcase "Exception: Couldn't read format template '../secret/file' (name contains '..')" template=../secret/file
+
+# Feature tests for $foreach.
+printf '$foreach{$split{.,$cgi{a}},$chr{$add{$_,64}}}' > "$TEST_TEMPLATE"
+testcase 'OMEGA' a=15.13.5.7.1
+# Check that the outer $_ is restored after the inner $foreach.
+printf '$foreach{$split{.,$cgi{a}},$foreach{$split{.,$cgi{$_}},$chr{$add{$_,64}}}$_}' > "$TEST_TEMPLATE"
+testcase 'OMbEGcAd' a=b.c.d b=15.13 c=5.7 d=1
 
 # Feature tests for $map.
 printf '$list{$map{$split{-,$cgi{a}},$list{$map{$split{,$cgi{b}},$_},-}},|}' > "$TEST_TEMPLATE"
