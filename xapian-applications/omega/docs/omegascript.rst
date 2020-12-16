@@ -192,6 +192,7 @@ $field{NAME[,DOCID]}
         an OmegaScript list (i.e. tab separated), which means you can pass the
         results to other commands which take a list, such as ``$foreach``, e.g.
         ::
+
             $foreach{$field{keywords},<b>$html{$_}</b><br>}
 
 $filesize{SIZE}
