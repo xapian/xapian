@@ -5,7 +5,7 @@
  */
 #include <config.h>
 const char * dummy[] = {
-"/** @file
+"/** @file",
 " * @brief Define preprocessor symbols for the library version",
 " */",
 "// Copyright (C) 2002,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2015,2016,2017,2018,2020 Olly Betts",
