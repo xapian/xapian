@@ -55,7 +55,6 @@
 #include "unicode/description_append.h"
 
 #include <algorithm>
-#include <functional>
 #include <list>
 #include <string>
 #include <unordered_set>
@@ -189,9 +188,10 @@ OrContext::select_elite_set(size_t set_size, size_t out_of)
 {
     // Call recalc_maxweight() as otherwise get_maxweight()
     // may not be valid before next() or skip_to()
-    vector<PostList*>::iterator begin = pls.begin() + pls.size() - out_of;
-    for_each(begin, pls.end(), mem_fun(&PostList::recalc_maxweight));
-
+    auto begin = pls.begin() + pls.size() - out_of;
+    for (auto i = begin; i != pls.end(); ++i) {
+	(*i)->recalc_maxweight();
+    }
     nth_element(begin, begin + set_size - 1, pls.end(), CmpMaxOrTerms());
     shrink(pls.size() - out_of + set_size);
 }
