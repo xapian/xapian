@@ -27,8 +27,6 @@
 
 #include <vector>
 
-using namespace std;
-
 namespace Xapian {
 
 class FeatureVector::Internal : public Xapian::Internal::intrusive_base

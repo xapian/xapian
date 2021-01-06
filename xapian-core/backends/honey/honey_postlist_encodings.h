@@ -83,7 +83,7 @@ encode_initial_chunk_header(Xapian::doccount termfreq,
 	pack_uint(out, last - first - 1);
 	if (first_wdf != (collfreq / 2)) {
 	    pack_uint(out, first_wdf);
-	    AssertEq(max(first_wdf, collfreq - first_wdf), wdf_max);
+	    AssertEq(std::max(first_wdf, collfreq - first_wdf), wdf_max);
 	} else {
 	    AssertEq(collfreq - first_wdf, wdf_max);
 	}
@@ -146,7 +146,7 @@ decode_initial_chunk_header(const char** p, const char* end,
 	chunk_last = last = first + termfreq + 1;
 	termfreq = 2;
 	first_wdf = collfreq / 2;
-	wdf_max = max(first_wdf, collfreq - first_wdf);
+	wdf_max = std::max(first_wdf, collfreq - first_wdf);
 	return true;
     }
 
@@ -159,7 +159,7 @@ decode_initial_chunk_header(const char** p, const char* end,
 	first_wdf = last;
 	chunk_last = last = first + termfreq + 1;
 	termfreq = 2;
-	wdf_max = max(first_wdf, collfreq - first_wdf);
+	wdf_max = std::max(first_wdf, collfreq - first_wdf);
 	return true;
     }
 

@@ -27,8 +27,6 @@
 #include "str.h"
 #include "xapian/error.h"
 
-using namespace std;
-
 class Resolver {
     struct addrinfo* result = NULL;
 

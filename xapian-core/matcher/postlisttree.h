@@ -108,7 +108,7 @@ class PostListTree {
 	    // Start at the current shard.
 	    for (Xapian::doccount i = current_shard; i != n_shards; ++i) {
 		if (shard_pls[i])
-		   w = max(w, shard_pls[i]->recalc_maxweight());
+		   w = std::max(w, shard_pls[i]->recalc_maxweight());
 	    }
 	    max_weight = w;
 	}
@@ -221,7 +221,7 @@ class PostListTree {
     }
 
     std::string get_description() const {
-	string desc = "PostListTree(";
+	std::string desc = "PostListTree(";
 	for (Xapian::doccount i = 0; i != n_shards; ++i) {
 	    if (i == current_shard)
 		desc += '*';

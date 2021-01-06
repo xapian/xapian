@@ -73,11 +73,11 @@ std::string pretty_term(std::string term);
 
 class OmegaExpandDecider : public Xapian::ExpandDecider {
     Xapian::Database db;
-    set<string> exclude_stems;
+    std::set<std::string> exclude_stems;
   public:
-    OmegaExpandDecider(const Xapian::Database & db,
-		       set<string> * querytermset = NULL);
-    bool operator()(const string & term) const;
+    OmegaExpandDecider(const Xapian::Database& db,
+		       std::set<std::string>* querytermset = NULL);
+    bool operator()(const std::string& term) const;
 };
 
 std::string html_escape(const std::string &str);

@@ -25,6 +25,8 @@
 #include "debuglog.h"
 #include "omassert.h"
 
+using namespace std;
+
 string
 RemoteDocument::fetch_value(Xapian::valueno) const
 {

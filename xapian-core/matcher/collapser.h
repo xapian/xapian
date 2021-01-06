@@ -218,7 +218,7 @@ class Collapser {
      *  @param to  		The new item (index into results).
      */
     void result_has_moved(Xapian::doccount from, Xapian::doccount to) {
-	const string& collapse_key = results[to].get_collapse_key();
+	const std::string& collapse_key = results[to].get_collapse_key();
 	if (collapse_key.empty()) {
 	    return;
 	}
@@ -336,7 +336,7 @@ class CollapserLite {
 	// information stored in table.
 	Xapian::doccount todo = entry_count;
 	for (Result& result : results) {
-	    const string& key = result.get_collapse_key();
+	    const std::string& key = result.get_collapse_key();
 	    if (key.empty())
 		continue;
 

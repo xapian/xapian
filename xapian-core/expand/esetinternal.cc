@@ -38,6 +38,7 @@
 #include "termlistmerger.h"
 #include "unicode/description_append.h"
 
+#include <functional>
 #include <memory>
 #include <set>
 #include <string>

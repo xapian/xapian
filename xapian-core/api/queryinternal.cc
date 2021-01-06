@@ -58,7 +58,6 @@
 #include "unicode/description_append.h"
 
 #include <algorithm>
-#include <functional>
 #include <limits>
 #include <list>
 #include <memory>

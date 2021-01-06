@@ -24,8 +24,6 @@
 #include "api/smallvector.h"
 #include <xapian/types.h>
 
-using namespace std;
-
 /// Metadata for a term in a document
 class TermInfo {
     Xapian::termcount wdf;

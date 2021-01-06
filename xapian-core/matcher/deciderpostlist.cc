@@ -25,6 +25,8 @@
 #include "omassert.h"
 #include <xapian/matchdecider.h>
 
+using namespace std;
+
 bool
 DeciderPostList::test_doc()
 {

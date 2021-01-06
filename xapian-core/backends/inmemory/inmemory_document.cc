@@ -26,6 +26,8 @@
 
 #include "debuglog.h"
 
+using namespace std;
+
 string
 InMemoryDocument::fetch_value(Xapian::valueno slot) const
 {

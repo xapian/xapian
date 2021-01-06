@@ -341,7 +341,7 @@ class GlassDatabase : public Xapian::Database::Internal {
 class GlassWritableDatabase : public GlassDatabase {
     mutable Inverter inverter;
 
-    mutable map<Xapian::valueno, ValueStats> value_stats;
+    mutable std::map<Xapian::valueno, ValueStats> value_stats;
 
     /** The number of documents added, deleted, or replaced since the last
      *  flush.

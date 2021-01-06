@@ -36,19 +36,19 @@ class InMemoryAllTermsList : public AllTermsList
     /// Assignment is not allowed.
     void operator=(const InMemoryAllTermsList &);
 
-    const std::map<string, InMemoryTerm> *tmap;
+    const std::map<std::string, InMemoryTerm>* tmap;
 
-    std::map<string, InMemoryTerm>::const_iterator it;
+    std::map<std::string, InMemoryTerm>::const_iterator it;
 
     Xapian::Internal::intrusive_ptr<const InMemoryDatabase> database;
 
-    string prefix;
+    std::string prefix;
 
   public:
     /// Constructor.
-    InMemoryAllTermsList(const std::map<string, InMemoryTerm>* tmap_,
+    InMemoryAllTermsList(const std::map<std::string, InMemoryTerm>* tmap_,
 			 Xapian::Internal::intrusive_ptr<const InMemoryDatabase> database_,
-			 const string& prefix_)
+			 const std::string& prefix_)
 	: tmap(tmap_), it(tmap->begin()), database(database_),
 	  prefix(prefix_)
     {
@@ -57,12 +57,12 @@ class InMemoryAllTermsList : public AllTermsList
     Xapian::termcount get_approx_size() const;
 
     // Gets current termname
-    string get_termname() const;
+    std::string get_termname() const;
 
     // Get num of docs indexed by term
     Xapian::doccount get_termfreq() const;
 
-    TermList * skip_to(const string &tname);
+    TermList* skip_to(const std::string& tname);
 
     /** next() causes the AllTermsList to move to the next term in the list.
      */

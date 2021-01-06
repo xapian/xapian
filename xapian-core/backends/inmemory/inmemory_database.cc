@@ -42,7 +42,7 @@
 #include <xapian/error.h>
 #include <xapian/valueiterator.h>
 
-using std::make_pair;
+using namespace std;
 using Xapian::Internal::intrusive_ptr;
 
 inline void

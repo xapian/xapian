@@ -33,6 +33,7 @@
 #include "unicode/description_append.h"
 
 using Xapian::Internal::intrusive_ptr;
+using namespace std;
 
 // Static functions
 

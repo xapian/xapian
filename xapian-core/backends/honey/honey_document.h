@@ -53,9 +53,10 @@ class HoneyDocument : public Xapian::Document::Internal {
 
   protected:
     /** Implementation of virtual methods @{ */
-    string fetch_value(Xapian::valueno slot) const;
-    void fetch_all_values(map<Xapian::valueno, string>& values_) const;
-    string fetch_data() const;
+    std::string fetch_value(Xapian::valueno slot) const;
+    void fetch_all_values(std::map<Xapian::valueno,
+				   std::string>& values_) const;
+    std::string fetch_data() const;
     /** @} */
 };
 

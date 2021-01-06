@@ -25,6 +25,8 @@
 
 #include "stringutils.h"
 
+using namespace std;
+
 Xapian::termcount
 InMemoryAllTermsList::get_approx_size() const
 {

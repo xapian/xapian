@@ -32,12 +32,10 @@
 
 #include <string>
 
-using namespace std;
-
 class GlassPositionListTable : public GlassLazyTable {
   public:
-    static string make_key(Xapian::docid did, const string & term) {
-	string key;
+    static std::string make_key(Xapian::docid did, const std::string& term) {
+	std::string key;
 	pack_string_preserving_sort(key, term);
 	pack_uint_preserving_sort(key, did);
 	return key;
@@ -51,7 +49,7 @@ class GlassPositionListTable : public GlassLazyTable {
      *  @param dbdir		The directory the glass database is stored in.
      *  @param readonly		true if we're opening read-only, else false.
      */
-    GlassPositionListTable(const string & dbdir, bool readonly)
+    GlassPositionListTable(const std::string& dbdir, bool readonly)
 	: GlassLazyTable("position", dbdir + "/position.", readonly) { }
 
     GlassPositionListTable(int fd, off_t offset_, bool readonly_)
@@ -61,26 +59,26 @@ class GlassPositionListTable : public GlassLazyTable {
      *
      *  @param s The string to append the position list data to.
      */
-    void pack(string & s, const Xapian::VecCOW<Xapian::termpos> & vec) const;
+    void pack(std::string& s, const Xapian::VecCOW<Xapian::termpos>& vec) const;
 
     /** Set the position list for term tname in document did.
      */
-    void set_positionlist(Xapian::docid did, const string & tname,
-			  const string & s) {
+    void set_positionlist(Xapian::docid did, const std::string& tname,
+			  const std::string& s) {
 	add(make_key(did, tname), s);
     }
 
     /// Delete the position list for term tname in document did.
-    void delete_positionlist(Xapian::docid did, const string & tname) {
+    void delete_positionlist(Xapian::docid did, const std::string& tname) {
 	del(make_key(did, tname));
     }
 
     /// Return the number of entries in specified position list data.
-    Xapian::termcount positionlist_count(const string& data) const;
+    Xapian::termcount positionlist_count(const std::string& data) const;
 
     /// Return the number of entries in specified position list.
     Xapian::termcount positionlist_count(Xapian::docid did,
-					 const string & term) const;
+					 const std::string& term) const;
 };
 
 /** Base-class for a position list in a glass database. */
@@ -112,7 +110,7 @@ class GlassBasePositionList : public PositionList {
      *  @param data	The positional data.  Must stay valid
      *			while this object is using it.
      */
-    void set_data(const string& data);
+    void set_data(const std::string& data);
 
   public:
     /// Default constructor.
@@ -151,12 +149,12 @@ class GlassPositionList : public GlassBasePositionList {
   public:
     /// Construct and initialise with data.
     explicit
-    GlassPositionList(string&& data);
+    GlassPositionList(std::string&& data);
 
     /// Construct and initialise with data.
     GlassPositionList(const GlassTable* table,
 		      Xapian::docid did,
-		      const string& term);
+		      const std::string& term);
 };
 
 /** A reusable position list in a glass database. */
@@ -177,11 +175,11 @@ class GlassRePositionList : public GlassBasePositionList {
 	: cursor(table) {}
 
     /** Fill list with data, and move the position to the start. */
-    void assign_data(string&& data);
+    void assign_data(std::string&& data);
 
     /** Fill list with data, and move the position to the start. */
     void read_data(Xapian::docid did,
-		   const string& term);
+		   const std::string& term);
 };
 
 #endif /* XAPIAN_INCLUDED_GLASS_POSITIONLIST_H */

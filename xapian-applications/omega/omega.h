@@ -32,16 +32,15 @@
 #include "configfile.h"
 
 #include <map>
+#include <string>
 
-using namespace std;
-
-extern string dbname;
-extern string fmtname;
-extern string filters;
+extern std::string dbname;
+extern std::string fmtname;
+extern std::string filters;
 
 // What $filters produced in Omega < 1.3.4 - we check this too for backward
 // compatibility.
-extern string old_filters;
+extern std::string old_filters;
 
 extern Xapian::Database db;
 extern Xapian::Enquire * enquire;
@@ -62,9 +61,9 @@ extern Xapian::Enquire::docid_order docid_order;
 extern Xapian::valueno collapse_key;
 extern bool collapse;
 
-extern map<string, string> option;
+extern std::map<std::string, std::string> option;
 
-extern const string default_dbname;
+extern const std::string default_dbname;
 
 extern bool set_content_type, suppress_http_headers;
 

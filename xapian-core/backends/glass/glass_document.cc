@@ -25,6 +25,8 @@
 #include "glass_docdata.h"
 #include "glass_values.h"
 
+using namespace std;
+
 string
 GlassDocument::fetch_value(Xapian::valueno slot) const
 {
