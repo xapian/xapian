@@ -830,6 +830,9 @@ QUOTELOOP:  while (1) {
 	    diagnostic('error', "Method defined inside a class is implicitly 'inline'");
 	}
 	if ($header) {
+	    if (/^\+using\s+namespace\b/) {
+		diagnostic('error', "Avoid 'using namespace' at top level of header");
+	    }
 	    if (m!^\+\s*#\s*(ifndef|define|endif\s*/[*/])\s+((?:[A-Z]+_INCLUDED)?_?\w+_[Hh]\b)!) {
 		my ($type, $guard) = ($1, $2);
 		my $expected_guard;
