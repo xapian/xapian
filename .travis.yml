@@ -179,6 +179,9 @@ matrix:
       #   the branch and the revision being checked.
       script:
         - git diff `[ "$TRAVIS_PULL_REQUEST" = false ] && echo master... || echo "$TRAVIS_BRANCH.."`|xapian-maintainer-tools/xapian-check-patch
+  allow_failures:
+    # Travis' osx setup seems to be broken currently.
+    - os: osx
 
 
 before_script:
