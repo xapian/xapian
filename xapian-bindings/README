@@ -44,7 +44,7 @@ PHP 7.x		Requires PHP >= 7.0.
 Python 2.x	Requires Python 2.7 or later.  If you still need support for
 		Python 2.6, use Xapian 1.4.x.
 
-Python 3.x	Requires Python 3.2 or later.
+Python 3.x	Requires Python 3.3 or later.
 
 Ruby		Requires Ruby 2.1 or later (older versions are no longer
 		supported by the Ruby developers - if you still need support
