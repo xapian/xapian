@@ -239,6 +239,8 @@ $foreach{LIST,STUFF)
 
         If you want a list as output instead then see ``$map``.
 
+        Added in Omega 1.4.18.
+
 $freq{term}
 	frequency of a term
 
