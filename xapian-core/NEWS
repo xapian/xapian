@@ -2,9 +2,10 @@ Xapian-core 1.4.17 (2020-08-21):
 
 API:
 
-* Database::get_average_length(): Add this as an alias for Database::get_avlen().
-  In git master we've added this as a preferred new name - adding it to 1.4.x too
-  will make it easier for users to update to using this.
+* Database::get_average_length(): Add this as an alias for
+  Database::get_avlen().  In git master we've added this as a preferred new
+  name - adding it to 1.4.x too will make it easier for users to update to
+  using this.
 
 * Database::get_spelling_suggestion(): Optimise edit distance initialisation
   loop to significantly reduce the cost of a typical edit distance calculation.
