@@ -1,3 +1,58 @@
+Xapian-core 1.4.18 (2021-01-14):
+
+API:
+
+* QueryParser::FLAG_ACCUMULATE: New flag.  Previously the unstem and stoplist
+  data was always reset by a call to QueryParser::parse_query(), which makes
+  sense if you use the same QueryParser object to parse a series of independent
+  queries.  If you're using the same QueryParser object to parse several fields
+  on the same query form, you may want to have the unstem and stoplist data
+  combined for all of them, in which case you can use this flag to prevent this
+  data from being reset.
+
+* QueryParser::unstem_begin(): Eliminate unnecessary copying of the data.
+
+* Fix typo in Swedish stopword list, syncing change made to Snowball by Daniel
+  Gómez Villanueva.
+
+* Remove some French stop words with other meanings, syncing change made to
+  Snowball by PhilippeOuellet.
+
+testsuite:
+
+* Run testcase testlock4 using backend chert, not just using glass
+
+* Skip testcase testlock4 on platforms that don't allow us to implement
+  Database::locked() (which notably include GNU Hurd and Microsoft Windows).
+
+documentation:
+
+* List DB_NO_TERMLIST in the WritableDatabase constructor API documentation
+  where we already list the other DB_* constants.
+
+portability:
+
+* Eliminate single use of std::mem_fun() which was deprecated in C++11 and
+  removed in C++17.  Reported by Mateusz Pusz in #806.
+
+* Add missing includes for std::numeric_limits<>.  Reported by stac47 in #805.
+
+* Work around mingw.org header issue.  MSVC seems to implicitly include
+  <winerror.h> but mingw.org's headers don't, leading to ERROR_PIPE_CONNECTED
+  not being defined.  Fixes https://github.com/xapian/xapian/pull/318, reported
+  by Alex Sandro.
+
+* Suppress MSVC warnings about possible loss of data.  The values involved are
+  the number of set bits in a value of integer type, so these warnings are
+  bogus.
+
+* Include <sys/types.h> for size_t and off_t, which is the appropriate header,
+  and needed with Android's bionic libc.  Patch from Matthieu Gautier.
+
+* Use a temporary file for the Doxygen configuration to work around Doxygen
+  1.8.19 bug which truncates a config file read from stdin to 4096 bytes
+  (https://github.com/doxygen/doxygen/issues/7975).
+
 Xapian-core 1.4.17 (2020-08-21):
 
 API:
@@ -9,13 +64,13 @@ API:
 
 * Database::get_spelling_suggestion(): Optimise edit distance initialisation
   loop to significantly reduce the cost of a typical edit distance calculation.
-    
+
 * Fix query expansion on sharded databases.  The mechanism for passing in which
   shard a TermList is from wasn't hooked up and as a result we'd always think
   it's from the first shard, meaning the statistics would be wrong and that our
   suggested terms may not have been as good as they should be in this
   situation.
-    
+
 * Enquire::get_eset(): Use string::compare() to avoid 1/3 of the string compares
   on average.
 

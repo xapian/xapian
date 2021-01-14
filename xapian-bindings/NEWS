@@ -1,3 +1,23 @@
+Xapian-bindings 1.4.18 (2021-01-14):
+
+Portability:
+
+* Support macOS 11.0 - AC_CANONICAL_HOST identifies this as darwin20, which
+  wasn't caught by our glob pattern.  Patch from FX Coudert in
+  https://github.com/xapian/xapian/pull/319
+
+CSharp:
+
+* Wrap const std::string* parameters to accept a string or null in C#.  See #204.
+
+Java:
+
+* Wrap const std::string* parameters to accept a String or null in Java.
+
+Perl:
+
+* Fix minor documentation typo.
+
 Xapian-bindings 1.4.17 (2020-08-21):
 
 * No user-visible change except for bumping the version to indicate

@@ -1,3 +1,48 @@
+Omega 1.4.18 (2021-01-14):
+
+indexers:
+
+* omindex:
+
+  + Add default MIME mapping for application/rtf.  IANA have registrations for
+    text/rtf and (more recently) application/rtf (it seems because newer
+    versions of the RTF format can contain 8-bit data) so we now recognise
+    application/rtf by default and handle it the same way as text/rtf.
+
+    Current libmagic seems to always return text/rtf (no matches for
+    application/rtf in magic.mgc) and we continue to map extension rtf to
+    text/rtf, so this change is mainly future-proofing against libmagic future
+    changes.
+
+  + Add support for indexing OpenXPS, which is effectively the same as XPS
+    internally in ways we care about, but it uses a different mimetype and a
+    different filename extension.
+
+omega:
+
+* Explicitly use OR for MORELIKE queries.
+
+  Since 1.3.0 the default value of DEFAULTOP has been AND, which typically
+  makes MORELIKE queries much less useful since they'll only match documents
+  containing all the terms from the query expansion.  We now explicitly insert
+  " OR " between the terms if DEFAULTOP hasn't been set to OR, which makes them
+  work much more like they did in 1.2.x.
+
+* Make $stoplist and $unstem consider all query strings by always passing the
+  new Xapian::QueryParser::FLAG_ACCUMULATE flag.
+
+* Add $foreach command which works like $map, but just concatenates the
+  evaluated results rather than adding tabs to turn them into an OmegaScript
+  list.
+
+* Extend $include{} to allow handling failure to open the specified file via an
+  optional second argument which if specified will be evaluated and returned
+  instead.  Patch from Gaurav Arora.
+
+* Support multiple MORELIKE parameters - we now form an RSet from all the
+  specified documents and use that to generate the query to run (previously
+  only one of multiple MORELIKE parameters was used).
+
 Omega 1.4.17 (2020-08-21):
 
 documentation:
