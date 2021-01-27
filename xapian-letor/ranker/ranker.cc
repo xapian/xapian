@@ -110,7 +110,7 @@ load_list_fvecs(const string & filename)
 	fvv[qid].push_back(fv);
     }
     std::vector<vector<FeatureVector>> vt;
-    for (auto it: fvv) {
+    for (auto it : fvv) {
 	vt.push_back(it.second);
     }
     return vt;

@@ -150,15 +150,13 @@ ListNETRanker::train(const vector<vector<Xapian::FeatureVector>>& training_data)
     // iterations
     for (int iter_num = 1; iter_num <= iterations; ++iter_num) {
 	for (auto& item : training_data) {
-	    // initialize Probability distributions of y and z
-	    prob_distrib_vector prob = init_probability(item,
-							new_parameters);
-	    // compute gradient
-	    vector<double> gradient = calculate_gradient(item,
-							 prob);
-	    // normalize gradinet
+	    // Initialize probability distributions of y and z.
+	    prob_distrib_vector prob = init_probability(item, new_parameters);
+	    // Compute gradient
+	    vector<double> gradient = calculate_gradient(item, prob);
+	    // Normalize gradient
 	    normalize(gradient, item.size());
-	    // update parameters: w = w - gradient * learningRate
+	    // Update parameters: w = w - gradient * learningRate
 	    update_parameters(new_parameters, gradient, learning_rate);
 	}
     }
