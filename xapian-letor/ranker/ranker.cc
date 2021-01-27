@@ -297,10 +297,12 @@ Xapian::prepare_training_file(const string & db_path, const string & queryfile,
 	enquire.set_query(query);
 	Xapian::MSet mset = enquire.get_mset(0, msetsize);
 
-	std::vector<FeatureVector> fvv_mset =
-					flist.create_feature_vectors(mset,
-					query, letor_db, flag, bias);
-	std::vector<FeatureVector> fvv_qrel;
+	vector<FeatureVector> fvv_mset = flist.create_feature_vectors(mset,
+								      query,
+								      letor_db,
+								      flag,
+								      bias);
+	vector<FeatureVector> fvv_qrel;
 	int k = 0;
 	for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); ++i) {
 	    Xapian::Document doc = i.get_document();

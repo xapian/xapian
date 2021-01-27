@@ -121,7 +121,7 @@ update_parameters(vector<double> &new_parameters, const vector<double> &gradient
 
 static void
 normalize(vector<double>& gradient, size_t size) {
-    for (auto item: gradient) {
+    for (auto item : gradient) {
 	item /= size;
     }
 }
