@@ -400,8 +400,8 @@ Ranker::xavier_initialisation(int feature_cnt)
     // 469382313 is a random number for which we are getting the best
     // performance of letor against standard benchmark datasets.
     default_random_engine generator(469382313);
-    normal_distribution<double> distribution(0.0, sqrt(2.0 /
-						       (1 + feature_cnt)));
+    normal_distribution<double> distribution(0.0,
+					     sqrt(2.0 / (1 + feature_cnt)));
     vector<double> new_parameters;
     for (int feature_num = 0; feature_num < feature_cnt; ++feature_num) {
 	new_parameters.push_back(distribution(generator));

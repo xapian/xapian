@@ -158,8 +158,8 @@ class XAPIAN_VISIBILITY_DEFAULT Ranker : public Xapian::Internal::intrusive_base
      */
 
     /// Initialize the parameters for neural network with Xavier initialization.
-    std::vector<double>
-    xavier_initialisation(int feature_cnt);
+  protected:
+    std::vector<double> xavier_initialisation(int feature_cnt);
 
     void rank(Xapian::MSet & mset,
 	      const std::string & model_key = std::string(),
