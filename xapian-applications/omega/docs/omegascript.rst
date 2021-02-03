@@ -348,7 +348,9 @@ $jsonobject{MAP[,KEYFORMAT[,VALUEFORMAT]]}
         does need to include ``$json{}`` and double quotes, because the value
         doesn't have to be a JSON string.
 
-        Added in Omega 1.4.15.
+        Added in Omega 1.4.15.  Since 1.4.19 the returned JSON no longer
+        contains newlines, which makes it usable as a single line serialisation
+        format without post-processing.
 
 $keys{MAP}
         returns a list containing the keys of MAP (as set by ``$setmap``).

@@ -1,7 +1,7 @@
 /** @file
  * @brief JSON escaping
  */
-/* Copyright (C) 2013,2018,2019 Olly Betts
+/* Copyright (C) 2013,2018,2019,2021 Olly Betts
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -34,25 +34,25 @@ template<typename C, typename F1, typename F2>
 static inline std::string
 to_json(const C& container, F1 func1, F2 func2)
 {
-    std::string result = "{\n \"";
+    std::string result = "{\"";
     bool first = true;
     for (auto entry : container) {
 	if (first) {
 	    first = false;
 	} else {
-	    result += ",\n \"";
+	    result += ",\"";
 	}
 	std::string key = func1(entry.first);
 	json_escape(key);
 	result += key;
-	result += "\": ";
+	result += "\":";
 	result += func2(entry.second);
     }
     if (first) {
 	// Special case for an empty object.
-	result = "{}\n";
+	result = "{}";
     } else {
-	result += "\n}\n";
+	result += "}";
     }
     return result;
 }
