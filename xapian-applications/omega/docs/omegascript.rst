@@ -355,6 +355,15 @@ $jsonobject{MAP[,KEYFORMAT[,VALUEFORMAT]]}
         does need to include ``$json{}`` and double quotes, because the value
         doesn't have to be a JSON string.
 
+        Simple example::
+
+          $jsonobject{foo}
+
+        More complex example which upper-cases the keys and uses JSON integers
+        for the values::
+
+          $jsonobject{foo,$upper{$_},$_}
+
         Added in Omega 1.4.15.  Since 1.4.19 the returned JSON no longer
         contains newlines, which makes it usable as a single line serialisation
         format without post-processing.
