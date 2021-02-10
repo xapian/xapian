@@ -451,7 +451,7 @@ if test no != "$with_python3" ; then
 	AC_MSG_RESULT([$PYTHON3_CACHE_TAG])
 
 	AC_MSG_CHECKING([for extension of cached and optimized python3 bytecode])
-	PYTHON3_CACHE_OPT1_EXT=`$PYTHON3 -c 'import importlib,sys;print("%s.pyo"%sys.implementation.cache_tag) if sys.version_info.minor<5 else print("{1}{2}".format(*importlib.util.cache_from_source("",optimization=1).rpartition(sys.implementation.cache_tag)))'`
+	PYTHON3_CACHE_OPT1_EXT=`$PYTHON3 -c 'import importlib,importlib.util,sys;print("%s.pyo"%sys.implementation.cache_tag) if sys.version_info.minor<5 else print("{1}{2}".format(*importlib.util.cache_from_source("",optimization=1).rpartition(sys.implementation.cache_tag)))'`
 	AC_SUBST(PYTHON3_CACHE_OPT1_EXT)
 	AC_MSG_RESULT([$PYTHON3_CACHE_OPT1_EXT])
 
