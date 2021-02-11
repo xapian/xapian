@@ -77,7 +77,7 @@ string
 ProgClient::get_progcontext(const string &progname, const string &args)
 {
     LOGCALL_STATIC(DB, string, "ProgClient::get_progcontext", progname | args);
-    RETURN("remote:prog(" + progname + " " + args);
+    RETURN("remote:prog(" + progname + " " + args + ")");
 }
 
 int
