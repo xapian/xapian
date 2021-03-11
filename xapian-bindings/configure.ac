@@ -171,6 +171,7 @@ if test yes = "$enable_documentation" ; then
   dnl Check for rst2html. (Needed to make HTML from reStructuredText format)
   dnl Also look for rst2html.py, which archlinux reportedly installs it as.
   AC_PATH_PROGS(RST2HTML, [rst2html rst2html.py], [])
+  AC_ARG_VAR([RST2HTML], [reST to HTML convertor])
   test -z "$RST2HTML" && AC_MSG_ERROR([rst2html is required to build documentation (try package python-docutils)])
 fi
 
@@ -229,6 +230,7 @@ if test x$USE_MAINTAINER_MODE = xyes; then
   dnl Need doxygen in maintainer mode to convert C++ doxygen comments to Python
   dnl docstrings.
   AC_PATH_PROG(DOXYGEN, doxygen, [])
+  AC_ARG_VAR([DOXYGEN], [Doxygen documentation system])
   test -z "$DOXYGEN" && AC_MSG_ERROR([doxygen is required to build documentation])
 fi
 
@@ -1180,6 +1182,7 @@ if test no != "$with_ruby" ; then
 	if test -n "$RDOC"; then
 	  BINDINGS="$BINDINGS ruby"
 	fi
+	AC_ARG_VAR([RDOC], [Ruby documentation generator])
       else
 	AC_MSG_RESULT([no (install ruby-dev or ruby-devel package or similar)])
 	if test yes = "$with_ruby" ; then
@@ -1194,7 +1197,7 @@ fi
 
 if test no != "$with_perl" ; then
   AC_PATH_PROGS(PERL, ["${PERL-perl}"], [])
-  AC_ARG_VAR(PERL, [perl interpreter])
+  AC_ARG_VAR(PERL, [Perl interpreter])
   if test -n "$PERL" ; then
     if test -z "$PERL_INC" ; then
       PERL_INC=`$PERL -MConfig -e 'print $Config{archlibexp}, "/CORE"'`
