@@ -1,7 +1,7 @@
 /** @file
  * @brief date filtering using value ranges
  */
-/* Copyright (C) 2006,2015 Olly Betts
+/* Copyright (C) 2006,2015,2021 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -99,7 +99,14 @@ class DateRangeLimit {
 	if (!is_set()) {
 	    return start ? string() : string(4, '\xff');
 	}
-	return int_to_binary_string(timegm(&tm));
+	time_t s = timegm(&tm);
+	if (s <= 0) {
+	    return string();
+	}
+	if (sizeof(time_t) > 4 && s >= 0xffffffff) {
+	    return string(4, '\xff');
+	}
+	return int_to_binary_string(uint32_t(s));
     }
 };
 
