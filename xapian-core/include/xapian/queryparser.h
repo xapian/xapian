@@ -1,7 +1,7 @@
 /** @file
  * @brief parsing a user query string to build a Xapian::Query object
  */
-/* Copyright (C) 2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018 Olly Betts
+/* Copyright (C) 2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2021 Olly Betts
  * Copyright (C) 2010 Adam Sjøgren
  *
  * This program is free software; you can redistribute it and/or
@@ -1244,6 +1244,11 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      *  deprecated - use @a add_rangeprocessor() with a RangeProcessor instead.
      */
     XAPIAN_DEPRECATED(void add_valuerangeprocessor(Xapian::ValueRangeProcessor * vrproc)) {
+#ifdef __GNUC__
+// Avoid deprecation warnings if compiling without optimisation.
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
 	/// Compatibility shim.
 	class ShimRangeProcessor : public RangeProcessor {
 	    Xapian::Internal::opt_intrusive_ptr<Xapian::ValueRangeProcessor> vrp;
@@ -1264,6 +1269,9 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
 	};
 
 	add_rangeprocessor((new ShimRangeProcessor(vrproc))->release());
+#ifdef __GNUC__
+# pragma GCC diagnostic pop
+#endif
     }
 
     /** Get the spelling-corrected query string.
