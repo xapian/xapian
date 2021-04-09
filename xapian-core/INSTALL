@@ -153,10 +153,10 @@ _FORTIFY_SOURCE
 ---------------
 
 When compiling with GCC, by default Xapian will be built with _FORTIFY_SOURCE
-set to 2.  This enables some compile time and runtime checking of values passed
-to library functions when building with glibc >= 2.34 (some Linux distros may
-have backported support to older glibc versions).  If you wish to disable this
-for any reason, you can just configure like so:
+set to 2 (except on mingw-w64).  This enables some compile time and runtime
+checking of values passed to library functions when building with glibc >=
+2.34.  If you wish to disable this for any reason, you can just configure like
+so:
 
 ./configure CPPFLAGS=-D_FORTIFY_SOURCE=0
 
@@ -166,6 +166,12 @@ Or you can set the "fortification level" to 1 instead of 2:
 
 If you're disabling it because it causes problems, please also report this to
 us (via the bug tracker or mailing lists).
+
+On mingw-w64 Xapian doesn't automatically enable _FORTIFY_SOURCE as an extra
+library is needed.  You can enable it by hand and specify this library like
+so:
+
+./configure CPPFLAGS=-D_FORTIFY_SOURCE=2 LIBS=-lssp
 
 -Bsymbolic-functions
 --------------------
