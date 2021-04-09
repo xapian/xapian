@@ -501,16 +501,24 @@ AH_BOTTOM(
 # pragma warning(disable:4800)
 #endif
 
-/* _FORTIFY_SOURCE is only supported by GCC >= 4.1 and glibc >= 2.3.4, but it
- * shouldn't cause a problem to define it where it's not supported and some
- * distros may have backported support, so hardcoding version checks is
- * counter-productive.
+/* Default to enabling _FORTIFY_SOURCE at level 2.  It shouldn't cause a
+ * problem to define it where it's not supported.
  *
  * Check if _FORTIFY_SOURCE is already defined to allow the user to override
  * our choice with "./configure CPPFLAGS=-D_FORTIFY_SOURCE=0" or "...=1".
  */
 #if defined __GNUC__ && !defined _FORTIFY_SOURCE
 # define _FORTIFY_SOURCE 2
+# ifdef __MINGW32__
+/* Both mingw32 and mingw-w64 define __MINGW32__. */
+#  include <stddef.h>
+#  ifdef __MINGW64_VERSION_MAJOR
+/* Enabling _FORTIFY_SOURCE on newer mingw-w64 requires linking with -lssp so
+ * we simply don't automatically enable it there.
+ */
+#   undef _FORTIFY_SOURCE
+#  endif
+# endif
 #endif
 
 /* For GCC >= 3.0 (and Intel's C++ compiler, which also defines __GNUC__),
