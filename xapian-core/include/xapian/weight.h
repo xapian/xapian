@@ -470,7 +470,7 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
      *         which are indexed by the term t.
      *     @li 'p': Prob    idfn=log((N-Termfreq)/Termfreq)
      *     @li 'f': Freq    idfn=1/Termfreq
-     *     @li 's': Squared idfn=log(N/Termfreq)^2
+     *     @li 's': Squared idfn=(log(N/Termfreq))²
      *
      * @li The third and the final character indicates the normalization for
      *     the document weight.  The following normalizations are currently

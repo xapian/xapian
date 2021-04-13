@@ -86,11 +86,11 @@ DPHWeight::init(double factor)
 			 (wdf + 1.0). */
     /* Now, assuming len to be len_upper for the purpose of maximization,
        (d)/(dx) (x * (1 - x / c) * (1 - x / c)) / (x+1) =
-       ((c - x) * (c - x * (2 * x + 3))) / (c ^ 2 * (x + 1) ^ 2)
+       ((c - x) * (c - x * (2 * x + 3))) / (c² * (x + 1)²)
        Thus, if (c - x * (2 * x + 3)) is positive, the differentiation
        value will be positive and hence the function will be an
        increasing function. By finding the positive root of the equation
-       2 * x ^ 2 + 3 * x - c = 0, we get the value of x(wdf)
+       2 * x² + 3 * x - c = 0, we get the value of x(wdf)
        at which the differentiation value turns to negative from positive,
        and hence, the function will have maximum value for that value of wdf. */
     double wdf_root = 0.25 * (sqrt(8.0 * len_upper + 9.0) - 3.0);

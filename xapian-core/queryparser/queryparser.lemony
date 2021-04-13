@@ -859,7 +859,7 @@ just_had_operator_needing_term:
 	if (ranges &&
 	    (mode == DEFAULT || mode == IN_GROUP || mode == IN_GROUP2)) {
 	    // Scan forward to see if this could be the "start of range"
-	    // token.  Sadly this has O(n^2) tendencies, though at least
+	    // token.  Sadly this has O(n²) tendencies, though at least
 	    // "n" is the number of words in a query which is likely to
 	    // remain fairly small.  FIXME: can we tokenise more elegantly?
 	    Utf8Iterator it_initial = it;
