@@ -134,9 +134,9 @@ Inverter::has_positions(const GlassPositionListTable & position_table) const
     // FIXME: Can we cheaply keep track of some things to make this more
     // efficient?  E.g. how many sets and deletes we had in total perhaps.
     glass_tablesize_t changes = 0;
-    for (auto i : pos_changes) {
+    for (const auto& i : pos_changes) {
 	const map<Xapian::docid, string>& m = i.second;
-	for (auto j : m) {
+	for (const auto& j : m) {
 	    const string & s = j.second;
 	    if (!s.empty())
 		return true;
