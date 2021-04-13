@@ -570,7 +570,7 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
 
 	/** Square
 	 *
-	 *  idfn=log(N/Termfreq)^2
+	 *  idfn=(log(N/Termfreq))²
 	 */
 	SQUARE = 3,
 
@@ -686,7 +686,7 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
      *         which are indexed by the term t.
      *     @li 'p': Prob    idfn=log((N-Termfreq)/Termfreq)
      *     @li 'f': Freq    idfn=1/Termfreq
-     *     @li 's': Squared idfn=log(N/Termfreq)^2
+     *     @li 's': Squared idfn=(log(N/Termfreq))²
      *     @li 'P': Pivoted idfn=log((N+1)/Termfreq)
      *
      * @li The third and the final character indicates the normalization for
@@ -731,7 +731,7 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
      *         which are indexed by the term t.
      *     @li 'p': Prob    idfn=log((N-Termfreq)/Termfreq)
      *     @li 'f': Freq    idfn=1/Termfreq
-     *     @li 's': Squared idfn=log(N/Termfreq)^2
+     *     @li 's': Squared idfn=(log(N/Termfreq))²
      *     @li 'P': Pivoted idfn=log((N+1)/Termfreq)
      *
      * @li The third and the final character indicates the normalization for
