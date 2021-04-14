@@ -41,7 +41,11 @@ Inverter::store_positions(const GlassPositionListTable & position_table,
 {
     string s;
     position_table.pack(s, posvec);
-    if (modifying) {
+    if (modifying && has_positions_cache != 0) {
+	// If we add positions we must then have positions, but if we remove
+	// positions we don't know if we then have them or not.
+	has_positions_cache = s.empty() ? -1 : 1;
+
 	auto i = pos_changes.find(tname);
 	if (i != pos_changes.end()) {
 	    map<Xapian::docid, string> & m = i->second;
@@ -58,6 +62,9 @@ Inverter::store_positions(const GlassPositionListTable & position_table,
 	    // Identical to existing entry on disk.
 	    return;
 	}
+    } else {
+	// If we add positions, we must then have positions.
+	if (!s.empty()) has_positions_cache = 1;
     }
     set_positionlist(did, tname, s);
 }
@@ -98,6 +105,7 @@ Inverter::set_positionlist(Xapian::docid did,
 			   const string & term,
 			   const string & s)
 {
+    has_positions_cache = s.empty() ? -1 : 1;
     pos_changes.insert(make_pair(term, map<Xapian::docid, string>()))
 	.first->second[did] = s;
 }
@@ -128,24 +136,24 @@ Inverter::get_positionlist(Xapian::docid did,
 bool
 Inverter::has_positions(const GlassPositionListTable & position_table) const
 {
-    if (pos_changes.empty())
-	return !position_table.empty();
-
-    // FIXME: Can we cheaply keep track of some things to make this more
-    // efficient?  E.g. how many sets and deletes we had in total perhaps.
-    glass_tablesize_t changes = 0;
-    for (const auto& i : pos_changes) {
-	const map<Xapian::docid, string>& m = i.second;
-	for (const auto& j : m) {
-	    const string & s = j.second;
-	    if (!s.empty())
-		return true;
-	    ++changes;
+    if (has_positions_cache < 0) {
+	// FIXME: Can we cheaply keep track of some things to make this more
+	// efficient?  E.g. how many sets and deletes we had in total perhaps.
+	glass_tablesize_t changes = 0;
+	for (const auto& i : pos_changes) {
+	    const map<Xapian::docid, string>& m = i.second;
+	    for (const auto& j : m) {
+		const string & s = j.second;
+		if (!s.empty())
+		    return true;
+		++changes;
+	    }
 	}
-    }
 
-    // We have positions unless all the existing entries are removed.
-    return changes != position_table.get_entry_count();
+	// We have positions unless all the existing entries are removed.
+	has_positions_cache = (changes != position_table.get_entry_count());
+    }
+    return has_positions_cache;
 }
 
 void
@@ -231,4 +239,5 @@ Inverter::flush_pos_lists(GlassPositionListTable & table)
 	}
     }
     pos_changes.clear();
+    has_positions_cache = -1;
 }
