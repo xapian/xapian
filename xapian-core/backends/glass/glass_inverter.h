@@ -114,6 +114,14 @@ class Inverter {
     /// Buffered changes to postlists.
     std::map<std::string, PostingChanges> postlist_changes;
 
+    /** Cached answer to Inverter::has_positions().
+     *
+     *  -1: needs calculating
+     *   0: false
+     *   1: true
+     */
+    mutable int has_positions_cache = -1;
+
     /// Buffered changes to positional data.
     std::map<std::string, std::map<Xapian::docid, std::string>> pos_changes;
 
@@ -188,6 +196,7 @@ class Inverter {
 	doclen_changes.clear();
 	postlist_changes.clear();
 	pos_changes.clear();
+	has_positions_cache = -1;
     }
 
     void set_doclength(Xapian::docid did, Xapian::termcount doclen, bool add) {
