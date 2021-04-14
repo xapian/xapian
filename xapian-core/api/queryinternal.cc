@@ -1756,7 +1756,7 @@ QueryFilter::postlist_sub_and_like(AndContext& ctx, QueryOptimiser * qopt, doubl
 void
 QueryWindowed::postlist_windowed(Query::op op, AndContext& ctx, QueryOptimiser * qopt, double factor) const
 {
-    if (!qopt->full_db_has_positions) {
+    if (!qopt->full_db_has_positions()) {
 	// No positional data anywhere, so just handle as AND.
 	QueryAndLike::postlist_sub_and_like(ctx, qopt, factor);
 	return;
