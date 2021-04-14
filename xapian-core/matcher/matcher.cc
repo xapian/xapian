@@ -176,7 +176,6 @@ Matcher::for_all_remotes(Action action)
 #endif
 
 Matcher::Matcher(const Xapian::Database& db_,
-		 bool full_db_has_positions_,
 		 const Xapian::Query& query_,
 		 Xapian::termcount query_length,
 		 const Xapian::RSet* rset,
@@ -193,7 +192,7 @@ Matcher::Matcher(const Xapian::Database& db_,
 		 bool sort_val_reverse,
 		 double time_limit,
 		 const vector<opt_intrusive_ptr<Xapian::MatchSpy>>& matchspies)
-    : db(db_), query(query_), full_db_has_positions(full_db_has_positions_)
+    : db(db_), query(query_)
 {
     // An empty query should get handled higher up.
     Assert(!query.empty());
@@ -227,8 +226,7 @@ Matcher::Matcher(const Xapian::Database& db_,
 			      n_shards == 1 ? percent_threshold : 0,
 			      weight_threshold,
 			      wtscheme,
-			      subrsets[i], matchspies,
-			      full_db_has_positions);
+			      subrsets[i], matchspies);
 	    remotes.emplace_back(new RemoteSubMatch(as_rem, i));
 	    continue;
 	}
@@ -250,8 +248,7 @@ Matcher::Matcher(const Xapian::Database& db_,
 	    locals.resize(i);
 	locals.emplace_back(new LocalSubMatch(subdb, query, query_length,
 					      wtscheme,
-					      i,
-					      full_db_has_positions));
+					      i));
 	subdb->readahead_for_query(query);
     }
 

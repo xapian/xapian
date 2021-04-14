@@ -552,8 +552,9 @@ RemoteServer::msg_query(const string &message_in)
 	throw Xapian::NetworkError("bad message (sort_value_forward)");
     }
 
-    bool full_db_has_positions;
-    if (!unpack_bool(&p, p_end, &full_db_has_positions)) {
+    // FIXME: Remove on next protocol bump.
+    bool dummy;
+    if (!unpack_bool(&p, p_end, &dummy)) {
 	throw Xapian::NetworkError("bad message (full_db_has_positions)");
     }
 
@@ -616,7 +617,7 @@ RemoteServer::msg_query(const string &message_in)
     }
 
     Xapian::Weight::Internal local_stats;
-    Matcher matcher(*db, full_db_has_positions,
+    Matcher matcher(*db,
 		    query, qlen, &rset, local_stats, *wt,
 		    false,
 		    collapse_key, collapse_max,

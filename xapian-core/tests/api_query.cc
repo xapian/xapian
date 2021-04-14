@@ -1028,24 +1028,37 @@ DEFINE_TESTCASE(subdbwithoutpos1, generated) {
     Xapian::Database db(get_database("apitest_simpledata"));
     TEST(db.has_positions());
 
-    Xapian::Query q(Xapian::Query::OP_PHRASE,
-		    Xapian::Query("this"),
-		    Xapian::Query("paragraph"));
+    Xapian::Query q_near(Xapian::Query::OP_NEAR,
+			 Xapian::Query("this"),
+			 Xapian::Query("paragraph"));
+
+    Xapian::Query q_phrase(Xapian::Query::OP_PHRASE,
+			   Xapian::Query("this"),
+			   Xapian::Query("paragraph"));
 
     Xapian::Enquire enq1(db);
-    enq1.set_query(q);
+    enq1.set_query(q_near);
     Xapian::MSet mset1 = enq1.get_mset(0, 10);
+    TEST_EQUAL(mset1.size(), 3);
+
+    enq1.set_query(q_phrase);
+    mset1 = enq1.get_mset(0, 10);
     TEST_EQUAL(mset1.size(), 3);
 
     Xapian::Database db2 =
 	get_database("subdbwithoutpos1", gen_subdbwithoutpos1_db);
     TEST(!db2.has_positions());
 
-    // If a database has no positional info, OP_PHRASE -> OP_AND.
+    // If a database has no positional info, we used to map OP_PHRASE and
+    // OP_NEAR to OP_AND, but since 1.5.0 we no longer do.
     Xapian::Enquire enq2(db2);
-    enq2.set_query(q);
+    enq2.set_query(q_near);
     Xapian::MSet mset2 = enq2.get_mset(0, 10);
-    TEST_EQUAL(mset2.size(), 1);
+    TEST_EQUAL(mset2.size(), 0);
+
+    enq2.set_query(q_phrase);
+    mset2 = enq2.get_mset(0, 10);
+    TEST_EQUAL(mset2.size(), 0);
 
     // If one sub-database in a combined database has no positional info but
     // other sub-databases do, then we shouldn't convert OP_PHRASE to OP_AND
@@ -1054,15 +1067,23 @@ DEFINE_TESTCASE(subdbwithoutpos1, generated) {
     TEST(db.has_positions());
 
     Xapian::Enquire enq3(db);
-    enq3.set_query(q);
+    enq3.set_query(q_near);
     Xapian::MSet mset3 = enq3.get_mset(0, 10);
     TEST_EQUAL(mset3.size(), 3);
     // Regression test for bug introduced in 1.4.3 which led to a division by
     // zero and then (at least on Linux) we got 1% here.
     TEST_EQUAL(mset3[0].get_percent(), 100);
 
+    enq3.set_query(q_phrase);
+    mset3 = enq3.get_mset(0, 10);
+    TEST_EQUAL(mset3.size(), 3);
+    // Regression test for bug introduced in 1.4.3 which led to a division by
+    // zero and then (at least on Linux) we got 1% here.
+    TEST_EQUAL(mset3[0].get_percent(), 100);
+
     // Regression test for https://trac.xapian.org/ticket/752
-    enq3.set_query((Xapian::Query("this") & q) | Xapian::Query("wibble"));
+    auto q = (Xapian::Query("this") & q_phrase) | Xapian::Query("wibble");
+    enq3.set_query(q);
     mset3 = enq3.get_mset(0, 10);
     TEST_EQUAL(mset3.size(), 4);
 }

@@ -2399,11 +2399,6 @@ QueryFilter::postlist_sub_and_like(AndContext& ctx, QueryOptimiser * qopt, doubl
 bool
 QueryWindowed::postlist_windowed(Query::op op, AndContext& ctx, QueryOptimiser * qopt, double factor) const
 {
-    if (!qopt->full_db_has_positions) {
-	// No positional data anywhere, so just handle as AND.
-	return QueryAndLike::postlist_sub_and_like(ctx, qopt, factor);
-    }
-
     if (!qopt->db.has_positions()) {
 	// No positions in this subdatabase so this matches nothing, which
 	// means the whole andcontext matches nothing.

@@ -58,8 +58,6 @@ class QueryOptimiser {
 
     bool in_synonym;
 
-    bool full_db_has_positions;
-
     Xapian::doccount shard_index;
 
     const Xapian::Database::Internal & db;
@@ -71,12 +69,10 @@ class QueryOptimiser {
     QueryOptimiser(const Xapian::Database::Internal & db_,
 		   LocalSubMatch & localsubmatch_,
 		   PostListTree * matcher_,
-		   Xapian::doccount shard_index_,
-		   bool full_db_has_positions_)
+		   Xapian::doccount shard_index_)
 	: localsubmatch(localsubmatch_), total_subqs(0),
 	  hint(0), hint_owned(false),
 	  need_positions(false), in_synonym(false),
-	  full_db_has_positions(full_db_has_positions_),
 	  shard_index(shard_index_),
 	  db(db_), db_size(db.get_doccount()),
 	  matcher(matcher_) { }

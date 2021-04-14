@@ -184,7 +184,6 @@ class RemoteDatabase : public Xapian::Database::Internal {
      * @param wtscheme			Weighting scheme.
      * @param omrset			The rset.
      * @param matchspies                The matchspies to use.
-     * @param full_db_has_positions	Does the full DB have positions?
      */
     void set_query(const Xapian::Query& query,
 		   Xapian::termcount qlen,
@@ -198,8 +197,7 @@ class RemoteDatabase : public Xapian::Database::Internal {
 		   int percent_threshold, double weight_threshold,
 		   const Xapian::Weight& wtscheme,
 		   const Xapian::RSet &omrset,
-		   const std::vector<opt_ptr_spy>& matchspies,
-		   bool full_db_has_positions) const;
+		   const std::vector<opt_ptr_spy>& matchspies) const;
 
     /** Get the underlying fd this remote connection reads from.
      *
