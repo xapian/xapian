@@ -118,6 +118,15 @@ load
 lower
 	lowercase the text (useful for generating boolean terms)
 
+ltrim[=CHARACTERSTOTRIM]
+        remove leading characters from the text which are in
+        ``CHARACTERSTOTRIM`` (default: space, tab, formfeed, vertical tab,
+        carriage return, linefeed).
+
+        Currently only ASCII characters are supported in ``CHARACTERSTOTRIM``.
+
+        See also ``rtrim``, ``squash`` and ``trim``.
+
 parsedate=FORMAT
         parse the text as a date string using ``strptime()`` (or C++11's
         ``std::get_time()`` on platforms without ``strptime()``) with the
@@ -138,6 +147,15 @@ parsedate=FORMAT
 
         ``parsedate`` was added in Omega 1.4.6.
 
+rtrim[=CHARACTERSTOTRIM]
+        remove trailing characters from the text which are in
+        ``CHARACTERSTOTRIM`` (default: space, tab, formfeed, vertical tab,
+        carriage return, linefeed).
+
+        Currently only ASCII characters are supported in ``CHARACTERSTOTRIM``.
+
+        See also ``ltrim``, ``squash`` and ``trim``.
+
 spell
         Generate spelling correction data for any ``index`` or ``indexnopos``
         actions in the remainder of this list of actions.
@@ -154,6 +172,26 @@ split=DELIMITER[,OPERATION]
 
         If you want to specify ``,`` for delimiter, you need to quote it, e.g.
         ``split=",",dedup``.
+
+squash[=CHARACTERSTOTRIM]
+        replace runs of one or more characters from ``CHARACTERSTOTRIM`` in the
+        text with a single space.  Leading and trailing runs are removed entirely.
+
+        ``CHARACTERSTOTRIM`` defaults to: space, tab, formfeed, vertical tab,
+        carriage return, linefeed).
+
+        Currently only ASCII characters are supported in ``CHARACTERSTOTRIM``.
+
+        See also ``ltrim``, ``rtrim`` and ``trim``.
+
+trim[=CHARACTERSTOTRIM]
+        remove leading and trailing characters from the text which are in
+        ``CHARACTERSTOTRIM`` (default: space, tab, formfeed, vertical tab,
+        carriage return, linefeed).
+
+        Currently only ASCII characters are supported in ``CHARACTERSTOTRIM``.
+
+        See also ``ltrim``, ``rtrim`` and ``squash``.
 
 truncate=LENGTH
 	truncate to at most LENGTH bytes, but avoid chopping off a word (useful

@@ -80,10 +80,34 @@ prefix_needs_colon(const string & prefix, unsigned ch)
 }
 
 const char * action_names[] = {
-    "bad", "new",
-    "boolean", "date", "field", "gap", "hash", "hextobin", "index",
-    "indexnopos", "load", "lower", "parsedate", "spell", "split", "truncate",
-    "unhtml", "unique", "value", "valuenumeric", "valuepacked", "weight"
+    // Actions used internally:
+    "bad",
+    "new",
+    // Actual actions:
+    "boolean",
+    "date",
+    "field",
+    "gap",
+    "hash",
+    "hextobin",
+    "index",
+    "indexnopos",
+    "load",
+    "lower",
+    "ltrim",
+    "parsedate",
+    "rtrim",
+    "spell",
+    "split",
+    "squash",
+    "trim",
+    "truncate",
+    "unhtml",
+    "unique",
+    "value",
+    "valuenumeric",
+    "valuepacked",
+    "weight"
 };
 
 // For debugging:
@@ -92,10 +116,34 @@ const char * action_names[] = {
 class Action {
   public:
     typedef enum {
-	BAD, NEW,
-	BOOLEAN, DATE, FIELD, GAP, HASH, HEXTOBIN, INDEX, INDEXNOPOS, LOAD,
-	LOWER, PARSEDATE, SPELL, SPLIT, TRUNCATE, UNHTML, UNIQUE, VALUE,
-	VALUENUMERIC, VALUEPACKED, WEIGHT
+	// Actions used internally:
+	BAD,
+	NEW,
+	// Actual actions:
+	BOOLEAN,
+	DATE,
+	FIELD,
+	GAP,
+	HASH,
+	HEXTOBIN,
+	INDEX,
+	INDEXNOPOS,
+	LOAD,
+	LOWER,
+	LTRIM,
+	PARSEDATE,
+	RTRIM,
+	SPELL,
+	SPLIT,
+	SQUASH,
+	TRIM,
+	TRUNCATE,
+	UNHTML,
+	UNIQUE,
+	VALUE,
+	VALUENUMERIC,
+	VALUEPACKED,
+	WEIGHT
     } type;
     enum { SPLIT_NONE, SPLIT_DEDUP, SPLIT_SORT, SPLIT_PREFIXES };
   private:
@@ -134,6 +182,34 @@ operator!=(const Action& a, Action::type t) { return !(a == t); }
 
 inline bool
 operator!=(Action::type t, const Action& a) { return !(t == a); }
+
+static void
+ltrim(string& s, const string& chars)
+{
+    auto i = s.find_first_not_of(chars);
+    if (i) s.erase(0, i);
+}
+
+static void
+rtrim(string& s, const string& chars)
+{
+    s.resize(s.find_last_not_of(chars) + 1);
+}
+
+static void
+squash(string& s, const string& chars)
+{
+    string output;
+    output.reserve(s.size());
+    string::size_type i = 0;
+    while ((i = s.find_first_not_of(chars, i)) != string::npos) {
+	auto j = s.find_first_of(chars, i);
+	if (!output.empty()) output += ' ';
+	output.append(s, i, j - i);
+	i = j;
+    }
+    s = std::move(output);
+}
 
 enum diag_type { DIAG_ERROR, DIAG_WARN, DIAG_NOTE };
 
@@ -287,12 +363,21 @@ parse_index_script(const string &filename)
 			    code = Action::LOWER;
 			} else if (action == "load") {
 			    code = Action::LOAD;
+			} else if (action == "ltrim") {
+			    code = Action::LTRIM;
+			    max_args = 1;
 			}
 			break;
 		    case 'p':
 			if (action == "parsedate") {
 			    code = Action::PARSEDATE;
 			    min_args = max_args = 1;
+			}
+			break;
+		    case 'r':
+			if (action == "rtrim") {
+			    code = Action::RTRIM;
+			    max_args = 1;
 			}
 			break;
 		    case 's':
@@ -302,6 +387,9 @@ parse_index_script(const string &filename)
 			    code = Action::SPLIT;
 			    min_args = 1;
 			    max_args = 2;
+			} else if (action == "squash") {
+			    code = Action::SQUASH;
+			    max_args = 1;
 			}
 			break;
 		    case 't':
@@ -309,6 +397,9 @@ parse_index_script(const string &filename)
 			    code = Action::TRUNCATE;
 			    min_args = max_args = 1;
 			    takes_integer_argument = true;
+			} else if (action == "trim") {
+			    code = Action::TRIM;
+			    max_args = 1;
 			}
 			break;
 		    case 'u':
@@ -634,6 +725,24 @@ bad_escaping:
 			}
 			break;
 		    }
+		    case Action::LTRIM:
+		    case Action::RTRIM:
+		    case Action::SQUASH:
+		    case Action::TRIM:
+			for (unsigned char ch : val) {
+			    if (ch >= 0x80) {
+				auto column = actions.back().get_pos() +
+					      strlen(action_names[code]) + 1;
+				report_location(DIAG_ERROR, filename, line_no,
+						column);
+				cerr << "Index action '" << action_names[code]
+				     << "' only support ASCII characters "
+					"currently\n";
+				exit(1);
+			    }
+			}
+			actions.emplace_back(code, action_pos, val);
+			break;
 		    case Action::BOOLEAN:
 			boolmap[val] = Action::BOOLEAN;
 			/* FALLTHRU */
@@ -654,16 +763,28 @@ bad_escaping:
 			 << min_args << " arguments" << endl;
 		    exit(1);
 		}
-		if (code == Action::INDEX || code == Action::INDEXNOPOS) {
-		    useless_weight_pos = string::npos;
-		    actions.emplace_back(code, action_pos, "", weight);
-		} else if (code == Action::GAP) {
-		    actions.emplace_back(code, action_pos, "", 100);
-		} else if (code == Action::HASH) {
-		    actions.emplace_back(code, action_pos, "",
-					 MAX_SAFE_TERM_LENGTH - 1);
-		} else {
-		    actions.emplace_back(code, action_pos);
+		switch (code) {
+		    case Action::INDEX:
+		    case Action::INDEXNOPOS:
+			useless_weight_pos = string::npos;
+			actions.emplace_back(code, action_pos, "", weight);
+			break;
+		    case Action::GAP:
+			actions.emplace_back(code, action_pos, "", 100);
+			break;
+		    case Action::HASH:
+			actions.emplace_back(code, action_pos, "",
+					     MAX_SAFE_TERM_LENGTH - 1);
+			break;
+		    case Action::LTRIM:
+		    case Action::RTRIM:
+		    case Action::SQUASH:
+		    case Action::TRIM:
+			actions.emplace_back(code, action_pos, " \t\f\v\r\n");
+			break;
+		    default:
+			actions.emplace_back(code, action_pos);
+			break;
 		}
 	    }
 	    j = i;
@@ -681,8 +802,12 @@ bad_escaping:
 		case Action::HASH:
 		case Action::HEXTOBIN:
 		case Action::LOWER:
+		case Action::LTRIM:
 		case Action::PARSEDATE:
+		case Action::RTRIM:
 		case Action::SPELL:
+		case Action::SQUASH:
+		case Action::TRIM:
 		case Action::TRUNCATE:
 		case Action::UNHTML:
 		    done = false;
@@ -832,6 +957,19 @@ badhex:
 	    }
 	    case Action::LOWER:
 		value = Xapian::Unicode::tolower(value);
+		break;
+	    case Action::LTRIM:
+		ltrim(value, action.get_string_arg());
+		break;
+	    case Action::RTRIM:
+		rtrim(value, action.get_string_arg());
+		break;
+	    case Action::TRIM:
+		rtrim(value, action.get_string_arg());
+		ltrim(value, action.get_string_arg());
+		break;
+	    case Action::SQUASH:
+		squash(value, action.get_string_arg());
 		break;
 	    case Action::LOAD: {
 		// If there's no input, just issue a warning.
