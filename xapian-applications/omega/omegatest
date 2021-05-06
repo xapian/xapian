@@ -1003,6 +1003,36 @@ echo hex=404 |\
       failed=`expr $failed + 1`; }
 testcase '7g|404' DOCIDS='1 2'
 
+# Feature tests for squash and ltrim/rtrim/trim.
+printf 'squash : squash field\nltrim : ltrim field\nrtrim : rtrim field\ntrim : trim field\n' > "$TEST_INDEXSCRIPT"
+rm -rf "$TEST_DB"
+whitespace_test=`printf "\t lots\v\fof\t whitespace\f "`
+$SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null <<END
+squash=$whitespace_test
+ltrim=$whitespace_test
+rtrim=$whitespace_test
+trim=$whitespace_test
+
+squash=a b
+ltrim=a b
+rtrim=a b
+trim=a b
+
+squash=xyz
+ltrim=xyz
+rtrim=xyz
+trim=xyz
+END
+printf '$json{$field{$cgi{F},$cgi{ID}}}' > "$TEST_TEMPLATE"
+testcase 'lots of whitespace' F=squash ID=1
+testcase 'lots\u000b\fof\t whitespace\f ' F=ltrim ID=1
+testcase '\t lots\u000b\fof\t whitespace' F=rtrim ID=1
+testcase 'lots\u000b\fof\t whitespace' F=trim ID=1
+for f in squash ltrim rtrim trim ; do
+  testcase 'a b' F=$f ID=2
+  testcase 'xyz' F=$f ID=3
+done
+
 # Test useless action warnings.
 printf 'foo : index weight=2' > "$TEST_INDEXSCRIPT"
 rm -rf "$TEST_DB"
