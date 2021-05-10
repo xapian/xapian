@@ -4,10 +4,8 @@
 /Makefile
 /.deps
 /.libs
-/*.pyc
 /_xapian.la
 /xapian
-/modern
 /except.i
 /doccomments.i
 /doctrees
@@ -18,7 +16,6 @@
 /db_test_get_uuid2
 /dbs_replication
 /db_test_value_mods
-/__pycache__
 /*test.py.log
 /*test.py.trs
 /test-suite.log
