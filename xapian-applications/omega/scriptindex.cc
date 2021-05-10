@@ -268,7 +268,8 @@ parse_index_script(const string &filename)
     }
     string line;
     size_t line_no = 0;
-    bool had_unique = false;
+    // Line number where we saw a `unique` action, or -1 if we haven't.
+    int unique_line_no = -1;
     while (getline(script, line)) {
 	++line_no;
 	vector<string> fields;
@@ -691,14 +692,17 @@ bad_escaping:
 			actions.emplace_back(code, action_pos, val);
 			break;
 		    case Action::UNIQUE:
-			if (had_unique) {
+			if (unique_line_no >= 0) {
 			    report_location(DIAG_ERROR, filename, line_no,
 					    action_pos);
 			    cerr << "Index action 'unique' used more than once"
 				 << endl;
+			    report_location(DIAG_NOTE, filename,
+					    unique_line_no);
+			    cerr << "Previously used here" << endl;
 			    exit(1);
 			}
-			had_unique = true;
+			unique_line_no = line_no;
 			if (boolmap.find(val) == boolmap.end())
 			    boolmap[val] = Action::UNIQUE;
 			actions.emplace_back(code, action_pos, val);
