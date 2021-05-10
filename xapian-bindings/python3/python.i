@@ -146,12 +146,19 @@ class XapianSWIG_Python_Thread_Block {
 class XapianSWIG_Python_Thread_Allow {
     bool status;
   public:
-    XapianSWIG_Python_Thread_Allow() : status(PyEval_ThreadsInitialized()) {
-	if (status) {
-	    swig_pythreadstate_ensure_init();
-	    if (swig_pythreadstate_set(PyEval_SaveThread()))
-		Py_FatalError("swig_pythreadstate set in XapianSWIG_Python_Thread_Allow ctor");
+    XapianSWIG_Python_Thread_Allow() : status(true) {
+#if PY_VERSION_HEX < 0x03070000
+	// Since 3.7, Python initialises the GIL in PyInitialize() so
+	// PyEval_ThreadsInitialized() is no longer useful and was
+	// deprecated in 3.9.
+	if (!PyEval_ThreadsInitialized()) {
+	    status = false;
+	    return;
 	}
+#endif
+	swig_pythreadstate_ensure_init();
+	if (swig_pythreadstate_set(PyEval_SaveThread()))
+	    Py_FatalError("swig_pythreadstate set in XapianSWIG_Python_Thread_Allow ctor");
     }
     void end() {
 	if (status) {
