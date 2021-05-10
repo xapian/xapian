@@ -2,7 +2,7 @@
 %{
 /* python.i: SWIG interface file for the Python bindings
  *
- * Copyright (C) 2011,2012,2013,2014,2015,2016,2018,2019 Olly Betts
+ * Copyright (C) 2011,2012,2013,2014,2015,2016,2018,2019,2021 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -58,9 +58,12 @@ development files, or again online at <https://xapian.org/docs/>.
 # pragma clang diagnostic pop
 #endif
 
-/* Override SWIG's standard GIL locking machinery - we want to avoid the
- * overhead of thread locking when the user's code isn't using threads,
- * and to handle the GIL in a way which also works in sub-interpreters.
+/* Override SWIG's standard GIL locking machinery - we want to handle the GIL
+ * in a way which also works in sub-interpreters.
+ *
+ * For Python < 3.7 we can also avoid the overhead of thread locking when the
+ * user's code isn't using threads (since 3.7, Python always initialises
+ * threads.)
  */
 #define SWIG_PYTHON_NO_USE_GIL
 
@@ -117,13 +120,17 @@ class XapianSWIG_Python_Thread_Block {
     bool status;
   public:
     XapianSWIG_Python_Thread_Block() : status(false) {
-	if (PyEval_ThreadsInitialized()) {
-	    swig_pythreadstate_ensure_init();
-	    PyThreadState * ts = swig_pythreadstate_reset();
-	    if (ts) {
-		status = true;
-		PyEval_RestoreThread(ts);
-	    }
+#if PY_VERSION_HEX < 0x03070000
+	// Since 3.7, Python initialises the GIL in PyInitialize() so
+	// PyEval_ThreadsInitialized() is no longer useful and was
+	// deprecated in 3.9.
+	if (!PyEval_ThreadsInitialized()) return;
+#endif
+	swig_pythreadstate_ensure_init();
+	PyThreadState* ts = swig_pythreadstate_reset();
+	if (ts) {
+	    status = true;
+	    PyEval_RestoreThread(ts);
 	}
     }
     void end() {
