@@ -100,11 +100,13 @@ CLEANFILES = \
     xapian/__pycache__/__init__.@PYTHON3_CACHE_OPT1_EXT@ \
     $(srcdir)/*.pyc
 
-# Clean the xapian directory which we created, if it's empty, and any
-# databases created by test cases.
+# Clean the xapian directory which we created and its __pycache__ subdirectory
+# (if they're empty), output from sphinx, and any databases created by test
+# cases.
 clean-local:
+	-rmdir xapian/__pycache__
 	-rmdir xapian
-	rm -rf db_test_* dbs_replication
+	rm -rf doctrees docs/html db_test_* dbs_replication
 
 if MAINTAINER_MODE
 BUILT_SOURCES += except.i doccomments.i
