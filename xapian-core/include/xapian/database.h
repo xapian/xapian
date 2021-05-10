@@ -880,6 +880,22 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 	}
 #endif
 
+	/** Add shards from another WritableDatabase.
+	 *
+	 *  Any shards in @a other are added to the list of shards in this
+	 *  object.  The shards are reference counted and also remain in
+	 *  @a other.
+	 *
+	 *  @param other Another WritableDatabase object to add shards from
+	 */
+	void add_database(const WritableDatabase& other) {
+	    // This method is provided mainly so that adding a Database to a
+	    // WritableDatabase is a compile-time error - prior to 1.4.19, it
+	    // would essentially act as a "black-hole" shard which discarded
+	    // any changes made to it.
+	    Database::add_database(other);
+	}
+
 	/** Commit any pending modifications made to the database.
 	 *
 	 *  For efficiency reasons, when performing multiple updates to a
