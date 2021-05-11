@@ -774,6 +774,62 @@ DEFINE_TESTCASE(editdist1, backend) {
     }
 }
 
+static const
+editdist_testcase editdist2_testcases[] = {
+    { u8"\U00010000",	1, 8, 'E', { u8"a\U00010000", 0, 0, 0 } },
+};
+
+/// Test Unicode edit distance calculations.
+DEFINE_TESTCASE(editdist2, generated) {
+    Xapian::Database db = get_database("editdist2",
+				       [](Xapian::WritableDatabase& wdb,
+					  const string&)
+				       {
+					   Xapian::Document doc;
+					   doc.add_term(u8"a\U00010000");
+					   wdb.add_document(doc);
+				       });
+    Xapian::Enquire enq(db);
+    const Xapian::Query::op o = Xapian::Query::OP_EDIT_DISTANCE;
+
+    for (auto&& test : editdist2_testcases) {
+	tout << test.target << endl;
+	auto tend = test.terms + 4;
+	while (tend > test.terms && tend[-1] == NULL) --tend;
+	bool expect_exception = (tend - test.terms == 4 && tend[-1][0] == '\0');
+	Xapian::Query q;
+	int max_type;
+	switch (test.max_type) {
+	    case 'E':
+		max_type = Xapian::Query::WILDCARD_LIMIT_ERROR;
+		break;
+	    case 'F':
+		max_type = Xapian::Query::WILDCARD_LIMIT_FIRST;
+		break;
+	    case 'M':
+		max_type = Xapian::Query::WILDCARD_LIMIT_MOST_FREQUENT;
+		break;
+	    default:
+		FAIL_TEST("Unexpected max_type value");
+	}
+	q = Xapian::Query(o, test.target, test.max_expansion, max_type,
+			  q.OP_SYNONYM, test.edit_distance);
+	enq.set_query(q);
+	tout << q.get_description() << endl;
+	try {
+	    Xapian::MSet mset = enq.get_mset(0, 10);
+	    TEST(!expect_exception);
+	    q = Xapian::Query(q.OP_SYNONYM, test.terms, tend);
+	    enq.set_query(q);
+	    Xapian::MSet mset2 = enq.get_mset(0, 10);
+	    TEST_EQUAL(mset.size(), mset2.size());
+	    TEST(mset_range_is_same(mset, 0, mset2, 0, mset.size()));
+	} catch (const Xapian::WildcardError&) {
+	    TEST(expect_exception);
+	}
+    }
+}
+
 DEFINE_TESTCASE(dualprefixeditdist1, generated) {
     Xapian::Database db = get_database("dualprefixeditdist1",
 				       [](Xapian::WritableDatabase& wdb,

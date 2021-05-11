@@ -135,7 +135,7 @@ class EditDistanceCalculator {
 	    // Candidate too short.
 	    return INT_MAX;
 	}
-	if (target.size() + max_distance < candidate.size() * 3 / 4) {
+	if (target.size() + max_distance < (candidate.size() + 3) / 4) {
 	    // Candidate too long.
 	    return INT_MAX;
 	}
