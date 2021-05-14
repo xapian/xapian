@@ -674,6 +674,17 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
 	 */
 	FLAG_ACCUMULATE = 65536,
 
+	/** Produce a query which doesn't use positional information.
+	 *
+	 *  With this flag enabled, no positional information will be used
+	 *  and any query operations which would use it are replaced by
+	 *  the nearest equivalent which doesn't (so phrase searches, NEAR
+	 *  and ADJ will result in OP_AND).
+	 *
+	 *  @since Added in Xapian 1.4.19.
+	 */
+	FLAG_NO_POSITIONS = 0x20000,
+
 	/** The default flags.
 	 *
 	 *  Used if you don't explicitly pass any to @a parse_query().
