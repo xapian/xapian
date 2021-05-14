@@ -203,11 +203,19 @@ class State {
 
   public:
     Query query;
-    const char * error;
+    const char* error = NULL;
     unsigned flags;
+    Query::op effective_default_op;
 
     State(QueryParser::Internal * qpi_, unsigned flags_)
-	: qpi(qpi_), error(NULL), flags(flags_) { }
+	: qpi(qpi_), flags(flags_), effective_default_op(qpi_->default_op)
+    {
+	if ((flags & QueryParser::FLAG_NO_POSITIONS)) {
+	    if (is_positional(effective_default_op)) {
+		effective_default_op = Query::OP_AND;
+		}
+	}
+    }
 
     string stem_term(const string &term) {
 	return qpi->stemmer(term);
@@ -248,7 +256,9 @@ class State {
 	return NULL;
     }
 
-    Query::op default_op() const { return qpi->default_op; }
+    Query::op default_op() const {
+	return effective_default_op;
+    }
 
     bool is_stopword(const Term *term) const {
 	return qpi->stopper.get() && (*qpi->stopper)(term->name);
@@ -1633,6 +1643,12 @@ reprocess:
 /// Some terms which form a positional sub-query.
 class Terms {
     vector<Term *> terms;
+
+    /** Window size.
+     *
+     *  size_t(-1) means don't use positional info (so an OP_AND query gets
+     *  created).
+     */
     size_t window;
 
     /** Keep track of whether the terms added all have the same list of
@@ -1651,8 +1667,18 @@ class Terms {
      */
     const vector<string>* prefixes;
 
+    Query opwindow_subq(Query::op op,
+			const vector<Query>& v,
+			Xapian::termcount w) const {
+	if (op == Query::OP_AND) {
+	    return Query(op, v.begin(), v.end());
+	}
+	return Query(op, v.begin(), v.end(), w);
+    }
+
     /// Convert to a query using the given operator and window size.
     Query * as_opwindow_query(Query::op op, Xapian::termcount w_delta) const {
+	if (window == size_t(-1)) op = Query::OP_AND;
 	Query * q = NULL;
 	size_t n_terms = terms.size();
 	Xapian::termcount w = w_delta + terms.size();
@@ -1664,8 +1690,7 @@ class Terms {
 		    for (Term* t : terms) {
 			subqs.push_back(Query(t->make_term(prefix), 1, t->pos));
 		    }
-		    add_to_query(q, Query::OP_OR,
-				 Query(op, subqs.begin(), subqs.end(), w));
+		    add_to_query(q, Query::OP_OR, opwindow_subq(op, subqs, w));
 		}
 	    }
 	} else {
@@ -1674,19 +1699,22 @@ class Terms {
 	    for (Term* t : terms) {
 		subqs.push_back(t->get_query());
 	    }
-	    q = new Query(op, subqs.begin(), subqs.end(), w);
+	    q = new Query(opwindow_subq(op, subqs, w));
 	}
 
 	delete this;
 	return q;
     }
 
-    Terms() : window(0), uniform_prefixes(true), prefixes(NULL) { }
+    explicit Terms(bool no_pos)
+	: window(no_pos ? size_t(-1) : 0),
+	  uniform_prefixes(true),
+	  prefixes(NULL) { }
 
   public:
     /// Factory function - ensures heap allocation.
-    static Terms* create() {
-	return new Terms();
+    static Terms* create(State* state) {
+	return new Terms(state->flags & QueryParser::FLAG_NO_POSITIONS);
     }
 
     ~Terms() {
@@ -2148,12 +2176,12 @@ compound_term(T) ::= CJKTERM(U). {
 %destructor phrase { delete $$; }
 
 phrase(P) ::= TERM(T). {
-    P = Terms::create();
+    P = Terms::create(state);
     P->add_positional_term(T);
 }
 
 phrase(P) ::= CJKTERM(T). {
-    P = Terms::create();
+    P = Terms::create(state);
     T->as_positional_cjk_term(P);
 }
 
@@ -2173,7 +2201,7 @@ phrase(P) ::= phrase(P) CJKTERM(T). {
 %destructor phrased_term { delete $$; }
 
 phrased_term(P) ::= TERM(T) PHR_TERM(U). {
-    P = Terms::create();
+    P = Terms::create(state);
     P->add_positional_term(T);
     P->add_positional_term(U);
 }
@@ -2207,7 +2235,7 @@ group(P) ::= group(P) EMPTY_GROUP_OK. {
 %destructor near_expr { delete $$; }
 
 near_expr(P) ::= TERM(T) NEAR(N) TERM(U). {
-    P = Terms::create();
+    P = Terms::create(state);
     P->add_positional_term(T);
     P->add_positional_term(U);
     if (N) {
@@ -2231,7 +2259,7 @@ near_expr(P) ::= near_expr(P) NEAR(N) TERM(T). {
 %destructor adj_expr { delete $$; }
 
 adj_expr(P) ::= TERM(T) ADJ(N) TERM(U). {
-    P = Terms::create();
+    P = Terms::create(state);
     P->add_positional_term(T);
     P->add_positional_term(U);
     if (N) {

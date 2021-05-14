@@ -3032,3 +3032,35 @@ DEFINE_TESTCASE(qp_stemsomefullpos, !backend) {
     TEST_EQUAL(qp.parse_query("terms NEAR testing").get_description(), "Query((Zterm@1 NEAR 11 Ztest@2))");
     TEST_EQUAL(qp.parse_query("terms ADJ testing").get_description(), "Query((Zterm@1 PHRASE 11 Ztest@2))");
 }
+
+DEFINE_TESTCASE(qp_nopos, !backend) {
+    static const test tests[] = {
+	{ "no pos anyway", "(no@1 OR pos@2 OR anyway@3)" },
+	{ "w ADJ x", "(w@1 AND x@2)" },
+	{ "\"phrase q\" OR A NEAR/4 B", "((phrase@1 AND q@2) OR (a@3 AND b@4))" },
+	// Check FLAG_NO_POSITIONS stays on if we reparse with fewer flags.
+	{ "a-b NEAR x", "((a@1 AND b@2) OR (near@3 OR x@4))" },
+    };
+    Xapian::QueryParser qp;
+    const auto flags = qp.FLAG_DEFAULT | qp.FLAG_NO_POSITIONS;
+    for (const test& p : tests) {
+	string expect, parsed;
+	if (p.expect)
+	    expect = p.expect;
+	else
+	    expect = "parse error";
+	try {
+	    Xapian::Query q = qp.parse_query(p.query, flags);
+	    parsed = q.get_description();
+	    expect = string("Query(") + expect + ')';
+	} catch (const Xapian::QueryParserError& e) {
+	    parsed = e.get_msg();
+	} catch (const Xapian::Error& e) {
+	    parsed = e.get_description();
+	} catch (...) {
+	    parsed = "Unknown exception!";
+	}
+	tout << "Query: " << p.query << '\n';
+	TEST_STRINGS_EQUAL(parsed, expect);
+    }
+}
