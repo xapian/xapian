@@ -1913,8 +1913,8 @@ QueryBranch::do_synonym(QueryOptimiser * qopt, double factor) const
     qopt->compound_weight = true;
     do_bool_or_like(ctx, qopt);
     PostList * pl = ctx.postlist();
-    if (!pl) return NULL;
     qopt->compound_weight = old_compound_weight;
+    if (!pl) return NULL;
 
     bool wdf_disjoint = false;
     Assert(!subqueries.empty());
