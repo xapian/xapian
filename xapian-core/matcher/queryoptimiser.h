@@ -56,7 +56,7 @@ class QueryOptimiser {
   public:
     bool need_positions;
 
-    bool in_synonym;
+    bool compound_weight;
 
     Xapian::doccount shard_index;
 
@@ -72,7 +72,7 @@ class QueryOptimiser {
 		   Xapian::doccount shard_index_)
 	: localsubmatch(localsubmatch_), total_subqs(0),
 	  hint(0), hint_owned(false),
-	  need_positions(false), in_synonym(false),
+	  need_positions(false), compound_weight(false),
 	  shard_index(shard_index_),
 	  db(db_), db_size(db.get_doccount()),
 	  matcher(matcher_) { }
@@ -91,14 +91,14 @@ class QueryOptimiser {
 			      Xapian::termcount wqf,
 			      double factor) {
 	return localsubmatch.open_post_list(term, wqf, factor, need_positions,
-					    in_synonym, this, false);
+					    compound_weight, this, false);
     }
 
     PostList * open_lazy_post_list(const std::string& term,
 				   Xapian::termcount wqf,
 				   double factor) {
 	return localsubmatch.open_post_list(term, wqf, factor, need_positions,
-					    in_synonym, this, true);
+					    compound_weight, this, true);
     }
 
     PostList * make_synonym_postlist(PostList * pl,
@@ -134,8 +134,8 @@ class QueryOptimiser {
 	}
     }
 
-    bool need_wdf_for_synonym() const {
-	return in_synonym && !localsubmatch.weight_needs_wdf();
+    bool need_wdf_for_compound_weight() const {
+	return compound_weight && !localsubmatch.weight_needs_wdf();
     }
 };
 

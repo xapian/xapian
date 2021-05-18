@@ -244,7 +244,7 @@ LocalSubMatch::open_post_list(const string& term,
 			      Xapian::termcount wqf,
 			      double factor,
 			      bool need_positions,
-			      bool in_synonym,
+			      bool compound_weight,
 			      QueryOptimiser * qopt,
 			      bool lazy_weight)
 {
@@ -259,7 +259,7 @@ LocalSubMatch::open_post_list(const string& term,
     } else {
 	weighted = (factor != 0.0);
 	if (!need_positions) {
-	    if ((!weighted && !in_synonym) ||
+	    if ((!weighted && !compound_weight) ||
 		!wt_factory.get_sumpart_needs_wdf_()) {
 		Xapian::doccount sub_tf;
 		db->get_freqs(term, &sub_tf, NULL);

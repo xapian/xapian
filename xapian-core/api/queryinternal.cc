@@ -1521,9 +1521,9 @@ QueryWildcard::postlist(QueryOptimiser * qopt, double factor) const
 	    op = Query::OP_OR;
 	}
 
-	bool old_in_synonym = qopt->in_synonym;
-	if (!old_in_synonym) {
-	    qopt->in_synonym = (op == Query::OP_SYNONYM);
+	bool old_compound_weight = qopt->compound_weight;
+	if (!old_compound_weight) {
+	    qopt->compound_weight = (op == Query::OP_SYNONYM);
 	}
 
 	BoolOrContext ctx(qopt, 0);
@@ -1533,7 +1533,7 @@ QueryWildcard::postlist(QueryOptimiser * qopt, double factor) const
 	    qopt->inc_total_subqs();
 	}
 
-	qopt->in_synonym = old_in_synonym;
+	qopt->compound_weight = old_compound_weight;
 
 	if (ctx.empty())
 	    RETURN(NULL);
@@ -1633,9 +1633,9 @@ QueryEditDistance::postlist(QueryOptimiser * qopt, double factor) const
 	    op = Query::OP_OR;
 	}
 
-	bool old_in_synonym = qopt->in_synonym;
-	if (!old_in_synonym) {
-	    qopt->in_synonym = (op == Query::OP_SYNONYM);
+	bool old_compound_weight = qopt->compound_weight;
+	if (!old_compound_weight) {
+	    qopt->compound_weight = (op == Query::OP_SYNONYM);
 	}
 
 	BoolOrContext ctx(qopt, 0);
@@ -1645,7 +1645,7 @@ QueryEditDistance::postlist(QueryOptimiser * qopt, double factor) const
 	    qopt->inc_total_subqs();
 	}
 
-	qopt->in_synonym = old_in_synonym;
+	qopt->compound_weight = old_compound_weight;
 
 	if (ctx.empty())
 	    RETURN(NULL);
@@ -1908,13 +1908,13 @@ QueryBranch::do_synonym(QueryOptimiser * qopt, double factor) const
 	return ctx.postlist();
     }
 
-    bool old_in_synonym = qopt->in_synonym;
-    Assert(!old_in_synonym);
-    qopt->in_synonym = true;
+    bool old_compound_weight = qopt->compound_weight;
+    Assert(!old_compound_weight);
+    qopt->compound_weight = true;
     do_bool_or_like(ctx, qopt);
     PostList * pl = ctx.postlist();
     if (!pl) return NULL;
-    qopt->in_synonym = old_in_synonym;
+    qopt->compound_weight = old_compound_weight;
 
     bool wdf_disjoint = false;
     Assert(!subqueries.empty());
@@ -2358,9 +2358,11 @@ QueryAndMaybe::postlist_sub_and_like(AndContext& ctx,
     // We only need to consider the right branch or branches if we're weighted
     // - an unweighted OP_AND_MAYBE can be replaced with its left branch.
     if (factor != 0.0) {
-	// Only keep zero-weight subqueries if we need their wdf for synonyms.
+	// Only keep zero-weight subqueries if we need their wdf because they're
+	// underneath a compound weight.
 	OrContext& maybe_ctx = ctx.get_maybe_ctx(subqueries.size() - 1);
-	do_or_like(maybe_ctx, qopt, factor, 0, 1, qopt->need_wdf_for_synonym());
+	bool need_wdf = qopt->need_wdf_for_compound_weight();
+	do_or_like(maybe_ctx, qopt, factor, 0, 1, need_wdf);
     }
     return true;
 }
