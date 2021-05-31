@@ -570,7 +570,7 @@ Using a Vagrant-driven Ubuntu virtual machine
 
 Note: Vagrant support is experimental. Please report bugs in the
 normal fashion, to https://trac.xapian.org/newticket, or ask for help
-on the #xapian IRC channel on Freenode.
+on the #xapian IRC channel on Libera.chat.
 
 If you have Vagrant (https://www.vagrantup.com/, tested on version
 1.5.2) and VirtualBox (https://www.virtualbox.org/, tested on version

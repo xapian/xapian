@@ -124,4 +124,4 @@ It would be really useful if you are able to supply some sample files with a lic
 
 You can read more about `how to contribute to Xapian <https://xapian-developer-guide.readthedocs.io/en/latest/contributing/index.html>`_.
 
-If you have problems you can ask for help by the `irc channel <https://webchat.freenode.net/?channels=%23xapian>`_ or the `mailing list <https://xapian.org/lists>`_.
+If you have problems you can ask for help on the `IRC channel or mailing list <https://xapian.org/lists>`_.
