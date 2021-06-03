@@ -2,7 +2,7 @@
 # Backport Debian source packages for Xapian.
 #
 # Copyright (C) 2004 Richard Boulton
-# Copyright (C) 2006-2020 Olly Betts
+# Copyright (C) 2006-2021 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -26,7 +26,7 @@ set -e
 
 MIRROR=http://httpredir.debian.org/debian/
 
-DEBIAN_CODENAMES='buster stretch jessie'
+DEBIAN_CODENAMES='buster stretch'
 UBUNTU_CODENAMES='eoan bionic xenial trusty'
 UBUNTU_FIRST=`echo "$UBUNTU_CODENAMES"|sed 's/.* //'`
 
@@ -121,9 +121,6 @@ build_it() {
 
   overrides=
   case $PKG:$CODENAME:$VERSION in
-    xapian-bindings:jessie:*)
-      # Make sure we add python-xapian to debian/control.
-      overrides='PYTHON_VERSIONS=dummy' ;;
     xapian-bindings:trusty:*)
       # Make sure we add python-xapian and python3-xapian to debian/control.
       overrides='PYTHON_VERSIONS=dummy PYTHON3_VERSIONS=dummy' ;;
@@ -141,7 +138,7 @@ build_it() {
   case $PKG:$VERSION in
   xapian-core:1.4.*)
     case $CODENAME in
-    jessie|trusty)
+    trusty)
       perl -i -e 'while (<>) { print; last if /^libxapian_soversion:=/ } while (<>) { print; last unless /\\$/ } print "libxapian_soversion:=\$(libxapian_soversion)v4\n"; while (<>) { s/^(\techo .libxapian.*)>/$1|sed "s,v4,,g" >/; print }' debian/rules
       sed -i 's/^\(Package: libxapian@LIBXAPIAN_SOVERSION@\)\(.*\)/\1\2\nConflicts: libxapian30\2\nReplaces: libxapian30\2/' debian/control.in
       dch -a 'debian/control.in,debian/rules: Add v4 suffix to soname. (Closes: #863705)'
@@ -152,7 +149,7 @@ build_it() {
 
   # Mainly for Survex.
   case $CODENAME in
-      trusty|xenial|jessie|stretch)
+      trusty|xenial|stretch)
 	if grep -q libwxgtk3.0-gtk3-dev debian/control ; then
 	    sed -i 's/libwxgtk3.0-gtk3-dev/libwxgtk3.0-dev/g' debian/control
 	    dch -a 'debian/control: Build with GTK2 version of wxWidgets.'
@@ -161,13 +158,6 @@ build_it() {
   esac
 
   case $CODENAME in
-      jessie)
-	if [ "`cat debian/compat`" -gt 10 ] ; then
-	    echo 10 > debian/compat
-	    sed -i 's/debhelper (>= [^)]*)/debhelper (>= 10)/' debian/control
-	    dch -a 'debian/control: Lower debhelper compat level to 10.'
-	fi
-	;;
       trusty|xenial)
 	if [ "`cat debian/compat`" -gt 9 ] ; then
 	    echo 9 > debian/compat
@@ -255,15 +245,13 @@ trap "echo \"backport-source-packages failed\"" EXIT
 # before any other modification (and since dapper, Ubuntu codenames are
 # allocated alphabetically).  To handle the wrapping from zesty to artful,
 # we add ".999$CODENAME" for artful and later.  For Debian releases, we use
-# backports.org-compatible package versions - e.g. we append "~bpo8+1" for
-# Debian 8 (jessie) (and a suffix starting "~" sorts as less than no suffix).
+# backports.org-compatible package versions - e.g. we append "~bpo10+1" for
+# Debian 10 (buster) (and a suffix starting "~" sorts as less than no suffix).
 case $CODENAME in
 buster)
   BACKPORT_SUFFIX="~bpo10+$BUILD_INT" ;;
 stretch)
   BACKPORT_SUFFIX="~bpo9+$BUILD_INT" ;;
-jessie)
-  BACKPORT_SUFFIX="~bpo8+$BUILD_INT" ;;
 *)
   if [ x"$ubuntu" = x0 ] ; then
     echo "Debian codename '$CODENAME' not mapped to a ~bpoN suffix"
