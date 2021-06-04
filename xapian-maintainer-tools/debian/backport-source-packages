@@ -27,7 +27,7 @@ set -e
 MIRROR=http://httpredir.debian.org/debian/
 
 DEBIAN_CODENAMES='buster stretch'
-UBUNTU_CODENAMES='focal bionic xenial trusty'
+UBUNTU_CODENAMES='focal bionic xenial'
 UBUNTU_FIRST=`echo "$UBUNTU_CODENAMES"|sed 's/.* //'`
 
 V_OPT=
@@ -135,9 +135,6 @@ build_it() {
 
   overrides=
   case $PKG:$CODENAME:$VERSION in
-    xapian-bindings:trusty:*)
-      # Make sure we add python-xapian and python3-xapian to debian/control.
-      overrides='PYTHON_VERSIONS=dummy PYTHON3_VERSIONS=dummy' ;;
     xapian-bindings:stretch:*|xapian-bindings:xenial:*)
       # Make sure we add python-xapian and python3-xapian to debian/control.
       overrides='PYTHON_VERSIONS=dummy PYTHON3_VERSIONS=dummy RUBY_VERSIONS=2.3 RUBY_PROVIDES="X-Dummy: No provides"' ;;
@@ -146,24 +143,9 @@ build_it() {
       overrides='PYTHON_VERSIONS=dummy PYTHON3_VERSIONS=dummy RUBY_VERSIONS=2.5 RUBY_PROVIDES="X-Dummy: No provides"' ;;
   esac
 
-  # libxapian30 (i.e. 1.4.x) is built with C++ "v5" ABI in stretch and newer
-  # and in xenial and newer, so append "v4" to the soname for backports to
-  # older versions so upgrades with the backport installed work cleanly.
-  case $PKG:$VERSION in
-  xapian-core:1.4.*)
-    case $CODENAME in
-    trusty)
-      perl -i -e 'while (<>) { print; last if /^libxapian_soversion:=/ } while (<>) { print; last unless /\\$/ } print "libxapian_soversion:=\$(libxapian_soversion)v4\n"; while (<>) { s/^(\techo .libxapian.*)>/$1|sed "s,v4,,g" >/; print }' debian/rules
-      sed -i 's/^\(Package: libxapian@LIBXAPIAN_SOVERSION@\)\(.*\)/\1\2\nConflicts: libxapian30\2\nReplaces: libxapian30\2/' debian/control.in
-      dch -a 'debian/control.in,debian/rules: Add v4 suffix to soname. (Closes: #863705)'
-      ;;
-    esac
-    ;;
-  esac
-
   # Mainly for Survex.
   case $CODENAME in
-      trusty|xenial|stretch)
+      xenial|stretch)
 	if grep -q libwxgtk3.0-gtk3-dev $CONTROL_SOURCE ; then
 	    sed -i 's/libwxgtk3.0-gtk3-dev/libwxgtk3.0-dev/g' $CONTROL_SOURCE
 	    dch -a "$CONTROL_SOURCE: Build with GTK2 version of wxWidgets."
@@ -172,7 +154,7 @@ build_it() {
   esac
 
   case $CODENAME in
-      trusty|xenial)
+      xenial)
 	if [ -f "debian/compat" ] && [ "`cat debian/compat`" -gt 9 ] ; then
 	    echo 9 > debian/compat
 	    sed -i 's/debhelper (>= [^)]*)/debhelper (>= 9)/' $CONTROL_SOURCE
@@ -309,7 +291,7 @@ stretch)
     exit 1
   fi
   case $CODENAME in
-  trusty|xenial)
+  xenial)
     BACKPORT_SUFFIX=".99$CODENAME+$BUILD_INT" ;;
   *)
     BACKPORT_SUFFIX=".999$CODENAME+$BUILD_INT" ;;
