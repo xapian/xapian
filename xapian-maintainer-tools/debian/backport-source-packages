@@ -88,8 +88,14 @@ VERSION=$2
 shift
 shift
 
-SUFFIX=`echo "$VERSION"|sed 's/.*-/-/'`
+SUFFIX=$VERSION
 VERSION=`echo "$VERSION"|sed 's/-[^-]*$//'`
+if [ "$VERSION" = "$SUFFIX" ] ; then
+  # Native package version so SUFFIX is empty.
+  SUFFIX=
+else
+  SUFFIX=`expr substr "$SUFFIX" \( 1 + length "$VERSION" \) 999`
+fi
 
 # Debian/Ubuntu codename or codenames to build for.
 # This will be overridden by the command line arguments, if any were passed.
@@ -174,6 +180,18 @@ build_it() {
 	fi
 	;;
   esac
+
+  if [ "$PKG" = debhelper ] ; then
+      case $CODENAME in
+	  xenial)
+	      sed -i \
+		  -e "s/\(dh-autoreconf (>=\) 17/\1 12/" \
+		  -e "s/\(dh-strip-nondeterminism (>=\) 0.028/\1 0.015/" \
+		  $CONTROL_SOURCE
+	      dch -a "$CONTROL_SOURCE: Relax dependencies on dh-autoreconf and dh-strip-nondeterminism."
+	      ;;
+      esac
+  fi
 
   case `grep -c '^[^#]*\<CODENAME\>' debian/rules` in
     '')
