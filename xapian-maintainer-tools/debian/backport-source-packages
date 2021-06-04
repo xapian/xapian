@@ -68,6 +68,9 @@ if [ -n "$HELP_RC" -o $# -lt 2 ] ; then
   echo "Usage: $0 [-v <last backported version>] [-b <backport #>] SOURCE_PKG VERSION [CODENAME...]"
   echo
   echo "e.g.: $0 xapian-core 1.4.11-1 xenial"
+  echo
+  echo 'If -b not specified, default is 1'
+  echo
   echo 'If no codenames are specified, the default is to backport for all of them.'
   echo
   echo "Currently, the recognised values are:"
