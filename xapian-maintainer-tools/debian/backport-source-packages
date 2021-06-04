@@ -128,6 +128,11 @@ adjust_changelog() {
 build_it() {
   adjust_changelog
 
+  # If debian/control.in exists then modify that, otherwise debian/control.
+  for CONTROL_SOURCE in debian/control.in debian/control ; do
+      test -f "$CONTROL_SOURCE" && break
+  done
+
   overrides=
   case $PKG:$CODENAME:$VERSION in
     xapian-bindings:trusty:*)
@@ -159,24 +164,49 @@ build_it() {
   # Mainly for Survex.
   case $CODENAME in
       trusty|xenial|stretch)
-	if grep -q libwxgtk3.0-gtk3-dev debian/control ; then
-	    sed -i 's/libwxgtk3.0-gtk3-dev/libwxgtk3.0-dev/g' debian/control
-	    dch -a 'debian/control: Build with GTK2 version of wxWidgets.'
+	if grep -q libwxgtk3.0-gtk3-dev $CONTROL_SOURCE ; then
+	    sed -i 's/libwxgtk3.0-gtk3-dev/libwxgtk3.0-dev/g' $CONTROL_SOURCE
+	    dch -a "$CONTROL_SOURCE: Build with GTK2 version of wxWidgets."
 	fi
 	;;
   esac
 
   case $CODENAME in
       trusty|xenial)
-	if [ "`cat debian/compat`" -gt 9 ] ; then
+	if [ -f "debian/compat" ] && [ "`cat debian/compat`" -gt 9 ] ; then
 	    echo 9 > debian/compat
-	    sed -i 's/debhelper (>= [^)]*)/debhelper (>= 9)/' debian/control
-	    dch -a 'debian/control: Lower debhelper compat level to 9.'
+	    sed -i 's/debhelper (>= [^)]*)/debhelper (>= 9)/' $CONTROL_SOURCE
+	    dch -a "$CONTROL_SOURCE: Lower debhelper compat level to 9."
 	    # Compat 9 doesn't default to parallel building.
 	    if grep -q 'dh_auto_test --no-parallel' debian/rules ; then
 		sed -i 's/dh_auto_test --no-parallel/dh_auto_test/' debian/rules
 		dch -a 'debian/rules: Drop --no-parallel from dh_auto_test invocation (debhelper compat level 9 does not default to parallel building).'
 	    fi
+	else
+	    COMPAT=`grep-dctrl -sBuild-Depends . $CONTROL_SOURCE`
+	    case $COMPAT in
+		*debhelper-compat*)
+		    COMPAT=`echo "$COMPAT"|sed 's/.*debhelper-compat *(= *\([0-9]\+\)).*/\1/'`
+		    # Switch to a versioned debhelper dependency and create debian/compat.
+		    if [ "$CONTROL_SOURCE" != debian/control ] ; then
+			# Fix generated debian/control as well to avoid error from `debian/rules clean`
+			# due to having debian/compat and a debhelper-compat dependency.
+			sed -i "s/debhelper-compat *(= *[0-9]\+)/debhelper (>= $COMPAT)/" debian/control
+		    fi
+		    sed -i "s/debhelper-compat *(= *[0-9]\+)/debhelper (>= $COMPAT)/" $CONTROL_SOURCE
+		    echo "$COMPAT" > debian/compat
+		    dch -a "$CONTROL_SOURCE,debian/compat: Use older way to specify debhelper compat level."
+		    cat >> debian/rules <<END
+
+override_dh_dwz:
+
+override_dh_builddeb:
+	DH_COMPAT=10 dh_builddeb
+END
+		    dch -a "debian/rules: Disable use of dwz to workaround bug in old dwz version"
+		    dch -a "debian/rules: Force DH_COMPAT=10 for dh_builddeb"
+		    ;;
+	    esac
 	fi
 	;;
   esac
