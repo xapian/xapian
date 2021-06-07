@@ -311,6 +311,7 @@ GlassTableCheck::check(const char * tablename, const string & path, int fd,
 	*out << endl;
     }
 
+#if 0
     if (B->faked_root_block) {
 	if (out && opts)
 	    *out << "void ";
@@ -356,6 +357,7 @@ GlassTableCheck::check(const char * tablename, const string & path, int fd,
 	}
     }
     if (out && opts) *out << "B-tree checked okay" << endl;
+#endif
     return B.release();
 }
 
