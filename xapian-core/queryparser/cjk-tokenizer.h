@@ -67,6 +67,8 @@ bool codepoint_is_cjk(unsigned codepoint);
 
 bool codepoint_is_cjk_wordchar(unsigned codepoint);
 
+bool is_chinese_digit(unsigned ch);
+
 size_t get_cjk(Xapian::Utf8Iterator& it);
 
 }

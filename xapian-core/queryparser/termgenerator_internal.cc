@@ -95,6 +95,12 @@ check_infix(unsigned ch)
     return 0;
 }
 
+static inline bool
+is_ascii_digit(unsigned ch)
+{
+    return ch < 128 && C_isdigit(static_cast<unsigned char>(ch));
+}
+
 static inline unsigned
 check_infix_digit(unsigned ch)
 {
@@ -230,9 +236,26 @@ parse_terms(Utf8Iterator itor, unsigned cjk_flags, bool with_positions,
 	    do {
 		Unicode::append_utf8(term, ch);
 		prevch = ch;
-		if (++itor == Utf8Iterator() ||
-		    (cjk_flags && CJK::codepoint_is_cjk(*itor)))
+		if (++itor == Utf8Iterator()) {
 		    goto endofterm;
+		}
+		if (cjk_flags) {
+		    // Only deal mixed Chinese numbers which start
+		    // with an ASCII digit and next is a Chinese digit.
+		    if (is_ascii_digit(prevch) &&
+			CJK::is_chinese_digit(*itor)) {
+			do {
+			    ch = *itor;
+			    Unicode::append_utf8(term, ch);
+			} while (++itor != Utf8Iterator() &&
+				 (is_ascii_digit(*itor) ||
+				  CJK::is_chinese_digit(*itor)));
+			goto endofterm;
+		    }
+		    if (CJK::codepoint_is_cjk(*itor)) {
+			goto endofterm;
+		    }
+		}
 		ch = check_wordchar(*itor);
 	    } while (ch);
 
