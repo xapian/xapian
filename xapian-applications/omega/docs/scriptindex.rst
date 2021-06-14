@@ -128,6 +128,8 @@ ltrim[=CHARACTERSTOTRIM]
 
         See also ``rtrim``, ``squash`` and ``trim``.
 
+        ``ltrim`` was added in Omega 1.4.19.
+
 parsedate=FORMAT
         parse the text as a date string using ``strptime()`` (or C++11's
         ``std::get_time()`` on platforms without ``strptime()``) with the
@@ -157,6 +159,8 @@ rtrim[=CHARACTERSTOTRIM]
 
         See also ``ltrim``, ``squash`` and ``trim``.
 
+        ``rtrim`` was added in Omega 1.4.19.
+
 spell
         Generate spelling correction data for any ``index`` or ``indexnopos``
         actions in the remainder of this list of actions.
@@ -185,6 +189,8 @@ squash[=CHARACTERSTOTRIM]
 
         See also ``ltrim``, ``rtrim`` and ``trim``.
 
+        ``squash`` was added in Omega 1.4.19.
+
 trim[=CHARACTERSTOTRIM]
         remove leading and trailing characters from the text which are in
         ``CHARACTERSTOTRIM`` (default: space, tab, formfeed, vertical tab,
@@ -193,6 +199,8 @@ trim[=CHARACTERSTOTRIM]
         Currently only ASCII characters are supported in ``CHARACTERSTOTRIM``.
 
         See also ``ltrim``, ``rtrim`` and ``squash``.
+
+        ``trim`` was added in Omega 1.4.19.
 
 truncate=LENGTH
 	truncate to at most LENGTH bytes, but avoid chopping off a word (useful
