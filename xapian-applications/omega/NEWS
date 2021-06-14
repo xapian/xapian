@@ -1,3 +1,59 @@
+up to: 51d18fc629ffd301e33667d2904a5b205709aafb
+
+Omega 1.4.19 (2021-06-14):
+
+general:
+
+documentation:
+
+* configure: Add missing AC_ARG_VAR for all programs so that they are
+  documented in --help output, and so that autoconf knows they are "precious"
+  and preserves them if configure is rerun even when they're specified via an
+  environment variable.
+
+* Add usage examples for $jsonobject.
+
+* Update for the IRC channel move from freenode to libera.chat.
+
+indexers:
+
+* omindex:
+
+* scriptindex:
+
+  + Report location of previous unique in the error when unique is used more
+    than once.
+
+  + Add new scriptindex whitespace removal actions `ltrim`, `rtrim`, `squash`,
+    and `trim`.
+
+omega:
+
+* Clamp START and END with packed timestamps.  The 4-byte unsigned packed
+  time_t format can't represent dates before 1970 or after Sun 07 Feb 2106
+  06:28:15 UTC so clamp dates before or after these - previously they would
+  wrap around.
+
+* The JSON produced by $jsonobject no longer contains newlines, which makes it
+  usable as a single line serialisation format without post-processing.
+
+templates:
+
+testsuite:
+
+build system:
+
+portability:
+
+* Don't automatically use _FORTIFY_SOURCE on mingw-w64.  Recent mingw-w64
+  versions require -lssp to be linked when _FORTIFY_SOURCE is enabled, so just
+  skip the automatic enabling.  Users who want to enable it can specify it
+  explicitly.
+
+  Fixes #808, reported by xpbxf4.
+
+packaging:
+
 Omega 1.4.18 (2021-01-14):
 
 indexers:

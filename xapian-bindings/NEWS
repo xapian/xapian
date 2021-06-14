@@ -1,3 +1,44 @@
+up to: fba5e99f3d320314ce3899080937cd9cb75bc729
+
+Xapian-bindings 1.4.19 (2021-06-14):
+
+Documentation:
+
+* configure: Add missing AC_ARG_VAR for all programs so that they are
+  documented in --help output, and so that autoconf knows they are "precious"
+  and preserves them if configure is rerun even when they're specified via an
+  environment variable.
+
+General:
+
+Packaging:
+
+Portability:
+
+CSharp:
+
+Java:
+
+Lua:
+
+Perl:
+
+PHP:
+
+PHP7:
+
+Python:
+
+Python3:
+
+* Fix deprecation warnings with Python >= 3.9.
+
+* Remove more files/dirs on "make clean".  Reported by Gaurav Arora.
+
+Ruby:
+
+Tcl:
+
 Xapian-bindings 1.4.18 (2021-01-14):
 
 Portability:

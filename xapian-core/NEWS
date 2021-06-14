@@ -1,3 +1,117 @@
+up to: 51d18fc629ffd301e33667d2904a5b205709aafb
+
+Xapian-core 1.4.19 (2021-06-14):
+
+
+API:
+
+* New QueryParser::FLAG_NO_POSITIONS flag.  With this flag enabled, no
+  positional information will be used and any query operations which would use
+  it are replaced by the nearest equivalent which doesn't (so phrase searches,
+  NEAR and ADJ will result in OP_AND).  This is intended to replace the
+  automatic conversion of OP_PHRASE, etc to OP_AND when a database has no
+  positional information, which will no longer happen in the release series
+  after 1.4.
+
+* Give a compile error for code which adds a Database to WritableDatabase.
+
+  Prior to 1.4.19, this compiled and effectively created a "black-hole" shard
+  which quietly discarded any changes made to it.
+
+  In 1.4.19 it's still possible to perform this operation by assigning the
+  WritableDatabase to a Database first, which is harder to fix.  This case
+  throws an exception on git master where it's easier to address.
+
+  Reported by David Bremner on #xapian.
+
+testsuite:
+
+
+matcher:
+
+* Only check if the database has positional information when the query
+  uses positional information.  This should help improve notmuch delete
+  performance.  Thanks to andreas on #notmuch for analysis of the problem.
+
+glass backend:
+
+* Optimise Glass::Inverter::has_positions().  Use const auto& instead of just
+  auto for the loop variables.  Reported to be faster by andreas on #notmuch.
+
+* Cache result of Glass::Inverter::has_positions() since calculating it is
+  potentially very expensive, while maintaining a cached answer is very cheap.
+
+chert backend:
+
+
+remote backend:
+
+* Add missing closing parenthesis to remote prog context, which has been
+  missing since this code was first added over 20 years ago!  Spotted by Gaurav
+  Arora.
+
+inmemory backend:
+
+
+build system:
+
+* Enable compiler option -fno-semantic-interposition if supported.
+
+  This GCC option allows the compiler to optimise essentially assuming
+  that functions/variables aren't replaced at dynamic link time.
+
+  Such replacement is not something that it's useful to do for Xapian
+  symbols, and we already turn on -Bsymbolic-functions by default which
+  prevents such replacement anyway by resolving references within the
+  library at build time.
+
+  Reduces the size of the stripped library on x86-64 Debian unstable by
+  ~1%, and likely makes it faster too.
+
+* Avoid bogus deprecation warning when compiling with GCC without optimisation.
+  In this situation, GCC emits a deprecation warning for code in the definition
+  of QueryParser::add_valuerangeprocessor() which is provided for backwards
+  API compatibility even if this method is never used anywhere.
+
+  This isn't helpful, especially if the user is using -Werror, so disable the
+  -Wdeprecated-deprecations warning for this code.
+
+  Reported by starmad on #xapian.
+
+documentation:
+
+* configure: Add missing AC_ARG_VAR for all programs so that they are
+  documented in --help output, and so that autoconf knows they are "precious"
+  and preserves them if configure is rerun even when they're specified via an
+  environment variable.
+
+* Don't use x^2 to mean x squared in API docs.  This is potentially confusing
+  since in C/C++ (and some other languages), ^ means exclusive-or.  Write x²
+  instead, which should be clear to all readers.
+
+* Update for the IRC channel move from freenode to libera.chat.
+
+tools:
+
+
+examples:
+
+
+portability:
+
+* Don't automatically use _FORTIFY_SOURCE on mingw-w64.  Recent mingw-w64
+  versions require -lssp to be linked when _FORTIFY_SOURCE is enabled, so just
+  skip the automatic enabling.  Users who want to enable it can specify it
+  explicitly.
+
+  Fixes #808, reported by xpbxf4.
+
+packaging:
+
+
+debug code:
+
+
 Xapian-core 1.4.18 (2021-01-14):
 
 API:
