@@ -44,6 +44,7 @@
 
 #include "commonhelp.h"
 #include "datetime.h"
+#include "genericxmlparser.h"
 #include "hashterm.h"
 #include "htmlparser.h"
 #include "loadfile.h"
@@ -104,6 +105,7 @@ const char * action_names[] = {
     "truncate",
     "unhtml",
     "unique",
+    "unxml",
     "value",
     "valuenumeric",
     "valuepacked",
@@ -140,6 +142,7 @@ class Action {
 	TRUNCATE,
 	UNHTML,
 	UNIQUE,
+	UNXML,
 	VALUE,
 	VALUENUMERIC,
 	VALUEPACKED,
@@ -409,6 +412,8 @@ parse_index_script(const string &filename)
 			} else if (action == "unique") {
 			    code = Action::UNIQUE;
 			    min_args = max_args = 1;
+			} else if (action == "unxml") {
+			    code = Action::UNXML;
 			}
 			break;
 		    case 'v':
@@ -818,6 +823,7 @@ bad_escaping:
 		case Action::TRIM:
 		case Action::TRUNCATE:
 		case Action::UNHTML:
+		case Action::UNXML:
 		    done = false;
 		    report_useless_action(filename, line_no,
 					  actions.back().get_pos(),
@@ -1138,6 +1144,12 @@ badhex:
 		    value = p.dump;
 		else
 		    value = "";
+		break;
+	    }
+	    case Action::UNXML: {
+		GenericXmlParser p;
+		p.parse(value);
+		value = std::move(p.dump);
 		break;
 	    }
 	    case Action::UNIQUE: {

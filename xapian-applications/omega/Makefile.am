@@ -118,7 +118,7 @@ noinst_HEADERS = omega.h query.h cgiparam.h index_file.h mime.h\
  htmlparser.h xmlparser.h utils.h configfile.h date.h datetime.h\
  commonhelp.h cdb.h cdb_int.h failed.h fields.h hashterm.h jsonescape.h\
  loadfile.h md5.h md5wrap.h abiwordparser.h opendocmetaparser.h values.h utf8convert.h\
- namedents.h pkglibbindir.h datevalue.h sample.h strcasecmp.h\
+ namedents.h pkglibbindir.h datevalue.h genericxmlparser.h sample.h strcasecmp.h\
  utf8truncate.h diritor.h runfilter.h freemem.h xpsparser.h transform.h\
  weight.h expand.h svgparser.h tmpdir.h urldecode.h urlencode.h unixperm.h atomparser.h\
  xlsxparser.h opendocparser.h msxmlparser.h sort.h timegm.h csvescape.h\
@@ -222,7 +222,8 @@ omindex_libextractor_SOURCES = assistant.cc worker_comms.cc handler_libextractor
 omindex_libextractor_LDADD = $(LIBEXTRACTOR_LIBS)
 omindex_libextractor_CXXFLAGS = $(LIBEXTRACTOR_CFLAGS)
 
-scriptindex_SOURCES = scriptindex.cc htmlparser.cc xmlparser.cc\
+scriptindex_SOURCES = scriptindex.cc\
+ genericxmlparser.cc htmlparser.cc xmlparser.cc\
  common/getopt.cc common/str.cc commonhelp.cc utils.cc hashterm.cc loadfile.cc\
  utf8truncate.cc\
  common/keyword.cc timegm.cc datetime.cc

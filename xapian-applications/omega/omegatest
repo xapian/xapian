@@ -1033,6 +1033,17 @@ for f in squash ltrim rtrim trim ; do
   testcase 'xyz' F=$f ID=3
 done
 
+# Feature tests for scriptindex unhtml and unxml actions.
+printf '%s\n' 't : unhtml field=h' 't : unxml field=x' > "$TEST_INDEXSCRIPT"
+rm -rf "$TEST_DB"
+$SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null <<'END'
+t=<b>No</b>table
+
+t=<p>foo</p><p>bar</p>
+END
+printf '$list{$map{$split{$cgi{DOCIDS}},$field{h,$_}:$field{x,$_}},|}' > "$TEST_TEMPLATE"
+testcase "`printf 'Notable:No table|foo\rbar:foo bar'`" DOCIDS='1 2'
+
 # Test useless action warnings.
 printf 'foo : index weight=2' > "$TEST_INDEXSCRIPT"
 rm -rf "$TEST_DB"
