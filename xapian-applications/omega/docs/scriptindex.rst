@@ -232,9 +232,11 @@ unique[=PREFIX]
         instances usefully).
 
 unxml
-        strip out XML tags, replacing with a space (`unxml` is similar to `unhtml`,
-        but `unhtml` varies the whitespace type or omits it entirely, based on
-        HTML tag semantics).
+        strip out XML tags, replacing with a space (``unxml`` is similar to
+        ``unhtml``, but ``unhtml`` varies the whitespace type or omits it
+        entirely, based on HTML tag semantics).
+
+        ``unxml`` was added in Omega 1.4.19.
 
 value=VALUESLOT
 	add as a Xapian document value in slot VALUESLOT.  Values can be used
