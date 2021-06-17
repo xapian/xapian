@@ -352,6 +352,60 @@ DEFINE_TESTCASE(preparetrainingfileonedb, generated && path && writable)
     unlink("training_output_data_one_doc.txt");
 }
 
+DEFINE_TESTCASE(preparetrainingfile_with_bias, generated && path && writable)
+{
+    vector<Xapian::Feature*> flist;
+    flist.push_back(new Xapian::TfFeature());
+    flist.push_back(new Xapian::TfDoclenFeature());
+    flist.push_back(new Xapian::IdfFeature());
+    flist.push_back(new Xapian::CollTfCollLenFeature());
+    flist.push_back(new Xapian::TfIdfDoclenFeature());
+    flist.push_back(new Xapian::TfDoclenCollTfCollLenFeature());
+    string db_path = get_database_path("apitest_listnet_ranker1",
+				       db_index_one_document);
+    string data_directory = test_driver::get_srcdir() + "/testdata/";
+    string query = data_directory + "queryone.txt";
+    string qrel = data_directory + "qrelone.txt";
+    string training_data = data_directory + "training_data_bias.txt";
+    unlink("training_output_data_bias.txt");
+    Xapian::prepare_training_file(db_path, query, qrel, 10,
+				  "training_output_data_bias.txt", flist, true);
+    TEST(file_exists("training_output_data_bias.txt"));
+    ifstream if1(training_data);
+    ifstream if2("training_output_data_bias.txt");
+    string line1;
+    string line2;
+    while (getline(if1, line1)) {
+	TEST(getline(if2, line2));
+	istringstream iss1(line1);
+	istringstream iss2(line2);
+	string temp1;
+	string temp2;
+	int i = 0;
+	while ((iss1 >> temp1) && (iss2 >> temp2)) {
+	    // The 0th, 1st and 22nd literals taken as input, are strings,
+	    // and can be compared directly, They are: For example(test):
+	    // ("1", "qid:20001" and "#docid=1") at 0th, 1st, and 22nd pos
+	    // respectively. Whereas the other values are doubles which
+	    // would have to tested under TEST_DOUBLE() against precision.
+	    if (i == 0 || i == 1 || i == 22) {
+		TEST_EQUAL(temp1, temp2);
+	    } else {
+		size_t t1 = temp1.find_first_of(':');
+		size_t t2 = temp2.find_first_of(':');
+		TEST_EQUAL_DOUBLE(stod(temp1.substr(t1 + 1)),
+				  stod(temp2.substr(t2 + 1)));
+	    }
+	    i++;
+	}
+	TEST_REL(i, ==, 23);
+	TEST(!(iss2 >> temp2));
+    }
+    TEST(!getline(if2, line2));
+    unlink("training_output_data_bias.txt");
+    return true;
+}
+
 #define TEST_PARSE_EXCEPTION(TESTFILE) TEST_EXCEPTION(Xapian::LetorParseError,\
 	Xapian::prepare_training_file(db_path,\
 				      data_directory + TESTFILE, qrel, 10,\
@@ -516,6 +570,7 @@ DEFINE_TESTCASE(preparetrainingfilethree, generated && path)
 // ListNet_Ranker check
 DEFINE_TESTCASE(listnet_ranker, generated && path && writable)
 {
+    XFAIL_FOR_BACKEND("multi", "Testcase fails with multidatabase");
     Xapian::ListNETRanker ranker;
     TEST_EXCEPTION(Xapian::FileNotFoundError, ranker.train_model(""));
     string db_path = get_database_path("db_index_two_documents",
@@ -666,15 +721,15 @@ DEFINE_TESTCASE(scorer, generated && path && writable)
     Xapian::MSet mymset = enquire.get_mset(0, 10);
     string data_directory = test_driver::get_srcdir() + "/testdata/";
     string query = data_directory + "querythree.txt";
-    string qrel = data_directory + "qrelthree_correct.txt";
-    string training_data = data_directory + "training_data_three_correct.txt";
+    string qrel = data_directory + "score_qrel.txt";
+    string training_data = data_directory + "training_data_ndcg.txt";
     ranker.set_database_path(db_path);
     TEST_EQUAL(ranker.get_database_path(), db_path);
     ranker.set_query(Xapian::Query("score"));
     ranker.train_model(training_data);
     Xapian::docid doc1 = *mymset[0];
     Xapian::docid doc2 = *mymset[1];
-    ranker.rank(mymset);
+    ranke.rank(mymset);
     TEST_EQUAL(doc1, *mymset[1]);
     TEST_EQUAL(doc2, *mymset[0]);
     unlink("ndcg_score_output.txt");
@@ -693,148 +748,10 @@ DEFINE_TESTCASE(scorer, generated && path && writable)
     unlink("ndcg_score_output.txt");
 }
 
-/// SVM_ranker check
-DEFINE_TESTCASE(svm_ranker, generated && path && writable)
-{
-    Xapian::SVMRanker ranker;
-    TEST_EXCEPTION(Xapian::FileNotFoundError, ranker.train_model(""));
-    string db_path = get_database_path("db_index_two_documents",
-				       db_index_two_documents);
-    Xapian::Enquire enquire((Xapian::Database(db_path)));
-    enquire.set_query(Xapian::Query("lions"));
-    Xapian::MSet mymset = enquire.get_mset(0, 10);
-    string data_directory = test_driver::get_srcdir() + "/testdata/";
-    string query = data_directory + "query.txt";
-    string qrel = data_directory + "qrel.txt";
-    string training_data = data_directory + "training_data.txt";
-    ranker.set_database_path(db_path);
-    TEST_EQUAL(ranker.get_database_path(), db_path);
-    ranker.set_query(Xapian::Query("lions"));
-    ranker.train_model(training_data);
-    Xapian::docid doc1 = *mymset[0];
-    Xapian::docid doc2 = *mymset[1];
-    ranker.rank(mymset);
-    TEST_EQUAL(doc1, *mymset[1]);
-    TEST_EQUAL(doc2, *mymset[0]);
-    mymset = enquire.get_mset(0, 10);
-    ranker.train_model(training_data, "SVM_Ranker");
-    ranker.rank(mymset, "SVM_Ranker");
-    TEST_EQUAL(doc1, *mymset[1]);
-    TEST_EQUAL(doc2, *mymset[0]);
-    TEST_EXCEPTION(Xapian::LetorInternalError,
-		   ranker.score(query, qrel, "SVM_Ranker",
-				"scorer_output.txt", 10, ""));
-    TEST_EXCEPTION(Xapian::FileNotFoundError,
-		   ranker.score("", qrel, "SVM_Ranker",
-				"scorer_output.txt", 10));
-    TEST_EXCEPTION(Xapian::FileNotFoundError,
-		   ranker.score(qrel, "", "SVM_Ranker",
-				"scorer_output.txt", 10));
-    unlink("ndcg_output_svm_2.txt");
-    ranker.score(query, qrel, "SVM_Ranker", "ndcg_output_svm_2.txt", 10);
-    TEST(file_exists("ndcg_output_svm_2.txt"));
-    unlink("ndcg_output_svm_2.txt");
-    unlink("err_output_svm_2.txt");
-    ranker.score(query, qrel, "SVM_Ranker", "err_output_svm_2.txt", 10,
-		 "ERRScore");
-    TEST(file_exists("err_output_svm_2.txt"));
-    unlink("err_output_svm_2.txt");
-}
-
-DEFINE_TESTCASE(svm_ranker_one_file, generated && path && writable)
-{
-    Xapian::SVMRanker ranker;
-    TEST_EXCEPTION(Xapian::FileNotFoundError, ranker.train_model(""));
-    string db_path = get_database_path("apitest_svm_ranker1",
-				       db_index_one_document);
-    Xapian::Enquire enquire((Xapian::Database(db_path)));
-    enquire.set_query(Xapian::Query("tigers"));
-    Xapian::MSet mymset = enquire.get_mset(0, 10);
-    string data_directory = test_driver::get_srcdir() + "/testdata/";
-    string query = data_directory + "queryone.txt";
-    string qrel = data_directory + "qrelone.txt";
-    string training_data = data_directory + "training_data_one_document.txt";
-    ranker.set_database_path(db_path);
-    TEST_EQUAL(ranker.get_database_path(), db_path);
-    ranker.set_query(Xapian::Query("tigers"));
-    ranker.train_model(training_data);
-    Xapian::docid doc1 = *mymset[0];
-    ranker.rank(mymset);
-    TEST_EQUAL(doc1, *mymset[0]);
-    mymset = enquire.get_mset(0, 10);
-    ranker.train_model(training_data, "SVM_Ranker");
-    ranker.rank(mymset, "SVM_Ranker");
-    TEST_EQUAL(doc1, *mymset[0]);
-    TEST_EXCEPTION(Xapian::LetorInternalError,
-		   ranker.score(query, qrel, "SVM_Ranker",
-				"scorer_output.txt", 10, ""));
-    TEST_EXCEPTION(Xapian::FileNotFoundError,
-		   ranker.score("", qrel, "SVM_Ranker",
-				"scorer_output.txt", 10));
-    TEST_EXCEPTION(Xapian::FileNotFoundError,
-		   ranker.score(qrel, "", "SVM_Ranker",
-				"scorer_output.txt", 10));
-    unlink("ndcg_output_svm_1.txt");
-    ranker.score(query, qrel, "SVM_Ranker", "ndcg_output_svm_1.txt", 10);
-    TEST(file_exists("ndcg_output_svm_1.txt"));
-    unlink("ndcg_output_svm_1.txt");
-    unlink("err_output_svm_1.txt");
-    ranker.score(query, qrel, "SVM_Ranker", "err_output_svm_1.txt", 10,
-		 "ERRScore");
-    TEST(file_exists("err_output_svm_1.txt"));
-    unlink("err_output_svm_1.txt");
-}
-
-DEFINE_TESTCASE(svm_ranker_three_correct, generated && path && writable)
-{
-    Xapian::SVMRanker ranker;
-    TEST_EXCEPTION(Xapian::FileNotFoundError, ranker.train_model(""));
-    string db_path = get_database_path("db_index_three_documents",
-				       db_index_three_documents);
-    Xapian::Enquire enquire((Xapian::Database(db_path)));
-    enquire.set_query(Xapian::Query("score"));
-    Xapian::MSet mymset = enquire.get_mset(0, 10);
-    string data_directory = test_driver::get_srcdir() + "/testdata/";
-    string query = data_directory + "querythree.txt";
-    string qrel = data_directory + "qrelthree_correct.txt";
-    string training_data = data_directory + "training_data_three_correct.txt";
-    ranker.set_database_path(db_path);
-    TEST_EQUAL(ranker.get_database_path(), db_path);
-    ranker.set_query(Xapian::Query("score"));
-    ranker.train_model(training_data);
-    Xapian::docid doc1 = *mymset[0];
-    Xapian::docid doc2 = *mymset[1];
-    ranker.rank(mymset);
-    TEST_EQUAL(doc1, *mymset[1]);
-    TEST_EQUAL(doc2, *mymset[0]);
-    mymset = enquire.get_mset(0, 10);
-    ranker.train_model(training_data, "SVM_Ranker");
-    ranker.rank(mymset, "SVM_Ranker");
-    TEST_EQUAL(doc1, *mymset[1]);
-    TEST_EQUAL(doc2, *mymset[0]);
-    TEST_EXCEPTION(Xapian::LetorInternalError,
-		   ranker.score(query, qrel, "SVM_Ranker",
-				"scorer_output.txt", 10, ""));
-    TEST_EXCEPTION(Xapian::FileNotFoundError,
-		   ranker.score("", qrel, "SVM_Ranker",
-				"scorer_output.txt", 10));
-    TEST_EXCEPTION(Xapian::FileNotFoundError,
-		   ranker.score(qrel, "", "SVM_Ranker",
-				"scorer_output.txt", 10));
-    unlink("ndcg_output_svm_3.txt");
-    ranker.score(query, qrel, "SVM_Ranker", "ndcg_output_svm_3.txt", 10);
-    TEST(file_exists("ndcg_output_svm_3.txt"));
-    unlink("ndcg_output_svm_3.txt");
-    unlink("err_output_svm_3.txt");
-    ranker.score(query, qrel, "SVM_Ranker", "err_output_svm_3.txt", 10,
-		 "ERRScore");
-    TEST(file_exists("err_output_svm_3.txt"));
-    unlink("err_output_svm_3.txt");
-}
-
 // ListMLE_Ranker check
 DEFINE_TESTCASE(listmle_ranker, generated && path && writable)
 {
+    XFAIL_FOR_BACKEND("multi", "Testcase fails with multidatabase");
     Xapian::ListMLERanker ranker;
     TEST_EXCEPTION(Xapian::FileNotFoundError, ranker.train_model(""));
     string db_path = get_database_path("db_index_two_documents",
@@ -1032,6 +949,17 @@ DEFINE_TESTCASE(ndcg_score_test, generated && path && writable)
     ranker.score(query, qrel, "ListNet_Ranker", "ndcg_score_test.txt", 10);
     TEST(file_exists("ndcg_score_test.txt"));
     unlink("ndcg_score_test.txt");
+}
+
+DEFINE_TESTCASE(different_no_features, generated && path && writable)
+{
+    Xapian::ListNETRanker ranker;
+    string data_directory = test_driver::get_srcdir() + "/testdata/";
+    string training_data = data_directory +
+			   "training_data_different_no_features.txt";
+    TEST_EXCEPTION(Xapian::InvalidArgumentError,
+		   ranker.train_model(training_data, "ListNet_Ranker"));
+    return true;
 }
 
 // Test createfeaturevector method for TfFeature

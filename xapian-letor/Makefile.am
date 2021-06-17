@@ -130,8 +130,6 @@ endif
 
 MAINTAINERCLEANFILES += $(BUILT_SOURCES)
 
-libxapianletor_la_LIBADD += $(LIBSVM_LIBS)
-
 noinst_HEADERS +=\
 	common/alignment_cast.h\
 	common/append_filename_arg.h\
