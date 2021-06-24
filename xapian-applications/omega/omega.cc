@@ -58,7 +58,6 @@ const char filter_sep_old = '-';
 
 Xapian::Enquire * enquire;
 Xapian::Database db;
-Xapian::RSet rset;
 
 map<string, string> option;
 
@@ -70,7 +69,6 @@ string dbname;
 string fmtname;
 string filters, old_filters;
 
-Xapian::docid topdoc = 0;
 Xapian::docid hits_per_page = 0;
 Xapian::docid min_hits = 0;
 

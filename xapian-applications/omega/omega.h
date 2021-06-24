@@ -44,9 +44,7 @@ extern std::string old_filters;
 
 extern Xapian::Database db;
 extern Xapian::Enquire * enquire;
-extern Xapian::RSet rset;
 
-extern Xapian::docid topdoc;
 extern Xapian::docid hits_per_page;
 extern Xapian::docid min_hits;
 
@@ -62,8 +60,6 @@ extern Xapian::valueno collapse_key;
 extern bool collapse;
 
 extern std::map<std::string, std::string> option;
-
-extern const std::string default_dbname;
 
 extern bool set_content_type, suppress_http_headers;
 
