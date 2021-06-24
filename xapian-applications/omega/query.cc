@@ -107,8 +107,10 @@ vector<SubDB> subdbs;
 static bool query_parsed = false;
 static bool done_query = false;
 static Xapian::docid last = 0;
+static Xapian::docid topdoc = 0;
 
 static Xapian::MSet mset;
+static Xapian::RSet rset;
 
 static map<Xapian::docid, bool> ticked;
 
