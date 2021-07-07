@@ -78,6 +78,9 @@ $allterms[{DOCID}]
         without a parameter list, them the docid of the current hit is
         implicitly used.
 
+$base64{DATA}
+        encodes DATA using base64.
+
 $cgi{CGI}
         lookup the value of a CGI parameter.  If the same parameter has
         multiple values, ``$cgi`` will pick one arbitrarily - use ``$cgilist``

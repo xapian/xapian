@@ -720,6 +720,14 @@ printf '$last$if{$cgi{ERR},$seterror{$cgi{ERR}}}$msize$if{$error,!$error!}' > "$
 testcase '11' P=text
 testcase '11!boo!' P=text ERR=boo
 
+# Feature tests for $base64{}
+printf '$base64{$cgi{in}}' > "$TEST_TEMPLATE"
+testcase '' in=""
+testcase 'IQ==' in='!'
+testcase 'T2s=' in='Ok'
+testcase 'aGA+aGA/' in='h`>h`?'
+testcase 'YmFzZTY0IHRlc3Q=' in='base64 test'
+
 # Regression test: $setrelevant crashed with no argument list prior to 1.4.16.
 printf '$setrelevant$or{$error,No error}' > "$TEST_TEMPLATE"
 testcase 'Exception: too few arguments to $setrelevant' P=text
