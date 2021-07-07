@@ -176,8 +176,11 @@ LMWeight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len,
 	 * case query term is present in the document.
 	 */
 	double weight_document = wdf_double / len_double;
-	weight_sum = (param_smoothing1 * weight_collection) +
-		     ((1 - param_smoothing1) * weight_document);
+        if (param_smoothing1 == 0) 
+            weight_sum = weight_document;
+        else 
+            weight_sum = 1 + ((1 - param_smoothing1) / param_smoothing1) * 
+            weight_document / weight_collection;
     } else if (select_smoothing == DIRICHLET_SMOOTHING) {
 	weight_sum = (wdf_double + (param_smoothing1 * weight_collection)) /
 		     (len_double + param_smoothing1);
@@ -218,7 +221,10 @@ LMWeight::get_maxpart() const
 
     // Calculating upper bound considering different smoothing option available to user.
     if (select_smoothing == JELINEK_MERCER_SMOOTHING) {
-	upper_bound = (param_smoothing1 * weight_collection) + (1 - param_smoothing1);
+        if (param_smoothing1 == 0) 
+            upper_bound = 1; 
+        else
+            upper_bound = 1 + ((1 - param_smoothing1) / param_smoothing1) / weight_collection;
     } else if (select_smoothing == DIRICHLET_SMOOTHING) {
 	upper_bound = (get_doclength_upper_bound() + (param_smoothing1 * weight_collection)) / (get_doclength_upper_bound() + param_smoothing1);
     } else if (select_smoothing == DIRICHLET_PLUS_SMOOTHING) {
