@@ -771,6 +771,14 @@ testcase 'b4c216e4da73d1d01277ef46d0514821' text="simple query"
 testcase 'd41d8cd98f00b204e9800998ecf8427e' text=""
 testcase '3302c94d3500c3f695b7e09b7acd420d' text=" test "
 
+# Feature tests for $base64{}
+printf '$base64{$cgi{in}}' > "$TEST_TEMPLATE"
+testcase '' in=""
+testcase 'IQ==' in='!'
+testcase 'T2s=' in='Ok'
+testcase 'aGA+aGA/' in='h`>h`?'
+testcase 'YmFzZTY0IHRlc3Q=' in='base64 test'
+
 # Feature tests for $random{}
 printf '$or{$list{$map{$range{1,100},$set{num,$random{$cgi{x}}}$or{$lt{$opt{num},0},$gt{$opt{num},$cgi{x}}}},},OK}' > "$TEST_TEMPLATE"
 testcase 'OK' x=6

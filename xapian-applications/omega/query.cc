@@ -946,6 +946,7 @@ CMD_add,
 CMD_addfilter,
 CMD_allterms,
 CMD_and,
+CMD_base64,
 CMD_cgi,
 CMD_cgilist,
 CMD_cgiparams,
@@ -1092,6 +1093,7 @@ T(add,		   0, N, N, 0), // add a list of numbers
 T(addfilter,	   1, 2, N, 0), // add filter term
 T(allterms,	   0, 1, N, 0), // list of all terms matching document
 T(and,		   1, N, 0, 0), // logical shortcutting and of a list of values
+T(base64,	   1, 1, N, 0), // base64 encode
 T(cgi,		   1, 1, N, 0), // return cgi parameter value
 T(cgilist,	   1, 1, N, 0), // return list of values for cgi parameter
 T(cgiparams,	   0, 0, N, 0), // return list of cgi parameter names
@@ -1425,6 +1427,44 @@ eval(const string& fmt, vector<string>& param)
 		for (auto&& arg : args) {
 		    if (eval(arg, param).empty()) {
 			value.resize(0);
+			break;
+		    }
+		}
+		break;
+	    }
+	    case CMD_base64: {
+		const static char encode[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdef"
+					     "ghijklmnopqrstuvwxyz0123456789+/";
+		const char pad = '=';
+		const string& input = args[0];
+		value.reserve((input.size() + 2) / 3 * 4);
+		auto it = input.begin();
+		auto n = input.size() / 3;
+		while (n--) {
+		    uint32_t v = uint8_t(*it++);
+		    v = (v << 8) | uint8_t(*it++);
+		    v = (v << 8) | uint8_t(*it++);
+		    value += encode[v >> 18];
+		    value += encode[(v >> 12) & 63];
+		    value += encode[(v >> 6) & 63];
+		    value += encode[v & 63];
+		}
+		switch (input.size() % 3) {
+		    case 2: {
+			uint32_t v = uint8_t(*it++);
+			v = (v << 8) | uint8_t(*it++);
+			value += encode[v >> 10];
+			value += encode[(v >> 4) & 63];
+			value += encode[(v << 2) & 63];
+			value += pad;
+			break;
+		    }
+		    case 1: {
+			uint32_t v = uint8_t(*it++);
+			value += encode[v >> 2];
+			value += encode[(v << 4) & 63];
+			value += pad;
+			value += pad;
 			break;
 		    }
 		}
