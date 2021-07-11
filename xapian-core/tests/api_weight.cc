@@ -750,6 +750,13 @@ DEFINE_TESTCASE(tfidfweight1, !backend) {
       given. */
     Xapian::TfIdfWeight weight2;
     TEST_EQUAL(weight2.serialise(), Xapian::TfIdfWeight("ntn").serialise());
+
+    TEST_EXCEPTION(Xapian::InvalidArgumentError,
+	Xapian::Weight::create("tfidf NONE FUN NONE"));
+
+    TEST_EXCEPTION(Xapian::InvalidArgumentError,
+	Xapian::Weight::create("tfidf NONE"));
+
 }
 
 // Test exception for junk after serialised weight.
@@ -1245,6 +1252,23 @@ DEFINE_TESTCASE(tfidfweight4, backend) {
     TEST_EQUAL(mset.size(), 2);
     // Expect doc 2 with query "word" to have higher weight than doc 4.
     mset_expect_order(mset, 2, 4);
+}
+
+// Check that create_from_parameters() creates the correct object.
+DEFINE_TESTCASE(tfidfweight5, !backend) {
+    auto wt_ptr = Xapian::Weight::create("tfidf NONE TFIDF NONE");
+    auto wt = Xapian::TfIdfWeight(Xapian::TfIdfWeight::wdf_norm::NONE,
+				  Xapian::TfIdfWeight::idf_norm::TFIDF,
+				  Xapian::TfIdfWeight::wt_norm::NONE);
+    TEST_EQUAL(wt_ptr->serialise(), wt.serialise());
+    delete wt_ptr;
+
+    auto wt_ptr2 = Xapian::Weight::create("tfidf SQRT PIVOTED NONE");
+    auto wt2 = Xapian::TfIdfWeight(Xapian::TfIdfWeight::wdf_norm::SQRT,
+				   Xapian::TfIdfWeight::idf_norm::PIVOTED,
+				   Xapian::TfIdfWeight::wt_norm::NONE);
+    TEST_EQUAL(wt_ptr2->serialise(), wt2.serialise());
+    delete wt_ptr2;
 }
 
 class CheckInitWeight : public Xapian::Weight {
