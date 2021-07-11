@@ -65,6 +65,7 @@
 #include <xapian/valueiterator.h>
 
 // Indexing
+#include <xapian/mathtermgenerator.h>
 #include <xapian/termgenerator.h>
 
 // Searching

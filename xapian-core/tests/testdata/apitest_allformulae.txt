@@ -1,0 +1,108 @@
+<math>
+    <mi> a </mi>
+    <mo> = </mo>
+    <mi> b </mi>
+    <mo> + </mo>
+    <mi> c </mi>
+</math>
+
+<math>
+    <mi> a </mi>
+    <mo> = </mo>
+    <mi> b </mi>
+    <mo> + </mo>
+    <mi> c </mi>
+    <mo> + </mo>
+    <mi> d </mi>
+</math>
+
+<math>
+    <mi> p </mi>
+    <mo> = </mo>
+    <mi> r </mi>
+    <mo> + </mo>
+    <mi> s </mi>
+</math>
+
+<math>
+    <mi> a </mi>
+    <mo> = </mo>
+    <mi> x </mi>
+    <mo> + </mo>
+    <mi> b </mi>
+    <mo> + </mo>
+    <mi> c </mi>
+    <mo> + </mo>
+    <mi> s </mi>
+</math>
+
+<math>
+    <mi> m </mi>
+    <mo> = </mi>
+    <msqrt>
+	<mi> n </mi>
+    </msqrt>
+    <mo> + </mo>
+    <mi> y </mi>
+</math>
+
+<math>
+    <mi> l </mi>
+    <mo> = </mo>
+    <mfrac>
+	<mi> a </mi>
+	<mi> b </mi>
+    </mfrac>
+</math>
+
+<math>
+    <mi> x </mi>
+    <mo> = </mo>
+    <mfrac>
+	<mi> c </mi>
+	<mi> d </mi>
+    </mfrac>
+</math>
+
+<math>
+    <mi> m </mi>
+    <mo> = </mo>
+    <mn> 2 </mn>
+    <mo> + </mo>
+    <mi> o </mi>
+</math>
+
+<math>
+    <mi> p </mi>
+    <mo> = </mo>
+    <mfrac>
+        <mi> q </mi>
+	<mi> r </mi>
+    </mfrac>
+</math>
+
+<math>
+    <mi> x </mi>
+    <mo> = </mo>
+    <mfrac>
+        <mi> y </mi>
+	<mi> s </mi>
+    </mfrac>
+</math>
+
+<math>
+    <mn> 1 </mn>
+    <mo> = </mo>
+    <mn> 2 </mn>
+    <mo> + </mo>
+    <mn> 3 </mn>
+</math>
+
+<math>
+    <mn> 100 </mn>
+    <mo> = </mo>
+    <mfrac>
+        <mn> 20 </mn>
+	<mn> 200 </mn>
+    </mfrac>
+</math>
