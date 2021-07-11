@@ -1,0 +1,41 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 23
+    buildToolsVersion "23.0.2"
+
+    defaultConfig {
+        minSdkVersion 15
+        targetSdkVersion 23
+        versionCode 3
+        versionName "1.0"
+    }
+
+    lintOptions {
+        abortOnError false
+    }
+
+
+    buildTypes {
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+allprojects {
+    repositories {
+        jcenter()
+        flatDir {
+            dirs 'libs'
+        }
+    }
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile 'com.android.support:appcompat-v7:22.2.1'
+    compile(name:'xapianlib',ext:'aar')
+
+}
