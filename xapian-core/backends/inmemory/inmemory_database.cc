@@ -87,9 +87,14 @@ InMemoryPostList::InMemoryPostList(intrusive_ptr<const InMemoryDatabase> db_,
 	  end(imterm.docs.end()),
 	  termfreq(imterm.term_freq),
 	  started(false),
-	  db(db_)
+	  db(db_),
+	  wdf_upper_bound(0)
 {
     while (pos != end && !pos->valid) ++pos;
+    if (pos != end) {
+	auto first_wdf = (*pos).wdf;
+	wdf_upper_bound = max(first_wdf, imterm.collection_freq - first_wdf);
+    }
 }
 
 Xapian::doccount
@@ -180,6 +185,13 @@ InMemoryPostList::get_wdf() const
 {
     if (db->is_closed()) InMemoryDatabase::throw_database_closed();
     return (*pos).wdf;
+}
+
+Xapian::termcount
+InMemoryPostList::get_wdf_upper_bound() const
+{
+    if (db->is_closed()) InMemoryDatabase::throw_database_closed();
+    return wdf_upper_bound;
 }
 
 //////////////
@@ -369,6 +381,12 @@ InMemoryAllDocsPostList::at_end() const
 {
     if (db->is_closed()) InMemoryDatabase::throw_database_closed();
     return (did > db->termlists.size());
+}
+
+Xapian::termcount
+InMemoryAllDocsPostList::get_wdf_upper_bound() const
+{
+    return 1;
 }
 
 string

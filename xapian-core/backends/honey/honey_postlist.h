@@ -169,6 +169,12 @@ class HoneyPostList : public LeafPostList {
     /// HoneyDatabase to get position table object from.
     const HoneyDatabase* db;
 
+    /** Maximum wdf for this postlist.
+     *
+     *  We store this for honey, so it's exact - not just an upper bound.
+     */
+    Xapian::termcount wdf_max;
+
     /** Needed so that first next() does nothing.
      *
      *  FIXME: Can we arrange not to need this?
@@ -202,6 +208,8 @@ class HoneyPostList : public LeafPostList {
     PostList* next(double w_min);
 
     PostList* skip_to(Xapian::docid did, double w_min);
+
+    Xapian::termcount get_wdf_upper_bound() const;
 
     std::string get_description() const;
 };

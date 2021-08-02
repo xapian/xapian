@@ -170,6 +170,8 @@ class HoneyAllDocsPostList : public LeafPostList {
 
     PostList* check(Xapian::docid did, double w_min, bool& valid);
 
+    Xapian::termcount get_wdf_upper_bound() const;
+
     std::string get_description() const;
 };
 

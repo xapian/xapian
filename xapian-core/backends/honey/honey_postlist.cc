@@ -57,6 +57,7 @@ HoneyPostList::HoneyPostList(const HoneyDatabase* db_,
 	// Term not present in db.
 	reader.init();
 	last_did = 0;
+	wdf_max = 0;
 	return;
     }
 
@@ -72,7 +73,6 @@ HoneyPostList::HoneyPostList(const HoneyDatabase* db_,
     Xapian::docid first_did;
     Xapian::termcount first_wdf;
     Xapian::docid chunk_last;
-    Xapian::termcount wdf_max;
     if (!decode_initial_chunk_header(&p, pend, tf, cf,
 				     first_did, last_did,
 				     chunk_last, first_wdf, wdf_max))
@@ -88,7 +88,7 @@ HoneyPostList::HoneyPostList(const HoneyDatabase* db_,
 	cf_info = 1 | TOP_BIT_SET(decltype(cf_info));
     } else {
 	cf_info = 1;
-	// If wdf_max can only be zero if cf == 0 (and
+	// wdf_max can only be zero if cf == 0 (and
 	// decode_initial_chunk_header() should ensure this).
 	Assert(wdf_max != 0);
 	Xapian::termcount remaining_cf_for_flat_wdf = (tf - 1) * wdf_max;
@@ -244,6 +244,12 @@ HoneyPostList::skip_to(Xapian::docid did, double)
 					   "its last entry");
 
     return NULL;
+}
+
+Xapian::termcount
+HoneyPostList::get_wdf_upper_bound() const
+{
+    return wdf_max;
 }
 
 string

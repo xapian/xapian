@@ -186,6 +186,13 @@ HoneyAllDocsPostList::check(Xapian::docid did, double, bool& valid)
     return NULL;
 }
 
+Xapian::termcount
+HoneyAllDocsPostList::get_wdf_upper_bound() const
+{
+    LOGCALL(DB, Xapian::termcount, "HoneyAllDocsPostList::get_wdf_upper_bound", NO_ARGS);
+    RETURN(1);
+}
+
 string
 HoneyAllDocsPostList::get_description() const
 {

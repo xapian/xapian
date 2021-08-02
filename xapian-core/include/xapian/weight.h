@@ -281,11 +281,15 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
      *  @param term	  The term for the new object.
      *  @param wqf_	  The within-query-frequency of @a term.
      *  @param factor	  Any scaling factor (e.g. from OP_SCALE_WEIGHT).
+     *  @param postlist   Pointer to a LeafPostList for the term (cast to void*
+     *			  to avoid needing to forward declare class
+     *			  LeafPostList in public API headers) which can be used
+     *			  to get wdf upper bound
      */
     XAPIAN_VISIBILITY_INTERNAL
     void init_(const Internal & stats, Xapian::termcount query_len_,
 	       const std::string & term, Xapian::termcount wqf_,
-	       double factor);
+	       double factor, void* postlist);
 
     /** @private @internal Initialise this object to calculate weights for a
      *  synonym.
