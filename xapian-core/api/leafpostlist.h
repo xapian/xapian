@@ -75,7 +75,7 @@ class LeafPostList : public PostList {
 				   Xapian::termcount wqf,
 				   double factor)
     {
-	weight_->init_(*stats, qlen, term, wqf, factor);
+	weight_->init_(*stats, qlen, term, wqf, factor, this);
 	// There should be an existing LazyWeight set already.
 	Assert(weight);
 	const Xapian::Weight * const_weight_ = weight_;
@@ -123,6 +123,8 @@ class LeafPostList : public PostList {
      *			postlist via the database instead).
      */
     virtual LeafPostList * open_nearby_postlist(const std::string & term_) const;
+
+    virtual Xapian::termcount get_wdf_upper_bound() const = 0;
 
     /** Set the term name.
      *

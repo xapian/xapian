@@ -96,6 +96,8 @@ class NetworkPostList : public LeafPostList {
     /// Return true if and only if we've moved off the end of the list.
     bool at_end() const;
 
+    Xapian::termcount get_wdf_upper_bound() const;
+
     /// Get a description of the postlist.
     string get_description() const;
 };

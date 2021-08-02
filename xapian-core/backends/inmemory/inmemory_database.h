@@ -151,6 +151,8 @@ class InMemoryPostList : public LeafPostList {
 
     Xapian::Internal::intrusive_ptr<const InMemoryDatabase> db;
 
+    Xapian::termcount wdf_upper_bound;
+
     InMemoryPostList(Xapian::Internal::intrusive_ptr<const InMemoryDatabase> db,
 		     const InMemoryTerm & imterm, const std::string & term_);
   public:
@@ -170,6 +172,8 @@ class InMemoryPostList : public LeafPostList {
 
     // True if we're off the end of the list.
     bool at_end() const;
+
+    Xapian::termcount get_wdf_upper_bound() const;
 
     string get_description() const;
 };
@@ -204,6 +208,8 @@ class InMemoryAllDocsPostList : public LeafPostList {
 
     // True if we're off the end of the list
     bool at_end() const;
+
+    Xapian::termcount get_wdf_upper_bound() const;
 
     string get_description() const;
 };

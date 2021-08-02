@@ -686,17 +686,22 @@ ChertPostList::ChertPostList(intrusive_ptr<const ChertDatabase> this_db_,
 	end = 0;
 	first_did_in_chunk = 0;
 	last_did_in_chunk = 0;
+	wdf_upper_bound = 0;
 	return;
     }
     cursor->read_tag();
     pos = cursor->current_tag.data();
     end = pos + cursor->current_tag.size();
 
-    did = read_start_of_first_chunk(&pos, end, &number_of_entries, NULL);
+    Xapian::termcount collfreq;
+    did = read_start_of_first_chunk(&pos, end, &number_of_entries, &collfreq);
     first_did_in_chunk = did;
     last_did_in_chunk = read_start_of_chunk(&pos, end, first_did_in_chunk,
 					    &is_last_chunk);
     read_wdf(&pos, end, &wdf);
+    // This works even if there's only one entry (when wdf == collfreq)
+    // or when collfreq is 0 (=> wdf is 0 too).
+    wdf_upper_bound = max(collfreq - wdf, wdf);
     LOGLINE(DB, "Initial docid " << did);
 }
 
@@ -1301,4 +1306,10 @@ ChertPostListTable::get_used_docid_range(Xapian::docid & first,
 
     bool dummy;
     last = read_start_of_chunk(&p, e, start_of_last_chunk, &dummy);
+}
+
+Xapian::termcount
+ChertPostList::get_wdf_upper_bound() const
+{
+    return wdf_upper_bound;
 }

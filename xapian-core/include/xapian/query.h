@@ -184,13 +184,15 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	 *  large OR query, but it doesn't matter if the search completely
 	 *  ignores some of the less important terms in the query.
 	 *
-	 *  The subqueries don't have to be terms, but if they aren't then
-	 *  OP_ELITE_SET will look at the estimated frequencies of the
-	 *  subqueries and so could pick a subset which don't actually
-	 *  match any documents even if the full OR would match some.
+	 *  The subqueries don't have to be terms.  If they aren't then
+	 *  OP_ELITE_SET could potentially pick a subset which doesn't
+	 *  actually match any documents even if the full OR would match some
+	 *  (because OP_ELITE_SET currently selects those subqueries which can
+	 *  return the highest weights).  This is probably rare in practice
+	 *  though.
 	 *
-	 *  You can specify a parameter to the query constructor which control
-	 *  the number of terms which OP_ELITE_SET will pick.  If not
+	 *  You can specify a parameter to the query constructor which controls
+	 *  the number of subqueries which OP_ELITE_SET will pick.  If not
 	 *  specified, this defaults to 10 (Xapian used to default to
 	 *  <code>ceil(sqrt(number_of_subqueries))</code> if there are more
 	 *  than 100 subqueries, but this rather arbitrary special case was
@@ -200,8 +202,15 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	 *  Xapian::Query query(Xapian::Query::OP_ELITE_SET, subqs.begin(), subqs.end(), 7);
 	 *  </pre>
 	 *
-	 * If the number of subqueries is less than this threshold,
-	 * OP_ELITE_SET behaves identically to OP_OR.
+	 *  If the number of subqueries is less than this threshold,
+	 *  OP_ELITE_SET behaves identically to OP_OR.
+	 *
+	 *  When used with a sharded database, OP_ELITE_SET currently picks
+	 *  the subqueries to use separately for each shard based on the
+	 *  maximum weight they can return in that shard.  This means it
+	 *  probably won't select exactly the same terms, and so the results
+	 *  of the search may not be exactly the same as for a single database
+	 *  with equivalent contents.
 	 */
 	OP_ELITE_SET = 10,
 

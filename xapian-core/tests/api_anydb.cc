@@ -1186,10 +1186,7 @@ DEFINE_TESTCASE(rsetmultidb3, backend && !multi) {
 }
 
 /// Simple test of the elite set operator.
-DEFINE_TESTCASE(eliteset1, backend) {
-    XFAIL_FOR_BACKEND("multi_remoteprog_glass",
-		      "Multi remote databases are currently buggy");
-
+DEFINE_TESTCASE(eliteset1, backend && !multi) {
     Xapian::Database mydb(get_database("apitest_simpledata"));
     Xapian::Enquire enquire(mydb);
 
@@ -1207,12 +1204,37 @@ DEFINE_TESTCASE(eliteset1, backend) {
     TEST_EQUAL(mymset1, mymset2);
 }
 
+/// Multi-backend variant of eliteset1.
+DEFINE_TESTCASE(elitesetmulti1, multi) {
+    Xapian::Database mydb(get_database("apitest_simpledata"));
+    Xapian::Enquire enquire(mydb);
+
+    Xapian::Query myquery2 = query(Xapian::Query::OP_ELITE_SET, 1,
+				   "simple", "word");
+
+    enquire.set_query(myquery2);
+    Xapian::MSet mymset2 = enquire.get_mset(0, 10);
+
+    // For a sharded database, the elite set is resolved per shard and can
+    // select different terms because the max term weights vary with the
+    // per-shard term statistics.  I can't see a feasible way to create
+    // an equivalent MSet to compare with so for now at least we hard-code
+    // the expected values.
+    TEST_EQUAL(mymset2.size(), 3);
+    TEST_EQUAL(mymset2.get_matches_lower_bound(), 3);
+    TEST_EQUAL(mymset2.get_matches_estimated(), 3);
+    TEST_EQUAL(mymset2.get_matches_upper_bound(), 3);
+    TEST_EQUAL_DOUBLE(mymset2.get_max_possible(), 1.1736756775723788948);
+    TEST_EQUAL_DOUBLE(mymset2.get_max_attained(), 1.0464816871772451012);
+    mset_expect_order(mymset2, 2, 4, 5);
+    TEST_EQUAL_DOUBLE(mymset2[0].get_weight(), 1.0464816871772451012);
+    TEST_EQUAL_DOUBLE(mymset2[1].get_weight(), 0.64098768659591376373);
+    TEST_EQUAL_DOUBLE(mymset2[2].get_weight(), 0.46338869498075929698);
+}
+
 /// Test that the elite set operator works if the set contains
 /// sub-expressions (regression test)
-DEFINE_TESTCASE(eliteset2, backend) {
-    XFAIL_FOR_BACKEND("multi_remoteprog_glass",
-		      "Multi remote databases are currently buggy");
-
+DEFINE_TESTCASE(eliteset2, backend && !multi) {
     Xapian::Database mydb(get_database("apitest_simpledata"));
     Xapian::Enquire enquire(mydb);
 
@@ -1231,10 +1253,42 @@ DEFINE_TESTCASE(eliteset2, backend) {
     Xapian::MSet mymset2 = enquire.get_mset(0, 10);
 
     TEST_EQUAL(mymset1, mymset2);
-    // query lengths differ so mset weights not the same (with some weighting
-    // parameters)
-    // test_mset_order_equal(mymset1, mymset2);
 }
+
+/// Multi-backend variant of eliteset2.
+DEFINE_TESTCASE(elitesetmulti2, multi) {
+    Xapian::Database mydb(get_database("apitest_simpledata"));
+    Xapian::Enquire enquire(mydb);
+
+    Xapian::Query myquery1 = query(Xapian::Query::OP_AND, "word", "search");
+
+    vector<Xapian::Query> qs;
+    qs.push_back(query("this"));
+    qs.push_back(query(Xapian::Query::OP_AND, "word", "search"));
+    Xapian::Query myquery2(Xapian::Query::OP_ELITE_SET,
+			   qs.begin(), qs.end(), 1);
+
+    enquire.set_query(myquery2);
+    Xapian::MSet mymset2 = enquire.get_mset(0, 10);
+
+    // For a sharded database, the elite set is resolved per shard and can
+    // select different terms because the max term weights vary with the
+    // per-shard term statistics.  I can't see a feasible way to create
+    // an equivalent MSet to compare with so for now at least we hard-code
+    // the expected values.
+    TEST_EQUAL(mymset2.size(), 4);
+    TEST_EQUAL(mymset2.get_matches_lower_bound(), 4);
+    TEST_EQUAL(mymset2.get_matches_estimated(), 4);
+    TEST_EQUAL(mymset2.get_matches_upper_bound(), 4);
+    TEST_EQUAL_DOUBLE(mymset2.get_max_possible(), 2.6585705165783908299);
+    TEST_EQUAL_DOUBLE(mymset2.get_max_attained(), 1.9700834242150864206);
+    mset_expect_order(mymset2, 2, 1, 3, 5);
+    TEST_EQUAL_DOUBLE(mymset2[0].get_weight(), 1.9700834242150864206);
+    TEST_EQUAL_DOUBLE(mymset2[1].get_weight(), 0.051103097360122341775);
+    TEST_EQUAL_DOUBLE(mymset2[2].get_weight(), 0.043131803408968119595);
+    TEST_EQUAL_DOUBLE(mymset2[3].get_weight(), 0.043131803408968119595);
+}
+
 
 /// Test that elite set doesn't affect query results if we have fewer
 /// terms than the threshold
@@ -1267,6 +1321,8 @@ DEFINE_TESTCASE(eliteset3, backend) {
     Xapian::MSet mymset1 = enquire1.get_mset(0, 10);
     Xapian::MSet mymset2 = enquire2.get_mset(0, 10);
 
+    TEST_EQUAL(mymset1, mymset2);
+
     TEST_EQUAL(mymset1.get_termfreq(term1),
 	       mymset2.get_termfreq(term1));
     TEST_EQUAL(mymset1.get_termweight(term1),
@@ -1279,17 +1335,10 @@ DEFINE_TESTCASE(eliteset3, backend) {
 	       mymset2.get_termfreq(term3));
     TEST_EQUAL(mymset1.get_termweight(term3),
 	       mymset2.get_termweight(term3));
-//    TEST_EQUAL(mymset1, mymset2);
 }
 
 /// Test that elite set doesn't pick terms with 0 frequency
-DEFINE_TESTCASE(eliteset4, backend) {
-    XFAIL_FOR_BACKEND("multi_glass_remoteprog_glass",
-		      "Multi remote databases are currently buggy");
-
-    XFAIL_FOR_BACKEND("multi_remoteprog_glass",
-		      "Multi remote databases are currently buggy");
-
+DEFINE_TESTCASE(eliteset4, backend && !multi) {
     Xapian::Database mydb1(get_database("apitest_simpledata"));
     Xapian::Enquire enquire1(mydb1);
 
@@ -1308,6 +1357,35 @@ DEFINE_TESTCASE(eliteset4, backend) {
 
     TEST_NOT_EQUAL(mymset2.size(), 0);
     TEST_EQUAL(mymset1, mymset2);
+}
+
+/// Multi-backend variant of eliteset4.
+DEFINE_TESTCASE(elitesetmulti4, multi) {
+    Xapian::Database mydb2(get_database("apitest_simpledata"));
+    Xapian::Enquire enquire2(mydb2);
+
+    Xapian::Query myquery2 = query(Xapian::Query::OP_ELITE_SET, 1,
+				   "word", "rubbish", "fibble");
+    enquire2.set_query(myquery2);
+
+    // retrieve the results
+    Xapian::MSet mymset2 = enquire2.get_mset(0, 10);
+
+    // For a sharded database, the elite set is resolved per shard and can
+    // select different terms because the max term weights vary with the
+    // per-shard term statistics.  I can't see a feasible way to create
+    // an equivalent MSet to compare with so for now at least we hard-code
+    // the expected values.
+    TEST_EQUAL(mymset2.size(), 3);
+    TEST_EQUAL(mymset2.get_matches_lower_bound(), 3);
+    TEST_EQUAL(mymset2.get_matches_estimated(), 3);
+    TEST_EQUAL(mymset2.get_matches_upper_bound(), 3);
+    TEST_EQUAL_DOUBLE(mymset2.get_max_possible(), 1.4848948390060121572);
+    TEST_EQUAL_DOUBLE(mymset2.get_max_attained(), 1.4848948390060121572);
+    mset_expect_order(mymset2, 3, 2, 4);
+    TEST_EQUAL_DOUBLE(mymset2[0].get_weight(), 1.4848948390060121572);
+    TEST_EQUAL_DOUBLE(mymset2[1].get_weight(), 1.0464816871772451012);
+    TEST_EQUAL_DOUBLE(mymset2[2].get_weight(), 0.64098768659591376373);
 }
 
 /// Regression test for problem with excess precision.

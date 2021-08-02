@@ -174,6 +174,9 @@ class ChertPostList : public LeafPostList {
 	/// The number of entries in the posting list.
 	Xapian::doccount number_of_entries;
 
+	/// Upper bound on wdf for this postlist.
+	Xapian::termcount wdf_upper_bound;
+
 	/// Copying is not allowed.
 	ChertPostList(const ChertPostList &);
 
@@ -275,6 +278,8 @@ class ChertPostList : public LeafPostList {
 
 	/// Return true if and only if we're off the end of the list.
 	bool at_end() const { return is_at_end; }
+
+	Xapian::termcount get_wdf_upper_bound() const;
 
 	/// Get a description of the document.
 	std::string get_description() const;

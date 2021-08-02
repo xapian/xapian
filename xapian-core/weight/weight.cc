@@ -23,6 +23,7 @@
 
 #include "xapian/weight.h"
 
+#include "api/leafpostlist.h"
 #include "weightinternal.h"
 
 #include "omassert.h"
@@ -57,9 +58,10 @@ Weight::init_(const Internal & stats, Xapian::termcount query_length)
 
 void
 Weight::init_(const Internal & stats, Xapian::termcount query_length,
-	      const string & term, Xapian::termcount wqf, double factor)
+	      const string & term, Xapian::termcount wqf, double factor,
+	      void* postlist_void)
 {
-    LOGCALL_VOID(MATCH, "Weight::init_", stats | query_length | term | wqf | factor);
+    LOGCALL_VOID(MATCH, "Weight::init_", stats | query_length | term | wqf | factor | postlist_void);
     collection_size_ = stats.collection_size;
     rset_size_ = stats.rset_size;
     if (stats_needed & AVERAGE_LENGTH)
@@ -68,8 +70,14 @@ Weight::init_(const Internal & stats, Xapian::termcount query_length,
 	doclength_upper_bound_ = stats.db.get_doclength_upper_bound();
     if (stats_needed & DOC_LENGTH_MIN)
 	doclength_lower_bound_ = stats.db.get_doclength_lower_bound();
-    if (stats_needed & WDF_MAX)
-	wdf_upper_bound_ = stats.db.get_wdf_upper_bound(term);
+    if (stats_needed & WDF_MAX) {
+	if (usual(postlist_void != nullptr)) {
+	    auto postlist = static_cast<LeafPostList*>(postlist_void);
+	    wdf_upper_bound_ = postlist->get_wdf_upper_bound();
+	} else {
+	    wdf_upper_bound_ = stats.db.get_wdf_upper_bound(term);
+	}
+    }
     if (stats_needed & (TERMFREQ | RELTERMFREQ | COLLECTION_FREQ)) {
 	bool ok = stats.get_stats(term,
 				  termfreq_, reltermfreq_, collectionfreq_);
@@ -79,6 +87,13 @@ Weight::init_(const Internal & stats, Xapian::termcount query_length,
     query_length_ = query_length;
     wqf_ = wqf;
     init(factor);
+}
+
+void
+Weight::init_(const Internal & stats, Xapian::termcount query_length,
+	      const string & term, Xapian::termcount wqf, double factor)
+{
+    init_(stats, query_length, term, wqf, factor, nullptr);
 }
 
 void

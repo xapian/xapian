@@ -311,7 +311,7 @@ LocalSubMatch::open_post_list(const string& term,
     if (weighted) {
 	Xapian::Weight * wt = wt_factory->clone();
 	if (!lazy_weight) {
-	    wt->init_(*stats, qlen, term, wqf, factor);
+	    wt->init_(*stats, qlen, term, wqf, factor, pl);
 	    if (pl->get_termfreq() > 0)
 		stats->set_max_part(term, wt->get_maxpart());
 	} else {

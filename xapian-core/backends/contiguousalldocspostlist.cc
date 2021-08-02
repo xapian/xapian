@@ -114,6 +114,12 @@ ContiguousAllDocsPostList::at_end() const
     return db.get() == NULL;
 }
 
+Xapian::termcount
+ContiguousAllDocsPostList::get_wdf_upper_bound() const
+{
+    return 1;
+}
+
 string
 ContiguousAllDocsPostList::get_description() const
 {

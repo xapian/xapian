@@ -24,6 +24,7 @@
 
 #include "net_postlist.h"
 #include "net/length.h"
+#include "omassert.h"
 #include "unicode/description_append.h"
 
 using namespace std;
@@ -101,6 +102,16 @@ bool
 NetworkPostList::at_end() const
 {
     return (pos == NULL && started);
+}
+
+Xapian::termcount
+NetworkPostList::get_wdf_upper_bound() const
+{
+    // This is only called when setting weights on PostList objects before
+    // a match, which shouldn't happen to NetworkPostList objects (as remote
+    // matching happens like a local match on the server).
+    Assert(false);
+    return 0;
 }
 
 string
