@@ -995,12 +995,12 @@ if test "$enable_backend_remote" = yes ; then
       dnl On Unix, we need fork and socketpair for the remotebackend.
       SAVE_LIBS=$LIBS
       AC_CHECK_FUNCS([fork], [], [
-	AC_MSG_ERROR([fork() required for the remote backend - if an extra library is needed, pass LIBS=-lfoo to configure.  Or --disable-backend-remote to disable it.)])
+	AC_MSG_ERROR([fork() required for the remote backend - if an extra library is needed, pass LIBS=-lfoo to configure.  Or --disable-backend-remote to disable it.])
       ])
       dnl Check if -lsocket is required for socketpair (Solaris needs it).
       dnl And on Haiku it's in -lnetwork.
       AC_SEARCH_LIBS([socketpair], [socket network], [], [
-	AC_MSG_ERROR([socketpair() required for the remote backend - if an extra library is needed, pass LIBS=-lfoo to configure.  Or --disable-backend-remote to disable it.)])
+	AC_MSG_ERROR([socketpair() required for the remote backend - if an extra library is needed, pass LIBS=-lfoo to configure.  Or --disable-backend-remote to disable it.])
       ])
       AC_DEFINE([HAVE_SOCKETPAIR], [1],
 		[Define to 1 if you have the 'socketpair' function.])
@@ -1012,10 +1012,10 @@ if test "$enable_backend_remote" = yes ; then
       dnl standard route for supporting IPv6, and that's pretty much essential
       dnl for platforms to support now.
       AC_SEARCH_LIBS([getaddrinfo], [nsl socket], [], [
-	AC_MSG_ERROR([getaddrinfo() required for the remote backend - if an extra library is needed, pass LIBS=-lfoo to configure.  Or --disable-backend-remote to disable it.)])
+	AC_MSG_ERROR([getaddrinfo() required for the remote backend - if an extra library is needed, pass LIBS=-lfoo to configure.  Or --disable-backend-remote to disable it.])
       ])
       AC_SEARCH_LIBS([inet_ntop], [nsl socket], [], [
-	AC_MSG_ERROR([inet_ntop() required for the remote backend - if an extra library is needed, pass LIBS=-lfoo to configure.  Or --disable-backend-remote to disable it.)])
+	AC_MSG_ERROR([inet_ntop() required for the remote backend - if an extra library is needed, pass LIBS=-lfoo to configure.  Or --disable-backend-remote to disable it.])
       ])
       XAPIAN_LIBS="$XAPIAN_LIBS $LIBS"
       LIBS=$SAVE_LIBS
