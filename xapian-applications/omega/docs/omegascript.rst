@@ -81,6 +81,8 @@ $allterms[{DOCID}]
 $base64{DATA}
         encodes DATA using base64.
 
+        Added in Omega 1.4.19.
+
 $cgi{CGI}
         lookup the value of a CGI parameter.  If the same parameter has
         multiple values, ``$cgi`` will pick one arbitrarily - use ``$cgilist``
