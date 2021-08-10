@@ -236,7 +236,7 @@ unxml
         ``unhtml``, but ``unhtml`` varies the whitespace type or omits it
         entirely, based on HTML tag semantics).
 
-        ``unxml`` was added in Omega 1.4.19.
+        ``unxml`` was added in Omega 1.5.0.
 
 value=VALUESLOT
 	add as a Xapian document value in slot VALUESLOT.  Values can be used
