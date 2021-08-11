@@ -26,6 +26,7 @@
 
 #include <string>
 
+#include <xapian/database.h>
 #include <xapian/registry.h>
 #include <xapian/types.h>
 #include <xapian/visibility.h>
@@ -289,7 +290,9 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
     XAPIAN_VISIBILITY_INTERNAL
     void init_(const Internal & stats, Xapian::termcount query_len_,
 	       const std::string & term, Xapian::termcount wqf_,
-	       double factor, void* postlist);
+	       double factor,
+	       const Xapian::Database::Internal* shard,
+	       void* postlist);
 
     /** @private @internal Initialise this object to calculate weights for a
      *  synonym.
@@ -304,7 +307,8 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
     XAPIAN_VISIBILITY_INTERNAL
     void init_(const Internal & stats, Xapian::termcount query_len_,
 	       double factor, Xapian::doccount termfreq,
-	       Xapian::doccount reltermfreq, Xapian::termcount collection_freq);
+	       Xapian::doccount reltermfreq, Xapian::termcount collection_freq,
+	       const Xapian::Database::Internal* shard);
 
     /** @private @internal Initialise this object to calculate the extra weight
      *  component.
@@ -313,7 +317,8 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
      *  @param query_len_ Query length.
      */
     XAPIAN_VISIBILITY_INTERNAL
-    void init_(const Internal & stats, Xapian::termcount query_len_);
+    void init_(const Internal & stats, Xapian::termcount query_len_,
+	       const Xapian::Database::Internal* shard);
 
     /** @private @internal Return true if the document length is needed.
      *

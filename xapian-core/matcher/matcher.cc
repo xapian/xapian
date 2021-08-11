@@ -310,8 +310,6 @@ Matcher::Matcher(const Xapian::Database& db_,
 	    submatch->prepare_match(stats);
 	});
 #endif
-
-    stats.set_bounds_from_db(db);
 }
 
 Xapian::MSet

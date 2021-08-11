@@ -74,9 +74,10 @@ class LeafPostList : public PostList {
 				   Xapian::Weight::Internal * stats,
 				   Xapian::termcount qlen,
 				   Xapian::termcount wqf,
-				   double factor)
+				   double factor,
+				   const Xapian::Database::Internal* shard)
     {
-	weight_->init_(*stats, qlen, term, wqf, factor, this);
+	weight_->init_(*stats, qlen, term, wqf, factor, shard, this);
 	// There should be an existing LazyWeight set already.
 	Assert(weight);
 	const Xapian::Weight * const_weight_ = weight_;

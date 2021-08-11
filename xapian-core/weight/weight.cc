@@ -37,17 +37,18 @@ using namespace std;
 namespace Xapian {
 
 void
-Weight::init_(const Internal & stats, Xapian::termcount query_length)
+Weight::init_(const Internal & stats, Xapian::termcount query_length,
+	      const Xapian::Database::Internal* shard)
 {
-    LOGCALL_VOID(MATCH, "Weight::init_", stats | query_length);
+    LOGCALL_VOID(MATCH, "Weight::init_", stats | query_length | shard);
     collection_size_ = stats.collection_size;
     rset_size_ = stats.rset_size;
     if (stats_needed & AVERAGE_LENGTH)
 	average_length_ = stats.get_average_length();
     if (stats_needed & DOC_LENGTH_MAX)
-	doclength_upper_bound_ = stats.db.get_doclength_upper_bound();
+	doclength_upper_bound_ = shard->get_doclength_upper_bound();
     if (stats_needed & DOC_LENGTH_MIN)
-	doclength_lower_bound_ = stats.db.get_doclength_lower_bound();
+	doclength_lower_bound_ = shard->get_doclength_lower_bound();
     if (stats_needed & TOTAL_LENGTH)
 	total_length_ = stats.total_length;
     collectionfreq_ = 0;
@@ -62,17 +63,18 @@ Weight::init_(const Internal & stats, Xapian::termcount query_length)
 void
 Weight::init_(const Internal & stats, Xapian::termcount query_length,
 	      const string & term, Xapian::termcount wqf, double factor,
+	      const Xapian::Database::Internal* shard,
 	      void* postlist_void)
 {
-    LOGCALL_VOID(MATCH, "Weight::init_", stats | query_length | term | wqf | factor | postlist_void);
+    LOGCALL_VOID(MATCH, "Weight::init_", stats | query_length | term | wqf | factor | shard | postlist_void);
     collection_size_ = stats.collection_size;
     rset_size_ = stats.rset_size;
     if (stats_needed & AVERAGE_LENGTH)
 	average_length_ = stats.get_average_length();
     if (stats_needed & DOC_LENGTH_MAX)
-	doclength_upper_bound_ = stats.db.get_doclength_upper_bound();
+	doclength_upper_bound_ = shard->get_doclength_upper_bound();
     if (stats_needed & DOC_LENGTH_MIN)
-	doclength_lower_bound_ = stats.db.get_doclength_lower_bound();
+	doclength_lower_bound_ = shard->get_doclength_lower_bound();
     if (stats_needed & TOTAL_LENGTH)
 	total_length_ = stats.total_length;
     if (stats_needed & WDF_MAX) {
@@ -93,16 +95,17 @@ Weight::init_(const Internal & stats, Xapian::termcount query_length,
 void
 Weight::init_(const Internal & stats, Xapian::termcount query_length,
 	      double factor, Xapian::doccount termfreq,
-	      Xapian::doccount reltermfreq, Xapian::termcount collection_freq)
+	      Xapian::doccount reltermfreq, Xapian::termcount collection_freq,
+	      const Xapian::Database::Internal* shard)
 {
-    LOGCALL_VOID(MATCH, "Weight::init_", stats | query_length | factor | termfreq | reltermfreq | collection_freq);
+    LOGCALL_VOID(MATCH, "Weight::init_", stats | query_length | factor | termfreq | reltermfreq | collection_freq | shard);
     // Synonym case.
     collection_size_ = stats.collection_size;
     rset_size_ = stats.rset_size;
     if (stats_needed & AVERAGE_LENGTH)
 	average_length_ = stats.get_average_length();
     if (stats_needed & (DOC_LENGTH_MAX | WDF_MAX)) {
-	doclength_upper_bound_ = stats.db.get_doclength_upper_bound();
+	doclength_upper_bound_ = shard->get_doclength_upper_bound();
 	// The doclength is an upper bound on the wdf.  This is obviously true
 	// for normal terms, but SynonymPostList ensures that it is also true
 	// for synonym terms by clamping the wdf values returned to the
@@ -113,7 +116,7 @@ Weight::init_(const Internal & stats, Xapian::termcount query_length,
 	wdf_upper_bound_ = doclength_upper_bound_;
     }
     if (stats_needed & DOC_LENGTH_MIN)
-	doclength_lower_bound_ = stats.db.get_doclength_lower_bound();
+	doclength_lower_bound_ = shard->get_doclength_lower_bound();
     if (stats_needed & TOTAL_LENGTH)
 	total_length_ = stats.total_length;
 

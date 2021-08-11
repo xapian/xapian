@@ -60,6 +60,8 @@ class LazyWeight : public Xapian::Weight {
 
     double factor;
 
+    const Xapian::Database::Internal* shard;
+
     LazyWeight * clone() const;
 
     void init(double factor_);
@@ -70,13 +72,15 @@ class LazyWeight : public Xapian::Weight {
 	       Xapian::Weight::Internal * stats_,
 	       Xapian::termcount qlen_,
 	       Xapian::termcount wqf__,
-	       double factor_)
+	       double factor_,
+	       const Xapian::Database::Internal* shard_)
 	: pl(pl_),
 	  real_wt(real_wt_),
 	  stats(stats_),
 	  qlen(qlen_),
 	  wqf(wqf__),
-	  factor(factor_)
+	  factor(factor_),
+	  shard(shard_)
     { }
 
     std::string name() const;
@@ -158,7 +162,7 @@ double
 LazyWeight::get_maxpart() const
 {
     // This gets called first for the case we care about.
-    return pl->resolve_lazy_termweight(real_wt, stats, qlen, wqf, factor);
+    return pl->resolve_lazy_termweight(real_wt, stats, qlen, wqf, factor, shard);
 }
 
 double
@@ -189,7 +193,7 @@ LocalSubMatch::get_postlist(PostListTree * matcher,
     if (pl) {
 	unique_ptr<Xapian::Weight> extra_wt(wt_factory.clone());
 	// Only uses term-independent stats.
-	extra_wt->init_(*total_stats, qlen);
+	extra_wt->init_(*total_stats, qlen, db);
 	if (extra_wt->get_maxextra() != 0.0) {
 	    // There's a term-independent weight contribution, so we combine
 	    // the postlist tree with an ExtraWeightPostList which adds in this
@@ -233,7 +237,7 @@ LocalSubMatch::make_synonym_postlist(PostListTree* pltree,
 	freqs = or_pl->get_termfreq_est_using_stats(*total_stats);
     }
     wt->init_(*total_stats, qlen, factor,
-	      freqs.termfreq, freqs.reltermfreq, freqs.collfreq);
+	      freqs.termfreq, freqs.reltermfreq, freqs.collfreq, db);
 
     res->set_weight(wt.release());
     RETURN(res.release());
@@ -306,14 +310,14 @@ LocalSubMatch::open_post_list(const string& term,
     if (weighted) {
 	Xapian::Weight * wt = wt_factory.clone();
 	if (!lazy_weight) {
-	    wt->init_(*total_stats, qlen, term, wqf, factor, pl);
+	    wt->init_(*total_stats, qlen, term, wqf, factor, db, pl);
 	    if (pl->get_termfreq() > 0)
 		total_stats->set_max_part(term, wt->get_maxpart());
 	} else {
 	    // Delay initialising the actual weight object, so that we can
 	    // gather stats for the terms lazily expanded from a wildcard
 	    // (needed for the remote database case).
-	    wt = new LazyWeight(pl, wt, total_stats, qlen, wqf, factor);
+	    wt = new LazyWeight(pl, wt, total_stats, qlen, wqf, factor, db);
 	}
 	pl->set_termweight(wt);
     }

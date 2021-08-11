@@ -659,7 +659,6 @@ RemoteServer::msg_query(const string &message_in)
 
     unique_ptr<Xapian::Weight::Internal> total_stats(new Xapian::Weight::Internal);
     unserialise_stats(p, p_end, *total_stats);
-    total_stats->set_bounds_from_db(*db);
 
     Xapian::MSet mset = matcher.get_mset(first, maxitems, check_at_least,
 					 *total_stats, *wt, 0, sorter.get(),
