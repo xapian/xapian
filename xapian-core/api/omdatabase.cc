@@ -595,7 +595,10 @@ Database::get_spelling_suggestion(const string &word,
 				  unsigned max_edit_distance) const
 {
     LOGCALL(API, string, "Database::get_spelling_suggestion", word | max_edit_distance);
-    if (word.size() <= 1) return string();
+    if (word.size() <= 1 || max_edit_distance == 0) return string();
+
+    max_edit_distance = min(max_edit_distance, unsigned(word.size() - 1));
+
     AutoPtr<TermList> merger;
     for (size_t i = 0; i < internal.size(); ++i) {
 	TermList * tl = internal[i]->open_spelling_termlist(word);
