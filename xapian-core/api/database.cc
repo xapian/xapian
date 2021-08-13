@@ -404,8 +404,10 @@ string
 Database::get_spelling_suggestion(const string& word,
 				  unsigned max_edit_distance) const
 {
-    if (word.size() <= 1)
+    if (word.size() <= 1 || max_edit_distance == 0)
 	return string();
+
+    max_edit_distance = min(max_edit_distance, unsigned(word.size() - 1));
 
     unique_ptr<TermList> merger(internal->open_spelling_termlist(word));
     if (!merger.get())
