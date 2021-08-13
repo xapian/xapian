@@ -297,14 +297,14 @@ LocalSubMatch::open_post_list(const string& term,
     }
 
     if (lazy_weight) {
-	// Term came from a wildcard, but we may already have that term in the
-	// query anyway, so check before accumulating its TermFreqs.
-	map<string, TermFreqs>::iterator i = stats->termfreqs.find(term);
-	if (i == stats->termfreqs.end()) {
-	    Xapian::doccount sub_tf;
-	    Xapian::termcount sub_cf;
-	    db->get_freqs(term, &sub_tf, &sub_cf);
-	    stats->termfreqs.insert(make_pair(term, TermFreqs(sub_tf, 0, sub_cf)));
+	auto res = stats->termfreqs.emplace(term, TermFreqs());
+	if (res.second) {
+	    // Term came from a wildcard, but the same term may be elsewhere
+	    // in the query so only accumulates its TermFreqs if emplace()
+	    // created a new element.
+	    db->get_freqs(term,
+			  &res.first->second.termfreq,
+			  &res.first->second.collfreq);
 	}
     }
 
