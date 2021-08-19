@@ -83,7 +83,7 @@ class Xapian::Diversify::Internal : public Xapian::Internal::intrusive_base {
      *  @param centroid_idx	Index of cluster to which the given centroid
      *  			belongs to in the cluster set
      */
-    std::pair<Xapian::docid, Xapian::docid>
+    std::pair<Xapian::docid, unsigned int>
     get_key(Xapian::docid doc_id, unsigned int centroid_idx);
 
     /** Compute pairwise similarities

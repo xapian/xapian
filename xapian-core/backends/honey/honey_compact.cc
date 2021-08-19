@@ -448,7 +448,8 @@ class PostlistCursor<const HoneyTable&> : private HoneyCursor {
     string key, tag;
     Xapian::docid firstdid;
     Xapian::docid chunk_lastdid;
-    Xapian::termcount tf, cf;
+    Xapian::doccount tf;
+    Xapian::termcount cf;
     Xapian::termcount first_wdf;
     Xapian::termcount wdf_max;
     bool have_wdfs;
