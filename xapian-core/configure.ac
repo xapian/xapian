@@ -280,20 +280,31 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([], [[
 ]])], [msvc=no], [msvc=yes])
 
 XAPIAN_CMAKE_SHARED=
+if test "$enable_shared" = yes; then
+  XAPIAN_CMAKE_SHARED=ON
+else
+  XAPIAN_CMAKE_SHARED=OFF
+fi
 AC_SUBST([XAPIAN_CMAKE_SHARED])
 
-if test "$enable_shared" = yes; then
-    XAPIAN_CMAKE_SHARED=ON
+if test "$msvc" = yes; then
+    LIBRARY_STATIC_EXT=.lib
 else
-    XAPIAN_CMAKE_SHARED=OFF
+    LIBRARY_STATIC_EXT=.a
 fi
+AC_SUBST([LIBRARY_STATIC_EXT])
+
+if test "$win32" = yes; then
+    LIBRARY_SHARED_IMP_EXT=$LIBRARY_STATIC_EXT
+else
+    LIBRARY_SHARED_IMP_EXT=
+fi
+AC_SUBST([LIBRARY_SHARED_IMP_EXT])
 
 XAPIAN_LDFLAGS=
 XAPIAN_LIBS=
-XAPIAN_CMAKE_LIBS=
 AC_SUBST([XAPIAN_LDFLAGS])
 AC_SUBST([XAPIAN_LIBS])
-AC_SUBST([XAPIAN_CMAKE_LIBS])
 
 AC_DEFUN([XAPIAN_TEST_FLAGS_],
   [
@@ -515,7 +526,6 @@ AC_SEARCH_LIBS([timer_create], [rt],
 #endif]])],
 	[AC_MSG_RESULT([yes])
 	XAPIAN_LIBS="$LIBS $XAPIAN_LIBS"
-	XAPIAN_CMAKE_LIBS=";rt$XAPIAN_CMAKE_LIBS"
 	AC_DEFINE([HAVE_TIMER_CREATE], [1], [Define to 1 if you have the 'timer_create' function.])]
 	,
 	[AC_MSG_RESULT([no])
@@ -908,13 +918,11 @@ case $enable_backend_glass$enable_backend_honey in
   dnl Check for zlibVersion in -lz.
   SAVE_LIBS=$LIBS
   dnl mingw build needs -lzlib or -lzdll.
-  AC_SEARCH_LIBS([zlibVersion], [z zlib zdll], [], [
+  AC_SEARCH_LIBS([zlibVersion], [z zlib zdll], [
+    XAPIAN_LIBS="$XAPIAN_LIBS -l$ac_lib"
+    ], [
     AC_MSG_ERROR([zlibVersion() not found in -lz, -lzlib, or -lzdll - required for glass (you may need to install the zlib1g-dev or zlib-devel package)])
     ])
-  if test x != x"$LIBS" ; then
-    XAPIAN_LIBS="$XAPIAN_LIBS $LIBS"
-    dnl CMake finds zlib itself using FindZLIB.cmake
-  fi
   LIBS=$SAVE_LIBS
 
   dnl Find the UUID library (from e2fsprogs/util-linux-ng, not the OSSP one).
@@ -929,7 +937,6 @@ case $enable_backend_glass$enable_backend_honey in
 	win32_need_lws2_32=1
       fi
       XAPIAN_LIBS="$XAPIAN_LIBS -lrpcrt4"
-      XAPIAN_CMAKE_LIBS="$XAPIAN_CMAKE_LIBS;rpcrt4"
       ;;
     *)
       dnl Check for uuid/uuid.h (e2fsprogs/util-linux-ng) or uuid.h
@@ -943,7 +950,6 @@ case $enable_backend_glass$enable_backend_honey in
 	  ])
 	if test x != x"$LIBS" ; then
 	  XAPIAN_LIBS="$XAPIAN_LIBS $LIBS"
-      XAPIAN_CMAKE_LIBS="$XAPIAN_CMAKE_LIBS;uuid"
 	fi
       ], [
 	dnl Try uuid.h as found on FreeBSD/NetBSD/OpenBSD/AIX, with associated
@@ -1042,7 +1048,6 @@ fi
 
 if test "$win32_need_lws2_32" = 1 ; then
   XAPIAN_LIBS="$XAPIAN_LIBS -lws2_32"
-  XAPIAN_CMAKE_LIBS="$XAPIAN_CMAKE_LIBS;ws2_32"
 fi
 
 AC_ARG_ENABLE([visibility],
@@ -1083,7 +1088,7 @@ dnl We need to actually check for a declaration as OS X has a dummy
 dnl implementation in the library which is not prototyped in any header.
 AC_CHECK_DECL([fdatasync(int)], [
   SAVE_LIBS=$LIBS
-  AC_SEARCH_LIBS([fdatasync], [rt], [XAPIAN_LIBS="$LIBS $XAPIAN_LIBS"; XAPIAN_CMAKE_LIBS=";rt;$XAPIAN_CMAKE_LIBS"])
+  AC_SEARCH_LIBS([fdatasync], [rt], [XAPIAN_LIBS="$LIBS $XAPIAN_LIBS"])
   LIBS=$SAVE_LIBS
   AC_CHECK_FUNCS([fdatasync])
   ],
@@ -1619,6 +1624,10 @@ dnl Split up the version number into "MAJOR.MINOR.REVISION".
 MAJOR_VERSION=`echo "$VERSION"|sed 's/\..*//'`
 [MINOR_VERSION=`echo "$VERSION"|sed 's/[^.]*\.//;s/\..*//'`]
 [REVISION=`echo "$VERSION"|sed 's/.*\.//;s/_.*$//'`]
+
+dnl Convert the libs in $XAPIAN_LIBS to a CMake list.
+XAPIAN_CMAKE_LIBS="$(echo " $XAPIAN_LIBS" | sed 's/ -l/;/g;s/ //g')"
+AC_SUBST([XAPIAN_CMAKE_LIBS])
 
 dnl **************************
 dnl * Build the output files *
