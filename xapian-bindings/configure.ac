@@ -143,7 +143,7 @@ if test yes = "$enable_documentation" ; then
   dnl Also look for rst2html.py, which archlinux reportedly installs it as.
   AC_PATH_PROGS(RST2HTML, [rst2html rst2html.py], [])
   AC_ARG_VAR([RST2HTML], [reST to HTML convertor])
-  test -z "$RST2HTML" && AC_MSG_ERROR([rst2html is required to build documentation (try package python-docutils)])
+  test -z "$RST2HTML" && AC_MSG_ERROR([rst2html is required to build documentation (try package python3-docutils)])
 fi
 
 if test x$USE_MAINTAINER_MODE = xyes; then
@@ -193,7 +193,8 @@ if test x$USE_MAINTAINER_MODE = xyes; then
   AC_SUBST([XAPIAN_HEADER_DIRS])
   AC_SUBST([XAPIAN_HEADERS])
 
-  dnl Need perl in maintainer mode to generate the except.i file for python.
+  dnl Need perl in maintainer mode to generate except.i files for several
+  dnl languages.
   AC_PATH_PROGS(PERL, ["${PERL-perl}"], [])
   test -z "$PERL" && AC_MSG_ERROR([perl is required in maintainer mode])
   dnl Need doxygen in maintainer mode to convert C++ doxygen comments to Python
@@ -202,11 +203,6 @@ if test x$USE_MAINTAINER_MODE = xyes; then
   AC_ARG_VAR([DOXYGEN], [Doxygen documentation system])
   test -z "$DOXYGEN" && AC_MSG_ERROR([doxygen is required to build documentation])
 fi
-
-AC_ARG_WITH(python,
-  AC_HELP_STRING([--with-python], [enable Python 2 bindings]),
-  [],
-  [with_python=])
 
 AC_ARG_WITH(python3,
   AC_HELP_STRING([--with-python3], [enable Python 3 bindings]),
@@ -248,10 +244,9 @@ AC_ARG_WITH(lua,
   [],
   [with_lua=])
 
-case $with_python$with_python3$with_php7$with_ruby$with_tcl$with_csharp$with_java$with_perl$with_lua in
+case $with_python3$with_php7$with_ruby$with_tcl$with_csharp$with_java$with_perl$with_lua in
 *yes*)
   dnl Default unspecified values to no.
-  test -z "$with_python" && with_python=no
   test -z "$with_python3" && with_python3=no
   test -z "$with_php7" && with_php7=no
   test -z "$with_tcl" && with_tcl=no
@@ -264,108 +259,6 @@ case $with_python$with_python3$with_php7$with_ruby$with_tcl$with_csharp$with_jav
 esac
 
 BINDINGS=
-
-if test no != "$with_python" ; then
-  dnl For backward compatibility:
-  : ${PYTHON2="$PYTHON"}
-  : ${PYTHON2_INC="$PYTHON_INC"}
-  : ${PYTHON2_LIB="$PYTHON_LIB"}
-  : ${PYTHON2_LIBS="$PYTHON_LIBS"}
-  : ${PYTHON2_SO="$PYTHON_SO"}
-  dnl See comment for AC_PATH_PROGS(SWIG, ...).
-  if test -n "$PYTHON2" ; then
-    AC_PATH_PROGS(PYTHON2, ["$PYTHON2"], [])
-  else
-    AC_PATH_PROGS(PYTHON2, [python2 python], [])
-  fi
-  AC_ARG_VAR(PYTHON2, [Python 2 interpreter])
-  if test -n "$PYTHON2" ; then
-    dnl Require Python 2.7 or newer.  Older versions are essentially
-    dnl unsupported upstream, and SWIG 4.0.0 dropped support for them too.
-    AC_MSG_CHECKING([$PYTHON2 version])
-    version=`$PYTHON2 -c 'import sys;print("%d.%d" % sys.version_info[[:2]])' 2>/dev/null`
-    case $version in
-    [2.[7-9]*|2.[1-5][0-9]*])
-      AC_MSG_RESULT([$version])
-      ;;
-    [[3-9].*])
-      AC_MSG_RESULT([$version (too new - use --with-python3 for Python 3 support)])
-      if test yes = "$with_python" ; then
-	AC_MSG_ERROR([Use --with-python3 for Python 3 support ($PYTHON2 is $version)])
-      fi
-      PYTHON2=
-      ;;
-    *)
-      AC_MSG_RESULT([$version (too old)])
-      if test yes = "$with_python" ; then
-	AC_MSG_ERROR([Only Python 2.6 or newer is supported ($PYTHON2 is $version)])
-      fi
-      PYTHON2=
-      ;;
-    esac
-    if test -n "$PYTHON2" ; then
-      if $PYTHON2 -c 'import distutils.sysconfig' 2>/dev/null ; then
-	PYTHON2_INC=`$PYTHON2 -c 'import os,distutils.sysconfig;print(distutils.sysconfig.get_python_inc().replace(os.sep,"/"))'`
-	AC_SUBST(PYTHON2_INC)
-      else
-	if test yes = "$with_python" ; then
-	  AC_MSG_ERROR([Couldn't import Python module distutils.sysconfig - you probably need to install a python-dev or python-devel package])
-	else
-	  AC_MSG_WARN([Couldn't import Python module distutils.sysconfig - you probably don't have a python-dev or python-devel package installed])
-	  PYTHON2=
-	fi
-      fi
-    fi
-    AC_MSG_CHECKING([for python2 sphinx module])
-    if $PYTHON2 -c 'import sphinx;print(repr(sphinx.main))' >&5 2>&5 ; then
-      AC_MSG_RESULT([yes])
-    else
-      AC_MSG_RESULT([no])
-      if test yes = "$with_python" ; then
-	AC_MSG_ERROR([Couldn't import sphinx module and call sphinx.main() for Python2 - try package python-sphinx])
-      fi
-      PYTHON2=
-    fi
-    if test -n "$PYTHON2" ; then
-      dnl Check that Python.h is there, which is a good way to check that
-      dnl the appropriate python-dev package has been installed.
-      AC_MSG_CHECKING([for $PYTHON2_INC/Python.h])
-      if test -f "$PYTHON2_INC/Python.h" ; then
-	AC_MSG_RESULT(yes)
-	AC_MSG_CHECKING([for directory to install python2 bindings in])
-	if test -z "$PYTHON2_LIB" ; then
-	  PYTHON2_LIB=`$PYTHON2 -c 'import os,distutils.sysconfig;print(distutils.sysconfig.get_python_lib(1).replace(os.sep,"/"))'`
-	fi
-	AC_MSG_RESULT([$PYTHON2_LIB])
-	AC_ARG_VAR(PYTHON2_LIB, [Directory to install python2 bindings in])
-
-	AC_MSG_CHECKING([for python2 libraries to link against])
-	case $host_os in
-	mingw* | pw32*)
-	  PYTHON2_LIBS=`$PYTHON2 -c 'import os,sys;print("-L"+os.path.join(sys.prefix,"libs").replace(os.sep,"/")+" -lpython"+sys.version[[:3]].replace(".",""))'` ;;
-	cygwin*)
-	  PYTHON2_LIBS=`$PYTHON2 -c 'import os,sys;print("-L"+os.path.join(sys.path[[3]],"config")+" -lpython"+sys.version[[:3]])'` ;;
-	*)
-	  PYTHON2_LIBS= ;;
-	esac
-	AC_SUBST(PYTHON2_LIBS)
-	AC_MSG_RESULT([$PYTHON2_LIBS])
-
-	AC_MSG_CHECKING([for python2 module extension])
-	dnl Usually ".so", but for example, Mac OS X uses ".dylib".
-	PYTHON2_SO=`$PYTHON2 -c 'import distutils.sysconfig;print(distutils.sysconfig.get_config_vars("SO")[[0]])'`
-	AC_SUBST(PYTHON2_SO)
-	AC_MSG_RESULT([$PYTHON2_SO])
-	BINDINGS="$BINDINGS python"
-      else
-	AC_MSG_RESULT([no (install python-dev or python-devel package or similar)])
-	if test yes = "$with_python" ; then
-	  AC_MSG_ERROR([Python.h not found])
-	fi
-      fi
-    fi
-  fi
-fi
 
 if test no != "$with_python3" ; then
   dnl See comment for AC_PATH_PROGS(SWIG, ...).
@@ -470,13 +363,11 @@ fi
 
 if test x$USE_MAINTAINER_MODE = xyes; then
   dnl Need python in maintainer mode to run doxy2swig.py.
-  dnl Either Python 2 or 3 is OK for this.
-  if test -n "$PYTHON2" ; then
-    PYTHON=$PYTHON2
-  elif test -n "$PYTHON3" ; then
+  if test -n "$PYTHON3" ; then
     PYTHON=$PYTHON3
   else
-    AC_PATH_PROGS(PYTHON, [python2 python python3], [])
+    dnl Either Python 2 or 3 is OK so no need to check the version.
+    AC_PATH_PROGS(PYTHON, [python3 python], [])
   fi
   test -z "$PYTHON" && AC_MSG_ERROR([python is required in maintainer mode])
 fi
@@ -1211,7 +1102,7 @@ fi
 AC_SUBST(BINDINGS)
 
 case $BINDINGS in
-*python*) dnl Matches python and/or python3
+*python3*)
   dnl C++11 has thread_local
   dnl GCC and some others have __thread
   dnl MSVC and some others have __declspec(thread)
@@ -1304,7 +1195,6 @@ AC_SUBST([AUTOM4TE])
 AC_CONFIG_FILES([Makefile
  doxygen_xml.conf
  xapian-version.h
- python/Makefile python/docs/conf.py python/version.i
  python3/Makefile python3/docs/conf.py python3/version.i
  php7/Makefile
  java/Makefile

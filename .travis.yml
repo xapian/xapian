@@ -18,16 +18,15 @@ matrix:
             - doxygen
             - graphviz
             - help2man
-            - python-docutils
+            - python3-docutils
             - pngcrush
-            - python-sphinx
+            - python3-sphinx
             - uuid-dev
             - libpcre3-dev
             - libmagic-dev
             - lua5.3
             - liblua5.3-dev
             - mono-devel
-            - python-dev
             - python3-dev
             - tcl
             - libsvm-dev
@@ -54,9 +53,9 @@ matrix:
             - doxygen
             - graphviz
             - help2man
-            - python-docutils
+            - python3-docutils
             - pngcrush
-            - python-sphinx
+            - python3-sphinx
             - uuid-dev
             - libpcre3-dev
             - libmagic-dev
@@ -87,16 +86,15 @@ matrix:
             - doxygen
             - graphviz
             - help2man
-            - python-docutils
+            - python3-docutils
             - pngcrush
-            - python-sphinx
+            - python3-sphinx
             - uuid-dev
             - libpcre3-dev
             - libmagic-dev
             - lua5.2
             - liblua5.2-dev
             - mono-devel
-            - python-dev
             - python3-dev
             - tcl
             - libsvm-dev
@@ -113,8 +111,8 @@ matrix:
             - doxygen
             - graphviz
             - help2man
-            - python-docutils
-            - python-pygments
+            - python3-docutils
+            - python3-pygments
             - pngcrush
       language: node_js
       node_js:
@@ -159,11 +157,9 @@ matrix:
             - pngcrush
             - poppler
             - python
-            - python2
             - tesseract
       before_install:
-        - travis_retry pip2 install sphinx docutils
-        - travis_retry pip3 install sphinx
+        - travis_retry pip3 install sphinx docutils
         - mkdir -p /tmp/xapian-libsvm-fixed-include
         - ln -sF "`ls -1d /usr/local/Cellar/libsvm/3.*/include|tail -n 1`" /tmp/xapian-libsvm-fixed-include/libsvm
       install:
@@ -171,7 +167,7 @@ matrix:
         - export PATH=/usr/local/opt/ccache/libexec:$PATH
       # The default macOS make behaves oddly when the -j option is used
       # (probably rules get run in a single subshell) so use GNU make instead.
-      env: PYTHON2=/usr/local/bin/python2 CPPFLAGS=-I/tmp/xapian-libsvm-fixed-include PKG_CONFIG_PATH=/usr/local/opt/icu4c/lib/pkgconfig confargs='--prefix=/Users/travis/XapianInstall --with-libiconv-prefix=/usr/local/opt/libiconv' installcore='make -C xapian-core install'
+      env: PYTHON3=/usr/local/bin/python CPPFLAGS=-I/tmp/xapian-libsvm-fixed-include PKG_CONFIG_PATH=/usr/local/opt/icu4c/lib/pkgconfig confargs='--prefix=/Users/travis/XapianInstall --with-libiconv-prefix=/usr/local/opt/libiconv' installcore='make -C xapian-core install'
     - name: "Automated run of xapian-check-patch"
       os: linux
       arch: arm64 # Arch doesn't matter and arm64 doesn't consume credits

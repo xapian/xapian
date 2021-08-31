@@ -50,16 +50,16 @@ Debian stretch: all required are packages installed by default.
 PHP7
 ----
 
-Debian stretch::
+Debian bullseye::
 
 apt-get install php-cli php-dev
 
-Python
-------
+Python3
+-------
 
-Debian stretch::
+Debian bullseye::
 
-apt-get install python-dev
+apt-get install python3-dev
 
 Ruby
 ----

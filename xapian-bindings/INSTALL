@@ -37,9 +37,6 @@ The simplest way to compile this package is:
      files you need to build the bindings into a separate package with a
      `-dev` or `-devel` suffix.  Additional per-language dependencies are:
 
-       * python:
-         - Sphinx Documentation Generator: https://www.sphinx-doc.org/
-	   The package you want might be python-sphinx.
        * python3:
          - Sphinx Documentation Generator: https://www.sphinx-doc.org/
 	   The package you want might be python3-sphinx.
@@ -78,7 +75,7 @@ The simplest way to compile this package is:
      variables, see the output of 'configure --help' - for example, for
      Python you might use:
 
-       ./configure PYTHON=/opt/bin/python2.6
+       ./configure PYTHON3=/opt/bin/python3.9
 
      If you don't have root access and want to compile any of the bindings
      other than C#, Java and PHP, read the next section: "Installing without
@@ -150,26 +147,6 @@ Installing without root access
 
      This will symlink all of them, but you only actually need those that
      get loaded.
-
-  Python 2:
-
-     ./configure --with-python --prefix=$HOME/install PYTHON_LIB=$HOME/.local
-     make
-     make install
-
-     Python 2.6 and later will look in ~/.local for packages automatically
-     so the above is all that is required by default.  If you set PYTHON_LIB to
-     a different directory, you'll need to tell Python to look for modules in
-     that directory.  Here are two possible ways to do that:
-
-     setenv PYTHONPATH=$HOME/mypymods python myscript.py
-
-     Or you can add this to the start of your Python scripts:
-
-     import os
-     import sys
-     sys.path.insert(0, os.environ['HOME'] + "/mypymods")
-     import xapian
 
   Python 3:
 
