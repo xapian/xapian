@@ -116,7 +116,7 @@ A Boolean construct of terms retrieves a corresponding set of documents.
 So, if:
 
     |    :math:`t_1` indexes documents  1 2 3 5 8
-    |    :math:`t_1` indexes documents  2 3 6
+    |    :math:`t_2` indexes documents  2 3 6
 
 then
 
