@@ -105,13 +105,16 @@ class XAPIAN_VISIBILITY_DEFAULT SimpleStopper : public Stopper {
 
     /** Initialise from a pair of iterators.
      *
-     * Xapian includes stop list files for many languages. You can initialise
-     * from a file like so:
-     * @code
-     * std::ifstream words("stopwords/english/stop.txt");
-     * Xapian::SimplerStopper stopper(std::istream_iterator<std::string>(words), std::istream_iterator<std::string>());
-     * @endcode
+     *  Xapian includes stopword list files for many languages.  You can
+     *  initialise from a file like so:
+     *  @code
+     *  std::ifstream words("stopwords/english/stop.txt");
+     *  Xapian::SimplerStopper stopper(std::istream_iterator<std::string>(words), std::istream_iterator<std::string>());
+     *  @endcode
      *
+     *  In bindings for other languages it isn't possible to pass a C++
+     *  iterator pair, so instead this constructor is wrapped to allow
+     *  passing a filename.
      */
     template<class Iterator>
     SimpleStopper(Iterator begin, Iterator end) : stop_words(begin, end) { }
