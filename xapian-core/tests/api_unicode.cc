@@ -1,7 +1,7 @@
 /** @file
  * @brief Test the Unicode and UTF-8 classes and functions.
  */
-/* Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020 Olly Betts
+/* Copyright (C) 2006-2021 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -169,14 +169,20 @@ DEFINE_TESTCASE(unicode1, !backend) {
     TEST_EQUAL(Unicode::get_category(0x093A), Unicode::NON_SPACING_MARK);
     // U+093B was added in Unicode 6.0.0.
     TEST_EQUAL(Unicode::get_category(0x093B), Unicode::COMBINING_SPACING_MARK);
-    // U+0B55 was added in Unicode 13.0.0.
-    TEST_EQUAL(Unicode::get_category(0x0B55), Unicode::NON_SPACING_MARK);
+    // U+20C0 was added in Unicode 14.0.0.
+    TEST_EQUAL(Unicode::get_category(0x20C0), Unicode::CURRENCY_SYMBOL);
+    // U+0242 was added in Unicode 5.0.0.
+    TEST_EQUAL(Unicode::get_category(0xa3), Unicode::CURRENCY_SYMBOL);
     // U+0CF1 changed category in Unicode 6.0.0.
     TEST_EQUAL(Unicode::get_category(0x0CF1), Unicode::OTHER_LETTER);
     // U+0CF2 changed category in Unicode 6.0.0.
     TEST_EQUAL(Unicode::get_category(0x0CF2), Unicode::OTHER_LETTER);
     // U+11A7 was added in Unicode 5.2.0.
     TEST_EQUAL(Unicode::get_category(0x11A7), Unicode::OTHER_LETTER);
+    // U+2C2F was added in Unicode 14.0.0.
+    TEST_EQUAL(Unicode::get_category(0x2C2F), Unicode::UPPERCASE_LETTER);
+    // U+2C5F was added in Unicode 14.0.0.
+    TEST_EQUAL(Unicode::get_category(0x2C5F), Unicode::LOWERCASE_LETTER);
     // U+2B97 was added in Unicode 13.0.0.
     TEST_EQUAL(Unicode::get_category(0x2B97), Unicode::OTHER_SYMBOL);
     // U+9FCB was added in Unicode 5.2.0.
@@ -475,6 +481,12 @@ DEFINE_TESTCASE(caseconvert2, !backend) {
     TEST_EQUAL(Unicode::toupper(0xA7C8), 0xA7C7);
     TEST_EQUAL(Unicode::toupper(0xA7C7), 0xA7C7);
     TEST_EQUAL(Unicode::tolower(0xA7C7), 0xA7C8);
+
+    // Added in Unicode 14.0.0.
+    TEST_EQUAL(Unicode::tolower(0x2C5F), 0x2C5F);
+    TEST_EQUAL(Unicode::toupper(0x2C5F), 0x2C2F);
+    TEST_EQUAL(Unicode::toupper(0x2C2F), 0x2C2F);
+    TEST_EQUAL(Unicode::tolower(0x2C2F), 0x2C5F);
 }
 
 DEFINE_TESTCASE(utf8convert1, !backend) {
@@ -507,6 +519,7 @@ DEFINE_TESTCASE(unicodepredicates1, !backend) {
 	0x10D30, // (added in Unicode 11.0.0)
 	0x11D51, // (added in Unicode 10.0.0)
 	0x11DA9, // (added in Unicode 11.0.0)
+	0x16AC9, // (added in Unicode 14.0.0)
 	// OTHER_NUMBER
 	0x1ECB3, // (added in Unicode 11.0.0)
 	// LOWERCASE_LETTER
@@ -515,14 +528,17 @@ DEFINE_TESTCASE(unicodepredicates1, !backend) {
 	// LOWERCASE_LETTER (added in Unicode 5.1.0)
 	0x371, 0x373, 0x377, 0x514, 0x516, 0x518, 0x51a, 0x51c, 0x51e,
 	0x520, 0x522,
+	0xA7C1, // (added in Unicode 14.0.0)
 	0x16E78, // (added in Unicode 11.0.0)
 	// UPPERCASE_LETTER
 	'A', 'Z', 0x241,
 	// UPPERCASE_LETTER (added in Unicode 5.1.0)
 	0x370, 0x372, 0x376, 0x3cf, 0x515, 0x517, 0x519, 0x51b, 0x51d, 0x51f,
 	0x521, 0x523, 0x2c6d, 0x2c6e, 0x2c6f,
+	0xA7C0, // (added in Unicode 14.0.0)
 	0x16E45, // (added in Unicode 11.0.0)
 	// OTHER_LETTER
+	0x870, // (added in Unicode 14.0.0)
 	0x8bb, // Added in Unicode 9.0.0
 	0x8c7, // Added in Unicode 13.0.0
 	0xc80, // Added in Unicode 9.0.0
@@ -532,11 +548,13 @@ DEFINE_TESTCASE(unicodepredicates1, !backend) {
 	// MODIFIER_LETTER
 	0x2ec, // Added in Unicode 5.1.0
 	0x374, // Added in Unicode 5.1.0
+	0x8c9, // Added in Unicode 14.0.0
 	0x16fe1, // Added in Unicode 10.0.0
 	0x16fe3, // Added in Unicode 12.0.0
 	// NON_SPACING_MARK (added to is_wordchar() in 1.1.0)
 	0x651,
 	0x487, // Added in Unicode 5.1.0
+	0x899, // Added in Unicode 14.0.0
 	0x8d3, // Added in Unicode 11.0.0
 	0x8db, // Added in Unicode 9.0.0
 	0xeba, // Added in Unicode 12.0.0
@@ -557,6 +575,8 @@ DEFINE_TESTCASE(unicodepredicates1, !backend) {
 	0x7fe,
 	// CURRENCY_SYMBOL (added in Unicode 12.0.0)
 	0x1e2ff,
+	// CURRENCY_SYMBOL (added in Unicode 14.0.0)
+	0x20c0,
 	0
     };
     static const unsigned whitespace[] = {
@@ -567,17 +587,20 @@ DEFINE_TESTCASE(unicodepredicates1, !backend) {
 	0
     };
     static const unsigned other[] = {
-	// DASH_PUNCTUATION (added in Unicode 5.1.0)
-	0x5be,
+	// DASH_PUNCTUATION
+	0x5be, // Added in Unicode 5.1.0
+	0x2e5d, // Added in Unicode 14.0.0
 	// OTHER_SYMBOL
 	0xd4f, // Added in Unicode 9.0.0
 	0x2b97, // Added in Unicode 13.0.0
 	0x32ff, // Added in Unicode 12.1.0; UNASSIGNED before
+	0xfdcF, // Added in Unicode 14.0.0
 	0x1f093, // Added in Unicode 5.1.0
 	0x1f263, // Added in Unicode 10.0.0
 	0x1fa62, // Added in Unicode 11.0.0
 	// FORMAT
 	0x61c, // Added in Unicode 6.3.0
+	0x891, // Added in Unicode 14.0.0
 	0x8e2, // Added in Unicode 9.0.0
 	// UNASSIGNED
 	0xffff, 0x10ffff, 0x110000, 0xFFFFFFFF,
