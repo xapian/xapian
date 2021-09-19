@@ -1,7 +1,7 @@
 /** @file
  * @brief Convert errno value to std::string, thread-safely if possible
  */
-/* Copyright (C) 2014,2015,2016 Olly Betts
+/* Copyright (C) 2014,2015,2016,2021 Olly Betts
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -42,7 +42,19 @@ using namespace std;
 void
 errno_to_string(int e, string& s)
 {
-#if defined HAVE__SYS_ERRLIST_AND__SYS_NERR
+    // Use a thread-safe way to convert an errno value to a string if possible.
+#ifdef HAVE_STRERRORDESC_NP
+    // GNU-specific replacement for sys_errlist and sys_nerr, added in glibc
+    // 2.32.
+    const char* desc = strerrordesc_np(e);
+    if (desc) {
+	s += desc;
+    } else {
+	s += "Unknown error ";
+	s += str(e);
+    }
+#elif defined HAVE__SYS_ERRLIST_AND__SYS_NERR
+    // Old-style Unix fixed array of strings.
     if (e >= 0 && e < _sys_nerr && _sys_errlist[e]) {
 	s += _sys_errlist[e];
     } else {
@@ -50,6 +62,7 @@ errno_to_string(int e, string& s)
 	s += str(e);
     }
 #elif defined HAVE_SYS_ERRLIST_AND_SYS_NERR
+    // Old-style Unix fixed array of strings.
     if (e >= 0 && e < sys_nerr && sys_errlist[e]) {
 	s += sys_errlist[e];
     } else {
@@ -57,10 +70,30 @@ errno_to_string(int e, string& s)
 	s += str(e);
     }
 #elif defined HAVE_STRERROR_R
+    // POSIX specifies strerror_r() to provide a thread-safe way to translate
+    // an errno value to a string.
+    //
+    // Unhelpfully this requires us to pass in a buffer, but we don't know how
+    // big to make it to reliably be able to convert all possible errno values,
+    // and the implementation is permitted to return localised strings so the
+    // maximum possible length may vary depending on the current locale
+    // settings.
+    //
+    // If the buffer passed is too small, then with older glibc errno gets
+    // stomped on, so growing the buffer on error and retrying isn't a great
+    // answer.  Hence we only use strerror_r() if we don't have a better
+    // alternative.
+    //
+    // Another reason to have support for alternative approaches is that
+    // strerror_r() is marked as "optional" by POSIX.
+    //
+    // A further complication is there's a GNU-specific strerror_r() with a
+    // different return value type.
+    //
     // Actual longest on Linux in English is EILSEQ which needs 50 bytes.
     char buf[128];
 # ifdef STRERROR_R_CHAR_P
-    // Returns char* containing string.
+    // Returns char* pointing to string describing error.
     s += strerror_r(e, buf, sizeof(buf));
 # else
     // XSI-compliant strerror_r returns int:  0 means success; a positive error
@@ -75,8 +108,11 @@ errno_to_string(int e, string& s)
     }
 # endif
 #else
-    // Not thread safe.  "C99 and POSIX.1-2008 require the return value to be
-    // non-NULL" and we require C++11 which incorporates C99.
+    // Not thread safe.
+    //
+    // We can assume the return value is non-NULL because "C99 and POSIX.1-2008
+    // require the return value to be non-NULL" and we require C++11 which
+    // incorporates C99.
     s += strerror(e);
 #endif
 }
