@@ -90,8 +90,10 @@ errno_to_string(int e, string& s)
     // A further complication is there's a GNU-specific strerror_r() with a
     // different return value type.
     //
-    // Actual longest on Linux in English is EILSEQ which needs 50 bytes.
-    char buf[128];
+    // The strerror_r(3) man page on Linux suggests a buffer size of 1024
+    // characters, noting that glibc uses this size for strerror().  The
+    // actual longest on Linux in English is EILSEQ which needs 50 bytes.
+    char buf[1024];
 # ifdef STRERROR_R_CHAR_P
     // Returns char* pointing to string describing error.
     s += strerror_r(e, buf, sizeof(buf));
