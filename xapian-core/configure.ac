@@ -770,6 +770,9 @@ if test "x$xo_cv__sys_errlist_and__sys_nerr" = "xyes" ; then
   AC_DEFINE([HAVE__SYS_ERRLIST_AND__SYS_NERR], [1],[Define if you have '_sys_errlist' and '_sys_nerr'])
 fi
 
+dnl GNU-specific replacement for sys_errlist and sys_nerr.
+AC_CHECK_FUNCS([strerrordesc_np])
+
 dnl mingw has _snprintf so check for that too.
 AC_MSG_CHECKING([for  snprintf])
 AC_CACHE_VAL([xo_cv_func_snprintf],
