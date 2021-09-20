@@ -481,36 +481,6 @@ case $host_os in
     ;;
 esac
 
-dnl We use timer_create() if available to implement a search time limit.
-SAVE_LIBS=$LIBS
-AC_SEARCH_LIBS([timer_create], [rt],
-	       [
-    AC_MSG_CHECKING([for timer_create() usability])
-    dnl Several platforms have timer_create() but it's non-functional.
-    dnl
-    dnl Some of these (at least those with a stub implementation which always
-    dnl fails with ENOSYS) could be probed for, but we'd have to run code
-    dnl which isn't possible when cross-compiling, so just maintain a list
-    dnl of such platforms for now.
-    AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
-[[#if defined _AIX
-#error timer_create always fails with EAGAIN on AIX 7.1
-#elif defined __GNU__
-#error timer_create always fails with ENOSYS on GNU Hurd
-#elif defined __NetBSD__
-#error timer_create timers never fire on NetBSD 7.1
-#elif defined __OpenBSD__
-#error timer_create always fails with ENOSYS on OpenBSD 6.2 (and no prototype)
-#endif]])],
-	[AC_MSG_RESULT([yes])
-	XAPIAN_LIBS="$LIBS $XAPIAN_LIBS"
-	AC_DEFINE([HAVE_TIMER_CREATE], [1], [Define to 1 if you have the 'timer_create' function.])]
-	,
-	[AC_MSG_RESULT([no])
-    ])
-])
-LIBS=$SAVE_LIBS
-
 dnl Used by tests/soaktest/soaktest.cc
 AC_CHECK_FUNCS([srandom random])
 
@@ -837,6 +807,50 @@ case $host_os in
 esac
 XAPIAN_BACKEND_ENABLE([remote], [$default_enable_backend_remote], [yes (except for MSDOS)])
 
+dnl Save and empty LIBS while we probe for libraries to link libxapian against
+dnl so we can just use AC_SEARCH_LIBS then copy LIBS to XAPIAN_LIBS and restore
+dnl the value saved here.
+save_LIBS=$LIBS
+LIBS=
+
+dnl See if we have fdatasync, and what libraries are needed for it.
+dnl We need to actually check for a declaration as OS X has a dummy
+dnl implementation in the library which is not prototyped in any header.
+AC_CHECK_DECL([fdatasync(int)], [
+  AC_SEARCH_LIBS([fdatasync], [rt], [])
+  AC_CHECK_FUNCS([fdatasync])
+  ],
+  [ac_cv_func_fdatasync=no],
+  [#include <unistd.h>]
+)
+
+dnl We use timer_create() if available to implement a search time limit.
+AC_SEARCH_LIBS([timer_create], [rt],
+	       [
+    AC_MSG_CHECKING([for timer_create() usability])
+    dnl Several platforms have timer_create() but it's non-functional.
+    dnl
+    dnl Some of these (at least those with a stub implementation which always
+    dnl fails with ENOSYS) could be probed for, but we'd have to run code
+    dnl which isn't possible when cross-compiling, so just maintain a list
+    dnl of such platforms for now.
+    AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
+[[#if defined _AIX
+#error timer_create always fails with EAGAIN on AIX 7.1
+#elif defined __GNU__
+#error timer_create always fails with ENOSYS on GNU Hurd
+#elif defined __NetBSD__
+#error timer_create timers never fire on NetBSD 7.1
+#elif defined __OpenBSD__
+#error timer_create always fails with ENOSYS on OpenBSD 6.2 (and no prototype)
+#endif]])],
+	[AC_MSG_RESULT([yes])
+	AC_DEFINE([HAVE_TIMER_CREATE], [1], [Define to 1 if you have the 'timer_create' function.])]
+	,
+	[AC_MSG_RESULT([no])
+    ])
+])
+
 win32_need_lws2_32=0
 case $enable_backend_chert$enable_backend_glass in
 *yes*)
@@ -852,16 +866,10 @@ case $enable_backend_chert$enable_backend_glass in
     AC_MSG_ERROR([zlib.h not found - required for chert and glass (you may need to install the zlib1g-dev or zlib-devel package)])
     ], [ ])
 
-  dnl Check for zlibVersion in -lz.
-  SAVE_LIBS=$LIBS
-  dnl mingw build needs -lzlib or -lzdll.
+  dnl Check for zlibVersion - normally it's in -lz but the mingw build needs -lzlib or -lzdll.
   AC_SEARCH_LIBS([zlibVersion], [z zlib zdll], [], [
     AC_MSG_ERROR([zlibVersion() not found in -lz, -lzlib, or -lzdll - required for chert and glass (you may need to install the zlib1g-dev or zlib-devel package)])
     ])
-  if test x != x"$LIBS" ; then
-    XAPIAN_LIBS="$XAPIAN_LIBS $LIBS"
-  fi
-  LIBS=$SAVE_LIBS
 
   dnl Find the UUID library (from e2fsprogs/util-linux-ng, not the OSSP one).
 
@@ -874,7 +882,7 @@ case $enable_backend_chert$enable_backend_glass in
 	dnl provides these functions in its libc.
 	win32_need_lws2_32=1
       fi
-      XAPIAN_LIBS="$XAPIAN_LIBS -lrpcrt4"
+      LIBS="$LIBS -lrpcrt4"
       ;;
     *)
       dnl Check for uuid/uuid.h (e2fsprogs/util-linux-ng) or uuid.h
@@ -882,13 +890,9 @@ case $enable_backend_chert$enable_backend_glass in
       AC_CHECK_HEADERS([uuid/uuid.h], [
 	dnl util-linux-ng's uuid/uuid.h found - check for uuid_generate in
 	dnl -luuid.
-	SAVE_LIBS=$LIBS
 	AC_SEARCH_LIBS([uuid_generate], [uuid], [], [
 	  AC_MSG_ERROR([uuid_generate() not found in -luuid - required for chert and glass (you may need to install the uuid-dev, libuuid-devel or e2fsprogs-devel package)])
 	  ])
-	if test x != x"$LIBS" ; then
-	  XAPIAN_LIBS="$XAPIAN_LIBS $LIBS"
-	fi
       ], [
 	dnl Try uuid.h as found on FreeBSD/NetBSD/OpenBSD/AIX, with associated
 	dnl code in libc.
@@ -915,7 +919,6 @@ case $enable_backend_chert$enable_backend_glass in
       ], [ ])
       ;;
   esac
-  LIBS=$SAVE_LIBS
 
   case $host_os in
     *djgpp* | *msdos* )
@@ -952,7 +955,6 @@ if test "$enable_backend_remote" = yes ; then
       ;;
     *)
       dnl On Unix, we need fork and socketpair for the remotebackend.
-      SAVE_LIBS=$LIBS
       AC_CHECK_FUNCS([fork], [], [
 	AC_MSG_ERROR([fork() required for the remote backend - if an extra library is needed, pass LIBS=-lfoo to configure.  Or --disable-backend-remote to disable it.])
       ])
@@ -976,8 +978,6 @@ if test "$enable_backend_remote" = yes ; then
       AC_SEARCH_LIBS([inet_ntop], [nsl socket], [], [
 	AC_MSG_ERROR([inet_ntop() required for the remote backend - if an extra library is needed, pass LIBS=-lfoo to configure.  Or --disable-backend-remote to disable it.])
       ])
-      XAPIAN_LIBS="$XAPIAN_LIBS $LIBS"
-      LIBS=$SAVE_LIBS
       ;;
   esac
 
@@ -985,8 +985,10 @@ if test "$enable_backend_remote" = yes ; then
 fi
 
 if test "$win32_need_lws2_32" = 1 ; then
-  XAPIAN_LIBS="$XAPIAN_LIBS -lws2_32"
+  LIBS="$LIBS -lws2_32"
 fi
+XAPIAN_LIBS=$LIBS
+LIBS=$save_LIBS
 
 AC_ARG_ENABLE([visibility],
   [AS_HELP_STRING([--disable-visibility], [disable use of GCC visibility])],
@@ -1020,19 +1022,6 @@ if test -n "$VALGRIND" ; then
   esac
 fi
 AM_CONDITIONAL([USE_ZLIB_VG], [test yes = "$use_zlib_vg"])
-
-dnl See if we have fdatasync, and what libraries are needed for it.
-dnl We need to actually check for a declaration as OS X has a dummy
-dnl implementation in the library which is not prototyped in any header.
-AC_CHECK_DECL([fdatasync(int)], [
-  SAVE_LIBS=$LIBS
-  AC_SEARCH_LIBS([fdatasync], [rt], [XAPIAN_LIBS="$LIBS $XAPIAN_LIBS"])
-  LIBS=$SAVE_LIBS
-  AC_CHECK_FUNCS([fdatasync])
-  ],
-  [ac_cv_func_fdatasync=no],
-  [#include <unistd.h>]
-)
 
 AC_CHECK_FUNCS([fsync])
 AC_CHECK_FUNCS([posix_fadvise])
