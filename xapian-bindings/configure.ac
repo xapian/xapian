@@ -83,7 +83,7 @@ case $host_os in
 esac
 
 dnl Run tests using the C++ compiler.
-AC_LANG_CPLUSPLUS
+AC_LANG([C++])
 
 dnl Probe for any options needed to enable C++11 support.
 AX_CXX_COMPILE_STDCXX_11
