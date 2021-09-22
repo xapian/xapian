@@ -86,12 +86,12 @@ AC_DEFUN([XAPIAN_TEST_CXXFLAGS],
   [
   XTC_save_CXXFLAGS=$CXXFLAGS
   CXXFLAGS="$CXXFLAGS $1"
-  AC_TRY_COMPILE([], [],
-		 [CXXFLAGS=$XTC_save_CXXFLAGS
-		  $2="${$2} $1"
-		  $3],
-		 [CXXFLAGS=$XTC_save_CXXFLAGS
-		  $4])
+  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[]])],
+		    [CXXFLAGS=$XTC_save_CXXFLAGS
+		     $2="${$2} $1"
+		     $3],
+		    [CXXFLAGS=$XTC_save_CXXFLAGS
+		     $4])
   ])
 
 dnl Check for xapian-core.
@@ -196,11 +196,12 @@ AC_SUBST([MAGIC_LIBS])
 dnl See if ftime returns void (as it does on mingw)
 AC_MSG_CHECKING([return type of ftime])
 if test $ac_cv_func_ftime = yes ; then
-  AC_TRY_COMPILE([#include <sys/timeb.h>],
-    [struct timeb tp; int i = ftime(&tp);],
-    AC_MSG_RESULT([int]),
-    AC_MSG_RESULT([void])
-    AC_DEFINE([FTIME_RETURNS_VOID], [1], [Define if ftime returns void]))
+  AC_COMPILE_IFELSE(
+    [AC_LANG_PROGRAM([[#include <sys/timeb.h>]],
+		     [[struct timeb tp; int i = ftime(&tp);]])],
+    [AC_MSG_RESULT(int)],
+    [AC_MSG_RESULT(void)
+     AC_DEFINE([FTIME_RETURNS_VOID], [1], [Define if ftime returns void])])
 fi
 
 dnl mingw (for instance) lacks ssize_t
@@ -215,10 +216,12 @@ AC_CHECK_FUNCS([getgrouplist])
 
 dnl See if getgrouplist() takes gid_t * (e.g. Linux) or int * (e.g. OS X).
 if test $ac_cv_func_getgrouplist = yes ; then
-  AC_TRY_COMPILE([#include <grp.h>
-#include <unistd.h>],
-    [int g[10]; int n = 10; return getgrouplist("root", 1, g, &n) == -1;],
-    AC_DEFINE([GETGROUPLIST_TAKES_INT_P], 1, [Define if getgrouplist takes int *]))
+  AC_COMPILE_IFELSE(
+    [AC_LANG_PROGRAM([[#include <grp.h>
+#include <unistd.h>]],
+		     [[int g[10]; int n = 10; return getgrouplist("root", 1, g, &n) == -1;]])],
+    [AC_DEFINE([GETGROUPLIST_TAKES_INT_P], 1, [Define if getgrouplist takes int *])],
+    [])
 fi
 
 dnl Check for lstat() (not available under mingw for example).
