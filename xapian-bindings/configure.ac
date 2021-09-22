@@ -205,42 +205,42 @@ if test x$USE_MAINTAINER_MODE = xyes; then
 fi
 
 AC_ARG_WITH(python3,
-  AC_HELP_STRING([--with-python3], [enable Python 3 bindings]),
+  AS_HELP_STRING([--with-python3], [enable Python 3 bindings]),
   [],
   [with_python3=])
 
 AC_ARG_WITH(php7,
-  AC_HELP_STRING([--with-php7], [enable PHP 7 bindings]),
+  AS_HELP_STRING([--with-php7], [enable PHP 7 bindings]),
   [],
   [with_php7=])
 
 AC_ARG_WITH(ruby,
-  AC_HELP_STRING([--with-ruby], [enable Ruby bindings]),
+  AS_HELP_STRING([--with-ruby], [enable Ruby bindings]),
   [],
   [with_ruby=])
 
 AC_ARG_WITH(tcl,
-  AC_HELP_STRING([--with-tcl], [enable Tcl bindings]),
+  AS_HELP_STRING([--with-tcl], [enable Tcl bindings]),
   [],
   [with_tcl=])
 
 AC_ARG_WITH(csharp,
-  AC_HELP_STRING([--with-csharp], [enable CSharp bindings]),
+  AS_HELP_STRING([--with-csharp], [enable CSharp bindings]),
   [],
   [with_csharp=])
 
 AC_ARG_WITH(java,
-  AC_HELP_STRING([--with-java], [enable Java bindings]),
+  AS_HELP_STRING([--with-java], [enable Java bindings]),
   [],
   [with_java=])
 
 AC_ARG_WITH(perl,
-  AC_HELP_STRING([--with-perl], [enable Perl bindings]),
+  AS_HELP_STRING([--with-perl], [enable Perl bindings]),
   [],
   [with_perl=])
 
 AC_ARG_WITH(lua,
-  AC_HELP_STRING([--with-lua], [enable Lua bindings]),
+  AS_HELP_STRING([--with-lua], [enable Lua bindings]),
   [],
   [with_lua=])
 
