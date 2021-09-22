@@ -1,7 +1,7 @@
 # Get XAPIANLETOR_CXXFLAGS, XAPIANLETOR_LIBS, and XAPIANLETOR_VERSION from xapianletor-config and
 # AC_SUBST() them.
 
-# serial 17
+# serial 18
 
 # AC_PROVIDE_IFELSE(MACRO-NAME, IF-PROVIDED, IF-NOT-PROVIDED)
 # -----------------------------------------------------------
@@ -141,7 +141,7 @@ ifelse(regexp(min_component, [^[0-9][0-9]*$]), [-1], [m4_fatal(Component `min_co
   fi])
   if test "$res" = 0 ; then
     AC_MSG_RESULT([no ($XAPIANLETOR_VERSION)])
-    m4_default([$2], [AC_ERROR([XAPIANLETOR_VERSION is $XAPIANLETOR_VERSION, but >= $1 required])])
+    m4_default([$2], [AC_MSG_ERROR([XAPIANLETOR_VERSION is $XAPIANLETOR_VERSION, but >= $1 required])])
   else
     AC_MSG_RESULT([yes ($XAPIANLETOR_VERSION)])
     $3
