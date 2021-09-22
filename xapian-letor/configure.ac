@@ -109,7 +109,7 @@ dnl Check endianness.
 AC_C_BIGENDIAN
 
 dnl Run tests using the C++ compiler.
-AC_LANG_CPLUSPLUS
+AC_LANG([C++])
 
 dnl Check for xapian-core.
 XO_LIB_XAPIAN([], [],

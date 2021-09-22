@@ -195,7 +195,7 @@ dnl to either install one or set CXX if there's one configure failed to find.
 dnl It's probably worthwhile checking that the C++ compiler actually works
 dnl anyway!
 if test -n "$CXX" ; then
-  AC_LANG_CPLUSPLUS
+  AC_LANG([C++])
   AC_MSG_CHECKING([whether $CXX is a working C++ compiler])
   AC_CACHE_VAL([xo_cv_cxx_works],
     [
@@ -255,7 +255,7 @@ fi
 AC_ARG_VAR([CC_FOR_BUILD], [C compiler command for native compilation (needed to compile build tools during cross-builds)])
 
 dnl Run tests using the C++ compiler.
-AC_LANG_CPLUSPLUS
+AC_LANG([C++])
 
 dnl Enable large file support if possible.
 AC_SYS_LARGEFILE
