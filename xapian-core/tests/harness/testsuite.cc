@@ -81,7 +81,7 @@ int verbose;
 static int vg_log_fd = -1;
 #endif
 
-#ifdef HAVE_SIGSETJMP
+#if HAVE_DECL_SIGSETJMP && HAVE_DECL_SIGLONGJMP
 # define SIGSETJMP(ENV, SAVESIGS) sigsetjmp(ENV, SAVESIGS)
 # define SIGLONGJMP(ENV, VAL) siglongjmp(ENV, VAL)
 # define SIGJMP_BUF sigjmp_buf
