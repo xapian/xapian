@@ -14,20 +14,20 @@ AC_DEFUN([XAPIAN_TYPE_SOCKLEN_T],
   AC_CACHE_VAL([xo_cv_socklen_t_equiv],
   [
     for t in socklen_t int size_t unsigned long "unsigned long"; do
-      AC_TRY_COMPILE([
+      AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
 	#include <sys/types.h>
 	#if defined __WIN32__ || defined _WIN32
 	# include <winsock2.h>
 	#else
         # include <sys/socket.h>
 	#endif
-      ],[
+      ]], [[
 	$t len;
 	getsockopt(0, 0, 0, 0, &len);
-      ],[
+      ]])], [
         xo_cv_socklen_t_equiv="$t"
         break
-      ])
+      ], [])
     done
     if test -z "$xo_cv_socklen_t_equiv"; then
       AC_MSG_RESULT([not found])

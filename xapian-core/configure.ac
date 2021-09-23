@@ -199,10 +199,12 @@ if test -n "$CXX" ; then
   AC_MSG_CHECKING([whether $CXX is a working C++ compiler])
   AC_CACHE_VAL([xo_cv_cxx_works],
     [
-    AC_TRY_RUN([int main() {}],
-	       xo_cv_cxx_works=yes,
-	       xo_cv_cxx_works=no,
-	       AC_TRY_LINK([], [], xo_cv_cxx_works=yes, xo_cv_cxx_works=no))
+    AC_RUN_IFELSE([AC_LANG_PROGRAM([[]], [[]])],
+		  [xo_cv_cxx_works=yes],
+		  [xo_cv_cxx_works=no],
+		  [AC_LINK_IFELSE([AC_LANG_PROGRAM([[]], [[]])],
+				  [xo_cv_cxx_works=yes],
+				  [xo_cv_cxx_works=no])])
     ])
   AC_MSG_RESULT([$xo_cv_cxx_works])
 else
@@ -356,20 +358,20 @@ dnl Don't use constant arguments as the compiler might simply evaluate the
 dnl whole expression at compile time, and it might inline certain functions
 dnl so test several functions.  Also write results using printf() so that
 dnl the compiler can't optimise away the computations.
-AC_TRY_LINK([#include <cmath>
+AC_LINK_IFELSE([AC_LANG_PROGRAM([[#include <cmath>
 #include <cstdio>
 #include <ctime>
-using namespace std;], [
+using namespace std;]], [[
   double a = log(ceil(time(NULL)/7.0));
   printf("%f %f %f\n", a, sqrt(a), exp(fabs(a - 12345.6)));
-  ], [AC_MSG_RESULT([no])], [
+  ]])], [AC_MSG_RESULT([no])], [
     LIBS="-lm $LIBS"
-    AC_TRY_LINK([#include <cmath>
+    AC_LINK_IFELSE([AC_LANG_PROGRAM([[#include <cmath>
 #include <cstdio>
 #include <ctime>
-using namespace std;], [
+using namespace std;]], [[
   double a = log(ceil(time(NULL)/7.0));
-  printf("%f %f %f\n", a, sqrt(a), exp(fabs(a - 12345.6)));],
+  printf("%f %f %f\n", a, sqrt(a), exp(fabs(a - 12345.6)));]])],
 	[AC_MSG_RESULT([yes])],
 	[AC_MSG_ERROR([Failed to link a C++ program using <cmath>])
     ])
@@ -415,30 +417,30 @@ save_CXXFLAGS=$CXXFLAGS
 dnl xlC issues a warning for typeid() being used without RTTI being enabled,
 dnl so for this test we pass the xlC option to make that warning into an error.
 CXXFLAGS="$CXXFLAGS -qhaltonmsg=1540-2412"
-AC_COMPILE_IFELSE([AC_LANG_PROGRAM([], [])],
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[]])],
       [],
       [CXXFLAGS=$save_CXXFLAGS])
-AC_TRY_COMPILE([
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
 #include <exception>
-#include <typeinfo>],
-	[
+#include <typeinfo>]],
+	[[
 	int f();
 	try {
 	    return f();
 	} catch (std::exception & e) {
 	    return typeid(e).name()[0];
-	}],
-    AC_MSG_RESULT([yes])
-    AC_DEFINE([USE_RTTI], [1], [Define if the testsuite can use RTTI]),
-    AC_MSG_RESULT([no]))
+	}]])],
+    [AC_MSG_RESULT([yes])
+    AC_DEFINE([USE_RTTI], [1], [Define if the testsuite can use RTTI])],
+    [AC_MSG_RESULT([no])])
 CXXFLAGS=$save_CXXFLAGS
 
 AC_MSG_CHECKING([if std::is_trivially_copyable<> is supported])
-AC_TRY_COMPILE([#include <type_traits>],
-	[return std::is_trivially_copyable<int>::value ? 1 : 0;],
-    AC_MSG_RESULT([yes])
-    AC_DEFINE([HAVE_STD_IS_TRIVIALLY_COPYABLE], [1], [Define to 1 if you have 'std::is_trivially_copyable<>'.]),
-    AC_MSG_RESULT([no]))
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <type_traits>]],
+	[[return std::is_trivially_copyable<int>::value ? 1 : 0;]])],
+    [AC_MSG_RESULT([yes])
+    AC_DEFINE([HAVE_STD_IS_TRIVIALLY_COPYABLE], [1], [Define to 1 if you have 'std::is_trivially_copyable<>'.])],
+    [AC_MSG_RESULT([no])])
 
 dnl We need to specify the argument types for builtin functions, or else
 dnl AC_CHECK_DECLS fails to detect them when the compiler is clang.
@@ -508,14 +510,14 @@ dnl See if we have closefrom(), or some functions that are useful to implement
 dnl closefrom() on platforms which don't provide it.
 AC_CHECK_FUNCS([closefrom getdirentries getrlimit])
 
-dnl See if ftime returns void (as it does on mingw)
-AC_MSG_CHECKING([return type of ftime])
 if test $ac_cv_func_ftime = yes ; then
-  AC_TRY_COMPILE([#include <sys/timeb.h>],
-    [struct timeb tp; int i = ftime(&tp);],
-    AC_MSG_RESULT([int]),
-    AC_MSG_RESULT([void])
-    AC_DEFINE([FTIME_RETURNS_VOID], [1], [Define if ftime returns void]))
+  dnl See if ftime returns void (as it does on mingw)
+  AC_MSG_CHECKING([return type of ftime])
+  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <sys/timeb.h>]],
+    [[struct timeb tp; int i = ftime(&tp);]])],
+    [AC_MSG_RESULT([int])],
+    [AC_MSG_RESULT([void])
+    AC_DEFINE([FTIME_RETURNS_VOID], [1], [Define if ftime returns void])])
 fi
 
 dnl Check how to find the hostname: uname() in sys/utsname.h, or gethostname()
@@ -1089,17 +1091,17 @@ case $host_os in
 	    for p in ' ' \
 	      'extern "C" ssize_t pread(int, void *, size_t, off_t) throw ();' \
 	      'extern "C" ssize_t pread(int, void *, size_t, off_t);' ; do
-	      AC_TRY_COMPILE([
+	      AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
 #include <sys/types.h>
 #include <unistd.h>
 $p
-	      ],[
+	      ]],[[
 		char b[256];
 		pread(1, b, 256, 20);
-	      ],[
+	      ]])],[
 		xo_cv_pread_prototype="$p"
 		break
-	      ])
+	      ], [])
 	    done
 	    if test -z "$xo_cv_pread_prototype"; then
 	      AC_MSG_RESULT([not found])
@@ -1123,17 +1125,17 @@ $p
 	    for p in ' ' \
 	      'extern "C" ssize_t pwrite(int, const void *, size_t, off_t) throw ();' \
 	      'extern "C" ssize_t pwrite(int, const void *, size_t, off_t);' ; do
-	      AC_TRY_COMPILE([
+	      AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
 #include <sys/types.h>
 #include <unistd.h>
 $p
-	      ],[
+	      ]],[[
 		const char *p = "hello";
 		pwrite(1, p, 5, 20);
-	      ],[
+	      ]])],[
 		xo_cv_pwrite_prototype="$p"
 		break
-	      ])
+	      ], [])
 	    done
 	    if test -z "$xo_cv_pwrite_prototype"; then
 	      AC_MSG_RESULT([not found])
