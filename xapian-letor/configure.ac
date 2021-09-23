@@ -206,14 +206,11 @@ AC_CHECK_DECLS([__builtin_bswap16(uint16_t),
 AC_CHECK_DECLS([_byteswap_ushort, _byteswap_ulong, _byteswap_uint64], [], [],
 	       [#include <stdlib.h>])
 AC_CHECK_DECLS([__builtin_expect(long, long)], [], [], [ ])
+
 dnl Used by tests/harness/testsuite.cc
 AC_CHECK_FUNCS([sigaction])
-AC_MSG_CHECKING([for sigsetjmp and siglongjmp])
-AC_TRY_COMPILE([#include <setjmp.h>],
-  [sigjmp_buf jb; if (sigsetjmp(jb, 1)) { siglongjmp(jb, 1);  }],
-  AC_DEFINE([HAVE_SIGSETJMP], [1], [Define to 1 if you have the 'sigsetjmp' function])
-  AC_MSG_RESULT([yes]),
-  AC_MSG_RESULT([no]))
+dnl These can be macros (and sigsetjmp is with glibc at least).
+AC_CHECK_DECLS([sigsetjmp, siglongjmp], [], [], [#include <setjmp.h>])
 
 dnl Used by tests/harness/cputimer.cc:
 AC_CHECK_FUNCS([getrusage times sysconf])
