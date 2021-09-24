@@ -1604,7 +1604,7 @@ MAJOR_VERSION=`echo "$VERSION"|sed 's/\..*//'`
 [REVISION=`echo "$VERSION"|sed 's/.*\.//;s/_.*$//'`]
 
 dnl Convert the libs in $XAPIAN_LIBS to a CMake list.
-XAPIAN_CMAKE_LIBS="$(echo " $XAPIAN_LIBS" | sed 's/ -l/;/g;s/ //g')"
+XAPIAN_CMAKE_LIBS=`echo " $XAPIAN_LIBS" | sed 's/ -l/;/g;s/ //g'`
 AC_SUBST([XAPIAN_CMAKE_LIBS])
 
 XAPIAN_CMAKE_SHARED=
