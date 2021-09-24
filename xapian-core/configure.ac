@@ -1615,11 +1615,7 @@ else
 fi
 AC_SUBST([XAPIAN_CMAKE_SHARED])
 
-if test "$msvc" = yes; then
-    LIBRARY_STATIC_EXT=.lib
-else
-    LIBRARY_STATIC_EXT=.a
-fi
+LIBRARY_STATIC_EXT=.$libext
 AC_SUBST([LIBRARY_STATIC_EXT])
 
 if test "$win32" = yes; then
