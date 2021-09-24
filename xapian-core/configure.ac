@@ -1590,6 +1590,28 @@ MAJOR_VERSION=`echo "$VERSION"|sed 's/\..*//'`
 [MINOR_VERSION=`echo "$VERSION"|sed 's/[^.]*\.//;s/\..*//'`]
 [REVISION=`echo "$VERSION"|sed 's/.*\.//;s/_.*$//'`]
 
+dnl Convert the libs in $XAPIAN_LIBS to a CMake list.
+XAPIAN_CMAKE_LIBS=`echo " $XAPIAN_LIBS" | sed 's/ -l/;/g;s/ //g'`
+AC_SUBST([XAPIAN_CMAKE_LIBS])
+
+XAPIAN_CMAKE_SHARED=
+if test "$enable_shared" = yes; then
+  XAPIAN_CMAKE_SHARED=ON
+else
+  XAPIAN_CMAKE_SHARED=OFF
+fi
+AC_SUBST([XAPIAN_CMAKE_SHARED])
+
+LIBRARY_STATIC_EXT=.$libext
+AC_SUBST([LIBRARY_STATIC_EXT])
+
+if test "$win32" = yes; then
+  LIBRARY_SHARED_IMP_EXT=$LIBRARY_STATIC_EXT
+else
+  LIBRARY_SHARED_IMP_EXT=
+fi
+AC_SUBST([LIBRARY_SHARED_IMP_EXT])
+
 dnl **************************
 dnl * Build the output files *
 dnl **************************
