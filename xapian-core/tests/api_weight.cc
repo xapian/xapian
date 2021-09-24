@@ -752,11 +752,19 @@ DEFINE_TESTCASE(tfidfweight1, !backend) {
     TEST_EQUAL(weight2.serialise(), Xapian::TfIdfWeight("ntn").serialise());
 
     TEST_EXCEPTION(Xapian::InvalidArgumentError,
+	Xapian::Weight::create("tfidf FUN NONE NONE"));
+
+    TEST_EXCEPTION(Xapian::InvalidArgumentError,
 	Xapian::Weight::create("tfidf NONE FUN NONE"));
+
+    TEST_EXCEPTION(Xapian::InvalidArgumentError,
+	Xapian::Weight::create("tfidf NONE NONE FUN"));
 
     TEST_EXCEPTION(Xapian::InvalidArgumentError,
 	Xapian::Weight::create("tfidf NONE"));
 
+    TEST_EXCEPTION(Xapian::InvalidArgumentError,
+	Xapian::Weight::create("tfidf NONE NONE"));
 }
 
 // Test exception for junk after serialised weight.
