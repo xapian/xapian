@@ -23,9 +23,9 @@ in your ruby program.
 
 Most standard Xapian methods are available directly
 to your Ruby program. Names have been altered to conform to the
-standard Ruby naming conventions (i.e. get_foo() in C++ becomes foo()
-in Ruby; set_foo() becomes foo=().)  C++ 'operator()' methods are
-renamed to 'call' methods in Ruby.
+standard Ruby naming conventions (i.e. ``get_foo()`` in C++ becomes ``foo()``
+in Ruby; ``set_foo()`` becomes ``foo=()``).  C++ ``operator()`` methods are
+renamed to ``call`` methods in Ruby.
 
 The C++ methods are not yet documented in the `RDocs <rdocs/>`_.
 In the meantime, refer to the
@@ -35,10 +35,10 @@ available directly in the Ruby version. The RDocs currently provide information
 only on methods that are unique to the Ruby version.
 
 The dangerous/non-Rubish methods from the C++ API have been renamed to
-start with underscores ('_') in the Ruby bindings. You can see them in
+start with underscores (``_``) in the Ruby bindings. You can see them in
 use in xapian.rb. It is strongly recommended that you do not call any
-method that starts with _ directly in your code, but instead use the
-wrappers defined in xapian.rb. Improper use of an _ method can cause
+method that starts with ``_`` directly in your code, but instead use the
+wrappers defined in xapian.rb. Improper use of an ``_`` method can cause
 the Ruby process to segfault.
 
 Unicode Support
