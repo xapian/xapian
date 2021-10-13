@@ -41,6 +41,17 @@
 # pragma GCC diagnostic ignored "-Wliteral-suffix"
 #endif
 
+#if defined __clang__ && !defined _WIN32
+// Ruby 3.0.0 tries to use __declspec on non-Microsoft platforms because
+// clang's __has_declspec_attribute(x) gives 1 even when __declspec support
+// isn't actually enabled.  We undefine __has_declspec_attribute to avoid
+// this, and suppress the warning clang gives about undefining a builtin macro.
+# pragma clang diagnostic push
+# pragma clang diagnostic ignored "-Wbuiltin-macro-redefined"
+# undef __has_declspec_attribute
+# pragma clang diagnostic pop
+#endif
+
 #include <ruby.h>
 
 #ifdef __clang__
