@@ -784,6 +784,18 @@ testcase 'Query((Zsecond@1 OR Zfirst@2 OR Zdocument@3))|second OR first OR docum
 testcase 'Query((Zsecond@1 OR Zfirst@2 OR Zdocument@3))|second OR first OR document' MORELIKE=Qa1 MORELIKE=2 MORELIKE=4
 testcase 'Query((Zsecond@1 OR Zfirst@2 OR Zdocument@3))|second OR first OR document' MORELIKE=Qa1 MORELIKE=Qb2 MORELIKE=Qdummy
 
+# Feature tests for scriptindex `index` and `indexnopos` actions.
+printf '%s\n' 't : index=XT' 'n : indexnopos=XN' > "$TEST_INDEXSCRIPT"
+rm -rf "$TEST_DB"
+$SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null <<'END'
+t=positional text
+n=no pos here
+END
+printf '$msize' > "$TEST_TEMPLATE"
+testcase '1' P.XT='"positional text"'
+testcase '1' P.XN='no AND pos'
+testcase '0' P.XN='"no pos"'
+
 # Feature tests for scriptindex `split` action.
 printf 'STATUS : field split=| field=SPLITSTATUS\nSTATUS : field=x' > "$TEST_INDEXSCRIPT"
 rm -rf "$TEST_DB"
@@ -1353,7 +1365,7 @@ TEXT=This is sample text.
 NEXT=work
 END
 printf '$freq{D19891204}|$field{  spaces  ,1}' > "$TEST_TEMPLATE"
-testcase '1|19891204' P=Stext
+testcase '1|19891204' P.S=text
 # Use $time to force the match to run.
 printf '$if{x$time,$freq{D19891204}}|$field{  spaces  ,1}' > "$TEST_TEMPLATE"
 testcase '1|19891204' P=
