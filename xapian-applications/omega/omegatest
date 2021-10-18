@@ -829,15 +829,6 @@ END
 printf '$field{STATUS,1}/$list{$field{SPLITSTATUS,1},$.}' > "$TEST_TEMPLATE"
 testcase 'REVIEW|PENDING|PENDING|REVIEW/REVIEW,REVIEW|PENDING,REVIEW|PENDING|PENDING,REVIEW|PENDING|PENDING|REVIEW' P=text
 
-# Feature test for scriptindex `split` action with `prefixes` operation.
-printf 'STATUS : field split=|,prefixes field=SPLITSTATUS\n' > "$TEST_INDEXSCRIPT"
-rm -rf "$TEST_DB"
-$SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null <<'END'
-STATUS=REVIEW|PENDING|PENDING|REVIEW
-END
-printf '$field{STATUS,1}/$list{$field{SPLITSTATUS,1},$.}' > "$TEST_TEMPLATE"
-testcase 'REVIEW|PENDING|PENDING|REVIEW/REVIEW,REVIEW|PENDING,REVIEW|PENDING|PENDING,REVIEW|PENDING|PENDING|REVIEW' P=text
-
 # Feature tests for scriptindex `split` action with no explicit operation.
 printf 'STATUS : field split=| field=SPLITSTATUS\n' > "$TEST_INDEXSCRIPT"
 rm -rf "$TEST_DB"
