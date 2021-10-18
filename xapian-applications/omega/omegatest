@@ -1445,6 +1445,19 @@ else
   echo "Skipping testcases which need tm_gmtoff member in struct tm"
 fi
 
+# Feature tests for scriptindex `valuenumeric` action.
+printf '%s\n' 'n : field valuenumeric=0' > "$TEST_INDEXSCRIPT"
+rm -rf "$TEST_DB"
+$SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null <<'END'
+n=0
+
+n=1.75
+
+n=-1000000000
+END
+printf '$list{$map{$range{1,3},$url{$value{0,$_}}},:}' > "$TEST_TEMPLATE"
+testcase '%80:%A3:%1F%A4FS%60'
+
 # Feature tests for scriptindex `load` action.
 printf '%s\n' 'file : load field' > "$TEST_INDEXSCRIPT"
 rm -rf "$TEST_DB"
