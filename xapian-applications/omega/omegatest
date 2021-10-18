@@ -1479,7 +1479,7 @@ else
 fi
 
 # Feature tests for quoted arguments.
-printf 'DATE : field="  spaces  " date="yyyymmdd"\nTEXT: index\n' > "$TEST_INDEXSCRIPT"
+printf 'DATE : field="  spaces  " date="yyyymmdd"\nTEXT: index="S"\n' > "$TEST_INDEXSCRIPT"
 rm -rf "$TEST_DB"
 $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null <<'END'
 DATE=19891204
@@ -1487,7 +1487,7 @@ TEXT=This is sample text.
 NEXT=work
 END
 printf '$freq{D19891204}|$field{  spaces  ,1}' > "$TEST_TEMPLATE"
-testcase '1|19891204' P=text
+testcase '1|19891204' P=Stext
 # Use $time to force the match to run.
 printf '$if{x$time,$freq{D19891204}}|$field{  spaces  ,1}' > "$TEST_TEMPLATE"
 testcase '1|19891204' P=
