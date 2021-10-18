@@ -951,6 +951,31 @@ for f in squash ltrim rtrim trim ; do
   testcase 'xyz' F=$f ID=3
 done
 
+# Feature tests for truncate action.
+printf 'x : field=x truncate=9 field=9 truncate=3 field=3 truncate=2 field=2 truncate=1 field=1 truncate=0 field=0\n' > "$TEST_INDEXSCRIPT"
+rm -rf "$TEST_DB"
+$SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null <<END
+x=really long field
+
+x=xö xxxxö x
+
+x=ö xxxxö x
+
+x=x x xx🥝 x
+
+x=a test
+
+x=tri
+
+x=du
+
+x=1
+
+x=
+END
+printf '$foreach{$split{1 2 3 4 5 6 7 8 9},$set{d,$_}$list{$map{$split{x 9 3 2 1 0},$field{$_,$opt{d}}},|}:}' > "$TEST_TEMPLATE"
+testcase 'really long field|really|rea|re|r|:xö xxxxö x|xö|xö|x|x|:ö xxxxö x|ö xxxxö|ö|ö||:x x xx🥝 x|x x|x x|x|x|:a test|a test|a|a|a|:tri|tri|tri|tr|t|:du|du|du|du|d|:1|1|1|1|1|:|||||:'
+
 # Test useless action warnings.
 printf 'foo : index weight=2' > "$TEST_INDEXSCRIPT"
 rm -rf "$TEST_DB"
