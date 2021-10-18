@@ -874,7 +874,7 @@ testcase 'Query((Zsecond@1 OR Zfirst@2 OR Zdocument@3))|second OR first OR docum
 testcase 'Query((Zsecond@1 OR Zfirst@2 OR Zdocument@3))|second OR first OR document' MORELIKE=Qa1 MORELIKE=2 MORELIKE=4
 testcase 'Query((Zsecond@1 OR Zfirst@2 OR Zdocument@3))|second OR first OR document' MORELIKE=Qa1 MORELIKE=Qb2 MORELIKE=Qdummy
 
-# Feature tests for split command scriptindex.
+# Feature tests for scriptindex `split` action.
 printf 'STATUS : field split=| field=SPLITSTATUS\nSTATUS : field=x' > "$TEST_INDEXSCRIPT"
 rm -rf "$TEST_DB"
 $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null <<'END'
@@ -883,7 +883,7 @@ END
 printf '$field{STATUS,1}/$field{x,1}/$list{$field{SPLITSTATUS,1},$.}' > "$TEST_TEMPLATE"
 testcase 'PENDING|REVIEW/PENDING|REVIEW/PENDING,REVIEW' P=text
 
-# Feature tests for split dedup command scriptindex.
+# Feature test for scriptindex `split` action with `dedup` operation.
 printf 'STATUS : field split=|,dedup field=SPLITSTATUS\n' > "$TEST_INDEXSCRIPT"
 rm -rf "$TEST_DB"
 $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null <<'END'
@@ -892,7 +892,7 @@ END
 printf '$field{STATUS,1}/$list{$field{SPLITSTATUS,1},$.}' > "$TEST_TEMPLATE"
 testcase 'REVIEW|PENDING|PENDING|REVIEW/REVIEW,PENDING' P=text
 
-# Feature tests for split sort command scriptindex.
+# Feature test for scriptindex `split` action with `sort` operation.
 printf 'STATUS : field split=|,sort field=SPLITSTATUS\n' > "$TEST_INDEXSCRIPT"
 rm -rf "$TEST_DB"
 $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null <<'END'
@@ -901,7 +901,7 @@ END
 printf '$field{STATUS,1}/$list{$field{SPLITSTATUS,1},$.}' > "$TEST_TEMPLATE"
 testcase 'REVIEW|PENDING|PENDING|REVIEW/PENDING,PENDING,REVIEW,REVIEW' P=text
 
-# Feature tests for split none command scriptindex.
+# Feature test for scriptindex `split` action with `none` operation.
 printf 'STATUS : field split=|,none field=SPLITSTATUS\n' > "$TEST_INDEXSCRIPT"
 rm -rf "$TEST_DB"
 $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null <<'END'
@@ -910,7 +910,7 @@ END
 printf '$field{STATUS,1}/$list{$field{SPLITSTATUS,1},$.}' > "$TEST_TEMPLATE"
 testcase 'REVIEW|PENDING|PENDING|REVIEW/REVIEW,PENDING,PENDING,REVIEW' P=text
 
-# Feature tests for split prefixes command scriptindex.
+# Feature test for scriptindex `split` action with `prefixes` operation.
 printf 'STATUS : field split=|,prefixes field=SPLITSTATUS\n' > "$TEST_INDEXSCRIPT"
 rm -rf "$TEST_DB"
 $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null <<'END'
@@ -919,7 +919,7 @@ END
 printf '$field{STATUS,1}/$list{$field{SPLITSTATUS,1},$.}' > "$TEST_TEMPLATE"
 testcase 'REVIEW|PENDING|PENDING|REVIEW/REVIEW,REVIEW|PENDING,REVIEW|PENDING|PENDING,REVIEW|PENDING|PENDING|REVIEW' P=text
 
-# Feature tests for split prefixes command scriptindex.
+# Feature test for scriptindex `split` action with `prefixes` operation.
 printf 'STATUS : field split=|,prefixes field=SPLITSTATUS\n' > "$TEST_INDEXSCRIPT"
 rm -rf "$TEST_DB"
 $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null <<'END'
@@ -928,7 +928,7 @@ END
 printf '$field{STATUS,1}/$list{$field{SPLITSTATUS,1},$.}' > "$TEST_TEMPLATE"
 testcase 'REVIEW|PENDING|PENDING|REVIEW/REVIEW,REVIEW|PENDING,REVIEW|PENDING|PENDING,REVIEW|PENDING|PENDING|REVIEW' P=text
 
-# Feature tests for split command scriptindex without operation argument.
+# Feature tests for scriptindex `split` action with no explicit operation.
 printf 'STATUS : field split=| field=SPLITSTATUS\n' > "$TEST_INDEXSCRIPT"
 rm -rf "$TEST_DB"
 $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null <<'END'
@@ -937,7 +937,7 @@ END
 printf '$field{STATUS,1}/$list{$field{SPLITSTATUS,1},$.}' > "$TEST_TEMPLATE"
 testcase 'PENDING|REVIEW|PENDING|REVIEW/PENDING,REVIEW,PENDING,REVIEW' P=text
 
-# Feature test for multi-character split delimiter.
+# Feature test for scriptindex `split` action with multi-character delimiter.
 printf 'STATUS : field split=$. field=SPLITSTATUS\n' > "$TEST_INDEXSCRIPT"
 rm -rf "$TEST_DB"
 $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null <<'END'
@@ -946,7 +946,8 @@ END
 printf '$field{STATUS,1}/$list{$field{SPLITSTATUS,1},|}' > "$TEST_TEMPLATE"
 testcase 'PENDING$.$.REVIEW,PENDING$.REVIEW/PENDING|REVIEW,PENDING|REVIEW' P=text
 
-# Feature test for multi-character split delimiter with potential overlap.
+# Feature test for scriptindex `split` action with multi-character delimiter
+# with potential overlap.
 printf 'STATUS : field split=:: field=SPLITSTATUS\n' > "$TEST_INDEXSCRIPT"
 rm -rf "$TEST_DB"
 $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null <<'END'
@@ -955,7 +956,8 @@ END
 printf '$field{STATUS,1}/$list{$field{SPLITSTATUS,1},|}' > "$TEST_TEMPLATE"
 testcase '::Foo::::Bar:Baz:::Hello::/Foo|Bar:Baz|:Hello' P=text
 
-# Feature test for multi-character split delimiter for prefixes type.
+# Feature test for scriptindex `split` action with multi-character delimiter
+# with `prefixes` operation.
 printf 'STATUS : field split=::,prefixes field=SPLITSTATUS\n' > "$TEST_INDEXSCRIPT"
 rm -rf "$TEST_DB"
 $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null <<'END'
@@ -964,7 +966,7 @@ END
 printf '$field{STATUS,1}/$list{$field{SPLITSTATUS,1},|}' > "$TEST_TEMPLATE"
 testcase '::Foo::::Bar:Baz:::Hello::/::Foo|::Foo::|::Foo::::Bar:Baz|::Foo::::Bar:Baz:::Hello|::Foo::::Bar:Baz:::Hello::' P=text
 
-# Feature tests for split command with "," delimiter passed , with double quotes.
+# Feature test for scriptindex `split` action with quoted `,` delimiter.
 printf 'STATUS : field split="," field=SPLITSTATUS\n' > "$TEST_INDEXSCRIPT"
 rm -rf "$TEST_DB"
 $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null <<'END'
@@ -973,7 +975,7 @@ END
 printf '$field{STATUS,1}/$list{$field{SPLITSTATUS,1},|}' > "$TEST_TEMPLATE"
 testcase 'PENDING,REVIEW,PENDING,REVIEW/PENDING|REVIEW|PENDING|REVIEW' P=text
 
-# Feature test for nested split command.
+# Feature test for nested scriptindex `split` action.
 printf 'in : split=; field=one lower split="," field=two\nin : field' > "$TEST_INDEXSCRIPT"
 rm -rf "$TEST_DB"
 $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null <<'END'
@@ -982,7 +984,7 @@ END
 printf '$field{in,1}/$list{$field{one,1},|}/$list{$field{two,1},|}' > "$TEST_TEMPLATE"
 testcase 'a,b,c;10,21,32;XY,YZ/a,b,c|10,21,32|XY,YZ/a|b|c|10|21|32|xy|yz' P=text
 
-# Feature tests for scriptindex hextobin action.
+# Feature tests for scriptindex `hextobin` action.
 printf 'hex : hextobin value=0' > "$TEST_INDEXSCRIPT"
 rm -rf "$TEST_DB"
 $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null <<'END'
@@ -997,7 +999,7 @@ END
 printf '$list{$map{$split{$cgi{DOCIDS}},$value{0,$_}},|}' > "$TEST_TEMPLATE"
 testcase '|A|Test|Kill' DOCIDS='1 2 3 4'
 
-# Feature test error cases for scriptindex hextobin action.
+# Feature test error cases for scriptindex `hextobin` action.
 rm -rf "$TEST_DB"
 echo hex=7g |\
     $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" 2>&1 > /dev/null |\
@@ -1011,7 +1013,7 @@ echo hex=404 |\
       failed=`expr $failed + 1`; }
 testcase '7g|404' DOCIDS='1 2'
 
-# Feature tests for squash and ltrim/rtrim/trim.
+# Feature tests for scriptindex `squash` and `ltrim`/`rtrim`/`trim` actions.
 printf 'squash : squash field\nltrim : ltrim field\nrtrim : rtrim field\ntrim : trim field\n' > "$TEST_INDEXSCRIPT"
 rm -rf "$TEST_DB"
 whitespace_test=`printf "\t lots\v\fof\t whitespace\f "`
@@ -1041,7 +1043,7 @@ for f in squash ltrim rtrim trim ; do
   testcase 'xyz' F=$f ID=3
 done
 
-# Feature tests for truncate action.
+# Feature tests for scriptindex `truncate` action.
 printf 'x : field=x truncate=9 field=9 truncate=3 field=3 truncate=2 field=2 truncate=1 field=1 truncate=0 field=0\n' > "$TEST_INDEXSCRIPT"
 rm -rf "$TEST_DB"
 $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null <<END
@@ -1066,7 +1068,7 @@ END
 printf '$foreach{$split{1 2 3 4 5 6 7 8 9},$set{d,$_}$list{$map{$split{x 9 3 2 1 0},$field{$_,$opt{d}}},|}:}' > "$TEST_TEMPLATE"
 testcase 'really long field|really|rea|re|r|:xö xxxxö x|xö|xö|x|x|:ö xxxxö x|ö xxxxö|ö|ö||:x x xx🥝 x|x x|x x|x|x|:a test|a test|a|a|a|:tri|tri|tri|tr|t|:du|du|du|du|d|:1|1|1|1|1|:|||||:'
 
-# Feature tests for scriptindex unhtml and unxml actions.
+# Feature tests for scriptindex `unhtml` and `unxml` actions.
 printf '%s\n' 't : unhtml field=h' 't : unxml field=x' > "$TEST_INDEXSCRIPT"
 rm -rf "$TEST_DB"
 $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null <<'END'
@@ -1168,7 +1170,7 @@ else
     failed=`expr $failed + 1`
 fi
 
-# Feature tests for termprefix and unprefix.
+# Feature tests for scriptindex `termprefix` and `unprefix` actions.
 printf '$termprefix{$cgi{B}}|$unprefix{$cgi{B}}' > "$TEST_TEMPLATE"
 testcase '|' B=''
 testcase '|something' B='something'
@@ -1190,13 +1192,13 @@ testcase 'XCASE|TITLE' B='XCASE:TITLE'
 testcase 'XNUM|42' B='XNUM42'
 testcase 'XNUM|3bad' B='XNUM3bad'
 
-# Test to make sure out generate_sample function in sample.cc
-# Doesn't run into negative memory access
+# Regression test for $truncate with maxlen < the length of the indicator
+# string.
 printf '$truncate{$cgi{input},$cgi{maxlen},$cgi{ind},$cgi{ind2}}$seterror{$opt{error}}' > "$TEST_TEMPLATE"
 testcase 'w...' input='wwwwww' maxlen=4 ind='...' ind2='...'
 testcase '' input='s' maxlen=0 ind='...' ind2='...'
 
-# Feature tests for scriptindex unique action.
+# Feature tests for scriptindex `unique` action.
 rm -rf "$TEST_DB"
 printf '%s\n' 'id : boolean=Q unique=Q' 'id f : field' > "$TEST_INDEXSCRIPT"
 $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null <<'END'
@@ -1298,7 +1300,7 @@ if $SCRIPTINDEX --to-be-or-not-to-be "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null 
     failed=`expr $failed + 1`
 fi
 
-# Regression test: error given for multiple unique actions.
+# Regression test: error given for multiple `unique` actions.
 printf 'uuid : boolean=Q unique=Q\nguid : boolean=G unique=G' > "$TEST_INDEXSCRIPT"
 rm -rf "$TEST_DB"
 if $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null < /dev/null 2>&1; then
@@ -1360,7 +1362,7 @@ fi
 # Test we warn about spaces before and after '='.
 #
 # This has never been documented as supported, and was deprecated in 1.4.6
-# because it resulted in this quietly using hash as the field name, which is
+# because it resulted in this quietly using `hash` as the field name, which is
 # probably not what was intended:
 #
 # url : field= hash boolean=Q unique=Q
@@ -1383,10 +1385,10 @@ else
     failed=`expr $failed + 1`
 fi
 
-# Feature tests for date action.
+# Feature tests for scriptindex `date` action.
 printf '%s\n' 'd : date=unix' 'g : date=unixutc' > "$TEST_INDEXSCRIPT"
 rm -rf "$TEST_DB"
-# date=unix works in the current timezone, so set that explicitly so the
+# `date=unix` works in the current timezone, so set that explicitly so the
 # build doesn't fail if run in a timezone which is behind UTC.
 TZ=UTC $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null <<'END'
 d=
@@ -1398,7 +1400,7 @@ END
 printf '$list{$map{$range{1,3},$list{$allterms{$_}, }},|}' > "$TEST_TEMPLATE"
 testcase '|D19700101 M197001 Y1970|D20181106 M201811 Y2018'
 
-# date=unixutc should always work in UTC regardless of the current timezone.
+# `date=unixutc` should always work in UTC regardless of the current timezone.
 rm -rf "$TEST_DB"
 $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null <<'END'
 g=
@@ -1414,7 +1416,7 @@ testcase '|D19700101 M197001 Y1970|D20181106 M201811 Y2018'
 printf '<|$hitlist{$id(:$hitlist{$id:})|}>' > "$TEST_TEMPLATE"
 testcase '<|2(:2:3:)|3(:2:3:)|>' B=Y1970 B=Y2018
 
-# Feature tests for parsedate action.
+# Feature tests for scriptindex `parsedate` action.
 printf '%s\n' 'DATE : field parsedate=%Y%m%d valuepacked=13' > "$TEST_INDEXSCRIPT"
 rm -rf "$TEST_DB"
 $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null <<'END'
@@ -1423,7 +1425,7 @@ END
 printf '$field{DATE,1}|$unpack{$value{13,1}}|$date{$unpack{$value{13,1}}}' > "$TEST_TEMPLATE"
 testcase '19891204|628732800|1989-12-04' P=text
 
-# Feature tests for parsedate action.
+# Feature tests for scriptindex `parsedate` action.
 printf '%s\n' \
     'DATE: parsedate="%Y%m%d %T" field=time' \
     'TIME_T: parsedate=%s field=time' > "$TEST_INDEXSCRIPT"
@@ -1440,7 +1442,7 @@ testcase '1480680262' id=1
 testcase '1480680263' id=2
 
 if grep -q 'define HAVE_STRUCT_TM_TM_GMTOFF 1' config.h ; then
-  # Feature tests for parsedate action.
+  # Feature tests for scriptindex `parsedate` action.
   printf '%s\n' 'DATE: parsedate="%Y%m%d %T %z" field=time' > "$TEST_INDEXSCRIPT"
   rm -rf "$TEST_DB"
   echo 'DATE=20161202 21:34:22 +0930' | \
@@ -1452,7 +1454,7 @@ else
   echo "Skipping testcases which need tm_gmtoff member in struct tm"
 fi
 
-# Feature tests for load action.
+# Feature tests for scriptindex `load` action.
 printf '%s\n' 'file : load field' > "$TEST_INDEXSCRIPT"
 rm -rf "$TEST_DB"
 rc=0
@@ -1549,7 +1551,7 @@ else
     failed=`expr $failed + 1`
 fi
 
-# Test 'gap' action inserts a termpos gap.
+# Test scriptindex `gap` action inserts a termpos gap.
 printf 'text : index gap=5' > "$TEST_INDEXSCRIPT"
 rm -rf "$TEST_DB"
 printf 'text=%s\n' foo bar baz|$SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null
@@ -1560,7 +1562,8 @@ testcase '|' 'P=foo NEAR/11 baz'
 testcase '|1|' 'P=foo NEAR/6 bar'
 testcase '|1|' 'P=foo NEAR/12 baz'
 
-# The 'hash' action should require its argument is >= 6, so test 5 is rejected.
+# The scriptindex `hash` action should require its argument is >= 6, so test 5
+# is rejected.
 printf 'url : hash=5 boolean=Q unique=Q' > "$TEST_INDEXSCRIPT"
 rm -rf "$TEST_DB"
 if $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" < /dev/null > /dev/null 2>&1 ; then
@@ -1578,8 +1581,8 @@ else
     failed=`expr $failed + 1`
 fi
 
-# Regression test to check hash works without argument (it was failing with an
-# assertion in unreleased versions prior to 1.4.6).
+# Regression test to check `hash` works without argument (it was failing with
+# an assertion in unreleased versions prior to 1.4.6).
 printf 'url : hash boolean=Q unique=Q' > "$TEST_INDEXSCRIPT"
 rm -rf "$TEST_DB"
 if echo 'url=http://xapian.org' | $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null 2>&1 ; then
