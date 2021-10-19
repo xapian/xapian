@@ -1082,6 +1082,13 @@ END
 printf '$list{$map{$split{$cgi{DOCIDS}},$field{h,$_}:$field{x,$_}},|}' > "$TEST_TEMPLATE"
 testcase "`printf 'Notable:No table|foo\rbar:foo bar'`" DOCIDS='1 2'
 
+# Feature test for scriptindex `weight` action.
+printf '%s\n' 't : index' 'w : weight=2 index' > "$TEST_INDEXSCRIPT"
+rm -rf "$TEST_DB"
+printf '%s\n\n' 't=test' 'w=test' 't=test test test'|$SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null
+printf '|$hitlist{$id|}' > "$TEST_TEMPLATE"
+testcase '|3|2|1|' P=test
+
 # Test useless action warnings.
 printf 'foo : index weight=2' > "$TEST_INDEXSCRIPT"
 rm -rf "$TEST_DB"
