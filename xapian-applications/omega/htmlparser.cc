@@ -2,7 +2,7 @@
  * @brief subclass of XmlParser for extracting text from HTML.
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2006,2007,2008,2010,2011,2012,2013,2014,2015,2017,2020 Olly Betts
+ * Copyright 2002,2003,2004,2006,2007,2008,2010,2011,2012,2013,2014,2015,2017,2020,2021 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -34,8 +34,6 @@
 
 using namespace std;
 
-static const char whitespace[] = "_ \t\r\r\f";
-
 static inline void
 lowercase_string(string &str)
 {
@@ -59,18 +57,18 @@ HtmlParser::process_content(const string& content)
 {
     if (!content.empty() && !in_script_tag && !in_style_tag) {
 	string::size_type b = content.find_first_not_of(WHITESPACE);
-	if (b && !pending_space) pending_space = SPACE;
+	if (b) pending_space = true;
 	while (b != string::npos) {
 	    if (pending_space && !target->empty())
-		*target += whitespace[pending_space];
+		*target += ' ';
 	    string::size_type e = content.find_first_of(WHITESPACE, b);
 	    if (e == string::npos) {
 		target->append(content.data() + b, content.size() - b);
-		pending_space = 0;
+		pending_space = false;
 		return;
 	    }
 	    target->append(content.data() + b, e - b);
-	    pending_space = SPACE;
+	    pending_space = true;
 	    b = content.find_first_not_of(WHITESPACE, e + 1);
 	}
     }
@@ -82,7 +80,7 @@ HtmlParser::opening_tag(const string& tag)
     int k = keyword(tab, tag.data(), tag.size());
     if (k < 0)
 	return true;
-    pending_space = max(pending_space, (token_space[k] & TOKEN_SPACE_MASK));
+    pending_space = pending_space || (token_flags[k] & TOKEN_SPACE);
     switch (html_tag(k)) {
 	case INPUT: {
 	    string type;
@@ -97,16 +95,6 @@ HtmlParser::opening_tag(const string& tag)
 	    }
 	    break;
 	}
-	case P:
-	    if (pending_space < PAGE) {
-		string style;
-		if (get_attribute("style", style)) {
-		    // As produced by Libreoffice's HTML export:
-		    if (style.find("page-break-before: always") != string::npos)
-			pending_space = PAGE;
-		}
-	    }
-	    break;
 	case META: {
 	    string content;
 	    if (get_attribute("content", content)) {
@@ -228,7 +216,7 @@ HtmlParser::opening_tag(const string& tag)
 	    break;
 	case TITLE:
 	    target = &title;
-	    pending_space = 0;
+	    pending_space = false;
 	    break;
 	default:
 	    /* No action */
@@ -241,9 +229,9 @@ bool
 HtmlParser::closing_tag(const string& tag)
 {
     int k = keyword(tab, tag.data(), tag.size());
-    if (k < 0 || (token_space[k] & NOCLOSE))
+    if (k < 0 || (token_flags[k] & TOKEN_VOID))
 	return true;
-    pending_space = max(pending_space, (token_space[k] & TOKEN_SPACE_MASK));
+    pending_space = pending_space || (token_flags[k] & TOKEN_SPACE);
     switch (html_tag(k)) {
 	case STYLE:
 	    in_style_tag = false;
@@ -253,7 +241,7 @@ HtmlParser::closing_tag(const string& tag)
 	    break;
 	case TITLE:
 	    target = &dump;
-	    pending_space = 0;
+	    pending_space = false;
 	    break;
 	default:
 	    /* No action */

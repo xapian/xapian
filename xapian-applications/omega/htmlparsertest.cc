@@ -1,7 +1,7 @@
 /** @file
  * @brief test the HtmlParser class
  */
-/* Copyright (C) 2006,2008,2011,2012,2013,2015,2016,2018,2019,2020 Olly Betts
+/* Copyright (C) 2006-2021 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -63,7 +63,7 @@ static const testcase tests[] = {
     { "<title>X</title>", "", "X", "", "" },
     { WIDE("\xfe\xff<\0t\0i\0t\0l\0e\0>\0\x20\x26<\0/\0t\0i\0t\0l\0e\0>\0"), "", "\xe2\x98\xa0", "", "" },
     { WIDE("\xff\xfe\0<\0t\0i\0t\0l\0e\0>\x26\x20\0<\0/\0t\0i\0t\0l\0e\0>"), "", "\xe2\x98\xa0", "", "" },
-    { "<html><body><p>This is \nthe text</p><p>This is \nthe tex</p></body></html>", "This is the text\rThis is the tex", "", "", "" },
+    { "<html><body><p>This is \nthe text</p><p>This is \nthe tex</p></body></html>", "This is the text This is the tex", "", "", "" },
     // Check we default to UTF-8 for HTML5.
     { "<!DOCTYPE html><html><head><title>\xc2\xae</title></head><body>\xc2\xa3</body></html>", "\xc2\xa3", "\xc2\xae", "", "" },
     { "<!Doctype\tHTML  ><html><head><title>\xc2\xae</title></head><body>\xc2\xa3</body></html>", "\xc2\xa3", "\xc2\xae", "", "" },
@@ -82,8 +82,8 @@ static const testcase tests[] = {
     { "foo<![CDATA[bar", "foobar", "", "", "" },
     // Test that handling of multiple body tags matches modern browser behaviour (ticket#599).
     { "a<html>b<head>c<title>bad</title>d</head>e<body>f</body>g<body>h</body>i</html>j<body>k", "abcdefghijk", "bad", "", "" },
-    { "check<object id='foo'>for<applet foo=\"bar\" />spaces<br> in <p>\tout</p>put\r\n", "check for spaces\rin\rout\rput", "", "", "" },
-    { "tab:<table><tr><th>col 1</th><th>col 2</th></tr><tr><td>test</td><td><img src='foo.jpg'> <img src='bar.jpg'></td></tr><tr><td colspan=2>hello world</td></tr></table>done", "tab:\rcol 1\tcol 2\rtest\rhello world\rdone", "", "", "" },
+    { "check<object id='foo'>for<applet foo=\"bar\" />spaces<br> in <p>\tout</p>put\r\n", "check for spaces in out put", "", "", "" },
+    { "tab:<table><tr><th>col 1</th><th>col 2</th></tr><tr><td>test</td><td><img src='foo.jpg'> <img src='bar.jpg'></td></tr><tr><td colspan=2>hello world</td></tr></table>done", "tab: col 1 col 2 test hello world done", "", "", "" },
     // Test HTML checkboxes are converted to Unicode symbols.
     { "<input type=checkbox><input checked=checked type=checkbox><input type=checkbox checked>", "\xe2\x98\x90\xe2\x98\x91\xe2\x98\x91", "", "", "" },
     // Test entities.

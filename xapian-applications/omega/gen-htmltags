@@ -2,7 +2,7 @@
 use strict;
 use warnings;
 my $copyright = <<'EOF';
-/* Copyright (C) 2012,2013 Olly Betts
+/* Copyright (C) 2012-2021 Olly Betts
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -30,23 +30,14 @@ my $srcdir = shift @ARGV;
 
 my $hdr = Tokeniseise->new('html-tok.h', 'Map string to html tag code', $copyright, 'XAPIAN_INCLUDED_MY_HTML_TOK_H', 'html_tag');
 my @space = ();
-$hdr->append('enum { SPACE = 1, COLUMN = 2, BREAK = 3, BLOCK = 4, PAGE = 5, NOCLOSE = 8, TOKEN_SPACE_MASK = 7 };');
+$hdr->append('enum { TOKEN_SPACE = 1, TOKEN_VOID = 2 };');
 $hdr->append('');
-$hdr->append('static const unsigned char token_space[] = {');
+$hdr->append('static const unsigned char token_flags[] = {');
 while (<STDIN>) {
     my @f = split /\s+/;
     my $enum = uc $f[0];
-    $hdr->add($f[0], $enum);
-    my $space = 0;
-    if (exists $f[1]) {
-	$space = $f[1];
-	if (exists $f[2]) {
-	    if ($f[2] ne 'NOCLOSE') {
-		die "Expected 'NOCLOSE', got '$f[2]'";
-	    }
-	    $space .= ' | NOCLOSE';
-	}
-    }
+    $hdr->add(shift @f, $enum);
+    my $space = join(" | ", map {'TOKEN_' . $_} @f) || '0';
     $hdr->append("    $space,");
 }
 $hdr->append('};');

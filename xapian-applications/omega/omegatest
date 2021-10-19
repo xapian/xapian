@@ -1086,10 +1086,10 @@ rm -rf "$TEST_DB"
 $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null <<'END'
 t=<b>No</b>table
 
-t=<p>foo</p><p>bar</p>
+t=<p>foo</p>d<p>bar<B>b</B></p>
 END
 printf '$list{$map{$split{$cgi{DOCIDS}},$field{h,$_}:$field{x,$_}},|}' > "$TEST_TEMPLATE"
-testcase "`printf 'Notable:No table|foo\rbar:foo bar'`" DOCIDS='1 2'
+testcase "`printf 'Notable:No table|foo d barb:foo d bar b'`" DOCIDS='1 2'
 
 # Feature test for scriptindex `weight` action.
 printf '%s\n' 't : index' 'w : weight=2 index' > "$TEST_INDEXSCRIPT"

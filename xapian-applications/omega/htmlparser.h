@@ -2,7 +2,7 @@
  * @brief subclass of XmlParser for extracting text from HTML.
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2006,2008,2010,2011,2012,2013,2016,2017,2019 Olly Betts
+ * Copyright 2002,2003,2004,2006,2008,2010,2011,2012,2013,2016,2017,2019,2021 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -34,7 +34,7 @@
 
 class HtmlParser : public XmlParser {
   public:
-    int pending_space = 0;
+    bool pending_space = false;
     bool in_script_tag = false;
     bool in_style_tag = false;
     bool indexing_allowed = true;
@@ -56,7 +56,7 @@ class HtmlParser : public XmlParser {
     HtmlParser() : XmlParser(false), target(&dump) { }
 
     void reset() {
-	pending_space = 0;
+	pending_space = false;
 	in_script_tag = false;
 	in_style_tag = false;
 	indexing_allowed = true;
