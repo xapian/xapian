@@ -981,6 +981,13 @@ END
 printf '$foreach{$split{1 2 3 4 5 6 7 8 9},$set{d,$_}$list{$map{$split{x 9 3 2 1 0},$field{$_,$opt{d}}},|}:}' > "$TEST_TEMPLATE"
 testcase 'really long field|really|rea|re|r|:xö xxxxö x|xö|xö|x|x|:ö xxxxö x|ö xxxxö|ö|ö||:x x xx🥝 x|x x|x x|x|x|:a test|a test|a|a|a|:tri|tri|tri|tr|t|:du|du|du|du|d|:1|1|1|1|1|:|||||:'
 
+# Feature test for scriptindex `weight` action.
+printf '%s\n' 't : index' 'w : weight=2 index' > "$TEST_INDEXSCRIPT"
+rm -rf "$TEST_DB"
+printf '%s\n\n' 't=test' 'w=test' 't=test test test'|$SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null
+printf '|$hitlist{$id|}' > "$TEST_TEMPLATE"
+testcase '|3|2|1|' P=test
+
 # Test useless action warnings.
 printf 'foo : index weight=2' > "$TEST_INDEXSCRIPT"
 rm -rf "$TEST_DB"
