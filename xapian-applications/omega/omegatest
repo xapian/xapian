@@ -1016,6 +1016,15 @@ echo hex=404 |\
       failed=`expr $failed + 1`; }
 testcase '7g|404' DOCIDS='1 2'
 
+# Feature test for scriptindex `spell` action.
+printf '%s\n' 's : spell index' 'n : index' > "$TEST_INDEXSCRIPT"
+rm -rf "$TEST_DB"
+printf '%s\n\n' 's=some words test' 'n=tent'|$SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null
+printf '$set{flag_spelling_correction,true}$suggestion' > "$TEST_TEMPLATE"
+testcase 'some test' P='home nest'
+testcase 'a test' P='a tent'
+testcase '' P='gent'
+
 # Feature tests for scriptindex `squash` and `ltrim`/`rtrim`/`trim` actions.
 printf 'squash : squash field\nltrim : ltrim field\nrtrim : rtrim field\ntrim : trim field\n' > "$TEST_INDEXSCRIPT"
 rm -rf "$TEST_DB"
