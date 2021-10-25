@@ -66,7 +66,8 @@ get_maxfd() {
 }
 
 // These platforms are known to provide closefrom():
-// FreeBSD >= 8.0, NetBSD >= 3.0, OpenBSD >= 3.5, Solaris >= 9
+// FreeBSD >= 8.0, NetBSD >= 3.0, OpenBSD >= 3.5, Solaris >= 9,
+// Linux >= 5.9 with glibc >= 2.34
 //
 // These platforms are known to support fcntl() with F_CLOSEM:
 // AIX, IRIX, NetBSD >= 2.0
