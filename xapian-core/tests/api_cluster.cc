@@ -42,7 +42,7 @@ make_stemmed_cluster_db(Xapian::WritableDatabase &db, const std::string &)
     Xapian::TermGenerator indexer;
     Xapian::Stem stemmer("english");
     indexer.set_stemmer(stemmer);
-    for (const std::string& document_data : test_strings) {
+    for (const std::string document_data : test_strings) {
 	Xapian::Document document;
 	document.set_data(document_data);
 	indexer.set_document(document);
