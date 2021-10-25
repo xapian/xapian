@@ -24,7 +24,7 @@
 class CPUTimer {
     double start;
 
-    double get_current_cputime() const;
+    static double get_current_cputime();
 
   public:
     /// Start the timer.
