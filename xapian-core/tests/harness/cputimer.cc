@@ -45,7 +45,7 @@
 using namespace std;
 
 double
-CPUTimer::get_current_cputime() const
+CPUTimer::get_current_cputime()
 {
 #ifdef XAPIAN_DEBUG_LOG
     SKIP_TEST("Skipping timed test because configured with --enable-log");
