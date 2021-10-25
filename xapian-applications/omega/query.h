@@ -75,7 +75,7 @@ class OmegaExpandDecider : public Xapian::ExpandDecider {
     Xapian::Database db;
     set<string> exclude_stems;
   public:
-    OmegaExpandDecider(const Xapian::Database & db,
+    OmegaExpandDecider(const Xapian::Database & db_,
 		       set<string> * querytermset = NULL);
     bool operator()(const string & term) const;
 };
