@@ -456,12 +456,6 @@ if test yes = "$GXX"; then
       gxx_version=`echo __GNUC__.__GNUC_MINOR__.__GNUC_PATCHLEVEL__|$CXX -E -|sed '/^#/d;s/ //g'`
       AC_MSG_RESULT([GCC $gxx_version])
 
-      case $gxx_version in
-      [[0123]].*|4.[[0-7]].*)
-	AC_MSG_ERROR([Xapian requires GCC 4.8 or later])
-	;;
-      esac
-
       dnl -Wundef was supported by g++ 3.0.
       dnl
       dnl -Wlogical-op and -Wmissing-declarations (for C++) were added in
@@ -471,6 +465,20 @@ if test yes = "$GXX"; then
       dnl
       dnl All the other options were supported by g++ 2.95.
       AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wformat-security -fno-gnu-keywords -Wundef -Woverloaded-virtual -Wstrict-null-sentinel -Wshadow -Wstrict-overflow=1 -Wlogical-op -Wmissing-declarations -Wdouble-promotion"
+
+      case $gxx_version in
+      [[0123]].*|4.[[0-7]].*)
+	AC_MSG_ERROR([Xapian requires GCC 4.8 or later])
+	;;
+      4.*|5.*)
+	;;
+      6.*)
+	AM_CXXFLAGS="$AM_CXXFLAGS -Wduplicated-cond"
+	;;
+      *)
+	AM_CXXFLAGS="$AM_CXXFLAGS -Wduplicated-cond -Wduplicated-branches"
+	;;
+      esac
 
       dnl FIXME:
       dnl -Wold-style-cast is interesting, but triggers for macros from
