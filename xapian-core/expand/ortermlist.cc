@@ -1,7 +1,7 @@
 /** @file
  * @brief Merge two TermList objects using an OR operation.
  */
-/* Copyright (C) 2007,2010 Olly Betts
+/* Copyright (C) 2007-2021 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -151,45 +151,22 @@ TermList *
 OrTermList::skip_to(const string & term)
 {
     LOGCALL(EXPAND, TermList *, "OrTermList::skip_to", term);
-    // If we've not started yet, both left_current and right_current will be
-    // empty, so we'll take the third case below which is what we want to do to
-    // get started.
-    int cmp = left_current.compare(right_current);
-    if (cmp < 0) {
-	handle_prune(left, left->skip_to(term));
-	if (left->at_end()) {
-	    TermList *ret = right;
-	    right = NULL;
-	    RETURN(ret);
-	}
-	left_current = left->get_termname();
-    } else if (cmp < 0) {
-	handle_prune(right, right->skip_to(term));
-	if (right->at_end()) {
-	    TermList *ret = left;
-	    left = NULL;
-	    RETURN(ret);
-	}
-	right_current = right->get_termname();
-    } else {
-	AssertEq(left_current, right_current);
-	handle_prune(left, left->skip_to(term));
-	handle_prune(right, right->skip_to(term));
-	if (left->at_end()) {
-	    // right->at_end() may also be true, but our parent will deal with
-	    // that.
-	    TermList *ret = right;
-	    right = NULL;
-	    RETURN(ret);
-	}
-	if (right->at_end()) {
-	    TermList *ret = left;
-	    left = NULL;
-	    RETURN(ret);
-	}
-	left_current = left->get_termname();
-	right_current = right->get_termname();
+    handle_prune(left, left->skip_to(term));
+    handle_prune(right, right->skip_to(term));
+    if (left->at_end()) {
+	// right->at_end() may also be true, but our parent will deal with
+	// that.
+	TermList *ret = right;
+	right = NULL;
+	RETURN(ret);
     }
+    if (right->at_end()) {
+	TermList *ret = left;
+	left = NULL;
+	RETURN(ret);
+    }
+    left_current = left->get_termname();
+    right_current = right->get_termname();
     RETURN(NULL);
 }
 
@@ -198,7 +175,7 @@ OrTermList::at_end() const
 {
     LOGCALL(EXPAND, bool, "OrTermList::at_end", NO_ARGS);
     check_started();
-    // next() should have pruned if either child is at_end().
+    // next() or skip_to() should have pruned if either child is at_end().
     Assert(!left->at_end());
     Assert(!right->at_end());
     RETURN(false);
