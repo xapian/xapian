@@ -1,7 +1,7 @@
 /** @file
  * @brief Test the spelling correction suggestion API.
  */
-/* Copyright (C) 2007,2008,2009,2010,2011 Olly Betts
+/* Copyright (C) 2007-2021 Olly Betts
  * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -226,6 +226,15 @@ DEFINE_TESTCASE(spell3, spelling) {
     TEST_EQUAL(*i, "helo");
     TEST_EQUAL(i.get_termfreq(), 1);
     ++i;
+    TEST(i == db.spellings_end());
+
+    // Regression test for TermIterator::skip_to() bug fixed in 1.4.19.
+    i = db.spellings_begin();
+    i.skip_to("helo");
+    TEST(i != db.spellings_end());
+    TEST_EQUAL(*i, "helo");
+    TEST_EQUAL(i.get_termfreq(), 1);
+    i.skip_to("help");
     TEST(i == db.spellings_end());
 }
 
