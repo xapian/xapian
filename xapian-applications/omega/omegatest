@@ -981,6 +981,17 @@ END
 printf '$foreach{$split{1 2 3 4 5 6 7 8 9},$set{d,$_}$list{$map{$split{x 9 3 2 1 0},$field{$_,$opt{d}}},|}:}' > "$TEST_TEMPLATE"
 testcase 'really long field|really|rea|re|r|:xö xxxxö x|xö|xö|x|x|:ö xxxxö x|ö xxxxö|ö|ö||:x x xx🥝 x|x x|x x|x|x|:a test|a test|a|a|a|:tri|tri|tri|tr|t|:du|du|du|du|d|:1|1|1|1|1|:|||||:'
 
+# Feature tests for scriptindex `unhtml` action.
+printf '%s\n' 't : unhtml field=h' > "$TEST_INDEXSCRIPT"
+rm -rf "$TEST_DB"
+$SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null <<'END'
+t=<b>No</b>table
+
+t=<p>foo</p>d<p>bar<B>b</B></p>
+END
+printf '$list{$map{$split{$cgi{DOCIDS}},$field{h,$_}},|}' > "$TEST_TEMPLATE"
+testcase "`printf 'Notable|foo\rd\rbarb'`" DOCIDS='1 2'
+
 # Feature test for scriptindex `weight` action.
 printf '%s\n' 't : index' 'w : weight=2 index' > "$TEST_INDEXSCRIPT"
 rm -rf "$TEST_DB"
