@@ -282,6 +282,7 @@ namespace Xapian {
     class Cluster;
     class ClusterSet;
     class ExpandDecider;
+    class FreqSource;
     class KeyMaker;
     class LatLongMetric;
     class MatchDecider;
@@ -322,6 +323,7 @@ XAPIAN_PRETTY_AS_CLASSNAME(Xapian::Centroid)
 XAPIAN_PRETTY_AS_CLASSNAME(Xapian::Cluster)
 XAPIAN_PRETTY_AS_CLASSNAME(Xapian::ClusterSet)
 XAPIAN_PRETTY_AS_CLASSNAME(Xapian::ExpandDecider)
+XAPIAN_PRETTY_AS_CLASSNAME(Xapian::FreqSource)
 XAPIAN_PRETTY_AS_CLASSNAME(Xapian::KeyMaker)
 XAPIAN_PRETTY_AS_CLASSNAME(Xapian::LatLongMetric)
 XAPIAN_PRETTY_AS_CLASSNAME(Xapian::MatchDecider)
