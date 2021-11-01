@@ -43,6 +43,9 @@ class DerefWrapper_ {
     T res;
 
   public:
+    /// Default copy constructor.
+    DerefWrapper_(const DerefWrapper_&) = default;
+
     explicit DerefWrapper_(const T &res_) : res(res_) { }
     const T & operator*() const { return res; }
 };
