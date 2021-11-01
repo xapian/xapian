@@ -48,6 +48,11 @@ class DerefWrapper_ {
     T res;
 
   public:
+#if __cplusplus >= 201103L
+    /// Default copy constructor.
+    DerefWrapper_(const DerefWrapper_&) = default;
+#endif
+
     explicit DerefWrapper_(const T &res_) : res(res_) { }
     const T & operator*() const { return res; }
 };
