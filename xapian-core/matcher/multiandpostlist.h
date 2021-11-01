@@ -1,7 +1,7 @@
 /** @file
  * @brief N-way AND postlist
  */
-/* Copyright (C) 2007,2009,2011,2017 Olly Betts
+/* Copyright (C) 2007,2009,2011,2017,2021 Olly Betts
  * Copyright (C) 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -77,7 +77,8 @@ class MultiAndPostList : public PostList {
 	if (res) {
 	    delete plist[n];
 	    plist[n] = res;
-	    matcher->recalc_maxweight();
+	    if (max_wt[n] > 0)
+		matcher->recalc_maxweight();
 	}
     }
 
@@ -87,7 +88,8 @@ class MultiAndPostList : public PostList {
 	if (res) {
 	    delete plist[n];
 	    plist[n] = res;
-	    matcher->recalc_maxweight();
+	    if (max_wt[n] > 0)
+		matcher->recalc_maxweight();
 	}
     }
 
@@ -98,7 +100,8 @@ class MultiAndPostList : public PostList {
 	if (res) {
 	    delete plist[n];
 	    plist[n] = res;
-	    matcher->recalc_maxweight();
+	    if (max_wt[n] > 0)
+		matcher->recalc_maxweight();
 	}
     }
 
