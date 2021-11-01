@@ -1,7 +1,7 @@
 /** @file
  * @brief Debug logging macros.
  */
-/* Copyright (C) 2008,2009,2010,2011,2014,2015 Olly Betts
+/* Copyright (C) 2008,2009,2010,2011,2014,2015,2021 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -188,8 +188,16 @@ class DebugLogFunc {
     /// Function/method name.
     std::string func;
 
-    /// Was an uncaught exception active when we entered this function?
-    bool uncaught_exception;
+    /// Number of uncaught exceptions when we entered this function.
+    int uncaught_exceptions;
+
+    static int get_uncaught_exceptions() {
+#if __cplusplus >= 201703L
+	return std::uncaught_exceptions();
+#else
+	return int(std::uncaught_exception());
+#endif
+    }
 
   public:
     /// Constructor called when logging for a "normal" method or function.
@@ -197,7 +205,7 @@ class DebugLogFunc {
 		 const char* return_type, const char* func_name,
 		 const std::string& params)
 	: this_ptr(this_ptr_), category(category_),
-	  uncaught_exception(std::uncaught_exception())
+	  uncaught_exceptions(get_uncaught_exceptions())
     {
 	if (is_category_wanted()) {
 	    func.assign(return_type);
@@ -234,7 +242,7 @@ class DebugLogFunc {
     ~DebugLogFunc() {
 	if (!is_category_wanted()) return;
 	xapian_debuglogger_.outdent();
-	if (!uncaught_exception && std::uncaught_exception()) {
+	if (get_uncaught_exceptions() > uncaught_exceptions) {
 	    // An exception is causing the stack to be unwound.
 	    LOGLINE_(category, '[' << this_ptr << "] " << func <<
 			       " exited due to exception");
@@ -264,8 +272,16 @@ class DebugLogFuncVoid {
     /// Function/method name.
     std::string func;
 
-    /// Was an uncaught exception active when we entered this function?
-    bool uncaught_exception;
+    /// Number of uncaught exceptions when we entered this function.
+    int uncaught_exceptions;
+
+    static int get_uncaught_exceptions() {
+#if __cplusplus >= 201703L
+	return std::uncaught_exceptions();
+#else
+	return int(std::uncaught_exception());
+#endif
+    }
 
   public:
     /// Constructor called when logging for a "normal" method or function.
@@ -273,7 +289,7 @@ class DebugLogFuncVoid {
 		     const char* func_name,
 		     const std::string& params)
 	: this_ptr(this_ptr_), category(category_),
-	  uncaught_exception(std::uncaught_exception())
+	  uncaught_exceptions(get_uncaught_exceptions())
     {
 	if (is_category_wanted()) {
 	    func.assign("void ");
@@ -291,7 +307,7 @@ class DebugLogFuncVoid {
 		     const std::string& params,
 		     const char* class_name)
 	: this_ptr(this_ptr_), category(category_),
-	  uncaught_exception(std::uncaught_exception())
+	  uncaught_exceptions(get_uncaught_exceptions())
     {
 	if (is_category_wanted()) {
 	    func.assign(class_name);
@@ -316,7 +332,7 @@ class DebugLogFuncVoid {
     DebugLogFuncVoid(const void* this_ptr_, debuglog_categories category_,
 		     const char* class_name)
 	: this_ptr(this_ptr_), category(category_),
-	  uncaught_exception(std::uncaught_exception())
+	  uncaught_exceptions(get_uncaught_exceptions())
     {
 	if (is_category_wanted()) {
 	    func.assign(class_name);
@@ -348,7 +364,7 @@ class DebugLogFuncVoid {
 	if (!is_category_wanted()) return;
 	xapian_debuglogger_.outdent();
 	const char* reason;
-	if (!uncaught_exception && std::uncaught_exception()) {
+	if (get_uncaught_exceptions() > uncaught_exceptions) {
 	    // An exception is causing the stack to be unwound.
 	    reason = " exited due to exception";
 	} else {
