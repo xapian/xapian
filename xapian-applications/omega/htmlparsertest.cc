@@ -107,6 +107,8 @@ static const testcase tests[] = {
     { "<?xml version=\"1.0\"?><html><head><meta name=keywords content='testing'/></head><body>Body</body></html>", "Body", "", "testing", "" },
     { "<?xml version=\"1.0\"?><html><head><meta Name=keywords content='testing'/></head><body>Body</body></html>", "Body", "", "", "" },
     { "<?xml version=\"1.0\"?><html><head><meta name=keywords Content='testing'/></head><body>Body</body></html>", "Body", "", "", "" },
+    // Test handling of PHP tags.
+    { "T<?php $a=PHP_MAJOR_VERSION > 7 ?>\r\ne<? if ($a) new(); ?>\ns<?= $a ?>\rting<? ?>\n\nPHP<?php $a=0;", "Testing PHP", "", "", "" },
     { 0, 0, 0, 0, 0 }
 };
 

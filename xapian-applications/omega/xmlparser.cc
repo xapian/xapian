@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Ananova Ltd
- * Copyright 2002,2006,2007,2008,2009,2010,2011,2012,2015,2016,2018,2019,2020 Olly Betts
+ * Copyright 2002,2006,2007,2008,2009,2010,2011,2012,2015,2016,2018,2019,2020,2021 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -455,9 +455,19 @@ XmlParser::parse(const string& text)
 	    while (start != text.end() && *(start - 1) != '?')
 		start = find(start + 1, text.end(), '>');
 
-	    // Unterminated PHP swallows rest of document (rather arbitrarily
-	    // but it avoids polluting the database when things go wrong)
-	    if (start != text.end()) ++start;
+	    if (start == text.end()) {
+		// The closing ?> at the end of a file is optional so ignore
+		// the rest of the document if there isn't one:
+		// https://www.php.net/basic-syntax.instruction-separation
+	    } else {
+		// PHP ignores an immediately trailing newline after the
+		// closing tag:
+		// https://www.php.net/basic-syntax.instruction-separation
+		// Testing shows \n, \r and \r\n are skipped.
+		++start;
+		if (*start == '\r') ++start;
+		if (*start == '\n') ++start;
+	    }
 	} else {
 	    // Opening or closing tag.
 	    bool closing = false;
