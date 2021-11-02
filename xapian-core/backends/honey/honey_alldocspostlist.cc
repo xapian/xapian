@@ -196,9 +196,7 @@ HoneyAllDocsPostList::get_wdf_upper_bound() const
 string
 HoneyAllDocsPostList::get_description() const
 {
-    string desc = "HoneyAllDocsPostList(did=";
-    desc += str(get_docid());
-    desc += ",doccount=";
+    string desc = "HoneyAllDocsPostList(doccount=";
     desc += str(doccount);
     desc += ')';
     return desc;
