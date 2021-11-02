@@ -393,9 +393,19 @@ HtmlParser::parse(const string &body)
 	    while (start != body.end() && *(start - 1) != '?')
 		start = find(start + 1, body.end(), '>');
 
-	    // unterminated PHP swallows rest of document (rather arbitrarily
-	    // but it avoids polluting the database when things go wrong)
-	    if (start != body.end()) ++start;
+	    if (start == body.end()) {
+		// The closing ?> at the end of a file is optional so ignore
+		// the rest of the document if there isn't one:
+		// https://www.php.net/basic-syntax.instruction-separation
+	    } else {
+		// PHP ignores an immediately trailing newline after the
+		// closing tag:
+		// https://www.php.net/basic-syntax.instruction-separation
+		// Testing shows \n, \r and \r\n are skipped.
+		++start;
+		if (*start == '\r') ++start;
+		if (*start == '\n') ++start;
+	    }
 	} else {
 	    // opening or closing tag
 	    int closing = 0;

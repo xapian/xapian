@@ -98,6 +98,8 @@ static const testcase tests[] = {
     { "<head><title xml:lang='en-US\" /></head><body><p>Body</p></body>", "Body", "", "", "" },
     { "<head><title/></head><body><p>Body</p></body>", "Body", "", "", "" },
     { "<head><title /></head><body><p>Body</p></body>", "Body", "", "", "" },
+    // Test handling of PHP tags.
+    { "T<?php $a=PHP_MAJOR_VERSION > 7 ?>\r\ne<? if ($a) new(); ?>\ns<?= $a ?>\rting<? ?>\n\nPHP<?php $a=0;", "Testing PHP", "", "", "" },
     { 0, 0, 0, 0, 0 }
 };
 
