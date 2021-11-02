@@ -80,9 +80,7 @@ GlassAllDocsPostList::open_position_list() const
 string
 GlassAllDocsPostList::get_description() const
 {
-    string desc = "GlassAllDocsPostList(did=";
-    desc += str(get_docid());
-    desc += ",doccount=";
+    string desc = "GlassAllDocsPostList(doccount=";
     desc += str(doccount);
     desc += ')';
     return desc;
