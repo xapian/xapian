@@ -1883,3 +1883,13 @@ DEFINE_TESTCASE(nosuchterm, backend) {
 	TEST_EQUAL(enquire.get_mset(0, 10).size(), 0);
     }
 }
+
+// Test that all the terms returned exist.
+DEFINE_TESTCASE(allterms7, backend) {
+    Xapian::Database db = get_database("etext");
+    for (auto i = db.allterms_begin(); i != db.allterms_end(); ++i) {
+	string term = *i;
+	TEST(db.get_termfreq(term) > 0);
+	TEST(db.postlist_begin(term) != db.postlist_end(term));
+    }
+}
