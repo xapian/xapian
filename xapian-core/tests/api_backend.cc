@@ -1726,3 +1726,13 @@ DEFINE_TESTCASE(multidb1, backend) {
     db.add_database(Xapian::Database());
     TEST_EQUAL(db.size(), db2.size() * 2);
 }
+
+// Test that all the terms returned exist.
+DEFINE_TESTCASE(allterms7, backend) {
+    Xapian::Database db = get_database("etext");
+    for (auto i = db.allterms_begin(); i != db.allterms_end(); ++i) {
+	string term = *i;
+	TEST(db.get_termfreq(term) > 0);
+	TEST(db.postlist_begin(term) != db.postlist_end(term));
+    }
+}
