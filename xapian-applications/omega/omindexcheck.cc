@@ -160,6 +160,12 @@ index_test()
 		  {{"ZAparth", "Zabiword", "Zsampl", "Zdocument"}}});
     tests.insert({"abw/test1.abw",
 		  {{"Zедой", "Z喬伊不分享食物"}}});
+#else
+    // Indexed using AbiwordParser class, which doesn't currently handle metadata.
+    tests.insert({"abw/test.abw",
+		  {{"Zabiword", "Zsampl", "Zdocument"}}});
+    tests.insert({"abw/test1.abw",
+		  {{"Zедой", "Z喬伊不分享食物"}}});
 #endif
 #if defined HAVE_LIBCDR
     // .cdr versions >= 16 are not included in the tests as they will work
