@@ -146,11 +146,11 @@ index_test()
 		  {{"ZSproject", "ZSresearch", "Zhead", "Ztext"}}});
 
     // OOXML formats
-    tests.insert({"ooxml/book.xlsx",
+    tests.insert({"ooxml/Book.xlsx",
 		  {{"Zmodi", "Zgood", "Zemploye"}}});
-    tests.insert({"ooxml/doc.docx",
+    tests.insert({"ooxml/Doc.docx",
 		  {{"Zедой", "Z喬伊不分享食物", "ZSbakeri"}}});
-    tests.insert({"ooxml/nature.pptx",
+    tests.insert({"ooxml/Nature.pptx",
 		  {{"ZSnatur", "Zbeauti", "Zsampl"}}});
 #endif
 #if defined HAVE_LIBABW
@@ -240,6 +240,9 @@ main(int argc, char** argv)
 	string url(term, 2);
 	Xapian::PostingIterator p = db.postlist_begin(term);
 	if (p == db.postlist_end(term)) {
+	    // This shouldn't be possible.
+	    cerr << "Term " << term << " doesn't index anything?!\n";
+	    result = FAIL;
 	    continue;
 	}
 	Xapian::docid did = *p;
@@ -252,8 +255,15 @@ main(int argc, char** argv)
 		result = FAIL;
 	    else if (result == PASS && individual_result == SKIP)
 		result = SKIP;
+	    tests.erase(iter);
 	}
     }
+
+    for (auto t : tests) {
+	cerr << "Testcase for URL " << t.first << " wasn't exercised\n";
+	result = FAIL;
+    }
+
     // exit status of 77 to denote a skipped test (standard for automake)
     if (result == PASS)
 	return 0;
