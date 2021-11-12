@@ -3,6 +3,7 @@
  */
 /* Copyright (C) 2019 Bruno Baruffaldi
  * Copyright (C) 2020 Parth Kapadia
+ * Copyright (C) 2021 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -182,6 +183,8 @@ index_test()
     tests.insert({"audio/file_example_WAV_1MG.wav",
 		  {{"Zstereo", "wav", "Zms"}, SKIP_IF_NO_TERMS}});
 #endif
+    tests.insert({"application/vnd.ms-xpsdocument_xpstest.xps",
+		 {{"second", "header", "footer"}}});
 }
 
 static test_result

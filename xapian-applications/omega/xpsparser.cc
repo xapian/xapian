@@ -27,9 +27,9 @@ using namespace std;
 bool
 XpsParser::opening_tag(const string& tag)
 {
-    if (tag == "glyphs") {
+    if (tag == "Glyphs") {
 	string unicodestring;
-	if (get_attribute("unicodestring", unicodestring))
+	if (get_attribute("UnicodeString", unicodestring))
 	    dump += unicodestring;
     }
     return true;
