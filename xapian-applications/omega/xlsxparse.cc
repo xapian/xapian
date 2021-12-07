@@ -1,7 +1,7 @@
 /** @file
  * @brief Extract fields from XLSX sheet*.xml.
  */
-/* Copyright (C) 2012,2013 Olly Betts
+/* Copyright (C) 2012,2013,2021 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -89,15 +89,11 @@ XlsxParser::opening_tag(const string &tag)
     } else if (tag == "xf") {
 	if (mode == MODE_CELLXFS) {
 	    string v;
-	    if (get_parameter("applynumberformat", v)) {
-		if (v == "true" || v == "1") {
-		    if (get_parameter("numfmtid", v)) {
-			unsigned long id = strtoul(v.c_str(), NULL, 10);
-			if ((id >= 14 && id <= 17) ||
-			    date_format.find(id) != date_format.end()) {
-			    date_style.insert(style_index);
-			}
-		    }
+	    if (get_parameter("numfmtid", v)) {
+		unsigned long id = strtoul(v.c_str(), NULL, 10);
+		if ((id >= 14 && id <= 17) ||
+		    date_format.find(id) != date_format.end()) {
+		    date_style.insert(style_index);
 		}
 	    }
 	    ++style_index;
