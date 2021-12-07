@@ -234,11 +234,11 @@ compare_test(testcase& test, const Xapian::Document& doc, const string& file)
 int
 main(int argc, char** argv)
 {
-    Xapian::Database db;
     test_result result = PASS;
     if (argc <= 1)
 	return 1;
-    db.add_database(Xapian::Database(argv[1]));
+
+    Xapian::Database db(argv[1]);
 
     index_test();
     for (auto t = db.allterms_begin("U"); t != db.allterms_end("U"); ++t) {
