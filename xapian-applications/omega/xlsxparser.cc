@@ -1,7 +1,7 @@
 /** @file
  * @brief Extract fields from XLSX sheet*.xml.
  */
-/* Copyright (C) 2012,2013 Olly Betts
+/* Copyright (C) 2012,2013,2021 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -58,46 +58,42 @@ XlsxParser::opening_tag(const string &tag)
 	mode = MODE_SI;
     } else if (tag == "sst") {
 	string unique_count;
-	if (get_attribute("uniquecount", unique_count)) {
+	if (get_attribute("uniqueCount", unique_count)) {
 	    unsigned long c = strtoul(unique_count.c_str(), NULL, 10);
 	    // This reserving is just a performance tweak, so don't go
 	    // reserving ludicrous amounts of space just because an XML
 	    // attribute told us to.
 	    sst.reserve(std::min(c, 1000000ul));
 	}
-    } else if (tag == "workbookpr") {
+    } else if (tag == "workbookPr") {
 	string v;
 	if (get_attribute("date1904", v)) {
 	    date1904 = (v == "true" || v == "1");
 	}
-    } else if (tag == "numfmt") {
+    } else if (tag == "numFmt") {
 	string formatcode;
-	if (get_attribute("formatcode", formatcode)) {
+	if (get_attribute("formatCode", formatcode)) {
 	    // Heuristic for "date format" (FIXME: implement properly)
 	    if (strchr(formatcode.c_str(), 'd') &&
 		strchr(formatcode.c_str(), 'm') &&
 		strchr(formatcode.c_str(), 'y')) {
 		string v;
-		if (get_attribute("numfmtid", v)) {
+		if (get_attribute("numFmtId", v)) {
 		    unsigned long id = strtoul(v.c_str(), NULL, 10);
 		    date_format.insert(id);
 		}
 	    }
 	}
-    } else if (tag == "cellxfs") {
+    } else if (tag == "cellXfs") {
 	mode = MODE_CELLXFS;
     } else if (tag == "xf") {
 	if (mode == MODE_CELLXFS) {
 	    string v;
-	    if (get_attribute("applynumberformat", v)) {
-		if (v == "true" || v == "1") {
-		    if (get_attribute("numfmtid", v)) {
-			unsigned long id = strtoul(v.c_str(), NULL, 10);
-			if ((id >= 14 && id <= 17) ||
-			    date_format.find(id) != date_format.end()) {
-			    date_style.insert(style_index);
-			}
-		    }
+	    if (get_attribute("numFmtId", v)) {
+		unsigned long id = strtoul(v.c_str(), NULL, 10);
+		if ((id >= 14 && id <= 17) ||
+		    date_format.find(id) != date_format.end()) {
+		    date_style.insert(style_index);
 		}
 	    }
 	    ++style_index;

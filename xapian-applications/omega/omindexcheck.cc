@@ -148,6 +148,9 @@ index_test()
     // OOXML formats
     tests.insert({"ooxml/Book.xlsx",
 		  {{"Zmodi", "Zgood", "Zemploye"}}});
+    tests.insert({"ooxml/2sheets.xlsx",
+		  {{"0.123456", "123.456", "15", "2021", "3.14159265358979",
+		    "43", "55", "Aolly", "Ssheet", "Stitle", "xmas"}}});
     tests.insert({"ooxml/Doc.docx",
 		  {{"Zедой", "Z喬伊不分享食物", "ZSbakeri"}}});
     tests.insert({"ooxml/Nature.pptx",
