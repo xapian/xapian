@@ -150,7 +150,7 @@ HtmlParser::decode_entities(string &s)
 }
 
 void
-HtmlParser::parse(const string &body)
+HtmlParser::parse(const string& body)
 {
     // Check for BOM.
     string::const_iterator begin_after_bom = body.begin();
@@ -163,18 +163,12 @@ HtmlParser::parse(const string &body)
 	    }
 	    break;
 	  case '\xfe':
-	    if (body[1] == '\xff') {
-		string utf8_body(body, 2);
-		convert_to_utf8(utf8_body, "utf-16be");
-		charset = "utf-8";
-		parse(utf8_body);
-		return;
-	    }
-	    break;
 	  case '\xff':
-	    if (body[1] == '\xfe') {
-		string utf8_body(body, 2);
-		convert_to_utf8(utf8_body, "utf-16le");
+	    // Match either \xfe\xff or \xff\xfe.
+	    if ((body[1] ^ body[0]) == 1) {
+		// Convert to "utf-16" which will remove the BOM for us.
+		string utf8_body;
+		convert_to_utf8(body, "utf-16", utf8_body);
 		charset = "utf-8";
 		parse(utf8_body);
 		return;

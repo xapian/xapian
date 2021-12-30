@@ -1,7 +1,7 @@
 /** @file
  * @brief convert a string to UTF-8 encoding.
  */
-/* Copyright (C) 2006,2007,2008,2010,2013,2017,2019 Olly Betts
+/* Copyright (C) 2006,2007,2008,2010,2013,2017,2019,2021 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,21 +35,21 @@
 
 using namespace std;
 
-void
-convert_to_utf8(string & text, const string & charset)
+bool
+convert_to_utf8_(const string& text, const string& charset, string& output)
 {
     // Shortcut if it's already in utf8!
     if (charset.size() == 5 && strcasecmp(charset.c_str(), "utf-8") == 0)
-	return;
+	return false;
     if (charset.size() == 4 && strcasecmp(charset.c_str(), "utf8") == 0)
-	return;
+	return false;
     if (charset.size() == 8 && strcasecmp(charset.c_str(), "us-ascii") == 0)
-	return;
+	return false;
 
     // Nobody has told us what charset it's in, so do as little work as
     // possible!
     if (charset.empty())
-	return;
+	return false;
 
     char buf[1024];
     string tmp;
@@ -74,7 +74,7 @@ convert_to_utf8(string & text, const string & charset)
     }
 
     if (utf16) {
-	if (text.size() < 2) return;
+	if (text.size() < 2) return false;
 
 	bool big_endian = true;
 	string::const_iterator i = text.begin();
@@ -99,13 +99,14 @@ convert_to_utf8(string & text, const string & charset)
 	tmp.reserve(text.size() / 2);
 
 	size_t start = 0;
+	auto text_end = text.end();
 	if (text.size() & 1) {
 	    // If there's a half-character at the end, nuke it now to make the
 	    // conversion loop below simpler.
-	    text.resize(text.size() - 1);
+	    --text_end;
 	}
 
-	while (i != text.end()) {
+	while (i != text_end) {
 	    unsigned ch = static_cast<unsigned char>(*i++);
 	    unsigned ch2 = static_cast<unsigned char>(*i++);
 	    if (big_endian) {
@@ -115,7 +116,7 @@ convert_to_utf8(string & text, const string & charset)
 	    }
 	    if (ch >> 10 == 0xd800 >> 10) {
 		// Surrogate pair.
-		if (i == text.end()) break;
+		if (i == text_end) break;
 		unsigned hi = (ch & 0x3ff);
 		ch = static_cast<unsigned char>(*i++);
 		ch2 = static_cast<unsigned char>(*i++);
@@ -199,7 +200,7 @@ try_iconv:
 #ifdef HAVE_ICONV
 	iconv_t conv = iconv_open("UTF-8", charset.c_str());
 	if (conv == reinterpret_cast<iconv_t>(-1))
-	    return;
+	    return false;
 	ICONV_CONST char* in = const_cast<char *>(text.c_str());
 	size_t in_len = text.size();
 	while (in_len) {
@@ -215,7 +216,7 @@ try_iconv:
 
 	(void)iconv_close(conv);
 #else
-	return;
+	return false;
 #endif
     }
 
@@ -245,5 +246,8 @@ iso8859_15:
 	if (start) tmp.append(buf, start);
     }
 
-    swap(text, tmp);
+    // `output` may be a reference to the same string object as `text` so we
+    // only switch after we've done converting.
+    output = std::move(tmp);
+    return true;
 }
