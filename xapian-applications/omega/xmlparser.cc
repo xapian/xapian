@@ -222,7 +222,7 @@ XmlParser::parse(const string& text)
 	  case '\xfe':
 	    if (text[1] == '\xff') {
 		string utf8_text(text, 2);
-		convert_to_utf8(utf8_text, "utf-16le");
+		convert_to_utf8(utf8_text, "utf-16be");
 		charset = "utf-8";
 		parse(utf8_text);
 		return;
@@ -231,7 +231,7 @@ XmlParser::parse(const string& text)
 	  case '\xff':
 	    if (text[1] == '\xfe') {
 		string utf8_text(text, 2);
-		convert_to_utf8(utf8_text, "utf-16be");
+		convert_to_utf8(utf8_text, "utf-16le");
 		charset = "utf-8";
 		parse(utf8_text);
 		return;
