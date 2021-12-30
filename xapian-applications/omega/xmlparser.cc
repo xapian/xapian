@@ -220,18 +220,12 @@ XmlParser::parse(const string& text)
 	    }
 	    break;
 	  case '\xfe':
-	    if (text[1] == '\xff') {
-		string utf8_text(text, 2);
-		convert_to_utf8(utf8_text, "utf-16be");
-		charset = "utf-8";
-		parse(utf8_text);
-		return;
-	    }
-	    break;
 	  case '\xff':
-	    if (text[1] == '\xfe') {
-		string utf8_text(text, 2);
-		convert_to_utf8(utf8_text, "utf-16le");
+	    // Match either \xfe\xff or \xff\xfe.
+	    if ((text[1] ^ text[0]) == 1) {
+		// Convert to "utf-16" which will remove the BOM for us.
+		string utf8_text;
+		convert_to_utf8(text, "utf-16", utf8_text);
 		charset = "utf-8";
 		parse(utf8_text);
 		return;

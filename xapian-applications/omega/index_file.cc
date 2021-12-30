@@ -1165,14 +1165,6 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	    try {
 		XpsParser xpsparser;
 		run_filter(cmd, false, &dump);
-		// Look for Byte-Order Mark (BOM).
-		if (startswith(dump, "\xfe\xff") || startswith(dump, "\xff\xfe")) {
-		    // UTF-16 in big-endian/little-endian order - we just
-		    // convert it as "UTF-16" and let the conversion handle the
-		    // BOM as that way we avoid the copying overhead of erasing
-		    // 2 bytes from the start of dump.
-		    convert_to_utf8(dump, "UTF-16");
-		}
 		xpsparser.parse(dump);
 		dump = xpsparser.dump;
 	    } catch (const ReadError&) {
