@@ -165,7 +165,7 @@ HtmlParser::parse(const string &body)
 	  case '\xfe':
 	    if (body[1] == '\xff') {
 		string utf8_body(body, 2);
-		convert_to_utf8(utf8_body, "utf-16le");
+		convert_to_utf8(utf8_body, "utf-16be");
 		charset = "utf-8";
 		parse(utf8_body);
 		return;
@@ -174,7 +174,7 @@ HtmlParser::parse(const string &body)
 	  case '\xff':
 	    if (body[1] == '\xfe') {
 		string utf8_body(body, 2);
-		convert_to_utf8(utf8_body, "utf-16be");
+		convert_to_utf8(utf8_body, "utf-16le");
 		charset = "utf-8";
 		parse(utf8_body);
 		return;

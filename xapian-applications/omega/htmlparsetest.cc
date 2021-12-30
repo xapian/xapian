@@ -61,8 +61,8 @@ static const testcase tests[] = {
     // The UTF-8 "BOM" should also set the charset to utf-8.
     { "\xef\xbb\xbf<html><head><title>\xc2\xae</title></head><body>\xc2\xa3</body></html>", "\xc2\xa3", "\xc2\xae", "", "" },
     { "<title>X</title>", "", "X", "", "" },
-    { WIDE("\xfe\xff<\0t\0i\0t\0l\0e\0>\0\x20\x26<\0/\0t\0i\0t\0l\0e\0>\0"), "", "\xe2\x98\xa0", "", "" },
-    { WIDE("\xff\xfe\0<\0t\0i\0t\0l\0e\0>\x26\x20\0<\0/\0t\0i\0t\0l\0e\0>"), "", "\xe2\x98\xa0", "", "" },
+    { WIDE("\xff\xfe<\0t\0i\0t\0l\0e\0>\0\x20\x26<\0/\0t\0i\0t\0l\0e\0>\0"), "", "\xe2\x98\xa0", "", "" },
+    { WIDE("\xfe\xff\0<\0t\0i\0t\0l\0e\0>\x26\x20\0<\0/\0t\0i\0t\0l\0e\0>"), "", "\xe2\x98\xa0", "", "" },
     { "<html><body><p>This is \nthe text</p><p>This is \nthe tex</p></body></html>", "This is the text\rThis is the tex", "", "", "" },
     // Check we default to UTF-8 for HTML5.
     { "<!DOCTYPE html><html><head><title>\xc2\xae</title></head><body>\xc2\xa3</body></html>", "\xc2\xa3", "\xc2\xae", "", "" },
