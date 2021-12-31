@@ -51,6 +51,7 @@ static const char * const sw[] = {
 
 struct qp_flag { const char * s; unsigned f; };
 static const qp_flag flag_tab[] = {
+    { "accumulate", Xapian::QueryParser::FLAG_ACCUMULATE },
     { "auto_multiword_synonyms", Xapian::QueryParser::FLAG_AUTO_MULTIWORD_SYNONYMS },
     { "auto_synonyms", Xapian::QueryParser::FLAG_AUTO_SYNONYMS },
     { "boolean", Xapian::QueryParser::FLAG_BOOLEAN },
@@ -58,6 +59,7 @@ static const qp_flag flag_tab[] = {
     { "cjk_ngram", Xapian::QueryParser::FLAG_CJK_NGRAM },
     { "default", Xapian::QueryParser::FLAG_DEFAULT },
     { "lovehate", Xapian::QueryParser::FLAG_LOVEHATE },
+    { "no_positions", Xapian::QueryParser::FLAG_NO_POSITIONS },
     { "partial", Xapian::QueryParser::FLAG_PARTIAL },
     { "phrase", Xapian::QueryParser::FLAG_PHRASE },
     { "pure_not", Xapian::QueryParser::FLAG_PURE_NOT },
