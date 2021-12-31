@@ -387,15 +387,22 @@ if test no != "$with_php7" ; then
     version=`$PHP_CONFIG7 --version 2>/dev/null`
     case $version in
     [[0123456].*])
-      AC_MSG_RESULT([$version (not supported, PHP7 bindings need PHP >= 7.0)])
+      AC_MSG_RESULT([$version (not supported, PHP7 bindings need PHP 7.x)])
       if test yes = "$with_php7" ; then
-	AC_MSG_ERROR([$PHP_CONFIG7 reports version $version - PHP7 bindings need >= 7.0])
+	AC_MSG_ERROR([$PHP_CONFIG7 reports version $version - PHP7 bindings need 7.x])
       fi
       with_php7=no
       ;;
-    *)
+    7.*)
       AC_MSG_RESULT([$version])
       PHP7_MAJOR_VERSION=`echo "$version"|cut -d. -f1`
+      ;;
+    *)
+      AC_MSG_RESULT([$version (PHP >= 8.0 isn't yet supported)])
+      if test yes = "$with_php7" ; then
+	AC_MSG_ERROR([$PHP_CONFIG7 reports version $version - PHP7 bindings need 7.x])
+      fi
+      with_php7=no
       ;;
     esac
     AC_SUBST(PHP7_MAJOR_VERSION)
