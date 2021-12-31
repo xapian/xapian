@@ -532,16 +532,17 @@ if test no != "$with_php" ; then
     AC_MSG_CHECKING([$PHP_CONFIG version])
     version=`$PHP_CONFIG --version 2>/dev/null`
     case $version in
-    [[01234].*|5.[01234].*|[6789].*])
+    dnl 5.6 was the final PHP5 release.
+    5.5.*|5.6.*)
+      AC_MSG_RESULT([$version])
+      PHP_MAJOR_VERSION=`echo "$version"|cut -d. -f1`
+      ;;
+    *)
       AC_MSG_RESULT([$version (not supported, PHP5 bindings need PHP 5.x where x >= 5)])
       if test yes = "$with_php" ; then
 	AC_MSG_ERROR([$PHP_CONFIG reports version $version - PHP5 bindings need PHP 5.x where x >= 5])
       fi
       with_php=no
-      ;;
-    *)
-      AC_MSG_RESULT([$version])
-      PHP_MAJOR_VERSION=`echo "$version"|cut -d. -f1`
       ;;
     esac
     AC_SUBST(PHP_MAJOR_VERSION)
