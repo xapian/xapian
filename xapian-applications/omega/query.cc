@@ -5,7 +5,7 @@
  * Copyright 2001 James Aylett
  * Copyright 2001,2002 Ananova Ltd
  * Copyright 2002 Intercede 1749 Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2013,2014,2015,2016,2017,2018,2019,2020 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2013,2014,2015,2016,2017,2018,2019,2020,2021 Olly Betts
  * Copyright 2008 Thomas Viehmann
  *
  * This program is free software; you can redistribute it and/or
@@ -257,6 +257,10 @@ read_qp_flags(const string & opt_pfx, unsigned f)
 	const char * s = i->first.c_str() + opt_pfx.size();
 	switch (s[0]) {
 	    case 'a':
+                // Note that the ``Xapian::QueryParser::FLAG_ACCUMULATE`` flag
+                // is or-ed in below because it's needed for ``$stoplist`` and
+                // ``$unstem`` to work correctly, and so is deliberately not
+                // available to specify here.
 		if (strcmp(s, "auto_multiword_synonyms") == 0) {
 		    mask = Xapian::QueryParser::FLAG_AUTO_MULTIWORD_SYNONYMS;
 		    break;
@@ -291,6 +295,12 @@ read_qp_flags(const string & opt_pfx, unsigned f)
 	    case 'l':
 		if (strcmp(s, "lovehate") == 0) {
 		    mask = Xapian::QueryParser::FLAG_LOVEHATE;
+		    break;
+		}
+		break;
+	    case 'n':
+		if (strcmp(s, "no_positions") == 0) {
+		    mask = Xapian::QueryParser::FLAG_NO_POSITIONS;
 		    break;
 		}
 		break;

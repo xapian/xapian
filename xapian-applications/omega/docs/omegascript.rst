@@ -640,6 +640,7 @@ $set{OPT,VALUE}
 	* flag_cjk_ngram (new in 1.2.22 and 1.3.4)
 	* flag_default
 	* flag_lovehate
+	* flag_no_positions (new in 1.4.19)
 	* flag_partial
 	* flag_phrase
 	* flag_pure_not
