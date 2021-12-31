@@ -1,6 +1,4 @@
-up to: fba5e99f3d320314ce3899080937cd9cb75bc729
-
-Xapian-bindings 1.4.19 (2021-06-14):
+Xapian-bindings 1.4.19 (2021-12-31):
 
 Documentation:
 
@@ -11,23 +9,28 @@ Documentation:
 
 General:
 
-Packaging:
-
-Portability:
-
-CSharp:
-
-Java:
-
-Lua:
+* Replace uses of obsolete autoconf macros, fixing warnings if configure is
+  regenerated with a recent release of autoconf.
 
 Perl:
 
+* Add missing wrappers for some QueryParser FLAG_* constants.
+    
+* Fix incorrect formatting in the processed POD documentation due to missing
+  escaping of `>` in code snippets.
+
 PHP:
+
+* Make configure PHP5 version check more robust.  Previously it would have
+  incorrectly accepted any (future) PHP version >= 10.0.0.
 
 PHP7:
 
-Python:
+* configure: We now reject PHP8 since it isn't currently supported
+  by a released version of SWIG.  SWIG 4.1.0 will supports PHP8.
+
+* configure: Check for php-config7.4 as well as earlier 7.x versions
+  and php-config.
 
 Python3:
 
@@ -37,7 +40,10 @@ Python3:
 
 Ruby:
 
-Tcl:
+* Fix build with Ruby 3.0 and clang. Reported by Eduard Panov on macos, where
+  clang is the default compiler.
+
+* Improve markup in Ruby bindings docs.
 
 Xapian-bindings 1.4.18 (2021-01-14):
 

@@ -1,8 +1,4 @@
-up to: 51d18fc629ffd301e33667d2904a5b205709aafb
-
-Omega 1.4.19 (2021-06-14):
-
-general:
+Omega 1.4.19 (2021-12-31):
 
 documentation:
 
@@ -13,19 +9,34 @@ documentation:
 
 * Add usage examples for $jsonobject.
 
+* Fix path to omega in quickstart document.  Fixes #813, reported by Jim Lynch.
+
 * Update for the IRC channel move from freenode to libera.chat.
 
 indexers:
 
+* Fix handling of UTF-16 BOMs in XML and HTML - we had the sense of the
+  endianness indicated by the BOM the wrong way round.
+
+* Avoid making an extra temporary copy of HTML/XML data which has a UTF16 BOM.
+
+* We now ignore an end of line immediately after a PHP close tag to match what
+  PHP does.
+
 * omindex:
+
+  + Fix handling of formatted xlsx dates in certain cases.
 
 * scriptindex:
 
-  + Report location of previous unique in the error when unique is used more
-    than once.
-
   + Add new scriptindex whitespace removal actions `ltrim`, `rtrim`, `squash`,
     and `trim`.
+
+  + Improve `truncate` action - if a word ends exactly on the requested length
+    we now leave it in place rather than removing it.
+
+  + Report the location of previous `unique` action in the error given when
+    `unique` is used more than once.
 
 omega:
 
@@ -37,11 +48,33 @@ omega:
 * The JSON produced by $jsonobject no longer contains newlines, which makes it
   usable as a single line serialisation format without post-processing.
 
+* Add $base64 OmegaScript command.
+
+* omega: Add flag_no_positions to wrap new
+  Xapian::QueryParser::FLAG_NO_POSITIONS.
+
 templates:
+
+* Fix topterms template to not trigger early matching.  We were checking $msize
+  before including the `query` template, but doing so would trigger the query
+  to be run, which means that settings early in the `query` template which
+  should affect the result (such as $setmap{prefix,...}) were being ignored
+  when the `topterms` template was used.  Partly addresses #815, reported by
+  Gennadiy.
+
+* Add field support to opensearch and xml templates.  These templates now also
+  search title, topic and filename by default and support `title:`, `author:`
+  and `topic:` in the query string (both like the template `query` already
+  does). Fixes remaining issue in #815, reported by Gennadiy.
 
 testsuite:
 
+* Expand omegatest.  All scriptindex actions now have test coverage.
+
 build system:
+
+* Replace uses of obsolete autoconf macros, fixing warnings if configure is
+  regenerated with a recent release of autoconf.
 
 portability:
 
@@ -52,7 +85,14 @@ portability:
 
   Fixes #808, reported by xpbxf4.
 
-packaging:
+* Automatically enable GCC warnings -Wduplicated-cond and -Wduplicated-branches
+  if using a GCC version new enough to support them.  The usefulness of
+  -Wduplicated-cond was highlighted by dcb in #816.
+
+* Fix GCC -Wshadow warning.
+
+* Use clock_gettime() and nanosleep() under modern mingw as these allow higher
+  precision than what we previously used.
 
 Omega 1.4.18 (2021-01-14):
 

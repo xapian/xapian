@@ -1,17 +1,13 @@
-up to: 51d18fc629ffd301e33667d2904a5b205709aafb
-
-Xapian-core 1.4.19 (2021-06-14):
-
+Xapian-core 1.4.19 (2021-12-31):
 
 API:
 
-* New QueryParser::FLAG_NO_POSITIONS flag.  With this flag enabled, no
-  positional information will be used and any query operations which would use
-  it are replaced by the nearest equivalent which doesn't (so phrase searches,
-  NEAR and ADJ will result in OP_AND).  This is intended to replace the
-  automatic conversion of OP_PHRASE, etc to OP_AND when a database has no
-  positional information, which will no longer happen in the release series
-  after 1.4.
+* New QueryParser::FLAG_NO_POSITIONS flag.  With this flag enabled, any query
+  operations which would use positional information are replaced by the nearest
+  equivalent which doesn't (so phrase searches, NEAR and ADJ will result in
+  OP_AND).  This is intended to replace the automatic conversion of OP_PHRASE,
+  etc to OP_AND when a database has no positional information, which will no
+  longer happen in the release series after 1.4.
 
 * Give a compile error for code which adds a Database to WritableDatabase.
 
@@ -24,10 +20,42 @@ API:
 
   Reported by David Bremner on #xapian.
 
+* Fix TermIterator::skip_to() with sharded databases which sometimes was
+  failing to advance all the way to the requested term.  Uncovered while
+  addressing warning from GCC's -Wduplicated-cond, reported by dcb in #816.
+
+* Clamp edit distance to one less than the length of the word we've been asked
+  to correct, which makes the algorithm we use more efficient.  We already
+  require suggestion to have at least one character in common, so the only
+  change to suggestions is we'll no longer suggest corrections which are
+  twice as long or longer even if the edit distance would allow it, which
+  seems like an improvement in itself.
+
+* Minor optimisation expanding wildcards.
+
+* PostingIterator::get_description(): For an all-docs iterator on a glass
+  database, get_description() would call get_docid() which isn't valid to
+  do once the iterator has reached the end.
+
 testsuite:
 
+* Expand allterms test coverage.
 
 matcher:
+
+* Fetch wdf upper bound from postlist which avoids an extra postlist table
+  cursor seek per weighted query term, and also means we now use a per-shard
+  wdf upper bound for local shards which will in typically give a tighter
+  weight upper bound which will tend to make various other matcher
+  optimisations more effective.  Eric Wong reported this speeds up a
+  particularly slow case from ~2 minutes to ~3 seconds.
+
+  With this change, OP_ELITE_SET can now select a different subset of terms for
+  each shard regardless of shard type (previously this only happened for remote
+  shards).
+
+* Avoid triggering a pointless maximum weight recalculation if an unweighted
+  child of a MultiAndPostList prunes.
 
 * Only check if the database has positional information when the query
   uses positional information.  This should help improve notmuch delete
@@ -41,17 +69,11 @@ glass backend:
 * Cache result of Glass::Inverter::has_positions() since calculating it is
   potentially very expensive, while maintaining a cached answer is very cheap.
 
-chert backend:
-
-
 remote backend:
 
-* Add missing closing parenthesis to remote prog context, which has been
-  missing since this code was first added over 20 years ago!  Spotted by Gaurav
-  Arora.
-
-inmemory backend:
-
+* Add missing closing parenthesis to reported remote prog context, which has
+  been missing since this code was first added over 20 years ago!  Spotted by
+  Gaurav Arora.
 
 build system:
 
@@ -78,6 +100,39 @@ build system:
 
   Reported by starmad on #xapian.
 
+* Fix GCC -Wmaybe-uninitialized warning.  The warning seems bogus as it's about
+  the this pointer being passed to a method which doesn't reference the object,
+  but we can just make the method static to avoid the warning, and that's
+  arguably cleaner for a method called from the object initialiser list.
+
+* Automatically enable GCC warnings -Wduplicated-cond and -Wduplicated-branches
+  if using a GCC version new enough to support them.  The usefulness of
+  -Wduplicated-cond was highlighted by dcb in #816.
+
+* Replace uses of obsolete autoconf macros, fixing warnings if configure is
+  regenerated with a recent release of autoconf.
+
+* Simplify configure probe for sigsetjmp and siglongjmp.  Just probe
+  individually with AC_CHECK_DECLS and then check that both exist with a
+  preprocessor check.
+
+* Update XO_LIB_XAPIAN to fix warning that AC_ERROR is obsolete with modern
+  autoconf.
+
+* Support linking against static libxapian with cmake. Patch from Anonymous
+  Maarten in https://github.com/xapian/xapian/pull/317
+
+* Clean up handling of libs we link libxapian with - previously any libraries
+  explicitly specified to configure by the user via LIBS=... as well as -lm
+  (if configure determined it was needed) could get added to XAPIAN_LIBS
+  multiple times, as well as also getting added to the libxapian link command
+  anyway by automake/libtool standard handling.
+
+  Specifying a library more than once on the link line is not a problem on
+  common platforms, but may be an issue somewhere (and it's on less common
+  platforms where the user is more likely to have to specify LIBS to configure
+  and/or where -lm may be needed).
+
 documentation:
 
 * configure: Add missing AC_ARG_VAR for all programs so that they are
@@ -89,13 +144,23 @@ documentation:
   since in C/C++ (and some other languages), ^ means exclusive-or.  Write x²
   instead, which should be clear to all readers.
 
+* Improve docs for Xapian::Stopper and SimpleStopper.
+
+* docs/intro_ir.rst: Fixed an incorrect term index.  Patch from Jaak Ristioja
+  in https://github.com/xapian/xapian/pull/321.
+
 * Update for the IRC channel move from freenode to libera.chat.
-
-tools:
-
 
 examples:
 
+* quest: Don't enable spelling correction by default.  It was really only on by
+  default because the spelling correction support in quest was added before
+  --flags.  It seems more helpful for the default to match the
+  Xapian::QueryParser API, and also this fixes the weird situation that
+  `--flags default` isn't the default you get without any `--flags` option.
+
+* quest: Multiple `--flags` options now get combined - previously only the last
+  was used.
 
 portability:
 
@@ -106,11 +171,33 @@ portability:
 
   Fixes #808, reported by xpbxf4.
 
-packaging:
+* Workaround NFS issue in test harness function for deleting test databases.
+  On NFS, rmdir() can fail with EEXIST or ENOTEMPTY (POSIX allows either)
+  due to .nfs* files which are used by NFS clients to implement the Unix
+  semantics of a deleted but open file continuing to exist.  We now sleep
+  and retry a few times in this situation to give the NFS client a chance
+  to process the closing of the open handle.  Problem mentioned in #631.
 
+* configure: Drop -lm special case for Sun C++ as this no longer seems to
+  be required.  Tested with Sun C++ 5.13, which is the oldest version we
+  now support due to us now requiring C++11.
 
-debug code:
+* Use strerrordesc_np() if available. This is a GNU-specific replacement for
+  sys_errlist and sys_nerr.  It was added in glibc 2.32 since which sys_errlist
+  and sys_nerr are no longer declared in the headers.
 
+* Update debug logging to use std::uncaught_exceptions() under C++17 and later
+  since this allows the debug logging to detect a function without RETURN()
+  annotation which exits normally while there's an uncaught exception
+  (previously the debug logging would think the stack was being unwound through
+  the function).  This also avoids deprecation warnings - the old
+  std::uncaught_exception() (note: singular) function was deprecated by
+  C++17 and removed in C++20.
+
+* Increase size of buffer passed to strerror_r() from 128 to 1024 bytes, which
+  is the size recommended by the man page on Linux.
+
+* Fix -Wdeprecated-copy warning from clang 13.
 
 Xapian-core 1.4.18 (2021-01-14):
 
