@@ -647,6 +647,7 @@ $set{OPT,VALUE}
 	* flag_default
 	* flag_fuzzy (new in 1.5.0)
 	* flag_lovehate
+	* flag_no_positions (new in 1.4.19)
 	* flag_partial
 	* flag_phrase
 	* flag_pure_not
