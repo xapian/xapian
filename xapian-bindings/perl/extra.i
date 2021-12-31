@@ -70,7 +70,9 @@ our %EXPORT_TAGS = (
 				 ENQ_DONT_CARE
 				   ) ],
 		    'qpflags' => [ qw(
+				 FLAG_ACCUMULATE
 				 FLAG_BOOLEAN
+				 FLAG_NO_POSITIONS
 				 FLAG_PHRASE
 				 FLAG_LOVEHATE
 				 FLAG_BOOLEAN_ANY_CASE
@@ -672,9 +674,15 @@ searches.
 
 =item FLAG_SYNONYM
 
+=item FLAG_ACCUMULATE
+
 =item FLAG_AUTO_SYNONYMS
 
 =item FLAG_AUTO_MULTIWORD_SYNONYMS
+
+=item FLAG_CJK_NGRAM
+
+=item FLAG_NO_POSITIONS
 
 =back
 

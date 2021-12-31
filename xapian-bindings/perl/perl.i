@@ -77,7 +77,9 @@ extern "C" {
 %constant int ENQ_ASCENDING = Xapian::Enquire::ASCENDING;
 %constant int ENQ_DESCENDING = Xapian::Enquire::DESCENDING;
 %constant int ENQ_DONT_CARE = Xapian::Enquire::DONT_CARE;
+%constant int FLAG_ACCUMULATE = Xapian::QueryParser::FLAG_ACCUMULATE;
 %constant int FLAG_BOOLEAN = Xapian::QueryParser::FLAG_BOOLEAN;
+%constant int FLAG_NO_POSITIONS = Xapian::QueryParser::FLAG_NO_POSITIONS;
 %constant int FLAG_PHRASE = Xapian::QueryParser::FLAG_PHRASE;
 %constant int FLAG_LOVEHATE = Xapian::QueryParser::FLAG_LOVEHATE;
 %constant int FLAG_BOOLEAN_ANY_CASE = Xapian::QueryParser::FLAG_BOOLEAN_ANY_CASE;
