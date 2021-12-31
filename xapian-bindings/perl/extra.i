@@ -70,11 +70,17 @@ our %EXPORT_TAGS = (
 				 ENQ_DONT_CARE
 				   ) ],
 		    'qpflags' => [ qw(
+				 FLAG_ACCUMULATE
 				 FLAG_BOOLEAN
+				 FLAG_FUZZY
+				 FLAG_NO_POSITIONS
 				 FLAG_PHRASE
 				 FLAG_LOVEHATE
 				 FLAG_BOOLEAN_ANY_CASE
 				 FLAG_WILDCARD
+				 FLAG_WILDCARD_GLOB
+				 FLAG_WILDCARD_MULTI
+				 FLAG_WILDCARD_SINGLE
 				 FLAG_PURE_NOT
 				 FLAG_PARTIAL
 				 FLAG_SPELLING_CORRECTION
@@ -82,6 +88,7 @@ our %EXPORT_TAGS = (
 				 FLAG_AUTO_SYNONYMS
 				 FLAG_AUTO_MULTIWORD_SYNONYMS
 				 FLAG_CJK_NGRAM
+				 FLAG_CJK_WORDS
 				 FLAG_DEFAULT
 				 ) ],
 		    'qpstem' => [ qw(
@@ -642,6 +649,12 @@ Support AND, OR, etc even if they aren't in ALLCAPS.
 
 Support right truncation (e.g. Xap*).
 
+=item FLAG_WILDCARD_GLOB
+
+=item FLAG_WILDCARD_MULTI
+
+=item FLAG_WILDCARD_SINGLE
+
 =item FLAG_PURE_NOT
 
 Allow queries such as 'NOT apples'.
@@ -664,9 +677,19 @@ searches.
 
 =item FLAG_SYNONYM
 
+=item FLAG_ACCUMULATE
+
 =item FLAG_AUTO_SYNONYMS
 
 =item FLAG_AUTO_MULTIWORD_SYNONYMS
+
+=item FLAG_CJK_NGRAM
+
+=item FLAG_CJK_WORDS
+
+=item FLAG_FUZZY
+
+=item FLAG_NO_POSITIONS
 
 =back
 

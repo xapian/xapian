@@ -77,11 +77,17 @@ extern "C" {
 %constant int ENQ_ASCENDING = Xapian::Enquire::ASCENDING;
 %constant int ENQ_DESCENDING = Xapian::Enquire::DESCENDING;
 %constant int ENQ_DONT_CARE = Xapian::Enquire::DONT_CARE;
+%constant int FLAG_ACCUMULATE = Xapian::QueryParser::FLAG_ACCUMULATE;
 %constant int FLAG_BOOLEAN = Xapian::QueryParser::FLAG_BOOLEAN;
+%constant int FLAG_FUZZY = Xapian::QueryParser::FLAG_FUZZY;
+%constant int FLAG_NO_POSITIONS = Xapian::QueryParser::FLAG_NO_POSITIONS;
 %constant int FLAG_PHRASE = Xapian::QueryParser::FLAG_PHRASE;
 %constant int FLAG_LOVEHATE = Xapian::QueryParser::FLAG_LOVEHATE;
 %constant int FLAG_BOOLEAN_ANY_CASE = Xapian::QueryParser::FLAG_BOOLEAN_ANY_CASE;
 %constant int FLAG_WILDCARD = Xapian::QueryParser::FLAG_WILDCARD;
+%constant int FLAG_WILDCARD_GLOB = Xapian::QueryParser::FLAG_WILDCARD_GLOB;
+%constant int FLAG_WILDCARD_MULTI = Xapian::QueryParser::FLAG_WILDCARD_MULTI;
+%constant int FLAG_WILDCARD_SINGLE = Xapian::QueryParser::FLAG_WILDCARD_SINGLE;
 %constant int FLAG_PURE_NOT = Xapian::QueryParser::FLAG_PURE_NOT;
 %constant int FLAG_PARTIAL = Xapian::QueryParser::FLAG_PARTIAL;
 %constant int FLAG_SPELLING_CORRECTION = Xapian::QueryParser::FLAG_SPELLING_CORRECTION;
@@ -89,6 +95,7 @@ extern "C" {
 %constant int FLAG_AUTO_SYNONYMS = Xapian::QueryParser::FLAG_AUTO_SYNONYMS;
 %constant int FLAG_AUTO_MULTIWORD_SYNONYMS = Xapian::QueryParser::FLAG_AUTO_MULTIWORD_SYNONYMS;
 %constant int FLAG_CJK_NGRAM = Xapian::QueryParser::FLAG_CJK_NGRAM;
+%constant int FLAG_CJK_WORDS = Xapian::QueryParser::FLAG_CJK_WORDS;
 %constant int FLAG_DEFAULT = Xapian::QueryParser::FLAG_DEFAULT;
 %constant int STEM_NONE = Xapian::QueryParser::STEM_NONE;
 %constant int STEM_SOME = Xapian::QueryParser::STEM_SOME;
