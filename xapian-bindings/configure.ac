@@ -634,7 +634,7 @@ if test no != "$with_php7" ; then
     AC_PATH_PROGS(PHP_CONFIG7, ["$PHP_CONFIG7"], [])
   fi
   if test -z "$PHP_CONFIG7" ; then
-    AC_PATH_PROGS(PHP_CONFIG7, [php-config7.3 php-config7.2 php-config7.1 php-config7.0 php-config], [])
+    AC_PATH_PROGS(PHP_CONFIG7, [php-config7.4 php-config7.3 php-config7.2 php-config7.1 php-config7.0 php-config], [])
   fi
   AC_ARG_VAR(PHP_CONFIG7, [php-config utility for PHP7])
   AC_ARG_VAR(PHP7, [PHP7 interpreter (optional - only needed to run PHP7 testsuite with)])
