@@ -403,7 +403,7 @@ esac
 swig_git_commit_hash=2c910e47ae788412b95e356c99cef5862808bf9a
 
 # Commit hash to use for common in omega:
-omega_common_commit_hash=93d22819704846273079d38d12fbd5e344228407
+omega_common_commit_hash=77db5ce3c7c95e54c9e119f09421894de2bb697a
 
 gitdir=`git rev-parse --git-dir`
 
