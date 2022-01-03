@@ -191,6 +191,8 @@ index_add_default_libraries()
 #endif
 #if defined HAVE_LIBARCHIVE
     Worker* omindex_libarchive = new Worker("omindex_libarchive");
+    index_library("application/oxps", omindex_libarchive);
+    index_library("application/vnd.ms-xpsdocument", omindex_libarchive);
     index_library("application/vnd.oasis.opendocument.text",
 		  omindex_libarchive);
     index_library("application/vnd.oasis.opendocument.spreadsheet",

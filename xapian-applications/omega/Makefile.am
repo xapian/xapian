@@ -206,7 +206,7 @@ omindex_gmime_SOURCES = assistant.cc worker_comms.cc htmlparser.cc datetime.cc x
 omindex_gmime_LDADD = $(GMIME_LIBS) libutf8convert.la
 omindex_gmime_CXXFLAGS = $(GMIME_CFLAGS) $(XAPIAN_CXXFLAGS)
 
-omindex_libarchive_SOURCES = assistant.cc worker_comms.cc opendocmetaparser.cc opendocparser.cc datetime.cc xmlparser.cc htmlparser.cc msxmlparser.cc xlsxparser.cc common/keyword.cc common/str.cc handler_libarchive.cc
+omindex_libarchive_SOURCES = assistant.cc worker_comms.cc opendocmetaparser.cc opendocparser.cc datetime.cc xmlparser.cc htmlparser.cc msxmlparser.cc xlsxparser.cc xpsparser.cc common/keyword.cc common/str.cc handler_libarchive.cc
 omindex_libarchive_LDADD = $(LIBARCHIVE_LIBS) libutf8convert.la
 omindex_libarchive_CXXFLAGS = $(LIBARCHIVE_CFLAGS) $(XAPIAN_CXXFLAGS)
 
