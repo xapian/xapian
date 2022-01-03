@@ -1174,6 +1174,21 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 				d.get_size(), d.get_mtime());
 		return;
 	    }
+
+	    cmd = "unzip -p";
+	    append_filename_argument(cmd, file);
+	    cmd += " docProps/core.xml";
+	    try {
+		OpenDocMetaParser metaparser;
+		metaparser.parse(stdout_to_string(cmd, false));
+		title = metaparser.title;
+		keywords = metaparser.keywords;
+		// FIXME: topic = metaparser.topic;
+		sample = metaparser.sample;
+		author = metaparser.author;
+	    } catch (const ReadError&) {
+		// Ignore errors as not all XPS files contain this file.
+	    }
 	} else if (mimetype == "text/csv") {
 	    // Currently we assume that text files are UTF-8 unless they have a
 	    // byte-order mark.
