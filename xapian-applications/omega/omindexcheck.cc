@@ -20,14 +20,15 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
  */
-#include <config.h>
-#include "worker.h"
-#include "stringutils.h"
 
+#include <config.h>
+
+#include <xapian.h>
+
+#include <algorithm>
 #include <iostream>
 #include <string>
 #include <unordered_map>
-#include <xapian.h>
 
 using namespace std;
 
