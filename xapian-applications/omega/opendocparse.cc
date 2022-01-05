@@ -1,7 +1,7 @@
 /** @file
  * @brief Extract text from OpenDocument XML.
  */
-/* Copyright (C) 2012 Olly Betts
+/* Copyright (C) 2012-2022 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,12 +22,24 @@
 
 #include "opendocparse.h"
 
+#include <cstring>
+
+#include "stringutils.h"
+
 using namespace std;
 
 bool
 OpenDocParser::opening_tag(const string &tag)
 {
-    if (tag == "office:body") {
+    if (startswith(tag, "text:")) {
+	const char* tail = tag.c_str() + 5;
+	if (strcmp(tail, "p") == 0 ||
+	    strcmp(tail, "h") == 0 ||
+	    strcmp(tail, "line-break") == 0 ||
+	    strcmp(tail, "tab") == 0) {
+	    pending_space = true;
+	}
+    } else if (tag == "office:body") {
 	indexing = true;
     } else if (tag == "style:style") {
 	(void)get_parameter("style:master-page-name", master_page_name);
@@ -45,7 +57,7 @@ OpenDocParser::closing_tag(const string &tag)
     if (!indexing)
 	return true;
 
-    if (tag == "text:p") {
+    if (tag == "text:p" || tag == "text:h") {
 	pending_space = true;
     } else if (tag == "office:body" || tag == "style:style") {
 	indexing = false;
@@ -59,7 +71,7 @@ OpenDocParser::process_text(const string &text)
     if (indexing && !text.empty()) {
 	if (pending_space) {
 	    pending_space = false;
-	    dump += ' ';
+	    if (!text.empty()) dump += ' ';
 	}
 	dump += text;
     }
