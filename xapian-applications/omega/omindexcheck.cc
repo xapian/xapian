@@ -3,7 +3,7 @@
  */
 /* Copyright (C) 2019 Bruno Baruffaldi
  * Copyright (C) 2020 Parth Kapadia
- * Copyright (C) 2021 Olly Betts
+ * Copyright (C) 2021,2022 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -114,7 +114,7 @@ index_test()
     tests.insert({"odf/test.odt",
 		  {{"Zедой", "Z喬伊不分享食物"}}});
     tests.insert({"odf/libarchive_text.odt",
-		  {{"Stesttitle", "Atestauthor", "Zsampl", "Zhead", "Ztext",
+		  {{"Stesttitle", "Aolly", "Zsampl", "Zhead", "Ztext",
 		    "Zhello", "Zworld"}}});
     tests.insert({"odf/libarchive_text_template.ott",
 		  {{"Zjane", "Zdoe", "Zstructur"}}});
