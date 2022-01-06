@@ -119,9 +119,11 @@ wpd		application/vnd.wordperfect
 wps		application/vnd.ms-works
 # Works template
 wpt		application/vnd.ms-works
-# AbiWord
+# AbiWord document
 abw		application/x-abiword
-# AbiWord compressed
+# AbiWord template
+awt		application/x-abiword
+# AbiWord compressed document
 zabw		application/x-abiword-compressed
 # RTF -- application/rtf is also registered with IANA and understood by
 # omindex >= 1.4.18), but libmagic seems to always report text/rtf, so

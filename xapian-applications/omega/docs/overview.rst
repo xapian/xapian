@@ -292,7 +292,7 @@ other filters too - see below):
   also possible to use numbers2text as an external filter)
 * Apple Pages documents (.pages) if libetonyek is available (it is
   also possible to use pages2text as an external filter)
-* AbiWord documents (.abw)
+* AbiWord documents (.abw, .awt)
 * Compressed AbiWord documents (.zabw)
 * Rich Text Format documents (.rtf) if unrtf is available
 * Perl POD documentation (.pl, .pm, .pod) if pod2text is available

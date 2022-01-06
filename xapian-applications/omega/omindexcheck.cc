@@ -162,15 +162,15 @@ index_test()
     // lack a bug fix for the title to be handled properly. (< libabw-0.1.2)
     tests.insert({"abw/test.abw",
 		  {{"ZAparth", "Zabiword", "Zsampl", "Zdocument"}}});
-    tests.insert({"abw/test1.abw",
-		  {{"Zедой", "Z喬伊不分享食物"}}});
 #else
     // Indexed using AbiwordParser class, which doesn't currently handle metadata.
     tests.insert({"abw/test.abw",
 		  {{"Zabiword", "Zsampl", "Zdocument"}}});
+#endif
     tests.insert({"abw/test1.abw",
 		  {{"Zедой", "Z喬伊不分享食物"}}});
-#endif
+    tests.insert({"abw/Friendly-Letter.awt",
+		  {{"address", "addressee", "body", "dear", "sincerely"}}});
 #if defined HAVE_LIBCDR
     // .cdr versions >= 16 are not included in the tests as they will work
     // correctly only with libcdr >= 0.1.6
