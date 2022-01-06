@@ -290,7 +290,7 @@ other filters too - see below):
   libetonyek)
 * Apple Pages documents (.pages) if pages2text is available (comes with
   libetonyek)
-* AbiWord documents (.abw)
+* AbiWord documents (.abw, .awt)
 * Compressed AbiWord documents (.zabw)
 * Rich Text Format documents (.rtf) if unrtf is available
 * Perl POD documentation (.pl, .pm, .pod) if pod2text is available
