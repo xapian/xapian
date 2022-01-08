@@ -162,10 +162,15 @@ index_test()
     // lack a bug fix for the title to be handled properly. (< libabw-0.1.2)
     tests.insert({"abw/test.abw",
 		  {{"ZAparth", "Zabiword", "Zsampl", "Zdocument"}}});
+    tests.insert({"abw/macbeth.zabw",
+		  {{"Ashakespeare", "Awilliam", "Smacbeth",
+		    "ambition", "macduff", "shall"}}});
 #else
     // Indexed using AbiwordParser class, which doesn't currently handle metadata.
     tests.insert({"abw/test.abw",
 		  {{"Zabiword", "Zsampl", "Zdocument"}}});
+    tests.insert({"abw/macbeth.zabw",
+		  {{"ambition", "macduff", "shall"}}});
 #endif
     tests.insert({"abw/test1.abw",
 		  {{"Zедой", "Z喬伊不分享食物"}}});
