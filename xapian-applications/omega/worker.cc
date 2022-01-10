@@ -1,7 +1,7 @@
 /** @file
  * @brief Class representing worker process.
  */
-/* Copyright (C) 2005,2006,2007,2008,2009,2010,2011 Olly Betts
+/* Copyright (C) 2005-2022 Olly Betts
  * Copyright (C) 2019 Bruno Baruffaldi
  *
  * This program is free software; you can redistribute it and/or
@@ -172,8 +172,9 @@ Worker::extract(const std::string& filename,
 		    !read_string(sockt, strpage)) {
 		    break;
 		}
-		if (!parse_signed(strpage.c_str(), pages) || pages < 0)
-		    pages = 0;
+		// We can ignore errors here since pages defaults to -1 and
+		// negative means "unknown".
+		(void)parse_signed(strpage.c_str(), pages);
 		return true;
 	    case MSG_NON_FATAL_ERROR:
 		if (strstate.length() > 1) {
