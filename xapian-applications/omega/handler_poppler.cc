@@ -66,9 +66,9 @@ extract(const string& filename,
 	}
 
 	// Extracting PDF metadata
-	author = text_to_utf8(doc->info_key("Author"));
-	title = text_to_utf8(doc->info_key("Title"));
-	keywords = text_to_utf8(doc->info_key("Keywords"));
+	author = text_to_utf8(doc->get_author());
+	title = text_to_utf8(doc->get_title());
+	keywords = text_to_utf8(doc->get_keywords());
 	int npages = doc->pages();
 	pages = str(npages);
 	// Extracting text from PDF file
