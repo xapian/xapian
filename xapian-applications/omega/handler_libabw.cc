@@ -139,7 +139,7 @@ extract(const string& filename,
 
 	RVNGTextTextGenerator content(content_dump, false);
 	if (libabw::AbiDocument::parse(&input, &content)) {
-	    dump = content_dump.cstr();
+	    dump.assign(content_dump.cstr(), content_dump.size());
 	} else {
 	    error = "Libabw Error: Fail to extract text";
 	    return false;
