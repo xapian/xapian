@@ -261,9 +261,9 @@ other filters too - see below):
 * SVG (.svg)
 * CSV (Comma-Separated Values) files (.csv)
 * PDF (.pdf) if pdftotext (comes with poppler or xpdf) or libpoppler
-  (in particular libpoppler-cpp-dev) are available
+  (in particular libpoppler-glib-dev) are available
 * PostScript (.ps, .eps, .ai) if ps2pdf (from ghostscript) and pdftotext (comes
-  with poppler or xpdf) or libpoppler (in particular libpoppler-cpp-dev) are available
+  with poppler or xpdf) or libpoppler (in particular libpoppler-glib-dev) are available
 * OpenOffice/StarOffice documents (.sxc, .stc, .sxd, .std, .sxi, .sti, .sxm,
   .sxw, .sxg, .stw) if unzip is available
 * OpenDocument format documents (.odt, .ods, .odp, .odg, .odc, .odf, .odb,

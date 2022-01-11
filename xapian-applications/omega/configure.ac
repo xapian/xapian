@@ -252,17 +252,9 @@ AC_CHECK_FUNCS([fnmatch])
 OMINDEX_MODULES=""
 
 dnl check if poppler is available.
-PKG_CHECK_MODULES([POPPLER], [poppler-cpp], [
-    save_LIBS=$LIBS
-    LIBS="$LIBS $POPPLER_LIBS"
-    AC_LINK_IFELSE([#include <poppler/cpp/poppler-version.h>
-		    int main(){
-			poppler::version_string();
-			return 0;
-		    }],
-		   [AC_DEFINE(HAVE_POPPLER, 1, [Define HAVE_POPPLER if the library is available])
-		    OMINDEX_MODULES="$OMINDEX_MODULES omindex_poppler"])
-    LIBS=$save_LIBS],[ ])
+PKG_CHECK_MODULES([POPPLER], [poppler-glib >= 0.16], [
+    AC_DEFINE(HAVE_POPPLER, 1, [Define HAVE_POPPLER if the library is available])
+    OMINDEX_MODULES="$OMINDEX_MODULES omindex_poppler"],[ ])
 
 dnl check if libe-book is available.
 PKG_CHECK_MODULES([LIBEBOOK], [libe-book-0.1,librevenge-0.0,librevenge-generators-0.0,librevenge-stream-0.0], [
