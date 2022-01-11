@@ -29,16 +29,6 @@
 
 using namespace std;
 
-static void
-clear_text(string& text)
-{
-    int i, j, sz = text.length();
-    for (j = i = 0; i < sz; ++i)
-	if (!isspace(text[i]) || (i && !isspace(text[i - 1])))
-	    text[j++] = text[i];
-    text.resize(j);
-}
-
 static inline void
 assign_if_nonnull(string& v, gchar* s)
 {
@@ -98,7 +88,6 @@ extract(const string& filename,
 	    dump += poppler_page_get_text(page);
 	    g_object_unref(page);
 	}
-	clear_text(dump);
 	g_object_unref(doc);
     } catch (...) {
 	error = "Poppler threw an exception";
