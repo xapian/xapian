@@ -2,7 +2,7 @@
  * @brief Check consistency of a glass table.
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2018 Olly Betts
+ * Copyright 2002-2022
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -958,9 +958,11 @@ check_glass_table(const char * tablename, const string &db_dir, int fd,
 	}
     } else {
 	if (out)
-	    *out << tablename << " table: Don't know how to check structure\n"
-		 << endl;
-	return errors;
+	    *out << tablename << " table: Full structure check not "
+		"implemented, checking readability\n";
+	for ( ; !cursor->after_end(); cursor->next()) {
+	    cursor->read_tag();
+	}
     }
 
     if (out) {
