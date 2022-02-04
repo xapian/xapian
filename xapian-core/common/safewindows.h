@@ -38,7 +38,7 @@
 #define NOGDI
 #include <windows.h>
 
-// The mingw.org headers don't reach <winerror.h> from <windows.h> (verified
+// The mingw headers don't reach <winerror.h> from <windows.h> (verified
 // with w32api 5.4.1).  MSVC does, so we treat this as a flaw to workaround and
 // include <winerror.h> if we detect it hasn't been implicitly included.
 #ifndef ERROR_PIPE_CONNECTED
