@@ -1,7 +1,7 @@
 /** @file
  * @brief Implement OmegaScript $transform function.
  */
-/* Copyright (C) 2003,2009,2015 Olly Betts
+/* Copyright (C) 2003,2009,2015,2022 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,32 +22,44 @@
 
 #include "transform.h"
 
-#include <pcre.h>
+#define PCRE2_CODE_UNIT_WIDTH 8
+#include <pcre2.h>
 
+#include <cstdint>
 #include <map>
 #include <string>
 #include <vector>
 
 using namespace std;
 
-static map<pair<string, int>, pcre *> re_cache;
+static map<pair<string, uint32_t>, pcre2_code*> re_cache;
+static pcre2_match_data* md = NULL;
 
-static pcre *
-get_re(const string & pattern, int options)
+static pcre2_code*
+get_re(const string& pattern, uint32_t options)
 {
-    pair<string, int> re_key = make_pair(pattern, options);
+    pair<string, uint32_t> re_key = make_pair(pattern, options);
     auto re_it = re_cache.find(re_key);
     if (re_it != re_cache.end()) {
 	return re_it->second;
     }
 
-    const char *error;
-    int erroffset;
-    pcre * re =
-	pcre_compile(pattern.c_str(), options, &error, &erroffset, NULL);
+    if (!md) {
+	// Create lazily - here is a good point as it's a single place we
+	// have to pass through before executing a regex.
+	md = pcre2_match_data_create(10, NULL);
+    }
+
+    int error_code;
+    PCRE2_SIZE erroffset;
+    auto re = pcre2_compile(PCRE2_SPTR8(pattern.data()), pattern.size(),
+			    options, &error_code, &erroffset, NULL);
     if (!re) {
 	string m = "$transform failed to compile its regular expression: ";
-	m += error;
+	// pcre2api(3) says that "a buffer size of 120 code units is ample".
+	unsigned char buf[120];
+	pcre2_get_error_message(error_code, buf, sizeof(buf));
+	m += reinterpret_cast<char*>(buf);
 	throw m;
     }
     re_cache.insert(make_pair(re_key, re));
@@ -57,35 +69,34 @@ get_re(const string & pattern, int options)
 void
 omegascript_match(string & value, const vector<string> & args)
 {
-    int offsets[30];
-    int options = 0;
+    uint32_t options = PCRE2_UTF;
     if (args.size() > 2) {
 	const string &opts = args[2];
-	for (string::const_iterator i = opts.begin(); i != opts.end(); ++i) {
-	    switch (*i) {
+	for (char ch : opts) {
+	    switch (ch) {
 		case 'i':
-		    options |= PCRE_CASELESS;
+		    options |= PCRE2_CASELESS;
 		    break;
 		case 'm':
-		    options |= PCRE_MULTILINE;
+		    options |= PCRE2_MULTILINE;
 		    break;
 		case 's':
-		    options |= PCRE_DOTALL;
+		    options |= PCRE2_DOTALL;
 		    break;
 		case 'x':
-		    options |= PCRE_EXTENDED;
+		    options |= PCRE2_EXTENDED;
 		    break;
 		default: {
 		    string m = "Unknown $match option character: ";
-		    m += *i;
+		    m += ch;
 		    throw m;
 		}
 	    }
 	}
     }
-    pcre * re = get_re(args[0], options);
-    int matches = pcre_exec(re, NULL, args[1].data(), args[1].size(),
-			    0, 0, offsets, 30);
+    pcre2_code* re = get_re(args[0], options);
+    int matches = pcre2_match(re, PCRE2_SPTR8(args[1].data()), args[1].size(),
+			      0, 0, md, NULL);
     if (matches > 0) {
 	value += "true";
     }
@@ -94,42 +105,42 @@ omegascript_match(string & value, const vector<string> & args)
 void
 omegascript_transform(string & value, const vector<string> & args)
 {
-    int offsets[30];
     bool replace_all = false;
-    int options = 0;
+    uint32_t options = PCRE2_UTF;
     if (args.size() > 3) {
 	const string & opts = args[3];
-	for (string::const_iterator i = opts.begin(); i != opts.end(); ++i) {
-	    switch (*i) {
+	for (char ch : opts) {
+	    switch (ch) {
 		case 'g':
 		    replace_all = true;
 		    break;
 		case 'i':
-		    options |= PCRE_CASELESS;
+		    options |= PCRE2_CASELESS;
 		    break;
 		case 'm':
-		    options |= PCRE_MULTILINE;
+		    options |= PCRE2_MULTILINE;
 		    break;
 		case 's':
-		    options |= PCRE_DOTALL;
+		    options |= PCRE2_DOTALL;
 		    break;
 		case 'x':
-		    options |= PCRE_EXTENDED;
+		    options |= PCRE2_EXTENDED;
 		    break;
 		default: {
 		    string m = "Unknown $transform option character: ";
-		    m += *i;
+		    m += ch;
 		    throw m;
 		}
 	    }
 	}
     }
 
-    pcre * re = get_re(args[0], options);
-    size_t start = 0;
+    pcre2_code* re = get_re(args[0], options);
+    PCRE2_SIZE start = 0;
     do {
-	int matches = pcre_exec(re, NULL, args[2].data(), args[2].size(),
-				int(start), 0, offsets, 30);
+	int matches = pcre2_match(re,
+				  PCRE2_SPTR8(args[2].data()), args[2].size(),
+				  start, 0, md, NULL);
 	if (matches <= 0) {
 	    // (matches == PCRE_ERROR_NOMATCH) is OK, otherwise this is an
 	    // error.  FIXME: should we report this rather than ignoring it?
@@ -137,9 +148,9 @@ omegascript_transform(string & value, const vector<string> & args)
 	}
 
 	// Substitute \1 ... \9, and \\.
-	string::const_iterator i;
+	PCRE2_SIZE* offsets = pcre2_get_ovector_pointer(md);
 	value.append(args[2], start, offsets[0] - start);
-	for (i = args[1].begin(); i != args[1].end(); ++i) {
+	for (auto i = args[1].begin(); i != args[1].end(); ++i) {
 	    char ch = *i;
 	    if (ch != '\\') {
 		value += ch;

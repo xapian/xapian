@@ -339,12 +339,12 @@ pcre_runtime_installed() {
   dnl Simple check to see if the problem is likely to be that we're using a
   dnl "packaged" pcre but only have the runtime package installed.
   for sfx in '' 32 64 ; do
-    set /usr/lib$sfx/libpcre*.so.*
-    if test "/usr/lib$sfx/libpcre?.so.*" != "$1" ; then
+    set /usr/lib$sfx/libpcre2-*.so.*
+    if test "/usr/lib$sfx/libpcre2-*.so.*" != "$1" ; then
       if test -r /etc/debian_version ; then
-	pkg="libpcre3-dev"
+	pkg="libpcre2-dev"
       else
-	pkg="pcre-devel"
+	pkg="pcre2-devel"
       fi
       AS_SET_STATUS([0])
     fi
@@ -352,39 +352,41 @@ pcre_runtime_installed() {
   AS_SET_STATUS([1])
 }
 
-AC_ARG_VAR(PCRE_CONFIG, [Location of pcre-config])
-if test -z "$PCRE_CONFIG" ; then
+PCRE2_LIBS_FLAG=--libs8
+AC_ARG_VAR(PCRE2_CONFIG, [Location of pcre2-config])
+if test -z "$PCRE2_CONFIG" ; then
   AC_ARG_VAR(PKG_CONFIG, [Location of pkg-config])
   AC_PATH_TOOL(PKG_CONFIG, [pkg-config])
   if test -n "$PKG_CONFIG" ; then
-    pcre_try="$PKG_CONFIG libpcre"
+    pcre_try="$PKG_CONFIG libpcre2-8"
     if $pcre_try 2>/dev/null ; then
-      PCRE_CONFIG=$pcre_try
+      PCRE2_CONFIG=$pcre_try
+      PCRE2_LIBS_FLAG=--libs
     else
       if pcre_runtime_installed ; then
-	AC_MSG_ERROR(['$pcre_try' failed, but the PCRE runtime library seems to be installed.  If you've installed PCRE from a package, you probably need to install an extra package called something like $pkg in order to be able to build $PACKAGE_NAME.])
+	AC_MSG_ERROR(['$pcre_try' failed, but the PCRE2 runtime library seems to be installed.  If you've installed PCRE2 from a package, you probably need to install an extra package called something like $pkg in order to be able to build $PACKAGE_NAME.])
       else
-	AC_MSG_ERROR(['$pcre_try' failed.  If the PCRE library is installed, you need to add PCRE_CONFIG=/path/to/pcre-config to your configure command.])
+	AC_MSG_ERROR(['$pcre_try' failed.  If the PCRE2 library is installed, you need to add PCRE2_CONFIG=/path/to/pcre2-config to your configure command.])
       fi
     fi
   else
-    dnl Fall back to looking for pcre-config, but that's not installed on PATH
+    dnl Fall back to looking for pcre2-config, but that's not installed on PATH
     dnl with the platform tuple prefixed (at least under MXE), so preferring
-    dnl 'pkg-config libpcre' works better when cross-compiling.
-    AC_PATH_TOOL(PCRE_CONFIG, [pcre-config])
-    if test -z $PCRE_CONFIG ; then
+    dnl 'pkg-config libpcre2' works better when cross-compiling.
+    AC_PATH_TOOL(PCRE2_CONFIG, [pcre2-config])
+    if test -z $PCRE2_CONFIG ; then
       if pcre_runtime_installed ; then
-	AC_MSG_ERROR([Can't find pcre-config, although the PCRE runtime library seems to be installed.  If you've installed PCRE from a package, you probably need to install an extra package called something like $pkg in order to be able to build $PACKAGE_NAME.])
+	AC_MSG_ERROR([Can't find pcre2-config, although the PCRE2 runtime library seems to be installed.  If you've installed PCRE2 from a package, you probably need to install an extra package called something like $pkg in order to be able to build $PACKAGE_NAME.])
       else
-	AC_MSG_ERROR([Can't find pcre-config.  If the PCRE library is installed, you need to add PCRE_CONFIG=/path/to/pcre-config to your configure command.])
+	AC_MSG_ERROR([Can't find pcre2-config.  If the PCRE2 library is installed, you need to add PCRE2_CONFIG=/path/to/pcre2-config to your configure command.])
       fi
     fi
   fi
 fi
-PCRE_CFLAGS=`$PCRE_CONFIG --cflags`
-PCRE_LIBS=`$PCRE_CONFIG --libs`
-AC_SUBST(PCRE_CFLAGS)
-AC_SUBST(PCRE_LIBS)
+PCRE2_CFLAGS=`$PCRE2_CONFIG --cflags`
+PCRE2_LIBS=`$PCRE2_CONFIG $PCRE2_LIBS_FLAG`
+AC_SUBST(PCRE2_CFLAGS)
+AC_SUBST(PCRE2_LIBS)
 
 dnl ******************************
 dnl * Set special compiler flags *
