@@ -9,7 +9,7 @@ set -e
 echo 'Updating package list.'
 apt-get -qq update
 echo 'Installing required packages (can take a long while the first time).'
-apt-get -yqq install git build-essential m4 perl python zlib1g-dev uuid-dev wget bison tcl libpcre3-dev libmagic-dev valgrind ccache eatmydata doxygen graphviz ghostscript texlive-latex-base texlive-extra-utils texlive-binaries texlive-fonts-extra texlive-fonts-recommended texlive-latex-extra texlive-latex-recommended help2man python-docutils pngcrush python-sphinx python3-sphinx mono-devel default-jdk lua5.2 liblua5.2-dev php-dev php-cli python-dev python3-dev ruby-dev tcl-dev texinfo
+apt-get -yqq install git build-essential m4 perl python zlib1g-dev uuid-dev wget bison tcl libpcre2-dev libmagic-dev valgrind ccache eatmydata doxygen graphviz ghostscript texlive-latex-base texlive-extra-utils texlive-binaries texlive-fonts-extra texlive-fonts-recommended texlive-latex-extra texlive-latex-recommended help2man python-docutils pngcrush python-sphinx python3-sphinx mono-devel default-jdk lua5.2 liblua5.2-dev php-dev php-cli python-dev python3-dev ruby-dev tcl-dev texinfo
 echo 'Upgrading existing packages as needed.'
 apt-get -yqq upgrade
 END

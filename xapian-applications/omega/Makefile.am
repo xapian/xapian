@@ -152,7 +152,7 @@ noinst_HEADERS +=\
 
 AM_LDFLAGS = $(NO_UNDEFINED) $(MAGIC_LDFLAGS)
 
-# We want to compile transform.cc with PCRE_CFLAGS, but if this adds a -I for
+# We want to compile transform.cc with PCRE2_CFLAGS, but if this adds a -I for
 # a directory with a different version of iconv, then we get problems (this
 # has been reported on macOS).  We solve this using a technique suggested by
 # the automake manual: compile each of transform.cc and utf8convert.cc into
@@ -160,8 +160,8 @@ AM_LDFLAGS = $(NO_UNDEFINED) $(MAGIC_LDFLAGS)
 noinst_LTLIBRARIES = libtransform.la libutf8convert.la
 
 libtransform_la_SOURCES = transform.cc
-libtransform_la_CPPFLAGS = $(PCRE_CFLAGS)
-libtransform_la_LIBADD = $(PCRE_LIBS)
+libtransform_la_CPPFLAGS = $(PCRE2_CFLAGS)
+libtransform_la_LIBADD = $(PCRE2_LIBS)
 
 libutf8convert_la_SOURCES = utf8convert.cc
 libutf8convert_la_CPPFLAGS = $(AM_CPPFLAGS) $(INCICONV)

@@ -22,7 +22,7 @@ matrix:
             - pngcrush
             - python3-sphinx
             - uuid-dev
-            - libpcre3-dev
+            - libpcre2-dev
             - libmagic-dev
             - lua5.3
             - liblua5.3-dev
@@ -57,7 +57,7 @@ matrix:
             - pngcrush
             - python3-sphinx
             - uuid-dev
-            - libpcre3-dev
+            - libpcre2-dev
             - libmagic-dev
             - tcl
             - libsvm-dev
@@ -90,7 +90,7 @@ matrix:
             - pngcrush
             - python3-sphinx
             - uuid-dev
-            - libpcre3-dev
+            - libpcre2-dev
             - libmagic-dev
             - lua5.2
             - liblua5.2-dev
@@ -152,7 +152,7 @@ matrix:
             - libsvm
             - lua
             - mono
-            - pcre
+            - pcre2
             - pkgconfig
             - pngcrush
             - poppler
