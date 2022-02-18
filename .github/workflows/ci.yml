@@ -58,7 +58,7 @@ jobs:
     - name: bootstrap source tree
       run: ./bootstrap xapian-core xapian-applications/omega swig xapian-bindings xapian-letor
     - name: configure
-      run: ./configure CC='ccache gcc' CXX='ccache g++' CCPPFLAGS='-D_GLIBCXX_DEBUG'
+      run: ./configure CC='ccache gcc' CXX='ccache g++' CPPFLAGS='-D_GLIBCXX_DEBUG'
     - name: make
       run: make -j2
     - name: Run tests
