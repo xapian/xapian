@@ -1021,7 +1021,7 @@ __END__
 
 exit 0 unless exists $count{'error'};
 
-if (exists $ENV{TRAVIS}) {
+if (exists $ENV{GITHUB_JOB} || exists $ENV{TRAVIS}) {
     print STDERR <<"__END__";
 
 You can run these checks locally before pushing with the xapian-check-patch
