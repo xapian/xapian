@@ -260,11 +260,13 @@ TermGenerator::Internal::index_text(Utf8Iterator itor, termcount wdf_inc,
     }
 
     parse_terms(itor, cjk_ngram, with_positions,
-	[=](const string & term, bool positional, const Utf8Iterator &) {
+	[=, this](const string & term, bool positional, const Utf8Iterator &) {
 	    if (term.size() > max_word_length) return true;
 
-	    if (current_stop_mode == TermGenerator::STOP_ALL && (*stopper)(term))
+	    if (current_stop_mode == TermGenerator::STOP_ALL &&
+		(*stopper)(term)) {
 		return true;
+	    }
 
 	    if (strategy == TermGenerator::STEM_SOME ||
 		strategy == TermGenerator::STEM_NONE ||
@@ -276,9 +278,7 @@ TermGenerator::Internal::index_text(Utf8Iterator itor, termcount wdf_inc,
 		}
 	    }
 
-	    // MSVC seems to need "this->" on member variables in this
-	    // situation.
-	    if ((this->flags & FLAG_SPELLING) && prefix.empty())
+	    if ((flags & FLAG_SPELLING) && prefix.empty())
 		db.add_spelling(term);
 
 	    if (strategy == TermGenerator::STEM_NONE || stemmer.is_none())
