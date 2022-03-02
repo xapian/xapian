@@ -14,29 +14,27 @@ environment:
   - TOOLCHAIN: mingw
     platform: x86
     APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
-  - TOOLCHAIN: mingw64
-    platform: x86
-    APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
-  - TOOLCHAIN: mingw64
-    platform: x64
-    APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+# - TOOLCHAIN: mingw64
+#   platform: x86
+#   APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+# - TOOLCHAIN: mingw64
+#   platform: x64
+#   APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
 # Fails trying to run apitest.exe etc for unknown reasons.
 #  - TOOLCHAIN: cygwin
 #    APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
 #    platform: x86
-  - TOOLCHAIN: cygwin
-    platform: x64
-    APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+# - TOOLCHAIN: cygwin
+#   platform: x64
+#   APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
   - TOOLCHAIN: msvc
     platform: x86
     APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
     VCVARS_BAT: "\"C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC\\vcvarsall.bat\" x86"
-# We get exit code 127 trying to run apitest.exe but no error message.
-# Other test programs which link to libxapian fail too.  unittest.exe OK.
-#  - TOOLCHAIN: msvc
-#    platform: x64
-#    APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
-#    VCVARS_BAT: "\"C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC\\vcvarsall.bat\" x64"
+  - TOOLCHAIN: msvc
+    platform: x64
+    APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+    VCVARS_BAT: "\"C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC\\vcvarsall.bat\" x64"
   - TOOLCHAIN: msvc
     platform: x86
     APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
@@ -94,8 +92,8 @@ install:
   - if "%TOOLCHAIN%"=="mingw" bash -c "echo 'c:/mingw /mingw' >> /etc/fstab"
   - if "%TOOLCHAIN%"=="mingw" appveyor-retry bash -c 'mingw-get install libz-dev'
   # Workaround appveyor's container having old maintainer keys:
-  - if "%TOOLCHAIN%"=="mingw64" appveyor-retry bash -c 'curl -O http://repo.msys2.org/msys/x86_64/msys2-keyring-r21.b39fb11-1-any.pkg.tar.xz'
-  - if "%TOOLCHAIN%"=="mingw64" appveyor-retry bash -c 'curl -O http://repo.msys2.org/msys/x86_64/msys2-keyring-r21.b39fb11-1-any.pkg.tar.xz.sig'
+  - if "%TOOLCHAIN%"=="mingw64" appveyor-retry bash -c 'curl -O https://repo.msys2.org/msys/x86_64/msys2-keyring-r21.b39fb11-1-any.pkg.tar.xz'
+  - if "%TOOLCHAIN%"=="mingw64" appveyor-retry bash -c 'curl -O https://repo.msys2.org/msys/x86_64/msys2-keyring-r21.b39fb11-1-any.pkg.tar.xz.sig'
   - if "%TOOLCHAIN%"=="mingw64" appveyor-retry bash -c 'pacman-key --verify msys2-keyring-r21.b39fb11-1-any.pkg.tar.xz.sig'
   - if "%TOOLCHAIN%"=="mingw64" appveyor-retry bash -c 'pacman -U --noconfirm msys2-keyring-r21.b39fb11-1-any.pkg.tar.xz'
   - if "%TOOLCHAIN%"=="mingw64" appveyor-retry bash -c 'pacman -Sy --noconfirm zlib-devel'
@@ -118,7 +116,7 @@ install:
   - if "%TOOLCHAIN%"=="msvc" nmake -nologo -f win32\Makefile.msc
   - if "%TOOLCHAIN%"=="msvc" cd ..
   # Fetch pre-built unicode-data.cc to avoid having to get working tclsh.
-  - curl --retry 5 --retry-connrefused https://oligarchy.co.uk/xapian/patches/unicode-data13.cc > xapian-core\unicode\unicode-data.cc
+  - curl --retry 5 --retry-connrefused https://oligarchy.co.uk/xapian/patches/unicode-data14.cc > xapian-core\unicode\unicode-data.cc
   - ps: >-
       if ($env:TOOLCHAIN -eq "msvc") {
         $env:CC="cl -nologo"
