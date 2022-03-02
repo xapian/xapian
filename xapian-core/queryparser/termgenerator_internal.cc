@@ -260,7 +260,13 @@ TermGenerator::Internal::index_text(Utf8Iterator itor, termcount wdf_inc,
     }
 
     parse_terms(itor, cjk_ngram, with_positions,
-	[=, this](const string & term, bool positional, const Utf8Iterator &) {
+	[=
+#if __cplusplus >= 201907L
+// C++20 no longer supports implicit `this` in lambdas but older C++ versions
+// don't allow `this` here.
+	, this
+#endif
+	](const string & term, bool positional, const Utf8Iterator &) {
 	    if (term.size() > max_word_length) return true;
 
 	    if (current_stop_mode == TermGenerator::STOP_ALL &&
@@ -278,7 +284,9 @@ TermGenerator::Internal::index_text(Utf8Iterator itor, termcount wdf_inc,
 		}
 	    }
 
-	    if ((flags & FLAG_SPELLING) && prefix.empty())
+	    // MSVC seems to need "this->" on member variables in this
+	    // situation.
+	    if ((this->flags & FLAG_SPELLING) && prefix.empty())
 		db.add_spelling(term);
 
 	    if (strategy == TermGenerator::STEM_NONE || stemmer.is_none())
