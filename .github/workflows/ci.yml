@@ -4,12 +4,17 @@ on:
   push:
     paths-ignore:
       - '.appveyor.yml'
+      - NEWS
       - 'xapian-maintainer-tools/**'
   pull_request:
     branches: RELEASE/1.4
     paths-ignore:
       - '.appveyor.yml'
+      - NEWS
       - 'xapian-maintainer-tools/**'
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
 
 jobs:
   GLIBCXX_DEBUG:
