@@ -513,8 +513,9 @@ AC_CHECK_FUNCS([closefrom getdirentries getrlimit])
 if test $ac_cv_func_ftime = yes ; then
   dnl See if ftime returns void (as it does on mingw)
   AC_MSG_CHECKING([return type of ftime])
-  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <sys/timeb.h>]],
-    [[struct timeb tp; int i = ftime(&tp);]])],
+  AC_COMPILE_IFELSE(
+    [AC_LANG_PROGRAM([[#include <sys/timeb.h>]],
+		     [[struct timeb tp; int i = ftime(&tp);]])],
     [AC_MSG_RESULT([int])],
     [AC_MSG_RESULT([void])
     AC_DEFINE([FTIME_RETURNS_VOID], [1], [Define if ftime returns void])])
