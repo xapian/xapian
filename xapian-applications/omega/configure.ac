@@ -20,11 +20,6 @@ AC_DEFUN([AC_LIB_PROG_LD], [])
 LT_PREREQ([2.2.6])
 LT_INIT
 
-dnl We need to specify the argument types for builtin functions, or else
-dnl AC_CHECK_DECLS fails to detect them when the compiler is clang.
-AC_CHECK_DECLS([__builtin_add_overflow(int, int, int*),
-    __builtin_mul_overflow(int, int, int*)], [], [], [ ])
-
 dnl -no-undefined causes problems on Solaris with Sun CC in C++11 mode, so only
 dnl pass -no-undefined on platforms where it is required in order to link a
 dnl shared library at all (Windows is the main one).
@@ -104,10 +99,15 @@ dnl We want XAPIAN_CXXFLAGS to be used for configure tests.
 save_CXXFLAGS=$CXXFLAGS
 CXXFLAGS="$CXXFLAGS $XAPIAN_CXXFLAGS"
 
+dnl We need to specify the argument types for builtin functions, or else
+dnl AC_CHECK_DECLS fails to detect them when the compiler is clang.
+AC_CHECK_DECLS([__builtin_add_overflow(int, int, int*),
+		__builtin_mul_overflow(int, int, int*)], [], [], [ ])
 AC_CHECK_DECLS([__builtin_bswap32(uint32_t)], [], [],
 	       [#include <stdint.h>])
 AC_CHECK_DECLS([_byteswap_ulong], [], [],
 	       [#include <stdlib.h>])
+AC_CHECK_DECLS([__builtin_expect(long, long)], [], [], [ ])
 
 dnl Check for time functions.
 AC_FUNC_STRFTIME
@@ -193,15 +193,15 @@ dnl not really gain us much - we know it is -lmagic.
 MAGIC_LIBS=-lmagic
 AC_SUBST([MAGIC_LIBS])
 
-dnl See if ftime returns void (as it does on mingw)
-AC_MSG_CHECKING([return type of ftime])
 if test $ac_cv_func_ftime = yes ; then
+  dnl See if ftime returns void (as it does on mingw)
+  AC_MSG_CHECKING([return type of ftime])
   AC_COMPILE_IFELSE(
     [AC_LANG_PROGRAM([[#include <sys/timeb.h>]],
 		     [[struct timeb tp; int i = ftime(&tp);]])],
-    [AC_MSG_RESULT(int)],
-    [AC_MSG_RESULT(void)
-     AC_DEFINE([FTIME_RETURNS_VOID], [1], [Define if ftime returns void])])
+    [AC_MSG_RESULT([int])],
+    [AC_MSG_RESULT([void])
+    AC_DEFINE([FTIME_RETURNS_VOID], [1], [Define if ftime returns void])])
 fi
 
 dnl mingw (for instance) lacks ssize_t
@@ -497,13 +497,21 @@ else
     dnl 20201 "Memory leak is detected" which triggers for "return new Foo;"!
     AM_CXXFLAGS="$AM_CXXFLAGS +w +wlint +W2340,2401,3348,4255,4273,4285,20201" ;;
   */sunCC|*/CC)
-    dnl Sun's C++ compiler warns about functions failing to return a value even
-    dnl when the function ends with a "throw" statement.  That's just unhelpful
-    dnl noise, and adding a dummy "return" after "throw" seems a worse solution
-    dnl than simply disabling this warning - any genuinely missing return
-    dnl statements will get reported by compilers with superior warning
-    dnl machinery.
-    XAPIAN_TEST_CXXFLAGS([-erroff=voidretw], [AM_CXXFLAGS])
+    dnl Sun's C++ compiler.
+    dnl
+    dnl We use -errtags to report the tag for each warning emitted.
+    dnl
+    dnl We use -erroff to suppress some unhelpful warnings:
+    dnl
+    dnl oklambdaretmulti warns about a lambda with more than one return
+    dnl statement even if they all return the same type.
+    dnl
+    dnl voidretw warns about functions failing to return a value even when the
+    dnl function ends with a "throw" statement.  That's just unhelpful noise,
+    dnl and adding a dummy "return" after "throw" seems a worse solution than
+    dnl simply disabling this warning - any genuinely missing return statements
+    dnl will get reported by compilers with superior warning machinery.
+    XAPIAN_TEST_CXXFLAGS([-errtags -erroff=oklambdaretmulti,voidretw], [AM_CXXFLAGS])
     ;;
   esac
 fi
@@ -534,11 +542,11 @@ AH_BOTTOM(
 # endif
 #endif
 
-/* For GCC >= 3.0 (and Intel's C++ compiler, which also defines __GNUC__),
+/* For compilers which support it (such as GCC, clang, Intel's C++ compiler)
  * we can use __builtin_expect to give the compiler hints about branch
  * prediction.  See HACKING for how to use these.
  */
-#if defined __GNUC__
+#if HAVE_DECL___BUILTIN_EXPECT
 /* The arguments of __builtin_expect() are both long, so use !! to ensure that
  * the first argument is always an integer expression, and always 0 or 1, but
  * still has the same truth value for the if or while it is used in.
