@@ -1186,13 +1186,18 @@ QueryValueRange::postlist(QueryOptimiser *qopt, double factor) const
 	RETURN(NULL);
     }
     if (end >= ub) {
-	// If begin <= lb too, then the range check isn't needed, but we do
-	// still need to consider which documents have a value set in this
-	// slot.  If this value is set for all documents, we can replace it
-	// with the MatchAll postlist, which is especially efficient if
-	// there are no gaps in the docids.
-	if (begin <= lb && db.get_value_freq(slot) == db.get_doccount()) {
-	    RETURN(db.open_post_list(string()));
+	if (begin <= lb) {
+	    // The range check isn't needed, but we do still need to consider
+	    // which documents have a value set in this slot.  If this value is
+	    // set for all documents, we can replace it with the MatchAll
+	    // postlist, which is especially efficient if there are no gaps in
+	    // the docids.
+	    if (db.get_value_freq(slot) == db.get_doccount()) {
+		RETURN(db.open_post_list(string()));
+	    }
+	    // Otherwise we can at least replace the lower bound with an empty
+	    // string for a small efficiency gain.
+	    RETURN(new ValueGePostList(&db, slot, string()));
 	}
 	RETURN(new ValueGePostList(&db, slot, begin));
     }
