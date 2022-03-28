@@ -49,6 +49,7 @@ precedence using ``(one OR two) AND three``.
 The default precedence from highest to lowest is:
 
 * +, - (equal)
+* NEAR, ADJ (equal)
 * AND, NOT (equal)
 * XOR
 * OR
