@@ -27,6 +27,8 @@ noinst_HEADERS +=\
 	matcher/spymaster.h\
 	matcher/synonympostlist.h\
 	matcher/valuegepostlist.h\
+	matcher/valuegtpostlist.h\
+	matcher/valueltpostlist.h\
 	matcher/valuerangepostlist.h\
 	matcher/valuestreamdocument.h\
 	matcher/wrapperpostlist.h
@@ -65,6 +67,8 @@ lib_src +=\
 	matcher/selectpostlist.cc\
 	matcher/synonympostlist.cc\
 	matcher/valuegepostlist.cc\
+	matcher/valuegtpostlist.cc\
+	matcher/valueltpostlist.cc\
 	matcher/valuerangepostlist.cc\
 	matcher/valuestreamdocument.cc\
 	matcher/wrapperpostlist.cc

@@ -266,6 +266,22 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	 */
 	OP_EDIT_DISTANCE = 16,
 
+	/** Match only documents where a value slot is > a given value.
+	 *
+	 *  Similar to @a OP_VALUE_RANGE, but open-ended.
+	 *
+	 *  This operator never contributes weight.
+	 */
+	OP_VALUE_GT = 17,
+
+	/** Match only documents where a value slot is < a given value.
+	 *
+	 *  Similar to @a OP_VALUE_RANGE, but open-ended.
+	 *
+	 *  This operator never contributes weight.
+	 */
+	OP_VALUE_LT = 18,
+
 	/** Construct an invalid query.
 	 *
 	 *  This can be useful as a placeholder - for example @a RangeProcessor
@@ -436,7 +452,8 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 
     /** Construct a Query object for a single-ended value range.
      *
-     *  @param op_		Must be OP_VALUE_LE or OP_VALUE_GE currently.
+     *  @param op_		Must be OP_VALUE_LE, OP_VALUE_GE,
+     *					OP_VALUE_GT, or OP_VALUE_LT.
      *  @param slot		The value slot to work over.
      *  @param range_limit	The limit of the range.
      */

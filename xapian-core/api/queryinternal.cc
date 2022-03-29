@@ -46,6 +46,8 @@
 #include "matcher/queryoptimiser.h"
 #include "matcher/valuerangepostlist.h"
 #include "matcher/valuegepostlist.h"
+#include "matcher/valuegtpostlist.h"
+#include "matcher/valueltpostlist.h"
 #include "pack.h"
 #include "serialise-double.h"
 #include "stringutils.h"
@@ -863,94 +865,138 @@ Query::Internal::unserialise(const char ** p, const char * end,
 	    return new Xapian::Internal::QueryValueRange(slot, begin, end_);
 	}
 	case 0: {
-	    // Other operators
-	    //
-	    //   000ttttt where:
-	    //     ttttt -> encodes which OP_XXX
-	    switch (ch & 0x1f) {
-		case 0x00: // OP_INVALID
-		    return new Xapian::Internal::QueryInvalid();
-		case 0x0a: { // Edit distance
-		    Xapian::termcount max_expansion;
-		    if (!unpack_uint(p, end, &max_expansion) || end - *p < 2) {
-			throw SerialisationError("not enough data");
+	    switch (ch >> 4) {
+		case 1: {
+		    // 0001oxxx where:
+		    // o is the operation: LT or GT
+		    // xxx is the slot number
+		    Xapian::valueno slot = ch & 7;
+		    if (slot == 7) {
+			if (!unpack_uint(p, end, &slot)) {
+			    unpack_throw_serialisation_error(*p);
+			}
+			slot += 7;
 		    }
-		    int flags = static_cast<unsigned char>(*(*p)++);
-		    op combiner = static_cast<op>(*(*p)++);
-		    unsigned edit_distance;
-		    size_t fixed_prefix_len;
-		    string pattern;
-		    if (!unpack_uint(p, end, &edit_distance) ||
-			!unpack_uint(p, end, &fixed_prefix_len) ||
-			!unpack_string(p, end, pattern)) {
-			throw SerialisationError("not enough data");
+		    string begin;
+		    if (!unpack_string(p, end, begin)) {
+			unpack_throw_serialisation_error(*p);
 		    }
-		    using Xapian::Internal::QueryEditDistance;
-		    return new QueryEditDistance(pattern,
-						 max_expansion,
-						 flags,
-						 combiner,
-						 edit_distance,
-						 fixed_prefix_len);
-		}
-		case 0x0b: { // Wildcard
-		    Xapian::termcount max_expansion;
-		    if (!unpack_uint(p, end, &max_expansion) || end - *p < 2) {
-			throw SerialisationError("not enough data");
+		    switch (ch >> 3) {
+			case 2: {
+			    // 00010xxx for OP_VALUE_LT
+			    return new Xapian::Internal::QueryValueGT(slot,
+								      begin);
+			}
+			case 3: {
+			    // 00011xxx for OP_VALUE_GT
+			    string end_;
+			    if (!unpack_string(p, end, end_)) {
+				unpack_throw_serialisation_error(*p);
+			    }
+			    return new Xapian::Internal::QueryValueLT(slot,
+								      end_);
+			}
 		    }
-		    int flags = static_cast<unsigned char>(*(*p)++);
-		    op combiner = static_cast<op>(*(*p)++);
-		    string pattern;
-		    if (!unpack_string(p, end, pattern)) {
-			throw SerialisationError("not enough data");
-		    }
-		    return new Xapian::Internal::QueryWildcard(pattern,
-							       max_expansion,
-							       flags,
-							       combiner);
-		}
-		case 0x0c: { // PostingSource
-		    string name;
-		    if (!unpack_string(p, end, name)) {
-			throw SerialisationError("not enough data");
-		    }
-
-		    const PostingSource * reg_source = reg.get_posting_source(name);
-		    if (!reg_source) {
-			string m = "PostingSource ";
-			m += name;
-			m += " not registered";
-			throw SerialisationError(m);
-		    }
-
-		    string serialised_source;
-		    if (!unpack_string(p, end, serialised_source)) {
-			throw SerialisationError("not enough data");
-		    }
-		    PostingSource* source =
-			reg_source->unserialise_with_registry(serialised_source,
-							      reg);
-		    return new Xapian::Internal::QueryPostingSource(source->release());
-		}
-		case 0x0d: {
-		    using Xapian::Internal::QueryScaleWeight;
-		    double scale_factor = unserialise_double(p, end);
-		    return new QueryScaleWeight(scale_factor,
-						Query(unserialise(p, end, reg)));
-		}
-		case 0x0e: {
-		    Xapian::termcount wqf;
-		    Xapian::termpos pos;
-		    if (!unpack_uint(p, end, &wqf) ||
-			!unpack_uint(p, end, &pos)) {
-			throw SerialisationError("not enough data");
-		    }
-		    return new Xapian::Internal::QueryTerm(string(), wqf, pos);
-		}
-		case 0x0f:
-		    return new Xapian::Internal::QueryTerm();
-		default: // Others currently unused.
 		    break;
+		}
+		case 0: {
+		    // Other operators
+		    //
+		    //   0000tttt where:
+		    //     tttt -> encodes which OP_XXX
+		    switch (ch & 0x0f) {
+			case 0x00: // OP_INVALID
+			    return new Xapian::Internal::QueryInvalid();
+			case 0x0a: { // Edit distance
+			    Xapian::termcount max_expansion;
+			    if (!unpack_uint(p, end, &max_expansion) ||
+						     end - *p < 2) {
+			    throw SerialisationError("not enough data");
+			    }
+			    int flags = static_cast<unsigned char>(*(*p)++);
+			    op combiner = static_cast<op>(*(*p)++);
+			    unsigned edit_distance;
+			    size_t fixed_prefix_len;
+			    string pattern;
+			    if (!unpack_uint(p, end, &edit_distance) ||
+				!unpack_uint(p, end, &fixed_prefix_len) ||
+				!unpack_string(p, end, pattern)) {
+				throw SerialisationError("not enough data");
+			    }
+			    using Xapian::Internal::QueryEditDistance;
+			    return new QueryEditDistance(pattern,
+							 max_expansion,
+							 flags,
+							 combiner,
+							 edit_distance,
+							 fixed_prefix_len);
+			}
+			case 0x0b: { // Wildcard
+			    Xapian::termcount max_expansion;
+			    if (!unpack_uint(p, end, &max_expansion) ||
+				end - *p < 2) {
+				throw SerialisationError("not enough data");
+			    }
+			    int flags = static_cast<unsigned char>(*(*p)++);
+			    op combiner = static_cast<op>(*(*p)++);
+			    string pattern;
+			    if (!unpack_string(p, end, pattern)) {
+				throw SerialisationError("not enough data");
+			    }
+			    return new Xapian::Internal::QueryWildcard(
+					    pattern,
+					    max_expansion,
+					    flags,
+					    combiner);
+			}
+			case 0x0c: { // PostingSource
+			    string name;
+			    if (!unpack_string(p, end, name)) {
+				throw SerialisationError("not enough data");
+			    }
+
+			    const PostingSource* reg_source =
+					    reg.get_posting_source(name);
+			    if (!reg_source) {
+				string m = "PostingSource ";
+				m += name;
+				m += " not registered";
+				throw SerialisationError(m);
+			    }
+
+			    string serialised_source;
+			    if (!unpack_string(p, end, serialised_source)) {
+				throw SerialisationError("not enough data");
+			    }
+			    PostingSource* source =
+				reg_source->unserialise_with_registry(
+						    serialised_source,
+						    reg);
+			    return new Xapian::Internal::QueryPostingSource
+						    (source->release());
+			}
+			case 0x0d: {
+			    using Xapian::Internal::QueryScaleWeight;
+			    double scale_factor = unserialise_double(p, end);
+			    return new QueryScaleWeight(scale_factor,
+				Query(unserialise(p, end, reg)));
+			}
+			case 0x0e: {
+			    Xapian::termcount wqf;
+			    Xapian::termpos pos;
+			    if (!unpack_uint(p, end, &wqf) ||
+				!unpack_uint(p, end, &pos)) {
+				throw SerialisationError("not enough data");
+			    }
+			    return new Xapian::Internal::QueryTerm(
+						    string(), wqf, pos);
+			}
+			case 0x0f:
+			    return new Xapian::Internal::QueryTerm();
+			default: // Others currently unused.
+			    break;
+		    }
+		}
 	    }
 	    break;
 	}
@@ -1299,6 +1345,69 @@ QueryValueLE::get_description() const
 }
 
 PostList*
+QueryValueLT::postlist(QueryOptimiser* qopt, double factor) const
+{
+    LOGCALL(QUERY, PostList*, "QueryValueLT::postlist", qopt | factor);
+    if (factor != 0.0)
+	qopt->inc_total_subqs();
+    const Xapian::Database::Internal& db = qopt->db;
+    const string& lb = db.get_value_lower_bound(slot);
+    if (lb.empty()) {
+	// This should only happen if there are no values in this slot (which
+	// could be because the backend just doesn't support values at all).
+	// If there were values in the slot, the backend should have a
+	// non-empty lower bound, even if it isn't a tight one.
+	AssertEq(db.get_value_freq(slot), 0);
+	RETURN(NULL);
+    }
+    if (limit < lb) {
+	RETURN(NULL);
+    }
+    if (limit > db.get_value_upper_bound(slot)) {
+	// The range check isn't needed, but we do still need to consider
+	// which documents have a value set in this slot.  If this value is
+	// set for all documents, we can replace it with the MatchAll
+	// postlist, which is especially efficient if there are no gaps in
+	// the docids.
+	if (db.get_value_freq(slot) == db.get_doccount()) {
+	    RETURN(db.open_post_list(string()));
+	}
+    }
+    RETURN(new ValueLtPostList(&db, slot, limit));
+}
+
+void
+QueryValueLT::serialise(string& result) const
+{
+    // Encode as a range with an empty start (which only takes a single byte to
+    // encode).
+    if (slot < 7) {
+	result += static_cast<char>(0x18 | slot);
+    } else {
+	result += static_cast<char>(0x18 | 7);
+	pack_uint(result, slot - 7);
+    }
+    pack_string_empty(result);
+    pack_string(result, limit);
+}
+
+Query::op
+QueryValueLT::get_type() const noexcept
+{
+    return Query::OP_VALUE_LT;
+}
+
+string
+QueryValueLT::get_description() const
+{
+    string desc = "VALUE_LT ";
+    desc += str(slot);
+    desc += ' ';
+    description_append(desc, limit);
+    return desc;
+}
+
+PostList*
 QueryValueGE::postlist(QueryOptimiser *qopt, double factor) const
 {
     LOGCALL(QUERY, PostList*, "QueryValueGE::postlist", qopt | factor);
@@ -1357,6 +1466,69 @@ QueryValueGE::get_description() const
     description_append(desc, limit);
     return desc;
 }
+
+
+PostList*
+QueryValueGT::postlist(QueryOptimiser* qopt, double factor) const
+{
+    LOGCALL(QUERY, PostList*, "QueryValueGT::postlist", qopt | factor);
+    if (factor != 0.0)
+	qopt->inc_total_subqs();
+    const Xapian::Database::Internal& db = qopt->db;
+    const string& lb = db.get_value_lower_bound(slot);
+    if (lb.empty()) {
+	// This should only happen if there are no values in this slot (which
+	// could be because the backend just doesn't support values at all).
+	// If there were values in the slot, the backend should have a
+	// non-empty lower bound, even if it isn't a tight one.
+	AssertEq(db.get_value_freq(slot), 0);
+	RETURN(NULL);
+    }
+    if (limit >= db.get_value_upper_bound(slot)) {
+	RETURN(NULL);
+    }
+    if (limit < lb) {
+	// The range check isn't needed, but we do still need to consider
+	// which documents have a value set in this slot.  If this value is
+	// set for all documents, we can replace it with the MatchAll
+	// postlist, which is especially efficient if there are no gaps in
+	// the docids.
+	if (db.get_value_freq(slot) == db.get_doccount()) {
+	    RETURN(db.open_post_list(string()));
+	}
+    }
+
+    RETURN(new ValueGtPostList(&db, slot, limit));
+}
+
+void
+QueryValueGT::serialise(string& result) const
+{
+    if (slot < 7) {
+	result += static_cast<char>(0x10 | slot);
+    } else {
+	result += static_cast<char>(0x10 | 7);
+	pack_uint(result, slot - 7);
+    }
+    pack_string(result, limit);
+}
+
+Query::op
+QueryValueGT::get_type() const noexcept
+{
+    return Query::OP_VALUE_GT;
+}
+
+string
+QueryValueGT::get_description() const
+{
+    string desc = "VALUE_GT ";
+    desc += str(slot);
+    desc += ' ';
+    description_append(desc, limit);
+    return desc;
+}
+
 
 QueryWildcard::QueryWildcard(const std::string &pattern_,
 			     Xapian::termcount max_expansion_,
