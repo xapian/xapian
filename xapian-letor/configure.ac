@@ -318,6 +318,40 @@ if test -n "${EATMYDATA-unset}" ; then
   AC_PATH_PROG([EATMYDATA], [eatmydata], [])
 fi
 
+dnl Checks for library functions.
+AC_FUNC_STRERROR_R
+
+AC_CACHE_CHECK([for sys_errlist and sys_nerr], xo_cv_sys_errlist_and_sys_nerr, [
+  AC_LINK_IFELSE([AC_LANG_PROGRAM(
+dnl On Linux, sys_errlist and sys_nerr need <stdio.h>, though the man page
+dnl says <errno.h>.  The man page seems to match other platforms such as
+dnl NetBSD, so include both headers to ensure we get them.
+[[#include <errno.h>
+#include <stdio.h>]],
+[[  printf("%s", sys_errlist[sys_nerr - 1]);]])],
+  [ xo_cv_sys_errlist_and_sys_nerr=yes ],
+  [ xo_cv_sys_errlist_and_sys_nerr=no ])
+])
+if test "x$xo_cv_sys_errlist_and_sys_nerr" = "xyes" ; then
+  AC_DEFINE([HAVE_SYS_ERRLIST_AND_SYS_NERR], [1],[Define if you have 'sys_errlist' and 'sys_nerr'])
+fi
+
+AC_CACHE_CHECK([for _sys_errlist and _sys_nerr], xo_cv__sys_errlist_and__sys_nerr, [
+  AC_LINK_IFELSE([AC_LANG_PROGRAM(
+[[#include <errno.h>
+#include <stdio.h>]],
+[[  printf("%s", _sys_errlist[_sys_nerr - 1]);]])],
+  [ xo_cv__sys_errlist_and__sys_nerr=yes ],
+  [ xo_cv__sys_errlist_and__sys_nerr=no
+  ])
+])
+if test "x$xo_cv__sys_errlist_and__sys_nerr" = "xyes" ; then
+  AC_DEFINE([HAVE__SYS_ERRLIST_AND__SYS_NERR], [1],[Define if you have '_sys_errlist' and '_sys_nerr'])
+fi
+
+dnl GNU-specific replacement for sys_errlist and sys_nerr.
+AC_CHECK_FUNCS([strerrordesc_np])
+
 dnl libsvm is required.
 AC_CHECK_HEADER([libsvm/svm.h], [], AC_MSG_ERROR([libsvm required but libsvm/svm.h not found]), [ ])
 save_LIBS=$LIBS
