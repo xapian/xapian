@@ -69,7 +69,7 @@ errno_to_string(int e, string& s)
 	s += "Unknown error ";
 	s += str(e);
     }
-#elif defined HAVE_STRERROR_R
+#elif HAVE_DECL_STRERROR_R
     // POSIX specifies strerror_r() to provide a thread-safe way to translate
     // an errno value to a string.
     //
