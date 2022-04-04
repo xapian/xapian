@@ -1,7 +1,7 @@
 /** @file
  * @brief Command line search tool using Xapian::QueryParser.
  */
-/* Copyright (C) 2004-2021 Olly Betts
+/* Copyright (C) 2004-2022 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -198,6 +198,7 @@ static void show_usage() {
 	pos += len + 2;
     }
     cout << "\n"
+"  -F, --freqs                       show query term frequencies\n"
 "  -h, --help                        display this help and exit\n"
 "  -v, --version                     output version information and exit\n";
 }
@@ -238,7 +239,7 @@ decode_wt(const char * s)
 int
 main(int argc, char **argv)
 try {
-    const char * opts = "d:m:c:s:p:b:f:o:w:hv";
+    const char * opts = "d:m:c:s:p:b:f:o:w:Fhv";
     static const struct option long_opts[] = {
 	{ "db",		required_argument, 0, 'd' },
 	{ "msize",	required_argument, 0, 'm' },
@@ -249,6 +250,7 @@ try {
 	{ "flags",	required_argument, 0, 'f' },
 	{ "default-op",	required_argument, 0, 'o' },
 	{ "weight",	required_argument, 0, 'w' },
+	{ "freqs",	no_argument, 0, 'F' },
 	{ "help",	no_argument, 0, 'h' },
 	{ "version",	no_argument, 0, 'v' },
 	{ NULL,		0, 0, 0}
@@ -265,6 +267,7 @@ try {
     Xapian::QueryParser parser;
     unsigned flags = 0;
     bool flags_set = false;
+    bool show_termfreqs = false;
     int weight = -1;
 
     int c;
@@ -353,6 +356,9 @@ try {
 		}
 		break;
 	    }
+	    case 'F':
+		show_termfreqs = true;
+		break;
 	    case 'v':
 		cout << PROG_NAME " - " PACKAGE_STRING << endl;
 		exit(0);
@@ -445,6 +451,15 @@ try {
 
     Xapian::MSet mset = enquire.get_mset(0, msize, check_at_least);
 
+    if (show_termfreqs) {
+	cout << "Query term frequencies:\n";
+	for (auto t = query.get_terms_begin();
+	     t != query.get_terms_end();
+	     ++t) {
+	    const string& term = *t;
+	    cout << "    " << mset.get_termfreq(term) << '\t' << term << '\n';
+	}
+    }
     auto lower_bound = mset.get_matches_lower_bound();
     auto estimate = mset.get_matches_estimated();
     auto upper_bound = mset.get_matches_upper_bound();
