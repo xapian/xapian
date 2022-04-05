@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2006,2007,2008,2009,2010,2011,2012,2013,2014,2016,2017,2018 Olly Betts
+ * Copyright 2002-2022 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -84,7 +84,8 @@ static void show_usage() {
 "  -z                    for db, count documents with length 0\n"
 "  -v                    extra info (wdf and len for postlist;\n"
 "                        wdf and termfreq for termlist; number of terms for db;\n"
-"                        termfreq when showing all terms)\n"
+"                        termfreq when showing all terms; value bounds and freq\n"
+"                        when showing all values in a slot)\n"
 "  -vv                   even more info (also show collection freq and wdf\n"
 "                        upper bound for terms)\n"
 "      --help            display this help and exit\n"
@@ -449,7 +450,15 @@ main(int argc, char **argv) try {
 	}
     } else {
 	if (slot_set) {
-	    cout << "Value " << slot << " for each document:";
+	    cout << "Value " << slot;
+	    if (verbose) {
+		cout << " (lower bound=";
+		decode_and_show_value(db.get_value_lower_bound(slot));
+		cout << " upper bound=";
+		decode_and_show_value(db.get_value_upper_bound(slot));
+		cout << " freq=" << db.get_value_freq(slot) << ")";
+	    }
+	    cout << " for each document:";
 	    ValueIterator it = db.valuestream_begin(slot);
 	    while (it != db.valuestream_end(slot)) {
 		cout << separator << it.get_docid() << ':';
