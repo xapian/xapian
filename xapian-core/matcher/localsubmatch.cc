@@ -194,7 +194,7 @@ LocalSubMatch::get_postlist(MultiMatch * matcher,
 {
     LOGCALL(MATCH, PostList*, "LocalSubMatch::get_postlist", matcher | total_subqs_ptr | Literal("[total_subqs]"));
 
-    if (query.empty())
+    if (query.empty() || db->get_doccount() == 0)
 	RETURN(new EmptyPostList); // MatchNothing
 
     // Build the postlist tree for the query.  This calls

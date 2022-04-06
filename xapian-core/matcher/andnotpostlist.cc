@@ -119,8 +119,8 @@ Xapian::doccount
 AndNotPostList::get_termfreq_est() const
 {
     LOGCALL(MATCH, Xapian::doccount, "AndNotPostList::get_termfreq_est", NO_ARGS);
-    if (rare(dbsize == 0))
-	RETURN(0);
+    // We shortcut an empty shard and avoid creating a postlist tree for it.
+    Assert(db_size);
     // Estimate assuming independence:
     // P(l and r) = P(l) . P(r)
     // P(l not r) = P(l) - P(l and r) = P(l) . ( 1 - P(r))

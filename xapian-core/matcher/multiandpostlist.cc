@@ -92,8 +92,8 @@ Xapian::doccount
 MultiAndPostList::get_termfreq_est() const
 {
     LOGCALL(MATCH, Xapian::doccount, "MultiAndPostList::get_termfreq_est", NO_ARGS);
-    if (rare(db_size == 0))
-	RETURN(0);
+    // We shortcut an empty shard and avoid creating a postlist tree for it.
+    Assert(db_size);
     // We calculate the estimate assuming independence.  With this assumption,
     // the estimate is the product of the estimates for the sub-postlists
     // divided by db_size (n_kids - 1) times.
