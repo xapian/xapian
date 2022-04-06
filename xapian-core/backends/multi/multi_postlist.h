@@ -63,14 +63,8 @@ class MultiPostList : public PostList {
     /// Destructor.
     ~MultiPostList();
 
-    /// Get a lower bound on the number of documents indexed by this term.
-    Xapian::doccount get_termfreq_min() const;
-
-    /// Get an upper bound on the number of documents indexed by this term.
-    Xapian::doccount get_termfreq_max() const;
-
     /// Get an estimate of the number of documents indexed by this term.
-    Xapian::doccount get_termfreq_est() const;
+    Xapian::doccount get_termfreq() const;
 
     /// Return the current docid.
     Xapian::docid get_docid() const;

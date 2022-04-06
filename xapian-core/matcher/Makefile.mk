@@ -4,6 +4,7 @@ noinst_HEADERS +=\
 	matcher/boolorpostlist.h\
 	matcher/collapser.h\
 	matcher/deciderpostlist.h\
+	matcher/estimateop.h\
 	matcher/exactphrasepostlist.h\
 	matcher/externalpostlist.h\
 	matcher/extraweightpostlist.h\
@@ -48,6 +49,7 @@ lib_src +=\
 	matcher/boolorpostlist.cc\
 	matcher/collapser.cc\
 	matcher/deciderpostlist.cc\
+	matcher/estimateop.cc\
 	matcher/exactphrasepostlist.cc\
 	matcher/externalpostlist.cc\
 	matcher/extraweightpostlist.cc\

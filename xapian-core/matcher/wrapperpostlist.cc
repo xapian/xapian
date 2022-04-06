@@ -23,21 +23,9 @@
 #include "wrapperpostlist.h"
 
 Xapian::doccount
-WrapperPostList::get_termfreq_min() const
+WrapperPostList::get_termfreq() const
 {
-    return pl->get_termfreq_min();
-}
-
-Xapian::doccount
-WrapperPostList::get_termfreq_max() const
-{
-    return pl->get_termfreq_max();
-}
-
-Xapian::doccount
-WrapperPostList::get_termfreq_est() const
-{
-    return pl->get_termfreq_est();
+    return pl->get_termfreq();
 }
 
 TermFreqs

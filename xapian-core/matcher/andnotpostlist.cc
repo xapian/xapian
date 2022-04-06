@@ -27,27 +27,7 @@
 using namespace std;
 
 Xapian::doccount
-AndNotPostList::get_termfreq_min() const
-{
-    Xapian::doccount l_tf_min = pl->get_termfreq_min();
-    Xapian::doccount r_tf_max = r->get_termfreq_max();
-    if (l_tf_min <= r_tf_max)
-	return 0;
-    return l_tf_min - r_tf_max;
-}
-
-Xapian::doccount
-AndNotPostList::get_termfreq_max() const
-{
-    // We can't match more documents than our left-side does.
-    Xapian::doccount l_tf_max = pl->get_termfreq_max();
-    // We also can't more documents than our right-side *doesn't*.
-    Xapian::doccount r_tf_min = r->get_termfreq_min();
-    return min(db_size - r_tf_min, l_tf_max);
-}
-
-Xapian::doccount
-AndNotPostList::get_termfreq_est() const
+AndNotPostList::get_termfreq() const
 {
     // We shortcut an empty shard and avoid creating a postlist tree for it.
     Assert(db_size);
@@ -55,8 +35,8 @@ AndNotPostList::get_termfreq_est() const
     // the estimate is the product of the estimates for the sub-postlists
     // (for the right side this is inverted by subtracting from db_size),
     // divided by db_size.
-    double result = pl->get_termfreq_est();
-    result = (result * (db_size - r->get_termfreq_est())) / db_size;
+    double result = pl->get_termfreq();
+    result = (result * (db_size - r->get_termfreq())) / db_size;
     return static_cast<Xapian::doccount>(result + 0.5);
 }
 

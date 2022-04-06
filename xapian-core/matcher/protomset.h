@@ -487,6 +487,10 @@ class ProtoMSet {
 			  Xapian::doccount matches_upper_bound) {
 	finalise_percentages();
 
+	if (mdecider) {
+	    matches_lower_bound = mdecider->docs_allowed_;
+	}
+
 	AssertRel(matches_estimated, >=, matches_lower_bound);
 	AssertRel(matches_estimated, <=, matches_upper_bound);
 

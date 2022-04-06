@@ -55,24 +55,10 @@ ExternalPostList::ExternalPostList(const Xapian::Database& db,
 }
 
 Xapian::doccount
-ExternalPostList::get_termfreq_min() const
-{
-    Assert(source.get());
-    return source->get_termfreq_min();
-}
-
-Xapian::doccount
-ExternalPostList::get_termfreq_est() const
+ExternalPostList::get_termfreq() const
 {
     Assert(source.get());
     return source->get_termfreq_est();
-}
-
-Xapian::doccount
-ExternalPostList::get_termfreq_max() const
-{
-    Assert(source.get());
-    return source->get_termfreq_max();
 }
 
 Xapian::docid

@@ -1,7 +1,7 @@
 /** @file
  * @brief Matcher class
  */
-/* Copyright (C) 2006,2008,2009,2010,2011,2017,2018,2019,2020 Olly Betts
+/* Copyright (C) 2006-2022 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -357,7 +357,9 @@ Matcher::get_local_mset(Xapian::doccount first,
 	    total_subqs = max(total_subqs, total_subqs_i);
 	    if (pl != NULL) {
 		all_null = false;
-		if (mdecider) {
+		if (mdecider && check_at_least) {
+		    // No point creating the DeciderPostList if we aren't
+		    // actually going to run the match.
 		    pl = new DeciderPostList(pl, mdecider, &vsdoc, &pltree);
 		}
 	    }
@@ -398,13 +400,25 @@ Matcher::get_local_mset(Xapian::doccount first,
 	percent_threshold_factor = 0.0;
     }
 
-    Xapian::doccount matches_lower_bound = pltree.get_termfreq_min();
-    Xapian::doccount matches_estimated = pltree.get_termfreq_est();
-    Xapian::doccount matches_upper_bound = pltree.get_termfreq_max();
-
     // Check if any results have been asked for (might just be wanting
     // maxweight).
     if (check_at_least == 0) {
+	Xapian::doccount matches_lower_bound = 0;
+	Xapian::doccount matches_estimated = 0;
+	Xapian::doccount matches_upper_bound = 0;
+	for (size_t i = 0; i != locals.size(); ++i) {
+	    if (locals[i].get()) {
+		Estimates e = locals[i]->resolve();
+		matches_lower_bound += e.min;
+		matches_estimated += e.est;
+		matches_upper_bound += e.max;
+	    }
+	}
+
+	if (mdecider) {
+	    matches_lower_bound = 0;
+	}
+
 	Xapian::doccount uncollapsed_lower_bound = matches_lower_bound;
 	if (collapse_max) {
 	    // Lower bound must be set to no more than collapse_max, since it's
@@ -502,6 +516,18 @@ Matcher::get_local_mset(Xapian::doccount first,
 
 	if (!proto_mset.process(std::move(new_item), vsdoc))
 	    break;
+    }
+
+    Xapian::doccount matches_lower_bound = 0;
+    Xapian::doccount matches_estimated = 0;
+    Xapian::doccount matches_upper_bound = 0;
+    for (size_t i = 0; i != locals.size(); ++i) {
+	if (locals[i].get()) {
+	    Estimates e = locals[i]->resolve();
+	    matches_lower_bound += e.min;
+	    matches_estimated += e.est;
+	    matches_upper_bound += e.max;
+	}
     }
 
     return proto_mset.finalise(mdecider,

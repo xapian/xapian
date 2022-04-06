@@ -57,8 +57,6 @@ class SelectPostList : public WrapperPostList {
     PostList* skip_to(Xapian::docid did, double w_min);
 
     PostList* check(Xapian::docid did, double w_min, bool& valid);
-
-    Xapian::doccount get_termfreq_min() const;
 };
 
 #endif // XAPIAN_INCLUDED_SELECTPOSTLIST_H

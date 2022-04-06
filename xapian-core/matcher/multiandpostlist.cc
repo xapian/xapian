@@ -52,54 +52,17 @@ MultiAndPostList::~MultiAndPostList()
 }
 
 Xapian::doccount
-MultiAndPostList::get_termfreq_min() const
+MultiAndPostList::get_termfreq() const
 {
-    // The number of matching documents is minimised when we have the minimum
-    // number of matching documents from each sub-postlist, and these are
-    // maximally disjoint.
-    Xapian::doccount sum = plist[0]->get_termfreq_min();
-    if (sum) {
-	for (size_t i = 1; i < n_kids; ++i) {
-	    Xapian::doccount sum_old = sum;
-	    sum += plist[i]->get_termfreq_min();
-	    // If sum < sum_old, the calculation overflowed and the true sum
-	    // must be > db_size.  Since we added a value <= db_size,
-	    // subtracting db_size must un-overflow us.
-	    if (sum >= sum_old && sum <= db_size) {
-		// It's possible there's no overlap.
-		return 0;
-	    }
-	    sum -= db_size;
-	}
-	AssertRelParanoid(sum,<=,MultiAndPostList::get_termfreq_est());
-    }
-    return sum;
-}
-
-Xapian::doccount
-MultiAndPostList::get_termfreq_max() const
-{
-    // We can't match more documents than the least of our sub-postlists.
-    Xapian::doccount result = plist[0]->get_termfreq_max();
-    for (size_t i = 1; i < n_kids; ++i) {
-	Xapian::doccount tf = plist[i]->get_termfreq_max();
-	if (tf < result) result = tf;
-    }
-    return result;
-}
-
-Xapian::doccount
-MultiAndPostList::get_termfreq_est() const
-{
-    LOGCALL(MATCH, Xapian::doccount, "MultiAndPostList::get_termfreq_est", NO_ARGS);
+    LOGCALL(MATCH, Xapian::doccount, "MultiAndPostList::get_termfreq", NO_ARGS);
     // We shortcut an empty shard and avoid creating a postlist tree for it.
     Assert(db_size);
     // We calculate the estimate assuming independence.  With this assumption,
     // the estimate is the product of the estimates for the sub-postlists
     // divided by db_size (n_kids - 1) times.
-    double result = plist[0]->get_termfreq_est();
+    double result = plist[0]->get_termfreq();
     for (size_t i = 1; i < n_kids; ++i) {
-	result = (result * plist[i]->get_termfreq_est()) / db_size;
+	result = (result * plist[i]->get_termfreq()) / db_size;
     }
     return static_cast<Xapian::doccount>(result + 0.5);
 }

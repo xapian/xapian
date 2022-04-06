@@ -1,7 +1,7 @@
 /** @file
  *  @brief SubMatch class for a local database.
  */
-/* Copyright (C) 2006,2007,2009,2010,2011,2013,2014,2015,2016,2017,2018,2019 Olly Betts
+/* Copyright (C) 2006-2022 Olly Betts
  * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -24,6 +24,7 @@
 
 #include "api/queryinternal.h"
 #include "backends/databaseinternal.h"
+#include "estimateop.h"
 #include "weight/weightinternal.h"
 #include "xapian/enquire.h"
 #include "xapian/weight.h"
@@ -65,6 +66,16 @@ class LocalSubMatch {
     /// 0-based index for the subdatabase.
     Xapian::doccount shard_index;
 
+    /** Stack of operations to calculate an Estimates object for this shard.
+     *
+     *  This allows the estimate to be calculated at the end of the match so
+     *  that it can incorporate information about things such as how many
+     *  documents were accepted and rejected by positional checks.
+     *
+     *  The stack is a forward-linked list.
+     */
+    EstimateOp* estimate_stack = nullptr;
+
   public:
     /// Constructor.
     LocalSubMatch(const Xapian::Database::Internal* db_,
@@ -76,6 +87,41 @@ class LocalSubMatch {
 	  wt_factory(wt_factory_),
 	  shard_index(shard_index_)
     {}
+
+    ~LocalSubMatch() {
+	EstimateOp* p = estimate_stack;
+	while (p) {
+	    EstimateOp* next = p->get_next();
+	    delete p;
+	    p = next;
+	}
+    }
+
+    template<typename... Args>
+    EstimateOp* add_op(Args... args) {
+	estimate_stack = new EstimateOp(estimate_stack, args...);
+	return estimate_stack;
+    }
+
+    void pop_op() {
+	for (unsigned elements_to_pop = 1; elements_to_pop; --elements_to_pop) {
+	    EstimateOp* p = estimate_stack;
+	    estimate_stack = estimate_stack->get_next();
+	    // We may need to pop subqueries (recursively!)
+	    elements_to_pop += p->get_subquery_count();
+	    delete p;
+	}
+    }
+
+    Estimates resolve() {
+	if (rare(!estimate_stack))
+	    return Estimates(0, 0, 0);
+	auto db_size = db->get_doccount();
+	// We shortcut an empty shard and avoid creating a postlist tree for
+	// it so the estimate stack should be empty.
+	Assert(db_size);
+	return estimate_stack->resolve(db_size);
+    }
 
     /** Fetch and collate statistics.
      *
@@ -108,7 +154,6 @@ class LocalSubMatch {
      */
     PostList * make_synonym_postlist(PostListTree* pltree,
 				     PostList* or_pl,
-				     Xapian::Internal::QueryOptimiser* qopt,
 				     double factor,
 				     bool wdf_disjoint);
 

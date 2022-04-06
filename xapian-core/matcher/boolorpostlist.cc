@@ -40,17 +40,6 @@ BoolOrPostList::~BoolOrPostList()
     }
 }
 
-Xapian::doccount
-BoolOrPostList::get_termfreq_min() const
-{
-    Assert(n_kids != 0);
-    Xapian::doccount res = plist[0].pl->get_termfreq_min();
-    for (size_t i = 1; i < n_kids; ++i) {
-	res = max(res, plist[i].pl->get_termfreq_min());
-    }
-    return res;
-}
-
 Xapian::docid
 BoolOrPostList::get_docid() const
 {
@@ -157,24 +146,7 @@ BoolOrPostList::skip_to(Xapian::docid did_min, double)
 }
 
 Xapian::doccount
-BoolOrPostList::get_termfreq_max() const
-{
-    Assert(n_kids != 0);
-    // Maximum is if all sub-postlists are disjoint.
-    Xapian::doccount result = plist[0].pl->get_termfreq_max();
-    for (size_t i = 1; i < n_kids; ++i) {
-	Xapian::doccount tf_max = plist[i].pl->get_termfreq_max();
-	Xapian::doccount old_result = result;
-	result += tf_max;
-	// Catch overflowing the type too.
-	if (result >= db_size || result < old_result)
-	    return db_size;
-    }
-    return result;
-}
-
-Xapian::doccount
-BoolOrPostList::get_termfreq_est() const
+BoolOrPostList::get_termfreq() const
 {
     // We shortcut an empty shard and avoid creating a postlist tree for it.
     Assert(db_size);
@@ -183,9 +155,9 @@ BoolOrPostList::get_termfreq_est() const
     // way to calculate this seems to be a series of (n_kids - 1) pairwise
     // calculations, which gives the same answer regardless of the order.
     double scale = 1.0 / db_size;
-    double P_est = plist[0].pl->get_termfreq_est() * scale;
+    double P_est = plist[0].pl->get_termfreq() * scale;
     for (size_t i = 1; i < n_kids; ++i) {
-	double P_i = plist[i].pl->get_termfreq_est() * scale;
+	double P_i = plist[i].pl->get_termfreq() * scale;
 	P_est += P_i - P_est * P_i;
     }
     return static_cast<Xapian::doccount>(P_est * db_size + 0.5);

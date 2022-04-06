@@ -110,11 +110,3 @@ SelectPostList::check(Xapian::docid did, double w_min, bool& valid)
     }
     return NULL;
 }
-
-Xapian::doccount
-SelectPostList::get_termfreq_min() const
-{
-    // In general, it's possible no documents get selected.  Subclasses where
-    // that's known not to be the case should provide their own implementation.
-    return 0;
-}

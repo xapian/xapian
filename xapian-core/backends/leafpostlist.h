@@ -89,16 +89,8 @@ class LeafPostList : public PostList {
 	return stats->termfreqs[term].max_part;
     }
 
-    /** Return the exact term frequency.
-     *
-     *  Leaf postlists have an exact termfreq, which get_termfreq_min(),
-     *  get_termfreq_max(), and get_termfreq_est() all report.
-     */
+    /** Return the exact term frequency. */
     virtual Xapian::doccount get_termfreq() const = 0;
-
-    Xapian::doccount get_termfreq_min() const;
-    Xapian::doccount get_termfreq_max() const;
-    Xapian::doccount get_termfreq_est() const;
 
     double get_weight(Xapian::termcount doclen,
 		      Xapian::termcount unique_terms,

@@ -1,7 +1,7 @@
 /** @file
  *  @brief SubMatch class for a local database.
  */
-/* Copyright (C) 2006,2007,2009,2010,2011,2013,2014,2015,2016,2017,2018,2019,2020 Olly Betts
+/* Copyright (C) 2006-2022 Olly Betts
  * Copyright (C) 2007,2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -208,21 +208,11 @@ LocalSubMatch::get_postlist(PostListTree * matcher,
 PostList *
 LocalSubMatch::make_synonym_postlist(PostListTree* pltree,
 				     PostList* or_pl,
-				     QueryOptimiser* qopt,
 				     double factor,
 				     bool wdf_disjoint)
 {
     LOGCALL(MATCH, PostList *, "LocalSubMatch::make_synonym_postlist", pltree | or_pl | factor | wdf_disjoint);
-    if (rare(or_pl->get_termfreq_max() == 0)) {
-	// We know or_pl doesn't match anything.
-	//
-	// The hint may be a subpostlist of or_pl.  It seems hard to check
-	// efficiently so just clear the hint in this case.
-	qopt->set_hint_postlist(nullptr);
-	delete or_pl;
-	RETURN(NULL);
-    }
-    LOGVALUE(MATCH, or_pl->get_termfreq_est());
+    LOGVALUE(MATCH, or_pl->get_termfreq());
     unique_ptr<SynonymPostList> res(new SynonymPostList(or_pl, db, pltree,
 							wdf_disjoint));
     unique_ptr<Xapian::Weight> wt(wt_factory.clone());
@@ -321,5 +311,7 @@ LocalSubMatch::open_post_list(const string& term,
 	}
 	pl->set_termweight(wt);
     }
+
+    add_op(pl->get_termfreq());
     RETURN(pl);
 }

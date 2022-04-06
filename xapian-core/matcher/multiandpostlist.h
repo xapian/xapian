@@ -31,11 +31,11 @@
 /// N-way AND postlist.
 class MultiAndPostList : public PostList {
     /** Comparison functor which orders PostList* by ascending
-     *  get_termfreq_est(). */
+     *  get_termfreq(). */
     struct ComparePostListTermFreqAscending {
-	/// Order by ascending get_termfreq_est().
+	/// Order by ascending get_termfreq().
 	bool operator()(const PostList *a, const PostList *b) const {
-	    return a->get_termfreq_est() < b->get_termfreq_est();
+	    return a->get_termfreq() < b->get_termfreq();
 	}
     };
 
@@ -143,7 +143,7 @@ class MultiAndPostList : public PostList {
 	// Even if we're the decay product of an OrPostList, we may want to
 	// swap here, as the subqueries may also have decayed and so their
 	// estimated termfreqs may have changed.
-	if (l->get_termfreq_est() < r->get_termfreq_est()) {
+	if (l->get_termfreq() < r->get_termfreq()) {
 	    std::swap(l, r);
 	    std::swap(lmax, rmax);
 	}
@@ -157,11 +157,7 @@ class MultiAndPostList : public PostList {
 
     ~MultiAndPostList();
 
-    Xapian::doccount get_termfreq_min() const;
-
-    Xapian::doccount get_termfreq_max() const;
-
-    Xapian::doccount get_termfreq_est() const;
+    Xapian::doccount get_termfreq() const;
 
     TermFreqs get_termfreq_est_using_stats(
 	const Xapian::Weight::Internal & stats) const;

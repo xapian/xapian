@@ -1,7 +1,7 @@
 /** @file
  * @brief Xapian::Query internals
  */
-/* Copyright (C) 2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019 Olly Betts
+/* Copyright (C) 2007-2022 Olly Betts
  * Copyright (C) 2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -142,10 +142,10 @@ struct ComparePostListTermFreqAscending {
 	return a.tf > b.tf;
     }
 
-    /// Order PostList* by descending get_termfreq_est().
+    /// Order PostList* by descending get_termfreq().
     bool operator()(const PostList* a,
 		    const PostList* b) const {
-	return a->get_termfreq_est() > b->get_termfreq_est();
+	return a->get_termfreq() > b->get_termfreq();
     }
 };
 
@@ -161,7 +161,7 @@ class Context {
     void init_tf_(vector<PostListAndTermFreq>&) {
 	if (pls.empty() || pls.front().tf != 0) return;
 	for (auto&& elt : pls) {
-	    elt.tf = elt.pl->get_termfreq_est();
+	    elt.tf = elt.pl->get_termfreq();
 	}
     }
 
@@ -397,6 +397,7 @@ BoolOrContext::postlist()
 	    break;
 	default:
 	    pl = new BoolOrPostList(pls.begin(), pls.end(), qopt->db_size);
+	    qopt->add_op(EstimateOp::OR, pls.size());
     }
 
     // Empty pls so our destructor doesn't delete them all!
@@ -437,6 +438,8 @@ OrContext::postlist()
 	}
     }
 
+    qopt->add_op(EstimateOp::OR, pls.size());
+
     // Make postlists into a heap so that the postlist with the greatest term
     // frequency is at the top of the heap.
     init_tf();
@@ -452,7 +455,7 @@ OrContext::postlist()
     while (true) {
 	// We build the tree such that at each branch:
 	//
-	//   l.get_termfreq_est() >= r.get_termfreq_est()
+	//   l.get_termfreq() >= r.get_termfreq()
 	//
 	// We do this so that the OrPostList class can be optimised assuming
 	// that this is the case.
@@ -495,6 +498,8 @@ OrContext::postlist_max()
 
     PostList * pl;
     pl = new MaxPostList(pls.begin(), pls.end(), qopt->matcher, qopt->db_size);
+    // Same as OR for number of matches.
+    qopt->add_op(EstimateOp::OR, pls.size());
 
     pls.clear();
     return pl;
@@ -517,6 +522,7 @@ XorContext::postlist()
     Xapian::doccount db_size = qopt->db_size;
     PostList * pl;
     pl = new MultiXorPostList(pls.begin(), pls.end(), qopt->matcher, db_size);
+    qopt->add_op(EstimateOp::XOR, pls.size());
 
     // Empty pls so our destructor doesn't delete them all!
     pls.clear();
@@ -539,7 +545,8 @@ class AndContext : public Context<PostList*> {
 
 	PostList * postlist(PostList* pl,
 			    const vector<PostList*>& pls,
-			    PostListTree* pltree) const;
+			    PostListTree* pltree,
+			    QueryOptimiser* qopt) const;
     };
 
     list<PosFilter> pos_filters;
@@ -595,19 +602,23 @@ class AndContext : public Context<PostList*> {
 PostList *
 AndContext::PosFilter::postlist(PostList* pl,
 				const vector<PostList*>& pls,
-				PostListTree* pltree) const
+				PostListTree* pltree,
+				QueryOptimiser* qopt) const
 try {
     vector<PostList *>::const_iterator terms_begin = pls.begin() + begin;
     vector<PostList *>::const_iterator terms_end = pls.begin() + end;
 
     if (op_ == Xapian::Query::OP_NEAR) {
 	pl = new NearPostList(pl, window, terms_begin, terms_end, pltree);
+	qopt->add_op(EstimateOp::NEAR, begin, end);
     } else if (window == end - begin) {
 	AssertEq(op_, Xapian::Query::OP_PHRASE);
 	pl = new ExactPhrasePostList(pl, terms_begin, terms_end, pltree);
+	qopt->add_op(EstimateOp::EXACT_PHRASE, begin, end);
     } else {
 	AssertEq(op_, Xapian::Query::OP_PHRASE);
 	pl = new PhrasePostList(pl, window, terms_begin, terms_end, pltree);
+	qopt->add_op(EstimateOp::PHRASE, begin, end);
     }
     return pl;
 } catch (...) {
@@ -645,11 +656,13 @@ AndContext::postlist()
     } else {
 	pl.reset(new MultiAndPostList(pls.begin(), pls.end(),
 				      matcher, db_size));
+	qopt->add_op(EstimateOp::AND, pls.size());
     }
 
     if (not_ctx && !not_ctx->empty()) {
 	PostList* rhs = not_ctx->postlist();
 	pl.reset(new AndNotPostList(pl.release(), rhs, matcher, db_size));
+	qopt->add_op(EstimateOp::AND_NOT, 2);
 	not_ctx.reset();
     }
 
@@ -659,7 +672,7 @@ AndContext::postlist()
 
     // Apply any positional filters.
     for (const PosFilter& filter : pos_filters) {
-	pl.reset(filter.postlist(pl.release(), pls, matcher));
+	pl.reset(filter.postlist(pl.release(), pls, matcher, qopt));
     }
 
     // Empty pls so our destructor doesn't delete them all!
@@ -667,6 +680,10 @@ AndContext::postlist()
 
     if (maybe_ctx && !maybe_ctx->empty()) {
 	PostList* rhs = maybe_ctx->postlist();
+	// For OP_AND_MAYBE only the LHS determines which documents match (the
+	// RHS only adds weight) so for the estimates we can just ignore the
+	// RHS and the operator itself).
+	qopt->pop_op();
 	pl.reset(new AndMaybePostList(pl.release(), rhs, matcher, db_size));
 	maybe_ctx.reset();
     }
@@ -1125,6 +1142,9 @@ QueryPostingSource::postlist(QueryOptimiser * qopt, double factor) const
     Assert(source.get());
     if (factor != 0.0)
 	qopt->inc_total_subqs();
+    qopt->add_op(source->get_termfreq_min(),
+		 source->get_termfreq_est(),
+		 source->get_termfreq_max());
     // Casting away const on the Database::Internal here is OK, as we wrap
     // them in a const Xapian::Database so non-const methods can't actually
     // be called on the Database::Internal object.
@@ -1162,6 +1182,79 @@ QueryTerm::gather_terms(void * void_terms) const
     }
 }
 
+static double
+string_frac(const string& s, size_t prefix)
+{
+    double r = 0;
+    double f = 1.0;
+    for (size_t i = prefix; i != s.size(); ++i) {
+	f /= 256.0;
+	r += static_cast<unsigned char>(s[i]) * f;
+    }
+
+    return r;
+}
+
+static Xapian::doccount
+estimate_range_freq(const string& lo, const string& hi,
+		    const string& begin, const string* end,
+		    Xapian::doccount value_freq)
+{
+    // Assume the values are evenly spread out between lo and hi.
+    // FIXME: Perhaps we should store some sort of binned distribution?
+    AssertRel(lo, <=, hi);
+
+    size_t common_prefix_len = size_t(-1);
+    do {
+	++common_prefix_len;
+	// lo <= hi so while we're in the common prefix hi can't run out
+	// before lo.
+	if (common_prefix_len == lo.size()) {
+	    if (common_prefix_len != hi.size())
+		break;
+	    // All values in the slot are the same.  We should have optimised
+	    // to NULL if that singular value is outside the range, and if it's
+	    // inside the range then we know that the frequency is exactly the
+	    // value frequency.
+	    Assert(begin <= lo && (!end || hi <= *end));
+	    return value_freq;
+	}
+	AssertRel(common_prefix_len, !=, hi.size());
+    } while (lo[common_prefix_len] == hi[common_prefix_len]);
+
+    double l = string_frac(lo, common_prefix_len);
+    double h = string_frac(hi, common_prefix_len);
+    double denom = h - l;
+    if (rare(denom == 0.0)) {
+	// Weird corner case - hi != lo (because that's handled inside the loop
+	// above) but they give the same string_frac value.  Because we only
+	// calculate the fraction starting from the first difference, this
+	// should only happen if hi is lo + one or more trailing zero bytes.
+
+	// The case where all set values lie within the range should be handled
+	// at a higher level and we shouldn't get called.
+	Assert(!(begin <= lo && (!end || hi <= *end)));
+
+	// There must be partial overlap as the cases where the range
+	// dominates the bounds and where the range is entirely outside the
+	// bounds are both handled at a higher level.
+	return value_freq / 2;
+    }
+
+    double b = l;
+    if (begin > lo) {
+	b = string_frac(begin, common_prefix_len);
+    }
+    double e = h;
+    if (end && *end < hi) {
+	// end is NULL for a ValueGePostList
+	e = string_frac(*end, common_prefix_len);
+    }
+
+    double est = (e - b) / denom * value_freq;
+    return Xapian::doccount(est + 0.5);
+}
+
 PostList*
 QueryValueRange::postlist(QueryOptimiser *qopt, double factor) const
 {
@@ -1185,23 +1278,32 @@ QueryValueRange::postlist(QueryOptimiser *qopt, double factor) const
     if (begin > ub) {
 	RETURN(NULL);
     }
+    auto value_freq = db.get_value_freq(slot);
     if (end >= ub) {
 	if (begin <= lb) {
-	    // The range check isn't needed, but we do still need to consider
-	    // which documents have a value set in this slot.  If this value is
-	    // set for all documents, we can replace it with the MatchAll
-	    // postlist, which is especially efficient if there are no gaps in
-	    // the docids.
-	    if (db.get_value_freq(slot) == db.get_doccount()) {
+	    // The known bounds for the slot both fall within the range so we
+	    // know the range matches whenever the value is set, which is
+	    // exactly value_freq times.
+	    qopt->add_op(value_freq);
+	    if (value_freq == db.get_doccount()) {
+		// This value is set for all documents in the current shard, so
+		// we can replace it with a MatchAll postlist, which is
+		// especially efficient if there are no gaps in the docids.
 		RETURN(db.open_post_list(string()));
 	    }
-	    // Otherwise we can at least replace the lower bound with an empty
-	    // string for a small efficiency gain.
-	    RETURN(new ValueGePostList(&db, slot, string()));
+	    // We need to check which documents have a value set in this slot
+	    // but don't need to worry about the range bounds so we can use
+	    // ValueGePostList with an empty string as the lower bound which
+	    // means the range test just becomes a cheap `>= string()` test.
+	    RETURN(new ValueGePostList(&db, value_freq, slot, string()));
 	}
-	RETURN(new ValueGePostList(&db, slot, begin));
+	auto est = estimate_range_freq(lb, ub, begin, NULL, value_freq);
+	qopt->add_op(0, est, value_freq);
+	RETURN(new ValueGePostList(&db, est, slot, begin));
     }
-    RETURN(new ValueRangePostList(&db, slot, begin, end));
+    auto est = estimate_range_freq(lb, ub, begin, &end, value_freq);
+    qopt->add_op(0, est, value_freq);
+    RETURN(new ValueRangePostList(&db, est, slot, begin, end));
 }
 
 void
@@ -1254,17 +1356,28 @@ QueryValueLE::postlist(QueryOptimiser *qopt, double factor) const
     if (limit < lb) {
 	RETURN(NULL);
     }
-    if (limit >= db.get_value_upper_bound(slot)) {
-	// The range check isn't needed, but we do still need to consider
-	// which documents have a value set in this slot.  If this value is
-	// set for all documents, we can replace it with the MatchAll
-	// postlist, which is especially efficient if there are no gaps in
-	// the docids.
-	if (db.get_value_freq(slot) == db.get_doccount()) {
+    auto value_freq = db.get_value_freq(slot);
+    const string& ub = db.get_value_upper_bound(slot);
+    if (limit >= ub) {
+	// The known bounds for the slot both fall within the range so we
+	// know the range matches whenever the value is set, which is
+	// exactly value_freq times.
+	qopt->add_op(value_freq);
+	if (value_freq == db.get_doccount()) {
+	    // This value is set for all documents in the current shard, so
+	    // we can replace it with a MatchAll postlist, which is
+	    // especially efficient if there are no gaps in the docids.
 	    RETURN(db.open_post_list(string()));
 	}
+	// We need to check which documents have a value set in this slot
+	// but don't need to worry about the range bounds so we can use
+	// ValueGePostList with an empty string as the lower bound which
+	// means the range test just becomes a cheap `>= string()` test.
+	RETURN(new ValueGePostList(&db, value_freq, slot, string()));
     }
-    RETURN(new ValueRangePostList(&db, slot, string(), limit));
+    auto est = estimate_range_freq(lb, ub, string(), &limit, value_freq);
+    qopt->add_op(0, est, value_freq);
+    RETURN(new ValueRangePostList(&db, est, slot, string(), limit));
 }
 
 void
@@ -1314,20 +1427,31 @@ QueryValueGE::postlist(QueryOptimiser *qopt, double factor) const
 	AssertEq(db.get_value_freq(slot), 0);
 	RETURN(NULL);
     }
-    if (limit > db.get_value_upper_bound(slot)) {
+    const string& ub = db.get_value_upper_bound(slot);
+    if (limit > ub) {
 	RETURN(NULL);
     }
+    auto value_freq = db.get_value_freq(slot);
     if (limit <= lb) {
-	// The range check isn't needed, but we do still need to consider
-	// which documents have a value set in this slot.  If this value is
-	// set for all documents, we can replace it with the MatchAll
-	// postlist, which is especially efficient if there are no gaps in
-	// the docids.
-	if (db.get_value_freq(slot) == db.get_doccount()) {
+	// The known bounds for the slot both fall within the range so we
+	// know the range matches whenever the value is set, which is
+	// exactly value_freq times.
+	qopt->add_op(value_freq);
+	if (value_freq == db.get_doccount()) {
+	    // This value is set for all documents in the current shard, so
+	    // we can replace it with a MatchAll postlist, which is
+	    // especially efficient if there are no gaps in the docids.
 	    RETURN(db.open_post_list(string()));
 	}
+	// We need to check which documents have a value set in this slot
+	// but don't need to worry about the range bounds so we can use
+	// ValueGePostList with an empty string as the lower bound which
+	// means the range test just becomes a cheap `>= string()` test.
+	RETURN(new ValueGePostList(&db, value_freq, slot, string()));
     }
-    RETURN(new ValueGePostList(&db, slot, limit));
+    auto est = estimate_range_freq(lb, ub, limit, NULL, value_freq);
+    qopt->add_op(0, est, value_freq);
+    RETURN(new ValueGePostList(&db, est, slot, limit));
 }
 
 void

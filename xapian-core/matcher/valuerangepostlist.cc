@@ -37,96 +37,9 @@ ValueRangePostList::~ValueRangePostList()
 }
 
 Xapian::doccount
-ValueRangePostList::get_termfreq_min() const
+ValueRangePostList::get_termfreq() const
 {
-    const string& lo = db->get_value_lower_bound(slot);
-    const string& hi = db->get_value_upper_bound(slot);
-    if (begin <= lo && (end.empty() || hi <= end)) {
-	// All set values lie within the range (this case is optimised at a
-	// higher level when the value frequency is the doc count, but not
-	// otherwise).
-	return db->get_value_freq(slot);
-    }
-
-    // The bounds may not be tight, so one bound being within the range does
-    // not mean we can assume that at least one document matches.
-    return 0;
-}
-
-static double
-string_frac(const string &s, size_t prefix)
-{
-    double r = 0;
-    double f = 1.0;
-    for (size_t i = prefix; i != s.size(); ++i) {
-	f /= 256.0;
-	r += static_cast<unsigned char>(s[i]) * f;
-    }
-
-    return r;
-}
-
-Xapian::doccount
-ValueRangePostList::get_termfreq_est() const
-{
-    // Assume the values are evenly spread out between the min and max.
-    // FIXME: Perhaps we should store some sort of binned distribution?
-    const string& lo = db->get_value_lower_bound(slot);
-    const string& hi = db->get_value_upper_bound(slot);
-    AssertRel(lo, <=, hi);
-
-    size_t common_prefix_len = size_t(-1);
-    do {
-	++common_prefix_len;
-	// lo <= hi so while we're in the common prefix hi can't run out
-	// before lo.
-	if (common_prefix_len == lo.size()) {
-	    if (common_prefix_len != hi.size())
-		break;
-	    // All values in the slot are the same.  We should have optimised
-	    // to NULL if that singular value is outside the range, and if it's
-	    // inside the range then we know that the frequency is exactly the
-	    // value frequency.
-	    Assert(begin <= lo && (end.empty() || hi <= end));
-	    return db->get_value_freq(slot);
-	}
-	AssertRel(common_prefix_len, !=, hi.size());
-    } while (lo[common_prefix_len] == hi[common_prefix_len]);
-
-    double l = string_frac(lo, common_prefix_len);
-    double h = string_frac(hi, common_prefix_len);
-    double denom = h - l;
-    if (rare(denom == 0.0)) {
-	// Weird corner case - hi != lo (because that's handled inside the loop
-	// above) but they give the same string_frac value.  Because we only
-	// calculate the fraction starting from the first difference, this
-	// should only happen if hi is lo + one or more trailing zero bytes.
-
-	if (begin <= lo && (end.empty() || hi <= end)) {
-	    // All set values lie within the range (this case is optimised at a
-	    // higher level when the value frequency is the doc count, but not
-	    // otherwise).
-	    return db->get_value_freq(slot);
-	}
-
-	// There must be partial overlap - we just checked if the range
-	// dominates the bounds, and a range which is entirely outside the
-	// bounds is optimised to NULL at a higher level.
-	return db->get_value_freq(slot) / 2;
-    }
-
-    double b = l;
-    if (begin > lo) {
-	b = string_frac(begin, common_prefix_len);
-    }
-    double e = h;
-    if (!end.empty() && end < hi) {
-	// end is empty for a ValueGePostList
-	e = string_frac(end, common_prefix_len);
-    }
-
-    double est = (e - b) / denom * db->get_value_freq(slot);
-    return Xapian::doccount(est + 0.5);
+    return est;
 }
 
 TermFreqs
@@ -139,12 +52,6 @@ ValueRangePostList::get_termfreq_est_using_stats(
     RETURN(TermFreqs(stats.collection_size / 2,
 		     stats.rset_size / 2,
 		     stats.total_length / 2));
-}
-
-Xapian::doccount
-ValueRangePostList::get_termfreq_max() const
-{
-    return db->get_value_freq(slot);
 }
 
 Xapian::docid

@@ -58,7 +58,7 @@ class NearPostList : public SelectPostList {
 
     Xapian::termcount get_wdf() const;
 
-    Xapian::doccount get_termfreq_est() const;
+    Xapian::doccount get_termfreq() const;
 
     TermFreqs get_termfreq_est_using_stats(
 	const Xapian::Weight::Internal & stats) const;

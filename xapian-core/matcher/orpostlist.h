@@ -78,11 +78,7 @@ class OrPostList : public PostList {
 	delete r;
     }
 
-    Xapian::doccount get_termfreq_min() const;
-
-    Xapian::doccount get_termfreq_max() const;
-
-    Xapian::doccount get_termfreq_est() const;
+    Xapian::doccount get_termfreq() const;
 
     TermFreqs get_termfreq_est_using_stats(
 	    const Xapian::Weight::Internal& stats) const;

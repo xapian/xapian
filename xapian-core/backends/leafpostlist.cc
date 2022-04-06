@@ -35,24 +35,6 @@ LeafPostList::~LeafPostList()
     delete weight;
 }
 
-Xapian::doccount
-LeafPostList::get_termfreq_min() const
-{
-    return get_termfreq();
-}
-
-Xapian::doccount
-LeafPostList::get_termfreq_max() const
-{
-    return get_termfreq();
-}
-
-Xapian::doccount
-LeafPostList::get_termfreq_est() const
-{
-    return get_termfreq();
-}
-
 double
 LeafPostList::get_weight(Xapian::termcount doclen,
 			 Xapian::termcount unique_terms,

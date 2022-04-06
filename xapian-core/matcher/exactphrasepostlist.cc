@@ -146,7 +146,7 @@ ExactPhrasePostList::get_wdf() const
 }
 
 Xapian::doccount
-ExactPhrasePostList::get_termfreq_est() const
+ExactPhrasePostList::get_termfreq() const
 {
     // It's hard to estimate how many times the exact phrase will occur as
     // it depends a lot on the phrase, but usually the exact phrase will
@@ -156,7 +156,7 @@ ExactPhrasePostList::get_termfreq_est() const
     // PhrasePostList, as a very rough heuristic to represent the fact that the
     // words must occur exactly in order, and phrases are therefore rarer than
     // near matches and (non-exact) phrase matches.
-    return pl->get_termfreq_est() / 4;
+    return pl->get_termfreq() / 4;
 }
 
 TermFreqs
@@ -164,8 +164,7 @@ ExactPhrasePostList::get_termfreq_est_using_stats(
 	const Xapian::Weight::Internal & stats) const
 {
     LOGCALL(MATCH, TermFreqs, "ExactPhrasePostList::get_termfreq_est_using_stats", stats);
-    // No idea how to estimate this - do the same as get_termfreq_est() for
-    // now.
+    // No idea how to estimate this - do the same as get_termfreq() for now.
     TermFreqs result(pl->get_termfreq_est_using_stats(stats));
     result.termfreq /= 4;
     result.reltermfreq /= 4;

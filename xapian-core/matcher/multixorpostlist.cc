@@ -41,95 +41,18 @@ MultiXorPostList::~MultiXorPostList()
 }
 
 Xapian::doccount
-MultiXorPostList::get_termfreq_min() const
+MultiXorPostList::get_termfreq() const
 {
-    Xapian::doccount result = 0;
-    Xapian::doccount max = plist[0]->get_termfreq_max();
-    Xapian::doccount sum = max;
-    bool all_exact = (max == plist[0]->get_termfreq_min());
-    unsigned overflow = 0;
-    for (size_t i = 1; i < n_kids; ++i) {
-	Xapian::doccount tf_max = plist[i]->get_termfreq_max();
-	if (tf_max > max) max = tf_max;
-
-	Xapian::doccount old_sum = sum;
-	sum += tf_max;
-	// Track how many times we overflow the type.
-	if (sum < old_sum)
-	    ++overflow;
-	if (all_exact)
-	    all_exact = (tf_max == plist[i]->get_termfreq_min());
-    }
-
-    // If tf_min(i) > sum(j!=i)(tf_max(j)) then all the other subqueries
-    // can't cancel out subquery i.  If we overflowed more than once,
-    // then the sum on the right is greater than the maximum possible
-    // tf, so there's no point checking.
-    if (overflow <= 1) {
-	for (size_t i = 0; i < n_kids; ++i) {
-	    Xapian::doccount tf_min = plist[i]->get_termfreq_min();
-	    Xapian::doccount tf_max = plist[i]->get_termfreq_max();
-
-	    Xapian::doccount all_the_rest = sum - tf_max;
-	    // If no overflow, or we un-overflowed again...
-	    if (overflow == 0 || all_the_rest > sum) {
-		if (tf_min > all_the_rest) {
-		    result = std::max(result, tf_min - all_the_rest);
-		}
-	    }
-	}
-    }
-
-    if (all_exact && result == 0) {
-	// If SUM odd, then the XOR can't be 0, so min XOR is 1 if we didn't
-	// already calculate a minimum.
-	result = sum & 1;
-    }
-
-    return result;
-}
-
-Xapian::doccount
-MultiXorPostList::get_termfreq_max() const
-{
-    // Maximum is if all sub-postlists are disjoint.
-    Xapian::doccount result = plist[0]->get_termfreq_max();
-    bool all_exact = (result == plist[0]->get_termfreq_min());
-    bool overflow = false;
-    for (size_t i = 1; i < n_kids; ++i) {
-	Xapian::doccount tf_max = plist[i]->get_termfreq_max();
-	Xapian::doccount old_result = result;
-	result += tf_max;
-	// Catch overflowing the type too.
-	if (result < old_result)
-	    overflow = true;
-	if (all_exact)
-	    all_exact = (tf_max == plist[i]->get_termfreq_min());
-	if (!all_exact && (overflow || result >= db_size))
-	    return db_size;
-    }
-    if (all_exact && (overflow || result > db_size)) {
-	// If the sub-postlist tfs are all exact, then if the sum of them has
-	// a different odd/even-ness to db_size then max tf of the XOR can't
-	// achieve db_size.
-	return db_size - ((result & 1) != (db_size & 1));
-    }
-    return result;
-}
-
-Xapian::doccount
-MultiXorPostList::get_termfreq_est() const
-{
-    LOGCALL(MATCH, Xapian::doccount, "MultiXorPostList::get_termfreq_est", NO_ARGS);
+    LOGCALL(MATCH, Xapian::doccount, "MultiXorPostList::get_termfreq", NO_ARGS);
     // We shortcut an empty shard and avoid creating a postlist tree for it.
     Assert(db_size);
     // We calculate the estimate assuming independence.  The simplest
     // way to calculate this seems to be a series of (n_kids - 1) pairwise
     // calculations, which gives the same answer regardless of the order.
     double scale = 1.0 / db_size;
-    double P_est = plist[0]->get_termfreq_est() * scale;
+    double P_est = plist[0]->get_termfreq() * scale;
     for (size_t i = 1; i < n_kids; ++i) {
-	double P_i = plist[i]->get_termfreq_est() * scale;
+	double P_i = plist[i]->get_termfreq() * scale;
 	P_est += P_i - 2.0 * P_est * P_i;
     }
     return static_cast<Xapian::doccount>(P_est * db_size + 0.5);

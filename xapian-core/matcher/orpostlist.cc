@@ -76,12 +76,6 @@ OrPostList::decay_to_andmaybe(PostList* left,
     return result;
 }
 
-Xapian::doccount
-OrPostList::get_termfreq_min() const
-{
-    return max(l->get_termfreq_min(), r->get_termfreq_min());
-}
-
 Xapian::docid
 OrPostList::get_docid() const
 {
@@ -350,19 +344,6 @@ OrPostList::check(Xapian::docid did, double w_min, bool& valid)
     return NULL;
 }
 
-Xapian::doccount
-OrPostList::get_termfreq_max() const
-{
-    auto l_tf_max = l->get_termfreq_max();
-    auto r_tf_max = r->get_termfreq_max();
-    auto tf_max = l_tf_max + r_tf_max;
-    // If the sum is greater than the number of documents (or would have been
-    // except it overflowed) then we can potentially match all documents.
-    if (tf_max > db_size || tf_max < l_tf_max)
-	tf_max = db_size;
-    return tf_max;
-}
-
 template<typename T>
 static void
 estimate_or_assuming_indep(double a, double b, double n, T& res)
@@ -375,10 +356,10 @@ estimate_or_assuming_indep(double a, double b, double n, T& res)
 }
 
 Xapian::doccount
-OrPostList::get_termfreq_est() const
+OrPostList::get_termfreq() const
 {
-    auto l_tf_est = l->get_termfreq_est();
-    auto r_tf_est = r->get_termfreq_est();
+    auto l_tf_est = l->get_termfreq();
+    auto r_tf_est = r->get_termfreq();
     Xapian::doccount tf_est;
     estimate_or_assuming_indep(l_tf_est, r_tf_est, db_size, tf_est);
     return tf_est;

@@ -81,6 +81,15 @@ class QueryOptimiser {
 	if (hint_owned) delete hint;
     }
 
+    template<typename... Args>
+    EstimateOp* add_op(Args... args) {
+	return localsubmatch.add_op(args...);
+    }
+
+    void pop_op() {
+	localsubmatch.pop_op();
+    }
+
     void inc_total_subqs() { ++total_subqs; }
 
     Xapian::termcount get_total_subqs() const { return total_subqs; }
@@ -104,7 +113,7 @@ class QueryOptimiser {
     PostList * make_synonym_postlist(PostList * pl,
 				     double factor,
 				     bool wdf_disjoint) {
-	return localsubmatch.make_synonym_postlist(matcher, pl, this, factor,
+	return localsubmatch.make_synonym_postlist(matcher, pl, factor,
 						   wdf_disjoint);
     }
 
@@ -119,6 +128,7 @@ class QueryOptimiser {
     }
 
     void destroy_postlist(PostList* pl) {
+	localsubmatch.pop_op();
 	if (pl == static_cast<PostList*>(hint)) {
 	    hint_owned = true;
 	} else {

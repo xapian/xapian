@@ -54,18 +54,11 @@ class PostList {
      */
     virtual ~PostList();
 
-    /// Get a lower bound on the number of documents indexed by this term.
-    virtual Xapian::doccount get_termfreq_min() const = 0;
-
-    /// Get an upper bound on the number of documents indexed by this term.
-    virtual Xapian::doccount get_termfreq_max() const = 0;
-
-    /** Get an estimate of the number of documents indexed by this term.
+    /** Get an estimate of the number of documents this PostList will return.
      *
-     *  It should always be true that:
-     *  get_termfreq_min() <= get_termfreq_est() <= get_termfreq_max()
+     *  This should be exact for terms.
      */
-    virtual Xapian::doccount get_termfreq_est() const = 0;
+    virtual Xapian::doccount get_termfreq() const = 0;
 
     /** Get an estimate for the termfreq and reltermfreq, given the stats.
      *

@@ -41,25 +41,7 @@ MultiPostList::~MultiPostList()
 }
 
 Xapian::doccount
-MultiPostList::get_termfreq_min() const
-{
-    // MultiPostList is only used by PostingIterator which should never call
-    // this method.
-    Assert(false);
-    return 0;
-}
-
-Xapian::doccount
-MultiPostList::get_termfreq_max() const
-{
-    // MultiPostList is only used by PostingIterator which should never call
-    // this method.
-    Assert(false);
-    return 0;
-}
-
-Xapian::doccount
-MultiPostList::get_termfreq_est() const
+MultiPostList::get_termfreq() const
 {
     // MultiPostList is only used by PostingIterator which should never call
     // this method.

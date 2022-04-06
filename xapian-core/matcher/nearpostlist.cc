@@ -201,12 +201,12 @@ NearPostList::get_wdf() const
 }
 
 Xapian::doccount
-NearPostList::get_termfreq_est() const
+NearPostList::get_termfreq() const
 {
     // It's hard to estimate how many times the postlist will match as it
     // depends a lot on the terms and window, but usually it will occur
     // significantly less often than the individual terms.
-    return pl->get_termfreq_est() / 2;
+    return pl->get_termfreq() / 2;
 }
 
 TermFreqs
@@ -214,8 +214,7 @@ NearPostList::get_termfreq_est_using_stats(
 	const Xapian::Weight::Internal & stats) const
 {
     LOGCALL(MATCH, TermFreqs, "NearPostList::get_termfreq_est_using_stats", stats);
-    // No idea how to estimate this - do the same as get_termfreq_est() for
-    // now.
+    // No idea how to estimate this - do the same as get_termfreq() for now.
     TermFreqs result(pl->get_termfreq_est_using_stats(stats));
     result.termfreq /= 2;
     result.reltermfreq /= 2;

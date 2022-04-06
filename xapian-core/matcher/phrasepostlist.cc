@@ -105,12 +105,12 @@ PhrasePostList::get_wdf() const
 }
 
 Xapian::doccount
-PhrasePostList::get_termfreq_est() const
+PhrasePostList::get_termfreq() const
 {
     // It's hard to estimate how many times the phrase will occur as
     // it depends a lot on the phrase, but usually the phrase will
     // occur significantly less often than the individual terms.
-    return pl->get_termfreq_est() / 3;
+    return pl->get_termfreq() / 3;
 }
 
 TermFreqs
@@ -118,8 +118,7 @@ PhrasePostList::get_termfreq_est_using_stats(
 	const Xapian::Weight::Internal & stats) const
 {
     LOGCALL(MATCH, TermFreqs, "PhrasePostList::get_termfreq_est_using_stats", stats);
-    // No idea how to estimate this - do the same as get_termfreq_est() for
-    // now.
+    // No idea how to estimate this - do the same as get_termfreq() for now.
     TermFreqs result(pl->get_termfreq_est_using_stats(stats));
     result.termfreq /= 3;
     result.reltermfreq /= 3;
