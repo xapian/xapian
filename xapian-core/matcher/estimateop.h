@@ -66,8 +66,13 @@ class EstimateOp {
 	       Xapian::doccount max_)
 	: next(next_), type(KNOWN), estimates(min_, est, max_) { }
 
+    // AND, AND_NOT, OR or XOR.
     EstimateOp(EstimateOp* next_, op_type type_, unsigned n_subqueries_)
 	: next(next_), type(type_), n_subqueries(n_subqueries_) { }
+
+    // NEAR, PHRASE or EXACT_PHRASE.
+    EstimateOp(EstimateOp* next_, op_type type_)
+	: next(next_), type(type_) { }
 
     Estimates resolve(Xapian::doccount db_size);
 

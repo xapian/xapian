@@ -610,15 +610,15 @@ try {
 
     if (op_ == Xapian::Query::OP_NEAR) {
 	pl = new NearPostList(pl, window, terms_begin, terms_end, pltree);
-	qopt->add_op(EstimateOp::NEAR, begin, end);
+	qopt->add_op(EstimateOp::NEAR);
     } else if (window == end - begin) {
 	AssertEq(op_, Xapian::Query::OP_PHRASE);
 	pl = new ExactPhrasePostList(pl, terms_begin, terms_end, pltree);
-	qopt->add_op(EstimateOp::EXACT_PHRASE, begin, end);
+	qopt->add_op(EstimateOp::EXACT_PHRASE);
     } else {
 	AssertEq(op_, Xapian::Query::OP_PHRASE);
 	pl = new PhrasePostList(pl, window, terms_begin, terms_end, pltree);
-	qopt->add_op(EstimateOp::PHRASE, begin, end);
+	qopt->add_op(EstimateOp::PHRASE);
     }
     return pl;
 } catch (...) {
