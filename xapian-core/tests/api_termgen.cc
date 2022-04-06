@@ -1,7 +1,7 @@
 /** @file
  * @brief Tests of Xapian::TermGenerator
  */
-/* Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2015,2016,2018 Olly Betts
+/* Copyright (C) 2002-2022 Olly Betts
  * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -770,7 +770,6 @@ DEFINE_TESTCASE(termgen1, !backend) {
     termgen.set_document(doc);
     string prefix;
 
-    unsigned flags = 0;
     for (const test *p = test_simple; p->text; ++p) {
 	int weight = 1;
 	bool new_doc = true;
@@ -837,21 +836,17 @@ DEFINE_TESTCASE(termgen1, !backend) {
 		}
 	    } else if (strncmp(o, "cjkngram", 8) == 0) {
 		o += 8;
-		flags |= termgen.FLAG_CJK_NGRAM;
 		termgen.set_flags(termgen.FLAG_CJK_NGRAM,
 				  ~termgen.FLAG_CJK_NGRAM);
 	    } else if (strncmp(o, "!cjkngram", 9) == 0) {
 		o += 9;
-		flags &= ~termgen.FLAG_CJK_NGRAM;
 		termgen.set_flags(0, ~termgen.FLAG_CJK_NGRAM);
 	    } else if (strncmp(o, "cjkwords", 8) == 0) {
 		o += 8;
-		flags |= termgen.FLAG_CJK_WORDS;
 		termgen.set_flags(termgen.FLAG_CJK_WORDS,
 				  ~termgen.FLAG_CJK_WORDS);
 	    } else if (strncmp(o, "!cjkwords", 9) == 0) {
 		o += 9;
-		flags &= ~termgen.FLAG_CJK_WORDS;
 		termgen.set_flags(0, ~termgen.FLAG_CJK_WORDS);
 	    } else {
 		FAIL_TEST("Invalid options string: " << p->options);
@@ -880,7 +875,7 @@ DEFINE_TESTCASE(termgen1, !backend) {
 	    output = "Unknown exception!";
 	}
 #ifndef USE_ICU
-	if (flags & termgen.FLAG_CJK_WORDS) {
+	if (termgen.set_flags(0, ~0u) & termgen.FLAG_CJK_WORDS) {
 	    expect = "FeatureUnavailableError: FLAG_CJK_WORDS requires "
 		     "building Xapian to use ICU";
 	}
