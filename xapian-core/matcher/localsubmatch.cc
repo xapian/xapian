@@ -177,7 +177,7 @@ LocalSubMatch::get_postlist(PostListTree * matcher,
 {
     LOGCALL(MATCH, PostList *, "LocalSubMatch::get_postlist", matcher | total_subqs_ptr);
 
-    if (query.empty())
+    if (query.empty() || db->get_doccount() == 0)
 	RETURN(NULL); // MatchNothing
 
     // Build the postlist tree for the query.  This calls

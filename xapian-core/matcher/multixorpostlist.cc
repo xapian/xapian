@@ -121,8 +121,8 @@ Xapian::doccount
 MultiXorPostList::get_termfreq_est() const
 {
     LOGCALL(MATCH, Xapian::doccount, "MultiXorPostList::get_termfreq_est", NO_ARGS);
-    if (rare(db_size == 0))
-	RETURN(0);
+    // We shortcut an empty shard and avoid creating a postlist tree for it.
+    Assert(db_size);
     // We calculate the estimate assuming independence.  The simplest
     // way to calculate this seems to be a series of (n_kids - 1) pairwise
     // calculations, which gives the same answer regardless of the order.

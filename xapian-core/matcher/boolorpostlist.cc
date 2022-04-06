@@ -176,8 +176,8 @@ BoolOrPostList::get_termfreq_max() const
 Xapian::doccount
 BoolOrPostList::get_termfreq_est() const
 {
-    if (rare(db_size == 0))
-	return 0;
+    // We shortcut an empty shard and avoid creating a postlist tree for it.
+    Assert(db_size);
     Assert(n_kids != 0);
     // We calculate the estimate assuming independence.  The simplest
     // way to calculate this seems to be a series of (n_kids - 1) pairwise
