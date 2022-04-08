@@ -421,15 +421,10 @@ index_init(const string & dbpath, const Xapian::Stem & stemmer,
 		// + 1 so that old_lastdocid is a valid subscript.
 		updated.resize(old_lastdocid + 1);
 	    }
-	    try {
-		Xapian::valueno slot = use_ctime ? VALUE_CTIME : VALUE_LASTMOD;
-		string ubound = db.get_value_upper_bound(slot);
-		if (!ubound.empty())
-		    last_altered_max = binary_string_to_int(ubound);
-	    } catch (const Xapian::UnimplementedError &) {
-		numeric_limits<time_t> n;
-		last_altered_max = n.max();
-	    }
+	    Xapian::valueno slot = use_ctime ? VALUE_CTIME : VALUE_LASTMOD;
+	    string ubound = db.get_value_upper_bound(slot);
+	    if (!ubound.empty())
+		last_altered_max = binary_string_to_int(ubound);
 	}
     } else {
 	db = Xapian::WritableDatabase(dbpath, Xapian::DB_CREATE_OR_OVERWRITE);
