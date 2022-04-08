@@ -73,9 +73,16 @@ class PostListTree {
 	  vsdoc(vsdoc_),
 	  db(db_) {}
 
-    ~PostListTree() {
+    /// Delete all the PostList objects.
+    void delete_postlists() {
 	for (Xapian::doccount i = 0; i != n_shards; ++i)
 	    delete shard_pls[i];
+	n_shards = 0;
+	shard_pls = nullptr;
+    }
+
+    ~PostListTree() {
+	delete_postlists();
     }
 
     /** Return pointer to flag to set to false to invalidate cached max weight.

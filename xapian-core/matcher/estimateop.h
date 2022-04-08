@@ -37,7 +37,12 @@ struct Estimates {
 class EstimateOp {
   public:
     enum op_type {
-	KNOWN, AND, AND_NOT, OR, XOR, NEAR, PHRASE, EXACT_PHRASE
+	KNOWN,
+	POSTING_SOURCE,
+	// In the absence of accept/reject counts we just scale the AND by
+	// dividing by these values:
+	NEAR = 2, PHRASE = 3, EXACT_PHRASE = 4,
+	AND, AND_NOT, OR, XOR
     };
 
   private:
@@ -45,34 +50,63 @@ class EstimateOp {
 
     op_type type;
 
-    /** Used for KNOWN. */
+    /** Estimates.
+     *
+     *  * KNOWN: Already known exact leaf term frequency (in min/est/max)
+     *    or value range min/est/max.
+     *  * POSTING_SOURCE: Filled in on PostList construction with min/est/max
+     *    from PostingSource object.
+     *  * NEAR/PHRASE/EXACT_PHRASE: Filled in on PostList deletion:
+     *    min = accepted, max = rejected
+     */
     Estimates estimates;
 
     /** Used by get_subquery_count().
      *
-     *  Set to a non-zero value for AND, AND_NOT, OR and XOR.
+     *  Set to zero for leaf operators.
      */
     unsigned n_subqueries = 0;
 
   public:
-    // Leaf term.
+    /// Leaf term.
     EstimateOp(EstimateOp* next_, Xapian::doccount tf_)
 	: next(next_), type(KNOWN), estimates(tf_, tf_, tf_) { }
 
-    // Value range or PostingSource.
+    /// PostingSource
+    EstimateOp(EstimateOp* next_)
+	: next(next_), type(POSTING_SOURCE) { }
+
+    /// Value range.
     EstimateOp(EstimateOp* next_,
 	       Xapian::doccount min_,
 	       Xapian::doccount est,
 	       Xapian::doccount max_)
 	: next(next_), type(KNOWN), estimates(min_, est, max_) { }
 
-    // AND, AND_NOT, OR or XOR.
+    /// AND, AND_NOT, OR or XOR.
     EstimateOp(EstimateOp* next_, op_type type_, unsigned n_subqueries_)
 	: next(next_), type(type_), n_subqueries(n_subqueries_) { }
 
-    // NEAR, PHRASE or EXACT_PHRASE.
+    /** NEAR, PHRASE or EXACT_PHRASE.
+     *
+     *  These operate as filters so have a single subquery.
+     */
     EstimateOp(EstimateOp* next_, op_type type_)
-	: next(next_), type(type_) { }
+	: next(next_), type(type_), estimates(0, 0, 0), n_subqueries(1) { }
+
+    void report_ratio(Xapian::doccount accepted, Xapian::doccount rejected) {
+	estimates.min = accepted;
+	estimates.max = rejected;
+    }
+
+    /** Fill in estimates for POSTING_SOURCE. */
+    void report_termfreqs(Xapian::doccount min_,
+			  Xapian::doccount est,
+			  Xapian::doccount max_) {
+	estimates.min = min_;
+	estimates.est = est;
+	estimates.max = max_;
+    }
 
     Estimates resolve(Xapian::doccount db_size);
 

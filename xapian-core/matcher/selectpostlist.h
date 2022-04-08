@@ -1,7 +1,7 @@
 /** @file
  * @brief Base class for classes which filter another PostList
  */
-/* Copyright 2017 Olly Betts
+/* Copyright 2017-2022 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,6 +25,7 @@
 
 #include <cmath>
 
+class EstimateOp;
 class PostListTree;
 
 /// Base class for classes which filter another PostList
@@ -38,13 +39,25 @@ class SelectPostList : public WrapperPostList {
     bool vet(double w_min);
 
   protected:
+    /// Number of times test_doc() returned true.
+    Xapian::doccount accepted = 0;
+
+    /// Number of times test_doc() returned false.
+    Xapian::doccount rejected = 0;
+
+    /// Object to report accepted/rejected counts to.
+    EstimateOp* estimate_op;
+
     /// Check if the current document should be selected.
     virtual bool test_doc() = 0;
 
   public:
     SelectPostList(PostList* pl_,
+		   EstimateOp* estimate_op_,
 		   PostListTree* pltree_)
-	: WrapperPostList(pl_), pltree(pltree_) {}
+	: WrapperPostList(pl_), pltree(pltree_), estimate_op(estimate_op_) {}
+
+    ~SelectPostList();
 
     double get_weight(Xapian::termcount doclen,
 		      Xapian::termcount unique_terms,

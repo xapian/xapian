@@ -1,7 +1,7 @@
 /** @file
  * @brief Return document ids from an external source.
  */
-/* Copyright 2008,2009,2010,2011,2019 Olly Betts
+/* Copyright 2008-2022 Olly Betts
  * Copyright 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -26,12 +26,14 @@
 #include <xapian/postingsource.h>
 
 #include "debuglog.h"
+#include "estimateop.h"
 #include "omassert.h"
 
 using namespace std;
 
 ExternalPostList::ExternalPostList(const Xapian::Database& db,
 				   Xapian::PostingSource* source_,
+				   EstimateOp* estimate_op,
 				   double factor_,
 				   bool* max_weight_cached_flag_ptr,
 				   Xapian::doccount shard_index)
@@ -52,6 +54,11 @@ ExternalPostList::ExternalPostList(const Xapian::Database& db,
     }
     source->set_max_weight_cached_flag_ptr_(max_weight_cached_flag_ptr);
     source->reset(db, shard_index);
+    if (estimate_op) {
+	estimate_op->report_termfreqs(source->get_termfreq_min(),
+				      source->get_termfreq_est(),
+				      source->get_termfreq_max());
+    }
 }
 
 Xapian::doccount

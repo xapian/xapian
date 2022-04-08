@@ -609,16 +609,19 @@ try {
     vector<PostList *>::const_iterator terms_end = pls.begin() + end;
 
     if (op_ == Xapian::Query::OP_NEAR) {
-	pl = new NearPostList(pl, window, terms_begin, terms_end, pltree);
-	qopt->add_op(EstimateOp::NEAR);
+	auto estimate_op = qopt->add_op(EstimateOp::NEAR);
+	pl = new NearPostList(pl, estimate_op,
+			      window, terms_begin, terms_end, pltree);
     } else if (window == end - begin) {
 	AssertEq(op_, Xapian::Query::OP_PHRASE);
-	pl = new ExactPhrasePostList(pl, terms_begin, terms_end, pltree);
-	qopt->add_op(EstimateOp::EXACT_PHRASE);
+	auto estimate_op = qopt->add_op(EstimateOp::EXACT_PHRASE);
+	pl = new ExactPhrasePostList(pl, estimate_op,
+				     terms_begin, terms_end, pltree);
     } else {
 	AssertEq(op_, Xapian::Query::OP_PHRASE);
-	pl = new PhrasePostList(pl, window, terms_begin, terms_end, pltree);
-	qopt->add_op(EstimateOp::PHRASE);
+	auto estimate_op = qopt->add_op(EstimateOp::PHRASE);
+	pl = new PhrasePostList(pl, estimate_op,
+				window, terms_begin, terms_end, pltree);
     }
     return pl;
 } catch (...) {
@@ -1142,15 +1145,13 @@ QueryPostingSource::postlist(QueryOptimiser * qopt, double factor) const
     Assert(source.get());
     if (factor != 0.0)
 	qopt->inc_total_subqs();
-    qopt->add_op(source->get_termfreq_min(),
-		 source->get_termfreq_est(),
-		 source->get_termfreq_max());
+    auto estimate_op = qopt->add_op();
     // Casting away const on the Database::Internal here is OK, as we wrap
     // them in a const Xapian::Database so non-const methods can't actually
     // be called on the Database::Internal object.
     const Xapian::Database wrappeddb(
 	    const_cast<Xapian::Database::Internal*>(&(qopt->db)));
-    RETURN(new ExternalPostList(wrappeddb, source.get(), factor,
+    RETURN(new ExternalPostList(wrappeddb, source.get(), estimate_op, factor,
 				qopt->matcher->get_max_weight_cached_flag_ptr(),
 				qopt->shard_index));
 }

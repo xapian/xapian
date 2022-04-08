@@ -25,6 +25,7 @@
 #include "selectpostlist.h"
 #include <vector>
 
+class EstimateOp;
 class PostListTree;
 
 /** Postlist which matches terms occurring within a specified window.
@@ -49,6 +50,7 @@ class NearPostList : public SelectPostList {
 
   public:
     NearPostList(PostList *source_,
+		 EstimateOp* estimate_op_,
 		 Xapian::termpos window_,
 		 const std::vector<PostList*>::const_iterator &terms_begin,
 		 const std::vector<PostList*>::const_iterator &terms_end,

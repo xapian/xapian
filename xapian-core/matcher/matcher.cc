@@ -403,6 +403,9 @@ Matcher::get_local_mset(Xapian::doccount first,
     // Check if any results have been asked for (might just be wanting
     // maxweight).
     if (check_at_least == 0) {
+	// Explicitly delete all PostList objects so they report any stats to
+	// the EstimateOp objects.
+	pltree.delete_postlists();
 	Xapian::doccount matches_lower_bound = 0;
 	Xapian::doccount matches_estimated = 0;
 	Xapian::doccount matches_upper_bound = 0;
@@ -517,6 +520,10 @@ Matcher::get_local_mset(Xapian::doccount first,
 	if (!proto_mset.process(std::move(new_item), vsdoc))
 	    break;
     }
+
+    // Explicitly delete all PostList objects so they report any stats to
+    // the EstimateOp objects.
+    pltree.delete_postlists();
 
     Xapian::doccount matches_lower_bound = 0;
     Xapian::doccount matches_estimated = 0;

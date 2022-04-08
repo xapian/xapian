@@ -23,6 +23,7 @@
 #include "estimateop.h"
 
 #include "omassert.h"
+#include "stdclamp.h"
 
 #include <algorithm>
 #include <memory>
@@ -38,6 +39,7 @@ EstimateOp::resolve(Xapian::doccount db_size)
     Assert(db_size);
     switch (type) {
       case KNOWN:
+      case POSTING_SOURCE:
 	result = estimates;
 	break;
       case AND: {
@@ -210,19 +212,21 @@ EstimateOp::resolve(Xapian::doccount db_size)
 	break;
       }
       case NEAR:
-	result = resolve_next(db_size);
-	result.min = 0;
-	result.est /= 2;
-	break;
       case PHRASE:
-	result = resolve_next(db_size);
-	result.min = 0;
-	result.est /= 3;
-	break;
       case EXACT_PHRASE:
 	result = resolve_next(db_size);
-	result.min = 0;
-	result.est /= 4;
+	if (estimates.min == 0 && estimates.max == 0) {
+	    result.min = 0;
+	    // We've arranged for type's value to be the factor we want to
+	    // scale by in the absence of accept/reject counts.
+	    result.est /= unsigned(type);
+	    break;
+	}
+	result.min = estimates.min;
+	result.max -= estimates.max;
+	double scale = double(estimates.min) / (estimates.min + estimates.max);
+	result.est = Xapian::doccount(result.est * scale + 0.5);
+	result.est = STD_CLAMP(result.est, result.min, result.max);
 	break;
     }
     return result;

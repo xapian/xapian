@@ -47,7 +47,7 @@ class DeciderPostList : public SelectPostList {
 		    const Xapian::MatchDecider* decider_,
 		    ValueStreamDocument* vsdoc,
 		    PostListTree* pltree_)
-	: SelectPostList(pl_, pltree_), decider(decider_), doc(vsdoc)
+	: SelectPostList(pl_, nullptr, pltree_), decider(decider_), doc(vsdoc)
     {
 	// These get zeroed once per shard in use, but that all happens before
 	// the match starts so isn't a problem.

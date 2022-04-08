@@ -25,6 +25,7 @@
 #include "selectpostlist.h"
 #include <vector>
 
+class EstimateOp;
 class PostListTree;
 
 /** Postlist which matches an exact phrase using positional information.
@@ -52,6 +53,7 @@ class ExactPhrasePostList : public SelectPostList {
 
   public:
     ExactPhrasePostList(PostList *source_,
+			EstimateOp* estimate_op_,
 			const std::vector<PostList*>::const_iterator &terms_begin,
 			const std::vector<PostList*>::const_iterator &terms_end,
 			PostListTree* pltree_);

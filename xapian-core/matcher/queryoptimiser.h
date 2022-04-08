@@ -128,7 +128,6 @@ class QueryOptimiser {
     }
 
     void destroy_postlist(PostList* pl) {
-	localsubmatch.pop_op();
 	if (pl == static_cast<PostList*>(hint)) {
 	    hint_owned = true;
 	} else {
@@ -142,6 +141,9 @@ class QueryOptimiser {
 	    }
 	    delete pl;
 	}
+	// Remove the EstimateOp (and any sub-ops) which we generated for this
+	// PostList.
+	localsubmatch.pop_op();
     }
 
     bool need_wdf_for_compound_weight() const {

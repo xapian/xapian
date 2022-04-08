@@ -33,11 +33,12 @@
 using namespace std;
 
 PhrasePostList::PhrasePostList(PostList *source_,
+			       EstimateOp* estimate_op_,
 			       Xapian::termpos window_,
 			       const vector<PostList*>::const_iterator &terms_begin,
 			       const vector<PostList*>::const_iterator &terms_end,
 			       PostListTree* pltree_)
-    : SelectPostList(source_, pltree_),
+    : SelectPostList(source_, estimate_op_, pltree_),
       window(window_),
       terms(terms_begin, terms_end)
 {
@@ -63,8 +64,10 @@ PhrasePostList::test_doc()
     LOGCALL(MATCH, bool, "PhrasePostList::test_doc", NO_ARGS);
 
     start_position_list(0);
-    if (!poslists[0]->next())
+    if (!poslists[0]->next()) {
+	++rejected;
 	RETURN(false);
+    }
 
     unsigned read_hwm = 0;
     Xapian::termpos b;
@@ -73,19 +76,25 @@ PhrasePostList::test_doc()
 	Xapian::termpos pos = base;
 	unsigned i = 0;
 	do {
-	    if (++i == terms.size()) RETURN(true);
+	    if (++i == terms.size()) {
+		++accepted;
+		RETURN(true);
+	    }
 	    if (i > read_hwm) {
 		read_hwm = i;
 		start_position_list(i);
 	    }
-	    if (!poslists[i]->skip_to(pos + 1))
-		RETURN(false);
+	    if (!poslists[i]->skip_to(pos + 1)) {
+		goto reject;
+	    }
 	    pos = poslists[i]->get_position();
 	    b = pos + (terms.size() - i);
 	} while (b - base <= window);
 	// Advance the start of the window to the first position it could match
 	// in given the current position of term i.
     } while (poslists[0]->skip_to(b - window));
+reject:
+    ++rejected;
     RETURN(false);
 }
 

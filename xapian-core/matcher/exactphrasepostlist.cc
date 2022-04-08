@@ -1,7 +1,7 @@
 /** @file
  * @brief Return docs containing terms forming a particular exact phrase.
  */
-/* Copyright (C) 2006,2007,2009,2010,2011,2014,2015,2017 Olly Betts
+/* Copyright (C) 2006-2022 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,10 +32,12 @@
 using namespace std;
 
 ExactPhrasePostList::ExactPhrasePostList(PostList *source_,
+					 EstimateOp* estimate_op_,
 					 const vector<PostList*>::const_iterator &terms_begin,
 					 const vector<PostList*>::const_iterator &terms_end,
 					 PostListTree* pltree_)
-    : SelectPostList(source_, pltree_), terms(terms_begin, terms_end)
+    : SelectPostList(source_, estimate_op_, pltree_),
+      terms(terms_begin, terms_end)
 {
     size_t n = terms.size();
     Assert(n > 1);
@@ -96,8 +98,10 @@ ExactPhrasePostList::test_doc()
     // lowest wdf and if necessary swap them so the true shorter one is first.
     start_position_list(1);
     if (poslists[0]->get_approx_size() > poslists[1]->get_approx_size()) {
-	if (!poslists[1]->skip_to(order[1]))
+	if (!poslists[1]->skip_to(order[1])) {
+	    ++rejected;
 	    RETURN(false);
+	}
 	swap(poslists[0], poslists[1]);
 	swap(order[0], order[1]);
     }
@@ -117,17 +121,22 @@ ExactPhrasePostList::test_doc()
 	Xapian::termpos idx = order[i];
 	Xapian::termpos required = base + idx;
 	if (!poslists[i]->skip_to(required))
-	    RETURN(false);
+	    break;
 	Xapian::termpos got = poslists[i]->get_position();
 	if (got == required) {
-	    if (++i == terms.size()) RETURN(true);
+	    if (++i == terms.size()) {
+		++accepted;
+		RETURN(true);
+	    }
 	    continue;
 	}
 	if (!poslists[0]->skip_to(got - idx + idx0))
-	    RETURN(false);
+	    break;
 	base = poslists[0]->get_position() - idx0;
 	i = 1;
     }
+    ++rejected;
+    RETURN(false);
 }
 
 Xapian::termcount
