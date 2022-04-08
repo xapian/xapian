@@ -1,7 +1,7 @@
 /** @file
  * @brief External sources of posting information
  */
-/* Copyright (C) 2008,2009,2010,2011,2012,2015,2016 Olly Betts
+/* Copyright (C) 2008-2022 Olly Betts
  * Copyright (C) 2008,2009 Lemur Consulting Ltd
  * Copyright (C) 2010 Richard Boulton
  *
@@ -218,15 +218,9 @@ ValuePostingSource::init(const Database & db_)
     real_db = db_;
     real_started = false;
     set_maxweight(DBL_MAX);
-    try {
-	real_termfreq_max = real_db.get_value_freq(real_slot);
-	real_termfreq_est = real_termfreq_max;
-	real_termfreq_min = real_termfreq_max;
-    } catch (const Xapian::UnimplementedError &) {
-	real_termfreq_max = real_db.get_doccount();
-	real_termfreq_est = real_termfreq_max / 2;
-	real_termfreq_min = 0;
-    }
+    real_termfreq_max = real_db.get_value_freq(real_slot);
+    real_termfreq_est = real_termfreq_max;
+    real_termfreq_min = real_termfreq_max;
 }
 
 
@@ -281,14 +275,7 @@ ValueWeightPostingSource::init(const Database & db_)
 {
     ValuePostingSource::init(db_);
 
-    string upper_bound;
-    try {
-	upper_bound = get_database().get_value_upper_bound(get_slot());
-    } catch (const Xapian::UnimplementedError &) {
-	// ValuePostingSource::init() set the maxweight to DBL_MAX.
-	return;
-    }
-
+    string upper_bound = get_database().get_value_upper_bound(get_slot());
     if (upper_bound.empty()) {
 	// This should only happen if there are no entries, in which case the
 	// maxweight is 0.

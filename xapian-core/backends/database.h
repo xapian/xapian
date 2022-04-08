@@ -160,16 +160,13 @@ class Database::Internal : public Xapian::Internal::intrusive_base {
 	 *  stored in the slot.
 	 *
 	 *  @param slot The value slot to examine.
-	 *
-	 *  @exception UnimplementedError The frequency of the value isn't
-	 *  available for this database type.
 	 */
 	virtual Xapian::doccount get_value_freq(Xapian::valueno slot) const = 0;
 
 	/** Get a lower bound on the values stored in the given value slot.
 	 *
-	 *  If the lower bound isn't available for the given database type,
-	 *  this will return the lowest possible bound - the empty string.
+	 *  If there are no values stored in the given value slot, this will
+	 *  return an empty string.
 	 *
 	 *  @param slot The value slot to examine.
 	 */
@@ -177,14 +174,17 @@ class Database::Internal : public Xapian::Internal::intrusive_base {
 
 	/** Get an upper bound on the values stored in the given value slot.
 	 *
-	 *  @param slot The value slot to examine.
+	 *  If there are no values stored in the given value slot, this will
+	 *  return an empty string.
 	 *
-	 *  @exception UnimplementedError The upper bound of the values isn't
-	 *  available for this database type.
+	 *  @param slot The value slot to examine.
 	 */
 	virtual std::string get_value_upper_bound(Xapian::valueno slot) const = 0;
 
-	/// Get a lower bound on the length of a document in this DB.
+	/** Get a lower bound on the length of a document in this DB.
+	 *
+	 *  This bound does not include any zero-length documents.
+	 */
 	virtual Xapian::termcount get_doclength_lower_bound() const;
 
 	/// Get an upper bound on the length of a document in this DB.
