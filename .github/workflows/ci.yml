@@ -6,7 +6,7 @@ on:
       - '.appveyor.yml'
       - 'xapian-maintainer-tools/**'
   pull_request:
-    branches: master
+    branches: RELEASE/1.4
     paths-ignore:
       - '.appveyor.yml'
       - 'xapian-maintainer-tools/**'
@@ -14,8 +14,6 @@ on:
 jobs:
   GLIBCXX_DEBUG:
     runs-on: 'ubuntu-20.04'
-    env:
-      LIBEXTRACTOR_PREFIX: '/usr/lib/x86_64-linux-gnu/libextractor'
     steps:
     - name: Check out repository code
       uses: actions/checkout@v2
@@ -26,7 +24,6 @@ jobs:
     - name: Install package dependencies
       run: |
         sudo apt-get update
-        # libtesseract-dev -> "Skipping - The assistant process ./omindex_tesseract failed"
         sudo apt-get install \
             doxygen \
             graphviz \
@@ -40,21 +37,10 @@ jobs:
             lua5.3 \
             liblua5.3-dev \
             mono-devel \
+            python-dev \
             python3-dev \
             tcl \
-            tcl-dev \
-            libsvm-dev \
-            libicu-dev \
-            pkg-config \
-            libpoppler-glib-dev \
-            libglib2.0-dev \
-            libe-book-dev \
-            libetonyek-dev \
-            libgmime-2.6-dev \
-            libarchive-dev \
-            libabw-dev \
-            libcdr-dev \
-            libextractor-dev
+            tcl-dev
     - name: bootstrap source tree
       run: ./bootstrap xapian-core xapian-applications/omega swig xapian-bindings xapian-letor
     - name: configure
@@ -70,8 +56,6 @@ jobs:
 
   clang:
     runs-on: 'ubuntu-20.04'
-    env:
-      LIBEXTRACTOR_PREFIX: '/usr/lib/x86_64-linux-gnu/libextractor'
     steps:
     - name: Check out repository code
       uses: actions/checkout@v2
@@ -86,7 +70,6 @@ jobs:
         sudo apt-get install \
             clang \
             libc++-dev
-        # libtesseract-dev -> "Skipping - The assistant process ./omindex_tesseract failed"
         sudo apt-get install \
             doxygen \
             graphviz \
@@ -98,19 +81,7 @@ jobs:
             libpcre2-dev \
             libmagic-dev \
             tcl \
-            tcl-dev \
-            libsvm-dev \
-            libicu-dev \
-            pkg-config \
-            libpoppler-glib-dev \
-            libglib2.0-dev \
-            libe-book-dev \
-            libetonyek-dev \
-            libgmime-2.6-dev \
-            libarchive-dev \
-            libabw-dev \
-            libcdr-dev \
-            libextractor-dev
+            tcl-dev
     - name: bootstrap source tree
       run: ./bootstrap xapian-core xapian-applications/omega swig xapian-bindings xapian-letor
     - name: configure
@@ -125,8 +96,9 @@ jobs:
       # if that input is empty.
       run: git status --porcelain|grep '^' && { echo "The generated files listed above are not in .gitignore" ; exit 1; }; true
 
-  # GCC 4.8 is the oldest GCC we currently aim to support.  There's no package
-  # for it in Ubuntu 20.04 so we have to run this on 18.04 (also useful to test
+  # GCC 4.7 is the oldest GCC we aim to support for 1.4.x, but the oldest we can
+  # easily build with in github actions is 4.8.  There's no package of GCC 4.8
+  # in Ubuntu 20.04 so we have to run this on 18.04 (also useful to test
   # there for portability).
   GCC4-8:
     name: 'GCC 4.8'
@@ -146,7 +118,6 @@ jobs:
         sudo apt-get install \
             gcc-4.8 \
             g++-4.8
-        # libtesseract-dev FIXME
         sudo apt-get install \
             doxygen \
             graphviz \
@@ -162,17 +133,7 @@ jobs:
             mono-devel \
             python3-dev \
             tcl \
-            tcl-dev \
-            libsvm-dev \
-            libpoppler-glib-dev \
-            libglib2.0-dev \
-            libe-book-dev \
-            libetonyek-dev \
-            libgmime-2.6-dev \
-            libarchive-dev \
-            libabw-dev \
-            libcdr-dev \
-            libextractor-dev
+            tcl-dev
     - name: bootstrap source tree
       run: ./bootstrap xapian-core xapian-applications/omega swig xapian-bindings xapian-letor
     - name: configure
@@ -186,58 +147,8 @@ jobs:
       # if that input is empty.
       run: git status --porcelain|grep '^' && { echo "The generated files listed above are not in .gitignore" ; exit 1; }; true
 
-  Emscripten:
-    runs-on: 'ubuntu-20.04'
-    services:
-      emscripten:
-        image: trzeci/emscripten
-    steps:
-    - name: Check out repository code
-      uses: actions/checkout@v2
-    - name: Install CCache
-      uses: hendrikmuhs/ccache-action@v1
-      with:
-        key: Emscripten
-    - name: Use Node.js
-      uses: actions/setup-node@v2
-    - name: Install package dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install \
-            doxygen \
-            graphviz \
-            help2man \
-            python3-docutils \
-            pngcrush \
-            python3-pygments
-    - name: bootstrap source tree
-      # Bootstrap only xapian-core for emscripten build.
-      run: |
-        ./bootstrap xapian-core
-        ./configure CC='ccache gcc' CXX='ccache g++' CXXFLAGS=-O0 --disable-backend-honey --disable-backend-inmemory --disable-backend-remote
-        make -j2
-        make -j2 distclean
-    - name: configure
-      run: |
-        docker run -v "$GITHUB_WORKSPACE:/src" -w /src/xapian-core trzeci/emscripten emconfigure ./configure CPPFLAGS='-DFLINTLOCK_USE_FLOCK' CXXFLAGS='-Oz -s USE_ZLIB=1 -fno-rtti' --disable-backend-honey --disable-backend-inmemory --disable-shared --disable-backend-remote
-    - name: make
-      run: |
-        docker run -v "$GITHUB_WORKSPACE:/src" -w /src/xapian-core trzeci/emscripten emmake make
-    - name: Run tests
-      run: |
-        docker run -v "$GITHUB_WORKSPACE:/src" -w /src/xapian-core trzeci/emscripten em++ -Oz -s USE_ZLIB=1 -std=c++11 -s WASM=1 -Iinclude emscripten/xapianjstest.cc .libs/libxapian-1.5.a -o emscripten/xapianjstest.js
-        cd xapian-core/emscripten && node xapianjstest.js
-    - name: Check generated files are in .gitignore
-      # grep '^' passes through all input while giving a non-zero exit status
-      # if that input is empty.
-      run: |
-        find . -name '*.wasm' -delete
-        git status --porcelain|grep '^' && { echo "The generated files listed above are not in .gitignore" ; exit 1; }; true
-
   macos:
     runs-on: 'macos-latest'
-    env:
-      LIBEXTRACTOR_PREFIX: '/usr/lib/x86_64-linux-gnu/libextractor'
     steps:
     - name: Check out repository code
       uses: actions/checkout@v2
@@ -248,32 +159,21 @@ jobs:
     - name: Install package dependencies
       run: |
         brew update
-        # libabw seems to have gone?
         # Workaround collision from mono package to something else.
         # mono seems to collide with a different version of mono?
-        # tesseract worker fails to build: /usr/local/Cellar/tesseract/5.0.1/include/tesseract/baseapi.h:21:12: fatal error: 'config_auto.h' file not found
         brew install \
             doxygen \
             gmime \
             graphviz \
             help2man \
-            icu4c \
-            libarchive \
-            libcdr \
-            libetonyek \
-            libextractor \
             libiconv \
             libmagic \
-            libsvm \
             lua \
             pcre2 \
             pkgconfig \
             pngcrush \
-            poppler \
             python
         pip3 install sphinx docutils
-        mkdir -p '${{ runner.temp }}/xapian-libsvm-fixed-include'
-        ln -sF "`ls -1d /usr/local/Cellar/libsvm/3.*/include|tail -n 1`" '${{ runner.temp }}/xapian-libsvm-fixed-include/libsvm'
     - name: bootstrap source tree
       run: ./bootstrap xapian-core xapian-applications/omega swig xapian-bindings xapian-letor
     - name: configure
@@ -305,4 +205,4 @@ jobs:
       # and the revision being checked.
       run: |
         echo "GITHUB_BASE_REF='$GITHUB_BASE_REF'"
-        git diff ${GITHUB_BASE_REF:-origin/master}.. --|xapian-maintainer-tools/xapian-check-patch
+        git diff ${GITHUB_BASE_REF:-origin/RELEASE/1.4}.. --|xapian-maintainer-tools/xapian-check-patch
