@@ -229,5 +229,7 @@ EstimateOp::resolve(Xapian::doccount db_size)
 	result.est = STD_CLAMP(result.est, result.min, result.max);
 	break;
     }
+    AssertRel(result.min, <=, result.est);
+    AssertRel(result.est, <=, result.max);
     return result;
 }
