@@ -80,8 +80,10 @@ NearPostList::test_doc()
     sort(terms.begin(), terms.end(), TermCmp());
 
     poslists[0] = terms[0]->read_position_list();
-    if (!poslists[0]->next())
+    if (!poslists[0]->next()) {
+	++rejected;
 	RETURN(false);
+    }
 
     Xapian::termpos last = poslists[0]->get_position();
     PositionList ** end = poslists + 1;
@@ -95,10 +97,10 @@ NearPostList::test_doc()
 		    terms[end - poslists]->read_position_list();
 		if (last < window) {
 		    if (!posl->next())
-			RETURN(false);
+			goto reject;
 		} else {
 		    if (!posl->skip_to(last - window + 1))
-			RETURN(false);
+			goto reject;
 		}
 		Xapian::termpos pos = posl->get_position();
 		if (pos > last) last = pos;
@@ -121,7 +123,7 @@ NearPostList::test_doc()
 	    while (true) {
 		if (poslists[0]->get_position() == pos) {
 		    if (!poslists[0]->next())
-			RETURN(false);
+			goto reject;
 		    Xapian::termpos newpos = poslists[0]->get_position();
 		    if (newpos - end[-1]->get_position() >= window) {
 			// No longer fits in the window.
@@ -135,6 +137,7 @@ NearPostList::test_doc()
 		Heap::pop(poslists, i, Cmp());
 		if (--i == poslists) {
 		    Assert(pos - end[-1]->get_position() < window);
+		    ++accepted;
 		    RETURN(true);
 		}
 	    }
@@ -147,7 +150,8 @@ NearPostList::test_doc()
 	last = max(last, poslists[0]->get_position());
 	Heap::replace(poslists, end, Cmp());
     }
-
+reject:
+    ++rejected;
     RETURN(false);
 }
 

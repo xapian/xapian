@@ -90,8 +90,10 @@ ExactPhrasePostList::test_doc()
     // "ripe mango" when the only occurrence of 'mango' in the current document
     // is at position 0.
     start_position_list(0);
-    if (!poslists[0]->skip_to(order[0]))
+    if (!poslists[0]->skip_to(order[0])) {
+	++rejected;
 	RETURN(false);
+    }
 
     // If we get here, we'll need to read the positionlists for at least two
     // terms, so check the true positionlist length for the two terms with the
