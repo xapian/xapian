@@ -34,6 +34,11 @@ struct Estimates {
 	: min(min_), est(est_), max(max_) { }
 };
 
+// Clean up Microsoft namespace pollution.
+#ifdef NEAR
+# undef NEAR
+#endif
+
 class EstimateOp {
   public:
     enum op_type {
