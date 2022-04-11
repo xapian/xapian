@@ -461,9 +461,9 @@ class Database::Internal : public Xapian::Internal::intrusive_base {
     /** Get backend information about this database.
      *
      *  @param path	If non-NULL, and set the pointed to string to the file
-     *			path of this database (or if to some string describing
+     *			path of this database (or to some string describing
      *			the database in a backend-specified format if "path"
-     *			isn't a concept which  make sense).
+     *			isn't a concept which makes sense).
      *
      *  @return	A constant indicating the backend type.
      */
