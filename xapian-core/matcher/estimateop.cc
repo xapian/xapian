@@ -23,6 +23,7 @@
 #include "estimateop.h"
 
 #include "omassert.h"
+#include "overflow.h"
 #include "stdclamp.h"
 
 #include <algorithm>
@@ -53,11 +54,8 @@ EstimateOp::resolve(Xapian::doccount db_size)
 	    // The number of matching documents is minimised when we have the
 	    // minimum number of matching documents from each sub-postlist, and
 	    // these are maximally disjoint.
-	    auto old_min = result.min;
-	    result.min += r.min;
-	    // If result.min < old_min then the calculation overflowed and the
-	    // true sum must be > db_size.
-	    if (result.min >= old_min && result.min <= db_size) {
+	    if (!add_overflows(result.min, r.min, result.min) &&
+		result.min <= db_size) {
 		// It's possible there's no overlap.
 		result.min = 0;
 	    } else {
@@ -156,11 +154,10 @@ EstimateOp::resolve(Xapian::doccount db_size)
 
 	    // Maximum is if all sub-postlists are disjoint.
 	    Xapian::doccount max_i = r.max;
-	    Xapian::doccount old_max_sum = max_sum;
-	    max_sum += max_i;
-	    // Track how many times we overflow the type.
-	    if (max_sum < old_max_sum)
+	    if (add_overflows(max_sum, max_i, max_sum)) {
+		// Track how many times we overflow the type.
 		++max_overflow;
+	    }
 	    all_exact = all_exact && (max_i == r.min);
 
 	    double P_i = r.est * scale;
