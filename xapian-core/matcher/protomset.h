@@ -1,7 +1,7 @@
 /** @file
  * @brief ProtoMSet class
  */
-/* Copyright (C) 2004,2007,2017,2018,2019 Olly Betts
+/* Copyright (C) 2004-2022 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -487,10 +487,6 @@ class ProtoMSet {
 			  Xapian::doccount matches_upper_bound) {
 	finalise_percentages();
 
-	if (mdecider) {
-	    matches_lower_bound = mdecider->docs_allowed_;
-	}
-
 	AssertRel(matches_estimated, >=, matches_lower_bound);
 	AssertRel(matches_estimated, <=, matches_upper_bound);
 
@@ -552,25 +548,6 @@ class ProtoMSet {
 			matches_lower_bound = known_matching_docs;
 		    }
 		}
-
-		Xapian::doccount decider_denied = mdecider->docs_denied_;
-		Xapian::doccount decider_considered =
-		    mdecider->docs_allowed_ + mdecider->docs_denied_;
-
-		// Scale the estimate by the rate at which the MatchDecider has
-		// been accepting documents.
-		if (decider_considered > 0) {
-		    double accept = double(decider_considered - decider_denied);
-		    double accept_rate = accept / double(decider_considered);
-		    estimate_scale *= accept_rate;
-		}
-
-		// If a document is denied by the MatchDecider, it can't be
-		// found to be a duplicate, so it is safe to also reduce the
-		// upper bound by the number of documents denied by the
-		// MatchDecider.
-		matches_upper_bound -= decider_denied;
-		if (collapser) uncollapsed_upper_bound -= decider_denied;
 	    }
 
 	    if (percent_threshold) {

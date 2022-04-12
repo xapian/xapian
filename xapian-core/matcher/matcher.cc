@@ -357,10 +357,14 @@ Matcher::get_local_mset(Xapian::doccount first,
 	    total_subqs = max(total_subqs, total_subqs_i);
 	    if (pl != NULL) {
 		all_null = false;
-		if (mdecider && check_at_least) {
-		    // No point creating the DeciderPostList if we aren't
-		    // actually going to run the match.
-		    pl = new DeciderPostList(pl, mdecider, &vsdoc, &pltree);
+		if (mdecider) {
+		    auto estimate_op = locals[i]->add_op(EstimateOp::DECIDER);
+		    if (check_at_least) {
+			// No point creating the DeciderPostList if we aren't
+			// actually going to run the match.
+			pl = new DeciderPostList(pl, estimate_op,
+						 mdecider, &vsdoc, &pltree);
+		    }
 		}
 	    }
 	    postlists.push_back(pl);

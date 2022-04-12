@@ -1,7 +1,7 @@
 /** @file
  * @brief PostList which applies a MatchDecider
  */
-/* Copyright 2017 Olly Betts
+/* Copyright 2017,2022 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -38,9 +38,9 @@ DeciderPostList::test_doc()
 
     bool decision = (*decider)(doc);
     if (decision) {
-	++decider->docs_allowed_;
+	++accepted;
     } else {
-	++decider->docs_denied_;
+	++rejected;
     }
     return decision;
 }

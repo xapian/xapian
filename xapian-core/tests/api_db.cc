@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2011,2012,2013,2015,2016,2017,2019 Olly Betts
+ * Copyright 2002-2022 Olly Betts
  * Copyright 2006,2007,2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -560,12 +560,13 @@ DEFINE_TESTCASE(matchdecider3, backend && !remote) {
     TEST_REL(mset1.get_uncollapsed_matches_lower_bound(),<=,mset1.get_uncollapsed_matches_estimated());
     TEST_REL(mset1.get_uncollapsed_matches_estimated(),<=,mset1.get_uncollapsed_matches_upper_bound());
 
-    // The uncollapsed match would match all documents but the one the
-    // matchdecider rejects.
-    TEST_REL(mset1.get_uncollapsed_matches_upper_bound(),>=,db.get_doccount() - 1);
-    TEST_REL(mset1.get_uncollapsed_matches_upper_bound(),<=,db.get_doccount());
-    TEST_REL(mset2.get_uncollapsed_matches_upper_bound(),>=,db.get_doccount() - 1);
-    TEST_REL(mset2.get_uncollapsed_matches_upper_bound(),<=,db.get_doccount());
+    // We ask for 2 or more results so the matcher checks all candidates and
+    // can see that there would be exactly one uncollapsed match.
+    //
+    // In 1.4.x the matcher was less clever and gave doccount or (doccount - 1)
+    // as the uncollapsed upper bound.
+    TEST_EQUAL(mset1.get_uncollapsed_matches_upper_bound(), 1);
+    TEST_EQUAL(mset2.get_uncollapsed_matches_upper_bound(), 1);
 }
 
 // tests that mset iterators on msets compare correctly.

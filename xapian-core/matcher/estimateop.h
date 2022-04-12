@@ -43,10 +43,11 @@ class EstimateOp {
   public:
     enum op_type {
 	KNOWN,
-	POSTING_SOURCE,
 	// In the absence of accept/reject counts we just scale the AND by
 	// dividing by these values:
+	DECIDER = 1,
 	NEAR = 2, PHRASE = 3, EXACT_PHRASE = 4,
+	POSTING_SOURCE,
 	AND, AND_NOT, OR, XOR
     };
 
@@ -59,10 +60,10 @@ class EstimateOp {
      *
      *  * KNOWN: Already known exact leaf term frequency (in min/est/max)
      *    or value range min/est/max.
+     *  * DECIDER/NEAR/PHRASE/EXACT_PHRASE: Filled in on PostList deletion by
+     *    calling report_ratio(): min = accepted, max = rejected
      *  * POSTING_SOURCE: Filled in on PostList construction with min/est/max
      *    from PostingSource object.
-     *  * NEAR/PHRASE/EXACT_PHRASE: Filled in on PostList deletion:
-     *    min = accepted, max = rejected
      */
     Estimates estimates;
 

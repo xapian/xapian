@@ -60,18 +60,6 @@ class XAPIAN_VISIBILITY_DEFAULT MatchDecider {
      *  @return true if the document should be considered further.
      */
     virtual bool operator()(const Xapian::Document &doc) const = 0;
-
-    /** @private @internal Count of documents accepted by this object.
-     *
-     *  Used to return stats to the matcher.
-     */
-    mutable Xapian::doccount docs_allowed_;
-
-    /** @private @internal Count of documents rejected by this object.
-     *
-     *  Used to return stats to the matcher.
-     */
-    mutable Xapian::doccount docs_denied_;
 };
 
 }

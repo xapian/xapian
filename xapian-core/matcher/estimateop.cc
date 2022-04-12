@@ -208,6 +208,7 @@ EstimateOp::resolve(Xapian::doccount db_size)
 	}
 	break;
       }
+      case DECIDER:
       case NEAR:
       case PHRASE:
       case EXACT_PHRASE:
