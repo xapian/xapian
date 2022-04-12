@@ -481,141 +481,192 @@ class ProtoMSet {
 	}
     }
 
-    Xapian::MSet finalise(const Xapian::MatchDecider* mdecider,
-			  Xapian::doccount matches_lower_bound,
-			  Xapian::doccount matches_estimated,
-			  Xapian::doccount matches_upper_bound) {
+    Xapian::MSet
+    finalise(const Xapian::MatchDecider* mdecider,
+	     const std::vector<std::unique_ptr<LocalSubMatch>>& locals) {
 	finalise_percentages();
 
-	AssertRel(matches_estimated, >=, matches_lower_bound);
-	AssertRel(matches_estimated, <=, matches_upper_bound);
+	Xapian::doccount matches_lower_bound;
+	Xapian::doccount matches_estimated;
+	Xapian::doccount matches_upper_bound;
+	Xapian::doccount uncollapsed_lower_bound;
+	Xapian::doccount uncollapsed_estimated;
+	Xapian::doccount uncollapsed_upper_bound;
 
-	Xapian::doccount uncollapsed_lower_bound = matches_lower_bound;
-	Xapian::doccount uncollapsed_estimated = matches_estimated;
-	Xapian::doccount uncollapsed_upper_bound = matches_upper_bound;
-
-	if (!full()) {
-	    // We didn't get all the results requested, so we know that we've
-	    // got all there are, and the bounds and estimate are all equal to
-	    // that number.
-	    matches_lower_bound = results.size();
-	    matches_estimated = matches_lower_bound;
-	    matches_upper_bound = matches_lower_bound;
-
-	    // And that should equal known_matching_docs, unless a percentage
-	    // threshold caused some matches to be excluded.
-	    if (!percent_threshold) {
-		AssertEq(matches_estimated, known_matching_docs);
+	if (!collapser && (!full() || known_matching_docs < check_at_least)) {
+	    // Under these conditions we know exactly how many matching docs
+	    // there are for the full match so we don't need to resolve the
+	    // EstimateOp stack.
+	    Xapian::doccount m;
+	    if (!full()) {
+		// We didn't get all the results requested, so we know that
+		// we've got all there are, and the bounds and estimate are
+		// all equal to that number.
+		m = results.size();
+		// And that should equal known_matching_docs, unless a percentage
+		// threshold caused some matches to be excluded.
+		if (!percent_threshold) {
+		    AssertEq(m, known_matching_docs);
+		} else {
+		    AssertRel(m, <=, known_matching_docs);
+		}
 	    } else {
-		AssertRel(matches_estimated, <=, known_matching_docs);
-	    }
-	} else if (!collapser && known_matching_docs < check_at_least) {
-	    // Similar to the above, but based on known_matching_docs.
-	    matches_lower_bound = known_matching_docs;
-	    matches_estimated = matches_lower_bound;
-	    matches_upper_bound = matches_lower_bound;
-	} else {
-	    // We can end up scaling the estimate more than once, so collect
-	    // the scale factors and apply them in one go to avoid rounding
-	    // more than once.
-	    double estimate_scale = 1.0;
-	    double unique_rate = 1.0;
-
-	    if (collapser) {
-		matches_lower_bound = collapser.get_matches_lower_bound();
-
-		Xapian::doccount docs_considered =
-		    collapser.get_docs_considered();
-		Xapian::doccount dups_ignored = collapser.get_dups_ignored();
-		if (docs_considered > 0) {
-		    // Scale the estimate by the rate at which we've been
-		    // finding unique documents.
-		    double unique = double(docs_considered - dups_ignored);
-		    unique_rate = unique / double(docs_considered);
-		}
-
-		// We can safely reduce the upper bound by the number of
-		// duplicates we've ignored.
-		matches_upper_bound -= dups_ignored;
+		// Otherwise we didn't reach check_at_least, so
+		// known_matching_docs gives the exact size.
+		m = known_matching_docs;
 	    }
 
-	    if (mdecider) {
-		if (!percent_threshold && !collapser) {
-		    if (known_matching_docs > matches_lower_bound) {
-			// We're not collapsing or doing a percentage
-			// threshold, so known_matching_docs is a lower bound
-			// on the total number of matches.
-			matches_lower_bound = known_matching_docs;
-		    }
-		}
-	    }
+	    matches_lower_bound = matches_estimated = matches_upper_bound = m;
 
-	    if (percent_threshold) {
-		// Scale the estimate assuming that document weights are evenly
-		// distributed from 0 to the maximum weight seen.
-		estimate_scale *= (1.0 - percent_threshold_factor);
-
-		// This is all we can be sure of without additional work.
-		matches_lower_bound = results.size();
-
-		if (collapser) {
-		    uncollapsed_lower_bound = matches_lower_bound;
-		}
-	    }
-
-	    if (collapser && estimate_scale != 1.0) {
-		uncollapsed_estimated =
-		    Xapian::doccount(uncollapsed_estimated * estimate_scale +
-				     0.5);
-	    }
-
-	    estimate_scale *= unique_rate;
-
-	    if (estimate_scale != 1.0) {
-		matches_estimated =
-		    Xapian::doccount(matches_estimated * estimate_scale + 0.5);
-		if (matches_estimated < matches_lower_bound)
-		    matches_estimated = matches_lower_bound;
-	    }
-
-	    if (collapser || mdecider) {
-		// Clamp the estimate to the range given by the bounds.
-		AssertRel(matches_lower_bound, <=, matches_upper_bound);
-		matches_estimated = STD_CLAMP(matches_estimated,
-					      matches_lower_bound,
-					      matches_upper_bound);
-	    } else if (!percent_threshold) {
-		AssertRel(known_matching_docs, <=, matches_upper_bound);
-		if (known_matching_docs > matches_lower_bound)
-		    matches_lower_bound = known_matching_docs;
-		if (known_matching_docs > matches_estimated)
-		    matches_estimated = known_matching_docs;
-	    }
-
-	    if (collapser && !mdecider && !percent_threshold) {
-		AssertRel(known_matching_docs, <=, uncollapsed_upper_bound);
-		if (known_matching_docs > uncollapsed_lower_bound)
-		    uncollapsed_lower_bound = known_matching_docs;
-	    }
-	}
-
-	if (collapser && matches_lower_bound > uncollapsed_lower_bound) {
-	    // Clamp the uncollapsed bound to be at least the collapsed one.
-	    uncollapsed_lower_bound = matches_lower_bound;
-	}
-
-	if (collapser) {
-	    // Clamp the estimate to lie within the known bounds.
-	    if (uncollapsed_estimated < uncollapsed_lower_bound) {
-		uncollapsed_estimated = uncollapsed_lower_bound;
-	    } else if (uncollapsed_estimated > uncollapsed_upper_bound) {
-		uncollapsed_estimated = uncollapsed_upper_bound;
-	    }
-	} else {
 	    // When not collapsing the uncollapsed bounds are just the same.
 	    uncollapsed_lower_bound = matches_lower_bound;
 	    uncollapsed_estimated = matches_estimated;
 	    uncollapsed_upper_bound = matches_upper_bound;
+	} else {
+	    matches_lower_bound = 0;
+	    matches_estimated = 0;
+	    matches_upper_bound = 0;
+	    for (size_t i = 0; i != locals.size(); ++i) {
+		if (locals[i].get()) {
+		    Estimates e = locals[i]->resolve();
+		    matches_lower_bound += e.min;
+		    matches_estimated += e.est;
+		    matches_upper_bound += e.max;
+		}
+	    }
+
+	    AssertRel(matches_estimated, >=, matches_lower_bound);
+	    AssertRel(matches_estimated, <=, matches_upper_bound);
+
+	    uncollapsed_lower_bound = matches_lower_bound;
+	    uncollapsed_estimated = matches_estimated;
+	    uncollapsed_upper_bound = matches_upper_bound;
+
+	    if (!full()) {
+		// We didn't get all the results requested, so we know that we've
+		// got all there are, and the bounds and estimate are all equal to
+		// that number.
+		matches_lower_bound = results.size();
+		matches_estimated = matches_lower_bound;
+		matches_upper_bound = matches_lower_bound;
+
+		// And that should equal known_matching_docs, unless a percentage
+		// threshold caused some matches to be excluded.
+		if (!percent_threshold) {
+		    AssertEq(matches_estimated, known_matching_docs);
+		} else {
+		    AssertRel(matches_estimated, <=, known_matching_docs);
+		}
+
+		if (matches_lower_bound > uncollapsed_lower_bound) {
+		    // Clamp the uncollapsed bound to be at least the collapsed
+		    // one.
+		    uncollapsed_lower_bound = matches_lower_bound;
+		}
+	    } else {
+		// We can end up scaling the estimate more than once, so collect
+		// the scale factors and apply them in one go to avoid rounding
+		// more than once.
+		double estimate_scale = 1.0;
+		double unique_rate = 1.0;
+
+		if (collapser) {
+		    matches_lower_bound = collapser.get_matches_lower_bound();
+
+		    Xapian::doccount docs_considered =
+			collapser.get_docs_considered();
+		    Xapian::doccount dups_ignored = collapser.get_dups_ignored();
+		    if (docs_considered > 0) {
+			// Scale the estimate by the rate at which we've been
+			// finding unique documents.
+			double unique = double(docs_considered - dups_ignored);
+			unique_rate = unique / double(docs_considered);
+		    }
+
+		    // We can safely reduce the upper bound by the number of
+		    // duplicates we've ignored.
+		    matches_upper_bound -= dups_ignored;
+		}
+
+		if (mdecider) {
+		    if (!percent_threshold && !collapser) {
+			if (known_matching_docs > matches_lower_bound) {
+			    // We're not collapsing or doing a percentage
+			    // threshold, so known_matching_docs is a lower bound
+			    // on the total number of matches.
+			    matches_lower_bound = known_matching_docs;
+			}
+		    }
+		}
+
+		if (percent_threshold) {
+		    // Scale the estimate assuming that document weights are evenly
+		    // distributed from 0 to the maximum weight seen.
+		    estimate_scale *= (1.0 - percent_threshold_factor);
+
+		    // This is all we can be sure of without additional work.
+		    matches_lower_bound = results.size();
+
+		    if (collapser) {
+			uncollapsed_lower_bound = matches_lower_bound;
+		    }
+		}
+
+		if (collapser && estimate_scale != 1.0) {
+		    uncollapsed_estimated =
+			Xapian::doccount(uncollapsed_estimated * estimate_scale +
+					 0.5);
+		}
+
+		estimate_scale *= unique_rate;
+
+		if (estimate_scale != 1.0) {
+		    matches_estimated =
+			Xapian::doccount(matches_estimated * estimate_scale + 0.5);
+		    if (matches_estimated < matches_lower_bound)
+			matches_estimated = matches_lower_bound;
+		}
+
+		if (collapser || mdecider) {
+		    // Clamp the estimate to the range given by the bounds.
+		    AssertRel(matches_lower_bound, <=, matches_upper_bound);
+		    matches_estimated = STD_CLAMP(matches_estimated,
+						  matches_lower_bound,
+						  matches_upper_bound);
+		} else if (!percent_threshold) {
+		    AssertRel(known_matching_docs, <=, matches_upper_bound);
+		    if (known_matching_docs > matches_lower_bound)
+			matches_lower_bound = known_matching_docs;
+		    if (known_matching_docs > matches_estimated)
+			matches_estimated = known_matching_docs;
+		}
+
+		if (collapser) {
+		    if (!mdecider && !percent_threshold) {
+			AssertRel(known_matching_docs, <=, uncollapsed_upper_bound);
+			if (known_matching_docs > uncollapsed_lower_bound)
+			    uncollapsed_lower_bound = known_matching_docs;
+		    }
+
+		    if (matches_lower_bound > uncollapsed_lower_bound) {
+			// Clamp the uncollapsed bound to be at least the collapsed
+			// one.
+			uncollapsed_lower_bound = matches_lower_bound;
+		    }
+
+		    // Clamp the estimate to lie within the known bounds.
+		    if (uncollapsed_estimated < uncollapsed_lower_bound) {
+			uncollapsed_estimated = uncollapsed_lower_bound;
+		    } else if (uncollapsed_estimated > uncollapsed_upper_bound) {
+			uncollapsed_estimated = uncollapsed_upper_bound;
+		    }
+		} else {
+		    // When not collapsing the uncollapsed bounds are just the same.
+		    uncollapsed_lower_bound = matches_lower_bound;
+		    uncollapsed_estimated = matches_estimated;
+		    uncollapsed_upper_bound = matches_upper_bound;
+		}
+	    }
 	}
 
 	// FIXME: Profile using min_heap here (when it's been created) to

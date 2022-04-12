@@ -529,22 +529,8 @@ Matcher::get_local_mset(Xapian::doccount first,
     // the EstimateOp objects.
     pltree.delete_postlists();
 
-    Xapian::doccount matches_lower_bound = 0;
-    Xapian::doccount matches_estimated = 0;
-    Xapian::doccount matches_upper_bound = 0;
-    for (size_t i = 0; i != locals.size(); ++i) {
-	if (locals[i].get()) {
-	    Estimates e = locals[i]->resolve();
-	    matches_lower_bound += e.min;
-	    matches_estimated += e.est;
-	    matches_upper_bound += e.max;
-	}
-    }
-
     return proto_mset.finalise(mdecider,
-			       matches_lower_bound,
-			       matches_estimated,
-			       matches_upper_bound);
+			       locals);
 }
 
 Xapian::MSet
