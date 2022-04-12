@@ -579,7 +579,7 @@ class ProtoMSet {
 	    }
 
 	    if (collapser || mdecider) {
-		// Clamp the estimate the range given by the bounds.
+		// Clamp the estimate to the range given by the bounds.
 		AssertRel(matches_lower_bound, <=, matches_upper_bound);
 		matches_estimated = STD_CLAMP(matches_estimated,
 					      matches_lower_bound,
