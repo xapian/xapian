@@ -92,7 +92,7 @@ using namespace std;
 // fileutils.cc uses opendir(), etc though not in a function we currently test.
 #include "../common/msvc_dirent.cc"
 
-// The UUID code uses hexdigit().
+// The UUID code uses hex_digit().
 #include "../api/constinfo.cc"
 
 // Stub replacement, which doesn't deal with escaping or producing valid UTF-8.
