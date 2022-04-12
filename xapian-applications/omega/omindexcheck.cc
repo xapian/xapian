@@ -39,7 +39,8 @@ struct testcase {
     vector<string> terms;
     unsigned int flags;
 
-    testcase(vector<string> v, unsigned int f = 0) : terms(move(v)), flags(f) {}
+    testcase(vector<string> v, unsigned int f = 0)
+	: terms(std::move(v)), flags(f) {}
 };
 
 
