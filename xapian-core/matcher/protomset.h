@@ -262,10 +262,8 @@ class ProtoMSet {
 
 	// The candidate isn't good enough to make the proto-mset, but there
 	// are still things we may need to do with it.
-
-	// If we're collapsing, we need to check if this would have been
-	// collapsed before incrementing known_matching_docs.
 	if (!collapser) {
+	    // We're not collapsing so we can perform an early reject.
 	    ++known_matching_docs;
 	    double weight =
 		calculated_weight ? new_item.get_weight() : pltree.get_weight();
@@ -274,16 +272,22 @@ class ProtoMSet {
 	    return true;
 	}
 
+	// We're collapsing - the question is should we increment
+	// known_matching_docs?
+
 	if (checked_enough()) {
-	    // We've seen enough items so can drop this one.
+	    // We are collapsing but known_matching_docs has already reached
+	    // check_at_least so we don't need to worry about whether we can
+	    // increment it further.
 	    double weight =
 		calculated_weight ? new_item.get_weight() : pltree.get_weight();
 	    update_max_weight(weight);
 	    return true;
 	}
 
-	// We can't drop the item because we need to test whether it would be
-	// collapsed.
+	// We can't early reject but need to continue on and check if this item
+	// would be collapsed or not (and if not ProtoMSet::add() will get
+	// called and known_matching_docs incremented there.
 	return false;
     }
 
