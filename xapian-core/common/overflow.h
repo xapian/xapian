@@ -5,7 +5,7 @@
  * possible, so the overflow check will typically just require a check of the
  * processor's overflow or carry flag.
  */
-/* Copyright (C) 2018 Olly Betts
+/* Copyright (C) 2018,2022 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,6 +30,12 @@
 #endif
 
 #include <type_traits>
+
+#if !HAVE_DECL___BUILTIN_ADD_OVERFLOW
+# if HAVE_DECL__ADDCARRY_U32 || HAVE_DECL__ADDCARRY_U64
+#  include <intrin.h>
+# endif
+#endif
 
 /** Addition with overflow checking.
  *
@@ -60,6 +66,35 @@ add_overflows(T1 a, T2 b, R& res) {
     return (sizeof(R) <= sizeof(T1) || sizeof(R) <= sizeof(T2)) && r < R(b);
 #endif
 }
+
+#if !HAVE_DECL___BUILTIN_ADD_OVERFLOW
+// Only use the addcarry instrinsics where the builtins aren't available.
+// GCC and clang support both, but _addcarry_u64() uses `unsigned long
+// long` instead of `unsigned __int64` and the two types aren't compatible.
+# if HAVE_DECL__ADDCARRY_U32
+template<>
+inline bool
+add_overflows<unsigned,
+	      unsigned,
+	      unsigned>(unsigned a,
+			unsigned b,
+			unsigned& res) {
+    return _addcarry_u32(0, a, b, &res) != 0;
+}
+# endif
+
+# if HAVE_DECL__ADDCARRY_U64
+template<>
+inline bool
+add_overflows<unsigned __int64,
+	      unsigned __int64,
+	      unsigned __int64>(unsigned __int64 a,
+				unsigned __int64 b,
+				unsigned __int64& res) {
+    return _addcarry_u64(0, a, b, &res) != 0;
+}
+# endif
+#endif
 
 /** Multiplication with overflow checking.
  *
