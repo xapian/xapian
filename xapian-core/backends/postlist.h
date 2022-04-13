@@ -63,8 +63,8 @@ class PostList {
     /** Get an estimate for the termfreq and reltermfreq, given the stats.
      *
      *  The frequencies may be for a combination of databases, or for just the
-     *  relevant documents, so the results need not lie in the bounds given by
-     *  get_termfreq_min() and get_termfreq_max().
+     *  relevant documents, so may not be comparable to the value returned by
+     *  get_termfreq() (which is just for the current shard).
      */
     virtual TermFreqs
     estimate_termfreqs(const Xapian::Weight::Internal& stats) const;
