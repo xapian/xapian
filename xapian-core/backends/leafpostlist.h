@@ -98,8 +98,7 @@ class LeafPostList : public PostList {
 
     double recalc_maxweight();
 
-    TermFreqs get_termfreq_est_using_stats(
-	const Xapian::Weight::Internal & stats) const;
+    TermFreqs estimate_termfreqs(const Xapian::Weight::Internal& stats) const;
 
     Xapian::termcount count_matching_subqs() const;
 
@@ -132,8 +131,8 @@ class LeafPostList : public PostList {
      *
      *  This is useful when we optimise a term matching all documents to an
      *  all documents postlist under OP_SYNONYM, as the term name is used by
-     *  LeafPostList::get_termfreq_est_using_stats() to locate the appropriate
-     *  TermFreqs object.
+     *  LeafPostList::estimate_termfreqs() to locate the appropriate TermFreqs
+     *  object.
      */
     void set_term(const std::string & term_) { term = term_; }
 };

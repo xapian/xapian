@@ -57,13 +57,12 @@ MaxPostList::get_termfreq() const
 }
 
 TermFreqs
-MaxPostList::get_termfreq_est_using_stats(
-	const Xapian::Weight::Internal & stats) const
+MaxPostList::estimate_termfreqs(const Xapian::Weight::Internal& stats) const
 {
     // We calculate the estimate assuming independence.  The simplest
     // way to calculate this seems to be a series of (n_kids - 1) pairwise
     // calculations, which gives the same answer regardless of the order.
-    TermFreqs freqs(plist[0]->get_termfreq_est_using_stats(stats));
+    TermFreqs freqs(plist[0]->estimate_termfreqs(stats));
 
     // Our caller should have ensured this.
     Assert(stats.collection_size);
@@ -82,7 +81,7 @@ MaxPostList::get_termfreq_est_using_stats(
     double Pc_est = freqs.collfreq * cf_scale;
 
     for (size_t i = 1; i < n_kids; ++i) {
-	freqs = plist[i]->get_termfreq_est_using_stats(stats);
+	freqs = plist[i]->estimate_termfreqs(stats);
 	double P_i = freqs.termfreq * scale;
 	P_est += P_i - P_est * P_i;
 	double Pc_i = freqs.collfreq * cf_scale;

@@ -54,10 +54,9 @@ LeafPostList::recalc_maxweight()
 }
 
 TermFreqs
-LeafPostList::get_termfreq_est_using_stats(
-	const Xapian::Weight::Internal & stats) const
+LeafPostList::estimate_termfreqs(const Xapian::Weight::Internal& stats) const
 {
-    LOGCALL(MATCH, TermFreqs, "LeafPostList::get_termfreq_est_using_stats", stats);
+    LOGCALL(MATCH, TermFreqs, "LeafPostList::estimate_termfreqs", stats);
     if (term.empty()) {
 	RETURN(TermFreqs(stats.collection_size,
 			 stats.rset_size,

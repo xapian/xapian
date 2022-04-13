@@ -41,19 +41,19 @@ AndNotPostList::get_termfreq() const
 }
 
 TermFreqs
-AndNotPostList::get_termfreq_est_using_stats(const Xapian::Weight::Internal & stats) const
+AndNotPostList::estimate_termfreqs(const Xapian::Weight::Internal& stats) const
 {
     // We calculate the estimate assuming independence.  With this assumption,
     // the estimate is the product of the estimates for the sub-postlists
     // (for the right side this is inverted by subtracting from db_size),
     // divided by db_size.
-    TermFreqs freqs(pl->get_termfreq_est_using_stats(stats));
+    TermFreqs freqs(pl->estimate_termfreqs(stats));
 
     double freqest = double(freqs.termfreq);
     double relfreqest = double(freqs.reltermfreq);
     double collfreqest = double(freqs.collfreq);
 
-    freqs = r->get_termfreq_est_using_stats(stats);
+    freqs = r->estimate_termfreqs(stats);
 
     // Our caller should have ensured this.
     Assert(stats.collection_size);

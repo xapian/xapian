@@ -31,10 +31,10 @@ using namespace std;
 PostList::~PostList() {}
 
 TermFreqs
-PostList::get_termfreq_est_using_stats(const Xapian::Weight::Internal &) const
+PostList::estimate_termfreqs(const Xapian::Weight::Internal&) const
 {
-    throw Xapian::InvalidOperationError(
-     "get_termfreq_est_using_stats() not meaningful for this PostingIterator");
+    throw Xapian::InvalidOperationError("estimate_termfreqs() not meaningful "
+					"for this PostingIterator");
 }
 
 Xapian::termcount

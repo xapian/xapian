@@ -59,14 +59,14 @@ MultiXorPostList::get_termfreq() const
 }
 
 TermFreqs
-MultiXorPostList::get_termfreq_est_using_stats(
-	const Xapian::Weight::Internal & stats) const
+MultiXorPostList::estimate_termfreqs(
+	const Xapian::Weight::Internal& stats) const
 {
-    LOGCALL(MATCH, TermFreqs, "MultiXorPostList::get_termfreq_est_using_stats", stats);
+    LOGCALL(MATCH, TermFreqs, "MultiXorPostList::estimate_termfreqs", stats);
     // We calculate the estimate assuming independence.  The simplest
     // way to calculate this seems to be a series of (n_kids - 1) pairwise
     // calculations, which gives the same answer regardless of the order.
-    TermFreqs freqs(plist[0]->get_termfreq_est_using_stats(stats));
+    TermFreqs freqs(plist[0]->estimate_termfreqs(stats));
 
     // Our caller should have ensured this.
     Assert(stats.collection_size);
@@ -85,7 +85,7 @@ MultiXorPostList::get_termfreq_est_using_stats(
     double Pc_est = freqs.collfreq * cf_scale;
 
     for (size_t i = 1; i < n_kids; ++i) {
-	freqs = plist[i]->get_termfreq_est_using_stats(stats);
+	freqs = plist[i]->estimate_termfreqs(stats);
 	double P_i = freqs.termfreq * scale;
 	P_est += P_i - 2.0 * P_est * P_i;
 	double Pc_i = freqs.collfreq * cf_scale;

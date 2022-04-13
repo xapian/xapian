@@ -366,11 +366,10 @@ OrPostList::get_termfreq() const
 }
 
 TermFreqs
-OrPostList::get_termfreq_est_using_stats(
-	const Xapian::Weight::Internal& stats) const
+OrPostList::estimate_termfreqs(const Xapian::Weight::Internal& stats) const
 {
-    const TermFreqs& l_freqs = l->get_termfreq_est_using_stats(stats);
-    const TermFreqs& r_freqs = r->get_termfreq_est_using_stats(stats);
+    const TermFreqs& l_freqs = l->estimate_termfreqs(stats);
+    const TermFreqs& r_freqs = r->estimate_termfreqs(stats);
 
     // Our caller should have ensured this.
     Assert(stats.collection_size);

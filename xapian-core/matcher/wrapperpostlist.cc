@@ -29,10 +29,9 @@ WrapperPostList::get_termfreq() const
 }
 
 TermFreqs
-WrapperPostList::get_termfreq_est_using_stats(
-	const Xapian::Weight::Internal& stats) const
+WrapperPostList::estimate_termfreqs(const Xapian::Weight::Internal& stats) const
 {
-    return pl->get_termfreq_est_using_stats(stats);
+    return pl->estimate_termfreqs(stats);
 }
 
 Xapian::docid

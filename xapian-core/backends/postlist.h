@@ -66,8 +66,8 @@ class PostList {
      *  relevant documents, so the results need not lie in the bounds given by
      *  get_termfreq_min() and get_termfreq_max().
      */
-    virtual TermFreqs get_termfreq_est_using_stats(
-	const Xapian::Weight::Internal & stats) const;
+    virtual TermFreqs
+    estimate_termfreqs(const Xapian::Weight::Internal& stats) const;
 
     /// Return the current docid.
     virtual Xapian::docid get_docid() const = 0;

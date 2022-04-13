@@ -68,14 +68,14 @@ MultiAndPostList::get_termfreq() const
 }
 
 TermFreqs
-MultiAndPostList::get_termfreq_est_using_stats(
-	const Xapian::Weight::Internal & stats) const
+MultiAndPostList::estimate_termfreqs(
+	const Xapian::Weight::Internal& stats) const
 {
-    LOGCALL(MATCH, TermFreqs, "MultiAndPostList::get_termfreq_est_using_stats", stats);
+    LOGCALL(MATCH, TermFreqs, "MultiAndPostList::estimate_termfreqs", stats);
     // We calculate the estimate assuming independence.  With this assumption,
     // the estimate is the product of the estimates for the sub-postlists
     // divided by db_size (n_kids - 1) times.
-    TermFreqs freqs(plist[0]->get_termfreq_est_using_stats(stats));
+    TermFreqs freqs(plist[0]->estimate_termfreqs(stats));
 
     double freqest = double(freqs.termfreq);
     double relfreqest = double(freqs.reltermfreq);
@@ -85,7 +85,7 @@ MultiAndPostList::get_termfreq_est_using_stats(
     Assert(stats.collection_size);
 
     for (size_t i = 1; i < n_kids; ++i) {
-	freqs = plist[i]->get_termfreq_est_using_stats(stats);
+	freqs = plist[i]->estimate_termfreqs(stats);
 
 	// If the collection is empty, freqest should be 0 already, so leave
 	// it alone.

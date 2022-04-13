@@ -43,10 +43,10 @@ ValueRangePostList::get_termfreq() const
 }
 
 TermFreqs
-ValueRangePostList::get_termfreq_est_using_stats(
-	const Xapian::Weight::Internal & stats) const
+ValueRangePostList::estimate_termfreqs(
+	const Xapian::Weight::Internal& stats) const
 {
-    LOGCALL(MATCH, TermFreqs, "ValueRangePostList::get_termfreq_est_using_stats", stats);
+    LOGCALL(MATCH, TermFreqs, "ValueRangePostList::estimate_termfreqs", stats);
     // FIXME: It's hard to estimate well - perhaps consider the values of
     // begin and end like above?
     RETURN(TermFreqs(stats.collection_size / 2,
