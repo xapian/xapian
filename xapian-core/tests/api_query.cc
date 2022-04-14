@@ -1,7 +1,7 @@
 /** @file
  * @brief Query-related tests.
  */
-/* Copyright (C) 2008,2009,2012,2013,2015,2016,2017,2018,2019 Olly Betts
+/* Copyright (C) 2008-2022 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -317,10 +317,10 @@ DEFINE_TESTCASE(xor3, backend) {
     Xapian::Database db = get_database("apitest_simpledata");
 
     static const char * const subqs[] = {
-	"hack", "which", "paragraph", "is", "return"
+	"this", "hack", "which", "paragraph", "is", "return", "this", "this"
     };
     // Document where the subqueries run out *does* match XOR:
-    Xapian::Query q(Xapian::Query::OP_XOR, subqs, subqs + 5);
+    Xapian::Query q(Xapian::Query::OP_XOR, subqs + 1, subqs + 6);
     Xapian::Enquire enq(db);
     enq.set_query(q);
     Xapian::MSet mset = enq.get_mset(0, 10);
@@ -331,7 +331,7 @@ DEFINE_TESTCASE(xor3, backend) {
     TEST_EQUAL(*mset[2], 3);
 
     // Document where the subqueries run out *does not* match XOR:
-    q = Xapian::Query(Xapian::Query::OP_XOR, subqs, subqs + 4);
+    q = Xapian::Query(Xapian::Query::OP_XOR, subqs + 1, subqs + 5);
     enq.set_query(q);
     mset = enq.get_mset(0, 10);
 
@@ -340,6 +340,32 @@ DEFINE_TESTCASE(xor3, backend) {
     TEST_EQUAL(*mset[1], 4);
     TEST_EQUAL(*mset[2], 2);
     TEST_EQUAL(*mset[3], 3);
+
+    // Tests that XOR subqueries that match all docs are handled well when
+    // calculating min/est/max match counts.
+    q = Xapian::Query(Xapian::Query::OP_XOR, subqs, subqs + 2);
+    enq.set_query(q);
+    mset = enq.get_mset(0, 0);
+    TEST_EQUAL(mset.size(), 0);
+    TEST_EQUAL(mset.get_matches_lower_bound(), 5);
+    TEST_EQUAL(mset.get_matches_estimated(), 5);
+    TEST_EQUAL(mset.get_matches_upper_bound(), 5);
+
+    q = Xapian::Query(Xapian::Query::OP_XOR, subqs + 5, subqs + 7);
+    enq.set_query(q);
+    mset = enq.get_mset(0, 0);
+    TEST_EQUAL(mset.size(), 0);
+    TEST_EQUAL(mset.get_matches_lower_bound(), 5);
+    TEST_EQUAL(mset.get_matches_estimated(), 5);
+    TEST_EQUAL(mset.get_matches_upper_bound(), 5);
+
+    q = Xapian::Query(Xapian::Query::OP_XOR, subqs + 5, subqs + 8);
+    enq.set_query(q);
+    mset = enq.get_mset(0, 0);
+    TEST_EQUAL(mset.size(), 0);
+    TEST_EQUAL(mset.get_matches_lower_bound(), 1);
+    TEST_EQUAL(mset.get_matches_estimated(), 1);
+    TEST_EQUAL(mset.get_matches_upper_bound(), 1);
 }
 
 /// Check encoding of non-UTF8 terms in query descriptions.

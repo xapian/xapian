@@ -130,38 +130,48 @@ EstimateOp::resolve(Xapian::doccount db_size)
 	break;
       }
       case XOR: {
-	result = resolve_next(db_size);
 	double scale = 1.0 / db_size;
 
-	bool all_exact = (result.max == result.min);
+	bool all_exact = true;
+	bool invert = false;
 
 	unsigned max_overflow = 0;
-	Xapian::doccount max_sum = result.max;
+	Xapian::doccount max_sum = 0;
 
 	// We calculate the estimate assuming independence.  The simplest
 	// way to calculate this seems to be a series of (n_subqueries - 1)
 	// pairwise calculations, which gives the same answer regardless of the
 	// order.
-	double P_est = result.est * scale;
+	double P_est = 0.0;
+
+	unsigned j = 0;
 
 	// Need to buffer min and max values from subqueries so we can compute
 	// our min as a second pass.
 	unique_ptr<Estimates[]> min_and_max{new Estimates[n_subqueries]};
-	min_and_max[0] = result;
-	for (unsigned i = 1; i < n_subqueries; ++i) {
-	    min_and_max[i] = resolve_next(db_size);
-	    const Estimates& r = min_and_max[i];
+	for (unsigned i = 0; i < n_subqueries; ++i) {
+	    min_and_max[j] = resolve_next(db_size);
+	    const Estimates& r = min_and_max[j];
 
-	    // Maximum is if all sub-postlists are disjoint.
-	    Xapian::doccount max_i = r.max;
-	    if (add_overflows(max_sum, max_i, max_sum)) {
-		// Track how many times we overflow the type.
-		++max_overflow;
+	    if (r.min == db_size) {
+		// A subquery matches all documents which just inverts which
+		// documents match - note that but otherwise ignore this
+		// subquery.
+		invert = !invert;
+	    } else {
+		// Maximum is if all sub-postlists are disjoint.
+		Xapian::doccount max_i = r.max;
+		if (add_overflows(max_sum, max_i, max_sum)) {
+		    // Track how many times we overflow the type.
+		    ++max_overflow;
+		}
+		all_exact = all_exact && (max_i == r.min);
+
+		double P_i = r.est * scale;
+		P_est += P_i - 2.0 * P_est * P_i;
+
+		++j;
 	    }
-	    all_exact = all_exact && (max_i == r.min);
-
-	    double P_i = r.est * scale;
-	    P_est += P_i - 2.0 * P_est * P_i;
 	}
 
 	if (max_overflow || max_sum > db_size) {
@@ -186,7 +196,7 @@ EstimateOp::resolve(Xapian::doccount db_size)
 	    // can't cancel out subquery i.  If we overflowed more than once,
 	    // then the true value of max_sum is greater than the maximum
 	    // possible tf, so there's no point checking.
-	    for (unsigned i = 0; i < n_subqueries; ++i) {
+	    for (unsigned i = 0; i < j; ++i) {
 		const Estimates& r = min_and_max[i];
 		Xapian::doccount all_the_rest = max_sum - r.max;
 		// If no overflow, or we un-overflowed again...
@@ -205,6 +215,13 @@ EstimateOp::resolve(Xapian::doccount db_size)
 	    result.min = max_sum & 1;
 	} else {
 	    result.min = min;
+	}
+
+	if (invert) {
+	    auto old_min = result.min;
+	    result.min = db_size - result.max;
+	    result.est = db_size - result.est;
+	    result.max = db_size - old_min;
 	}
 	break;
       }
