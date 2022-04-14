@@ -226,7 +226,9 @@ class Weight::Internal {
 #ifdef XAPIAN_ASSERTIONS
 	finalised = true;
 #endif
-	if (rare(collection_size == 0)) return 0;
+	// We shortcut an empty shard and avoid creating a postlist tree for
+	// it, and all shards must be empty for collection_size to be zero.
+	Assert(collection_size);
 	return Xapian::doclength(total_length) / collection_size;
     }
 

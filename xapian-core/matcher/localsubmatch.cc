@@ -217,15 +217,10 @@ LocalSubMatch::make_synonym_postlist(PostListTree* pltree,
 							wdf_disjoint));
     unique_ptr<Xapian::Weight> wt(wt_factory.clone());
 
-    TermFreqs freqs;
-    // Avoid calling estimate_termfreqs() if the database is empty so we don't
-    // need to special case that repeatedly when implementing it.
-    // FIXME: it would be nicer to handle an empty database higher up, though
-    // we need to catch the case where all the non-empty subdatabases have
-    // failed, so we can't just push this right up to the start of get_mset().
-    if (usual(total_stats->collection_size != 0)) {
-	freqs = or_pl->estimate_termfreqs(*total_stats);
-    }
+    // We shortcut an empty shard and avoid creating a postlist tree for it,
+    // and all shards must be empty for collection_size to be zero.
+    Assert(total_stats->collection_size);
+    TermFreqs freqs = or_pl->estimate_termfreqs(*total_stats);
     wt->init_(*total_stats, qlen, factor,
 	      freqs.termfreq, freqs.reltermfreq, freqs.collfreq, db);
 
