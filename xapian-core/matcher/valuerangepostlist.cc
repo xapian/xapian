@@ -41,9 +41,13 @@ ValueRangePostList::estimate_termfreqs(
 	const Xapian::Weight::Internal& stats) const
 {
     LOGCALL(MATCH, TermFreqs, "ValueRangePostList::estimate_termfreqs", stats);
-    // FIXME: It's hard to estimate well - perhaps consider the values of
-    // begin and end like we do in api/queryinternal.cc to calculate the
-    // estimated termfreq value.
+    // We could estimate these better by scaling by termfreq/db_size (termfreq
+    // is calculated based on the range ends and slot value bounds).  See
+    // branch better-valuerangepostlist-estimate_termfreqs for a patch.
+    //
+    // However this requires storing db_size in this class and I'm not sure
+    // these estimates are actually worth improving - this method is only used
+    // below an OP_SYNONYM and that seems an odd place to use a value range.
     RETURN(TermFreqs(stats.collection_size / 2,
 		     stats.rset_size / 2,
 		     stats.total_length / 2));
