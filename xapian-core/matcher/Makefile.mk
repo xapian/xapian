@@ -1,6 +1,7 @@
 noinst_HEADERS +=\
 	matcher/andmaybepostlist.h\
 	matcher/andnotpostlist.h\
+	matcher/andpostlist.h\
 	matcher/boolorpostlist.h\
 	matcher/collapser.h\
 	matcher/deciderpostlist.h\
@@ -13,8 +14,6 @@ noinst_HEADERS +=\
 	matcher/matchtimeout.h\
 	matcher/maxpostlist.h\
 	matcher/msetcmp.h\
-	matcher/multiandpostlist.h\
-	matcher/multixorpostlist.h\
 	matcher/nearpostlist.h\
 	matcher/orpositionlist.h\
 	matcher/orpospostlist.h\
@@ -30,7 +29,8 @@ noinst_HEADERS +=\
 	matcher/valuegepostlist.h\
 	matcher/valuerangepostlist.h\
 	matcher/valuestreamdocument.h\
-	matcher/wrapperpostlist.h
+	matcher/wrapperpostlist.h\
+	matcher/xorpostlist.h
 
 EXTRA_DIST +=\
 	matcher/Makefile
@@ -46,6 +46,7 @@ EXTRA_DIST +=\
 lib_src +=\
 	matcher/andmaybepostlist.cc\
 	matcher/andnotpostlist.cc\
+	matcher/andpostlist.cc\
 	matcher/boolorpostlist.cc\
 	matcher/collapser.cc\
 	matcher/deciderpostlist.cc\
@@ -57,8 +58,6 @@ lib_src +=\
 	matcher/matcher.cc\
 	matcher/maxpostlist.cc\
 	matcher/msetcmp.cc\
-	matcher/multiandpostlist.cc\
-	matcher/multixorpostlist.cc\
 	matcher/nearpostlist.cc\
 	matcher/orpositionlist.cc\
 	matcher/orpospostlist.cc\
@@ -69,4 +68,5 @@ lib_src +=\
 	matcher/valuegepostlist.cc\
 	matcher/valuerangepostlist.cc\
 	matcher/valuestreamdocument.cc\
-	matcher/wrapperpostlist.cc
+	matcher/wrapperpostlist.cc\
+	matcher/xorpostlist.cc

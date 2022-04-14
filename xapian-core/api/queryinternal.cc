@@ -33,12 +33,11 @@
 #include "heap.h"
 #include "matcher/andmaybepostlist.h"
 #include "matcher/andnotpostlist.h"
+#include "matcher/andpostlist.h"
 #include "matcher/boolorpostlist.h"
 #include "matcher/exactphrasepostlist.h"
 #include "matcher/externalpostlist.h"
 #include "matcher/maxpostlist.h"
-#include "matcher/multiandpostlist.h"
-#include "matcher/multixorpostlist.h"
 #include "matcher/nearpostlist.h"
 #include "matcher/orpospostlist.h"
 #include "matcher/orpostlist.h"
@@ -46,6 +45,7 @@
 #include "matcher/queryoptimiser.h"
 #include "matcher/valuerangepostlist.h"
 #include "matcher/valuegepostlist.h"
+#include "matcher/xorpostlist.h"
 #include "pack.h"
 #include "serialise-double.h"
 #include "stringutils.h"
@@ -463,8 +463,7 @@ XorContext::postlist()
 	return NULL;
 
     Xapian::doccount db_size = qopt->db_size;
-    PostList * pl;
-    pl = new MultiXorPostList(pls.begin(), pls.end(), qopt->matcher, db_size);
+    auto pl = new XorPostList(pls.begin(), pls.end(), qopt->matcher, db_size);
     qopt->add_op(EstimateOp::XOR, pls.size());
 
     // Empty pls so our destructor doesn't delete them all!
@@ -600,8 +599,7 @@ AndContext::postlist()
     if (pls.size() == 1) {
 	pl.reset(pls[0]);
     } else {
-	pl.reset(new MultiAndPostList(pls.begin(), pls.end(),
-				      matcher, db_size));
+	pl.reset(new AndPostList(pls.begin(), pls.end(), matcher, db_size));
 	qopt->add_op(EstimateOp::AND, pls.size());
     }
 

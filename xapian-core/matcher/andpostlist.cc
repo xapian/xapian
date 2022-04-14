@@ -21,14 +21,15 @@
 
 #include <config.h>
 
-#include "multiandpostlist.h"
+#include "andpostlist.h"
+
 #include "omassert.h"
 #include "debuglog.h"
 
 using namespace std;
 
 void
-MultiAndPostList::allocate_plist_and_max_wt()
+AndPostList::allocate_plist_and_max_wt()
 {
     plist = new PostList * [n_kids];
     try {
@@ -40,7 +41,7 @@ MultiAndPostList::allocate_plist_and_max_wt()
     }
 }
 
-MultiAndPostList::~MultiAndPostList()
+AndPostList::~AndPostList()
 {
     if (plist) {
 	for (size_t i = 0; i < n_kids; ++i) {
@@ -52,10 +53,9 @@ MultiAndPostList::~MultiAndPostList()
 }
 
 TermFreqs
-MultiAndPostList::estimate_termfreqs(
-	const Xapian::Weight::Internal& stats) const
+AndPostList::estimate_termfreqs(const Xapian::Weight::Internal& stats) const
 {
-    LOGCALL(MATCH, TermFreqs, "MultiAndPostList::estimate_termfreqs", stats);
+    LOGCALL(MATCH, TermFreqs, "AndPostList::estimate_termfreqs", stats);
     // We calculate the estimate assuming independence.  With this assumption,
     // the estimate is the product of the estimates for the sub-postlists
     // divided by db_size (n_kids - 1) times.
@@ -90,15 +90,15 @@ MultiAndPostList::estimate_termfreqs(
 }
 
 Xapian::docid
-MultiAndPostList::get_docid() const
+AndPostList::get_docid() const
 {
     return did;
 }
 
 double
-MultiAndPostList::get_weight(Xapian::termcount doclen,
-			     Xapian::termcount unique_terms,
-			     Xapian::termcount wdfdocmax) const
+AndPostList::get_weight(Xapian::termcount doclen,
+			Xapian::termcount unique_terms,
+			Xapian::termcount wdfdocmax) const
 {
     Assert(did);
     double result = 0;
@@ -109,13 +109,13 @@ MultiAndPostList::get_weight(Xapian::termcount doclen,
 }
 
 bool
-MultiAndPostList::at_end() const
+AndPostList::at_end() const
 {
     return (did == 0);
 }
 
 double
-MultiAndPostList::recalc_maxweight()
+AndPostList::recalc_maxweight()
 {
     max_total = 0.0;
     for (size_t i = 0; i < n_kids; ++i) {
@@ -127,7 +127,7 @@ MultiAndPostList::recalc_maxweight()
 }
 
 PostList *
-MultiAndPostList::find_next_match(double w_min)
+AndPostList::find_next_match(double w_min)
 {
 advanced_plist0:
     if (plist[0]->at_end()) {
@@ -156,21 +156,21 @@ advanced_plist0:
 }
 
 PostList *
-MultiAndPostList::next(double w_min)
+AndPostList::next(double w_min)
 {
     next_helper(0, w_min);
     return find_next_match(w_min);
 }
 
 PostList *
-MultiAndPostList::skip_to(Xapian::docid did_min, double w_min)
+AndPostList::skip_to(Xapian::docid did_min, double w_min)
 {
     skip_to_helper(0, did_min, w_min);
     return find_next_match(w_min);
 }
 
 std::string
-MultiAndPostList::get_description() const
+AndPostList::get_description() const
 {
     string desc("(");
     desc += plist[0]->get_description();
@@ -183,7 +183,7 @@ MultiAndPostList::get_description() const
 }
 
 Xapian::termcount
-MultiAndPostList::get_wdf() const
+AndPostList::get_wdf() const
 {
     Xapian::termcount totwdf = 0;
     for (size_t i = 0; i < n_kids; ++i) {
@@ -193,7 +193,7 @@ MultiAndPostList::get_wdf() const
 }
 
 Xapian::termcount
-MultiAndPostList::count_matching_subqs() const
+AndPostList::count_matching_subqs() const
 {
     Xapian::termcount total = 0;
     for (size_t i = 0; i < n_kids; ++i) {
@@ -203,7 +203,7 @@ MultiAndPostList::count_matching_subqs() const
 }
 
 void
-MultiAndPostList::gather_position_lists(OrPositionList* orposlist)
+AndPostList::gather_position_lists(OrPositionList* orposlist)
 {
     for (size_t i = 0; i < n_kids; ++i) {
 	plist[i]->gather_position_lists(orposlist);

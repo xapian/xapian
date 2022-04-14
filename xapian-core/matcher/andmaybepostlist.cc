@@ -22,7 +22,7 @@
 
 #include "andmaybepostlist.h"
 
-#include "multiandpostlist.h"
+#include "andpostlist.h"
 
 using namespace std;
 
@@ -31,7 +31,7 @@ AndMaybePostList::decay_to_and(Xapian::docid did,
 			       double w_min,
 			       bool* valid_ptr)
 {
-    pl = new MultiAndPostList(pl, r, pl_max, r_max, pltree, termfreq);
+    pl = new AndPostList(pl, r, pl_max, r_max, pltree, termfreq);
     r = NULL;
     PostList* result;
     if (valid_ptr) {

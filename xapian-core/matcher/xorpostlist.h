@@ -19,8 +19,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
-#ifndef XAPIAN_INCLUDED_MULTIXORPOSTLIST_H
-#define XAPIAN_INCLUDED_MULTIXORPOSTLIST_H
+#ifndef XAPIAN_INCLUDED_XORPOSTLIST_H
+#define XAPIAN_INCLUDED_XORPOSTLIST_H
 
 #include "backends/postlist.h"
 #include "postlisttree.h"
@@ -28,12 +28,12 @@
 #include <algorithm>
 
 /// N-way XOR postlist.
-class MultiXorPostList : public PostList {
+class XorPostList : public PostList {
     /// Don't allow assignment.
-    void operator=(const MultiXorPostList &);
+    XorPostList& operator=(const XorPostList&) = delete;
 
     /// Don't allow copying.
-    MultiXorPostList(const MultiXorPostList &);
+    XorPostList(const XorPostList&) = delete;
 
     /// The current docid, or zero if we haven't started or are at_end.
     Xapian::docid did = 0;
@@ -62,8 +62,8 @@ class MultiXorPostList : public PostList {
      *  a pointer to the matcher, and the document collection size.
      */
     template<class RandomItor>
-    MultiXorPostList(RandomItor pl_begin, RandomItor pl_end,
-		     PostListTree* matcher_, Xapian::doccount db_size)
+    XorPostList(RandomItor pl_begin, RandomItor pl_end,
+		PostListTree* matcher_, Xapian::doccount db_size)
 	: n_kids(pl_end - pl_begin), matcher(matcher_)
     {
 	plist = new PostList * [n_kids];
@@ -83,7 +83,7 @@ class MultiXorPostList : public PostList {
 	termfreq = static_cast<Xapian::doccount>(P_est * db_size + 0.5);
     }
 
-    ~MultiXorPostList();
+    ~XorPostList();
 
     TermFreqs estimate_termfreqs(const Xapian::Weight::Internal& stats) const;
 
@@ -107,8 +107,10 @@ class MultiXorPostList : public PostList {
 
     std::string get_description() const;
 
-    /** get_wdf() for MultiXorPostlists returns the sum of the wdfs of the
-     *  sub postlists which match the current docid.
+    /** Get the within-document frequency.
+     *
+     *  For XorPostlist returns the sum of the wdfs of the matching sub
+     *  postlists.
      *
      *  The wdf isn't really meaningful in many situations, but if the lists
      *  are being combined as a synonym we want the sum of the wdfs, so we do
@@ -119,4 +121,4 @@ class MultiXorPostList : public PostList {
     Xapian::termcount count_matching_subqs() const;
 };
 
-#endif // XAPIAN_INCLUDED_MULTIXORPOSTLIST_H
+#endif // XAPIAN_INCLUDED_XORPOSTLIST_H

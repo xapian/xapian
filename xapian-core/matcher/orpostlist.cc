@@ -23,8 +23,8 @@
 #include "orpostlist.h"
 
 #include "andmaybepostlist.h"
+#include "andpostlist.h"
 #include "min_non_zero.h"
-#include "multiandpostlist.h"
 #include "postlisttree.h"
 
 #include <algorithm>
@@ -57,7 +57,7 @@ OrPostList::decay_to_and(Xapian::docid did,
 			 double w_min,
 			 bool* valid_ptr)
 {
-    l = new MultiAndPostList(l, r, l_max, r_max, pltree, termfreq);
+    l = new AndPostList(l, r, l_max, r_max, pltree, termfreq);
     r = NULL;
     PostList* result;
     if (valid_ptr) {

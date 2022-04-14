@@ -281,7 +281,7 @@ DEFINE_TESTCASE(synonym1, backend) {
     }
 }
 
-// Regression test - test a synonym search with a MultiAndPostlist.
+// Regression test - test a synonym search with a AndPostlist.
 DEFINE_TESTCASE(synonym2, backend) {
     Xapian::Query query;
     vector<Xapian::Query> subqueries;

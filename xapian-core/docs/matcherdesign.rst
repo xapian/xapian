@@ -17,7 +17,7 @@ term, and for other leaf-level subqueries, like PostingSource objects
 and value ranges. Then pairs or groups of PostLists are combined using
 2-way or n-way branching tree elements for AND, OR, etc - these are
 virtual PostLists whose class names reflect the operation
-(MultiAndPostList, OrPostList, etc). See below for a full list.
+(AndPostList, OrPostList, etc). See below for a full list.
 
 OR
 ~~
@@ -28,8 +28,8 @@ is constructed, so the sub-PostLists with the fewest entries are
 furthest down the tree, and those with most nearest the top (this is
 more efficient than an n-ary tree in terms of the number of comparisons
 which need to be performed, ignoring various optimisations which the
-matcher can perform - it may actually be the case that a MultiOrPostList
-could do a better job in practice though).
+matcher can perform - it may actually be the case that a single N-way
+OrPostList could do a better job in practice though).
 
 OR is coded for maximum efficiency when the right branch has fewer
 postings in than the left branch.
@@ -40,7 +40,7 @@ branch that still has postings - see below for full details.
 AND
 ~~~
 
-For a multi-way AND operation, we have MultiAndPostList, which tries the
+For a multi-way AND operation, we have AndPostList, which tries the
 sub-postlists in order from least frequent to most frequent (two-way AND
 is handled the same way). This will generally minimise the number of
 posting list entries we read and maximises the size of each skip\_to.
@@ -113,9 +113,8 @@ weighted or unweighted (boolean) context - the only difference is whether the
 weights are used or not. The types are:
 
 -  OrPostList: returns documents which match either branch
--  MultiAndPostList: returns documents which match all branches
--  MultiXorPostList: returns documents which match an odd number of
-   branches
+-  AndPostList: returns documents which match all branches
+-  XorPostList: returns documents which match an odd number of branches
 -  AndNotPostList: returns documents which match the left branch, but
    not the right (the weights of documents from the right branch are
    ignored).  "X ANDNOT Y" implements what some search engines offer
