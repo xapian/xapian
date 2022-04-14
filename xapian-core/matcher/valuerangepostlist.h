@@ -1,7 +1,7 @@
 /** @file
  * @brief Return document ids matching a range test on a specified doc value.
  */
-/* Copyright 2007,2008,2009,2011 Olly Betts
+/* Copyright 2007-2022 Olly Betts
  * Copyright 2009 Lemur Consulting Ltd
  * Copyright 2010 Richard Boulton
  *
@@ -37,6 +37,9 @@ class ValueRangePostList : public PostList {
 
     ValueList* valuelist = nullptr;
 
+    /// The number of documents in the shard this PostList is for.
+    Xapian::doccount db_size;
+
     /// Disallow copying.
     ValueRangePostList(const ValueRangePostList &);
 
@@ -46,9 +49,10 @@ class ValueRangePostList : public PostList {
   public:
     ValueRangePostList(const Xapian::Database::Internal *db_,
 		       Xapian::doccount termfreq_,
+		       Xapian::doccount db_size_,
 		       Xapian::valueno slot_,
 		       const std::string &begin_, const std::string &end_)
-	: db(db_), slot(slot_), begin(begin_), end(end_) {
+	: db(db_), slot(slot_), begin(begin_), end(end_), db_size(db_size_) {
 	// Static estimate of termfreq based on the slot bounds and range ends.
 	termfreq = termfreq_;
     }

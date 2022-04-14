@@ -1,7 +1,7 @@
 /** @file
  * @brief Return document ids matching a >= test on a specified doc value.
  */
-/* Copyright 2007,2011 Olly Betts
+/* Copyright 2007-2022 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -34,9 +34,12 @@ class ValueGePostList: public ValueRangePostList {
   public:
     ValueGePostList(const Xapian::Database::Internal *db_,
 		    Xapian::doccount termfreq_,
+		    Xapian::doccount db_size_,
 		    Xapian::valueno slot_,
 		    const std::string &begin_)
-	: ValueRangePostList(db_, termfreq_, slot_, begin_, std::string()) {}
+	: ValueRangePostList(db_, termfreq_, db_size_,
+			     slot_, begin_, std::string())
+    {}
 
     PostList * next(double w_min);
 

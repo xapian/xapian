@@ -1206,6 +1206,7 @@ QueryValueRange::postlist(QueryOptimiser *qopt, double factor) const
     if (factor != 0.0)
 	qopt->inc_total_subqs();
     const Xapian::Database::Internal & db = qopt->db;
+    auto db_size = qopt->db_size;
     const string & lb = db.get_value_lower_bound(slot);
     if (lb.empty()) {
 	// This should only happen if there are no values in this slot (which
@@ -1229,7 +1230,7 @@ QueryValueRange::postlist(QueryOptimiser *qopt, double factor) const
 	    // know the range matches whenever the value is set, which is
 	    // exactly value_freq times.
 	    qopt->add_op(value_freq);
-	    if (value_freq == db.get_doccount()) {
+	    if (value_freq == db_size) {
 		// This value is set for all documents in the current shard, so
 		// we can replace it with a MatchAll postlist, which is
 		// especially efficient if there are no gaps in the docids.
@@ -1239,15 +1240,16 @@ QueryValueRange::postlist(QueryOptimiser *qopt, double factor) const
 	    // but don't need to worry about the range bounds so we can use
 	    // ValueGePostList with an empty string as the lower bound which
 	    // means the range test just becomes a cheap `>= string()` test.
-	    RETURN(new ValueGePostList(&db, value_freq, slot, string()));
+	    RETURN(new ValueGePostList(&db, value_freq, db_size, slot,
+				       string()));
 	}
 	auto est = estimate_range_freq(lb, ub, begin, NULL, value_freq);
 	qopt->add_op(0, est, value_freq);
-	RETURN(new ValueGePostList(&db, est, slot, begin));
+	RETURN(new ValueGePostList(&db, est, db_size, slot, begin));
     }
     auto est = estimate_range_freq(lb, ub, begin, &end, value_freq);
     qopt->add_op(0, est, value_freq);
-    RETURN(new ValueRangePostList(&db, est, slot, begin, end));
+    RETURN(new ValueRangePostList(&db, est, db_size, slot, begin, end));
 }
 
 void
@@ -1288,6 +1290,7 @@ QueryValueLE::postlist(QueryOptimiser *qopt, double factor) const
     if (factor != 0.0)
 	qopt->inc_total_subqs();
     const Xapian::Database::Internal & db = qopt->db;
+    auto db_size = qopt->db_size;
     const string & lb = db.get_value_lower_bound(slot);
     if (lb.empty()) {
 	// This should only happen if there are no values in this slot (which
@@ -1307,7 +1310,7 @@ QueryValueLE::postlist(QueryOptimiser *qopt, double factor) const
 	// know the range matches whenever the value is set, which is
 	// exactly value_freq times.
 	qopt->add_op(value_freq);
-	if (value_freq == db.get_doccount()) {
+	if (value_freq == db_size) {
 	    // This value is set for all documents in the current shard, so
 	    // we can replace it with a MatchAll postlist, which is
 	    // especially efficient if there are no gaps in the docids.
@@ -1317,11 +1320,11 @@ QueryValueLE::postlist(QueryOptimiser *qopt, double factor) const
 	// but don't need to worry about the range bounds so we can use
 	// ValueGePostList with an empty string as the lower bound which
 	// means the range test just becomes a cheap `>= string()` test.
-	RETURN(new ValueGePostList(&db, value_freq, slot, string()));
+	RETURN(new ValueGePostList(&db, value_freq, db_size, slot, string()));
     }
     auto est = estimate_range_freq(lb, ub, string(), &limit, value_freq);
     qopt->add_op(0, est, value_freq);
-    RETURN(new ValueRangePostList(&db, est, slot, string(), limit));
+    RETURN(new ValueRangePostList(&db, est, db_size, slot, string(), limit));
 }
 
 void
@@ -1362,6 +1365,7 @@ QueryValueGE::postlist(QueryOptimiser *qopt, double factor) const
     if (factor != 0.0)
 	qopt->inc_total_subqs();
     const Xapian::Database::Internal & db = qopt->db;
+    auto db_size = qopt->db_size;
     const string & lb = db.get_value_lower_bound(slot);
     if (lb.empty()) {
 	// This should only happen if there are no values in this slot (which
@@ -1381,7 +1385,7 @@ QueryValueGE::postlist(QueryOptimiser *qopt, double factor) const
 	// know the range matches whenever the value is set, which is
 	// exactly value_freq times.
 	qopt->add_op(value_freq);
-	if (value_freq == db.get_doccount()) {
+	if (value_freq == db_size) {
 	    // This value is set for all documents in the current shard, so
 	    // we can replace it with a MatchAll postlist, which is
 	    // especially efficient if there are no gaps in the docids.
@@ -1391,11 +1395,11 @@ QueryValueGE::postlist(QueryOptimiser *qopt, double factor) const
 	// but don't need to worry about the range bounds so we can use
 	// ValueGePostList with an empty string as the lower bound which
 	// means the range test just becomes a cheap `>= string()` test.
-	RETURN(new ValueGePostList(&db, value_freq, slot, string()));
+	RETURN(new ValueGePostList(&db, value_freq, db_size, slot, string()));
     }
     auto est = estimate_range_freq(lb, ub, limit, NULL, value_freq);
     qopt->add_op(0, est, value_freq);
-    RETURN(new ValueGePostList(&db, est, slot, limit));
+    RETURN(new ValueGePostList(&db, est, db_size, slot, limit));
 }
 
 void

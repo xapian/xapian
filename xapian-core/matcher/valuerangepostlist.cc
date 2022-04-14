@@ -1,7 +1,7 @@
 /** @file
  * @brief Return document ids matching a range test on a specified doc value.
  */
-/* Copyright 2007,2008,2009,2010,2011,2013,2016,2017 Olly Betts
+/* Copyright 2007-2022 Olly Betts
  * Copyright 2009 Lemur Consulting Ltd
  * Copyright 2010 Richard Boulton
  *
@@ -36,17 +36,24 @@ ValueRangePostList::~ValueRangePostList()
     delete valuelist;
 }
 
+template<typename T>
+inline static T
+scale_freq(T v, double ratio)
+{
+    return static_cast<T>(v * ratio + 0.5);
+}
+
 TermFreqs
 ValueRangePostList::estimate_termfreqs(
 	const Xapian::Weight::Internal& stats) const
 {
     LOGCALL(MATCH, TermFreqs, "ValueRangePostList::estimate_termfreqs", stats);
-    // FIXME: It's hard to estimate well - perhaps consider the values of
-    // begin and end like we do in api/queryinternal.cc to calculate the
-    // estimated termfreq value.
-    RETURN(TermFreqs(stats.collection_size / 2,
-		     stats.rset_size / 2,
-		     stats.total_length / 2));
+    // Estimate by scaling proportional to the termfreq estimate which we calculated
+    // based on the range ends and slot value bounds.
+    double ratio = double(termfreq) / db_size;
+    RETURN(TermFreqs(scale_freq(stats.collection_size, ratio),
+		     scale_freq(stats.rset_size, ratio),
+		     scale_freq(stats.total_length, ratio)));
 }
 
 Xapian::docid
