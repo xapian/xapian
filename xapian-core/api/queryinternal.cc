@@ -1229,7 +1229,7 @@ QueryValueRange::postlist(QueryOptimiser *qopt, double factor) const
 	    // know the range matches whenever the value is set, which is
 	    // exactly value_freq times.
 	    qopt->add_op(value_freq);
-	    if (value_freq == db.get_doccount()) {
+	    if (value_freq == qopt->db_size) {
 		// This value is set for all documents in the current shard, so
 		// we can replace it with a MatchAll postlist, which is
 		// especially efficient if there are no gaps in the docids.
@@ -1307,7 +1307,7 @@ QueryValueLE::postlist(QueryOptimiser *qopt, double factor) const
 	// know the range matches whenever the value is set, which is
 	// exactly value_freq times.
 	qopt->add_op(value_freq);
-	if (value_freq == db.get_doccount()) {
+	if (value_freq == qopt->db_size) {
 	    // This value is set for all documents in the current shard, so
 	    // we can replace it with a MatchAll postlist, which is
 	    // especially efficient if there are no gaps in the docids.
@@ -1381,7 +1381,7 @@ QueryValueGE::postlist(QueryOptimiser *qopt, double factor) const
 	// know the range matches whenever the value is set, which is
 	// exactly value_freq times.
 	qopt->add_op(value_freq);
-	if (value_freq == db.get_doccount()) {
+	if (value_freq == qopt->db_size) {
 	    // This value is set for all documents in the current shard, so
 	    // we can replace it with a MatchAll postlist, which is
 	    // especially efficient if there are no gaps in the docids.
