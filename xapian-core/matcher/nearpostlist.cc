@@ -47,6 +47,11 @@ NearPostList::NearPostList(PostList *source_,
     size_t n = terms.size();
     Assert(n > 1);
     poslists = new PositionList*[n];
+
+    // It's hard to estimate how many times the postlist will match as it
+    // depends a lot on the terms and window, but usually it will occur
+    // significantly less often than the individual terms.
+    termfreq = pl->get_termfreq() / 2;
 }
 
 NearPostList::~NearPostList()
@@ -203,15 +208,6 @@ NearPostList::get_wdf() const
 	wdf = min(wdf, (*i)->get_wdf());
     }
     return wdf;
-}
-
-Xapian::doccount
-NearPostList::get_termfreq() const
-{
-    // It's hard to estimate how many times the postlist will match as it
-    // depends a lot on the terms and window, but usually it will occur
-    // significantly less often than the individual terms.
-    return pl->get_termfreq() / 2;
 }
 
 TermFreqs

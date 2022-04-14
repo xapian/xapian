@@ -49,6 +49,16 @@ ExactPhrasePostList::ExactPhrasePostList(PostList *source_,
 	throw;
     }
     for (size_t i = 0; i < n; ++i) order[i] = unsigned(i);
+
+    // It's hard to estimate how many times the exact phrase will occur as
+    // it depends a lot on the phrase, but usually the exact phrase will
+    // occur significantly less often than the individual terms.
+    //
+    // We divide by 4 here rather than by 2 as we do for NearPostList and
+    // PhrasePostList, as a very rough heuristic to represent the fact that the
+    // words must occur exactly in order, and phrases are therefore rarer than
+    // near matches and (non-exact) phrase matches.
+    termfreq = pl->get_termfreq() / 4;
 }
 
 ExactPhrasePostList::~ExactPhrasePostList()
@@ -154,20 +164,6 @@ ExactPhrasePostList::get_wdf() const
 	wdf = min(wdf, (*i)->get_wdf());
     }
     return wdf;
-}
-
-Xapian::doccount
-ExactPhrasePostList::get_termfreq() const
-{
-    // It's hard to estimate how many times the exact phrase will occur as
-    // it depends a lot on the phrase, but usually the exact phrase will
-    // occur significantly less often than the individual terms.
-    //
-    // We divide by 4 here rather than by 2 as we do for NearPostList and
-    // PhrasePostList, as a very rough heuristic to represent the fact that the
-    // words must occur exactly in order, and phrases are therefore rarer than
-    // near matches and (non-exact) phrase matches.
-    return pl->get_termfreq() / 4;
 }
 
 TermFreqs

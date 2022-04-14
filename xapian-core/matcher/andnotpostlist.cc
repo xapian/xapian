@@ -26,20 +26,6 @@
 
 using namespace std;
 
-Xapian::doccount
-AndNotPostList::get_termfreq() const
-{
-    // We shortcut an empty shard and avoid creating a postlist tree for it.
-    Assert(db_size);
-    // We calculate the estimate assuming independence.  With this assumption,
-    // the estimate is the product of the estimates for the sub-postlists
-    // (for the right side this is inverted by subtracting from db_size),
-    // divided by db_size.
-    double result = pl->get_termfreq();
-    result = (result * (db_size - r->get_termfreq())) / db_size;
-    return static_cast<Xapian::doccount>(result + 0.5);
-}
-
 TermFreqs
 AndNotPostList::estimate_termfreqs(const Xapian::Weight::Internal& stats) const
 {

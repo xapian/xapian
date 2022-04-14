@@ -38,24 +38,18 @@ class ContiguousAllDocsPostList : public LeafPostList {
      *
      *  This will be 0 before we start and once we reach the end.
      */
-    Xapian::docid did;
-
-    /// The number of documents in the database.
-    Xapian::doccount doccount;
+    Xapian::docid did = 0;
 
   public:
     /// Constructor.
     explicit
-    ContiguousAllDocsPostList(Xapian::doccount doccount_)
-	: LeafPostList(std::string()),
-	  did(0), doccount(doccount_) { }
-
-    /** Return the term frequency.
-     *
-     *  For an all documents postlist, this is the number of documents in the
-     *  database.
-     */
-    Xapian::doccount get_termfreq() const;
+    ContiguousAllDocsPostList(Xapian::doccount doccount)
+	: LeafPostList(std::string()) {
+	/* For an all documents postlist the term frequency is the number of
+	 * documents in the database.
+	 */
+	termfreq = doccount;
+    }
 
     /// Return the current docid.
     Xapian::docid get_docid() const;

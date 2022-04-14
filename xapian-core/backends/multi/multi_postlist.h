@@ -58,13 +58,19 @@ class MultiPostList : public PostList {
 	    delete [] postlists;
 	    throw;
 	}
+	// MultiPostList is only used by PostingIterator which should never
+	// read the termfreq so leave it uninitialised so that ubsan or
+	// valgrind can at least pick up unintended uses.
+#if 0
+	termfreq = 0;
+	for (Xapian::doccount i = 0; i < n_shards_; ++i) {
+	    termfreq += postlists[i]->get_termfreq();
+	}
+#endif
     }
 
     /// Destructor.
     ~MultiPostList();
-
-    /// Get an estimate of the number of documents indexed by this term.
-    Xapian::doccount get_termfreq() const;
 
     /// Return the current docid.
     Xapian::docid get_docid() const;

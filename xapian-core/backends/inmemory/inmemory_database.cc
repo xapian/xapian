@@ -85,22 +85,16 @@ InMemoryPostList::InMemoryPostList(intrusive_ptr<const InMemoryDatabase> db_,
 	: LeafPostList(term_),
 	  pos(imterm.docs.begin()),
 	  end(imterm.docs.end()),
-	  termfreq(imterm.term_freq),
 	  started(false),
 	  db(db_),
 	  wdf_upper_bound(0)
 {
+    termfreq = imterm.term_freq;
     while (pos != end && !pos->valid) ++pos;
     if (pos != end) {
 	auto first_wdf = (*pos).wdf;
 	wdf_upper_bound = max(first_wdf, imterm.collection_freq - first_wdf);
     }
-}
-
-Xapian::doccount
-InMemoryPostList::get_termfreq() const
-{
-    return termfreq;
 }
 
 Xapian::docid
@@ -314,13 +308,7 @@ InMemoryTermList::positionlist_begin() const
 InMemoryAllDocsPostList::InMemoryAllDocsPostList(intrusive_ptr<const InMemoryDatabase> db_)
 	: LeafPostList(std::string()), did(0), db(db_)
 {
-}
-
-Xapian::doccount
-InMemoryAllDocsPostList::get_termfreq() const
-{
-    if (db->is_closed()) InMemoryDatabase::throw_database_closed();
-    return db->totdocs;
+    termfreq = db->totdocs;
 }
 
 Xapian::docid

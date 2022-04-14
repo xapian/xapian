@@ -29,12 +29,6 @@
 
 using namespace std;
 
-Xapian::doccount
-ContiguousAllDocsPostList::get_termfreq() const
-{
-    return doccount;
-}
-
 Xapian::docid
 ContiguousAllDocsPostList::get_docid() const
 {
@@ -65,7 +59,8 @@ ContiguousAllDocsPostList::open_position_list() const
 PostList *
 ContiguousAllDocsPostList::next(double)
 {
-    if (did == doccount) {
+    // Docids are contiguous from 1 so termfreq gives the highest docid.
+    if (did == termfreq) {
 	did = 0;
     } else {
 	++did;
@@ -77,7 +72,8 @@ PostList *
 ContiguousAllDocsPostList::skip_to(Xapian::docid target, double)
 {
     if (target > did) {
-	if (target > doccount) {
+	// Docids are contiguous from 1 so termfreq gives the highest docid.
+	if (target > termfreq) {
 	    did = 0;
 	} else {
 	    did = target;
@@ -102,7 +98,7 @@ string
 ContiguousAllDocsPostList::get_description() const
 {
     string msg("ContiguousAllDocsPostList(1..");
-    msg += str(doccount);
+    msg += str(termfreq);
     msg += ')';
     return msg;
 }

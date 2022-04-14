@@ -1,7 +1,7 @@
 /** @file
  * @brief Abstract base class for postlists.
  */
-/* Copyright (C) 2007,2008,2009,2011,2015,2017 Olly Betts
+/* Copyright (C) 2007-2022 Olly Betts
  * Copyright (C) 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -45,6 +45,12 @@ class PostList {
     PostList(const PostList &) = delete;
 
   protected:
+    /** Estimate of the number of documents this PostList will return.
+     *
+     *  This should be exact for terms.
+     */
+    Xapian::doccount termfreq;
+
     /// Only constructable as a base class for derived classes.
     PostList() { }
 
@@ -58,7 +64,8 @@ class PostList {
      *
      *  This should be exact for terms.
      */
-    virtual Xapian::doccount get_termfreq() const = 0;
+    virtual
+    Xapian::doccount get_termfreq() const final { return termfreq; }
 
     /** Get an estimate for the termfreq and reltermfreq, given the stats.
      *

@@ -51,22 +51,6 @@ MultiAndPostList::~MultiAndPostList()
     delete [] max_wt;
 }
 
-Xapian::doccount
-MultiAndPostList::get_termfreq() const
-{
-    LOGCALL(MATCH, Xapian::doccount, "MultiAndPostList::get_termfreq", NO_ARGS);
-    // We shortcut an empty shard and avoid creating a postlist tree for it.
-    Assert(db_size);
-    // We calculate the estimate assuming independence.  With this assumption,
-    // the estimate is the product of the estimates for the sub-postlists
-    // divided by db_size (n_kids - 1) times.
-    double result = plist[0]->get_termfreq();
-    for (size_t i = 1; i < n_kids; ++i) {
-	result = (result * plist[i]->get_termfreq()) / db_size;
-    }
-    return static_cast<Xapian::doccount>(result + 0.5);
-}
-
 TermFreqs
 MultiAndPostList::estimate_termfreqs(
 	const Xapian::Weight::Internal& stats) const

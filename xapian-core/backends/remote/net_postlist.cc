@@ -30,12 +30,6 @@
 
 using namespace std;
 
-Xapian::doccount
-NetworkPostList::get_termfreq() const
-{
-    return termfreq;
-}
-
 Xapian::docid
 NetworkPostList::get_docid() const
 {

@@ -85,18 +85,16 @@ check_tname_in_key(const char **keypos, const char *keyend, const string &tname)
 
 /// Read the start of the first chunk in the posting list.
 static Xapian::docid
-read_start_of_first_chunk(const char ** posptr,
-			  const char * end,
-			  Xapian::doccount * number_of_entries_ptr,
-			  Xapian::termcount * collection_freq_ptr)
+read_start_of_first_chunk(const char** posptr,
+			  const char* end,
+			  Xapian::doccount* termfreq_ptr,
+			  Xapian::termcount* collection_freq_ptr)
 {
-    LOGCALL_STATIC(DB, Xapian::docid, "read_start_of_first_chunk", (const void *)posptr | (const void *)end | (void *)number_of_entries_ptr | (void *)collection_freq_ptr);
+    LOGCALL_STATIC(DB, Xapian::docid, "read_start_of_first_chunk", (const void**)posptr | (const void**)end | (void**)termfreq_ptr | (void**)collection_freq_ptr);
 
-    GlassPostList::read_number_of_entries(posptr, end,
-					  number_of_entries_ptr,
-					  collection_freq_ptr);
-    if (number_of_entries_ptr)
-	LOGVALUE(DB, *number_of_entries_ptr);
+    GlassPostList::read_freqs(posptr, end, termfreq_ptr, collection_freq_ptr);
+    if (termfreq_ptr)
+	LOGVALUE(DB, *termfreq_ptr);
     if (collection_freq_ptr)
 	LOGVALUE(DB, *collection_freq_ptr);
 
@@ -169,7 +167,7 @@ GlassPostListTable::get_freqs(const string & term,
 	const char * e = p + tag.size();
 	Xapian::doccount tf;
 	Xapian::termcount cf;
-	GlassPostList::read_number_of_entries(&p, e, &tf, &cf);
+	GlassPostList::read_freqs(&p, e, &tf, &cf);
 	if (termfreq_ptr)
 	    *termfreq_ptr = tf;
 	if (collfreq_ptr)
@@ -665,12 +663,12 @@ PostlistChunkWriter::flush(GlassTable *table)
  *  This must only be called when *posptr is pointing to the start of
  *  the first chunk of the posting list.
  */
-void GlassPostList::read_number_of_entries(const char ** posptr,
-				   const char * end,
-				   Xapian::doccount * number_of_entries_ptr,
-				   Xapian::termcount * collection_freq_ptr)
+void GlassPostList::read_freqs(const char** posptr,
+			       const char* end,
+			       Xapian::doccount* termfreq_ptr,
+			       Xapian::termcount* collection_freq_ptr)
 {
-    if (!unpack_uint(posptr, end, number_of_entries_ptr))
+    if (!unpack_uint(posptr, end, termfreq_ptr))
 	report_read_error(*posptr);
     if (!unpack_uint(posptr, end, collection_freq_ptr))
 	report_read_error(*posptr);
@@ -728,7 +726,7 @@ GlassPostList::init()
     int found = cursor->find_entry(key);
     if (!found) {
 	LOGLINE(DB, "postlist for term not found");
-	number_of_entries = 0;
+	termfreq = 0;
 	is_at_end = true;
 	pos = 0;
 	end = 0;
@@ -742,7 +740,7 @@ GlassPostList::init()
     end = pos + cursor->current_tag.size();
 
     Xapian::termcount collfreq;
-    did = read_start_of_first_chunk(&pos, end, &number_of_entries, &collfreq);
+    did = read_start_of_first_chunk(&pos, end, &termfreq, &collfreq);
     first_did_in_chunk = did;
     last_did_in_chunk = read_start_of_chunk(&pos, end, first_did_in_chunk,
 					    &is_last_chunk);
@@ -914,9 +912,9 @@ GlassPostList::move_to_chunk_containing(Xapian::docid desired_did)
     if (keypos == keyend) {
 	// In first chunk
 #ifdef XAPIAN_ASSERTIONS
-	Xapian::doccount old_number_of_entries = number_of_entries;
-	did = read_start_of_first_chunk(&pos, end, &number_of_entries, NULL);
-	Assert(old_number_of_entries == number_of_entries);
+	Xapian::doccount old_termfreq = termfreq;
+	did = read_start_of_first_chunk(&pos, end, &termfreq, NULL);
+	Assert(old_termfreq == termfreq);
 #else
 	did = read_start_of_first_chunk(&pos, end, NULL, NULL);
 #endif
@@ -1033,7 +1031,7 @@ GlassPostList::get_description() const
     string desc;
     description_append(desc, term);
     desc += ":";
-    desc += str(number_of_entries);
+    desc += str(termfreq);
     return desc;
 }
 

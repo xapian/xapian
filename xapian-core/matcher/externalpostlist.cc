@@ -54,18 +54,12 @@ ExternalPostList::ExternalPostList(const Xapian::Database& db,
     }
     source->set_max_weight_cached_flag_ptr_(max_weight_cached_flag_ptr);
     source->reset(db, shard_index);
+    termfreq = source->get_termfreq_est();
     if (estimate_op) {
 	estimate_op->report_termfreqs(source->get_termfreq_min(),
-				      source->get_termfreq_est(),
+				      termfreq,
 				      source->get_termfreq_max());
     }
-}
-
-Xapian::doccount
-ExternalPostList::get_termfreq() const
-{
-    Assert(source.get());
-    return source->get_termfreq_est();
 }
 
 Xapian::docid

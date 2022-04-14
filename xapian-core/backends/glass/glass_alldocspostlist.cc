@@ -33,18 +33,14 @@ using namespace std;
 using Xapian::Internal::intrusive_ptr;
 
 GlassAllDocsPostList::GlassAllDocsPostList(intrusive_ptr<const GlassDatabase> db_,
-					   Xapian::doccount doccount_)
-	: GlassPostList(db_, string(), true),
-	  doccount(doccount_)
+					   Xapian::doccount doccount)
+	: GlassPostList(db_, string(), true)
 {
     LOGCALL_CTOR(DB, "GlassAllDocsPostList", db_.get() | doccount_);
-}
-
-Xapian::doccount
-GlassAllDocsPostList::get_termfreq() const
-{
-    LOGCALL(DB, Xapian::doccount, "GlassAllDocsPostList::get_termfreq", NO_ARGS);
-    RETURN(doccount);
+    /* For an all documents postlist the term frequency is the number of
+     * documents in the database.
+     */
+    termfreq = doccount;
 }
 
 Xapian::termcount
@@ -73,7 +69,7 @@ string
 GlassAllDocsPostList::get_description() const
 {
     string desc = "GlassAllDocsPostList(doccount=";
-    desc += str(doccount);
+    desc += str(termfreq);
     desc += ')';
     return desc;
 }

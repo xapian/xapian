@@ -52,9 +52,6 @@ class OrPostList : public PostList {
 
     double r_max = 0;
 
-    /** Total number of documents in the database. */
-    Xapian::doccount db_size;
-
     PostListTree* pltree;
 
     PostList* decay_to_and(Xapian::docid did,
@@ -69,16 +66,12 @@ class OrPostList : public PostList {
 
   public:
     OrPostList(PostList* left, PostList* right,
-	       PostListTree* pltree_, Xapian::doccount db_size_)
-	: l(left), r(right), db_size(db_size_), pltree(pltree_)
-    {}
+	       PostListTree* pltree_, Xapian::doccount db_size);
 
     ~OrPostList() {
 	delete l;
 	delete r;
     }
-
-    Xapian::doccount get_termfreq() const;
 
     TermFreqs estimate_termfreqs(const Xapian::Weight::Internal& stats) const;
 

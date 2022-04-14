@@ -146,15 +146,10 @@ class HoneyAllDocsPostList : public LeafPostList {
 
     Honey::DocLenChunkReader reader;
 
-    /// The number of documents in the database.
-    Xapian::doccount doccount;
-
   public:
-    HoneyAllDocsPostList(const HoneyDatabase* db_, Xapian::doccount doccount_);
+    HoneyAllDocsPostList(const HoneyDatabase* db_, Xapian::doccount doccount);
 
     ~HoneyAllDocsPostList();
-
-    Xapian::doccount get_termfreq() const;
 
     Xapian::termcount get_doclength() const;
 

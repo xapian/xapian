@@ -41,12 +41,6 @@ class AndMaybePostList : public WrapperPostList {
     /// Current max weight from @a r.
     double r_max;
 
-    /** Total number of documents in the database.
-     *
-     *  Only used if we decay to AND.
-     */
-    Xapian::doccount db_size;
-
     PostListTree* pltree;
 
     /// Does @a r match at the current position?
@@ -57,9 +51,8 @@ class AndMaybePostList : public WrapperPostList {
 			   bool* valid_ptr = NULL);
 
   public:
-    AndMaybePostList(PostList* left, PostList* right,
-		     PostListTree* pltree_, Xapian::doccount db_size_)
-	: WrapperPostList(left), r(right), db_size(db_size_), pltree(pltree_)
+    AndMaybePostList(PostList* left, PostList* right, PostListTree* pltree_)
+	: WrapperPostList(left), r(right), pltree(pltree_)
     {}
 
     /** Construct as decay product from OrPostList.
@@ -71,12 +64,10 @@ class AndMaybePostList : public WrapperPostList {
 		     PostList* right,
 		     double lmax,
 		     double rmax,
-		     PostListTree* pltree_,
-		     Xapian::doccount db_size_)
+		     PostListTree* pltree_)
 	: WrapperPostList(left), r(right), pl_max(lmax), r_max(rmax),
-	  db_size(db_size_), pltree(pltree_)
-    {
-    }
+	  pltree(pltree_)
+    { }
 
     ~AndMaybePostList() { delete r; }
 

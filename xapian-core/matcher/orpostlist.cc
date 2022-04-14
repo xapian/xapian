@@ -31,12 +31,33 @@
 
 using namespace std;
 
+template<typename T>
+static void
+estimate_or_assuming_indep(double a, double b, double n, T& res)
+{
+    if (rare(n == 0.0)) {
+	res = 0;
+    } else {
+	res = static_cast<T>(a + b - (a * b / n) + 0.5);
+    }
+}
+
+OrPostList::OrPostList(PostList* left, PostList* right,
+		       PostListTree* pltree_, Xapian::doccount db_size)
+    : l(left), r(right), pltree(pltree_)
+{
+    estimate_or_assuming_indep(l->get_termfreq(),
+			       r->get_termfreq(),
+			       db_size,
+			       termfreq);
+}
+
 PostList*
 OrPostList::decay_to_and(Xapian::docid did,
 			 double w_min,
 			 bool* valid_ptr)
 {
-    l = new MultiAndPostList(l, r, l_max, r_max, pltree, db_size);
+    l = new MultiAndPostList(l, r, l_max, r_max, pltree, termfreq);
     r = NULL;
     PostList* result;
     if (valid_ptr) {
@@ -60,7 +81,7 @@ OrPostList::decay_to_andmaybe(PostList* left,
 			      bool* valid_ptr)
 {
     if (l != left) swap(l_max, r_max);
-    l = new AndMaybePostList(left, right, l_max, r_max, pltree, db_size);
+    l = new AndMaybePostList(left, right, l_max, r_max, pltree);
     r = NULL;
     PostList* result;
     if (valid_ptr) {
@@ -342,27 +363,6 @@ OrPostList::check(Xapian::docid did, double w_min, bool& valid)
     valid = (l_did == did || r_did == did) || (l_did != 0 && r_did != 0);
 
     return NULL;
-}
-
-template<typename T>
-static void
-estimate_or_assuming_indep(double a, double b, double n, T& res)
-{
-    if (rare(n == 0.0)) {
-	res = 0;
-    } else {
-	res = static_cast<T>(a + b - (a * b / n) + 0.5);
-    }
-}
-
-Xapian::doccount
-OrPostList::get_termfreq() const
-{
-    auto l_tf_est = l->get_termfreq();
-    auto r_tf_est = r->get_termfreq();
-    Xapian::doccount tf_est;
-    estimate_or_assuming_indep(l_tf_est, r_tf_est, db_size, tf_est);
-    return tf_est;
 }
 
 TermFreqs

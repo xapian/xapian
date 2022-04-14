@@ -89,9 +89,6 @@ class LeafPostList : public PostList {
 	return stats->termfreqs[term].max_part;
     }
 
-    /** Return the exact term frequency. */
-    virtual Xapian::doccount get_termfreq() const = 0;
-
     double get_weight(Xapian::termcount doclen,
 		      Xapian::termcount unique_terms,
 		      Xapian::termcount wdfdocmax) const;

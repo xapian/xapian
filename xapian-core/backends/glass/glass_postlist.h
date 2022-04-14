@@ -180,9 +180,6 @@ class GlassPostList : public LeafPostList {
     /// The wdf of the current document.
     Xapian::termcount wdf;
 
-    /// The number of entries in the posting list.
-    Xapian::doccount number_of_entries;
-
     /// Upper bound on wdf for this postlist.
     Xapian::termcount wdf_upper_bound;
 
@@ -261,12 +258,6 @@ class GlassPostList : public LeafPostList {
      */
     bool jump_to(Xapian::docid desired_did);
 
-    /** Returns number of docs indexed by this term.
-     *
-     *  This is the length of the postlist.
-     */
-    Xapian::doccount get_termfreq() const { return number_of_entries; }
-
     /// Returns the current docid.
     Xapian::docid get_docid() const { Assert(have_started); return did; }
 
@@ -297,11 +288,11 @@ class GlassPostList : public LeafPostList {
     /// Get a description of the document.
     std::string get_description() const;
 
-    /// Read the number of entries and the collection frequency.
-    static void read_number_of_entries(const char ** posptr,
-				       const char * end,
-				       Xapian::doccount * number_of_entries_ptr,
-				       Xapian::termcount * collection_freq_ptr);
+    /// Read the term frequency and collection frequency.
+    static void read_freqs(const char** posptr,
+			   const char* end,
+			   Xapian::doccount* number_of_entries_ptr,
+			   Xapian::termcount* collection_freq_ptr);
 };
 
 #ifdef DISABLE_GPL_LIBXAPIAN

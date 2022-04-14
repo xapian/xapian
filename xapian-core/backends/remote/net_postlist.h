@@ -44,19 +44,15 @@ class NetworkPostList : public LeafPostList {
     Xapian::docid lastdocid = 0;
     Xapian::termcount lastwdf = 0;
 
-    Xapian::doccount termfreq;
-
   public:
     /// Constructor.
     NetworkPostList(Xapian::Internal::intrusive_ptr<const RemoteDatabase> db_,
 		    const std::string& term_,
 		    Xapian::doccount termfreq_,
 		    std::string&& postings_)
-	: LeafPostList(term_),
-	  db(db_), postings(std::move(postings_)), termfreq(termfreq_) { }
-
-    /// Get number of documents indexed by this term.
-    Xapian::doccount get_termfreq() const;
+	: LeafPostList(term_), db(db_), postings(std::move(postings_)) {
+	termfreq = termfreq_;
+    }
 
     /// Get the current document ID.
     Xapian::docid get_docid() const;

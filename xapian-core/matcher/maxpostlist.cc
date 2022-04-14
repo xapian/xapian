@@ -38,24 +38,6 @@ MaxPostList::~MaxPostList()
     }
 }
 
-Xapian::doccount
-MaxPostList::get_termfreq() const
-{
-    // We shortcut an empty shard and avoid creating a postlist tree for it.
-    Assert(db_size);
-
-    // We calculate the estimate assuming independence.  The simplest
-    // way to calculate this seems to be a series of (n_kids - 1) pairwise
-    // calculations, which gives the same answer regardless of the order.
-    double scale = 1.0 / db_size;
-    double P_est = plist[0]->get_termfreq() * scale;
-    for (size_t i = 1; i < n_kids; ++i) {
-	double P_i = plist[i]->get_termfreq() * scale;
-	P_est += P_i - P_est * P_i;
-    }
-    return static_cast<Xapian::doccount>(P_est * db_size + 0.5);
-}
-
 TermFreqs
 MaxPostList::estimate_termfreqs(const Xapian::Weight::Internal& stats) const
 {

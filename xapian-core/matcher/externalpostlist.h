@@ -60,8 +60,6 @@ class ExternalPostList : public PostList {
 		     bool* max_weight_cached_flag_ptr,
 		     Xapian::doccount shard_index);
 
-    Xapian::doccount get_termfreq() const;
-
     Xapian::docid get_docid() const;
 
     double get_weight(Xapian::termcount doclen,

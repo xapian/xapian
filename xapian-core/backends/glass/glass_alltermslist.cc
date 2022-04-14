@@ -39,7 +39,7 @@ GlassAllTermsList::read_termfreq() const
     cursor->read_tag();
     const char *p = cursor->current_tag.data();
     const char *pend = p + cursor->current_tag.size();
-    GlassPostList::read_number_of_entries(&p, pend, &termfreq, NULL);
+    GlassPostList::read_freqs(&p, pend, &termfreq, NULL);
 }
 
 GlassAllTermsList::~GlassAllTermsList()

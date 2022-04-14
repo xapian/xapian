@@ -33,14 +33,9 @@ class GlassAllDocsPostList : public GlassPostList {
     /// Don't allow copying.
     GlassAllDocsPostList(const GlassAllDocsPostList &);
 
-    /// The number of documents in the database.
-    Xapian::doccount doccount;
-
   public:
     GlassAllDocsPostList(Xapian::Internal::intrusive_ptr<const GlassDatabase> db_,
-			 Xapian::doccount doccount_);
-
-    Xapian::doccount get_termfreq() const;
+			 Xapian::doccount doccount);
 
     Xapian::termcount get_wdf() const;
 

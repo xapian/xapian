@@ -40,15 +40,6 @@ MultiPostList::~MultiPostList()
     delete [] docids;
 }
 
-Xapian::doccount
-MultiPostList::get_termfreq() const
-{
-    // MultiPostList is only used by PostingIterator which should never call
-    // this method.
-    Assert(false);
-    return 0;
-}
-
 Xapian::docid
 MultiPostList::get_docid() const
 {

@@ -25,6 +25,8 @@
 #include "backends/postlist.h"
 #include "postlisttree.h"
 
+#include <algorithm>
+
 /// N-way OR postlist with wt=max(wt_i).
 class MaxPostList : public PostList {
     /// Don't allow assignment.
@@ -34,16 +36,13 @@ class MaxPostList : public PostList {
     MaxPostList(const MaxPostList &);
 
     /// The current docid, or zero if we haven't started or are at_end.
-    Xapian::docid did;
+    Xapian::docid did = 0;
 
     /// The number of sub-postlists.
     size_t n_kids;
 
     /// Array of pointers to sub-postlists.
-    PostList ** plist;
-
-    /// The number of documents in the database.
-    Xapian::doccount db_size;
+    PostList** plist = nullptr;
 
     /// Pointer to the matcher object, so we can report pruning.
     PostListTree *matcher;
@@ -64,20 +63,28 @@ class MaxPostList : public PostList {
      */
     template<class RandomItor>
     MaxPostList(RandomItor pl_begin, RandomItor pl_end,
-		PostListTree * matcher_, Xapian::doccount db_size_)
-	: did(0), n_kids(pl_end - pl_begin), plist(NULL),
-	  db_size(db_size_), matcher(matcher_)
+		PostListTree* matcher_, Xapian::doccount db_size)
+	: n_kids(pl_end - pl_begin), matcher(matcher_)
     {
 	plist = new PostList * [n_kids];
-	auto it = plist;
-	while (pl_begin != pl_end) {
-	    *it++ = (*pl_begin++).pl;
+	std::copy(pl_begin, pl_end, plist);
+
+	// We shortcut an empty shard and avoid creating a postlist tree for it.
+	Assert(db_size);
+
+	// We calculate the estimate assuming independence.  The simplest
+	// way to calculate this seems to be a series of (n_kids - 1) pairwise
+	// calculations, which gives the same answer regardless of the order.
+	double scale = 1.0 / db_size;
+	double P_est = plist[0]->get_termfreq() * scale;
+	for (size_t i = 1; i < n_kids; ++i) {
+	    double P_i = plist[i]->get_termfreq() * scale;
+	    P_est += P_i - P_est * P_i;
 	}
+	termfreq = static_cast<Xapian::doccount>(P_est * db_size + 0.5);
     }
 
     ~MaxPostList();
-
-    Xapian::doccount get_termfreq() const;
 
     TermFreqs estimate_termfreqs(const Xapian::Weight::Internal& stats) const;
 

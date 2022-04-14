@@ -78,16 +78,6 @@ namespace Xapian {
 
 namespace Internal {
 
-struct PostListAndTermFreq {
-    PostList* pl;
-    Xapian::doccount tf = 0;
-
-    PostListAndTermFreq() : pl(nullptr) {}
-
-    explicit
-    PostListAndTermFreq(PostList* pl_) : pl(pl_) {}
-};
-
 /** Class providing an operator which sorts postlists to select max or terms.
  *  This returns true if a has a (strictly) greater termweight than b.
  *
@@ -98,10 +88,7 @@ struct PostListAndTermFreq {
  */
 struct CmpMaxOrTerms {
     /** Return true if and only if a has a strictly greater termweight than b. */
-    bool operator()(const PostListAndTermFreq& elt_a,
-		    const PostListAndTermFreq& elt_b) {
-	PostList* a = elt_a.pl;
-	PostList* b = elt_b.pl;
+    bool operator()(PostList* a, PostList* b) {
 #if (defined(__i386__) && !defined(__SSE_MATH__)) || \
     defined(__mc68000__) || defined(__mc68010__) || \
     defined(__mc68020__) || defined(__mc68030__)
@@ -136,12 +123,6 @@ struct CmpMaxOrTerms {
 
 /// Comparison functor which orders by descending termfreq.
 struct ComparePostListTermFreqAscending {
-    /// Order PostListAndTermFreq by descending tf.
-    bool operator()(const PostListAndTermFreq& a,
-		    const PostListAndTermFreq& b) const {
-	return a.tf > b.tf;
-    }
-
     /// Order PostList* by descending get_termfreq().
     bool operator()(const PostList* a,
 		    const PostList* b) const {
@@ -149,38 +130,11 @@ struct ComparePostListTermFreqAscending {
     }
 };
 
-template<typename T>
 class Context {
-    /** Helper for initialisation when T = PostList*.
-     *
-     *  No initialisation is needed for this case.
-     */
-    void init_tf_(vector<PostList*>&) { }
-
-    /** Helper for initialisation when T = PostListAndTermFreq. */
-    void init_tf_(vector<PostListAndTermFreq>&) {
-	if (pls.empty() || pls.front().tf != 0) return;
-	for (auto&& elt : pls) {
-	    elt.tf = elt.pl->get_termfreq();
-	}
-    }
-
   protected:
     QueryOptimiser* qopt;
 
-    vector<T> pls;
-
-    /** Helper for initialisation.
-     *
-     *  Use with BoolOrContext and OrContext.
-     */
-    void init_tf() { init_tf_(pls); }
-
-    /** Helper for dereferencing when T = PostList*. */
-    PostList* as_postlist(PostList* pl) { return pl; }
-
-    /** Helper for dereferencing when T = PostListAndTermFreq. */
-    PostList* as_postlist(const PostListAndTermFreq& x) { return x.pl; }
+    vector<PostList*> pls;
 
   public:
     Context(QueryOptimiser* qopt_, size_t reserve) : qopt(qopt_) {
@@ -210,7 +164,7 @@ class Context {
 	    return;
 
 	for (auto&& i = pls.begin() + new_size; i != pls.end(); ++i) {
-	    qopt->destroy_postlist(as_postlist(*i));
+	    qopt->destroy_postlist(*i);
 	}
 	pls.resize(new_size);
     }
@@ -228,10 +182,8 @@ class Context {
     void expand_edit_distance(const QueryEditDistance* query, double factor);
 };
 
-template<typename T>
 inline void
-Context<T>::expand_wildcard(const QueryWildcard* query,
-			    double factor)
+Context::expand_wildcard(const QueryWildcard* query, double factor)
 {
     unique_ptr<TermList> t(qopt->db.open_allterms(query->get_fixed_prefix()));
     bool skip_ucase = query->get_fixed_prefix().empty();
@@ -292,7 +244,6 @@ done_skip_to:
 	// postlist from registering the term for stats.
 	auto set_size = query->get_max_expansion();
 	if (size() > set_size) {
-	    init_tf();
 	    auto begin = pls.begin();
 	    nth_element(begin, begin + set_size - 1, pls.end(),
 			ComparePostListTermFreqAscending());
@@ -301,10 +252,8 @@ done_skip_to:
     }
 }
 
-template<typename T>
 inline void
-Context<T>::expand_edit_distance(const QueryEditDistance* query,
-				 double factor)
+Context::expand_edit_distance(const QueryEditDistance* query, double factor)
 {
     string pfx(query->get_pattern(), 0, query->get_fixed_prefix_len());
     unique_ptr<TermList> t(qopt->db.open_allterms(pfx));
@@ -367,7 +316,6 @@ done_skip_to:
 	// postlist from registering the term for stats.
 	auto set_size = query->get_max_expansion();
 	if (size() > set_size) {
-	    init_tf();
 	    auto begin = pls.begin();
 	    nth_element(begin, begin + set_size - 1, pls.end(),
 			ComparePostListTermFreqAscending());
@@ -376,7 +324,7 @@ done_skip_to:
     }
 }
 
-class BoolOrContext : public Context<PostList*> {
+class BoolOrContext : public Context {
   public:
     BoolOrContext(QueryOptimiser* qopt_, size_t reserve)
 	: Context(qopt_, reserve) { }
@@ -405,7 +353,7 @@ BoolOrContext::postlist()
     return pl;
 }
 
-class OrContext : public Context<PostListAndTermFreq> {
+class OrContext : public Context {
   public:
     OrContext(QueryOptimiser* qopt_, size_t reserve)
 	: Context(qopt_, reserve) { }
@@ -432,7 +380,7 @@ OrContext::postlist()
 	case 0:
 	    return NULL;
 	case 1: {
-	    PostList* pl = pls[0].pl;
+	    PostList* pl = pls[0];
 	    pls.clear();
 	    return pl;
 	}
@@ -442,7 +390,6 @@ OrContext::postlist()
 
     // Make postlists into a heap so that the postlist with the greatest term
     // frequency is at the top of the heap.
-    init_tf();
     Heap::make(pls.begin(), pls.end(), ComparePostListTermFreqAscending());
 
     // Now build a tree of binary OrPostList objects.
@@ -459,20 +406,17 @@ OrContext::postlist()
 	//
 	// We do this so that the OrPostList class can be optimised assuming
 	// that this is the case.
-	PostList * r = pls.front().pl;
-	auto tf = pls.front().tf;
+	PostList* r = pls.front();
 	Heap::pop(pls.begin(), pls.end(), ComparePostListTermFreqAscending());
 	pls.pop_back();
-	PostList * pl;
-	pl = new OrPostList(pls.front().pl, r, qopt->matcher, qopt->db_size);
+	auto pl = new OrPostList(pls.front(), r, qopt->matcher, qopt->db_size);
 
 	if (pls.size() == 1) {
 	    pls.clear();
 	    return pl;
 	}
 
-	pls[0].pl = pl;
-	pls[0].tf += tf;
+	pls[0] = pl;
 	Heap::replace(pls.begin(), pls.end(),
 		      ComparePostListTermFreqAscending());
     }
@@ -485,7 +429,7 @@ OrContext::postlist_max()
 	case 0:
 	    return NULL;
 	case 1: {
-	    PostList* pl = pls[0].pl;
+	    PostList* pl = pls[0];
 	    pls.clear();
 	    return pl;
 	}
@@ -493,7 +437,6 @@ OrContext::postlist_max()
 
     // Sort the postlists so that the postlist with the greatest term frequency
     // is first.
-    init_tf();
     sort(pls.begin(), pls.end(), ComparePostListTermFreqAscending());
 
     PostList * pl;
@@ -505,7 +448,7 @@ OrContext::postlist_max()
     return pl;
 }
 
-class XorContext : public Context<PostList*> {
+class XorContext : public Context {
   public:
     XorContext(QueryOptimiser* qopt_, size_t reserve)
 	: Context(qopt_, reserve) { }
@@ -529,7 +472,7 @@ XorContext::postlist()
     return pl;
 }
 
-class AndContext : public Context<PostList*> {
+class AndContext : public Context {
     class PosFilter {
 	Xapian::Query::op op_;
 
@@ -664,7 +607,7 @@ AndContext::postlist()
 
     if (not_ctx && !not_ctx->empty()) {
 	PostList* rhs = not_ctx->postlist();
-	pl.reset(new AndNotPostList(pl.release(), rhs, matcher, db_size));
+	pl.reset(new AndNotPostList(pl.release(), rhs, db_size));
 	qopt->add_op(EstimateOp::AND_NOT, 2);
 	not_ctx.reset();
     }
@@ -687,7 +630,7 @@ AndContext::postlist()
 	// RHS only adds weight) so for the estimates we can just ignore the
 	// RHS and the operator itself).
 	qopt->pop_op();
-	pl.reset(new AndMaybePostList(pl.release(), rhs, matcher, db_size));
+	pl.reset(new AndMaybePostList(pl.release(), rhs, matcher));
 	maybe_ctx.reset();
     }
 

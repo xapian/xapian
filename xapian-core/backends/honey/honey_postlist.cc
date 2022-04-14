@@ -58,6 +58,7 @@ HoneyPostList::HoneyPostList(const HoneyDatabase* db_,
 	reader.init();
 	last_did = 0;
 	wdf_max = 0;
+	termfreq = 0;
 	return;
     }
 
@@ -106,6 +107,7 @@ HoneyPostList::HoneyPostList(const HoneyDatabase* db_,
 	}
     }
 
+    termfreq = tf;
     reader.init(tf, cf_info);
     reader.assign(p, pend - p, first_did, last_did, first_wdf);
 }
@@ -113,12 +115,6 @@ HoneyPostList::HoneyPostList(const HoneyDatabase* db_,
 HoneyPostList::~HoneyPostList()
 {
     delete cursor;
-}
-
-Xapian::doccount
-HoneyPostList::get_termfreq() const
-{
-    return reader.get_termfreq();
 }
 
 LeafPostList*

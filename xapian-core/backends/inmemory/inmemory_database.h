@@ -143,7 +143,6 @@ class InMemoryPostList : public LeafPostList {
   private:
     std::vector<InMemoryPosting>::const_iterator pos;
     std::vector<InMemoryPosting>::const_iterator end;
-    Xapian::doccount termfreq;
     bool started;
 
     /** List of positions of the current term.
@@ -158,8 +157,6 @@ class InMemoryPostList : public LeafPostList {
     InMemoryPostList(Xapian::Internal::intrusive_ptr<const InMemoryDatabase> db,
 		     const InMemoryTerm & imterm, const std::string & term_);
   public:
-    Xapian::doccount get_termfreq() const;
-
     Xapian::docid get_docid() const;     // Gets current docid
     Xapian::termcount get_wdf() const;	   // Within Document Frequency
     // Max wdf of terms in current document
@@ -193,8 +190,6 @@ class InMemoryAllDocsPostList : public LeafPostList {
     InMemoryAllDocsPostList(Xapian::Internal::intrusive_ptr<const InMemoryDatabase> db);
 
   public:
-    Xapian::doccount get_termfreq() const;
-
     Xapian::docid get_docid() const;     // Gets current docid
     Xapian::termcount get_doclength() const; // Length of current document
     // number of terms in current document

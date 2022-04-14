@@ -40,11 +40,11 @@ class WrapperPostList : public PostList {
     PostList* pl;
 
   public:
-    explicit WrapperPostList(PostList* pl_) : pl(pl_) {}
+    explicit WrapperPostList(PostList* pl_) : pl(pl_) {
+	termfreq = pl->get_termfreq();
+    }
 
     ~WrapperPostList() { delete pl; }
-
-    Xapian::doccount get_termfreq() const;
 
     TermFreqs estimate_termfreqs(const Xapian::Weight::Internal& stats) const;
 

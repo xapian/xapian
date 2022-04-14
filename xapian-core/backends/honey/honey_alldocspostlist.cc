@@ -35,28 +35,24 @@ using namespace Honey;
 using namespace std;
 
 HoneyAllDocsPostList::HoneyAllDocsPostList(const HoneyDatabase* db,
-					   Xapian::doccount doccount_)
+					   Xapian::doccount doccount)
     : LeafPostList(string()),
-      cursor(db->get_postlist_cursor()),
-      doccount(doccount_)
+      cursor(db->get_postlist_cursor())
 {
     LOGCALL_CTOR(DB, "HoneyAllDocsPostList", db | doccount_);
     static const char doclen_key_prefix[2] = {
 	0, char(Honey::KEY_DOCLEN_CHUNK)
     };
     cursor->find_entry_ge(string(doclen_key_prefix, 2));
+    /* For an all documents postlist the term frequency is the number of
+     * documents in the database.
+     */
+    termfreq = doccount;
 }
 
 HoneyAllDocsPostList::~HoneyAllDocsPostList()
 {
     delete cursor;
-}
-
-Xapian::doccount
-HoneyAllDocsPostList::get_termfreq() const
-{
-    LOGCALL(DB, Xapian::doccount, "HoneyAllDocsPostList::get_termfreq", NO_ARGS);
-    RETURN(doccount);
 }
 
 Xapian::termcount
@@ -197,7 +193,7 @@ string
 HoneyAllDocsPostList::get_description() const
 {
     string desc = "HoneyAllDocsPostList(doccount=";
-    desc += str(doccount);
+    desc += str(termfreq);
     desc += ')';
     return desc;
 }

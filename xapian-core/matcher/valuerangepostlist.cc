@@ -36,12 +36,6 @@ ValueRangePostList::~ValueRangePostList()
     delete valuelist;
 }
 
-Xapian::doccount
-ValueRangePostList::get_termfreq() const
-{
-    return est;
-}
-
 TermFreqs
 ValueRangePostList::estimate_termfreqs(
 	const Xapian::Weight::Internal& stats) const
@@ -49,7 +43,7 @@ ValueRangePostList::estimate_termfreqs(
     LOGCALL(MATCH, TermFreqs, "ValueRangePostList::estimate_termfreqs", stats);
     // FIXME: It's hard to estimate well - perhaps consider the values of
     // begin and end like we do in api/queryinternal.cc to calculate the
-    // `est` value used above?
+    // estimated termfreq value.
     RETURN(TermFreqs(stats.collection_size / 2,
 		     stats.rset_size / 2,
 		     stats.total_length / 2));

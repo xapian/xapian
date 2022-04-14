@@ -45,6 +45,11 @@ PhrasePostList::PhrasePostList(PostList *source_,
     size_t n = terms.size();
     Assert(n > 1);
     poslists = new PositionList*[n];
+
+    // It's hard to estimate how many times the phrase will occur as
+    // it depends a lot on the phrase, but usually the phrase will
+    // occur significantly less often than the individual terms.
+    termfreq = pl->get_termfreq() / 3;
 }
 
 PhrasePostList::~PhrasePostList()
@@ -111,15 +116,6 @@ PhrasePostList::get_wdf() const
 	wdf = min(wdf, (*i)->get_wdf());
     }
     return wdf;
-}
-
-Xapian::doccount
-PhrasePostList::get_termfreq() const
-{
-    // It's hard to estimate how many times the phrase will occur as
-    // it depends a lot on the phrase, but usually the phrase will
-    // occur significantly less often than the individual terms.
-    return pl->get_termfreq() / 3;
 }
 
 TermFreqs
