@@ -300,7 +300,7 @@ LocalSubMatch::open_post_list(const string& term,
 	auto res = stats->termfreqs.emplace(term, TermFreqs());
 	if (res.second) {
 	    // Term came from a wildcard, but the same term may be elsewhere
-	    // in the query so only accumulates its TermFreqs if emplace()
+	    // in the query so only accumulate its TermFreqs if emplace()
 	    // created a new element.
 	    db->get_freqs(term,
 			  &res.first->second.termfreq,
