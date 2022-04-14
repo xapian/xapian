@@ -839,7 +839,7 @@ QueryValueRange::postlist(QueryOptimiser *qopt, double factor) const
 	    // set for all documents, we can replace it with the MatchAll
 	    // postlist, which is especially efficient if there are no gaps in
 	    // the docids.
-	    if (db.get_value_freq(slot) == db.get_doccount()) {
+	    if (db.get_value_freq(slot) == qopt->db_size) {
 		RETURN(db.open_post_list(string()));
 	    }
 	    // Otherwise we can at least replace the lower bound with an empty
@@ -909,7 +909,7 @@ QueryValueLE::postlist(QueryOptimiser *qopt, double factor) const
 	// set for all documents, we can replace it with the MatchAll
 	// postlist, which is especially efficient if there are no gaps in
 	// the docids.
-	if (db.get_value_freq(slot) == db.get_doccount()) {
+	if (db.get_value_freq(slot) == qopt->db_size) {
 	    RETURN(db.open_post_list(string()));
 	}
     }
@@ -973,7 +973,7 @@ QueryValueGE::postlist(QueryOptimiser *qopt, double factor) const
 	// set for all documents, we can replace it with the MatchAll
 	// postlist, which is especially efficient if there are no gaps in
 	// the docids.
-	if (db.get_value_freq(slot) == db.get_doccount()) {
+	if (db.get_value_freq(slot) == qopt->db_size) {
 	    RETURN(db.open_post_list(string()));
 	}
     }
