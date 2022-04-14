@@ -1,7 +1,7 @@
 /** @file
  * @brief Tests of Xapian::QueryParser
  */
-/* Copyright (C) 2002-2022 Olly Betts
+/* Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2015,2016,2018,2019 Olly Betts
  * Copyright (C) 2006,2007,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -171,12 +171,6 @@ static const test test_or_queries[] = {
     { "something ADJ else", "(something@1 PHRASE 11 else@2)" },
     { "something ADJ/3 else", "(something@1 PHRASE 4 else@2)" },
     { "a ADJ/6 b ADJ c", "(a@1 PHRASE 8 b@2 PHRASE 8 c@3)" },
-    { "dog SYN mutt SYN cur SYN pug", "(((Zdog@1 SYNONYM Zmutt@2) SYNONYM Zcur@3) SYNONYM Zpug@4)" },
-    { "dog SYN mutt AND food", "((Zdog@1 SYNONYM Zmutt@2) AND Zfood@3)" },
-    { "dog SYN mutt NOT cat", "((Zdog@1 SYNONYM Zmutt@2) AND_NOT Zcat@3)" },
-    // FIXME: These next two don't parse as we want due to how `-` is handled.
-    //{ "dog SYN mutt -cat", "((Zdog@1 SYNONYM Zmutt@2) AND_NOT Zcat@3)" },
-    //{ "dog SYN mutt -\"fire dog\"", "((Zdog@1 SYNONYM Zmutt@2) AND_NOT (fire@3 PHRASE 2 dog@4))" },
     // Regression test - Unicode character values were truncated to 8 bits
     // before testing C_isdigit(), so this rather artificial example parsed
     // to: (a@1 NEAR 262 b@2)

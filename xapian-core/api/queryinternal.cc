@@ -2227,9 +2227,7 @@ QueryAndLike::postlist(QueryOptimiser * qopt, double factor) const
 {
     LOGCALL(QUERY, PostList*, "QueryAndLike::postlist", qopt | factor);
     AndContext ctx(qopt, subqueries.size());
-    if (!postlist_sub_and_like(ctx, qopt, factor)) {
-	RETURN(nullptr);
-    }
+    (void)postlist_sub_and_like(ctx, qopt, factor);
     RETURN(ctx.postlist());
 }
 

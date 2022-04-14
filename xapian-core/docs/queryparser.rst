@@ -38,6 +38,23 @@ XOR
 or other of the subexpressions, but not both. XOR is probably a bit
 esoteric.
 
+Bracketed expressions
+~~~~~~~~~~~~~~~~~~~~~
+
+You can control the precedence of the boolean operators using brackets.
+In the query ``one OR two AND three`` the AND takes precedence, so this
+is the same as ``one OR (two AND three)``. You can override the
+precedence using ``(one OR two) AND three``.
+
+The default precedence from highest to lowest is:
+
+* +, - (equal)
+* NEAR, ADJ (equal)
+* AND, NOT (equal)
+* XOR
+* OR
+
+
 '+' and '-'
 ~~~~~~~~~~~
 
@@ -61,31 +78,6 @@ same order as in the query. So ``one ADJ two ADJ three`` matches
 documents containing those three words in that order and within 10 words
 of each other. You can set the threshold to *n* by using ``ADJ/n`` like
 so: ``one ADJ/6 two``.
-
-SYN
-~~~
-
-``SYN`` matches when any of its subqueries match (like ``OR`` does)
-but the ranking is done assuming the subqueries are synonyms and so treats the
-entire ``SYN`` subquery as a single term.
-
-Bracketed expressions
-~~~~~~~~~~~~~~~~~~~~~
-
-You can control the precedence of operators using brackets.
-In the query ``one OR two AND three`` the AND takes precedence, so this
-is the same as ``one OR (two AND three)``. You can override the
-precedence using ``(one OR two) AND three``.
-
-The default precedence from highest to lowest is:
-
-* SYN
-* +, - (equal)
-* NEAR, ADJ (equal)
-* AND, NOT (equal)
-* XOR
-* OR
-
 
 Phrase searches
 ~~~~~~~~~~~~~~~

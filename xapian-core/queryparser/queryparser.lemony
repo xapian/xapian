@@ -2,7 +2,7 @@
 /** @file
  * @brief build a Xapian::Query object from a user query string
  */
-/* Copyright (C) 2004-2022 Olly Betts
+/* Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2015,2016,2018,2019 Olly Betts
  * Copyright (C) 2007,2008,2009 Lemur Consulting Ltd
  * Copyright (C) 2010 Adam Sjøgren
  *
@@ -1420,10 +1420,6 @@ phrased_term:
 			goto just_had_operator;
 		    }
 		}
-		if (op == "SYN") {
-		    Parse(&parser, SYN, NULL, &state);
-		    goto just_had_operator;
-		}
 	    } else if (op.size() == 2) {
 		if (op == "OR") {
 		    Parse(&parser, OR, NULL, &state);
@@ -2055,7 +2051,6 @@ Term::as_positional_cjk_term(Terms * terms) const
 %left AND NOT.
 %left NEAR ADJ.
 %left LOVE HATE HATE_AFTER_AND SYNONYM.
-%left SYN.
 
 // Destructors for terminal symbols:
 
@@ -2159,12 +2154,6 @@ expr(A) ::= bool_arg(A) OR bool_arg(B). {
 expr(A) ::= bool_arg(A) XOR bool_arg(B). {
     VET_BOOL_ARGS(A, B, "XOR");
     *A ^= *B;
-    delete B;
-}
-
-expr(A) ::= bool_arg(A) SYN bool_arg(B). {
-    VET_BOOL_ARGS(A, B, "SYN");
-    *A = Query(Query::OP_SYNONYM, *A, *B);
     delete B;
 }
 
