@@ -585,22 +585,26 @@ AndContext::add_pos_filter(Query::op op_,
 PostList *
 AndContext::postlist()
 {
-    if (pls.empty()) {
-	if (match_all) {
-	    return qopt->open_post_list(string(), 0, 0.0);
-	}
-	return NULL;
-    }
-
     auto matcher = qopt->matcher;
     auto db_size = qopt->db_size;
 
     unique_ptr<PostList> pl;
-    if (pls.size() == 1) {
+    switch (pls.size()) {
+      case 0:
+	if (!match_all) {
+	    // The "and" part doesn't match anything, so any "not" part or
+	    // positional filters are irrelevant.
+	    return NULL;
+	}
+	pl.reset(qopt->open_post_list(string(), 0, 0.0));
+	break;
+      case 1:
 	pl.reset(pls[0]);
-    } else {
+	break;
+      default:
 	pl.reset(new AndPostList(pls.begin(), pls.end(), matcher, db_size));
 	qopt->add_op(EstimateOp::AND, pls.size());
+	break;
     }
 
     if (not_ctx && !not_ctx->empty()) {

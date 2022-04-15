@@ -1245,6 +1245,30 @@ DEFINE_TESTCASE(emptymaybe1, backend) {
     TEST_EQUAL(mset.size(), 1);
 }
 
+// Regression test for optimisation bug on git master before 1.5.0.
+// The query optimiser ignored the NOT part when the LHS contained
+// a MatchAll.
+DEFINE_TESTCASE(allnot1, backend) {
+    Xapian::Database db(get_database("apitest_simpledata"));
+    Xapian::Enquire enq(db);
+    Xapian::Query query;
+    // This case wasn't a problem, but would have been if the index-all term
+    // was handled like MatchAll by this optimisation (which it might be in
+    // future).
+    query = Xapian::Query{query.OP_AND_NOT,
+			  Xapian::Query("this"),
+			  Xapian::Query("the")};
+    enq.set_query(0 * query);
+    Xapian::MSet mset = enq.get_mset(0, 10);
+    TEST_EQUAL(mset.size(), 2);
+    query = Xapian::Query{query.OP_AND_NOT,
+			  query.MatchAll,
+			  Xapian::Query("the")};
+    enq.set_query(0 * query);
+    mset = enq.get_mset(0, 10);
+    TEST_EQUAL(mset.size(), 2);
+}
+
 DEFINE_TESTCASE(phraseweightcheckbug1, backend) {
     Xapian::Database db(get_database("phraseweightcheckbug1"));
     Xapian::Enquire enq(db);
