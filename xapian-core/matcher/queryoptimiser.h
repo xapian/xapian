@@ -1,7 +1,7 @@
 /** @file
  * @brief Details passed around while building PostList tree from Query tree
  */
-/* Copyright (C) 2007,2008,2009,2010,2011,2013,2014,2015,2016,2018 Olly Betts
+/* Copyright (C) 2007-2022 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -126,6 +126,8 @@ class QueryOptimiser {
 	}
 	hint = new_hint;
     }
+
+    void own_hint_postlist() { hint_owned = true; }
 
     void destroy_postlist(PostList* pl) {
 	if (pl == static_cast<PostList*>(hint)) {

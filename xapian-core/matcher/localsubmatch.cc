@@ -247,36 +247,41 @@ LocalSubMatch::open_post_list(const string& term,
 	pl = db->open_leaf_post_list(term, false);
     } else {
 	weighted = (factor != 0.0);
-	if (!need_positions) {
-	    if ((!weighted && !compound_weight) ||
-		!wt_factory.get_sumpart_needs_wdf_()) {
-		Xapian::doccount sub_tf;
-		db->get_freqs(term, &sub_tf, NULL);
-		if (sub_tf == db->get_doccount()) {
-		    // If we're not going to use the wdf or term positions, and
-		    // the term indexes all documents, we can replace it with
-		    // the MatchAll postlist, which is especially efficient if
-		    // there are no gaps in the docids.
-		    pl = db->open_leaf_post_list(string(), false);
-
-		    // Set the term name so the postlist looks up the correct
-		    // term frequencies - this is necessary if the weighting
-		    // scheme needs collection frequency or reltermfreq
-		    // (termfreq would be correct anyway since it's just the
-		    // collection size in this case).
-		    pl->set_term(term);
-		}
-	    }
-	}
-
+	const LeafPostList * hint = qopt->get_hint_postlist();
+	if (hint)
+	    pl = hint->open_nearby_postlist(term, need_positions);
 	if (!pl) {
-	    const LeafPostList * hint = qopt->get_hint_postlist();
-	    if (hint)
-		pl = hint->open_nearby_postlist(term, need_positions);
-	    if (!pl) {
-		pl = db->open_leaf_post_list(term, need_positions);
+	    pl = db->open_leaf_post_list(term, need_positions);
+	}
+	qopt->set_hint_postlist(pl);
+	if (!need_positions) {
+	    bool need_wdf = (weighted || compound_weight) &&
+			    wt_factory.get_sumpart_needs_wdf_();
+	    if (!need_wdf && pl->get_termfreq() == db->get_doccount()) {
+		// If we're not going to use the wdf or term positions, and the
+		// term indexes all documents, we can replace it with the
+		// MatchAll postlist, which is especially efficient if there
+		// are no gaps in the docids.
+		//
+		// We opened the real PostList already as that's more efficient
+		// than asking the Database for the termfreq in the common case
+		// when the term doesn't index all documents, and is similar
+		// work in the case where it does (for glass, there's the extra
+		// overhead of creating a cursor but we still need to read and
+		// decode the same data).
+		//
+		// The real PostList got set as the QueryOptimiser's hint above
+		// so we can just hand ownership of it to the QueryOptimiser.
+		qopt->own_hint_postlist();
+		pl = db->open_leaf_post_list(string(), false);
+
+		// Set the term name so the postlist looks up the correct term
+		// frequencies - this is necessary if the weighting scheme
+		// needs collection frequency or reltermfreq (termfreq would be
+		// correct anyway since it's just the collection size in this
+		// case).
+		pl->set_term(term);
 	    }
-	    qopt->set_hint_postlist(pl);
 	}
     }
 
