@@ -175,6 +175,7 @@ ExactPhrasePostList::estimate_termfreqs(
     TermFreqs result(pl->estimate_termfreqs(stats));
     result.termfreq /= 4;
     result.reltermfreq /= 4;
+    result.collfreq /= 4;
     RETURN(result);
 }
 

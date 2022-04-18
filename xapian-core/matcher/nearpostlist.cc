@@ -218,6 +218,7 @@ NearPostList::estimate_termfreqs(const Xapian::Weight::Internal& stats) const
     TermFreqs result(pl->estimate_termfreqs(stats));
     result.termfreq /= 2;
     result.reltermfreq /= 2;
+    result.collfreq /= 2;
     RETURN(result);
 }
 
