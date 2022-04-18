@@ -64,8 +64,7 @@ class PostList {
      *
      *  This should be exact for terms.
      */
-    virtual
-    Xapian::doccount get_termfreq() const final { return termfreq; }
+    Xapian::doccount get_termfreq() const { return termfreq; }
 
     /** Get an estimate for the termfreq and reltermfreq, given the stats.
      *
