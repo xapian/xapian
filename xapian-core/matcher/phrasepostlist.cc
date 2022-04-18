@@ -120,6 +120,7 @@ PhrasePostList::get_termfreq_est_using_stats(
     TermFreqs result(source->get_termfreq_est_using_stats(stats));
     result.termfreq /= 3;
     result.reltermfreq /= 3;
+    result.collfreq /= 3;
     RETURN(result);
 }
 

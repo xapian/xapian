@@ -216,6 +216,7 @@ NearPostList::get_termfreq_est_using_stats(
     TermFreqs result(source->get_termfreq_est_using_stats(stats));
     result.termfreq /= 2;
     result.reltermfreq /= 2;
+    result.collfreq /= 2;
     RETURN(result);
 }
 

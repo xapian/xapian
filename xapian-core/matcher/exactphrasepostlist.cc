@@ -168,6 +168,7 @@ ExactPhrasePostList::get_termfreq_est_using_stats(
     TermFreqs result(source->get_termfreq_est_using_stats(stats));
     result.termfreq /= 4;
     result.reltermfreq /= 4;
+    result.collfreq /= 4;
     RETURN(result);
 }
 
