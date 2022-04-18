@@ -39,7 +39,7 @@ HoneyAllDocsPostList::HoneyAllDocsPostList(const HoneyDatabase* db,
     : LeafPostList(string()),
       cursor(db->get_postlist_cursor())
 {
-    LOGCALL_CTOR(DB, "HoneyAllDocsPostList", db | doccount_);
+    LOGCALL_CTOR(DB, "HoneyAllDocsPostList", db | doccount);
     static const char doclen_key_prefix[2] = {
 	0, char(Honey::KEY_DOCLEN_CHUNK)
     };

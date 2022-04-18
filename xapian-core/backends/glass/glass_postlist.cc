@@ -90,7 +90,7 @@ read_start_of_first_chunk(const char** posptr,
 			  Xapian::doccount* termfreq_ptr,
 			  Xapian::termcount* collection_freq_ptr)
 {
-    LOGCALL_STATIC(DB, Xapian::docid, "read_start_of_first_chunk", (const void**)posptr | (const void**)end | (void**)termfreq_ptr | (void**)collection_freq_ptr);
+    LOGCALL_STATIC(DB, Xapian::docid, "read_start_of_first_chunk", (const void**)posptr | (const void*)end | (void*)termfreq_ptr | (void*)collection_freq_ptr);
 
     GlassPostList::read_freqs(posptr, end, termfreq_ptr, collection_freq_ptr);
     if (termfreq_ptr)
