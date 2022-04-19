@@ -291,9 +291,15 @@ LocalSubMatch::open_post_list(const string& term,
 	    // Term came from a wildcard, but the same term may be elsewhere
 	    // in the query so only accumulate its TermFreqs if emplace()
 	    // created a new element.
-	    db->get_freqs(term,
-			  &res.first->second.termfreq,
-			  &res.first->second.collfreq);
+	    res.first->second.termfreq = pl->get_termfreq();
+	    res.first->second.collfreq = pl->get_collfreq();
+#ifdef XAPIAN_ASSERTIONS
+	    Xapian::doccount tf;
+	    Xapian::termcount cf;
+	    db->get_freqs(term, &tf, &cf);
+	    AssertEq(res.first->second.termfreq, tf);
+	    AssertEq(res.first->second.collfreq, cf);
+#endif
 	}
     }
 

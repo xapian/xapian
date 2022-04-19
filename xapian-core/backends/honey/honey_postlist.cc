@@ -59,6 +59,7 @@ HoneyPostList::HoneyPostList(const HoneyDatabase* db_,
 	last_did = 0;
 	wdf_max = 0;
 	termfreq = 0;
+	collfreq = 0;
 	return;
     }
 
@@ -108,6 +109,7 @@ HoneyPostList::HoneyPostList(const HoneyDatabase* db_,
     }
 
     termfreq = tf;
+    collfreq = cf;
     reader.init(tf, cf_info);
     reader.assign(p, pend - p, first_did, last_did, first_wdf);
 }

@@ -727,6 +727,7 @@ GlassPostList::init()
     if (!found) {
 	LOGLINE(DB, "postlist for term not found");
 	termfreq = 0;
+	collfreq = 0;
 	is_at_end = true;
 	pos = 0;
 	end = 0;
@@ -739,7 +740,6 @@ GlassPostList::init()
     pos = cursor->current_tag.data();
     end = pos + cursor->current_tag.size();
 
-    Xapian::termcount collfreq;
     did = read_start_of_first_chunk(&pos, end, &termfreq, &collfreq);
     first_did_in_chunk = did;
     last_did_in_chunk = read_start_of_chunk(&pos, end, first_did_in_chunk,

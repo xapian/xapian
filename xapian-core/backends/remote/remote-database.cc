@@ -204,12 +204,6 @@ RemoteDatabase::open_allterms(const string& prefix) const
 PostList *
 RemoteDatabase::open_post_list(const string& term) const
 {
-    return RemoteDatabase::open_leaf_post_list(term, false);
-}
-
-LeafPostList *
-RemoteDatabase::open_leaf_post_list(const string& term, bool) const
-{
     send_message(MSG_POSTLIST, term);
 
     string message;
@@ -228,6 +222,15 @@ RemoteDatabase::open_leaf_post_list(const string& term, bool) const
 			       term,
 			       termfreq,
 			       std::move(message));
+}
+
+LeafPostList *
+RemoteDatabase::open_leaf_post_list(const string&, bool) const
+{
+    // This method is only called during the match, and remote shards are
+    // handled by running the match on the remote.
+    Assert(false);
+    return nullptr;
 }
 
 PositionList *

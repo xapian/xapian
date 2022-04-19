@@ -48,12 +48,24 @@ class LeafPostList : public PostList {
     /// The term name for this postlist (empty for an alldocs postlist).
     std::string term;
 
+    /** The collection frequency of the term.
+     *
+     *  This is the sum of wdf values for the term in all documents.
+     */
+    Xapian::termcount collfreq;
+
     /// Only constructable as a base class for derived classes.
     explicit LeafPostList(const std::string & term_)
 	: weight(0), term(term_) { }
 
   public:
     ~LeafPostList();
+
+    /** Get the collection frequency of the term.
+     *
+     *  This is the sum of wdf values for the term in all documents.
+     */
+    Xapian::termcount get_collfreq() const { return collfreq; }
 
     /** Set the weighting scheme to use during matching.
      *

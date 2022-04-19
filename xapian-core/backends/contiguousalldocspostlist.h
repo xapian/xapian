@@ -49,6 +49,7 @@ class ContiguousAllDocsPostList : public LeafPostList {
 	 * documents in the database.
 	 */
 	termfreq = doccount;
+	collfreq = doccount;
     }
 
     /// Return the current docid.

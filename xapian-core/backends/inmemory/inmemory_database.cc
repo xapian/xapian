@@ -90,6 +90,7 @@ InMemoryPostList::InMemoryPostList(intrusive_ptr<const InMemoryDatabase> db_,
 	  wdf_upper_bound(0)
 {
     termfreq = imterm.term_freq;
+    collfreq = imterm.collection_freq;
     while (pos != end && !pos->valid) ++pos;
     if (pos != end) {
 	auto first_wdf = (*pos).wdf;
@@ -308,7 +309,7 @@ InMemoryTermList::positionlist_begin() const
 InMemoryAllDocsPostList::InMemoryAllDocsPostList(intrusive_ptr<const InMemoryDatabase> db_)
 	: LeafPostList(std::string()), did(0), db(db_)
 {
-    termfreq = db->totdocs;
+    collfreq = termfreq = db->totdocs;
 }
 
 Xapian::docid

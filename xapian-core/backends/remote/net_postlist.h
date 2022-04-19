@@ -52,6 +52,8 @@ class NetworkPostList : public LeafPostList {
 		    std::string&& postings_)
 	: LeafPostList(term_), db(db_), postings(std::move(postings_)) {
 	termfreq = termfreq_;
+	// collfreq is only used during the match and remote shards are handled
+	// by running the match on the remote.
     }
 
     /// Get the current document ID.

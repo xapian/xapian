@@ -48,6 +48,7 @@ HoneyAllDocsPostList::HoneyAllDocsPostList(const HoneyDatabase* db,
      * documents in the database.
      */
     termfreq = doccount;
+    collfreq = doccount;
 }
 
 HoneyAllDocsPostList::~HoneyAllDocsPostList()
