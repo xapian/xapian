@@ -257,7 +257,7 @@ LocalSubMatch::open_post_list(const string& term,
 	if (!need_positions) {
 	    bool need_wdf = (weighted || compound_weight) &&
 			    wt_factory.get_sumpart_needs_wdf_();
-	    if (!need_wdf && pl->get_termfreq() == db->get_doccount()) {
+	    if (!need_wdf && pl->get_termfreq() == qopt->db_size) {
 		// If we're not going to use the wdf or term positions, and the
 		// term indexes all documents, we can replace it with the
 		// MatchAll postlist, which is especially efficient if there
