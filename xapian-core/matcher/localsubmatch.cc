@@ -271,7 +271,7 @@ LocalSubMatch::open_post_list(const string& term,
 	    !wt_factory->get_sumpart_needs_wdf_()) {
 	    Xapian::doccount sub_tf;
 	    db->get_freqs(term, &sub_tf, NULL);
-	    if (sub_tf == db->get_doccount()) {
+	    if (sub_tf == qopt->db_size) {
 		// If we're not going to use the wdf or term positions, and the
 		// term indexes all documents, we can replace it with the
 		// MatchAll postlist, which is especially efficient if there
