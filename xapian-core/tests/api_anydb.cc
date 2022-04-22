@@ -743,7 +743,6 @@ DEFINE_TESTCASE(pctcutoff1, backend) {
 // Tests the percent cutoff option combined with collapsing
 DEFINE_TESTCASE(pctcutoff2, backend) {
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
-    enquire.set_query(Xapian::Query("this"));
     enquire.set_query(Xapian::Query(Xapian::Query::OP_AND_NOT, Xapian::Query("this"), Xapian::Query("banana")));
     Xapian::MSet mset = enquire.get_mset(0, 100);
 
