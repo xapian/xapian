@@ -59,12 +59,20 @@ add_overflows(T1 a, T2 b, R& res) {
 #if HAVE_DECL___BUILTIN_ADD_OVERFLOW
     return __builtin_add_overflow(a, b, &res);
 #else
-    // Use a local variable to test for overflow so we don't need to worry if
-    // res could be modified by another thread between us setting and testing
-    // it.
-    R r = R(a) + R(b);
-    res = r;
-    return (sizeof(R) <= sizeof(T1) || sizeof(R) <= sizeof(T2)) && r < R(b);
+    // Use a local variable to test for overflow so we can use auto and get
+    // a type which will at least hold each of the inputs, and so we don't need
+    // to worry if res could be modified by another thread between us setting
+    // and testing it.
+    auto r = a + b;
+    typedef decltype(r) r_type;
+    res = R(r);
+    // Overflow is only possible if the result type is the same width as or
+    // narrower than at least one of the input types.
+    //
+    // We've overflowed if r doesn't fit in type R, or if the result is less
+    // then an input.
+    return (sizeof(R) <= sizeof(T1) || sizeof(R) <= sizeof(T2)) &&
+	   (r_type(res) != r || r < r_type(b));
 #endif
 }
 
@@ -118,12 +126,16 @@ sub_overflows(T1 a, T2 b, R& res) {
 #if HAVE_DECL___BUILTIN_ADD_OVERFLOW
     return __builtin_sub_overflow(a, b, &res);
 #else
-    // Use a local variable to test for overflow so we don't need to worry if
-    // res could be modified by another thread between us setting and testing
-    // it.
-    R r = R(a) - R(b);
-    res = r;
-    return (sizeof(R) <= sizeof(T1) || sizeof(R) <= sizeof(T2)) && r > R(a);
+    // Use a local variable to test for overflow so we can use auto and get
+    // a type which will at least hold each of the inputs, and so we don't need
+    // to worry if res could be modified by another thread between us setting
+    // and testing it.
+    auto r = a - b;
+    typedef decltype(r) r_type;
+    res = r_type(r);
+    // We've overflowed if r doesn't fit in type R, or if the subtraction
+    // wrapped.
+    return r_type(res) != r || r > r_type(a);
 #endif
 }
 
@@ -177,12 +189,16 @@ mul_overflows(T1 a, T2 b, R& res) {
 #if HAVE_DECL___BUILTIN_MUL_OVERFLOW
     return __builtin_mul_overflow(a, b, &res);
 #else
-    // Use a local variable to test for overflow so we don't need to worry if
-    // res could be modified by another thread between us setting and testing
-    // it.
-    R r = R(a) * R(b);
-    res = r;
-    return sizeof(R) < sizeof(T1) + sizeof(T2) && a != 0 && T2(r / R(a)) != b;
+    // Use a local variable to test for overflow so we can use auto and get
+    // a type which will at least hold each of the inputs, and so we don't need
+    // to worry if res could be modified by another thread between us setting
+    // and testing it.
+    auto r = a * b;
+    typedef decltype(r) r_type;
+    res = r_type(r);
+    // We've overflowed if r doesn't fit in type R, or if the multiplication
+    // wrapped.
+    return r_type(res) != r || (a != 0 && r / r_type(a) != r_type(b));
 #endif
 }
 

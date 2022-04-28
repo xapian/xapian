@@ -745,18 +745,55 @@ static void test_movesupport1()
 
 static void test_addoverflows1()
 {
-    unsigned long res;
-    TEST(!add_overflows(0UL, 0UL, res));
-    TEST_EQUAL(res, 0);
+    const auto ulong_max = numeric_limits<unsigned long>::max();
+    const auto uint_max = numeric_limits<unsigned int>::max();
+    const auto ushort_max = numeric_limits<unsigned short>::max();
+    const auto uchar_max = numeric_limits<unsigned char>::max();
 
-    TEST(add_overflows(ULONG_MAX, 1UL, res));
-    TEST_EQUAL(res, 0);
+    unsigned long res_ulong;
+    unsigned res_uint;
+    unsigned short res_ushort;
+    unsigned char res_uchar;
 
-    TEST(add_overflows(1UL, ULONG_MAX, res));
-    TEST_EQUAL(res, 0);
+    TEST(!add_overflows(0UL, 0UL, res_ulong));
+    TEST_EQUAL(res_ulong, 0);
+    TEST(!add_overflows(0UL, 0UL, res_uint));
+    TEST_EQUAL(res_uint, 0);
+    TEST(!add_overflows(0UL, 0UL, res_ushort));
+    TEST_EQUAL(res_ushort, 0);
+    TEST(!add_overflows(0UL, 0UL, res_uchar));
+    TEST_EQUAL(res_uchar, 0);
 
-    TEST(add_overflows(ULONG_MAX, ULONG_MAX, res));
-    TEST_EQUAL(res, ULONG_MAX - 1UL);
+    TEST(add_overflows(ulong_max, 1UL, res_ulong));
+    TEST_EQUAL(res_ulong, 0);
+    TEST(add_overflows(uint_max, 1UL, res_uint));
+    TEST_EQUAL(res_uint, 0);
+    TEST(add_overflows(ushort_max, 1UL, res_ushort));
+    TEST_EQUAL(res_ushort, 0);
+    TEST(add_overflows(uchar_max, 1UL, res_uchar));
+    TEST_EQUAL(res_uchar, 0);
+
+    TEST(add_overflows(1UL, ulong_max, res_ulong));
+    TEST_EQUAL(res_ulong, 0);
+    TEST(add_overflows(1UL, uint_max, res_uint));
+    TEST_EQUAL(res_uint, 0);
+    TEST(add_overflows(1UL, ushort_max, res_ushort));
+    TEST_EQUAL(res_ushort, 0);
+    TEST(add_overflows(1UL, uchar_max, res_uchar));
+    TEST_EQUAL(res_uchar, 0);
+
+    TEST(add_overflows(ulong_max, ulong_max, res_ulong));
+    TEST_EQUAL(res_ulong, ulong_max - 1UL);
+    TEST(add_overflows(uint_max, uint_max, res_uint));
+    TEST_EQUAL(res_uint, uint_max - 1UL);
+    TEST(add_overflows(ushort_max, ushort_max, res_ushort));
+    TEST_EQUAL(res_ushort, ushort_max - 1UL);
+    TEST(add_overflows(uchar_max, uchar_max, res_uchar));
+    TEST_EQUAL(res_uchar, uchar_max - 1UL);
+
+    res_uchar = 1;
+    TEST(add_overflows(res_uchar, unsigned(uchar_max) + 1U, res_uchar));
+    TEST_EQUAL(res_uchar, 1);
 }
 
 static void test_suboverflows1()
