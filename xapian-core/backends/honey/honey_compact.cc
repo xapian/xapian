@@ -1,7 +1,7 @@
 /** @file
  * @brief Compact a honey database, or merge and compact several.
  */
-/* Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2018,2019 Olly Betts
+/* Copyright (C) 2004-2022 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -45,6 +45,7 @@
 #include "honey_version.h"
 #include "filetests.h"
 #include "internaltypes.h"
+#include "overflow.h"
 #include "pack.h"
 #include "backends/valuestats.h"
 #include "wordaccess.h"
@@ -536,16 +537,14 @@ class PostlistCursor<const HoneyTable&> : private HoneyCursor {
 		Assert(tag.empty());
 	    } else {
 		have_wdfs = (cf != 0) && (cf - first_wdf != tf - 1);
-		if (have_wdfs) {
-		    Xapian::termcount remaining_cf_for_flat_wdf =
-			(tf - 1) * wdf_max;
-		    // Check this matches and that it isn't a false match due
-		    // to overflow of the multiplication above.
-		    if (cf - first_wdf == remaining_cf_for_flat_wdf &&
-			usual(remaining_cf_for_flat_wdf / wdf_max == tf - 1)) {
-			// The wdf is flat so we don't need to store it.
-			have_wdfs = false;
-		    }
+		Xapian::termcount remaining_cf_for_flat_wdf;
+		if (have_wdfs &&
+		    !mul_overflows(tf - 1, wdf_max,
+				   remaining_cf_for_flat_wdf) &&
+		    cf - first_wdf == remaining_cf_for_flat_wdf) {
+		    // The wdf is flat for the second and subsequent entries
+		    // so we don't need to store it.
+		    have_wdfs = false;
 		}
 	    }
 	} else {
@@ -992,13 +991,12 @@ merge_postlists(Xapian::Compactor* compactor,
 		    // wdf must be 1 for second and subsequent entries.
 		    have_wdfs = false;
 		} else {
-		    Xapian::termcount remaining_cf_for_flat_wdf =
-			(tf - 1) * wdf_max;
-		    // Check this matches and that it isn't a false match due
-		    // to overflow of the multiplication above.
-		    if (cf - first_wdf == remaining_cf_for_flat_wdf &&
-			usual(remaining_cf_for_flat_wdf / wdf_max == tf - 1)) {
-			// The wdf is flat so we don't need to store it.
+		    Xapian::termcount remaining_cf_for_flat_wdf;
+		    if (!mul_overflows(tf - 1, wdf_max,
+				       remaining_cf_for_flat_wdf) &&
+			cf - first_wdf == remaining_cf_for_flat_wdf) {
+			// The wdf is flat for the second and subsequent entries
+			// so we don't need to store it.
 			have_wdfs = false;
 		    }
 		}

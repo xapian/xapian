@@ -1,7 +1,7 @@
 /** @file
  * @brief PostList in a honey database.
  */
-/* Copyright (C) 2017,2018 Olly Betts
+/* Copyright (C) 2017,2018,2022 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,6 +26,7 @@
 #include "honey_database.h"
 #include "honey_positionlist.h"
 #include "honey_postlist_encodings.h"
+#include "overflow.h"
 #include "pack.h"
 
 #include <string>
@@ -93,11 +94,9 @@ HoneyPostList::HoneyPostList(const HoneyDatabase* db_,
 	// wdf_max can only be zero if cf == 0 (and
 	// decode_initial_chunk_header() should ensure this).
 	Assert(wdf_max != 0);
-	Xapian::termcount remaining_cf_for_flat_wdf = (tf - 1) * wdf_max;
-	// Check this matches and that it isn't a false match due
-	// to overflow of the multiplication above.
-	if (cf - first_wdf == remaining_cf_for_flat_wdf &&
-	    usual(remaining_cf_for_flat_wdf / wdf_max == tf - 1)) {
+	Xapian::termcount remaining_cf_for_flat_wdf;
+	if (!mul_overflows(tf - 1, wdf_max, remaining_cf_for_flat_wdf) &&
+	    cf - first_wdf == remaining_cf_for_flat_wdf) {
 	    // Set cl_info to the flat wdf value with the top bit set to
 	    // signify that this is a flat wdf value.
 	    cf_info = wdf_max;
