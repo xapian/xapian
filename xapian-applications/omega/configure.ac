@@ -102,12 +102,18 @@ CXXFLAGS="$CXXFLAGS $XAPIAN_CXXFLAGS"
 dnl We need to specify the argument types for builtin functions, or else
 dnl AC_CHECK_DECLS fails to detect them when the compiler is clang.
 AC_CHECK_DECLS([__builtin_add_overflow(int, int, int*),
+		__builtin_sub_overflow(int, int, int*),
 		__builtin_mul_overflow(int, int, int*)], [], [], [ ])
 AC_CHECK_DECLS([__builtin_bswap32(uint32_t)], [], [],
 	       [#include <stdint.h>])
 AC_CHECK_DECLS([_byteswap_ulong], [], [],
 	       [#include <stdlib.h>])
 AC_CHECK_DECLS([__builtin_expect(long, long)], [], [], [ ])
+AC_CHECK_DECLS([_addcarry_u32(unsigned char, unsigned, unsigned, unsigned*),
+		_addcarry_u64(unsigned char, unsigned __int64, unsigned __int64, unsigned __int64*),
+		_subborrow_u32(unsigned char, unsigned, unsigned, unsigned*),
+		_subborrow_u64(unsigned char, unsigned __int64, unsigned __int64, unsigned __int64*)],
+	       [], [], [#include <intrin.h>])
 
 dnl Check for time functions.
 AC_FUNC_STRFTIME

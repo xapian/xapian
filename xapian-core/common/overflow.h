@@ -31,8 +31,9 @@
 
 #include <type_traits>
 
-#if !HAVE_DECL___BUILTIN_ADD_OVERFLOW
-# if HAVE_DECL__ADDCARRY_U32 || HAVE_DECL__ADDCARRY_U64
+#if !HAVE_DECL___BUILTIN_ADD_OVERFLOW || !HAVE_DECL___BUILTIN_SUB_OVERFLOW
+# if HAVE_DECL__ADDCARRY_U32 || HAVE_DECL__ADDCARRY_U64 || \
+     HAVE_DECL__SUBBORROW_U32 || HAVE_DECL__SUBBORROW_U64
 #  include <intrin.h>
 # endif
 #endif
@@ -68,7 +69,7 @@ add_overflows(T1 a, T2 b, R& res) {
 }
 
 #if !HAVE_DECL___BUILTIN_ADD_OVERFLOW
-// Only use the addcarry instrinsics where the builtins aren't available.
+// Only use the addcarry intrinsics where the builtins aren't available.
 // GCC and clang support both, but _addcarry_u64() uses `unsigned long
 // long` instead of `unsigned __int64` and the two types aren't compatible.
 # if HAVE_DECL__ADDCARRY_U32
@@ -92,6 +93,65 @@ add_overflows<unsigned __int64,
 				unsigned __int64 b,
 				unsigned __int64& res) {
     return _addcarry_u64(0, a, b, &res) != 0;
+}
+# endif
+#endif
+
+/** Subtraction with overflow checking.
+ *
+ *  Subtract @a b from @a a in infinite precision, and store the result in
+ *  @a res.
+ *
+ *  Where possible, compiler built-ins or intrinsics are used to try to ensure
+ *  minimal overhead from the overflow check.
+ *
+ *  Currently only supported when types involved are unsigned.
+ *
+ *  @return true if the result can be represented exactly in @a res, false
+ *	    otherwise.
+ */
+template<typename T1, typename T2, typename R>
+typename std::enable_if<std::is_unsigned<T1>::value &&
+			std::is_unsigned<T2>::value &&
+			std::is_unsigned<R>::value, bool>::type
+sub_overflows(T1 a, T2 b, R& res) {
+#if HAVE_DECL___BUILTIN_ADD_OVERFLOW
+    return __builtin_sub_overflow(a, b, &res);
+#else
+    // Use a local variable to test for overflow so we don't need to worry if
+    // res could be modified by another thread between us setting and testing
+    // it.
+    R r = R(a) - R(b);
+    res = r;
+    return (sizeof(R) <= sizeof(T1) || sizeof(R) <= sizeof(T2)) && r > R(a);
+#endif
+}
+
+#if !HAVE_DECL___BUILTIN_SUB_OVERFLOW
+// Only use the subborrow intrinsics where the builtins aren't available.
+// GCC and clang support both, but _subborrow_u64() uses `unsigned long
+// long` instead of `unsigned __int64` and the two types aren't compatible.
+# if HAVE_DECL__SUBBORROW_U32
+template<>
+inline bool
+sub_overflows<unsigned,
+	      unsigned,
+	      unsigned>(unsigned a,
+			unsigned b,
+			unsigned& res) {
+    return _subborrow_u32(0, a, b, &res) != 0;
+}
+# endif
+
+# if HAVE_DECL__SUBBORROW_U64
+template<>
+inline bool
+sub_overflows<unsigned __int64,
+	      unsigned __int64,
+	      unsigned __int64>(unsigned __int64 a,
+				unsigned __int64 b,
+				unsigned __int64& res) {
+    return _subborrow_u64(0, a, b, &res) != 0;
 }
 # endif
 #endif
