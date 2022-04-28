@@ -111,6 +111,9 @@ class CollapseData {
      *  @param to  	The new item (index into results).
      */
     void result_has_moved(Xapian::doccount from, Xapian::doccount to) {
+	// Yes, this *is* a linear search, but only through up to collapse_max
+	// items and we expect collapse_max to be very small (it's the maximum
+	// number of items to keep for each collapse key value).
 	for (auto&& item : items) {
 	    if (item.first == from) {
 		item.first = to;
