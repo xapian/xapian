@@ -1,7 +1,7 @@
 /** @file
  * @brief Unit tests of non-Xapian-specific internal code.
  */
-/* Copyright (C) 2006,2007,2009,2010,2012,2015,2016,2018,2019 Olly Betts
+/* Copyright (C) 2006-2022 Olly Betts
  * Copyright (C) 2007 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -759,6 +759,22 @@ static void test_addoverflows1()
     TEST_EQUAL(res, ULONG_MAX - 1UL);
 }
 
+static void test_suboverflows1()
+{
+    unsigned long res;
+    TEST(!sub_overflows(0UL, 0UL, res));
+    TEST_EQUAL(res, 0);
+
+    TEST(sub_overflows(0UL, 1UL, res));
+    TEST_EQUAL(res, ULONG_MAX);
+
+    TEST(sub_overflows(ULONG_MAX - 1UL, ULONG_MAX, res));
+    TEST_EQUAL(res, ULONG_MAX);
+
+    TEST(sub_overflows(0UL, ULONG_MAX, res));
+    TEST_EQUAL(res, 1);
+}
+
 static void test_muloverflows1()
 {
     unsigned long res;
@@ -872,6 +888,7 @@ static const test_desc tests[] = {
     TESTCASE(uuid1),
     TESTCASE(movesupport1),
     TESTCASE(addoverflows1),
+    TESTCASE(suboverflows1),
     TESTCASE(muloverflows1),
     TESTCASE(parseunsigned1),
     TESTCASE(parsesigned1),
