@@ -368,7 +368,7 @@ RemoteConnection::send_file(char type, int fd, double end_time)
     if (fdout == -1)
 	throw_database_closed();
 
-    off_t size = file_size(fd);
+    auto size = file_size(fd);
     if (errno)
 	throw Xapian::NetworkError("Couldn't stat file to send", errno);
     // FIXME: Use sendfile() or similar if available?
@@ -378,7 +378,7 @@ RemoteConnection::send_file(char type, int fd, double end_time)
     size_t c = 1;
     {
 	string enc_size;
-	pack_uint(enc_size, std::make_unsigned<off_t>::type(size));
+	pack_uint(enc_size, size);
 	c += enc_size.size();
 	// An encoded length should be just a few bytes.
 	AssertRel(c, <=, sizeof(buf));

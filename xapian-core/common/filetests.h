@@ -1,7 +1,7 @@
 /** @file
  * @brief Utility functions for testing files.
  */
-/* Copyright (C) 2012,2018 Olly Betts
+/* Copyright (C) 2012,2018,2022 Olly Betts
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -28,6 +28,7 @@
 #include "safesysstat.h"
 #include <cerrno>
 #include <string>
+#include <type_traits>
 
 /** Test if a file exists.
  *
@@ -52,6 +53,9 @@ inline bool file_exists(const std::string & path) {
     return file_exists(path.c_str());
 }
 
+/** Unsigned return type of file_size() function. */
+typedef std::make_unsigned<off_t>::type file_size_type;
+
 /** Returns the size of a file.
  *
  *  @param path	The path to test
@@ -67,13 +71,14 @@ inline bool file_exists(const std::string & path) {
  *  doesn't work out how to enable largefile support.
  *
  *  @return The size of the file, or 0 if it doesn't exist or isn't a file.
+ *	    The return type is file_size_type.
  */
-inline off_t file_size(const char * path) {
+inline file_size_type file_size(const char* path) {
     struct stat st;
     if (stat(path, &st) == 0) {
 	if (S_ISREG(st.st_mode)) {
 	    errno = 0;
-	    return st.st_size;
+	    return file_size_type(st.st_size);
 	}
 	errno = EINVAL;
     }
@@ -84,18 +89,20 @@ inline off_t file_size(const char * path) {
  *
  *  @param path	The path to test
  *
- *  Note: If the file's size is larger than the maximum value off_t can
- *  represent, then stat() will fail with EOVERFLOW, and so will this
- *  function.  There doesn't seem to be a way to determine the file size
- *  in this case, short of reading it all.  This is only likely if the LFS
- *  check in configure doesn't work out how to enable largefile support.
+ *  errno is set to 0 (upon success), or the error returned by stat(), or
+ *  EINVAL (if the path isn't a regular file or a symlink resolving to a
+ *  regular file).
  *
- *  @return The size of the file, or 0 if it doesn't exist or isn't a file;
- *	    errno is set to 0 (upon success), or the error returned by
- *	    stat(), or EINVAL (if the path isn't a regular file or a symlink
- *	    resolving to a regular file).
+ *  If the file's size is larger than the maximum value off_t can represent,
+ *  then stat() will fail with errno=EOVERFLOW, and so will this function.
+ *  There doesn't seem to be a way to determine the file size in this case,
+ *  short of reading it all.  This is only likely if the LFS check in configure
+ *  doesn't work out how to enable largefile support.
+ *
+ *  @return The size of the file, or 0 if it doesn't exist or isn't a file.
+ *	    The return type is file_size_type.
  */
-inline off_t file_size(const std::string & path) {
+inline file_size_type file_size(const std::string& path) {
     return file_size(path.c_str());
 }
 
@@ -103,23 +110,25 @@ inline off_t file_size(const std::string & path) {
  *
  *  @param fd	The file descriptor for the file.
  *
- *  Note: If the file's size is larger than the maximum value off_t can
- *  represent, then stat() will fail with EOVERFLOW, and so will this
- *  function.  There doesn't seem to be a way to determine the file size
- *  in this case, short of reading it all.  This is only likely if the LFS
- *  check in configure doesn't work out how to enable largefile support.
+ *  errno is set to 0 (upon success), or the error returned by fstat(), or
+ *  EINVAL (if the fd isn't a regular file or a symlink resolving to a
+ *  regular file).
  *
- *  @return The size of the file, or 0 if it doesn't exist or isn't a file;
- *	    errno is set to 0 (upon success), or the error returned by
- *	    stat(), or EINVAL (if the path isn't a regular file or a symlink
- *	    resolving to a regular file).
+ *  If the file's size is larger than the maximum value off_t can represent,
+ *  then stat() will fail with errno=EOVERFLOW, and so will this function.
+ *  There doesn't seem to be a way to determine the file size in this case,
+ *  short of reading it all.  This is only likely if the LFS check in configure
+ *  doesn't work out how to enable largefile support.
+ *
+ *  @return The size of the file, or 0 if it doesn't exist or isn't a file.
+ *	    The return type is file_size_type.
  */
-inline off_t file_size(int fd) {
+inline file_size_type file_size(int fd) {
     struct stat st;
     if (fstat(fd, &st) == 0) {
 	if (S_ISREG(st.st_mode)) {
 	    errno = 0;
-	    return st.st_size;
+	    return file_size_type(st.st_size);
 	}
 	errno = EINVAL;
     }

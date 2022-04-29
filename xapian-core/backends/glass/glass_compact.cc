@@ -1,7 +1,7 @@
 /** @file
  * @brief Compact a glass database, or merge and compact several.
  */
-/* Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2017 Olly Betts
+/* Copyright (C) 2004-2022 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -869,7 +869,7 @@ GlassDatabase::compact(Xapian::Compactor * compactor,
 
     vector<GlassTable *> tabs;
     tabs.reserve(tables_end - tables);
-    off_t prev_size = block_size;
+    file_size_type prev_size = block_size;
     for (const table_list * t = tables; t < tables_end; ++t) {
 	// The postlist table requires an N-way merge, adjusting the
 	// headers of various blocks.  The spelling and synonym tables also
@@ -897,7 +897,7 @@ GlassDatabase::compact(Xapian::Compactor * compactor,
 	// amongst the inputs.
 	bool single_file_in = false;
 
-	off_t in_size = 0;
+	file_size_type in_size = 0;
 
 	vector<const GlassTable*> inputs;
 	inputs.reserve(sources.size());
@@ -940,7 +940,7 @@ GlassDatabase::compact(Xapian::Compactor * compactor,
 		    ++inputs_present;
 		}
 	    } else {
-		off_t db_size = file_size(table->get_path());
+		auto db_size = file_size(table->get_path());
 		if (errno == 0) {
 		    in_size += db_size / 1024;
 		    output_will_exist = true;
@@ -1027,9 +1027,9 @@ GlassDatabase::compact(Xapian::Compactor * compactor,
 	out->sync();
 	if (single_file) fl_serialised = root_info->get_free_list();
 
-	off_t out_size = 0;
+	file_size_type out_size = 0;
 	if (!bad_stat && !single_file_in) {
-	    off_t db_size;
+	    file_size_type db_size;
 	    if (single_file) {
 		db_size = file_size(fd);
 	    } else {
@@ -1037,7 +1037,8 @@ GlassDatabase::compact(Xapian::Compactor * compactor,
 	    }
 	    if (errno == 0) {
 		if (single_file) {
-		    off_t old_prev_size = max(prev_size, off_t(block_size));
+		    auto old_prev_size = max(prev_size,
+					     file_size_type(block_size));
 		    prev_size = db_size;
 		    db_size -= old_prev_size;
 		}
@@ -1084,7 +1085,7 @@ GlassDatabase::compact(Xapian::Compactor * compactor,
     // If compacting to a single file output and all the tables are empty, pad
     // the output so that it isn't mistaken for a stub database when we try to
     // open it.  For this it needs to be a multiple of 2KB in size.
-    if (single_file && prev_size < off_t(block_size)) {
+    if (single_file && prev_size < block_size) {
 #ifdef HAVE_FTRUNCATE
 	if (ftruncate(fd, block_size) < 0) {
 	    throw Xapian::DatabaseError("Failed to set size of output database", errno);

@@ -2101,7 +2101,7 @@ HoneyDatabase::compact(Xapian::Compactor* compactor,
     // Set to true if stat() failed (which can happen if the files are > 2GB
     // and off_t is 32 bit) or one of the totals overflowed.
     bool bad_totals = false;
-    off_t in_total = 0, out_total = 0;
+    file_size_type in_total = 0, out_total = 0;
 
     version_file_out->create();
     for (size_t i = 0; i != sources.size(); ++i) {
@@ -2137,10 +2137,11 @@ HoneyDatabase::compact(Xapian::Compactor* compactor,
 	    // databases, we sum per-table below.
 	    string path;
 	    sources[i]->get_backend_info(&path);
-	    off_t db_size = file_size(path);
+	    auto db_size = file_size(path);
 	    if (errno == 0) {
-		// FIXME: check overflow and set bad_totals
-		in_total += db_size;
+		if (add_overflows(in_total, db_size, in_total)) {
+		    bad_totals = true;
+		}
 	    } else {
 		bad_totals = true;
 	    }
@@ -2163,7 +2164,7 @@ if (source_backend == Xapian::DB_BACKEND_GLASS) {
 #else
     vector<HoneyTable*> tabs;
     tabs.reserve(tables_end - tables);
-    off_t prev_size = 0;
+    file_size_type prev_size = 0;
     for (const table_list* t = tables; t < tables_end; ++t) {
 	// The postlist table requires an N-way merge, adjusting the
 	// headers of various blocks.  The spelling and synonym tables also
@@ -2191,7 +2192,7 @@ if (source_backend == Xapian::DB_BACKEND_GLASS) {
 	// amongst the inputs.
 	bool single_file_in = false;
 
-	off_t in_size = 0;
+	file_size_type in_size = 0;
 
 	vector<const GlassTable*> inputs;
 	inputs.reserve(sources.size());
@@ -2235,10 +2236,11 @@ if (source_backend == Xapian::DB_BACKEND_GLASS) {
 		    ++inputs_present;
 		}
 	    } else {
-		off_t db_size = file_size(table->get_path());
+		auto db_size = file_size(table->get_path());
 		if (errno == 0) {
-		    // FIXME: check overflow and set bad_totals
-		    in_total += db_size;
+		    if (add_overflows(in_total, db_size, in_total)) {
+			bad_totals = true;
+		    }
 		    in_size += db_size / 1024;
 		    output_will_exist = true;
 		    ++inputs_present;
@@ -2341,9 +2343,9 @@ if (source_backend == Xapian::DB_BACKEND_GLASS) {
 	out->sync();
 	if (single_file) fl_serialised = root_info->get_free_list();
 
-	off_t out_size = 0;
+	file_size_type out_size = 0;
 	if (!bad_stat && !single_file_in) {
-	    off_t db_size;
+	    file_size_type db_size;
 	    if (single_file) {
 		db_size = file_size(fd);
 	    } else {
@@ -2351,12 +2353,13 @@ if (source_backend == Xapian::DB_BACKEND_GLASS) {
 	    }
 	    if (errno == 0) {
 		if (single_file) {
-		    off_t old_prev_size = prev_size;
+		    auto old_prev_size = prev_size;
 		    prev_size = db_size;
 		    db_size -= old_prev_size;
 		}
-		// FIXME: check overflow and set bad_totals
-		out_total += db_size;
+		if (add_overflows(out_total, db_size, out_total)) {
+		    bad_totals = true;
+		}
 		out_size = db_size / 1024;
 	    } else if (errno != ENOENT) {
 		bad_totals = bad_stat = true;
@@ -2376,7 +2379,7 @@ if (source_backend == Xapian::DB_BACKEND_GLASS) {
 	    if (out_size == in_size) {
 		status = "Size unchanged (";
 	    } else {
-		off_t delta;
+		file_size_type delta;
 		if (out_size < in_size) {
 		    delta = in_size - out_size;
 		    status = "Reduced by ";
@@ -2448,7 +2451,7 @@ if (source_backend == Xapian::DB_BACKEND_GLASS) {
 } else {
     vector<HoneyTable*> tabs;
     tabs.reserve(tables_end - tables);
-    off_t prev_size = HONEY_MIN_DB_SIZE;
+    file_size_type prev_size = HONEY_MIN_DB_SIZE;
     for (const table_list* t = tables; t < tables_end; ++t) {
 	// The postlist table requires an N-way merge, adjusting the
 	// headers of various blocks.  The spelling and synonym tables also
@@ -2476,7 +2479,7 @@ if (source_backend == Xapian::DB_BACKEND_GLASS) {
 	// amongst the inputs.
 	bool single_file_in = false;
 
-	off_t in_size = 0;
+	file_size_type in_size = 0;
 
 	vector<const HoneyTable*> inputs;
 	inputs.reserve(sources.size());
@@ -2520,10 +2523,11 @@ if (source_backend == Xapian::DB_BACKEND_GLASS) {
 		    ++inputs_present;
 		}
 	    } else {
-		off_t db_size = file_size(table->get_path());
+		auto db_size = file_size(table->get_path());
 		if (errno == 0) {
-		    // FIXME: check overflow and set bad_totals
-		    in_total += db_size;
+		    if (add_overflows(in_total, db_size, in_total)) {
+			bad_totals = true;
+		    }
 		    in_size += db_size / 1024;
 		    output_will_exist = true;
 		    ++inputs_present;
@@ -2620,9 +2624,9 @@ if (source_backend == Xapian::DB_BACKEND_GLASS) {
 	out->sync();
 	if (single_file) fl_serialised = root_info->get_free_list();
 
-	off_t out_size = 0;
+	file_size_type out_size = 0;
 	if (!bad_stat && !single_file_in) {
-	    off_t db_size;
+	    file_size_type db_size;
 	    if (single_file) {
 		db_size = file_size(fd);
 	    } else {
@@ -2630,12 +2634,13 @@ if (source_backend == Xapian::DB_BACKEND_GLASS) {
 	    }
 	    if (errno == 0) {
 		if (single_file) {
-		    off_t old_prev_size = prev_size;
+		    auto old_prev_size = prev_size;
 		    prev_size = db_size;
 		    db_size -= old_prev_size;
 		}
-		// FIXME: check overflow and set bad_totals
-		out_total += db_size;
+		if (add_overflows(out_total, db_size, out_total)) {
+		    bad_totals = true;
+		}
 		out_size = db_size / 1024;
 	    } else if (errno != ENOENT) {
 		bad_totals = bad_stat = true;
@@ -2655,7 +2660,7 @@ if (source_backend == Xapian::DB_BACKEND_GLASS) {
 	    if (out_size == in_size) {
 		status = "Size unchanged (";
 	    } else {
-		off_t delta;
+		file_size_type delta;
 		if (out_size < in_size) {
 		    delta = in_size - out_size;
 		    status = "Reduced by ";
