@@ -1,7 +1,7 @@
 /** @file
  * @brief PostList class implementing Query::OP_AND_NOT
  */
-/* Copyright 2017 Olly Betts
+/* Copyright 2017,2022 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,42 +26,46 @@
 
 using namespace std;
 
+template<typename T, typename U>
+inline static T
+estimate_and_not(T l, T r, U n)
+{
+    // We calculate the estimates assuming independence.  With this assumption,
+    // the estimate is the product of the estimates for the sub-postlists
+    // (with the right side this is inverted by subtracting from the total size),
+    // divided by the total size.
+    return static_cast<T>((l * double(n - r)) / n + 0.5);
+}
+
 TermFreqs
 AndNotPostList::estimate_termfreqs(const Xapian::Weight::Internal& stats) const
 {
-    // We calculate the estimate assuming independence.  With this assumption,
-    // the estimate is the product of the estimates for the sub-postlists
-    // (for the right side this is inverted by subtracting from db_size),
-    // divided by db_size.
     TermFreqs freqs(pl->estimate_termfreqs(stats));
-
-    double freqest = double(freqs.termfreq);
-    double relfreqest = double(freqs.reltermfreq);
-    double collfreqest = double(freqs.collfreq);
-
-    freqs = r->estimate_termfreqs(stats);
+    TermFreqs r_freqs = r->estimate_termfreqs(stats);
 
     // Our caller should have ensured this.
     Assert(stats.collection_size);
+    freqs.termfreq = estimate_and_not(freqs.termfreq,
+				      r_freqs.termfreq,
+				      stats.collection_size);
 
-    freqs.termfreq = stats.collection_size - freqs.termfreq;
-    freqest = (freqest * freqs.termfreq) / stats.collection_size;
-
+    // If total_length is 0 then collfreq should always be 0 (since
+    // total_length is the sum of all collfreq values) so nothing to do.
     if (stats.total_length != 0) {
-	freqs.collfreq = stats.total_length - freqs.collfreq;
-	collfreqest = (collfreqest * freqs.collfreq) / stats.total_length;
+	freqs.collfreq = estimate_and_not(freqs.collfreq,
+					  r_freqs.collfreq,
+					  stats.total_length);
     }
 
-    // If the rset is empty, relfreqest should be 0 already, so leave
-    // it alone.
+    // If the rset is empty then relfreqest should always be 0 so nothing to
+    // do.
     if (stats.rset_size != 0) {
-	freqs.reltermfreq = stats.rset_size - freqs.reltermfreq;
-	relfreqest = (relfreqest * freqs.reltermfreq) / stats.rset_size;
+	freqs.reltermfreq = estimate_and_not(freqs.reltermfreq,
+					     r_freqs.reltermfreq,
+					     stats.rset_size);
     }
 
-    return TermFreqs(static_cast<Xapian::doccount>(freqest + 0.5),
-		     static_cast<Xapian::doccount>(relfreqest + 0.5),
-		     static_cast<Xapian::termcount>(collfreqest + 0.5));
+    return freqs;
 }
 
 PostList*
