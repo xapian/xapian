@@ -44,7 +44,7 @@ class LocalSubMatch : public SubMatch {
     /// The statistics for the collection.
     Xapian::Weight::Internal * stats;
 
-    /// The original query before any rearrangement.
+    /// The query.
     Xapian::Query query;
 
     /// The query length (used by some weighting schemes).
