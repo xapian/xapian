@@ -31,7 +31,6 @@
 #include "weight/weightinternal.h"
 
 #include "xapian/database.h"
-#include "xapian/query.h"
 
 #include <memory>
 #include <vector>
@@ -40,6 +39,7 @@ namespace Xapian {
     class KeyMaker;
     class MatchDecider;
     class MSet;
+    class Query;
     class Weight;
 }
 
@@ -47,8 +47,6 @@ class Matcher {
     typedef Xapian::Internal::opt_intrusive_ptr<Xapian::MatchSpy> opt_ptr_spy;
 
     Xapian::Database db;
-
-    Xapian::Query query;
 
     /** LocalSubMatch objects for local databases.
      *

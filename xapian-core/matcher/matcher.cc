@@ -176,7 +176,7 @@ Matcher::for_all_remotes(Action action)
 #endif
 
 Matcher::Matcher(const Xapian::Database& db_,
-		 const Xapian::Query& query_,
+		 const Xapian::Query& query,
 		 Xapian::termcount query_length,
 		 const Xapian::RSet* rset,
 		 Xapian::Weight::Internal& stats,
@@ -192,7 +192,7 @@ Matcher::Matcher(const Xapian::Database& db_,
 		 bool sort_val_reverse,
 		 double time_limit,
 		 const vector<opt_intrusive_ptr<Xapian::MatchSpy>>& matchspies)
-    : db(db_), query(query_)
+    : db(db_)
 {
     // An empty query should get handled higher up.
     Assert(!query.empty());
@@ -553,8 +553,6 @@ Matcher::get_mset(Xapian::doccount first,
 		  const vector<opt_intrusive_ptr<Xapian::MatchSpy>>& matchspies)
 {
     AssertRel(check_at_least, >=, first + maxitems);
-
-    Assert(!query.empty());
 
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
     if (locals.empty() && remotes.size() == 1) {
