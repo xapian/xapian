@@ -1,7 +1,7 @@
 /** @file
  * @brief tests of OP_SYNONYM and OP_MAX.
  */
-/* Copyright 2009,2011,2014 Olly Betts
+/* Copyright 2009,2011,2014,2022 Olly Betts
  * Copyright 2007,2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -163,6 +163,18 @@ static const synonym1_data_type synonym1_data[] = {
 	{
 	    Xapian::Query("date"),
 	    Xapian::Query(Xapian::Query::OP_SYNONYM,
+			  Xapian::Query("sky"),
+			  Xapian::Query("date")),
+	    NOQ, NOQ
+	}
+    },
+    {
+	// All 34 results should be different.  MAX under SYNONYM should just
+	// be treated as OR.
+	0, 34, 2,
+	{
+	    Xapian::Query("date"),
+	    Xapian::Query(Xapian::Query::OP_MAX,
 			  Xapian::Query("sky"),
 			  Xapian::Query("date")),
 	    NOQ, NOQ

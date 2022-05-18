@@ -86,8 +86,6 @@ class MaxPostList : public PostList {
 
     ~MaxPostList();
 
-    TermFreqs estimate_termfreqs(const Xapian::Weight::Internal& stats) const;
-
     Xapian::docid get_docid() const;
 
     double get_weight(Xapian::termcount doclen,
@@ -116,6 +114,9 @@ class MaxPostList : public PostList {
      *  that in general.
      */
     Xapian::termcount get_wdf() const;
+
+    // Note - we don't need to implement estimate_termfreqs() because an OP_MAX
+    // when used as a child of a synonym will be optimised to an OR.
 
     Xapian::termcount count_matching_subqs() const;
 };
