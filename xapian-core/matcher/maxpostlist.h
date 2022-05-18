@@ -86,9 +86,6 @@ class MaxPostList : public PostList {
 
     Xapian::doccount get_termfreq_est() const;
 
-    TermFreqs get_termfreq_est_using_stats(
-	const Xapian::Weight::Internal & stats) const;
-
     double get_maxweight() const;
 
     Xapian::docid get_docid() const;
@@ -121,6 +118,9 @@ class MaxPostList : public PostList {
      *  that in general.
      */
     Xapian::termcount get_wdf() const;
+
+    // Note - we don't need to implement get_termfreq_est_using_stats() because
+    // an OP_MAX when used as a child of a synonym will be optimised to an OR.
 
     Xapian::termcount count_matching_subqs() const;
 };
