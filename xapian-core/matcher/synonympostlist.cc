@@ -68,7 +68,7 @@ SynonymPostList::get_weight(Xapian::termcount doclen,
     LOGCALL(MATCH, double, "SynonymPostList::get_weight", doclen | unique_terms);
     Xapian::termcount wdf = 0;
     if (want_wdf) {
-	wdf = get_wdf();
+	wdf = WrapperPostList::get_wdf();
 	// Use doclen_lower_bound as a cheap check to sometimes avoid the
 	// need to clamp.
 	if (!wdf_disjoint && wdf > doclen_lower_bound) {
