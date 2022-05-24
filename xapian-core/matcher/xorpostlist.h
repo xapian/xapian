@@ -103,6 +103,8 @@ class XorPostList : public PostList {
 
     PostList* skip_to(Xapian::docid, double w_min);
 
+    void get_docid_range(Xapian::docid& first, Xapian::docid& last) const;
+
     std::string get_description() const;
 
     /** Get the within-document frequency.

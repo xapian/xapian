@@ -313,6 +313,8 @@ LocalSubMatch::open_post_list(const string& term,
 	}
     }
 
-    add_op(pl->get_termfreq());
+    Xapian::docid first = 1, last = Xapian::docid(-1);
+    pl->get_docid_range(first, last);
+    add_op(pl->get_termfreq(), first, last);
     RETURN(pl);
 }

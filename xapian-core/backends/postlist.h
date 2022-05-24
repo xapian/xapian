@@ -179,6 +179,21 @@ class PostList {
     /// Gather PositionList* objects for a subtree.
     virtual void gather_position_lists(OrPositionList* orposlist);
 
+    /** Get the bounds on the range of docids this PostList can return.
+     *
+     *  @param[out] first   Set to a lower bound on the docids that can be
+     *			    returned, or not changed if there's no known
+     *			    lower bound (other than 1).
+     *
+     *  @param[out] last    Set to an upper bound on the docids that can be
+     *			    returned, or not changed if there's no known
+     *			    upper bound (other than the highest used docid).
+     *
+     *  The default implementation (PostList::get_docid_range()) does nothing,
+     *  which is suitable when there's no known lower or upper bound.
+     */
+    virtual void get_docid_range(docid& first, docid& last) const;
+
     /// Return a string description of this object.
     virtual std::string get_description() const = 0;
 };

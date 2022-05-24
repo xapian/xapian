@@ -145,6 +145,8 @@ class BoolOrPostList : public PostList {
 
     PostList* skip_to(Xapian::docid did, double w_min);
 
+    void get_docid_range(Xapian::docid& first, Xapian::docid& last) const;
+
     std::string get_description() const;
 
     Xapian::termcount get_wdf() const;

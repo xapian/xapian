@@ -155,6 +155,18 @@ BoolOrPostList::at_end() const
     return false;
 }
 
+void
+BoolOrPostList::get_docid_range(Xapian::docid& first, Xapian::docid& last) const
+{
+    plist[0].pl->get_docid_range(first, last);
+    for (size_t i = 1; i != n_kids; ++i) {
+	Xapian::docid f = first, l = last;
+	plist[i].pl->get_docid_range(f, l);
+	first = min(first, f);
+	last = max(last, l);
+    }
+}
+
 std::string
 BoolOrPostList::get_description() const
 {

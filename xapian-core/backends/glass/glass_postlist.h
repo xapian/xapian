@@ -285,6 +285,8 @@ class GlassPostList : public LeafPostList {
 
     Xapian::termcount get_wdf_upper_bound() const;
 
+    void get_docid_range(Xapian::docid& first, Xapian::docid& last) const;
+
     /// Get a description of the document.
     std::string get_description() const;
 

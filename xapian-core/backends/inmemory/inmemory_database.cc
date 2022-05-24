@@ -148,6 +148,19 @@ InMemoryPostList::at_end() const
     return (pos == end);
 }
 
+void
+InMemoryPostList::get_docid_range(Xapian::docid& first,
+				  Xapian::docid& last) const
+{
+    Assert(!started);
+    if (pos != end) {
+	first = pos->did;
+	last = (end - 1)->did;
+    } else {
+	last = 0;
+    }
+}
+
 string
 InMemoryPostList::get_description() const
 {
@@ -983,6 +996,21 @@ InMemoryDatabase::open_allterms(const string & prefix) const
     return new InMemoryAllTermsList(&postlists,
 				    intrusive_ptr<const InMemoryDatabase>(this),
 				    prefix);
+}
+
+void
+InMemoryDatabase::get_used_docid_range(Xapian::docid& first,
+				       Xapian::docid& last) const
+{
+    if (closed) InMemoryDatabase::throw_database_closed();
+    first = 1;
+    last = termlists.size();
+    if (last == 0 || last == totdocs) {
+	// Empty database or contiguous range starting at 1.
+	return;
+    }
+    while (!termlists[first - 1].is_valid) ++first;
+    while (!termlists[last - 1].is_valid) --last;
 }
 
 Xapian::Database::Internal*

@@ -67,3 +67,9 @@ PostList::gather_position_lists(OrPositionList*)
 {
     Assert(false);
 }
+
+void
+PostList::get_docid_range(Xapian::docid&, Xapian::docid&) const
+{
+    // Default is to match the full range.
+}

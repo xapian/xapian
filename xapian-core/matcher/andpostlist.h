@@ -130,14 +130,28 @@ class AndPostList : public PostList {
 
 	// We shortcut an empty shard and avoid creating a postlist tree for it.
 	Assert(db_size);
-	// We calculate the estimate assuming independence.  With this
-	// assumption, the estimate is the product of the estimates for the
-	// sub-postlists divided by db_size (n_kids - 1) times.
-	double result = plist[0]->get_termfreq();
-	for (size_t i = 1; i < n_kids; ++i) {
-	    result = (result * plist[i]->get_termfreq()) / db_size;
+
+	Xapian::docid first = 1, last = Xapian::docid(-1);
+	AndPostList::get_docid_range(first, last);
+	if (last - first + 1 == 0) {
+	    termfreq = 0;
+	    return;
 	}
-	termfreq = static_cast<Xapian::doccount>(result + 0.5);
+
+	// We calculate the estimate assuming independence.
+	double r = (last - first + 1);
+	for (size_t i = 0; i < n_kids; ++i) {
+	    auto est = plist[i]->get_termfreq();
+	    first = 1;
+	    last = Xapian::docid(-1);
+	    plist[i]->get_docid_range(first, last);
+	    if (last - first + 1 == 0) {
+		termfreq = 0;
+		return;
+	    }
+	    r *= double(est) / (last - first + 1);
+	}
+	termfreq = static_cast<Xapian::doccount>(r + 0.5);
     }
 
     /** Construct as the decay product of an OrPostList or AndMaybePostList. */
@@ -179,6 +193,8 @@ class AndPostList : public PostList {
     PostList* next(double w_min);
 
     PostList* skip_to(Xapian::docid, double w_min);
+
+    void get_docid_range(Xapian::docid& first, Xapian::docid& last) const;
 
     std::string get_description() const;
 

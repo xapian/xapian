@@ -249,6 +249,19 @@ HoneyPostList::get_wdf_upper_bound() const
     return wdf_max;
 }
 
+void
+HoneyPostList::get_docid_range(Xapian::docid& first, Xapian::docid& last) const
+{
+    Assert(!started);
+    if (termfreq) {
+	first = reader.get_docid();
+	last = last_did;
+	AssertRel(first,<=,last);
+    } else {
+	last = 0;
+    }
+}
+
 string
 HoneyPostList::get_description() const
 {

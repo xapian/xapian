@@ -1025,6 +1025,19 @@ GlassPostList::jump_to(Xapian::docid desired_did)
     RETURN(desired_did == did);
 }
 
+void
+GlassPostList::get_docid_range(Xapian::docid& first, Xapian::docid& last) const
+{
+    if (pos == NULL) {
+	last = 0;
+    } else {
+	first = first_did_in_chunk;
+	if (is_last_chunk) {
+	    last = last_did_in_chunk;
+	}
+    }
+}
+
 string
 GlassPostList::get_description() const
 {

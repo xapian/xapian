@@ -104,6 +104,8 @@ class MaxPostList : public PostList {
 
     PostList* skip_to(Xapian::docid, double w_min);
 
+    void get_docid_range(Xapian::docid& first, Xapian::docid& last) const;
+
     std::string get_description() const;
 
     /** get_wdf() for MaxPostlist returns the sum of the wdfs of the

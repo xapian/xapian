@@ -132,6 +132,19 @@ AndPostList::skip_to(Xapian::docid did_min, double w_min)
     return find_next_match(w_min);
 }
 
+void
+AndPostList::get_docid_range(Xapian::docid& first, Xapian::docid& last) const
+{
+    plist[0]->get_docid_range(first, last);
+    for (size_t i = 1; i != n_kids; ++i) {
+	Xapian::docid f = first, l = last;
+	plist[i]->get_docid_range(f, l);
+	first = max(first, f);
+	last = min(last, l);
+	if (last < first) break;
+    }
+}
+
 std::string
 AndPostList::get_description() const
 {

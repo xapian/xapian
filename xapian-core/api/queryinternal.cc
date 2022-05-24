@@ -137,6 +137,12 @@ class Context {
 
     vector<TermFreqs> termfreqs_list;
 
+    /// Lower bound on matching docid range.
+    Xapian::docid first = Xapian::docid(-1);
+
+    /// Upper bound on matching docid range.
+    Xapian::docid last = 0;
+
   public:
     Context(QueryOptimiser* qopt_, size_t reserve) : qopt(qopt_) {
 	pls.reserve(reserve);
@@ -146,14 +152,24 @@ class Context {
 	shrink(0);
     }
 
+    Xapian::docid get_first() const { return first; }
+
+    Xapian::docid get_last() const { return last; }
+
     void add_termfreqs(TermFreqs* termfreqs) {
 	if (termfreqs) termfreqs_list.emplace_back(*termfreqs);
     }
 
     void add_postlist(PostList* pl, TermFreqs* termfreqs) {
 	add_termfreqs(termfreqs);
-	if (pl)
+	if (pl) {
 	    pls.emplace_back(pl);
+	    Xapian::docid f = 1;
+	    Xapian::docid l = Xapian::docid(-1);
+	    pl->get_docid_range(f, l);
+	    first = std::min(first, f);
+	    last = std::max(last, l);
+	}
     }
 
     bool empty() const {
@@ -425,7 +441,7 @@ OrContext::postlist(TermFreqs* termfreqs, bool bool_or)
 	}
     }
 
-    qopt->add_op(EstimateOp::OR, pls.size());
+    qopt->add_op(EstimateOp::OR, pls.size(), first, last);
 
     if (bool_or) {
 	auto pl = new BoolOrPostList(pls.begin(), pls.end(), qopt->db_size);
@@ -455,7 +471,7 @@ OrContext::postlist(TermFreqs* termfreqs, bool bool_or)
 	PostList* r = pls.front();
 	Heap::pop(pls.begin(), pls.end(), ComparePostListTermFreqAscending());
 	pls.pop_back();
-	auto pl = new OrPostList(pls.front(), r, qopt->matcher, qopt->db_size);
+	auto pl = new OrPostList(pls.front(), r, qopt->matcher);
 
 	if (pls.size() == 1) {
 	    pls.clear();
@@ -488,7 +504,7 @@ OrContext::postlist_max()
     PostList * pl;
     pl = new MaxPostList(pls.begin(), pls.end(), qopt->matcher, qopt->db_size);
     // Same as OR for number of matches.
-    qopt->add_op(EstimateOp::OR, pls.size());
+    qopt->add_op(EstimateOp::OR, pls.size(), first, last);
 
     pls.clear();
     return pl;
@@ -555,7 +571,7 @@ XorContext::postlist(TermFreqs* termfreqs)
 
     Xapian::doccount db_size = qopt->db_size;
     auto pl = new XorPostList(pls.begin(), pls.end(), qopt->matcher, db_size);
-    qopt->add_op(EstimateOp::XOR, pls.size());
+    qopt->add_op(EstimateOp::XOR, pls.size(), first, last);
 
     // Empty pls so our destructor doesn't delete them all!
     pls.clear();
@@ -598,21 +614,30 @@ class AndContext : public Context {
 
   public:
     AndContext(QueryOptimiser* qopt_, size_t reserve)
-	: Context(qopt_, reserve) { }
+	: Context(qopt_, reserve) {
+	first = 1;
+	last = Xapian::docid(-1);
+    }
 
     bool add_postlist(PostList* pl, TermFreqs* termfreqs) {
 	if (termfreqs) termfreqs_list.emplace_back(*termfreqs);
-	if (!pl) {
-	    shrink(0);
-	    match_all = false;
-	    return termfreqs != NULL;
+	if (pl) {
+	    if (pls.empty() && termfreqs_list.size() > 1) {
+		qopt->destroy_postlist(pl);
+		return true;
+	    }
+	    pls.emplace_back(pl);
+	    Xapian::docid pl_first = first, pl_last = last;
+	    pl->get_docid_range(pl_first, pl_last);
+	    first = std::max(first, pl_first);
+	    last = std::min(last, pl_last);
+	    if (first <= last) {
+		return true;
+	    }
 	}
-	if (pls.empty() && termfreqs_list.size() > 1) {
-	    qopt->destroy_postlist(pl);
-	    return true;
-	}
-	pls.emplace_back(pl);
-	return true;
+	shrink(0);
+	match_all = false;
+	return termfreqs != NULL;
     }
 
     void set_match_all() { match_all = true; }
@@ -754,43 +779,51 @@ AndContext::postlist(TermFreqs* termfreqs)
 	break;
       default:
 	pl.reset(new AndPostList(pls.begin(), pls.end(), matcher, db_size));
-	qopt->add_op(EstimateOp::AND, pls.size());
+	qopt->add_op(EstimateOp::AND, pls.size(), first, last);
 	break;
     }
 
     if (not_ctx && !not_ctx->empty()) {
-	TermFreqs r_freqs;
-	PostList* rhs = not_ctx->postlist(termfreqs ? &r_freqs : NULL, true);
-	if (termfreqs) {
-	    TermFreqs& freqs = *termfreqs;
-	    auto& stats = *qopt->get_stats();
+	if (not_ctx->get_last() < first || not_ctx->get_first() > last) {
+	    // The ranges don't overlap so the right side has no effect.
+	    // The call to not_ctx.reset() below will clean up the estimate
+	    // stack.
+	} else {
+	    TermFreqs r_freqs;
+	    PostList* rhs = not_ctx->postlist(termfreqs ? &r_freqs : NULL,
+					      true);
+	    if (termfreqs) {
+		TermFreqs& freqs = *termfreqs;
+		auto& stats = *qopt->get_stats();
 
-	    // Our caller should have ensured this.
-	    Assert(stats.collection_size);
-	    freqs.termfreq = estimate_and_not(freqs.termfreq,
-					      r_freqs.termfreq,
-					      stats.collection_size);
+		// Our caller should have ensured this.
+		Assert(stats.collection_size);
+		freqs.termfreq = estimate_and_not(freqs.termfreq,
+						  r_freqs.termfreq,
+						  stats.collection_size);
 
-	    // If total_length is 0 then collfreq should always be 0 (since
-	    // total_length is the sum of all collfreq values) so nothing to
-	    // do.
-	    if (stats.total_length != 0) {
-		freqs.collfreq = estimate_and_not(freqs.collfreq,
-						  r_freqs.collfreq,
-						  stats.total_length);
+		// If total_length is 0 then collfreq should always be 0 (since
+		// total_length is the sum of all collfreq values) so nothing
+		// to do.
+		if (stats.total_length != 0) {
+		    freqs.collfreq = estimate_and_not(freqs.collfreq,
+						      r_freqs.collfreq,
+						      stats.total_length);
+		}
+
+		// If the rset is empty then relfreqest should always be 0 so
+		// nothing to do.
+		if (stats.rset_size != 0) {
+		    freqs.reltermfreq = estimate_and_not(freqs.reltermfreq,
+							 r_freqs.reltermfreq,
+							 stats.rset_size);
+		}
 	    }
 
-	    // If the rset is empty then relfreqest should always be 0 so
-	    // nothing to do.
-	    if (stats.rset_size != 0) {
-		freqs.reltermfreq = estimate_and_not(freqs.reltermfreq,
-						     r_freqs.reltermfreq,
-						     stats.rset_size);
-	    }
+	    pl.reset(new AndNotPostList(pl.release(), rhs, db_size));
+	    // The bounds are the same as those for the left side.
+	    qopt->add_op(EstimateOp::AND_NOT, 2, first, last);
 	}
-
-	pl.reset(new AndNotPostList(pl.release(), rhs, db_size));
-	qopt->add_op(EstimateOp::AND_NOT, 2);
 	not_ctx.reset();
     }
 
@@ -807,12 +840,18 @@ AndContext::postlist(TermFreqs* termfreqs)
     pls.clear();
 
     if (maybe_ctx && !maybe_ctx->empty()) {
-	PostList* rhs = maybe_ctx->postlist(termfreqs);
-	// For OP_AND_MAYBE only the LHS determines which documents match (the
-	// RHS only adds weight) so for the estimates we can just ignore the
-	// RHS and the operator itself).
-	qopt->pop_op();
-	pl.reset(new AndMaybePostList(pl.release(), rhs, matcher));
+	if (maybe_ctx->get_last() < first || maybe_ctx->get_first() > last) {
+	    // The ranges don't overlap so the right side has no effect.
+	    // The call to maybe_ctx.reset() below will clean up the estimate
+	    // stack.
+	} else {
+	    PostList* rhs = maybe_ctx->postlist(termfreqs);
+	    // For OP_AND_MAYBE only the LHS determines which documents match
+	    // (the RHS only adds weight) so for the estimates we can just
+	    // ignore the RHS and the operator itself).
+	    qopt->pop_op();
+	    pl.reset(new AndMaybePostList(pl.release(), rhs, matcher));
+	}
 	maybe_ctx.reset();
     }
 
@@ -1464,12 +1503,12 @@ QueryValueRange::postlist(QueryOptimiser* qopt, double factor,
 	    RETURN(new ValueGePostList(&db, value_freq, slot, string()));
 	}
 	auto est = estimate_range_freq(lb, ub, begin, NULL, value_freq);
-	qopt->add_op(0, est, value_freq);
+	qopt->add_op(Estimates(0, est, value_freq));
 	if (termfreqs) *termfreqs *= double(est) / db_size;
 	RETURN(new ValueGePostList(&db, est, slot, begin));
     }
     auto est = estimate_range_freq(lb, ub, begin, &end, value_freq);
-    qopt->add_op(0, est, value_freq);
+    qopt->add_op(Estimates(0, est, value_freq));
     if (termfreqs) *termfreqs *= double(est) / db_size;
     RETURN(new ValueRangePostList(&db, est, slot, begin, end));
 }

@@ -105,13 +105,14 @@ class LocalSubMatch {
     }
 
     void pop_op() {
-	for (unsigned elements_to_pop = 1; elements_to_pop; --elements_to_pop) {
+	unsigned elements_to_pop = 1;
+	do {
 	    EstimateOp* p = estimate_stack;
 	    estimate_stack = estimate_stack->get_next();
 	    // We may need to pop subqueries (recursively!)
 	    elements_to_pop += p->get_subquery_count();
 	    delete p;
-	}
+	} while (--elements_to_pop);
     }
 
     Estimates resolve() {
@@ -121,7 +122,9 @@ class LocalSubMatch {
 	// We shortcut an empty shard and avoid creating a postlist tree for
 	// it so the estimate stack should be empty.
 	Assert(db_size);
-	return estimate_stack->resolve(db_size);
+	Xapian::docid db_first, db_last;
+	db->get_used_docid_range(db_first, db_last);
+	return estimate_stack->resolve(db_size, db_first, db_last);
     }
 
     /** Fetch and collate statistics.

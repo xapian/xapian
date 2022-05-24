@@ -1,7 +1,7 @@
 /** @file
  * @brief PostList class implementing Query::OP_OR
  */
-/* Copyright 2017 Olly Betts
+/* Copyright 2017,2022 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -35,20 +35,69 @@ template<typename T>
 static void
 estimate_or_assuming_indep(double a, double b, double n, T& res)
 {
-    if (rare(n == 0.0)) {
-	res = 0;
-    } else {
-	res = static_cast<T>(a + b - (a * b / n) + 0.5);
+    Assert(n != 0.0);
+    res = static_cast<T>(a + b - (a * b / n) + 0.5);
+}
+
+template<typename T>
+static void
+estimate_or_assuming_indep(double a, double af, double al,
+			   double b, double bf, double bl,
+			   T& res)
+{
+    // Clamp estimates to range lengths.
+    a = min(a, al - af + 1.0);
+    b = min(b, bl - bf + 1.0);
+    AssertRel(a,>=,0);
+    AssertRel(b,>=,0);
+
+    if (al < bf || bl < af) {
+	// Disjoint ranges.
+	res = a + b;
+	return;
     }
+
+    // Arrange for af <= bf.
+    if (af > bf) {
+	swap(a, b);
+	swap(af, bf);
+	swap(al, bl);
+    }
+
+    // Arrange for al <= bl.
+    if (al > bl) {
+	bf += (al - bl);
+	bl = al;
+    }
+
+    double arate = a / (al - af + 1);
+    double brate = b / (bl - bf + 1);
+
+    double r = arate * (bf - af) +
+	       brate * (bl - al) +
+	       (arate + brate - arate * brate) * (al - bf + 1);
+    res = static_cast<T>(r + 0.5);
 }
 
 OrPostList::OrPostList(PostList* left, PostList* right,
-		       PostListTree* pltree_, Xapian::doccount db_size)
+		       PostListTree* pltree_)
     : l(left), r(right), pltree(pltree_)
 {
-    estimate_or_assuming_indep(l->get_termfreq(),
-			       r->get_termfreq(),
-			       db_size,
+    auto l_tf_est = l->get_termfreq();
+    auto r_tf_est = r->get_termfreq();
+    Xapian::docid l_first, l_last, r_first, r_last;
+    l->get_docid_range(l_first, l_last);
+    r->get_docid_range(r_first, r_last);
+    if (l_last < l_first) {
+	l_last = 0;
+	l_first = 1;
+    }
+    if (r_last < r_first) {
+	r_last = 0;
+	r_first = 1;
+    }
+    estimate_or_assuming_indep(l_tf_est, l_first, l_last,
+			       r_tf_est, r_first, r_last,
 			       termfreq);
 }
 
@@ -372,6 +421,16 @@ OrPostList::at_end() const
     // prune to leave the other, and if both children reach at_end() together,
     // we prune to leave one of them which will then indicate at_end() for us.
     return false;
+}
+
+void
+OrPostList::get_docid_range(Xapian::docid& first, Xapian::docid& last) const
+{
+    l->get_docid_range(first, last);
+    Xapian::docid first2 = 1, last2 = Xapian::docid(-1);
+    r->get_docid_range(first2, last2);
+    first = min(first, first2);
+    last = max(last, last2);
 }
 
 std::string

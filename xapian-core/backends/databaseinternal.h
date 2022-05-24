@@ -471,8 +471,14 @@ class Database::Internal : public Xapian::Internal::intrusive_base {
 
     /** Find lowest and highest docids actually in use.
      *
-     *  Only used by compaction, so only needs to be implemented by
-     *  backends which support compaction.
+     *  Used during local matching and compaction, so only needs to be
+     *  implemented by backends which support one or both of these.
+     *
+     *  For example, EmptyDatabase, MultiDatabase and RemoteDatabase don't need
+     *  to implement this (empty shards are skipped early by the matcher;
+     *  sharded databases are handled explicitly by the matcher rather than via
+     *  the "multi" backend; matching for remote shards runs as a local match
+     *  on the remote).
      */
     virtual void get_used_docid_range(docid& first,
 				      docid& last) const;

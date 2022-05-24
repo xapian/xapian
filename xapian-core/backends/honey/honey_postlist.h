@@ -207,6 +207,8 @@ class HoneyPostList : public LeafPostList {
 
     Xapian::termcount get_wdf_upper_bound() const;
 
+    void get_docid_range(Xapian::docid& first, Xapian::docid& last) const;
+
     std::string get_description() const;
 };
 

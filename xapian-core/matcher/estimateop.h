@@ -26,12 +26,20 @@
 struct Estimates {
     Xapian::doccount min, est, max;
 
+    /** Lower bound on docids matched. */
+    Xapian::docid first;
+
+    /** Upper bound on docids matched. */
+    Xapian::docid last;
+
     Estimates() { }
 
     Estimates(Xapian::doccount min_,
 	      Xapian::doccount est_,
-	      Xapian::doccount max_)
-	: min(min_), est(est_), max(max_) { }
+	      Xapian::doccount max_,
+	      Xapian::doccount first_ = 1,
+	      Xapian::doccount last_ = Xapian::docid(-1))
+	: min(min_), est(est_), max(max_), first(first_), last(last_) { }
 };
 
 // Clean up Microsoft namespace pollution.
@@ -75,23 +83,29 @@ class EstimateOp {
 
   public:
     /// Leaf term.
-    EstimateOp(EstimateOp* next_, Xapian::doccount tf_)
-	: next(next_), type(KNOWN), estimates(tf_, tf_, tf_) { }
+    EstimateOp(EstimateOp* next_, Xapian::doccount tf_,
+	       Xapian::docid first, Xapian::docid last)
+	: next(next_), type(KNOWN), estimates(tf_, tf_, tf_, first, last) { }
 
     /// PostingSource
     EstimateOp(EstimateOp* next_)
 	: next(next_), type(POSTING_SOURCE) { }
 
     /// Value range.
-    EstimateOp(EstimateOp* next_,
-	       Xapian::doccount min_,
-	       Xapian::doccount est,
-	       Xapian::doccount max_)
-	: next(next_), type(KNOWN), estimates(min_, est, max_) { }
+    EstimateOp(EstimateOp* next_, Estimates estimates_)
+	: next(next_), type(KNOWN), estimates(estimates_) { }
+
+    /// Value range degenerate case.
+    EstimateOp(EstimateOp* next_, Xapian::doccount tf_)
+	: next(next_), type(KNOWN), estimates(tf_, tf_, tf_) { }
 
     /// AND, AND_NOT, OR or XOR.
-    EstimateOp(EstimateOp* next_, op_type type_, unsigned n_subqueries_)
-	: next(next_), type(type_), n_subqueries(n_subqueries_) { }
+    EstimateOp(EstimateOp* next_, op_type type_, unsigned n_subqueries_,
+	       Xapian::docid first, Xapian::docid last)
+	: next(next_), type(type_), n_subqueries(n_subqueries_) {
+	estimates.first = first;
+	estimates.last = last;
+    }
 
     /** NEAR, PHRASE or EXACT_PHRASE.
      *
@@ -114,10 +128,14 @@ class EstimateOp {
 	estimates.max = max_;
     }
 
-    Estimates resolve(Xapian::doccount db_size);
+    Estimates resolve(Xapian::doccount db_size,
+		      Xapian::docid db_first,
+		      Xapian::docid db_last);
 
-    Estimates resolve_next(Xapian::doccount db_size) {
-	Estimates result = next->resolve(db_size);
+    Estimates resolve_next(Xapian::doccount db_size,
+			   Xapian::docid db_first,
+			   Xapian::docid db_last) {
+	Estimates result = next->resolve(db_size, db_first, db_last);
 	EstimateOp* old_next = next;
 	next = next->next;
 	delete old_next;

@@ -65,8 +65,7 @@ class OrPostList : public PostList {
 				bool* valid_ptr = NULL);
 
   public:
-    OrPostList(PostList* left, PostList* right,
-	       PostListTree* pltree_, Xapian::doccount db_size);
+    OrPostList(PostList* left, PostList* right, PostListTree* pltree_);
 
     ~OrPostList() {
 	delete l;
@@ -88,6 +87,8 @@ class OrPostList : public PostList {
     PostList* skip_to(Xapian::docid did, double w_min);
 
     PostList* check(Xapian::docid did, double w_min, bool& valid);
+
+    void get_docid_range(Xapian::docid& first, Xapian::docid& last) const;
 
     std::string get_description() const;
 

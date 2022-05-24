@@ -174,6 +174,8 @@ class InMemoryPostList : public LeafPostList {
 
     Xapian::termcount get_wdf_upper_bound() const;
 
+    void get_docid_range(Xapian::docid& first, Xapian::docid& last) const;
+
     std::string get_description() const;
 };
 
@@ -374,6 +376,8 @@ class InMemoryDatabase : public Xapian::Database::Internal {
 	if (path) *path = std::string();
 	return BACKEND_INMEMORY;
     }
+
+    void get_used_docid_range(Xapian::docid& first, Xapian::docid& last) const;
 
     bool locked() const { return !closed; }
 
