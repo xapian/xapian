@@ -85,7 +85,8 @@ OrPostList::OrPostList(PostList* left, PostList* right,
 {
     auto l_tf_est = l->get_termfreq();
     auto r_tf_est = r->get_termfreq();
-    Xapian::docid l_first, l_last, r_first, r_last;
+    Xapian::docid l_first = 1, l_last = Xapian::docid(-1);
+    Xapian::docid r_first = 1, r_last = Xapian::docid(-1);
     l->get_docid_range(l_first, l_last);
     r->get_docid_range(r_first, r_last);
     if (l_last < l_first) {
