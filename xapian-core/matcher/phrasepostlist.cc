@@ -118,18 +118,6 @@ PhrasePostList::get_wdf() const
     return wdf;
 }
 
-TermFreqs
-PhrasePostList::estimate_termfreqs(const Xapian::Weight::Internal& stats) const
-{
-    LOGCALL(MATCH, TermFreqs, "PhrasePostList::estimate_termfreqs", stats);
-    // No idea how to estimate this - do the same as get_termfreq() for now.
-    TermFreqs result(pl->estimate_termfreqs(stats));
-    result.termfreq /= 3;
-    result.reltermfreq /= 3;
-    result.collfreq /= 3;
-    RETURN(result);
-}
-
 string
 PhrasePostList::get_description() const
 {

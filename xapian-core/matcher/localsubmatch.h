@@ -24,6 +24,7 @@
 
 #include "api/queryinternal.h"
 #include "backends/databaseinternal.h"
+#include "backends/leafpostlist.h"
 #include "estimateop.h"
 #include "weight/weightinternal.h"
 #include "xapian/enquire.h"
@@ -147,26 +148,52 @@ class LocalSubMatch {
     }
 
     /// Get PostList.
-    PostList * get_postlist(PostListTree* matcher,
-			    Xapian::termcount* total_subqs_ptr);
+    PostList* get_postlist(PostListTree* matcher,
+			   Xapian::termcount* total_subqs_ptr);
 
     /** Convert a postlist into a synonym postlist.
      */
-    PostList * make_synonym_postlist(PostListTree* pltree,
-				     PostList* or_pl,
-				     double factor,
-				     bool wdf_disjoint);
+    PostList* make_synonym_postlist(PostListTree* pltree,
+				    PostList* or_pl,
+				    double factor,
+				    bool wdf_disjoint,
+				    const TermFreqs& termfreqs);
 
-    PostList * open_post_list(const std::string& term,
-			      Xapian::termcount wqf,
-			      double factor,
-			      bool need_positions,
-			      bool compound_weight,
-			      Xapian::Internal::QueryOptimiser* qopt,
-			      bool lazy_weight);
+    LeafPostList* open_post_list(const std::string& term,
+				 Xapian::termcount wqf,
+				 double factor,
+				 bool need_positions,
+				 bool compound_weight,
+				 Xapian::Internal::QueryOptimiser* qopt,
+				 bool lazy_weight,
+				 TermFreqs* termfreqs);
+
+    void register_lazy_postlist_for_stats(LeafPostList* pl,
+					  TermFreqs* termfreqs) {
+	auto res = total_stats->termfreqs.emplace(pl->get_term(), TermFreqs());
+	if (res.second) {
+	    // Only register if the term isn't already registered - e.g. a term
+	    // from a wildcard expansion which is also present in the query
+	    // verbatim such as: foo* food
+	    res.first->second.termfreq = pl->get_termfreq();
+	    res.first->second.collfreq = pl->get_collfreq();
+#ifdef XAPIAN_ASSERTIONS
+	    Xapian::doccount tf;
+	    Xapian::termcount cf;
+	    db->get_freqs(pl->get_term(), &tf, &cf);
+	    AssertEq(res.first->second.termfreq, tf);
+	    AssertEq(res.first->second.collfreq, cf);
+#endif
+	}
+	if (termfreqs) *termfreqs = res.first->second;
+    }
 
     bool weight_needs_wdf() const {
 	return wt_factory.get_sumpart_needs_wdf_();
+    }
+
+    const Xapian::Weight::Internal* get_stats() const {
+	return total_stats;
     }
 };
 

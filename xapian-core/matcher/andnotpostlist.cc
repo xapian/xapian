@@ -26,48 +26,6 @@
 
 using namespace std;
 
-template<typename T, typename U>
-inline static T
-estimate_and_not(T l, T r, U n)
-{
-    // We calculate the estimates assuming independence.  With this assumption,
-    // the estimate is the product of the estimates for the sub-postlists
-    // (with the right side this is inverted by subtracting from the total size),
-    // divided by the total size.
-    return static_cast<T>((l * double(n - r)) / n + 0.5);
-}
-
-TermFreqs
-AndNotPostList::estimate_termfreqs(const Xapian::Weight::Internal& stats) const
-{
-    TermFreqs freqs(pl->estimate_termfreqs(stats));
-    TermFreqs r_freqs = r->estimate_termfreqs(stats);
-
-    // Our caller should have ensured this.
-    Assert(stats.collection_size);
-    freqs.termfreq = estimate_and_not(freqs.termfreq,
-				      r_freqs.termfreq,
-				      stats.collection_size);
-
-    // If total_length is 0 then collfreq should always be 0 (since
-    // total_length is the sum of all collfreq values) so nothing to do.
-    if (stats.total_length != 0) {
-	freqs.collfreq = estimate_and_not(freqs.collfreq,
-					  r_freqs.collfreq,
-					  stats.total_length);
-    }
-
-    // If the rset is empty then relfreqest should always be 0 so nothing to
-    // do.
-    if (stats.rset_size != 0) {
-	freqs.reltermfreq = estimate_and_not(freqs.reltermfreq,
-					     r_freqs.reltermfreq,
-					     stats.rset_size);
-    }
-
-    return freqs;
-}
-
 PostList*
 AndNotPostList::next(double w_min)
 {

@@ -96,25 +96,56 @@ class QueryOptimiser {
 
     void set_total_subqs(Xapian::termcount n) { total_subqs = n; }
 
-    PostList * open_post_list(const std::string& term,
-			      Xapian::termcount wqf,
-			      double factor) {
+    /** Create a PostList object for @a term.
+     *
+     *  @param[out] termfreqs If not NULL, the pointed to object is set to the
+     *		TermFreqs for @a term.  If the database is sharded, these will
+     *		be for the whole database not just the current shard.  This
+     *		is used to estimate TermFreqs for an OP_SYNONYM.
+     */
+    PostList* open_post_list(const std::string& term,
+			     Xapian::termcount wqf,
+			     double factor,
+			     TermFreqs* termfreqs) {
 	return localsubmatch.open_post_list(term, wqf, factor, need_positions,
-					    compound_weight, this, false);
+					    compound_weight, this, false,
+					    termfreqs);
     }
 
-    PostList * open_lazy_post_list(const std::string& term,
-				   Xapian::termcount wqf,
-				   double factor) {
+    LeafPostList* open_lazy_post_list(const std::string& term,
+				      Xapian::termcount wqf,
+				      double factor) {
 	return localsubmatch.open_post_list(term, wqf, factor, need_positions,
-					    compound_weight, this, true);
+					    compound_weight, this, true,
+					    NULL);
     }
 
-    PostList * make_synonym_postlist(PostList * pl,
-				     double factor,
-				     bool wdf_disjoint) {
-	return localsubmatch.make_synonym_postlist(matcher, pl, factor,
-						   wdf_disjoint);
+    /** Register a lazily-created LeafPostList for stats.
+     *
+     *  @param pl   An object previously returned by open_lazy_post_list().
+     *  @param[out] termfreqs If not NULL, the pointed to object is set to the
+     *		TermFreqs for @a term.  If the database is sharded, these will
+     *		be for the whole database not just the current shard.  This
+     *		is used to estimate TermFreqs for an OP_SYNONYM.
+     */
+    void register_lazy_postlist_for_stats(LeafPostList* pl,
+					  TermFreqs* termfreqs) {
+	localsubmatch.register_lazy_postlist_for_stats(pl, termfreqs);
+    }
+
+    /** Create a SynonymPostList object.
+     *
+     *  @param or_pl	    An unweighted BoolOrPostList or OrPostList of the
+     *			    PostList objects for children of the OP_SYNONYM.
+     *  @param termfreqs    Estimated TermFreqs for @a or_pl.
+     */
+    PostList* make_synonym_postlist(PostList* or_pl,
+				    double factor,
+				    bool wdf_disjoint,
+				    const TermFreqs& termfreqs) {
+	return localsubmatch.make_synonym_postlist(matcher, or_pl, factor,
+						   wdf_disjoint,
+						   termfreqs);
     }
 
     const LeafPostList * get_hint_postlist() const { return hint; }
@@ -150,6 +181,10 @@ class QueryOptimiser {
 
     bool need_wdf_for_compound_weight() const {
 	return compound_weight && !localsubmatch.weight_needs_wdf();
+    }
+
+    const Xapian::Weight::Internal* get_stats() const {
+	return localsubmatch.get_stats();
     }
 };
 

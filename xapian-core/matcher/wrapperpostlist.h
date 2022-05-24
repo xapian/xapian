@@ -46,8 +46,6 @@ class WrapperPostList : public PostList {
 
     ~WrapperPostList() { delete pl; }
 
-    TermFreqs estimate_termfreqs(const Xapian::Weight::Internal& stats) const;
-
     Xapian::docid get_docid() const;
 
     double get_weight(Xapian::termcount doclen,

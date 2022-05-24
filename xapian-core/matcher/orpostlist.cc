@@ -365,39 +365,6 @@ OrPostList::check(Xapian::docid did, double w_min, bool& valid)
     return NULL;
 }
 
-TermFreqs
-OrPostList::estimate_termfreqs(const Xapian::Weight::Internal& stats) const
-{
-    const TermFreqs& l_freqs = l->estimate_termfreqs(stats);
-    const TermFreqs& r_freqs = r->estimate_termfreqs(stats);
-
-    // Our caller should have ensured this.
-    Assert(stats.collection_size);
-    Xapian::doccount freqest;
-    estimate_or_assuming_indep(l_freqs.termfreq,
-			       r_freqs.termfreq,
-			       stats.collection_size,
-			       freqest);
-
-    Xapian::doccount relfreqest = 0;
-    if (stats.rset_size != 0) {
-	estimate_or_assuming_indep(l_freqs.reltermfreq,
-				   r_freqs.reltermfreq,
-				   stats.rset_size,
-				   relfreqest);
-    }
-
-    Xapian::termcount collfreqest = 0;
-    if (stats.total_length != 0) {
-	estimate_or_assuming_indep(l_freqs.collfreq,
-				   r_freqs.collfreq,
-				   stats.total_length,
-				   collfreqest);
-    }
-
-    return TermFreqs(freqest, relfreqest, collfreqest);
-}
-
 bool
 OrPostList::at_end() const
 {

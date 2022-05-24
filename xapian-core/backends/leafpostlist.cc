@@ -53,20 +53,6 @@ LeafPostList::recalc_maxweight()
     return weight ? weight->get_maxpart() : 0;
 }
 
-TermFreqs
-LeafPostList::estimate_termfreqs(const Xapian::Weight::Internal& stats) const
-{
-    LOGCALL(MATCH, TermFreqs, "LeafPostList::estimate_termfreqs", stats);
-    if (term.empty()) {
-	RETURN(TermFreqs(stats.collection_size,
-			 stats.rset_size,
-			 stats.total_length));
-    }
-    map<string, TermFreqs>::const_iterator i = stats.termfreqs.find(term);
-    Assert(i != stats.termfreqs.end());
-    RETURN(i->second);
-}
-
 Xapian::termcount
 LeafPostList::count_matching_subqs() const
 {

@@ -66,15 +66,6 @@ class PostList {
      */
     Xapian::doccount get_termfreq() const { return termfreq; }
 
-    /** Get an estimate for the termfreq and reltermfreq, given the stats.
-     *
-     *  The frequencies may be for a combination of databases, or for just the
-     *  relevant documents, so may not be comparable to the value returned by
-     *  get_termfreq() (which is just for the current shard).
-     */
-    virtual TermFreqs
-    estimate_termfreqs(const Xapian::Weight::Internal& stats) const;
-
     /// Return the current docid.
     virtual Xapian::docid get_docid() const = 0;
 

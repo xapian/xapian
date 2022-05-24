@@ -71,7 +71,6 @@ static constexpr unsigned MAX_UTF_8_CHARACTER_LENGTH = 4;
 
 using Xapian::Internal::AndContext;
 using Xapian::Internal::OrContext;
-using Xapian::Internal::BoolOrContext;
 using Xapian::Internal::XorContext;
 
 namespace Xapian {
@@ -136,6 +135,8 @@ class Context {
 
     vector<PostList*> pls;
 
+    vector<TermFreqs> termfreqs_list;
+
   public:
     Context(QueryOptimiser* qopt_, size_t reserve) : qopt(qopt_) {
 	pls.reserve(reserve);
@@ -145,7 +146,12 @@ class Context {
 	shrink(0);
     }
 
-    void add_postlist(PostList * pl) {
+    void add_termfreqs(TermFreqs* termfreqs) {
+	if (termfreqs) termfreqs_list.emplace_back(*termfreqs);
+    }
+
+    void add_postlist(PostList* pl, TermFreqs* termfreqs) {
+	add_termfreqs(termfreqs);
 	if (pl)
 	    pls.emplace_back(pl);
     }
@@ -169,21 +175,21 @@ class Context {
 	pls.resize(new_size);
     }
 
-    /** Expand a wildcard query.
-     *
-     *  Used with BoolOrContext and OrContext.
-     */
-    void expand_wildcard(const QueryWildcard* query, double factor);
+    /** Expand a wildcard query. */
+    void expand_wildcard(const QueryWildcard* query,
+			 double factor,
+			 TermFreqs* termfreqs);
 
-    /** Expand an edit distance query.
-     *
-     *  Used with BoolOrContext and OrContext.
-     */
-    void expand_edit_distance(const QueryEditDistance* query, double factor);
+    /** Expand an edit distance query. */
+    void expand_edit_distance(const QueryEditDistance* query,
+			      double factor,
+			      TermFreqs* termfreqs);
 };
 
 inline void
-Context::expand_wildcard(const QueryWildcard* query, double factor)
+Context::expand_wildcard(const QueryWildcard* query,
+			 double factor,
+			 TermFreqs* termfreqs)
 {
     unique_ptr<TermList> t(qopt->db.open_allterms(query->get_fixed_prefix()));
     bool skip_ucase = query->get_fixed_prefix().empty();
@@ -233,15 +239,10 @@ done_skip_to:
 	    }
 	}
 
-	add_postlist(qopt->open_lazy_post_list(term, 1, factor));
+	add_postlist(qopt->open_lazy_post_list(term, 1, factor), NULL);
     }
 
     if (max_type == Xapian::Query::WILDCARD_LIMIT_MOST_FREQUENT) {
-	// FIXME: open_lazy_post_list() results in the term getting registered
-	// for stats, so we still incur an avoidable cost from the full
-	// expansion size of the wildcard, which is most likely to be visible
-	// with the remote backend.  Perhaps we should split creating the lazy
-	// postlist from registering the term for stats.
 	auto set_size = query->get_max_expansion();
 	if (size() > set_size) {
 	    auto begin = pls.begin();
@@ -250,10 +251,20 @@ done_skip_to:
 	    shrink(set_size);
 	}
     }
+
+    // Now register the postlists we're actually using for stats.
+    for (auto pl : pls) {
+	// FIXME: Be more typesafe?
+	qopt->register_lazy_postlist_for_stats(static_cast<LeafPostList*>(pl),
+					       termfreqs);
+	add_termfreqs(termfreqs);
+    }
 }
 
 inline void
-Context::expand_edit_distance(const QueryEditDistance* query, double factor)
+Context::expand_edit_distance(const QueryEditDistance* query,
+			      double factor,
+			      TermFreqs* termfreqs)
 {
     string pfx(query->get_pattern(), 0, query->get_fixed_prefix_len());
     unique_ptr<TermList> t(qopt->db.open_allterms(pfx));
@@ -305,15 +316,10 @@ done_skip_to:
 	    }
 	}
 
-	add_postlist(qopt->open_lazy_post_list(term, 1, factor));
+	add_postlist(qopt->open_lazy_post_list(term, 1, factor), NULL);
     }
 
     if (max_type == Xapian::Query::WILDCARD_LIMIT_MOST_FREQUENT) {
-	// FIXME: open_lazy_post_list() results in the term getting registered
-	// for stats, so we still incur an avoidable cost from the full
-	// expansion size of the wildcard, which is most likely to be visible
-	// with the remote backend.  Perhaps we should split creating the lazy
-	// postlist from registering the term for stats.
 	auto set_size = query->get_max_expansion();
 	if (size() > set_size) {
 	    auto begin = pls.begin();
@@ -322,35 +328,14 @@ done_skip_to:
 	    shrink(set_size);
 	}
     }
-}
 
-class BoolOrContext : public Context {
-  public:
-    BoolOrContext(QueryOptimiser* qopt_, size_t reserve)
-	: Context(qopt_, reserve) { }
-
-    PostList * postlist();
-};
-
-PostList *
-BoolOrContext::postlist()
-{
-    PostList* pl;
-    switch (pls.size()) {
-	case 0:
-	    pl = NULL;
-	    break;
-	case 1:
-	    pl = pls[0];
-	    break;
-	default:
-	    pl = new BoolOrPostList(pls.begin(), pls.end(), qopt->db_size);
-	    qopt->add_op(EstimateOp::OR, pls.size());
+    // Now register the postlists we're actually using for stats.
+    for (auto pl : pls) {
+	// FIXME: Be more typesafe?
+	qopt->register_lazy_postlist_for_stats(static_cast<LeafPostList*>(pl),
+					       termfreqs);
+	add_termfreqs(termfreqs);
     }
-
-    // Empty pls so our destructor doesn't delete them all!
-    pls.clear();
-    return pl;
 }
 
 class OrContext : public Context {
@@ -358,12 +343,64 @@ class OrContext : public Context {
     OrContext(QueryOptimiser* qopt_, size_t reserve)
 	: Context(qopt_, reserve) { }
 
+    void estimate_termfreqs(TermFreqs* termfreqs);
+
     /// Select the best set_size postlists from the last out_of added.
     void select_elite_set(size_t set_size, size_t out_of);
 
-    PostList * postlist();
-    PostList * postlist_max();
+    PostList* postlist(TermFreqs* termfreqs, bool bool_or = false);
+
+    PostList* postlist_max();
 };
+
+void
+OrContext::estimate_termfreqs(TermFreqs* termfreqs)
+{
+    Assert(termfreqs);
+
+    Assert(!termfreqs_list.empty());
+
+    // We calculate the estimate assuming independence.  The simplest
+    // way to calculate this seems to be a series of (n - 1) pairwise
+    // calculations, which gives the same answer regardless of the order.
+    const TermFreqs& freqs = termfreqs_list[0];
+    auto& stats = *qopt->get_stats();
+
+    // Our caller should have ensured this.
+    Assert(stats.collection_size);
+    double scale = 1.0 / stats.collection_size;
+    double P_est = freqs.termfreq * scale;
+    double rtf_scale = 0.0;
+    if (stats.rset_size != 0) {
+	rtf_scale = 1.0 / stats.rset_size;
+    }
+    double Pr_est = freqs.reltermfreq * rtf_scale;
+    // If total_length is 0, cf must always be 0 so cf_scale is irrelevant.
+    double cf_scale = 0.0;
+    if (usual(stats.total_length != 0)) {
+	cf_scale = 1.0 / stats.total_length;
+    }
+    double Pc_est = freqs.collfreq * cf_scale;
+
+    for (size_t i = 1; i < termfreqs_list.size(); ++i) {
+	const TermFreqs& f = termfreqs_list[i];
+	double P_i = f.termfreq * scale;
+	P_est += P_i - P_est * P_i;
+	double Pc_i = f.collfreq * cf_scale;
+	Pc_est += Pc_i - Pc_est * Pc_i;
+	// If the rset is empty, Pr_est should be 0 already, so leave
+	// it alone.
+	if (stats.rset_size != 0) {
+	    double Pr_i = f.reltermfreq * rtf_scale;
+	    Pr_est += Pr_i - Pr_est * Pr_i;
+	}
+    }
+
+    *termfreqs =
+	TermFreqs(Xapian::doccount(P_est * stats.collection_size + 0.5),
+		  Xapian::doccount(Pr_est * stats.rset_size + 0.5),
+		  Xapian::termcount(Pc_est * stats.total_length + 0.5));
+}
 
 void
 OrContext::select_elite_set(size_t set_size, size_t out_of)
@@ -373,9 +410,11 @@ OrContext::select_elite_set(size_t set_size, size_t out_of)
     shrink(pls.size() - out_of + set_size);
 }
 
-PostList *
-OrContext::postlist()
+PostList*
+OrContext::postlist(TermFreqs* termfreqs, bool bool_or)
 {
+    if (!termfreqs_list.empty()) estimate_termfreqs(termfreqs);
+
     switch (pls.size()) {
 	case 0:
 	    return NULL;
@@ -387,6 +426,13 @@ OrContext::postlist()
     }
 
     qopt->add_op(EstimateOp::OR, pls.size());
+
+    if (bool_or) {
+	auto pl = new BoolOrPostList(pls.begin(), pls.end(), qopt->db_size);
+	// Empty pls so our destructor doesn't delete them all!
+	pls.clear();
+	return pl;
+    }
 
     // Make postlists into a heap so that the postlist with the greatest term
     // frequency is at the top of the heap.
@@ -453,14 +499,59 @@ class XorContext : public Context {
     XorContext(QueryOptimiser* qopt_, size_t reserve)
 	: Context(qopt_, reserve) { }
 
-    PostList * postlist();
+    PostList* postlist(TermFreqs* termfreqs);
 };
 
 PostList *
-XorContext::postlist()
+XorContext::postlist(TermFreqs* termfreqs)
 {
     if (pls.empty())
 	return NULL;
+
+    if (termfreqs) {
+	Assert(!termfreqs_list.empty());
+
+	// We calculate the estimate assuming independence.  The simplest
+	// way to calculate this seems to be a series of (n - 1) pairwise
+	// calculations, which gives the same answer regardless of the order.
+	auto& stats = *qopt->get_stats();
+	const TermFreqs& freqs = termfreqs_list[0];
+
+	// Our caller should have ensured this.
+	Assert(stats.collection_size);
+	double scale = 1.0 / stats.collection_size;
+	double P_est = freqs.termfreq * scale;
+	double rtf_scale = 0.0;
+	if (stats.rset_size != 0) {
+	    rtf_scale = 1.0 / stats.rset_size;
+	}
+	double Pr_est = freqs.reltermfreq * rtf_scale;
+	// If total_length is 0, cf must always be 0 so cf_scale is irrelevant.
+	double cf_scale = 0.0;
+	if (usual(stats.total_length != 0)) {
+	    cf_scale = 1.0 / stats.total_length;
+	}
+	double Pc_est = freqs.collfreq * cf_scale;
+
+	for (size_t i = 1; i < termfreqs_list.size(); ++i) {
+	    const TermFreqs& f = termfreqs_list[i];
+	    double P_i = f.termfreq * scale;
+	    P_est += P_i - 2.0 * P_est * P_i;
+	    double Pc_i = f.collfreq * cf_scale;
+	    Pc_est += Pc_i - 2.0 * Pc_est * Pc_i;
+	    // If the rset is empty, Pr_est should be 0 already, so leave
+	    // it alone.
+	    if (stats.rset_size != 0) {
+		double Pr_i = f.reltermfreq * rtf_scale;
+		Pr_est += Pr_i - 2.0 * Pr_est * Pr_i;
+	    }
+	}
+
+	*termfreqs =
+	    TermFreqs(Xapian::doccount(P_est * stats.collection_size + 0.5),
+		      Xapian::doccount(Pr_est * stats.rset_size + 0.5),
+		      Xapian::termcount(Pc_est * stats.total_length + 0.5));
+    }
 
     Xapian::doccount db_size = qopt->db_size;
     auto pl = new XorPostList(pls.begin(), pls.end(), qopt->matcher, db_size);
@@ -485,15 +576,16 @@ class AndContext : public Context {
 		  Xapian::termcount window_)
 	    : op_(op__), begin(begin_), end(end_), window(window_) { }
 
-	PostList * postlist(PostList* pl,
-			    const vector<PostList*>& pls,
-			    PostListTree* pltree,
-			    QueryOptimiser* qopt) const;
+	PostList* postlist(PostList* pl,
+			   const vector<PostList*>& pls,
+			   PostListTree* pltree,
+			   QueryOptimiser* qopt,
+			   TermFreqs* termfreqs) const;
     };
 
     list<PosFilter> pos_filters;
 
-    unique_ptr<BoolOrContext> not_ctx;
+    unique_ptr<OrContext> not_ctx;
 
     unique_ptr<OrContext> maybe_ctx;
 
@@ -508,11 +600,16 @@ class AndContext : public Context {
     AndContext(QueryOptimiser* qopt_, size_t reserve)
 	: Context(qopt_, reserve) { }
 
-    bool add_postlist(PostList* pl) {
+    bool add_postlist(PostList* pl, TermFreqs* termfreqs) {
+	if (termfreqs) termfreqs_list.emplace_back(*termfreqs);
 	if (!pl) {
 	    shrink(0);
 	    match_all = false;
-	    return false;
+	    return termfreqs != NULL;
+	}
+	if (pls.empty() && termfreqs_list.size() > 1) {
+	    qopt->destroy_postlist(pl);
+	    return true;
 	}
 	pls.emplace_back(pl);
 	return true;
@@ -524,9 +621,9 @@ class AndContext : public Context {
 			size_t n_subqs,
 			Xapian::termcount window);
 
-    BoolOrContext& get_not_ctx(size_t reserve) {
+    OrContext& get_not_ctx(size_t reserve) {
 	if (!not_ctx) {
-	    not_ctx.reset(new BoolOrContext(qopt, reserve));
+	    not_ctx.reset(new OrContext(qopt, reserve));
 	}
 	return *not_ctx;
     }
@@ -538,30 +635,34 @@ class AndContext : public Context {
 	return *maybe_ctx;
     }
 
-    PostList * postlist();
+    PostList* postlist(TermFreqs* termfreqs);
 };
 
 PostList *
 AndContext::PosFilter::postlist(PostList* pl,
 				const vector<PostList*>& pls,
 				PostListTree* pltree,
-				QueryOptimiser* qopt) const
+				QueryOptimiser* qopt,
+				TermFreqs* termfreqs) const
 try {
     vector<PostList *>::const_iterator terms_begin = pls.begin() + begin;
     vector<PostList *>::const_iterator terms_end = pls.begin() + end;
 
     if (op_ == Xapian::Query::OP_NEAR) {
 	auto estimate_op = qopt->add_op(EstimateOp::NEAR);
+	if (termfreqs) *termfreqs /= 2;
 	pl = new NearPostList(pl, estimate_op,
 			      window, terms_begin, terms_end, pltree);
     } else if (window == end - begin) {
 	AssertEq(op_, Xapian::Query::OP_PHRASE);
 	auto estimate_op = qopt->add_op(EstimateOp::EXACT_PHRASE);
+	if (termfreqs) *termfreqs /= 4;
 	pl = new ExactPhrasePostList(pl, estimate_op,
 				     terms_begin, terms_end, pltree);
     } else {
 	AssertEq(op_, Xapian::Query::OP_PHRASE);
 	auto estimate_op = qopt->add_op(EstimateOp::PHRASE);
+	if (termfreqs) *termfreqs /= 3;
 	pl = new PhrasePostList(pl, estimate_op,
 				window, terms_begin, terms_end, pltree);
     }
@@ -582,11 +683,61 @@ AndContext::add_pos_filter(Query::op op_,
     pos_filters.push_back(PosFilter(op_, begin, end, window));
 }
 
+template<typename T, typename U>
+inline static T
+estimate_and_not(T l, T r, U n)
+{
+    // We calculate the estimates assuming independence.  With this assumption,
+    // the estimate is the product of the estimates for the sub-postlists
+    // (with the right side this is inverted by subtracting from the total
+    // size), divided by the total size.
+    return static_cast<T>((l * double(n - r)) / n + 0.5);
+}
+
 PostList *
-AndContext::postlist()
+AndContext::postlist(TermFreqs* termfreqs)
 {
     auto matcher = qopt->matcher;
     auto db_size = qopt->db_size;
+
+    if (termfreqs) {
+	Assert(!termfreqs_list.empty());
+
+	// We calculate the estimate assuming independence.  With this
+	// assumption, the estimate is the product of the estimates for the
+	// sub-postlists divided by db_size (n - 1) times.
+	const TermFreqs& freqs = termfreqs_list[0];
+
+	double freqest = double(freqs.termfreq);
+	double relfreqest = double(freqs.reltermfreq);
+	double collfreqest = double(freqs.collfreq);
+
+	auto& stats = *qopt->get_stats();
+
+	// Our caller should have ensured this.
+	Assert(stats.collection_size);
+
+	for (size_t i = 1; i < termfreqs_list.size(); ++i) {
+	    const TermFreqs& f = termfreqs_list[i];
+
+	    // If the collection is empty, freqest should be 0 already, so
+	    // leave it alone.
+	    freqest *= f.termfreq / stats.collection_size;
+	    if (usual(stats.total_length != 0)) {
+		collfreqest *= f.collfreq / stats.total_length;
+	    }
+
+	    // If the rset is empty, relfreqest should be 0 already, so leave
+	    // it alone.
+	    if (stats.rset_size != 0)
+		relfreqest *= f.reltermfreq / stats.rset_size;
+	}
+
+	*termfreqs =
+	    TermFreqs(static_cast<Xapian::doccount>(freqest + 0.5),
+		      static_cast<Xapian::doccount>(relfreqest + 0.5),
+		      static_cast<Xapian::termcount>(collfreqest + 0.5));
+    }
 
     unique_ptr<PostList> pl;
     switch (pls.size()) {
@@ -596,7 +747,7 @@ AndContext::postlist()
 	    // positional filters are irrelevant.
 	    return NULL;
 	}
-	pl.reset(qopt->open_post_list(string(), 0, 0.0));
+	pl.reset(qopt->open_post_list(string(), 0, 0.0, nullptr));
 	break;
       case 1:
 	pl.reset(pls[0]);
@@ -608,7 +759,36 @@ AndContext::postlist()
     }
 
     if (not_ctx && !not_ctx->empty()) {
-	PostList* rhs = not_ctx->postlist();
+	TermFreqs r_freqs;
+	PostList* rhs = not_ctx->postlist(termfreqs ? &r_freqs : NULL, true);
+	if (termfreqs) {
+	    TermFreqs& freqs = *termfreqs;
+	    auto& stats = *qopt->get_stats();
+
+	    // Our caller should have ensured this.
+	    Assert(stats.collection_size);
+	    freqs.termfreq = estimate_and_not(freqs.termfreq,
+					      r_freqs.termfreq,
+					      stats.collection_size);
+
+	    // If total_length is 0 then collfreq should always be 0 (since
+	    // total_length is the sum of all collfreq values) so nothing to
+	    // do.
+	    if (stats.total_length != 0) {
+		freqs.collfreq = estimate_and_not(freqs.collfreq,
+						  r_freqs.collfreq,
+						  stats.total_length);
+	    }
+
+	    // If the rset is empty then relfreqest should always be 0 so
+	    // nothing to do.
+	    if (stats.rset_size != 0) {
+		freqs.reltermfreq = estimate_and_not(freqs.reltermfreq,
+						     r_freqs.reltermfreq,
+						     stats.rset_size);
+	    }
+	}
+
 	pl.reset(new AndNotPostList(pl.release(), rhs, db_size));
 	qopt->add_op(EstimateOp::AND_NOT, 2);
 	not_ctx.reset();
@@ -620,14 +800,14 @@ AndContext::postlist()
 
     // Apply any positional filters.
     for (const PosFilter& filter : pos_filters) {
-	pl.reset(filter.postlist(pl.release(), pls, matcher, qopt));
+	pl.reset(filter.postlist(pl.release(), pls, matcher, qopt, termfreqs));
     }
 
     // Empty pls so our destructor doesn't delete them all!
     pls.clear();
 
     if (maybe_ctx && !maybe_ctx->empty()) {
-	PostList* rhs = maybe_ctx->postlist();
+	PostList* rhs = maybe_ctx->postlist(termfreqs);
 	// For OP_AND_MAYBE only the LHS determines which documents match (the
 	// RHS only adds weight) so for the estimates we can just ignore the
 	// RHS and the operator itself).
@@ -928,19 +1108,21 @@ Query::Internal::unserialise(const char ** p, const char * end,
 bool
 Query::Internal::postlist_sub_and_like(AndContext& ctx,
 				       QueryOptimiser * qopt,
-				       double factor) const
+				       double factor,
+				       TermFreqs* termfreqs) const
 {
-    return ctx.add_postlist(postlist(qopt, factor));
+    return ctx.add_postlist(postlist(qopt, factor, termfreqs), termfreqs);
 }
 
 void
 Query::Internal::postlist_sub_or_like(OrContext& ctx,
 				      QueryOptimiser* qopt,
 				      double factor,
+				      TermFreqs* termfreqs,
 				      bool keep_zero_weight) const
 {
     Xapian::termcount save_total_subqs = qopt->get_total_subqs();
-    unique_ptr<PostList> pl(postlist(qopt, factor));
+    unique_ptr<PostList> pl(postlist(qopt, factor, termfreqs));
     if (!keep_zero_weight && pl->recalc_maxweight() == 0.0) {
 	// This subquery can't contribute any weight, so can be discarded.
 	//
@@ -951,22 +1133,24 @@ Query::Internal::postlist_sub_or_like(OrContext& ctx,
 	qopt->destroy_postlist(pl.release());
 	return;
     }
-    ctx.add_postlist(pl.release());
+    ctx.add_postlist(pl.release(), termfreqs);
 }
 
 void
-Query::Internal::postlist_sub_bool_or_like(BoolOrContext& ctx,
-					   QueryOptimiser * qopt) const
+Query::Internal::postlist_sub_bool_or_like(OrContext& ctx,
+					   QueryOptimiser* qopt,
+					   TermFreqs* termfreqs) const
 {
-    ctx.add_postlist(postlist(qopt, 0.0));
+    ctx.add_postlist(postlist(qopt, 0.0, termfreqs), termfreqs);
 }
 
 void
 Query::Internal::postlist_sub_xor(XorContext& ctx,
-				  QueryOptimiser * qopt,
-				  double factor) const
+				  QueryOptimiser* qopt,
+				  double factor,
+				  TermFreqs* termfreqs) const
 {
-    ctx.add_postlist(postlist(qopt, factor));
+    ctx.add_postlist(postlist(qopt, factor, termfreqs), termfreqs);
 }
 
 namespace Internal {
@@ -1062,31 +1246,34 @@ QueryScaleWeight::get_description() const
 }
 
 PostList*
-QueryTerm::postlist(QueryOptimiser * qopt, double factor) const
+QueryTerm::postlist(QueryOptimiser* qopt, double factor,
+		    TermFreqs* termfreqs) const
 {
-    LOGCALL(QUERY, PostList*, "QueryTerm::postlist", qopt | factor);
+    LOGCALL(QUERY, PostList*, "QueryTerm::postlist", qopt | factor | termfreqs);
     if (factor != 0.0)
 	qopt->inc_total_subqs();
-    RETURN(qopt->open_post_list(term, wqf, factor));
+    RETURN(qopt->open_post_list(term, wqf, factor, termfreqs));
 }
 
 bool
 QueryTerm::postlist_sub_and_like(AndContext& ctx,
 				 QueryOptimiser* qopt,
-				 double factor) const
+				 double factor,
+				 TermFreqs* termfreqs) const
 {
-    if (term.empty() && !qopt->need_positions && factor == 0.0) {
+    if (term.empty() && !qopt->need_positions && factor == 0.0 && !termfreqs) {
 	// No-op MatchAll.
 	ctx.set_match_all();
 	return true;
     }
-    return ctx.add_postlist(postlist(qopt, factor));
+    return ctx.add_postlist(postlist(qopt, factor, termfreqs), termfreqs);
 }
 
 PostList*
-QueryPostingSource::postlist(QueryOptimiser * qopt, double factor) const
+QueryPostingSource::postlist(QueryOptimiser* qopt, double factor,
+			     TermFreqs* termfreqs) const
 {
-    LOGCALL(QUERY, PostList*, "QueryPostingSource::postlist", qopt | factor);
+    LOGCALL(QUERY, PostList*, "QueryPostingSource::postlist", qopt | factor | termfreqs);
     Assert(source.get());
     if (factor != 0.0)
 	qopt->inc_total_subqs();
@@ -1096,25 +1283,43 @@ QueryPostingSource::postlist(QueryOptimiser * qopt, double factor) const
     // be called on the Database::Internal object.
     const Xapian::Database wrappeddb(
 	    const_cast<Xapian::Database::Internal*>(&(qopt->db)));
-    RETURN(new ExternalPostList(wrappeddb, source.get(), estimate_op, factor,
-				qopt->matcher->get_max_weight_cached_flag_ptr(),
-				qopt->shard_index));
+    auto pl =
+	new ExternalPostList(wrappeddb, source.get(), estimate_op, factor,
+			     qopt->matcher->get_max_weight_cached_flag_ptr(),
+			     qopt->shard_index);
+    if (termfreqs) {
+	auto& stats = *qopt->get_stats();
+	auto db_size = qopt->db_size;
+	// Scale proportionately from this shard to the whole collection.  Not
+	// as good as summing over all shards, but that's harder to do.
+	double termfreq = pl->get_termfreq();
+	auto tf = termfreq * stats.collection_size / db_size;
+	auto rtf = termfreq * stats.rset_size / db_size;
+	auto cf = termfreq * stats.total_length / db_size;
+	*termfreqs = TermFreqs(static_cast<Xapian::doccount>(tf + 0.5),
+			       static_cast<Xapian::doccount>(rtf + 0.5),
+			       static_cast<Xapian::termcount>(cf + 0.5));
+    }
+    RETURN(pl);
 }
 
 PostList*
-QueryScaleWeight::postlist(QueryOptimiser * qopt, double factor) const
+QueryScaleWeight::postlist(QueryOptimiser* qopt, double factor,
+			   TermFreqs* termfreqs) const
 {
-    LOGCALL(QUERY, PostList*, "QueryScaleWeight::postlist", qopt | factor);
-    RETURN(subquery.internal->postlist(qopt, factor * scale_factor));
+    LOGCALL(QUERY, PostList*, "QueryScaleWeight::postlist", qopt | factor | termfreqs);
+    RETURN(subquery.internal->postlist(qopt, factor * scale_factor, termfreqs));
 }
 
 bool
 QueryScaleWeight::postlist_sub_and_like(AndContext& ctx,
 					QueryOptimiser* qopt,
-					double factor) const
+					double factor,
+					TermFreqs* termfreqs) const
 {
     return subquery.internal->postlist_sub_and_like(ctx, qopt,
-						    factor * scale_factor);
+						    factor * scale_factor,
+						    termfreqs);
 }
 
 void
@@ -1202,12 +1407,14 @@ estimate_range_freq(const string& lo, const string& hi,
 }
 
 PostList*
-QueryValueRange::postlist(QueryOptimiser *qopt, double factor) const
+QueryValueRange::postlist(QueryOptimiser* qopt, double factor,
+			  TermFreqs* termfreqs) const
 {
-    LOGCALL(QUERY, PostList*, "QueryValueRange::postlist", qopt | factor);
+    LOGCALL(QUERY, PostList*, "QueryValueRange::postlist", qopt | factor | termfreqs);
     if (factor != 0.0)
 	qopt->inc_total_subqs();
     const Xapian::Database::Internal & db = qopt->db;
+    const auto db_size = qopt->db_size;
     const string & lb = db.get_value_lower_bound(slot);
     if (lb.empty()) {
 	// This should only happen if there are no values in this slot (which
@@ -1215,15 +1422,27 @@ QueryValueRange::postlist(QueryOptimiser *qopt, double factor) const
 	// If there were values in the slot, the backend should have a
 	// non-empty lower bound, even if it isn't a tight one.
 	AssertEq(db.get_value_freq(slot), 0);
+	if (termfreqs) *termfreqs = TermFreqs(0, 0, 0);
 	RETURN(NULL);
     }
     if (end < lb) {
+	if (termfreqs) *termfreqs = TermFreqs(0, 0, 0);
 	RETURN(NULL);
     }
     const string & ub = db.get_value_upper_bound(slot);
     if (begin > ub) {
+	if (termfreqs) *termfreqs = TermFreqs(0, 0, 0);
 	RETURN(NULL);
     }
+
+    if (termfreqs) {
+	// We scale these below.
+	auto& stats = *qopt->get_stats();
+	*termfreqs = TermFreqs(stats.collection_size,
+			       stats.rset_size,
+			       stats.total_length);
+    }
+
     auto value_freq = db.get_value_freq(slot);
     if (end >= ub) {
 	if (begin <= lb) {
@@ -1231,7 +1450,7 @@ QueryValueRange::postlist(QueryOptimiser *qopt, double factor) const
 	    // know the range matches whenever the value is set, which is
 	    // exactly value_freq times.
 	    qopt->add_op(value_freq);
-	    if (value_freq == qopt->db_size) {
+	    if (value_freq == db_size) {
 		// This value is set for all documents in the current shard, so
 		// we can replace it with a MatchAll postlist, which is
 		// especially efficient if there are no gaps in the docids.
@@ -1241,14 +1460,17 @@ QueryValueRange::postlist(QueryOptimiser *qopt, double factor) const
 	    // but don't need to worry about the range bounds so we can use
 	    // ValueGePostList with an empty string as the lower bound which
 	    // means the range test just becomes a cheap `>= string()` test.
+	    if (termfreqs) *termfreqs *= double(value_freq) / db_size;
 	    RETURN(new ValueGePostList(&db, value_freq, slot, string()));
 	}
 	auto est = estimate_range_freq(lb, ub, begin, NULL, value_freq);
 	qopt->add_op(0, est, value_freq);
+	if (termfreqs) *termfreqs *= double(est) / db_size;
 	RETURN(new ValueGePostList(&db, est, slot, begin));
     }
     auto est = estimate_range_freq(lb, ub, begin, &end, value_freq);
     qopt->add_op(0, est, value_freq);
+    if (termfreqs) *termfreqs *= double(est) / db_size;
     RETURN(new ValueRangePostList(&db, est, slot, begin, end));
 }
 
@@ -1284,12 +1506,14 @@ QueryValueRange::get_description() const
 }
 
 PostList*
-QueryValueLE::postlist(QueryOptimiser *qopt, double factor) const
+QueryValueLE::postlist(QueryOptimiser* qopt, double factor,
+		       TermFreqs* termfreqs) const
 {
-    LOGCALL(QUERY, PostList*, "QueryValueLE::postlist", qopt | factor);
+    LOGCALL(QUERY, PostList*, "QueryValueLE::postlist", qopt | factor | termfreqs);
     if (factor != 0.0)
 	qopt->inc_total_subqs();
     const Xapian::Database::Internal & db = qopt->db;
+    const auto db_size = qopt->db_size;
     const string & lb = db.get_value_lower_bound(slot);
     if (lb.empty()) {
 	// This should only happen if there are no values in this slot (which
@@ -1297,11 +1521,22 @@ QueryValueLE::postlist(QueryOptimiser *qopt, double factor) const
 	// If there were values in the slot, the backend should have a
 	// non-empty lower bound, even if it isn't a tight one.
 	AssertEq(db.get_value_freq(slot), 0);
+	if (termfreqs) *termfreqs = TermFreqs(0, 0, 0);
 	RETURN(NULL);
     }
     if (limit < lb) {
+	if (termfreqs) *termfreqs = TermFreqs(0, 0, 0);
 	RETURN(NULL);
     }
+
+    if (termfreqs) {
+	// We scale these below.
+	auto& stats = *qopt->get_stats();
+	*termfreqs = TermFreqs(stats.collection_size,
+			       stats.rset_size,
+			       stats.total_length);
+    }
+
     auto value_freq = db.get_value_freq(slot);
     const string& ub = db.get_value_upper_bound(slot);
     if (limit >= ub) {
@@ -1309,7 +1544,7 @@ QueryValueLE::postlist(QueryOptimiser *qopt, double factor) const
 	// know the range matches whenever the value is set, which is
 	// exactly value_freq times.
 	qopt->add_op(value_freq);
-	if (value_freq == qopt->db_size) {
+	if (value_freq == db_size) {
 	    // This value is set for all documents in the current shard, so
 	    // we can replace it with a MatchAll postlist, which is
 	    // especially efficient if there are no gaps in the docids.
@@ -1319,10 +1554,12 @@ QueryValueLE::postlist(QueryOptimiser *qopt, double factor) const
 	// but don't need to worry about the range bounds so we can use
 	// ValueGePostList with an empty string as the lower bound which
 	// means the range test just becomes a cheap `>= string()` test.
+	if (termfreqs) *termfreqs *= double(value_freq) / db_size;
 	RETURN(new ValueGePostList(&db, value_freq, slot, string()));
     }
     auto est = estimate_range_freq(lb, ub, string(), &limit, value_freq);
     qopt->add_op(0, est, value_freq);
+    if (termfreqs) *termfreqs *= double(est) / db_size;
     RETURN(new ValueRangePostList(&db, est, slot, string(), limit));
 }
 
@@ -1358,12 +1595,14 @@ QueryValueLE::get_description() const
 }
 
 PostList*
-QueryValueGE::postlist(QueryOptimiser *qopt, double factor) const
+QueryValueGE::postlist(QueryOptimiser* qopt, double factor,
+		       TermFreqs* termfreqs) const
 {
-    LOGCALL(QUERY, PostList*, "QueryValueGE::postlist", qopt | factor);
+    LOGCALL(QUERY, PostList*, "QueryValueGE::postlist", qopt | factor | termfreqs);
     if (factor != 0.0)
 	qopt->inc_total_subqs();
     const Xapian::Database::Internal & db = qopt->db;
+    const auto db_size = qopt->db_size;
     const string & lb = db.get_value_lower_bound(slot);
     if (lb.empty()) {
 	// This should only happen if there are no values in this slot (which
@@ -1371,19 +1610,30 @@ QueryValueGE::postlist(QueryOptimiser *qopt, double factor) const
 	// If there were values in the slot, the backend should have a
 	// non-empty lower bound, even if it isn't a tight one.
 	AssertEq(db.get_value_freq(slot), 0);
+	if (termfreqs) *termfreqs = TermFreqs(0, 0, 0);
 	RETURN(NULL);
     }
     const string& ub = db.get_value_upper_bound(slot);
     if (limit > ub) {
+	if (termfreqs) *termfreqs = TermFreqs(0, 0, 0);
 	RETURN(NULL);
     }
+
+    if (termfreqs) {
+	// We scale these below.
+	auto& stats = *qopt->get_stats();
+	*termfreqs = TermFreqs(stats.collection_size,
+			       stats.rset_size,
+			       stats.total_length);
+    }
+
     auto value_freq = db.get_value_freq(slot);
     if (limit <= lb) {
 	// The known bounds for the slot both fall within the range so we
 	// know the range matches whenever the value is set, which is
 	// exactly value_freq times.
 	qopt->add_op(value_freq);
-	if (value_freq == qopt->db_size) {
+	if (value_freq == db_size) {
 	    // This value is set for all documents in the current shard, so
 	    // we can replace it with a MatchAll postlist, which is
 	    // especially efficient if there are no gaps in the docids.
@@ -1397,6 +1647,7 @@ QueryValueGE::postlist(QueryOptimiser *qopt, double factor) const
     }
     auto est = estimate_range_freq(lb, ub, limit, NULL, value_freq);
     qopt->add_op(0, est, value_freq);
+    if (termfreqs) *termfreqs *= double(est) / db_size;
     RETURN(new ValueGePostList(&db, est, slot, limit));
 }
 
@@ -1585,9 +1836,11 @@ QueryWildcard::test_prefix_known(const string& candidate) const
 }
 
 PostList*
-QueryWildcard::postlist(QueryOptimiser * qopt, double factor) const
+QueryWildcard::postlist(QueryOptimiser* qopt, double factor,
+			TermFreqs* termfreqs) const
 {
-    LOGCALL(QUERY, PostList*, "QueryWildcard::postlist", qopt | factor);
+    LOGCALL(QUERY, PostList*, "QueryWildcard::postlist", qopt | factor | termfreqs);
+    OrContext ctx(qopt, 0);
     Query::op op = combiner;
     if (factor == 0.0 || op == Query::OP_SYNONYM) {
 	if (factor == 0.0) {
@@ -1601,11 +1854,12 @@ QueryWildcard::postlist(QueryOptimiser * qopt, double factor) const
 	    qopt->compound_weight = (op == Query::OP_SYNONYM);
 	}
 
-	BoolOrContext ctx(qopt, 0);
-	ctx.expand_wildcard(this, 0.0);
-
+	TermFreqs synonym_freqs;
 	if (op == Query::OP_SYNONYM) {
 	    qopt->inc_total_subqs();
+	    ctx.expand_wildcard(this, 0.0, &synonym_freqs);
+	} else {
+	    ctx.expand_wildcard(this, 0.0, termfreqs);
 	}
 
 	qopt->compound_weight = old_compound_weight;
@@ -1613,9 +1867,8 @@ QueryWildcard::postlist(QueryOptimiser * qopt, double factor) const
 	if (ctx.empty())
 	    RETURN(NULL);
 
-	PostList * pl = ctx.postlist();
 	if (op != Query::OP_SYNONYM)
-	    RETURN(pl);
+	    RETURN(ctx.postlist(termfreqs, true));
 
 	// We build an OP_OR tree for OP_SYNONYM and then wrap it in a
 	// SynonymPostList, which supplies the weights.
@@ -1623,11 +1876,11 @@ QueryWildcard::postlist(QueryOptimiser * qopt, double factor) const
 	// We know the subqueries from a wildcard expansion are wdf-disjoint
 	// (i.e. each wdf from the document contributes at most itself to the
 	// wdf of the subquery).
-	RETURN(qopt->make_synonym_postlist(pl, factor, true));
+	RETURN(qopt->make_synonym_postlist(ctx.postlist(&synonym_freqs, true),
+					   factor, true, synonym_freqs));
     }
 
-    OrContext ctx(qopt, 0);
-    ctx.expand_wildcard(this, factor);
+    ctx.expand_wildcard(this, factor, termfreqs);
 
     qopt->set_total_subqs(qopt->get_total_subqs() + ctx.size());
 
@@ -1637,7 +1890,7 @@ QueryWildcard::postlist(QueryOptimiser * qopt, double factor) const
     if (op == Query::OP_MAX)
 	RETURN(ctx.postlist_max());
 
-    RETURN(ctx.postlist());
+    RETURN(ctx.postlist(termfreqs));
 }
 
 termcount
@@ -1697,9 +1950,11 @@ QueryEditDistance::test(const string& candidate) const
 }
 
 PostList*
-QueryEditDistance::postlist(QueryOptimiser * qopt, double factor) const
+QueryEditDistance::postlist(QueryOptimiser* qopt, double factor,
+			    TermFreqs* termfreqs) const
 {
-    LOGCALL(QUERY, PostList*, "QueryEditDistance::postlist", qopt | factor);
+    LOGCALL(QUERY, PostList*, "QueryEditDistance::postlist", qopt | factor | termfreqs);
+    OrContext ctx(qopt, 0);
     Query::op op = combiner;
     if (factor == 0.0 || op == Query::OP_SYNONYM) {
 	if (factor == 0.0) {
@@ -1713,11 +1968,12 @@ QueryEditDistance::postlist(QueryOptimiser * qopt, double factor) const
 	    qopt->compound_weight = (op == Query::OP_SYNONYM);
 	}
 
-	BoolOrContext ctx(qopt, 0);
-	ctx.expand_edit_distance(this, 0.0);
-
+	TermFreqs synonym_freqs;
 	if (op == Query::OP_SYNONYM) {
 	    qopt->inc_total_subqs();
+	    ctx.expand_edit_distance(this, 0.0, &synonym_freqs);
+	} else {
+	    ctx.expand_edit_distance(this, 0.0, termfreqs);
 	}
 
 	qopt->compound_weight = old_compound_weight;
@@ -1725,9 +1981,8 @@ QueryEditDistance::postlist(QueryOptimiser * qopt, double factor) const
 	if (ctx.empty())
 	    RETURN(NULL);
 
-	PostList * pl = ctx.postlist();
 	if (op != Query::OP_SYNONYM)
-	    RETURN(pl);
+	    RETURN(ctx.postlist(termfreqs, true));
 
 	// We build an OP_OR tree for OP_SYNONYM and then wrap it in a
 	// SynonymPostList, which supplies the weights.
@@ -1735,11 +1990,11 @@ QueryEditDistance::postlist(QueryOptimiser * qopt, double factor) const
 	// We know the subqueries from an edit distance expansion are
 	// wdf-disjoint (i.e. each wdf from the document contributes at most
 	// itself to the wdf of the subquery).
-	RETURN(qopt->make_synonym_postlist(pl, factor, true));
+	RETURN(qopt->make_synonym_postlist(ctx.postlist(&synonym_freqs, true),
+					   factor, true, synonym_freqs));
     }
 
-    OrContext ctx(qopt, 0);
-    ctx.expand_edit_distance(this, factor);
+    ctx.expand_edit_distance(this, factor, termfreqs);
 
     qopt->set_total_subqs(qopt->get_total_subqs() + ctx.size());
 
@@ -1749,7 +2004,7 @@ QueryEditDistance::postlist(QueryOptimiser * qopt, double factor) const
     if (op == Query::OP_MAX)
 	RETURN(ctx.postlist_max());
 
-    RETURN(ctx.postlist());
+    RETURN(ctx.postlist(termfreqs));
 }
 
 termcount
@@ -1912,11 +2167,12 @@ QueryBranch::gather_terms(void * void_terms) const
 }
 
 void
-QueryBranch::do_bool_or_like(BoolOrContext& ctx,
+QueryBranch::do_bool_or_like(OrContext& ctx,
 			     QueryOptimiser* qopt,
+			     TermFreqs* termfreqs,
 			     size_t first) const
 {
-    LOGCALL_VOID(MATCH, "QueryBranch::do_bool_or_like", ctx | qopt | first);
+    LOGCALL_VOID(MATCH, "QueryBranch::do_bool_or_like", ctx | qopt | termfreqs | first);
 
     // FIXME: we could optimise by merging OP_ELITE_SET and OP_OR like we do
     // for AND-like operations.
@@ -1929,16 +2185,17 @@ QueryBranch::do_bool_or_like(BoolOrContext& ctx,
     for (q = subqueries.begin() + first; q != subqueries.end(); ++q) {
 	// MatchNothing subqueries should have been removed by done().
 	Assert((*q).internal.get());
-	(*q).internal->postlist_sub_bool_or_like(ctx, qopt);
+	(*q).internal->postlist_sub_bool_or_like(ctx, qopt, termfreqs);
     }
 }
 
 void
 QueryBranch::do_or_like(OrContext& ctx, QueryOptimiser * qopt, double factor,
+			TermFreqs* termfreqs,
 			Xapian::termcount elite_set_size, size_t first,
 			bool keep_zero_weight) const
 {
-    LOGCALL_VOID(MATCH, "QueryBranch::do_or_like", ctx | qopt | factor | elite_set_size | first | keep_zero_weight);
+    LOGCALL_VOID(MATCH, "QueryBranch::do_or_like", ctx | qopt | factor | termfreqs | elite_set_size | first | keep_zero_weight);
 
     // FIXME: we could optimise by merging OP_ELITE_SET and OP_OR like we do
     // for AND-like operations.
@@ -1953,6 +2210,7 @@ QueryBranch::do_or_like(OrContext& ctx, QueryOptimiser * qopt, double factor,
 	// MatchNothing subqueries should have been removed by done().
 	Assert((*q).internal.get());
 	(*q).internal->postlist_sub_or_like(ctx, qopt, factor,
+					    termfreqs,
 					    keep_zero_weight);
     }
 
@@ -1972,22 +2230,25 @@ QueryBranch::do_or_like(OrContext& ctx, QueryOptimiser * qopt, double factor,
 }
 
 PostList *
-QueryBranch::do_synonym(QueryOptimiser * qopt, double factor) const
+QueryBranch::do_synonym(QueryOptimiser* qopt,
+			double factor,
+			TermFreqs* termfreqs) const
 {
-    LOGCALL(MATCH, PostList *, "QueryBranch::do_synonym", qopt | factor);
-    BoolOrContext ctx(qopt, subqueries.size());
+    LOGCALL(MATCH, PostList*, "QueryBranch::do_synonym", qopt | factor | termfreqs);
+    OrContext ctx(qopt, subqueries.size());
     if (factor == 0.0) {
 	// If we have a factor of 0, we don't care about the weights, so
 	// we're just like a normal OR query.
-	do_bool_or_like(ctx, qopt);
-	return ctx.postlist();
+	do_bool_or_like(ctx, qopt, termfreqs);
+	return ctx.postlist(termfreqs, true);
     }
 
     bool old_compound_weight = qopt->compound_weight;
     Assert(!old_compound_weight);
     qopt->compound_weight = true;
-    do_bool_or_like(ctx, qopt);
-    PostList * pl = ctx.postlist();
+    TermFreqs synonym_freqs;
+    do_bool_or_like(ctx, qopt, &synonym_freqs);
+    PostList* pl = ctx.postlist(&synonym_freqs, true);
     qopt->compound_weight = old_compound_weight;
     if (!pl) return NULL;
 
@@ -2046,22 +2307,28 @@ QueryBranch::do_synonym(QueryOptimiser * qopt, double factor) const
 
     // We build an OP_OR tree for OP_SYNONYM and then wrap it in a
     // SynonymPostList, which supplies the weights.
-    RETURN(qopt->make_synonym_postlist(pl, factor, wdf_disjoint));
+    RETURN(qopt->make_synonym_postlist(pl, factor, wdf_disjoint,
+				       synonym_freqs));
 }
 
 PostList *
-QueryBranch::do_max(QueryOptimiser * qopt, double factor) const
+QueryBranch::do_max(QueryOptimiser* qopt,
+		    double factor,
+		    TermFreqs* termfreqs) const
 {
-    LOGCALL(MATCH, PostList *, "QueryBranch::do_max", qopt | factor);
+    LOGCALL(MATCH, PostList*, "QueryBranch::do_max", qopt | factor | termfreqs);
+    OrContext ctx(qopt, subqueries.size());
     if (factor == 0.0) {
 	// Without the weights we're just like a normal OR query.
-	BoolOrContext ctx(qopt, subqueries.size());
-	do_bool_or_like(ctx, qopt);
-	RETURN(ctx.postlist());
+	do_bool_or_like(ctx, qopt, termfreqs);
+	RETURN(ctx.postlist(termfreqs, true));
     }
 
-    OrContext ctx(qopt, subqueries.size());
-    do_or_like(ctx, qopt, factor);
+    // If termfreqs is set that means we're below a synonym, but in that case
+    // factor should be 0.0 which is handled above.
+    Assert(!termfreqs);
+
+    do_or_like(ctx, qopt, factor, termfreqs);
     // We currently assume wqf is 1 for calculating the OP_MAX's weight
     // since conceptually the OP_MAX is one "virtual" term.  If we were
     // to combine multiple occurrences of the same OP_MAX expansion into
@@ -2227,24 +2494,28 @@ QueryAndLike::done()
 }
 
 PostList*
-QueryAndLike::postlist(QueryOptimiser * qopt, double factor) const
+QueryAndLike::postlist(QueryOptimiser* qopt, double factor,
+		       TermFreqs* termfreqs) const
 {
-    LOGCALL(QUERY, PostList*, "QueryAndLike::postlist", qopt | factor);
+    LOGCALL(QUERY, PostList*, "QueryAndLike::postlist", qopt | factor | termfreqs);
     AndContext ctx(qopt, subqueries.size());
-    if (!postlist_sub_and_like(ctx, qopt, factor)) {
+    if (!postlist_sub_and_like(ctx, qopt, factor, termfreqs)) {
 	RETURN(nullptr);
     }
-    RETURN(ctx.postlist());
+    RETURN(ctx.postlist(termfreqs));
 }
 
 bool
-QueryAndLike::postlist_sub_and_like(AndContext& ctx, QueryOptimiser * qopt, double factor) const
+QueryAndLike::postlist_sub_and_like(AndContext& ctx,
+				    QueryOptimiser* qopt,
+				    double factor,
+				    TermFreqs* termfreqs) const
 {
     QueryVector::const_iterator i;
     for (i = subqueries.begin(); i != subqueries.end(); ++i) {
 	// MatchNothing subqueries should have been removed by done().
 	Assert((*i).internal.get());
-	if (!(*i).internal->postlist_sub_and_like(ctx, qopt, factor))
+	if (!(*i).internal->postlist_sub_and_like(ctx, qopt, factor, termfreqs))
 	    return false;
     }
     return true;
@@ -2339,135 +2610,154 @@ QueryAndMaybe::done()
 }
 
 PostList*
-QueryOr::postlist(QueryOptimiser * qopt, double factor) const
+QueryOr::postlist(QueryOptimiser* qopt, double factor,
+		  TermFreqs* termfreqs) const
 {
-    LOGCALL(QUERY, PostList*, "QueryOr::postlist", qopt | factor);
-    if (factor == 0.0) {
-	BoolOrContext ctx(qopt, subqueries.size());
-	do_bool_or_like(ctx, qopt);
-	RETURN(ctx.postlist());
-    }
+    LOGCALL(QUERY, PostList*, "QueryOr::postlist", qopt | factor | termfreqs);
     OrContext ctx(qopt, subqueries.size());
-    do_or_like(ctx, qopt, factor);
-    RETURN(ctx.postlist());
+    if (factor == 0.0) {
+	do_bool_or_like(ctx, qopt, termfreqs);
+	RETURN(ctx.postlist(termfreqs, true));
+    }
+    do_or_like(ctx, qopt, factor, termfreqs);
+    RETURN(ctx.postlist(termfreqs));
 }
 
 void
 QueryOr::postlist_sub_or_like(OrContext& ctx, QueryOptimiser* qopt,
-			      double factor, bool keep_zero_weight) const
+			      double factor,
+			      TermFreqs* termfreqs,
+			      bool keep_zero_weight) const
 {
-    do_or_like(ctx, qopt, factor, 0, 0, keep_zero_weight);
+    do_or_like(ctx, qopt, factor, termfreqs, 0, 0, keep_zero_weight);
 }
 
 void
-QueryOr::postlist_sub_bool_or_like(BoolOrContext& ctx,
-				   QueryOptimiser* qopt) const
+QueryOr::postlist_sub_bool_or_like(OrContext& ctx,
+				   QueryOptimiser* qopt,
+				   TermFreqs* termfreqs) const
 {
-    do_bool_or_like(ctx, qopt);
+    do_bool_or_like(ctx, qopt, termfreqs);
 }
 
 PostList*
-QueryAndNot::postlist(QueryOptimiser * qopt, double factor) const
+QueryAndNot::postlist(QueryOptimiser* qopt, double factor,
+		      TermFreqs* termfreqs) const
 {
-    LOGCALL(QUERY, PostList*, "QueryAndNot::postlist", qopt | factor);
+    LOGCALL(QUERY, PostList*, "QueryAndNot::postlist", qopt | factor | termfreqs);
     AndContext ctx(qopt, 1);
-    if (!QueryAndNot::postlist_sub_and_like(ctx, qopt, factor)) {
+    if (!QueryAndNot::postlist_sub_and_like(ctx, qopt, factor, termfreqs)) {
 	RETURN(NULL);
     }
-    RETURN(ctx.postlist());
+    RETURN(ctx.postlist(termfreqs));
 }
 
 bool
 QueryAndNot::postlist_sub_and_like(AndContext& ctx,
 				   QueryOptimiser* qopt,
-				   double factor) const
+				   double factor,
+				   TermFreqs* termfreqs) const
 {
     // This invariant should be established by QueryAndNot::done() with
     // assistance from QueryAndNot::add_subquery().
     Assert(subqueries[0].internal.get());
-    if (!subqueries[0].internal->postlist_sub_and_like(ctx, qopt, factor))
+    if (!subqueries[0].internal->postlist_sub_and_like(ctx, qopt, factor,
+						       termfreqs)) {
 	return false;
-    do_bool_or_like(ctx.get_not_ctx(subqueries.size() - 1), qopt, 1);
+    }
+    do_bool_or_like(ctx.get_not_ctx(subqueries.size() - 1), qopt, termfreqs, 1);
     return true;
 }
 
 PostList*
-QueryXor::postlist(QueryOptimiser * qopt, double factor) const
+QueryXor::postlist(QueryOptimiser* qopt, double factor,
+		   TermFreqs* termfreqs) const
 {
-    LOGCALL(QUERY, PostList*, "QueryXor::postlist", qopt | factor);
+    LOGCALL(QUERY, PostList*, "QueryXor::postlist", qopt | factor | termfreqs);
     XorContext ctx(qopt, subqueries.size());
-    postlist_sub_xor(ctx, qopt, factor);
-    RETURN(ctx.postlist());
+    postlist_sub_xor(ctx, qopt, factor, termfreqs);
+    RETURN(ctx.postlist(termfreqs));
 }
 
 void
-QueryXor::postlist_sub_xor(XorContext& ctx, QueryOptimiser * qopt, double factor) const
+QueryXor::postlist_sub_xor(XorContext& ctx,
+			   QueryOptimiser* qopt,
+			   double factor,
+			   TermFreqs* termfreqs) const
 {
     QueryVector::const_iterator i;
     for (i = subqueries.begin(); i != subqueries.end(); ++i) {
 	// MatchNothing subqueries should have been removed by done().
 	Assert((*i).internal.get());
-	(*i).internal->postlist_sub_xor(ctx, qopt, factor);
+	(*i).internal->postlist_sub_xor(ctx, qopt, factor, termfreqs);
     }
 }
 
 PostList*
-QueryAndMaybe::postlist(QueryOptimiser * qopt, double factor) const
+QueryAndMaybe::postlist(QueryOptimiser* qopt, double factor,
+			TermFreqs* termfreqs) const
 {
-    LOGCALL(QUERY, PostList*, "QueryAndMaybe::postlist", qopt | factor);
+    LOGCALL(QUERY, PostList*, "QueryAndMaybe::postlist", qopt | factor | termfreqs);
     AndContext ctx(qopt, 1);
-    if (!QueryAndMaybe::postlist_sub_and_like(ctx, qopt, factor)) {
+    if (!QueryAndMaybe::postlist_sub_and_like(ctx, qopt, factor, termfreqs)) {
 	RETURN(NULL);
     }
-    RETURN(ctx.postlist());
+    RETURN(ctx.postlist(termfreqs));
 }
 
 bool
 QueryAndMaybe::postlist_sub_and_like(AndContext& ctx,
 				     QueryOptimiser* qopt,
-				     double factor) const
+				     double factor,
+				     TermFreqs* termfreqs) const
 {
     // This invariant should be established by QueryAndMaybe::done() with
     // assistance from QueryAndMaybe::add_subquery().
     Assert(subqueries[0].internal.get());
-    if (!subqueries[0].internal->postlist_sub_and_like(ctx, qopt, factor))
+    if (!subqueries[0].internal->postlist_sub_and_like(ctx, qopt, factor,
+						       termfreqs)) {
 	return false;
+    }
     // We only need to consider the right branch or branches if we're weighted
     // - an unweighted OP_AND_MAYBE can be replaced with its left branch.
     if (factor != 0.0) {
-	// Only keep zero-weight subqueries if we need their wdf because they're
-	// underneath a compound weight.
+	// Only keep zero-weight subqueries if we need their wdf because
+	// they're underneath a compound weight.
 	OrContext& maybe_ctx = ctx.get_maybe_ctx(subqueries.size() - 1);
 	bool need_wdf = qopt->need_wdf_for_compound_weight();
-	do_or_like(maybe_ctx, qopt, factor, 0, 1, need_wdf);
+	do_or_like(maybe_ctx, qopt, factor, termfreqs, 0, 1, need_wdf);
     }
     return true;
 }
 
 PostList*
-QueryFilter::postlist(QueryOptimiser * qopt, double factor) const
+QueryFilter::postlist(QueryOptimiser* qopt, double factor,
+		      TermFreqs* termfreqs) const
 {
-    LOGCALL(QUERY, PostList*, "QueryFilter::postlist", qopt | factor);
+    LOGCALL(QUERY, PostList*, "QueryFilter::postlist", qopt | factor | termfreqs);
     AndContext ctx(qopt, subqueries.size());
     for (const auto& subq : subqueries) {
 	// MatchNothing subqueries should have been removed by done().
 	Assert(subq.internal.get());
-	if (!subq.internal->postlist_sub_and_like(ctx, qopt, factor))
+	if (!subq.internal->postlist_sub_and_like(ctx, qopt, factor, termfreqs))
 	    break;
 	// Second and subsequent subqueries are unweighted.
 	factor = 0.0;
     }
-    RETURN(ctx.postlist());
+    RETURN(ctx.postlist(termfreqs));
 }
 
 bool
-QueryFilter::postlist_sub_and_like(AndContext& ctx, QueryOptimiser * qopt, double factor) const
+QueryFilter::postlist_sub_and_like(AndContext& ctx,
+				   QueryOptimiser* qopt,
+				   double factor,
+				   TermFreqs* termfreqs) const
 {
     QueryVector::const_iterator i;
     for (i = subqueries.begin(); i != subqueries.end(); ++i) {
 	// MatchNothing subqueries should have been removed by done().
 	Assert((*i).internal.get());
-	if (!(*i).internal->postlist_sub_and_like(ctx, qopt, factor))
+	if (!(*i).internal->postlist_sub_and_like(ctx, qopt, factor, termfreqs))
 	    return false;
 	// Second and subsequent subqueries are unweighted.
 	factor = 0.0;
@@ -2476,7 +2766,11 @@ QueryFilter::postlist_sub_and_like(AndContext& ctx, QueryOptimiser * qopt, doubl
 }
 
 bool
-QueryWindowed::postlist_windowed(Query::op op, AndContext& ctx, QueryOptimiser * qopt, double factor) const
+QueryWindowed::postlist_windowed(Query::op op,
+				 AndContext& ctx,
+				 QueryOptimiser* qopt,
+				 double factor,
+				 TermFreqs* termfreqs) const
 {
     if (!qopt->db.has_positions()) {
 	// No positions in this subdatabase so this matches nothing, which
@@ -2498,11 +2792,11 @@ QueryWindowed::postlist_windowed(Query::op op, AndContext& ctx, QueryOptimiser *
     for (i = subqueries.begin(); i != subqueries.end(); ++i) {
 	// MatchNothing subqueries should have been removed by done().
 	Assert((*i).internal.get());
-	PostList* pl = (*i).internal->postlist(qopt, factor);
+	PostList* pl = (*i).internal->postlist(qopt, factor, NULL);
 	if (pl && (*i).internal->get_type() != Query::LEAF_TERM) {
 	    pl = new OrPosPostList(pl);
 	}
-	result = ctx.add_postlist(pl);
+	result = ctx.add_postlist(pl, termfreqs);
 	if (!result) {
 	    if (factor == 0.0) break;
 	    // If we don't complete the iteration, the subquery count may be
@@ -2511,7 +2805,8 @@ QueryWindowed::postlist_windowed(Query::op op, AndContext& ctx, QueryOptimiser *
 		// MatchNothing subqueries should have been removed by done().
 		// FIXME: Can we handle this more gracefully?
 		Assert((*i).internal.get());
-		qopt->destroy_postlist((*i).internal->postlist(qopt, factor));
+		qopt->destroy_postlist((*i).internal->postlist(qopt, factor,
+							       NULL));
 		++i;
 	    }
 	    break;
@@ -2527,45 +2822,57 @@ QueryWindowed::postlist_windowed(Query::op op, AndContext& ctx, QueryOptimiser *
 }
 
 bool
-QueryPhrase::postlist_sub_and_like(AndContext & ctx, QueryOptimiser * qopt, double factor) const
+QueryPhrase::postlist_sub_and_like(AndContext& ctx,
+				   QueryOptimiser* qopt,
+				   double factor,
+				   TermFreqs* termfreqs) const
 {
     constexpr auto OP_PHRASE = Query::OP_PHRASE;
-    return QueryWindowed::postlist_windowed(OP_PHRASE, ctx, qopt, factor);
+    return QueryWindowed::postlist_windowed(OP_PHRASE, ctx, qopt, factor,
+					    termfreqs);
 }
 
 bool
-QueryNear::postlist_sub_and_like(AndContext & ctx, QueryOptimiser * qopt, double factor) const
+QueryNear::postlist_sub_and_like(AndContext& ctx,
+				 QueryOptimiser* qopt,
+				 double factor,
+				 TermFreqs* termfreqs) const
 {
     constexpr auto OP_NEAR = Query::OP_NEAR;
-    return QueryWindowed::postlist_windowed(OP_NEAR, ctx, qopt, factor);
+    return QueryWindowed::postlist_windowed(OP_NEAR, ctx, qopt, factor,
+					    termfreqs);
 }
 
 PostList*
-QueryEliteSet::postlist(QueryOptimiser * qopt, double factor) const
+QueryEliteSet::postlist(QueryOptimiser* qopt, double factor,
+			TermFreqs* termfreqs) const
 {
-    LOGCALL(QUERY, PostList*, "QueryEliteSet::postlist", qopt | factor);
+    LOGCALL(QUERY, PostList*, "QueryEliteSet::postlist", qopt | factor | termfreqs);
     OrContext ctx(qopt, subqueries.size());
-    do_or_like(ctx, qopt, factor, set_size);
-    RETURN(ctx.postlist());
+    do_or_like(ctx, qopt, factor, termfreqs, set_size);
+    RETURN(ctx.postlist(termfreqs));
 }
 
 void
 QueryEliteSet::postlist_sub_or_like(OrContext& ctx, QueryOptimiser* qopt,
-				    double factor, bool keep_zero_weight) const
+				    double factor,
+				    TermFreqs* termfreqs,
+				    bool keep_zero_weight) const
 {
-    do_or_like(ctx, qopt, factor, set_size, 0, keep_zero_weight);
+    do_or_like(ctx, qopt, factor, termfreqs, set_size, 0, keep_zero_weight);
 }
 
 PostList*
-QuerySynonym::postlist(QueryOptimiser * qopt, double factor) const
+QuerySynonym::postlist(QueryOptimiser* qopt, double factor,
+		       TermFreqs* termfreqs) const
 {
-    LOGCALL(QUERY, PostList*, "QuerySynonym::postlist", qopt | factor);
+    LOGCALL(QUERY, PostList*, "QuerySynonym::postlist", qopt | factor | termfreqs);
     // Save and restore total_subqs so we only add one for the whole
     // OP_SYNONYM subquery (or none if we're not weighted).
     Xapian::termcount save_total_subqs = qopt->get_total_subqs();
     if (factor != 0.0)
 	++save_total_subqs;
-    PostList * pl = do_synonym(qopt, factor);
+    PostList* pl = do_synonym(qopt, factor, termfreqs);
     qopt->set_total_subqs(save_total_subqs);
     RETURN(pl);
 }
@@ -2604,15 +2911,16 @@ QuerySynonym::done()
 }
 
 PostList*
-QueryMax::postlist(QueryOptimiser * qopt, double factor) const
+QueryMax::postlist(QueryOptimiser* qopt, double factor,
+		   TermFreqs* termfreqs) const
 {
-    LOGCALL(QUERY, PostList*, "QueryMax::postlist", qopt | factor);
+    LOGCALL(QUERY, PostList*, "QueryMax::postlist", qopt | factor | termfreqs);
     // Save and restore total_subqs so we only add one for the whole
     // OP_MAX subquery (or none if we're not weighted).
     Xapian::termcount save_total_subqs = qopt->get_total_subqs();
     if (factor != 0.0)
 	++save_total_subqs;
-    PostList * pl = do_max(qopt, factor);
+    PostList* pl = do_max(qopt, factor, termfreqs);
     qopt->set_total_subqs(save_total_subqs);
     RETURN(pl);
 }
@@ -2762,7 +3070,7 @@ QueryInvalid::get_type() const noexcept
 }
 
 PostList*
-QueryInvalid::postlist(QueryOptimiser *, double) const
+QueryInvalid::postlist(QueryOptimiser*, double, TermFreqs*) const
 {
     throw Xapian::InvalidOperationError("Query is invalid");
 }

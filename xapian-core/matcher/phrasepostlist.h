@@ -63,8 +63,6 @@ class PhrasePostList : public SelectPostList {
 
     Xapian::termcount get_wdf() const;
 
-    TermFreqs estimate_termfreqs(const Xapian::Weight::Internal& stats) const;
-
     std::string get_description() const;
 };
 

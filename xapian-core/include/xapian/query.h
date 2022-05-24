@@ -842,12 +842,12 @@ operator~(const Query &q)
 
 namespace Internal {
 class AndContext;
-class BoolOrContext;
 class OrContext;
 class XorContext;
 
 class PostList;
 class QueryOptimiser;
+struct TermFreqs;
 }
 
 /** @private @internal */
@@ -857,31 +857,41 @@ class Query::Internal : public Xapian::Internal::intrusive_base {
 
     virtual ~Internal();
 
-    virtual
-    Xapian::Internal::PostList* postlist(Xapian::Internal::QueryOptimiser* qopt,
-					 double factor) const = 0;
+    virtual Xapian::Internal::PostList*
+    postlist(Xapian::Internal::QueryOptimiser* qopt,
+	     double factor,
+	     Xapian::Internal::TermFreqs* termfreqs) const = 0;
 
-    virtual bool postlist_sub_and_like(Xapian::Internal::AndContext& ctx,
-				       Xapian::Internal::QueryOptimiser* qopt,
-				       double factor) const;
+    virtual bool
+    postlist_sub_and_like(Xapian::Internal::AndContext& ctx,
+			  Xapian::Internal::QueryOptimiser* qopt,
+			  double factor,
+			  Xapian::Internal::TermFreqs* termfreqs) const;
 
-    virtual void postlist_sub_bool_or_like(Xapian::Internal::BoolOrContext& ctx,
-					   Xapian::Internal::QueryOptimiser* qopt) const;
+    virtual void
+    postlist_sub_bool_or_like(Xapian::Internal::OrContext& ctx,
+			      Xapian::Internal::QueryOptimiser* qopt,
+			      Xapian::Internal::TermFreqs* termfreqs) const;
 
-    virtual void postlist_sub_or_like(Xapian::Internal::OrContext& ctx,
-				      Xapian::Internal::QueryOptimiser* qopt,
-				      double factor,
-				      bool keep_zero_weight = true) const;
+    virtual void
+    postlist_sub_or_like(Xapian::Internal::OrContext& ctx,
+			 Xapian::Internal::QueryOptimiser* qopt,
+			 double factor,
+			 Xapian::Internal::TermFreqs* termfreqs,
+			 bool keep_zero_weight = true) const;
 
-    virtual void postlist_sub_xor(Xapian::Internal::XorContext& ctx,
-				  Xapian::Internal::QueryOptimiser* qopt,
-				  double factor) const;
+    virtual void
+    postlist_sub_xor(Xapian::Internal::XorContext& ctx,
+		     Xapian::Internal::QueryOptimiser* qopt,
+		     double factor,
+		     Xapian::Internal::TermFreqs* termfreqs) const;
 
     virtual termcount get_length() const noexcept XAPIAN_PURE_FUNCTION;
 
     virtual void serialise(std::string & result) const = 0;
 
-    static Query::Internal * unserialise(const char ** p, const char * end, const Registry & reg);
+    static Query::Internal* unserialise(const char** p, const char* end,
+					const Registry& reg);
 
     virtual Query::op get_type() const noexcept XAPIAN_PURE_FUNCTION = 0;
     virtual size_t get_num_subqueries() const noexcept XAPIAN_PURE_FUNCTION;

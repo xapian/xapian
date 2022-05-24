@@ -186,7 +186,7 @@ LocalSubMatch::get_postlist(PostListTree * matcher,
     {
 	QueryOptimiser opt(*db, *this, matcher, shard_index);
 	double factor = wt_factory.is_bool_weight_() ? 0.0 : 1.0;
-	pl = query.internal->postlist(&opt, factor);
+	pl = query.internal->postlist(&opt, factor, NULL);
 	*total_subqs_ptr = opt.get_total_subqs();
     }
 
@@ -209,10 +209,10 @@ PostList *
 LocalSubMatch::make_synonym_postlist(PostListTree* pltree,
 				     PostList* or_pl,
 				     double factor,
-				     bool wdf_disjoint)
+				     bool wdf_disjoint,
+				     const TermFreqs& termfreqs)
 {
-    LOGCALL(MATCH, PostList *, "LocalSubMatch::make_synonym_postlist", pltree | or_pl | factor | wdf_disjoint);
-    LOGVALUE(MATCH, or_pl->get_termfreq());
+    LOGCALL(MATCH, PostList*, "LocalSubMatch::make_synonym_postlist", pltree | or_pl | factor | wdf_disjoint | termfreqs);
     unique_ptr<SynonymPostList> res(new SynonymPostList(or_pl, db, pltree,
 							wdf_disjoint));
     unique_ptr<Xapian::Weight> wt(wt_factory.clone());
@@ -220,24 +220,25 @@ LocalSubMatch::make_synonym_postlist(PostListTree* pltree,
     // We shortcut an empty shard and avoid creating a postlist tree for it,
     // and all shards must be empty for collection_size to be zero.
     Assert(total_stats->collection_size);
-    TermFreqs freqs = or_pl->estimate_termfreqs(*total_stats);
     wt->init_(*total_stats, qlen, factor,
-	      freqs.termfreq, freqs.reltermfreq, freqs.collfreq, db);
+	      termfreqs.termfreq, termfreqs.reltermfreq, termfreqs.collfreq,
+	      db);
 
     res->set_weight(wt.release());
     RETURN(res.release());
 }
 
-PostList *
+LeafPostList*
 LocalSubMatch::open_post_list(const string& term,
 			      Xapian::termcount wqf,
 			      double factor,
 			      bool need_positions,
 			      bool compound_weight,
-			      QueryOptimiser * qopt,
-			      bool lazy_weight)
+			      QueryOptimiser* qopt,
+			      bool lazy_weight,
+			      TermFreqs* termfreqs)
 {
-    LOGCALL(MATCH, PostList *, "LocalSubMatch::open_post_list", term | wqf | factor | need_positions | qopt | lazy_weight);
+    LOGCALL(MATCH, PostList*, "LocalSubMatch::open_post_list", term | wqf | factor | need_positions | qopt | lazy_weight | termfreqs);
 
     bool weighted = false;
 
@@ -285,24 +286,6 @@ LocalSubMatch::open_post_list(const string& term,
 	}
     }
 
-    if (lazy_weight) {
-	auto res = total_stats->termfreqs.emplace(term, TermFreqs());
-	if (res.second) {
-	    // Term came from a wildcard, but the same term may be elsewhere
-	    // in the query so only accumulate its TermFreqs if emplace()
-	    // created a new element.
-	    res.first->second.termfreq = pl->get_termfreq();
-	    res.first->second.collfreq = pl->get_collfreq();
-#ifdef XAPIAN_ASSERTIONS
-	    Xapian::doccount tf;
-	    Xapian::termcount cf;
-	    db->get_freqs(term, &tf, &cf);
-	    AssertEq(res.first->second.termfreq, tf);
-	    AssertEq(res.first->second.collfreq, cf);
-#endif
-	}
-    }
-
     if (weighted) {
 	Xapian::Weight * wt = wt_factory.clone();
 	if (!lazy_weight) {
@@ -316,6 +299,18 @@ LocalSubMatch::open_post_list(const string& term,
 	    wt = new LazyWeight(pl, wt, total_stats, qlen, wqf, factor, db);
 	}
 	pl->set_termweight(wt);
+    }
+
+    if (termfreqs) {
+	if (term.empty()) {
+	    *termfreqs = TermFreqs(total_stats->collection_size,
+				   total_stats->rset_size,
+				   total_stats->total_length);
+	} else if (!lazy_weight) {
+	    auto i = total_stats->termfreqs.find(term);
+	    Assert(i != total_stats->termfreqs.end());
+	    *termfreqs = i->second;
+	}
     }
 
     add_op(pl->get_termfreq());

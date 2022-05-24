@@ -30,13 +30,6 @@ using namespace std;
 
 PostList::~PostList() {}
 
-TermFreqs
-PostList::estimate_termfreqs(const Xapian::Weight::Internal&) const
-{
-    throw Xapian::InvalidOperationError("estimate_termfreqs() not meaningful "
-					"for this PostingIterator");
-}
-
 Xapian::termcount
 PostList::get_wdf() const
 {

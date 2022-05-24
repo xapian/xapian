@@ -145,49 +145,6 @@ BoolOrPostList::skip_to(Xapian::docid did_min, double)
     return NULL;
 }
 
-TermFreqs
-BoolOrPostList::estimate_termfreqs(const Xapian::Weight::Internal& stats) const
-{
-    Assert(n_kids != 0);
-    // We calculate the estimate assuming independence.  The simplest
-    // way to calculate this seems to be a series of (n_kids - 1) pairwise
-    // calculations, which gives the same answer regardless of the order.
-    TermFreqs freqs(plist[0].pl->estimate_termfreqs(stats));
-
-    // Our caller should have ensured this.
-    Assert(stats.collection_size);
-    double scale = 1.0 / stats.collection_size;
-    double P_est = freqs.termfreq * scale;
-    double rtf_scale = 0.0;
-    if (stats.rset_size != 0) {
-	rtf_scale = 1.0 / stats.rset_size;
-    }
-    double Pr_est = freqs.reltermfreq * rtf_scale;
-    // If total_length is 0, cf must always be 0 so cf_scale is irrelevant.
-    double cf_scale = 0.0;
-    if (usual(stats.total_length != 0)) {
-	cf_scale = 1.0 / stats.total_length;
-    }
-    double Pc_est = freqs.collfreq * cf_scale;
-
-    for (size_t i = 1; i < n_kids; ++i) {
-	freqs = plist[i].pl->estimate_termfreqs(stats);
-	double P_i = freqs.termfreq * scale;
-	P_est += P_i - P_est * P_i;
-	double Pc_i = freqs.collfreq * cf_scale;
-	Pc_est += Pc_i - Pc_est * Pc_i;
-	// If the rset is empty, Pr_est should be 0 already, so leave
-	// it alone.
-	if (stats.rset_size != 0) {
-	    double Pr_i = freqs.reltermfreq * rtf_scale;
-	    Pr_est += Pr_i - Pr_est * Pr_i;
-	}
-    }
-    return TermFreqs(Xapian::doccount(P_est * stats.collection_size + 0.5),
-		     Xapian::doccount(Pr_est * stats.rset_size + 0.5),
-		     Xapian::termcount(Pc_est * stats.total_length + 0.5));
-}
-
 bool
 BoolOrPostList::at_end() const
 {

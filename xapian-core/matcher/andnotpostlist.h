@@ -51,8 +51,6 @@ class AndNotPostList : public WrapperPostList {
 
     ~AndNotPostList() { delete r; }
 
-    TermFreqs estimate_termfreqs(const Xapian::Weight::Internal& stats) const;
-
     PostList* next(double w_min);
 
     PostList* skip_to(Xapian::docid did, double w_min);

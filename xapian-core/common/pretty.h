@@ -293,7 +293,6 @@ namespace Xapian {
     class Weight;
     namespace Internal {
 	class AndContext;
-	class BoolOrContext;
 	class ExpandStats;
 	class ExpandWeight;
 	class OrContext;
@@ -333,7 +332,6 @@ XAPIAN_PRETTY_AS_CLASSNAME(Xapian::Registry)
 XAPIAN_PRETTY_AS_CLASSNAME(Xapian::TermListGroup)
 XAPIAN_PRETTY_AS_CLASSNAME(Xapian::Weight)
 XAPIAN_PRETTY_AS_CLASSNAME(Xapian::Internal::AndContext)
-XAPIAN_PRETTY_AS_CLASSNAME(Xapian::Internal::BoolOrContext)
 XAPIAN_PRETTY_AS_CLASSNAME(Xapian::Internal::ExpandStats)
 XAPIAN_PRETTY_AS_CLASSNAME(Xapian::Internal::ExpandWeight)
 XAPIAN_PRETTY_AS_CLASSNAME(Xapian::Internal::OrContext)

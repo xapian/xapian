@@ -210,18 +210,6 @@ NearPostList::get_wdf() const
     return wdf;
 }
 
-TermFreqs
-NearPostList::estimate_termfreqs(const Xapian::Weight::Internal& stats) const
-{
-    LOGCALL(MATCH, TermFreqs, "NearPostList::estimate_termfreqs", stats);
-    // No idea how to estimate this - do the same as get_termfreq() for now.
-    TermFreqs result(pl->estimate_termfreqs(stats));
-    result.termfreq /= 2;
-    result.reltermfreq /= 2;
-    result.collfreq /= 2;
-    RETURN(result);
-}
-
 string
 NearPostList::get_description() const
 {

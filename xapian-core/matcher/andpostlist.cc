@@ -52,43 +52,6 @@ AndPostList::~AndPostList()
     delete [] max_wt;
 }
 
-TermFreqs
-AndPostList::estimate_termfreqs(const Xapian::Weight::Internal& stats) const
-{
-    LOGCALL(MATCH, TermFreqs, "AndPostList::estimate_termfreqs", stats);
-    // We calculate the estimate assuming independence.  With this assumption,
-    // the estimate is the product of the estimates for the sub-postlists
-    // divided by db_size (n_kids - 1) times.
-    TermFreqs freqs(plist[0]->estimate_termfreqs(stats));
-
-    double freqest = double(freqs.termfreq);
-    double relfreqest = double(freqs.reltermfreq);
-    double collfreqest = double(freqs.collfreq);
-
-    // Our caller should have ensured this.
-    Assert(stats.collection_size);
-
-    for (size_t i = 1; i < n_kids; ++i) {
-	freqs = plist[i]->estimate_termfreqs(stats);
-
-	// If the collection is empty, freqest should be 0 already, so leave
-	// it alone.
-	freqest = (freqest * freqs.termfreq) / stats.collection_size;
-	if (usual(stats.total_length != 0)) {
-	    collfreqest = (collfreqest * freqs.collfreq) / stats.total_length;
-	}
-
-	// If the rset is empty, relfreqest should be 0 already, so leave
-	// it alone.
-	if (stats.rset_size != 0)
-	    relfreqest = (relfreqest * freqs.reltermfreq) / stats.rset_size;
-    }
-
-    RETURN(TermFreqs(static_cast<Xapian::doccount>(freqest + 0.5),
-		     static_cast<Xapian::doccount>(relfreqest + 0.5),
-		     static_cast<Xapian::termcount>(collfreqest + 0.5)));
-}
-
 Xapian::docid
 AndPostList::get_docid() const
 {
