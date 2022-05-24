@@ -326,6 +326,9 @@ EstimateOp::resolve(Xapian::doccount db_size,
     AssertRel(result.min, <=, result.est);
     AssertRel(result.est, <=, result.max);
 
+    result.first = estimates.first;
+    result.last = estimates.last;
+
     // The range size is an upper bound for max and est.  This is redundant in
     // some cases (for example it isn't needed for AND) but it's very cheap and
     // simpler to always ensure this.
