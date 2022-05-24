@@ -91,7 +91,9 @@ EstimateOp::resolve(Xapian::doccount db_size,
 	    // We calculate the estimate assuming independence - it's the
 	    // product of (est/range) for the children, multiplied by the
 	    // range for the AND.
-	    est = est * r.est / range_i;
+	    if (usual(range_i > 0)) {
+		est = est * r.est / range_i;
+	    }
 	}
 
 	result.est = static_cast<Xapian::doccount>(est + 0.5);
