@@ -238,7 +238,7 @@ LocalSubMatch::open_post_list(const string& term,
 			      bool lazy_weight,
 			      TermFreqs* termfreqs)
 {
-    LOGCALL(MATCH, PostList*, "LocalSubMatch::open_post_list", term | wqf | factor | need_positions | qopt | lazy_weight | termfreqs);
+    LOGCALL(MATCH, LeafPostList*, "LocalSubMatch::open_post_list", term | wqf | factor | need_positions | qopt | lazy_weight | termfreqs);
 
     bool weighted = false;
 
