@@ -2277,7 +2277,9 @@ QueryBranch::do_synonym(QueryOptimiser* qopt,
     OrContext ctx(qopt, subqueries.size());
     if (factor == 0.0) {
 	// If we have a factor of 0, we don't care about the weights, so
-	// we're just like a normal OR query.
+	// we're just like a normal OR query.  An OP_SYNONYM sets factor=0
+	// for its subqueries so this handles an OP_SYNONYM below an
+	// OP_SYNONYM.
 	do_bool_or_like(ctx, qopt, termfreqs);
 	return ctx.postlist(termfreqs, true);
     }

@@ -88,9 +88,6 @@ class SynonymPostList : public WrapperPostList {
 		      Xapian::termcount wdfdocmax) const;
     double recalc_maxweight();
 
-    // Note - we don't need to implement estimate_termfreqs() because a synonym
-    // when used as a child of a synonym will be optimised to an OR.
-
     Xapian::termcount count_matching_subqs() const;
 
     std::string get_description() const;
