@@ -126,6 +126,8 @@ class EstimateOp {
 	estimates.min = min_;
 	estimates.est = est;
 	estimates.max = max_;
+	estimates.first = 1;
+	estimates.last = Xapian::docid(-1);
     }
 
     Estimates resolve(Xapian::doccount db_size,
