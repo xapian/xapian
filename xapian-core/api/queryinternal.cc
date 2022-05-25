@@ -778,7 +778,7 @@ AndContext::postlist(TermFreqs* termfreqs)
 	pl.reset(pls[0]);
 	break;
       default:
-	pl.reset(new AndPostList(pls.begin(), pls.end(), matcher, db_size));
+	pl.reset(new AndPostList(pls.begin(), pls.end(), matcher));
 	qopt->add_op(EstimateOp::AND, pls.size(), first, last);
 	break;
     }

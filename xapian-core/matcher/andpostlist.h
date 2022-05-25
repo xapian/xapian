@@ -112,12 +112,11 @@ class AndPostList : public PostList {
     PostList * find_next_match(double w_min);
 
   public:
-    /** Construct from 2 random-access iterators to a container of PostList*,
-     *  a pointer to the matcher, and the document collection size.
+    /** Construct from 2 random-access iterators to a container of PostList*
+     *  and a pointer to the matcher.
      */
     template<class RandomItor>
-    AndPostList(RandomItor pl_begin, RandomItor pl_end,
-		PostListTree* matcher_, Xapian::doccount db_size)
+    AndPostList(RandomItor pl_begin, RandomItor pl_end, PostListTree* matcher_)
 	: n_kids(pl_end - pl_begin), matcher(matcher_)
     {
 	allocate_plist_and_max_wt();
@@ -127,9 +126,6 @@ class AndPostList : public PostList {
 	// the longer lists based on those.
 	std::partial_sort_copy(pl_begin, pl_end, plist, plist + n_kids,
 			       ComparePostListTermFreqAscending());
-
-	// We shortcut an empty shard and avoid creating a postlist tree for it.
-	Assert(db_size);
 
 	Xapian::docid first = 1, last = Xapian::docid(-1);
 	AndPostList::get_docid_range(first, last);
