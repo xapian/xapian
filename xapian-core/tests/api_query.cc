@@ -1247,11 +1247,20 @@ DEFINE_TESTCASE(emptynot1, backend) {
     Xapian::MSet mset = enq.get_mset(0, 10);
     TEST_EQUAL(mset.size(), 1);
     // Essentially the same test but with a term which doesn't match anything
-    // instead of a range.
+    // on the right side.
     query = Xapian::Query("document") & Xapian::Query("api");
     query = Xapian::Query(query.OP_AND_NOT,
 			  query,
 			  Xapian::Query("nosuchterm"));
+    enq.set_query(query);
+    mset = enq.get_mset(0, 10);
+    TEST_EQUAL(mset.size(), 1);
+    // Essentially the same test but with a wildcard which doesn't match
+    // anything on right side.
+    query = Xapian::Query("document") & Xapian::Query("api");
+    query = Xapian::Query(query.OP_AND_NOT,
+			  query,
+			  Xapian::Query(query.OP_WILDCARD, "nosuchwildcard"));
     enq.set_query(query);
     mset = enq.get_mset(0, 10);
     TEST_EQUAL(mset.size(), 1);
@@ -1273,11 +1282,20 @@ DEFINE_TESTCASE(emptymaybe1, backend) {
     Xapian::MSet mset = enq.get_mset(0, 10);
     TEST_EQUAL(mset.size(), 1);
     // Essentially the same test but with a term which doesn't match anything
-    // instead of a range.
+    // on the right side.
     query = Xapian::Query("document") & Xapian::Query("api");
     query = Xapian::Query(query.OP_AND_MAYBE,
 			  query,
 			  Xapian::Query("nosuchterm"));
+    enq.set_query(query);
+    mset = enq.get_mset(0, 10);
+    TEST_EQUAL(mset.size(), 1);
+    // Essentially the same test but with a wildcard which doesn't match
+    // anything on right side.
+    query = Xapian::Query("document") & Xapian::Query("api");
+    query = Xapian::Query(query.OP_AND_MAYBE,
+			  query,
+			  Xapian::Query(query.OP_WILDCARD, "nosuchwildcard"));
     enq.set_query(query);
     mset = enq.get_mset(0, 10);
     TEST_EQUAL(mset.size(), 1);

@@ -846,6 +846,10 @@ AndContext::postlist(TermFreqs* termfreqs)
 	    // stack.
 	} else {
 	    PostList* rhs = maybe_ctx->postlist(termfreqs);
+	    // A NULL return from OrContext::postlist() can only mean that
+	    // maybe_ctx is empty, but in that case get_last() returns zero
+	    // which means we would have taken the branch above.
+	    Assert(rhs);
 	    // For OP_AND_MAYBE only the LHS determines which documents match
 	    // (the RHS only adds weight) so for the estimates we can just
 	    // ignore the RHS and the operator itself).
