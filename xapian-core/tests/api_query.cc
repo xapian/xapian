@@ -82,6 +82,26 @@ DEFINE_TESTCASE(matchnothing1, !backend) {
     Xapian::Query q2(Xapian::Query::OP_AND,
 		     Xapian::Query("foo"), Xapian::Query::MatchNothing);
     TEST_STRINGS_EQUAL(q2.get_description(), "Query()");
+
+    Xapian::Query q3(Xapian::Query::OP_AND,
+		     Xapian::Query::MatchNothing, Xapian::Query("foo"));
+    TEST_STRINGS_EQUAL(q2.get_description(), "Query()");
+
+    Xapian::Query q4(Xapian::Query::OP_AND_MAYBE,
+		     Xapian::Query("foo"), Xapian::Query::MatchNothing);
+    TEST_STRINGS_EQUAL(q4.get_description(), "Query(foo)");
+
+    Xapian::Query q5(Xapian::Query::OP_AND_MAYBE,
+		     Xapian::Query::MatchNothing, Xapian::Query("foo"));
+    TEST_STRINGS_EQUAL(q5.get_description(), "Query()");
+
+    Xapian::Query q6(Xapian::Query::OP_AND_NOT,
+		     Xapian::Query("foo"), Xapian::Query::MatchNothing);
+    TEST_STRINGS_EQUAL(q6.get_description(), "Query(foo)");
+
+    Xapian::Query q7(Xapian::Query::OP_AND_NOT,
+		     Xapian::Query::MatchNothing, Xapian::Query("foo"));
+    TEST_STRINGS_EQUAL(q7.get_description(), "Query()");
 }
 
 DEFINE_TESTCASE(overload1, !backend) {
@@ -1226,6 +1246,15 @@ DEFINE_TESTCASE(emptynot1, backend) {
     enq.set_query(query);
     Xapian::MSet mset = enq.get_mset(0, 10);
     TEST_EQUAL(mset.size(), 1);
+    // Essentially the same test but with a term which doesn't match anything
+    // instead of a range.
+    query = Xapian::Query("document") & Xapian::Query("api");
+    query = Xapian::Query(query.OP_AND_NOT,
+			  query,
+			  Xapian::Query("nosuchterm"));
+    enq.set_query(query);
+    mset = enq.get_mset(0, 10);
+    TEST_EQUAL(mset.size(), 1);
 }
 
 // Similar case to emptynot1 but for OP_AND_MAYBE.  This case wasn't failing,
@@ -1242,6 +1271,15 @@ DEFINE_TESTCASE(emptymaybe1, backend) {
 			  Xapian::Query(Xapian::Query::OP_VALUE_GE, 1234, "x"));
     enq.set_query(query);
     Xapian::MSet mset = enq.get_mset(0, 10);
+    TEST_EQUAL(mset.size(), 1);
+    // Essentially the same test but with a term which doesn't match anything
+    // instead of a range.
+    query = Xapian::Query("document") & Xapian::Query("api");
+    query = Xapian::Query(query.OP_AND_MAYBE,
+			  query,
+			  Xapian::Query("nosuchterm"));
+    enq.set_query(query);
+    mset = enq.get_mset(0, 10);
     TEST_EQUAL(mset.size(), 1);
 }
 
