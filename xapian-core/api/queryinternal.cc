@@ -2781,13 +2781,8 @@ QueryFilter::postlist(QueryOptimiser* qopt, double factor,
 {
     LOGCALL(QUERY, PostList*, "QueryFilter::postlist", qopt | factor | termfreqs);
     AndContext ctx(qopt, subqueries.size());
-    for (const auto& subq : subqueries) {
-	// MatchNothing subqueries should have been removed by done().
-	Assert(subq.internal.get());
-	if (!subq.internal->postlist_sub_and_like(ctx, qopt, factor, termfreqs))
-	    break;
-	// Second and subsequent subqueries are unweighted.
-	factor = 0.0;
+    if (!QueryFilter::postlist_sub_and_like(ctx, qopt, factor, termfreqs)) {
+	RETURN(nullptr);
     }
     RETURN(ctx.postlist(termfreqs));
 }
