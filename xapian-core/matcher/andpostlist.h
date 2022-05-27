@@ -129,9 +129,9 @@ class AndPostList : public PostList {
 
 	Xapian::docid first = 1, last = Xapian::docid(-1);
 	AndPostList::get_docid_range(first, last);
-	if (last - first + 1 == 0) {
+	if (rare(last < first)) {
+	    // This probably always gets handled at a higher level.
 	    termfreq = 0;
-	    return;
 	}
 
 	// We calculate the estimate assuming independence.
@@ -141,10 +141,9 @@ class AndPostList : public PostList {
 	    first = 1;
 	    last = Xapian::docid(-1);
 	    plist[i]->get_docid_range(first, last);
-	    if (last - first + 1 == 0) {
-		termfreq = 0;
-		return;
-	    }
+	    // If this wasn't true then AndPostList::get_docid_range() should
+	    // have returned last < first which is handled above.
+	    Assert(last >= first);
 	    r *= double(est) / (last - first + 1);
 	}
 	termfreq = static_cast<Xapian::doccount>(r + 0.5);
