@@ -112,7 +112,11 @@ HoneyAllDocsPostList::skip_to(Xapian::docid did, double)
 	return NULL;
     }
 
-    Assert(!reader.at_end());
+    if (reader.at_end()) {
+	// This happens if the first operation is a skip_to().
+	reader.update(cursor);
+	Assert(!reader.at_end());
+    }
 
     if (reader.skip_to(did))
 	return NULL;
