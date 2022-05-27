@@ -1349,3 +1349,41 @@ DEFINE_TESTCASE(orphanedhint1, backend) {
     Xapian::MSet mset = enq.get_mset(0, 3);
     TEST_EQUAL(mset.size(), 1);
 }
+
+// Regression test for bugs in initial implementation of query optimisation
+// based on docid range information.
+DEFINE_TESTCASE(docidrangebugs1, backend) {
+    Xapian::Database db(get_database("apitest_simpledata"));
+    Xapian::Enquire enq(db);
+
+    // This triggered a bug in BoolOrPostList::get_docid_range().
+    Xapian::Query query(Xapian::Query::OP_FILTER,
+			Xapian::Query("typo"),
+			Xapian::Query("rubbish") | Xapian::Query("this"));
+    enq.set_query(query);
+    Xapian::MSet mset = enq.get_mset(0, 1);
+    TEST_EQUAL(mset.size(), 1);
+
+    Xapian::Query query2(Xapian::Query::OP_FILTER,
+			 Xapian::Query("typo"),
+			 Xapian::Query("this") | Xapian::Query("rubbish"));
+    enq.set_query(query2);
+    mset = enq.get_mset(0, 1);
+    TEST_EQUAL(mset.size(), 1);
+
+    // Alternative reproducer where the first term doesn't match any
+    // documents.
+    Xapian::Query query3(Xapian::Query::OP_FILTER,
+			 Xapian::Query("typo"),
+			 Xapian::Query("nosuchterm") | Xapian::Query("this"));
+    enq.set_query(query3);
+    mset = enq.get_mset(0, 1);
+    TEST_EQUAL(mset.size(), 1);
+
+    Xapian::Query query4(Xapian::Query::OP_FILTER,
+			 Xapian::Query("typo"),
+			 Xapian::Query("this") | Xapian::Query("nosuchterm"));
+    enq.set_query(query4);
+    mset = enq.get_mset(0, 1);
+    TEST_EQUAL(mset.size(), 1);
+}

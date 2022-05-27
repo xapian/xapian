@@ -160,7 +160,7 @@ BoolOrPostList::get_docid_range(Xapian::docid& first, Xapian::docid& last) const
 {
     plist[0].pl->get_docid_range(first, last);
     for (size_t i = 1; i != n_kids; ++i) {
-	Xapian::docid f = first, l = last;
+	Xapian::docid f = 1, l = Xapian::docid(-1);
 	plist[i].pl->get_docid_range(f, l);
 	first = min(first, f);
 	last = max(last, l);
