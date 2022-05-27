@@ -1735,13 +1735,7 @@ QueryFilter::postlist(QueryOptimiser * qopt, double factor) const
 {
     LOGCALL(QUERY, PostingIterator::Internal *, "QueryFilter::postlist", qopt | factor);
     AndContext ctx(qopt, subqueries.size());
-    for (const auto& subq : subqueries) {
-	// MatchNothing subqueries should have been removed by done().
-	Assert(subq.internal.get());
-	subq.internal->postlist_sub_and_like(ctx, qopt, factor);
-	// Second and subsequent subqueries are unweighted.
-	factor = 0.0;
-    }
+    QueryFilter::postlist_sub_and_like(ctx, qopt, factor);
     RETURN(ctx.postlist());
 }
 
