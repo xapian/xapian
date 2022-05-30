@@ -162,7 +162,7 @@ HoneyPostList::at_end() const
 PositionList*
 HoneyPostList::open_position_list() const
 {
-    return new HoneyPositionList(db->position_table, get_docid(), term);
+    return db->position_table.open_position_list(get_docid(), term);
 }
 
 PostList*

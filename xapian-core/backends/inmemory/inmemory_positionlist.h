@@ -42,7 +42,11 @@ class InMemoryPositionList : public PositionList {
     InMemoryPositionList(const InMemoryPositionList&) = delete;
 
   public:
-    /// Construct with an empty position list.
+    /** Construct with an empty position list.
+     *
+     *  Used to construct the InMemoryPositionList embedded in each
+     *  InMemoryPostList.
+     */
     InMemoryPositionList() {}
 
     /// Move construct with positional data.

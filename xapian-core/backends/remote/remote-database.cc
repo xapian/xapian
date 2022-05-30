@@ -252,9 +252,11 @@ RemoteDatabase::open_position_list(Xapian::docid did, const string &term) const
     message += term;
     send_message(MSG_POSITIONLIST, message);
 
-    Xapian::VecCOW<Xapian::termpos> positions;
-
     get_message(message, REPLY_POSITIONLIST);
+    if (message.empty())
+	return nullptr;
+
+    Xapian::VecCOW<Xapian::termpos> positions;
     Xapian::termpos lastpos = static_cast<Xapian::termpos>(-1);
     const char* p = message.data();
     const char* p_end = p + message.size();

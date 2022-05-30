@@ -931,7 +931,7 @@ PositionList *
 GlassDatabase::open_position_list(Xapian::docid did, const string& term) const
 {
     Assert(did != 0);
-    return new GlassPositionList(&position_table, did, term);
+    return position_table.open_position_list(did, term);
 }
 
 TermList *
@@ -1638,6 +1638,7 @@ GlassWritableDatabase::open_position_list(Xapian::docid did, const string& term)
     Assert(did != 0);
     string data;
     if (inverter.get_positionlist(did, term, data)) {
+	if (data.empty()) return nullptr;
 	return new GlassPositionList(std::move(data));
     }
     return GlassDatabase::open_position_list(did, term);

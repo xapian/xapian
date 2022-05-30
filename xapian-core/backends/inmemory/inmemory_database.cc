@@ -186,6 +186,7 @@ PositionList *
 InMemoryPostList::open_position_list() const
 {
     if (db->is_closed()) InMemoryDatabase::throw_database_closed();
+    if (pos->positions.empty()) return nullptr;
     return new InMemoryPositionList(pos->positions.copy());
 }
 
@@ -709,7 +710,7 @@ InMemoryDatabase::open_position_list(Xapian::docid did,
 	    return new InMemoryPositionList(t->positions);
 	}
     }
-    return new InMemoryPositionList();
+    return nullptr;
 }
 
 void

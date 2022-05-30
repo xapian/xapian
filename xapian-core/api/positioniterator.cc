@@ -41,7 +41,7 @@ PositionIterator::decref()
 PositionIterator::PositionIterator(Internal *internal_) : internal(internal_)
 {
     LOGCALL_CTOR(API, "PositionIterator", internal_);
-    Assert(internal);
+    if (!internal) return;
     ++internal->_refs;
     try {
 	if (!internal->next()) {

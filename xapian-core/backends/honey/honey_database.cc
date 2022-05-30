@@ -332,7 +332,7 @@ HoneyDatabase::open_allterms(const string& prefix) const
 PositionList*
 HoneyDatabase::open_position_list(Xapian::docid did, const string& term) const
 {
-    return new HoneyPositionList(position_table, did, term);
+    return position_table.open_position_list(did, term);
 }
 
 Xapian::Document::Internal*

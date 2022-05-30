@@ -54,8 +54,10 @@ Document::Internal::ensure_terms_fetched() const
 				       TermInfo(t->get_wdf()));
 	TermInfo& term = r->second;
 	unique_ptr<PositionList> p(t->positionlist_begin());
-	while (p->next()) {
-	    term.append_position(p->get_position());
+	if (p) {
+	    while (p->next()) {
+		term.append_position(p->get_position());
+	    }
 	}
     }
 }

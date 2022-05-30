@@ -197,20 +197,6 @@ GlassPositionList::GlassPositionList(string&& data)
     set_data(pos_data);
 }
 
-GlassPositionList::GlassPositionList(const GlassTable* table,
-				     Xapian::docid did,
-				     const string& term)
-{
-    LOGCALL_CTOR(DB, "GlassPositionList", table | did | term);
-
-    if (!table->get_exact_entry(GlassPositionListTable::make_key(did, term),
-				pos_data)) {
-	pos_data.clear();
-    }
-
-    set_data(pos_data);
-}
-
 void
 GlassRePositionList::assign_data(string&& data)
 {

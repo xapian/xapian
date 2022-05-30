@@ -188,20 +188,6 @@ HoneyPositionList::HoneyPositionList(string&& data)
     set_data(pos_data);
 }
 
-HoneyPositionList::HoneyPositionList(const HoneyTable& table,
-				     Xapian::docid did,
-				     const string& term)
-{
-    LOGCALL_CTOR(DB, "HoneyPositionList", table | did | term);
-
-    if (!table.get_exact_entry(HoneyPositionTable::make_key(did, term),
-			       pos_data)) {
-	pos_data.clear();
-    }
-
-    set_data(pos_data);
-}
-
 void
 HoneyRePositionList::assign_data(string&& data)
 {
