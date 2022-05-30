@@ -249,8 +249,9 @@ class GlassPostList : public LeafPostList {
     /// Destructor.
     ~GlassPostList();
 
-    LeafPostList* open_nearby_postlist(const std::string& term_,
-				       bool need_read_pos) const;
+    bool open_nearby_postlist(const std::string& term_,
+			      bool need_read_pos,
+			      LeafPostList*& pl) const;
 
     /** Used for looking up doclens.
      *

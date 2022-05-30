@@ -1,7 +1,7 @@
 /** @file
  *  @brief Remote backend database class
  */
-/* Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2017,2018,2019,2020 Olly Betts
+/* Copyright (C) 2006-2022 Olly Betts
  * Copyright (C) 2007,2009,2010 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -27,6 +27,7 @@
 
 #include "api/msetinternal.h"
 #include "api/smallvector.h"
+#include "backends/contiguousalldocspostlist.h"
 #include "backends/inmemory/inmemory_positionlist.h"
 #include "net_postlist.h"
 #include "remote-document.h"
@@ -204,6 +205,16 @@ RemoteDatabase::open_allterms(const string& prefix) const
 PostList *
 RemoteDatabase::open_post_list(const string& term) const
 {
+    if (term.empty()) {
+	if (!cached_stats_valid) update_stats();
+	if (rare(doccount == 0))
+	    return nullptr;
+	if (doccount == lastdocid) {
+	    // The used docid range is exactly 1 to doccount inclusive.
+	    return new ContiguousAllDocsPostList(doccount);
+	}
+    }
+
     send_message(MSG_POSTLIST, term);
 
     string message;

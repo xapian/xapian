@@ -1,7 +1,7 @@
 /** @file
  * @brief Abstract base class for leaf postlists.
  */
-/* Copyright (C) 2007,2009,2011,2013,2015,2016,2017,2020 Olly Betts
+/* Copyright (C) 2007-2022 Olly Betts
  * Copyright (C) 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -125,12 +125,18 @@ class LeafPostList : public PostList {
      *			Note that open_position_list() may still be called even
      *			if need_read_pos is false.
      *
-     *  @return		The new postlist object, or NULL if not supported
+     *  @param[out] pl  If true is returned, set to a new LeafPostList object
+     *			(or may be set to NULL if the term doesn't index any
+     *			documents).  The caller takes ownership of the returned
+     *			object.
+     *
+     *  @return		true if successful (and pl has been set); false if not
      *			(in which case the caller should probably open the
      *			postlist via the database instead).
      */
-    virtual LeafPostList * open_nearby_postlist(const std::string & term_,
-						bool need_read_pos) const;
+    virtual bool open_nearby_postlist(const std::string& term_,
+				      bool need_read_pos,
+				      LeafPostList*& pl) const;
 
     virtual Xapian::termcount get_wdf_upper_bound() const = 0;
 

@@ -248,14 +248,12 @@ LocalSubMatch::open_post_list(const string& term,
 	pl = db->open_leaf_post_list(term, false);
     } else {
 	weighted = (factor != 0.0);
-	const LeafPostList * hint = qopt->get_hint_postlist();
-	if (hint)
-	    pl = hint->open_nearby_postlist(term, need_positions);
-	if (!pl) {
+	const LeafPostList* hint = qopt->get_hint_postlist();
+	if (!hint || !hint->open_nearby_postlist(term, need_positions, pl)) {
 	    pl = db->open_leaf_post_list(term, need_positions);
 	}
-	qopt->set_hint_postlist(pl);
-	if (!need_positions) {
+	if (pl) qopt->set_hint_postlist(pl);
+	if (pl && !need_positions) {
 	    bool need_wdf = (weighted || compound_weight) &&
 			    wt_factory.get_sumpart_needs_wdf_();
 	    if (!need_wdf && pl->get_termfreq() == qopt->db_size) {
@@ -275,6 +273,9 @@ LocalSubMatch::open_post_list(const string& term,
 		// so we can just hand ownership of it to the QueryOptimiser.
 		qopt->own_hint_postlist();
 		pl = db->open_leaf_post_list(string(), false);
+		// We shortcut an empty shard and avoid creating a postlist
+		// tree for it, so an alldocs postlist can't be NULL here.
+		Assert(pl);
 
 		// Set the term name so the postlist looks up the correct term
 		// frequencies - this is necessary if the weighting scheme
@@ -286,7 +287,7 @@ LocalSubMatch::open_post_list(const string& term,
 	}
     }
 
-    if (weighted) {
+    if (pl && weighted) {
 	Xapian::Weight * wt = wt_factory.clone();
 	if (!lazy_weight) {
 	    wt->init_(*total_stats, qlen, term, wqf, factor, db, pl);
@@ -313,8 +314,10 @@ LocalSubMatch::open_post_list(const string& term,
 	}
     }
 
-    Xapian::docid first = 1, last = Xapian::docid(-1);
-    pl->get_docid_range(first, last);
-    add_op(pl->get_termfreq(), first, last);
+    if (pl) {
+	Xapian::docid first = 1, last = Xapian::docid(-1);
+	pl->get_docid_range(first, last);
+	add_op(pl->get_termfreq(), first, last);
+    }
     RETURN(pl);
 }

@@ -65,8 +65,9 @@ LeafPostList::gather_position_lists(OrPositionList* orposlist)
     orposlist->add_poslist(read_position_list());
 }
 
-LeafPostList *
-LeafPostList::open_nearby_postlist(const std::string &, bool) const
+bool
+LeafPostList::open_nearby_postlist(const std::string&, bool,
+				   LeafPostList*&) const
 {
-    return NULL;
+    return false;
 }

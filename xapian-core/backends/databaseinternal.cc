@@ -1,7 +1,7 @@
 /** @file
  * @brief Virtual base class for Database internals
  */
-/* Copyright 2003,2004,2006,2007,2008,2009,2011,2014,2015,2017,2019 Olly Betts
+/* Copyright 2003-2022 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -198,6 +198,10 @@ Database::Internal::delete_document(const string& unique_term)
     }
 
     unique_ptr<PostList> pl(open_post_list(unique_term));
+    if (!pl.get()) {
+	// unique_term doesn't index any documents.
+	return;
+    }
 
     // We want this operation to be atomic if possible, so if we aren't in a
     // transaction and the backend supports transactions, temporarily enter an
@@ -239,8 +243,8 @@ Database::Internal::replace_document(const string & unique_term,
     }
 
     unique_ptr<PostList> pl(open_post_list(unique_term));
-    pl->next();
-    if (pl->at_end()) {
+    if (!pl.get() || (pl->next(), pl->at_end())) {
+	// unique_term doesn't index any documents.
 	return add_document(document);
     }
     Xapian::docid did = pl->get_docid();

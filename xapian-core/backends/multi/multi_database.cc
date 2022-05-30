@@ -1,7 +1,7 @@
 /** @file
  * @brief Sharded database backend
  */
-/* Copyright (C) 2017,2019,2020 Olly Betts
+/* Copyright (C) 2017,2019,2020,2022 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -638,10 +638,9 @@ MultiDatabase::replace_document(const string& term, const Xapian::Document& doc)
 {
     auto n_shards = shards.size();
     unique_ptr<PostList> pl(open_post_list(term));
-    pl->next();
-    // If no unique_term in the database, this is just an add_document().
-    if (pl->at_end()) {
-	// Which database will the next never used docid be in?
+    if (!pl.get() || (pl->next(), pl->at_end())) {
+	// unique_term not in the database, so this is just an add_document().
+	// Calculate which shard the next never used docid maps to.
 	Xapian::docid did = get_lastdocid() + 1;
 	if (rare(did == 0)) {
 	    throw Xapian::DatabaseError("Run out of docids - you'll have to "

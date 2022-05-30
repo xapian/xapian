@@ -218,6 +218,8 @@ Database::compact_(const string * output_ptr, int fd, unsigned flags,
 
 #ifdef XAPIAN_ASSERTIONS
 	    PostList* pl = shard->open_post_list(string());
+	    // We don't do this for an empty shard.
+	    Assert(pl);
 	    pl->next();
 	    // This test should never fail, since shard->get_doccount() is
 	    // non-zero!

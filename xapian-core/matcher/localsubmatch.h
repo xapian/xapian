@@ -116,15 +116,24 @@ class LocalSubMatch {
     }
 
     Estimates resolve() {
-	if (rare(!estimate_stack))
-	    return Estimates(0, 0, 0);
+	Estimates result;
+	if (rare(!estimate_stack)) {
+	    result = Estimates(0, 0, 0);
+	    return result;
+	}
 	auto db_size = db->get_doccount();
 	// We shortcut an empty shard and avoid creating a postlist tree for
 	// it so the estimate stack should be empty.
 	Assert(db_size);
 	Xapian::docid db_first, db_last;
 	db->get_used_docid_range(db_first, db_last);
-	return estimate_stack->resolve(db_size, db_first, db_last);
+	result = estimate_stack->resolve(db_size, db_first, db_last);
+	// After resolve(), estimate_stack should contain exactly one entry.
+	// If not, that probably suggests something went wrong while building
+	// it, or perhaps while resolving it.
+	Assert(estimate_stack);
+	Assert(!estimate_stack->get_next());
+	return result;
     }
 
     /** Fetch and collate statistics.

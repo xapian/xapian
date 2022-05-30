@@ -1,7 +1,7 @@
 /** @file
  * @brief Subclass of HoneyTable which holds postlists.
  */
-/* Copyright (C) 2007,2008,2009,2010,2013,2014,2015,2016,2017,2018,2019 Olly Betts
+/* Copyright (C) 2007-2022 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -44,10 +44,7 @@ HoneyPostListTable::open_post_list(const HoneyDatabase* db,
     // for terms which don't exist.
     unique_ptr<HoneyCursor> cursor(cursor_get());
     if (!cursor->find_exact(Honey::make_postingchunk_key(term))) {
-	// FIXME: Return NULL here and handle that in Query::Internal
-	// postlist() methods as we build the PostList tree.
-	// return NULL;
-	return new HoneyPostList(db, term, NULL);
+	return nullptr;
     }
 
     if (need_read_pos)

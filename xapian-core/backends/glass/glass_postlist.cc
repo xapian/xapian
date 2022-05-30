@@ -2,7 +2,7 @@
  * @brief Postlists in a glass database
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2007,2008,2009,2011,2013,2014,2015,2017,2019 Olly Betts
+ * Copyright 2002-2022 Olly Betts
  * Copyright 2007,2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -757,17 +757,23 @@ GlassPostList::~GlassPostList()
     delete positionlist;
 }
 
-LeafPostList *
+bool
 GlassPostList::open_nearby_postlist(const std::string & term_,
-				    bool need_read_pos) const
+				    bool need_read_pos,
+				    LeafPostList*& pl) const
 {
-    LOGCALL(DB, LeafPostList *, "GlassPostList::open_nearby_postlist", term_ | need_read_pos);
+    LOGCALL(DB, bool, "GlassPostList::open_nearby_postlist", term_ | need_read_pos | Literal("LeafPostList*&"));
     (void)need_read_pos;
     if (term_.empty())
-	RETURN(NULL);
+	RETURN(false);
     if (!this_db.get() || this_db->postlist_table.is_writable())
-	RETURN(NULL);
-    RETURN(new GlassPostList(this_db, term_, cursor->clone()));
+	RETURN(false);
+    pl = new GlassPostList(this_db, term_, cursor->clone());
+    if (pl && pl->get_termfreq() == 0) {
+	delete pl;
+	pl = nullptr;
+    }
+    RETURN(true);
 }
 
 bool

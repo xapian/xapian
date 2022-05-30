@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2014,2017,2019 Olly Betts
+ * Copyright 2002-2022 Olly Betts
  * Copyright 2006,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -28,6 +28,7 @@
 
 #include "debuglog.h"
 
+#include "backends/contiguousalldocspostlist.h"
 #include "expand/expandweight.h"
 #include "inmemory_document.h"
 #include "inmemory_alltermslist.h"
@@ -407,7 +408,7 @@ InMemoryDatabase::InMemoryDatabase()
       totdocs(0), totlen(0), positions_present(false), closed(false)
 {
     // We keep an empty entry in postlists for convenience of implementing
-    // allterms iteration and returning a PostList for an absent term.
+    // allterms iteration.
     postlists.insert(make_pair(string(), InMemoryTerm()));
 }
 
@@ -450,14 +451,20 @@ InMemoryDatabase::open_leaf_post_list(const string& term, bool need_read_pos) co
     if (closed) InMemoryDatabase::throw_database_closed();
     if (term.empty()) {
 	Assert(!need_read_pos);
+	Xapian::doccount doccount = totdocs;
+	if (rare(doccount == 0)) {
+	    return nullptr;
+	}
+	if (doccount == termlists.size()) {
+	    // The used docid range is exactly 1 to doccount inclusive.
+	    return new ContiguousAllDocsPostList(doccount);
+	}
 	intrusive_ptr<const InMemoryDatabase> ptrtothis(this);
 	return new InMemoryAllDocsPostList(ptrtothis);
     }
     map<string, InMemoryTerm>::const_iterator i = postlists.find(term);
     if (i == postlists.end() || i->second.term_freq == 0) {
-	i = postlists.begin();
-	// Check that our dummy entry for string() is present.
-	Assert(i->first.empty());
+	return nullptr;
     }
     intrusive_ptr<const InMemoryDatabase> ptrtothis(this);
     return new InMemoryPostList(ptrtothis, i->second, term);

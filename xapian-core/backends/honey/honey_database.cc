@@ -1,7 +1,7 @@
 /** @file
  * @brief Honey backend database class
  */
-/* Copyright 2015,2017,2018 Olly Betts
+/* Copyright 2015,2017,2018,2022 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -30,6 +30,7 @@
 #include "honey_valuelist.h"
 
 #include "backends/backends.h"
+#include "backends/contiguousalldocspostlist.h"
 #include "backends/leafpostlist.h"
 #include "xapian/error.h"
 
@@ -271,7 +272,15 @@ HoneyDatabase::open_leaf_post_list(const string& term, bool need_read_pos) const
 {
     if (term.empty()) {
 	Assert(!need_read_pos);
-	return new HoneyAllDocsPostList(this, get_doccount());
+	Xapian::doccount doccount = get_doccount();
+	if (rare(doccount == 0)) {
+	    return nullptr;
+	}
+	if (doccount == get_lastdocid()) {
+	    // The used docid range is exactly 1 to doccount inclusive.
+	    return new ContiguousAllDocsPostList(doccount);
+	}
+	return new HoneyAllDocsPostList(this, doccount);
     }
 
     return postlist_table.open_post_list(this, term, need_read_pos);

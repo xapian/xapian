@@ -118,30 +118,27 @@ HoneyPostList::~HoneyPostList()
     delete cursor;
 }
 
-LeafPostList*
-HoneyPostList::open_nearby_postlist(const string& term_,
-				    bool need_read_pos) const
+bool
+HoneyPostList::open_nearby_postlist(const std::string& term_,
+				    bool need_read_pos,
+				    LeafPostList*& pl) const
 {
     Assert(!term_.empty());
-    if (!cursor) return NULL;
-    // FIXME: Once Honey supports writing, we need to return NULL here if the
+    if (!cursor) return false;
+    // FIXME: Once Honey supports writing, we need to return false here if the
     // DB is writable and has uncommitted modifications.
 
     unique_ptr<HoneyCursor> new_cursor(new HoneyCursor(*cursor));
     if (!new_cursor->find_exact(Honey::make_postingchunk_key(term_))) {
-	// FIXME: Return NULL here and handle that in Query::Internal
-	// postlist() methods as we build the PostList tree.
-	// We also need to distinguish this case from "open_nearby_postlist()
-	// not supported" though.
-	// return NULL;
-	//
-	// No need to consider need_read_pos for an empty posting list.
-	return new HoneyPostList(db, term_, NULL);
+	pl = nullptr;
+	return true;
     }
 
     if (need_read_pos)
-	return new HoneyPosPostList(db, term_, new_cursor.release());
-    return new HoneyPostList(db, term_, new_cursor.release());
+	pl = new HoneyPosPostList(db, term_, new_cursor.release());
+    else
+	pl = new HoneyPostList(db, term_, new_cursor.release());
+    return true;
 }
 
 Xapian::docid

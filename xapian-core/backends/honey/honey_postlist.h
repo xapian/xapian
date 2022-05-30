@@ -190,8 +190,9 @@ class HoneyPostList : public LeafPostList {
 
     ~HoneyPostList();
 
-    LeafPostList* open_nearby_postlist(const std::string& term_,
-				       bool need_read_pos) const;
+    bool open_nearby_postlist(const std::string& term_,
+			      bool need_read_pos,
+			      LeafPostList*& pl) const;
 
     Xapian::docid get_docid() const;
 

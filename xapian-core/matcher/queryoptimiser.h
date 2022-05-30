@@ -161,6 +161,7 @@ class QueryOptimiser {
     void own_hint_postlist() { hint_owned = true; }
 
     void destroy_postlist(PostList* pl) {
+	if (!pl) return;
 	if (pl == static_cast<PostList*>(hint)) {
 	    hint_owned = true;
 	} else {

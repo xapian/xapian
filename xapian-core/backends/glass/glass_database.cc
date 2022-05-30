@@ -4,7 +4,7 @@
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Hein Ragas
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2019 Olly Betts
+ * Copyright 2002-2022 Olly Betts
  * Copyright 2006,2008 Lemur Consulting Ltd
  * Copyright 2009 Richard Boulton
  * Copyright 2009 Kan-Ru Chen
@@ -856,13 +856,21 @@ GlassDatabase::open_leaf_post_list(const string& term, bool need_read_pos) const
     if (term.empty()) {
 	Assert(!need_read_pos);
 	Xapian::doccount doccount = get_doccount();
+	if (rare(doccount == 0)) {
+	    RETURN(nullptr);
+	}
 	if (version_file.get_last_docid() == doccount) {
 	    RETURN(new ContiguousAllDocsPostList(doccount));
 	}
 	RETURN(new GlassAllDocsPostList(ptrtothis, doccount));
     }
 
-    RETURN(new GlassPostList(ptrtothis, term, true));
+    auto pl = new GlassPostList(ptrtothis, term, true);
+    if (pl->get_termfreq() == 0) {
+	delete pl;
+	pl = nullptr;
+    }
+    RETURN(pl);
 }
 
 ValueList *
@@ -1563,6 +1571,9 @@ GlassWritableDatabase::open_leaf_post_list(const string& term,
     if (term.empty()) {
 	Assert(!need_read_pos);
 	Xapian::doccount doccount = get_doccount();
+	if (rare(doccount == 0)) {
+	    RETURN(nullptr);
+	}
 	if (version_file.get_last_docid() == doccount) {
 	    RETURN(new ContiguousAllDocsPostList(doccount));
 	}
@@ -1573,7 +1584,13 @@ GlassWritableDatabase::open_leaf_post_list(const string& term,
     // Flush any buffered changes for this term's postlist so we can just
     // iterate from the flushed state.
     inverter.flush_post_list(postlist_table, term);
-    RETURN(new GlassPostList(ptrtothis, term, true));
+
+    auto pl = new GlassPostList(ptrtothis, term, true);
+    if (pl->get_termfreq() == 0) {
+	delete pl;
+	pl = nullptr;
+    }
+    RETURN(pl);
 }
 
 ValueList *
