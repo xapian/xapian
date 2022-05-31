@@ -638,7 +638,7 @@ MultiDatabase::replace_document(const string& term, const Xapian::Document& doc)
 {
     auto n_shards = shards.size();
     unique_ptr<PostList> pl(open_post_list(term));
-    if (!pl.get() || (pl->next(), pl->at_end())) {
+    if (!pl || (pl->next(), pl->at_end())) {
 	// unique_term not in the database, so this is just an add_document().
 	// Calculate which shard the next never used docid maps to.
 	Xapian::docid did = get_lastdocid() + 1;

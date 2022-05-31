@@ -271,7 +271,7 @@ Enquire::Internal::get_mset(doccount first,
     }
 
     // Lazily initialise weight to its default if necessary.
-    if (!weight.get())
+    if (!weight)
 	weight.reset(new BM25Weight);
 
     // Lazily initialise query_length if it wasn't explicitly specified.

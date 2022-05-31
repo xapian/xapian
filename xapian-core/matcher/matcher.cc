@@ -344,7 +344,7 @@ Matcher::get_local_mset(Xapian::doccount first,
     try {
 	bool all_null = true;
 	for (size_t i = 0; i != locals.size(); ++i) {
-	    if (!locals[i].get()) {
+	    if (!locals[i]) {
 		postlists.push_back(NULL);
 		continue;
 	    }
@@ -643,7 +643,7 @@ Matcher::get_mset(Xapian::doccount first,
 	    merged_mset.internal->merge_stats(remote_mset.internal.get(),
 					      collapse_max != 0);
 	    auto& merged_stats = merged_mset.internal->stats;
-	    if (!merged_stats.get()) {
+	    if (!merged_stats) {
 		merged_stats = std::move(remote_mset.internal->stats);
 	    } else {
 		merged_stats->merge(*(remote_mset.internal->stats));

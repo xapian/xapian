@@ -198,7 +198,7 @@ Database::Internal::delete_document(const string& unique_term)
     }
 
     unique_ptr<PostList> pl(open_post_list(unique_term));
-    if (!pl.get()) {
+    if (!pl) {
 	// unique_term doesn't index any documents.
 	return;
     }
@@ -243,7 +243,7 @@ Database::Internal::replace_document(const string & unique_term,
     }
 
     unique_ptr<PostList> pl(open_post_list(unique_term));
-    if (!pl.get() || (pl->next(), pl->at_end())) {
+    if (!pl || (pl->next(), pl->at_end())) {
 	// unique_term doesn't index any documents.
 	return add_document(document);
     }

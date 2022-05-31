@@ -410,7 +410,7 @@ Database::get_spelling_suggestion(const string& word,
     max_edit_distance = min(max_edit_distance, unsigned(word.size() - 1));
 
     unique_ptr<TermList> merger(internal->open_spelling_termlist(word));
-    if (!merger.get())
+    if (!merger)
 	return string();
 
     EditDistanceCalculator edcalc(word);

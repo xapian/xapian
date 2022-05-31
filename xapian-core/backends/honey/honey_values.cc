@@ -143,9 +143,9 @@ HoneyValueManager::get_chunk_containing_did(Xapian::valueno slot,
 					    string& chunk) const
 {
     LOGCALL(DB, Xapian::docid, "HoneyValueManager::get_chunk_containing_did", slot | did | chunk);
-    if (!cursor.get())
+    if (!cursor)
 	cursor.reset(postlist_table.cursor_get());
-    if (!cursor.get()) RETURN(0);
+    if (!cursor) RETURN(0);
 
     bool exact = cursor->find_entry_ge(make_valuechunk_key(slot, did));
     if (!exact) {

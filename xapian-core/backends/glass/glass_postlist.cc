@@ -194,7 +194,7 @@ GlassPostListTable::get_freqs(const string & term,
 Xapian::termcount
 GlassPostListTable::get_doclength(Xapian::docid did,
 				  intrusive_ptr<const GlassDatabase> db) const {
-    if (!doclen_pl.get()) {
+    if (!doclen_pl) {
 	// Don't keep a reference back to the database, since this
 	// would make a reference loop.
 	doclen_pl.reset(new GlassPostList(db, string(), false));
@@ -208,7 +208,7 @@ bool
 GlassPostListTable::document_exists(Xapian::docid did,
 				    intrusive_ptr<const GlassDatabase> db) const
 {
-    if (!doclen_pl.get()) {
+    if (!doclen_pl) {
 	// Don't keep a reference back to the database, since this
 	// would make a reference loop.
 	doclen_pl.reset(new GlassPostList(db, string(), false));
