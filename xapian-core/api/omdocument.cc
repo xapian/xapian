@@ -516,6 +516,8 @@ Xapian::Document::Internal::remove_posting(const string & tname,
     map<string, OmDocumentTerm>::iterator i;
     i = terms.find(tname);
     if (i == terms.end() || i->second.is_deleted()) {
+	if (tname.empty())
+	    throw Xapian::InvalidArgumentError("Empty termnames are invalid");
 	throw Xapian::InvalidArgumentError("Term '" + tname +
 		"' is not present in document, in "
 		"Xapian::Document::Internal::remove_posting()");
@@ -535,6 +537,8 @@ Xapian::Document::Internal::remove_postings(const string& term,
 
     auto i = terms.find(term);
     if (i == terms.end() || i->second.is_deleted()) {
+	if (term.empty())
+	    throw Xapian::InvalidArgumentError("Empty termnames are invalid");
 	throw Xapian::InvalidArgumentError("Term '" + term +
 		"' is not present in document, in "
 		"Xapian::Document::Internal::remove_postings()");
@@ -561,6 +565,8 @@ Xapian::Document::Internal::remove_term(const string & tname)
     map<string, OmDocumentTerm>::iterator i;
     i = terms.find(tname);
     if (i == terms.end() || i->second.is_deleted()) {
+	if (tname.empty())
+	    throw Xapian::InvalidArgumentError("Empty termnames are invalid");
 	throw Xapian::InvalidArgumentError("Term '" + tname +
 		"' is not present in document, in "
 		"Xapian::Document::Internal::remove_term()");
