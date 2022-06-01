@@ -512,7 +512,7 @@ Database::Internal::reconstruct_text(Xapian::docid did,
     vector<unique_ptr<Pos>> heap;
 
     unique_ptr<TermList> termlist(open_term_list_direct(did));
-    if (usual(termlist.get())) {
+    if (usual(termlist)) {
 	if (prefix.empty()) {
 	    termlist->next();
 	    reconstruct_open_poslists(termlist.get(), start_pos, end_pos,

@@ -103,7 +103,7 @@ ESet::Internal::expand(Xapian::termcount max_esize,
     Assert(items.empty());
 
     unique_ptr<TermList> tree(build_termlist_tree(db, rset));
-    Assert(tree.get());
+    Assert(tree);
 
     bool is_heap = false;
     while (true) {

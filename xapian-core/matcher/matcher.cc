@@ -414,7 +414,7 @@ Matcher::get_local_mset(Xapian::doccount first,
 	Xapian::doccount matches_estimated = 0;
 	Xapian::doccount matches_upper_bound = 0;
 	for (size_t i = 0; i != locals.size(); ++i) {
-	    if (locals[i].get()) {
+	    if (locals[i]) {
 		Estimates e = locals[i]->resolve();
 		matches_lower_bound += e.min;
 		matches_estimated += e.est;
@@ -557,7 +557,7 @@ Matcher::get_mset(Xapian::doccount first,
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
     if (locals.empty() && remotes.size() == 1) {
 	// Short cut for a single remote database.
-	Assert(remotes[0].get());
+	Assert(remotes[0]);
 	remotes[0]->start_match(first, maxitems, check_at_least, sorter,
 				stats);
 	return remotes[0]->get_mset(matchspies);
@@ -573,7 +573,7 @@ Matcher::get_mset(Xapian::doccount first,
 
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
     for (auto&& submatch : remotes) {
-	Assert(submatch.get());
+	Assert(submatch);
 	// We need to fetch the first "first" results too, as merging may push
 	// those down into the part of the merged MSet we care about.
 	Xapian::doccount remote_maxitems = first + maxitems;
@@ -592,7 +592,7 @@ Matcher::get_mset(Xapian::doccount first,
     Xapian::MSet local_mset;
     if (!locals.empty()) {
 	for (auto&& submatch : locals) {
-	    if (submatch.get())
+	    if (submatch)
 		submatch->start_match(stats);
 	}
 

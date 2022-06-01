@@ -531,7 +531,7 @@ class ProtoMSet {
 	    matches_estimated = 0;
 	    matches_upper_bound = 0;
 	    for (size_t i = 0; i != locals.size(); ++i) {
-		if (locals[i].get()) {
+		if (locals[i]) {
 		    Estimates e = locals[i]->resolve();
 		    matches_lower_bound += e.min;
 		    matches_estimated += e.est;
