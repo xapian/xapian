@@ -306,7 +306,7 @@ get_most_frequent_items(vector<StringAndFrequency> & result,
 
 void
 ValueCountMatchSpy::operator()(const Document &doc, double) {
-    Assert(internal.get());
+    Assert(internal);
     ++(internal->total);
     string val(doc.get_value(internal->slot));
     if (!val.empty()) ++(internal->values[val]);
@@ -315,14 +315,14 @@ ValueCountMatchSpy::operator()(const Document &doc, double) {
 TermIterator
 ValueCountMatchSpy::values_begin() const
 {
-    Assert(internal.get());
+    Assert(internal);
     return Xapian::TermIterator(new ValueCountTermList(internal.get()));
 }
 
 TermIterator
 ValueCountMatchSpy::top_values_begin(size_t maxvalues) const
 {
-    Assert(internal.get());
+    Assert(internal);
     unique_ptr<StringAndFreqTermList> termlist(nullptr);
     if (usual(maxvalues > 0)) {
 	termlist.reset(new StringAndFreqTermList);
@@ -334,7 +334,7 @@ ValueCountMatchSpy::top_values_begin(size_t maxvalues) const
 
 MatchSpy *
 ValueCountMatchSpy::clone() const {
-    Assert(internal.get());
+    Assert(internal);
     return new ValueCountMatchSpy(internal->slot);
 }
 
@@ -345,7 +345,7 @@ ValueCountMatchSpy::name() const {
 
 string
 ValueCountMatchSpy::serialise() const {
-    Assert(internal.get());
+    Assert(internal);
     string result;
     pack_uint_last(result, internal->slot);
     return result;
@@ -368,7 +368,7 @@ ValueCountMatchSpy::unserialise(const string & s, const Registry &) const
 string
 ValueCountMatchSpy::serialise_results() const {
     LOGCALL(REMOTE, string, "ValueCountMatchSpy::serialise_results", NO_ARGS);
-    Assert(internal.get());
+    Assert(internal);
     string result;
     pack_uint(result, internal->total);
     for (auto&& item : internal->values) {
@@ -381,7 +381,7 @@ ValueCountMatchSpy::serialise_results() const {
 void
 ValueCountMatchSpy::merge_results(const string & s) {
     LOGCALL_VOID(REMOTE, "ValueCountMatchSpy::merge_results", s);
-    Assert(internal.get());
+    Assert(internal);
     const char * p = s.data();
     const char * end = p + s.size();
 
@@ -405,7 +405,7 @@ ValueCountMatchSpy::merge_results(const string & s) {
 string
 ValueCountMatchSpy::get_description() const {
     string d = "ValueCountMatchSpy(";
-    if (internal.get()) {
+    if (internal) {
 	d += str(internal->total);
 	d += " docs seen, looking in ";
 	d += str(internal->values.size());

@@ -199,7 +199,7 @@ Matcher::Matcher(const Xapian::Database& db_,
 
     Xapian::doccount n_shards = db.internal->size();
     vector<Xapian::RSet> subrsets;
-    if (rset && rset->internal.get()) {
+    if (rset && rset->internal) {
 	rset->internal->shard(n_shards, subrsets);
     } else {
 	subrsets.resize(n_shards);

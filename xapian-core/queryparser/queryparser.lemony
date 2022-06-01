@@ -272,7 +272,7 @@ class State {
     }
 
     bool is_stopword(const Term *term) const {
-	return qpi->stopper.get() && (*qpi->stopper)(term->name);
+	return qpi->stopper && (*qpi->stopper)(term->name);
     }
 
     Database get_database() const {
@@ -393,7 +393,7 @@ Term::get_query_with_synonyms() const
     // Handle single-word synonyms with each prefix.
     const auto& prefixes = field_info->prefixes;
     if (prefixes.empty()) {
-	Assert(field_info->proc.get());
+	Assert(field_info->proc);
 	return (*field_info->proc)(name);
     }
 
@@ -480,7 +480,7 @@ Term::get_query() const
 {
     const auto& prefixes = field_info->prefixes;
     if (prefixes.empty()) {
-	Assert(field_info->proc.get());
+	Assert(field_info->proc);
 	return (*field_info->proc)(name);
     }
     auto piter = prefixes.begin();
@@ -700,7 +700,7 @@ QueryParser::Internal::add_prefix(const string &field, const string &prefix)
 	if (p->second.type != NON_BOOLEAN) {
 	    throw Xapian::InvalidOperationError("Can't use add_prefix() and add_boolean_prefix() on the same field name, or add_boolean_prefix() with different values of the 'exclusive' parameter");
 	}
-	if (p->second.proc.get())
+	if (p->second.proc)
 	    throw Xapian::FeatureUnavailableError("Mixing FieldProcessor objects and string prefixes currently not supported");
 	// Only add if it's not already there as duplicate entries just result
 	// in redundant query terms.  This is a linear scan so makes calling
@@ -750,7 +750,7 @@ QueryParser::Internal::add_boolean_prefix(const string &field,
 	if (p->second.type != type) {
 	    throw Xapian::InvalidOperationError("Can't use add_prefix() and add_boolean_prefix() on the same field name, or add_boolean_prefix() with different values of the 'exclusive' parameter"); // FIXME
 	}
-	if (p->second.proc.get())
+	if (p->second.proc)
 	    throw Xapian::FeatureUnavailableError("Mixing FieldProcessor objects and string prefixes currently not supported");
 	// Only add if it's not already there as duplicate entries just result
 	// in redundant query terms.  This is a linear scan so makes calling

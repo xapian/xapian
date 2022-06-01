@@ -610,7 +610,7 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 
     /** Check if this query is Xapian::Query::MatchNothing. */
     bool empty() const noexcept {
-	return internal.get() == 0;
+	return !internal;
     }
 
     /** Serialise this object into a string. */
@@ -912,7 +912,7 @@ Query::operator&=(const Query & o)
 	// q &= empty_query sets q to empty_query.
 	*this = o;
     } else if (this != &o &&
-	       internal.get() &&
+	       internal &&
 	       internal->_refs == 1 &&
 	       get_type() == OP_AND) {
 	// Appending a subquery to an existing AND.
@@ -929,7 +929,7 @@ Query::operator|=(const Query & o)
     if (o.empty()) {
 	// q |= empty_query is a no-op.
     } else if (this != &o &&
-	       internal.get() &&
+	       internal &&
 	       internal->_refs == 1 &&
 	       get_type() == OP_OR) {
 	// Appending a subquery to an existing OR.
@@ -948,7 +948,7 @@ Query::operator^=(const Query & o)
     } else if (internal.get() == o.internal.get()) {
 	// q ^= q gives MatchNothing.
 	internal = NULL;
-    } else if (internal.get() &&
+    } else if (internal &&
 	       internal->_refs == 1 &&
 	       get_type() == OP_XOR) {
 	// Appending a subquery to an existing XOR.

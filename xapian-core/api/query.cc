@@ -68,7 +68,7 @@ Query::Query(op op_, const Xapian::Query & subquery, double factor)
 	throw Xapian::InvalidArgumentError("op must be OP_SCALE_WEIGHT");
     // If the subquery is MatchNothing then generate Query() which matches
     // nothing.
-    if (!subquery.internal.get()) return;
+    if (!subquery.internal) return;
     switch (subquery.internal->get_type()) {
 	case OP_VALUE_RANGE:
 	case OP_VALUE_GE:
@@ -197,7 +197,7 @@ Query::Query(op op_,
 const TermIterator
 Query::get_terms_begin() const
 {
-    if (!internal.get())
+    if (!internal)
 	return TermIterator();
 
     vector<pair<Xapian::termpos, string>> terms;
@@ -222,7 +222,7 @@ Query::get_terms_begin() const
 const TermIterator
 Query::get_unique_terms_begin() const
 {
-    if (!internal.get())
+    if (!internal)
 	return TermIterator();
 
     vector<pair<Xapian::termpos, string>> terms;
@@ -249,14 +249,14 @@ Query::get_unique_terms_begin() const
 Xapian::termcount
 Query::get_length() const noexcept
 {
-    return (internal.get() ? internal->get_length() : 0);
+    return (internal ? internal->get_length() : 0);
 }
 
 string
 Query::serialise() const
 {
     string result;
-    if (internal.get())
+    if (internal)
 	internal->serialise(result);
     return result;
 }
@@ -274,7 +274,7 @@ Query::unserialise(const string & s, const Registry & reg)
 Xapian::Query::op
 Query::get_type() const noexcept
 {
-    if (!internal.get())
+    if (!internal)
 	return Xapian::Query::LEAF_MATCH_NOTHING;
     return internal->get_type();
 }
@@ -282,7 +282,7 @@ Query::get_type() const noexcept
 size_t
 Query::get_num_subqueries() const noexcept
 {
-    return internal.get() ? internal->get_num_subqueries() : 0;
+    return internal ? internal->get_num_subqueries() : 0;
 }
 
 const Query
@@ -307,7 +307,7 @@ string
 Query::get_description() const
 {
     string desc = "Query(";
-    if (internal.get())
+    if (internal)
 	desc += internal->get_description();
     desc += ")";
     return desc;

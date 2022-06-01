@@ -25,6 +25,7 @@
 
 #include "net/serialise.h"
 #include "matcher/msetcmp.h"
+#include "omassert.h"
 #include "pack.h"
 #include "roundestimate.h"
 #include "serialise-double.h"
@@ -89,7 +90,7 @@ MSet::get_termfreq(const std::string& term) const
 	return termfreq;
     }
 
-    if (rare(internal->enquire.get() == NULL)) {
+    if (rare(!internal->enquire)) {
 	// Consistent with get_termfreq() on an empty database which always
 	// returns 0.
 	return 0;
@@ -176,7 +177,6 @@ MSet::get_max_possible() const
 Xapian::doccount
 MSet::size() const
 {
-    Assert(internal.get());
     return internal->items.size();
 }
 
@@ -210,14 +210,14 @@ MSet::Internal::get_document(Xapian::doccount index) const
 	msg += str(items.size());
 	throw Xapian::RangeError(msg);
     }
-    Assert(enquire.get());
+    Assert(enquire);
     return enquire->get_document(items[index].get_docid());
 }
 
 void
 MSet::Internal::fetch(Xapian::doccount first_, Xapian::doccount last) const
 {
-    if (items.empty() || enquire.get() == NULL) {
+    if (items.empty() || !enquire) {
 	return;
     }
     if (last > items.size() - 1) {

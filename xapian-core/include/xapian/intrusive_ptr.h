@@ -5,7 +5,7 @@
 //  Based on Boost's intrusive_ptr.hpp
 //
 //  Copyright (c) 2001, 2002 Peter Dimov
-//  Copyright (c) 2011,2013,2014,2015,2017 Olly Betts
+//  Copyright (c) 2011,2013,2014,2015,2017,2022 Olly Betts
 //
 // Distributed under the Boost Software License, Version 1.0.
 //
@@ -173,6 +173,11 @@ public:
         rhs.px = tmp;
     }
 
+    explicit operator bool() const
+    {
+	return px != nullptr;
+    }
+
 private:
 
     T * px;
@@ -304,6 +309,11 @@ public:
         px = rhs.px;
         rhs.px = tmp;
     }
+
+    // No operator bool() here - the held pointer should only be NULL if this
+    // pointer has been moved from, and in that case it's not valid to use its
+    // value so it seems more helpful to error on attempts to check if the
+    // pointer is NULL.
 
 private:
 
@@ -501,6 +511,11 @@ public:
 	bool tmp2 = counting;
 	counting = rhs.counting;
 	rhs.counting = tmp2;
+    }
+
+    explicit operator bool() const
+    {
+	return px != nullptr;
     }
 
 private:

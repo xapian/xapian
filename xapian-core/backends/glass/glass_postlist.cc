@@ -766,7 +766,7 @@ GlassPostList::open_nearby_postlist(const std::string & term_,
     (void)need_read_pos;
     if (term_.empty())
 	RETURN(false);
-    if (!this_db.get() || this_db->postlist_table.is_writable())
+    if (!this_db || this_db->postlist_table.is_writable())
 	RETURN(false);
     pl = new GlassPostList(this_db, term_, cursor->clone());
     if (pl && pl->get_termfreq() == 0) {
@@ -843,7 +843,7 @@ PositionList *
 GlassPostList::read_position_list()
 {
     LOGCALL(DB, PositionList *, "GlassPostList::read_position_list", NO_ARGS);
-    Assert(this_db.get());
+    Assert(this_db);
     if (rare(positionlist == NULL)) {
 	// Lazily create positionlist to avoid the size cost for the common
 	// case where we don't want positional data.
@@ -857,7 +857,7 @@ PositionList *
 GlassPostList::open_position_list() const
 {
     LOGCALL(DB, PositionList *, "GlassPostList::open_position_list", NO_ARGS);
-    Assert(this_db.get());
+    Assert(this_db);
     RETURN(this_db->open_position_list(did, term));
 }
 

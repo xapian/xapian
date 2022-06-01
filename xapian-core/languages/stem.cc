@@ -141,7 +141,7 @@ Stem::Stem(const std::string& language, bool fallback)
 string
 Stem::operator()(const std::string &word) const
 {
-    if (!internal.get() || word.empty()) return word;
+    if (!internal || word.empty()) return word;
     return internal->operator()(word);
 }
 
@@ -149,7 +149,7 @@ string
 Stem::get_description() const
 {
     string desc = "Xapian::Stem(";
-    if (internal.get()) {
+    if (internal) {
 	desc += internal->get_description();
 	desc += ')';
     } else {

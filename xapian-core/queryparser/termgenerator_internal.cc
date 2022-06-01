@@ -293,7 +293,7 @@ TermGenerator::Internal::index_text(Utf8Iterator itor, termcount wdf_inc,
     }
 
     stop_strategy current_stop_mode;
-    if (!stopper.get()) {
+    if (!stopper) {
 	current_stop_mode = TermGenerator::STOP_NONE;
     } else {
 	current_stop_mode = stop_mode;
@@ -836,7 +836,7 @@ MSet::Internal::snippet(const string & text,
     }
 
     Xapian::Query query;
-    if (enquire.get()) {
+    if (enquire) {
 	query = enquire->query;
     }
     SnipPipe snip(length);

@@ -160,7 +160,7 @@ class XAPIAN_VISIBILITY_DEFAULT Stem {
     std::string operator()(const std::string &word) const;
 
     /// Return true if this is a no-op stemmer.
-    bool is_none() const { return !internal.get(); }
+    bool is_none() const { return !internal; }
 
     /// Return a string describing this object.
     std::string get_description() const;

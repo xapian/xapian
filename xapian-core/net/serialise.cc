@@ -107,7 +107,7 @@ string
 serialise_rset(const Xapian::RSet &rset)
 {
     string result;
-    if (rset.internal.get()) {
+    if (rset.internal) {
 	Xapian::docid lastdid = 0;
 	for (Xapian::docid did : rset.internal->docs) {
 	    pack_uint(result, did - lastdid - 1);

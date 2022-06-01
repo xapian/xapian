@@ -94,7 +94,7 @@ Weight::Internal::accumulate_stats(const Xapian::Database::Internal &subdb,
 	tf.collfreq += sub_cf;
     }
 
-    if (!rset.internal.get())
+    if (!rset.internal)
 	return;
 
     for (Xapian::docid did : rset.internal->docs) {

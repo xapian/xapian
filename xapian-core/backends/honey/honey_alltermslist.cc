@@ -95,7 +95,7 @@ HoneyAllTermsList::next()
     termfreq = 0;
 
     if (rare(!cursor)) {
-	Assert(database.get());
+	Assert(database);
 	cursor = database->postlist_table.cursor_get();
 	Assert(cursor); // The postlist table isn't optional.
 
@@ -160,7 +160,7 @@ HoneyAllTermsList::skip_to(const string& term)
     termfreq = 0;
 
     if (rare(!cursor)) {
-	if (!database.get()) {
+	if (!database) {
 	    // skip_to() once at_end() is allowed but a no-op.
 	    RETURN(NULL);
 	}
@@ -212,6 +212,6 @@ HoneyAllTermsList::at_end() const
 {
     LOGCALL(DB, bool, "HoneyAllTermsList::at_end", NO_ARGS);
     // Either next() or skip_to() should be called before at_end().
-    Assert(!(cursor == NULL && database.get() != NULL));
+    Assert(!(cursor == NULL && database));
     RETURN(cursor == NULL);
 }

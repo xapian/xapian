@@ -43,7 +43,7 @@ Document::Internal::ensure_terms_fetched() const
 
     terms.reset(new map<string, TermInfo>());
     termlist_size = 0;
-    if (!database.get())
+    if (!database)
 	return;
 
     unique_ptr<TermList> t(database->open_term_list(did));
@@ -69,7 +69,7 @@ Document::Internal::ensure_values_fetched() const
 	return;
 
     values.reset(new map<Xapian::valueno, string>());
-    if (database.get()) {
+    if (database) {
 	fetch_all_values(*values);
     }
 }
@@ -95,7 +95,7 @@ Document::Internal::fetch_value(Xapian::valueno) const
 
 Document::Internal::~Internal()
 {
-    if (database.get())
+    if (database)
 	database->invalidate_doc_object(this);
 }
 
@@ -105,7 +105,7 @@ Document::Internal::open_term_list() const
     if (terms)
 	return new DocumentTermList(this);
 
-    if (!database.get())
+    if (!database)
 	return NULL;
 
     return database->open_term_list(did);
@@ -114,7 +114,7 @@ Document::Internal::open_term_list() const
 Xapian::ValueIterator
 Document::Internal::values_begin() const
 {
-    if (!values && database.get()) {
+    if (!values && database) {
 	values.reset(new map<Xapian::valueno, string>());
 	fetch_all_values(*values);
     }
@@ -148,7 +148,7 @@ Document::Internal::get_description() const
 	desc += ']';
     }
 
-    if (database.get()) {
+    if (database) {
 	desc += ", db=";
 	desc += database->get_description();
     }

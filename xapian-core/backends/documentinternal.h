@@ -348,7 +348,7 @@ class Document::Internal : public Xapian::Internal::intrusive_base {
     /// Clear all terms from the document.
     void clear_terms() {
 	if (!terms) {
-	    if (database.get()) {
+	    if (database) {
 		terms.reset(new std::map<std::string, TermInfo>());
 		termlist_size = 0;
 	    } else {
@@ -359,7 +359,7 @@ class Document::Internal : public Xapian::Internal::intrusive_base {
 	    terms->clear();
 	    termlist_size = 0;
 	    // Assume there was positional data if there's any in the database.
-	    positions_modified_ = database.get() && database->has_positions();
+	    positions_modified_ = database && database->has_positions();
 	}
     }
 
@@ -368,7 +368,7 @@ class Document::Internal : public Xapian::Internal::intrusive_base {
 	if (terms)
 	    return termlist_size;
 
-	if (!database.get())
+	if (!database)
 	    return 0;
 
 	std::unique_ptr<TermList> tl(database->open_term_list(did));
@@ -414,7 +414,7 @@ class Document::Internal : public Xapian::Internal::intrusive_base {
     /// Clear all value slots in this document.
     void clear_values() {
 	if (!values) {
-	    if (database.get()) {
+	    if (database) {
 		values.reset(new std::map<Xapian::valueno, std::string>());
 	    } else {
 		// We didn't come from a database, so there are no unfetched

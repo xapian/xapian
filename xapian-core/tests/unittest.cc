@@ -702,13 +702,17 @@ static void test_movesupport1()
 
 	// Test move constructor
 	Xapian::Internal::intrusive_ptr<A> p2(std::move(p1));
+	TEST(p2);
 	TEST_EQUAL(p2->get_x(), 5);
 	TEST_EQUAL(p1.get(), 0);
+	TEST(!p1);
 
 	// Test move assignment
 	p3 = std::move(p2);
+	TEST(p3);
 	TEST_EQUAL(p3->get_x(), 5);
 	TEST_EQUAL(p2.get(), 0);
+	TEST(!p2);
     }
 
     {
@@ -718,10 +722,12 @@ static void test_movesupport1()
 
 	// Test move constructor
 	Xapian::Internal::intrusive_ptr_nonnull<A> p2(std::move(p1));
+	TEST(p2);
 	TEST_EQUAL(p2->get_x(), 5);
 
 	// Test move assignment
 	p3 = std::move(p2);
+	TEST(p3);
 	TEST_EQUAL(p3->get_x(), 5);
     }
 
@@ -735,14 +741,18 @@ static void test_movesupport1()
 
 	// Test move constructor
 	Xapian::Internal::opt_intrusive_ptr<B> p2(std::move(p1));
+	TEST(p2);
 	TEST_EQUAL(p2->get_x(), 5);
 	TEST_EQUAL(p1.get(), 0);
+	TEST(!p1);
 	TEST_EQUAL(alive, true);
 
 	// Test move assignment
 	p3 = std::move(p2);
+	TEST(p3);
 	TEST_EQUAL(p3->get_x(), 5);
 	TEST_EQUAL(p2.get(), 0);
+	TEST(!p2);
 	TEST_EQUAL(alive, true);
     }
     // Test that object b1 has been deleted.

@@ -27,7 +27,6 @@
 #include <xapian/termiterator.h>
 
 #include "api/vectortermlist.h"
-#include "omassert.h"
 #include "queryparser_internal.h"
 
 #include <cstring>
@@ -192,14 +191,12 @@ QueryParser::parse_query(const string &query_string, unsigned flags,
 void
 QueryParser::add_prefix(const string &field, const string &prefix)
 {
-    Assert(internal.get());
     internal->add_prefix(field, prefix);
 }
 
 void
 QueryParser::add_prefix(const string &field, Xapian::FieldProcessor * proc)
 {
-    Assert(internal.get());
     internal->add_prefix(field, proc);
 }
 
@@ -207,7 +204,6 @@ void
 QueryParser::add_boolean_prefix(const string &field, const string &prefix,
 				const string* grouping)
 {
-    Assert(internal.get());
     internal->add_boolean_prefix(field, prefix, grouping);
 }
 
@@ -216,7 +212,6 @@ QueryParser::add_boolean_prefix(const string &field,
 				Xapian::FieldProcessor * proc,
 				const string* grouping)
 {
-    Assert(internal.get());
     internal->add_boolean_prefix(field, proc, grouping);
 }
 
@@ -244,7 +239,6 @@ void
 QueryParser::add_rangeprocessor(Xapian::RangeProcessor * range_proc,
 				const std::string* grouping)
 {
-    Assert(internal.get());
     internal->rangeprocs.push_back(RangeProc(range_proc, grouping));
 }
 

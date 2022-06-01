@@ -27,6 +27,7 @@
 #include "expand/expandweight.h"
 #include "matcher/matcher.h"
 #include "msetinternal.h"
+#include "omassert.h"
 #include "vectortermlist.h"
 #include "weight/weightinternal.h"
 #include "xapian/database.h"
@@ -325,7 +326,7 @@ Enquire::Internal::get_mset(doccount first,
 			       time_limit,
 			       matchspies);
 
-    if (first_orig != first && mset.internal.get()) {
+    if (first_orig != first) {
 	mset.internal->set_first(first_orig);
     }
 
@@ -450,7 +451,7 @@ Enquire::Internal::get_eset(termcount maxitems,
     if ((flags & Enquire::INCLUDE_QUERY_TERMS) == 0 && !query.empty()) {
 	auto edft = new ExpandDeciderFilterTerms(query.get_terms_begin(),
 						 query.get_terms_end());
-	if (edecider.get() == NULL) {
+	if (!edecider) {
 	    edecider = edft->release();
 	} else {
 	    // Make sure ExpandDeciderFilterTerms doesn't leak if new throws.
