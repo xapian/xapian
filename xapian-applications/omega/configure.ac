@@ -302,6 +302,11 @@ PKG_CHECK_MODULES([LIBEXTRACTOR], [libextractor], [
     AC_DEFINE(HAVE_LIBEXTRACTOR, 1, [Define HAVE_LIBEXTRACTOR if the library is available])
     OMINDEX_MODULES="$OMINDEX_MODULES omindex_libextractor"],[ ])
 
+dnl check if libmwaw is available.
+PKG_CHECK_MODULES([LIBMWAW], [libmwaw-0.3,librevenge-0.0,librevenge-generators-0.0,librevenge-stream-0.0], [
+    AC_DEFINE(HAVE_LIBMWAW, 1, [Define HAVE_LIBMWAW if the library is available])
+    OMINDEX_MODULES="$OMINDEX_MODULES omindex_libmwaw"],[ ])
+
 AC_SUBST([OMINDEX_MODULES])
 
 dnl mingw has _snprintf so check for that too.

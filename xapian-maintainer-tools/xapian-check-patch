@@ -807,8 +807,8 @@ QUOTELOOP:  while (1) {
 		# Tesseract's leptonica image library uses camelCase names.
 	    } elsif (substr($_, 0, $symbol_idx) =~ /\bicu::(\w+::)?$/) {
 		# ICU library namespace uses camelCase method names.
-	    } elsif (substr($_, 0, $symbol_idx) =~ /\b(?:Abi|CDR|EBOOK|Etonyek|RVNG)\w+::$/) {
-		# Libabw/Libe-book/libcdr/libetonyek/librevenge use camelCase method names.
+	    } elsif (substr($_, 0, $symbol_idx) =~ /\b(?:Abi|CDR|EBOOK|Etonyek|MWAW|RVNG)\w+::$/) {
+		# Libabw/Libe-book/libcdr/libetonyek/libmwaw/librevenge use camelCase method names.
 	    } else {
 		diagnostic('error', "camelCase identifier '$symbol' - Xapian coding convention is to use lower case and underscores for variables and functions, and CamelCase for class names");
 	    }

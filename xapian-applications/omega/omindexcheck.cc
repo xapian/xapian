@@ -199,6 +199,14 @@ index_test()
     tests.insert({"audio/file_example_WAV_1MG.wav",
 		  {{"Zstereo", "wav", "Zms"}, SKIP_IF_NO_TERMS}});
 #endif
+#if defined HAVE_LIBMWAW
+    tests.insert({"apple_works/test_word.cwk",
+		  {{"Zhello", "Zdocument"}}});
+    tests.insert({"apple_works/test_spreadsheet.cwk",
+		  {{"Zpizza", "220"}}});
+    tests.insert({"apple_works/test_draw.cwk",
+		  {{"Zdraw", "Zsampl", "Zgraphic"}}});
+#endif
     tests.insert({"application/vnd.ms-xpsdocument_xpstest.xps",
 		 {{"second", "header", "footer"}}});
 }

@@ -59,7 +59,8 @@ jobs:
             libarchive-dev \
             libabw-dev \
             libcdr-dev \
-            libextractor-dev
+            libextractor-dev \
+            libmwaw-dev
     - name: bootstrap source tree
       run: ./bootstrap xapian-core xapian-applications/omega swig xapian-bindings xapian-letor
     - name: configure
@@ -115,7 +116,8 @@ jobs:
             libarchive-dev \
             libabw-dev \
             libcdr-dev \
-            libextractor-dev
+            libextractor-dev \
+            libmwaw-dev
     - name: bootstrap source tree
       run: ./bootstrap xapian-core xapian-applications/omega swig xapian-bindings xapian-letor
     - name: configure
@@ -177,7 +179,8 @@ jobs:
             libarchive-dev \
             libabw-dev \
             libcdr-dev \
-            libextractor-dev
+            libextractor-dev \
+            libmwaw-dev
     - name: bootstrap source tree
       run: ./bootstrap xapian-core xapian-applications/omega swig xapian-bindings xapian-letor
     - name: configure
@@ -269,6 +272,7 @@ jobs:
             libextractor \
             libiconv \
             libmagic \
+            libmwaw \
             libsvm \
             lua \
             pcre2 \
