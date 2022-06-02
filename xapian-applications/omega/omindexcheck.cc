@@ -201,9 +201,9 @@ index_test()
 #endif
 #if defined HAVE_LIBMWAW
     tests.insert({"apple_works/test_word.cwk",
-		  {{"Zhello", "Zdocument"}}});
+		  {{"Aparth", "Sword", "Zhello", "Zdocument"}}});
     tests.insert({"apple_works/test_spreadsheet.cwk",
-		  {{"Zpizza", "220"}}});
+		  {{"Aparth", "Sspreadsheet", "Zpizza", "220"}}});
     tests.insert({"apple_works/test_draw.cwk",
 		  {{"Zdraw", "Zsampl", "Zgraphic"}}});
 #endif
