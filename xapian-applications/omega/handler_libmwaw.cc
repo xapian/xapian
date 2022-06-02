@@ -115,7 +115,7 @@ parse_content(string& dump,
 	      RVNGStringVector& pages_content)
 {
     for (unsigned i = 0; i < pages_content.size(); ++i) {
-	dump.append(pages_content[i].cstr());
+	dump.append(pages_content[i].cstr(), pages_content[i].size());
     }
     pages = str(pages_content.size());
 }
@@ -134,7 +134,7 @@ extract_word(string& dump,
 	error = "Libmwaw Error: Failed to extract text";
 	return false;
     }
-    dump = content_dump.cstr();
+    dump.assign(content_dump.cstr(), content_dump.size());
 
     RVNGString metadata_dump;
     RVNGTextTextGenerator metadata(metadata_dump, true);
