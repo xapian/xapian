@@ -164,13 +164,11 @@ extract_spreadsheet(string& dump,
 	error = "Libmwaw Error: Failed to extract metadata";
 	return false;
     }
-    string meta_temp;
     for (unsigned i = 0; i < pages_metadata.size(); ++i) {
-	meta_temp.append(pages_metadata[i].cstr());
+	parse_metadata(pages_metadata[i].cstr(),
+		       pages_metadata[i].size(),
+		       author, title, keywords);
     }
-    const char* data = meta_temp.c_str();
-    size_t len = meta_temp.size();
-    parse_metadata(data, len, author, title, keywords);
 
     RVNGStringVector pages_content;
     RVNGTextSpreadsheetGenerator content(pages_content, false);
