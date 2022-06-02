@@ -722,12 +722,12 @@ static void test_movesupport1()
 
 	// Test move constructor
 	Xapian::Internal::intrusive_ptr_nonnull<A> p2(std::move(p1));
-	TEST(p2);
+	TEST(p2.get());
 	TEST_EQUAL(p2->get_x(), 5);
 
 	// Test move assignment
 	p3 = std::move(p2);
-	TEST(p3);
+	TEST(p3.get());
 	TEST_EQUAL(p3->get_x(), 5);
     }
 
