@@ -143,6 +143,11 @@ numbers		application/vnd.apple.numbers
 # Apple Works / Claris Works:
 cwk		application/clarisworks
 
+# Apple PICT
+pict		image/x-pict
+pct		image/x-pict
+pic		image/x-pict
+
 # Visio:
 vsd		application/vnd.visio
 vss		application/vnd.visio

@@ -289,6 +289,7 @@ index_add_default_libraries()
 #if defined HAVE_LIBMWAW
     Worker* omindex_libmwaw = new Worker("omindex_libmwaw");
     index_library("application/clarisworks", omindex_libmwaw);
+    index_library("image/x-pict", omindex_libmwaw);
 #endif
 }
 
