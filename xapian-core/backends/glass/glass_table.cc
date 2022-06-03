@@ -292,7 +292,7 @@ GlassTable::set_overwritten() const
     // If we're writable, there shouldn't be another writer who could cause
     // overwritten to be flagged, so that's a DatabaseCorruptError.
     if (writable)
-	throw Xapian::DatabaseCorruptError("Db block overwritten - are there multiple writers?");
+	throw Xapian::DatabaseCorruptError("Block overwritten - run xapian-check on this database");
     throw Xapian::DatabaseModifiedError("The revision being read has been discarded - you should call Xapian::Database::reopen() and retry the operation");
 }
 
