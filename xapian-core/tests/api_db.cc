@@ -1530,7 +1530,8 @@ DEFINE_TESTCASE(consistency1, backend && !remote) {
     }
 }
 
-// tests that specifying a nonexistent input file throws an exception.
+// Test that specifying a nonexistent input file throws an exception
+// (chert-specific cases).
 DEFINE_TESTCASE(chertdatabasenotfounderror1, chert) {
 #ifdef XAPIAN_HAS_CHERT_BACKEND
     mkdir(".chert", 0755);
@@ -1567,6 +1568,8 @@ DEFINE_TESTCASE(chertdatabasenotfounderror1, chert) {
 
 }
 
+// Test that specifying a nonexistent input file throws an exception
+// (glass-specific cases).
 DEFINE_TESTCASE(glassdatabasenotfounderror1, glass) {
 #ifdef XAPIAN_HAS_GLASS_BACKEND
     mkdir(".glass", 0755);
@@ -1600,6 +1603,25 @@ DEFINE_TESTCASE(glassdatabasenotfounderror1, glass) {
 	    Xapian::WritableDatabase(".glass/somefile",
 		Xapian::DB_CREATE_OR_OVERWRITE|Xapian::DB_BACKEND_GLASS));
 #endif
+}
+
+// Test that specifying a nonexistent input file throws an exception
+// (non-backend-specific cases).
+DEFINE_TESTCASE(databasenotfounderror2, !backend) {
+    TEST_EXCEPTION(Xapian::DatabaseNotFoundError,
+	    Xapian::Database("nosuchdirectory"));
+    TEST_EXCEPTION(Xapian::DatabaseNotFoundError,
+	    Xapian::Database("no/such/directory"));
+
+    TEST_EXCEPTION(Xapian::DatabaseNotFoundError,
+	    Xapian::WritableDatabase("nosuchdirectory", Xapian::DB_OPEN));
+    TEST_EXCEPTION(Xapian::DatabaseNotFoundError,
+	    Xapian::WritableDatabase("no/such/directory", Xapian::DB_OPEN));
+
+    string empty_dir = "emptydirectory";
+    mkdir(empty_dir.c_str(), 0700);
+    TEST_EXCEPTION(Xapian::DatabaseNotFoundError,
+	    Xapian::Database{empty_dir});
 }
 
 /// Test opening of a chert database
