@@ -1377,7 +1377,8 @@ DEFINE_TESTCASE(consistency1, backend && !remote) {
     }
 }
 
-// tests that specifying a nonexistent input file throws an exception.
+// Test that specifying a nonexistent input file throws an exception
+// (backend-specific cases).
 DEFINE_TESTCASE(databasenotfounderror1, glass || honey) {
     const string& dbtype = get_dbtype();
     string db_dir = "." + dbtype;
@@ -1425,6 +1426,25 @@ DEFINE_TESTCASE(databasenotfounderror1, glass || honey) {
 		Xapian::WritableDatabase(some_file,
 		    db_type_flag | Xapian::DB_CREATE_OR_OVERWRITE));
     }
+}
+
+// Test that specifying a nonexistent input file throws an exception
+// (non-backend-specific cases).
+DEFINE_TESTCASE(databasenotfounderror2, !backend) {
+    TEST_EXCEPTION(Xapian::DatabaseNotFoundError,
+	    Xapian::Database("nosuchdirectory"));
+    TEST_EXCEPTION(Xapian::DatabaseNotFoundError,
+	    Xapian::Database("no/such/directory"));
+
+    TEST_EXCEPTION(Xapian::DatabaseNotFoundError,
+	    Xapian::WritableDatabase("nosuchdirectory", Xapian::DB_OPEN));
+    TEST_EXCEPTION(Xapian::DatabaseNotFoundError,
+	    Xapian::WritableDatabase("no/such/directory", Xapian::DB_OPEN));
+
+    string empty_dir = "emptydirectory";
+    mkdir(empty_dir.c_str(), 0700);
+    TEST_EXCEPTION(Xapian::DatabaseNotFoundError,
+	    Xapian::Database{empty_dir});
 }
 
 /// Test opening of a glass database
