@@ -4,7 +4,7 @@
 /* Simple test to ensure that we can load the xapian module and exercise basic
  * functionality successfully.
  *
- * Copyright (C) 2004,2005,2006,2007,2009,2011,2012,2013,2014,2015,2016,2017,2019 Olly Betts
+ * Copyright (C) 2004-2022 Olly Betts
  * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -408,12 +408,12 @@ $enquire->set_query(new XapianQuery("foo"));
 	exit(1);
     }
 
-    $mset = $enquire->get_mset(0, 10, 0, null, $md, null);
+    $mset = $enquire->get_mset(0, 10, 0, null, $md);
     mset_expect_order($mset, array(2));
 
     $md = new XapianValueSetMatchDecider(0, false);
     $md->add_value("ABC");
-    $mset = $enquire->get_mset(0, 10, 0, null, $md, null);
+    $mset = $enquire->get_mset(0, 10, 0, null, $md);
     mset_expect_order($mset, array(1, 3, 4, 5));
 }
 
