@@ -334,11 +334,16 @@ class testfieldprocessor extends XapianFieldProcessor {
     }
 }
 
-$tfp = new testfieldprocessor();
-$qp->add_prefix('spam', $tfp);
+$qp->add_prefix('spam', new testfieldprocessor);
+$qp->add_boolean_prefix('filter', new testfieldprocessor);
 $query = $qp->parse_query('spam:ignored');
 if ($query->get_description() !== 'Query(spam)') {
     print "testfieldprocessor didn't work - result was ".$query->get_description()."\n";
+    exit(1);
+}
+$query = $qp->parse_query('filter:ignored');
+if ($query->get_description() !== 'Query(0 * spam)') {
+    print "Boolean testfieldprocessor didn't work - result was ".$query->get_description()."\n";
     exit(1);
 }
 
@@ -583,6 +588,16 @@ if ($s !== 'ask:1 i:1 in:2 nothing:1 return:2 tea:1 time:2 ') {
     exit(1);
 }
 
+// Test that XapianTermGenerator keeps a reference to XapianStopper.
+$indexer->set_stopper_strategy(XapianTermGenerator::STOP_ALL);
+{
+    $stop = new XapianSimpleStopper();
+    $stop->add('a');
+    $indexer->set_stopper($stop);
+    $stop = null;
+}
+$indexer->index_text("a b");
+
 # Test GeoSpatial API
 $coord = new XapianLatLongCoord();
 $coord = new XapianLatLongCoord(-41.288889, 174.777222);
@@ -608,6 +623,9 @@ $centre->append(new XapianLatLongCoord(40.6048, -74.4427));
 $ps = new XapianLatLongDistancePostingSource(COORD_SLOT, $centre, $metric, $range);
 $q = new XapianQuery("coffee");
 $q = new XapianQuery(XapianQuery::OP_AND, $q, new XapianQuery($ps));
+$q = new XapianQuery(XapianQuery::OP_OR, [$q, XapianQuery::MatchNothing()]);
+// Check that we keep a reference via XapianQuery.
+$ps = null;
 
 $enq = new XapianEnquire($db);
 $enq->set_query($q);
@@ -633,6 +651,8 @@ $qp = new XapianQueryParser();
     $stop = new XapianSimpleStopper();
     $stop->add('a');
     $qp->set_stopper($stop);
+    // Test that XapianQueryParser keeps a reference to XapianStopper.
+    $stop = null;
 }
 $query = $qp->parse_query('a b');
 if ($query->get_description() !== 'Query(b@2)') {
