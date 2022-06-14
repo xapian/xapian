@@ -4,7 +4,7 @@
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Sam Liddicott
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2014,2015,2017,2018,2019 Olly Betts
+ * Copyright 2002-2022 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -1344,6 +1344,7 @@ index_file(const char *fname, istream &stream,
 	    }
 	    string field(line, 0, eq);
 	    string value(line, eq + 1, string::npos);
+	    line.clear();
 	    while (getline(stream, line)) {
 		++line_no;
 		if (line.empty() || line[0] != '=') break;
@@ -1369,7 +1370,6 @@ index_file(const char *fname, istream &stream,
 			field, fname, line_no,
 			docid);
 	    if (this_field_is_content) seen_content = true;
-	    if (stream.eof()) break;
 	}
 
 	// If we haven't seen any fields (other than unique identifiers)

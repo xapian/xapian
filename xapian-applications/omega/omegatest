@@ -825,9 +825,10 @@ testcase 'a <b>list of words</b> - there is' P='"list of words"'
 # Feature tests for $snippet{}.
 printf 'text : index field' > "$TEST_INDEXSCRIPT"
 rm -rf "$TEST_DB"
-$SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null <<'END'
-text=A sentence is more than just a list of words - there is structure to it.
-END
+# Omit trailing \n on dump file as regression test for bug fixed in 1.4.20
+# where a final line without a newline was ignored.
+printf 'dummy=\ntext=A sentence is more than just a list of words - there is structure to it.'|\
+  $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null
 
 printf '$hitlist{$snippet{$field{text},20}}' > "$TEST_TEMPLATE"
 testcase '...just a <strong>list</strong> of <strong>words</strong>...' P='word listing'
