@@ -746,6 +746,15 @@ testcase 'x:y:z:y|x:y:z' text='x y z z y'
 printf '$map{foo}' > "$TEST_TEMPLATE"
 testcase 'Exception: too few arguments to $map'
 
+# Omit trailing \n on dump file as regression test for bug fixed in 1.4.20
+# where a final line without a newline was ignored.
+printf 'a b : index field' > "$TEST_INDEXSCRIPT"
+rm -rf "$TEST_DB"
+printf 'a=1\nb=2' | $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null
+printf '$record{1}' > "$TEST_TEMPLATE"
+testcase 'a=1
+b=2'
+
 # Test MORELIKE CGI parameter.
 printf '%s\n' 'id : boolean=Q' 'text : index field' > "$TEST_INDEXSCRIPT"
 rm -rf "$TEST_DB"
