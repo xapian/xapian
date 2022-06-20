@@ -997,6 +997,14 @@ END
 printf '$field{in,1}/$list{$field{one,1},|}/$list{$field{two,1},|}' > "$TEST_TEMPLATE"
 testcase 'a,b,c;10,21,32;XY,YZ/a,b,c|10,21,32|XY,YZ/a|b|c|10|21|32|xy|yz' P=text
 
+# Test scriptindex `split` action error cases.
+printf 'in : split="" field=one\nin : field' > "$TEST_INDEXSCRIPT"
+test_scriptindex_error "'split' error for empty separator" \
+  "$TEST_INDEXSCRIPT:1:13: error: Split delimiter can't be empty"
+printf 'in : split=|,foo field=one\nin : field' > "$TEST_INDEXSCRIPT"
+test_scriptindex_error "'split' error for invalid operation" \
+  "$TEST_INDEXSCRIPT:1:14: error: Bad split operation 'foo'"
+
 # Feature tests for scriptindex `hextobin` action.
 printf 'hex : hextobin value=0' > "$TEST_INDEXSCRIPT"
 rm -rf "$TEST_DB"
@@ -1111,7 +1119,7 @@ testcase '|3|2|1|' P=test
 # Test bad parameter values to `weight` action.
 printf 'foo : index weight=-2' > "$TEST_INDEXSCRIPT"
 test_scriptindex_error "bad 'weight' parameter" \
-  "$TEST_INDEXSCRIPT:1: error: Index action 'weight' takes a non-negative integer argument"
+  "$TEST_INDEXSCRIPT:1:20: error: Index action 'weight' takes a non-negative integer argument"
 printf 'foo : index weight=1.5' > "$TEST_INDEXSCRIPT"
 test_scriptindex_error "bad 'weight' parameter" \
   "$TEST_INDEXSCRIPT:1:21: error: Index action 'weight' takes an integer argument"
@@ -1210,6 +1218,12 @@ testcase '2|' id=2
 testcase '3|' id=3
 testcase '4|' id=4
 exit 0
+
+# Test `unique` action warning.
+printf '%s\n' 'id : unique=Q boolean=W' 'id f : field' > "$TEST_INDEXSCRIPT"
+test_scriptindex_warning 'unique without boolean' \
+  "$TEST_INDEXSCRIPT:1:6: warning: Index action 'unique=Q' without 'boolean=Q'
+$TEST_INDEXSCRIPT:1:6: note: 'unique' doesn't implicitly add a boolean term"
 
 # Test $subdb and $subid.
 rm -rf "$TEST_DB"
@@ -1472,6 +1486,11 @@ fi
 printf 'date : field parsedate=%%Y%%m%%d' > "$TEST_INDEXSCRIPT"
 test_scriptindex_warning "useless 'parsedate'" \
   "$TEST_INDEXSCRIPT:1:14: warning: Index action 'parsedate' has no effect*"
+
+# Test a `parsedate` format error.
+printf 'date : field parsedate="%%Y\t%%m\t%%d\t%%Z"' > "$TEST_INDEXSCRIPT"
+test_scriptindex_error "'%Z' in 'parsedate' format" \
+  "$TEST_INDEXSCRIPT:1:34: error: Parsing timezone names with %Z is not supported"
 
 # Test scriptindex `gap` action inserts a termpos gap.
 printf 'text : index gap=5' > "$TEST_INDEXSCRIPT"

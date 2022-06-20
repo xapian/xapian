@@ -222,10 +222,10 @@ report_location(enum diag_type type,
     cerr << filename;
     if (line != 0) {
 	cerr << ':' << line;
-    }
-    if (pos != string::npos) {
-	// The first column is numbered 1.
-	cerr << ':' << pos + 1;
+	if (pos != string::npos) {
+	    // The first column is numbered 1.
+	    cerr << ':' << pos + 1;
+	}
     }
     switch (type) {
 	case DIAG_ERROR:
@@ -268,8 +268,10 @@ parse_index_script(const string &filename)
     }
     string line;
     size_t line_no = 0;
-    // Line number where we saw a `unique` action, or -1 if we haven't.
-    int unique_line_no = -1;
+    // Line number where we saw a `unique` action, or 0 if we haven't.
+    int unique_line_no = 0;
+    // Offset into line unique_line_no where the `unique` action was.
+    size_t unique_pos = 0;
     while (getline(script, line)) {
 	++line_no;
 	vector<string> fields;
@@ -609,7 +611,8 @@ bad_escaping:
 			if (val != "unix" &&
 			    val != "unixutc" &&
 			    val != "yyyymmdd") {
-			    report_location(DIAG_ERROR, filename, line_no);
+			    report_location(DIAG_ERROR, filename, line_no,
+					    j - s.begin());
 			    cerr << "Invalid parameter '" << val << "' for "
 				    "action 'date'" << endl;
 			    exit(1);
@@ -626,7 +629,8 @@ bad_escaping:
 			// store it ready to use in the INDEX and INDEXNOPOS
 			// Actions.
 			if (!parse_unsigned(val.c_str(), weight)) {
-			    report_location(DIAG_ERROR, filename, line_no);
+			    report_location(DIAG_ERROR, filename, line_no,
+					    j - s.begin());
 			    cerr << "Index action 'weight' takes a "
 				    "non-negative integer argument" << endl;
 			    exit(1);
@@ -638,14 +642,18 @@ bad_escaping:
 			useless_weight_pos = action_pos;
 			break;
 		    case Action::PARSEDATE: {
-			if (val.find("%Z") != val.npos) {
-			    report_location(DIAG_ERROR, filename, line_no);
+			auto bad_code = val.find("%Z");
+			if (bad_code != val.npos) {
+			    report_location(DIAG_ERROR, filename, line_no,
+					    j - s.begin() + bad_code);
 			    cerr << "Parsing timezone names with %Z is not supported" << endl;
 			    exit(1);
 			}
 #ifndef HAVE_STRUCT_TM_TM_GMTOFF
-			if (val.find("%z") != val.npos) {
-			    report_location(DIAG_ERROR, filename, line_no);
+			bad_code = val.find("%z");
+			if (bad_code != val.npos) {
+			    report_location(DIAG_ERROR, filename, line_no,
+					    j - s.begin() + bad_code);
 			    cerr << "Parsing timezone offsets with %z is not supported on "
 				    "this platform" << endl;
 			    exit(1);
@@ -656,7 +664,8 @@ bad_escaping:
 		    }
 		    case Action::SPLIT: {
 			if (val.empty()) {
-			    report_location(DIAG_ERROR, filename, line_no);
+			    report_location(DIAG_ERROR, filename, line_no,
+					    j - s.begin());
 			    cerr << "Split delimiter can't be empty" << endl;
 			    exit(1);
 			}
@@ -671,7 +680,12 @@ bad_escaping:
 			    } else if (vals[1] == "prefixes") {
 				operation = Action::SPLIT_PREFIXES;
 			    } else {
-				report_location(DIAG_ERROR, filename, line_no);
+				// FIXME: Column should be for where the `op`
+				// parameter starts, which this isn't if the
+				// value is quoted, contains escape sequences,
+				// etc.
+				report_location(DIAG_ERROR, filename, line_no,
+						i - s.begin() - vals[1].size());
 				cerr << "Bad split operation '" << vals[1]
 				     << "'" << endl;
 				exit(1);
@@ -694,17 +708,18 @@ bad_escaping:
 			actions.emplace_back(code, action_pos, val);
 			break;
 		    case Action::UNIQUE:
-			if (unique_line_no >= 0) {
+			if (unique_line_no) {
 			    report_location(DIAG_ERROR, filename, line_no,
 					    action_pos);
 			    cerr << "Index action 'unique' used more than once"
 				 << endl;
 			    report_location(DIAG_NOTE, filename,
-					    unique_line_no);
+					    unique_line_no, unique_pos);
 			    cerr << "Previously used here" << endl;
 			    exit(1);
 			}
 			unique_line_no = line_no;
+			unique_pos = action_pos;
 			if (boolmap.find(val) == boolmap.end())
 			    boolmap[val] = Action::UNIQUE;
 			actions.emplace_back(code, action_pos, val);
@@ -835,13 +850,15 @@ bad_escaping:
 	map<string, Action::type>::const_iterator boolpfx;
 	for (boolpfx = boolmap.begin(); boolpfx != boolmap.end(); ++boolpfx) {
 	    if (boolpfx->second == Action::UNIQUE) {
-		report_location(DIAG_WARN, filename, line_no);
+		report_location(DIAG_WARN, filename, unique_line_no,
+				unique_pos);
 		cerr << "Index action 'unique=" << boolpfx->first
 		     << "' without 'boolean=" << boolpfx->first << "'" << endl;
 		static bool given_doesnt_imply_boolean_warning = false;
 		if (!given_doesnt_imply_boolean_warning) {
 		    given_doesnt_imply_boolean_warning = true;
-		    report_location(DIAG_NOTE, filename, line_no);
+		    report_location(DIAG_NOTE, filename, unique_line_no,
+				    unique_pos);
 		    cerr << "'unique' doesn't implicitly add a boolean term"
 			 << endl;
 		}
