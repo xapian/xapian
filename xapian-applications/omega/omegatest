@@ -1108,6 +1108,14 @@ printf '%s\n\n' 't=test' 'w=test' 't=test test test'|$SCRIPTINDEX "$TEST_DB" "$T
 printf '|$hitlist{$id|}' > "$TEST_TEMPLATE"
 testcase '|3|2|1|' P=test
 
+# Test bad parameter values to `weight` action.
+printf 'foo : index weight=-2' > "$TEST_INDEXSCRIPT"
+test_scriptindex_error "bad 'weight' parameter" \
+  "$TEST_INDEXSCRIPT:1: error: Index action 'weight' takes a non-negative integer argument"
+printf 'foo : index weight=1.5' > "$TEST_INDEXSCRIPT"
+test_scriptindex_error "bad 'weight' parameter" \
+  "$TEST_INDEXSCRIPT:1:21: error: Index action 'weight' takes an integer argument"
+
 # Test useless action warnings.
 printf 'foo : index weight=2' > "$TEST_INDEXSCRIPT"
 test_scriptindex_warning "useless 'weight' action" \
@@ -1247,8 +1255,8 @@ fi
 
 # Test we check for hash's argument being an integer (new in 1.4.6).
 printf 'url : hash=37.3 boolean=Q unique=Q' > "$TEST_INDEXSCRIPT"
-test_scriptindex_warning "'hash' with a non-integer argument" \
-  "$TEST_INDEXSCRIPT:1:14: warning: Index action 'hash' takes an integer argument"
+test_scriptindex_error "'hash' with a non-integer argument" \
+  "$TEST_INDEXSCRIPT:1:14: error: Index action 'hash' takes an integer argument"
 
 # Test we give a helpful error for an action with a digit in (regression
 # test for fix in 1.4.6).

@@ -597,10 +597,11 @@ bad_escaping:
 		if (takes_integer_argument) {
 		    auto dot = val.find('.');
 		    if (dot != string::npos) {
-			report_location(DIAG_WARN, filename, line_no,
+			report_location(DIAG_ERROR, filename, line_no,
 					j - s.begin() + dot);
 			cerr << "Index action '" << action
 			     << "' takes an integer argument" << endl;
+			exit(1);
 		    }
 		}
 		switch (code) {
@@ -624,7 +625,12 @@ bad_escaping:
 			// We don't push an Action for WEIGHT - instead we
 			// store it ready to use in the INDEX and INDEXNOPOS
 			// Actions.
-			weight = atoi(val.c_str());
+			if (!parse_unsigned(val.c_str(), weight)) {
+			    report_location(DIAG_ERROR, filename, line_no);
+			    cerr << "Index action 'weight' takes a "
+				    "non-negative integer argument" << endl;
+			    exit(1);
+			}
 			if (useless_weight_pos != string::npos) {
 			    report_useless_action(filename, line_no,
 						  useless_weight_pos, action);
