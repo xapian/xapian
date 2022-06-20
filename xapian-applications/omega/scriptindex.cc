@@ -448,7 +448,7 @@ parse_index_script(const string &filename)
 		    report_location(DIAG_WARN, filename, line_no,
 				    i_after_action - s.begin());
 		    cerr << "putting spaces between the action and '=' is "
-			    "deprecated." << endl;
+			    "deprecated" << endl;
 		}
 
 		if (max_args == 0) {
@@ -465,7 +465,7 @@ parse_index_script(const string &filename)
 		    report_location(DIAG_WARN, filename, line_no,
 				    i - s.begin());
 		    cerr << "putting spaces between '=' and the argument is "
-			    "deprecated." << endl;
+			    "deprecated" << endl;
 		}
 
 		vector<string> vals;
