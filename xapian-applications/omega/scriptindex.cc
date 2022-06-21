@@ -213,6 +213,8 @@ squash(string& s, const string& chars)
 
 enum diag_type { DIAG_ERROR, DIAG_WARN, DIAG_NOTE };
 
+static unsigned error_count = 0;
+
 static void
 report_location(enum diag_type type,
 		const string& filename,
@@ -230,6 +232,7 @@ report_location(enum diag_type type,
     switch (type) {
 	case DIAG_ERROR:
 	    cerr << ": error: ";
+	    ++error_count;
 	    break;
 	case DIAG_WARN:
 	    cerr << ": warning: ";
@@ -287,9 +290,8 @@ parse_index_script(const string &filename)
 	    if (!C_isalnum(*i)) {
 		report_location(DIAG_ERROR, filename, line_no, i - s.begin());
 		cerr << "field name must start with alphanumeric" << endl;
-		exit(1);
 	    }
-	    j = find_if(i, s.end(),
+	    j = find_if(i + 1, s.end(),
 			[](char ch) { return !C_isalnum(ch) && ch != '_'; });
 	    fields.push_back(string(i, j));
 	    i = find_if(j, s.end(), [](char ch) { return !C_isspace(ch); });
@@ -301,8 +303,10 @@ parse_index_script(const string &filename)
 	    }
 	    if (i == j) {
 		report_location(DIAG_ERROR, filename, line_no, i - s.begin());
-		cerr << "bad character '" << *i << "' in fieldname" << endl;
-		exit(1);
+		cerr << "bad character '" << *i << "' in field name" << endl;
+		++i;
+		i = find_if(i, s.end(), [](char ch) { return !C_isspace(ch); });
+		if (i == s.end()) break;
 	    }
 	}
 	Xapian::termcount weight = 1;
@@ -432,7 +436,10 @@ parse_index_script(const string &filename)
 			if (action == "weight") {
 			    code = Action::WEIGHT;
 			    min_args = max_args = 1;
-			    takes_integer_argument = true;
+			    // Don't set takes_integer_argument since we parse
+			    // it with parse_unsigned() and issue an error there
+			    // - setting takes_integer_argument would give a
+			    // double error for arguments with a decimal point.
 			}
 			break;
 		}
@@ -440,7 +447,6 @@ parse_index_script(const string &filename)
 	    if (code == Action::BAD) {
 		report_location(DIAG_ERROR, filename, line_no, action_pos);
 		cerr << "Unknown index action '" << action << "'" << endl;
-		exit(1);
 	    }
 	    auto i_after_action = i;
 	    i = find_if(i, s.end(), [](char ch) { return !C_isspace(ch); });
@@ -458,7 +464,6 @@ parse_index_script(const string &filename)
 				    i - s.begin());
 		    cerr << "Index action '" << action
 			 << "' doesn't take an argument" << endl;
-		    exit(1);
 		}
 
 		++i;
@@ -485,7 +490,7 @@ parse_index_script(const string &filename)
 				report_location(DIAG_ERROR, filename, line_no,
 						s.size());
 				cerr << "No closing quote" << endl;
-				exit(1);
+				break;
 			    }
 			    arg.append(j, i);
 			    if (*i++ == '"')
@@ -498,7 +503,7 @@ bad_escaping:
 						i - s.begin());
 				cerr << "Bad escaping in quoted action argument"
 				     << endl;
-				exit(1);
+				break;
 			    }
 
 			    char ch = *i;
@@ -522,32 +527,44 @@ bad_escaping:
 				    if (++i == s.end())
 					goto bad_escaping;
 				    char ch1 = *i;
+				    if (!C_isxdigit(ch1)) {
+bad_hex_digit:
+					report_location(DIAG_ERROR, filename,
+							line_no, i - s.begin());
+					cerr << "Bad hex digit in escaping\n";
+					--i;
+					break;
+				    }
 				    if (++i == s.end())
 					goto bad_escaping;
 				    char ch2 = *i;
-				    if (!C_isxdigit(ch1) ||
-					!C_isxdigit(ch2))
-					goto bad_escaping;
+				    if (!C_isxdigit(ch2)) {
+					goto bad_hex_digit;
+				    }
 				    ch = hex_digit(ch1) << 4 |
 					 hex_digit(ch2);
 				    break;
 				}
 				default:
-				    goto bad_escaping;
+				    report_location(DIAG_ERROR, filename,
+						    line_no, i - s.begin());
+				    cerr << "Bad escape sequence '\\" << ch
+					 << "'\n";
+				    break;
 			    }
 			    arg += ch;
 			    j = i + 1;
 			}
 			vals.emplace_back(std::move(arg));
 			if (i == s.end() || C_isspace(*i)) break;
-			if (*i != ',') {
+			if (*i == ',') {
+			    ++i;
+			} else {
 			    report_location(DIAG_ERROR, filename, line_no,
 					    i - s.begin());
 			    cerr << "Unexpected character '" << *i
 				 << "' after closing quote" << endl;
-			    exit(1);
 			}
-			++i;
 		    } else if (max_args > 1) {
 			// Unquoted argument, split on comma.
 			i = find_if(j, s.end(),
@@ -572,7 +589,6 @@ bad_escaping:
 			cerr << "Index action '" << action
 			     << "' takes at most " << max_args << " arguments"
 			     << endl;
-			exit(1);
 		    }
 		}
 
@@ -583,12 +599,14 @@ bad_escaping:
 			cerr << "Index action '" << action
 			     << "' requires " << min_args << " arguments"
 			     << endl;
-			exit(1);
+		    } else {
+			cerr << "Index action '" << action
+			     << "' requires at least " << min_args << " arguments"
+			     << endl;
 		    }
-		    cerr << "Index action '" << action
-			 << "' requires at least " << min_args << " arguments"
-			 << endl;
-		    exit(1);
+		    // Allow action handling code to assume there are min_args
+		    // arguments.
+		    vals.resize(min_args);
 		}
 
 		string val;
@@ -603,7 +621,6 @@ bad_escaping:
 					j - s.begin() + dot);
 			cerr << "Index action '" << action
 			     << "' takes an integer argument" << endl;
-			exit(1);
 		    }
 		}
 		switch (code) {
@@ -615,7 +632,6 @@ bad_escaping:
 					    j - s.begin());
 			    cerr << "Invalid parameter '" << val << "' for "
 				    "action 'date'" << endl;
-			    exit(1);
 			}
 			actions.emplace_back(code, action_pos, val);
 			break;
@@ -633,7 +649,7 @@ bad_escaping:
 					    j - s.begin());
 			    cerr << "Index action 'weight' takes a "
 				    "non-negative integer argument" << endl;
-			    exit(1);
+			    weight = 0;
 			}
 			if (useless_weight_pos != string::npos) {
 			    report_useless_action(filename, line_no,
@@ -647,7 +663,6 @@ bad_escaping:
 			    report_location(DIAG_ERROR, filename, line_no,
 					    j - s.begin() + bad_code);
 			    cerr << "Parsing timezone names with %Z is not supported" << endl;
-			    exit(1);
 			}
 #ifndef HAVE_STRUCT_TM_TM_GMTOFF
 			bad_code = val.find("%z");
@@ -656,7 +671,6 @@ bad_escaping:
 					    j - s.begin() + bad_code);
 			    cerr << "Parsing timezone offsets with %z is not supported on "
 				    "this platform" << endl;
-			    exit(1);
 			}
 #endif
 			actions.emplace_back(code, action_pos, val);
@@ -667,7 +681,6 @@ bad_escaping:
 			    report_location(DIAG_ERROR, filename, line_no,
 					    j - s.begin());
 			    cerr << "Split delimiter can't be empty" << endl;
-			    exit(1);
 			}
 			int operation = Action::SPLIT_NONE;
 			if (vals.size() >= 2) {
@@ -688,7 +701,6 @@ bad_escaping:
 						i - s.begin() - vals[1].size());
 				cerr << "Bad split operation '" << vals[1]
 				     << "'" << endl;
-				exit(1);
 			    }
 			}
 			actions.emplace_back(code, action_pos, val, operation);
@@ -716,7 +728,6 @@ bad_escaping:
 			    report_location(DIAG_NOTE, filename,
 					    unique_line_no, unique_pos);
 			    cerr << "Previously used here" << endl;
-			    exit(1);
 			}
 			unique_line_no = line_no;
 			unique_pos = action_pos;
@@ -733,7 +744,6 @@ bad_escaping:
 					    obj.get_pos() + 3 + 1);
 			    cerr << "Index action 'gap' takes a strictly "
 				    "positive integer argument" << endl;
-			    exit(1);
 			}
 			break;
 		    }
@@ -746,7 +756,6 @@ bad_escaping:
 					    obj.get_pos() + 4 + 1);
 			    cerr << "Index action 'hash' takes an integer "
 				    "argument which must be at least 6" << endl;
-			    exit(1);
 			}
 			break;
 		    }
@@ -763,7 +772,6 @@ bad_escaping:
 				cerr << "Index action '" << action_names[code]
 				     << "' only support ASCII characters "
 					"currently\n";
-				exit(1);
 			    }
 			}
 			actions.emplace_back(code, action_pos, val);
@@ -782,11 +790,10 @@ bad_escaping:
 		    if (min_args == max_args) {
 			cerr << "Index action '" << action << "' requires "
 			     << min_args << " arguments" << endl;
-			exit(1);
+		    } else {
+			cerr << "Index action '" << action << "' requires at least "
+			     << min_args << " arguments" << endl;
 		    }
-		    cerr << "Index action '" << action << "' requires at least "
-			 << min_args << " arguments" << endl;
-		    exit(1);
 		}
 		switch (code) {
 		    case Action::INDEX:
@@ -886,6 +893,9 @@ bad_escaping:
     if (index_spec.empty()) {
 	report_location(DIAG_ERROR, filename, line_no);
 	cerr << "No rules found in index script" << endl;
+    }
+
+    if (error_count) {
 	exit(1);
     }
 }
