@@ -113,7 +113,7 @@ const char * action_names[] = {
 };
 
 // For debugging:
-#define DUMP_ACTION(A) cout << action_names[(A).get_action()] << "(" << (A).get_string_arg() << "," << (A).get_num_arg() << ")" << endl
+#define DUMP_ACTION(A) cout << action_names[(A).get_action()] << "(" << (A).get_string_arg() << "," << (A).get_num_arg() << ")\n"
 
 class Action {
   public:
@@ -251,13 +251,13 @@ report_useless_action(const string &file, size_t line, size_t pos,
 		      const string &action)
 {
     report_location(DIAG_WARN, file, line, pos);
-    cerr << "Index action '" << action << "' has no effect" << endl;
+    cerr << "Index action '" << action << "' has no effect\n";
 
     static bool given_left_to_right_warning = false;
     if (!given_left_to_right_warning) {
 	given_left_to_right_warning = true;
 	report_location(DIAG_NOTE, file, line, pos);
-	cerr << "Actions are executed from left to right" << endl;
+	cerr << "Actions are executed from left to right\n";
     }
 }
 
@@ -269,7 +269,7 @@ parse_index_script(const string &filename)
     ifstream script(filename.c_str());
     if (!script.is_open()) {
 	report_location(DIAG_ERROR, filename);
-	cerr << strerror(errno) << endl;
+	cerr << strerror(errno) << '\n';
 	exit(1);
     }
     string line;
@@ -292,7 +292,7 @@ parse_index_script(const string &filename)
 	while (true) {
 	    if (!C_isalnum(*i)) {
 		report_location(DIAG_ERROR, filename, line_no, i - s.begin());
-		cerr << "field name must start with alphanumeric" << endl;
+		cerr << "field name must start with alphanumeric\n";
 	    }
 	    j = find_if(i + 1, s.end(),
 			[](char ch) { return !C_isalnum(ch) && ch != '_'; });
@@ -306,7 +306,7 @@ parse_index_script(const string &filename)
 	    }
 	    if (i == j) {
 		report_location(DIAG_ERROR, filename, line_no, i - s.begin());
-		cerr << "bad character '" << *i << "' in field name" << endl;
+		cerr << "bad character '" << *i << "' in field name\n";
 		++i;
 		i = find_if(i, s.end(), [](char ch) { return !C_isspace(ch); });
 		if (i == s.end()) break;
@@ -451,7 +451,7 @@ parse_index_script(const string &filename)
 	    }
 	    if (code == Action::BAD) {
 		report_location(DIAG_ERROR, filename, line_no, action_pos);
-		cerr << "Unknown index action '" << action << "'" << endl;
+		cerr << "Unknown index action '" << action << "'\n";
 	    }
 	    auto i_after_action = i;
 	    i = find_if(i, s.end(), [](char ch) { return !C_isspace(ch); });
@@ -461,14 +461,14 @@ parse_index_script(const string &filename)
 		    report_location(DIAG_WARN, filename, line_no,
 				    i_after_action - s.begin());
 		    cerr << "putting spaces between the action and '=' is "
-			    "deprecated" << endl;
+			    "deprecated\n";
 		}
 
 		if (max_args == 0) {
 		    report_location(DIAG_ERROR, filename, line_no,
 				    i - s.begin());
 		    cerr << "Index action '" << action
-			 << "' doesn't take an argument" << endl;
+			 << "' doesn't take an argument\n";
 		}
 
 		++i;
@@ -477,7 +477,7 @@ parse_index_script(const string &filename)
 		    report_location(DIAG_WARN, filename, line_no,
 				    i - s.begin());
 		    cerr << "putting spaces between '=' and the argument is "
-			    "deprecated" << endl;
+			    "deprecated\n";
 		}
 
 		vector<string> vals;
@@ -494,7 +494,7 @@ parse_index_script(const string &filename)
 			    if (i == s.end()) {
 				report_location(DIAG_ERROR, filename, line_no,
 						s.size());
-				cerr << "No closing quote" << endl;
+				cerr << "No closing quote\n";
 				break;
 			    }
 			    arg.append(j, i);
@@ -506,8 +506,8 @@ parse_index_script(const string &filename)
 bad_escaping:
 				report_location(DIAG_ERROR, filename, line_no,
 						i - s.begin());
-				cerr << "Bad escaping in quoted action argument"
-				     << endl;
+				cerr << "Bad escaping in quoted action "
+					"argument\n";
 				break;
 			    }
 
@@ -568,7 +568,7 @@ bad_hex_digit:
 			    report_location(DIAG_ERROR, filename, line_no,
 					    i - s.begin());
 			    cerr << "Unexpected character '" << *i
-				 << "' after closing quote" << endl;
+				 << "' after closing quote\n";
 			    do {
 				++i;
 			    } while (i != s.end() && *i != ',' && !C_isspace(*i));
@@ -596,9 +596,8 @@ bad_hex_digit:
 		    if (vals.size() == max_args) {
 			report_location(DIAG_ERROR, filename, line_no,
 					i - s.begin());
-			cerr << "Index action '" << action
-			     << "' takes at most " << max_args << " arguments"
-			     << endl;
+			cerr << "Index action '" << action << "' takes at most "
+			     << max_args << " arguments\n";
 		    }
 		}
 
@@ -606,13 +605,11 @@ bad_hex_digit:
 		    report_location(DIAG_ERROR, filename, line_no,
 				    i - s.begin());
 		    if (min_args == max_args) {
-			cerr << "Index action '" << action
-			     << "' requires " << min_args << " arguments"
-			     << endl;
+			cerr << "Index action '" << action << "' requires "
+			     << min_args << " arguments\n";
 		    } else {
-			cerr << "Index action '" << action
-			     << "' requires at least " << min_args << " arguments"
-			     << endl;
+			cerr << "Index action '" << action << "' requires "
+				"at least " << min_args << " arguments\n";
 		    }
 		    // Allow action handling code to assume there are min_args
 		    // arguments.
@@ -630,7 +627,7 @@ bad_hex_digit:
 			report_location(DIAG_ERROR, filename, line_no,
 					j - s.begin() + dot);
 			cerr << "Index action '" << action
-			     << "' takes an integer argument" << endl;
+			     << "' takes an integer argument\n";
 		    }
 		}
 		switch (code) {
@@ -640,8 +637,8 @@ bad_hex_digit:
 			    val != "yyyymmdd") {
 			    report_location(DIAG_ERROR, filename, line_no,
 					    j - s.begin());
-			    cerr << "Invalid parameter '" << val << "' for "
-				    "action 'date'" << endl;
+			    cerr << "Invalid parameter '" << val
+				 << "' for action 'date'\n";
 			}
 			actions.emplace_back(code, action_pos, val);
 			break;
@@ -658,7 +655,7 @@ bad_hex_digit:
 			    report_location(DIAG_ERROR, filename, line_no,
 					    j - s.begin());
 			    cerr << "Index action 'weight' takes a "
-				    "non-negative integer argument" << endl;
+				    "non-negative integer argument\n";
 			    weight = 0;
 			}
 			if (useless_weight_pos != string::npos) {
@@ -672,15 +669,16 @@ bad_hex_digit:
 			if (bad_code != val.npos) {
 			    report_location(DIAG_ERROR, filename, line_no,
 					    j - s.begin() + bad_code);
-			    cerr << "Parsing timezone names with %Z is not supported" << endl;
+			    cerr << "Parsing timezone names with %Z is not "
+				    "supported\n";
 			}
 #ifndef HAVE_STRUCT_TM_TM_GMTOFF
 			bad_code = val.find("%z");
 			if (bad_code != val.npos) {
 			    report_location(DIAG_ERROR, filename, line_no,
 					    j - s.begin() + bad_code);
-			    cerr << "Parsing timezone offsets with %z is not supported on "
-				    "this platform" << endl;
+			    cerr << "Parsing timezone offsets with %z is not "
+				    "supported on this platform\n";
 			}
 #endif
 			actions.emplace_back(code, action_pos, val);
@@ -690,7 +688,7 @@ bad_hex_digit:
 			if (val.empty()) {
 			    report_location(DIAG_ERROR, filename, line_no,
 					    j - s.begin());
-			    cerr << "Split delimiter can't be empty" << endl;
+			    cerr << "Split delimiter can't be empty\n";
 			}
 			int operation = Action::SPLIT_NONE;
 			if (vals.size() >= 2) {
@@ -710,7 +708,7 @@ bad_hex_digit:
 				report_location(DIAG_ERROR, filename, line_no,
 						i - s.begin() - vals[1].size());
 				cerr << "Bad split operation '" << vals[1]
-				     << "'" << endl;
+				     << "'\n";
 			    }
 			}
 			actions.emplace_back(code, action_pos, val, operation);
@@ -733,11 +731,11 @@ bad_hex_digit:
 			if (unique_line_no) {
 			    report_location(DIAG_ERROR, filename, line_no,
 					    action_pos);
-			    cerr << "Index action 'unique' used more than once"
-				 << endl;
+			    cerr << "Index action 'unique' used more than "
+				    "once\n";
 			    report_location(DIAG_NOTE, filename,
 					    unique_line_no, unique_pos);
-			    cerr << "Previously used here" << endl;
+			    cerr << "Previously used here\n";
 			}
 			unique_line_no = line_no;
 			unique_pos = action_pos;
@@ -753,7 +751,7 @@ bad_hex_digit:
 			    report_location(DIAG_ERROR, filename, line_no,
 					    obj.get_pos() + 3 + 1);
 			    cerr << "Index action 'gap' takes a strictly "
-				    "positive integer argument" << endl;
+				    "positive integer argument\n";
 			}
 			break;
 		    }
@@ -765,7 +763,7 @@ bad_hex_digit:
 			    report_location(DIAG_ERROR, filename, line_no,
 					    obj.get_pos() + 4 + 1);
 			    cerr << "Index action 'hash' takes an integer "
-				    "argument which must be at least 6" << endl;
+				    "argument which must be at least 6\n";
 			}
 			break;
 		    }
@@ -799,10 +797,10 @@ bad_hex_digit:
 				    i_after_action - s.begin());
 		    if (min_args == max_args) {
 			cerr << "Index action '" << action << "' requires "
-			     << min_args << " arguments" << endl;
+			     << min_args << " arguments\n";
 		    } else {
-			cerr << "Index action '" << action << "' requires at least "
-			     << min_args << " arguments" << endl;
+			cerr << "Index action '" << action << "' requires "
+				"at least " << min_args << " arguments\n";
 		    }
 		}
 		switch (code) {
@@ -871,14 +869,13 @@ bad_hex_digit:
 		report_location(DIAG_WARN, filename, unique_line_no,
 				unique_pos);
 		cerr << "Index action 'unique=" << boolpfx->first
-		     << "' without 'boolean=" << boolpfx->first << "'" << endl;
+		     << "' without 'boolean=" << boolpfx->first << "'\n";
 		static bool given_doesnt_imply_boolean_warning = false;
 		if (!given_doesnt_imply_boolean_warning) {
 		    given_doesnt_imply_boolean_warning = true;
 		    report_location(DIAG_NOTE, filename, unique_line_no,
 				    unique_pos);
-		    cerr << "'unique' doesn't implicitly add a boolean term"
-			 << endl;
+		    cerr << "'unique' doesn't implicitly add a boolean term\n";
 		}
 	    }
 	}
@@ -903,7 +900,7 @@ bad_hex_digit:
 
     if (index_spec.empty()) {
 	report_location(DIAG_ERROR, filename, line_no);
-	cerr << "No rules found in index script" << endl;
+	cerr << "No rules found in index script\n";
     }
 
     if (error_count) {
@@ -979,8 +976,7 @@ run_actions(vector<Action>::const_iterator action_it,
 		size_t len = value.length();
 		if (len & 1) {
 		    report_location(DIAG_ERROR, fname, line_no);
-		    cerr << "hextobin: input must have even length"
-			 << endl;
+		    cerr << "hextobin: input must have even length\n";
 		    exit(1);
 		}
 
@@ -1020,7 +1016,7 @@ run_actions(vector<Action>::const_iterator action_it,
 		// If there's no input, just issue a warning.
 		if (value.empty()) {
 		    report_location(DIAG_WARN, fname, line_no);
-		    cerr << "Empty filename in LOAD action" << endl;
+		    cerr << "Empty filename in LOAD action\n";
 		    break;
 		}
 		bool truncated = false;
@@ -1030,7 +1026,7 @@ run_actions(vector<Action>::const_iterator action_it,
 			       value, truncated)) {
 		    report_location(DIAG_ERROR, fname, line_no);
 		    cerr << "Couldn't load file '" << filename << "': "
-			 << strerror(errno) << endl;
+			 << strerror(errno) << '\n';
 		    exit(1);
 		}
 		if (!truncated) break;
@@ -1188,8 +1184,7 @@ run_actions(vector<Action>::const_iterator action_it,
 		// If there's no text, just issue a warning.
 		if (value.empty()) {
 		    report_location(DIAG_WARN, fname, line_no);
-		    cerr << "Ignoring UNIQUE action on empty text"
-			 << endl;
+		    cerr << "Ignoring UNIQUE action on empty text\n";
 		    break;
 		}
 
@@ -1224,7 +1219,7 @@ run_actions(vector<Action>::const_iterator action_it,
 		if (*end) {
 		    report_location(DIAG_WARN, fname, line_no);
 		    cerr << "Trailing characters in VALUENUMERIC: '"
-			 << value << "'" << endl;
+			 << value << "'\n";
 		}
 		doc.add_value(action.get_num_arg(),
 			      Xapian::sortable_serialise(dbl));
@@ -1249,11 +1244,10 @@ run_actions(vector<Action>::const_iterator action_it,
 		    report_location(DIAG_WARN, fname, line_no);
 		    cerr << "valuepacked \"" << value << "\" ";
 		    if (errno == ERANGE) {
-			cerr << "out of range";
+			cerr << "out of range\n";
 		    } else {
-			cerr << "not an unsigned integer";
+			cerr << "not an unsigned integer\n";
 		    }
-		    cerr << endl;
 		}
 		int valueslot = action.get_num_arg();
 		doc.add_value(valueslot, int_to_binary_string(word));
@@ -1270,7 +1264,7 @@ run_actions(vector<Action>::const_iterator action_it,
 		    if (!parse_signed(value.c_str(), t)) {
 			report_location(DIAG_WARN, fname, line_no);
 			cerr << "Date value (in secs) for action DATE "
-				"must be an integer - ignoring" << endl;
+				"must be an integer - ignoring\n";
 			break;
 		    }
 		    struct tm *tm = localtime(&t);
@@ -1282,7 +1276,7 @@ run_actions(vector<Action>::const_iterator action_it,
 		    if (!parse_signed(value.c_str(), t)) {
 			report_location(DIAG_WARN, fname, line_no);
 			cerr << "Date value (in secs) for action DATE "
-				"must be an integer - ignoring" << endl;
+				"must be an integer - ignoring\n";
 			break;
 		    }
 		    struct tm *tm = gmtime(&t);
@@ -1293,7 +1287,7 @@ run_actions(vector<Action>::const_iterator action_it,
 		    if (value.length() != 8) {
 			report_location(DIAG_WARN, fname, line_no);
 			cerr << "date=yyyymmdd expects an 8 character value "
-				"- ignoring" << endl;
+				"- ignoring\n";
 			break;
 		    }
 		    yyyymmdd = value;
@@ -1317,7 +1311,7 @@ run_actions(vector<Action>::const_iterator action_it,
 		if (ret == NULL) {
 		    report_location(DIAG_WARN, fname, line_no);
 		    cerr << "\"" << value << "\" doesn't match format "
-			    "\"" << dateformat << '\"' << endl;
+			    "\"" << dateformat << '\"' << '\n';
 		    break;
 		}
 
@@ -1326,7 +1320,7 @@ run_actions(vector<Action>::const_iterator action_it,
 		    cerr << "\"" << value << "\" not fully matched by "
 			    "format \"" << dateformat << "\" "
 			    "(\"" << ret << "\" left over) but "
-			    "indexing anyway" << endl;
+			    "indexing anyway\n";
 		}
 #ifdef HAVE_STRUCT_TM_TM_GMTOFF
 		auto gmtoff = tm.tm_gmtoff;
@@ -1371,7 +1365,7 @@ index_file(const char *fname, istream &stream,
 	    string::size_type eq = line.find('=');
 	    if (eq == string::npos && !line.empty()) {
 		report_location(DIAG_ERROR, fname, line_no, line.size());
-		cerr << "expected = somewhere in this line" << endl;
+		cerr << "expected = somewhere in this line\n";
 		exit(1);
 	    }
 	    string field(line, 0, eq);
@@ -1409,7 +1403,7 @@ index_file(const char *fname, istream &stream,
 	if (!seen_content) {
 	    if (docid) {
 		database.delete_document(docid);
-		if (verbose) cout << "Del: " << docid << endl;
+		if (verbose) cout << "Del: " << docid << '\n';
 		++delcount;
 	    }
 	} else {
@@ -1429,11 +1423,11 @@ index_file(const char *fname, istream &stream,
 	    // Add the document to the database
 	    if (docid) {
 		database.replace_document(docid, doc);
-		if (verbose) cout << "Replace: " << docid << endl;
+		if (verbose) cout << "Replace: " << docid << '\n';
 		++repcount;
 	    } else {
 		docid = database.add_document(doc);
-		if (verbose) cout << "Add: " << docid << endl;
+		if (verbose) cout << "Add: " << docid << '\n';
 		++addcount;
 	    }
 	}
@@ -1441,7 +1435,7 @@ index_file(const char *fname, istream &stream,
 
     // Commit after each file to make sure all changes from that file make it
     // in.
-    if (verbose) cout << "Committing: " << endl;
+    if (verbose) cout << "Committing\n";
     database.commit();
 }
 
@@ -1515,7 +1509,7 @@ try {
 		} catch (const Xapian::InvalidArgumentError &) {
 		    cerr << "Unknown stemming language '" << optarg << "'.\n";
 		    cerr << "Available language names are: "
-			 << Xapian::Stem::get_available_languages() << endl;
+			 << Xapian::Stem::get_available_languages() << '\n';
 		    return 1;
 		}
 		break;
@@ -1554,20 +1548,20 @@ try {
 	    if (stream) {
 		index_file(argv[i], stream, database, indexer);
 	    } else {
-		cerr << "Can't open file " << argv[i] << endl;
+		cerr << "Can't open file " << argv[i] << '\n';
 	    }
 	}
     }
 
     cout << "records (added, replaced, deleted) = (" << addcount << ", "
-	 << repcount << ", " << delcount << ")" << endl;
+	 << repcount << ", " << delcount << ")\n";
 } catch (const Xapian::Error &error) {
-    cerr << "Exception: " << error.get_description() << endl;
+    cerr << "Exception: " << error.get_description() << '\n';
     exit(1);
 } catch (const std::bad_alloc &) {
-    cerr << "Exception: std::bad_alloc" << endl;
+    cerr << "Exception: std::bad_alloc\n";
     exit(1);
 } catch (...) {
-    cerr << "Unknown Exception" << endl;
+    cerr << "Unknown Exception\n";
     exit(1);
 }
