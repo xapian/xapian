@@ -145,7 +145,7 @@ test_scriptindex_error() {
 test_scriptindex_warning() {
   what=$1
   expect="$2
-records (added, replaced, deleted) = (*, *, *)"
+records (added, replaced, deleted, skipped) = (*, *, *, *)"
   input=$3
   rm -rf "$TEST_DB"
   rc=0
@@ -1296,6 +1296,12 @@ printf '%s\n' 'id : unique=Q boolean=W' 'id f : field' > "$TEST_INDEXSCRIPT"
 test_scriptindex_warning 'unique without boolean' \
   "$TEST_INDEXSCRIPT:1:6: warning: Index action 'unique=Q' without 'boolean=Q'
 $TEST_INDEXSCRIPT:1:6: note: 'unique' doesn't implicitly add a boolean term"
+
+# Test `unique` action gives error when not used for a record.
+printf '%s\n' 'id : boolean=Q unique=Q' 'id f : field' > "$TEST_INDEXSCRIPT"
+test_scriptindex_error 'missing unique field' \
+  "<stdin>:4: error: UNIQUE action unused in this record" \
+  'id=1\nf=wan\n\nf=\n'
 
 # Test $subdb and $subid.
 rm -rf "$TEST_DB"
