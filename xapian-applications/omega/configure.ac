@@ -181,6 +181,10 @@ AC_CHECK_FUNCS([setenv _putenv_s])
 AC_CHECK_DECLS([_putenv_s(const char*, const char*)], [], [],
 [#include <stdlib.h>])
 
+dnl See if we have closefrom(), or some functions that are useful to implement
+dnl closefrom() on platforms which don't provide it.
+AC_CHECK_FUNCS([closefrom getdirentries getrlimit])
+
 dnl libmagic used to detect MIME types for files we don't detect by extension.
 AC_CHECK_HEADERS([magic.h])
 if test $ac_cv_header_magic_h != yes ; then
