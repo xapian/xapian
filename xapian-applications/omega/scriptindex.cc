@@ -771,7 +771,6 @@ bad_hex_digit:
 				report_location(DIAG_ERROR, filename, line_no);
 				cerr << "Bad unique parameter '" << vals[1]
 				     << "'\n";
-				exit(1);
 			    }
 			}
 			actions.emplace_back(code, action_pos, val);
