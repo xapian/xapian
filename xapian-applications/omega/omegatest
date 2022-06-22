@@ -1542,19 +1542,8 @@ done
 
 # Regression test that a closing " with junk after is flagged.
 printf 'date : field="test"index' > "$TEST_INDEXSCRIPT"
-rm -rf "$TEST_DB"
-rc=0
-out=`$SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" < /dev/null 2>&1` || rc=$?
-if [ $rc -eq 0 ] ; then
-    echo "scriptindex didn't exit with non-zero return code for junk after closing quote"
-    failed=`expr $failed + 1`
-elif printf '%s' "$out" \
-    | grep -q ":1:20: error: Unexpected character 'i' after closing quote" ; then
-    : # OK
-else
-    echo "scriptindex didn't give expected error for junk after closing quote"
-    failed=`expr $failed + 1`
-fi
+test_scriptindex_error "junk after closing quote" \
+  "$TEST_INDEXSCRIPT:1:20: error: Unexpected character 'i' after closing quote"
 
 # Test we warn about useless actions.
 printf 'date : field parsedate=%%Y%%m%%d' > "$TEST_INDEXSCRIPT"
