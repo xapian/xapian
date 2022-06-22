@@ -212,17 +212,42 @@ truncate=LENGTH
 unhtml
 	strip out HTML tags
 
-unique[=PREFIX]
+unique[=PREFIX[,missing=MISSINGACTION]]
 	use the value in this field for a unique ID.  If the value is empty,
 	a warning is issued but nothing else is done.  Only one record with
 	each value of the ID may be present in the index: adding a new record
 	with an ID which is already present will cause the old record to be
-	replaced (or deleted if the new record is otherwise empty).  You should
-	also index the field as a boolean field using the same prefix so that
-        the old record can be found.  In Omega, ``Q`` is conventionally used as
-        the prefix of a unique term.  You can use ``unique`` at most once in
-        each index script (this is only enforced since Omega 1.4.5, but older
-        versions didn't handle multiple instances usefully).
+        replaced or deleted.
+
+        Deletion happens if the only input field present has the ``unique``
+        action applied to it.  (Prior to 1.5.0, if there were multiple lists
+        of actions applied to an input field this triggered replacement instead
+        of deletion).  If you want to suppress this deletion feature, supplying
+        a dummy input field which doesn't match the index script will achieve
+        this.
+
+        You should also index the field as a boolean field using the same
+        prefix so that the old record can be found.  In Omega, ``Q`` is
+        conventionally used as the prefix of a unique term.
+
+        You can use ``unique`` at most once in each index script (this is only
+        enforced since Omega 1.4.5, but older versions didn't handle multiple
+        instances usefully).
+
+        The optional ``missing`` parameter is supported since Omega 1.4.20.
+        It controls what happens when a record is processed which doesn't
+        trigger the ``unique`` action or triggers the ``unique`` action with
+        an empty value.  It can be one of:
+
+          * ``error``: Exit with an error upon encountering such a document
+            (default in Omega >= 1.5.0)
+          * ``new``: Create a new document (default in Omega < 1.4.20 when
+            ``unique`` not triggered)
+          * ``warn+new``: Issue a warning and create a new document (default in
+            Omega >= 1.4.20 and in older versions when ``unique`` is triggered
+            with an empty value)
+          * ``skip``: Move on to the next record
+          * ``warn+skip``: Issue a warning and move on to the next record
 
 value=VALUESLOT
 	add as a Xapian document value in slot VALUESLOT.  Values can be used

@@ -70,6 +70,23 @@ static bool verbose;
 static int addcount;
 static int repcount;
 static int delcount;
+static int skipcount;
+
+/** What to do if there's a UNIQUE action but a record doesn't use it.
+ */
+static enum {
+    UNIQUE_ERROR,
+    UNIQUE_WARN_NEW,
+    UNIQUE_NEW,
+    UNIQUE_WARN_SKIP,
+    UNIQUE_SKIP
+} unique_missing = UNIQUE_WARN_NEW;
+
+/// Track if UNIQUE action is unused in the current record.
+static bool unique_unused;
+
+/// Track if the current record is being skipping.
+static bool skipping_record = false;
 
 static inline bool
 prefix_needs_colon(const string & prefix, unsigned ch)
@@ -258,6 +275,8 @@ report_useless_action(const string &file, size_t line, size_t pos,
     }
 }
 
+static bool index_spec_uses_unique = false;
+
 static map<string, vector<Action>> index_spec;
 
 static void
@@ -414,7 +433,8 @@ parse_index_script(const string &filename)
 			    code = Action::UNHTML;
 			} else if (action == "unique") {
 			    code = Action::UNIQUE;
-			    min_args = max_args = 1;
+			    min_args = 1;
+			    max_args = 2;
 			}
 			break;
 		    case 'v':
@@ -736,6 +756,24 @@ bad_hex_digit:
 			unique_pos = action_pos;
 			if (boolmap.find(val) == boolmap.end())
 			    boolmap[val] = Action::UNIQUE;
+			if (vals.size() >= 2) {
+			    if (vals[1] == "missing=error") {
+				unique_missing = UNIQUE_ERROR;
+			    } else if (vals[1] == "missing=new") {
+				unique_missing = UNIQUE_NEW;
+			    } else if (vals[1] == "missing=warn+new") {
+				unique_missing = UNIQUE_WARN_NEW;
+			    } else if (vals[1] == "missing=skip") {
+				unique_missing = UNIQUE_SKIP;
+			    } else if (vals[1] == "missing=warn+skip") {
+				unique_missing = UNIQUE_WARN_SKIP;
+			    } else {
+				report_location(DIAG_ERROR, filename, line_no);
+				cerr << "Bad unique parameter '" << vals[1]
+				     << "'\n";
+				exit(1);
+			    }
+			}
 			actions.emplace_back(code, action_pos, val);
 			break;
 		    case Action::GAP: {
@@ -900,6 +938,8 @@ bad_hex_digit:
     if (error_count) {
 	exit(1);
     }
+
+    index_spec_uses_unique = (unique_line_no > 0);
 }
 
 static bool
@@ -1171,10 +1211,32 @@ run_actions(vector<Action>::const_iterator action_it,
 		break;
 	    }
 	    case Action::UNIQUE: {
-		// If there's no text, just issue a warning.
+		unique_unused = false;
+
 		if (value.empty()) {
-		    report_location(DIAG_WARN, fname, line_no);
-		    cerr << "Ignoring UNIQUE action on empty text\n";
+		    enum diag_type diag = DIAG_WARN;
+		    switch (unique_missing) {
+		      case UNIQUE_ERROR:
+			diag = DIAG_ERROR;
+			/* FALLTHRU */
+		      case UNIQUE_WARN_NEW:
+		      case UNIQUE_WARN_SKIP:
+			report_location(diag, fname, line_no);
+			cerr << "UNIQUE action on empty text\n";
+		      default:
+			break;
+		    }
+		    switch (unique_missing) {
+		      case UNIQUE_ERROR:
+			exit(1);
+		      case UNIQUE_SKIP:
+		      case UNIQUE_WARN_SKIP:
+			skipping_record = true;
+			break;
+		      case UNIQUE_NEW:
+		      case UNIQUE_WARN_NEW:
+			break;
+		    }
 		    break;
 		}
 
@@ -1344,6 +1406,8 @@ index_file(const char *fname, istream &stream,
 	Xapian::docid docid = 0;
 	map<string, list<string>> fields;
 	bool seen_content = false;
+	skipping_record = false;
+	unique_unused = index_spec_uses_unique;
 	while (!line.empty()) {
 	    // Cope with files from MS Windows (\r\n end of lines).
 	    // Trim multiple \r characters, since that seems the best way
@@ -1375,6 +1439,8 @@ index_file(const char *fname, istream &stream,
 		value += line;
 	    }
 
+	    if (skipping_record) continue;
+
 	    // Default to not indexing spellings.
 	    indexer.set_flags(Xapian::TermGenerator::flags(0));
 
@@ -1388,9 +1454,37 @@ index_file(const char *fname, istream &stream,
 	    if (this_field_is_content) seen_content = true;
 	}
 
-	// If we haven't seen any fields (other than unique identifiers)
-	// the document is to be deleted.
-	if (!seen_content) {
+	if (unique_unused) {
+	    enum diag_type diag = DIAG_WARN;
+	    switch (unique_missing) {
+	      case UNIQUE_ERROR:
+		diag = DIAG_ERROR;
+		/* FALLTHRU */
+	      case UNIQUE_WARN_NEW:
+	      case UNIQUE_WARN_SKIP:
+		report_location(diag, fname, line_no);
+		cerr << "UNIQUE action unused in this record\n";
+	      default:
+		break;
+	    }
+	    switch (unique_missing) {
+	      case UNIQUE_ERROR:
+		exit(1);
+	      case UNIQUE_SKIP:
+	      case UNIQUE_WARN_SKIP:
+		skipping_record = true;
+		break;
+	      case UNIQUE_NEW:
+	      case UNIQUE_WARN_NEW:
+		break;
+	    }
+	}
+
+	if (skipping_record) {
+	    ++skipcount;
+	} else if (!seen_content) {
+	    // We haven't seen any fields (other than unique identifiers)
+	    // so the document is to be deleted.
 	    if (docid) {
 		database.delete_document(docid);
 		if (verbose) cout << "Del: " << docid << '\n';
@@ -1526,6 +1620,7 @@ try {
     addcount = 0;
     repcount = 0;
     delcount = 0;
+    skipcount = 0;
 
     if (argc == 2) {
 	// Read from stdin.
@@ -1542,8 +1637,11 @@ try {
 	}
     }
 
-    cout << "records (added, replaced, deleted) = (" << addcount << ", "
-	 << repcount << ", " << delcount << ")\n";
+    cout << "records (added, replaced, deleted, skipped) = ("
+	 << addcount << ", "
+	 << repcount << ", "
+	 << delcount << ", "
+	 << skipcount << ")\n";
 } catch (const Xapian::Error &error) {
     cerr << "Exception: " << error.get_description() << '\n';
     exit(1);
