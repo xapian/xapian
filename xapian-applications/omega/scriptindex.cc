@@ -569,6 +569,11 @@ bad_hex_digit:
 					    i - s.begin());
 			    cerr << "Unexpected character '" << *i
 				 << "' after closing quote" << endl;
+			    do {
+				++i;
+			    } while (i != s.end() && *i != ',' && !C_isspace(*i));
+			    if (*i != ',') break;
+			    ++i;
 			}
 		    } else if (max_args > 1) {
 			// Unquoted argument, split on comma.
@@ -976,24 +981,23 @@ run_actions(vector<Action>::const_iterator action_it,
 		    report_location(DIAG_ERROR, fname, line_no);
 		    cerr << "hextobin: input must have even length"
 			 << endl;
-		} else {
-		    string output;
-		    output.reserve(len / 2);
-		    for (size_t j = 0; j < len; j += 2) {
-			char a = value[j];
-			char b = value[j + 1];
-			if (!C_isxdigit(a) || !C_isxdigit(b)) {
-			    report_location(DIAG_ERROR, fname, line_no);
-			    cerr << "hextobin: input must be all hex "
-				    "digits" << endl;
-			    goto badhex;
-			}
-			char r = (hex_digit(a) << 4) | hex_digit(b);
-			output.push_back(r);
-		    }
-		    value = std::move(output);
+		    exit(1);
 		}
-badhex:
+
+		string output;
+		output.reserve(len / 2);
+		for (size_t j = 0; j < len; j += 2) {
+		    char a = value[j];
+		    char b = value[j + 1];
+		    if (!C_isxdigit(a) || !C_isxdigit(b)) {
+			report_location(DIAG_ERROR, fname, line_no);
+			cerr << "hextobin: input must be all hex digits\n";
+			exit(1);
+		    }
+		    char r = (hex_digit(a) << 4) | hex_digit(b);
+		    output.push_back(r);
+		}
+		value = std::move(output);
 		break;
 	    }
 	    case Action::LOWER:
@@ -1027,8 +1031,7 @@ badhex:
 		    report_location(DIAG_ERROR, fname, line_no);
 		    cerr << "Couldn't load file '" << filename << "': "
 			 << strerror(errno) << endl;
-		    value.resize(0);
-		    break;
+		    exit(1);
 		}
 		if (!truncated) break;
 	    }
@@ -1369,7 +1372,7 @@ index_file(const char *fname, istream &stream,
 	    if (eq == string::npos && !line.empty()) {
 		report_location(DIAG_ERROR, fname, line_no, line.size());
 		cerr << "expected = somewhere in this line" << endl;
-		// FIXME: die or what?
+		exit(1);
 	    }
 	    string field(line, 0, eq);
 	    string value(line, eq + 1, string::npos);

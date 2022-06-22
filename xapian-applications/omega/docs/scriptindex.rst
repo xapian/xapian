@@ -92,11 +92,13 @@ hash[=LENGTH]
 hextobin
         converts pairs of hex digits to binary byte values (providing a way
         to specify arbitrary binary strings e.g. for use in a document value
-        slot).  The input should have an even length and be composed entirely
-        of hex digits (if it isn't, an error is reported and the value is
-        unchanged).
+        slot).  The input must have an even length and be composed entirely
+        of hex digits (if it isn't, an error is reported).
 
-        ``hextobin`` was added in Omega 1.4.6.
+        ``hextobin`` was added in Omega 1.4.6.  Prior to Omega 1.4.20, the
+        "error" on a bad value was really handled like a warning - it didn't
+        cause Omega to exit with non-zero status, instead the value was
+        passed on unchanged.
 
 index[=PREFIX]
 	split text into words and index (with prefix PREFIX if specified).
@@ -111,7 +113,9 @@ load
         and then sets the current text to the contents.  If the current text
         is empty, a warning is issued (since Xapian 1.4.10).  If the file can't
         be loaded (not found, wrong permissions, etc) then an error is issued and
-        the current text is set to empty.
+        scriptindex exits (prior to Omega 1.4.20 this "error" was really handled
+        as a warning - scriptindex continued with the current text set to empty,
+        and the final exit status wasn't affected).
 
         If the next action is ``truncate``, then scriptindex is smart enough to
         know it only needs to load the start of a large file.
