@@ -1,3 +1,45 @@
+up to: f7300f204c0cb9bb0e0e3a67657b70a1d7e3d26b
+
+Xapian-bindings 1.4.20 (2022-06-16):
+
+Documentation:
+
+General:
+
+* Enable -fvisibility-inlines-hidden option if the compiler supports it.
+
+Packaging:
+
+Portability:
+
+CSharp:
+
+Java:
+
+Lua:
+
+Perl:
+
+PHP:
+
+PHP7:
+
+* Add missing reference tracking. XapianEnquire now keeps a reference to the
+  current XapianSorter object (if any).  XapianQueryParser now keeps a
+  reference to any set XapianFieldProcessor objects.  Test coverage for keeping
+  references to set functor objects is now more comprehensive.
+
+* smoketest.php: Remove bogus extra null parameters.  PHP ignores these extra
+  parameters, but it's more helpful to be testing valid usage.
+
+Python:
+
+Python3:
+
+Ruby:
+
+Tcl:
+
 Xapian-bindings 1.4.19 (2021-12-31):
 
 Documentation:
@@ -15,7 +57,7 @@ General:
 Perl:
 
 * Add missing wrappers for some QueryParser FLAG_* constants.
-    
+
 * Fix incorrect formatting in the processed POD documentation due to missing
   escaping of `>` in code snippets.
 

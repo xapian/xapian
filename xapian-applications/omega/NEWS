@@ -1,3 +1,84 @@
+up to: 303e01feb1af9d5cc4ed46696c8893ca0cab0cfb
+
+Omega 1.4.20 (2022-06-23):
+
+general:
+
+documentation:
+
+indexers:
+
+* omindex:
+
+  + OpenDocument: Previously we only inserted an implicit space before each
+    paragraph.  Now we insert them both before and after each paragraph and
+    heading, and before forced each line-break and tab.
+
+  + Add extension mapping for .awt (Abiword templates).
+
+  + Index metadata from XPS files.
+
+  + Remove lingering handling for database backends without slot bounds since
+    all backends have been required to support these since 1.4.11.
+
+* scriptindex:
+
+  + Process an incomplete final line from a dump file.  Previously if the final
+    line lacked a newline scriptindex would quietly ignore it (unless it was
+    the only line).
+
+  + The `unique` action now takes an optional `missing` parameter to specify
+    what to do if a record doesn't trigger the unique action or triggers it
+    with an empty value.  The default is now to issue a warning and create a
+    new document (the same as before, except that there was only previously a
+    warning for the empty value case). In Omega 1.5.0 the default will change
+    to an error as that seems a better default, but is less compatible with
+    potential existing use.
+
+  + If we hit an error while parsing the index script we used to exit right
+    away, but now we finish parsing the index script since it's more helpful to
+    report all the errors in an index script rather than the user having to
+    fix them one by one.  This requires us to sensibly recover after each index
+    script parse error - if you find a case where this recovery triggers
+    further bogus errors please report it and we'll try to improve the
+    recovery.
+
+  + In four cases while handling input data (two cases of bad hex data fed
+    to `hextobin`, an input data line without a `=`, and `load` failing to
+    load the specified file) we'd emit a diagnostic that was labelled as an
+    "error" but really it was handled as a warning as we kept reading input
+    and the "error" didn't affect the exit status.  It doesn't really make
+    sense to continue in any of these cases so we now exit with non-zero status
+    right away.
+
+  + A parameter in the index script which should be an integer but isn't, or
+    should be positive but isn't now gives an error rather than a warning since
+    an error seems more helpful.
+
+  + All diagnostics issued while parsing the index script now include column
+    information.
+
+  + Avoid forcibly flushing the output stream after every message.
+
+omega:
+
+templates:
+
+testsuite:
+
+* Improve test coverage for scriptindex.
+
+build system:
+
+portability:
+
+* Require PCRE2 instead of PCRE. The original PCRE is now EOL and unmaintained
+  (last release was June 2021).  In omega it's potentially used to process
+  input from the internet, so security is a real concern hence we're switching
+  to PCRE2.
+
+packaging:
+
 Omega 1.4.19 (2021-12-31):
 
 documentation:

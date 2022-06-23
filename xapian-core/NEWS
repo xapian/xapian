@@ -1,3 +1,96 @@
+up to: 1955d225c505eb6ca0811030fb7cf53ac79277d3
+
+Xapian-core 1.4.20 (2022-06-16):
+
+API:
+
+* Throw DatabaseNotFoundError when the database directory doesn't exist or
+  when it doesn't contain a Xapian database.  Patch from Germán Méndez Bravo
+  in https://github.com/xapian/xapian/pull/258
+
+* Improve exception message for attempting to remove an empty term (the
+  exception type is still InvalidArgumentError).  Reported by David Bremner.
+
+testsuite:
+
+* Reenable commented out queryparser testcase.  The FIXME comment said "This
+  throws an exception as of 1.3.6, but once implemented we should re-enable it"
+  - it now passes so it seems this has since been implemented.
+
+* Expand some query-related testcases.
+
+matcher:
+
+* Optimise when a value range is a superset of the slot bounds but the value
+  slot frequency is not equal to the document count by replacing the lower
+  bound with an empty string to make the bounds check very cheap.
+
+* Avoid creating a PostList tree for an empty shard.  This avoids pointless
+  work in an uncommon case, but also by handling this up front the code in
+  PostList subclasses for query operators can assume the shard isn't empty
+  which simplifies the code in several places.
+
+* Remove lingering handling for database backends without slot bounds since
+  all backends have been required to support these since 1.4.11.
+
+* Fix collection frequency estimates for positional operators.  This affects
+  the weighting of positional operators in subqueries of OP_SYNONYM with
+  weighting schemes which use the collection frequency.
+
+glass backend:
+
+* xapian-check: Test decompress data in the spelling and synonym tables.
+  We don't have structure checking for these tables, but we can at least fetch
+  each entry and check for decompression problems.
+
+* Improve error if block overwritten in WritableDatabase.  Drop "are there
+  multiple writers?" as it's rarely a useful question to ask since we started
+  using fcntl() locking as it's now very hard to get multiple concurrent
+  writers on a database.  Instead suggest running xapian-check, which is
+  probably the best next step for a user who hits this problem.
+
+chert backend:
+
+
+remote backend:
+
+
+inmemory backend:
+
+
+build system:
+
+
+documentation:
+
+* Document precedence of NEAR and ADJ.
+
+* INSTALL: Note that MSVS 2022 works.
+
+tools:
+
+* quest: Add --freqs option to show term frequencies.
+
+* xapian-delve -v: Show value slot bounds and freq
+
+examples:
+
+
+portability:
+
+* Fix to build with a C++20 compiler.
+
+* configure now probes for a declaration of strerror_r() before using it, since
+  a declaration is required in C++ code.
+
+* MSVC: Use intrinsics to implement addition with overflow check.
+
+packaging:
+
+
+debug code:
+
+
 Xapian-core 1.4.19 (2021-12-31):
 
 API:
