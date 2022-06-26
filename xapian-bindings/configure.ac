@@ -431,17 +431,8 @@ if test no != "$with_python3" ; then
       ;;
     esac
     if test -n "$PYTHON3" ; then
-      if $PYTHON3 -c 'import distutils.sysconfig' 2>/dev/null ; then
-	PYTHON3_INC=`$PYTHON3 -c 'import os,distutils.sysconfig;print(distutils.sysconfig.get_python_inc().replace(os.sep,"/"))'`
-	AC_SUBST(PYTHON3_INC)
-      else
-	if test yes = "$with_python3" ; then
-	  AC_MSG_ERROR([Couldn't import Python module distutils.sysconfig - you probably need to install a python3-dev or python3-devel package])
-	else
-	  AC_MSG_WARN([Couldn't import Python module distutils.sysconfig - you probably don't have a python3-dev or python3-devel package installed])
-	  PYTHON3=
-	fi
-      fi
+      PYTHON3_INC=`$PYTHON3 -c 'import os,sysconfig;print(sysconfig.get_path("include").replace(os.sep,"/"))' 2>/dev/null`
+      AC_SUBST(PYTHON3_INC)
     fi
     AC_MSG_CHECKING([for python3 sphinx module])
     if $PYTHON3 -c 'import sphinx' >&5 2>&5 ; then
@@ -461,7 +452,7 @@ if test no != "$with_python3" ; then
 	AC_MSG_RESULT(yes)
 	AC_MSG_CHECKING([for directory to install python3 bindings in])
 	if test -z "$PYTHON3_LIB" ; then
-	  PYTHON3_LIB=`$PYTHON3 -c 'import os,distutils.sysconfig;print(distutils.sysconfig.get_python_lib(1).replace(os.sep,"/"))'`
+	  PYTHON3_LIB=`$PYTHON3 -c 'import os,sysconfig;print(sysconfig.get_path("platlib").replace(os.sep,"/"))'`
 	fi
 	AC_MSG_RESULT([$PYTHON3_LIB])
 	AC_ARG_VAR(PYTHON3_LIB, [Directory to install python3 bindings in])
@@ -479,18 +470,30 @@ if test no != "$with_python3" ; then
 	AC_MSG_RESULT([$PYTHON3_LIBS])
 
 	AC_MSG_CHECKING([for python3 module extension])
-	dnl Usually ".so", but for example, Mac OS X uses ".dylib".
-	PYTHON3_SO=`$PYTHON3 -c 'import distutils.sysconfig;print(distutils.sysconfig.get_config_vars("SO")[[0]])'`
-	AC_SUBST(PYTHON3_SO)
-	AC_MSG_RESULT([$PYTHON3_SO])
+	dnl Encodes the Python version the module is built for, and ends with
+	dnl the platform-dependent shared object extension (which is `.so` on
+	dnl most Unix-like platforms) - e.g. `.cpython-310-x86_64-linux-gnu.so`
+	PYTHON3_EXT_SUFFIX=`$PYTHON3 -c 'import sysconfig;print(sysconfig.get_config_var("EXT_SUFFIX"))'`
+	AC_SUBST(PYTHON3_EXT_SUFFIX)
+	AC_MSG_RESULT([$PYTHON3_EXT_SUFFIX])
 
 	AC_MSG_CHECKING([for tag for cached compiled scripts])
-	PYTHON3_CACHE_TAG=`$PYTHON3 -c 'import imp;print(imp.get_tag())'`
+	dnl Since Python 3.3 sys.implementation.cache_tag is the preferred option here,
+	dnl and the old approach issues deprecation warnings since Python 3.7.
+	dnl
+	dnl This needs a shell-level || because Python one line program support is poor.
+	PYTHON3_CACHE_TAG=`$PYTHON3 -c 'import sys;print(sys.implementation.cache_tag)' 2>/dev/null || $PYTHON3 -c 'import imp;print(imp.get_tag())'`
 	AC_SUBST(PYTHON3_CACHE_TAG)
 	AC_MSG_RESULT([$PYTHON3_CACHE_TAG])
 
 	AC_MSG_CHECKING([for extension of cached and optimized python3 bytecode])
-	PYTHON3_CACHE_OPT1_EXT=`$PYTHON3 -c 'import imp,sys;print("%s.pyo"%imp.get_tag()) if sys.version_info.minor<5 else print("{1}{2}".format(*imp.util.cache_from_source("",optimization=1).rpartition(imp.get_tag())))'`
+	dnl We use -O instead of cache_from_source()'s optimization parameter
+	dnl as the latter was only added in Python 3.5.  The fallback is needed
+	dnl as cache_from_source() itself is new in Python 3.4.
+	dnl
+	dnl This needs a shell-level || because Python one line program support
+	dnl is poor.
+	PYTHON3_CACHE_OPT1_EXT=`$PYTHON3 -O -c 'import importlib,sys;print("{1}{2}".format(*importlib.util.cache_from_source("").rpartition(sys.implementation.cache_tag)))' 2>/dev/null || $PYTHON3 -c 'import imp;print(imp.get_tag()+".pyo")'`
 	AC_SUBST(PYTHON3_CACHE_OPT1_EXT)
 	AC_MSG_RESULT([$PYTHON3_CACHE_OPT1_EXT])
 
