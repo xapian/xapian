@@ -269,19 +269,19 @@ if test no != "$with_python3" ; then
   fi
   AC_ARG_VAR(PYTHON3, [Python 3 interpreter])
   if test -n "$PYTHON3" ; then
-    dnl Require Python 3.2 or newer, as that's the oldest version we can
+    dnl Require Python 3.3 or newer, as that's the oldest version we can
     dnl easily test with.  If anyone's keen to support older versions, please
     dnl test and send in any patches needed to get it to work.
     AC_MSG_CHECKING([$PYTHON3 version])
     version=`$PYTHON3 -c 'import sys;print("%d.%d" % sys.version_info[[:2]])' 2>/dev/null`
     case $version in
-    [3.[2-9]*|3.1[0-9]*|[4-9].*])
+    [3.[3-9]*|3.[12][0-9]*|[4-9].*])
       AC_MSG_RESULT([$version])
       ;;
     *)
       AC_MSG_RESULT([$version (too old)])
       if test yes = "$with_python3" ; then
-	AC_MSG_ERROR([Only Python 3.2 or newer is supported ($python3 is $version)])
+	AC_MSG_ERROR([Only Python 3.3 or newer is supported ($python3 is $version)])
       fi
       PYTHON3=
       ;;
