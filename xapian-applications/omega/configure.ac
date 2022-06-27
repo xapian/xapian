@@ -314,7 +314,7 @@ PKG_CHECK_MODULES([LIBMWAW], [libmwaw-0.3,librevenge-0.0,librevenge-generators-0
 AC_SUBST([OMINDEX_MODULES])
 
 dnl mingw has _snprintf so check for that too.
-AC_MSG_CHECKING([for  snprintf])
+AC_MSG_CHECKING([for snprintf])
 AC_CACHE_VAL([xo_cv_func_snprintf],
   [
   xo_cv_func_snprintf=no
