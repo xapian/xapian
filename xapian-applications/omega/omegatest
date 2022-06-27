@@ -884,6 +884,18 @@ testcase 'Query((Zsecond@1 OR Zfirst@2 OR Zdocument@3))|second OR first OR docum
 testcase 'Query((Zsecond@1 OR Zfirst@2 OR Zdocument@3))|second OR first OR document' MORELIKE=Qa1 MORELIKE=2 MORELIKE=4
 testcase 'Query((Zsecond@1 OR Zfirst@2 OR Zdocument@3))|second OR first OR document' MORELIKE=Qa1 MORELIKE=Qb2 MORELIKE=Qdummy
 
+# Test errors for scriptindex input format issues.
+printf 'f : index field' > "$TEST_INDEXSCRIPT"
+test_scriptindex_error "no = in input line" \
+  "<stdin>:1: error: Expected = somewhere in this line" \
+  "a\nb=y\nc=z\n"
+test_scriptindex_error "no = in input line" \
+  "<stdin>:2: error: Expected = somewhere in this line" \
+  "a=x\nby\nc=z\n"
+test_scriptindex_error "no = in input line" \
+  "<stdin>:3: error: Expected = somewhere in this line" \
+  "a=x\n=yz\nbcd\ne=q"
+
 # Feature tests for scriptindex `index` and `indexnopos` actions.
 printf '%s\n' 't : index=XT' 'n : indexnopos=XN' > "$TEST_INDEXSCRIPT"
 rm -rf "$TEST_DB"
