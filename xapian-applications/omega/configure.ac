@@ -270,7 +270,7 @@ dnl fnmatch() is used to match ignore pattern.
 AC_CHECK_FUNCS([fnmatch])
 
 dnl mingw has _snprintf so check for that too.
-AC_MSG_CHECKING([for  snprintf])
+AC_MSG_CHECKING([for snprintf])
 AC_CACHE_VAL([xo_cv_func_snprintf],
   [
   xo_cv_func_snprintf=no
