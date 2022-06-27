@@ -1410,6 +1410,10 @@ index_file(const char *fname, istream &stream,
     size_t line_no = 0;
     while (!stream.eof() && getline(stream, line)) {
 	++line_no;
+	// Allow blank lines before the first record and multiple blank lines
+	// between records.
+	if (line.empty()) continue;
+
 	Xapian::Document doc;
 	indexer.set_document(doc);
 	Xapian::docid docid = 0;
@@ -1427,8 +1431,8 @@ index_file(const char *fname, istream &stream,
 
 	    string::size_type eq = line.find('=');
 	    if (eq == string::npos && !line.empty()) {
-		report_location(DIAG_ERROR, fname, line_no, line.size());
-		cerr << "expected = somewhere in this line\n";
+		report_location(DIAG_ERROR, fname, line_no);
+		cerr << "Expected = somewhere in this line\n";
 		exit(1);
 	    }
 	    string field(line, 0, eq);
