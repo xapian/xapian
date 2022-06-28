@@ -491,9 +491,12 @@ if test no != "$with_python3" ; then
 	dnl as the latter was only added in Python 3.5.  The fallback is needed
 	dnl as cache_from_source() itself is new in Python 3.4.
 	dnl
+	dnl Some Python versions (or maybe packages) need us to explicitly
+	dnl `import importlib.util` here, but others work without it.
+	dnl
 	dnl This needs a shell-level || because Python one line program support
 	dnl is poor.
-	PYTHON3_CACHE_OPT1_EXT=`$PYTHON3 -O -c 'import importlib,sys;print("{1}{2}".format(*importlib.util.cache_from_source("").rpartition(sys.implementation.cache_tag)))' 2>/dev/null || $PYTHON3 -c 'import imp;print(imp.get_tag()+".pyo")'`
+	PYTHON3_CACHE_OPT1_EXT=`$PYTHON3 -O -c 'import importlib,importlib.util,sys;print("{1}{2}".format(*importlib.util.cache_from_source("").rpartition(sys.implementation.cache_tag)))' 2>/dev/null || $PYTHON3 -c 'import imp;print(imp.get_tag()+".pyo")'`
 	AC_SUBST(PYTHON3_CACHE_OPT1_EXT)
 	AC_MSG_RESULT([$PYTHON3_CACHE_OPT1_EXT])
 
