@@ -289,10 +289,21 @@ weight=FACTOR
 Input files:
 ============
 
-The data to be indexed is read in from one or more files.  Each file has
-records separated by a blank line.  Each record contains one or more fields of
-the form "name=value".  If value contains newlines, these must be escaped by
-inserting an equals sign ('=') after each newline.  Here's an example record::
+The data to be indexed is read in from one or more input files.  Each input
+file consists of zero or more records, each separated by one or more blank
+lines.
+
+Omega 1.4.20 and later explicitly allow multiple blank lines between
+records, and also blank lines before the first record and after the last
+record - in earlier versions only a single blank line after each record was
+explicitly handled, and extra blank lines were handled as an empty records.
+If you want to be compatible with older versions we recommend a single
+blank line after each record (with the blank line after the final record
+being optional).
+
+Each record contains one or more fields of the form "name=value".  If value
+contains newlines, these must be escaped by inserting an equals sign ('=')
+after each newline.  Here's an example record::
 
  id=ghq147
  title=Sample Record

@@ -282,6 +282,17 @@ static bool index_spec_uses_unique = false;
 
 static map<string, vector<Action>> index_spec;
 
+// Like std::getline() but handle \r\n line endings too.
+static istream&
+getline_portable(istream& stream, string& line)
+{
+    istream& result = getline(stream, line);
+    // Trim multiple \r characters, since that seems the best way to handle
+    // that case.
+    line.resize(line.find_last_not_of('\r') + 1);
+    return result;
+}
+
 static void
 parse_index_script(const string &filename)
 {
@@ -1408,8 +1419,12 @@ index_file(const char *fname, istream &stream,
 {
     string line;
     size_t line_no = 0;
-    while (!stream.eof() && getline(stream, line)) {
+    while (!stream.eof() && getline_portable(stream, line)) {
 	++line_no;
+	// Allow blank lines before the first record and multiple blank lines
+	// between records.
+	if (line.empty()) continue;
+
 	Xapian::Document doc;
 	indexer.set_document(doc);
 	Xapian::docid docid = 0;
@@ -1418,13 +1433,6 @@ index_file(const char *fname, istream &stream,
 	skipping_record = false;
 	unique_unused = index_spec_uses_unique;
 	while (!line.empty()) {
-	    // Cope with files from MS Windows (\r\n end of lines).
-	    // Trim multiple \r characters, since that seems the best way
-	    // to handle that case.
-	    string::size_type last = line.find_last_not_of('\r');
-	    if (last == string::npos) break;
-	    line.resize(last + 1);
-
 	    string::size_type eq = line.find('=');
 	    if (eq == string::npos && !line.empty()) {
 		report_location(DIAG_ERROR, fname, line_no);
@@ -1434,17 +1442,11 @@ index_file(const char *fname, istream &stream,
 	    string field(line, 0, eq);
 	    string value(line, eq + 1, string::npos);
 	    line.clear();
-	    while (getline(stream, line)) {
+	    while (getline_portable(stream, line)) {
 		++line_no;
 		if (line.empty() || line[0] != '=') break;
-		// Cope with files from MS Windows (\r\n end of lines).
-		// Trim multiple \r characters, since that seems the best way
-		// to handle that case.
-		last = line.find_last_not_of('\r');
-		// line[0] == '=', so last != string::npos.
-		// Replace the '=' with a '\n' so we don't have to use substr.
+		// Replace the '=' with a '\n'.
 		line[0] = '\n';
-		line.resize(last + 1);
 		value += line;
 	    }
 

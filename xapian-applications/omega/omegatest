@@ -55,6 +55,9 @@ default_template $TEST_TEMPLATE
 default_db $TEST_DB
 __END__
 
+# Glob pattern matching scriptindex summary line.
+SUMMARY_GLOB='records (added, replaced, deleted, skipped) = (*, *, *, *)'
+
 failed=0
 
 testcase() {
@@ -145,7 +148,7 @@ test_scriptindex_error() {
 test_scriptindex_warning() {
   what=$1
   expect="$2
-records (added, replaced, deleted, skipped) = (*, *, *, *)"
+$SUMMARY_GLOB"
   input=$3
   rm -rf "$TEST_DB"
   rc=0
@@ -172,6 +175,48 @@ records (added, replaced, deleted, skipped) = (*, *, *, *)"
       *)
 	printf "scriptindex didn't give expected warning for %s"'\n' "$what"
 	printf 'Expect: %s\n' "$expect"
+	printf 'Output: %s\n' "$out"
+	failed=`expr $failed + 1`
+	;;
+    esac
+  fi
+}
+
+# Test scriptindex runs cleanly
+#
+# Parameters:
+# * what: text to report to describe situation
+# * (optional) input: input to feed scriptindex; can contain \n, etc escapes
+#   (default: /dev/null)
+#
+# Uses database $TEST_DB and index script $TEST_INDEXSCRIPT.
+test_scriptindex() {
+  what=$1
+  input=$2
+  rm -rf "$TEST_DB"
+  rc=0
+  case $input in
+  "")
+    out=`$SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" < /dev/null 2>&1` || rc=$?
+    ;;
+  *%*)
+    # Escape any % by doubling.
+    input=`printf '%s' "$input"|sed 's/%/%%/g'`
+    out=`printf "$input"|$SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" 2>&1` || rc=$?
+    ;;
+  *)
+    out=`printf "$input"|$SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" 2>&1` || rc=$?
+    ;;
+  esac
+  if [ $rc -ne 0 ] ; then
+    printf 'scriptindex gave an error for %s\n' "$what"
+    printf 'Output: %s\n' "$out"
+    failed=`expr $failed + 1`
+  else
+    case $out in
+      $SUMMARY_GLOB) ;; # OK
+      *)
+	printf 'scriptindex gave unexpected output for %s\n' "$what"
 	printf 'Output: %s\n' "$out"
 	failed=`expr $failed + 1`
 	;;
@@ -977,6 +1022,13 @@ test_scriptindex_error "no = in input line" \
 test_scriptindex_error "no = in input line" \
   "<stdin>:3: error: Expected = somewhere in this line" \
   "a=x\n=yz\nbcd\ne=q"
+
+# Test handling of extra blank lines.
+printf 'id : unique=Q boolean=Q\nf : field' > "$TEST_INDEXSCRIPT"
+test_scriptindex "extra blank lines" \
+  "\nid=1\nf=a\n\n\nid=2\nf=b\n\n"
+test_scriptindex "extra blank lines with CRs" \
+  "\r\nid=1\r\nf=a\r\n\r\n\r\nid=2\r\nf=b\r\n\r\n"
 
 # Feature tests for scriptindex `index` and `indexnopos` actions.
 printf '%s\n' 't : index=XT' 'n : indexnopos=XN' > "$TEST_INDEXSCRIPT"
