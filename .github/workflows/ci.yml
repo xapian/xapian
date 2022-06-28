@@ -164,8 +164,6 @@ jobs:
     - name: Install package dependencies
       run: |
         brew update
-        # Workaround collision from mono package to something else.
-        # mono seems to collide with a different version of mono?
         brew install \
             doxygen \
             gmime \
@@ -174,6 +172,7 @@ jobs:
             libiconv \
             libmagic \
             lua \
+            mono-mdk \
             pcre2 \
             pkgconfig \
             pngcrush \
@@ -182,7 +181,7 @@ jobs:
     - name: bootstrap source tree
       run: ./bootstrap xapian-core xapian-applications/omega swig xapian-bindings xapian-letor
     - name: configure
-      run: ./configure CC='ccache gcc' CXX='ccache g++' CPPFLAGS='-I${{ runner.temp }}/xapian-libsvm-fixed-include' PYTHON3=/usr/local/bin/python PKG_CONFIG_PATH=/usr/local/opt/icu4c/lib/pkgconfig --prefix='${{ runner.temp }}/XapianInstall' --with-libiconv-prefix=/usr/local/opt/libiconv
+      run: ./configure CC='ccache gcc' CXX='ccache g++' CPPFLAGS='-I${{ runner.temp }}/xapian-libsvm-fixed-include' PKG_CONFIG_PATH=/usr/local/opt/icu4c/lib/pkgconfig --prefix='${{ runner.temp }}/XapianInstall' --with-libiconv-prefix=/usr/local/opt/libiconv
     - name: make
       run: |
         make -j3
