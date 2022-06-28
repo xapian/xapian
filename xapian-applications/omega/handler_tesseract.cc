@@ -21,6 +21,8 @@
 #include <config.h>
 #include "handler.h"
 
+// Workaround stupidity in tesseract headers.
+#undef HAVE_CONFIG_H
 #include <tesseract/baseapi.h>
 #include <leptonica/allheaders.h>
 
