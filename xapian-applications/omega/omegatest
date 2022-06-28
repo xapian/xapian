@@ -1411,7 +1411,7 @@ fi
 
 # Regression test: error given for multiple `unique` actions.
 printf 'id : boolean=Q unique=Q\nguid : boolean=G unique=G' > "$TEST_INDEXSCRIPT"
-test_scriptindex_error 'UNIQUE used more than once'\
+test_scriptindex_error 'UNIQUE used more than once' \
   "$TEST_INDEXSCRIPT:2:18: error: Index action 'unique' used more than once
 $TEST_INDEXSCRIPT:1:16: note: Previously used here"
 
