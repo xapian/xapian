@@ -1410,10 +1410,6 @@ index_file(const char *fname, istream &stream,
     size_t line_no = 0;
     while (!stream.eof() && getline(stream, line)) {
 	++line_no;
-	// Allow blank lines before the first record and multiple blank lines
-	// between records.
-	if (line.empty()) continue;
-
 	Xapian::Document doc;
 	indexer.set_document(doc);
 	Xapian::docid docid = 0;
