@@ -47,7 +47,6 @@ jobs:
             python3-dev \
             tcl \
             tcl-dev \
-            libsvm-dev \
             libicu-dev \
             pkg-config \
             libpoppler-glib-dev \
@@ -105,7 +104,6 @@ jobs:
             libmagic-dev \
             tcl \
             tcl-dev \
-            libsvm-dev \
             libicu-dev \
             pkg-config \
             libpoppler-glib-dev \
@@ -171,7 +169,6 @@ jobs:
             python3-dev \
             tcl \
             tcl-dev \
-            libsvm-dev \
             libpoppler-glib-dev \
             libglib2.0-dev \
             libe-book-dev \
@@ -273,7 +270,6 @@ jobs:
             libiconv \
             libmagic \
             libmwaw \
-            libsvm \
             lua \
             mono-mdk \
             pcre2 \
@@ -284,12 +280,10 @@ jobs:
             python \
             tesseract
         pip3 install sphinx docutils
-        mkdir -p '${{ runner.temp }}/xapian-libsvm-fixed-include'
-        ln -sF "`ls -1d /usr/local/Cellar/libsvm/3.*/include|tail -n 1`" '${{ runner.temp }}/xapian-libsvm-fixed-include/libsvm'
     - name: bootstrap source tree
       run: ./bootstrap xapian-core xapian-applications/omega swig xapian-bindings xapian-letor
     - name: configure
-      run: ./configure CC='ccache gcc' CXX='ccache g++' CPPFLAGS='-I${{ runner.temp }}/xapian-libsvm-fixed-include' PKG_CONFIG_PATH=/usr/local/opt/icu4c/lib/pkgconfig --prefix='${{ runner.temp }}/XapianInstall' --with-libiconv-prefix=/usr/local/opt/libiconv
+      run: ./configure CC='ccache gcc' CXX='ccache g++' PKG_CONFIG_PATH=/usr/local/opt/icu4c/lib/pkgconfig --prefix='${{ runner.temp }}/XapianInstall' --with-libiconv-prefix=/usr/local/opt/libiconv
     - name: make
       run: |
         make -j3
