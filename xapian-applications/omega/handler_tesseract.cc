@@ -2,7 +2,7 @@
  * @brief Extract text from Images using tesseract.
  */
 /* Copyright (C) 2019 Bruno Baruffaldi
-/* Copyright (C) 2022 Olly Betts
+ * Copyright (C) 2022 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
