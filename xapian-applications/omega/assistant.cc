@@ -1,7 +1,7 @@
 /** @file
  * @brief Worker module for putting text extraction into a separate process.
  */
-/* Copyright (C) 2011 Olly Betts
+/* Copyright (C) 2011,2022 Olly Betts
  * Copyright (C) 2019 Bruno Baruffaldi
  *
  * This program is free software; you can redistribute it and/or
@@ -27,6 +27,8 @@
 #include "handler.h"
 #include "safeunistd.h"
 
+#include <sysexits.h>
+
 using namespace std;
 
 const int FD = 3;
@@ -36,7 +38,7 @@ const int time_limit = 300;
 
 static void
 timeout_handler(int sig) {
-    _Exit(sig);
+    _Exit(EX_TEMPFAIL);
 }
 
 static void

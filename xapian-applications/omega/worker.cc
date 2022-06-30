@@ -32,23 +32,26 @@
 #include "safeunistd.h"
 #include <sys/socket.h>
 #include <sys/wait.h>
+#include <sysexits.h>
 #include <utility>
 
 #include "closefrom.h"
 #include "freemem.h"
 #include "parseint.h"
 #include "pkglibbindir.h"
+#include "str.h"
 
 using namespace std;
 
 bool Worker::ignoring_sigpipe = false;
 
-void
+int
 Worker::start_worker_subprocess()
 {
     int fds[2];
     if (socketpair(AF_UNIX, SOCK_STREAM, PF_UNSPEC, fds) < 0) {
-	throw string("socketpair failed: ") + strerror(errno);
+	error = string("socketpair failed: ") + strerror(errno);
+	return 1;
     }
 
     if (filter_module.find('/') == string::npos) {
@@ -61,7 +64,6 @@ Worker::start_worker_subprocess()
 
     child = fork();
     if (child == 0) {
-
 	// Child process.
 	close(fds[0]);
 
@@ -113,7 +115,7 @@ Worker::start_worker_subprocess()
 	// Replacing the current process image with a new process image
 	const char* mod = filter_module.c_str();
 	execl(mod, mod, static_cast<void*>(NULL));
-	_exit(1);
+	_exit(EX_OSERR);
     }
 
     // Main process
@@ -121,7 +123,8 @@ Worker::start_worker_subprocess()
     close(fds[1]);
     if (child == -1) {
 	close(fds[0]);
-	throw string("fork failed: ") + strerror(fork_errno);
+	error = string("fork failed: ") + strerror(fork_errno);
+	return 1;
     }
 
     sockt = fdopen(fds[0], "r+");
@@ -131,9 +134,10 @@ Worker::start_worker_subprocess()
 	signal(SIGPIPE, SIG_IGN);
     }
 
+    return 0;
 }
 
-bool
+int
 Worker::extract(const std::string& filename,
 		const std::string& mimetype,
 		std::string& dump,
@@ -142,6 +146,11 @@ Worker::extract(const std::string& filename,
 		std::string& author,
 		int& pages)
 {
+    if (filter_module.empty()) {
+	error = "This helper hard failed earlier in the current run";
+	return -1;
+    }
+
     if (sockt) {
 	// Check if the worker process is still alive - if it is, waitpid()
 	// with WNOHANG returns 0.
@@ -152,7 +161,8 @@ Worker::extract(const std::string& filename,
 	}
     }
     if (!sockt) {
-	start_worker_subprocess();
+	int r = start_worker_subprocess();
+	if (r != 0) return r;
     }
 
     string strpage, strstate;
@@ -175,26 +185,60 @@ Worker::extract(const std::string& filename,
 		// We can ignore errors here since pages defaults to -1 and
 		// negative means "unknown".
 		(void)parse_signed(strpage.c_str(), pages);
-		return true;
+		return 0;
 	    case MSG_NON_FATAL_ERROR:
 		if (strstate.length() > 1) {
 		    error.assign(strstate, 1, string::npos);
 		} else {
 		    error = "Couldn't extract text from " + filename;
 		}
-		return false;
+		return 1;
 	    default:
 		break;
 	}
     }
-    error = "The assistant process " + filter_module + " failed";
+
+    error = "The assistant process " + filter_module;
+    // Check if the worker process already died, so we can report if it
+    // was killed by a segmentation fault, etc.
+    int status;
+    int result = waitpid(child, &status, WNOHANG);
+    int waitpid_errno = errno;
+
     fclose(sockt);
     sockt = NULL;
 
-    int status;
-
-    kill(child, SIGTERM);
-    waitpid(child, &status, 0);
-
-    return false;
+    if (result == 0) {
+	// The worker is still alive, so terminate it.
+	kill(child, SIGTERM);
+	waitpid(child, &status, 0);
+	error += " failed";
+    } else if (result < 0) {
+	// waitpid() failed with an error.
+	error += " failed: ";
+	error += strerror(waitpid_errno);
+    } else if (WIFEXITED(status)) {
+	int rc = WEXITSTATUS(status);
+	switch (rc) {
+	  case EX_TEMPFAIL:
+	    error += " timed out";
+	    break;
+	  case EX_UNAVAILABLE:
+	    error += " failed to initialise";
+	    filter_module = string();
+	    return -1;
+	  case EX_OSERR:
+	    error += " failed to run helper";
+	    filter_module = string();
+	    return -1;
+	  default:
+	    error += " exited with status ";
+	    error += str(rc);
+	    break;
+	}
+    } else {
+	error += " killed by signal ";
+	error += str(WTERMSIG(status));
+    }
+    return 1;
 }

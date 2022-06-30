@@ -1,7 +1,7 @@
 /** @file
  * @brief Class representing worker process.
  */
-/* Copyright (C) 2011,2019 Olly Betts
+/* Copyright (C) 2011,2019,2022 Olly Betts
  * Copyright (C) 2019 Bruno Baruffaldi
  *
  * This program is free software; you can redistribute it and/or
@@ -36,18 +36,32 @@
 class Worker {
     /// Workers ignore SIGPIPE.
     static bool ignoring_sigpipe;
+
     /// PID of the assistant process.
     pid_t child;
+
     /** Socket for supporting communication between the worker
      *  and its assistant.
      */
     std::FILE* sockt = NULL;
-    /// Name of the assistant program.
+
+    /** Name of the assistant program.
+     *
+     *  Set to empty on hard failure so we can hard fail right away if retried
+     *  via a different mimemap entry.
+     */
     std::string filter_module;
-    /// This method create the assistant subprocess.
-    void start_worker_subprocess();
+
+    /** This method creates the assistant subprocess.
+     *
+     *  Return a negative or 0 or positive integer with the same semantics as
+     *  the extract() method's return value.
+     */
+    int start_worker_subprocess();
+
     /// In case of failure, an error message will be write in it
     std::string error;
+
   public:
     /** Construct a Worker.
      *
@@ -71,20 +85,27 @@ class Worker {
      *  @param author		String where the author will be stored.
      *  @param pages		Here the number of pages will be stored.
      *
-     *  In case of an error, this methods will return false. Otherwise
-     *  it will return true.
+     *  @return 0 on success.
+     *
+     *		Negative integer for a hard error (e.g. we fail to find the
+     *		worker binary to run) - there's no point trying the same filter
+     *		again in this run.
+     *
+     *		Positive integer for a failure which is likely specific to the
+     *		specified input file.
      *
      *  Note: If it is not possible to get some information, the corresponding
      *  variable will hold an empty string. This situation is not considered
-     *  as an error.
+     *  to be an error.
      */
-    bool extract(const std::string& filename,
-		 const std::string& mimetype,
-		 std::string& dump,
-		 std::string& title,
-		 std::string& keywords,
-		 std::string& author,
-		 int& pages);
+    int extract(const std::string& filename,
+		const std::string& mimetype,
+		std::string& dump,
+		std::string& title,
+		std::string& keywords,
+		std::string& author,
+		int& pages);
+
     /** Returns an error message if the extraction fails, or an empty string
      *  if everything is okay.
      */

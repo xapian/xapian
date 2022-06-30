@@ -27,6 +27,8 @@
 #include <tesseract/baseapi.h>
 #include <leptonica/allheaders.h>
 
+#include <sysexits.h>
+
 using namespace std;
 using namespace tesseract;
 
@@ -64,7 +66,7 @@ extract(const string& filename,
 	// FIXME: We ought to provide a way to allow the language to use here
 	// to be specified.
 	if (ocr->Init(nullptr, "eng"))
-	    _Exit(1);
+	    _Exit(EX_UNAVAILABLE);
 	ocr->SetPageSegMode(PSM_AUTO_OSD);
     }
     // Open Image

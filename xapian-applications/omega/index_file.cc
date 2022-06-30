@@ -784,11 +784,22 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	if (cmd_it != commands.end() && cmd_it->second.worker) {
 	    // Use a worker process to extract the content.
 	    Worker* wrk = cmd_it->second.worker;
-	    if (!wrk->extract(file, mimetype, dump, title, keywords, author,
-			      pages)) {
+	    int r = wrk->extract(file, mimetype, dump, title, keywords, author,
+				 pages);
+	    if (r != 0) {
 		string msg = wrk->get_error();
 		assert(!msg.empty());
 		skip(urlterm, context, msg, d.get_size(), d.get_mtime());
+		if (r < 0) {
+		    // Hard failure - don't try this filter again for this run.
+		    string filter_entry;
+		    if (cmd_it != commands.end()) {
+			filter_entry = cmd_it->first;
+		    } else {
+			filter_entry = mimetype;
+		    }
+		    commands[filter_entry] = Filter();
+		}
 		return;
 	    }
 	} else if (cmd_it != commands.end()) {
