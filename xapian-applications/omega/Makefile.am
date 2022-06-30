@@ -270,7 +270,7 @@ sdbntest_LDADD = $(NO_INSTALL)
 jsonesctest_SOURCES = jsonesctest.cc jsonescape.cc
 jsonesctest_LDADD = $(NO_INSTALL) $(XAPIAN_LIBS)
 
-omindexcheck_SOURCES = omindexcheck.cc worker.cc worker_comms.cc common/closefrom.cc pkglibbindir.cc freemem.cc
+omindexcheck_SOURCES = omindexcheck.cc
 omindexcheck_LDADD = $(NO_INSTALL) $(XAPIAN_LIBS)
 
 if !MAINTAINER_NO_DOCS
