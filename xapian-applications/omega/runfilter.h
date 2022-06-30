@@ -75,6 +75,12 @@ void runfilter_init();
  *  and socketpair().  Other systems will ignore use_shell and always use the
  *  same code path (which may or may not involve some analog of the Unix
  *  shell).
+ *
+ *  If the command isn't installed (detected by exit status 127) then
+ *  NoSuchFilter is thrown.
+ *
+ *  If the command fails to completed successfully (detected by an exit status
+ *  other than 0 or alt_status) then ReadError is thrown.
  */
 void run_filter(int fd_in,
 		const std::string& cmd,
