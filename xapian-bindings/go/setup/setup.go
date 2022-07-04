@@ -105,10 +105,10 @@ func CreateDirsForXapian() string {
 		os.Mkdir(filepath.Join(gopath, "pkg"), 0777)
 	}
 
-	go_xapian_build_dir := filepath.Join(gopath, "src/xapian")
+	go_xapian_build_dir := filepath.Join(gopath, "src/xapian.org/xapian")
 	if _, err := os.Stat(go_xapian_build_dir); os.IsNotExist(err) {
 		fmt.Println("Creating dir - ", go_xapian_build_dir)
-		os.Mkdir(go_xapian_build_dir, 0777)
+		os.MkdirAll(go_xapian_build_dir, 0777)
 	}
 
 	return go_xapian_build_dir
@@ -116,6 +116,7 @@ func CreateDirsForXapian() string {
 
 func install(go_xapian_build_dir string) {
 	cmd := exec.Command("go", "install", "-x", go_xapian_build_dir)
+	cmd.Dir = go_xapian_build_dir
 	var stdoutBuf, stderrBuf bytes.Buffer
 	cmd.Stdout = io.MultiWriter(os.Stdout, &stdoutBuf)
 	cmd.Stderr = io.MultiWriter(os.Stderr, &stderrBuf)
@@ -124,12 +125,13 @@ func install(go_xapian_build_dir string) {
 	if err != nil {
 		log.Fatalf("cmd.Run() failed with %s\n", err)
 	}
-	outStr, errStr := string(stdoutBuf.Bytes()), string(stderrBuf.Bytes())
+	outStr, errStr := stdoutBuf.String(), stderrBuf.String()
 	fmt.Println(outStr, errStr)
-	fmt.Println("Go bindings installation successfull!")
+	fmt.Println("Go bindings installation successful!")
 }
 func build(go_xapian_build_dir string) {
 	cmd := exec.Command("go", "build", "-x", go_xapian_build_dir)
+	cmd.Dir = go_xapian_build_dir
 	var stdoutBuf, stderrBuf bytes.Buffer
 	cmd.Stdout = io.MultiWriter(os.Stdout, &stdoutBuf)
 	cmd.Stderr = io.MultiWriter(os.Stderr, &stderrBuf)
@@ -138,9 +140,9 @@ func build(go_xapian_build_dir string) {
 	if err != nil {
 		log.Fatalf("cmd.Run() failed with %s\n", err)
 	}
-	outStr, errStr := string(stdoutBuf.Bytes()), string(stderrBuf.Bytes())
+	outStr, errStr := stdoutBuf.String(), stderrBuf.String()
 	fmt.Println(outStr, errStr)
-	fmt.Println("Go bindings built successfull!")
+	fmt.Println("Go bindings built successful!")
 }
 func installWithOutCore() (string, string) {
 	xapian_bindings := filepath.Join("../../")
@@ -162,12 +164,25 @@ func installWithOutCore() (string, string) {
 		}
 	}
 	fmt.Println("xapian_pkgconfig_path - ", xapian_pkgconfig)
-	include, _ := exec.Command("pkg-config", xapian_pkgconfig, "--cflags").Output()
-	ld_flags, _ := exec.Command("pkg-config", xapian_pkgconfig, "--libs").Output()
-	IC_FLAGS := string(include[:len(include)-1])
-	fmt.Println(string(IC_FLAGS))
-	LD_FLAGS := string(ld_flags[:len(ld_flags)-1])
-	fmt.Println(LD_FLAGS)
+
+	var IC_FLAGS string
+	include := exec.Command("pkg-config", xapian_pkgconfig, "--cflags")
+	if output, err := include.Output(); err != nil {
+		log.Fatalf("%s failed with %s", include, err)
+	} else {
+		IC_FLAGS = string(output[:len(output)-1])
+		fmt.Println(string(IC_FLAGS))
+	}
+
+	var LD_FLAGS string
+	ld_flags := exec.Command("pkg-config", xapian_pkgconfig, "--libs")
+	if output, err := ld_flags.Output(); err != nil {
+		log.Fatalf("%s failed with %s", ld_flags, err)
+	} else {
+		LD_FLAGS = string(output[:len(output)-1])
+		fmt.Println(LD_FLAGS)
+	}
+
 	LD_FLAGS = "#cgo LDFLAGS: " + LD_FLAGS
 	IC_FLAGS = "#cgo CXXFLAGS: " + IC_FLAGS
 	return IC_FLAGS, LD_FLAGS
@@ -250,7 +265,7 @@ func buildWithOutCore() (string, string) {
 	lib_dir := filepath.Join(xapian_core, lt_obj_dir)
 	fmt.Println("lib_dir - ", lib_dir)
 
-	library := strings.TrimSpace(lib_name + lib_deps)
+	library := strings.TrimSpace(lib_name + " " + lib_deps)
 
 	LDFLAGS := "#cgo LDFLAGS: " + "-L" + lib_dir + " -Wl,-rpath," + lib_dir + " " + library + " "
 	ICFLAGS := "#cgo CXXFLAGS: " + "-I" + xapian_headers
@@ -263,7 +278,7 @@ func buildWithOutCore() (string, string) {
 }
 
 func copyAndInsert(go_bindings, go_xapian_build_dir, LD_FLAGS, IC_FLAGS, cxxflags, cppflags string) {
-
+	copyFileContents(filepath.Join(go_bindings, "go.mod"), filepath.Join(go_xapian_build_dir, "go.mod"))
 	copyFileContents(filepath.Join(go_bindings, "xapian.go"), filepath.Join(go_xapian_build_dir, "xapian.go"))
 	copyFileContents(filepath.Join(go_bindings, "go_wrap.h"), filepath.Join(go_xapian_build_dir, "go_wrap.h"))
 	copyFileContents(filepath.Join(go_bindings, "go_wrap.cxx"), filepath.Join(go_xapian_build_dir, "go_wrap.cxx"))
