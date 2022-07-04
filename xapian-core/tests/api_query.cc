@@ -1325,6 +1325,22 @@ DEFINE_TESTCASE(allnot1, backend) {
     TEST_EQUAL(mset.size(), 2);
 }
 
+// Regression test for optimisation bug on git master before 1.5.0.
+// The query optimiser didn't handle the RHS of AND_MAYBE not matching
+// anything.
+DEFINE_TESTCASE(emptymayberhs1, backend) {
+    Xapian::Database db(get_database("apitest_simpledata"));
+    Xapian::Enquire enq(db);
+    // The RHS doesn't match anything, which now gives a NULL PostList*, and
+    // we were trying to dereference that in this case.
+    Xapian::Query query(query.OP_AND_MAYBE,
+			Xapian::Query("document"),
+			Xapian::Query("xyzzy"));
+    enq.set_query(query);
+    Xapian::MSet mset = enq.get_mset(0, 10);
+    TEST_EQUAL(mset.size(), 2);
+}
+
 DEFINE_TESTCASE(phraseweightcheckbug1, backend) {
     Xapian::Database db(get_database("phraseweightcheckbug1"));
     Xapian::Enquire enq(db);

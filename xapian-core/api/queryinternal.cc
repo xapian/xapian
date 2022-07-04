@@ -1166,7 +1166,7 @@ Query::Internal::postlist_sub_or_like(OrContext& ctx,
 {
     Xapian::termcount save_total_subqs = qopt->get_total_subqs();
     unique_ptr<PostList> pl(postlist(qopt, factor, termfreqs));
-    if (!keep_zero_weight && pl->recalc_maxweight() == 0.0) {
+    if (!keep_zero_weight && pl && pl->recalc_maxweight() == 0.0) {
 	// This subquery can't contribute any weight, so can be discarded.
 	//
 	// Restore the value of total_subqs so that percentages don't get
