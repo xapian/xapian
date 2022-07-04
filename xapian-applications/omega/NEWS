@@ -12,6 +12,11 @@ indexers:
 
   + Index metadata from XPS files.
 
+  + -G and -C short options were documented in --help but not previously
+    actually handled. Reported by David Bremner.
+
+  + Show --max-size required argument in --help output.
+
   + Remove lingering handling for database backends without slot bounds since
     all backends have been required to support these since 1.4.11.
 
