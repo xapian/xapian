@@ -1,26 +1,8 @@
-up to: f7300f204c0cb9bb0e0e3a67657b70a1d7e3d26b
-
-Xapian-bindings 1.4.20 (2022-06-16):
-
-Documentation:
+Xapian-bindings 1.4.20 (2022-07-04):
 
 General:
 
 * Enable -fvisibility-inlines-hidden option if the compiler supports it.
-
-Packaging:
-
-Portability:
-
-CSharp:
-
-Java:
-
-Lua:
-
-Perl:
-
-PHP:
 
 PHP7:
 
@@ -32,13 +14,14 @@ PHP7:
 * smoketest.php: Remove bogus extra null parameters.  PHP ignores these extra
   parameters, but it's more helpful to be testing valid usage.
 
-Python:
-
 Python3:
 
-Ruby:
-
-Tcl:
+* The configure probes for Python3 no longer use the deprecated distutils and
+  imp modules (both of which are slated for removal in Python 3.12).  We now
+  use sysconfig to get the directory to install the xapian module to, which may
+  result in it being installed in a different place (it should still work, but
+  if you're packaging the bindings you may need to update the list of files to
+  include in the package).
 
 Xapian-bindings 1.4.19 (2021-12-31):
 

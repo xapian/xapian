@@ -1,10 +1,4 @@
-up to: 303e01feb1af9d5cc4ed46696c8893ca0cab0cfb
-
-Omega 1.4.20 (2022-06-23):
-
-general:
-
-documentation:
+Omega 1.4.20 (2022-07-04):
 
 indexers:
 
@@ -35,6 +29,11 @@ indexers:
     to an error as that seems a better default, but is less compatible with
     potential existing use.
 
+  + Explicitly allow multiple blank lines in input files.  Previously such
+    extra blank lines were treated as empty records and in many cases these
+    got quietly skipped, but e.g. with the new UNIQUE checks this could result
+    in a warning or error.
+
   + If we hit an error while parsing the index script we used to exit right
     away, but now we finish parsing the index script since it's more helpful to
     report all the errors in an index script rather than the user having to
@@ -60,15 +59,9 @@ indexers:
 
   + Avoid forcibly flushing the output stream after every message.
 
-omega:
-
-templates:
-
 testsuite:
 
 * Improve test coverage for scriptindex.
-
-build system:
 
 portability:
 
@@ -76,8 +69,6 @@ portability:
   (last release was June 2021).  In omega it's potentially used to process
   input from the internet, so security is a real concern hence we're switching
   to PCRE2.
-
-packaging:
 
 Omega 1.4.19 (2021-12-31):
 
