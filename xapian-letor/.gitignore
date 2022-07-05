@@ -40,7 +40,6 @@ install-sh
 libtool
 *.la
 ltmain.sh
-m4
 makemanpage
 missing
 ranker/.deps

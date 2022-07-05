@@ -236,7 +236,7 @@ if test no = "$xo_cv_cxx_works" ; then
 fi
 
 dnl Probe for any options needed to enable C++11 support.
-AX_CXX_COMPILE_STDCXX_11
+AX_CXX_COMPILE_STDCXX([11])
 
 dnl We don't use a C compiler to compile Xapian's code, but on some platforms
 dnl (e.g. mingw) libtool uses $LTCC which defaults to $CC, and it's also use to
