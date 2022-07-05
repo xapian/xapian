@@ -67,7 +67,7 @@ esac
 AC_SUBST([NO_INSTALL])
 
 dnl Probe for any options needed to enable C++11 support.
-AX_CXX_COMPILE_STDCXX_11
+AX_CXX_COMPILE_STDCXX([11])
 
 dnl Run tests using the C++ compiler.
 AC_LANG([C++])
