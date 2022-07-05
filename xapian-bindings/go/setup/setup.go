@@ -105,7 +105,7 @@ func CreateDirsForXapian() string {
 		os.Mkdir(filepath.Join(gopath, "pkg"), 0777)
 	}
 
-	go_xapian_build_dir := filepath.Join(gopath, "src/xapian.org/xapian")
+	go_xapian_build_dir := filepath.Join(gopath, "src/xapian.org/xapian/raw")
 	if _, err := os.Stat(go_xapian_build_dir); os.IsNotExist(err) {
 		fmt.Println("Creating dir - ", go_xapian_build_dir)
 		os.MkdirAll(go_xapian_build_dir, 0777)
@@ -278,11 +278,18 @@ func buildWithOutCore() (string, string) {
 }
 
 func copyAndInsert(go_bindings, go_xapian_build_dir, LD_FLAGS, IC_FLAGS, cxxflags, cppflags string) {
+	rawPath := filepath.Join(go_bindings, "raw")
+	if _, err := os.Stat(rawPath); os.IsNotExist(err) {
+		fmt.Println("Creating dir - ", rawPath)
+		os.Mkdir(rawPath, 0777)
+	}
+
 	copyFileContents(filepath.Join(go_bindings, "go.mod"), filepath.Join(go_xapian_build_dir, "go.mod"))
-	copyFileContents(filepath.Join(go_bindings, "xapian.go"), filepath.Join(go_xapian_build_dir, "xapian.go"))
-	copyFileContents(filepath.Join(go_bindings, "go_wrap.h"), filepath.Join(go_xapian_build_dir, "go_wrap.h"))
-	copyFileContents(filepath.Join(go_bindings, "go_wrap.cxx"), filepath.Join(go_xapian_build_dir, "go_wrap.cxx"))
-	xapian_build_go := filepath.Join(go_xapian_build_dir, "xapian.go")
+	copyFileContents(filepath.Join(rawPath, "xapian.go"), filepath.Join(go_xapian_build_dir, "raw", "xapian.go"))
+	copyFileContents(filepath.Join(rawPath, "go_wrap.h"), filepath.Join(go_xapian_build_dir, "raw", "go_wrap.h"))
+	copyFileContents(filepath.Join(rawPath, "go_wrap.cxx"), filepath.Join(go_xapian_build_dir, "raw", "go_wrap.cxx"))
+
+	xapian_build_go := filepath.Join(go_xapian_build_dir, "raw", "xapian.go")
 	InsertStringToFile(xapian_build_go, LD_FLAGS+"\n", 18)
 	InsertStringToFile(xapian_build_go, IC_FLAGS+"\n", 19)
 	InsertStringToFile(xapian_build_go, cxxflags+"\n", 20)

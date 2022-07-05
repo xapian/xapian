@@ -26,6 +26,6 @@ check :
 	${GO} test ./test
 
 clean :
-	rm -r xapian.go
-	rm -r go_*
+	rm -f raw/xapian.go
+	rm -f raw/go_*
 .PHONY: build run check

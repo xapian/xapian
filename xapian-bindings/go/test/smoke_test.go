@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"testing"
+
 	"xapian.org/xapian"
 )
 
@@ -29,4 +30,22 @@ func TestDocument(t *testing.T) {
 	} else {
 		fmt.Println("ok")
 	}
+
+	tg := xapian.NewTermGenerator()
+	tg.Set_document(doc)
+	tg.Index_text(input_str)
+	if doc.Termlist_count() != 3 {
+		t.Errorf("Wrong number of terms: %d", doc.Termlist_count())
+	}
+}
+
+func TestOpenDatabase(t *testing.T) {
+
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Println("Recovered. Error:\n", r)
+		}
+	}()
+	xapian.NewDatabase("non-existing-db")
+	fmt.Println("ok")
 }

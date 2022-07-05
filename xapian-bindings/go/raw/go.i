@@ -1,4 +1,4 @@
-%module(directors="1") xapian
+%module(directors="1") "xapian"
 %{
 /* go.i: SWIG interface file for the Go bindings
  *
@@ -23,11 +23,19 @@
 
 #define XAPIAN_SWIG_DIRECTORS
 
+
 %rename(Apply) operator();
 
 %ignore Xapian::Compactor::resolve_duplicate_metadata(std::string const &key, size_t num_tags, std::string const tags[]);
 
 %include ../xapian-head.i
+%inline %{
+#define SWIG_ValueError 1
+#define SWIG_IndexError 2
+#define SWIG_IOError 4
+#define SWIG_RuntimeError 8
+#define SWIG_UnknownError 16
+%}
 
-//%include ../generic/except.i
+%include ../generic/except.i
 %include ../xapian-headers.i
