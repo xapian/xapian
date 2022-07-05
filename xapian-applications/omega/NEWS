@@ -1,3 +1,497 @@
+Omega 1.4.20 (2022-07-04):
+
+indexers:
+
+* omindex:
+
+  + OpenDocument: Previously we only inserted an implicit space before each
+    paragraph.  Now we insert them both before and after each paragraph and
+    heading, and before forced each line-break and tab.
+
+  + Add extension mapping for .awt (Abiword templates).
+
+  + Index metadata from XPS files.
+
+  + -G and -C short options were documented in --help but not previously
+    actually handled. Reported by David Bremner.
+
+  + Show --max-size required argument in --help output.
+
+  + Remove lingering handling for database backends without slot bounds since
+    all backends have been required to support these since 1.4.11.
+
+* scriptindex:
+
+  + Process an incomplete final line from a dump file.  Previously if the final
+    line lacked a newline scriptindex would quietly ignore it (unless it was
+    the only line).
+
+  + The `unique` action now takes an optional `missing` parameter to specify
+    what to do if a record doesn't trigger the unique action or triggers it
+    with an empty value.  The default is now to issue a warning and create a
+    new document (the same as before, except that there was only previously a
+    warning for the empty value case). In Omega 1.5.0 the default will change
+    to an error as that seems a better default, but is less compatible with
+    potential existing use.
+
+  + Explicitly allow multiple blank lines in input files.  Previously such
+    extra blank lines were treated as empty records and in many cases these
+    got quietly skipped, but e.g. with the new UNIQUE checks this could result
+    in a warning or error.
+
+  + If we hit an error while parsing the index script we used to exit right
+    away, but now we finish parsing the index script since it's more helpful to
+    report all the errors in an index script rather than the user having to
+    fix them one by one.  This requires us to sensibly recover after each index
+    script parse error - if you find a case where this recovery triggers
+    further bogus errors please report it and we'll try to improve the
+    recovery.
+
+  + In four cases while handling input data (two cases of bad hex data fed
+    to `hextobin`, an input data line without a `=`, and `load` failing to
+    load the specified file) we'd emit a diagnostic that was labelled as an
+    "error" but really it was handled as a warning as we kept reading input
+    and the "error" didn't affect the exit status.  It doesn't really make
+    sense to continue in any of these cases so we now exit with non-zero status
+    right away.
+
+  + A parameter in the index script which should be an integer but isn't, or
+    should be positive but isn't now gives an error rather than a warning since
+    an error seems more helpful.
+
+  + All diagnostics issued while parsing the index script now include column
+    information.
+
+  + Avoid forcibly flushing the output stream after every message.
+
+testsuite:
+
+* Improve test coverage for scriptindex.
+
+portability:
+
+* Require PCRE2 instead of PCRE. The original PCRE is now EOL and unmaintained
+  (last release was June 2021).  In omega it's potentially used to process
+  input from the internet, so security is a real concern hence we're switching
+  to PCRE2.
+
+Omega 1.4.19 (2021-12-31):
+
+documentation:
+
+* configure: Add missing AC_ARG_VAR for all programs so that they are
+  documented in --help output, and so that autoconf knows they are "precious"
+  and preserves them if configure is rerun even when they're specified via an
+  environment variable.
+
+* Add usage examples for $jsonobject.
+
+* Fix path to omega in quickstart document.  Fixes #813, reported by Jim Lynch.
+
+* Update for the IRC channel move from freenode to libera.chat.
+
+indexers:
+
+* Fix handling of UTF-16 BOMs in XML and HTML - we had the sense of the
+  endianness indicated by the BOM the wrong way round.
+
+* Avoid making an extra temporary copy of HTML/XML data which has a UTF16 BOM.
+
+* We now ignore an end of line immediately after a PHP close tag to match what
+  PHP does.
+
+* omindex:
+
+  + Fix handling of formatted xlsx dates in certain cases.
+
+* scriptindex:
+
+  + Add new scriptindex whitespace removal actions `ltrim`, `rtrim`, `squash`,
+    and `trim`.
+
+  + Improve `truncate` action - if a word ends exactly on the requested length
+    we now leave it in place rather than removing it.
+
+  + Report the location of previous `unique` action in the error given when
+    `unique` is used more than once.
+
+omega:
+
+* Clamp START and END with packed timestamps.  The 4-byte unsigned packed
+  time_t format can't represent dates before 1970 or after Sun 07 Feb 2106
+  06:28:15 UTC so clamp dates before or after these - previously they would
+  wrap around.
+
+* The JSON produced by $jsonobject no longer contains newlines, which makes it
+  usable as a single line serialisation format without post-processing.
+
+* Add $base64 OmegaScript command.
+
+* omega: Add flag_no_positions to wrap new
+  Xapian::QueryParser::FLAG_NO_POSITIONS.
+
+templates:
+
+* Fix topterms template to not trigger early matching.  We were checking $msize
+  before including the `query` template, but doing so would trigger the query
+  to be run, which means that settings early in the `query` template which
+  should affect the result (such as $setmap{prefix,...}) were being ignored
+  when the `topterms` template was used.  Partly addresses #815, reported by
+  Gennadiy.
+
+* Add field support to opensearch and xml templates.  These templates now also
+  search title, topic and filename by default and support `title:`, `author:`
+  and `topic:` in the query string (both like the template `query` already
+  does). Fixes remaining issue in #815, reported by Gennadiy.
+
+testsuite:
+
+* Expand omegatest.  All scriptindex actions now have test coverage.
+
+build system:
+
+* Replace uses of obsolete autoconf macros, fixing warnings if configure is
+  regenerated with a recent release of autoconf.
+
+portability:
+
+* Don't automatically use _FORTIFY_SOURCE on mingw-w64.  Recent mingw-w64
+  versions require -lssp to be linked when _FORTIFY_SOURCE is enabled, so just
+  skip the automatic enabling.  Users who want to enable it can specify it
+  explicitly.
+
+  Fixes #808, reported by xpbxf4.
+
+* Automatically enable GCC warnings -Wduplicated-cond and -Wduplicated-branches
+  if using a GCC version new enough to support them.  The usefulness of
+  -Wduplicated-cond was highlighted by dcb in #816.
+
+* Fix GCC -Wshadow warning.
+
+* Use clock_gettime() and nanosleep() under modern mingw as these allow higher
+  precision than what we previously used.
+
+Omega 1.4.18 (2021-01-14):
+
+indexers:
+
+* omindex:
+
+  + Add default MIME mapping for application/rtf.  IANA have registrations for
+    text/rtf and (more recently) application/rtf (it seems because newer
+    versions of the RTF format can contain 8-bit data) so we now recognise
+    application/rtf by default and handle it the same way as text/rtf.
+
+    Current libmagic seems to always return text/rtf (no matches for
+    application/rtf in magic.mgc) and we continue to map extension rtf to
+    text/rtf, so this change is mainly future-proofing against libmagic future
+    changes.
+
+  + Add support for indexing OpenXPS, which is effectively the same as XPS
+    internally in ways we care about, but it uses a different mimetype and a
+    different filename extension.
+
+omega:
+
+* Explicitly use OR for MORELIKE queries.
+
+  Since 1.3.0 the default value of DEFAULTOP has been AND, which typically
+  makes MORELIKE queries much less useful since they'll only match documents
+  containing all the terms from the query expansion.  We now explicitly insert
+  " OR " between the terms if DEFAULTOP hasn't been set to OR, which makes them
+  work much more like they did in 1.2.x.
+
+* Make $stoplist and $unstem consider all query strings by always passing the
+  new Xapian::QueryParser::FLAG_ACCUMULATE flag.
+
+* Add $foreach command which works like $map, but just concatenates the
+  evaluated results rather than adding tabs to turn them into an OmegaScript
+  list.
+
+* Extend $include{} to allow handling failure to open the specified file via an
+  optional second argument which if specified will be evaluated and returned
+  instead.  Patch from Gaurav Arora.
+
+* Support multiple MORELIKE parameters - we now form an RSet from all the
+  specified documents and use that to generate the query to run (previously
+  only one of multiple MORELIKE parameters was used).
+
+Omega 1.4.17 (2020-08-21):
+
+documentation:
+
+* Document comment format supported by scriptindex index scripts.  We've
+  supported comments on a line by themselves and introduced with a # since
+  scriptindex was first added back in 2002, but it seems have never actually
+  been documented before now.
+
+omega:
+
+* Check for SERVER_PROTOCOL=INCLUDED before anything which might throw an
+  exception so that if it is set we suppress the Content-Type: when reporting
+  such exceptions.  Spotted by Gaurav Arora.
+
+* Report get_description() for Xapian::Error exceptions instead of get_msg().
+  This means we now report the exception's type, context (useful for network
+  errors), and errno information.
+
+* Avoid leaking MyStopper object.  The object essentially has the lifespan of
+  omega itself, but becomes unreachable when the QueryParser object is
+  destroyed.  To make it easier to use leak-checking tools, hand ownership of
+  this object to the QueryParser object.
+
+testsuite:
+
+* omegatest: Tell leak sanitizer not to report leaks for allocations which
+  aren't explicitly released on exit - the OS will reclaim all memory from the
+  process at this point and explicitly releasing everything just takes time for
+  no real benefit.  We will still see leaks of objects which become unreachable
+  during a run.
+
+Omega 1.4.16 (2020-06-08):
+
+indexers:
+
+* Fix handling of XML empty tag syntax when there's a quoted parameter right
+  before the closing `/>`.  This caused `<title xml:lang="en-US"/>` to treat
+  the body text as the document title.  Spotted by Gaurav Arora.
+
+* omindex: Fix killing of filter child process if the parent process receives a
+  signal.  Spotted by Gaurav Arora.
+
+omega:
+
+* Reject $setrelevant without an argument list.  This has never been documented
+  as allowed, and previously crashed with a segfault.  Fixes #802, reported by
+  Gaurav Arora.
+
+* If there's an error opening the databases we now close any we managed to open
+  successfully before the error so that things like $dbsize can't end up
+  reporting values for a subset of the specified databases.
+
+portability:
+
+* Use our own autoconf cache variable namespace (xo_cv_ prefix instead of
+  ac_cv_) to avoid colliding with standard autoconf macro use if config.site or
+  a shared config.cache is used.  The former case caused a build failure for
+  the OpenBSD port with 1.4.15, reported by Lucas R.
+
+Omega 1.4.15 (2020-02-24):
+
+documentation:
+
+* Update documentation about how to add a new format to omindex.  Patch from
+  Bruno Baruffaldi.
+
+indexers:
+
+* Check for a BOM on HTML files, which for HTML5 should determine the encoding.
+
+omega:
+
+* Allow $if{COND} without any actions which is useful as a way to evaluate
+  something but ignore the result if you just want the side effects.  Indeed
+  we were already recommending to use it if you want to ignore the return value
+  of $log.  Fixes bug introduced in 1.4.14, reported by tuftedocelot.
+
+* Add OmegaScript support for $jsonbool{COND} for encoding a boolean value for
+  use in JSON.  This is equivalent to $if{COND,true,false} but more readable.
+
+* Add OmegaScript support for $jsonobject{} which allows producing a JSON
+  object from an OmegaScript map.
+
+* Allow specifying a format to $jsonarray{} so it is no longer restricted to
+  producing an array of strings.
+
+* Add $keys{MAP} OmegaScript command which gives a sorted list of the keys from
+  an OmegaScript map.
+
+portability:
+
+* Simplify probes for snprintf.  The broken snprintf in libbsd in Linux libc4
+  is from ~25 years ago so way too ancient to matter now, and all callers
+  already handle the pre-ISO semantics of returning -1 for an undersize buffer
+  so we don't need to run a test program to probe for this at configure time,
+  which is more cross-compile friendly.
+
+* Avoid deprecation warning on recent Linux.  We were including sys/sysctl.h if
+  it existed, which it does on Linux but we don't actually use it there.
+  Including it now warns that it is deprecated, so skip including it under
+  Linux.  Reported on IRC by kumaran.
+
+Omega 1.4.14 (2019-11-23):
+
+documentation:
+
+* Improve omindex --help docs for --duplicates.
+
+indexers:
+
+* Add built-in support for iso-8859-15 so we can handle it without iconv.
+  This charset is a variant of iso-8859-1 with 8 characters changed, most
+  notably including the euro currency symbol.  It's the most commonly seen
+  charset we didn't have built-in support for.
+
+omega:
+
+* Fix error handling in $lookup.  We now check for errors from cdb_init()
+  and cdb_get().  We've never checked for errors from cdb_init(), while
+  for cdb_get() this bug was introduced by a warning fix in 1.2.20.
+
+Omega 1.4.13 (2019-10-14):
+
+documentation:
+
+* Document that $log will start to return an error message in 1.5.0, and that
+  one can wrap it using a $if with no action now to be future-proof.
+
+indexers:
+
+* Optimise converting us-ascii to UTF-8 to do nothing, like we already do when
+  converting UTF-8 to UTF-8.
+
+* scriptindex:
+
+  + Add new 'gap' action which provides a way to leave a gap in the term
+    positions between fields to prevent phrases and positional operators from
+    matching across fields.
+
+templates:
+
+* Future-proof use of $log against changes in 1.5.0.
+
+Omega 1.4.12 (2019-07-23):
+
+documentation:
+
+* Improve docs for OmegaScript $hitlist{}.
+
+* Fix RST formatting errors in omega docs.
+
+* Clarify use of Q prefix for unique ID terms - it was described as "reserved",
+  but the use of "Q" is really just a convention (and in fact omindex uses "U"
+  not "Q").
+
+* Clarify scriptindex's weight action takes parameter >= 0.
+
+* Correct typo in OmegaScript $add parameter documentation.
+
+indexers:
+
+* omindex:
+
+  + Fix typo in mimetypes used for Apple iWork documents ("apply" instead of
+    "apple") which meant that these documents weren't actually being indexed.
+    Patch from Bruno Baruffaldi.
+
+  + Pipe input to ps2pdf as this accepts input on stdin.  Possibility pointed
+    out by Gaurav Arora.
+
+* scriptindex:
+
+  + If parsedate action's format includes %z adjust for the timezone if
+    possible (this requires the non-POSIX tm_gmtoff member of struct tm)
+    and flag an error for other platforms.
+
+  + If parsedate action's format include %Z flag an error as that doesn't
+    seem to be usefully supported by strptime() anywhere.
+
+  + Fix parsedate action to treat formats without a timezone as being UTC
+    instead of localtime.
+
+  + Add date=unixutc.  The existing date=unix works in localtime which is
+    unhelpful if you want to use it on the output of parsedate since that's in
+    UTC; date=unixutc is just like date=unix except it always works in UTC.
+
+  + The date action now emits a warning for invalid values.  The documentation
+    used to say "invalid values are ignored at present", but it's more helpful
+    to flag bad data than quietly ignore it.
+
+  + We now check the date action's parameter at script parse time and unknown
+    values result in an error and nothing being indexed.  Previously an unknown
+    format uselessly resulted in the terms D, M and Y literally being added to
+    every document.
+
+  + The split action now supports a new "prefixes" split style.  This gives all
+    the prefixes from the split, so split=/,prefixes on a file path gives all
+    parent directories.
+
+omega:
+
+* Remove documented limitation of $subdb and $subid - the implementation
+  assumed that each omega database name corresponded to a single Xapian
+  database, and if a database name referred to a stub database file expanding
+  to multiple Xapian databases then they would misbehave.  Such cases are now
+  handled properly as well.
+
+* Extend $addfilter to support adding negated filters via a new optional second
+  argument which specifies the type of filter to add.
+
+* Stop $sort from needlessly ensuring the match has run.
+
+* Handle corner case of nested $hitlist gracefully instead of potentially
+  entering an infinite loop.
+
+testsuite:
+
+* omegatest: Avoid setting TZ globally during tests as that hides bugs where
+  behaviour depends on the local timezone when it shouldn't.
+
+* omegatest: Support testing when built using LeakSanitizer by suppressing
+  leak reports for cached compiled pcre regular expressions.  These aren't
+  released when the program exits but aren't memory leaks.
+
+build system:
+
+* Remove outdated deprecation warning suppression which was there to support
+  building from git in the run up to 1.3.2 - a development version which is
+  nearly 5 years ago now.
+
+portability:
+
+* Fix problems with fallback strptime() implementation which was being included
+  in the wrong binary, and was lacking a required const_cast on the return
+  value.
+
+* Rework setenv() compatibility handling.  Now that Solaris 9 is dead we can
+  assume setenv() is provided by Unix-like platforms (POSIX requires it).  For
+  other platforms, provide a compatibility implementation of setenv() so the
+  compatibility code is encapsulated in one place rather than replicated at
+  every use.
+
+Omega 1.4.11 (2019-03-02):
+
+indexers:
+
+* omindex:
+
+  + outlookmsg2html: Handle Subject, Date, and From headers.
+
+omega:
+
+* In $div and $mod we were converting a non-zero denominator from string to int
+  twice for no good reason.
+
+testsuite:
+
+* omegatest: Fix testcase which was failing if the local timezone was behind
+  UTC.  This testcase was added in 1.4.10.
+
+* omegatest: Tweak to not fail when $time not supported - it seems that the
+  OS time functions we use report an error on GNU Hurd for unknown reasons.
+
+build system:
+
+* Sync up probes for OS time functions in omega's configure with those in
+  xapian-core which may solve $time not being supported on GNU Hurd.
+
+portability:
+
+* Add missing includes of <cerrno>.  Fixes #776, reported by Matthieu Gautier.
+
+* Stop using htonl()/ntohl() in a non-network context which should improve
+  portability to platforms without a POSIX-like socket API.
+
 Omega 1.4.10 (2019-02-12):
 
 documentation:

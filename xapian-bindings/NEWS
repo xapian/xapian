@@ -1,3 +1,318 @@
+Xapian-bindings 1.4.20 (2022-07-04):
+
+General:
+
+* Enable -fvisibility-inlines-hidden option if the compiler supports it.
+
+PHP7:
+
+* Add missing reference tracking. XapianEnquire now keeps a reference to the
+  current XapianSorter object (if any).  XapianQueryParser now keeps a
+  reference to any set XapianFieldProcessor objects.  Test coverage for keeping
+  references to set functor objects is now more comprehensive.
+
+* smoketest.php: Remove bogus extra null parameters.  PHP ignores these extra
+  parameters, but it's more helpful to be testing valid usage.
+
+Python3:
+
+* The configure probes for Python3 no longer use the deprecated distutils and
+  imp modules (both of which are slated for removal in Python 3.12).  We now
+  use sysconfig to get the directory to install the xapian module to, which may
+  result in it being installed in a different place (it should still work, but
+  if you're packaging the bindings you may need to update the list of files to
+  include in the package).
+
+Xapian-bindings 1.4.19 (2021-12-31):
+
+Documentation:
+
+* configure: Add missing AC_ARG_VAR for all programs so that they are
+  documented in --help output, and so that autoconf knows they are "precious"
+  and preserves them if configure is rerun even when they're specified via an
+  environment variable.
+
+General:
+
+* Replace uses of obsolete autoconf macros, fixing warnings if configure is
+  regenerated with a recent release of autoconf.
+
+Perl:
+
+* Add missing wrappers for some QueryParser FLAG_* constants.
+
+* Fix incorrect formatting in the processed POD documentation due to missing
+  escaping of `>` in code snippets.
+
+PHP:
+
+* Make configure PHP5 version check more robust.  Previously it would have
+  incorrectly accepted any (future) PHP version >= 10.0.0.
+
+PHP7:
+
+* configure: We now reject PHP8 since it isn't currently supported
+  by a released version of SWIG.  SWIG 4.1.0 will supports PHP8.
+
+* configure: Check for php-config7.4 as well as earlier 7.x versions
+  and php-config.
+
+Python3:
+
+* Fix deprecation warnings with Python >= 3.9.
+
+* Remove more files/dirs on "make clean".  Reported by Gaurav Arora.
+
+Ruby:
+
+* Fix build with Ruby 3.0 and clang. Reported by Eduard Panov on macos, where
+  clang is the default compiler.
+
+* Improve markup in Ruby bindings docs.
+
+Xapian-bindings 1.4.18 (2021-01-14):
+
+Portability:
+
+* Support macOS 11.0 - AC_CANONICAL_HOST identifies this as darwin20, which
+  wasn't caught by our glob pattern.  Patch from FX Coudert in
+  https://github.com/xapian/xapian/pull/319
+
+CSharp:
+
+* Wrap const std::string* parameters to accept a string or null in C#.  See #204.
+
+Java:
+
+* Wrap const std::string* parameters to accept a String or null in Java.
+
+Perl:
+
+* Fix minor documentation typo.
+
+Xapian-bindings 1.4.17 (2020-08-21):
+
+* No user-visible change except for bumping the version to indicate
+  compatibility with Xapian-core 1.4.17.
+
+Xapian-bindings 1.4.16 (2020-06-08):
+
+General:
+
+* Remove code to support SVN snapshots since we stopped using SVN more than 5
+  years ago.
+
+* Ignore overloads for logical ops, *, /.  These were already ignored for
+  several languages, and aren't actually usefully wrapped for any of the other
+  languages.
+
+CSharp:
+
+* Work around mono terminfo parsing bug in more cases.  With this, "make",
+  "make check", "make install" and "make uninstall" all work on Ubuntu 18.10.
+  Patch from Dipanshu Garg, fixes https://github.com/xapian/xapian/pull/287 and
+  #801.
+
+Lua:
+
+* Allow passing a Lua function as a MatchSpy.  This was supposed to be
+  supported already, but the typemaps weren't set up.
+
+* On platforms where sizeof(long) is 4, SWIG was wrapping Xapian::BAD_VALUENO
+  as a negative constant in Lua, which was then rejected by a check which
+  disallows passing negative values for unsigned C++ types.  We now direct SWIG
+  to handle Xapian::valueno as double (which is what numbers in Lua usually
+  actually are) which gives us an unsigned constant, and also eliminates the
+  negative value check.
+
+* Correct documentation - get_description() is wrapped as tostring() in Lua,
+  not str() as we previously claimed.
+
+* Add test coverage for passing Lua function for a Stopper.
+
+Perl:
+
+* Resolve the remaining issues and remove the "experimental" marker:
+
+  + Add search_xapian_compat() function which sets up aliases in the
+    Search::Xapian namespace to aid writing code which uses either
+    Search::Xapian or this module.
+
+  + Allow passing Perl sub for simpler Xapian functor classes.  This fills in a
+    missing feature compared to Search::Xapian.  See #523.
+
+  + Remove useless PerlStopper class which was an incomplete copy of the
+    apparently non-functional Search::Xapian::PerlStopper.  We now support
+    passing a Perl sub for a Stopper object.
+
+  + Adjust some method names to match Search::Xapian.  Iterators now support
+    inc() (and dec() where the C++ class supports operator--) like
+    Search::Xapian, rather than increment() and prev().  Reported by Eric Wong
+    in #523.
+
+  + Drop undocumented and unexpected extra equals() method.
+
+  + Provide compatibility with ENQ_ASCENDING, etc constants.  SWIG wraps these
+    as $Xapian::Enquire::ASCENDING, which better matches the C++ API, but
+    Search::Xapian wraps this as Search::Xapian::ENQ_ASCENDING, etc so provide
+    those too for compatibility.  Reported by Eric Wong in #523.
+
+  + Drop stringification and int conversion overloads.  These seem more
+    confusing than helpful, and overloading stringification works badly
+    with SWIG-generated bindings.
+
+  + Document remaining known differences from Search::Xapian.
+
+* Update recently tested versions in README.
+
+* Improve documentation.
+
+* Fix t/02pod.t to look for files in right directory.
+
+Ruby:
+
+* Don't print iterator sizes to stdout.  This was some debugging accidentally
+  left in as part of a change in 1.4.12.  Patch from Dan Callaghan.
+
+Xapian-bindings 1.4.15 (2020-02-24):
+
+Perl:
+
+* Improve comment about App::Prove.
+
+Ruby:
+
+* Support Ruby 2.7.
+
+Xapian-bindings 1.4.14 (2019-11-23):
+
+Python:
+
+* Remove broken replicationtest.py.  It's never worked reliably, and because
+  of that was disabled shortly after being added over a decade ago.
+  Unsurprisingly it's bit-rotted at least a bit since.  Nobody seems interested
+  in fixing it, so it's time to just get rid of it.  Closes #320.
+
+Python3:
+
+* Remove broken replicationtest.py.  It's never worked reliably, and because
+  of that was disabled shortly after being added over a decade ago.
+  Unsurprisingly it's bit-rotted at least a bit since.  Nobody seems interested
+  in fixing it, so it's time to just get rid of it.  Closes #320.
+
+Xapian-bindings 1.4.13 (2019-10-14):
+
+General:
+
+* Omit SWIG exception handling for destructors.  Since C++11, destructors can't
+  throw by default and we don't override that default, so there's no point
+  adding exception handling code for them.
+
+* Ensure doccomments.i is distributed.  If you unpacked a distribution tarball,
+  configured it and then ran "make dist" python/doccomments.i and
+  python3/doccomments.i would be missing unless you configured the tree with
+  --enable-maintainer-mode.
+
+PHP:
+
+* Check for php-config5.6 and php-config5.5 in configure as these versioned
+  names are used in some packages (such as those from the ondrej/php PPA).
+
+PHP7:
+
+* Work around build failure on Illuminos.  Fixes
+  https://trac.xapian.org/ticket/793, reported by Amitai Schleier.
+
+Ruby:
+
+* smoketest.rb: Use #push not #append on Array to restore compatibility with
+  Ruby < 2.5 (broken by changes in 1.4.12).
+
+* Expand tabs in Ruby code since using spaces for indentation seems to be
+  preferred Ruby style.
+
+* Remove trailing `;` from Ruby code.
+
+Xapian-bindings 1.4.12 (2019-07-23):
+
+Documentation:
+
+* Update bindings HACKING document.  Reported as out of date by Niwesh Gupta.
+
+CSharp:
+
+* Work around mono terminfo parsing bug - older cli-sn fails with e.g.
+  TERM=xterm-256color due to: https://github.com/mono/mono/issues/6752
+  Encountered on Kubuntu 18.10 and debugged by Tejasvi Tomar.  Seems to be
+  fixed in the mono version in Debian buster.
+
+Perl:
+
+* Suppress warnings from older Perl headers due to use of constructs which look
+  like C++11 user-defined literals.  They're fixed in newer versions so they're
+  just noise in our build.  We were working around these in the CI build, so
+  drop that workaround as we want to make the build warning-clean for users
+  too.  Reported by daniel93 on #xapian.
+
+Python3:
+
+* Fix build for changes in Sphinx 2.0 (which drops support for sphinx.main()).
+  Fixes #778, reported by karolyi.  Also reported by Gaurav Arora.
+
+* We now throw UnicodeEncodeError for bad Unicode string input.  Previously
+  cases such as a lone surrogate would be handled by quietly skipping the bad
+  codepoints when converting to UTF-8 to pass to Xapian.
+
+* We no longer use the deprecated old-style Py_UNICODE API, which currently
+  gives deprecation warnings and is slated to be removed in Python 4.0.
+
+Ruby:
+
+* Add support for block iteration.  All the iterator methods in the Ruby API
+  now accept an optional block.  If no block is given an array is returned so
+  existing code will still work.  Partly based on a patch in
+  https://github.com/xapian/xapian/pull/232 from Cong Ding.
+
+* Add missing wrappers for all the C++ methods returning iterators which
+  weren't wrapped for Ruby.  Fixes #777, reported by do.
+
+* Suppress warnings from Ruby 2.3 headers due to use of register and
+  constructs which look like C++11 user-defined literals.  They're fixed in
+  newer versions so they're just noise in our build.  We were working around
+  these in the CI build, so drop that workaround as we want to make the build
+  warning-clean for users too.  Reported by daniel93 on #xapian.
+
+* smoketest.rb: Don't leave temporary databases behind in /tmp.
+
+Xapian-bindings 1.4.11 (2019-03-02):
+
+CSharp:
+
+* Make MatchAll and MatchNothing readonly.
+
+Java:
+
+* Simplify load-time setup of Query.OP_OR, etc which are provided for
+  compatibility with the original hand-written JNI bindings.
+
+PHP:
+
+* We now load the module for "make check" using -d extension=xapian which
+  avoids needing to turn off safe_mode and turn on enable_dl, and matches how
+  the module is usually loaded in production use.
+
+PHP7:
+
+* Fix access to already released memory during PHP module shutdown, which often
+  didn't cause visible problems, but could result in segmentation faults, bus
+  errors, etc.
+
+* Fix generated code to compile when using a ZTS-enabled build of PHP.
+
+* We now load the module for "make check" using -d extension=xapian which
+  avoids needing to turn off safe_mode and turn on enable_dl, and matches how
+  the module is usually loaded in production use.
+
 Xapian-bindings 1.4.10 (2019-02-12):
 
 Documentation:
