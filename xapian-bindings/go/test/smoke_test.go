@@ -40,12 +40,9 @@ func TestDocument(t *testing.T) {
 }
 
 func TestOpenDatabase(t *testing.T) {
-
-	defer func() {
-		if r := recover(); r != nil {
-			fmt.Println("Recovered. Error:\n", r)
-		}
-	}()
-	xapian.NewDatabase("non-existing-db")
+	_, err := xapian.NewDatabase("non-existing-db")
+	if err != nil {
+		fmt.Println("ok")
+	}
 	fmt.Println("ok")
 }

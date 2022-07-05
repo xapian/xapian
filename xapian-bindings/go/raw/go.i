@@ -23,12 +23,14 @@
 
 #define XAPIAN_SWIG_DIRECTORS
 
+%include exception.i
 
 %rename(Apply) operator();
 
 %ignore Xapian::Compactor::resolve_duplicate_metadata(std::string const &key, size_t num_tags, std::string const tags[]);
 
 %include ../xapian-head.i
+
 %inline %{
 #define SWIG_ValueError 1
 #define SWIG_IndexError 2

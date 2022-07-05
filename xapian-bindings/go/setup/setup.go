@@ -26,63 +26,61 @@ func main() {
 	}
 
 	// Get all the flags
-	core_flag := args[1]
-	build_flag := args[2]
+	coreFlag := args[1]
+	buildFlag := args[2]
 	cxxflags := getFlags(args[3])
 	cppflags := getFlags(args[4])
 	lcflags := getFlags(args[5])
-	xapian_cxxflags := getFlags(args[6])
-	xapian_libs := getFlags(args[7])
+	xapianCXXFlags := getFlags(args[6])
+	xapianLibs := getFlags(args[7])
 	cxxflags = strings.ReplaceAll(cxxflags, "-fstack-protector", "")
 
 	//Creates required dirs in GOPATH for building xapian
-	go_xapian_build_dir := CreateDirsForXapian()
-	fmt.Println("Directory for building xapian go bindings : ", go_xapian_build_dir)
+	goXapianBuildDir := CreateDirsForXapian()
+	fmt.Println("Directory for building xapian go bindings : ", goXapianBuildDir)
 
 	var IC_FLAGS, LD_FLAGS string
 
 	//Build accordingly if core is preinstalled or not.
-	if core_flag == "without-core" {
-		if build_flag == "build" {
+	if coreFlag == "without-core" {
+		if buildFlag == "build" {
 			IC_FLAGS, LD_FLAGS = buildWithOutCore()
 		}
-		if build_flag == "install" {
+		if buildFlag == "install" {
 			IC_FLAGS, LD_FLAGS = installWithOutCore()
 		}
 	}
 
-	if core_flag == "with-core" {
-		if build_flag == "build" {
-			IC_FLAGS, LD_FLAGS = xapian_cxxflags, xapian_libs
+	if coreFlag == "with-core" {
+		if buildFlag == "build" {
+			IC_FLAGS, LD_FLAGS = xapianCXXFlags, xapianLibs
 		}
-		if build_flag == "install" {
-			IC_FLAGS, LD_FLAGS = xapian_cxxflags, xapian_libs
+		if buildFlag == "install" {
+			IC_FLAGS, LD_FLAGS = xapianCXXFlags, xapianLibs
 		}
 	}
 	LD_FLAGS = LD_FLAGS + " " + lcflags
 	cxxflags = "#cgo CXXFLAGS: " + cxxflags
 	cppflags = "#cgo CPPFLAGS: " + cppflags
 
-	go_bindings, _ := filepath.Abs("../")
-	fmt.Println(go_bindings)
-	copyAndInsert(go_bindings, go_xapian_build_dir, LD_FLAGS, IC_FLAGS, cxxflags, cppflags)
-	if build_flag == "build" {
-		build(go_xapian_build_dir)
+	goBindings, _ := filepath.Abs("../")
+	copyAndInsert(goBindings, goXapianBuildDir, LD_FLAGS, IC_FLAGS, cxxflags, cppflags)
+	if buildFlag == "build" {
+		build(goXapianBuildDir)
 	}
-	if build_flag == "install" {
-		install(go_xapian_build_dir)
+	if buildFlag == "install" {
+		install(goXapianBuildDir)
 	}
 }
 
 //Function to create directory to build Xapian bindings for go.
 func CreateDirsForXapian() string {
-	fmt.Print()
-	gopath_bytes, err := exec.Command("go", "env", "GOPATH").Output()
+	gopathBytes, err := exec.Command("go", "env", "GOPATH").Output()
 	if err != nil {
 		fmt.Println(err)
 		return "err"
 	}
-	gopath := string(gopath_bytes[:len(gopath_bytes)-1])
+	gopath := string(gopathBytes[:len(gopathBytes)-1])
 	fmt.Println("GOPATH -  ", gopath)
 
 	if _, err := os.Stat(gopath); os.IsNotExist(err) {
@@ -105,18 +103,24 @@ func CreateDirsForXapian() string {
 		os.Mkdir(filepath.Join(gopath, "pkg"), 0777)
 	}
 
-	go_xapian_build_dir := filepath.Join(gopath, "src/xapian.org/xapian/raw")
-	if _, err := os.Stat(go_xapian_build_dir); os.IsNotExist(err) {
-		fmt.Println("Creating dir - ", go_xapian_build_dir)
-		os.MkdirAll(go_xapian_build_dir, 0777)
+	goXapianBuildDir := filepath.Join(gopath, "src", "xapian.org", "xapian")
+	if _, err := os.Stat(goXapianBuildDir); os.IsNotExist(err) {
+		fmt.Println("Creating dir - ", goXapianBuildDir)
+		os.MkdirAll(goXapianBuildDir, 0777)
 	}
 
-	return go_xapian_build_dir
+	rawPath := filepath.Join(gopath, "src", "xapian.org", "xapian")
+	if _, err := os.Stat(rawPath); os.IsNotExist(err) {
+		fmt.Println("Creating dir - ", rawPath)
+		os.Mkdir(rawPath, 0777)
+	}
+
+	return goXapianBuildDir
 }
 
-func install(go_xapian_build_dir string) {
-	cmd := exec.Command("go", "install", "-x", go_xapian_build_dir)
-	cmd.Dir = go_xapian_build_dir
+func install(goXapianBuildDir string) {
+	cmd := exec.Command("go", "install", "-x", goXapianBuildDir)
+	cmd.Dir = goXapianBuildDir
 	var stdoutBuf, stderrBuf bytes.Buffer
 	cmd.Stdout = io.MultiWriter(os.Stdout, &stdoutBuf)
 	cmd.Stderr = io.MultiWriter(os.Stderr, &stderrBuf)
@@ -129,9 +133,10 @@ func install(go_xapian_build_dir string) {
 	fmt.Println(outStr, errStr)
 	fmt.Println("Go bindings installation successful!")
 }
-func build(go_xapian_build_dir string) {
-	cmd := exec.Command("go", "build", "-x", go_xapian_build_dir)
-	cmd.Dir = go_xapian_build_dir
+
+func build(goXapianBuildDir string) {
+	cmd := exec.Command("go", "build", "-x", goXapianBuildDir)
+	cmd.Dir = goXapianBuildDir
 	var stdoutBuf, stderrBuf bytes.Buffer
 	cmd.Stdout = io.MultiWriter(os.Stdout, &stdoutBuf)
 	cmd.Stderr = io.MultiWriter(os.Stderr, &stderrBuf)
@@ -144,29 +149,30 @@ func build(go_xapian_build_dir string) {
 	fmt.Println(outStr, errStr)
 	fmt.Println("Go bindings built successful!")
 }
+
 func installWithOutCore() (string, string) {
-	xapian_bindings := filepath.Join("../../")
-	xapian_bindings, _ = filepath.Abs(xapian_bindings)
-	xapian_core := filepath.Join(xapian_bindings, "/../xapian-core/")
-	pkgconfig_path := filepath.Join(xapian_core, "pkgconfig")
-	files_pkgconfig, err := ioutil.ReadDir(pkgconfig_path)
+	xapianBindings := filepath.Join("../../")
+	xapianBindings, _ = filepath.Abs(xapianBindings)
+	xapianCore := filepath.Join(xapianBindings, "/../xapian-core/")
+	pkgconfigPath := filepath.Join(xapianCore, "pkgconfig")
+	filesPkgConfig, err := ioutil.ReadDir(pkgconfigPath)
 
 	if err != nil {
 		fmt.Println(err, "Error reading files in pkgconfig Directory")
 		os.Exit(2)
 	}
 
-	xapian_pkgconfig := ""
-	for _, f := range files_pkgconfig {
+	xapianPkgConfig := ""
+	for _, f := range filesPkgConfig {
 		if strings.HasSuffix(f.Name(), ".pc") {
-			xapian_pkgconfig = strings.TrimSuffix(f.Name(), ".pc")
+			xapianPkgConfig = strings.TrimSuffix(f.Name(), ".pc")
 			break
 		}
 	}
-	fmt.Println("xapian_pkgconfig_path - ", xapian_pkgconfig)
+	fmt.Println("xapian_pkgconfig_path - ", xapianPkgConfig)
 
 	var IC_FLAGS string
-	include := exec.Command("pkg-config", xapian_pkgconfig, "--cflags")
+	include := exec.Command("pkg-config", xapianPkgConfig, "--cflags")
 	if output, err := include.Output(); err != nil {
 		log.Fatalf("%s failed with %s", include, err)
 	} else {
@@ -175,7 +181,7 @@ func installWithOutCore() (string, string) {
 	}
 
 	var LD_FLAGS string
-	ld_flags := exec.Command("pkg-config", xapian_pkgconfig, "--libs")
+	ld_flags := exec.Command("pkg-config", xapianPkgConfig, "--libs")
 	if output, err := ld_flags.Output(); err != nil {
 		log.Fatalf("%s failed with %s", ld_flags, err)
 	} else {
@@ -189,86 +195,86 @@ func installWithOutCore() (string, string) {
 }
 
 func buildWithOutCore() (string, string) {
-	xapian_bindings := filepath.Join("../../")
-	xapian_bindings, _ = filepath.Abs(xapian_bindings)
-	xapian_core := filepath.Join(xapian_bindings, "/../xapian-core/")
-	xapian_headers := filepath.Join(xapian_core, "include/")
-	pkgconfig_path := filepath.Join(xapian_core, "pkgconfig")
+	xapianBindings := filepath.Join("../../")
+	xapianBindings, _ = filepath.Abs(xapianBindings)
+	xapianCore := filepath.Join(xapianBindings, "/../xapian-core/")
+	xapianHeaders := filepath.Join(xapianCore, "include/")
+	pkgConfigPath := filepath.Join(xapianCore, "pkgconfig")
 
-	fmt.Println("xapian_bindings - ", xapian_bindings)
-	fmt.Println("xapian-core - ", xapian_core)
-	fmt.Println("xapian-headers - ", xapian_headers)
-	fmt.Println("pkgconfig - ", pkgconfig_path)
+	fmt.Println("xapian_bindings - ", xapianBindings)
+	fmt.Println("xapian-core - ", xapianCore)
+	fmt.Println("xapian-headers - ", xapianHeaders)
+	fmt.Println("pkgconfig - ", pkgConfigPath)
 
-	files_pkgconfig, err := ioutil.ReadDir(pkgconfig_path)
+	filesPkgConfig, err := ioutil.ReadDir(pkgConfigPath)
 
 	if err != nil {
 		fmt.Println(err, "Error reading files in pkgconfig Directory")
 		os.Exit(2)
 	}
 
-	xapian_pkgconfig_path := ""
-	for _, f := range files_pkgconfig {
+	xapianPkgConfigPath := ""
+	for _, f := range filesPkgConfig {
 		if strings.HasSuffix(f.Name(), ".pc") {
-			xapian_pkgconfig_path = filepath.Join(pkgconfig_path, f.Name())
+			xapianPkgConfigPath = filepath.Join(pkgConfigPath, f.Name())
 			break
 		}
 	}
 
-	fmt.Println("xapian_pkgconfig_path - ", xapian_pkgconfig_path)
+	fmt.Println("xapian_pkgconfig_path - ", xapianPkgConfigPath)
 
-	config, err := os.Open(filepath.Join(xapian_bindings, "config.h"))
+	config, err := os.Open(filepath.Join(xapianBindings, "config.h"))
 	if err != nil {
 		fmt.Println("error opening config.h ")
 		os.Exit(2)
 	}
-	var lt_obj_dir string
-	cf_reader := bufio.NewScanner(config)
-	for cf_reader.Scan() {
-		line := cf_reader.Text()
+	var ltObjDir string
+	cfReader := bufio.NewScanner(config)
+	for cfReader.Scan() {
+		line := cfReader.Text()
 		if strings.HasPrefix(line, "#define LT_OBJDIR") {
 			strs := strings.Split(line, "\"")
-			lt_obj_dir = strs[1]
+			ltObjDir = strs[1]
 			break
 		}
 	}
 
-	fmt.Println("lt_obj_dir : ", lt_obj_dir)
+	fmt.Println("lt_obj_dir : ", ltObjDir)
 
-	pkgconfig_file, err := os.Open(xapian_pkgconfig_path)
+	pkgConfigFile, err := os.Open(xapianPkgConfigPath)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(2)
 	}
-	var lib_name string
-	var lib_deps string
-	pk_reader := bufio.NewScanner(pkgconfig_file)
-	for pk_reader.Scan() {
-		line := pk_reader.Text()
+	var libName string
+	var libDeps string
+	pkgReader := bufio.NewScanner(pkgConfigFile)
+	for pkgReader.Scan() {
+		line := pkgReader.Text()
 		line = strings.TrimSpace(line)
 		strs := strings.Split(line, " ")
 		if len(strs) > 0 && strs[0] == "Libs:" {
 			for _, v := range strs {
 				if strings.Contains(v, "lxapian") {
-					lib_name = v
+					libName = v
 					break
 				}
 			}
 		}
 		if len(strs) >= 1 && strs[0] == "Libs.private:" {
-			lib_deps = strings.Join(strs[1:], " ")
+			libDeps = strings.Join(strs[1:], " ")
 		}
 	}
-	fmt.Println("lib_name : ", lib_name)
-	fmt.Println("lib_deps : ", lib_deps)
+	fmt.Println("lib_name : ", libName)
+	fmt.Println("lib_deps : ", libDeps)
 
-	lib_dir := filepath.Join(xapian_core, lt_obj_dir)
-	fmt.Println("lib_dir - ", lib_dir)
+	libDir := filepath.Join(xapianCore, ltObjDir)
+	fmt.Println("lib_dir - ", libDir)
 
-	library := strings.TrimSpace(lib_name + " " + lib_deps)
+	library := strings.TrimSpace(libName + " " + libDeps)
 
-	LDFLAGS := "#cgo LDFLAGS: " + "-L" + lib_dir + " -Wl,-rpath," + lib_dir + " " + library + " "
-	ICFLAGS := "#cgo CXXFLAGS: " + "-I" + xapian_headers
+	LDFLAGS := "#cgo LDFLAGS: " + "-L" + libDir + " -Wl,-rpath," + libDir + " " + library + " "
+	ICFLAGS := "#cgo CXXFLAGS: " + "-I" + xapianHeaders
 
 	LDFLAGS = strings.TrimSpace(LDFLAGS)
 	ICFLAGS = strings.ReplaceAll(ICFLAGS, "\\", "/")
@@ -277,23 +283,35 @@ func buildWithOutCore() (string, string) {
 	return ICFLAGS, LDFLAGS
 }
 
-func copyAndInsert(go_bindings, go_xapian_build_dir, LD_FLAGS, IC_FLAGS, cxxflags, cppflags string) {
-	rawPath := filepath.Join(go_bindings, "raw")
+func copyAndInsert(goBindings, goXapianBuildDir, LD_FLAGS, IC_FLAGS, cxxflags, cppflags string) {
+	rawPath := filepath.Join(goBindings, "raw")
 	if _, err := os.Stat(rawPath); os.IsNotExist(err) {
 		fmt.Println("Creating dir - ", rawPath)
 		os.Mkdir(rawPath, 0777)
 	}
+	rawBuildPath := filepath.Join(goXapianBuildDir, "raw")
+	if _, err := os.Stat(rawBuildPath); os.IsNotExist(err) {
+		fmt.Println("Creating dir - ", rawBuildPath)
+		os.Mkdir(rawBuildPath, 0777)
+	}
 
-	copyFileContents(filepath.Join(go_bindings, "go.mod"), filepath.Join(go_xapian_build_dir, "go.mod"))
-	copyFileContents(filepath.Join(rawPath, "xapian.go"), filepath.Join(go_xapian_build_dir, "raw", "xapian.go"))
-	copyFileContents(filepath.Join(rawPath, "go_wrap.h"), filepath.Join(go_xapian_build_dir, "raw", "go_wrap.h"))
-	copyFileContents(filepath.Join(rawPath, "go_wrap.cxx"), filepath.Join(go_xapian_build_dir, "raw", "go_wrap.cxx"))
+	copyFileContents(filepath.Join(goBindings, "go.mod"), filepath.Join(goXapianBuildDir, "go.mod"))
+	m, err := filepath.Glob(filepath.Join(goBindings, "*.go"))
+	if err != nil {
+		panic("failed to list Go files")
+	}
+	for _, file := range m {
+		copyFileContents(file, filepath.Join(goXapianBuildDir, "xapian.go"))
+	}
+	copyFileContents(filepath.Join(rawPath, "xapian.go"), filepath.Join(goXapianBuildDir, "raw", "xapian.go"))
+	copyFileContents(filepath.Join(rawPath, "go_wrap.h"), filepath.Join(goXapianBuildDir, "raw", "go_wrap.h"))
+	copyFileContents(filepath.Join(rawPath, "go_wrap.cxx"), filepath.Join(goXapianBuildDir, "raw", "go_wrap.cxx"))
 
-	xapian_build_go := filepath.Join(go_xapian_build_dir, "raw", "xapian.go")
-	InsertStringToFile(xapian_build_go, LD_FLAGS+"\n", 18)
-	InsertStringToFile(xapian_build_go, IC_FLAGS+"\n", 19)
-	InsertStringToFile(xapian_build_go, cxxflags+"\n", 20)
-	InsertStringToFile(xapian_build_go, cppflags+"\n", 21)
+	xapianBuildGo := filepath.Join(goXapianBuildDir, "raw", "xapian.go")
+	InsertStringToFile(xapianBuildGo, LD_FLAGS+"\n", 18)
+	InsertStringToFile(xapianBuildGo, IC_FLAGS+"\n", 19)
+	InsertStringToFile(xapianBuildGo, cxxflags+"\n", 20)
+	InsertStringToFile(xapianBuildGo, cppflags+"\n", 21)
 }
 
 func getFlags(arg string) string {
@@ -346,14 +364,14 @@ func File2lines(filePath string) ([]string, error) {
 func copyFileContents(src, dst string) (err error) {
 	original, err := os.Open(src)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("failed to open file: %s", err)
 	}
 	defer original.Close()
 
 	// Create new file
 	new, err := os.Create(dst)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("failed to create or truncate file: %s", err)
 	}
 	defer new.Close()
 
