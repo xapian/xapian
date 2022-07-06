@@ -1333,7 +1333,7 @@ DEFINE_TESTCASE(emptymayberhs1, backend) {
     Xapian::Enquire enq(db);
     // The RHS doesn't match anything, which now gives a NULL PostList*, and
     // we were trying to dereference that in this case.
-    Xapian::Query query(query.OP_AND_MAYBE,
+    Xapian::Query query(Xapian::Query::OP_AND_MAYBE,
 			Xapian::Query("document"),
 			Xapian::Query("xyzzy"));
     enq.set_query(query);
