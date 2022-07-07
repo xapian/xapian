@@ -168,7 +168,7 @@ AC_DEFUN([XAPIAN_TEST_LDFLAGS],
 ldflags=
 if test yesyes = "$GXX$enable_shared" ; then
   case $host_os in
-    *mingw* | *cygwin*)
+    cygwin* | mingw* | msys*)
       XAPIAN_TEST_LDFLAGS(
 	[-Wl,--enable-runtime-pseudo-reloc],
 	[ldflags],
