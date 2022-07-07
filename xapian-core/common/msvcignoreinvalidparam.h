@@ -34,7 +34,7 @@ static void dummy_handler(const wchar_t*,
 			  const wchar_t*,
 			  const wchar_t*,
 			  unsigned int,
-			  uintptr_t)
+			  uintptr_t) noexcept
 {
 }
 
