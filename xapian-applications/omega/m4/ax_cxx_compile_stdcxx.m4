@@ -189,7 +189,7 @@ m4_define([_AX_CXX_COMPILE_STDCXX_testbody_new_in_11], [[
 
 #error "This is not a C++ compiler"
 
-#elif __cplusplus < 201103L
+#elif __cplusplus < 201103L && !defined _MSC_VER
 
 #error "This is not a C++11 compiler"
 
@@ -480,7 +480,7 @@ m4_define([_AX_CXX_COMPILE_STDCXX_testbody_new_in_14], [[
 
 #error "This is not a C++ compiler"
 
-#elif __cplusplus < 201402L
+#elif __cplusplus < 201402L && !defined _MSC_VER
 
 #error "This is not a C++14 compiler"
 
@@ -604,7 +604,7 @@ m4_define([_AX_CXX_COMPILE_STDCXX_testbody_new_in_17], [[
 
 #error "This is not a C++ compiler"
 
-#elif __cplusplus < 201703L
+#elif __cplusplus < 201703L && !defined _MSC_VER
 
 #error "This is not a C++17 compiler"
 
@@ -970,7 +970,7 @@ namespace cxx17
 
 }  // namespace cxx17
 
-#endif  // __cplusplus < 201703L
+#endif  // __cplusplus < 201703L && !defined _MSC_VER
 
 ]])
 
@@ -983,7 +983,7 @@ m4_define([_AX_CXX_COMPILE_STDCXX_testbody_new_in_20], [[
 
 #error "This is not a C++ compiler"
 
-#elif __cplusplus < 202002L
+#elif __cplusplus < 202002L && !defined _MSC_VER
 
 #error "This is not a C++20 compiler"
 
@@ -1000,6 +1000,6 @@ namespace cxx20
 
 }  // namespace cxx20
 
-#endif  // __cplusplus < 202002L
+#endif  // __cplusplus < 202002L && !defined _MSC_VER
 
 ]])
