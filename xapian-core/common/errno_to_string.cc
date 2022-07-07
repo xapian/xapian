@@ -31,7 +31,7 @@
 #if defined HAVE__SYS_ERRLIST_AND__SYS_NERR || \
     defined HAVE_SYS_ERRLIST_AND_SYS_NERR
 # include <stdio.h>
-// Under mingw, these are in stdlib.h.
+// Under mingw and MSVC these are in stdlib.h.
 # include <stdlib.h>
 #endif
 
