@@ -878,7 +878,7 @@ case $enable_backend_chert$enable_backend_glass in
     AC_MSG_ERROR([zlibVersion() not found in -lz, -lzlib, or -lzdll - required for chert and glass (you may need to install the zlib1g-dev or zlib-devel package)])
     ])
 
-  dnl Find the UUID library (from e2fsprogs/util-linux-ng, not the OSSP one).
+  dnl Find a way to generate UUIDs.
 
   case $host_os-$win32 in
     *-yes | cygwin* | msys*) dnl Use built-in win32 API.
