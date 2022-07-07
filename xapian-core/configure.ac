@@ -140,7 +140,7 @@ dnl PATH correctly, so that MSDOS FIND.EXE is found before Unix find.  Help
 dnl them out by checking for this condition, rather than letting libtool
 dnl fail in obscure ways.  NB check the *BUILD* OS, not the host one!
 case $build_os in
-  *mingw* | *cygwin* | pw32*)
+  cygwin* | mingw* | msys* | pw32*)
     find /dirunlikelytoexist >/dev/null 2>&1
     if test $? = 2 ; then
 	dnl Unix find will return 1 if the directory didn't exist, or 0 if
@@ -328,7 +328,7 @@ AC_DEFUN([XAPIAN_TEST_LDFLAGS],
 ldflags=
 if test yesyes = "$GXX$enable_shared" ; then
   case $host_os in
-    *mingw* | *cygwin*)
+    cygwin* | mingw* | msys*)
       XAPIAN_TEST_LDFLAGS(
 	[-Wl,--enable-runtime-pseudo-reloc],
 	[ldflags],
@@ -881,7 +881,7 @@ case $enable_backend_chert$enable_backend_glass in
   dnl Find the UUID library (from e2fsprogs/util-linux-ng, not the OSSP one).
 
   case $host_os-$win32 in
-    *-yes | *cygwin*) dnl Use built-in win32 API.
+    *-yes | cygwin* | msys*) dnl Use built-in win32 API.
       AC_DEFINE([USE_WIN32_UUID_API], [1],
 		[Define to 1 to use UuidCreate(), etc])
       if test $win32 = yes ; then
@@ -1124,7 +1124,7 @@ esac
 
 AC_MSG_CHECKING([for directory separator(s)])
 case $host_os-$win32 in
-  *-yes | cygwin* | os2* | *djgpp* | *msdos* )
+  *-yes | cygwin* | msys* | os2* | *djgpp* | *msdos* )
     AC_MSG_RESULT([/ and \\])
     AC_DEFINE([DIR_SEPS], ["/\\"], [directory separator(s) as a character or string literal])
     AC_DEFINE([DIR_SEPS_LIST], [{ '/', '\\' }], [directory separator(s) as an initialiser list])
