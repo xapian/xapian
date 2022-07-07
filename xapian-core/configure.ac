@@ -1435,6 +1435,17 @@ AH_BOTTOM(
 /* A "performance" warning for converting int to bool. */
 # pragma warning(disable:4800)
 
+/* POSIX get to deprecate POSIX things, not Microsoft. */
+# define _CRT_NONSTDC_NO_WARNINGS
+# define _CRT_SECURE_NO_WARNINGS
+
+/* WSAAddressToStringA() is deprecated and we should apparently use
+ * WSAAddressToStringW(), but we don't want wide character output so
+ * that would mean we'd have to convert the result back to ASCII
+ * which is a really stupid idea.
+ */
+# define _WINSOCK_DEPRECATED_NO_WARNINGS
+
 /* Tell MSVC we want M_PI, etc defined. */
 # define _USE_MATH_DEFINES
 
