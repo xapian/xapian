@@ -64,6 +64,31 @@ inline int socket_(int domain, int type, int protocol) {
 # endif
 # define socket(D,T,P) socket_(D,T,P)
 
+inline int accept_(int sockfd, struct sockaddr* addr, SOCKLEN_T* addrlen) {
+    // Winsock2's accept() returns the unsigned type SOCKET, which is a 32-bit
+    // type for WIN32 and a 64-bit type for WIN64.
+    //
+    // It seems we can always safely assign SOCKET to an int: failure is indicated
+    // by INVALID_SOCKET which will cast to -1 as an int, and it seems in
+    // practice that valid values all fit in 31-bits (and that we're not the
+    // only code to assume this since it makes it much easier to write code
+    // that deals with BSD sockets and winsock2's bastardised version of them)
+    // so Microsoft are unlikely to arbitrarily change that).
+    //
+    // But we should check and throw an exception rather than quietly mangling
+    // the value.
+    SOCKET sock = accept(sockfd, addr, addrlen);
+    if (rare(sock > SOCKET(0x7fffffff) && sock != INVALID_SOCKET)) {
+	throw Xapian::NetworkError("accept() returned value > INT_MAX");
+    }
+    return int(sock);
+}
+
+# ifdef accept
+#  undef accept
+# endif
+# define accept(S,A,L) accept_(S,A,L)
+
 #elif !defined SOCK_CLOEXEC
 # define SOCK_CLOEXEC 0
 #else
