@@ -42,7 +42,8 @@ esac
 
 # Check that we've not already done this version.
 RELEASE_URL=$RELEASE_WEB_BASE_URL/$version/
-RELEASE_DIR=$RELEASE_WEB_BASE_DIR/$version/
+# Needs to NOT have a trailing `/` or else scp fails.
+RELEASE_DIR=$RELEASE_WEB_BASE_DIR/$version
 
 if [ "`git branch --color=never --contains|cut -d' ' -f2-`" != "$BRANCH" ] ; then
     echo "Not on branch $BRANCH"
