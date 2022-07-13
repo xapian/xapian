@@ -221,6 +221,9 @@ AC_TYPE_PID_T
 
 AC_TYPE_MODE_T
 
+dnl Used by omegatest to skip some testcases with 32-bit time_t.
+AC_CHECK_SIZEOF([time_t], [#include <time.h>])
+
 dnl Use for Unix permission checks.
 AC_CHECK_FUNCS([getgrouplist])
 
