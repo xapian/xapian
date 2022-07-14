@@ -551,8 +551,8 @@ DATE=0
 DATE=1617069804
 END
 qtestcase 'VALUE_LE 0 V\x84o\xff' START.0=10010101 END.0=20151230
-qtestcase 'VALUE_RANGE 0 V\x83\x1e\x80 \xff\xff\xff\xff' START.0=20151230 END.0=21060301
 if [ "$HAVE_32BIT_TIME_T" = no ] ; then
+  qtestcase 'VALUE_RANGE 0 V\x83\x1e\x80 \xff\xff\xff\xff' START.0=20151230 END.0=21060301
   qtestcase 'VALUE_LE 0 \xff\xff\xff\xff' START.0=19691230 END.0=21060301
 fi
 
