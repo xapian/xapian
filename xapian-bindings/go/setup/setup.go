@@ -17,6 +17,8 @@ import (
 	"strings"
 )
 
+const cgoFlagsMarker = "#include <stdint.h>"
+
 func main() {
 	//Checking if required arguments were passed
 	args := os.Args
@@ -288,12 +290,17 @@ func buildWithOutCore() (string, string) {
 	return ICFLAGS, LDFLAGS
 }
 
-func copyAndInsert(goBindings, goXapianBuildDir, LD_FLAGS, IC_FLAGS, cxxflags, cppflags string) {
+func copyAndInsert(goBindings, goXapianBuildDir, ldFlags, icFlags, cxxFlags, cppFlags string) {
 	xapianBuildGo := filepath.Join(goBindings, "xapian.go")
-	InsertStringToFile(xapianBuildGo, LD_FLAGS+"\n", 18)
-	InsertStringToFile(xapianBuildGo, IC_FLAGS+"\n", 19)
-	InsertStringToFile(xapianBuildGo, cxxflags+"\n", 20)
-	InsertStringToFile(xapianBuildGo, cppflags+"\n", 21)
+	InsertCGOFlagsToFile(
+		xapianBuildGo,
+		[]string{
+			ldFlags,
+			icFlags,
+			cxxFlags,
+			cppFlags,
+		},
+	)
 
 	copyFileContents(filepath.Join(goBindings, "go.mod"), filepath.Join(goXapianBuildDir, "go.mod"))
 	copyFileContents(filepath.Join(goBindings, "xapian.go"), filepath.Join(goXapianBuildDir, "xapian.go"))
@@ -310,23 +317,28 @@ func getFlags(arg string) string {
 	return result
 }
 
-func InsertStringToFile(path, str string, index int) error {
+func InsertCGOFlagsToFile(path string, flags []string) error {
 	lines, err := File2lines(path)
 	if err != nil {
 		return err
 	}
 
 	fileContent := ""
-	for i, line := range lines {
-		if i == index {
-			fileContent += str
-		}
+	flagsAdded := false
+	for _, line := range lines {
 		fileContent += line
 		fileContent += "\n"
+		if line == cgoFlagsMarker {
+			fileContent += strings.Join(flags, "\n") + "\n"
+			flagsAdded = true
+		}
 	}
-
+	if !flagsAdded {
+		return fmt.Errorf("marker to add flags not found: %s", cgoFlagsMarker)
+	}
 	return ioutil.WriteFile(path, []byte(fileContent), 0644)
 }
+
 func LinesFromReader(r io.Reader) ([]string, error) {
 	var lines []string
 	scanner := bufio.NewScanner(r)
@@ -339,6 +351,7 @@ func LinesFromReader(r io.Reader) ([]string, error) {
 
 	return lines, nil
 }
+
 func File2lines(filePath string) ([]string, error) {
 	f, err := os.Open(filePath)
 	if err != nil {

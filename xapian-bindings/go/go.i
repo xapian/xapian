@@ -54,6 +54,7 @@ func NewDatabase(a ...interface{}) (db Database, err error) {
 		if r := recover(); r != nil {
 			if errMsg, ok := r.(string); ok {
 				err = errors.New(errMsg)
+				return
 			}
 			panic(r)
 		}
