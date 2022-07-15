@@ -23,15 +23,15 @@
 
 #define XAPIAN_SWIG_DIRECTORS
 
-%include exception.i
+
 
 %rename(Apply) operator();
 
+%rename(WrappedDatabase) Xapian::Database::Database;
+
 %ignore Xapian::Compactor::resolve_duplicate_metadata(std::string const &key, size_t num_tags, std::string const tags[]);
 
-%include ../xapian-head.i
-
-%inline %{
+%header %{
 #define SWIG_ValueError 1
 #define SWIG_IndexError 2
 #define SWIG_IOError 4
@@ -39,5 +39,27 @@
 #define SWIG_UnknownError 16
 %}
 
+%include exception.i
+%include ../xapian-head.i
 %include ../generic/except.i
 %include ../xapian-headers.i
+
+%insert(go_begin) %{
+import "errors"
+%}
+
+%insert(go_wrapper) %{
+func NewDatabase(a ...interface{}) (db Database, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			if errMsg, ok := r.(string); ok {
+				err = errors.New(errMsg)
+			}
+			panic(r)
+		}
+	}()
+
+	db = NewWrappedDatabase(a...)
+	return
+}
+%}

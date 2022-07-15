@@ -19,7 +19,7 @@ all : build
 	"xapian_libs-->${GO_LIB}"
 
 build :
-	${SWIG} ${SWIG_FLAGS} -c++ -go -cgo -intgosize 64 raw/go.i
+	${SWIG} ${SWIG_FLAGS} -c++ -go -cgo -intgosize 64 go.i
 	${GO} env -w CXX="${CXX}"
 
 check :
