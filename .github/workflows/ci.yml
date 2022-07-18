@@ -52,8 +52,10 @@ jobs:
             pngcrush \
             poppler \
             pygments \
-            python \
-            tesseract
+            python
+        # homebrew tesseract 5.2.0 only extracts "ee" from img/Test1.gif (5.1.0
+        # worked).
+        # tesseract
         pip3 install sphinx docutils
     - name: bootstrap source tree
       run: ./bootstrap xapian-core xapian-applications/omega
