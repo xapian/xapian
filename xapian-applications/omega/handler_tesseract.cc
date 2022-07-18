@@ -59,16 +59,22 @@ extract(const string& filename,
     // Create the ocr if necessary
     if (!ocr) {
 	ocr = new TessBaseAPI();
-	// Tesseract documents that passing nullptr for the second parameter
-	// here is the same as "eng", but that fails to work on macos (tested
-	// with the homebrew tesseract v5.1.0).
-	//
-	// FIXME: We ought to provide a way to allow the language to use here
-	// to be specified.
-	if (ocr->Init(nullptr, "eng"))
-	    _Exit(EX_UNAVAILABLE);
 	ocr->SetPageSegMode(PSM_AUTO_OSD);
     }
+
+    // Call Init() for each document so any adaptive state is reset as
+    // we don't want the order of indexing documents to affect the text
+    // indexed for each document.
+    //
+    // Tesseract documents that passing nullptr for the second parameter
+    // here is the same as "eng", but that fails to work on macos (tested
+    // with the homebrew tesseract v5.1.0).
+    //
+    // FIXME: We ought to provide a way to allow the language to use here
+    // to be specified.
+    if (ocr->Init(nullptr, "eng"))
+	_Exit(EX_UNAVAILABLE);
+
     // Open Image
     Pix* image = pixRead(filename.c_str());
 
@@ -82,7 +88,8 @@ extract(const string& filename,
     // Get OCR result
     clear_text(dump, ocr->GetUTF8Text());
 
-    // Destroy used object and release memory
+    // Release memory.
+    ocr->Clear();
     pixDestroy(&image);
 
     (void)title;
