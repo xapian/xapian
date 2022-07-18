@@ -132,6 +132,7 @@ class AndPostList : public PostList {
 	if (rare(last < first)) {
 	    // This probably always gets handled at a higher level.
 	    termfreq = 0;
+	    return;
 	}
 
 	// We calculate the estimate assuming independence.
