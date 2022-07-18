@@ -214,13 +214,6 @@ index_test()
 static test_result
 compare_test(testcase& test, const Xapian::Document& doc, const string& file)
 {
-    // when all terms are found - PASS
-    // when only some terms are found - FAIL
-    // when no terms are found - SKIP/PASS/FAIL depending on the value of
-    // testcase flags
-    // FAIL - !terms.empty()
-    // PASS - terms.empty()
-    // SKIP - flag & SKIP_IF_NO_TERMS != 0
     sort(test.terms.begin(), test.terms.end());
     Xapian::TermIterator term_iterator = doc.termlist_begin();
     bool term_found = false, all_terms_exist = true;
@@ -234,19 +227,24 @@ compare_test(testcase& test, const Xapian::Document& doc, const string& file)
 	    term_found = true;
 	}
     }
-    if (term_found) {
-	if (all_terms_exist)
-	    return PASS;
-	else
-	    return FAIL;
-    }
-    // no terms found
-    if (test.flags & SKIP_IF_NO_TERMS)
-	return SKIP;
-    if (!test.terms.empty())
-	return FAIL;
-    else
+    if (all_terms_exist) {
+	// All terms found (including case where no terms are listed to check).
 	return PASS;
+    }
+    if (test.flags & SKIP_IF_NO_TERMS) {
+	if (!term_found) {
+	    // None of the terms were found and we were asked to SKIP for that.
+	    return SKIP;
+	}
+	cerr << "Terms present:";
+	for (term_iterator = doc.termlist_begin();
+	     term_iterator != doc.termlist_end();
+	     ++term_iterator) {
+	    cerr << ' ' << *term_iterator;
+	}
+	cerr << '\n';
+    }
+    return FAIL;
 }
 
 int
