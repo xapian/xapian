@@ -236,14 +236,18 @@ compare_test(testcase& test, const Xapian::Document& doc, const string& file)
 	    // None of the terms were found and we were asked to SKIP for that.
 	    return SKIP;
 	}
-	cerr << "Terms present:";
-	for (term_iterator = doc.termlist_begin();
-	     term_iterator != doc.termlist_end();
-	     ++term_iterator) {
-	    cerr << ' ' << *term_iterator;
-	}
-	cerr << '\n';
     }
+    cerr << "Expected at least these terms:";
+    for (auto& t : test.terms) {
+	cerr << ' ' << t;
+    }
+    cerr << "\nFull list of terms actually present:";
+    for (term_iterator = doc.termlist_begin();
+	 term_iterator != doc.termlist_end();
+	 ++term_iterator) {
+	cerr << ' ' << *term_iterator;
+    }
+    cerr << '\n';
     return FAIL;
 }
 
