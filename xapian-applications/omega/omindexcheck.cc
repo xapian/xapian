@@ -157,6 +157,8 @@ index_test()
 		  {{"Zедой", "Z喬伊不分享食物", "ZSbakeri"}}});
     tests.insert({"ooxml/Nature.pptx",
 		  {{"ZSnatur", "Zbeauti", "Zsampl"}}});
+    tests.insert({"application/vnd.ms-xpsdocument_xpstest.xps",
+		 {{"second", "header", "footer"}}});
 #endif
 #if defined HAVE_LIBABW
     // Title term is not being tested here because some older versions of Libabw
@@ -207,8 +209,6 @@ index_test()
     tests.insert({"apple_works/test_draw.cwk",
 		  {{"Zdraw", "Zsampl", "Zgraphic"}}});
 #endif
-    tests.insert({"application/vnd.ms-xpsdocument_xpstest.xps",
-		 {{"second", "header", "footer"}}});
 }
 
 static test_result
