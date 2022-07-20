@@ -1,14 +1,20 @@
 #!/bin/sh
-${LIBTOOL-../libtool} --config > libtoolconfig.$$
-. ./libtoolconfig.$$
-rm -f libtoolconfig.$$
-module=yes
-eval shlibext=$shrext_cmds
-
 tclshlibext=`echo 'puts [info sharedlibextension]'|${TCLSH-tclsh}`
-
 rm -f xapian$tclshlibext
-ln -s $objdir/xapian$shlibext xapian$tclshlibext
+
+LIBTOOL="${LIBTOOL-../libtool}"
+module=yes
+
+# GNU libtool and slibtool have different and incompatible usage for --config.
+if ${LIBTOOL} --config > libtoolconfig.$$ 2>/dev/null; then
+	. ./libtoolconfig.$$
+	eval shlibext=$shrext_cmds
+	ln -s $objdir/xapian$shlibext xapian$tclshlibext
+else
+	${LIBTOOL} --mode=install cp xapian.la ./xapian$tclshlibext
+fi
+rm -f libtoolconfig.$$
+
 $OSX_SIP_HACK_ENV ${TCLSH-tclsh} ${srcdir-.}/runtest.tcl ${srcdir-.}/smoketest.tcl
 rc=$?
 rm -f xapian$tclshlibext

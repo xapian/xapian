@@ -55,9 +55,14 @@ BUILT_SOURCES = Xapian.pm xapian_wrap.cc \
 
 auto/Xapian/Xapian$(PERL_SO): Xapian.la
 	@$(MKDIR_P) auto/Xapian
-	$(LIBTOOL) --config > libtoolconfig.tmp
+## GNU libtool and slibtool have different and incompatible usage for --config.
+	if $(LIBTOOL) --config > libtoolconfig.tmp 2>/dev/null; then \
 ## ksh requires a path on the sourced file.
-	. ./libtoolconfig.tmp; cp "$$objdir/Xapian$(PERL_SO)" auto/Xapian
+		. ./libtoolconfig.tmp; \
+		cp "$$objdir/Xapian$(PERL_SO)" auto/Xapian; \
+	else \
+		$(LIBTOOL) --mode=install cp $< $@; \
+	fi;
 	rm -f libtoolconfig.tmp
 
 EXTRA_DIST = perl.i except.i extra.i $(TESTS) \

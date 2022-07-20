@@ -1,11 +1,24 @@
 #!/bin/sh
 # To run `jdb` instead of `java` set JAVA=jdb
 # To run under gdb, set JAVA='gdb --args java'
+LIBTOOL="${LIBTOOL-../libtool}"
 arg=`echo "$1"|sed 's!.*/!!;s!\.class$!!'`
+
+# GNU libtool and slibtool have different and incompatible usage for --config.
+if ${LIBTOOL} --config > libtoolconfig.$$ 2>/dev/null; then
+	. ./libtoolconfig.$$
+else
+	objdir="built/libs"
+	rm -rf "$objdir"
+	mkdir -p "$objdir"
+	${LIBTOOL} --mode=install cp libxapian_jni.la "$objdir"
+fi
+rm -f libtoolconfig.$$
+
 # Use libtool's -dlopen option to ensure that libxapian_jni.so (or whatever)
 # is in the shared library path.
-${LIBTOOL-../libtool} --config > libtoolconfig.$$
-. ./libtoolconfig.$$
-rm -f libtoolconfig.$$
-${LIBTOOL-../libtool} -dlopen libxapian_jni.la --mode=execute \
+${LIBTOOL} -dlopen libxapian_jni.la --mode=execute \
   $OSX_SIP_HACK_ENV ${JAVA-java} -Djava.library.path="$objdir" -classpath built/xapian.jar${PATHSEP-:}. "$arg"
+rc=$?
+rm -rf built/libs
+exit $rc

@@ -88,9 +88,14 @@ xapian/__pycache__/__init__.@PYTHON3_CACHE_OPT1_EXT@: xapian/__init__.py xapian/
 
 xapian/_xapian$(PYTHON3_EXT_SUFFIX): _xapian.la
 	$(MKDIR_P) xapian
-	$(LIBTOOL) --config > libtoolconfig.tmp
+## GNU libtool and slibtool have different and incompatible usage for --config.
+	if $(LIBTOOL) --config > libtoolconfig.tmp 2>/dev/null; then \
 ## ksh requires a path on the sourced file.
-	. ./libtoolconfig.tmp; cp $$objdir/_xapian$(PYTHON3_EXT_SUFFIX) xapian
+		. ./libtoolconfig.tmp; \
+		cp $$objdir/_xapian$(PYTHON3_EXT_SUFFIX) xapian; \
+	else \
+		$(LIBTOOL) --mode=install cp $< $@; \
+	fi;
 	rm -f libtoolconfig.tmp
 
 CLEANFILES = \
