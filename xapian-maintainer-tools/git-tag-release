@@ -181,3 +181,7 @@ Content-Type: application/pgp-signature; name="signature.asc"
 --=-=-=-=-=-=-=--
 END
 mutt -E -H tmp.msg
+echo 'Hit enter to push branch and new tag'
+read
+git push
+git push --tags "$tag"
