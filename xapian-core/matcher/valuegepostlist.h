@@ -24,6 +24,8 @@
 
 #include "valuerangepostlist.h"
 
+class EstimateOp;
+
 class ValueGePostList: public ValueRangePostList {
     /// Disallow copying.
     ValueGePostList(const ValueGePostList &);
@@ -33,10 +35,12 @@ class ValueGePostList: public ValueRangePostList {
 
   public:
     ValueGePostList(const Xapian::Database::Internal *db_,
+		    EstimateOp* estimate_op_,
 		    Xapian::doccount termfreq_,
 		    Xapian::valueno slot_,
 		    const std::string &begin_)
-	: ValueRangePostList(db_, termfreq_, slot_, begin_, std::string()) {}
+	: ValueRangePostList(db_, estimate_op_, termfreq_,
+			     slot_, begin_, std::string()) {}
 
     PostList * next(double w_min);
 

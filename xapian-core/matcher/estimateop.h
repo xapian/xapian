@@ -23,6 +23,9 @@
 
 #include "xapian/types.h"
 
+#include "omassert.h"
+#include "stdclamp.h"
+
 struct Estimates {
     Xapian::doccount min, est, max;
 
@@ -67,9 +70,12 @@ class EstimateOp {
     /** Estimates.
      *
      *  * KNOWN: Already known exact leaf term frequency (in min/est/max)
-     *    or value range min/est/max.
+     *    or value range min/est/max based on static information (which is
+     *    adjusted by a call to report_range_ratio()).
      *  * DECIDER/NEAR/PHRASE/EXACT_PHRASE: Filled in on PostList deletion by
      *    calling report_ratio(): min = accepted, max = rejected
+     *  * RANGE: Already known exact leaf term frequency (in min/est/max)
+     *    or value range min/est/max.
      *  * POSTING_SOURCE: Filled in on PostList construction with min/est/max
      *    from PostingSource object.
      */
@@ -115,8 +121,32 @@ class EstimateOp {
 	: next(next_), type(type_), estimates(0, 0, 0), n_subqueries(1) { }
 
     void report_ratio(Xapian::doccount accepted, Xapian::doccount rejected) {
+	// Store ratio to use later.
 	estimates.min = accepted;
 	estimates.max = rejected;
+    }
+
+    /** Adjust static estimates for value range. */
+    void report_range_ratio(Xapian::doccount accepted,
+			    Xapian::doccount rejected) {
+	// The static min is 0.
+	AssertEq(estimates.min, 0);
+	estimates.min = accepted;
+
+	// Combine the static estimate already in estimate.est with a dynamic
+	// estimate based on accepted/rejected ratio using a weighted average
+	// based on the proporition of value_freq actually looked at.
+	auto est = double(estimates.max - accepted - rejected);
+	est = est / estimates.max * estimates.est;
+	estimates.est = accepted + Xapian::doccount(est + 0.5);
+
+	// The static max is the value slot frequency, so every reject can
+	// be removed from that.
+	estimates.max -= rejected;
+
+	// We shouldn't need to clamp here to ensure the invariant.
+	AssertRel(estimates.min, <=, estimates.est);
+	AssertRel(estimates.est, <=, estimates.max);
     }
 
     /** Fill in estimates for POSTING_SOURCE. */

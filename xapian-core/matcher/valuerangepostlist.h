@@ -27,6 +27,8 @@
 #include "backends/valuelist.h"
 #include "xapian/database.h"
 
+class EstimateOp;
+
 class ValueRangePostList : public PostList {
   protected:
     const Xapian::Database::Internal *db;
@@ -34,6 +36,15 @@ class ValueRangePostList : public PostList {
     Xapian::valueno slot;
 
     const std::string begin, end;
+
+    /// Number of times the range test accepted the candidate document.
+    Xapian::doccount accepted = 0;
+
+    /// Number of times the range test rejected the candidate document.
+    Xapian::doccount rejected = 0;
+
+    /// Object to report accepted/rejected counts to.
+    EstimateOp* estimate_op;
 
     ValueList* valuelist = nullptr;
 
@@ -45,10 +56,13 @@ class ValueRangePostList : public PostList {
 
   public:
     ValueRangePostList(const Xapian::Database::Internal *db_,
+		       EstimateOp* estimate_op_,
 		       Xapian::doccount termfreq_,
 		       Xapian::valueno slot_,
 		       const std::string &begin_, const std::string &end_)
-	: db(db_), slot(slot_), begin(begin_), end(end_) {
+	: db(db_), slot(slot_), begin(begin_), end(end_),
+	  estimate_op(estimate_op_)
+    {
 	// Static estimate of termfreq based on the slot bounds and range ends.
 	termfreq = termfreq_;
     }
