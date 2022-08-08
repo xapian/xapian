@@ -229,10 +229,7 @@ DEFINE_TESTCASE(synonym1, backend) {
 
     const Xapian::doccount lots = 214;
 
-    for (size_t subqgroup = 0;
-	 subqgroup != sizeof(synonym1_data) / sizeof(synonym1_data[0]);
-	 ++subqgroup) {
-	const synonym1_data_type & data = synonym1_data[subqgroup];
+    for (const auto& data : synonym1_data) {
 	const Xapian::Query * qlist = data.subqs;
 	const Xapian::Query * qlist_end = qlist + data.n_subqs;
 
@@ -400,12 +397,10 @@ DEFINE_TESTCASE(synonym4, backend) {
 	Xapian::Query::OP_OR,
 	Xapian::Query::OP_SYNONYM
     };
-    const Xapian::Query::op * end;
-    end = operators + sizeof(operators) / sizeof(operators[0]);
-    for (const Xapian::Query::op * i = operators; i != end; ++i) {
+    for (auto op : operators) {
 	tout.str(string());
-	Xapian::Query query1(*i, syn_query, date_query);
-	Xapian::Query query2(*i, or_query, date_query);
+	Xapian::Query query1(op, syn_query, date_query);
+	Xapian::Query query2(op, or_query, date_query);
 
 	enquire.set_query(query1);
 	tout << "query1:" << query1 << '\n';
@@ -417,7 +412,7 @@ DEFINE_TESTCASE(synonym4, backend) {
 	tout << "mset2:" << mset2 << '\n';
 
 	TEST_NOT_EQUAL(mset1.size(), 0);
-	if (*i != Xapian::Query::OP_XOR) {
+	if (op != Xapian::Query::OP_XOR) {
 	    TEST_EQUAL(mset1[0].get_percent(), 100);
 	} else {
 	    TEST(mset1[0].get_percent() != 100);

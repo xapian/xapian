@@ -1168,8 +1168,7 @@ DEFINE_TESTCASE(blocksize1, glass) {
     static const unsigned bad_sizes[] = {
 	65537, 8000, 2000, 1024, 16, 7, 3, 1, 0
     };
-    for (size_t i = 0; i < sizeof(bad_sizes) / sizeof(bad_sizes[0]); ++i) {
-	size_t block_size = bad_sizes[i];
+    for (size_t block_size : bad_sizes) {
 	rm_rf(db_dir);
 	Xapian::WritableDatabase db(db_dir, flags, block_size);
 	Xapian::Document doc;

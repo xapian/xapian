@@ -27,6 +27,7 @@
 #include "xapian/types.h"
 
 #include <algorithm>
+#include <iterator>
 #include <memory>
 #include <queue>
 
@@ -801,8 +802,7 @@ GlassDatabase::compact(Xapian::Compactor * compactor,
 	{ "spelling",	Glass::SPELLING,	true },
 	{ "synonym",	Glass::SYNONYM,		true }
     };
-    const table_list * tables_end = tables +
-	(sizeof(tables) / sizeof(tables[0]));
+    const table_list* tables_end = std::end(tables);
 
     const int FLAGS = Xapian::DB_DANGEROUS;
 

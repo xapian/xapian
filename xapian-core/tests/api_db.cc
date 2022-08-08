@@ -1759,8 +1759,8 @@ DEFINE_TESTCASE(userweight1, backend && !remote) {
     static const char * const query[] = {
 	"this", "line", "paragraph", "rubbish"
     };
-    enquire.set_query(Xapian::Query(Xapian::Query::OP_OR, query,
-				    query + sizeof(query) / sizeof(query[0])));
+    enquire.set_query(Xapian::Query(Xapian::Query::OP_OR,
+				    std::begin(query), std::end(query)));
     Xapian::MSet mymset1 = enquire.get_mset(0, 100);
     // MyWeight scores 1 for each matching term, so the weight should equal
     // the number of matching terms.

@@ -84,7 +84,7 @@ try {
 	{ NULL,			0, 0, 0}
     };
 
-    Xapian::SimpleStopper mystopper(sw, sw + sizeof(sw) / sizeof(sw[0]));
+    Xapian::SimpleStopper mystopper(sw, std::end(sw));
     Xapian::Stem stemmer("english");
     Xapian::doccount msize = 10;
 

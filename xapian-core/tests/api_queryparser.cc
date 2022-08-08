@@ -3099,13 +3099,12 @@ DEFINE_TESTCASE(qp_default_op3, !backend) {
 	{ Xapian::Query::OP_SYNONYM,
 	  "Query((a@1 SYNONYM b@2 SYNONYM c@3))" },
     };
-    const qp_default_op3_test * p;
-    for (p = tests; p - tests != sizeof(tests) / sizeof(*tests); ++p) {
-	tout << p->op << endl;
-	qp.set_default_op(p->op);
+    for (auto& test : tests) {
+	tout << test.op << endl;
+	qp.set_default_op(test.op);
 	// Check that get_default_op() returns what we just set.
-	TEST_EQUAL(qp.get_default_op(), p->op);
-	TEST_EQUAL(qp.parse_query("A B C").get_description(), p->expect);
+	TEST_EQUAL(qp.get_default_op(), test.op);
+	TEST_EQUAL(qp.parse_query("A B C").get_description(), test.expect);
     }
 }
 

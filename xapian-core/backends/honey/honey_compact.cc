@@ -2038,8 +2038,6 @@ HoneyDatabase::compact(Xapian::Compactor* compactor,
 	{ "spelling",	Honey::SPELLING,	true },
 	{ "synonym",	Honey::SYNONYM,		true }
     };
-    const table_list* tables_end = tables +
-	(sizeof(tables) / sizeof(tables[0]));
 
     const int FLAGS = Xapian::DB_DANGEROUS;
 
@@ -2163,26 +2161,26 @@ if (source_backend == Xapian::DB_BACKEND_GLASS) {
     throw Xapian::FeatureUnavailableError("Glass backend disabled");
 #else
     vector<HoneyTable*> tabs;
-    tabs.reserve(tables_end - tables);
+    tabs.reserve(std::end(tables) - std::begin(tables));
     file_size_type prev_size = 0;
-    for (const table_list* t = tables; t < tables_end; ++t) {
+    for (const auto& t : tables) {
 	// The postlist table requires an N-way merge, adjusting the
 	// headers of various blocks.  The spelling and synonym tables also
 	// need special handling.  The other tables have keys sorted in
 	// docid order, so we can merge them by simply copying all the keys
 	// from each source table in turn.
 	if (compactor)
-	    compactor->set_status(t->name, string());
+	    compactor->set_status(t.name, string());
 
 	string dest;
 	if (!single_file) {
 	    dest = destdir;
 	    dest += '/';
-	    dest += t->name;
+	    dest += t.name;
 	    dest += '.';
 	}
 
-	bool output_will_exist = !t->lazy;
+	bool output_will_exist = !t.lazy;
 
 	// Sometimes stat can fail for benign reasons (e.g. >= 2GB file
 	// on certain systems).
@@ -2200,7 +2198,7 @@ if (source_backend == Xapian::DB_BACKEND_GLASS) {
 	for (auto src : sources) {
 	    auto db = static_cast<const GlassDatabase*>(src);
 	    const GlassTable* table;
-	    switch (t->type) {
+	    switch (t.type) {
 		case Honey::POSTLIST:
 		    table = &(db->postlist_table);
 		    break;
@@ -2225,7 +2223,7 @@ if (source_backend == Xapian::DB_BACKEND_GLASS) {
 	    }
 
 	    if (db->single_file()) {
-		if (t->lazy && !GlassCursor(table).next()) {
+		if (t.lazy && !GlassCursor(table).next()) {
 		    // Lazy table with no entries, so essentially doesn't
 		    // exist.
 		} else {
@@ -2255,14 +2253,14 @@ if (source_backend == Xapian::DB_BACKEND_GLASS) {
 	}
 
 	// If any inputs lack a termlist table, suppress it in the output.
-	if (t->type == Honey::TERMLIST && inputs_present != sources.size()) {
+	if (t.type == Honey::TERMLIST && inputs_present != sources.size()) {
 	    if (inputs_present != 0) {
 		if (compactor) {
 		    string m = str(inputs_present);
 		    m += " of ";
 		    m += str(sources.size());
 		    m += " inputs present, so suppressing output";
-		    compactor->set_status(t->name, m);
+		    compactor->set_status(t.name, m);
 		}
 		continue;
 	    }
@@ -2271,14 +2269,14 @@ if (source_backend == Xapian::DB_BACKEND_GLASS) {
 
 	if (!output_will_exist) {
 	    if (compactor)
-		compactor->set_status(t->name, "doesn't exist");
+		compactor->set_status(t.name, "doesn't exist");
 	    continue;
 	}
 
 	HoneyTable* out;
 	off_t table_start_offset = -1;
 	if (single_file) {
-	    if (t == tables) {
+	    if (&t == tables) {
 		// Start first table HONEY_VERSION_MAX_SIZE bytes in to allow
 		// space for version file.  It's tricky to exactly know the
 		// size of the version file beforehand.
@@ -2288,24 +2286,24 @@ if (source_backend == Xapian::DB_BACKEND_GLASS) {
 	    } else {
 		table_start_offset = lseek(fd, 0, SEEK_CUR);
 	    }
-	    out = new HoneyTable(t->name, fd, version_file_out->get_offset(),
+	    out = new HoneyTable(t.name, fd, version_file_out->get_offset(),
 				 false, false);
 	} else {
-	    out = new HoneyTable(t->name, dest, false, t->lazy);
+	    out = new HoneyTable(t.name, dest, false, t.lazy);
 	}
 	tabs.push_back(out);
-	Honey::RootInfo* root_info = version_file_out->root_to_set(t->type);
+	Honey::RootInfo* root_info = version_file_out->root_to_set(t.type);
 	if (single_file) {
 	    root_info->set_free_list(fl_serialised);
 	    root_info->set_offset(table_start_offset);
 	    out->open(FLAGS,
-		      version_file_out->get_root(t->type),
+		      version_file_out->get_root(t.type),
 		      version_file_out->get_revision());
 	} else {
 	    out->create_and_open(FLAGS, *root_info);
 	}
 
-	switch (t->type) {
+	switch (t.type) {
 	    case Honey::POSTLIST: {
 		if (multipass && inputs.size() > 3) {
 		    multimerge_postlists(compactor, out, destdir,
@@ -2330,7 +2328,7 @@ if (source_backend == Xapian::DB_BACKEND_GLASS) {
 		auto& v_out = version_file_out;
 		auto ut_lb = v_out->get_unique_terms_lower_bound();
 		auto ut_ub = v_out->get_unique_terms_upper_bound();
-		merge_docid_keyed(out, inputs, offset, ut_lb, ut_ub, t->type);
+		merge_docid_keyed(out, inputs, offset, ut_lb, ut_ub, t.type);
 		version_file_out->set_unique_terms_lower_bound(ut_lb);
 		version_file_out->set_unique_terms_upper_bound(ut_ub);
 		break;
@@ -2367,11 +2365,11 @@ if (source_backend == Xapian::DB_BACKEND_GLASS) {
 	}
 	if (bad_stat) {
 	    if (compactor)
-		compactor->set_status(t->name,
+		compactor->set_status(t.name,
 				      "Done (couldn't stat all the DB files)");
 	} else if (single_file_in) {
 	    if (compactor)
-		compactor->set_status(t->name,
+		compactor->set_status(t.name,
 				      "Done (table sizes unknown for single "
 				      "file DB input)");
 	} else {
@@ -2399,7 +2397,7 @@ if (source_backend == Xapian::DB_BACKEND_GLASS) {
 	    status += str(out_size);
 	    status += "K)";
 	    if (compactor)
-		compactor->set_status(t->name, status);
+		compactor->set_status(t.name, status);
 	}
     }
 
@@ -2450,26 +2448,26 @@ if (source_backend == Xapian::DB_BACKEND_GLASS) {
 #endif
 } else {
     vector<HoneyTable*> tabs;
-    tabs.reserve(tables_end - tables);
+    tabs.reserve(std::end(tables) - std::begin(tables));
     file_size_type prev_size = HONEY_MIN_DB_SIZE;
-    for (const table_list* t = tables; t < tables_end; ++t) {
+    for (const auto& t : tables) {
 	// The postlist table requires an N-way merge, adjusting the
 	// headers of various blocks.  The spelling and synonym tables also
 	// need special handling.  The other tables have keys sorted in
 	// docid order, so we can merge them by simply copying all the keys
 	// from each source table in turn.
 	if (compactor)
-	    compactor->set_status(t->name, string());
+	    compactor->set_status(t.name, string());
 
 	string dest;
 	if (!single_file) {
 	    dest = destdir;
 	    dest += '/';
-	    dest += t->name;
+	    dest += t.name;
 	    dest += '.';
 	}
 
-	bool output_will_exist = !t->lazy;
+	bool output_will_exist = !t.lazy;
 
 	// Sometimes stat can fail for benign reasons (e.g. >= 2GB file
 	// on certain systems).
@@ -2487,7 +2485,7 @@ if (source_backend == Xapian::DB_BACKEND_GLASS) {
 	for (auto src : sources) {
 	    auto db = static_cast<const HoneyDatabase*>(src);
 	    const HoneyTable* table;
-	    switch (t->type) {
+	    switch (t.type) {
 		case Honey::POSTLIST:
 		    table = &(db->postlist_table);
 		    break;
@@ -2512,7 +2510,7 @@ if (source_backend == Xapian::DB_BACKEND_GLASS) {
 	    }
 
 	    if (db->single_file()) {
-		if (t->lazy && !HoneyCursor(table).next()) {
+		if (t.lazy && !HoneyCursor(table).next()) {
 		    // Lazy table with no entries, so essentially doesn't
 		    // exist.
 		} else {
@@ -2542,14 +2540,14 @@ if (source_backend == Xapian::DB_BACKEND_GLASS) {
 	}
 
 	// If any inputs lack a termlist table, suppress it in the output.
-	if (t->type == Honey::TERMLIST && inputs_present != sources.size()) {
+	if (t.type == Honey::TERMLIST && inputs_present != sources.size()) {
 	    if (inputs_present != 0) {
 		if (compactor) {
 		    string m = str(inputs_present);
 		    m += " of ";
 		    m += str(sources.size());
 		    m += " inputs present, so suppressing output";
-		    compactor->set_status(t->name, m);
+		    compactor->set_status(t.name, m);
 		}
 		continue;
 	    }
@@ -2558,14 +2556,14 @@ if (source_backend == Xapian::DB_BACKEND_GLASS) {
 
 	if (!output_will_exist) {
 	    if (compactor)
-		compactor->set_status(t->name, "doesn't exist");
+		compactor->set_status(t.name, "doesn't exist");
 	    continue;
 	}
 
 	HoneyTable* out;
 	off_t table_start_offset = -1;
 	if (single_file) {
-	    if (t == tables) {
+	    if (&t == tables) {
 		// Start first table HONEY_VERSION_MAX_SIZE bytes in to allow
 		// space for version file.  It's tricky to exactly know the
 		// size of the version file beforehand.
@@ -2575,24 +2573,24 @@ if (source_backend == Xapian::DB_BACKEND_GLASS) {
 	    } else {
 		table_start_offset = lseek(fd, 0, SEEK_CUR);
 	    }
-	    out = new HoneyTable(t->name, fd, version_file_out->get_offset(),
+	    out = new HoneyTable(t.name, fd, version_file_out->get_offset(),
 				 false, false);
 	} else {
-	    out = new HoneyTable(t->name, dest, false, t->lazy);
+	    out = new HoneyTable(t.name, dest, false, t.lazy);
 	}
 	tabs.push_back(out);
-	Honey::RootInfo* root_info = version_file_out->root_to_set(t->type);
+	Honey::RootInfo* root_info = version_file_out->root_to_set(t.type);
 	if (single_file) {
 	    root_info->set_free_list(fl_serialised);
 	    root_info->set_offset(table_start_offset);
 	    out->open(FLAGS,
-		      version_file_out->get_root(t->type),
+		      version_file_out->get_root(t.type),
 		      version_file_out->get_revision());
 	} else {
 	    out->create_and_open(FLAGS, *root_info);
 	}
 
-	switch (t->type) {
+	switch (t.type) {
 	    case Honey::POSTLIST: {
 		if (multipass && inputs.size() > 3) {
 		    multimerge_postlists(compactor, out, destdir,
@@ -2648,11 +2646,11 @@ if (source_backend == Xapian::DB_BACKEND_GLASS) {
 	}
 	if (bad_stat) {
 	    if (compactor)
-		compactor->set_status(t->name,
+		compactor->set_status(t.name,
 				      "Done (couldn't stat all the DB files)");
 	} else if (single_file_in) {
 	    if (compactor)
-		compactor->set_status(t->name,
+		compactor->set_status(t.name,
 				      "Done (table sizes unknown for single "
 				      "file DB input)");
 	} else {
@@ -2680,7 +2678,7 @@ if (source_backend == Xapian::DB_BACKEND_GLASS) {
 	    status += str(out_size);
 	    status += "K)";
 	    if (compactor)
-		compactor->set_status(t->name, status);
+		compactor->set_status(t.name, status);
 	}
     }
 

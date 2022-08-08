@@ -105,7 +105,7 @@ CJK::codepoint_is_cjk(unsigned p)
     };
     // Binary chop to find the first entry which is >= p.  If it's an odd
     // offset then the codepoint is CJK; if it's an even offset then it's not.
-    auto it = lower_bound(splits, splits + sizeof(splits) / sizeof(*splits), p);
+    auto it = lower_bound(begin(splits), end(splits), p);
     return ((it - splits) & 1);
 }
 

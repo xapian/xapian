@@ -234,7 +234,7 @@ static Xapian::QueryParser
 initialise_queryparser(const Xapian::Database & db)
 {
     Xapian::SimpleStopper* mystopper;
-    mystopper = new Xapian::SimpleStopper(sw, sw + sizeof(sw) / sizeof(sw[0]));
+    mystopper = new Xapian::SimpleStopper(sw, std::end(sw));
     Xapian::Stem stemmer("english");
     Xapian::QueryParser parser;
     parser.add_prefix("title", "S");

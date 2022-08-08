@@ -248,9 +248,7 @@ DEFINE_TESTCASE_(serialisedouble1) {
     check_double_serialisation(DBL_MIN);
     check_double_serialisation(-DBL_MIN);
 
-    const double *p;
-    for (p = test_values; p < test_values + sizeof(test_values) / sizeof(double); ++p) {
-	double val = *p;
+    for (double val : test_values) {
 	check_double_serialisation(val);
 	check_double_serialisation(-val);
 	check_double_serialisation(1.0 / val);

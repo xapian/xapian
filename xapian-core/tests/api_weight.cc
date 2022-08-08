@@ -1942,8 +1942,7 @@ DEFINE_TESTCASE(coordweight1, backend) {
     static const char * const terms[] = {
 	"this", "line", "paragraph", "rubbish"
     };
-    Xapian::Query query(Xapian::Query::OP_OR,
-			terms, terms + sizeof(terms) / sizeof(terms[0]));
+    Xapian::Query query(Xapian::Query::OP_OR, terms, std::end(terms));
     enquire.set_query(query);
     Xapian::MSet mymset1 = enquire.get_mset(0, 100);
     // CoordWeight scores 1 for each matching term, so the weight should equal
@@ -2010,8 +2009,7 @@ DEFINE_TESTCASE(dicecoeffweight2, backend) {
     static const char * const terms[] = {
 	"one", "three"
     };
-    Xapian::Query query(Xapian::Query::OP_OR,
-			terms, terms + sizeof(terms) / sizeof(terms[0]));
+    Xapian::Query query(Xapian::Query::OP_OR, terms, std::end(terms));
     enquire.set_query(query);
     enquire.set_weighting_scheme(Xapian::DiceCoeffWeight());
 
