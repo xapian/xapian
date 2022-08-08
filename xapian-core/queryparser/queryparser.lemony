@@ -217,14 +217,21 @@ class State {
     const char* error = NULL;
     unsigned flags;
     Query::op effective_default_op;
+    Query::op effective_exact_op;
 
     State(QueryParser::Internal * qpi_, unsigned flags_)
-	: qpi(qpi_), flags(flags_), effective_default_op(qpi_->default_op)
+	: qpi(qpi_),
+	  flags(flags_),
+	  effective_default_op(qpi_->default_op),
+	  effective_exact_op(qpi_->exact_op)
     {
 	if ((flags & QueryParser::FLAG_NO_POSITIONS)) {
 	    if (is_positional(effective_default_op)) {
 		effective_default_op = Query::OP_AND;
-		}
+	    }
+	    if (is_positional(effective_exact_op)) {
+		effective_exact_op = Query::OP_AND;
+	    }
 	}
     }
 
@@ -269,6 +276,10 @@ class State {
 
     Query::op default_op() const {
 	return effective_default_op;
+    }
+
+    Query::op exact_op() const {
+	return effective_exact_op;
     }
 
     bool is_stopword(const Term *term) const {
@@ -1860,6 +1871,25 @@ reprocess:
 			     subqs.size() + 9);
 	} else {
 	    q = new Query(default_op, subqs.begin(), subqs.end());
+	}
+    }
+
+    if (q && state->exact_op() != q->OP_INVALID) {
+	Xapian::Query::op op = state->exact_op();
+
+	// Need to use unstemmed terms here so we can't just reuse the existing
+	// subqs.
+	subqs.clear();
+	for (auto& term : terms) {
+	    // This really just disables stemming.
+	    term->need_positions();
+	    subqs.push_back(term->get_query());
+	}
+
+	if (is_positional(op)) {
+	    *q |= Query(op, subqs.begin(), subqs.end(), subqs.size());
+	} else {
+	    *q |= Query(op, subqs.begin(), subqs.end());
 	}
     }
     delete this;

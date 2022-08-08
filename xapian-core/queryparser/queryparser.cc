@@ -1,7 +1,7 @@
 /** @file
  * @brief The non-lemon-generated parts of the QueryParser class.
  */
-/* Copyright (C) 2005,2006,2007,2008,2010,2011,2012,2013,2015,2016 Olly Betts
+/* Copyright (C) 2005-2022 Olly Betts
  * Copyright (C) 2010 Adam Sjøgren
  *
  * This program is free software; you can redistribute it and/or
@@ -128,6 +128,37 @@ Query::op
 QueryParser::get_default_op() const
 {
     return internal->default_op;
+}
+
+void
+QueryParser::set_exact_op(Query::op exact_op)
+{
+    switch (exact_op) {
+	case Query::OP_INVALID:
+	case Query::OP_AND:
+	case Query::OP_NEAR:
+	case Query::OP_PHRASE:
+	    // These are OK.
+	    break;
+	default:
+	    throw Xapian::InvalidArgumentError(
+		    "QueryParser::set_exact_op() only accepts "
+		    "OP_INVALID"
+		    ", "
+		    "OP_AND"
+		    ", "
+		    "OP_NEAR"
+		    " or "
+		    "OP_PHRASE"
+		    );
+    }
+    internal->exact_op = exact_op;
+}
+
+Query::op
+QueryParser::get_exact_op() const
+{
+    return internal->exact_op;
 }
 
 void

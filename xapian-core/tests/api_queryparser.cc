@@ -3174,3 +3174,90 @@ DEFINE_TESTCASE(qp_nopos, !backend) {
 	TEST_STRINGS_EQUAL(parsed, expect);
     }
 }
+
+static const test test_exactop_phrase_queries[] = {
+    { NULL, "AND" }, // Test exact_op = OP_AND
+    { "a b", "((Za@1 AND Zb@2) OR (a@1 AND b@2))" },
+    { "internet explorer title:(http www)", "(((Zinternet@1 AND Zexplor@2) OR (internet@1 AND explorer@2)) AND ((ZXThttp@3 AND ZXTwww@4) OR (XThttp@3 AND XTwww@4)))" },
+    { "one +two three", "(Zone@1 AND Ztwo@2 AND Zthree@3)" },
+    { "a b site:xapian.org", "(((Za@1 AND Zb@2) OR (a@1 AND b@2)) FILTER Hxapian.org)" },
+    { NULL, "NEAR" }, // Test exact_op = OP_NEAR
+    { "a b", "((Za@1 AND Zb@2) OR (a@1 NEAR 2 b@2))" },
+    { "internet explorer title:(http www)", "(((Zinternet@1 AND Zexplor@2) OR (internet@1 NEAR 2 explorer@2)) AND ((ZXThttp@3 AND ZXTwww@4) OR (XThttp@3 NEAR 2 XTwww@4)))" },
+    { "one +two three", "(Zone@1 AND Ztwo@2 AND Zthree@3)" },
+    { "a b site:xapian.org", "(((Za@1 AND Zb@2) OR (a@1 NEAR 2 b@2)) FILTER Hxapian.org)" },
+    { NULL, "PHRASE" }, // Test exact_op = OP_PHRASE
+    { "a b", "((Za@1 AND Zb@2) OR (a@1 PHRASE 2 b@2))" },
+    { "internet explorer title:(http www)", "(((Zinternet@1 AND Zexplor@2) OR (internet@1 PHRASE 2 explorer@2)) AND ((ZXThttp@3 AND ZXTwww@4) OR (XThttp@3 PHRASE 2 XTwww@4)))" },
+    { "one +two three", "(Zone@1 AND Ztwo@2 AND Zthree@3)" },
+    { "a b site:xapian.org", "(((Za@1 AND Zb@2) OR (a@1 PHRASE 2 b@2)) FILTER Hxapian.org)" },
+    { NULL, "INVALID" }, // Test exact_op = OP_INVALID
+    { "a b", "(Za@1 AND Zb@2)" },
+    { NULL, NULL }
+};
+
+DEFINE_TESTCASE(qp_exact_op1, !backend) {
+    Xapian::QueryParser queryparser;
+    queryparser.set_stemmer(Xapian::Stem("english"));
+    queryparser.set_stemming_strategy(Xapian::QueryParser::STEM_SOME);
+    queryparser.add_prefix("author", "A");
+    queryparser.add_prefix("title", "XT");
+    queryparser.add_prefix("subject", "XT");
+    queryparser.add_boolean_prefix("site", "H");
+    queryparser.set_default_op(Xapian::Query::OP_AND);
+    unsigned flags = queryparser.FLAG_DEFAULT;
+    for (const test *p = test_exactop_phrase_queries; ; ++p) {
+	if (!p->query) {
+	    if (!p->expect) break;
+	    if (strcmp(p->expect, "CJK_NGRAM") == 0) {
+		flags = queryparser.FLAG_DEFAULT|queryparser.FLAG_CJK_NGRAM;
+		continue;
+	    }
+	    if (strcmp(p->expect, "CJK_WORDS") == 0) {
+		flags = queryparser.FLAG_DEFAULT|queryparser.FLAG_CJK_WORDS;
+		continue;
+	    }
+	    if (strcmp(p->expect, "AND") == 0) {
+		queryparser.set_exact_op(Xapian::Query::OP_AND);
+		continue;
+	    }
+	    if (strcmp(p->expect, "INVALID") == 0) {
+		queryparser.set_exact_op(Xapian::Query::OP_INVALID);
+		continue;
+	    }
+	    if (strcmp(p->expect, "NEAR") == 0) {
+		queryparser.set_exact_op(Xapian::Query::OP_NEAR);
+		continue;
+	    }
+	    if (strcmp(p->expect, "PHRASE") == 0) {
+		queryparser.set_exact_op(Xapian::Query::OP_PHRASE);
+		continue;
+	    }
+	    FAIL_TEST("Unknown flag code: " << p->expect);
+	}
+	string expect, parsed;
+	if (p->expect)
+	    expect = p->expect;
+	else
+	    expect = "parse error";
+	try {
+	    Xapian::Query qobj = queryparser.parse_query(p->query, flags);
+	    parsed = qobj.get_description();
+	    expect = string("Query(") + expect + ')';
+	} catch (const Xapian::QueryParserError &e) {
+	    parsed = e.get_msg();
+	} catch (const Xapian::Error &e) {
+	    parsed = e.get_description();
+	} catch (...) {
+	    parsed = "Unknown exception!";
+	}
+#ifndef USE_ICU
+	if (flags & queryparser.FLAG_CJK_WORDS) {
+	    expect = "FeatureUnavailableError: FLAG_CJK_WORDS requires "
+		     "building Xapian to use ICU";
+	}
+#endif
+	tout << "Query: " << p->query << '\n';
+	TEST_STRINGS_EQUAL(parsed, expect);
+    }
+}

@@ -108,6 +108,13 @@ static const tab_entry default_op_tab[] = {
     { "synonym", Xapian::Query::OP_SYNONYM }
 };
 
+static const tab_entry exact_op_tab[] = {
+    { "and", Xapian::Query::OP_AND },
+    { "near", Xapian::Query::OP_NEAR },
+    { "none", Xapian::Query::OP_INVALID },
+    { "phrase", Xapian::Query::OP_PHRASE }
+};
+
 enum {
     WEIGHT_BB2,
     WEIGHT_BM25,
@@ -193,6 +200,9 @@ static void show_usage() {
 "  -o, --default-op=OP               specify QueryParser default operator\n"
 "                                    (default: or).  Valid operators:"
 << print_table(default_op_tab) <<
+"  -e, --exact-op=OP                 specify QueryParser exact operator\n"
+"                                    (default: none).  Valid operators:"
+<< print_table(exact_op_tab) <<
 "  -w, --weight=SCHEME               specify weighting scheme to use\n"
 "                                    (default: bm25).  Valid schemes:"
 << print_table(wt_tab) <<
@@ -204,7 +214,7 @@ static void show_usage() {
 int
 main(int argc, char **argv)
 try {
-    const char * opts = "d:m:c:s:p:b:f:o:w:Fhv";
+    const char* opts = "d:m:c:s:p:b:f:o:w:e:Fhv";
     static const struct option long_opts[] = {
 	{ "db",		required_argument, 0, 'd' },
 	{ "msize",	required_argument, 0, 'm' },
@@ -307,10 +317,19 @@ try {
 	    case 'o': {
 		int op = decode(default_op_tab, optarg);
 		if (op < 0) {
-		    cerr << "Unknown op '" << optarg << "'\n";
+		    cerr << "Unknown default op '" << optarg << "'\n";
 		    exit(1);
 		}
 		parser.set_default_op(static_cast<Xapian::Query::op>(op));
+		break;
+	    }
+	    case 'e': {
+		int op = decode(exact_op_tab, optarg);
+		if (op < 0) {
+		    cerr << "Unknown exact op '" << optarg << "'\n";
+		    exit(1);
+		}
+		parser.set_exact_op(static_cast<Xapian::Query::op>(op));
 		break;
 	    }
 	    case 'w': {

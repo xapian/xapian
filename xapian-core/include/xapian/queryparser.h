@@ -1,7 +1,7 @@
 /** @file
  * @brief parsing a user query string to build a Xapian::Query object
  */
-/* Copyright (C) 2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018 Olly Betts
+/* Copyright (C) 2005-2022 Olly Betts
  * Copyright (C) 2010 Adam Sjøgren
  *
  * This program is free software; you can redistribute it and/or
@@ -790,6 +790,27 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
 
     /** Get the current default operator. */
     Query::op get_default_op() const;
+
+    /** Set the exact operator.
+     *
+     *  @param exact_op		The operator to use (if any) to augment the
+     *				parsed query such that more exact matches
+     *				with the query are boosted.
+     *
+     *				So for example, if exact_op is set to OP_PHRASE
+     *				then 'weather forecast' is parsed as if it were
+     *				'weather OR forecast OR "weather forecast"'.
+     *
+     *				The valid values for this are OP_INVALID (the
+     *				default which disables this feature), OP_AND,
+     *				OP_NEAR and OP_PHRASE.  Passing other values
+     *				will result in InvalidArgumentError being
+     *				thrown.
+     */
+    void set_exact_op(Query::op exact_op);
+
+    /** Get the current exact operator. */
+    Query::op get_exact_op() const;
 
     /** Specify the database being searched.
      *
