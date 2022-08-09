@@ -1,7 +1,7 @@
 /** @file
  * @brief Read and write user metadata
  */
-/* Copyright (C) 2007,2010,2015 Olly Betts
+/* Copyright (C) 2007-2022 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,7 +36,7 @@ using namespace std;
 static void show_usage() {
     cout << "Usage: " PROG_NAME " get PATH_TO_DATABASE KEY\n"
 	    "       " PROG_NAME " list PATH_TO_DATABASE [PREFIX]\n"
-	    "       " PROG_NAME " set PATH_TO_DATABASE KEY VALUE" << endl;
+	    "       " PROG_NAME " set PATH_TO_DATABASE KEY VALUE\n";
 }
 
 int
@@ -56,7 +56,7 @@ syntax_error:
 	    exit(0);
 	}
 	if (strcmp(command, "--version") == 0) {
-	    cout << PROG_NAME " - " PACKAGE_STRING << endl;
+	    cout << PROG_NAME " - " PACKAGE_STRING "\n";
 	    exit(0);
 	}
     }
@@ -64,7 +64,7 @@ syntax_error:
     if (strcmp(command, "get") == 0) {
 	if (argc != 4) goto syntax_error;
 	Xapian::Database db(argv[2]);
-	cout << db.get_metadata(argv[3]) << endl;
+	cout << db.get_metadata(argv[3]) << '\n';
     } else if (strcmp(command, "list") == 0) {
 	if (argc != 3 && argc != 4) goto syntax_error;
 	Xapian::Database db(argv[2]);
@@ -84,6 +84,6 @@ syntax_error:
 	goto syntax_error;
     }
 } catch (const Xapian::Error &e) {
-    cout << e.get_description() << endl;
+    cout << e.get_description() << '\n';
     exit(1);
 }

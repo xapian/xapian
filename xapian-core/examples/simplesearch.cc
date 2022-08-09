@@ -3,7 +3,7 @@
  *
  * See "quest" for a more sophisticated example.
  */
-/* Copyright (C) 2007,2010,2015 Olly Betts
+/* Copyright (C) 2007-2022 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -42,14 +42,14 @@ try {
 	int rc = 1;
 	if (argv[1]) {
 	    if (strcmp(argv[1], "--version") == 0) {
-		cout << "simplesearch" << endl;
+		cout << "simplesearch\n";
 		exit(0);
 	    }
 	    if (strcmp(argv[1], "--help") == 0) {
 		rc = 0;
 	    }
 	}
-	cout << "Usage: " << argv[0] << " PATH_TO_DATABASE QUERY" << endl;
+	cout << "Usage: " << argv[0] << " PATH_TO_DATABASE QUERY\n";
 	exit(rc);
     }
 
@@ -76,7 +76,7 @@ try {
     qp.set_database(db);
     qp.set_stemming_strategy(Xapian::QueryParser::STEM_SOME);
     Xapian::Query query = qp.parse_query(query_string);
-    cout << "Parsed query is: " << query.get_description() << endl;
+    cout << "Parsed query is: " << query.get_description() << '\n';
 
     // Find the top 10 results for the query.
     enquire.set_query(query);
@@ -84,13 +84,13 @@ try {
 
     // Display the results.
     cout << matches.get_matches_estimated() << " results found.\n";
-    cout << "Matches 1-" << matches.size() << ":\n" << endl;
+    cout << "Matches 1-" << matches.size() << ":\n\n";
 
     for (Xapian::MSetIterator i = matches.begin(); i != matches.end(); ++i) {
 	cout << i.get_rank() + 1 << ": " << i.get_weight() << " docid=" << *i
 	     << " [" << i.get_document().get_data() << "]\n\n";
     }
 } catch (const Xapian::Error &e) {
-    cout << e.get_description() << endl;
+    cout << e.get_description() << '\n';
     exit(1);
 }

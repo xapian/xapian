@@ -1,7 +1,7 @@
 /** @file
  * @brief Debug positional data
  */
-/* Copyright 2018 Olly Betts
+/* Copyright 2018-2022 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -47,11 +47,11 @@ show_usage()
 {
     cout << "Usage: " PROG_NAME " [OPTIONS] DATABASE\n\n"
 "Options:\n"
-"  -d, --doc=DOCID  Show positions for document DOCID\n"
-"  -s, --start=POS  Specifies the first position to show\n"
-"  -e, --end=POS    Specifies the last position to show\n"
+"  -d, --doc=DOCID  show positions for document DOCID\n"
+"  -s, --start=POS  specifies the first position to show\n"
+"  -e, --end=POS    specifies the last position to show\n"
 "  --help           display this help and exit\n"
-"  --version        output version information and exit" << endl;
+"  --version        output version information and exit\n";
 }
 
 class Pos {
@@ -130,21 +130,21 @@ try {
 		if (!to_unsigned_int(optarg, did) || did == 0) {
 		    if (errno == 0) errno = ERANGE;
 		    cerr << "Bad docid value '" << optarg << "': "
-			 << strerror(errno) << endl;
+			 << strerror(errno) << '\n';
 		    exit(1);
 		}
 		break;
 	    case 's':
 		if (!to_unsigned_int(optarg, startpos)) {
 		    cerr << "Bad start position '" << optarg << "': "
-			 << strerror(errno) << endl;
+			 << strerror(errno) << '\n';
 		    exit(1);
 		}
 		break;
 	    case 'e':
 		if (!to_unsigned_int(optarg, endpos)) {
 		    cerr << "Bad end position '" << optarg << "': "
-			 << strerror(errno) << endl;
+			 << strerror(errno) << '\n';
 		    exit(1);
 		}
 		break;
@@ -153,7 +153,7 @@ try {
 		show_usage();
 		exit(0);
 	    case OPT_VERSION:
-		cout << PROG_NAME " - " PACKAGE_STRING << endl;
+		cout << PROG_NAME " - " PACKAGE_STRING "\n";
 		exit(0);
 	    default:
 		show_usage();
@@ -168,7 +168,7 @@ try {
     }
 
     if (did == 0) {
-	cerr << "--doc=DOCID option required." << endl;
+	cerr << "--doc=DOCID option required.\n";
 	exit(1);
     }
 
@@ -220,8 +220,8 @@ try {
 	}
     }
 
-    cout << endl;
+    cout << '\n';
 } catch (const Xapian::Error & e) {
-    cerr << '\n' << argv[0] << ": " << e.get_description() << endl;
+    cerr << '\n' << argv[0] << ": " << e.get_description() << '\n';
     exit(1);
 }

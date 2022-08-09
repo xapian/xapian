@@ -1,7 +1,7 @@
 /** @file
  * @brief Index each paragraph of a text file as a Xapian document.
  */
-/* Copyright (C) 2007,2010,2015 Olly Betts
+/* Copyright (C) 2007-2022 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,7 +39,7 @@ try {
 	int rc = 1;
 	if (argv[1]) {
 	    if (strcmp(argv[1], "--version") == 0) {
-		cout << "simpleindex" << endl;
+		cout << "simpleindex\n";
 		exit(0);
 	    }
 	    if (strcmp(argv[1], "--help") == 0) {
@@ -47,7 +47,7 @@ try {
 	    }
 	}
 	cout << "Usage: " << argv[0] << " PATH_TO_DATABASE\n"
-		"Index each paragraph of a text file as a Xapian document." << endl;
+		"Index each paragraph of a text file as a Xapian document.\n";
 	exit(rc);
     }
 
@@ -93,6 +93,6 @@ try {
     // will swallow any exceptions produced.
     db.commit();
 } catch (const Xapian::Error &e) {
-    cout << e.get_description() << endl;
+    cout << e.get_description() << '\n';
     exit(1);
 }
