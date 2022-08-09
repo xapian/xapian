@@ -244,7 +244,7 @@ try {
 		msize = static_cast<Xapian::doccount>(v);
 		if (*p || v != msize) {
 		    cerr << PROG_NAME": Bad value '" << optarg
-			 << "' passed for msize" << endl;
+			 << "' passed for msize\n";
 		    exit(1);
 		}
 		break;
@@ -255,7 +255,7 @@ try {
 		check_at_least = static_cast<Xapian::doccount>(v);
 		if (*p || v != check_at_least) {
 		    cerr << PROG_NAME": Bad value '" << optarg
-			 << "' passed for check_at_least" << endl;
+			 << "' passed for check_at_least\n";
 		    exit(1);
 		}
 		break;
@@ -270,14 +270,14 @@ try {
 		} catch (const Xapian::InvalidArgumentError &) {
 		    cerr << "Unknown stemming language '" << optarg << "'.\n"
 			    "Available language names are: "
-			 << Xapian::Stem::get_available_languages() << endl;
+			 << Xapian::Stem::get_available_languages() << '\n';
 		    exit(1);
 		}
 		break;
 	    case 'b': case 'p': {
 		const char * colon = strchr(optarg, ':');
 		if (colon == NULL) {
-		    cerr << argv[0] << ": need ':' when setting prefix" << endl;
+		    cerr << argv[0] << ": need ':' when setting prefix\n";
 		    exit(1);
 		}
 		string prefix(optarg, colon - optarg);
@@ -297,7 +297,7 @@ try {
 			*comma++ = '\0';
 		    int flag = decode(flag_tab, optarg);
 		    if (flag < 0) {
-			cerr << "Unknown flag '" << optarg << "'" << endl;
+			cerr << "Unknown flag '" << optarg << "'\n";
 			exit(1);
 		    }
 		    flags |= unsigned(flag);
@@ -307,7 +307,7 @@ try {
 	    case 'o': {
 		int op = decode(default_op_tab, optarg);
 		if (op < 0) {
-		    cerr << "Unknown op '" << optarg << "'" << endl;
+		    cerr << "Unknown op '" << optarg << "'\n";
 		    exit(1);
 		}
 		parser.set_default_op(static_cast<Xapian::Query::op>(op));
@@ -316,7 +316,7 @@ try {
 	    case 'w': {
 		weight = decode(wt_tab, optarg);
 		if (weight < 0) {
-		    cerr << "Unknown weighting scheme '" << optarg << "'" << endl;
+		    cerr << "Unknown weighting scheme '" << optarg << "'\n";
 		    exit(1);
 		}
 		break;
@@ -325,7 +325,7 @@ try {
 		show_termfreqs = true;
 		break;
 	    case 'v':
-		cout << PROG_NAME " - " PACKAGE_STRING << endl;
+		cout << PROG_NAME " - " PACKAGE_STRING "\n";
 		exit(0);
 	    case 'h':
 		cout << PROG_NAME " - " PROG_DESC "\n\n";
@@ -356,10 +356,10 @@ try {
     if (!correction.empty())
 	cout << "Did you mean: " << correction << "\n\n";
 
-    cout << "Parsed Query: " << query.get_description() << endl;
+    cout << "Parsed Query: " << query.get_description() << '\n';
 
     if (!have_database) {
-	cout << "No database specified so not running the query." << endl;
+	cout << "No database specified so not running the query.\n";
 	exit(0);
     }
 
@@ -429,13 +429,13 @@ try {
     auto estimate = mset.get_matches_estimated();
     auto upper_bound = mset.get_matches_upper_bound();
     if (lower_bound == upper_bound) {
-	cout << "Exactly " << estimate << " matches" << endl;
+	cout << "Exactly " << estimate << " matches\n";
     } else {
 	cout << "Between " << lower_bound << " and " << upper_bound
-	     << " matches, best estimate is " << estimate << endl;
+	     << " matches, best estimate is " << estimate << '\n';
     }
 
-    cout << "MSet:" << endl;
+    cout << "MSet:\n";
     for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); ++i) {
 	Xapian::Document doc = i.get_document();
 	string data = doc.get_data();
@@ -443,9 +443,9 @@ try {
     }
     cout << flush;
 } catch (const Xapian::QueryParserError & e) {
-    cout << "Couldn't parse query: " << e.get_msg() << endl;
+    cout << "Couldn't parse query: " << e.get_msg() << '\n';
     exit(1);
 } catch (const Xapian::Error & err) {
-    cout << err.get_description() << endl;
+    cout << err.get_description() << '\n';
     exit(1);
 }

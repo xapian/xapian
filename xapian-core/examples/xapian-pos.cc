@@ -1,7 +1,7 @@
 /** @file
  * @brief Debug positional data
  */
-/* Copyright 2018,2019 Olly Betts
+/* Copyright 2018-2022 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -53,7 +53,7 @@ show_usage()
 "  -e, --end=POS               specifies the last position to show\n"
 "  -r, --reconstruct[=PREFIX]  reconstruct text for prefix PREFIX\n"
 "  --help                      display this help and exit\n"
-"  --version                   output version information and exit" << endl;
+"  --version                   output version information and exit\n";
 }
 
 class Pos {
@@ -112,19 +112,19 @@ try {
 	switch (c) {
 	    case 'd':
 		if (!parse_unsigned(optarg, did) || did == 0) {
-		    cerr << "Bad docid value '" << optarg << "'" << endl;
+		    cerr << "Bad docid value '" << optarg << "'\n";
 		    exit(1);
 		}
 		break;
 	    case 's':
 		if (!parse_unsigned(optarg, startpos)) {
-		    cerr << "Bad start position '" << optarg << "'" << endl;
+		    cerr << "Bad start position '" << optarg << "'\n";
 		    exit(1);
 		}
 		break;
 	    case 'e':
 		if (!parse_unsigned(optarg, endpos)) {
-		    cerr << "Bad end position '" << optarg << "'" << endl;
+		    cerr << "Bad end position '" << optarg << "'\n";
 		    exit(1);
 		}
 		break;
@@ -139,7 +139,7 @@ try {
 		show_usage();
 		exit(0);
 	    case OPT_VERSION:
-		cout << PROG_NAME " - " PACKAGE_STRING << endl;
+		cout << PROG_NAME " - " PACKAGE_STRING "\n";
 		exit(0);
 	    default:
 		show_usage();
@@ -154,7 +154,7 @@ try {
     }
 
     if (did == 0) {
-	cerr << "--doc=DOCID option required." << endl;
+	cerr << "--doc=DOCID option required.\n";
 	exit(1);
     }
 
@@ -163,7 +163,7 @@ try {
     if (reconstruct) {
 	cout << db.reconstruct_text(did, 0, reconstruct_prefix,
 				    startpos, endpos)
-	     << endl;
+	     << '\n';
 	exit(0);
     }
 
@@ -212,8 +212,8 @@ try {
 	}
     }
 
-    cout << endl;
+    cout << '\n';
 } catch (const Xapian::Error & e) {
-    cerr << '\n' << argv[0] << ": " << e.get_description() << endl;
+    cerr << '\n' << argv[0] << ": " << e.get_description() << '\n';
     exit(1);
 }
