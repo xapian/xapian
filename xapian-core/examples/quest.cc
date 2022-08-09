@@ -49,8 +49,33 @@ static const char * const sw[] = {
     "was", "what", "when", "where", "which", "who", "why", "will", "with"
 };
 
-struct qp_flag { const char * s; unsigned f; };
-static const qp_flag flag_tab[] = {
+/** Common string to integer map entry for option decoding. */
+struct tab_entry {
+    const char* s;
+
+    unsigned f;
+
+    bool operator<(const char* s_) const {
+	return strcmp(s, s_) < 0;
+    }
+};
+
+/** Decode a string to an integer.
+ *
+ *  @param table  Array of tab_entry in ascending string order.
+ *  @param s      The string to decode.
+ */
+template<typename T, std::size_t N>
+static int
+decode(const T (&table)[N], const char* s)
+{
+    auto p = lower_bound(begin(table), end(table), s);
+    if (p == end(table) || strcmp(s, p->s) != 0)
+	return -1;
+    return p->f;
+}
+
+static const tab_entry flag_tab[] = {
     { "accumulate", Xapian::QueryParser::FLAG_ACCUMULATE },
     { "auto_multiword_synonyms", Xapian::QueryParser::FLAG_AUTO_MULTIWORD_SYNONYMS },
     { "auto_synonyms", Xapian::QueryParser::FLAG_AUTO_SYNONYMS },
@@ -72,14 +97,8 @@ static const qp_flag flag_tab[] = {
     { "wildcard_multi", Xapian::QueryParser::FLAG_WILDCARD_MULTI },
     { "wildcard_single", Xapian::QueryParser::FLAG_WILDCARD_SINGLE }
 };
-const int n_flag_tab = sizeof(flag_tab) / sizeof(flag_tab[0]);
 
-static inline bool operator<(const qp_flag& f1, const qp_flag& f2) {
-    return strcmp(f1.s, f2.s) < 0;
-}
-
-struct qp_op { const char * s; unsigned f; };
-static const qp_op op_tab[] = {
+static const tab_entry default_op_tab[] = {
     { "and", Xapian::Query::OP_AND },
     { "elite_set", Xapian::Query::OP_ELITE_SET },
     { "max", Xapian::Query::OP_MAX },
@@ -88,11 +107,6 @@ static const qp_op op_tab[] = {
     { "phrase", Xapian::Query::OP_PHRASE },
     { "synonym", Xapian::Query::OP_SYNONYM }
 };
-const int n_op_tab = sizeof(op_tab) / sizeof(op_tab[0]);
-
-static inline bool operator<(const qp_op& f1, const qp_op& f2) {
-    return strcmp(f1.s, f2.s) < 0;
-}
 
 enum {
     WEIGHT_BB2,
@@ -112,8 +126,7 @@ enum {
     WEIGHT_TRAD
 };
 
-struct wt { const char * s; int f; };
-static const wt wt_tab[] = {
+static const tab_entry wt_tab[] = {
     { "bb2",	WEIGHT_BB2 },
     { "bm25",	WEIGHT_BM25 },
     { "bm25+",	WEIGHT_BM25PLUS },
@@ -130,10 +143,36 @@ static const wt wt_tab[] = {
     { "tfidf",	WEIGHT_TFIDF },
     { "trad",	WEIGHT_TRAD }
 };
-const int n_wt_tab = sizeof(wt_tab) / sizeof(wt_tab[0]);
 
-static inline bool operator<(const wt& f1, const wt& f2) {
-    return strcmp(f1.s, f2.s) < 0;
+/** The number of spaces to indent by in print_table.
+ *
+ *  This needs to match the indent in the help message in show_usage() below.
+ */
+#define INDENT \
+"                                    "
+
+/** Print string from a string to integer mapping table.
+ *
+ *  @param table  Array of tab_entry in ascending string order.
+ */
+template<typename T>
+static char
+print_table(const T& table)
+{
+    size_t pos = 256;
+    for (auto& i : table) {
+	size_t len = strlen(i.s);
+	if (pos < 256) cout << ',';
+	if (pos + len >= 78) {
+	    cout << "\n" INDENT;
+	    pos = sizeof(INDENT) - 2;
+	} else {
+	    cout << ' ';
+	}
+	cout << i.s;
+	pos += len + 2;
+    }
+    return '\n';
 }
 
 static void show_usage() {
@@ -149,91 +188,17 @@ static void show_usage() {
 "  -p, --prefix=PFX:TERMPFX          add a prefix\n"
 "  -b, --boolean-prefix=PFX:TERMPFX  add a boolean prefix\n"
 "  -f, --flags=FLAG1[,FLAG2]...      specify QueryParser flags (default:\n"
-"                                    default).  Valid flags:";
-#define INDENT \
-"                                    "
-    int pos = 256;
-    for (const qp_flag * i = flag_tab; i - flag_tab < n_flag_tab; ++i) {
-	size_t len = strlen(i->s);
-	if (pos < 256) cout << ',';
-	if (pos + len >= 78) {
-	    cout << "\n" INDENT;
-	    pos = sizeof(INDENT) - 2;
-	} else {
-	    cout << ' ';
-	}
-	cout << i->s;
-	pos += len + 2;
-    }
-    cout << "\n"
+"                                    default).  Valid flags:"
+<< print_table(flag_tab) <<
 "  -o, --default-op=OP               specify QueryParser default operator\n"
-"                                    (default: or).  Valid operators:";
-    pos = 256;
-    for (const qp_op * i = op_tab; i - op_tab < n_op_tab; ++i) {
-	size_t len = strlen(i->s);
-	if (pos < 256) cout << ',';
-	if (pos + len >= 78) {
-	    cout << "\n" INDENT;
-	    pos = sizeof(INDENT) - 2;
-	} else {
-	    cout << ' ';
-	}
-	cout << i->s;
-	pos += len + 2;
-    }
-    cout << "\n"
+"                                    (default: or).  Valid operators:"
+<< print_table(default_op_tab) <<
 "  -w, --weight=SCHEME               specify weighting scheme to use\n"
-"                                    (default: bm25).  Valid schemes:";
-    pos = 256;
-    for (const wt * i = wt_tab; i - wt_tab < n_wt_tab; ++i) {
-	size_t len = strlen(i->s);
-	if (pos < 256) cout << ',';
-	if (pos + len >= 78) {
-	    cout << "\n" INDENT;
-	    pos = sizeof(INDENT) - 2;
-	} else {
-	    cout << ' ';
-	}
-	cout << i->s;
-	pos += len + 2;
-    }
-    cout << "\n"
+"                                    (default: bm25).  Valid schemes:"
+<< print_table(wt_tab) <<
 "  -F, --freqs                       show query term frequencies\n"
 "  -h, --help                        display this help and exit\n"
 "  -v, --version                     output version information and exit\n";
-}
-
-static unsigned
-decode_qp_flag(const char * s)
-{
-    qp_flag f;
-    f.s = s;
-    const qp_flag * p = lower_bound(flag_tab, flag_tab + n_flag_tab, f);
-    if (p == flag_tab + n_flag_tab || f < *p)
-	return 0;
-    return p->f;
-}
-
-static int
-decode_qp_op(const char * s)
-{
-    qp_op f;
-    f.s = s;
-    const qp_op * p = lower_bound(op_tab, op_tab + n_op_tab, f);
-    if (p == op_tab + n_op_tab || f < *p)
-	return -1;
-    return p->f;
-}
-
-static int
-decode_wt(const char * s)
-{
-    wt f;
-    f.s = s;
-    const wt * p = lower_bound(wt_tab, wt_tab + n_wt_tab, f);
-    if (p == wt_tab + n_wt_tab || f < *p)
-	return -1;
-    return p->f;
 }
 
 int
@@ -330,17 +295,17 @@ try {
 		    char * comma = strchr(optarg, ',');
 		    if (comma)
 			*comma++ = '\0';
-		    unsigned flag = decode_qp_flag(optarg);
-		    if (flag == 0) {
+		    int flag = decode(flag_tab, optarg);
+		    if (flag < 0) {
 			cerr << "Unknown flag '" << optarg << "'" << endl;
 			exit(1);
 		    }
-		    flags |= flag;
+		    flags |= unsigned(flag);
 		    optarg = comma;
 		} while (optarg);
 		break;
 	    case 'o': {
-		int op = decode_qp_op(optarg);
+		int op = decode(default_op_tab, optarg);
 		if (op < 0) {
 		    cerr << "Unknown op '" << optarg << "'" << endl;
 		    exit(1);
@@ -349,7 +314,7 @@ try {
 		break;
 	    }
 	    case 'w': {
-		weight = decode_wt(optarg);
+		weight = decode(wt_tab, optarg);
 		if (weight < 0) {
 		    cerr << "Unknown weighting scheme '" << optarg << "'" << endl;
 		    exit(1);
