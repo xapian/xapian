@@ -159,10 +159,10 @@ template<typename T>
 static char
 print_table(const T& table)
 {
-    size_t pos = 256;
+    size_t pos = string::npos;
     for (auto& i : table) {
 	size_t len = strlen(i.s);
-	if (pos < 256) cout << ',';
+	if (pos != string::npos) cout << ',';
 	if (pos + len >= 78) {
 	    cout << "\n" INDENT;
 	    pos = sizeof(INDENT) - 2;
