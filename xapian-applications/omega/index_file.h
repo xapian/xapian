@@ -50,13 +50,13 @@ struct Filter {
     std::string output_charset;
     bool no_shell;
     Filter() : cmd(), output_type(), no_shell(false) { }
-    explicit Filter(const std::string & cmd_, bool use_shell_ = true)
+    explicit Filter(const std::string& cmd_, bool use_shell_ = true)
 	: cmd(cmd_), output_type(), no_shell(!use_shell_) { }
-    Filter(const std::string & cmd_, const std::string & output_type_,
+    Filter(const std::string& cmd_, const std::string& output_type_,
 	   bool use_shell_ = true)
 	: cmd(cmd_), output_type(output_type_), no_shell(!use_shell_) { }
-    Filter(const std::string & cmd_, const std::string & output_type_,
-	   const std::string & output_charset_,
+    Filter(const std::string& cmd_, const std::string& output_type_,
+	   const std::string& output_charset_,
 	   bool use_shell_ = true)
 	: cmd(cmd_), output_type(output_type_),
 	  output_charset(output_charset_), no_shell(!use_shell_) { }
@@ -66,20 +66,20 @@ struct Filter {
 extern std::map<std::string, Filter> commands;
 
 inline void
-index_command(const std::string & type, const Filter & filter)
+index_command(const std::string& type, const Filter& filter)
 {
     commands[type] = filter;
 }
 
 inline void
-index_command(const char * type, const Filter & filter)
+index_command(const char* type, const Filter& filter)
 {
     commands[type] = filter;
 }
 
 void
-skip(const std::string & urlterm, const std::string & context,
-     const std::string & msg,
+skip(const std::string& urlterm, const std::string& context,
+     const std::string& msg,
      off_t size, time_t last_mod, unsigned flags = 0);
 
 /// Call index_command() to set up the default command filters.
@@ -88,9 +88,9 @@ index_add_default_filters();
 
 /// Initialise.
 void
-index_init(const std::string & dbpath, const Xapian::Stem & stemmer,
-	   const std::string & root_,
-	   const std::string & site_term_, const std::string & host_term_,
+index_init(const std::string& dbpath, const Xapian::Stem& stemmer,
+	   const std::string& root_,
+	   const std::string& site_term_, const std::string& host_term_,
 	   empty_body_type empty_body_, dup_action_type dup_action_,
 	   size_t sample_size_, size_t title_size_,
 	   size_t max_ext_len_,
@@ -99,19 +99,21 @@ index_init(const std::string & dbpath, const Xapian::Stem & stemmer,
 	   bool spelling, bool ignore_exclusions_, bool description_as_sample);
 
 void
-index_remove_failed_entry(const std::string & urlterm);
+index_remove_failed_entry(const std::string& urlterm);
 
 void
-index_add_document(const std::string & urlterm, time_t last_altered,
-		   Xapian::docid did, const Xapian::Document & doc);
+index_add_document(const std::string& urlterm, time_t last_altered,
+		   Xapian::docid did, const Xapian::Document& doc);
 
 /// Index a file into the database.
 void
-index_mimetype(const std::string & file, const std::string & urlterm,
-	       const std::string & url,
-	       const std::string & ext,
-	       const std::string &mimetype, DirectoryIterator &d,
-	       Xapian::Document &doc,
+index_mimetype(const std::string& file,
+	       const std::string& urlterm,
+	       const std::string& url,
+	       const std::string& ext,
+	       const std::string& mimetype,
+	       DirectoryIterator& d,
+	       Xapian::Document& doc,
 	       std::string record);
 
 /// Delete any previously indexed documents we haven't seen.
