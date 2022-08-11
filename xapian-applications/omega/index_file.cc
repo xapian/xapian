@@ -116,7 +116,7 @@ mark_as_seen(Xapian::docid did)
 }
 
 void
-skip(const string & urlterm, const string & context, const string & msg,
+skip(const string& urlterm, const string& context, const string& msg,
      off_t size, time_t last_mod, unsigned flags)
 {
     failed.add(urlterm, last_mod, size);
@@ -130,24 +130,25 @@ skip(const string & urlterm, const string & context, const string & msg,
 }
 
 static void
-skip_cmd_failed(const string & urlterm, const string & context, const string & cmd,
+skip_cmd_failed(const string& urlterm, const string& context, const string& cmd,
 		off_t size, time_t last_mod)
 {
     skip(urlterm, context, "\"" + cmd + "\" failed", size, last_mod);
 }
 
 static void
-skip_meta_tag(const string & urlterm, const string & context,
+skip_meta_tag(const string& urlterm, const string& context,
 	      off_t size, time_t last_mod)
 {
     skip(urlterm, context, "indexing disallowed by meta tag", size, last_mod);
 }
 
 static void
-skip_unknown_mimetype(const string & urlterm, const string & context,
-		      const string & mimetype, off_t size, time_t last_mod)
+skip_unknown_mimetype(const string& urlterm, const string& context,
+		      const string& mimetype, off_t size, time_t last_mod)
 {
-    skip(urlterm, context, "unknown MIME type '" + mimetype + "'", size, last_mod);
+    skip(urlterm, context, "unknown MIME type '" + mimetype + "'",
+	 size, last_mod);
 }
 
 void
@@ -391,9 +392,9 @@ index_add_default_filters()
 }
 
 void
-index_init(const string & dbpath, const Xapian::Stem & stemmer,
-	   const string & root_, const string & site_term_,
-	   const string & host_term_,
+index_init(const string& dbpath, const Xapian::Stem& stemmer,
+	   const string& root_, const string& site_term_,
+	   const string& host_term_,
 	   empty_body_type empty_body_, dup_action_type dup_action_,
 	   size_t sample_size_, size_t title_size_, size_t max_ext_len_,
 	   bool overwrite, bool retry_failed_,
@@ -462,7 +463,7 @@ index_init(const string & dbpath, const Xapian::Stem & stemmer,
 }
 
 static void
-parse_pdfinfo_field(const char* p, const char* end, string & out,
+parse_pdfinfo_field(const char* p, const char* end, string& out,
 		    const char* field, size_t len)
 {
     if (size_t(end - p) > len && memcmp(p, field, len) == 0) {
@@ -478,15 +479,15 @@ parse_pdfinfo_field(const char* p, const char* end, string & out,
     parse_pdfinfo_field((P), (END), (OUT), FIELD":", CONST_STRLEN(FIELD) + 1)
 
 static void
-parse_pdf_metainfo(const string& pdfinfo, string &author, string &title,
-		   string &keywords, string &topic, int& pages)
+parse_pdf_metainfo(const string& pdfinfo, string& author, string& title,
+		   string& keywords, string& topic, int& pages)
 {
-    const char * p = pdfinfo.data();
-    const char * end = p + pdfinfo.size();
+    const char* p = pdfinfo.data();
+    const char* end = p + pdfinfo.size();
     while (p != end) {
-	const char * start = p;
-	p = static_cast<const char *>(memchr(p, '\n', end - p));
-	const char * eol;
+	const char* start = p;
+	p = static_cast<const char*>(memchr(p, '\n', end - p));
+	const char* eol;
 	if (p) {
 	    eol = p;
 	    ++p;
@@ -518,8 +519,8 @@ parse_pdf_metainfo(const string& pdfinfo, string &author, string &title,
 }
 
 static void
-get_pdf_metainfo(int fd, string &author, string &title,
-		 string &keywords, string &topic, int& pages)
+get_pdf_metainfo(int fd, string& author, string& title,
+		 string& keywords, string& topic, int& pages)
 {
     try {
 	string pdfinfo;
@@ -531,8 +532,8 @@ get_pdf_metainfo(int fd, string &author, string &title,
 }
 
 static void
-get_pdf_metainfo(const string& file, string &author, string &title,
-		 string &keywords, string &topic, int& pages)
+get_pdf_metainfo(const string& file, string& author, string& title,
+		 string& keywords, string& topic, int& pages)
 {
     try {
 	string cmd = "pdfinfo -enc UTF-8";
@@ -545,7 +546,7 @@ get_pdf_metainfo(const string& file, string &author, string &title,
 }
 
 static void
-generate_sample_from_csv(const string & csv_data, string & sample)
+generate_sample_from_csv(const string& csv_data, string& sample)
 {
     // Add 3 to allow for a 4 byte utf-8 sequence being appended when
     // output is sample_size - 1 bytes long.  Use csv_data.size() if smaller
@@ -607,8 +608,8 @@ generate_sample_from_csv(const string & csv_data, string & sample)
 }
 
 static bool
-index_check_existing(const string & urlterm, time_t last_altered,
-		     Xapian::docid & did)
+index_check_existing(const string& urlterm, time_t last_altered,
+		     Xapian::docid& did)
 {
     switch (dup_action) {
 	case DUP_SKIP: {
@@ -660,8 +661,8 @@ index_remove_failed_entry(const string& urlterm)
 }
 
 void
-index_add_document(const string & urlterm, time_t last_altered,
-		   Xapian::docid did, const Xapian::Document & doc)
+index_add_document(const string& urlterm, time_t last_altered,
+		   Xapian::docid did, const Xapian::Document& doc)
 {
     if (dup_action != DUP_SKIP) {
 	// If this document has already been indexed, update the existing
@@ -692,10 +693,10 @@ index_add_document(const string & urlterm, time_t last_altered,
 }
 
 void
-index_mimetype(const string & file, const string & urlterm, const string & url,
-	       const string & ext,
+index_mimetype(const string& file, const string& urlterm, const string& url,
+	       const string& ext,
 	       string mimetype,
-	       DirectoryIterator & d,
+	       DirectoryIterator& d,
 	       string pathterm,
 	       string record)
 {
@@ -917,14 +918,14 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 			run_filter(cmd, use_shell, &dump);
 		    }
 		}
-		const string & charset = filter.output_charset;
+		const string& charset = filter.output_charset;
 		if (filter.output_type == "text/html") {
 		    HtmlParser p;
 		    p.ignore_metarobots();
 		    p.description_as_sample = description_as_sample;
 		    try {
 			p.parse(dump, charset, false);
-		    } catch (const string & newcharset) {
+		    } catch (const string& newcharset) {
 			p.reset();
 			p.ignore_metarobots();
 			p.description_as_sample = description_as_sample;
@@ -958,7 +959,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 		return;
 	    }
 	} else if (mimetype == "text/html" || mimetype == "text/x-php") {
-	    const string & text = d.file_to_string();
+	    const string& text = d.file_to_string();
 	    HtmlParser p;
 	    if (ignore_exclusions) p.ignore_metarobots();
 	    p.description_as_sample = description_as_sample;
@@ -966,7 +967,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 		// Default HTML character set is latin 1, though not specifying
 		// one is deprecated these days.
 		p.parse(text, "iso-8859-1", false);
-	    } catch (const string & newcharset) {
+	    } catch (const string& newcharset) {
 		p.reset();
 		if (ignore_exclusions) p.ignore_metarobots();
 		p.description_as_sample = description_as_sample;
@@ -1090,21 +1091,27 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	    } catch (const ReadError&) {
 		// It's probably best to index the document even if this fails.
 	    }
-	} else if (startswith(mimetype, "application/vnd.openxmlformats-officedocument.")) {
-	    const char * args = NULL;
+	} else if (startswith(mimetype,
+			      "application/vnd.openxmlformats-officedocument."))
+	{
+	    const char* args = NULL;
 	    string tail(mimetype, 46);
 	    if (startswith(tail, "wordprocessingml.")) {
 		// unzip returns exit code 11 if a file to extract wasn't found
 		// which we want to ignore, because there may be no headers or
 		// no footers.
-		args = " word/document.xml 'word/header*.xml' 'word/footer*.xml' 2>/dev/null";
+		args = " word/document.xml"
+		       " 'word/header*.xml'"
+		       " 'word/footer*.xml'"
+		       " 2>/dev/null";
 	    } else if (startswith(tail, "spreadsheetml.")) {
 		// Extract the shared string table first, so our parser can
 		// grab those ready for parsing the sheets which will reference
 		// the shared strings.
 		string cmd = "unzip -p";
 		append_filename_argument(cmd, file);
-		cmd += " xl/styles.xml xl/workbook.xml xl/sharedStrings.xml ; unzip -p";
+		cmd += " xl/styles.xml xl/workbook.xml xl/sharedStrings.xml ; "
+		       "unzip -p";
 		append_filename_argument(cmd, file);
 		cmd += " xl/worksheets/sheet\\*.xml";
 		try {
@@ -1120,7 +1127,10 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 		// unzip returns exit code 11 if a file to extract wasn't found
 		// which we want to ignore, because there may be no notesSlides
 		// or comments.
-		args = " 'ppt/slides/slide*.xml' 'ppt/notesSlides/notesSlide*.xml' 'ppt/comments/comment*.xml' 2>/dev/null";
+		args = " 'ppt/slides/slide*.xml'"
+		       " 'ppt/notesSlides/notesSlide*.xml'"
+		       " 'ppt/comments/comment*.xml'"
+		       " 2>/dev/null";
 	    } else {
 		// Don't know how to index this type.
 		skip_unknown_mimetype(urlterm, context, mimetype,
@@ -1223,7 +1233,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	    generate_sample_from_csv(dump, sample);
 	} else if (mimetype == "image/svg+xml") {
 	    SvgParser svgparser;
-	    const string & text = d.file_to_string();
+	    const string& text = d.file_to_string();
 	    md5_string(text, md5);
 	    svgparser.parse(text);
 	    dump = svgparser.dump;
@@ -1256,7 +1266,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	    }
 	} else if (mimetype == "application/atom+xml") {
 	    AtomParser atomparser;
-	    const string & text = d.file_to_string();
+	    const string& text = d.file_to_string();
 	    md5_string(text, md5);
 	    atomparser.parse(text);
 	    dump = atomparser.dump;
@@ -1278,7 +1288,8 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 		     d.get_size(), d.get_mtime(),
 		     SKIP_VERBOSE_ONLY | SKIP_SHOW_FILENAME);
 	    } else {
-		skip(urlterm, context, "failed to read file to calculate MD5 checksum",
+		skip(urlterm, context,
+		     "failed to read file to calculate MD5 checksum",
 		     d.get_size(), d.get_mtime());
 	    }
 	    return;
@@ -1303,7 +1314,8 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 			    "but indexing metadata anyway" << endl;
 		    break;
 		case EMPTY_BODY_SKIP:
-		    skip(urlterm, context, "no text extracted from document body",
+		    skip(urlterm, context,
+			 "no text extracted from document body",
 			 d.get_size(), d.get_mtime());
 		    return;
 	    }
@@ -1406,7 +1418,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	    newdocument.add_boolean_term(host_term);
 
 	if (date_terms) {
-	    struct tm *tm = localtime(&mtime);
+	    struct tm* tm = localtime(&mtime);
 	    string date_term = "D";
 	    date_term += date_to_string(tm->tm_year + 1900,
 					tm->tm_mon + 1,
@@ -1445,12 +1457,12 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	    inc_tag_added = true;
 	    newdocument.add_boolean_term("I*");
 	} else if (d.is_group_readable()) {
-	    const char * group = d.get_group();
+	    const char* group = d.get_group();
 	    if (group) {
 		newdocument.add_boolean_term(string("I#") + group);
 	    }
 	}
-	const char * owner = d.get_owner();
+	const char* owner = d.get_owner();
 	if (owner) {
 	    newdocument.add_boolean_term(string("O") + owner);
 	    if (!inc_tag_added && d.is_owner_readable())
@@ -1486,7 +1498,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	skip(urlterm, context, "File removed during indexing",
 	     d.get_size(), d.get_mtime(),
 	     SKIP_VERBOSE_ONLY | SKIP_SHOW_FILENAME);
-    } catch (const std::string & error) {
+    } catch (const std::string& error) {
 	skip(urlterm, context, error, d.get_size(), d.get_mtime());
     } catch (const std::bad_alloc&) {
 	// Attempt to flag the file as failed and commit changes, though that
@@ -1505,7 +1517,8 @@ index_handle_deletion()
     if (updated.empty() || old_docs_not_seen == 0) return;
 
     if (verbose) {
-	cout << "Deleting " << old_docs_not_seen << " old documents which weren't found" << endl;
+	cout << "Deleting " << old_docs_not_seen
+	     << " old documents which weren't found" << endl;
     }
     Xapian::PostingIterator alldocs = db.postlist_begin(string());
     Xapian::docid did = *alldocs;
