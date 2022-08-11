@@ -24,9 +24,9 @@ environment:
 #  - TOOLCHAIN: cygwin
 #    APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
 #    platform: x86
-# - TOOLCHAIN: cygwin
-#   platform: x64
-#   APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+  - TOOLCHAIN: cygwin
+    platform: x64
+    APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
   - TOOLCHAIN: msvc
     platform: x86
     APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
@@ -105,6 +105,8 @@ install:
   - if "%TOOLCHAIN%"=="mingw64" appveyor-retry bash -c 'pacman-key --verify msys2-keyring-r21.b39fb11-1-any.pkg.tar.xz.sig'
   - if "%TOOLCHAIN%"=="mingw64" appveyor-retry bash -c 'pacman -U --noconfirm msys2-keyring-r21.b39fb11-1-any.pkg.tar.xz'
   - if "%TOOLCHAIN%"=="mingw64" appveyor-retry bash -c 'pacman -Sy --noconfirm zlib-devel'
+  # Work around odd ownership of directories in CI build image.
+  - if "%TOOLCHAIN%"=="cygwin" bash -c 'git config --global --add safe.directory /cygdrive/c/projects/xapian'
   # Install cygwin git and patch packages since those installed in the image
   # want the 32-bit cygwin1.dll which means they fail to work if the 64-bit
   # cygwin1.dll is first on PATH.
