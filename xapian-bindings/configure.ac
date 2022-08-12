@@ -243,8 +243,13 @@ AC_ARG_WITH(lua,
   AS_HELP_STRING([--with-lua], [enable Lua bindings]),
   [],
   [with_lua=])
+AC_ARG_WITH(go,
+  AC_HELP_STRING([--with-go], [enable Go bindings]),
+  [],
+  [with_go=])
 
-case $with_python3$with_php7$with_ruby$with_tcl$with_csharp$with_java$with_perl$with_lua in
+
+case $with_python3$with_php7$with_ruby$with_tcl$with_csharp$with_java$with_perl$with_lua$with_go in
 *yes*)
   dnl Default unspecified values to no.
   test -z "$with_python3" && with_python3=no
@@ -255,10 +260,38 @@ case $with_python3$with_php7$with_ruby$with_tcl$with_csharp$with_java$with_perl$
   test -z "$with_ruby" && with_ruby=no
   test -z "$with_perl" && with_perl=no
   test -z "$with_lua" && with_lua=no
+  test -z "$with_go" && with_go=no
   ;;
 esac
 
 BINDINGS=
+if test no != "$with_go" ; then
+  AC_PATH_PROG([GO],["go"],[])
+  AC_MSG_CHECKING(go)
+  if test -n "$GO" ; then
+    AC_MSG_RESULT(yes)
+    AC_MSG_CHECKING(goroot)
+    GOROOT=`go env GOROOT`
+    GOPATH=`go env GOPATH`
+    AC_SUBST(GOROOT)
+    AC_SUBST(GOPATH)
+    if test -n "${GOROOT}" ; then
+      AC_MSG_RESULT([${GOROOT} yes])
+      AC_MSG_CHECKING(gopath)
+      if test -n "${GOPATH}" ; then
+        AC_MSG_RESULT([${GOPATH} yes])
+      fi
+    fi
+    if test -z "${GOROOT}" ; then
+      AC_MSG_ERROR([goroot not set correctly])
+    fi
+  fi
+  BINDINGS="$BINDINGS go"
+  if test -z "$GO" ; then
+    AC_MSG_ERROR("go not installed or go path has not been set")
+  fi
+fi
+
 
 if test no != "$with_python3" ; then
   dnl See comment for AC_PATH_PROGS(SWIG, ...).
@@ -1108,6 +1141,50 @@ if test no != "$with_lua" ; then
   fi
 fi
 
+if test no != "$with_go" ; then
+  AC_PATH_PROG([GO],["go"],[])
+  if test -n "$GO" ; then
+    AC_MSG_CHECKING(for goroot)
+    GOROOT=`"${GO}" env GOROOT`
+    GOPATH=`"${GO}" env GOPATH`
+    AC_SUBST(GOROOT)
+    AC_SUBST(GOPATH)
+    GO_CORE="without-core"
+    if $XAPIAN_CONFIG --libs >/dev/null 2>/dev/null ; then
+      GO_CORE="with-core"
+      GO_CXX=`$XAPIAN_CONFIG --cxxflags`
+      GO_LIB=`$XAPIAN_CONFIG --libs`
+      AC_SUBST([GO_CXX])
+      AC_SUBST([GO_LIB])
+    fi
+    AC_SUBST([GO_CORE])
+    if test -n "${GOROOT}" ; then
+      AC_MSG_RESULT([${GOROOT}])
+      AC_MSG_CHECKING(for gopath)
+      if test -n "${GOPATH}" ; then
+        AC_MSG_RESULT([${GOPATH}])
+      else
+        AC_MSG_RESULT(no)
+      fi
+    else
+      AC_MSG_RESULT(no)
+    fi
+    if test -z "${GOROOT}" ; then
+      AC_MSG_ERROR([goroot not set correctly])
+    fi
+  fi
+  USE_CLANG_LIB=`echo ${CXX} | grep stdlib`
+  AC_MSG_RESULT([${USE_CLANG_LIB}])
+  if test -n "${USE_CLANG_LIB}" ; then
+    AC_MSG_RESULT([${USE_CLANG_LIB}])
+    AC_SUBST(USE_CLANG_GO_LIB,'-lc++')
+    AC_MSG_RESULT([${USE_CLANG_GO_LIB}])
+  fi
+  BINDINGS="$BINDINGS go"
+  if test -z "$GO" ; then
+    AC_MSG_ERROR("go not installed or go path has not been set")
+  fi
+fi
 AC_SUBST(BINDINGS)
 
 case $BINDINGS in
@@ -1212,6 +1289,7 @@ AC_CONFIG_FILES([Makefile
  ruby/Makefile
  perl/Makefile
  lua/Makefile
+ go/Makefile
  xapian-bindings.spec
  ])
 AC_OUTPUT

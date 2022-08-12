@@ -13,7 +13,8 @@ EXTRA_DIST = xapian-head.i xapian-headers.i generic/except.i \
     HACKING
 
 SUBDIRS = . @BINDINGS@
-DIST_SUBDIRS = python3 php7 java ruby tcl8 csharp perl lua
+
+DIST_SUBDIRS = python3 php7 java ruby tcl8 csharp perl lua go
 
 if MAINTAINER_MODE
 BUILT_SOURCES = generic/except.i

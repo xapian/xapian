@@ -94,6 +94,26 @@ find the zlib headers and library.
 We support 64-bit compilation with MSVS 2017, 2019 and 2022.  With MSVS 2015 a
 64-bit build fails to work - we haven't investigated why.
 
+MSYS2 64-bit Mingw-64
+---------------------
+
+Open msys2 Terminal and run the following commands -
+
+	pacman -Syu --noconfirm
+
+If it promts to close the terminal close it and open again.
+re-run the command.
+
+Then open msys64 bit and run the following commands
+
+	pacman -Syu --nocofirm --needed base-devel mingw-w64-x86_64-toolchain mingw-w64-x86_64-graphviz mingw-w64-x86_64-doxygen git
+
+	./configure CXXFLAGS=-fstack-protector --disable-documentation --disable-backend-honey
+
+	make
+
+	make install
+
 HP's aCC
 --------
 
