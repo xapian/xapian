@@ -259,6 +259,7 @@ other filters too - see below):
 * PHP (.php) - our HTML parser knows to ignore PHP code
 * text files (.txt, .text)
 * SVG (.svg)
+* Compressed SVG (.svgz)
 * CSV (Comma-Separated Values) files (.csv)
 * PDF (.pdf) if pdftotext (comes with poppler or xpdf) or libpoppler
   (in particular libpoppler-glib-dev) are available
