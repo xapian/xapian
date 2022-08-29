@@ -1,7 +1,7 @@
 /** @file
  * @brief Extract text from an SVG file.
  */
-/* Copyright (C) 2010,2011,2018 Olly Betts
+/* Copyright (C) 2010-2022 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,6 +36,10 @@ SvgParser::process_text(const string &text)
 	case TITLE:
 	    target = &title;
 	    break;
+	case DC_TITLE:
+	    // Prefer <title> to <dc:title>.
+	    if (!title.empty()) return;
+	    break;
 	case KEYWORDS:
 	    target = &keywords;
 	    break;
@@ -60,6 +64,8 @@ SvgParser::opening_tag(const string &tag)
 		state = TEXT;
 	    else if (tag == "metadata" || tag == "svg:metadata")
 		state = METADATA;
+	    else if (tag == "title")
+		state = TITLE;
 	    break;
 	case METADATA:
 	    // Ignore nested "dc:" tags - for example dc:title is also used to
@@ -67,14 +73,14 @@ SvgParser::opening_tag(const string &tag)
 	    if (dc_tag.empty() && startswith(tag, "dc:")) {
 		dc_tag = tag;
 		if (tag == "dc:title")
-		    state = TITLE;
+		    state = DC_TITLE;
 		else if (tag == "dc:subject")
 		    state = KEYWORDS;
 		else if (tag == "dc:creator")
 		    state = AUTHOR;
 	    }
 	    break;
-	case KEYWORDS: case TEXT: case TITLE: case AUTHOR:
+	case DC_TITLE: case KEYWORDS: case TEXT: case TITLE: case AUTHOR:
 	    // Avoid compiler warnings.
 	    break;
     }
@@ -85,6 +91,7 @@ bool
 SvgParser::closing_tag(const string &tag)
 {
     if (tag == "text" || tag == "svg:text" ||
+	tag == "title" ||
 	tag == "metadata" || tag == "svg:metadata") {
 	state = OTHER;
     } else if (tag == dc_tag) {
