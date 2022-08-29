@@ -185,6 +185,7 @@ djvu		image/vnd.djvu
 
 # SVG:
 svg		image/svg+xml
+svgz		image/svg+xml-compressed
 
 # vCard files:
 vcf		text/vcard

@@ -258,6 +258,7 @@ other filters too - see below):
 * PHP (.php) - our HTML parser knows to ignore PHP code
 * text files (.txt, .text)
 * SVG (.svg)
+* Compressed SVG (.svgz)
 * CSV (Comma-Separated Values) files (.csv)
 * PDF (.pdf) if pdftotext is available (comes with poppler or xpdf)
 * PostScript (.ps, .eps, .ai) if ps2pdf (from ghostscript) and pdftotext (comes
