@@ -61,6 +61,9 @@ MSVC
 If you're using MS Visual C++, you'll need at least MSVS 2015 for C++11
 support.
 
+We support 64-bit compilation with MSVS 2017, 2019 and 2022.  With MSVS 2015 a
+64-bit build fails to work - we haven't investigated why.
+
 As of Xapian 1.4.6 building using MSVC is supported by the autotools build
 system.  You need to install a set of Unix-like tools first - we recommended
 MSYS2: https://www.msys2.org/
@@ -83,16 +86,17 @@ And for MSVC 2015 32-bit use::
 MSVC 2015 64-bit isn't currently supported, but would use the above command but
 with ``x64`` instead of ``x86``.
 
-Then from a bash shell run configure like so::
+You'll need to have the zlib library available.  You can add
+``CPPFLAGS=-I/path/to/zlib LDFLAGS=-L/path/to/zlib`` to the configure command
+line to tell MSVC where to find the zlib headers and library.
+
+To build, first run configure from a bash shell like so::
 
   ./configure CC="cl -nologo" CXX="$PWD/compile cl -nologo" CXXFLAGS=-EHsc AR=lib
 
-You'll need to have the zlib library available.  You can also specify
-``CPPFLAGS=-I/path/to/zlib LDFLAGS=-L/path/to/zlib`` to tell MSVC where to
-find the zlib headers and library.
+Then build using GNU make::
 
-We support 64-bit compilation with MSVS 2017, 2019 and 2022.  With MSVS 2015 a
-64-bit build fails to work - we haven't investigated why.
+  make
 
 HP's aCC
 --------
