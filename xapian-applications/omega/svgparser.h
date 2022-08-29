@@ -1,7 +1,7 @@
 /** @file
  * @brief Extract text from an SVG file.
  */
-/* Copyright (C) 2010,2011,2019 Olly Betts
+/* Copyright (C) 2010-2022 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,7 +24,9 @@
 #include "xmlparser.h"
 
 class SvgParser : public XmlParser {
-    enum { OTHER, TEXT, METADATA, TITLE, KEYWORDS, AUTHOR } state = OTHER;
+    enum {
+	OTHER, TEXT, METADATA, DC_TITLE, TITLE, KEYWORDS, AUTHOR
+    } state = OTHER;
     std::string dc_tag;
 
   public:

@@ -55,6 +55,8 @@ index_test()
 		  {{"ZFcsv", "Zbreak", "Zwere"}}});
     tests.insert({"test-html.html",
 		  {{"Ajeroen", "ZAoom", "ZSworld", "Shello", "Zchapter"}}});
+    tests.insert({"svg/diagram.svg",
+		  {{"Sdiagram", "Timage/svg+xml", "Zstart"}}});
 #if defined HAVE_POPPLER
     tests.insert({"pdf/poppler.pdf",
 		  {{"ZFpoppler", "Zsub", "Ztext", "Ztitl", "Zpie"}}});
