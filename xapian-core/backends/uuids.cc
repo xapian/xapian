@@ -111,7 +111,7 @@ void
 Uuid::parse(const char* in)
 {
     for (unsigned i = 0; i != BINARY_SIZE; ++i) {
-	uuid_data[i] = hex_digit(in[0]) << 4 | hex_digit(in[1]);
+	uuid_data[i] = hex_decode(in[0], in[1]);
 	in += ((UUID_GAP_MASK >> i) & 1) | 2;
     }
 }
