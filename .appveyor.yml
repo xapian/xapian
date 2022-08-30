@@ -99,11 +99,6 @@ install:
       }
   - if "%TOOLCHAIN%"=="mingw" bash -c "echo 'c:/mingw /mingw' >> /etc/fstab"
   - if "%TOOLCHAIN%"=="mingw" appveyor-retry bash -c 'mingw-get install libz-dev'
-  # Workaround appveyor's container having old maintainer keys:
-  - if "%TOOLCHAIN%"=="mingw64" appveyor-retry bash -c 'curl -O https://repo.msys2.org/msys/x86_64/msys2-keyring-r21.b39fb11-1-any.pkg.tar.xz'
-  - if "%TOOLCHAIN%"=="mingw64" appveyor-retry bash -c 'curl -O https://repo.msys2.org/msys/x86_64/msys2-keyring-r21.b39fb11-1-any.pkg.tar.xz.sig'
-  - if "%TOOLCHAIN%"=="mingw64" appveyor-retry bash -c 'pacman-key --verify msys2-keyring-r21.b39fb11-1-any.pkg.tar.xz.sig'
-  - if "%TOOLCHAIN%"=="mingw64" appveyor-retry bash -c 'pacman -U --noconfirm msys2-keyring-r21.b39fb11-1-any.pkg.tar.xz'
   - if "%TOOLCHAIN%"=="mingw64" appveyor-retry bash -c 'pacman -Sy --noconfirm zlib-devel'
   # Work around odd ownership of directories in CI build image.
   - if "%TOOLCHAIN%"=="cygwin" bash -c 'git config --global --add safe.directory /cygdrive/c/projects/xapian'
