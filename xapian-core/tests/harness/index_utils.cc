@@ -142,7 +142,7 @@ munge_term(const string &term)
 			if (!C_isxdigit(b) || !C_isxdigit(c)) {
 			    i = j - 1;
 			} else {
-			    ch = (hex_digit(b) << 4) | hex_digit(c);
+			    ch = hex_decode(b, c);
 			}
 			break;
 		    }

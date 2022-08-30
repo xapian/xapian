@@ -117,7 +117,7 @@ unescape(const string& s)
 		    char ch2 = *i;
 		    if (!C_isxdigit(ch1) || !C_isxdigit(ch2))
 			goto bad_escaping;
-		    ch = hex_digit(ch1) << 4 | hex_digit(ch2);
+		    ch = hex_decode(ch1, ch2);
 		    break;
 		}
 		default:

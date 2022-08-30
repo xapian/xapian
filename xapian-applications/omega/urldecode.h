@@ -69,7 +69,6 @@ process_ch:
 			break;
 		    goto process_ch;
 		}
-		unsigned char newch = hex_digit(hex1);
 		unsigned char hex2 = *begin;
 		++begin;
 		if (!C_isxdigit(hex2)) {
@@ -80,7 +79,7 @@ process_ch:
 			break;
 		    goto process_ch;
 		}
-		ch = (newch << 4) | hex_digit(hex2);
+		ch = hex_decode(hex1, hex2);
 		break;
 	    }
 	    case '+':
@@ -318,8 +317,7 @@ url_prettify(std::string & url)
     while (true) {
 	// We've checked there are at least two bytes after the '%' already.
 	if (C_isxdigit(in[pcent + 1]) && C_isxdigit(in[pcent + 2])) {
-	    int ch = (hex_digit(in[pcent + 1]) << 4);
-	    ch |= hex_digit(in[pcent + 2]);
+	    int ch = hex_decode(in[pcent + 1], in[pcent + 2]);
 	    bool safe = true;
 	    switch (url_chars[ch]) {
 		case UNSAFE:
@@ -334,8 +332,7 @@ url_prettify(std::string & url)
 		    url.append(in, start, pcent - start);
 		    url += char(ch);
 		    pcent += 3;
-		    ch = (hex_digit(in[pcent + 1]) << 4);
-		    ch |= hex_digit(in[pcent + 2]);
+		    ch = hex_decode(in[pcent + 1], in[pcent + 2]);
 		    start = pcent;
 		    break;
 		case SEQ3:
@@ -349,8 +346,7 @@ url_prettify(std::string & url)
 		    url.append(in, start, pcent - start);
 		    url += char(ch);
 		    pcent += 3;
-		    ch = (hex_digit(in[pcent + 1]) << 4);
-		    ch |= hex_digit(in[pcent + 2]);
+		    ch = hex_decode(in[pcent + 1], in[pcent + 2]);
 		    url += char(ch);
 		    pcent += 3;
 		    ch = (hex_digit(in[pcent + 1]) << 4);

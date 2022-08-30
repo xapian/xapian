@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2006,2007,2008,2009,2010,2011,2012,2015 Olly Betts
+ * Copyright 2002-2022 Olly Betts
  * Copyright 2006 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -395,7 +395,11 @@ static void test_chartype1()
 	TEST(!C_isnotdigit(ch));
 	TEST(!C_isnotxdigit(ch));
 	TEST(C_isnotspace(ch));
-	TEST_EQUAL(hex_digit(ch), ch - '0');
+	int v = ch - '0';
+	TEST_EQUAL(hex_digit(ch), v);
+	TEST_EQUAL(hex_decode('0', ch), char(v));
+	TEST_EQUAL(hex_decode(ch, '0'), char(v << 4));
+	TEST_EQUAL(hex_decode(ch, ch), char((v << 4) | v));
     }
 
     for (int ch = 'A'; ch != 'F' + 1; ++ch) {
@@ -414,7 +418,11 @@ static void test_chartype1()
 	TEST(C_isnotdigit(ch));
 	TEST(!C_isnotxdigit(ch));
 	TEST(C_isnotspace(ch));
-	TEST_EQUAL(hex_digit(ch), ch - 'A' + 10);
+	int v = ch - 'A' + 10;
+	TEST_EQUAL(hex_digit(ch), v);
+	TEST_EQUAL(hex_decode('0', ch), char(v));
+	TEST_EQUAL(hex_decode(ch, '0'), char(v << 4));
+	TEST_EQUAL(hex_decode(ch, ch), char((v << 4) | v));
     }
 
     for (int ch = 'G'; ch != 'Z' + 1; ++ch) {
@@ -451,7 +459,11 @@ static void test_chartype1()
 	TEST(C_isnotdigit(ch));
 	TEST(!C_isnotxdigit(ch));
 	TEST(C_isnotspace(ch));
-	TEST_EQUAL(hex_digit(ch), ch - 'a' + 10);
+	int v = ch - 'a' + 10;
+	TEST_EQUAL(hex_digit(ch), v);
+	TEST_EQUAL(hex_decode('0', ch), char(v));
+	TEST_EQUAL(hex_decode(ch, '0'), char(v << 4));
+	TEST_EQUAL(hex_decode(ch, ch), char((v << 4) | v));
     }
 
     for (int ch = 'g'; ch != 'z' + 1; ++ch) {

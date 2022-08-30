@@ -572,8 +572,7 @@ bad_hex_digit:
 				    if (!C_isxdigit(ch2)) {
 					goto bad_hex_digit;
 				    }
-				    ch = hex_digit(ch1) << 4 |
-					 hex_digit(ch2);
+				    ch = hex_decode(ch1, ch2);
 				    break;
 				}
 				default:
@@ -1036,7 +1035,7 @@ run_actions(vector<Action>::const_iterator action_it,
 			cerr << "hextobin: input must be all hex digits\n";
 			exit(1);
 		    }
-		    char r = (hex_digit(a) << 4) | hex_digit(b);
+		    char r = hex_decode(a, b);
 		    output.push_back(r);
 		}
 		value = std::move(output);

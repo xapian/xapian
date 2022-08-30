@@ -1,7 +1,7 @@
 /** @file
  * @brief Various handy helpers which std::string really should provide.
  */
-/* Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2015 Olly Betts
+/* Copyright (C) 2004-2022 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -188,6 +188,17 @@ inline char C_toupper(char ch) {
 inline int hex_digit(char ch) {
     using namespace Xapian::Internal;
     return C_tab_(ch) & HEX_MASK;
+}
+
+/** Decode a pair of ASCII hex digits.
+ *
+ *  E.g. hex_decode('4', 'A') gives 'J'.
+ *
+ *  If C_isxdigit(ch1) isn't true then ch1 is treated as '0', and similarly for
+ *  ch2.
+ */
+inline char hex_decode(char ch1, char ch2) {
+    return char(hex_digit(ch1) << 4 | hex_digit(ch2));
 }
 
 #endif // XAPIAN_INCLUDED_STRINGUTILS_H
