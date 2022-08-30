@@ -619,7 +619,9 @@ check_glass_table(const char * tablename, const string &db_dir, int fd,
 		if (out)
 		    *out << "Error unpacking docid from key" << endl;
 		++errors;
-	    } else if (pos != end) {
+		continue;
+	    }
+	    if (pos != end) {
 		if (out)
 		    *out << "Extra junk in key" << endl;
 		++errors;
