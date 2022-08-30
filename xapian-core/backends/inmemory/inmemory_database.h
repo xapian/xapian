@@ -154,7 +154,7 @@ class InMemoryPostList : public LeafPostList {
 
     Xapian::termcount wdf_upper_bound;
 
-    InMemoryPostList(Xapian::Internal::intrusive_ptr<const InMemoryDatabase> db,
+    InMemoryPostList(const InMemoryDatabase* db,
 		     const InMemoryTerm & imterm, const std::string & term_);
   public:
     Xapian::docid get_docid() const;     // Gets current docid
@@ -189,7 +189,7 @@ class InMemoryAllDocsPostList : public LeafPostList {
 
     Xapian::Internal::intrusive_ptr<const InMemoryDatabase> db;
 
-    InMemoryAllDocsPostList(Xapian::Internal::intrusive_ptr<const InMemoryDatabase> db);
+    InMemoryAllDocsPostList(const InMemoryDatabase* db);
 
   public:
     Xapian::docid get_docid() const;     // Gets current docid

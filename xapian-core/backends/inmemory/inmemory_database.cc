@@ -80,7 +80,7 @@ InMemoryDoc::add_posting(InMemoryTermEntry&& post)
 // Postlist //
 //////////////
 
-InMemoryPostList::InMemoryPostList(intrusive_ptr<const InMemoryDatabase> db_,
+InMemoryPostList::InMemoryPostList(const InMemoryDatabase* db_,
 				   const InMemoryTerm & imterm,
 				   const std::string & term_)
 	: LeafPostList(term_),
@@ -321,7 +321,7 @@ InMemoryTermList::positionlist_begin() const
 // InMemoryAllDocsPostList //
 /////////////////////////////
 
-InMemoryAllDocsPostList::InMemoryAllDocsPostList(intrusive_ptr<const InMemoryDatabase> db_)
+InMemoryAllDocsPostList::InMemoryAllDocsPostList(const InMemoryDatabase* db_)
 	: LeafPostList(std::string()), did(0), db(db_)
 {
     collfreq = termfreq = db->totdocs;
@@ -460,15 +460,13 @@ InMemoryDatabase::open_leaf_post_list(const string& term, bool need_read_pos) co
 	    // The used docid range is exactly 1 to doccount inclusive.
 	    return new ContiguousAllDocsPostList(doccount);
 	}
-	intrusive_ptr<const InMemoryDatabase> ptrtothis(this);
-	return new InMemoryAllDocsPostList(ptrtothis);
+	return new InMemoryAllDocsPostList(this);
     }
     map<string, InMemoryTerm>::const_iterator i = postlists.find(term);
     if (i == postlists.end() || i->second.term_freq == 0) {
 	return nullptr;
     }
-    intrusive_ptr<const InMemoryDatabase> ptrtothis(this);
-    return new InMemoryPostList(ptrtothis, i->second, term);
+    return new InMemoryPostList(this, i->second, term);
 }
 
 bool
