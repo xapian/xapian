@@ -100,10 +100,6 @@ LatLongCoords::unserialise(const string & serialised)
 	coords.push_back(LatLongCoord());
 	coords.back().unserialise(&ptr, end_ptr);
     }
-    if (ptr != end_ptr) {
-	throw SerialisationError("Junk found at end of serialised "
-				 "LatLongCoords");
-    }
 }
 
 string
