@@ -79,7 +79,7 @@ InMemoryDoc::add_posting(const InMemoryTermEntry & post)
 // Postlist //
 //////////////
 
-InMemoryPostList::InMemoryPostList(intrusive_ptr<const InMemoryDatabase> db_,
+InMemoryPostList::InMemoryPostList(const InMemoryDatabase* db_,
 				   const InMemoryTerm & imterm,
 				   const std::string & term_)
 	: LeafPostList(term_),
@@ -318,7 +318,7 @@ InMemoryTermList::positionlist_begin() const
 // InMemoryAllDocsPostList //
 /////////////////////////////
 
-InMemoryAllDocsPostList::InMemoryAllDocsPostList(intrusive_ptr<const InMemoryDatabase> db_)
+InMemoryAllDocsPostList::InMemoryAllDocsPostList(const InMemoryDatabase* db_)
 	: LeafPostList(std::string()), did(0), db(db_)
 {
 }
@@ -461,8 +461,7 @@ InMemoryDatabase::open_post_list(const string & tname) const
 {
     if (closed) InMemoryDatabase::throw_database_closed();
     if (tname.empty()) {
-	intrusive_ptr<const InMemoryDatabase> ptrtothis(this);
-	return new InMemoryAllDocsPostList(ptrtothis);
+	return new InMemoryAllDocsPostList(this);
     }
     map<string, InMemoryTerm>::const_iterator i = postlists.find(tname);
     if (i == postlists.end() || i->second.term_freq == 0) {
@@ -470,8 +469,7 @@ InMemoryDatabase::open_post_list(const string & tname) const
 	// Check that our dummy entry for string() is present.
 	Assert(i->first.empty());
     }
-    intrusive_ptr<const InMemoryDatabase> ptrtothis(this);
-    return new InMemoryPostList(ptrtothis, i->second, tname);
+    return new InMemoryPostList(this, i->second, tname);
 }
 
 bool

@@ -153,7 +153,7 @@ class InMemoryPostList : public LeafPostList {
 
     Xapian::termcount wdf_upper_bound;
 
-    InMemoryPostList(Xapian::Internal::intrusive_ptr<const InMemoryDatabase> db,
+    InMemoryPostList(const InMemoryDatabase* db,
 		     const InMemoryTerm & imterm, const std::string & term_);
   public:
     Xapian::doccount get_termfreq() const;
@@ -188,7 +188,7 @@ class InMemoryAllDocsPostList : public LeafPostList {
 
     Xapian::Internal::intrusive_ptr<const InMemoryDatabase> db;
 
-    InMemoryAllDocsPostList(Xapian::Internal::intrusive_ptr<const InMemoryDatabase> db);
+    InMemoryAllDocsPostList(const InMemoryDatabase* db);
 
   public:
     Xapian::doccount get_termfreq() const;
