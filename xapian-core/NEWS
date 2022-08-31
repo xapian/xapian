@@ -1,3 +1,105 @@
+up to: f775613d8aab7794bed4d57d7cf9d1caace6c76f
+
+Xapian-core 1.4.21 (2022-08-31):
+
+API:
+
+    Fix integer typedef used by ESet API.
+    This should be Xapian::termcount, not Xapian::doccount.  In a standard
+    build both are the same underlying type, so this won't usually matter.
+
+testsuite:
+
+
+matcher:
+
+
+glass backend:
+
+Author: Robert Stepanek <rsto@paranoia.at>
+    No-op GlassTable::readahead_key for overlong keys
+    Currently, a query may abort with an InvalidArgument error if one of
+    the terms exceeds the maximum allowed length for glass btree keys.
+    However, this error is thrown only if the query triggers a readahead_key
+    call on the glass table.
+    This patch updates readahead_key to report overlong keys as not found,
+    rather than aborting the whole query.
+    Closes https://github.com/xapian/xapian/pull/313
+
+chert backend:
+
+
+remote backend:
+
+
+inmemory backend:
+
+
+build system:
+
+    Clean up cygwin and mingw configure checks
+    When we check $host_os, always anchor at the start (e.g. cygwin* not
+    *cygwin*), and check for msys* as well since that's a derivative of
+    cygwin and behaves similarly for the things we're checking here.
+
+    Update to use AX_CXX_COMPILE_STDCXX
+    This is a replacement for AX_CXX_COMPILE_STDCXX_11 (which we were using)
+    which also supports newer C++ standards versions which will be useful.
+    For C++11 the only difference seems to be that the macro now checks for
+    attribute support - we use C++11 attributes so that seems a good thing.
+
+documentation:
+
+* INSTALL: Restructure MSVC section for clarity.
+
+tools:
+
+
+examples:
+
+    Stop using std::endl in examples
+    It causes a flush of the stream, which is rarely actually wanted
+    and often the replacement \n can be combined with a string literal.
+
+portability:
+
+    Refactor to avoid warning with GCC 12.2
+    GCC 12.2 warns about use of an object after it has been destroyed.
+    I'm not entirely convinced the warning is valid, but it's easy to
+    refactor to avoid it without making the code worse.
+
+    Avoid undefined value use checking bad glass docdata
+    If unpacking the docid from the key fails, we now skip further
+    checks on the entry after reporting so we don't report an invalid docid
+    if a check on the entry's value also fails.
+
+    Merge allocations in MSVC dirent compat code
+    Make dir->name a one element array member and over-allocate the struct
+    so there's enough room for its actual size, which means we only need one
+    malloc() call.
+
+    Add accept() wrapper
+    Check an assumption that Microsoft's SOCKET type only actually holds
+    32 bit values even in 64 bit platforms and throw an exception if
+    violated.
+
+    Eliminate a use of sprintf
+    Seems cleaner not to have to use a temporary buffer.
+
+    Squash some unhelpful MSVC deprecation warnings
+
+    Declare dummy invalid parameter handler noexcept
+    Avoids a warning with MSVC.
+
+    Include <stdlib.h> in check for sys_errlist
+    That's where it is with mingw and MSVC.
+
+packaging:
+
+
+debug code:
+
+
 Xapian-core 1.4.20 (2022-07-04):
 
 API:

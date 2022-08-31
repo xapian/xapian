@@ -1,3 +1,43 @@
+up to: a0b356798cce7ff72062f36692827782ac293320
+
+Omega 1.4.21 (2022-08-31):
+
+general:
+
+documentation:
+
+indexers:
+
+* omindex:
+
+  + Add support for gzip-compressed SVG files (.svgz).
+
+  + Handle <title> in SVG.  Previously only <dc:title> inside <metadata> was
+    considered.  If both are present, <title> now takes precedence.
+
+* scriptindex:
+
+omega:
+
+templates:
+
+testsuite:
+
+* omegatest: Add skip-for-32-bit-time_t mechanism and use it to conditionally
+  enable some testcases which fail on platforms with 32-bit time_t.
+
+build system:
+
+    Update to use AX_CXX_COMPILE_STDCXX
+    This is a replacement for AX_CXX_COMPILE_STDCXX_11 (which we were using)
+    which also supports newer C++ standards versions which will be useful.
+    For C++11 the only difference seems to be that the macro now checks for
+    attribute support - we use C++11 attributes so that seems a good thing.
+
+portability:
+
+packaging:
+
 Omega 1.4.20 (2022-07-04):
 
 indexers:
