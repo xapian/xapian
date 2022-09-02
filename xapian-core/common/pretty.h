@@ -371,7 +371,7 @@ template<class S, class T>
 inline PrettyOStream<S> &
 operator<<(PrettyOStream<S> &ps, Xapian::Internal::intrusive_ptr<const T> t) {
     ps.os << "intrusive_ptr->";
-    return ps << t;
+    return ps << t.get();
 }
 
 #endif // XAPIAN_INCLUDED_PRETTY_H
