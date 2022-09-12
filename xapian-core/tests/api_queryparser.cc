@@ -3206,7 +3206,7 @@ DEFINE_TESTCASE(qp_exact_op1, !backend) {
     queryparser.add_boolean_prefix("site", "H");
     queryparser.set_default_op(Xapian::Query::OP_AND);
     unsigned flags = queryparser.FLAG_DEFAULT;
-    for (const test *p = test_exactop_phrase_queries; ; ++p) {
+    for (const test* p = test_exactop_phrase_queries; ; ++p) {
 	if (!p->query) {
 	    if (!p->expect) break;
 	    if (strcmp(p->expect, "CJK_NGRAM") == 0) {
@@ -3244,9 +3244,9 @@ DEFINE_TESTCASE(qp_exact_op1, !backend) {
 	    Xapian::Query qobj = queryparser.parse_query(p->query, flags);
 	    parsed = qobj.get_description();
 	    expect = string("Query(") + expect + ')';
-	} catch (const Xapian::QueryParserError &e) {
+	} catch (const Xapian::QueryParserError& e) {
 	    parsed = e.get_msg();
-	} catch (const Xapian::Error &e) {
+	} catch (const Xapian::Error& e) {
 	    parsed = e.get_description();
 	} catch (...) {
 	    parsed = "Unknown exception!";
