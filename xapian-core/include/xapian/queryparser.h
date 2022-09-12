@@ -797,15 +797,20 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      *				parsed query such that more exact matches
      *				with the query are boosted.
      *
-     *				So for example, if exact_op is set to OP_PHRASE
-     *				then 'weather forecast' is parsed as if it were
-     *				'weather OR forecast OR "weather forecast"'.
-     *
      *				The valid values for this are OP_INVALID (the
      *				default which disables this feature), OP_AND,
      *				OP_NEAR and OP_PHRASE.  Passing other values
      *				will result in InvalidArgumentError being
      *				thrown.
+     *
+     *				For example, if exact_op is set to OP_PHRASE
+     *				then <i>weather forecast</i> is parsed as if it
+     *				were <i>weather forecast OR "weather
+     *				forecast"</i> (although actually OP_AND_MAYBE
+     *				is used instead of OP_OR, since we know the
+     *				right side can only match if the left side does
+     *				and it's helpful to expose that knowledge to
+     *				Xapian - the results are the same as for OR).
      */
     void set_exact_op(Query::op exact_op);
 

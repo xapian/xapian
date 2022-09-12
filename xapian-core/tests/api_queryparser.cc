@@ -3177,20 +3177,20 @@ DEFINE_TESTCASE(qp_nopos, !backend) {
 
 static const test test_exactop_phrase_queries[] = {
     { NULL, "AND" }, // Test exact_op = OP_AND
-    { "a b", "((Za@1 AND Zb@2) OR (a@1 AND b@2))" },
-    { "internet explorer title:(http www)", "(((Zinternet@1 AND Zexplor@2) OR (internet@1 AND explorer@2)) AND ((ZXThttp@3 AND ZXTwww@4) OR (XThttp@3 AND XTwww@4)))" },
+    { "a b", "((Za@1 AND Zb@2) AND_MAYBE (a@1 AND b@2))" },
+    { "internet explorer title:(http www)", "(((Zinternet@1 AND Zexplor@2) AND_MAYBE (internet@1 AND explorer@2)) AND ((ZXThttp@3 AND ZXTwww@4) AND_MAYBE (XThttp@3 AND XTwww@4)))" },
     { "one +two three", "(Zone@1 AND Ztwo@2 AND Zthree@3)" },
-    { "a b site:xapian.org", "(((Za@1 AND Zb@2) OR (a@1 AND b@2)) FILTER Hxapian.org)" },
+    { "a b site:xapian.org", "(((Za@1 AND Zb@2) AND_MAYBE (a@1 AND b@2)) FILTER Hxapian.org)" },
     { NULL, "NEAR" }, // Test exact_op = OP_NEAR
-    { "a b", "((Za@1 AND Zb@2) OR (a@1 NEAR 2 b@2))" },
-    { "internet explorer title:(http www)", "(((Zinternet@1 AND Zexplor@2) OR (internet@1 NEAR 2 explorer@2)) AND ((ZXThttp@3 AND ZXTwww@4) OR (XThttp@3 NEAR 2 XTwww@4)))" },
+    { "a b", "((Za@1 AND Zb@2) AND_MAYBE (a@1 NEAR 2 b@2))" },
+    { "internet explorer title:(http www)", "(((Zinternet@1 AND Zexplor@2) AND_MAYBE (internet@1 NEAR 2 explorer@2)) AND ((ZXThttp@3 AND ZXTwww@4) AND_MAYBE (XThttp@3 NEAR 2 XTwww@4)))" },
     { "one +two three", "(Zone@1 AND Ztwo@2 AND Zthree@3)" },
-    { "a b site:xapian.org", "(((Za@1 AND Zb@2) OR (a@1 NEAR 2 b@2)) FILTER Hxapian.org)" },
+    { "a b site:xapian.org", "(((Za@1 AND Zb@2) AND_MAYBE (a@1 NEAR 2 b@2)) FILTER Hxapian.org)" },
     { NULL, "PHRASE" }, // Test exact_op = OP_PHRASE
-    { "a b", "((Za@1 AND Zb@2) OR (a@1 PHRASE 2 b@2))" },
-    { "internet explorer title:(http www)", "(((Zinternet@1 AND Zexplor@2) OR (internet@1 PHRASE 2 explorer@2)) AND ((ZXThttp@3 AND ZXTwww@4) OR (XThttp@3 PHRASE 2 XTwww@4)))" },
+    { "a b", "((Za@1 AND Zb@2) AND_MAYBE (a@1 PHRASE 2 b@2))" },
+    { "internet explorer title:(http www)", "(((Zinternet@1 AND Zexplor@2) AND_MAYBE (internet@1 PHRASE 2 explorer@2)) AND ((ZXThttp@3 AND ZXTwww@4) AND_MAYBE (XThttp@3 PHRASE 2 XTwww@4)))" },
     { "one +two three", "(Zone@1 AND Ztwo@2 AND Zthree@3)" },
-    { "a b site:xapian.org", "(((Za@1 AND Zb@2) OR (a@1 PHRASE 2 b@2)) FILTER Hxapian.org)" },
+    { "a b site:xapian.org", "(((Za@1 AND Zb@2) AND_MAYBE (a@1 PHRASE 2 b@2)) FILTER Hxapian.org)" },
     { NULL, "INVALID" }, // Test exact_op = OP_INVALID
     { "a b", "(Za@1 AND Zb@2)" },
     { NULL, NULL }

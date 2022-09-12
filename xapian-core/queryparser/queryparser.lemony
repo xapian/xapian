@@ -1887,9 +1887,13 @@ reprocess:
 	}
 
 	if (is_positional(op)) {
-	    *q |= Query(op, subqs.begin(), subqs.end(), subqs.size());
+	    *q = Query(q->OP_AND_MAYBE,
+		       *q,
+		       Query(op, subqs.begin(), subqs.end(), subqs.size()));
 	} else {
-	    *q |= Query(op, subqs.begin(), subqs.end());
+	    *q = Query(q->OP_AND_MAYBE,
+		       *q,
+		       Query(op, subqs.begin(), subqs.end()));
 	}
     }
     delete this;
