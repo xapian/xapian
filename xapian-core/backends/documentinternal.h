@@ -250,7 +250,7 @@ class Document::Internal : public Xapian::Internal::intrusive_base {
 	auto i = terms->find(term);
 	if (i == terms->end()) {
 	    ++termlist_size;
-	    terms->emplace(make_pair(term, TermInfo(wdf_inc)));
+	    terms->emplace(term, TermInfo(wdf_inc));
 	} else {
 	    if (i->second.increase_wdf(wdf_inc))
 		++termlist_size;
