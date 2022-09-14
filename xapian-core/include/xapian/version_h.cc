@@ -27,12 +27,10 @@ const char * dummy[] = {
 "#ifndef XAPIAN_INCLUDED_VERSION_H",
 "#define XAPIAN_INCLUDED_VERSION_H",
 "",
-// Disabled for now, since str.h is used by omega, and includes visibility.h
-// which includes version.h.  (FIXME)
-//"#if !defined XAPIAN_INCLUDED_XAPIAN_H && !defined XAPIAN_LIB_BUILD",
-//"# error @@Never use <xapian/version.h> directly; include <xapian.h> instead.@@",
-//"#endif",
-//"",
+"#if !defined XAPIAN_INCLUDED_XAPIAN_H && !defined XAPIAN_LIB_BUILD",
+"# error @@Never use <xapian/version.h> directly; include <xapian.h> instead.@@",
+"#endif",
+"",
 #ifdef __GNUC__
 // We used to check __GXX_ABI_VERSION here which was helpful in the GCC 3 days,
 // but ABI versions 2 and up are compatible aside from obscure corner cases,
