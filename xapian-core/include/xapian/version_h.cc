@@ -8,7 +8,7 @@ const char * dummy[] = {
 "/** @file",
 " * @brief Define preprocessor symbols for the library version",
 " */",
-"// Copyright (C) 2002,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2015,2016,2017,2018,2020 Olly Betts",
+"// Copyright (C) 2002-2022 Olly Betts",
 "//",
 "// This program is free software; you can redistribute it and/or",
 "// modify it under the terms of the GNU General Public License as",
@@ -34,15 +34,12 @@ const char * dummy[] = {
 //"#endif",
 //"",
 #ifdef __GNUC__
-// When building the library with GCC, generate preprocessor code to check that
-// any version of GCC used to build applications has a matching C++ ABI. This
-// means that users get a nice explanatory error message rather than a
-// confusing link failure (or worse a program which builds but crashes).
-// Another benefit is that the check happens near the start of compilation of
-// the first source file which uses Xapian in the user's application, rather
-// than during the first attempt to link with Xapian.
+// We used to check __GXX_ABI_VERSION here which was helpful in the GCC 3 days,
+// but ABI versions 2 and up are compatible aside from obscure corner cases,
+// and GCC now defaults to using the latest ABI version it supports.  The
+// result is that this check was no longer useful enough to justify the noise.
 //
-// We also check that the setting of _GLIBCXX_DEBUG matches since that
+// We still check that the setting of _GLIBCXX_DEBUG matches since that
 // introduces ABI-like incompatibilities.
 //
 // After preprocessing with "g++ -E" or similar (which will expand macros,
@@ -54,50 +51,10 @@ const char * dummy[] = {
 //
 // So for lines we want in the output, we quote parts of the line which we
 // don't want substituting, and use @@ where we really want " in the output.
-#if defined __clang__
-# define BUILD_COMPILER "clang++ " __clang_version__
-#elif defined __INTEL_COMPILER
-# define BUILD_COMPILER "icc " J(__INTEL_COMPILER)
-# define J(A) #A
-#elif defined __GNUC_PATCHLEVEL__
-# define BUILD_COMPILER "g++ " V(__GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__)
-# define V(A,B,C) J(A,B,C)
-# define J(A,B,C) #A"."#B"."#C
-#else
-# define BUILD_COMPILER "g++ " V(__GNUC__, __GNUC_MINOR__)
-# define V(A,B) J(A,B)
-# define J(A,B) #A"."#B
-#endif
 "#ifdef __GNUC__",
 "#if __GNUC__ < 3 || (__GNUC__ == 3 && __GNUC_MINOR__ == 0)",
 "#error Xapian no longer supports GCC < 3.1",
 "#else",
-#ifndef __GXX_ABI_VERSION
-#error GCC does not have __GXX_ABI_VERSION defined
-#endif
-// GCC 3.1 reports ABI version 100 (same as 3.0), but this should actually have
-// been 101!  But we reject 3.0 above, so this doesn't actually matter.
-"#if !defined(__GXX_ABI_VERSION) || __GXX_ABI_VERSION != ", __GXX_ABI_VERSION,
-#if __GXX_ABI_VERSION >= 1002
-// ABI versions 2 and up are compatible aside from obscure corner cases, so
-// issue a warning, but don't refuse to compile as there's a good chance that
-// things will actually work.
-"#if defined __GXX_ABI_VERSION && __GXX_ABI_VERSION >= 1002",
-"#warning The C++ ABI version of compiler you are using does not exactly match",
-"#warning that of the compiler used to build the library.  If linking fails",
-"#warning due to missing symbols, this is probably the reason why.",
-"#warning The Xapian library was built with ", BUILD_COMPILER
-"#else",
-#endif
-"#error The C++ ABI version of compiler you are using does not match",
-"#error that of the compiler used to build the library.  The versions",
-"#error must match or your program will not work correctly.",
-"#error The Xapian library was built with ", BUILD_COMPILER
-#if __GXX_ABI_VERSION >= 1002
-"#endif",
-#endif
-"#endif",
-"",
 // _GLIBCXX_DEBUG is supported by GCC 3.4 and later so we only need to check
 // it for those versions.
 #if (__GNUC__ == 3 && __GNUC_MINOR__ >= 4) || __GNUC__ >= 4
