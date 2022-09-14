@@ -1647,22 +1647,21 @@ cxxcpp_flags="$cxxcpp_flags -DXAPIAN_TOTALLENGTH_TYPE="`echo "unsigned $INT64_T"
 dnl Make revision numbers in the API 64 bit for future-proofing.
 cxxcpp_flags="$cxxcpp_flags -DXAPIAN_REVISION_TYPE="`echo "unsigned $INT64_T"|sed 's/ /____/g'`
 
-dnl For GCC (and compilers which pretend to be GCC) and MSVC, we create some
-dnl ABI checks in the generated version.h, and $CXXFLAGS may contain options
-dnl which affect the ABI (e.g. -fabi-version for GCC) so we want to use these
-dnl options when generating version.h.  For these compilers, CXXCPP="$CXX -E"
-dnl so it should understand all compiler options.
+dnl For GCC (and compilers which pretend to be GCC) and MSVC, we create checks
+dnl for some ABI-incompatible configurations in the generated version.h.
+dnl Such configurations may be specified via $CXXFLAGS so we should use this
+dnl when generating version.h.  For these compilers, CXXCPP="$CXX -E" so it
+dnl should understand all compiler options.
 dnl
 dnl For other compilers, we only pass $CPPFLAGS to $CXXCPP in case it's an
-dnl external cpp which doesn't understand flags which might be in $CXXFLAGS.
-AC_COMPILE_IFELSE([AC_LANG_PROGRAM([], [[#ifndef __GNUC__
-#ifndef _MSC_VER
-       choke me
-#endif
-#endif
-]])],
-	[cxxcpp_flags="$cxxcpp_flags $CPPFLAGS $CXXFLAGS"],
-	[cxxcpp_flags="$cxxcpp_flags $CPPFLAGS"])
+dnl external cpp which doesn't understand all options which might be in
+dnl $CXXFLAGS.
+case $GXX$msvc in
+  *yes*)
+    cxxcpp_flags="$cxxcpp_flags $CPPFLAGS $CXXFLAGS" ;;
+  *)
+    cxxcpp_flags="$cxxcpp_flags $CPPFLAGS" ;;
+esac
 rm -f include/xapian/version.h.tmp
 dnl "\r" in sed is a GNUism, but we only need to remove it on MS Windows
 dnl where we'll always have GNU sed, and other sed's will just interpret
