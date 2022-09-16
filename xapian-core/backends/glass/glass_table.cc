@@ -1430,10 +1430,6 @@ GlassTable::readahead_key(const string &key) const
     LOGCALL(DB, bool, "GlassTable::readahead_key", key);
     Assert(!key.empty());
 
-    // An overlong key cannot be found.
-    if (key.size() > GLASS_BTREE_MAX_KEY_LEN)
-	RETURN(false);
-
     // Three cases:
     //
     // handle == -1:  Lazy table in a multi-file database which isn't yet open.
@@ -1449,6 +1445,10 @@ GlassTable::readahead_key(const string &key) const
     // If the table only has one level, there are no branch blocks to preread.
     if (level == 0)
 	RETURN(false);
+
+    // An overlong key cannot be found.
+    if (key.size() > GLASS_BTREE_MAX_KEY_LEN)
+	RETURN(true);
 
     form_key(key);
 
