@@ -737,7 +737,7 @@ fi
 if test no != "$with_tcl" ; then
   dnl The documented minimum requirement is Tcl 8.5.  Older versions may work,
   dnl but we don't test with them regularly, and they are no longer supported
-  dnl upstream.  Also ::tcl::pckconfig was added in Tcl 8.5, which makes the
+  dnl upstream.  Also ::tcl::pkgconfig was added in Tcl 8.5, which makes the
   dnl tests below simpler and more reliable.
   dnl
   dnl If you really want to build with an older version, run configure with
