@@ -74,6 +74,67 @@ jobs:
       # if that input is empty.
       run: git status --porcelain|grep '^' && { echo "The generated files listed above are not in .gitignore" ; exit 1; }; true
 
+  FORTIFY_SOURCE_3:
+    # _FORTIFY_SOURCE level 3 requires GCC 12, so currently we need to use
+    # Ubuntu 22.04 and the gcc-12 and g++12 packages.
+    runs-on: 'ubuntu-22.04'
+    env:
+      LIBEXTRACTOR_PREFIX: '/usr/lib/x86_64-linux-gnu/libextractor'
+    steps:
+    - name: Check out repository code
+      uses: actions/checkout@v2
+    - name: Install CCache
+      uses: hendrikmuhs/ccache-action@v1
+      with:
+        key: GLIBCXX_DEBUG
+    - name: Install package dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install \
+            gcc-12 \
+            g++-12 \
+            doxygen \
+            graphviz \
+            help2man \
+            python3-docutils \
+            pngcrush \
+            python3-sphinx \
+            uuid-dev \
+            libpcre2-dev \
+            libmagic-dev \
+            lua5.3 \
+            liblua5.3-dev \
+            mono-devel \
+            python3-dev \
+            tcl \
+            tcl-dev \
+            libicu-dev \
+            pkg-config \
+            libpoppler-glib-dev \
+            libglib2.0-dev \
+            libe-book-dev \
+            libetonyek-dev \
+            libgmime-2.6-dev \
+            libarchive-dev \
+            libabw-dev \
+            libcdr-dev \
+            libextractor-dev \
+            libmwaw-dev \
+            libtesseract-dev \
+            tesseract-ocr-eng
+    - name: bootstrap source tree
+      run: ./bootstrap xapian-core xapian-applications/omega swig xapian-bindings xapian-letor
+    - name: configure
+      run: ./configure CC='ccache gcc-12' CXX='ccache g++-12' CPPFLAGS='-D_FORTIFY_SOURCE=3'
+    - name: make
+      run: make -j2
+    - name: Run tests
+      run: make -j2 check VERBOSE=1 AUTOMATED_TESTING=1
+    - name: Check generated files are in .gitignore
+      # grep '^' passes through all input while giving a non-zero exit status
+      # if that input is empty.
+      run: git status --porcelain|grep '^' && { echo "The generated files listed above are not in .gitignore" ; exit 1; }; true
+
   clang:
     runs-on: 'ubuntu-20.04'
     env:
