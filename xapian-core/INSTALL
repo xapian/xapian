@@ -164,12 +164,15 @@ so:
 
 ./configure CPPFLAGS=-D_FORTIFY_SOURCE=0
 
-Or you can set the "fortification level" to 1 instead of 2:
+Or you can set the "fortification level" to 1 or (with new enough glibc and
+GCC) 3 instead of 2:
 
 ./configure CPPFLAGS=-D_FORTIFY_SOURCE=1
 
-If you're disabling it because it causes problems, please also report this to
-us (via the bug tracker or mailing lists).
+./configure CPPFLAGS=-D_FORTIFY_SOURCE=3
+
+If you're disabling _FORTIFY_SOURCE because it causes problems, please also
+report this to us (via the bug tracker or mailing lists).
 
 On mingw-w64 Xapian doesn't automatically enable _FORTIFY_SOURCE as an extra
 library is needed.  You can enable it by hand and specify this library like
