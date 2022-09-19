@@ -102,8 +102,8 @@ jobs:
             uuid-dev \
             libpcre2-dev \
             libmagic-dev \
-            lua5.3 \
-            liblua5.3-dev \
+            lua5.4 \
+            liblua5.4-dev \
             mono-devel \
             python3-dev \
             tcl \
@@ -114,7 +114,7 @@ jobs:
             libglib2.0-dev \
             libe-book-dev \
             libetonyek-dev \
-            libgmime-2.6-dev \
+            libgmime-3.0-dev \
             libarchive-dev \
             libabw-dev \
             libcdr-dev \
