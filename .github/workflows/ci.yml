@@ -94,7 +94,10 @@ jobs:
     - name: bootstrap source tree
       run: ./bootstrap xapian-core xapian-applications/omega swig xapian-bindings xapian-letor
     - name: configure
-      run: ./configure CC='ccache gcc-12' CXX='ccache g++-12' CPPFLAGS='-D_FORTIFY_SOURCE=3'
+      # Ubuntu's GCC packages define _FORTIFY_SOURCE=2 by default, so we need
+      # to undefine it before we define it to avoid a warning (which becomes
+      # an error with -Werror).
+      run: ./configure CC='ccache gcc-12' CXX='ccache g++-12' CPPFLAGS='-U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=3'
     - name: make
       run: make -j2
     - name: Run tests
