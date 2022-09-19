@@ -62,6 +62,7 @@ jobs:
             libabw-dev \
             libcdr-dev \
             libextractor-dev \
+            libextractor-plugins-all \
             libmwaw-dev \
             libtesseract-dev \
             tesseract-ocr-eng
