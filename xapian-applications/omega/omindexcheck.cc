@@ -195,7 +195,7 @@ index_test()
     // skip the test if no terms are not found
     // tests for libextractor may be skipped if proper plugins are not installed
     tests.insert({"video/file_example_OGG_480_1_7mg.ogg",
-		  {{"lavf58.29.100", "Zogg"}, SKIP_IF_NO_TERMS}});
+		  {{"Searth", "Splanet", "Tvideo/ogg", "Zogg"}, SKIP_IF_NO_TERMS}});
     tests.insert({"video/file_example_AVI_480_750kB.avi",
 		  {{"Zcodec", "Zh264", "480x270", "msvideo", "30", "fps"},
 		   SKIP_IF_NO_TERMS}});
