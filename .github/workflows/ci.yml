@@ -85,8 +85,8 @@ jobs:
             uuid-dev \
             libpcre2-dev \
             libmagic-dev \
-            lua5.3 \
-            liblua5.3-dev \
+            lua5.4 \
+            liblua5.4-dev \
             mono-devel \
             python3-dev \
             tcl \
