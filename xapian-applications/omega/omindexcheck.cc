@@ -32,15 +32,24 @@
 
 using namespace std;
 
-enum test_result { PASS, FAIL, SKIP };
-enum test_flag { SKIP_IF_NO_TERMS = 1 };
+enum test_result { PASS, FAIL };
+
+// Macro to mark optional terms.
+//
+// If there are optional terms in a testcase, either all or none must be
+// present.  This is useful with libextractor where the required plugin
+// may not be installed, but libextractor will still return generic metadata.
+//
+// This works by appending '\xff', which we remove before comparing.  This
+// means terms ending with this byte can't be used in testcases, but it's
+// invalid in UTF-8 so probably not a problematic limitation.
+#define OPT(T) (T "\xff")
 
 struct testcase {
     vector<string> terms;
-    unsigned int flags;
 
-    testcase(vector<string> v, unsigned int f = 0)
-	: terms(std::move(v)), flags(f) {}
+    testcase(vector<string> v)
+	: terms(std::move(v)) {}
 };
 
 
@@ -192,18 +201,22 @@ index_test()
 		  {{"Zедой", "Z喬伊不分享食物", "Zdocument"}}});
 #endif
 #if defined HAVE_LIBEXTRACTOR
-    // skip the test if no terms are not found
-    // tests for libextractor may be skipped if proper plugins are not installed
+    // Testcase for libextractor need to allow for the required plugin not
+    // being installed as libextractor still returns generic metadata.
     tests.insert({"video/file_example_OGG_480_1_7mg.ogg",
-		  {{"Searth", "Splanet", "Tvideo/ogg", "Zogg"}, SKIP_IF_NO_TERMS}});
+		  {{"Eogg", "Tvideo/ogg",
+		    OPT("Searth"), OPT("Splanet"), OPT("Zogg")}}});
     tests.insert({"video/file_example_AVI_480_750kB.avi",
-		  {{"Zcodec", "Zh264", "480x270", "msvideo", "30", "fps"},
-		   SKIP_IF_NO_TERMS}});
+		  {{"Eavi", "Tvideo/x-msvideo",
+		    OPT("Zcodec"), OPT("Zh264"),
+		    OPT("480x270"), OPT("msvideo"), OPT("30"), OPT("fps")}}});
     tests.insert({"audio/file_example_OOG_1MG.ogg",
-		  {{"Akevin", "Amacleod", "Simpact", "ZSmoderato", "Zlibrari",
-		    "Zcinemat"}, SKIP_IF_NO_TERMS}});
+		  {{"Eogg", "Taudio/ogg",
+		    OPT("Akevin"), OPT("Amacleod"), OPT("Simpact"),
+		    OPT("ZSmoderato"), OPT("Zlibrari"), OPT("Zcinemat")}}});
     tests.insert({"audio/file_example_WAV_1MG.wav",
-		  {{"Zstereo", "wav", "Zms"}, SKIP_IF_NO_TERMS}});
+		  {{"Ewav", "Taudio/x-wav",
+		    OPT("Zstereo"), OPT("wav"), OPT("Zms")}}});
 #endif
 #if defined HAVE_LIBMWAW
     tests.insert({"apple_works/test_word.cwk",
@@ -220,31 +233,46 @@ compare_test(testcase& test, const Xapian::Document& doc, const string& file)
 {
     sort(test.terms.begin(), test.terms.end());
     Xapian::TermIterator term_iterator = doc.termlist_begin();
-    bool term_found = false, all_terms_exist = true;
-    for (auto& t : test.terms) {
-	term_iterator.skip_to(t);
-	if (term_iterator == doc.termlist_end() || *term_iterator != t) {
-	    cerr << "Error in " << file << ": Term " << t <<
-		 " does not belong to this file" << endl;
-	    all_terms_exist = false;
+    bool all_required_terms_exist = true;
+    string missing_optional;
+    bool no_optional = true;
+    for (auto& i : test.terms) {
+	if (i.back() == '\xff') {
+	    string t(i, 0, i.size() - 1);
+	    term_iterator.skip_to(t);
+	    // Optional term.
+	    if (term_iterator == doc.termlist_end() || *term_iterator != t) {
+		missing_optional += ' ';
+		missing_optional += t;
+	    } else {
+		no_optional = false;
+	    }
 	} else {
-	    term_found = true;
+	    auto t = i;
+	    term_iterator.skip_to(t);
+	    if (term_iterator == doc.termlist_end() || *term_iterator != t) {
+		cerr << file << ": error: Term " << t
+		     << " should index this file but doesn't\n";
+		all_required_terms_exist = false;
+	    }
 	}
     }
-    if (all_terms_exist) {
+    if (!missing_optional.empty() && !no_optional) {
+	cerr << file << ": error: Only some of the optional terms index this "
+			"file, missing:" << missing_optional << '\n';
+    } else if (all_required_terms_exist) {
 	// All terms found (including degenerate case where no terms are listed
 	// to check for).
 	return PASS;
     }
-    if (test.flags & SKIP_IF_NO_TERMS) {
-	if (!term_found) {
-	    // None of the terms were found and we were asked to SKIP for that.
-	    return SKIP;
-	}
-    }
     cerr << "Expected at least these terms:";
     for (auto& t : test.terms) {
-	cerr << ' ' << t;
+	if (t.back() == '\xff') {
+	    // Optional term.
+	    cerr << " OPT(" << t.substr(0, t.size() - 1) << ')';
+	} else {
+	    cerr << ' ' << t;
+	}
     }
     cerr << "\nFull list of terms actually present:";
     for (term_iterator = doc.termlist_begin();
@@ -284,8 +312,6 @@ main(int argc, char** argv)
 							 url);
 	    if (individual_result == FAIL)
 		result = FAIL;
-	    else if (result == PASS && individual_result == SKIP)
-		result = SKIP;
 	    tests.erase(iter);
 	}
     }
@@ -295,10 +321,5 @@ main(int argc, char** argv)
 	result = FAIL;
     }
 
-    // exit status of 77 to denote a skipped test (standard for automake)
-    if (result == PASS)
-	return 0;
-    if (result == FAIL)
-	return 1;
-    return 77;
+    return result == FAIL ? 1 : 0;
 }
