@@ -160,7 +160,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueIterator {
 #ifndef check
     bool check(Xapian::docid docid);
 #else
-    // The AssertMacros.h header in the OS X SDK currently defines a check
+    // The AssertMacros.h header in the macOS SDK currently defines a check
     // macro.  Apple have deprecated check() in favour of __Check() and
     // plan to remove check() in a "future release", but for now prevent
     // expansion of check by adding parentheses in the method prototype:

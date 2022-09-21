@@ -173,7 +173,7 @@ DEFINE_TESTCASE(stubdb2, path) {
 	//  NetworkError: Couldn't resolve host [ (context: remote:tcp([:0)) (No address associated with hostname)
 	// 1.4.1 throws (because we don't actually support IPv6 yet) on Linux (EAI_ADDRFAMILY):
 	//  NetworkError: Couldn't resolve host ::1 (context: remote:tcp(::1:65535)) (nodename nor servname provided, or not known)
-	// or on OS X (EAI_NONAME):
+	// or on macOS (EAI_NONAME):
 	//  NetworkError: Couldn't resolve host ::1 (context: remote:tcp(::1:65535)) (Address family for hostname not supported)
 	//
 	// But NetBSD seems to resolve ::1 to an IPv4 address and then tries
@@ -190,7 +190,7 @@ DEFINE_TESTCASE(stubdb2, path) {
 	//  NetworkError: Couldn't resolve host [ (context: remote:tcp([:0)) (No address associated with hostname)
 	// 1.4.1 throws (because we don't actually support IPv6 yet) on Linux (EAI_ADDRFAMILY):
 	//  NetworkError: Couldn't resolve host ::1 (context: remote:tcp(::1:65535)) (nodename nor servname provided, or not known)
-	// or on OS X (EAI_NONAME):
+	// or on macOS (EAI_NONAME):
 	//  NetworkError: Couldn't resolve host ::1 (context: remote:tcp(::1:65535)) (Address family for hostname not supported)
 	// So we test the message instead of the error string for portability.
 	//

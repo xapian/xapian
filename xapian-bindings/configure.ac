@@ -23,7 +23,7 @@ dnl the bindings only have a use for dynamic ones.
 LT_PREREQ([2.2.6])
 LT_INIT([disable-static])
 
-dnl -no-undefined causes problems on Mac OS X with at least some
+dnl -no-undefined causes problems on macOS with at least some
 dnl MACOSX_DEPLOYMENT_TARGET settings, so only pass -no-undefined on
 dnl platforms where it is required in order to link a shared library at
 dnl all (Windows is the main one).
@@ -732,7 +732,7 @@ if test no != "$with_java" ; then
     java_ok=no
     AC_CHECK_HEADER([jni.h], [java_ok=yes], [
       dnl We need to look for jni.h in /usr/lib/jvm/java-gcj/include on some
-      dnl Debian and Ubuntu boxes at least.  And on Mac OS X, jni.h lives
+      dnl Debian and Ubuntu boxes at least.  And on macOS, jni.h lives
       dnl in /System/Library/Frameworks/JavaVM.framework/Headers.
       SAVE_CPPFLAGS=$CPPFLAGS
       real_javac=$JAVAC

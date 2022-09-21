@@ -78,7 +78,7 @@ get_maxfd() {
 //
 // These platforms have getdirentriesattr() and a "magic" directory with an
 // entry for each FD open in the current process:
-// OS X
+// macOS
 //
 // Other platforms just use a loop up to a limit obtained from
 // fcntl(0, F_MAXFD), getrlimit(RLIMIT_NOFILE, ...), or sysconf(_SC_OPEN_MAX)
@@ -153,7 +153,7 @@ Xapian::Internal::closefrom(int fd)
 	}
 	close(dir);
     }
-#elif defined __APPLE__ // Mac OS X
+#elif defined __APPLE__ // macOS
     const char* path = "/dev/fd";
 #ifdef __LP64__
     typedef unsigned int gdea_type;

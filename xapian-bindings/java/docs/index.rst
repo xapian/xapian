@@ -43,7 +43,7 @@ JNI library is located.
 Alternatively, you can avoid needing the `-Djava.library.path` setting by
 setting the `LD_LIBRARY_PATH` environment variable, or by installing the JNI
 library in the appropriate directory so your JVM finds it automatically
-(for example, on Mac OS X you can copy it into `/Library/Java/Extensions/`
+(for example, on macOS you can copy it into `/Library/Java/Extensions/`
 - you can also copy the `.jar` file there and avoid needing to specify it
 via `-classpath`).
 

@@ -8,7 +8,7 @@ This document is intended to give a quick guide to how to install
 Xapian. You can find more detailed instructions in the ``INSTALL`` file
 which is in top level directory of each source tree.
 
-Xapian can be built on UNIX systems (including MacOS X), and also
+Xapian can be built on UNIX systems (including macOS), and also
 Microsoft Windows systems using GCC with mingw or cygwin, or MSVC.
 
 Packaged binary versions

@@ -862,7 +862,7 @@ save_LIBS=$LIBS
 LIBS=
 
 dnl See if we have fdatasync, and what libraries are needed for it.
-dnl We need to actually check for a declaration as OS X has a dummy
+dnl We need to actually check for a declaration as macOS has a dummy
 dnl implementation in the library which is not prototyped in any header.
 AC_CHECK_DECL([fdatasync(int)], [
   AC_SEARCH_LIBS([fdatasync], [rt], [])
