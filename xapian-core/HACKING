@@ -348,7 +348,7 @@ On Fedora, the uuid library can be installed by doing::
 
     yum install libuuid-devel
 
-On Mac OS X, if you're using macports you'll want the following:
+On macOS, if you're using macports you'll want the following:
 
   * file (magic.h in configure)
 
@@ -444,10 +444,10 @@ required documentation tools::
 
     apt-get install doxygen graphviz help2man python-docutils pngcrush python-sphinx python3-sphinx
 
-Documentation builds on OS X
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Documentation builds on macOS
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-On Mac OS X, if you're using homebrew, you'll want the following::
+On macOS, if you're using homebrew, you'll want the following::
 
     brew install doxygen help2man graphviz pngcrush
 
@@ -494,7 +494,7 @@ extra tools::
 
     apt-get install ghostscript texlive-latex-base texlive-extra-utils texlive-binaries texlive-fonts-extra texlive-fonts-recommended texlive-latex-extra texlive-latex-recommended
 
-On Mac OS X, if you're using macports you'll want the following:
+On macOS, if you're using macports you'll want the following:
 
   * texlive (pdflatex during build)
   * texlive-basic (for makeindex in configure)

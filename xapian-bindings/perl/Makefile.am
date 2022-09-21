@@ -41,7 +41,7 @@ AM_TESTS_ENVIRONMENT = \
 	export CXXFLAGS ;\
 	export XAPIAN_CONFIG ;
 LOG_COMPILER = \
-    $(LIBTOOL) -dlopen Xapian.la --mode=execute $(OSX_SIP_HACK_ENV) $(PERL) \
+    $(LIBTOOL) -dlopen Xapian.la --mode=execute $(MACOS_SIP_HACK_ENV) $(PERL) \
 	$(srcdir)/run-perl-test
 
 installcheck-local:

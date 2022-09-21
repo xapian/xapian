@@ -78,12 +78,12 @@ xapian/__init__.py: xapian.py
 # doesn't cope with being xapian/__init__.py (currently it needs fixing
 # up, which is done by fixup-swig-py2-wrapper).
 xapian/__init__.pyc: xapian/__init__.py xapian/_xapian$(PYTHON2_SO)
-	$(OSX_SIP_HACK_ENV) $(PYTHON2) -c 'import os;os.chdir("xapian");import _xapian'
-	$(OSX_SIP_HACK_ENV) $(PYTHON2) -c 'import xapian'
+	$(MACOS_SIP_HACK_ENV) $(PYTHON2) -c 'import os;os.chdir("xapian");import _xapian'
+	$(MACOS_SIP_HACK_ENV) $(PYTHON2) -c 'import xapian'
 
 xapian/__init__.pyo: xapian/__init__.py xapian/_xapian$(PYTHON2_SO)
-	$(OSX_SIP_HACK_ENV) $(PYTHON2) -O -c 'import os;os.chdir("xapian");import _xapian'
-	$(OSX_SIP_HACK_ENV) $(PYTHON2) -O -c 'import xapian'
+	$(MACOS_SIP_HACK_ENV) $(PYTHON2) -O -c 'import os;os.chdir("xapian");import _xapian'
+	$(MACOS_SIP_HACK_ENV) $(PYTHON2) -O -c 'import xapian'
 
 xapian/_xapian$(PYTHON2_SO): _xapian.la
 	$(MKDIR_P) xapian
@@ -166,6 +166,6 @@ $(sphinxdocs): xapian/__init__.py xapian/_xapian$(PYTHON2_SO) docs/conf.py $(RST
 ## -b html, and so apparently is safe.
 ##
 ## Change was merged here: https://github.com/sphinx-doc/sphinx/pull/3668
-	PYTHONPATH=..:$$PYTHONPATH $(OSX_SIP_HACK_ENV) $(PYTHON2) \
+	PYTHONPATH=..:$$PYTHONPATH $(MACOS_SIP_HACK_ENV) $(PYTHON2) \
 		-c 'import sphinx,sys;sys.exit(sphinx.main(sys.argv[1:]))' \
 		-bhtml -b html -d doctrees -c docs $(srcdir)/docs docs/html

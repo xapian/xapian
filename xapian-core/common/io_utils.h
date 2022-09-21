@@ -88,7 +88,7 @@ inline bool io_sync(int fd)
 inline bool io_full_sync(int fd)
 {
 #ifdef F_FULLFSYNC
-    /* Only supported on Mac OS X (at the time of writing at least).
+    /* Only supported on macOS (at the time of writing at least).
      *
      * This call ensures that data has actually been written to disk, not just
      * to the drive's write cache, so it provides better protection from power

@@ -223,7 +223,7 @@ AC_CHECK_SIZEOF([time_t], [#include <time.h>])
 dnl Use for Unix permission checks.
 AC_CHECK_FUNCS([getgrouplist])
 
-dnl See if getgrouplist() takes gid_t * (e.g. Linux) or int * (e.g. OS X).
+dnl See if getgrouplist() takes gid_t * (e.g. Linux) or int * (e.g. macOS).
 if test $ac_cv_func_getgrouplist = yes ; then
   AC_COMPILE_IFELSE(
     [AC_LANG_PROGRAM([[#include <grp.h>
