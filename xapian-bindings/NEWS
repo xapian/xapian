@@ -1,40 +1,27 @@
-up to: ccee1d7afd623aa95882aed1bd59a143fc6343ac
-
-Xapian-bindings 1.4.21 (2022-07-14):
+Xapian-bindings 1.4.21 (2022-09-22):
 
 Documentation:
 
+* Consistently say "macOS" not "Mac OS X", "OS X", etc.
+
 General:
 
-    configure: Update to use AX_CXX_COMPILE_STDCXX
-    This is a replacement for AX_CXX_COMPILE_STDCXX_11 (which we were using)
-    which also supports newer C++ standards versions which will be useful.
-    For C++11 the only difference seems to be that the macro now checks for
-    attribute support - we use C++11 attributes so that seems a good thing.
-
-Packaging:
+* Update to use AX_CXX_COMPILE_STDCXX which is a replacement for
+  AX_CXX_COMPILE_STDCXX_11 (which we were using) which also supports newer C++
+  standards versions which will be useful.  For C++11 the only difference seems
+  to be that the macro now checks for attribute support - we use C++11
+  attributes so that seems a good thing.
 
 Portability:
 
-CSharp:
+* Drop special handling of MACOSX_DEPLOYMENT_TARGET.  This was only relevant
+  for macOS 10.3 and (for powerpc only) 10.4, and Apple dropped support for
+  10.4 in 2009.
 
 Java:
 
-Lua:
-
-Perl:
-
-PHP:
-
-PHP7:
-
-Python:
-
-Python3:
-
-Ruby:
-
-Tcl:
+* Document where to install .jar on macOS. Partly addresses #774, reported by
+  Ryan Schmidt.
 
 Xapian-bindings 1.4.20 (2022-07-04):
 

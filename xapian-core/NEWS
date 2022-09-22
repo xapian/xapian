@@ -1,104 +1,99 @@
-up to: f775613d8aab7794bed4d57d7cf9d1caace6c76f
-
-Xapian-core 1.4.21 (2022-08-31):
-
-API:
-
-    Fix integer typedef used by ESet API.
-    This should be Xapian::termcount, not Xapian::doccount.  In a standard
-    build both are the same underlying type, so this won't usually matter.
-
-testsuite:
-
-
-matcher:
-
+Xapian-core 1.4.21 (2022-09-22):
 
 glass backend:
 
-Author: Robert Stepanek <rsto@paranoia.at>
-    No-op GlassTable::readahead_key for overlong keys
-    Currently, a query may abort with an InvalidArgument error if one of
-    the terms exceeds the maximum allowed length for glass btree keys.
-    However, this error is thrown only if the query triggers a readahead_key
-    call on the glass table.
-    This patch updates readahead_key to report overlong keys as not found,
-    rather than aborting the whole query.
-    Closes https://github.com/xapian/xapian/pull/313
+* Avoid throwing InvalidArgument when searching for overlong terms in some
+  cases.  Such terms can't match, but are valid to query for.  Patch from
+  Robert Stepanek in https://github.com/xapian/xapian/pull/313.
 
 chert backend:
 
-
-remote backend:
-
-
-inmemory backend:
-
+* Avoid throwing InvalidArgument when searching for overlong terms in some
+  cases.  Such terms can't match, but are valid to query for.
 
 build system:
 
-    Clean up cygwin and mingw configure checks
-    When we check $host_os, always anchor at the start (e.g. cygwin* not
-    *cygwin*), and check for msys* as well since that's a derivative of
-    cygwin and behaves similarly for the things we're checking here.
+* Clean up cygwin and mingw configure checks.  When we check $host_os, always
+  anchor at the start (e.g. cygwin* not *cygwin*), and check for msys* as well
+  since that's a derivative of cygwin and behaves similarly for the things
+  we're checking here.
 
-    Update to use AX_CXX_COMPILE_STDCXX
-    This is a replacement for AX_CXX_COMPILE_STDCXX_11 (which we were using)
-    which also supports newer C++ standards versions which will be useful.
-    For C++11 the only difference seems to be that the macro now checks for
-    attribute support - we use C++11 attributes so that seems a good thing.
+* Update to use AX_CXX_COMPILE_STDCXX which is a replacement for
+  AX_CXX_COMPILE_STDCXX_11 (which we were using) which also supports newer C++
+  standards versions which will be useful.  For C++11 the only difference seems
+  to be that the macro now checks for attribute support - we use C++11
+  attributes so that seems a good thing.
 
 documentation:
 
 * INSTALL: Restructure MSVC section for clarity.
 
-tools:
+* INSTALL: Mention -D_FORTIFY_SOURCE=3 too (fairly new - requires GCC 12).
 
+* Consistently say "macOS" not "Mac OS X", "OS X", etc.
+
+* admin_notes.rst:
+
+  + Update locking section to cover Open File Description locks
+
+  + Add some discussion of block sizes (fixes #819, reported by mgautier)
+
+  + Fix cut-and-paste error - we were suggesting that the docdata table only
+    exists if there's positional data.  Noted by Gaurav Arora.
+
+  + Improve markup
 
 examples:
 
-    Stop using std::endl in examples
-    It causes a flush of the stream, which is rarely actually wanted
-    and often the replacement \n can be combined with a string literal.
+* Stop using std::endl in examples since this seems to be C++ best practice
+  as it causes a flush of the stream, which is rarely actually wanted.  Also
+  often the replacement \n can be combined with a string literal.
 
 portability:
 
-    Refactor to avoid warning with GCC 12.2
-    GCC 12.2 warns about use of an object after it has been destroyed.
-    I'm not entirely convinced the warning is valid, but it's easy to
-    refactor to avoid it without making the code worse.
+* Stop trying to check for incompatible C++ ABI between the compiler used to
+  build xapian-core and the compiler used to build code using xapian-core.
 
-    Avoid undefined value use checking bad glass docdata
-    If unpacking the docid from the key fails, we now skip further
-    checks on the entry after reporting so we don't report an invalid docid
-    if a check on the entry's value also fails.
+  This check was helpful in the GCC 3 days, but ABI versions 2 and up are
+  compatible aside from obscure corner cases, and GCC now defaults to using the
+  latest ABI version it supports.  The result is that this check is no longer
+  useful enough to justify the noise.
 
-    Merge allocations in MSVC dirent compat code
-    Make dir->name a one element array member and over-allocate the struct
-    so there's enough room for its actual size, which means we only need one
-    malloc() call.
+  We still check for incompatible _GLIBCXX_DEBUG between the library and
+  application builds, since that will cause things not to work, and the normal
+  error message doesn't make it clear what's wrong.
 
-    Add accept() wrapper
-    Check an assumption that Microsoft's SOCKET type only actually holds
-    32 bit values even in 64 bit platforms and throw an exception if
-    violated.
+  Reported by David Bremner.
 
-    Eliminate a use of sprintf
-    Seems cleaner not to have to use a temporary buffer.
+* Fix new warnings from GCC 12.
 
-    Squash some unhelpful MSVC deprecation warnings
+* Avoid undefined value use when unpacking a key in a corrupted glass docdata
+  table.  We now skip further checks on the entry in this case.
 
-    Declare dummy invalid parameter handler noexcept
-    Avoids a warning with MSVC.
+* Merge allocations in MSVC directory reading compatibility code so we can
+  allocate in a single malloc() call.
 
-    Include <stdlib.h> in check for sys_errlist
-    That's where it is with mingw and MSVC.
+* Add accept() wrapper which checks an assumption that Microsoft's SOCKET type
+  only actually holds 32 bit values even in 64 bit platforms and throws an
+  exception if violated.
 
-packaging:
+* Eliminate a use of sprintf.
 
+* Squash some unhelpful MSVC deprecation warnings.
+
+* Declare dummy invalid parameter handler noexcept to fix a warning from MSVC.
+
+* Include <stdlib.h> in configure check for sys_errlist as that's where it is
+  with mingw and MSVC.
 
 debug code:
 
+* Fix debug logging for Xapian::Internal::intrusive_ptr<const T>.
+
+  GCC 12.2 warned about infinite recursion in the old version, and this seems
+  to be the case.  This code has been there a long time, but is only used when
+  debug logging is enabled.  It does seem to be used, so presumably nobody's
+  tried to log something which triggered it.
 
 Xapian-core 1.4.20 (2022-07-04):
 
