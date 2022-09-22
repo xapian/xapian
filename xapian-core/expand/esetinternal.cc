@@ -243,11 +243,11 @@ ESet::operator=(ESet &&) = default;
 
 ESet::~ESet() { }
 
-Xapian::termcount
+Xapian::doccount
 ESet::size() const
 {
     if (!internal.get()) return 0;
-    return Xapian::termcount(internal->items.size());
+    return internal->items.size();
 }
 
 Xapian::termcount
