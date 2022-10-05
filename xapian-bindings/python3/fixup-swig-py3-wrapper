@@ -27,10 +27,6 @@ $_ = <>;
 
 my ($pos, $find, $replace);
 
-# Reject Python 2 (there are separate bindings for Python 2).
-s/^(if _swig_python_version_info < )\(2, 7, 0\)(:\n    raise.*?) 2\.7 or later\b/$1(3, 0, 0)$2 3/m or
-    die "Failed to fix up version check";
-
 s/^try:\n    import builtins as __builtin__.*?\n    import __builtin__\n//sm or
     die "Failed to fix up import code";
 
