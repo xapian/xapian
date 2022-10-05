@@ -6,7 +6,7 @@
 #
 #	--without csharp	Disable C# bindings
 #	--without perl		Disable Perl bindings
-#	--without php		Disable PHP 7 bindings
+#	--without php		Disable PHP 8 bindings
 #	--without python	Disable Python bindings
 #	--without ruby		Disable Ruby bindings
 #	--without tcl8		Disable Tcl8 bindings
@@ -45,7 +45,7 @@ Requires: xapian-core-libs = %{version}
 BuildRequires: python-devel >= 2.3
 %endif
 %if 0%{?!_without_php:1}
-BuildRequires: php-devel >= 7.0
+BuildRequires: php-devel >= 8.0
 %endif
 %if 0%{?!_without_ruby:1}
 BuildRequires: ruby-devel >= 1.8
@@ -183,7 +183,7 @@ Perl applications which use Xapian.
 # with older versions of the autotools which older distros have.
 #autoreconf --force
 # Only build the bindings we want.
-%configure %{?!_without_python:--with-python} %{?!_without_php:--with-php7} %{?!_without_tcl8:--with-tcl} %{?!_without_csharp:--with-csharp} %{?!_without_ruby:--with-ruby} %{?!_without_perl:--with-perl}
+%configure %{?!_without_python:--with-python} %{?!_without_php:--with-php} %{?!_without_tcl8:--with-tcl} %{?!_without_csharp:--with-csharp} %{?!_without_ruby:--with-ruby} %{?!_without_perl:--with-perl}
 make
 
 %install
@@ -195,7 +195,6 @@ make install DESTDIR=%{buildroot}
 # Move the docs to the right places.
 %{?!_without_python: mv %{buildroot}%{_datadir}/doc/%{name}/python %{buildroot}%{_datadir}/doc/%{name}-python-%{version}}
 %{?!_without_php: mv %{buildroot}%{_datadir}/doc/%{name}/php %{buildroot}%{_datadir}/doc/%{name}-php-%{version}}
-%{?!_without_php: [ -d "%{buildroot}%{_datadir}/php7" ] && mv %{buildroot}%{_datadir}/php7 %{buildroot}%{_datadir}/php}
 %{?!_without_tcl8: mv %{buildroot}%{_datadir}/doc/%{name}/tcl8 %{buildroot}%{_datadir}/doc/%{name}-tcl8-%{version}}
 %{?!_without_csharp: mv %{buildroot}%{_datadir}/doc/%{name}/csharp %{buildroot}%{_datadir}/doc/%{name}-csharp-%{version}}
 
@@ -221,7 +220,6 @@ make install DESTDIR=%{buildroot}
 %files php
 %defattr(-, root, root)
 %{php_extension_dir}/xapian.so
-%{_datadir}/php/xapian.php
 %doc %{_datadir}/doc/%{name}-php-%{version}
 %endif
 

@@ -2,7 +2,7 @@
 %{
 /* php.i: SWIG interface file for the PHP bindings
  *
- * Copyright (C) 2004,2005,2006,2007,2008,2010,2011,2012,2014,2016,2018,2019 Olly Betts
+ * Copyright (C) 2004-2022 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -140,7 +140,7 @@ fail: // Label which SWIG_PHP_Error needs.
 
 %}
 
-%typemap(in) (XapianSWIGQueryItor qbegin, XapianSWIGQueryItor qend) {
+%typemap(in, phptype="array") (XapianSWIGQueryItor qbegin, XapianSWIGQueryItor qend) {
     // $1 and $2 are default initialised where SWIG declares them.
     if (Z_TYPE($input) == IS_ARRAY) {
 	// The typecheck typemap should have ensured this is an array.
@@ -150,8 +150,7 @@ fail: // Label which SWIG_PHP_Error needs.
 }
 
 #define XAPIAN_TERMITERATOR_PAIR_OUTPUT_TYPEMAP
-%typemap(out) std::pair<Xapian::TermIterator, Xapian::TermIterator> {
-    ZVAL_NEW_ARR($result);
+%typemap(out, phptype="array") std::pair<Xapian::TermIterator, Xapian::TermIterator> {
     array_init($result);
 
     for (Xapian::TermIterator i = $1.first; i != $1.second; ++i) {
@@ -161,8 +160,7 @@ fail: // Label which SWIG_PHP_Error needs.
 }
 
 %typemap(directorin) (size_t num_tags, const std::string tags[]) {
-    ZVAL_NEW_ARR($input);
-    array_init($input);
+    array_init_size($input, num_tags);
 
     for (size_t i = 0; i != num_tags; ++i) {
 	const string& term = tags[i];
@@ -192,6 +190,24 @@ PHP_ITERATOR(Xapian, PostingIterator, Xapian::docid, )
 PHP_ITERATOR(Xapian, ValueIterator, std::string, )
 
 %include except.i
+
+%define DISOWNABLE_FUNCTOR(CLASS, PARAM)
+%typemap(in, phptype="SWIGTYPE") (CLASS* PARAM) %{
+$typemap(in, CLASS* DISOWN)
+{
+  Swig::Director* xapian_swig_director = dynamic_cast<Swig::Director*>($1);
+  if (xapian_swig_director) xapian_swig_director->swig_disown();
+}
+$1->release();
+%}
+%enddef
+
+DISOWNABLE_FUNCTOR(Xapian::FieldProcessor, proc)
+DISOWNABLE_FUNCTOR(Xapian::KeyMaker, sorter)
+DISOWNABLE_FUNCTOR(Xapian::MatchSpy, spy)
+DISOWNABLE_FUNCTOR(Xapian::PostingSource, source)
+DISOWNABLE_FUNCTOR(Xapian::RangeProcessor, range_proc)
+DISOWNABLE_FUNCTOR(Xapian::Stopper, stop)
 
 %include ../xapian-headers.i
 

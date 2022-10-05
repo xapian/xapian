@@ -58,7 +58,7 @@ The simplest way to compile this package is:
        --with-java	    enable Java bindings
        --with-lua	    enable Lua bindings
        --with-perl	    enable Perl bindings
-       --with-php7	    enable PHP 7 bindings
+       --with-php	    enable PHP bindings
        --with-python	    enable Python 2 bindings
        --with-python3	    enable Python 3 bindings
        --with-ruby	    enable Ruby bindings
@@ -120,7 +120,7 @@ Installing without root access
      Note that you also need to pass a "--prefix" option to configure so that
      the documentation and examples can be installed.
 
-  PHP 7:
+  PHP:
 
      With current releases of PHP, there doesn't seem to be a good way to
      install the PHP bindings without root access such that they can be used
@@ -129,24 +129,22 @@ Installing without root access
      If you're only interested in running code from the command line (via PHP's
      CLI SAPI) then the following will work:
 
-     ./configure --with-php7 --prefix=$HOME/install PHP_EXTENSION_DIR=$HOME/my_php_extensions
+     ./configure --with-php --prefix=$HOME/install PHP_EXTENSION_DIR=$HOME/my_php_extensions
      make
      make install
 
-     Then tell the PHP interpreter to load extensions from there:
+     You can specify the extension directory using `extension_dir` but
+     doing so will stop PHP from looking in the default place for extensions!
+     So a better approach is to specify the full path to the extension to
+     load like so:
 
-     php -d extension_dir="$HOME/my_php_extensions" myscript.php
+     php -d extension="$HOME/my_php_extensions/xapian.so" myscript.php
 
-     However, this will stop PHP from looking in the default place for
-     extensions!  It doesn't seem to be possible to specify more than one
-     directory, but you can copy or symlink system installed extensions
-     from the default extension directory to $HOME/my_php_extensions like
-     so:
-
-     ln -s "`php -r 'print PHP_EXTENSION_DIR;'`"/* "$HOME/my_php_extensions"
-
-     This will symlink all of them, but you only actually need those that
-     get loaded.
+     A drawback is that this requires the exact filename of the extension which
+     varies by platform: not all Unix platforms use `.so` and on Microsoft
+     Windows it is `php_xapian.dll`.  PHP 7.2 and later allow `extension=xapian`
+     as a portable way to deal with the simple case, but this doesn't work when
+     you include a path to the extension.
 
   Python 3:
 

@@ -400,9 +400,9 @@ case $srcdir in
 esac
 
 # Commit hash to pass to handle_git_external for swig.  Equivalent to
-# somewhere after SWIG 4.0.1 (4.0.1 doesn't support Ruby 2.7, but there
-# hadn't been a release at the point where we updated to this).
-swig_git_commit_hash=ae0efd3d742ad083312fadbc652d4d66fdad6f4d
+# somewhere shortly before SWIG 4.1.0 (4.0.1 doesn't support Ruby 2.7 or PHP 8,
+# but there hadn't been a release at the point where we updated to this).
+swig_git_commit_hash=3096e8aa00db7ac9ab7c63ce8c8d23b65800f4c9
 
 # Commit hashes to use for common in omega and letor respectively:
 omega_common_commit_hash=717b42935954eaf21286294758152a079248c59e

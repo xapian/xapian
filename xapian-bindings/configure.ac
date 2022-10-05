@@ -159,12 +159,11 @@ if test x$USE_MAINTAINER_MODE = xyes; then
   fi
   dnl Check for new enough SWIG.
   dnl
-  dnl 3.0.12 fixes segfault on unload with PHP 7.1
-  dnl 4.0.0 includes fixes for many languages
+  dnl 4.1.0 adds support for PHP 8
   v=`$SWIG -version 2>&1|sed 's/^SWIG Version \([[0-9\.]]*\).*/\1/p;d'`
   case $v in
-    [[0123].*|""])
-      msg="SWIG >= 4.0.0 required (you have ${v:-an unknown version})"
+    [[0123].*|4.0.*|""])
+      msg="SWIG >= 4.1.0 required (you have ${v:-an unknown version})"
       if test -n "$swigoverridden" ; then
 	dnl If SWIG was explicitly set, make this a warning only.
 	AC_MSG_WARN([$msg])
@@ -209,10 +208,10 @@ AC_ARG_WITH(python3,
   [],
   [with_python3=])
 
-AC_ARG_WITH(php7,
-  AS_HELP_STRING([--with-php7], [enable PHP 7 bindings]),
+AC_ARG_WITH(php,
+  AS_HELP_STRING([--with-php], [enable PHP bindings]),
   [],
-  [with_php7=])
+  [with_php=])
 
 AC_ARG_WITH(ruby,
   AS_HELP_STRING([--with-ruby], [enable Ruby bindings]),
@@ -244,11 +243,11 @@ AC_ARG_WITH(lua,
   [],
   [with_lua=])
 
-case $with_python3$with_php7$with_ruby$with_tcl$with_csharp$with_java$with_perl$with_lua in
+case $with_python3$with_php$with_ruby$with_tcl$with_csharp$with_java$with_perl$with_lua in
 *yes*)
   dnl Default unspecified values to no.
   test -z "$with_python3" && with_python3=no
-  test -z "$with_php7" && with_php7=no
+  test -z "$with_php" && with_php=no
   test -z "$with_tcl" && with_tcl=no
   test -z "$with_csharp" && with_csharp=no
   test -z "$with_java" && with_java=no
@@ -374,87 +373,79 @@ if test x$USE_MAINTAINER_MODE = xyes; then
   test -z "$PYTHON" && AC_MSG_ERROR([python is required in maintainer mode])
 fi
 
-if test no != "$with_php7" ; then
+if test no != "$with_php" ; then
   dnl See comment for AC_PATH_PROGS(SWIG, ...).
-  if test -n "$PHP_CONFIG7" ; then
-    AC_PATH_PROGS(PHP_CONFIG7, ["$PHP_CONFIG7"], [])
+  if test -n "$PHP_CONFIG" ; then
+    AC_PATH_PROGS(PHP_CONFIG, ["$PHP_CONFIG"], [])
   fi
-  if test -z "$PHP_CONFIG7" ; then
-    AC_PATH_PROGS(PHP_CONFIG7, [php-config7.4 php-config7.3 php-config7.2 php-config7.1 php-config7.0 php-config], [])
+  if test -z "$PHP_CONFIG" ; then
+    AC_PATH_PROGS(PHP_CONFIG, [php-config8.1 php-config8.0 php-config], [])
   fi
-  AC_ARG_VAR(PHP_CONFIG7, [php-config utility for PHP7])
-  AC_ARG_VAR(PHP7, [PHP7 interpreter (optional - only needed to run PHP7 testsuite with)])
-  if test -n "$PHP_CONFIG7" ; then
-    AC_MSG_CHECKING([$PHP_CONFIG7 version])
-    version=`$PHP_CONFIG7 --version 2>/dev/null`
+  AC_ARG_VAR(PHP_CONFIG, [php-config utility for PHP])
+  AC_ARG_VAR(PHP, [PHP interpreter (optional - only needed to run PHP testsuite with)])
+  if test -n "$PHP_CONFIG" ; then
+    AC_MSG_CHECKING([$PHP_CONFIG version])
+    version=`$PHP_CONFIG --version 2>/dev/null`
     case $version in
-    [[0123456].*])
-      AC_MSG_RESULT([$version (not supported, PHP7 bindings need PHP 7.x)])
-      if test yes = "$with_php7" ; then
-	AC_MSG_ERROR([$PHP_CONFIG7 reports version $version - PHP7 bindings need 7.x])
+    [[01234567].*])
+      AC_MSG_RESULT([$version (not supported, PHP bindings need PHP >= 8)])
+      if test yes = "$with_php" ; then
+	AC_MSG_ERROR([$PHP_CONFIG reports version $version - PHP bindings PHP >= 8])
       fi
-      with_php7=no
-      ;;
-    7.*)
-      AC_MSG_RESULT([$version])
-      PHP7_MAJOR_VERSION=`echo "$version"|cut -d. -f1`
+      with_php=no
       ;;
     *)
-      AC_MSG_RESULT([$version (PHP >= 8.0 isn't yet supported)])
-      if test yes = "$with_php7" ; then
-	AC_MSG_ERROR([$PHP_CONFIG7 reports version $version - PHP7 bindings need 7.x])
-      fi
-      with_php7=no
+      AC_MSG_RESULT([$version])
+      PHP_MAJOR_VERSION=`echo "$version"|cut -d. -f1`
       ;;
     esac
-    AC_SUBST(PHP7_MAJOR_VERSION)
+    AC_SUBST(PHP_MAJOR_VERSION)
 
-    if test no != "$with_php7" ; then
-      AC_MSG_CHECKING([for PHP7 extension directory])
-      if test -z "$PHP7_EXTENSION_DIR" ; then
-	PHP7_EXTENSION_DIR=`$PHP_CONFIG7 --extension-dir`
+    if test no != "$with_php" ; then
+      AC_MSG_CHECKING([for PHP extension directory])
+      if test -z "$PHP_EXTENSION_DIR" ; then
+	PHP_EXTENSION_DIR=`$PHP_CONFIG --extension-dir`
       fi
-      AC_MSG_RESULT([$PHP7_EXTENSION_DIR])
-      AC_ARG_VAR(PHP7_EXTENSION_DIR, [Directory to install PHP7 extensions in])
+      AC_MSG_RESULT([$PHP_EXTENSION_DIR])
+      AC_ARG_VAR(PHP_EXTENSION_DIR, [Directory to install PHP extensions in])
     fi
 
-    if test no != "$with_php7" ; then
-      PHP7_INC=`$PHP_CONFIG7 --includes`
-      AC_SUBST(PHP7_INC)
+    if test no != "$with_php" ; then
+      PHP_INC=`$PHP_CONFIG --includes`
+      AC_SUBST(PHP_INC)
     fi
 
-    if test no != "$with_php7" ; then
-      if test x"$PHP7" = x ; then
-	AC_MSG_CHECKING([for PHP7 interpreter])
-	dnl PHP7's php-config supports --php-binary, so just use that.
-	PHP7=`$PHP_CONFIG7 --php-binary 2>/dev/null`
-	if test x"$PHP7" != x ; then
-	  if $PHP7 -r 'exit(0);' 2> /dev/null ; then
-	    if $PHP7 -r 'exit(PHP_MAJOR_VERSION==7?0:1);' 2> /dev/null ; then
-	      AC_MSG_RESULT([$PHP7])
+    if test no != "$with_php" ; then
+      if test x"$PHP" = x ; then
+	AC_MSG_CHECKING([for PHP interpreter])
+	PHP=`$PHP_CONFIG --php-binary 2>/dev/null`
+	if test x"$PHP" != x ; then
+	  if $PHP -r 'exit(0);' 2> /dev/null ; then
+	    if $PHP -r 'exit(PHP_MAJOR_VERSION>=8?0:1);' 2> /dev/null ; then
+	      AC_MSG_RESULT([$PHP])
 	    else
-	      AC_MSG_RESULT([no ($PHP7 isn't PHP7)])
-	      PHP7=
+	      AC_MSG_RESULT([no ($PHP isn't PHP >= 8)])
+	      PHP=
 	    fi
 	  else
-	    AC_MSG_RESULT([no ($PHP7 does not work)])
-	    PHP7=
+	    AC_MSG_RESULT([no ($PHP does not work)])
+	    PHP=
 	  fi
 	else
 	  AC_MSG_RESULT([not found])
 	fi
       else
-	AC_PATH_PROGS(PHP7, ["$PHP7"], [])
+	AC_PATH_PROGS(PHP, ["$PHP"], [])
       fi
-      if test x"$PHP7" = x ; then
-	AC_MSG_WARN([No PHP7 interpreter found - PHP7 bindings tests will be skipped])
+      if test x"$PHP" = x ; then
+	AC_MSG_WARN([No PHP interpreter found - PHP bindings tests will be skipped])
 	dnl The skiptest script just returns exit code 77.
-	PHP7='$(top_srcdir)/skiptest'
+	PHP='$(top_srcdir)/skiptest'
       else
-	AC_MSG_CHECKING([for PHP7 path separator])
-	PHP7_PATH_SEPARATOR=`$PHP7 -r 'echo PATH_SEPARATOR;'`
-	AC_SUBST([PHP7_PATH_SEPARATOR])
-	AC_MSG_RESULT([$PHP7_PATH_SEPARATOR])
+	AC_MSG_CHECKING([for PHP path separator])
+	PHP_PATH_SEPARATOR=`$PHP -r 'echo PATH_SEPARATOR;'`
+	AC_SUBST([PHP_PATH_SEPARATOR])
+	AC_MSG_RESULT([$PHP_PATH_SEPARATOR])
       fi
 
       case $host_os in
@@ -462,14 +453,14 @@ if test no != "$with_php7" ; then
 	dnl This is a bit of an informed guess, pending more information from
 	dnl someone who actually has mingw and wants to build the PHP bindings
 	dnl there.  FIXME.
-	PHP7_LIBS="-L`$PHP_CONFIG7 --prefix` -lphp${PHP7_MAJOR_VERSION}ts" ;;
+	PHP_LIBS="-L`$PHP_CONFIG --prefix` -lphp${PHP_MAJOR_VERSION}ts" ;;
       cygwin*)
-	PHP7_LIBS="-lphp${PHP7_MAJOR_VERSION}lib" ;;
+	PHP_LIBS="-lphp${PHP_MAJOR_VERSION}lib" ;;
       *)
-	PHP7_LIBS= ;;
+	PHP_LIBS= ;;
       esac
-      AC_SUBST(PHP7_LIBS)
-      BINDINGS="$BINDINGS php7"
+      AC_SUBST(PHP_LIBS)
+      BINDINGS="$BINDINGS php"
     fi
   fi
 fi
@@ -1205,7 +1196,7 @@ AC_CONFIG_FILES([Makefile
  doxygen_xml.conf
  xapian-version.h
  python3/Makefile python3/docs/conf.py python3/version.i
- php7/Makefile
+ php/Makefile
  java/Makefile
  tcl8/Makefile tcl8/pkgIndex.tcl
  csharp/Makefile csharp/AssemblyInfo.cs

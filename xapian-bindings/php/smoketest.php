@@ -35,8 +35,6 @@ function die_on_error($errno, $errstr, $file, $line) {
 }
 set_error_handler("die_on_error", -1);
 
-include "xapian.php";
-
 # Test the version number reporting functions give plausible results.
 $v = Xapian::major_version().'.'.Xapian::minor_version().'.'.Xapian::revision();
 $v2 = Xapian::version_string();
