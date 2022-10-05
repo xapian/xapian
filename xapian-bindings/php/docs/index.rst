@@ -1,15 +1,14 @@
 PHP bindings for Xapian
 ***********************
 
-The PHP5 bindings for Xapian are packaged in the ``xapian``
+The PHP bindings for Xapian are packaged in the ``xapian``
 extension.  The PHP API provided by this extension largely follows Xapian's C++
 API.  This document lists the differences and additions.
 
-As of Xapian version 1.3.2, these bindings require at least PHP 5.5.
-(Older versions of PHP are now out of security support, but if you really need
-support for them then Xapian 1.2 supports PHP 5.0 and later).  PHP 7 is supported
-by a separate set of bindings (this approach was taken due to extensive changes
-to PHP's C extension API between PHP 5 and PHP 7).
+As of Xapian version 1.4.22, these bindings require at least PHP 8.0.
+PHP 5 is now well out of security support, while PHP 7 upstream security
+support ends 2021-11-28 - if you still need to use these versions then
+Xapian 1.4.21 was the last version to support them.
 
 PHP strings, arrays, etc., are converted automatically to and from the
 corresponding C++ types in the bindings, so generally you can pass arguments as
@@ -22,8 +21,8 @@ explicitly convert to the type required - e.g. use ``(int)`` to
 convert to an integer, ``(string)`` to string, ``(double)``
 to a floating point number.
 
-With version 1.2.6 and later, you can subclass Xapian classes in PHP and
-virtual methods defined in PHP are called from C++ in the way you'd expect.
+You can subclass Xapian classes in PHP and virtual methods defined in PHP are
+called from C++ in the way you'd expect.
 
 PHP has a lot of reserved words of various sorts, which sadly clash with common
 method names.  Because of this ``empty()`` methods of various
@@ -33,10 +32,10 @@ class and subclasses is wrapped as ``clone_object()``.
 
 The ``examples`` subdirectory contains examples showing how to use the
 PHP bindings based on the simple examples from ``xapian-examples``:
-`simpleindex.php5 <examples/simpleindex.php5>`_,
-`simplesearch.php5 <examples/simplesearch.php5>`_,
-`simpleexpand.php5 <examples/simpleexpand.php5>`_,
-`simplematchdecider.php5 <examples/simplematchdecider.php5>`_.
+`simpleindex.php8 <examples/simpleindex.php8>`_,
+`simplesearch.php8 <examples/simplesearch.php8>`_,
+`simpleexpand.php8 <examples/simpleexpand.php8>`_,
+`simplematchdecider.php8 <examples/simplematchdecider.php8>`_.
 
 Note that these examples are written to work with the command line (CLI)
 version of the PHP interpreter, not through a webserver.  Xapian's PHP
@@ -46,6 +45,9 @@ etc.
 Installation
 ============
 
+This version of the bindings only support PHP >= 8.0  If you need support
+for PHP 5.x or 7.x, you'll need to use Xapian 1.4.21 or earlier instead.
+
 Assuming you have a suitable version of PHP installed, running
 configure will automatically enable the PHP bindings, and
 ``make install`` will install the extension shared library in
@@ -54,15 +56,17 @@ the location reported by ``php-config --extension-dir``.
 Check that php.ini has a line like ``extension_dir = "<location reported by php-config --extension-dir>"``.
 
 
-Then add this line to php.ini: ``extension = xapian.so`` (or
-whatever the library is called - not all UNIX systems use ``.so``
-as the extension, and MS Windows uses ``.dll``).
+Then add this line to php.ini: ``extension=xapian``
 
 If you're using PHP as a webserver module (e.g. mod_php with Apache), you
 may need to restart the webserver for this change to take effect.
 
-You also need to add ``include&nbsp;"xapian.php"``
-to your PHP scripts which use Xapian in order to get the PHP class wrappers.
+Previous versions of these bindings for PHP < 8 also required you to add
+``include&nbsp;"xapian.php"`` to your PHP scripts which use Xapian, but
+this is not necessary with versions which support PHP8 (1.4.22 and newer).
+To write code which supports both you can use::
+
+    if (PHP_MAJOR_VERSION < 8) include "xapian.php";
 
 Exceptions
 ##########
@@ -87,12 +91,12 @@ Unicode Support
 
 The Xapian::Stem, Xapian::QueryParser, and
 Xapian::TermGenerator classes all assume text is in UTF-8.  If you want
-to index strings in a different encoding, use the PHP `iconv function <http://php.net/iconv>`_ to convert them to UTF-8 before passing them to Xapian, and when reading values back from Xapian.
+to index strings in a different encoding, use the PHP `iconv function <https://secure.php.net/iconv>`_ to convert them to UTF-8 before passing them to Xapian, and when reading values back from Xapian.
 
 Iterators
 #########
 
-Since Xapian 1.3.2, Xapian's iterators (except ``XapianLatLongCoordsIterator``)
+Xapian's iterators (except ``XapianLatLongCoordsIterator``)
 are wrapped as PHP iterators, so can be used in ``foreach``.
 
 There's one important thing to beware of currently - the ``rewind()`` method
@@ -209,11 +213,11 @@ For example:
 MatchAll and MatchNothing
 -------------------------
 
-In Xapian 1.3.0 and later, these are wrapped as static methods
+These are wrapped as static methods
 ``XapianQuery::MatchAll()`` and ``XapianQuery::MatchNothing()``.
 
-If you want to be compatible with earlier versions, you can continue to use
-``new XapianQuery('')`` for MatchAll and
+If you want to be compatible with version 1.2.x of Xapian's PHP5 bindings, you
+can continue to use ``new XapianQuery('')`` for MatchAll and
 ``new XapianQuery()`` for MatchNothing.
 
 

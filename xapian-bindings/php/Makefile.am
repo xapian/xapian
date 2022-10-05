@@ -7,25 +7,22 @@ abs_builddir = @abs_builddir@
 ## Test programs to be run
 TESTS = smoketest.php
 LOG_COMPILER = \
-    $(LIBTOOL) -dlopen xapian.la --mode=execute $(OSX_SIP_HACK_ENV) $(PHP)
+    $(LIBTOOL) -dlopen xapian.la --mode=execute $(MACOS_SIP_HACK_ENV) $(PHP)
 # Use -n to disable use of the system php.ini to avoid custom configuration
 # settings there which might interfere with our tests.
 AM_LOG_FLAGS = -n -d extension_dir='$(abs_builddir)/.libs' -d extension=xapian \
-	-d include_path='php5$(PHP_PATH_SEPARATOR)$(srcdir)/php5'
+	-d include_path='php$(PHP_PATH_SEPARATOR)$(srcdir)/php'
 
 installcheck-local:
 	$(MAKE) check AM_LOG_FLAGS=
 
 SWIG_GENERATED =\
-	php5/xapian_wrap.cc\
-	php5/xapian_wrap.h\
-	php5/php_xapian.h\
-	php5/xapian.php
+	php/xapian_wrap.cc\
+	php/xapian_wrap.h\
+	php/php_xapian.h
 
 EXTRA_DIST = php.i except.i \
 	generate-php-exceptions \
-	add-php-ref-handling \
-	add-php-type-hints \
 	docs/index.rst \
 	$(TESTS) $(SWIG_GENERATED)
 
@@ -34,12 +31,6 @@ BUILT_SOURCES = $(SWIG_GENERATED)
 phpextdir = $(PHP_EXTENSION_DIR)
 
 phpext_LTLIBRARIES = xapian.la
-
-# This location is correct for Debian, but in general there doesn't seem
-# to be a suitable location which is guaranteed to be in the include_path
-# by default.
-phpincdir = $(datadir)/php$(PHP_MAJOR_VERSION)
-phpinc_DATA = php5/xapian.php
 
 # Remove the .la file - xapian.la is never linked against (it's a module)
 # and PHP doesn't use libltdl.  Note that the library gets installed by
@@ -56,7 +47,7 @@ uninstall-local:
 AM_CPPFLAGS = $(PHP_INC)
 AM_CXXFLAGS = $(SWIG_CXXFLAGS) $(XAPIAN_CXXFLAGS)
 xapian_la_LDFLAGS = -avoid-version -module $(NO_UNDEFINED)
-xapian_la_SOURCES = php5/xapian_wrap.cc php5/xapian_wrap.h
+xapian_la_SOURCES = php/xapian_wrap.cc php/xapian_wrap.h
 xapian_la_LIBADD = $(XAPIAN_LIBS) $(PHP_LIBS)
 
 if MAINTAINER_MODE
@@ -68,23 +59,20 @@ except.i: $(srcdir)/generate-php-exceptions ../../xapian-core/exception_data.pm
 # "\" when extracting the output directory from the value passed to the -o
 # option.
 
-stamp = php5/xapian_wrap.stamp
+stamp = php/xapian_wrap.stamp
 RUN_SWIG = stamp='$(stamp)' $(PERL) '$(top_srcdir)'/swig-depcomp $(SWIG)
 
-php5/xapian_wrap.cc php5/xapian_wrap.h php5/php_xapian.h php5/xapian.php: $(stamp)
+php/xapian_wrap.cc php/xapian_wrap.h php/php_xapian.h: $(stamp)
 	$(make_many_locked)
-$(stamp): except.i add-php-ref-handling add-php-type-hints
-	$(MKDIR_P) php5
+$(stamp): except.i
+	$(MKDIR_P) php
 	$(multitarget_begin)
 	$(RUN_SWIG) $(SWIG_WERROR) -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
-	    -php5 -prefix Xapian -outdir php5 \
-	    -o php5/xapian_wrap.cc '$(srcdir)/'php.i
-	$(PERL) '$(srcdir)/'add-php-ref-handling php5/xapian.php | \
-	    $(PERL) '$(srcdir)/'add-php-type-hints > php5/xapian.tmp
-	mv php5/xapian.tmp php5/xapian.php
+	    -php -prefix Xapian -outdir php \
+	    -o php/xapian_wrap.cc '$(srcdir)/'php.i
 	$(multitarget_end)
 
--include php5/xapian_wrap.d
+-include php/xapian_wrap.d
 
 CLEANFILES = $(stamp)
 endif
@@ -92,10 +80,10 @@ MAINTAINERCLEANFILES = $(BUILT_SOURCES)
 
 exampledatadir = $(docdir)/php/examples
 dist_exampledata_DATA =\
-	docs/examples/simplesearch.php5\
-	docs/examples/simpleindex.php5\
-	docs/examples/simpleexpand.php5\
-	docs/examples/simplematchdecider.php5
+	docs/examples/simplesearch.php8\
+	docs/examples/simpleindex.php8\
+	docs/examples/simpleexpand.php8\
+	docs/examples/simplematchdecider.php8
 
 docdatadir = $(docdir)/php
 dist_docdata_DATA = docs/index.html

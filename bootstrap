@@ -399,8 +399,10 @@ case $srcdir in
     cd "$srcdir" ;;
 esac
 
-# Commit hash to pass to handle_git_external for swig.
-swig_git_commit_hash=2c910e47ae788412b95e356c99cef5862808bf9a
+# Commit hash to pass to handle_git_external for swig.  Equivalent to
+# somewhere shortly before SWIG 4.1.0 (4.0.1 doesn't support Ruby 2.7 or PHP 8,
+# but there hadn't been a release at the point where we updated to this).
+swig_git_commit_hash=3096e8aa00db7ac9ab7c63ce8c8d23b65800f4c9
 
 # Commit hash to use for common in omega:
 omega_common_commit_hash=f775613d8aab7794bed4d57d7cf9d1caace6c76f

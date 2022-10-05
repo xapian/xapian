@@ -47,12 +47,6 @@ $(stamp):
 	$(RUN_SWIG) $(SWIG_WERROR) -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
 	    -initname _xapian -ruby \
 	    -o xapian_wrap.cc '$(srcdir)/'ruby.i
-	## Fix code to avoid GCC -Wconversion-null warnings.  This was fixed
-	## in SWIG git master after SWIG 3.0.12.
-	##
-	## Also support Ruby 2.7 - fixed in SWIG git master after SWIG 4.0.1.
-	$(PERL) -pi -e 's/\b(rb_funcall\(.*, )NULL(\);)/$$1Qnil$$2/; s!^(#include <ruby)(\.h>\n)!$$1$$2$$1/version$$2!; if (/SWIG_TRACKINGS/) {$$_.="#endif\n"; print "#if RUBY_API_VERSION_CODE >= 20700\n  rb_define_virtual_variable(\"SWIG_TRACKINGS_COUNT\", swig_ruby_trackings_count, (rb_gvar_setter_t*)NULL);\n#else\n"}' \
-	    xapian_wrap.cc
 	$(multitarget_end)
 
 -include xapian_wrap.d
