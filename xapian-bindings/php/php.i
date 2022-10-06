@@ -191,23 +191,7 @@ PHP_ITERATOR(Xapian, ValueIterator, std::string, )
 
 %include except.i
 
-%define DISOWNABLE_FUNCTOR(CLASS, PARAM)
-%typemap(in, phptype="SWIGTYPE") (CLASS* PARAM) %{
-$typemap(in, CLASS* DISOWN)
-{
-  Swig::Director* xapian_swig_director = dynamic_cast<Swig::Director*>($1);
-  if (xapian_swig_director) xapian_swig_director->swig_disown();
-}
-$1->release();
-%}
-%enddef
-
-DISOWNABLE_FUNCTOR(Xapian::FieldProcessor, proc)
-DISOWNABLE_FUNCTOR(Xapian::KeyMaker, sorter)
-DISOWNABLE_FUNCTOR(Xapian::MatchSpy, spy)
-DISOWNABLE_FUNCTOR(Xapian::PostingSource, source)
-DISOWNABLE_FUNCTOR(Xapian::RangeProcessor, range_proc)
-DISOWNABLE_FUNCTOR(Xapian::Stopper, stop)
+#define DISOWNABLE_FUNCTOR_TYPEMAP_ATTRIBUTES ,phptype="SWIGTYPE"
 
 %include ../xapian-headers.i
 

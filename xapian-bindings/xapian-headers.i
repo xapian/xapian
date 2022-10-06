@@ -1,7 +1,7 @@
 %{
 /* xapian-headers.i: Getting SWIG to parse Xapian's C++ headers.
  *
- * Copyright 2004,2006,2011,2012,2013,2014,2015,2016,2017,2019,2020 Olly Betts
+ * Copyright 2004-2022 Olly Betts
  * Copyright 2014 Assem Chelli
  *
  * This program is free software; you can redistribute it and/or
@@ -130,6 +130,37 @@
     %ignore NS::NAME;
     %constant TYPE NAME = NS::NAME;
 %enddef
+
+/* Objects which the target language needs to take ownership of. */
+#ifndef DISOWNABLE_FUNCTOR_TYPEMAP_ATTRIBUTES
+# define DISOWNABLE_FUNCTOR_TYPEMAP_ATTRIBUTES
+#endif
+#ifdef XAPIAN_SWIG_DIRECTORS
+%define DISOWNABLE_FUNCTOR(CLASS, PARAM)
+%typemap(in DISOWNABLE_FUNCTOR_TYPEMAP_ATTRIBUTES) (CLASS* PARAM) %{
+$typemap(in, CLASS* DISOWN)
+{
+  Swig::Director* xapian_swig_director = dynamic_cast<Swig::Director*>($1);
+  if (xapian_swig_director) xapian_swig_director->swig_disown();
+}
+$1->release();
+%}
+%enddef
+#else
+%define DISOWNABLE_FUNCTOR(CLASS, PARAM)
+%typemap(in DISOWNABLE_FUNCTOR_TYPEMAP_ATTRIBUTES) (CLASS* PARAM) %{
+$typemap(in, CLASS* DISOWN)
+$1->release();
+%}
+%enddef
+#endif
+
+DISOWNABLE_FUNCTOR(Xapian::FieldProcessor, proc)
+DISOWNABLE_FUNCTOR(Xapian::KeyMaker, sorter)
+DISOWNABLE_FUNCTOR(Xapian::MatchSpy, spy)
+DISOWNABLE_FUNCTOR(Xapian::PostingSource, source)
+DISOWNABLE_FUNCTOR(Xapian::RangeProcessor, range_proc)
+DISOWNABLE_FUNCTOR(Xapian::Stopper, stop)
 
 /* Ignore these for all classes: */
 %ignore operator==;

@@ -135,36 +135,6 @@ sub set_query {
 }
 %}
 
-%feature("shadow") Xapian::Enquire::set_sort_by_key
-%{
-sub set_sort_by_key {
-    my $self = $_[0];
-    my $sorter = $_[1];
-    $self{_sorter} = $sorter;
-    Xapianc::Enquire_set_sort_by_key( @_ );
-}
-%}
-
-%feature("shadow") Xapian::Enquire::set_sort_by_key_then_relevance
-%{
-sub set_sort_by_key_then_relevance {
-    my $self = $_[0];
-    my $sorter = $_[1];
-    $self{_sorter} = $sorter;
-    Xapianc::Enquire_set_sort_by_key_then_relevance( @_ );
-}
-%}
-
-%feature("shadow") Xapian::Enquire::set_sort_by_relevance_then_key
-%{
-sub set_sort_by_relevance_then_key {
-    my $self = $_[0];
-    my $sorter = $_[1];
-    $self{_sorter} = $sorter;
-    Xapianc::Enquire_set_sort_by_relevance_then_key( @_ );
-}
-%}
-
 /* Xapian::Enquire */
 %extend Xapian::Enquire {
 // For compatibility with Search::Xapian.
@@ -348,24 +318,6 @@ sub new {
   $qp->set_database(@_) if scalar(@_) == 1;
 
   return $qp;
-}
-%}
-
-%feature("shadow") Xapian::QueryParser::set_stopper
-%{
-sub set_stopper {
-    my ($self, $stopper) = @_;
-    $self{_stopper} = $stopper;
-    Xapianc::QueryParser_set_stopper( @_ );
-}
-%}
-
-%feature("shadow") Xapian::QueryParser::add_rangeprocessor
-%{
-sub add_rangeprocessor {
-    my ($self, $rproc) = @_;
-    push @{$self{_rproc}}, $rproc;
-    Xapianc::QueryParser_add_rangeprocessor( @_ );
 }
 %}
 

@@ -296,13 +296,6 @@ sub clone() {
   return $copy;
 }
 
-package Xapian::TermGenerator;
-sub set_stopper {
-    my ($self, $stopper) = @_;
-    $self{_stopper} = $stopper;
-    set_stopper1( @_ );
-}
-
 package Xapian::TermIterator;
 use overload '++' => sub { $_[0]->inc() },
 	     '='  => sub { $_[0]->clone() },
