@@ -13,7 +13,7 @@ them, you'll need to add this to your code::
 
   import xapian
 
-They currently require at least Python 3.2.  We've not tested with
+They currently require at least Python 3.3.  We've not tested with
 Python 3.1 - test results and any patches needed are most welcome.
 
 The Python API largely follows the C++ API - the differences and

@@ -375,13 +375,13 @@ if test no != "$with_python3" ; then
   fi
   AC_ARG_VAR(PYTHON3, [Python 3 interpreter])
   if test -n "$PYTHON3" ; then
-    dnl Require Python 3.2 or newer, as that's the oldest version we can
+    dnl Require Python 3.3 or newer, as that's the oldest version we can
     dnl easily test with.  If anyone's keen to support older versions, please
     dnl test and send in any patches needed to get it to work.
     AC_MSG_CHECKING([$PYTHON3 version])
     version=`$PYTHON3 -c 'import sys;print("%d.%d" % sys.version_info[[:2]])' 2>/dev/null`
     case $version in
-    [3.[2-9]*|3.1[0-9]*|[4-9].*])
+    [3.[3-9]*|3.[12][0-9]*|[4-9].*])
       AC_MSG_RESULT([$version])
       ;;
     *)
@@ -440,11 +440,7 @@ if test no != "$with_python3" ; then
 	AC_MSG_RESULT([$PYTHON3_EXT_SUFFIX])
 
 	AC_MSG_CHECKING([for tag for cached compiled scripts])
-	dnl Since Python 3.3 sys.implementation.cache_tag is the preferred option here,
-	dnl and the old approach issues deprecation warnings since Python 3.7.
-	dnl
-	dnl This needs a shell-level || because Python one line program support is poor.
-	PYTHON3_CACHE_TAG=`$PYTHON3 -c 'import sys;print(sys.implementation.cache_tag)' 2>/dev/null || $PYTHON3 -c 'import imp;print(imp.get_tag())'`
+	PYTHON3_CACHE_TAG=`$PYTHON3 -c 'import sys;print(sys.implementation.cache_tag)'`
 	AC_SUBST(PYTHON3_CACHE_TAG)
 	AC_MSG_RESULT([$PYTHON3_CACHE_TAG])
 
