@@ -24,7 +24,7 @@ if (php_sapi_name() != "cli") {
     exit(1);
 }
 
-include "xapian.php";
+if (PHP_MAJOR_VERSION < 8) include "xapian.php";
 
 if ($argc < 3) {
     print "Usage: {$argv[0]} PATH_TO_DATABASE QUERY\n";
