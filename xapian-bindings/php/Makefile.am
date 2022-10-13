@@ -22,6 +22,7 @@ SWIG_GENERATED =\
 
 EXTRA_DIST = php.i except.i \
 	generate-php-exceptions \
+	add-php-ref-handling \
 	docs/index.rst \
 	$(TESTS) $(SWIG_GENERATED)
 
@@ -63,12 +64,15 @@ RUN_SWIG = stamp='$(stamp)' $(PERL) '$(top_srcdir)'/swig-depcomp $(SWIG)
 
 php/xapian_wrap.cc php/xapian_wrap.h php/php_xapian.h: $(stamp)
 	$(make_many_locked)
-$(stamp): except.i
+$(stamp): except.i add-php-ref-handling
 	$(MKDIR_P) php
 	$(multitarget_begin)
 	$(RUN_SWIG) $(SWIG_WERROR) -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
 	    -php -prefix Xapian -outdir php \
 	    -o php/xapian_wrap.cc '$(srcdir)/'php.i
+	$(PERL) '$(srcdir)/'add-php-ref-handling php/xapian_wrap.cc \
+	    > php/xapian_wrap.tmp
+	mv php/xapian_wrap.tmp php/xapian_wrap.cc
 	$(multitarget_end)
 
 -include php/xapian_wrap.d
