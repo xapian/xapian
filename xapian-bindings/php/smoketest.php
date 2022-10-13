@@ -275,13 +275,42 @@ if ($query->get_description() !== 'Query(VALUE_RANGE 1 19991203 20011204)') {
 
 # Feature test for XapianFieldProcessor
 class testfieldprocessor extends XapianFieldProcessor {
+    static $count = 0;
+
+    function __construct() {
+        ++self::$count;
+        parent::__construct();
+    }
+
+    function __destruct() {
+        --self::$count;
+    }
+
     function apply($str) {
 	if ($str === 'spam') throw new Exception('already spam');
 	return new XapianQuery("spam");
     }
 }
 
-$qp->add_prefix('spam', new testfieldprocessor);
+$fp = new testfieldprocessor;
+if (testfieldprocessor::$count !== 1) {
+    print "testfieldprocessor counting not working\n";
+    exit(1);
+}
+{
+    # Check object is still usable after being assigned to an object that gets
+    # deleted.  The initial development version of PHP8 bindings failed to
+    # handle this case.
+    $qptmp = new XapianQueryParser;
+    $qptmp->add_prefix('spam', $fp);
+    unset($qptmp);
+}
+if (testfieldprocessor::$count === 0) {
+    print "testfieldprocessor object deleted early\n";
+    exit(1);
+}
+$qp->add_prefix('spam', $fp);
+unset($fp);
 $qp->add_boolean_prefix('filter', new testfieldprocessor);
 $query = $qp->parse_query('spam:ignored');
 if ($query->get_description() !== 'Query(spam)') {
@@ -303,6 +332,15 @@ try {
 	print "Exception has wrong message\n";
 	exit(1);
     }
+}
+
+if (testfieldprocessor::$count === 0) {
+    print "testfieldprocessor deleted early\n";
+    exit(1);
+}
+unset($qp);
+if (testfieldprocessor::$count !== 0) {
+    print "testfieldprocessor object not deleted\n";
 }
 
 # Test setting and getting metadata
@@ -490,6 +528,17 @@ if ($query->get_description() != 'Query()') {
 
 {
     class testspy extends XapianMatchSpy {
+        static $count = 0;
+
+        function __construct() {
+            ++self::$count;
+            parent::__construct();
+        }
+
+        function __destruct() {
+            --self::$count;
+        }
+
 	public $matchspy_count = 0;
 
 	function apply($doc, $wt) {
@@ -498,12 +547,26 @@ if ($query->get_description() != 'Query()') {
     }
 
     $matchspy = new testspy();
+    if (testspy::$count !== 1) {
+        print "testspy counting not working\n";
+        exit(1);
+    }
     $enquire->clear_matchspies();
     $enquire->add_matchspy($matchspy);
     $enquire->get_mset(0, 10);
     if ($matchspy->matchspy_count != 4) {
 	print "Unexpected matchspy count of {$matchspy->matchspy_count}\n";
 	exit(1);
+    }
+    unset($matchspy);
+    if (testspy::$count === 0) {
+        print "testspy object deleted early\n";
+        exit(1);
+    }
+    unset($enquire);
+    if (testspy::$count !== 0) {
+        print "testspy object not deleted\n";
+        exit(1);
     }
 }
 
