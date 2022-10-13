@@ -19,6 +19,11 @@
  * USA
  */
 
+%{
+// We use std::unique_ptr<> to avoid leaks.
+#include <memory>
+%}
+
 // "end" is a keyword in Lua, so we rename it to "_end"
 %rename("_end") end;
 
@@ -348,7 +353,8 @@ class luaMatchSpy : public Xapian::MatchSpy {
 };
 %}
 
-%define SUB_CLASS_TYPEMAPS(NS, CLASS)
+// Template.
+%define SUB_CLASS_TYPEMAPS_(NS, CLASS, PARAM, CODE...)
 
 %typemap(typecheck, precedence=100) NS::CLASS * {
     void *ptr;
@@ -358,9 +364,11 @@ class luaMatchSpy : public Xapian::MatchSpy {
 	$1 = 0;
     }
 }
-%typemap(in) NS::CLASS * {
+%typemap(in, noblock=1) NS::CLASS * PARAM {
     if (lua_isfunction(L, $input)) {
-	$1 = new lua##CLASS(L);
+	auto functor = new lua##CLASS(L);
+	CODE
+	$1 = functor;
     } else {
 	if (!SWIG_IsOK(SWIG_ConvertPtr(L, $input, (void**)&$1, $descriptor(NS::CLASS *), 0))) {
 	    SWIG_fail;
@@ -369,14 +377,23 @@ class luaMatchSpy : public Xapian::MatchSpy {
 }
 
 %enddef
-SUB_CLASS_TYPEMAPS(Xapian, MatchDecider)
-SUB_CLASS_TYPEMAPS(Xapian, ExpandDecider)
-SUB_CLASS_TYPEMAPS(Xapian, Stopper)
-SUB_CLASS_TYPEMAPS(Xapian, StemImplementation)
-SUB_CLASS_TYPEMAPS(Xapian, KeyMaker)
-SUB_CLASS_TYPEMAPS(Xapian, RangeProcessor)
-SUB_CLASS_TYPEMAPS(Xapian, FieldProcessor)
-SUB_CLASS_TYPEMAPS(Xapian, MatchSpy)
+
+// Functor classes where Xapian takes ownership of the passed object.
+#define SUB_CLASS_TYPEMAPS_DISOWNED(NS, CLASS) SUB_CLASS_TYPEMAPS_(NS, CLASS, , )
+SUB_CLASS_TYPEMAPS_DISOWNED(Xapian, StemImplementation)
+
+// Functor classes which don't need to live on after the wrapped C++ method returns.
+#define SUB_CLASS_TYPEMAPS_EMPHEMERAL(NS, CLASS) SUB_CLASS_TYPEMAPS_(NS, CLASS, (std::unique_ptr<lua##CLASS> cleanup), cleanup.reset(functor);)
+SUB_CLASS_TYPEMAPS_EMPHEMERAL(Xapian, MatchDecider)
+SUB_CLASS_TYPEMAPS_EMPHEMERAL(Xapian, ExpandDecider)
+
+// Functor classes which use Xapian's optional reference counting.
+#define SUB_CLASS_TYPEMAPS_PERSISTENT(NS, CLASS) SUB_CLASS_TYPEMAPS_(NS, CLASS, , functor->release();)
+SUB_CLASS_TYPEMAPS_PERSISTENT(Xapian, Stopper)
+SUB_CLASS_TYPEMAPS_PERSISTENT(Xapian, KeyMaker)
+SUB_CLASS_TYPEMAPS_PERSISTENT(Xapian, RangeProcessor)
+SUB_CLASS_TYPEMAPS_PERSISTENT(Xapian, FieldProcessor)
+SUB_CLASS_TYPEMAPS_PERSISTENT(Xapian, MatchSpy)
 
 %luacode {
 function xapian.Iterator(begin, _end)
