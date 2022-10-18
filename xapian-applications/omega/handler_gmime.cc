@@ -165,11 +165,17 @@ extract(const string& filename,
     GMimeStream* stream = g_mime_stream_file_new(fp);
     GMimeParser* parser = g_mime_parser_new_with_stream(stream);
     GMimeMessage* message = g_mime_parser_construct_message(parser);
-    GMimeObject* body = g_mime_message_get_body(message);
-    author = g_mime_message_get_sender(message);
-    title = g_mime_message_get_subject(message);
+    if (message) {
+	GMimeObject* body = g_mime_message_get_body(message);
+	author = g_mime_message_get_sender(message);
+	title = g_mime_message_get_subject(message);
 
-    parser_content(body, dump);
+	parser_content(body, dump);
+
+	g_object_unref(message);
+    }
+    g_object_unref(parser);
+    g_object_unref(stream);
 
     (void)pages;
     return true;
