@@ -2,6 +2,7 @@
  * @brief Extract text and metadata using gmime.
  */
 /* Copyright (C) 2019 Bruno Baruffaldi
+ * Copyright (C) 2022 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -86,9 +87,9 @@ parser_content(GMimeObject* me, string& dump)
     GMimeContentType* ct = g_mime_object_get_content_type(me);
     if (GMIME_IS_MULTIPART(me)) {
 	GMimeMultipart* mpart = reinterpret_cast<GMimeMultipart*>(me);
-	string subtype = g_mime_content_type_get_media_subtype(ct);
+	const char* subtype = g_mime_content_type_get_media_subtype(ct);
 	int count = g_mime_multipart_get_count(mpart);
-	if (subtype == "alternative") {
+	if (strcmp(subtype, "alternative") == 0) {
 	    for (int i = 0; i < count; ++i) {
 		GMimeObject* part = g_mime_multipart_get_part(mpart, i);
 		if (parser_content(part, dump))
@@ -105,12 +106,12 @@ parser_content(GMimeObject* me, string& dump)
     } else if (GMIME_IS_PART(me)) {
 	GMimePart* part = reinterpret_cast<GMimePart*>(me);
 	GMimeDataWrapper* content = g_mime_part_get_content_object(part);
-	string type = g_mime_content_type_get_media_type(ct);
-	string subtype = g_mime_content_type_get_media_subtype(ct);
+	const char* type = g_mime_content_type_get_media_type(ct);
+	const char* subtype = g_mime_content_type_get_media_subtype(ct);
 	string charset;
 	const char* p = g_mime_object_get_content_type_parameter(me, "charset");
 	if (p) charset = g_mime_charset_canon_name(p);
-	if (type == "text") {
+	if (strcmp(type, "text") == 0) {
 	    string text;
 	    char buffer[SIZE];
 	    GMimeStream* sr = g_mime_data_wrapper_get_stream(content);
@@ -126,10 +127,10 @@ parser_content(GMimeObject* me, string& dump)
 			text.append(buffer, len);
 		}
 	    } while (0 < len);
-	    if (subtype == "plain") {
+	    if (strcmp(subtype, "plain") == 0) {
 		convert_to_utf8(text, charset);
 		dump.append(text);
-	    } else if (subtype == "html") {
+	    } else if (strcmp(subtype, "html") == 0) {
 		extract_html(text, charset, dump);
 	    }
 	    return true;
