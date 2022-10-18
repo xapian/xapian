@@ -107,10 +107,6 @@ parser_content(GMimeObject* me, string& dump)
 	GMimePart* part = reinterpret_cast<GMimePart*>(me);
 	GMimeDataWrapper* content = g_mime_part_get_content_object(part);
 	const char* type = g_mime_content_type_get_media_type(ct);
-	const char* subtype = g_mime_content_type_get_media_subtype(ct);
-	string charset;
-	const char* p = g_mime_object_get_content_type_parameter(me, "charset");
-	if (p) charset = g_mime_charset_canon_name(p);
 	if (strcmp(type, "text") == 0) {
 	    string text;
 	    char buffer[SIZE];
@@ -127,6 +123,11 @@ parser_content(GMimeObject* me, string& dump)
 			text.append(buffer, len);
 		}
 	    } while (0 < len);
+	    string charset;
+	    const char* p =
+		g_mime_object_get_content_type_parameter(me, "charset");
+	    if (p) charset = g_mime_charset_canon_name(p);
+	    const char* subtype = g_mime_content_type_get_media_subtype(ct);
 	    if (strcmp(subtype, "plain") == 0) {
 		convert_to_utf8(text, charset);
 		dump.append(text);
