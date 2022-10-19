@@ -1047,6 +1047,8 @@ CMD_unstem,
 CMD_upper,
 CMD_url,
 CMD_value,
+CMD_valuelowerbound,
+CMD_valueupperbound,
 CMD_version,
 CMD_weight,
 CMD_MACRO // special tag for macro evaluation
@@ -1195,6 +1197,8 @@ T(unstem,	   1, 1, N, Q), // return list of terms from the parsed query
 T(upper,	   1, 1, N, 0), // convert string to upper case
 T(url,		   1, 1, N, 0), // url encode argument
 T(value,	   1, 2, N, 0), // return document value
+T(valuelowerbound, 1, 1, N, 0), // return value slot lower bound
+T(valueupperbound, 1, 1, N, 0), // return value slot upper bound
 T(version,	   0, 0, N, 0), // omega version string
 T(weight,	   0, 0, N, 0), // weight of the current hit
 { NULL,{0,	   0, 0, 0, 0}}
@@ -2548,6 +2552,16 @@ eval(const string& fmt, vector<string>& param)
 		Xapian::valueno value_no = string_to_int(args[0]);
 		if (args.size() > 1) id = string_to_int(args[1]);
 		value = db.get_document(id).get_value(value_no);
+		break;
+	    }
+	    case CMD_valuelowerbound: {
+		Xapian::valueno slot = string_to_int(args[0]);
+		value = db.get_value_lower_bound(slot);
+		break;
+	    }
+	    case CMD_valueupperbound: {
+		Xapian::valueno slot = string_to_int(args[0]);
+		value = db.get_value_upper_bound(slot);
 		break;
 	    }
 	    case CMD_version:

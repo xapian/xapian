@@ -930,10 +930,24 @@ $upper{TEXT}
 $url{TEXT}
 	url encode argument
 
-$value{VALUENO[,DOCID]}
-        returns value number ``VALUENO`` for document ``DOCID``.  If ``DOCID``
+$value{SLOT[,DOCID]}
+        returns value from slot ``SLOT`` for document ``DOCID``.  If ``DOCID``
         is omitted then the current hit is used (which only works inside
         ``$hitlist``).
+
+$valuelowerbound{SLOT}
+        returns a lower bound on values in slot ``SLOT`` (empty values don't
+        count towards this bound).  The bound is not necessarily tight - i.e.
+        it may be lower than the lowest value which actually occurs.
+
+        Added in Omega 1.4.22.
+
+$valueupperbound{SLOT}
+        returns an upper bound on values in slot ``SLOT``. The bound is not
+        necessarily tight - i.e. it may be higher than the highest value which
+        actually occurs.
+
+        Added in Omega 1.4.22.
 
 $version
 	omega version string - e.g. "xapian-omega 1.2.6"
