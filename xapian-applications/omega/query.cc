@@ -1074,6 +1074,8 @@ CMD_unstem,
 CMD_upper,
 CMD_url,
 CMD_value,
+CMD_valuelowerbound,
+CMD_valueupperbound,
 CMD_version,
 CMD_weight,
 CMD_MACRO // special tag for macro evaluation
@@ -1225,6 +1227,8 @@ T(unstem,	   1, 1, N, Q), // return list of terms from the parsed query
 T(upper,	   1, 1, N, 0), // convert string to upper case
 T(url,		   1, 1, N, 0), // url encode argument
 T(value,	   1, 2, N, 0), // return document value
+T(valuelowerbound, 1, 1, N, 0), // return value slot lower bound
+T(valueupperbound, 1, 1, N, 0), // return value slot upper bound
 T(version,	   0, 0, N, 0), // omega version string
 T(weight,	   0, 0, N, 0), // weight of the current hit
 { NULL,{0,	   0, 0, 0, 0}}
@@ -2724,15 +2728,31 @@ eval(const string& fmt, vector<string>& param)
 		break;
 	    case CMD_value: {
 		Xapian::docid id = q0;
-		Xapian::valueno value_no;
-		if (!parse_unsigned(args[0].c_str(), value_no)) {
-		    throw "Valueno of the value command should be >= 0";
+		Xapian::valueno slot;
+		if (!parse_unsigned(args[0].c_str(), slot)) {
+		    throw "Value slot number should be >= 0";
 		}
 		if (args.size() > 1 &&
 		    (!parse_unsigned(args[1].c_str(), id) || id == 0)) {
 		    throw "Document id for value command must be > 0";
 		}
-		value = db.get_document(id).get_value(value_no);
+		value = db.get_document(id).get_value(slot);
+		break;
+	    }
+	    case CMD_valuelowerbound: {
+		Xapian::valueno slot;
+		if (!parse_unsigned(args[0].c_str(), slot)) {
+		    throw "Value slot number should be >= 0";
+		}
+		value = db.get_value_lower_bound(slot);
+		break;
+	    }
+	    case CMD_valueupperbound: {
+		Xapian::valueno slot;
+		if (!parse_unsigned(args[0].c_str(), slot)) {
+		    throw "Value slot number should be >= 0";
+		}
+		value = db.get_value_upper_bound(slot);
 		break;
 	    }
 	    case CMD_version:

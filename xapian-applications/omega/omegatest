@@ -1149,8 +1149,8 @@ hex=54657374
 
 hex=4b696C6c
 '
-printf '$list{$map{$split{$cgi{DOCIDS}},$value{0,$_}},|}' > "$TEST_TEMPLATE"
-testcase '|A|Test|Kill' DOCIDS='1 2 3 4'
+printf '$valuelowerbound{0}$list{$map{$split{$cgi{DOCIDS}},$value{0,$_}},|}|$valueupperbound{0}' > "$TEST_TEMPLATE"
+testcase 'A|A|Test|Kill|Test' DOCIDS='1 2 3 4'
 
 # Feature test error cases for scriptindex `hextobin` action.
 test_scriptindex_error 'bad hex digit' \
