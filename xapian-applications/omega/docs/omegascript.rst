@@ -774,6 +774,13 @@ $sort{LIST[,OPTIONS]}
 
         Options ``#`` and ``n`` aren't valid together.
 
+$sortableunserialise{STRING}
+        Decodes ``STRING`` with ``Xapian::sortable_unserialise()`` and returns
+        the resulting floating point value.  For example, this provides a way
+        to decode values stored using the scriptindex ``valuenumeric`` action.
+
+        Added in Xapian 1.4.22.
+
 $split{STRING}
 
 $split{SPLIT,STRING}
