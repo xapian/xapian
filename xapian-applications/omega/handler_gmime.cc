@@ -153,7 +153,7 @@ extract(const string& filename,
 #if GMIME_MAJOR_VERSION >= 3
 	g_mime_init();
 #else
-	g_mime_init(0);
+	g_mime_init(GMIME_ENABLE_RFC2047_WORKAROUNDS);
 #endif
 	first_time = false;
     }
