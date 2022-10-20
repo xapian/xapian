@@ -1,4 +1,4 @@
-/** @file handler_libmwaw.cc
+/** @file
  * @brief Extract text and metadata using libmwaw.
  */
 /* Copyright (C) 2019 Bruno Baruffaldi
