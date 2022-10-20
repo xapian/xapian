@@ -1,7 +1,7 @@
 /** @file
  * @brief Communication with worker processes
  */
-/* Copyright (C) 2011 Olly Betts
+/* Copyright (C) 2011,2022 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,14 +22,17 @@
 #include <cstdio>
 #include <string>
 
-enum assistant_msg {
-    MSG_OK,
-    MSG_NON_FATAL_ERROR,
-    MSG_FATAL_ERROR
-};
-
-/// Read a string from the file descriptor @a f and storage it in @a s
+/// Read a string from the file descriptor @a f and storage it in @a s.
 bool read_string(std::FILE* f, std::string& s);
 
-/// Write the string @a s into the file descriptor @a f
-bool write_string(std::FILE* f, const std::string& s);
+/// Write the string @a p of length @a len to the file descriptor @a f.
+bool write_string(std::FILE* f, const char* p, size_t len);
+
+/// Write the string @a p of length @a len to the file descriptor @a f.
+inline bool write_string(std::FILE* f, const std::string& s) {
+    return write_string(f, s.data(), s.size());
+}
+
+bool read_unsigned(std::FILE* f, unsigned& v);
+
+bool write_unsigned(std::FILE* f, unsigned v);

@@ -65,12 +65,70 @@ static void stop_timeout() { }
 
 #endif
 
+static FILE* sockt;
+
+static bool replied;
+
+void
+response(const char* dump, size_t dump_len,
+	 const char* title, size_t title_len,
+	 const char* keywords, size_t keywords_len,
+	 const char* author, size_t author_len,
+	 int pages)
+{
+    if (replied) {
+	// Logic error - handler already called response() for this file.
+	exit(EX_SOFTWARE);
+    }
+    replied = true;
+    unsigned u_pages = pages + 1;
+    if (!write_string(sockt, nullptr, 0) ||
+	!write_string(sockt, dump, dump_len) ||
+	!write_string(sockt, title, title_len) ||
+	!write_string(sockt, keywords, keywords_len) ||
+	!write_string(sockt, author, author_len) ||
+	!write_unsigned(sockt, u_pages)) {
+	exit(1);
+    }
+}
+
+void
+fail_unknown()
+{
+    if (replied) {
+	// Logic error - handler already called response() for this file.
+	exit(EX_SOFTWARE);
+    }
+    replied = true;
+    if (!write_string(sockt, "?", 1)) {
+	exit(1);
+    }
+}
+
+void
+fail(const char* error, size_t error_len)
+{
+    if (error_len == 0) {
+	// Avoid sending empty error string as that means "success".
+	fail_unknown();
+	return;
+    }
+    if (replied) {
+	// Logic error - handler already called response() for this file.
+	exit(EX_SOFTWARE);
+    }
+    replied = true;
+    if (!write_string(sockt, error, error_len)) {
+	exit(1);
+    }
+}
+
 // FIXME: Restart filter every N files processed?
 
 int main()
 {
     string filename, mimetype;
-    FILE* sockt = fdopen(FD, "r+");
+    sockt = fdopen(FD, "r+");
 
     while (true) {
 	// Read filename.
@@ -79,22 +137,11 @@ int main()
 	string dump, title, keywords, author, pages, error;
 	// Setting a timeout for avoid infinity loops
 	set_timeout();
-	bool succeed =
-	    extract(filename, mimetype, dump, title, keywords, author, pages,
-		    error);
+	replied = false;
+	extract(filename, mimetype);
 	stop_timeout();
-	if (!succeed) {
-	    if (!write_string(sockt, string(1, MSG_NON_FATAL_ERROR) + error))
-		break;
-	} else {
-	    if (!write_string(sockt, string(1, MSG_OK)) ||
-		!write_string(sockt, dump) ||
-		!write_string(sockt, title) ||
-		!write_string(sockt, keywords) ||
-		!write_string(sockt, author) ||
-		!write_string(sockt, pages)) {
-		break;
-	    }
+	if (!replied) {
+	    fail_unknown();
 	}
     }
 

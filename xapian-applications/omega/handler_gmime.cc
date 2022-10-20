@@ -140,15 +140,9 @@ parser_content(GMimeObject* me, string& dump)
     return false;
 }
 
-bool
+void
 extract(const string& filename,
-	const string& mimetype,
-	string& dump,
-	string& title,
-	string& keywords,
-	string& author,
-	string& pages,
-	string& error)
+	const string& mimetype)
 {
     static bool first_time = true;
     if (first_time) {
@@ -159,25 +153,26 @@ extract(const string& filename,
     FILE* fp = fopen(filename.c_str(), "r");
 
     if (fp == NULL) {
-	error = "Gmime Error: fail open " + filename;
-	return false;
+	fail("Gmime Error: fail open " + filename);
+	return;
     }
 
     GMimeStream* stream = g_mime_stream_file_new(fp);
     GMimeParser* parser = g_mime_parser_new_with_stream(stream);
     GMimeMessage* message = g_mime_parser_construct_message(parser);
     if (message) {
-	GMimeObject* body = g_mime_message_get_body(message);
-	author = g_mime_message_get_sender(message);
-	title = g_mime_message_get_subject(message);
-
-	parser_content(body, dump);
+	string dump;
+	(void)parser_content(g_mime_message_get_mime_part(message), dump);
+	const char* title = g_mime_message_get_subject(message);
+	const char* author = g_mime_message_get_sender(message);
+	response(dump.data(), dump.size(),
+		 title, strlen(title),
+		 nullptr, 0,
+		 author, strlen(author),
+		 -1);
 
 	g_object_unref(message);
     }
     g_object_unref(parser);
     g_object_unref(stream);
-
-    (void)pages;
-    return true;
 }

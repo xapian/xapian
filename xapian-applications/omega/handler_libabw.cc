@@ -3,6 +3,7 @@
  */
 /* Copyright (C) 2019 Bruno Baruffaldi
  * Copyright (C) 2020 Parth Kapadia
+ * Copyright (C) 2022 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -27,12 +28,34 @@
 #include <librevenge-stream/librevenge-stream.h>
 #include <libabw/libabw.h>
 
-#define PARSE_FIELD(START, END, FIELD, OUT) \
-   parse_metadata_field((START), (END), (FIELD), (CONST_STRLEN(FIELD)), (OUT))
+#define PARSE_FIELD(START, END, FIELD, OUT...) \
+   parse_metadata_field((START), (END), (FIELD), (CONST_STRLEN(FIELD)), OUT)
 
-using namespace std;
 using namespace librevenge;
+using namespace std;
 
+// Handle a field for which we only take a single value - we avoid copying in
+// this case.
+static void
+parse_metadata_field(const char* start,
+		     const char* end,
+		     const char* field,
+		     size_t len,
+		     const char*& out,
+		     size_t& out_len)
+{
+    if (size_t(end - start) > len && memcmp(start, field, len) == 0) {
+	start += len;
+	while (start != end && isspace(*start)) start++;
+	if (start != end && (end[-1] != '\r' || --end != start)) {
+	    out = start;
+	    out_len = end - start;
+	}
+    }
+}
+
+// Handle a field for which we concatenate multiple instances.  We need to copy
+// in this case.
 static void
 parse_metadata_field(const char* start,
 		     const char* end,
@@ -52,10 +75,9 @@ parse_metadata_field(const char* start,
 }
 
 static void
-parse_metadata(const char* data,
-	       size_t len,
-	       string& author,
-	       string& title,
+parse_metadata(const char* data, size_t len,
+	       const char*& title, size_t& title_len,
+	       const char*& author, size_t& author_len,
 	       string& keywords)
 {
     const char* p = data;
@@ -73,8 +95,10 @@ parse_metadata(const char* data,
 	    start += 5;
 	    switch (*start) {
 		case 'i': {
-		    if (author.empty())
-			PARSE_FIELD(start, eol, "initial-creator", author);
+		    // Use dc:creator in preference to meta:initial-creator.
+		    if (!author)
+			PARSE_FIELD(start, eol, "initial-creator",
+				    author, author_len);
 		    break;
 		}
 		case 'k': {
@@ -86,9 +110,8 @@ parse_metadata(const char* data,
 	    start += 3;
 	    switch (*start) {
 		case 'c': {
-		    if (!author.empty())
-			author.clear();
-		    PARSE_FIELD(start, eol, "creator", author);
+		    // Use dc:creator in preference to meta:initial-creator.
+		    PARSE_FIELD(start, eol, "creator", author, author_len);
 		    break;
 		}
 		case 's': {
@@ -96,7 +119,7 @@ parse_metadata(const char* data,
 		    break;
 		}
 		case 't': {
-		    PARSE_FIELD(start, eol, "title", title);
+		    PARSE_FIELD(start, eol, "title", title, title_len);
 		    break;
 		}
 	    }
@@ -107,46 +130,44 @@ parse_metadata(const char* data,
     }
 }
 
-bool
-extract(const string& filename,
-	const string& mimetype,
-	string& dump,
-	string& title,
-	string& keywords,
-	string& author,
-	string& pages,
-	string& error)
-{
-    try {
-	RVNGFileStream input(filename.c_str());
+void
+extract(const string& filename, const string& mimetype)
+try {
+    RVNGFileStream input(filename.c_str());
 
-	if (!libabw::AbiDocument::isFileFormatSupported(&input)) {
-	    error = "Libabw Error: The format is not supported";
-	    return false;
-	}
-
-	RVNGString metadata_dump, content_dump;
-
-	RVNGTextTextGenerator metadata(metadata_dump, true);
-	if (libabw::AbiDocument::parse(&input, &metadata)) {
-	    const char* data = metadata_dump.cstr();
-	    size_t len = metadata_dump.size();
-	    parse_metadata(data, len, author, title, keywords);
-	} else {
-	    error = "Libabw Error: Fail to extract metadata";
-	    return false;
-	}
-
-	RVNGTextTextGenerator content(content_dump, false);
-	if (libabw::AbiDocument::parse(&input, &content)) {
-	    dump.assign(content_dump.cstr(), content_dump.size());
-	} else {
-	    error = "Libabw Error: Fail to extract text";
-	    return false;
-	}
-	return true;
-    } catch (...) {
-	error = "Libabw threw an exception";
-	return false;
+    if (!libabw::AbiDocument::isFileFormatSupported(&input)) {
+	fail("Libabw Error: The format is not supported");
     }
+
+    RVNGString metadata, dump;
+
+    RVNGTextTextGenerator metadata_gen(metadata, true);
+    if (!libabw::AbiDocument::parse(&input, &metadata_gen)) {
+	fail("Libabw Error: Fail to extract metadata");
+	return;
+    }
+
+    const char* title = nullptr;
+    const char* author = nullptr;
+    size_t title_len = 0, author_len = 0;
+    string keywords;
+    parse_metadata(metadata.cstr(), metadata.size(),
+		   title, title_len,
+		   author, author_len,
+		   keywords);
+
+    // Extract body text.
+    RVNGTextTextGenerator content(dump, false);
+    if (!libabw::AbiDocument::parse(&input, &content)) {
+	fail("Libabw Error: Fail to extract text");
+	return;
+    }
+
+    response(dump.cstr(), dump.size(),
+	     title, title_len,
+	     keywords.data(), keywords.size(),
+	     author, author_len,
+	     -1);
+} catch (...) {
+    fail("Libabw threw an exception");
 }

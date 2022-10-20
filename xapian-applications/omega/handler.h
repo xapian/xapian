@@ -1,7 +1,7 @@
 /** @file
  * @brief Extract text and metadata using an external library.
  */
-/* Copyright (C) 2011 Olly Betts
+/* Copyright (C) 2011,2022 Olly Betts
  * Copyright (C) 2019 Bruno Baruffaldi
  *
  * This program is free software; you can redistribute it and/or
@@ -23,6 +23,7 @@
 #ifndef OMEGA_INCLUDED_HANDLER_H
 #define OMEGA_INCLUDED_HANDLER_H
 
+#include <cstring>
 #include <string>
 
 /** Extract information from the @a filename and store it in the
@@ -30,25 +31,74 @@
  *
  *  @param filename	Path to the file.
  *  @param mimetype	Mimetype of the file.
- *  @param dump 	String where the dump will be saved.
- *  @param title	String which will hold the title of the file.
- *  @param keywords	String where the keywords will be stored.
- *  @param author	String where the author will be stored.
- *  @param pages	Here the number of pages will be stored.
- *  @param error	String where error messages can be stored.
  *
  * Note: This function should only be used by an assistant process.
  *
  * See Worker::extract() for more details.
  */
-bool
+void
 extract(const std::string& filename,
-	const std::string& mimetype,
-	std::string& dump,
-	std::string& title,
-	std::string& keywords,
-	std::string& author,
-	std::string& pages,
-	std::string& error);
+	const std::string& mimetype);
+
+/** Respond with extracted data.
+ *
+ *  @param dump 	Text extracted from the document body.
+ *  @param title	Title of the document (if any).
+ *  @param keywords	Keywords (if any).
+ *  @param author	Author (if any).
+ *  @param pages	Number of pages (or -1 if unknown).
+ */
+void
+response(const char* dump, size_t dump_len,
+	 const char* title, size_t title_len,
+	 const char* keywords, size_t keywords_len,
+	 const char* author, size_t author_len,
+	 int pages);
+
+inline void
+response(const char* dump,
+	 const char* title,
+	 const char* keywords,
+	 const char* author,
+	 int pages)
+{
+    response(dump, dump ? std::strlen(dump) : 0,
+	     title, title ? std::strlen(title) : 0,
+	     keywords, keywords ? std::strlen(keywords) : 0,
+	     author, author ? std::strlen(author) : 0,
+	     pages);
+}
+
+inline void
+response(const std::string& dump,
+	 const std::string& title,
+	 const std::string& keywords,
+	 const std::string& author,
+	 int pages)
+{
+    response(dump.data(), dump.size(),
+	     title.data(), title.size(),
+	     keywords.data(), keywords.size(),
+	     author.data(), author.size(),
+	     pages);
+}
+
+void
+fail_unknown();
+
+void
+fail(const char* error, size_t error_len);
+
+inline void
+fail(const char* error)
+{
+    fail(error, error ? std::strlen(error) : 0);
+}
+
+inline void
+fail(const std::string& error)
+{
+    fail(error.data(), error.size());
+}
 
 #endif // OMEGA_INCLUDED_HANDLER_H

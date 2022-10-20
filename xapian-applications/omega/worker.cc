@@ -165,36 +165,24 @@ Worker::extract(const std::string& filename,
 	if (r != 0) return r;
     }
 
-    string strpage, strstate;
-    char state = MSG_FATAL_ERROR;
     // Send a filename and wait for the reply.
     if (write_string(sockt, filename) && write_string(sockt, mimetype) &&
-	read_string(sockt, strstate)) {
-	error.clear();
-	if (!strstate.empty())
-	    state = strstate[0];
-	switch (state) {
-	    case MSG_OK:
-		if (!read_string(sockt, dump) ||
-		    !read_string(sockt, title) ||
-		    !read_string(sockt, keywords) ||
-		    !read_string(sockt, author) ||
-		    !read_string(sockt, strpage)) {
-		    break;
-		}
-		// We can ignore errors here since pages defaults to -1 and
-		// negative means "unknown".
-		(void)parse_signed(strpage.c_str(), pages);
-		return 0;
-	    case MSG_NON_FATAL_ERROR:
-		if (strstate.length() > 1) {
-		    error.assign(strstate, 1, string::npos);
-		} else {
-		    error = "Couldn't extract text from " + filename;
-		}
-		return 1;
-	    default:
-		break;
+	read_string(sockt, error)) {
+	if (!error.empty()) {
+	    if (error == "?") {
+		error = "Couldn't extract text from " + filename;
+	    }
+	    return 1;
+	}
+
+	unsigned u_pages;
+	if (read_string(sockt, dump) &&
+	    read_string(sockt, title) &&
+	    read_string(sockt, keywords) &&
+	    read_string(sockt, author) &&
+	    read_unsigned(sockt, u_pages)) {
+	    pages = int(u_pages) - 1;
+	    return 0;
 	}
     }
 

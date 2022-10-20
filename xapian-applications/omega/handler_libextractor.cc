@@ -2,6 +2,7 @@
  * @brief Extract metadata using libextractor.
  */
 /* Copyright (C) 2020 Parth Kapadia
+ * Copyright (C) 2022 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,20 +21,19 @@
  */
 #include <config.h>
 #include "handler.h"
+#include "parseint.h"
 
 #include <extractor.h>
 #include <cstring>
+#include <sysexits.h>
 
 using namespace std;
 
 struct metadata {
-    string& title;
-    string& author;
-    string& keywords;
-    string& pages;
-
-    metadata(string& t, string& a, string& k, string& p)
-	    : title(t), author(a), keywords(k), pages(p) {}
+    string title;
+    string author;
+    string keywords;
+    int pages = -1;
 };
 
 /** Store metadata in its corresponding variable.
@@ -80,9 +80,13 @@ process_metadata(void* cls,
 	    md->title.append(data, data_len);
 	    break;
 
-	case EXTRACTOR_METATYPE_PAGE_COUNT:
-	    md->pages.assign(data, data_len);
+	case EXTRACTOR_METATYPE_PAGE_COUNT: {
+	    unsigned p;
+	    if (parse_unsigned(data, p)) {
+		md->pages = p;
+	    }
 	    break;
+	}
 
 	case EXTRACTOR_METATYPE_ARTIST:
 	case EXTRACTOR_METATYPE_AUTHOR_NAME:
@@ -104,33 +108,28 @@ process_metadata(void* cls,
     return 0;
 }
 
-bool
-extract(const string& filename,
-	const string& mimetype,
-	string& dump,
-	string& title,
-	string& keywords,
-	string& author,
-	string& pages,
-	string& error)
-{
-    try {
-	struct metadata md(title, author, keywords, pages);
+static auto initialise() {
+    // Add all default plugins.
+    auto plugins =
+	EXTRACTOR_plugin_add_defaults(EXTRACTOR_OPTION_DEFAULT_POLICY);
+    if (!plugins)
+	exit(EX_UNAVAILABLE);
+    return plugins;
+}
 
-	// Add all default plugins
-	auto plugins =
-	 EXTRACTOR_plugin_add_defaults(EXTRACTOR_OPTION_DEFAULT_POLICY);
+void
+extract(const string& filename, const string& mimetype)
+try {
+    // Initialise  on first run.
+    static auto plugins = initialise();
 
-	// If plugin not found/ File format not recognised/ corrupt file
-	// returns null and not an error.
-	EXTRACTOR_extract(plugins, filename.c_str(),
-			  NULL, 0,
-			  &process_metadata, &md);
-	EXTRACTOR_plugin_remove_all(plugins);
-    } catch (...) {
-	error = "Libextractor threw an exception";
-	return false;
-    }
-
-    return true;
+    // If plugin not found/ File format not recognised/ corrupt file
+    // no data is extracted, rather than reporting an error.
+    struct metadata md;
+    EXTRACTOR_extract(plugins, filename.c_str(),
+		      NULL, 0,
+		      &process_metadata, &md);
+    response(string(), md.title, md.keywords, md.author, md.pages);
+} catch (...) {
+    fail("Libextractor threw an exception");
 }

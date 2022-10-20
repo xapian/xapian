@@ -2,6 +2,7 @@
  * @brief Extract text and metadata using libe-book.
  */
 /* Copyright (C) 2019 Bruno Baruffaldi
+ * Copyright (C) 2022 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -28,13 +29,35 @@
 #include <librevenge-stream/librevenge-stream.h>
 #include <libe-book/libe-book.h>
 
-#define PARSE_FIELD(START, END, FIELD, OUT) \
-   parse_metadata_field((START), (END), (FIELD), (CONST_STRLEN(FIELD)), (OUT))
+#define PARSE_FIELD(START, END, FIELD, OUT...) \
+   parse_metadata_field((START), (END), (FIELD), (CONST_STRLEN(FIELD)), OUT)
 
 using libebook::EBOOKDocument;
-using namespace std;
 using namespace librevenge;
+using namespace std;
 
+// Handle a field for which we only take a single value - we avoid copying in
+// this case.
+static void
+parse_metadata_field(const char* start,
+		     const char* end,
+		     const char* field,
+		     size_t len,
+		     const char*& out,
+		     size_t& out_len)
+{
+    if (size_t(end - start) > len && memcmp(start, field, len) == 0) {
+	start += len;
+	while (start != end && isspace(*start)) start++;
+	if (start != end && (end[-1] != '\r' || --end != start)) {
+	    out = start;
+	    out_len = end - start;
+	}
+    }
+}
+
+// Handle a field for which we concatenate multiple instances.  We need to copy
+// in this case.
 static void
 parse_metadata_field(const char* start,
 		     const char* end,
@@ -54,10 +77,9 @@ parse_metadata_field(const char* start,
 }
 
 static void
-parse_metadata(const char* data,
-	       size_t len,
-	       string& author,
-	       string& title,
+parse_metadata(const char* data, size_t len,
+	       const char*& title, size_t& title_len,
+	       const char*& author, size_t& author_len,
 	       string& keywords)
 {
     const char* p = data;
@@ -75,8 +97,10 @@ parse_metadata(const char* data,
 	    start += 5;
 	    switch (*start) {
 		case 'i': {
-		    if (author.empty())
-			PARSE_FIELD(start, eol, "initial-creator", author);
+		    // Use dc:creator in preference to meta:initial-creator.
+		    if (!author)
+			PARSE_FIELD(start, eol, "initial-creator",
+				    author, author_len);
 		    break;
 		}
 		case 'k': {
@@ -88,9 +112,8 @@ parse_metadata(const char* data,
 	    start += 3;
 	    switch (*start) {
 		case 'c': {
-		    if (!author.empty())
-			author.clear();
-		    PARSE_FIELD(start, eol, "creator", author);
+		    // Use dc:creator in preference to meta:initial-creator.
+		    PARSE_FIELD(start, eol, "creator", author, author_len);
 		    break;
 		}
 		case 's': {
@@ -98,7 +121,7 @@ parse_metadata(const char* data,
 		    break;
 		}
 		case 't': {
-		    PARSE_FIELD(start, eol, "title", title);
+		    PARSE_FIELD(start, eol, "title", title, title_len);
 		    break;
 		}
 	    }
@@ -109,72 +132,59 @@ parse_metadata(const char* data,
     }
 }
 
-static void
-clear_text(string& str, const char* text)
-{
-    if (text) {
-	for (int i = 0; text[i] != '\0'; ++i)
-	    if (!isspace(text[i]) || (i && !isspace(text[i - 1])))
-		str.push_back(text[i]);
-    }
-}
-
-bool
+void
 extract(const string& filename,
-	const string& mimetype,
-	string& dump,
-	string& title,
-	string& keywords,
-	string& author,
-	string& pages,
-	string& error)
-{
-    try {
-	unique_ptr<RVNGInputStream> input;
-	RVNGString content_dump, metadata_dump;
-	const char* file = filename.c_str();
-	bool succeed = false;
+	const string& mimetype)
+try {
+    unique_ptr<RVNGInputStream> input;
+    RVNGString dump, metadata;
+    const char* file = filename.c_str();
+    bool succeed = false;
 
-	if (RVNGDirectoryStream::isDirectory(file))
-	    input.reset(new RVNGDirectoryStream(file));
-	else
-	    input.reset(new RVNGFileStream(file));
+    if (RVNGDirectoryStream::isDirectory(file))
+	input.reset(new RVNGDirectoryStream(file));
+    else
+	input.reset(new RVNGFileStream(file));
 
-	EBOOKDocument::Type type = EBOOKDocument::TYPE_UNKNOWN;
-	auto confidence = EBOOKDocument::isSupported(input.get(), &type);
+    EBOOKDocument::Type type = EBOOKDocument::TYPE_UNKNOWN;
+    auto confidence = EBOOKDocument::isSupported(input.get(), &type);
 
-	if ((confidence != EBOOKDocument::CONFIDENCE_EXCELLENT) &&
-	    (confidence != EBOOKDocument::CONFIDENCE_WEAK)) {
-	    error = "Libe-book Error: The format is not supported";
-	    return false;
-	}
-
-	// Extract metadata if possible
-	RVNGTextTextGenerator metadata(metadata_dump, true);
-	if (EBOOKDocument::parse(input.get(), &metadata, type) ==
-	    EBOOKDocument::RESULT_OK) {
-	    const char* metadata = metadata_dump.cstr();
-	    size_t len = metadata_dump.size();
-	    parse_metadata(metadata, len, author, title, keywords);
-	    succeed = true;
-	} else {
-	    error = "Libe-book Error: Fail to extract metadata";
-	}
-	(void)pages;
-	// Extract Dump if possible
-	RVNGTextTextGenerator content(content_dump, false);
-	if (EBOOKDocument::parse(input.get(), &content, type) ==
-	    EBOOKDocument::RESULT_OK) {
-	    clear_text(dump, content_dump.cstr());
-	    succeed = true;
-	} else {
-	    if (!error.empty())
-		error.push_back('\n');
-	    error += "Libe-book Error: Fail to extract text";
-	}
-	return succeed;
-    } catch (...) {
-	error = "Libe-book threw an exception";
-	return false;
+    if (confidence != EBOOKDocument::CONFIDENCE_EXCELLENT &&
+	confidence != EBOOKDocument::CONFIDENCE_WEAK) {
+	fail("Libe-book Error: The format is not supported");
+	return;
     }
+
+    // Extract metadata.
+    RVNGTextTextGenerator metadata_gen(metadata, true);
+    if (EBOOKDocument::parse(input.get(), &metadata_gen, type) !=
+	EBOOKDocument::RESULT_OK) {
+	fail("Libe-book Error: Fail to extract metadata");
+	return;
+    }
+
+    const char* title = nullptr;
+    const char* author = nullptr;
+    size_t title_len = 0, author_len = 0;
+    string keywords;
+    parse_metadata(metadata.cstr(), metadata.size(),
+		   title, title_len,
+		   author, author_len,
+		   keywords);
+
+    // Extract body text.
+    RVNGTextTextGenerator content(dump, false);
+    if (EBOOKDocument::parse(input.get(), &content, type) !=
+	EBOOKDocument::RESULT_OK) {
+	fail("Libe-book Error: Fail to extract text");
+	return;
+    }
+
+    response(dump.cstr(), dump.size(),
+	     title, title_len,
+	     keywords.data(), keywords.size(),
+	     author, author_len,
+	     -1);
+} catch (...) {
+    fail("Libe-book threw an exception");
 }
