@@ -105,7 +105,11 @@ parser_content(GMimeObject* me, string& dump)
 	}
     } else if (GMIME_IS_PART(me)) {
 	GMimePart* part = reinterpret_cast<GMimePart*>(me);
+#if GMIME_MAJOR_VERSION >= 3
+	GMimeDataWrapper* content = g_mime_part_get_content(part);
+#else
 	GMimeDataWrapper* content = g_mime_part_get_content_object(part);
+#endif
 	const char* type = g_mime_content_type_get_media_type(ct);
 	if (strcmp(type, "text") == 0) {
 	    string text;
@@ -146,7 +150,11 @@ extract(const string& filename,
 {
     static bool first_time = true;
     if (first_time) {
+#if GMIME_MAJOR_VERSION >= 3
+	g_mime_init();
+#else
 	g_mime_init(0);
+#endif
 	first_time = false;
     }
 
@@ -159,18 +167,30 @@ extract(const string& filename,
 
     GMimeStream* stream = g_mime_stream_file_new(fp);
     GMimeParser* parser = g_mime_parser_new_with_stream(stream);
+#if GMIME_MAJOR_VERSION >= 3
+    GMimeMessage* message = g_mime_parser_construct_message(parser, NULL);
+#else
     GMimeMessage* message = g_mime_parser_construct_message(parser);
+#endif
     if (message) {
 	string dump;
 	(void)parser_content(g_mime_message_get_mime_part(message), dump);
 	const char* title = g_mime_message_get_subject(message);
+#if GMIME_MAJOR_VERSION >= 3
+	InternetAddressList* from = g_mime_message_get_from(message);
+	char* author = internet_address_list_to_string(from, NULL, false);
+#else
 	const char* author = g_mime_message_get_sender(message);
+#endif
 	response(dump.data(), dump.size(),
 		 title, strlen(title),
 		 nullptr, 0,
 		 author, strlen(author),
 		 -1);
 
+#if GMIME_MAJOR_VERSION >= 3
+	free(author);
+#endif
 	g_object_unref(message);
     }
     g_object_unref(parser);
