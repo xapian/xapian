@@ -325,8 +325,10 @@ TfIdfWeight::get_idfn(idf_norm idf_normalization) const
 	    return log((N - termfreq) / termfreq);
 	case idf_norm::FREQ:
 	    return (1.0 / termfreq);
-	case idf_norm::SQUARE:
-	    return pow(log(N / termfreq), 2.0);
+	case idf_norm::SQUARE: {
+	    double x = log(N / termfreq);
+	    return x * x;
+	}
 	case idf_norm::PIVOTED:
 	    return log((N + 1) / termfreq);
 	case idf_norm::GLOBAL_FREQ: {
