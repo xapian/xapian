@@ -190,12 +190,6 @@ dnl We want XAPIAN_CXXFLAGS to be used for configure tests.
 save_CXXFLAGS=$CXXFLAGS
 CXXFLAGS="$CXXFLAGS $XAPIAN_CXXFLAGS"
 
-dnl C++11 should have log2(double), but keep this check for now to allow for
-dnl compilers with incomplete library support for C++11.
-AC_CHECK_DECLS([log2(double)], [], [],
-[#include <cmath>
-using namespace std;])
-
 dnl We need to specify the argument types for builtin functions, or else
 dnl AC_CHECK_DECLS fails to detect them when the compiler is clang.
 AC_CHECK_DECLS([__builtin_add_overflow(int, int, int*),

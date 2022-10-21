@@ -24,7 +24,7 @@
 #include "xapian/weight.h"
 
 #include "xapian/error.h"
-#include "common/log2.h"
+
 #include <algorithm>
 #include <cmath>
 
