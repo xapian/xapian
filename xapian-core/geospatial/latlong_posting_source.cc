@@ -40,6 +40,10 @@ using namespace std;
 static double
 weight_from_distance(double dist, double k1, double k2)
 {
+    // k2 defaults to 1.0, so handle that case with a fast path which avoids
+    // calling pow().
+    if (k2 == 1.0)
+	return k1 / (dist + k1);
     return k1 * pow(dist + k1, -k2);
 }
 
