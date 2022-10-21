@@ -51,6 +51,12 @@ If you really still need to use an older version of GCC, Xapian 1.2.x doesn't
 require C++11 support and should build with older versions - probably as far
 back as GCC 3.1.
 
+Clang
+-----
+
+Clang 6.0 is known to work.  We haven't identified the exact minimum
+requirement, but it's probably at least Clang 3.2.
+
 MSVC
 ----
 
