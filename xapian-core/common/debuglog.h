@@ -192,11 +192,7 @@ class DebugLogFunc {
     int uncaught_exceptions;
 
     static int get_uncaught_exceptions() {
-#if __cplusplus >= 201703L
 	return std::uncaught_exceptions();
-#else
-	return int(std::uncaught_exception());
-#endif
     }
 
   public:
@@ -276,11 +272,7 @@ class DebugLogFuncVoid {
     int uncaught_exceptions;
 
     static int get_uncaught_exceptions() {
-#if __cplusplus >= 201703L
 	return std::uncaught_exceptions();
-#else
-	return int(std::uncaught_exception());
-#endif
     }
 
   public:
