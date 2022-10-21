@@ -59,8 +59,8 @@ build with older versions - probably as far back as GCC 3.1.
 Clang
 -----
 
-We haven't identified the exact minimum clang requirement, but it's at least
-Clang 4.0 and may be higher.
+Clang 6.0 is known to work.  We haven't identified the exact minimum
+requirement, but it's probably at least Clang 4.0.
 
 MSVC
 ----
