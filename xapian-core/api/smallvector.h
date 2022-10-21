@@ -51,15 +51,7 @@ template<typename T,
 	 typename = typename std::enable_if<
 	     (COW ?
 	      std::is_integral<T>::value :
-#ifdef HAVE_STD_IS_TRIVIALLY_COPYABLE
 	      std::is_trivially_copyable<T>::value
-#else
-	      // std::is_trivially_copyable<T> is C++11, but for example GCC
-	      // didn't support it until version 6.  Assume "true" if it's not
-	      // available - we'll have to rely on newer compiler versions to
-	      // catch attempts to use unsuitable types here.
-	      true
-#endif
 	      )>::type>
 class Vec {
     std::size_t c;

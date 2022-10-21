@@ -430,13 +430,6 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
     [AC_MSG_RESULT([no])])
 CXXFLAGS=$save_CXXFLAGS
 
-AC_MSG_CHECKING([if std::is_trivially_copyable<> is supported])
-AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <type_traits>]],
-	[[return std::is_trivially_copyable<int>::value ? 1 : 0;]])],
-    [AC_MSG_RESULT([yes])
-    AC_DEFINE([HAVE_STD_IS_TRIVIALLY_COPYABLE], [1], [Define to 1 if you have 'std::is_trivially_copyable<>'.])],
-    [AC_MSG_RESULT([no])])
-
 dnl We need to specify the argument types for builtin functions, or else
 dnl AC_CHECK_DECLS fails to detect them when the compiler is clang.
 AC_CHECK_DECLS([__builtin_add_overflow(int, int, int*),
