@@ -368,7 +368,7 @@ jobs:
   macos:
     runs-on: 'macos-latest'
     env:
-      LIBEXTRACTOR_PREFIX: '/usr/lib/x86_64-linux-gnu/libextractor'
+      LIBEXTRACTOR_PREFIX: '/usr/local/lib/libextractor'
     steps:
     - name: Check out repository code
       uses: actions/checkout@v2
