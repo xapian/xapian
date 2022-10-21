@@ -199,7 +199,7 @@ jobs:
 
   # GCC 7 is the oldest GCC we currently aim to support.  Test on 18.04 as that
   # tests 7.3.0 (20.04 has 7.5.0).
-  GCC7
+  GCC7:
     name: 'GCC 7'
     runs-on: 'ubuntu-18.04'
     env:
