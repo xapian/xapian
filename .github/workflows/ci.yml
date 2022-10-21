@@ -197,11 +197,10 @@ jobs:
       # if that input is empty.
       run: git status --porcelain|grep '^' && { echo "The generated files listed above are not in .gitignore" ; exit 1; }; true
 
-  # GCC 4.8 is the oldest GCC we currently aim to support.  There's no package
-  # for it in Ubuntu 20.04 so we have to run this on 18.04 (also useful to test
-  # there for portability).
-  GCC4-8:
-    name: 'GCC 4.8'
+  # GCC 7 is the oldest GCC we currently aim to support.  Test on 18.04 as that
+  # tests 7.3.0 (20.04 has 7.5.0).
+  GCC7
+    name: 'GCC 7'
     runs-on: 'ubuntu-18.04'
     env:
       LIBEXTRACTOR_PREFIX: '/usr/lib/x86_64-linux-gnu/libextractor'
@@ -211,13 +210,13 @@ jobs:
     - name: Install CCache
       uses: hendrikmuhs/ccache-action@v1
       with:
-        key: GCC4-8
+        key: GCC7
     - name: Install package dependencies
       run: |
         sudo apt-get update
         sudo apt-get install \
-            gcc-4.8 \
-            g++-4.8
+            gcc-7 \
+            g++-7
         sudo apt-get install \
             doxygen \
             graphviz \
@@ -249,7 +248,7 @@ jobs:
     - name: bootstrap source tree
       run: ./bootstrap xapian-core xapian-applications/omega swig xapian-bindings xapian-letor
     - name: configure
-      run: ./configure CC='ccache gcc-4.8' CXX='ccache g++-4.8'
+      run: ./configure CC='ccache gcc-7' CXX='ccache g++-7'
     - name: make
       run: make -j2
     - name: Run tests

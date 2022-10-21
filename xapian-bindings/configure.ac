@@ -56,8 +56,8 @@ esac
 dnl Run tests using the C++ compiler.
 AC_LANG([C++])
 
-dnl Probe for any options needed to enable C++11 support.
-AX_CXX_COMPILE_STDCXX([11])
+dnl Probe for any options needed to enable C++17 support.
+AX_CXX_COMPILE_STDCXX([17])
 
 dnl Check for xapian-core.
 XO_LIB_XAPIAN([], [],

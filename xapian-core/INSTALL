@@ -38,31 +38,35 @@ found.
 Compilers
 =========
 
-We aim to support compilation with any C++ compiler which support ISO C++11, or
-a reasonable approximation to it.
+We aim to support compilation with any C++ compiler which support ISO C++17, or
+a reasonable approximation to it.  If you still need to build Xapian with an
+older compiler then Xapian 1.4.x only requires C++11.
 
 GCC
 ---
 
-If you're using GCC, we currently recommend GCC 4.8 or newer (this is the
+If you're using GCC, we currently recommend GCC 7.0 or newer (this is the
 oldest version we regularly test with).
 
-The current hard minimum requirement is also GCC 4.8 (due to requiring good
-support for C++11, for example non-static data member initializers aren't
+The current hard minimum requirement is also GCC 7.0 (due to requiring good
+support for C++17, for example non-static data member initializers aren't
 supported by earlier versions).
 
 If you really still need to use an older version of GCC, Xapian 1.4.x aims
 to support GCC 4.7, while Xapian 1.2.x doesn't require C++11 support and should
 build with older versions - probably as far back as GCC 3.1.
 
+Clang
+-----
+
+We haven't identified the exact minimum clang requirement, but it's at least
+Clang 4.0 and may be higher.
+
 MSVC
 ----
 
-If you're using MS Visual C++, you'll need at least MSVS 2015 for C++11
-support.
-
-We support 64-bit compilation with MSVS 2017, 2019 and 2022.  With MSVS 2015 a
-64-bit build fails to work - we haven't investigated why.
+If you're using MS Visual C++, you'll need at least MSVS 2017 for C++17
+support. We support both 32-bit and 64-bit compilation.
 
 As of Xapian 1.4.6 building using MSVC is supported by the autotools build
 system.  You need to install a set of Unix-like tools first - we recommended
@@ -79,13 +83,6 @@ or::
 
   "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"
 
-And for MSVC 2015 32-bit use::
-
-  "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" x86
-
-MSVC 2015 64-bit isn't currently supported, but would use the above command but
-with ``x64`` instead of ``x86``.
-
 You'll need to have the zlib library available.  You can add
 ``CPPFLAGS=-I/path/to/zlib LDFLAGS=-L/path/to/zlib`` to the configure command
 line to tell MSVC where to find the zlib headers and library.
@@ -101,18 +98,14 @@ Then build using GNU make::
 HP's aCC
 --------
 
-When using HP's aCC, Xapian must be compiled with +std=c++11, which
-xapian-core's configure automatically detects and passes.  You don't have to
-pass this option when building code which uses Xapian, but you can.
+This compiler doesn't seem to have been updated to support C++17.  If you
+really still need to use it you'll have to use Xapian 1.4.x.
 
 Sun C++ Compiler
 ----------------
 
-With this compiler, shared library builds fail (tested most recently with
-version 12.6).  You can work around this problem by disabling shared libraries
-at configure time like so::
-
-  ./configure --disable-shared
+This compiler doesn't seem to have been updated to support C++17.  If you
+really still need to use it you'll have to use Xapian 1.4.x.
 
 Multi-Arch
 ==========
