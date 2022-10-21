@@ -24,7 +24,6 @@
 #include "xapian/types.h"
 
 #include "omassert.h"
-#include "stdclamp.h"
 
 struct Estimates {
     Xapian::doccount min, est, max;

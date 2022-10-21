@@ -29,7 +29,6 @@
 #include "msetcmp.h"
 #include "omassert.h"
 #include "spymaster.h"
-#include "stdclamp.h"
 
 #include <algorithm>
 
@@ -634,9 +633,9 @@ class ProtoMSet {
 		if (collapser || mdecider) {
 		    // Clamp the estimate to the range given by the bounds.
 		    AssertRel(matches_lower_bound, <=, matches_upper_bound);
-		    matches_estimated = STD_CLAMP(matches_estimated,
-						  matches_lower_bound,
-						  matches_upper_bound);
+		    matches_estimated = std::clamp(matches_estimated,
+						   matches_lower_bound,
+						   matches_upper_bound);
 		} else if (!percent_threshold) {
 		    AssertRel(known_matching_docs, <=, matches_upper_bound);
 		    if (known_matching_docs > matches_lower_bound)

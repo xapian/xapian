@@ -803,9 +803,9 @@ Matcher::get_mset(Xapian::doccount first,
 
 	// Clamp the estimate the range given by the bounds.
 	AssertRel(mseti->matches_lower_bound, <=, mseti->matches_upper_bound);
-	mseti->matches_estimated = STD_CLAMP(mseti->matches_estimated,
-					     mseti->matches_lower_bound,
-					     mseti->matches_upper_bound);
+	mseti->matches_estimated = std::clamp(mseti->matches_estimated,
+					      mseti->matches_lower_bound,
+					      mseti->matches_upper_bound);
     }
 
     return merged_mset;

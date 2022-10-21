@@ -43,7 +43,6 @@ noinst_HEADERS +=\
 	common/serialise-double.h\
 	common/setenv.h\
 	common/socket_utils.h\
-	common/stdclamp.h\
 	common/str.h\
 	common/stringutils.h\
 	common/wordaccess.h

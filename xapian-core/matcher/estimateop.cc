@@ -24,7 +24,6 @@
 
 #include "omassert.h"
 #include "overflow.h"
-#include "stdclamp.h"
 
 #include <algorithm>
 #include <memory>
@@ -97,7 +96,7 @@ EstimateOp::resolve(Xapian::doccount db_size,
 	}
 
 	result.est = static_cast<Xapian::doccount>(est + 0.5);
-	result.est = STD_CLAMP(result.est, result.min, result.max);
+	result.est = std::clamp(result.est, result.min, result.max);
 	break;
       }
       case AND_NOT: {
@@ -320,7 +319,7 @@ EstimateOp::resolve(Xapian::doccount db_size,
 	result.max -= estimates.max;
 	double scale = double(estimates.min) / (estimates.min + estimates.max);
 	result.est = Xapian::doccount(result.est * scale + 0.5);
-	result.est = STD_CLAMP(result.est, result.min, result.max);
+	result.est = std::clamp(result.est, result.min, result.max);
 	break;
     }
     AssertRel(result.min, <=, result.est);
