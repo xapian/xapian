@@ -205,15 +205,15 @@ index_test()
     // being installed as libextractor still returns generic metadata.
     tests.insert({"video/file_example_OGG_480_1_7mg.ogg",
 		  {{"Eogg", "Tvideo/ogg",
-		    OPT("Searth"), OPT("Splanet"), OPT("Zogg")}}});
+		    OPT("Searth"), OPT("Splanet")}}});
     tests.insert({"video/file_example_AVI_480_750kB.avi",
 		  {{"Eavi", "Tvideo/x-msvideo",
 		    OPT("Zcodec"), OPT("Zh264"),
 		    OPT("480x270"), OPT("msvideo"), OPT("30"), OPT("fps")}}});
     tests.insert({"audio/file_example_OOG_1MG.ogg",
 		  {{"Eogg", "Taudio/ogg",
-		    OPT("Akevin"), OPT("Amacleod"), OPT("Simpact"),
-		    OPT("ZSmoderato"), OPT("Zlibrari"), OPT("Zcinemat")}}});
+		    OPT("Akevin"), OPT("Amacleod"),
+		    OPT("Simpact"), OPT("ZSmoderato")}}});
     tests.insert({"audio/file_example_WAV_1MG.wav",
 		  {{"Ewav", "Taudio/x-wav",
 		    OPT("Zstereo"), OPT("wav"), OPT("Zms")}}});

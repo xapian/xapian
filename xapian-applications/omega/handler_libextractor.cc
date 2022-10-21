@@ -30,6 +30,7 @@
 using namespace std;
 
 struct metadata {
+    string dump;
     string title;
     string author;
     string keywords;
@@ -69,14 +70,18 @@ process_metadata(void* cls,
 	    return 0;
     }
 
+    // "data_len is strlen (data)+1"!
+    --data_len;
+
     switch (type) {
 	case EXTRACTOR_METATYPE_BOOK_TITLE:
 	case EXTRACTOR_METATYPE_JOURNAL_NAME:
 	case EXTRACTOR_METATYPE_ORIGINAL_TITLE:
 	case EXTRACTOR_METATYPE_SUBJECT:
+	case EXTRACTOR_METATYPE_SUBTITLE:
 	case EXTRACTOR_METATYPE_TITLE:
 	    if (!md->title.empty())
-		md->title.append(" ");
+		md->title += ' ';
 	    md->title.append(data, data_len);
 	    break;
 
@@ -90,20 +95,39 @@ process_metadata(void* cls,
 
 	case EXTRACTOR_METATYPE_ARTIST:
 	case EXTRACTOR_METATYPE_AUTHOR_NAME:
+	case EXTRACTOR_METATYPE_COMPOSER:
+	case EXTRACTOR_METATYPE_CONDUCTOR:
 	case EXTRACTOR_METATYPE_CREATOR:
 	case EXTRACTOR_METATYPE_MOVIE_DIRECTOR:
 	case EXTRACTOR_METATYPE_ORIGINAL_ARTIST:
+	case EXTRACTOR_METATYPE_ORIGINAL_PERFORMER:
 	case EXTRACTOR_METATYPE_ORIGINAL_WRITER:
-	case EXTRACTOR_METATYPE_PUBLISHER:
+	case EXTRACTOR_METATYPE_PERFORMER:
+	case EXTRACTOR_METATYPE_WRITER:
 	    if (!md->author.empty())
-		md->author.append(" ");
+		md->author += ' ';
 	    md->author.append(data, data_len);
 	    break;
 
-	default:
+	case EXTRACTOR_METATYPE_KEYWORDS:
 	    if (!md->keywords.empty())
-		md->keywords.append(" ");
+		md->keywords += ' ';
 	    md->keywords.append(data, data_len);
+	    break;
+
+	case EXTRACTOR_METATYPE_ABSTRACT:
+	case EXTRACTOR_METATYPE_COMMENT:
+	case EXTRACTOR_METATYPE_DESCRIPTION:
+	case EXTRACTOR_METATYPE_LYRICS:
+	case EXTRACTOR_METATYPE_SUMMARY:
+	    if (!md->dump.empty())
+		md->dump += ' ';
+	    md->dump.append(data, data_len);
+	    break;
+
+	default:
+	    // Ignore other metadata.
+	    break;
     }
     return 0;
 }
@@ -129,7 +153,7 @@ try {
     EXTRACTOR_extract(plugins, filename.c_str(),
 		      NULL, 0,
 		      &process_metadata, &md);
-    response(string(), md.title, md.keywords, md.author, md.pages);
+    response(md.dump, md.title, md.keywords, md.author, md.pages);
 } catch (...) {
     fail("Libextractor threw an exception");
 }
