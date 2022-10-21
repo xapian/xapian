@@ -194,8 +194,10 @@ TfIdfWeight::get_idfn(Xapian::doccount termfreq, char c) const
 	    return log((N - termfreq) / termfreq);
 	case 'f':
 	    return (1.0 / termfreq);
-	case 's':
-	    return pow(log(N / termfreq), 2.0);
+	case 's': {
+	    double x = log(N / termfreq);
+	    return x * x;
+	}
 	default:
 	    AssertEq(c, 't');
 	    return (log(N / termfreq));
