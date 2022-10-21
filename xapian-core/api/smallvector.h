@@ -49,10 +49,8 @@ namespace Xapian {
 template<typename T,
 	 bool COW = false,
 	 typename = typename std::enable_if<
-	     (COW ?
-	      std::is_integral<T>::value :
-	      std::is_trivially_copyable<T>::value
-	      )>::type>
+	     (std::is_trivially_copyable<T>::value &&
+	      (!COW || std::is_integral<T>::value))>::type>
 class Vec {
     std::size_t c;
 
