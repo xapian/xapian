@@ -134,8 +134,11 @@ process_metadata(void* cls,
 
 static auto initialise() {
     // Add all default plugins.
-    auto plugins =
-	EXTRACTOR_plugin_add_defaults(EXTRACTOR_OPTION_DEFAULT_POLICY);
+    //
+    // Tell libextractor not to bother running its plugins in a subprocess as
+    // we're already in a subprocess which protects the main indexer process
+    // from bugs in plugins.
+    auto plugins = EXTRACTOR_plugin_add_defaults(EXTRACTOR_OPTION_IN_PROCESS);
     if (!plugins)
 	exit(EX_UNAVAILABLE);
     return plugins;
