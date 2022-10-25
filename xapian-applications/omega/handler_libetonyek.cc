@@ -151,7 +151,8 @@ extract_key(RVNGInputStream* input)
 	     nullptr, 0,
 	     nullptr, 0,
 	     nullptr, 0,
-	     -1);
+	     -1,
+	     time_t(-1));
 }
 
 static void
@@ -174,7 +175,8 @@ extract_numbers(RVNGInputStream* input)
 	     nullptr, 0,
 	     nullptr, 0,
 	     nullptr, 0,
-	     -1);
+	     -1,
+	     time_t(-1));
 }
 
 static void
@@ -209,7 +211,8 @@ extract_pages(RVNGInputStream* input)
 	     title, title_len,
 	     keywords.data(), keywords.size(),
 	     author, author_len,
-	     -1);
+	     -1,
+	     time_t(-1));
 }
 
 void

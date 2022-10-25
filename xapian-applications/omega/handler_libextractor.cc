@@ -153,7 +153,7 @@ try {
     EXTRACTOR_extract(plugins, filename.c_str(),
 		      NULL, 0,
 		      &process_metadata, &md);
-    response(md.dump, md.title, md.keywords, md.author, md.pages);
+    response(md.dump, md.title, md.keywords, md.author, md.pages, time_t(-1));
 } catch (...) {
     fail("Libextractor threw an exception");
 }

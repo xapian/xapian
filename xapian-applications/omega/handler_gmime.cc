@@ -186,7 +186,8 @@ extract(const string& filename,
 		 title, strlen(title),
 		 nullptr, 0,
 		 author, strlen(author),
-		 -1);
+		 -1,
+		 time_t(-1));
 
 #if GMIME_MAJOR_VERSION >= 3
 	free(author);

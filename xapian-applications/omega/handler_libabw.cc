@@ -167,7 +167,8 @@ try {
 	     title, title_len,
 	     keywords.data(), keywords.size(),
 	     author, author_len,
-	     -1);
+	     -1,
+	     time_t(-1));
 } catch (...) {
     fail("Libabw threw an exception");
 }

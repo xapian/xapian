@@ -35,4 +35,8 @@ inline bool write_string(std::FILE* f, const std::string& s) {
 
 bool read_unsigned(std::FILE* f, unsigned& v);
 
+bool read_unsigned(std::FILE* f, unsigned long& v);
+
 bool write_unsigned(std::FILE* f, unsigned v);
+
+bool write_unsigned(std::FILE* f, unsigned long v);

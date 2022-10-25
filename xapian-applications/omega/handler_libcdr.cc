@@ -57,7 +57,8 @@ try {
 	     nullptr, 0,
 	     nullptr, 0,
 	     nullptr, 0,
-	     pages);
+	     pages,
+	     time_t(-1));
 } catch (...) {
     fail("Libcdr threw an exception");
 }

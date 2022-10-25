@@ -53,20 +53,23 @@ response(const char* dump, size_t dump_len,
 	 const char* title, size_t title_len,
 	 const char* keywords, size_t keywords_len,
 	 const char* author, size_t author_len,
-	 int pages);
+	 int pages,
+	 time_t created);
 
 inline void
 response(const char* dump,
 	 const char* title,
 	 const char* keywords,
 	 const char* author,
-	 int pages)
+	 int pages,
+	 time_t created)
 {
     response(dump, dump ? std::strlen(dump) : 0,
 	     title, title ? std::strlen(title) : 0,
 	     keywords, keywords ? std::strlen(keywords) : 0,
 	     author, author ? std::strlen(author) : 0,
-	     pages);
+	     pages,
+	     created);
 }
 
 inline void
@@ -74,13 +77,15 @@ response(const std::string& dump,
 	 const std::string& title,
 	 const std::string& keywords,
 	 const std::string& author,
-	 int pages)
+	 int pages,
+	 time_t created)
 {
     response(dump.data(), dump.size(),
 	     title.data(), title.size(),
 	     keywords.data(), keywords.size(),
 	     author.data(), author.size(),
-	     pages);
+	     pages,
+	     created);
 }
 
 void

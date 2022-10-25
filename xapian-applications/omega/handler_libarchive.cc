@@ -99,7 +99,7 @@ extract_opendoc(struct archive* archive_obj)
     // in either order in the ZIP container.
     parser.parse(styles);
 
-    response(parser.dump, title, keywords, author, -1);
+    response(parser.dump, title, keywords, author, -1, time_t(-1));
     return true;
 }
 
@@ -147,7 +147,7 @@ extract_xlsx(struct archive* archive_obj)
 	}
     }
     parser.parse(sheets);
-    response(parser.dump, title, keywords, author, -1);
+    response(parser.dump, title, keywords, author, -1, time_t(-1));
     return true;
 }
 
@@ -229,7 +229,7 @@ extract_msxml(struct archive* archive_obj,
 
     MSXmlParser parser;
     parser.parse(content);
-    response(parser.dump, title, keywords, author, -1);
+    response(parser.dump, title, keywords, author, -1, time_t(-1));
     return true;
 }
 
@@ -267,7 +267,7 @@ extract_xps(struct archive* archive_obj)
 	}
     }
 
-    response(parser.dump, title, keywords, author, -1);
+    response(parser.dump, title, keywords, author, -1, time_t(-1));
     return true;
 }
 

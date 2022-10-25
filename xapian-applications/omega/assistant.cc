@@ -74,7 +74,8 @@ response(const char* dump, size_t dump_len,
 	 const char* title, size_t title_len,
 	 const char* keywords, size_t keywords_len,
 	 const char* author, size_t author_len,
-	 int pages)
+	 int pages,
+	 time_t created)
 {
     if (replied) {
 	// Logic error - handler already called response() for this file.
@@ -82,12 +83,14 @@ response(const char* dump, size_t dump_len,
     }
     replied = true;
     unsigned u_pages = pages + 1;
+    unsigned long u_created = static_cast<unsigned long>(created);
     if (!write_string(sockt, nullptr, 0) ||
 	!write_string(sockt, dump, dump_len) ||
 	!write_string(sockt, title, title_len) ||
 	!write_string(sockt, keywords, keywords_len) ||
 	!write_string(sockt, author, author_len) ||
-	!write_unsigned(sockt, u_pages)) {
+	!write_unsigned(sockt, u_pages) ||
+	!write_unsigned(sockt, u_created)) {
 	exit(1);
     }
 }

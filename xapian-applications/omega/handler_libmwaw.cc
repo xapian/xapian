@@ -171,7 +171,8 @@ extract_word(RVNGFileStream* input)
 	     title, title_len,
 	     keywords.data(), keywords.size(),
 	     author, author_len,
-	     -1);
+	     -1,
+	     time_t(-1));
 }
 
 static void
@@ -210,7 +211,8 @@ extract_spreadsheet(RVNGFileStream* input)
 	     title, title_len,
 	     keywords.data(), keywords.size(),
 	     author, author_len,
-	     pages_content.size());
+	     pages_content.size(),
+	     time_t(-1));
 }
 
 static void
@@ -229,7 +231,8 @@ extract_presentation(RVNGFileStream* input)
 	     nullptr, 0,
 	     nullptr, 0,
 	     nullptr, 0,
-	     pages_content.size());
+	     pages_content.size(),
+	     time_t(-1));
 }
 
 static void
@@ -248,7 +251,8 @@ extract_drawing(RVNGFileStream* input)
 	     nullptr, 0,
 	     nullptr, 0,
 	     nullptr, 0,
-	     pages_content.size());
+	     pages_content.size(),
+	     time_t(-1));
 }
 
 void

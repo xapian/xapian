@@ -112,6 +112,29 @@ read_unsigned(FILE* f, unsigned& v)
 }
 
 bool
+read_unsigned(FILE* f, unsigned long& v)
+{
+    v = 0;
+    int ch;
+    do {
+	ch = getc(f);
+	if (ch < 0) return false;
+	v = (v << 7) | (ch & 0x7f);
+    } while (ch & 0x80);
+    return true;
+}
+
+bool
+write_unsigned(FILE* f, unsigned long v)
+{
+    while (v >= 0x80) {
+	if (putc(v | 0x80, f) < 0) return false;
+	v >>= 7;
+    }
+    return !(putc(v, f) < 0);
+}
+
+bool
 write_unsigned(FILE* f, unsigned v)
 {
     while (v >= 0x80) {

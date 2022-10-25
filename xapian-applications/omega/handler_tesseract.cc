@@ -67,7 +67,7 @@ extract(const string& filename,
 
     // Get OCR result
     const char* dump = ocr->GetUTF8Text();
-    response(dump, nullptr, nullptr, nullptr, -1);
+    response(dump, nullptr, nullptr, nullptr, -1, time_t(-1));
     delete[] dump;
 
     // Release memory.

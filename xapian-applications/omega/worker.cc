@@ -144,7 +144,8 @@ Worker::extract(const std::string& filename,
 		std::string& title,
 		std::string& keywords,
 		std::string& author,
-		int& pages)
+		int& pages,
+		time_t& created)
 {
     if (filter_module.empty()) {
 	error = "This helper hard failed earlier in the current run";
@@ -176,12 +177,15 @@ Worker::extract(const std::string& filename,
 	}
 
 	unsigned u_pages;
+	unsigned long u_created;
 	if (read_string(sockt, dump) &&
 	    read_string(sockt, title) &&
 	    read_string(sockt, keywords) &&
 	    read_string(sockt, author) &&
-	    read_unsigned(sockt, u_pages)) {
+	    read_unsigned(sockt, u_pages) &&
+	    read_unsigned(sockt, u_created)) {
 	    pages = int(u_pages) - 1;
+	    created = time_t(long(u_created));
 	    return 0;
 	}
     }

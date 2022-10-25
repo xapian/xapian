@@ -98,16 +98,14 @@ extract(const string& filename,
 	gchar* author = poppler_document_get_author(doc);
 	gchar* title = poppler_document_get_title(doc);
 	gchar* keywords = poppler_document_get_keywords(doc);
-	time_t datetime = poppler_document_get_creation_date(doc);
-	if (datetime != time_t(-1)) {
-	    // FIXME: Add support for this to the worker protocol.
-	}
+	time_t created = poppler_document_get_creation_date(doc);
 
 	response(dump.data(), dump.size(),
 		 title, strlen_if_nonnull(title),
 		 nullptr, 0,
 		 author, strlen_if_nonnull(author),
-		 pages);
+		 pages,
+		 created);
 	g_free(author);
 	g_free(title);
 	g_free(keywords);
