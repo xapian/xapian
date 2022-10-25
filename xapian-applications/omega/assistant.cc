@@ -134,7 +134,6 @@ int main()
 	// Read filename.
 	if (!read_string(sockt, filename)) break;
 	if (!read_string(sockt, mimetype)) break;
-	string dump, title, keywords, author, pages, error;
 	// Setting a timeout for avoid infinity loops
 	set_timeout();
 	replied = false;
