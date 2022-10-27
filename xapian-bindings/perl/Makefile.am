@@ -163,7 +163,7 @@ xapian_wrap.cc Xapian.pm: $(stamp)
 $(stamp): except.i
 	$(multitarget_begin)
 	$(RUN_SWIG) $(SWIG_WERROR) -I. -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
-	    -perl -module Xapian -proxy -const \
+	    -perl -module Xapian -const \
 	    -DPERL_XAPIAN_VERSION='"$(PERL_XAPIAN_VERSION)"' \
 	    -o xapian_wrap.cc '$(srcdir)/'perl.i
 	$(multitarget_end)
