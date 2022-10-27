@@ -508,9 +508,15 @@ This module is fussier about whether a passed scalar value is a string or
 an integer than Search::Xapian, so e.g. C<Xapian::Query-E<gt>new(2001)> will fail
 but the equivalent worked with Search::Xapian.  If C<$term> might not be a
 string use C<Xapian::Query-E<gt>new("$term")> to ensure it is converted to a
-string.  The new behaviour isn't very Perlish, but is likely to be hard to
-address universally as it comes from SWIG.  Let us know if you find particular
-places where it's annoying and we can look at addressing those.
+string.  Whether explicit stringification is needed depends on whether the
+scalar is marked as having a string representation by Perl; prior to Perl
+5.36.0 retrieving the string value of an integer could set this flag, but
+that's no longer the case in Perl 5.36.0 and later.  The simple rule is to
+always explicitly stringify if the value might be numeric.
+
+This behaviour isn't very Perlish, but is likely to be hard to address
+universally as it comes from SWIG.  Let us know if you find particular places
+where it's annoying and we can look at addressing those.
 
 Both this module and Search::Xapian support passing a Perl sub (which can be
 anonymous) for the functor classes C<MatchDecider> and C<ExpandDecider>.  In
