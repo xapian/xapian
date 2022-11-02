@@ -26,13 +26,13 @@
 #include <ctime>
 
 class OpenDocMetaParser : public XmlParser {
-    enum { NONE, KEYWORDS, TITLE, SAMPLE, AUTHOR, TOPIC, CREATED } field = NONE;
+    enum { NONE, KEYWORDS, TITLE, SAMPLE, AUTHOR, CREATED } field = NONE;
   public:
     OpenDocMetaParser() { }
     void process_content(const std::string& content);
     bool opening_tag(const std::string& tag);
     bool closing_tag(const std::string& tag);
-    std::string title, keywords, sample, author, topic;
+    std::string title, keywords, sample, author;
     time_t created = time_t(-1);
 };
 

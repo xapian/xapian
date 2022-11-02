@@ -46,10 +46,6 @@ OpenDocMetaParser::process_content(const string& content)
 	    if (!author.empty()) author += ' ';
 	    author += content;
 	    break;
-	case TOPIC:
-	    if (!topic.empty()) topic += ' ';
-	    topic += content;
-	    break;
 	case CREATED: {
 	    // E.g. 2013-03-04T22:57:00
 	    created = parse_datetime(content);
@@ -80,8 +76,6 @@ OpenDocMetaParser::opening_tag(const string& tag)
 	    field = SAMPLE;
 	} else if (tag == "dc:creator") {
 	    field = AUTHOR;
-	} else if (tag == "dc:subject") {
-	    field = TOPIC;
 	}
     } else if (tag[0] == 'm') {
 	if (tag == "meta:keyword") {
