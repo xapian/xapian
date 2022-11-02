@@ -46,10 +46,6 @@ MetaXmlParser::process_text(const string &text)
 	    if (!author.empty()) author += ' ';
 	    author += text;
 	    break;
-	case TOPIC:
-	    if (!topic.empty()) topic += ' ';
-	    topic += text;
-	    break;
 	case CREATED: {
 	    // E.g. 2013-03-04T22:57:00
 	    created = parse_datetime(text);
@@ -80,8 +76,6 @@ MetaXmlParser::opening_tag(const string &tag)
 	    field = SAMPLE;
 	} else if (tag == "dc:creator") {
 	    field = AUTHOR;
-	} else if (tag == "dc:subject") {
-	    field = TOPIC;
 	}
     } else if (tag[0] == 'm') {
 	if (tag == "meta:keyword") {

@@ -26,13 +26,13 @@
 #include <ctime>
 
 class MetaXmlParser : public HtmlParser {
-    enum { NONE, KEYWORDS, TITLE, SAMPLE, AUTHOR, TOPIC, CREATED } field;
+    enum { NONE, KEYWORDS, TITLE, SAMPLE, AUTHOR, CREATED } field;
   public:
     MetaXmlParser() : field(NONE), created(time_t(-1)) { }
     void process_text(const string &text);
     bool opening_tag(const string &tag);
     bool closing_tag(const string &tag);
-    string title, keywords, sample, author, topic;
+    string title, keywords, sample, author;
     time_t created;
 };
 
