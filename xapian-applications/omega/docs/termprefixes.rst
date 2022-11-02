@@ -27,58 +27,82 @@ something without a standard prefix, you create your own starting with an X
 you're prefixing starts with a capital letter or ":", add a ":" between prefix
 and term to resolve ambiguity about where the prefix ends and the term begins.
 
-Here's the current allocation list:
+Here's the current allocation list (annotated with Dublinc
 
-A
-        Author
-B
-        Topic (mnemonic: what the document is aBout)
-D
-        Date (numeric format: YYYYMMDD or "latest" - e.g. D20050224 or Dlatest)
-E
-        Extension (folded to lowercase - e.g. Ehtml, or E for no extension)
-F
-        Filename
-G
-        newsGroup (or similar entity - e.g. a web forum name)
-H
-        Hostname
-I
-	boolean filter term for "can see" permission (mnemonic: Include)
-J
-	Site term (mnemonic: Jumping off point)
-K
-        Keyword
-L
-        ISO Language code
-M
-        Month (numeric format: YYYYMM)
-N
-        ISO couNtry code (or domaiN name)
-O
-	Owner
-P
-        Pathname
-Q
-        uniQue id
-R
-        Raw (i.e. unstemmed) term (unused by Xapian since 1.0.0)
-S
-        Subject (or title)
-T
-        mimeType
-U
-        full URL of indexed document - if the resulting term would be > 240
-	bytes, a hashing scheme is used to prevent overflowing
-	the Xapian term length limit (see omindex for how to do this).
-V
-	boolean filter term for "can't see" permission (mnemonic: grep -v)
-X
-        longer prefix for user-defined use
-Y
-        year (four digits)
-Z
-        stemmed term
+======  ===========  ==========================================================
+Prefix  Dublin Core  Description
+======  ===========  ==========================================================
+A       creator      Author
+------  -----------  ----------------------------------------------------------
+B                    aBstract or summary or topic
+------  -----------  ----------------------------------------------------------
+D                    Date (numeric format: YYYYMMDD or "latest" - e.g.
+                     D20050224 or Dlatest)
+
+                     These are an old way to implement date filtering, but we
+                     now recommend using a value slot instead.  Omega 1.5.0
+                     won't add D-prefix terms by default (with ``--date-terms``
+                     to enable them).
+------  -----------  ----------------------------------------------------------
+E                    Extension (folded to lowercase - e.g. Ehtml, or E for no
+                     extension)
+------  -----------  ----------------------------------------------------------
+F                    Filename
+------  -----------  ----------------------------------------------------------
+G                    newsGroup (or similar entity - e.g. a web forum name)
+------  -----------  ----------------------------------------------------------
+H                    Hostname
+------  -----------  ----------------------------------------------------------
+I                    boolean filter term for "can see" permission (mnemonic:
+                     Include)
+------  -----------  ----------------------------------------------------------
+J                    Site term (mnemonic: Jumping off point)
+------  -----------  ----------------------------------------------------------
+K       subject      Keyword
+------  -----------  ----------------------------------------------------------
+L       language     ISO-639 Language code
+------  -----------  ----------------------------------------------------------
+M                    Month (numeric format: YYYYMM)
+
+                     These are an old way to implement date filtering, but we
+                     now recommend using a value slot instead.  Omega 1.5.0
+                     won't add M-prefix terms by default (with ``--date-terms``
+                     to enable them).
+------  -----------  ----------------------------------------------------------
+N                    ISO-3166 couNtry code (or domaiN name)
+------  -----------  ----------------------------------------------------------
+O                    Owner
+------  -----------  ----------------------------------------------------------
+P                    Pathname
+------  -----------  ----------------------------------------------------------
+Q                    uniQue id
+------  -----------  ----------------------------------------------------------
+R                    Raw (i.e. unstemmed) term (unused by Xapian since 1.0.0)
+------  -----------  ----------------------------------------------------------
+S       title        Title (or email Subject); dc:title
+------  -----------  ----------------------------------------------------------
+T                    mimeType
+------  -----------  ----------------------------------------------------------
+U                    full URL of indexed document - if the resulting term would
+                     be > 240 bytes, a hashing scheme is used to prevent
+                     overflowing the Xapian term length limit (see omindex for
+                     how to do this).
+------  -----------  ----------------------------------------------------------
+V                    boolean filter term for "can't see" permission (mnemonic:
+                     ``grep -v``)
+------  -----------  ----------------------------------------------------------
+X                    longer prefix for user-defined use
+------  -----------  ----------------------------------------------------------
+Y                    year (four digits)
+
+                     These are an old way to implement date filtering, but we
+                     now recommend using a value slot instead.  Omega 1.5.0
+                     won't add Y-prefix terms by default (with ``--date-terms``
+                     to enable them).
+------  -----------  ----------------------------------------------------------
+Z                    stemmed term (may be followed by another prefix from this
+                     list - e.g. ZS for stemmed terms from the document title)
+======  ===========  ==========================================================
 
 Reserved but currently unallocated: CW
 
