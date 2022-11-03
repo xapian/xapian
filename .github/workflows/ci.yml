@@ -271,7 +271,7 @@ jobs:
     - name: bootstrap source tree
       run: ./bootstrap xapian-core xapian-applications/omega swig xapian-bindings xapian-letor
     - name: configure
-      run: ./configure CC='ccache gcc' CXX='ccache g++' CPPFLAGS='-I${{ runner.temp }}/xapian-libsvm-fixed-include' PKG_CONFIG_PATH=/usr/local/opt/icu4c/lib/pkgconfig --prefix='${{ runner.temp }}/XapianInstall' --with-libiconv-prefix=/usr/local/opt/libiconv
+      run: ./configure CC='ccache gcc' CXX='ccache g++' PKG_CONFIG_PATH=/usr/local/opt/icu4c/lib/pkgconfig --prefix='${{ runner.temp }}/XapianInstall' --with-libiconv-prefix=/usr/local/opt/libiconv
     - name: make
       run: |
         make -j3
