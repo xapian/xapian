@@ -561,6 +561,8 @@ U
     full URL of indexed document - if the resulting term would be > 240 bytes,
     a hashing scheme is used to avoid overflowing Xapian's term length limit.
 
+By default the following additional boolean terms are added to documents:
+
 D
     date (numeric format: YYYYMMDD)
 
@@ -574,6 +576,14 @@ M
     month (numeric format: YYYYMM)
 Y
     year (four digits)
+
+These support an older approach to date filtering.  We now recommend using a
+value slot for this instead, as it is more flexible (e.g. it supports multiple
+date fields) and generally performs better.
+
+Since Omega 1.4.22 these can be disabled with the omindex command line
+option ``--no-date-terms``; Omega 1.5.0 will stop adding these by default, with
+``--date-terms`` to enable them (also supported 1.4.22).
 
 omega configuration
 ===================
