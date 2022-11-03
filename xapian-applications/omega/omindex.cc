@@ -4,7 +4,7 @@
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2005 James Aylett
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2017,2018 Olly Betts
+ * Copyright 2002-2022 Olly Betts
  * Copyright 2009 Frank J Bruzzaniti
  * Copyright 2012 Mihai Bivol
  *
@@ -355,6 +355,7 @@ main(int argc, char **argv)
 	OPT_OPENDIR_SLEEP = 256,
 	OPT_SAMPLE,
 	OPT_DATE_TERMS,
+	OPT_NO_DATE_TERMS,
 	OPT_READ_FILTERS
     };
     constexpr auto NO_ARG = no_argument;
@@ -386,6 +387,7 @@ main(int argc, char **argv)
 	{ "opendir-sleep",	REQ_ARG,	NULL, OPT_OPENDIR_SLEEP },
 	{ "track-ctime",	NO_ARG,		NULL, 'C' },
 	{ "date-terms",		NO_ARG,		NULL, OPT_DATE_TERMS },
+	{ "no-date-terms",	NO_ARG,		NULL, OPT_NO_DATE_TERMS },
 	{ 0, 0, NULL, 0 }
     };
 
@@ -469,6 +471,10 @@ main(int argc, char **argv)
 "                            on Microsoft DFS shares.\n"
 "  -C, --track-ctime         track each file's ctime so we can detect changes\n"
 "                            to ownership or permissions.\n"
+"      --date-terms          index D, M and Y prefixed terms to support date\n"
+"                            range filtering using terms (we now recommend\n"
+"                            using a value slot for this instead).\n"
+"      --no-date-terms       ignored for compatibility with Omega 1.4.x.\n"
 "  -v, --verbose             show more information about what is happening\n"
 "      --overwrite           create the database anew (the default is to update\n"
 "                            if the database already exists)" << endl;
@@ -657,6 +663,9 @@ main(int argc, char **argv)
 	    break;
 	case OPT_DATE_TERMS:
 	    date_terms = true;
+	    break;
+	case OPT_NO_DATE_TERMS:
+	    // Ignored for compatibility with Omega 1.4.0.
 	    break;
 	case 'G': {
 	    char * s = strrchr(optarg, ':');
