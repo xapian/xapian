@@ -200,8 +200,6 @@ jobs:
   GCC4-8:
     name: 'GCC 4.8'
     runs-on: 'ubuntu-18.04'
-    env:
-      LIBEXTRACTOR_PREFIX: '/usr/lib/x86_64-linux-gnu/libextractor'
     steps:
     - name: Check out repository code
       uses: actions/checkout@v2
