@@ -587,8 +587,9 @@ U
     a hashing scheme is used to avoid overflowing Xapian's term length limit.
 
 If the ``--date-terms`` option is used, then the following additional boolean
-terms are added to documents (prior to 1.5.0 these were always added with no
-way to disable this):
+terms are added to documents (prior to Omega 1.5.0 they were added unless the
+``--no-date-terms`` option was used; this option was added in 1.4.22, and
+before that they were unconditionally added):
 
 D
     date (numeric format: YYYYMMDD)
