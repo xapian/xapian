@@ -380,6 +380,7 @@ jobs:
       run: |
         brew update
         brew install \
+            docutils \
             doxygen \
             gmime \
             graphviz \
@@ -400,11 +401,11 @@ jobs:
             pngcrush \
             poppler \
             pygments \
-            python
+            python \
+            sphinx-doc
         # homebrew tesseract 5.2.0 only extracts "ee" from img/Test1.gif (5.1.0
         # worked).
         # tesseract
-        pip3 install sphinx docutils
     - name: bootstrap source tree
       run: ./bootstrap xapian-core xapian-applications/omega swig xapian-bindings xapian-letor
     - name: configure
