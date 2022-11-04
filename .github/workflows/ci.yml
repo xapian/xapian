@@ -255,6 +255,7 @@ jobs:
       run: |
         brew update
         brew install \
+            docutils \
             doxygen \
             gmime \
             graphviz \
@@ -266,8 +267,8 @@ jobs:
             pcre2 \
             pkgconfig \
             pngcrush \
-            python
-        pip3 install sphinx docutils
+            python \
+            sphinx-doc
     - name: bootstrap source tree
       run: ./bootstrap xapian-core xapian-applications/omega swig xapian-bindings xapian-letor
     - name: configure
