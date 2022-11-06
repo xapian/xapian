@@ -40,7 +40,7 @@ You will need the following tools installed to build from git:
 
 * GNU m4 >= 4.6 (for autoconf)
 * perl >= 5.6 (for automake; also for various maintainer scripts)
-* python >= 2.3 (for generating the Python bindings)
+* python >= 3.3 (for generating the Python bindings)
 * GNU make (or another make which support VPATH for explicit rules)
 * GNU bison (for building SWIG, used for generating the bindings)
 * Tcl (to generate unicode/unicode-data.cc)
@@ -48,7 +48,7 @@ You will need the following tools installed to build from git:
 For a recent version of Debian or Ubuntu, this command should ensure you have
 all the necessary tools and libraries::
 
-    apt-get install build-essential m4 perl python zlib1g-dev uuid-dev wget bison tcl
+    apt-get install build-essential m4 perl python3 zlib1g-dev uuid-dev wget bison tcl
 
 If you want to build Omega, you'll also need::
 
@@ -143,11 +143,10 @@ The documentation tools are:
 * dot (part of Graphviz.  Doxygen's DOT_MULTI_TARGETS option apparently needs
   ">1.8.10")
 * help2man
-* rst2html or rst2html.py (in python-docutils on Debian/Ubuntu)
+* rst2html or rst2html.py (in python3-docutils on Debian/Ubuntu)
 * pngcrush (optional - used to reduce the size of PNG files in the HTML
   apidocs)
-* sphinx-doc (in python-sphinx and python3-sphinx on Debian/Ubuntu, or as
-  sphinx via pip install)
+* sphinx-doc (in python3-sphinx on Debian/Ubuntu, or as sphinx via pip install)
 
 For a recent version of Debian or Ubuntu, this command should install all the
 required documentation tools::
@@ -167,18 +166,12 @@ didn't properly install dot.)
 You also need sphinx and docutils, which are python packages; you can
 install them via pip::
 
-    pip install sphinx docutils
+    pip3 install sphinx docutils
 
 You may find it easier to use homebrew to install python first, so
 these packages are separate from the system python::
 
     brew install python
-
-If you install both python (v2) and python3 (v3) via homebrew, you
-will be able to build bindings for both; you'll then need to install
-sphinx for python3::
-
-    pip3 install sphinx
 
 On macOS, if you're using macports you'll want the following:
 
