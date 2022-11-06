@@ -13,8 +13,8 @@ them, you'll need to add this to your code::
 
   import xapian
 
-They currently require at least Python 3.3 (since Xapian 1.5.0 - if you need
-support for Python 3.2 than you can use Xapian 1.4.x).
+They currently require at least Python 3.3 (since Xapian 1.4.22 - if you need
+support for Python 3.2 than you can use Xapian <= 1.4.21).
 
 The Python API largely follows the C++ API - the differences and
 additions are noted below.
