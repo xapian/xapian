@@ -1,5 +1,5 @@
 .. Copyright (C) 2003 James Aylett
-.. Copyright (C) 2004,2005,2006,2007,2008,2009,2011,2013 Olly Betts
+.. Copyright (C) 2004-2022 Olly Betts
 .. Copyright (C) 2007,2008,2010 Richard Boulton
 
 ===========================
@@ -13,8 +13,7 @@ them, you'll need to add this to your code::
 
   import xapian
 
-They currently require at least Python 3.3.  We've not tested with
-Python 3.1 - test results and any patches needed are most welcome.
+They currently require at least Python 3.3.
 
 The Python API largely follows the C++ API - the differences and
 additions are noted below.
