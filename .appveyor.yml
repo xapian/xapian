@@ -13,7 +13,7 @@ environment:
   matrix:
   - TOOLCHAIN: mingw
     platform: x86
-    APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+    APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
   - TOOLCHAIN: mingw64
     platform: x86
     APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
