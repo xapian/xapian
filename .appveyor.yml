@@ -58,13 +58,6 @@ environment:
     platform: x64
     APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2022
     VCVARS_BAT: "\"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Auxiliary\\Build\\vcvars64.bat\""
-matrix:
-  allow_failures:
-  # mingw build currently sometimes fails due to trying to delete open files.
-  # It's unclear what the problem is, so until we manage to debug this allow
-  # this build to fail without flagging CI as having failed.
-  - TOOLCHAIN: mingw
-    platform: x86
 install:
   - ps: >-
       $env:CONFIGOPTS="--disable-documentation"
