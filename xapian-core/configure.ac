@@ -473,9 +473,6 @@ case $host_os in
     ;;
 esac
 
-dnl Used by tests/soaktest/soaktest.cc
-AC_CHECK_FUNCS([srandom random])
-
 dnl Used by tests/harness/testsuite.cc
 AC_CHECK_FUNCS([sigaction])
 dnl These can be macros (and sigsetjmp is with glibc at least).
