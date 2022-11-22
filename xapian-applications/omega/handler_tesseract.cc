@@ -60,15 +60,16 @@ extract(const string& filename,
     // Open Image
     Pix* image = pixRead(filename.c_str());
     if (!image) {
-	fail("Tesseract Error: Error while opening the image");
+	send_field(FIELD_ERROR, "pixRead() failed to load image");
+	return;
     }
 
     ocr->SetImage(image);
 
     // Get OCR result
-    const char* dump = ocr->GetUTF8Text();
-    response(dump, nullptr, nullptr, nullptr, -1, time_t(-1));
-    delete[] dump;
+    const char* text = ocr->GetUTF8Text();
+    send_field(FIELD_BODY, text);
+    delete[] text;
 
     // Release memory.
     ocr->Clear();

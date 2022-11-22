@@ -67,61 +67,41 @@ static void stop_timeout() { }
 
 static FILE* sockt;
 
-static bool replied;
+void
+send_field(Field field,
+	   const char* data,
+	   size_t len)
+{
+    if (len == 0) return;
+    putc(static_cast<unsigned char>(field), sockt);
+    if (!write_string(sockt, data, len)) {
+	exit(1);
+    }
+}
+
+static void
+send_field_end()
+{
+    putc(static_cast<unsigned char>(FIELD_END), sockt);
+}
 
 void
-response(const char* dump, size_t dump_len,
-	 const char* title, size_t title_len,
-	 const char* keywords, size_t keywords_len,
-	 const char* author, size_t author_len,
-	 int pages,
-	 time_t created)
+send_field_page_count(int value)
 {
-    if (replied) {
-	// Logic error - handler already called response() for this file.
-	exit(EX_SOFTWARE);
-    }
-    replied = true;
-    unsigned u_pages = pages + 1;
-    unsigned long u_created = static_cast<unsigned long>(created);
-    if (!write_string(sockt, nullptr, 0) ||
-	!write_string(sockt, dump, dump_len) ||
-	!write_string(sockt, title, title_len) ||
-	!write_string(sockt, keywords, keywords_len) ||
-	!write_string(sockt, author, author_len) ||
-	!write_unsigned(sockt, u_pages) ||
-	!write_unsigned(sockt, u_created)) {
+    if (value < 0) return;
+    putc(static_cast<unsigned char>(FIELD_PAGE_COUNT), sockt);
+    if (!write_unsigned(sockt, unsigned(value))) {
 	exit(1);
     }
 }
 
 void
-fail_unknown()
+send_field_created_date(time_t value)
 {
-    if (replied) {
-	// Logic error - handler already called response() for this file.
-	exit(EX_SOFTWARE);
-    }
-    replied = true;
-    if (!write_string(sockt, "?", 1)) {
-	exit(1);
-    }
-}
-
-void
-fail(const char* error, size_t error_len)
-{
-    if (error_len == 0) {
-	// Avoid sending empty error string as that means "success".
-	fail_unknown();
-	return;
-    }
-    if (replied) {
-	// Logic error - handler already called response() for this file.
-	exit(EX_SOFTWARE);
-    }
-    replied = true;
-    if (!write_string(sockt, error, error_len)) {
+    if (value == time_t(-1)) return;
+    putc(static_cast<unsigned char>(FIELD_CREATED_DATE), sockt);
+    auto u_value = static_cast<unsigned long>(value);
+    if (!write_unsigned(sockt, u_value)) {
 	exit(1);
     }
 }
@@ -139,12 +119,13 @@ int main()
 	if (!read_string(sockt, mimetype)) break;
 	// Setting a timeout for avoid infinity loops
 	set_timeout();
-	replied = false;
-	extract(filename, mimetype);
-	stop_timeout();
-	if (!replied) {
-	    fail_unknown();
+	try {
+	    extract(filename, mimetype);
+	} catch (...) {
+	    send_field(FIELD_ERROR, "Caught C++ exception");
 	}
+	stop_timeout();
+	send_field_end();
     }
 
     return 0;

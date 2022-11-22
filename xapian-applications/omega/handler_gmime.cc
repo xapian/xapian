@@ -34,7 +34,7 @@ using namespace std;
 constexpr unsigned SIZE = 4096;
 
 static void
-extract_html(const string& text, string& charset, string& dump)
+extract_html(const string& text, string& charset)
 {
     HtmlParser parser;
     if (charset.empty())
@@ -42,13 +42,12 @@ extract_html(const string& text, string& charset, string& dump)
     try {
 	parser.ignore_metarobots();
 	parser.parse(text, charset, false);
-	dump += parser.dump;
     } catch (const string& newcharset) {
 	parser.reset();
 	parser.ignore_metarobots();
 	parser.parse(text, newcharset, true);
-	dump += parser.dump;
     }
+    send_field(FIELD_BODY, parser.dump);
 }
 
 static size_t
@@ -82,7 +81,7 @@ decode(unsigned char* text, size_t len, GMimeContentEncoding encoding,
 }
 
 static bool
-parser_content(GMimeObject* me, string& dump)
+parse_mime_part(GMimeObject* me)
 {
     GMimeContentType* ct = g_mime_object_get_content_type(me);
     if (GMIME_IS_MULTIPART(me)) {
@@ -92,14 +91,14 @@ parser_content(GMimeObject* me, string& dump)
 	if (strcmp(subtype, "alternative") == 0) {
 	    for (int i = 0; i < count; ++i) {
 		GMimeObject* part = g_mime_multipart_get_part(mpart, i);
-		if (parser_content(part, dump))
+		if (parse_mime_part(part))
 		    return true;
 	    }
 	} else {
 	    bool ret = false;
 	    for (int i = 0; i < count; ++i) {
 		GMimeObject* part = g_mime_multipart_get_part(mpart, i);
-		ret |= parser_content(part, dump);
+		ret |= parse_mime_part(part);
 	    }
 	    return ret;
 	}
@@ -134,14 +133,23 @@ parser_content(GMimeObject* me, string& dump)
 	    const char* subtype = g_mime_content_type_get_media_subtype(ct);
 	    if (strcmp(subtype, "plain") == 0) {
 		convert_to_utf8(text, charset);
-		dump.append(text);
+		send_field(FIELD_BODY, text);
 	    } else if (strcmp(subtype, "html") == 0) {
-		extract_html(text, charset, dump);
+		extract_html(text, charset);
 	    }
 	    return true;
 	}
     }
     return false;
+}
+
+static void
+send_glib_field(Field field, gchar* data)
+{
+    if (data) {
+	send_field(field, data);
+	g_free(data);
+    }
 }
 
 void
@@ -161,7 +169,7 @@ extract(const string& filename,
     FILE* fp = fopen(filename.c_str(), "r");
 
     if (fp == NULL) {
-	fail("Gmime Error: fail open " + filename);
+	send_field(FIELD_ERROR, "fopen() failed");
 	return;
     }
 
@@ -173,24 +181,14 @@ extract(const string& filename,
     GMimeMessage* message = g_mime_parser_construct_message(parser);
 #endif
     if (message) {
-	string dump;
-	(void)parser_content(g_mime_message_get_mime_part(message), dump);
-	const char* title = g_mime_message_get_subject(message);
+	(void)parse_mime_part(g_mime_message_get_mime_part(message));
+	send_field(FIELD_TITLE, g_mime_message_get_subject(message));
 #if GMIME_MAJOR_VERSION >= 3
 	InternetAddressList* from = g_mime_message_get_from(message);
-	char* author = internet_address_list_to_string(from, NULL, false);
+	send_glib_field(FIELD_AUTHOR,
+			internet_address_list_to_string(from, NULL, false));
 #else
-	const char* author = g_mime_message_get_sender(message);
-#endif
-	response(dump.data(), dump.size(),
-		 title, strlen(title),
-		 nullptr, 0,
-		 author, strlen(author),
-		 -1,
-		 time_t(-1));
-
-#if GMIME_MAJOR_VERSION >= 3
-	free(author);
+	send_field(FIELD_AUTHOR, g_mime_message_get_sender(message));
 #endif
 	g_object_unref(message);
     }

@@ -31,34 +31,25 @@ using namespace std;
 
 void
 extract(const string& filename, const string& mimetype)
-try {
+{
     RVNGFileStream input(filename.c_str());
     RVNGStringVector cdr_pages;
     RVNGTextDrawingGenerator content(cdr_pages);
 
     // check if cdr file supported
     if (!libcdr::CDRDocument::isSupported(&input)) {
-	fail("Libcdr Error: The format is not supported");
+	send_field(FIELD_ERROR, "Format not supported");
 	return;
     }
 
     if (!libcdr::CDRDocument::parse(&input, &content)) {
-	fail("Libcdr Error: Failed to parse the file");
+	send_field(FIELD_ERROR, "Failed to parse file");
 	return;
     }
 
-    string dump;
     int pages = cdr_pages.size();
+    send_field_page_count(pages);
     for (auto i = 0; i < pages; ++i) {
-	dump.append(cdr_pages[i].cstr());
+	send_field(FIELD_BODY, cdr_pages[i].cstr(), cdr_pages[i].size());
     }
-
-    response(dump.data(), dump.size(),
-	     nullptr, 0,
-	     nullptr, 0,
-	     nullptr, 0,
-	     pages,
-	     time_t(-1));
-} catch (...) {
-    fail("Libcdr threw an exception");
 }

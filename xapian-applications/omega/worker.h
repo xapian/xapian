@@ -45,12 +45,18 @@ class Worker {
      */
     std::FILE* sockt = NULL;
 
-    /** Name of the assistant program.
+    /** Pathname of the assistant program.
      *
      *  Set to empty on hard failure so we can hard fail right away if retried
      *  via a different mimemap entry.
      */
     std::string filter_module;
+
+    /** Name of the assistant program.
+     *
+     *  This is just the leafname, used in error messages.
+     */
+    std::string name;
 
     /** This method creates the assistant subprocess.
      *

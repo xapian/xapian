@@ -55,6 +55,15 @@ convert_to_uri(const string& filename, GError** e)
     return uri;
 }
 
+static void
+send_glib_field(Field field, gchar* data)
+{
+    if (data) {
+	send_field(field, data);
+	g_free(data);
+    }
+}
+
 void
 extract(const string& filename,
 	const string& mimetype)
@@ -62,55 +71,40 @@ extract(const string& filename,
     GError* e;
     gchar* uri = convert_to_uri(filename, &e);
     if (!uri) {
-	string error = "Poppler Error: g_filename_to_uri() failed: ";
-	error += e->message;
+	send_field(FIELD_ERROR, "g_filename_to_uri() failed: ");
+	send_field(FIELD_ERROR, e->message);
 	g_error_free(e);
-	fail(error);
 	return;
     }
 
     PopplerDocument* doc = poppler_document_new_from_file(uri, NULL, &e);
     g_free(uri);
     if (!doc) {
-	string error = "Poppler Error: Failed to read pdf file: ";
-	error += e->message;
+	send_field(FIELD_ERROR, "poppler_document_new_from_file() failed: ");
+	send_field(FIELD_ERROR, e->message);
 	g_error_free(e);
-	fail(error);
 	return;
     }
 
-    try {
-	string dump;
-	int pages = poppler_document_get_n_pages(doc);
-	// Extracting text from PDF file
-	for (int i = 0; i < pages; ++i) {
-	    PopplerPage* page = poppler_document_get_page(doc, i);
-	    if (!page) {
-		g_object_unref(doc);
-		fail("Poppler Error: Failed to create page " + str(i));
-		return;
-	    }
-	    dump += poppler_page_get_text(page);
-	    g_object_unref(page);
+    int pages = poppler_document_get_n_pages(doc);
+    send_field_page_count(pages);
+    // Extracting text from PDF file
+    for (int i = 0; i < pages; ++i) {
+	PopplerPage* page = poppler_document_get_page(doc, i);
+	if (!page) {
+	    g_object_unref(doc);
+	    send_field(FIELD_ERROR, "Failed to get page " + str(i));
+	    return;
 	}
-
-	// Extract PDF metadata.
-	gchar* author = poppler_document_get_author(doc);
-	gchar* title = poppler_document_get_title(doc);
-	gchar* keywords = poppler_document_get_keywords(doc);
-	time_t created = poppler_document_get_creation_date(doc);
-
-	response(dump.data(), dump.size(),
-		 title, strlen_if_nonnull(title),
-		 nullptr, 0,
-		 author, strlen_if_nonnull(author),
-		 pages,
-		 created);
-	g_free(author);
-	g_free(title);
-	g_free(keywords);
-	g_object_unref(doc);
-    } catch (...) {
-	fail("Poppler threw an exception");
+	send_field(FIELD_BODY, poppler_page_get_text(page));
+	g_object_unref(page);
     }
+
+    // Extract PDF metadata.
+    send_glib_field(FIELD_AUTHOR, poppler_document_get_author(doc));
+    send_glib_field(FIELD_TITLE, poppler_document_get_title(doc));
+    send_glib_field(FIELD_KEYWORDS, poppler_document_get_keywords(doc));
+    send_field_created_date(poppler_document_get_creation_date(doc));
+
+    g_object_unref(doc);
 }

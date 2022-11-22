@@ -40,70 +40,48 @@ void
 extract(const std::string& filename,
 	const std::string& mimetype);
 
+enum Field {
+    FIELD_BODY,
+    FIELD_TITLE,
+    FIELD_KEYWORDS,
+    FIELD_AUTHOR,
+    FIELD_PAGE_COUNT,
+    FIELD_CREATED_DATE,
+    FIELD_ERROR,
+    FIELD_END
+};
+
 /** Respond with extracted data.
  *
- *  @param dump 	Text extracted from the document body.
- *  @param title	Title of the document (if any).
- *  @param keywords	Keywords (if any).
- *  @param author	Author (if any).
- *  @param pages	Number of pages (or -1 if unknown).
+ *  @param field    FIELD_* code
+ *  @param data	    pointer to field content
+ *  @param len	    length of field content in bytes
  */
 void
-response(const char* dump, size_t dump_len,
-	 const char* title, size_t title_len,
-	 const char* keywords, size_t keywords_len,
-	 const char* author, size_t author_len,
-	 int pages,
-	 time_t created);
+send_field(Field field, const char* data, size_t len);
 
+/** Respond with extracted data.
+ *
+ *  @param field    FIELD_* code
+ *  @param data	    pointer to nul-terminated field content
+ */
 inline void
-response(const char* dump,
-	 const char* title,
-	 const char* keywords,
-	 const char* author,
-	 int pages,
-	 time_t created)
-{
-    response(dump, dump ? std::strlen(dump) : 0,
-	     title, title ? std::strlen(title) : 0,
-	     keywords, keywords ? std::strlen(keywords) : 0,
-	     author, author ? std::strlen(author) : 0,
-	     pages,
-	     created);
+send_field(Field field, const char* data) {
+    if (data) send_field(field, data, std::strlen(data));
 }
 
+/** Respond with extracted data.
+ *
+ *  @param field    FIELD_* code
+ *  @param data	    field content as std::string
+ */
 inline void
-response(const std::string& dump,
-	 const std::string& title,
-	 const std::string& keywords,
-	 const std::string& author,
-	 int pages,
-	 time_t created)
-{
-    response(dump.data(), dump.size(),
-	     title.data(), title.size(),
-	     keywords.data(), keywords.size(),
-	     author.data(), author.size(),
-	     pages,
-	     created);
+send_field(Field field, const std::string& s) {
+    send_field(field, s.data(), s.size());
 }
 
-void
-fail_unknown();
+void send_field_page_count(int value);
 
-void
-fail(const char* error, size_t error_len);
-
-inline void
-fail(const char* error)
-{
-    fail(error, error ? std::strlen(error) : 0);
-}
-
-inline void
-fail(const std::string& error)
-{
-    fail(error.data(), error.size());
-}
+void send_field_created_date(time_t value);
 
 #endif // OMEGA_INCLUDED_HANDLER_H

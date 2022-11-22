@@ -37,22 +37,18 @@
 using namespace std;
 
 static void
-parse_metadata(string& metadata,
-	       string& title,
-	       string& keywords,
-	       string& author)
+parse_metadata(const string& metadata)
 {
     OpenDocMetaParser metaparser;
     metaparser.parse(metadata);
-    title = metaparser.title;
-    keywords = metaparser.keywords;
-    author = metaparser.author;
+    send_field(FIELD_TITLE, metaparser.title);
+    send_field(FIELD_KEYWORDS, metaparser.keywords);
+    send_field(FIELD_AUTHOR, metaparser.author);
 }
 
 static bool
 extract_opendoc(struct archive* archive_obj)
 {
-    string title, keywords, author;
     string styles;
     OpenDocParser parser;
 
@@ -67,7 +63,7 @@ extract_opendoc(struct archive* archive_obj)
 	    size = archive_read_data(archive_obj, &content[0], total);
 
 	    if (size <= 0) {
-		fail("Libarchive: failed to read content.xml");
+		send_field(FIELD_ERROR, "Failed to read content.xml");
 		return false;
 	    }
 	    content.resize(size);
@@ -78,7 +74,7 @@ extract_opendoc(struct archive* archive_obj)
 	    size = archive_read_data(archive_obj, &styles[0], total);
 
 	    if (size <= 0) {
-		fail("Libarchive: failed to read styles.xml");
+		send_field(FIELD_ERROR, "Failed to read styles.xml");
 		return false;
 	    }
 	    styles.resize(size);
@@ -90,7 +86,7 @@ extract_opendoc(struct archive* archive_obj)
 	    if (size > 0) {
 		// indexing file even if this fails
 		metadata.resize(size);
-		parse_metadata(metadata, title, keywords, author);
+		parse_metadata(metadata);
 	    }
 	}
     }
@@ -99,14 +95,13 @@ extract_opendoc(struct archive* archive_obj)
     // in either order in the ZIP container.
     parser.parse(styles);
 
-    response(parser.dump, title, keywords, author, -1, time_t(-1));
+    send_field(FIELD_BODY, parser.dump);
     return true;
 }
 
 static bool
 extract_xlsx(struct archive* archive_obj)
 {
-    string title, keywords, author;
     string sheets;
     XlsxParser parser;
 
@@ -132,7 +127,7 @@ extract_xlsx(struct archive* archive_obj)
 	    ssize_t size = archive_read_data(archive_obj, &sheets[i], total);
 
 	    if (size <= 0) {
-		fail("Libarchive: failed to read " + pathname);
+		send_field(FIELD_ERROR, "Failed to read " + pathname);
 		return false;
 	    }
 	    sheets.resize(i + size);
@@ -142,12 +137,12 @@ extract_xlsx(struct archive* archive_obj)
 	    ssize_t size = archive_read_data(archive_obj, &metadata[0], total);
 	    if (size > 0) {
 		metadata.resize(size);
-		parse_metadata(metadata, title, keywords, author);
+		parse_metadata(metadata);
 	    }
 	}
     }
     parser.parse(sheets);
-    response(parser.dump, title, keywords, author, -1, time_t(-1));
+    send_field(FIELD_BODY, parser.dump);
     return true;
 }
 
@@ -155,7 +150,6 @@ static bool
 extract_msxml(struct archive* archive_obj,
 	      const string& tail)
 {
-    string title, keywords, author;
     size_t total;
     ssize_t size;
     struct archive_entry* entry;
@@ -171,7 +165,7 @@ extract_msxml(struct archive* archive_obj,
 		size = archive_read_data(archive_obj, &content[i], total);
 
 		if (size <= 0) {
-		    fail("Libarchive: failed to read word/document.xml");
+		    send_field(FIELD_ERROR, "Failed to read word/document.xml");
 		    return false;
 		}
 		content.resize(i + size);
@@ -195,7 +189,7 @@ extract_msxml(struct archive* archive_obj,
 		size = archive_read_data(archive_obj, &metadata[0], total);
 		if (size > 0) {
 		    metadata.resize(size);
-		    parse_metadata(metadata, title, keywords, author);
+		    parse_metadata(metadata);
 		}
 	    }
 	}
@@ -211,7 +205,7 @@ extract_msxml(struct archive* archive_obj,
 		size = archive_read_data(archive_obj, &content[i], total);
 
 		if (size <= 0) {
-		    fail("Libarchive: failed to read " + pathname);
+		    send_field(FIELD_ERROR, "Failed to read " + pathname);
 		    return false;
 		}
 		content.resize(i + size);
@@ -221,7 +215,7 @@ extract_msxml(struct archive* archive_obj,
 		size = archive_read_data(archive_obj, &metadata[0], total);
 		if (size > 0) {
 		    metadata.resize(size);
-		    parse_metadata(metadata, title, keywords, author);
+		    parse_metadata(metadata);
 		}
 	    }
 	}
@@ -229,14 +223,13 @@ extract_msxml(struct archive* archive_obj,
 
     MSXmlParser parser;
     parser.parse(content);
-    response(parser.dump, title, keywords, author, -1, time_t(-1));
+    send_field(FIELD_BODY, parser.dump);
     return true;
 }
 
 static bool
 extract_xps(struct archive* archive_obj)
 {
-    string title, keywords, author;
     string content;
     XpsParser parser;
 
@@ -250,7 +243,7 @@ extract_xps(struct archive* archive_obj)
 	    ssize_t size = archive_read_data(archive_obj, &content[0], total);
 
 	    if (size <= 0) {
-		fail("Libarchive: failed to read " + pathname);
+		send_field(FIELD_ERROR, "Failed to read " + pathname);
 		return false;
 	    }
 	    content.resize(size);
@@ -262,19 +255,19 @@ extract_xps(struct archive* archive_obj)
 	    ssize_t size = archive_read_data(archive_obj, &content[0], total);
 	    if (size > 0) {
 		content.resize(size);
-		parse_metadata(content, title, keywords, author);
+		parse_metadata(content);
 	    }
 	}
     }
 
-    response(parser.dump, title, keywords, author, -1, time_t(-1));
+    send_field(FIELD_BODY, parser.dump);
     return true;
 }
 
 void
 extract(const string& filename,
 	const string& mimetype)
-try {
+{
     const char* file = filename.c_str();
     struct archive* archive_obj = archive_read_new();
     archive_read_support_format_zip(archive_obj);
@@ -285,7 +278,7 @@ try {
 						 DEFAULT_BLOCK_SIZE);
 
     if (status_code != ARCHIVE_OK) {
-	fail("Libarchive failed to open the file " + filename);
+	send_field(FIELD_ERROR, "Failed to open file");
 	return;
     }
 
@@ -312,9 +305,7 @@ try {
 
     status_code = archive_read_free(archive_obj);
     if (status_code != ARCHIVE_OK) {
-	fail(archive_error_string(archive_obj));
+	send_field(FIELD_ERROR, archive_error_string(archive_obj));
 	return;
     }
-} catch (...) {
-    fail("Libarchive threw an exception");
 }

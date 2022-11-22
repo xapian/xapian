@@ -30,8 +30,8 @@
 #include <librevenge-stream/librevenge-stream.h>
 #include <libmwaw/libmwaw.hxx>
 
-#define PARSE_FIELD(START, END, FIELD, OUT...) \
-   parse_metadata_field((START), (END), (FIELD), (CONST_STRLEN(FIELD)), OUT)
+#define HANDLE_FIELD(START, END, FIELD, OUT...) \
+   handle_field((START), (END), (FIELD), (CONST_STRLEN(FIELD)), OUT)
 
 using namespace librevenge;
 using namespace std;
@@ -39,12 +39,12 @@ using namespace std;
 // Handle a field for which we only take a single value - we avoid copying in
 // this case.
 static void
-parse_metadata_field(const char* start,
-		     const char* end,
-		     const char* field,
-		     size_t len,
-		     const char*& out,
-		     size_t& out_len)
+handle_field(const char* start,
+	     const char* end,
+	     const char* field,
+	     size_t len,
+	     const char*& out,
+	     size_t& out_len)
 {
     if (size_t(end - start) > len && memcmp(start, field, len) == 0) {
 	start += len;
@@ -56,32 +56,30 @@ parse_metadata_field(const char* start,
     }
 }
 
-// Handle a field for which we concatenate multiple instances.  We need to copy
-// in this case.
+// Handle a field for which we process multiple instances.  We just send each
+// occurrence as we see it.
 static void
-parse_metadata_field(const char* start,
-		     const char* end,
-		     const char* field,
-		     size_t len,
-		     string& out)
+handle_field(const char* start,
+	     const char* end,
+	     const char* field,
+	     size_t len,
+	     Field code)
 {
     if (size_t(end - start) > len && memcmp(start, field, len) == 0) {
 	start += len;
 	while (start != end && isspace(*start)) start++;
 	if (start != end && (end[-1] != '\r' || --end != start)) {
-	    if (!out.empty())
-		out.push_back(' ');
-	    out.append(start, end - start);
+	    send_field(code, start, end - start);
 	}
     }
 }
 
 static void
-parse_metadata(const char* data, size_t len,
-	       const char*& title, size_t& title_len,
-	       const char*& author, size_t& author_len,
-	       string& keywords)
+parse_metadata(const char* data, size_t len)
 {
+    const char* author;
+    size_t author_len = 0;
+
     const char* p = data;
     const char* end = p + len;
 
@@ -98,13 +96,13 @@ parse_metadata(const char* data, size_t len,
 	    switch (*start) {
 		case 'i': {
 		    // Use dc:creator in preference to meta:initial-creator.
-		    if (!author)
-			PARSE_FIELD(start, eol, "initial-creator",
-				    author, author_len);
+		    if (!author_len)
+			HANDLE_FIELD(start, eol, "initial-creator",
+				     author, author_len);
 		    break;
 		}
 		case 'k': {
-		    PARSE_FIELD(start, eol, "keyword", keywords);
+		    HANDLE_FIELD(start, eol, "keyword", FIELD_KEYWORDS);
 		    break;
 		}
 	    }
@@ -113,66 +111,58 @@ parse_metadata(const char* data, size_t len,
 	    switch (*start) {
 		case 'c': {
 		    // Use dc:creator in preference to meta:initial-creator.
-		    PARSE_FIELD(start, eol, "creator", author, author_len);
+		    HANDLE_FIELD(start, eol, "creator", author, author_len);
 		    break;
 		}
 		case 's': {
-		    PARSE_FIELD(start, eol, "subject", keywords);
+		    HANDLE_FIELD(start, eol, "subject", FIELD_KEYWORDS);
 		    break;
 		}
 		case 't': {
-		    PARSE_FIELD(start, eol, "title", title, title_len);
+		    HANDLE_FIELD(start, eol, "title", FIELD_TITLE);
 		    break;
 		}
 	    }
 	} else if ((end - start) > 8 && memcmp(start, "dcterms:", 8) == 0) {
 	    start += 8;
-	    PARSE_FIELD(start, eol, "available", keywords);
+	    HANDLE_FIELD(start, eol, "available", FIELD_KEYWORDS);
 	}
     }
-}
 
-static void
-parse_content(const RVNGStringVector& pages_content,
-	      string& dump)
-{
-    for (unsigned i = 0; i < pages_content.size(); ++i) {
-	dump.append(pages_content[i].cstr(), pages_content[i].size());
+    if (author_len) {
+	send_field(FIELD_AUTHOR, author, author_len);
     }
 }
 
 static void
-extract_word(RVNGFileStream* input)
+parse_content(const RVNGStringVector& pages)
+{
+    auto page_count = pages.size();
+    send_field_page_count(page_count);
+    for (unsigned i = 0; i < page_count; ++i) {
+	send_field(FIELD_BODY, pages[i].cstr(), pages[i].size());
+    }
+}
+
+static void
+extract_text(RVNGFileStream* input)
 {
     RVNGString dump;
     RVNGTextTextGenerator content_gen(dump, false);
     if (MWAWDocument::parse(input, &content_gen) != MWAWDocument::MWAW_R_OK) {
-	fail("Libmwaw Error: Failed to extract text");
+	send_field(FIELD_ERROR, "Failed to extract text");
 	return;
     }
+    send_field(FIELD_BODY, dump.cstr(), dump.size());
 
     RVNGString metadata;
     RVNGTextTextGenerator metadata_gen(metadata, true);
     if (MWAWDocument::parse(input, &metadata_gen) != MWAWDocument::MWAW_R_OK) {
-	fail("Libmwaw Error: Failed to extract metadata");
+	send_field(FIELD_ERROR, "Failed to extract metadata");
 	return;
     }
 
-    const char* title = nullptr;
-    const char* author = nullptr;
-    size_t title_len = 0, author_len = 0;
-    string keywords;
-    parse_metadata(metadata.cstr(), metadata.size(),
-		   title, title_len,
-		   author, author_len,
-		   keywords);
-
-    response(dump.cstr(), dump.size(),
-	     title, title_len,
-	     keywords.data(), keywords.size(),
-	     author, author_len,
-	     -1,
-	     time_t(-1));
+    parse_metadata(metadata.cstr(), metadata.size());
 }
 
 static void
@@ -182,82 +172,54 @@ extract_spreadsheet(RVNGFileStream* input)
     RVNGTextSpreadsheetGenerator metadata(pages_metadata, true);
     MWAWDocument::Result result = MWAWDocument::parse(input, &metadata);
     if (result != MWAWDocument::MWAW_R_OK) {
-	fail("Libmwaw Error: Failed to extract metadata");
+	send_field(FIELD_ERROR, "Failed to extract metadata");
 	return;
     }
 
-    const char* title = nullptr;
-    const char* author = nullptr;
-    size_t title_len = 0, author_len = 0;
-    string keywords;
     for (unsigned i = 0; i < pages_metadata.size(); ++i) {
 	parse_metadata(pages_metadata[i].cstr(),
-		       pages_metadata[i].size(),
-		       title, title_len,
-		       author, author_len,
-		       keywords);
+		       pages_metadata[i].size());
     }
 
-    RVNGStringVector pages_content;
-    RVNGTextSpreadsheetGenerator content(pages_content, false);
+    RVNGStringVector pages;
+    RVNGTextSpreadsheetGenerator content(pages, false);
     result = MWAWDocument::parse(input, &content);
     if (result != MWAWDocument::MWAW_R_OK) {
-	fail("Libmwaw Error: Failed to extract text");
+	send_field(FIELD_ERROR, "Failed to extract text");
 	return;
     }
-    string dump;
-    parse_content(pages_content, dump);
-    response(dump.data(), dump.size(),
-	     title, title_len,
-	     keywords.data(), keywords.size(),
-	     author, author_len,
-	     pages_content.size(),
-	     time_t(-1));
+    parse_content(pages);
 }
 
 static void
 extract_presentation(RVNGFileStream* input)
 {
-    RVNGStringVector pages_content;
-    RVNGTextPresentationGenerator content(pages_content);
+    RVNGStringVector pages;
+    RVNGTextPresentationGenerator content(pages);
     MWAWDocument::Result result = MWAWDocument::parse(input, &content);
     if (result != MWAWDocument::MWAW_R_OK) {
-	fail("Libmwaw Error: Failed to extract text");
+	send_field(FIELD_ERROR, "Failed to extract text");
 	return;
     }
-    string dump;
-    parse_content(pages_content, dump);
-    response(dump.data(), dump.size(),
-	     nullptr, 0,
-	     nullptr, 0,
-	     nullptr, 0,
-	     pages_content.size(),
-	     time_t(-1));
+    parse_content(pages);
 }
 
 static void
 extract_drawing(RVNGFileStream* input)
 {
-    RVNGStringVector pages_content;
-    RVNGTextDrawingGenerator content(pages_content);
+    RVNGStringVector pages;
+    RVNGTextDrawingGenerator content(pages);
     MWAWDocument::Result result = MWAWDocument::parse(input, &content);
     if (result != MWAWDocument::MWAW_R_OK) {
-	fail("Libmwaw Error: Failed to extract text");
+	send_field(FIELD_ERROR, "Failed to extract text");
 	return;
     }
-    string dump;
-    parse_content(pages_content, dump);
-    response(dump.data(), dump.size(),
-	     nullptr, 0,
-	     nullptr, 0,
-	     nullptr, 0,
-	     pages_content.size(),
-	     time_t(-1));
+    parse_content(pages);
 }
 
 void
 extract(const string& filename, const string& mimetype)
-try {
+{
     // To store the kind and type of document
     MWAWDocument::Kind kind;
     MWAWDocument::Type type;
@@ -266,13 +228,13 @@ try {
 
     confidence = MWAWDocument::isFileFormatSupported(&input, type, kind);
     if (confidence != MWAWDocument::MWAW_C_EXCELLENT) {
-	fail("Libmwaw Error: File format not supported");
+	send_field(FIELD_ERROR, "File format not supported");
 	return;
     }
 
     switch (kind) {
 	case MWAWDocument::MWAW_K_TEXT:
-	    extract_word(&input);
+	    extract_text(&input);
 	    break;
 	case MWAWDocument::MWAW_K_SPREADSHEET:
 	case MWAWDocument::MWAW_K_DATABASE:
@@ -285,6 +247,4 @@ try {
 	    extract_drawing(&input);
 	    break;
     }
-} catch (...) {
-    fail("Libmwaw threw an exception");
 }

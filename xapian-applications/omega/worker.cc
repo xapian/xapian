@@ -37,6 +37,7 @@
 
 #include "closefrom.h"
 #include "freemem.h"
+#include "handler.h"
 #include "parseint.h"
 #include "pkglibbindir.h"
 #include "str.h"
@@ -54,12 +55,20 @@ Worker::start_worker_subprocess()
 	return 1;
     }
 
-    if (filter_module.find('/') == string::npos) {
-	// Look for unqualified filters in pkglibbindir.
-	string full_path = get_pkglibbindir();
-	full_path += '/';
-	full_path += filter_module;
-	filter_module = std::move(full_path);
+    if (name.empty()) {
+	// The first time we're called, set name to the leafname of
+	// filter_module and qualify filter_module if it's just a
+	// leafname.
+	auto slash = filter_module.rfind('/');
+	if (slash == string::npos) {
+	    name = std::move(filter_module);
+	    // Look for unqualified filters in pkglibbindir.
+	    filter_module = get_pkglibbindir();
+	    filter_module += '/';
+	    filter_module += name;
+	} else {
+	    name.assign(filter_module, slash + 1);
+	}
     }
 
     child = fork();
@@ -148,7 +157,7 @@ Worker::extract(const std::string& filename,
 		time_t& created)
 {
     if (filter_module.empty()) {
-	error = "This helper hard failed earlier in the current run";
+	error = name + ": hard failed earlier in the current run";
 	return -1;
     }
 
@@ -167,30 +176,69 @@ Worker::extract(const std::string& filename,
     }
 
     // Send a filename and wait for the reply.
-    if (write_string(sockt, filename) && write_string(sockt, mimetype) &&
-	read_string(sockt, error)) {
-	if (!error.empty()) {
-	    if (error == "?") {
-		error = "Couldn't extract text from " + filename;
+    if (write_string(sockt, filename) && write_string(sockt, mimetype)) {
+	while (true) {
+	    int field_code = getc(sockt);
+	    string* value;
+	    switch (field_code) {
+	      case FIELD_PAGE_COUNT: {
+		unsigned u_pages;
+		if (!read_unsigned(sockt, u_pages)) {
+		    goto comms_error;
+		}
+		pages = int(u_pages);
+		continue;
+	      }
+	      case FIELD_CREATED_DATE: {
+		unsigned u_created;
+		if (!read_unsigned(sockt, u_created)) {
+		    goto comms_error;
+		}
+		created = time_t(long(u_created));
+		continue;
+	      }
+	      case FIELD_BODY:
+		value = &dump;
+		break;
+	      case FIELD_TITLE:
+		value = &title;
+		break;
+	      case FIELD_KEYWORDS:
+		value = &keywords;
+		break;
+	      case FIELD_AUTHOR:
+		value = &author;
+		break;
+	      case FIELD_ERROR:
+		if (!read_string(sockt, error)) goto comms_error;
+		// Fields shouldn't be empty but the protocol allows them to be.
+		if (error.empty())
+		    error = name + ": Couldn't extract text";
+		return 1;
+	      case FIELD_END:
+		return 0;
+	      case EOF:
+		goto comms_error;
+	      default:
+		error = name + ": Unknown field code ";
+		error += str(field_code);
+		return 1;
 	    }
-	    return 1;
-	}
-
-	unsigned u_pages;
-	unsigned long u_created;
-	if (read_string(sockt, dump) &&
-	    read_string(sockt, title) &&
-	    read_string(sockt, keywords) &&
-	    read_string(sockt, author) &&
-	    read_unsigned(sockt, u_pages) &&
-	    read_unsigned(sockt, u_created)) {
-	    pages = int(u_pages) - 1;
-	    created = time_t(long(u_created));
-	    return 0;
+	    if (value->empty()) {
+		// First instance of this field for this document.
+		if (!read_string(sockt, *value)) break;
+	    } else {
+		// Repeat instance of this field.
+		string s;
+		if (!read_string(sockt, s)) break;
+		*value += ' ';
+		*value += s;
+	    }
 	}
     }
 
-    error = "The assistant process " + filter_module;
+comms_error:
+    error = name;
     // Check if the worker process already died, so we can report if it
     // was killed by a segmentation fault, etc.
     int status;
@@ -204,32 +252,32 @@ Worker::extract(const std::string& filename,
 	// The worker is still alive, so terminate it.
 	kill(child, SIGTERM);
 	waitpid(child, &status, 0);
-	error += " failed";
+	error += ": failed";
     } else if (result < 0) {
 	// waitpid() failed with an error.
-	error += " failed: ";
+	error += ": failed: ";
 	error += strerror(waitpid_errno);
     } else if (WIFEXITED(status)) {
 	int rc = WEXITSTATUS(status);
 	switch (rc) {
 	  case EX_TEMPFAIL:
-	    error += " timed out";
+	    error += ": timed out";
 	    break;
 	  case EX_UNAVAILABLE:
-	    error += " failed to initialise";
+	    error += ": failed to initialise";
 	    filter_module = string();
 	    return -1;
 	  case EX_OSERR:
-	    error += " failed to run helper";
+	    error += ": failed to run helper";
 	    filter_module = string();
 	    return -1;
 	  default:
-	    error += " exited with status ";
+	    error += ": exited with status ";
 	    error += str(rc);
 	    break;
 	}
     } else {
-	error += " killed by signal ";
+	error += ": killed by signal ";
 	error += str(WTERMSIG(status));
     }
     return 1;
