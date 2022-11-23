@@ -950,7 +950,7 @@ QUOTELOOP:  while (1) {
 		}
 		my $s = '';
 		$s = 's' if $extra > 1;
-		print "$fnm:$lineno: Line ${which}indented by $extra column$s: $fullline";
+		diagnostic('error', "Line ${which}indented by $extra column$s");
 	    }
 	}
 
@@ -961,7 +961,7 @@ QUOTELOOP:  while (1) {
 	    $case_no_brace = $3;
 	    # FIXME: Might be OK in e.g. lambdas
 	    #if (/^\+/ && $indent % 4 != 0) {
-	    #    print "$fnm:$lineno: Indented by $len columns - not a multiple of 4: $fullline";
+	    #    diagnostic('error', "Indented by $len columns - not a multiple of 4");
 	    #}
 	    $indent += $keyword =~ /^(?:case|switch|default)/ ? 2 : 4;
 	} elsif (/^[-+ ]([ \t]*)(?:(?:private|protected|public):)$/) {
@@ -969,7 +969,7 @@ QUOTELOOP:  while (1) {
 	    $indent = count_columns($1);
 	    $case_no_brace = undef;
 	    if (/^\+/ && $indent % 4 != 2) {
-		print "$fnm:$lineno: Indented by $indent columns, should be 2 plus a multiple of 4: $fullline";
+		diagnostic('error', "Indented by $indent columns, should be 2 plus a multiple of 4");
 	    }
 	    $indent += 2;
 	} elsif (!/^.\s*$/) {
