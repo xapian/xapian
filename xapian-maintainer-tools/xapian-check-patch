@@ -955,14 +955,15 @@ QUOTELOOP:  while (1) {
 	}
 
 	#if (/^[-+ ]([ \t]*)(?:(?:(?:catch|for|if|for|switch|while)\b.*\)|(?:case|class|do|else|struct|try|union)\b.*) \{|case\b.*:)$/) {
-	if (/^[+ ]([ \t]*)(?:(?:catch|for|if|for|switch|while|case|class|default|do|else|struct|try|union)\b.* \{|(case\b.*|default):)$/) {
+	if (/^[+ ]([ \t]*)(?:(catch|for|if|for|while|case|class|default|do|else|struct|try|union)\b.* \{|(case\b.*|default):)$/) {
 	    $indent = count_columns($1);
-	    $case_no_brace = $2;
+	    my $keyword = $2 // $3;
+	    $case_no_brace = $3;
 	    # FIXME: Might be OK in e.g. lambdas
 	    #if (/^\+/ && $indent % 4 != 0) {
 	    #    print "$fnm:$lineno: Indented by $len columns - not a multiple of 4: $fullline";
 	    #}
-	    $indent += 4;
+	    $indent += $keyword =~ /^(?:case|switch|default)/ ? 2 : 4;
 	} elsif (/^[-+ ]([ \t]*)(?:(?:private|protected|public):)$/) {
 	    # Access specifiers get a half indent and are followed by another half indent.
 	    $indent = count_columns($1);
