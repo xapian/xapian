@@ -960,6 +960,13 @@ test_scriptindex "extra blank lines" \
 test_scriptindex "extra blank lines with CRs" \
   "\r\nid=1\r\nf=a\r\n\r\n\r\nid=2\r\nf=b\r\n\r\n"
 
+# Regression test for handling of no newline on final line, fixed in 1.4.22.
+#
+# This used to report a bogus error on the last line:
+# error: Expected = somewhere in this line
+test_scriptindex "no newline on final line" \
+  "id=1\nf=hello\n=world"
+
 # Feature tests for scriptindex `index` and `indexnopos` actions.
 printf '%s\n' 't : index=XT' 'n : indexnopos=XN' > "$TEST_INDEXSCRIPT"
 test_scriptindex 'INDEX and INDEXNOPOS actions' \
