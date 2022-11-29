@@ -1447,6 +1447,7 @@ index_file(const char *fname, istream &stream,
 		// Replace the '=' with a '\n'.
 		line[0] = '\n';
 		value += line;
+		line.erase();
 	    }
 
 	    if (skipping_record) continue;
