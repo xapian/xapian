@@ -116,62 +116,67 @@ index_test()
     tests.insert({"img/scan-page.png",
 		  {{"Zannual", "Zfed", "Zreturn", "Zwhile"}}});
 #endif
-#if defined HAVE_LIBARCHIVE
-    // blank file
-    // pass the test if no terms are found
-    tests.insert({"odf/blank.odt",
-		  {{}}});
-    // corrupted file (ODP)
-    // tests.insert({"corrupt_file.odp", {"ZSnatur"}});
-
-    // ODF
-    tests.insert({"odf/test.odt",
-		  {{"Zедой", "Z喬伊不分享食物"}}});
-    tests.insert({"odf/libarchive_text.odt",
-		  {{"Stesttitle", "Aolly", "Zsampl", "Zhead", "Ztext",
-		    "Zhello", "Zworld"}}});
-    tests.insert({"odf/libarchive_text_template.ott",
-		  {{"Zjane", "Zdoe", "Zstructur"}}});
-    tests.insert({"odf/libarchive_presentation.odp",
-		  {{"Zfascin", "Zfact", "Zpustak", "Zmahal", "Zmillion",
-		    "Zpeopl", "Zbirthday", "501"}}});
-    tests.insert({"odf/libarchive_presentation_template.otp",
-		  {{"ZSalizarin", "Zhead", "Zworld", "Ztext"}}});
-    tests.insert({"odf/libarchive_spreadsheet.ods",
-		  {{"Zhello", "Zworld", "Zsampl", "2"}}});
-    tests.insert({"odf/libarchive_spreadsheet_template.ots",
-		  {{"Zfood", "Zpasta", "Zpercentag", "40"}}});
-    tests.insert({"odf/libarchive_draw.odg",
-		  {{"Zparth", "Zkapadia"}}});
-
-    // Apache OpenOffice
-    tests.insert({"sof/libarchive_openoffice_calc.sxc",
-		  {{"Ztoy", "Zproduct", "Zcost", "Zquantiti", "Zcardboard"}}});
-    tests.insert({"sof/libarchive_openoffice_calc_template.stc",
-		  {{"ZSpurchas", "ZStemplat", "Zproduct", "Zquantiti",
-		    "Zsampl"}}});
-    tests.insert({"sof/libarchive_openoffice_text.sxw",
-		  {{"Zhello", "Zsampl", "Zopenoffic", "Zwriter"}}});
-    tests.insert({"sof/libarchive_openoffice_text_template.stw",
-		  {{"Zhello", "Zworld", "Zsampl", "Zhead", "ZStemplat",
-		    "ZStext"}}});
-    tests.insert({"sof/libarchive_openoffice_presentation.sxi",
-		  {{"Zhead", "Zhello", "Zopenoffic", "Zimpress"}}});
-    tests.insert({"sof/libarchive_openoffice_presentation_template.sti",
-		  {{"ZSproject", "ZSresearch", "Zhead", "Ztext"}}});
-
-    // OOXML formats
-    tests.insert({"ooxml/Book.xlsx",
-		  {{"Zmodi", "Zgood", "Zemploye"}}});
-    tests.insert({"ooxml/2sheets.xlsx",
-		  {{"0.123456", "123.456", "15", "2021", "3.14159265358979",
-		    "43", "55", "Aolly", "Ssheet", "Stitle", "xmas"}}});
-    tests.insert({"ooxml/Doc.docx",
-		  {{"Zедой", "Z喬伊不分享食物", "ZSbakeri"}}});
-    tests.insert({"ooxml/Nature.pptx",
-		  {{"ZSnatur", "Zbeauti", "Zsampl"}}});
-    tests.insert({"application/vnd.ms-xpsdocument_xpstest.xps",
+#define OFFICE_TESTCASES(PREFIX) \
+    /* blank file */ \
+    /* pass the test if no terms are found */ \
+    tests.insert({PREFIX "odf/blank.odt", \
+		  {{}}}); \
+    /* corrupted file (ODP) */ \
+    /* tests.insert({PREFIX "corrupt_file.odp", {"ZSnatur"}}); */ \
+    \
+    /* ODF */ \
+    tests.insert({PREFIX "odf/test.odt", \
+		  {{"Zедой", "Z喬伊不分享食物"}}}); \
+    tests.insert({PREFIX "odf/libarchive_text.odt", \
+		  {{"Stesttitle", "Aolly", "Zsampl", "Zhead", "Ztext", \
+		    "Zhello", "Zworld"}}}); \
+    tests.insert({PREFIX "odf/libarchive_text_template.ott", \
+		  {{"Zjane", "Zdoe", "Zstructur"}}}); \
+    tests.insert({PREFIX "odf/libarchive_presentation.odp", \
+		  {{"Zfascin", "Zfact", "Zpustak", "Zmahal", "Zmillion", \
+		    "Zpeopl", "Zbirthday", "501"}}}); \
+    tests.insert({PREFIX "odf/libarchive_presentation_template.otp", \
+		  {{"ZSalizarin", "Zhead", "Zworld", "Ztext"}}}); \
+    tests.insert({PREFIX "odf/libarchive_spreadsheet.ods", \
+		  {{"Zhello", "Zworld", "Zsampl", "2"}}}); \
+    tests.insert({PREFIX "odf/libarchive_spreadsheet_template.ots", \
+		  {{"Zfood", "Zpasta", "Zpercentag", "40"}}}); \
+    tests.insert({PREFIX "odf/libarchive_draw.odg", \
+		  {{"Zparth", "Zkapadia"}}}); \
+    \
+    /* Apache OpenOffice */ \
+    tests.insert({PREFIX "sof/libarchive_openoffice_calc.sxc", \
+		  {{"Ztoy", "Zproduct", "Zcost", "Zquantiti", "Zcardboard"}}}); \
+    tests.insert({PREFIX "sof/libarchive_openoffice_calc_template.stc", \
+		  {{"ZSpurchas", "ZStemplat", "Zproduct", "Zquantiti", \
+		    "Zsampl"}}}); \
+    tests.insert({PREFIX "sof/libarchive_openoffice_text.sxw", \
+		  {{"Zhello", "Zsampl", "Zopenoffic", "Zwriter"}}}); \
+    tests.insert({PREFIX "sof/libarchive_openoffice_text_template.stw", \
+		  {{"Zhello", "Zworld", "Zsampl", "Zhead", "ZStemplat", \
+		    "ZStext"}}}); \
+    tests.insert({PREFIX "sof/libarchive_openoffice_presentation.sxi", \
+		  {{"Zhead", "Zhello", "Zopenoffic", "Zimpress"}}}); \
+    tests.insert({PREFIX "sof/libarchive_openoffice_presentation_template.sti", \
+		  {{"ZSproject", "ZSresearch", "Zhead", "Ztext"}}}); \
+    \
+    /* OOXML formats */ \
+    tests.insert({PREFIX "ooxml/Book.xlsx", \
+		  {{"Zmodi", "Zgood", "Zemploye"}}}); \
+    tests.insert({PREFIX "ooxml/2sheets.xlsx", \
+		  {{"0.123456", "123.456", "15", "2021", "3.14159265358979", \
+		    "43", "55", "Aolly", "Ssheet", "Stitle", "xmas"}}}); \
+    tests.insert({PREFIX "ooxml/Doc.docx", \
+		  {{"Zедой", "Z喬伊不分享食物", "ZSbakeri"}}}); \
+    tests.insert({PREFIX "ooxml/Nature.pptx", \
+		  {{"ZSnatur", "Zbeauti", "Zsampl"}}}); \
+    tests.insert({PREFIX "application/vnd.ms-xpsdocument_xpstest.xps", \
 		 {{"second", "header", "footer"}}});
+#if defined HAVE_LIBARCHIVE
+    OFFICE_TESTCASES("")
+#endif
+#if defined HAVE_LIBREOFFICEKIT
+    OFFICE_TESTCASES("lok-")
 #endif
 #if defined HAVE_LIBABW
     // Title term is not being tested here because some older versions of Libabw

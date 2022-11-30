@@ -320,6 +320,15 @@ other filters too - see below):
   .tif, .tiff, .pbm, .gif, .ppm, .pgm) if libtesseract is available
 * AppleWorks/ClarisWorks documents (.cwk) if libmwaw is available
 * Apple PICT files (.pict, .pct, .pic) if libmwaw is available
+* Any format LibreOffice supports reading if LibreOffice is available.  This
+  is implemented via the ``omindex_libreofficekit`` worker.  No MIME types are
+  mapped to this worker by default because converting using it tends to be
+  rather slow and we have alternative filters for supporting most of these
+  formats.  The advantages of using LibreOffice are that it may successfully
+  handle more files of some types than other filters (e.g. it handles
+  "small-block" ``.doc`` files whereas antiword doesn't) and it may extract
+  more metadata (e.g. with antiword you only get file extension, MIME type and
+  last modified).  Enable use with ``--worker`` as documented below.
 
 If you have additional extensions that represent one of these types, you can
 add an additional MIME mapping using the ``--mime-type`` option.  For
@@ -467,9 +476,11 @@ program can't.  The worker runs as a subprocess, and is reused for multiple
 files.  This also means bugs in the library can only crash the worker process.
 
 In most cases we default to setting a worker to be used for the types it
-supports. You can explicitly set a MIME type to worker mapping using
-``--worker=TYPE:WORKER``.  This also supports wildcarding of the MIME type like
-``--filter`` does.
+supports, but for example the ``omindex_libreofficekit`` worker is not
+hooked up by default.  You can explicitly set a MIME type to worker mapping
+using ``--worker=TYPE:WORKER`` - e.g.
+``--worker=application/msword:omindex_libreofficekit``.  This also supports
+wildcarding of the MIME type like ``--filter`` does.
 
 The ``--duplicates`` option controls how omindex handles documents which map
 to a URL which is already in the database.  The default (which can be

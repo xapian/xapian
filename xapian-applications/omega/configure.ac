@@ -318,6 +318,22 @@ PKG_CHECK_MODULES([LIBMWAW], [libmwaw-0.3,librevenge-0.0,librevenge-generators-0
     AC_DEFINE(HAVE_LIBMWAW, 1, [Define HAVE_LIBMWAW if the library is available])
     OMINDEX_MODULES="$OMINDEX_MODULES omindex_libmwaw"],[ ])
 
+dnl Check if libreofficekit is available.
+AC_CHECK_HEADERS([LibreOfficeKit/LibreOfficeKit.hxx], [
+  if test x"$LO_INCLUDE_PATH" != x ; then
+    LIBREOFFICEKIT_CPPFLAGS="-I'$LO_INCLUDE_PATH'"
+    AC_SUBST([LIBREOFFICEKIT_CPPFLAGS])
+  fi
+  OMINDEX_MODULES="$OMINDEX_MODULES omindex_libreofficekit"
+], [], [ ])
+CPPFLAGS=$save_CPPFLAGS
+dnl Allow easy building against uninstalled LibreOffice.
+AC_ARG_VAR([LO_INCLUDE_PATH], [Path to directory containing LibreOffice headers])
+save_CPPFLAGS=$CPPFLAGS
+if test x"$LO_INCLUDE_PATH" != x ; then
+  CPPFLAGS="$CPPFLAGS -I'$LO_INCLUDE_PATH'"
+fi
+
 AC_SUBST([OMINDEX_MODULES])
 
 dnl mingw has _snprintf so check for that too.

@@ -54,7 +54,8 @@ EXTRA_PROGRAMS =\
 	omindex_libabw\
 	omindex_libcdr\
 	omindex_libextractor\
-	omindex_libmwaw
+	omindex_libmwaw\
+	omindex_libreofficekit
 
 EXTRA_DIST =\
 	clickmodel/testdata/test1.log\
@@ -225,6 +226,10 @@ omindex_libextractor_CXXFLAGS = $(LIBEXTRACTOR_CFLAGS)
 omindex_libmwaw_SOURCES = assistant.cc worker_comms.cc handler_libmwaw.cc common/str.cc
 omindex_libmwaw_LDADD = $(LIBMWAW_LIBS)
 omindex_libmwaw_CXXFLAGS = $(LIBMWAW_CFLAGS) $(XAPIAN_CXXFLAGS)
+
+omindex_libreofficekit_SOURCES = assistant.cc worker_comms.cc datetime.cc loadfile.cc tmpdir.cc urlencode.cc xmlparser.cc htmlparser.cc common/keyword.cc common/str.cc handler_libreofficekit.cc
+omindex_libreofficekit_LDADD = $(LIBREOFFICEKIT_LIBS) libutf8convert.la
+omindex_libreofficekit_CXXFLAGS = $(LIBREOFFICEKIT_CFLAGS) $(XAPIAN_CXXFLAGS)
 
 scriptindex_SOURCES = scriptindex.cc\
  genericxmlparser.cc htmlparser.cc xmlparser.cc\
