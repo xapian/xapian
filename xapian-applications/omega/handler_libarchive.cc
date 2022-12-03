@@ -44,6 +44,7 @@ parse_metadata(const string& metadata)
     send_field(FIELD_TITLE, metaparser.title);
     send_field(FIELD_KEYWORDS, metaparser.keywords);
     send_field(FIELD_AUTHOR, metaparser.author);
+    send_field_created_date(metaparser.created);
     send_field_page_count(metaparser.pages);
 }
 
