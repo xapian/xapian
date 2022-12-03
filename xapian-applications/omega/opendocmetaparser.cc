@@ -1,7 +1,7 @@
 /** @file
  * @brief Parser for OpenDocument's meta.xml.
  */
-/* Copyright (C) 2006,2009,2010,2011,2013,2015,2020 Olly Betts
+/* Copyright (C) 2006,2009,2010,2011,2013,2015,2020,2022 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +23,7 @@
 #include "opendocmetaparser.h"
 
 #include "datetime.h"
+#include "parseint.h"
 
 using namespace std;
 
@@ -86,6 +87,18 @@ OpenDocMetaParser::opening_tag(const string& tag)
 	    field = KEYWORDS;
 	} else if (tag == "meta:creation-date") {
 	    field = CREATED;
+	} else if (tag == "meta:document-statistic") {
+	    // For an OpenDocument spreadsheet meta:table-count here seems to
+	    // be the sheet count (this tag occurs inside <office:meta>):
+	    //
+	    // <meta:document-statistic meta:table-count="12"
+	    // meta:cell-count="5396" meta:object-count="0"/>
+	    string value;
+	    if (get_attribute("meta:table-count", value)) {
+		unsigned u_pages;
+		if (parse_unsigned(value.c_str(), u_pages))
+		    pages = int(u_pages);
+	    }
 	}
     }
     return true;

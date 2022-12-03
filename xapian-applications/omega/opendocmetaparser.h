@@ -1,7 +1,7 @@
 /** @file
  * @brief Parser for OpenDocument's meta.xml.
  */
-/* Copyright (C) 2006,2009,2010,2011,2016,2019 Olly Betts
+/* Copyright (C) 2006,2009,2010,2011,2016,2019,2022 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,6 +33,7 @@ class OpenDocMetaParser : public XmlParser {
     bool opening_tag(const std::string& tag);
     bool closing_tag(const std::string& tag);
     std::string title, keywords, sample, author;
+    int pages = -1;
     time_t created = time_t(-1);
 };
 
