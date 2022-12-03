@@ -1,7 +1,7 @@
 /** @file
  * @brief Parser for OpenDocument's meta.xml.
  */
-/* Copyright (C) 2006,2009,2010,2011,2016 Olly Betts
+/* Copyright (C) 2006,2009,2010,2011,2016,2022 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,6 +34,7 @@ class MetaXmlParser : public HtmlParser {
     bool closing_tag(const string &tag);
     string title, keywords, sample, author;
     time_t created;
+    int pages = -1;
 };
 
 #endif // OMEGA_INCLUDED_METAXMLPARSE_H
