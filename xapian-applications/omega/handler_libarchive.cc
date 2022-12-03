@@ -102,6 +102,7 @@ extract_opendoc(struct archive* archive_obj)
 static bool
 extract_xlsx(struct archive* archive_obj)
 {
+    int pages = 0;
     string sheets;
     XlsxParser parser;
 
@@ -131,6 +132,7 @@ extract_xlsx(struct archive* archive_obj)
 		return false;
 	    }
 	    sheets.resize(i + size);
+	    ++pages;
 	} else if (pathname == "docProps/core.xml") {
 	    size_t total = archive_entry_size(entry);
 	    string metadata(total, '\0');
@@ -143,6 +145,7 @@ extract_xlsx(struct archive* archive_obj)
     }
     parser.parse(sheets);
     send_field(FIELD_BODY, parser.dump);
+    send_field_page_count(pages);
     return true;
 }
 
@@ -194,11 +197,15 @@ extract_msxml(struct archive* archive_obj,
 	    }
 	}
     } else if (startswith(tail, "presentationml.")) {
+	int pages = 0;
 	while (archive_read_next_header(archive_obj, &entry) == ARCHIVE_OK) {
 	    string pathname = archive_entry_pathname(entry);
-	    if (startswith(pathname, "ppt/slides/slide") ||
-		startswith(pathname, "ppt/notesSlides/notesSlide") ||
-		startswith(pathname, "ppt/comments/comment")) {
+	    if (startswith(pathname, "ppt/slides/slide")) {
+		++pages;
+		goto handle_pptx_content;
+	    } else if (startswith(pathname, "ppt/notesSlides/notesSlide") ||
+		       startswith(pathname, "ppt/comments/comment")) {
+handle_pptx_content:
 		auto i = content.size();
 		total = archive_entry_size(entry);
 		content.resize(i + total);
@@ -219,6 +226,7 @@ extract_msxml(struct archive* archive_obj,
 		}
 	    }
 	}
+	send_field_page_count(pages);
     }
 
     MSXmlParser parser;
@@ -230,6 +238,7 @@ extract_msxml(struct archive* archive_obj,
 static bool
 extract_xps(struct archive* archive_obj)
 {
+    int pages = 0;
     string content;
     XpsParser parser;
 
@@ -248,6 +257,7 @@ extract_xps(struct archive* archive_obj)
 	    }
 	    content.resize(size);
 	    parser.parse(content);
+	    ++pages;
 	} else if (pathname == "docProps/core.xml") {
 	    // If present, docProps/core.xml stores meta data.
 	    size_t total = archive_entry_size(entry);
@@ -261,6 +271,7 @@ extract_xps(struct archive* archive_obj)
     }
 
     send_field(FIELD_BODY, parser.dump);
+    send_field_page_count(pages);
     return true;
 }
 
