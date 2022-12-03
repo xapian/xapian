@@ -88,13 +88,18 @@ MetaXmlParser::opening_tag(const string &tag)
 	} else if (tag == "meta:creation-date") {
 	    field = CREATED;
 	} else if (tag == "meta:document-statistic") {
-	    // For an OpenDocument spreadsheet meta:table-count here seems to
-	    // be the sheet count (this tag occurs inside <office:meta>):
+	    // For OpenDocument, the values we want for the page count are to
+	    // be found as attributes of the meta:document-statistic tag (which
+	    // occurs inside <office:meta> but we don't bother to check that).
 	    //
-	    // <meta:document-statistic meta:table-count="12"
-	    // meta:cell-count="5396" meta:object-count="0"/>
+	    // For text documents, we want the meta:page-count attribute.
+	    //
+	    // For spreadsheets, meta:table-count seems to give the sheet count
+	    // (text documents also have meta:table-count so we check for this
+	    // after meta:page-count).
 	    string value;
-	    if (get_parameter("meta:table-count", value)) {
+	    if (get_parameter("meta:page-count", value) ||
+		get_parameter("meta:table-count", value)) {
 		unsigned u_pages;
 		if (parse_unsigned(value.c_str(), u_pages))
 		    pages = int(u_pages);
