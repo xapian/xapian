@@ -1,5 +1,7 @@
 /** @file
  * @brief Parser for OpenDocument's meta.xml.
+ *
+ * Also used for MSXML's docProps/core.xml.
  */
 /* Copyright (C) 2006,2009,2010,2011,2013,2015,2020,2022 Olly Betts
  *
@@ -64,6 +66,8 @@ MetaXmlParser::opening_tag(const string &tag)
     if (tag.size() < 8) return true;
     if (tag[0] == 'd' && tag[1] == 'c') {
 	if (tag == "dc:subject") {
+	    // OpenDocument, MSXML.
+	    //
 	    // dc:subject is "Subject and Keywords":
 	    // "Typically, Subject will be expressed as keywords, key phrases
 	    // or classification codes that describe a topic of the resource."
@@ -72,25 +76,36 @@ MetaXmlParser::opening_tag(const string &tag)
 	    // it as more keywords.
 	    field = KEYWORDS;
 	} else if (tag == "dc:title") {
+	    // OpenDocument, MSXML.
 	    field = TITLE;
 	} else if (tag == "dc:description") {
+	    // OpenDocument, MSXML.
 	    field = SAMPLE;
 	} else if (tag == "dc:creator") {
+	    // OpenDocument, MSXML.
 	    field = AUTHOR;
+	} else if (tag == "dcterms:created") {
+	    // MSXML.
+	    field = CREATED;
 	}
     } else if (tag[0] == 'm') {
 	if (tag == "meta:keyword") {
+	    // OpenDocument.
+	    //
 	    // e.g.:
 	    // <meta:keywords>
 	    // <meta:keyword>information retrieval</meta:keyword>
 	    // </meta:keywords>
 	    field = KEYWORDS;
 	} else if (tag == "meta:creation-date") {
+	    // OpenDocument.
 	    field = CREATED;
 	} else if (tag == "meta:document-statistic") {
-	    // For OpenDocument, the values we want for the page count are to
-	    // be found as attributes of the meta:document-statistic tag (which
-	    // occurs inside <office:meta> but we don't bother to check that).
+	    // OpenDocument:
+	    //
+	    // The values we want for the page count are to be found as
+	    // attributes of the meta:document-statistic tag (which occurs
+	    // inside <office:meta> but we don't bother to check that).
 	    //
 	    // For text documents, we want the meta:page-count attribute.
 	    //
@@ -104,6 +119,11 @@ MetaXmlParser::opening_tag(const string &tag)
 		if (parse_unsigned(value.c_str(), u_pages))
 		    pages = int(u_pages);
 	    }
+	}
+    } else if (tag[0] == 'c' && tag[1] == 'p') {
+	if (tag == "cp:keywords") {
+	    // MSXML.
+	    field = KEYWORDS;
 	}
     }
     return true;

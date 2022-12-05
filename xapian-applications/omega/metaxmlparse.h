@@ -1,5 +1,7 @@
 /** @file
  * @brief Parser for OpenDocument's meta.xml.
+ *
+ * Also used for MSXML's docProps/core.xml.
  */
 /* Copyright (C) 2006,2009,2010,2011,2016,2022 Olly Betts
  *
