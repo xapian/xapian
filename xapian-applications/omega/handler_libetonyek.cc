@@ -143,13 +143,13 @@ extract_key(RVNGInputStream* input)
 	send_field(FIELD_ERROR, "Failed to extract text");
 	return;
     }
-    string dump;
     unsigned size = content.size();
+    // Use the number of slides as the page count.
+    send_field_page_count(size);
     for (unsigned i = 0; i < size; ++i) {
-	if (i) dump += '\n';
-	dump.append(content[i].cstr(), content[i].size());
+	const RVNGString& slide = content[i];
+	send_field(FIELD_BODY, slide.cstr(), slide.size());
     }
-    send_field(FIELD_BODY, dump.data(), dump.size());
 }
 
 static void
@@ -162,13 +162,13 @@ extract_numbers(RVNGInputStream* input)
 	send_field(FIELD_ERROR, "Failed to extract text");
 	return;
     }
-    string dump;
     unsigned size = content.size();
+    // Use the number of sheets as the page count.
+    send_field_page_count(size);
     for (unsigned i = 0; i < size; ++i) {
-	if (i) dump += '\n';
-	dump.append(content[i].cstr(), content[i].size());
+	const RVNGString& slide = content[i];
+	send_field(FIELD_BODY, slide.cstr(), slide.size());
     }
-    send_field(FIELD_BODY, dump.data(), dump.size());
 }
 
 static void
