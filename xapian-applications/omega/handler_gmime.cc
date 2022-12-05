@@ -190,6 +190,32 @@ extract(const string& filename,
 #else
 	send_field(FIELD_AUTHOR, g_mime_message_get_sender(message));
 #endif
+#if GMIME_MAJOR_VERSION >= 3
+	GDateTime* datetime = g_mime_message_get_date(message);
+	if (datetime) {
+	    GDateTime* utc_datetime = g_date_time_to_utc(datetime);
+	    g_date_time_unref(datetime);
+	    gint64 unix_time = g_date_time_to_unix(utc_datetime);
+	    // Check value doesn't overflow time_t.
+	    if (gint64(time_t(unix_time)) == unix_time) {
+		send_field_created_date(time_t(unix_time));
+	    }
+	    g_date_time_unref(utc_datetime);
+	}
+#else
+	time_t datetime;
+	int tz_offset;
+	g_mime_message_get_date(message, &datetime, &tz_offset);
+	if (datetime != time_t(-1)) {
+	    // The documentation doesn't clearly say, but from testing the
+	    // time_t value is in UTC which is what we want so we don't need
+	    // tz_offset.
+	    //
+	    // (If we did, tz_offset is not actually in hours as the docs say,
+	    // but actually hours*100+minutes, e.g. +1300 for UTC+13).
+	    send_field_created_date(datetime);
+	}
+#endif
 	g_object_unref(message);
     }
     g_object_unref(parser);
