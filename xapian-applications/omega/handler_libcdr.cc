@@ -36,6 +36,15 @@ extract(const string& filename, const string& mimetype)
     RVNGStringVector cdr_pages;
     RVNGTextDrawingGenerator content(cdr_pages);
 
+    // There's also support in libcdr for CMX files, which is an exchange
+    // format used by CorelDraw which seems to be mostly used for brushes
+    // and clip art, neither of which are likely to contain extractable
+    // text, so currently we don't attempt to handle CMX files here.
+    //
+    // There don't seem to be many freely available sample files either - the
+    // only one I found easily was NEWSFLASH.CMX in the EDRM dataset, which
+    // doesn't contain any extractable text.
+
     // check if cdr file supported
     if (!libcdr::CDRDocument::isSupported(&input)) {
 	send_field(FIELD_ERROR, "Format not supported");
