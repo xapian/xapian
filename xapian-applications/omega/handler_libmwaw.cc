@@ -140,7 +140,8 @@ parse_content(const RVNGStringVector& pages)
     auto page_count = pages.size();
     send_field_page_count(page_count);
     for (unsigned i = 0; i < page_count; ++i) {
-	send_field(FIELD_BODY, pages[i].cstr(), pages[i].size());
+	const RVNGString& page = pages[i];
+	send_field(FIELD_BODY, page.cstr(), page.size());
     }
 }
 
@@ -177,8 +178,8 @@ extract_spreadsheet(RVNGFileStream* input)
     }
 
     for (unsigned i = 0; i < pages_metadata.size(); ++i) {
-	parse_metadata(pages_metadata[i].cstr(),
-		       pages_metadata[i].size());
+	const RVNGString& page = pages_metadata[i];
+	parse_metadata(page.cstr(), page.size());
     }
 
     RVNGStringVector pages;
