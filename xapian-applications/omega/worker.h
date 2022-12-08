@@ -52,11 +52,11 @@ class Worker {
      */
     std::string filter_module;
 
-    /** Name of the assistant program.
+    /** Prefix to add to error messages.
      *
-     *  This is just the leafname, used in error messages.
+     *  This is the leafname of the assistant program followed by ": ".
      */
-    std::string name;
+    std::string error_prefix;
 
     /** This method creates the assistant subprocess.
      *

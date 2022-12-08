@@ -55,20 +55,21 @@ Worker::start_worker_subprocess()
 	return 1;
     }
 
-    if (name.empty()) {
-	// The first time we're called, set name to the leafname of
-	// filter_module and qualify filter_module if it's just a
-	// leafname.
+    if (error_prefix.empty()) {
+	// The first time we're called, set error_prefix to the leafname of
+	// filter_module followed by ": ", and qualify filter_module if it's
+	// just a leafname.
 	auto slash = filter_module.rfind('/');
 	if (slash == string::npos) {
-	    name = std::move(filter_module);
+	    error_prefix = std::move(filter_module);
 	    // Look for unqualified filters in pkglibbindir.
 	    filter_module = get_pkglibbindir();
 	    filter_module += '/';
-	    filter_module += name;
+	    filter_module += error_prefix;
 	} else {
-	    name.assign(filter_module, slash + 1);
+	    error_prefix.assign(filter_module, slash + 1);
 	}
+	error_prefix += ": ";
     }
 
     child = fork();
@@ -157,7 +158,7 @@ Worker::extract(const std::string& filename,
 		time_t& created)
 {
     if (filter_module.empty()) {
-	error = name + ": hard failed earlier in the current run";
+	error = error_prefix + "hard failed earlier in the current run";
 	return -1;
     }
 
@@ -213,14 +214,16 @@ Worker::extract(const std::string& filename,
 		if (!read_string(sockt, error)) goto comms_error;
 		// Fields shouldn't be empty but the protocol allows them to be.
 		if (error.empty())
-		    error = name + ": Couldn't extract text";
+		    error = error_prefix + "Couldn't extract text";
+		else
+		    error.insert(0, error_prefix);
 		return 1;
 	      case FIELD_END:
 		return 0;
 	      case EOF:
 		goto comms_error;
 	      default:
-		error = name + ": Unknown field code ";
+		error = error_prefix + "Unknown field code ";
 		error += str(field_code);
 		return 1;
 	    }
@@ -238,7 +241,7 @@ Worker::extract(const std::string& filename,
     }
 
 comms_error:
-    error = name;
+    error = error_prefix;
     // Check if the worker process already died, so we can report if it
     // was killed by a segmentation fault, etc.
     int status;
@@ -252,32 +255,32 @@ comms_error:
 	// The worker is still alive, so terminate it.
 	kill(child, SIGTERM);
 	waitpid(child, &status, 0);
-	error += ": failed";
+	error += "failed";
     } else if (result < 0) {
 	// waitpid() failed with an error.
-	error += ": failed: ";
+	error += "failed: ";
 	error += strerror(waitpid_errno);
     } else if (WIFEXITED(status)) {
 	int rc = WEXITSTATUS(status);
 	switch (rc) {
 	  case EX_TEMPFAIL:
-	    error += ": timed out";
+	    error += "timed out";
 	    break;
 	  case EX_UNAVAILABLE:
-	    error += ": failed to initialise";
+	    error += "failed to initialise";
 	    filter_module = string();
 	    return -1;
 	  case EX_OSERR:
-	    error += ": failed to run helper";
+	    error += "failed to run helper";
 	    filter_module = string();
 	    return -1;
 	  default:
-	    error += ": exited with status ";
+	    error += "exited with status ";
 	    error += str(rc);
 	    break;
 	}
     } else {
-	error += ": killed by signal ";
+	error += "killed by signal ";
 	error += str(WTERMSIG(status));
     }
     return 1;
