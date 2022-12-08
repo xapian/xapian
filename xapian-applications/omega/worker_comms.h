@@ -40,3 +40,9 @@ bool read_unsigned(std::FILE* f, unsigned long& v);
 bool write_unsigned(std::FILE* f, unsigned v);
 
 bool write_unsigned(std::FILE* f, unsigned long v);
+
+// Exit codes for situations not enumerated by <sysexits.h>.
+enum {
+    OMEGA_EX_SOCKET_READ_ERROR = 10,
+    OMEGA_EX_SOCKET_WRITE_ERROR
+};

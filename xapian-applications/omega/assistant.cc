@@ -75,7 +75,7 @@ send_field(Field field,
     if (len == 0) return;
     putc(static_cast<unsigned char>(field), sockt);
     if (!write_string(sockt, data, len)) {
-	exit(1);
+	_Exit(OMEGA_EX_SOCKET_WRITE_ERROR);
     }
 }
 
@@ -91,7 +91,7 @@ send_field_page_count(int value)
     if (value < 0) return;
     putc(static_cast<unsigned char>(FIELD_PAGE_COUNT), sockt);
     if (!write_unsigned(sockt, unsigned(value))) {
-	exit(1);
+	_Exit(OMEGA_EX_SOCKET_WRITE_ERROR);
     }
 }
 
@@ -102,7 +102,7 @@ send_field_created_date(time_t value)
     putc(static_cast<unsigned char>(FIELD_CREATED_DATE), sockt);
     auto u_value = static_cast<unsigned long>(value);
     if (!write_unsigned(sockt, u_value)) {
-	exit(1);
+	_Exit(OMEGA_EX_SOCKET_WRITE_ERROR);
     }
 }
 
@@ -115,6 +115,7 @@ int main()
 
     while (true) {
 	// Read filename.
+	errno = 0;
 	if (!read_string(sockt, filename)) break;
 	if (!read_string(sockt, mimetype)) break;
 	// Setting a timeout for avoid infinity loops
@@ -128,5 +129,5 @@ int main()
 	send_field_end();
     }
 
-    return 0;
+    _Exit(errno ? OMEGA_EX_SOCKET_READ_ERROR : EX_OK);
 }

@@ -263,6 +263,12 @@ comms_error:
     } else if (WIFEXITED(status)) {
 	int rc = WEXITSTATUS(status);
 	switch (rc) {
+	  case OMEGA_EX_SOCKET_READ_ERROR:
+	    error += "subprocess failed to read data from us";
+	    break;
+	  case OMEGA_EX_SOCKET_WRITE_ERROR:
+	    error += "subprocess failed to write data to us";
+	    break;
 	  case EX_TEMPFAIL:
 	    error += "timed out";
 	    break;
