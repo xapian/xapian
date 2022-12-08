@@ -52,10 +52,12 @@
 #include "index_file.h"
 #include "mime.h"
 #include "parseint.h"
+#include "pkglibbindir.h"
 #include "realtime.h"
 #include "str.h"
 #include "stringutils.h"
 #include "urlencode.h"
+#include "worker.h"
 
 #include "gnu_getopt.h"
 
@@ -328,6 +330,21 @@ parse_filter_rule(const char* rule, map<string, string>& mime_map)
     return true;
 }
 
+static bool
+parse_worker_rule(const char* rule)
+{
+    const char* s = strchr(rule, ':');
+    if (s == NULL || s[1] == '\0') {
+	cerr << "Invalid worker mapping '" << rule << "'\n"
+		"Should be of the form TYPE:WORKER\n"
+		"e.g. 'application/msword:omindex_libreofficekit\n";
+	return false;
+    }
+
+    index_library(string(rule, s - rule), new Worker(string(s + 1)));
+    return true;
+}
+
 int
 main(int argc, char **argv)
 {
@@ -356,7 +373,8 @@ main(int argc, char **argv)
 	OPT_SAMPLE,
 	OPT_DATE_TERMS,
 	OPT_NO_DATE_TERMS,
-	OPT_READ_FILTERS
+	OPT_READ_FILTERS,
+	OPT_READ_WORKERS
     };
     constexpr auto NO_ARG = no_argument;
     constexpr auto REQ_ARG = required_argument;
@@ -371,7 +389,9 @@ main(int argc, char **argv)
 	{ "mime-type",		REQ_ARG,	NULL, 'M' },
 	{ "mime-type-match",	REQ_ARG,	NULL, 'G' },
 	{ "filter",		REQ_ARG,	NULL, 'F' },
+	{ "worker",		REQ_ARG,	NULL, 'W' },
 	{ "read-filters",	REQ_ARG,	NULL, OPT_READ_FILTERS },
+	{ "read-workers",	REQ_ARG,	NULL, OPT_READ_WORKERS },
 	{ "depth-limit",	REQ_ARG,	NULL, 'l' },
 	{ "follow",		NO_ARG,		NULL, 'f' },
 	{ "ignore-exclusions",	NO_ARG,		NULL, 'i' },
@@ -406,7 +426,8 @@ main(int argc, char **argv)
 
     string dbpath;
     int getopt_ret;
-    while ((getopt_ret = gnu_getopt_long(argc, argv, "hvd:D:U:M:G:F:l:s:pfRSVe:im:E:T:C",
+    while ((getopt_ret = gnu_getopt_long(argc, argv,
+					 "hvd:D:U:M:G:F:W:l:s:pfRSVe:im:E:T:C",
 					 longopts, NULL)) != -1) {
 	switch (getopt_ret) {
 	case 'h': {
@@ -443,9 +464,20 @@ main(int argc, char **argv)
 "                            or svg) in character encoding C (default: UTF-8).\n"
 "                            E.g. -Fapplication/octet-stream:'|strings -n8'\n"
 "                            or -Ftext/x-foo,,utf-16:'foo2utf16 %f %t'\n"
+"  -W, --worker=TYPE:WORKER  process files with MIME Content-Type TYPE using\n"
+"                            worker sub-process WORKER.  WORKER is the name of\n"
+"                            the program to run to start the worker. If it has\n"
+"                            no path then it's looked for in pkglibbindir (which\n"
+"                            can be overridden by setting environment variable\n"
+"                            XAPIAN_OMEGA_PKGLIBBINDIR).  This invocation will\n"
+"                            look in: " << get_pkglibbindir() << "\n"
 "      --read-filters=FILE   bulk-load --filter arguments from FILE, which\n"
 "                            should contain one such argument per line (e.g.\n"
 "                            text/x-bar:bar2txt --utf8).  Lines starting with #\n"
+"                            are treated as comments and ignored.\n"
+"      --read-workers=FILE   bulk-load --worker arguments from FILE, which\n"
+"                            should contain one such argument per line (e.g.\n"
+"                            text/x-bar:omindex_libbar).  Lines starting with #\n"
 "                            are treated as comments and ignored.\n"
 "  -l, --depth-limit=LIMIT   set recursion limit (0 = unlimited)\n"
 "  -f, --follow              follow symbolic links\n"
@@ -542,6 +574,10 @@ main(int argc, char **argv)
 	    if (!parse_filter_rule(optarg, mime_map))
 		return 1;
 	    break;
+	case 'W':
+	    if (!parse_worker_rule(optarg))
+		return 1;
+	    break;
 	case OPT_READ_FILTERS: {
 	    ifstream stream(optarg);
 	    if (!stream) {
@@ -554,6 +590,24 @@ main(int argc, char **argv)
 	    while (getline(stream, rule)) {
 		if (startswith(rule, '#')) continue;
 		if (!parse_filter_rule(rule.c_str(), mime_map))
+		    all_ok = false;
+	    }
+	    if (!all_ok)
+		return 1;
+	    break;
+	}
+	case OPT_READ_WORKERS: {
+	    ifstream stream(optarg);
+	    if (!stream) {
+		cerr << "Unable to open worker file '" << optarg << "' "
+			"(" << strerror(errno) << ')' << endl;
+		return 1;
+	    }
+	    string rule;
+	    bool all_ok = true;
+	    while (getline(stream, rule)) {
+		if (startswith(rule, '#')) continue;
+		if (!parse_worker_rule(rule.c_str()))
 		    all_ok = false;
 	    }
 	    if (!all_ok)

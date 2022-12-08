@@ -331,18 +331,18 @@ $ omindex --db /var/lib/omega/data/default --url /press /www/example/press --mim
 The syntax of ``--mime-type`` is 'ext:type', where ext is the extension of
 a file of that type (everything after the last '.').  The ``type`` can be any
 string, but to be useful there either needs to be a filter set for that type
-- either using ``--filter`` or ``--read-filters``, or by ``type`` being
-understood by default:
+(using ``--filter`` or ``--read-filters``) or a worker set (using ``--worker``
+or ``--read-workers``), or by ``type`` being understood by default:
 
 .. include:: inc/mimetypes.rst
 
-You can specify ``*`` as the MIME sub-type for ``--filter``, for example if you
-have a filter you want to apply to any video files, you could specify it using
-``--filter 'video/*:index-video-file'``.  Note that this is checked right after
-checking for the exact MIME type, so will override any built-in filters which
-would otherwise match.  Also you can't use arbitrary wildcards, just ``*`` for
-the entire sub-type.  And be careful to quote ``*`` to protect it from the
-shell.  Support for this was added in 1.3.3.
+You can specify ``*`` as the MIME sub-type for ``--filter`` or ``--worker``
+(arbitrary wildcards are not supported, just ``*`` for the entire sub-type).
+For example if you have a filter you want to apply to any video files, you
+could specify it using ``--filter 'video/*:index-video-file'``.  Note that this
+is checked right after checking for the exact MIME type, so will override any
+built-in filters which would otherwise match.  Be careful to quote ``*``
+to protect it from the shell.  Support for this was added in 1.3.3.
 
 If there's no specific filter, and no subtype wildcard, then ``*/*`` is checked
 (assuming the mimetype contains a ``/``), and after that ``*`` (for any
@@ -459,6 +459,17 @@ a status zero).
 If you know of a reliable filter which can extract text from a file format
 which might be of interest to others, please let us know so we can consider
 including it as a standard filter.
+
+Since 1.5.0, omindex supports worker modules which provide integrations with
+extraction libraries without having to run a command line tool for every
+file.  These workers can typically extract metadata that a ``foo2text``
+program can't.  The worker runs as a subprocess, and is reused for multiple
+files.  This also means bugs in the library can only crash the worker process.
+
+In most cases we default to setting a worker to be used for the types it
+supports. You can explicitly set a MIME type to worker mapping using
+``--worker=TYPE:WORKER``.  This also supports wildcarding of the MIME type like
+``--filter`` does.
 
 The ``--duplicates`` option controls how omindex handles documents which map
 to a URL which is already in the database.  The default (which can be
