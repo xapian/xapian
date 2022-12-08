@@ -93,84 +93,84 @@ index_test()
 		  {{"Sdemodemo", "ZFtest", "Zwherearew"}}});
 #endif
 #if defined HAVE_LIBETONYEK
-    tests.insert({"keynotes/test-keynote.key",
+    tests.insert({"iwork/test-keynote.key",
 		  {{"ZFkeynot", "Zbold", "Znow", "Zsubtitl"}}});
-    tests.insert({"pages/test-pages.pages",
+    tests.insert({"iwork/test-pages.pages",
 		  {{"ZFpage", "Zfull", "Zhovercraft", "Zwęgorzi"}}});
 #endif
 #if defined HAVE_TESSERACT
-    tests.insert({"img/Test1.gif",
+    tests.insert({"image/Test1.gif",
 		  {{"Znoisyimag", "Zocr", "Ztesseract"}}});
-    tests.insert({"img/Test2.pgm",
+    tests.insert({"image/Test2.pgm",
 		  {{"ZFtest2", "Znoisyimag", "Ztesseract"}}});
-    tests.insert({"img/Test3.ppm",
+    tests.insert({"image/Test3.ppm",
 		  {{"ZFtest3", "Zocr", "Ztest"}}});
-    tests.insert({"img/Test4.tiff",
+    tests.insert({"image/Test4.tiff",
 		  {{"Znoisyimag", "Ztesseract", "Zto"}}});
-    tests.insert({"img/Test5.webp",
+    tests.insert({"image/Test5.webp",
 		  {{"Znoisyimag", "Ztesseract", "Ztest"}}});
-    tests.insert({"img/poster-2.jpg",
+    tests.insert({"image/poster-2.jpg",
 		  {{"ZFposter", "Zby", "Zproperti", "Zsurveil", "Zvideo"}}});
-    tests.insert({"img/poster.jpg",
+    tests.insert({"image/poster.jpg",
 		  {{"Zbicycl", "Zride", "Zroller", "Zskateboard"}}});
-    tests.insert({"img/scan-page.png",
+    tests.insert({"image/scan-page.png",
 		  {{"Zannual", "Zfed", "Zreturn", "Zwhile"}}});
 #endif
 #define OFFICE_TESTCASES(PREFIX) \
     /* blank file */ \
     /* pass the test if no terms are found */ \
-    tests.insert({PREFIX "odf/blank.odt", \
+    tests.insert({PREFIX "opendoc/blank.odt", \
 		  {{}}}); \
     /* corrupted file (ODP) */ \
     /* tests.insert({PREFIX "corrupt_file.odp", {"ZSnatur"}}); */ \
     \
     /* ODF */ \
-    tests.insert({PREFIX "odf/test.odt", \
+    tests.insert({PREFIX "opendoc/test.odt", \
 		  {{"Zедой", "Z喬伊不分享食物"}}}); \
-    tests.insert({PREFIX "odf/libarchive_text.odt", \
+    tests.insert({PREFIX "opendoc/text.odt", \
 		  {{"Stesttitle", "Aolly", "Zsampl", "Zhead", "Ztext", \
 		    "Zhello", "Zworld"}}}); \
-    tests.insert({PREFIX "odf/libarchive_text_template.ott", \
+    tests.insert({PREFIX "opendoc/text_template.ott", \
 		  {{"Zjane", "Zdoe", "Zstructur"}}}); \
-    tests.insert({PREFIX "odf/libarchive_presentation.odp", \
+    tests.insert({PREFIX "opendoc/presentation.odp", \
 		  {{"Zfascin", "Zfact", "Zpustak", "Zmahal", "Zmillion", \
 		    "Zpeopl", "Zbirthday", "501"}}}); \
-    tests.insert({PREFIX "odf/libarchive_presentation_template.otp", \
+    tests.insert({PREFIX "opendoc/presentation_template.otp", \
 		  {{"ZSalizarin", "Zhead", "Zworld", "Ztext"}}}); \
-    tests.insert({PREFIX "odf/libarchive_spreadsheet.ods", \
+    tests.insert({PREFIX "opendoc/spreadsheet.ods", \
 		  {{"Zhello", "Zworld", "Zsampl", "2"}}}); \
-    tests.insert({PREFIX "odf/libarchive_spreadsheet_template.ots", \
+    tests.insert({PREFIX "opendoc/spreadsheet_template.ots", \
 		  {{"Zfood", "Zpasta", "Zpercentag", "40"}}}); \
-    tests.insert({PREFIX "odf/libarchive_draw.odg", \
+    tests.insert({PREFIX "opendoc/draw.odg", \
 		  {{"Zparth", "Zkapadia"}}}); \
     \
     /* Apache OpenOffice */ \
-    tests.insert({PREFIX "sof/libarchive_openoffice_calc.sxc", \
+    tests.insert({PREFIX "staroffice/calc.sxc", \
 		  {{"Ztoy", "Zproduct", "Zcost", "Zquantiti", "Zcardboard"}}}); \
-    tests.insert({PREFIX "sof/libarchive_openoffice_calc_template.stc", \
+    tests.insert({PREFIX "staroffice/calc_template.stc", \
 		  {{"ZSpurchas", "ZStemplat", "Zproduct", "Zquantiti", \
 		    "Zsampl"}}}); \
-    tests.insert({PREFIX "sof/libarchive_openoffice_text.sxw", \
+    tests.insert({PREFIX "staroffice/text.sxw", \
 		  {{"Zhello", "Zsampl", "Zopenoffic", "Zwriter"}}}); \
-    tests.insert({PREFIX "sof/libarchive_openoffice_text_template.stw", \
+    tests.insert({PREFIX "staroffice/text_template.stw", \
 		  {{"Zhello", "Zworld", "Zsampl", "Zhead", "ZStemplat", \
 		    "ZStext"}}}); \
-    tests.insert({PREFIX "sof/libarchive_openoffice_presentation.sxi", \
+    tests.insert({PREFIX "staroffice/presentation.sxi", \
 		  {{"Zhead", "Zhello", "Zopenoffic", "Zimpress"}}}); \
-    tests.insert({PREFIX "sof/libarchive_openoffice_presentation_template.sti", \
+    tests.insert({PREFIX "staroffice/presentation_template.sti", \
 		  {{"ZSproject", "ZSresearch", "Zhead", "Ztext"}}}); \
     \
-    /* OOXML formats */ \
-    tests.insert({PREFIX "ooxml/Book.xlsx", \
+    /* Microsoft XML formats */ \
+    tests.insert({PREFIX "msxml/Book.xlsx", \
 		  {{"Zmodi", "Zgood", "Zemploye"}}}); \
-    tests.insert({PREFIX "ooxml/2sheets.xlsx", \
+    tests.insert({PREFIX "msxml/2sheets.xlsx", \
 		  {{"0.123456", "123.456", "15", "2021", "3.14159265358979", \
 		    "43", "55", "Aolly", "Ssheet", "Stitle", "xmas"}}}); \
-    tests.insert({PREFIX "ooxml/Doc.docx", \
+    tests.insert({PREFIX "msxml/Doc.docx", \
 		  {{"Zедой", "Z喬伊不分享食物", "ZSbakeri"}}}); \
-    tests.insert({PREFIX "ooxml/Nature.pptx", \
+    tests.insert({PREFIX "msxml/Nature.pptx", \
 		  {{"ZSnatur", "Zbeauti", "Zsampl"}}}); \
-    tests.insert({PREFIX "application/vnd.ms-xpsdocument_xpstest.xps", \
+    tests.insert({PREFIX "msxml/vnd.ms-xpsdocument_xpstest.xps", \
 		 {{"second", "header", "footer"}}});
 #if defined HAVE_LIBARCHIVE
     OFFICE_TESTCASES("")
