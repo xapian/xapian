@@ -598,7 +598,7 @@ def _queryparser_gen_unstemlist_iter(self, tname):
                     return_strings=True)
 QueryParser.unstemlist = _queryparser_gen_unstemlist_iter
 
-# Modify ValueCountMatchSpy to add an "values()" method.
+# Modify ValueCountMatchSpy to add a "values()" method.
 def wrapper():
     begin = ValueCountMatchSpy.values_begin
     del ValueCountMatchSpy.values_begin
@@ -619,7 +619,7 @@ def wrapper():
 ValueCountMatchSpy.values = wrapper()
 del wrapper
 
-# Modify ValueCountMatchSpy to add an "top_values()" method.
+# Modify ValueCountMatchSpy to add a "top_values()" method.
 def wrapper():
     begin = ValueCountMatchSpy.top_values_begin
     del ValueCountMatchSpy.top_values_begin

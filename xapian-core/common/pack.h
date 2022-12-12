@@ -218,7 +218,7 @@ pack_uint_preserving_sort(std::string & s, U value)
     AssertRel(len, <=, 9);
 }
 
-/** Decode an "sort preserved" unsigned integer from a string.
+/** Decode a "sort preserved" unsigned integer from a string.
  *
  *  The unsigned integer must have been encoded with
  *  pack_uint_preserving_sort().
