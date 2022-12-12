@@ -86,7 +86,7 @@ noinst_SCRIPTS = xapian-config
 DISTCLEANFILES += xapian-config
 
 EXTRA_DIST = ChangeLog ChangeLog.0 ChangeLog.examples HACKING PLATFORMS \
- xapian-core.spec include/xapian/error.h include/xapian/errordispatch.h \
+ include/xapian/error.h include/xapian/errordispatch.h \
  generate-exceptions exception_data.pm preautoreconf
 
 cmakedir = $(libdir)/cmake/xapian

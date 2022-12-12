@@ -9,7 +9,7 @@ endif
 EXTRA_DIST = xapian-head.i xapian-headers.i generic/except.i \
     generic/generate-generic-exceptions \
     swig-depcomp \
-    xapian-bindings.spec shortstop.list skiptest \
+    shortstop.list skiptest \
     HACKING
 
 SUBDIRS = . @BINDINGS@

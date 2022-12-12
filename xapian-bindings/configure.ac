@@ -1203,7 +1203,6 @@ AC_CONFIG_FILES([Makefile
  ruby/Makefile
  perl/Makefile
  lua/Makefile
- xapian-bindings.spec
  ])
 AC_OUTPUT
 

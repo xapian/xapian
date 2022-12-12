@@ -25,5 +25,4 @@
 /depcomp
 /missing
 /xapian-bindings-*.tar.xz
-/xapian-bindings.spec
 /xapian-version.h

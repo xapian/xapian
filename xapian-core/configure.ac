@@ -1574,7 +1574,6 @@ AC_CONFIG_FILES([
  docs/Makefile
  docs/doxygen_api.conf
  docs/doxygen_source.conf
- xapian-core.spec
  cmake/xapian-config.cmake
  cmake/xapian-config-version.cmake
  pkgconfig/xapian-core"$LIBRARY_VERSION_SUFFIX".pc:pkgconfig/xapian-core.pc.in

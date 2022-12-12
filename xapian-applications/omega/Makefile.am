@@ -82,8 +82,7 @@ EXTRA_DIST =\
 	templates/xml \
 	templates/inc/anyalldropbox \
 	templates/inc/anyallradio \
-	templates/inc/toptermsjs \
-	xapian-omega.spec
+	templates/inc/toptermsjs
 
 AM_CPPFLAGS = \
 	-I$(top_srcdir)/common \

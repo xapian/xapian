@@ -606,7 +606,6 @@ dnl **************************
 AC_CONFIG_FILES([
  Makefile
  docs/Makefile
- xapian-omega.spec
  ])
 dnl Allow AC_CONFIG_FILES with chmod +x without having to repeat the filename.
 AC_DEFUN([SCRIPT_TEMPLATE], [AC_CONFIG_FILES([$1], [chmod +x "$1"])])
