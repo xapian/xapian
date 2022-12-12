@@ -95,7 +95,7 @@ pkglibbindir = $(pkglibdir)/bin
 pkglibbin_PROGRAMS = omega $(OMINDEX_MODULES)
 dist_pkglibbin_SCRIPTS = mhtml2html outlookmsg2html rfc822tohtml vcard2text
 bin_PROGRAMS = omindex scriptindex omindex-list generate-qrel-file
-dist_bin_SCRIPTS = dbi2omega htdig2omega mbox2omega postprocess
+dist_bin_SCRIPTS = dbi2omega mbox2omega postprocess
 
 check_PROGRAMS = atomparsertest csvesctest htmlparsertest jsonesctest md5test sdbntest urlenctest utf8converttest omindexcheck
 dist_check_SCRIPTS = omegatest sourcetest omindextest
@@ -112,7 +112,7 @@ TESTS =	atomparsertest$(EXEEXT)\
 	utf8converttest$(EXEEXT)
 
 omegadatadir = $(datadir)/omega
-dist_omegadata_DATA = htdig2omega.script mbox2omega.script
+dist_omegadata_DATA = mbox2omega.script
 
 dist_sysconf_DATA = omega.conf
 

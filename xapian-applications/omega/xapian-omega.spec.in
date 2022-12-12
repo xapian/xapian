@@ -66,7 +66,6 @@ cp AUTHORS ChangeLog COPYING NEWS README TODO %{buildroot}/usr/share/doc/%{name}
 %{_bindir}/dbi2omega
 %{_bindir}/omindex
 %{_bindir}/scriptindex
-%{_bindir}/htdig2omega
 %{_bindir}/mbox2omega
 # On 64-bit, this goes to /usr/lib64/...
 # FIXME: Sort this out:
