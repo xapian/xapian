@@ -855,6 +855,7 @@ index_mimetype(const string& file, const string& urlterm, const string& url,
 		// FIXME: topic = metaxmlparser.topic;
 		sample = metaxmlparser.sample;
 		author = metaxmlparser.author;
+		pages = metaxmlparser.pages;
 	    } catch (const ReadError&) {
 		// It's probably best to index the document even if this fails.
 	    }
