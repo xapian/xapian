@@ -195,7 +195,7 @@ database opened for writing, which then exec-s ``cat``, so you will see a
 "Open File Description" locks are like traditional ``fcntl()`` locks but with
 this problem addressed, and Xapian will use these if available and avoid these
 extra child processes.  At the time of writing it seems only Linux (since kernel
-3.15) supports these, but hopefully they'll get added to POSIX so in the future.
+3.15) actually supports these, but they've been accepted for POSIX issue 8.
 
 Under Microsoft Windows, we use a different locking technique which doesn't
 require a child process, but still means the lock is released automatically

@@ -217,9 +217,9 @@ retry:
 
 #ifdef F_OFD_SETLK
     // F_OFD_SETLK has exactly the semantics we want, so use it if it's
-    // available.  Support was added in Linux 3.15, and there's work on
-    // getting it standardised via POSIX:
-    // http://austingroupbugs.net/view.php?id=768
+    // available.  Support was added in Linux 3.15, and it was accepted
+    // for POSIX issue 8 on 2022-12-15:
+    // https://austingroupbugs.net/view.php?id=768
 
     // Use a static flag so we don't repeatedly try F_OFD_SETLK when
     // the kernel in use doesn't support it.  This should be safe in a
