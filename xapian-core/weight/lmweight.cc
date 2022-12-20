@@ -32,7 +32,6 @@
 
 #include "xapian/error.h"
 
-#include <cerrno>
 #include <cmath>
 
 using namespace std;

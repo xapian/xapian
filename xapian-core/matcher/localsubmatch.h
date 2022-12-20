@@ -30,8 +30,6 @@
 #include "xapian/enquire.h"
 #include "xapian/weight.h"
 
-#include <map>
-
 class PostListTree;
 
 namespace Xapian {

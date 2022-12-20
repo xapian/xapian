@@ -32,7 +32,6 @@
 #include "str.h"
 #include "stringutils.h"
 
-#include <cmath>
 #include <string>
 #include <vector>
 

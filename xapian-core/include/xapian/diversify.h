@@ -28,15 +28,12 @@
 
 #include <xapian/attributes.h>
 #include <xapian/cluster.h>
-#include <xapian/mset.h>
 #include <xapian/types.h>
 #include <xapian/visibility.h>
 
-#include <map>
-#include <unordered_map>
-#include <vector>
-
 namespace Xapian {
+
+class MSet;
 
 /** Class for diversifying an MSet using GLS-MPT as given
  *  in the paper: Scalable and Efficient Web Search Result

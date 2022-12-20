@@ -28,9 +28,6 @@
 #include "omassert.h"
 #include "pack.h"
 
-#include <cmath>
-#include <vector>
-
 using namespace std;
 
 // Highly optimised fls() implementation.
