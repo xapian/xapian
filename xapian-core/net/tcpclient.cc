@@ -43,7 +43,6 @@
 #endif
 
 #include <cerrno>
-#include <cmath>
 #include <cstring>
 #ifndef __WIN32__
 # include <netinet/in.h>

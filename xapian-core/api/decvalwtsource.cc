@@ -24,8 +24,6 @@
 #include "xapian/postingsource.h"
 #include "xapian/error.h"
 #include "net/length.h"
-#include "serialise-double.h"
-#include <cmath>
 
 using namespace Xapian;
 

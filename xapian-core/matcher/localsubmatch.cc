@@ -37,7 +37,6 @@
 #include "xapian/error.h"
 
 #include "autoptr.h"
-#include <map>
 #include <string>
 
 using namespace std;
