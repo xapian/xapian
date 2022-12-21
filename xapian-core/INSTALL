@@ -68,6 +68,13 @@ Signed integers use two's complement representation
 While current C and C++ standards don't require two's compelement, it's
 ubiquitous across modern platforms and C23 will make it a requirement.
 
+FLT_RADIX is 2
+--------------
+
+It seems all modern platforms use 2 for FLT_RADIX.  This assumption should be
+easy to eliminate if you actually have such a platform, but it's hard to
+properly test a change to do so without such a platform.
+
 Double precision floating point does not have excess precision
 --------------------------------------------------------------
 
