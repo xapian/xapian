@@ -61,8 +61,9 @@ character encoding (such as EBCDIC).
 Signed integers use two's complement representation
 ---------------------------------------------------
 
-While current C and C++ standards don't require two's compelement, it's
-ubiquitous across modern platforms and C23 will make it a requirement.
+C++20 has now made this a requirement.  Xapian doesn't yet require C++20, and
+older versions of the language standard didn't require this, but apparently all
+C++ implementations actually use it anyway.
 
 FLT_RADIX is 2
 --------------
