@@ -91,6 +91,7 @@
 %rename("document") get_document;
 %rename("ebound") get_ebound;
 %rename("eset") get_eset;
+%rename("exact_op") get_exact_op;
 %rename("firstitem") get_firstitem;
 %rename("hit") get_hit;
 %rename("lastdocid") get_lastdocid;
@@ -199,6 +200,7 @@
 %rename("default_op=") set_default_op;
 %rename("docid_order=") set_docid_order;
 %rename("document=") set_document;
+%rename("exact_op=") set_exact_op;
 %rename("query=") set_query(const Query&);
 %rename("query!") set_query(const Query&, termcount);
 %rename("sort_by_relevance!") set_sort_by_relevance;
