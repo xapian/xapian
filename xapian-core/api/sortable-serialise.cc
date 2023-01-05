@@ -260,6 +260,8 @@ Xapian::sortable_unserialise(const std::string& value) noexcept
 
     // We use scalbn() since it's equivalent to ldexp() when FLT_RADIX == 2
     // (which we currently assume), except that ldexp() will set errno if the
-    // result overflows or underflows, which isn't really desirable here.
+    // result overflows or underflows.  We don't need or want errno set (indeed
+    // configure turns on -fno-math-errno if it detects the compiler supports
+    // it).
     return scalbn(mantissa, exponent);
 }

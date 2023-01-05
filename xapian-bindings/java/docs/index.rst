@@ -40,10 +40,12 @@ JNI library is located.
  java -Djava.library.path=built -classpath built/xapian.jar:docs/examples \
       SimpleSearch ./test.db index words like java
 
-Alternatively, you can avoid needing the -Djava.library.path setting by
-setting the LD_LIBRARY_PATH environment variable, or by installing the JNI
+Alternatively, you can avoid needing the `-Djava.library.path` setting by
+setting the `LD_LIBRARY_PATH` environment variable, or by installing the JNI
 library in the appropriate directory so your JVM finds it automatically
-(for example, on Mac OS X you can copy it into /Library/Java/Extensions/).
+(for example, on macOS you can copy it into `/Library/Java/Extensions/`
+- you can also copy the `.jar` file there and avoid needing to specify it
+via `-classpath`).
 
 The java bindings have been tested recently with OpenJDK versions 1.8.0_77,
 1.7.0_03, and 1.6.0_38, but they should work with any java toolchain with

@@ -47,10 +47,10 @@ Perl
 
 Debian stretch: all required are packages installed by default.
 
-PHP7
-----
+PHP
+---
 
-Debian bullseye::
+Debian bookworm::
 
 apt-get install php-cli php-dev
 

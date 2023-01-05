@@ -31,7 +31,6 @@
 #include "api/termlist.h"
 
 #include <memory>
-#include <set>
 
 using namespace std;
 

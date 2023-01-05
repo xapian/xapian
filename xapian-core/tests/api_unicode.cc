@@ -1,7 +1,7 @@
 /** @file
  * @brief Test the Unicode and UTF-8 classes and functions.
  */
-/* Copyright (C) 2006-2021 Olly Betts
+/* Copyright (C) 2006-2022 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -177,6 +177,10 @@ DEFINE_TESTCASE(unicode1, !backend) {
     TEST_EQUAL(Unicode::get_category(0x0CF1), Unicode::OTHER_LETTER);
     // U+0CF2 changed category in Unicode 6.0.0.
     TEST_EQUAL(Unicode::get_category(0x0CF2), Unicode::OTHER_LETTER);
+    // U+0CF3 was added in Unicode 15.0.0.
+    TEST_EQUAL(Unicode::get_category(0x0CF3), Unicode::COMBINING_SPACING_MARK);
+    // U+0ECE was added in Unicode 15.0.0.
+    TEST_EQUAL(Unicode::get_category(0x0ECE), Unicode::NON_SPACING_MARK);
     // U+11A7 was added in Unicode 5.2.0.
     TEST_EQUAL(Unicode::get_category(0x11A7), Unicode::OTHER_LETTER);
     // U+2C2F was added in Unicode 14.0.0.
@@ -519,9 +523,11 @@ DEFINE_TESTCASE(unicodepredicates1, !backend) {
 	0x10D30, // (added in Unicode 11.0.0)
 	0x11D51, // (added in Unicode 10.0.0)
 	0x11DA9, // (added in Unicode 11.0.0)
+	0x11F50, // (added in Unicode 15.0.0)
 	0x16AC9, // (added in Unicode 14.0.0)
 	// OTHER_NUMBER
 	0x1ECB3, // (added in Unicode 11.0.0)
+	0x1D2D3, // (added in Unicode 15.0.0)
 	// LOWERCASE_LETTER
 	'a', 'z', 0x250, 0x251, 0x271, 0x3d7,
 	0x242, // (added in Unicode 5.0.0)
@@ -530,6 +536,7 @@ DEFINE_TESTCASE(unicodepredicates1, !backend) {
 	0x520, 0x522,
 	0xA7C1, // (added in Unicode 14.0.0)
 	0x16E78, // (added in Unicode 11.0.0)
+	0x1DF2A, // (added in Unicode 15.0.0)
 	// UPPERCASE_LETTER
 	'A', 'Z', 0x241,
 	// UPPERCASE_LETTER (added in Unicode 5.1.0)
@@ -545,12 +552,14 @@ DEFINE_TESTCASE(unicodepredicates1, !backend) {
 	0xe86, // Added in Unicode 12.0.0
 	0x312e, // Added in Unicode 10.0.0
 	0x10345,
+	0x1e4d0, // Added in Unicode 15.0.0
 	// MODIFIER_LETTER
 	0x2ec, // Added in Unicode 5.1.0
 	0x374, // Added in Unicode 5.1.0
 	0x8c9, // Added in Unicode 14.0.0
 	0x16fe1, // Added in Unicode 10.0.0
 	0x16fe3, // Added in Unicode 12.0.0
+	0x1e4eb, // Added in Unicode 15.0.0
 	// NON_SPACING_MARK (added to is_wordchar() in 1.1.0)
 	0x651,
 	0x487, // Added in Unicode 5.1.0
@@ -560,6 +569,7 @@ DEFINE_TESTCASE(unicodepredicates1, !backend) {
 	0xeba, // Added in Unicode 12.0.0
 	0x11d47, // Added in Unicode 10.0.0
 	0x16fe4, // Added in Unicode 13.0.0
+	0x1e4ee, // Added in Unicode 15.0.0
 	0
     };
     static const unsigned currency[] = {
@@ -598,10 +608,12 @@ DEFINE_TESTCASE(unicodepredicates1, !backend) {
 	0x1f093, // Added in Unicode 5.1.0
 	0x1f263, // Added in Unicode 10.0.0
 	0x1fa62, // Added in Unicode 11.0.0
+	0x1f6dc, // Added in Unicode 15.0.0
 	// FORMAT
 	0x61c, // Added in Unicode 6.3.0
 	0x891, // Added in Unicode 14.0.0
 	0x8e2, // Added in Unicode 9.0.0
+	0x1343e, // Added in Unicode 15.0.0
 	// UNASSIGNED
 	0xffff, 0x10ffff, 0x110000, 0xFFFFFFFF,
 	// PRIVATE_USE

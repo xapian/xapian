@@ -21,9 +21,7 @@ general management of a Xapian database, including tasks such as taking
 backups and optimising performance.  It may also be useful introductory
 reading for Xapian application developers.
 
-The document is up-to-date for Xapian version 1.3.5 (probably!)
-
-.. FIXME:1.4.0: ensure this is up to date for 1.4.0
+The document is up-to-date for Xapian version 1.4.21.
 
 Databases
 =========
@@ -52,11 +50,9 @@ And the following optional tables exist only when there is data to store in
 them:
 
  - The `docdata` table holds the document data associated with each document
-   in the database.  If you never set any term positions, this table won't
-   exist.
- - The `position` table holds a list of all the word positions in each document
-   which each term occurs at.  If you never set positional data, this table
-   won't exist.
+   in the database.
+ - The `position` table stores all the word positions in each document
+   which each term occurs at.
  - The `spelling` table holds data for suggesting spelling corrections.
  - The `synonym` table holds a synonym dictionary.
 
@@ -66,22 +62,25 @@ for each of the above purposes.
 
 The `.glass` file actually stores the data, and is structured as a tree of
 blocks, which have a default size of 8KB (though this can be set, either
-through the Xapian API, or with some of the tools detailed later in this
-document).
+through the Xapian API, or with the ``xapian-compact`` tool described below).
 
 Changing the blocksize may have performance implications, but it is hard to
 know whether these will be positive or negative for a particular combination
 of hardware and software without doing some profiling.
 
-The `.baseA` and `.baseB` files you may remember if you've worked Xapian
-database backends no longer exist in glass databases - the information about
-unused blocks is stored in a freelist (itself stored in unused blocks in
+The `.baseA` and `.baseB` files you may remember if you've worked with older
+Xapian database backends no longer exist in glass databases - the information
+about unused blocks is stored in a freelist (itself stored in unused blocks in
 the `.glass` file, and the other information is stored in the `iamglass`
 file.
 
 Glass also supports databases stored in a single file - currently these only
 support read operations, and have to be created by compacting an existing
-glass database.
+glass database.  It won't save you diskspace, but it means only one file needs
+to be opened to open the database so reduces initialisation overhead a little,
+and a single file is more convenient if you need to copy it around. You can
+even embed the database in another file so you can ship a single file
+containing content and a Xapian database which provides a search of it.
 
 Chert Backend
 -------------
@@ -112,19 +111,19 @@ to store any positionlist information.
 
 If you look at a Xapian database, you will see that each of these tables
 actually uses 2 or 3 files.  For example, for a "chert" format database the
-termlist table is stored in the files "termlist.baseA", "termlist.baseB"
-and "termlist.DB".
+termlist table is stored in the files ``termlist.baseA``, ``termlist.baseB``
+and ``termlist.DB``.
 
-The ".DB" file actually stores the data, and is structured as a tree of
+The ``.DB`` file actually stores the data, and is structured as a tree of
 blocks, which have a default size of 8KB (though this can be set, either
 through the Xapian API, or with some of the tools detailed later in this
 document).
 
-The ".baseA" and ".baseB" files are used to keep track of where to start
-looking for data in the ".DB" file (the root of the tree), and which blocks are
-in use.  Often only one of the ".baseA" and ".baseB" files will be present;
+The ``.baseA`` and ``.baseB`` files are used to keep track of where to start
+looking for data in the ``.DB`` file (the root of the tree), and which blocks are
+in use.  Often only one of the ``.baseA`` and ``.baseB`` files will be present;
 each of these files refers to a revision of the database, and there may be more
-than one valid revision of the database stored in the ".DB" file at once.
+than one valid revision of the database stored in the ``.DB`` file at once.
 
 Changing the blocksize may have performance implications, but it is hard to
 tell whether these will be positive or negative for a particular combination
@@ -182,16 +181,25 @@ Each Xapian database directory contains a lock file named
 technique is the same).
 
 This lock-file will always exist, but will be locked using ``fcntl()`` when the
-database is open for writing.  Because of the semantics of ``fcntl()`` locking,
-for each WritableDatabase opened we spawn a child process to hold the lock,
-which then exec-s ``cat``, so you will see a ``cat`` subprocess of any writer
-process in the output of ``ps``, ``top``, etc.
+database is open for writing.  A major advantage of ``fnctl()`` locks is that
+if a writer exits without being given a chance to clean up (for example, if the
+application holding the writer is killed), any ``fcntl()`` locks held will be
+automatically released by the operating system so stale locks can't happen.
 
-If a writer exits without being given a chance to clean up (for example, if the
-application holding the writer is killed), the ``fcntl()`` lock will be
-automatically released by the operating system.  Under Microsoft Windows, we
-use a different locking technique which doesn't require a child process, but
-also means the lock is released automatically when the writing process exits.
+Unfortunately, ``fcntl()`` locking has some unhelpful semantics (if a process
+closes *ANY* open file descriptor on the file that releases the lock) so on
+most POSIX platforms we spawn a child process to hold the lock for each
+database opened for writing, which then exec-s ``cat``, so you will see a
+``cat`` subprocess of any writer process in the output of ``ps``, ``top``, etc.
+
+"Open File Description" locks are like traditional ``fcntl()`` locks but with
+this problem addressed, and Xapian will use these if available and avoid these
+extra child processes.  At the time of writing it seems only Linux (since kernel
+3.15) actually supports these, but they've been accepted for POSIX issue 8.
+
+Under Microsoft Windows, we use a different locking technique which doesn't
+require a child process, but still means the lock is released automatically
+when the writing process exits.
 
 Revision numbers
 ----------------
@@ -333,19 +341,23 @@ Inspecting a database
 
 When designing an indexing strategy, it is often useful to be able to check
 the contents of the database.  Xapian includes a simple command-line program,
-`xapian-delve`, to allow this (prior to 1.3.0, `xapian-delve` was usually
-called `delve`, though some packages were already renaming it).
+``xapian-delve``, to allow this (prior to 1.3.0, ``xapian-delve`` was usually
+called ``delve``, though some packages were already renaming it).
 
 For example, to display the list of terms in document "1" of the database
-"foo", use::
+"foo", use:
+
+.. code-block:: sh
 
   xapian-delve foo -r 1
 
 It is also possible to perform simple searches of a database.  Xapian includes
-another simple command-line program, "quest", to support this.  "quest" is
+another simple command-line program, ``quest``, to support this.  ``quest`` is
 only able to search for un-prefixed terms, the query string must be quoted to
 protect it from the shell.  To search the database "foo" for the phrase "hello
-world", use::
+world", use:
+
+.. code-block:: sh
 
   quest -d foo '"hello world"'
 
@@ -366,7 +378,7 @@ smaller a database is, the faster it can be searched, so if there aren't
 expected to be many further modifications, it can be desirable to compact the
 database.
 
-Xapian includes a tool called "xapian-compact" for compacting databases.
+Xapian includes a tool called ``xapian-compact`` for compacting databases.
 This tool makes a copy of a database, and takes advantage of
 the sorted nature of the source Xapian database to write the database out
 without leaving spare space for future modifications.  This can result in a
@@ -377,17 +389,42 @@ longer, due to needing to reorganise the database to make space for them.
 However, modifications are still possible, and if many modifications are made,
 the database will gradually develop spare space.
 
-There's an option ("-F") to perform a "fuller" compaction.  This option
+There's an option (``-F``) to perform a "fuller" compaction.  This option
 compacts the database as much as possible, but it violates the design of the
 Btree format slightly to achieve this, so it is not recommended if further
 modifications are at all likely in future.  If you do need to modify a "fuller"
-compacted database, we recommend you run xapian-compact on it without "-F"
+compacted database, we recommend you run ``xapian-compact`` on it without ``-F``
 first.
 
-While taking a copy of the database, it is also possible to change the
-blocksize.  If you wish to profile search speed with different blocksizes,
-this is the recommended way to generate the different databases (but remember
-to compact the original database as well, for a fair comparison).
+You can specify the blocksize to use for the compacted database (which should
+be a power of 2 between 2KB and 64KB, with the default being 8KB).
+
+Making the blocksize a multiple of (or the same as) both the sector size of the
+device and the blocksize of the filing system which the database is on is
+a good idea, but sector size seems to always be 4K or less
+(at least according to https://en.wikipedia.org/wiki/Disk_sector) and FS block
+size still seems to be 4K by default (the widely used Linux ext4 FS potentially
+supports up to 64K but only up to the system page size which is 4K on e.g. x86
+and x86-64).  So in practice a Xapian blocksize of 4KB or more will satisfy
+this.
+
+The main benefits a larger blocksize gives are slightly more efficient packing
+and reduced total per-block overheads (and the additional gains here are
+likely to be smaller for each extra block size doubling), while the downside is
+needing to read/write more data to read/write a single block. The extra data is
+at least contiguous (at least in file offset terms - maybe not always on disk
+if the file is fragmented) but there are potentially significant negative
+factors like added pressure on the drive cache and OS file cache. The
+additional losses are likely to grow for each extra block size doubling.
+
+In general for most people just using the default block size is sensible. It's
+something you might tune when you either care more about reducing size over
+anything else, or if you're prepared to profile your complete system with
+different block sizes to see what works best for your own situation.
+
+If profiling different blocksizes including the 8KB default, remember to use a
+compacted version for the 8KB block size database or else you won't get a fair
+comparison.
 
 
 Merging databases
@@ -396,7 +433,7 @@ Merging databases
 When building an index for a very large amount of data, it can be desirable to
 index the data in smaller chunks (perhaps on separate machines), and then
 merge the chunks together into a single database.  This can be performed using
-the "xapian-compact" tool, simply by supplying several source database paths.
+the ``xapian-compact`` tool, simply by supplying several source database paths.
 
 Normally, merging works by reading the source databases in parallel, and
 writing the contents in sorted order to the destination database.  This will
@@ -415,10 +452,12 @@ Checking database integrity
 ---------------------------
 
 Xapian includes a command-line tool to check that a database is
-self-consistent.  This tool, "xapian-check", runs through the entire database,
+self-consistent.  This tool, ``xapian-check``, runs through the entire database,
 checking that all the internal nodes are correctly connected.  It can also be
 used on a single table, for example, this command will check the termlist table
-of database "foo"::
+of database "foo":
+
+.. code-block:: sh
 
   xapian-check foo/termlist.DB
 
@@ -441,7 +480,9 @@ capable of:
    If you are in this situation, come and talk to us - with a testcase we
    should be able to make it handle this better.
 
-To fix such issues, run xapian-check like so::
+To fix such issues, run xapian-check like so:
+
+.. code-block:: sh
 
   xapian-check /path/to/database F
 
@@ -449,20 +490,24 @@ To fix such issues, run xapian-check like so::
 Converting a chert database to a glass database
 -----------------------------------------------
 
-This can be done using the "copydatabase" example program included with Xapian.
-This is a lot slower to run than "xapian-compact", since it has to perform the
+This can be done using the ``copydatabase`` example program included with Xapian.
+This is a lot slower to run than ``xapian-compact``, since it has to perform the
 sorting of the term occurrence data from scratch, but should be faster than a
 re-index from source data since it doesn't need to perform the tokenisation
 step.  It is also useful if you no longer have the source data available.
 
 The following command will copy a database from "SOURCE" to "DESTINATION",
-creating the new database at "DESTINATION" as a chert database::
+creating the new database at "DESTINATION" as a chert database:
+
+.. code-block:: sh
 
   copydatabase SOURCE DESTINATION
 
 By default copydatabase will renumber your documents starting with docid 1.
 If the docids are stored in or come from some external system, you should
-preserve them by using the --no-renumber option::
+preserve them by using the ``--no-renumber`` option:
+
+.. code-block:: sh
 
   copydatabase --no-renumber SOURCE DESTINATION
 
@@ -472,17 +517,19 @@ Converting a pre-1.1.4 chert database to a chert database
 
 The chert format changed in 1.1.4 - at that point the format hadn't been
 finalised, but a number of users had already deployed it, and it wasn't hard
-to write an updater, so we provided one called xapian-chert-update which makes
-a copy with the updated format::
+to write an updater, so we provided one called ``xapian-chert-update`` which
+makes a copy with the updated format:
+
+.. code-block:: sh
 
   xapian-chert-update SOURCE DESTINATION
 
-It works much like xapian-compact so should take a similar amount of time (and
-results in a compact database).  The initial version had a few bugs, so use
-xapian-chert-update from Xapian 1.2.5 or later.
+It works much like ``xapian-compact`` so should take a similar amount of time
+(and results in a compact database).  The initial version had a few bugs, so
+use xapian-chert-update from Xapian 1.2.5 or later.
 
-The xapian-chert-update utility was removed in Xapian 1.3.0, so you'll need to
-install Xapian 1.2.x to use it.
+The ``xapian-chert-update`` utility was removed in Xapian 1.3.0, so you'll need
+to install Xapian 1.2.x to use it.
 
 
 Converting a flint database to a chert database
@@ -490,37 +537,42 @@ Converting a flint database to a chert database
 
 It is possible to convert a flint database to a chert database by installing
 Xapian 1.2.x (since this has support for both flint and chert)
-using the "copydatabase" example program included with Xapian.  This is a
-lot slower to run than "xapian-compact", since it has to perform the
+using the ``copydatabase`` example program included with Xapian.  This is a
+lot slower to run than ``xapian-compact``, since it has to perform the
 sorting of the term occurrence data from scratch, but should be faster than a
 re-index from source data since it doesn't need to perform the tokenisation
 step.  It is also useful if you no longer have the source data available.
 
 The following command will copy a database from "SOURCE" to "DESTINATION",
-creating the new database at "DESTINATION" as a chert database::
+creating the new database at "DESTINATION" as a chert database:
+
+.. code-block:: sh
 
   copydatabase SOURCE DESTINATION
 
-By default copydatabase will renumber your documents starting with docid 1.
+By default ``copydatabase`` will renumber your documents starting with docid 1.
 If the docids are stored in or come from some external system, you should
-preserve them by using the --no-renumber option (new in Xapian 1.2.5)::
+preserve them by using the ``--no-renumber`` option (new in Xapian 1.2.5):
+
+.. code-block:: sh
 
   copydatabase --no-renumber SOURCE DESTINATION
-
 
 Converting a quartz database to a flint database
 ------------------------------------------------
 
 It is possible to convert a quartz database to a flint database by installing
 Xapian 1.0.x (since this has support for both quartz and flint)
-and using the "copydatabase" example program included with Xapian.  This is a
-lot slower to run than "xapian-compact", since it has to perform the
+and using the ``copydatabase`` example program included with Xapian.  This is a
+lot slower to run than ``xapian-compact``, since it has to perform the
 sorting of the term occurrence data from scratch, but should be faster than a
 re-index from source data since it doesn't need to perform the tokenisation
 step.  It is also useful if you no longer have the source data available.
 
 The following command will copy a database from "SOURCE" to "DESTINATION",
-creating the new database at "DESTINATION" as a flint database::
+creating the new database at "DESTINATION" as a flint database:
+
+.. code-block:: sh
 
   copydatabase SOURCE DESTINATION
 
@@ -535,14 +587,19 @@ databases non-portable between platforms, we had to make an incompatible
 change in the flint format.  It's not easy to write an upgrader, but you
 can convert a database using the following procedure (although it might
 be better to rebuild from scratch if you want to use the new UTF-8 support
-in Xapian::QueryParser, Xapian::Stem, and Xapian::TermGenerator).
+in ``Xapian::QueryParser``, ``Xapian::Stem``, and
+``Xapian::TermGenerator``).
 
 Run the following command in your Xapian 0.9.x installation to copy your
-0.9.x flint database "SOURCE" to a new quartz database "INTERMEDIATE"::
+0.9.x flint database "SOURCE" to a new quartz database "INTERMEDIATE":
+
+.. code-block:: sh
 
   copydatabase SOURCE INTERMEDIATE
 
 Then run the following command in your Xapian 1.0.y installation to copy
-your quartz database to a 1.0.y flint database "DESTINATION"::
+your quartz database to a 1.0.y flint database "DESTINATION":
+
+.. code-block:: sh
 
   copydatabase INTERMEDIATE DESTINATION

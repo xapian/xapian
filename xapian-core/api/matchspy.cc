@@ -41,9 +41,6 @@
 #include "str.h"
 #include "termlist.h"
 
-#include <cfloat>
-#include <cmath>
-
 using namespace std;
 using namespace Xapian;
 using Xapian::Internal::intrusive_ptr;

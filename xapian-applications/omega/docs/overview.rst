@@ -308,8 +308,8 @@ other filters too - see below):
 * Atom feeds (.atom)
 * MAFF (.maff) if unzip is available
 * MHTML (.mhtml, .mht) if perl with MIME::Tools is available
-* MIME email messages (.eml) and USENET articles if gmime 2.6 or perl with MIME::Tools and
-  HTML::Parser is available
+* MIME email messages (.eml) and USENET articles if gmime >= 2.6 or perl with
+  MIME::Tools and HTML::Parser is available
 * vCard files (.vcf, .vcard) if perl with Text::vCard is available
 * FictionBook v.2 files (.fb2) if libe-book is available
 * QiOO (mobile format, for java-enabled cellphones) files (.jar) if libe-book is available
@@ -320,6 +320,15 @@ other filters too - see below):
   .tif, .tiff, .pbm, .gif, .ppm, .pgm) if libtesseract is available
 * AppleWorks/ClarisWorks documents (.cwk) if libmwaw is available
 * Apple PICT files (.pict, .pct, .pic) if libmwaw is available
+* Any format LibreOffice supports reading if LibreOffice is available.  This
+  is implemented via the ``omindex_libreofficekit`` worker.  No MIME types are
+  mapped to this worker by default because converting using it tends to be
+  rather slow and we have alternative filters for supporting most of these
+  formats.  The advantages of using LibreOffice are that it may successfully
+  handle more files of some types than other filters (e.g. it handles
+  "small-block" ``.doc`` files whereas antiword doesn't) and it may extract
+  more metadata (e.g. with antiword you only get file extension, MIME type and
+  last modified).  Enable use with ``--worker`` as documented below.
 
 If you have additional extensions that represent one of these types, you can
 add an additional MIME mapping using the ``--mime-type`` option.  For
@@ -331,18 +340,18 @@ $ omindex --db /var/lib/omega/data/default --url /press /www/example/press --mim
 The syntax of ``--mime-type`` is 'ext:type', where ext is the extension of
 a file of that type (everything after the last '.').  The ``type`` can be any
 string, but to be useful there either needs to be a filter set for that type
-- either using ``--filter`` or ``--read-filters``, or by ``type`` being
-understood by default:
+(using ``--filter`` or ``--read-filters``) or a worker set (using ``--worker``
+or ``--read-workers``), or by ``type`` being understood by default:
 
 .. include:: inc/mimetypes.rst
 
-You can specify ``*`` as the MIME sub-type for ``--filter``, for example if you
-have a filter you want to apply to any video files, you could specify it using
-``--filter 'video/*:index-video-file'``.  Note that this is checked right after
-checking for the exact MIME type, so will override any built-in filters which
-would otherwise match.  Also you can't use arbitrary wildcards, just ``*`` for
-the entire sub-type.  And be careful to quote ``*`` to protect it from the
-shell.  Support for this was added in 1.3.3.
+You can specify ``*`` as the MIME sub-type for ``--filter`` or ``--worker``
+(arbitrary wildcards are not supported, just ``*`` for the entire sub-type).
+For example if you have a filter you want to apply to any video files, you
+could specify it using ``--filter 'video/*:index-video-file'``.  Note that this
+is checked right after checking for the exact MIME type, so will override any
+built-in filters which would otherwise match.  Be careful to quote ``*``
+to protect it from the shell.  Support for this was added in 1.3.3.
 
 If there's no specific filter, and no subtype wildcard, then ``*/*`` is checked
 (assuming the mimetype contains a ``/``), and after that ``*`` (for any
@@ -459,6 +468,19 @@ a status zero).
 If you know of a reliable filter which can extract text from a file format
 which might be of interest to others, please let us know so we can consider
 including it as a standard filter.
+
+Since 1.5.0, omindex supports worker modules which provide integrations with
+extraction libraries without having to run a command line tool for every
+file.  These workers can typically extract metadata that a ``foo2text``
+program can't.  The worker runs as a subprocess, and is reused for multiple
+files.  This also means bugs in the library can only crash the worker process.
+
+In most cases we default to setting a worker to be used for the types it
+supports, but for example the ``omindex_libreofficekit`` worker is not
+hooked up by default.  You can explicitly set a MIME type to worker mapping
+using ``--worker=TYPE:WORKER`` - e.g.
+``--worker=application/msword:omindex_libreofficekit``.  This also supports
+wildcarding of the MIME type like ``--filter`` does.
 
 The ``--duplicates`` option controls how omindex handles documents which map
 to a URL which is already in the database.  The default (which can be
@@ -587,8 +609,9 @@ U
     a hashing scheme is used to avoid overflowing Xapian's term length limit.
 
 If the ``--date-terms`` option is used, then the following additional boolean
-terms are added to documents (prior to 1.5.0 these were always added with no
-way to disable this):
+terms are added to documents (prior to Omega 1.5.0 they were added unless the
+``--no-date-terms`` option was used; this option was added in 1.4.22, and
+before that they were unconditionally added):
 
 D
     date (numeric format: YYYYMMDD)

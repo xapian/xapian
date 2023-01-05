@@ -15,7 +15,6 @@ noinst_HEADERS +=\
 	common/internaltypes.h\
 	common/io_utils.h\
 	common/keyword.h\
-	common/log2.h\
 	common/min_non_zero.h\
 	common/msvc_dirent.h\
 	common/msvcignoreinvalidparam.h\
@@ -43,7 +42,6 @@ noinst_HEADERS +=\
 	common/serialise-double.h\
 	common/setenv.h\
 	common/socket_utils.h\
-	common/stdclamp.h\
 	common/str.h\
 	common/stringutils.h\
 	common/wordaccess.h

@@ -25,7 +25,6 @@
 #include "xapian-letor/scorer.h"
 
 #include "debuglog.h"
-#include "common/log2.h"
 #include "omassert.h"
 
 #include <algorithm>

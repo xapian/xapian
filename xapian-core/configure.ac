@@ -114,9 +114,10 @@ dnl We don't export any data items from the library, so it should be safe to
 dnl enable win32-dll without decorating any declarations specially.
 LT_INIT([disable-static win32-dll])
 
-dnl -no-undefined causes problems on Solaris with Sun CC in C++11 mode, so only
-dnl pass -no-undefined on platforms where it is required in order to link a
-dnl shared library at all (Windows is the main one).
+dnl Only pass -no-undefined on platforms where it is required in order to link
+dnl a shared library at all (Microsoft Windows is the main one) as it can cause
+dnl problems on other platforms (e.g. Solaris with Sun CC in C++11 mode, though
+dnl we don't support that compiler now as it lacks C++17 support).
 NO_UNDEFINED=
 if test unsupported = "$allow_undefined_flag" ; then
   NO_UNDEFINED=-no-undefined
@@ -235,8 +236,8 @@ if test no = "$xo_cv_cxx_works" ; then
   fi
 fi
 
-dnl Probe for any options needed to enable C++11 support.
-AX_CXX_COMPILE_STDCXX([11])
+dnl Probe for any options needed to enable C++17 support.
+AX_CXX_COMPILE_STDCXX([17])
 
 dnl We don't use a C compiler to compile Xapian's code, but on some platforms
 dnl (e.g. mingw) libtool uses $LTCC which defaults to $CC, and it's also use to
@@ -377,12 +378,6 @@ using namespace std;]], [[
     ])
 ])
 
-dnl C++11 should have log2(double), but keep this check for now to allow for
-dnl compilers with incomplete library support for C++11.
-AC_CHECK_DECLS([log2(double)], [], [],
-[#include <cmath>
-using namespace std;])
-
 dnl exp10() is a GNU libc extension.
 AC_CHECK_DECLS([exp10(double)], [], [],
 [#include <cmath>
@@ -435,13 +430,6 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
     [AC_MSG_RESULT([no])])
 CXXFLAGS=$save_CXXFLAGS
 
-AC_MSG_CHECKING([if std::is_trivially_copyable<> is supported])
-AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <type_traits>]],
-	[[return std::is_trivially_copyable<int>::value ? 1 : 0;]])],
-    [AC_MSG_RESULT([yes])
-    AC_DEFINE([HAVE_STD_IS_TRIVIALLY_COPYABLE], [1], [Define to 1 if you have 'std::is_trivially_copyable<>'.])],
-    [AC_MSG_RESULT([no])])
-
 dnl We need to specify the argument types for builtin functions, or else
 dnl AC_CHECK_DECLS fails to detect them when the compiler is clang.
 AC_CHECK_DECLS([__builtin_add_overflow(int, int, int*),
@@ -484,9 +472,6 @@ case $host_os in
     AC_DEFINE([MINGW_HAS_SECURE_API], [1], [Define on mingw to get _s suffixed "secure" functions declared in headers])
     ;;
 esac
-
-dnl Used by tests/soaktest/soaktest.cc
-AC_CHECK_FUNCS([srandom random])
 
 dnl Used by tests/harness/testsuite.cc
 AC_CHECK_FUNCS([sigaction])
@@ -862,7 +847,7 @@ save_LIBS=$LIBS
 LIBS=
 
 dnl See if we have fdatasync, and what libraries are needed for it.
-dnl We need to actually check for a declaration as OS X has a dummy
+dnl We need to actually check for a declaration as macOS has a dummy
 dnl implementation in the library which is not prototyped in any header.
 AC_CHECK_DECL([fdatasync(int)], [
   AC_SEARCH_LIBS([fdatasync], [rt], [])
@@ -1272,20 +1257,16 @@ if test yes = "$GXX"; then
       dnl
       dnl -Wdouble-promotion was added in GCC 4.6.
       dnl
+      dnl -Wduplicated-cond was added in GCC 6.
+      dnl
+      dnl -Wduplicated-branches was added in GCC 7.
+      dnl
       dnl All the other options were supported by g++ 2.95.
-      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wformat-security -fno-gnu-keywords -Wundef -Woverloaded-virtual -Wstrict-null-sentinel -Wshadow -Wstrict-overflow=1 -Wlogical-op -Wmissing-declarations -Wdouble-promotion"
+      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wformat-security -fno-gnu-keywords -Wundef -Woverloaded-virtual -Wstrict-null-sentinel -Wshadow -Wstrict-overflow=1 -Wlogical-op -Wmissing-declarations -Wdouble-promotion -Wduplicated-cond -Wduplicated-branches"
 
       case $gxx_version in
-      [[0123]].*|4.[[0-7]].*)
-	AC_MSG_ERROR([Xapian requires GCC 4.8 or later])
-	;;
-      4.*|5.*)
-	;;
-      6.*)
-	AM_CXXFLAGS="$AM_CXXFLAGS -Wduplicated-cond"
-	;;
-      *)
-	AM_CXXFLAGS="$AM_CXXFLAGS -Wduplicated-cond -Wduplicated-branches"
+      [[0-6]].*)
+	AC_MSG_ERROR([Xapian requires GCC 7.0 or later])
 	;;
       esac
 
@@ -1339,49 +1320,9 @@ if test yes = "$GXX"; then
       AC_MSG_RESULT([no])
     fi
   fi
-else
-  dnl Not GCC, nor a compiler masquerading as GCC.
-  case /$CXX in
-  */aCC)
-    dnl +w turns on more warnings.
-    dnl +wlint turns on "lint-like" warnings.
-    dnl +W<n1>,<n2>,... suppresses warnings n1, n2, ...
-    dnl 2340 (remark) "value copied to temporary, reference to temporary
-    dnl	use", in: throw Xapian::UnimplementedError("...");
-    dnl 2401 "destructor for base class ... is non-virtual" (we don't need a
-    dnl	virtual destructor for intrusive_base, since we never delete
-    dnl       its subclasses by a intrusive_base *).
-    dnl 3348 "declaration hides constant ..." which seems to misfire!
-    dnl 4255 (remark) "padding size of struct "..." with ... bytes to
-    dnl	alignment boundary".
-    dnl 4273 "floating-point equality and inequality comparisons may be
-    dnl	inappropriate due to roundoff common in floating-point computation"
-    dnl	No obvious workaround for when you really do want == or !=.
-    dnl 20201 "Memory leak is detected" which triggers for "return new Foo;"!
-    AM_CXXFLAGS="$AM_CXXFLAGS +w +wlint +W2340,2401,3348,4255,4273,20201" ;;
-  */sunCC|*/CC)
-    dnl Sun's C++ compiler.
-    dnl
-    dnl We use -errtags to report the tag for each warning emitted.
-    dnl
-    dnl We use -erroff to suppress some unhelpful warnings:
-    dnl
-    dnl oklambdaretmulti warns about a lambda with more than one return
-    dnl statement even if they all return the same type.
-    dnl
-    dnl voidretw warns about functions failing to return a value even when the
-    dnl function ends with a "throw" statement.  That's just unhelpful noise,
-    dnl and adding a dummy "return" after "throw" seems a worse solution than
-    dnl simply disabling this warning - any genuinely missing return statements
-    dnl will get reported by compilers with superior warning machinery.
-    XAPIAN_TEST_CXXFLAGS([-errtags -erroff=oklambdaretmulti,voidretw], [AM_CXXFLAGS])
-    ;;
-  esac
 fi
 
 XAPIAN_TEST_LDFLAGS([-Wl,-Bsymbolic-functions], [XAPIAN_LDFLAGS])
-dnl Roughly equivalent Sun C++ option.
-XAPIAN_TEST_LDFLAGS([-xldscope=symbolic], [XAPIAN_LDFLAGS])
 
 dnl New in GCC 5.  Sort of like -Bsymbolic-functions, but for the compiler
 dnl rather than the linker.
@@ -1411,15 +1352,7 @@ case $host_cpu in
 	  AM_CXXFLAGS="$AM_CXXFLAGS -arch:SSE"
 	fi
       else
-	AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
-[[#ifndef __SUNPRO_CC
-#error Not Sun compiler
-#endif]])],
-	  [AC_MSG_RESULT([yes (configure with --disable-sse to disable)])
-	  AM_CXXFLAGS="$AM_CXXFLAGS -xarch=$enable_sse"]
-	  ,
-	  [AC_MSG_RESULT([don't know how to for compiler $CXX])]
-	)
+	AC_MSG_RESULT([don't know how to for compiler $CXX])
       fi
     fi
     ;;
@@ -1579,16 +1512,6 @@ typedef long long off_t_redefinition_typedef;
  * xapian/query.h directly.
  */
 #define XAPIAN_LIB_BUILD 1
-
-/* With Sun CC 5.13 (Studio 12.4) on Solaris 11.2, <math.h> seems to get
- * implicitly included somehow before <cmath>, and compilation fails due
- * to 'std::exception' colliding with 'struct exception'.  It's not clear
- * how to avoid this, so just define the same magic macro which <cmath> does
- * before it includes <math.h>.
- */
-#if defined __SUNPRO_CC && !defined __MATHERR_RENAME_EXCEPTION
-# define __MATHERR_RENAME_EXCEPTION
-#endif
 ])
 
 AC_SUBST([AM_CXXFLAGS])
@@ -1641,6 +1564,11 @@ else
 fi
 AC_SUBST([LIBRARY_SHARED_IMP_EXT])
 
+dnl We don't make use of maths function setting errno and if we tell the
+dnl compiler that it can optimise them better in some cases.  Apparently
+dnl most BSD-derived platforms don't set errno in this case anyway.
+XAPIAN_TEST_CXXFLAGS([-fno-math-errno], [CXXFLAGS])
+
 dnl **************************
 dnl * Build the output files *
 dnl **************************
@@ -1651,7 +1579,6 @@ AC_CONFIG_FILES([
  docs/Makefile
  docs/doxygen_api.conf
  docs/doxygen_source.conf
- xapian-core.spec
  cmake/xapian-config.cmake
  cmake/xapian-config-version.cmake
  pkgconfig/xapian-core"$LIBRARY_VERSION_SUFFIX".pc:pkgconfig/xapian-core.pc.in
@@ -1709,22 +1636,21 @@ cxxcpp_flags="$cxxcpp_flags -DXAPIAN_TOTALLENGTH_TYPE="`echo "unsigned $INT64_T"
 dnl Make revision numbers in the API 64 bit for future-proofing.
 cxxcpp_flags="$cxxcpp_flags -DXAPIAN_REVISION_TYPE="`echo "unsigned $INT64_T"|sed 's/ /____/g'`
 
-dnl For GCC (and compilers which pretend to be GCC) and MSVC, we create some
-dnl ABI checks in the generated version.h, and $CXXFLAGS may contain options
-dnl which affect the ABI (e.g. -fabi-version for GCC) so we want to use these
-dnl options when generating version.h.  For these compilers, CXXCPP="$CXX -E"
-dnl so it should understand all compiler options.
+dnl For GCC (and compilers which pretend to be GCC) and MSVC, we create checks
+dnl for some ABI-incompatible configurations in the generated version.h.
+dnl Such configurations may be specified via $CXXFLAGS so we should use this
+dnl when generating version.h.  For these compilers, CXXCPP="$CXX -E" so it
+dnl should understand all compiler options.
 dnl
 dnl For other compilers, we only pass $CPPFLAGS to $CXXCPP in case it's an
-dnl external cpp which doesn't understand flags which might be in $CXXFLAGS.
-AC_COMPILE_IFELSE([AC_LANG_PROGRAM([], [[#ifndef __GNUC__
-#ifndef _MSC_VER
-       choke me
-#endif
-#endif
-]])],
-	[cxxcpp_flags="$cxxcpp_flags $CPPFLAGS $CXXFLAGS"],
-	[cxxcpp_flags="$cxxcpp_flags $CPPFLAGS"])
+dnl external cpp which doesn't understand all options which might be in
+dnl $CXXFLAGS.
+case $GXX$msvc in
+  *yes*)
+    cxxcpp_flags="$cxxcpp_flags $CPPFLAGS $CXXFLAGS" ;;
+  *)
+    cxxcpp_flags="$cxxcpp_flags $CPPFLAGS" ;;
+esac
 rm -f include/xapian/version.h.tmp
 dnl "\r" in sed is a GNUism, but we only need to remove it on MS Windows
 dnl where we'll always have GNU sed, and other sed's will just interpret

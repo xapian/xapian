@@ -79,12 +79,12 @@ xapian/__init__.py: xapian.py
 # doesn't cope with being xapian/__init__.py (currently it needs fixing
 # up, which is done by fixup-swig-py3-wrapper).
 xapian/__pycache__/__init__.@PYTHON3_CACHE_TAG@.pyc: xapian/__init__.py xapian/_xapian$(PYTHON3_EXT_SUFFIX)
-	$(OSX_SIP_HACK_ENV) $(PYTHON3) -c 'import os;os.chdir("xapian");import _xapian'
-	$(OSX_SIP_HACK_ENV) $(PYTHON3) -c 'import xapian'
+	$(MACOS_SIP_HACK_ENV) $(PYTHON3) -c 'import os;os.chdir("xapian");import _xapian'
+	$(MACOS_SIP_HACK_ENV) $(PYTHON3) -c 'import xapian'
 
 xapian/__pycache__/__init__.@PYTHON3_CACHE_OPT1_EXT@: xapian/__init__.py xapian/_xapian$(PYTHON3_EXT_SUFFIX)
-	$(OSX_SIP_HACK_ENV) $(PYTHON3) -O -c 'import os;os.chdir("xapian");import _xapian'
-	$(OSX_SIP_HACK_ENV) $(PYTHON3) -O -c 'import xapian'
+	$(MACOS_SIP_HACK_ENV) $(PYTHON3) -O -c 'import os;os.chdir("xapian");import _xapian'
+	$(MACOS_SIP_HACK_ENV) $(PYTHON3) -O -c 'import xapian'
 
 xapian/_xapian$(PYTHON3_EXT_SUFFIX): _xapian.la
 	$(MKDIR_P) xapian
@@ -165,6 +165,6 @@ install-data-local:
 all-local: $(sphinxdocs)
 
 $(sphinxdocs): xapian/__init__.py xapian/_xapian$(PYTHON3_EXT_SUFFIX) docs/conf.py $(RST_DOCS) $(dist_exampledata_DATA)
-	PYTHONPATH=..:$$PYTHONPATH $(OSX_SIP_HACK_ENV) $(PYTHON3) \
+	PYTHONPATH=..:$$PYTHONPATH $(MACOS_SIP_HACK_ENV) $(PYTHON3) \
 		$(srcdir)/sphinx-build \
 		-b html -d doctrees -c docs $(srcdir)/docs docs/html

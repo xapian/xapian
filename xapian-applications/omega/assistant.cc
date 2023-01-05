@@ -65,38 +65,69 @@ static void stop_timeout() { }
 
 #endif
 
+static FILE* sockt;
+
+void
+send_field(Field field,
+	   const char* data,
+	   size_t len)
+{
+    if (len == 0) return;
+    putc(static_cast<unsigned char>(field), sockt);
+    if (!write_string(sockt, data, len)) {
+	_Exit(OMEGA_EX_SOCKET_WRITE_ERROR);
+    }
+}
+
+static void
+send_field_end()
+{
+    putc(static_cast<unsigned char>(FIELD_END), sockt);
+}
+
+void
+send_field_page_count(int value)
+{
+    if (value < 0) return;
+    putc(static_cast<unsigned char>(FIELD_PAGE_COUNT), sockt);
+    if (!write_unsigned(sockt, unsigned(value))) {
+	_Exit(OMEGA_EX_SOCKET_WRITE_ERROR);
+    }
+}
+
+void
+send_field_created_date(time_t value)
+{
+    if (value == time_t(-1)) return;
+    putc(static_cast<unsigned char>(FIELD_CREATED_DATE), sockt);
+    auto u_value = static_cast<unsigned long>(value);
+    if (!write_unsigned(sockt, u_value)) {
+	_Exit(OMEGA_EX_SOCKET_WRITE_ERROR);
+    }
+}
+
 // FIXME: Restart filter every N files processed?
 
 int main()
 {
     string filename, mimetype;
-    FILE* sockt = fdopen(FD, "r+");
+    sockt = fdopen(FD, "r+");
 
     while (true) {
 	// Read filename.
+	errno = 0;
 	if (!read_string(sockt, filename)) break;
 	if (!read_string(sockt, mimetype)) break;
-	string dump, title, keywords, author, pages, error;
 	// Setting a timeout for avoid infinity loops
 	set_timeout();
-	bool succeed =
-	    extract(filename, mimetype, dump, title, keywords, author, pages,
-		    error);
-	stop_timeout();
-	if (!succeed) {
-	    if (!write_string(sockt, string(1, MSG_NON_FATAL_ERROR) + error))
-		break;
-	} else {
-	    if (!write_string(sockt, string(1, MSG_OK)) ||
-		!write_string(sockt, dump) ||
-		!write_string(sockt, title) ||
-		!write_string(sockt, keywords) ||
-		!write_string(sockt, author) ||
-		!write_string(sockt, pages)) {
-		break;
-	    }
+	try {
+	    extract(filename, mimetype);
+	} catch (...) {
+	    send_field(FIELD_ERROR, "Caught C++ exception");
 	}
+	stop_timeout();
+	send_field_end();
     }
 
-    return 0;
+    _Exit(errno ? OMEGA_EX_SOCKET_READ_ERROR : EX_OK);
 }

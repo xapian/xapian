@@ -21,7 +21,11 @@
 #ifndef XAPIAN_INCLUDED_STRINGUTILS_H
 #define XAPIAN_INCLUDED_STRINGUTILS_H
 
+// Hack to allow inclusion from xapian-omega.
+// FIXME: Move C_isalpha(), etc to the public API?
+#define XAPIAN_IN_XAPIAN_H
 #include <xapian/constinfo.h>
+#undef XAPIAN_IN_XAPIAN_H
 
 #include <algorithm>
 #include <string>

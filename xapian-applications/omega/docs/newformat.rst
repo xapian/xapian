@@ -44,21 +44,19 @@ For safety reasons, it is not allowed to directly add libraries to omega source 
 
      convert_to_utf8(text, "ISO-8859-1");
 
-2. Once you have the library and the mimetype, it is time to modify the code. We have to create a new handler, which is the process used by omindex to access to the library. In order to do it, we have to create a file ``handler_yourlibrary.cc`` that includes ``handler.h`` and gives a definition to function ``extract`` (there are some examples at xapian-applications/omega such as 'handler_tesseract.cc'). For this, inside the function body you will use the library to get the necessary information and store it in the corresponding arguments
+2. Once you have the library and the mimetype, it is time to modify the code. We have to create a new handler, which is the process used by omindex to access to the library. In order to do it, we have to create a file ``handler_yourlibrary.cc`` that includes ``handler.h`` and gives a definition to function ``extract`` (there are some examples at xapian-applications/omega such as 'handler_tesseract.cc').
    ::
 
-     bool
+     void
      extract(const std::string& filename,
-             std::string& dump,
-             std::string& title,
-             std::string& keywords,
-             std::string& author,
-             std::string& pages,
-             std::string& error)
+             const std::string& mimetype);
 
-   Error messages should be written in ``error`` (you won't be able to write to standard output/error) and you should fill the rest of the arguments with the information extracted from the document (It is not necessary to fill in all the arguments).
+   In the function body you will use the library to extract the necessary information and call ``response()`` passing each piece of information.  These can be passed as C++ ``std::string``,
+   or as ``const char*`` pointers with or without lengths (if without, the strings must be nul-terminated.
 
-   You can get more information about this function at 'xapian-applications/omega/handler.h'.
+   If there's an error, call ``fail()`` instead.  If you don't call ``response()`` or ``fail()`` before returning the harness will effectively call ``fail("?")`` for you.
+
+   You can get more information about these functions at 'xapian-applications/omega/handler.h'.
 
 3. After the handler is implemented, the build system must be updated. In particular, it is necessary to modify 'configure.ac' and 'Makefile.am'.
 

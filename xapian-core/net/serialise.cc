@@ -32,8 +32,6 @@
 #include "serialise-double.h"
 #include "weight/weightinternal.h"
 
-#include <memory>
-#include <set>
 #include <string>
 
 using namespace std;

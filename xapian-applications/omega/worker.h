@@ -45,12 +45,18 @@ class Worker {
      */
     std::FILE* sockt = NULL;
 
-    /** Name of the assistant program.
+    /** Pathname of the assistant program.
      *
      *  Set to empty on hard failure so we can hard fail right away if retried
      *  via a different mimemap entry.
      */
     std::string filter_module;
+
+    /** Prefix to add to error messages.
+     *
+     *  This is the leafname of the assistant program followed by ": ".
+     */
+    std::string error_prefix;
 
     /** This method creates the assistant subprocess.
      *
@@ -79,11 +85,12 @@ class Worker {
      *
      *  @param filename		Path to the file.
      *  @param mimetype		Mimetype of the file.
-     *  @param dump		String where the dump will be saved.
-     *  @param title		String which will hold the title of the file.
-     *  @param keywords		String where the keywords will be stored.
-     *  @param author		String where the author will be stored.
-     *  @param pages		Here the number of pages will be stored.
+     *  @param[out] dump	Any body text.
+     *  @param[out] title	The title of the document.
+     *  @param[out] keyword	Any keywords.
+     *  @param[out] author	The author(s).
+     *  @param[out] pages	The number of pages (-1 if unknown).
+     *  @param[out] created	Created timestamp as time_t (-1 if unknown).
      *
      *  @return 0 on success.
      *
@@ -104,7 +111,8 @@ class Worker {
 		std::string& title,
 		std::string& keywords,
 		std::string& author,
-		int& pages);
+		int& pages,
+		time_t& created);
 
     /** Returns an error message if the extraction fails, or an empty string
      *  if everything is okay.

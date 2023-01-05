@@ -24,6 +24,7 @@
 
 #include <xapian/intrusive_ptr.h>
 
+#include <map>
 #include <vector>
 
 /** Internal class for Diversify

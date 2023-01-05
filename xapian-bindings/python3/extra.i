@@ -598,7 +598,7 @@ def _queryparser_gen_unstemlist_iter(self, tname):
                     return_strings=True)
 QueryParser.unstemlist = _queryparser_gen_unstemlist_iter
 
-# Modify ValueCountMatchSpy to add an "values()" method.
+# Modify ValueCountMatchSpy to add a "values()" method.
 def wrapper():
     begin = ValueCountMatchSpy.values_begin
     del ValueCountMatchSpy.values_begin
@@ -619,7 +619,7 @@ def wrapper():
 ValueCountMatchSpy.values = wrapper()
 del wrapper
 
-# Modify ValueCountMatchSpy to add an "top_values()" method.
+# Modify ValueCountMatchSpy to add a "top_values()" method.
 def wrapper():
     begin = ValueCountMatchSpy.top_values_begin
     del ValueCountMatchSpy.top_values_begin
@@ -1158,11 +1158,6 @@ def _stem_init(self, *args):
 _stem_init.__doc__ = Stem.__init__.__doc__
 Stem.__init__ = _stem_init
 
-
-# Remove static methods which shouldn't be in the API.
-del Document_unserialise
-del Query_unserialise
-del Stem_get_available_languages
 
 # Add wrappers for Query::MatchAll and Query::MatchNothing
 Query.MatchAll = Query("")

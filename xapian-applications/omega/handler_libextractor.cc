@@ -2,6 +2,7 @@
  * @brief Extract metadata using libextractor.
  */
 /* Copyright (C) 2020 Parth Kapadia
+ * Copyright (C) 2022 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,43 +21,32 @@
  */
 #include <config.h>
 #include "handler.h"
+#include "parseint.h"
 
 #include <extractor.h>
-#include <cstring>
+#include <sysexits.h>
 
 using namespace std;
 
-struct metadata {
-    string& title;
-    string& author;
-    string& keywords;
-    string& pages;
-
-    metadata(string& t, string& a, string& k, string& p)
-	    : title(t), author(a), keywords(k), pages(p) {}
-};
-
 /** Store metadata in its corresponding variable.
  *
- *  @param cls  		passed as last parameter from EXTRACTOR_extract
- *  @param plugin_name  	name of the plugin
+ *  @param cls  		last parameter from EXTRACTOR_extract (unused)
+ *  @param plugin_name  	name of the plugin (unused)
  *  @param type  		mime-type of file according to libextractor
  *  @param format		format information about data
- *  @param data_mime_type	mimetype of data according to libextractor
+ *  @param data_mime_type	mimetype according to libextractor (unused)
  *  @param data 		actual meta-data found
  *  @param data_len		number of bytes in data
  */
 static int
-process_metadata(void* cls,
-		 const char* plugin_name,
+process_metadata(void*,
+		 const char*,
 		 enum EXTRACTOR_MetaType type,
 		 enum EXTRACTOR_MetaFormat format,
-		 const char* data_mime_type,
+		 const char*,
 		 const char* data,
 		 size_t data_len)
 {
-    struct metadata* md = static_cast<struct metadata*>(cls);
-
     switch (format) {
 	case EXTRACTOR_METAFORMAT_UTF8:
 	    break;
@@ -69,68 +59,78 @@ process_metadata(void* cls,
 	    return 0;
     }
 
+    // "data_len is strlen (data)+1"!
+    --data_len;
+
     switch (type) {
 	case EXTRACTOR_METATYPE_BOOK_TITLE:
 	case EXTRACTOR_METATYPE_JOURNAL_NAME:
 	case EXTRACTOR_METATYPE_ORIGINAL_TITLE:
 	case EXTRACTOR_METATYPE_SUBJECT:
+	case EXTRACTOR_METATYPE_SUBTITLE:
 	case EXTRACTOR_METATYPE_TITLE:
-	    if (!md->title.empty())
-		md->title.append(" ");
-	    md->title.append(data, data_len);
+	    send_field(FIELD_TITLE, data, data_len);
 	    break;
 
-	case EXTRACTOR_METATYPE_PAGE_COUNT:
-	    md->pages.assign(data, data_len);
+	case EXTRACTOR_METATYPE_PAGE_COUNT: {
+	    unsigned p;
+	    if (parse_unsigned(data, p)) {
+		send_field_page_count(int(p));
+	    }
 	    break;
+	}
 
 	case EXTRACTOR_METATYPE_ARTIST:
 	case EXTRACTOR_METATYPE_AUTHOR_NAME:
+	case EXTRACTOR_METATYPE_COMPOSER:
+	case EXTRACTOR_METATYPE_CONDUCTOR:
 	case EXTRACTOR_METATYPE_CREATOR:
 	case EXTRACTOR_METATYPE_MOVIE_DIRECTOR:
 	case EXTRACTOR_METATYPE_ORIGINAL_ARTIST:
+	case EXTRACTOR_METATYPE_ORIGINAL_PERFORMER:
 	case EXTRACTOR_METATYPE_ORIGINAL_WRITER:
-	case EXTRACTOR_METATYPE_PUBLISHER:
-	    if (!md->author.empty())
-		md->author.append(" ");
-	    md->author.append(data, data_len);
+	case EXTRACTOR_METATYPE_PERFORMER:
+	case EXTRACTOR_METATYPE_WRITER:
+	    send_field(FIELD_AUTHOR, data, data_len);
+	    break;
+
+	case EXTRACTOR_METATYPE_KEYWORDS:
+	    send_field(FIELD_KEYWORDS, data, data_len);
+	    break;
+
+	case EXTRACTOR_METATYPE_ABSTRACT:
+	case EXTRACTOR_METATYPE_COMMENT:
+	case EXTRACTOR_METATYPE_DESCRIPTION:
+	case EXTRACTOR_METATYPE_LYRICS:
+	case EXTRACTOR_METATYPE_SUMMARY:
+	    send_field(FIELD_BODY, data, data_len);
 	    break;
 
 	default:
-	    if (!md->keywords.empty())
-		md->keywords.append(" ");
-	    md->keywords.append(data, data_len);
+	    // Ignore other metadata.
+	    break;
     }
     return 0;
 }
 
-bool
-extract(const string& filename,
-	const string& mimetype,
-	string& dump,
-	string& title,
-	string& keywords,
-	string& author,
-	string& pages,
-	string& error)
+static auto initialise() {
+    // Add all default plugins.
+    auto plugins =
+	EXTRACTOR_plugin_add_defaults(EXTRACTOR_OPTION_DEFAULT_POLICY);
+    if (!plugins)
+	exit(EX_UNAVAILABLE);
+    return plugins;
+}
+
+void
+extract(const string& filename, const string& mimetype)
 {
-    try {
-	struct metadata md(title, author, keywords, pages);
+    // Initialise on first run.
+    static auto plugins = initialise();
 
-	// Add all default plugins
-	auto plugins =
-	 EXTRACTOR_plugin_add_defaults(EXTRACTOR_OPTION_DEFAULT_POLICY);
-
-	// If plugin not found/ File format not recognised/ corrupt file
-	// returns null and not an error.
-	EXTRACTOR_extract(plugins, filename.c_str(),
-			  NULL, 0,
-			  &process_metadata, &md);
-	EXTRACTOR_plugin_remove_all(plugins);
-    } catch (...) {
-	error = "Libextractor threw an exception";
-	return false;
-    }
-
-    return true;
+    // If plugin not found/ File format not recognised/ corrupt file
+    // no data is extracted, rather than reporting an error.
+    EXTRACTOR_extract(plugins, filename.c_str(),
+		      nullptr, 0,
+		      &process_metadata, nullptr);
 }

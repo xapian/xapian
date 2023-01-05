@@ -2,6 +2,7 @@
  * @brief Extract text using libcdr.
  */
 /* Copyright (C) 2020 Parth Kapadia
+ * Copyright (C) 2022 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,43 +26,40 @@
 #include <librevenge-stream/librevenge-stream.h>
 #include <libcdr/libcdr.h>
 
-using namespace std;
 using namespace librevenge;
+using namespace std;
 
-bool
-extract(const string& filename,
-	const string& mimetype,
-	string& dump,
-	string& title,
-	string& keywords,
-	string& author,
-	string& pages,
-	string& error)
+void
+extract(const string& filename, const string& mimetype)
 {
-    try {
-	RVNGFileStream input(filename.c_str());
-	RVNGStringVector cdr_pages;
-	RVNGTextDrawingGenerator content(cdr_pages);
+    RVNGFileStream input(filename.c_str());
+    RVNGStringVector pages;
+    RVNGTextDrawingGenerator content(pages);
 
-	// check if cdr file supported
-	if (libcdr::CDRDocument::isSupported(&input)) {
-	    if (libcdr::CDRDocument::parse(&input, &content)) {
-		// parse the pages to get the content
-		pages = cdr_pages.size();
-		for (auto i = 0; i < cdr_pages.size(); ++i) {
-		    dump.append(cdr_pages[i].cstr());
-		}
-	    } else {
-		error = "Libcdr Error: Failed to parse the file";
-		return false;
-	    }
-	} else {
-	    error = "Libcdr Error: The format is not supported";
-	    return false;
-	}
-	return true;
-    } catch (...) {
-	error = "Libcdr threw an exception";
-	return false;
+    // There's also support in libcdr for CMX files, which is an exchange
+    // format used by CorelDraw which seems to be mostly used for brushes
+    // and clip art, neither of which are likely to contain extractable
+    // text, so currently we don't attempt to handle CMX files here.
+    //
+    // There don't seem to be many freely available sample files either - the
+    // only one I found easily was NEWSFLASH.CMX in the EDRM dataset, which
+    // doesn't contain any extractable text.
+
+    // check if cdr file supported
+    if (!libcdr::CDRDocument::isSupported(&input)) {
+	send_field(FIELD_ERROR, "Format not supported");
+	return;
+    }
+
+    if (!libcdr::CDRDocument::parse(&input, &content)) {
+	send_field(FIELD_ERROR, "Failed to parse file");
+	return;
+    }
+
+    int page_count = pages.size();
+    send_field_page_count(page_count);
+    for (auto i = 0; i < page_count; ++i) {
+	const RVNGString& page = pages[i];
+	send_field(FIELD_BODY, page.cstr(), page.size());
     }
 }

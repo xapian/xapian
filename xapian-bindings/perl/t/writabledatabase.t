@@ -36,9 +36,9 @@ for my $num (1..1000) {
   $doc->set_data( "$term $num" );
 
   $doc->add_posting( $term, 0 );
-  $doc->add_posting( $num, 1 );
+  $doc->add_posting( "$num", 1 );
 
-  $doc->add_value(0, $num);
+  $doc->add_value(0, "$num");
   $write->add_document( $doc );
 }
 

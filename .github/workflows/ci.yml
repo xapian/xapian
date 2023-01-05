@@ -74,6 +74,71 @@ jobs:
       # if that input is empty.
       run: git status --porcelain|grep '^' && { echo "The generated files listed above are not in .gitignore" ; exit 1; }; true
 
+  FORTIFY_SOURCE_3:
+    # _FORTIFY_SOURCE level 3 requires GCC 12, so currently we need to use
+    # Ubuntu 22.04 and the gcc-12 and g++12 packages.
+    runs-on: 'ubuntu-22.04'
+    env:
+      LIBEXTRACTOR_PREFIX: '/usr/lib/x86_64-linux-gnu/libextractor'
+    steps:
+    - name: Check out repository code
+      uses: actions/checkout@v2
+    - name: Install CCache
+      uses: hendrikmuhs/ccache-action@v1
+      with:
+        key: GLIBCXX_DEBUG
+    - name: Install package dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install \
+            gcc-12 \
+            g++-12 \
+            doxygen \
+            graphviz \
+            help2man \
+            python3-docutils \
+            pngcrush \
+            python3-sphinx \
+            uuid-dev \
+            libpcre2-dev \
+            libmagic-dev \
+            lua5.4 \
+            liblua5.4-dev \
+            mono-devel \
+            python3-dev \
+            tcl \
+            tcl-dev \
+            libicu-dev \
+            pkg-config \
+            libpoppler-glib-dev \
+            libglib2.0-dev \
+            libe-book-dev \
+            libetonyek-dev \
+            libgmime-3.0-dev \
+            libarchive-dev \
+            libabw-dev \
+            libcdr-dev \
+            libextractor-dev \
+            libextractor-plugins-all \
+            libmwaw-dev \
+            libtesseract-dev \
+            tesseract-ocr-eng
+    - name: bootstrap source tree
+      run: ./bootstrap xapian-core xapian-applications/omega swig xapian-bindings xapian-letor
+    - name: configure
+      # Ubuntu's GCC packages define _FORTIFY_SOURCE=2 by default, so we need
+      # to undefine it before we define it to avoid a warning (which becomes
+      # an error with -Werror).
+      run: ./configure CC='ccache gcc-12' CXX='ccache g++-12' CPPFLAGS='-U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=3'
+    - name: make
+      run: make -j2
+    - name: Run tests
+      run: make -j2 check VERBOSE=1 AUTOMATED_TESTING=1
+    - name: Check generated files are in .gitignore
+      # grep '^' passes through all input while giving a non-zero exit status
+      # if that input is empty.
+      run: git status --porcelain|grep '^' && { echo "The generated files listed above are not in .gitignore" ; exit 1; }; true
+
   clang:
     runs-on: 'ubuntu-20.04'
     env:
@@ -132,11 +197,8 @@ jobs:
       # if that input is empty.
       run: git status --porcelain|grep '^' && { echo "The generated files listed above are not in .gitignore" ; exit 1; }; true
 
-  # GCC 4.8 is the oldest GCC we currently aim to support.  There's no package
-  # for it in Ubuntu 20.04 so we have to run this on 18.04 (also useful to test
-  # there for portability).
-  GCC4-8:
-    name: 'GCC 4.8'
+  # Test with the oldest clang version we easily can.
+  clang6:
     runs-on: 'ubuntu-18.04'
     env:
       LIBEXTRACTOR_PREFIX: '/usr/lib/x86_64-linux-gnu/libextractor'
@@ -146,13 +208,74 @@ jobs:
     - name: Install CCache
       uses: hendrikmuhs/ccache-action@v1
       with:
-        key: GCC4-8
+        key: clang6
+    - name: Install package dependencies
+      run: |
+        env
+        sudo apt-get update
+        sudo apt-get install \
+            clang \
+            libc++-dev
+        sudo apt-get install \
+            doxygen \
+            graphviz \
+            help2man \
+            python3-docutils \
+            pngcrush \
+            python3-sphinx \
+            uuid-dev \
+            libpcre2-dev \
+            libmagic-dev \
+            python3-dev \
+            tcl \
+            tcl-dev \
+            pkg-config \
+            libpoppler-glib-dev \
+            libglib2.0-dev \
+            libe-book-dev \
+            libetonyek-dev \
+            libgmime-2.6-dev \
+            libarchive-dev \
+            libabw-dev \
+            libcdr-dev \
+            libextractor-dev \
+            libmwaw-dev \
+            libtesseract-dev \
+            tesseract-ocr-eng
+    - name: bootstrap source tree
+      run: ./bootstrap xapian-core xapian-applications/omega swig xapian-bindings xapian-letor
+    - name: configure
+      # Build with the llvm c++ library to catch more portability issues.
+      run: ./configure CC='ccache clang' CXX='ccache clang++ -stdlib=libc++' --with-python3 --with-tcl
+    - name: make
+      run: make -j2
+    - name: Run tests
+      run: make -j2 check VERBOSE=1 AUTOMATED_TESTING=1
+    - name: Check generated files are in .gitignore
+      # grep '^' passes through all input while giving a non-zero exit status
+      # if that input is empty.
+      run: git status --porcelain|grep '^' && { echo "The generated files listed above are not in .gitignore" ; exit 1; }; true
+
+  # GCC 7 is the oldest GCC we currently aim to support.  Test on 18.04 as that
+  # tests 7.3.0 (20.04 has 7.5.0).
+  GCC7:
+    name: 'GCC 7'
+    runs-on: 'ubuntu-18.04'
+    env:
+      LIBEXTRACTOR_PREFIX: '/usr/lib/x86_64-linux-gnu/libextractor'
+    steps:
+    - name: Check out repository code
+      uses: actions/checkout@v2
+    - name: Install CCache
+      uses: hendrikmuhs/ccache-action@v1
+      with:
+        key: GCC7
     - name: Install package dependencies
       run: |
         sudo apt-get update
         sudo apt-get install \
-            gcc-4.8 \
-            g++-4.8
+            gcc-7 \
+            g++-7
         sudo apt-get install \
             doxygen \
             graphviz \
@@ -184,7 +307,7 @@ jobs:
     - name: bootstrap source tree
       run: ./bootstrap xapian-core xapian-applications/omega swig xapian-bindings xapian-letor
     - name: configure
-      run: ./configure CC='ccache gcc-4.8' CXX='ccache g++-4.8'
+      run: ./configure CC='ccache gcc-7' CXX='ccache g++-7'
     - name: make
       run: make -j2
     - name: Run tests
@@ -245,7 +368,7 @@ jobs:
   macos:
     runs-on: 'macos-latest'
     env:
-      LIBEXTRACTOR_PREFIX: '/usr/lib/x86_64-linux-gnu/libextractor'
+      LIBEXTRACTOR_PREFIX: '/usr/local/lib/libextractor'
     steps:
     - name: Check out repository code
       uses: actions/checkout@v2
@@ -257,6 +380,7 @@ jobs:
       run: |
         brew update
         brew install \
+            docutils \
             doxygen \
             gmime \
             graphviz \
@@ -277,11 +401,11 @@ jobs:
             pngcrush \
             poppler \
             pygments \
-            python
+            python \
+            sphinx-doc
         # homebrew tesseract 5.2.0 only extracts "ee" from img/Test1.gif (5.1.0
         # worked).
         # tesseract
-        pip3 install sphinx docutils
     - name: bootstrap source tree
       run: ./bootstrap xapian-core xapian-applications/omega swig xapian-bindings xapian-letor
     - name: configure

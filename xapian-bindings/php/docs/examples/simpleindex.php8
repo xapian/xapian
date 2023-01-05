@@ -1,5 +1,5 @@
 <?php
-/* PHP7 script to index each paragraph of a text file as a Xapian document.
+/* PHP script to index each paragraph of a text file as a Xapian document.
  *
  * Copyright (C) 2007,2009 Olly Betts
  *
@@ -24,7 +24,7 @@ if (php_sapi_name() != "cli") {
     exit(1);
 }
 
-include "xapian.php";
+if (PHP_MAJOR_VERSION < 8) include "xapian.php";
 
 if ($argc != 2) {
     print "Usage: {$argv[0]} PATH_TO_DATABASE\n";

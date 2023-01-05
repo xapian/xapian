@@ -24,7 +24,7 @@
 #include "xapian/weight.h"
 
 #include "xapian/error.h"
-#include "common/log2.h"
+
 #include <algorithm>
 #include <cmath>
 
@@ -61,7 +61,7 @@ DPHWeight::init(double factor)
     double min_wdf_to_len = wdf_lower / len_upper;
 
     /* Calculate constant value to be used in get_sumpart(). */
-    log_constant = get_total_length() / F;
+    log_constant = log2(get_total_length() / F);
     wqf_product_factor = get_wqf() * factor;
 
     // Calculate the upper bound on the weight.
@@ -99,11 +99,12 @@ DPHWeight::init(double factor)
 	wdf_root = wdf_lower;
     }
 
-    double max_wdf_product_normalization = wdf_root / (wdf_root + 1) *
-	pow((1 - wdf_root / len_upper), 2.0);
+    double x = 1 - wdf_root / len_upper;
+    double x_squared = x * x;
+    auto max_wdf_product_normalization = wdf_root / (wdf_root + 1) * x_squared;
 
     double max_weight = max_wdf_product_normalization *
-	(log2(log_constant) + (0.5 * log2(2 * M_PI * max_product)));
+	(log_constant + (0.5 * log2(2 * M_PI * max_product)));
 
     upper_bound = wqf_product_factor * max_weight;
     if (rare(upper_bound < 0.0)) upper_bound = 0.0;
@@ -143,10 +144,11 @@ DPHWeight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len,
 
     double wdf_to_len = double(wdf) / len;
 
-    double normalization = pow((1 - wdf_to_len), 2) / (wdf + 1);
+    double x = 1 - wdf_to_len;
+    double normalization = x * x / (wdf + 1);
 
     double wt = normalization *
-	(wdf * log2(wdf_to_len * log_constant) +
+	(wdf * (log2(wdf_to_len) + log_constant) +
 	 (0.5 * log2(2 * M_PI * wdf * (1 - wdf_to_len))));
     if (rare(wt <= 0.0)) return 0.0;
 

@@ -1042,6 +1042,13 @@ test_scriptindex "extra blank lines" \
 test_scriptindex "extra blank lines with CRs" \
   "\r\nid=1\r\nf=a\r\n\r\n\r\nid=2\r\nf=b\r\n\r\n"
 
+# Regression test for handling of no newline on final line, fixed in 1.4.22.
+#
+# This used to report a bogus error on the last line:
+# error: Expected = somewhere in this line
+test_scriptindex "no newline on final line" \
+  "id=1\nf=hello\n=world"
+
 # Feature tests for scriptindex `index` and `indexnopos` actions.
 printf '%s\n' 't : index=XT' 'n : indexnopos=XN' > "$TEST_INDEXSCRIPT"
 test_scriptindex 'INDEX and INDEXNOPOS actions' \
@@ -1149,8 +1156,8 @@ hex=54657374
 
 hex=4b696C6c
 '
-printf '$list{$map{$split{$cgi{DOCIDS}},$value{0,$_}},|}' > "$TEST_TEMPLATE"
-testcase '|A|Test|Kill' DOCIDS='1 2 3 4'
+printf '$valuelowerbound{0}$list{$map{$split{$cgi{DOCIDS}},$value{0,$_}},|}|$valueupperbound{0}' > "$TEST_TEMPLATE"
+testcase 'A|A|Test|Kill|Test' DOCIDS='1 2 3 4'
 
 # Feature test error cases for scriptindex `hextobin` action.
 test_scriptindex_error 'bad hex digit' \
@@ -1520,8 +1527,8 @@ fi
 printf '%s\n' 'n : field valuenumeric=0' > "$TEST_INDEXSCRIPT"
 test_scriptindex 'VALUENUMERIC action' \
   'n=0\n\nn=1.75\n\nn=-1000000000'
-printf '$list{$map{$range{1,3},$url{$value{0,$_}}},:}' > "$TEST_TEMPLATE"
-testcase '%80:%A3:%1F%A4FS%60'
+printf '$sortableunserialise{$valuelowerbound{0}}|$list{$map{$range{1,3},$url{$value{0,$_}}},:}|$sortableunserialise{$valueupperbound{0}}' > "$TEST_TEMPLATE"
+testcase '-1000000000.000000|%80:%A3:%1F%A4FS%60|1.750000'
 
 # Feature tests for scriptindex `load` action.
 printf '%s\n' 'file : load field' > "$TEST_INDEXSCRIPT"

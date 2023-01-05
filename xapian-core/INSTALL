@@ -35,34 +35,125 @@ Optionally, ICU can be used for finding words boundaries in CJK text.  This
 is enabled automatically by configure if both ICU 54.1 and pkg-config are
 found.
 
+Platforms
+=========
+
+Xapian (and particularly xapian-core) aims to be portable to almost all
+modern platforms.  In particular, there's no assembler code, we support both
+little-endian and big-endian platforms, and both 32-bit and 64-bit
+architectures are supported.  There's no fundamental reason why Xapian wouldn't
+work on a 16-bit architecture (provided it supports more than 64KB of memory,
+e.g. via a segmented memory model) but it's not been tested by anyone as far as
+we're aware and some porting work would probably be needed.
+
+There are a small number of assumptions made:
+
+POSIX APIs are available
+------------------------
+
+We use POSIX APIs with fall-back code for known cases where support is limited
+or missing (Microsoft Windows accounts for the majority of such fall-back
+code).  Porting to a new platform which doesn't have good POSIX support may
+require adding additional fall-back code.
+
+Character encoding is ASCII-based
+---------------------------------
+
+Porting work would be required to run correctly on a platform using a different
+character encoding (such as EBCDIC).
+
+Signed integers use two's complement representation
+---------------------------------------------------
+
+C++20 has now made this a requirement.  Xapian doesn't yet require C++20, and
+older versions of the language standard didn't require this, but apparently all
+C++ implementations actually use it anyway.
+
+FLT_RADIX is 2
+--------------
+
+It seems all modern platforms use 2 for FLT_RADIX.  This assumption should be
+easy to eliminate if you actually have such a platform, but it's hard to
+properly test a change to do so without such a platform.
+
+Double precision floating point does not have excess precision
+--------------------------------------------------------------
+
+A few older CPU architectures (x86 with 387 FP instructions, and m68k models
+68030 and earlier) internally calculate and hold values with excess precision
+and reduce precision when storing to memory.
+
+This unfortunately makes some normally easy tasks very hard to perform
+consistently, such as ordering results by weight - a key part of what Xapian
+does.  Calculating and comparing two weights can give a different order if one
+is spilled to memory and reloaded while the other remains in a register (and
+when values are spilled depends on the compiler).  This can lead to a > b  and
+b > a both evaluating as true, violating the ordering requirements for sort
+comparison routines and leading to C++ undefined behaviour.
+
+We have some special-case code which works around this in the place where it
+has been reported to cause segfaults, but this doesn't address the general
+problem that excess precision can cause calculating the same equations using
+the same input values via two different code paths to give different results
+and there may be more cases of undefined behaviour due to this which haven't
+been uncovered yet.  We don't recommend using such a build, and can't really
+support people trying to use it.
+
+For old m68k CPUs we don't have a better solution, but the 68030 was released
+in 1987 so can probably be considered obsolete now.
+
+For x86, a simple solution is to use SSE FP instructions instead as these
+don't have excess precision.  The configure script in xapian-core will select
+SSE2 (which requires a Pentium 4 or later) on x86 if it knows how to for the
+compiler in use.
+
+This can be a problem if you're building binary packages for a distribution
+which has an x86 baseline which doesn't include SSE2.
+
+If your x86 baseline includes SSE (which requires a Pentium 3 or later) but
+not SSE2, then configuring with --enable-sse=sse will select SSE instead.
+
+If your x86 baseline requires a build without SSE, we strongly recommend
+providing a build with SSE or SSE2 as well.  On Linux at least, the dynamic
+linker will load an alternative version of a shared library from a subdirectory
+based on runtime detection of the hardware capabilities of CPU model in use, so
+you can satisfy your baseline requires while providing the vast majority of
+your users with a better quality build.  See
+https://trac.xapian.org/wiki/PackagingXapian for an outline of how the Debian
+xapian-core packaging does this.
+
 Compilers
 =========
 
-We aim to support compilation with any C++ compiler which support ISO C++11, or
-a reasonable approximation to it.
+We aim to support compilation with any C++ compiler which support ISO C++17, or
+a reasonable approximation to it.  If you still need to build Xapian with an
+older compiler then Xapian 1.4.x only requires C++11.
 
 GCC
 ---
 
-If you're using GCC, we currently recommend GCC 4.8 or newer (this is the
+If you're using GCC, we currently recommend GCC 7.0 or newer (this is the
 oldest version we regularly test with).
 
-The current hard minimum requirement is also GCC 4.8 (due to requiring good
-support for C++11, for example non-static data member initializers aren't
+The current hard minimum requirement is also GCC 7.0 (due to requiring good
+support for C++17, for example non-static data member initializers aren't
 supported by earlier versions).
 
 If you really still need to use an older version of GCC, Xapian 1.4.x aims
 to support GCC 4.7, while Xapian 1.2.x doesn't require C++11 support and should
 build with older versions - probably as far back as GCC 3.1.
 
+Clang
+-----
+
+Clang 6.0 is known to work.  We haven't identified the exact minimum
+requirement, but it's probably at least Clang 4.0.
+
 MSVC
 ----
 
-If you're using MS Visual C++, you'll need at least MSVS 2015 for C++11
-support.
-
-We support 64-bit compilation with MSVS 2017, 2019 and 2022.  With MSVS 2015 a
-64-bit build fails to work - we haven't investigated why.
+If you're using MS Visual C++, you'll need at least MSVS 2017 for C++17
+support. We support both 32-bit and 64-bit compilation.
 
 As of Xapian 1.4.6 building using MSVC is supported by the autotools build
 system.  You need to install a set of Unix-like tools first - we recommended
@@ -79,13 +170,6 @@ or::
 
   "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"
 
-And for MSVC 2015 32-bit use::
-
-  "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" x86
-
-MSVC 2015 64-bit isn't currently supported, but would use the above command but
-with ``x64`` instead of ``x86``.
-
 You'll need to have the zlib library available.  You can add
 ``CPPFLAGS=-I/path/to/zlib LDFLAGS=-L/path/to/zlib`` to the configure command
 line to tell MSVC where to find the zlib headers and library.
@@ -101,18 +185,14 @@ Then build using GNU make::
 HP's aCC
 --------
 
-When using HP's aCC, Xapian must be compiled with +std=c++11, which
-xapian-core's configure automatically detects and passes.  You don't have to
-pass this option when building code which uses Xapian, but you can.
+This compiler doesn't seem to have been updated to support C++17.  If you
+really still need to use it you'll have to use Xapian 1.4.x.
 
 Sun C++ Compiler
 ----------------
 
-With this compiler, shared library builds fail (tested most recently with
-version 12.6).  You can work around this problem by disabling shared libraries
-at configure time like so::
-
-  ./configure --disable-shared
+This compiler doesn't seem to have been updated to support C++17.  If you
+really still need to use it you'll have to use Xapian 1.4.x.
 
 Multi-Arch
 ==========
@@ -164,12 +244,15 @@ so:
 
 ./configure CPPFLAGS=-D_FORTIFY_SOURCE=0
 
-Or you can set the "fortification level" to 1 instead of 2:
+Or you can set the "fortification level" to 1 or (with new enough glibc and
+GCC) 3 instead of 2:
 
 ./configure CPPFLAGS=-D_FORTIFY_SOURCE=1
 
-If you're disabling it because it causes problems, please also report this to
-us (via the bug tracker or mailing lists).
+./configure CPPFLAGS=-D_FORTIFY_SOURCE=3
+
+If you're disabling _FORTIFY_SOURCE because it causes problems, please also
+report this to us (via the bug tracker or mailing lists).
 
 On mingw-w64 Xapian doesn't automatically enable _FORTIFY_SOURCE as an extra
 library is needed.  You can enable it by hand and specify this library like

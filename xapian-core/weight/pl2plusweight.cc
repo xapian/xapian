@@ -23,7 +23,7 @@
 #include <config.h>
 
 #include "xapian/weight.h"
-#include "common/log2.h"
+
 #include "weightinternal.h"
 
 #include "serialise-double.h"
@@ -31,6 +31,7 @@
 #include "xapian/error.h"
 
 #include <algorithm>
+#include <cmath>
 
 using namespace std;
 

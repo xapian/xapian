@@ -1,7 +1,7 @@
 /** @file
  * @brief Communication with worker processes
  */
-/* Copyright (C) 2011 Olly Betts
+/* Copyright (C) 2011,2022 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -64,10 +64,8 @@ read_string(FILE* f, string& s)
 }
 
 bool
-write_string(FILE* f, const string& s)
+write_string(FILE* f, const char* p, size_t len)
 {
-    // Saving the string size
-    size_t len = s.size();
     if (len < 253) {
 	putc(static_cast<unsigned char>(len), f);
     } else if (len < 0x10000) {
@@ -87,9 +85,6 @@ write_string(FILE* f, const string& s)
 	putc(static_cast<unsigned char>(len), f);
     }
 
-    // Writing the string
-    const char* p = s.data();
-
     while (len) {
 	size_t n = fwrite(p, 1, len, f);
 	if (n == 0) {
@@ -101,4 +96,50 @@ write_string(FILE* f, const string& s)
     }
 
     return true;
+}
+
+bool
+read_unsigned(FILE* f, unsigned& v)
+{
+    v = 0;
+    int ch;
+    do {
+	ch = getc(f);
+	if (ch < 0) return false;
+	v = (v << 7) | (ch & 0x7f);
+    } while (ch & 0x80);
+    return true;
+}
+
+bool
+read_unsigned(FILE* f, unsigned long& v)
+{
+    v = 0;
+    int ch;
+    do {
+	ch = getc(f);
+	if (ch < 0) return false;
+	v = (v << 7) | (ch & 0x7f);
+    } while (ch & 0x80);
+    return true;
+}
+
+bool
+write_unsigned(FILE* f, unsigned long v)
+{
+    while (v >= 0x80) {
+	if (putc(v | 0x80, f) < 0) return false;
+	v >>= 7;
+    }
+    return !(putc(v, f) < 0);
+}
+
+bool
+write_unsigned(FILE* f, unsigned v)
+{
+    while (v >= 0x80) {
+	if (putc(v | 0x80, f) < 0) return false;
+	v >>= 7;
+    }
+    return !(putc(v, f) < 0);
 }

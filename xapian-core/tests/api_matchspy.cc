@@ -27,8 +27,6 @@
 
 #include <xapian.h>
 
-#include <cmath>
-#include <map>
 #include <vector>
 
 #include "backendmanager.h"

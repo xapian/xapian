@@ -1,7 +1,7 @@
-PHP7 bindings for Xapian
-************************
+PHP bindings for Xapian
+***********************
 
-The PHP7 bindings for Xapian are packaged in the ``xapian``
+The PHP bindings for Xapian are packaged in the ``xapian``
 extension.  The PHP API provided by this extension largely follows Xapian's C++
 API.  This document lists the differences and additions.
 
@@ -25,10 +25,10 @@ container-like classes are wrapped as ``is_empty()`` for PHP.
 
 The ``examples`` subdirectory contains examples showing how to use the
 PHP bindings based on the simple examples from ``xapian-examples``:
-`simpleindex.php7 <examples/simpleindex.php7>`_,
-`simplesearch.php7 <examples/simplesearch.php7>`_,
-`simpleexpand.php7 <examples/simpleexpand.php7>`_,
-`simplematchdecider.php7 <examples/simplematchdecider.php7>`_.
+`simpleindex.php8 <examples/simpleindex.php8>`_,
+`simplesearch.php8 <examples/simplesearch.php8>`_,
+`simpleexpand.php8 <examples/simpleexpand.php8>`_,
+`simplematchdecider.php8 <examples/simplematchdecider.php8>`_.
 
 Note that these examples are written to work with the command line (CLI)
 version of the PHP interpreter, not through a webserver.  Xapian's PHP
@@ -38,23 +38,28 @@ etc.
 Installation
 ============
 
-Assuming you have a suitable version of PHP7 installed, running
-configure will automatically enable the PHP7 bindings, and
+This version of the bindings only support PHP >= 8.0  If you need support
+for PHP 5.x or 7.x, you'll need to use Xapian 1.4.21 or earlier instead.
+
+Assuming you have a suitable version of PHP installed, running
+configure will automatically enable the PHP bindings, and
 ``make install`` will install the extension shared library in
 the location reported by ``php-config --extension-dir``.
 
 Check that php.ini has a line like ``extension_dir = "<location reported by php-config --extension-dir>"``.
 
 
-Then add this line to php.ini: ``extension = xapian.so`` (or
-whatever the library is called - not all UNIX systems use ``.so``
-as the extension, and MS Windows uses ``.dll``).
+Then add this line to php.ini: ``extension=xapian``
 
 If you're using PHP as a webserver module (e.g. mod_php with Apache), you
 may need to restart the webserver for this change to take effect.
 
-You also need to add ``include&nbsp;"xapian.php"``
-to your PHP scripts which use Xapian in order to get the PHP class wrappers.
+Previous versions of these bindings for PHP < 8 also required you to add
+``include&nbsp;"xapian.php"`` to your PHP scripts which use Xapian, but
+this is not necessary with versions which support PHP8 (1.4.22 and newer).
+To write code which supports both you can use::
+
+    if (PHP_MAJOR_VERSION < 8) include "xapian.php";
 
 Exceptions
 ##########

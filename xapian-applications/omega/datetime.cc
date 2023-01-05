@@ -26,9 +26,9 @@
 
 #include "datetime.h"
 
-#include "stdclamp.h"
 #include "timegm.h"
 
+#include <algorithm>
 #include <cstdlib>
 
 using namespace std;
@@ -128,9 +128,9 @@ format_int_fixed_width(char* p, int v, int w)
 string
 date_to_string(int year, int month, int day)
 {
-    year = STD_CLAMP(year, 0, 9999);
-    month = STD_CLAMP(month, 1, 12);
-    day = STD_CLAMP(day, 1, 31);
+    year = std::clamp(year, 0, 9999);
+    month = std::clamp(month, 1, 12);
+    day = std::clamp(day, 1, 31);
     char buf[8];
     format_int_fixed_width(buf, year, 4);
     format_int_fixed_width(buf + 4, month, 2);

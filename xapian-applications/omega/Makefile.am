@@ -54,7 +54,8 @@ EXTRA_PROGRAMS =\
 	omindex_libabw\
 	omindex_libcdr\
 	omindex_libextractor\
-	omindex_libmwaw
+	omindex_libmwaw\
+	omindex_libreofficekit
 
 EXTRA_DIST =\
 	clickmodel/testdata/test1.log\
@@ -81,8 +82,7 @@ EXTRA_DIST =\
 	templates/xml \
 	templates/inc/anyalldropbox \
 	templates/inc/anyallradio \
-	templates/inc/toptermsjs \
-	xapian-omega.spec
+	templates/inc/toptermsjs
 
 AM_CPPFLAGS = \
 	-I$(top_srcdir)/common \
@@ -94,7 +94,7 @@ pkglibbindir = $(pkglibdir)/bin
 pkglibbin_PROGRAMS = omega $(OMINDEX_MODULES)
 dist_pkglibbin_SCRIPTS = mhtml2html outlookmsg2html rfc822tohtml vcard2text
 bin_PROGRAMS = omindex scriptindex omindex-list generate-qrel-file
-dist_bin_SCRIPTS = dbi2omega htdig2omega mbox2omega postprocess
+dist_bin_SCRIPTS = dbi2omega mbox2omega postprocess
 
 check_PROGRAMS = atomparsertest csvesctest htmlparsertest jsonesctest md5test sdbntest urlenctest utf8converttest omindexcheck
 dist_check_SCRIPTS = omegatest sourcetest omindextest
@@ -111,7 +111,7 @@ TESTS =	atomparsertest$(EXEEXT)\
 	utf8converttest$(EXEEXT)
 
 omegadatadir = $(datadir)/omega
-dist_omegadata_DATA = htdig2omega.script mbox2omega.script
+dist_omegadata_DATA = mbox2omega.script
 
 dist_sysconf_DATA = omega.conf
 
@@ -147,7 +147,6 @@ noinst_HEADERS +=\
 	common/safewindows.h\
 	common/safewinsock2.h\
 	common/setenv.h\
-	common/stdclamp.h\
 	common/str.h\
 	common/stringutils.h
 
@@ -226,6 +225,10 @@ omindex_libextractor_CXXFLAGS = $(LIBEXTRACTOR_CFLAGS)
 omindex_libmwaw_SOURCES = assistant.cc worker_comms.cc handler_libmwaw.cc common/str.cc
 omindex_libmwaw_LDADD = $(LIBMWAW_LIBS)
 omindex_libmwaw_CXXFLAGS = $(LIBMWAW_CFLAGS) $(XAPIAN_CXXFLAGS)
+
+omindex_libreofficekit_SOURCES = assistant.cc worker_comms.cc datetime.cc loadfile.cc tmpdir.cc urlencode.cc xmlparser.cc htmlparser.cc common/keyword.cc common/str.cc handler_libreofficekit.cc
+omindex_libreofficekit_LDADD = $(LIBREOFFICEKIT_LIBS) libutf8convert.la
+omindex_libreofficekit_CXXFLAGS = $(LIBREOFFICEKIT_CFLAGS) $(XAPIAN_CXXFLAGS)
 
 scriptindex_SOURCES = scriptindex.cc\
  genericxmlparser.cc htmlparser.cc xmlparser.cc\

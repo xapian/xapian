@@ -35,5 +35,25 @@ TEST_DB="testdatabase"
 
 trap 'rm -rf "$TEST_DB"' 0 1 2 13 15
 
-$OMINDEX --overwrite --db "$TEST_DB" --url=/ "$TEST_FILES"
+$OMINDEX --overwrite --db "$TEST_DB" --empty-docs=index --url=/ "$TEST_FILES"
+for subdir in odf ooxml sof ; do
+  $OMINDEX --db "$TEST_DB" --empty-docs=index --no-delete \
+    --worker=application/vnd.oasis.opendocument.graphics:omindex_libreofficekit \
+    --worker=application/vnd.oasis.opendocument.presentation:omindex_libreofficekit \
+    --worker=application/vnd.oasis.opendocument.presentation-template:omindex_libreofficekit \
+    --worker=application/vnd.oasis.opendocument.spreadsheet:omindex_libreofficekit \
+    --worker=application/vnd.oasis.opendocument.spreadsheet-template:omindex_libreofficekit \
+    --worker=application/vnd.oasis.opendocument.text:omindex_libreofficekit \
+    --worker=application/vnd.oasis.opendocument.text-template:omindex_libreofficekit \
+    --worker=application/vnd.openxmlformats-officedocument.presentationml.presentation:omindex_libreofficekit \
+    --worker=application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:omindex_libreofficekit \
+    --worker=application/vnd.openxmlformats-officedocument.wordprocessingml.document:omindex_libreofficekit \
+    --worker=application/vnd.sun.xml.calc:omindex_libreofficekit \
+    --worker=application/vnd.sun.xml.calc.template:omindex_libreofficekit \
+    --worker=application/vnd.sun.xml.impress:omindex_libreofficekit \
+    --worker=application/vnd.sun.xml.impress.template:omindex_libreofficekit \
+    --worker=application/vnd.sun.xml.writer:omindex_libreofficekit \
+    --worker=application/vnd.sun.xml.writer.template:omindex_libreofficekit \
+    --url="/lok-$subdir" "$TEST_FILES/$subdir"
+done
 ./omindexcheck "$TEST_DB"

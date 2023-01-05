@@ -41,7 +41,7 @@ AM_TESTS_ENVIRONMENT = \
 	export CXXFLAGS ;\
 	export XAPIAN_CONFIG ;
 LOG_COMPILER = \
-    $(LIBTOOL) -dlopen Xapian.la --mode=execute $(OSX_SIP_HACK_ENV) $(PERL) \
+    $(LIBTOOL) -dlopen Xapian.la --mode=execute $(MACOS_SIP_HACK_ENV) $(PERL) \
 	$(srcdir)/run-perl-test
 
 installcheck-local:
@@ -163,7 +163,7 @@ xapian_wrap.cc Xapian.pm: $(stamp)
 $(stamp): except.i
 	$(multitarget_begin)
 	$(RUN_SWIG) $(SWIG_WERROR) -I. -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
-	    -perl -module Xapian -proxy -const \
+	    -perl -module Xapian -const \
 	    -DPERL_XAPIAN_VERSION='"$(PERL_XAPIAN_VERSION)"' \
 	    -o xapian_wrap.cc '$(srcdir)/'perl.i
 	$(multitarget_end)

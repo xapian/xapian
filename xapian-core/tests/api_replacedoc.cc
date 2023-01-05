@@ -25,7 +25,6 @@
 #include "api_replacedoc.h"
 
 #include <string>
-#include <map>
 
 using namespace std;
 

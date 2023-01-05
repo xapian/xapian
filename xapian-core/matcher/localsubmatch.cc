@@ -36,7 +36,6 @@
 #include "xapian/error.h"
 
 #include <memory>
-#include <map>
 #include <string>
 
 using namespace std;
