@@ -54,7 +54,7 @@ const unsigned int SORTABLE_UINT_1ST_BYTE_MASK =
  *  @param value	The bool to encode.
  */
 inline void
-pack_bool(std::string & s, bool value)
+pack_bool(std::string& s, bool value)
 {
     s += char('0' | static_cast<char>(value));
 }
@@ -66,10 +66,10 @@ pack_bool(std::string & s, bool value)
  *  @param result   Where to store the result.
  */
 inline bool
-unpack_bool(const char ** p, const char * end, bool * result)
+unpack_bool(const char** p, const char* end, bool* result)
 {
     Assert(result);
-    const char * & ptr = *p;
+    const char*& ptr = *p;
     Assert(ptr);
     char ch;
     if (rare(ptr == end || ((ch = *ptr++ - '0') &~ 1))) {
@@ -90,7 +90,7 @@ unpack_bool(const char ** p, const char * end, bool * result)
  */
 template<class U>
 inline void
-pack_uint_last(std::string & s, U value)
+pack_uint_last(std::string& s, U value)
 {
     static_assert(std::is_unsigned<U>::value, "Unsigned type required");
 
@@ -108,12 +108,12 @@ pack_uint_last(std::string & s, U value)
  */
 template<class U>
 inline bool
-unpack_uint_last(const char ** p, const char * end, U * result)
+unpack_uint_last(const char** p, const char* end, U* result)
 {
     static_assert(std::is_unsigned<U>::value, "Unsigned type required");
     Assert(result);
 
-    const char * ptr = *p;
+    const char* ptr = *p;
     Assert(ptr);
     *p = end;
 
@@ -266,7 +266,7 @@ do_clz(unsigned long long value) {
  */
 template<class U>
 inline void
-pack_uint_preserving_sort(std::string & s, U value)
+pack_uint_preserving_sort(std::string& s, U value)
 {
     static_assert(std::is_unsigned<U>::value, "Unsigned type required");
     static_assert(sizeof(U) <= 8,
@@ -315,14 +315,14 @@ pack_uint_preserving_sort(std::string & s, U value)
  */
 template<class U>
 inline bool
-unpack_uint_preserving_sort(const char ** p, const char * end, U * result)
+unpack_uint_preserving_sort(const char** p, const char* end, U* result)
 {
     static_assert(std::is_unsigned<U>::value, "Unsigned type required");
     static_assert(sizeof(U) <= 8,
 		  "Template type U too wide for database format");
     Assert(result);
 
-    const char * ptr = *p;
+    const char* ptr = *p;
     Assert(ptr);
 
     if (rare(ptr == end)) {
@@ -379,7 +379,7 @@ unpack_uint_preserving_sort(const char ** p, const char * end, U * result)
  */
 template<class U>
 inline void
-pack_uint(std::string & s, U value)
+pack_uint(std::string& s, U value)
 {
     static_assert(std::is_unsigned<U>::value, "Unsigned type required");
 
@@ -397,7 +397,7 @@ pack_uint(std::string & s, U value)
  */
 template<>
 inline void
-pack_uint(std::string & s, bool value)
+pack_uint(std::string& s, bool value)
 {
     s += static_cast<char>(value);
 }
@@ -410,13 +410,13 @@ pack_uint(std::string & s, bool value)
  */
 template<class U>
 inline bool
-unpack_uint(const char ** p, const char * end, U * result)
+unpack_uint(const char** p, const char* end, U* result)
 {
     static_assert(std::is_unsigned<U>::value, "Unsigned type required");
 
-    const char * ptr = *p;
+    const char* ptr = *p;
     Assert(ptr);
-    const char * start = ptr;
+    const char* start = ptr;
 
     // Check the length of the encoded integer first.
     do {
@@ -474,7 +474,7 @@ unpack_uint(const char ** p, const char * end, U * result)
  *  @param value	The std::string to encode.
  */
 inline void
-pack_string(std::string & s, const std::string & value)
+pack_string(std::string& s, const std::string& value)
 {
     pack_uint(s, value.size());
     s += value;
@@ -486,7 +486,7 @@ pack_string(std::string & s, const std::string & value)
  *  @param ptr		The C-style string to encode.
  */
 inline void
-pack_string(std::string & s, const char * ptr)
+pack_string(std::string& s, const char* ptr)
 {
     Assert(ptr);
     size_t len = std::strlen(ptr);
@@ -501,14 +501,14 @@ pack_string(std::string & s, const char * ptr)
  *  @param result   Where to store the result.
  */
 inline bool
-unpack_string(const char ** p, const char * end, std::string & result)
+unpack_string(const char** p, const char* end, std::string& result)
 {
     size_t len;
     if (rare(!unpack_uint(p, end, &len))) {
 	return false;
     }
 
-    const char * & ptr = *p;
+    const char*& ptr = *p;
     if (rare(len > size_t(end - ptr))) {
 	ptr = NULL;
 	return false;
@@ -536,7 +536,7 @@ unpack_string(const char ** p, const char * end, std::string & result)
  *  where nothing does and get a shorter encoding in those cases.
  */
 inline void
-pack_string_preserving_sort(std::string & s, const std::string & value,
+pack_string_preserving_sort(std::string& s, const std::string& value,
 			    bool last = false)
 {
     std::string::size_type b = 0, e;
@@ -559,12 +559,12 @@ pack_string_preserving_sort(std::string & s, const std::string & value,
  *  @param result   Where to store the result.
  */
 inline bool
-unpack_string_preserving_sort(const char ** p, const char * end,
-			      std::string & result)
+unpack_string_preserving_sort(const char** p, const char* end,
+			      std::string& result)
 {
     result.resize(0);
 
-    const char *ptr = *p;
+    const char* ptr = *p;
     Assert(ptr);
 
     while (ptr != end) {
@@ -582,7 +582,7 @@ unpack_string_preserving_sort(const char ** p, const char * end,
 }
 
 inline std::string
-pack_chert_postlist_key(const std::string &term)
+pack_chert_postlist_key(const std::string& term)
 {
     // Special case for doclen lists.
     if (term.empty())
@@ -594,7 +594,7 @@ pack_chert_postlist_key(const std::string &term)
 }
 
 inline std::string
-pack_chert_postlist_key(const std::string &term, Xapian::docid did)
+pack_chert_postlist_key(const std::string& term, Xapian::docid did)
 {
     // Special case for doclen lists.
     if (term.empty()) {
@@ -610,7 +610,7 @@ pack_chert_postlist_key(const std::string &term, Xapian::docid did)
 }
 
 inline std::string
-pack_glass_postlist_key(const std::string &term)
+pack_glass_postlist_key(const std::string& term)
 {
     // Special case for doclen lists.
     if (term.empty())
@@ -622,7 +622,7 @@ pack_glass_postlist_key(const std::string &term)
 }
 
 inline std::string
-pack_glass_postlist_key(const std::string &term, Xapian::docid did)
+pack_glass_postlist_key(const std::string& term, Xapian::docid did)
 {
     // Special case for doclen lists.
     if (term.empty()) {
