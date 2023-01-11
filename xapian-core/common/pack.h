@@ -285,7 +285,7 @@ pack_uint_preserving_sort(std::string& s, U value)
     size_t len = ((sizeof(U) * 8 + 5) - do_clz(value)) / 7;
 #else
     size_t len = 3;
-    for (U x = value >> 22; x; x >>= 7) ++len;
+    for (auto x = value >> 22; x; x >>= 7) ++len;
 #endif
     unsigned mask = 0xff << (10 - len);
 
