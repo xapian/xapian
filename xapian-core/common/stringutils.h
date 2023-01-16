@@ -1,7 +1,7 @@
 /** @file
- * @brief Various handy helpers which std::string really should provide.
+ * @brief Various handy string-related helpers
  */
-/* Copyright (C) 2004-2022 Olly Betts
+/* Copyright (C) 2004-2023 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,6 +29,7 @@
 
 #include <algorithm>
 #include <string>
+#include <string_view>
 #include <cstring>
 
 /** Helper macro for STRINGIZE - the nested call is required because of how
@@ -46,56 +47,61 @@
  */
 #define CONST_STRLEN(S) (sizeof(S"") - 1)
 
+/* C++20 added starts_with() and ends_with() methods to std::string and
+ * std::string_view which provide this functionality, but we don't yet
+ * require C++20.
+ */
+
 inline bool
-startswith(const std::string & s, char pfx)
+startswith(std::string_view s, char pfx)
 {
     return !s.empty() && s[0] == pfx;
 }
 
 inline bool
-startswith(const std::string & s, const char * pfx, size_t len)
+startswith(std::string_view s, const char* pfx, size_t len)
 {
     return s.size() >= len && (std::memcmp(s.data(), pfx, len) == 0);
 }
 
 inline bool
-startswith(const std::string & s, const char * pfx)
+startswith(std::string_view s, const char* pfx)
 {
     return startswith(s, pfx, std::strlen(pfx));
 }
 
 inline bool
-startswith(const std::string & s, const std::string & pfx)
+startswith(std::string_view s, std::string_view pfx)
 {
     return startswith(s, pfx.data(), pfx.size());
 }
 
 inline bool
-endswith(const std::string & s, char sfx)
+endswith(std::string_view s, char sfx)
 {
     return !s.empty() && s[s.size() - 1] == sfx;
 }
 
 inline bool
-endswith(const std::string & s, const char * sfx, size_t len)
+endswith(std::string_view s, const char* sfx, size_t len)
 {
     return s.size() >= len && (std::memcmp(s.data() + s.size() - len, sfx, len) == 0);
 }
 
 inline bool
-endswith(const std::string & s, const char * sfx)
+endswith(std::string_view s, const char* sfx)
 {
     return endswith(s, sfx, std::strlen(sfx));
 }
 
 inline bool
-endswith(const std::string & s, const std::string & sfx)
+endswith(std::string_view s, std::string_view sfx)
 {
     return endswith(s, sfx.data(), sfx.size());
 }
 
 inline std::string::size_type
-common_prefix_length(const std::string &a, const std::string &b)
+common_prefix_length(std::string_view a, std::string_view b)
 {
     std::string::size_type minlen = std::min(a.size(), b.size());
     std::string::size_type common;
