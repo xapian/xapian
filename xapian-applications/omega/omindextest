@@ -35,9 +35,10 @@ TEST_DB="testdatabase"
 
 trap 'rm -rf "$TEST_DB"' 0 1 2 13 15
 
-$OMINDEX --overwrite --db "$TEST_DB" --empty-docs=index --url=/ "$TEST_FILES"
+$OMINDEX --verbose --overwrite --db "$TEST_DB" --empty-docs=index --url=/ "$TEST_FILES"
 for subdir in odf ooxml sof ; do
-  $OMINDEX --db "$TEST_DB" --empty-docs=index --no-delete \
+  echo "Trying to index $subdir with omindex_libreofficekit"
+  $OMINDEX --verbose --db "$TEST_DB" --empty-docs=index --no-delete \
     --worker=application/vnd.oasis.opendocument.graphics:omindex_libreofficekit \
     --worker=application/vnd.oasis.opendocument.presentation:omindex_libreofficekit \
     --worker=application/vnd.oasis.opendocument.presentation-template:omindex_libreofficekit \
