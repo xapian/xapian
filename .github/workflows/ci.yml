@@ -58,9 +58,11 @@ jobs:
             libabw-dev \
             libcdr-dev \
             libextractor-dev \
-            libmwaw-dev \
-            libtesseract-dev \
-            tesseract-ocr-eng
+            libmwaw-dev
+      # tesseract's C++ API uses std::vector so would need rebuilding with
+      # -D_GLIBCXX_DEBUG too.
+      #      libtesseract-dev \
+      #      tesseract-ocr-eng
     - name: bootstrap source tree
       run: ./bootstrap xapian-core xapian-applications/omega swig xapian-bindings xapian-letor
     - name: configure

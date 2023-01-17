@@ -326,13 +326,8 @@ AC_CHECK_HEADERS([LibreOfficeKit/LibreOfficeKit.hxx], [
   fi
   OMINDEX_MODULES="$OMINDEX_MODULES omindex_libreofficekit"
 ], [], [ ])
-CPPFLAGS=$save_CPPFLAGS
 dnl Allow easy building against uninstalled LibreOffice.
 AC_ARG_VAR([LO_INCLUDE_PATH], [Path to directory containing LibreOffice headers])
-save_CPPFLAGS=$CPPFLAGS
-if test x"$LO_INCLUDE_PATH" != x ; then
-  CPPFLAGS="$CPPFLAGS -I'$LO_INCLUDE_PATH'"
-fi
 
 AC_SUBST([OMINDEX_MODULES])
 
