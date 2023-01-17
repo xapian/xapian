@@ -175,7 +175,7 @@ index_test()
 #if defined HAVE_LIBARCHIVE
     OFFICE_TESTCASES("")
 #endif
-#if defined HAVE_LIBREOFFICEKIT
+#if defined HAVE_LIBREOFFICEKIT_LIBREOFFICEKIT_HXX
     OFFICE_TESTCASES("lok-")
 #endif
 #if defined HAVE_LIBABW
