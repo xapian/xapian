@@ -54,6 +54,7 @@ EXTRA_PROGRAMS =\
 	omindex_libabw\
 	omindex_libcdr\
 	omindex_libextractor\
+	omindex_libgepub\
 	omindex_libmwaw\
 	omindex_libreofficekit
 
@@ -197,6 +198,10 @@ omindex_libebook_CXXFLAGS = $(LIBEBOOK_CFLAGS) $(XAPIAN_CXXFLAGS)
 omindex_libetonyek_SOURCES = assistant.cc worker_comms.cc handler_libetonyek.cc
 omindex_libetonyek_LDADD = $(LIBETONYEK_LIBS)
 omindex_libetonyek_CXXFLAGS = $(LIBETONYEK_CFLAGS) $(XAPIAN_CXXFLAGS)
+
+omindex_libgepub_SOURCES = assistant.cc worker_comms.cc htmlparser.cc datetime.cc xmlparser.cc common/keyword.cc handler_libgepub.cc
+omindex_libgepub_LDADD = $(LIBGEPUB_LIBS) libutf8convert.la
+omindex_libgepub_CXXFLAGS = $(LIBGEPUB_CFLAGS) $(XAPIAN_CXXFLAGS)
 
 omindex_tesseract_SOURCES = assistant.cc worker_comms.cc handler_tesseract.cc
 omindex_tesseract_LDADD = $(TESSERACT_LIBS)

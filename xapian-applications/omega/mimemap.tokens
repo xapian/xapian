@@ -210,6 +210,7 @@ rpm		application/x-redhat-package-manager
 atom		application/atom+xml
 
 # Ebooks:
+epub		application/epub+zip
 fb2		application/x-fictionbook+xml
 lrf		application/x-sony-bbeb
 tcr		application/x-tcr-ebook
