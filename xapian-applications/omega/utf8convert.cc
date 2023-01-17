@@ -1,7 +1,7 @@
 /** @file
  * @brief convert a string to UTF-8 encoding.
  */
-/* Copyright (C) 2006,2007,2008,2010,2013,2017,2019,2021 Olly Betts
+/* Copyright (C) 2006,2007,2008,2010,2013,2017,2019,2021,2023 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,7 +36,7 @@
 using namespace std;
 
 bool
-convert_to_utf8_(const string& text, const string& charset, string& output)
+convert_to_utf8_(string_view text, const string& charset, string& output)
 {
     // Shortcut if it's already in utf8!
     if (charset.size() == 5 && strcasecmp(charset.c_str(), "utf-8") == 0)
@@ -77,7 +77,7 @@ convert_to_utf8_(const string& text, const string& charset, string& output)
 	if (text.size() < 2) return false;
 
 	bool big_endian = true;
-	string::const_iterator i = text.begin();
+	auto i = text.begin();
 	if (*p == '\0') {
 	    // GNU iconv doesn't seem to handle BOMs.
 	    if (startswith(text, "\xfe\xff")) {
@@ -174,19 +174,18 @@ convert_to_utf8_(const string& text, const string& charset, string& output)
 	tmp.reserve(text.size());
 
 	size_t start = 0;
-	for (string::const_iterator i = text.begin(); i != text.end(); ++i) {
+	for (unsigned char ch : text) {
 	    static const unsigned cp1252_to_unicode[32] = {
 		0x20ac, 0x0081, 0x201a, 0x0192, 0x201e, 0x2026, 0x2020, 0x2021,
 		0x02c6, 0x2030, 0x0160, 0x2039, 0x0152, 0x008d, 0x017d, 0x008f,
 		0x0090, 0x2018, 0x2019, 0x201c, 0x201d, 0x2022, 0x2013, 0x2014,
 		0x02dc, 0x2122, 0x0161, 0x203a, 0x0153, 0x009d, 0x017e, 0x0178
 	    };
-	    const size_t CP1252_TO_UNICODE_ENTRIES =
-		sizeof(cp1252_to_unicode) / sizeof(*cp1252_to_unicode);
-	    unsigned ch = static_cast<unsigned char>(*i);
-	    if (ch - 128 < CP1252_TO_UNICODE_ENTRIES)
-		ch = cp1252_to_unicode[ch - 128];
-	    start += Xapian::Unicode::to_utf8(ch, buf + start);
+	    unsigned code_point = ch;
+	    unsigned i = code_point - 128;
+	    if (i < std::size(cp1252_to_unicode))
+		code_point = cp1252_to_unicode[i];
+	    start += Xapian::Unicode::to_utf8(code_point, buf + start);
 	    if (start >= sizeof(buf) - 4) {
 		tmp.append(buf, start);
 		start = 0;
@@ -201,7 +200,7 @@ try_iconv:
 	iconv_t conv = iconv_open("UTF-8", charset.c_str());
 	if (conv == reinterpret_cast<iconv_t>(-1))
 	    return false;
-	ICONV_CONST char* in = const_cast<char *>(text.c_str());
+	ICONV_CONST char* in = const_cast<char *>(text.data());
 	size_t in_len = text.size();
 	while (in_len) {
 	    char * out = buf;
@@ -225,19 +224,18 @@ iso8859_15:
 	tmp.reserve(text.size());
 
 	size_t start = 0;
-	for (string::const_iterator i = text.begin(); i != text.end(); ++i) {
+	for (unsigned char ch : text) {
 	    static const unsigned iso8859_15_to_unicode[] = {
 		0x20ac, 0x00a5, 0x0160, 0x00a7, 0x0161, 0x00a9, 0x00aa, 0x00ab,
 		0x00ac, 0x00ad, 0x00ae, 0x00af, 0x00b0, 0x00b1, 0x00b2, 0x00b3,
 		0x017d, 0x00b5, 0x00b6, 0x00b7, 0x017e, 0x00b9, 0x00ba, 0x00bb,
 		0x0152, 0x0153, 0x0178
 	    };
-	    const size_t ISO8859_15_TO_UNICODE_ENTRIES =
-		sizeof(iso8859_15_to_unicode) / sizeof(*iso8859_15_to_unicode);
-	    unsigned ch = static_cast<unsigned char>(*i);
-	    if (ch - 164 < ISO8859_15_TO_UNICODE_ENTRIES)
-		ch = iso8859_15_to_unicode[ch - 164];
-	    start += Xapian::Unicode::to_utf8(ch, buf + start);
+	    unsigned code_point = ch;
+	    unsigned i = code_point - 164;
+	    if (i < std::size(iso8859_15_to_unicode))
+		code_point = iso8859_15_to_unicode[i];
+	    start += Xapian::Unicode::to_utf8(code_point, buf + start);
 	    if (start >= sizeof(buf) - 4) {
 		tmp.append(buf, start);
 		start = 0;

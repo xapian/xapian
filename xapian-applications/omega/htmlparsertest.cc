@@ -1,7 +1,7 @@
 /** @file
  * @brief test the HtmlParser class
  */
-/* Copyright (C) 2006-2021 Olly Betts
+/* Copyright (C) 2006-2023 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,6 +25,7 @@
 #include <cstring>
 #include <iostream>
 #include <string>
+#include <string_view>
 
 #include "htmlparser.h"
 
@@ -127,7 +128,7 @@ main()
 		html_len += 2;
 	    }
 	}
-	string html(html_begin, html_len);
+	string_view html(html_begin, html_len);
 	try {
 	    p.parse(html, "iso-8859-1", false);
 	} catch (const string &newcharset) {

@@ -2,7 +2,7 @@
  * @brief subclass of XmlParser for extracting text from HTML.
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2006,2008,2010,2011,2012,2013,2016,2017,2019,2021 Olly Betts
+ * Copyright 2002-2023 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -48,7 +48,7 @@ class HtmlParser : public XmlParser {
     void process_content(const std::string& content);
     bool opening_tag(const std::string& tag);
     bool closing_tag(const std::string& tag);
-    void parse(const std::string& text,
+    void parse(std::string_view text,
 	       const std::string& charset_,
 	       bool charset_from_meta_);
     void ignore_metarobots() { ignoring_metarobots = true; }

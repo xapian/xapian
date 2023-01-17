@@ -2,7 +2,7 @@
  * @brief XML (and HTML) parser
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2006,2008,2009,2011,2016,2020 Olly Betts
+ * Copyright 2002,2006,2008,2009,2011,2016,2020,2023 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,6 +24,7 @@
 #define OMEGA_INCLUDED_XMLPARSER_H
 
 #include <string>
+#include <string_view>
 
 class XmlParser {
     const char* attribute_data;
@@ -81,7 +82,7 @@ class XmlParser {
 
     virtual ~XmlParser() { }
 
-    void parse(const std::string& text);
+    void parse(std::string_view text);
 };
 
 #endif // OMEGA_INCLUDED_XMLPARSER_H

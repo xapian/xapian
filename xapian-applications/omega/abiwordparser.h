@@ -1,7 +1,7 @@
 /** @file
  * @brief Extract text from Abiword documents.
  */
-/* Copyright (C) 2020 Olly Betts
+/* Copyright (C) 2020,2023 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,7 +31,7 @@ class AbiwordParser : public XmlParser {
 
     void process_content(const std::string& content);
 
-    void parse(const std::string& text) {
+    void parse(std::string_view text) {
 	charset = "utf-8";
 	XmlParser::parse(text);
     }

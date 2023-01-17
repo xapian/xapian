@@ -1,7 +1,7 @@
 /** @file
  * @brief convert a string to UTF-8 encoding.
  */
-/* Copyright (C) 2006,2021 Olly Betts
+/* Copyright (C) 2006,2021,2023 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,9 +22,10 @@
 #define OMEGA_INCLUDED_UTF8CONVERT_H
 
 #include <string>
+#include <string_view>
 
 // Internal helper.
-bool convert_to_utf8_(const std::string& text, const std::string& charset,
+bool convert_to_utf8_(std::string_view text, const std::string& charset,
 		      std::string& output);
 
 // Convert in-place (avoids copy if already UTF-8).
@@ -33,7 +34,7 @@ inline void convert_to_utf8(std::string& text, const std::string& charset)
     (void)convert_to_utf8_(text, charset, text);
 }
 
-inline void convert_to_utf8(const std::string& text, const std::string& charset,
+inline void convert_to_utf8(std::string_view text, const std::string& charset,
 			    std::string& output)
 {
     if (!convert_to_utf8_(text, charset, output))

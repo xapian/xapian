@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Ananova Ltd
- * Copyright 2002,2006,2007,2008,2009,2010,2011,2012,2015,2016,2018,2019,2020,2021 Olly Betts
+ * Copyright 2002-2023 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -207,10 +207,10 @@ XmlParser::decode_entities(string& s)
 }
 
 void
-XmlParser::parse(const string& text)
+XmlParser::parse(string_view text)
 {
     // Check for BOM.
-    string::const_iterator begin_after_bom = text.begin();
+    auto begin_after_bom = text.begin();
     if (text.size() >= 3) {
 	switch (text[0]) {
 	  case '\xef':
@@ -223,7 +223,9 @@ XmlParser::parse(const string& text)
 	  case '\xff':
 	    // Match either \xfe\xff or \xff\xfe.
 	    if ((text[1] ^ text[0]) == 1) {
-		// Convert to "utf-16" which will remove the BOM for us.
+		// Convert from "utf-16" which will select the appropriate BE
+		// or LE variant based on the BOM and also remove the BOM for
+		// us.
 		string utf8_text;
 		convert_to_utf8(text, "utf-16", utf8_text);
 		charset = "utf-8";
@@ -236,13 +238,13 @@ XmlParser::parse(const string& text)
 
     attribute_len = 0;
 
-    string::const_iterator start = begin_after_bom;
+    auto start = begin_after_bom;
 
     while (true) {
 	// Skip through until we find a tag, a comment, or the end of document.
 	// Ignore isolated occurrences of '<' which don't start a tag or
 	// comment.
-	string::const_iterator p = start;
+	auto p = start;
 	while (true) {
 	    p = find(p, text.end(), '<');
 	    if (p == text.end()) break;
@@ -265,30 +267,30 @@ XmlParser::parse(const string& text)
 		// Switch for XML mode for XHTML.
 		state = XML;
 
-		string::const_iterator decl_end = find(p + 6, text.end(), '?');
+		auto decl_end = find(p + 6, text.end(), '?');
 		if (decl_end == text.end()) break;
 
 		// Default charset for XML is UTF-8.
 		charset = "utf-8";
 
-		string decl(p + 6, decl_end);
+		string_view decl(p + 6, decl_end - (p + 6));
 		size_t enc = decl.find("encoding");
-		if (enc == string::npos) break;
+		if (enc == decl.npos) break;
 
 		enc = decl.find_first_not_of(" \t\r\n", enc + 8);
-		if (enc == string::npos || enc == decl.size()) break;
+		if (enc == decl.npos) break;
 
 		if (decl[enc] != '=') break;
 
 		enc = decl.find_first_not_of(" \t\r\n", enc + 1);
-		if (enc == string::npos || enc == decl.size()) break;
+		if (enc == decl.npos) break;
 
 		if (decl[enc] != '"' && decl[enc] != '\'') break;
 
 		char quote = decl[enc++];
 		size_t enc_end = decl.find(quote, enc);
 
-		if (enc != string::npos)
+		if (enc_end != decl.npos)
 		    charset.assign(decl, enc, enc_end - enc);
 
 		break;
@@ -298,8 +300,10 @@ XmlParser::parse(const string& text)
 
 	// Process content up to start of tag.
 	if (p > start) {
-	    string content(text, start - text.begin(), p - start);
-	    convert_to_utf8(content, charset);
+	    string content;
+	    convert_to_utf8(string_view(text.data() + (start - text.begin()),
+					p - start),
+			    charset, content);
 	    decode_entities(content);
 	    process_content(content);
 	}
@@ -318,7 +322,7 @@ XmlParser::parse(const string& text)
 	    if (++start == text.end()) break;
 	    if (first_ch == '-' && *start == '-') {
 		++start;
-		string::const_iterator close = find(start, text.end(), '>');
+		auto close = find(start, text.end(), '>');
 		// An unterminated comment swallows rest of document
 		// (like Netscape, but unlike MSIE IIRC)
 		if (close == text.end()) break;
@@ -336,7 +340,7 @@ XmlParser::parse(const string& text)
 				   CONST_STRLEN("htdig_noindex")) == 0) {
 			    auto i = text.find("<!--/htdig_noindex-->",
 					       p + 1 - text.begin());
-			    if (i == string::npos) break;
+			    if (i == text.npos) break;
 			    start = text.begin() + i +
 				CONST_STRLEN("<!--/htdig_noindex-->");
 			    continue;
@@ -347,7 +351,7 @@ XmlParser::parse(const string& text)
 				   CONST_STRLEN("UdmComment")) == 0) {
 			    auto i = text.find("<!--/UdmComment-->",
 					       p + 1 - text.begin());
-			    if (i == string::npos) break;
+			    if (i == text.npos) break;
 			    start = text.begin() + i +
 				CONST_STRLEN("<!--/UdmComment-->");
 			    continue;
@@ -363,13 +367,14 @@ XmlParser::parse(const string& text)
 		       text.size() - (start - text.begin()) > 6 &&
 		       memcmp(&*start, "CDATA[", CONST_STRLEN("CDATA[")) == 0) {
 		start += 6;
-		string::size_type b = start - text.begin();
-		string::size_type i;
-		i = text.find("]]>", b);
-		string content(text, b, i - b);
-		convert_to_utf8(content, charset);
+		string_view::size_type b = start - text.begin();
+		string_view::size_type i = text.find("]]>", b);
+		string_view::size_type e = (i == text.npos) ? text.size() : i;
+		string content;
+		convert_to_utf8(string_view(text.data() + b, e - b),
+				charset, content);
 		process_content(content);
-		if (i == string::npos) break;
+		if (i == text.npos) break;
 		start = text.begin() + i + 2;
 	    } else if (C_tolower(first_ch) == 'd' &&
 		       text.end() - start > 6 &&
