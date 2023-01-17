@@ -53,6 +53,7 @@ jobs:
             libglib2.0-dev \
             libe-book-dev \
             libetonyek-dev \
+            libgepub-0.6-dev \
             libgmime-2.6-dev \
             libarchive-dev \
             libabw-dev \
@@ -116,6 +117,7 @@ jobs:
             libglib2.0-dev \
             libe-book-dev \
             libetonyek-dev \
+            libgepub-0.6-dev \
             libgmime-3.0-dev \
             libarchive-dev \
             libabw-dev \
@@ -177,6 +179,7 @@ jobs:
             libglib2.0-dev \
             libe-book-dev \
             libetonyek-dev \
+            libgepub-0.6-dev \
             libgmime-2.6-dev \
             libarchive-dev \
             libabw-dev \
@@ -236,6 +239,7 @@ jobs:
             libglib2.0-dev \
             libe-book-dev \
             libetonyek-dev \
+            libgepub-0.6-dev \
             libgmime-2.6-dev \
             libarchive-dev \
             libabw-dev \
@@ -298,6 +302,7 @@ jobs:
             libglib2.0-dev \
             libe-book-dev \
             libetonyek-dev \
+            libgepub-0.6-dev \
             libgmime-2.6-dev \
             libarchive-dev \
             libabw-dev \

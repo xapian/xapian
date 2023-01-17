@@ -283,7 +283,10 @@ PKG_CHECK_MODULES([LIBETONYEK], [libetonyek-0.1,librevenge-0.0,librevenge-genera
 dnl check if libgepub is available.
 PKG_CHECK_MODULES([LIBGEPUB], [libgepub-0.7], [
     AC_DEFINE(HAVE_LIBGEPUB, 1, [Define HAVE_LIBGEPUB if the library is available])
-    OMINDEX_MODULES="$OMINDEX_MODULES omindex_libgepub"],[ ])
+    OMINDEX_MODULES="$OMINDEX_MODULES omindex_libgepub"],
+    [PKG_CHECK_MODULES([LIBGEPUB], [libgepub-0.6], [
+	AC_DEFINE(HAVE_LIBGEPUB, 1, [Define HAVE_LIBGEPUB if the library is available])
+	OMINDEX_MODULES="$OMINDEX_MODULES omindex_libgepub"],[ ])])
 
 dnl check if libtesseract is available.
 PKG_CHECK_MODULES([TESSERACT], [tesseract, lept], [
