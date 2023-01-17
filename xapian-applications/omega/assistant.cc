@@ -21,11 +21,13 @@
  */
 
 #include <config.h>
-#include <csignal>
 
 #include "worker_comms.h"
 #include "handler.h"
 #include "safeunistd.h"
+
+#include <cerrno>
+#include <csignal>
 
 #include <sysexits.h>
 
