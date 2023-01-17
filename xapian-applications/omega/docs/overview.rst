@@ -311,6 +311,7 @@ other filters too - see below):
 * MIME email messages (.eml) and USENET articles if gmime >= 2.6 or perl with
   MIME::Tools and HTML::Parser is available
 * vCard files (.vcf, .vcard) if perl with Text::vCard is available
+* EPUB if libgepub is available
 * FictionBook v.2 files (.fb2) if libe-book is available
 * QiOO (mobile format, for java-enabled cellphones) files (.jar) if libe-book is available
 * TCR (simple compressed text format) files (.tcr) if libe-book is available

@@ -3,7 +3,7 @@
  */
 /* Copyright (C) 2019 Bruno Baruffaldi
  * Copyright (C) 2020 Parth Kapadia
- * Copyright (C) 2021,2022 Olly Betts
+ * Copyright (C) 2021,2022,2023 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -222,6 +222,14 @@ index_test()
     tests.insert({"audio/file_example_WAV_1MG.wav",
 		  {{"Ewav", "Taudio/x-wav",
 		    OPT("Zstereo"), OPT("wav"), OPT("Zms")}}});
+#endif
+#if defined HAVE_LIBGEPUB
+    tests.insert({"epub/epub2test.epub",
+		  {{"Eepub", "Tapplication/epub+zip", "Aolly",
+		    "book", "chapter", "welcome"}}});
+    tests.insert({"epub/epub3test.epub",
+		  {{"Eepub", "Tapplication/epub+zip", "Aolly",
+		    "book", "chapter", "welcome"}}});
 #endif
 #if defined HAVE_LIBMWAW
     tests.insert({"apple_works/test_word.cwk",
