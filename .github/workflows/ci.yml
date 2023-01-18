@@ -385,6 +385,8 @@ jobs:
         key: macos
     - name: Install package dependencies
       run: |
+        # Workaround apparent homebrew bug 2023-01-18
+        rm -f /usr/local/bin/2to3-3.11 /usr/local/bin/idle3.11 /usr/local/bin/pydoc3.11 /usr/local/bin/python3.11 /usr/local/bin/python3.11-config
         brew update
         brew install \
             docutils \
