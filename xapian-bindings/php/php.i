@@ -101,7 +101,12 @@ static void merge_ps_references(zval* target_this, zval& input) {
 }
 
 class XapianSWIGQueryItor {
-    Bucket *p;
+#if PHP_MAJOR_VERSION == 8 && PHP_MINOR_VERSION < 2
+    Bucket* p;
+#else
+    zval* p;
+    size_t elt_size;
+#endif
 
     zval* target_this;
 
@@ -117,27 +122,45 @@ class XapianSWIGQueryItor {
 
     void begin(zval* input, zval* target_this_) {
 	HashTable *ht = Z_ARRVAL_P(input);
+#if PHP_MAJOR_VERSION == 8 && PHP_MINOR_VERSION < 2
 	p = ht->arData;
+#else
+	elt_size = ZEND_HASH_ELEMENT_SIZE(ht);
+	p = ZEND_HASH_ELEMENT(ht, 0);
+#endif
 	target_this = target_this_;
     }
 
     void end(zval * input) {
 	HashTable *ht = Z_ARRVAL_P(input);
+#if PHP_MAJOR_VERSION == 8 && PHP_MINOR_VERSION < 2
 	p = ht->arData + ht->nNumUsed;
+#else
+	elt_size = ZEND_HASH_ELEMENT_SIZE(ht);
+	p = ZEND_HASH_ELEMENT(ht, ht->nNumUsed);
+#endif
     }
 
     XapianSWIGQueryItor & operator++() {
+#if PHP_MAJOR_VERSION == 8 && PHP_MINOR_VERSION < 2
 	++p;
+#else
+	p = ZEND_HASH_NEXT_ELEMENT(p, elt_size);
+#endif
 	return *this;
     }
 
     Xapian::Query operator*() const {
+#if PHP_MAJOR_VERSION == 8 && PHP_MINOR_VERSION < 2
 	zval *item = &p->val;
+#else
+	zval *item = p;
+#endif
 
 	if (Z_TYPE_P(item) == IS_STRING) {
 	    size_t len = Z_STRLEN_P(item);
-	    const char *p = Z_STRVAL_P(item);
-	    return Xapian::Query(string(p, len));
+	    const char *str = Z_STRVAL_P(item);
+	    return Xapian::Query(string(str, len));
 	}
 
 	Xapian::Query *subq = 0;
@@ -163,7 +186,13 @@ fail: // Label which SWIG_PHP_Error needs.
     }
 
     difference_type operator-(const XapianSWIGQueryItor &o) const {
+#if PHP_MAJOR_VERSION == 8 && PHP_MINOR_VERSION < 2
 	return p - o.p;
+#else
+	auto d = reinterpret_cast<const char*>(p) -
+		 reinterpret_cast<const char*>(o.p);
+	return d / elt_size;
+#endif
     }
 };
 
