@@ -30,8 +30,10 @@
 %}
 
 %{
+extern "C" {
 // Needed for php_array_merge().
 #include <ext/standard/php_array.h>
+}
 %}
 
 // Use SWIG directors for PHP wrappers.
