@@ -52,6 +52,8 @@ extern "C" {
     php_info_print_table_end();\
 "
 
+%pragma(php) version=PACKAGE_VERSION
+
 %rename("is_empty") empty() const;
 %rename("clone_object") clone() const;
 

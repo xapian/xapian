@@ -68,6 +68,7 @@ $(stamp): except.i add-php-ref-handling
 	$(MKDIR_P) php
 	$(multitarget_begin)
 	$(RUN_SWIG) $(SWIG_WERROR) -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
+	    -DPACKAGE_VERSION='"$(PACKAGE_VERSION)"' \
 	    -php -prefix Xapian -outdir php \
 	    -o php/xapian_wrap.cc '$(srcdir)/'php.i
 	$(PERL) '$(srcdir)/'add-php-ref-handling php/xapian_wrap.cc \
