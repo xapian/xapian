@@ -1,3 +1,73 @@
+up to: c30c4de941fb137967f30c872b1c410343ec4f6a
+
+Xapian-bindings 1.4.22 (2023-01-20):
+
+Documentation:
+
+General:
+
+Packaging:
+
+Portability:
+
+CSharp:
+
+Java:
+
+Lua:
+
+* When passing a Lua function for a Xapian functor object, the wrapper
+  object was leaked in most cases (except for Xapian::StemImplementation).
+
+Perl:
+
+* Fix testsuite and docs for Perl 5.36.0 change.
+
+  Prior to Perl 5.36.0 retrieving the string value of an integer could set
+  the flag read by "SvPOK()", but that's no longer the case in Perl 5.36.0
+  and later.
+
+  We already document the need to explicitly stringify numeric values
+  passed where a string is needed, so just add the missing stringification
+  to the testcase and document that it's required in more places when using
+  Perl 5.36.0 and later.
+
+PHP:
+
+PHP8:
+
+* Add support for PHP8 (PHP 8.0, 8.1 and 8.2 should all work).
+
+  The PHP bindings are now implemented entirely in C++ code using PHP's
+  C extension API, and the `xapian.php` wrapper file no longer exists.
+  This change means smaller and faster bindings.  See the documentation for a
+  recommended way to write code which works with both PHP7 and PHP8 bindings.
+
+  To add PHP8 support we've had to drop support for PHP7.  PHP7.4 reached end
+  of life on 2022-11-28 so hopefully this isn't a problem for too many people,
+  but if you need support for PHP7 please use xapian-bindings <= 1.4.21.
+
+  Fixes #817, reported by Ryan Schmidt.
+
+Python:
+
+Python3:
+
+* Drop support for Python 3.2.  We need to use SWIG 4.1.0 for PHP8 support, but
+  that no longer supports Python 3.2 so we have to raise the minimum Python 3
+  version to Python 3.3.
+
+  The last Python 3.2 release was over 8 years ago so hopefully this isn't a
+  problem for anyone, but if you still need to use Python 3.2 please use
+  xapian-bindings <= 1.4.21.
+
+Ruby:
+
+* Fix new Ruby 3.2 warning "undefining the allocator of T_DATA class
+  swig_runtime_data" (fixed by the change to using a newer SWIG version).
+
+Tcl:
+
 Xapian-bindings 1.4.21 (2022-09-22):
 
 Documentation:

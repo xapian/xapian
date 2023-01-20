@@ -1,3 +1,61 @@
+up to: c8d819280cb28f2d8f4a390348183a378c9f29fc
+
+Xapian-core 1.4.22 (2023-01-20):
+
+
+API:
+
+
+testsuite:
+
+
+matcher:
+
+* Minor optimisations to DPHWeight and TfIdfWeight weighting formulae
+  calculations.
+
+* Optimise LatLongDistancePostingSource to avoid pow() call on each document
+  with default k2 setting.
+
+glass backend:
+
+
+chert backend:
+
+
+remote backend:
+
+
+inmemory backend:
+
+
+build system:
+
+* configure: Enable -fno-math-errno if supported.  We don't make use of maths
+  function setting errno and if we tell the compiler that it can optimise them
+  better in some cases.
+
+documentation:
+
+* INSTALL: Document assumptions about platform features
+
+* INSTALL: Add section on clang version requirements.
+
+tools:
+
+
+examples:
+
+
+portability:
+
+
+packaging:
+
+
+debug code:
+
+
 Xapian-core 1.4.21 (2022-09-22):
 
 glass backend:
