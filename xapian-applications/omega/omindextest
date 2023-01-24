@@ -30,7 +30,7 @@ LSAN_OPTIONS=leak_check_at_exit=0
 export LSAN_OPTIONS
 
 srcdir=`echo "$0"|sed 's!/*[^/]*$!!'`
-TEST_FILES="$srcdir/testfiles/"
+TEST_FILES="$srcdir/testfiles"
 TEST_DB="testdatabase"
 
 trap 'rm -rf "$TEST_DB"' 0 1 2 13 15
