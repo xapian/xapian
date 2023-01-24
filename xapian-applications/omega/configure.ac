@@ -332,6 +332,13 @@ AC_CHECK_HEADERS([LibreOfficeKit/LibreOfficeKit.hxx], [
     LIBREOFFICEKIT_CPPFLAGS="-I'$LO_INCLUDE_PATH'"
     AC_SUBST([LIBREOFFICEKIT_CPPFLAGS])
   fi
+  save_LIBS=$LIBS
+  LIBREOFFICEKIT_LIBS=
+  dnl LibreOfficeKit/LibreOfficeKitInit.h has inline code which calls dlopen()
+  dnl (unless _WIN32 or IOS is defined).
+  AC_SEARCH_LIBS([dlopen], [dl], [LIBREOFFICEKIT_LIBS=-ldl])
+  AC_SUBST([LIBREOFFICEKIT_LIBS])
+  LIBS=$save_LIBS
   OMINDEX_MODULES="$OMINDEX_MODULES omindex_libreofficekit"
 ], [], [ ])
 dnl Allow easy building against uninstalled LibreOffice.
