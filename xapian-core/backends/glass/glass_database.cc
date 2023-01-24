@@ -616,7 +616,7 @@ GlassDatabase::modifications_failed(glass_revision_number_t new_revision,
 	cancel();
 
 	// Reopen tables with old revision number.
-	version_file.cancel();
+	version_file.read();
 	docdata_table.open(flags, version_file.get_root(Glass::DOCDATA), old_revision);
 	spelling_table.open(flags, version_file.get_root(Glass::SPELLING), old_revision);
 	synonym_table.open(flags, version_file.get_root(Glass::SYNONYM), old_revision);
