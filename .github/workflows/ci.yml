@@ -60,7 +60,7 @@ jobs:
             libcdr-dev \
             libextractor-dev \
             libmwaw-dev \
-            libreofficekit-dev
+            libreofficekit-dev libreoffice
       # tesseract's C++ API uses std::vector so would need rebuilding with
       # -D_GLIBCXX_DEBUG too.
       #      libtesseract-dev \
@@ -126,7 +126,7 @@ jobs:
             libextractor-dev \
             libextractor-plugins-all \
             libmwaw-dev \
-            libreofficekit-dev \
+            libreofficekit-dev libreoffice \
             libtesseract-dev \
             tesseract-ocr-eng
     - name: bootstrap source tree
@@ -188,7 +188,7 @@ jobs:
             libcdr-dev \
             libextractor-dev \
             libmwaw-dev \
-            libreofficekit-dev \
+            libreofficekit-dev libreoffice \
             libtesseract-dev \
             tesseract-ocr-eng
     - name: bootstrap source tree
@@ -249,7 +249,7 @@ jobs:
             libcdr-dev \
             libextractor-dev \
             libmwaw-dev \
-            libreofficekit-dev \
+            libreofficekit-dev libreoffice \
             libtesseract-dev \
             tesseract-ocr-eng
     - name: bootstrap source tree
@@ -313,7 +313,7 @@ jobs:
             libcdr-dev \
             libextractor-dev \
             libmwaw-dev \
-            libreofficekit-dev \
+            libreofficekit-dev libreoffice \
             libtesseract-dev \
             tesseract-ocr-eng
     - name: bootstrap source tree
