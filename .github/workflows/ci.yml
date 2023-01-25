@@ -59,7 +59,8 @@ jobs:
             libabw-dev \
             libcdr-dev \
             libextractor-dev \
-            libmwaw-dev
+            libmwaw-dev \
+            libreofficekit-dev libreoffice-calc libreoffice-draw libreoffice-impress libreoffice-writer
       # tesseract's C++ API uses std::vector so would need rebuilding with
       # -D_GLIBCXX_DEBUG too.
       #      libtesseract-dev \
@@ -125,6 +126,7 @@ jobs:
             libextractor-dev \
             libextractor-plugins-all \
             libmwaw-dev \
+            libreofficekit-dev libreoffice-calc libreoffice-draw libreoffice-impress libreoffice-writer \
             libtesseract-dev \
             tesseract-ocr-eng
     - name: bootstrap source tree
@@ -188,6 +190,7 @@ jobs:
             libmwaw-dev \
             libtesseract-dev \
             tesseract-ocr-eng
+            # libreoffice support doesn't work when compiled with clang on Linux
     - name: bootstrap source tree
       run: ./bootstrap xapian-core xapian-applications/omega swig xapian-bindings xapian-letor
     - name: configure
@@ -248,6 +251,7 @@ jobs:
             libmwaw-dev \
             libtesseract-dev \
             tesseract-ocr-eng
+            # libreoffice support doesn't work when compiled with clang on Linux
     - name: bootstrap source tree
       run: ./bootstrap xapian-core xapian-applications/omega swig xapian-bindings xapian-letor
     - name: configure
@@ -309,6 +313,7 @@ jobs:
             libcdr-dev \
             libextractor-dev \
             libmwaw-dev \
+            libreofficekit-dev libreoffice-calc libreoffice-draw libreoffice-impress libreoffice-writer \
             libtesseract-dev \
             tesseract-ocr-eng
     - name: bootstrap source tree
