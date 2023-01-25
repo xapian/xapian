@@ -188,9 +188,9 @@ jobs:
             libcdr-dev \
             libextractor-dev \
             libmwaw-dev \
-            libreofficekit-dev libreoffice \
             libtesseract-dev \
             tesseract-ocr-eng
+            # libreoffice support doesn't work when compiled with clang on Linux
     - name: bootstrap source tree
       run: ./bootstrap xapian-core xapian-applications/omega swig xapian-bindings xapian-letor
     - name: configure
@@ -249,9 +249,9 @@ jobs:
             libcdr-dev \
             libextractor-dev \
             libmwaw-dev \
-            libreofficekit-dev libreoffice \
             libtesseract-dev \
             tesseract-ocr-eng
+            # libreoffice support doesn't work when compiled with clang on Linux
     - name: bootstrap source tree
       run: ./bootstrap xapian-core xapian-applications/omega swig xapian-bindings xapian-letor
     - name: configure
