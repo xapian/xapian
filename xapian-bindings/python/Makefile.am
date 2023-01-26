@@ -129,7 +129,7 @@ xapian_wrap.cc xapian_wrap.h xapian.py xapian_wrap.d: $(stamp)
 $(stamp): except.i doccomments.i fixup-swig-py2-wrapper
 	$(multitarget_begin)
 	$(RUN_SWIG) $(SWIG_WERROR) -I. -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
-	    -python -threads -shadow -modern -O \
+	    -python -threads -shadow -O \
 	    -o xapian_wrap.cc '$(srcdir)/'python.i
 	$(PERL) -i $(srcdir)/fixup-swig-py2-wrapper xapian.py
 	$(multitarget_end)
