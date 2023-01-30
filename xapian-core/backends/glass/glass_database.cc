@@ -4,7 +4,7 @@
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Hein Ragas
  * Copyright 2002 Ananova Ltd
- * Copyright 2002-2022 Olly Betts
+ * Copyright 2002-2023 Olly Betts
  * Copyright 2006,2008 Lemur Consulting Ltd
  * Copyright 2009 Richard Boulton
  * Copyright 2009 Kan-Ru Chen
@@ -628,11 +628,6 @@ GlassDatabase::modifications_failed(glass_revision_number_t new_revision,
 	spelling_table.set_wordfreq_upper_bound(ub);
 
 	value_manager.reset();
-
-	// Increase revision numbers to new revision number plus one,
-	// writing increased numbers to all tables.
-	++new_revision;
-	set_revision_number(flags, new_revision);
     } catch (const Xapian::Error &e) {
 	// We failed to roll-back so close the database to avoid the risk of
 	// database corruption.
