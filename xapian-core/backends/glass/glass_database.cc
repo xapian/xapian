@@ -627,9 +627,6 @@ GlassDatabase::modifications_failed(glass_revision_number_t new_revision,
 	position_table.open(flags, version_file.get_root(Glass::POSITION), old_revision);
 	postlist_table.open(flags, version_file.get_root(Glass::POSTLIST), old_revision);
 
-	Xapian::termcount ub = version_file.get_spelling_wordfreq_upper_bound();
-	spelling_table.set_wordfreq_upper_bound(ub);
-
 	value_manager.reset();
 
 	// Increase revision numbers to new revision number plus one,
