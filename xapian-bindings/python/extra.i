@@ -1172,11 +1172,6 @@ _stem_init.__doc__ = Stem.__init__.__doc__
 Stem.__init__ = _stem_init
 
 
-# Remove static methods which shouldn't be in the API.
-del Document_unserialise
-del Query_unserialise
-del Stem_get_available_languages
-
 # Add wrappers for Query::MatchAll and Query::MatchNothing
 Query.MatchAll = Query("")
 Query.MatchNothing = Query()
