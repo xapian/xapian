@@ -1,6 +1,6 @@
-up to: c30c4de941fb137967f30c872b1c410343ec4f6a
+up to: 23081bfc77a10948147dd065324ed79c88bd1e60
 
-Xapian-bindings 1.4.22 (2023-01-20):
+Xapian-bindings 1.4.22 (2023-01-30):
 
 Documentation:
 
@@ -48,6 +48,9 @@ PHP8:
   but if you need support for PHP7 please use xapian-bindings <= 1.4.21.
 
   Fixes #817, reported by Ryan Schmidt.
+
+* We now set the version in the metadata of the PHP module to the
+  xapian-bindings version (previously it was unversioned).
 
 Python:
 

@@ -1,6 +1,6 @@
-up to: c8d819280cb28f2d8f4a390348183a378c9f29fc
+up to: 90f7a35483b4cf7dd848c34634803bf28f95081d
 
-Xapian-core 1.4.22 (2023-01-20):
+Xapian-core 1.4.22 (2023-01-30):
 
 
 API:
@@ -19,6 +19,25 @@ matcher:
 
 glass backend:
 
+* Fix bug in recovery from WritableDatabase::commit() failing.
+
+  If renaming to switch the new version file live fails (e.g. due to the disk
+  being full) we discard the changes, try to write and switch to a different
+  new version file with an increased revision (on failure of this too we close
+  the database), then throw DatabaseError.
+
+  Unfortunately the roll-back of state is not complete, and if we successfully
+  switch to the different new version file then that bad state persists on
+  disk.
+
+  In order for this bug to manifest, repeating essentially the same operation
+  which just failed needs to succeed which seems more likely to be a happen
+  when using a filing system which has more sophisticated freespace handling
+  (the reporter was using btrfs), though it's possible with any FS if another
+  process frees up disk space in the small window between the two operations.
+
+  Thanks to Uwe Kleine-König for reporting and especially for coming up with an
+  easy way to reproduce.
 
 chert backend:
 
