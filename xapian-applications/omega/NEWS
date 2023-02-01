@@ -1,8 +1,4 @@
-up to: 778ae460de59ae7fe71d8b87110a63c34b1abced
-
-Omega 1.4.22 (2023-01-20):
-
-general:
+Omega 1.4.22 (2023-02-02):
 
 documentation:
 
@@ -27,16 +23,6 @@ omega:
 * Add OmegaScript commands to report value slot bounds.
 
 * Add OmegaScript $sortableunserialise{} command.
-
-templates:
-
-testsuite:
-
-build system:
-
-portability:
-
-packaging:
 
 Omega 1.4.21 (2022-09-22):
 

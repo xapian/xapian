@@ -1,18 +1,4 @@
-up to: 23081bfc77a10948147dd065324ed79c88bd1e60
-
-Xapian-bindings 1.4.22 (2023-01-30):
-
-Documentation:
-
-General:
-
-Packaging:
-
-Portability:
-
-CSharp:
-
-Java:
+Xapian-bindings 1.4.22 (2023-02-02):
 
 Lua:
 
@@ -31,8 +17,6 @@ Perl:
   passed where a string is needed, so just add the missing stringification
   to the testcase and document that it's required in more places when using
   Perl 5.36.0 and later.
-
-PHP:
 
 PHP8:
 
@@ -54,22 +38,28 @@ PHP8:
 
 Python:
 
+* Drop support for Python 2.6.  We need to use SWIG 4.1.0 for PHP8 support, but
+  that no longer supports Python 2.6 so we have to raise the minimum Python 2
+  version to Python 2.7.
+
+  The last Python 2.6 release was in 2013 so hopefully this isn't a problem for
+  anyone, but if you still need to use Python 2.6 please use xapian-bindings <=
+  1.4.21.
+
 Python3:
 
 * Drop support for Python 3.2.  We need to use SWIG 4.1.0 for PHP8 support, but
   that no longer supports Python 3.2 so we have to raise the minimum Python 3
   version to Python 3.3.
 
-  The last Python 3.2 release was over 8 years ago so hopefully this isn't a
-  problem for anyone, but if you still need to use Python 3.2 please use
-  xapian-bindings <= 1.4.21.
+  The last Python 3.2 release was in 2014 so hopefully this isn't a problem for
+  anyone, but if you still need to use Python 3.2 please use xapian-bindings <=
+  1.4.21.
 
 Ruby:
 
 * Fix new Ruby 3.2 warning "undefining the allocator of T_DATA class
   swig_runtime_data" (fixed by the change to using a newer SWIG version).
-
-Tcl:
 
 Xapian-bindings 1.4.21 (2022-09-22):
 

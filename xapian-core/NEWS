@@ -1,13 +1,8 @@
-up to: 90f7a35483b4cf7dd848c34634803bf28f95081d
-
-Xapian-core 1.4.22 (2023-01-30):
-
-
-API:
-
+Xapian-core 1.4.22 (2023-02-02):
 
 testsuite:
 
+* Expand canceltransaction1 to test value changes are rolled back.
 
 matcher:
 
@@ -39,15 +34,6 @@ glass backend:
   Thanks to Uwe Kleine-König for reporting and especially for coming up with an
   easy way to reproduce.
 
-chert backend:
-
-
-remote backend:
-
-
-inmemory backend:
-
-
 build system:
 
 * configure: Enable -fno-math-errno if supported.  We don't make use of maths
@@ -59,21 +45,6 @@ documentation:
 * INSTALL: Document assumptions about platform features
 
 * INSTALL: Add section on clang version requirements.
-
-tools:
-
-
-examples:
-
-
-portability:
-
-
-packaging:
-
-
-debug code:
-
 
 Xapian-core 1.4.21 (2022-09-22):
 
