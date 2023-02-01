@@ -83,7 +83,66 @@ EXTRA_DIST =\
 	templates/xml \
 	templates/inc/anyalldropbox \
 	templates/inc/anyallradio \
-	templates/inc/toptermsjs
+	templates/inc/toptermsjs \
+	testfiles/abw/Friendly-Letter.awt \
+	testfiles/abw/macbeth.zabw \
+	testfiles/abw/test.abw \
+	testfiles/abw/test1.abw \
+	testfiles/apple_works/test_draw.cwk \
+	testfiles/apple_works/test_spreadsheet.cwk \
+	testfiles/apple_works/test_word.cwk \
+	testfiles/audio/file_example_OOG_1MG.ogg \
+	testfiles/audio/file_example_WAV_1MG.wav \
+	testfiles/cdr/test1.cdr \
+	testfiles/cdr/test2.cdr \
+	testfiles/epub/epub2test.epub \
+	testfiles/epub/epub3test.epub \
+	testfiles/fb2/hello.fb2 \
+	testfiles/fb2/lang-name.fb2 \
+	testfiles/fb2/lang2.fb2 \
+	testfiles/image/Test1.gif \
+	testfiles/image/Test2.pgm \
+	testfiles/image/Test3.ppm \
+	testfiles/image/Test4.tiff \
+	testfiles/image/Test5.webp \
+	testfiles/image/poster-2.jpg \
+	testfiles/image/poster.jpg \
+	testfiles/image/scan-page.png \
+	testfiles/iwork/test-keynote.key \
+	testfiles/iwork/test-pages.pages \
+	testfiles/lrf/hello.lrf \
+	testfiles/msxml/2sheets.xlsx \
+	testfiles/msxml/Book.xlsx \
+	testfiles/msxml/Doc.docx \
+	testfiles/msxml/Nature.pptx \
+	testfiles/msxml/vnd.ms-xpsdocument_xpstest.xps \
+	testfiles/opendoc/blank.odt \
+	testfiles/opendoc/corrupt_file.odp \
+	testfiles/opendoc/draw.odg \
+	testfiles/opendoc/presentation.odp \
+	testfiles/opendoc/presentation_template.otp \
+	testfiles/opendoc/spreadsheet.ods \
+	testfiles/opendoc/spreadsheet_template.ots \
+	testfiles/opendoc/test.odt \
+	testfiles/opendoc/text.odt \
+	testfiles/opendoc/text_template.ott \
+	testfiles/pdb/PalmDOC-hello.pdb \
+	testfiles/pdb/PeanutPress-hello.pdb \
+	testfiles/pdb/test.pdb \
+	testfiles/pdf/poppler.pdf \
+	testfiles/staroffice/calc.sxc \
+	testfiles/staroffice/calc_template.stc \
+	testfiles/staroffice/presentation.sxi \
+	testfiles/staroffice/presentation_template.sti \
+	testfiles/staroffice/text.sxw \
+	testfiles/staroffice/text_template.stw \
+	testfiles/svg/diagram.svg \
+	testfiles/svg/diagram.svgz \
+	testfiles/test-csv.csv \
+	testfiles/test-html.html \
+	testfiles/test.txt \
+	testfiles/video/file_example_AVI_480_750kB.avi \
+	testfiles/video/file_example_OGG_480_1_7mg.ogg
 
 AM_CPPFLAGS = \
 	-I$(top_srcdir)/common \
