@@ -171,6 +171,7 @@ class GlassValueManager {
 	// Discard batched-up changes.
 	slots.clear();
 	changes.clear();
+	reset();
     }
 };
 
