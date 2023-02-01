@@ -1,7 +1,7 @@
 /** @file
  * @brief tests requiring a database backend supporting transactions
  */
-/* Copyright (C) 2006,2009,2018 Olly Betts
+/* Copyright (C) 2006,2009,2018,2023 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -84,13 +84,20 @@ DEFINE_TESTCASE(canceltransaction1, transactions) {
     Xapian::Document doc;
     doc.set_data("testing");
     doc.add_term("befuddlement");
+    doc.add_value(42, "answer");
     db.add_document(doc);
     TEST_EXCEPTION(Xapian::InvalidOperationError, db.begin_transaction());
     TEST_EQUAL(db.get_doccount(), docs + 1);
     TEST_EQUAL(db.get_termfreq("befuddlement"), 1);
+    TEST_EQUAL(db.get_value_freq(42), 1);
+    TEST_EQUAL(db.get_value_lower_bound(42), "answer");
+    TEST_EQUAL(db.get_value_upper_bound(42), "answer");
     db.cancel_transaction();
     TEST_EQUAL(db.get_doccount(), docs);
     TEST_EQUAL(db.get_termfreq("befuddlement"), 0);
+    TEST_EQUAL(db.get_value_freq(42), 0);
+    TEST_EQUAL(db.get_value_lower_bound(42), "");
+    TEST_EQUAL(db.get_value_upper_bound(42), "");
 }
 
 /// Test that begin_transaction() commits any changes pending before the
