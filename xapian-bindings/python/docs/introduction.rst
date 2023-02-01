@@ -1,10 +1,16 @@
 Introduction
 ************
 
-The Python bindings for Xapian are packaged in the ``xapian`` module,
-and largely follow the C++ API, with the following differences and
-additions. Python strings and lists, etc., are converted automatically
-in the bindings, so generally it should just work as expected.
+Xapian's Python2 bindings are packaged in the `xapian` module - to use
+them, you'll need to add this to your code::
+
+  import xapian
+
+They currently require at least Python 2.7.  If you need support for
+Python 2.6 still, you'll need to use xapian-bindings 1.4.21.
+
+The Python API largely follows the C++ API - the differences and
+additions are noted below.
 
 The ``examples`` subdirectory contains examples showing how to use the
 Python bindings based on the simple examples from ``xapian-examples``:

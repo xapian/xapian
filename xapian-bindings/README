@@ -43,7 +43,7 @@ PHP		Requires PHP >= 8.0.  If you still need support for PHP 5.x
 		or PHP 7.x, use Xapian 1.4.21.
 
 Python 2.x	Requires Python 2.7 or later.  If you still need support for
-		Python 2.6, use Xapian 1.4.x.
+		Python 2.6, use Xapian 1.4.21.
 
 Python 3.x	Requires Python 3.3 or later.  If you still need support for
 		Python 3.2, use Xapian 1.4.21.
