@@ -95,6 +95,8 @@ EXTRA_DIST =\
 	testfiles/audio/file_example_WAV_1MG.wav \
 	testfiles/cdr/test1.cdr \
 	testfiles/cdr/test2.cdr \
+	testfiles/email/html.eml \
+	testfiles/email/text.eml \
 	testfiles/epub/epub2test.epub \
 	testfiles/epub/epub3test.epub \
 	testfiles/fb2/hello.fb2 \

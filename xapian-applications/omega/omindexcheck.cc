@@ -68,6 +68,14 @@ index_test()
 		  {{"Sdiagram", "Timage/svg+xml", "Zstart"}}});
     tests.insert({"svg/diagram.svgz",
 		  {{"Sdiagram", "Timage/svg+xml-compressed", "Zstart"}}});
+#ifdef HAVE_GMIME
+    tests.insert({"email/html.eml",
+		  {{"Aexample", "Aorg", "Auser", "Shtml", "Tmessage/rfc822",
+		    "html", "message", "test"}}});
+    tests.insert({"email/text.eml",
+		  {{"Aexample", "Aorg", "Auser", "Stext", "Tmessage/rfc822",
+		    "message", "plain", "text"}}});
+#endif
 #if defined HAVE_POPPLER
     tests.insert({"pdf/poppler.pdf",
 		  {{"ZFpoppler", "Zsub", "Ztext", "Ztitl", "Zpie"}}});
