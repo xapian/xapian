@@ -50,34 +50,51 @@ extract_html(const string& text, string& charset)
     send_field(FIELD_BODY, parser.dump);
 }
 
-static size_t
-decode(unsigned char* text, size_t len, GMimeContentEncoding encoding,
-       int* state, guint32* save)
+static std::string
+decode(GMimePart* part)
 {
-    unsigned char buffer[SIZE];
-    switch (encoding) {
-	case GMIME_CONTENT_ENCODING_BASE64: {
-	    len = g_mime_encoding_base64_decode_step(text, len, buffer,
-						     state, save);
-	    memcpy(text, buffer, len);
+    string result;
+#if GMIME_MAJOR_VERSION >= 3
+    GMimeDataWrapper* content = g_mime_part_get_content(part);
+#else
+    GMimeDataWrapper* content = g_mime_part_get_content_object(part);
+#endif
+    char buffer[SIZE];
+    unsigned char data[SIZE];
+    auto u_buff = reinterpret_cast<unsigned char*>(buffer);
+    GMimeStream* sr = g_mime_data_wrapper_get_stream(content);
+    int state = 0;
+    guint32 save = 0;
+    int len;
+    switch (g_mime_part_get_content_encoding(part)) {
+	case GMIME_CONTENT_ENCODING_BASE64:
+	    while ((len = g_mime_stream_read(sr, buffer, SIZE)) > 0) {
+		len = g_mime_encoding_base64_decode_step(u_buff, len, data,
+							 &state, &save);
+		result.append(reinterpret_cast<char*>(data), len);
+	    }
 	    break;
-	}
-	case GMIME_CONTENT_ENCODING_UUENCODE: {
-	    len = g_mime_encoding_uudecode_step(text, len, buffer,
-						state, save);
-	    memcpy(text, buffer, len);
+	case GMIME_CONTENT_ENCODING_UUENCODE:
+	    while ((len = g_mime_stream_read(sr, buffer, SIZE)) > 0) {
+		len = g_mime_encoding_uudecode_step(u_buff, len, data,
+						    &state, &save);
+		result.append(reinterpret_cast<char*>(data), len);
+	    }
 	    break;
-	}
-	case GMIME_CONTENT_ENCODING_QUOTEDPRINTABLE: {
-	    len = g_mime_encoding_quoted_decode_step(text, len, buffer,
-						     state, save);
-	    memcpy(text, buffer, len);
+	case GMIME_CONTENT_ENCODING_QUOTEDPRINTABLE:
+	    while ((len = g_mime_stream_read(sr, buffer, SIZE)) > 0) {
+		len = g_mime_encoding_quoted_decode_step(u_buff, len, data,
+							 &state, &save);
+		result.append(reinterpret_cast<char*>(data), len);
+	    }
 	    break;
-	}
 	default:
+	    while ((len = g_mime_stream_read(sr, buffer, SIZE)) > 0) {
+		result.append(reinterpret_cast<char*>(buffer), len);
+	    }
 	    break;
     }
-    return len;
+    return result;
 }
 
 static bool
@@ -104,31 +121,11 @@ parse_mime_part(GMimeObject* me)
 	}
     } else if (GMIME_IS_PART(me)) {
 	GMimePart* part = reinterpret_cast<GMimePart*>(me);
-#if GMIME_MAJOR_VERSION >= 3
-	GMimeDataWrapper* content = g_mime_part_get_content(part);
-#else
-	GMimeDataWrapper* content = g_mime_part_get_content_object(part);
-#endif
 	const char* type = g_mime_content_type_get_media_type(ct);
 	if (strcmp(type, "text") == 0) {
-	    string text;
-	    char buffer[SIZE];
-	    GMimeStream* sr = g_mime_data_wrapper_get_stream(content);
-	    auto encoding = g_mime_part_get_content_encoding(part);
-	    int state = 0, len = 0;
-	    guint32 save = 0;
-	    do {
-		len = g_mime_stream_read(sr, buffer, SIZE);
-		if (0 < len) {
-		    auto u_buff = reinterpret_cast<unsigned char*>(buffer);
-		    len = decode(u_buff, len, encoding, &state, &save);
-		    if (0 < len)
-			text.append(buffer, len);
-		}
-	    } while (0 < len);
+	    string text = decode(part);
 	    string charset;
-	    const char* p =
-		g_mime_object_get_content_type_parameter(me, "charset");
+	    const char* p = g_mime_content_type_get_parameter(ct, "charset");
 	    if (p) charset = g_mime_charset_canon_name(p);
 	    const char* subtype = g_mime_content_type_get_media_subtype(ct);
 	    if (strcmp(subtype, "plain") == 0) {
