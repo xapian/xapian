@@ -176,6 +176,7 @@ Worker::extract(const std::string& filename,
 	if (r != 0) return r;
     }
 
+    string attachment_filename;
     // Send a filename and wait for the reply.
     if (write_string(sockt, filename) && write_string(sockt, mimetype)) {
 	while (true) {
@@ -222,6 +223,9 @@ Worker::extract(const std::string& filename,
 		return 0;
 	      case EOF:
 		goto comms_error;
+	      case FIELD_ATTACHMENT:
+		value = &attachment_filename;
+		break;
 	      default:
 		error = error_prefix + "Unknown field code ";
 		error += str(field_code);
@@ -236,6 +240,10 @@ Worker::extract(const std::string& filename,
 		if (!read_string(sockt, s)) break;
 		*value += ' ';
 		*value += s;
+	    }
+	    if (field_code == FIELD_ATTACHMENT) {
+		// FIXME: Do something more useful with attachment_filename!
+		attachment_filename.clear();
 	    }
 	}
     }
