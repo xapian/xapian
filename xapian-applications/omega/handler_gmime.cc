@@ -2,7 +2,7 @@
  * @brief Extract text and metadata using gmime.
  */
 /* Copyright (C) 2019 Bruno Baruffaldi
- * Copyright (C) 2022 Olly Betts
+ * Copyright (C) 2022,2023 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -51,14 +51,9 @@ extract_html(const string& text, string& charset)
 }
 
 static std::string
-decode(GMimePart* part)
+decode(GMimeDataWrapper* content, GMimeContentEncoding content_encoding)
 {
     string result;
-#if GMIME_MAJOR_VERSION >= 3
-    GMimeDataWrapper* content = g_mime_part_get_content(part);
-#else
-    GMimeDataWrapper* content = g_mime_part_get_content_object(part);
-#endif
     char buffer[SIZE];
     unsigned char data[SIZE];
     auto u_buff = reinterpret_cast<unsigned char*>(buffer);
@@ -66,7 +61,7 @@ decode(GMimePart* part)
     int state = 0;
     guint32 save = 0;
     int len;
-    switch (g_mime_part_get_content_encoding(part)) {
+    switch (content_encoding) {
 	case GMIME_CONTENT_ENCODING_BASE64:
 	    while ((len = g_mime_stream_read(sr, buffer, SIZE)) > 0) {
 		len = g_mime_encoding_base64_decode_step(u_buff, len, data,
@@ -123,7 +118,14 @@ parse_mime_part(GMimeObject* me)
 	GMimePart* part = reinterpret_cast<GMimePart*>(me);
 	const char* type = g_mime_content_type_get_media_type(ct);
 	if (strcmp(type, "text") == 0) {
-	    string text = decode(part);
+#if GMIME_MAJOR_VERSION >= 3
+	    GMimeDataWrapper* content = g_mime_part_get_content(part);
+#else
+	    GMimeDataWrapper* content = g_mime_part_get_content_object(part);
+#endif
+	    if (!content) return false;
+	    string text = decode(content,
+				 g_mime_part_get_content_encoding(part));
 	    string charset;
 	    const char* p = g_mime_content_type_get_parameter(ct, "charset");
 	    if (p) charset = g_mime_charset_canon_name(p);
