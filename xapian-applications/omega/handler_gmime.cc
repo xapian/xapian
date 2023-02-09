@@ -191,13 +191,14 @@ extract(const string& filename,
 	GDateTime* datetime = g_mime_message_get_date(message);
 	if (datetime) {
 	    GDateTime* utc_datetime = g_date_time_to_utc(datetime);
-	    g_date_time_unref(datetime);
-	    gint64 unix_time = g_date_time_to_unix(utc_datetime);
-	    // Check value doesn't overflow time_t.
-	    if (gint64(time_t(unix_time)) == unix_time) {
-		send_field_created_date(time_t(unix_time));
+	    if (utc_datetime) {
+		gint64 unix_time = g_date_time_to_unix(utc_datetime);
+		// Check value doesn't overflow time_t.
+		if (gint64(time_t(unix_time)) == unix_time) {
+		    send_field_created_date(time_t(unix_time));
+		}
+		g_date_time_unref(utc_datetime);
 	    }
-	    g_date_time_unref(utc_datetime);
 	}
 #else
 	time_t datetime;
