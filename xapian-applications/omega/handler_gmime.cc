@@ -152,8 +152,8 @@ parse_mime_part(GMimeObject* me, bool attachments)
 	const char* subtype = g_mime_content_type_get_media_subtype(ct);
 	int count = g_mime_multipart_get_count(mpart);
 	if (strcmp(subtype, "alternative") == 0) {
-	    // Use the first MIME part which we get text from.
-	    for (int i = 0; i < count; ++i) {
+	    // Use the last MIME part which we get text from.
+	    for (int i = count - 1; i >= 0; --i) {
 		GMimeObject* part = g_mime_multipart_get_part(mpart, i);
 		// Don't consider parts under an alternative as attachments.
 		if (parse_mime_part(part, false))
