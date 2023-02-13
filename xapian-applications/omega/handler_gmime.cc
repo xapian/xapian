@@ -208,11 +208,10 @@ parse_mime_part(GMimeObject* me, bool attachments)
 	    return true;
 	}
 
-	// FIXME: Discriminate attached vs embedded by calling this?
-	// g_mime_part_is_attachment(part)
-
 	// Save attachment.
 	string filename = attachment_dir;
+	// Prefix with `a` for attachment, `i` for inline.
+	filename += (g_mime_part_is_attachment(part) ? 'a' : 'i');
 	filename += str(attachment_counter++);
 	filename += '-';
 
