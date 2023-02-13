@@ -172,11 +172,13 @@ parse_mime_part(GMimeObject* me, bool attachments)
 	const char* type = g_mime_content_type_get_media_type(ct);
 	const char* subtype = g_mime_content_type_get_media_subtype(ct);
 	enum { OTHER = 0, TEXT_PLAIN, TEXT_HTML } t = OTHER;
-	if (strcmp(type, "text") == 0) {
-	    if (strcmp(subtype, "plain") == 0) {
-		t = TEXT_PLAIN;
-	    } else if (strcmp(subtype, "html") == 0) {
-		t = TEXT_HTML;
+	if (!attachments || !g_mime_part_is_attachment(part)) {
+	    if (strcmp(type, "text") == 0) {
+		if (strcmp(subtype, "plain") == 0) {
+		    t = TEXT_PLAIN;
+		} else if (strcmp(subtype, "html") == 0) {
+		    t = TEXT_HTML;
+		}
 	    }
 	}
 	if (t == OTHER && !attachments) {
