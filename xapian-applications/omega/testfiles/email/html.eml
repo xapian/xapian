@@ -3,7 +3,7 @@ Delivery-date: Sat, 03 Dec 2022 15:30:11 +1300
 Subject: HTML message
 To: user@example.org
 MIME-Version: 1.0
-Content-Type: text/html; charset="utf-8"
+Content-Type: TEXT/HTML; charset="utf-8"
 Content-Transfer-Encoding: 7bit
 Message-Id: <E1p1II7-008OVw-1v@example.org>
 From: User <user@example.org>

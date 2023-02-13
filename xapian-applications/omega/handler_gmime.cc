@@ -151,7 +151,7 @@ parse_mime_part(GMimeObject* me, bool attachments)
 	GMimeMultipart* mpart = reinterpret_cast<GMimeMultipart*>(me);
 	const char* subtype = g_mime_content_type_get_media_subtype(ct);
 	int count = g_mime_multipart_get_count(mpart);
-	if (strcmp(subtype, "alternative") == 0) {
+	if (g_ascii_strcasecmp(subtype, "alternative") == 0) {
 	    // Use the last MIME part which we get text from.
 	    for (int i = count - 1; i >= 0; --i) {
 		GMimeObject* part = g_mime_multipart_get_part(mpart, i);
@@ -173,10 +173,10 @@ parse_mime_part(GMimeObject* me, bool attachments)
 	const char* subtype = g_mime_content_type_get_media_subtype(ct);
 	enum { OTHER = 0, TEXT_PLAIN, TEXT_HTML } t = OTHER;
 	if (!attachments || !g_mime_part_is_attachment(part)) {
-	    if (strcmp(type, "text") == 0) {
-		if (strcmp(subtype, "plain") == 0) {
+	    if (g_ascii_strcasecmp(type, "text") == 0) {
+		if (g_ascii_strcasecmp(subtype, "plain") == 0) {
 		    t = TEXT_PLAIN;
-		} else if (strcmp(subtype, "html") == 0) {
+		} else if (g_ascii_strcasecmp(subtype, "html") == 0) {
 		    t = TEXT_HTML;
 		}
 	    }
