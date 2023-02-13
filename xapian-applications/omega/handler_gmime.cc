@@ -367,6 +367,17 @@ extract(const string& filename,
 	    send_field_created_date(datetime);
 	}
 #endif
+	GMimeObject* object = GMIME_OBJECT(message);
+	GMimeHeaderList* headers = g_mime_object_get_header_list(object);
+	int count = g_mime_header_list_get_count(headers);
+	for (int i = 0; i < count; ++i) {
+	    GMimeHeader* header = g_mime_header_list_get_header_at(headers, i);
+	    auto name = g_mime_header_get_name(header);
+	    if (g_ascii_strcasecmp(name, "Comments") ||
+		g_ascii_strcasecmp(name, "Keywords")) {
+		send_field(FIELD_KEYWORDS, g_mime_header_get_value(header));
+	    }
+	}
 	g_object_unref(message);
     }
     g_object_unref(parser);

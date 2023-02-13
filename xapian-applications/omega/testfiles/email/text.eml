@@ -1,6 +1,10 @@
 Return-path: <user@example.org>
 Delivery-date: Sat, 03 Dec 2022 15:30:11 +1300
 Subject: Text message
+Comments: comment1
+Keywords: keyword1
+Comments: comment2
+Keywrods: keyword2
 To: user@example.org
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"

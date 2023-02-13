@@ -74,6 +74,7 @@ index_test()
 		    "html", "message", "test"}}});
     tests.insert({"email/text.eml",
 		  {{"Aexample", "Aorg", "Auser", "Stext", "Tmessage/rfc822",
+		    "comment1", "comment2", "keyword1", "keyword2",
 		    "message", "plain", "text"}}});
 #endif
 #if defined HAVE_POPPLER
