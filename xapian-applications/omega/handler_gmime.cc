@@ -303,8 +303,12 @@ send_glib_field(Field field, gchar* data)
 static void
 extract_addresses(Field field, InternetAddressList* address_list)
 {
-    send_glib_field(field,
-		    internet_address_list_to_string(address_list, NULL, false));
+#if GMIME_MAJOR_VERSION >= 3
+    auto value = internet_address_list_to_string(address_list, NULL, false);
+#else
+    auto value = internet_address_list_to_string(address_list, false);
+#endif
+    send_glib_field(field, value);
 }
 
 static void
@@ -371,15 +375,28 @@ extract_message(GMimeMessage* message)
     send_field(FIELD_MESSAGE_ID, g_mime_message_get_message_id(message));
     GMimeObject* object = GMIME_OBJECT(message);
     GMimeHeaderList* headers = g_mime_object_get_header_list(object);
+#if GMIME_MAJOR_VERSION >= 3
     int count = g_mime_header_list_get_count(headers);
     for (int i = 0; i < count; ++i) {
 	GMimeHeader* header = g_mime_header_list_get_header_at(headers, i);
 	auto name = g_mime_header_get_name(header);
+# define value g_mime_header_get_value(header)
+#else
+    g_mime_header_list_foreach(headers,
+			       [](const char* name,
+				  const char* value,
+				  gpointer) {
+#endif
 	if (g_ascii_strcasecmp(name, "Comments") == 0 ||
 	    g_ascii_strcasecmp(name, "Keywords") == 0) {
-	    send_field(FIELD_KEYWORDS, g_mime_header_get_value(header));
+	    send_field(FIELD_KEYWORDS, value);
 	}
+#if GMIME_MAJOR_VERSION >= 3
     }
+# undef value
+#else
+			       }, nullptr);
+#endif
 }
 
 void
