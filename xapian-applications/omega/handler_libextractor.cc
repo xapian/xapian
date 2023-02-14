@@ -2,7 +2,7 @@
  * @brief Extract metadata using libextractor.
  */
 /* Copyright (C) 2020 Parth Kapadia
- * Copyright (C) 2022 Olly Betts
+ * Copyright (C) 2022,2023 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -113,21 +113,19 @@ process_metadata(void*,
     return 0;
 }
 
-static auto initialise() {
+static struct EXTRACTOR_PluginList* plugins;
+
+bool
+initialise()
+{
     // Add all default plugins.
-    auto plugins =
-	EXTRACTOR_plugin_add_defaults(EXTRACTOR_OPTION_DEFAULT_POLICY);
-    if (!plugins)
-	exit(EX_UNAVAILABLE);
-    return plugins;
+    plugins = EXTRACTOR_plugin_add_defaults(EXTRACTOR_OPTION_DEFAULT_POLICY);
+    return plugins != nullptr;
 }
 
 void
 extract(const string& filename, const string& mimetype)
 {
-    // Initialise on first run.
-    static auto plugins = initialise();
-
     // If plugin not found/ File format not recognised/ corrupt file
     // no data is extracted, rather than reporting an error.
     EXTRACTOR_extract(plugins, filename.c_str(),

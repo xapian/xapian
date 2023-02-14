@@ -399,20 +399,21 @@ extract_message(GMimeMessage* message)
 #endif
 }
 
+bool
+initialise()
+{
+#if GMIME_MAJOR_VERSION >= 3
+    g_mime_init();
+#else
+    g_mime_init(GMIME_ENABLE_RFC2047_WORKAROUNDS);
+#endif
+    return true;
+}
+
 void
 extract(const string& filename,
 	const string& mimetype)
 {
-    static bool first_time = true;
-    if (first_time) {
-#if GMIME_MAJOR_VERSION >= 3
-	g_mime_init();
-#else
-	g_mime_init(GMIME_ENABLE_RFC2047_WORKAROUNDS);
-#endif
-	first_time = false;
-    }
-
     FILE* fp = fopen(filename.c_str(), "r");
 
     if (fp == NULL) {

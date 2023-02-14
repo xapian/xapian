@@ -1,7 +1,7 @@
 /** @file
  * @brief Worker module for putting text extraction into a separate process.
  */
-/* Copyright (C) 2011,2022 Olly Betts
+/* Copyright (C) 2011,2022,2023 Olly Betts
  * Copyright (C) 2019 Bruno Baruffaldi
  *
  * This program is free software; you can redistribute it and/or
@@ -28,6 +28,7 @@
 
 #include <cerrno>
 #include <csignal>
+#include <iostream>
 
 #include <sysexits.h>
 
@@ -114,6 +115,16 @@ int main()
 {
     string filename, mimetype;
     sockt = fdopen(FD, "r+");
+
+    try {
+	if (!initialise())
+	    _Exit(EX_UNAVAILABLE);
+    } catch (const std::exception& e) {
+	cerr << "Initialisation failed with exception: " << e.what() << '\n';
+	_Exit(EX_UNAVAILABLE);
+    } catch (...) {
+	_Exit(EX_UNAVAILABLE);
+    }
 
     while (true) {
 	// Read filename.

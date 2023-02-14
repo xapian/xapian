@@ -2,7 +2,7 @@
  * @brief Extract text and metadata using poppler.
  */
 /* Copyright (C) 2019 Bruno Baruffaldi
- * Copyright (C) 2022 Olly Betts
+ * Copyright (C) 2022,2023 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -62,6 +62,12 @@ send_glib_field(Field field, gchar* data)
 	send_field(field, data);
 	g_free(data);
     }
+}
+
+bool
+initialise()
+{
+    return true;
 }
 
 void

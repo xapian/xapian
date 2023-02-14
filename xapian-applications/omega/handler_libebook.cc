@@ -2,7 +2,7 @@
  * @brief Extract text and metadata using libe-book.
  */
 /* Copyright (C) 2019 Bruno Baruffaldi
- * Copyright (C) 2022 Olly Betts
+ * Copyright (C) 2022,2023 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -132,6 +132,12 @@ parse_metadata(const char* data, size_t len)
     if (author_len) {
 	send_field(FIELD_AUTHOR, author, author_len);
     }
+}
+
+bool
+initialise()
+{
+    return true;
 }
 
 void

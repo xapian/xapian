@@ -2,7 +2,7 @@
  * @brief Extract text and metadata using libarchive.
  */
 /* Copyright (C) 2020 Parth Kapadia
- * Copyright (C) 2022 Olly Betts
+ * Copyright (C) 2022,2023 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -274,6 +274,12 @@ extract_xps(struct archive* archive_obj)
 
     send_field(FIELD_BODY, parser.dump);
     send_field_page_count(pages);
+    return true;
+}
+
+bool
+initialise()
+{
     return true;
 }
 

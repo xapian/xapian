@@ -40,6 +40,12 @@ send_glib_field(Field field, gchar* data)
     }
 }
 
+bool
+initialise()
+{
+    return true;
+}
+
 void
 extract(const string& filename,
 	const string& mimetype)

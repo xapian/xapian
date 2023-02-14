@@ -2,7 +2,7 @@
  * @brief Extract text from Images using tesseract.
  */
 /* Copyright (C) 2019 Bruno Baruffaldi
- * Copyright (C) 2022 Olly Betts
+ * Copyright (C) 2022,2023 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -32,18 +32,20 @@
 using namespace std;
 using namespace tesseract;
 
-static TessBaseAPI* ocr = NULL;
+static TessBaseAPI* ocr;
+
+bool
+initialise()
+{
+    ocr = new TessBaseAPI();
+    ocr->SetPageSegMode(PSM_AUTO_OSD);
+    return true;
+}
 
 void
 extract(const string& filename,
 	const string& mimetype)
 {
-    // Create the ocr if necessary
-    if (!ocr) {
-	ocr = new TessBaseAPI();
-	ocr->SetPageSegMode(PSM_AUTO_OSD);
-    }
-
     // Call Init() for each document so any adaptive state is reset as
     // we don't want the order of indexing documents to affect the text
     // indexed for each document.

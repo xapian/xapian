@@ -1,7 +1,7 @@
 /** @file
  * @brief Extract text and metadata using LibreOfficeKit
  */
-/* Copyright (C) 2014-2022 Olly Betts
+/* Copyright (C) 2014-2023 Olly Betts
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -126,37 +126,31 @@ get_lo_path()
 static string output_file;
 static string output_url;
 
-Office*
-init()
+static Office* llo;
+
+bool
+initialise()
 {
     output_file = get_tmpfile("tmp.html");
     if (output_file.empty()) {
 	cerr << "Couldn't create temporary directory\n";
-	_Exit(EX_UNAVAILABLE);
+	return false;
     }
     url_encode_path(output_url, output_file);
 
-    Office* llo = NULL;
-    try {
-	const char* lo_path = get_lo_path();
-	llo = lok_cpp_init(lo_path);
-	if (!llo) {
-	    cerr << "Failed to initialise LibreOfficeKit\n";
-	    _Exit(EX_UNAVAILABLE);
-	}
-	return llo;
-    } catch (const exception& e) {
-	cerr << "LibreOfficeKit threw exception (" << e.what() << ")\n";
-	_Exit(EX_UNAVAILABLE);
+    const char* lo_path = get_lo_path();
+    llo = lok_cpp_init(lo_path);
+    if (!llo) {
+	cerr << "Failed to initialise LibreOfficeKit\n";
+	return false;
     }
+    return true;
 }
 
 void
 extract(const string& filename,
 	const string& mimetype)
 try {
-    static Office* llo = init();
-
     const char* format = "html"; // FIXME or xhtml
     const char* options = "SkipImages";
     string input_url;

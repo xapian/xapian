@@ -2,7 +2,7 @@
  * @brief Extract text and metadata from Apple documents using libtonyek.
  */
 /* Copyright (C) 2019 Bruno Baruffaldi
- * Copyright (C) 2022 Olly Betts
+ * Copyright (C) 2022,2023 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -192,6 +192,12 @@ extract_pages(RVNGInputStream* input)
     }
 
     send_field(FIELD_BODY, dump.cstr(), dump.size());
+}
+
+bool
+initialise()
+{
+    return true;
 }
 
 void

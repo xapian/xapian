@@ -3,7 +3,7 @@
  */
 /* Copyright (C) 2019 Bruno Baruffaldi
  * Copyright (C) 2020 Parth Kapadia
- * Copyright (C) 2022 Olly Betts
+ * Copyright (C) 2022,2023 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -216,6 +216,12 @@ extract_drawing(RVNGFileStream* input)
 	return;
     }
     parse_content(pages);
+}
+
+bool
+initialise()
+{
+    return true;
 }
 
 void
