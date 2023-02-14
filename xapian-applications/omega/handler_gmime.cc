@@ -300,6 +300,88 @@ send_glib_field(Field field, gchar* data)
     }
 }
 
+static void
+extract_addresses(Field field, InternetAddressList* address_list)
+{
+    send_glib_field(field,
+		    internet_address_list_to_string(address_list, NULL, false));
+}
+
+static void
+extract_message(GMimeMessage* message)
+{
+    attachment_counter = 0;
+    (void)parse_mime_part(g_mime_message_get_mime_part(message),
+			  !attachment_dir.empty());
+    send_field(FIELD_TITLE, g_mime_message_get_subject(message));
+
+#if GMIME_MAJOR_VERSION >= 3
+    extract_addresses(FIELD_AUTHOR, g_mime_message_get_from(message));
+#else
+    send_field(FIELD_AUTHOR, g_mime_message_get_sender(message));
+#endif
+#if GMIME_MAJOR_VERSION >= 3
+    extract_addresses(FIELD_TO, g_mime_message_get_to(message));
+#else
+    extract_addresses(FIELD_TO,
+		      g_mime_message_get_recipients(message,
+						    GMIME_RECIPIENT_TYPE_TO));
+#endif
+#if GMIME_MAJOR_VERSION >= 3
+    extract_addresses(FIELD_CC, g_mime_message_get_cc(message));
+#else
+    extract_addresses(FIELD_CC,
+		      g_mime_message_get_recipients(message,
+						    GMIME_RECIPIENT_TYPE_CC));
+#endif
+#if GMIME_MAJOR_VERSION >= 3
+    extract_addresses(FIELD_BCC, g_mime_message_get_bcc(message));
+#else
+    extract_addresses(FIELD_BCC,
+		      g_mime_message_get_recipients(message,
+						    GMIME_RECIPIENT_TYPE_BCC));
+#endif
+#if GMIME_MAJOR_VERSION >= 3
+    GDateTime* datetime = g_mime_message_get_date(message);
+    if (datetime) {
+	GDateTime* utc_datetime = g_date_time_to_utc(datetime);
+	if (utc_datetime) {
+	    gint64 unix_time = g_date_time_to_unix(utc_datetime);
+	    // Check value doesn't overflow time_t.
+	    if (gint64(time_t(unix_time)) == unix_time) {
+		send_field_created_date(time_t(unix_time));
+	    }
+	    g_date_time_unref(utc_datetime);
+	}
+    }
+#else
+    time_t datetime;
+    int tz_offset;
+    g_mime_message_get_date(message, &datetime, &tz_offset);
+    if (datetime != time_t(-1)) {
+	// The documentation doesn't clearly say, but from testing the
+	// time_t value is in UTC which is what we want so we don't need
+	// tz_offset.
+	//
+	// (If we did, tz_offset is not actually in hours as the docs say,
+	// but actually hours*100+minutes, e.g. +1300 for UTC+13).
+	send_field_created_date(datetime);
+    }
+#endif
+    send_field(FIELD_MESSAGE_ID, g_mime_message_get_message_id(message));
+    GMimeObject* object = GMIME_OBJECT(message);
+    GMimeHeaderList* headers = g_mime_object_get_header_list(object);
+    int count = g_mime_header_list_get_count(headers);
+    for (int i = 0; i < count; ++i) {
+	GMimeHeader* header = g_mime_header_list_get_header_at(headers, i);
+	auto name = g_mime_header_get_name(header);
+	if (g_ascii_strcasecmp(name, "Comments") == 0 ||
+	    g_ascii_strcasecmp(name, "Keywords") == 0) {
+	    send_field(FIELD_KEYWORDS, g_mime_header_get_value(header));
+	}
+    }
+}
+
 void
 extract(const string& filename,
 	const string& mimetype)
@@ -329,55 +411,7 @@ extract(const string& filename,
     GMimeMessage* message = g_mime_parser_construct_message(parser);
 #endif
     if (message) {
-	attachment_counter = 0;
-	(void)parse_mime_part(g_mime_message_get_mime_part(message),
-			      !attachment_dir.empty());
-	send_field(FIELD_TITLE, g_mime_message_get_subject(message));
-#if GMIME_MAJOR_VERSION >= 3
-	InternetAddressList* from = g_mime_message_get_from(message);
-	send_glib_field(FIELD_AUTHOR,
-			internet_address_list_to_string(from, NULL, false));
-#else
-	send_field(FIELD_AUTHOR, g_mime_message_get_sender(message));
-#endif
-#if GMIME_MAJOR_VERSION >= 3
-	GDateTime* datetime = g_mime_message_get_date(message);
-	if (datetime) {
-	    GDateTime* utc_datetime = g_date_time_to_utc(datetime);
-	    if (utc_datetime) {
-		gint64 unix_time = g_date_time_to_unix(utc_datetime);
-		// Check value doesn't overflow time_t.
-		if (gint64(time_t(unix_time)) == unix_time) {
-		    send_field_created_date(time_t(unix_time));
-		}
-		g_date_time_unref(utc_datetime);
-	    }
-	}
-#else
-	time_t datetime;
-	int tz_offset;
-	g_mime_message_get_date(message, &datetime, &tz_offset);
-	if (datetime != time_t(-1)) {
-	    // The documentation doesn't clearly say, but from testing the
-	    // time_t value is in UTC which is what we want so we don't need
-	    // tz_offset.
-	    //
-	    // (If we did, tz_offset is not actually in hours as the docs say,
-	    // but actually hours*100+minutes, e.g. +1300 for UTC+13).
-	    send_field_created_date(datetime);
-	}
-#endif
-	GMimeObject* object = GMIME_OBJECT(message);
-	GMimeHeaderList* headers = g_mime_object_get_header_list(object);
-	int count = g_mime_header_list_get_count(headers);
-	for (int i = 0; i < count; ++i) {
-	    GMimeHeader* header = g_mime_header_list_get_header_at(headers, i);
-	    auto name = g_mime_header_get_name(header);
-	    if (g_ascii_strcasecmp(name, "Comments") ||
-		g_ascii_strcasecmp(name, "Keywords")) {
-		send_field(FIELD_KEYWORDS, g_mime_header_get_value(header));
-	    }
-	}
+	extract_message(message);
 	g_object_unref(message);
     }
     g_object_unref(parser);

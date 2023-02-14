@@ -154,6 +154,10 @@ Worker::extract(const std::string& filename,
 		std::string& title,
 		std::string& keywords,
 		std::string& author,
+		std::string& to,
+		std::string& cc,
+		std::string& bcc,
+		std::string& message_id,
 		int& pages,
 		time_t& created)
 {
@@ -210,6 +214,18 @@ Worker::extract(const std::string& filename,
 		break;
 	      case FIELD_AUTHOR:
 		value = &author;
+		break;
+	      case FIELD_TO:
+		value = &to;
+		break;
+	      case FIELD_CC:
+		value = &cc;
+		break;
+	      case FIELD_BCC:
+		value = &bcc;
+		break;
+	      case FIELD_MESSAGE_ID:
+		value = &message_id;
 		break;
 	      case FIELD_ERROR:
 		if (!read_string(sockt, error)) goto comms_error;

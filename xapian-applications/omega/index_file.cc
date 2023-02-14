@@ -4,7 +4,7 @@
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2005 James Aylett
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002-2022 Olly Betts
+ * Copyright 2002-2023 Olly Betts
  * Copyright 2009 Frank J Bruzzaniti
  * Copyright 2012 Mihai Bivol
  * Copyright 2019 Bruno Baruffaldi
@@ -766,6 +766,7 @@ index_mimetype(const string& file, const string& urlterm, const string& url,
     }
 
     string author, title, sample, keywords, topic, dump;
+    string to, cc, bcc, message_id;
     string md5;
     time_t created = time_t(-1);
     int pages = -1;
@@ -790,7 +791,7 @@ index_mimetype(const string& file, const string& urlterm, const string& url,
 	    // Use a worker process to extract the content.
 	    Worker* wrk = cmd_it->second.worker;
 	    int r = wrk->extract(file, mimetype, dump, title, keywords, author,
-				 pages, created);
+				 to, cc, bcc, message_id, pages, created);
 	    if (r != 0) {
 		string msg = wrk->get_error();
 		assert(!msg.empty());
@@ -1359,6 +1360,22 @@ index_mimetype(const string& file, const string& urlterm, const string& url,
 	    record += "\nauthor=";
 	    record += author;
 	}
+	if (!to.empty()) {
+	    record += "\nto=";
+	    record += to;
+	}
+	if (!cc.empty()) {
+	    record += "\ncc=";
+	    record += cc;
+	}
+	if (!bcc.empty()) {
+	    record += "\nbcc=";
+	    record += bcc;
+	}
+	if (!message_id.empty()) {
+	    record += "\nmsgid=";
+	    record += message_id;
+	}
 	record += "\ntype=";
 	record += mimetype;
 	time_t mtime = d.get_mtime();
@@ -1421,6 +1438,25 @@ index_mimetype(const string& file, const string& urlterm, const string& url,
 	if (!author.empty()) {
 	    indexer.increase_termpos(100);
 	    indexer.index_text(author, 1, "A");
+	}
+
+	if (!to.empty()) {
+	    indexer.increase_termpos(100);
+	    indexer.index_text(to, 1, "XTO");
+	}
+
+	if (!cc.empty()) {
+	    indexer.increase_termpos(100);
+	    indexer.index_text(cc, 1, "XCC");
+	}
+
+	if (!bcc.empty()) {
+	    indexer.increase_termpos(100);
+	    indexer.index_text(bcc, 1, "XBCC");
+	}
+
+	if (!message_id.empty()) {
+	    newdocument.add_boolean_term("XMID:" + message_id);
 	}
 
 	// mimeType:

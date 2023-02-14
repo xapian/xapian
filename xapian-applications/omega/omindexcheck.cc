@@ -70,10 +70,15 @@ index_test()
 		  {{"Sdiagram", "Timage/svg+xml-compressed", "Zstart"}}});
 #ifdef HAVE_GMIME
     tests.insert({"email/html.eml",
-		  {{"Aexample", "Aorg", "Auser", "Shtml", "Tmessage/rfc822",
+		  {{"Aexample", "Ame", "Aorg", "Auser", "Shtml",
+		    "Tmessage/rfc822",
+		    "XMID:E1p1II7-008OVw-1w@example.org",
+		    "XTOada", "XTOexample", "XTOorg", "XTOuser",
 		    "html", "message", "test"}}});
     tests.insert({"email/text.eml",
-		  {{"Aexample", "Aorg", "Auser", "Stext", "Tmessage/rfc822",
+		  {{"Aexample", "Ame", "Aorg", "Auser", "Stext", "Tmessage/rfc822",
+		    "XMID:E1p1II7-008OVw-1v@example.org",
+		    "XTOexample", "XTOorg", "XTOuser",
 		    "comment1", "comment2", "keyword1", "keyword2",
 		    "message", "plain", "text"}}});
 #endif

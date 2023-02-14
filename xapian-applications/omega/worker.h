@@ -89,6 +89,10 @@ class Worker {
      *  @param[out] title	The title of the document.
      *  @param[out] keyword	Any keywords.
      *  @param[out] author	The author(s).
+     *  @param[out] to		Direct recipients (To: in email).
+     *  @param[out] cc		Additional recipients (Cc: in email).
+     *  @param[out] bcc		Hidden recipients (Bcc: in email).
+     *  @param[out] message_id	Message identifier (Message-Id: in email).
      *  @param[out] pages	The number of pages (-1 if unknown).
      *  @param[out] created	Created timestamp as time_t (-1 if unknown).
      *
@@ -111,6 +115,10 @@ class Worker {
 		std::string& title,
 		std::string& keywords,
 		std::string& author,
+		std::string& to,
+		std::string& cc,
+		std::string& bcc,
+		std::string& message_id,
 		int& pages,
 		time_t& created);
 

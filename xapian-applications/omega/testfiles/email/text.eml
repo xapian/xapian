@@ -4,13 +4,13 @@ Subject: Text message
 Comments: comment1
 Keywords: keyword1
 Comments: comment2
-Keywrods: keyword2
+Keywords: keyword2
 To: user@example.org
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
 Message-Id: <E1p1II7-008OVw-1v@example.org>
-From: User <user@example.org>
+FROM: user@example.org (Me)
 Date: Sat, 03 Dec 2022 15:30:11 +1300
 Content-Length: 25
 Lines: 1
