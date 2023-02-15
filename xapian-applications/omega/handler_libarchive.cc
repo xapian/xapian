@@ -247,8 +247,9 @@ extract_xps(struct archive* archive_obj)
     struct archive_entry* entry;
     while (archive_read_next_header(archive_obj, &entry) == ARCHIVE_OK) {
 	string pathname = archive_entry_pathname(entry);
-	if (startswith(pathname, "Documents/1/Pages/") &&
-	    endswith(pathname, ".fpage")) {
+	if (startswith(pathname, "Documents/") &&
+	    endswith(pathname, ".fpage") &&
+	    pathname.find("/Pages/") != string::npos) {
 	    size_t total = archive_entry_size(entry);
 	    content.resize(total);
 	    ssize_t size = archive_read_data(archive_obj, &content[0], total);

@@ -1190,7 +1190,7 @@ index_mimetype(const string& file, const string& urlterm, const string& url,
 		   mimetype == "application/vnd.ms-xpsdocument") {
 	    string cmd = "unzip -p";
 	    append_filename_argument(cmd, file);
-	    cmd += " 'Documents/1/Pages/*.fpage'";
+	    cmd += " 'Documents/*/Pages/*.fpage'";
 	    try {
 		XpsParser xpsparser;
 		run_filter(cmd, false, &dump);
