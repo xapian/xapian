@@ -144,151 +144,164 @@ decode(GMimeDataWrapper* content, GMimeContentEncoding content_encoding)
 }
 
 static bool
-parse_mime_part(GMimeObject* me, bool attachments)
+parse_mime_part(GMimePart* part,
+		GMimeContentType* ct,
+		bool attachments)
 {
-    GMimeContentType* ct = g_mime_object_get_content_type(me);
-    if (GMIME_IS_MULTIPART(me)) {
-	GMimeMultipart* mpart = reinterpret_cast<GMimeMultipart*>(me);
-	const char* subtype = g_mime_content_type_get_media_subtype(ct);
-	int count = g_mime_multipart_get_count(mpart);
-	if (g_ascii_strcasecmp(subtype, "alternative") == 0) {
-	    // Use the last MIME part which we get text from.
-	    for (int i = count - 1; i >= 0; --i) {
-		GMimeObject* part = g_mime_multipart_get_part(mpart, i);
-		// Don't consider parts under an alternative as attachments.
-		if (parse_mime_part(part, false))
-		    return true;
-	    }
-	} else {
-	    bool ret = false;
-	    for (int i = 0; i < count; ++i) {
-		GMimeObject* part = g_mime_multipart_get_part(mpart, i);
-		ret |= parse_mime_part(part, attachments);
-	    }
-	    return ret;
-	}
-    } else if (GMIME_IS_PART(me)) {
-	GMimePart* part = reinterpret_cast<GMimePart*>(me);
-	const char* type = g_mime_content_type_get_media_type(ct);
-	const char* subtype = g_mime_content_type_get_media_subtype(ct);
-	enum { OTHER = 0, TEXT_PLAIN, TEXT_HTML } t = OTHER;
-	if (!attachments || !g_mime_part_is_attachment(part)) {
-	    if (g_ascii_strcasecmp(type, "text") == 0) {
-		if (g_ascii_strcasecmp(subtype, "plain") == 0) {
-		    t = TEXT_PLAIN;
-		} else if (g_ascii_strcasecmp(subtype, "html") == 0) {
-		    t = TEXT_HTML;
-		}
+    const char* type = g_mime_content_type_get_media_type(ct);
+    const char* subtype = g_mime_content_type_get_media_subtype(ct);
+    enum { OTHER = 0, TEXT_PLAIN, TEXT_HTML } t = OTHER;
+    if (!attachments || !g_mime_part_is_attachment(part)) {
+	if (g_ascii_strcasecmp(type, "text") == 0) {
+	    if (g_ascii_strcasecmp(subtype, "plain") == 0) {
+		t = TEXT_PLAIN;
+	    } else if (g_ascii_strcasecmp(subtype, "html") == 0) {
+		t = TEXT_HTML;
 	    }
 	}
-	if (t == OTHER && !attachments) {
-	    // We're not interested in this MIME part.
-	    return false;
-	}
+    }
+    if (t == OTHER && !attachments) {
+	// We're not interested in this MIME part.
+	return false;
+    }
 
 #if GMIME_MAJOR_VERSION >= 3
-	GMimeDataWrapper* content = g_mime_part_get_content(part);
+    GMimeDataWrapper* content = g_mime_part_get_content(part);
 #else
-	GMimeDataWrapper* content = g_mime_part_get_content_object(part);
+    GMimeDataWrapper* content = g_mime_part_get_content_object(part);
 #endif
-	if (!content) return false;
-	string data = decode(content, g_mime_part_get_content_encoding(part));
-	if (t != OTHER) {
-	    string charset;
-	    const char* p = g_mime_content_type_get_parameter(ct, "charset");
-	    if (p) charset = g_mime_charset_canon_name(p);
-	    if (t == TEXT_PLAIN) {
-		// text/plain
-		convert_to_utf8(data, charset);
-		send_field(FIELD_BODY, data);
-	    } else {
-		// text/html
-		extract_html(data, charset);
-	    }
-	    return true;
+    if (!content) return false;
+    string data = decode(content, g_mime_part_get_content_encoding(part));
+    if (t != OTHER) {
+	string charset;
+	const char* p = g_mime_content_type_get_parameter(ct, "charset");
+	if (p) charset = g_mime_charset_canon_name(p);
+	if (t == TEXT_PLAIN) {
+	    // text/plain
+	    convert_to_utf8(data, charset);
+	    send_field(FIELD_BODY, data);
+	} else {
+	    // text/html
+	    extract_html(data, charset);
 	}
-
-	// Save attachment.
-	string filename = attachment_dir;
-	// Prefix with `a` for attachment, `i` for inline.
-	filename += (g_mime_part_is_attachment(part) ? 'a' : 'i');
-	filename += str(attachment_counter++);
-	filename += '-';
-
-	// It's much easier to debug if the extracted files can be easily
-	// matched up with the attachments in the email so using any
-	// supplied filename is good, but we need to keep security concerns
-	// in mind.
-	const char* leaf = g_mime_part_get_filename(part);
-	if (!leaf)
-	    leaf = g_mime_content_type_get_parameter(ct, "filename");
-	if (leaf) {
-	    // Remove any path.
-	    const char* slash = strrchr(leaf, '/');
-	    if (slash) leaf = slash + 1;
-	    slash = strrchr(leaf, '\\');
-	    if (slash) leaf = slash + 1;
-
-	    size_t len = strlen(leaf);
-	    if (len < 3 || len > MAX_ATTACHMENT_LEAF_LEN || leaf[0] == '.') {
-		// Don't use the leafname as is, but use the extension if it's
-		// sensible.
-		leaf = strrchr(leaf + 1, '.');
-		if (leaf && strlen(leaf + 1) <= MAX_ATTACHMENT_EXT_LEN) {
-		    // Use the extension.
-		} else {
-		    // Don't use the leafname at all.
-		    leaf = nullptr;
-		}
-	    }
-	}
-
-	if (!leaf || leaf[0] == '.') {
-	    filename += FALLBACK_ATTACHMENT_BASENAME;
-	}
-	if (leaf) {
-	    for (size_t i = 0; leaf[i]; ++i) {
-		char ch = leaf[i];
-		// Only allow clearly safe characters.
-		if (C_isalnum(ch) || ch == '.' || ch == '-' || ch == '+')
-		    filename += ch;
-		else
-		    filename += '_';
-	    }
-	}
-
-	// This ends up ignoring the supplied Content-Type.  If the extracted
-	// attachments are fed back into the indexer then this will end up
-	// determining the MIME Content-Type from the extension or file
-	// contents instead.
-	//
-	// It seems odd to ignore the supplied Content-Type, but in practice
-	// the supplied MIME type is likely actually determined by the sending
-	// MUA from the extension and/or file contents or is just set to
-	// `application/octet-stream`, so arguably it's better to determine the
-	// type for ourselves in a consistent way.  Otherwise the exact same
-	// attachment could be indexed or not depending who sent it.
-	int fd = open(filename.c_str(),
-		      O_CREAT | O_EXCL | O_WRONLY | O_BINARY,
-		      0664);
-	const char* p = data.data();
-	size_t count = data.size();
-	while (count) {
-	    ssize_t r = write(fd, p, count);
-	    if (rare(r < 0)) {
-		if (errno == EINTR) continue;
-		close(fd);
-		unlink(filename.c_str());
-		send_field(FIELD_ERROR, "saving attachment failed");
-		return false;
-	    }
-	    p += r;
-	    count -= r;
-	}
-	close(fd);
-	send_field(FIELD_ATTACHMENT, filename);
+	return true;
     }
+
+    // Save attachment.
+    string filename = attachment_dir;
+    // Prefix with `a` for attachment, `i` for inline.
+    filename += (g_mime_part_is_attachment(part) ? 'a' : 'i');
+    filename += str(attachment_counter++);
+    filename += '-';
+
+    // It's much easier to debug if the extracted files can be easily
+    // matched up with the attachments in the email so using any
+    // supplied filename is good, but we need to keep security concerns
+    // in mind.
+    const char* leaf = g_mime_part_get_filename(part);
+    if (!leaf)
+	leaf = g_mime_content_type_get_parameter(ct, "filename");
+    if (leaf) {
+	// Remove any path.
+	const char* slash = strrchr(leaf, '/');
+	if (slash) leaf = slash + 1;
+	slash = strrchr(leaf, '\\');
+	if (slash) leaf = slash + 1;
+
+	size_t len = strlen(leaf);
+	if (len < 3 || len > MAX_ATTACHMENT_LEAF_LEN || leaf[0] == '.') {
+	    // Don't use the leafname as is, but use the extension if it's
+	    // sensible.
+	    leaf = strrchr(leaf + 1, '.');
+	    if (leaf && strlen(leaf + 1) <= MAX_ATTACHMENT_EXT_LEN) {
+		// Use the extension.
+	    } else {
+		// Don't use the leafname at all.
+		leaf = nullptr;
+	    }
+	}
+    }
+
+    if (!leaf || leaf[0] == '.') {
+	filename += FALLBACK_ATTACHMENT_BASENAME;
+    }
+    if (leaf) {
+	for (size_t i = 0; leaf[i]; ++i) {
+	    char ch = leaf[i];
+	    // Only allow clearly safe characters.
+	    if (C_isalnum(ch) || ch == '.' || ch == '-' || ch == '+')
+		filename += ch;
+	    else
+		filename += '_';
+	}
+    }
+
+    // This ends up ignoring the supplied Content-Type.  If the extracted
+    // attachments are fed back into the indexer then this will end up
+    // determining the MIME Content-Type from the extension or file
+    // contents instead.
+    //
+    // It seems odd to ignore the supplied Content-Type, but in practice
+    // the supplied MIME type is likely actually determined by the sending
+    // MUA from the extension and/or file contents or is just set to
+    // `application/octet-stream`, so arguably it's better to determine the
+    // type for ourselves in a consistent way.  Otherwise the exact same
+    // attachment could be indexed or not depending who sent it.
+    int fd = open(filename.c_str(),
+		  O_CREAT | O_EXCL | O_WRONLY | O_BINARY,
+		  0664);
+    const char* p = data.data();
+    size_t count = data.size();
+    while (count) {
+	ssize_t r = write(fd, p, count);
+	if (rare(r < 0)) {
+	    if (errno == EINTR) continue;
+	    close(fd);
+	    unlink(filename.c_str());
+	    send_field(FIELD_ERROR, "saving attachment failed");
+	    return false;
+	}
+	p += r;
+	count -= r;
+    }
+    close(fd);
+    send_field(FIELD_ATTACHMENT, filename);
     return false;
+}
+
+static bool
+parse_mime_object(GMimeObject* me, bool attachments)
+{
+    GMimeContentType* ct = g_mime_object_get_content_type(me);
+    if (GMIME_IS_PART(me)) {
+	return parse_mime_part(reinterpret_cast<GMimePart*>(me),
+			       ct,
+			       attachments);
+    }
+
+    if (!GMIME_IS_MULTIPART(me))
+	return false;
+
+    GMimeMultipart* mpart = reinterpret_cast<GMimeMultipart*>(me);
+    const char* subtype = g_mime_content_type_get_media_subtype(ct);
+    int count = g_mime_multipart_get_count(mpart);
+    if (g_ascii_strcasecmp(subtype, "alternative") == 0) {
+	// Use the last MIME part which we get text from.
+	for (int i = count - 1; i >= 0; --i) {
+	    GMimeObject* part = g_mime_multipart_get_part(mpart, i);
+	    // Don't consider parts under an alternative as attachments.
+	    if (parse_mime_object(part, false))
+		return true;
+	}
+	return false;
+    }
+
+    bool ret = false;
+    for (int i = 0; i < count; ++i) {
+	GMimeObject* part = g_mime_multipart_get_part(mpart, i);
+	ret |= parse_mime_object(part, attachments);
+    }
+    return ret;
 }
 
 static void
@@ -315,8 +328,8 @@ static void
 extract_message(GMimeMessage* message)
 {
     attachment_counter = 0;
-    (void)parse_mime_part(g_mime_message_get_mime_part(message),
-			  !attachment_dir.empty());
+    (void)parse_mime_object(g_mime_message_get_mime_part(message),
+			    !attachment_dir.empty());
     send_field(FIELD_TITLE, g_mime_message_get_subject(message));
 
 #if GMIME_MAJOR_VERSION >= 3
