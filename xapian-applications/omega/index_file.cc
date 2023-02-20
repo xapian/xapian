@@ -1502,6 +1502,12 @@ index_mimetype(const string& file, const string& urlterm, const string& url,
 	newdocument.add_value(VALUE_SIZE,
 			      Xapian::sortable_serialise(size));
 
+	if (created != static_cast<time_t>(-1)) {
+	    // Add created time as a value to allow "sort by created date".
+	    newdocument.add_value(VALUE_CREATED,
+				  int_to_binary_string(uint32_t(created)));
+	}
+
 	bool inc_tag_added = false;
 	if (d.is_other_readable()) {
 	    inc_tag_added = true;
