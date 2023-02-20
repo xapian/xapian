@@ -1,7 +1,7 @@
 /** @file
  * @brief Class representing worker process.
  */
-/* Copyright (C) 2005-2022 Olly Betts
+/* Copyright (C) 2005-2023 Olly Betts
  * Copyright (C) 2019 Bruno Baruffaldi
  *
  * This program is free software; you can redistribute it and/or
@@ -49,6 +49,8 @@ bool Worker::ignoring_sigpipe = false;
 int
 Worker::start_worker_subprocess()
 {
+    static bool keep_stderr = (getenv("XAPIAN_OMEGA_DEBUG_WORKERS") != nullptr);
+
     int fds[2];
     if (socketpair(AF_UNIX, SOCK_STREAM, PF_UNSPEC, fds) < 0) {
 	error = string("socketpair failed: ") + strerror(errno);
@@ -86,11 +88,12 @@ Worker::start_worker_subprocess()
 	// not have their disk space released until we exit.
 	closefrom(4);
 
-	// Connect stdin, stdout, stderr to /dev/null.
+	// Connect stdin, stdout and (conditionally) stderr to /dev/null.
 	int devnull = open("/dev/null", O_RDWR);
 	dup2(devnull, 0);
 	dup2(devnull, 1);
-	dup2(devnull, 2);
+	if (!keep_stderr)
+	    dup2(devnull, 2);
 	if (devnull > 3) close(devnull);
 
 	// FIXME: For filters which support a file descriptor as input, we
