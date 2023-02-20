@@ -151,15 +151,14 @@ parse_mime_part(GMimePart* part,
     const char* type = g_mime_content_type_get_media_type(ct);
     const char* subtype = g_mime_content_type_get_media_subtype(ct);
     enum { OTHER = 0, TEXT_PLAIN, TEXT_HTML } t = OTHER;
-    if (!attachments || !g_mime_part_is_attachment(part)) {
-	if (g_ascii_strcasecmp(type, "text") == 0) {
-	    if (g_ascii_strcasecmp(subtype, "plain") == 0) {
-		t = TEXT_PLAIN;
-	    } else if (g_ascii_strcasecmp(subtype, "html") == 0) {
-		t = TEXT_HTML;
-	    }
+    if (g_ascii_strcasecmp(type, "text") == 0) {
+	if (g_ascii_strcasecmp(subtype, "plain") == 0) {
+	    t = TEXT_PLAIN;
+	} else if (g_ascii_strcasecmp(subtype, "html") == 0) {
+	    t = TEXT_HTML;
 	}
     }
+
     if (t == OTHER && !attachments) {
 	// We're not interested in this MIME part.
 	return false;
@@ -171,17 +170,32 @@ parse_mime_part(GMimePart* part,
     GMimeDataWrapper* content = g_mime_part_get_content_object(part);
 #endif
     if (!content) return false;
+
     string data = decode(content, g_mime_part_get_content_encoding(part));
-    if (t != OTHER) {
-	string charset;
-	const char* p = g_mime_content_type_get_parameter(ct, "charset");
-	if (p) charset = g_mime_charset_canon_name(p);
+    if (t == TEXT_PLAIN) {
+	// Always convert text/plain parts to UTF-8 (doesn't matter whether
+	// we're sending as a field or saving as an attachment).
+	const char* charset = g_mime_content_type_get_parameter(ct, "charset");
+	if (charset) {
+	    charset = g_mime_charset_canon_name(charset);
+	    convert_to_utf8(data, charset);
+	}
+    }
+
+    bool is_attachment = g_mime_part_is_attachment(part);
+    // If we're not saving attachments, treat all text/plain and text/html
+    // parts as inline.
+    if (t != OTHER && (!attachments || !is_attachment)) {
 	if (t == TEXT_PLAIN) {
 	    // text/plain
-	    convert_to_utf8(data, charset);
 	    send_field(FIELD_BODY, data);
 	} else {
 	    // text/html
+	    string charset;
+	    const char* p = g_mime_content_type_get_parameter(ct, "charset");
+	    if (p) {
+		charset = g_mime_charset_canon_name(p);
+	    }
 	    extract_html(data, charset);
 	}
 	return true;
@@ -190,7 +204,7 @@ parse_mime_part(GMimePart* part,
     // Save attachment.
     string filename = attachment_dir;
     // Prefix with `a` for attachment, `i` for inline.
-    filename += (g_mime_part_is_attachment(part) ? 'a' : 'i');
+    filename += (is_attachment ? 'a' : 'i');
     filename += str(attachment_counter++);
     filename += '-';
 
