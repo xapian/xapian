@@ -1,7 +1,7 @@
 /** @file
  * @brief Communication with worker processes
  */
-/* Copyright (C) 2011,2022 Olly Betts
+/* Copyright (C) 2011,2022,2023 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -101,26 +101,38 @@ write_string(FILE* f, const char* p, size_t len)
 bool
 read_unsigned(FILE* f, unsigned& v)
 {
-    v = 0;
+    unsigned char data[(sizeof(v) * 8 + 6) / 7];
+    unsigned char* p = data;
     int ch;
     do {
 	ch = getc(f);
-	if (ch < 0) return false;
-	v = (v << 7) | (ch & 0x7f);
+	if (p - data == sizeof(data) || ch < 0) return false;
+	*p++ = ch & 0x7f;
     } while (ch & 0x80);
+    v = 0;
+    do {
+	--p;
+	v = (v << 7) | *p;
+    } while (p > data);
     return true;
 }
 
 bool
 read_unsigned(FILE* f, unsigned long& v)
 {
-    v = 0;
+    unsigned char data[(sizeof(v) * 8 + 6) / 7];
+    unsigned char* p = data;
     int ch;
     do {
 	ch = getc(f);
-	if (ch < 0) return false;
-	v = (v << 7) | (ch & 0x7f);
+	if (p - data == sizeof(data) || ch < 0) return false;
+	*p++ = ch & 0x7f;
     } while (ch & 0x80);
+    v = 0;
+    do {
+	--p;
+	v = (v << 7) | *p;
+    } while (p > data);
     return true;
 }
 
