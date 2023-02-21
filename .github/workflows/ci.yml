@@ -333,7 +333,7 @@ jobs:
     runs-on: 'ubuntu-20.04'
     services:
       emscripten:
-        image: trzeci/emscripten
+        image: emscripten/emsdk
     steps:
     - name: Check out repository code
       uses: actions/checkout@v3
@@ -362,13 +362,13 @@ jobs:
         make -j2 distclean
     - name: configure
       run: |
-        docker run -v "$GITHUB_WORKSPACE:/src" -w /src/xapian-core trzeci/emscripten emconfigure ./configure CPPFLAGS='-DFLINTLOCK_USE_FLOCK' CXXFLAGS='-Oz -s USE_ZLIB=1 -fno-rtti' --disable-backend-honey --disable-backend-inmemory --disable-shared --disable-backend-remote
+        docker run -v "$GITHUB_WORKSPACE:/src" -w /src/xapian-core emscripten/emsdk emconfigure ./configure CPPFLAGS='-DFLINTLOCK_USE_FLOCK' CXXFLAGS='-Oz -s USE_ZLIB=1 -fno-rtti' --disable-backend-honey --disable-backend-inmemory --disable-shared --disable-backend-remote
     - name: make
       run: |
-        docker run -v "$GITHUB_WORKSPACE:/src" -w /src/xapian-core trzeci/emscripten emmake make
+        docker run -v "$GITHUB_WORKSPACE:/src" -w /src/xapian-core emscripten/emsdk emmake make
     - name: Run tests
       run: |
-        docker run -v "$GITHUB_WORKSPACE:/src" -w /src/xapian-core trzeci/emscripten em++ -Oz -s USE_ZLIB=1 -std=c++11 -s WASM=1 -Iinclude emscripten/xapianjstest.cc .libs/libxapian-1.5.a -o emscripten/xapianjstest.js
+        docker run -v "$GITHUB_WORKSPACE:/src" -w /src/xapian-core emscripten/emsdk em++ -Oz -s USE_ZLIB=1 -std=c++11 -s WASM=1 -Iinclude emscripten/xapianjstest.cc .libs/libxapian-1.5.a -o emscripten/xapianjstest.js
         cd xapian-core/emscripten && node xapianjstest.js
     - name: Check generated files are in .gitignore
       # grep '^' passes through all input while giving a non-zero exit status
