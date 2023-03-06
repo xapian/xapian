@@ -6,6 +6,8 @@ endif
 
 noinst_HEADERS +=\
 	queryparser/cjk-tokenizer.h\
+	queryparser/mathml.h\
+	queryparser/mathtermgenerator_internal.h\
 	queryparser/queryparser_internal.h\
 	queryparser/queryparser_token.h\
 	queryparser/termgenerator_internal.h
@@ -59,6 +61,8 @@ endif
 
 lib_src +=\
 	queryparser/cjk-tokenizer.cc\
+	queryparser/mathtermgenerator.cc\
+	queryparser/mathtermgenerator_internal.cc\
 	queryparser/queryparser.cc\
 	queryparser/queryparser_internal.cc\
 	queryparser/termgenerator.cc\

@@ -26,6 +26,7 @@ xapianinclude_HEADERS =\
 	include/xapian/iterator.h\
 	include/xapian/keymaker.h\
 	include/xapian/matchdecider.h\
+	include/xapian/mathtermgenerator.h\
 	include/xapian/matchspy.h\
 	include/xapian/mset.h\
 	include/xapian/positioniterator.h\

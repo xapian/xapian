@@ -30,6 +30,8 @@
 
 #include "apitest.h"
 
+#include <fstream>
+
 using namespace std;
 
 DEFINE_TESTCASE(queryterms1, !backend) {
@@ -1402,4 +1404,86 @@ DEFINE_TESTCASE(docidrangebugs1, backend) {
     enq.set_query(query4);
     mset = enq.get_mset(0, 1);
     TEST_EQUAL(mset.size(), 1);
+}
+
+DEFINE_TESTCASE(mathquery1, writable) {
+    Xapian::WritableDatabase db = get_writable_database();
+    Xapian::MathTermGenerator termgen;
+
+    ifstream infile(test_driver::get_srcdir() +
+		    "/testdata/apitest_allformulae.txt");
+
+    string line;
+    string formula;
+    while (getline(infile, line)) {
+	if (line.empty()) {
+	    Xapian::Document doc;
+	    termgen.set_document(doc);
+	    termgen.index_math(formula);
+	    db.add_document(doc);
+	    formula.clear();
+	    continue;
+	}
+	formula.append(line);
+    }
+
+    if (!formula.empty()) {
+	// Index the last formula.
+	Xapian::Document doc;
+	termgen.set_document(doc);
+	termgen.index_math(formula);
+	db.add_document(doc);
+    }
+
+    TEST_EQUAL(db.get_doccount(), 12);
+
+    const char * query_string = {
+	"<math> <mi> b </mi> <mo> + </mo> <mi> c </mi> </math>"
+    };
+    // Symbol pairs: (b, +), (b, c), (+, c)
+
+    Xapian::QueryParser qp;
+    Xapian::Query q = qp.parse_math_query(query_string);
+    TEST_EQUAL(q.get_length(), 3);
+    TEST_EQUAL(qp.get_default_op(), Xapian::Query::OP_OR);
+    TEST_STRINGS_EQUAL(q.get_description(),
+			"Query((V!bO+N OR V!bV!cNN OR O+V!cN))");
+
+    Xapian::Enquire enq(db);
+    enq.set_query(q);
+    enq.set_weighting_scheme(Xapian::DiceCoeffWeight());
+
+    Xapian::MSet mset = enq.get_mset(0, 10);
+    TEST_EQUAL(mset.size(), 3);
+    mset_expect_order(enq.get_mset(0, 10), 1, 2, 4);
+
+    // Formula a = b - c will be indexed. symbols b and c match structurally,
+    // hence should appear in mset.
+    const char * formula_n = {
+	"<math> <mi> a </mi> <mo> = </mo> <mi> b </mi> <mo> - </mo>"
+	"<mi> c </mi> </math>" };
+    Xapian::Document doc;
+    termgen.set_document(doc);
+    termgen.index_math(formula_n);
+    db.add_document(doc);
+    TEST_EQUAL(db.get_doccount(), 13);
+
+    // Query retrieval
+    mset = enq.get_mset(0, 10);
+    TEST_EQUAL(mset.size(), 4);
+    mset_expect_order(enq.get_mset(0, 10), 1, 2, 4, 13);
+
+    // Test unification feature.
+    const char * query_string1 = {
+	"<math> <mi> p </mi> <mo> = </mo> <mfrac> <mi> q </mi>"
+	"<mi> s </mi> </mfrac> </math>"
+    };
+    q = qp.parse_math_query(query_string1, true);
+    TEST_EQUAL(q.get_length(), 17);
+    TEST_EQUAL(qp.get_default_op(), Xapian::Query::OP_OR);
+    enq.set_query(q);
+    mset = enq.get_mset(0, 10);
+    TEST_EQUAL(mset.size(), 10);
+    mset_expect_order(enq.get_mset(0, 10), 9, 10, 6, 7, 5, 3, 12, 1, 13, 8);
+    return true;
 }

@@ -108,6 +108,7 @@ collated_apitest_sources = \
  api_generated.cc \
  api_geospatial.cc \
  api_matchspy.cc \
+ api_mathtermgen.cc \
  api_metadata.cc \
  api_nodb.cc \
  api_none.cc \
@@ -190,6 +191,7 @@ EXTRA_DIST = collate-test generate-api_generated api_all.h api_collated.h \
 EXTRA_DIST +=\
 	runtest.in \
 	valgrind.supp \
+	testdata/apitest_allformulae.txt \
 	testdata/apitest_onedoc.txt \
 	testdata/apitest_simpledata.txt \
 	testdata/apitest_simpledata2.txt \
