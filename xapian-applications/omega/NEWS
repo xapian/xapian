@@ -1,3 +1,57 @@
+Omega 1.4.22 (2023-02-02):
+
+documentation:
+
+* Improve term prefix documentation.
+
+indexers:
+
+* omindex:
+
+  + Add --date-terms and --no-date-terms options.
+
+  + Extract page/sheet count for OpenDocument text documents and spreadsheets.
+
+  + Extract created date and keywords for MS XML formats.
+
+* scriptindex:
+
+  + Fix handling of an unterminated final line in input file.
+
+omega:
+
+* Add OmegaScript commands to report value slot bounds.
+
+* Add OmegaScript $sortableunserialise{} command.
+
+Omega 1.4.21 (2022-09-22):
+
+documentation:
+
+* Consistently say "macOS" not "Mac OS X", "OS X", etc.
+
+indexers:
+
+* omindex:
+
+  + Add support for gzip-compressed SVG files (.svgz).
+
+  + Handle <title> in SVG.  Previously only <dc:title> inside <metadata> was
+    considered.  If both are present, <title> now takes precedence.
+
+testsuite:
+
+* omegatest: Add skip-for-32-bit-time_t mechanism and use it to conditionally
+  enable some testcases which fail on platforms with 32-bit time_t.
+
+build system:
+
+* Update to use AX_CXX_COMPILE_STDCXX which is a replacement for
+  AX_CXX_COMPILE_STDCXX_11 (which we were using) which also supports newer C++
+  standards versions which will be useful.  For C++11 the only difference seems
+  to be that the macro now checks for attribute support - we use C++11
+  attributes so that seems a good thing.
+
 Omega 1.4.20 (2022-07-04):
 
 indexers:

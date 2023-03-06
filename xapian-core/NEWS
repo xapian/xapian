@@ -1,3 +1,148 @@
+Xapian-core 1.4.22 (2023-02-02):
+
+testsuite:
+
+* Expand canceltransaction1 to test value changes are rolled back.
+
+matcher:
+
+* Minor optimisations to DPHWeight and TfIdfWeight weighting formulae
+  calculations.
+
+* Optimise LatLongDistancePostingSource to avoid pow() call on each document
+  with default k2 setting.
+
+glass backend:
+
+* Fix bug in recovery from WritableDatabase::commit() failing.
+
+  If renaming to switch the new version file live fails (e.g. due to the disk
+  being full) we discard the changes, try to write and switch to a different
+  new version file with an increased revision (on failure of this too we close
+  the database), then throw DatabaseError.
+
+  Unfortunately the roll-back of state is not complete, and if we successfully
+  switch to the different new version file then that bad state persists on
+  disk.
+
+  In order for this bug to manifest, repeating essentially the same operation
+  which just failed needs to succeed which seems more likely to be a happen
+  when using a filing system which has more sophisticated freespace handling
+  (the reporter was using btrfs), though it's possible with any FS if another
+  process frees up disk space in the small window between the two operations.
+
+  Thanks to Uwe Kleine-König for reporting and especially for coming up with an
+  easy way to reproduce.
+
+build system:
+
+* configure: Enable -fno-math-errno if supported.  We don't make use of maths
+  function setting errno and if we tell the compiler that it can optimise them
+  better in some cases.
+
+documentation:
+
+* INSTALL: Document assumptions about platform features
+
+* INSTALL: Add section on clang version requirements.
+
+Xapian-core 1.4.21 (2022-09-22):
+
+glass backend:
+
+* Avoid throwing InvalidArgument when searching for overlong terms in some
+  cases.  Such terms can't match, but are valid to query for.  Patch from
+  Robert Stepanek in https://github.com/xapian/xapian/pull/313.
+
+chert backend:
+
+* Avoid throwing InvalidArgument when searching for overlong terms in some
+  cases.  Such terms can't match, but are valid to query for.
+
+build system:
+
+* Clean up cygwin and mingw configure checks.  When we check $host_os, always
+  anchor at the start (e.g. cygwin* not *cygwin*), and check for msys* as well
+  since that's a derivative of cygwin and behaves similarly for the things
+  we're checking here.
+
+* Update to use AX_CXX_COMPILE_STDCXX which is a replacement for
+  AX_CXX_COMPILE_STDCXX_11 (which we were using) which also supports newer C++
+  standards versions which will be useful.  For C++11 the only difference seems
+  to be that the macro now checks for attribute support - we use C++11
+  attributes so that seems a good thing.
+
+documentation:
+
+* INSTALL: Restructure MSVC section for clarity.
+
+* INSTALL: Mention -D_FORTIFY_SOURCE=3 too (fairly new - requires GCC 12).
+
+* Consistently say "macOS" not "Mac OS X", "OS X", etc.
+
+* admin_notes.rst:
+
+  + Update locking section to cover Open File Description locks
+
+  + Add some discussion of block sizes (fixes #819, reported by mgautier)
+
+  + Fix cut-and-paste error - we were suggesting that the docdata table only
+    exists if there's positional data.  Noted by Gaurav Arora.
+
+  + Improve markup
+
+examples:
+
+* Stop using std::endl in examples since this seems to be C++ best practice
+  as it causes a flush of the stream, which is rarely actually wanted.  Also
+  often the replacement \n can be combined with a string literal.
+
+portability:
+
+* Stop trying to check for incompatible C++ ABI between the compiler used to
+  build xapian-core and the compiler used to build code using xapian-core.
+
+  This check was helpful in the GCC 3 days, but ABI versions 2 and up are
+  compatible aside from obscure corner cases, and GCC now defaults to using the
+  latest ABI version it supports.  The result is that this check is no longer
+  useful enough to justify the noise.
+
+  We still check for incompatible _GLIBCXX_DEBUG between the library and
+  application builds, since that will cause things not to work, and the normal
+  error message doesn't make it clear what's wrong.
+
+  Reported by David Bremner.
+
+* Fix new warnings from GCC 12.
+
+* Avoid undefined value use when unpacking a key in a corrupted glass docdata
+  table.  We now skip further checks on the entry in this case.
+
+* Merge allocations in MSVC directory reading compatibility code so we can
+  allocate in a single malloc() call.
+
+* Add accept() wrapper which checks an assumption that Microsoft's SOCKET type
+  only actually holds 32 bit values even in 64 bit platforms and throws an
+  exception if violated.
+
+* Eliminate a use of sprintf.
+
+* Squash some unhelpful MSVC deprecation warnings.
+
+* Declare dummy invalid parameter handler noexcept to fix a warning from MSVC.
+
+* Include <stdlib.h> in configure check for sys_errlist as that's where it is
+  with mingw and MSVC.
+
+debug code:
+
+* Fix debug logging for Xapian::Internal::intrusive_ptr<const T>.
+
+  GCC 12.2 warned about infinite recursion in the old version, and this seems
+  to be the case.  This code has been there a long time, but is only used when
+  debug logging is enabled.  It does seem to be used, so presumably nobody's
+  tried to log something which triggered it.
+
 Xapian-core 1.4.20 (2022-07-04):
 
 API:

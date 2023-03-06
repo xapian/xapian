@@ -1,3 +1,91 @@
+Xapian-bindings 1.4.22 (2023-02-02):
+
+Lua:
+
+* When passing a Lua function for a Xapian functor object, the wrapper
+  object was leaked in most cases (except for Xapian::StemImplementation).
+
+Perl:
+
+* Fix testsuite and docs for Perl 5.36.0 change.
+
+  Prior to Perl 5.36.0 retrieving the string value of an integer could set
+  the flag read by "SvPOK()", but that's no longer the case in Perl 5.36.0
+  and later.
+
+  We already document the need to explicitly stringify numeric values
+  passed where a string is needed, so just add the missing stringification
+  to the testcase and document that it's required in more places when using
+  Perl 5.36.0 and later.
+
+PHP8:
+
+* Add support for PHP8 (PHP 8.0, 8.1 and 8.2 should all work).
+
+  The PHP bindings are now implemented entirely in C++ code using PHP's
+  C extension API, and the `xapian.php` wrapper file no longer exists.
+  This change means smaller and faster bindings.  See the documentation for a
+  recommended way to write code which works with both PHP7 and PHP8 bindings.
+
+  To add PHP8 support we've had to drop support for PHP7.  PHP7.4 reached end
+  of life on 2022-11-28 so hopefully this isn't a problem for too many people,
+  but if you need support for PHP7 please use xapian-bindings <= 1.4.21.
+
+  Fixes #817, reported by Ryan Schmidt.
+
+* We now set the version in the metadata of the PHP module to the
+  xapian-bindings version (previously it was unversioned).
+
+Python:
+
+* Drop support for Python 2.6.  We need to use SWIG 4.1.0 for PHP8 support, but
+  that no longer supports Python 2.6 so we have to raise the minimum Python 2
+  version to Python 2.7.
+
+  The last Python 2.6 release was in 2013 so hopefully this isn't a problem for
+  anyone, but if you still need to use Python 2.6 please use xapian-bindings <=
+  1.4.21.
+
+Python3:
+
+* Drop support for Python 3.2.  We need to use SWIG 4.1.0 for PHP8 support, but
+  that no longer supports Python 3.2 so we have to raise the minimum Python 3
+  version to Python 3.3.
+
+  The last Python 3.2 release was in 2014 so hopefully this isn't a problem for
+  anyone, but if you still need to use Python 3.2 please use xapian-bindings <=
+  1.4.21.
+
+Ruby:
+
+* Fix new Ruby 3.2 warning "undefining the allocator of T_DATA class
+  swig_runtime_data" (fixed by the change to using a newer SWIG version).
+
+Xapian-bindings 1.4.21 (2022-09-22):
+
+Documentation:
+
+* Consistently say "macOS" not "Mac OS X", "OS X", etc.
+
+General:
+
+* Update to use AX_CXX_COMPILE_STDCXX which is a replacement for
+  AX_CXX_COMPILE_STDCXX_11 (which we were using) which also supports newer C++
+  standards versions which will be useful.  For C++11 the only difference seems
+  to be that the macro now checks for attribute support - we use C++11
+  attributes so that seems a good thing.
+
+Portability:
+
+* Drop special handling of MACOSX_DEPLOYMENT_TARGET.  This was only relevant
+  for macOS 10.3 and (for powerpc only) 10.4, and Apple dropped support for
+  10.4 in 2009.
+
+Java:
+
+* Document where to install .jar on macOS. Partly addresses #774, reported by
+  Ryan Schmidt.
+
 Xapian-bindings 1.4.20 (2022-07-04):
 
 General:
