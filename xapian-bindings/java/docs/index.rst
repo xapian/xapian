@@ -8,6 +8,9 @@ release series.
 How to build the bindings:
 ##########################
 
+If you want to install from source you'll need to `download the source
+code <https://xapian.org/download>`_ if you haven't already done so.
+
 Running "make" and then "make install" will "install" a JNI glue shared library
 into a "built" subdirectory of the java build directory.  The jar file is built
 into the "built" subdirectory too.

@@ -48,6 +48,9 @@ Installation
 This version of the bindings only support PHP >= 8.0  If you need support
 for PHP 5.x or 7.x, you'll need to use Xapian 1.4.21 or earlier instead.
 
+If you want to install from source you'll need to `download the source
+code <https://xapian.org/download>`_ if you haven't already done so.
+
 Assuming you have a suitable version of PHP installed, running
 configure will automatically enable the PHP bindings, and
 ``make install`` will install the extension shared library in
