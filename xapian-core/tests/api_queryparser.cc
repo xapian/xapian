@@ -735,7 +735,7 @@ static const test test_or_queries[] = {
     // Korean splits some words by whitespace, and there is no available tool
     // to crosscheck Korean word splits for these tests. So the expected values
     // here are best guess only.
-    { "世(の中)TEST_tm", "(世@1 OR Zの中@2 OR test_tm@3)" },
+    { "世(の中)TEST_tm", "(世@1 OR (の@2 AND 中@2) OR test_tm@3)" },
     { "다녀 AND 와야", "(다녀@1 AND 와야@2)" },
     { "authortitle:학술 OR 연구를", "((A학술@1 AND XT학술@1) OR 연구를@2)" },
 
