@@ -69,13 +69,16 @@ Parses the query string according to the rules defined in the query parser
 documentation below. You can specify certain flags to modify the
 searching behaviour:
 
-  FLAG_BOOLEAN, FLAG_PHRASE, FLAG_LOVEHATE, FLAG_BOOLEAN_ANY_CASE,
+  FLAG_DEFAULT, FLAG_ACCUMULATE, FLAG_BOOLEAN, FLAG_FUZZY,
+  FLAG_NO_POSITIONS, FLAG_PHRASE, FLAG_LOVEHATE, FLAG_BOOLEAN_ANY_CASE,
   FLAG_WILDCARD, FLAG_PURE_NOT, FLAG_PARTIAL, FLAG_SPELLING_CORRECTION,
+  FLAG_WILDCARD_GLOB, FLAG_WILDCARD_MULTI, FLAG_WILDCARD_SINGLE,
   FLAG_SYNONYM, FLAG_AUTO_SYNONYMS, FLAG_AUTO_MULTIWORD_SYNONYMS,
   FLAG_CJK_NGRAM
 
 To specify multiple flags, "bitwise or" them together (with C<|>).  The
-default flags are C<FLAG_PHRASE|FLAG_BOOLEAN|FLAG_LOVEHATE>
+default flags are C<FLAG_DEFAULT> which is equivalent to
+C<FLAG_PHRASE|FLAG_BOOLEAN|FLAG_LOVEHATE>.
 
 =item add_prefix <field> <prefix>
 
