@@ -1,7 +1,7 @@
 /** @file
  * @brief TermGenerator class internals
  */
-/* Copyright (C) 2007,2010,2011,2012,2015,2016,2017,2018,2019,2020 Olly Betts
+/* Copyright (C) 2007-2023 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -41,7 +41,7 @@
 #include <unordered_map>
 #include <vector>
 
-#include "cjk-tokenizer.h"
+#include "word-breaker.h"
 
 using namespace std;
 
@@ -139,7 +139,8 @@ check_suffix(unsigned ch)
  */
 template<typename ACTION>
 static void
-parse_terms(Utf8Iterator itor, bool cjk_ngram, bool with_positions, ACTION action)
+parse_terms(Utf8Iterator itor, bool try_word_break, bool with_positions,
+            ACTION action)
 {
     while (true) {
 	// Advance to the start of the next term.
@@ -174,13 +175,13 @@ parse_terms(Utf8Iterator itor, bool cjk_ngram, bool with_positions, ACTION actio
 	}
 
 	while (true) {
-	    if (cjk_ngram &&
-		CJK::codepoint_is_cjk(*itor) &&
+	    if (try_word_break &&
+		is_unbroken_script(*itor) &&
 		Unicode::is_wordchar(*itor)) {
-		CJKTokenIterator tk(itor);
-		while (tk != CJKTokenIterator()) {
-		    const string& cjk_token = *tk;
-		    if (!action(cjk_token, with_positions && tk.unigram(),
+		NgramIterator tk(itor);
+		while (tk != NgramIterator()) {
+		    const string& ngram = *tk;
+		    if (!action(ngram, with_positions && tk.unigram(),
 				tk.get_utf8iterator()))
 			return;
 		    ++tk;
@@ -200,7 +201,7 @@ parse_terms(Utf8Iterator itor, bool cjk_ngram, bool with_positions, ACTION actio
 		Unicode::append_utf8(term, ch);
 		prevch = ch;
 		if (++itor == Utf8Iterator() ||
-		    (cjk_ngram && CJK::codepoint_is_cjk(*itor)))
+		    (try_word_break && is_unbroken_script(*itor)))
 		    goto endofterm;
 		ch = check_wordchar(*itor);
 	    } while (ch);
@@ -250,7 +251,7 @@ void
 TermGenerator::Internal::index_text(Utf8Iterator itor, termcount wdf_inc,
 				    const string & prefix, bool with_positions)
 {
-    bool cjk_ngram = (flags & FLAG_CJK_NGRAM) || CJK::is_cjk_enabled();
+    bool try_word_break = (flags & FLAG_NGRAMS) || is_ngram_enabled();
 
     stop_strategy current_stop_mode;
     if (!stopper.get()) {
@@ -259,7 +260,7 @@ TermGenerator::Internal::index_text(Utf8Iterator itor, termcount wdf_inc,
 	current_stop_mode = stop_mode;
     }
 
-    parse_terms(itor, cjk_ngram, with_positions,
+    parse_terms(itor, try_word_break, with_positions,
 	[=
 #if __cplusplus >= 201907L
 // C++20 no longer supports implicit `this` in lambdas but older C++ versions
@@ -763,9 +764,9 @@ MSet::Internal::snippet(const string & text,
 	return text;
     }
 
-    bool cjk_ngram = (flags & MSet::SNIPPET_CJK_NGRAM);
-    if (!cjk_ngram) {
-	cjk_ngram = CJK::is_cjk_enabled();
+    bool try_word_break = (flags & MSet::SNIPPET_CJK_NGRAM);
+    if (!try_word_break) {
+	try_word_break = true;
     }
 
     size_t term_start = 0;
@@ -817,7 +818,7 @@ MSet::Internal::snippet(const string & text,
     if (longest_phrase) phrase.resize(longest_phrase - 1);
     size_t phrase_next = 0;
     bool matchfound = false;
-    parse_terms(Utf8Iterator(text), cjk_ngram, true,
+    parse_terms(Utf8Iterator(text), try_word_break, true,
 	[&](const string & term, bool positional, const Utf8Iterator & it) {
 	    // FIXME: Don't hardcode this here.
 	    const size_t max_word_length = 64;

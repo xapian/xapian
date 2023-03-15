@@ -84,6 +84,7 @@ our %EXPORT_TAGS = (
 				 FLAG_AUTO_SYNONYMS
 				 FLAG_AUTO_MULTIWORD_SYNONYMS
 				 FLAG_CJK_NGRAM
+				 FLAG_NGRAMS
 				 FLAG_DEFAULT
 				 ) ],
 		    'qpstem' => [ qw(
@@ -685,6 +686,8 @@ searches.
 =item FLAG_AUTO_SYNONYMS
 
 =item FLAG_AUTO_MULTIWORD_SYNONYMS
+
+=item FLAG_NGRAMS
 
 =item FLAG_CJK_NGRAM
 

@@ -272,9 +272,13 @@ Deprecated Remove Feature name                        Upgrade suggestion and com
                                                       ``Xapian::RangeProcessor`` object instead of a |VRP| object (added in
                                                       1.3.6).
 ---------- ------ ----------------------------------- ------------------------------------------------------------------------
-1.4.11     1.7.0  Environment variable                Specify via the flags ``Xapian::QueryParser::FLAG_CJK_NGRAM``,
-                  ``XAPIAN_CJK_NGRAM``                ``Xapian::TermGenerator::FLAG_CJK_NGRAM`` and
-                                                      ``Xapian::MSet::SNIPPET_CJK_NGRAM`` instead.
+1.4.11     1.7.0  Environment variable                If you require Xapian >= 1.4.23, specify via the flags
+                  ``XAPIAN_CJK_NGRAM``                ``Xapian::QueryParser::FLAG_NGRAMS``,
+                                                      ``Xapian::TermGenerator::FLAG_NGRAMS`` and
+                                                      ``Xapian::MSet::SNIPPET_NGRAMS`` instead.  If you want to be compatible
+                                                      with Xapian < 1.4.23 too, use ``Xapian::QueryParser::FLAG_CJK_NGRAM``,
+                                                      ``Xapian::TermGenerator::FLAG_CJK_NGRAM`` and
+                                                      ``Xapian::MSet::SNIPPET_CJK_NGRAM``.
 ========== ====== =================================== ========================================================================
 
 Bindings

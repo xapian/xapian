@@ -303,6 +303,10 @@ read_qp_flags(const string & opt_pfx, unsigned f)
 		    mask = Xapian::QueryParser::FLAG_NO_POSITIONS;
 		    break;
 		}
+		if (strcmp(s, "ngrams") == 0) {
+		    mask = Xapian::QueryParser::FLAG_NGRAMS;
+		    break;
+		}
 		break;
 	    case 'p':
 		if (strcmp(s, "partial") == 0) {

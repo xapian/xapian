@@ -1,10 +1,10 @@
 /** @file
- * @brief Tokenise CJK text as n-grams
+ * @brief Handle text without explicit word breaks
  */
 /* Copyright (c) 2007, 2008 Yung-chung Lin (henearkrxern@gmail.com)
  * Copyright (c) 2011 Richard Boulton (richard@tartarus.org)
  * Copyright (c) 2011 Brandon Schaefer (brandontschaefer@gmail.com)
- * Copyright (c) 2011,2019 Olly Betts
+ * Copyright (c) 2011,2019,2023 Olly Betts
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,8 +25,8 @@
  * IN THE SOFTWARE.
  */
 
-#ifndef XAPIAN_INCLUDED_CJK_TOKENIZER_H
-#define XAPIAN_INCLUDED_CJK_TOKENIZER_H
+#ifndef XAPIAN_INCLUDED_WORD_BREAKER_H
+#define XAPIAN_INCLUDED_WORD_BREAKER_H
 
 #ifndef PACKAGE
 # error config.h must be included first in each C++ source file
@@ -36,24 +36,20 @@
 
 #include <string>
 
-namespace CJK {
-
-/** Should we use the CJK n-gram code?
+/** Should we use the n-gram code?
  *
  *  The first time this is called it reads the environment variable
  *  XAPIAN_CJK_NGRAM and returns true if it is set to a non-empty value.
  *  Subsequent calls cache and return the same value.
  */
-bool is_cjk_enabled();
+bool is_ngram_enabled();
 
-bool codepoint_is_cjk(unsigned codepoint);
+bool is_unbroken_script(unsigned codepoint);
 
-void get_cjk(Xapian::Utf8Iterator& it);
-
-}
+void get_unbroken(Xapian::Utf8Iterator& it);
 
 /// Iterator returning unigrams and bigrams.
-class CJKTokenIterator {
+class NgramIterator {
     Xapian::Utf8Iterator it;
 
     /** Offset to penultimate Unicode character in current_token.
@@ -68,36 +64,36 @@ class CJKTokenIterator {
     void init();
 
   public:
-    explicit CJKTokenIterator(const std::string& s) : it(s) {
+    explicit NgramIterator(const std::string& s) : it(s) {
 	init();
     }
 
-    explicit CJKTokenIterator(const Xapian::Utf8Iterator& it_) : it(it_) {
+    explicit NgramIterator(const Xapian::Utf8Iterator& it_) : it(it_) {
 	init();
     }
 
-    CJKTokenIterator() { }
+    NgramIterator() { }
 
     const std::string& operator*() const {
 	return current_token;
     }
 
-    CJKTokenIterator& operator++();
+    NgramIterator& operator++();
 
     /// Is this a unigram?
     bool unigram() const { return offset == 0; }
 
     const Xapian::Utf8Iterator& get_utf8iterator() const { return it; }
 
-    bool operator==(const CJKTokenIterator& other) const {
+    bool operator==(const NgramIterator& other) const {
 	// We only really care about comparisons where one or other is an end
 	// iterator.
 	return current_token.empty() && other.current_token.empty();
     }
 
-    bool operator!=(const CJKTokenIterator& other) const {
+    bool operator!=(const NgramIterator& other) const {
 	return !(*this == other);
     }
 };
 
-#endif // XAPIAN_INCLUDED_CJK_TOKENIZER_H
+#endif // XAPIAN_INCLUDED_WORD_BREAKER_H

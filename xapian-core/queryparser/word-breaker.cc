@@ -1,10 +1,10 @@
 /** @file
- * @brief Tokenise CJK text as n-grams
+ * @brief Handle text without explicit word breaks
  */
 /* Copyright (c) 2007, 2008 Yung-chung Lin (henearkrxern@gmail.com)
  * Copyright (c) 2011 Richard Boulton (richard@tartarus.org)
  * Copyright (c) 2011 Brandon Schaefer (brandontschaefer@gmail.com)
- * Copyright (c) 2011,2019 Olly Betts
+ * Copyright (c) 2011,2019,2023 Olly Betts
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -27,7 +27,7 @@
 
 #include <config.h>
 
-#include "cjk-tokenizer.h"
+#include "word-breaker.h"
 
 #include "omassert.h"
 #include "xapian/unicode.h"
@@ -38,7 +38,7 @@
 using namespace std;
 
 bool
-CJK::is_cjk_enabled()
+is_ngram_enabled()
 {
     const char * p;
     static bool result = ((p = getenv("XAPIAN_CJK_NGRAM")) != NULL && *p);
@@ -68,7 +68,7 @@ CJK::is_cjk_enabled()
 // 20000..2A6DF; CJK Unified Ideographs Extension B
 // 2F800..2FA1F; CJK Compatibility Ideographs Supplement
 bool
-CJK::codepoint_is_cjk(unsigned p)
+is_unbroken_script(unsigned p)
 {
     if (p < 0x2E80) return false;
     return ((p >= 0x2E80 && p <= 0x2EFF) ||
@@ -83,20 +83,21 @@ CJK::codepoint_is_cjk(unsigned p)
 }
 
 void
-CJK::get_cjk(Xapian::Utf8Iterator& it)
+get_unbroken(Xapian::Utf8Iterator& it)
 {
     while (it != Xapian::Utf8Iterator() &&
-	   codepoint_is_cjk(*it) &&
+	   is_unbroken_script(*it) &&
 	   Xapian::Unicode::is_wordchar(*it)) {
 	++it;
     }
 }
 
 void
-CJKTokenIterator::init() {
+NgramIterator::init()
+{
     if (it != Xapian::Utf8Iterator()) {
 	unsigned ch = *it;
-	if (CJK::codepoint_is_cjk(ch) && Xapian::Unicode::is_wordchar(ch)) {
+	if (is_unbroken_script(ch) && Xapian::Unicode::is_wordchar(ch)) {
 	    Xapian::Unicode::append_utf8(current_token, ch);
 	    ++it;
 	} else {
@@ -105,13 +106,13 @@ CJKTokenIterator::init() {
     }
 }
 
-CJKTokenIterator&
-CJKTokenIterator::operator++()
+NgramIterator&
+NgramIterator::operator++()
 {
     if (offset == 0) {
 	if (it != Xapian::Utf8Iterator()) {
 	    unsigned ch = *it;
-	    if (CJK::codepoint_is_cjk(ch) && Xapian::Unicode::is_wordchar(ch)) {
+	    if (is_unbroken_script(ch) && Xapian::Unicode::is_wordchar(ch)) {
 		offset = current_token.size();
 		Xapian::Unicode::append_utf8(current_token, ch);
 		++it;

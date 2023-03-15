@@ -1,7 +1,7 @@
 /** @file
  *  @brief Class representing a list of search results
  */
-/* Copyright (C) 2015,2016,2019 Olly Betts
+/* Copyright (C) 2015,2016,2019,2023 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -185,22 +185,39 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
 	 */
 	SNIPPET_EMPTY_WITHOUT_MATCH = 4,
 
-	/** Enable generation of n-grams from CJK text.
+	/** Generate n-grams for scripts without explicit word breaks.
 	 *
-	 *  This option highlights CJK searches made using the QueryParser
-	 *  FLAG_CJK_NGRAM flag.  Non-CJK characters are split into words as
-	 *  normal.
+         *  Text in other scripts is split into words as normal.
+         *
+	 *  Enable this option to highlight search results for queries parsed
+         *  with the QueryParser::FLAG_NGRAMS flag.
 	 *
-	 *  The TermGenerator FLAG_CJK_NGRAM flag needs to have been used at
+	 *  The TermGenerator::FLAG_NGRAMS flag needs to have been used at
 	 *  index time.
 	 *
 	 *  This mode can also be enabled by setting environment variable
 	 *  XAPIAN_CJK_NGRAM to a non-empty value (but doing so was deprecated
 	 *  in 1.4.11).
 	 *
+         *  In 1.4.x this feature was specific to CJK (Chinese, Japanese and
+         *  Korean), but in 1.5.0 it's been extended to other languages.  To
+         *  reflect this change the new and preferred name is SNIPPET_NGRAMS,
+         *  which was added as an alias for forward compatibility in Xapian
+         *  1.4.23.  Use SNIPPET_CJK_NGRAM instead if you aim to support Xapian
+         *  &lt; 1.4.23.
+         *
+	 *  @since Added in Xapian 1.4.23.
+	 */
+	SNIPPET_NGRAMS = 2048,
+
+	/** Generate n-grams for scripts without explicit word breaks.
+	 *
+	 *  Old name - use SNIPPET_NGRAMS instead unless you aim to support
+	 *  Xapian &lt; 1.4.23.
+         *
 	 *  @since Added in Xapian 1.4.11.
 	 */
-	SNIPPET_CJK_NGRAM = 2048
+	SNIPPET_CJK_NGRAM = SNIPPET_NGRAMS
     };
 
     /** Generate a snippet.

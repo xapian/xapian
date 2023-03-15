@@ -2,7 +2,7 @@
 /** @file
  * @brief build a Xapian::Query object from a user query string
  */
-/* Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2015,2016,2018,2019 Olly Betts
+/* Copyright (C) 2004-2023 Olly Betts
  * Copyright (C) 2007,2008,2009 Lemur Consulting Ltd
  * Copyright (C) 2010 Adam Sjøgren
  *
@@ -36,7 +36,7 @@
 // Include the list of token values lemon generates.
 #include "queryparser_token.h"
 
-#include "cjk-tokenizer.h"
+#include "word-breaker.h"
 
 #include <algorithm>
 #include <cstring>
@@ -181,11 +181,11 @@ class Term {
      */
     Query * as_partial_query(State * state_) const;
 
-    /** Build a query for a string of CJK characters. */
-    Query * as_cjk_query() const;
+    /** Build a query for a string of words without explicit word breaks. */
+    Query* as_unbroken_query() const;
 
-    /** Handle a CJK character string in a positional context. */
-    void as_positional_cjk_term(Terms * terms) const;
+    /** Handle text without explicit word breaks in a positional context. */
+    void as_positional_unbroken(Terms* terms) const;
 
     /// Range query.
     Query as_range_query() const;
@@ -510,18 +510,18 @@ Term::as_partial_query(State * state_) const
 }
 
 Query *
-Term::as_cjk_query() const
+Term::as_unbroken_query() const
 {
     vector<Query> prefix_subqs;
-    vector<Query> cjk_subqs;
+    vector<Query> ngram_subqs;
     const auto& prefixes = field_info->prefixes;
     for (const string& prefix : prefixes) {
-	for (CJKTokenIterator tk(name); tk != CJKTokenIterator(); ++tk) {
-	    cjk_subqs.push_back(Query(prefix + *tk, 1, pos));
+	for (NgramIterator tk(name); tk != NgramIterator(); ++tk) {
+	    ngram_subqs.push_back(Query(prefix + *tk, 1, pos));
 	}
 	prefix_subqs.push_back(Query(Query::OP_AND,
-				     cjk_subqs.begin(), cjk_subqs.end()));
-	cjk_subqs.clear();
+				     ngram_subqs.begin(), ngram_subqs.end()));
+	ngram_subqs.clear();
     }
     Query * q = new Query(Query::OP_OR,
 			  prefix_subqs.begin(), prefix_subqs.end());
@@ -700,7 +700,7 @@ QueryParser::Internal::add_boolean_prefix(const string &field,
 
 string
 QueryParser::Internal::parse_term(Utf8Iterator &it, const Utf8Iterator &end,
-				  bool cjk_ngram, bool & is_cjk_term,
+				  bool try_word_break, bool& needs_word_break,
 				  bool &was_acronym)
 {
     string term;
@@ -726,18 +726,18 @@ QueryParser::Internal::parse_term(Utf8Iterator &it, const Utf8Iterator &end,
     }
     was_acronym = !term.empty();
 
-    if (cjk_ngram && term.empty() && CJK::codepoint_is_cjk(*it)) {
-	const char* cjk = it.raw();
-	CJK::get_cjk(it);
-	term.assign(cjk, it.raw() - cjk);
-	is_cjk_term = true;
+    if (try_word_break && term.empty() && is_unbroken_script(*it)) {
+	const char* start = it.raw();
+	get_unbroken(it);
+	term.assign(start, it.raw() - start);
+	needs_word_break = true;
     }
 
     if (term.empty()) {
 	unsigned prevch = *it;
 	Unicode::append_utf8(term, prevch);
 	while (++it != end) {
-	    if (cjk_ngram && CJK::codepoint_is_cjk(*it)) break;
+	    if (try_word_break && is_unbroken_script(*it)) break;
 	    unsigned ch = *it;
 	    if (!is_wordchar(ch)) {
 		// Treat a single embedded '&' or "'" or similar as a word
@@ -802,7 +802,7 @@ Query
 QueryParser::Internal::parse_query(const string &qs, unsigned flags,
 				   const string &default_prefix)
 {
-    bool cjk_ngram = (flags & FLAG_CJK_NGRAM) || CJK::is_cjk_enabled();
+    bool try_word_break = (flags & FLAG_NGRAMS) || is_ngram_enabled();
 
     // Set ranges if we may have to handle ranges in the query.
     bool ranges = !rangeprocs.empty() && (qs.find("..") != string::npos);
@@ -1161,8 +1161,9 @@ not_prefix:
 
 phrased_term:
 	bool was_acronym;
-	bool is_cjk_term = false;
-	string term = parse_term(it, end, cjk_ngram, is_cjk_term, was_acronym);
+	bool needs_word_break = false;
+	string term = parse_term(it, end, try_word_break,
+                                 needs_word_break, was_acronym);
 
 	if ((mode == DEFAULT || mode == IN_GROUP || mode == IN_GROUP2) &&
 	    (flags & FLAG_BOOLEAN) &&
@@ -1261,8 +1262,8 @@ phrased_term:
 	    Term * term_obj = new Term(&state, term, field_info,
 				       unstemmed_term, stem_term, term_pos++);
 
-	    if (is_cjk_term) {
-		Parse(&parser, CJKTERM, term_obj, &state);
+	    if (needs_word_break) {
+		Parse(&parser, UNBROKEN_WORDS, term_obj, &state);
 		if (it == end) break;
 		continue;
 	    }
@@ -1769,9 +1770,9 @@ class Terms {
 };
 
 void
-Term::as_positional_cjk_term(Terms * terms) const
+Term::as_positional_unbroken(Terms* terms) const
 {
-    // Add each individual CJK character to the phrase.
+    // Add each individual character to the phrase.
     string t;
     for (Utf8Iterator it(name); it != Utf8Iterator(); ++it) {
 	Unicode::append_utf8(t, *it);
@@ -2165,8 +2166,8 @@ compound_term(T) ::= SYNONYM TERM(U). {
     delete U;
 }
 
-compound_term(T) ::= CJKTERM(U). {
-    { T = U->as_cjk_query(); /*T-overwrites-U*/ }
+compound_term(T) ::= UNBROKEN_WORDS(U). {
+    { T = U->as_unbroken_query(); /*T-overwrites-U*/ }
 }
 
 // phrase - The "inside the quotes" part of a double-quoted phrase.
@@ -2180,17 +2181,17 @@ phrase(P) ::= TERM(T). {
     P->add_positional_term(T);
 }
 
-phrase(P) ::= CJKTERM(T). {
+phrase(P) ::= UNBROKEN_WORDS(T). {
     P = Terms::create(state);
-    T->as_positional_cjk_term(P);
+    T->as_positional_unbroken(P);
 }
 
 phrase(P) ::= phrase(P) TERM(T). {
     P->add_positional_term(T);
 }
 
-phrase(P) ::= phrase(P) CJKTERM(T). {
-    T->as_positional_cjk_term(P);
+phrase(P) ::= phrase(P) UNBROKEN_WORDS(T). {
+    T->as_positional_unbroken(P);
 }
 
 // phrased_term - A phrased term works like a single term, but is actually

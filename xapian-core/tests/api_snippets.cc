@@ -485,22 +485,22 @@ DEFINE_TESTCASE(snippet_small_zerolength, backend) {
     }
 }
 
-/// Test CJK ngrams.
-DEFINE_TESTCASE(snippet_cjkngrams, generated) {
-    Xapian::Database db = get_database("snippet_cjkngrams",
+/// Test ngrams.
+DEFINE_TESTCASE(snippet_ngrams, generated) {
+    Xapian::Database db = get_database("snippet_ngrams",
 	[](Xapian::WritableDatabase& wdb,
 	   const string&)
 	{
 	    Xapian::Document doc;
 	    Xapian::TermGenerator tg;
-	    tg.set_flags(Xapian::TermGenerator::FLAG_CJK_NGRAM);
+	    tg.set_flags(Xapian::TermGenerator::FLAG_NGRAMS);
 	    tg.set_document(doc);
 	    tg.index_text("明末時已經有香港地方的概念");
 	    wdb.add_document(doc);
 	});
     Xapian::Enquire enquire(db);
     Xapian::QueryParser qp;
-    auto q = qp.parse_query("已經完成", qp.FLAG_DEFAULT | qp.FLAG_CJK_NGRAM);
+    auto q = qp.parse_query("已經完成", qp.FLAG_DEFAULT | qp.FLAG_NGRAMS);
     enquire.set_query(q);
 
     Xapian::MSet mset = enquire.get_mset(0, 0);
@@ -509,7 +509,7 @@ DEFINE_TESTCASE(snippet_cjkngrams, generated) {
     const char *input = "明末時已經有香港地方的概念";
     size_t len = strlen(input);
 
-    unsigned flags = Xapian::MSet::SNIPPET_CJK_NGRAM;
+    unsigned flags = Xapian::MSet::SNIPPET_NGRAMS;
     string s;
     s = mset.snippet(input, len, stem, flags, "<b>", "</b>", "...");
     TEST_STRINGS_EQUAL(s, "明末時<b>已</b><b>經</b>有香港地方的概念");

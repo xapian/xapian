@@ -84,6 +84,7 @@ static const tab_entry flag_tab[] = {
     { "cjk_ngram", Xapian::QueryParser::FLAG_CJK_NGRAM },
     { "default", Xapian::QueryParser::FLAG_DEFAULT },
     { "lovehate", Xapian::QueryParser::FLAG_LOVEHATE },
+    { "ngrams", Xapian::QueryParser::FLAG_NGRAMS },
     { "no_positions", Xapian::QueryParser::FLAG_NO_POSITIONS },
     { "partial", Xapian::QueryParser::FLAG_PARTIAL },
     { "phrase", Xapian::QueryParser::FLAG_PHRASE },

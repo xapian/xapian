@@ -1,7 +1,7 @@
 /** @file
  * @brief parse free text and generate terms
  */
-/* Copyright (C) 2007,2009,2011,2012,2013,2014,2018 Olly Betts
+/* Copyright (C) 2007,2009,2011,2012,2013,2014,2018,2023 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -102,20 +102,38 @@ class XAPIAN_VISIBILITY_DEFAULT TermGenerator {
 	/// Index data required for spelling correction.
 	FLAG_SPELLING = 128, // Value matches QueryParser flag.
 
-	/** Enable generation of n-grams from CJK text.
+	/** Generate n-grams for scripts without explicit word breaks.
 	 *
-	 *  With this enabled, spans of CJK characters are split into unigrams
+	 *  Spans of characters in such scripts are split into unigrams
 	 *  and bigrams, with the unigrams carrying positional information.
-	 *  Non-CJK characters are split into words as normal.
+	 *  Text in other scripts is split into words as normal.
 	 *
-	 *  The corresponding option needs to be passed to QueryParser.
+	 *  The QueryParser::FLAG_NGRAMS flag needs to be passed to
+	 *  QueryParser.
 	 *
-	 *  Flag added in Xapian 1.3.4 and 1.2.22.  This mode can be
-	 *  enabled in 1.2.8 and later by setting environment variable
-	 *  XAPIAN_CJK_NGRAM to a non-empty value (but doing so was deprecated
-	 *  in 1.4.11).
+	 *  This mode can also be enabled in 1.2.8 and later by setting
+	 *  environment variable XAPIAN_CJK_NGRAM to a non-empty value (but
+	 *  doing so was deprecated in 1.4.11).
+	 *
+	 *  In 1.4.x this feature was specific to CJK (Chinese, Japanese and
+	 *  Korean), but in 1.5.0 it's been extended to other languages.  To
+	 *  reflect this change the new and preferred name is FLAG_NGRAMS,
+	 *  which was added as an alias for forward compatibility in Xapian
+	 *  1.4.23.  Use FLAG_CJK_NGRAM instead if you aim to support Xapian
+	 *  &lt; 1.4.23.
+	 *
+	 *  @since Added in Xapian 1.4.23.
 	 */
-	FLAG_CJK_NGRAM = 2048 // Value matches QueryParser flag.
+	FLAG_NGRAMS = 2048, // Value matches QueryParser flag.
+
+	/** Generate n-grams for scripts without explicit word breaks.
+	 *
+	 *  Old name - use FLAG_NGRAMS instead unless you aim to support Xapian
+	 *  &lt; 1.4.23.
+	 *
+	 *  @since Added in Xapian 1.3.4 and 1.2.22.
+	 */
+	FLAG_CJK_NGRAM = FLAG_NGRAMS // Value matches QueryParser flag.
     };
 
     /// Stemming strategies, for use with set_stemming_strategy().

@@ -66,8 +66,8 @@ struct test {
     //    (this persists for subsequent tests until it's turned off).
     //  - prefix=FOO: Use the specified prefix.
     //    (this persists for subsequent tests until it's turned off).
-    //  - cjk: Enable FLAG_CJK_NGRAM.
-    //  - !cjk: Disable FLAG_CJK_NGRAM.
+    //  - ngrams: Enable FLAG_NGRAMS.
+    //  - !ngrams: Disable FLAG_NGRAMS.
     const char *options;
 
     // The text to be processed.
@@ -135,30 +135,31 @@ static const test test_simple[] = {
 
     { "", "fish+chips", "Zchip:1 Zfish:1 chips[2] fish[1]" },
 
-    // Basic CJK tests:
-    { "stem=,cjk", "久有归天", "久[1] 久有:1 天[4] 归[3] 归天:1 有[2] 有归:1" },
+    // Basic ngram tests:
+    { "stem=,ngrams", "久有归天", "久[1] 久有:1 天[4] 归[3] 归天:1 有[2] 有归:1" },
     { "", "극지라", "극[1] 극지:1 라[3] 지[2] 지라:1" },
     { "", "ウルス アップ", "ア[4] アッ:1 ウ[1] ウル:1 ス[3] ッ[5] ップ:1 プ[6] ル[2] ルス:1" },
 
-    // Non-CJK in CJK-mode:
+    // Test text which don't need word break finding still indexes the same:
     { "", "hello World Test", "hello[1] test[3] world[2]" },
 
-    // CJK with prefix:
+    // Ngram with prefix:
     { "prefix=XA", "发送从", "XA从[3] XA发[1] XA发送:1 XA送[2] XA送从:1" },
     { "prefix=XA", "点卡思考", "XA卡[2] XA卡思:1 XA思[3] XA思考:1 XA点[1] XA点卡:1 XA考[4]" },
 
-    // CJK mixed with non-CJK:
+    // Mixed script tests:
     { "prefix=", "インtestタ", "test[3] イ[1] イン:1 タ[4] ン[2]" },
     { "", "配this is合a个 test!", "a[5] is[3] test[7] this[2] 个[6] 合[4] 配[1]" },
 
-    // CJK with CJK punctuation
-    // the text contains U+FF01 FULLWIDTH EXCLAMATION MARK which
-    // is both a CJK character and a non-word character; it should
-    // be handled as non-word text and not appear in any term
+    // Test non-word characters in a script without explicit word breaks.
+    //
+    // The text here contains U+FF01 FULLWIDTH EXCLAMATION MARK which is both a
+    // CJK character and a non-word character; it should be handled as non-word
+    // text and not appear in any term
     { "", "申込み！月額円", "み[3] 円[6] 月[4] 月額:1 申[1] 申込:1 込[2] 込み:1 額[5] 額円:1" },
 
     // Test set_stemming_strategy():
-    { "stem=en,none,!cjk",
+    { "stem=en,none,!ngrams",
 	  "Unstemmed words!", "unstemmed[1] words[2]" },
 
     { "all",
@@ -800,12 +801,13 @@ DEFINE_TESTCASE(termgen1, !backend) {
 		    prefix += *o;
 		    ++o;
 		}
-	    } else if (strncmp(o, "cjk", 3) == 0) {
-		o += 3;
-		termgen.set_flags(termgen.FLAG_CJK_NGRAM, ~termgen.FLAG_CJK_NGRAM);
-	    } else if (strncmp(o, "!cjk", 4) == 0) {
-		o += 4;
-		termgen.set_flags(0, ~termgen.FLAG_CJK_NGRAM);
+	    } else if (strncmp(o, "ngrams", 6) == 0) {
+		o += 6;
+		termgen.set_flags(termgen.FLAG_NGRAMS,
+				  ~termgen.FLAG_NGRAMS);
+	    } else if (strncmp(o, "!ngrams", 7) == 0) {
+		o += 7;
+		termgen.set_flags(0, ~termgen.FLAG_NGRAMS);
 	    } else {
 		FAIL_TEST("Invalid options string: " << p->options);
 	    }
