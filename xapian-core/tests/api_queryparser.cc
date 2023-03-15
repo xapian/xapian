@@ -722,6 +722,16 @@ static const test test_or_queries[] = {
     { "\"久有归\"", "(久@1 PHRASE 3 有@1 PHRASE 3 归@1)" },
     { "\"久有test归\"", "(久@1 PHRASE 4 有@1 PHRASE 4 test@2 PHRASE 4 归@3)" },
     // FIXME: this should work: { "久 NEAR 有", "(久@1 NEAR 11 有@2)" },
+
+    // Test Lao (added in 1.5.0).
+    { "\"ພາສາລາວ\"", "(ພ@1 PHRASE 7 າ@1 PHRASE 7 ສ@1 PHRASE 7 າ@1 PHRASE 7 ລ@1 PHRASE 7 າ@1 PHRASE 7 ວ@1)" },
+
+    // Test Myanmar (Burmese) (added in 1.5.0).
+    { "\"မြန်မာစကား\"", "(မ@1 PHRASE 10 ြ@1 PHRASE 10 န@1 PHRASE 10 ်@1 PHRASE 10 မ@1 PHRASE 10 ာ@1 PHRASE 10 စ@1 PHRASE 10 က@1 PHRASE 10 ာ@1 PHRASE 10 း@1)" },
+
+    // Test Khmer (added in 1.5.0).
+    { "\"ថ្លៃណាស់ \"", "(ថ@1 PHRASE 8 ្@1 PHRASE 8 ល@1 PHRASE 8 ៃ@1 PHRASE 8 ណ@1 PHRASE 8 ា@1 PHRASE 8 ស@1 PHRASE 8 ់@1)" },
+
     { NULL, "WORD_BREAKS" }, // Enable FLAG_WORD_BREAKS
     // Test word break finding
     { "久有归天愿", "(久@1 AND 有@1 AND 归天@1 AND 愿@1)" },
@@ -738,6 +748,15 @@ static const test test_or_queries[] = {
     { "世(の中)TEST_tm", "(世@1 OR (の@2 AND 中@2) OR test_tm@3)" },
     { "다녀 AND 와야", "(다녀@1 AND 와야@2)" },
     { "authortitle:학술 OR 연구를", "((A학술@1 AND XT학술@1) OR 연구를@2)" },
+
+    // Test Lao (added in 1.5.0).
+    { "\"ພາສາລາວ\"", "(ພາສາ@1 PHRASE 2 ລາວ@1)" },
+
+    // Test Myanmar (Burmese) (added in 1.5.0).
+    { "\"မြန်မာစကား\"", "(မြန်မာ@1 PHRASE 2 စကား@1)" },
+
+    // Test Khmer (added in 1.5.0).
+    { "\"សៀវភៅនេះថ្លៃណាស់ \"", "(សៀវភៅ@1 PHRASE 4 នេះ@1 PHRASE 4 ថ្លៃ@1 PHRASE 4 ណាស់@1)" },
 
     { "\"久有归天愿\"", "(久@1 PHRASE 4 有@1 PHRASE 4 归天@1 PHRASE 4 愿@1)" },
     { "\"久有test归天\"", "(久@1 PHRASE 4 有@1 PHRASE 4 test@2 PHRASE 4 归天@3)" },

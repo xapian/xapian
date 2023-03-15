@@ -55,9 +55,16 @@ is_unbroken_script(unsigned p)
     // breaks, or all not in such scripts.
     static const unsigned splits[] = {
 	// 0E00..0E7F; Thai, Lanna Tai, Pali
-	0x0E00 - 1, 0x0E7F,
+	// 0E80..0EFF; Lao
+	0x0E00 - 1, 0x0EFF,
+	// 1000..109F; Myanmar (Burmese)
+	0x1000 - 1, 0x109F,
 	// 1100..11FF; Hangul Jamo
 	0x1100 - 1, 0x11FF,
+	// 1780..17FF; Khmer
+	0x1780 - 1, 0x17FF,
+	// 19E0..19FF; Khmer
+	0x19E0 - 1, 0x19FF,
 	// 2E80..2EFF; CJK Radicals Supplement
 	// 2F00..2FDF; Kangxi Radicals
 	0x2E80 - 1, 0x2FDF,
@@ -80,6 +87,10 @@ is_unbroken_script(unsigned p)
 	0xA700 - 1, 0xA71F,
 	// A960..A97F; Hangul Jamo Extended-A
 	0xA960 - 1, 0xA97F,
+	// A9E0..A9FF; Myanmar (Burmese)
+	0xA9E0 - 1, 0xA9FF,
+	// AA60..AA7F; Myanmar (Burmese)
+	0xAA60 - 1, 0xAA7F,
 	// AC00..D7AF; Hangul Syllables
 	// D7B0..D7FF; Hangul Jamo Extended-B
 	0xAC00 - 1, 0xD7FF,
