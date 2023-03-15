@@ -63,11 +63,11 @@ is_unbroken_script(unsigned p)
 	0x1100 - 1, 0x11FF,
 	// 1780..17FF; Khmer
 	0x1780 - 1, 0x17FF,
-	// 19E0..19FF; Khmer
+	// 19E0..19FF; Khmer Symbols
 	0x19E0 - 1, 0x19FF,
 	// 2E80..2EFF; CJK Radicals Supplement
 	// 2F00..2FDF; Kangxi Radicals
-	0x2E80 - 1, 0x2FDF,
+	// 2FE0..2FFF; Ideographic Description Characters
 	// 3000..303F; CJK Symbols and Punctuation
 	// 3040..309F; Hiragana
 	// 30A0..30FF; Katakana
@@ -82,14 +82,14 @@ is_unbroken_script(unsigned p)
 	// 3400..4DBF; CJK Unified Ideographs Extension A
 	// 4DC0..4DFF; Yijing Hexagram Symbols
 	// 4E00..9FFF; CJK Unified Ideographs
-	0x3000 - 1, 0x9FFF,
+	0x2E80 - 1, 0x9FFF,
 	// A700..A71F; Modifier Tone Letters
 	0xA700 - 1, 0xA71F,
 	// A960..A97F; Hangul Jamo Extended-A
 	0xA960 - 1, 0xA97F,
-	// A9E0..A9FF; Myanmar (Burmese)
+	// A9E0..A9FF; Myanmar Extended-B (Burmese)
 	0xA9E0 - 1, 0xA9FF,
-	// AA60..AA7F; Myanmar (Burmese)
+	// AA60..AA7F; Myanmar Extended-A (Burmese)
 	0xAA60 - 1, 0xAA7F,
 	// AC00..D7AF; Hangul Syllables
 	// D7B0..D7FF; Hangul Jamo Extended-B
@@ -100,9 +100,11 @@ is_unbroken_script(unsigned p)
 	0xFE30 - 1, 0xFE4F,
 	// FF00..FFEF; Halfwidth and Fullwidth Forms
 	0xFF00 - 1, 0xFFEF,
+	// 1AFF0..1AFFF; Kana Extended-B
 	// 1B000..1B0FF; Kana Supplement
 	// 1B100..1B12F; Kana Extended-A
-	0x1B000 - 1, 0x1B12F,
+	// 1B130..1B16F; Small Kana Extension
+	0x1AFF0 - 1, 0x1B16F,
 	// 1F200..1F2FF; Enclosed Ideographic Supplement
 	0x1F200 - 1, 0x1F2FF,
 	// 20000..2A6DF; CJK Unified Ideographs Extension B
@@ -114,6 +116,9 @@ is_unbroken_script(unsigned p)
 	0x2A700 - 1, 0x2EBEF,
 	// 2F800..2FA1F; CJK Compatibility Ideographs Supplement
 	0x2F800 - 1, 0x2FA1F,
+	// 30000..3134F; CJK Unified Ideographs Extension G
+	// 31350..323AF; CJK Unified Ideographs Extension H
+	0x30000 - 1, 0x323AF
     };
     // Binary chop to find the first entry which is >= p.  If it's an odd
     // offset then the codepoint is in a script which needs splitting; if it's

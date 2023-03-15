@@ -104,7 +104,7 @@ extern "C" {
 %constant int STEM_ALL = Xapian::QueryParser::STEM_ALL;
 %constant int STEM_ALL_Z = Xapian::QueryParser::STEM_ALL_Z;
 %constant int FLAG_SPELLING = Xapian::TermGenerator::FLAG_SPELLING;
-// FLAG_NGRAMS, FLAG_CJK_NGRAM and FLAG_WILDCARD are already set above from
+// FLAG_NGRAMS, FLAG_CJK_NGRAM and FLAG_WORD_BREAKS are already set above from
 // QueryParser (values match).
 %constant int WILDCARD_LIMIT_ERROR = Xapian::Query::WILDCARD_LIMIT_ERROR;
 %constant int WILDCARD_LIMIT_FIRST = Xapian::Query::WILDCARD_LIMIT_FIRST;
