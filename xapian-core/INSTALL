@@ -31,9 +31,10 @@ util-linux (https://github.com/karelzak/util-linux).  On Debian and
 Ubuntu, the package to install is uuid-dev, while on Fedora, it is
 libuuid-devel (on older Fedora versions you instead need e2fsprogs-devel).
 
-Optionally, ICU can be used for finding words boundaries in CJK text.  This
-is enabled automatically by configure if both ICU 54.1 and pkg-config are
-found.
+Optionally, ICU can be used for finding words boundaries in text for some
+languages which are not written with explicit word breaks.  This support
+is automatically included in the build if both ICU >= 54.1 and pkg-config
+are found.
 
 Platforms
 =========

@@ -643,7 +643,7 @@ $set{OPT,VALUE}
 	* flag_boolean
 	* flag_boolean_any_case
 	* flag_cjk_ngram (new in 1.2.22 and 1.3.4)
-	* flag_cjk_words (new in 1.5.0)
+	* flag_ngrams (new in 1.4.23)
 	* flag_default
 	* flag_fuzzy (new in 1.5.0)
 	* flag_lovehate
@@ -658,6 +658,7 @@ $set{OPT,VALUE}
         * flag_wildcard_glob (new in 1.5.0)
         * flag_wildcard_multi (new in 1.5.0)
         * flag_wildcard_single (new in 1.5.0)
+        * flag_word_breaks (new in 1.5.0)
 
         Note that the ``Xapian::QueryParser::FLAG_ACCUMULATE`` flag is always
         enabled by Omega because it's needed for ``$stoplist`` and ``$unstem``

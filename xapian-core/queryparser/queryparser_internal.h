@@ -1,7 +1,7 @@
 /** @file
  * @brief The non-lemon-generated parts of the QueryParser class.
  */
-/* Copyright (C) 2005,2006,2007,2010,2011,2012,2013,2015,2016,2018,2019 Olly Betts
+/* Copyright (C) 2005-2023 Olly Betts
  * Copyright (C) 2010 Adam Sjøgren
  *
  * This program is free software; you can redistribute it and/or
@@ -127,8 +127,8 @@ class QueryParser::Internal : public Xapian::Internal::intrusive_base {
 			    const std::string* grouping);
 
     std::string parse_term(Utf8Iterator& it, const Utf8Iterator& end,
-			   bool cjk_enable, unsigned flags,
-			   bool& is_cjk_term, bool& was_acronym,
+			   bool try_word_break, unsigned flags,
+			   bool& needs_word_break, bool& was_acronym,
 			   size_t& first_wildcard,
 			   size_t& char_count,
 			   unsigned& edit_distance);

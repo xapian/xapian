@@ -1,7 +1,7 @@
 /** @file
  * @brief TermGenerator class internals
  */
-/* Copyright (C) 2007,2010,2011,2012,2015,2016,2017,2018,2019,2020 Olly Betts
+/* Copyright (C) 2007-2023 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -41,7 +41,7 @@
 #include <unordered_map>
 #include <vector>
 
-#include "cjk-tokenizer.h"
+#include "word-breaker.h"
 
 using namespace std;
 
@@ -131,42 +131,43 @@ check_suffix(unsigned ch)
     return 0;
 }
 
+static_assert(int(MSet::SNIPPET_WORD_BREAKS) == TermGenerator::FLAG_WORD_BREAKS,
+	      "WORD_BREAKS flags have same value");
+
 template<typename ACTION>
 static bool
-parse_cjk(Utf8Iterator & itor, unsigned cjk_flags, bool with_positions,
-	  ACTION action)
+break_words(Utf8Iterator& itor, unsigned break_flags, bool with_positions,
+	    ACTION action)
 {
-    static_assert(int(MSet::SNIPPET_CJK_WORDS) == TermGenerator::FLAG_CJK_WORDS,
-		  "CJK_WORDS flags have same value");
 #ifdef USE_ICU
-    if (cjk_flags & MSet::SNIPPET_CJK_WORDS) {
-	const char* cjk_start = itor.raw();
-	(void)CJK::get_cjk(itor);
-	size_t cjk_left = itor.raw() - cjk_start;
-	for (CJKWordIterator tk(cjk_start, cjk_left);
-	     tk != CJKWordIterator();
-	     ++tk) {
-	    const string& cjk_token = *tk;
-	    cjk_left -= cjk_token.length();
-	    if (!action(cjk_token, with_positions, itor.left() + cjk_left))
+    if (break_flags & MSet::SNIPPET_WORD_BREAKS) {
+	const char* start = itor.raw();
+	// get_unbroken() returns the number of codepoints, which we aren't
+	// interested in here.
+	(void)get_unbroken(itor);
+	size_t left = itor.raw() - start;
+	for (WordIterator tk(start, left); tk != WordIterator(); ++tk) {
+	    const string& token = *tk;
+	    left -= token.length();
+	    if (!action(token, with_positions, itor.left() + left))
 		return false;
 	}
 	return true;
     }
 #else
-    (void)cjk_flags;
+    (void)break_flags;
 #endif
 
-    CJKNgramIterator tk(itor);
-    while (tk != CJKNgramIterator()) {
-	const string& cjk_token = *tk;
-	// FLAG_CJK_NGRAM only sets positions for tokens of length 1.
+    NgramIterator tk(itor);
+    while (tk != NgramIterator()) {
+	const string& token = *tk;
+	// FLAG_NGRAMS only sets positions for tokens of length 1.
 	bool with_pos = with_positions && tk.unigram();
-	if (!action(cjk_token, with_pos, tk.get_utf8iterator().left()))
+	if (!action(token, with_pos, tk.get_utf8iterator().left()))
 	    return false;
 	++tk;
     }
-    // Update itor to end of CJK text span.
+    // Update itor to point the end of the span of text in an unbroken script.
     itor = tk.get_utf8iterator();
     return true;
 }
@@ -179,7 +180,7 @@ parse_cjk(Utf8Iterator & itor, unsigned cjk_flags, bool with_positions,
  */
 template<typename ACTION>
 static void
-parse_terms(Utf8Iterator itor, unsigned cjk_flags, bool with_positions,
+parse_terms(Utf8Iterator itor, unsigned break_flags, bool with_positions,
 	    ACTION action)
 {
     while (true) {
@@ -215,8 +216,8 @@ parse_terms(Utf8Iterator itor, unsigned cjk_flags, bool with_positions,
 	}
 
 	while (true) {
-	    if (cjk_flags && CJK::codepoint_is_cjk_wordchar(*itor)) {
-		if (!parse_cjk(itor, cjk_flags, with_positions, action))
+	    if (break_flags && is_unbroken_wordchar(*itor)) {
+		if (!break_words(itor, break_flags, with_positions, action))
 		    return;
 		while (true) {
 		    if (itor == Utf8Iterator()) return;
@@ -231,7 +232,7 @@ parse_terms(Utf8Iterator itor, unsigned cjk_flags, bool with_positions,
 		Unicode::append_utf8(term, ch);
 		prevch = ch;
 		if (++itor == Utf8Iterator() ||
-		    (cjk_flags && CJK::codepoint_is_cjk(*itor)))
+		    (break_flags && is_unbroken_script(*itor)))
 		    goto endofterm;
 		ch = check_wordchar(*itor);
 	    } while (ch);
@@ -282,14 +283,14 @@ TermGenerator::Internal::index_text(Utf8Iterator itor, termcount wdf_inc,
 				    const string & prefix, bool with_positions)
 {
 #ifndef USE_ICU
-    if (flags & FLAG_CJK_WORDS) {
-	throw Xapian::FeatureUnavailableError("FLAG_CJK_WORDS requires "
+    if (flags & FLAG_WORD_BREAKS) {
+	throw Xapian::FeatureUnavailableError("FLAG_WORD_BREAKS requires "
 					      "building Xapian to use ICU");
     }
 #endif
-    unsigned cjk_flags = flags & (FLAG_CJK_NGRAM | FLAG_CJK_WORDS);
-    if (cjk_flags == 0 && CJK::is_cjk_enabled()) {
-	cjk_flags = FLAG_CJK_NGRAM;
+    unsigned break_flags = flags & (FLAG_NGRAMS | FLAG_WORD_BREAKS);
+    if (break_flags == 0 && is_ngram_enabled()) {
+	break_flags = FLAG_NGRAMS;
     }
 
     stop_strategy current_stop_mode;
@@ -299,7 +300,7 @@ TermGenerator::Internal::index_text(Utf8Iterator itor, termcount wdf_inc,
 	current_stop_mode = stop_mode;
     }
 
-    parse_terms(itor, cjk_flags, with_positions,
+    parse_terms(itor, break_flags, with_positions,
 	[=
 #if __cplusplus >= 201907L
 // C++20 no longer supports implicit `this` in lambdas but older C++ versions
@@ -811,15 +812,15 @@ MSet::Internal::snippet(const string & text,
     }
 
 #ifndef USE_ICU
-    if (flags & MSet::SNIPPET_CJK_WORDS) {
-	throw Xapian::FeatureUnavailableError("SNIPPET_CJK_WORDS requires "
+    if (flags & MSet::SNIPPET_WORD_BREAKS) {
+	throw Xapian::FeatureUnavailableError("SNIPPET_WORD_BREAKS requires "
 					      "building Xapian to use ICU");
     }
 #endif
-    auto SNIPPET_CJK_MASK = MSet::SNIPPET_CJK_NGRAM | MSet::SNIPPET_CJK_WORDS;
-    unsigned cjk_flags = flags & SNIPPET_CJK_MASK;
-    if (cjk_flags == 0 && CJK::is_cjk_enabled()) {
-	cjk_flags = MSet::SNIPPET_CJK_NGRAM;
+    auto SNIPPET_BREAK_MASK = MSet::SNIPPET_NGRAMS | MSet::SNIPPET_WORD_BREAKS;
+    unsigned break_flags = flags & SNIPPET_BREAK_MASK;
+    if (break_flags == 0 && is_ngram_enabled()) {
+	break_flags = MSet::SNIPPET_NGRAMS;
     }
 
     size_t term_start = 0;
@@ -880,7 +881,7 @@ MSet::Internal::snippet(const string & text,
     if (longest_phrase) phrase.resize(longest_phrase - 1);
     size_t phrase_next = 0;
     bool matchfound = false;
-    parse_terms(Utf8Iterator(text), cjk_flags, true,
+    parse_terms(Utf8Iterator(text), break_flags, true,
 	[&](const string & term, bool positional, size_t left) {
 	    // FIXME: Don't hardcode this here.
 	    const size_t max_word_length = 64;

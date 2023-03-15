@@ -703,10 +703,10 @@ static const test test_or_queries[] = {
     { "multisite:xapian.org site:www.xapian.org author:richard authortitle:richard", "((ZArichard@1 OR (ZArichard@2 OR ZXTrichard@2)) FILTER ((Hxapian.org OR Jxapian.org) AND Hwww.xapian.org))" },
     { "authortitle:richard-boulton", "((Arichard@1 PHRASE 2 Aboulton@2) OR (XTrichard@1 PHRASE 2 XTboulton@2))"},
     { "authortitle:\"richard boulton\"", "((Arichard@1 PHRASE 2 Aboulton@2) OR (XTrichard@1 PHRASE 2 XTboulton@2))"},
-    // Test FLAG_CJK_NGRAM isn't on by default:
+    // Test FLAG_NGRAMS isn't on by default:
     { "久有归天愿", "Z久有归天愿@1" },
-    { NULL, "CJK_NGRAM" }, // Enable FLAG_CJK_NGRAM
-    // Test non-CJK queries still parse the same:
+    { NULL, "NGRAMS" }, // Enable FLAG_NGRAMS
+    // Test queries which don't need word break finding still parse the same:
     { "gtk+ -gnome", "(Zgtk+@1 AND_NOT Zgnome@2)" },
     { "“curly quotes”", "(curly@1 PHRASE 2 quotes@2)" },
     // Test n-gram generation:
@@ -722,8 +722,8 @@ static const test test_or_queries[] = {
     { "\"久有归\"", "(久@1 PHRASE 3 有@1 PHRASE 3 归@1)" },
     { "\"久有test归\"", "(久@1 PHRASE 4 有@1 PHRASE 4 test@2 PHRASE 4 归@3)" },
     // FIXME: this should work: { "久 NEAR 有", "(久@1 NEAR 11 有@2)" },
-    { NULL, "CJK_WORDS" }, // Enable FLAG_CJK_WORDS
-    // Test CJK word splitting
+    { NULL, "WORD_BREAKS" }, // Enable FLAG_WORD_BREAKS
+    // Test word break finding
     { "久有归天愿", "(久@1 AND 有@1 AND 归天@1 AND 愿@1)" },
     { "久有 归天愿", "((久@1 AND 有@1) OR (归天@2 AND 愿@2))" },
     { "久有！归天愿", "((久@1 AND 有@1) OR (归天@2 AND 愿@2))" },
@@ -779,12 +779,12 @@ DEFINE_TESTCASE(queryparser1, !backend) {
     for (const test *p = test_or_queries; ; ++p) {
 	if (!p->query) {
 	    if (!p->expect) break;
-	    if (strcmp(p->expect, "CJK_NGRAM") == 0) {
-		flags = queryparser.FLAG_DEFAULT|queryparser.FLAG_CJK_NGRAM;
+	    if (strcmp(p->expect, "NGRAMS") == 0) {
+		flags = queryparser.FLAG_DEFAULT|queryparser.FLAG_NGRAMS;
 		continue;
 	    }
-	    if (strcmp(p->expect, "CJK_WORDS") == 0) {
-		flags = queryparser.FLAG_DEFAULT|queryparser.FLAG_CJK_WORDS;
+	    if (strcmp(p->expect, "WORD_BREAKS") == 0) {
+		flags = queryparser.FLAG_DEFAULT|queryparser.FLAG_WORD_BREAKS;
 		continue;
 	    }
 	    FAIL_TEST("Unknown flag code: " << p->expect);
@@ -806,8 +806,8 @@ DEFINE_TESTCASE(queryparser1, !backend) {
 	    parsed = "Unknown exception!";
 	}
 #ifndef USE_ICU
-	if (flags & queryparser.FLAG_CJK_WORDS) {
-	    expect = "FeatureUnavailableError: FLAG_CJK_WORDS requires "
+	if (flags & queryparser.FLAG_WORD_BREAKS) {
+	    expect = "FeatureUnavailableError: FLAG_WORD_BREAKS requires "
 		     "building Xapian to use ICU";
 	}
 #endif
@@ -838,12 +838,12 @@ static const test test_and_queries[] = {
     // Add coverage for other cases similar to the above.
     { "a b site:xapian.org", "((Za@1 AND Zb@2) FILTER Hxapian.org)" },
     { "site:xapian.org a b", "((Za@1 AND Zb@2) FILTER Hxapian.org)" },
-    { NULL, "CJK_NGRAM" }, // Enable FLAG_CJK_NGRAM
+    { NULL, "NGRAMS" }, // Enable FLAG_NGRAMS
     // Test n-gram generation:
     { "author:험가 OR subject:万众 hello world!", "((A험@1 AND A험가@1 AND A가@1) OR (XT万@2 AND XT万众@2 AND XT众@2 AND (Zhello@3 AND Zworld@4)))" },
     { "洛伊one儿差点two脸three", "(洛@1 AND 洛伊@1 AND 伊@1 AND Zone@2 AND (儿@3 AND 儿差@3 AND 差@3 AND 差点@3 AND 点@3) AND Ztwo@4 AND 脸@5 AND Zthree@6)" },
-    { NULL, "CJK_WORDS" }, // Enable FLAG_CJK_WORDS
-    // Test CJK word splitting
+    { NULL, "WORD_BREAKS" }, // Enable FLAG_WORD_BREAKS
+    // Test word break finding:
     { "author:험가 OR subject:万众 hello world!", "(A험가@1 OR (XT万@2 AND XT众@2 AND (Zhello@3 AND Zworld@4)))" },
     { "洛伊one儿差点two脸three", "(洛伊@1 AND Zone@2 AND (儿@3 AND 差点@3) AND Ztwo@4 AND 脸@5 AND Zthree@6)" },
     { NULL, NULL }
@@ -863,12 +863,12 @@ DEFINE_TESTCASE(qp_default_op1, !backend) {
     for (const test *p = test_and_queries; ; ++p) {
 	if (!p->query) {
 	    if (!p->expect) break;
-	    if (strcmp(p->expect, "CJK_NGRAM") == 0) {
-		flags = queryparser.FLAG_DEFAULT|queryparser.FLAG_CJK_NGRAM;
+	    if (strcmp(p->expect, "NGRAMS") == 0) {
+		flags = queryparser.FLAG_DEFAULT|queryparser.FLAG_NGRAMS;
 		continue;
 	    }
-	    if (strcmp(p->expect, "CJK_WORDS") == 0) {
-		flags = queryparser.FLAG_DEFAULT|queryparser.FLAG_CJK_WORDS;
+	    if (strcmp(p->expect, "WORD_BREAKS") == 0) {
+		flags = queryparser.FLAG_DEFAULT|queryparser.FLAG_WORD_BREAKS;
 		continue;
 	    }
 	    FAIL_TEST("Unknown flag code: " << p->expect);
@@ -890,8 +890,8 @@ DEFINE_TESTCASE(qp_default_op1, !backend) {
 	    parsed = "Unknown exception!";
 	}
 #ifndef USE_ICU
-	if (flags & queryparser.FLAG_CJK_WORDS) {
-	    expect = "FeatureUnavailableError: FLAG_CJK_WORDS requires "
+	if (flags & queryparser.FLAG_WORD_BREAKS) {
+	    expect = "FeatureUnavailableError: FLAG_WORD_BREAKS requires "
 		     "building Xapian to use ICU";
 	}
 #endif
@@ -914,7 +914,7 @@ DEFINE_TESTCASE(qp_default_prefix1, !backend) {
     TEST_STRINGS_EQUAL(qobj.get_description(), "Query((ZAme@1 OR ZXTstuff@2))");
     qobj = qp.parse_query("title:(stuff) me", Xapian::QueryParser::FLAG_BOOLEAN, "A");
     TEST_STRINGS_EQUAL(qobj.get_description(), "Query((ZXTstuff@1 OR ZAme@2))");
-    qobj = qp.parse_query("英国 title:文森hello", qp.FLAG_CJK_NGRAM, "A");
+    qobj = qp.parse_query("英国 title:文森hello", qp.FLAG_NGRAMS, "A");
     TEST_STRINGS_EQUAL(qobj.get_description(), "Query(((A英@1 AND A英国@1 AND A国@1) OR (XT文@2 AND XT文森@2 AND XT森@2) OR ZAhello@3))");
 }
 

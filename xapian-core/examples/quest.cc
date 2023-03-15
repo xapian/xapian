@@ -82,10 +82,10 @@ static const tab_entry flag_tab[] = {
     { "boolean", Xapian::QueryParser::FLAG_BOOLEAN },
     { "boolean_any_case", Xapian::QueryParser::FLAG_BOOLEAN_ANY_CASE },
     { "cjk_ngram", Xapian::QueryParser::FLAG_CJK_NGRAM },
-    { "cjk_words", Xapian::QueryParser::FLAG_CJK_WORDS },
     { "default", Xapian::QueryParser::FLAG_DEFAULT },
     { "fuzzy", Xapian::QueryParser::FLAG_FUZZY },
     { "lovehate", Xapian::QueryParser::FLAG_LOVEHATE },
+    { "ngrams", Xapian::QueryParser::FLAG_NGRAMS },
     { "no_positions", Xapian::QueryParser::FLAG_NO_POSITIONS },
     { "partial", Xapian::QueryParser::FLAG_PARTIAL },
     { "phrase", Xapian::QueryParser::FLAG_PHRASE },
@@ -95,7 +95,8 @@ static const tab_entry flag_tab[] = {
     { "wildcard", Xapian::QueryParser::FLAG_WILDCARD },
     { "wildcard_glob", Xapian::QueryParser::FLAG_WILDCARD_GLOB },
     { "wildcard_multi", Xapian::QueryParser::FLAG_WILDCARD_MULTI },
-    { "wildcard_single", Xapian::QueryParser::FLAG_WILDCARD_SINGLE }
+    { "wildcard_single", Xapian::QueryParser::FLAG_WILDCARD_SINGLE },
+    { "word_breaks", Xapian::QueryParser::FLAG_WORD_BREAKS }
 };
 
 static const tab_entry default_op_tab[] = {

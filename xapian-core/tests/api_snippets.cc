@@ -485,22 +485,22 @@ DEFINE_TESTCASE(snippet_small_zerolength, backend) {
     }
 }
 
-/// Test CJK ngrams.
-DEFINE_TESTCASE(snippet_cjkngrams, generated) {
-    Xapian::Database db = get_database("snippet_cjkngrams",
+/// Test ngrams.
+DEFINE_TESTCASE(snippet_ngrams, generated) {
+    Xapian::Database db = get_database("snippet_ngrams",
 	[](Xapian::WritableDatabase& wdb,
 	   const string&)
 	{
 	    Xapian::Document doc;
 	    Xapian::TermGenerator tg;
-	    tg.set_flags(Xapian::TermGenerator::FLAG_CJK_NGRAM);
+	    tg.set_flags(Xapian::TermGenerator::FLAG_NGRAMS);
 	    tg.set_document(doc);
 	    tg.index_text("明末時已經有香港地方的概念");
 	    wdb.add_document(doc);
 	});
     Xapian::Enquire enquire(db);
     Xapian::QueryParser qp;
-    auto q = qp.parse_query("已經完成", qp.FLAG_DEFAULT | qp.FLAG_CJK_NGRAM);
+    auto q = qp.parse_query("已經完成", qp.FLAG_DEFAULT | qp.FLAG_NGRAMS);
     enquire.set_query(q);
 
     Xapian::MSet mset = enquire.get_mset(0, 0);
@@ -509,7 +509,7 @@ DEFINE_TESTCASE(snippet_cjkngrams, generated) {
     const char *input = "明末時已經有香港地方的概念";
     size_t len = strlen(input);
 
-    unsigned flags = Xapian::MSet::SNIPPET_CJK_NGRAM;
+    unsigned flags = Xapian::MSet::SNIPPET_NGRAMS;
     string s;
     s = mset.snippet(input, len, stem, flags, "<b>", "</b>", "...");
     TEST_STRINGS_EQUAL(s, "明末時<b>已</b><b>經</b>有香港地方的概念");
@@ -518,8 +518,8 @@ DEFINE_TESTCASE(snippet_cjkngrams, generated) {
     TEST_STRINGS_EQUAL(s, "...<b>已</b><b>經</b>有香港地...");
 }
 
-/// Test CJK word segmentation.
-DEFINE_TESTCASE(snippet_cjkwords, backend) {
+/// Test word break finding.
+DEFINE_TESTCASE(snippet_wordbreaks, backend) {
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
     enquire.set_query(Xapian::Query("已經"));
 
@@ -530,7 +530,7 @@ DEFINE_TESTCASE(snippet_cjkwords, backend) {
     const char *input2 = "明末時已經有香港地方的概念. Hello!";
     size_t len = strlen(input);
 
-    unsigned cjk_flags = Xapian::MSet::SNIPPET_CJK_WORDS;
+    unsigned flags = Xapian::MSet::SNIPPET_WORD_BREAKS;
 
 #ifdef USE_ICU
 # define DO_TEST(CODE, RESULT) TEST_STRINGS_EQUAL(CODE, RESULT)
@@ -542,12 +542,12 @@ DEFINE_TESTCASE(snippet_cjkwords, backend) {
     } catch (const Xapian::FeatureUnavailableError& e) { \
 	TEST_STRINGS_EQUAL( \
 	    e.get_msg(), \
-	    "SNIPPET_CJK_WORDS requires building Xapian to use ICU"); \
+	    "SNIPPET_WORD_BREAKS requires building Xapian to use ICU"); \
     }
 #endif
-    DO_TEST(mset.snippet(input, len, stem, cjk_flags, "<b>", "</b>", "..."),
+    DO_TEST(mset.snippet(input, len, stem, flags, "<b>", "</b>", "..."),
 	    "明末時<b>已經</b>有香港地方的概念");
-    DO_TEST(mset.snippet(input2, len / 2, stem, cjk_flags, "[", "]", "~"),
+    DO_TEST(mset.snippet(input2, len / 2, stem, flags, "[", "]", "~"),
 	    "~時[已經]有香港~");
 #undef DO_TEST
 }

@@ -180,7 +180,7 @@ QueryParser::parse_query(const string &query_string, unsigned flags,
 
     Query result = internal->parse_query(query_string, flags, default_prefix);
     if (internal->errmsg && strcmp(internal->errmsg, "parse error") == 0) {
-	flags &= FLAG_CJK_NGRAM | FLAG_CJK_WORDS | FLAG_NO_POSITIONS;
+	flags &= FLAG_NGRAMS | FLAG_WORD_BREAKS | FLAG_NO_POSITIONS;
 	result = internal->parse_query(query_string, flags, default_prefix);
     }
 

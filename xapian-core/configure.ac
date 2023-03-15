@@ -761,7 +761,7 @@ if test "$xo_cv_func_snprintf" != no ; then
      [Define to the name of a function implementing snprintf but not caring about ISO C99 return value semantics (if one exists)])
 fi
 
-dnl Check for ICU, which we can optionally use for CJK word tokenisation.
+dnl Check for ICU, which we can optionally use to find word breaks.
 AC_ARG_VAR([PKG_CONFIG], [Location of pkg-config])
 AC_PATH_TOOL([PKG_CONFIG], [pkg-config])
 if test -n "$PKG_CONFIG" ; then
@@ -773,7 +773,7 @@ if test -n "$PKG_CONFIG" ; then
   try_libs=`$PKG_CONFIG 'icu_mod >= icu_min' --libs 2>&AS_MESSAGE_LOG_FD`
   if test $? -eq 0 ; then
     AC_MSG_RESULT([yes])
-    AC_DEFINE([USE_ICU], [1], [Define to use ICU for CJK segmentation])
+    AC_DEFINE([USE_ICU], [1], [Define to use ICU to find word breaks])
     dnl The split here isn't perfect - e.g. -DFOO really ought to be in
     dnl CPPFLAGS, but hopefully this won't be a problem in practice.
     ICU_CFLAGS=`$icu_config --cflags-only-other`

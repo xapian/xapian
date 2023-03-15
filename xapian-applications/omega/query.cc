@@ -287,10 +287,6 @@ read_qp_flags(const string & opt_pfx, unsigned f)
 		    mask = Xapian::QueryParser::FLAG_CJK_NGRAM;
 		    break;
 		}
-		if (strcmp(s, "cjk_words") == 0) {
-		    mask = Xapian::QueryParser::FLAG_CJK_WORDS;
-		    break;
-		}
 		break;
 	    case 'd':
 		if (strcmp(s, "default") == 0) {
@@ -313,6 +309,10 @@ read_qp_flags(const string & opt_pfx, unsigned f)
 	    case 'n':
 		if (strcmp(s, "no_positions") == 0) {
 		    mask = Xapian::QueryParser::FLAG_NO_POSITIONS;
+		    break;
+		}
+		if (strcmp(s, "ngrams") == 0) {
+		    mask = Xapian::QueryParser::FLAG_NGRAMS;
 		    break;
 		}
 		break;
@@ -356,6 +356,10 @@ read_qp_flags(const string & opt_pfx, unsigned f)
 		}
 		if (strcmp(s, "wildcard_single") == 0) {
 		    mask = Xapian::QueryParser::FLAG_WILDCARD_SINGLE;
+		    break;
+		}
+		if (strcmp(s, "word_breaks") == 0) {
+		    mask = Xapian::QueryParser::FLAG_WORD_BREAKS;
 		    break;
 		}
 #endif
@@ -2397,12 +2401,14 @@ eval(const string& fmt, vector<string>& param)
 			    flags |= mset.SNIPPET_BACKGROUND_MODEL;
 			} else if (flag == "cjk_ngram") {
 			    flags |= mset.SNIPPET_CJK_NGRAM;
-			} else if (flag == "cjk_words") {
-			    flags |= mset.SNIPPET_CJK_WORDS;
 			} else if (flag == "empty_without_match") {
 			    flags |= mset.SNIPPET_EMPTY_WITHOUT_MATCH;
 			} else if (flag == "exhaustive") {
 			    flags |= mset.SNIPPET_EXHAUSTIVE;
+			} else if (flag == "ngrams") {
+			    flags |= mset.SNIPPET_NGRAMS;
+			} else if (flag == "word_breaks") {
+			    flags |= mset.SNIPPET_WORD_BREAKS;
 			} else {
 			    throw "Unknown $snippet flag '" + flag + "'";
 			}

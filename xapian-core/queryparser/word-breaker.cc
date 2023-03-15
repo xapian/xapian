@@ -1,10 +1,10 @@
 /** @file
- * @brief Tokenise CJK text as n-grams
+ * @brief Handle text without explicit word breaks
  */
 /* Copyright (c) 2007, 2008 Yung-chung Lin (henearkrxern@gmail.com)
  * Copyright (c) 2011 Richard Boulton (richard@tartarus.org)
  * Copyright (c) 2011 Brandon Schaefer (brandontschaefer@gmail.com)
- * Copyright (c) 2011,2018,2019 Olly Betts
+ * Copyright (c) 2011,2018,2019,2023 Olly Betts
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -27,7 +27,7 @@
 
 #include <config.h>
 
-#include "cjk-tokenizer.h"
+#include "word-breaker.h"
 
 #include "omassert.h"
 #include "xapian/unicode.h"
@@ -40,7 +40,7 @@
 using namespace std;
 
 bool
-CJK::is_cjk_enabled()
+is_ngram_enabled()
 {
     const char * p;
     static bool result = ((p = getenv("XAPIAN_CJK_NGRAM")) != NULL && *p);
@@ -48,10 +48,11 @@ CJK::is_cjk_enabled()
 }
 
 bool
-CJK::codepoint_is_cjk(unsigned p)
+is_unbroken_script(unsigned p)
 {
     // Array containing the last value in each range of codepoints which
-    // are either all CJK or all non-CJK.
+    // are either all in scripts which are written without explicit word
+    // breaks, or all not in such scripts.
     static const unsigned splits[] = {
 	// 0E00..0E7F; Thai, Lanna Tai, Pali
 	0x0E00 - 1, 0x0E7F,
@@ -104,23 +105,23 @@ CJK::codepoint_is_cjk(unsigned p)
 	0x2F800 - 1, 0x2FA1F,
     };
     // Binary chop to find the first entry which is >= p.  If it's an odd
-    // offset then the codepoint is CJK; if it's an even offset then it's not.
+    // offset then the codepoint is in a script which needs splitting; if it's
+    // an even offset then it's not.
     auto it = lower_bound(begin(splits), end(splits), p);
     return ((it - splits) & 1);
 }
 
 bool
-CJK::codepoint_is_cjk_wordchar(unsigned p)
+is_unbroken_wordchar(unsigned p)
 {
-    return codepoint_is_cjk(p) && Xapian::Unicode::is_wordchar(p);
+    return is_unbroken_script(p) && Xapian::Unicode::is_wordchar(p);
 }
 
 size_t
-CJK::get_cjk(Xapian::Utf8Iterator& it)
+get_unbroken(Xapian::Utf8Iterator& it)
 {
     size_t char_count = 0;
-    while (it != Xapian::Utf8Iterator() &&
-	   codepoint_is_cjk_wordchar(*it)) {
+    while (it != Xapian::Utf8Iterator() && is_unbroken_wordchar(*it)) {
 	++char_count;
 	++it;
     }
@@ -128,10 +129,11 @@ CJK::get_cjk(Xapian::Utf8Iterator& it)
 }
 
 void
-CJKNgramIterator::init() {
+NgramIterator::init()
+{
     if (it != Xapian::Utf8Iterator()) {
 	unsigned ch = *it;
-	if (CJK::codepoint_is_cjk_wordchar(ch)) {
+	if (is_unbroken_wordchar(ch)) {
 	    Xapian::Unicode::append_utf8(current_token, ch);
 	    ++it;
 	} else {
@@ -140,13 +142,13 @@ CJKNgramIterator::init() {
     }
 }
 
-CJKNgramIterator&
-CJKNgramIterator::operator++()
+NgramIterator&
+NgramIterator::operator++()
 {
     if (offset == 0) {
 	if (it != Xapian::Utf8Iterator()) {
 	    unsigned ch = *it;
-	    if (CJK::codepoint_is_cjk_wordchar(ch)) {
+	    if (is_unbroken_wordchar(ch)) {
 		offset = current_token.size();
 		Xapian::Unicode::append_utf8(current_token, ch);
 		++it;
@@ -164,7 +166,7 @@ CJKNgramIterator::operator++()
 }
 
 #ifdef USE_ICU
-CJKWordIterator::CJKWordIterator(const char* ptr, size_t len)
+WordIterator::WordIterator(const char* ptr, size_t len)
 {
     UErrorCode err = U_ZERO_ERROR;
     UText utext = UTEXT_INITIALIZER;
@@ -183,8 +185,8 @@ CJKWordIterator::CJKWordIterator(const char* ptr, size_t len)
     current_token.assign(utf8_ptr + first, p - first);
 }
 
-CJKWordIterator &
-CJKWordIterator::operator++()
+WordIterator&
+WordIterator::operator++()
 {
     int32_t first = p;
     p = brk->next();
