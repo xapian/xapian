@@ -53,6 +53,10 @@ is_unbroken_script(unsigned p)
     // Array containing the last value in each range of codepoints which
     // are either all in scripts which are written without explicit word
     // breaks, or all not in such scripts.
+    //
+    // We only include scripts here which ICU has dictionaries for.  The
+    // same list is currently also used to decide which languages to do
+    // ngrams for, though perhaps that should use a separate list.
     static const unsigned splits[] = {
 	// 0E00..0E7F; Thai, Lanna Tai, Pali
 	// 0E80..0EFF; Lao
