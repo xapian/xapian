@@ -72,7 +72,7 @@ class XAPIAN_VISIBILITY_DEFAULT Stopper
 
     /** Start reference counting this object.
      *
-     *  You can hand ownership of a dynamically allocated Stopper
+     *  You can transfer ownership of a dynamically allocated Stopper
      *  object to Xapian by calling release() and then passing the object to a
      *  Xapian method.  Xapian will arrange to delete the object once it is no
      *  longer required.
@@ -84,7 +84,7 @@ class XAPIAN_VISIBILITY_DEFAULT Stopper
 
     /** Start reference counting this object.
      *
-     *  You can hand ownership of a dynamically allocated Stopper
+     *  You can transfer ownership of a dynamically allocated Stopper
      *  object to Xapian by calling release() and then passing the object to a
      *  Xapian method.  Xapian will arrange to delete the object once it is no
      *  longer required.
@@ -222,7 +222,7 @@ class XAPIAN_VISIBILITY_DEFAULT RangeProcessor
 
     /** Start reference counting this object.
      *
-     *  You can hand ownership of a dynamically allocated RangeProcessor
+     *  You can transfer ownership of a dynamically allocated RangeProcessor
      *  object to Xapian by calling release() and then passing the object to a
      *  Xapian method.  Xapian will arrange to delete the object once it is no
      *  longer required.
@@ -234,7 +234,7 @@ class XAPIAN_VISIBILITY_DEFAULT RangeProcessor
 
     /** Start reference counting this object.
      *
-     *  You can hand ownership of a dynamically allocated RangeProcessor
+     *  You can transfer ownership of a dynamically allocated RangeProcessor
      *  object to Xapian by calling release() and then passing the object to a
      *  Xapian method.  Xapian will arrange to delete the object once it is no
      *  longer required.
@@ -468,7 +468,7 @@ class XAPIAN_VISIBILITY_DEFAULT FieldProcessor
 
     /** Start reference counting this object.
      *
-     *  You can hand ownership of a dynamically allocated FieldProcessor
+     *  You can transfer ownership of a dynamically allocated FieldProcessor
      *  object to Xapian by calling release() and then passing the object to a
      *  Xapian method.  Xapian will arrange to delete the object once it is no
      *  longer required.
@@ -480,7 +480,7 @@ class XAPIAN_VISIBILITY_DEFAULT FieldProcessor
 
     /** Start reference counting this object.
      *
-     *  You can hand ownership of a dynamically allocated FieldProcessor
+     *  You can transfer ownership of a dynamically allocated FieldProcessor
      *  object to Xapian by calling release() and then passing the object to a
      *  Xapian method.  Xapian will arrange to delete the object once it is no
      *  longer required.
