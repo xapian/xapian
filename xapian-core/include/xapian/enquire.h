@@ -248,7 +248,9 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	 *  @param spy       The MatchSpy subclass to add.  The caller must
 	 *                   ensure that this remains valid while the Enquire
 	 *                   object remains active, or until @a
-	 *                   clear_matchspies() is called.
+	 *                   clear_matchspies() is called, or else allocate
+	 *                   the MatchSpy object with new and then disown it by
+	 *                   calling spy->release() before passing it in.
 	 */
 	void add_matchspy(MatchSpy * spy);
 

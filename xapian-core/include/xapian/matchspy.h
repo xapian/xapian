@@ -176,7 +176,7 @@ class XAPIAN_VISIBILITY_DEFAULT MatchSpy
 
     /** Start reference counting this object.
      *
-     *  You can hand ownership of a dynamically allocated MatchSpy
+     *  You can transfer ownership of a dynamically allocated MatchSpy
      *  object to Xapian by calling release() and then passing the object to a
      *  Xapian method.  Xapian will arrange to delete the object once it is no
      *  longer required.
@@ -188,7 +188,7 @@ class XAPIAN_VISIBILITY_DEFAULT MatchSpy
 
     /** Start reference counting this object.
      *
-     *  You can hand ownership of a dynamically allocated MatchSpy
+     *  You can transfer ownership of a dynamically allocated MatchSpy
      *  object to Xapian by calling release() and then passing the object to a
      *  Xapian method.  Xapian will arrange to delete the object once it is no
      *  longer required.
