@@ -151,8 +151,6 @@ class HoneyAllDocsPostList : public LeafPostList {
 
     ~HoneyAllDocsPostList();
 
-    Xapian::termcount get_doclength() const;
-
     Xapian::docid get_docid() const;
 
     Xapian::termcount get_wdf() const;

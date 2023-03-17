@@ -56,13 +56,6 @@ HoneyAllDocsPostList::~HoneyAllDocsPostList()
     delete cursor;
 }
 
-Xapian::termcount
-HoneyAllDocsPostList::get_doclength() const
-{
-    LOGCALL(DB, Xapian::termcount, "HoneyAllDocsPostList::get_doclength", NO_ARGS);
-    RETURN(reader.get_doclength());
-}
-
 Xapian::docid
 HoneyAllDocsPostList::get_docid() const
 {
