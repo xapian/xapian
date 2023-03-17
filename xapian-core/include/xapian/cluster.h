@@ -40,7 +40,10 @@
 
 namespace Xapian {
 
-/// Stopper subclass which checks for both stemmed and unstemmed stopwords
+/** Stopper subclass which checks for both stemmed and unstemmed stopwords.
+ *
+ *  This is intended for use with Xapian::Cluster.
+ */
 class XAPIAN_VISIBILITY_DEFAULT StemStopper : public Xapian::Stopper {
   public:
     /// Stemming strategies
