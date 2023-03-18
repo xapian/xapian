@@ -967,6 +967,15 @@ $weight
 Numeric Operators:
 ==================
 
+OmegaScript numeric operators are forgiving in their interpretation of
+numeric arguments.  Any characters after an initial span of ASCII digits
+are ignored, so ``123abc`` is interpreted the same as ``123`` and values with no leading digits are interpreted as zero, including an empty string.
+
+A reason for this behaviour is that it gives more robust handling for numeric
+values which are specified in CGI parameters - for example, if an Omega URL
+is quoted in a text document or email, punctuation after it may get included
+in the URL when it's turned into a link or cut and pasted.
+
 $add{...}
 	add arguments together (if called with one argument, this will convert
 	it to an integer and back, which ensures it is an integer).
@@ -995,28 +1004,13 @@ $sub{A,B}
 Logical Operators:
 ==================
 
+OmegaScript logical operators treat an empty string as a false logical value
+and any non-empty string as true.
+
 $and{...}
 	logical short-cutting "and" of its arguments - evaluates
 	arguments until it finds an empty one (and returns "") or
 	has evaluated them all (returns "true")
-
-$eq{A,B}
-	returns "true" if A and B are the same, "" otherwise.
-
-$ge{A,B}
-	returns "true" if A is numerically >= B.
-
-$gt{A,B}
-	returns "true" if A is numerically > B.
-
-$le{A,B}
-	returns "true" if A is numerically <= B.
-
-$lt{A,B}
-	returns "true" if A is numerically < B.
-
-$ne{A,B}
-	returns "true" if A and B are not the same, "" if they are.
 
 $not{A}
 	returns "true" for the empty string, "" otherwise.
@@ -1024,6 +1018,29 @@ $not{A}
 $or{...}
 	logical short-cutting "or" of its arguments - returns first
 	non-empty argument
+
+Comparison Operators:
+=====================
+
+These return a value suitable for use in ``$if``, ``$and``, ``$or``, etc.
+
+$eq{A,B}
+	returns "true" if A and B are the same string, "" otherwise.
+
+$ge{A,B}
+	returns "true" if A is numerically >= B, "" otherwise.
+
+$gt{A,B}
+	returns "true" if A is numerically > B, "" otherwise.
+
+$le{A,B}
+	returns "true" if A is numerically <= B, "" otherwise.
+
+$lt{A,B}
+	returns "true" if A is numerically < B, "" otherwise.
+
+$ne{A,B}
+	returns "true" if A and B are not the same string, "" if they are.
 
 Control:
 ========
