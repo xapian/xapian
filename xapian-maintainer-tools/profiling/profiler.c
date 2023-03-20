@@ -76,7 +76,7 @@ int open(const char *pathname, int flags, ...)
 	logcall("open(\"%s\",,) = %d\n", abspath, fd);
 	free(abspath);
     } else {
-	// display pathname incase realpath fails
+	// display pathname in case realpath fails
 	logcall("open(\"%s\",,) = %d\n", pathname, fd);
     }
     errno = saved_errno;
@@ -109,7 +109,7 @@ int open64(const char *pathname, int flags, ...)
 	logcall("open(\"%s\",,) = %d\n", abspath, fd);
 	free(abspath);
     } else {
-	// display pathname incase realpath fails
+	// display pathname in case realpath fails
 	logcall("open(\"%s\",,) = %d\n", pathname, fd);
     }
     errno = saved_errno;
