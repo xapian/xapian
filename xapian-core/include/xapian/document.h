@@ -135,9 +135,10 @@ class XAPIAN_VISIBILITY_DEFAULT Document {
 
 	/** Set data stored in the document.
 	 *
-	 *  Xapian treats the data as an opaque blob.  It may try to compress
-	 *  it, but other than that it will just store it and return it when
-	 *  requested.
+	 *  This is an opaque blob as far as Xapian is concerned - it's up to
+	 *  you to impose whatever structure you want on it.  If you want to
+	 *  store structured data, consider using something like protocol
+	 *  buffers.
 	 *
 	 *  @param data	The data to store.
 	 */
