@@ -1,6 +1,6 @@
 // Simple test that we can use xapian from csharp
 //
-// Copyright (C) 2004,2005,2006,2007,2008,2011,2016,2019 Olly Betts
+// Copyright (C) 2004,2005,2006,2007,2008,2011,2016,2019,2023 Olly Betts
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -44,17 +44,32 @@ class SmokeTest {
 	    Xapian.Document doc = new Xapian.Document();
 	    // Currently SWIG doesn't generate zero-byte clean code for
 	    // transferring strings between C# and C++.
-	    /*
 	    doc.SetData("a\0b");
-	    if (doc.GetData() == "a") {
-		System.Console.WriteLine("GetData+SetData truncates at a zero byte");
+	    if (doc.GetData() != "a") {
+		System.Console.WriteLine("XPASS: GetData+SetData truncates at a zero byte");
 		System.Environment.Exit(1);
 	    }
-	    if (doc.GetData() != "a\0b") {
-		System.Console.WriteLine("GetData+SetData doesn't transparently handle a zero byte");
+	    if (doc.GetData() == "a\0b") {
+		System.Console.WriteLine("XPASS: GetData+SetData doesn't transparently handle a zero byte");
 		System.Environment.Exit(1);
 	    }
-	    */
+	    if (doc.GetDescription() != "Document(docid=0, data=a)") {
+		System.Console.WriteLine("XPASS: UTF-8 encoding of zero byte fixed!");
+		System.Environment.Exit(1);
+	    }
+
+	    // Surrogate pair case:
+	    string falafel = "\U0001f9c6";
+	    doc.SetData(falafel);
+	    if (doc.GetData() != falafel) {
+		System.Console.WriteLine("getData+setData doesn't transparently handle a surrogate pair");
+		System.Environment.Exit(1);
+	    }
+	    if (doc.GetDescription() != "Document(docid=0, data=" + falafel + ")") {
+		System.Console.WriteLine("GetData+SetData doesn't transparently handle character >= U+10000");
+		System.Environment.Exit(1);
+	    }
+
 	    doc.SetData("is there anybody out there?");
 	    doc.AddTerm("XYzzy");
 	    doc.AddPosting(stem.Apply("is"), 1);

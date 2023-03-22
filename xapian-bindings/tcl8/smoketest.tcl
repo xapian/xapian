@@ -1,6 +1,6 @@
 # Simple test that we can use xapian from Tcl
 #
-# Copyright (C) 2004,2006,2009,2011,2017,2019 Olly Betts
+# Copyright (C) 2004,2006,2009,2011,2017,2019,2023 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -48,6 +48,10 @@ if { [doc get_data] == "a" } {
 }
 if { [doc get_data] != "a\0b" } {
     puts stderr "get_data+set_data doesn't transparently handle a zero byte"
+    exit 1
+}
+if { [doc get_description] != "Document(docid=0, data=a\\xc0\\x80b)" } {
+    puts stderr "XPASS: UTF-8 encoding of zero byte fixed!"
     exit 1
 }
 
