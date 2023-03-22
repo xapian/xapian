@@ -258,7 +258,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
      *
      *  @param did	The document id to iterate terms from
      *
-     *  The terms are returned ascending string order (by byte value).
+     *  The terms are returned in ascending string order (by byte value).
      */
     TermIterator termlist_begin(Xapian::docid did) const;
 

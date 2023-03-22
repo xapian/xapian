@@ -205,7 +205,7 @@ class XAPIAN_VISIBILITY_DEFAULT Document {
 
     /** Start iterating the terms in this document.
      *
-     *  The terms are returned ascending string order (by byte value).
+     *  The terms are returned in ascending string order (by byte value).
      */
     TermIterator termlist_begin() const;
 
