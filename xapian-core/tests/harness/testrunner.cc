@@ -87,7 +87,7 @@ TestRunner::set_properties_for_backend(const string & backend_name)
 	    BACKEND|POSITIONAL|WRITABLE|METADATA|
 	    SYNONYMS|VALUESTATS|PATH },
 	{ "multi_glass", MULTI|
-	    BACKEND|POSITIONAL|WRITABLE|METADATA|
+	    BACKEND|POSITIONAL|WRITABLE|METADATA|SPELLING|
 	    SYNONYMS|VALUESTATS|GENERATED|COMPACT|PATH },
 	{ "remoteprog_chert", REMOTE|
 	    BACKEND|TRANSACTIONS|POSITIONAL|WRITABLE|METADATA|VALUESTATS },
@@ -105,7 +105,7 @@ TestRunner::set_properties_for_backend(const string & backend_name)
 	    BACKEND|TRANSACTIONS|POSITIONAL|WRITABLE|METADATA|VALUESTATS|
 	    GENERATED
 	},
-	{ "singlefile_glass", SINGLEFILE|
+	{ "singlefile_glass", SINGLEFILE|SPELLING|
 	    BACKEND|POSITIONAL|VALUESTATS|COMPACT|PATH },
 	{ NULL, 0 }
     };
