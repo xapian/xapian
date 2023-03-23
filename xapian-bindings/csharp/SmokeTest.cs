@@ -41,6 +41,10 @@ class SmokeTest {
 	    }
 
 	    Xapian.Stem stem = new Xapian.Stem("english");
+	    if (stem.GetDescription() != "Xapian::Stem(english)") {
+		System.Console.WriteLine("Unexpected stem.GetDescription()");
+		System.Environment.Exit(1);
+	    }
 	    Xapian.Document doc = new Xapian.Document();
 	    // Currently SWIG doesn't generate zero-byte clean code for
 	    // transferring strings between C# and C++.
