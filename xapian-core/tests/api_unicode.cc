@@ -1,7 +1,7 @@
 /** @file
  * @brief Test the Unicode and UTF-8 classes and functions.
  */
-/* Copyright (C) 2006-2022 Olly Betts
+/* Copyright (C) 2006-2023 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -84,6 +84,11 @@ static const testcase testcases[] = {
     { "\xf0\x8f\xbf\xbf", "\xc3\xb0\xc2\x8f\xc2\xbf\xc2\xbf" },
     // Above Unicode:
     { "\xf4\x90\x80\x80", "\xc3\xb4\xc2\x90\xc2\x80\xc2\x80" },
+    // Surrogate pair cases:
+    { "\xed\xa0\x80", "\xc3\xad\xc2\xa0\xc2\x80" },
+    { "\xed\xbf\xbf", "\xc3\xad\xc2\xbf\xc2\xbf" },
+    { "\xed\xa0\x80" "\xed\xbf\xbf",
+      "\xc3\xad\xc2\xa0\xc2\x80" "\xc3\xad\xc2\xbf\xc2\xbf" },
     { 0, 0 }
 };
 

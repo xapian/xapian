@@ -72,10 +72,10 @@ Utf8Iterator::Utf8Iterator(const char* p_)
 bool
 Utf8Iterator::calculate_sequence_length() const noexcept
 {
-    // Handle invalid UTF-8, overlong sequences, and truncated sequences as
-    // if the text was actually in ISO-8859-1 since we need to do something
-    // with it, and this seems the most likely reason why we'd have invalid
-    // UTF-8.
+    // Handle invalid UTF-8, overlong sequences, surrogate pair halves, and
+    // truncated sequences as if the text was actually in ISO-8859-1 since we
+    // need to do something with it, and this seems the most likely reason why
+    // we'd have invalid UTF-8.
 
     unsigned char ch = *p;
 
@@ -97,7 +97,8 @@ Utf8Iterator::calculate_sequence_length() const noexcept
     if (ch < 0xf0) {
 	if (end - p < 3 || // Not enough bytes
 	    bad_cont(p[1]) || bad_cont(p[2]) || // Invalid
-	    (p[0] == 0xe0 && p[1] < 0xa0)) // Overlong encoding
+	    (p[0] == 0xe0 && p[1] < 0xa0) || // Overlong encoding
+	    (p[0] == 0xed && p[1] >= 0xa0)) // Surrogate pair half
 	    return false;
 	seqlen = 3;
 	return true;
