@@ -77,7 +77,7 @@ TestRunner::set_properties_for_backend(const string & backend_name)
 #endif
 	},
 	{ "multi_glass", MULTI|
-	    BACKEND|POSITIONAL|WRITABLE|METADATA|
+	    BACKEND|POSITIONAL|WRITABLE|METADATA|SPELLING|
 	    SYNONYMS|VALUESTATS|GENERATED|COMPACT|PATH },
 	{ "multi_glass_remoteprog_glass", MULTI|
 	    BACKEND|REMOTE|WRITABLE|GENERATED|SYNONYMS },
@@ -91,10 +91,10 @@ TestRunner::set_properties_for_backend(const string & backend_name)
 	    BACKEND|TRANSACTIONS|POSITIONAL|WRITABLE|METADATA|VALUESTATS|
 	    GENERATED|SYNONYMS
 	},
-	{ "singlefile_glass", SINGLEFILE|
+	{ "singlefile_glass", SINGLEFILE|SPELLING|
 	    BACKEND|POSITIONAL|VALUESTATS|COMPACT|PATH },
 	{ "honey", HONEY|
-	    BACKEND|POSITIONAL|VALUESTATS|COMPACT|PATH
+	    BACKEND|POSITIONAL|VALUESTATS|COMPACT|PATH|SPELLING
 #ifdef XAPIAN_HAS_GLASS_BACKEND
 	    |GENERATED
 #endif

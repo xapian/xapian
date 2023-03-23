@@ -891,7 +891,7 @@ DEFINE_TESTCASE(termgen1, !backend) {
 }
 
 /// Test spelling data generation.
-DEFINE_TESTCASE(tg_spell1, spelling) {
+DEFINE_TESTCASE(tg_spell1, spelling && writable) {
     Xapian::WritableDatabase db = get_writable_database();
 
     Xapian::TermGenerator termgen;

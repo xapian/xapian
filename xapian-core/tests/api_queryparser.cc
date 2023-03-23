@@ -2416,21 +2416,23 @@ static const test test_mispelled_queries[] = {
 };
 
 // Test spelling correction in the QueryParser.
-DEFINE_TESTCASE(qp_spell1, spelling) {
-    Xapian::WritableDatabase db = get_writable_database();
+DEFINE_TESTCASE(qp_spell1, generated && spelling) {
+    Xapian::Database db = get_database("qp_spell1",
+				       [](Xapian::WritableDatabase& wdb,
+					  const string&) {
+					   Xapian::Document doc;
+					   doc.add_term("document", 6);
+					   doc.add_term("search", 7);
+					   doc.add_term("saerch", 1);
+					   doc.add_term("paragraph", 8);
+					   doc.add_term("paragraf", 2);
+					   wdb.add_document(doc);
 
-    Xapian::Document doc;
-    doc.add_term("document", 6);
-    doc.add_term("search", 7);
-    doc.add_term("saerch", 1);
-    doc.add_term("paragraph", 8);
-    doc.add_term("paragraf", 2);
-    db.add_document(doc);
-
-    db.add_spelling("document");
-    db.add_spelling("search");
-    db.add_spelling("paragraph");
-    db.add_spelling("band");
+					   wdb.add_spelling("document");
+					   wdb.add_spelling("search");
+					   wdb.add_spelling("paragraph");
+					   wdb.add_spelling("band");
+				       });
 
     Xapian::QueryParser qp;
     qp.set_stemming_strategy(Xapian::QueryParser::STEM_SOME);
@@ -2447,20 +2449,20 @@ DEFINE_TESTCASE(qp_spell1, spelling) {
 }
 
 // Test spelling correction in the QueryParser with multiple databases.
-DEFINE_TESTCASE(qp_spell2, spelling)
+DEFINE_TESTCASE(qp_spell2, generated && spelling)
 {
-    Xapian::WritableDatabase db1 = get_writable_database();
-
-    db1.add_spelling("document");
-    db1.add_spelling("search");
-    db1.commit();
-
-    Xapian::WritableDatabase db2 = get_named_writable_database("qp_spell2a");
-
-    db2.add_spelling("document");
-    db2.add_spelling("paragraph");
-    db2.add_spelling("band");
-
+    Xapian::Database db1 = get_database("qp_spell2a",
+					[](Xapian::WritableDatabase& wdb,
+					   const string&) {
+					    wdb.add_spelling("document");
+					    wdb.add_spelling("search");
+					});
+    Xapian::Database db2 = get_database("qp_spell2b",
+					[](Xapian::WritableDatabase& wdb,
+					   const string&) {
+					    wdb.add_spelling("document");
+					    wdb.add_spelling("paragraph");
+					});
     Xapian::Database db;
     db.add_database(db1);
     db.add_database(db2);
@@ -2479,6 +2481,15 @@ DEFINE_TESTCASE(qp_spell2, spelling)
     }
 }
 
+static void
+gen_simple_spelling_db(Xapian::WritableDatabase& db, const string&)
+{
+    db.add_spelling("document");
+    db.add_spelling("search");
+    db.add_spelling("paragraph");
+    db.add_spelling("band");
+}
+
 static const test test_mispelled_wildcard_queries[] = {
     { "doucment", "document" },
     { "doucment*", "" },
@@ -2489,14 +2500,9 @@ static const test test_mispelled_wildcard_queries[] = {
 
 // Test spelling correction in the QueryParser with wildcards.
 // Regression test for bug fixed in 1.1.3 and 1.0.17.
-DEFINE_TESTCASE(qp_spellwild1, spelling) {
-    Xapian::WritableDatabase db = get_writable_database();
-
-    db.add_spelling("document");
-    db.add_spelling("search");
-    db.add_spelling("paragraph");
-    db.add_spelling("band");
-
+DEFINE_TESTCASE(qp_spellwild1, generated && spelling) {
+    Xapian::Database db = get_database("simple_spelling_db",
+				       gen_simple_spelling_db);
     Xapian::QueryParser qp;
     qp.set_database(db);
 
@@ -2533,14 +2539,9 @@ static const test test_mispelled_partial_queries[] = {
 
 // Test spelling correction in the QueryParser with FLAG_PARTIAL.
 // Regression test for bug fixed in 1.1.3 and 1.0.17.
-DEFINE_TESTCASE(qp_spellpartial1, spelling) {
-    Xapian::WritableDatabase db = get_writable_database();
-
-    db.add_spelling("document");
-    db.add_spelling("search");
-    db.add_spelling("paragraph");
-    db.add_spelling("band");
-
+DEFINE_TESTCASE(qp_spellpartial1, generated && spelling) {
+    Xapian::Database db = get_database("simple_spelling_db",
+				       gen_simple_spelling_db);
     Xapian::QueryParser qp;
     qp.set_database(db);
 
@@ -2575,7 +2576,7 @@ static const test test_synonym_queries[] = {
 };
 
 // Test single term synonyms in the QueryParser.
-DEFINE_TESTCASE(qp_synonym1, spelling) {
+DEFINE_TESTCASE(qp_synonym1, spelling && writable) {
     Xapian::WritableDatabase db = get_writable_database();
 
     db.add_synonym("Zsearch", "Zfind");
