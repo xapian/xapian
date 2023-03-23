@@ -89,7 +89,7 @@ class SmokeTest {
 	    // Check exception handling for Xapian::DocNotFoundError.
 	    try {
 		Xapian.Document doc2 = db.GetDocument(2);
-		System.Console.WriteLine("Retrieved non-existent document: " + doc2.ToString());
+		System.Console.WriteLine("Retrieved non-existent document: " + doc2.GetDescription());
 		System.Environment.Exit(1);
 	    } catch (System.Exception e) {
 		// We expect DocNotFoundError
@@ -129,12 +129,12 @@ class SmokeTest {
 	    qp.AddRangeprocessor(rpdate, "foo");
 
             if (Xapian.Query.MatchAll.GetDescription() != "Query(<alldocuments>)") {
-		System.Console.WriteLine("Unexpected Query.MatchAll.toString()");
+		System.Console.WriteLine("Unexpected Query.MatchAll.GetDescription()");
 		System.Environment.Exit(1);
             }
 
             if (Xapian.Query.MatchNothing.GetDescription() != "Query()") {
-		System.Console.WriteLine("Unexpected Query.MatchNothing.toString()");
+		System.Console.WriteLine("Unexpected Query.MatchNothing.GetDescription()");
 		System.Environment.Exit(1);
             }
 
