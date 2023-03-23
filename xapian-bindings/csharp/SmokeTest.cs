@@ -1,4 +1,4 @@
-// Simple test that we can load the xapian module and run a simple test
+// Simple test that we can use xapian from csharp
 //
 // Copyright (C) 2004,2005,2006,2007,2008,2011,2016,2019 Olly Betts
 //
