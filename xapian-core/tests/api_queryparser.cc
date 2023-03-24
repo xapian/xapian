@@ -2463,7 +2463,7 @@ static const test test_synonym_queries[] = {
 };
 
 // Test single term synonyms in the QueryParser.
-DEFINE_TESTCASE(qp_synonym1, spelling && writable) {
+DEFINE_TESTCASE(qp_synonym1, synonyms && writable) {
     Xapian::WritableDatabase db = get_writable_database();
 
     db.add_synonym("Zsearch", "Zfind");
