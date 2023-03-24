@@ -41,7 +41,7 @@ struct test {
 }
 
 /// Regression test for bug#407 fixed in 1.0.17 and 1.1.3.
-DEFINE_TESTCASE(qpsynonympartial1, synonyms) {
+DEFINE_TESTCASE(qpsynonympartial1, generated && synonyms) {
     static const test test_queries[] = {
 	{ "hello", "(WILDCARD SYNONYM hello OR hello@1)" },
 	{ "~hello", "(hello@1 SYNONYM hi@1 SYNONYM howdy@1)" },
@@ -67,11 +67,12 @@ DEFINE_TESTCASE(qpsynonympartial1, synonyms) {
 	{ NULL, NULL }
     };
 
-    Xapian::WritableDatabase db(get_writable_database());
-    db.add_synonym("hello", "hi");
-    db.add_synonym("hello", "howdy");
-    db.commit();
-
+    Xapian::Database db = get_database("qpsynonympartial1",
+				       [](Xapian::WritableDatabase& wdb,
+					  const string&) {
+					   wdb.add_synonym("hello", "hi");
+					   wdb.add_synonym("hello", "howdy");
+				       });
     Xapian::Enquire enquire(db);
     Xapian::QueryParser qp;
     Xapian::Stem stemmmer("english");
