@@ -549,8 +549,9 @@ main(int argc, char **argv)
 
 	    // -Mtxt: results in an empty string, which effectively removes the
 	    // default mapping for .txt files.
-	    mime_map[string(optarg, s - optarg)] = string(s + 1);
-	    max_ext_len = max(max_ext_len, strlen(s + 1));
+	    size_t ext_len = s - optarg;
+	    mime_map[string(optarg, ext_len)] = string(s + 1);
+	    max_ext_len = max(max_ext_len, ext_len);
 	    break;
 	}
 	case 'F':
