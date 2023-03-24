@@ -2463,16 +2463,18 @@ static const test test_synonym_queries[] = {
 };
 
 // Test single term synonyms in the QueryParser.
-DEFINE_TESTCASE(qp_synonym1, synonyms && writable) {
-    Xapian::WritableDatabase db = get_writable_database();
-
-    db.add_synonym("Zsearch", "Zfind");
-    db.add_synonym("Zsearch", "Zlocate");
-    db.add_synonym("search", "find");
-    db.add_synonym("Zseek", "Zsearch");
-    db.add_synonym("regression test", "magic");
-
-    db.commit();
+DEFINE_TESTCASE(qp_synonym1, generated && synonyms) {
+    Xapian::Database db = get_database("qp_synonym1",
+				       [](Xapian::WritableDatabase& wdb,
+					  const string&) {
+					   wdb.add_synonym("Zsearch", "Zfind");
+					   wdb.add_synonym("Zsearch",
+							   "Zlocate");
+					   wdb.add_synonym("search", "find");
+					   wdb.add_synonym("Zseek", "Zsearch");
+					   wdb.add_synonym("regression test",
+							   "magic");
+				       });
 
     Xapian::QueryParser qp;
     qp.set_stemmer(Xapian::Stem("english"));
@@ -2501,14 +2503,15 @@ static const test test_multi_synonym_queries[] = {
 };
 
 // Test multi term synonyms in the QueryParser.
-DEFINE_TESTCASE(qp_synonym2, synonyms) {
-    Xapian::WritableDatabase db = get_writable_database();
-
-    db.add_synonym("sun tan cream", "lotion");
-    db.add_synonym("sun tan", "bathe");
-    db.add_synonym("single", "record");
-
-    db.commit();
+DEFINE_TESTCASE(qp_synonym2, generated && synonyms) {
+    Xapian::Database db = get_database("qp_synonym2",
+				       [](Xapian::WritableDatabase& wdb,
+					  const string&) {
+					   wdb.add_synonym("sun tan cream",
+							   "lotion");
+					   wdb.add_synonym("sun tan", "bathe");
+					   wdb.add_synonym("single", "record");
+				       });
 
     Xapian::QueryParser qp;
     qp.set_stemmer(Xapian::Stem("english"));
@@ -2548,16 +2551,18 @@ static const test test_synonym_op_queries[] = {
 };
 
 // Test the synonym operator in the QueryParser.
-DEFINE_TESTCASE(qp_synonym3, synonyms) {
-    Xapian::WritableDatabase db = get_writable_database();
-
-    db.add_synonym("Zsearch", "Zfind");
-    db.add_synonym("Zsearch", "Zlocate");
-    db.add_synonym("search", "find");
-    db.add_synonym("Zseek", "Zsearch");
-    db.add_synonym("ZXFOOsearch", "prefixated");
-
-    db.commit();
+DEFINE_TESTCASE(qp_synonym3, generated && synonyms) {
+    Xapian::Database db = get_database("qp_synonym3",
+				       [](Xapian::WritableDatabase& wdb,
+					  const string&) {
+					   wdb.add_synonym("Zsearch", "Zfind");
+					   wdb.add_synonym("Zsearch",
+							   "Zlocate");
+					   wdb.add_synonym("search", "find");
+					   wdb.add_synonym("Zseek", "Zsearch");
+					   wdb.add_synonym("ZXFOOsearch",
+							   "prefixated");
+				       });
 
     Xapian::QueryParser qp;
     qp.set_stemmer(Xapian::Stem("english"));
@@ -2704,7 +2709,7 @@ qp_scale1_helper(const Xapian::Database &db, const string & q, unsigned n,
 
 // Regression test: check that query parser doesn't scale very badly with the
 // size of the query.
-DEFINE_TESTCASE(qp_scale1, synonyms) {
+DEFINE_TESTCASE(qp_scale1, writable && synonyms) {
     Xapian::WritableDatabase db = get_writable_database();
 
     db.add_synonym("foo", "bar");
