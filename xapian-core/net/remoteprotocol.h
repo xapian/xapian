@@ -1,7 +1,7 @@
 /** @file
  *  @brief Remote protocol version and message numbers
  */
-/* Copyright (C) 2006,2007,2008,2009,2010,2011,2013,2014,2015,2017,2018,2019 Olly Betts
+/* Copyright (C) 2006-2023 Olly Betts
  * Copyright (C) 2007,2010 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -56,8 +56,9 @@
 // 43: pre-1.5.0 REPLY_DONE sent for 5 more messages; MSG_QUERY adjusted
 // 44: pre-1.5.0 pack_uint() now used; many other changes
 // 44.1: pre-1.5.0 MSG_RECONSTRUCTTEXT added
-// 45: 1.5.0 Remote support for sorters
-#define XAPIAN_REMOTE_PROTOCOL_MAJOR_VERSION 45
+// 45: pre-1.5.0 Remote support for sorters
+// 46: 1.5.0 Drop unused fields
+#define XAPIAN_REMOTE_PROTOCOL_MAJOR_VERSION 46
 #define XAPIAN_REMOTE_PROTOCOL_MINOR_VERSION 0
 
 /** Message types (client -> server).

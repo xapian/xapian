@@ -552,12 +552,6 @@ RemoteServer::msg_query(const string &message_in)
 	throw Xapian::NetworkError("bad message (sort_value_forward)");
     }
 
-    // FIXME: Remove on next protocol bump.
-    bool dummy;
-    if (!unpack_bool(&p, p_end, &dummy)) {
-	throw Xapian::NetworkError("bad message (full_db_has_positions)");
-    }
-
     double time_limit = unserialise_double(&p, p_end);
 
     int percent_threshold = *p++;

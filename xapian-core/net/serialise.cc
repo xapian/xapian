@@ -44,8 +44,6 @@ serialise_stats(const Xapian::Weight::Internal &stats)
     pack_uint(result, stats.total_length);
     pack_uint(result, stats.collection_size);
     pack_uint(result, stats.rset_size);
-    // FIXME: Remove on next remote protocol bump.
-    pack_uint(result, stats.total_length);
     pack_bool(result, stats.have_max_part);
 
     pack_uint(result, stats.termfreqs.size());
@@ -68,12 +66,9 @@ unserialise_stats(const char* p, const char* p_end,
 		  Xapian::Weight::Internal& stat)
 {
     size_t n;
-    // FIXME: Remove on next remote protocol bump.
-    Xapian::totallength dummy;
     if (!unpack_uint(&p, p_end, &stat.total_length) ||
 	!unpack_uint(&p, p_end, &stat.collection_size) ||
 	!unpack_uint(&p, p_end, &stat.rset_size) ||
-	!unpack_uint(&p, p_end, &dummy) ||
 	!unpack_bool(&p, p_end, &stat.have_max_part) ||
 	!unpack_uint(&p, p_end, &n)) {
 	unpack_throw_serialisation_error(p);

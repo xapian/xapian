@@ -704,8 +704,6 @@ RemoteDatabase::set_query(const Xapian::Query& query,
 	pack_uint(message, sort_key);
     }
     pack_bool(message, sort_value_forward);
-    // FIXME: Dummy value, remove on next protocol bump.
-    pack_bool(message, true);
     message += serialise_double(time_limit);
     message += char(percent_threshold);
     message += serialise_double(weight_threshold);
