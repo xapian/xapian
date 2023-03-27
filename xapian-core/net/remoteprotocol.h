@@ -57,7 +57,7 @@
 // 44: pre-1.5.0 pack_uint() now used; many other changes
 // 44.1: pre-1.5.0 MSG_RECONSTRUCTTEXT added
 // 45: pre-1.5.0 Remote support for sorters
-// 46: 1.5.0 Drop unused fields
+// 46: 1.5.0 Drop unused fields; front-code term names in serialised stats
 #define XAPIAN_REMOTE_PROTOCOL_MAJOR_VERSION 46
 #define XAPIAN_REMOTE_PROTOCOL_MINOR_VERSION 0
 

@@ -1,7 +1,7 @@
 /** @file
  * @brief functions to convert Xapian objects to strings and back
  */
-/* Copyright (C) 2006,2007,2008,2009,2010,2011,2014,2015,2017 Olly Betts
+/* Copyright (C) 2006-2023 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,9 +30,11 @@
 #include "pack.h"
 #include "serialise.h"
 #include "serialise-double.h"
+#include "stringutils.h"
 #include "weight/weightinternal.h"
 
 #include <string>
+#include <string_view>
 
 using namespace std;
 
@@ -48,14 +50,34 @@ serialise_stats(const Xapian::Weight::Internal &stats)
 
     pack_uint(result, stats.termfreqs.size());
     map<string, TermFreqs>::const_iterator i;
+    string_view prev_term;
     for (i = stats.termfreqs.begin(); i != stats.termfreqs.end(); ++i) {
-	pack_string(result, i->first);
+	const string& term = i->first;
+	// We reduce the size of the encoding by reusing any prefix which is in
+	// common with the previous term.  This is much more compact if there
+	// are a lot of terms, especially if they share a prefix such as an
+	// OP_WILDCARD which expands to a lot of terms.
+	size_t reuse = common_prefix_length(prev_term, term);
+	size_t append = term.size() - reuse;
+	if (reuse == prev_term.size() && usual(term.size() <= 255)) {
+	    // Reuse the whole of the previous term.  In this case we store the
+	    // new length for the reuse count, which is longer than a valid
+	    // reuse count.  This saves a byte (or two if the new term is
+	    // >= 128 bytes long).
+	    AssertRel(term.size(), >, reuse);
+	    result += char(term.size());
+	} else {
+	    result += reuse;
+	    pack_uint(result, append);
+	}
+	result.append(term.data() + reuse, append);
 	pack_uint(result, i->second.termfreq);
 	if (stats.rset_size != 0)
 	    pack_uint(result, i->second.reltermfreq);
 	pack_uint(result, i->second.collfreq);
 	if (stats.have_max_part)
 	    result += serialise_double(i->second.max_part);
+	prev_term = term;
     }
 
     return result;
@@ -79,8 +101,23 @@ unserialise_stats(const char* p, const char* p_end,
 	Xapian::doccount termfreq;
 	Xapian::doccount reltermfreq = 0;
 	Xapian::termcount collfreq;
-	if (!unpack_string(&p, p_end, term) ||
-	    !unpack_uint(&p, p_end, &termfreq) ||
+	if (p == p_end) {
+	    unpack_throw_serialisation_error(p);
+	}
+	size_t reuse = static_cast<unsigned char>(*p++);
+	size_t append;
+	if (reuse <= term.size()) {
+	    term.resize(reuse);
+	    if (!unpack_uint(&p, p_end, &append) ||
+		size_t(p_end - p) < append) {
+		unpack_throw_serialisation_error(p);
+	    }
+	} else {
+	    append = reuse - term.size();
+	}
+	term.append(p, append);
+	p += append;
+	if (!unpack_uint(&p, p_end, &termfreq) ||
 	    (stat.rset_size != 0 && !unpack_uint(&p, p_end, &reltermfreq)) ||
 	    !unpack_uint(&p, p_end, &collfreq)) {
 	    unpack_throw_serialisation_error(p);
