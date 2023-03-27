@@ -189,7 +189,9 @@ push @writemakefile_args, (
     'XSOPT'		=> '-C++',
     # 'typemap' is implicitly added to this list.
     'TYPEMAPS'		=> ['perlobject.map', 'typemap-errorclasses'],
-    'clean'		=> { 'FILES' => 'ld-wrapper makefile-pl-args' },
+    'clean'		=> {
+      'FILES' => 'handle_exception.cc ld-wrapper makefile-pl-args testdb*'
+    },
     # Add "make check" as alias for "make test".
     # Make sure that we rebuild the Makefile if the version number changes.
     'depend'		=> { 'check' => 'test', 'Makefile' => 'Xapian.pm' },
