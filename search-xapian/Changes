@@ -5,6 +5,8 @@ Revision history for Perl extension Search::Xapian.
 	- `make clean` now removes the generate source handle_exception.cc
 	  and the `testdb*` databases create by `make test`.  Reported by
 	  Gregor Herrmann.
+	- README: Improve wording regarding status of these bindings vs the
+	  SWIG-generated ones.
 
 1.2.25.5  Sun Feb 27 23:46:46 UTC 2022
 	[Changes contributed by Olly Betts]
