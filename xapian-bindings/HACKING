@@ -130,7 +130,7 @@ Pike		Bill Welliver has written some Pike bindings for Xapian
 
 There are a number of other languages which SWIG supports, but which nobody has
 yet (to our knowledge!) worked on producing Xapian bindings for - see
-http://www.swig.org/compare.html for a list of supported languages.
+https://www.swig.org/compare.html for a list of supported languages.
 
 It may be possible to support a language which isn't listed above, but it's
 likely to be harder unless you're already familiar with the tools available
