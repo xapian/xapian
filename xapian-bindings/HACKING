@@ -24,28 +24,28 @@ Packages to install for each language
 C#
 --
 
-Debian stretch::
+Debian bullseye::
 
 apt-get install mono-devel
 
 Java
 ----
 
-Debian stretch::
+Debian bullseye::
 
-apt-get install openjdk-8-jdk
+apt-get install openjdk-11-jdk
 
 Lua
 ---
 
-Debian stretch::
+Debian bullseye::
 
-apt-get install lua5.3 liblua5.3-dev
+apt-get install lua5.4 liblua5.4-dev
 
 Perl
 ----
 
-Debian stretch: all required are packages installed by default.
+Debian bullseye: all required are packages installed by default.
 
 PHP
 ---
@@ -64,14 +64,14 @@ apt-get install python3-dev
 Ruby
 ----
 
-Debian stretch::
+Debian bullseye::
 
 apt-get install ruby-dev
 
 Tcl
 ---
 
-Debian stretch::
+Debian bullseye::
 
 apt-get install tcl-dev
 
