@@ -144,7 +144,7 @@ likely to be harder unless you're already familiar with the tools available
 for wrapping a C++ library for use with that language.
 
 Implementing Deprecation Warnings for the Bindings
-=================================================
+==================================================
 
 Currently we don't have an equivalent of the C++ ``XAPIAN_DEPRECATED()`` macro
 for the bindings, but it would be good to have.  Here are some notes on how
