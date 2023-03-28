@@ -54,12 +54,19 @@ Debian bookworm::
 
 apt-get install php-cli php-dev
 
-Python
-------
+Python 2
+--------
 
-Debian stretch::
+Debian buster::
 
 apt-get install python-dev
+
+Python 3
+--------
+
+Debian bullseye::
+
+apt-get install python3-dev
 
 Ruby
 ----
