@@ -39,11 +39,14 @@ Perl		These Perl bindings are generated using SWIG, and are a
 		details.  These bindings probably need Perl 5.8.3 or later.
 		Recently tested with 5.14.2, 5.22.1 and 5.30.0.
 
-PHP 		Requires PHP >= 8.0.
+PHP		Requires PHP >= 8.0.  If you still need support for PHP 5.x
+		or PHP 7.x, use Xapian 1.4.21.
 
-Python 2.x	No longer supported.  Xapian 1.4.x supports Python 2.6 and 2.7.
+Python 2.x	No longer supported.  Xapian 1.4.x supports Python 2.6 and 2.7
+		(for Python 2.6, use Xapian 1.4.21).
 
-Python 3.x	Requires Python 3.3 or later.
+Python 3.x	Requires Python 3.3 or later.  If you still need support for
+		Python 3.2, use Xapian 1.4.21.
 
 Ruby		Requires Ruby 2.1 or later (older versions are no longer
 		supported by the Ruby developers - if you still need support
