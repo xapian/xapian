@@ -138,6 +138,8 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
     /** Sorts the list of documents in MSet according to their weights.
      *
      *  Use after calling MSet::replace_weights.
+     *
+     *  This invalidates any MSetIterator objects active on this MSet.
      */
     void sort_by_relevance();
 
