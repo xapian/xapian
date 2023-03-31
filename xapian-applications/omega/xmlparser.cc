@@ -210,13 +210,12 @@ void
 XmlParser::parse(string_view text)
 {
     // Check for BOM.
-    auto begin_after_bom = text.begin();
     if (text.size() >= 3) {
 	switch (text[0]) {
 	  case '\xef':
 	    if (text[1] == '\xbb' && text[2] == '\xbf') {
 		charset = "utf-8";
-		begin_after_bom += 3;
+		text.remove_prefix(3);
 	    }
 	    break;
 	  case '\xfe':
@@ -238,7 +237,7 @@ XmlParser::parse(string_view text)
 
     attribute_len = 0;
 
-    auto start = begin_after_bom;
+    auto start = text.begin();
 
     while (true) {
 	// Skip through until we find a tag, a comment, or the end of document.
@@ -257,7 +256,7 @@ XmlParser::parse(string_view text)
 	    if (ch == '?') {
 		// PHP code or XML declaration.
 		// XML declaration is only valid at the start of the first line.
-		if (p != begin_after_bom || text.size() < 20) break;
+		if (p != text.begin() || text.size() < 20) break;
 
 		// XML declaration looks something like this:
 		// <?xml version="1.0" encoding="UTF-8"?>
