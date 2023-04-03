@@ -607,7 +607,7 @@ class GlassTable {
      *		(default: false).
      */
     void add(const std::string& key,
-	     std::string tag,
+	     const std::string& tag,
 	     bool already_compressed = false);
 
     /** Delete an entry from the table.

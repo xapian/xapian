@@ -1274,7 +1274,7 @@ void GlassTable::form_key(const string & key) const
 */
 
 void
-GlassTable::add(const string &key, string tag, bool already_compressed)
+GlassTable::add(const string& key, const string& tag, bool already_compressed)
 {
     LOGCALL_VOID(DB, "GlassTable::add", key | tag | already_compressed);
     Assert(writable);
