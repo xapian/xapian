@@ -1,7 +1,7 @@
 /** @file
  *  @brief Remote backend database class
  */
-/* Copyright (C) 2006-2022 Olly Betts
+/* Copyright (C) 2006-2023 Olly Betts
  * Copyright (C) 2007,2009,2010 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -727,12 +727,14 @@ RemoteDatabase::set_query(const Xapian::Query& query,
 }
 
 void
-RemoteDatabase::get_remote_stats(Xapian::Weight::Internal& out) const
+RemoteDatabase::accumulate_remote_stats(Xapian::Weight::Internal& total) const
 {
     string message;
     get_message(message, REPLY_STATS);
     const char* p = message.data();
-    unserialise_stats(p, p + message.size(), out);
+    Xapian::Weight::Internal remote_stats;
+    unserialise_stats(p, p + message.size(), remote_stats);
+    total += remote_stats;
 }
 
 void

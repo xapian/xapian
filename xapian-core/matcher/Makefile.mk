@@ -35,14 +35,6 @@ noinst_HEADERS +=\
 EXTRA_DIST +=\
 	matcher/Makefile
 
-if BUILD_BACKEND_REMOTE
-lib_src +=\
-	matcher/remotesubmatch.cc
-endif
-# Make sure we always distribute this source.
-EXTRA_DIST +=\
-	matcher/remotesubmatch.cc
-
 lib_src +=\
 	matcher/andmaybepostlist.cc\
 	matcher/andnotpostlist.cc\
