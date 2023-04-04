@@ -27,7 +27,6 @@
 #include "omassert.h"
 
 #include <algorithm>
-#include <cstring>
 #include <string>
 
 #include "backends/uuids.h"
