@@ -929,7 +929,7 @@ GlassDatabase::open_position_list(Xapian::docid did, const string& term) const
 TermList *
 GlassDatabase::open_allterms(const string & prefix) const
 {
-    LOGCALL(DB, TermList *, "GlassDatabase::open_allterms", NO_ARGS);
+    LOGCALL(DB, TermList*, "GlassDatabase::open_allterms", prefix);
     RETURN(new GlassAllTermsList(intrusive_ptr<const GlassDatabase>(this),
 				 prefix));
 }
@@ -984,7 +984,7 @@ GlassDatabase::get_metadata(const string & key) const
 TermList *
 GlassDatabase::open_metadata_keylist(const std::string &prefix) const
 {
-    LOGCALL(DB, TermList *, "GlassDatabase::open_metadata_keylist", NO_ARGS);
+    LOGCALL(DB, TermList*, "GlassDatabase::open_metadata_keylist", prefix);
     GlassCursor * cursor = postlist_table.cursor_get();
     if (!cursor) RETURN(NULL);
     RETURN(new GlassMetadataTermList(intrusive_ptr<const GlassDatabase>(this),
@@ -1639,7 +1639,7 @@ GlassWritableDatabase::open_position_list(Xapian::docid did, const string& term)
 TermList *
 GlassWritableDatabase::open_allterms(const string & prefix) const
 {
-    LOGCALL(DB, TermList *, "GlassWritableDatabase::open_allterms", NO_ARGS);
+    LOGCALL(DB, TermList*, "GlassWritableDatabase::open_allterms", prefix);
     if (change_count) {
 	// There are changes, and terms may have been added or removed, and so
 	// we need to flush changes for terms with the specified prefix (but
