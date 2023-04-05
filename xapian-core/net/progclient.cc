@@ -211,7 +211,7 @@ ProgClient::run_program(const string& progname,
 
     // For some reason Windows wants a modifiable command line so we
     // make a copy and pass a pointer to its first character.
-    string cmdline{args}
+    string cmdline{args};
     BOOL ok = CreateProcess(progname.c_str(), &cmdline[0], 0, 0, TRUE, 0, 0, 0,
 			    &startupinfo, &procinfo);
     if (!ok) {
