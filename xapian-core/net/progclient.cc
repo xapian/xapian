@@ -209,12 +209,10 @@ ProgClient::run_program(const string& progname,
     startupinfo.hStdInput = hClient;
     startupinfo.dwFlags |= STARTF_USESTDHANDLES;
 
-    string cmdline{progname};
-    cmdline += ' ';
-    cmdline += args;
     // For some reason Windows wants a modifiable command line so we
-    // pass `&cmdline[0]` rather than `cmdline.c_str()`.
-    BOOL ok = CreateProcess(0, &cmdline[0], 0, 0, TRUE, 0, 0, 0,
+    // make a copy and pass a pointer to its first character.
+    string cmdline{args}
+    BOOL ok = CreateProcess(progname.c_str(), &cmdline[0], 0, 0, TRUE, 0, 0, 0,
 			    &startupinfo, &procinfo);
     if (!ok) {
 	throw Xapian::NetworkError("CreateProcess failed",
