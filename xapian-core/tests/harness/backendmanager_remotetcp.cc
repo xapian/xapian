@@ -264,10 +264,10 @@ launch_xapian_tcpsrv(const string & args)
     int port = DEFAULT_PORT;
 
 try_next_port:
-    string cmd = XAPIAN_TCPSRV " --one-shot --interface " LOCALHOST " --port ";
-    cmd += str(port);
-    cmd += " ";
-    cmd += args;
+    string cmdline = "--one-shot --interface " LOCALHOST " --port ";
+    cmdline += str(port);
+    cmdline += " ";
+    cmdline += args;
 
     // Create a pipe so we can read stdout/stderr from the child process.
     HANDLE hRead, hWrite;
@@ -289,13 +289,11 @@ try_next_port:
     startupinfo.hStdInput = INVALID_HANDLE_VALUE;
     startupinfo.dwFlags |= STARTF_USESTDHANDLES;
 
-    // For some reason Windows wants a modifiable copy!
-    BOOL ok;
-    char * cmdline = strdup(cmd.c_str());
-    ok = CreateProcess(0, cmdline, 0, 0, TRUE, 0, 0, 0, &startupinfo, &procinfo);
-    free(cmdline);
-    if (!ok)
+    // For some reason Windows wants a modifiable cmdline string!
+    if (!CreateProcess(XAPIAN_TCPSRV, &cmdline[0], 0, 0, TRUE, 0, 0, 0,
+		       &startupinfo, &procinfo)) {
 	win32_throw_error_string("Couldn't create child process");
+    }
 
     CloseHandle(hWrite);
     CloseHandle(procinfo.hThread);
