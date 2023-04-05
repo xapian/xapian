@@ -88,14 +88,15 @@ throw_connection_closed_unexpectedly()
     throw Xapian::NetworkError("Connection closed unexpectedly");
 }
 
-RemoteDatabase::RemoteDatabase(int fd, double timeout_,
-			       const string& context_, bool writable,
+RemoteDatabase::RemoteDatabase(pair<int, string> fd_and_context,
+			       double timeout_,
+			       bool writable,
 			       int flags)
     : Xapian::Database::Internal(writable ?
 				 TRANSACTION_NONE :
 				 TRANSACTION_READONLY),
-      link(fd, fd, context_),
-      context(context_),
+      link(fd_and_context.first, fd_and_context.first, fd_and_context.second),
+      context(fd_and_context.second),
       cached_stats_valid(),
       mru_valstats(),
       mru_slot(Xapian::BAD_VALUENO),

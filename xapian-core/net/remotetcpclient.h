@@ -45,21 +45,18 @@ class RemoteTcpClient : SOCKET_INITIALIZER_MIXIN public RemoteDatabase {
      *  Connect to xapian-tcpsrv running on port @a port of host @a hostname.
      *  Give up trying to connect after @a timeout_connect seconds.
      *
+     *  @return A std::pair containing the file descriptor for the connection
+     *		to the child process and a context string to return with any
+     *		error messages.
+     *
      *  Note: this method is called early on during class construction before
      *  any member variables or even the base class have been initialised.
      *  To help avoid accidentally trying to use member variables or call other
      *  methods which do, this method has been deliberately made "static".
      */
-    static int open_socket(const std::string & hostname, int port,
-			   double timeout_connect);
-
-    /** Get a context string for use when constructing Xapian::NetworkError.
-     *
-     *  Note: this method is used from constructors so has been made static to
-     *  avoid problems with trying to use uninitialised member variables.  In
-     *  particular, it can't be made a virtual method of the base class.
-     */
-    static std::string get_tcpcontext(const std::string & hostname, int port);
+    static std::pair<int, std::string> open_socket(const std::string& hostname,
+						   int port,
+						   double timeout_connect);
 
   public:
     /** Constructor.
@@ -77,8 +74,7 @@ class RemoteTcpClient : SOCKET_INITIALIZER_MIXIN public RemoteDatabase {
 		    double timeout_, double timeout_connect, bool writable,
 		    int flags)
 	: RemoteDatabase(open_socket(hostname, port, timeout_connect),
-			 timeout_, get_tcpcontext(hostname, port),
-			 writable, flags) { }
+			 timeout_, writable, flags) { }
 
     /** Destructor. */
     ~RemoteTcpClient();

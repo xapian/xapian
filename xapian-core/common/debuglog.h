@@ -442,8 +442,9 @@ class DebugLogFuncVoid {
     DebugLogFuncVoid xapian_logcall_(0, DEBUGLOG_CATEGORY_##CATEGORY, FUNC, xapian_logcall_parameters_)
 
 /// Log returning a value.
-#define RETURN(A) do { \
-    xapian_logcall_return_type_ xapian_logcall_return_ = A; \
+/* Use __VA_ARGS__ so things like `RETURN({1, 2})` work. */
+#define RETURN(...) do { \
+    xapian_logcall_return_type_ xapian_logcall_return_ = __VA_ARGS__; \
     if (xapian_logcall_.is_category_wanted()) { \
 	std::ostringstream xapian_logcall_ostream_; \
 	PrettyOStream<std::ostringstream> xapian_logcall_stream_(xapian_logcall_ostream_); \
@@ -471,7 +472,7 @@ class DebugLogFuncVoid {
 #define LOGCALL_DTOR(CATEGORY, CLASS) (void)0
 #define LOGCALL_STATIC(CATEGORY, TYPE, FUNC, PARAMS) (void)0
 #define LOGCALL_STATIC_VOID(CATEGORY, FUNC, PARAMS) (void)0
-#define RETURN(A) return A
+#define RETURN(...) return __VA_ARGS__
 #define LOGLINE(a,b) (void)0
 #define LOGVALUE(a,b) (void)0
 

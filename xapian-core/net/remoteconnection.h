@@ -358,6 +358,9 @@ class RemoteConnection {
 
     /** Close the connection. */
     void do_close();
+
+    /** Return the context to report with errors. */
+    const std::string& get_context() const { return context; }
 };
 
 /** RemoteConnection which owns its own fd(s).

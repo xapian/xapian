@@ -42,7 +42,8 @@ int
 ReplicateTcpClient::open_socket(const string & hostname, int port,
 				double timeout_connect)
 {
-    return TcpClient::open_socket(hostname, port, timeout_connect, false);
+    return TcpClient::open_socket(hostname, port, timeout_connect, false,
+				  string());
 }
 
 void

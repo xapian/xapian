@@ -29,31 +29,19 @@
 
 using namespace std;
 
-int
-RemoteTcpClient::open_socket(const string & hostname, int port,
+pair<int, string>
+RemoteTcpClient::open_socket(const string& hostname, int port,
 			     double timeout_connect)
 {
-    // If TcpClient::open_socket() throws, fill in the context.
-    try {
-	return TcpClient::open_socket(hostname, port, timeout_connect, true);
-    } catch (const Xapian::NetworkTimeoutError & e) {
-	throw Xapian::NetworkTimeoutError(e.get_msg(), get_tcpcontext(hostname, port),
-					  e.get_error_string());
-    } catch (const Xapian::NetworkError & e) {
-	throw Xapian::NetworkError(e.get_msg(), get_tcpcontext(hostname, port),
-				   e.get_error_string());
-    }
-}
-
-string
-RemoteTcpClient::get_tcpcontext(const string & hostname, int port)
-{
-    string result("remote:tcp(");
-    result += hostname;
-    result += ':';
-    result += str(port);
-    result += ')';
-    return result;
+    // Build a context string for use when constructing Xapian::NetworkError.
+    string context{"remote:tcp("};
+    context += hostname;
+    context += ':';
+    context += str(port);
+    context += ')';
+    return {TcpClient::open_socket(hostname, port, timeout_connect, true,
+				   context),
+	    context};
 }
 
 RemoteTcpClient::~RemoteTcpClient()

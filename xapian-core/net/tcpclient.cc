@@ -52,8 +52,9 @@
 using namespace std;
 
 int
-TcpClient::open_socket(const std::string & hostname, int port,
-		       double timeout_connect, bool tcp_nodelay)
+TcpClient::open_socket(const string& hostname, int port,
+		       double timeout_connect, bool tcp_nodelay,
+		       const string& context)
 {
     int socketfd = -1;
     int connect_errno = 0;
@@ -89,7 +90,9 @@ TcpClient::open_socket(const std::string & hostname, int port,
 	if (rc < 0) {
 	    int saved_errno = socket_errno(); // note down in case close hits an error
 	    CLOSESOCKET(fd);
-	    throw Xapian::NetworkError("Couldn't set " FLAG_NAME, saved_errno);
+	    throw Xapian::NetworkError("Couldn't set " FLAG_NAME,
+				       context,
+				       saved_errno);
 #undef FLAG_NAME
 	}
 #endif
@@ -104,7 +107,9 @@ TcpClient::open_socket(const std::string & hostname, int port,
 			   sizeof(optval)) < 0) {
 		int saved_errno = socket_errno(); // note down in case close hits an error
 		CLOSESOCKET(fd);
-		throw Xapian::NetworkError("Couldn't set TCP_NODELAY", saved_errno);
+		throw Xapian::NetworkError("Couldn't set TCP_NODELAY",
+					   context,
+					   saved_errno);
 	    }
 	}
 
@@ -149,8 +154,12 @@ TcpClient::open_socket(const std::string & hostname, int port,
 		if (retval < 0)
 		    throw Xapian::NetworkError("Couldn't connect (poll() or "
 					       "select() on socket failed)",
+					       context,
 					       saved_errno);
-		throw Xapian::NetworkTimeoutError("Timed out waiting to connect", ETIMEDOUT);
+		throw Xapian::NetworkTimeoutError("Timed out waiting to "
+						  "connect",
+						  context,
+						  ETIMEDOUT);
 	    }
 
 	    err = 0;
@@ -164,7 +173,9 @@ TcpClient::open_socket(const std::string & hostname, int port,
 	    if (retval < 0) {
 		int saved_errno = socket_errno(); // note down in case close hits an error
 		CLOSESOCKET(fd);
-		throw Xapian::NetworkError("Couldn't get socket options", saved_errno);
+		throw Xapian::NetworkError("Couldn't get socket options",
+					   context,
+					   saved_errno);
 	    }
 	    if (err == 0) {
 		// Connected successfully.
@@ -184,7 +195,9 @@ TcpClient::open_socket(const std::string & hostname, int port,
     }
 
     if (socketfd == -1) {
-	throw Xapian::NetworkError("Couldn't connect", connect_errno);
+	throw Xapian::NetworkError("Couldn't connect",
+				   context,
+				   connect_errno);
     }
 
 #ifdef __WIN32__

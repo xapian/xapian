@@ -29,8 +29,9 @@ namespace TcpClient {
      *  Connect to the server running on port @a port of host @a hostname.
      *  Give up trying to connect after @a timeout_connect seconds.
      */
-    int open_socket(const std::string & hostname, int port,
-		    double timeout_connect, bool tcp_nodelay);
+    int open_socket(const std::string& hostname, int port,
+		    double timeout_connect, bool tcp_nodelay,
+		    const std::string& context);
 }
 
 #endif  // XAPIAN_INCLUDED_TCPCLIENT_H
