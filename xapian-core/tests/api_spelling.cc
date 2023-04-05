@@ -256,15 +256,19 @@ DEFINE_TESTCASE(spell4, generated && spelling) {
 
 // Regression test - used to segfault with some input values.
 DEFINE_TESTCASE(spell5, generated && spelling) {
-    constexpr const char* target = "\xe4\xb8\x80\xe4\xba\x9b";
+    // Using constexpr instead of a macro fails with MSVC - it's not visible
+    // inside the lambda, and we can't explicitly capture it or else the lambda
+    // can't be passed as a function pointer.
+#define TARGET "\xe4\xb8\x80\xe4\xba\x9b"
     Xapian::Database db = get_database("spell5",
 				       [](Xapian::WritableDatabase& wdb,
 					  const string&) {
-					   wdb.add_spelling(target);
+					   wdb.add_spelling(TARGET);
 				       });
 
     string s = db.get_spelling_suggestion("\xe4\xb8\x8d", 3);
-    TEST_EQUAL(s, target);
+    TEST_EQUAL(s, TARGET);
+#undef TARGET
 }
 
 // Test basic spelling correction features.
