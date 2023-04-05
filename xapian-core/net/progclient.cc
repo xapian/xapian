@@ -146,7 +146,7 @@ ProgClient::run_program(const string &progname, const string &args,
     // Redirect stderr to /dev/null
     int stderrfd = open("/dev/null", O_WRONLY);
     if (stderrfd == -1) {
-	throw Xapian::NetworkError(string("Redirecting stderr to /dev/null failed"), get_progcontext(progname, args), errno);
+	_exit(-1);
     }
     if (stderrfd != 2) {
 	// Not sure why it wouldn't be 2, but handle the situation anyway.
