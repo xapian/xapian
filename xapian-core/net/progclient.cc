@@ -230,10 +230,11 @@ ProgClient::run_program(const string &progname, const string &args,
     startupinfo.hStdInput = hClient;
     startupinfo.dwFlags |= STARTF_USESTDHANDLES;
 
-    // For some reason Windows wants a modifiable command line!
+    string cmdline{progname};
+    cmdline += ' ';
+    cmdline += args;
     // For some reason Windows wants a modifiable command line so we
-    // make a copy and pass a pointer to its first character.
-    string cmdline{args};
+    // pass `&cmdline[0]` rather than `cmdline.c_str()`.
     BOOL ok = CreateProcess(progname.c_str(), &cmdline[0], 0, 0, TRUE, 0, 0, 0,
 			    &startupinfo, &procinfo);
     if (!ok) {
