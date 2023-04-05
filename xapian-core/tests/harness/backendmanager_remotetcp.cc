@@ -263,10 +263,10 @@ launch_xapian_tcpsrv(const string & args)
     int port = DEFAULT_PORT;
 
 try_next_port:
-    string cmdline = "--one-shot --interface " LOCALHOST " --port ";
-    cmdline += str(port);
-    cmdline += " ";
-    cmdline += args;
+    string cmd = XAPIAN_TCPSRV " --one-shot --interface " LOCALHOST " --port ";
+    cmd += str(port);
+    cmd += " ";
+    cmd += args;
 
     // Create a pipe so we can read stdout/stderr from the child process.
     HANDLE hRead, hWrite;
@@ -288,8 +288,9 @@ try_next_port:
     startupinfo.hStdInput = INVALID_HANDLE_VALUE;
     startupinfo.dwFlags |= STARTF_USESTDHANDLES;
 
-    // For some reason Windows wants a modifiable cmdline string!
-    if (!CreateProcess(XAPIAN_TCPSRV, &cmdline[0], 0, 0, TRUE, 0, 0, 0,
+    // For some reason Windows wants a modifiable command line string
+    // so pass a pointer to the first character rather than using c_str().
+    if (!CreateProcess(XAPIAN_TCPSRV, &cmd[0], 0, 0, TRUE, 0, 0, 0,
 		       &startupinfo, &procinfo)) {
 	win32_throw_error_string("Couldn't create child process");
     }
@@ -316,9 +317,8 @@ try_next_port:
 		// in use.
 		goto try_next_port;
 	    }
-	    string msg("Failed to get 'Listening...' from command '"
-		       XAPIAN_TCPSRV " ");
-	    msg += cmdline;
+	    string msg("Failed to get 'Listening...' from command '");
+	    msg += cmd;
 	    msg += "' (output: ";
 	    msg += output;
 	    msg += ")";
