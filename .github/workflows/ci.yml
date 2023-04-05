@@ -151,7 +151,7 @@ jobs:
 
   # Test with the oldest clang version we easily can.
   clang6:
-    runs-on: 'ubuntu-18.04'
+    runs-on: 'ubuntu-20.04'
     steps:
     - name: Check out repository code
       uses: actions/checkout@v3
@@ -164,7 +164,7 @@ jobs:
         env
         sudo apt-get update
         sudo apt-get install \
-            clang \
+            clang-6.0 \
             libc++-dev
         sudo apt-get install \
             doxygen \
@@ -194,25 +194,23 @@ jobs:
       run: git status --porcelain|grep '^' && { echo "The generated files listed above are not in .gitignore" ; exit 1; }; true
 
   # GCC 4.7 is the oldest GCC we aim to support for 1.4.x, but the oldest we can
-  # easily build with in github actions is 4.8.  There's no package of GCC 4.8
-  # in Ubuntu 20.04 so we have to run this on 18.04 (also useful to test
-  # there for portability).
-  GCC4-8:
-    name: 'GCC 4.8'
-    runs-on: 'ubuntu-18.04'
+  # easily build with in github actions is 7.5.0.
+  GCC7:
+    name: 'GCC 7'
+    runs-on: 'ubuntu-20.04'
     steps:
     - name: Check out repository code
       uses: actions/checkout@v3
     - name: Install CCache
       uses: hendrikmuhs/ccache-action@v1
       with:
-        key: GCC4-8
+        key: GCC7
     - name: Install package dependencies
       run: |
         sudo apt-get update
         sudo apt-get install \
-            gcc-4.8 \
-            g++-4.8
+            gcc-7 \
+            g++-7
         sudo apt-get install \
             doxygen \
             graphviz \
@@ -232,7 +230,7 @@ jobs:
     - name: bootstrap source tree
       run: ./bootstrap xapian-core xapian-applications/omega swig xapian-bindings xapian-letor
     - name: configure
-      run: ./configure CC='ccache gcc-4.8' CXX='ccache g++-4.8'
+      run: ./configure CC='ccache gcc-7' CXX='ccache g++-7'
     - name: make
       run: make -j2
     - name: Run tests
