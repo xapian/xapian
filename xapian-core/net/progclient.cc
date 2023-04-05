@@ -101,14 +101,25 @@ ProgClient::run_program(const string &progname, const string &args,
 	throw Xapian::NetworkError(string("socketpair failed"), get_progcontext(progname, args), errno);
     }
 
+    // Do the steps of splitting args into an argv[] array which need to
+    // allocate memory before we call fork() since in a multi-threaded program
+    // (which we might be used in) it's only safe to call async-signal-safe
+    // functions in the child process after fork() until exec, and malloc, etc
+    // aren't async-signal-safe.
+    vector<string> argvec;
+    split_words(args, argvec);
+    const char **new_argv = new const char *[argvec.size() + 2];
+
     child = fork();
 
     if (child < 0) {
+	delete [] new_argv;
 	throw Xapian::NetworkError(string("fork failed"), get_progcontext(progname, args), errno);
     }
 
     if (child != 0) {
 	// parent
+	delete [] new_argv;
 	// close the child's end of the socket
 	::close(sv[1]);
 	RETURN(sv[0]);
@@ -153,13 +164,6 @@ ProgClient::run_program(const string &progname, const string &args,
 	dup2(stderrfd, 2);
 	::close(stderrfd);
     }
-
-    vector<string> argvec;
-    split_words(args, argvec);
-
-    // We never explicitly free this memory, but that's OK as we're about
-    // to either execvp() or _exit().
-    const char **new_argv = new const char *[argvec.size() + 2];
 
     new_argv[0] = progname.c_str();
     for (vector<string>::size_type i = 0; i < argvec.size(); ++i) {
