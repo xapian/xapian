@@ -317,8 +317,9 @@ try_next_port:
 		// in use.
 		goto try_next_port;
 	    }
-	    string msg("Failed to get 'Listening...' from command '");
-	    msg += cmd;
+	    string msg("Failed to get 'Listening...' from command '"
+		       XAPIAN_TCPSRV " ");
+	    msg += cmdline;
 	    msg += "' (output: ";
 	    msg += output;
 	    msg += ")";
