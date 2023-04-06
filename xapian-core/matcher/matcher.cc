@@ -54,6 +54,10 @@
 # include "safesysselect.h"
 #endif
 
+#ifdef __WIN32__
+# include "msvcignoreinvalidparam.h"
+#endif
+
 using namespace std;
 using Xapian::Internal::opt_intrusive_ptr;
 
@@ -123,8 +127,7 @@ Matcher::for_all_remotes(Action action)
 	action(remotes[0].get());
     }
 #else
-#ifndef __WIN32__
-    size_t n_remotes = first_oversize;
+    size_t n_remotes = first_nonselectable;
     fd_set fds;
     while (n_remotes > 1) {
 	int nfds = 0;
@@ -165,10 +168,9 @@ Matcher::for_all_remotes(Action action)
     if (n_remotes == 1) {
 	action(remotes[0].get());
     }
-#endif
 
-    // Handle any remotes with fd >= FD_SETSIZE
-    for (size_t i = first_oversize; i != remotes.size(); ++i) {
+    // Handle any remotes which we couldn't pass to select().
+    for (size_t i = first_nonselectable; i != remotes.size(); ++i) {
 	action(remotes[i].get());
     }
 #endif
@@ -259,29 +261,51 @@ Matcher::Matcher(const Xapian::Database& db_,
 # ifndef HAVE_POLL
 #  ifndef __WIN32__
     {
-	// Unfortunately select() can't monitor fds >= FD_SETSIZE, so swap those to
-	// the end here and then handle those last letting them just block if not
-	// ready.
-	first_oversize = remotes.size();
+	// Unfortunately POSIX select() can't monitor fds >= FD_SETSIZE, so
+	// swap those to the end here and then handle those last letting them
+	// just block if not ready.
+	first_nonselectable = remotes.size();
 	size_t i = 0;
-	while (i != first_oversize) {
+	while (i != first_nonselectable) {
 	    int fd = remotes[i]->get_read_fd();
 	    if (fd >= FD_SETSIZE) {
-		swap(remotes[i], remotes[--first_oversize]);
+		swap(remotes[i], remotes[--first_nonselectable]);
 	    } else {
 		++i;
 	    }
 	}
     }
 #  else
-    // We can only use select() on sockets under __WIN32__ and with the remote
-    // prog backend the fds aren't sockets so just avoid using select() for
-    // now.
-    //
-    // FIXME: perhaps we should use WaitForMultipleObjects(), but that seems a
-    // bit tricky to hook up as it probably needs an async ReadFile() to be
-    // active.
-    first_oversize = 0;
+    {
+	// We can only use select() on sockets under __WIN32__, but fds for
+	// remote prog databases aren't sockets, so go through and check if
+	// each fd is a socket or not, and swap the non-sockets to the end here
+	// and then handle those last letting them just block if not ready.
+	//
+	// FIXME: Perhaps we should use WaitForMultipleObjects() to allow
+	// waiting in parallel for prog databases too, but that seems a bit
+	// tricky to hook up as it probably needs an async ReadFile() to be
+	// active.
+	MSVCIgnoreInvalidParameter invalid_handle_value_is_ok;
+	first_nonselectable = remotes.size();
+	size_t i = 0;
+	while (i != first_nonselectable) {
+	    int fd = remotes[i]->get_read_fd();
+	    HANDLE handle = (HANDLE)_get_osfhandle(fd);
+	    if (handle != INVALID_HANDLE_VALUE) {
+		// This fd isn't a socket.
+		swap(remotes[i], remotes[--first_nonselectable]);
+	    } else {
+		++i;
+		// On __WIN32__ FD_SETSIZE is the maximum number of sockets
+		// which can be added to an fd_set.  It seems to be 64, so
+		// it's a case that's possible to trigger.
+		if (i == FD_SETSIZE) {
+		    first_nonselectable = i;
+		}
+	    }
+	}
+    }
 #  endif
 # endif
 #endif

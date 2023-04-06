@@ -61,20 +61,29 @@ class Matcher {
      *  Unlike @a locals, this *only* contains entries for remote shards, and
      *  each RemoteSubMatch object knows its shard index.
      *
-     *  If poll() isn't available so that select() has to be used to
-     *  wait for fds to become ready to read, objects with an fd < FD_SETSIZE
-     *  come first, and those with an fd >= FD_SETSIZE are put at the end with
-     *  @a first_oversize recording the partition point.
+     *  If poll() isn't available then select() has to be used to wait for fds
+     *  to become ready to read, which imposes some limitations:
+     *
+     *  * Generally select() only works for fds < FD_SETSIZE
+     *  * On Microsoft Windows, select() only works for sockets and FD_SETSIZE
+     *    has a different meaning - it's the maximum number of sockets which
+     *    we can select() on at once.
+     *
+     *  To work within these limitations, we order the objects in the vector
+     *  so the ones we can select() on all come before the ones we can't
+     *  select() on.
+     *
+     *  The partition point is recorded in @a first_nonselectable.
      */
     std::vector<std::unique_ptr<RemoteSubMatch>> remotes;
 
 # ifndef HAVE_POLL
-    /** Partition point in @a remotes for fds < FD_SETSIZE.
+    /** Partition point in @a remotes.
      *
-     *  remotes[i]->get_read_fd() < FD_SETSIZE for i < first_oversize,
-     *  remotes[i]->get_read_fd() >= FD_SETSIZE for i >= first_oversize.
+     *  We call select() on remotes[i]->get_read_fd() for all i <
+     *  first_nonselectable.  See doc comment for remotes for more details.
      */
-    std::size_t first_oversize;
+    std::size_t first_nonselectable;
 # endif
 #endif
 
