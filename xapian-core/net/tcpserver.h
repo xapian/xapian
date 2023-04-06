@@ -28,10 +28,6 @@
 # define SOCKET_INITIALIZER_MIXIN
 #endif
 
-#if defined __CYGWIN__ || defined __WIN32__
-# include "safewindows.h" // Only for HANDLE!
-#endif
-
 #include <xapian/visibility.h>
 
 #include <string>
@@ -47,11 +43,6 @@ class XAPIAN_VISIBILITY_DEFAULT TcpServer SOCKET_INITIALIZER_MIXIN {
     /// Don't allow copying.
     TcpServer(const TcpServer &);
 
-#if defined __CYGWIN__ || defined __WIN32__
-    /// Mutex to stop two TcpServers running on the same port.
-    HANDLE mutex = NULL;
-#endif
-
     /** The socket we're listening on. */
     int listen_socket;
 
@@ -64,11 +55,7 @@ class XAPIAN_VISIBILITY_DEFAULT TcpServer SOCKET_INITIALIZER_MIXIN {
      */
     XAPIAN_VISIBILITY_INTERNAL
     static int get_listening_socket(const std::string & host, int port,
-				    bool tcp_nodelay
-#if defined __CYGWIN__ || defined __WIN32__
-				    , HANDLE &mutex
-#endif
-	    );
+				    bool tcp_nodelay);
 
   protected:
     /** Should we produce output when connections are made or lost? */

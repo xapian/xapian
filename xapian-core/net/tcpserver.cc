@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2015,2017,2018 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2015,2017,2018,2023 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -73,22 +73,14 @@ using namespace std;
 /// The TcpServer constructor, taking a database and a listening port.
 TcpServer::TcpServer(const std::string & host, int port, bool tcp_nodelay,
 		     bool verbose_)
-    : listen_socket(get_listening_socket(host, port, tcp_nodelay
-#if defined __CYGWIN__ || defined __WIN32__
-					 , mutex
-#endif
-					 )),
+    : listen_socket(get_listening_socket(host, port, tcp_nodelay)),
       verbose(verbose_)
 {
 }
 
 int
 TcpServer::get_listening_socket(const std::string & host, int port,
-				bool tcp_nodelay
-#if defined __CYGWIN__ || defined __WIN32__
-				, HANDLE &mutex
-#endif
-				)
+				bool tcp_nodelay)
 {
     int socketfd = -1;
     int bind_errno = 0;
@@ -108,69 +100,44 @@ TcpServer::get_listening_socket(const std::string & host, int port,
 
 	int retval = 0;
 
-	if (tcp_nodelay) {
-	    int optval = 1;
-	    // 4th argument might need to be void* or char* - cast it to char*
-	    // since C++ allows implicit conversion to void* but not from
-	    // void*.
+#if defined __CYGWIN__ || defined __WIN32__
+	// Microsoft Windows has screwy semantics for SO_REUSEADDR - it allows
+	// binding to a port which is already bound and listening!  Even worse
+	// is that this affects *any* listening process, even if doesn't use
+	// SO_REUSEADDR itself.
+	//
+	// Rather than fixing this Microsoft instead added SO_EXCLUSIVEADDRUSE
+	// which is much closer to the correct semantics of SO_REUSEADDR.  This
+	// was added in NT4 sp4, but required admin privileges prior to XP SP2.
+	// We no longer support such old platforms so we can unconditionally
+	// use it here.
+	//
+	// There's still an issue that we can't listen on a port which has
+	// closed connections in TIME_WAIT state though (unlike other
+	// platforms).  There doesn't seem a good solution to this, but
+	// shutting down sockets explicitly with closesocket() supposedly helps
+	// avoid it.
+# define REUSE_OPTION SO_EXCLUSIVEADDRUSE
+#else
+# define REUSE_OPTION SO_REUSEADDR
+#endif
+	int optval = 1;
+	// 4th argument might need to be void* or char* - cast it to char*
+	// since C++ allows implicit conversion to void* but not from void*.
+	retval = setsockopt(fd, SOL_SOCKET, REUSE_OPTION,
+			    reinterpret_cast<char*>(&optval),
+			    sizeof(optval));
+
+	if (tcp_nodelay && retval >= 0) {
 	    retval = setsockopt(fd, IPPROTO_TCP, TCP_NODELAY,
 				reinterpret_cast<char *>(&optval),
 				sizeof(optval));
 	}
 
-	int optval = 1;
-#if defined __CYGWIN__ || defined __WIN32__
-	// Windows has screwy semantics for SO_REUSEADDR - it allows the user
-	// to bind to a port which is already bound and listening!  That's
-	// just not suitable as we don't want multiple processes listening on
-	// the same port, so we guard against that by using a named win32 mutex
-	// object (and we create it in the 'Global namespace' so that this
-	// still works in a Terminal Services environment).
-	string name = "Global\\xapian-tcpserver-listening-" + str(port);
-	if ((mutex = CreateMutex(NULL, TRUE, name.c_str())) == NULL) {
-	    // We failed to create the mutex, probably the error is
-	    // ERROR_ACCESS_DENIED, which simply means that TcpServer is
-	    // already running on this port but as a different user.
-	} else if (GetLastError() == ERROR_ALREADY_EXISTS) {
-	    // The mutex already existed, so TcpServer is already running
-	    // on this port.
-	    CloseHandle(mutex);
-	    mutex = NULL;
-	}
-	if (mutex == NULL) {
-	    cerr << "Server is already running on port " << port << endl;
-	    // 69 is EX_UNAVAILABLE.  Scripts can use this to detect if the
-	    // server failed to bind to the requested port.
-	    exit(69); // FIXME: calling exit() here isn't ideal...
-	}
-#endif
-	if (retval >= 0) {
-	    retval = setsockopt(fd, SOL_SOCKET, SO_REUSEADDR,
-				reinterpret_cast<char *>(&optval),
-				sizeof(optval));
-	}
-
-#if defined SO_EXCLUSIVEADDRUSE
-	// NT4 sp4 and later offer SO_EXCLUSIVEADDRUSE which nullifies the
-	// security issues from SO_REUSEADDR (which affect *any* listening
-	// process, even if doesn't use SO_REUSEADDR itself).  There's still no
-	// way of addressing the issue of not being able to listen on a port
-	// which has closed connections in TIME_WAIT state though.
-	//
-	// Note: SO_EXCLUSIVEADDRUSE requires admin privileges prior to XP SP2.
-	// Because of this and the lack support on older versions, we don't
-	// currently check the return value.
-	if (retval >= 0) {
-	    (void)setsockopt(fd, SOL_SOCKET, SO_EXCLUSIVEADDRUSE,
-			     reinterpret_cast<char *>(&optval),
-			     sizeof(optval));
-	}
-#endif
-
 	if (retval < 0) {
-	    int saved_errno = socket_errno(); // note down in case close hits an error
+	    int setsockopt_errno = socket_errno();
 	    CLOSESOCKET(fd);
-	    throw Xapian::NetworkError("setsockopt failed", saved_errno);
+	    throw Xapian::NetworkError("setsockopt failed", setsockopt_errno);
 	}
 
 	if (::bind(fd, r.ai_addr, r.ai_addrlen) == 0) {
@@ -225,8 +192,6 @@ TcpServer::accept_connection()
 #ifdef __WIN32__
 	if (WSAGetLastError() == WSAEINTR) {
 	    // Our CtrlHandler function closed the socket.
-	    if (mutex) CloseHandle(mutex);
-	    mutex = NULL;
 	    return -1;
 	}
 #endif
@@ -249,9 +214,6 @@ TcpServer::accept_connection()
 TcpServer::~TcpServer()
 {
     CLOSESOCKET(listen_socket);
-#if defined __CYGWIN__ || defined __WIN32__
-    if (mutex) CloseHandle(mutex);
-#endif
 }
 
 #ifdef HAVE_FORK
