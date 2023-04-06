@@ -2,7 +2,7 @@
  * @brief Provides wrappers with POSIXy semantics.
  */
 /* Copyright (C) 2007 Lemur Consulting Ltd
- * Copyright (C) 2007,2012,2018 Olly Betts
+ * Copyright (C) 2007,2012,2018,2023 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -152,13 +152,7 @@ set_errno_from_getlasterror()
 		e = EINVAL;
 	    break;
     }
-    /* Some versions of Microsoft's C++ compiler earlier than 2005 do not have
-     * _set_errno(). */
-#ifdef _set_errno
-    _set_errno(e);
-#else
     errno = e;
-#endif
     return -1;
 }
 
