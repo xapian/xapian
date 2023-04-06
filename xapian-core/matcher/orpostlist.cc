@@ -53,7 +53,7 @@ estimate_or_assuming_indep(double a, double af, double al,
 
     if (al < bf || bl < af) {
 	// Disjoint ranges.
-	res = a + b;
+	res = static_cast<T>(a + b + 0.5);
 	return;
     }
 
