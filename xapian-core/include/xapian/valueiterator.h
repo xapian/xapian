@@ -79,7 +79,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueIterator {
      *  assigned to, but is sometimes syntactically convenient.
      */
     XAPIAN_NOTHROW(ValueIterator())
-	: internal(0) { }
+	: internal() { }
 
     /// Destructor.
     ~ValueIterator() {

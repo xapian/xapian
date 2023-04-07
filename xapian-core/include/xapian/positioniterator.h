@@ -79,7 +79,7 @@ class XAPIAN_VISIBILITY_DEFAULT PositionIterator {
      *  assigned to, but is sometimes syntactically convenient.
      */
     XAPIAN_NOTHROW(PositionIterator())
-	: internal(0) { }
+	: internal() { }
 
     /// Destructor.
     ~PositionIterator() {

@@ -78,7 +78,7 @@ class XAPIAN_VISIBILITY_DEFAULT PostingIterator {
      *  assigned to, but is sometimes syntactically convenient.
      */
     XAPIAN_NOTHROW(PostingIterator())
-	: internal(0) { }
+	: internal() { }
 
     /// Destructor.
     ~PostingIterator() {
