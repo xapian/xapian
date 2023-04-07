@@ -78,7 +78,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueIterator {
      *  assigned to, but is sometimes syntactically convenient.
      */
     ValueIterator() noexcept
-	: internal(0) { }
+	: internal() { }
 
     /// Destructor.
     ~ValueIterator() {

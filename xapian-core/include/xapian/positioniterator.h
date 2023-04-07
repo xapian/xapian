@@ -78,7 +78,7 @@ class XAPIAN_VISIBILITY_DEFAULT PositionIterator {
      *  assigned to, but is sometimes syntactically convenient.
      */
     PositionIterator() noexcept
-	: internal(0) { }
+	: internal() { }
 
     /// Destructor.
     ~PositionIterator() {

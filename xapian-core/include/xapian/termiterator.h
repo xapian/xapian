@@ -77,7 +77,7 @@ class XAPIAN_VISIBILITY_DEFAULT TermIterator {
      *  assigned to, but is sometimes syntactically convenient.
      */
     TermIterator() noexcept
-	: internal(0) { }
+	: internal() { }
 
     /// Destructor.
     ~TermIterator() {
