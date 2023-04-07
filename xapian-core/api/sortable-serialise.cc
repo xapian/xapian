@@ -30,6 +30,8 @@
 # define UNITTEST_ASSERT_NOTHROW(COND,RET)
 #endif
 
+#include "negate_unsigned.h"
+
 #include <cfloat>
 #include <cmath>
 #include <cstring>
@@ -40,11 +42,6 @@ using namespace std;
 
 #if FLT_RADIX != 2
 # error Code currently assumes FLT_RADIX == 2
-#endif
-
-#ifdef _MSC_VER
-// Disable warning about negating an unsigned type, which we do deliberately.
-# pragma warning(disable:4146)
 #endif
 
 size_t
@@ -148,9 +145,9 @@ Xapian::sortable_serialise_(double value, char* buf) noexcept
     if (negative) {
 	// We negate the mantissa for negative numbers, so that the sort order
 	// is reversed (since larger negative numbers should come first).
-	word1 = -word1;
+	word1 = negate_unsigned(word1);
 	if (word2 != 0) ++word1;
-	word2 = -word2;
+	word2 = negate_unsigned(word2);
     }
 
     word1 &= 0x03ffffff;
@@ -240,9 +237,9 @@ Xapian::sortable_unserialise(const std::string& value) noexcept
     }
 
     if (negative) {
-	word1 = -word1;
+	word1 = negate_unsigned(word1);
 	if (word2 != 0) ++word1;
-	word2 = -word2;
+	word2 = negate_unsigned(word2);
 	UNITTEST_ASSERT_NOTHROW((word1 & 0xf0000000) != 0, 0);
 	word1 &= 0x03ffffff;
     }

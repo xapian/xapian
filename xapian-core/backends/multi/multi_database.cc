@@ -28,6 +28,7 @@
 #include "multi_postlist.h"
 #include "multi_termlist.h"
 #include "multi_valuelist.h"
+#include "negate_unsigned.h"
 
 #include <memory>
 
@@ -276,10 +277,10 @@ MultiDatabase::get_doclength_lower_bound() const
 		  "Unsigned type required");
     Xapian::termcount result = 0;
     for (auto&& shard : shards) {
-	Xapian::termcount shard_result = -shard->get_doclength_lower_bound();
-	result = max(result, shard_result);
+	Xapian::termcount shard_result = shard->get_doclength_lower_bound();
+	result = max(result, negate_unsigned(shard_result));
     }
-    return -result;
+    return negate_unsigned(result);
 }
 
 Xapian::termcount

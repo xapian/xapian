@@ -18,6 +18,7 @@ noinst_HEADERS +=\
 	common/min_non_zero.h\
 	common/msvc_dirent.h\
 	common/msvcignoreinvalidparam.h\
+	common/negate_unsigned.h\
 	common/omassert.h\
 	common/output.h\
 	common/overflow.h\

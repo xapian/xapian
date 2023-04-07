@@ -22,6 +22,7 @@
 
 #include "str.h"
 
+#include "negate_unsigned.h"
 #include "omassert.h"
 
 #include <cstdio> // For snprintf() or sprintf().
@@ -64,7 +65,7 @@ tostring(T value)
     typedef typename std::make_unsigned<T>::type unsigned_type;
     unsigned_type val(value);
     if (negative) {
-	val = -val;
+	val = negate_unsigned(val);
     }
 
     char buf[(sizeof(unsigned_type) * 5 + 1) / 2 + 1];

@@ -1,7 +1,7 @@
 /** @file
- * @brief Return the smaller of two numbers which isn't zero.
+ * @brief Negate unsigned integer, avoiding compiler warnings
  */
-/* Copyright (C) 2018 Olly Betts
+/* Copyright (C) 2023 Olly Betts
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -22,25 +22,25 @@
  * IN THE SOFTWARE.
  */
 
-#ifndef XAPIAN_INCLUDED_MIN_NON_ZERO_H
-#define XAPIAN_INCLUDED_MIN_NON_ZERO_H
+#ifndef XAPIAN_INCLUDED_NEGATE_UNSIGNED_H
+#define XAPIAN_INCLUDED_NEGATE_UNSIGNED_H
 
-#include <algorithm>
+#include <type_traits>
 
-#include "negate_unsigned.h"
-
-/** Return the smaller of two unsigned integers which isn't zero.
- *
- *  If both a and b are zero, returns zero.
- */
 template<typename T>
 constexpr typename std::enable_if<std::is_unsigned<T>::value, T>::type
-min_non_zero(const T& a, const T& b)
+negate_unsigned(T value)
 {
-    // To achieve the effect we want, we find the *maximum* after negating each
-    // of the values (which for an unsigned type leaves 0 alone but flips the
-    // order of all other values), then negate the answer.
-    return negate_unsigned(std::max(negate_unsigned(a), negate_unsigned(b)));
+#ifdef _MSC_VER
+// Suppress warning about negating an unsigned type, which we do deliberately
+// in a few places in the code.
+# pragma warning(push)
+# pragma warning(disable:4146)
+#endif
+    return -value;
+#ifdef _MSC_VER
+# pragma warning(pop)
+#endif
 }
 
-#endif // XAPIAN_INCLUDED_MIN_NON_ZERO_H
+#endif // XAPIAN_INCLUDED_NEGATE_UNSIGNED_H
