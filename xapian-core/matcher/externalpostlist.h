@@ -40,7 +40,7 @@ class ExternalPostList : public PostList {
 
     Xapian::Internal::opt_intrusive_ptr<Xapian::PostingSource> source;
 
-    Xapian::docid current;
+    Xapian::docid current = 0;
 
     double factor;
 

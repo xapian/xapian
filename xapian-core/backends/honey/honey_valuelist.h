@@ -35,7 +35,7 @@ class HoneyValueList : public Xapian::ValueIterator::Internal {
     /// Don't allow copying.
     HoneyValueList(const HoneyValueList&);
 
-    HoneyCursor* cursor;
+    HoneyCursor* cursor = nullptr;
 
     Honey::ValueChunkReader reader;
 
@@ -48,7 +48,7 @@ class HoneyValueList : public Xapian::ValueIterator::Internal {
 
   public:
     HoneyValueList(Xapian::valueno slot_, const HoneyDatabase* db_)
-	: cursor(NULL), slot(slot_), db(db_) { }
+	: slot(slot_), db(db_) { }
 
     ~HoneyValueList();
 

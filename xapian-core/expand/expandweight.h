@@ -118,7 +118,7 @@ class ExpandWeight {
     Xapian::doccount rsize;
 
     /// The collection frequency of the term.
-    Xapian::termcount collection_freq;
+    Xapian::termcount collection_freq = 0;
 
     /// The total length of the database.
     Xapian::totallength collection_len;
@@ -150,7 +150,7 @@ class ExpandWeight {
 		 bool use_exact_termfreq_,
 		 double expand_k_ = 0.0)
 	: db(db_), dbsize(db.get_doccount()),
-	  rsize(rsize_), collection_freq(0),
+	  rsize(rsize_),
 	  collection_len(db.get_total_length()),
 	  use_exact_termfreq(use_exact_termfreq_),
 	  stats(db.get_average_length(), expand_k_) {}

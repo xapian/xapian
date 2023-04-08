@@ -47,16 +47,16 @@ class QueryOptimiser {
      *  Used for scaling percentages when the highest weighted document doesn't
      *  "match all terms".
      */
-    Xapian::termcount total_subqs;
+    Xapian::termcount total_subqs = 0;
 
-    LeafPostList * hint;
+    LeafPostList* hint = nullptr;
 
-    bool hint_owned;
+    bool hint_owned = false;
 
   public:
-    bool need_positions;
+    bool need_positions = false;
 
-    bool compound_weight;
+    bool compound_weight = false;
 
     Xapian::doccount shard_index;
 
@@ -70,9 +70,7 @@ class QueryOptimiser {
 		   LocalSubMatch & localsubmatch_,
 		   PostListTree * matcher_,
 		   Xapian::doccount shard_index_)
-	: localsubmatch(localsubmatch_), total_subqs(0),
-	  hint(0), hint_owned(false),
-	  need_positions(false), compound_weight(false),
+	: localsubmatch(localsubmatch_),
 	  shard_index(shard_index_),
 	  db(db_), db_size(db.get_doccount()),
 	  matcher(matcher_) { }

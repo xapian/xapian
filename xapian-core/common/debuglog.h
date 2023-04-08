@@ -94,22 +94,20 @@ class DebugLogger {
     DebugLogger(const DebugLogger&);
 
     /// Mask bitmap of categories the user wants log messages for.
-    unsigned int categories_mask;
+    unsigned int categories_mask = 1 << DEBUGLOG_CATEGORY_API;
 
     /// File descriptor for debug logging.
-    int fd;
+    int fd = -1;
 
     /// The current indent level.
-    int indent_level;
+    int indent_level = 0;
 
     /// Initialise categories_mask.
     void initialise_categories_mask();
 
   public:
     /// Constructor.
-    DebugLogger()
-	: categories_mask(1 << DEBUGLOG_CATEGORY_API), fd(-1), indent_level(0)
-    { }
+    DebugLogger() { }
 
     /// Destructor.
     ~DebugLogger();

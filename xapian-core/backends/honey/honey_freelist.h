@@ -30,12 +30,12 @@ class HoneyTable;
 class HoneyFLCursor {
   public:
     /// Block number of current freelist chunk.
-    uint4 n;
+    uint4 n = 0;
 
     /// Current offset in block.
-    unsigned c;
+    unsigned c = 0;
 
-    HoneyFLCursor() : n(0), c(0) { }
+    HoneyFLCursor() { }
 
     bool operator==(const HoneyFLCursor& o) const {
 	return n == o.n && c == o.c;
@@ -73,28 +73,23 @@ class HoneyFreeList {
     void write_block(const HoneyTable* B, uint4 n, uint8_t* p, uint4 rev);
 
   protected:
-    uint4 revision;
+    uint4 revision = 0;
 
-    uint4 first_unused_block;
+    uint4 first_unused_block = 0;
 
     HoneyFLCursor fl, fl_end, flw;
 
-    bool flw_appending;
+    bool flw_appending = false;
 
   private:
     /// Current freelist block.
-    uint8_t* p;
+    uint8_t* p = nullptr;
 
     /// Current freelist block we're writing.
-    uint8_t* pw;
+    uint8_t* pw = nullptr;
 
   public:
-    HoneyFreeList() {
-	revision = 0;
-	first_unused_block = 0;
-	flw_appending = false;
-	p = pw = NULL;
-    }
+    HoneyFreeList() { }
 
     void reset() {
 	revision = 0;

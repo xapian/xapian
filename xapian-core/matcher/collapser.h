@@ -55,16 +55,16 @@ class CollapseData {
     std::vector<std::pair<Xapian::doccount, Xapian::docid>> items;
 
     /// The highest weight of a document we've rejected.
-    double next_best_weight;
+    double next_best_weight = 0.0;
 
     /// The number of documents we've rejected.
-    Xapian::doccount collapse_count;
+    Xapian::doccount collapse_count = 0;
 
   public:
     /// Construct with the given item.
     CollapseData(Xapian::doccount item, Xapian::docid did)
-	: items(1, { item, did }), next_best_weight(0), collapse_count(0) {
-    }
+	: items(1, { item, did })
+    { }
 
     /** Check a new result with this collapse key value.
      *

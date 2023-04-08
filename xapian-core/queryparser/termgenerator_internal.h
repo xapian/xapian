@@ -35,18 +35,18 @@ class Stopper;
 class TermGenerator::Internal : public Xapian::Internal::intrusive_base {
     friend class TermGenerator;
     Stem stemmer;
-    stem_strategy strategy;
+    stem_strategy strategy = STEM_SOME;
     Xapian::Internal::opt_intrusive_ptr<const Stopper> stopper;
-    stop_strategy stop_mode;
+    stop_strategy stop_mode = STOP_STEMMED;
     Document doc;
-    termpos cur_pos;
-    TermGenerator::flags flags;
-    unsigned max_word_length;
+    termpos cur_pos = 0;
+    TermGenerator::flags flags = 0;
+    unsigned max_word_length = 64;
     WritableDatabase db;
 
   public:
-    Internal() : strategy(STEM_SOME), stopper(NULL), stop_mode(STOP_STEMMED),
-	cur_pos(0), flags(TermGenerator::flags(0)), max_word_length(64) { }
+    Internal() { }
+
     void index_text(Utf8Iterator itor,
 		    termcount weight,
 		    const std::string & prefix,

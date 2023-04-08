@@ -66,7 +66,7 @@ RemoteServer::RemoteServer(const vector<string>& dbpaths,
 			   double active_timeout_, double idle_timeout_,
 			   bool writable_)
     : RemoteConnection(fdin_, fdout_, string()),
-      db(NULL), wdb(NULL), writable(writable_),
+      writable(writable_),
       active_timeout(active_timeout_), idle_timeout(idle_timeout_)
 {
     // Catch errors opening the database and propagate them to the client.

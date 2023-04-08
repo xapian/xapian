@@ -34,16 +34,16 @@ namespace Xapian {
 /// Create a stream to which non-byte-aligned values can be written.
 class BitWriter {
     std::string buf;
-    int n_bits;
-    Xapian::termpos acc;
+    int n_bits = 0;
+    Xapian::termpos acc = 0;
 
   public:
     /// Construct empty.
-    BitWriter() : n_bits(0), acc(0) { }
+    BitWriter() { }
 
     /// Construct with the contents of seed already in the stream.
     explicit BitWriter(const std::string& seed)
-	: buf(seed), n_bits(0), acc(0) { }
+	: buf(seed) { }
 
     /// Encode value, known to be less than outof.
     void encode(Xapian::termpos value, Xapian::termpos outof);

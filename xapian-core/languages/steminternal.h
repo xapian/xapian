@@ -53,7 +53,7 @@ class SnowballStemImplementation : public StemImplementation {
 
   protected:
     symbol * p;
-    int c, l, lb, bra, ket;
+    int c = 0, l = 0, lb = 0, bra = 0, ket = 0;
 
     static int
     SIZE(const symbol* p)
@@ -126,7 +126,7 @@ class SnowballStemImplementation : public StemImplementation {
   public:
     /// Perform initialisation common to all Snowball stemmers.
     SnowballStemImplementation()
-	: p(create_s()), c(0), l(0), lb(0), bra(0), ket(0) { }
+	: p(create_s()) { }
 
     /// Perform cleanup common to all Snowball stemmers.
     virtual ~SnowballStemImplementation();

@@ -28,7 +28,7 @@
 #include "safeunistd.h"
 
 class FD {
-    int fd;
+    int fd = -1;
 
     /// Prevent copying.
     FD(const FD&) = delete;
@@ -37,7 +37,7 @@ class FD {
     FD& operator=(const FD&) = delete;
 
   public:
-    FD() : fd(-1) { }
+    FD() { }
 
     FD(int fd_) : fd(fd_) { }
 

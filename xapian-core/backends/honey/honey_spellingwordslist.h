@@ -49,14 +49,15 @@ class HoneySpellingWordsList : public AllTermsList {
      *  collection frequency for the current term yet.  We need to call
      *  read_termfreq() to read these.
      */
-    mutable Xapian::termcount termfreq;
+    mutable Xapian::termcount termfreq = 0;
 
     /// Read and cache the term frequency.
     void read_termfreq() const;
 
   public:
     HoneySpellingWordsList(const HoneyDatabase* database_, HoneyCursor* cursor_)
-	    : database(database_), cursor(cursor_), termfreq(0) {
+	: database(database_), cursor(cursor_)
+    {
 	// Set the cursor to its end to signal we haven't started yet.  Then
 	// if the first action is next() we can move the cursor to the first
 	// word with:

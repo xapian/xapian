@@ -71,14 +71,14 @@ const clockid_t TIMEOUT_CLOCK = CLOCK_MONOTONIC;
 class TimeOut {
     struct sigevent sev;
     timer_t timerid;
-    volatile bool expired;
+    volatile bool expired = false;
 
     TimeOut(const TimeOut&) = delete;
 
     TimeOut& operator=(const TimeOut&) = delete;
 
   public:
-    explicit TimeOut(double limit) : expired(false) {
+    explicit TimeOut(double limit) {
 	if (limit > 0) {
 	    sev.sigev_notify = SIGEV_THREAD;
 	    sev.sigev_notify_function = set_timeout_flag;

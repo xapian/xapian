@@ -37,7 +37,7 @@ ExternalPostList::ExternalPostList(const Xapian::Database& db,
 				   double factor_,
 				   bool* max_weight_cached_flag_ptr,
 				   Xapian::doccount shard_index)
-    : current(0), factor(factor_)
+    : factor(factor_)
 {
     Assert(source_);
     Xapian::PostingSource* newsource = source_->clone();

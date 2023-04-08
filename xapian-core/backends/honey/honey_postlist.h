@@ -75,7 +75,7 @@ docid_from_key(const std::string& term, const std::string& key)
 }
 
 class PostingChunkReader {
-    const char* p;
+    const char* p = nullptr;
     const char* end;
 
     Xapian::docid did;
@@ -112,7 +112,7 @@ class PostingChunkReader {
 
   public:
     /// Create an uninitialised PostingChunkReader.
-    PostingChunkReader() : p(NULL) { }
+    PostingChunkReader() { }
 
     /// Initialise already at_end().
     void init() {

@@ -86,7 +86,7 @@ class ESet::Internal : public Xapian::Internal::intrusive_base {
      *
      *  It will of course always be true that: ebound >= items.size()
      */
-    Xapian::termcount ebound;
+    Xapian::termcount ebound = 0;
 
     /// The ExpandTerm objects which represent the items in the ESet.
     std::vector<Xapian::Internal::ExpandTerm> items;
@@ -99,7 +99,7 @@ class ESet::Internal : public Xapian::Internal::intrusive_base {
 
   public:
     /// Construct an empty ESet::Internal.
-    Internal() : ebound(0) { }
+    Internal() { }
 
     /// Run the "expand" operation which fills the ESet.
     void expand(Xapian::termcount max_esize,

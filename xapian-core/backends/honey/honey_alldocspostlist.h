@@ -88,7 +88,7 @@ docid_from_key(const std::string& key)
 }
 
 class DocLenChunkReader {
-    unsigned const char* p;
+    unsigned const char* p = nullptr;
     unsigned const char* end;
 
     Xapian::docid did;
@@ -101,7 +101,7 @@ class DocLenChunkReader {
 
   public:
     /// Create a DocLenChunkReader which is already at_end().
-    DocLenChunkReader() : p(NULL) { }
+    DocLenChunkReader() { }
 
     /// Update to use the chunk currently pointed to by @a cursor.
     bool update(HoneyCursor* cursor);

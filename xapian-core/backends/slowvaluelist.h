@@ -49,11 +49,11 @@ class SlowValueList : public ValueList {
     std::string current_value;
 
     /// The document id at the current position.
-    Xapian::docid current_did;
+    Xapian::docid current_did = 0;
 
   public:
     SlowValueList(const Xapian::Database::Internal * db_, Xapian::valueno slot_)
-	: db(db_), last_docid(db_->get_lastdocid()), slot(slot_), current_did(0)
+	: db(db_), last_docid(db_->get_lastdocid()), slot(slot_)
     { }
 
     Xapian::docid get_docid() const;

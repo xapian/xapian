@@ -52,7 +52,7 @@ template<typename T,
 	     (std::is_trivially_copyable<T>::value &&
 	      (!COW || std::is_integral<T>::value))>::type>
 class Vec {
-    std::size_t c;
+    std::size_t c = 0;
 
     static constexpr std::size_t INTERNAL_CAPACITY = 2 * sizeof(T*) / sizeof(T);
 
@@ -76,7 +76,7 @@ class Vec {
 
     typedef T* iterator;
 
-    Vec() : c(0) { }
+    Vec() { }
 
     // Prevent inadvertent copying.
     Vec(const Vec&) = delete;
@@ -304,14 +304,14 @@ template<typename T>
 using VecCOW = Vec<T, true>;
 
 class SmallVector_ {
-    std::size_t c;
+    std::size_t c = 0;
 
     static constexpr std::size_t INTERNAL_CAPACITY = 2;
 
     void * p[INTERNAL_CAPACITY];
 
   public:
-    SmallVector_() : c(0) { }
+    SmallVector_() { }
 
     // Prevent inadvertent copying.
     SmallVector_(const SmallVector_&) = delete;
@@ -324,7 +324,7 @@ class SmallVector_ {
 	std::swap(c, o.c);
     }
 
-    explicit SmallVector_(std::size_t n) : c(0) {
+    explicit SmallVector_(std::size_t n) {
 	reserve(n);
     }
 

@@ -48,7 +48,7 @@ class LocalSubMatch {
     LocalSubMatch(const LocalSubMatch &) = delete;
 
     /// The statistics for the collection.
-    Xapian::Weight::Internal* total_stats;
+    Xapian::Weight::Internal* total_stats = nullptr;
 
     /// The query.
     Xapian::Query query;
@@ -82,7 +82,7 @@ class LocalSubMatch {
 		  Xapian::termcount qlen_,
 		  const Xapian::Weight& wt_factory_,
 		  Xapian::doccount shard_index_)
-	: total_stats(NULL), query(query_), qlen(qlen_), db(db_),
+	: query(query_), qlen(qlen_), db(db_),
 	  wt_factory(wt_factory_),
 	  shard_index(shard_index_)
     {}

@@ -43,7 +43,7 @@ class LeafPostList : public PostList {
     LeafPostList(const LeafPostList &) = delete;
 
   protected:
-    const Xapian::Weight * weight;
+    const Xapian::Weight* weight = nullptr;
 
     /// The term name for this postlist (empty for an alldocs postlist).
     std::string term;
@@ -56,7 +56,7 @@ class LeafPostList : public PostList {
 
     /// Only constructable as a base class for derived classes.
     explicit LeafPostList(const std::string & term_)
-	: weight(0), term(term_) { }
+	: term(term_) { }
 
   public:
     ~LeafPostList();

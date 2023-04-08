@@ -39,13 +39,13 @@ class PostListTree;
  */
 class SynonymPostList : public WrapperPostList {
     /// Weighting object used for calculating the synonym weights.
-    const Xapian::Weight * wt;
+    const Xapian::Weight* wt = nullptr;
 
     /// Flag indicating whether the weighting object needs the wdf.
-    bool want_wdf;
+    bool want_wdf = false;
 
     /// Flag indicating whether the weighting object needs the wdfdocmax.
-    bool want_wdfdocmax;
+    bool want_wdfdocmax = false;
 
     /** Are the subquery's wdf contributions disjoint?
      *
@@ -66,8 +66,8 @@ class SynonymPostList : public WrapperPostList {
 		    const Xapian::Database::Internal* db,
 		    PostListTree* pltree_,
 		    bool wdf_disjoint_)
-	: WrapperPostList(subtree), wt(NULL), want_wdf(false),
-	  want_wdfdocmax(false), wdf_disjoint(wdf_disjoint_),
+	: WrapperPostList(subtree),
+	  wdf_disjoint(wdf_disjoint_),
 	  pltree(pltree_),
 	  doclen_lower_bound(db->get_doclength_lower_bound()) { }
 

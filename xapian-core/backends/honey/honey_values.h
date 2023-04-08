@@ -123,7 +123,7 @@ class HoneyValueManager {
      *  Set to Xapian::BAD_VALUENO if no value statistics are currently
      *  cached.
      */
-    mutable Xapian::valueno mru_slot;
+    mutable Xapian::valueno mru_slot = Xapian::BAD_VALUENO;
 
     /** The most recently used value statistics. */
     mutable ValueStats mru_valstats;
@@ -160,8 +160,7 @@ class HoneyValueManager {
     /** Create a new HoneyValueManager object. */
     HoneyValueManager(HoneyPostListTable& postlist_table_,
 		      HoneyTermListTable& termlist_table_)
-	: mru_slot(Xapian::BAD_VALUENO),
-	  postlist_table(postlist_table_),
+	: postlist_table(postlist_table_),
 	  termlist_table(termlist_table_) { }
 
     // Merge in batched-up changes.

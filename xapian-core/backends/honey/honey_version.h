@@ -76,7 +76,7 @@ class RootInfo {
  *  each table.
  */
 class HoneyVersion {
-    honey_revision_number_t rev;
+    honey_revision_number_t rev = 0;
 
     Honey::RootInfo root[Honey::MAX_];
     Honey::RootInfo old_root[Honey::MAX_];
@@ -98,44 +98,44 @@ class HoneyVersion {
      *
      *  Will be 0, except for an embedded multi-file database.
      */
-    off_t offset;
+    off_t offset = 0;
 
     /// The database directory.
     std::string db_dir;
 
     /// The number of documents in the database.
-    Xapian::doccount doccount;
+    Xapian::doccount doccount = 0;
 
     /// The total of the lengths of all documents in the database.
-    Xapian::totallength total_doclen;
+    Xapian::totallength total_doclen = 0;
 
     /// Greatest document id ever used in this database.
-    Xapian::docid last_docid;
+    Xapian::docid last_docid = 0;
 
     /// A lower bound on the smallest document length in this database.
-    Xapian::termcount doclen_lbound;
+    Xapian::termcount doclen_lbound = 0;
 
     /// An upper bound on the greatest document length in this database.
-    Xapian::termcount doclen_ubound;
+    Xapian::termcount doclen_ubound = 0;
 
     /// An upper bound on the greatest wdf in this database.
-    Xapian::termcount wdf_ubound;
+    Xapian::termcount wdf_ubound = 0;
 
     /// An upper bound on the spelling wordfreq in this database.
-    Xapian::termcount spelling_wordfreq_ubound;
+    Xapian::termcount spelling_wordfreq_ubound = 0;
 
     /// Oldest changeset removed when max_changesets is set
-    mutable honey_revision_number_t oldest_changeset;
+    mutable honey_revision_number_t oldest_changeset = 0;
 
     /** A lower bound on the number of unique terms in a document in this
      *  database.
      */
-    Xapian::termcount uniq_terms_lbound;
+    Xapian::termcount uniq_terms_lbound = 0;
 
     /** An upper bound on the number of unique terms in a document in this
      *  database.
      */
-    Xapian::termcount uniq_terms_ubound;
+    Xapian::termcount uniq_terms_ubound = 0;
 
     /// The serialised database stats.
     std::string serialised_stats;
@@ -148,12 +148,7 @@ class HoneyVersion {
 
   public:
     explicit HoneyVersion(const std::string& db_dir_)
-	: rev(0), fd(-1), offset(0), db_dir(db_dir_),
-	  doccount(0), total_doclen(0), last_docid(0),
-	  doclen_lbound(0), doclen_ubound(0),
-	  wdf_ubound(0), spelling_wordfreq_ubound(0),
-	  oldest_changeset(0),
-	  uniq_terms_lbound(0), uniq_terms_ubound(0) { }
+	: fd(-1), db_dir(db_dir_) { }
 
     explicit HoneyVersion(int fd_);
 

@@ -232,7 +232,7 @@ class XAPIAN_VISIBILITY_DEFAULT PointType
     std::unordered_map<std::string, double> weights;
 
     /// Store the squared magnitude of the PointType
-    double magnitude;
+    double magnitude = 0.0;
 
     /** Set the weight 'weight' to the mapping of a term
      *
@@ -245,7 +245,7 @@ class XAPIAN_VISIBILITY_DEFAULT PointType
 
   public:
     /// Default constructor
-    PointType() : magnitude(0.0) {}
+    PointType() {}
 
     /// Return a TermIterator to the beginning of the termlist
     TermIterator termlist_begin() const;

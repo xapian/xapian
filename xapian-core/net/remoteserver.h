@@ -44,10 +44,10 @@ class XAPIAN_VISIBILITY_DEFAULT RemoteServer : private RemoteConnection {
      *
      *  If we're writable, this is the same as wdb.
      */
-    Xapian::Database * db;
+    Xapian::Database* db = nullptr;
 
     /// The WritableDatabase we're using, or NULL if we're read-only.
-    Xapian::WritableDatabase * wdb;
+    Xapian::WritableDatabase* wdb = nullptr;
 
     /// Do we support writing?
     bool writable;

@@ -82,10 +82,10 @@ class QueryParser::Internal : public Xapian::Internal::intrusive_base {
     friend class QueryParser;
     friend class ::State;
     Stem stemmer;
-    stem_strategy stem_action;
+    stem_strategy stem_action = STEM_SOME;
     Xapian::Internal::opt_intrusive_ptr<const Stopper> stopper;
-    Query::op default_op;
-    const char * errmsg;
+    Query::op default_op = Query::OP_OR;
+    const char* errmsg = nullptr;
     Database db;
     std::list<std::string> stoplist;
     std::multimap<std::string, std::string> unstem;
@@ -134,8 +134,7 @@ class QueryParser::Internal : public Xapian::Internal::intrusive_base {
 			   unsigned& edit_distance);
 
   public:
-    Internal() : stem_action(STEM_SOME), stopper(NULL),
-	default_op(Query::OP_OR), errmsg(NULL) { }
+    Internal() { }
 
     Query parse_query(const std::string& query_string,
 		      unsigned int flags,
