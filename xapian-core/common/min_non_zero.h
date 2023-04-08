@@ -1,7 +1,7 @@
 /** @file
  * @brief Return the smaller of two numbers which isn't zero.
  */
-/* Copyright (C) 2018 Olly Betts
+/* Copyright (C) 2018,2023 Olly Betts
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -26,6 +26,7 @@
 #define XAPIAN_INCLUDED_MIN_NON_ZERO_H
 
 #include <algorithm>
+#include <type_traits>
 
 /** Return the smaller of two unsigned integers which isn't zero.
  *
