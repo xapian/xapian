@@ -100,7 +100,7 @@ TcpServer::get_listening_socket(const std::string & host, int port,
 
 	int retval = 0;
 
-#if defined __CYGWIN__ || defined __WIN32__
+#ifdef __WIN32__
 	// Microsoft Windows has screwy semantics for SO_REUSEADDR - it allows
 	// binding to a port which is already bound and listening!  Even worse
 	// is that this affects *any* listening process, even if doesn't use
