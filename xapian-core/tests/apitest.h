@@ -51,7 +51,9 @@ std::string get_named_writable_database_path(const std::string &name);
 
 std::string get_compaction_output_path(const std::string& name);
 
-Xapian::Database get_remote_database(const std::string &db, unsigned timeout);
+Xapian::Database get_remote_database(const std::string& db,
+				     unsigned timeout,
+				     int* port_ptr = nullptr);
 
 Xapian::Database get_writable_database_as_database();
 

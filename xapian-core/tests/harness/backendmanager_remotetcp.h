@@ -56,7 +56,8 @@ class BackendManagerRemoteTcp : public BackendManagerRemote {
 
     /// Create a RemoteTcp Xapian::Database with the specified timeout.
     Xapian::Database get_remote_database(const std::vector<std::string> & files,
-					 unsigned int timeout);
+					 unsigned int timeout,
+					 int* port_ptr);
 
     /// Get a RemoteTcp Xapian::Database instance of the database at path
     Xapian::Database get_database_by_path(const std::string& path);

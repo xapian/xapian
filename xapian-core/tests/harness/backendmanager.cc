@@ -253,7 +253,9 @@ BackendManager::finalise_generated_database(const std::string&)
 { }
 
 Xapian::Database
-BackendManager::get_remote_database(const vector<string> &, unsigned int)
+BackendManager::get_remote_database(const vector<string>&,
+				    unsigned int,
+				    int*)
 {
     string msg = "BackendManager::get_remote_database() called for non-remote "
 		 "database (type is ";

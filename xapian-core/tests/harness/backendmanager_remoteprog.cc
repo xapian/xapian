@@ -42,7 +42,8 @@ BackendManagerRemoteProg::do_get_database(const vector<string> & files)
 {
     // Default to a long (5 minute) timeout so that tests won't fail just
     // because the host is slow or busy.
-    return BackendManagerRemoteProg::get_remote_database(files, 300000);
+    return BackendManagerRemoteProg::get_remote_database(files, 300000,
+							 nullptr);
 }
 
 Xapian::WritableDatabase
@@ -74,9 +75,13 @@ BackendManagerRemoteProg::get_remote_writable_database(string args)
 
 Xapian::Database
 BackendManagerRemoteProg::get_remote_database(const vector<string> & files,
-					      unsigned int timeout)
+					      unsigned int timeout,
+					      int* port_ptr)
 {
     string args = get_remote_database_args(files, timeout);
+
+    // No port for remoteprog.
+    if (port_ptr) *port_ptr = 0;
 
 #ifdef HAVE_VALGRIND
     if (RUNNING_ON_VALGRIND) {

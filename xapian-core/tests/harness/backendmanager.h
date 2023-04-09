@@ -141,7 +141,10 @@ class BackendManager {
     virtual void finalise_generated_database(const std::string& name);
 
     /// Get a remote database instance with the specified timeout.
-    virtual Xapian::Database get_remote_database(const std::vector<std::string> & files, unsigned int timeout);
+    virtual Xapian::Database
+    get_remote_database(const std::vector<std::string>& files,
+			unsigned int timeout,
+			int* port_ptr);
 
     /** Get the args for opening a writable remote database with the
      *  specified timeout.

@@ -87,7 +87,7 @@ TestRunner::set_properties_for_backend(const string & backend_name)
 	    BACKEND|TRANSACTIONS|POSITIONAL|WRITABLE|METADATA|VALUESTATS|
 	    GENERATED|SYNONYMS
 	},
-	{ "remotetcp_glass", REMOTE|
+	{ "remotetcp_glass", REMOTE|REMOTETCP|
 	    BACKEND|TRANSACTIONS|POSITIONAL|WRITABLE|METADATA|VALUESTATS|
 	    GENERATED|SYNONYMS
 	},

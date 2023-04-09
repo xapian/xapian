@@ -89,6 +89,8 @@ class TestRunner {
 	HONEY		= 0x00010000,
 	/// Requires get_database_path() or similar.
 	PATH		= 0x00020000,
+	/// TCP variant of remote.
+	REMOTETCP	= 0x00040000,
     };
 
   public:

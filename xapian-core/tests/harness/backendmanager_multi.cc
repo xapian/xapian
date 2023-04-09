@@ -199,7 +199,8 @@ BackendManagerMulti::get_writable_database_path(const std::string& name)
 
 Xapian::Database
 BackendManagerMulti::get_remote_database(const std::vector<std::string>& files,
-					 unsigned int timeout)
+					 unsigned int timeout,
+					 int* port_ptr)
 {
     Xapian::Database db;
     size_t remotes = 0;
@@ -210,7 +211,10 @@ BackendManagerMulti::get_remote_database(const std::vector<std::string>& files,
 	}
 
 	++remotes;
-	db.add_database(sub_manager->get_remote_database(files, timeout));
+	// If there are multiple remote shards, we'll set *port_ptr to the port
+	// used by the last one opened.
+	db.add_database(sub_manager->get_remote_database(files, timeout,
+							 port_ptr));
     }
 
     if (remotes == 0) {

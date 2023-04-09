@@ -60,7 +60,8 @@ class BackendManagerMulti : public BackendManager {
     std::string get_dbtype() const;
 
     Xapian::Database get_remote_database(const std::vector<std::string>& files,
-					 unsigned int timeout);
+					 unsigned int timeout,
+					 int* port_ptr);
 
     /// Create a Multi Xapian::WritableDatabase object indexing a single file.
     Xapian::WritableDatabase get_writable_database(const std::string & name, const std::string & file);

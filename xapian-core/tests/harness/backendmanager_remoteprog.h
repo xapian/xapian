@@ -61,7 +61,8 @@ class BackendManagerRemoteProg : public BackendManagerRemote {
 
     /// Create a RemoteProg Xapian::Database with the specified timeout.
     Xapian::Database get_remote_database(const std::vector<std::string> & files,
-					 unsigned int timeout);
+					 unsigned int timeout,
+					 int* port_ptr);
 
     /// Get RemoteProg Xapian::Database instance of database at path
     Xapian::Database get_database_by_path(const std::string& path);
