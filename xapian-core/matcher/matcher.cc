@@ -41,6 +41,7 @@
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
 # include "backends/remote/remote-database.h"
 # include "remotesubmatch.h"
+# include "socket_utils.h"
 #endif
 
 #include <algorithm>

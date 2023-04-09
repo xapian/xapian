@@ -30,6 +30,55 @@
 class Resolver {
     struct addrinfo* result = NULL;
 
+    int eai_to_xapian(int e) {
+	// Under WIN32, the EAI_* constants are defined to be WSA_* constants
+	// with roughly equivalent meanings, so we can just let them be handled
+	// as any other WSA_* error codes would be.
+#ifndef __WIN32__
+	// Ensure they all have the same sign - this switch will fail to
+	// compile if we bitwise-or some 1 and some 2 bits to get 3.
+#define C(X) ((X) < 0 ? 2 : 1)
+	// Switch on a value there is a case for, to avoid clang warning: "no
+	// case matching constant switch condition '0'"
+	switch (3) {
+	    case
+		C(EAI_AGAIN)|
+		C(EAI_BADFLAGS)|
+		C(EAI_FAIL)|
+		C(EAI_FAMILY)|
+		C(EAI_MEMORY)|
+		C(EAI_NONAME)|
+		C(EAI_SERVICE)|
+		C(EAI_SOCKTYPE)|
+		C(EAI_SYSTEM)|
+#ifdef EAI_ADDRFAMILY
+		// In RFC 2553 but not RFC 3493 or POSIX:
+		C(EAI_ADDRFAMILY)|
+#endif
+#ifdef EAI_NODATA
+		// In RFC 2553 but not RFC 3493 or POSIX:
+		C(EAI_NODATA)|
+#endif
+#ifdef EAI_OVERFLOW
+		// In RFC 3493 and POSIX but not RFC 2553:
+		C(EAI_OVERFLOW)|
+#endif
+		0: break;
+	    case 3: break;
+	}
+#undef C
+
+	// EAI_SYSTEM means "look at errno".
+	if (e == EAI_SYSTEM)
+	    return errno;
+	// POSIX only says that EAI_* constants are "non-zero".  On Linux they
+	// are negative, but allow for them being positive too.
+	if (EAI_FAIL > 0)
+	    return -e;
+#endif
+	return e;
+    }
+
   public:
     class const_iterator {
 	struct addrinfo* p;

@@ -22,6 +22,7 @@
 #define XAPIAN_INCLUDED_REPLICATETCPCLIENT_H
 
 #include "remoteconnection.h"
+#include "socket_utils.h"
 
 #include "xapian/visibility.h"
 #include "api/replication.h"

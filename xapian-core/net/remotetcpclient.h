@@ -22,6 +22,7 @@
 #define XAPIAN_INCLUDED_REMOTETCPCLIENT_H
 
 #include "backends/remote/remote-database.h"
+#include "socket_utils.h"
 
 #ifdef __WIN32__
 # define SOCKET_INITIALIZER_MIXIN private WinsockInitializer,

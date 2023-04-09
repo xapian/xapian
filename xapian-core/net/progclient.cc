@@ -33,6 +33,7 @@
 #include <sys/types.h>
 #ifndef __WIN32__
 # include "safesyssocket.h"
+# include "safeunistd.h"
 # include <sys/wait.h>
 #else
 # include <cstdio> // For sprintf().

@@ -25,7 +25,6 @@
 
 #include "tcpclient.h"
 
-#include "remoteconnection.h"
 #include "resolver.h"
 #include "str.h"
 #include <xapian/error.h>

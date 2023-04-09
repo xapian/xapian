@@ -78,7 +78,7 @@ Xapian::Error::get_error_string() const
 	} else {
 	    // POSIX says only that EAI_* constants are "non-zero" - they're
 	    // negative on Linux, but we allow for them being positive.  We
-	    // check they all that the same sign in net/remoteconnection.h.
+	    // check they all that the same sign in net/resolver.h.
 	    if (EAI_FAIL > 0)
 		error_string.assign(gai_strerror(-my_errno));
 	    else

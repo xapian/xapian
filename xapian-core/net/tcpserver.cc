@@ -31,7 +31,6 @@
 #include "safenetdb.h"
 #include "safesyssocket.h"
 
-#include "remoteconnection.h"
 #include "resolver.h"
 #include "socket_utils.h"
 #include "str.h"
@@ -60,14 +59,6 @@ using namespace std;
 // Handle older systems.
 #if !defined SIGCHLD && defined SIGCLD
 # define SIGCHLD SIGCLD
-#endif
-
-#ifdef __WIN32__
-// We must call closesocket() (instead of just close()) under __WIN32__ or
-// else the socket remains in the CLOSE_WAIT state.
-# define CLOSESOCKET(S) closesocket(S)
-#else
-# define CLOSESOCKET(S) close(S)
 #endif
 
 /// The TcpServer constructor, taking a database and a listening port.

@@ -22,7 +22,7 @@
 #define XAPIAN_INCLUDED_TCPSERVER_H
 
 #ifdef __WIN32__
-# include "remoteconnection.h"
+# include "socket_utils.h"
 # define SOCKET_INITIALIZER_MIXIN : private WinsockInitializer
 #else
 # define SOCKET_INITIALIZER_MIXIN
