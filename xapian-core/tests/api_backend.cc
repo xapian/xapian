@@ -1990,6 +1990,11 @@ DEFINE_TESTCASE(remoteportreuse1, remotetcp) {
 	    FAIL_TEST("Managed to bind to TCP port used by xapian-tcpsrv");
 	}
 
+#ifdef __WIN32__
+	// Gives WSAEACCES instead in some cases involving SO_EXCLUSIVEADDRUSE.
+	if (bind_errno == WSAEACCES) bind_errno = EADDRINUSE;
+#endif
+
 	if (bind_errno != EADDRINUSE) {
 	    FAIL_TEST("bind() failed with unexpected error: " +
 		      errno_to_string(bind_errno));
