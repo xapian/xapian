@@ -34,9 +34,6 @@ ReplicateTcpServer::ReplicateTcpServer(const string & host, int port,
 {
 }
 
-ReplicateTcpServer::~ReplicateTcpServer() {
-}
-
 void
 ReplicateTcpServer::handle_one_connection(int socket)
 {

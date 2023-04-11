@@ -40,9 +40,6 @@ class XAPIAN_VISIBILITY_DEFAULT ReplicateTcpServer : public TcpServer {
     ReplicateTcpServer(const std::string & host, int port,
 		       const std::string & path_);
 
-    /// Destructor.
-    ~ReplicateTcpServer();
-
     /** Handle a single connection on an already connected socket.
      *
      *  This method may be called by multiple threads.
