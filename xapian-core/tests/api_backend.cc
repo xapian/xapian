@@ -1916,6 +1916,16 @@ DEFINE_TESTCASE(remoteportreuse1, remotetcp) {
     Xapian::Database db = get_remote_database("apitest_simpledata",
 					      300000,
 					      &port);
+
+    // We test with (up to) 3 different socket options combinations:
+    //
+    // 0: no socket options
+    // 1: SO_REUSEADDR
+    // 2: SO_EXCLUSIVEADDRUSE (Microsoft-specific option)
+    //
+    // We don't test with SO_REUSEADDR and SO_EXCLUSIVEADDRUSE together because
+    // that's not a valid combination (second setsockopt() call fails with
+    // WSAEINVAL).
     for (int reuse_options : { 0, 1,
 #ifdef SO_EXCLUSIVEADDRUSE
 			       2
