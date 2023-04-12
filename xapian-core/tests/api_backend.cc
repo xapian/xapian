@@ -1971,7 +1971,7 @@ DEFINE_TESTCASE(remoteportreuse1, remotetcp) {
 #endif
 	    }
 
-	    if (::bind(fd, r.ai_addr, int(r.ai_addrlen)) == 0) {
+	    if (::bind(fd, r.ai_addr, r.ai_addrlen) == 0) {
 		socketfd = fd;
 		break;
 	    }
