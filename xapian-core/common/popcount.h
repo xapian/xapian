@@ -40,21 +40,21 @@ add_popcount(A& accumulator, V value)
 {
     if (false) {
 #if HAVE_DECL___BUILTIN_POPCOUNT
-    } else if (sizeof(V) == sizeof(unsigned)) {
+    } else if constexpr(sizeof(V) == sizeof(unsigned)) {
 	accumulator += __builtin_popcount(value);
 #elif HAVE_DECL___POPCNT
-    } else if (sizeof(V) == sizeof(unsigned)) {
+    } else if constexpr(sizeof(V) == sizeof(unsigned)) {
 	accumulator += static_cast<A>(__popcnt(value));
 #endif
 #if HAVE_DECL___BUILTIN_POPCOUNTL
-    } else if (sizeof(V) == sizeof(unsigned long)) {
+    } else if constexpr(sizeof(V) == sizeof(unsigned long)) {
 	accumulator += __builtin_popcountl(value);
 #endif
 #if HAVE_DECL___BUILTIN_POPCOUNTLL
-    } else if (sizeof(V) == sizeof(unsigned long long)) {
+    } else if constexpr(sizeof(V) == sizeof(unsigned long long)) {
 	accumulator += __builtin_popcountll(value);
 #elif HAVE_DECL___POPCNT64
-    } else if (sizeof(V) == sizeof(unsigned long long)) {
+    } else if constexpr(sizeof(V) == sizeof(unsigned long long)) {
 	accumulator += static_cast<A>(__popcnt64(value));
 #endif
     } else {

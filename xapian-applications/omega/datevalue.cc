@@ -105,12 +105,14 @@ class DateRangeLimit {
 	    // the range as having an open start.
 	    return string();
 	}
-	if (sizeof(time_t) > 4 && s >= 0xffffffff) {
-	    // This encoding can't represent dates after 0xffffffff, so clamp
-	    // the range end to that and Xapian's matcher will see the range
-	    // end if >= the slot upper bound and optimise this to an open
-	    // upper range end.
-	    return string(4, '\xff');
+	if constexpr(sizeof(time_t) > 4) {
+	    if (s >= 0xffffffff) {
+		// This encoding can't represent dates after 0xffffffff, so
+		// clamp the range end to that and Xapian's matcher will see
+		// the range end is >= the slot upper bound and optimise this
+		// to an open upper range end.
+		return string(4, '\xff');
+	    }
 	}
 	return int_to_binary_string(uint32_t(s));
     }

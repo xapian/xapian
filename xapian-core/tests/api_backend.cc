@@ -115,7 +115,7 @@ DEFINE_TESTCASE(exceed32bitcombineddb1, writable) {
     // Test case is for 64-bit Xapian::docid.
     // FIXME: Though we should check that the overflow is handled gracefully
     // for 32-bit...
-    if (sizeof(Xapian::docid) == 4) return;
+    if constexpr(sizeof(Xapian::docid) == 4) return;
 
     // The InMemory backend uses a vector for the documents, so trying to add
     // a document with the maximum docid is likely to fail because we can't

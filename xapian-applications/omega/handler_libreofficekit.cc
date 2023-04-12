@@ -60,7 +60,7 @@ get_lo_path()
     CHECK_DIR(LO_PATH_MACOS);
 #else
     CHECK_DIR(LO_PATH_DEBIAN);
-    if (sizeof(void*) > 4) {
+    if constexpr(sizeof(void*) > 4) {
 	CHECK_DIR(LO_PATH_FEDORA64);
     }
 #endif

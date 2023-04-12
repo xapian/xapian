@@ -86,7 +86,7 @@ TermInfo::add_position(Xapian::termcount wdf_inc, Xapian::termpos termpos)
     // Add unless termpos is already in the list.
     if (i == positions.cend() || *i != termpos) {
 	auto new_split = positions.size();
-	if (sizeof(split) < sizeof(Xapian::termpos)) {
+	if constexpr(sizeof(split) < sizeof(Xapian::termpos)) {
 	    if (rare(new_split > numeric_limits<decltype(split)>::max())) {
 		// The split point would be beyond the size of the type used to
 		// hold it, which is really unlikely if that type is 32-bit.

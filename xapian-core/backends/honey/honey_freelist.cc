@@ -298,15 +298,15 @@ HoneyFreeListChecker::count_set_bits(uint4 * p_first_bad_blk) const
 	    uint4 first_bad_blk = i * BITS_PER_ELT;
 	    if (false) {
 #if HAVE_DECL___BUILTIN_CTZ
-	    } else if (sizeof(elt_type) == sizeof(unsigned)) {
+	    } else if constexpr(sizeof(elt_type) == sizeof(unsigned)) {
 		first_bad_blk += __builtin_ctz(elt);
 #endif
 #if HAVE_DECL___BUILTIN_CTZL
-	    } else if (sizeof(elt_type) == sizeof(unsigned long)) {
+	    } else if constexpr(sizeof(elt_type) == sizeof(unsigned long)) {
 		first_bad_blk += __builtin_ctzl(elt);
 #endif
 #if HAVE_DECL___BUILTIN_CTZLL
-	    } else if (sizeof(elt_type) == sizeof(unsigned long long)) {
+	    } else if constexpr(sizeof(elt_type) == sizeof(unsigned long long)) {
 		first_bad_blk += __builtin_ctzll(elt);
 #endif
 	    } else {

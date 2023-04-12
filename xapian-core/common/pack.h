@@ -269,7 +269,7 @@ unpack_uint_preserving_sort(const char** p, const char* end, U* result)
 
     // Check for overflow.
     if (rare(len > int(sizeof(U)))) return false;
-    if (sizeof(U) != 8) {
+    if constexpr(sizeof(U) != 8) {
 	// Need to check the top byte too.
 	if (rare(len == int(sizeof(U)) && len_byte != 0)) return false;
     }
