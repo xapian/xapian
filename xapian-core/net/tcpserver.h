@@ -1,7 +1,7 @@
 /** @file
  *  @brief Generic TCP/IP socket based server base class.
  */
-/* Copyright (C) 2007,2008 Olly Betts
+/* Copyright (C) 2007,2008,2023 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -82,6 +82,9 @@ class XAPIAN_VISIBILITY_DEFAULT TcpServer SOCKET_INITIALIZER_MIXIN {
 
     /** Accept a single connection, service requests on it, then stop.  */
     void run_once();
+
+    /// Should we produce output when connections are made or lost?
+    bool get_verbose() const { return verbose; }
 
     /// Handle a single connection on an already connected socket.
     virtual void handle_one_connection(int socket) = 0;
