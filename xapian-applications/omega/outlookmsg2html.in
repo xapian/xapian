@@ -85,10 +85,10 @@ sub handle_mimepart {
 	}
     } elsif ($type eq 'text') {
 	if ($sub eq 'plain') {
-	    print "<pre>", HTML::Entities::encode_entities($e->body), "</pre>\n";
+	    print "<pre>", HTML::Entities::encode_entities($e->body_str), "</pre>\n";
 	    return 1;
 	} elsif ($sub eq 'html') {
-	    my $m = $e->body;
+	    my $m = $e->body_str;
 	    $m =~ s!</?body[^>]*>!\n!gi;
 	    print $m, "\n";
 	    return 1;
