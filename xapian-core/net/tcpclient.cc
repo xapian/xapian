@@ -118,7 +118,13 @@ TcpClient::open_socket(const string& hostname, int port,
 	}
 
 	int err = socket_errno();
-	if (err == EINPROGRESS) {
+	if (
+#ifndef __WIN32__
+	    err == EINPROGRESS
+#else
+	    err == WSAEWOULDBLOCK
+#endif
+	   ) {
 	    // Wait for the socket to be writable or give an error, with a
 	    // timeout.  FIXME: Reduce the timeout if we retry.
 #ifdef HAVE_POLL
