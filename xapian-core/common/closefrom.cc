@@ -70,7 +70,7 @@ get_maxfd() {
 // Linux >= 5.9 with glibc >= 2.34
 //
 // These platforms are known to support fcntl() with F_CLOSEM:
-// AIX, IRIX, NetBSD >= 2.0
+// AIX, NetBSD >= 2.0
 //
 // These platforms have getdirentries() and a "magic" directory with an entry
 // for each FD open in the current process:
