@@ -82,7 +82,7 @@ sub handle_mimepart {
     if ($type eq 'multipart') {
 	if ($sub eq 'alternative') {
 	    # Take the last mime part which we get text from.
-	    for my $s (rev $e->parts) {
+	    for my $s (reverse $e->parts) {
 		my $res = handle_mimepart($s);
 		return $res if $res;
 	    }
