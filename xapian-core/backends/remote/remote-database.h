@@ -85,9 +85,6 @@ class RemoteDatabase : public Xapian::Database::Internal {
     /// The UUID of the remote database.
     mutable std::string uuid;
 
-    /// The context to return with any error messages
-    std::string context;
-
     mutable bool cached_stats_valid;
 
     /** The most recently used value statistics. */
@@ -323,7 +320,7 @@ class RemoteDatabase : public Xapian::Database::Internal {
 				      Xapian::termcount freqdec) const;
 
     int get_backend_info(std::string* path) const {
-	if (path) *path = context;
+	if (path) *path = link.get_context();
 	return BACKEND_REMOTE;
     }
 

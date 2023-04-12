@@ -96,7 +96,6 @@ RemoteDatabase::RemoteDatabase(pair<int, string> fd_and_context,
 				 TRANSACTION_NONE :
 				 TRANSACTION_READONLY),
       link(fd_and_context.first, fd_and_context.first, fd_and_context.second),
-      context(fd_and_context.second),
       cached_stats_valid(),
       mru_valstats(),
       mru_slot(Xapian::BAD_VALUENO),
@@ -140,7 +139,8 @@ RemoteDatabase::positionlist_count(Xapian::docid did,
     const char * p_end = p + message.size();
     Xapian::termcount count;
     if (!unpack_uint_last(&p, p_end, &count)) {
-	throw Xapian::NetworkError("Bad REPLY_POSITIONLISTCOUNT", context);
+	throw Xapian::NetworkError("Bad REPLY_POSITIONLISTCOUNT",
+				   link.get_context());
     }
     return count;
 }
@@ -181,7 +181,8 @@ RemoteDatabase::open_term_list(Xapian::docid did) const
     Xapian::termcount num_entries;
     if (!unpack_uint(&p, p_end, &doclen) ||
 	!unpack_uint_last(&p, p_end, &num_entries)) {
-	throw Xapian::NetworkError("Bad REPLY_TERMLISTHEADER", context);
+	throw Xapian::NetworkError("Bad REPLY_TERMLISTHEADER",
+				   link.get_context());
     }
     get_message(message, REPLY_TERMLIST);
     return new RemoteTermList(num_entries, doclen, doccount, this, did,
@@ -357,7 +358,7 @@ RemoteDatabase::update_stats(message_type msg_code, const string & body) const
     }
 
     if (message.size() < 3) {
-	throw_handshake_failed(context);
+	throw_handshake_failed(link.get_context());
     }
     const char *p = message.c_str();
     const char *p_end = p + message.size();
@@ -384,7 +385,7 @@ RemoteDatabase::update_stats(message_type msg_code, const string & body) const
 	    STRINGIZE(XAPIAN_REMOTE_PROTOCOL_MAJOR_VERSION)
 	    "."
 	    STRINGIZE(XAPIAN_REMOTE_PROTOCOL_MINOR_VERSION);
-	throw Xapian::NetworkError(errmsg, context);
+	throw Xapian::NetworkError(errmsg, link.get_context());
     }
 
     if (!unpack_uint(&p, p_end, &doccount) ||
@@ -393,7 +394,8 @@ RemoteDatabase::update_stats(message_type msg_code, const string & body) const
 	!unpack_uint(&p, p_end, &doclen_ubound) ||
 	!unpack_bool(&p, p_end, &has_positional_info) ||
 	!unpack_uint(&p, p_end, &total_length)) {
-	throw Xapian::NetworkError("Bad stats update message received", context);
+	throw Xapian::NetworkError("Bad stats update message received",
+				   link.get_context());
     }
     lastdocid += doccount;
     doclen_ubound += doclen_lbound;
@@ -474,7 +476,7 @@ RemoteDatabase::get_freqs(const string & term,
 	return;
     }
     throw Xapian::NetworkError("Bad REPLY_FREQS/REPLY_TERMFREQ/REPLY_COLLFREQ",
-			       context);
+			       link.get_context());
 }
 
 void
@@ -493,7 +495,7 @@ RemoteDatabase::read_value_stats(Xapian::valueno slot) const
     mru_slot = slot;
     if (!unpack_uint(&p, p_end, &mru_valstats.freq) ||
 	!unpack_string(&p, p_end, mru_valstats.lower_bound)) {
-	throw Xapian::NetworkError("Bad REPLY_VALUESTATS", context);
+	throw Xapian::NetworkError("Bad REPLY_VALUESTATS", link.get_context());
     }
     mru_valstats.upper_bound.assign(p, p_end);
 }
@@ -554,7 +556,7 @@ RemoteDatabase::get_doclength(Xapian::docid did) const
     const char* p_end = p + message.size();
     Xapian::termcount doclen;
     if (!unpack_uint_last(&p, p_end, &doclen)) {
-	throw Xapian::NetworkError("Bad REPLY_DOCLENGTH", context);
+	throw Xapian::NetworkError("Bad REPLY_DOCLENGTH", link.get_context());
     }
     return doclen;
 }
@@ -572,7 +574,7 @@ RemoteDatabase::get_unique_terms(Xapian::docid did) const
     const char* p_end = p + message.size();
     Xapian::termcount doclen;
     if (!unpack_uint_last(&p, p_end, &doclen)) {
-	throw Xapian::NetworkError("Bad REPLY_DOCLENGTH", context);
+	throw Xapian::NetworkError("Bad REPLY_DOCLENGTH", link.get_context());
     }
     return doclen;
 }
@@ -590,7 +592,7 @@ RemoteDatabase::get_wdfdocmax(Xapian::docid did) const
     const char* p_end = p + message.size();
     Xapian::termcount wdfdocmax;
     if (!unpack_uint_last(&p, p_end, &wdfdocmax)) {
-	throw Xapian::NetworkError("Bad REPLY_WDFDOCMAX", context);
+	throw Xapian::NetworkError("Bad REPLY_WDFDOCMAX", link.get_context());
     }
     return wdfdocmax;
 }
@@ -609,13 +611,13 @@ RemoteDatabase::get_message(string &result,
 	throw_connection_closed_unexpectedly();
     if (rare(type) >= REPLY_MAX) {
 	if (required_type == REPLY_UPDATE)
-	    throw_handshake_failed(context);
+	    throw_handshake_failed(link.get_context());
 	string errmsg("Invalid reply type ");
 	errmsg += str(type);
 	throw Xapian::NetworkError(errmsg);
     }
     if (type == REPLY_EXCEPTION) {
-	unserialise_error(result, "REMOTE:", context);
+	unserialise_error(result, "REMOTE:", link.get_context());
     }
     if (type != required_type && type != required_type2) {
 	string errmsg("Expecting reply type ");
@@ -959,7 +961,8 @@ RemoteDatabase::remove_spelling(const string & word,
     const char * p_end = p + message.size();
     Xapian::termcount result;
     if (!unpack_uint_last(&p, p_end, &result)) {
-	throw Xapian::NetworkError("Bad REPLY_REMOVESPELLING", context);
+	throw Xapian::NetworkError("Bad REPLY_REMOVESPELLING",
+				   link.get_context());
     }
     return result;
 }
@@ -1045,7 +1048,7 @@ string
 RemoteDatabase::get_description() const
 {
     string desc = "Remote(context=";
-    desc += context;
+    desc += link.get_context();
     desc += ')';
     return desc;
 }
