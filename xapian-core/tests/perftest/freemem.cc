@@ -52,7 +52,7 @@
 #endif
 
 /* Tested on:
- * Linux, FreeBSD, IRIX, HP-UX, Microsoft Windows.
+ * Linux, FreeBSD, HP-UX, Microsoft Windows.
  */
 
 long long
@@ -71,13 +71,6 @@ get_free_physical_memory()
      */
     pagesize = sysconf(_SC_PAGESIZE);
     pages = sysconf(_SC_PHYS_PAGES);
-#elif defined HAVE_SYSMP
-    /* IRIX: (rminfo64 and MPSA_RMINFO64?) */
-    struct rminfo meminfo;
-    if (sysmp(MP_SAGET, MPSA_RMINFO, &meminfo, sizeof(meminfo)) == 0) {
-	pagesize = sysconf(_SC_PAGESIZE);
-	pages = meminfo.availrmem;
-    }
 #elif defined HAVE_PSTAT_GETDYNAMIC
     /* HP-UX: */
     struct pst_dynamic info;
@@ -128,13 +121,6 @@ get_total_physical_memory()
     /* Linux: */
     pagesize = sysconf(_SC_PAGESIZE);
     pages = sysconf(_SC_PHYS_PAGES);
-#elif defined HAVE_SYSMP
-    /* IRIX: (rminfo64 and MPSA_RMINFO64?) */
-    struct rminfo meminfo;
-    if (sysmp(MP_SAGET, MPSA_RMINFO, &meminfo, sizeof(meminfo)) == 0) {
-	pagesize = sysconf(_SC_PAGESIZE);
-	pages = meminfo.physmem;
-    }
 #elif defined HAVE_PSTAT_GETDYNAMIC
     /* HP-UX: */
     struct pst_dynamic info;
