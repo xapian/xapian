@@ -150,23 +150,6 @@ TcpServer::get_listening_socket(const std::string & host, int port,
 				sizeof(optval));
 	}
 
-#if defined SO_EXCLUSIVEADDRUSE
-	// NT4 sp4 and later offer SO_EXCLUSIVEADDRUSE which nullifies the
-	// security issues from SO_REUSEADDR (which affect *any* listening
-	// process, even if doesn't use SO_REUSEADDR itself).  There's still no
-	// way of addressing the issue of not being able to listen on a port
-	// which has closed connections in TIME_WAIT state though.
-	//
-	// Note: SO_EXCLUSIVEADDRUSE requires admin privileges prior to XP SP2.
-	// Because of this and the lack support on older versions, we don't
-	// currently check the return value.
-	if (retval >= 0) {
-	    (void)setsockopt(fd, SOL_SOCKET, SO_EXCLUSIVEADDRUSE,
-			     reinterpret_cast<char *>(&optval),
-			     sizeof(optval));
-	}
-#endif
-
 	if (retval < 0) {
 	    int saved_errno = socket_errno(); // note down in case close hits an error
 	    CLOSESOCKET(fd);
