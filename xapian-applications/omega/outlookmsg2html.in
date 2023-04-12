@@ -3,7 +3,7 @@
 # @file
 # @brief Extract text from an outlook .msg or .oft file.
 #
-# Copyright (C) 2010,2015,2019 Olly Betts
+# Copyright (C) 2010,2015,2019,2023 Olly Betts
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -71,8 +71,8 @@ sub handle_mimepart {
     my ($type, $sub) = ((lc $e->content_type) =~ m,^(.*?)/(.*?)(?:;.*)?$,);
     if ($type eq 'multipart') {
 	if ($sub eq 'alternative') {
-	    # Take the first mime part which we get text from.
-	    for my $s ($e->subparts) {
+	    # Take the last mime part which we get text from.
+	    for my $s (reverse $e->subparts) {
 		my $res = handle_mimepart($s);
 		return $res if $res;
 	    }
