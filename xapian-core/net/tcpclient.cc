@@ -96,13 +96,13 @@ TcpClient::open_socket(const string& hostname, int port,
 #endif
 
 	if (tcp_nodelay) {
-	    int optval = 1;
+	    int on = 1;
 	    // 4th argument might need to be void* or char* - cast it to char*
 	    // since C++ allows implicit conversion to void* but not from
 	    // void*.
 	    if (setsockopt(fd, IPPROTO_TCP, TCP_NODELAY,
-			   reinterpret_cast<char*>(&optval),
-			   sizeof(optval)) < 0) {
+			   reinterpret_cast<char*>(&on),
+			   sizeof(on)) < 0) {
 		int setsockopt_errno = socket_errno();
 		CLOSESOCKET(fd);
 		throw Xapian::NetworkError("Couldn't set TCP_NODELAY",

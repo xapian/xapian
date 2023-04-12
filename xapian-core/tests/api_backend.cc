@@ -1941,13 +1941,13 @@ DEFINE_TESTCASE(remoteportreuse1, remotetcp) {
 		continue;
 
 	    if (reuse_options == 1) {
-		int optval = 1;
+		int on = 1;
 		// 4th argument might need to be void* or char* - cast it to
 		// char* since C++ allows implicit conversion to void* but not
 		// from void*.
 		int retval = setsockopt(fd, SOL_SOCKET, SO_REUSEADDR,
-					reinterpret_cast<char*>(&optval),
-					sizeof(optval));
+					reinterpret_cast<char*>(&on),
+					sizeof(on));
 
 		if (retval < 0) {
 		    int setsockopt_errno = socket_errno();
@@ -1957,10 +1957,10 @@ DEFINE_TESTCASE(remoteportreuse1, remotetcp) {
 		}
 #ifdef SO_EXCLUSIVEADDRUSE
 	    } else if (reuse_options == 2) {
-		int optval = 1;
+		int on = 1;
 		int retval = setsockopt(fd, SOL_SOCKET, SO_EXCLUSIVEADDRUSE,
-					reinterpret_cast<char*>(&optval),
-					sizeof(optval));
+					reinterpret_cast<char*>(&on),
+					sizeof(on));
 
 		if (retval < 0) {
 		    int setsockopt_errno = socket_errno();
