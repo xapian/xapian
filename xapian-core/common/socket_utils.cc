@@ -1,7 +1,7 @@
 /** @file
  *  @brief Socket handling utilities.
  */
-/* Copyright (C) 2006,2007,2008,2015,2018 Olly Betts
+/* Copyright (C) 2006,2007,2008,2015,2018,2023 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -109,32 +109,41 @@ pretty_ip6(const void* p, char* buf)
     const sockaddr* sa = reinterpret_cast<const sockaddr*>(p);
     auto af = sa->sa_family;
     int port;
+#ifndef __WIN32__
+    const void* src;
+#endif
     if (af == AF_INET6) {
-	port = (reinterpret_cast<const sockaddr_in6*>(p))->sin6_port;
+	auto sa6 = reinterpret_cast<const sockaddr_in6*>(p);
+	port = sa6->sin6_port;
+#ifndef __WIN32__
+	src = &sa6->sin6_addr;
+#endif
     } else if (af == AF_INET) {
-	port = (reinterpret_cast<const sockaddr_in*>(p))->sin_port;
+	auto sa4 = reinterpret_cast<const sockaddr_in*>(p);
+	port = sa4->sin_port;
+#ifndef __WIN32__
+	src = &sa4->sin_addr;
+#endif
     } else {
 	return -1;
     }
 
-    // WSAAddressToString() has a non-const first parameter.
-    //
-    // The mingw headers at least are also missing const from the corresponding
-    // (second) parameter of inet_ntop(), so just cast away the const in case
-    // this is more widespread.
-    auto src = reinterpret_cast<struct sockaddr*>(const_cast<void*>(p));
 #ifndef __WIN32__
     const char* r = inet_ntop(af, src, buf, PRETTY_IP6_LEN);
     if (!r)
 	return -1;
 #else
-    // inet_ntop() isn't always available, at least with mingw.
+    // inet_ntop() isn't always available (at least with mingw) but
     // WSAAddressToString() supports both IPv4 and IPv6, so just use that.
+    //
+    // WSAAddressToString() has a non-const first parameter so we have to cast
+    // away const.
     DWORD in_size = (af == AF_INET6 ?
 		     sizeof(struct sockaddr_in6) :
 		     sizeof(struct sockaddr_in));
     DWORD size = PRETTY_IP6_LEN;
-    if (WSAAddressToString(src, in_size, NULL, buf, &size) != 0) {
+    if (WSAAddressToString(const_cast<struct sockaddr*>(sa),
+			   in_size, NULL, buf, &size) != 0) {
 	return -1;
     }
     const char* r = buf;
