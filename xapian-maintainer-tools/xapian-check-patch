@@ -134,7 +134,7 @@ while (<>) {
 	$next_top_level = undef;
     }
 
-    if (/^Index: (.+)/ || m!^diff --git a/.+ b/(.+)!) {
+    if (/^Index: (.+)/ || m!^diff --git a/.+ b/(.+)! || m!^\+\+\+ (\S+)!) {
 	++$files;
 	$fnm = $1;
 	(($ext) = ($fnm =~ /\.([\w.]+)$/)) or $ext = '';
