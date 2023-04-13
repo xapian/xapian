@@ -102,7 +102,7 @@ common_prefix_length(const std::string &a, const std::string &b)
 }
 
 inline std::string::size_type
-common_prefix_length(std::string_view a, std::string_view b,
+common_prefix_length(const std::string& a, const std::string& b,
 		     std::string::size_type max_prefix_len)
 {
     std::string::size_type minlen = std::min({a.size(),
