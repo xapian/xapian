@@ -286,9 +286,9 @@ GlassTable::write_block(uint4 n, const uint8_t * p, bool appending) const
 */
 
 void
-GlassTable::set_overwritten() const
+GlassTable::throw_overwritten() const
 {
-    LOGCALL_VOID(DB, "GlassTable::set_overwritten", NO_ARGS);
+    LOGCALL_VOID(DB, "GlassTable::throw_overwritten", NO_ARGS);
     // If we're writable, there shouldn't be another writer who could cause
     // overwritten to be flagged, so that's a DatabaseCorruptError.
     if (writable)
@@ -333,8 +333,7 @@ GlassTable::block_to_cursor(Glass::Cursor * C_, int j, uint4 n) const
     if (j < level) {
 	/* unsigned comparison */
 	if (rare(REVISION(p) > REVISION(C_[j + 1].get_p()))) {
-	    set_overwritten();
-	    return;
+	    throw_overwritten();
 	}
     }
 
@@ -1648,7 +1647,7 @@ GlassTable::read_root()
 	/* using a root block stored on disk */
 	block_to_cursor(C, level, root);
 
-	if (REVISION(C[level].get_p()) > revision_number) set_overwritten();
+	if (REVISION(C[level].get_p()) > revision_number) throw_overwritten();
 	/* although this is unlikely */
     }
 }
@@ -2063,8 +2062,7 @@ GlassTable::prev_for_sequential(Glass::Cursor * C_, int /*dummy*/) const
 		C_[0].set_n(n);
 	    }
 	    if (REVISION(p) > revision_number + writable) {
-		set_overwritten();
-		RETURN(false);
+		throw_overwritten();
 	    }
 	    if (GET_LEVEL(p) == 0) break;
 	}
@@ -2121,8 +2119,7 @@ GlassTable::next_for_sequential(Glass::Cursor * C_, int /*dummy*/) const
 		p = q;
 	    }
 	    if (REVISION(p) > revision_number + writable) {
-		set_overwritten();
-		RETURN(false);
+		throw_overwritten();
 	    }
 	    if (GET_LEVEL(p) == 0) break;
 	}

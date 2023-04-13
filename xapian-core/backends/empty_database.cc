@@ -59,14 +59,12 @@ TermList*
 EmptyDatabase::open_term_list(Xapian::docid) const
 {
     no_subdatabases();
-    return NULL;
 }
 
 TermList*
 EmptyDatabase::open_term_list_direct(Xapian::docid) const
 {
     no_subdatabases();
-    return NULL;
 }
 
 TermList*
@@ -85,7 +83,6 @@ PositionList*
 EmptyDatabase::open_position_list(Xapian::docid, const string&) const
 {
     no_subdatabases();
-    return NULL;
 }
 
 Xapian::doccount
@@ -170,7 +167,6 @@ EmptyDatabase::get_doclength(Xapian::docid did) const
     Assert(did != 0);
     (void)did;
     no_subdatabases();
-    return 0;
 }
 
 Xapian::termcount
@@ -179,7 +175,6 @@ EmptyDatabase::get_unique_terms(Xapian::docid did) const
     Assert(did != 0);
     (void)did;
     no_subdatabases();
-    return 0;
 }
 
 Xapian::termcount
@@ -188,7 +183,6 @@ EmptyDatabase::get_wdfdocmax(Xapian::docid did) const
     Assert(did != 0);
     (void)did;
     no_subdatabases();
-    return 0;
 }
 
 Xapian::Document::Internal*
@@ -197,7 +191,6 @@ EmptyDatabase::open_document(Xapian::docid did, bool) const
     Assert(did != 0);
     (void)did;
     no_subdatabases();
-    return NULL;
 }
 
 bool
