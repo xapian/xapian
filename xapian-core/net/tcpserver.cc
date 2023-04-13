@@ -131,7 +131,6 @@ create_listener(const std::string& host,
 	// WSAEINVAL which we ignored (to support OS versions from before it
 	// was added), so we've never actual set SO_EXCLUSIVEADDRUSE in any
 	// released version of Xapian.
-#else
 	if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR,
 		       reinterpret_cast<char*>(&on),
 		       sizeof(on)) < 0) {
