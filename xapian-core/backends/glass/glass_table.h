@@ -114,7 +114,10 @@ inline int DIR_END(const uint8_t * b) { return unaligned_read2(b + 9); }
 const int DIR_START = 11;
 
 inline void SET_REVISION(uint8_t * b, uint4 rev) { aligned_write4(b, rev); }
-inline void SET_LEVEL(uint8_t * b, int x) { AssertRel(x,<,256); b[4] = x; }
+inline void SET_LEVEL(uint8_t* b, int x) {
+    AssertRel(x,<,256);
+    b[4] = uint8_t(x);
+}
 inline void SET_MAX_FREE(uint8_t * b, int x) { unaligned_write2(b + 5, x); }
 inline void SET_TOTAL_FREE(uint8_t * b, int x) { unaligned_write2(b + 7, x); }
 inline void SET_DIR_END(uint8_t * b, int x) { unaligned_write2(b + 9, x); }
@@ -218,7 +221,7 @@ class LeafItem_wr : public LeafItem_base<uint8_t *> {
     void set_key_len(int x) {
 	AssertRel(x, >=, 0);
 	AssertRel(x, <=, GLASS_BTREE_MAX_KEY_LEN);
-	p[I2] = x;
+	p[I2] = uint8_t(x);
     }
     void setI(int x) { unaligned_write2(p, x); }
     static void setX(uint8_t * q, int c, int x) { unaligned_write2(q + c, x); }
@@ -341,7 +344,7 @@ class BItem_wr : public BItem_base<uint8_t *> {
     void set_key_len(int x) {
 	AssertRel(x, >=, 0);
 	AssertRel(x, <, GLASS_BTREE_MAX_KEY_LEN);
-	p[BYTES_PER_BLOCK_NUMBER] = x;
+	p[BYTES_PER_BLOCK_NUMBER] = uint8_t(x);
     }
     static void setX(uint8_t * q, int c, int x) { unaligned_write2(q + c, x); }
   public:

@@ -67,7 +67,7 @@ serialise_stats(const Xapian::Weight::Internal &stats)
 	    AssertRel(term.size(), >, reuse);
 	    result += char(term.size());
 	} else {
-	    result += reuse;
+	    result += char(reuse);
 	    pack_uint(result, append);
 	}
 	result.append(term.data() + reuse, append);
