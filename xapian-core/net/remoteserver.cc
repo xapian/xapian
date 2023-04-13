@@ -250,10 +250,8 @@ RemoteServer::msg_allterms(const string &message)
     const string & prefix = message;
     const Xapian::TermIterator end = db->allterms_end(prefix);
     for (Xapian::TermIterator t = db->allterms_begin(prefix); t != end; ++t) {
-	if (rare(prev.size() > 255))
-	    prev.resize(255);
 	const string & v = *t;
-	size_t reuse = common_prefix_length(prev, v);
+	size_t reuse = common_prefix_length(prev, v, 255);
 	reply = encode_length(t.get_termfreq());
 	reply.append(1, char(reuse));
 	reply.append(v, reuse, string::npos);
@@ -276,10 +274,8 @@ RemoteServer::msg_termlist(const string &message)
     string prev;
     const Xapian::TermIterator end = db->termlist_end(did);
     for (Xapian::TermIterator t = db->termlist_begin(did); t != end; ++t) {
-	if (rare(prev.size() > 255))
-	    prev.resize(255);
 	const string & v = *t;
-	size_t reuse = common_prefix_length(prev, v);
+	size_t reuse = common_prefix_length(prev, v, 255);
 	string reply = encode_length(t.get_wdf());
 	reply += encode_length(t.get_termfreq());
 	reply.append(1, char(reuse));
@@ -750,10 +746,8 @@ RemoteServer::msg_openmetadatakeylist(const string & message)
     const Xapian::TermIterator end = db->metadata_keys_end(prefix);
     Xapian::TermIterator t = db->metadata_keys_begin(prefix);
     for (; t != end; ++t) {
-	if (rare(prev.size() > 255))
-	    prev.resize(255);
 	const string & v = *t;
-	size_t reuse = common_prefix_length(prev, v);
+	size_t reuse = common_prefix_length(prev, v, 255);
 	reply.assign(1, char(reuse));
 	reply.append(v, reuse, string::npos);
 	send_message(REPLY_METADATAKEYLIST, reply);
