@@ -57,7 +57,7 @@ serialise_stats(const Xapian::Weight::Internal &stats)
 	// common with the previous term.  This is much more compact if there
 	// are a lot of terms, especially if they share a prefix such as an
 	// OP_WILDCARD which expands to a lot of terms.
-	size_t reuse = common_prefix_length(prev_term, term);
+	size_t reuse = common_prefix_length(prev_term, term, 255);
 	size_t append = term.size() - reuse;
 	if (reuse == prev_term.size() && usual(term.size() <= 255)) {
 	    // Reuse the whole of the previous term.  In this case we store the

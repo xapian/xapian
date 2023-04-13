@@ -324,10 +324,8 @@ RemoteServer::msg_allterms(const string& message)
     for (Xapian::TermIterator t = db->allterms_begin(prefix);
 	 t != db->allterms_end(prefix);
 	 ++t) {
-	if (rare(prev.size() > 255))
-	    prev.resize(255);
 	const string& term = *t;
-	size_t reuse = common_prefix_length(prev, term);
+	size_t reuse = common_prefix_length(prev, term, 255);
 	reply.append(1, char(reuse));
 	pack_uint(reply, term.size() - reuse);
 	reply.append(term, reuse, string::npos);
@@ -358,10 +356,8 @@ RemoteServer::msg_termlist(const string &message)
     reply.resize(0);
     string prev;
     while (t != db->termlist_end(did)) {
-	if (rare(prev.size() > 255))
-	    prev.resize(255);
 	const string& term = *t;
-	size_t reuse = common_prefix_length(prev, term);
+	size_t reuse = common_prefix_length(prev, term, 255);
 	reply.append(1, char(reuse));
 	pack_uint(reply, term.size() - reuse);
 	reply.append(term, reuse, string::npos);
@@ -933,10 +929,8 @@ RemoteServer::msg_metadatakeylist(const string& message)
     for (Xapian::TermIterator t = db->metadata_keys_begin(prefix);
 	 t != db->metadata_keys_end(prefix);
 	 ++t) {
-	if (rare(prev.size() > 255))
-	    prev.resize(255);
 	const string& term = *t;
-	size_t reuse = common_prefix_length(prev, term);
+	size_t reuse = common_prefix_length(prev, term, 255);
 	reply.append(1, char(reuse));
 	pack_uint(reply, term.size() - reuse);
 	reply.append(term, reuse, string::npos);
@@ -1000,10 +994,8 @@ RemoteServer::msg_synonymtermlist(const string& message)
     Xapian::TermIterator t = db->synonyms_begin(message);
     string reply, prev;
     while (t != db->synonyms_end(message)) {
-	if (rare(prev.size() > 255))
-	    prev.resize(255);
 	const string& term = *t;
-	size_t reuse = common_prefix_length(prev, term);
+	size_t reuse = common_prefix_length(prev, term, 255);
 	reply.append(1, char(reuse));
 	pack_uint(reply, term.size() - reuse);
 	reply.append(term, reuse, string::npos);
@@ -1019,10 +1011,8 @@ RemoteServer::msg_synonymkeylist(const string& message)
     Xapian::TermIterator t = db->synonym_keys_begin(message);
     string reply, prev;
     while (t != db->synonym_keys_end(message)) {
-	if (rare(prev.size() > 255))
-	    prev.resize(255);
 	const string& term = *t;
-	size_t reuse = common_prefix_length(prev, term);
+	size_t reuse = common_prefix_length(prev, term, 255);
 	reply.append(1, char(reuse));
 	pack_uint(reply, term.size() - reuse);
 	reply.append(term, reuse, string::npos);
