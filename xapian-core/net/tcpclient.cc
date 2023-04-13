@@ -75,8 +75,10 @@ TcpClient::open_socket(const string& hostname, int port,
 
 #ifndef SOCK_NONBLOCK
 #ifdef __WIN32__
-	ULONG on = 1;
-	int rc = ioctlsocket(fd, FIONBIO, &on);
+	int rc = [&]() {
+	    ULONG on = 1;
+	    return ioctlsocket(fd, FIONBIO, &on);
+	}();
 #define FLAG_NAME "FIONBIO"
 #elif defined O_NONBLOCK
 	int rc = fcntl(fd, F_SETFL, O_NONBLOCK);
