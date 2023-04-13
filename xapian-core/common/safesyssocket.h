@@ -95,8 +95,8 @@ inline int accept_(int sockfd, struct sockaddr* addr, SOCKLEN_T* addrlen) {
 // `getaddrinfo()`.  To solve this we add an overload which takes `size_t`
 // and casts to `SOCKLEN_T`.
 
-inline int bind(int sockfd, const struct sockaddr* addr, size_t addrlen) {
-    return bind(sockfd, addr, SOCKLEN_T(addrlen));
+inline int bind(SOCKET s, const struct sockaddr* addr, size_t addrlen) {
+    return bind(s, addr, SOCKLEN_T(addrlen));
 }
 
 #elif !defined SOCK_CLOEXEC
