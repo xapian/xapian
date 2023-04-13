@@ -222,8 +222,7 @@ jobs:
         env
         sudo apt-get update
         sudo apt-get install \
-            clang-6.0 \
-            libc++-dev
+            clang-6.0
         sudo apt-get install \
             doxygen \
             graphviz \
@@ -255,8 +254,7 @@ jobs:
     - name: bootstrap source tree
       run: ./bootstrap xapian-core xapian-applications/omega swig xapian-bindings xapian-letor
     - name: configure
-      # Build with the llvm c++ library to catch more portability issues.
-      run: ./configure CC='ccache clang-6.0' CXX='ccache clang++-6.0 -stdlib=libc++' --with-python3 --with-tcl
+      run: ./configure CC='ccache clang-6.0' CXX='ccache clang++-6.0' --with-python3 --with-tcl
     - name: make
       run: make -j2
     - name: Run tests
