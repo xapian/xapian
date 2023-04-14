@@ -36,6 +36,7 @@
 # include "safeunistd.h"
 # include <sys/wait.h>
 #else
+# include <cinttypes> // For PRIx64
 # include <cstdio> // For sprintf().
 # include <io.h>
 #endif
@@ -159,11 +160,16 @@ ProgClient::run_program(const string& progname,
     return {0, {}};
 # endif
 #elif defined __WIN32__
-    static unsigned int pipecount = 0;
+    LARGE_INTEGER counter;
+    // QueryPerformanceCounter() will always succeed on XP and later
+    // and gives us a counter which increments each CPU clock cycle
+    // on modern hardware (Pentium or newer).
+    QueryPerformanceCounter(&counter);
     char pipename[256];
-    sprintf(pipename, "\\\\.\\pipe\\xapian-remote-%lx-%lx-%x",
+    sprintf(pipename, "\\\\.\\pipe\\xapian-remote-%lx-%lx_%" PRIx64,
 	    static_cast<unsigned long>(GetCurrentProcessId()),
-	    static_cast<unsigned long>(GetCurrentThreadId()), pipecount++);
+	    static_cast<unsigned long>(GetCurrentThreadId()),
+	    static_cast<unsigned long long>(counter.QuadPart));
     // Create a pipe so we can read stdout from the child process.
     HANDLE hPipe = CreateNamedPipe(pipename,
 				   PIPE_ACCESS_DUPLEX|FILE_FLAG_OVERLAPPED,
