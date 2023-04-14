@@ -1,7 +1,7 @@
 /** @file
  * @brief HoneyTable class
  */
-/* Copyright (C) 2017,2018 Olly Betts
+/* Copyright (C) 2017,2018,2023 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -90,8 +90,16 @@ class BufferedFileCommon {
 class BufferedFile {
     BufferedFileCommon* common = nullptr;
 
+    /** Offset in file.
+     *
+     *  When reading, this is the offset of the end of any buffered data.
+     *
+     *  When writing, this is the offset of the start of any buffered data.
+     */
     mutable off_t pos = 0;
     bool read_only = true;
+
+    /** Index into @a buf where buffered data ends. */
     mutable size_t buf_end = 0;
     mutable char buf[4096];
 
@@ -165,14 +173,22 @@ class BufferedFile {
     }
 
     void set_pos(off_t pos_) {
-	if (!read_only) flush();
-	if (false && pos_ >= pos) { // FIXME: need to take buf_end into account
-	    skip(pos_ - pos);
+	if (buf_end == 0) {
+	    // No buffered data to flush or try to salvage.
+	} else if (!read_only) {
+	    flush();
 	} else {
-	    // FIXME: salvage some of the buffer if we can?
-	    buf_end = 0;
-	    pos = pos_;
+	    // Keep any buffered data we can.
+	    size_t delta = size_t(pos_ - (pos - buf_end));
+	    // Since delta is an unsigned type, `>` also checks for a
+	    // "negative" delta.
+	    if (delta > buf_end) {
+		buf_end = 0;
+	    } else {
+		buf_end -= delta;
+	    }
 	}
+	pos = pos_;
     }
 
     void skip(size_t delta) const {
