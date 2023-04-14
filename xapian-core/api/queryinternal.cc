@@ -578,27 +578,54 @@ XorContext::postlist(TermFreqs* termfreqs)
     return pl;
 }
 
+class PosFilter {
+    Xapian::Query::op op_;
+
+    /// Start and end indices for the PostLists this positional filter uses.
+    size_t begin, end;
+
+    Xapian::termcount window;
+
+  public:
+    PosFilter(Xapian::Query::op op__, size_t begin_, size_t end_,
+	      Xapian::termcount window_)
+	: op_(op__), begin(begin_), end(end_), window(window_) { }
+
+    PostList* postlist(PostList* pl,
+		       const vector<PostList*>& pls,
+		       PostListTree* pltree,
+		       QueryOptimiser* qopt,
+		       TermFreqs* termfreqs) const
+    try {
+	auto terms_begin = pls.begin() + begin;
+	auto terms_end = pls.begin() + end;
+
+	if (op_ == Xapian::Query::OP_NEAR) {
+	    auto estimate_op = qopt->add_op(EstimateOp::NEAR);
+	    if (termfreqs) *termfreqs /= 2;
+	    pl = new NearPostList(pl, estimate_op,
+				  window, terms_begin, terms_end, pltree);
+	} else if (window != end - begin) {
+	    AssertEq(op_, Xapian::Query::OP_PHRASE);
+	    auto estimate_op = qopt->add_op(EstimateOp::PHRASE);
+	    if (termfreqs) *termfreqs /= 3;
+	    pl = new PhrasePostList(pl, estimate_op,
+				    window, terms_begin, terms_end, pltree);
+	} else {
+	    AssertEq(op_, Xapian::Query::OP_PHRASE);
+	    auto estimate_op = qopt->add_op(EstimateOp::EXACT_PHRASE);
+	    if (termfreqs) *termfreqs /= 4;
+	    pl = new ExactPhrasePostList(pl, estimate_op,
+					 terms_begin, terms_end, pltree);
+	}
+	return pl;
+    } catch (...) {
+	delete pl;
+	throw;
+    }
+};
+
 class AndContext : public Context {
-    class PosFilter {
-	Xapian::Query::op op_;
-
-	/// Start and end indices for the PostLists this positional filter uses.
-	size_t begin, end;
-
-	Xapian::termcount window;
-
-      public:
-	PosFilter(Xapian::Query::op op__, size_t begin_, size_t end_,
-		  Xapian::termcount window_)
-	    : op_(op__), begin(begin_), end(end_), window(window_) { }
-
-	PostList* postlist(PostList* pl,
-			   const vector<PostList*>& pls,
-			   PostListTree* pltree,
-			   QueryOptimiser* qopt,
-			   TermFreqs* termfreqs) const;
-    };
-
     list<PosFilter> pos_filters;
 
     unique_ptr<OrContext> not_ctx;
@@ -662,40 +689,6 @@ class AndContext : public Context {
 
     PostList* postlist(TermFreqs* termfreqs);
 };
-
-PostList *
-AndContext::PosFilter::postlist(PostList* pl,
-				const vector<PostList*>& pls,
-				PostListTree* pltree,
-				QueryOptimiser* qopt,
-				TermFreqs* termfreqs) const
-try {
-    vector<PostList *>::const_iterator terms_begin = pls.begin() + begin;
-    vector<PostList *>::const_iterator terms_end = pls.begin() + end;
-
-    if (op_ == Xapian::Query::OP_NEAR) {
-	auto estimate_op = qopt->add_op(EstimateOp::NEAR);
-	if (termfreqs) *termfreqs /= 2;
-	pl = new NearPostList(pl, estimate_op,
-			      window, terms_begin, terms_end, pltree);
-    } else if (window == end - begin) {
-	AssertEq(op_, Xapian::Query::OP_PHRASE);
-	auto estimate_op = qopt->add_op(EstimateOp::EXACT_PHRASE);
-	if (termfreqs) *termfreqs /= 4;
-	pl = new ExactPhrasePostList(pl, estimate_op,
-				     terms_begin, terms_end, pltree);
-    } else {
-	AssertEq(op_, Xapian::Query::OP_PHRASE);
-	auto estimate_op = qopt->add_op(EstimateOp::PHRASE);
-	if (termfreqs) *termfreqs /= 3;
-	pl = new PhrasePostList(pl, estimate_op,
-				window, terms_begin, terms_end, pltree);
-    }
-    return pl;
-} catch (...) {
-    delete pl;
-    throw;
-}
 
 void
 AndContext::add_pos_filter(Query::op op_,
