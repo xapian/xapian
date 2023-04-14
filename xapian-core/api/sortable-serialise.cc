@@ -191,7 +191,7 @@ Xapian::sortable_unserialise(const std::string& value) noexcept
 	// INFINITY is C99.  Oddly, it's of type "float" so sanity check in
 	// case it doesn't cast to double as infinity (apparently some
 	// implementations have this problem).
-	if (double(INFINITY) > HUGE_VAL) return INFINITY;
+	if constexpr(double(INFINITY) > HUGE_VAL) return INFINITY;
 #endif
 	return HUGE_VAL;
     }
@@ -199,7 +199,7 @@ Xapian::sortable_unserialise(const std::string& value) noexcept
     // Negative infinity.
     if (value.empty()) {
 #ifdef INFINITY
-	if (double(INFINITY) > HUGE_VAL) return -INFINITY;
+	if constexpr(double(INFINITY) > HUGE_VAL) return -INFINITY;
 #endif
 	return -HUGE_VAL;
     }
