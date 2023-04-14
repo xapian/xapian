@@ -879,10 +879,11 @@ DEFINE_TESTCASE(collapsekey1, backend) {
 
 // tests that collapse-on-key modifies the predicted bounds for the number of
 // matches appropriately.
-DEFINE_TESTCASE(collapsekey2, backend) {
-    SKIP_TEST("Don't have a suitable database currently");
-    // FIXME: this needs an appropriate database creating, but that's quite
-    // subtle to do it seems.
+DEFINE_TESTCASE(collapsekey2, multi && remote) {
+    // FIXME: This needs an appropriate database creating to work for other
+    // backend combinations - currently those return the same bound after
+    // collapsing (which is valid, but doesn't show the effect we are trying
+    // to test for here).
     Xapian::Enquire enquire(get_database("apitest_simpledata2"));
     enquire.set_query(Xapian::Query("this"));
 
