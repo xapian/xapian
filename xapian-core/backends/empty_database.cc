@@ -299,7 +299,6 @@ Xapian::docid
 EmptyDatabase::add_document(const Xapian::Document&)
 {
     no_subdatabases();
-    return 0;
 }
 
 void
@@ -324,7 +323,6 @@ Xapian::docid
 EmptyDatabase::replace_document(const string&, const Xapian::Document&)
 {
     no_subdatabases();
-    return 0;
 }
 
 void
@@ -337,7 +335,6 @@ Xapian::termcount
 EmptyDatabase::remove_spelling(const string&, Xapian::termcount) const
 {
     no_subdatabases();
-    return 0;
 }
 
 void
