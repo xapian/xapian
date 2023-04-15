@@ -2,7 +2,7 @@
  * @brief tests which don't need a backend
  */
 /* Copyright (C) 2009 Richard Boulton
- * Copyright (C) 2009,2010,2011,2013,2014,2015,2016,2017,2018,2019 Olly Betts
+ * Copyright (C) 2009-2023 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -363,6 +363,13 @@ class TestFieldProcessor : public Xapian::FieldProcessor {
 /// Check reference counting of user-subclassable classes.
 DEFINE_TESTCASE(subclassablerefcount2, !backend) {
     bool gone_auto, gone;
+#ifdef _MSC_VER
+    // MSVC incorrectly warns these are potentially uninitialised.  It's
+    // unhelpful to always initialise these as that could mask if a genuine bug
+    // were introduced (which currently would likely be caught by a warning
+    // from a smarter compiler).
+    gone_auto = gone = false;
+#endif
 
     // Simple test of release().
     {
@@ -427,6 +434,13 @@ DEFINE_TESTCASE(subclassablerefcount3, backend) {
     Xapian::Database db = get_database("apitest_simpledata");
 
     bool gone_auto, gone;
+#ifdef _MSC_VER
+    // MSVC incorrectly warns these are potentially uninitialised.  It's
+    // unhelpful to always initialise these as that could mask if a genuine bug
+    // were introduced (which currently would likely be caught by a warning
+    // from a smarter compiler).
+    gone_auto = gone = false;
+#endif
 
     // Simple test of release().
     {
@@ -489,6 +503,13 @@ class TestStopper : public Xapian::Stopper {
 /// Check reference counting of Stopper with QueryParser.
 DEFINE_TESTCASE(subclassablerefcount4, !backend) {
     bool gone_auto, gone;
+#ifdef _MSC_VER
+    // MSVC incorrectly warns these are potentially uninitialised.  It's
+    // unhelpful to always initialise these as that could mask if a genuine bug
+    // were introduced (which currently would likely be caught by a warning
+    // from a smarter compiler).
+    gone_auto = gone = false;
+#endif
 
     // Simple test of release().
     {
@@ -559,6 +580,13 @@ DEFINE_TESTCASE(subclassablerefcount4, !backend) {
 /// Check reference counting of Stopper with TermGenerator.
 DEFINE_TESTCASE(subclassablerefcount5, !backend) {
     bool gone_auto, gone;
+#ifdef _MSC_VER
+    // MSVC incorrectly warns these are potentially uninitialised.  It's
+    // unhelpful to always initialise these as that could mask if a genuine bug
+    // were introduced (which currently would likely be caught by a warning
+    // from a smarter compiler).
+    gone_auto = gone = false;
+#endif
 
     // Simple test of release().
     {
@@ -640,6 +668,13 @@ DEFINE_TESTCASE(subclassablerefcount6, backend) {
     Xapian::Database db = get_database("apitest_simpledata");
 
     bool gone_auto, gone;
+#ifdef _MSC_VER
+    // MSVC incorrectly warns these are potentially uninitialised.  It's
+    // unhelpful to always initialise these as that could mask if a genuine bug
+    // were introduced (which currently would likely be caught by a warning
+    // from a smarter compiler).
+    gone_auto = gone = false;
+#endif
 
     // Simple test of release().
     {
@@ -724,6 +759,13 @@ DEFINE_TESTCASE(subclassablerefcount7, backend) {
     rset.add_document(1);
 
     bool gone_auto, gone;
+#ifdef _MSC_VER
+    // MSVC incorrectly warns these are potentially uninitialised.  It's
+    // unhelpful to always initialise these as that could mask if a genuine bug
+    // were introduced (which currently would likely be caught by a warning
+    // from a smarter compiler).
+    gone_auto = gone = false;
+#endif
 
     for (int flags = 0;
 	 flags <= Xapian::Enquire::INCLUDE_QUERY_TERMS;
