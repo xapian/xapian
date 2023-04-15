@@ -115,41 +115,43 @@ DEFINE_TESTCASE(exceed32bitcombineddb1, writable) {
     // Test case is for 64-bit Xapian::docid.
     // FIXME: Though we should check that the overflow is handled gracefully
     // for 32-bit...
-    if constexpr(sizeof(Xapian::docid) == 4) return;
+    if constexpr(sizeof(Xapian::docid) == 4) {
+	SKIP_TEST("Not supported with 32-bit docid currently");
+    } else {
+	// The InMemory backend uses a vector for the documents, so trying to
+	// add a document with the maximum docid is likely to fail because we
+	// can't allocate enough memory!
+	SKIP_TEST_FOR_BACKEND("inmemory");
 
-    // The InMemory backend uses a vector for the documents, so trying to add
-    // a document with the maximum docid is likely to fail because we can't
-    // allocate enough memory!
-    SKIP_TEST_FOR_BACKEND("inmemory");
+	Xapian::WritableDatabase db1 = get_writable_database();
+	Xapian::Document doc;
+	doc.set_data("prose");
+	doc.add_term("word");
+	Xapian::docid max_32bit_id = 0xffffffff;
+	db1.replace_document(max_32bit_id, doc);
+	db1.commit();
 
-    Xapian::WritableDatabase db1 = get_writable_database();
-    Xapian::Document doc;
-    doc.set_data("prose");
-    doc.add_term("word");
-    Xapian::docid max_32bit_id = 0xffffffff;
-    db1.replace_document(max_32bit_id, doc);
-    db1.commit();
+	Xapian::Database db2 = get_writable_database_as_database();
 
-    Xapian::Database db2 = get_writable_database_as_database();
+	Xapian::Database db;
+	db.add_database(db1);
+	db.add_database(db2);
 
-    Xapian::Database db;
-    db.add_database(db1);
-    db.add_database(db2);
+	Xapian::Enquire enquire(db);
+	enquire.set_query(Xapian::Query::MatchAll);
+	Xapian::MSet mymset = enquire.get_mset(0, 10);
 
-    Xapian::Enquire enquire(db);
-    enquire.set_query(Xapian::Query::MatchAll);
-    Xapian::MSet mymset = enquire.get_mset(0, 10);
+	TEST_EQUAL(2, mymset.size());
 
-    TEST_EQUAL(2, mymset.size());
-
-    // We can't usefully check the shard docid if the testharness backend is
-    // multi.
-    bool multi = startswith(get_dbtype(), "multi");
-    for (Xapian::MSetIterator i = mymset.begin(); i != mymset.end(); ++i) {
-	doc = i.get_document();
-	if (!multi)
-	    TEST_EQUAL(doc.get_docid(), max_32bit_id);
-	TEST_EQUAL(doc.get_data(), "prose");
+	// We can't usefully check the shard docid if the testharness backend
+	// is multi.
+	bool multi = startswith(get_dbtype(), "multi");
+	for (Xapian::MSetIterator i = mymset.begin(); i != mymset.end(); ++i) {
+	    doc = i.get_document();
+	    if (!multi)
+		TEST_EQUAL(doc.get_docid(), max_32bit_id);
+	    TEST_EQUAL(doc.get_data(), "prose");
+	}
     }
 }
 
