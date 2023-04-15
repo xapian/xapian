@@ -123,15 +123,14 @@ DEFINE_TESTCASE(exceed32bitcombineddb1, writable) {
     SKIP_TEST_FOR_BACKEND("inmemory");
 
     Xapian::WritableDatabase db1 = get_writable_database();
-    Xapian::WritableDatabase db2 = get_writable_database();
     Xapian::Document doc;
     doc.set_data("prose");
     doc.add_term("word");
+    Xapian::docid max_32bit_id = 0xffffffff;
+    db1.replace_document(max_32bit_id, doc);
+    db1.commit();
 
-    Xapian::docid max_id = 0xffffffff;
-
-    db1.replace_document(max_id, doc);
-    db2.replace_document(max_id, doc);
+    Xapian::Database db2 = get_writable_database_as_database();
 
     Xapian::Database db;
     db.add_database(db1);
@@ -143,8 +142,14 @@ DEFINE_TESTCASE(exceed32bitcombineddb1, writable) {
 
     TEST_EQUAL(2, mymset.size());
 
+    // We can't usefully check the shard docid if the testharness backend is
+    // multi.
+    bool multi = startswith(get_dbtype(), "multi");
     for (Xapian::MSetIterator i = mymset.begin(); i != mymset.end(); ++i) {
-	TEST_EQUAL("prose", i.get_document().get_data());
+	doc = i.get_document();
+	if (!multi)
+	    TEST_EQUAL(doc.get_docid(), max_32bit_id);
+	TEST_EQUAL(doc.get_data(), "prose");
     }
 }
 
