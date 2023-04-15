@@ -91,12 +91,16 @@ inline int accept_(int sockfd, struct sockaddr* addr, SOCKLEN_T* addrlen) {
 
 // Winsock2 effectively uses `int` instead of `socklen_t` everywhere except for
 // in `struct addrinfo` where it uses `size_t`.  This results in an integer
-// truncation warning when calling `bind()` on an address looked up with
-// `getaddrinfo()`.  To solve this we add an overload which takes `size_t`
-// and casts to `SOCKLEN_T`.
+// truncation warning when calling `bind()` or `connect()` on an address looked
+// up with `getaddrinfo()`.  To solve this we add overloads which take `size_t`
+// for `addrlen` and cast it to `SOCKLEN_T`.
 
 inline int bind(SOCKET s, const struct sockaddr* addr, size_t addrlen) {
     return bind(s, addr, SOCKLEN_T(addrlen));
+}
+
+inline int connect(SOCKET s, const struct sockaddr* addr, size_t addrlen) {
+    return connect(s, addr, SOCKLEN_T(addrlen));
 }
 
 #elif !defined SOCK_CLOEXEC
