@@ -275,6 +275,13 @@ class TestRangeProcessor : public Xapian::RangeProcessor {
 /// Check reference counting of user-subclassable classes.
 DEFINE_TESTCASE(subclassablerefcount1, !backend) {
     bool gone_auto, gone;
+#ifdef _MSC_VER
+    // MSVC incorrectly warns these are potentially uninitialised.  It's
+    // unhelpful to always initialise these as that could mask if a genuine bug
+    // were introduced (which currently would likely be caught by a warning
+    // from a smarter compiler).
+    gone_auto = gone = false;
+#endif
 
     // Simple test of release().
     {
