@@ -176,8 +176,8 @@ class Context {
 	return pls.empty();
     }
 
-    size_t size() const {
-	return pls.size();
+    Xapian::termcount size() const {
+	return Xapian::termcount(pls.size());
     }
 
     void shrink(size_t new_size) {

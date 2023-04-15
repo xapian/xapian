@@ -1,7 +1,7 @@
 /** @file
  * @brief Custom vector implementations using small vector optimisation
  */
-/* Copyright (C) 2012,2013,2014,2017,2018,2019 Olly Betts
+/* Copyright (C) 2012,2013,2014,2017,2018,2019,2023 Olly Betts
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -499,9 +499,11 @@ class SmallVector : public SmallVectorI<typename T::Internal> {
 
 	bool operator!=(const const_iterator& o) const { return !(*this == o); }
 
-	const_iterator operator+(int n) { return const_iterator(ptr + n); }
+	template<typename I, typename = std::enable_if_t<std::is_integral_v<I>>>
+	const_iterator operator+(I n) { return const_iterator(ptr + n); }
 
-	const_iterator operator-(int n) { return const_iterator(ptr - n); }
+	template<typename I, typename = std::enable_if_t<std::is_integral_v<I>>>
+	const_iterator operator-(I n) { return const_iterator(ptr - n); }
     };
 
     // Create an empty SmallVector.
