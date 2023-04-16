@@ -779,7 +779,7 @@ GlassDatabase::compact(Xapian::Compactor * compactor,
 		       int fd,
 		       const vector<const Xapian::Database::Internal*>& sources,
 		       const vector<Xapian::docid> & offset,
-		       size_t block_size,
+		       unsigned block_size,
 		       Xapian::Compactor::compaction_level compaction,
 		       unsigned flags,
 		       Xapian::docid last_docid)

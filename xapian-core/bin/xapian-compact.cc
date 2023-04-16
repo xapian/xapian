@@ -130,23 +130,23 @@ main(int argc, char **argv)
     Xapian::Compactor::compaction_level level = Xapian::Compactor::FULL;
     unsigned backend = 0;
     unsigned flags = 0;
-    size_t block_size = 0;
+    unsigned block_size = 0;
 
     int c;
     while ((c = gnu_getopt_long(argc, argv, opts, long_opts, 0)) != -1) {
 	switch (c) {
 	    case 'b': {
 		char *p;
-		block_size = strtoul(optarg, &p, 10);
-		if (block_size <= GLASS_MAX_BLOCKSIZE / 1024 &&
+		unsigned long value = strtoul(optarg, &p, 10);
+		if (value <= GLASS_MAX_BLOCKSIZE / 1024 &&
 		    (*p == 'K' || *p == 'k')) {
 		    ++p;
-		    block_size *= 1024;
+		    value *= 1024;
 		}
 		if (*p ||
-		    block_size < GLASS_MIN_BLOCKSIZE ||
-		    block_size > GLASS_MAX_BLOCKSIZE ||
-		    (block_size & (block_size - 1)) != 0) {
+		    value < GLASS_MIN_BLOCKSIZE ||
+		    value > GLASS_MAX_BLOCKSIZE ||
+		    (value & (value - 1)) != 0) {
 		    cerr << PROG_NAME": Bad value '" << optarg << "' passed "
 			    "for blocksize, must be a power of 2 between "
 			 << (GLASS_MIN_BLOCKSIZE / 1024) << "K and "
@@ -154,6 +154,7 @@ main(int argc, char **argv)
 			 << endl;
 		    exit(1);
 		}
+		block_size = unsigned(value);
 		break;
 	    }
 	    case 'B':
