@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2014,2017 Olly Betts
+ * Copyright 2002-2023 Olly Betts
  * Copyright 2006,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -537,7 +537,7 @@ Xapian::docid
 InMemoryDatabase::get_lastdocid() const
 {
     if (closed) InMemoryDatabase::throw_database_closed();
-    return termlists.size();
+    return Xapian::docid(termlists.size());
 }
 
 Xapian::totallength
@@ -887,13 +887,17 @@ InMemoryDatabase::make_term(const string & tname)
 Xapian::docid
 InMemoryDatabase::make_doc(const string & docdata)
 {
+    if (rare(termlists.size() == Xapian::docid(-1))) {
+	// Really unlikely to actually happen for inmemory.
+	throw Xapian::DatabaseError("Run out of docids");
+    }
     termlists.push_back(InMemoryDoc(true));
     doclengths.push_back(0);
     doclists.push_back(docdata);
 
     AssertEqParanoid(termlists.size(), doclengths.size());
 
-    return termlists.size();
+    return Xapian::docid(termlists.size());
 }
 
 void InMemoryDatabase::make_posting(InMemoryDoc * doc,
