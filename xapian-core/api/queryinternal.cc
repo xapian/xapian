@@ -1458,16 +1458,16 @@ QueryValueRange::postlist(QueryOptimiser* qopt, double factor,
 	// If there were values in the slot, the backend should have a
 	// non-empty lower bound, even if it isn't a tight one.
 	AssertEq(db.get_value_freq(slot), 0);
-	if (termfreqs) *termfreqs = TermFreqs(0, 0, 0);
+	if (termfreqs) *termfreqs = TermFreqs();
 	RETURN(NULL);
     }
     if (end < lb) {
-	if (termfreqs) *termfreqs = TermFreqs(0, 0, 0);
+	if (termfreqs) *termfreqs = TermFreqs();
 	RETURN(NULL);
     }
     const string & ub = db.get_value_upper_bound(slot);
     if (begin > ub) {
-	if (termfreqs) *termfreqs = TermFreqs(0, 0, 0);
+	if (termfreqs) *termfreqs = TermFreqs();
 	RETURN(NULL);
     }
 
@@ -1558,11 +1558,11 @@ QueryValueLE::postlist(QueryOptimiser* qopt, double factor,
 	// If there were values in the slot, the backend should have a
 	// non-empty lower bound, even if it isn't a tight one.
 	AssertEq(db.get_value_freq(slot), 0);
-	if (termfreqs) *termfreqs = TermFreqs(0, 0, 0);
+	if (termfreqs) *termfreqs = TermFreqs();
 	RETURN(NULL);
     }
     if (limit < lb) {
-	if (termfreqs) *termfreqs = TermFreqs(0, 0, 0);
+	if (termfreqs) *termfreqs = TermFreqs();
 	RETURN(NULL);
     }
 
@@ -1649,12 +1649,12 @@ QueryValueGE::postlist(QueryOptimiser* qopt, double factor,
 	// If there were values in the slot, the backend should have a
 	// non-empty lower bound, even if it isn't a tight one.
 	AssertEq(db.get_value_freq(slot), 0);
-	if (termfreqs) *termfreqs = TermFreqs(0, 0, 0);
+	if (termfreqs) *termfreqs = TermFreqs();
 	RETURN(NULL);
     }
     const string& ub = db.get_value_upper_bound(slot);
     if (limit > ub) {
-	if (termfreqs) *termfreqs = TermFreqs(0, 0, 0);
+	if (termfreqs) *termfreqs = TermFreqs();
 	RETURN(NULL);
     }
 
