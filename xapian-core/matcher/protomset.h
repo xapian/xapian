@@ -1,7 +1,7 @@
 /** @file
  * @brief ProtoMSet class
  */
-/* Copyright (C) 2004-2022 Olly Betts
+/* Copyright (C) 2004-2023 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -128,6 +128,8 @@ class ProtoMSet {
 
     TimeOut timeout;
 
+    Xapian::doccount size() const { return Xapian::doccount(results.size()); }
+
   public:
     ProtoMSet(Xapian::doccount first_,
 	      Xapian::doccount max_items,
@@ -166,7 +168,7 @@ class ProtoMSet {
 
     Collapser& get_collapser() { return collapser; }
 
-    bool full() const { return results.size() == max_size; }
+    bool full() const { return size() == max_size; }
 
     double get_min_weight() const { return min_weight; }
 
@@ -203,9 +205,9 @@ class ProtoMSet {
 	bool weight_first = (sort_by == Xapian::Enquire::Internal::REL ||
 			     sort_by == Xapian::Enquire::Internal::REL_VAL);
 	double new_min_weight = HUGE_VAL;
-	size_t j = 0;
-	size_t min_elt = 0;
-	for (size_t i = 0; i != results.size(); ++i) {
+	Xapian::doccount j = 0;
+	Xapian::doccount min_elt = 0;
+	for (Xapian::doccount i = 0; i != size(); ++i) {
 	    if (results[i].get_weight() < min_weight) {
 		continue;
 	    }
@@ -230,7 +232,7 @@ class ProtoMSet {
 		    min_weight = new_min_weight;
 	    }
 	}
-	if (j != results.size()) {
+	if (j != size()) {
 	    results.erase(results.begin() + j, results.end());
 	    if (!finalising) {
 		return false;
@@ -351,11 +353,11 @@ class ProtoMSet {
 	    update_max_weight(item.get_weight());
 	}
 
-	if (results.size() < max_size) {
+	if (!full()) {
 	    // We're still filling, or just about to become full.
 	    results.push_back(std::move(item));
 	    Assert(min_heap.empty());
-	    return results.size() - 1;
+	    return size() - 1;
 	}
 
 	if (min_heap.empty()) {
@@ -365,16 +367,16 @@ class ProtoMSet {
 	    if (min_weight_pending) {
 		if (!handle_min_weight_pending()) {
 		    results.push_back(std::move(item));
-		    return results.size() - 1;
+		    return size() - 1;
 		}
 	    }
 
-	    if (results.size() == 0) {
+	    if (size() == 0) {
 		// E.g. get_mset(0, 0, 10);
 		return Xapian::doccount(-1);
 	    }
-	    min_heap.reserve(results.size());
-	    for (Xapian::doccount i = 0; i != results.size(); ++i)
+	    min_heap.reserve(size());
+	    for (Xapian::doccount i = 0; i != size(); ++i)
 		min_heap.push_back(i);
 	    Heap::make(min_heap.begin(), min_heap.end(), MCmpAdaptor(this));
 	    if (sort_by == Xapian::Enquire::Internal::REL ||
@@ -505,7 +507,7 @@ class ProtoMSet {
 		// We didn't get all the results requested, so we know that
 		// we've got all there are, and the bounds and estimate are
 		// all equal to that number.
-		m = results.size();
+		m = size();
 		// And that should equal known_matching_docs, unless a percentage
 		// threshold caused some matches to be excluded.
 		if (!percent_threshold) {
@@ -549,7 +551,7 @@ class ProtoMSet {
 		// We didn't get all the results requested, so we know that we've
 		// got all there are, and the bounds and estimate are all equal to
 		// that number.
-		matches_lower_bound = results.size();
+		matches_lower_bound = size();
 		matches_estimated = matches_lower_bound;
 		matches_upper_bound = matches_lower_bound;
 
@@ -608,7 +610,7 @@ class ProtoMSet {
 		    estimate_scale *= (1.0 - percent_threshold_factor);
 
 		    // This is all we can be sure of without additional work.
-		    matches_lower_bound = results.size();
+		    matches_lower_bound = size();
 
 		    if (collapser) {
 			uncollapsed_lower_bound = matches_lower_bound;
@@ -675,7 +677,7 @@ class ProtoMSet {
 	// FIXME: Profile using min_heap here (when it's been created) to
 	// handle "first" and perform the sort.
 	if (first != 0) {
-	    if (first > results.size()) {
+	    if (first > size()) {
 		results.clear();
 	    } else {
 		// We perform nth_element() on reverse iterators so that the
