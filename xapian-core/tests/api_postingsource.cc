@@ -586,6 +586,7 @@ DEFINE_TESTCASE(emptyvalwtsource1, backend && !remote && !multi) {
     }
 }
 
+#ifdef HAVE_TIMER_CREATE
 class SlowDecreasingValueWeightPostingSource
     : public Xapian::DecreasingValueWeightPostingSource {
   public:
@@ -615,6 +616,7 @@ make_matchtimelimit1_db(Xapian::WritableDatabase &db, const string &)
 	db.add_document(doc);
     }
 }
+#endif
 
 // FIXME: This doesn't run for remote databases (we'd need to register
 // SlowDecreasingValueWeightPostingSource on the remote).
@@ -622,7 +624,7 @@ DEFINE_TESTCASE(matchtimelimit1, generated && !remote)
 {
 #ifndef HAVE_TIMER_CREATE
     SKIP_TEST("Enquire::set_time_limit() not implemented for this platform");
-#endif
+#else
     Xapian::Database db = get_database("matchtimelimit1",
 				       make_matchtimelimit1_db);
 
@@ -637,6 +639,7 @@ DEFINE_TESTCASE(matchtimelimit1, generated && !remote)
     Xapian::MSet mset = enquire.get_mset(0, 1, 1000);
     TEST_EQUAL(mset.size(), 1);
     TEST_EQUAL(count, 2);
+#endif
 }
 
 class CheckBoundsPostingSource
