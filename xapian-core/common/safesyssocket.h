@@ -37,7 +37,7 @@ static_assert(!SOCK_CLOEXEC, "__WIN32__ doesn't support SOCK_CLOEXEC");
 # endif
 # define SOCK_CLOEXEC 0
 
-static_assert(std::is_unsigned<SOCKET>::value, "SOCKET is unsigned");
+static_assert(std::is_unsigned_v<SOCKET>, "SOCKET is unsigned");
 
 inline int socket_(int domain, int type, int protocol) {
     // Winsock2's socket() returns the unsigned type SOCKET, which is a 32-bit

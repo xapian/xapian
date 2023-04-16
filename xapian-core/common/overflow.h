@@ -52,9 +52,9 @@
  *	    otherwise.
  */
 template<typename T1, typename T2, typename R>
-typename std::enable_if<std::is_unsigned<T1>::value &&
-			std::is_unsigned<T2>::value &&
-			std::is_unsigned<R>::value, bool>::type
+typename std::enable_if_t<std::is_unsigned_v<T1> &&
+			  std::is_unsigned_v<T2> &&
+			  std::is_unsigned_v<R>, bool>
 add_overflows(T1 a, T2 b, R& res) {
 #if HAVE_DECL___BUILTIN_ADD_OVERFLOW
     return __builtin_add_overflow(a, b, &res);
@@ -119,9 +119,9 @@ add_overflows<unsigned __int64,
  *	    otherwise.
  */
 template<typename T1, typename T2, typename R>
-typename std::enable_if<std::is_unsigned<T1>::value &&
-			std::is_unsigned<T2>::value &&
-			std::is_unsigned<R>::value, bool>::type
+typename std::enable_if_t<std::is_unsigned_v<T1> &&
+			  std::is_unsigned_v<T2> &&
+			  std::is_unsigned_v<R>, bool>
 sub_overflows(T1 a, T2 b, R& res) {
 #if HAVE_DECL___BUILTIN_ADD_OVERFLOW
     return __builtin_sub_overflow(a, b, &res);
@@ -182,9 +182,9 @@ sub_overflows<unsigned __int64,
  *	    otherwise.
  */
 template<typename T1, typename T2, typename R>
-typename std::enable_if<std::is_unsigned<T1>::value &&
-			std::is_unsigned<T2>::value &&
-			std::is_unsigned<R>::value, bool>::type
+typename std::enable_if_t<std::is_unsigned_v<T1> &&
+			  std::is_unsigned_v<T2> &&
+			  std::is_unsigned_v<R>, bool>
 mul_overflows(T1 a, T2 b, R& res) {
 #if HAVE_DECL___BUILTIN_MUL_OVERFLOW
     return __builtin_mul_overflow(a, b, &res);

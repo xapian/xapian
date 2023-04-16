@@ -99,7 +99,7 @@ template<class U>
 inline void
 pack_uint_last(std::string& s, U value)
 {
-    static_assert(std::is_unsigned<U>::value, "Unsigned type required");
+    static_assert(std::is_unsigned_v<U>, "Unsigned type required");
 
     while (value) {
 	s += char(value & 0xff);
@@ -117,7 +117,7 @@ template<class U>
 inline bool
 unpack_uint_last(const char** p, const char* end, U* result)
 {
-    static_assert(std::is_unsigned<U>::value, "Unsigned type required");
+    static_assert(std::is_unsigned_v<U>, "Unsigned type required");
     Assert(result);
 
     const char* ptr = *p;
@@ -184,7 +184,7 @@ template<class U>
 inline void
 pack_uint_preserving_sort(std::string& s, U value)
 {
-    static_assert(std::is_unsigned<U>::value, "Unsigned type required");
+    static_assert(std::is_unsigned_v<U>, "Unsigned type required");
     static_assert(sizeof(U) <= 8,
 		  "Template type U too wide for database format");
     // The clz() functions are undefined for 0, so handle the smallest band
@@ -231,7 +231,7 @@ template<class U>
 inline bool
 unpack_uint_preserving_sort(const char** p, const char* end, U* result)
 {
-    static_assert(std::is_unsigned<U>::value, "Unsigned type required");
+    static_assert(std::is_unsigned_v<U>, "Unsigned type required");
     static_assert(sizeof(U) <= 8,
 		  "Template type U too wide for database format");
     Assert(result);
@@ -295,7 +295,7 @@ template<class U>
 inline void
 pack_uint(std::string& s, U value)
 {
-    static_assert(std::is_unsigned<U>::value, "Unsigned type required");
+    static_assert(std::is_unsigned_v<U>, "Unsigned type required");
 
     while (value >= 128) {
 	s += static_cast<char>(static_cast<unsigned char>(value) | 0x80);
@@ -326,7 +326,7 @@ template<class U>
 inline bool
 unpack_uint(const char** p, const char* end, U* result)
 {
-    static_assert(std::is_unsigned<U>::value, "Unsigned type required");
+    static_assert(std::is_unsigned_v<U>, "Unsigned type required");
 
     const char* ptr = *p;
     Assert(ptr);
@@ -392,7 +392,7 @@ template<class U>
 inline bool
 unpack_uint_backwards(const char** p, const char* start, U* result)
 {
-    static_assert(std::is_unsigned<U>::value, "Unsigned type required");
+    static_assert(std::is_unsigned_v<U>, "Unsigned type required");
 
     const char* ptr = *p;
     Assert(ptr);

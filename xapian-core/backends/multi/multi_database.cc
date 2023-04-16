@@ -273,7 +273,7 @@ MultiDatabase::get_doclength_lower_bound() const
     // this we find the *maximum* after negating each of the values (which
     // since Xapian::termcount is an unsigned type leaves 0 alone but flips the
     // order of all other values), then negate the answer again at the end.
-    static_assert(std::is_unsigned<Xapian::termcount>::value,
+    static_assert(std::is_unsigned_v<Xapian::termcount>,
 		  "Unsigned type required");
     Xapian::termcount result = 0;
     for (auto&& shard : shards) {

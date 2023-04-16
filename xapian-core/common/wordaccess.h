@@ -95,7 +95,7 @@ template<typename T, typename UINT>
 inline void
 do_aligned_write(unsigned char * ptr, T value)
 {
-    if (std::is_signed<T>::value) {
+    if (std::is_signed_v<T>) {
 	AssertRel(value, >=, 0);
     }
     if constexpr(sizeof(T) > sizeof(UINT)) {
@@ -124,7 +124,7 @@ template<typename T, typename UINT>
 inline void
 do_unaligned_write(unsigned char * ptr, T value)
 {
-    if (std::is_signed<T>::value) {
+    if (std::is_signed_v<T>) {
 	AssertRel(value, >=, 0);
     }
     if constexpr(sizeof(T) > sizeof(UINT)) {

@@ -35,7 +35,7 @@
  *  If both a and b are zero, returns zero.
  */
 template<typename T>
-constexpr typename std::enable_if<std::is_unsigned<T>::value, T>::type
+constexpr typename std::enable_if_t<std::is_unsigned_v<T>, T>
 min_non_zero(const T& a, const T& b)
 {
     // To achieve the effect we want, we find the *maximum* after negating each

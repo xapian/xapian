@@ -35,7 +35,7 @@
  *  Version for const pointers.
  */
 template<typename T, typename U>
-typename std::enable_if<std::is_const<typename std::remove_pointer<U>::type>::value, T>::type
+typename std::enable_if_t<std::is_const_v<typename std::remove_pointer_t<U>>, T>
 alignment_cast(U ptr)
 {
     return static_cast<T>(static_cast<const void*>(ptr));
@@ -49,7 +49,7 @@ alignment_cast(U ptr)
  *  Version for non-const pointers.
  */
 template<typename T, typename U>
-typename std::enable_if<!std::is_const<typename std::remove_pointer<U>::type>::value, T>::type
+typename std::enable_if_t<!std::is_const_v<typename std::remove_pointer_t<U>>, T>
 alignment_cast(U ptr)
 {
     return static_cast<T>(static_cast<void*>(ptr));

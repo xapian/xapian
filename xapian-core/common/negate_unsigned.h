@@ -28,7 +28,7 @@
 #include <type_traits>
 
 template<typename T>
-constexpr typename std::enable_if<std::is_unsigned<T>::value, T>::type
+constexpr typename std::enable_if_t<std::is_unsigned_v<T>, T>
 negate_unsigned(T value)
 {
 #ifdef _MSC_VER

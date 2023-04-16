@@ -37,7 +37,7 @@ template<class T>
 static inline string
 tostring_unsigned(T value)
 {
-    static_assert(std::is_unsigned<T>::value, "Unsigned type required");
+    static_assert(std::is_unsigned_v<T>, "Unsigned type required");
     // Special case single digit positive numbers.
     // FIXME: is this actually worthwhile?
     if (value < 10) return string(1, '0' + char(value));
