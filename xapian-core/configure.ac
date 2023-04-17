@@ -894,7 +894,7 @@ AC_SEARCH_LIBS([timer_create], [rt],
 #elif defined __NetBSD__
 #error timer_create timers never fire on NetBSD 7.1
 #elif defined __OpenBSD__
-#error timer_create always fails with ENOSYS on OpenBSD 6.2 (and no prototype)
+#error timer_create always fails with ENOSYS on OpenBSD 7.3 (and no prototype)
 #endif]])],
 	[AC_MSG_RESULT([yes])
 	AC_DEFINE([HAVE_TIMER_CREATE], [1], [Define to 1 if you have the 'timer_create' function.])]
