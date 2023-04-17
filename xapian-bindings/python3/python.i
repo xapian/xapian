@@ -37,9 +37,6 @@ development files, or again online at <https://xapian.org/docs/>.
 """
 %}
 
-/* These were deprecated before Python 3 support was released. */
-#define XAPIAN_BINDINGS_SKIP_DEPRECATED_DB_FACTORIES
-
 %begin %{
 #include <config.h>
 

@@ -48,9 +48,6 @@ extern "C" {
 #endif
 %}
 
-/* The XS Xapian never wrapped these, and they're now deprecated. */
-#define XAPIAN_BINDINGS_SKIP_DEPRECATED_DB_FACTORIES
-
 %include ../xapian-head.i
 
 /* "next" is a keyword in Perl. */
