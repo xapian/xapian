@@ -108,8 +108,8 @@ FlintLock::test() const
 	    int e = errno;
 	    close(lockfd);
 	    if (e == ENOSYS) {
-		// F_GETLK isn't implemented by GNU Hurd, and always fails with
-		// ENOSYS: https://bugs.debian.org/190367
+		// F_GETLK always failed with ENOSYS on older GNU Hurd libc
+		// versions: https://bugs.debian.org/190367
 		throw_cannot_test_lock();
 	    }
 	    reason why = (e == ENOLCK ? UNSUPPORTED : UNKNOWN);
