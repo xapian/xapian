@@ -891,8 +891,6 @@ AC_SEARCH_LIBS([timer_create], [rt],
     AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
 [[#if defined _AIX
 #error timer_create always fails with EAGAIN on AIX 7.1
-#elif defined __GNU__
-#error timer_create always fails with ENOSYS on GNU Hurd
 #elif defined __NetBSD__
 #error timer_create timers never fire on NetBSD 7.1
 #elif defined __OpenBSD__
