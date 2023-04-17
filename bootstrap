@@ -859,7 +859,7 @@ for d in $modules ; do
     fi
     echo "Configuring \`$d'"
     # Replace EXIT trap with one which shows `config.log`.
-    trap 'if [ -f config.log ]; then echo "configure failed, config.log was:"; sed "s/^/| /" config.log else echo "configure failed"; fi' EXIT
+    trap 'if [ -f config.log ]; then echo "configure failed, config.log was:"; sed "s/^/| /" config.log; else echo "configure failed"; fi' EXIT
     # Use a shared config.cache for speed and to save a bit of diskspace, but
     # don't share it with SWIG just in case it manages to probe and cache
     # different answers (e.g. because it uses a C compiler).
