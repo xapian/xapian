@@ -1472,10 +1472,9 @@ DEFINE_TESTCASE(longpositionlist1, writable) {
 DEFINE_TESTCASE(consistency2, writable) {
     Xapian::WritableDatabase db = get_writable_database();
     char buf[2] = "X";
-    int i = 0;
 
     // Add 5 documents indexed by "test" with wdf 1.
-    for (i = 0; i < 5; ++i) {
+    for (int i = 0; i < 5; ++i) {
 	Xapian::Document doc;
 	*buf = '0' + i;
 	doc.add_value(0, buf);
@@ -1484,7 +1483,7 @@ DEFINE_TESTCASE(consistency2, writable) {
     }
 
     // Add 5 documents indexed by "test" with wdf 2.
-    for (i = 0; i < 5; ++i) {
+    for (int i = 0; i < 5; ++i) {
 	Xapian::Document doc;
 	*buf = '0' + i;
 	doc.add_value(0, buf);
@@ -1513,7 +1512,7 @@ DEFINE_TESTCASE(consistency2, writable) {
 
     TEST_EQUAL(*mset1[0], *mset2a[0]);
     TEST_EQUAL(*mset1[1], *mset2b[0]);
-    for (i = 0; i < 8; ++i) {
+    for (Xapian::doccount i = 0; i < 8; ++i) {
 	TEST_EQUAL(*mset1[i + 2], *mset2c[i]);
     }
 }

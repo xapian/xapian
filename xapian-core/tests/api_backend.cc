@@ -921,7 +921,7 @@ DEFINE_TESTCASE(bm25weight2, backend) {
     Xapian::MSet mset = enquire.get_mset(0, 100);
     TEST_REL(mset.size(),>=,2);
     double weight0 = mset[0].get_weight();
-    for (size_t i = 1; i != mset.size(); ++i) {
+    for (Xapian::doccount i = 1; i != mset.size(); ++i) {
 	TEST_EQUAL(weight0, mset[i].get_weight());
     }
 }
@@ -943,7 +943,7 @@ DEFINE_TESTCASE(tradweight2, backend) {
     Xapian::MSet mset = enquire.get_mset(0, 100);
     TEST_REL(mset.size(),>=,2);
     double weight0 = mset[0].get_weight();
-    for (size_t i = 1; i != mset.size(); ++i) {
+    for (Xapian::doccount i = 1; i != mset.size(); ++i) {
 	TEST_EQUAL(weight0, mset[i].get_weight());
     }
 }
@@ -1044,7 +1044,7 @@ DEFINE_TESTCASE(msetweights1, backend) {
     };
 
     TEST_EQUAL(mset.size(), sizeof(expected) / sizeof(expected[0]));
-    for (size_t i = 0; i < mset.size(); ++i) {
+    for (Xapian::doccount i = 0; i < mset.size(); ++i) {
 	TEST_EQUAL(*mset[i], expected[i].did);
 	TEST_EQUAL_DOUBLE(mset[i].get_weight(), expected[i].wt);
     }
@@ -1060,7 +1060,7 @@ DEFINE_TESTCASE(msetweights1, backend) {
     };
 
     TEST_EQUAL(mset.size(), sizeof(expected2) / sizeof(expected2[0]));
-    for (size_t i = 0; i < mset.size(); ++i) {
+    for (Xapian::doccount i = 0; i < mset.size(); ++i) {
 	TEST_EQUAL(*mset[i], expected2[i].did);
 	TEST_EQUAL_DOUBLE(mset[i].get_weight(), expected2[i].wt);
     }

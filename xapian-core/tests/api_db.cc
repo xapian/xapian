@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2011,2012,2013,2015,2016,2017,2019 Olly Betts
+ * Copyright 2002-2023 Olly Betts
  * Copyright 2006,2007,2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -1707,7 +1707,7 @@ DEFINE_TESTCASE(sortrel1, backend) {
     static const Xapian::docid order9[] = { 7,6,2,9,5,1,8,4,3 };
 
     Xapian::MSet mset;
-    size_t i;
+    Xapian::doccount i;
 
     mset = enquire.get_mset(0, 10);
     TEST_EQUAL(mset.size(), sizeof(order1) / sizeof(Xapian::docid));
