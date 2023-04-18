@@ -557,7 +557,7 @@ static void test_closefrom1()
 static void test_shard1()
 {
     for (Xapian::docid did = 1; did != 10; ++did) {
-	for (size_t n = 1; n != 10; ++n) {
+	for (Xapian::doccount n = 1; n != 10; ++n) {
 	    Xapian::docid s_did = shard_docid(did, n);
 	    Xapian::doccount shard = shard_number(did, n);
 	    TEST_EQUAL(s_did, (did - 1) / n + 1);
