@@ -91,7 +91,7 @@ const clockid_t TIMEOUT_CLOCK = CLOCK_REALTIME;
 // Solaris defines _POSIX_MONOTONIC_CLOCK so we need to special case.
 const clockid_t TIMEOUT_CLOCK = CLOCK_REALTIME;
 #elif defined __CYGWIN__
-// https://cygwin.com/cygwin-api/std-notes.html currently (2016-05-13) says:
+// https://cygwin.com/cygwin-api/std-notes.html currently (2023-04-18) says:
 //
 //     clock_nanosleep currently supports only CLOCK_REALTIME and
 //     CLOCK_MONOTONIC.  clock_setres, clock_settime, and timer_create
