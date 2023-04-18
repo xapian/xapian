@@ -868,7 +868,7 @@ AC_SEARCH_LIBS([timer_create], [rt],
 [[#if defined _AIX
 #error timer_create always fails with EAGAIN on AIX 7.1
 #elif defined __NetBSD__
-#error timer_create timers never fire on NetBSD 7.1
+#error SIGEV_THREAD not implemented in NetBSD 9.2 (see `man sigevent`)
 #elif defined __OpenBSD__
 #error timer_create always fails with ENOSYS on OpenBSD 7.3 (and no prototype)
 #endif]])],
