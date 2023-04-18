@@ -72,10 +72,6 @@ install:
       } else {
         $env:PATH="c:\msys64\usr\bin;$env:PATH"
       }
-  - ps: >-
-      if ($env:TOOLCHAIN -ne "cygwin") {
-        $env:CONFIGOPTS+=" --disable-backend-honey"
-      }
   - if "%TOOLCHAIN%"=="mingw" bash -c "echo 'c:/mingw /mingw' >> /etc/fstab"
   - if "%TOOLCHAIN%"=="mingw" appveyor-retry bash -c 'mingw-get install libz-dev'
   - if "%TOOLCHAIN%"=="mingw64" appveyor-retry bash -c 'pacman -Sy --noconfirm zlib-devel'
