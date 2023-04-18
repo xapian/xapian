@@ -374,9 +374,6 @@ static void test_serialiseerror1()
 #endif
 
 static const double test_sortableserialise_numbers[] = {
-#ifdef INFINITY
-    -INFINITY,
-#endif
     -HUGE_VAL,
     -DBL_MAX,
     -exp2(1022),
@@ -418,9 +415,6 @@ static const double test_sortableserialise_numbers[] = {
     exp2(1022),
     DBL_MAX,
     HUGE_VAL,
-#ifdef INFINITY
-    INFINITY,
-#endif
 
     64 // Magic number which we stop at.
 };

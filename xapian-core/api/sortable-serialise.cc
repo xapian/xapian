@@ -187,20 +187,14 @@ Xapian::sortable_unserialise(const std::string& value) noexcept
     // Positive infinity.
     if (value.size() == 9 &&
 	memcmp(value.data(), "\xff\xff\xff\xff\xff\xff\xff\xff\xff", 9) == 0) {
-#ifdef INFINITY
-	// INFINITY is C99.  Oddly, it's of type "float" so sanity check in
-	// case it doesn't cast to double as infinity (apparently some
-	// implementations have this problem).
-	if constexpr(double(INFINITY) > HUGE_VAL) return INFINITY;
-#endif
+	// "On implementations that support floating-point infinities,
+	// [HUGE_VAL] always expand[s] to the positive infinit[y] of double"
+	// https://en.cppreference.com/w/cpp/numeric/math/HUGE_VAL
 	return HUGE_VAL;
     }
 
     // Negative infinity.
     if (value.empty()) {
-#ifdef INFINITY
-	if constexpr(double(INFINITY) > HUGE_VAL) return -INFINITY;
-#endif
 	return -HUGE_VAL;
     }
 
