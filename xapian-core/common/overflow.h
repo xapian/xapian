@@ -5,7 +5,7 @@
  * possible, so the overflow check will typically just require a check of the
  * processor's overflow or carry flag.
  */
-/* Copyright (C) 2018,2022 Olly Betts
+/* Copyright (C) 2018,2022,2023 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -64,13 +64,13 @@ add_overflows(T1 a, T2 b, R& res) {
     // to worry if res could be modified by another thread between us setting
     // and testing it.
     auto r = a + b;
-    typedef decltype(r) r_type;
-    res = R(r);
+    res = static_cast<R>(r);
     // Overflow is only possible if the result type is the same width as or
     // narrower than at least one of the input types.
     //
     // We've overflowed if r doesn't fit in type R, or if the result is less
     // then an input.
+    typedef decltype(r) r_type;
     return (sizeof(R) <= sizeof(T1) || sizeof(R) <= sizeof(T2)) &&
 	   (r_type(res) != r || r < r_type(b));
 #endif
@@ -131,10 +131,10 @@ sub_overflows(T1 a, T2 b, R& res) {
     // to worry if res could be modified by another thread between us setting
     // and testing it.
     auto r = a - b;
-    typedef decltype(r) r_type;
-    res = r_type(r);
+    res = static_cast<R>(r);
     // We've overflowed if r doesn't fit in type R, or if the subtraction
     // wrapped.
+    typedef decltype(r) r_type;
     return r_type(res) != r || r > r_type(a);
 #endif
 }
@@ -194,10 +194,10 @@ mul_overflows(T1 a, T2 b, R& res) {
     // to worry if res could be modified by another thread between us setting
     // and testing it.
     auto r = a * b;
-    typedef decltype(r) r_type;
-    res = r_type(r);
+    res = static_cast<R>(r);
     // We've overflowed if r doesn't fit in type R, or if the multiplication
     // wrapped.
+    typedef decltype(r) r_type;
     return r_type(res) != r || (a != 0 && r / r_type(a) != r_type(b));
 #endif
 }
