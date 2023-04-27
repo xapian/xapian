@@ -1511,7 +1511,9 @@ typedef long long off_t_redefinition_typedef;
 /* Enabling _FORTIFY_SOURCE on newer mingw-w64 requires linking with -lssp so
  * we simply don't automatically enable it there.
  */
-#   undef _FORTIFY_SOURCE
+// Break #undef lines to stop config.status from commenting them out.
+#   undef \
+	_FORTIFY_SOURCE
 #  endif
 # endif
 #endif
