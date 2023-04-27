@@ -25,7 +25,7 @@ Most standard Xapian methods are available directly
 to your Ruby program. Names have been altered to conform to the
 standard Ruby naming conventions (i.e. ``get_foo()`` in C++ becomes ``foo()``
 in Ruby; ``set_foo()`` becomes ``foo=()``).  C++ ``operator()`` methods are
-renamed to ``call`` methods in Ruby.
+renamed to ``__call__`` methods in Ruby.
 
 The C++ methods are not yet documented in the `RDocs <rdocs/>`_.
 In the meantime, refer to the
@@ -35,11 +35,11 @@ available directly in the Ruby version. The RDocs currently provide information
 only on methods that are unique to the Ruby version.
 
 The dangerous/non-Rubish methods from the C++ API have been renamed to
-start with underscores (``_``) in the Ruby bindings. You can see them in
-use in xapian.rb. It is strongly recommended that you do not call any
-method that starts with ``_`` directly in your code, but instead use the
-wrappers defined in xapian.rb. Improper use of an ``_`` method can cause
-the Ruby process to segfault.
+start with a single underscore (``_``) in the Ruby bindings. You can see them
+in use in xapian.rb. It is strongly recommended that you do not call any
+method that starts with a single underscore directly in your code, but instead
+use the wrappers defined in xapian.rb. Improper use of such methods can
+cause the Ruby process to segfault.
 
 Unicode Support
 ###############
@@ -129,12 +129,12 @@ MatchDecider
 
 Custom MatchDeciders can be created in Ruby; simply subclass
 Xapian::MatchDecider, ensure you call the superclass constructor, and define a
-__call__ method that will do the work. The simplest example (which does nothing
-useful) would be as follows:
+``__call__`` method that will do the work. The simplest example (which does
+nothing useful) would be as follows:
 
 ::
 
-  class MyMatchDecider < Xapian\::MatchDecider
+  class MyMatchDecider < Xapian::MatchDecider
     def __call__(doc):
       return true
     end
