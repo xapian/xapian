@@ -355,12 +355,12 @@ jobs:
       # Bootstrap only xapian-core for emscripten build.
       run: |
         ./bootstrap xapian-core
-        ./configure CC='ccache gcc' CXX='ccache g++' CXXFLAGS=-O0 --disable-backend-honey --disable-backend-inmemory --disable-backend-remote
+        ./configure CC='ccache gcc' CXX='ccache g++' CXXFLAGS=-O0
         make -j2
         make -j2 distclean
     - name: configure
       run: |
-        docker run -v "$GITHUB_WORKSPACE:/src" -w /src/xapian-core emscripten/emsdk emconfigure ./configure CPPFLAGS='-DFLINTLOCK_USE_FLOCK' CXXFLAGS='-Oz -s USE_ZLIB=1 -fno-rtti' --disable-backend-honey --disable-backend-inmemory --disable-shared --disable-backend-remote
+        docker run -v "$GITHUB_WORKSPACE:/src" -w /src/xapian-core emscripten/emsdk emconfigure ./configure CPPFLAGS='-DFLINTLOCK_USE_FLOCK' CXXFLAGS='-Oz -s USE_ZLIB=1 -fno-rtti' --disable-shared
     - name: make
       run: |
         docker run -v "$GITHUB_WORKSPACE:/src" -w /src/xapian-core emscripten/emsdk emmake make
