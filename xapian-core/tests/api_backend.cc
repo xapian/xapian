@@ -509,11 +509,8 @@ DEFINE_TESTCASE(replacedoc8, writable) {
 }
 
 /// Test coverage for DatabaseModifiedError.
-DEFINE_TESTCASE(databasemodified1, writable && !inmemory && !remote && !multi) {
+DEFINE_TESTCASE(databasemodified1, writable && !inmemory && !multi) {
     // The inmemory backend doesn't support revisions.
-    //
-    // The remote backend doesn't work as expected here, I think due to
-    // test harness issues.
     //
     // With multi, DatabaseModifiedError doesn't trigger as easily.
     Xapian::WritableDatabase db(get_writable_database());
