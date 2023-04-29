@@ -436,6 +436,92 @@ jobs:
         find . \( -name 'config.guess~' -o -name 'config.sub~' -o -name 'install-sh~' \) -delete
         git status --porcelain|grep '^' && { echo "The generated files listed above are not in .gitignore" ; exit 1; }; true
 
+  mingw64-i686-cross:
+    runs-on: 'ubuntu-22.04'
+    steps:
+    - name: Check out repository code
+      uses: actions/checkout@v3
+    - name: Install CCache
+      uses: hendrikmuhs/ccache-action@v1
+      with:
+        key: mingw64-i686-cross
+    - name: Install package dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install \
+            g++-mingw-w64-i686-win32 \
+            mingw-w64-i686-dev \
+            binutils-mingw-w64-i686 \
+            libz-mingw-w64-dev \
+            mingw-w64-tools \
+            doxygen \
+            graphviz \
+            help2man \
+            python3-docutils \
+            pngcrush \
+            python3-pygments
+    - name: bootstrap source tree
+      # Bootstrap only xapian-core
+      run: |
+        ./bootstrap xapian-core
+        ./configure CC='ccache gcc' CXX='ccache g++' CXXFLAGS=-O0
+        make -j2
+        make -j2 distclean
+    - name: configure
+      run: ./configure --host i686-w64-mingw32 --disable-documentation
+    - name: make
+      run: make
+    - name: Run tests
+      # FIXME: Run tests under wine?
+      run: echo No tests currently
+    - name: Check generated files are in .gitignore
+      # grep '^' passes through all input while giving a non-zero exit status
+      # if that input is empty.
+      run: git status --porcelain|grep '^' && { echo "The generated files listed above are not in .gitignore" ; exit 1; }; true
+
+  mingw64-x86-64-cross:
+    runs-on: 'ubuntu-22.04'
+    steps:
+    - name: Check out repository code
+      uses: actions/checkout@v3
+    - name: Install CCache
+      uses: hendrikmuhs/ccache-action@v1
+      with:
+        key: mingw64-x86-64-cross
+    - name: Install package dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install \
+            g++-mingw-w64-x86-64-win32 \
+            mingw-w64-x86-64-dev \
+            binutils-mingw-w64-x86-64 \
+            libz-mingw-w64-dev \
+            mingw-w64-tools \
+            doxygen \
+            graphviz \
+            help2man \
+            python3-docutils \
+            pngcrush \
+            python3-pygments
+    - name: bootstrap source tree
+      # Bootstrap only xapian-core
+      run: |
+        ./bootstrap xapian-core
+        ./configure CC='ccache gcc' CXX='ccache g++' CXXFLAGS=-O0
+        make -j2
+        make -j2 distclean
+    - name: configure
+      run: ./configure --host x86_64-w64-mingw32 --disable-documentation
+    - name: make
+      run: make
+    - name: Run tests
+      # FIXME: Run tests under wine?
+      run: echo No tests currently
+    - name: Check generated files are in .gitignore
+      # grep '^' passes through all input while giving a non-zero exit status
+      # if that input is empty.
+      run: git status --porcelain|grep '^' && { echo "The generated files listed above are not in .gitignore" ; exit 1; }; true
+
   checkpatch:
     name: 'Automated run of xapian-check-patch'
     runs-on: 'ubuntu-latest'
