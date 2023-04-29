@@ -1,7 +1,7 @@
 /** @file
  * @brief BackendManager subclass for singlefile databases.
  */
-/* Copyright (C) 2007,2008,2009,2011,2012,2013,2015,2018 Olly Betts
+/* Copyright (C) 2007,2008,2009,2011,2012,2013,2015,2018,2023 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -72,9 +72,49 @@ BackendManagerSingleFile::do_get_database_path(const vector<string> & files)
 }
 
 Xapian::WritableDatabase
+BackendManagerSingleFile::get_generated_database(const string& name)
+{
+    // Create generated database inside sub_manager's cache.
+    return sub_manager->get_generated_database(name);
+}
+
+void
+BackendManagerSingleFile::finalise_generated_database(const string& name)
+{
+    create_dir_if_needed(cachedir);
+
+    // path to the temporary generated db
+    string generated_db_path = sub_manager->get_generated_database_path(name);
+
+    // path to final singlefile db
+    string path = cachedir + "/" + name;
+
+    // path to tmpfile
+    string tmpfile = path + ".tmp";
+
+    // Convert to singlefile db.
+    {
+	Xapian::Database db(generated_db_path);
+	db.compact(tmpfile,
+		   Xapian::DBCOMPACT_SINGLE_FILE |
+		   Xapian::DBCOMPACT_NO_RENUMBER);
+    }
+
+    if (rename(tmpfile.c_str(), path.c_str()) < 0) {
+	throw Xapian::DatabaseError("rename failed", errno);
+    }
+}
+
+Xapian::WritableDatabase
 BackendManagerSingleFile::get_writable_database(const string &, const string &)
 {
     throw Xapian::UnimplementedError("Single-file databases don't support writing");
+}
+
+string
+BackendManagerSingleFile::get_generated_database_path(const string& name)
+{
+    return cachedir + "/" + name;
 }
 
 string

@@ -2,7 +2,7 @@
  * @brief Run multiple tests for different backends.
  */
 /* Copyright 2008,2009 Lemur Consulting Ltd
- * Copyright 2008,2009,2010,2011,2015,2017,2018,2019 Olly Betts
+ * Copyright 2008,2009,2010,2011,2015,2017,2018,2019,2023 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -92,7 +92,8 @@ TestRunner::set_properties_for_backend(const string & backend_name)
 	    GENERATED|SYNONYMS
 	},
 	{ "singlefile_glass", SINGLEFILE|
-	    BACKEND|POSITIONAL|SPELLING|SYNONYMS|VALUESTATS|COMPACT|PATH },
+	    BACKEND|POSITIONAL|SPELLING|SYNONYMS|VALUESTATS|COMPACT|PATH|
+	    GENERATED },
 	{ "honey", HONEY|
 	    BACKEND|POSITIONAL|SPELLING|SYNONYMS|VALUESTATS|COMPACT|PATH
 #ifdef XAPIAN_HAS_GLASS_BACKEND
