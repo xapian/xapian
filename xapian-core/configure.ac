@@ -1499,21 +1499,15 @@ typedef long long off_t_redefinition_typedef;
  *
  * Check if _FORTIFY_SOURCE is already defined to allow the user to override
  * our choice with "./configure CPPFLAGS=-D_FORTIFY_SOURCE=0" or "...=1".
+ *
+ * Enabling _FORTIFY_SOURCE on newer mingw-w64 requires linking with -lssp.
+ * It seems hard to detect mingw-w64 vs mingw (if we `#include <_mingw.h>`
+ * so we can check __MINGW64_VERSION_MAJOR then that will process the current
+ * setting of _FORTIFY_SOURCE and we can't usefully change it), but it seems
+ * mingw doesn't support _FORTIFY_SOURCE anyway.
  */
-#if defined __GNUC__ && !defined _FORTIFY_SOURCE
+#if defined __GNUC__ && !defined _FORTIFY_SOURCE && !defined __MINGW32__
 # define _FORTIFY_SOURCE 2
-# ifdef __MINGW32__
-/* Both mingw32 and mingw-w64 define __MINGW32__. */
-#  include <stddef.h>
-#  ifdef __MINGW64_VERSION_MAJOR
-/* Enabling _FORTIFY_SOURCE on newer mingw-w64 requires linking with -lssp so
- * we simply don't automatically enable it there.
- */
-// Break #undef lines to stop config.status from commenting them out.
-#   undef \
-	_FORTIFY_SOURCE
-#  endif
-# endif
 #endif
 
 /* For compilers which support it (such as GCC, clang, Intel's C++ compiler)
