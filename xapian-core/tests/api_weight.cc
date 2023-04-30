@@ -519,7 +519,7 @@ gen_wdf_eq_doclen_db(Xapian::WritableDatabase& db, const string&)
 }
 
 // Test wdf == doclen.
-DEFINE_TESTCASE(dlhweight3, generated) {
+DEFINE_TESTCASE(dlhweight3, backend) {
     Xapian::Database db = get_database("wdf_eq_doclen", gen_wdf_eq_doclen_db);
     Xapian::Enquire enquire(db);
     Xapian::Query query("solo");
@@ -722,7 +722,7 @@ DEFINE_TESTCASE(dphweight2, !backend) {
 }
 
 // Test wdf == doclen.
-DEFINE_TESTCASE(dphweight3, generated) {
+DEFINE_TESTCASE(dphweight3, backend) {
     Xapian::Database db = get_database("wdf_eq_doclen", gen_wdf_eq_doclen_db);
     Xapian::Enquire enquire(db);
     Xapian::Query query("solo");

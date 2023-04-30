@@ -176,7 +176,7 @@ DEFINE_TESTCASE(spell2, spelling && writable) {
 }
 
 // Test spelling correction with multi databases
-DEFINE_TESTCASE(spell3, generated && spelling) {
+DEFINE_TESTCASE(spell3, spelling) {
     Xapian::Database db1 = get_database("spell3a",
 					[](Xapian::WritableDatabase& wdb,
 					   const string&) {
@@ -241,7 +241,7 @@ DEFINE_TESTCASE(spell3, generated && spelling) {
 }
 
 // Regression test - check that appending works correctly.
-DEFINE_TESTCASE(spell4, generated && spelling) {
+DEFINE_TESTCASE(spell4, spelling) {
     Xapian::Database db = get_database("spell4",
 				       [](Xapian::WritableDatabase& wdb,
 					  const string&) {
@@ -255,7 +255,7 @@ DEFINE_TESTCASE(spell4, generated && spelling) {
 }
 
 // Regression test - used to segfault with some input values.
-DEFINE_TESTCASE(spell5, generated && spelling) {
+DEFINE_TESTCASE(spell5, spelling) {
     // Using constexpr instead of a macro fails with MSVC - it's not visible
     // inside the lambda, and we can't explicitly capture it or else the lambda
     // can't be passed as a function pointer.
@@ -286,7 +286,7 @@ DEFINE_TESTCASE(spell6, spelling && writable) {
 }
 
 // Test suggestions when there's an exact match.
-DEFINE_TESTCASE(spell7, generated && spelling) {
+DEFINE_TESTCASE(spell7, spelling) {
     Xapian::Database db = get_database("spell7",
 				       [](Xapian::WritableDatabase& wdb,
 					  const string&) {
@@ -305,7 +305,7 @@ DEFINE_TESTCASE(spell7, generated && spelling) {
 }
 
 /// Regression test - repeated trigrams cancelled in 1.2.5 and earlier.
-DEFINE_TESTCASE(spell8, generated && spelling) {
+DEFINE_TESTCASE(spell8, spelling) {
     Xapian::Database db = get_database("spell8",
 				       [](Xapian::WritableDatabase& wdb,
 					  const string&) {

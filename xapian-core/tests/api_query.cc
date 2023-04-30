@@ -575,7 +575,7 @@ DEFINE_TESTCASE(wildcard2, backend) {
  *  If any terms started with A-Z then the next term that didn't wasn't
  *  considered.
  */
-DEFINE_TESTCASE(wildcard3, generated) {
+DEFINE_TESTCASE(wildcard3, backend) {
     Xapian::Database db = get_database("wildcard3",
 				       [](Xapian::WritableDatabase& wdb,
 					  const string&)
@@ -826,7 +826,7 @@ editdist_testcase editdist2_testcases[] = {
 };
 
 /// Test Unicode edit distance calculations.
-DEFINE_TESTCASE(editdist2, generated) {
+DEFINE_TESTCASE(editdist2, backend) {
     Xapian::Database db = get_database("editdist2",
 				       [](Xapian::WritableDatabase& wdb,
 					  const string&)
@@ -876,7 +876,7 @@ DEFINE_TESTCASE(editdist2, generated) {
     }
 }
 
-DEFINE_TESTCASE(dualprefixeditdist1, generated) {
+DEFINE_TESTCASE(dualprefixeditdist1, backend) {
     Xapian::Database db = get_database("dualprefixeditdist1",
 				       [](Xapian::WritableDatabase& wdb,
 					  const string&)
@@ -1126,7 +1126,7 @@ gen_subdbwithoutpos1_db(Xapian::WritableDatabase& db, const string&)
     db.add_document(doc);
 }
 
-DEFINE_TESTCASE(subdbwithoutpos1, generated) {
+DEFINE_TESTCASE(subdbwithoutpos1, backend) {
     Xapian::Database db(get_database("apitest_simpledata"));
     TEST(db.has_positions());
 

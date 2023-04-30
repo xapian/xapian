@@ -188,7 +188,7 @@ DEFINE_TESTCASE(sortfunctor2, writable) {
 }
 
 // Test sort functor with some empty values.
-DEFINE_TESTCASE(sortfunctor3, backend && valuestats) {
+DEFINE_TESTCASE(sortfunctor3, valuestats) {
     Xapian::Database db(get_database("apitest_sortrel"));
     Xapian::Enquire enquire(db);
     enquire.set_query(Xapian::Query("woman"));

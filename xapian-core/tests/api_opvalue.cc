@@ -97,7 +97,7 @@ make_valuerange5(Xapian::WritableDatabase &db, const string &)
 }
 
 // Check that lower and upper bounds are used.
-DEFINE_TESTCASE(valuerange5, generated) {
+DEFINE_TESTCASE(valuerange5, backend) {
     Xapian::Database db = get_database("valuerange5", make_valuerange5);
 
     // If the lower bound is empty, either the specified value slot is
@@ -129,7 +129,7 @@ make_singularvalue_db(Xapian::WritableDatabase &db, const string &)
 }
 
 // Check handling of bounds when bounds are equal.
-DEFINE_TESTCASE(valuerange6, generated) {
+DEFINE_TESTCASE(valuerange6, backend) {
     const auto OP_VALUE_RANGE = Xapian::Query::OP_VALUE_RANGE;
     Xapian::Database db = get_database("singularvalue", make_singularvalue_db);
 
@@ -249,7 +249,7 @@ make_valprefixbounds_db(Xapian::WritableDatabase &db, const string &)
 }
 
 // Check handling of bounds when low is a prefix of high.
-DEFINE_TESTCASE(valuerange7, generated) {
+DEFINE_TESTCASE(valuerange7, backend) {
     const auto OP_VALUE_RANGE = Xapian::Query::OP_VALUE_RANGE;
     Xapian::Database db = get_database("valprefixbounds", make_valprefixbounds_db);
 

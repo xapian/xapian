@@ -108,7 +108,7 @@ RoundRobin::cluster(const Xapian::MSet &mset)
  *  Thus, if two vectors are equal, the distance between them will be zero
  *  and if two vectors are unequal, the distance will be 1 >= dist >= 0.
  */
-DEFINE_TESTCASE(cosine_distance1, generated)
+DEFINE_TESTCASE(cosine_distance1, backend)
 {
     Xapian::Database db = get_database("stemmed_cluster", make_stemmed_cluster_db);
     Xapian::Enquire enquire(db);
@@ -136,7 +136,7 @@ DEFINE_TESTCASE(cosine_distance1, generated)
 /** Round Robin Test
  *  Test that none of the returned clusters are empty
  */
-DEFINE_TESTCASE(round_robin1, generated)
+DEFINE_TESTCASE(round_robin1, backend)
 {
     Xapian::Database db = get_database("stemmed_cluster", make_stemmed_cluster_db);
     Xapian::Enquire enq(db);

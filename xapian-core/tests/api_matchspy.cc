@@ -135,7 +135,7 @@ make_matchspy2_db(Xapian::WritableDatabase &db, const string &)
     }
 }
 
-DEFINE_TESTCASE(matchspy2, generated)
+DEFINE_TESTCASE(matchspy2, backend)
 {
     Xapian::Database db = get_database("matchspy2", make_matchspy2_db);
 
@@ -171,7 +171,7 @@ DEFINE_TESTCASE(matchspy2, generated)
     TEST_STRINGS_EQUAL(values_to_repr(spy3), results[2]);
 }
 
-DEFINE_TESTCASE(matchspy4, generated)
+DEFINE_TESTCASE(matchspy4, backend)
 {
     Xapian::Database db = get_database("matchspy2", make_matchspy2_db);
 

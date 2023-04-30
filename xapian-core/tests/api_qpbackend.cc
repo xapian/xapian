@@ -41,7 +41,7 @@ struct test {
 }
 
 /// Regression test for bug#407 fixed in 1.0.17 and 1.1.3.
-DEFINE_TESTCASE(qpsynonympartial1, generated && synonyms) {
+DEFINE_TESTCASE(qpsynonympartial1, synonyms) {
     static const test test_queries[] = {
 	{ "hello", "(WILDCARD SYNONYM hello OR hello@1)" },
 	{ "~hello", "(hello@1 SYNONYM hi@1 SYNONYM howdy@1)" },

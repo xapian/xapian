@@ -277,7 +277,7 @@ make_topercent7_db(Xapian::WritableDatabase &db, const string &)
 /// Test that a term with wdf always = 0 gets counted.
 //  Regression test for bug introduced in 1.2.10 by the original fix for #590,
 //  and fixed in 1.2.13 (and in trunk before 1.3.1 was released).
-DEFINE_TESTCASE(topercent7, generated) {
+DEFINE_TESTCASE(topercent7, backend) {
     Xapian::Database db(get_database("topercent7", make_topercent7_db));
 
     Xapian::Query q;

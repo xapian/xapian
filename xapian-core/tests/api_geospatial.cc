@@ -56,7 +56,7 @@ builddb_coords1(Xapian::WritableDatabase &db, const string &)
 }
 
 /// Test behaviour of the LatLongDistancePostingSource
-DEFINE_TESTCASE(latlongpostingsource1, generated && !remote && !inmemory) {
+DEFINE_TESTCASE(latlongpostingsource1, backend && !remote && !inmemory) {
     Xapian::Database db = get_database("coords1", builddb_coords1, "");
     Xapian::LatLongCoord coord1(10, 10);
     Xapian::LatLongCoord coord2(20, 10);
