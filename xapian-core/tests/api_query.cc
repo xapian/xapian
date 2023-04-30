@@ -763,7 +763,7 @@ gen_subdbwithoutpos1_db(Xapian::WritableDatabase& db, const string&)
     db.add_document(doc);
 }
 
-DEFINE_TESTCASE(subdbwithoutpos1, generated) {
+DEFINE_TESTCASE(subdbwithoutpos1, backend) {
     XFAIL_FOR_BACKEND("remote",
 		      "Known but obscure remote bug which doesn't justify "
 		      "protocol version bump");

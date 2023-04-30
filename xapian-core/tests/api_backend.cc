@@ -596,7 +596,7 @@ make_msize1_db(Xapian::WritableDatabase &db, const string &)
 }
 
 /// Regression test for ticket#464, fixed in 1.1.6 and 1.0.20.
-DEFINE_TESTCASE(msize1, generated) {
+DEFINE_TESTCASE(msize1, backend) {
     Xapian::Database db = get_database("msize1", make_msize1_db);
     Xapian::Enquire enq(db);
     enq.set_sort_by_value(1, false);
@@ -644,7 +644,7 @@ make_msize2_db(Xapian::WritableDatabase &db, const string &)
 }
 
 /// Regression test for bug related to ticket#464, fixed in 1.1.6 and 1.0.20.
-DEFINE_TESTCASE(msize2, generated) {
+DEFINE_TESTCASE(msize2, backend) {
     Xapian::Database db = get_database("msize2", make_msize2_db);
     Xapian::Enquire enq(db);
     enq.set_sort_by_value(1, false);
@@ -689,7 +689,7 @@ make_xordecay1_db(Xapian::WritableDatabase &db, const string &)
 }
 
 /// Regression test for bug in decay of XOR, fixed in 1.2.1 and 1.0.21.
-DEFINE_TESTCASE(xordecay1, generated) {
+DEFINE_TESTCASE(xordecay1, backend) {
     Xapian::Database db = get_database("xordecay1", make_xordecay1_db);
     Xapian::Enquire enq(db);
     enq.set_query(Xapian::Query(Xapian::Query::OP_XOR,
@@ -721,7 +721,7 @@ make_ordecay_db(Xapian::WritableDatabase &db, const string &)
 }
 
 /// Regression test for bug in decay of OR to AND, fixed in 1.2.1 and 1.0.21.
-DEFINE_TESTCASE(ordecay1, generated) {
+DEFINE_TESTCASE(ordecay1, backend) {
     Xapian::Database db = get_database("ordecay", make_ordecay_db);
     Xapian::Enquire enq(db);
     enq.set_query(Xapian::Query(Xapian::Query::OP_OR,
@@ -738,7 +738,7 @@ DEFINE_TESTCASE(ordecay1, generated) {
 /** Regression test for bug in decay of OR to AND_MAYBE, fixed in 1.2.1 and
  *  1.0.21.
  */
-DEFINE_TESTCASE(ordecay2, generated) {
+DEFINE_TESTCASE(ordecay2, backend) {
     Xapian::Database db = get_database("ordecay", make_ordecay_db);
     Xapian::Enquire enq(db);
     std::vector<Xapian::Query> q;
@@ -797,7 +797,7 @@ make_orcheck_db(Xapian::WritableDatabase &db, const string &)
 /** Regression test for bugs in the check() method of OrPostList. (ticket #485)
  *  Bugs introduced and fixed between 1.2.0 and 1.2.1 (never in a release).
  */
-DEFINE_TESTCASE(orcheck1, generated) {
+DEFINE_TESTCASE(orcheck1, backend) {
     Xapian::Database db = get_database("orcheck1", make_orcheck_db);
     Xapian::Enquire enq(db);
     Xapian::Query q1("T1");
@@ -1206,7 +1206,7 @@ make_phrasebug1_db(Xapian::WritableDatabase &db, const string &)
 }
 
 /// Regression test for ticket#653, fixed in 1.3.2 and 1.2.19.
-DEFINE_TESTCASE(phrasebug1, generated && positional) {
+DEFINE_TESTCASE(phrasebug1, positional) {
     Xapian::Database db = get_database("phrasebug1", make_phrasebug1_db);
     static const char * const qterms[] = { "katrina", "hurricane" };
     Xapian::Enquire e(db);
@@ -1593,7 +1593,7 @@ gen_uniqterms_gt_doclen_db(Xapian::WritableDatabase& db, const string&)
     db.add_document(doc2);
 }
 
-DEFINE_TESTCASE(getuniqueterms1, generated) {
+DEFINE_TESTCASE(getuniqueterms1, backend) {
     Xapian::Database db =
 	get_database("uniqterms_gt_doclen", gen_uniqterms_gt_doclen_db);
 
@@ -1618,7 +1618,7 @@ DEFINE_TESTCASE(getuniqueterms1, generated) {
  *  position 1 if it had the lowest term frequency amongst the OP_NEAR's
  *  subqueries.
  */
-DEFINE_TESTCASE(nopositionbug1, generated) {
+DEFINE_TESTCASE(nopositionbug1, backend) {
     Xapian::Database db =
 	get_database("uniqterms_gt_doclen", gen_uniqterms_gt_doclen_db);
 

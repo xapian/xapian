@@ -2303,7 +2303,7 @@ static const test test_mispelled_queries[] = {
 };
 
 // Test spelling correction in the QueryParser.
-DEFINE_TESTCASE(qp_spell1, generated && spelling) {
+DEFINE_TESTCASE(qp_spell1, spelling) {
     Xapian::Database db = get_database("qp_spell1",
 				       [](Xapian::WritableDatabase& wdb,
 					  const string&) {
@@ -2336,7 +2336,7 @@ DEFINE_TESTCASE(qp_spell1, generated && spelling) {
 }
 
 // Test spelling correction in the QueryParser with multiple databases.
-DEFINE_TESTCASE(qp_spell2, generated && spelling)
+DEFINE_TESTCASE(qp_spell2, spelling)
 {
     Xapian::Database db1 = get_database("qp_spell2a",
 					[](Xapian::WritableDatabase& wdb,
@@ -2387,7 +2387,7 @@ static const test test_mispelled_wildcard_queries[] = {
 
 // Test spelling correction in the QueryParser with wildcards.
 // Regression test for bug fixed in 1.1.3 and 1.0.17.
-DEFINE_TESTCASE(qp_spellwild1, generated && spelling) {
+DEFINE_TESTCASE(qp_spellwild1, spelling) {
     Xapian::Database db = get_database("simple_spelling_db",
 				       gen_simple_spelling_db);
     Xapian::QueryParser qp;
@@ -2426,7 +2426,7 @@ static const test test_mispelled_partial_queries[] = {
 
 // Test spelling correction in the QueryParser with FLAG_PARTIAL.
 // Regression test for bug fixed in 1.1.3 and 1.0.17.
-DEFINE_TESTCASE(qp_spellpartial1, generated && spelling) {
+DEFINE_TESTCASE(qp_spellpartial1, spelling) {
     Xapian::Database db = get_database("simple_spelling_db",
 				       gen_simple_spelling_db);
     Xapian::QueryParser qp;
@@ -2463,7 +2463,7 @@ static const test test_synonym_queries[] = {
 };
 
 // Test single term synonyms in the QueryParser.
-DEFINE_TESTCASE(qp_synonym1, generated && synonyms) {
+DEFINE_TESTCASE(qp_synonym1, synonyms) {
     Xapian::Database db = get_database("qp_synonym1",
 				       [](Xapian::WritableDatabase& wdb,
 					  const string&) {
@@ -2503,7 +2503,7 @@ static const test test_multi_synonym_queries[] = {
 };
 
 // Test multi term synonyms in the QueryParser.
-DEFINE_TESTCASE(qp_synonym2, generated && synonyms) {
+DEFINE_TESTCASE(qp_synonym2, synonyms) {
     Xapian::Database db = get_database("qp_synonym2",
 				       [](Xapian::WritableDatabase& wdb,
 					  const string&) {
@@ -2551,7 +2551,7 @@ static const test test_synonym_op_queries[] = {
 };
 
 // Test the synonym operator in the QueryParser.
-DEFINE_TESTCASE(qp_synonym3, generated && synonyms) {
+DEFINE_TESTCASE(qp_synonym3, synonyms) {
     Xapian::Database db = get_database("qp_synonym3",
 				       [](Xapian::WritableDatabase& wdb,
 					  const string&) {

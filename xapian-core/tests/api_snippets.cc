@@ -158,7 +158,7 @@ make_tg_db(Xapian::WritableDatabase &db, const string & source)
 }
 
 /// Test snippets in various ways.
-DEFINE_TESTCASE(snippetmisc1, generated) {
+DEFINE_TESTCASE(snippetmisc1, backend) {
     Xapian::Database db = get_database("snippet", make_tg_db, "snippet");
     Xapian::Enquire enquire(db);
     enquire.set_weighting_scheme(Xapian::BoolWeight());
@@ -486,7 +486,7 @@ DEFINE_TESTCASE(snippet_small_zerolength, backend) {
 }
 
 /// Test ngrams.
-DEFINE_TESTCASE(snippet_ngrams, generated) {
+DEFINE_TESTCASE(snippet_ngrams, backend) {
     Xapian::Database db = get_database("snippet_ngrams",
 	[](Xapian::WritableDatabase& wdb,
 	   const string&)

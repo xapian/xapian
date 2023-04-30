@@ -618,7 +618,7 @@ make_matchtimelimit1_db(Xapian::WritableDatabase &db, const string &)
 
 // FIXME: This doesn't run for remote databases (we'd need to register
 // SlowDecreasingValueWeightPostingSource on the remote).
-DEFINE_TESTCASE(matchtimelimit1, generated && !remote)
+DEFINE_TESTCASE(matchtimelimit1, backend && !remote)
 {
 #ifndef HAVE_TIMER_CREATE
     SKIP_TEST("Enquire::set_time_limit() not implemented for this platform");
