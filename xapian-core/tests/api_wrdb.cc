@@ -1484,7 +1484,8 @@ DEFINE_TESTCASE(consistency2, writable) {
 // Regression test for bug#152.
 DEFINE_TESTCASE(nomoredocids1, writable) {
     // The InMemory backend uses a vector for the documents, so trying to add
-    // document "-1" will fail because we can't allocate enough memory!
+    // a document with a really large docid will fail because we can't allocate
+    // enough memory!
     SKIP_TEST_FOR_BACKEND("inmemory");
 
     Xapian::WritableDatabase db = get_writable_database();
