@@ -1,7 +1,7 @@
 /** @file
  * @brief BackendManager subclass for remotetcp databases.
  */
-/* Copyright (C) 2006,2007,2008,2009,2013,2015 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2013,2015,2023 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -35,10 +35,6 @@
 # include "safesyssocket.h"
 # include <sys/wait.h>
 # include <unistd.h>
-// Some older systems had SIGCLD rather than SIGCHLD.
-# if !defined SIGCHLD && defined SIGCLD
-#  define SIGCHLD SIGCLD
-# endif
 #endif
 
 #ifdef __WIN32__
@@ -65,52 +61,54 @@ using namespace std;
 // reliable.
 #define LOCALHOST "127.0.0.1"
 
-// Start at DEFAULT port and try higher ports until one isn't already in use.
+// Start at port DEFAULT_PORT and increment until one isn't already in use.
 #define DEFAULT_PORT 1239
 
+struct ServerData {
 #ifdef HAVE_FORK
-
-// We can't dynamically allocate memory for this because it confuses the leak
-// detector.  We only have 1-3 child fds open at once anyway, so a fixed size
-// array isn't a problem, and linear scanning isn't a problem either.
-struct pid_fd {
+    /** The remote server process ID.
+     *
+     *  This will actually be the /bin/sh process.
+     */
     pid_t pid;
-    int fd;
+#elif defined __WIN32__
+    /** The remote server process ID. */
+    HANDLE pid;
+#else
+# error Neither HAVE_FORK nor __WIN32__ is defined
+#endif
+
+    void clean_up() {
+#ifdef HAVE_FORK
+	int status;
+	while (waitpid(pid, &status, 0) == -1 && errno == EINTR) { }
+	// Other possible error from waitpid is ECHILD, which it seems can
+	// only mean that the child has already exited and SIGCHLD was set
+	// to SIG_IGN.  If we did somehow see that, it seems reasonable to
+	// treat the child as successfully cleaned up.
+#elif defined __WIN32__
+	WaitForSingleObject(pid, INFINITE);
+	CloseHandle(pid);
+#endif
+    }
 };
 
-static pid_fd pid_to_fd[16];
+// We can't dynamically resize this on demand (e.g. by using a std::vector)
+// because it would confuse the leak detector.  We clean up after each testcase
+// so this only needs to store the children launched by a single testcase,
+// which is at most 6 currently, but the entries are tiny so allocate enough
+// that future testcases shouldn't hit the limit either.
+static ServerData server_data[16];
 
-extern "C" {
+static unsigned first_unused_server_data = 0;
 
-static void
-on_SIGCHLD(int /*sig*/)
-{
-    int status;
-    pid_t child;
-    while ((child = waitpid(-1, &status, WNOHANG)) > 0) {
-	for (unsigned i = 0; i < sizeof(pid_to_fd) / sizeof(pid_fd); ++i) {
-	    if (pid_to_fd[i].pid == child) {
-		int fd = pid_to_fd[i].fd;
-		pid_to_fd[i].fd = 0;
-		pid_to_fd[i].pid = 0;
-		// NB close() *is* safe to use in a signal handler.
-		close(fd);
-		break;
-	    }
-	}
-    }
-}
-
-}
+#ifdef HAVE_FORK
 
 static int
 launch_xapian_tcpsrv(const string & args)
 {
     int port = DEFAULT_PORT;
 
-    // We want to be able to get the exit status of the child process we fork
-    // if xapian-tcpsrv doesn't start listening successfully.
-    signal(SIGCHLD, SIG_DFL);
 try_next_port:
     string cmd = XAPIAN_TCPSRV " --one-shot --interface " LOCALHOST " --port ";
     cmd += str(port);
@@ -201,38 +199,21 @@ try_next_port:
 	output += buf;
     }
 
-    // dup() the fd we wrapped with fdopen() so we can keep it open so the
-    // xapian-tcpsrv keeps running.
-    int tracked_fd = dup(fds[0]);
-
     // We must fclose() the FILE* to avoid valgrind detecting memory leaks from
     // its buffers.
     fclose(fh);
 
-    // Find a slot to track the pid->fd mapping in.  If we can't find a slot
-    // it just means we'll leak the fd, so don't worry about that too much.
-    for (unsigned i = 0; i < sizeof(pid_to_fd) / sizeof(pid_fd); ++i) {
-	if (pid_to_fd[i].pid == 0) {
-	    pid_to_fd[i].fd = tracked_fd;
-	    pid_to_fd[i].pid = child;
-	    break;
-	}
+    if (first_unused_server_data < std::size(server_data)) {
+	server_data[first_unused_server_data++].pid = child;
+	return port;
     }
 
-    // Set a signal handler to clean up the xapian-tcpsrv child process when it
-    // finally exits.
-    signal(SIGCHLD, on_SIGCHLD);
-
-    return port;
+    // We used to quietly ignore not finding a slot, but it's helpful to know
+    // if we haven't allocated enough slots.
+    throw Xapian::DatabaseError("Not enough ServerData slots");
 }
 
 #elif defined __WIN32__
-
-static HANDLE tcpsrv_handles[16];
-static unsigned tcpsrv_handles_index = 0;
-
-static constexpr auto TCPSRV_HANDLES_INDEX_MAX =
-	sizeof(tcpsrv_handles) / sizeof(tcpsrv_handles[0]);
 
 [[noreturn]]
 static void win32_throw_error_string(const char * str)
@@ -329,16 +310,36 @@ try_next_port:
     }
     fclose(fh);
 
-    if (tcpsrv_handles_index < TCPSRV_HANDLES_INDEX_MAX) {
-	tcpsrv_handles[tcpsrv_handles_index++] = procinfo.hProcess;
+    if (first_unused_server_data < std::size(server_data)) {
+	server_data[first_unused_server_data++].pid = procinfo.hProcess;
+	return port;
     }
 
-    return port;
+    // We used to quietly ignore not finding a slot, but it's helpful to know
+    // if we haven't allocated enough slots.
+    throw Xapian::DatabaseError("Not enough ServerData slots");
 }
 
 #else
 # error Neither HAVE_FORK nor __WIN32__ is defined
 #endif
+
+static Xapian::Database
+get_remotetcp_db(const string& args, int* port_ptr = nullptr)
+{
+    int port = launch_xapian_tcpsrv(args);
+    auto db = Xapian::Remote::open(LOCALHOST, port);
+    if (port_ptr) *port_ptr = port;
+    return db;
+}
+
+static Xapian::WritableDatabase
+get_remotetcp_writable_db(const string& args)
+{
+    int port = launch_xapian_tcpsrv(args);
+    auto db = Xapian::Remote::open_writable(LOCALHOST, port);
+    return db;
+}
 
 BackendManagerRemoteTcp::~BackendManagerRemoteTcp() {
     BackendManagerRemoteTcp::clean_up();
@@ -363,9 +364,7 @@ Xapian::WritableDatabase
 BackendManagerRemoteTcp::get_writable_database(const string & name,
 					       const string & file)
 {
-    string args = get_writable_database_args(name, file);
-    int port = launch_xapian_tcpsrv(args);
-    return Xapian::Remote::open_writable(LOCALHOST, port);
+    return get_remotetcp_writable_db(get_writable_database_args(name, file));
 }
 
 Xapian::Database
@@ -373,61 +372,31 @@ BackendManagerRemoteTcp::get_remote_database(const vector<string> & files,
 					     unsigned int timeout,
 					     int* port_ptr)
 {
-    string args = get_remote_database_args(files, timeout);
-    int port = launch_xapian_tcpsrv(args);
-    if (port_ptr) *port_ptr = port;
-    return Xapian::Remote::open(LOCALHOST, port);
+    return get_remotetcp_db(get_remote_database_args(files, timeout), port_ptr);
 }
 
 Xapian::Database
 BackendManagerRemoteTcp::get_database_by_path(const string& path)
 {
-    string args = get_remote_database_args(path, 300000);
-    int port = launch_xapian_tcpsrv(args);
-    return Xapian::Remote::open(LOCALHOST, port);
+    return get_remotetcp_db(get_remote_database_args(path, 300000));
 }
 
 Xapian::Database
 BackendManagerRemoteTcp::get_writable_database_as_database()
 {
-    string args = get_writable_database_as_database_args();
-    int port = launch_xapian_tcpsrv(args);
-    return Xapian::Remote::open(LOCALHOST, port);
+    return get_remotetcp_db(get_writable_database_as_database_args());
 }
 
 Xapian::WritableDatabase
 BackendManagerRemoteTcp::get_writable_database_again()
 {
-    string args = get_writable_database_again_args();
-    int port = launch_xapian_tcpsrv(args);
-    return Xapian::Remote::open_writable(LOCALHOST, port);
+    return get_remotetcp_writable_db(get_writable_database_again_args());
 }
 
 void
 BackendManagerRemoteTcp::clean_up()
 {
-#ifdef HAVE_FORK
-    signal(SIGCHLD, SIG_DFL);
-    for (unsigned i = 0; i < sizeof(pid_to_fd) / sizeof(pid_fd); ++i) {
-	pid_t child = pid_to_fd[i].pid;
-	if (child) {
-	    int status;
-	    while (waitpid(child, &status, 0) == -1 && errno == EINTR) { }
-	    // Other possible error from waitpid is ECHILD, which it seems can
-	    // only mean that the child has already exited and SIGCHLD was set
-	    // to SIG_IGN.  If we did somehow see that, the sanest response
-	    // seems to be to close the fd and move on.
-	    int fd = pid_to_fd[i].fd;
-	    pid_to_fd[i].fd = 0;
-	    pid_to_fd[i].pid = 0;
-	    close(fd);
-	}
+    while (first_unused_server_data) {
+	server_data[--first_unused_server_data].clean_up();
     }
-#elif defined __WIN32__
-    for (unsigned i = 0; i != tcpsrv_handles_index; ++i) {
-	WaitForSingleObject(tcpsrv_handles[i], INFINITE);
-	CloseHandle(tcpsrv_handles[i]);
-    }
-    tcpsrv_handles_index = 0;
-#endif
 }
