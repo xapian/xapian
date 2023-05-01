@@ -55,6 +55,13 @@ Xapian::Database get_remote_database(const std::string& db,
 				     unsigned timeout,
 				     int* port_ptr = nullptr);
 
+/** Kill the server associated with remote database @a db.
+ *
+ *  Currently only supported for remotetcp and only for a database with a
+ *  single shard.
+ */
+void kill_remote(const Xapian::Database& db);
+
 Xapian::Database get_writable_database_as_database();
 
 Xapian::WritableDatabase get_writable_database_again();

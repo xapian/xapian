@@ -170,6 +170,12 @@ class BackendManager {
      */
     virtual void clean_up();
 
+    /** Kill the remote server associated with @a db.
+     *
+     *  Intended to allow testing handling of a remote server failing.
+     */
+    virtual void kill_remote(const Xapian::Database& db);
+
     /// Get the command line required to run xapian-progsrv.
     static const char * get_xapian_progsrv_command();
 };

@@ -304,6 +304,13 @@ BackendManager::clean_up()
 {
 }
 
+void
+BackendManager::kill_remote(const Xapian::Database&)
+{
+    throw Xapian::InvalidOperationError("kill_remote() only supported for "
+					"remotetcp databases");
+}
+
 const char *
 BackendManager::get_xapian_progsrv_command()
 {

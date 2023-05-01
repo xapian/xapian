@@ -117,6 +117,12 @@ get_remote_database(const string& dbname,
     return backendmanager->get_remote_database(dbnames, timeout, port_ptr);
 }
 
+void
+kill_remote(const Xapian::Database& db)
+{
+    backendmanager->kill_remote(db);
+}
+
 Xapian::Database
 get_writable_database_as_database()
 {
