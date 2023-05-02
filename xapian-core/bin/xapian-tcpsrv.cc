@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2006,2007,2008,2009,2010,2011,2013,2015 Olly Betts
+ * Copyright 2002,2003,2004,2006,2007,2008,2009,2010,2011,2013,2015,2023 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -81,7 +81,7 @@ static void show_usage() {
 "  --timeout MSECS         set both timeout values\n"
 "  --one-shot              serve a single connection and exit\n"
 "  --quiet                 disable information messages to stdout\n"
-"  --writable              allow updates (only one database directory allowed)\n"
+"  --writable              allow updates\n"
 "  --help                  display this help and exit\n"
 "  --version               output version information and exit" << endl;
 }
@@ -152,22 +152,16 @@ int main(int argc, char **argv) {
 	exit(1);
     }
 
-    if (writable && (argc - optind) != 1) {
-	cerr << "Error: only one database directory allowed with '--writable'." << endl;
-	exit(1);
-    }
-
+    vector<string> dbnames(argv + optind, argv + argc);
     try {
-	vector<string> dbnames;
 	// Try to open the database(s) so we report problems now instead of
 	// waiting for the first connection.
-	if (writable) {
-	    Xapian::WritableDatabase db(argv[optind], Xapian::DB_CREATE_OR_OPEN);
-	    dbnames.push_back(argv[optind]);
-	} else {
-	    while (argv[optind]) {
-		dbnames.push_back(argv[optind]);
-		Xapian::Database db(argv[optind++]);
+	for (auto& dbname : dbnames) {
+	    if (writable) {
+		Xapian::WritableDatabase db(dbname,
+					    Xapian::DB_CREATE_OR_OPEN);
+	    } else {
+		Xapian::Database db(dbname);
 	    }
 	}
 

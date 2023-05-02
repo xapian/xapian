@@ -1,7 +1,7 @@
 /** @file
  * @brief Remote server for use with ProgClient.
  */
-/* Copyright (C) 2002,2003,2006,2007,2008,2010,2011 Olly Betts
+/* Copyright (C) 2002,2003,2006,2007,2008,2010,2011,2023 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -49,7 +49,7 @@ static void show_usage() {
     cout << "Usage: " PROG_NAME " [OPTIONS] DATABASE_DIRECTORY...\n\n"
 "Options:\n"
 "  --timeout MSECS         set timeout\n"
-"  --writable              allow updates (only one database directory allowed)\n"
+"  --writable              allow updates\n"
 "  --help                  display this help and exit\n"
 "  --version               output version information and exit" << endl;
 }
@@ -83,12 +83,6 @@ int main(int argc, char **argv)
 
     if (syntax_error || optind == argc) {
 	show_usage();
-	exit(1);
-    }
-
-    if (writable && (argc - optind) != 1) {
-	cerr << "Error: only one database directory allowed with '--writable'."
-	     << endl;
 	exit(1);
     }
 
