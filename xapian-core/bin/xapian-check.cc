@@ -46,7 +46,7 @@ static void show_usage() {
 " v = show stats about B-tree (default)\n"
 " + = same as tbv\n"
 " e.g. " PROG_NAME " /var/lib/xapian/data/default\n"
-"      " PROG_NAME " /var/lib/xapian/data/default/postlist fbv" << endl;
+"      " PROG_NAME " /var/lib/xapian/data/default/postlist fbv\n";
 }
 
 int
@@ -59,7 +59,7 @@ main(int argc, char **argv)
 	    exit(0);
 	}
 	if (strcmp(argv[1], "--version") == 0) {
-	    cout << PROG_NAME " - " PACKAGE_STRING << endl;
+	    cout << PROG_NAME " - " PACKAGE_STRING "\n";
 	    exit(0);
 	}
     }
@@ -95,15 +95,15 @@ main(int argc, char **argv)
     try {
 	size_t errors = Xapian::Database::check(argv[1], opts, &cout);
 	if (errors > 0) {
-	    cout << "Total errors found: " << errors << endl;
+	    cout << "Total errors found: " << errors << '\n';
 	    exit(1);
 	}
-	cout << "No errors found" << endl;
+	cout << "No errors found\n";
     } catch (const Xapian::Error &error) {
-	cerr << argv[0] << ": " << error.get_description() << endl;
+	cerr << argv[0] << ": " << error.get_description() << '\n';
 	exit(1);
     } catch (...) {
-	cerr << argv[0] << ": Unknown exception" << endl;
+	cerr << argv[0] << ": Unknown exception\n";
 	exit(1);
     }
 }

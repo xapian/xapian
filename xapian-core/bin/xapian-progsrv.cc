@@ -52,7 +52,7 @@ static void show_usage() {
 "  --timeout MSECS         set timeout\n"
 "  --writable              allow updates\n"
 "  --help                  display this help and exit\n"
-"  --version               output version information and exit" << endl;
+"  --version               output version information and exit\n";
 }
 
 int main(int argc, char **argv)
@@ -69,12 +69,12 @@ int main(int argc, char **argv)
 		show_usage();
 		exit(0);
 	    case OPT_VERSION:
-		cout << PROG_NAME " - " PACKAGE_STRING << endl;
+		cout << PROG_NAME " - " PACKAGE_STRING "\n";
 		exit(0);
 	    case 't':
 		unsigned int temp;
 		if (!parse_unsigned(optarg, temp)) {
-		    cout << "timeout must be a non-negative integer" << endl;
+		    cout << "timeout must be a non-negative integer\n";
 		    show_usage();
 		    exit(1);
 		}

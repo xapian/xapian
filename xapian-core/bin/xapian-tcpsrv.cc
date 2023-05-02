@@ -72,7 +72,7 @@ static const struct option long_opts[] = {
 };
 
 static void show_usage() {
-    cout << "Usage: " PROG_NAME " [OPTIONS] DATABASE_DIRECTORY...\n\n"
+    cout << "Usage: " PROG_NAME " [OPTIONS] DATABASE_PATH...\n\n"
 "Options:\n"
 "  --port PORTNUM          listen on port PORTNUM for connections (no default)\n"
 "  --interface ADDRESS     listen on the interface associated with name or\n"
@@ -86,7 +86,7 @@ static void show_usage() {
 "  --quiet                 disable information messages to stdout\n"
 "  --writable              allow updates\n"
 "  --help                  display this help and exit\n"
-"  --version               output version information and exit" << endl;
+"  --version               output version information and exit\n";
 }
 
 int main(int argc, char **argv) {
@@ -108,7 +108,7 @@ int main(int argc, char **argv) {
 		show_usage();
 		exit(0);
 	    case OPT_VERSION:
-		cout << PROG_NAME " - " PACKAGE_STRING << endl;
+		cout << PROG_NAME " - " PACKAGE_STRING "\n";
 		exit(0);
 	    case 'I':
 		host.assign(optarg);
@@ -117,14 +117,14 @@ int main(int argc, char **argv) {
 		if (!parse_signed(optarg, port) ||
 		    (port < 1 || port > 65535)) {
 		    cerr << "Error: must specify a valid port number "
-			    "(between 1 and 65535). " << endl;
+			    "(between 1 and 65535).\n";
 		    exit(1);
 		}
 		break;
 	    case 'a': {
 		unsigned int active;
 		if (!parse_unsigned(optarg, active)) {
-		    cerr << "Active timeout must be >= 0" << endl;
+		    cerr << "Active timeout must be >= 0\n";
 		    exit(1);
 		}
 		active_timeout = active * 1e-3;
@@ -133,7 +133,7 @@ int main(int argc, char **argv) {
 	    case 'i': {
 		unsigned int idle;
 		if (!parse_unsigned(optarg, idle)) {
-		    cerr << "Idle timeout must be >= 0" << endl;
+		    cerr << "Idle timeout must be >= 0\n";
 		    exit(1);
 		}
 		idle_timeout = idle * 1e-3;
@@ -142,7 +142,7 @@ int main(int argc, char **argv) {
 	    case 't': {
 		unsigned int timeout;
 		if (!parse_unsigned(optarg, timeout)) {
-		    cerr << "timeout must be >= 0" << endl;
+		    cerr << "timeout must be >= 0\n";
 		    exit(1);
 		}
 		active_timeout = idle_timeout = timeout * 1e-3;
@@ -168,7 +168,7 @@ int main(int argc, char **argv) {
     }
 
     if (port == 0) {
-	cerr << "Error: You must specify a port with --port" << endl;
+	cerr << "Error: You must specify a port with --port\n";
 	exit(1);
     }
 
@@ -192,14 +192,14 @@ int main(int argc, char **argv) {
 	    cout << " server on";
 	    if (!host.empty())
 		cout << " host " << host << ",";
-	    cout << " port " << port << endl;
+	    cout << " port " << port << '\n';
 	}
 
 	RemoteTcpServer server(dbnames, host, port, active_timeout,
 			       idle_timeout, writable, verbose);
 
 	if (verbose)
-	    cout << "Listening..." << endl;
+	    cout << "Listening...\n" << flush;
 
 	register_user_weighting_schemes(server);
 
@@ -209,13 +209,13 @@ int main(int argc, char **argv) {
 	    server.run();
 	}
     } catch (const Xapian::Error &e) {
-	cerr << e.get_description() << endl;
+	cerr << e.get_description() << '\n';
 	exit(1);
     } catch (const exception &e) {
-	cerr << "Caught standard exception: " << e.what() << endl;
+	cerr << "Caught standard exception: " << e.what() << '\n';
 	exit(1);
     } catch (...) {
-	cerr << "Caught unknown exception" << endl;
+	cerr << "Caught unknown exception\n";
 	exit(1);
     }
 }

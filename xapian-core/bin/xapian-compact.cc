@@ -63,7 +63,7 @@ static void show_usage() {
 "                     have disjoint ranges of used document ids\n"
 "  -s, --single-file  Produce a single file database\n"
 "  --help             display this help and exit\n"
-"  --version          output version information and exit" << endl;
+"  --version          output version information and exit\n";
 }
 
 class MyCompactor : public Xapian::Compactor {
@@ -88,7 +88,7 @@ MyCompactor::set_status(const string & table, const string & status)
     if (quiet)
 	return;
     if (!status.empty())
-	cout << '\r' << table << ": " << status << endl;
+	cout << '\r' << table << ": " << status << '\n';
     else
 	cout << table << " ..." << flush;
 }
@@ -101,7 +101,9 @@ MyCompactor::resolve_duplicate_metadata(const string & key,
     (void)key;
     while (--n) {
 	if (tags[0] != tags[n]) {
-	    cerr << "Warning: duplicate user metadata key with different tag value - picking value from first source database with a non-empty value" << endl;
+	    cerr << "Warning: duplicate user metadata key with different tag "
+		    "value - picking value from first source database with a "
+		    "non-empty value\n";
 	    break;
 	}
     }
@@ -150,8 +152,7 @@ main(int argc, char **argv)
 		    cerr << PROG_NAME": Bad value '" << optarg << "' passed "
 			    "for blocksize, must be a power of 2 between "
 			 << (GLASS_MIN_BLOCKSIZE / 1024) << "K and "
-			 << (GLASS_MAX_BLOCKSIZE / 1024) << "K"
-			 << endl;
+			 << (GLASS_MAX_BLOCKSIZE / 1024) << "K\n";
 		    exit(1);
 		}
 		block_size = unsigned(value);
@@ -164,8 +165,8 @@ main(int argc, char **argv)
 		    backend = Xapian::DB_BACKEND_GLASS;
 		} else {
 		    cerr << PROG_NAME": Bad value '" << optarg
-			 << "' passed for backend - must be 'glass' or 'honey'"
-			 << endl;
+			 << "' passed for backend - must be 'glass' or "
+			    "'honey'\n";
 		    exit(1);
 		}
 		break;
@@ -192,7 +193,7 @@ main(int argc, char **argv)
 		show_usage();
 		exit(0);
 	    case OPT_VERSION:
-		cout << PROG_NAME " - " PACKAGE_STRING << endl;
+		cout << PROG_NAME " - " PACKAGE_STRING "\n";
 		exit(0);
 	    default:
 		show_usage();
@@ -217,10 +218,10 @@ main(int argc, char **argv)
 	}
 	src.compact(destdir, flags, block_size, compactor);
     } catch (const Xapian::Error &error) {
-	cerr << argv[0] << ": " << error.get_description() << endl;
+	cerr << argv[0] << ": " << error.get_description() << '\n';
 	exit(1);
     } catch (const char * msg) {
-	cerr << argv[0] << ": " << msg << endl;
+	cerr << argv[0] << ": " << msg << '\n';
 	exit(1);
     }
 }
