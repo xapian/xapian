@@ -107,14 +107,17 @@ DEFINE_TESTCASE(serialise_document1, !backend) {
 }
 
 // Test for serialising a document obtained from a database.
-DEFINE_TESTCASE(serialise_document2, writable) {
-    Xapian::Document origdoc;
-    origdoc.add_term("foo", 2);
-    origdoc.add_posting("foo", 10);
-    origdoc.add_value(1, "bar");
-    origdoc.set_data("baz");
-    Xapian::WritableDatabase db = get_writable_database();
-    db.add_document(origdoc);
+DEFINE_TESTCASE(serialise_document2, backend) {
+    Xapian::Database db = get_database("serialise_document2",
+				       [](Xapian::WritableDatabase& wdb,
+					  const string&) {
+					   Xapian::Document doc;
+					   doc.add_term("foo", 2);
+					   doc.add_posting("foo", 10);
+					   doc.add_value(1, "bar");
+					   doc.set_data("baz");
+					   wdb.add_document(doc);
+				       });
 
     Xapian::Document doc = db.get_document(1);
 

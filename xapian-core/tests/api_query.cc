@@ -265,13 +265,17 @@ DEFINE_TESTCASE(overload1, !backend) {
  *
  *  Currently the OR-subquery case is supported, other operators aren't.
  */
-DEFINE_TESTCASE(possubqueries1, writable) {
-    Xapian::WritableDatabase db = get_writable_database();
-    Xapian::Document doc;
-    doc.add_posting("a", 1);
-    doc.add_posting("b", 2);
-    doc.add_posting("c", 3);
-    db.add_document(doc);
+DEFINE_TESTCASE(possubqueries1, backend) {
+    Xapian::Database db = get_database("possubqueries1",
+				       [](Xapian::WritableDatabase& wdb,
+					  const string&)
+				       {
+					   Xapian::Document doc;
+					   doc.add_posting("a", 1);
+					   doc.add_posting("b", 2);
+					   doc.add_posting("c", 3);
+					   wdb.add_document(doc);
+				       });
 
     Xapian::Query a_or_b(Xapian::Query::OP_OR,
 			 Xapian::Query("a"),
@@ -624,9 +628,9 @@ DEFINE_TESTCASE(specialwildcard1, !backend) {
     TEST_EQUAL(Xapian::Query(o, "*?*", 0, f).get_description(), QUERY_ALLDOCS);
 }
 
-/// Test `?` extended wildcard.
-DEFINE_TESTCASE(singlecharwildcard1, writable) {
-    Xapian::WritableDatabase db = get_writable_database();
+static void
+gen_singlecharwildcard1_db(Xapian::WritableDatabase& db, const string&)
+{
     {
 	Xapian::Document doc;
 	doc.add_term("test");
@@ -657,8 +661,12 @@ DEFINE_TESTCASE(singlecharwildcard1, writable) {
 	doc.add_term("t*t");
 	db.add_document(doc);
     }
-    db.commit();
+}
 
+/// Test `?` extended wildcard.
+DEFINE_TESTCASE(singlecharwildcard1, backend) {
+    Xapian::Database db = get_database("singlecharwildcard1",
+				       gen_singlecharwildcard1_db);
     Xapian::Enquire enq(db);
     enq.set_weighting_scheme(Xapian::BoolWeight());
 
@@ -687,9 +695,9 @@ DEFINE_TESTCASE(singlecharwildcard1, writable) {
     }
 }
 
-/// Test `*` extended wildcard.
-DEFINE_TESTCASE(multicharwildcard1, writable) {
-    Xapian::WritableDatabase db = get_writable_database();
+static void
+gen_multicharwildcard1_db(Xapian::WritableDatabase& db, const string&)
+{
     {
 	Xapian::Document doc;
 	doc.add_term("ananas");
@@ -715,8 +723,12 @@ DEFINE_TESTCASE(multicharwildcard1, writable) {
 	doc.add_term("b?nanas");
 	db.add_document(doc);
     }
-    db.commit();
+}
 
+/// Test `*` extended wildcard.
+DEFINE_TESTCASE(multicharwildcard1, backend) {
+    Xapian::Database db = get_database("multicharwildcard1",
+				       gen_multicharwildcard1_db);
     Xapian::Enquire enq(db);
     enq.set_weighting_scheme(Xapian::BoolWeight());
 

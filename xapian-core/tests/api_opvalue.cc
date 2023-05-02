@@ -70,12 +70,15 @@ DEFINE_TESTCASE(valuerange1, backend) {
 
 // Regression test for Query::OP_VALUE_LE - used to return document IDs for
 // non-existent documents.
-DEFINE_TESTCASE(valuerange2, writable) {
-    Xapian::WritableDatabase db = get_writable_database();
-    Xapian::Document doc;
-    doc.set_data("5");
-    doc.add_value(0, "5");
-    db.replace_document(5, doc);
+DEFINE_TESTCASE(valuerange2, backend) {
+    Xapian::Database db = get_database("valuerange2",
+				       [](Xapian::WritableDatabase& wdb,
+					  const string&) {
+					   Xapian::Document doc;
+					   doc.set_data("5");
+					   doc.add_value(0, "5");
+					   wdb.replace_document(5, doc);
+				       });
     Xapian::Enquire enq(db);
 
     Xapian::Query query(Xapian::Query::OP_VALUE_LE, 0, "6");
