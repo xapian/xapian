@@ -156,14 +156,16 @@ int main(int argc, char **argv) {
 
     vector<string> dbnames(argv + optind, argv + argc);
     try {
-	// Try to open the database(s) so we report problems now instead of
-	// waiting for the first connection.
-	for (auto& dbname : dbnames) {
-	    if (writable) {
-		Xapian::WritableDatabase db(dbname,
-					    Xapian::DB_CREATE_OR_OPEN);
-	    } else {
-		Xapian::Database db(dbname);
+	if (!one_shot) {
+	    // Try to open the database(s) so we report problems now instead of
+	    // waiting for the first connection.
+	    for (auto& dbname : dbnames) {
+		if (writable) {
+		    Xapian::WritableDatabase db(dbname,
+						Xapian::DB_CREATE_OR_OPEN);
+		} else {
+		    Xapian::Database db(dbname);
+		}
 	    }
 	}
 
