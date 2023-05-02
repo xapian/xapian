@@ -265,13 +265,17 @@ DEFINE_TESTCASE(overload1, !backend) {
  *
  *  Currently the OR-subquery case is supported, other operators aren't.
  */
-DEFINE_TESTCASE(possubqueries1, writable) {
-    Xapian::WritableDatabase db = get_writable_database();
-    Xapian::Document doc;
-    doc.add_posting("a", 1);
-    doc.add_posting("b", 2);
-    doc.add_posting("c", 3);
-    db.add_document(doc);
+DEFINE_TESTCASE(possubqueries1, backend) {
+    Xapian::Database db = get_database("possubqueries1",
+				       [](Xapian::WritableDatabase& wdb,
+					  const string&)
+				       {
+					   Xapian::Document doc;
+					   doc.add_posting("a", 1);
+					   doc.add_posting("b", 2);
+					   doc.add_posting("c", 3);
+					   wdb.add_document(doc);
+				       });
 
     Xapian::Query a_or_b(Xapian::Query::OP_OR,
 			 Xapian::Query("a"),

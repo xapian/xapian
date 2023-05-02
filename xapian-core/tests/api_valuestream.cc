@@ -33,8 +33,7 @@
 using namespace std;
 
 /// Feature test simple valuestream iteration.
-DEFINE_TESTCASE(valuestream1, backend && !multi) {
-    // FIXME: enable for multi once support is in place.
+DEFINE_TESTCASE(valuestream1, backend) {
     Xapian::Database db = get_database("apitest_simpledata");
 
     for (Xapian::valueno slot = 0; slot < 15; ++slot) {
@@ -148,11 +147,20 @@ DEFINE_TESTCASE(valuestream3, backend) {
     }
 }
 
+static void
+gen_valueweightsource5_db(Xapian::WritableDatabase& db, const string&)
+{
+    Xapian::Document doc;
+    doc.add_value(1, Xapian::sortable_serialise(3.14));
+    db.replace_document(1, doc);
+    db.replace_document(0xffffffff, doc);
+}
+
 /** Check that valueweightsource handles last_docid of 0xffffffff.
  *
  *  The original implementation went into an infinite loop in this case.
  */
-DEFINE_TESTCASE(valueweightsource5, writable && valuestats) {
+DEFINE_TESTCASE(valueweightsource5, valuestats) {
     // inmemory's memory use is currently O(last_docid)!
     SKIP_TEST_FOR_BACKEND("inmemory");
     // remote's value slot iteration is very slow for this case currently
@@ -160,13 +168,10 @@ DEFINE_TESTCASE(valueweightsource5, writable && valuestats) {
     // times.
     if (contains(get_dbtype(), "remote"))
 	SKIP_TEST("Testcase is too slow with remote shards");
-    Xapian::WritableDatabase db = get_writable_database();
-    Xapian::Document doc;
-    doc.add_value(1, Xapian::sortable_serialise(3.14));
-    db.replace_document(1, doc);
-    db.replace_document(0xffffffff, doc);
-    db.commit();
+    XFAIL_FOR_BACKEND("honey", "compaction needs to split sparse document length chunks");
 
+    Xapian::Database db = get_database("valueweightsource5",
+				       gen_valueweightsource5_db);
     Xapian::ValueWeightPostingSource src(1);
     src.init(db);
     src.next(0.0);
@@ -528,10 +533,9 @@ DEFINE_TESTCASE(decvalwtsource2, writable) {
     }
 }
 
-// Test DecreasingValueWeightPostingSource with an actual query.
-DEFINE_TESTCASE(decvalwtsource3, writable) {
-    Xapian::WritableDatabase db = get_writable_database();
-
+static void
+gen_decvalwtsource3_db(Xapian::WritableDatabase& db, const string&)
+{
     Xapian::Document doc;
     doc.add_term("foo");
     doc.add_value(1, Xapian::sortable_serialise(1));
@@ -543,7 +547,12 @@ DEFINE_TESTCASE(decvalwtsource3, writable) {
     db.add_document(doc);
     doc.add_value(1, Xapian::sortable_serialise(1));
     db.add_document(doc);
-    db.commit();
+}
+
+// Test DecreasingValueWeightPostingSource with an actual query.
+DEFINE_TESTCASE(decvalwtsource3, backend) {
+    Xapian::Database db = get_database("decvalwtsource3",
+				       gen_decvalwtsource3_db);
 
     Xapian::DecreasingValueWeightPostingSource ps(1, 2, 5);
     Xapian::Query q(&ps);
@@ -566,7 +575,8 @@ DEFINE_TESTCASE(decvalwtsource3, writable) {
 }
 
 // Test DecreasingValueWeightPostingSource with an actual query on a fixed
-// dataset (so we can cover the remote backend too).
+// dataset (this was to cover the remote backend before we supported generated
+// databases for remote databases).
 DEFINE_TESTCASE(decvalwtsource4, backend && !multi) {
     Xapian::Database db = get_database("apitest_declen");
 
@@ -590,17 +600,21 @@ DEFINE_TESTCASE(decvalwtsource4, backend && !multi) {
     TEST(mset_range_is_same(mset3, 0, mset4, 0, 3));
 }
 
-// Regression test - used to get segfaults if
-// DecreasingValueWeightPostingSource was pointed at an empty slot.
-DEFINE_TESTCASE(decvalwtsource5, writable) {
-    Xapian::WritableDatabase db = get_writable_database();
-
+static void
+gen_decvalwtsource5_db(Xapian::WritableDatabase& db, const string&)
+{
     Xapian::Document doc;
     doc.add_value(1, Xapian::sortable_serialise(1));
     db.add_document(doc);
     doc.add_value(2, Xapian::sortable_serialise(1));
     db.add_document(doc);
-    db.commit();
+}
+
+// Regression test - used to get segfaults if
+// DecreasingValueWeightPostingSource was pointed at an empty slot.
+DEFINE_TESTCASE(decvalwtsource5, writable) {
+    Xapian::Database db = get_database("decvalwtsource5",
+				       gen_decvalwtsource5_db);
 
     {
 	Xapian::DecreasingValueWeightPostingSource ps(1);

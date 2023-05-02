@@ -116,20 +116,23 @@ DEFINE_TESTCASE(sortfunctor1, backend && !remote) {
 }
 
 /// Test reverse sort functor.
-DEFINE_TESTCASE(sortfunctor2, writable && !remote) {
-    Xapian::WritableDatabase db = get_writable_database();
-    Xapian::Document doc;
-    doc.add_term("foo");
-    doc.add_value(0, "ABB");
-    db.add_document(doc);
-    doc.add_value(0, "ABC");
-    db.add_document(doc);
-    doc.add_value(0, string("ABC", 4));
-    db.add_document(doc);
-    doc.add_value(0, "ABCD");
-    db.add_document(doc);
-    doc.add_value(0, "ABC\xff");
-    db.add_document(doc);
+DEFINE_TESTCASE(sortfunctor2, backend && !remote) {
+    Xapian::Database db = get_database("sortfunctor2",
+				       [](Xapian::WritableDatabase& wdb,
+					  const string&) {
+					   Xapian::Document doc;
+					   doc.add_term("foo");
+					   doc.add_value(0, "ABB");
+					   wdb.add_document(doc);
+					   doc.add_value(0, "ABC");
+					   wdb.add_document(doc);
+					   doc.add_value(0, string("ABC", 4));
+					   wdb.add_document(doc);
+					   doc.add_value(0, "ABCD");
+					   wdb.add_document(doc);
+					   doc.add_value(0, "ABC\xff");
+					   wdb.add_document(doc);
+				       });
 
     Xapian::Enquire enquire(db);
     enquire.set_query(Xapian::Query("foo"));

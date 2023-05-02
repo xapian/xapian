@@ -1334,18 +1334,20 @@ DEFINE_TESTCASE(emptyterm2, writable) {
 
 // Check that PHRASE/NEAR becomes AND if there's no positional info in the
 // database.
-DEFINE_TESTCASE(phraseorneartoand1, writable) {
-    Xapian::WritableDatabase db = get_writable_database();
-
-    for (int n = 1; n <= 20; ++n) {
-	Xapian::Document doc;
-	doc.add_term(str(n));
-	doc.add_term(str(n ^ 9));
-	doc.add_term("all");
-	doc.set_data("pass1");
-	db.add_document(doc);
-    }
-    db.commit();
+DEFINE_TESTCASE(phraseorneartoand1, backend) {
+    Xapian::Database db = get_database("phraseorneartoand1",
+				       [](Xapian::WritableDatabase& wdb,
+					  const string&)
+				       {
+					   for (int n = 1; n <= 20; ++n) {
+					       Xapian::Document doc;
+					       doc.add_term(str(n));
+					       doc.add_term(str(n ^ 9));
+					       doc.add_term("all");
+					       doc.set_data("pass1");
+					       wdb.add_document(doc);
+					   }
+				       });
 
     Xapian::Enquire enquire(db);
     Xapian::MSet mymset;
@@ -1369,14 +1371,11 @@ DEFINE_TESTCASE(phraseorneartoand1, writable) {
     TEST_EQUAL(0, mymset.size());
 }
 
-// Check that a large number of position list entries for a particular term
-// works - regression test for flint.
-DEFINE_TESTCASE(longpositionlist1, writable) {
-    Xapian::WritableDatabase db = get_writable_database();
-
+static void
+gen_longpositionlist1_db(Xapian::WritableDatabase& db, const string&)
+{
     Xapian::Document doc;
-    Xapian::termpos n;
-    for (n = 1; n <= 2000; ++n) {
+    for (Xapian::termpos n = 1; n <= 2000; ++n) {
 	doc.add_posting("fork", n * 3);
 	doc.add_posting("knife", n * unsigned(log(double(n + 2))));
 	doc.add_posting("spoon", n * n);
@@ -1389,10 +1388,16 @@ DEFINE_TESTCASE(longpositionlist1, writable) {
 	}
     }
     doc.set_data("cutlery");
-    Xapian::docid did = db.add_document(doc);
-    db.commit();
+    db.add_document(doc);
+}
 
-    doc = db.get_document(did);
+// Check that a large number of position list entries for a particular term
+// works - regression test for flint.
+DEFINE_TESTCASE(longpositionlist1, backend) {
+    Xapian::Database db = get_database("longpositionlist1",
+				       gen_longpositionlist1_db);
+
+    Xapian::Document doc = db.get_document(1);
 
     Xapian::TermIterator t, tend;
     Xapian::PositionIterator p, pend;
@@ -1404,7 +1409,7 @@ DEFINE_TESTCASE(longpositionlist1, writable) {
     TEST_EQUAL(*t, "chopsticks");
     p = t.positionlist_begin();
     pend = t.positionlist_end();
-    for (n = 1; n <= 2000; ++n) {
+    for (Xapian::termpos n = 1; n <= 2000; ++n) {
 	TEST(p != pend);
 	Xapian::termpos half_cube = n * n / 2 * n;
 	TEST_EQUAL(*p, half_cube);
@@ -1417,7 +1422,7 @@ DEFINE_TESTCASE(longpositionlist1, writable) {
     TEST_EQUAL(*t, "fork");
     p = t.positionlist_begin();
     pend = t.positionlist_end();
-    for (n = 1; n <= 2000; ++n) {
+    for (Xapian::termpos n = 1; n <= 2000; ++n) {
 	TEST(p != pend);
 	TEST_EQUAL(*p, n * 3);
 	++p;
@@ -1429,7 +1434,7 @@ DEFINE_TESTCASE(longpositionlist1, writable) {
     TEST_EQUAL(*t, "knife");
     p = t.positionlist_begin();
     pend = t.positionlist_end();
-    for (n = 1; n <= 2000; ++n) {
+    for (Xapian::termpos n = 1; n <= 2000; ++n) {
 	TEST(p != pend);
 	TEST_EQUAL(*p, n * unsigned(log(double(n + 2))));
 	++p;
@@ -1441,7 +1446,7 @@ DEFINE_TESTCASE(longpositionlist1, writable) {
     TEST_EQUAL(*t, "spoon");
     p = t.positionlist_begin();
     pend = t.positionlist_end();
-    for (n = 1; n <= 2000; ++n) {
+    for (Xapian::termpos n = 1; n <= 2000; ++n) {
 	TEST(p != pend);
 	TEST_EQUAL(*p, n * n);
 	++p;
@@ -1454,7 +1459,7 @@ DEFINE_TESTCASE(longpositionlist1, writable) {
 	TEST_EQUAL(*t, "spork");
 	p = t.positionlist_begin();
 	pend = t.positionlist_end();
-	for (n = 1; n <= 2000; ++n) {
+	for (Xapian::termpos n = 1; n <= 2000; ++n) {
 	    TEST(p != pend);
 	    Xapian::termpos half_cube = n * n / 2 * n;
 	    TEST_EQUAL(*p, half_cube * half_cube);
@@ -1467,10 +1472,9 @@ DEFINE_TESTCASE(longpositionlist1, writable) {
     TEST(t == tend);
 }
 
-// Regression test for bug#110: Inconsistent sort order between pages with
-// set_sort_by_value_then_relevance.
-DEFINE_TESTCASE(consistency2, writable) {
-    Xapian::WritableDatabase db = get_writable_database();
+static void
+gen_consistency2_db(Xapian::WritableDatabase& db, const string&)
+{
     char buf[2] = "X";
 
     // Add 5 documents indexed by "test" with wdf 1.
@@ -1490,8 +1494,12 @@ DEFINE_TESTCASE(consistency2, writable) {
 	doc.add_term("test", 2);
 	db.add_document(doc);
     }
+}
 
-    db.commit();
+// Regression test for bug#110: Inconsistent sort order between pages with
+// set_sort_by_value_then_relevance.
+DEFINE_TESTCASE(consistency2, backend) {
+    Xapian::Database db = get_database("consistency2", gen_consistency2_db);
 
     Xapian::Enquire enq(db);
     enq.set_query(Xapian::Query("test"));
@@ -1856,26 +1864,24 @@ DEFINE_TESTCASE(postlist7, writable) {
     TEST(p == db_w.postlist_end("foo"));
 }
 
-DEFINE_TESTCASE(lazytablebug1, chert || glass) {
-    {
-	Xapian::WritableDatabase db = get_named_writable_database("lazytablebug1", string());
+static void
+gen_lazytablebug1_db(Xapian::WritableDatabase& db, const string&)
+{
+    Xapian::Document doc;
+    doc.add_term("foo");
+    db.add_document(doc);
+    db.commit();
 
-	Xapian::Document doc;
-	doc.add_term("foo");
-	db.add_document(doc);
-	db.commit();
-
-	string synonym(255, 'x');
-	char buf[] = " iamafish!!!!!!!!!!";
-	for (int i = 33; i < 120; ++i) {
-	    db.add_synonym(buf, synonym);
-	    ++buf[0];
-	}
-
-	db.commit();
+    string synonym(255, 'x');
+    char buf[] = " iamafish!!!!!!!!!!";
+    for (int i = 33; i < 120; ++i) {
+	db.add_synonym(buf, synonym);
+	++buf[0];
     }
+}
 
-    Xapian::Database db = get_writable_database_as_database();
+DEFINE_TESTCASE(lazytablebug1, synonyms) {
+    Xapian::Database db = get_database("lazytablebug1", gen_lazytablebug1_db);
     for (Xapian::TermIterator t = db.synonym_keys_begin(); t != db.synonym_keys_end(); ++t) {
 	tout << *t << endl;
     }
