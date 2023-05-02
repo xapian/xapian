@@ -47,8 +47,8 @@ static void register_user_weighting_schemes(RemoteTcpServer &server) {
     server.set_registry(reg);
 }
 
-const int MSECS_IDLE_TIMEOUT_DEFAULT = 60000;
-const int MSECS_ACTIVE_TIMEOUT_DEFAULT = 15000;
+#define MSECS_IDLE_TIMEOUT_DEFAULT 60000
+#define MSECS_ACTIVE_TIMEOUT_DEFAULT 15000
 
 #define PROG_NAME "xapian-tcpsrv"
 #define PROG_DESC "TCP daemon for use with Xapian's remote backend"
@@ -77,8 +77,10 @@ static void show_usage() {
 "  --port PORTNUM          listen on port PORTNUM for connections (no default)\n"
 "  --interface ADDRESS     listen on the interface associated with name or\n"
 "                          address ADDRESS (default is all interfaces)\n"
-"  --idle-timeout MSECS    set timeout for idle connections (default " STRINGIZE(MSECS_IDLE_TIMEOUT_DEFAULT) "ms)\n"
-"  --active-timeout MSECS  set timeout for active connections (default " STRINGIZE(MSECS_ACTIVE_TIMEOUT_DEFAULT) "ms)\n"
+"  --idle-timeout MSECS    set timeout for idle connections (default: "
+    STRINGIZE(MSECS_IDLE_TIMEOUT_DEFAULT) "ms)\n"
+"  --active-timeout MSECS  set timeout for active connections (default: "
+    STRINGIZE(MSECS_ACTIVE_TIMEOUT_DEFAULT) "ms)\n"
 "  --timeout MSECS         set both timeout values\n"
 "  --one-shot              serve a single connection and exit\n"
 "  --quiet                 disable information messages to stdout\n"
