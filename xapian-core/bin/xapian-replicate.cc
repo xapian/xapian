@@ -66,7 +66,7 @@ static void show_usage() {
 "  -q, --quiet         only report errors\n"
 "  -v, --verbose       be more verbose\n"
 "  --help              display this help and exit\n"
-"  --version           output version information and exit" << endl;
+"  --version           output version information and exit\n";
 }
 
 int
@@ -137,7 +137,7 @@ main(int argc, char **argv)
 		show_usage();
 		exit(0);
 	    case OPT_VERSION:
-		cout << PROG_NAME " - " PACKAGE_STRING << endl;
+		cout << PROG_NAME " - " PACKAGE_STRING "\n";
 		exit(0);
 	    default:
 		show_usage();
@@ -171,12 +171,12 @@ main(int argc, char **argv)
     while (true) {
 	try {
 	    if (verbosity == VERBOSE) {
-		cout << "Connecting to " << host << ":" << port << endl;
+		cout << "Connecting to " << host << ":" << port << '\n';
 	    }
 	    ReplicateTcpClient client(host, port, 10.0, timeout);
 	    if (verbosity == VERBOSE) {
 		cout << "Getting update for " << dbpath << " from "
-		     << masterdb << endl;
+		     << masterdb << '\n';
 	    }
 	    Xapian::ReplicationInfo info;
 	    client.update_from_master(dbpath, masterdb, info,
@@ -187,14 +187,14 @@ main(int argc, char **argv)
 		     << info.changeset_count << " changesets, "
 		     << (info.changed ? "new live database"
 				      : "no changes to live database")
-		     <<	endl;
+		     <<	'\n';
 	    }
 	    if (verbosity != QUIET) {
 		if (info.fullcopy_count > 0 && !info.changed) {
 		    cout <<
 "Replication using a full copy failed.  This usually means that the master\n"
 "database is changing too frequently.  Ensure that sufficient changesets are\n"
-"present by setting XAPIAN_MAX_CHANGESETS on the master." << endl;
+"present by setting XAPIAN_MAX_CHANGESETS on the master.\n";
 		}
 	    }
 	    force_copy = false;
@@ -202,7 +202,7 @@ main(int argc, char **argv)
 	    // Don't stop running if there's a network error - just log to
 	    // stderr and retry at next timeout.  This should make the client
 	    // robust against temporary network failures.
-	    cerr << argv[0] << ": " << error.get_description() << endl;
+	    cerr << argv[0] << ": " << error.get_description() << '\n';
 
 	    // If we were running as a one-shot client though, we're going to
 	    // exit anyway, so let's make the return value reflect that there
@@ -210,13 +210,13 @@ main(int argc, char **argv)
 	    if (one_shot)
 		exit(1);
 	} catch (const Xapian::Error &error) {
-	    cerr << argv[0] << ": " << error.get_description() << endl;
+	    cerr << argv[0] << ": " << error.get_description() << '\n';
 	    exit(1);
 	} catch (const exception &e) {
-	    cerr << "Caught standard exception: " << e.what() << endl;
+	    cerr << "Caught standard exception: " << e.what() << '\n';
 	    exit(1);
 	} catch (...) {
-	    cerr << "Caught unknown exception" << endl;
+	    cerr << "Caught unknown exception\n";
 	    exit(1);
 	}
 	if (one_shot) break;

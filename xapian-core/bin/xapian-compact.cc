@@ -56,7 +56,7 @@ static void show_usage() {
 "                     have disjoint ranges of used document ids\n"
 "  -s, --single-file  Produce a single file database (not supported for chert)\n"
 "  --help             display this help and exit\n"
-"  --version          output version information and exit" << endl;
+"  --version          output version information and exit\n";
 }
 
 class MyCompactor : public Xapian::Compactor {
@@ -81,7 +81,7 @@ MyCompactor::set_status(const string & table, const string & status)
     if (quiet)
 	return;
     if (!status.empty())
-	cout << '\r' << table << ": " << status << endl;
+	cout << '\r' << table << ": " << status << '\n';
     else
 	cout << table << " ..." << flush;
 }
@@ -94,7 +94,9 @@ MyCompactor::resolve_duplicate_metadata(const string & key,
     (void)key;
     while (--n) {
 	if (tags[0] != tags[n]) {
-	    cerr << "Warning: duplicate user metadata key with different tag value - picking value from first source database with a non-empty value" << endl;
+	    cerr << "Warning: duplicate user metadata key with different tag "
+		    "value - picking value from first source database with a "
+		    "non-empty value\n";
 	    break;
 	}
     }
@@ -136,8 +138,8 @@ main(int argc, char **argv)
 		if (*p || block_size < 2048 || block_size > 65536 ||
 		    (block_size & (block_size - 1)) != 0) {
 		    cerr << PROG_NAME": Bad value '" << optarg
-			 << "' passed for blocksize, must be a power of 2 between 2K and 64K"
-			 << endl;
+			 << "' passed for blocksize, must be a power of 2 "
+			    "between 2K and 64K\n";
 		    exit(1);
 		}
 		break;
@@ -165,7 +167,7 @@ main(int argc, char **argv)
 		show_usage();
 		exit(0);
 	    case OPT_VERSION:
-		cout << PROG_NAME " - " PACKAGE_STRING << endl;
+		cout << PROG_NAME " - " PACKAGE_STRING "\n";
 		exit(0);
 	    default:
 		show_usage();
@@ -188,10 +190,10 @@ main(int argc, char **argv)
 	}
 	src.compact(destdir, level | flags, block_size, compactor);
     } catch (const Xapian::Error &error) {
-	cerr << argv[0] << ": " << error.get_description() << endl;
+	cerr << argv[0] << ": " << error.get_description() << '\n';
 	exit(1);
     } catch (const char * msg) {
-	cerr << argv[0] << ": " << msg << endl;
+	cerr << argv[0] << ": " << msg << '\n';
 	exit(1);
     }
 }

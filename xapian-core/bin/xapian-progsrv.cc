@@ -51,7 +51,7 @@ static void show_usage() {
 "  --timeout MSECS         set timeout\n"
 "  --writable              allow updates\n"
 "  --help                  display this help and exit\n"
-"  --version               output version information and exit" << endl;
+"  --version               output version information and exit\n";
 }
 
 int main(int argc, char **argv)
@@ -68,7 +68,7 @@ int main(int argc, char **argv)
 		show_usage();
 		exit(0);
 	    case OPT_VERSION:
-		cout << PROG_NAME " - " PACKAGE_STRING << endl;
+		cout << PROG_NAME " - " PACKAGE_STRING "\n";
 		exit(0);
 	    case 't':
 		timeout = atoi(optarg) * 1e-3;

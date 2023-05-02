@@ -54,9 +54,9 @@ RemoteTcpServer::handle_one_connection(int socket)
 	sserv.run();
     } catch (const Xapian::NetworkTimeoutError &e) {
 	if (verbose)
-	    cerr << "Connection timed out: " << e.get_description() << endl;
+	    cerr << "Connection timed out: " << e.get_description() << '\n';
     } catch (const Xapian::Error &e) {
-	cerr << "Got exception " << e.get_description() << endl;
+	cerr << "Got exception " << e.get_description() << '\n';
     } catch (...) {
 	// ignore other exceptions
     }
