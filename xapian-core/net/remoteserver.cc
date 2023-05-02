@@ -1,7 +1,7 @@
 /** @file
  *  @brief Xapian remote backend server base class
  */
-/* Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019 Olly Betts
+/* Copyright (C) 2006-2023 Olly Betts
  * Copyright (C) 2006,2007,2009,2010 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -81,15 +81,11 @@ RemoteServer::RemoteServer(const vector<string>& dbpaths,
 	// and then just use that instead.
 	context = dbpaths[0];
 
-	if (!writable) {
-	    vector<string>::const_iterator i(dbpaths.begin());
-	    for (++i; i != dbpaths.end(); ++i) {
-		db->add_database(Xapian::Database(*i));
-		context += ' ';
-		context += *i;
-	    }
-	} else {
-	    AssertEq(dbpaths.size(), 1); // Expecting exactly one database.
+	vector<string>::const_iterator i(dbpaths.begin());
+	for (++i; i != dbpaths.end(); ++i) {
+	    db->add_database(Xapian::Database(*i));
+	    context += ' ';
+	    context += *i;
 	}
     } catch (const Xapian::Error &err) {
 	// Propagate the exception to the client.
