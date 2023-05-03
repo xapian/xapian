@@ -47,8 +47,8 @@
  */
 #define CONST_STRLEN(S) (sizeof(S"") - 1)
 
-/* C++20 added starts_with() and ends_with() methods to std::string and
- * std::string_view which provide this functionality, but we don't yet
+/* C++20 added starts_with(), ends_with() and contains() methods to std::string
+ * and std::string_view which provide this functionality, but we don't yet
  * require C++20.
  */
 
@@ -98,6 +98,30 @@ inline bool
 endswith(std::string_view s, std::string_view sfx)
 {
     return endswith(s, sfx.data(), sfx.size());
+}
+
+inline bool
+contains(std::string_view s, char substring)
+{
+    return s.find(substring) != s.npos;
+}
+
+inline bool
+contains(std::string_view s, const char* substring, size_t len)
+{
+    return s.find(substring, 0, len) != s.npos;
+}
+
+inline bool
+contains(std::string_view s, const char* substring)
+{
+    return s.find(substring) != s.npos;
+}
+
+inline bool
+contains(std::string_view s, std::string_view substring)
+{
+    return s.find(substring) != s.npos;
 }
 
 inline std::string::size_type
