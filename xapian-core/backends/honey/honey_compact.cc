@@ -198,7 +198,10 @@ class PostlistCursor<const GlassTable&> : private GlassCursor {
 	    // We could just buffer up the stats for all the slots - it's
 	    // unlikely there are going to be very many.  Another option is
 	    // to use multiple cursors or seek a single cursor around.
-	    AssertRel(slot, <=, 256);
+	    if (slot > 255) {
+		throw Xapian::UnimplementedError("No support for converting "
+						 "value stats for slots > 255");
+	    }
 	    key = Honey::make_valuestats_key(slot);
 	    return true;
 	}
@@ -216,7 +219,10 @@ class PostlistCursor<const GlassTable&> : private GlassCursor {
 	    // Buffering up this data for all slots is potentially prohibitively
 	    // costly.  We probably need to use multiple cursors or seek a
 	    // single cursor around.
-	    AssertRel(slot, <=, 128);
+	    if (slot > 127) {
+		throw Xapian::UnimplementedError("No support for converting "
+						 "value slots > 127");
+	    }
 	    Xapian::docid first_did;
 	    if (!unpack_uint_preserving_sort(&p, end, &first_did))
 		throw Xapian::DatabaseCorruptError("bad value key");
