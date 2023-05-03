@@ -585,7 +585,7 @@ MultiDatabase::begin_transaction(bool flushed)
 }
 
 void
-MultiDatabase::end_transaction_(bool do_commit)
+MultiDatabase::end_transaction(bool do_commit)
 {
     for (auto&& shard : shards) {
 	shard->end_transaction(do_commit);

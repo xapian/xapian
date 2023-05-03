@@ -153,7 +153,7 @@ class MultiDatabase : public Xapian::Database::Internal {
 
     void begin_transaction(bool flushed);
 
-    void end_transaction_(bool do_commit);
+    void end_transaction(bool do_commit);
 
     Xapian::docid add_document(const Xapian::Document& doc);
 
