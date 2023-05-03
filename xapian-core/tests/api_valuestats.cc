@@ -181,13 +181,20 @@ DEFINE_TESTCASE(valuestats2, transactions && valuestats) {
     TEST_EQUAL(db.get_value_lower_bound(0), "hello");
     TEST_EQUAL(db.get_value_upper_bound(0), "world");
 
-    // Deleting a document affects the count, but not the bounds.
+    // Deleting a document affects the count, but not usually the bounds.
     db_w.delete_document(1);
     TEST_EQUAL(db_w.get_value_freq(1), 1);
     TEST_EQUAL(db_w.get_value_lower_bound(1), "cheese");
     TEST_EQUAL(db_w.get_value_upper_bound(1), "cheese");
     TEST_EQUAL(db_w.get_value_freq(0), 1);
-    TEST_EQUAL(db_w.get_value_lower_bound(0), "hello");
+    if (db_w.size() > 1) {
+	// With a sharded database, deleting document 1 leaves that shard empty
+	// and its value bounds should be reset so the lower bound comes only
+	// from the shard the other document is in, so it's actually exact.
+	TEST_EQUAL(db_w.get_value_lower_bound(0), "world");
+    } else {
+	TEST_EQUAL(db_w.get_value_lower_bound(0), "hello");
+    }
     TEST_EQUAL(db_w.get_value_upper_bound(0), "world");
 
     // Deleting all the documents returns the bounds to their original value.
@@ -262,9 +269,11 @@ DEFINE_TESTCASE(valuestats3, valuestats) {
 }
 
 DEFINE_TESTCASE(valuestats4, transactions && valuestats) {
-    const size_t FLUSH_THRESHOLD = 10000;
+    size_t FLUSH_THRESHOLD = 10000;
     {
 	Xapian::WritableDatabase db_w = get_writable_database();
+	// The flush threshold applies per shard in a sharded database.
+	FLUSH_THRESHOLD *= db_w.size();
 	Xapian::Document doc;
 	doc.add_value(1, "test");
 	for (size_t i = 0; i < FLUSH_THRESHOLD; ++i) {
