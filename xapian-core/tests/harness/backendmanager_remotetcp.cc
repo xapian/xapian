@@ -251,20 +251,17 @@ try_next_port:
 	if (strcmp(buf, "Listening...\n") == 0) break;
 	output += buf;
     }
-
-    // We must fclose() the FILE* to avoid valgrind detecting memory leaks from
-    // its buffers.
     fclose(fh);
 
-    if (first_unused_server_data < std::size(server_data)) {
-	auto& data = server_data[first_unused_server_data++];
-	data.set_pid(child);
-	return {port, data};
+    if (first_unused_server_data >= std::size(server_data)) {
+	// We used to quietly ignore not finding a slot, but it's helpful to
+	// know if we haven't allocated enough.
+	throw Xapian::DatabaseError("Not enough ServerData slots");
     }
 
-    // We used to quietly ignore not finding a slot, but it's helpful to know
-    // if we haven't allocated enough slots.
-    throw Xapian::DatabaseError("Not enough ServerData slots");
+    auto& data = server_data[first_unused_server_data++];
+    data.set_pid(child);
+    return {port, data};
 }
 
 #elif defined __WIN32__
@@ -364,15 +361,15 @@ try_next_port:
     }
     fclose(fh);
 
-    if (first_unused_server_data < std::size(server_data)) {
-	auto& data = server_data[first_unused_server_data++];
-	data.set_pid(procinfo.hProcess);
-	return {port, data};
+    if (first_unused_server_data >= std::size(server_data)) {
+	// We used to quietly ignore not finding a slot, but it's helpful to
+	// know if we haven't allocated enough.
+	throw Xapian::DatabaseError("Not enough ServerData slots");
     }
 
-    // We used to quietly ignore not finding a slot, but it's helpful to know
-    // if we haven't allocated enough slots.
-    throw Xapian::DatabaseError("Not enough ServerData slots");
+    auto& data = server_data[first_unused_server_data++];
+    data.set_pid(procinfo.hProcess);
+    return {port, data};
 }
 
 #else
