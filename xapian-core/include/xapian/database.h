@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2011,2012,2013,2014,2015,2016,2017,2019 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2011,2012,2013,2014,2015,2016,2017,2019,2023 Olly Betts
  * Copyright 2006,2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -912,6 +912,10 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 	 *  performed or not performed at all: it is then up to the
 	 *  application to work out which operations need to be repeated.
 	 *
+	 *  However, note that if called on a shared database, atomicity isn't
+	 *  guaranteed between shards - it's possible for the changes to one
+	 *  shard to be committed but changes to another shard to fail.
+	 *
 	 *  It's not valid to call commit() within a transaction.
 	 *
 	 *  Beware of calling commit() too frequently: this will make indexing
@@ -949,6 +953,10 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 	 *  simultaneously or none will be applied at all.  Even in the case of
 	 *  a power failure, this characteristic should be preserved (as long
 	 *  as the filesystem isn't corrupted, etc).
+	 *
+	 *  However, note that if called on a shared database, atomicity isn't
+	 *  guaranteed between shards.  Within each shard, the transaction will
+	 *  still act atomically.
 	 *
 	 *  A transaction is started with begin_transaction() and can
 	 *  either be committed by calling commit_transaction() or aborted
@@ -1002,6 +1010,10 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 	 *  will have been applied to the database.
 	 *
 	 *  In all cases the transaction will no longer be in progress.
+	 *
+	 *  Note that if called on a shared database, atomicity isn't
+	 *  guaranteed between shards.  Within each shard, the transaction will
+	 *  still act atomically.
 	 *
 	 *  @exception Xapian::DatabaseError will be thrown if a problem occurs
 	 *             while modifying the database.
