@@ -1,7 +1,7 @@
 /** @file
  * @brief An indexed database of documents
  */
-/* Copyright 2003,2004,2005,2006,2007,2008,2009,2011,2012,2013,2014,2015,2016,2017,2018,2019 Olly Betts
+/* Copyright 2003-2023 Olly Betts
  * Copyright 2007,2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -1062,6 +1062,10 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
      *  to disk and available to readers.  If the commit operation fails, then
      *  any pending modifications are discarded.
      *
+     *  However, note that if called on a shared database, atomicity isn't
+     *  guaranteed between shards - it's possible for the changes to one
+     *  shard to be committed but changes to another shard to fail.
+     *
      *  It's not valid to call commit() within a transaction - see
      *  begin_transaction() for more details of how transactions work in
      *  Xapian.
@@ -1082,6 +1086,10 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
      *  A Xapian transaction is a set of consecutive modifications to be
      *  committed as an atomic unit - in any committed revision of the
      *  database either none are present or they all are.
+     *
+     *  However, note that if called on a shared database, atomicity isn't
+     *  guaranteed between shards.  Within each shard, the transaction will
+     *  still act atomically.
      *
      *  A transaction is started with begin_transaction() and can either be
      *  completed by calling commit_transaction() or aborted by calling
@@ -1134,6 +1142,10 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
      *  be discarded).
      *
      *  In all cases the transaction will no longer be in progress.
+     *
+     *  Note that if called on a shared database, atomicity isn't guaranteed
+     *  between shards.  Within each shard, the transaction will still act
+     *  atomically.
      *
      *  @exception Xapian::UnimplementedError is thrown if this is an InMemory
      *		   database, which don't currently support transactions.
