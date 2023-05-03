@@ -289,12 +289,6 @@ EmptyDatabase::begin_transaction(bool)
     no_subdatabases();
 }
 
-void
-EmptyDatabase::end_transaction_(bool)
-{
-    no_subdatabases();
-}
-
 Xapian::docid
 EmptyDatabase::add_document(const Xapian::Document&)
 {

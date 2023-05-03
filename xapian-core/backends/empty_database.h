@@ -113,7 +113,11 @@ class EmptyDatabase : public Xapian::Database::Internal {
 
     void begin_transaction(bool flushed);
 
-    void end_transaction_(bool do_commit);
+    // No need to overload end_transaction() - the base class implementation
+    // will fail with InvalidOperationError "not in a transaction" which seems
+    // totally appropriate.  We overload begin_transaction() because otherwise
+    // the transaction would start successfully whereas it's better to fail
+    // early.
 
     Xapian::docid add_document(const Xapian::Document& doc);
 
