@@ -158,7 +158,8 @@ DEFINE_TESTCASE(valueweightsource5, writable && valuestats) {
     // remote's value slot iteration is very slow for this case currently
     // because it throws and catches DocNotFoundError across the link 2^32-3
     // times.
-    SKIP_TEST_FOR_BACKEND("remote");
+    if (contains(get_dbtype(), "remote"))
+	SKIP_TEST("Testcase is too slow with remote shards");
     Xapian::WritableDatabase db = get_writable_database();
     Xapian::Document doc;
     doc.add_value(1, Xapian::sortable_serialise(3.14));
