@@ -4,7 +4,7 @@
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Hein Ragas
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2014,2015,2018 Olly Betts
+ * Copyright 2002-2023 Olly Betts
  * Copyright 2006 Richard Boulton
  * Copyright 2007 Lemur Consulting Ltd
  *
@@ -43,6 +43,7 @@
 #include "safeunistd.h"
 #include <cmath>
 #include <cstdlib>
+#include <limits>
 #include <map>
 #include <string>
 
@@ -1499,9 +1500,7 @@ DEFINE_TESTCASE(nomoredocids1, writable) {
     doc.set_data("prose");
     doc.add_term("word");
 
-    // FIXME: This probably should use the _MAX_DOCID values
-    Xapian::docid max_id = 0xffffffff;
-
+    Xapian::docid max_id = numeric_limits<Xapian::docid>::max();
     db.replace_document(max_id, doc);
 
     TEST_EXCEPTION(Xapian::DatabaseError, db.add_document(doc));
