@@ -21,9 +21,10 @@
 #ifndef XAPIAN_INCLUDED_SAFESYSSOCKET_H
 #define XAPIAN_INCLUDED_SAFESYSSOCKET_H
 
+// Some older BSDs require sys/types.h to be included first.  Also seems to
+// be needed for some mingw versions.
+#include <sys/types.h>
 #ifndef __WIN32__
-// Some older BSDs require sys/types.h to be included first.
-# include <sys/types.h>
 # include <sys/socket.h>
 #else
 # include "safewinsock2.h"
