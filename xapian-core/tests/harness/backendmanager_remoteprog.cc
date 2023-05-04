@@ -31,12 +31,6 @@
 
 using namespace std;
 
-std::string
-BackendManagerRemoteProg::get_dbtype() const
-{
-    return "remoteprog_" + sub_manager->get_dbtype();
-}
-
 Xapian::Database
 BackendManagerRemoteProg::do_get_database(const vector<string> & files)
 {

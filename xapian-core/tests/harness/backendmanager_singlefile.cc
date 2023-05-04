@@ -33,18 +33,12 @@ using namespace std;
 
 BackendManagerSingleFile::BackendManagerSingleFile(const string& datadir_,
 						   BackendManager* sub_manager_)
-    : BackendManager(datadir_),
+    : BackendManager(datadir_, "singlefile_" + sub_manager_->get_dbtype()),
       sub_manager(sub_manager_),
       cachedir(".singlefile" + sub_manager_->get_dbtype())
 {
     // Ensure the directory we store cached test databases in exists.
     (void)create_dir_if_needed(cachedir);
-}
-
-std::string
-BackendManagerSingleFile::get_dbtype() const
-{
-    return "singlefile_" + sub_manager->get_dbtype();
 }
 
 string

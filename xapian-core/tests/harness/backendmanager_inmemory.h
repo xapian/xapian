@@ -43,10 +43,7 @@ class BackendManagerInMemory : public BackendManager {
   public:
     explicit
     BackendManagerInMemory(const std::string& datadir_)
-	: BackendManager(datadir_) {}
-
-    /// Return a string representing the current database type.
-    std::string get_dbtype() const;
+	: BackendManager(datadir_, "inmemory") {}
 
     /// Create a InMemory Xapian::WritableDatabase object indexing a single file.
     Xapian::WritableDatabase get_writable_database(const std::string & name, const std::string & file);

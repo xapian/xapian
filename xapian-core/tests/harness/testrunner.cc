@@ -143,7 +143,7 @@ TestRunner::run_tests(int argc, char ** argv)
 	srcdir = test_driver::get_srcdir();
 	string datadir = srcdir + "/testdata/";
 
-	do_tests_for_backend(BackendManager(string()));
+	do_tests_for_backend(BackendManager(string(), "none"));
 
 #ifdef XAPIAN_HAS_INMEMORY_BACKEND
 	do_tests_for_backend(BackendManagerInMemory(datadir));

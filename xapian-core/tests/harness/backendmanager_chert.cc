@@ -33,16 +33,10 @@ using namespace std;
 #define BLOCK_SIZE 2048
 
 BackendManagerChert::BackendManagerChert(const string& datadir_)
-    : BackendManager(datadir_)
+    : BackendManager(datadir_, "chert")
 {
     // Ensure the directory we store cached test databases in exists.
     (void)create_dir_if_needed(CACHE_DIRECTORY);
-}
-
-std::string
-BackendManagerChert::get_dbtype() const
-{
-    return "chert";
 }
 
 string

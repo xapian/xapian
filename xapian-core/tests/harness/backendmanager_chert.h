@@ -43,10 +43,7 @@ class BackendManagerChert : public BackendManager {
     std::string do_get_database_path(const std::vector<std::string> & files);
 
   public:
-    BackendManagerChert(const std::string& datadir_);
-
-    /// Return a string representing the current database type.
-    std::string get_dbtype() const;
+    BackendManagerChert(const std::string& datadir);
 
     /// Create a Chert Xapian::WritableDatabase object indexing a single file.
     Xapian::WritableDatabase get_writable_database(const std::string & name,

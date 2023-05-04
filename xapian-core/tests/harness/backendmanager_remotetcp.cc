@@ -345,12 +345,6 @@ BackendManagerRemoteTcp::~BackendManagerRemoteTcp() {
     BackendManagerRemoteTcp::clean_up();
 }
 
-std::string
-BackendManagerRemoteTcp::get_dbtype() const
-{
-    return "remotetcp_" + sub_manager->get_dbtype();
-}
-
 Xapian::Database
 BackendManagerRemoteTcp::do_get_database(const vector<string> & files)
 {

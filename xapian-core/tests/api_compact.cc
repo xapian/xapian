@@ -242,8 +242,7 @@ DEFINE_TESTCASE(compactmerge1, compact) {
     string outdbpath = get_compaction_output_path("compactmerge1out");
     rm_rf(outdbpath);
 
-    const string& dbtype = get_dbtype();
-    bool singlefile = startswith(dbtype, "singlefile_");
+    bool singlefile = startswith(get_dbtype(), "singlefile_");
     {
 	Xapian::Database db;
 	db.add_database(Xapian::Database(indbpath));
@@ -265,7 +264,7 @@ DEFINE_TESTCASE(compactmerge1, compact) {
 	// Check we actually got a single file out.
 	TEST(file_exists(outdbpath));
 	TEST_EQUAL(Xapian::Database::check(outdbpath, 0, &tout), 0);
-    } else if (startswith(dbtype, "multi_")) {
+    } else if (startswith(get_dbtype(), "multi_")) {
 	// Can't check tables for a sharded DB.
 	TEST_EQUAL(Xapian::Database::check(outdbpath, 0, &tout), 0);
     } else {
@@ -282,7 +281,7 @@ DEFINE_TESTCASE(compactmerge1, compact) {
 		if (get_dbtype() == "chert") {
 		    suffix = "/record.DB";
 		} else {
-		    suffix = "/docdata." + dbtype;
+		    suffix = "/docdata." + get_dbtype();
 		}
 	    }
 	    tout.str(string());

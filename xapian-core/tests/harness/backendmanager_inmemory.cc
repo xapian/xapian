@@ -24,12 +24,6 @@
 
 using namespace std;
 
-std::string
-BackendManagerInMemory::get_dbtype() const
-{
-    return "inmemory";
-}
-
 Xapian::Database
 BackendManagerInMemory::do_get_database(const vector<string>& files)
 {

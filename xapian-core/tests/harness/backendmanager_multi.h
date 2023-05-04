@@ -54,10 +54,7 @@ class BackendManagerMulti : public BackendManager {
 
   public:
     BackendManagerMulti(const std::string& datadir_,
-			std::vector<BackendManager*> sub_manager_);
-
-    /// Return a string representing the current database type.
-    std::string get_dbtype() const;
+			const std::vector<BackendManager*>& sub_manager_);
 
     Xapian::Database get_remote_database(const std::vector<std::string>& files,
 					 unsigned int timeout);
