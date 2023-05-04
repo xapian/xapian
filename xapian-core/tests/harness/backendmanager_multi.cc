@@ -53,7 +53,7 @@ build_dbtype(const vector<BackendManager*>& sub_managers)
 
 BackendManagerMulti::BackendManagerMulti(const std::string& datadir_,
 					 const vector<BackendManager*>& sub_managers_)
-    : BackendManager(datadir_, build_dbtype(sub_managers)),
+    : BackendManager(datadir_, build_dbtype(sub_managers_)),
       sub_managers(sub_managers_)
 {
     cachedir = ".multi";
