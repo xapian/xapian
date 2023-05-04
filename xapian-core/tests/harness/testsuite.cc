@@ -467,7 +467,7 @@ test_driver::runtest(const test_desc *test)
 			// GCC and other compilers this may be an issue.
 			//
 			// See also:
-			// http://valgrind.org/docs/FAQ/#faq.reports
+			// https://valgrind.org/docs/manual/faq.html#faq.reports
 			//
 			// For now, just use runcount to rerun the test and see
 			// if more is leaked - hopefully this shouldn't give
