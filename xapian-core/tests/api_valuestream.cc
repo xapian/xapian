@@ -168,7 +168,6 @@ DEFINE_TESTCASE(valueweightsource5, valuestats) {
     // times.
     if (contains(get_dbtype(), "remote"))
 	SKIP_TEST("Testcase is too slow with remote shards");
-    XFAIL_FOR_BACKEND("honey", "compaction needs to split sparse document length chunks");
 
     Xapian::Database db = get_database("valueweightsource5",
 				       gen_valueweightsource5_db);

@@ -1,7 +1,7 @@
 /** @file
  * @brief Compact a honey database, or merge and compact several.
  */
-/* Copyright (C) 2004-2022 Olly Betts
+/* Copyright (C) 2004-2023 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -154,7 +154,151 @@ template<typename T> class PostlistCursor;
 // Convert glass to honey.
 template<>
 class PostlistCursor<const GlassTable&> : private GlassCursor {
+    class DoclenEncoder {
+	string data;
+	Xapian::docid did;
+
+	size_t pos = 0;
+
+      public:
+	bool in_progress() const { return pos != 0; }
+
+	void initialise(Xapian::docid firstdid_,
+			string&& glass_data,
+			size_t data_start) {
+	    did = firstdid_;
+	    data = glass_data;
+	    const char* d = data.data() + data_start;
+	    const char* e = data.data() + data.size();
+
+	    // Skip the "last chunk" flag and increase_to_last.
+	    if (d == e)
+		throw Xapian::DatabaseCorruptError("No last chunk flag in "
+						   "glass docdata chunk");
+	    ++d;
+	    Xapian::docid increase_to_last;
+	    if (!unpack_uint(&d, e, &increase_to_last))
+		throw Xapian::DatabaseCorruptError("Decoding last docid delta "
+						   "in glass docdata chunk");
+
+	    pos = d - data.data();
+	    Assert(pos > 0);
+	}
+
+	std::tuple<Xapian::docid, Xapian::docid> get_chunk(string& tag) {
+	    /// Start with indicator for 32-bit lengths.
+	    tag.resize(1);
+	    tag[0] = char(32);
+
+	    Assert(pos > 0);
+	    const char* d = data.data() + pos;
+	    const char* e = data.data() + data.size();
+
+	    // We need to convert the doclen chunk to honey format.  One
+	    // notable difference between the formats is that glass stores
+	    // a delta between each docid (so a large gap is cheap to
+	    // represent) whereas honey stores an array of fixed size entries
+	    // with unused docids represented by the all-bits-set value (so
+	    // a large gap needs O(gap_size) bytes.  In an extreme case, on
+	    // a 32-bit system we may not be able to allocate enough memory
+	    // to represent a chunk that in glass takes just a few bytes
+	    // (in honey this case should be handled as two chunks).
+	    //
+	    // To keep things simple, here we split the data at every gap and
+	    // emit a separate honey chunk for each contiguous run of docids
+	    // from the glass chunk, then let the code in merge_postlists()
+	    // below decide which to join together.
+
+	    Xapian::docid gap_size;
+
+	    Xapian::termcount doclen_max = 0;
+	    while (true) {
+		Xapian::termcount doclen;
+		if (!unpack_uint(&d, e, &doclen))
+		    throw Xapian::DatabaseCorruptError("Decoding doclen in "
+						       "glass docdata chunk");
+
+		if (doclen > doclen_max) {
+		    if (doclen >= 0xffffffff) {
+			// FIXME: Handle these.
+			const char* m = "Document length values >= 0xffffffff "
+					"not currently handled";
+			throw Xapian::FeatureUnavailableError(m);
+		    }
+		    doclen_max = doclen;
+		}
+
+		auto s = tag.size();
+		tag.resize(s + 4);
+		unaligned_write4(reinterpret_cast<unsigned char*>(&tag[s]),
+				 doclen);
+
+		if (d == e) {
+		    data = string();
+		    pos = 0;
+		    break;
+		}
+		if (!unpack_uint(&d, e, &gap_size))
+		    throw Xapian::DatabaseCorruptError("Decoding docid "
+						       "gap_size in glass "
+						       "docdata chunk");
+		if (gap_size) {
+		    pos = d - data.data();
+		    break;
+		}
+	    }
+
+	    Xapian::docid chunk_firstdid = did;
+	    AssertEq(tag.size() % 4, 1);
+	    did += tag.size() / 4;
+	    Xapian::docid chunk_lastdid = did - 1;
+	    did += gap_size;
+
+	    // Only encode document lengths using a whole number of bytes for
+	    // now.  We could allow arbitrary bit widths, but it complicates
+	    // encoding and decoding so we should consider if the fairly small
+	    // additional saving is worth it.
+	    if (doclen_max >= 0xffff) {
+		if (doclen_max >= 0xffffff) {
+		    // Already encoded for this case.
+		} else {
+		    tag[0] = char(24);
+		    Assert(tag.size() >= 5);
+		    char* p = &tag[1];
+		    for (size_t i = 2; i < tag.size(); i += 4) {
+			memcpy(p, &tag[i], 3);
+			p += 3;
+		    }
+		    tag.resize(p - &tag[0]);
+		}
+	    } else {
+		if (doclen_max >= 0xff) {
+		    tag[0] = char(16);
+		    Assert(tag.size() >= 5);
+		    char* p = &tag[1];
+		    for (size_t i = 3; i < tag.size(); i += 4) {
+			memcpy(p, &tag[i], 2);
+			p += 2;
+		    }
+		    tag.resize(p - &tag[0]);
+		} else if (tag.size() > 1) {
+		    tag[0] = char(8);
+		    Assert(tag.size() >= 5);
+		    char* p = &tag[1];
+		    for (size_t i = 4; i < tag.size(); i += 4) {
+			*p++ = tag[i];
+		    }
+		    tag.resize(p - &tag[0]);
+		}
+	    }
+
+	    return std::pair(chunk_firstdid, chunk_lastdid);
+	}
+    };
+
     Xapian::docid offset;
+
+    DoclenEncoder doclen_encoder;
 
   public:
     string key, tag;
@@ -172,6 +316,12 @@ class PostlistCursor<const GlassTable&> : private GlassCursor {
     }
 
     bool next() {
+	if (doclen_encoder.in_progress()) {
+	    // Handle in-progress document length chunk.
+	    std::tie(firstdid, chunk_lastdid) = doclen_encoder.get_chunk(tag);
+	    return true;
+	}
+
 	if (!GlassCursor::next()) return false;
 	// We put all chunks into the non-initial chunk form here, then fix up
 	// the first chunk for each term in the merged database as we merge.
@@ -249,6 +399,7 @@ class PostlistCursor<const GlassTable&> : private GlassCursor {
 	    const char* e = d + key.size();
 	    d += 2;
 
+	    size_t data_start = 0;
 	    if (d == e) {
 		// This is an initial chunk, so adjust tag header.
 		d = tag.data();
@@ -259,7 +410,7 @@ class PostlistCursor<const GlassTable&> : private GlassCursor {
 		    throw Xapian::DatabaseCorruptError("Bad postlist key");
 		}
 		++firstdid;
-		tag.erase(0, d - tag.data());
+		data_start = d - tag.data();
 	    } else {
 		// Not an initial chunk, just unpack firstdid.
 		if (!unpack_uint_preserving_sort(&d, e, &firstdid) || d != e)
@@ -274,80 +425,8 @@ class PostlistCursor<const GlassTable&> : private GlassCursor {
 	    };
 	    key.assign(doclen_key_prefix, 2);
 
-	    d = tag.data();
-	    e = d + tag.size();
-
-	    // Convert doclen chunk to honey format.
-	    string newtag;
-
-	    // Skip the "last chunk" flag and increase_to_last.
-	    if (d == e)
-		throw Xapian::DatabaseCorruptError("No last chunk flag in "
-						   "glass docdata chunk");
-	    ++d;
-	    Xapian::docid increase_to_last;
-	    if (!unpack_uint(&d, e, &increase_to_last))
-		throw Xapian::DatabaseCorruptError("Decoding last docid delta "
-						   "in glass docdata chunk");
-
-	    Xapian::termcount doclen_max = 0;
-	    while (true) {
-		Xapian::termcount doclen;
-		if (!unpack_uint(&d, e, &doclen))
-		    throw Xapian::DatabaseCorruptError("Decoding doclen in "
-						       "glass docdata chunk");
-		if (doclen > doclen_max)
-		    doclen_max = doclen;
-		unsigned char buf[4];
-		unaligned_write4(buf, doclen);
-		newtag.append(reinterpret_cast<char*>(buf), 4);
-		if (d == e)
-		    break;
-		Xapian::docid gap_size;
-		if (!unpack_uint(&d, e, &gap_size))
-		    throw Xapian::DatabaseCorruptError("Decoding docid "
-						       "gap_size in glass "
-						       "docdata chunk");
-		// FIXME: Split chunk if the gap_size is at all large.
-		newtag.append(4 * gap_size, '\xff');
-	    }
-
-	    Assert(!startswith(newtag, "\xff\xff\xff\xff"));
-	    Assert(!endswith(newtag, "\xff\xff\xff\xff"));
-
-	    AssertEq(newtag.size() % 4, 0);
-	    chunk_lastdid = firstdid - 1 + newtag.size() / 4;
-
-	    // Only encode document lengths using a whole number of bytes for
-	    // now.  We could allow arbitrary bit widths, but it complicates
-	    // encoding and decoding so we should consider if the fairly small
-	    // additional saving is worth it.
-	    if (doclen_max >= 0xffff) {
-		if (doclen_max >= 0xffffff) {
-		    newtag.insert(0, 1, char(32));
-		    swap(tag, newtag);
-		} else if (doclen_max >= 0xffffffff) {
-		    // FIXME: Handle these.
-		    const char* m = "Document length values >= 0xffffffff not "
-				    "currently handled";
-		    throw Xapian::FeatureUnavailableError(m);
-		} else {
-		    tag.assign(1, char(24));
-		    for (size_t i = 1; i < newtag.size(); i += 4)
-			tag.append(newtag, i, 3);
-		}
-	    } else {
-		if (doclen_max >= 0xff) {
-		    tag.assign(1, char(16));
-		    for (size_t i = 2; i < newtag.size(); i += 4)
-			tag.append(newtag, i, 2);
-		} else {
-		    tag.assign(1, char(8));
-		    for (size_t i = 3; i < newtag.size(); i += 4)
-			tag.append(newtag, i, 1);
-		}
-	    }
-
+	    doclen_encoder.initialise(firstdid, std::move(tag), data_start);
+	    std::tie(firstdid, chunk_lastdid) = doclen_encoder.get_chunk(tag);
 	    return true;
 	}
 
