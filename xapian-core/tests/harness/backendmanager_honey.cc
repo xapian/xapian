@@ -33,12 +33,6 @@ using namespace std;
 #define CACHE_DIRECTORY ".honey"
 
 string
-BackendManagerHoney::get_dbtype() const
-{
-    return "honey";
-}
-
-string
 BackendManagerHoney::do_get_database_path(const vector<string> & files)
 {
     string dbdir = CACHE_DIRECTORY;

@@ -39,8 +39,9 @@ class BackendManagerRemote : public BackendManager {
     BackendManager* sub_manager;
 
   public:
-    explicit BackendManagerRemote(BackendManager* sub_manager_)
-	: BackendManager(std::string()),
+    BackendManagerRemote(BackendManager* sub_manager_,
+			 const std::string& dbtype_)
+	: BackendManager(std::string(), dbtype_),
 	  sub_manager(sub_manager_) {}
 
     /// Get the args for opening a remote database indexing a single file.

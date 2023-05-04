@@ -48,9 +48,6 @@ class BackendManagerSingleFile : public BackendManager {
     BackendManagerSingleFile(const std::string& datadir_,
 			     BackendManager* sub_manager_);
 
-    /// Return a string representing the current database type.
-    std::string get_dbtype() const;
-
     /// Get generated database.
     Xapian::WritableDatabase get_generated_database(const std::string& name);
 

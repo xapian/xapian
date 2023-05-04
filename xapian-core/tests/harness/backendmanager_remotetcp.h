@@ -43,12 +43,11 @@ class BackendManagerRemoteTcp : public BackendManagerRemote {
 
   public:
     explicit BackendManagerRemoteTcp(BackendManager* sub_manager_)
-	: BackendManagerRemote(sub_manager_) { }
+	: BackendManagerRemote(sub_manager_,
+			       "remotetcp_" + sub_manager_->get_dbtype())
+    { }
 
     ~BackendManagerRemoteTcp();
-
-    /// Return a string representing the current database type.
-    std::string get_dbtype() const;
 
     /// Create a RemoteTcp Xapian::WritableDatabase object indexing a single file.
     Xapian::WritableDatabase get_writable_database(const std::string & name,

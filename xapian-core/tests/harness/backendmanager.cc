@@ -84,12 +84,6 @@ BackendManager::create_dir_if_needed(const string &dirname)
 
 BackendManager::~BackendManager() { }
 
-std::string
-BackendManager::get_dbtype() const
-{
-    return "none";
-}
-
 string
 BackendManager::do_get_database_path(const vector<string> &)
 {

@@ -1381,16 +1381,15 @@ DEFINE_TESTCASE(consistency1, backend && !remote) {
 // Test that specifying a nonexistent input file throws an exception
 // (backend-specific cases).
 DEFINE_TESTCASE(databasenotfounderror1, glass || honey) {
-    const string& dbtype = get_dbtype();
-    string db_dir = "." + dbtype;
+    string db_dir = "." + get_dbtype();
 
     int db_type_flag;
-    if (dbtype == "glass") {
+    if (get_dbtype() == "glass") {
 	db_type_flag = Xapian::DB_BACKEND_GLASS;
-    } else if (dbtype == "honey") {
+    } else if (get_dbtype() == "honey") {
 	db_type_flag = Xapian::DB_BACKEND_HONEY;
     } else {
-	FAIL_TEST("Backend " + dbtype + " not handled by testcase");
+	FAIL_TEST("Backend " + get_dbtype() + " not handled by testcase");
     }
 
     mkdir(db_dir.c_str(), 0755);

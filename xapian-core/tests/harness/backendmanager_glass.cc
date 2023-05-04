@@ -33,16 +33,10 @@ using namespace std;
 #define BLOCK_SIZE 2048
 
 BackendManagerGlass::BackendManagerGlass(const string& datadir_)
-    : BackendManager(datadir_)
+    : BackendManager(datadir_, "glass")
 {
     // Ensure the directory we store cached test databases in exists.
     (void)create_dir_if_needed(CACHE_DIRECTORY);
-}
-
-std::string
-BackendManagerGlass::get_dbtype() const
-{
-    return "glass";
 }
 
 string

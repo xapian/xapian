@@ -43,6 +43,9 @@ class BackendManager {
     /// The current data directory
     std::string datadir;
 
+    /// The backend database type (set by subclass ctor).
+    std::string dbtype;
+
   protected:
     /// Index data from zero or more text files into a database.
     void index_files_to_database(Xapian::WritableDatabase & database,
@@ -68,9 +71,8 @@ class BackendManager {
 
   public:
     /// Constructor.
-    explicit
-    BackendManager(const std::string& datadir_)
-	: datadir(datadir_) {}
+    BackendManager(const std::string& datadir_, const std::string& dbtype_)
+	: datadir(datadir_), dbtype(dbtype_) {}
 
     /** We have virtual methods and want to be able to delete derived classes
      *  using a pointer to the base class, so we need a virtual destructor.
@@ -79,7 +81,7 @@ class BackendManager {
 
     /** Get the database type currently in use.
      */
-    virtual std::string get_dbtype() const;
+    const std::string& get_dbtype() const { return dbtype; }
 
     /** Get the directory to store data in.
      */

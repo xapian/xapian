@@ -46,10 +46,9 @@ class BackendManagerRemoteProg : public BackendManagerRemote {
 
   public:
     explicit BackendManagerRemoteProg(BackendManager* sub_manager_)
-	: BackendManagerRemote(sub_manager_) { }
-
-    /// Return a string representing the current database type.
-    std::string get_dbtype() const;
+	: BackendManagerRemote(sub_manager_,
+			       "remoteprog_" + sub_manager_->get_dbtype())
+    { }
 
     /// Create a RemoteProg Xapian::WritableDatabase object indexing a single file.
     Xapian::WritableDatabase get_writable_database(const std::string & name,

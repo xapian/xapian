@@ -36,9 +36,24 @@
 
 using namespace std;
 
+static std::string
+build_dbtype(const vector<BackendManager*>& sub_managers)
+{
+    string dbtype = "multi";
+    if (sub_managers.size() == 2 &&
+	sub_managers[0]->get_dbtype() == sub_managers[1]->get_dbtype()) {
+	dbtype += "_" + sub_managers[0]->get_dbtype();
+    } else {
+	for (auto sub_manager : sub_managers) {
+	    dbtype += "_" + sub_manager->get_dbtype();
+	}
+    }
+    return dbtype;
+}
+
 BackendManagerMulti::BackendManagerMulti(const std::string& datadir_,
-					 vector<BackendManager*> sub_managers_)
-    : BackendManager(datadir_),
+					 const vector<BackendManager*>& sub_managers_)
+    : BackendManager(datadir_, build_dbtype(sub_managers)),
       sub_managers(sub_managers_)
 {
     cachedir = ".multi";
@@ -52,21 +67,6 @@ BackendManagerMulti::BackendManagerMulti(const std::string& datadir_,
     }
     // Ensure the directory we store cached test databases in exists.
     (void)create_dir_if_needed(cachedir);
-}
-
-std::string
-BackendManagerMulti::get_dbtype() const
-{
-    string dbtype = "multi";
-    if (sub_managers.size() == 2 &&
-	sub_managers[0]->get_dbtype() == sub_managers[1]->get_dbtype()) {
-	dbtype += "_" + sub_managers[0]->get_dbtype();
-    } else {
-	for (auto sub_manager : sub_managers) {
-	    dbtype += "_" + sub_manager->get_dbtype();
-	}
-    }
-    return dbtype;
 }
 
 #define NUMBER_OF_SUB_DBS 2
