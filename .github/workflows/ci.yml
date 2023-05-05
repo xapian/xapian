@@ -387,6 +387,9 @@ jobs:
 
   android-cross:
     runs-on: 'ubuntu-22.04'
+    env:
+      NDK: '/home/runner/ndk'
+      host_triplet: 'armv7a-linux-androideabi33'
     steps:
     - name: Check out repository code
       uses: actions/checkout@v3
@@ -405,6 +408,7 @@ jobs:
             python3-docutils \
             pngcrush \
             python3-pygments
+        cd
         wget -Ondk.zip https://dl.google.com/android/repository/android-ndk-r25c-linux.zip
         unzip -q ndk.zip
         rm -f ndk.zip
@@ -418,20 +422,20 @@ jobs:
         make -j2 distclean
     - name: configure
       run: |
-        PATH=$PWD/ndk/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH \
+        cd xapian-core
+        PATH=$NDK/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH \
             ./configure --disable-documentation \
-                --host armv7a-linux-androideabi33 \
-                CC=$PWD/ndk/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi33-clang \
-                CXX=$PWD/ndk/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi33-clang++ \
+                --host=$host_triplet \
+                CC=${host_triplet}-clang \
+                CXX=${host_triplet}-clang++ \
                 PKG_CONFIG=/bin/false
     - name: make
       run: |
-        PATH=$PWD/ndk/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH make
+        PATH=$NDK/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH make -C xapian-core
     - name: Run tests
       # FIXME: Run tests under android emulator?
       run: echo No tests currently
     - name: Check generated files are in .gitignore
-      run: rm -rf ndk
       # grep '^' passes through all input while giving a non-zero exit status
       # if that input is empty.
       run: git status --porcelain|grep '^' && { echo "The generated files listed above are not in .gitignore" ; exit 1; }; true
