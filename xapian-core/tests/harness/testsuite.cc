@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2012,2013,2015,2016,2017 Olly Betts
+ * Copyright 2002-2023 Olly Betts
  * Copyright 2007 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -119,7 +119,7 @@ bool test_driver::use_cr = false;
 static const double SLOW_TEST_THRESHOLD = 10.00;
 
 // vector to store the slow tests
-static vector<pair<string, double>> slow_tests;
+static vector<pair<const char*, double>> slow_tests;
 
 void
 test_driver::write_and_clear_tout()
