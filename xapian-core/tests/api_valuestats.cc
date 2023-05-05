@@ -2,7 +2,7 @@
  * @brief tests of the value statistics functions.
  */
 /* Copyright 2008 Lemur Consulting Ltd
- * Copyright 2008,2009,2011,2017 Olly Betts
+ * Copyright 2008,2009,2011,2017,2023 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,6 +25,7 @@
 #include "api_valuestats.h"
 
 #include <xapian.h>
+#include "str.h"
 #include "testsuite.h"
 #include "testutils.h"
 
@@ -325,4 +326,33 @@ DEFINE_TESTCASE(valuestats5, !backend) {
 	++v;
     }
     TEST_EQUAL(c, 3); // 0, 2, 5
+}
+
+static void
+gen_valuestats6_db(Xapian::WritableDatabase& wdb, const string&)
+{
+    Xapian::Document doc;
+    // It'd be nice to test up to 32, but the glass to honey conversion
+    // currently loops over each number from 0 to the highest used slot
+    // number.
+    for (int i = 0; i < 24; ++i) {
+	Xapian::valueno slot = Xapian::valueno{1} << i;
+	doc.add_value(slot, str(slot));
+    }
+    wdb.add_document(doc);
+}
+
+/// Test large slot numbers (useful test for glass->honey conversion).
+DEFINE_TESTCASE(valuestats6, backend) {
+    Xapian::Database db = get_database("valuestats6", gen_valuestats6_db);
+    Xapian::Document doc = db.get_document(1);
+    Xapian::ValueIterator v = doc.values_begin();
+    for (int i = 0; i < 24; ++i) {
+	TEST(v != doc.values_end());
+	Xapian::valueno slot = Xapian::valueno{1} << i;
+	TEST_EQUAL(v.get_valueno(), slot);
+	slot *= 2;
+	++v;
+    }
+    TEST(v == doc.values_end());
 }

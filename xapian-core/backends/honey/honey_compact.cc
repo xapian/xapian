@@ -47,6 +47,7 @@
 #include "internaltypes.h"
 #include "overflow.h"
 #include "pack.h"
+#include "stringutils.h"
 #include "backends/valuestats.h"
 #include "wordaccess.h"
 
@@ -300,6 +301,12 @@ class PostlistCursor<const GlassTable&> : private GlassCursor {
 
     DoclenEncoder doclen_encoder;
 
+    glass_tablesize_t value_stats_count = 0;
+
+    glass_tablesize_t value_chunk_count = 0;
+
+    Xapian::valueno slot;
+
   public:
     string key, tag;
     Xapian::docid firstdid;
@@ -322,62 +329,70 @@ class PostlistCursor<const GlassTable&> : private GlassCursor {
 	    return true;
 	}
 
-	if (!GlassCursor::next()) return false;
-	// We put all chunks into the non-initial chunk form here, then fix up
-	// the first chunk for each term in the merged database as we merge.
-	read_tag();
-	key = current_key;
-	tag = current_tag;
-	tf = cf = 0;
-	if (GlassCompact::is_user_metadata_key(key)) {
-	    key[1] = Honey::KEY_USER_METADATA;
-	    return true;
-	}
-	if (GlassCompact::is_valuestats_key(key)) {
+	if (value_stats_count > 1) {
+	    // Glass uses pack_uint_last() to encode the slot in value stats
+	    // keys, which isn't a great choice as the key order doesn't in
+	    // general match the slot number order.  Honey fixes this, but
+	    // that means we need to do more work here to process the entries
+	    // in value slot number order
+start_value_stats:
+	    // Jump to the next value stats entry in slot number order.
+	    key.assign("\0\xd0", 2);
+	    while (true) {
+		key.resize(2);
+		pack_uint_last(key, ++slot);
+		if (find_exact(key)) break;
+	    }
+	    --value_stats_count;
 	    // Adjust key.
-	    const char* p = key.data();
-	    const char* end = p + key.length();
-	    p += 2;
-	    Xapian::valueno slot;
-	    if (!unpack_uint_last(&p, end, &slot))
-		throw Xapian::DatabaseCorruptError("bad value stats key");
-	    // FIXME: pack_uint_last() is not a good encoding for keys, as the
-	    // encoded values do not in general sort the same way as the
-	    // numeric values.  The first 256 values will be in order at least.
-	    //
-	    // We could just buffer up the stats for all the slots - it's
-	    // unlikely there are going to be very many.  Another option is
-	    // to use multiple cursors or seek a single cursor around.
-	    if (slot > 255) {
-		throw Xapian::UnimplementedError("No support for converting "
-						 "value stats for slots > 255");
-	    }
 	    key = Honey::make_valuestats_key(slot);
+	    read_tag();
+	    tag = current_tag;
 	    return true;
+	} else if (value_stats_count == 1) {
+	    // We've done all the value stats so move to just before the first
+	    // entry after the value stats (so GlassCursor::next() below moves
+	    // us to the next entry to do).
+	    value_stats_count = 0;
+	    find_entry_lt("\0\xd1"s);
 	}
-	if (GlassCompact::is_valuechunk_key(key)) {
-	    const char* p = key.data();
-	    const char* end = p + key.length();
-	    p += 2;
-	    Xapian::valueno slot;
-	    if (!unpack_uint(&p, end, &slot))
-		throw Xapian::DatabaseCorruptError("bad value key");
-	    // FIXME: pack_uint() is not a good encoding for keys, as the
-	    // encoded values do not in general sort the same way as the
-	    // numeric values.  The first 128 values will be in order at least.
-	    //
-	    // Buffering up this data for all slots is potentially prohibitively
-	    // costly.  We probably need to use multiple cursors or seek a
-	    // single cursor around.
-	    if (slot > 127) {
-		throw Xapian::UnimplementedError("No support for converting "
-						 "value slots > 127");
+
+	if (value_chunk_count > 1) {
+	    // Glass uses pack_uint() to encode the slot in value chunk
+	    // keys, which isn't a great choice as the key order doesn't in
+	    // general match the slot number order.  Honey fixes this, but
+	    // that means we need to do more work here to process the entries
+	    // in value slot number order
+start_value_chunk:
+	    // First check if there are more chunks for the slot we're working
+	    // on.
+	    key.assign("\0\xd8", 2);
+	    pack_uint(key, slot);
+	    if (!GlassCompact::is_valuechunk_key(key) ||
+		!GlassCursor::next() ||
+		!startswith(current_key, key)) {
+		// No more chunks for the same slot, so jump to the next value
+		// chunk entry in slot number order.
+		while (true) {
+		    key.resize(2);
+		    pack_uint(key, ++slot);
+		    find_entry_ge(key);
+		    if (startswith(current_key, key)) break;
+		}
 	    }
+	    --value_chunk_count;
+
+	    // Adjust key.
+	    const char* p = current_key.data();
+	    const char* end = p + current_key.size();
+	    p += key.size();
 	    Xapian::docid first_did;
 	    if (!unpack_uint_preserving_sort(&p, end, &first_did))
 		throw Xapian::DatabaseCorruptError("bad value key");
 	    first_did += offset;
 
+	    read_tag();
+	    tag = current_tag;
 	    Glass::ValueChunkReader reader(tag.data(), tag.size(), first_did);
 	    Xapian::docid last_did = first_did;
 	    while (reader.next(), !reader.at_end()) {
@@ -390,7 +405,52 @@ class PostlistCursor<const GlassTable&> : private GlassCursor {
 	    string newtag;
 	    pack_uint(newtag, last_did - first_did);
 	    tag.insert(0, newtag);
+	    return true;
+	} else if (value_chunk_count == 1) {
+	    // We've done all the value chunks so move to just before the first
+	    // entry after the value chunks (so GlassCursor::next() below moves
+	    // us to the next entry to do).
+	    value_chunk_count = 0;
+	    find_entry_lt("\0\xd9"s);
+	}
 
+	if (!GlassCursor::next()) return false;
+
+	if (GlassCompact::is_valuestats_key(current_key)) {
+	    // Set value_stats_count to one more than the number of entries so
+	    // we can easily reset after the final entry.
+	    value_stats_count = 2;
+	    while (GlassCursor::next() &&
+		   GlassCompact::is_valuestats_key(current_key)) {
+		++value_stats_count;
+	    }
+	    // Set slot so incrementing it gives zero.
+	    slot = Xapian::valueno(-1);
+	    goto start_value_stats;
+	}
+
+	if (GlassCompact::is_valuechunk_key(current_key)) {
+	    // Set value_chunk_count to one more than the number of entries so
+	    // we can easily reset after the final entry.
+	    value_chunk_count = 2;
+	    while (GlassCursor::next() &&
+		   GlassCompact::is_valuechunk_key(current_key)) {
+		++value_chunk_count;
+	    }
+	    // Set slot so incrementing it gives zero.
+	    slot = Xapian::valueno(-1);
+	    goto start_value_chunk;
+	}
+
+	key = current_key;
+
+	// We put all chunks into the non-initial chunk form here, then fix up
+	// the first chunk for each term in the merged database as we merge.
+	read_tag();
+	tag = current_tag;
+	tf = cf = 0;
+	if (GlassCompact::is_user_metadata_key(key)) {
+	    key[1] = Honey::KEY_USER_METADATA;
 	    return true;
 	}
 
