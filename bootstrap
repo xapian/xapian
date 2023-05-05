@@ -204,7 +204,7 @@ lazy_build() {
     else
       if [ -z "$FETCH_URL_TOOL" ] ; then
 	if ${WGET-wget} --version > /dev/null 2>&1 ; then
-	  FETCH_URL_TOOL="${WGET-wget} -O-"
+	  FETCH_URL_TOOL="${WGET-wget} --progress=dot -O-"
 	elif ${CURL-curl} --version > /dev/null 2>&1 || [ "$?" = 2 ] ; then
 	  # curl --version exits with code 2 (~7.18.2) or 0 (7.35.0).
 	  # -L is needed to follow HTTP redirects.
