@@ -270,7 +270,7 @@ DEFINE_TESTCASE(valuerange7, backend) {
     enq.set_query(query);
     mset = enq.get_mset(0, 0);
     TEST_EQUAL(mset.get_matches_estimated(), 1);
-    if (startswith(get_dbtype(), "multi")) {
+    if (db.size() > 1) {
 	// The second shard will just have one document with "ZERO" in the slot
 	// so we can tell there's exactly one match there, and the first shard
 	// has one "ZERO\0" and one empty entry, so we can tell that can't

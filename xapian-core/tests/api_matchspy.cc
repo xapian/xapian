@@ -146,7 +146,7 @@ DEFINE_TESTCASE(matchspy2, backend)
     Xapian::Enquire enq(db);
 
     enq.set_query(Xapian::Query("all"));
-    if (startswith(get_dbtype(), "multi")) {
+    if (db.size() > 1) {
 	// Without this, we short-cut on the second shard because we don't get
 	// the documents in ascending weight order.
 	enq.set_weighting_scheme(Xapian::CoordWeight());
@@ -194,7 +194,7 @@ DEFINE_TESTCASE(matchspy4, backend)
     Xapian::Enquire enqb(db);
 
     enqa.set_query(Xapian::Query("all"));
-    if (startswith(get_dbtype(), "multi")) {
+    if (db.size() > 1) {
 	// Without this, we short-cut on the second shard because we don't get
 	// the documents in ascending weight order.
 	enqa.set_weighting_scheme(Xapian::CoordWeight());

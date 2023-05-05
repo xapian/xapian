@@ -1521,10 +1521,10 @@ DEFINE_TESTCASE(msetzeroitems1, backend) {
 
 // test that the matches_* of a simple query are as expected
 DEFINE_TESTCASE(matches1, backend) {
-    bool multi = startswith(get_dbtype(), "multi");
     bool remote = get_dbtype().find("remote") != string::npos;
 
-    Xapian::Enquire enquire(get_database("apitest_simpledata"));
+    Xapian::Database db = get_database("apitest_simpledata");
+    Xapian::Enquire enquire(db);
     Xapian::Query myquery;
     Xapian::MSet mymset;
 
@@ -1571,7 +1571,7 @@ DEFINE_TESTCASE(matches1, backend) {
     myquery = query(Xapian::Query::OP_AND, "simple", "word");
     enquire.set_query(myquery);
     mymset = enquire.get_mset(0, 0);
-    if (!multi) {
+    if (db.size() == 1) {
 	// This isn't true for sharded DBs since there one sub-database has 3
 	// documents and simple and word both have termfreq of 2, so the
 	// matcher can tell at least one document must match!)
@@ -1613,7 +1613,7 @@ DEFINE_TESTCASE(matches1, backend) {
     mymset = enquire.get_mset(0, 1);
     TEST_EQUAL(mymset.get_matches_lower_bound(), 1);
     TEST_EQUAL(mymset.get_uncollapsed_matches_lower_bound(), 1);
-    if (multi && remote) {
+    if (db.size() > 1 && remote) {
 	// The matcher can tell there's only one match in this case.
 	TEST_EQUAL(mymset.get_matches_estimated(), 1);
 	TEST_EQUAL(mymset.get_uncollapsed_matches_estimated(), 1);
