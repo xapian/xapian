@@ -540,7 +540,8 @@ jobs:
   android-cross:
     runs-on: 'ubuntu-22.04'
     env:
-      NDK: '/home/runner/ndk'
+      NDK: '/usr/local/lib/android/sdk/ndk/25.2.9519653'
+      #NDK: '/home/runner/ndk'
       host_triplet: 'armv7a-linux-androideabi33'
     steps:
     - name: Check out repository code
@@ -560,11 +561,11 @@ jobs:
             python3-docutils \
             pngcrush \
             python3-pygments
-        cd
-        wget -Ondk.zip https://dl.google.com/android/repository/android-ndk-r25c-linux.zip
-        unzip -q ndk.zip
-        rm -f ndk.zip
-        mv android-ndk-* ndk
+        #cd
+        #wget -Ondk.zip https://dl.google.com/android/repository/android-ndk-r25c-linux.zip
+        #unzip -q ndk.zip
+        #rm -f ndk.zip
+        #mv android-ndk-* ndk
     - name: bootstrap source tree
       # Bootstrap only xapian-core
       run: |
@@ -574,16 +575,17 @@ jobs:
         make -j2 distclean
     - name: configure
       run: |
+        PATH=$PATH:$NDK/toolchains/llvm/prebuilt/linux-x86_64/bin
         cd xapian-core
-        PATH=$NDK/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH \
-            ./configure --disable-documentation \
-                --host=$host_triplet \
-                CC=${host_triplet}-clang \
-                CXX=${host_triplet}-clang++ \
-                PKG_CONFIG=/bin/false
+        ./configure --disable-documentation \
+            --host=$host_triplet \
+            CC=${host_triplet}-clang \
+            CXX=${host_triplet}-clang++ \
+            PKG_CONFIG=/bin/false
     - name: make
       run: |
-        PATH=$NDK/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH make -C xapian-core
+        PATH=$PATH:$NDK/toolchains/llvm/prebuilt/linux-x86_64/bin
+        make -C xapian-core
     - name: Run tests
       # FIXME: Run tests under android emulator?
       run: echo No tests currently
