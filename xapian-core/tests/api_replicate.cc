@@ -881,7 +881,7 @@ DEFINE_TESTCASE(replicate7, replicas) {
 	    string file = d;
 	    file += '/';
 	    file += entry->d_name;
-	    int fd = open(file.c_str(), O_WRONLY|O_TRUNC, 0666);
+	    int fd = open(file.c_str(), O_WRONLY|O_TRUNC);
 	    TEST(fd != -1);
 	    TEST(close(fd) == 0);
 	}

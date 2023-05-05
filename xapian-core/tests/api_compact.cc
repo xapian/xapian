@@ -640,7 +640,7 @@ DEFINE_TESTCASE(compacttofd2, compact && !chert) {
 	TEST_EQUAL(errno, EBADF);
     }
 
-    fd = open(outdbpath.c_str(), O_RDONLY|O_BINARY, 0666);
+    fd = open(outdbpath.c_str(), O_RDONLY|O_BINARY);
     TEST(fd != -1);
 
     // Test that the database wasn't just written to the start of the file.

@@ -163,7 +163,7 @@ GlassChanges::commit(glass_revision_number_t new_rev, int flags)
 void
 GlassChanges::check(const string & changes_file)
 {
-    FD fd(posixy_open(changes_file.c_str(), O_RDONLY | O_CLOEXEC, 0666));
+    FD fd(posixy_open(changes_file.c_str(), O_RDONLY | O_CLOEXEC));
     if (fd < 0) {
 	string message = "Couldn't open changeset ";
 	message += changes_file;
