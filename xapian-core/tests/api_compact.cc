@@ -264,7 +264,7 @@ DEFINE_TESTCASE(compactmerge1, compact) {
 	// Check we actually got a single file out.
 	TEST(file_exists(outdbpath));
 	TEST_EQUAL(Xapian::Database::check(outdbpath, 0, &tout), 0);
-    } else if (startswith(get_dbtype(), "multi_")) {
+    } else if (indb.size() > 1) {
 	// Can't check tables for a sharded DB.
 	TEST_EQUAL(Xapian::Database::check(outdbpath, 0, &tout), 0);
     } else {

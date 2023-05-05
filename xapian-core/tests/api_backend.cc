@@ -145,7 +145,7 @@ DEFINE_TESTCASE(exceed32bitcombineddb1, writable) {
 
 	// We can't usefully check the shard docid if the testharness backend
 	// is multi.
-	bool multi = startswith(get_dbtype(), "multi");
+	bool multi = (db1.size() > 1);
 	for (Xapian::MSetIterator i = mymset.begin(); i != mymset.end(); ++i) {
 	    doc = i.get_document();
 	    if (!multi)

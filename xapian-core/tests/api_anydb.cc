@@ -1525,9 +1525,8 @@ DEFINE_TESTCASE(msetzeroitems1, backend) {
 
 // test that the matches_* of a simple query are as expected
 DEFINE_TESTCASE(matches1, backend) {
-    bool multi = startswith(get_dbtype(), "multi");
-
-    Xapian::Enquire enquire(get_database("apitest_simpledata"));
+    Xapian::Database db = get_database("apitest_simpledata");
+    Xapian::Enquire enquire(db);
     Xapian::Query myquery;
     Xapian::MSet mymset;
 
@@ -1574,7 +1573,7 @@ DEFINE_TESTCASE(matches1, backend) {
     myquery = query(Xapian::Query::OP_AND, "simple", "word");
     enquire.set_query(myquery);
     mymset = enquire.get_mset(0, 0);
-    if (multi) {
+    if (db.size() > 1) {
 	// We get a tighter lower bound because each shard is handled
 	// separately and that happens to give us the same tight range for
 	// both terms in one shard, and no matches for one term in the other.

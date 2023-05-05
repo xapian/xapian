@@ -82,10 +82,10 @@ DEFINE_TESTCASE(valuestats1, writable && valuestats) {
     TEST_EQUAL(db_w.get_value_lower_bound(1), "cheese");
     TEST_EQUAL(db_w.get_value_upper_bound(1), "cheese");
     TEST_EQUAL(db_w.get_value_freq(0), 1);
-    if (!startswith(get_dbtype(), "multi")) {
-	TEST_EQUAL(db_w.get_value_lower_bound(0), "hello");
-    } else {
+    if (db_w.size() > 1) {
 	TEST_EQUAL(db_w.get_value_lower_bound(0), "world");
+    } else {
+	TEST_EQUAL(db_w.get_value_lower_bound(0), "hello");
     }
     TEST_EQUAL(db_w.get_value_upper_bound(0), "world");
 
