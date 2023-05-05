@@ -366,8 +366,7 @@ DEFINE_TESTCASE(valueweightsource2, valuestats) {
 }
 
 // Check that valueweightsource skip_to() can stay in the same position.
-DEFINE_TESTCASE(valueweightsource3, valuestats && !multi) {
-    // FIXME: multi doesn't support iterating valuestreams yet.
+DEFINE_TESTCASE(valueweightsource3, valuestats) {
     Xapian::Database db(get_database("apitest_phrase"));
     Xapian::ValueWeightPostingSource src(11);
     src.init(db);
