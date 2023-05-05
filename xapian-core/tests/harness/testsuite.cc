@@ -812,14 +812,10 @@ test_driver::report(const test_driver::result &r, const string &desc)
 	}
 
 	if (!slow_tests.empty()) {
-	    cout << "Slow tests: ";
-	    for (auto test = slow_tests.begin();
-		 test != slow_tests.end(); ++test) {
-		cout << test->first << " (" << test->second
-		     << " s)";
-		if (test + 1 != slow_tests.end()) {
-		    cout << ", ";
-		}
+	    const char* sep = "Slow tests: ";
+	    for (auto& test : slow_tests) {
+		cout << sep << test.first << " (" << test.second << " s)";
+		sep = ", ";
 	    }
 	    cout << ".\n";
 	    slow_tests.clear();
