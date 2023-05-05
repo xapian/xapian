@@ -239,7 +239,7 @@ PerfTestLogger::open(const string & logpath)
 {
     out.open(logpath.c_str(), ios::out | ios::binary | ios::trunc);
     if (!out.is_open()) {
-	cerr << "Couldn't open output logfile '" << logpath << "'" << endl;
+	cerr << "Couldn't open output logfile '" << logpath << "'\n";
 	return false;
     }
 

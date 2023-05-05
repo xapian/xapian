@@ -46,7 +46,7 @@ DEFINE_TESTCASE(consistency3, backend) {
     TEST_EQUAL(bigmset.size(), lots);
     for (Xapian::doccount start = 0; start < lots; ++start) {
 	tout << *bigmset[start] << ":" << bigmset[start].get_weight() << ":"
-	     << bigmset[start].get_percent() << "%" << endl;
+	     << bigmset[start].get_percent() << "%\n";
 	for (Xapian::doccount size = 0; size < lots - start; ++size) {
 	    Xapian::MSet mset = enquire.get_mset(start, size);
 	    if (mset.size()) {

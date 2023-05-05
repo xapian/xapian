@@ -45,7 +45,7 @@ DEFINE_TESTCASE(collapsekey5, backend) {
 	}
 
 	for (Xapian::doccount cmax = db.get_doccount() + 1; cmax > 0; --cmax) {
-	    tout << "Collapsing on slot " << slot << " max " << cmax << endl;
+	    tout << "Collapsing on slot " << slot << " max " << cmax << '\n';
 	    enquire.set_collapse_key(slot, cmax);
 	    Xapian::MSet mset = enquire.get_mset(0, full_mset.size());
 
@@ -93,7 +93,7 @@ DEFINE_TESTCASE(collapsekey6, backend) {
 	for (Xapian::doccount cmax = db.get_doccount() + 1; cmax > 0; --cmax) {
 	    for (int percent = 65; percent != 100; ++percent) {
 		tout << "Collapsing on slot " << slot << " max " << cmax
-		     << " cutoff " << percent << endl;
+		     << " cutoff " << percent << '\n';
 		enquire.set_collapse_key(slot, cmax);
 		enquire.set_cutoff(percent);
 		Xapian::MSet mset = enquire.get_mset(0, full_mset.size());

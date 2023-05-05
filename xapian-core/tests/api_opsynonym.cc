@@ -457,7 +457,7 @@ DEFINE_TESTCASE(opmax1, backend) {
 	TEST(j != expected_weights.end());
 	TEST_EQUAL_DOUBLE(j->second, i.get_weight());
 	expected_weights.erase(j);
-	tout << expected_weights.size() << endl;
+	tout << expected_weights.size() << '\n';
     }
 
     // Any document in mset1 or mset2 should also be in msetmax.

@@ -1434,7 +1434,7 @@ class CheckStatsWeight : public Xapian::Weight {
 		for (auto&& t = db.allterms_begin(term1);
 		     t != db.allterms_end(term1); ++t) {
 		    Xapian::doccount tf = t.get_termfreq();
-		    tout << "->" << *t << " " << tf << endl;
+		    tout << "->" << *t << " " << tf << '\n';
 		    tfsum += tf;
 		    tfmax = max(tfmax, tf);
 		    Xapian::termcount cf = db.get_collection_freq(*t);
@@ -1546,7 +1546,7 @@ DEFINE_TESTCASE(checkstatsweight2, backend && !remote) {
 	const string & term2 = *a;
 	Xapian::Query q(Xapian::Query::OP_SYNONYM,
 			Xapian::Query(term1), Xapian::Query(term2));
-	tout << q.get_description() << endl;
+	tout << q.get_description() << '\n';
 	enquire.set_query(q);
 	Xapian::termcount sum = 0;
 	Xapian::termcount sum_squares = 0;
@@ -1629,7 +1629,7 @@ DEFINE_TESTCASE(checkstatsweight3, backend && !remote && !multi) {
     };
     for (auto pattern : testcases) {
 	Xapian::Query q(Xapian::Query::OP_WILDCARD, pattern);
-	tout << q.get_description() << endl;
+	tout << q.get_description() << '\n';
 	enquire.set_query(q);
 	Xapian::termcount sum = 0;
 	Xapian::termcount sum_squares = 0;

@@ -1203,7 +1203,7 @@ DEFINE_TESTCASE(qp_flag_wildcard4, !backend) {
     Xapian::QueryParser qp;
 
     for (const auto& test : testcases) {
-	tout << test.min_len << ' ' << test.query_string << endl;
+	tout << test.min_len << ' ' << test.query_string << '\n';
 	qp.set_min_wildcard_prefix(test.min_len, FLAG_WILDCARD | FLAG_PARTIAL);
 
 	string query_string = string(test.query_string) + '*';
@@ -1463,7 +1463,7 @@ DEFINE_TESTCASE(qp_flag_fuzzy1, !backend) {
 	    qp.set_default_op(Xapian::Query::OP_AND);
 	    continue;
 	}
-	tout << t.q << endl;
+	tout << t.q << '\n';
 	auto qobj = qp.parse_query(t.q, flags);
 	string expect = "Query(";
 	expect += t.expect;
@@ -1482,7 +1482,7 @@ DEFINE_TESTCASE(qp_flag_fuzzy2, !backend) {
     Xapian::QueryParser qp;
     qp.add_prefix("author", "A");
     for (auto&& t : testcases) {
-	tout << t.q << endl;
+	tout << t.q << '\n';
 	auto qobj = qp.parse_query(t.q, qp.FLAG_FUZZY);
 	string expect = "Query(";
 	expect += t.expect;
@@ -1500,11 +1500,11 @@ test_qp_flag_fuzzy3_helper(const Xapian::Database& db,
     qp.set_database(db);
     if (max_expansion == Xapian::termcount(-1)) {
 	tout << "testing fuzzy query '" << query_string << "' with default "
-		"limit (which should be 0)" << endl;
+		"limit (which should be 0)\n";
 	max_expansion = 0;
     } else {
 	tout << "testing fuzzy query '" << query_string << "' with limit "
-	     << max_expansion << endl;
+	     << max_expansion << '\n';
 	qp.set_max_expansion(max_expansion);
     }
     Xapian::Enquire e(db);
@@ -1571,21 +1571,21 @@ DEFINE_TESTCASE(wildquery1, backend) {
     Xapian::Enquire enquire(db);
 
     Xapian::Query qobj = queryparser.parse_query("th*", flags);
-    tout << qobj.get_description() << endl;
+    tout << qobj.get_description() << '\n';
     enquire.set_query(qobj);
     Xapian::MSet mymset = enquire.get_mset(0, 10);
     // Check that 6 documents were returned.
     TEST_MSET_SIZE(mymset, 6);
 
     qobj = queryparser.parse_query("notindb* \"this\"", flags);
-    tout << qobj.get_description() << endl;
+    tout << qobj.get_description() << '\n';
     enquire.set_query(qobj);
     mymset = enquire.get_mset(0, 10);
     // Check that 6 documents were returned.
     TEST_MSET_SIZE(mymset, 6);
 
     qobj = queryparser.parse_query("+notindb* \"this\"", flags);
-    tout << qobj.get_description() << endl;
+    tout << qobj.get_description() << '\n';
     enquire.set_query(qobj);
     mymset = enquire.get_mset(0, 10);
     // Check that 0 documents were returned.
@@ -2472,7 +2472,7 @@ DEFINE_TESTCASE(qp_spell1, spelling) {
 	q = qp.parse_query(p->query,
 			   Xapian::QueryParser::FLAG_SPELLING_CORRECTION |
 			   Xapian::QueryParser::FLAG_BOOLEAN);
-	tout << "Query: " << p->query << endl;
+	tout << "Query: " << p->query << '\n';
 	TEST_STRINGS_EQUAL(qp.get_corrected_query_string(), p->expect);
     }
 }
@@ -2505,7 +2505,7 @@ DEFINE_TESTCASE(qp_spell2, spelling)
 	q = qp.parse_query(p->query,
 			   Xapian::QueryParser::FLAG_SPELLING_CORRECTION |
 			   Xapian::QueryParser::FLAG_BOOLEAN);
-	tout << "Query: " << p->query << endl;
+	tout << "Query: " << p->query << '\n';
 	TEST_STRINGS_EQUAL(qp.get_corrected_query_string(), p->expect);
     }
 }
@@ -2542,7 +2542,7 @@ DEFINE_TESTCASE(qp_spellwild1, spelling) {
 			   Xapian::QueryParser::FLAG_SPELLING_CORRECTION |
 			   Xapian::QueryParser::FLAG_BOOLEAN |
 			   Xapian::QueryParser::FLAG_WILDCARD);
-	tout << "Query: " << p->query << endl;
+	tout << "Query: " << p->query << '\n';
 	TEST_STRINGS_EQUAL(qp.get_corrected_query_string(), p->expect);
     }
     for (p = test_mispelled_wildcard_queries; p->query; ++p) {
@@ -2551,7 +2551,7 @@ DEFINE_TESTCASE(qp_spellwild1, spelling) {
 			   Xapian::QueryParser::FLAG_SPELLING_CORRECTION |
 			   Xapian::QueryParser::FLAG_BOOLEAN |
 			   Xapian::QueryParser::FLAG_WILDCARD);
-	tout << "Query: " << p->query << endl;
+	tout << "Query: " << p->query << '\n';
 	TEST_STRINGS_EQUAL(qp.get_corrected_query_string(), p->expect);
     }
 }
@@ -2579,7 +2579,7 @@ DEFINE_TESTCASE(qp_spellpartial1, spelling) {
 	q = qp.parse_query(p->query,
 			   Xapian::QueryParser::FLAG_SPELLING_CORRECTION |
 			   Xapian::QueryParser::FLAG_PARTIAL);
-	tout << "Query: " << p->query << endl;
+	tout << "Query: " << p->query << '\n';
 	TEST_STRINGS_EQUAL(qp.get_corrected_query_string(), p->expect);
     }
 }
@@ -2629,7 +2629,7 @@ DEFINE_TESTCASE(qp_synonym1, synonyms) {
 	expect += ')';
 	Xapian::Query q;
 	q = qp.parse_query(p->query, qp.FLAG_AUTO_SYNONYMS|qp.FLAG_DEFAULT);
-	tout << "Query: " << p->query << endl;
+	tout << "Query: " << p->query << '\n';
 	TEST_STRINGS_EQUAL(q.get_description(), expect);
     }
 }
@@ -2668,7 +2668,7 @@ DEFINE_TESTCASE(qp_synonym2, synonyms) {
 	q = qp.parse_query(p->query,
 			   Xapian::QueryParser::FLAG_AUTO_MULTIWORD_SYNONYMS |
 			   Xapian::QueryParser::FLAG_DEFAULT);
-	tout << "Query: " << p->query << endl;
+	tout << "Query: " << p->query << '\n';
 	TEST_STRINGS_EQUAL(q.get_description(), expect);
     }
 }
@@ -2722,7 +2722,7 @@ DEFINE_TESTCASE(qp_synonym3, synonyms) {
 			   Xapian::QueryParser::FLAG_BOOLEAN |
 			   Xapian::QueryParser::FLAG_LOVEHATE |
 			   Xapian::QueryParser::FLAG_PHRASE);
-	tout << "Query: " << p->query << endl;
+	tout << "Query: " << p->query << '\n';
 	TEST_STRINGS_EQUAL(q.get_description(), expect);
     }
 }
@@ -3126,7 +3126,7 @@ DEFINE_TESTCASE(qp_default_op2, !backend) {
 	Xapian::Query::OP_VALUE_LE
     };
     for (Xapian::Query::op op : ops) {
-	tout << op << endl;
+	tout << op << '\n';
 	TEST_EXCEPTION(Xapian::InvalidArgumentError,
 		       qp.set_default_op(op));
 	TEST_EQUAL(qp.get_default_op(), Xapian::Query::OP_OR);
@@ -3156,7 +3156,7 @@ DEFINE_TESTCASE(qp_default_op3, !backend) {
 	  "Query((a@1 SYNONYM b@2 SYNONYM c@3))" },
     };
     for (auto& test : tests) {
-	tout << test.op << endl;
+	tout << test.op << '\n';
 	qp.set_default_op(test.op);
 	// Check that get_default_op() returns what we just set.
 	TEST_EQUAL(qp.get_default_op(), test.op);

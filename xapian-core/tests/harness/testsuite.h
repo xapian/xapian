@@ -54,7 +54,7 @@ class TestSkip { };
 #define THROW_TEST_(EXCEPTION, MSG) \
     do { \
 	if (verbose) { \
-	    tout << __FILE__ ":" STRINGIZE(__LINE__) ": " << MSG << std::endl; \
+	    tout << __FILE__ ":" STRINGIZE(__LINE__) ": " << MSG << '\n'; \
 	} \
 	throw EXCEPTION(); \
     } while (0)
@@ -267,7 +267,7 @@ class test_driver {
 	bool test_and_explain_fail_ = !(a);\
 	UNITTEST_CHECK_EXCEPTION\
 	if (test_and_explain_fail_)\
-	    FAIL_TEST(STRINGIZE(a) << std::endl << b << std::endl);\
+	    FAIL_TEST(STRINGIZE(a) << '\n' << b << '\n');\
     } while (0)
 
 /// Test a condition, without an additional explanation for failure.

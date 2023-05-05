@@ -200,14 +200,14 @@ mset_expect_order_(const Xapian::MSet &A, bool beginning,
 	TEST_AND_EXPLAIN(A.size() >= expect.size(),
 			 "Mset is of wrong size (" << A.size()
 			 << " < " << expect.size() << "):\n"
-			 << "Full mset was: " << A << endl
-			 << "Expected order to start: {" << expect << "}");
+			    "Full mset was: " << A << "\n"
+			    "Expected order to start: {" << expect << "}");
     } else {
 	TEST_AND_EXPLAIN(A.size() == expect.size(),
 			 "Mset is of wrong size (" << A.size()
 			 << " != " << expect.size() << "):\n"
-			 << "Full mset was: " << A << endl
-			 << "Expected order: {" << expect << "}");
+			    "Full mset was: " << A << "\n"
+			    "Expected order: {" << expect << "}");
     }
 
     Xapian::MSetIterator j = A.begin();
@@ -215,9 +215,9 @@ mset_expect_order_(const Xapian::MSet &A, bool beginning,
 	TEST_AND_EXPLAIN(*j == expect[i],
 			 "Mset didn't contain expected result:\n"
 			 << "Item " << i << " was " << *j
-			 << ", expected " << expect[i] << endl
-			 << "Full mset was: " << A << endl
-			 << "Expected: {" << expect << "}");
+			 << ", expected " << expect[i] << "\n"
+			    "Full mset was: " << A << "\n"
+			    "Expected: {" << expect << "}");
     }
 }
 

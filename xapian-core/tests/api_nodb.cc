@@ -101,15 +101,15 @@ DEFINE_TESTCASE(emptyquery3, !backend) {
     };
 
     for (size_t i = 0; i < sizeof(ops) / sizeof(ops[0]); ++i) {
-	tout << "Testing op #" << i << endl;
+	tout << "Testing op #" << i << '\n';
 	Xapian::Query empty;
 	Xapian::Query q("test");
 	Xapian::Query qcombine(ops[i], empty, q);
-	tout << qcombine.get_description() << endl;
+	tout << qcombine.get_description() << '\n';
 	Xapian::Query qcombine2(ops[i], q, empty);
-	tout << qcombine2.get_description() << endl;
+	tout << qcombine2.get_description() << '\n';
 	Xapian::Query qcombine3(ops[i], empty, empty);
-	tout << qcombine3.get_description() << endl;
+	tout << qcombine3.get_description() << '\n';
     }
 }
 
@@ -177,7 +177,7 @@ DEFINE_TESTCASE(querylen2, !backend) {
 // tests that queries validate correctly
 DEFINE_TESTCASE(queryvalid1, !backend) {
     Xapian::Query q2(Xapian::Query::OP_XOR, Xapian::Query("foo"), Xapian::Query("bar"));
-    tout << "XOR (\"foo\", \"bar\") checked" << endl;
+    tout << "XOR (\"foo\", \"bar\") checked\n";
 }
 
 /** Check we no longer flatten subqueries combined with the same operator.
@@ -222,7 +222,7 @@ DEFINE_TESTCASE(emptyquerypart1, !backend) {
 
 DEFINE_TESTCASE(stemlangs1, !backend) {
     string langs = Xapian::Stem::get_available_languages();
-    tout << "available languages '" << langs << "'" << endl;
+    tout << "available languages '" << langs << "'\n";
     TEST(!langs.empty());
 
     // Also test the language codes.
@@ -239,7 +239,7 @@ DEFINE_TESTCASE(stemlangs1, !backend) {
 	// Try making a stemmer for this language.  We should be able to create
 	// it without an exception being thrown.
 	string language(langs, i, spc - i);
-	tout << "checking language code '" << language << "' works" << endl;
+	tout << "checking language code '" << language << "' works\n";
 	Xapian::Stem stemmer(language);
 	TEST(!stemmer.is_none());
 	if (language.size() > 2) {

@@ -52,7 +52,7 @@ test_stemrandom()
     static const char wordchars[] =
 	"abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz0123456789^\0";
 
-    tout << "Stemming random text... (seed " << seed << ")" << endl;
+    tout << "Stemming random text... (seed " << seed << ")\n";
     srand(seed);
 
     string word;
@@ -68,7 +68,7 @@ test_stemrandom()
     }
     stemmed_size += stemmer(word).length();
     tout << "Input size " << JUNKSIZE << ", stemmed size " << stemmed_size
-	 << endl;
+	 << '\n';
 
     if (stemmed_size > JUNKSIZE * 101 / 100) {
 	FAIL_TEST("Stemmed data is significantly bigger than input: "
@@ -84,7 +84,7 @@ test_stemrandom()
 static void
 test_stemjunk()
 {
-    tout << "Stemming random junk... (seed " << seed << ")" << endl;
+    tout << "Stemming random junk... (seed " << seed << ")\n";
     srand(seed);
 
     string word;
@@ -100,7 +100,7 @@ test_stemjunk()
     }
     stemmed_size += stemmer(word).length();
     tout << "Input size " << JUNKSIZE << ", stemmed size " << stemmed_size
-	 << endl;
+	 << '\n';
 
     if (stemmed_size > JUNKSIZE * 101 / 100) {
 	FAIL_TEST("Stemmed data is significantly bigger than input ("
@@ -128,7 +128,7 @@ test_stemdict()
 	FAIL_TEST(language << "/output.txt not found");
     }
 
-    tout << "Testing " << language << " with Snowball dictionary..." << endl;
+    tout << "Testing " << language << " with Snowball dictionary...\n";
 
     int pass = 1;
     while (true) {
@@ -154,8 +154,7 @@ test_stemdict()
 	    voc.close();
 	    FAIL_TEST(language << "/output2.txt not found");
 	}
-	tout << "Testing " << language << " with supplemental dictionary..."
-	     << endl;
+	tout << "Testing " << language << " with supplemental dictionary...\n";
 	++pass;
     }
 }
@@ -190,8 +189,8 @@ try {
 	    throw "seed must be an integer";
 	}
     }
-    cout << "The random seed is " << seed << endl;
-    cout << "Please report the seed when reporting a test failure." << endl;
+    cout << "The random seed is " << seed << '\n';
+    cout << "Please report the seed when reporting a test failure.\n";
 
     string::size_type b = 0;
     while (b != langs.size()) {
@@ -199,12 +198,12 @@ try {
 	while (b < langs.size() && langs[b] != ' ') ++b;
 	language.assign(langs, a, b - a);
 	while (b < langs.size() && langs[b] == ' ') ++b;
-	cout << "Running tests with " << language << " stemmer..." << endl;
+	cout << "Running tests with " << language << " stemmer...\n";
 	stemmer = Xapian::Stem(language);
 	result = max(result, test_driver::run(tests));
     }
     return result;
 } catch (const char * e) {
-    cout << e << endl;
+    cout << e << '\n';
     return 1;
 }

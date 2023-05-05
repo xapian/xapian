@@ -135,7 +135,7 @@ for my $class (sort keys %uncopyableclasses) {
 	print "    {\n";
 	print "\tconst string& desc = $object.get_description();\n";
 	print "\ttout.clear();\n";
-	print "\ttout << desc << endl;\n";
+	print "\ttout << desc << '\\n';\n";
 	print "\tTEST(startswith(desc, \"$class(\") ||\n";
 	print "\t     startswith(desc, \"$full_class(\"));\n";
 	print "\tTEST(desc.back() == ')');\n";

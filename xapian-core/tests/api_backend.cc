@@ -1028,7 +1028,7 @@ DEFINE_TESTCASE(emptydb1, backend) {
 	Xapian::Query::OP_MAX
     };
     for (Xapian::Query::op op : ops) {
-	tout << op << endl;
+	tout << op << '\n';
 	Xapian::Enquire enquire(db);
 	Xapian::Query query(op, Xapian::Query("a"), Xapian::Query("b"));
 	enquire.set_query(query);
@@ -1334,7 +1334,7 @@ DEFINE_TESTCASE(retrylock1, writable && path) {
 	    result[0] = 'y';
 	} else {
 	    // Error.
-	    tout << "errno=" << errno << ": " << errno_to_string(errno) << endl;
+	    tout << "errno=" << errno << ": " << errno_to_string(errno) << '\n';
 	    result[0] = 'e';
 	}
 	r = 1;
@@ -1377,7 +1377,7 @@ retry:
 	    if (errno == EINTR || errno == EAGAIN)
 		goto retry;
 	    tout << "select() failed with errno=" << errno << ": "
-		 << errno_to_string(errno) << endl;
+		 << errno_to_string(errno) << '\n';
 	    result[0] = 'S';
 	    r = 1;
 	} else {
@@ -1385,7 +1385,7 @@ retry:
 	    if (r == -1) {
 		// Error.
 		tout << "read() failed with errno=" << errno << ": "
-		     << errno_to_string(errno) << endl;
+		     << errno_to_string(errno) << '\n';
 		result[0] = 'R';
 		r = 1;
 	    } else if (r == 0) {
@@ -1404,7 +1404,7 @@ retry:
 	if (errno != EINTR) break;
     }
 
-    tout << string(result, r) << endl;
+    tout << string(result, r) << '\n';
     TEST_EQUAL(result[0], 'y');
 #endif
 }
@@ -1474,7 +1474,7 @@ DEFINE_TESTCASE(cursorbug1, glass) {
     // The original problem triggered for chert and glass on repeat==7.
     for (int repeat = 0; repeat < 10; ++repeat) {
 	tout.str(string());
-	tout << "iteration #" << repeat << endl;
+	tout << "iteration #" << repeat << '\n';
 
 	const int ITEMS = 10;
 	int free_id = db.get_doccount();
