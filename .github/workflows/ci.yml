@@ -548,6 +548,7 @@ jobs:
         key: android-cross
     - name: Install package dependencies
       run: |
+        echo verbose=off > ~/.wgetrc
         sudo apt-get update
         sudo apt-get install \
             doxygen \
@@ -556,14 +557,13 @@ jobs:
             python3-docutils \
             pngcrush \
             python3-pygments
-        wget --no-verbose -Ondk.zip https://dl.google.com/android/repository/android-ndk-r25c-linux.zip
+        wget -Ondk.zip https://dl.google.com/android/repository/android-ndk-r25c-linux.zip
         unzip -q ndk.zip
         rm -f ndk.zip
         mv android-ndk-* ndk
     - name: bootstrap source tree
       # Bootstrap only xapian-core
       run: |
-        echo verbose=off > ~/.wgetrc
         ./bootstrap xapian-core
         ./configure CC='ccache gcc' CXX='ccache g++' CXXFLAGS=-O0
         make -j2
