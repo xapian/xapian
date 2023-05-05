@@ -47,7 +47,9 @@ jobs:
             tcl \
             tcl-dev
     - name: bootstrap source tree
-      run: ./bootstrap xapian-core xapian-applications/omega swig xapian-bindings xapian-letor
+      run: |
+        echo verbose=off > ~/.wgetrc
+        ./bootstrap xapian-core xapian-applications/omega swig xapian-bindings xapian-letor
     - name: configure
       run: ./configure CC='ccache gcc' CXX='ccache g++' CPPFLAGS='-D_GLIBCXX_DEBUG'
     - name: make
@@ -92,7 +94,9 @@ jobs:
             tcl \
             tcl-dev
     - name: bootstrap source tree
-      run: ./bootstrap xapian-core xapian-applications/omega swig xapian-bindings xapian-letor
+      run: |
+        echo verbose=off > ~/.wgetrc
+        ./bootstrap xapian-core xapian-applications/omega swig xapian-bindings xapian-letor
     - name: configure
       # Ubuntu's GCC packages define _FORTIFY_SOURCE=2 by default, so we need
       # to undefine it before we define it to avoid a warning (which becomes
@@ -136,7 +140,9 @@ jobs:
             tcl \
             tcl-dev
     - name: bootstrap source tree
-      run: ./bootstrap xapian-core xapian-applications/omega swig xapian-bindings xapian-letor
+      run: |
+        echo verbose=off > ~/.wgetrc
+        ./bootstrap xapian-core xapian-applications/omega swig xapian-bindings xapian-letor
     - name: configure
       # Build with the llvm c++ library to catch more portability issues.
       run: ./configure CC='ccache clang' CXX='ccache clang++ -stdlib=libc++' --with-python3 --with-tcl
@@ -179,7 +185,9 @@ jobs:
             tcl \
             tcl-dev
     - name: bootstrap source tree
-      run: ./bootstrap xapian-core xapian-applications/omega swig xapian-bindings xapian-letor
+      run: |
+        echo verbose=off > ~/.wgetrc
+        ./bootstrap xapian-core xapian-applications/omega swig xapian-bindings xapian-letor
     - name: configure
       run: ./configure CC='ccache clang-6.0' CXX='ccache clang++-6.0' --with-python3 --with-tcl
     - name: make
@@ -226,7 +234,9 @@ jobs:
             tcl \
             tcl-dev
     - name: bootstrap source tree
-      run: ./bootstrap xapian-core xapian-applications/omega swig xapian-bindings xapian-letor
+      run: |
+        echo verbose=off > ~/.wgetrc
+        ./bootstrap xapian-core xapian-applications/omega swig xapian-bindings xapian-letor
     - name: configure
       run: ./configure CC='ccache gcc-7' CXX='ccache g++-7'
     - name: make
@@ -269,7 +279,9 @@ jobs:
             python \
             sphinx-doc
     - name: bootstrap source tree
-      run: ./bootstrap xapian-core xapian-applications/omega swig xapian-bindings xapian-letor
+      run: |
+        echo verbose=off > ~/.wgetrc
+        ./bootstrap xapian-core xapian-applications/omega swig xapian-bindings xapian-letor
     - name: configure
       run: ./configure CC='ccache gcc' CXX='ccache g++' PKG_CONFIG_PATH=/usr/local/opt/icu4c/lib/pkgconfig --prefix='${{ runner.temp }}/XapianInstall' --with-libiconv-prefix=/usr/local/opt/libiconv
     - name: make
@@ -312,6 +324,7 @@ jobs:
     - name: bootstrap source tree
       # Bootstrap only xapian-core
       run: |
+        echo verbose=off > ~/.wgetrc
         ./bootstrap xapian-core
         ./configure CC='ccache gcc' CXX='ccache g++' CXXFLAGS=-O0
         make -j2
@@ -355,6 +368,7 @@ jobs:
     - name: bootstrap source tree
       # Bootstrap only xapian-core
       run: |
+        echo verbose=off > ~/.wgetrc
         ./bootstrap xapian-core
         ./configure CC='ccache gcc' CXX='ccache g++' CXXFLAGS=-O0
         make -j2
