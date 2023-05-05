@@ -45,7 +45,7 @@ DEFINE_TESTCASE(collapsekey5, backend) {
 	}
 
 	for (Xapian::doccount cmax = db.get_doccount() + 1; cmax > 0; --cmax) {
-	    tout << "Collapsing on slot " << slot << " max " << cmax << endl;
+	    tout << "Collapsing on slot " << slot << " max " << cmax << '\n';
 	    enquire.set_collapse_key(slot, cmax);
 	    Xapian::MSet mset = enquire.get_mset(0, full_mset.size());
 

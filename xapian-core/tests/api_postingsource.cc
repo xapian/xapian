@@ -214,14 +214,14 @@ DEFINE_TESTCASE(externalsource3, backend && !remote && !multi) {
     mset = enq.get_mset(0, 5);
     mset_expect_order(mset, 5, 7, 11, 13, 9);
 
-    tout << "max possible weight = " << mset.get_max_possible() << endl;
+    tout << "max possible weight = " << mset.get_max_possible() << '\n';
     TEST(mset.get_max_possible() > 1000);
 
     enq.set_cutoff(0, 1000.001);
     mset = enq.get_mset(0, 10);
     mset_expect_order(mset, 5, 7, 11, 13, 9);
 
-    tout << "max possible weight = " << mset.get_max_possible() << endl;
+    tout << "max possible weight = " << mset.get_max_possible() << '\n';
     TEST(mset.get_max_possible() > 1000);
 
     enq.set_query(Xapian::Query(q.OP_SCALE_WEIGHT, Xapian::Query(&src), 0.5));
@@ -299,13 +299,13 @@ DEFINE_TESTCASE(externalsource4, backend && !remote) {
     Xapian::Enquire enq(db);
     MyDontAskWeightPostingSource src;
 
-    tout << "OP_SCALE_WEIGHT 0" << endl;
+    tout << "OP_SCALE_WEIGHT 0\n";
     enq.set_query(Xapian::Query(Xapian::Query::OP_SCALE_WEIGHT, Xapian::Query(&src), 0));
 
     Xapian::MSet mset = enq.get_mset(0, 5);
     mset_expect_order(mset, 1, 2, 3, 4, 5);
 
-    tout << "OP_FILTER" << endl;
+    tout << "OP_FILTER\n";
     Xapian::Query q(Xapian::Query::OP_FILTER,
 		    Xapian::Query("leav"),
 		    Xapian::Query(&src));
@@ -314,7 +314,7 @@ DEFINE_TESTCASE(externalsource4, backend && !remote) {
     mset = enq.get_mset(0, 5);
     mset_expect_order(mset, 8, 6, 4, 5, 7);
 
-    tout << "BoolWeight" << endl;
+    tout << "BoolWeight\n";
     enq.set_query(Xapian::Query(&src));
     enq.set_weighting_scheme(Xapian::BoolWeight());
 
@@ -329,13 +329,13 @@ DEFINE_TESTCASE(valueweightsource1, backend) {
     Xapian::ValueWeightPostingSource src(11);
 
     // Should be in descending order of length
-    tout << "RAW" << endl;
+    tout << "RAW\n";
     enq.set_query(Xapian::Query(&src));
     Xapian::MSet mset = enq.get_mset(0, 5);
     mset_expect_order(mset, 3, 1, 2, 8, 14);
 
     // In relevance order
-    tout << "OP_FILTER" << endl;
+    tout << "OP_FILTER\n";
     Xapian::Query q(Xapian::Query::OP_FILTER,
 		    Xapian::Query("leav"),
 		    Xapian::Query(&src));
@@ -344,7 +344,7 @@ DEFINE_TESTCASE(valueweightsource1, backend) {
     mset_expect_order(mset, 8, 6, 4, 5, 7);
 
     // Should be in descending order of length
-    tout << "OP_FILTER other way" << endl;
+    tout << "OP_FILTER other way\n";
     q = Xapian::Query(Xapian::Query::OP_FILTER,
 		      Xapian::Query(&src),
 		      Xapian::Query("leav"));
@@ -896,7 +896,7 @@ DEFINE_TESTCASE(estimaterounding1, backend && !multi && !remote) {
 	enquire.set_query(Xapian::Query(&ps));
 	Xapian::MSet mset = enquire.get_mset(0, 0);
 	// MSet::get_description() includes bounds and raw estimate.
-	tout << mset.get_description() << endl;
+	tout << mset.get_description() << '\n';
 	TEST_EQUAL(mset.get_matches_estimated(), t.exp);
     }
 }

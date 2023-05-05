@@ -62,7 +62,7 @@ make_sparse_db(Xapian::WritableDatabase &db, const string & s)
 	    last = strtoul(p + 1, &p, 10);
 	}
 	if (*p && *p != ' ') {
-	    tout << p - s.c_str() << endl;
+	    tout << p - s.c_str() << '\n';
 	    FAIL_TEST("Bad sparse db spec (expected space): " << s);
 	}
 	if (first > last) {
@@ -285,7 +285,7 @@ DEFINE_TESTCASE(compactmerge1, compact) {
 		}
 	    }
 	    tout.str(string());
-	    tout << "Trying suffix '" << suffix << "'" << endl;
+	    tout << "Trying suffix '" << suffix << "'\n";
 	    string arg = outdbpath;
 	    arg += suffix;
 	    TEST_EQUAL(Xapian::Database::check(arg, 0, &tout), 0);
@@ -336,8 +336,8 @@ DEFINE_TESTCASE(compactstub1, compact) {
     mkdir(stubpath, 0755);
     ofstream stub(stubpathfile);
     TEST(stub.is_open());
-    stub << "auto ../../" << get_database_path("apitest_simpledata") << endl;
-    stub << "auto ../../" << get_database_path("apitest_simpledata2") << endl;
+    stub << "auto ../../" << get_database_path("apitest_simpledata") << '\n';
+    stub << "auto ../../" << get_database_path("apitest_simpledata2") << '\n';
     stub.close();
 
     string outdbpath = get_compaction_output_path("compactstub1out");
@@ -361,8 +361,8 @@ DEFINE_TESTCASE(compactstub2, compact) {
     mkdir(".stub", 0755);
     ofstream stub(stubpath);
     TEST(stub.is_open());
-    stub << "auto ../" << get_database_path("apitest_simpledata") << endl;
-    stub << "auto ../" << get_database_path("apitest_simpledata2") << endl;
+    stub << "auto ../" << get_database_path("apitest_simpledata") << '\n';
+    stub << "auto ../" << get_database_path("apitest_simpledata2") << '\n';
     stub.close();
 
     string outdbpath = get_compaction_output_path("compactstub2out");
@@ -386,8 +386,8 @@ DEFINE_TESTCASE(compactstub3, compact) {
     mkdir(".stub", 0755);
     ofstream stub(stubpath);
     TEST(stub.is_open());
-    stub << "auto ../" << get_database_path("apitest_simpledata") << endl;
-    stub << "auto ../" << get_database_path("apitest_simpledata2") << endl;
+    stub << "auto ../" << get_database_path("apitest_simpledata") << '\n';
+    stub << "auto ../" << get_database_path("apitest_simpledata2") << '\n';
     stub.close();
 
     Xapian::doccount in_docs;
@@ -411,8 +411,8 @@ DEFINE_TESTCASE(compactstub4, compact) {
     mkdir(stubpath, 0755);
     ofstream stub(stubpathfile);
     TEST(stub.is_open());
-    stub << "auto ../../" << get_database_path("apitest_simpledata") << endl;
-    stub << "auto ../../" << get_database_path("apitest_simpledata2") << endl;
+    stub << "auto ../../" << get_database_path("apitest_simpledata") << '\n';
+    stub << "auto ../../" << get_database_path("apitest_simpledata2") << '\n';
     stub.close();
 
     Xapian::doccount in_docs;

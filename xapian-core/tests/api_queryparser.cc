@@ -1246,21 +1246,21 @@ DEFINE_TESTCASE(wildquery1, backend) {
     Xapian::Enquire enquire(db);
 
     Xapian::Query qobj = queryparser.parse_query("th*", flags);
-    tout << qobj.get_description() << endl;
+    tout << qobj.get_description() << '\n';
     enquire.set_query(qobj);
     Xapian::MSet mymset = enquire.get_mset(0, 10);
     // Check that 6 documents were returned.
     TEST_MSET_SIZE(mymset, 6);
 
     qobj = queryparser.parse_query("notindb* \"this\"", flags);
-    tout << qobj.get_description() << endl;
+    tout << qobj.get_description() << '\n';
     enquire.set_query(qobj);
     mymset = enquire.get_mset(0, 10);
     // Check that 6 documents were returned.
     TEST_MSET_SIZE(mymset, 6);
 
     qobj = queryparser.parse_query("+notindb* \"this\"", flags);
-    tout << qobj.get_description() << endl;
+    tout << qobj.get_description() << '\n';
     enquire.set_query(qobj);
     mymset = enquire.get_mset(0, 10);
     // Check that 0 documents were returned.
@@ -2350,7 +2350,7 @@ DEFINE_TESTCASE(qp_spell1, spelling) {
 	q = qp.parse_query(p->query,
 			   Xapian::QueryParser::FLAG_SPELLING_CORRECTION |
 			   Xapian::QueryParser::FLAG_BOOLEAN);
-	tout << "Query: " << p->query << endl;
+	tout << "Query: " << p->query << '\n';
 	TEST_STRINGS_EQUAL(qp.get_corrected_query_string(), p->expect);
     }
 }
@@ -2383,7 +2383,7 @@ DEFINE_TESTCASE(qp_spell2, spelling)
 	q = qp.parse_query(p->query,
 			   Xapian::QueryParser::FLAG_SPELLING_CORRECTION |
 			   Xapian::QueryParser::FLAG_BOOLEAN);
-	tout << "Query: " << p->query << endl;
+	tout << "Query: " << p->query << '\n';
 	TEST_STRINGS_EQUAL(qp.get_corrected_query_string(), p->expect);
     }
 }
@@ -2420,7 +2420,7 @@ DEFINE_TESTCASE(qp_spellwild1, spelling) {
 			   Xapian::QueryParser::FLAG_SPELLING_CORRECTION |
 			   Xapian::QueryParser::FLAG_BOOLEAN |
 			   Xapian::QueryParser::FLAG_WILDCARD);
-	tout << "Query: " << p->query << endl;
+	tout << "Query: " << p->query << '\n';
 	TEST_STRINGS_EQUAL(qp.get_corrected_query_string(), p->expect);
     }
     for (p = test_mispelled_wildcard_queries; p->query; ++p) {
@@ -2429,7 +2429,7 @@ DEFINE_TESTCASE(qp_spellwild1, spelling) {
 			   Xapian::QueryParser::FLAG_SPELLING_CORRECTION |
 			   Xapian::QueryParser::FLAG_BOOLEAN |
 			   Xapian::QueryParser::FLAG_WILDCARD);
-	tout << "Query: " << p->query << endl;
+	tout << "Query: " << p->query << '\n';
 	TEST_STRINGS_EQUAL(qp.get_corrected_query_string(), p->expect);
     }
 }
@@ -2457,7 +2457,7 @@ DEFINE_TESTCASE(qp_spellpartial1, spelling) {
 	q = qp.parse_query(p->query,
 			   Xapian::QueryParser::FLAG_SPELLING_CORRECTION |
 			   Xapian::QueryParser::FLAG_PARTIAL);
-	tout << "Query: " << p->query << endl;
+	tout << "Query: " << p->query << '\n';
 	TEST_STRINGS_EQUAL(qp.get_corrected_query_string(), p->expect);
     }
 }
@@ -2507,7 +2507,7 @@ DEFINE_TESTCASE(qp_synonym1, synonyms) {
 	expect += ')';
 	Xapian::Query q;
 	q = qp.parse_query(p->query, qp.FLAG_AUTO_SYNONYMS|qp.FLAG_DEFAULT);
-	tout << "Query: " << p->query << endl;
+	tout << "Query: " << p->query << '\n';
 	TEST_STRINGS_EQUAL(q.get_description(), expect);
     }
 }
@@ -2546,7 +2546,7 @@ DEFINE_TESTCASE(qp_synonym2, synonyms) {
 	q = qp.parse_query(p->query,
 			   Xapian::QueryParser::FLAG_AUTO_MULTIWORD_SYNONYMS |
 			   Xapian::QueryParser::FLAG_DEFAULT);
-	tout << "Query: " << p->query << endl;
+	tout << "Query: " << p->query << '\n';
 	TEST_STRINGS_EQUAL(q.get_description(), expect);
     }
 }
@@ -2600,7 +2600,7 @@ DEFINE_TESTCASE(qp_synonym3, synonyms) {
 			   Xapian::QueryParser::FLAG_BOOLEAN |
 			   Xapian::QueryParser::FLAG_LOVEHATE |
 			   Xapian::QueryParser::FLAG_PHRASE);
-	tout << "Query: " << p->query << endl;
+	tout << "Query: " << p->query << '\n';
 	TEST_STRINGS_EQUAL(q.get_description(), expect);
     }
 }
@@ -3004,7 +3004,7 @@ DEFINE_TESTCASE(qp_default_op2, !backend) {
 	Xapian::Query::OP_VALUE_LE
     };
     for (Xapian::Query::op op : ops) {
-	tout << op << endl;
+	tout << op << '\n';
 	TEST_EXCEPTION(Xapian::InvalidArgumentError,
 		       qp.set_default_op(op));
 	TEST_EQUAL(qp.get_default_op(), Xapian::Query::OP_OR);
@@ -3035,7 +3035,7 @@ DEFINE_TESTCASE(qp_default_op3, !backend) {
     };
     const qp_default_op3_test * p;
     for (p = tests; p - tests != sizeof(tests) / sizeof(*tests); ++p) {
-	tout << p->op << endl;
+	tout << p->op << '\n';
 	qp.set_default_op(p->op);
 	// Check that get_default_op() returns what we just set.
 	TEST_EQUAL(qp.get_default_op(), p->op);

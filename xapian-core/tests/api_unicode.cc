@@ -92,7 +92,7 @@ DEFINE_TESTCASE(utf8iterator1, !backend) {
     const testcase* p;
     for (p = testcases; p->a; ++p) {
 	tout.str(string());
-	tout << '"' << p->a << "\" and \"" << p->b << '"' << endl;
+	tout << '"' << p->a << "\" and \"" << p->b << "\"\n";
 	size_t a_len = strlen(p->a);
 	Xapian::Utf8Iterator a(p->a, a_len);
 

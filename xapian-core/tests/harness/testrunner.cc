@@ -125,8 +125,7 @@ TestRunner::do_tests_for_backend_(BackendManager* manager)
     const string& backend_name = manager->get_dbtype();
     if (use_backend(backend_name)) {
 	set_properties_for_backend(backend_name);
-	cout << "Running tests with backend \"" << backend_name << "\"..."
-	     << endl;
+	cout << "Running tests with backend \"" << backend_name << "\"...\n";
 	backendmanager = manager;
 	result_so_far = max(result_so_far, run());
 	backendmanager = NULL;
@@ -196,16 +195,16 @@ TestRunner::run_tests(int argc, char ** argv)
 #endif
     } catch (const std::exception& e) {
 	cerr << "\nTest harness failed with std::exception: " << e.what()
-	     << endl;
+	     << '\n';
 	return 1;
     } catch (const Xapian::Error &e) {
-	cerr << "\nTest harness failed with " << e.get_description() << endl;
+	cerr << "\nTest harness failed with " << e.get_description() << '\n';
 	return 1;
     } catch (const std::string &e) {
-	cerr << "\nTest harness failed with \"" << e << "\"" << endl;
+	cerr << "\nTest harness failed with \"" << e << "\"\n";
 	return 1;
     } catch (const char * e) {
-	cout << e << endl;
+	cout << e << '\n';
 	return 1;
     }
     return result_so_far;

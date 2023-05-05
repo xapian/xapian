@@ -218,9 +218,9 @@ check_double_serialisation(double u)
     const char * end = ptr[1] + encoded.size();
     double v = unserialise_double(&(ptr[1]), end);
     if (ptr[1] != end || u != v) {
-	cout << u << " -> " << v << ", difference = " << v - u << endl;
-	cout << "FLT_RADIX = " << FLT_RADIX << endl;
-	cout << "DBL_MAX_EXP = " << DBL_MAX_EXP << endl;
+	cout << u << " -> " << v << ", difference = " << v - u << '\n';
+	cout << "FLT_RADIX = " << FLT_RADIX << '\n';
+	cout << "DBL_MAX_EXP = " << DBL_MAX_EXP << '\n';
     }
     TEST_EQUAL(static_cast<const void*>(ptr[1]), static_cast<const void*>(end));
 }
@@ -267,7 +267,7 @@ static void test_serialiselength1()
 	const char *p_end = p + s.size();
 	size_t decoded_n;
 	decode_length(&p, p_end, decoded_n);
-	if (n != decoded_n || p != p_end) tout << "[" << s << "]" << endl;
+	if (n != decoded_n || p != p_end) tout << "[" << s << "]\n";
 	TEST_EQUAL(n, decoded_n);
 	TEST_EQUAL(p_end - p, 0);
 	if (n < 5000) {
@@ -506,7 +506,7 @@ template<typename S>
 inline static void tostring_helper() {
     const S max_val = numeric_limits<S>::max();
     const S min_val = numeric_limits<S>::min();
-    tout << "Testing with tostring_helper" << endl;
+    tout << "Testing with tostring_helper\n";
     std::ostringstream oss;
     oss << (long long)max_val;
     TEST_EQUAL(str(max_val), oss.str());
@@ -837,7 +837,7 @@ template<typename U>
 inline static void parseunsigned_helper() {
     U val;
     const U max_val = numeric_limits<U>::max();
-    tout << "Testing with parseunsigned_helper" << endl;
+    tout << "Testing with parseunsigned_helper\n";
     TEST(parse_unsigned("0", val));
     TEST_EQUAL(val, 0);
     TEST(parse_unsigned("99", val));
@@ -867,7 +867,7 @@ inline static void parsesigned_helper() {
     S val;
     const S max_val = numeric_limits<S>::max();
     const S min_val = numeric_limits<S>::min();
-    tout << "Testing with parsesigned_helper" << endl;
+    tout << "Testing with parsesigned_helper\n";
     TEST(parse_signed("0", val));
     TEST_EQUAL(val, 0);
     TEST(parse_signed("99", val));
@@ -931,6 +931,6 @@ try {
     test_driver::parse_command_line(argc, argv);
     return test_driver::run(tests);
 } catch (const char * e) {
-    cout << e << endl;
+    cout << e << '\n';
     return 1;
 }

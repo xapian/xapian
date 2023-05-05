@@ -37,7 +37,7 @@ DEFINE_TESTCASE(valuestream1, backend) {
     Xapian::Database db = get_database("apitest_simpledata");
 
     for (Xapian::valueno slot = 0; slot < 15; ++slot) {
-	tout << "testing valuestream iteration for slot " << slot << endl;
+	tout << "testing valuestream iteration for slot " << slot << '\n';
 	Xapian::ValueIterator it = db.valuestream_begin(slot);
 	while (it != db.valuestream_end(slot)) {
 	    TEST_EQUAL(it.get_valueno(), slot);
@@ -61,7 +61,7 @@ DEFINE_TESTCASE(valuestream2, backend) {
 	while (interval < 1999) {
 	    tout.str(string());
 	    tout << "testing valuestream skip_to for slot " << slot
-		 << " with interval " << interval << endl;
+		 << " with interval " << interval << '\n';
 	    Xapian::docid did = 1;
 	    Xapian::ValueIterator it = db.valuestream_begin(slot);
 	    if (it == db.valuestream_end(slot)) break;
@@ -101,7 +101,7 @@ DEFINE_TESTCASE(valuestream3, backend) {
 	unsigned interval = 1;
 	while (interval < 1999) {
 	    tout << "testing valuestream check for slot " << slot
-		 << " with interval " << interval << endl;
+		 << " with interval " << interval << '\n';
 	    Xapian::docid did = 1;
 	    Xapian::ValueIterator it = db.valuestream_begin(slot);
 	    if (it == db.valuestream_end(slot)) break;

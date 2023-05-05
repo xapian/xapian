@@ -447,7 +447,7 @@ DEFINE_TESTCASE(expandmaxitems1, backend) {
     enquire.set_query(Xapian::Query("this"));
 
     Xapian::MSet mymset = enquire.get_mset(0, 10);
-    tout << "mymset.size() = " << mymset.size() << endl;
+    tout << "mymset.size() = " << mymset.size() << '\n';
     TEST(mymset.size() >= 2);
 
     Xapian::RSet myrset;
@@ -787,7 +787,7 @@ DEFINE_TESTCASE(pctcutoff3, backend) {
 	int new_percent = mset1.convert_to_percent(i);
 	if (new_percent != percent) {
 	    tout.str(string());
-	    tout << "Testing " << percent << "% cutoff" << endl;
+	    tout << "Testing " << percent << "% cutoff\n";
 	    enquire.set_cutoff(percent);
 	    Xapian::MSet mset2 = enquire.get_mset(0, 10);
 	    TEST_EQUAL(mset2.back().get_percent(), percent);
@@ -2189,7 +2189,7 @@ DEFINE_TESTCASE(scaleweight1, backend) {
     for (auto qstr : queries) {
 	tout.str(string());
 	Xapian::Query query1 = qp.parse_query(qstr);
-	tout << "query1: " << query1.get_description() << endl;
+	tout << "query1: " << query1.get_description() << '\n';
 	for (const double *multp = multipliers; multp[0] != multp[1]; ++multp) {
 	    double mult = *multp;
 	    if (mult < 0) {
@@ -2199,7 +2199,7 @@ DEFINE_TESTCASE(scaleweight1, backend) {
 		continue;
 	    }
 	    Xapian::Query query2(Xapian::Query::OP_SCALE_WEIGHT, query1, mult);
-	    tout << "query2: " << query2.get_description() << endl;
+	    tout << "query2: " << query2.get_description() << '\n';
 
 	    enq.set_query(query1);
 	    Xapian::MSet mset1 = enq.get_mset(0, 20);

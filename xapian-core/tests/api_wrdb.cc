@@ -1755,7 +1755,7 @@ DEFINE_TESTCASE(termtoolong1, writable) {
 
     for (size_t i = 246; i <= 290; ++i) {
 	tout.str(string());
-	tout << "Term length " << i << endl;
+	tout << "Term length " << i << '\n';
 	Xapian::Document doc;
 	string term(i, 'X');
 	doc.add_term(term);
@@ -1766,14 +1766,14 @@ DEFINE_TESTCASE(termtoolong1, writable) {
 	    // Check that the max length is correctly expressed in the
 	    // exception message - we've got this wrong in two different ways
 	    // in the past!
-	    tout << e.get_msg() << endl;
+	    tout << e.get_msg() << '\n';
 	    TEST(e.get_msg().find("Term too long (> 245)") != string::npos);
 	}
     }
 
     for (size_t j = 240; j <= 245; ++j) {
 	tout.str(string());
-	tout << "Term length " << j << endl;
+	tout << "Term length " << j << '\n';
 	Xapian::Document doc;
 	string term(j, 'X');
 	doc.add_term(term);
@@ -1797,7 +1797,7 @@ DEFINE_TESTCASE(termtoolong1, writable) {
 	    // Check that the max length is correctly expressed in the
 	    // exception message - we've got this wrong in two different ways
 	    // in the past!
-	    tout << e.get_msg() << endl;
+	    tout << e.get_msg() << '\n';
 	    string target = " is ";
 	    target += str(limit);
 	    target += " bytes";
@@ -1882,7 +1882,7 @@ gen_lazytablebug1_db(Xapian::WritableDatabase& db, const string&)
 DEFINE_TESTCASE(lazytablebug1, synonyms) {
     Xapian::Database db = get_database("lazytablebug1", gen_lazytablebug1_db);
     for (Xapian::TermIterator t = db.synonym_keys_begin(); t != db.synonym_keys_end(); ++t) {
-	tout << *t << endl;
+	tout << *t << '\n';
     }
 }
 

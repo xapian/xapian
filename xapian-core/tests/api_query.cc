@@ -478,7 +478,7 @@ DEFINE_TESTCASE(wildcard1, backend) {
     const Xapian::Query::op o = Xapian::Query::OP_WILDCARD;
 
     for (auto&& test : wildcard1_testcases) {
-	tout << test.pattern << endl;
+	tout << test.pattern << '\n';
 	auto tend = test.terms + 4;
 	while (tend[-1] == NULL) --tend;
 	bool expect_exception = (tend - test.terms == 4 && tend[-1][0] == '\0');
@@ -545,7 +545,7 @@ DEFINE_TESTCASE(dualprefixwildcard1, backend) {
     Xapian::Query q(Xapian::Query::OP_SYNONYM,
 		    Xapian::Query(Xapian::Query::OP_WILDCARD, "fo"),
 		    Xapian::Query(Xapian::Query::OP_WILDCARD, "Sfo"));
-    tout << q.get_description() << endl;
+    tout << q.get_description() << '\n';
     Xapian::Enquire enq(db);
     enq.set_query(q);
     TEST_EQUAL(enq.get_mset(0, 5).size(), 2);

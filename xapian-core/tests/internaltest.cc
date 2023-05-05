@@ -582,6 +582,6 @@ try {
     test_driver::parse_command_line(argc, argv);
     return test_driver::run(tests);
 } catch (const char* e) {
-    cout << e << endl;
+    cout << e << '\n';
     return 1;
 }
