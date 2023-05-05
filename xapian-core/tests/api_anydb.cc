@@ -204,26 +204,8 @@ DEFINE_TESTCASE(simplequery3, backend) {
     TEST_MSET_SIZE(mymset, 6);
 }
 
-// multidb2 no longer exists.
-
-// test that a multidb with 2 dbs query returns correct docids
-DEFINE_TESTCASE(multidb3, backend && !multi) {
-    Xapian::Database mydb2(get_database("apitest_simpledata"));
-    mydb2.add_database(get_database("apitest_simpledata2"));
-    Xapian::Enquire enquire(mydb2);
-
-    // make a query
-    Xapian::Query myquery = query(Xapian::Query::OP_OR, "inmemory", "word");
-    enquire.set_weighting_scheme(Xapian::BoolWeight());
-    enquire.set_query(myquery);
-
-    // retrieve the top ten results
-    Xapian::MSet mymset = enquire.get_mset(0, 10);
-    mset_expect_order(mymset, 2, 3, 7);
-}
-
 // test that a multidb with 3 dbs query returns correct docids
-DEFINE_TESTCASE(multidb4, backend && !multi) {
+DEFINE_TESTCASE(multidb2, backend && !multi) {
     Xapian::Database mydb2(get_database("apitest_simpledata"));
     mydb2.add_database(get_database("apitest_simpledata2"));
     mydb2.add_database(get_database("apitest_termorder"));
@@ -237,22 +219,6 @@ DEFINE_TESTCASE(multidb4, backend && !multi) {
     // retrieve the top ten results
     Xapian::MSet mymset = enquire.get_mset(0, 10);
     mset_expect_order(mymset, 2, 3, 4, 10);
-}
-
-// tests MultiPostList::skip_to().
-DEFINE_TESTCASE(multidb5, backend && !multi) {
-    Xapian::Database mydb2(get_database("apitest_simpledata"));
-    mydb2.add_database(get_database("apitest_simpledata2"));
-    Xapian::Enquire enquire(mydb2);
-
-    // make a query
-    Xapian::Query myquery = query(Xapian::Query::OP_AND, "inmemory", "word");
-    enquire.set_weighting_scheme(Xapian::BoolWeight());
-    enquire.set_query(myquery);
-
-    // retrieve the top ten results
-    Xapian::MSet mymset = enquire.get_mset(0, 10);
-    mset_expect_order(mymset, 2);
 }
 
 // tests that when specifying maxitems to get_mset, no more than
