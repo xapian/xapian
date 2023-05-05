@@ -537,6 +537,55 @@ jobs:
       # if that input is empty.
       run: git status --porcelain|grep '^' && { echo "The generated files listed above are not in .gitignore" ; exit 1; }; true
 
+  android-cross:
+    runs-on: 'ubuntu-22.04'
+    steps:
+    - name: Check out repository code
+      uses: actions/checkout@v3
+    - name: Install CCache
+      uses: hendrikmuhs/ccache-action@v1
+      with:
+        key: android-cross
+    - name: Install package dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install \
+            doxygen \
+            graphviz \
+            help2man \
+            python3-docutils \
+            pngcrush \
+            python3-pygments
+        wget --no-verbose -Ondk.zip https://dl.google.com/android/repository/android-ndk-r25c-linux.zip
+        unzip -q ndk.zip
+        mv android-ndk-* ndk
+    - name: bootstrap source tree
+      # Bootstrap only xapian-core
+      run: |
+        echo verbose=off > ~/.wgetrc
+        ./bootstrap xapian-core
+        ./configure CC='ccache gcc' CXX='ccache g++' CXXFLAGS=-O0
+        make -j2
+        make -j2 distclean
+    - name: configure
+      run: |
+        PATH=$PWD/ndk/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH \
+            ./configure --disable-documentation \
+                --host armv7a-linux-androideabi33 \
+                CC=$PWD/ndk/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi33-clang \
+                CXX=$PWD/ndk/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi33-clang++ \
+                PKG_CONFIG=/bin/false
+    - name: make
+      run: |
+        PATH=$PWD/ndk/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH make
+    - name: Run tests
+      # FIXME: Run tests under android emulator?
+      run: echo No tests currently
+    - name: Check generated files are in .gitignore
+      # grep '^' passes through all input while giving a non-zero exit status
+      # if that input is empty.
+      run: git status --porcelain|grep '^' && { echo "The generated files listed above are not in .gitignore" ; exit 1; }; true
+
   checkpatch:
     name: 'Automated run of xapian-check-patch'
     runs-on: 'ubuntu-latest'
