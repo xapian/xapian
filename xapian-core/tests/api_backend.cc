@@ -1410,7 +1410,7 @@ retry:
 }
 
 // Opening a WritableDatabase with low fds available - it should avoid them.
-DEFINE_TESTCASE(dbfilefd012, glass) {
+DEFINE_TESTCASE(dbfilefd012, writable && !remote) {
 #if !defined __WIN32__ && !defined __CYGWIN__ && !defined __OS2__
     int oldfds[3];
     for (int i = 0; i < 3; ++i) {
@@ -1465,7 +1465,7 @@ DEFINE_TESTCASE(dbfilefd012, glass) {
 }
 
 /// Regression test for #675, fixed in 1.3.3 and 1.2.21.
-DEFINE_TESTCASE(cursorbug1, glass) {
+DEFINE_TESTCASE(cursorbug1, writable && path) {
     Xapian::WritableDatabase wdb = get_writable_database();
     Xapian::Database db = get_writable_database_as_database();
     Xapian::Enquire enq(db);
@@ -1609,7 +1609,7 @@ DEFINE_TESTCASE(getrevision1, glass) {
 }
 
 /// Check get_revision() on an empty database reports 0.  (Since 1.5.0)
-DEFINE_TESTCASE(getrevision2, glass) {
+DEFINE_TESTCASE(getrevision2, !backend) {
     Xapian::Database db;
     TEST_EQUAL(db.get_revision(), 0);
     Xapian::Database wdb;
