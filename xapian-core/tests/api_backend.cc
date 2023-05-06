@@ -2004,3 +2004,42 @@ DEFINE_TESTCASE(remoteportreuse1, remotetcp) {
 	}
     }
 }
+
+// Test exception for check() on remote via stub.
+DEFINE_TESTCASE(unsupportedcheck1, path) {
+    mkdir(".stub", 0755);
+    const char* stubpath = ".stub/unsupportedcheck1";
+    ofstream out(stubpath);
+    TEST(out.is_open());
+    out << "remote :" << BackendManager::get_xapian_progsrv_command()
+	<< ' ' << get_database_path("apitest_simpledata") << '\n';
+    out.close();
+
+    TEST_EXCEPTION(Xapian::UnimplementedError,
+		   Xapian::Database::check(stubpath));
+}
+
+// Test exception for check() on inmemory via stub.
+DEFINE_TESTCASE(unsupportedcheck2, inmemory) {
+    mkdir(".stub", 0755);
+    const char* stubpath = ".stub/unsupportedcheck2";
+    ofstream out(stubpath);
+    TEST(out.is_open());
+    out << "inmemory\n";
+    out.close();
+
+    TEST_EXCEPTION(Xapian::UnimplementedError,
+		   Xapian::Database::check(stubpath));
+}
+
+// Test exception for passing empty filename to check().
+DEFINE_TESTCASE(unsupportedcheck3, !backend) {
+    // Regression test, exception was DatabaseOpeningError with description:
+    // Failed to rewind file descriptor -1 (Bad file descriptor)
+    try {
+	Xapian::Database::check(""s);
+    } catch (const Xapian::DatabaseOpeningError& e) {
+	string enoent_msg = errno_to_string(ENOENT);
+	TEST_EQUAL(e.get_error_string(), enoent_msg);
+    }
+}

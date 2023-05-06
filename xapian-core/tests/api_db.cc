@@ -68,7 +68,7 @@ DEFINE_TESTCASE(termstats, backend) {
 }
 
 // Check that stub databases work.
-DEFINE_TESTCASE(stubdb1, path) {
+DEFINE_TESTCASE(stubdb1, check && path) {
     mkdir(".stub", 0755);
     const char * dbpath = ".stub/stubdb1";
     ofstream out(dbpath);

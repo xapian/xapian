@@ -77,6 +77,14 @@ static const struct { char name[9]; } honey_tables[] = {
 };
 #endif
 
+[[noreturn]]
+static void
+throw_no_db_to_check()
+{
+    auto msg = "Couldn't find Xapian database or table to check";
+    throw Xapian::DatabaseOpeningError(msg, ENOENT);
+}
+
 // FIXME: We don't currently cross-check wdf between postlist and termlist.
 // It's hard to see how to efficiently.  We do cross-check doclens, but that
 // "only" requires (4 * last_docid()) bytes.
@@ -440,6 +448,7 @@ Database::check_(const string * path_ptr, int fd, int opts, std::ostream *out)
     }
 
     const string & path = *path_ptr;
+    if (path.empty()) throw_no_db_to_check();
     struct stat sb;
     if (stat(path.c_str(), &sb) == 0) {
 	if (S_ISDIR(sb.st_mode)) {
@@ -487,8 +496,7 @@ Database::check_(const string * path_ptr, int fd, int opts, std::ostream *out)
     } else if (stat((filename + "." HONEY_TABLE_EXTENSION).c_str(), &sb) == 0) {
 	backend = BACKEND_HONEY;
     } else {
-	auto msg = "Couldn't find Xapian database or table to check";
-	throw Xapian::DatabaseOpeningError(msg, ENOENT);
+	throw_no_db_to_check();
     }
 
     return check_db_table(path, opts, out, backend);
