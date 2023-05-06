@@ -90,6 +90,8 @@ class TestRunner {
 	PATH		= 0x00010000,
 	/// TCP variant of remote.
 	REMOTETCP	= 0x00020000,
+	/// Supports Xapian::Database::check().
+	CHECK		= 0x00040000,
     };
 
   public:
