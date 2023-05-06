@@ -170,12 +170,6 @@ DEFINE_TESTCASE(querylen2, !backend) {
     TEST_EQUAL(myquery.get_length(), 10);
 }
 
-// tests that queries validate correctly
-DEFINE_TESTCASE(queryvalid1, !backend) {
-    Xapian::Query q2(Xapian::Query::OP_XOR, Xapian::Query("foo"), Xapian::Query("bar"));
-    tout << "XOR (\"foo\", \"bar\") checked\n";
-}
-
 /** Check we no longer flatten subqueries combined with the same operator.
  *
  *  Prior to 1.3.0 we did flatten these, but it's simpler to just handle this
