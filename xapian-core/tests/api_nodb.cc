@@ -39,10 +39,6 @@
 
 using namespace std;
 
-// always succeeds
-DEFINE_TESTCASE(trivial1, !backend) {
-}
-
 // tests that get_query_terms() returns the terms in the right order
 DEFINE_TESTCASE(getqterms1, !backend) {
     list<string> answers_list;
