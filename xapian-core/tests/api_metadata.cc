@@ -41,10 +41,14 @@ DEFINE_TESTCASE(metadata1, metadata) {
 				       {
 					   wdb.set_metadata("empty", "");
 					   wdb.set_metadata("foo", "bar");
-					   wdb.set_metadata("\0"s, "\0"s);
-					   wdb.set_metadata("\0fo"s, "\0xx"s);
-					   wdb.set_metadata("f\0o"s, "x\0x"s);
-					   wdb.set_metadata("fo\0"s, "xx\0"s);
+					   wdb.set_metadata(string("", 1),
+							    string("", 1));
+					   wdb.set_metadata(string("\0fo", 3),
+							    string("\0xx", 3));
+					   wdb.set_metadata(string("f\0o", 3),
+							    string("x\0x", 3));
+					   wdb.set_metadata(string("fo\0", 3),
+							    string("xx\0", 3));
 				       });
     TEST_EQUAL(db.get_doccount(), 0);
     TEST_EQUAL(db.get_metadata("empty"), "");
@@ -52,10 +56,10 @@ DEFINE_TESTCASE(metadata1, metadata) {
     TEST_EQUAL(db.get_metadata("foo"), "bar");
 
     // Check for transparent handling of zero bytes.
-    TEST_EQUAL(db.get_metadata("\0"s), "\0"s);
-    TEST_EQUAL(db.get_metadata("\0fo"s), "\0xx"s);
-    TEST_EQUAL(db.get_metadata("f\0o"s), "x\0x"s);
-    TEST_EQUAL(db.get_metadata("fo\0"s), "xx\0"s);
+    TEST_EQUAL(db.get_metadata(string("", 1)), string("", 1));
+    TEST_EQUAL(db.get_metadata(string("\0fo", 3)), string("\0xx", 3));
+    TEST_EQUAL(db.get_metadata(string("f\0o", 3)), string("x\0x", 3));
+    TEST_EQUAL(db.get_metadata(string("fo\0", 3)), string("xx\0", 3));
 
     TEST_EXCEPTION(Xapian::InvalidArgumentError, db.get_metadata(""));
 }
