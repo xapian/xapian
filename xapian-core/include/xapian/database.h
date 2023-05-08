@@ -912,7 +912,7 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 	 *  performed or not performed at all: it is then up to the
 	 *  application to work out which operations need to be repeated.
 	 *
-	 *  However, note that if called on a shared database, atomicity isn't
+	 *  However, note that if called on a sharded database, atomicity isn't
 	 *  guaranteed between shards - it's possible for the changes to one
 	 *  shard to be committed but changes to another shard to fail.
 	 *
@@ -954,7 +954,7 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 	 *  a power failure, this characteristic should be preserved (as long
 	 *  as the filesystem isn't corrupted, etc).
 	 *
-	 *  However, note that if called on a shared database, atomicity isn't
+	 *  However, note that if called on a sharded database, atomicity isn't
 	 *  guaranteed between shards.  Within each shard, the transaction will
 	 *  still act atomically.
 	 *
@@ -1011,7 +1011,7 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 	 *
 	 *  In all cases the transaction will no longer be in progress.
 	 *
-	 *  Note that if called on a shared database, atomicity isn't
+	 *  Note that if called on a sharded database, atomicity isn't
 	 *  guaranteed between shards.  Within each shard, the transaction will
 	 *  still act atomically.
 	 *
