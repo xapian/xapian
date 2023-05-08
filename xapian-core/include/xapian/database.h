@@ -1062,7 +1062,7 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
      *  to disk and available to readers.  If the commit operation fails, then
      *  any pending modifications are discarded.
      *
-     *  However, note that if called on a shared database, atomicity isn't
+     *  However, note that if called on a sharded database, atomicity isn't
      *  guaranteed between shards - it's possible for the changes to one
      *  shard to be committed but changes to another shard to fail.
      *
@@ -1087,7 +1087,7 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
      *  committed as an atomic unit - in any committed revision of the
      *  database either none are present or they all are.
      *
-     *  However, note that if called on a shared database, atomicity isn't
+     *  However, note that if called on a sharded database, atomicity isn't
      *  guaranteed between shards.  Within each shard, the transaction will
      *  still act atomically.
      *
@@ -1143,7 +1143,7 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
      *
      *  In all cases the transaction will no longer be in progress.
      *
-     *  Note that if called on a shared database, atomicity isn't guaranteed
+     *  Note that if called on a sharded database, atomicity isn't guaranteed
      *  between shards.  Within each shard, the transaction will still act
      *  atomically.
      *
