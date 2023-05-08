@@ -1789,7 +1789,7 @@ DEFINE_TESTCASE(unsupportedcheck3, !backend) {
     // Regression test, exception was DatabaseOpeningError with description:
     // Failed to rewind file descriptor -1 (Bad file descriptor)
     try {
-	Xapian::Database::check(""s);
+	Xapian::Database::check(string());
     } catch (const Xapian::DatabaseOpeningError& e) {
 	string enoent_msg = errno_to_string(ENOENT);
 	TEST_EQUAL(e.get_error_string(), enoent_msg);
