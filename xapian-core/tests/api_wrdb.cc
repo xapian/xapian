@@ -2076,3 +2076,9 @@ DEFINE_TESTCASE(protocolbug1, remote && writable) {
 		   db.replace_document(1, doc));
     db.commit();
 }
+
+DEFINE_TESTCASE(remotefdleak1, remote && writable) {
+    Xapian::WritableDatabase wdb = get_writable_database("");
+    TEST_EXCEPTION(Xapian::DatabaseLockError,
+		   auto wdb2 = get_writable_database_again());
+}
