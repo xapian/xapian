@@ -82,6 +82,22 @@ Debian bullseye::
 
 apt-get install tcl-dev
 
+Running tests in-tree on macOS
+==============================
+
+On macOS 10.11 and later there's a new feature called System Integrity
+Protection (SIP) which locks down "system binaries" to an extent which is
+actively unhelpful when doing development work.  This breaks running tests
+in-tree for language interpreters which are system binaries because environment
+variables such as ``DYLD_LIBRARY_PATH`` are stripped from the environment and
+as a result the in-tree libxapian from xapian-core can't be found.
+
+The workaround is to ``make install`` for xapian-core before running ``make
+check`` for xapian-bindings, and we're aiming to at least keep this working.
+
+If you find having to do this too annoying, it's possible to disable SIP:
+https://developer.apple.com/documentation/security/disabling_and_enabling_system_integrity_protection
+
 Adding support for other programming languages
 ==============================================
 
