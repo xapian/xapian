@@ -25,7 +25,9 @@ use warnings;
 
 # Usage:
 #
-# Run strace like so:
+# Analyses logs from the LD_PRELOAD library profiler.so or from strace.
+#
+# If using strace, run it like so:
 #
 # strace -y -s0 -efdatasync,fsync,pread64,pwrite64 -o strace.log COMMAND ARGS...
 # ./strace-analyse strace.log

@@ -1,15 +1,14 @@
 /** @file
  * @brief C file implementing IO logging
  */
-/* Compile the profiler with:
- * gcc -shared -fPIC -o /path/to/profiler.so profiler.c -ldl
+/* Compile the profiler by running `make`.
  *
- * To use it with a process, change the path to profiler.so inside the
- * xapian-io-profile script, then use:
+ * Run using the xapian-io-profile script, which expects profiler.so to be in the same directory as the script:
+ *
  * ./xapian-io-profile --log=log_file_name ./executable
  *
- * Running this library will produce a log file,
- * which can be fed to strace-analyse to produce a log, by running:
+ * The resulting log can be analysed with strace-analyse:
+ *
  * ./strace-analyse log_file_name
  */
 
