@@ -76,6 +76,7 @@ using namespace std;
 // Code we're unit testing:
 #include "../common/closefrom.cc"
 #include "../common/errno_to_string.cc"
+#include "../common/io_utils.cc"
 #include "../common/fileutils.cc"
 #include "../common/overflow.h"
 #include "../common/parseint.h"
@@ -901,6 +902,71 @@ static void test_parsesigned1()
     parsesigned_helper<long long>();
 }
 
+/// Test working with a block-based file using functions from io_utils.h.
+static void test_ioblock1()
+{
+    constexpr int BLOCK_SIZE = 1024;
+    const char* tmp_file = ".unittest_ioutils1";
+
+    int fd = io_open_block_wr(tmp_file, true);
+    TEST_REL(fd, >=, 0);
+
+    string buf(BLOCK_SIZE, 'x');
+    string out;
+
+    io_write_block(fd, buf.data(), BLOCK_SIZE, 1);
+    out.resize(BLOCK_SIZE);
+    io_read_block(fd, &out[0], BLOCK_SIZE, 1);
+    TEST(buf == out);
+
+    // Call io_sync() and check it claims to work.  Checking it actually has
+    // any effect is much harder to do.
+    TEST(io_sync(fd));
+
+    io_write_block(fd, buf.data(), BLOCK_SIZE, 12);
+    out.resize(BLOCK_SIZE);
+    io_read_block(fd, &out[0], BLOCK_SIZE, 12);
+    TEST(buf == out);
+
+    // Call io_full_sync() and check it claims to work.  Checking it actually
+    // has any effect is much harder to do.
+    TEST(io_full_sync(fd));
+
+    if (sizeof(off_t) <= 4) {
+	close(fd);
+	io_unlink(tmp_file);
+	SKIP_TEST("Skipping rest of testcase - off_t not 64-bit");
+    }
+
+    struct stat statbuf;
+    TEST(fstat(fd, &statbuf) == 0);
+    TEST_REL(statbuf.st_blocks, >=, BLOCK_SIZE / 512 * 2);
+    if (statbuf.st_blocks >= BLOCK_SIZE / 512 * (12 + 1)) {
+	SKIP_TEST("Skipping rest of testcase - FS doesn't support holes");
+    }
+
+    // Write a block before 4GB and check that we wrote the specified block by
+    // checking the filesize.  This should catch bugs which truncate the
+    // offset used.
+    io_write_block(fd, buf.data(), BLOCK_SIZE, (1ull << 32) - 1);
+    TEST(fstat(fd, &statbuf) == 0);
+    TEST_EQUAL(statbuf.st_size, (1ull << 32) * 1024);
+
+    close(fd);
+
+    fd = io_open_block_rd(tmp_file);
+
+    // We can't easily test that io_readahead_block() actually does anything if
+    // it returns true, but we can at least call it to check it doesn't crash.
+    (void)io_readahead_block(fd, BLOCK_SIZE, 12);
+
+    io_read_block(fd, &out[0], BLOCK_SIZE, (1ull << 32) - 1);
+    TEST(buf == out);
+
+    close(fd);
+    io_unlink(tmp_file);
+}
+
 static const test_desc tests[] = {
     TESTCASE(simple_exceptions_work1),
     TESTCASE(class_exceptions_work1),
@@ -923,6 +989,7 @@ static const test_desc tests[] = {
     TESTCASE(muloverflows1),
     TESTCASE(parseunsigned1),
     TESTCASE(parsesigned1),
+    TESTCASE(ioblock1),
     END_OF_TESTCASES
 };
 
