@@ -52,7 +52,7 @@ check_checksum() {
 	'${OPENSSL-openssl} sha256 2>/dev/null|sed "s/.* //"' \
 	'' ; do
       if [ -z "$SHA256SUM_TOOL" ] ; then
-	echo <<'END'
+	cat <<'END'
 Need sha256sum or shasum or openssl installed to check SHA256 checksums.
 Set environment variable SHA256SUM, SHASUM or OPENSSL if the tool isn't on
 your PATH.
