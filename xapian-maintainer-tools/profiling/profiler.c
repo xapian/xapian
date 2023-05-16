@@ -12,6 +12,8 @@
  * ./strace-analyse log_file_name
  */
 
+#include <config.h>
+
 #define _GNU_SOURCE
 
 #include <dlfcn.h>
@@ -19,6 +21,38 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
+
+/* Work out the printf specifiers for off_t and (if defined) off64_t.  If we
+ * don't find a suitable corresponding type, don't define anything so any uses
+ * will fail.
+ */
+
+#if SIZEOF_OFF_T == SIZEOF_INT
+# define FORMAT_OFF_T "d"
+#elif SIZEOF_OFF_T == SIZEOF_LONG
+# define FORMAT_OFF_T "ld"
+#elif SIZEOF_OFF_T == SIZEOF_LONG_LONG
+# define FORMAT_OFF_T "lld"
+#endif
+
+#if SIZEOF_OFF64_T == SIZEOF_INT
+# define FORMAT_OFF64_T "d"
+#elif SIZEOF_OFF64_T == SIZEOF_LONG
+# define FORMAT_OFF64_T "ld"
+#elif SIZEOF_OFF64_T == SIZEOF_LONG_LONG
+# define FORMAT_OFF64_T "lld"
+#endif
+
+/* Pick type to use for pread64(), etc.
+ *
+ * SIZEOF_OFF64_T will be 0 if there's no off64_t.
+ */
+#if SIZEOF_OFF64_T > 0
+# define OFF64_T off64_t
+#elif SIZEOF_OFF_T > 4
+# define OFF64_T off_t
+# define FORMAT_OFF64_T FORMAT_OFF_T
+#endif
 
 // function for logging calls
 
@@ -67,6 +101,7 @@ int open(const char *pathname, int flags, mode_t mode)
     return fd;
 }
 
+#ifdef HAVE_OPEN64
 // wrapper for open64()
 
 typedef int (*real_open64_t)(const char *, int, mode_t);
@@ -91,6 +126,7 @@ int open64(const char *pathname, int flags, mode_t mode)
     errno = saved_errno;
     return fd;
 }
+#endif
 
 // wrapper for close()
 
@@ -107,6 +143,7 @@ int close(int fd)
     return return_val;
 }
 
+#ifdef HAVE_FDATASYNC
 // wrapper for fdatasync()
 
 typedef ssize_t (*real_fdatasync_t)(int);
@@ -121,7 +158,9 @@ ssize_t fdatasync(int fd)
     logcall("fdatasync(%d) = %ld\n", fd, return_val);
     return return_val;
 }
+#endif
 
+#ifdef HAVE_FSYNC
 // wrapper for fsync()
 
 typedef ssize_t (*real_fsync_t)(int);
@@ -136,6 +175,7 @@ ssize_t fsync(int fd)
     logcall("fsync(%d) = %ld\n", fd, return_val);
     return return_val;
 }
+#endif
 
 // wrapper for pread()
 
@@ -148,26 +188,28 @@ ssize_t pread(int fd, void *buf, size_t count, off_t offset)
 	real_pread = (real_pread_t)dlsym(RTLD_NEXT, "pread");
     }
     ssize_t return_val = real_pread(fd, buf, count, offset);
-    logcall("pread(%d, \"\", %lu, %ld) = %ld\n",
+    logcall("pread(%d, \"\", %zu, %" FORMAT_OFF_T ") = %zd\n",
 	    fd, count, offset, return_val);
     return return_val;
 }
 
+#ifdef HAVE_PREAD64
 // wrapper for pread64()
 
-typedef ssize_t (*real_pread64_t)(int, void *, size_t, off_t);
+typedef ssize_t (*real_pread64_t)(int, void *, size_t, OFF64_T);
 
-ssize_t pread64(int fd, void *buf, size_t count, off_t offset)
+ssize_t pread64(int fd, void *buf, size_t count, OFF64_T offset)
 {
     static real_pread64_t real_pread64 = NULL;
     if (!real_pread64) {
 	real_pread64 = (real_pread64_t)dlsym(RTLD_NEXT, "pread64");
     }
     ssize_t return_val = real_pread64(fd, buf, count, offset);
-    logcall("pread(%d, \"\", %lu, %ld) = %ld\n",
+    logcall("pread(%d, \"\", %zu, %" FORMAT_OFF64_T ") = %zd\n",
 	    fd, count, offset, return_val);
     return return_val;
 }
+#endif
 
 // wrapper for pwrite()
 
@@ -180,11 +222,12 @@ ssize_t pwrite(int fd, const void *buf, size_t count, off_t offset)
 	real_pwrite = (real_pwrite_t)dlsym(RTLD_NEXT, "pwrite");
     }
     ssize_t return_val = real_pwrite(fd, buf, count, offset);
-    logcall("pwrite(%d, \"\", %lu, %ld) = %ld\n",
+    logcall("pwrite(%d, \"\", %zu, %" FORMAT_OFF_T ") = %zd\n",
 	    fd, count, offset, return_val);
     return return_val;
 }
 
+#ifdef HAVE_PWRITE64
 // wrapper for pwrite64()
 
 typedef ssize_t (*real_pwrite64_t)(int, const void *, size_t, off_t);
@@ -196,7 +239,8 @@ ssize_t pwrite64(int fd, const void *buf, size_t count, off_t offset)
 	real_pwrite64 = (real_pwrite64_t)dlsym(RTLD_NEXT, "pwrite64");
     }
     ssize_t return_val = real_pwrite64(fd, buf, count, offset);
-    logcall("pwrite(%d, \"\", %lu, %ld) = %ld\n",
+    logcall("pwrite(%d, \"\", %zu, %" FORMAT_OFF64_T ") = %zd\n",
 	    fd, count, offset, return_val);
     return return_val;
 }
+#endif

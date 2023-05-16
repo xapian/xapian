@@ -1,0 +1,12 @@
+#!/bin/sh
+set -e
+
+# Check that we handle 64-bit file offsets suitably by running unittest
+# testcase ioblock1.
+#
+# Normalise the output by stripping paths from open() and then diff against
+# the expected result.
+test -x ../../xapian-core/tests/unittest
+ln -sF .libs/profiler.so .
+./xapian-io-profile ../../xapian-core/tests/unittest ioblock1 2>&1 >/dev/null |\
+    sed 's,^open(.*/,open(,' | diff - off64test.expect
