@@ -16,7 +16,6 @@
 
 #include <dlfcn.h>
 #include <errno.h>
-#include <fcntl.h>
 #include <string.h>
 
 #include <stdio.h>
@@ -51,23 +50,15 @@ void logcall(const char *format, ...)
 
 // wrapper for open()
 
-typedef int (*real_open_t)(const char *, int, ...);
+typedef int (*real_open_t)(const char *, int, mode_t);
 
-int open(const char *pathname, int flags, ...)
+int open(const char *pathname, int flags, mode_t mode)
 {
     static real_open_t real_open = NULL;
     if (!real_open) {
 	real_open = (real_open_t)dlsym(RTLD_NEXT, "open");
     }
-    int fd;
-    if (flags & (O_CREAT | O_TMPFILE)) {
-	va_list args_ptr;
-	va_start(args_ptr, flags);
-	fd = real_open(pathname, flags, va_arg(args_ptr, mode_t));
-	va_end(args_ptr);
-    } else {
-	fd = real_open(pathname, flags);
-    }
+    int fd = real_open(pathname, flags, mode);
     // realpath can set errno
     int saved_errno = errno;
     char *abspath = realpath(pathname, NULL);
@@ -84,23 +75,15 @@ int open(const char *pathname, int flags, ...)
 
 // wrapper for open64()
 
-typedef int (*real_open64_t)(const char *, int, ...);
+typedef int (*real_open64_t)(const char *, int, mode_t);
 
-int open64(const char *pathname, int flags, ...)
+int open64(const char *pathname, int flags, mode_t mode)
 {
     static real_open64_t real_open64 = NULL;
     if (!real_open64) {
 	real_open64 = (real_open64_t)dlsym(RTLD_NEXT, "open64");
     }
-    int fd;
-    if (flags & (O_CREAT | O_TMPFILE)) {
-	va_list args_ptr;
-	va_start(args_ptr, flags);
-	fd = real_open64(pathname, flags, va_arg(args_ptr, mode_t));
-	va_end(args_ptr);
-    } else {
-	fd = real_open64(pathname, flags);
-    }
+    int fd = real_open64(pathname, flags, mode);
     // realpath can set errno
     int saved_errno = errno;
     char *abspath = realpath(pathname, NULL);
