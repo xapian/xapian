@@ -16,11 +16,9 @@
 
 #include <dlfcn.h>
 #include <errno.h>
-#include <string.h>
-
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdarg.h>
 
 // function for logging calls
 
