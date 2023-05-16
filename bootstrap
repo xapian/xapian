@@ -209,7 +209,7 @@ lazy_build() {
 	  # curl --version exits with code 2 (~7.18.2) or 0 (7.35.0).
 	  # -L is needed to follow HTTP redirects.
 	  FETCH_URL_TOOL="${CURL-curl} -L"
-	elif ${LWP_REQUEST-lwp-request} -v > /dev/null 2>&1 || [ "$?" = 9 -o "$?" = 255 ] ; then
+	elif ${LWP_REQUEST-lwp-request} -v > /dev/null 2>&1 || [ "$?" = 9 ] || [ "$?" = 255 ] ; then
 	  # lwp-request -v exits with code 9 (5.810) or 255 (6.03)
 	  FETCH_URL_TOOL="${LWP_REQUEST-lwp-request} -mGET"
 	else
@@ -691,7 +691,7 @@ for module in ${@:-xapian-core xapian-applications/omega swig xapian-bindings} ;
     fi
     handle_git_external swig "$swig_git_commit_hash" "$swig_origin_url"
   fi
-  if [ -f "$d/configure.ac" -o -f "$d/configure.in" ] ; then
+  if [ -f "$d/configure.ac" ] || [ -f "$d/configure.in" ] ; then
     :
   else
     # Skip any directories we can't bootstrap.
