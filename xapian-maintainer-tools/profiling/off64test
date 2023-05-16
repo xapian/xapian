@@ -7,6 +7,6 @@ set -e
 # Normalise the output by stripping paths from open() and then diff against
 # the expected result.
 test -x ../../xapian-core/tests/unittest
-ln -sF .libs/profiler.so .
+ln -sf .libs/profiler.so .
 ./xapian-io-profile ../../xapian-core/tests/unittest ioblock1 2>&1 >/dev/null |\
     sed 's,^open(.*/,open(,' | diff - off64test.expect
