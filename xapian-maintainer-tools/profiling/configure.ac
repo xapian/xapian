@@ -17,10 +17,9 @@ AC_CHECK_SIZEOF([int])
 AC_CHECK_SIZEOF([long])
 AC_CHECK_SIZEOF([long long])
 AC_CHECK_SIZEOF([off_t], [], [#include <sys/types.h>])
-AC_CHECK_SIZEOF([off64_t], [], [#include <sys/types.h>])
 
-dnl Check for 64-bit versions (AC_CHECK_FUNCS checks linkage which works
-dnl well as we want to be able to find the symbol with dlopen).
+dnl Check for 64-bit versions (AC_CHECK_FUNCS only checks linkage which matches
+dnl what we need as we want to be able to find the symbol with dlopen).
 AC_CHECK_FUNCS([open64 pread64 pwrite64])
 
 AC_CHECK_FUNCS([fsync fdatasync])

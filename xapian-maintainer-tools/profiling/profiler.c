@@ -22,11 +22,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-/* Work out the printf specifiers for off_t and (if defined) off64_t.  If we
- * don't find a suitable corresponding type, don't define anything so any uses
- * will fail.
- */
-
+/* Work out the appropriate printf specifier for off_t. */
 #if SIZEOF_OFF_T == SIZEOF_INT
 # define FORMAT_OFF_T "d"
 #elif SIZEOF_OFF_T == SIZEOF_LONG
@@ -35,23 +31,16 @@
 # define FORMAT_OFF_T "lld"
 #endif
 
-#if SIZEOF_OFF64_T == SIZEOF_INT
-# define FORMAT_OFF64_T "d"
-#elif SIZEOF_OFF64_T == SIZEOF_LONG
-# define FORMAT_OFF64_T "ld"
-#elif SIZEOF_OFF64_T == SIZEOF_LONG_LONG
-# define FORMAT_OFF64_T "lld"
-#endif
-
-/* Pick type to use for pread64(), etc.
- *
- * SIZEOF_OFF64_T will be 0 if there's no off64_t.
- */
-#if SIZEOF_OFF64_T > 0
-# define OFF64_T off64_t
-#elif SIZEOF_OFF_T > 4
+/* Pick a suitable `off64_t` type to use for pread64(), etc. */
+#if SIZEOF_OFF_T == 8
 # define OFF64_T off_t
 # define FORMAT_OFF64_T FORMAT_OFF_T
+#elif SIZEOF_LONG == 8
+# define OFF64_T long
+# define FORMAT_OFF64_T "ld"
+#elif SIZEOF_LONG_LONG == 8
+# define OFF64_T long long
+# define FORMAT_OFF64_T "lld"
 #endif
 
 // function for logging calls
@@ -230,9 +219,9 @@ ssize_t pwrite(int fd, const void *buf, size_t count, off_t offset)
 #ifdef HAVE_PWRITE64
 // wrapper for pwrite64()
 
-typedef ssize_t (*real_pwrite64_t)(int, const void *, size_t, off_t);
+typedef ssize_t (*real_pwrite64_t)(int, const void *, size_t, OFF64_T);
 
-ssize_t pwrite64(int fd, const void *buf, size_t count, off_t offset)
+ssize_t pwrite64(int fd, const void *buf, size_t count, OFF64_T offset)
 {
     static real_pwrite64_t real_pwrite64 = NULL;
     if (!real_pwrite64) {
