@@ -9,4 +9,4 @@ set -e
 test -x ../../xapian-core/tests/unittest
 ln -sf .libs/profiler.so .
 ./xapian-io-profile ../../xapian-core/tests/unittest ioblock1 2>&1 >/dev/null |\
-    sed 's,^open(.*/,open(,' | diff - off64test.expect
+    sed 's,^open(.*/,open(,' | diff off64test.expect -
