@@ -996,7 +996,6 @@ END_OF_CONFIGURE
 # We want to rerun bootstrap if a series file changes (patch added or removed)
 # or an existing patch changes.  Since we always have an series file (even if
 # it is empty), this also handles us adding the first patch for something.
-patches=
 for d in patches/* ; do
   series=$d/series
   echo "$series:" >> configure.tmp2
