@@ -64,13 +64,13 @@ END
       [ X"$r" != Xe3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 ] || break
     done
   fi
-  r=`< $tarball_ eval "$SHA256SUM_TOOL"`
+  r=`< "$tarball_" eval "$SHA256SUM_TOOL"`
   if [ X"$r" != X"$checksum_" ] ; then
     echo "$tarball_: computed SHA256 checksum did NOT match"
     echo "computed: $r with $SHA256SUM_TOOL"
     echo "expected: $checksum_"
-    ls -l $tarball_
-    file $tarball_ || true
+    ls -l "$tarball_"
+    file "$tarball_" || true
     mv "$tarball_" "$tarball_.$r"
     echo "Renamed $tarball_ to $tarball_.$r"
     exit 1
@@ -112,7 +112,7 @@ need_to_build() {
       return 1
       ;;
     *)
-      if [ -n $binary ] ; then
+      if [ -n "$binary" ] ; then
 	if [ -s "../patches/$package/series" ] ; then
 	  echo "There are patches to apply to $package so using private build"
 	else
