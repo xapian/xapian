@@ -378,7 +378,7 @@ update_config() {
 update_bootstrap_sticky_opts() {
   arg=$1
   case $arg in
-    *[^-A-Za-z0-9_+=:@/.,]*)
+    *[!-A-Za-z0-9_+=:@/.,]*)
       # Quote for the shell and escape $ to $$ for make.
       bootstrap_sticky_opts="$bootstrap_sticky_opts '"`echo "$arg"|sed "s/'/'\\\\\\''/g;"'s/[$]/\\\\$\\\\$/g'`"'"
       ;;
