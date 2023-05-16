@@ -22,22 +22,18 @@
 
 // function for logging calls
 
-static int is_reset = 0;
-
 void logcall(const char *format, ...)
 {
-    static FILE *file_ptr;
+    static FILE *file_ptr = NULL;
     int saved_errno = errno;
-    if (!is_reset) {
-	int fd;
+    if (file_ptr == NULL) {
 	char *fd_str = getenv("XAPIAN_IO_PROFILE_LOG_FD");
 	if (fd_str) {
-	    fd = atoi(fd_str);
+	    int fd = atoi(fd_str);
+	    file_ptr = fdopen(fd, "w");
 	} else {
-	    fd = 2; // log to stderr
+	    file_ptr = stderr;
 	}
-	file_ptr = fdopen(fd, "w");
-	is_reset = 1;
     }
     va_list args_ptr;
     va_start(args_ptr, format);
