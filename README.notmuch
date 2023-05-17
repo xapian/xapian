@@ -1,7 +1,7 @@
 This branch contains a quick hack which may help you rescue notmuch tags from a
 broken database.
 
-To build:
+To build (note: requires a C++17-capable compiler):
 
 ./bootstrap xapian-core
 ./configure
