@@ -17,6 +17,13 @@ notmuch restore < tmp.dump
 
 Probably wise to keep the old database around until you've checked this worked.
 
+The recovery relies on the termlist table being intact (or at least intact
+enough to read the tags out of successfully).  If you have a corrupt termlist
+table and recovery fails but xapian-check reports your postlist table is
+OK then it would be possible to recover tags from that, but this code doesn't
+currently try to implement that.  In practice the postlist table seems to get
+corrupted most often, probably because it's written to more.
+
 The rescue code doesn't currently attempt to escape tag names, so won't work
 correctly if any contain spaces or '%'.  Patches to improve this (or anything
 else) welcome.
