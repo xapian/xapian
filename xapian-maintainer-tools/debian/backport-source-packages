@@ -26,8 +26,8 @@ set -e
 
 MIRROR=http://httpredir.debian.org/debian/
 
-DEBIAN_CODENAMES='buster stretch'
-UBUNTU_CODENAMES='focal bionic xenial'
+DEBIAN_CODENAMES='bullseye buster'
+UBUNTU_CODENAMES='lunar jammy focal bionic xenial'
 UBUNTU_FIRST=`echo "$UBUNTU_CODENAMES"|sed 's/.* //'`
 
 V_OPT=
