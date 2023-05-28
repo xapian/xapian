@@ -2,7 +2,7 @@
 # Backport Debian source packages for Xapian.
 #
 # Copyright (C) 2004 Richard Boulton
-# Copyright (C) 2006-2021 Olly Betts
+# Copyright (C) 2006-2023 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -212,8 +212,12 @@ END
       ;;
     [01])
       # Run maintclean and maint targets, if they exist.
-      fakeroot debian/rules maintclean || true
-      eval fakeroot debian/rules maint $overrides || true
+      if grep -qw maintclean debian/rules ; then
+	fakeroot debian/rules maintclean
+      fi
+      if grep -qw maint debian/rules ; then
+	eval fakeroot debian/rules maint $overrides
+      fi
       ;;
     *)
       # If debian/rules has at least two non-commented out references to
