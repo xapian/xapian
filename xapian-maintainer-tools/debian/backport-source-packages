@@ -165,10 +165,10 @@ build_it() {
 		dch -a 'debian/rules: Drop --no-parallel from dh_auto_test invocation (debhelper compat level 9 does not default to parallel building).'
 	    fi
 	else
-	    COMPAT=`grep-dctrl -sBuild-Depends . $CONTROL_SOURCE`
+	    COMPAT=`sed '/@XS_RUBY_VERSIONS@/d' $CONTROL_SOURCE|grep-dctrl -n -sBuild-Depends . -`
 	    case $COMPAT in
 		*debhelper-compat*)
-		    COMPAT=`echo "$COMPAT"|sed 's/.*debhelper-compat *(= *\([0-9]\+\)).*/\1/'`
+		    COMPAT=`echo "$COMPAT"|sed 's/.*debhelper-compat *(= *\([0-9]\+\)).*/\1/p;d'`
 		    # Switch to a versioned debhelper dependency and create debian/compat.
 		    if [ "$CONTROL_SOURCE" != debian/control ] ; then
 			# Fix generated debian/control as well to avoid error from `debian/rules clean`
