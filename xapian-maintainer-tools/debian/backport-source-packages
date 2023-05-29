@@ -136,11 +136,11 @@ build_it() {
   overrides=
   case $PKG:$CODENAME:$VERSION in
     xapian-bindings:stretch:*|xapian-bindings:xenial:*)
-      # Make sure we add python-xapian and python3-xapian to debian/control.
-      overrides='PYTHON_VERSIONS=dummy PYTHON3_VERSIONS=dummy RUBY_VERSIONS=2.3 RUBY_PROVIDES="X-Dummy: No provides"' ;;
+      # Make sure we add python3-xapian to debian/control.
+      overrides='PYTHON3_VERSIONS=dummy RUBY_VERSIONS=2.3 RUBY_PROVIDES="X-Dummy: No provides"' ;;
     xapian-bindings:*:*)
-      # Make sure we add python-xapian and python3-xapian to debian/control.
-      overrides='PYTHON_VERSIONS=dummy PYTHON3_VERSIONS=dummy RUBY_VERSIONS=2.5 RUBY_PROVIDES="X-Dummy: No provides"' ;;
+      # Make sure we add python3-xapian to debian/control.
+      overrides='PYTHON3_VERSIONS=dummy RUBY_VERSIONS=2.5 RUBY_PROVIDES="X-Dummy: No provides"' ;;
   esac
 
   # Mainly for Survex.
