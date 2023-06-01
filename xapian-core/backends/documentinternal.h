@@ -1,7 +1,7 @@
 /** @file
  * @brief Abstract base class for a document
  */
-/* Copyright 2017,2018,2019 Olly Betts
+/* Copyright 2017,2018,2019,2023 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -348,19 +348,18 @@ class Document::Internal : public Xapian::Internal::intrusive_base {
     /// Clear all terms from the document.
     void clear_terms() {
 	if (!terms) {
-	    if (database) {
-		terms.reset(new std::map<std::string, TermInfo>());
-		termlist_size = 0;
-	    } else {
+	    if (!database) {
 		// We didn't come from a database, so there are no unfetched
 		// terms to clear.
+		return;
 	    }
+	    terms.reset(new std::map<std::string, TermInfo>());
 	} else {
 	    terms->clear();
-	    termlist_size = 0;
-	    // Assume there was positional data if there's any in the database.
-	    positions_modified_ = database && database->has_positions();
 	}
+	termlist_size = 0;
+	// Assume there was positional data if there's any in the database.
+	positions_modified_ = database && database->has_positions();
     }
 
     /// Return the number of distinct terms in this document.
