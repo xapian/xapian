@@ -508,6 +508,30 @@ DEFINE_TESTCASE(replacedoc8, writable) {
     TEST_EQUAL(p.get_wdf(), 2);
 }
 
+/** Check that replacing a document after clear_terms() still deletes old
+ *  positional data.  Regression test for bug introduced and fixed in
+ *  development prior to 1.5.0.
+ */
+DEFINE_TESTCASE(replacedoc9, writable) {
+    Xapian::WritableDatabase db(get_named_writable_database("replacedoc9"));
+    {
+	Xapian::Document doc;
+	doc.set_data("food");
+	doc.add_posting("falafel", 1);
+	db.add_document(doc);
+    }
+    db.commit();
+    Xapian::Document doc = db.get_document(1);
+    doc.clear_terms();
+    doc.add_term("falafel");
+    db.replace_document(1, doc);
+    db.commit();
+
+    // The positions should have been removed, but the bug meant they weren't.
+    TEST_EQUAL(db.positionlist_begin(1, "falafel"),
+	       db.positionlist_end(1, "falafel"));
+}
+
 /// Test coverage for DatabaseModifiedError.
 DEFINE_TESTCASE(databasemodified1, writable && !inmemory && !multi) {
     // The inmemory backend doesn't support revisions.
