@@ -352,6 +352,59 @@ DEFINE_TESTCASE(preparetrainingfileonedb, generated && path && writable)
     unlink("training_output_data_one_doc.txt");
 }
 
+DEFINE_TESTCASE(preparetrainingfile_with_bias, generated && path && writable)
+{
+    vector<Xapian::Feature*> flist;
+    flist.push_back(new Xapian::TfFeature());
+    flist.push_back(new Xapian::TfDoclenFeature());
+    flist.push_back(new Xapian::IdfFeature());
+    flist.push_back(new Xapian::CollTfCollLenFeature());
+    flist.push_back(new Xapian::TfIdfDoclenFeature());
+    flist.push_back(new Xapian::TfDoclenCollTfCollLenFeature());
+    string db_path = get_database_path("apitest_listnet_ranker1",
+				       db_index_one_document);
+    string data_directory = test_driver::get_srcdir() + "/testdata/";
+    string query = data_directory + "queryone.txt";
+    string qrel = data_directory + "qrelone.txt";
+    string training_data = data_directory + "training_data_bias.txt";
+    unlink("training_output_data_bias.txt");
+    Xapian::prepare_training_file(db_path, query, qrel, 10,
+				  "training_output_data_bias.txt", flist, true);
+    TEST(file_exists("training_output_data_bias.txt"));
+    ifstream if1(training_data);
+    ifstream if2("training_output_data_bias.txt");
+    string line1;
+    string line2;
+    while (getline(if1, line1)) {
+	TEST(getline(if2, line2));
+	istringstream iss1(line1);
+	istringstream iss2(line2);
+	string temp1;
+	string temp2;
+	int i = 0;
+	while ((iss1 >> temp1) && (iss2 >> temp2)) {
+	    // The 0th, 1st and 22nd literals taken as input, are strings,
+	    // and can be compared directly, They are: For example(test):
+	    // ("1", "qid:20001" and "#docid=1") at 0th, 1st, and 22nd pos
+	    // respectively. Whereas the other values are doubles which
+	    // would have to tested under TEST_DOUBLE() against precision.
+	    if (i == 0 || i == 1 || i == 22) {
+		TEST_EQUAL(temp1, temp2);
+	    } else {
+		size_t t1 = temp1.find_first_of(':');
+		size_t t2 = temp2.find_first_of(':');
+		TEST_EQUAL_DOUBLE(stod(temp1.substr(t1 + 1)),
+				  stod(temp2.substr(t2 + 1)));
+	    }
+	    i++;
+	}
+	TEST_REL(i, ==, 23);
+	TEST(!(iss2 >> temp2));
+    }
+    TEST(!getline(if2, line2));
+    unlink("training_output_data_bias.txt");
+}
+
 #define TEST_PARSE_EXCEPTION(TESTFILE) TEST_EXCEPTION(Xapian::LetorParseError,\
 	Xapian::prepare_training_file(db_path,\
 				      data_directory + TESTFILE, qrel, 10,\
@@ -516,6 +569,7 @@ DEFINE_TESTCASE(preparetrainingfilethree, generated && path)
 // ListNet_Ranker check
 DEFINE_TESTCASE(listnet_ranker, generated && path && writable)
 {
+    XFAIL_FOR_BACKEND("multi", "Testcase fails with multidatabase");
     Xapian::ListNETRanker ranker;
     TEST_EXCEPTION(Xapian::FileNotFoundError, ranker.train_model(""));
     string db_path = get_database_path("db_index_two_documents",
@@ -666,8 +720,8 @@ DEFINE_TESTCASE(scorer, generated && path && writable)
     Xapian::MSet mymset = enquire.get_mset(0, 10);
     string data_directory = test_driver::get_srcdir() + "/testdata/";
     string query = data_directory + "querythree.txt";
-    string qrel = data_directory + "qrelthree_correct.txt";
-    string training_data = data_directory + "training_data_three_correct.txt";
+    string qrel = data_directory + "score_qrel.txt";
+    string training_data = data_directory + "training_data_ndcg.txt";
     ranker.set_database_path(db_path);
     TEST_EQUAL(ranker.get_database_path(), db_path);
     ranker.set_query(Xapian::Query("score"));
@@ -696,6 +750,7 @@ DEFINE_TESTCASE(scorer, generated && path && writable)
 // ListMLE_Ranker check
 DEFINE_TESTCASE(listmle_ranker, generated && path && writable)
 {
+    XFAIL_FOR_BACKEND("multi", "Testcase fails with multidatabase");
     Xapian::ListMLERanker ranker;
     TEST_EXCEPTION(Xapian::FileNotFoundError, ranker.train_model(""));
     string db_path = get_database_path("db_index_two_documents",

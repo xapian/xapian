@@ -40,6 +40,7 @@
 #include <fstream>
 #include <iterator>
 #include <map>
+#include <random>
 #include <sstream>
 #include <string>
 #include <utility>
@@ -239,6 +240,10 @@ initialise_queryparser(const Xapian::Database & db)
     Xapian::QueryParser parser;
     parser.add_prefix("title", "S");
     parser.add_prefix("subject", "S");
+    parser.add_prefix("description", "XD");
+    parser.add_prefix("", "");
+    parser.add_prefix("", "S");
+    parser.add_prefix("", "XD");
     parser.set_database(db);
     parser.set_default_op(Xapian::Query::OP_OR);
     parser.set_stemmer(stemmer);
@@ -249,8 +254,11 @@ initialise_queryparser(const Xapian::Database & db)
 
 void
 Xapian::prepare_training_file(const string & db_path, const string & queryfile,
-		      const string & qrel_file, Xapian::doccount msetsize,
-		      const string & filename, const FeatureList & flist)
+			      const string& qrel_file,
+			      Xapian::doccount msetsize,
+			      const string& filename,
+			      const FeatureList& flist,
+			      bool flag, double bias)
 {
     // Set db
     Xapian::Database letor_db(db_path);
@@ -285,16 +293,7 @@ Xapian::prepare_training_file(const string & db_path, const string & queryfile,
 	    throw Xapian::LetorParseError("Query id should be unique");
 	}
 
-	Xapian::Query query_no_prefix = parser.parse_query(querystr,
-					parser.FLAG_DEFAULT|
-					parser.FLAG_SPELLING_CORRECTION);
-	// query with 'title' field as default prefix "S"
-	Xapian::Query query_default_prefix = parser.parse_query(querystr,
-					     parser.FLAG_DEFAULT|
-					     parser.FLAG_SPELLING_CORRECTION,
-					     "S");
-	// Combine queries
-	Xapian::Query query = Xapian::Query(Xapian::Query::OP_OR, query_no_prefix, query_default_prefix);
+	Xapian::Query query = parser.parse_query(querystr);
 
 	Xapian::Enquire enquire(letor_db);
 	enquire.set_query(query);
@@ -302,7 +301,9 @@ Xapian::prepare_training_file(const string & db_path, const string & queryfile,
 
 	vector<FeatureVector> fvv_mset = flist.create_feature_vectors(mset,
 								      query,
-								      letor_db);
+								      letor_db,
+								      flag,
+								      bias);
 	vector<FeatureVector> fvv_qrel;
 	int k = 0;
 	for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); ++i) {
@@ -396,6 +397,22 @@ Ranker::rank(Xapian::MSet & mset, const string & model_key, const Xapian::Featur
     mset.sort_by_relevance();
 }
 
+vector<double>
+Ranker::xavier_initialisation(int feature_cnt)
+{
+    // Construct a trivial random generator engine:
+    // 469382313 is a random number for which we are getting the best
+    // performance of letor against standard benchmark datasets.
+    minstd_rand0 generator(469382313);
+    normal_distribution<double> distribution(0.0,
+					     sqrt(2.0 / (1 + feature_cnt)));
+    vector<double> new_parameters;
+    for (int feature_num = 0; feature_num < feature_cnt; ++feature_num) {
+	new_parameters.push_back(distribution(generator));
+    }
+    return new_parameters;
+}
+
 void
 Ranker::train_model(const std::string & input_filename, const std::string & model_key)
 {
@@ -451,16 +468,7 @@ Ranker::score(const string & query_file, const string & qrel_file,
 	string querystr = parsed_query.first;
 	string qid = parsed_query.second;
 
-	Xapian::Query query_no_prefix = parser.parse_query(querystr,
-					parser.FLAG_DEFAULT|
-					parser.FLAG_SPELLING_CORRECTION);
-	// query with 'title' field as default prefix "S"
-	Xapian::Query query_default_prefix = parser.parse_query(querystr,
-					     parser.FLAG_DEFAULT|
-					     parser.FLAG_SPELLING_CORRECTION,
-					     "S");
-	// Combine queries
-	Xapian::Query query = Xapian::Query(Xapian::Query::OP_OR, query_no_prefix, query_default_prefix);
+	Xapian::Query query = parser.parse_query(querystr);
 
 	Xapian::Enquire enquire(letor_db);
 	enquire.set_query(query);

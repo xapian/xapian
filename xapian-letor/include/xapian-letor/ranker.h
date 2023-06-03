@@ -88,7 +88,8 @@ prepare_training_file(const std::string & db_path,
 		      const std::string & qrel_file,
 		      Xapian::doccount msetsize,
 		      const std::string & filename,
-		      const Xapian::FeatureList & flist = FeatureList());
+		      const Xapian::FeatureList& flist = FeatureList(),
+		      bool flag = false, double bias = 1.0);
 
 class XAPIAN_VISIBILITY_DEFAULT Ranker : public Xapian::Internal::intrusive_base {
     /// Path to Xapian::Database instance to be used.
@@ -191,6 +192,9 @@ class XAPIAN_VISIBILITY_DEFAULT Ranker : public Xapian::Internal::intrusive_base
 	       const Xapian::FeatureList & flist = Xapian::FeatureList());
 
   protected:
+    /// Initialize the parameters for neural network with Xavier initialization.
+    std::vector<double> xavier_initialisation(int feature_cnt);
+
     /// Method to train the model. Overridden in ranker subclass.
     virtual void
     train(const std::vector<std::vector<FeatureVector>>& training_data) = 0;
