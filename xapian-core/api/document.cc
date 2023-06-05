@@ -198,7 +198,7 @@ Document::clear_values()
     internal->clear_values();
 }
 
-Xapian::termcount
+Xapian::valueno
 Document::values_count() const {
     return internal->values_count();
 }
