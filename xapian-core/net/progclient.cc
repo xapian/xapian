@@ -56,7 +56,7 @@ ProgClient::run_program(const string& progname,
 #endif
 			)
 {
-    LOGCALL_STATIC(DB, (pair<int, string>), "ProgClient::run_program", progname | args | Literal("[&child]"));
+    LOGCALL_STATIC(DB, RETURN_TYPE(pair<int, string>), "ProgClient::run_program", progname | args | Literal("[&child]"));
 
     string context{"remote:prog("};
     context += progname;

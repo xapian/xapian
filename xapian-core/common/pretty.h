@@ -1,7 +1,7 @@
 /** @file
  * @brief Convert types to pretty representations
  */
-/* Copyright (C) 2010,2011,2012,2014,2016,2017,2019 Olly Betts
+/* Copyright (C) 2010,2011,2012,2014,2016,2017,2019,2023 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -274,6 +274,13 @@ inline PrettyOStream<S> &
 operator<<(PrettyOStream<S> &ps, const Xapian::VecCOW<T>& v) {
     ps.os << "VecCOW(" << v.size() << ')';
     // FIXME: could show first up to N elements.
+    return ps;
+}
+
+template<class S, typename T, typename U>
+inline PrettyOStream<S> &
+operator<<(PrettyOStream<S> &ps, const std::pair<T, U>& v) {
+    ps.os << "std::pair(" << v.first << ", " << v.second << ')';
     return ps;
 }
 
