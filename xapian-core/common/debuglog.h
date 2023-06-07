@@ -1,7 +1,7 @@
 /** @file
  * @brief Debug logging macros.
  */
-/* Copyright (C) 2008,2009,2010,2011,2014,2015,2021 Olly Betts
+/* Copyright (C) 2008,2009,2010,2011,2014,2015,2021,2023 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -470,6 +470,17 @@ class DebugLogFuncVoid {
 
 /** Log the value of variable or expression @a b. */
 #define LOGVALUE(a,b) LOGLINE_(DEBUGLOG_CATEGORY_##a, #b" = " << b)
+
+/** Wrapper macro for return types containing a comma.
+ *
+ *  Use like:
+ *
+ *  LOGCALL_STATIC(DB, RETURN_TYPE(pair<int, string>), "ProgClient::run_program", progname | args | Literal("[&child]"));
+ *
+ *  This also works for return types without a comma, though it's not necessary
+ *  there and should be avoided for verbosity reasons.
+ */
+#define RETURN_TYPE(...) __VA_ARGS__
 
 #else
 
