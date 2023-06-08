@@ -947,11 +947,10 @@ static void test_ioblock1()
     TEST(fstat(fd, &statbuf) == 0);
     TEST_REL(statbuf.st_blocks, >=, BLOCK_SIZE / 512 * 2);
     if (statbuf.st_blocks >= BLOCK_SIZE / 512 * (12 + 1)) {
+	close(fd);
+	io_unlink(tmp_file);
 	SKIP_TEST("Skipping rest of testcase - FS doesn't support holes");
     }
-#else
-    SKIP_TEST("Skipping rest of testcase - FS doesn't support holes");
-#endif
 
     // Write a block before 4GB and check that we wrote the specified block by
     // checking the filesize.  This should catch bugs which truncate the
@@ -973,6 +972,11 @@ static void test_ioblock1()
 
     close(fd);
     io_unlink(tmp_file);
+#else
+    close(fd);
+    io_unlink(tmp_file);
+    SKIP_TEST("Skipping rest of testcase - FS doesn't support holes");
+#endif
 }
 
 static const test_desc tests[] = {
