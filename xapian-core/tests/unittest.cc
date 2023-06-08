@@ -1,7 +1,7 @@
 /** @file
  * @brief Unit tests of non-Xapian-specific internal code.
  */
-/* Copyright (C) 2006-2022 Olly Betts
+/* Copyright (C) 2006-2023 Olly Betts
  * Copyright (C) 2007 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -81,6 +81,7 @@ using namespace std;
 #include "../common/overflow.h"
 #include "../common/pack.cc"
 #include "../common/parseint.h"
+#include "../common/posixy_wrapper.cc"
 #include "../common/serialise-double.cc"
 #include "../common/str.cc"
 #include "../backends/uuids.cc"
