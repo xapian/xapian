@@ -642,8 +642,9 @@ static void yy_reduce(
   (void)yyLookahead;
   (void)yyLookaheadToken;
   yymsp = &yypParser->yystack.back();
+  Assert( yyruleno<sizeof(yyRuleInfo)/sizeof(yyRuleInfo[0]) );
 #ifdef XAPIAN_DEBUG_LOG
-  if( yyruleno<(int)(sizeof(yyRuleName)/sizeof(yyRuleName[0])) ){
+  {
     yysize = yyRuleInfo[yyruleno].nrhs;
     if( yysize ){
       LOGLINE(QUERYPARSER, "Reduce " << yyruleno << " [" <<
