@@ -284,10 +284,19 @@ DirectoryIterator::get_magic_mimetype()
 	}
     } else {
 #ifndef MAGIC_MIME_TYPE
-	// Discard any encoding returned.
-	char * spc = strchr(res, ' ');
-	if (spc)
-	    *spc = '\0';
+	// Discard any encoding from mime type value.  Prior to version 5.0 the
+	// return value just had a space separator, e.g.:
+	//
+	// text/plain charset=us-ascii
+	//
+	// 5.0 changed that (but version 4.22 and later have MAGIC_MIME_TYPE
+	// so we don't need to handle this variant here):
+	//
+	// text/plain; charset=us-ascii
+	const char* spc = strchr(res, ' ');
+	if (spc) {
+	    return string(res, spc - res);
+	}
 #endif
     }
 
