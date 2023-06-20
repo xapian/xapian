@@ -67,7 +67,15 @@ static unordered_map<string, testcase> tests;
 static void
 index_test()
 {
-    tests.insert({"test.txt",
+    tests.insert({"plaintext/iso88591.txt",
+		  {{"à", "d'après", "françois", "idée", "réalisation"}}});
+    tests.insert({"plaintext/utf16be-bom.txt",
+		  {{"Zjoey", "Zfood", "Zедой", "Z喬伊不分享食物"}}});
+    tests.insert({"plaintext/utf16le-bom.txt",
+		  {{"Zjoey", "Zfood", "Zедой", "Z喬伊不分享食物"}}});
+    tests.insert({"plaintext/utf8.txt",
+		  {{"Zjoey", "Zfood", "Zедой", "Z喬伊不分享食物"}}});
+    tests.insert({"plaintext/utf8-bom.txt",
 		  {{"Zjoey", "Zfood", "Zедой", "Z喬伊不分享食物"}}});
     tests.insert({"test-csv.csv",
 		  {{"ZFcsv", "Zbreak", "Zwere"}}});
