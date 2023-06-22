@@ -127,6 +127,16 @@ def test_all():
     expect_query(xapian.Query.MatchAll, "<alldocuments>")
     expect_query(xapian.Query.MatchNothing, "")
 
+    # Regression test for constructing OP_WILDCARD queries.
+    expect_query(xapian.Query(xapian.Query.OP_WILDCARD, "wild"),
+                 "WILDCARD SYNONYM wild")
+    expect_query(xapian.Query(xapian.Query.OP_WILDCARD, b"wild"),
+                 "WILDCARD SYNONYM wild")
+    expect_query(xapian.Query(xapian.Query.OP_WILDCARD, "wild", 0),
+                 "WILDCARD SYNONYM wild")
+    expect_query(xapian.Query(xapian.Query.OP_WILDCARD, b"wild", 0),
+                 "WILDCARD SYNONYM wild")
+
     # Feature test for Query.__iter__
     term_count = 0
     for term in query2:
