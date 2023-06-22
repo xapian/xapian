@@ -1,7 +1,7 @@
 # Simple test to ensure that we can load the xapian module and exercise basic
 # functionality successfully.
 #
-# Copyright (C) 2004,2005,2006,2007,2008,2010,2011,2012,2013,2014,2015,2016,2017,2019 Olly Betts
+# Copyright (C) 2004-2023 Olly Betts
 # Copyright (C) 2007 Lemur Consulting Ltd
 #
 # This program is free software; you can redistribute it and/or
@@ -149,6 +149,16 @@ def test_all():
 
     expect_query(xapian.Query.MatchAll, "<alldocuments>")
     expect_query(xapian.Query.MatchNothing, "")
+
+    # Regression test for constructing OP_WILDCARD queries.
+    expect_query(xapian.Query(xapian.Query.OP_WILDCARD, "wild"),
+                 "WILDCARD SYNONYM wild")
+    expect_query(xapian.Query(xapian.Query.OP_WILDCARD, b"wild"),
+                 "WILDCARD SYNONYM wild")
+    expect_query(xapian.Query(xapian.Query.OP_WILDCARD, "wild", 0),
+                 "WILDCARD SYNONYM wild")
+    expect_query(xapian.Query(xapian.Query.OP_WILDCARD, b"wild", 0),
+                 "WILDCARD SYNONYM wild")
 
     # Feature test for Query.__iter__
     term_count = 0

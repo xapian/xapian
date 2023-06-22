@@ -2,7 +2,7 @@
 %{
 /* python.i: SWIG interface file for the Python bindings
  *
- * Copyright (C) 2011,2012,2013,2014,2015,2016,2018,2019,2021 Olly Betts
+ * Copyright (C) 2011-2023 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -237,8 +237,11 @@ class XapianSWIG_Python_Thread_Allow {
 %nothreadallow Xapian::Query::Query(op op_, XapianSWIGQueryItor qbegin, XapianSWIGQueryItor qend, Xapian::termcount parameter = 0);
 
 %typemap(typecheck, precedence=500) (XapianSWIGQueryItor qbegin, XapianSWIGQueryItor qend) {
-    // Checking for a sequence is enough to disambiguate currently.
-    $1 = PySequence_Check($input);
+    // Checking for a sequence which isn't a string or bytes is enough to
+    // disambiguate currently.
+    $1 = (PySequence_Check($input) &&
+          !PyUnicode_Check($input) &&
+          !PyBytes_Check($input));
 }
 
 %{
