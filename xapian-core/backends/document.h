@@ -32,7 +32,9 @@
 #include <map>
 #include <string>
 
-using namespace std;
+using std::map;
+using std::string;
+using std::swap;
 
 class DocumentValueList;
 class ValueStreamDocument;

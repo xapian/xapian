@@ -37,7 +37,8 @@
 #include <xapian/termiterator.h>
 #include <xapian/valueiterator.h>
 
-using namespace std;
+using std::string;
+using std::vector;
 
 class LeafPostList;
 class RemoteDatabase;

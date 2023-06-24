@@ -31,7 +31,8 @@
 
 #include <xapian/types.h>
 
-using namespace std;
+using std::string;
+using std::vector;
 
 /// A term in a document.
 class OmDocumentTerm {

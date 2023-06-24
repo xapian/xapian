@@ -40,7 +40,10 @@
 
 #include "weight/weightinternal.h"
 
-using namespace std;
+using std::map;
+using std::set;
+using std::string;
+using std::vector;
 
 class OmExpand;
 class MultiMatch;
