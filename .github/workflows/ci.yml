@@ -537,6 +537,47 @@ jobs:
       # if that input is empty.
       run: git status --porcelain|grep '^' && { echo "The generated files listed above are not in .gitignore" ; exit 1; }; true
 
+  mingw32-cross:
+    runs-on: 'ubuntu-22.04'
+    container: fedora:35
+    steps:
+    - name: Install build tools
+      run: dnf install -y --nodocs ccache git-core
+    - name: Check out repository code
+      uses: actions/checkout@v3
+    - name: Install CCache
+      uses: hendrikmuhs/ccache-action@v1
+      with:
+        key: mingw32-cross
+    - name: Install package dependencies
+      run: |
+        dnf install -y --nodocs \
+        gcc-c++ zlib-devel make autoconf automake libtool pkg-config \
+        wget patch doxygen graphviz help2man python3-docutils python3-pygments \
+        tcl \
+        mingw32-gcc-c++ mingw32-win-iconv-static \
+        mingw32-winpthreads-static mingw32-zlib-static
+    - name: bootstrap source tree
+      # Bootstrap only xapian-core
+      run: |
+        git config --global --add safe.directory /__w/xapian/xapian
+        echo verbose=off > ~/.wgetrc
+        ./bootstrap xapian-core
+        ./configure CC='ccache gcc' CXX='ccache g++' CXXFLAGS=-O0 CPPFLAGS=-D_FORTIFY_SOURCE=0
+        make -j2
+        make -j2 distclean
+    - name: configure
+      run: mingw32-configure --disable-documentation
+    - name: make
+      run: make
+    - name: Run tests
+      # FIXME: Run tests under wine?
+      run: echo No tests currently
+    - name: Check generated files are in .gitignore
+      # grep '^' passes through all input while giving a non-zero exit status
+      # if that input is empty.
+      run: git status --porcelain|grep '^' && { echo "The generated files listed above are not in .gitignore" ; exit 1; }; true
+
   android-cross:
     runs-on: 'ubuntu-22.04'
     env:
