@@ -47,7 +47,7 @@ jobs:
         make -j2
         make -j2 distclean
     - name: configure
-      run: mingw32-configure --disable-documentation
+      run: mingw32-configure --disable-sse --disable-backend-chert --disable-backend-remote --disable-documentation
     - name: make
       run: make
     - name: Run tests
