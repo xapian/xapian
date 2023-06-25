@@ -67,12 +67,16 @@ lib_src +=\
 	common/replicate_utils.cc\
 	common/safe.cc\
 	common/serialise-double.cc\
-	common/socket_utils.cc\
 	common/str.cc
 
 if BUILD_BACKEND_CHERT_OR_GLASS
 lib_src +=\
 	common/compression_stream.cc
+endif
+
+if BUILD_BACKEND_REMOTE
+lib_src +=\
+	common/socket_utils.cc
 endif
 
 noinst_LTLIBRARIES += libgetopt.la
