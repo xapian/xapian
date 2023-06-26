@@ -1,0 +1,215 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+use autodie;
+
+# Have a method which returns a reference to a different class
+# ClusterSet
+# Cluster
+# DocumentSet
+# LatLongMetric
+# Return one of the above
+# KMeans
+# GreatCircleMetric
+# LCDClusterer
+
+# Abstract base classes need wrapping specially:
+# Clusterer
+# FreqSource
+# ExpandDecider
+# FieldProcessor
+# KeyMaker
+# MatchDecider
+# MatchSpy
+# PostingSource
+# Similarity
+# StemImplementation
+# Stopper
+# Weight
+
+# Subclasses of these:
+# LatLongDistanceKeyMaker
+# MultiValueKeyMaker
+# ValueCountMatchSpy
+
+my @classes = qw(
+    PositionIterator
+    PostingIterator
+    TermIterator
+    ValueIterator
+    MSetIterator
+    MSet
+    ESetIterator
+    ESet
+    BB2Weight
+    BM25PlusWeight
+    BM25Weight
+    BoolWeight
+    Centroid
+    Compactor
+    CoordWeight
+    CosineDistance
+    Database
+    DateRangeProcessor
+    DecreasingValueWeightPostingSource
+    DiceCoeffWeight
+    Diversify
+    DLHWeight
+    Document
+    DPHWeight
+    Enquire
+    ExpandDeciderAnd
+    ExpandDeciderFilterPrefix
+    ExpandDeciderFilterTerms
+    FixedWeightPostingSource
+    IfB2Weight
+    IneB2Weight
+    InL2Weight
+    LatLongCoordsIterator
+    LatLongCoords
+    LatLongDistancePostingSource
+    LMWeight
+    NumberRangeProcessor
+    PL2PlusWeight
+    PL2Weight
+    PointType
+    Point
+    Query
+    QueryParser
+    RangeProcessor
+    Registry
+    RSet
+    SimpleStopper
+    StemStopper
+    Stem
+    TermGenerator
+    TermListGroup
+    TfIdfWeight
+    TradWeight
+    UnitRangeProcessor
+    ValueMapPostingSource
+    ValuePostingSource
+    ValueSetMatchDecider
+    ValueWeightPostingSource
+    WritableDatabase
+);
+
+# DatabaseClosedError
+# DatabaseCorruptError
+# DatabaseCreateError
+# DatabaseError
+# DatabaseLockError
+# DatabaseModifiedError
+# DatabaseNotFoundError
+# DatabaseOpeningError
+# DatabaseVersionError
+# DocNotFoundError
+# FeatureUnavailableError
+# InternalError
+# InvalidArgumentError
+# InvalidOperationError
+# LogicError
+# NetworkError
+# NetworkTimeoutError
+# QueryParserError
+# RangeError
+# RuntimeError
+# SerialisationError
+# UnimplementedError
+# WildcardError
+# ErrorHandler
+# Utf8Iterator
+
+print <<__END__;
+#include <xapian.h>
+
+bool xapian_error = false;
+std::string xapian_last_exception_message;
+
+static void set_exception(const std::string& m) {
+    xapian_error = true;
+    xapian_last_exception_message = m;
+}
+
+static void set_exception() {
+    try {
+	throw;
+    } catch (const Xapian::Error& e) {
+	set_exception(e.get_description());
+    } catch (const std::exception& e) {
+	set_exception(e.what());
+    } catch (...) {
+	set_exception("Unknown exception");
+    }
+}
+__END__
+
+for my $class (@classes) {
+    print "class $class;\n";
+}
+
+for my $class (@classes) {
+    my %seen = ();
+    my $type;
+    my $kind;
+    my $prot;
+    open my $xml, '<', "doxygen-xml/classXapian_1_1$class.xml";
+    print "\nclass $class {\n    Xapian::$class o;\n  public:\n";
+    while (<$xml>) {
+	if (/<memberdef kind="(.*?)"/) {
+	    $kind = $1;
+	    ($prot) = (/\bprot="(.*?)"/);
+	} elsif (m!<type>(.*)</type>!) {
+	    $type = $1;
+	    $type =~ s/<.*?>//g;
+	    $type =~ s/&lt;/</g;
+	    $type =~ s/&gt;/>/g;
+	    $type =~ s/&amp;/&/g;
+	    if ($type eq 'op' || $type eq 'flags') {
+		$type = "Xapian::${class}::$type";
+	    }
+	    if ($type !~ /^(?:const )?std::/ && $type !~ /^(?:const )?Xapian::/ && ($type =~ /^[a-z]/ || $type =~ /::[a-z]/) && $type !~ /_t$/ && $type !~ /^(?:bool|double|int|void)$/) {
+		$type =~ s/^((?:const )?)/${1}Xapian::/;
+	    }
+	} elsif (m!<name>(.*)</name>!) {
+	    if (defined $kind && $kind eq 'function' && ($prot // 'public') eq 'public') {
+		my $name = $1;
+		$name =~ s/<.*?>//g;
+		$name =~ s/&lt;/</g;
+		$name =~ s/&gt;/>/g;
+		$name =~ s/&amp;/&/g;
+		if (exists $seen{$name}) {
+		    next;
+		}
+		++$seen{$name};
+		if ($name eq "operator++" || $name eq "operator--") {
+		    # Wrapping probably doesn't care about the return type here.
+		    $type = 'void';
+		}
+		if ($name =~ /^~/) {
+		    # No destructor needed (destructors shouldn't throw).
+		} elsif ($name eq $class) {
+		    # Constructor.
+		    print "    template<typename... Ts> $name(Ts... args) try : o(args...) { } catch (...) { set_exception(); }\n";
+		} else {
+		    print "    template<typename... Ts> $type $name(Ts... args) try { ";
+		    if ($type ne 'void') {
+			print "return ";
+		    }
+		    print "o.$name(args...); } catch (...) { set_exception(); ";
+		    if ($type ne 'void') {
+			if ($name =~ /^operator[-+]?=$/) {
+			    print "return *this; ";
+			} else {
+			    print "return {}; ";
+			}
+		    }
+		    print "}\n";
+		}
+		undef $kind;
+	    }
+	}
+    }
+    print "};\n";
+    close $xml;
+}
