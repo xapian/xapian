@@ -18,7 +18,7 @@ on:
 
 jobs:
   android-cross:
-    runs-on: 'ubuntu-22.04'
+    runs-on: 'macos-latest'
     env:
       host_triplet: 'armv7a-linux-androideabi33'
     steps:
@@ -53,7 +53,7 @@ jobs:
         make -j2 distclean
     - name: configure
       run: |
-        PATH=$PATH:$ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/linux-x86_64/bin
+        PATH=$PATH:$ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/darwin-x86_64/bin
         cd xapian-core
         ./configure --disable-documentation \
             --host=$host_triplet \
@@ -62,11 +62,12 @@ jobs:
             PKG_CONFIG=/bin/false
     - name: make
       run: |
-        PATH=$PATH:$ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/linux-x86_64/bin
+        PATH=$PATH:$ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/darwin-x86_64/bin
         make -C xapian-core -j2
     - name: Run tests
+      uses: reactivecircus/android-emulator-runner@v2
       run: |
-        PATH=$PATH:$ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/linux-x86_64/bin
+        PATH=$PATH:$ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/darwin-x86_64/bin
         cd xapian-core/tests
         make -j2 apitest internaltest stemtest unittest
         PATH=$PATH:$ANDROID_SDK_ROOT/platform-tools
