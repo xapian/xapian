@@ -29,10 +29,10 @@ endif
 endif
 
 DISTCHECK_CONFIGURE_FLAGS = XAPIAN_CONFIG="$(XAPIAN_CONFIG)" \
-	PYTHON3_LIB="`pwd`/../_inst/tmp_py3lib" \
-	PHP_EXTENSION_DIR="`pwd`/../_inst/tmp_phpext" \
-	RUBY_LIB="`pwd`/../_inst/tmp_rubylib" \
-	RUBY_LIB_ARCH="`pwd`/../_inst/tmp_rubylibarch" \
-	TCL_LIB="`pwd`/../_inst/tmp_tcllib" \
-	PERL_LIB="`pwd`/../_inst/tmp_perllib" \
-	LUA_LIB="`pwd`/../_inst/tmp_lualib"
+	PYTHON3_LIB='$(abs_builddir)/../_inst/tmp_py3lib' \
+	PHP_EXTENSION_DIR='$(abs_builddir)/../_inst/tmp_phpext' \
+	RUBY_LIB='$(abs_builddir)/../_inst/tmp_rubylib' \
+	RUBY_LIB_ARCH='$(abs_builddir)/../_inst/tmp_rubylibarch' \
+	TCL_LIB='$(abs_builddir)/../_inst/tmp_tcllib' \
+	PERL_LIB='$(abs_builddir)/../_inst/tmp_perllib' \
+	LUA_LIB='$(abs_builddir)/../_inst/tmp_lualib'
