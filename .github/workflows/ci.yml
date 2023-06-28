@@ -66,18 +66,19 @@ jobs:
         make -C xapian-core -j2
     - name: Run tests
       uses: reactivecircus/android-emulator-runner@v2
-      run: |
-        PATH=$PATH:$ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/darwin-x86_64/bin
-        cd xapian-core/tests
-        make -j2 apitest internaltest stemtest unittest
-        PATH=$PATH:$ANDROID_SDK_ROOT/platform-tools
-        adb push apitest internaltest stemtest unittest testdata /data/local/tmp
-        printf '%s\n' \
-            'cd /data/local/tmp' \
-            'sh runtest ./apitest' \
-            'sh runtest ./internaltest' \
-            'sh runtest ./stemtest' \
-            'sh runtest ./unittest' | adb shell
+      with:
+        script: |
+          PATH=$PATH:$ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/darwin-x86_64/bin
+          cd xapian-core/tests
+          make -j2 apitest internaltest stemtest unittest
+          PATH=$PATH:$ANDROID_SDK_ROOT/platform-tools
+          adb push apitest internaltest stemtest unittest testdata /data/local/tmp
+          printf '%s\n' \
+              'cd /data/local/tmp' \
+              'sh runtest ./apitest' \
+              'sh runtest ./internaltest' \
+              'sh runtest ./stemtest' \
+              'sh runtest ./unittest' | adb shell
     - name: Check generated files are in .gitignore
       # grep '^' passes through all input while giving a non-zero exit status
       # if that input is empty.
