@@ -65,7 +65,7 @@ coverage-check:
 	rm -f xapian-core.lcov
 	lcov --capture -d . --quiet --rc 'lcov_branch_coverage=1' --no-external -o xapian-core.lcov
 	rm -rf lcov
-	genhtml --demangle-cpp --branch-coverage $(GENHTML_ARGS) -q -p "`pwd`" -t "Test Coverage for xapian-core `git log -n1 --abbrev-commit --format=%h`" -o lcov xapian-core.lcov
+	genhtml --demangle-cpp --branch-coverage $(GENHTML_ARGS) -q -p '$(abs_builddir)' -t "Test Coverage for xapian-core `git log -n1 --abbrev-commit --format=%h`" -o lcov xapian-core.lcov
 
 # We want to clean out build tree paths from the copy of xapian-config we
 # install, mostly in the interests of facilitating reproducible builds.

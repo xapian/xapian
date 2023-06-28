@@ -135,7 +135,7 @@ built/xapian.jar: $(XAPIAN_SWIG_JAVA_CLASS)
 	$(JAR) -cf built/xapian.jar org/xapian/*.class
 ##$(XAPIAN_SWIG_JAVA_CLASS) $(XAPIAN_SWIG_JAVA_EXTRA_CLASSES)
 
-jnidir = `pwd`/built
+jnidir = $(abs_builddir)/built
 
 jni_LTLIBRARIES = libxapian_jni.la
 
