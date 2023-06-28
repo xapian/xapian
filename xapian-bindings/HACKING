@@ -145,7 +145,7 @@ Guile		rm@fabula.de did some work on getting Guile bindings working,
 
 Pike		Bill Welliver has written some Pike bindings for Xapian
 		covering some of the API, which are available from here:
-		http://modules.gotpike.org/module_info.html?module_id=42
+		http://modules.gotpike.org/module/Public.Xapian?selected=1.10
 		These bindings appear to be hand-coded rather than generated
 		using SWIG.  SWIG 4.0.0 has disabled Pike support due to
 		lack of recent maintenance, so SWIG is probably not a good
