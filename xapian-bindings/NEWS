@@ -1,3 +1,85 @@
+up to: 9e9fc6249cff2e9e7e20c9cf7980d8b066f89c4f
+
+Xapian-bindings 1.4.23 (2023-06-29):
+
+Documentation:
+
+* Where we document how to build the bindings, link to the download page so
+  the reader can easily find the source to download.  Reported by John G. Heim.
+
+* Update lists of debian packages to install for bindings development to
+  show be for the latest stable release and the one before (bookworm and
+  bullseye).
+
+    Fix typos in deprecation warning section
+
+    Update link to Pike bindings
+
+    Document issues caused by macOS SIP
+    Fixes #732
+
+General:
+
+* Add `FLAG_NGRAMS` as a preferred new alias for `FLAG_CJK_NGRAM` and
+  `SNIPPET_NGRAMS` as a preferred new alias for `SNIPPET_CJK_NGRAM`.
+  In the next release series these features have been expanded to cover many
+  more languages so the "CJK" in the name has become inaccurate as it stands for
+  "Chinese, Japanese and Korean").
+
+* Avoid running pwd in makefiles since the directories we need are available in
+  automake variables.
+
+Packaging:
+
+Portability:
+
+CSharp:
+
+commit d02bc8b76f40555e99d10d640eaf50d45bb9985d
+    Fix code and output which should say GetDescription
+
+* Smoketest.cs: Test stemmer description.
+
+Java:
+
+Lua:
+
+* Update docs for supported Lua versions
+
+Perl:
+
+* Generate HTML docs for each class.
+
+* Document all QueryParser FLAG_* constants.
+
+commit 24425b8974741e0c36d02d6fc249c536b8de7753
+    Update status of Perl bindings
+    Fixes #523
+
+PHP:
+
+PHP7:
+
+Python:
+
+    [python2] Fix Query ctor for OP_WILDCARD queries
+    Equivalent fix to that just applied for Python3.
+
+Python3:
+
+    [python] Fix Query ctor for OP_WILDCARD queries
+    Previously the overload resolution typecheck typemap used
+    PySequence_Check() to check for a Python sequence, but that
+    treats a string as a sequence of characters, whereas we only want to
+    accept a sequence of strings and/or xapian.Query objects so expand
+    the check to excludes strings.
+
+Ruby:
+
+* Improve documentation about __call__ methods.
+
+Tcl:
+
 Xapian-bindings 1.4.22 (2023-02-02):
 
 Lua:

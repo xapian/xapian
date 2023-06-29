@@ -1,3 +1,203 @@
+up to: a64bcc354531495039c9e22d2ed8a5a9f037d108
+
+Xapian-core 1.4.23 (2023-06-28):
+
+    Use default Internal constructor instead of (0)
+    Passing 0 passes NULL to the constructor which takes a pointer,
+    which has a NULL-check so the end result is the same (assuming
+    the compiler is optimising) but it'll add overhead to a non-optimised
+    build and default construction better indicates the intent.
+
+API:
+
+* Add `FLAG_NGRAMS` as a preferred new alias for `FLAG_CJK_NGRAM` and
+  `SNIPPET_NGRAMS` as a preferred new alias for `SNIPPET_CJK_NGRAM`.
+  In the next release series these features have been expanded to cover many
+  more languages so the "CJK" in the name has become inaccurate as it stands for
+  "Chinese, Japanese and Korean").
+
+* Database::check(): Improve the exception message for an empty filename from
+  "Failed to rewind file descriptor -1 (Bad file descriptor)" to "Couldn't find
+  Xapian database or table to check (No such file or directory)".
+
+testsuite:
+
+* The test harness now supports generated databases for all backends and
+  all testcases which can use generated databases now do, which together
+  improve test coverage as we now run many testcases under more backends.
+  Generated databases can also be cached, which helps speed up the test
+  suite.
+
+* Remove some testcases which are now redundant with other testcases or
+  no longer useful for other reasons.
+
+* Add regression test for #781, reported by Germán M. Bravo.  This bug was
+  fixed 4 years in 1.4.12 but a clean regression test only became possible
+  thanks to changes in this release.
+
+* The test harness would attempt to throw a Xapian::Database (rather than
+  Xapian::DatabaseError) if it failed to rename a temporary database to its
+  final name.  This would fail because there wasn't a database called "rename
+  failed".  Reported by stark3y on #xapian.
+
+* apitest: Fix exceed32bitcombineddb1 testcase (which only runs with
+  --enable-64bit-docid).
+
+* apitest: Fix nomoredocids1 when configured with --enable-64bit-docid.
+
+* Add testcase for removal of positions for replaced doc (regression test for
+  bug in git master not present in 1.4.x).
+
+* unittest: Unit test block file functions
+
+* Stop using std::endl in tests since this seems to be C++ best practice
+  as it causes a flush of the stream, which is rarely actually wanted.  Also
+  often the replacement \n can be combined with a string literal.
+
+* Use Xapian::docid for document ids in testcases.  Using `int` or `size_t`
+  works, but is less correct and can trigger compiler warnings because not all
+  values are representable.
+
+matcher:
+
+* BM25PlusWeight: With some parameter combinations we were requesting stats we
+  didn't actually need.  Confirmed with Vivek Pal on IRC.
+
+glass backend:
+
+* Avoid unnecessary copying of data when adding an item to a B-tree table which
+  should speed up indexing a bit.
+
+chert backend:
+
+
+remote backend:
+
+* Fix thread-safety issue starting remote prog server.  Previously we did some
+  memory allocation in the child process after fork() but before we exec-ed the
+  specified program, but in a multi-threaded program (which libxapian might be
+  used in) it's only safe to call async-signal-safe functions in the child
+  process after fork() until exec, and malloc, etc aren't async-signal-safe.
+
+* If we failed to open /dev/null in the child process while starting a remote
+  prog server, we would try to throw an exception.  That's not going to work
+  well so now we just call `_exit(-1)`.
+
+inmemory backend:
+
+* Throw exception on docid overflow like we do in other backends.
+
+build system:
+
+* configure: When probing for socklen_t or equivalent include the same headers
+  as we do in the code to reduce the risk of configure deciding to use
+  socklen_t but it not getting defined in the code.
+
+* configure: When probing if a particular compiler or linker option is
+  supported, we were relying on the compiler exit status but some compilers
+  only warn about unknown options.  We now inspect the compiler's stderr
+  output to try to detect such cases.
+
+* configure: Avoid compiler warning during GCC version check when compiler
+  needs an option to enable C++11 support.
+
+* Avoid running pwd since the directories we need are available in automake
+  variables.
+
+documentation:
+
+* Suggest protocol buffers for structured document data.  Fixes #53.
+
+* Clarify documentation for release() methods.
+
+* Fix typo "shared database" to "sharded database" in API docs.
+
+* Document that transactions aren't atomic across shards.
+
+tools:
+
+* xapian-progsrv,xapian-tcpsrv: Support multiple DBs with --writable in remote servers
+
+* xapian-tcpsrv: Fix default timeouts in --help output which have been reported
+  as the name of the constant rather than its value since 1.3.3.
+
+* xapian-tcpsrv: When --one-shot is specified, don't do the usual test open of
+  the specified database(s) as it doesn't really seem useful in this case.  The
+  test harness uses --one-shot so this reduces overhead when running remote
+  tests.
+
+* Stop using std::endl in tools since this seems to be C++ best practice
+  as it causes a flush of the stream, which is rarely actually wanted.  Also
+  often the replacement \n can be combined with a string literal.
+
+examples:
+
+
+portability:
+
+* Don't pass mode to open when it's unused as this triggers "missing O_CREAT or
+  O_TMPFILE?" warnings when compiling for Android.
+
+* Stop using INFINITY macro.  If the implementation supports floating point
+  infinities then HUGE_VAL gives us infinity as a double directly.  If not,
+  then it's the maximum finite value of a double.
+
+* Don't auto-enable _FORTIFY_SOURCE on mingw or mingw-w64.  Enabling
+  _FORTIFY_SOURCE on newer mingw-w64 requires linking with -lssp so we
+  attempted to stop automatically enabling it there in 1.4.19 but this fix
+  didn't actually work.  Trying to get this to work automatically has proved
+  difficult and I couldn't find evidence that _FORTIFY_SOURCE was actually
+  supported on mingw.  If it is, enabling manually will still work.
+
+* Fix mingw32 build with C++17 compiler, which ends up with std::byte
+  conflicting with byte typedefs in system headers, due to us having `using
+  namespace std;` in some of our internal headers.  Switch the ones which
+  are causing problems to more targetted `using std::string;`, etc instead.
+
+* Fix WIN32 build with --disable-backend-remote which was failing because we
+  were always trying to build common/socket_utils.cc which fails because
+  SOCKLEN_T hasn't been probed.  Fixes #821, reported by mgautier.
+
+* soaktest: Use C++11 <random> which is more portable than random().
+
+* In WIN32 builds, pass the program pathname separately to CreateProcess()
+  which is apparently more robust if the program pathname contains spaces.
+
+* Stop trying to set Microsoft-specific SO_EXCLUSIVEADDRUSE option on our
+  listening sockets.  It's not possible to set both SO_REUSEADDR and
+  SO_EXCLUSIVEADDRUSE so this call will always fail with WSAEINVAL, but we
+  were ignoring these errors because SO_EXCLUSIVEADDRUSE required admin
+  privileges in older OS versions.
+
+* Suppress MSVC deprecation warning for GetVersionEx since none of the
+  suggested replacements seems to actually provide the functionality we are
+  using from it.
+
+* Fix some warnings from MSVC in the fallback code for overflow-checked
+  arithmetic.
+
+* Support Enquire::set_time_limit() on GNU Hurd since Hurd now implements
+  timer_create().
+
+* Remove lingering traces of IRIX support as it's been dead for many years.
+
+packaging:
+
+
+debug code:
+
+* Fix build failure with --enable-assertions due to incorrect variable name in
+  assertion.  Patch from Alexei Kharchev in
+  https://github.com/xapian/xapian/pull/327.
+
+* Fix GCC warning with --enable-log.
+
+* Fix debug logging for 3 GlassDatabase methods to log their parameter.
+
+* Add a mechanism to support debug logging templated return types containing
+  commas.  This was added to fix a build failure on master with --enable-log
+  reported by ttyS3.
+
 Xapian-core 1.4.22 (2023-02-02):
 
 testsuite:

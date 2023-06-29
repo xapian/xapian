@@ -1,3 +1,72 @@
+up to: 457fd7804dcfe7b7bd36be22e688fd83777191f9
+
+Omega 1.4.23 (2023-0?-??):
+
+general:
+
+documentation:
+
+* Improve documentation for OmegaScript numerical and logical operators.  Patch
+  from Vaibhav Kansagara.
+
+indexers:
+
+* omindex:
+
+  + Handle XPS files with multiple FixedDocument parts better.  Previously we
+    only extracted text from the FixedDocument part.
+
+  + Prefer latter subparts of multipart/alternative which is what RFC2046 (and
+    earlier versions that obsoletes) says, but previously we used the first
+    subpart that we could get text from.
+
+  + Prefer latter subparts of multipart/alternative when indexing Outlook
+    .msg files too.
+
+  + Fix obscure bug in --mimetype option.  We keep track of the length of the
+    longest extension we have a mapping for, but this was being updated using
+    the length of the MIME type rather than the length of the extension.
+    Theoretically this could have led to us effectively ignoring a --mimetype
+    option, but in the real world the MIME type will probably always be longer
+    so this just results in us testing long extensions unnecessarily.
+
+* scriptindex:
+
+omega:
+
+* Ignore DATEVALUE CGI parameter if START.n, etc is specified on the same
+  slot.  We explicitly document not to do this, but if that advice is ignored
+  it's more helpful to at least preserve the property that we only have
+  one date range per value slot.
+
+* Add flag_ngrams as a preferred new alias for flag_cjk_ngram.  In the next
+  release series this feature has been expanded to cover many more languages
+  so the "cjk" in the name has become inaccurate as it stands for
+  "Chinese, Japanese and Korean").
+
+* Fix handling of Outlook .msg containing Unicode.  Codepoints <= U+00FF appear
+  to have been handled correctly, but anything higher resulted in individual
+  bytes of the UTF-8 encoding being treated as separate characters.
+
+  Fixes https://github.com/xapian/xapian/pull/326, reported by uhuntu.
+
+templates:
+
+testsuite:
+
+build system:
+
+portability:
+
+* Fix compatibility code for old libmagic versions.  The code we were using
+  seems like it would never have worked.  Nobody's reported this (it was
+  spotted while looking at the code) so we could just require libmagic >= 4.22,
+  but it's trivial to actually handle so we've fixed the fallback code.
+
+* Remove lingering traces of IRIX support as it's been dead for many years.
+
+packaging:
+
 Omega 1.4.22 (2023-02-02):
 
 documentation:
