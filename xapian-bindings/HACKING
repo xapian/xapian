@@ -24,28 +24,28 @@ Packages to install for each language
 C#
 --
 
-Debian bullseye::
+Debian bullseye and bookworm::
 
 apt-get install mono-devel
 
 Java
 ----
 
-Debian bullseye::
+Debian bullseye and bookworm::
 
-apt-get install openjdk-11-jdk
+apt-get install openjdk-17-jdk
 
 Lua
 ---
 
-Debian bullseye::
+Debian bullseye and bookworm::
 
 apt-get install lua5.4 liblua5.4-dev
 
 Perl
 ----
 
-Debian bullseye: all required are packages installed by default.
+Debian bullseye and bookworm: all required are packages installed by default.
 
 PHP
 ---
@@ -57,21 +57,21 @@ apt-get install php-cli php-dev
 Python3
 -------
 
-Debian bullseye::
+Debian bullseye and bookworm::
 
 apt-get install python3-dev
 
 Ruby
 ----
 
-Debian bullseye::
+Debian bullseye and bookworm::
 
 apt-get install ruby-dev
 
 Tcl
 ---
 
-Debian bullseye::
+Debian bullseye and bookworm::
 
 apt-get install tcl-dev
 
