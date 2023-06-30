@@ -346,7 +346,6 @@ start_value_stats:
 	    --value_stats_count;
 	    // Adjust key.
 	    key = Honey::make_valuestats_key(slot);
-	    read_tag();
 	    tag = current_tag;
 	    return true;
 	} else if (value_stats_count == 1) {

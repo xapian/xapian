@@ -230,6 +230,8 @@ GlassCursor::find_exact(const string &key)
     }
     current_key = key;
     B->read_tag(C, &current_tag, false);
+    tag_status = UNCOMPRESSED;
+    is_positioned = true;
 
     RETURN(true);
 }
