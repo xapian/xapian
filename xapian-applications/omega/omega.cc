@@ -4,7 +4,7 @@
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 James Aylett
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2006,2007,2008,2009,2010,2011,2014,2015,2016,2018 Olly Betts
+ * Copyright 2002-2023 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -52,9 +52,6 @@ static const char DEFAULT_STEM_LANGUAGE[] = "english";
 // A character which doesn't require URL encoding, and isn't likely to appear
 // in filter values.
 const char filter_sep = '~';
-
-// What we used for filter_sep in Omega < 1.3.4.
-const char filter_sep_old = '-';
 
 Xapian::Enquire * enquire;
 Xapian::Database db;
@@ -336,8 +333,6 @@ try {
 		filters.append(bterm, b, string::npos);
 	    }
 	    filters += filter_sep;
-	    old_filters += bterm;
-	    old_filters += filter_sep_old;
 	}
     }
 
@@ -376,9 +371,6 @@ try {
 		filters.append(nterm, b, string::npos);
 	    }
 	    filters += filter_sep;
-	    // old_filters predates 'N' terms, so if there are 'N' terms this
-	    // is definitely a different query.
-	    old_filters.clear();
 	}
     }
 
@@ -425,11 +417,6 @@ try {
 	    }
 	    date_ranges[slot].span = v;
 	}
-    }
-    if (!date_ranges.empty()) {
-	// old_filters predates START.N, END.N and SPAN.N so use of any of
-	// these means this is definitely a different query.
-	old_filters.clear();
     }
     for (auto i : date_ranges) {
 	auto slot = i.first;
@@ -483,15 +470,6 @@ try {
 	filters += str(date_value_slot);
     }
 
-    if (!old_filters.empty()) {
-	old_filters += date_start;
-	old_filters += filter_sep_old;
-	old_filters += date_end;
-	old_filters += filter_sep_old;
-	old_filters += date_span;
-	old_filters += (default_op == Xapian::Query::OP_AND ? 'A' : 'O');
-    }
-
     // Percentage relevance cut-off
     val = cgi_params.find("THRESHOLD");
     if (val != cgi_params.end()) {
@@ -522,10 +500,6 @@ try {
 	    collapse = true;
 	    filters += filter_sep;
 	    filters += str(collapse_key);
-	    if (!old_filters.empty()) {
-		old_filters += filter_sep_old;
-		old_filters += str(collapse_key);
-	    }
 	}
     }
     if (!collapse && date_value_slot != Xapian::BAD_VALUENO) {
@@ -543,7 +517,6 @@ try {
 	    if (ch == 'D') {
 		docid_order = Xapian::Enquire::DESCENDING;
 		filters += 'D';
-		if (!old_filters.empty()) old_filters += 'D';
 	    } else if (ch != 'A') {
 		docid_order = Xapian::Enquire::DONT_CARE;
 	    } else {
@@ -553,7 +526,6 @@ try {
 		// worth breaking compatibility to fix - let's just do it next
 		// time we change the encoding $filters uses.
 		filters += 'X';
-		if (!old_filters.empty()) old_filters += 'X';
 	    }
 	}
     }
@@ -566,10 +538,6 @@ try {
 	do {
 	    bool rev = (*p != '+');
 	    if (*p == '-' || *p == '+') {
-		// old_filters predates support for direction in SORT, so if
-		// there's a direction specified this is definitely a different
-		// query.
-		old_filters.clear();
 		++p;
 	    }
 	    if (!C_isdigit(*p)) {
@@ -596,9 +564,6 @@ try {
 		sort_keymaker->add_value(sort_key, !reverse_sort);
 		sort_key = Xapian::BAD_VALUENO;
 		reverse_sort = true;
-		// old_filters predates multiple sort keys, so if there are
-		// multiple sort keys this is definitely a different query.
-		old_filters.clear();
 	    }
 
 	    if (sort_keymaker) {
@@ -632,32 +597,19 @@ try {
 	}
 
 	// Add the sorting related options to filters too.
-	//
-	// Note: old_filters really does encode a reversed sort as 'F' and a
-	// non-reversed sort as 'R' or 'r'.
-	//
-	// filters has them the other way around for sanity (except in
-	// development snapshot 1.3.4, which was when the new filter encoding
-	// was introduced).
 	if (!sort_keymaker) filters += str(sort_key);
-	if (!old_filters.empty()) old_filters += str(sort_key);
 	if (sort_after) {
 	    if (reverse_sort) {
 		filters += 'R';
-		if (!old_filters.empty()) old_filters += 'F';
 	    } else {
 		filters += 'F';
-		if (!old_filters.empty()) old_filters += 'R';
 	    }
 	} else {
 	    if (!reverse_sort) {
 		filters += 'f';
-		if (!old_filters.empty()) old_filters += 'r';
 	    }
 	}
     }
-
-    if (old_filters.empty()) old_filters = filters;
 
     // min_hits (fill mset past topdoc+(hits_per_page+1) to
     // topdoc+max(hits_per_page+1,min_hits)
