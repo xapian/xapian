@@ -205,11 +205,12 @@ $filesize{SIZE}
         ``4.0M``, ``1.3G``).  If ``SIZE`` is negative, expands to nothing.
 
 $filters
-        serialised version of filter-like settings (currently ``B``, ``N``,
-        ``DATEVALUE``, ``START``, ``END``, ``SPAN``, ``COLLAPSE``,
+        compact serialisation of filter-like settings (currently ``B``, ``N``,
+        ``DATEVALUE``, ``START``, ``END``, ``SPAN``, ``START.``\ *SLOT*,
+        ``END.``\ *SLOT*, ``SPAN.``\ *SLOT*, ``COLLAPSE``,
         ``DOCIDORDER``, ``SORT``, ``SORTREVERSE``, ``SORTAFTER``, and
         ``DEFAULTOP``) - set ``xFILTERS`` to this so that Omega can detect when
-        the filters have changed and force the first page.
+        the filters have changed and display the first page of results.
 
 $filterterms{PREFIX}
         list of all terms in the database with prefix ``PREFIX``, intended to

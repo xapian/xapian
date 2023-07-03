@@ -158,8 +158,12 @@ DATEVALUE
         formats described above (YYYYMMDDHHMM, YYYYMMDD or a raw 4 byte
         big-endian time_t).
 
+        One thing `DATEVALUE` is still useful for is that it supports an
+        HTML form with a control (or controls) to select the date range and a
+        control to select which date field to apply that to.
+
         Don't mix `START.`\ *SLOT*, `END.`\ *SLOT* and/or `SPAN.`\ *SLOT* with
-        `DATEVALUE` on the same slot number.
+        `DATEVALUE` on the **same** slot number.
 
         If `DATEVALUE` isn't set then `START`, `END` and `SPAN` will perform
         date filtering using an older approach based on D-, M-, and Y-prefixed
@@ -173,7 +177,9 @@ DATEVALUE
         they instead default to 1st January 1970 and today's date respectively.
         The term-based date range filtering also includes a special `Dlatest`
         term, which allows flagging a document as always current.  There's no
-        equivalent to this for value-based date range filters.
+        exact equivalent to this when using value-based date range filters, but
+        giving such documents the maximum date value in the format being used
+        provides a reasonable approximation to this feature.
 
 START END SPAN
         like `START.`\ *SLOT*, `END.`\ *SLOT* and `SPAN.`\ *SLOT* but for value
@@ -181,15 +187,16 @@ START END SPAN
         isn't set.
 
 xFILTERS
-	used to spot when the filters have changed from the previous search.
-	Set this to $html{$filters} in your query template ($filters is a
-	compact serialisation of the currently set B filters, date-range
-	filters, COLLAPSE, and DEFAULTOP).  If xFILTERS is unset, the filters
-	are assumed not to have changed (unlike xP).  In Omega <= 1.2.21 and <=
-	1.3.3 they were always assumed to have changed in the situation, which
-	meant you couldn't ever go past page 1 if you failed to set xFILTERS
-	in your template.  Now failing to set it means that the first page
-	won't be forced in some cases where it probably should be.
+        used to detect when the filters have changed from the previous search.
+        Set this to ``$html{$filters}`` in your query template (``$filters`` is
+        a compact serialisation of filter-like settings).
+
+        If xFILTERS is unset, the filters are assumed **not** to have changed
+        (unlike xP).  In Omega <= 1.2.21 and <= 1.3.3 they were always assumed
+        to have changed in the situation, which meant you couldn't ever go past
+        page 1 if you failed to set xFILTERS in your template.  Now failing to
+        set it means that the first page won't be forced in some cases where it
+        probably should be.
 
 THRESHOLD
 	apply a percentage cut-off at the value given by this parameter
