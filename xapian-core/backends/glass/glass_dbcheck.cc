@@ -683,16 +683,20 @@ check_glass_table(const char * tablename, const string &db_dir, int fd,
 		end = pos + cursor->current_tag.size();
 
 		if (pos == end) {
-		    if (out)
-			*out << "Empty value slots used tag" << endl;
+		    if (out) {
+			*out << "document id " << did
+			     << ": Empty value slots used tag\n";
+		    }
 		    ++errors;
 		    continue;
 		}
 
 		Xapian::valueno prev_slot;
 		if (!unpack_uint(&pos, end, &prev_slot)) {
-		    if (out)
-			*out << "Value slot encoding corrupt" << endl;
+		    if (out) {
+			*out << "document id " << did
+			     << ": Value slot encoding corrupt\n";
+		    }
 		    ++errors;
 		    continue;
 		}
@@ -700,16 +704,20 @@ check_glass_table(const char * tablename, const string &db_dir, int fd,
 		while (pos != end) {
 		    Xapian::valueno slot;
 		    if (!unpack_uint(&pos, end, &slot)) {
-			if (out)
-			    *out << "Value slot encoding corrupt" << endl;
+			if (out) {
+			    *out << "document id " << did
+				 << ": Value slot encoding corrupt\n";
+			}
 			++errors;
 			break;
 		    }
 		    slot += prev_slot + 1;
 		    if (slot <= prev_slot) {
-			if (out)
-			    *out << "Value slot number overflowed ("
-				 << prev_slot << " -> " << slot << ")" << endl;
+			if (out) {
+			    *out << "document id " << did
+				 << ": Value slot number overflowed ("
+				 << prev_slot << " -> " << slot << ")\n";
+			}
 			++errors;
 		    }
 		    prev_slot = slot;
@@ -718,8 +726,9 @@ check_glass_table(const char * tablename, const string &db_dir, int fd,
 	    }
 
 	    if (pos != end) {
-		if (out)
-		    *out << "Extra junk in key" << endl;
+		if (out) {
+		    *out << "document id " << did << ": Extra junk in key\n";
+		}
 		++errors;
 		continue;
 	    }
@@ -740,12 +749,13 @@ check_glass_table(const char * tablename, const string &db_dir, int fd,
 	    // Read doclen
 	    if (!unpack_uint(&pos, end, &doclen)) {
 		if (out) {
+		    *out << "document id " << did;
 		    if (pos != 0) {
-			*out << "doclen out of range";
+			*out << ": doclen out of range\n";
 		    } else {
-			*out << "Unexpected end of data when reading doclen";
+			*out << ": Unexpected end of data when reading "
+				"doclen\n";
 		    }
-		    *out << endl;
 		}
 		++errors;
 		continue;
@@ -753,28 +763,32 @@ check_glass_table(const char * tablename, const string &db_dir, int fd,
 
 	    // Check doclen with doclen lower and upper bounds
 	    if (doclen > version_file.get_doclength_upper_bound()) {
-		if (out)
-		    *out << "doclen " << doclen << " > upper bound "
-			 << version_file.get_doclength_upper_bound() << endl;
+		if (out) {
+		    *out << "document id " << did
+			 << ": doclen " << doclen << " > upper bound "
+			 << version_file.get_doclength_upper_bound() << '\n';
+		}
 		++errors;
 	    } else if (doclen < version_file.get_doclength_lower_bound() &&
 		       doclen != 0) {
-		if (out)
-		    *out << "doclen " << doclen << " < lower bound "
-			 << version_file.get_doclength_lower_bound() << endl;
+		if (out) {
+		    *out << "document id " << did
+			 << ": doclen " << doclen << " < lower bound "
+			 << version_file.get_doclength_lower_bound() << '\n';
+		}
 		++errors;
 	    }
 
 	    // Read termlist_size
 	    if (!unpack_uint(&pos, end, &termlist_size)) {
 		if (out) {
+		    *out << "document id " << did;
 		    if (pos != 0) {
-			*out << "termlist_size out of range";
+			*out << ": termlist_size out of range\n";
 		    } else {
-			*out << "Unexpected end of data when reading "
-				"termlist_size";
+			*out << ": Unexpected end of data when reading "
+				"termlist_size\n";
 		    }
-		    *out << endl;
 		}
 		++errors;
 		continue;
@@ -808,13 +822,14 @@ check_glass_table(const char * tablename, const string &db_dir, int fd,
 		    // Read wdf
 		    if (!unpack_uint(&pos, end, &current_wdf)) {
 			if (out) {
+			    *out << "document id " << did;
 			    if (pos == 0) {
-				*out << "Unexpected end of data when reading "
-					"termlist current_wdf";
+				*out << ": Unexpected end of data when reading "
+					"termlist current_wdf\n";
 			    } else {
-				*out << "Size of wdf out of range in termlist";
+				*out << ": Size of wdf out of range in "
+					"termlist\n";
 			    }
-			    *out << endl;
 			}
 			++errors;
 			bad = true;
@@ -830,13 +845,18 @@ check_glass_table(const char * tablename, const string &db_dir, int fd,
 	    }
 
 	    if (termlist_size != actual_termlist_size) {
-		if (out)
-		    *out << "termlist_size != # of entries in termlist" << endl;
+		if (out) {
+		    *out << "document id " << did << ": termlist_size "
+			 << termlist_size << " != # of entries in termlist "
+			 << actual_termlist_size << '\n';
+		}
 		++errors;
 	    }
 	    if (doclen != actual_doclen) {
-		if (out)
-		    *out << "doclen != sum(wdf)" << endl;
+		if (out) {
+		    *out << "document id " << did << ": length " << doclen
+			 << " != sum(wdf) " << actual_doclen << '\n';
+		}
 		++errors;
 	    }
 
