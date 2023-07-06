@@ -111,6 +111,96 @@ jobs:
       # if that input is empty.
       run: git status --porcelain|grep '^' && { echo "The generated files listed above are not in .gitignore" ; exit 1; }; true
 
+  assertions:
+    runs-on: 'ubuntu-22.04'
+    env:
+      LIBEXTRACTOR_PREFIX: '/usr/lib/x86_64-linux-gnu/libextractor'
+    steps:
+    - name: Check out repository code
+      uses: actions/checkout@v3
+    - name: Install CCache
+      uses: hendrikmuhs/ccache-action@v1
+      with:
+        key: assertions
+    - name: Install package dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install \
+            doxygen \
+            graphviz \
+            help2man \
+            python3-docutils \
+            pngcrush \
+            python3-sphinx \
+            uuid-dev \
+            libpcre2-dev \
+            libmagic-dev \
+            lua5.4 \
+            liblua5.4-dev \
+            mono-devel \
+            python3-dev \
+            tcl \
+            tcl-dev
+    - name: bootstrap source tree
+      run: |
+        echo verbose=off > ~/.wgetrc
+        ./bootstrap xapian-core xapian-applications/omega swig xapian-bindings xapian-letor
+    - name: configure
+      run: ./configure --enable-assertions CC='ccache gcc' CXX='ccache g++'
+    - name: make
+      run: make -j2
+    - name: Run tests
+      run: make -j2 check VERBOSE=1 AUTOMATED_TESTING=1
+    - name: Check generated files are in .gitignore
+      # grep '^' passes through all input while giving a non-zero exit status
+      # if that input is empty.
+      run: git status --porcelain|grep '^' && { echo "The generated files listed above are not in .gitignore" ; exit 1; }; true
+
+  debug-log:
+    runs-on: 'ubuntu-22.04'
+    env:
+      LIBEXTRACTOR_PREFIX: '/usr/lib/x86_64-linux-gnu/libextractor'
+    steps:
+    - name: Check out repository code
+      uses: actions/checkout@v3
+    - name: Install CCache
+      uses: hendrikmuhs/ccache-action@v1
+      with:
+        key: assertions
+    - name: Install package dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install \
+            doxygen \
+            graphviz \
+            help2man \
+            python3-docutils \
+            pngcrush \
+            python3-sphinx \
+            uuid-dev \
+            libpcre2-dev \
+            libmagic-dev \
+            lua5.4 \
+            liblua5.4-dev \
+            mono-devel \
+            python3-dev \
+            tcl \
+            tcl-dev
+    - name: bootstrap source tree
+      run: |
+        echo verbose=off > ~/.wgetrc
+        ./bootstrap xapian-core xapian-applications/omega swig xapian-bindings xapian-letor
+    - name: configure
+      run: ./configure --enable-log CC='ccache gcc' CXX='ccache g++'
+    - name: make
+      run: make -j2
+    - name: Run tests
+      run: make -j2 check VERBOSE=1 AUTOMATED_TESTING=1
+    - name: Check generated files are in .gitignore
+      # grep '^' passes through all input while giving a non-zero exit status
+      # if that input is empty.
+      run: git status --porcelain|grep '^' && { echo "The generated files listed above are not in .gitignore" ; exit 1; }; true
+
   clang:
     runs-on: 'ubuntu-20.04'
     steps:
