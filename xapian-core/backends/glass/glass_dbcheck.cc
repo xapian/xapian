@@ -474,7 +474,7 @@ check_glass_table(const char * tablename, const string &db_dir, int fd,
 		// Continuation chunk.
 		if (current_term.empty()) {
 		    if (out)
-			*out << "First chunk for term '" << current_term
+			*out << "First chunk for term '" << term
 			     << "' is a continuation chunk" << endl;
 		    ++errors;
 		    current_term = term;
