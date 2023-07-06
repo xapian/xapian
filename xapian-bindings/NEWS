@@ -1,6 +1,6 @@
-up to: 9e9fc6249cff2e9e7e20c9cf7980d8b066f89c4f
+up to: 24bb1a4c015d14cc86492427245a2c9b116d7ed2
 
-Xapian-bindings 1.4.23 (2023-06-29):
+Xapian-bindings 1.4.23 (2023-07-??):
 
 Documentation:
 
@@ -11,20 +11,19 @@ Documentation:
   show be for the latest stable release and the one before (bookworm and
   bullseye).
 
-    Fix typos in deprecation warning section
+* HACKING: Fix typos in deprecation warning section
 
-    Update link to Pike bindings
+* HACKING: Update link to Pike bindings
 
-    Document issues caused by macOS SIP
-    Fixes #732
+* HACKING: Document issues caused by macOS SIP.  Fixes #732.
 
 General:
 
 * Add `FLAG_NGRAMS` as a preferred new alias for `FLAG_CJK_NGRAM` and
   `SNIPPET_NGRAMS` as a preferred new alias for `SNIPPET_CJK_NGRAM`.
   In the next release series these features have been expanded to cover many
-  more languages so the "CJK" in the name has become inaccurate as it stands for
-  "Chinese, Japanese and Korean").
+  more languages so the "CJK" in the name has become inaccurate as it stands
+  for "Chinese, Japanese and Korean").
 
 * Avoid running pwd in makefiles since the directories we need are available in
   automake variables.
@@ -35,8 +34,7 @@ Portability:
 
 CSharp:
 
-commit d02bc8b76f40555e99d10d640eaf50d45bb9985d
-    Fix code and output which should say GetDescription
+* SmokeTest.cs: Fix some incorrect messages if testcases fail.
 
 * Smoketest.cs: Test stemmer description.
 
@@ -44,7 +42,7 @@ Java:
 
 Lua:
 
-* Update docs for supported Lua versions
+* Update docs for supported Lua versions.
 
 Perl:
 
@@ -52,9 +50,8 @@ Perl:
 
 * Document all QueryParser FLAG_* constants.
 
-commit 24425b8974741e0c36d02d6fc249c536b8de7753
-    Update status of Perl bindings
-    Fixes #523
+* Update one place which didn't correctly indicate the current status of the
+  Perl bindings.  Fixes #523.
 
 PHP:
 
@@ -62,17 +59,19 @@ PHP7:
 
 Python:
 
-    [python2] Fix Query ctor for OP_WILDCARD queries
-    Equivalent fix to that just applied for Python3.
+* Fix bug in wrapper for xapian.Query when constructing OP_WILDCARD queries.
+  A workaround for this bug which works with existing releases is to pass
+  0 for the third and fourth optional parameters like so:
+
+  xapian.Query(xapian.Query.OP_WILDCARD, "xyz", 0, 0)
 
 Python3:
 
-    [python] Fix Query ctor for OP_WILDCARD queries
-    Previously the overload resolution typecheck typemap used
-    PySequence_Check() to check for a Python sequence, but that
-    treats a string as a sequence of characters, whereas we only want to
-    accept a sequence of strings and/or xapian.Query objects so expand
-    the check to excludes strings.
+* Fix bug in wrapper for xapian.Query when constructing OP_WILDCARD queries.
+  A workaround for this bug which works with existing releases is to pass
+  0 for the third and fourth optional parameters like so:
+
+  xapian.Query(xapian.Query.OP_WILDCARD, "xyz", 0, 0)
 
 Ruby:
 

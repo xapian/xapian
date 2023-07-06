@@ -1,6 +1,6 @@
-up to: 457fd7804dcfe7b7bd36be22e688fd83777191f9
+up to: 5fe27f43e37f919eb5cac32c8576dde79a2c15ee
 
-Omega 1.4.23 (2023-0?-??):
+Omega 1.4.23 (2023-07-??):
 
 general:
 
@@ -9,15 +9,17 @@ documentation:
 * Improve documentation for OmegaScript numerical and logical operators.  Patch
   from Vaibhav Kansagara.
 
+* Improve documentation for DATEVALUE, xFILTERS and $filters.
+
 indexers:
 
 * omindex:
 
   + Handle XPS files with multiple FixedDocument parts better.  Previously we
-    only extracted text from the FixedDocument part.
+    only extracted text from the first FixedDocument part.
 
   + Prefer latter subparts of multipart/alternative which is what RFC2046 (and
-    earlier versions that obsoletes) says, but previously we used the first
+    earlier RFCs which that obsoletes) say, but previously we used the first
     subpart that we could get text from.
 
   + Prefer latter subparts of multipart/alternative when indexing Outlook

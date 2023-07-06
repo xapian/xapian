@@ -1,20 +1,14 @@
-up to: a64bcc354531495039c9e22d2ed8a5a9f037d108
+up to: a40bffec6bb89c82090b794e546dc9418476a325
 
-Xapian-core 1.4.23 (2023-06-28):
-
-    Use default Internal constructor instead of (0)
-    Passing 0 passes NULL to the constructor which takes a pointer,
-    which has a NULL-check so the end result is the same (assuming
-    the compiler is optimising) but it'll add overhead to a non-optimised
-    build and default construction better indicates the intent.
+Xapian-core 1.4.23 (2023-07-??):
 
 API:
 
 * Add `FLAG_NGRAMS` as a preferred new alias for `FLAG_CJK_NGRAM` and
   `SNIPPET_NGRAMS` as a preferred new alias for `SNIPPET_CJK_NGRAM`.
   In the next release series these features have been expanded to cover many
-  more languages so the "CJK" in the name has become inaccurate as it stands for
-  "Chinese, Japanese and Korean").
+  more languages so the "CJK" in the name has become inaccurate as it stands
+  for "Chinese, Japanese and Korean").
 
 * Database::check(): Improve the exception message for an empty filename from
   "Failed to rewind file descriptor -1 (Bad file descriptor)" to "Couldn't find
@@ -68,6 +62,12 @@ glass backend:
 * Avoid unnecessary copying of data when adding an item to a B-tree table which
   should speed up indexing a bit.
 
+* xapian-check: If the first chunk for a term is a continuation chunk, the
+  affected term was missing from the error message.
+
+* xapian-check: We now report the document id as context in many more error
+  messages.
+
 chert backend:
 
 
@@ -116,7 +116,7 @@ documentation:
 
 tools:
 
-* xapian-progsrv,xapian-tcpsrv: Support multiple DBs with --writable in remote servers
+* xapian-progsrv,xapian-tcpsrv: Support multiple DBs with --writable.
 
 * xapian-tcpsrv: Fix default timeouts in --help output which have been reported
   as the name of the constant rather than its value since 1.3.3.
