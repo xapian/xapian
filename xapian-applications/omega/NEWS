@@ -1,6 +1,4 @@
-up to: 5fe27f43e37f919eb5cac32c8576dde79a2c15ee
-
-Omega 1.4.23 (2023-07-??):
+Omega 1.4.23 (2023-07-07):
 
 general:
 
@@ -32,8 +30,6 @@ indexers:
     option, but in the real world the MIME type will probably always be longer
     so this just results in us testing long extensions unnecessarily.
 
-* scriptindex:
-
 omega:
 
 * Ignore DATEVALUE CGI parameter if START.n, etc is specified on the same
@@ -52,12 +48,6 @@ omega:
 
   Fixes https://github.com/xapian/xapian/pull/326, reported by uhuntu.
 
-templates:
-
-testsuite:
-
-build system:
-
 portability:
 
 * Fix compatibility code for old libmagic versions.  The code we were using
@@ -66,8 +56,6 @@ portability:
   but it's trivial to actually handle so we've fixed the fallback code.
 
 * Remove lingering traces of IRIX support as it's been dead for many years.
-
-packaging:
 
 Omega 1.4.22 (2023-02-02):
 

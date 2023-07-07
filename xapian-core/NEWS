@@ -1,6 +1,4 @@
-up to: a40bffec6bb89c82090b794e546dc9418476a325
-
-Xapian-core 1.4.23 (2023-07-??):
+Xapian-core 1.4.23 (2023-07-07):
 
 API:
 
@@ -70,6 +68,10 @@ glass backend:
 
 chert backend:
 
+* Fix wdf upper bounds used when search a modified chert-format
+  WritableDatabase object.  A bug introduced in 1.4.19 meant we were using the
+  wdf upper bounds from the last committed version of the database.  This bug
+  could cause assertion failures when configured with --enable-assertions.
 
 remote backend:
 
@@ -130,9 +132,6 @@ tools:
   as it causes a flush of the stream, which is rarely actually wanted.  Also
   often the replacement \n can be combined with a string literal.
 
-examples:
-
-
 portability:
 
 * Don't pass mode to open when it's unused as this triggers "missing O_CREAT or
@@ -180,9 +179,6 @@ portability:
   timer_create().
 
 * Remove lingering traces of IRIX support as it's been dead for many years.
-
-packaging:
-
 
 debug code:
 

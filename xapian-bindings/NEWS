@@ -1,6 +1,4 @@
-up to: 24bb1a4c015d14cc86492427245a2c9b116d7ed2
-
-Xapian-bindings 1.4.23 (2023-07-??):
+Xapian-bindings 1.4.23 (2023-07-07):
 
 Documentation:
 
@@ -28,17 +26,11 @@ General:
 * Avoid running pwd in makefiles since the directories we need are available in
   automake variables.
 
-Packaging:
-
-Portability:
-
 CSharp:
 
 * SmokeTest.cs: Fix some incorrect messages if testcases fail.
 
 * Smoketest.cs: Test stemmer description.
-
-Java:
 
 Lua:
 
@@ -52,10 +44,6 @@ Perl:
 
 * Update one place which didn't correctly indicate the current status of the
   Perl bindings.  Fixes #523.
-
-PHP:
-
-PHP7:
 
 Python:
 
@@ -76,8 +64,6 @@ Python3:
 Ruby:
 
 * Improve documentation about __call__ methods.
-
-Tcl:
 
 Xapian-bindings 1.4.22 (2023-02-02):
 
