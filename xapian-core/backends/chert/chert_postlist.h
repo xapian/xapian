@@ -174,9 +174,11 @@ class ChertPostList : public LeafPostList {
 	/// The number of entries in the posting list.
 	Xapian::doccount number_of_entries;
 
+    protected: // ChertModifiedPostList needs to access this too.
 	/// Upper bound on wdf for this postlist.
 	Xapian::termcount wdf_upper_bound;
 
+    private:
 	/// Copying is not allowed.
 	ChertPostList(const ChertPostList &);
 

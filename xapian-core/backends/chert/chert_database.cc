@@ -1634,7 +1634,8 @@ ChertWritableDatabase::open_post_list(const string& tname) const
     if (j != mod_plists.end()) {
 	// We've got buffered changes to this term's postlist, so we need to
 	// use a ChertModifiedPostList.
-	RETURN(new ChertModifiedPostList(ptrtothis, tname, j->second));
+	RETURN(new ChertModifiedPostList(ptrtothis, tname, j->second,
+					 stats.get_wdf_upper_bound()));
     }
 
     RETURN(new ChertPostList(ptrtothis, tname, true));

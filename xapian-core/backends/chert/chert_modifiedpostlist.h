@@ -46,10 +46,13 @@ class ChertModifiedPostList : public ChertPostList {
     /// Constructor.
     ChertModifiedPostList(Xapian::Internal::intrusive_ptr<const ChertDatabase> this_db_,
 			  const string & term_,
-			  const map<Xapian::docid, pair<char, Xapian::termcount> > & mods_)
+			  const map<Xapian::docid, pair<char, Xapian::termcount> > & mods_,
+			  Xapian::termcount wdf_upper_bound_)
 	: ChertPostList(this_db_, term_, true),
 	  mods(mods_), it(mods.begin()), poslist(0)
-    { }
+    {
+	ChertPostList::wdf_upper_bound = wdf_upper_bound_;
+    }
 
     ~ChertModifiedPostList();
 
