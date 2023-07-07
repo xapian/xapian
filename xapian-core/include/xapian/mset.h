@@ -187,10 +187,10 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
 
 	/** Generate n-grams for scripts without explicit word breaks.
 	 *
-         *  Text in other scripts is split into words as normal.
-         *
+	 *  Text in other scripts is split into words as normal.
+	 *
 	 *  Enable this option to highlight search results for queries parsed
-         *  with the QueryParser::FLAG_NGRAMS flag.
+	 *  with the QueryParser::FLAG_NGRAMS flag.
 	 *
 	 *  The TermGenerator::FLAG_NGRAMS flag needs to have been used at
 	 *  index time.
@@ -199,13 +199,13 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
 	 *  XAPIAN_CJK_NGRAM to a non-empty value (but doing so was deprecated
 	 *  in 1.4.11).
 	 *
-         *  In 1.4.x this feature was specific to CJK (Chinese, Japanese and
-         *  Korean), but in 1.5.0 it's been extended to other languages.  To
-         *  reflect this change the new and preferred name is SNIPPET_NGRAMS,
-         *  which was added as an alias for forward compatibility in Xapian
-         *  1.4.23.  Use SNIPPET_CJK_NGRAM instead if you aim to support Xapian
-         *  &lt; 1.4.23.
-         *
+	 *  In 1.4.x this feature was specific to CJK (Chinese, Japanese and
+	 *  Korean), but in 1.5.0 it's been extended to other languages.  To
+	 *  reflect this change the new and preferred name is SNIPPET_NGRAMS,
+	 *  which was added as an alias for forward compatibility in Xapian
+	 *  1.4.23.  Use SNIPPET_CJK_NGRAM instead if you aim to support Xapian
+	 *  &lt; 1.4.23.
+	 *
 	 *  @since Added in Xapian 1.4.23.
 	 */
 	SNIPPET_NGRAMS = 2048,
@@ -214,7 +214,7 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
 	 *
 	 *  Old name - use SNIPPET_NGRAMS instead unless you aim to support
 	 *  Xapian &lt; 1.4.23.
-         *
+	 *
 	 *  @since Added in Xapian 1.4.11.
 	 */
 	SNIPPET_CJK_NGRAM = SNIPPET_NGRAMS
