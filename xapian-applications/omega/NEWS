@@ -1,7 +1,5 @@
 Omega 1.4.23 (2023-07-07):
 
-general:
-
 documentation:
 
 * Improve documentation for OmegaScript numerical and logical operators.  Patch
@@ -40,7 +38,7 @@ omega:
 * Add flag_ngrams as a preferred new alias for flag_cjk_ngram.  In the next
   release series this feature has been expanded to cover many more languages
   so the "cjk" in the name has become inaccurate as it stands for
-  "Chinese, Japanese and Korean").
+  "Chinese, Japanese and Korean".
 
 * Fix handling of Outlook .msg containing Unicode.  Codepoints <= U+00FF appear
   to have been handled correctly, but anything higher resulted in individual
