@@ -831,9 +831,6 @@ if test no != "$with_java" ; then
     dnl JDK version...
     java_ok=no
     AC_CHECK_HEADER([jni.h], [java_ok=yes], [
-      dnl We need to look for jni.h in /usr/lib/jvm/java-gcj/include on some
-      dnl Debian and Ubuntu boxes at least.  And on macOS, jni.h lives
-      dnl in /System/Library/Frameworks/JavaVM.framework/Headers.
       SAVE_CPPFLAGS=$CPPFLAGS
       real_javac=$JAVAC
       dnl Avoid endlessly traversing if there's a symlink loop.
@@ -844,6 +841,7 @@ if test no != "$with_java" ; then
       done
       dnl Translate ".../bin/javac" to ".../include".
       [rel_jnidir=`echo "$real_javac"|sed 's!/[^/]*/[^/]*$!/include!'`]
+      dnl Try the location for macOS system Java too, but last.
       for jnidir in \
 	  $JNI_INCLUDE_DIR \
 	  ${JAVA_HOME+"$JAVA_HOME/include"} \
