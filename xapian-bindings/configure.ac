@@ -564,7 +564,7 @@ if test no != "$with_php" ; then
 	dnl there.  FIXME.
 	PHP_LIBS="-L`$PHP_CONFIG --prefix` -lphp${PHP_MAJOR_VERSION}ts" ;;
       cygwin*)
-	PHP_LIBS="-lphp${PHP_MAJOR_VERSION}lib" ;;
+	PHP_LIBS="-lphp${PHP_MAJOR_VERSION}" ;;
       *)
 	PHP_LIBS= ;;
       esac
