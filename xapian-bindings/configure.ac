@@ -635,29 +635,22 @@ if test no != "$with_tcl" ; then
       fi
 
       if test -n "$TCLSH" ; then
-	dnl Cygwin needs to link with -ltcl8.5 or similar.
 	TCL_LIBS=
-	case $host_os in
-	cygwin*)
-	  AC_CHECK_LIB([tcl$tcl_version], [Tcl_Init],
-		       [TCL_LIBS="-ltcl$tcl_version"],
-		       [AC_MSG_ERROR([libtcl$tcl_version not found])])
-	  ;;
-	*)
-	  dnl ::tcl::pkgconfig was added in Tcl 8.5, but prior to 8.6 it isn't
-	  dnl necessary to link against -ltclstub anyway.
-	  [tcl_libdir_runtime=`echo 'puts [::tcl::pkgconfig get libdir,runtime]'|$TCLSH 2> /dev/null`]
-	  if test -n "$tcl_libdir_runtime" ; then
-	    for x in "/tcl$tcl_version" "" ; do
-	      TCLCONFIG_SH=$tcl_libdir_runtime$x/tclConfig.sh
-	      if test -r "$TCLCONFIG_SH" ; then
-		eval "`sed 's/^TCL_STUB_LIB_SPEC=/TCL_LIBS=/p;d' $TCLCONFIG_SH`"
-		break
-	      fi
-	    done
-	  fi
-	  TCL_CPPFLAGS="$TCL_CPPFLAGS -DUSE_TCL_STUBS" ;;
-	esac
+	dnl ::tcl::pkgconfig was added in Tcl 8.5.  Prior to 8.6 it's only
+	dnl actually necessary to link against -ltclstub on platforms which
+	dnl don't allow libraries to have unresolved symbols (cygwin, mingw,
+	dnl msvc, etc)
+	[tcl_libdir_runtime=`echo 'puts [::tcl::pkgconfig get libdir,runtime]'|$TCLSH 2> /dev/null`]
+	if test -n "$tcl_libdir_runtime" ; then
+	  for x in "/tcl$tcl_version" "" ; do
+	    TCLCONFIG_SH=$tcl_libdir_runtime$x/tclConfig.sh
+	    if test -r "$TCLCONFIG_SH" ; then
+	      eval "`sed 's/^TCL_STUB_LIB_SPEC=/TCL_LIBS=/p;d' $TCLCONFIG_SH`"
+	      break
+	    fi
+	  done
+	fi
+	TCL_CPPFLAGS="$TCL_CPPFLAGS -DUSE_TCL_STUBS"
       fi
 
       AC_SUBST(TCL_CPPFLAGS)
