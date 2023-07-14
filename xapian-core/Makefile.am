@@ -89,6 +89,10 @@ EXTRA_DIST = ChangeLog ChangeLog.0 ChangeLog.examples HACKING PLATFORMS \
  include/xapian/error.h include/xapian/errordispatch.h \
  generate-exceptions exception_data.pm preautoreconf
 
+EXTRA_DIST += \
+ emscripten/README.md \
+ emscripten/xapianjstest.cc
+
 cmakedir = $(libdir)/cmake/xapian
 cmake_DATA = cmake/xapian-config.cmake cmake/xapian-config-version.cmake
 
