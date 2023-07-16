@@ -142,7 +142,11 @@ EXTRA_DIST =\
 	testfiles/svg/diagram.svgz \
 	testfiles/test-csv.csv \
 	testfiles/test-html.html \
-	testfiles/test.txt \
+	testfiles/plaintext/iso88591.txt \
+	testfiles/plaintext/utf16be-bom.txt \
+	testfiles/plaintext/utf16le-bom.txt \
+	testfiles/plaintext/utf8-bom.txt \
+	testfiles/plaintext/utf8.txt \
 	testfiles/video/file_example_AVI_480_750kB.avi \
 	testfiles/video/file_example_OGG_480_1_7mg.ogg
 
