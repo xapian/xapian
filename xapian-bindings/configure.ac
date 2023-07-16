@@ -526,6 +526,7 @@ if test no != "$with_tcl" ; then
       fi
 
       TCL_LIBS=
+      TCL_SHLIB_EXT=
       if test -n "$TCLSH" ; then
 	dnl ::tcl::pkgconfig was added in Tcl 8.5.  Prior to 8.6 it's only
 	dnl actually necessary to link against -ltclstub on platforms which
@@ -542,10 +543,12 @@ if test no != "$with_tcl" ; then
 	  done
 	fi
 	TCL_CPPFLAGS="$TCL_CPPFLAGS -DUSE_TCL_STUBS"
+	[TCL_SHLIB_EXT=`echo 'puts [info sharedlibextension]'|$TCLSH 2> /dev/null`]
       fi
 
       AC_SUBST(TCL_CPPFLAGS)
       AC_SUBST(TCL_LIBS)
+      AC_SUBST(TCL_SHLIB_EXT)
     else
       AC_MSG_RESULT([< $tcl_min (too old)])
       if test yes = "$with_tcl" ; then

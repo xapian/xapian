@@ -7,10 +7,12 @@ TESTS = smoketest.tcl
 AM_TESTS_ENVIRONMENT = \
 	srcdir='$(srcdir)' ;\
 	LIBTOOL='$(LIBTOOL)' ;\
-	TCLSH='$(TCLSH)' ; \
+	TCLSH='$(TCLSH)' ;\
+	TCL_SHLIB_EXT='$(TCL_SHLIB_EXT)' ;\
 	export srcdir ;\
 	export LIBTOOL ;\
-	export TCLSH ;
+	export TCLSH ;\
+	export TCL_SHLIB_EXT ;
 LOG_COMPILER = $(srcdir)/run-tcl-test
 
 installcheck-local:
@@ -39,12 +41,11 @@ install-data-hook:
 # Because we don't install the .la file, "make uninstall" doesn't work and
 # we need to remove the file ourselves.
 uninstall-local:
-	eval `grep '^dlname=' $(tcllib_LTLIBRARIES)` ; \
-	  rm -f $(DESTDIR)$(tcllibdir)/"$$dlname"
+	rm -f $(DESTDIR)$(tcllibdir)/xapian$(TCL_SHLIB_EXT)
 
 AM_CPPFLAGS = @TCL_CPPFLAGS@
 AM_CXXFLAGS = @SWIG_CXXFLAGS@ $(XAPIAN_CXXFLAGS)
-xapian_la_LDFLAGS = -avoid-version -module $(NO_UNDEFINED)
+xapian_la_LDFLAGS = -avoid-version -module -shrext "$(TCL_SHLIB_EXT)" $(NO_UNDEFINED)
 nodist_xapian_la_SOURCES = xapian_wrap.cc
 xapian_la_LIBADD = $(XAPIAN_LIBS) $(TCL_LIBS)
 
