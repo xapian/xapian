@@ -634,8 +634,8 @@ if test no != "$with_tcl" ; then
 	TCLSH=
       fi
 
+      TCL_LIBS=
       if test -n "$TCLSH" ; then
-	TCL_LIBS=
 	dnl ::tcl::pkgconfig was added in Tcl 8.5.  Prior to 8.6 it's only
 	dnl actually necessary to link against -ltclstub on platforms which
 	dnl don't allow libraries to have unresolved symbols (cygwin, mingw,
@@ -645,7 +645,7 @@ if test no != "$with_tcl" ; then
 	  for x in "/tcl$tcl_version" "" ; do
 	    TCLCONFIG_SH=$tcl_libdir_runtime$x/tclConfig.sh
 	    if test -r "$TCLCONFIG_SH" ; then
-	      eval "`sed 's/^TCL_STUB_LIB_SPEC=/TCL_LIBS=/p;d' $TCLCONFIG_SH`"
+	      TCL_LIBS=`. $TCLCONFIG_SH && printf '%s' "$TCL_STUB_LIB_SPEC"`
 	      break
 	    fi
 	  done
