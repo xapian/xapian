@@ -275,6 +275,26 @@ report_useless_action(const string &file, size_t line, size_t pos,
     }
 }
 
+// Return true if we can support %z on the current platform.
+static inline bool
+parsedate_supports_z()
+{
+#ifndef HAVE_STRUCT_TM_TM_GMTOFF
+    // Without tm_gmtoff we aren't going to get the timezone information from
+    // strptime().
+    return false;
+#else
+    // Perform a simple run-time test to check if %z is suitably supported.
+    static bool cached_result = ([]() {
+	struct tm tm;
+	memset(&tm, 0, sizeof(tm));
+	auto ret = strptime("+1245", "%z", &tm);
+	return ret && *ret == '\0' && tm.tm_gmtoff == (12 * 60 + 45) * 60;
+    })();
+    return cached_result;
+#endif
+}
+
 static bool index_spec_uses_unique = false;
 
 static map<string, vector<Action>> index_spec;
@@ -697,15 +717,13 @@ bad_hex_digit:
 			    cerr << "Parsing timezone names with %Z is not "
 				    "supported\n";
 			}
-#ifndef HAVE_STRUCT_TM_TM_GMTOFF
 			bad_code = val.find("%z");
-			if (bad_code != val.npos) {
+			if (bad_code != val.npos && !parsedate_supports_z()) {
 			    report_location(DIAG_ERROR, filename, line_no,
 					    j - s.begin() + bad_code);
 			    cerr << "Parsing timezone offsets with %z is not "
 				    "supported on this platform\n";
 			}
-#endif
 			actions.emplace_back(code, action_pos, val);
 			break;
 		    }
