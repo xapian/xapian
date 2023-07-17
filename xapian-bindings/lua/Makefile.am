@@ -32,11 +32,10 @@ install-data-hook:
 uninstall-local:
 	rm -f $(DESTDIR)$(lualibdir)/xapian$(LUA_SO)
 
-AM_CPPFLAGS = @LUA_CPPFLAGS@
-AM_CXXFLAGS = @SWIG_CXXFLAGS@ $(XAPIAN_CXXFLAGS)
+AM_CXXFLAGS = @SWIG_CXXFLAGS@ $(XAPIAN_CXXFLAGS) $(LUA_CFLAGS)
 xapian_la_LDFLAGS = -avoid-version -module -shrext "$(LUA_SO)" $(NO_UNDEFINED)
 nodist_xapian_la_SOURCES = xapian_wrap.cc
-xapian_la_LIBADD = $(XAPIAN_LIBS)
+xapian_la_LIBADD = $(XAPIAN_LIBS) $(LUA_LIBS)
 
 SWIG_GENERATED = xapian_wrap.cc
 

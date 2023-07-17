@@ -1098,30 +1098,9 @@ if test no != "$with_lua" ; then
   AC_ARG_VAR(LUA, [lua interpreter])
   if test -n "$LUA" ; then
     dnl We need Lua 5.1 or later.
-    AC_MSG_CHECKING([$LUA version])
-    lua_version=`$LUA -e 'print(_VERSION)' | cut -f 2 -d ' ' 2>&AS_MESSAGE_LOG_FD`
-
-    case $lua_version in
-    [[01234]].*|5.0|5.0.*)
-      AC_MSG_RESULT([$lua_version < 5.1 (too old)])
-      if test yes = "$with_lua" ; then
-        AC_MSG_ERROR([$LUA too old (Lua 5.1 or newer required)])
-      fi
-      LUA=
-      ;;
-    "")
-      AC_MSG_RESULT([\$LUA -e 'print(_VERSION)' | cut -f 2 -d ' ' didn't work])
-
-      if test yes = "$with_lua" ; then
-        AC_MSG_ERROR([Working Lua interpreter not found])
-      fi
-      LUA=
-      ;;
-    esac
+    PKG_CHECK_MODULES([LUA], [lua$lua_version >= 5.1], [], [LUA=])
 
     if test -n "$LUA" ; then
-      AC_MSG_RESULT([$lua_version])
-
       AC_ARG_VAR([LUA_LIB], [Directory to install compiled Lua modules into])
       AC_ARG_VAR([LUA_SO], [Extension for compiled Lua modules (e.g. LUA_SO=.so)])
       AC_MSG_CHECKING([for directory to install compiled Lua modules into])
@@ -1165,6 +1144,7 @@ if test no != "$with_lua" ; then
       fi
       if test -z "$LUA_LIB"; then
 	AC_MSG_RESULT([not found])
+	LUA=
       else
 	AC_MSG_RESULT([$LUA_LIB])
       fi
@@ -1173,36 +1153,18 @@ if test no != "$with_lua" ; then
       AC_MSG_CHECKING([for extension to use for compiled Lua modules])
       if test -z "$LUA_SO"; then
 	AC_MSG_RESULT([not found])
+	LUA=
       else
 	AC_MSG_RESULT([$LUA_SO])
       fi
       AC_SUBST([LUA_SO])
-
-      AC_MSG_CHECKING([for Lua header files])
-      AC_ARG_VAR([LUA_INC], [Directory to include for lua headers])
-      if test -z "$LUA_INC" ; then
-        dirs="/usr/include/lua$lua_version /usr/local/include/lua$lua_version"
-        for i in $dirs ; do
-          if test -r "$i/lua.h"; then
-            LUA_INC=$i
-            break
-          fi
-        done
-      fi
-
-      if test -z "$LUA_INC" ; then
-        AC_MSG_RESULT([not found])
-      else
-        AC_MSG_RESULT([$LUA_INC])
-        BINDINGS="$BINDINGS lua"
-        LUA_CPPFLAGS="-I$LUA_INC"
-      fi
-      AC_SUBST([LUA_CPPFLAGS])
     fi
-  else
-    if test yes = "$with_lua" ; then
-      AC_MSG_ERROR([lua not found])
-    fi
+  fi
+
+  if test -n "$LUA" ; then
+    BINDINGS="$BINDINGS lua"
+  elif test yes = "$with_lua" ; then
+    AC_MSG_ERROR([lua not found])
   fi
 fi
 
