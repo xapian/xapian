@@ -143,6 +143,59 @@ test_scriptindex_error() {
   fi
 }
 
+# Test scriptindex either works or gives an expected error.
+#
+# Parameters:
+# * what: text to report to describe situation
+# * expect: expected glob pattern stdout+stderr should match
+# * (optional) input: input to feed scriptindex; can contain \n, etc escapes
+#   (default: /dev/null)
+#
+# Return value is the exit code from scriptindex.
+#
+# Uses database $TEST_DB and index script $TEST_INDEXSCRIPT.
+test_scriptindex_optional_error() {
+  what=$1
+  expect=$2
+  input=$3
+  rm -rf "$TEST_DB"
+  rc=0
+  case $input in
+  "")
+    out=`$SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" < /dev/null 2>&1` || rc=$?
+    ;;
+  *%*)
+    # Escape any % by doubling.
+    input=`printf '%s' "$input"|sed 's/%/%%/g'`
+    out=`printf "$input"|$SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" 2>&1` || rc=$?
+    ;;
+  *)
+    out=`printf "$input"|$SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" 2>&1` || rc=$?
+    ;;
+  esac
+  if [ $rc -eq 0 ] ; then
+    case $out in
+      $SUMMARY_GLOB) ;; # OK
+      *)
+	printf 'scriptindex gave unexpected output for %s\n' "$what"
+	printf 'Output: %s\n' "$out"
+	failed=`expr $failed + 1`
+	;;
+    esac
+  else
+    case $out in
+      $expect) ;; # OK
+      *)
+	printf "scriptindex didn't give expected error for %s"'\n' "$what"
+	printf 'Expect: %s\n' "$expect"
+	printf 'Output: %s\n' "$out"
+	failed=`expr $failed + 1`
+	;;
+    esac
+  fi
+  return $rc
+}
+
 # Test scriptindex gives expected warning.
 #
 # Parameters:
@@ -1511,16 +1564,14 @@ testcase '1480680262' id=1
 # Regression test - we used to add on the local timezone offset.
 testcase '1480680263' id=2
 
-if grep -q 'define HAVE_STRUCT_TM_TM_GMTOFF 1' config.h ; then
-  # Feature tests for scriptindex `parsedate` action.
-  printf '%s\n' 'DATE: parsedate="%Y%m%d %T %z" field=time' > "$TEST_INDEXSCRIPT"
-  test_scriptindex 'PARSEDATE action with %z' \
-    'DATE=20161202 21:34:22 +0930'
+# Feature tests for scriptindex `parsedate` action.
+printf '%s\n' 'DATE: parsedate="%Y%m%d %T %z" field=time' > "$TEST_INDEXSCRIPT"
+if test_scriptindex_optional_error 'PARSEDATE action with %z' \
+  'test-indexscript:1:28: error: Parsing timezone offsets with %z is not supported on this platform' \
+  'DATE=20161202 21:34:22 +0930' ; then
   printf '$field{time,$cgi{id}}' > "$TEST_TEMPLATE"
   # Test that timezone adjustment is applied.
   testcase '1480680262' id=1
-else
-  echo "Skipping testcases which need tm_gmtoff member in struct tm"
 fi
 
 # Feature tests for scriptindex `valuenumeric` action.
