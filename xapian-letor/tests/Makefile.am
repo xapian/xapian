@@ -97,6 +97,7 @@ EXTRA_DIST +=\
 	testdata/querythree.txt \
 	testdata/score_qrel.txt \
 	testdata/training_data.txt \
+	testdata/training_data_different_no_features.txt \
 	testdata/training_data_ndcg.txt \
 	testdata/training_data_one_document.txt \
 	testdata/training_data_three_correct.txt \
