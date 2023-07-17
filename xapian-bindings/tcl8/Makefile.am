@@ -6,13 +6,14 @@ include ../generic/generic.mk
 TESTS = smoketest.tcl
 AM_TESTS_ENVIRONMENT = \
 	srcdir='$(srcdir)' ;\
-	LIBTOOL='$(LIBTOOL)' ;\
 	TCLSH='$(TCLSH)' ;\
 	TCL_SHLIB_EXT='$(TCL_SHLIB_EXT)' ;\
+	_libs="$(_libs)" ;\
 	export srcdir ;\
-	export LIBTOOL ;\
 	export TCLSH ;\
-	export TCL_SHLIB_EXT ;
+	export TCL_SHLIB_EXT ;\
+	export _libs ;
+
 LOG_COMPILER = $(srcdir)/run-tcl-test
 
 installcheck-local:
@@ -45,7 +46,7 @@ uninstall-local:
 
 AM_CPPFLAGS = @TCL_CPPFLAGS@
 AM_CXXFLAGS = @SWIG_CXXFLAGS@ $(XAPIAN_CXXFLAGS)
-xapian_la_LDFLAGS = -avoid-version -module -shrext "$(TCL_SHLIB_EXT)" $(NO_UNDEFINED)
+xapian_la_LDFLAGS = -avoid-version -module -shrext '$(TCL_SHLIB_EXT)' $(NO_UNDEFINED)
 nodist_xapian_la_SOURCES = xapian_wrap.cc
 xapian_la_LIBADD = $(XAPIAN_LIBS) $(TCL_LIBS)
 

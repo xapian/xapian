@@ -14,9 +14,11 @@ AM_TESTS_ENVIRONMENT = \
 	LIBTOOL="$(LIBTOOL)" ;\
 	JAVA="$(JAVA) $(JAVA_CHECK_JNI_OPTION)" ;\
 	PATHSEP="$(JAVA_PATHSEP)" ;\
+	_libs="$(_libs)" ;\
 	export LIBTOOL ;\
 	export JAVA ;\
-	export PATHSEP ;
+	export PATHSEP ;\
+	export _libs ;
 LOG_COMPILER = $(srcdir)/run-java-test
 
 CLEANFILES = SmokeTest.class MyMatchDecider.class MyExpandDecider.class\

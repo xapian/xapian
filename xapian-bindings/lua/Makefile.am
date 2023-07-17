@@ -5,7 +5,7 @@ include ../generic/generic.mk
 ## Test programs to be run
 TESTS = smoketest.lua
 AM_TESTS_ENVIRONMENT = \
-	LUA_CPATH='.libs/?$(LUA_SO)' ;\
+	LUA_CPATH='$(_libs)/?$(LUA_SO)' ;\
 	export LUA_CPATH ;
 LOG_COMPILER = $(MACOS_SIP_HACK_ENV) $(LUA)
 

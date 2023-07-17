@@ -42,6 +42,7 @@ my $target;
 
 my @sources = ();
 while (<TMPDEPS>) {
+    s/\r$//;
     if (!defined $target) {
 	/(.*):/ or next;
 	$target = $1;

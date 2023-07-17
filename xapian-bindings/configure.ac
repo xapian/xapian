@@ -23,6 +23,10 @@ dnl the bindings only have a use for dynamic ones.
 LT_PREREQ([2.2.6])
 LT_INIT([disable-static])
 
+dnl Make the name of libtool's `.libs`/`_libs` available in makefiles.
+_libs=$objdir
+AC_SUBST([_libs])
+
 dnl -no-undefined causes problems on macOS with at least some
 dnl MACOSX_DEPLOYMENT_TARGET settings, so only pass -no-undefined on
 dnl platforms where it is required in order to link a shared library at

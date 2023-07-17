@@ -107,7 +107,7 @@ if ($? || ($xapian_config_dir ne '' && -f "${xapian_config_dir}Makefile")) {
     push @writemakefile_args, (
 	'OBJ_EXT'	=> '.lo',
 	'DLEXT'		=> 'la',
-	'FULLPERL'	=> '$(PERL) "-I$(INST_ARCHAUTODIR)/.libs"',
+	'FULLPERL'	=> '$(PERL) "-I$(INST_ARCHAUTODIR)/.libs -I$(INST_ARCHAUTODIR)/_libs"',
     );
 }
 

@@ -1,11 +1,9 @@
 #!/bin/sh
 # To run `jdb` instead of `java` set JAVA=jdb
 # To run under gdb, set JAVA='gdb --args java'
+set -e
 arg=`echo "$1"|sed 's!.*/!!;s!\.class$!!'`
 # Use libtool's -dlopen option to ensure that libxapian_jni.so (or whatever)
 # is in the shared library path.
-${LIBTOOL-../libtool} --config > libtoolconfig.$$
-. ./libtoolconfig.$$
-rm -f libtoolconfig.$$
 ${LIBTOOL-../libtool} -dlopen libxapian_jni.la --mode=execute \
-  $MACOS_SIP_HACK_ENV ${JAVA-java} -Djava.library.path="$objdir" -classpath built/xapian.jar${PATHSEP-:}. "$arg"
+  $MACOS_SIP_HACK_ENV ${JAVA-java} -Djava.library.path="${_libs-.libs}" -classpath built/xapian.jar${PATHSEP-:}. "$arg"
