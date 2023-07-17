@@ -55,10 +55,7 @@ BUILT_SOURCES = Xapian.pm xapian_wrap.cc \
 
 auto/Xapian/Xapian$(PERL_SO): Xapian.la
 	@$(MKDIR_P) auto/Xapian
-	$(LIBTOOL) --config > libtoolconfig.tmp
-## ksh requires a path on the sourced file.
-	. ./libtoolconfig.tmp; cp "$$objdir/Xapian$(PERL_SO)" auto/Xapian
-	rm -f libtoolconfig.tmp
+	cp "$(_libs)/Xapian$(PERL_SO)" auto/Xapian
 
 EXTRA_DIST = perl.i except.i extra.i $(TESTS) \
 	generate-perl-exceptions \

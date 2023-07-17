@@ -10,7 +10,7 @@ LOG_COMPILER = \
     $(LIBTOOL) -dlopen xapian.la --mode=execute $(MACOS_SIP_HACK_ENV) $(PHP)
 # Use -n to disable use of the system php.ini to avoid custom configuration
 # settings there which might interfere with our tests.
-AM_LOG_FLAGS = -n -d extension_dir='$(abs_builddir)/.libs' -d extension=xapian
+AM_LOG_FLAGS = -n -d extension_dir='$(abs_builddir)/$(_libs)' -d extension=xapian
 
 installcheck-local:
 	$(MAKE) check AM_LOG_FLAGS=

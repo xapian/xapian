@@ -88,10 +88,7 @@ xapian/__pycache__/__init__.@PYTHON3_CACHE_OPT1_EXT@: xapian/__init__.py xapian/
 
 xapian/_xapian$(PYTHON3_EXT_SUFFIX): _xapian.la
 	$(MKDIR_P) xapian
-	$(LIBTOOL) --config > libtoolconfig.tmp
-## ksh requires a path on the sourced file.
-	. ./libtoolconfig.tmp; cp $$objdir/_xapian$(PYTHON3_EXT_SUFFIX) xapian
-	rm -f libtoolconfig.tmp
+	cp $(_libs)/_xapian$(PYTHON3_EXT_SUFFIX) xapian
 
 CLEANFILES = \
     xapian/_xapian$(PYTHON3_EXT_SUFFIX) \
