@@ -6,4 +6,4 @@ set -e
 rm -f "xapian$TCL_SHLIB_EXT"
 trap 'rm -f "xapian$TCL_SHLIB_EXT"' 0 1 2 13 15
 ln -s "${_libs-.libs}/xapian$TCL_SHLIB_EXT" "xapian$TCL_SHLIB_EXT"
-$MACOS_SIP_HACK_ENV ${TCLSH-tclsh} ${srcdir-.}/runtest.tcl ${srcdir-.}/smoketest.tcl
+$MACOS_SIP_HACK_ENV ${TCLSH-tclsh} "${srcdir-.}/runtest.tcl" "$@"
