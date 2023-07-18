@@ -1124,7 +1124,7 @@ portability:
 
 * Add missing <ctime> for time_t.
 
-* Avoid snprintf_for formatting fixed-width integers - it results in warnings
+* Avoid snprintf for formatting fixed-width integers - it results in warnings
   about possible output truncation with GCC7 (which aren't actually possible
   due to limited input range) and it's a bit heavyweight for this job anyway.
 
