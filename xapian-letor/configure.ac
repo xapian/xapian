@@ -549,30 +549,46 @@ fi
 
 XAPIAN_TEST_LDFLAGS([-Wl,-Bsymbolic-functions], [XAPIANLETOR_LDFLAGS])
 
+if test "$GXX" = yes; then
+  dnl Default to enabling _FORTIFY_SOURCE at level 2.  It shouldn't cause a
+  dnl problem to define it where it's not supported, but we need to check for
+  dnl an issue on mingw-w64 where some versions required linking with -lssp
+  dnl (this was fixed in v11.0.0 released 2023-04-28).  We detect this with a
+  dnl configure-time link test and don't auto-enable _FORTIFY_SOURCE if using
+  dnl an affected version.
+  AC_MSG_CHECKING([if _D_FORTIFY_SOURCE=2 links without extra libraries])
+  save_CPPFLAGS=$CPPFLAGS
+  CPPFLAGS="$CPPFLAGS -D_FORTIFY_SOURCE=2"
+  AC_LINK_IFELSE([AC_LANG_PROGRAM([[
+    #include <string.h>
+    static char a[20], b[10];]], [[
+    strcpy(a, b);
+    ]])],
+    [AC_MSG_RESULT([yes])
+    AC_DEFINE([FORTIFY_SOURCE_OK], [1], [Define to 1 if '-D_FORTIFY_SOURCE=2' link test passes])],
+    [AC_MSG_RESULT([no])])
+  CPPFLAGS=$save_CPPFLAGS
+fi
+
 AH_BOTTOM(
 [/* Disable stupid MSVC "performance" warning for converting int to bool. */
 #ifdef _MSC_VER
 # pragma warning(disable:4800)
 #endif
 
-/* Default to enabling _FORTIFY_SOURCE at level 2.  It shouldn't cause a
- * problem to define it where it's not supported.
+/* Default to enabling _FORTIFY_SOURCE at level 2 for GCC-like compilers.  It
+ * shouldn't cause a problem to define it where it's not supported.
+ *
+ * The FORTIFY_SOURCE_OK check avoids auto-enabling on some mingw-w64 versions
+ * which required linking with -lssp too.  This was addressed in v11.0.0
+ * (released 2023-04-28).
  *
  * Check if _FORTIFY_SOURCE is already defined to allow the user to override
- * our choice with "./configure CPPFLAGS=-D_FORTIFY_SOURCE=0" or "...=1".
+ * our choice with "./configure CPPFLAGS=-D_FORTIFY_SOURCE=0" or "...=1" or
+ * "...=3".
  */
-#if defined __GNUC__ && !defined _FORTIFY_SOURCE
+#if defined FORTIFY_SOURCE_OK && !defined _FORTIFY_SOURCE
 # define _FORTIFY_SOURCE 2
-# ifdef __MINGW32__
-/* Both mingw32 and mingw-w64 define __MINGW32__. */
-#  include <stddef.h>
-#  ifdef __MINGW64_VERSION_MAJOR
-/* Enabling _FORTIFY_SOURCE on newer mingw-w64 requires linking with -lssp so
- * we simply don't automatically enable it there.
- */
-#   undef _FORTIFY_SOURCE
-#  endif
-# endif
 #endif
 
 /* For compilers which support it (such as GCC, clang, Intel's C++ compiler)
