@@ -1060,6 +1060,67 @@ jobs:
         make -j2 -C xapian-core
       # FIXME: Run tests under android emulator?
 
+  cygwin:
+    # We only test 64-bit cygwin as 32-bit support has been dropped as of
+    # Cygwin 3.4:
+    # https://cygwin.com/pipermail/cygwin/2022-November/252542.html
+    runs-on: 'windows-latest'
+    needs: makedist
+    defaults:
+      run:
+        # `-o incr` needed as GHA supplies shell fragments with DOS EOLs.
+        shell: 'C:\tools\cygwin\bin\bash.EXE --noprofile --norc -e -o igncr -o pipefail {0}'
+    steps:
+    - name: Install Cygwin
+      uses: egor-tensin/setup-cygwin@v4
+      with:
+        packages: gcc-g++ make file-devel libpcre2-devel zlib-devel perl
+    - name: Fetch distribution
+      uses: actions/download-artifact@v3
+    - name: Unpack distribution
+      run: |
+        mv artifact/* .
+        rmdir artifact
+        pushd xapian-core
+        tar --strip-components=1 -xf xapian-core-*.tar.xz
+        popd
+        pushd xapian-applications/omega
+        tar --strip-components=1 -xf xapian-omega-*.tar.xz
+        popd
+        pushd xapian-bindings
+        tar --strip-components=1 -xf xapian-bindings-*.tar.xz
+        popd
+        pushd xapian-letor
+        tar --strip-components=1 -xf xapian-letor-*.tar.xz
+        popd
+    - name: configure
+      run: |
+        pushd xapian-core
+        ./configure
+        export XAPIAN_CONFIG=$PWD/xapian-config
+        popd
+        pushd xapian-applications/omega
+        ./configure
+        popd
+        # pushd xapian-bindings
+        # ./configure
+        # popd
+        pushd xapian-letor
+        ./configure
+        popd
+    - name: make
+      run: |
+        make -j2 -C xapian-core
+        make -j2 -C xapian-applications/omega
+        # make -j2 -C xapian-bindings
+        make -j2 -C xapian-letor
+    - name: Run tests
+      run: |
+        make -j2 -C xapian-core check VERBOSE=1 AUTOMATED_TESTING=1
+        make -j2 -C xapian-applications/omega check VERBOSE=1 AUTOMATED_TESTING=1
+        # make -j2 -C xapian-bindings check VERBOSE=1 AUTOMATED_TESTING=1
+        make -j2 -C xapian-letor check VERBOSE=1 AUTOMATED_TESTING=1
+
   checkpatch:
     name: 'Automated run of xapian-check-patch'
     runs-on: 'ubuntu-latest'
