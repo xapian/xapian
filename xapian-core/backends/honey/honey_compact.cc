@@ -186,10 +186,10 @@ class PostlistCursor<const GlassTable&> : private GlassCursor {
 	    Assert(pos > 0);
 	}
 
-	std::tuple<Xapian::docid, Xapian::docid> get_chunk(string& tag) {
+	std::tuple<Xapian::docid, Xapian::docid> get_chunk(string& chunk) {
 	    /// Start with indicator for 32-bit lengths.
-	    tag.resize(1);
-	    tag[0] = char(32);
+	    chunk.resize(1);
+	    chunk[0] = char(32);
 
 	    Assert(pos > 0);
 	    const char* d = data.data() + pos;
@@ -229,9 +229,9 @@ class PostlistCursor<const GlassTable&> : private GlassCursor {
 		    doclen_max = doclen;
 		}
 
-		auto s = tag.size();
-		tag.resize(s + 4);
-		unaligned_write4(reinterpret_cast<unsigned char*>(&tag[s]),
+		auto s = chunk.size();
+		chunk.resize(s + 4);
+		unaligned_write4(reinterpret_cast<unsigned char*>(&chunk[s]),
 				 doclen);
 
 		if (d == e) {
@@ -249,10 +249,10 @@ class PostlistCursor<const GlassTable&> : private GlassCursor {
 		}
 	    }
 
-	    Xapian::docid chunk_firstdid = did;
-	    AssertEq(tag.size() % 4, 1);
-	    did += tag.size() / 4;
-	    Xapian::docid chunk_lastdid = did - 1;
+	    Xapian::docid new_chunk_firstdid = did;
+	    AssertEq(chunk.size() % 4, 1);
+	    did += chunk.size() / 4;
+	    Xapian::docid new_chunk_lastdid = did - 1;
 	    did += gap_size;
 
 	    // Only encode document lengths using a whole number of bytes for
@@ -263,37 +263,37 @@ class PostlistCursor<const GlassTable&> : private GlassCursor {
 		if (doclen_max >= 0xffffff) {
 		    // Already encoded for this case.
 		} else {
-		    tag[0] = char(24);
-		    Assert(tag.size() >= 5);
-		    char* p = &tag[1];
-		    for (size_t i = 2; i < tag.size(); i += 4) {
-			memcpy(p, &tag[i], 3);
+		    chunk[0] = char(24);
+		    Assert(chunk.size() >= 5);
+		    char* p = &chunk[1];
+		    for (size_t i = 2; i < chunk.size(); i += 4) {
+			memcpy(p, &chunk[i], 3);
 			p += 3;
 		    }
-		    tag.resize(p - &tag[0]);
+		    chunk.resize(p - &chunk[0]);
 		}
 	    } else {
 		if (doclen_max >= 0xff) {
-		    tag[0] = char(16);
-		    Assert(tag.size() >= 5);
-		    char* p = &tag[1];
-		    for (size_t i = 3; i < tag.size(); i += 4) {
-			memcpy(p, &tag[i], 2);
+		    chunk[0] = char(16);
+		    Assert(chunk.size() >= 5);
+		    char* p = &chunk[1];
+		    for (size_t i = 3; i < chunk.size(); i += 4) {
+			memcpy(p, &chunk[i], 2);
 			p += 2;
 		    }
-		    tag.resize(p - &tag[0]);
-		} else if (tag.size() > 1) {
-		    tag[0] = char(8);
-		    Assert(tag.size() >= 5);
-		    char* p = &tag[1];
-		    for (size_t i = 4; i < tag.size(); i += 4) {
-			*p++ = tag[i];
+		    chunk.resize(p - &chunk[0]);
+		} else if (chunk.size() > 1) {
+		    chunk[0] = char(8);
+		    Assert(chunk.size() >= 5);
+		    char* p = &chunk[1];
+		    for (size_t i = 4; i < chunk.size(); i += 4) {
+			*p++ = chunk[i];
 		    }
-		    tag.resize(p - &tag[0]);
+		    chunk.resize(p - &chunk[0]);
 		}
 	    }
 
-	    return std::pair(chunk_firstdid, chunk_lastdid);
+	    return std::pair(new_chunk_firstdid, new_chunk_lastdid);
 	}
     };
 
