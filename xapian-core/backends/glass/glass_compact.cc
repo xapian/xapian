@@ -32,7 +32,6 @@
 #include <queue>
 
 #include <cerrno>
-#include <cstdio>
 
 #include "backends/flint_lock.h"
 #include "glass_database.h"
@@ -611,9 +610,11 @@ multimerge_postlists(Xapian::Compactor * compactor,
 	    if (j == tmp.size() - 1) ++j;
 
 	    string dest = tmpdir;
-	    char buf[64];
-	    sprintf(buf, "/tmp%u_%u.", c, i / 2);
-	    dest += buf;
+	    dest += "/tmp";
+	    dest += str(c);
+	    dest += '_';
+	    dest += str(i / 2);
+	    dest += '.';
 
 	    GlassTable * tmptab = new GlassTable("postlist", dest, false);
 

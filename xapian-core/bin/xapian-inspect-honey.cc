@@ -23,7 +23,6 @@
 #include <ios>
 #include <iostream>
 #include <string>
-#include <cstdio> // For sprintf().
 
 #include "honey_cursor.h"
 #include "honey_defs.h"
@@ -65,9 +64,9 @@ display_nicely(const string& data)
 		case '\r': cout << "\\r"; break;
 		case '\t': cout << "\\t"; break;
 		default: {
-		    char buf[20];
-		    sprintf(buf, "\\x%02x", int(ch));
-		    cout << buf;
+		    cout << "\\x"
+			 << "0123456789abcdef"[ch >> 4]
+			 << "0123456789abcdef"[ch & 0x0f];
 		}
 	    }
 	} else if (ch == '\\') {

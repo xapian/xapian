@@ -358,35 +358,6 @@ fi
 dnl GNU-specific replacement for sys_errlist and sys_nerr.
 AC_CHECK_FUNCS([strerrordesc_np])
 
-dnl mingw has _snprintf so check for that too.
-AC_MSG_CHECKING([for  snprintf])
-AC_CACHE_VAL([xo_cv_func_snprintf],
-  [
-  xo_cv_func_snprintf=no
-  for func in snprintf _snprintf ; do
-    AC_COMPILE_IFELSE([
-      AC_LANG_PROGRAM(
-	[[
-#include <cstdio>
-using namespace std;
-	]],
-	[[
-	  char buffer[4] = "abc";
-	  int res = $func(buffer, 4, "%s", "XYZ");
-	  return res;
-	]]
-      )],
-      [xo_cv_func_snprintf=$func;break],
-      []
-    )
-  done
-  ])
-AC_MSG_RESULT([$xo_cv_func_snprintf])
-if test "$xo_cv_func_snprintf" != no ; then
-  AC_DEFINE_UNQUOTED([SNPRINTF], [$xo_cv_func_snprintf],
-     [Define to the name of a function implementing snprintf but not caring about ISO C99 return value semantics (if one exists)])
-fi
-
 if true ; then
 
   case $host_os-$win32 in

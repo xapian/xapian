@@ -32,7 +32,6 @@
 #include <type_traits>
 
 #include <cerrno>
-#include <cstdio>
 
 #include "backends/flint_lock.h"
 #include "compression_stream.h"
@@ -1714,9 +1713,11 @@ multimerge_postlists(Xapian::Compactor* compactor,
 	    if (j == in.size() - 1) ++j;
 
 	    string dest = tmpdir;
-	    char buf[64];
-	    sprintf(buf, "/tmp%u_%u.", c, i / 2);
-	    dest += buf;
+	    dest += "/tmp";
+	    dest += str(c);
+	    dest += '_';
+	    dest += str(i / 2);
+	    dest += '.';
 
 	    HoneyTable* tmptab = new HoneyTable("postlist", dest, false);
 
@@ -1748,9 +1749,11 @@ multimerge_postlists(Xapian::Compactor* compactor,
 	    if (j == tmp.size() - 1) ++j;
 
 	    string dest = tmpdir;
-	    char buf[64];
-	    sprintf(buf, "/tmp%u_%u.", c, i / 2);
-	    dest += buf;
+	    dest += "/tmp";
+	    dest += str(c);
+	    dest += '_';
+	    dest += str(i / 2);
+	    dest += '.';
 
 	    HoneyTable* tmptab = new HoneyTable("postlist", dest, false);
 

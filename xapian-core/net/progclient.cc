@@ -37,7 +37,7 @@
 # include <sys/wait.h>
 #else
 # include <cinttypes> // For PRIx64
-# include <cstdio> // For sprintf().
+# include <cstdio> // For snprintf().
 # include <io.h>
 #endif
 
@@ -166,10 +166,12 @@ ProgClient::run_program(const string& progname,
     // on modern hardware (Pentium or newer).
     QueryPerformanceCounter(&counter);
     char pipename[256];
-    sprintf(pipename, "\\\\.\\pipe\\xapian-remote-%lx-%lx_%" PRIx64,
-	    static_cast<unsigned long>(GetCurrentProcessId()),
-	    static_cast<unsigned long>(GetCurrentThreadId()),
-	    static_cast<unsigned long long>(counter.QuadPart));
+    snprintf(pipename, sizeof(pipename),
+	     "\\\\.\\pipe\\xapian-remote-%lx-%lx_%" PRIx64,
+	     static_cast<unsigned long>(GetCurrentProcessId()),
+	     static_cast<unsigned long>(GetCurrentThreadId()),
+	     static_cast<unsigned long long>(counter.QuadPart));
+    pipename[sizeof(pipename) - 1] = '\0';
     // Create a pipe so we can read stdout from the child process.
     HANDLE hPipe = CreateNamedPipe(pipename,
 				   PIPE_ACCESS_DUPLEX|FILE_FLAG_OVERLAPPED,

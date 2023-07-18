@@ -84,25 +84,6 @@ using Xapian::Utf8Iterator;
 
 using Xapian::Unicode::is_wordchar;
 
-#ifndef SNPRINTF
-#include <cstdarg>
-
-static int my_snprintf(char *str, size_t size, const char *format, ...)
-{
-    int res;
-    va_list ap;
-    va_start(ap, format);
-    str[size - 1] = '\0';
-    res = vsprintf(str, format, ap);
-    if (str[size - 1] || res < 0 || size_t(res) >= size)
-	abort(); /* Overflowed! */
-    va_end(ap);
-    return res;
-}
-#else
-#define my_snprintf SNPRINTF
-#endif
-
 /// Map shard to DB parameter value and stats to allow docid mapping.
 vector<SubDB> subdbs;
 
@@ -1682,10 +1663,10 @@ eval(const string& fmt, vector<string>& param)
 		    char buf[200];
 		    int len;
 		    if (fraction == -1) {
-			len = my_snprintf(buf, sizeof(buf), format, intpart);
+			len = snprintf(buf, sizeof(buf), format, intpart);
 		    } else {
 			fraction = (fraction * 10 / 1024) + '0';
-			len = my_snprintf(buf, sizeof(buf), format, intpart, fraction);
+			len = snprintf(buf, sizeof(buf), format, intpart, fraction);
 		    }
 		    if (len < 0 || unsigned(len) > sizeof(buf)) len = sizeof(buf);
 		    value.assign(buf, len);
@@ -2607,8 +2588,8 @@ eval(const string& fmt, vector<string>& param)
 	    case CMD_time:
 		if (secs >= 0) {
 		    char buf[64];
-		    my_snprintf(buf, sizeof(buf), "%.6f", secs);
-		    // MSVC's snprintf omits the zero byte if the string if
+		    snprintf(buf, sizeof(buf), "%.6f", secs);
+		    // MSVC's snprintf omits the zero byte if the string is
 		    // sizeof(buf) long.
 		    buf[sizeof(buf) - 1] = '\0';
 		    value = buf;

@@ -220,7 +220,8 @@ Xapian::Internal::closefrom(int fd)
     // getdirentries() then this code can be used.  AIX is an example of
     // a platform of the former, but apparently has F_CLOSEM.
     char path[6 + sizeof(pid_t) * 3 + 4];
-    sprintf(path, "/proc/%ld/fd", long(getpid()));
+    snprintf(path, sizeof(path), "/proc/%ld/fd", long(getpid()));
+    path[sizeof(path) - 1] = '\0';
 #endif
     if (maxfd < 0)
 	maxfd = get_maxfd();

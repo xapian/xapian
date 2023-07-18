@@ -25,7 +25,7 @@
 #include "negate_unsigned.h"
 #include "omassert.h"
 
-#include <cstdio> // For snprintf() or sprintf().
+#include <cstdio> // For snprintf().
 #include <cstdlib> // For abort().
 #include <string>
 #include <type_traits>
@@ -128,17 +128,11 @@ static inline string
 format(const char * fmt, T value)
 {
     char buf[128];
-#ifdef SNPRINTF
     // If -1 is returned (as pre-ISO snprintf does if the buffer is too small,
     // it will be cast to > sizeof(buf) and handled appropriately.
-    size_t size = SNPRINTF(buf, sizeof(buf), fmt, value);
+    size_t size = snprintf(buf, sizeof(buf), fmt, value);
     AssertRel(size,<=,sizeof(buf));
     if (size > sizeof(buf)) size = sizeof(buf);
-#else
-    size_t size = sprintf(buf, fmt, value);
-    // Buffer overflow.
-    if (size >= sizeof(buf)) abort();
-#endif
     return string(buf, size);
 }
 

@@ -1,7 +1,7 @@
 /** @file
  * @brief JSON escape a string
  */
-/* Copyright (C) 2013 Olly Betts
+/* Copyright (C) 2013,2023 Olly Betts
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -26,7 +26,6 @@
 
 #include "jsonescape.h"
 
-#include <cstdio>
 #include <string>
 
 #include <xapian.h>
@@ -61,13 +60,15 @@ json_escape(string &s)
 	} else {
 	    unsigned char t = json_tab[ch];
 	    if (t == CLR) {
+		// Can be sent "in the clear".
 		r += ch;
 		continue;
 	    }
 	    if (t == UNI) {
-		char buf[7];
-		sprintf(buf, "\\u00%02x", ch);
-		r.append(buf, 6);
+		// Encode as Unicode escape sequence.  We know ch <= 0x1f.
+		r.append("\\u0000", 6);
+		if (ch >= 16) r[r.size() - 2] = '1';
+		r.back() = "0123456789abcdef"[ch & 0x0f];
 		continue;
 	    }
 	    ch = t;
