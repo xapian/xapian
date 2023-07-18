@@ -70,6 +70,7 @@
 #include "errno_to_string.h"
 #include "filetests.h"
 #include "noreturn.h"
+#include "str.h"
 #include "stringutils.h"
 
 using namespace std;
@@ -667,9 +668,7 @@ test_driver::runtest(const test_desc *test)
 	}
 	out << " " << col_red << signame;
 	if (show_addr) {
-	    char buf[40];
-	    sprintf(buf, " at %p", sigaddr);
-	    out << buf;
+	    out << " at " << str(sigaddr);
 	}
 	out << col_reset;
 	write_and_clear_tout();
@@ -834,11 +833,9 @@ test_driver::parse_command_line(int argc, char **argv)
     if (RUNNING_ON_VALGRIND) {
 	if (getenv("XAPIAN_TESTSUITE_VALGRIND") != NULL) {
 	    // Open the valgrind log file, and unlink it.
-	    char fname[64];
-	    sprintf(fname, ".valgrind.log.%lu",
-		    static_cast<unsigned long>(getpid()));
-	    vg_log_fd = open(fname, O_RDONLY|O_NONBLOCK|O_CLOEXEC);
-	    if (vg_log_fd != -1) unlink(fname);
+	    string fname = ".valgrind.log." + str(getpid());
+	    vg_log_fd = open(fname.c_str(), O_RDONLY|O_NONBLOCK|O_CLOEXEC);
+	    if (vg_log_fd != -1) unlink(fname.c_str());
 	}
     }
 #endif

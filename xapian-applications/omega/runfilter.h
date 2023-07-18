@@ -30,7 +30,17 @@ struct ReadError {
     int status;
     explicit ReadError(const char * m) : msg(m) { }
     explicit ReadError(int s) : msg(NULL), status(s) { }
-    std::string str() const { if (msg) return msg; char buf[32]; std::sprintf(buf, "0x%08x", status); return buf; }
+    std::string str() const {
+	if (msg) return msg;
+	char buf[32];
+#ifdef SNPRINTF
+	SNPRINTF(buf, sizeof(buf), "0x%08x", status);
+#else
+	// Output size is constrained to be <= 3 + 2 * sizeof(int).
+	std::sprintf(buf, "0x%08x", status);
+#endif
+	return buf;
+    }
 };
 
 /// Exception thrown if the filter program isn't found.

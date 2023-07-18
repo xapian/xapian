@@ -2436,7 +2436,7 @@ eval(const string& fmt, vector<string>& param)
 		if (secs >= 0) {
 		    char buf[64];
 		    my_snprintf(buf, sizeof(buf), "%.6f", secs);
-		    // MSVC's snprintf omits the zero byte if the string if
+		    // MSVC's snprintf omits the zero byte if the string is
 		    // sizeof(buf) long.
 		    buf[sizeof(buf) - 1] = '\0';
 		    value = buf;
