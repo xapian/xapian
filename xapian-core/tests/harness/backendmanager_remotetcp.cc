@@ -130,6 +130,7 @@ class ServerData {
 	    throw Xapian::DatabaseError("Couldn't kill remote server",
 					-GetLastError());
 	}
+	WaitForSingleObject(pid, INFINITE);
 #endif
 	clean_up();
 	pid = UNUSED_PID;
