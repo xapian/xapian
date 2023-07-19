@@ -66,7 +66,7 @@ try {
 		have_db = true;
 		break;
 	    case 'v':
-		cout << PROG_NAME " - " PACKAGE_STRING << endl;
+		cout << PROG_NAME " - " PACKAGE_STRING "\n";
 		exit(0);
 	    case 'h':
 		cout << PROG_NAME " - " PROG_DESC "\n\n";
@@ -100,6 +100,6 @@ try {
     db.set_metadata("collection_len_whole", str(total_len));
     db.commit();
 } catch (const Xapian::Error & e) {
-    cout << e.get_description() << endl;
+    cout << e.get_description() << '\n';
     exit(1);
 }

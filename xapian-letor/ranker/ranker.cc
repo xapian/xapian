@@ -193,7 +193,7 @@ write_to_file(const std::vector<Xapian::FeatureVector> & list_fvecs, const strin
 	for (int k = 0; k < fv.get_fcount(); ++k) {
 	    train_file << " " << (k + 1) << ":" << fvals[k];
 	}
-	train_file << " #docid=" << did << endl;
+	train_file << " #docid=" << did << '\n';
     }
 }
 
@@ -481,11 +481,12 @@ Ranker::score(const string & query_file, const string & qrel_file,
 	    ++k;
 	}
 	double iter_score = scorer->score(rankedfvv_qrel);
-	out_file << "Ranking score for qid:" << qid << " = " << iter_score << endl;
+	out_file << "Ranking score for qid:" << qid << " = " << iter_score
+		 << '\n';
 	total_score += iter_score;
     }
     queryfile.close();
     total_score = total_score / num_queries;
-    out_file << "Average ranking score = " << total_score << endl;
+    out_file << "Average ranking score = " << total_score << '\n';
     out_file.close();
 }

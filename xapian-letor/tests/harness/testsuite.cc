@@ -167,8 +167,8 @@ test_driver::get_srcdir()
     if (!file_exists(srcdir + '/' + srcfile + ".cc")) {
 	cout << argv0
 	     << ": srcdir is not in the environment and I can't guess it!\n"
-		"Run test programs using the runtest script - see HACKING for details"
-	     << endl;
+		"Run test programs using the runtest script - see HACKING "
+		"for details\n";
 	exit(1);
     }
     return srcdir;
@@ -713,7 +713,7 @@ test_driver::do_run_tests(vector<string>::const_iterator b,
 		    }
 
 		    if (verbose || !use_cr) {
-			out << col_green << " ok" << col_reset << endl;
+			out << col_green << " ok" << col_reset << '\n';
 		    } else {
 			out << "\r                                        "
 			       "                                       \r";
@@ -721,25 +721,25 @@ test_driver::do_run_tests(vector<string>::const_iterator b,
 		    break;
 		case XFAIL:
 		    ++res.xfailed;
-		    out << endl;
+		    out << '\n';
 		    break;
 		case FAIL:
 		    ++res.failed;
-		    out << endl;
+		    out << '\n';
 		    if (abort_on_error) {
 			throw "Test failed - aborting further tests";
 		    }
 		    break;
 		case XPASS:
 		    ++res.xpassed;
-		    out << endl;
+		    out << '\n';
 		    if (abort_on_error) {
 			throw "Test marked as XFAIL passed - aborting further tests";
 		    }
 		    break;
 		case SKIP:
 		    ++res.skipped;
-		    out << endl;
+		    out << '\n';
 		    // ignore the result of this test.
 		    break;
 	    }
@@ -751,9 +751,9 @@ test_driver::do_run_tests(vector<string>::const_iterator b,
 void
 test_driver::usage()
 {
-    cout << "Usage: " << argv0 << " [-v|--verbose] [-o|--abort-on-error] " << opt_help
-	 << "[TESTNAME]..." << endl;
-    cout << "       " << argv0 << " [-h|--help]" << endl;
+    cout << "Usage: " << argv0 << " [-v|--verbose] [-o|--abort-on-error] "
+	 << opt_help << "[TESTNAME]...\n"
+	    "       " << argv0 << " [-h|--help]\n";
     exit(1);
 }
 
@@ -794,9 +794,9 @@ test_driver::report(const test_driver::result &r, const string &desc)
 
 	if (r.skipped) {
 	    cout << ", " << col_yellow << r.skipped << col_reset
-		 << " skipped." << endl;
+		 << " skipped.\n";
 	} else {
-	    cout << "." << endl;
+	    cout << ".\n";
 	}
 
 	if (!slow_tests.empty()) {
@@ -809,7 +809,7 @@ test_driver::report(const test_driver::result &r, const string &desc)
 		    cout << ", ";
 		}
 	    }
-	    cout << "." << endl;
+	    cout << ".\n";
 	    slow_tests.clear();
 	}
     }

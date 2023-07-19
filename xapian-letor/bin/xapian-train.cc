@@ -74,7 +74,7 @@ try {
 		show_usage();
 		exit(0);
 	    case OPT_VERSION:
-		cout << PROG_NAME " - " PACKAGE_STRING << endl;
+		cout << PROG_NAME " - " PACKAGE_STRING "\n";
 		exit(0);
 	    case ':': // missing parameter
 	    case '?': // unknown option
@@ -92,7 +92,7 @@ try {
     string model_metadata_key = argv[optind + 1];
 
     if (!have_database) {
-	cout << "No database specified so not running the query." << endl;
+	cout << "No database specified so not running the query.\n";
 	exit(0);
     }
 
@@ -111,6 +111,6 @@ try {
     cout << flush;
 
 } catch (const Xapian::Error & err) {
-    cout << err.get_description() << endl;
+    cout << err.get_description() << '\n';
     exit(1);
 }

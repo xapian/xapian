@@ -104,7 +104,7 @@ try {
 		break;
 	    case 'm':
 		if (!parse_unsigned(optarg, msize)) {
-		    cerr << "Mset size must be >= 0" << endl;
+		    cerr << "Mset size must be >= 0\n";
 		    exit(1);
 		}
 		break;
@@ -114,14 +114,14 @@ try {
 		} catch (const Xapian::InvalidArgumentError &) {
 		    cerr << "Unknown stemming language '" << optarg << "'.\n"
 			"Available language names are: "
-		     << Xapian::Stem::get_available_languages() << endl;
+		     << Xapian::Stem::get_available_languages() << '\n';
 		    exit(1);
 		}
 		break;
 	    case 'p': case 'b': {
 		const char * colon = strchr(optarg, ':');
 		if (colon == NULL) {
-		    cerr << argv[0] << ": need ':' when setting prefix" << endl;
+		    cerr << argv[0] << ": need ':' when setting prefix\n";
 		    exit(1);
 		}
 		string prefix(optarg, colon - optarg);
@@ -138,7 +138,7 @@ try {
 		show_usage();
 		exit(0);
 	    case OPT_VERSION:
-		cout << PROG_NAME " - " PACKAGE_STRING << endl;
+		cout << PROG_NAME " - " PACKAGE_STRING "\n";
 		exit(0);
 	    case ':': // missing parameter
 	    case '?': // unknown option
@@ -179,10 +179,10 @@ try {
     if (!correction.empty())
 	cout << "Did you mean: " << correction << "\n\n";
 
-    cout << "Parsed Query: " << query.get_description() << endl;
+    cout << "Parsed Query: " << query.get_description() << '\n';
 
     if (!have_database) {
-	cout << "No database specified so not running the query." << endl;
+	cout << "No database specified so not running the query.\n";
 	exit(0);
     }
 
@@ -192,11 +192,11 @@ try {
     Xapian::MSet mset = enquire.get_mset(0, msize);
 
     if (mset.empty()) {
-	cout << "Empty MSet. No documents could be retrieved with the given Query." << endl;
+	cout << "Empty MSet. No documents could be retrieved with the given Query.\n";
 	exit(1);
     }
 
-    cout << "Docids before re-ranking by LTR model:" << endl;
+    cout << "Docids before re-ranking by LTR model:\n";
     for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); ++i) {
 	Xapian::Document doc = i.get_document();
 	string data = doc.get_data();
@@ -212,7 +212,7 @@ try {
     // Re-rank the existing mset using the letor model.
     ranker->rank(mset, model_metadata_key);
 
-    cout << "Docids after re-ranking by LTR model:\n" << endl;
+    cout << "Docids after re-ranking by LTR model:\n\n";
 
     for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); ++i) {
 	Xapian::Document doc = i.get_document();
@@ -223,9 +223,9 @@ try {
 
     cout << flush;
 } catch (const Xapian::QueryParserError & e) {
-    cout << "Couldn't parse query: " << e.get_msg() << endl;
+    cout << "Couldn't parse query: " << e.get_msg() << '\n';
     exit(1);
 } catch (const Xapian::Error & err) {
-    cout << err.get_description() << endl;
+    cout << err.get_description() << '\n';
     exit(1);
 }
