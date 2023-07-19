@@ -321,7 +321,18 @@ test_driver::runtest(const test_desc *test)
 
     while (true) {
 	tout.str(string());
+#ifdef _MSC_VER
+// Suppress warning about _setjmp and C++ object destruction.  It's not ideal
+// that some destructors may not get called, but this is in the test harness
+// rather than production code, and overall it's more helpful for the test
+// harness to be able to report clearly which testcase triggered a signal.
+# pragma warning(push)
+# pragma warning(disable:4611)
+#endif
 	if (SIGSETJMP(jb, 1) == 0) {
+#ifdef _MSC_VER
+# pragma warning(pop)
+#endif
 	    SignalRedirector sig; // use object so signal handlers are reset
 	    static bool catch_signals =
 		(getenv("XAPIAN_TESTSUITE_SIG_DFL") == NULL);
