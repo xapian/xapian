@@ -904,6 +904,9 @@ jobs:
         pushd xapian-core
         tar --strip-components=1 -xf xapian-core-*.tar.xz
         popd
+        pushd xapian-letor
+        tar --strip-components=1 -xf xapian-letor-*.tar.xz
+        popd
     - name: Install package dependencies
       run: |
         sudo apt-get update
@@ -916,12 +919,18 @@ jobs:
     - name: configure
       run: |
         export PATH=/usr/lib/ccache:$PATH
-        cd xapian-core
+        pushd xapian-core
         ./configure --enable-werror --host i686-w64-mingw32
+        export XAPIAN_CONFIG=$PWD/xapian-config
+        popd
+        pushd xapian-letor
+        ./configure --enable-werror --host i686-w64-mingw32
+        popd
     - name: make
       run: |
         export PATH=/usr/lib/ccache:$PATH
         make -j2 -C xapian-core
+        make -j2 -C xapian-letor
       # FIXME: Run tests under wine?
 
   mingw64-x86-64-cross:
@@ -940,6 +949,10 @@ jobs:
         rmdir artifact
         pushd xapian-core
         tar --strip-components=1 -xf xapian-core-*.tar.xz
+        export XAPIAN_CONFIG=$PWD/xapian-config
+        popd
+        pushd xapian-letor
+        tar --strip-components=1 -xf xapian-letor-*.tar.xz
         popd
     - name: Install package dependencies
       run: |
@@ -953,12 +966,18 @@ jobs:
     - name: configure
       run: |
         export PATH=/usr/lib/ccache:$PATH
-        cd xapian-core
+        pushd xapian-core
         ./configure --enable-werror --host x86_64-w64-mingw32
+        export XAPIAN_CONFIG=$PWD/xapian-config
+        popd
+        pushd xapian-letor
+        ./configure --enable-werror --host x86_64-w64-mingw32
+        popd
     - name: make
       run: |
         export PATH=/usr/lib/ccache:$PATH
         make -j2 -C xapian-core
+        make -j2 -C xapian-letor
       # FIXME: Run tests under wine?
 
   Fedora:
