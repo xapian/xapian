@@ -15,6 +15,8 @@ if VPATH_BUILD
 AM_CPPFLAGS += -I'$(top_builddir)/include'
 endif
 
+AM_CXXFLAGS += $(WERROR)
+
 AM_CXXFLAGS += $(XAPIAN_CXXFLAGS)
 
 # Order is relevant: when building, tests must be after ".".

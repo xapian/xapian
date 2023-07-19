@@ -154,6 +154,7 @@ AM_CPPFLAGS = \
 	-I$(top_srcdir)/common \
 	-DCONFIGFILE_SYSTEM=\"$(sysconfdir)/omega.conf\" \
 	-DPKGLIBBINDIR=\"$(pkglibbindir)\"
+AM_CXXFLAGS += $(WERROR)
 AM_CXXFLAGS += $(XAPIAN_CXXFLAGS)
 
 pkglibbindir = $(pkglibdir)/bin
@@ -254,52 +255,52 @@ omindex_LDADD = $(MAGIC_LIBS) $(XAPIAN_LIBS) $(ZLIB_LIBS) libutf8convert.la
 
 omindex_poppler_SOURCES = assistant.cc worker_comms.cc common/str.cc handler_poppler.cc
 omindex_poppler_LDADD = $(POPPLER_LIBS)
-omindex_poppler_CXXFLAGS = $(POPPLER_CFLAGS) $(XAPIAN_CXXFLAGS)
+omindex_poppler_CXXFLAGS = $(AM_CXXFLAGS) $(POPPLER_CFLAGS)
 
 omindex_libebook_SOURCES = assistant.cc worker_comms.cc handler_libebook.cc
 omindex_libebook_LDADD = $(LIBEBOOK_LIBS)
-omindex_libebook_CXXFLAGS = $(LIBEBOOK_CFLAGS) $(XAPIAN_CXXFLAGS)
+omindex_libebook_CXXFLAGS = $(AM_CXXFLAGS) $(LIBEBOOK_CFLAGS)
 
 omindex_libetonyek_SOURCES = assistant.cc worker_comms.cc handler_libetonyek.cc
 omindex_libetonyek_LDADD = $(LIBETONYEK_LIBS)
-omindex_libetonyek_CXXFLAGS = $(LIBETONYEK_CFLAGS) $(XAPIAN_CXXFLAGS)
+omindex_libetonyek_CXXFLAGS = $(AM_CXXFLAGS) $(LIBETONYEK_CFLAGS)
 
 omindex_libgepub_SOURCES = assistant.cc worker_comms.cc htmlparser.cc datetime.cc xmlparser.cc common/keyword.cc handler_libgepub.cc
 omindex_libgepub_LDADD = $(LIBGEPUB_LIBS) libutf8convert.la
-omindex_libgepub_CXXFLAGS = $(LIBGEPUB_CFLAGS) $(XAPIAN_CXXFLAGS)
+omindex_libgepub_CXXFLAGS = $(AM_CXXFLAGS) $(LIBGEPUB_CFLAGS)
 
 omindex_tesseract_SOURCES = assistant.cc worker_comms.cc handler_tesseract.cc
 omindex_tesseract_LDADD = $(TESSERACT_LIBS)
-omindex_tesseract_CXXFLAGS = $(TESSERACT_CFLAGS) $(XAPIAN_CXXFLAGS)
+omindex_tesseract_CXXFLAGS = $(AM_CXXFLAGS) $(TESSERACT_CFLAGS)
 
 omindex_gmime_SOURCES = assistant.cc worker_comms.cc htmlparser.cc datetime.cc xmlparser.cc common/keyword.cc handler_gmime.cc common/str.cc
 omindex_gmime_LDADD = $(GMIME_LIBS) libutf8convert.la
-omindex_gmime_CXXFLAGS = $(GMIME_CFLAGS) $(XAPIAN_CXXFLAGS)
+omindex_gmime_CXXFLAGS = $(AM_CXXFLAGS) $(GMIME_CFLAGS)
 
 omindex_libarchive_SOURCES = assistant.cc worker_comms.cc opendocmetaparser.cc opendocparser.cc datetime.cc xmlparser.cc htmlparser.cc msxmlparser.cc xlsxparser.cc xpsparser.cc common/keyword.cc common/str.cc handler_libarchive.cc
 omindex_libarchive_LDADD = $(LIBARCHIVE_LIBS) libutf8convert.la
-omindex_libarchive_CXXFLAGS = $(LIBARCHIVE_CFLAGS) $(XAPIAN_CXXFLAGS)
+omindex_libarchive_CXXFLAGS = $(AM_CXXFLAGS) $(LIBARCHIVE_CFLAGS)
 
 omindex_libabw_SOURCES = assistant.cc worker_comms.cc handler_libabw.cc
 omindex_libabw_LDADD = $(LIBABW_LIBS)
-omindex_libabw_CXXFLAGS = $(LIBABW_CFLAGS) $(XAPIAN_CXXFLAGS)
+omindex_libabw_CXXFLAGS = $(AM_CXXFLAGS) $(LIBABW_CFLAGS)
 
 omindex_libcdr_SOURCES = assistant.cc worker_comms.cc handler_libcdr.cc
 omindex_libcdr_LDADD = $(LIBCDR_LIBS)
-omindex_libcdr_CXXFLAGS = $(LIBCDR_CFLAGS) $(XAPIAN_CXXFLAGS)
+omindex_libcdr_CXXFLAGS = $(AM_CXXFLAGS) $(LIBCDR_CFLAGS)
 
 omindex_libextractor_SOURCES = assistant.cc worker_comms.cc handler_libextractor.cc
 omindex_libextractor_LDADD = $(LIBEXTRACTOR_LIBS)
-omindex_libextractor_CXXFLAGS = $(LIBEXTRACTOR_CFLAGS) $(XAPIAN_CXXFLAGS)
+omindex_libextractor_CXXFLAGS = $(AM_CXXFLAGS) $(LIBEXTRACTOR_CFLAGS)
 
 omindex_libmwaw_SOURCES = assistant.cc worker_comms.cc handler_libmwaw.cc common/str.cc
 omindex_libmwaw_LDADD = $(LIBMWAW_LIBS)
-omindex_libmwaw_CXXFLAGS = $(LIBMWAW_CFLAGS) $(XAPIAN_CXXFLAGS)
+omindex_libmwaw_CXXFLAGS = $(AM_CXXFLAGS) $(LIBMWAW_CFLAGS)
 
 omindex_libreofficekit_SOURCES = assistant.cc worker_comms.cc datetime.cc loadfile.cc tmpdir.cc urlencode.cc xmlparser.cc htmlparser.cc common/keyword.cc common/str.cc handler_libreofficekit.cc
 omindex_libreofficekit_LDADD = $(LIBREOFFICEKIT_LIBS) libutf8convert.la
 omindex_libreofficekit_CPPFLAGS = $(AM_CPPFLAGS) $(LIBREOFFICEKIT_CPPFLAGS)
-omindex_libreofficekit_CXXFLAGS = $(LIBREOFFICEKIT_CFLAGS) $(XAPIAN_CXXFLAGS)
+omindex_libreofficekit_CXXFLAGS = $(AM_CXXFLAGS) $(LIBREOFFICEKIT_CFLAGS)
 
 scriptindex_SOURCES = scriptindex.cc\
  genericxmlparser.cc htmlparser.cc xmlparser.cc\
