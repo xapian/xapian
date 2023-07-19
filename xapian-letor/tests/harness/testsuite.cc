@@ -903,7 +903,7 @@ test_driver::parse_command_line(int argc, char **argv)
 	if (p && *p) {
 	    unsigned int temp;
 	    if (!parse_unsigned(p, temp)) {
-		throw "Verbose must be a non-negative integer";
+		throw "VERBOSE must be a non-negative integer";
 	    }
 	    verbose = temp;
 	}
