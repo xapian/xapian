@@ -401,6 +401,21 @@ dnl ******************************
 dnl * Set special compiler flags *
 dnl ******************************
 
+AC_ARG_ENABLE([werror],
+  [AS_HELP_STRING([--enable-werror], [enable treating compiler warnings as errors [default=maintainer-mode]])],
+  [case ${enableval} in
+    yes|no) ;;
+  *) AC_MSG_ERROR([bad value ${enableval} for --enable-werror]) ;;
+  esac],
+  [enable_werror=$USE_MAINTAINER_MODE])
+
+dnl Put -Werror or equivalent in its own make variable so that it can easily
+dnl be overridden by `make WERROR=` if needed during development (e.g. if
+dnl you want to get a full list of compile warnings to fix rather than
+dnl stopping at the first file with warnings).
+WERROR=
+AC_SUBST([WERROR])
+
 dnl Set flags to control warnings (enable more, or disable annoying ones).
 if test yes = "$GXX"; then
   dnl Intel's C++ compiler and clang both lie and define __GNUC__, so check which
@@ -465,10 +480,7 @@ if test yes = "$GXX"; then
       dnl -wd... disables warnings which don't have good code workarounds.
       AM_CXXFLAGS="$AM_CXXFLAGS -Wall -w1 -wd177,1572"
 
-      dnl Automatically add -Werror if maintainer mode is enabled.
-      if test x$USE_MAINTAINER_MODE = xyes; then
-	AM_CXXFLAGS="$AM_CXXFLAGS -Werror"
-      fi
+      WERROR=-Werror
       ;;
     *__INTEL_COMPILER*)
       dnl clang (since __INTEL_COMPILER not substituted):
@@ -476,14 +488,16 @@ if test yes = "$GXX"; then
       dnl These options all work at least as far back as clang++ 3.0:
       AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wformat-security -fno-gnu-keywords -Wundef -Woverloaded-virtual -Wshadow -Wstrict-overflow=1 -Wmissing-declarations -Winit-self"
 
-      dnl Automatically add -Werror if maintainer mode is enabled.
-      if test x$USE_MAINTAINER_MODE = xyes; then
-	AM_CXXFLAGS="$AM_CXXFLAGS -Werror"
-      fi
+      WERROR=-Werror
       ;;
   esac
+elif test yes = "$msvc"; then
+  dnl -W1 is command-line default, -W3 IDE default, -W4 highest numbered level.
+  dnl AM_CXXFLAGS="$AM_CXXFLAGS -W4"
+
+  WERROR=-WX
 else
-  dnl Not GCC, nor a compiler masquerading as GCC.
+  dnl Not GCC, nor a compiler masquerading as GCC, nor MSVC.
   case /$CXX in
   */aCC)
     dnl +w turns on more warnings.
@@ -523,6 +537,10 @@ else
     XAPIAN_TEST_CXXFLAGS([-errtags -erroff=oklambdaretmulti,voidretw], [AM_CXXFLAGS])
     ;;
   esac
+fi
+
+if test x$enable_werror != xyes; then
+  WERROR=
 fi
 
 if test "$GXX" = yes; then

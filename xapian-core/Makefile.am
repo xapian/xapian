@@ -9,6 +9,8 @@ if MAINTAINER_MODE
 export ACLOCAL AUTOCONF AUTOHEADER AUTOM4TE AUTOMAKE
 endif
 
+AM_CXXFLAGS += $(WERROR)
+
 AM_CPPFLAGS = -I$(top_srcdir)/common -I$(top_srcdir)/include
 if VPATH_BUILD
 # Needed for the generated files include/xapian/version.h

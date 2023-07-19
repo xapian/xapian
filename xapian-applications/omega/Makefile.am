@@ -112,6 +112,7 @@ AM_CPPFLAGS = \
 	-I$(top_srcdir)/common \
 	-DCONFIGFILE_SYSTEM=\"$(sysconfdir)/omega.conf\" \
 	-DPKGLIBBINDIR=\"$(pkglibbindir)\"
+AM_CXXFLAGS += $(WERROR)
 AM_CXXFLAGS += $(XAPIAN_CXXFLAGS)
 
 pkglibbindir = $(pkglibdir)/bin
