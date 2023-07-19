@@ -2,7 +2,7 @@
  * @brief Xapian-specific test helper functions and macros.
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2007,2008,2015 Olly Betts
+ * Copyright 2002,2003,2007,2008,2015,2023 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -41,6 +41,12 @@ mset_range_is_same(const Xapian::MSet &mset1, unsigned int first1,
 		   const Xapian::MSet &mset2, unsigned int first2,
 		   unsigned int count);
 
+// Test that the weights and docids in the mset and an array are the same.
+bool
+mset_range_is_same(const Xapian::MSet& mset, unsigned int first,
+		   const std::pair<Xapian::docid, double> to_compare[],
+		   unsigned int count);
+
 // Test that the weights in two mset ranges are the same, ignoring docids.
 bool
 mset_range_is_same_weights(const Xapian::MSet &mset1, unsigned int first1,
@@ -75,7 +81,7 @@ void test_mset_order_equal(const Xapian::MSet &mset1,
 	"Full mset was:\n" << (M))
 
 /// Helper macro.
-#define TEST_EXCEPTION_(TYPE, CODE, EXACT) \
+#define TEST_EXCEPTION_(TYPE, CODE, EXACT, FAIL_TO_THROW_ACTION) \
     do { \
 	expected_exception = STRINGIZE(TYPE); \
 	if (strncmp(expected_exception, "Xapian::", \
@@ -84,7 +90,7 @@ void test_mset_order_equal(const Xapian::MSet &mset1,
 	} \
 	try { \
 	    CODE; \
-	    FAIL_TEST("Expected " << expected_exception << " not thrown"); \
+	    FAIL_TO_THROW_ACTION; \
 	} catch (const TYPE& xap_ex_obj_) { \
 	    if (EXACT) { \
 		if (strcmp(expected_exception, xap_ex_obj_.get_type()) != 0) { \
@@ -96,10 +102,29 @@ void test_mset_order_equal(const Xapian::MSet &mset1,
 	expected_exception = NULL;\
     } while (0)
 
+#define DEFAULT_FAIL_TO_THROW_ACTION_ \
+    FAIL_TEST("Expected " << expected_exception << " not thrown")
+
 /// Check that CODE throws Xapian exception derived from TYPE.
-#define TEST_EXCEPTION_BASE_CLASS(TYPE, CODE) TEST_EXCEPTION_(TYPE, CODE, false)
+#define TEST_EXCEPTION_BASE_CLASS(TYPE, CODE) \
+    TEST_EXCEPTION_(TYPE, CODE, false, DEFAULT_FAIL_TO_THROW_ACTION_)
 
 /// Check that CODE throws exactly Xapian exception TYPE.
-#define TEST_EXCEPTION(TYPE, CODE) TEST_EXCEPTION_(TYPE, CODE, true)
+#define TEST_EXCEPTION(TYPE, CODE) \
+    TEST_EXCEPTION_(TYPE, CODE, true, DEFAULT_FAIL_TO_THROW_ACTION_)
+
+/** Check that CODE throws Xapian exception derived from TYPE.
+ *
+ *  Variant with custom fail-to-throw action.
+ */
+#define TEST_EXCEPTION_BASE_CLASS3(TYPE, CODE, FAIL_TO_THROW_ACTION) \
+    TEST_EXCEPTION_(TYPE, CODE, false, FAIL_TO_THROW_ACTION)
+
+/** Check that CODE throws exactly Xapian exception TYPE.
+ *
+ *  Variant with custom fail-to-throw action.
+ */
+#define TEST_EXCEPTION3(TYPE, CODE, FAIL_TO_THROW_ACTION) \
+    TEST_EXCEPTION_(TYPE, CODE, true, FAIL_TO_THROW_ACTION)
 
 #endif // XAPIAN_INCLUDED_TESTUTILS_H

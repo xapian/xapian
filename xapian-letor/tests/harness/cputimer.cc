@@ -1,7 +1,7 @@
 /** @file
  * @brief Measure CPU time.
  */
-/* Copyright (C) 2009,2015,2018 Olly Betts
+/* Copyright (C) 2009,2015,2018,2020 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -33,10 +33,8 @@
 # ifdef HAVE_SYSCONF
 #  include "safeunistd.h"
 # endif
-#elif defined HAVE_FTIME
-# include <sys/timeb.h>
 #else
-# include <ctime>
+# include "realtime.h"
 #endif
 
 #include <cerrno>
@@ -47,7 +45,7 @@
 using namespace std;
 
 double
-CPUTimer::get_current_cputime() const
+CPUTimer::get_current_cputime()
 {
 #ifdef XAPIAN_DEBUG_LOG
     SKIP_TEST("Skipping timed test because configured with --enable-log");
@@ -81,21 +79,7 @@ CPUTimer::get_current_cputime() const
     // FIXME: Fallback to just using wallclock time, which is probably only
     // going to be used on Microsoft Windows, where nobody has implemented
     // the code required to get the CPU time used by a process.
-# ifdef HAVE_FTIME
-    struct timeb tb;
-#  ifdef FTIME_RETURNS_VOID
-    ftime(&tb);
-    t = tb.time + (tb.millitm * 0.001);
-#  else
-    if (ftime(&tb) == -1) {
-	t = time(NULL);
-    } else {
-	t = tb.time + (tb.millitm * 0.001);
-    }
-#  endif
-# else
-    t = time(NULL);
-# endif
+    t = RealTime::now();
 #endif
 
     return t;

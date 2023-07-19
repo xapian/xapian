@@ -31,7 +31,6 @@
 #include <cerrno>
 #include <cstdlib>
 #include <cstring> // For memcmp().
-#include <set>
 
 #include "errno_to_string.h"
 #include "str.h"

@@ -86,9 +86,8 @@ if test -z "$VALGRIND" ; then
 
     # If we're using glibc, tell it to fill newly allocated memory (unless
     # allocated by calloc) with this byte value and overwrite memory released
-    # by free with this value xor 0xff.
-    # https://udrepper.livejournal.com/11429.html
-    # Just some value, y'know?
+    # by free with this value xor 0xff.  See the mallopt(3) man page for
+    # details.
     MALLOC_PERTURB_=42
     export MALLOC_PERTURB_
 
@@ -107,8 +106,8 @@ fi
 export top_builddir
 LIBTOOL=`echo '@LIBTOOL@'|sed 's,\$(SHELL),@SHELL@,g;s,\$(top_builddir),'"$top_builddir"',g'`
 
-# For GCC 3.4 and newer, force the GNU C++ STL to not pool memory, which gives
-# more accurate memory leak reports with valgrind.
+# Tell the GNU C++ library (libstdc++) not to pool memory, which gives more
+# accurate memory leak reports with valgrind.
 GLIBCXX_FORCE_NEW=1
 export GLIBCXX_FORCE_NEW
 

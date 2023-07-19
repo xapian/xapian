@@ -480,13 +480,13 @@ test_driver::runtest(const test_desc *test)
 		    }
 		    if (vg_reachable > 0) {
 			// C++ STL implementations often "horde" released
-			// memory - for GCC 3.4 and newer the runtest script
-			// sets GLIBCXX_FORCE_NEW=1 which will disable this
-			// behaviour so we avoid this issue, but for older
-			// GCC and other compilers this may be an issue.
+			// memory - the runtest script sets GLIBCXX_FORCE_NEW=1
+			// which under GCC will disable this behaviour and so
+			// we avoid this issue, but for other compilers this
+			// may be an issue.
 			//
 			// See also:
-			// http://valgrind.org/docs/FAQ/#faq.reports
+			// https://valgrind.org/docs/manual/faq.html#faq.reports
 			//
 			// For now, just use runcount to rerun the test and see
 			// if more is leaked - hopefully this shouldn't give
