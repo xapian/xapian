@@ -192,8 +192,8 @@ try {
     Xapian::MSet mset = enquire.get_mset(0, msize);
 
     if (mset.empty()) {
-	cout << "Empty MSet. No documents could be retrieved with the given Query.\n";
-	exit(1);
+	cout << "No documents found.\n";
+	exit(0);
     }
 
     cout << "Docids before re-ranking by LTR model:\n";
