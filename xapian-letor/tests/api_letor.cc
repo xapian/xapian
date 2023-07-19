@@ -895,7 +895,7 @@ DEFINE_TESTCASE(ndcg_score_test, path && writable)
     unlink("ndcg_score_test.txt");
 }
 
-DEFINE_TESTCASE(different_no_features, path && writable)
+DEFINE_TESTCASE(different_no_features, !backend)
 {
     Xapian::ListNETRanker ranker;
     string data_directory = test_driver::get_srcdir() + "/testdata/";
