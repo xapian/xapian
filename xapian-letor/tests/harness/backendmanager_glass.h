@@ -45,9 +45,6 @@ class BackendManagerGlass : public BackendManager {
   public:
     BackendManagerGlass(const std::string& datadir_);
 
-    /// Return a string representing the current database type.
-    std::string get_dbtype() const;
-
     /// Create a Glass Xapian::WritableDatabase object indexing a single file.
     Xapian::WritableDatabase get_writable_database(const std::string & name,
 						   const std::string & file);

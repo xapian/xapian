@@ -1,7 +1,7 @@
 /** @file
  * @brief BackendManager subclass for multi databases.
  */
-/* Copyright (C) 2007,2008,2009,2011,2012,2013,2015,2017,2018,2019 Olly Betts
+/* Copyright (C) 2007,2008,2009,2011,2012,2013,2015,2017,2018,2019,2020 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -28,26 +28,45 @@
 #include "index_utils.h"
 #include "str.h"
 
+#include "safeunistd.h"
+
 #include <cerrno>
 #include <cstdio> // For rename().
 #include <cstring>
 
 using namespace std;
 
-BackendManagerMulti::BackendManagerMulti(const std::string& datadir_,
-					 BackendManager* sub_manager_)
-    : BackendManager(datadir_),
-      sub_manager(sub_manager_),
-      cachedir(".multi" + sub_manager_->get_dbtype())
+static std::string
+build_dbtype(const vector<BackendManager*>& sub_managers)
 {
-    // Ensure the directory we store cached test databases in exists.
-    (void)create_dir_if_needed(cachedir);
+    string dbtype = "multi";
+    if (sub_managers.size() == 2 &&
+	sub_managers[0]->get_dbtype() == sub_managers[1]->get_dbtype()) {
+	dbtype += "_" + sub_managers[0]->get_dbtype();
+    } else {
+	for (auto sub_manager : sub_managers) {
+	    dbtype += "_" + sub_manager->get_dbtype();
+	}
+    }
+    return dbtype;
 }
 
-std::string
-BackendManagerMulti::get_dbtype() const
+BackendManagerMulti::BackendManagerMulti(const std::string& datadir_,
+					 const vector<BackendManager*>& sub_managers_)
+    : BackendManager(datadir_, build_dbtype(sub_managers_)),
+      sub_managers(sub_managers_)
 {
-    return "multi_" + sub_manager->get_dbtype();
+    cachedir = ".multi";
+    if (sub_managers.size() == 2 &&
+	sub_managers[0]->get_dbtype() == sub_managers[1]->get_dbtype()) {
+	cachedir += sub_managers[0]->get_dbtype();
+    } else {
+	for (auto sub_manager : sub_managers) {
+	    cachedir += sub_manager->get_dbtype();
+	}
+    }
+    // Ensure the directory we store cached test databases in exists.
+    (void)create_dir_if_needed(cachedir);
 }
 
 #define NUMBER_OF_SUB_DBS 2
@@ -72,7 +91,14 @@ BackendManagerMulti::createdb_multi(const string& name,
     db_path += dbname;
 
     if (!name.empty()) {
-	remove(db_path.c_str());
+	if (unlink(db_path.c_str()) < 0 && errno != ENOENT) {
+	    string msg = "Couldn't unlink file '";
+	    msg += db_path;
+	    msg += "' (";
+	    errno_to_string(errno, msg);
+	    msg += ')';
+	    throw msg;
+	}
     } else {
 	if (file_exists(db_path)) return db_path;
     }
@@ -91,34 +117,59 @@ BackendManagerMulti::createdb_multi(const string& name,
     // Open NUMBER_OF_SUB_DBS databases and index files to them alternately so
     // a multi-db combining them contains the documents in the expected order.
     Xapian::WritableDatabase dbs;
-    const string& subtype = sub_manager->get_dbtype();
-    int flags = Xapian::DB_CREATE_OR_OVERWRITE;
-    if (subtype == "glass") {
-	flags |= Xapian::DB_BACKEND_GLASS;
-    } else {
-	string msg = "Unknown multidb subtype: ";
-	msg += subtype;
-	throw msg;
-    }
+
     string dbbase = db_path;
     dbbase += "___";
     size_t dbbase_len = dbbase.size();
-    string line = subtype;
-    line += ' ';
-    line += dbname;
-    line += "___";
+
     for (size_t n = 0; n < NUMBER_OF_SUB_DBS; ++n) {
-	dbbase += str(n);
-	dbs.add_database(Xapian::WritableDatabase(dbbase, flags));
+	const string& subtype = sub_managers[n]->get_dbtype();
+	int flags = Xapian::DB_CREATE_OR_OVERWRITE;
+	if (subtype == "glass") {
+	    flags |= Xapian::DB_BACKEND_GLASS;
+	    dbbase += str(n);
+	    dbs.add_database(Xapian::WritableDatabase(dbbase, flags));
+	    out << subtype << ' ' << dbname << "___" << n << '\n';
+	} else if (subtype == "remoteprog_glass") {
+	    flags |= Xapian::DB_BACKEND_GLASS;
+	    dbbase += str(n);
+	    Xapian::WritableDatabase remote_db(dbbase, flags);
+	    remote_db.close();
+	    string args = sub_managers[n]->get_writable_database_args(dbbase,
+								      300000);
+
+	    dbs.add_database(
+		sub_managers[n]->get_remote_writable_database(args));
+
+	    out << "remote :" << BackendManager::get_xapian_progsrv_command()
+		<< " " << args << '\n';
+	} else {
+	    string msg = "Unknown multidb subtype: ";
+	    msg += subtype;
+	    throw msg;
+	}
 	dbbase.resize(dbbase_len);
-	out << line << n << '\n';
     }
+
     out.close();
 
     FileIndexer(get_datadir(), files).index_to(dbs);
     dbs.close();
 
+retry:
     if (rename(tmpfile.c_str(), db_path.c_str()) < 0) {
+	if (errno == EACCES) {
+	    // At least when run under appveyor, sometimes this rename fails
+	    // with EACCES.  The destination file doesn't exist (and from
+	    // debugging it shouldn't), which suggests that tmpfile is still
+	    // open, but it shouldn't be, and a sleep+retry makes it work.
+	    // Perhaps some AV is kicking in and opening newly created files
+	    // to inspect them or something?
+	    //
+	    // FIXME: It would be good to get to the bottom of this!
+	    sleep(1);
+	    goto retry;
+	}
 	throw Xapian::DatabaseError("rename failed", errno);
     }
 
@@ -144,6 +195,38 @@ string
 BackendManagerMulti::get_writable_database_path(const std::string& name)
 {
     return cachedir + "/" + name;
+}
+
+Xapian::Database
+BackendManagerMulti::get_remote_database(const std::vector<std::string>& files,
+					 unsigned int timeout,
+					 int* port_ptr)
+{
+    Xapian::Database db;
+    size_t remotes = 0;
+    for (auto sub_manager : sub_managers) {
+	if (sub_manager->get_dbtype().find("remote") == string::npos) {
+	    db.add_database(sub_manager->get_database(files));
+	    continue;
+	}
+
+	++remotes;
+	// If there are multiple remote shards, we'll set *port_ptr to the port
+	// used by the last one opened.
+	db.add_database(sub_manager->get_remote_database(files, timeout,
+							 port_ptr));
+    }
+
+    if (remotes == 0) {
+	// It's useful to support mixed local/remote multi databases with a
+	// custom timeout so we can test timeout and keepalive handling for
+	// this case, but this method shouldn't be called on an all-local
+	// multi database.
+	const char* m = "BackendManager::get_remote_database() called for "
+			"multi with no remote shards";
+	throw Xapian::InvalidOperationError(m);
+    }
+    return db;
 }
 
 string

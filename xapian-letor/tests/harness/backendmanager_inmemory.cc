@@ -22,15 +22,7 @@
 
 #include "backendmanager_inmemory.h"
 
-#ifdef XAPIAN_HAS_INMEMORY_BACKEND
-
 using namespace std;
-
-std::string
-BackendManagerInMemory::get_dbtype() const
-{
-    return "inmemory";
-}
 
 Xapian::Database
 BackendManagerInMemory::do_get_database(const vector<string>& files)
@@ -54,5 +46,3 @@ BackendManagerInMemory::get_generated_database_path(const std::string&)
 {
     return string();
 }
-
-#endif // XAPIAN_HAS_INMEMORY_BACKEND

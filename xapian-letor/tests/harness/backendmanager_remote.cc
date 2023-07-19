@@ -22,8 +22,6 @@
 #include <config.h>
 #include "backendmanager_remote.h"
 
-#ifdef XAPIAN_HAS_REMOTE_BACKEND
-
 #include "backendmanager_glass.h"
 #include <cstdlib>
 #include <string>
@@ -51,6 +49,17 @@ BackendManagerRemote::get_writable_database_args(const std::string & name,
     sub_manager->get_writable_database(name, file);
     args += sub_manager->get_writable_database_path(name);
 
+    return args;
+}
+
+std::string
+BackendManagerRemote::get_writable_database_args(const std::string& path,
+						 unsigned int timeout)
+{
+    std::string args = "-t";
+    args += str(timeout);
+    args += " --writable ";
+    args += path;
     return args;
 }
 
@@ -91,5 +100,3 @@ BackendManagerRemote::get_writable_database_again_args()
     args += sub_manager->get_writable_database_path_again();
     return args;
 }
-
-#endif // XAPIAN_HAS_REMOTE_BACKEND

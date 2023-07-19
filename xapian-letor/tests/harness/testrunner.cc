@@ -2,7 +2,7 @@
  * @brief Run multiple tests for different backends.
  */
 /* Copyright 2008,2009 Lemur Consulting Ltd
- * Copyright 2008,2009,2010,2011,2015,2017,2018,2019 Olly Betts
+ * Copyright 2008,2009,2010,2011,2015,2017,2018,2019,2023 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -68,32 +68,40 @@ TestRunner::set_properties_for_backend(const string & backend_name)
     static const BackendProperties backend_properties[] = {
 	{ "none", 0 },
 	{ "inmemory", INMEMORY|
-	    BACKEND|POSITIONAL|WRITABLE|METADATA|VALUESTATS|GENERATED },
+	    BACKEND|POSITIONAL|WRITABLE|METADATA|VALUESTATS },
 	{ "glass", GLASS|
 	    BACKEND|TRANSACTIONS|POSITIONAL|WRITABLE|SPELLING|METADATA|
-	    SYNONYMS|VALUESTATS|GENERATED|COMPACT|PATH
+	    SYNONYMS|VALUESTATS|CHECK|COMPACT|PATH
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
 	    |REPLICAS
 #endif
 	},
 	{ "multi_glass", MULTI|
-	    BACKEND|POSITIONAL|WRITABLE|METADATA|
-	    SYNONYMS|VALUESTATS|GENERATED|COMPACT|PATH },
+	    BACKEND|TRANSACTIONS|POSITIONAL|WRITABLE|METADATA|VALUESTATS|
+	    SPELLING|SYNONYMS|CHECK|COMPACT|PATH },
+	{ "multi_glass_remoteprog_glass", MULTI|REMOTE|
+	    BACKEND|TRANSACTIONS|POSITIONAL|WRITABLE|METADATA|VALUESTATS|
+	    SYNONYMS
+	},
+	{ "multi_remoteprog_glass", MULTI|REMOTE|
+	    BACKEND|TRANSACTIONS|POSITIONAL|WRITABLE|METADATA|VALUESTATS|
+	    SYNONYMS
+	},
 	{ "remoteprog_glass", REMOTE|
 	    BACKEND|TRANSACTIONS|POSITIONAL|WRITABLE|METADATA|VALUESTATS|
-	    GENERATED
+	    SYNONYMS
 	},
-	{ "remotetcp_glass", REMOTE|
+	{ "remotetcp_glass", REMOTE|REMOTETCP|
 	    BACKEND|TRANSACTIONS|POSITIONAL|WRITABLE|METADATA|VALUESTATS|
-	    GENERATED
+	    SYNONYMS
 	},
 	{ "singlefile_glass", SINGLEFILE|
-	    BACKEND|POSITIONAL|VALUESTATS|COMPACT|PATH },
+	    BACKEND|POSITIONAL|METADATA|SPELLING|SYNONYMS|VALUESTATS|
+	    CHECK|COMPACT|PATH
+	},
 	{ "honey", HONEY|
-	    BACKEND|POSITIONAL|VALUESTATS|COMPACT|PATH
-#ifdef XAPIAN_HAS_GLASS_BACKEND
-	    |GENERATED
-#endif
+	    BACKEND|POSITIONAL|METADATA|SPELLING|SYNONYMS|VALUESTATS|
+	    CHECK|COMPACT|PATH
 	},
 	{ NULL, 0 }
     };
@@ -141,7 +149,7 @@ TestRunner::run_tests(int argc, char ** argv)
 # endif
 #endif
 
-	do_tests_for_backend(BackendManager(string()));
+	do_tests_for_backend(BackendManager(string(), "none"));
 
 #ifdef XAPIAN_HAS_INMEMORY_BACKEND
 	do_tests_for_backend(BackendManagerInMemory(datadir));
@@ -150,11 +158,27 @@ TestRunner::run_tests(int argc, char ** argv)
 #ifdef XAPIAN_HAS_GLASS_BACKEND
 	{
 	    BackendManagerGlass glass_man(datadir);
+
+	    // Vector for multi backendmanagers.
+	    vector<BackendManager*> multi_mans;
+	    multi_mans = {&glass_man, &glass_man};
+
 	    do_tests_for_backend(glass_man);
 	    do_tests_for_backend(BackendManagerSingleFile(datadir, &glass_man));
-	    do_tests_for_backend(BackendManagerMulti(datadir, &glass_man));
+	    do_tests_for_backend(BackendManagerMulti(datadir, multi_mans));
 // Disable remote testing for now - test harness needs work.
 # if 0
+	    BackendManagerGlass sub_glass_man(datadir);
+	    BackendManagerRemoteProg remoteprog_glass_man(&sub_glass_man);
+
+	    multi_mans = {&glass_man, &remoteprog_glass_man};
+
+	    do_tests_for_backend(BackendManagerMulti(datadir, multi_mans));
+
+	    multi_mans = {&remoteprog_glass_man, &remoteprog_glass_man};
+
+	    do_tests_for_backend(BackendManagerMulti(datadir, multi_mans));
+
 	    do_tests_for_backend(BackendManagerRemoteProg(&glass_man));
 	    do_tests_for_backend(BackendManagerRemoteTcp(&glass_man));
 # endif

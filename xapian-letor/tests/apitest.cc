@@ -108,11 +108,19 @@ get_compaction_output_path(const std::string& name)
 }
 
 Xapian::Database
-get_remote_database(const string &dbname, unsigned int timeout)
+get_remote_database(const string& dbname,
+		    unsigned int timeout,
+		    int* port_ptr)
 {
     vector<string> dbnames;
     dbnames.push_back(dbname);
-    return backendmanager->get_remote_database(dbnames, timeout);
+    return backendmanager->get_remote_database(dbnames, timeout, port_ptr);
+}
+
+void
+kill_remote(const Xapian::Database& db)
+{
+    backendmanager->kill_remote(db);
 }
 
 Xapian::Database

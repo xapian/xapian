@@ -48,16 +48,13 @@ class BackendManagerHoney : public BackendManager {
 
   public:
     BackendManagerHoney(const std::string& datadir_)
-	: BackendManager(datadir_),
+	: BackendManager(datadir_, "honey"),
 	  generated_sub_manager(NULL) { }
 
     BackendManagerHoney(const std::string& datadir_,
 			BackendManager* generated_sub_manager_)
-	: BackendManager(datadir_),
+	: BackendManager(datadir_, "honey"),
 	  generated_sub_manager(generated_sub_manager_) { }
-
-    /// Return a string representing the current database type.
-    std::string get_dbtype() const;
 
     /// Get generated database for honey
     Xapian::WritableDatabase get_generated_database(const std::string& name);

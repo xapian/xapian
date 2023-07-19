@@ -22,8 +22,6 @@
 
 #include "backendmanager_honey.h"
 
-#ifdef XAPIAN_HAS_HONEY_BACKEND
-
 #include "filetests.h"
 #include "index_utils.h"
 #include "unixcmds.h"
@@ -33,12 +31,6 @@
 using namespace std;
 
 #define CACHE_DIRECTORY ".honey"
-
-string
-BackendManagerHoney::get_dbtype() const
-{
-    return "honey";
-}
 
 string
 BackendManagerHoney::do_get_database_path(const vector<string> & files)
@@ -54,24 +46,26 @@ BackendManagerHoney::do_get_database_path(const vector<string> & files)
     }
     string dbpath = dbdir + "/" + dbname;
 
-    if (file_exists(dbpath)) return dbpath;
+    if (dir_exists(dbpath)) return dbpath;
 
     string db_source = dbpath + ".src";
     int flags = Xapian::DB_CREATE_OR_OVERWRITE | Xapian::DB_BACKEND_GLASS;
 
-    string tmpfile = dbpath;
-    tmpfile += ".tmp";
+    string tmp_path = dbpath;
+    tmp_path += ".tmp";
 
     Xapian::WritableDatabase db(db_source, flags);
     FileIndexer(get_datadir(), files).index_to(db);
     db.commit();
-    db.compact(tmpfile,
+    db.compact(tmp_path,
 	       Xapian::DB_BACKEND_HONEY | Xapian::DBCOMPACT_NO_RENUMBER);
     db.close();
 
     rm_rf(db_source);
 
-    rename(tmpfile.c_str(), dbpath.c_str());
+    if (rename(tmp_path.c_str(), dbpath.c_str()) < 0) {
+	throw Xapian::DatabaseError("rename failed", errno);
+    }
 
     return dbpath;
 }
@@ -94,20 +88,22 @@ BackendManagerHoney::finalise_generated_database(const string& name)
     string generated_db_path =
 	generated_sub_manager->get_generated_database_path(name);
 
-    // path to honey tmpfile
-    string tmpfile = CACHE_DIRECTORY "/" + name;
-    tmpfile += ".tmp";
-
     // path to final honey db
     string path = CACHE_DIRECTORY "/" + name;
 
-    // Convert a glass backend to honey.
-    Xapian::WritableDatabase wdb(generated_db_path);
-    wdb.compact(tmpfile,
-		Xapian::DB_BACKEND_HONEY | Xapian::DBCOMPACT_NO_RENUMBER);
-    wdb.close();
+    // path to temporary db
+    string tmp_path = path + ".tmp";
 
-    rename(tmpfile.c_str(), path.c_str());
+    // Convert glass backend to honey.
+    {
+	Xapian::Database db(generated_db_path);
+	db.compact(tmp_path,
+		   Xapian::DB_BACKEND_HONEY | Xapian::DBCOMPACT_NO_RENUMBER);
+    }
+
+    if (rename(tmp_path.c_str(), path.c_str()) < 0) {
+	throw Xapian::DatabaseError("rename failed", errno);
+    }
 }
 
 Xapian::WritableDatabase
@@ -127,5 +123,3 @@ BackendManagerHoney::get_compaction_output_path(const string& name)
 {
     return CACHE_DIRECTORY "/" + name;
 }
-
-#endif

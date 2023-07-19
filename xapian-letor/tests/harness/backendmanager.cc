@@ -84,12 +84,6 @@ BackendManager::create_dir_if_needed(const string &dirname)
 
 BackendManager::~BackendManager() { }
 
-std::string
-BackendManager::get_dbtype() const
-{
-    return "none";
-}
-
 string
 BackendManager::do_get_database_path(const vector<string> &)
 {
@@ -213,6 +207,16 @@ BackendManager::get_writable_database(const string &, const string &)
     invalid_operation("Attempted to open a disabled database");
 }
 
+Xapian::WritableDatabase
+BackendManager::get_remote_writable_database(string)
+{
+    string msg = "BackendManager::get_remote_writable_database() "
+		 "called for non-remote database (type is ";
+    msg += get_dbtype();
+    msg += ')';
+    throw Xapian::InvalidOperationError(msg);
+}
+
 string
 BackendManager::get_writable_database_path(const std::string &)
 {
@@ -243,10 +247,23 @@ BackendManager::finalise_generated_database(const std::string&)
 { }
 
 Xapian::Database
-BackendManager::get_remote_database(const vector<string> &, unsigned int)
+BackendManager::get_remote_database(const vector<string>&,
+				    unsigned int,
+				    int*)
 {
     string msg = "BackendManager::get_remote_database() called for non-remote "
 		 "database (type is ";
+    msg += get_dbtype();
+    msg += ')';
+    throw Xapian::InvalidOperationError(msg);
+}
+
+string
+BackendManager::get_writable_database_args(const std::string&,
+					   unsigned int)
+{
+    string msg = "BackendManager::get_writable_database_args() "
+		 "called for non-remote database (type is ";
     msg += get_dbtype();
     msg += ')';
     throw Xapian::InvalidOperationError(msg);
@@ -279,6 +296,13 @@ BackendManager::get_writable_database_path_again()
 void
 BackendManager::clean_up()
 {
+}
+
+void
+BackendManager::kill_remote(const Xapian::Database&)
+{
+    throw Xapian::InvalidOperationError("kill_remote() only supported for "
+					"remotetcp databases");
 }
 
 const char *
