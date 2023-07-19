@@ -438,8 +438,7 @@ initialise()
 }
 
 void
-extract(const string& filename,
-	const string& mimetype)
+extract(const string& filename, const string&)
 {
     FILE* fp = fopen(filename.c_str(), "r");
 

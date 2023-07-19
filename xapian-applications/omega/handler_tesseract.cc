@@ -43,8 +43,7 @@ initialise()
 }
 
 void
-extract(const string& filename,
-	const string& mimetype)
+extract(const string& filename, const string&)
 {
     // Call Init() for each document so any adaptive state is reset as
     // we don't want the order of indexing documents to affect the text

@@ -225,7 +225,7 @@ initialise()
 }
 
 void
-extract(const string& filename, const string& mimetype)
+extract(const string& filename, const string&)
 {
     // To store the kind and type of document
     MWAWDocument::Kind kind;

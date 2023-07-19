@@ -124,7 +124,7 @@ initialise()
 }
 
 void
-extract(const string& filename, const string& mimetype)
+extract(const string& filename, const string&)
 {
     // If plugin not found/ File format not recognised/ corrupt file
     // no data is extracted, rather than reporting an error.

@@ -141,13 +141,11 @@ initialise()
 }
 
 void
-extract(const string& filename,
-	const string& mimetype)
+extract(const string& filename, const string&)
 {
     unique_ptr<RVNGInputStream> input;
     RVNGString dump, metadata;
     const char* file = filename.c_str();
-    bool succeed = false;
 
     if (RVNGDirectoryStream::isDirectory(file))
 	input.reset(new RVNGDirectoryStream(file));

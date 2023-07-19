@@ -36,7 +36,7 @@ initialise()
 }
 
 void
-extract(const string& filename, const string& mimetype)
+extract(const string& filename, const string&)
 {
     RVNGFileStream input(filename.c_str());
     RVNGStringVector pages;

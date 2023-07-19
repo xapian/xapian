@@ -201,8 +201,7 @@ initialise()
 }
 
 void
-extract(const string& filename,
-	const string& mimetype)
+extract(const string& filename, const string&)
 {
     unique_ptr<RVNGInputStream> input;
 

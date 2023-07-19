@@ -148,8 +148,7 @@ initialise()
 }
 
 void
-extract(const string& filename,
-	const string& mimetype)
+extract(const string& filename, const string&)
 try {
     const char* format = "html"; // FIXME or xhtml
     const char* options = "SkipImages";

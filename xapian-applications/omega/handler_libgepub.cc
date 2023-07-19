@@ -47,8 +47,7 @@ initialise()
 }
 
 void
-extract(const string& filename,
-	const string& mimetype)
+extract(const string& filename, const string&)
 {
     GError* e;
     GepubDoc* doc = gepub_doc_new(filename.c_str(), &e);

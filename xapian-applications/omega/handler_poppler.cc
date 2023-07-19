@@ -71,8 +71,7 @@ initialise()
 }
 
 void
-extract(const string& filename,
-	const string& mimetype)
+extract(const string& filename, const string&)
 {
     GError* e;
     gchar* uri = convert_to_uri(filename, &e);
