@@ -56,7 +56,7 @@ inline int xapian_convert_socket_to_int_(SOCKET sock) {
 	closesocket(sock);
 	sock = INVALID_SOCKET;
 	// "Too many open sockets" seems the most appropriate error to fake.
-	WSASetLastError(WSAMFILE);
+	WSASetLastError(WSAEMFILE);
     }
     return int(sock);
 }
