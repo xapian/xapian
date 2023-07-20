@@ -201,6 +201,7 @@ noinst_HEADERS +=\
 	common/gnu_getopt.h\
 	common/keyword.h\
 	common/msvc_dirent.h\
+	common/negate_unsigned.h\
 	common/omassert.h\
 	common/overflow.h\
 	common/parseint.h\
