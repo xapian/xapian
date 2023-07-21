@@ -140,6 +140,7 @@ noinst_HEADERS +=\
 	common/filetests.h\
 	common/fileutils.h\
 	common/gnu_getopt.h\
+	common/negate_unsigned.h\
 	common/omassert.h\
 	common/output.h\
 	common/overflow.h\
