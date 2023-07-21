@@ -128,7 +128,7 @@ class ServerData {
 #elif defined __WIN32__
 	if (!TerminateProcess(pid, 0)) {
 	    throw Xapian::DatabaseError("Couldn't kill remote server",
-					-GetLastError());
+					-int(GetLastError()));
 	}
 #endif
 	clean_up();
