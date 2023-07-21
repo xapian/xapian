@@ -408,6 +408,10 @@ main(int argc, char** argv)
 		result = FAIL;
 	    tests.erase(iter);
 	}
+	if (++p != db.postlist_end(term)) {
+	    cerr << "URL term " << term << " indexes more than one document\n";
+	    result = FAIL;
+	}
     }
 
     for (auto t : tests) {
