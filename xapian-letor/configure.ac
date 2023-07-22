@@ -186,8 +186,24 @@ fi
 dnl Only works for ldflags which can be specified anywhere on the link line.
 AC_SUBST([ldflags])
 
-dnl We want XAPIAN_CXXFLAGS to be used for configure tests.
+dnl Preserve the default CXXFLAGS.
 save_CXXFLAGS=$CXXFLAGS
+
+dnl x86 has excess precision issues with 387 FP instructions, which are
+dnl avoided by using SSE instructions instead.  This is also faster (~6% in
+dnl a CPU bound testcase).
+AC_ARG_ENABLE([sse],
+[AS_HELP_STRING([--disable-sse],
+		[disable use of SSE FP instructions on x86])]
+[AS_HELP_STRING([[--enable-sse[=sse|sse2]]],
+		[set which SSE FP instructions to use on x86 (default: sse2)])],
+  [case ${enableval} in
+    sse|sse2|yes|no) ;;
+    *) AC_MSG_ERROR([bad value ${enableval} for --enable-sse or --disable-sse]) ;;
+  esac],
+  [enable_sse=yes])
+
+dnl We want XAPIAN_CXXFLAGS to be used for configure tests.
 CXXFLAGS="$CXXFLAGS $XAPIAN_CXXFLAGS"
 
 dnl We need to specify the argument types for builtin functions, or else
