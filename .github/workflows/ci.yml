@@ -112,8 +112,7 @@ jobs:
       uses: actions/download-artifact@v3
     - name: Unpack distribution
       run: |
-        mv artifact/* .
-        rmdir artifact
+        mv artifact xapian-core
         pushd xapian-core
         tar --strip-components=1 -xf xapian-core-*.tar.xz
         popd
