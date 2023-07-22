@@ -554,6 +554,38 @@ fi
 
 XAPIAN_TEST_LDFLAGS([-Wl,-Bsymbolic-functions], [XAPIANLETOR_LDFLAGS])
 
+AC_MSG_CHECKING([whether to use SSE instructions on x86])
+case $host_cpu in
+  i*86)
+    if test "$enable_sse" = no ; then
+      AC_MSG_RESULT([no])
+      if test yes = "$msvc"; then
+	dnl MSVC defaults to SSE2.
+	AM_CXXFLAGS="$AM_CXXFLAGS -arch:IA32"
+      fi
+    else
+      dnl Default to sse2.
+      test "$enable_sse" != yes || enable_sse=sse2
+      if test yes = "$GXX"; then
+	AC_MSG_RESULT([yes (configure with --disable-sse to disable)])
+	dnl We can unconditionally use -mtune=generic as it was added in GCC
+	dnl 4.2, and supported at least as far back as clang 3.0.
+	AM_CXXFLAGS="$AM_CXXFLAGS -mfpmath=sse -m$enable_sse -mtune=generic"
+      elif test yes = "$msvc"; then
+	AC_MSG_RESULT([yes (configure with --disable-sse to disable)])
+	if test sse = "$enable_sse"; then
+	  dnl MSVC defaults to SSE2.
+	  AM_CXXFLAGS="$AM_CXXFLAGS -arch:SSE"
+	fi
+      else
+	AC_MSG_RESULT([don't know how to for compiler $CXX])
+      fi
+    fi
+    ;;
+  *)
+    AC_MSG_RESULT([non-x86 arch ($host_cpu)]) ;;
+esac
+
 if test "$GXX" = yes; then
   dnl Default to enabling _FORTIFY_SOURCE at level 2.  It shouldn't cause a
   dnl problem to define it where it's not supported, but we need to check for
