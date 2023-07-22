@@ -18,12 +18,6 @@ environment:
 #   - TOOLCHAIN: mingw
 #     platform: x86
 #     APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
-  - TOOLCHAIN: mingw64
-    platform: x86
-    APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
-  - TOOLCHAIN: mingw64
-    platform: x64
-    APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
   - TOOLCHAIN: msvc
     platform: x86
     APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
@@ -54,14 +48,6 @@ install:
   - ps: >-
       if ($env:TOOLCHAIN -eq "mingw") {
         $env:PATH="C:\Mingw\bin;C:\Mingw\MSYS\1.0\bin;$env:PATH"
-      } elseif ($env:TOOLCHAIN -eq "mingw64") {
-        if ($env:Platform -eq "x86") {
-          $env:PATH="C:\mingw-w64\i686-8.1.0-posix-dwarf-rt_v6-rev0\mingw32\bin;C:\msys64\usr\bin;$env:PATH"
-          $env:CONFIGOPTS+=" --host=i686-pc-mingw32"
-        } else {
-          $env:PATH="C:\mingw-w64\x86_64-8.1.0-posix-seh-rt_v6-rev0\mingw64\bin;C:\msys64\usr\bin;$env:PATH"
-          $env:CONFIGOPTS+=" --host=x86_64-w64-mingw32"
-        }
       } elseif ($env:TOOLCHAIN -eq "llvm") {
         $env:PATH="C:\Program Files\LLVM\bin;c:\msys64\usr\bin;$env:PATH"
       } else {
@@ -69,7 +55,6 @@ install:
       }
   - if "%TOOLCHAIN%"=="mingw" bash -c "echo 'c:/mingw /mingw' >> /etc/fstab"
   - if "%TOOLCHAIN%"=="mingw" appveyor-retry bash -c 'mingw-get install libz-dev'
-  - if "%TOOLCHAIN%"=="mingw64" appveyor-retry bash -c 'pacman -Sy --noconfirm zlib-devel'
   - bash -c 'time ./bootstrap --fetch-url-command="curl --retry 5 --retry-connrefused -L" xapian-core'
   - if defined VCVARS_BAT call %VCVARS_BAT%
   - if "%TOOLCHAIN%"=="msvc" mkdir zlib
