@@ -397,6 +397,14 @@ PCRE2_LIBS=`$PCRE2_CONFIG $PCRE2_LIBS_FLAG`
 AC_SUBST(PCRE2_CFLAGS)
 AC_SUBST(PCRE2_LIBS)
 
+dnl If eatmydata is installed, we run the testsuite under it to speed it up.
+dnl If EATMYDATA is set to an empty value, then skip this check and don't use
+dnl eatmydata.
+if test -n "${EATMYDATA-unset}" ; then
+  AC_PATH_PROG([EATMYDATA], [eatmydata], [])
+  AC_ARG_VAR([EATMYDATA], [wrapper to disable fsync (optionally used by test harness)])
+fi
+
 dnl ******************************
 dnl * Set special compiler flags *
 dnl ******************************

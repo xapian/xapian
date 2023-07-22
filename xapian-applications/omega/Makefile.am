@@ -123,6 +123,7 @@ dist_bin_SCRIPTS = dbi2omega htdig2omega mbox2omega
 
 check_PROGRAMS = atomparsetest csvesctest htmlparsetest jsonesctest md5test urlenctest utf8converttest
 dist_check_SCRIPTS = omegatest sourcetest
+TESTS_ENVIRONMENT = $(EATMYDATA)
 TESTS =	atomparsetest$(EXEEXT)\
 	csvesctest$(EXEEXT)\
 	htmlparsetest$(EXEEXT)\
