@@ -32,6 +32,10 @@ export SERVER_PROTOCOL
 LSAN_OPTIONS=leak_check_at_exit=0
 export LSAN_OPTIONS
 
+# Turn off msys2's argument conversion as we shouldn't need it and it breaks
+# some testcases.
+export MSYS2_ARG_CONV_EXCL=*
+
 # Set up an empty database.
 TEST_DB=test-db
 rm -rf "$TEST_DB"
