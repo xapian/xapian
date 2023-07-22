@@ -442,6 +442,14 @@ PCRE2_LIBS=`$PCRE2_CONFIG $PCRE2_LIBS_FLAG`
 AC_SUBST(PCRE2_CFLAGS)
 AC_SUBST(PCRE2_LIBS)
 
+dnl If eatmydata is installed, we run the testsuite under it to speed it up.
+dnl If EATMYDATA is set to an empty value, then skip this check and don't use
+dnl eatmydata.
+if test -n "${EATMYDATA-unset}" ; then
+  AC_PATH_PROG([EATMYDATA], [eatmydata], [])
+  AC_ARG_VAR([EATMYDATA], [wrapper to disable fsync (optionally used by test harness)])
+fi
+
 AC_MSG_CHECKING([for /dev/stdin])
 if test -c /dev/stdin && (echo hello|$GREP hello /dev/stdin >&AS_MESSAGE_LOG_FD 2>&1); then
   AC_MSG_RESULT([yes])
