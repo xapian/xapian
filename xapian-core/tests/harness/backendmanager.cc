@@ -115,7 +115,11 @@ BackendManager::get_database(const std::string &dbname,
 	// databases for it.
 	Xapian::WritableDatabase wdb = get_writable_database(path, path);
 	gen(wdb, arg);
-	return std::move(wdb);
+	// This cast avoids a -Wreturn-std-move warning from older clang (seen
+	// with clang 8 and 11; not seen with clang 13).  We can't address this
+	// by adding the suggested std::move() because GCC 13 -Wredundant-move
+	// then warns that the std::move() is redundant!
+	return static_cast<Xapian::Database>(wdb);
     }
 
     if (path_exists(path)) {
