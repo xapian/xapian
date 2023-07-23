@@ -10,6 +10,7 @@ endif
 
 AM_CPPFLAGS = -I$(top_srcdir) -I$(top_srcdir)/common -I$(top_srcdir)/include \
  -I$(top_builddir)/include -I$(srcdir)/harness
+AM_CXXFLAGS += $(WERROR)
 
 # If tests are run under valgrind and the test is killed at the wrong moment
 # then a log file is left behind.
