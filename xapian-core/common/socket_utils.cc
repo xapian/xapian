@@ -32,6 +32,7 @@ using namespace std;
 
 #ifndef __WIN32__
 # include <arpa/inet.h>
+# include <netinet/in.h>
 #else
 # include <io.h>
 # include "msvcignoreinvalidparam.h"
