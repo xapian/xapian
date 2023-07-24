@@ -1701,7 +1701,7 @@ DEFINE_TESTCASE(netstats1, backend) {
 	TEST_EQUAL(mset.get_matches_lower_bound(), 7);
 	TEST_EQUAL(mset.get_matches_upper_bound(), 7);
 	TEST_EQUAL(mset.get_matches_estimated(), 7);
-	TEST_EQUAL(mset.get_max_attained(), 1.445962071042388164);
+	TEST_EQUAL_DOUBLE(mset.get_max_attained(), 1.445962071042388164);
 	TEST_EQUAL(mset.size(), 7);
 
 	static const pair<Xapian::docid, double> to_compare[] = {
