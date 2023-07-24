@@ -520,10 +520,7 @@ if test yes = "$GXX"; then
       dnl 5.4.0 warns about FD_SET, and on Debian with GCC 4.9.2 we see
       dnl warnings from zlib.h).
 
-      dnl Automatically add -Werror if maintainer mode is enabled.
-      if test x$USE_MAINTAINER_MODE = xyes; then
-	AM_CXXFLAGS="$AM_CXXFLAGS -Werror"
-      fi
+      WERROR=-Werror
       ;;
     *__clang__*)
       dnl Intel's compiler (since __clang__ not substituted):
