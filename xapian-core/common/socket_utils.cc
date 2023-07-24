@@ -40,7 +40,12 @@ extern HANDLE fd_to_handle(int fd) {
     if (handle != INVALID_HANDLE_VALUE) return handle;
     // On WIN32, a socket fd isn't the same as a non-socket fd - in fact it's
     // already a HANDLE!
-    return reinterpret_cast<HANDLE>(fd);
+    //
+    // We need to convert to intptr_t first to suppress a compiler warning here
+    // about casting an integer to a wider pointer type which is a reasonable
+    // warning in general, but we check that the value isn't truncated before
+    // we cast the HANDLE to int (see common/safesyssocket.h).
+    return reinterpret_cast<HANDLE>(intptr_t(fd));
 }
 
 /// Close an fd, which might be a socket.
