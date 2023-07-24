@@ -1337,6 +1337,97 @@ jobs:
         # make -j2 -C xapian-bindings check VERBOSE=1 AUTOMATED_TESTING=1
         make -j2 -C xapian-letor check VERBOSE=1 AUTOMATED_TESTING=1
 
+  msvc:
+    runs-on: 'windows-latest'
+    needs: makedist
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+    - uses: msys2/setup-msys2@v2
+      with:
+        release: true # Use the pre-installed MSYS2
+        path-type: inherit
+        install: base-devel
+    # FIXME: Sort out ccache
+    - name: Fetch distribution
+      uses: actions/download-artifact@v3
+    - name: Unpack distribution
+      run: |
+        mv artifact/* .
+        rmdir artifact
+        pushd xapian-core
+        tar --strip-components=1 -xf xapian-core-*.tar.xz
+        popd
+        # Need libmagic for omega
+        #pushd xapian-applications/omega
+        #tar --strip-components=1 -xf xapian-omega-*.tar.xz
+        #popd
+        #pushd xapian-bindings
+        #tar --strip-components=1 -xf xapian-bindings-*.tar.xz
+        #popd
+        #pushd xapian-letor
+        #tar --strip-components=1 -xf xapian-letor-*.tar.xz
+        #popd
+    - name: Set up Visual Studio shell
+      uses: egor-tensin/vs-shell@v2
+      with:
+        arch: x64
+    - name: Build zlib
+      shell: bash
+      run: |
+        # We find "link" from coreutils rather than from MSVC.  The coreutils
+        # "link" is not a useful tool to us, so just delete it rather than
+        # trying to reorder PATH.
+        rm /usr/bin/link.exe || true
+        mkdir zlib
+        pushd zlib
+        curl --retry 5 --retry-connrefused -L https://github.com/xapian/xapian-dev-deps/releases/download/current/zlib-1.2.13.tar.gz|tar --strip-components=1 -zxf -
+        # Don't build zlib with -MD as it seems this flag needs to be used
+        # consistently across the build.
+        sed -i 's/\(^CFLAGS  *= *-nologo \)-MD /\1/' win32/Makefile.msc
+        # Don't build zlib with a fixed base address on x64 as that gives
+        # linker warning LNK4281.  FIXME: only for x64
+        sed -i 's/-base:0x[0-9A-Fa-f]* //' win32/Makefile.msc
+        nmake -nologo -f 'win32\Makefile.msc'
+        popd
+    - name: configure
+      run: |
+        export AR=lib
+        export CC='cl -nologo'
+        export CXX="$PWD/xapian-core/compile cl -nologo"
+        export CPPFLAGS="-I$PWD/zlib"
+        # Standard C++ stack unwinding; assume extern "C" functions never throw.
+        export CXXFLAGS=-EHsc
+        export LDFLAGS="-L$PWD/zlib"
+        pushd xapian-core
+        ./configure --enable-werror --disable-shared
+        export XAPIAN_CONFIG=$PWD/xapian-config
+        popd
+        #pushd xapian-applications/omega
+        #./configure --enable-werror
+        #popd
+        #pushd xapian-bindings
+        #./configure --enable-werror
+        #popd
+        #pushd xapian-letor
+        #./configure --enable-werror
+        #popd
+    - name: make
+      run: |
+        make -j2 -C xapian-core
+        #make -j2 -C xapian-applications/omega SHELL='C:/Progra~1/Git/usr/bin/sh.exe'
+        #make -j2 -C xapian-binding SHELL='C:/Progra~1/Git/usr/bin/sh.exe'
+        #make -j2 -C xapian-letor SHELL='C:/Progra~1/Git/usr/bin/sh.exe'
+    - name: Run tests
+      run: |
+        export VERBOSE=1
+        export AUTOMATED_TESTING=1
+        make -j2 -C xapian-core check
+        #make -j2 -C xapian-applications/omega check
+        #make -j2 -C xapian-bindings check
+        #make -j2 -C xapian-letor check
+
   checkpatch:
     name: 'Automated run of xapian-check-patch'
     runs-on: 'ubuntu-latest'
