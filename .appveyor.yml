@@ -39,10 +39,6 @@ environment:
     APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
     VCVARS_BAT: "\"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Auxiliary\\Build\\vcvars32.bat\""
   - TOOLCHAIN: msvc
-    platform: x64
-    APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
-    VCVARS_BAT: "\"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Auxiliary\\Build\\vcvars64.bat\""
-  - TOOLCHAIN: msvc
     platform: x86
     APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2022
     VCVARS_BAT: "\"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Auxiliary\\Build\\vcvars32.bat\""
