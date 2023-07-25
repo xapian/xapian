@@ -49,8 +49,22 @@ AC_CONFIG_HEADERS([config.h])
 
 AC_CONFIG_MACRO_DIRS([m4])
 
+AM_PROG_AR
+
+dnl Use libtool to manage our libraries.
 LT_PREREQ([2.2.8])
-LT_INIT
+dnl Default to only building shared libraries.
+dnl
+dnl Building both shared and static means having to compile the files which
+dnl make up the library twice on most platforms.  Shared libraries are the
+dnl better option for most users, and if anyone really wants static libraries,
+dnl they can configure with --enable-static (or --enable-static=xapian-core if
+dnl configuring a combined tree with the bindings).
+dnl
+dnl We don't export any data items from the library, so it should be safe to
+dnl enable win32-dll without decorating any declarations specially.
+LT_INIT([disable-static win32-dll])
+
 dnl Only pass -no-undefined on platforms where it is required in order to link
 dnl a shared library at all (Microsoft Windows is the main one) as it can cause
 dnl problems on other platforms (e.g. Solaris with Sun CC in C++11 mode, though
@@ -605,9 +619,29 @@ if test "$GXX" = yes; then
 fi
 
 AH_BOTTOM(
-[/* Disable stupid MSVC "performance" warning for converting int to bool. */
+[/* Disable stupid MSVC warnings. */
 #ifdef _MSC_VER
+/* Passing an empty parameter to a single parameter macro. */
+# pragma warning(disable:4003)
+/* Assignment in conditional expression; other compilers suppress with extra parentheses but not MSVC. */
+# pragma warning(disable:4706)
+/* A "performance" warning for converting int to bool. */
 # pragma warning(disable:4800)
+
+/* POSIX get to deprecate POSIX things, not Microsoft. */
+# define _CRT_NONSTDC_NO_WARNINGS
+# define _CRT_SECURE_NO_WARNINGS
+
+#endif
+
+/* MSVC defines _WIN32 but not __WIN32__. */
+#if !defined __WIN32__ && defined _WIN32
+# define __WIN32__
+#endif
+
+/* MSVC defines _WIN64 but not __WIN64__. */
+#if !defined __WIN64__ && defined _WIN64
+# define __WIN64__
 #endif
 
 /* Default to enabling _FORTIFY_SOURCE at level 2 for GCC-like compilers.  It
