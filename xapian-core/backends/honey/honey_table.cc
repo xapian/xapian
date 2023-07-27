@@ -128,7 +128,7 @@ HoneyTable::add(const std::string& key,
     // Encode "compressed?" flag in bottom bit.
     // FIXME: Don't do this if a table is uncompressed?  That saves a byte
     // for each item where the extra bit pushes the length up by a byte.
-    size_t val_size_enc = (val_size << 1) | compressed;
+    size_t val_size_enc = (val_size << 1) | size_t{compressed};
     std::string val_len;
     pack_uint(val_len, val_size_enc);
     // FIXME: pass together so we can potentially writev() both?
