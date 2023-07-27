@@ -61,8 +61,8 @@ jobs:
       run: ./configure CC='ccache gcc' CXX='ccache g++'
     - name: make
       run: make -j2
-#    - name: Run tests
-#      run: make -j2 check VERBOSE=1 AUTOMATED_TESTING=1
+    - name: Run tests
+      run: make -j2 check VERBOSE=1 AUTOMATED_TESTING=1
     - name: Create distribution tarball
       run: |
         make dist
