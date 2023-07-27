@@ -32,7 +32,8 @@ export LSAN_OPTIONS
 
 # Turn off msys2's argument conversion as we shouldn't need it and it breaks
 # some testcases.
-export MSYS2_ARG_CONV_EXCL=*
+MSYS2_ARG_CONV_EXCL=*
+export MSYS2_ARG_CONV_EXCL
 
 srcdir=`echo "$0"|sed 's!/*[^/]*$!!'`
 TEST_FILES="$srcdir/testfiles"
