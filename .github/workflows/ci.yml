@@ -918,6 +918,7 @@ jobs:
             mingw-w64-tools
     - name: configure
       run: |
+        export EATMYDATA=
         export PATH=/usr/lib/ccache:$PATH
         pushd xapian-core
         ./configure --enable-werror --host i686-w64-mingw32
@@ -931,7 +932,19 @@ jobs:
         export PATH=/usr/lib/ccache:$PATH
         make -j2 -C xapian-core
         make -j2 -C xapian-letor
-      # FIXME: Run tests under wine?
+    - name: Run tests
+      run: |
+        # Stop mono binfmt trying to run .exe files.
+        sudo apt-get purge mono-runtime
+        sudo dpkg --add-architecture i386
+        sudo apt-get update
+        sudo apt-get install wine32 wine-binfmt:amd64 wine:amd64
+        export VERBOSE=1
+        export AUTOMATED_TESTING=1
+        export WINEPATH="$PWD/xapian-core/.libs;/usr/lib/gcc/i686-w64-mingw32/`i686-w64-mingw32-g++ --version 2>/dev/null|head -n1|sed 's/.*) //;s/ .*//'`"
+        make -j2 -C xapian-core check
+        export WINEPATH="$PWD/xapian-letor/.libs;$WINEPATH"
+        make -j2 -C xapian-letor check
 
   mingw64-x86-64-cross:
     runs-on: 'ubuntu-22.04'
@@ -957,14 +970,23 @@ jobs:
     - name: Install package dependencies
       run: |
         sudo apt-get update
+        # Stop mono binfmt trying to run .exe files.
+        sudo apt-get purge mono-runtime
         sudo apt-get install \
             g++-mingw-w64-x86-64-win32 \
             mingw-w64-x86-64-dev \
             binutils-mingw-w64-x86-64 \
             libz-mingw-w64-dev \
-            mingw-w64-tools
+            mingw-w64-tools \
+            wine-binfmt \
+            wine \
+            wine64
+        sudo dpkg --add-architecture i386
+        sudo apt-get update
+        sudo apt-get install wine32
     - name: configure
       run: |
+        export EATMYDATA=
         export PATH=/usr/lib/ccache:$PATH
         pushd xapian-core
         ./configure --enable-werror --host x86_64-w64-mingw32
@@ -978,7 +1000,14 @@ jobs:
         export PATH=/usr/lib/ccache:$PATH
         make -j2 -C xapian-core
         make -j2 -C xapian-letor
-      # FIXME: Run tests under wine?
+    - name: Run tests
+      run: |
+        export VERBOSE=1
+        export AUTOMATED_TESTING=1
+        export WINEPATH="$PWD/xapian-core/.libs;/usr/lib/gcc/x86_64-w64-mingw32/`x86_64-w64-mingw32-g++ --version 2>/dev/null|head -n1|sed 's/.*) //;s/ .*//'`"
+        make -j2 -C xapian-core check
+        export WINEPATH="$PWD/xapian-letor/.libs;$WINEPATH"
+        make -j2 -C xapian-letor check
 
   Fedora:
     runs-on: 'ubuntu-22.04'
