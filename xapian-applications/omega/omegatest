@@ -34,7 +34,8 @@ export LSAN_OPTIONS
 
 # Turn off msys2's argument conversion as we shouldn't need it and it breaks
 # some testcases.
-export MSYS2_ARG_CONV_EXCL=*
+MSYS2_ARG_CONV_EXCL=*
+export MSYS2_ARG_CONV_EXCL
 
 # Set up an empty database.
 TEST_DB=test-db
