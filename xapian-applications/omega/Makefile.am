@@ -122,17 +122,19 @@ bin_PROGRAMS = omindex scriptindex omindex-list
 dist_bin_SCRIPTS = dbi2omega htdig2omega mbox2omega
 
 check_PROGRAMS = atomparsetest csvesctest htmlparsetest jsonesctest md5test urlenctest utf8converttest
-dist_check_SCRIPTS = omegatest sourcetest
+dist_check_SCRIPTS = omegatest.pl sourcetest
 TESTS_ENVIRONMENT = $(EATMYDATA)
 TESTS =	atomparsetest$(EXEEXT)\
 	csvesctest$(EXEEXT)\
 	htmlparsetest$(EXEEXT)\
 	jsonesctest$(EXEEXT)\
 	md5test$(EXEEXT)\
-	omegatest\
+	omegatest.pl\
 	sourcetest\
 	urlenctest$(EXEEXT)\
 	utf8converttest$(EXEEXT)
+TEST_EXTENSIONS = .pl
+PL_LOG_COMPILER = $(PERL)
 
 omegadatadir = $(datadir)/omega
 dist_omegadata_DATA = htdig2omega.script mbox2omega.script

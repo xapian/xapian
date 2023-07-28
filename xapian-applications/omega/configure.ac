@@ -324,7 +324,7 @@ fi
 dnl Check processor endianness.
 AC_C_BIGENDIAN
 
-dnl Check for perl.  Needed for outlookmsg2html script.
+dnl Check for perl.  Needed for outlookmsg2html script and omegatest.pl.
 dnl (And in maintainer-mode, also to make man pages from "--help" output, and
 dnl to make the omegascript vim syntax mode.)
 AC_PATH_PROG(PERL, perl, [])

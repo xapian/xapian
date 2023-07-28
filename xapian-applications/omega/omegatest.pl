@@ -1,0 +1,1641 @@
+#!/usr/bin/perl
+# omegatest: Test omega CGI
+#
+# Copyright (C) 2015-2023 Olly Betts
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation; either version 2 of the
+# License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
+# USA
+
+use strict;
+use warnings;
+
+use File::Path qw(make_path remove_tree);
+use IPC::Open2;
+
+sub print_to_file {
+  my ($filename, $contents) = @_;
+  open my $fh, '>', $filename or die $!;
+  print $fh $contents;
+  close $fh or die $!;
+}
+
+my $omega = $ENV{OMEGA} // './omega';
+my $scriptindex = $ENV{SCRIPTINDEX} // './scriptindex';
+my $faketime = $ENV{FAKETIME} // 'faketime';
+
+# Suppress HTTP Content-Type header.
+$ENV{SERVER_PROTOCOL} = 'INCLUDED';
+
+# Don't complain about memory left allocated on exit - the OS will reclaim
+# all memory at that point.
+$ENV{LSAN_OPTIONS} = 'leak_check_at_exit=0';
+
+# Turn off msys2's argument conversion as we shouldn't need it and it breaks
+# some testcases.
+$ENV{MSYS2_ARG_CONV_EXCL} = '*';
+
+# Set up an empty database.
+my $test_db = 'test-db';
+remove_tree($test_db);
+print_to_file $test_db, 'inmemory\n';
+
+# Simple template which just shows the parsed query.
+my $test_template = 'test-template';
+print_to_file $test_template, "\$querydescription\n";
+
+my $test_indexscript = 'test-indexscript';
+
+open my $devnull, '>', ($^O eq 'MSWin32' ? 'nul' : '/dev/null') or die $!;
+
+my $OMEGA_CONFIG_FILE = 'test-omega.conf';
+$ENV{OMEGA_CONFIG_FILE} = $OMEGA_CONFIG_FILE;
+print_to_file $OMEGA_CONFIG_FILE, <<__END__ ;
+database_dir .
+template_dir .
+log_dir .
+default_template $test_template
+default_db $test_db
+__END__
+
+# Glob pattern matching scriptindex summary line.
+my $summary_re =
+  qr/records \(added, replaced, deleted, skipped\) = \(\d+, \d+, \d+, \d+\)$/;
+
+# Some testcases don't work with 32-bit time_t.
+my $have_32bit_time_t = 0;
+{
+  open my $fh, '<', 'config.h' or die $!;
+  while (<$fh>) {
+    if (/^#define SIZEOF_TIME_T\s*(\d+)/) {
+      if ($1 eq 4) {
+	$have_32bit_time_t = 1;
+	print "Skipping testcases which need > 32-bit time_t\n";
+      }
+      last;
+    }
+  }
+  close $fh;
+}
+
+my $failed = 0;
+
+sub run_scriptindex {
+  my $input = shift;
+  remove_tree($test_db);
+  my $pid = open2($devnull, my $in, $scriptindex, $test_db, $test_indexscript) or die $!;
+  print $in $input;
+  close $in or die $!;
+  waitpid($pid, 0);
+  if ($?) {
+    print "omega exit status $?\n";
+    ++$failed;
+  }
+}
+
+sub testcase {
+  my $expected = shift;
+
+  my $output;
+  {
+    # If there are no positional parameters, pass one as otherwise omega will
+    # wait for parameters on stdin.
+    my $args = @_ > 0 ? \@_ : ['dummy'];
+    my $pid = open my $out, '-|', ref $omega ? @$omega : $omega, @$args
+      or die $!;
+    local $/ = undef;
+    $output = <$out>;
+    close $out;
+  }
+  chomp($output);
+  $output =~ s/\r//g;
+
+  if ($output ne $expected) {
+    print "$omega @_:\n";
+    print "  expected: «${expected}»\n";
+    print "  received: «${output}»\n";
+    ++$failed;
+  }
+}
+
+sub qtestcase {
+  my $query_desc = shift;
+  return testcase("Query($query_desc)", @_);
+}
+
+# Test scriptindex gives expected error.
+#
+# Parameters:
+# * what: text to report to describe situation
+# * expect: expected text or regexp stdout+stderr should match
+# * (optional) input: input to feed scriptindex (default: /dev/null)
+#
+# Uses database $test_db and index script $test_indexscript.
+sub test_scriptindex_error {
+  my ($what, $expect, $input) = @_;
+  remove_tree($test_db);
+  my $out;
+  if (!defined $input) {
+    $out = `$scriptindex '$test_db' '$test_indexscript' < /dev/null 2>&1`;
+  } else {
+    $out = `$scriptindex '$test_db' '$test_indexscript' <<'__END__' 2>&1
+$input
+__END__`;
+  }
+  my $rc = $? >> 8;
+  chomp($out);
+  $out =~ s/\r//g;
+  if ($rc == 0) {
+    print "scriptindex didn't exit with non-zero return code for $what\n";
+    print "Output: $out\n";
+    ++$failed;
+  } elsif ($out ne $expect) {
+    print "scriptindex didn't give expected error for $what\n";
+    print "Expect: $expect\n";
+    print "Output: $out\n";
+    ++$failed;
+  }
+}
+
+# Test scriptindex either works or gives an expected error.
+#
+# Parameters:
+# * what: text to report to describe situation
+# * expect: expected text or regexp stdout+stderr should match
+# * (optional) input: input to feed scriptindex (default: /dev/null)
+#
+# Return value is the exit code from scriptindex.
+#
+# Uses database $test_db and index script $test_indexscript.
+sub test_scriptindex_optional_error {
+  my ($what, $expect, $input) = @_;
+  remove_tree($test_db);
+  my $out;
+  if (!defined $input) {
+    $out = `$scriptindex '$test_db' '$test_indexscript' < /dev/null 2>&1`;
+  } else {
+    $out = `$scriptindex '$test_db' '$test_indexscript' <<'__END__' 2>&1
+$input
+__END__`;
+  }
+  my $rc = $? >> 8;
+  chomp($out);
+  $out =~ s/\r//g;
+  if ($rc == 0) {
+    if ($out !~ $summary_re) {
+      print "scriptindex gave unexpected output for $what\n";
+      print "Output: $out\n";
+      ++$failed;
+    }
+  } else {
+    if ($out ne $expect) {
+      print "scriptindex didn't give expected error for $what\n";
+      print "Expect: $expect\n";
+      print "Output: $out\n";
+      ++$failed;
+    }
+  }
+  return $rc;
+}
+
+# Test scriptindex gives expected warning.
+#
+# Parameters:
+# * what: text to report to describe situation
+# * expect: expected text or regexp stdout+stderr should match
+# * (optional) input: input to feed scriptindex (default: /dev/null)
+#
+# Uses database $test_db and index script $test_indexscript.
+sub test_scriptindex_warning {
+  my ($what, $expect, $input) = @_;
+  remove_tree($test_db);
+  my $out;
+  if (!defined $input) {
+    $out = `$scriptindex '$test_db' '$test_indexscript' < /dev/null 2>&1`;
+  } else {
+    $out = `$scriptindex '$test_db' '$test_indexscript' <<'__END__' 2>&1
+$input
+__END__`;
+  }
+  my $rc = $? >> 8;
+  chomp($out);
+  $out =~ s/\r//g;
+  if ($out !~ s/$summary_re//) {
+    print "scriptindex output lacked summary line for $what\n";
+    print "Output: $out\n";
+    ++$failed;
+    return;
+  }
+  chomp($out);
+  if ($rc != 0) {
+    print "scriptindex gave an error rather than the expected warning for $what\n";
+    print "Output: $out\n";
+    ++$failed;
+  } elsif ($out ne $expect) {
+    print "scriptindex didn't give expected warning for $what\n";
+    print "Expect: $expect\n";
+    print "Output: $out\n";
+    ++$failed;
+  }
+}
+
+# Test scriptindex runs cleanly
+#
+# Parameters:
+# * what: text to report to describe situation
+# * (optional) input: input to feed scriptindex (default: /dev/null)
+#
+# Uses database $test_db and index script $test_indexscript.
+sub test_scriptindex {
+  my ($what, $input) = @_;
+  remove_tree($test_db);
+  my $out;
+  if (!defined $input) {
+    $out = `$scriptindex '$test_db' '$test_indexscript' < /dev/null 2>&1`;
+  } else {
+    $out = `$scriptindex '$test_db' '$test_indexscript' <<'__END__' 2>&1
+$input
+__END__`;
+  }
+  my $rc = $? >> 8;
+  chomp($out);
+  $out =~ s/\r//g;
+  if ($rc != 0) {
+    print "scriptindex gave an error for $what\n";
+    print "Output: $out\n";
+    ++$failed;
+  } elsif ($out !~ $summary_re) {
+    print "scriptindex gave unexpected output for $what\n";
+    print "Output: $out\n";
+    ++$failed;
+  }
+}
+
+# Test a few simple things.
+qtestcase('Zsimpl@1', 'P=simple');
+qtestcase('(chocolate@1 FILTER Tconfectionary/fudge)', 'P=Chocolate', 'B=Tconfectionary/fudge');
+
+# Test date value ranges.
+qtestcase('VALUE_RANGE 0 2 ~', 'DATEVALUE=0', 'START=2000');
+qtestcase('VALUE_RANGE 0 2 ~', 'DATEVALUE=0', 'START=200001');
+qtestcase('VALUE_RANGE 0 2 ~', 'DATEVALUE=0', 'START=20000101');
+qtestcase('VALUE_LE 1 1~', 'DATEVALUE=1', 'END=1999');
+qtestcase('VALUE_LE 1 1~', 'DATEVALUE=1', 'END=199912');
+qtestcase('VALUE_LE 1 1~', 'DATEVALUE=1', 'END=19991231');
+qtestcase('VALUE_RANGE 2 201 ~', 'DATEVALUE=2', 'START=2010');
+qtestcase('VALUE_RANGE 2 201 ~', 'DATEVALUE=2', 'START=201001');
+qtestcase('VALUE_RANGE 2 201 ~', 'DATEVALUE=2', 'START=20100101');
+qtestcase('VALUE_LE 3 198~', 'DATEVALUE=3', 'END=1989');
+qtestcase('VALUE_LE 3 198~', 'DATEVALUE=3', 'END=198912');
+qtestcase('VALUE_LE 3 198~', 'DATEVALUE=3', 'END=19891231');
+qtestcase('VALUE_RANGE 4 1974 ~', 'DATEVALUE=4', 'START=1974');
+qtestcase('VALUE_RANGE 4 1974 ~', 'DATEVALUE=4', 'START=197401');
+qtestcase('VALUE_RANGE 4 1974 ~', 'DATEVALUE=4', 'START=19740101');
+qtestcase('VALUE_LE 5 1974~', 'DATEVALUE=5', 'END=1974');
+qtestcase('VALUE_LE 5 1974~', 'DATEVALUE=5', 'END=197412');
+qtestcase('VALUE_LE 5 1974~', 'DATEVALUE=5', 'END=19741231');
+qtestcase('VALUE_RANGE 6 20151 ~', 'DATEVALUE=6', 'START=201510');
+qtestcase('VALUE_RANGE 6 20151 ~', 'DATEVALUE=6', 'START=20151001');
+qtestcase('VALUE_LE 7 19870~', 'DATEVALUE=7', 'END=198709');
+qtestcase('VALUE_LE 7 19870~', 'DATEVALUE=7', 'END=19870930');
+qtestcase('VALUE_RANGE 8 201512 ~', 'DATEVALUE=8', 'START=201512');
+qtestcase('VALUE_RANGE 8 201512 ~', 'DATEVALUE=8', 'START=20151201');
+qtestcase('VALUE_LE 9 201511~', 'DATEVALUE=9', 'END=201511');
+qtestcase('VALUE_LE 9 201511~', 'DATEVALUE=9', 'END=20151130');
+qtestcase('VALUE_RANGE 10 2015021 ~', 'DATEVALUE=10', 'START=20150210');
+qtestcase('VALUE_RANGE 10 2000022 ~', 'DATEVALUE=10', 'START=20000220');
+qtestcase('VALUE_LE 11 19840401~', 'DATEVALUE=11', 'END=19840401');
+qtestcase('VALUE_LE 11 19881128~', 'DATEVALUE=11', 'END=19881128');
+
+# Leap year tests:
+qtestcase('VALUE_LE 1 201502~', 'DATEVALUE=1', 'END=20150228');
+qtestcase('VALUE_LE 1 198802~', 'DATEVALUE=1', 'END=19880229');
+qtestcase('VALUE_LE 1 19880228~', 'DATEVALUE=1', 'END=19880228');
+qtestcase('VALUE_LE 1 200002~', 'DATEVALUE=1', 'END=20000229');
+qtestcase('VALUE_LE 1 20000228~', 'DATEVALUE=1', 'END=20000228');
+if (!$have_32bit_time_t) {
+  qtestcase('VALUE_LE 1 190002~', 'DATEVALUE=1', 'END=19000228');
+  qtestcase('VALUE_LE 1 210002~', 'DATEVALUE=1', 'END=21000228');
+}
+
+# Month starts and ends:
+qtestcase('VALUE_RANGE 0 2015 201501~', 'DATEVALUE=0', 'START=20150101', 'END=20150131');
+qtestcase('VALUE_RANGE 0 2015 20150130~', 'DATEVALUE=0', 'START=20150101', 'END=20150130');
+qtestcase('VALUE_RANGE 0 201502 201502~', 'DATEVALUE=0', 'START=20150201', 'END=20150228');
+qtestcase('VALUE_RANGE 0 201502 20150227~', 'DATEVALUE=0', 'START=20150201', 'END=20150227');
+qtestcase('VALUE_RANGE 0 201503 201503~', 'DATEVALUE=0', 'START=20150301', 'END=20150331');
+qtestcase('VALUE_RANGE 0 201503 20150330~', 'DATEVALUE=0', 'START=20150301', 'END=20150330');
+qtestcase('VALUE_RANGE 0 201504 201504~', 'DATEVALUE=0', 'START=20150401', 'END=20150430');
+qtestcase('VALUE_RANGE 0 201504 2015042~', 'DATEVALUE=0', 'START=20150401', 'END=20150429');
+qtestcase('VALUE_RANGE 0 201505 201505~', 'DATEVALUE=0', 'START=20150501', 'END=20150531');
+qtestcase('VALUE_RANGE 0 201505 20150530~', 'DATEVALUE=0', 'START=20150501', 'END=20150530');
+qtestcase('VALUE_RANGE 0 201506 201506~', 'DATEVALUE=0', 'START=20150601', 'END=20150630');
+qtestcase('VALUE_RANGE 0 201506 2015062~', 'DATEVALUE=0', 'START=20150601', 'END=20150629');
+qtestcase('VALUE_RANGE 0 201507 201507~', 'DATEVALUE=0', 'START=20150701', 'END=20150731');
+qtestcase('VALUE_RANGE 0 201507 20150730~', 'DATEVALUE=0', 'START=20150701', 'END=20150730');
+qtestcase('VALUE_RANGE 0 201508 201508~', 'DATEVALUE=0', 'START=20150801', 'END=20150831');
+qtestcase('VALUE_RANGE 0 201508 20150830~', 'DATEVALUE=0', 'START=20150801', 'END=20150830');
+qtestcase('VALUE_RANGE 0 201509 20150~', 'DATEVALUE=0', 'START=20150901', 'END=20150930');
+qtestcase('VALUE_RANGE 0 201509 2015092~', 'DATEVALUE=0', 'START=20150901', 'END=20150929');
+qtestcase('VALUE_RANGE 0 20151 201510~', 'DATEVALUE=0', 'START=20151001', 'END=20151031');
+qtestcase('VALUE_RANGE 0 20151 20151030~', 'DATEVALUE=0', 'START=20151001', 'END=20151030');
+qtestcase('VALUE_RANGE 0 201511 201511~', 'DATEVALUE=0', 'START=20151101', 'END=20151130');
+qtestcase('VALUE_RANGE 0 201511 2015112~', 'DATEVALUE=0', 'START=20151101', 'END=20151129');
+qtestcase('VALUE_RANGE 0 201512 2015~', 'DATEVALUE=0', 'START=20151201', 'END=20151231');
+qtestcase('VALUE_RANGE 0 201512 20151230~', 'DATEVALUE=0', 'START=20151201', 'END=20151230');
+
+# Forward spans:
+qtestcase('VALUE_RANGE 0 20151104 20151106~', 'DATEVALUE=0', 'START=20151104', 'SPAN=3');
+qtestcase('VALUE_RANGE 0 20141104 20151103~', 'DATEVALUE=0', 'START=20141104', 'SPAN=365');
+
+# Backward spans:
+qtestcase('VALUE_RANGE 0 20151104 20151106~', 'DATEVALUE=0', 'END=20151106', 'SPAN=3');
+qtestcase('VALUE_RANGE 0 20141104 20151103~', 'DATEVALUE=0', 'END=20151103', 'SPAN=365');
+
+# Check that if START, END and SPAN are all passed, START is ignored:
+qtestcase('VALUE_RANGE 0 20151104 20151106~', 'DATEVALUE=0', 'START=19700101', 'END=20151106', 'SPAN=3');
+
+# Test date value ranges using newer ".SLOT" parameters.
+qtestcase('VALUE_RANGE 0 2 ~', 'START.0=2000');
+qtestcase('VALUE_RANGE 0 2 ~', 'START.0=200001');
+qtestcase('VALUE_RANGE 0 2 ~', 'START.0=20000101');
+qtestcase('VALUE_LE 1 1~', 'END.1=1999');
+qtestcase('VALUE_LE 1 1~', 'END.1=199912');
+qtestcase('VALUE_LE 1 1~', 'END.1=19991231');
+qtestcase('VALUE_RANGE 2 201 ~', 'START.2=2010');
+qtestcase('VALUE_RANGE 2 201 ~', 'START.2=201001');
+qtestcase('VALUE_RANGE 2 201 ~', 'START.2=20100101');
+qtestcase('VALUE_LE 3 198~', 'END.3=1989');
+qtestcase('VALUE_LE 3 198~', 'END.3=198912');
+qtestcase('VALUE_LE 3 198~', 'END.3=19891231');
+qtestcase('VALUE_RANGE 4 1974 ~', 'START.4=1974');
+qtestcase('VALUE_RANGE 4 1974 ~', 'START.4=197401');
+qtestcase('VALUE_RANGE 4 1974 ~', 'START.4=19740101');
+qtestcase('VALUE_LE 5 1974~', 'END.5=1974');
+qtestcase('VALUE_LE 5 1974~', 'END.5=197412');
+qtestcase('VALUE_LE 5 1974~', 'END.5=19741231');
+qtestcase('VALUE_RANGE 6 20151 ~', 'START.6=201510');
+qtestcase('VALUE_RANGE 6 20151 ~', 'START.6=20151001');
+qtestcase('VALUE_LE 7 19870~', 'END.7=198709');
+qtestcase('VALUE_LE 7 19870~', 'END.7=19870930');
+qtestcase('VALUE_RANGE 8 201512 ~', 'START.8=201512');
+qtestcase('VALUE_RANGE 8 201512 ~', 'START.8=20151201');
+qtestcase('VALUE_LE 9 201511~', 'END.9=201511');
+qtestcase('VALUE_LE 9 201511~', 'END.9=20151130');
+qtestcase('VALUE_RANGE 10 2015021 ~', 'START.10=20150210');
+qtestcase('VALUE_RANGE 10 2000022 ~', 'START.10=20000220');
+qtestcase('VALUE_LE 11 19840401~', 'END.11=19840401');
+qtestcase('VALUE_LE 11 19881128~', 'END.11=19881128');
+
+# Leap year tests:
+qtestcase('VALUE_LE 1 201502~', 'END.1=20150228');
+qtestcase('VALUE_LE 1 198802~', 'END.1=19880229');
+qtestcase('VALUE_LE 1 19880228~', 'END.1=19880228');
+qtestcase('VALUE_LE 1 200002~', 'END.1=20000229');
+qtestcase('VALUE_LE 1 20000228~', 'END.1=20000228');
+if (!$have_32bit_time_t) {
+  qtestcase('VALUE_LE 1 190002~', 'END.1=19000228');
+  qtestcase('VALUE_LE 1 210002~', 'END.1=21000228');
+}
+
+# Month starts and ends:
+qtestcase('VALUE_RANGE 0 2015 201501~', 'START.0=20150101', 'END.0=20150131');
+qtestcase('VALUE_RANGE 0 2015 20150130~', 'START.0=20150101', 'END.0=20150130');
+qtestcase('VALUE_RANGE 0 201502 201502~', 'START.0=20150201', 'END.0=20150228');
+qtestcase('VALUE_RANGE 0 201502 20150227~', 'START.0=20150201', 'END.0=20150227');
+qtestcase('VALUE_RANGE 0 201503 201503~', 'START.0=20150301', 'END.0=20150331');
+qtestcase('VALUE_RANGE 0 201503 20150330~', 'START.0=20150301', 'END.0=20150330');
+qtestcase('VALUE_RANGE 0 201504 201504~', 'START.0=20150401', 'END.0=20150430');
+qtestcase('VALUE_RANGE 0 201504 2015042~', 'START.0=20150401', 'END.0=20150429');
+qtestcase('VALUE_RANGE 0 201505 201505~', 'START.0=20150501', 'END.0=20150531');
+qtestcase('VALUE_RANGE 0 201505 20150530~', 'START.0=20150501', 'END.0=20150530');
+qtestcase('VALUE_RANGE 0 201506 201506~', 'START.0=20150601', 'END.0=20150630');
+qtestcase('VALUE_RANGE 0 201506 2015062~', 'START.0=20150601', 'END.0=20150629');
+qtestcase('VALUE_RANGE 0 201507 201507~', 'START.0=20150701', 'END.0=20150731');
+qtestcase('VALUE_RANGE 0 201507 20150730~', 'START.0=20150701', 'END.0=20150730');
+qtestcase('VALUE_RANGE 0 201508 201508~', 'START.0=20150801', 'END.0=20150831');
+qtestcase('VALUE_RANGE 0 201508 20150830~', 'START.0=20150801', 'END.0=20150830');
+qtestcase('VALUE_RANGE 0 201509 20150~', 'START.0=20150901', 'END.0=20150930');
+qtestcase('VALUE_RANGE 0 201509 2015092~', 'START.0=20150901', 'END.0=20150929');
+qtestcase('VALUE_RANGE 0 20151 201510~', 'START.0=20151001', 'END.0=20151031');
+qtestcase('VALUE_RANGE 0 20151 20151030~', 'START.0=20151001', 'END.0=20151030');
+qtestcase('VALUE_RANGE 0 201511 201511~', 'START.0=20151101', 'END.0=20151130');
+qtestcase('VALUE_RANGE 0 201511 2015112~', 'START.0=20151101', 'END.0=20151129');
+qtestcase('VALUE_RANGE 0 201512 2015~', 'START.0=20151201', 'END.0=20151231');
+qtestcase('VALUE_RANGE 0 201512 20151230~', 'START.0=20151201', 'END.0=20151230');
+
+# Forward spans:
+qtestcase('VALUE_RANGE 0 20151104 20151106~', 'START.0=20151104', 'SPAN.0=3');
+qtestcase('VALUE_RANGE 0 20141104 20151103~', 'START.0=20141104', 'SPAN.0=365');
+
+# Backward spans:
+qtestcase('VALUE_RANGE 0 20151104 20151106~', 'END.0=20151106', 'SPAN.0=3');
+qtestcase('VALUE_RANGE 0 20141104 20151103~', 'END.0=20151103', 'SPAN.0=365');
+
+# Empty spans:
+qtestcase('', 'START.0=20180919', 'END.0=19991225');
+# Check that the empty span dominates other spans:
+qtestcase('', 'START.0=20180919', 'END.0=19991225', 'START.1=20180901');
+# Check that the empty span dominates a filter term:
+qtestcase('', 'START.0=20180919', 'END.0=19991225', 'B=Ktag');
+# Check that the empty span dominates a negated filter term:
+qtestcase('', 'START.0=20180919', 'END.0=19991225', 'N=Kneg');
+# Check that the empty span dominates a term-based date range filter:
+qtestcase('', 'START.0=20180919', 'END.0=19991225', 'START=20000101', 'END=20001231');
+
+# Check that if START, END and SPAN are all passed, START is ignored:
+qtestcase('VALUE_RANGE 0 20151104 20151106~', 'START.0=19700101', 'END.0=20151106', 'SPAN.0=3');
+
+# Check multiple .SLOT filters:
+qtestcase('(VALUE_RANGE 0 201512 2015~ AND VALUE_LE 5 1974~)', 'START.0=20151201', 'END.0=20151231', 'END.5=1974');
+qtestcase('(VALUE_RANGE 0 201512 20151207~ AND VALUE_RANGE 5 19740102 1974~)', 'START.0=20151201', 'SPAN.0=7', 'END.5=1974', 'SPAN.5=364');
+
+# Check .SLOT and old-style value date range filter:
+qtestcase('(VALUE_RANGE 0 201512 2015~ AND VALUE_LE 5 1974~)', 'START.0=20151201', 'END.0=20151231', 'DATEVALUE=5', 'END=1974');
+
+# Check .SLOT and old-style value date range filter on same slot.
+# (We don't promise anything for this case, but it shouldn't crash).
+qtestcase('VALUE_RANGE 0 201512 2015~', 'START.0=20151201', 'END.0=20151231', 'DATEVALUE=0', 'END=1974');
+
+# Tests of term-based date range filtering:
+
+qtestcase('(Y1970 OR Y1971 OR Y1972 OR Y1973 OR Y1974 OR Y1975 OR Y1976 OR Y1977 OR Y1978 OR Y1979 OR Y1980 OR Y1981 OR Y1982 OR Y1983 OR Y1984 OR Y1985 OR Y1986 OR Y1987 OR Y1988 OR Y1989 OR Y1990 OR Y1991 OR Y1992 OR Y1993 OR Y1994 OR Y1995 OR Y1996 OR Y1997 OR Y1998 OR Y1999 OR Dlatest)', 'END=19991231');
+qtestcase('(Y1970 OR Y1971 OR Y1972 OR Y1973 OR Y1974 OR Y1975 OR Y1976 OR Y1977 OR Y1978 OR Y1979 OR Y1980 OR Y1981 OR Y1982 OR Y1983 OR Y1984 OR Y1985 OR Y1986 OR Y1987 OR Y1988 OR Y1989 OR Dlatest)', 'END=19891231');
+qtestcase('(Y1970 OR Y1971 OR Y1972 OR Y1973 OR Y1974 OR Dlatest)', 'END=19741231');
+qtestcase('(Y1970 OR Y1971 OR Y1972 OR Y1973 OR Y1974 OR Y1975 OR Y1976 OR Y1977 OR Y1978 OR Y1979 OR Y1980 OR Y1981 OR Y1982 OR Y1983 OR Y1984 OR Y1985 OR Y1986 OR M198701 OR M198702 OR M198703 OR M198704 OR M198705 OR M198706 OR M198707 OR M198708 OR M198709 OR Dlatest)', 'END=19870930');
+qtestcase('(Y1970 OR Y1971 OR Y1972 OR Y1973 OR Y1974 OR Y1975 OR Y1976 OR Y1977 OR Y1978 OR Y1979 OR Y1980 OR Y1981 OR Y1982 OR Y1983 OR Y1984 OR Y1985 OR Y1986 OR Y1987 OR Y1988 OR Y1989 OR Y1990 OR Y1991 OR Y1992 OR Y1993 OR Y1994 OR Y1995 OR Y1996 OR Y1997 OR Y1998 OR Y1999 OR Y2000 OR Y2001 OR Y2002 OR Y2003 OR Y2004 OR Y2005 OR Y2006 OR Y2007 OR Y2008 OR Y2009 OR Y2010 OR Y2011 OR Y2012 OR Y2013 OR Y2014 OR M201501 OR M201502 OR M201503 OR M201504 OR M201505 OR M201506 OR M201507 OR M201508 OR M201509 OR M201510 OR M201511 OR Dlatest)', 'END=20151130');
+qtestcase('(Y1970 OR Y1971 OR Y1972 OR Y1973 OR Y1974 OR Y1975 OR Y1976 OR Y1977 OR Y1978 OR Y1979 OR Y1980 OR Y1981 OR Y1982 OR Y1983 OR M198401 OR M198402 OR M198403 OR D19840401 OR Dlatest)', 'END=19840401');
+qtestcase('(Y1970 OR Y1971 OR Y1972 OR Y1973 OR Y1974 OR Y1975 OR Y1976 OR Y1977 OR Y1978 OR Y1979 OR Y1980 OR Y1981 OR Y1982 OR Y1983 OR Y1984 OR Y1985 OR Y1986 OR Y1987 OR M198801 OR M198802 OR M198803 OR M198804 OR M198805 OR M198806 OR M198807 OR M198808 OR M198809 OR M198810 OR D19881101 OR D19881102 OR D19881103 OR D19881104 OR D19881105 OR D19881106 OR D19881107 OR D19881108 OR D19881109 OR D19881110 OR D19881111 OR D19881112 OR D19881113 OR D19881114 OR D19881115 OR D19881116 OR D19881117 OR D19881118 OR D19881119 OR D19881120 OR D19881121 OR D19881122 OR D19881123 OR D19881124 OR D19881125 OR D19881126 OR D19881127 OR D19881128 OR Dlatest)', 'END=19881128');
+
+# Leap year tests:
+qtestcase('(Y1970 OR Y1971 OR Y1972 OR Y1973 OR Y1974 OR Y1975 OR Y1976 OR Y1977 OR Y1978 OR Y1979 OR Y1980 OR Y1981 OR Y1982 OR Y1983 OR Y1984 OR Y1985 OR Y1986 OR Y1987 OR Y1988 OR Y1989 OR Y1990 OR Y1991 OR Y1992 OR Y1993 OR Y1994 OR Y1995 OR Y1996 OR Y1997 OR Y1998 OR Y1999 OR Y2000 OR Y2001 OR Y2002 OR Y2003 OR Y2004 OR Y2005 OR Y2006 OR Y2007 OR Y2008 OR Y2009 OR Y2010 OR Y2011 OR Y2012 OR Y2013 OR Y2014 OR M201501 OR M201502 OR Dlatest)', 'END=20150228');
+qtestcase('(Y1970 OR Y1971 OR Y1972 OR Y1973 OR Y1974 OR Y1975 OR Y1976 OR Y1977 OR Y1978 OR Y1979 OR Y1980 OR Y1981 OR Y1982 OR Y1983 OR Y1984 OR Y1985 OR Y1986 OR Y1987 OR M198801 OR M198802 OR Dlatest)', 'END=19880229');
+qtestcase('(Y1970 OR Y1971 OR Y1972 OR Y1973 OR Y1974 OR Y1975 OR Y1976 OR Y1977 OR Y1978 OR Y1979 OR Y1980 OR Y1981 OR Y1982 OR Y1983 OR Y1984 OR Y1985 OR Y1986 OR Y1987 OR M198801 OR D19880201 OR D19880202 OR D19880203 OR D19880204 OR D19880205 OR D19880206 OR D19880207 OR D19880208 OR D19880209 OR D19880210 OR D19880211 OR D19880212 OR D19880213 OR D19880214 OR D19880215 OR D19880216 OR D19880217 OR D19880218 OR D19880219 OR D19880220 OR D19880221 OR D19880222 OR D19880223 OR D19880224 OR D19880225 OR D19880226 OR D19880227 OR D19880228 OR Dlatest)', 'END=19880228');
+qtestcase('(Y1970 OR Y1971 OR Y1972 OR Y1973 OR Y1974 OR Y1975 OR Y1976 OR Y1977 OR Y1978 OR Y1979 OR Y1980 OR Y1981 OR Y1982 OR Y1983 OR Y1984 OR Y1985 OR Y1986 OR Y1987 OR Y1988 OR Y1989 OR Y1990 OR Y1991 OR Y1992 OR Y1993 OR Y1994 OR Y1995 OR Y1996 OR Y1997 OR Y1998 OR Y1999 OR M200001 OR M200002 OR Dlatest)', 'END=20000229');
+qtestcase('(Y1970 OR Y1971 OR Y1972 OR Y1973 OR Y1974 OR Y1975 OR Y1976 OR Y1977 OR Y1978 OR Y1979 OR Y1980 OR Y1981 OR Y1982 OR Y1983 OR Y1984 OR Y1985 OR Y1986 OR Y1987 OR Y1988 OR Y1989 OR Y1990 OR Y1991 OR Y1992 OR Y1993 OR Y1994 OR Y1995 OR Y1996 OR Y1997 OR Y1998 OR Y1999 OR M200001 OR D20000201 OR D20000202 OR D20000203 OR D20000204 OR D20000205 OR D20000206 OR D20000207 OR D20000208 OR D20000209 OR D20000210 OR D20000211 OR D20000212 OR D20000213 OR D20000214 OR D20000215 OR D20000216 OR D20000217 OR D20000218 OR D20000219 OR D20000220 OR D20000221 OR D20000222 OR D20000223 OR D20000224 OR D20000225 OR D20000226 OR D20000227 OR D20000228 OR Dlatest)', 'END=20000228');
+if (!$have_32bit_time_t) {
+  qtestcase('Dlatest', 'END=19000228'); # Assumed start is 19700101
+  qtestcase('(Y1970 OR Y1971 OR Y1972 OR Y1973 OR Y1974 OR Y1975 OR Y1976 OR Y1977 OR Y1978 OR Y1979 OR Y1980 OR Y1981 OR Y1982 OR Y1983 OR Y1984 OR Y1985 OR Y1986 OR Y1987 OR Y1988 OR Y1989 OR Y1990 OR Y1991 OR Y1992 OR Y1993 OR Y1994 OR Y1995 OR Y1996 OR Y1997 OR Y1998 OR Y1999 OR Y2000 OR Y2001 OR Y2002 OR Y2003 OR Y2004 OR Y2005 OR Y2006 OR Y2007 OR Y2008 OR Y2009 OR Y2010 OR Y2011 OR Y2012 OR Y2013 OR Y2014 OR Y2015 OR Y2016 OR Y2017 OR Y2018 OR Y2019 OR Y2020 OR Y2021 OR Y2022 OR Y2023 OR Y2024 OR Y2025 OR Y2026 OR Y2027 OR Y2028 OR Y2029 OR Y2030 OR Y2031 OR Y2032 OR Y2033 OR Y2034 OR Y2035 OR Y2036 OR Y2037 OR Y2038 OR Y2039 OR Y2040 OR Y2041 OR Y2042 OR Y2043 OR Y2044 OR Y2045 OR Y2046 OR Y2047 OR Y2048 OR Y2049 OR Y2050 OR Y2051 OR Y2052 OR Y2053 OR Y2054 OR Y2055 OR Y2056 OR Y2057 OR Y2058 OR Y2059 OR Y2060 OR Y2061 OR Y2062 OR Y2063 OR Y2064 OR Y2065 OR Y2066 OR Y2067 OR Y2068 OR Y2069 OR Y2070 OR Y2071 OR Y2072 OR Y2073 OR Y2074 OR Y2075 OR Y2076 OR Y2077 OR Y2078 OR Y2079 OR Y2080 OR Y2081 OR Y2082 OR Y2083 OR Y2084 OR Y2085 OR Y2086 OR Y2087 OR Y2088 OR Y2089 OR Y2090 OR Y2091 OR Y2092 OR Y2093 OR Y2094 OR Y2095 OR Y2096 OR Y2097 OR Y2098 OR Y2099 OR M210001 OR M210002 OR Dlatest)', 'END=21000228');
+}
+
+# Month starts and ends:
+qtestcase('(M201501 OR Dlatest)', 'START=20150101', 'END=20150131');
+qtestcase('(D20150101 OR D20150102 OR D20150103 OR D20150104 OR D20150105 OR D20150106 OR D20150107 OR D20150108 OR D20150109 OR D20150110 OR D20150111 OR D20150112 OR D20150113 OR D20150114 OR D20150115 OR D20150116 OR D20150117 OR D20150118 OR D20150119 OR D20150120 OR D20150121 OR D20150122 OR D20150123 OR D20150124 OR D20150125 OR D20150126 OR D20150127 OR D20150128 OR D20150129 OR D20150130 OR Dlatest)', 'START=20150101', 'END=20150130');
+qtestcase('(M201502 OR Dlatest)', 'START=20150201', 'END=20150228');
+qtestcase('(D20150201 OR D20150202 OR D20150203 OR D20150204 OR D20150205 OR D20150206 OR D20150207 OR D20150208 OR D20150209 OR D20150210 OR D20150211 OR D20150212 OR D20150213 OR D20150214 OR D20150215 OR D20150216 OR D20150217 OR D20150218 OR D20150219 OR D20150220 OR D20150221 OR D20150222 OR D20150223 OR D20150224 OR D20150225 OR D20150226 OR D20150227 OR Dlatest)', 'START=20150201', 'END=20150227');
+qtestcase('(M201503 OR Dlatest)', 'START=20150301', 'END=20150331');
+qtestcase('(D20150301 OR D20150302 OR D20150303 OR D20150304 OR D20150305 OR D20150306 OR D20150307 OR D20150308 OR D20150309 OR D20150310 OR D20150311 OR D20150312 OR D20150313 OR D20150314 OR D20150315 OR D20150316 OR D20150317 OR D20150318 OR D20150319 OR D20150320 OR D20150321 OR D20150322 OR D20150323 OR D20150324 OR D20150325 OR D20150326 OR D20150327 OR D20150328 OR D20150329 OR D20150330 OR Dlatest)', 'START=20150301', 'END=20150330');
+qtestcase('(M201504 OR Dlatest)', 'START=20150401', 'END=20150430');
+qtestcase('(D20150401 OR D20150402 OR D20150403 OR D20150404 OR D20150405 OR D20150406 OR D20150407 OR D20150408 OR D20150409 OR D20150410 OR D20150411 OR D20150412 OR D20150413 OR D20150414 OR D20150415 OR D20150416 OR D20150417 OR D20150418 OR D20150419 OR D20150420 OR D20150421 OR D20150422 OR D20150423 OR D20150424 OR D20150425 OR D20150426 OR D20150427 OR D20150428 OR D20150429 OR Dlatest)', 'START=20150401', 'END=20150429');
+qtestcase('(M201505 OR Dlatest)', 'START=20150501', 'END=20150531');
+qtestcase('(D20150501 OR D20150502 OR D20150503 OR D20150504 OR D20150505 OR D20150506 OR D20150507 OR D20150508 OR D20150509 OR D20150510 OR D20150511 OR D20150512 OR D20150513 OR D20150514 OR D20150515 OR D20150516 OR D20150517 OR D20150518 OR D20150519 OR D20150520 OR D20150521 OR D20150522 OR D20150523 OR D20150524 OR D20150525 OR D20150526 OR D20150527 OR D20150528 OR D20150529 OR D20150530 OR Dlatest)', 'START=20150501', 'END=20150530');
+qtestcase('(M201506 OR Dlatest)', 'START=20150601', 'END=20150630');
+qtestcase('(D20150601 OR D20150602 OR D20150603 OR D20150604 OR D20150605 OR D20150606 OR D20150607 OR D20150608 OR D20150609 OR D20150610 OR D20150611 OR D20150612 OR D20150613 OR D20150614 OR D20150615 OR D20150616 OR D20150617 OR D20150618 OR D20150619 OR D20150620 OR D20150621 OR D20150622 OR D20150623 OR D20150624 OR D20150625 OR D20150626 OR D20150627 OR D20150628 OR D20150629 OR Dlatest)', 'START=20150601', 'END=20150629');
+qtestcase('(M201507 OR Dlatest)', 'START=20150701', 'END=20150731');
+qtestcase('(D20150701 OR D20150702 OR D20150703 OR D20150704 OR D20150705 OR D20150706 OR D20150707 OR D20150708 OR D20150709 OR D20150710 OR D20150711 OR D20150712 OR D20150713 OR D20150714 OR D20150715 OR D20150716 OR D20150717 OR D20150718 OR D20150719 OR D20150720 OR D20150721 OR D20150722 OR D20150723 OR D20150724 OR D20150725 OR D20150726 OR D20150727 OR D20150728 OR D20150729 OR D20150730 OR Dlatest)', 'START=20150701', 'END=20150730');
+qtestcase('(M201508 OR Dlatest)', 'START=20150801', 'END=20150831');
+qtestcase('(D20150801 OR D20150802 OR D20150803 OR D20150804 OR D20150805 OR D20150806 OR D20150807 OR D20150808 OR D20150809 OR D20150810 OR D20150811 OR D20150812 OR D20150813 OR D20150814 OR D20150815 OR D20150816 OR D20150817 OR D20150818 OR D20150819 OR D20150820 OR D20150821 OR D20150822 OR D20150823 OR D20150824 OR D20150825 OR D20150826 OR D20150827 OR D20150828 OR D20150829 OR D20150830 OR Dlatest)', 'START=20150801', 'END=20150830');
+qtestcase('(M201509 OR Dlatest)', 'START=20150901', 'END=20150930');
+qtestcase('(D20150901 OR D20150902 OR D20150903 OR D20150904 OR D20150905 OR D20150906 OR D20150907 OR D20150908 OR D20150909 OR D20150910 OR D20150911 OR D20150912 OR D20150913 OR D20150914 OR D20150915 OR D20150916 OR D20150917 OR D20150918 OR D20150919 OR D20150920 OR D20150921 OR D20150922 OR D20150923 OR D20150924 OR D20150925 OR D20150926 OR D20150927 OR D20150928 OR D20150929 OR Dlatest)', 'START=20150901', 'END=20150929');
+qtestcase('(M201510 OR Dlatest)', 'START=20151001', 'END=20151031');
+qtestcase('(D20151001 OR D20151002 OR D20151003 OR D20151004 OR D20151005 OR D20151006 OR D20151007 OR D20151008 OR D20151009 OR D20151010 OR D20151011 OR D20151012 OR D20151013 OR D20151014 OR D20151015 OR D20151016 OR D20151017 OR D20151018 OR D20151019 OR D20151020 OR D20151021 OR D20151022 OR D20151023 OR D20151024 OR D20151025 OR D20151026 OR D20151027 OR D20151028 OR D20151029 OR D20151030 OR Dlatest)', 'START=20151001', 'END=20151030');
+qtestcase('(M201511 OR Dlatest)', 'START=20151101', 'END=20151130');
+qtestcase('(D20151101 OR D20151102 OR D20151103 OR D20151104 OR D20151105 OR D20151106 OR D20151107 OR D20151108 OR D20151109 OR D20151110 OR D20151111 OR D20151112 OR D20151113 OR D20151114 OR D20151115 OR D20151116 OR D20151117 OR D20151118 OR D20151119 OR D20151120 OR D20151121 OR D20151122 OR D20151123 OR D20151124 OR D20151125 OR D20151126 OR D20151127 OR D20151128 OR D20151129 OR Dlatest)', 'START=20151101', 'END=20151129');
+qtestcase('(M201512 OR Dlatest)', 'START=20151201', 'END=20151231');
+qtestcase('(D20151201 OR D20151202 OR D20151203 OR D20151204 OR D20151205 OR D20151206 OR D20151207 OR D20151208 OR D20151209 OR D20151210 OR D20151211 OR D20151212 OR D20151213 OR D20151214 OR D20151215 OR D20151216 OR D20151217 OR D20151218 OR D20151219 OR D20151220 OR D20151221 OR D20151222 OR D20151223 OR D20151224 OR D20151225 OR D20151226 OR D20151227 OR D20151228 OR D20151229 OR D20151230 OR Dlatest)', 'START=20151201', 'END=20151230');
+
+# Forward spans:
+qtestcase('(D20151104 OR D20151105 OR D20151106 OR D20151107 OR Dlatest)', 'START=20151104', 'SPAN=3');
+qtestcase('(D20141104 OR D20141105 OR D20141106 OR D20141107 OR D20141108 OR D20141109 OR D20141110 OR D20141111 OR D20141112 OR D20141113 OR D20141114 OR D20141115 OR D20141116 OR D20141117 OR D20141118 OR D20141119 OR D20141120 OR D20141121 OR D20141122 OR D20141123 OR D20141124 OR D20141125 OR D20141126 OR D20141127 OR D20141128 OR D20141129 OR D20141130 OR M201412 OR M201501 OR M201502 OR M201503 OR M201504 OR M201505 OR M201506 OR M201507 OR M201508 OR M201509 OR M201510 OR D20151101 OR D20151102 OR D20151103 OR D20151104 OR Dlatest)', 'START=20141104', 'SPAN=365');
+
+# Backward spans:
+qtestcase('(D20151103 OR D20151104 OR D20151105 OR D20151106 OR Dlatest)', 'END=20151106', 'SPAN=3');
+qtestcase('(D20141103 OR D20141104 OR D20141105 OR D20141106 OR D20141107 OR D20141108 OR D20141109 OR D20141110 OR D20141111 OR D20141112 OR D20141113 OR D20141114 OR D20141115 OR D20141116 OR D20141117 OR D20141118 OR D20141119 OR D20141120 OR D20141121 OR D20141122 OR D20141123 OR D20141124 OR D20141125 OR D20141126 OR D20141127 OR D20141128 OR D20141129 OR D20141130 OR M201412 OR M201501 OR M201502 OR M201503 OR M201504 OR M201505 OR M201506 OR M201507 OR M201508 OR M201509 OR M201510 OR D20151101 OR D20151102 OR D20151103 OR Dlatest)', 'END=20151103', 'SPAN=365');
+
+# Check that if START, END and SPAN are all passed, START is ignored:
+qtestcase('(D20151103 OR D20151104 OR D20151105 OR D20151106 OR Dlatest)', 'START=19700101', 'END=20151106', 'SPAN=3');
+
+# Check that YYYYMM and YYYY are accepted and handled appropriately:
+qtestcase('(Y1980 OR Y1981 OR Dlatest)', 'START=1980', 'END=1981');
+qtestcase('(M198012 OR M198101 OR M198102 OR Dlatest)', 'START=198012', 'END=198102');
+
+# Check .SLOT combined with term based date range filter:
+qtestcase('(VALUE_RANGE 0 201512 2015~ AND (Y1970 OR Y1971 OR Y1972 OR Y1973 OR Y1974 OR Dlatest))', 'START.0=20151201', 'END.0=20151231', 'END=19741231');
+
+# Check combining of filter terms:
+qtestcase('(Horg AND Len)', 'B=Len', 'B=Horg');
+qtestcase('(Len OR Lde)', 'B=Len', 'B=Lde');
+qtestcase('((Horg OR Hcom) AND (Len OR Lfr))', 'B=Len', 'B=Lfr', 'B=Horg', 'B=Hcom');
+
+# Check combining of filter terms with filter_op set:
+print_to_file $test_template,('$setmap{nonexclusiveprefix,L,1,XAND,1}$setmap{boolprefix,lang,L,and,XAND,host,H,year,Y}$querydescription');
+qtestcase('Len', 'B=Len');
+qtestcase('0 * Len', 'P=lang:en');
+qtestcase('XANDtest', 'B=XANDtest');
+qtestcase('0 * XANDtest', 'P=and:test');
+qtestcase('(Len AND XANDtest)', 'B=Len', 'B=XANDtest');
+qtestcase('0 * (Len AND XANDtest)', 'P=lang:en and:test');
+qtestcase('(Len AND Lde)', 'B=Len', 'B=Lde');
+qtestcase('0 * (Len AND Lde)', 'P=lang:en lang:de');
+qtestcase('((Horg OR Hcom) AND (Len AND Lfr))', 'B=Len', 'B=Lfr', 'B=Horg', 'B=Hcom');
+qtestcase('0 * ((Len AND Lfr) AND (Horg OR Hcom))', 'P=lang:en lang:fr host:org host:com');
+qtestcase('((XANDa AND XANDb AND XANDc) AND (Y1998 OR Y2001))', 'B=Y1998', 'B=Y2001', 'B=XANDa', 'B=XANDb', 'B=XANDc');
+qtestcase('0 * ((XANDa AND XANDb AND XANDc) AND (Y1998 OR Y2001))', 'P=year:1998 year:2001 and:a and:b and:c');
+
+# Check combining of filters around CGI parameter 'N':
+qtestcase('(Ztruth@1 AND_NOT Epdf)', 'P=truth', 'N=Epdf');
+qtestcase('(Ztruth@1 AND_NOT (Ehtm OR Epdf))', 'P=truth', 'N=Epdf', 'N=Ehtm');
+qtestcase('(Ztruth@1 AND_NOT (Ehtm OR Epdf OR Lde OR Lfr))', 'P=truth', 'N=Lfr', 'N=Epdf', 'N=Ehtm', 'N=Lde');
+qtestcase('((Ztruth@1 FILTER (Lfr AND Lzh)) AND_NOT (Lde OR Len))', 'P=truth', 'N=Lde', 'N=Len', 'B=Lfr', 'B=Lzh');
+qtestcase('((Ztruth@1 FILTER Lfr) AND_NOT (Ehtm OR Epdf))', 'P=truth', 'N=Epdf', 'N=Ehtm', 'B=Lfr');
+qtestcase('(<alldocuments> AND_NOT (Len OR Lfr))', 'N=Lfr', 'N=Len');
+qtestcase('(VALUE_RANGE 0 2015 201501~ AND_NOT Len)', 'DATEVALUE=0', 'START=20150101', 'END=20150131', 'N=Len');
+
+if ($faketime ne '') {
+  my $out = `$faketime -f '1980-12-08 00:00:00' date +%Y 2>&1`;
+  chomp($out);
+  my $rc = $? >> 8;
+  if ($rc == 127) {
+    print "Skipping testcases which need 'faketime' tool installed\n";
+  } elsif ($rc != 0) {
+    print "Skipping testcases which need 'faketime' tool - it's installed but doesn't work (test exited with return code $rc)\n";
+  } elsif ($out ne '1980') {
+    print "Skipping testcases which need 'faketime' tool - it's installed but doesn't work (got year '$out' instead of '1980')\n";
+  } else {
+    # We have faketime and it seems to work so use it to run test cases where
+    # the output depends on the current time.
+    my $save_omega = $omega;
+    $omega = [$faketime, '-f', '2015-11-28 06:07:08', $omega];
+
+    my $save_TZ = $ENV{TZ};
+    $ENV{TZ} = 'UTC';
+    qtestcase('VALUE_RANGE 0 20151127060709 20151128060708', 'DATEVALUE=0', 'SPAN=1');
+    if (defined $save_TZ) {
+      $ENV{TZ} = $save_TZ;
+    } else {
+      delete $ENV{TZ};
+    }
+
+    # Tests of term-based date range filtering:
+    qtestcase('(Y2000 OR Y2001 OR Y2002 OR Y2003 OR Y2004 OR Y2005 OR Y2006 OR Y2007 OR Y2008 OR Y2009 OR Y2010 OR Y2011 OR Y2012 OR Y2013 OR Y2014 OR M201501 OR M201502 OR M201503 OR M201504 OR M201505 OR M201506 OR M201507 OR M201508 OR M201509 OR M201510 OR D20151101 OR D20151102 OR D20151103 OR D20151104 OR D20151105 OR D20151106 OR D20151107 OR D20151108 OR D20151109 OR D20151110 OR D20151111 OR D20151112 OR D20151113 OR D20151114 OR D20151115 OR D20151116 OR D20151117 OR D20151118 OR D20151119 OR D20151120 OR D20151121 OR D20151122 OR D20151123 OR D20151124 OR D20151125 OR D20151126 OR D20151127 OR D20151128 OR Dlatest)', 'START=20000101');
+    qtestcase('(Y2010 OR Y2011 OR Y2012 OR Y2013 OR Y2014 OR M201501 OR M201502 OR M201503 OR M201504 OR M201505 OR M201506 OR M201507 OR M201508 OR M201509 OR M201510 OR D20151101 OR D20151102 OR D20151103 OR D20151104 OR D20151105 OR D20151106 OR D20151107 OR D20151108 OR D20151109 OR D20151110 OR D20151111 OR D20151112 OR D20151113 OR D20151114 OR D20151115 OR D20151116 OR D20151117 OR D20151118 OR D20151119 OR D20151120 OR D20151121 OR D20151122 OR D20151123 OR D20151124 OR D20151125 OR D20151126 OR D20151127 OR D20151128 OR Dlatest)', 'START=20100101');
+    qtestcase('(Y1974 OR Y1975 OR Y1976 OR Y1977 OR Y1978 OR Y1979 OR Y1980 OR Y1981 OR Y1982 OR Y1983 OR Y1984 OR Y1985 OR Y1986 OR Y1987 OR Y1988 OR Y1989 OR Y1990 OR Y1991 OR Y1992 OR Y1993 OR Y1994 OR Y1995 OR Y1996 OR Y1997 OR Y1998 OR Y1999 OR Y2000 OR Y2001 OR Y2002 OR Y2003 OR Y2004 OR Y2005 OR Y2006 OR Y2007 OR Y2008 OR Y2009 OR Y2010 OR Y2011 OR Y2012 OR Y2013 OR Y2014 OR M201501 OR M201502 OR M201503 OR M201504 OR M201505 OR M201506 OR M201507 OR M201508 OR M201509 OR M201510 OR D20151101 OR D20151102 OR D20151103 OR D20151104 OR D20151105 OR D20151106 OR D20151107 OR D20151108 OR D20151109 OR D20151110 OR D20151111 OR D20151112 OR D20151113 OR D20151114 OR D20151115 OR D20151116 OR D20151117 OR D20151118 OR D20151119 OR D20151120 OR D20151121 OR D20151122 OR D20151123 OR D20151124 OR D20151125 OR D20151126 OR D20151127 OR D20151128 OR Dlatest)', 'START=19740101');
+    qtestcase('(M201510 OR D20151101 OR D20151102 OR D20151103 OR D20151104 OR D20151105 OR D20151106 OR D20151107 OR D20151108 OR D20151109 OR D20151110 OR D20151111 OR D20151112 OR D20151113 OR D20151114 OR D20151115 OR D20151116 OR D20151117 OR D20151118 OR D20151119 OR D20151120 OR D20151121 OR D20151122 OR D20151123 OR D20151124 OR D20151125 OR D20151126 OR D20151127 OR D20151128 OR Dlatest)', 'START=20151001');
+    # Date range with start after end:
+    qtestcase('Dlatest', 'START=201512');
+    qtestcase('Dlatest', 'START=20151201');
+    qtestcase('(D20150210 OR D20150211 OR D20150212 OR D20150213 OR D20150214 OR D20150215 OR D20150216 OR D20150217 OR D20150218 OR D20150219 OR D20150220 OR D20150221 OR D20150222 OR D20150223 OR D20150224 OR D20150225 OR D20150226 OR D20150227 OR D20150228 OR M201503 OR M201504 OR M201505 OR M201506 OR M201507 OR M201508 OR M201509 OR M201510 OR D20151101 OR D20151102 OR D20151103 OR D20151104 OR D20151105 OR D20151106 OR D20151107 OR D20151108 OR D20151109 OR D20151110 OR D20151111 OR D20151112 OR D20151113 OR D20151114 OR D20151115 OR D20151116 OR D20151117 OR D20151118 OR D20151119 OR D20151120 OR D20151121 OR D20151122 OR D20151123 OR D20151124 OR D20151125 OR D20151126 OR D20151127 OR D20151128 OR Dlatest)', 'START=20150210');
+    qtestcase('(D20000220 OR D20000221 OR D20000222 OR D20000223 OR D20000224 OR D20000225 OR D20000226 OR D20000227 OR D20000228 OR D20000229 OR M200003 OR M200004 OR M200005 OR M200006 OR M200007 OR M200008 OR M200009 OR M200010 OR M200011 OR M200012 OR Y2001 OR Y2002 OR Y2003 OR Y2004 OR Y2005 OR Y2006 OR Y2007 OR Y2008 OR Y2009 OR Y2010 OR Y2011 OR Y2012 OR Y2013 OR Y2014 OR M201501 OR M201502 OR M201503 OR M201504 OR M201505 OR M201506 OR M201507 OR M201508 OR M201509 OR M201510 OR D20151101 OR D20151102 OR D20151103 OR D20151104 OR D20151105 OR D20151106 OR D20151107 OR D20151108 OR D20151109 OR D20151110 OR D20151111 OR D20151112 OR D20151113 OR D20151114 OR D20151115 OR D20151116 OR D20151117 OR D20151118 OR D20151119 OR D20151120 OR D20151121 OR D20151122 OR D20151123 OR D20151124 OR D20151125 OR D20151126 OR D20151127 OR D20151128 OR Dlatest)', 'START=20000220');
+    $omega = $save_omega;
+  }
+} else {
+  print "Skipping testcases which need 'faketime' tool - \$FAKETIME is empty\n";
+}
+
+# Check clamping of out of range dates:
+print_to_file $test_indexscript, "DATE : field valuepacked=0\n";
+run_scriptindex(<<'END');
+DATE=0
+
+DATE=1617069804
+END
+qtestcase('VALUE_LE 0 V\x84o\xff', 'START.0=10010101', 'END.0=20151230');
+if (!$have_32bit_time_t) {
+  qtestcase('VALUE_RANGE 0 V\x83\x1e\x80 \xff\xff\xff\xff', 'START.0=20151230', 'END.0=21060301');
+  qtestcase('VALUE_LE 0 \xff\xff\xff\xff', 'START.0=19691230', 'END.0=21060301');
+}
+
+# Test stem_all and stem_strategy.
+print_to_file $test_template, '$if{$cgi{stem_all},$set{stem_all,$cgi{stem_all}}}$if{$cgi{stem_strategy},$set{stem_strategy,$cgi{stem_strategy}}}$querydescription';
+
+qtestcase('(capitalised@1 AND tests@2 AND Zstem@3)', 'P=Capitalised "tests" stemmed');
+qtestcase('(nearing@1 NEAR 11 distances@2)', 'P=nearing NEAR distances');
+qtestcase('(capitalis@1 AND test@2 AND stem@3)', 'P=Capitalised "tests" stemmed', 'stem_all=true');
+qtestcase('(near@1 NEAR 11 distanc@2)', 'P=nearing NEAR distances', 'stem_all=true');
+qtestcase('(capitalis@1 AND test@2 AND stem@3)', 'P=Capitalised "tests" stemmed', 'stem_strategy=all');
+qtestcase('(near@1 NEAR 11 distanc@2)', 'P=nearing NEAR distances', 'stem_strategy=all');
+qtestcase('(Zcapitalis@1 AND Ztest@2 AND Zstem@3)', 'P=Capitalised "tests" stemmed', 'stem_strategy=all_z');
+qtestcase('(Znear@1 NEAR 11 Zdistanc@2)', 'P=nearing NEAR distances', 'stem_strategy=all_z');
+qtestcase('(capitalised@1 AND tests@2 AND stemmed@3)', 'P=Capitalised "tests" stemmed', 'stem_strategy=none');
+qtestcase('(nearing@1 NEAR 11 distances@2)', 'P=nearing NEAR distances', 'stem_strategy=none');
+qtestcase('(capitalised@1 AND tests@2 AND Zstem@3)', 'P=Capitalised "tests" stemmed', 'stem_strategy=some');
+qtestcase('(nearing@1 NEAR 11 distances@2)', 'P=nearing NEAR distances', 'stem_strategy=some');
+qtestcase('(capitalised@1 AND tests@2 AND Zstem@3)', 'P=Capitalised "tests" stemmed', 'stem_strategy=some_full_pos');
+qtestcase('(Znear@1 NEAR 11 Zdistanc@2)', 'P=nearing NEAR distances', 'stem_strategy=some_full_pos');
+qtestcase('(capitalised@1 AND tests@2 AND Zstem@3)', 'P=Capitalised "tests" stemmed', 'stem_strategy=some', 'stem_all=true');
+qtestcase('(nearing@1 NEAR 11 distances@2)', 'P=nearing NEAR distances', 'stem_strategy=some', 'stem_all=true');
+
+# Feature tests for $contains.
+print_to_file $test_template, '$contains{$cgi{a},$cgi{b}}';
+testcase('6', 'P=text', 'a=fish', 'b=Hello fish');
+testcase('', 'P=text', 'a=Example', 'b=random');
+
+# Feature tests for boolprefix and prefix maps.
+print_to_file $test_template, '$set{stemmer,}$setmap{boolprefix,lang,L,host,H}$setmap{prefix,,XDEFAULT}$querydescription';
+qtestcase('((XDEFAULTfoo@1 AND XDEFAULTbar@2) FILTER (Hexample.org AND Lzh))', 'P=host:example.org foo bar lang:zh');
+
+# Feature tests for $addfilter.
+print_to_file $test_template, '$addfilter{Hexample.org}$addfilter{Hexample.com,}$addfilter{XFOObar,B}$querydescription';
+qtestcase('((Hexample.org OR Hexample.com) AND XFOObar)', 'P=');
+print_to_file $test_template, '$addfilter{Hexample.org}$addfilter{Hexample.com,N}$addfilter{Hexample.net,N}$querydescription';
+qtestcase('(Hexample.org AND_NOT (Hexample.com OR Hexample.net))', 'P=');
+
+# Feature tests for $if.
+print_to_file $test_template, '$if{$set{w,1}}$if{a,$set{x,1}}$if{b,$set{y,1},$set{y,2}}$if{,$set{x,0}}$if{,$set{z,2},$set{z,1}}$opt{w}$opt{x}$opt{y}$opt{z}';
+testcase('1111');
+
+# Feature tests for $cond.
+print_to_file $test_template, '$cond{$cgi{one},1,$cgi{two},2,$cgi{three},3}';
+testcase('1', 'one=true');
+testcase('2', 'two=true');
+testcase('3', 'three=true');
+testcase('', 'nothing=true');
+testcase('1', 'one=true', 'two=true', 'three=true');
+testcase('2', 'two=true', 'three=true');
+print_to_file $test_template, '$cond{$cgi{one},1,$cgi{two},2,$cgi{alt}}';
+testcase('1', 'one=true');
+testcase('2', 'two=true');
+testcase('none', 'alt=none');
+# Check evaluation is lazy.
+print_to_file $test_template, '$cond{$cgi{one},$seterror{err1},$cgi{two},2,$cgi{alt}}$error';
+testcase('err1', 'one=true');
+testcase('2', 'two=true');
+testcase('none', 'alt=none');
+print_to_file $test_template, '$cond{$cgi{one},1,$cgi{two},$seterror{err2},$cgi{alt}}$error';
+testcase('1', 'one=true');
+testcase('err2', 'two=true');
+testcase('none', 'alt=none');
+print_to_file $test_template, '$cond{$cgi{one},1,$cgi{two},2,$seterror{erralt}}$error';
+testcase('1', 'one=true');
+testcase('2', 'two=true');
+testcase('erralt', 'alt=none');
+
+# Feature tests for $switch.
+print_to_file $test_template, '$switch{$cgi{x},1,one,2,two}';
+testcase('one', 'x=1');
+testcase('two', 'x=2');
+testcase('', 'x=3');
+print_to_file $test_template, '$switch{$cgi{x},1,one,2,two,default}';
+testcase('one', 'x=1');
+testcase('two', 'x=2');
+testcase('default', 'x=3');
+# Check evaluation is lazy.
+print_to_file $test_template, '$switch{$cgi{x},1,$seterror{err1},2,two}$error';
+testcase('err1', 'x=1');
+testcase('two', 'x=2');
+testcase('', 'x=3');
+print_to_file $test_template, '$switch{$cgi{x},1,one,2,$seterror{err2},default}$error';
+testcase('one', 'x=1');
+testcase('err2', 'x=2');
+testcase('default', 'x=3');
+print_to_file $test_template, '$switch{$cgi{x},1,one,2,two,$seterror{errdefault}}$error';
+testcase('one', 'x=1');
+testcase('two', 'x=2');
+testcase('errdefault', 'x=3');
+
+# Feature tests for $include.
+# Test inclusion works and evaluates the included file.
+print_to_file $test_template, '$set{c,$add{$or{$opt{c},0},1}}$opt{c},$if{$lt{$opt{c},10},$include{' . $test_template . '}}X';
+testcase('1,2,3,4,5,6,7,8,9,10,XXXXXXXXXX');
+# Test fallback action when trying to $include a file which doesn't exist or
+# with a prohibited name.
+print_to_file $test_template, '$include{$cgi{template},foo$set{data,bar}}-$opt{data}';
+testcase('foo-bar', 'template=non_existent.template');
+testcase('foo-bar', 'template=../secret/file');
+# Test exception is thrown when there's no fallback action when trying to
+# $include a file which doesn't exist or with a prohibited name.
+print_to_file $test_template, '$include{$cgi{template}}-$opt{data}';
+testcase("Exception: Couldn't read format template 'non_existent.template' (No such file or directory)", 'template=non_existent.template');
+testcase("Exception: Couldn't read format template '../secret/file' (name contains '..')", 'template=../secret/file');
+
+# Feature tests for $foreach.
+print_to_file $test_template, '$foreach{$split{.,$cgi{a}},$chr{$add{$_,64}}}';
+testcase('OMEGA', 'a=15.13.5.7.1');
+# Check that the outer $_ is restored after the inner $foreach.
+print_to_file $test_template, '$foreach{$split{.,$cgi{a}},$foreach{$split{.,$cgi{$_}},$chr{$add{$_,64}}}$_}';
+testcase('OMbEGcAd', 'a=b.c.d', 'b=15.13', 'c=5.7', 'd=1');
+
+# Feature tests for $map.
+print_to_file $test_template, '$list{$map{$split{-,$cgi{a}},$list{$map{$split{,$cgi{b}},$_},-}},|}';
+testcase('1-2-3|1-2-3', 'P=text', 'a=ab-cd', 'b=123');
+print_to_file $test_template, '$list{$map{$split{-,$cgi{a}},$set{__,$_}$list{$map{$split{,$cgi{b}},$opt{__}$_},-}},|}';
+testcase('a1-a2-a3|b1-b2-b3', 'P=text', 'a=a-b', 'b=123');
+print_to_file $test_template, '$list{$map{$split{-,$cgi{a}},$list{$map{$split{$_,$cgi{b}},$_},-}},|}';
+testcase('1-2,3|1:2-3', 'P=text', 'a=:-,', 'b=1:2,3');
+# Check that the outer $_ is restored after the inner $map.
+print_to_file $test_template, '$list{$map{$split{-,$cgi{a}},$list{$map{$split{,$cgi{b}},$_},-}$_},|}';
+testcase('1-2-3a|1-2-3b', 'P=text', 'a=a-b', 'b=123');
+
+# Feature tests for $match.
+print_to_file $test_template, '$match{$cgi{a},$cgi{b},$cgi{c}}';
+testcase('true', 'P=text', 'a=ab*c+', 'b=ac');
+testcase('', 'P=text', 'a=acb', 'b=abc');
+testcase('true', 'P=text', 'a=[A-Z]bcD', 'b=abcd', 'c=i');
+testcase('', 'P=text', 'a=[A-Z]bcD', 'b=abcd');
+testcase('true', 'P=text', 'a=^abc$', "b=\nabc\ndef", 'c=m');
+testcase('', 'P=text', 'a=^abc$', "b=\nabc\ndef");
+testcase('true', 'P=text', 'a=abc.', "b=abc\n", 'c=s');
+testcase('', 'P=text', 'a=abc.', "b=abc\n");
+testcase('true', 'P=text', 'a=    ABC #test_comment ', 'b=ABC', 'c=x');
+testcase('', 'P=text', 'a=    ABC #test_comment ', 'b=ABC');
+
+# Feature tests for $sort.
+print_to_file $test_template, '$list{$sort{$split{|,$cgi{input}}},|}';
+testcase('pineapple', 'input=pineapple');
+testcase('apple|banana|coconut', 'input=coconut|banana|apple');
+testcase('1|b|b|c', 'input=b|c|b|1');
+print_to_file $test_template, '$list{$sort{$split{|,$cgi{input}},$cgi{opt}},|}';
+testcase('pineapple', 'input=pineapple', 'opt=');
+testcase('pineapple', 'input=pineapple', 'opt=r');
+testcase('pineapple', 'input=pineapple', 'opt=ru');
+testcase('1|b|c', 'input=b|c|b|1', 'opt=u');
+testcase('c|b|b|1', 'input=b|c|b|1', 'opt=r');
+testcase('c|b|1', 'input=b|c|b|1', 'opt=ur');
+testcase('-2|-.01|+99.99|+999|.0|0.0|.1|1|2|3|3.0|3.01|12|23|30', 'input=+999|2|1|12|23|3|30|3.01|3.0|.1|.0|0.0|-2|-.01|+99.99', 'opt=n');
+testcase('-2|-.01|+999|.1|1|2|3|3.01|12|23|30', 'input=+999|2|1|12|23|3|30|3.01|3.0|.1|.0|0.0|-2|-.01|+99.99', 'opt=nu');
+testcase('-2|-.01|+99.99|.1|1|2|3.0|3.01|12|23|30', 'input=+99.99|-.01|-2|0.0|.0|.1|3.0|3.01|30|3|23|12|1|2|+999', 'opt=nu');
+testcase('30|23|12|3.01|3.0|3|2|1|.1|0.0|.0|+999|+99.99|-.01|-2', 'input=+999|2|1|12|23|3|30|3.01|3.0|.1|.0|0.0|-2|-.01|+99.99', 'opt=nr');
+testcase('30|23|12|3.01|3|2|1|.1|+999|-.01|-2', 'input=+999|2|1|12|23|3|30|3.01|3.0|.1|.0|0.0|-2|-.01|+99.99', 'opt=nur');
+testcase('30|23|12|3.01|3.0|2|1|.1|+99.99|-.01|-2', 'input=+99.99|-.01|-2|0.0|.0|.1|3.0|3.01|30|3|23|12|1|2|+999', 'opt=nur');
+testcase('t 42|t 42:|t 42:1|t 42:09|t 42:9|t 42:11|t 42~', 'input=t 42:1|t 42|t 42:11|t 42:9|t 42~|t 42:|t 42:09', 'opt=#');
+testcase(
+  'A7R1:2|A7R2:6|A7R2:9|A7R2:11|A7R2:19|A7R2:47A|A7R11:1|AA|R7:1.09|R7:4A|R7:6|R7:7A|R7:404|R7:444-10|R7:1521',
+  'input=A7R1:2|R7:1521|AA|R7:4A|R7:7A|A7R2:9|R7:444-10|A7R2:6|R7:1.09|A7R2:47A|A7R11:1|R7:6|A7R2:11|R7:404|A7R2:19',
+  'opt=#');
+testcase('30|23|12|3|03|2|1|01|0|00', 'input=2|1|23|12|23|3|30|0|00|0|01|03', 'opt=#ru');
+testcase('Exception: Unknown $sort option: x', 'input=b|c|b|1', 'opt=urx');
+testcase('Exception: Invalid $sort option combination: n#', 'input=b|c', 'opt=n#');
+testcase('Exception: Invalid $sort option combination: #rn', 'input=b|1', 'opt=#rn');
+
+# Regression test to test suppression of Content-Type header for early
+# exception.
+testcase('Exception: DocNotFoundError: No termlist for document 99', 'MORELIKE=99');
+
+# Regression test for $sort bug fixed in 1.4.12.
+# Check $sort doesn't ensure_match (or ensure_query).
+print_to_file $test_template, '$sort{test} $addfilter{Test}$querydescription';
+testcase('test Query(Test)');
+
+# Feature tests for $filesize.
+print_to_file $test_template, '$filesize{$cgi{size}}';
+testcase('0 bytes', 'size=');
+testcase('', 'size=-1');
+testcase('0 bytes', 'size=0');
+testcase('1 byte', 'size=1');
+testcase('2 bytes', 'size=2');
+testcase('1023 bytes', 'size=1023');
+testcase('1.0K', 'size=1024');
+testcase('1.1K', 'size=1127');
+testcase('16.0K', 'size=16384');
+testcase('1.0M', 'size=1048576');
+testcase('1.8G', 'size=2000000000');
+testcase('0 bytes', 'size=foo');
+testcase('1 byte', 'size=1a');
+testcase('1 byte', 'size=1.1');
+
+# Feature tests for $keys.
+print_to_file $test_template, '$setmap{x,bee,1,eel,6,dog,4,ant,2,fox,5,cat,3}/$list{$keys{x},|}/$keys{nosuch}/';
+testcase('/ant|bee|cat|dog|eel|fox//');
+
+# Feature tests for $terms.
+print_to_file $test_indexscript, "text : index\nhost : boolean=H\nfoo : boolean=XFOO";
+run_scriptindex(<<'END');
+text=This is some text.
+host=example.org
+foo=bar
+END
+print_to_file $test_template, '$hitlist{$list{$if{$eq{$cgi{prefix},null},$terms,$terms{$cgi{prefix}}},|}}';
+testcase('Ztext', 'P=text', 'B=Hexample.org', 'B=Hexample.com', 'prefix=null');
+testcase('Hexample.org|Ztext', 'P=text', 'B=Hexample.org', 'B=Hexample.com', 'prefix=');
+testcase('Hexample.org', 'P=text', 'B=Hexample.org', 'B=Hexample.com', 'prefix=H');
+testcase('Ztext', 'P=text', 'B=Hexample.org', 'B=Hexample.com', 'prefix=Z');
+testcase('', 'P=text', 'B=Hexample.org', 'B=Hexample.com', 'prefix=E');
+
+print_to_file $test_template, '$msizelower $msize $msizeupper $msizeexact';
+testcase('1 1 1 true', 'P=this');
+testcase('1 1 1 true', 'P=Some text');
+testcase('0 0 0 true', 'P=potato');
+
+print_to_file $test_template, '$set{weighting,coord}$hitlist{$weight.}';
+testcase('', 'P=aardvark');
+testcase('1.000000.', 'P=texting');
+testcase('', 'P=texting while driving');
+testcase('', 'P=texting while driving', 'DEFAULTOP=AND');
+testcase('1.000000.', 'P=texting while driving', 'DEFAULTOP=OR');
+testcase('2.000000.', 'P=Some text');
+# "this" and "is" are stopwords.
+testcase('2.000000.', 'P=This is some text');
+testcase('4.000000.', 'P="This" "is" some text');
+testcase('4.000000.', 'P=+This +is some text');
+testcase('4.000000.', 'P="This is some text"');
+
+print_to_file $test_template, '$set{weightingpurefilter,coord}$hitlist{$weight.}';
+testcase('', 'B=XFOOfoo');
+testcase('1.000000.', 'B=Hexample.org');
+testcase('', 'B=Hexample.org', 'B=XFOOfoo');
+testcase('1.000000.', 'B=Hexample.org', 'B=Hexample.net');
+testcase('2.000000.', 'B=Hexample.org', 'B=XFOObar');
+testcase('3.000000.', 'B=Hexample.org', 'B=XFOObar', 'B=XFOObar');
+
+print_to_file $test_template, '$filters';
+testcase('Hexample.net~Hexample.org~.~~', 'B=Hexample.org', 'B=Hexample.net');
+testcase('!Gmisc.test~.~~', 'N=Gmisc.test');
+testcase('Hexample.net~Hexample.org~!Gmisc.test~.~~', 'B=Hexample.org', 'B=Hexample.net', 'N=Gmisc.test');
+testcase('.20040612~~~1~', 'DATEVALUE=1', 'START=20040612');
+testcase('.20040612~~~1~2', 'DATEVALUE=1', 'START=20040612', 'COLLAPSE=2');
+testcase('.20040612~~30~2', 'START=20040612', 'SPAN=30', 'COLLAPSE=2');
+testcase('.20040612~20160412~', 'START=20040612', 'END=20160412');
+testcase('.~~~2', 'COLLAPSE=2');
+testcase('.~~');
+testcase('.~~1', 'SORT=1');
+testcase('.~~1f', 'SORT=+1');
+testcase('.~~1', 'SORT=-1');
+testcase('.~~1-2+3-27', 'SORT=+1-2+03,-27');
+testcase('.~~', 'SORTREVERSE=1');
+testcase('.~~1f', 'SORT=1', 'SORTREVERSE=1');
+testcase('.~~1', 'SORT=+1', 'SORTREVERSE=1');
+testcase('.~~1f', 'SORT=-1', 'SORTREVERSE=1');
+testcase('.~~1-2+3-27f', 'SORT=+1-2+03,-27', 'SORTREVERSE=1');
+testcase('.~~', 'SORTAFTER=1');
+testcase('.~~1R', 'SORT=1', 'SORTAFTER=1');
+testcase('.~~1F', 'SORT=+1', 'SORTAFTER=1');
+testcase('.~~1R', 'SORT=-1', 'SORTAFTER=1');
+testcase('.~~1-2+3-27R', 'SORT=+1-2+03,-27', 'SORTAFTER=1');
+testcase('.~~', 'SORTREVERSE=1', 'SORTAFTER=1');
+testcase('.~~1F', 'SORT=1', 'SORTREVERSE=1', 'SORTAFTER=1');
+testcase('.~~1R', 'SORT=+1', 'SORTREVERSE=1', 'SORTAFTER=1');
+testcase('.~~1F', 'SORT=-1', 'SORTREVERSE=1', 'SORTAFTER=1');
+testcase('.~~1-2+3-27F', 'SORT=+1-2+03,-27', 'SORTREVERSE=1', 'SORTAFTER=1');
+testcase('.~~X', 'DOCIDORDER=A'); # Buggy, but kept for compatibility.
+testcase('.~~D', 'DOCIDORDER=D');
+testcase('.~~', 'DOCIDORDER=X'); # Buggy, but kept for compatibility.
+testcase('.~~', 'DOCIDORDER=x'); # Buggy, but kept for compatibility.
+
+print_to_file $test_template, '$cgi{AZ}|$cgi{AZ B}|$cgi{AZ.x}|$cgi{AZ.y}|$cgi{[}|$cgi{#}';
+testcase('AZ|||||', 'AZ.x=3', 'AZ.y=4');
+testcase('B|||||', 'AZ B.x=5', 'AZ B.y=12');
+testcase('B|||||', "AZ\tB.x=5", "AZ\tB.y=12");
+testcase('||||2 ]|', '[ 2 ].x=123');
+testcase('||||2 ]|', "[\t2 ].x=123");
+testcase("||||2\t]|", "[ 2\t].x=123");
+testcase("||||2\t]|", "[\t2\t].x=123");
+testcase('|||||12', '12.x=37');
+testcase('DE|||||', 'AZ BC=DE');
+testcase('DE|||||', 'AZ B C=DE');
+testcase('DE|||||', "AZ\tBC=DE");
+testcase('DE|||||', "AZ B\tC=DE");
+testcase('DE|||||', "AZ\tB C=DE");
+testcase('DE|||||', "AZ\tB\tC=DE");
+
+print_to_file $test_template, '$cgi{Search}|$cgi{Type}|$cgi{Search Type}';
+testcase('Discover-List||', 'Search Type=Discover-List');
+
+print_to_file $test_template, '$cgiparams';
+# We can't test the "no cgi parameters" case via testcase, as it passes a
+# "dummy" parameter if there aren't any real ones.
+#testcase('');
+testcase('', '=1');
+testcase("ABC", 'ABC=1');
+testcase("ABC", 'ABC=1', 'ABC=2');
+testcase("A\tAZ\tZ", 'A=1', 'A=2', 'A=3', 'AZ=1', 'AZ=2', 'Z=xxx');
+testcase("\tabc", '=1', 'abc=1');
+testcase("\tabc\tdef", '=1', 'abc=1', 'def=7');
+
+# Feature tests for $highlight{}.
+print_to_file $test_template, '$highlight{$cgi{text},$cgi{list}}';
+testcase('A <b style="color:black;background-color:#ffff66">list</b> of <b style="color:black;background-color:#99ff99">words</b>', "list=list\twords", "text=A list of words");
+
+print_to_file $test_template, '$highlight{$cgi{text},$cgi{list},$cgi{open}}';
+testcase('A list of <b>words</b>', "list=words", "text=A list of words", "open=<b>");
+testcase('A list of <span>words</span>', "list=words", "text=A list of words", "open=<span>");
+
+print_to_file $test_template, '$highlight{$cgi{text},$cgi{list},$cgi{open},$cgi{close}}';
+testcase('A list of <b>words</b>', "list=words", "text=A list of words", "open=<b>", "close=</b>");
+testcase('A *list* of *words*', "list=words\tlist", "text=A list of words", "open=*", "close=*");
+
+# Test setting seterror and mset size, should not run the query after setting error.
+print_to_file $test_template, '$if{$cgi{ERR},$seterror{$cgi{ERR}}}$msize$if{$error,!$error!}';
+testcase('1', 'P=text');
+testcase('0!boo!', 'P=text', 'ERR=boo');
+
+# Test arguments inside seterror are evaluated
+print_to_file $test_template, '$set{error,sample error}$seterror{$opt{error}}$msize$if{$error,!$error!}';
+testcase('0!sample error!', 'P=text');
+
+# Test error message doesn't get sent through HTML entity encoding.
+print_to_file $test_template, '$seterror{{ "error": true, "error_message": "Parameter cannot be > 9" }}$if{$error,$error}';
+testcase('{ "error": true, "error_message": "Parameter cannot be > 9" }', 'P=text');
+
+# Test msize when error set after running query, should not affect running of query.
+print_to_file $test_template, '$last$if{$cgi{ERR},$seterror{$cgi{ERR}}}$msize$if{$error,!$error!}';
+testcase('11', 'P=text');
+testcase('11!boo!', 'P=text', 'ERR=boo');
+
+# Feature tests for $base64{}
+print_to_file $test_template, '$base64{$cgi{in}}';
+testcase('', "in=");
+testcase('IQ==', 'in=!');
+testcase('T2s=', 'in=Ok');
+testcase('aGA+aGA/', 'in=h`>h`?');
+testcase('YmFzZTY0IHRlc3Q=', 'in=base64 test');
+
+# Regression test: $setrelevant crashed with no argument list prior to 1.4.16.
+print_to_file $test_template, '$setrelevant$or{$error,No error}';
+testcase('Exception: too few arguments to $setrelevant', 'P=text');
+print_to_file $test_template, '$setrelevant{}$or{$error,No error}';
+testcase('No error', 'P=text');
+
+# Feature tests for $uniq and $unique{}.
+print_to_file $test_template, '$list{$uniq{$split{$cgi{text}}},:}|$list{$unique{$split{$cgi{text}}},:}';
+testcase('|', 'text=');
+testcase('foo|foo', 'text=foo');
+testcase('apple:banana:cherry|apple:banana:cherry', 'text=apple apple banana banana banana cherry');
+testcase('a:b:r:a:c:a:d:a:b:r:a|a:b:r:c:d', 'text=a b r a c a d a b r a');
+testcase('x:y:z:y|x:y:z', 'text=x y z z y');
+
+# Regression test - $map with one argument wasn't rejected cleanly.
+print_to_file $test_template, '$map{foo}';
+testcase('Exception: too few arguments to $map');
+
+# Feature tests for $snippet{}.
+print_to_file $test_indexscript, 'text : index field';
+run_scriptindex(<<'END');
+text=A sentence is more than just a list of words - there is structure to it.
+END
+
+print_to_file $test_template, '$hitlist{$snippet{$field{text},20}}';
+testcase('...just a <strong>list</strong> of <strong>words</strong>...', 'P=word listing');
+
+# Feature tests for $snippet{}.
+print_to_file $test_indexscript, 'text : index field';
+# Omit trailing \n on dump file as regression test for bug fixed in 1.4.20
+# where a final line without a newline was ignored.
+run_scriptindex("dummy=\ntext=A sentence is more than just a list of words - there is structure to it.");
+
+print_to_file $test_template, '$hitlist{$snippet{$field{text},20}}';
+testcase('...just a <strong>list</strong> of <strong>words</strong>...', 'P=word listing');
+
+# Test MORELIKE CGI parameter.
+print_to_file $test_indexscript, "id : boolean=Q\ntext : index field\n";
+run_scriptindex(<<'END');
+id=a1
+text=First document
+
+id=b2
+text=Second article
+
+id=c3
+text=Piece of writing three
+
+id=dummy
+text=Inflating termfreqs since Omega excludes terms with termfreq of one
+=first document second piece of writing three
+END
+print_to_file $test_template, '$querydescription|$query';
+testcase('Query((Zfirst@1 OR Zdocument@2))|first document', 'MORELIKE=Qa1', 'DEFAULTOP=or');
+testcase('Query((Zfirst@1 OR Zdocument@2))|first OR document', 'MORELIKE=Qa1');
+testcase('Query((Zfirst@1 OR Zdocument@2))|first OR document', 'MORELIKE=Qa1', 'DEFAULTOP=and');
+# Test with docid.
+testcase('Query((Zfirst@1 OR Zdocument@2))|first document', 'MORELIKE=1', 'DEFAULTOP=OR');
+testcase('Query((Zfirst@1 OR Zdocument@2))|first OR document', 'MORELIKE=1');
+testcase('Query((Zfirst@1 OR Zdocument@2))|first OR document', 'MORELIKE=1', 'DEFAULTOP=phrase');
+# "article" is excluded by OmegaExpandDecider because it has termfreq 1.
+testcase('Query(Zsecond@1)|second', 'MORELIKE=Qb2', 'DEFAULTOP=or');
+testcase('Query(Zsecond@1)|second', 'MORELIKE=Qb2');
+# "of" is excluded because it's a stopword.
+testcase('Query((Zwrite@1 OR Zthree@2 OR Zpiec@3))|writing OR three OR piece', 'MORELIKE=Qc3');
+# Test with absent term.
+testcase('Query()|', 'MORELIKE=Qx9');
+# Test multiple MORELIKE parameters.  We need to include the dummy document for
+# any terms to get a positive weight and be returned.
+testcase('Query((Zsecond@1 OR Zfirst@2 OR Zdocument@3))|second OR first OR document', 'MORELIKE=1', 'MORELIKE=2', 'MORELIKE=4');
+testcase('Query((Zsecond@1 OR Zfirst@2 OR Zdocument@3))|second OR first OR document', 'MORELIKE=Qa1', 'MORELIKE=2', 'MORELIKE=4');
+testcase('Query((Zsecond@1 OR Zfirst@2 OR Zdocument@3))|second OR first OR document', 'MORELIKE=Qa1', 'MORELIKE=Qb2', 'MORELIKE=Qdummy');
+
+# Test errors for scriptindex input format issues.
+print_to_file $test_indexscript, 'f : index field';
+test_scriptindex_error "no = in input line",
+  "<stdin>:1: error: Expected = somewhere in this line",
+  "a\nb=y\nc=z\n";
+test_scriptindex_error "no = in input line",
+  "<stdin>:2: error: Expected = somewhere in this line",
+  "a=x\nby\nc=z\n";
+test_scriptindex_error "no = in input line",
+  "<stdin>:3: error: Expected = somewhere in this line",
+  "a=x\n=yz\nbcd\ne=q";
+
+# Test handling of extra blank lines.
+print_to_file $test_indexscript, "id : unique=Q boolean=Q\nf : field";
+test_scriptindex "extra blank lines",
+  "\nid=1\nf=a\n\n\nid=2\nf=b\n\n";
+test_scriptindex "extra blank lines with CRs",
+  "\r\nid=1\r\nf=a\r\n\r\n\r\nid=2\r\nf=b\r\n\r\n";
+
+# Regression test for handling of no newline on final line, fixed in 1.4.22.
+#
+# This used to report a bogus error on the last line:
+# error: Expected = somewhere in this line
+test_scriptindex "no newline on final line",
+  "id=1\nf=hello\n=world";
+
+# Feature tests for scriptindex `index` and `indexnopos` actions.
+print_to_file $test_indexscript, "t : index=XT\nn : indexnopos=XN\n";
+test_scriptindex 'INDEX and INDEXNOPOS actions',
+  "t=positional text\nn=no pos here";
+print_to_file $test_template, '$msize';
+testcase('1', 'P.XT="positional text"');
+testcase('1', 'P.XN=no AND pos');
+testcase('0', 'P.XN="no pos"');
+
+# Feature tests for scriptindex `split` action.
+print_to_file $test_indexscript, "STATUS : field split=| field=SPLITSTATUS\nSTATUS : field=x";
+test_scriptindex 'SPLIT action',
+  'STATUS=PENDING|REVIEW';
+print_to_file $test_template, '$field{STATUS,1}/$field{x,1}/$list{$field{SPLITSTATUS,1},$.}';
+testcase('PENDING|REVIEW/PENDING|REVIEW/PENDING,REVIEW', 'P=text');
+
+# Feature test for scriptindex `split` action with `dedup` operation.
+print_to_file $test_indexscript, "STATUS : field split=|,dedup field=SPLITSTATUS\n";
+test_scriptindex 'test SPLIT with DEDUP',
+  'STATUS=REVIEW|PENDING|PENDING|REVIEW';
+print_to_file $test_template, '$field{STATUS,1}/$list{$field{SPLITSTATUS,1},$.}';
+testcase('REVIEW|PENDING|PENDING|REVIEW/REVIEW,PENDING', 'P=text');
+
+# Feature test for scriptindex `split` action with `sort` operation.
+print_to_file $test_indexscript, "STATUS : field split=|,sort field=SPLITSTATUS\n";
+test_scriptindex 'test SPLIT with SORT',
+  'STATUS=REVIEW|PENDING|PENDING|REVIEW';
+print_to_file $test_template, '$field{STATUS,1}/$list{$field{SPLITSTATUS,1},$.}';
+testcase('REVIEW|PENDING|PENDING|REVIEW/PENDING,PENDING,REVIEW,REVIEW', 'P=text');
+
+# Feature test for scriptindex `split` action with `none` operation.
+print_to_file $test_indexscript, "STATUS : field split=|,none field=SPLITSTATUS\n";
+test_scriptindex 'test SPLIT with NONE',
+  'STATUS=REVIEW|PENDING|PENDING|REVIEW';
+print_to_file $test_template, '$field{STATUS,1}/$list{$field{SPLITSTATUS,1},$.}';
+testcase('REVIEW|PENDING|PENDING|REVIEW/REVIEW,PENDING,PENDING,REVIEW', 'P=text');
+
+# Feature test for scriptindex `split` action with `prefixes` operation.
+print_to_file $test_indexscript, "STATUS : field split=|,prefixes field=SPLITSTATUS\n";
+test_scriptindex 'test SPLIT with PREFIXES',
+  'STATUS=REVIEW|PENDING|PENDING|REVIEW';
+print_to_file $test_template, '$field{STATUS,1}/$list{$field{SPLITSTATUS,1},$.}';
+testcase('REVIEW|PENDING|PENDING|REVIEW/REVIEW,REVIEW|PENDING,REVIEW|PENDING|PENDING,REVIEW|PENDING|PENDING|REVIEW', 'P=text');
+
+# Feature tests for scriptindex `split` action with no explicit operation.
+print_to_file $test_indexscript, "STATUS : field split=| field=SPLITSTATUS\n";
+test_scriptindex 'test SPLIT with implicit op',
+  'STATUS=PENDING|REVIEW|PENDING|REVIEW';
+print_to_file $test_template, '$field{STATUS,1}/$list{$field{SPLITSTATUS,1},$.}';
+testcase('PENDING|REVIEW|PENDING|REVIEW/PENDING,REVIEW,PENDING,REVIEW', 'P=text');
+
+# Feature test for scriptindex `split` action with multi-character delimiter.
+print_to_file $test_indexscript, 'STATUS : field split=$. field=SPLITSTATUS';
+test_scriptindex 'test SPLIT with multi-char delimiter',
+  'STATUS=PENDING$.$.REVIEW,PENDING$.REVIEW';
+print_to_file $test_template, '$field{STATUS,1}/$list{$field{SPLITSTATUS,1},|}';
+testcase('PENDING$.$.REVIEW,PENDING$.REVIEW/PENDING|REVIEW,PENDING|REVIEW', 'P=text');
+
+# Feature test for scriptindex `split` action with multi-character delimiter
+# with potential overlap.
+print_to_file $test_indexscript, "STATUS : field split=:: field=SPLITSTATUS\n";
+test_scriptindex 'test SPLIT with overlapping multi-char delimiter',
+  'STATUS=::Foo::::Bar:Baz:::Hello::';
+print_to_file $test_template, '$field{STATUS,1}/$list{$field{SPLITSTATUS,1},|}';
+testcase('::Foo::::Bar:Baz:::Hello::/Foo|Bar:Baz|:Hello', 'P=text');
+
+# Feature test for scriptindex `split` action with multi-character delimiter
+# with `prefixes` operation.
+print_to_file $test_indexscript, "STATUS : field split=::,prefixes field=SPLITSTATUS\n";
+test_scriptindex 'test SPLIT with PREFIXES and multi-char delimiter',
+  'STATUS=::Foo::::Bar:Baz:::Hello::';
+print_to_file $test_template, '$field{STATUS,1}/$list{$field{SPLITSTATUS,1},|}';
+testcase('::Foo::::Bar:Baz:::Hello::/::Foo|::Foo::|::Foo::::Bar:Baz|::Foo::::Bar:Baz:::Hello|::Foo::::Bar:Baz:::Hello::', 'P=text');
+
+# Feature test for scriptindex `split` action with quoted `,` delimiter.
+print_to_file $test_indexscript, "STATUS : field split=\",\" field=SPLITSTATUS\n";
+test_scriptindex 'test SPLIT with quoted comma delimiter',
+  'STATUS=PENDING,REVIEW,PENDING,REVIEW';
+print_to_file $test_template, '$field{STATUS,1}/$list{$field{SPLITSTATUS,1},|}';
+testcase('PENDING,REVIEW,PENDING,REVIEW/PENDING|REVIEW|PENDING|REVIEW', 'P=text');
+
+# Feature test for nested scriptindex `split` action.
+print_to_file $test_indexscript, "in : split=; field=one lower split=\",\" field=two\nin : field";
+test_scriptindex 'nested SPLIT action',
+  'in=a,b,c;10,21,32;XY,YZ';
+print_to_file $test_template, '$field{in,1}/$list{$field{one,1},|}/$list{$field{two,1},|}';
+testcase('a,b,c;10,21,32;XY,YZ/a,b,c|10,21,32|XY,YZ/a|b|c|10|21|32|xy|yz', 'P=text');
+
+# Test scriptindex `split` action error cases.
+print_to_file $test_indexscript, "in : split=\"\" field=one\nin : field";
+test_scriptindex_error "'split' error for empty separator",
+  "$test_indexscript:1:13: error: Split delimiter can't be empty";
+print_to_file $test_indexscript, "in : split=|,foo field=one\nin : field";
+test_scriptindex_error "'split' error for invalid operation",
+  "$test_indexscript:1:14: error: Bad split operation 'foo'";
+
+# Feature tests for scriptindex `hextobin` action.
+print_to_file $test_indexscript, 'hex : hextobin value=0';
+test_scriptindex 'HEXTOBIN action',
+'hex=
+
+hex=41
+
+hex=54657374
+
+hex=4b696C6c
+';
+print_to_file $test_template, '$valuelowerbound{0}$list{$map{$split{$cgi{DOCIDS}},$value{0,$_}},|}|$valueupperbound{0}';
+testcase('A|A|Test|Kill|Test', 'DOCIDS=1 2 3 4');
+
+# Feature test error cases for scriptindex `hextobin` action.
+test_scriptindex_error 'bad hex digit',
+  "<stdin>:1: error: hextobin: input must be all hex digits",
+  'hex=7g';
+test_scriptindex_error 'bad hex length',
+  "<stdin>:1: error: hextobin: input must have even length",
+  'hex=404';
+
+# Feature test for scriptindex `spell` action.
+print_to_file $test_indexscript, "s : spell index\nn : index\n";
+test_scriptindex 'SPELL action',
+  "s=some words test\n\nn=tent\n\n";
+print_to_file $test_template, '$set{flag_spelling_correction,true}$suggestion';
+testcase('some test', 'P=home nest');
+testcase('a test', 'P=a tent');
+testcase('', 'P=gent');
+
+# Feature tests for scriptindex `squash` and `ltrim`/`rtrim`/`trim` actions.
+print_to_file $test_indexscript, "squash : squash field\nltrim : ltrim field\nrtrim : rtrim field\ntrim : trim field\n";
+my $whitespace_test="\t lots\x0b\fof\t whitespace\f ";
+test_scriptindex 'SQUASH and trim actions',
+"squash=$whitespace_test
+ltrim=$whitespace_test
+rtrim=$whitespace_test
+trim=$whitespace_test
+
+squash=a b
+ltrim=a b
+rtrim=a b
+trim=a b
+
+squash=xyz
+ltrim=xyz
+rtrim=xyz
+trim=xyz
+";
+print_to_file $test_template, '$json{$field{$cgi{F},$cgi{ID}}}';
+testcase('lots of whitespace', 'F=squash', 'ID=1');
+testcase('lots\u000b\fof\t whitespace\f ', 'F=ltrim', 'ID=1');
+testcase('\t lots\u000b\fof\t whitespace', 'F=rtrim', 'ID=1');
+testcase('lots\u000b\fof\t whitespace', 'F=trim', 'ID=1');
+for my $f (qw(squash ltrim rtrim trim)) {
+  testcase('a b', "F=$f", 'ID=2');
+  testcase('xyz', "F=$f", 'ID=3');
+}
+
+# Feature tests for scriptindex `truncate` action.
+print_to_file $test_indexscript, "x : field=x truncate=9 field=9 truncate=3 field=3 truncate=2 field=2 truncate=1 field=1 truncate=0 field=0\n";
+test_scriptindex 'TRUNCATE action',
+'x=really long field
+
+x=xö xxxxö x
+
+x=ö xxxxö x
+
+x=x x xx🥝 x
+
+x=a test
+
+x=tri
+
+x=du
+
+x=1
+
+x=
+';
+print_to_file $test_template, '$foreach{$split{1 2 3 4 5 6 7 8 9},$set{d,$_}$list{$map{$split{x 9 3 2 1 0},$field{$_,$opt{d}}},|}:}';
+testcase('really long field|really|rea|re|r|:xö xxxxö x|xö|xö|x|x|:ö xxxxö x|ö xxxxö|ö|ö||:x x xx🥝 x|x x|x x|x|x|:a test|a test|a|a|a|:tri|tri|tri|tr|t|:du|du|du|du|d|:1|1|1|1|1|:|||||:');
+
+# Feature tests for scriptindex `unhtml` action.
+print_to_file $test_indexscript, "t : unhtml field=h\n";
+test_scriptindex 'UNHTML action',
+'t=<b>No</b>table
+
+t=<p>foo</p>d<p>bar<B>b</B></p>
+';
+print_to_file $test_template, '$list{$map{$split{$cgi{DOCIDS}},$field{h,$_}},|}';
+# FIXME: Currently \r gets stripped here: testcase("Notable|foo\rd\rbarb", 'DOCIDS=1 2');
+
+# Feature test for scriptindex `weight` action.
+print_to_file $test_indexscript, "t : index\nw : weight=2 index\n";
+test_scriptindex 'WEIGHT action',
+'t=test
+
+w=test
+
+t=test test test';
+print_to_file $test_template, '|$hitlist{$id|}';
+testcase('|3|2|1|', 'P=test');
+
+# Test bad parameter values to `weight` action.
+print_to_file $test_indexscript, 'foo : weight=-2 index weight=1.5 index=A weight=-1.5 index=B';
+test_scriptindex_error "bad 'weight' parameter",
+  "$test_indexscript:1:14: error: Index action 'weight' takes a non-negative integer argument
+$test_indexscript:1:30: error: Index action 'weight' takes a non-negative integer argument
+$test_indexscript:1:49: error: Index action 'weight' takes a non-negative integer argument";
+
+# Test useless action warnings.
+print_to_file $test_indexscript, 'foo : index weight=2';
+test_scriptindex_warning "useless 'weight' action",
+  "$test_indexscript:1:13: warning: Index action 'weight' has no effect
+$test_indexscript:1:13: note: Actions are executed from left to right";
+
+print_to_file $test_indexscript, 'foo : weight=2 weight=3 index';
+test_scriptindex_warning "useless 'weight' action",
+  "$test_indexscript:1:7: warning: Index action 'weight' has no effect
+$test_indexscript:1:7: note: Actions are executed from left to right";
+
+print_to_file $test_indexscript, 'foo : index lower';
+test_scriptindex_warning "useless 'lower' action",
+  "$test_indexscript:1:13: warning: Index action 'lower' has no effect
+$test_indexscript:1:13: note: Actions are executed from left to right";
+
+# Test bad fieldname errors.
+print_to_file $test_indexscript, 'foo *bar _bar b!ar: index';
+test_scriptindex_error 'bad field names',
+  "$test_indexscript:1:5: error: field name must start with alphanumeric
+$test_indexscript:1:10: error: field name must start with alphanumeric
+$test_indexscript:1:16: error: bad character '!' in field name";
+
+# Test unwanted action argument.
+print_to_file $test_indexscript, 'foo : spell=test index';
+test_scriptindex_error 'unwanted action argument',
+  "$test_indexscript:1:12: error: Index action 'spell' doesn't take an argument";
+
+# Test missing closing quote.
+print_to_file $test_indexscript, "foo : index=\"XFOO\nbar : index=\"XFOO\\\"\n";
+test_scriptindex_error 'missing closing quote',
+  "$test_indexscript:1:18: error: No closing quote
+$test_indexscript:2:20: error: No closing quote";
+
+# Feature tests for scriptindex `termprefix` and `unprefix` actions.
+print_to_file $test_template, '$termprefix{$cgi{B}}|$unprefix{$cgi{B}}';
+testcase('|', 'B=');
+testcase('|something', 'B=something');
+testcase('|42', 'B=42');
+testcase('|3bad', 'B=3bad');
+testcase('|&something', 'B=&something');
+testcase('|:something', 'B=:something');
+testcase('H|example.org', 'B=Hexample.org');
+testcase('K|tag', 'B=Ktag');
+testcase('K|Capital', 'B=KCapital');
+testcase('K|:colon-tag', 'B=K:colon-tag');
+testcase('K|:Capital', 'B=K:Capital');
+testcase('XCOLOUR|red', 'B=XCOLOURred');
+testcase('XPUNC|:colon', 'B=XPUNC::colon');
+testcase('XPUNC|internal:colon', 'B=XPUNC:internal:colon');
+testcase('XPUNC|:Colon', 'B=XPUNC::Colon');
+testcase('XCASE|Upper', 'B=XCASE:Upper');
+testcase('XCASE|TITLE', 'B=XCASE:TITLE');
+testcase('XNUM|42', 'B=XNUM42');
+testcase('XNUM|3bad', 'B=XNUM3bad');
+
+# Regression test for $truncate with maxlen < the length of the indicator
+# string.
+print_to_file $test_template, '$truncate{$cgi{input},$cgi{maxlen},$cgi{ind},$cgi{ind2}}$seterror{$opt{error}}';
+testcase('w...', 'input=wwwwww', 'maxlen=4', 'ind=...', 'ind2=...');
+testcase('', 'input=s', 'maxlen=0', 'ind=...', 'ind2=...');
+
+# Feature tests for scriptindex `unique` action.
+print_to_file $test_indexscript, "id : boolean=Q unique=Q\nid f : field\n";
+test_scriptindex 'UNIQUE action',
+'id=1
+f=wan
+
+id=2
+f=too
+
+id=3
+f=free
+
+id=4
+f=fore
+
+id=1
+f=one
+
+id=2
+
+id=4
+f=
+
+id=3
+dummy=';
+print_to_file $test_template, '$field{id,$cgi{id}}|$field{f,$cgi{id}}$error';
+testcase('1|one', 'id=1');
+# Since 1.5.0, document 2 gets deleted instead.
+testcase('2|', 'id=2');
+testcase('3|', 'id=3');
+testcase('4|', 'id=4');
+
+# Test `unique` action warning.
+print_to_file $test_indexscript, "id : unique=Q boolean=W\nid f : field\n";
+test_scriptindex_warning 'unique without boolean',
+  "$test_indexscript:1:6: warning: Index action 'unique=Q' without 'boolean=Q'
+$test_indexscript:1:6: note: 'unique' doesn't implicitly add a boolean term";
+
+# Test `unique` action gives warning when not used for a record.
+print_to_file $test_indexscript, "id : boolean=Q unique=Q\nid f : field\n";
+test_scriptindex_warning 'missing unique field',
+  "<stdin>:4: warning: UNIQUE action unused in this record",
+  "id=1\nf=wan\n\nf=";
+
+# Test $subdb and $subid.
+remove_tree($test_db);
+print_to_file $test_db, 'inmemory';
+print_to_file "${test_db}2", 'inmemory';
+print_to_file "${test_db}3", "inmemory\ninmemory\n";
+print_to_file $test_template, '$subdb{$cgi{ID}}|$subid{$cgi{ID}}';
+testcase("$test_db|1", 'ID=1');
+testcase("$test_db|1", 'ID=1', "DB=$test_db/${test_db}2");
+testcase("${test_db}2|1", 'ID=2', "DB=$test_db/${test_db}2");
+testcase("${test_db}|2", 'ID=3', "DB=$test_db/${test_db}2");
+testcase("${test_db}3|1", 'ID=1', "DB=${test_db}3");
+testcase("${test_db}3|999", 'ID=999', "DB=${test_db}3");
+testcase("$test_db|1", 'ID=1', "DB=$test_db", "DB=${test_db}3");
+testcase("${test_db}3|1", 'ID=2', "DB=$test_db", "DB=${test_db}3");
+testcase("${test_db}3|2", 'ID=3', "DB=$test_db", "DB=${test_db}3");
+testcase("$test_db|2", 'ID=4', "DB=$test_db", "DB=${test_db}3");
+testcase("${test_db}3|3", 'ID=5', "DB=$test_db", "DB=${test_db}3");
+remove_tree("${test_db}2","${test_db}3");
+
+# Feature tests for $field.
+print_to_file $test_indexscript, 'in : field="zer\0byte" hextobin field="field28\x02\x08"';
+run_scriptindex("in=4071004f3456\n");
+print_to_file $test_template, '$json{$field{zer$chr{0}byte,1}}|$json{$field{field28$chr{2}$chr{8},1}}|$error';
+testcase('4071004f3456|@q\u0000O4V|');
+
+# Feature tests for $jsonarray.
+print_to_file $test_template,
+  join(', ',
+    '$jsonarray{}',
+    '$jsonarray{,$upper{$_}}',
+    '$jsonarray{$split{b4 k9},"$json{$upper{$_}}"}',
+    '$jsonarray{$split{a "b" c:\}}',
+    '$jsonarray{$split{2 3 5 7},$mul{$_,$_}}');
+testcase('[], [], ["B4","K9"], ["a","\"b\"","c:\\\\"], [4,9,25,49]');
+
+# Feature tests for $jsonbool
+print_to_file $test_template, '$jsonbool{} $jsonbool{$eq{a,b}} $jsonbool{x} $jsonbool{0}';
+testcase('false false true true');
+
+# Feature tests for $jsonobject
+print_to_file $test_template, '$jsonobject{foo}';
+testcase('{}');
+print_to_file $test_template, '$setmap{foo,Han,Solo}$jsonobject{foo}';
+testcase('{"Han":"Solo"}');
+print_to_file $test_template, '$setmap{foo,key 1,value1,key"2,value\2,key3,value3}$jsonobject{foo}';
+testcase('{"key 1":"value1","key\"2":"value\\\\2","key3":"value3"}');
+print_to_file $test_template, '$setmap{foo,key 1,1,key"2,$split{1 2},key3,$split{2 3 5}}$jsonobject{foo,,$jsonarray{$_,$add{$_,1}}}';
+testcase('{"key 1":[2],"key\"2":[2,3],"key3":[3,4,6]}');
+print_to_file $test_template, '$setmap{foo,key 1,,key"2,1,key3,0}$jsonobject{foo,$upper{$_},$jsonarray{$_,$add{$_}}}';
+testcase('{"KEY 1":[],"KEY\"2":[1],"KEY3":[0]}');
+
+# Feature tests for $stoplist
+print_to_file $test_template, '$setmap{prefix,foo,XFOO}[$list{$stoplist,|}]';
+testcase('[a|the]', 'P.XFOO=the test', 'P=a test');
+
+# Feature tests for $unstem
+print_to_file $test_template, '$setmap{prefix,foo,XFOO}[$list{$unstem{$cgi{TERM}},|}]';
+testcase('[pots|pot|potting]', 'P.XFOO=(foo:pot OR luck) (potting OR shed)', 'P=flower OR foo:pots', 'TERM=ZXFOOpot');
+
+# Feature tests of scriptindex.
+
+# Regression test: non-zero exit status for unknown option.
+if (system("$scriptindex --to-be-or-not-to-be '$test_db' '$test_indexscript' > /dev/null < /dev/null 2>&1") == 0) {
+  print "scriptindex didn't give error for unknown option\n";
+  ++$failed;
+}
+
+# Regression test: error given for multiple `unique` actions.
+print_to_file $test_indexscript, "id : boolean=Q unique=Q\nguid : boolean=G unique=G";
+test_scriptindex_error 'UNIQUE used more than once',
+  "$test_indexscript:2:18: error: Index action 'unique' used more than once
+$test_indexscript:1:16: note: Previously used here";
+
+# Test we check for hash's argument being an integer (new in 1.4.6).
+print_to_file $test_indexscript, 'url : hash=37.3 boolean=Q unique=Q';
+test_scriptindex_error "'hash' with a non-integer argument",
+  "$test_indexscript:1:14: error: Index action 'hash' takes an integer argument";
+
+# Test we give a helpful error for an action with a digit in (regression
+# test for fix in 1.4.6).
+#
+# This used to give the confusing:
+# Unknown index action ''
+print_to_file $test_indexscript, 'url : index4';
+test_scriptindex_error 'bad index action with a digit',
+  "$test_indexscript:1:7: error: Unknown index action 'index4'";
+
+# Test we give a helpful error if an = sign is missed out before an optional
+# numeric argument (regression test for fix in 1.4.6).
+#
+# This used to give the confusing:
+# Unknown index action ''
+print_to_file $test_indexscript, 'url : hash 42';
+test_scriptindex_error 'missing equals sign',
+  "$test_indexscript:1:12: error: Unknown index action '42'";
+
+# Test we warn about spaces before and after '='.
+#
+# This has never been documented as supported, and was deprecated in 1.4.6
+# because it resulted in this quietly using `hash` as the field name, which is
+# probably not what was intended:
+#
+# url : field= hash boolean=Q unique=Q
+print_to_file $test_indexscript, 'url : field= hash boolean=Q unique=Q';
+test_scriptindex_warning 'space after "="',
+  "$test_indexscript:1:13: warning: putting spaces between '=' and the argument is deprecated";
+
+print_to_file $test_indexscript, 'url : field =link';
+test_scriptindex_warning 'space before "="',
+  "$test_indexscript:1:12: warning: putting spaces between the action and '=' is deprecated";
+
+# Feature tests for scriptindex `date` action.
+print_to_file $test_indexscript, "d : date=unix\ng : date=unixutc\n";
+# `date=unix` works in the current timezone, so set that explicitly so the
+# build doesn't fail if run in a timezone which is behind UTC.
+{
+  my $save_TZ = $ENV{TZ};
+  $ENV{TZ} = 'UTC';
+  test_scriptindex 'DATE action', "d=\n\nd=0\n\nd=1541478429";
+  if (defined $save_TZ) {
+    $ENV{TZ} = $save_TZ;
+  } else {
+    delete $ENV{TZ};
+  }
+}
+print_to_file $test_template, '$list{$map{$range{1,3},$list{$allterms{$_}, }},|}';
+testcase '|D19700101 M197001 Y1970|D20181106 M201811 Y2018';
+
+# `date=unixutc` should always work in UTC regardless of the current timezone.
+test_scriptindex 'DATE action with unixutc',
+  "g=\n\ng=0\n\ng=1541478429";
+testcase '|D19700101 M197001 Y1970|D20181106 M201811 Y2018';
+
+# Check nested $hitlist{} doesn't result in an infinite loop.
+# Regression test for bug fixed in 1.4.12.
+print_to_file $test_template, '<|$hitlist{$id(:$hitlist{$id:})|}>';
+testcase '<|2(:2:3:)|3(:2:3:)|>', 'B=Y1970', 'B=Y2018';
+
+# Feature tests for scriptindex `parsedate` action.
+print_to_file $test_indexscript, "DATE : field parsedate=%Y%m%d valuepacked=13\n";
+test_scriptindex 'PARSEDATE action',
+  'DATE=19891204';
+print_to_file $test_template, '$field{DATE,1}|$unpack{$value{13,1}}|$date{$unpack{$value{13,1}}}';
+testcase '19891204|628732800|1989-12-04', 'P=text';
+
+# Feature tests for scriptindex `parsedate` action.
+print_to_file $test_indexscript, 'DATE: parsedate="%Y%m%d %H:%M:%S" field=time';
+test_scriptindex_warning 'PARSEDATE action',
+  '<stdin>:1: warning: "20161202 12:04:22.000000" not fully matched by format "%Y%m%d %H:%M:%S" (".000000" left over) but indexing anyway',
+  'DATE=20161202 12:04:22.000000';
+print_to_file $test_template, '$field{time,$cgi{id}}';
+# Test format which contains a space.
+testcase '1480680262', 'id=1';
+
+# Feature tests for scriptindex `parsedate` action.
+print_to_file $test_indexscript, 'DATE: parsedate="%Y%m%d %H:%M:%S %z" field=time';
+if (test_scriptindex_optional_error('PARSEDATE action with %z',
+  'test-indexscript:1:34: error: Parsing timezone offsets with %z is not supported on this platform',
+  'DATE=20161202 21:34:24 +0930') == 0) {
+  print_to_file $test_template, '$field{time,$cgi{id}}';
+  # Test that timezone adjustment is applied.
+  testcase '1480680264', 'id=1';
+}
+
+# Feature tests for scriptindex `valuenumeric` action.
+print_to_file $test_indexscript, "n : field valuenumeric=0\n";
+test_scriptindex 'VALUENUMERIC action',
+  "n=0\n\nn=1.75\n\nn=-1000000000";
+print_to_file $test_template, '$sortableunserialise{$valuelowerbound{0}}|$list{$map{$range{1,3},$url{$value{0,$_}}},:}|$sortableunserialise{$valueupperbound{0}}';
+testcase '-1000000000.000000|%80:%A3:%1F%A4FS%60|1.750000';
+
+# Feature tests for scriptindex `load` action.
+print_to_file $test_indexscript, "file : load field\n";
+test_scriptindex_warning 'empty filename in load action',
+  "<stdin>:1: warning: Empty filename in LOAD action",
+  'file=';
+
+# Feature tests for quoted arguments.
+print_to_file $test_indexscript, <<'END';
+DATE : field="  spaces  " date="yyyymmdd"
+TEXT: index="S"
+END
+test_scriptindex 'quoted arguments', <<'END';
+DATE=19891204
+TEXT=This is sample text.
+NEXT=work
+END
+print_to_file $test_template, '$freq{D19891204}|$field{  spaces  ,1}';
+testcase '1|19891204', 'P.S=text';
+# Use $time to force the match to run.
+print_to_file $test_template, '$if{x$time,$freq{D19891204}}|$field{  spaces  ,1}';
+testcase '1|19891204', 'P=';
+
+# Feature tests for escaping in quoted arguments.
+print_to_file $test_indexscript, 'esc : field="\tesca\x70e,test\\\\\\""' . "\n";
+test_scriptindex 'escaping in quoted arguments',
+  'esc=test';
+print_to_file $test_template, '$field{$chr{9}escape$.test\\",1}';
+testcase 'test', 'P=';
+print_to_file $test_indexscript, 'x: split="xx\\' . "\n" . 'y: split="xx\q"' . "\n";
+test_scriptindex_error "bad escape sequences",
+  "$test_indexscript:1:14: error: Bad escaping in quoted action argument
+$test_indexscript:2:14: error: Bad escape sequence '\\q'";
+# Ensure the location of the problem is always in the same column so we can
+# test against a fixed error message including line and column.
+for my $badesc (
+  '"\x1"',
+  '"z\xg1"',
+  '"z\xg"',
+  '"z\x"',
+  '"\x1g"') {
+    print_to_file $test_indexscript, "x: split=$badesc";
+    test_scriptindex_error "bad hex digit in escape: '$badesc'",
+      "$test_indexscript:1:14: error: Bad hex digit in escaping";
+}
+
+# Regression test that a closing " with junk after is flagged.
+print_to_file $test_indexscript, 'date : field="test"index';
+test_scriptindex_error "junk after closing quote",
+  "$test_indexscript:1:20: error: Unexpected character 'i' after closing quote";
+
+# Test we warn about useless actions.
+print_to_file $test_indexscript, 'date : field parsedate=%%Y%%m%%d';
+test_scriptindex_warning "useless 'parsedate'",
+  "$test_indexscript:1:14: warning: Index action 'parsedate' has no effect
+$test_indexscript:1:14: note: Actions are executed from left to right";
+
+# Test a `parsedate` format error.
+print_to_file $test_indexscript, 'date : parsedate="%Y-%m-%d %Z" field';
+test_scriptindex_error "'%Z' in 'parsedate' format",
+  "$test_indexscript:1:28: error: Parsing timezone names with %Z is not supported";
+
+# Test scriptindex `gap` action inserts a termpos gap.
+print_to_file $test_indexscript, 'text : index gap=5';
+test_scriptindex 'GAP action',
+  "text=foo\ntext=bar\ntext=baz";
+print_to_file $test_template, '|$hitlist{$id|}';
+testcase('|', 'P="foo bar"');
+testcase('|', 'P=foo NEAR/5 bar');
+testcase('|', 'P=foo NEAR/11 baz');
+testcase('|1|', 'P=foo NEAR/6 bar');
+testcase('|1|', 'P=foo NEAR/12 baz');
+
+# The scriptindex `hash` action should require its argument is >= 6, so test 5
+# is rejected.
+print_to_file $test_indexscript, 'url : hash=5 boolean=Q unique=Q';
+test_scriptindex_error 'bad HASH argument',
+  "$test_indexscript:1:12: error: Index action 'hash' takes an integer argument which must be at least 6";
+
+# And that 6 is accepted.
+print_to_file $test_indexscript, 'url : hash=6 boolean=Q unique=Q';
+test_scriptindex 'hash=6',
+  'url=http://xapian.org';
+
+# Regression test to check `hash` works without argument (it was failing with
+# an assertion in unreleased versions prior to 1.4.6).
+print_to_file $test_indexscript, 'url : hash boolean=Q unique=Q';
+test_scriptindex 'HASH without argument',
+  'url=http://xapian.org';
+
+# Test the same actions for multiple fields works (briefly broken in git master
+# before 1.5.0).
+print_to_file $test_indexscript, 'tag1 tag2 tag3 : boolean=T field';
+test_scriptindex 'multiple fields on an action line',
+  "tag1=one\ntag2=two\ntag3=three";
+print_to_file $test_template, '$hitlist{$list{$terms{T},|}/$field{tag1}|$field{tag2}|$field{tag3}}';
+testcase('Tone/one|two|three', 'B=Tone');
+testcase('Tthree|Ttwo/one|two|three', 'B=Ttwo', 'B=Tthree');
+
+unlink $OMEGA_CONFIG_FILE, $test_indexscript, $test_template;
+remove_tree($test_db);
+if ($failed == 0) {
+  exit 0;
+}
+print "Failed $failed test(s)\n";
+exit 1;
