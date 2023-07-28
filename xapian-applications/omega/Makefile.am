@@ -164,19 +164,21 @@ bin_PROGRAMS = omindex scriptindex omindex-list generate-qrel-file
 dist_bin_SCRIPTS = dbi2omega mbox2omega postprocess
 
 check_PROGRAMS = atomparsertest csvesctest htmlparsertest jsonesctest md5test sdbntest urlenctest utf8converttest omindexcheck
-dist_check_SCRIPTS = omegatest sourcetest omindextest
+dist_check_SCRIPTS = omegatest.pl sourcetest omindextest
 TESTS_ENVIRONMENT = $(EATMYDATA)
 TESTS =	atomparsertest$(EXEEXT)\
 	csvesctest$(EXEEXT)\
 	htmlparsertest$(EXEEXT)\
 	jsonesctest$(EXEEXT)\
 	md5test$(EXEEXT)\
-	omegatest\
+	omegatest.pl\
 	omindextest\
 	sdbntest$(EXEEXT)\
 	sourcetest\
 	urlenctest$(EXEEXT)\
 	utf8converttest$(EXEEXT)
+TEST_EXTENSIONS = .pl
+PL_LOG_COMPILER = $(PERL)
 
 omegadatadir = $(datadir)/omega
 dist_omegadata_DATA = mbox2omega.script
