@@ -750,6 +750,8 @@ jobs:
   Emscripten:
     runs-on: 'ubuntu-20.04'
     needs: makedist
+    env:
+      EM_COMPILER_WRAPPER: ccache
     steps:
     - name: Install CCache
       uses: hendrikmuhs/ccache-action@v1
@@ -779,17 +781,14 @@ jobs:
         cd xapian-core
         export CPPFLAGS='-DFLINTLOCK_USE_FLOCK'
         export CXXFLAGS='-Oz -s USE_ZLIB=1 -fno-rtti'
-        export EM_COMPILER_WRAPPER=ccache
         emconfigure ./configure --enable-werror --disable-shared
     - name: make
       run: |
         cd xapian-core
-        export EM_COMPILER_WRAPPER=ccache
         emmake make
     - name: Run tests
       run: |
         cd xapian-core
-        export EM_COMPILER_WRAPPER=ccache
         em++ -Oz -s USE_ZLIB=1 -std=c++11 -s WASM=1 -Iinclude emscripten/xapianjstest.cc .libs/libxapian-1.5.a -o emscripten/xapianjstest.js
         cd emscripten
         node xapianjstest.js
