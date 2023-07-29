@@ -27,7 +27,7 @@
 #include <tesseract/baseapi.h>
 #include <leptonica/allheaders.h>
 
-#include <sysexits.h>
+#include "safesysexits.h"
 
 using namespace std;
 using namespace tesseract;

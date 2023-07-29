@@ -29,7 +29,7 @@ using namespace std;
 #include <sys/stat.h>
 #include <dirent.h>
 #include <unistd.h>
-#include <sysexits.h>
+#include "safesysexits.h"
 
 #define LOK_USE_UNSTABLE_API // So we can use lok::Document::getParts().
 #include <LibreOfficeKit/LibreOfficeKit.hxx>

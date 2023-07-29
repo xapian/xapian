@@ -148,7 +148,7 @@ AM_CONDITIONAL([VPATH_BUILD], [test yes = "$vpath_build"])
 
 dnl Check for headers.
 AC_CHECK_HEADERS([strings.h sys/select.h], [], [], [ ])
-AC_CHECK_HEADERS([sys/time.h]dnl
+AC_CHECK_HEADERS([sysexits.h sys/time.h]dnl
 		 [sys/resource.h sys/socket.h sys/sysctl.h vm/vm_param.h]dnl
 		 [sys/vmmeter.h sys/sysmp.h sys/sysinfo.h sys/pstat.h],
 		 [], [], [#include <sys/types.h>])
@@ -222,6 +222,8 @@ AC_TYPE_PID_T
 
 AC_TYPE_MODE_T
 
+XAPIAN_TYPE_SOCKLEN_T
+
 dnl Used by omegatest to skip some testcases with 32-bit time_t.
 AC_CHECK_SIZEOF([time_t], [#include <time.h>])
 
@@ -254,6 +256,7 @@ AC_CHECK_FUNCS([posix_fadvise])
 dnl omindex uses fork(), socketpair(), setrlimit() and alarm() to impose resource
 dnl limits on filter programs and workers.
 AC_CHECK_FUNCS([mmap fork setrlimit sysmp pstat_getdynamic setpgid sigaction alarm])
+AC_CHECK_FUNCS([waitpid])
 
 dnl -lxnet is needed on Solaris and apparently on HP-UX too.
 AC_SEARCH_LIBS([socketpair], [xnet],

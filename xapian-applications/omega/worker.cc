@@ -25,14 +25,15 @@
 #include "worker.h"
 #include "worker_comms.h"
 
+#include <cinttypes>
 #include <csignal>
 #include <cstring>
 #include <cerrno>
 #include "safefcntl.h"
 #include "safeunistd.h"
-#include <sys/socket.h>
-#include <sys/wait.h>
-#include <sysexits.h>
+#include "safesyssocket.h"
+#include "safesyswait.h"
+#include "safesysexits.h"
 #include <utility>
 
 #include "closefrom.h"
@@ -42,6 +43,10 @@
 #include "pkglibbindir.h"
 #include "str.h"
 
+#ifdef __WIN32__
+# include "safewindows.h"
+#endif
+
 using namespace std;
 
 bool Worker::ignoring_sigpipe = false;
@@ -50,12 +55,6 @@ int
 Worker::start_worker_subprocess()
 {
     static bool keep_stderr = (getenv("XAPIAN_OMEGA_DEBUG_WORKERS") != nullptr);
-
-    int fds[2];
-    if (socketpair(AF_UNIX, SOCK_STREAM, PF_UNSPEC, fds) < 0) {
-	error = string("socketpair failed: ") + strerror(errno);
-	return 1;
-    }
 
     if (error_prefix.empty()) {
 	// The first time we're called, set error_prefix to the leafname of
@@ -72,6 +71,13 @@ Worker::start_worker_subprocess()
 	    error_prefix.assign(filter_module, slash + 1);
 	}
 	error_prefix += ": ";
+    }
+
+#if defined HAVE_SOCKETPAIR && defined HAVE_FORK
+    int fds[2];
+    if (socketpair(AF_UNIX, SOCK_STREAM, PF_UNSPEC, fds) < 0) {
+	error = string("socketpair failed: ") + strerror(errno);
+	return 1;
     }
 
     child = fork();
@@ -148,6 +154,91 @@ Worker::start_worker_subprocess()
     }
 
     return 0;
+#elif defined __WIN32__
+    LARGE_INTEGER counter;
+    // QueryPerformanceCounter() will always succeed on XP and later
+    // and gives us a counter which increments each CPU clock cycle
+    // on modern hardware (Pentium or newer).
+    QueryPerformanceCounter(&counter);
+    char pipename[256];
+    snprintf(pipename, sizeof(pipename),
+	     "\\\\.\\pipe\\xapian-omega-worker-%lx-%lx_%" PRIx64,
+	     static_cast<unsigned long>(GetCurrentProcessId()),
+	     static_cast<unsigned long>(GetCurrentThreadId()),
+	     static_cast<unsigned long long>(counter.QuadPart));
+    pipename[sizeof(pipename) - 1] = '\0';
+    // Create a pipe so we can read stdout from the child process.
+    HANDLE hPipe = CreateNamedPipe(pipename,
+				   PIPE_ACCESS_DUPLEX|FILE_FLAG_OVERLAPPED,
+				   0,
+				   1, 4096, 4096, NMPWAIT_USE_DEFAULT_WAIT,
+				   NULL);
+
+    if (hPipe == INVALID_HANDLE_VALUE) {
+	error = "CreateNamedPipe failed: " + str(GetLastError());
+	return 1;
+    }
+
+    HANDLE hClient = CreateFile(pipename,
+				GENERIC_READ|GENERIC_WRITE, 0, NULL,
+				OPEN_EXISTING,
+				FILE_FLAG_OVERLAPPED, NULL);
+
+    if (hClient == INVALID_HANDLE_VALUE) {
+	error = "CreateFile failed: " + str(GetLastError());
+	return 1;
+    }
+
+    if (!ConnectNamedPipe(hPipe, NULL) &&
+	GetLastError() != ERROR_PIPE_CONNECTED) {
+	error = "ConnectNamedPipe failed: " + str(GetLastError());
+	return 1;
+    }
+
+    // Set the appropriate handles to be inherited by the child process.
+    SetHandleInformation(hClient, HANDLE_FLAG_INHERIT, 1);
+
+    // Create the child process.
+    PROCESS_INFORMATION procinfo;
+    memset(&procinfo, 0, sizeof(PROCESS_INFORMATION));
+
+    STARTUPINFO startupinfo;
+    memset(&startupinfo, 0, sizeof(STARTUPINFO));
+    startupinfo.cb = sizeof(STARTUPINFO);
+    // FIXME: Is NULL the way to say "/dev/null"?
+    // It's what GetStdHandle() is documented to return if "an application does
+    // not have associated standard handles"...
+    startupinfo.hStdError = keep_stderr ? GetStdHandle(STD_ERROR_HANDLE) : NULL;
+    startupinfo.hStdOutput = hClient;
+    startupinfo.hStdInput = hClient;
+    startupinfo.dwFlags |= STARTF_USESTDHANDLES;
+
+    string cmdline{filter_module};
+    // For some reason Windows wants a modifiable command line so we
+    // pass `&cmdline[0]` rather than `cmdline.c_str()`.
+    BOOL ok = CreateProcess(filter_module.c_str(), &cmdline[0],
+			    0, 0, TRUE, 0, 0, 0,
+			    &startupinfo, &procinfo);
+    if (!ok) {
+	if (GetLastError() == ERROR_FILE_NOT_FOUND) {
+	    error = error_prefix + "failed to run helper";
+	    filter_module = string();
+	    return -1;
+	}
+	error = "CreateProcess failed: " + str(GetLastError());
+	return 1;
+    }
+
+    CloseHandle(hClient);
+    CloseHandle(procinfo.hThread);
+    child = procinfo.hProcess;
+
+    sockt = _fdopen(_open_osfhandle(intptr_t(hPipe), O_RDWR|O_BINARY), "r+");
+
+    return 0;
+#else
+# error Omega needs porting to this platform
+#endif
 }
 
 int
@@ -170,6 +261,7 @@ Worker::extract(const std::string& filename,
     }
 
     if (sockt) {
+#ifdef HAVE_WAITPID
 	// Check if the worker process is still alive - if it is, waitpid()
 	// with WNOHANG returns 0.
 	int status;
@@ -177,6 +269,16 @@ Worker::extract(const std::string& filename,
 	    fclose(sockt);
 	    sockt = NULL;
 	}
+#elif defined __WIN32__
+	// Check if the worker process is still alive by trying to wait for it
+	// with a timeout of 0ms.
+	if (WaitForSingleObject(child, 0) != WAIT_TIMEOUT) {
+	    fclose(sockt);
+	    sockt = NULL;
+	}
+#else
+# error Omega needs porting to this platform
+#endif
     }
     if (!sockt) {
 	int r = start_worker_subprocess();
@@ -271,6 +373,7 @@ comms_error:
     error = error_prefix;
     // Check if the worker process already died, so we can report if it
     // was killed by a segmentation fault, etc.
+#ifdef HAVE_WAITPID
     int status;
     int result = waitpid(child, &status, WNOHANG);
     int waitpid_errno = errno;
@@ -316,5 +419,55 @@ comms_error:
 	error += "killed by signal ";
 	error += str(WTERMSIG(status));
     }
+#elif defined __WIN32__
+    DWORD result = WaitForSingleObject(child, 0);
+
+    fclose(sockt);
+    sockt = NULL;
+
+    if (result == WAIT_TIMEOUT) {
+	// The worker is still alive, so terminate it.  We need to specify an
+	// exit code here, 255 is an arbitrary choice.
+	TerminateProcess(child, 255);
+	WaitForSingleObject(child, INFINITE);
+	error += "failed";
+	CloseHandle(child);
+    } else if (result == WAIT_FAILED) {
+	// WaitForSingleObject() failed in an unexpected way.
+	error += "failed: ";
+	error += str(GetLastError());
+	CloseHandle(child);
+    } else {
+	DWORD rc;
+	while (GetExitCodeProcess(child, &rc) && rc == STILL_ACTIVE) {
+	    Sleep(100);
+	}
+	switch (rc) {
+	  case OMEGA_EX_SOCKET_READ_ERROR:
+	    error += "subprocess failed to read data from us";
+	    break;
+	  case OMEGA_EX_SOCKET_WRITE_ERROR:
+	    error += "subprocess failed to write data to us";
+	    break;
+	  case EX_TEMPFAIL:
+	    error += "timed out";
+	    break;
+	  case EX_UNAVAILABLE:
+	    error += "failed to initialise";
+	    filter_module = string();
+	    return -1;
+	  case EX_OSERR:
+	    error += "failed to run helper";
+	    filter_module = string();
+	    return -1;
+	  default:
+	    error += "exited with status ";
+	    error += str(rc);
+	    break;
+	}
+    }
+#else
+# error Omega needs porting to this platform
+#endif
     return 1;
 }

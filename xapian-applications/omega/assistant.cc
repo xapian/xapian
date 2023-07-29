@@ -30,7 +30,7 @@
 #include <csignal>
 #include <iostream>
 
-#include <sysexits.h>
+#include "safesysexits.h"
 
 using namespace std;
 

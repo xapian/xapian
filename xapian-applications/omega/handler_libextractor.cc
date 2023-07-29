@@ -24,7 +24,6 @@
 #include "parseint.h"
 
 #include <extractor.h>
-#include <sysexits.h>
 
 using namespace std;
 
