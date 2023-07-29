@@ -29,6 +29,7 @@
 
 #include "safefcntl.h"
 #include "safenetdb.h"
+#include "safesysexits.h"
 #include "safesysselect.h"
 #include "safesyssocket.h"
 #include "safeunistd.h"
@@ -165,17 +166,17 @@ create_listener(const std::string& host,
 	if (bind_errno == EADDRINUSE) {
 address_in_use:
 	    cerr << host << ':' << port << " already in use\n";
-	    // 69 is EX_UNAVAILABLE.  Scripts can use this to detect if the
-	    // server failed to bind to the requested port.
-	    exit(69);
+	    // EX_UNAVAILABLE is 69.  Scripts can use this to detect that the
+	    // requested port was already in use.
+	    exit(EX_UNAVAILABLE);
 	}
 #ifndef __WIN32__
 	// No privileged ports on __WIN32__.
 	if (bind_errno == EACCES) {
 	    cerr << "Can't bind to privileged port " << port << '\n';
-	    // 77 is EX_NOPERM.  Scripts can use this to detect if
+	    // EX_NOPERM is 77.  Scripts can use this to detect if
 	    // xapian-tcpsrv failed to bind to the requested port.
-	    exit(77);
+	    exit(EX_NOPERM);
 	}
 #endif
 	throw Xapian::NetworkError("bind failed", bind_errno);
