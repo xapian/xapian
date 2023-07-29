@@ -661,7 +661,7 @@ if test x"$enable_documentation" = xyes ; then
 fi
 
 dnl Checks for header files.
-AC_CHECK_HEADERS([fcntl.h limits.h poll.h sys/select.h],
+AC_CHECK_HEADERS([fcntl.h limits.h poll.h sys/select.h sysexits.h],
 		 [], [], [ ])
 AC_CHECK_HEADERS([sys/resource.h],
 		 [], [], [#include <sys/types.h>])
