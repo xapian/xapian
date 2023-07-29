@@ -148,6 +148,7 @@ noinst_HEADERS +=\
 	common/realtime.h\
 	common/safedirent.h\
 	common/safefcntl.h\
+	common/safesysexits.h\
 	common/safesyssocket.h\
 	common/safesysstat.h\
 	common/safeunistd.h\
