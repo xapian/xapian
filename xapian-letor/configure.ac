@@ -287,7 +287,8 @@ if test x"$enable_documentation" = xyes ; then
 fi
 
 dnl Checks for header files.
-AC_CHECK_HEADERS([fcntl.h limits.h sys/errno.h sys/select.h], [], [], [ ])
+AC_CHECK_HEADERS([fcntl.h limits.h sys/errno.h sys/select.h sysexits.h],
+		 [], [], [ ])
 
 dnl cxxabi.h was added in GCC 3.1, but clang lies and defines __GNUC__ yet
 dnl doesn't seem to reliably provide this header, so probe for it.
