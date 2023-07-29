@@ -29,6 +29,7 @@
 
 #include "safefcntl.h"
 #include "safenetdb.h"
+#include "safesysexits.h"
 #include "safesyssocket.h"
 
 #include "noreturn.h"
@@ -173,15 +174,15 @@ TcpServer::get_listening_socket(const std::string & host, int port,
     if (socketfd == -1) {
 	if (bind_errno == EADDRINUSE) {
 	    cerr << host << ':' << port << " already in use" << endl;
-	    // 69 is EX_UNAVAILABLE.  Scripts can use this to detect if the
-	    // server failed to bind to the requested port.
-	    exit(69); // FIXME: calling exit() here isn't ideal...
+	    // EX_UNAVAILABLE is 69.  Scripts can use this to detect that the
+	    // requested port was already in use.
+	    exit(EX_UNAVAILABLE);
 	}
 	if (bind_errno == EACCES) {
 	    cerr << "Can't bind to privileged port " << port << endl;
-	    // 77 is EX_NOPERM.  Scripts can use this to detect if
+	    // EX_NOPERM is 77.  Scripts can use this to detect if
 	    // xapian-tcpsrv failed to bind to the requested port.
-	    exit(77); // FIXME: calling exit() here isn't ideal...
+	    exit(EX_NOPERM);
 	}
 	throw Xapian::NetworkError("bind failed", bind_errno);
     }

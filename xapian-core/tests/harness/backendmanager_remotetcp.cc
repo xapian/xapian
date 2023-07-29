@@ -29,6 +29,8 @@
 #include <cerrno>
 #include <cstring>
 
+#include "safesysexits.h"
+
 #ifdef HAVE_FORK
 # include <signal.h>
 # include <sys/types.h>
@@ -184,10 +186,10 @@ try_next_port:
 		throw msg;
 	    }
 	    if (++port < 65536 && status != 0) {
-		if (WIFEXITED(status) && WEXITSTATUS(status) == 69) {
-		    // 69 is EX_UNAVAILABLE which xapian-tcpsrv exits
-		    // with if (and only if) the port specified was
-		    // in use.
+		if (WIFEXITED(status) &&
+		    WEXITSTATUS(status) == EX_UNAVAILABLE) {
+		    // Exit code EX_UNAVAILABLE from xapian-tcpsrv means the
+		    // specified port was in use.
 		    goto try_next_port;
 		}
 	    }
@@ -312,10 +314,9 @@ try_next_port:
 		Sleep(100);
 	    }
 	    CloseHandle(procinfo.hProcess);
-	    if (++port < 65536 && rc == 69) {
-		// 69 is EX_UNAVAILABLE which xapian-tcpsrv exits
-		// with if (and only if) the port specified was
-		// in use.
+	    if (++port < 65536 && rc == EX_UNAVAILABLE) {
+		// Exit code EX_UNAVAILABLE from xapian-tcpsrv means the
+		// specified port was in use.
 		goto try_next_port;
 	    }
 	    string msg("Failed to get 'Listening...' from command '");
