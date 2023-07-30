@@ -1237,7 +1237,7 @@ test_scriptindex 'UNHTML action',
 t=<p>foo</p>d<p>bar<B>b</B></p>
 ';
 print_to_file $test_template, '$list{$map{$split{$cgi{DOCIDS}},$field{h,$_}},|}';
-# FIXME: Currently \r gets stripped here: testcase("Notable|foo\rd\rbarb", 'DOCIDS=1 2');
+testcase("Notable|foo\rd\rbarb", 'DOCIDS=1 2');
 
 # Feature test for scriptindex `weight` action.
 print_to_file $test_indexscript, "t : index\nw : weight=2 index\n";
