@@ -1021,19 +1021,6 @@ testcase('Exception: too few arguments to $map');
 
 # Feature tests for $snippet{}.
 print_to_file $test_indexscript, 'text : index field';
-run_scriptindex(<<'END');
-text=A sentence is more than just a list of words - there is structure to it.
-END
-
-print_to_file $test_template, '$hitlist{$snippet{$field{text},20}}';
-testcase('...just a <strong>list</strong> of <strong>words</strong>...', 'P=word listing');
-
-print_to_file $test_template, '$hitlist{$snippet{$field{text},30,,<b>,</b>,}}';
-testcase('<b>words</b> - there is structure to', 'P=words');
-testcase('a <b>list of words</b> - there is', 'P="list of words"');
-
-# Feature tests for $snippet{}.
-print_to_file $test_indexscript, 'text : index field';
 # Omit trailing \n on dump file as regression test for bug fixed in 1.4.20
 # where a final line without a newline was ignored.
 run_scriptindex("dummy=\ntext=A sentence is more than just a list of words - there is structure to it.");
