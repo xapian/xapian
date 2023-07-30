@@ -48,7 +48,7 @@ jobs:
             lua5.4 \
             liblua5.4-dev \
             mono-devel \
-            python-dev \
+            python2-dev \
             python3-dev \
             tcl \
             tcl-dev
@@ -113,7 +113,7 @@ jobs:
             lua5.3 \
             liblua5.3-dev \
             mono-devel \
-            python-dev \
+            python2-dev \
             python3-dev \
             tcl \
             tcl-dev
@@ -182,7 +182,7 @@ jobs:
             lua5.4 \
             liblua5.4-dev \
             mono-devel \
-            python-dev \
+            python2-dev \
             python3-dev \
             tcl \
             tcl-dev
@@ -251,7 +251,7 @@ jobs:
             lua5.4 \
             liblua5.4-dev \
             mono-devel \
-            python-dev \
+            python2-dev \
             python3-dev \
             tcl \
             tcl-dev
@@ -316,7 +316,7 @@ jobs:
             lua5.4 \
             liblua5.4-dev \
             mono-devel \
-            python-dev \
+            python2-dev \
             python3-dev \
             tcl \
             tcl-dev
@@ -517,7 +517,7 @@ jobs:
             lua5.3 \
             liblua5.3-dev \
             mono-devel \
-            python-dev \
+            python2-dev \
             python3-dev \
             tcl \
             tcl-dev
