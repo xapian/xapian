@@ -56,7 +56,7 @@ jobs:
       run: |
         export PATH=/usr/lib/ccache:$PATH
         echo verbose=off > ~/.wgetrc
-        ./bootstrap xapian-core xapian-applications/omega swig xapian-bindings xapian-letor
+        ./bootstrap xapian-core xapian-applications/omega swig xapian-bindings
     - name: configure
       run: ./configure CC='ccache gcc' CXX='ccache g++'
     - name: make
