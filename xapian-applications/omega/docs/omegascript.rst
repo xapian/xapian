@@ -203,7 +203,12 @@ $field{NAME[,DOCID]}
 $filesize{SIZE}
 	pretty printed filesize (e.g. ``1 byte``, ``100 bytes``, ``2.1K``,
         ``4.0M``, ``1.3G``).  If ``SIZE`` is empty or a negative integer,
-        expands to nothing.
+        expands to nothing.  Omega 1.4.x and earlier instead gave ``0 bytes``
+        for empty ``SIZE``.
+
+        If ``SIZE`` is not empty or an integer value, ``$error`` is set.
+        Omega 1.4.x and earlier instead ignored anything after the initial part
+        of ``SIZE`` which could be parsed as an integer value.
 
 $filters
         compact serialisation of filter-like settings (currently ``B``, ``N``,
