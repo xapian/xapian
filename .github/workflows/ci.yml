@@ -382,6 +382,7 @@ jobs:
             uuid-dev \
             libpcre2-dev \
             libmagic-dev \
+            python3-dev \
             tcl \
             tcl-dev
     - name: configure
