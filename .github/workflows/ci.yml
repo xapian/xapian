@@ -33,7 +33,7 @@ jobs:
     - name: Install CCache
       uses: hendrikmuhs/ccache-action@v1
       with:
-        key: makedist
+        key: ${{ github.job }}
     - name: Install package dependencies
       run: |
         sudo apt-get update
@@ -107,7 +107,7 @@ jobs:
     - name: Install CCache
       uses: hendrikmuhs/ccache-action@v1
       with:
-        key: GLIBCXX_DEBUG
+        key: ${{ github.job }}
     - name: Fetch distribution
       uses: actions/download-artifact@v3
     - name: Unpack distribution
@@ -202,7 +202,7 @@ jobs:
     - name: Install CCache
       uses: hendrikmuhs/ccache-action@v1
       with:
-        key: FORTIFY_SOURCE_3
+        key: ${{ github.job }}
     - name: Fetch distribution
       uses: actions/download-artifact@v3
     - name: Unpack distribution
@@ -299,7 +299,7 @@ jobs:
     - name: Install CCache
       uses: hendrikmuhs/ccache-action@v1
       with:
-        key: assertions
+        key: ${{ github.job }}
     - name: Fetch distribution
       uses: actions/download-artifact@v3
     - name: Unpack distribution
@@ -390,7 +390,7 @@ jobs:
     - name: Install CCache
       uses: hendrikmuhs/ccache-action@v1
       with:
-        key: debug-log
+        key: ${{ github.job }}
     - name: Fetch distribution
       uses: actions/download-artifact@v3
     - name: Unpack distribution
@@ -481,7 +481,7 @@ jobs:
     - name: Install CCache
       uses: hendrikmuhs/ccache-action@v1
       with:
-        key: clang
+        key: ${{ github.job }}
     - name: Fetch distribution
       uses: actions/download-artifact@v3
     - name: Unpack distribution
@@ -574,7 +574,7 @@ jobs:
     - name: Install CCache
       uses: hendrikmuhs/ccache-action@v1
       with:
-        key: clang6
+        key: ${{ github.job }}
     - name: Fetch distribution
       uses: actions/download-artifact@v3
     - name: Unpack distribution
@@ -666,7 +666,7 @@ jobs:
     - name: Install CCache
       uses: hendrikmuhs/ccache-action@v1
       with:
-        key: GCC7
+        key: ${{ github.job }}
     - name: Fetch distribution
       uses: actions/download-artifact@v3
     - name: Unpack distribution
@@ -757,7 +757,7 @@ jobs:
     - name: Install CCache
       uses: hendrikmuhs/ccache-action@v1
       with:
-        key: Emscripten
+        key: ${{ github.job }}
     - name: Fetch distribution
       uses: actions/download-artifact@v3
     - name: Unpack distribution
@@ -803,7 +803,7 @@ jobs:
     - name: Install CCache
       uses: hendrikmuhs/ccache-action@v1
       with:
-        key: macos
+        key: ${{ github.job }}
     - name: Fetch distribution
       uses: actions/download-artifact@v3
     - name: Unpack distribution
@@ -894,7 +894,7 @@ jobs:
     - name: Install CCache
       uses: hendrikmuhs/ccache-action@v1
       with:
-        key: mingw64-i686-cross
+        key: ${{ github.job }}
     - name: Fetch distribution
       uses: actions/download-artifact@v3
     - name: Unpack distribution
@@ -953,7 +953,7 @@ jobs:
     - name: Install CCache
       uses: hendrikmuhs/ccache-action@v1
       with:
-        key: mingw64-x86-64-cross
+        key: ${{ github.job }}
     - name: Fetch distribution
       uses: actions/download-artifact@v3
     - name: Unpack distribution
@@ -1019,7 +1019,7 @@ jobs:
     - name: Install CCache
       uses: hendrikmuhs/ccache-action@v1
       with:
-        key: fedora
+        key: ${{ github.job }}
     - name: Fetch distribution
       uses: actions/download-artifact@v3
     - name: Unpack distribution
@@ -1088,7 +1088,7 @@ jobs:
     - name: Install CCache
       uses: hendrikmuhs/ccache-action@v1
       with:
-        key: android-cross
+        key: ${{ github.job }}
     - name: Fetch distribution
       uses: actions/download-artifact@v3
     - name: Unpack distribution
@@ -1195,7 +1195,7 @@ jobs:
     - name: Install CCache
       uses: hendrikmuhs/ccache-action@v1
       with:
-        key: msys2-mingw32
+        key: ${{ github.job }}
         variant: sccache
     - name: Fetch distribution
       uses: actions/download-artifact@v3
@@ -1269,7 +1269,7 @@ jobs:
     - name: Install CCache
       uses: hendrikmuhs/ccache-action@v1
       with:
-        key: msys2-mingw64
+        key: ${{ github.job }}
         variant: sccache
     - name: Fetch distribution
       uses: actions/download-artifact@v3
@@ -1341,7 +1341,7 @@ jobs:
     - name: Install CCache
       uses: hendrikmuhs/ccache-action@v1
       with:
-        key: msys2-ucrt64
+        key: ${{ github.job }}
         variant: sccache
     - name: Fetch distribution
       uses: actions/download-artifact@v3
@@ -1413,7 +1413,7 @@ jobs:
     - name: Install CCache
       uses: hendrikmuhs/ccache-action@v1
       with:
-        key: msvc2019
+        key: ${{ github.job }}
         variant: sccache
     - name: Fetch distribution
       uses: actions/download-artifact@v3
@@ -1516,7 +1516,7 @@ jobs:
     - name: Install CCache
       uses: hendrikmuhs/ccache-action@v1
       with:
-        key: msvc2022
+        key: ${{ github.job }}
         variant: sccache
     - name: Fetch distribution
       uses: actions/download-artifact@v3
@@ -1611,7 +1611,7 @@ jobs:
     - name: Install CCache
       uses: hendrikmuhs/ccache-action@v1
       with:
-        key: freebsd
+        key: ${{ github.job }}
     - name: Fetch distribution
       uses: actions/download-artifact@v3
     - name: Unpack distribution
