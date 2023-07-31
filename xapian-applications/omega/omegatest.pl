@@ -832,9 +832,9 @@ testcase('');
 {
     open my $log, '<', $test_log or die $!;
     local $/ = undef;
-    my $log_entry = <>;
+    my $log_entry = <$log>;
     close $log;
-    if ($log_entry =~ /^test\r?\n$/) {
+    if ($log_entry !~ /^test\r?\n$/) {
       print "log entry not written correctly\n";
       ++$failed;
     }
