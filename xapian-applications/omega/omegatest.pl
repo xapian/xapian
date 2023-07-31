@@ -1441,6 +1441,14 @@ print_to_file $test_indexscript, 'url : index4';
 test_scriptindex_error 'bad index action with a digit',
   "$test_indexscript:1:7: error: Unknown index action 'index4'";
 
+# Test we give a helpful error when we're expecting an action but don't get
+# an identifier (regression test for fix in 1.4.23; this triggered an
+# infinitely repeating `error: Unknown index action ''` before that).
+print_to_file $test_indexscript, 'url :: index ?!';
+test_scriptindex_error 'bad syntax when expecting index action',
+  "$test_indexscript:1:6: error: Expected index action, found ':'\n".
+  "$test_indexscript:1:14: error: Expected index action, found '?!'";
+
 # Test we give a helpful error if an = sign is missed out before an optional
 # numeric argument (regression test for fix in 1.4.6).
 #

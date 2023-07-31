@@ -4,7 +4,7 @@
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Sam Liddicott
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002-2022 Olly Betts
+ * Copyright 2002-2023 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -502,7 +502,13 @@ parse_index_script(const string &filename)
 	    }
 	    if (code == Action::BAD) {
 		report_location(DIAG_ERROR, filename, line_no, action_pos);
-		cerr << "Unknown index action '" << action << "'\n";
+		if (action.empty()) {
+		    i = find_if(i, s.end(), C_isspace);
+		    cerr << "Expected index action, found '"
+			 << string(s, j - s.begin(), i - j) << "'\n";
+		} else {
+		    cerr << "Unknown index action '" << action << "'\n";
+		}
 	    }
 	    auto i_after_action = i;
 	    i = find_if(i, s.end(), [](char ch) { return !C_isspace(ch); });
