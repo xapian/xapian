@@ -32,6 +32,13 @@ jobs:
       uses: hendrikmuhs/ccache-action@v1
       with:
         key: ${{ github.job }}
+    - name: Cache bootstrap tools
+      uses: actions/cache@v3
+      with:
+        path: |
+          BUILD
+          INST
+        key: ${{ github.job }}-$${ runner.os }}-${{ hashFiles( 'bootstrap', 'patches/**' ) }}
     - name: Install package dependencies
       run: |
         sudo apt-get update
@@ -54,6 +61,11 @@ jobs:
             tcl-dev
     - name: bootstrap source tree
       run: |
+        # If we restored cached bootstrap tools their timestamps will be older
+        # than checked out files, but we stored them based on a hash of the
+        # files in git that determine what gets built so we know they are in
+        # fact up to date.  Just touch any stamp files that exist.
+        touch --no-create INST/*.stamp
         export PATH=/usr/lib/ccache:$PATH
         echo verbose=off > ~/.wgetrc
         ./bootstrap xapian-core xapian-applications/omega swig xapian-bindings
