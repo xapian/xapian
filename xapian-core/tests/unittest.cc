@@ -905,7 +905,7 @@ static void test_parsesigned1()
 
 /// Test working with a block-based file using functions from io_utils.h.
 static void test_ioblock1()
-{
+try {
     constexpr int BLOCK_SIZE = 1024;
     const char* tmp_file = ".unittest_ioutils1";
 
@@ -936,7 +936,7 @@ static void test_ioblock1()
     if (sizeof(off_t) <= 4) {
 	close(fd);
 	io_unlink(tmp_file);
-	SKIP_TEST("Skipping rest of testcase - off_t not 64-bit");
+	SKIP_TEST("Skipping rest of testcase - no Large File Support");
     }
 
 #ifndef __WIN32__
@@ -946,15 +946,24 @@ static void test_ioblock1()
     if (statbuf.st_blocks >= BLOCK_SIZE / 512 * (12 + 1)) {
 	close(fd);
 	io_unlink(tmp_file);
-	SKIP_TEST("Skipping rest of testcase - FS doesn't support holes");
+	SKIP_TEST("Skipping rest of testcase - sparse files not supported");
     }
 
-    // Write a block before 4GB and check that we wrote the specified block by
-    // checking the filesize.  This should catch bugs which truncate the
-    // offset used.
-    io_write_block(fd, buf.data(), BLOCK_SIZE, (1ull << 32) - 1);
+    // Write a block at an offset a little above 4GB and check that we wrote
+    // the specified block by checking the filesize.  This should catch bugs
+    // which truncate the offset used.
+    constexpr off_t high_offset = (off_t{1} << 32) + BLOCK_SIZE;
+    constexpr off_t high_block = high_offset / BLOCK_SIZE;
+    try {
+	io_write_block(fd, buf.data(), BLOCK_SIZE, high_block);
+    } catch (const Xapian::DatabaseError& e) {
+	if (e.get_error_string() == errno_to_string(EFBIG))
+	    SKIP_TEST("Skipping rest of testcase - FS doesn't allow a > 4GB "
+		      "file");
+	throw;
+    }
     TEST(fstat(fd, &statbuf) == 0);
-    TEST_EQUAL(statbuf.st_size, (1ull << 32) * 1024);
+    TEST_EQUAL(statbuf.st_size, high_offset + BLOCK_SIZE);
 
     close(fd);
 
@@ -962,9 +971,10 @@ static void test_ioblock1()
 
     // We can't easily test that io_readahead_block() actually does anything if
     // it returns true, but we can at least call it to check it doesn't crash.
-    (void)io_readahead_block(fd, BLOCK_SIZE, 12);
+    (void)io_readahead_block(fd, BLOCK_SIZE, high_block);
 
-    io_read_block(fd, &out[0], BLOCK_SIZE, (1ull << 32) - 1);
+    // Check we can read back the same data we wrote.
+    io_read_block(fd, &out[0], BLOCK_SIZE, high_block);
     TEST(buf == out);
 
     close(fd);
@@ -974,6 +984,10 @@ static void test_ioblock1()
     io_unlink(tmp_file);
     SKIP_TEST("Skipping rest of testcase - FS doesn't support holes");
 #endif
+} catch (const Xapian::Error& e) {
+    // Translate Xapian::Error exceptions to std::string exceptions which
+    // utestsuite can catch.
+    throw e.get_description();
 }
 
 static const test_desc tests[] = {
