@@ -40,7 +40,7 @@ jobs:
         path: |
           BUILD
           INST
-        key: ${{ github.job }}-$${ runner.os }}-${{ hashFiles( 'bootstrap', 'patches/**' ) }}
+        key: ${{ github.job }}-${{ runner.os }}-${{ hashFiles( 'bootstrap', 'patches/**' ) }}
     - name: Install package dependencies
       run: |
         sudo apt-get update
