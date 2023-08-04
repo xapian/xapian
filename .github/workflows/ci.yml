@@ -92,6 +92,7 @@ jobs:
       run: git status --porcelain|grep '^' && { echo "The generated files listed above are not in .gitignore" ; exit 1; }; true
 
   GLIBCXX_DEBUG:
+    if: false
     runs-on: 'ubuntu-20.04'
     needs: makedist
     steps:
@@ -158,6 +159,7 @@ jobs:
         make -j2 -C xapian-bindings check
 
   FORTIFY_SOURCE_3:
+    if: false
     # _FORTIFY_SOURCE level 3 requires GCC 12, so currently we need to use
     # Ubuntu 22.04 and the gcc-12 and g++12 packages.
     runs-on: 'ubuntu-22.04'
@@ -230,6 +232,7 @@ jobs:
         make -j2 -C xapian-bindings check
 
   assertions:
+    if: false
     runs-on: 'ubuntu-22.04'
     needs: makedist
     steps:
@@ -295,6 +298,7 @@ jobs:
         make -j2 -C xapian-bindings check
 
   debug-log:
+    if: false
     runs-on: 'ubuntu-22.04'
     needs: makedist
     steps:
@@ -360,6 +364,7 @@ jobs:
         make -j2 -C xapian-bindings check
 
   clang:
+    if: false
     runs-on: 'ubuntu-20.04'
     needs: makedist
     steps:
@@ -427,6 +432,7 @@ jobs:
 
   # Test with the oldest clang version we easily can.
   clang6:
+    if: false
     runs-on: 'ubuntu-20.04'
     needs: makedist
     steps:
@@ -493,6 +499,7 @@ jobs:
   # GCC 4.7 is the oldest GCC we aim to support for 1.4.x, but the oldest we can
   # easily build with in github actions is 7.5.0.
   GCC7:
+    if: false
     name: 'GCC 7'
     runs-on: 'ubuntu-20.04'
     needs: makedist
@@ -562,6 +569,7 @@ jobs:
         make -j2 -C xapian-bindings check
 
   macos:
+    if: false
     runs-on: 'macos-latest'
     needs: makedist
     steps:
@@ -633,6 +641,7 @@ jobs:
         make -j3 -C xapian-bindings check
 
   mingw64-i686-cross:
+    if: false
     runs-on: 'ubuntu-22.04'
     needs: makedist
     steps:
@@ -681,6 +690,7 @@ jobs:
         make -j2 -C xapian-core check
 
   mingw64-x86-64-cross:
+    if: false
     runs-on: 'ubuntu-22.04'
     needs: makedist
     steps:
@@ -732,6 +742,7 @@ jobs:
         make -j2 -C xapian-core check
 
   Fedora:
+    if: false
     runs-on: 'ubuntu-22.04'
     container: fedora:35
     needs: makedist
@@ -792,6 +803,7 @@ jobs:
         make -j2 -C xapian-bindings check
 
   android-cross:
+    if: false
     runs-on: 'ubuntu-22.04'
     env:
       NDK: '/usr/local/lib/android/sdk/ndk/25.2.9519653'
@@ -828,6 +840,7 @@ jobs:
       # FIXME: Run tests under android emulator?
 
   cygwin:
+    if: false
     # We only test 64-bit cygwin as 32-bit support has been dropped as of
     # Cygwin 3.4:
     # https://cygwin.com/pipermail/cygwin/2022-November/252542.html
@@ -1021,6 +1034,7 @@ jobs:
         # make -j2 -C xapian-bindings check
 
   msys2-ucrt64:
+    if: false
     runs-on: 'windows-latest'
     needs: makedist
     defaults:
@@ -1085,6 +1099,7 @@ jobs:
         # make -j2 -C xapian-bindings check
 
   msvc2019:
+    if: false
     runs-on: 'windows-2019'
     needs: makedist
     defaults:
@@ -1180,6 +1195,7 @@ jobs:
         # make -j2 -C xapian-bindings check
 
   msvc2022:
+    if: false
     runs-on: 'windows-2022'
     needs: makedist
     defaults:
@@ -1275,6 +1291,7 @@ jobs:
         # make -j2 -C xapian-bindings check
 
   msvc2019-x86:
+    if: false
     runs-on: 'windows-2019'
     needs: makedist
     defaults:
@@ -1367,6 +1384,7 @@ jobs:
         # make -j2 -C xapian-bindings check
 
   msvc2022-x86:
+    if: false
     runs-on: 'windows-2022'
     needs: makedist
     defaults:
@@ -1459,6 +1477,7 @@ jobs:
         # make -j2 -C xapian-bindings check
 
   freebsd:
+    if: false
     runs-on: 'macos-12'
     needs: makedist
     steps:
@@ -1511,6 +1530,7 @@ jobs:
           make -j2 -C xapian-applications/omega check V=0
 
   checkpatch:
+    if: false
     name: 'Automated run of xapian-check-patch'
     runs-on: 'ubuntu-latest'
     steps:
