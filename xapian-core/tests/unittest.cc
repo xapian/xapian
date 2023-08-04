@@ -937,7 +937,7 @@ try {
     // has any effect is much harder to do.
     TEST(io_full_sync(fd));
 
-    if (sizeof(off_t) <= 4) {
+    if constexpr(sizeof(off_t) <= 4) {
 	close(fd);
 	io_unlink(tmp_file);
 	SKIP_TEST("Skipping rest of testcase - no Large File Support");
