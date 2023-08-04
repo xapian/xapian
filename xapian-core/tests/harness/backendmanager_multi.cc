@@ -34,6 +34,11 @@
 #include <cstdio> // For rename().
 #include <cstring>
 
+#ifdef __WIN32__
+# include <stdlib.h>
+# include <winerror.h>
+#endif
+
 using namespace std;
 
 static std::string
@@ -91,7 +96,21 @@ BackendManagerMulti::createdb_multi(const string& name,
     db_path += dbname;
 
     if (!name.empty()) {
+#ifdef __WIN32__
+retry_unlink:
+#endif
 	if (unlink(db_path.c_str()) < 0 && errno != ENOENT) {
+#ifdef __WIN32__
+	    if (errno == EPERM && _doserrno == ERROR_SHARING_VIOLATION) {
+		/* This happens when running multiremoteprog tests under
+		 * Wine with a cross-build from Linux to mingw64 x86-64.
+		 *
+		 * FIXME: Work out what is going on...
+		 */
+		sleep(1);
+		goto retry_unlink;
+	    }
+#endif
 	    string msg = "Couldn't unlink file '";
 	    msg += db_path;
 	    msg += "' (";
@@ -100,6 +119,7 @@ BackendManagerMulti::createdb_multi(const string& name,
 	    throw msg;
 	}
     } else {
+	// Use cached database if there is one.
 	if (file_exists(db_path)) return db_path;
     }
 
@@ -161,21 +181,33 @@ BackendManagerMulti::createdb_multi(const string& name,
     FileIndexer(get_datadir(), files).index_to(dbs);
     dbs.close();
 
-retry:
+#ifdef __WIN32__
+retry_rename:
+#endif
     if (rename(tmpfile.c_str(), db_path.c_str()) < 0) {
+#ifdef __WIN32__
 	if (errno == EACCES) {
-	    // At least when run under appveyor, sometimes this rename fails
-	    // with EACCES.  The destination file doesn't exist (and from
-	    // debugging it shouldn't), which suggests that tmpfile is still
-	    // open, but it shouldn't be, and a sleep+retry makes it work.
-	    // Perhaps some AV is kicking in and opening newly created files
-	    // to inspect them or something?
-	    //
-	    // FIXME: It would be good to get to the bottom of this!
-	    sleep(1);
-	    goto retry;
+	    if (_doserrno == ERROR_SHARING_VIOLATION) {
+		// Sometimes we hit this failure case.  It happens with various
+		// testcases, and with both mingw and MSVC.  We've seen it on
+		// both appveyor and GHA.
+		//
+		// Debugging shows the destination file doesn't exist (and it
+		// shouldn't).  The _doserrno code is ERROR_SHARING_VIOLATION
+		// which suggests that tmpfile is still open, but a sleep+retry
+		// makes it work.  Perhaps some AV is kicking in and opening
+		// newly created files to inspect them or something?
+		//
+		// FIXME: It would be good to get to the bottom of this!
+		sleep(1);
+		goto retry_rename;
+	    }
 	}
-	throw Xapian::DatabaseError("rename failed", errno);
+#endif
+	string msg = "rename failed (";
+	errno_to_string(errno, msg);
+	msg += ')';
+	throw msg;
     }
 
     last_wdb_path = db_path;
