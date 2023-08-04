@@ -51,11 +51,6 @@
 #include "setenv.h"
 #include "stringutils.h"
 
-#ifdef _MSC_VER
-# define popen _popen
-# define pclose _pclose
-#endif
-
 using namespace std;
 
 #ifndef __WIN32__
