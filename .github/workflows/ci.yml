@@ -842,6 +842,10 @@ jobs:
       uses: egor-tensin/setup-cygwin@v4
       with:
         packages: gcc-g++ make file-devel libpcre2-devel zlib-devel perl
+    - name: Install CCache
+      uses: hendrikmuhs/ccache-action@v1
+      with:
+        key: ${{ github.job }}
     - name: Fetch distribution
       uses: actions/download-artifact@v3
     - name: Unpack distribution
@@ -859,6 +863,8 @@ jobs:
         popd
     - name: configure
       run: |
+        export CC='ccache gcc'
+        export CXX='ccache g++'
         pushd xapian-core
         ./configure --enable-werror
         export XAPIAN_CONFIG=$PWD/xapian-config
