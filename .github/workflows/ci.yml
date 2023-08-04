@@ -900,7 +900,9 @@ jobs:
         msystem: mingw32
         install: base-devel
         pacboy: >-
+          file:p
           gcc:p
+          pcre2:p
           zlib:p
     - name: Install CCache
       uses: hendrikmuhs/ccache-action@v1
@@ -964,7 +966,9 @@ jobs:
         msystem: mingw64
         install: base-devel
         pacboy: >-
+          file:p
           gcc:p
+          pcre2:p
           zlib:p
     - name: Install CCache
       uses: hendrikmuhs/ccache-action@v1
