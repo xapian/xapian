@@ -91,6 +91,91 @@ jobs:
       # if that input is empty.
       run: git status --porcelain|grep '^' && { echo "The generated files listed above are not in .gitignore" ; exit 1; }; true
 
+  clang-santisers:
+    runs-on: 'ubuntu-latest'
+    env:
+      LIBEXTRACTOR_PREFIX: '/usr/lib/x86_64-linux-gnu/libextractor'
+    needs: makedist
+    steps:
+    - name: Install CCache
+      uses: hendrikmuhs/ccache-action@v1
+      with:
+        key: ${{ github.job }}
+    - name: Fetch distribution
+      uses: actions/download-artifact@v3
+    - name: Unpack distribution
+      run: |
+        mv artifact/* .
+        rmdir artifact
+        pushd xapian-core
+        tar --strip-components=1 -xf xapian-core-*.tar.xz
+        popd
+        pushd xapian-applications/omega
+        tar --strip-components=1 -xf xapian-omega-*.tar.xz
+        popd
+        pushd xapian-bindings
+        tar --strip-components=1 -xf xapian-bindings-*.tar.xz
+        popd
+    - name: Install package dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install \
+            python3-sphinx \
+            uuid-dev \
+            libpcre2-dev \
+            libmagic-dev \
+            lua5.4 \
+            liblua5.4-dev \
+            mono-devel \
+            python3-dev \
+            tcl \
+            tcl-dev \
+            libicu-dev \
+            pkg-config \
+            libpoppler-glib-dev \
+            libglib2.0-dev \
+            libe-book-dev \
+            libetonyek-dev \
+            libgepub-0.6-dev \
+            libgmime-3.0-dev \
+            libarchive-dev \
+            libabw-dev \
+            libcdr-dev \
+            libextractor-dev \
+            libmwaw-dev \
+            libreofficekit-dev libreoffice-calc libreoffice-draw libreoffice-impress libreoffice-writer \
+            libtesseract-dev \
+            tesseract-ocr-eng
+    - name: configure
+      run: |
+        export CC='ccache clang'
+        export CXX='ccache clang++'
+        export CXXFLAGS='-fsanitize=undefined,address,float-divide-by-zero,float-cast-overflow -fno-sanitize-recover=all -g -O2 -fno-omit-frame-pointer'
+        pushd xapian-core
+        ./configure --enable-werror
+        export XAPIAN_CONFIG=$PWD/xapian-config
+        popd
+        pushd xapian-applications/omega
+        ./configure --enable-werror
+        popd
+        pushd xapian-bindings
+        # PHP calls dlopen() with "RTLD_DEEPBIND flag which is incompatible
+        # with sanitizer runtime".
+        ./configure --enable-werror --without-php
+        popd
+    - name: make
+      run: |
+        make -j2 -C xapian-core
+        make -j2 -C xapian-applications/omega
+        make -j2 -C xapian-bindings MACOS_SIP_HACK_ENV='env LSAN_OPTIONS=leak_check_at_exit=0 LD_PRELOAD=libasan.so.8:libubsan.so.1'
+    - name: Run tests
+      run: |
+        export AUTOMATED_TESTING=1
+        export VERBOSE=1
+        make -j2 -C xapian-core check
+        make -j2 -C xapian-applications/omega check
+        make -j2 -C xapian-bindings check MACOS_SIP_HACK_ENV='env LSAN_OPTIONS=leak_check_at_exit=0 LD_PRELOAD=libasan.so.8:libubsan.so.1'
+
   GLIBCXX_DEBUG:
     runs-on: 'ubuntu-20.04'
     needs: makedist
