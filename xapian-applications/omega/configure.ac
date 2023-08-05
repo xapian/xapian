@@ -217,6 +217,8 @@ AC_TYPE_PID_T
 
 AC_TYPE_MODE_T
 
+XAPIAN_TYPE_SOCKLEN_T
+
 dnl Used by omegatest to skip some testcases with 32-bit time_t.
 AC_CHECK_SIZEOF([time_t], [#include <time.h>])
 
