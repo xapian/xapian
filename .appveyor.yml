@@ -11,9 +11,18 @@ environment:
   global:
     AUTOMATED_TESTING: 1
   matrix:
-  - TOOLCHAIN: mingw
-    platform: x86
-    APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+  # Disable for now as package download is currently failing most of the time with:
+  #
+  # mingw-get.exe: *** ERROR *** http://osdn.net/dl/mingw/libz-1.2.11-1-mingw32-dev.tar.xz:cannot open URL; status = 12002
+  #
+  # or:
+  #
+  # mingw-get.exe: *** ERROR *** Get package: http://osdn.net/dl/mingw/libz-1.2.11-1-mingw32-dev.tar.xz: download failed
+  # mingw-get.exe: *** WARNING *** http://osdn.net/dl/mingw/libz-1.2.11-1-mingw32-dev.tar.xz: opened with unexpected status: code = 500
+  #
+  #  - TOOLCHAIN: mingw
+  #    platform: x86
+  #    APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
   - TOOLCHAIN: msvc
     platform: x86
     APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
