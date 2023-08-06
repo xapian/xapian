@@ -1,3 +1,90 @@
+up to: 45dae89ffb9ce03e1652f64e777940c833259ad7
+
+Xapian-core 1.4.24 (2023-08-06):
+
+
+API:
+
+
+testsuite:
+
+* unittest: Improve block file functions unit test.
+    We were (unintentionally) trying to test with a 4TB sparse file, but
+    not all platforms support that.  A file just over 4GB is enough to
+    test what we want, and if we trying to create one fails indicating
+    the file size is too large (with errno EFBIG) then we skip the rest of
+    the testcase.
+    Also catch Xapian::Error exceptions and rethrow a std::string from
+    get_description() as the utestsuite harness doesn't know about
+    Xapian::Error so confusingly reports it as "UNKNOWN EXCEPTION".
+
+matcher:
+
+
+glass backend:
+
+
+chert backend:
+
+
+remote backend:
+
+
+inmemory backend:
+
+
+build system:
+
+* Add --enable-werror configure option.
+
+* configure: Only auto-enable -D_FORTIFY_SOURCE=2 if it works without
+  additional libraries and remove the hard-coded block against using it
+  on mingw.  Mingw-w64 v11.0.0 eliminated the requirement to link with -lssp
+  so we now auto-enable -D_FORTIFY_SOURCE=2 there.
+
+documentation:
+
+
+tools:
+
+
+examples:
+
+
+portability:
+
+    Avoid MSVC warning C4312
+    This is a reasonable warning in general, but in this case we checked
+    that the value wasn't truncated when cast to an int.
+
+    Use TEST_EQUAL_DOUBLE in netstats1 testcase
+    Fixes testcase failure on freebsd.
+
+    Address GCC13 -Wredundant-move warnings
+    These std::move() were added in e23164b4ddb6cdc57136f4da2598d831f3780035
+    to fix clang warnings from -Wreturn-std-move (enabled by -Wall).  Just
+    removing the std::move() reintroduces those warning with clang 8 and
+    clang 11 (but not clang 13 or later) but changing to apply a static_cast
+    to the returned type seems to make all versions of both compilers happy.
+
+* Fix build with UCRT64 variant of mingw-w64 by stopping defining
+  __MSVCRT_VERSION__ by default.  It looks like doing so hasn't been needed
+  since 2015.
+
+    Add workaround for testsuite failures under Wine
+    Attempting to unlink a stub file sometimes fails with
+    errno == EACCES and _doserrno == ERROR_SHARING_VIOLATION.  This is
+    what you'd get if the file was still open, but we've already closed
+    it and sleeping for a second and retrying makes it work.  It'd be
+    better to get to the bottom of what's going on, but I've run out
+    of ideas and this workaround is only in the testharness at least.
+
+packaging:
+
+
+debug code:
+
+
 Xapian-core 1.4.23 (2023-07-07):
 
 API:

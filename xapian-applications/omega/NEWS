@@ -1,3 +1,72 @@
+up to: ccac01bb92799daa7777c8a19b92db5ffd537589
+
+Omega 1.4.24 (2023-08-06):
+
+general:
+
+documentation:
+
+* Document $filesize error handling.
+
+indexers:
+
+* omindex:
+
+  + Implement piped input to filters for __WIN32__.  Previously it looks like
+    the filter was run but the input wasn't connected to its stdin so it would
+    probably block indefinitely.
+
+* scriptindex:
+
+  + Check if we can actually support %z in parsedate action.  Previously we
+    assumed we could if struct tm had a tm_gmtoff member, but that's only a
+    necessary condition and not sufficient, e.g. on Cygwin we have tm_gmtoff
+    but strptime() doesn't currently understand %z.
+
+  + If we were expecting an action but didn't get an identifier this triggered
+    an infinitely repeating error:
+
+    Unknown index action ''
+
+    Now we instead give a single error:
+
+    Expected index action, found '...'
+
+    where '...' shows the sequence of non-whitespace characters encountered.
+
+omega:
+
+templates:
+
+testsuite:
+
+* Run tests under eatmydata if available.
+
+* Turn off MSYS2 argument conversion for tests as it breaks omegatest, and we
+  shouldn't need this conversion there.
+
+* omegatest: Rewrite in Perl as we were hitting non-portable quoting issues
+  with the shell implementation, and really it had grown too large to make
+  sense as a shell script anyway.
+
+build system:
+
+* Add --enable-werror configure option.
+
+* configure: Only auto-enable -D_FORTIFY_SOURCE=2 if it works without
+  additional libraries and remove the hard-coded block against using it
+  on mingw.  Mingw-w64 v11.0.0 eliminated the requirement to link with -lssp
+  so we now auto-enable -D_FORTIFY_SOURCE=2 there.
+
+portability:
+
+* Fix to build on Cygwin.
+
+* Rename our bswap32 helper function to avoid clash with system-provided
+  function on FreeBSD and NetBSD.
+
+packaging:
+
 Omega 1.4.23 (2023-07-07):
 
 documentation:

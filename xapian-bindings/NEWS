@@ -1,3 +1,72 @@
+up to: 0870f499f628e2554d63b9a206baf598b0d16267
+
+Xapian-bindings 1.4.24 (2023-08-01):
+
+Documentation:
+
+General:
+
+Packaging:
+
+Portability:
+
+    swig-depcomp: Strip CR from generated files
+    This fixes an issue in some cases when building from git on Microsoft
+    Windows.
+
+CSharp:
+
+Java:
+
+Lua:
+
+    Use pkg-config for Lua flags
+    This eliminates some rather ad-hoc configure probes, and improves
+    portability as it now works on platforms which require linking to
+    a Lua library, or which install the Lua headers directly without
+    a versioned containing directory.
+
+Perl:
+
+PHP8:
+
+    Update configure probe PHP_LIBS on cygwin
+    Based on patch found in cygwin packaging, authored by Yaakov Selkowitz:
+    https://cygwin.com/cgit/cygwin-packages/xapian-bindings/tree/1.2.12-php.patch
+
+Python:
+
+Python3:
+
+Ruby:
+
+Tcl:
+
+    [Tcl] Fix to handle tcl_pkgPath not existing
+    It's not there on Microsoft Windows builds of Tcl.
+
+    run-tcl-test: Fix not to hardcode smoketest.tcl
+    Actually run the program specified on the command line.
+
+    [Tcl] Use TCL_SHLIB_EXT for the installed extension
+    Previously the installed Tcl extension used the filename extension
+    that libtool thinks is right for modules on the current platform,
+    but now we use the extension Tcl expects.  I'm not currently aware
+    of platform where these actually differ, so this may be just a
+    latent bug.
+
+    [Tcl] improve configure probe for stub library
+    The probe now works if the tclConfig.sh we find forwards to a
+    different script, as is the case with /usr/lib/tclConfig.sh on
+    current Debian.  On Debian at least our method for finding the
+    tclConfig.sh to use doesn't find such a forwarding script, but
+    it seems better to be robust to this.
+
+    Eliminate special cygwin handling for Tcl
+    No longer needed according to:
+    https://cygwin.com/cgit/cygwin-packages/xapian-bindings/tree/1.2.17-tcl.patch
+    (cherry picked from commit 01dc8a67405cf4048f05ac93039c72e4cf323b2e)
+
 Xapian-bindings 1.4.23 (2023-07-07):
 
 Documentation:
