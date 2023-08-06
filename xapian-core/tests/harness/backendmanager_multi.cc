@@ -101,7 +101,7 @@ retry_unlink:
 #endif
 	if (unlink(db_path.c_str()) < 0 && errno != ENOENT) {
 #ifdef __WIN32__
-	    if (errno == EPERM && _doserrno == ERROR_SHARING_VIOLATION) {
+	    if (errno == EACCES && _doserrno == ERROR_SHARING_VIOLATION) {
 		/* This happens when running multiremoteprog tests under
 		 * Wine with a cross-build from Linux to mingw64 x86-64.
 		 *
