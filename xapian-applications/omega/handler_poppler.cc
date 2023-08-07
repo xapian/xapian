@@ -29,12 +29,6 @@
 
 using namespace std;
 
-static inline size_t
-strlen_if_nonnull(const gchar* s)
-{
-    return s ? strlen(s) : 0;
-}
-
 static gchar*
 convert_to_uri(const string& filename, GError** e)
 {
