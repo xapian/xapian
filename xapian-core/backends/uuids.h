@@ -48,7 +48,7 @@ class Uuid {
 
     // Not currently used outside unittest.cc.
     bool is_null() const {
-	for (char ch : uuid_data) {
+	for (auto ch : uuid_data) {
 	    if (ch)
 		return false;
 	}
