@@ -41,12 +41,12 @@ class Uuid {
 
     void parse(const std::string& in) { return parse(in.data()); }
 
-    // Not currently used.
+    // Not currently used outside unittest.cc.
     void clear() {
 	std::memset(uuid_data, 0, BINARY_SIZE);
     }
 
-    // Not currently used.
+    // Not currently used outside unittest.cc.
     bool is_null() const {
 	for (char ch : uuid_data) {
 	    if (ch)
