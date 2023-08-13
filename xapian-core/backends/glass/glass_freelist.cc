@@ -285,7 +285,7 @@ GlassFreeListChecker::count_set_bits(uint4 * p_first_bad_blk) const
 	elt_type elt = bitmap[i];
 	if (usual(elt == 0))
 	    continue;
-	if (c == 0 && p_first_bad_blk) {
+	if (p_first_bad_blk) {
 	    uint4 first_bad_blk = i * BITS_PER_ELT;
 	    if (false) {
 #if HAVE_DECL___BUILTIN_CTZ
@@ -306,6 +306,7 @@ GlassFreeListChecker::count_set_bits(uint4 * p_first_bad_blk) const
 		}
 	    }
 	    *p_first_bad_blk = first_bad_blk;
+	    p_first_bad_blk = nullptr;
 	}
 
 	// Count set bits in elt.
