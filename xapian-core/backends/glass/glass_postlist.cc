@@ -1375,6 +1375,7 @@ GlassPostListTable::get_used_docid_range(Xapian::docid & first,
 Xapian::termcount
 GlassPostList::get_wdf_upper_bound() const
 {
+    Assert(!term.empty());
     return wdf_upper_bound;
 }
 
