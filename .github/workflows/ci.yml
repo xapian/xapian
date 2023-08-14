@@ -172,7 +172,7 @@ jobs:
       run: |
         export CC='ccache clang'
         export CXX='ccache clang++'
-        export CXXFLAGS='-fsanitize=undefined,address,float-divide-by-zero,float-cast-overflow -fno-sanitize-recover=all -g -O2 -fno-omit-frame-pointer'
+        export CXXFLAGS='-fsanitize=undefined,address,float-divide-by-zero,local-bounds,nullability -fno-sanitize-recover=all -g -O2 -fno-omit-frame-pointer'
         pushd xapian-core
         ./configure --enable-werror
         export XAPIAN_CONFIG=$PWD/xapian-config
