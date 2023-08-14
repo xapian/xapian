@@ -1,7 +1,7 @@
 /** @file
  * @brief Spelling correction data for a honey database.
  */
-/* Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2011,2015,2017,2018,2020 Olly Betts
+/* Copyright (C) 2004-2023 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -425,8 +425,16 @@ HoneySpellingTermList::next()
 	throw Xapian::DatabaseCorruptError("Bad spelling data (too little "
 					   "left)");
     }
-    current_term.replace(keep, current_term.size() - tail - keep,
-			 data.data() + p + 1, add);
+    if (rare(keep + tail > current_term.size())) {
+	// The initial part to keep overlaps with the tail part which is an
+	// unusual case requiring special handling.
+	string tail_string(current_term, current_term.size() - tail);
+	current_term.replace(keep, string::npos, data.data() + p + 1, add);
+	current_term += tail_string;
+    } else {
+	current_term.replace(keep, current_term.size() - tail - keep,
+			     data.data() + p + 1, add);
+    }
     p += add + 1;
 
     return NULL;

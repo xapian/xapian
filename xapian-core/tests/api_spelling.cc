@@ -316,3 +316,15 @@ DEFINE_TESTCASE(spell8, spelling) {
     // kin and kin used to cancel out in "skinking".
     TEST_EQUAL(db.get_spelling_suggestion("scimkin", 3), "skinking");
 }
+
+/// Regression test for honey spelling encoding bug affecting "tail" entries.
+DEFINE_TESTCASE(spell9, spelling) {
+    Xapian::Database db = get_database("spell9",
+				       [](Xapian::WritableDatabase& wdb,
+					  const string&) {
+					   wdb.add_spelling("ruru", 1);
+					   wdb.add_spelling("eel", 1);
+				       });
+    TEST_EQUAL(db.get_spelling_suggestion("gel", 1), "eel");
+    TEST_EQUAL(db.get_spelling_suggestion("thru", 2), "ruru");
+}
