@@ -272,7 +272,7 @@ HoneyCursor::do_find(const string& key, bool greater_than)
 		// from current index pos?
 		// off_t pos = store.get_pos();
 		string index_key, prev_index_key;
-		make_unsigned<off_t>::type ptr = 0;
+		make_unsigned_t<off_t> ptr = 0;
 		int cmp0 = 1;
 #ifdef DEBUGGING
 		{

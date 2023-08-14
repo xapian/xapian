@@ -54,7 +54,7 @@ inline bool file_exists(const std::string & path) {
 }
 
 /** Unsigned return type of file_size() function. */
-typedef std::make_unsigned<off_t>::type file_size_type;
+typedef std::make_unsigned_t<off_t> file_size_type;
 
 /** Returns the size of a file.
  *

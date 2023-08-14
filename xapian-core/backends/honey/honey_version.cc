@@ -496,7 +496,7 @@ void
 RootInfo::serialise(string& s) const
 {
     AssertRel(offset, >=, 0);
-    std::make_unsigned<off_t>::type uoffset = offset;
+    std::make_unsigned_t<off_t> uoffset = offset;
     AssertRel(root, >=, offset);
     pack_uint(s, uoffset);
     pack_uint(s, root - uoffset);
@@ -510,7 +510,7 @@ RootInfo::serialise(string& s) const
 bool
 RootInfo::unserialise(const char** p, const char* end)
 {
-    std::make_unsigned<off_t>::type uoffset, uroot;
+    std::make_unsigned_t<off_t> uoffset, uroot;
     unsigned dummy_val;
     unsigned dummy_blocksize;
     if (!unpack_uint(p, end, &uoffset) ||

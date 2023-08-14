@@ -454,7 +454,7 @@ class SSTIndex {
 	data += char(reuse);
 	data += char(key.size() - reuse);
 	data.append(key, reuse, key.size() - reuse);
-	pack_uint(data, static_cast<std::make_unsigned<off_t>::type>(ptr));
+	pack_uint(data, static_cast<std::make_unsigned_t<off_t>>(ptr));
 
 	block = cur_block;
 	// FIXME: deal with parent_index...

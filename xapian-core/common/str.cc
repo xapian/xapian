@@ -62,7 +62,7 @@ tostring(T value)
 
     bool negative = (value < 0);
 
-    typedef typename std::make_unsigned<T>::type unsigned_type;
+    typedef typename std::make_unsigned_t<T> unsigned_type;
     unsigned_type val(value);
     if (negative) {
 	val = negate_unsigned(val);
