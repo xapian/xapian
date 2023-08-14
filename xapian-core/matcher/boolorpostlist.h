@@ -131,7 +131,7 @@ class BoolOrPostList : public PostList {
 	    // Fall-back to just ascending one level at a time, which is
 	    // simple and probably similarly efficient to a portable
 	    // fallback ffs() implementation which doesn't make use of
-	    // specifialised machine code instructions, since the distance
+	    // specialised machine code instructions, since the distance
 	    // we can ascend will be usually be short.
 	    i = (i - 1) / 2;
 #endif
