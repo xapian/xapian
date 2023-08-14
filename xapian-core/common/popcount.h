@@ -58,7 +58,7 @@ add_popcount(A& accumulator, V value)
 	accumulator += static_cast<A>(__popcnt64(value));
 #endif
     } else {
-	auto u = static_cast<std::make_unsigned<V>>(value);
+	auto u = static_cast<std::make_unsigned_t<V>>(value);
 	while (u) {
 	    ++accumulator;
 	    // Bit twiddling trick to unset the lowest set bit of u.
