@@ -30,7 +30,9 @@
 
 using namespace std;
 
-// Highly optimised fls() implementation.
+// Find the position of the most significant set bit counting from 1 with
+// 0 being returned if no bits are set (similar to how ffs() reports the least
+// significant set bit).
 template<typename T>
 static inline int
 highest_order_bit(T mask)
@@ -38,7 +40,8 @@ highest_order_bit(T mask)
 #ifdef HAVE_DO_CLZ
     return mask ? sizeof(T) * 8 - do_clz(mask) : 0;
 #else
-    static const unsigned char flstab[256] = {
+    // Table of results for 8 bit inputs.
+    static const unsigned char hob_tab[256] = {
 	0, 1, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4,
 	5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5,
 	6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
@@ -72,7 +75,7 @@ highest_order_bit(T mask)
 	mask >>= 8;
 	result += 8;
     }
-    return result + flstab[mask];
+    return result + hob_tab[mask];
 #endif
 }
 
