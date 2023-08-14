@@ -469,6 +469,7 @@ AC_CHECK_DECLS([__builtin_ctz(unsigned),
 		__builtin_ctzl(unsigned long),
 		__builtin_ctzll(unsigned long long)], [], [], [ ])
 AC_CHECK_DECLS([__builtin_expect(long, long)], [], [], [ ])
+AC_CHECK_DECLS([__builtin_ffs(int)], [], [], [ ])
 AC_CHECK_DECLS([__builtin_popcount(unsigned),
 		__builtin_popcountl(unsigned long),
 		__builtin_popcountll(unsigned long long)], [], [], [ ])
