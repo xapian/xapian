@@ -148,9 +148,13 @@ jobs:
             tesseract-ocr-eng
     - name: configure
       run: |
+        # We use clang here because (at least currently) it supports a few
+        # extra sanitiser checks compared to GCC.
         export CC='ccache clang'
         export CXX='ccache clang++'
-        export CXXFLAGS='-fsanitize=undefined,address,float-divide-by-zero,local-bounds,nullability -fno-sanitize-recover=all -g -O2 -fno-omit-frame-pointer'
+        # float-divide-by-zero and nullability aren't undefined behaviour
+        # checks, but they catch for things we don't expect our code to do.
+        export CXXFLAGS='-fsanitize=address,undefined,float-divide-by-zero,local-bounds,nullability -fsanitize-address-use-after-scope -fno-sanitize-recover=all -g -O2 -fno-omit-frame-pointer'
         pushd xapian-core
         ./configure --enable-werror
         export XAPIAN_CONFIG=$PWD/xapian-config
