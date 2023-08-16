@@ -75,7 +75,7 @@ encode_initial_chunk_header(Xapian::doccount termfreq,
 	//
 	// <first - 1> <collfreq> <last - first - 1>
 	//
-	// And then when its omitted: first_wdf = collfreq >> 1
+	// And then when it's omitted: first_wdf = collfreq >> 1
 	//
 	// The collfreq = 0 case is then a particular example of this.
 	pack_uint(out, collfreq);

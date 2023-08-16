@@ -952,7 +952,7 @@ merge_postlists(Xapian::Compactor* compactor,
 	    if (new_size > HONEY_DOCLEN_CHUNK_MAX) {
 		if (byte_width > 1) {
 		    // HONEY_DOCLEN_CHUNK_MAX should be one more than a
-		    // multiple of 12 so for widths 1,2,3,4 we can fix the
+		    // multiple of 12 so for widths 1,2,3,4 we can fit the
 		    // initial byte which indicates the width for the chunk
 		    // plus an exact number of entries.
 		    auto m = (new_size - HONEY_DOCLEN_CHUNK_MAX) % byte_width;
