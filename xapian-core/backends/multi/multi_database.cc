@@ -597,7 +597,7 @@ MultiDatabase::add_document(const Xapian::Document& doc)
 {
     // With a single shard, add_document() uses docid (get_lastdocid() + 1)
     // which seems a sensible invariant to preserve with multiple shards.
-    Xapian::docid did = get_lastdocid() + 1;
+    Xapian::docid did = UNSIGNED_OVERFLOW_OK(get_lastdocid() + 1);
     if (rare(did == 0)) {
 	throw Xapian::DatabaseError("Run out of docids - you'll have to use "
 				    "copydatabase to eliminate any gaps "
@@ -642,7 +642,7 @@ MultiDatabase::replace_document(const string& term, const Xapian::Document& doc)
     if (!pl || (pl->next(), pl->at_end())) {
 	// unique_term not in the database, so this is just an add_document().
 	// Calculate which shard the next never used docid maps to.
-	Xapian::docid did = get_lastdocid() + 1;
+	Xapian::docid did = UNSIGNED_OVERFLOW_OK(get_lastdocid() + 1);
 	if (rare(did == 0)) {
 	    throw Xapian::DatabaseError("Run out of docids - you'll have to "
 					"use copydatabase to eliminate any "

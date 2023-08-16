@@ -377,7 +377,7 @@ MSet::Internal::unserialise(const char * p, const char * p_end)
 	!unpack_uint(&p, p_end, &msize)) {
 	unpack_throw_serialisation_error(p);
     }
-    while (msize-- > 0) {
+    for ( ; msize; --msize) {
 	double wt = unserialise_double(&p, p_end);
 	Xapian::docid did;
 	string sort_key, key;

@@ -4,7 +4,7 @@
 # Wrapper script for running test programs (using libtool, valgrind and
 # eatmydata if required).
 #
-# Copyright (C) 2003,2004,2007,2008,2009,2010,2013,2017,2018 Olly Betts
+# Copyright (C) 2003,2004,2007,2008,2009,2010,2013,2017,2018,2023 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -35,6 +35,13 @@ esac
 # Set srcdir if it isn't already.
 : ${srcdir="@srcdir@"}
 export srcdir
+
+# Enable suppressions for UBSan (these are for defined-but-dubious behaviours
+# such as unsigned overflow which UBSan can also catch - code in system library
+# headers may trigger these checks).  If UBSan isn't in use, setting this is
+# harmless.
+UBSAN_OPTIONS=suppressions=$srcdir/ubsan.supp
+export UBSAN_OPTIONS
 
 case $1 in
   *test|*test@EXEEXT@) ;;

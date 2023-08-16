@@ -894,7 +894,15 @@ inline static void parsesigned_helper() {
     unsigned long long one_too_large = max_val + 1ull;
     TEST(!parse_signed(str(one_too_large).c_str(), val));
 
-    unsigned long long one_too_small_negated = 1ull - min_val;
+    // We need to use an unsigned long long here so this works when S is
+    // long long.  The somewhat contorted way we calculate this is to
+    // avoid unsigned overflow and value-changing implicit conversions.
+    // These aren't undefined behaviour, but we want to limit where they
+    // happen in the library to a few low-level places and ubsan's extra
+    // checks provide a way to check that, so keeping the testsuite clean
+    // of such warnings is useful.
+    unsigned long long one_too_small_negated =
+	static_cast<unsigned long long>(-(min_val + 1)) + 2ull;
     TEST(!parse_signed(("-" + str(one_too_small_negated)).c_str(), val));
 }
 

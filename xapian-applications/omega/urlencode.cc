@@ -36,7 +36,7 @@ using namespace std;
 void
 url_encode_(string & res, const char * p, size_t len, const char * safe)
 {
-    while (len--) {
+    for ( ; len ; --len) {
 	unsigned char ch = *p++;
 	if (C_isalnum(ch) || strchr(safe, ch)) {
 	    // Unreserved by RFC3986.

@@ -31,6 +31,7 @@
 #include <xapian.h>
 
 #include "filetests.h"
+#include "negate_unsigned.h"
 #include "omassert.h"
 #include "str.h"
 #include "stringutils.h"
@@ -740,7 +741,7 @@ DEFINE_TESTCASE(deldoc4, writable) {
 	did = db.add_document(doc3);
 	TEST_EQUAL(did, i * 3 + 3);
 
-	bool is_power_of_two = ((i & (i - 1)) == 0);
+	bool is_power_of_two = ((i & negate_unsigned(i)) == 0);
 	if (is_power_of_two) {
 	    db.commit();
 	    // reopen() on a writable database shouldn't do anything.
@@ -1814,8 +1815,8 @@ DEFINE_TESTCASE(cursordelbug1, writable && path) {
 	doc.add_term("XAdef");
 	doc.add_term("XRghi");
 	doc.add_term("XYabc");
-	size_t c = copies[i];
-	while (c--) db.add_document(doc);
+	for (size_t c = copies[i]; c; --c)
+	    db.add_document(doc);
     }
 
     db.commit();

@@ -382,7 +382,7 @@ RemoteServer::msg_positionlist(const string &message)
 	 i != db->positionlist_end(did, term);
 	 ++i) {
 	Xapian::termpos pos = *i;
-	pack_uint(reply, pos - lastpos - 1);
+	pack_uint(reply, UNSIGNED_OVERFLOW_OK(pos - lastpos - 1));
 	lastpos = pos;
     }
     send_message(REPLY_POSITIONLIST, reply);

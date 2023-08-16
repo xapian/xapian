@@ -1395,7 +1395,7 @@ GlassWritableDatabase::replace_document(Xapian::docid did,
 		    version_file.check_wdf(new_wdf);
 
 		    if (old_wdf != new_wdf) {
-			new_doclen += new_wdf - old_wdf;
+			new_doclen = new_doclen - old_wdf + new_wdf;
 			inverter.update_posting(did, new_tname, old_wdf, new_wdf);
 		    }
 
@@ -1488,12 +1488,12 @@ GlassWritableDatabase::get_freqs(const string & term,
     LOGCALL_VOID(DB, "GlassWritableDatabase::get_freqs", term | termfreq_ptr | collfreq_ptr);
     Assert(!term.empty());
     GlassDatabase::get_freqs(term, termfreq_ptr, collfreq_ptr);
-    Xapian::termcount_diff tf_delta, cf_delta;
+    Xapian::termcount tf_delta, cf_delta;
     if (inverter.get_deltas(term, tf_delta, cf_delta)) {
 	if (termfreq_ptr)
-	    *termfreq_ptr += tf_delta;
+	    UNSIGNED_OVERFLOW_OK(*termfreq_ptr += tf_delta);
 	if (collfreq_ptr)
-	    *collfreq_ptr += cf_delta;
+	    UNSIGNED_OVERFLOW_OK(*collfreq_ptr += cf_delta);
     }
 }
 

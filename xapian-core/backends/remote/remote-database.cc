@@ -267,7 +267,7 @@ RemoteDatabase::open_position_list(Xapian::docid did, const string &term) const
 	if (!unpack_uint(&p, p_end, &inc)) {
 	    unpack_throw_serialisation_error(p);
 	}
-	lastpos += inc + 1;
+	UNSIGNED_OVERFLOW_OK(lastpos += inc + 1);
 	positions.push_back(lastpos);
     }
 

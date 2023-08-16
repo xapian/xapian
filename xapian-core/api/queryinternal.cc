@@ -212,9 +212,9 @@ Context::expand_wildcard(const QueryWildcard* query,
     auto max_type = query->get_max_type();
     Xapian::termcount expansions_left = query->get_max_expansion();
     // If there's no expansion limit, set expansions_left to the maximum
-    // value Xapian::termcount can hold.
+    // value it can hold.
     if (expansions_left == 0)
-	--expansions_left;
+	expansions_left = numeric_limits<decltype(expansions_left)>::max();
     while (true) {
 	t->next();
 done_skip_to:
@@ -241,7 +241,7 @@ done_skip_to:
 	if (!query->test_prefix_known(term)) continue;
 
 	if (max_type < Xapian::Query::WILDCARD_LIMIT_MOST_FREQUENT) {
-	    if (expansions_left-- == 0) {
+	    if (expansions_left == 0) {
 		if (max_type == Xapian::Query::WILDCARD_LIMIT_FIRST)
 		    break;
 		string msg("Wildcard ");
@@ -253,6 +253,7 @@ done_skip_to:
 		msg += " terms";
 		throw Xapian::WildcardError(msg);
 	    }
+	    --expansions_left;
 	}
 
 	add_postlist(qopt->open_lazy_post_list(term, 1, factor), NULL);
@@ -288,9 +289,9 @@ Context::expand_edit_distance(const QueryEditDistance* query,
     auto max_type = query->get_max_type();
     Xapian::termcount expansions_left = query->get_max_expansion();
     // If there's no expansion limit, set expansions_left to the maximum
-    // value Xapian::termcount can hold.
+    // value it can hold.
     if (expansions_left == 0)
-	--expansions_left;
+	expansions_left = numeric_limits<decltype(expansions_left)>::max();
     while (true) {
 	t->next();
 done_skip_to:
@@ -318,7 +319,7 @@ done_skip_to:
 	if (!query->test(term)) continue;
 
 	if (max_type < Xapian::Query::WILDCARD_LIMIT_MOST_FREQUENT) {
-	    if (expansions_left-- == 0) {
+	    if (expansions_left == 0) {
 		if (max_type == Xapian::Query::WILDCARD_LIMIT_FIRST)
 		    break;
 		string msg("Edit distance ");
@@ -330,6 +331,7 @@ done_skip_to:
 		msg += " terms";
 		throw Xapian::WildcardError(msg);
 	    }
+	    --expansions_left;
 	}
 
 	add_postlist(qopt->open_lazy_post_list(term, 1, factor), NULL);
@@ -1393,7 +1395,7 @@ estimate_range_freq(const string& lo, const string& hi,
 
     size_t common_prefix_len = size_t(-1);
     do {
-	++common_prefix_len;
+	UNSIGNED_OVERFLOW_OK(++common_prefix_len);
 	// lo <= hi so while we're in the common prefix hi can't run out
 	// before lo.
 	if (common_prefix_len == lo.size()) {

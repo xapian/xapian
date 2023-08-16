@@ -50,7 +50,8 @@ InMemoryPositionList::get_position() const
 bool
 InMemoryPositionList::next()
 {
-    ++index;
+    // We start index at size_t(-1) so the first increment gives 0.
+    UNSIGNED_OVERFLOW_OK(++index);
     AssertRel(index, <=, positions.size());
     return index != positions.size();
 }

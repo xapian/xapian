@@ -387,7 +387,8 @@ GlassValueManager::add_document(Xapian::docid did, const Xapian::Document &doc,
 
 	add_value(did, slot, value);
 	if (termlist_table->is_open()) {
-	    pack_uint(slots_used, slot - prev_slot - 1);
+	    // prev_slot starts as Xapian::valueno(-1).
+	    pack_uint(slots_used, slot - UNSIGNED_OVERFLOW_OK(prev_slot + 1));
 	    prev_slot = slot;
 	}
 	++it;
@@ -421,7 +422,8 @@ GlassValueManager::delete_document(Xapian::docid did,
 	if (!unpack_uint(&p, end, &slot)) {
 	    throw Xapian::DatabaseCorruptError("Value slot encoding corrupt");
 	}
-	slot += prev_slot + 1;
+	// prev_slot starts as Xapian::valueno(-1).
+	slot += UNSIGNED_OVERFLOW_OK(prev_slot + 1);
 	prev_slot = slot;
 
 	std::pair<map<Xapian::valueno, ValueStats>::iterator, bool> i;
@@ -518,7 +520,8 @@ GlassValueManager::get_all_values(map<Xapian::valueno, string> & values,
 	if (!unpack_uint(&p, end, &slot)) {
 	    throw Xapian::DatabaseCorruptError("Value slot encoding corrupt");
 	}
-	slot += prev_slot + 1;
+	// prev_slot starts as Xapian::valueno(-1).
+	slot += UNSIGNED_OVERFLOW_OK(prev_slot + 1);
 	prev_slot = slot;
 	values.insert(make_pair(slot, get_value(did, slot)));
     }

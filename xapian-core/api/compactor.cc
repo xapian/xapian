@@ -213,7 +213,7 @@ Database::compact_(const string * output_ptr, int fd, unsigned flags,
 		//
 		// tot_off could wrap here, but it's unsigned, so that's
 		// OK.
-		tot_off -= (first - 1);
+		UNSIGNED_OVERFLOW_OK(tot_off -= (first - 1));
 	    }
 
 #ifdef XAPIAN_ASSERTIONS
@@ -237,7 +237,7 @@ Database::compact_(const string * output_ptr, int fd, unsigned flags,
 
 	offset.push_back(tot_off);
 	if (renumber)
-	    tot_off += last;
+	    UNSIGNED_OVERFLOW_OK(tot_off += last);
 	else if (last_docid < shard->get_lastdocid())
 	    last_docid = shard->get_lastdocid();
 	used_ranges.push_back(make_pair(first, last));

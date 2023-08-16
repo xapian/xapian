@@ -746,8 +746,11 @@ GlassPostList::init()
 					    &is_last_chunk);
     read_wdf(&pos, end, &wdf);
     // This works even if there's only one entry (when wdf == collfreq)
-    // or when collfreq is 0 (=> wdf is 0 too).
-    wdf_upper_bound = max(collfreq - wdf, wdf);
+    // or when collfreq is 0 (=> wdf is 0 too).  However it if this is
+    // a doclen list (term.empty()) then collfreq is 0 and "wdf" is the
+    // length of the first document.  We don't use wdf_upper_bound in
+    // this case so just set it to 0 and avoid unsigned overflow.
+    wdf_upper_bound = term.empty() ? 0 : max(collfreq - wdf, wdf);
     LOGLINE(DB, "Initial docid " << did);
 }
 
@@ -1155,9 +1158,8 @@ GlassPostListTable::merge_doclen_changes(const map<Xapian::docid, Xapian::termco
     string current_key = make_key(string());
     if (!key_exists(current_key)) {
 	LOGLINE(DB, "Adding dummy first chunk");
-	string newtag = make_start_of_first_chunk(0, 0, 0);
-	newtag += make_start_of_chunk(true, 0, 0);
-	add(current_key, newtag);
+	// Zero values except the "last chunk" flag is set.
+	add(current_key, "\0\0\0\x31\0"s);
     }
 
     map<Xapian::docid, Xapian::termcount>::const_iterator j;
@@ -1229,8 +1231,8 @@ GlassPostListTable::merge_changes(const string &term,
 	if (pos == end) {
 	    termfreq = 0;
 	    collfreq = 0;
-	    firstdid = 0;
-	    lastdid = 0;
+	    // Dummy values which will get replaced later.
+	    firstdid = lastdid = 1;
 	    islast = true;
 	} else {
 	    firstdid = read_start_of_first_chunk(&pos, end,
@@ -1239,7 +1241,7 @@ GlassPostListTable::merge_changes(const string &term,
 	    lastdid = read_start_of_chunk(&pos, end, firstdid, &islast);
 	}
 
-	termfreq += changes.get_tfdelta();
+	UNSIGNED_OVERFLOW_OK(termfreq += changes.get_tfdelta());
 	if (termfreq == 0) {
 	    // All postings deleted!  So we can shortcut by zapping the
 	    // posting list.
@@ -1259,7 +1261,7 @@ GlassPostListTable::merge_changes(const string &term,
 	    }
 	    return;
 	}
-	collfreq += changes.get_cfdelta();
+	UNSIGNED_OVERFLOW_OK(collfreq += changes.get_cfdelta());
 
 	// Rewrite start of first chunk to update termfreq and collfreq.
 	string newhdr = make_start_of_first_chunk(termfreq, collfreq, firstdid);

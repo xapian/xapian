@@ -902,7 +902,7 @@ MSet::Internal::snippet(const string & text,
 		    if (term == terms.back()) {
 			size_t n = terms.size() - 1;
 			bool match = true;
-			while (n--) {
+			while (UNSIGNED_OVERFLOW_OK(n--)) {
 			    if (terms[n] != phrase[(n + phrase_next) % (longest_phrase - 1)]) {
 				match = false;
 				break;

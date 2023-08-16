@@ -759,7 +759,7 @@ Matcher::get_mset(Xapian::doccount first,
 	if (merged_mset.size() != maxitems) {
 	    todo = 0;
 	}
-	while (!msets.empty() && todo--) {
+	for ( ; !msets.empty() && todo; --todo) {
 	    auto& front = msets.front();
 	    auto& result = front.first.internal->items[front.second];
 	    if (percent_threshold) {

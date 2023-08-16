@@ -611,6 +611,21 @@ AH_BOTTOM(
 # define rare(COND) (COND)
 # define usual(COND) (COND)
 #endif
+
+/* This macro can be used around expressions which intentionally make use of
+ * unsigned integer overflow (which is defined behaviour, unlike signed integer
+ * overflow) so that we can use UBSan's optional unsigned-integer-overflow
+ * check to find potential bugs where we unintentionally overflow an unsigned
+ * integer.
+ */
+#ifdef __clang__
+#define UNSIGNED_OVERFLOW_OK(X) \
+    ([&]() __attribute__((no_sanitize("unsigned-integer-overflow"))) {\
+	return (X);\
+    }())
+#else
+# define UNSIGNED_OVERFLOW_OK(X) (X)
+#endif
 ])
 
 AC_SUBST([AM_CXXFLAGS])

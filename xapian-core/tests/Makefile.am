@@ -190,6 +190,7 @@ EXTRA_DIST = collate-test generate-api_generated api_all.h api_collated.h \
 ## Distribute test data:
 EXTRA_DIST +=\
 	runtest.in \
+	ubsan.supp \
 	valgrind.supp \
 	testdata/apitest_onedoc.txt \
 	testdata/apitest_simpledata.txt \

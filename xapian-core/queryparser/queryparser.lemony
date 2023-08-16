@@ -1541,10 +1541,10 @@ phrased_term:
 			if (corrected_query.empty()) corrected_query = qs;
 			size_t term_end_index = it.raw() - qs.data();
 			size_t n = term_end_index - term_start_index;
-			size_t pos = term_start_index + correction_offset;
+			size_t pos = UNSIGNED_OVERFLOW_OK(term_start_index + correction_offset);
 			corrected_query.replace(pos, n, suggest);
-			correction_offset += suggest.size();
-			correction_offset -= n;
+			UNSIGNED_OVERFLOW_OK(correction_offset += suggest.size());
+			UNSIGNED_OVERFLOW_OK(correction_offset -= n);
 		    }
 		    break;
 		}

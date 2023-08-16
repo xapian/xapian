@@ -148,7 +148,8 @@ EXTRA_DIST =\
 	testfiles/plaintext/utf8-bom.txt \
 	testfiles/plaintext/utf8.txt \
 	testfiles/video/file_example_AVI_480_750kB.avi \
-	testfiles/video/file_example_OGG_480_1_7mg.ogg
+	testfiles/video/file_example_OGG_480_1_7mg.ogg \
+	ubsan.supp
 
 AM_CPPFLAGS = \
 	-I$(top_srcdir)/common \

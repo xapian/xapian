@@ -97,7 +97,7 @@ unserialise_stats(const char* p, const char* p_end,
     }
 
     string term;
-    while (n--) {
+    for ( ; n; --n) {
 	Xapian::doccount termfreq;
 	Xapian::doccount reltermfreq = 0;
 	Xapian::termcount collfreq;
@@ -220,7 +220,7 @@ unserialise_document(const string &s)
 	unpack_throw_serialisation_error(p);
     }
     string value;
-    while (n_values--) {
+    for ( ; n_values; --n_values) {
 	Xapian::valueno slot;
 	if (!unpack_uint(&p, p_end, &slot) ||
 	    !unpack_string(&p, p_end, value)) {
@@ -234,7 +234,7 @@ unserialise_document(const string &s)
 	unpack_throw_serialisation_error(p);
     }
     string term;
-    while (n_terms--) {
+    for ( ; n_terms; --n_terms) {
 	Xapian::termcount wdf;
 	if (!unpack_string(&p, p_end, term) ||
 	    !unpack_uint(&p, p_end, &wdf)) {
@@ -248,7 +248,7 @@ unserialise_document(const string &s)
 	    unpack_throw_serialisation_error(p);
 	}
 	Xapian::termpos pos = 0;
-	while (n_pos--) {
+	for ( ; n_pos; --n_pos) {
 	    Xapian::termpos inc;
 	    if (!unpack_uint(&p, p_end, &inc)) {
 		unpack_throw_serialisation_error(p);

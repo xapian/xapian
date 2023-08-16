@@ -1,0 +1,2 @@
+unsigned-integer-overflow:basic_string.h
+unsigned-integer-overflow:bits/random.tcc

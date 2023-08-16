@@ -403,7 +403,7 @@ parse_queries(const string& oldp)
 	    // prefer the first user_prefix for which a particular term prefix
 	    // is specified.
 	    termprefix_to_userprefix.insert(make_pair(term_pfx, user_prefix));
-	} while (++i);
+	} while (UNSIGNED_OVERFLOW_OK(++i));
     }
     pfx = option.lower_bound("boolprefix,");
     for (; pfx != option.end() && startswith(pfx->first, "boolprefix,"); ++pfx) {
@@ -1442,7 +1442,7 @@ eval(const string& fmt, vector<string>& param)
 		value.reserve((input.size() + 2) / 3 * 4);
 		auto it = input.begin();
 		auto n = input.size() / 3;
-		while (n--) {
+		for ( ; n; --n) {
 		    uint32_t v = uint8_t(*it++);
 		    v = (v << 8) | uint8_t(*it++);
 		    v = (v << 8) | uint8_t(*it++);
@@ -2675,7 +2675,7 @@ eval(const string& fmt, vector<string>& param)
 			value += item;
 		    }
 		    prev = item;
-		    split = split2 + 1;
+		    split = UNSIGNED_OVERFLOW_OK(split2 + 1);
 		} while (split2 != string::npos);
 		break;
 	    }
@@ -2692,7 +2692,7 @@ eval(const string& fmt, vector<string>& param)
 			    value += '\t';
 			value += item;
 		    }
-		    split = split2 + 1;
+		    split = UNSIGNED_OVERFLOW_OK(split2 + 1);
 		} while (split2 != string::npos);
 		break;
 	    }

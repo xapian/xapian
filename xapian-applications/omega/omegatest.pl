@@ -34,6 +34,7 @@ sub print_to_file {
 my $omega = $ENV{OMEGA} // './omega';
 my $scriptindex = $ENV{SCRIPTINDEX} // './scriptindex';
 my $faketime = $ENV{FAKETIME} // 'faketime';
+my $srcdir = ($0 =~ m,(.*)/,)[0] // '.';
 
 # Suppress HTTP Content-Type header.
 $ENV{SERVER_PROTOCOL} = 'INCLUDED';
@@ -45,6 +46,12 @@ $ENV{LSAN_OPTIONS} = 'leak_check_at_exit=0';
 # Turn off msys2's argument conversion as we shouldn't need it and it breaks
 # some testcases.
 $ENV{MSYS2_ARG_CONV_EXCL} = '*';
+
+# Enable suppressions for UBSan (these are for defined-but-dubious behaviours
+# such as unsigned overflow which UBSan can also catch - code in system library
+# headers may trigger these checks).  If UBSan isn't in use, setting this is
+# harmless.
+$ENV{UBSAN_OPTIONS} = "suppressions=$srcdir/ubsan.supp";
 
 # Set up an empty database.
 my $test_db = 'test-db';

@@ -392,7 +392,7 @@ inline unsigned tolower(unsigned ch) {
     int info = Xapian::Unicode::Internal::get_character_info(ch);
     if (!(info & Internal::INFO_TOLOWER_MASK))
 	return ch;
-    return ch + Internal::get_delta(info);
+    return unsigned(int(ch) + Internal::get_delta(info));
 }
 
 /// Convert a Unicode character to uppercase.
@@ -400,7 +400,7 @@ inline unsigned toupper(unsigned ch) {
     int info = Xapian::Unicode::Internal::get_character_info(ch);
     if (!(info & Internal::INFO_TOUPPER_MASK))
 	return ch;
-    return ch - Internal::get_delta(info);
+    return unsigned(int(ch) - Internal::get_delta(info));
 }
 
 /// Convert a UTF-8 std::string to lowercase.

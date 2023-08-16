@@ -28,7 +28,10 @@
 #include <type_traits>
 
 template<typename T>
-constexpr typename std::enable_if_t<std::is_unsigned_v<T>, T>
+#ifdef __clang__
+[[clang::no_sanitize("unsigned-integer-overflow")]]
+#endif
+inline constexpr typename std::enable_if_t<std::is_unsigned_v<T>, T>
 negate_unsigned(T value)
 {
 #ifdef _MSC_VER

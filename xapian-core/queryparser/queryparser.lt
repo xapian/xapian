@@ -717,7 +717,8 @@ static void yy_reduce(
 
   yymsp += yysize+1;
   if (yysize) {
-    yypParser->yystack.resize(yypParser->yystack.size() + yysize+1);
+    yypParser->yystack.resize(UNSIGNED_OVERFLOW_OK(yypParser->yystack.size() +
+						   (yysize+1)));
   }
   yymsp->stateno = static_cast<YYACTIONTYPE>(yyact);
   yymsp->major = static_cast<YYCODETYPE>(yygoto);

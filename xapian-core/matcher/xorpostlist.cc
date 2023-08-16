@@ -92,7 +92,7 @@ XorPostList::next(double w_min)
     Xapian::docid old_did = did;
     did = 0;
     size_t matching_count = 0;
-    for (size_t i = 0; i < n_kids; ++i) {
+    for (size_t i = 0; i < n_kids; UNSIGNED_OVERFLOW_OK(++i)) {
 	if (old_did == 0 || plist[i]->get_docid() <= old_did) {
 	    // FIXME: calculate the min weight required here...
 	    PostList * res = plist[i]->next(0);
@@ -103,7 +103,12 @@ XorPostList::next(double w_min)
 	    }
 
 	    if (plist[i]->at_end()) {
-		erase_sublist(i--);
+		// erase_sublist(i) shuffles down i+1, etc down one index, so
+		// the next sublist to deal with is also at index i, unless
+		// this was the last index.  We deal with this by decrementing
+		// i here and it'll be incremented by the loop, but this may
+		// underflow (which is OK because i is an unsigned type).
+		erase_sublist(UNSIGNED_OVERFLOW_OK(i--));
 		continue;
 	    }
 	}

@@ -240,7 +240,7 @@ omegascript_sort(const vector<string>& args,
     do {
 	split2 = list.find('\t', split);
 	items.emplace_back(list, split, split2 - split);
-	split = split2 + 1;
+	split = UNSIGNED_OVERFLOW_OK(split2 + 1);
     } while (split2 != string::npos);
 
     if (mode != 'n') {

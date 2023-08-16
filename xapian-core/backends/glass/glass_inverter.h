@@ -1,7 +1,7 @@
 /** @file
  * @brief Inverter class which "inverts the file".
  */
-/* Copyright (C) 2009,2010,2013,2014 Olly Betts
+/* Copyright (C) 2009,2010,2013,2014,2023 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,6 +29,7 @@
 #include <string>
 #include <vector>
 
+#include "negate_unsigned.h"
 #include "omassert.h"
 #include "str.h"
 #include "xapian/error.h"
@@ -51,11 +52,17 @@ class Inverter {
     class PostingChanges {
 	friend class GlassPostListTable;
 
-	/// Change in term frequency,
-	Xapian::termcount_diff tf_delta;
+	/** Change in term frequency.
+	 *
+	 *  Note: Stored as an unsigned quantity to add to current tf.
+	 */
+	Xapian::termcount tf_delta;
 
-	/// Change in collection frequency.
-	Xapian::termcount_diff cf_delta;
+	/** Change in collection frequency.
+	 *
+	 *  Note: Stored as an unsigned quantity to add to current cf.
+	 */
+	Xapian::termcount cf_delta;
 
 	/// Changes to this term's postlist.
 	std::map<Xapian::docid, Xapian::termcount> pl_changes;
@@ -63,14 +70,15 @@ class Inverter {
       public:
 	/// Constructor for an added posting.
 	PostingChanges(Xapian::docid did, Xapian::termcount wdf)
-	    : tf_delta(1), cf_delta(Xapian::termcount_diff(wdf))
+	    : tf_delta(1), cf_delta(wdf)
 	{
 	    pl_changes.insert(std::make_pair(did, wdf));
 	}
 
 	/// Constructor for a removed posting.
 	PostingChanges(Xapian::docid did, Xapian::termcount wdf, bool)
-	    : tf_delta(-1), cf_delta(-Xapian::termcount_diff(wdf))
+	    : tf_delta(UNSIGNED_OVERFLOW_OK(-1)),
+	      cf_delta(negate_unsigned(wdf))
 	{
 	    pl_changes.insert(std::make_pair(did, DELETED_POSTING));
 	}
@@ -78,23 +86,26 @@ class Inverter {
 	/// Constructor for an updated posting.
 	PostingChanges(Xapian::docid did, Xapian::termcount old_wdf,
 		       Xapian::termcount new_wdf)
-	    : tf_delta(0), cf_delta(Xapian::termcount_diff(new_wdf - old_wdf))
+	    : tf_delta(0),
+	      cf_delta(UNSIGNED_OVERFLOW_OK(new_wdf - old_wdf))
 	{
 	    pl_changes.insert(std::make_pair(did, new_wdf));
 	}
 
 	/// Add a posting.
 	void add_posting(Xapian::docid did, Xapian::termcount wdf) {
-	    ++tf_delta;
-	    cf_delta += wdf;
+	    // May overflow past 0.
+	    UNSIGNED_OVERFLOW_OK(++tf_delta);
+	    UNSIGNED_OVERFLOW_OK(cf_delta += wdf);
 	    // Add did to term's postlist
 	    pl_changes[did] = wdf;
 	}
 
 	/// Remove a posting.
 	void remove_posting(Xapian::docid did, Xapian::termcount wdf) {
-	    --tf_delta;
-	    cf_delta -= wdf;
+	    // May overflow past 0.
+	    UNSIGNED_OVERFLOW_OK(--tf_delta);
+	    UNSIGNED_OVERFLOW_OK(cf_delta -= wdf);
 	    // Remove did from term's postlist.
 	    pl_changes[did] = DELETED_POSTING;
 	}
@@ -102,15 +113,15 @@ class Inverter {
 	/// Update a posting.
 	void update_posting(Xapian::docid did, Xapian::termcount old_wdf,
 			    Xapian::termcount new_wdf) {
-	    cf_delta += new_wdf - old_wdf;
+	    UNSIGNED_OVERFLOW_OK(cf_delta += new_wdf - old_wdf);
 	    pl_changes[did] = new_wdf;
 	}
 
 	/// Get the term frequency delta.
-	Xapian::termcount_diff get_tfdelta() const { return tf_delta; }
+	Xapian::termcount get_tfdelta() const { return tf_delta; }
 
 	/// Get the collection frequency delta.
-	Xapian::termcount_diff get_cfdelta() const { return cf_delta; }
+	Xapian::termcount get_cfdelta() const { return cf_delta; }
     };
 
     /// Buffered changes to postlists.
@@ -242,9 +253,9 @@ class Inverter {
     /// Flush position changes.
     void flush_pos_lists(GlassPositionListTable & table);
 
-    bool get_deltas(const std::string & term,
-		    Xapian::termcount_diff & tf_delta,
-		    Xapian::termcount_diff & cf_delta) const {
+    bool get_deltas(const std::string& term,
+		    Xapian::termcount& tf_delta,
+		    Xapian::termcount& cf_delta) const {
 	std::map<std::string, PostingChanges>::const_iterator i;
 	i = postlist_changes.find(term);
 	if (i == postlist_changes.end()) {

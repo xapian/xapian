@@ -1,7 +1,7 @@
 /** @file
  * @brief Virtual base class for Database internals
  */
-/* Copyright 2003-2022 Olly Betts
+/* Copyright 2003-2023 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -32,6 +32,7 @@
 #include "xapian/error.h"
 
 #include <algorithm>
+#include <limits>
 #include <memory>
 #include <string>
 
@@ -491,13 +492,13 @@ Database::Internal::reconstruct_text(Xapian::docid did,
 				     Xapian::termpos end_pos) const
 {
     if (end_pos == 0) {
-	// Wrap to largest possible value.
-	--end_pos;
+	// Set to largest possible value.
+	end_pos = numeric_limits<decltype(end_pos)>::max();
     }
 
     if (length == 0) {
-	// Wrap to largest possible value.
-	--length;
+	// Set to largest possible value.
+	length = numeric_limits<decltype(length)>::max();
     }
 
     struct PosCmp {
@@ -541,13 +542,13 @@ Database::Internal::reconstruct_text(Xapian::docid did,
 
     string result;
 
-    Xapian::termpos old_pos = start_pos - 1;
+    Xapian::termpos old_pos = UNSIGNED_OVERFLOW_OK(start_pos - 1);
     while (!heap.empty()) {
 	Pos* tip = heap.front().get();
 	Xapian::termpos pos = tip->get_pos();
 	if (pos > end_pos) break;
 
-	Xapian::termpos delta = pos - old_pos;
+	Xapian::termpos delta = UNSIGNED_OVERFLOW_OK(pos - old_pos);
 	// Ignore additional terms at the same position.
 	if (delta) {
 	    if (usual(!result.empty())) {

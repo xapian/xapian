@@ -314,7 +314,7 @@ getline_portable(istream& stream, string& line)
     istream& result = getline(stream, line);
     // Trim multiple \r characters, since that seems the best way to handle
     // that case.
-    line.resize(line.find_last_not_of('\r') + 1);
+    line.resize(UNSIGNED_OVERFLOW_OK(line.find_last_not_of('\r') + 1));
     return result;
 }
 

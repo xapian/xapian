@@ -155,7 +155,7 @@ class PostlistCursor : private GlassCursor {
 		key.erase(tmp - 1);
 	    }
 	}
-	firstdid += offset;
+	UNSIGNED_OVERFLOW_OK(firstdid += offset);
 	return true;
     }
 };
@@ -753,7 +753,7 @@ merge_docid_keyed(GlassTable *out, const vector<const GlassTable*> & inputs,
 		    msg += inputs[i]->get_path();
 		    throw Xapian::DatabaseCorruptError(msg);
 		}
-		did += off;
+		UNSIGNED_OVERFLOW_OK(did += off);
 		key.resize(0);
 		pack_uint_preserving_sort(key, did);
 		if (d != e) {

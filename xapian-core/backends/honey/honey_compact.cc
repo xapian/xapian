@@ -250,8 +250,12 @@ class PostlistCursor<const GlassTable&> : private GlassCursor {
 
 	    Xapian::docid new_chunk_firstdid = did;
 	    AssertEq(chunk.size() % 4, 1);
-	    did += chunk.size() / 4;
-	    Xapian::docid new_chunk_lastdid = did - 1;
+	    // If the maximum possible docid is used then this will overflow to 0.
+	    // If this happens, we must be on the final chunk, and the only further
+	    // uses of did are in the lines which immediately follow.
+	    UNSIGNED_OVERFLOW_OK(did += chunk.size() / 4);
+	    // In the overflow case, this will overflow back again.
+	    Xapian::docid new_chunk_lastdid = UNSIGNED_OVERFLOW_OK(did - 1);
 	    did += gap_size;
 
 	    // Only encode document lengths using a whole number of bytes for
@@ -339,7 +343,7 @@ start_value_stats:
 	    key.assign("\0\xd0", 2);
 	    while (true) {
 		key.resize(2);
-		pack_uint_last(key, ++slot);
+		pack_uint_last(key, UNSIGNED_OVERFLOW_OK(++slot));
 		if (find_exact(key)) break;
 	    }
 	    --value_stats_count;
@@ -373,7 +377,7 @@ start_value_chunk:
 		// chunk entry in slot number order.
 		while (true) {
 		    key.resize(2);
-		    pack_uint(key, ++slot);
+		    pack_uint(key, UNSIGNED_OVERFLOW_OK(++slot));
 		    find_entry_ge(key);
 		    if (startswith(current_key, key)) break;
 		}
@@ -636,7 +640,7 @@ class PostlistCursor<const HoneyTable&> : private HoneyCursor {
 		Xapian::docid did = Honey::docid_from_key(key);
 		if (did == 0)
 		    throw Xapian::DatabaseCorruptError("Bad doclen key");
-		chunk_lastdid = did + offset;
+		chunk_lastdid = UNSIGNED_OVERFLOW_OK(did + offset);
 		// Each doclen chunk has a one byte header giving the number of
 		// bits per entry (which currently can be 8, 16, 24 or 32.  We
 		// want to subtract one less than the number of entries in the
@@ -740,8 +744,8 @@ class PostlistCursor<const HoneyTable&> : private HoneyCursor {
 	    }
 	    tag.erase(0, d - tag.data());
 	}
-	firstdid += offset;
-	chunk_lastdid += offset;
+	UNSIGNED_OVERFLOW_OK(firstdid += offset);
+	UNSIGNED_OVERFLOW_OK(chunk_lastdid += offset);
 	return true;
     }
 };
@@ -1942,7 +1946,7 @@ merge_docid_keyed(T* out, const vector<U*>& inputs,
 		    msg += inputs[i]->get_path();
 		    throw Xapian::DatabaseCorruptError(msg);
 		}
-		did += off;
+		UNSIGNED_OVERFLOW_OK(did += off);
 		key.resize(0);
 		pack_uint_preserving_sort(key, did);
 		if (d != e) {

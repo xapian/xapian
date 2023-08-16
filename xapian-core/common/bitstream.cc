@@ -94,7 +94,11 @@ BitWriter::encode(Xapian::termpos value, Xapian::termpos outof)
 {
     Assert(value < outof);
     unsigned bits = highest_order_bit(outof - Xapian::termpos(1));
-    const Xapian::termpos spare = safe_shl(Xapian::termpos(1), bits) - outof;
+    // If the top bit of (outof - Xapian::termpos(1)) is set then
+    // the shift will shift the bit out and give zero and the
+    // subtraction will result in an unsigned overflow.
+    const Xapian::termpos spare =
+	UNSIGNED_OVERFLOW_OK(safe_shl(Xapian::termpos(1), bits) - outof);
     if (spare) {
 	/* If we have spare values, we can use one fewer bit to encode some
 	 * values.  We shorten the values in the middle of the range, as
@@ -177,7 +181,11 @@ BitReader::decode(Xapian::termpos outof, bool force)
     (void)force;
     Assert(force == di_current.is_initialized());
     Xapian::termpos bits = highest_order_bit(outof - Xapian::termpos(1));
-    const Xapian::termpos spare = safe_shl(Xapian::termpos(1), bits) - outof;
+    // If the top bit of (outof - Xapian::termpos(1)) is set then
+    // the shift will shift the bit out and give zero and the
+    // subtraction will result in an unsigned overflow.
+    const Xapian::termpos spare =
+	UNSIGNED_OVERFLOW_OK(safe_shl(Xapian::termpos(1), bits) - outof);
     const Xapian::termpos mid_start = (outof - spare) / 2;
     Xapian::termpos pos;
     if (spare) {
