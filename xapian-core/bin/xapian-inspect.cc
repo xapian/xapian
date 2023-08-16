@@ -1,7 +1,7 @@
 /** @file
  * @brief Inspect the contents of a glass table for development or debugging.
  */
-/* Copyright (C) 2007,2008,2009,2010,2011,2012,2017,2018 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010,2011,2012,2017,2018,2023 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -144,6 +144,8 @@ show_help()
 	    "goto K : Goto first entry with key >= K (alias 'g')\n"
 	    "until K: Display entries until key >= K (alias 'u')\n"
 	    "until  : Display entries until end (alias 'u')\n"
+	    "count K: Count entries until key >= K (alias 'c')\n"
+	    "count  : Count entries until end (alias 'c')\n"
 	    "open T : Open table T instead (alias 'o') - e.g. open postlist\n"
 	    "keys   : Toggle showing keys (default: true) (alias 'k')\n"
 	    "tags   : Toggle showing tags (default: true) (alias 't')\n"
@@ -176,7 +178,7 @@ show_entry(GlassCursor& cursor)
 }
 
 static void
-do_until(GlassCursor& cursor, const string& target)
+do_until(GlassCursor& cursor, const string& target, bool show)
 {
     if (cursor.after_end()) {
 	cout << "At end already.\n";
@@ -197,7 +199,7 @@ do_until(GlassCursor& cursor, const string& target)
     size_t count = 0;
     while (cursor.next()) {
 	++count;
-	show_entry(cursor);
+	if (show) show_entry(cursor);
 
 	if (target.empty())
 	    continue;
@@ -391,13 +393,22 @@ wait_for_input:
 		cursor.find_entry_lt(cursor.current_key);
 		continue;
 	    } else if (startswith(input, "u ")) {
-		do_until(cursor, unescape(input.substr(2)));
+		do_until(cursor, unescape(input.substr(2)), true);
 		goto wait_for_input;
 	    } else if (startswith(input, "until ")) {
-		do_until(cursor, unescape(input.substr(6)));
+		do_until(cursor, unescape(input.substr(6)), true);
 		goto wait_for_input;
 	    } else if (input == "u" || input == "until") {
-		do_until(cursor, string());
+		do_until(cursor, string(), true);
+		goto wait_for_input;
+	    } else if (startswith(input, "c ")) {
+		do_until(cursor, unescape(input.substr(2)), false);
+		goto wait_for_input;
+	    } else if (startswith(input, "count ")) {
+		do_until(cursor, unescape(input.substr(6)), false);
+		goto wait_for_input;
+	    } else if (input == "c" || input == "count") {
+		do_until(cursor, string(), false);
 		goto wait_for_input;
 	    } else if (input == "f" || input == "first") {
 		cursor.find_entry_ge(string());
