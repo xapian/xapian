@@ -37,7 +37,7 @@ read_string(FILE* f, string& s)
     if (len >= 253) {
 	unsigned i = len - 251;
 	len = 0;
-	while (i-- > 0) {
+	for ( ; i; --i) {
 	    ch = getc(f);
 	    if (ch < 0) return false;
 	    len = (len << 8) | ch;

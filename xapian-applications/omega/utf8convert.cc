@@ -182,7 +182,7 @@ convert_to_utf8_(string_view text, const string& charset, string& output)
 		0x02dc, 0x2122, 0x0161, 0x203a, 0x0153, 0x009d, 0x017e, 0x0178
 	    };
 	    unsigned code_point = ch;
-	    unsigned i = code_point - 128;
+	    unsigned i = UNSIGNED_OVERFLOW_OK(code_point - 128);
 	    if (i < std::size(cp1252_to_unicode))
 		code_point = cp1252_to_unicode[i];
 	    start += Xapian::Unicode::to_utf8(code_point, buf + start);
@@ -232,7 +232,7 @@ iso8859_15:
 		0x0152, 0x0153, 0x0178
 	    };
 	    unsigned code_point = ch;
-	    unsigned i = code_point - 164;
+	    unsigned i = UNSIGNED_OVERFLOW_OK(code_point - 164);
 	    if (i < std::size(iso8859_15_to_unicode))
 		code_point = iso8859_15_to_unicode[i];
 	    start += Xapian::Unicode::to_utf8(code_point, buf + start);
