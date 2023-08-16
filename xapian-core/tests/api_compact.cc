@@ -726,3 +726,31 @@ DEFINE_TESTCASE(compact1, compact && writable) {
 
     TEST_EQUAL(Xapian::Database(output).get_doccount(), 3);
 }
+
+// Regression test for compacting honey databases.
+DEFINE_TESTCASE(compact2, compact) {
+    Xapian::Database db = get_database("compact2",
+				       [](Xapian::WritableDatabase& wdb,
+					  const string&) {
+					   Xapian::Document doc;
+					   doc.add_term("test");
+					   wdb.add_document(doc);
+					   doc.add_term("test");
+					   for (int i = 1; i < 4000; ++i) {
+					       wdb.add_document(doc);
+					   }
+				       });
+
+    db.add_database(get_database("apitest_simpledata"));
+    auto db_size = db.get_doccount();
+
+    string output = get_compaction_output_path("compact2-out");
+    rm_rf(output);
+
+    db.compact(output);
+    db.close();
+
+    TEST_EQUAL(Xapian::Database::check(output, 0, &tout), 0);
+
+    TEST_EQUAL(Xapian::Database(output).get_doccount(), db_size);
+}

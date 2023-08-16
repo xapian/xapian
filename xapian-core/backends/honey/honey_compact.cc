@@ -611,7 +611,6 @@ class PostlistCursor<const HoneyTable&> : private HoneyCursor {
 	read_tag();
 	key = current_key;
 	tag = current_tag;
-	tf = 0;
 	switch (key_type(key)) {
 	    case Honey::KEY_USER_METADATA:
 	    case Honey::KEY_VALUE_STATS:
@@ -638,8 +637,15 @@ class PostlistCursor<const HoneyTable&> : private HoneyCursor {
 		if (did == 0)
 		    throw Xapian::DatabaseCorruptError("Bad doclen key");
 		chunk_lastdid = did + offset;
+		// Each doclen chunk has a one byte header giving the number of
+		// bits per entry (which currently can be 8, 16, 24 or 32.  We
+		// want to subtract one less than the number of entries in the
+		// chunk to get the first did, so we subtract an extra one
+		// before the division and integer division will rounding down
+		// to give us the result we want.
 		firstdid = chunk_lastdid - (tag.size() - 2) / (tag[0] / 8);
-		key.resize(2);
+		// Normalise so all doclen chunk keys are the same.
+		key.assign(KEY_DOCLEN_PREFIX, 2);
 		return true;
 	    }
 	    case Honey::KEY_POSTING_CHUNK:
@@ -705,6 +711,7 @@ class PostlistCursor<const HoneyTable&> : private HoneyCursor {
 		    first_wdf = (cf - first_wdf) / (tf - 1);
 		cf = 0;
 	    }
+	    tf = 0;
 
 	    // Not an initial chunk, so adjust key and remove tag header.
 	    size_t tmp = d - key.data();
