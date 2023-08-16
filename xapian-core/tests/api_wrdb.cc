@@ -1631,6 +1631,11 @@ DEFINE_TESTCASE(nomoredocids1, writable) {
     db.replace_document(max_id, doc);
 
     TEST_EXCEPTION(Xapian::DatabaseError, db.add_document(doc));
+
+    // Also test replace_document() by term which will try to add a new
+    // document if the term isn't present - that should also fail if the
+    // docid counter would wrap.
+    TEST_EXCEPTION(Xapian::DatabaseError, db.replace_document("Q42", doc));
 }
 
 // Test synonym iterators.
