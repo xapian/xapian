@@ -1317,7 +1317,7 @@ index_mimetype(const string& file, const string& urlterm, const string& url,
 	// If dump contain only formfeeds, then trim_end will be string::npos
 	// and ++trim_end will be 0, which is the correct new size.
 	string::size_type trim_end = dump.find_last_not_of('\f');
-	if (++trim_end != dump.size())
+	if (UNSIGNED_OVERFLOW_OK(++trim_end) != dump.size())
 	    dump.resize(trim_end);
 
 	if (dump.empty()) {

@@ -74,7 +74,8 @@ get_click_list(const string &str_clicks)
 
 	    // Get click count string.
 	    size_t delimiter_pos = clickstring.find(':');
-	    clickcount = clickstring.substr(delimiter_pos + 1);
+	    UNSIGNED_OVERFLOW_OK(++delimiter_pos);
+	    clickcount = clickstring.substr(delimiter_pos);
 
 	    // Convert click count string to an integer.
 	    stringstream ss(clickcount);
