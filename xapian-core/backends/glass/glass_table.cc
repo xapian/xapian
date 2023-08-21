@@ -1895,7 +1895,7 @@ GlassTable::commit(glass_revision_number_t revision, RootInfo * root_info)
 
 	Btree_modified = false;
 
-	for (int i = 0; i < BTREE_CURSOR_LEVELS; ++i) {
+	for (int i = 0; i <= level; ++i) {
 	    C[i].init(block_size);
 	}
 
