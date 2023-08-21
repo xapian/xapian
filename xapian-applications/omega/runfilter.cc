@@ -321,7 +321,7 @@ run_filter(int fd_in, const string& cmd, bool use_shell, string* out,
 	size_t j = 0;
 	while (true) {
 	    j = s.find_first_not_of(" \t\n", j);
-	    if (!(C_isalnum(s[j]) || s[j] == '_')) break;
+	    if (!(C_isalpha(s[j]) || s[j] == '_')) break;
 	    size_t i = j;
 	    do ++j; while (C_isalnum(s[j]) || s[j] == '_');
 	    if (s[j] != '=') {
