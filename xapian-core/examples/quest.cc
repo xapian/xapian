@@ -1,7 +1,7 @@
 /** @file
  * @brief Command line search tool using Xapian::QueryParser.
  */
-/* Copyright (C) 2004-2022 Olly Betts
+/* Copyright (C) 2004-2023 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -158,15 +158,20 @@ static const tab_entry wt_tab[] = {
  */
 template<typename T>
 static char
-print_table(const T& table)
+print_table(const char* pre, const T& table)
 {
-    size_t pos = string::npos;
+    cout << INDENT << pre;
+    size_t pos = 0;
     for (auto& i : table) {
 	size_t len = strlen(i.s);
-	if (pos != string::npos) cout << ',';
-	if (pos + len >= 78) {
+	if (pos == 0) {
+	    pos = sizeof(INDENT) - 1 + strlen(pre);
+	} else {
+	    cout << ',';
+	}
+	if (pos + len >= 79) {
 	    cout << "\n" INDENT;
-	    pos = sizeof(INDENT) - 2;
+	    pos = sizeof(INDENT) - 1;
 	} else {
 	    cout << ' ';
 	}
@@ -189,14 +194,11 @@ static void show_usage() {
 "  -p, --prefix=PFX:TERMPFX          add a prefix\n"
 "  -b, --boolean-prefix=PFX:TERMPFX  add a boolean prefix\n"
 "  -f, --flags=FLAG1[,FLAG2]...      specify QueryParser flags (default:\n"
-"                                    default).  Valid flags:"
-<< print_table(flag_tab) <<
+<< print_table("default).  Valid flags:", flag_tab) <<
 "  -o, --default-op=OP               specify QueryParser default operator\n"
-"                                    (default: or).  Valid operators:"
-<< print_table(default_op_tab) <<
+<< print_table("(default: or).  Valid operators:", default_op_tab) <<
 "  -w, --weight=SCHEME               specify weighting scheme to use\n"
-"                                    (default: bm25).  Valid schemes:"
-<< print_table(wt_tab) <<
+<< print_table("(default: bm25).  Valid schemes:", wt_tab) <<
 "  -F, --freqs                       show query term frequencies\n"
 "  -h, --help                        display this help and exit\n"
 "  -v, --version                     output version information and exit\n";
