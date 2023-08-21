@@ -64,18 +64,18 @@ class MSetItem {
 		: wt(wt_), did(did_), collapse_count(0) {}
 
 	MSetItem(double wt_, Xapian::docid did_, const string &key_)
-		: wt(wt_), did(did_), collapse_key(key_), collapse_count(0) {}
+		: wt(wt_), did(did_), collapse_count(0), collapse_key(key_) {}
 
 	MSetItem(double wt_, Xapian::docid did_, const string &key_,
 		 Xapian::doccount collapse_count_)
-		: wt(wt_), did(did_), collapse_key(key_),
-		  collapse_count(collapse_count_) {}
+		: wt(wt_), did(did_),
+		  collapse_count(collapse_count_), collapse_key(key_) {}
 
 	void swap(MSetItem & o) {
 	    std::swap(wt, o.wt);
 	    std::swap(did, o.did);
-	    std::swap(collapse_key, o.collapse_key);
 	    std::swap(collapse_count, o.collapse_count);
+	    std::swap(collapse_key, o.collapse_key);
 	    std::swap(sort_key, o.sort_key);
 	}
 
@@ -84,6 +84,14 @@ class MSetItem {
 
 	/** Document id. */
 	Xapian::docid did;
+
+	/** Count of collapses done on collapse_key so far
+	 *
+	 * This is normally 0, and goes up for each collapse done
+	 * It is not necessarily an indication of how many collapses
+	 * might be done if an exhaustive match was done
+	 */
+	Xapian::doccount collapse_count;
 
 	/** Value which was used to collapse upon.
 	 *
@@ -97,14 +105,6 @@ class MSetItem {
 	 *  the items in the returned Xapian::MSet.
 	 */
 	string collapse_key;
-
-	/** Count of collapses done on collapse_key so far
-	 *
-	 * This is normally 0, and goes up for each collapse done
-	 * It is not necessarily an indication of how many collapses
-	 * might be done if an exhaustive match was done
-	 */
-	Xapian::doccount collapse_count;
 
 	/** Used when sorting by value. */
 	string sort_key;
