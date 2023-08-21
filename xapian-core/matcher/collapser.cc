@@ -42,8 +42,8 @@ CollapseData::check_item(const vector<Result>& results,
     // We already have collapse_max items better than result so we need to
     // eliminate the lowest ranked.
     if (collapse_count == 0 && collapse_max != 1) {
-	// Be lazy about calling building the heap - if we see <= collapse_max
-	// items with a particular collapse key, we never need to use the heap.
+	// Be lazy about building the heap - if we see <= collapse_max items
+	// with a particular collapse key, we never need to use the heap.
 	Heap::make(items.begin(), items.end(),
 		   [&](pair<Xapian::doccount, Xapian::docid> a,
 		       pair<Xapian::doccount, Xapian::docid> b) {
