@@ -245,7 +245,9 @@ class SignalRedirector {
 	active = true;
 	signum = 0;
 	sigaddr = NULL;
-	// SA_SIGINFO not universal (e.g. not present on Linux < 2.2 and Hurd).
+	// SA_SIGINFO is not universal (e.g. not present on Linux < 2.2 or
+	// older Hurd).  If we have it, we use it to report the address
+	// associated with the signal (for signals where that makes sense).
 #if defined HAVE_SIGACTION && defined SA_SIGINFO
 	struct sigaction sa;
 	sa.sa_sigaction = handle_sig;
@@ -639,7 +641,11 @@ test_driver::runtest(const test_desc *test)
 
 	// Caught a signal.
 	const char *signame = "SIGNAL";
+#if defined HAVE_SIGACTION && defined SA_SIGINFO
 	bool show_addr = true;
+#else
+	bool show_addr = false;
+#endif
 	switch (signum) {
 	    case SIGSEGV: signame = "SIGSEGV"; break;
 	    case SIGFPE: signame = "SIGFPE"; break;
