@@ -26,7 +26,7 @@ set -e
 
 MIRROR=http://httpredir.debian.org/debian/
 
-DEBIAN_CODENAMES='bullseye buster'
+DEBIAN_CODENAMES='bookworm bullseye buster'
 UBUNTU_CODENAMES='lunar jammy focal bionic xenial'
 UBUNTU_FIRST=`echo "$UBUNTU_CODENAMES"|sed 's/.* //'`
 
@@ -285,6 +285,10 @@ trap "echo \"backport-source-packages failed\"" EXIT
 # backports.org-compatible package versions - e.g. we append "~bpo10+1" for
 # Debian 10 (buster) (and a suffix starting "~" sorts as less than no suffix).
 case $CODENAME in
+bookworm)
+  BACKPORT_SUFFIX="~bpo12+$BUILD_INT" ;;
+bullseye)
+  BACKPORT_SUFFIX="~bpo11+$BUILD_INT" ;;
 buster)
   BACKPORT_SUFFIX="~bpo10+$BUILD_INT" ;;
 stretch)
