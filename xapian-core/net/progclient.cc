@@ -155,10 +155,6 @@ ProgClient::run_program(const string& progname,
 
     // execvp() failed - all we can usefully do is exit.
     _exit(-1);
-# ifdef __xlC__
-    // Avoid "missing return statement" warning.
-    return {0, {}};
-# endif
 #elif defined __WIN32__
     LARGE_INTEGER counter;
     // QueryPerformanceCounter() will always succeed on XP and later
