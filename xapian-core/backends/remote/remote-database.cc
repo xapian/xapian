@@ -24,6 +24,7 @@
 #include "remote-database.h"
 
 #include <signal.h>
+#include "safesyssocket.h" // For MSG_NOSIGNAL.
 
 #include "api/msetinternal.h"
 #include "api/smallvector.h"
@@ -101,9 +102,27 @@ RemoteDatabase::RemoteDatabase(pair<int, string> fd_and_context,
       mru_slot(Xapian::BAD_VALUENO),
       timeout(timeout_)
 {
-#ifndef __WIN32__
-    // It's simplest to just ignore SIGPIPE.  We'll still know if the
-    // connection dies because we'll get EPIPE back from write().
+    // On Unix-like platforms we want to avoid generating SIGPIPE when writing
+    // to a socket which the other end has closed - we don't need SIGPIPE to
+    // know this as can check errno==EPIPE, and generating a SIGPIPE signal
+    // would breaks the encapsulation of what we're doing inside the library -
+    // either user code would need to handle the SIGPIPE, or we set a signal
+    // handler for SIGPIPE but that would handle *any* SIGPIPE in the process,
+    // not just those we might trigger, and that could break user code which
+    // expects to trigger SIGPIPE.
+#ifdef MSG_NOSIGNAL 
+    // We can use pass MSG_NOSIGNAL (added in POSIX.1-2008) to send() to avoid
+    // generating SIGPIPE.
+#elif defined SO_NOSIGPIPE
+    // Needed for macOS which it seems doesn't support the standardised
+    // MSG_NOSIGNAL.  Seems this may be fixed in newer versions?  10.15
+    // was mentioned as affected online.
+# error No MSG_NOSIGNAL but have SO_NOSIGPIPE
+#elif defined __WIN32__
+    // SIGPIPE not relevant.
+#else
+# error No MSG_NOSIGNAL or SO_NOSIGPIPE
+    // It's simplest to just ignore SIGPIPE, but not ideal.
     if (signal(SIGPIPE, SIG_IGN) == SIG_ERR) {
 	throw Xapian::NetworkError("Couldn't set SIGPIPE to SIG_IGN", errno);
     }

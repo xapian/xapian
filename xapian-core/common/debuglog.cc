@@ -29,6 +29,7 @@
 
 #include <sys/types.h>
 #include "safefcntl.h"
+#include "safesyssocket.h"
 #include "safesysstat.h"
 #include "safeunistd.h"
 
@@ -136,7 +137,12 @@ DebugLogger::log_line(debuglog_categories category, const string& msg)
     const char* p = line.data();
     size_t to_do = line.size();
     while (to_do) {
+#ifdef MSG_NOSIGNAL
+	// Avoid SIGPIPE if fd is a socket and gets closed.
+	ssize_t n = send(fd, p, to_do, MSG_NOSIGNAL);
+#else
 	ssize_t n = write(fd, p, to_do);
+#endif
 	if (n < 0) {
 	    // Retry if interrupted by a signal.
 	    if (errno == EINTR) continue;

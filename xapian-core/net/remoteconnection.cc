@@ -294,7 +294,12 @@ RemoteConnection::send_message(char type, const string &message,
     while (true) {
 	// We've set write to non-blocking, so just try writing as there
 	// will usually be space.
+#ifdef MSG_NOSIGNAL
+	ssize_t n = send(fdout, str->data() + count, str->size() - count,
+			 MSG_NOSIGNAL);
+#else
 	ssize_t n = write(fdout, str->data() + count, str->size() - count);
+#endif
 
 	if (n >= 0) {
 	    count += n;
@@ -438,7 +443,11 @@ RemoteConnection::send_file(char type, int fd, double end_time)
     while (true) {
 	// We've set write to non-blocking, so just try writing as there
 	// will usually be space.
+#ifdef MSG_NOSIGNAL
+	ssize_t n = send(fdout, buf + count, c - count, MSG_NOSIGNAL);
+#else
 	ssize_t n = write(fdout, buf + count, c - count);
+#endif
 
 	if (n >= 0) {
 	    count += n;
