@@ -1,7 +1,7 @@
 /** @file
  *  @brief RemoteConnection class used by the remote backend.
  */
-/* Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2017 Olly Betts
+/* Copyright (C) 2006-2023 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -328,7 +328,17 @@ RemoteConnection::send_message(char type, const string &message,
     while (true) {
 	// We've set write to non-blocking, so just try writing as there
 	// will usually be space.
+#if defined MSG_NOSIGNAL && !defined SO_NOSIGPIPE
+	ssize_t n = send(fdout, str->data() + count, str->size() - count,
+			 MSG_NOSIGNAL);
+	if (n < 0 && errno == ENOTSOCK) {
+	    // In some testcases in the testsuite and in xapian-progsrv (in
+	    // some cases) the fd won't be a socket.
+	    n = write(fdout, str->data() + count, str->size() - count);
+	}
+#else
 	ssize_t n = write(fdout, str->data() + count, str->size() - count);
+#endif
 
 	if (n >= 0) {
 	    count += n;
@@ -471,7 +481,16 @@ RemoteConnection::send_file(char type, int fd, double end_time)
     while (true) {
 	// We've set write to non-blocking, so just try writing as there
 	// will usually be space.
+#if defined MSG_NOSIGNAL && !defined SO_NOSIGPIPE
+	ssize_t n = send(fdout, buf + count, c - count, MSG_NOSIGNAL);
+	if (n < 0 && errno == ENOTSOCK) {
+	    // In some testcases in the testsuite and in xapian-progsrv (in
+	    // some cases) the fd won't be a socket.
+	    n = write(fdout, buf + count, c - count);
+	}
+#else
 	ssize_t n = write(fdout, buf + count, c - count);
+#endif
 
 	if (n >= 0) {
 	    count += n;

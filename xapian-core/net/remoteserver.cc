@@ -93,6 +93,11 @@ RemoteServer::RemoteServer(const std::vector<std::string> &dbpaths,
 #ifndef __WIN32__
     // It's simplest to just ignore SIGPIPE.  We'll still know if the
     // connection dies because we'll get EPIPE back from write().
+    //
+    // This is OK because RemoteServer subclasses are only used in
+    // specialised programs - if we expose any of them as API classes
+    // then we should use SO_NOSIGPIE/MSG_NOSIGNAL instead like we do
+    // on the client side.
     if (signal(SIGPIPE, SIG_IGN) == SIG_ERR)
 	throw Xapian::NetworkError("Couldn't set SIGPIPE to SIG_IGN", errno);
 #endif
