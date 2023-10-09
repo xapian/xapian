@@ -351,7 +351,6 @@ foreach my $ref (@ARGV) {
 	return if $_ eq 'config.h.in~';
 	return if $_ eq 'NEWS.SKELETON';
 	return if $f eq 'README';
-	return if $f eq 'Vagrantfile';
 	return if $f eq '.appveyor.yml';
 	return if $f eq '.github/workflows/ci.yml';
 	return if /^Search-Xapian-\d+\.\d+\.\d+\.\d+\.tar\..z$/;
