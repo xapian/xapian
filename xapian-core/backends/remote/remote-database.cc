@@ -24,6 +24,7 @@
 #include "remote-database.h"
 
 #include <signal.h>
+#include "safesyssocket.h" // For MSG_NOSIGNAL.
 
 #include "api/msetinternal.h"
 #include "api/smallvector.h"
@@ -101,9 +102,45 @@ RemoteDatabase::RemoteDatabase(pair<int, string> fd_and_context,
       mru_slot(Xapian::BAD_VALUENO),
       timeout(timeout_)
 {
-#ifndef __WIN32__
-    // It's simplest to just ignore SIGPIPE.  We'll still know if the
-    // connection dies because we'll get EPIPE back from write().
+    // On Unix-like platforms we want to avoid generating SIGPIPE when writing
+    // to a socket when the other end has been closed since signals break the
+    // encapsulation of what we're doing inside the library - either user code
+    // would need to handle the SIGPIPE, or we set a signal handler for SIGPIPE
+    // but that would handle *any* SIGPIPE in the process, not just those we
+    // might trigger, and that could break user code which expects to trigger
+    // and handle SIGPIPE.
+    //
+    // We don't need SIGPIPE since we can check errno==EPIPE instead (which is
+    // actually simpler to do).
+#ifdef SO_NOSIGPIPE
+    // SO_NOSIGPIPE is a non-standardised socket option supported by a number
+    // of platforms - at least DragonFlyBSD, FreeBSD, macOS (not older
+    // versions, e.g. 10.15 apparently lacks it), NetBSD, Solaris; notably not
+    // supported by Linux or OpenBSD though.
+    //
+    // We use it where supported due to one big advantage over POSIX's
+    // MSG_NOSIGNAL which is that we can just set it once for a socket whereas
+    // with MSG_NOSIGNAL we need to call send(..., MSG_NOSIGNAL) instead of
+    // write(...), but send() only works on sockets, so with MSG_NOSIGNAL any
+    // code which might be working with files or pipes as well as sockets needs
+    // conditional handling depending on whether the fd is a socket or not.
+    int on = 1;
+    if (setsockopt(fd_and_context.first, SOL_SOCKET, SO_NOSIGPIPE,
+		   reinterpret_cast<char*>(&on), sizeof(on)) < 0) {
+	throw Xapian::NetworkError("Couldn't set SO_NOSIGPIPE on socket",
+				   errno);
+    }
+#elif defined MSG_NOSIGNAL
+    // We can use send(..., MSG_NOSIGNAL) to avoid generating SIGPIPE
+    // (MSG_NOSIGNAL was added in POSIX.1-2008).  This seems to be pretty much
+    // universally supported by current Unix-like platforms, but older macOS
+    // and Solaris apparently didn't have it.
+#elif defined __WIN32__
+    // Sockets apparently don't trigger SIGPIPE here.
+#else
+    // It's simplest to just ignore SIGPIPE.  Not ideal, but it seems only old
+    // versions of macOS and Solaris will end up here so let's not bother
+    // trying to do any clever trickery.
     if (signal(SIGPIPE, SIG_IGN) == SIG_ERR) {
 	throw Xapian::NetworkError("Couldn't set SIGPIPE to SIG_IGN", errno);
     }
