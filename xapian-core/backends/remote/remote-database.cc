@@ -116,7 +116,7 @@ RemoteDatabase::RemoteDatabase(int fd, double timeout_,
     // code which might be working with files or pipes as well as sockets needs
     // conditional handling depending on whether the fd is a socket or not.
     int on = 1;
-    if (setsockopt(fd_and_context.first, SOL_SOCKET, SO_NOSIGPIPE,
+    if (setsockopt(fd, SOL_SOCKET, SO_NOSIGPIPE,
 		   reinterpret_cast<char*>(&on), sizeof(on)) < 0) {
 	throw Xapian::NetworkError("Couldn't set SO_NOSIGPIPE on socket",
 				   errno);
