@@ -49,7 +49,7 @@ initialise()
 void
 extract(const string& filename, const string&)
 {
-    GError* e;
+    GError* e = nullptr;
     GepubDoc* doc = gepub_doc_new(filename.c_str(), &e);
     if (!doc) {
 	send_field(FIELD_ERROR, "gepub_doc_new() failed: ");

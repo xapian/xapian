@@ -67,7 +67,7 @@ initialise()
 void
 extract(const string& filename, const string&)
 {
-    GError* e;
+    GError* e = nullptr;
     gchar* uri = convert_to_uri(filename, &e);
     if (!uri) {
 	send_field(FIELD_ERROR, "g_filename_to_uri() failed: ");
