@@ -123,14 +123,14 @@ endif
 # option.
 
 stamp = xapian_wrap.stamp
-RUN_SWIG = stamp='$(stamp)' $(PERL) '$(top_srcdir)'/swig-depcomp $(SWIG)
+SWIG_FLAGS += -MD -MP -MT $(stamp)
 SWIG_FLAGS += -DSWIG_PYTHON_LEGACY_BOOL
 
 xapian_wrap.cc xapian_wrap.h xapian.py xapian_wrap.d: $(stamp)
 	$(make_many_locked)
 $(stamp): except.i doccomments.i fixup-swig-py3-wrapper
 	$(multitarget_begin)
-	$(RUN_SWIG) $(SWIG_WERROR) -I. -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
+	$(SWIG) $(SWIG_WERROR) -I. -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
 	    -python -threads -shadow -O \
 	    -o xapian_wrap.cc '$(srcdir)/'python.i
 	$(PERL) -i $(srcdir)/fixup-swig-py3-wrapper xapian.py

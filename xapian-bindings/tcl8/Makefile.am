@@ -55,10 +55,10 @@ BUILT_SOURCES += except.i
 except.i: $(srcdir)/generate-tcl-exceptions ../../xapian-core/exception_data.pm
 	$(PERL) -w -I$(srcdir)/../../xapian-core $(srcdir)/generate-tcl-exceptions
 
-RUN_SWIG = $(PERL) '$(top_srcdir)'/swig-depcomp $(SWIG)
+SWIG_FLAGS += -MD -MP
 
 xapian_wrap.cc: except.i
-	$(RUN_SWIG) $(SWIG_WERROR) -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
+	$(SWIG) $(SWIG_WERROR) -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
 	    -tcl8 -namespace -pkgversion '@VERSION_NO_SNAPSHOT@' \
 	    -o xapian_wrap.cc '$(srcdir)/'tcl.i
 

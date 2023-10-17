@@ -38,13 +38,13 @@ _xapian_la_LIBADD = $(XAPIAN_LIBS) $(RUBY_LIBS)
 CLEANFILES =
 if MAINTAINER_MODE
 stamp = xapian_wrap.stamp
-RUN_SWIG = stamp='$(stamp)' $(PERL) '$(top_srcdir)'/swig-depcomp $(SWIG)
+SWIG_FLAGS += -MD -MP -MT $(stamp)
 
 xapian_wrap.cc xapian_wrap.h: $(stamp)
 	$(make_many_locked)
 $(stamp):
 	$(multitarget_begin)
-	$(RUN_SWIG) $(SWIG_WERROR) -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
+	$(SWIG) $(SWIG_WERROR) -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
 	    -initname _xapian -ruby \
 	    -o xapian_wrap.cc '$(srcdir)/'ruby.i
 	$(multitarget_end)

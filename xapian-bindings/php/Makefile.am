@@ -60,14 +60,14 @@ except.i: $(srcdir)/generate-php-exceptions ../../xapian-core/exception_data.pm
 # option.
 
 stamp = php/xapian_wrap.stamp
-RUN_SWIG = stamp='$(stamp)' $(PERL) '$(top_srcdir)'/swig-depcomp $(SWIG)
+SWIG_FLAGS += -MD -MP -MT $(stamp)
 
 php/xapian_wrap.cc php/xapian_wrap.h php/php_xapian.h: $(stamp)
 	$(make_many_locked)
 $(stamp): except.i add-php-ref-handling
 	$(MKDIR_P) php
 	$(multitarget_begin)
-	$(RUN_SWIG) $(SWIG_WERROR) -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
+	$(SWIG) $(SWIG_WERROR) -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
 	    -DPACKAGE_VERSION='"$(PACKAGE_VERSION)"' \
 	    -php -prefix Xapian -outdir php \
 	    -o php/xapian_wrap.cc '$(srcdir)/'php.i

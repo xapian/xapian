@@ -8,7 +8,6 @@ endif
 
 EXTRA_DIST = xapian-head.i xapian-headers.i generic/except.i \
     generic/generate-generic-exceptions \
-    swig-depcomp \
     shortstop.list skiptest \
     HACKING
 

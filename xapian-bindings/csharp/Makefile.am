@@ -135,7 +135,7 @@ CLEANFILES = XapianSharp.snk $(ASSEMBLY).dll SmokeTest.exe
 
 if MAINTAINER_MODE
 stamp = xapian_wrap.stamp
-RUN_SWIG = stamp='$(stamp)' $(PERL) '$(top_srcdir)'/swig-depcomp $(SWIG)
+SWIG_FLAGS += -MD -MP -MT $(stamp)
 
 xapian_wrap.cc xapian_wrap.h $(XAPIAN_SWIG_CS_SRCS): $(stamp)
 	$(make_many_locked)
@@ -145,7 +145,7 @@ $(stamp):
 	: # case where SWIG changes its mind as to which files it generates.
 	-rm -f generated-csharp/*
 	$(MKDIR_P) generated-csharp
-	$(RUN_SWIG) $(SWIG_WERROR) -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
+	$(SWIG) $(SWIG_WERROR) -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
 	    -csharp -namespace Xapian -module Xapian -dllimport _XapianSharp \
 	    -o xapian_wrap.cc -outdir generated-csharp '$(srcdir)/'csharp.i
 	: # Check that exactly the sources we expected were generated.

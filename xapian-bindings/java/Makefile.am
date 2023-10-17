@@ -171,7 +171,7 @@ EXTRA_DIST = java.i run-java-test SmokeTest.java docs/index.rst $(SWIG_GENERATED
 
 if MAINTAINER_MODE
 stamp = xapian_wrap.stamp
-RUN_SWIG = stamp='$(stamp)' $(PERL) '$(top_srcdir)'/swig-depcomp $(SWIG)
+SWIG_FLAGS += -MD -MP -MT $(stamp)
 
 xapian_wrap.cc xapian_wrap.h $(XAPIAN_SWIG_JAVA_SRCS): $(stamp)
 	$(make_many_locked)
@@ -181,7 +181,7 @@ $(stamp):
 	: # case where SWIG changes its mind as to which files it generates.
 	-rm -f org/xapian/*
 	$(MKDIR_P) org/xapian
-	$(RUN_SWIG) $(SWIG_WERROR) -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
+	$(SWIG) $(SWIG_WERROR) -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
 	    -java -module Xapian -package org.xapian -outdir org/xapian \
 	    -o xapian_wrap.cc '$(srcdir)/'java.i
 	: # Check that exactly the sources we expected were generated.
