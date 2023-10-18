@@ -176,6 +176,8 @@ DEFINE_TESTCASE(unicode1, !backend) {
     TEST_EQUAL(Unicode::get_category(0x093B), Unicode::COMBINING_SPACING_MARK);
     // U+20C0 was added in Unicode 14.0.0.
     TEST_EQUAL(Unicode::get_category(0x20C0), Unicode::CURRENCY_SYMBOL);
+    // U+2FFE was added in Unicode 15.1.0.
+    TEST_EQUAL(Unicode::get_category(0x2FFE), Unicode::OTHER_SYMBOL);
     // U+0242 was added in Unicode 5.0.0.
     TEST_EQUAL(Unicode::get_category(0xa3), Unicode::CURRENCY_SYMBOL);
     // U+0CF1 changed category in Unicode 6.0.0.
@@ -194,6 +196,8 @@ DEFINE_TESTCASE(unicode1, !backend) {
     TEST_EQUAL(Unicode::get_category(0x2C5F), Unicode::LOWERCASE_LETTER);
     // U+2B97 was added in Unicode 13.0.0.
     TEST_EQUAL(Unicode::get_category(0x2B97), Unicode::OTHER_SYMBOL);
+    // U+31EF was added in Unicode 15.1.0.
+    TEST_EQUAL(Unicode::get_category(0x31EF), Unicode::OTHER_SYMBOL);
     // U+9FCB was added in Unicode 5.2.0.
     TEST_EQUAL(Unicode::get_category(0x9FCB), Unicode::OTHER_LETTER);
     // U+9FFC was added in Unicode 13.0.0.
@@ -349,6 +353,10 @@ DEFINE_TESTCASE(unicode1, !backend) {
     TEST_EQUAL(Unicode::get_category(0x30000), Unicode::OTHER_LETTER);
     TEST_EQUAL(Unicode::get_category(0x30303), Unicode::OTHER_LETTER);
     TEST_EQUAL(Unicode::get_category(0x3134A), Unicode::OTHER_LETTER);
+
+    // Added in Unicode 15.1.0.
+    TEST_EQUAL(Unicode::get_category(0x2EBF0), Unicode::OTHER_LETTER);
+    TEST_EQUAL(Unicode::get_category(0x2EE5D), Unicode::OTHER_LETTER);
 
     // Test some invalid Unicode values.
     TEST_EQUAL(Unicode::get_category(0x110000), Unicode::UNASSIGNED);
@@ -558,6 +566,7 @@ DEFINE_TESTCASE(unicodepredicates1, !backend) {
 	0x312e, // Added in Unicode 10.0.0
 	0x10345,
 	0x1e4d0, // Added in Unicode 15.0.0
+	0x2ee2e, // Added in Unicode 15.1.0
 	// MODIFIER_LETTER
 	0x2ec, // Added in Unicode 5.1.0
 	0x374, // Added in Unicode 5.1.0
@@ -608,6 +617,8 @@ DEFINE_TESTCASE(unicodepredicates1, !backend) {
 	// OTHER_SYMBOL
 	0xd4f, // Added in Unicode 9.0.0
 	0x2b97, // Added in Unicode 13.0.0
+	0x2ffc, // Added in Unicode 15.1.0
+	0x31ef, // Added in Unicode 15.1.0
 	0x32ff, // Added in Unicode 12.1.0; UNASSIGNED before
 	0xfdcF, // Added in Unicode 14.0.0
 	0x1f093, // Added in Unicode 5.1.0

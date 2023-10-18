@@ -117,7 +117,8 @@ is_unbroken_script(unsigned p)
 	// 2B740..2B81F; CJK Unified Ideographs Extension D
 	// 2B820..2CEAF; CJK Unified Ideographs Extension E
 	// 2CEB0..2EBEF; CJK Unified Ideographs Extension F
-	0x2A700 - 1, 0x2EBEF,
+	// 2EBF0..2EE5F; CJK Unified Ideographs Extension I
+	0x2A700 - 1, 0x2EE5F,
 	// 2F800..2FA1F; CJK Compatibility Ideographs Supplement
 	0x2F800 - 1, 0x2FA1F,
 	// 30000..3134F; CJK Unified Ideographs Extension G
