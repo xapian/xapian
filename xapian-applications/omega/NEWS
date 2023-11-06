@@ -1,8 +1,4 @@
-up to: ccac01bb92799daa7777c8a19b92db5ffd537589
-
-Omega 1.4.24 (2023-08-06):
-
-general:
+Omega 1.4.24 (2023-11-06):
 
 documentation:
 
@@ -15,6 +11,14 @@ indexers:
   + Implement piped input to filters for __WIN32__.  Previously it looks like
     the filter was run but the input wasn't connected to its stdin so it would
     probably block indefinitely.
+
+  + Fix corner case in shell emulation - we no longer set environment variables
+    which start with a digit.
+
+    This issue was spotted from reading the code - in practice this isn't a
+    case that's likely to be encountered, and the previous behaviour doesn't
+    appear to have any security consequences even if a user was somehow tricked
+    into specifying an extraction command did this.
 
 * scriptindex:
 
@@ -33,10 +37,6 @@ indexers:
     Expected index action, found '...'
 
     where '...' shows the sequence of non-whitespace characters encountered.
-
-omega:
-
-templates:
 
 testsuite:
 
@@ -64,8 +64,6 @@ portability:
 
 * Rename our bswap32 helper function to avoid clash with system-provided
   function on FreeBSD and NetBSD.
-
-packaging:
 
 Omega 1.4.23 (2023-07-07):
 
