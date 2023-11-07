@@ -2065,7 +2065,7 @@ jobs:
           tar --strip-components=1 -xf xapian-letor-*.tar.xz
           ./configure --enable-werror
           cd ..
-          # Everything gets run in on script so use V=0 to reduce the size of
+          # Everything gets run in one script so use V=0 to reduce the size of
           # the log, but re-run without V=0 on failure to show the compiler
           # command line.
           make -j2 -C xapian-core V=0 || make -C xapian-core
