@@ -58,7 +58,7 @@ install:
   - if "%TOOLCHAIN%"=="msvc" nmake -nologo -f win32\Makefile.msc
   - if "%TOOLCHAIN%"=="msvc" cd ..
   # Fetch pre-built unicode-data.cc to avoid having to get working tclsh.
-  - curl --retry 5 --retry-connrefused https://oligarchy.co.uk/xapian/patches/unicode-data15.cc > xapian-core\unicode\unicode-data.cc
+  - curl --retry 5 --retry-connrefused https://oligarchy.co.uk/xapian/patches/unicode-data151.cc > xapian-core\unicode\unicode-data.cc
   - ps: >-
       if ($env:TOOLCHAIN -eq "msvc") {
         $env:CC="cl -nologo"
