@@ -2035,6 +2035,8 @@ jobs:
         # rsync output in the logs.
     - name: Run in FreeBSD VM
       uses: vmactions/freebsd-vm@v0
+      # Reduce impact of https://github.com/vmactions/freebsd-vm/issues/74
+      timeout-minutes: 30
       with:
         usesh: true
         prepare: |
