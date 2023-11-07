@@ -2018,7 +2018,7 @@ jobs:
         make -j2 -C xapian-letor check
 
   freebsd:
-    runs-on: 'macos-12'
+    runs-on: 'ubuntu-22.04
     needs: makedist
     steps:
     - name: Install CCache
@@ -2034,9 +2034,11 @@ jobs:
         # Do actual unpacking on freebsd, mostly to help reduce the size of the
         # rsync output in the logs.
     - name: Run in FreeBSD VM
-      uses: vmactions/freebsd-vm@v0
-      # Reduce impact of https://github.com/vmactions/freebsd-vm/issues/74
-      timeout-minutes: 30
+      uses: vmactions/freebsd-vm@v1
+      # Should no longer be needed, but we shouldn't need to run for this
+      # long so seems worth keeping just in case (originally added to reduce
+      # impact of https://github.com/vmactions/freebsd-vm/issues/74).
+      timeout-minutes: 60
       with:
         usesh: true
         prepare: |
