@@ -2018,7 +2018,7 @@ jobs:
         make -j2 -C xapian-letor check
 
   freebsd:
-    runs-on: 'ubuntu-22.04
+    runs-on: 'ubuntu-22.04'
     needs: makedist
     steps:
     - name: Install CCache
