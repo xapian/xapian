@@ -255,6 +255,8 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 
 	/** An iterator which runs across all terms with a given prefix.
 	 *
+	 *  The terms are returned in ascending string order (by byte value).
+	 *
 	 *  @param prefix The prefix to restrict the returned terms to (default:
 	 *		  iterate all terms)
 	 */
