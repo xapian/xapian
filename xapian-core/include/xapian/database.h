@@ -290,6 +290,8 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 
     /** Start iterating all terms in the database with a given prefix.
      *
+     *  The terms are returned in ascending string order (by byte value).
+     *
      *  @param prefix	The prefix to restrict the returned terms to (default:
      *			iterate all terms)
      */
