@@ -1021,16 +1021,14 @@ if test no != "$with_ruby" ; then
 	dnl rdoc is included as part of the Ruby core distribution, so run it
 	dnl at build time rather shipping the rather large generated output in
 	dnl our source tarball.
-	if test -n "$RDOC" ; then
-	  AC_PATH_PROGS(RDOC, ["$RDOC"], [])
-	else
+	if test -z "$RDOC" ; then
 	  dnl Try replace the *last* 'ruby' with 'rdoc'.
 	  rdoc_best_guess=`echo "$RUBY"|sed 's,\(.*\)ruby,\1rdoc,'`
-	  AC_PATH_PROGS(RDOC, ["$rdoc_best_guess"], [])
-	  if test -z "$RDOC"; then
-	    AC_PATH_PROGS(RDOC, [rdoc], [])
+	  if test -x "$rdoc_best_guess" ; then
+	    RDOC=$rdoc_best_guess
 	  fi
 	fi
+	AC_PATH_PROGS(RDOC, [rdoc], [])
 	if test -n "$RDOC"; then
 	  BINDINGS="$BINDINGS ruby"
 	fi
