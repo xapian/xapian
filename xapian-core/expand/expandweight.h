@@ -1,7 +1,7 @@
 /** @file
  * @brief Collate statistics and calculate the term weights for the ESet.
  */
-/* Copyright (C) 2007,2008,2009,2011,2016 Olly Betts
+/* Copyright (C) 2007,2008,2009,2011,2016,2023 Olly Betts
  * Copyright (C) 2013 Aarsh Shah
  *
  * This program is free software; you can redistribute it and/or
@@ -142,6 +142,9 @@ class ExpandWeight {
      */
     bool use_exact_termfreq;
 
+    /** Does the expansion scheme use collection frequency? */
+    bool want_collection_freq;
+
   public:
     /** Constructor.
      *
@@ -153,11 +156,14 @@ class ExpandWeight {
      */
     ExpandWeight(const Xapian::Database &db_,
 		 Xapian::doccount rsize_,
-		 bool use_exact_termfreq_)
+		 bool use_exact_termfreq_,
+		 bool want_collection_freq_)
 	: db(db_), dbsize(db.get_doccount()), avlen(db.get_avlength()),
 	  rsize(rsize_), collection_freq(0),
 	  collection_len(avlen * dbsize + .5),
-	  use_exact_termfreq(use_exact_termfreq_), stats(avlen) {}
+	  use_exact_termfreq(use_exact_termfreq_),
+	  want_collection_freq(want_collection_freq_),
+	  stats(avlen) {}
 
     /** Constructor.
      *
@@ -171,11 +177,14 @@ class ExpandWeight {
     ExpandWeight(const Xapian::Database &db_,
 		 Xapian::doccount rsize_,
 		 bool use_exact_termfreq_,
+		 bool want_collection_freq_,
 		 double expand_k_)
 	: db(db_), dbsize(db.get_doccount()), avlen(db.get_avlength()),
 	  rsize(rsize_), collection_freq(0),
 	  collection_len(avlen * dbsize + .5),
-	  use_exact_termfreq(use_exact_termfreq_), stats(avlen, expand_k_) {}
+	  use_exact_termfreq(use_exact_termfreq_),
+	  want_collection_freq(want_collection_freq_),
+	  stats(avlen, expand_k_) {}
 
     /** Get the term statistics.
      *  @param merger The tree of TermList objects.
@@ -227,7 +236,7 @@ class TradEWeight : public ExpandWeight {
 		Xapian::doccount rsize_,
 		bool use_exact_termfreq_,
 		double expand_k_)
-	: ExpandWeight(db_, rsize_, use_exact_termfreq_, expand_k_) { }
+	: ExpandWeight(db_, rsize_, use_exact_termfreq_, false, expand_k_) { }
 
     double get_weight() const;
 };
@@ -258,7 +267,7 @@ class Bo1EWeight : public ExpandWeight {
     Bo1EWeight(const Xapian::Database &db_,
 	       Xapian::doccount rsize_,
 	       bool use_exact_termfreq_)
-	: ExpandWeight(db_, rsize_, use_exact_termfreq_) {}
+	: ExpandWeight(db_, rsize_, use_exact_termfreq_, true) {}
 
     double get_weight() const;
 };
