@@ -1,7 +1,7 @@
 /** @file
  * @brief Collate statistics and calculate the term weights for the ESet.
  */
-/* Copyright (C) 2007,2008,2009,2011,2016,2019 Olly Betts
+/* Copyright (C) 2007,2008,2009,2011,2016,2019,2023 Olly Betts
  * Copyright (C) 2013 Aarsh Shah
  *
  * This program is free software; you can redistribute it and/or
@@ -135,6 +135,9 @@ class ExpandWeight {
      */
     bool use_exact_termfreq;
 
+    /** Does the expansion scheme use collection frequency? */
+    bool want_collection_freq;
+
   public:
     /** Constructor.
      *
@@ -143,16 +146,21 @@ class ExpandWeight {
      *  @param use_exact_termfreq_  When expanding over a combined database,
      *				    should we use the exact termfreq (if false
      *				    a cheaper approximation is used)
+     *  @param want_collection_freq_
+     *				    Does the expansion scheme use collection
+     *				    frequency?
      *  @param expand_k_	    Parameter for TradEWeight (default: 0)
      */
     ExpandWeight(const Xapian::Database& db_,
 		 Xapian::doccount rsize_,
 		 bool use_exact_termfreq_,
+		 bool want_collection_freq_,
 		 double expand_k_ = 0.0)
 	: db(db_), dbsize(db.get_doccount()),
 	  rsize(rsize_),
 	  collection_len(db.get_total_length()),
 	  use_exact_termfreq(use_exact_termfreq_),
+	  want_collection_freq(want_collection_freq_),
 	  stats(db.get_average_length(), expand_k_) {}
 
     /** Get the term statistics.
@@ -206,7 +214,7 @@ class TradEWeight : public ExpandWeight {
 		Xapian::doccount rsize_,
 		bool use_exact_termfreq_,
 		double expand_k_)
-	: ExpandWeight(db_, rsize_, use_exact_termfreq_, expand_k_) { }
+	: ExpandWeight(db_, rsize_, use_exact_termfreq_, false, expand_k_) { }
 
     double get_weight() const;
 };
@@ -237,7 +245,7 @@ class Bo1EWeight : public ExpandWeight {
     Bo1EWeight(const Xapian::Database& db_,
 	       Xapian::doccount rsize_,
 	       bool use_exact_termfreq_)
-	: ExpandWeight(db_, rsize_, use_exact_termfreq_) {}
+	: ExpandWeight(db_, rsize_, use_exact_termfreq_, true) {}
 
     double get_weight() const;
 };
