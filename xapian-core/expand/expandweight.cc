@@ -42,14 +42,21 @@ ExpandWeight::collect_stats(TermList * merger, const std::string & term)
 
     merger->accumulate_stats(stats);
 
-    if (want_collection_freq)
-	collection_freq = db.get_collection_freq(term);
-
     LOGVALUE(EXPAND, rsize);
     LOGVALUE(EXPAND, stats.rtermfreq);
 
     LOGVALUE(EXPAND, dbsize);
     LOGVALUE(EXPAND, stats.dbsize);
+
+    if (want_collection_freq) {
+	collection_freq = db.get_collection_freq(term);
+	// FIXME: Here we rely on expansion weighting schemes using either
+	// term frequency (TradEWeight) or collection frequency (Bo1EWeight).
+	// If a new scheme is added which uses neither or both then this
+	// needs adjusting.
+	return;
+    }
+
     if (stats.dbsize == dbsize) {
 	// Either we're expanding from just one database, or we got stats from
 	// all the sub-databases (because at least one relevant document from

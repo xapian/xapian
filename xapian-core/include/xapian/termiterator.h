@@ -1,7 +1,7 @@
 /** @file
  *  @brief Class for iterating over a list of terms
  */
-/* Copyright (C) 2007,2008,2009,2010,2011,2012,2013,2014,2015 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010,2011,2012,2013,2014,2015,2023 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -91,7 +91,13 @@ class XAPIAN_VISIBILITY_DEFAULT TermIterator {
     /// Return the wdf for the term at the current position.
     Xapian::termcount get_wdf() const;
 
-    /// Return the term frequency for the term at the current position.
+    /** Return the term frequency for the term at the current position.
+     *
+     *  Note that for a TermIterator returned by calling termlist_begin()
+     *  on a Document object obtained from a sharded database, this method
+     *  will return the term frequency from the shard that the document is in
+     *  rather than for the combined database.
+     */
     Xapian::doccount get_termfreq() const;
 
     /// Return the length of the position list for the current position.

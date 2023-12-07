@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2006,2007,2009,2010,2011,2012,2013,2014,2018 Olly Betts
+ * Copyright 2002,2003,2004,2006,2007,2009,2010,2011,2012,2013,2014,2018,2023 Olly Betts
  * Copyright 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -254,7 +254,16 @@ class XAPIAN_VISIBILITY_DEFAULT Document {
 	 */
 	Xapian::termcount termlist_count() const;
 
-	/// Iterator for the terms in this document.
+	/** Start iterating the terms in this document.
+	 *
+	 *  The terms are returned in ascending string order (by byte value).
+	 *
+	 *  Note that if the Document object came from a sharded database then
+	 *  the TermIterator returned by this method only knows about the shard
+	 *  the document came from so calling get_termfreq() on it will give
+	 *  you the term frequency in that shard rather than in the combined
+	 *  database.
+	 */
 	TermIterator termlist_begin() const;
 
 	/// Equivalent end iterator for termlist_begin().
