@@ -1,7 +1,7 @@
 /** @file
  * @brief Class representing a document
  */
-/* Copyright (C) 2010,2015,2016,2017,2018,2019 Olly Betts
+/* Copyright (C) 2010,2015,2016,2017,2018,2019,2023 Olly Betts
  * Copyright 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -206,6 +206,12 @@ class XAPIAN_VISIBILITY_DEFAULT Document {
     /** Start iterating the terms in this document.
      *
      *  The terms are returned in ascending string order (by byte value).
+     *
+     *  Note that if the Document object came from a sharded database then
+     *  the TermIterator returned by this method only knows about the shard
+     *  the document came from so calling get_termfreq() on it will give
+     *  you the term frequency in that shard rather than in the combined
+     *  database.
      */
     TermIterator termlist_begin() const;
 
