@@ -98,10 +98,11 @@ DEFINE_TESTCASE(adddoc1, writable) {
 }
 
 // test that removing a posting and removing a term works
-DEFINE_TESTCASE(adddoc2, writable && !multi) {
-    // FIXME: With multi, get_termfreq() on a TermIterator from a Document
-    // currently returns the termfreq for just the shard the doc is in.
+DEFINE_TESTCASE(adddoc2, writable) {
     Xapian::WritableDatabase db = get_writable_database();
+    // get_termfreq() on a TermIterator from a Document returns the termfreq
+    // for just the shard the doc is in.
+    bool sharded = (db.size() > 1);
 
     Xapian::Document doc1;
 
@@ -127,8 +128,10 @@ DEFINE_TESTCASE(adddoc2, writable && !multi) {
     TEST_EQUAL(*iter2, *iter1);
     TEST_EQUAL(iter1.get_wdf(), 1);
     TEST_EQUAL(iter2.get_wdf(), 1);
-    // TEST_EQUAL(iter1.get_termfreq(), 0);
-    TEST_EQUAL(iter2.get_termfreq(), 1);
+    if (!sharded) {
+	// TEST_EQUAL(iter1.get_termfreq(), 0);
+	TEST_EQUAL(iter2.get_termfreq(), 1);
+    }
 
     iter1++;
     iter2++;
@@ -138,8 +141,10 @@ DEFINE_TESTCASE(adddoc2, writable && !multi) {
     TEST_EQUAL(*iter2, *iter1);
     TEST_EQUAL(iter1.get_wdf(), 4);
     TEST_EQUAL(iter2.get_wdf(), 4);
-    // TEST_EQUAL(iter1.get_termfreq(), 0);
-    TEST_EQUAL(iter2.get_termfreq(), 1);
+    if (!sharded) {
+	// TEST_EQUAL(iter1.get_termfreq(), 0);
+	TEST_EQUAL(iter2.get_termfreq(), 1);
+    }
 
     iter1++;
     iter2++;
@@ -149,8 +154,10 @@ DEFINE_TESTCASE(adddoc2, writable && !multi) {
     TEST_EQUAL(*iter2, *iter1);
     TEST_EQUAL(iter1.get_wdf(), 1);
     TEST_EQUAL(iter2.get_wdf(), 1);
-    // assertion fails in debug build! TEST_EQUAL(iter1.get_termfreq(), 0);
-    TEST_EQUAL(iter2.get_termfreq(), 1);
+    if (!sharded) {
+	// assertion fails in debug build! TEST_EQUAL(iter1.get_termfreq(), 0);
+	TEST_EQUAL(iter2.get_termfreq(), 1);
+    }
 
     iter1++;
     iter2++;
@@ -160,8 +167,10 @@ DEFINE_TESTCASE(adddoc2, writable && !multi) {
     TEST_EQUAL(*iter2, *iter1);
     TEST_EQUAL(iter1.get_wdf(), 1);
     TEST_EQUAL(iter2.get_wdf(), 1);
-    // assertion fails in debug build! TEST_EQUAL(iter1.get_termfreq(), 0);
-    TEST_EQUAL(iter2.get_termfreq(), 1);
+    if (!sharded) {
+	// assertion fails in debug build! TEST_EQUAL(iter1.get_termfreq(), 0);
+	TEST_EQUAL(iter2.get_termfreq(), 1);
+    }
 
     iter1++;
     iter2++;
@@ -208,8 +217,10 @@ DEFINE_TESTCASE(adddoc2, writable && !multi) {
     TEST_EQUAL(*iter2, *iter1);
     TEST_EQUAL(iter1.get_wdf(), 0);
     TEST_EQUAL(iter2.get_wdf(), 0);
-    TEST_EQUAL(iter1.get_termfreq(), 1);
-    // TEST_EQUAL(iter2.get_termfreq(), 0);
+    if (!sharded) {
+	TEST_EQUAL(iter1.get_termfreq(), 1);
+	// TEST_EQUAL(iter2.get_termfreq(), 0);
+    }
     TEST(iter1.positionlist_begin() == iter1.positionlist_end());
     TEST(iter2.positionlist_begin() == iter2.positionlist_end());
 
@@ -221,8 +232,10 @@ DEFINE_TESTCASE(adddoc2, writable && !multi) {
     TEST_EQUAL(*iter2, *iter1);
     TEST_EQUAL(iter1.get_wdf(), 9);
     TEST_EQUAL(iter2.get_wdf(), 9);
-    TEST_EQUAL(iter1.get_termfreq(), 2);
-    // TEST_EQUAL(iter2.get_termfreq(), 0);
+    if (!sharded) {
+	TEST_EQUAL(iter1.get_termfreq(), 2);
+	// TEST_EQUAL(iter2.get_termfreq(), 0);
+    }
 
     Xapian::PositionIterator pi1;
     pi1 = iter1.positionlist_begin();
@@ -240,8 +253,10 @@ DEFINE_TESTCASE(adddoc2, writable && !multi) {
     TEST_EQUAL(*iter2, *iter1);
     TEST_EQUAL(iter1.get_wdf(), 0);
     TEST_EQUAL(iter2.get_wdf(), 0);
-    TEST_EQUAL(iter1.get_termfreq(), 1);
-    // TEST_EQUAL(iter2.get_termfreq(), 0);
+    if (!sharded) {
+	TEST_EQUAL(iter1.get_termfreq(), 1);
+	// TEST_EQUAL(iter2.get_termfreq(), 0);
+    }
     TEST(iter1.positionlist_begin() == iter1.positionlist_end());
     TEST(iter2.positionlist_begin() == iter2.positionlist_end());
 
@@ -253,8 +268,10 @@ DEFINE_TESTCASE(adddoc2, writable && !multi) {
     TEST_EQUAL(*iter2, *iter1);
     TEST_EQUAL(iter1.get_wdf(), 0);
     TEST_EQUAL(iter2.get_wdf(), 0);
-    TEST_EQUAL(iter1.get_termfreq(), 2);
-    // TEST_EQUAL(iter2.get_termfreq(), 0);
+    if (!sharded) {
+	TEST_EQUAL(iter1.get_termfreq(), 2);
+	// TEST_EQUAL(iter2.get_termfreq(), 0);
+    }
 
     Xapian::PositionIterator temp1 = iter1.positionlist_begin();
     pi1 = temp1;
@@ -319,7 +336,7 @@ DEFINE_TESTCASE(adddoc4, writable) {
 
 // Test adding a document, and checking that it got added correctly.
 // This testcase used to be adddoc2 in quartztest.
-DEFINE_TESTCASE(adddoc5, writable && !multi) {
+DEFINE_TESTCASE(adddoc5, writable) {
     // FIXME: With multi, get_termfreq() on a TermIterator from a Document
     // currently returns the termfreq for just the shard the doc is in.
 
@@ -395,6 +412,10 @@ DEFINE_TESTCASE(adddoc5, writable && !multi) {
 	Xapian::Database database(get_writable_database_as_database());
 	Xapian::Document document_out = database.get_document(did);
 
+	// get_termfreq() on a TermIterator from a Document returns the
+	// termfreq for just the shard the doc is in.
+	bool sharded = (database.size() > 1);
+
 	TEST_EQUAL(document_in.get_data(), document_out.get_data());
 
 	{
@@ -426,18 +447,20 @@ DEFINE_TESTCASE(adddoc5, writable && !multi) {
 		TEST_NOT_EQUAL(j, document_out.termlist_end());
 		TEST_EQUAL(*i, *j);
 		TEST_EQUAL(i.get_wdf(), j.get_wdf());
-		// Actually use termfreq to stop compiler optimising away the
-		// call to get_termfreq().
-		TEST_EXCEPTION(Xapian::InvalidOperationError,
-			       if (i.get_termfreq()) FAIL_TEST("?"));
-		TEST_NOT_EQUAL(0, j.get_termfreq());
-		if (*i == "foobar") {
-		    // termfreq of foobar is 2
-		    TEST_EQUAL(2, j.get_termfreq());
-		} else {
-		    // termfreq of rising is 1
-		    TEST_EQUAL(*i, "rising");
-		    TEST_EQUAL(1, j.get_termfreq());
+		if (!sharded) {
+		    // Actually use termfreq to stop compiler optimising away the
+		    // call to get_termfreq().
+		    TEST_EXCEPTION(Xapian::InvalidOperationError,
+				   if (i.get_termfreq()) FAIL_TEST("?"));
+		    TEST_NOT_EQUAL(0, j.get_termfreq());
+		    if (*i == "foobar") {
+			// termfreq of foobar is 2
+			TEST_EQUAL(2, j.get_termfreq());
+		    } else {
+			// termfreq of rising is 1
+			TEST_EQUAL(*i, "rising");
+			TEST_EQUAL(1, j.get_termfreq());
+		    }
 		}
 		Xapian::PositionIterator k(i.positionlist_begin());
 		Xapian::PositionIterator l(j.positionlist_begin());
