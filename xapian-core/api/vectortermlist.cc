@@ -34,15 +34,6 @@ VectorTermList::get_approx_size() const
     return num_terms;
 }
 
-string
-VectorTermList::get_termname() const
-{
-    // Check we've started but not reached the end.
-    Assert(p != data.data());
-    Assert(!VectorTermList::at_end());
-    return current_term;
-}
-
 Xapian::termcount
 VectorTermList::get_wdf() const
 {

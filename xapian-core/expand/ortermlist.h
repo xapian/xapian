@@ -55,8 +55,6 @@ class OrTermList : public TermList {
 
     void accumulate_stats(Xapian::Internal::ExpandStats & stats) const;
 
-    std::string get_termname() const;
-
     Xapian::termcount get_wdf() const;
 
     Xapian::doccount get_termfreq() const;

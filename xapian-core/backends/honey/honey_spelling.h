@@ -160,9 +160,6 @@ class HoneySpellingTermList : public TermList {
     /// Position in the data.
     unsigned p = 0;
 
-    /// The current term.
-    std::string current_term;
-
     /** Number of constant characters on the end of the value.
      *
      *  Valid values once iterating are 0, 1, 2.  Before iteration, can be
@@ -204,8 +201,6 @@ class HoneySpellingTermList : public TermList {
     }
 
     Xapian::termcount get_approx_size() const;
-
-    std::string get_termname() const;
 
     Xapian::termcount get_wdf() const;
 

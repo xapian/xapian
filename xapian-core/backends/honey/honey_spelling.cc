@@ -385,12 +385,6 @@ HoneySpellingTermList::get_approx_size() const
     return data.size();
 }
 
-std::string
-HoneySpellingTermList::get_termname() const
-{
-    return current_term;
-}
-
 Xapian::termcount
 HoneySpellingTermList::get_wdf() const
 {

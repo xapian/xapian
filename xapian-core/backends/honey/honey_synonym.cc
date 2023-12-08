@@ -180,16 +180,6 @@ HoneySynonymTermList::get_approx_size() const
     return database->synonym_table.get_approx_entry_count();
 }
 
-string
-HoneySynonymTermList::get_termname() const
-{
-    LOGCALL(DB, string, "HoneySynonymTermList::get_termname", NO_ARGS);
-    Assert(cursor);
-    Assert(!cursor->current_key.empty());
-    Assert(!at_end());
-    RETURN(cursor->current_key);
-}
-
 Xapian::doccount
 HoneySynonymTermList::get_termfreq() const
 {
@@ -214,6 +204,8 @@ HoneySynonymTermList::next()
 	// We've reached the end of the prefixed terms.
 	delete cursor;
 	cursor = NULL;
+    } else {
+	current_term = cursor->current_key;
     }
 
     RETURN(NULL);
@@ -232,13 +224,18 @@ HoneySynonymTermList::skip_to(const string& term)
 	RETURN(skip_to(prefix));
     }
 
-    if (!cursor->find_entry_ge(term)) {
+    if (cursor->find_entry_ge(term)) {
+	// Exact match.
+	current_term = term;
+    } else {
 	// The exact term we asked for isn't there, so check if the next
 	// term after it also has the right prefix.
 	if (cursor->after_end() || !startswith(cursor->current_key, prefix)) {
 	    // We've reached the end of the prefixed terms.
 	    delete cursor;
 	    cursor = NULL;
+	} else {
+	    current_term = cursor->current_key;
 	}
     }
     RETURN(NULL);

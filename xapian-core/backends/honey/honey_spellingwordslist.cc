@@ -47,19 +47,6 @@ HoneySpellingWordsList::get_approx_size() const
     return database->spelling_table.get_approx_entry_count();
 }
 
-string
-HoneySpellingWordsList::get_termname() const
-{
-    LOGCALL(DB, string, "HoneySpellingWordsList::get_termname", NO_ARGS);
-    Assert(cursor);
-    Assert(!cursor->after_end());
-    const string& key = cursor->current_key;
-    Assert(!key.empty());
-    unsigned char first = key[0];
-    AssertRel(first, >=, Honey::KEY_PREFIX_WORD);
-    RETURN(first > Honey::KEY_PREFIX_WORD ? key : key.substr(1));
-}
-
 Xapian::doccount
 HoneySpellingWordsList::get_termfreq() const
 {
@@ -95,8 +82,16 @@ HoneySpellingWordsList::next()
 	// We've reached the end of the prefixed terms.
 	delete cursor;
 	cursor = NULL;
+	RETURN(NULL);
     }
-
+    const string& key = cursor->current_key;
+    unsigned char first = key[0];
+    AssertRel(first, >=, Honey::KEY_PREFIX_WORD);
+    if (first > Honey::KEY_PREFIX_WORD) {
+	current_term = key;
+    } else {
+	current_term.assign(key, 1);
+    }
     RETURN(NULL);
 }
 
@@ -106,13 +101,25 @@ HoneySpellingWordsList::skip_to(const string& term)
     LOGCALL(DB, TermList*, "HoneySpellingWordsList::skip_to", term);
     Assert(cursor);
 
-    if (!cursor->find_entry_ge(Honey::make_spelling_wordlist_key(term))) {
+    if (cursor->find_entry_ge(Honey::make_spelling_wordlist_key(term))) {
+	// Exact match.
+	current_term = term;
+    } else {
 	// The exact term we asked for isn't there, so check if the next
 	// term after it also has a W prefix.
 	if (cursor->after_end()) {
 	    // We've reached the end of the prefixed terms.
 	    delete cursor;
 	    cursor = NULL;
+	    RETURN(NULL);
+	}
+	const string& key = cursor->current_key;
+	unsigned char first = key[0];
+	AssertRel(first, >=, Honey::KEY_PREFIX_WORD);
+	if (first > Honey::KEY_PREFIX_WORD) {
+	    current_term = key;
+	} else {
+	    current_term.assign(key, 1);
 	}
     }
     RETURN(NULL);

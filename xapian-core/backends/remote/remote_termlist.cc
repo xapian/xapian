@@ -47,13 +47,6 @@ RemoteTermList::accumulate_stats(Xapian::Internal::ExpandStats& stats) const
 		     current_wdf, doclen, current_termfreq, db_size);
 }
 
-string
-RemoteTermList::get_termname() const
-{
-    Assert(!at_end());
-    return current_term;
-}
-
 Xapian::termcount
 RemoteTermList::get_wdf() const
 {

@@ -36,12 +36,6 @@ RemoteAllTermsList::get_approx_size() const
     return 0;
 }
 
-string
-RemoteAllTermsList::get_termname() const
-{
-    return current_term;
-}
-
 Xapian::doccount
 RemoteAllTermsList::get_termfreq() const
 {

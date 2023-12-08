@@ -36,15 +36,6 @@ InMemoryAllTermsList::get_approx_size() const
     return tmap->size();
 }
 
-string
-InMemoryAllTermsList::get_termname() const
-{
-    if (database->is_closed()) InMemoryDatabase::throw_database_closed();
-    Assert(!at_end());
-    Assert(!it->first.empty());
-    return it->first;
-}
-
 Xapian::doccount
 InMemoryAllTermsList::get_termfreq() const
 {
@@ -70,6 +61,9 @@ InMemoryAllTermsList::skip_to(const string &tname_)
 	    tname = prefix;
 	} else if (tname.empty()) {
 	    ++it;
+	    while (it != tmap->end() && it->second.term_freq == 0) ++it;
+	    if (it != tmap->end())
+		current_term = it->first;
 	    return NULL;
 	}
     }
@@ -77,6 +71,8 @@ InMemoryAllTermsList::skip_to(const string &tname_)
     while (it != tmap->end() && it->second.term_freq == 0) ++it;
     if (it != tmap->end() && !startswith(it->first, prefix))
 	it = tmap->end();
+    if (it != tmap->end())
+	current_term = it->first;
     return NULL;
 }
 
@@ -93,6 +89,8 @@ InMemoryAllTermsList::next()
     while (it != tmap->end() && it->second.term_freq == 0) ++it;
     if (it != tmap->end() && !startswith(it->first, prefix))
 	it = tmap->end();
+    if (it != tmap->end())
+	current_term = it->first;
     return NULL;
 }
 

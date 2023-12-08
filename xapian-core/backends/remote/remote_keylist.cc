@@ -35,12 +35,6 @@ RemoteKeyList::get_approx_size() const
     return 1;
 }
 
-string
-RemoteKeyList::get_termname() const
-{
-    return current_term;
-}
-
 Xapian::doccount
 RemoteKeyList::get_termfreq() const
 {

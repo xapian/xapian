@@ -102,12 +102,6 @@ class ValueCountTermList final : public TermList {
 	started = false;
     }
 
-    string get_termname() const {
-	Assert(started);
-	Assert(!at_end());
-	return it->first;
-    }
-
     Xapian::doccount get_termfreq() const {
 	Assert(started);
 	Assert(!at_end());
@@ -121,6 +115,9 @@ class ValueCountTermList final : public TermList {
 	    Assert(!at_end());
 	    ++it;
 	}
+	if (it != spy->values.end()) {
+	    current_term = it->first;
+	}
 	return NULL;
     }
 
@@ -129,6 +126,9 @@ class ValueCountTermList final : public TermList {
 	    ++it;
 	}
 	started = true;
+	if (it != spy->values.end()) {
+	    current_term = it->first;
+	}
 	return NULL;
     }
 
@@ -196,12 +196,6 @@ class StringAndFreqTermList final : public TermList {
 	started = false;
     }
 
-    string get_termname() const {
-	Assert(started);
-	Assert(!at_end());
-	return it->get_string();
-    }
-
     Xapian::doccount get_termfreq() const {
 	Assert(started);
 	Assert(!at_end());
@@ -215,6 +209,9 @@ class StringAndFreqTermList final : public TermList {
 	    Assert(!at_end());
 	    ++it;
 	}
+	if (it != values.end()) {
+	    current_term = it->get_string();
+	}
 	return NULL;
     }
 
@@ -223,6 +220,9 @@ class StringAndFreqTermList final : public TermList {
 	    ++it;
 	}
 	started = true;
+	if (it != values.end()) {
+	    current_term = it->get_string();
+	}
 	return NULL;
     }
 

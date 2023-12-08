@@ -117,13 +117,6 @@ GlassTermList::accumulate_stats(Xapian::Internal::ExpandStats & stats) const
 		     current_wdf, doclen, get_termfreq(), db->get_doccount());
 }
 
-string
-GlassTermList::get_termname() const
-{
-    LOGCALL(DB, string, "GlassTermList::get_termname", NO_ARGS);
-    RETURN(current_term);
-}
-
 Xapian::termcount
 GlassTermList::get_wdf() const
 {

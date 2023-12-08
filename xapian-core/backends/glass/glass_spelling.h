@@ -149,9 +149,6 @@ class GlassSpellingTermList : public TermList {
     /// Position in the data.
     unsigned p;
 
-    /// The current term.
-    std::string current_term;
-
     /// Copying is not allowed.
     GlassSpellingTermList(const GlassSpellingTermList &);
 
@@ -164,8 +161,6 @@ class GlassSpellingTermList : public TermList {
 	: data(data_), p(0) { }
 
     Xapian::termcount get_approx_size() const;
-
-    std::string get_termname() const;
 
     Xapian::termcount get_wdf() const;
 

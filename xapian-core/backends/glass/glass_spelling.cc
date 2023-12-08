@@ -387,12 +387,6 @@ GlassSpellingTermList::get_approx_size() const
     return data.size();
 }
 
-std::string
-GlassSpellingTermList::get_termname() const
-{
-    return current_term;
-}
-
 Xapian::termcount
 GlassSpellingTermList::get_wdf() const
 {

@@ -55,9 +55,6 @@ class MultiTermList : public TermList {
     /// Return approximate size of this termlist.
     Xapian::termcount get_approx_size() const;
 
-    /// Return the termname at the current position.
-    std::string get_termname() const;
-
     /// Return the wdf for the term at the current position.
     Xapian::termcount get_wdf() const;
 

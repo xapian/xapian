@@ -56,9 +56,6 @@ class InMemoryAllTermsList : public AllTermsList
 
     Xapian::termcount get_approx_size() const;
 
-    // Gets current termname
-    std::string get_termname() const;
-
     // Get num of docs indexed by term
     Xapian::doccount get_termfreq() const;
 

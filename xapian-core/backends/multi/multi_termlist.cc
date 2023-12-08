@@ -47,12 +47,6 @@ MultiTermList::get_approx_size() const
     return real_termlist->get_approx_size();
 }
 
-string
-MultiTermList::get_termname() const
-{
-    return real_termlist->get_termname();
-}
-
 Xapian::termcount
 MultiTermList::get_wdf() const
 {
@@ -70,13 +64,21 @@ MultiTermList::get_termfreq() const
 TermList *
 MultiTermList::next()
 {
-    return real_termlist->next();
+    TermList* res = real_termlist->next();
+    if (!real_termlist->at_end()) {
+	current_term = real_termlist->get_termname();
+    }
+    return res;
 }
 
 TermList *
 MultiTermList::skip_to(const std::string &term)
 {
-    return real_termlist->skip_to(term);
+    TermList* res = real_termlist->skip_to(term);
+    if (!real_termlist->at_end()) {
+	current_term = real_termlist->get_termname();
+    }
+    return res;
 }
 
 bool

@@ -190,7 +190,6 @@ class PointTermIterator : public TermIterator::Internal {
     termcount get_wdf() const {
 	throw UnimplementedError("PointIterator doesn't support get_wdf()");
     }
-    string get_termname() const { return i->first; }
     doccount get_termfreq() const {
 	throw UnimplementedError("PointIterator doesn't support "
 				 "get_termfreq()");
@@ -215,10 +214,13 @@ PointTermIterator::next()
 {
     if (!started) {
 	started = true;
-	return NULL;
+    } else {
+	Assert(i != end);
+	++i;
     }
-    Assert(i != end);
-    ++i;
+    if (i != end) {
+	current_term = i->first;
+    }
     return NULL;
 }
 

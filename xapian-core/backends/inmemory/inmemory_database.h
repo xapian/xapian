@@ -238,7 +238,6 @@ class InMemoryTermList : public TermList {
     /// Collate weighting information for the current term.
     void accumulate_stats(Xapian::Internal::ExpandStats & stats) const;
 
-    std::string get_termname() const;
     // Number of occurrences of term in current doc
     Xapian::termcount get_wdf() const;
     Xapian::doccount get_termfreq() const;  // Number of docs indexed by term

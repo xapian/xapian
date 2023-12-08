@@ -45,9 +45,6 @@ class VectorTermList : public TermList {
     /// The number of terms in the list.
     Xapian::termcount num_terms;
 
-    /// The current term.
-    std::string current_term;
-
   public:
     template<typename I>
     VectorTermList(I begin, I end) : num_terms(0)
@@ -75,8 +72,6 @@ class VectorTermList : public TermList {
     }
 
     Xapian::termcount get_approx_size() const;
-
-    std::string get_termname() const;
 
     Xapian::termcount get_wdf() const;
 

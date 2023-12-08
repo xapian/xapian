@@ -37,12 +37,11 @@ class MultiAllTermsList : public AllTermsList {
     /// Don't allow copying.
     MultiAllTermsList(const MultiAllTermsList &);
 
-    /** Current termname.
+    /* Current termname (now in base class).
      *
-     *  If current_term.empty(), then either we haven't started yet (and
-     *  count != 0) or we've reached the end (and count == 0).
+     * If current_term.empty(), then either we haven't started yet (and
+     * count != 0) or we've reached the end (and count == 0).
      */
-    std::string current_term;
 
     /// Current termfreq (or 0 if not yet calculated).
     mutable Xapian::doccount current_termfreq;
@@ -61,9 +60,6 @@ class MultiAllTermsList : public AllTermsList {
     ~MultiAllTermsList();
 
     Xapian::termcount get_approx_size() const;
-
-    /// Return the termname at the current position.
-    std::string get_termname() const;
 
     /// Return the term frequency for the term at the current position.
     Xapian::doccount get_termfreq() const;

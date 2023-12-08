@@ -69,14 +69,6 @@ HoneyAllTermsList::get_approx_size() const
     return database->postlist_table.get_approx_entry_count();
 }
 
-string
-HoneyAllTermsList::get_termname() const
-{
-    LOGCALL(DB, string, "HoneyAllTermsList::get_termname", NO_ARGS);
-    Assert(!at_end());
-    RETURN(current_term);
-}
-
 Xapian::doccount
 HoneyAllTermsList::get_termfreq() const
 {

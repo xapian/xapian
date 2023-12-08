@@ -180,16 +180,6 @@ GlassSynonymTermList::get_approx_size() const
     return database->synonym_table.get_entry_count();
 }
 
-string
-GlassSynonymTermList::get_termname() const
-{
-    LOGCALL(DB, string, "GlassSynonymTermList::get_termname", NO_ARGS);
-    Assert(cursor);
-    Assert(!cursor->current_key.empty());
-    Assert(!at_end());
-    RETURN(cursor->current_key);
-}
-
 Xapian::doccount
 GlassSynonymTermList::get_termfreq() const
 {
@@ -202,10 +192,13 @@ GlassSynonymTermList::next()
     LOGCALL(DB, TermList *, "GlassSynonymTermList::next", NO_ARGS);
     Assert(!at_end());
 
-    cursor->next();
-    if (!cursor->after_end() && !startswith(cursor->current_key, prefix)) {
-	// We've reached the end of the prefixed terms.
-	cursor->to_end();
+    if (cursor->next()) {
+	if (!startswith(cursor->current_key, prefix)) {
+	    // We've reached the end of the prefixed terms.
+	    cursor->to_end();
+	} else {
+	    current_term = cursor->current_key;
+	}
     }
 
     RETURN(NULL);
@@ -217,12 +210,17 @@ GlassSynonymTermList::skip_to(const string &tname)
     LOGCALL(DB, TermList *, "GlassSynonymTermList::skip_to", tname);
     Assert(!at_end());
 
-    if (!cursor->find_entry_ge(tname)) {
+    if (cursor->find_entry_ge(tname)) {
+	// Exact match.
+	current_term = tname;
+    } else if (!cursor->after_end()) {
 	// The exact term we asked for isn't there, so check if the next
 	// term after it also has the right prefix.
-	if (!cursor->after_end() && !startswith(cursor->current_key, prefix)) {
+	if (!startswith(cursor->current_key, prefix)) {
 	    // We've reached the end of the prefixed terms.
 	    cursor->to_end();
+	} else {
+	    current_term = cursor->current_key;
 	}
     }
     RETURN(NULL);

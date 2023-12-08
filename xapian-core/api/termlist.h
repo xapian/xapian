@@ -49,6 +49,9 @@ class Xapian::TermIterator::Internal : public Xapian::Internal::intrusive_base {
     /// Only constructable as a base class for derived classes.
     Internal() { }
 
+    /// The current term.
+    std::string current_term;
+
   public:
     /** We have virtual methods and want to be able to delete derived classes
      *  using a pointer to the base class, so we need a virtual destructor.
@@ -62,7 +65,9 @@ class Xapian::TermIterator::Internal : public Xapian::Internal::intrusive_base {
     virtual void accumulate_stats(Xapian::Internal::ExpandStats & stats) const;
 
     /// Return the termname at the current position.
-    virtual std::string get_termname() const = 0;
+    const std::string& get_termname() const {
+	return current_term;
+    }
 
     /// Return the wdf for the term at the current position.
     virtual Xapian::termcount get_wdf() const = 0;

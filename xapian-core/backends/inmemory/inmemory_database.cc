@@ -259,15 +259,6 @@ InMemoryTermList::accumulate_stats(Xapian::Internal::ExpandStats & stats) const
 		     db->get_doccount());
 }
 
-string
-InMemoryTermList::get_termname() const
-{
-    if (db->is_closed()) InMemoryDatabase::throw_database_closed();
-    Assert(started);
-    Assert(!at_end());
-    return (*pos).tname;
-}
-
 TermList *
 InMemoryTermList::next()
 {
@@ -278,6 +269,8 @@ InMemoryTermList::next()
     } else {
 	started = true;
     }
+    if (pos != end)
+	current_term = pos->tname;
     return NULL;
 }
 
@@ -291,6 +284,8 @@ InMemoryTermList::skip_to(const string & term)
 	++pos;
     }
 
+    if (pos != end)
+	current_term = pos->tname;
     started = true;
     return NULL;
 }

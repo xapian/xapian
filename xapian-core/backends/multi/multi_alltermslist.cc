@@ -58,12 +58,6 @@ MultiAllTermsList::get_approx_size() const
     return 0;
 }
 
-string
-MultiAllTermsList::get_termname() const
-{
-    return current_term;
-}
-
 Xapian::doccount
 MultiAllTermsList::get_termfreq() const
 {

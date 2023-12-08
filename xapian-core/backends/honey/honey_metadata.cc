@@ -61,16 +61,6 @@ HoneyMetadataTermList::get_approx_size() const
     return 1;
 }
 
-string
-HoneyMetadataTermList::get_termname() const
-{
-    LOGCALL(DB, string, "HoneyMetadataTermList::get_termname", NO_ARGS);
-    Assert(!at_end());
-    Assert(!cursor->current_key.empty());
-    Assert(startswith(cursor->current_key, prefix));
-    RETURN(cursor->current_key.substr(2));
-}
-
 Xapian::doccount
 HoneyMetadataTermList::get_termfreq() const
 {
@@ -91,12 +81,14 @@ HoneyMetadataTermList::next()
     } else {
 	cursor->next();
     }
+
     if (cursor->after_end() || !startswith(cursor->current_key, prefix)) {
 	// We've reached the end of the prefixed terms.
 	delete cursor;
 	cursor = NULL;
+    } else {
+	current_term.assign(cursor->current_key, 2);
     }
-
     RETURN(NULL);
 }
 
@@ -116,13 +108,18 @@ HoneyMetadataTermList::skip_to(const string& key)
 	k = prefix;
     }
 
-    if (!cursor->find_entry_ge(k)) {
+    if (cursor->find_entry_ge(k)) {
+	// Exact match.
+	current_term = key;
+    } else {
 	// The exact key we asked for isn't there, so check if the next
 	// key after it also has the right prefix.
 	if (cursor->after_end() || !startswith(cursor->current_key, prefix)) {
 	    // We've reached the end of the prefixed keys.
 	    delete cursor;
 	    cursor = NULL;
+	} else {
+	    current_term.assign(cursor->current_key, 2);
 	}
     }
     RETURN(NULL);

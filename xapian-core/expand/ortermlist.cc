@@ -61,15 +61,6 @@ OrTermList::accumulate_stats(Xapian::Internal::ExpandStats & stats) const
     if (left_current >= right_current) right->accumulate_stats(stats);
 }
 
-string
-OrTermList::get_termname() const
-{
-    LOGCALL(EXPAND, string, "OrTermList::get_termname", NO_ARGS);
-    check_started();
-    if (left_current < right_current) RETURN(left_current);
-    RETURN(right_current);
-}
-
 Xapian::termcount
 OrTermList::get_wdf() const
 {
@@ -144,6 +135,7 @@ OrTermList::next()
 	left_current = left->get_termname();
 	right_current = right->get_termname();
     }
+    current_term = left_current < right_current ? left_current : right_current;
     RETURN(NULL);
 }
 
@@ -167,6 +159,7 @@ OrTermList::skip_to(const string & term)
     }
     left_current = left->get_termname();
     right_current = right->get_termname();
+    current_term = left_current < right_current ? left_current : right_current;
     RETURN(NULL);
 }
 

@@ -31,8 +31,6 @@ class RemoteAllTermsList : public AllTermsList {
     /// Don't allow copying.
     RemoteAllTermsList(const RemoteAllTermsList &) = delete;
 
-    std::string current_term;
-
     Xapian::doccount current_termfreq;
 
     std::string data;
@@ -43,14 +41,12 @@ class RemoteAllTermsList : public AllTermsList {
     /// Construct.
     RemoteAllTermsList(const std::string& prefix,
 		       std::string&& data_)
-	: current_term(prefix),
-	  data(data_) {}
+	: data(data_) {
+	current_term = prefix;
+    }
 
     /// Return approximate size of this termlist.
     Xapian::termcount get_approx_size() const;
-
-    /// Return the termname at the current position.
-    std::string get_termname() const;
 
     /// Return the term frequency for the term at the current position.
     Xapian::doccount get_termfreq() const;

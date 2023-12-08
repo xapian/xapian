@@ -152,13 +152,6 @@ class HoneySynonymTermList : public AllTermsList {
 
     Xapian::termcount get_approx_size() const;
 
-    /** Returns the current termname.
-     *
-     *  Either next() or skip_to() must have been called before this
-     *  method can be called.
-     */
-    std::string get_termname() const;
-
     /// Return the term frequency for the term at the current position.
     Xapian::doccount get_termfreq() const;
 

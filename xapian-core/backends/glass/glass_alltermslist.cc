@@ -57,15 +57,6 @@ GlassAllTermsList::get_approx_size() const
     return database->postlist_table.get_entry_count();
 }
 
-string
-GlassAllTermsList::get_termname() const
-{
-    LOGCALL(DB, string, "GlassAllTermsList::get_termname", NO_ARGS);
-    Assert(!current_term.empty());
-    Assert(!at_end());
-    RETURN(current_term);
-}
-
 Xapian::doccount
 GlassAllTermsList::get_termfreq() const
 {
@@ -100,17 +91,20 @@ GlassAllTermsList::next()
 		RETURN(NULL);
 	    }
 	}
-	goto first_time;
-    }
-
-    while (true) {
-	cursor->next();
-first_time:
 	if (cursor->after_end()) {
 	    current_term.resize(0);
 	    RETURN(NULL);
 	}
+	goto first_time;
+    }
 
+    while (true) {
+	if (!cursor->next()) {
+	    current_term.resize(0);
+	    RETURN(NULL);
+	}
+
+first_time:
 	const char *p = cursor->current_key.data();
 	const char *pend = p + cursor->current_key.size();
 	if (!unpack_string_preserving_sort(&p, pend, current_term)) {

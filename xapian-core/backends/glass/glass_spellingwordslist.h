@@ -68,13 +68,6 @@ class GlassSpellingWordsList : public AllTermsList {
 
     Xapian::termcount get_approx_size() const;
 
-    /** Returns the current termname.
-     *
-     *  Either next() or skip_to() must have been called before this
-     *  method can be called.
-     */
-    std::string get_termname() const;
-
     /** Returns the term frequency of the current term.
      *
      *  Either next() or skip_to() must have been called before this

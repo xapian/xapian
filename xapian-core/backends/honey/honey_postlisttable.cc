@@ -118,8 +118,7 @@ HoneyPostListTable::get_used_docid_range(Xapian::doccount doccount,
 	    return;
 	}
 	last = new_last;
-	cursor->next();
-    } while (!cursor->after_end());
+    } while (cursor->next());
 
     // We've reached the end of the table (only possible if there are no terms
     // at all!)

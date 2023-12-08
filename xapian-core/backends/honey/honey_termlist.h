@@ -70,9 +70,6 @@ class HoneyTermList : public TermList {
     /// Pointer to the end of the encoded tag value.
     const char* end;
 
-    /// The termname at the current position.
-    std::string current_term;
-
     /// The wdf for the term at the current position.
     Xapian::termcount current_wdf;
 
@@ -122,9 +119,6 @@ class HoneyTermList : public TermList {
 
     /// Collate weighting information for the current term.
     void accumulate_stats(Xapian::Internal::ExpandStats& stats) const;
-
-    /// Return the termname at the current position.
-    std::string get_termname() const;
 
     /// Return the wdf for the term at the current position.
     Xapian::termcount get_wdf() const;

@@ -51,8 +51,6 @@ class DocumentTermList final : public TermList {
 
     Xapian::termcount get_approx_size() const;
 
-    std::string get_termname() const;
-
     Xapian::termcount get_wdf() const;
 
     Xapian::doccount get_termfreq() const;

@@ -33,8 +33,6 @@ class RemoteTermList : public TermList {
     /// Don't allow copying.
     RemoteTermList(const RemoteTermList &) = delete;
 
-    std::string current_term;
-
     Xapian::termcount current_wdf;
 
     Xapian::doccount current_termfreq;
@@ -72,9 +70,6 @@ class RemoteTermList : public TermList {
     Xapian::termcount get_approx_size() const;
 
     void accumulate_stats(Xapian::Internal::ExpandStats& stats) const;
-
-    /// Return the termname at the current position.
-    std::string get_termname() const;
 
     /// Return the wdf for the term at the current position.
     Xapian::termcount get_wdf() const;

@@ -43,9 +43,6 @@ class GlassAllTermsList : public AllTermsList {
      */
     GlassCursor * cursor;
 
-    /// The termname at the current position.
-    std::string current_term;
-
     /// The prefix to restrict the terms to.
     std::string prefix;
 
@@ -68,13 +65,6 @@ class GlassAllTermsList : public AllTermsList {
     ~GlassAllTermsList();
 
     Xapian::termcount get_approx_size() const;
-
-    /** Returns the current termname.
-     *
-     *  Either next() or skip_to() must have been called before this
-     *  method can be called.
-     */
-    std::string get_termname() const;
 
     /** Returns the term frequency of the current term.
      *

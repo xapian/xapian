@@ -107,13 +107,6 @@ HoneyTermList::accumulate_stats(Xapian::Internal::ExpandStats& stats) const
 		     db->get_doccount());
 }
 
-std::string
-HoneyTermList::get_termname() const
-{
-    Assert(!at_end());
-    return current_term;
-}
-
 Xapian::termcount
 HoneyTermList::get_wdf() const
 {

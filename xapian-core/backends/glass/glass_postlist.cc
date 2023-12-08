@@ -478,8 +478,7 @@ PostlistChunkWriter::flush(GlassTable *table)
 	    }
 
 	    // Seek to the next chunk.
-	    cursor->next();
-	    if (cursor->after_end()) {
+	    if (!cursor->next()) {
 		throw Xapian::DatabaseCorruptError("Expected another key but found none");
 	    }
 	    const char *kpos = cursor->current_key.data();
@@ -805,8 +804,7 @@ GlassPostList::next_chunk()
 	return;
     }
 
-    cursor->next();
-    if (cursor->after_end()) {
+    if (!cursor->next()) {
 	is_at_end = true;
 	throw Xapian::DatabaseCorruptError("Unexpected end of posting list for '" +
 				     term + "'");
@@ -1125,8 +1123,7 @@ GlassPostListTable::get_chunk(const string &tname,
     if (is_last_chunk) RETURN(Xapian::docid(-1));
 
     // Find first did of next tag.
-    cursor->next();
-    if (cursor->after_end()) {
+    if (!cursor->next()) {
 	throw Xapian::DatabaseCorruptError("Expected another key but found none");
     }
     const char *kpos = cursor->current_key.data();

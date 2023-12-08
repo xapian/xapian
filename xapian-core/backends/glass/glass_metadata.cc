@@ -61,16 +61,6 @@ GlassMetadataTermList::get_approx_size() const
     return 1;
 }
 
-string
-GlassMetadataTermList::get_termname() const
-{
-    LOGCALL(DB, string, "GlassMetadataTermList::get_termname", NO_ARGS);
-    Assert(!at_end());
-    Assert(!cursor->current_key.empty());
-    Assert(startswith(cursor->current_key, prefix));
-    RETURN(cursor->current_key.substr(2));
-}
-
 Xapian::doccount
 GlassMetadataTermList::get_termfreq() const
 {
@@ -83,10 +73,13 @@ GlassMetadataTermList::next()
     LOGCALL(DB, TermList *, "GlassMetadataTermList::next", NO_ARGS);
     Assert(!at_end());
 
-    cursor->next();
-    if (!cursor->after_end() && !startswith(cursor->current_key, prefix)) {
-	// We've reached the end of the prefixed terms.
-	cursor->to_end();
+    if (cursor->next()) {
+	if (!startswith(cursor->current_key, prefix)) {
+	    // We've reached the end of the prefixed terms.
+	    cursor->to_end();
+	} else {
+	    current_term.assign(cursor->current_key, 2);
+	}
     }
 
     RETURN(NULL);
@@ -98,12 +91,19 @@ GlassMetadataTermList::skip_to(const string &key)
     LOGCALL(DB, TermList *, "GlassMetadataTermList::skip_to", key);
     Assert(!at_end());
 
-    if (!cursor->find_entry_ge(string("\x00\xc0", 2) + key)) {
+    if (cursor->find_entry_ge(string("\x00\xc0", 2) + key)) {
+	// Exact match.
+	current_term = key;
+    } else {
 	// The exact term we asked for isn't there, so check if the next
 	// term after it also has the right prefix.
-	if (!cursor->after_end() && !startswith(cursor->current_key, prefix)) {
-	    // We've reached the end of the prefixed terms.
-	    cursor->to_end();
+	if (!cursor->after_end()) {
+	    if (!startswith(cursor->current_key, prefix)) {
+		// We've reached the end of the prefixed terms.
+		cursor->to_end();
+	    } else {
+		current_term.assign(cursor->current_key, 2);
+	    }
 	}
     }
     RETURN(NULL);
