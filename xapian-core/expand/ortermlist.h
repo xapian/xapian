@@ -34,13 +34,11 @@ class OrTermList : public TermList {
     /// The two TermList objects we're merging.
     TermList *left, *right;
 
-    /** The current term for left and right respectively.
+    /** The result of left->get_termname().compare(right->get_termname()).
      *
-     *  Until next() is first called, these will be empty strings.  Once next()
-     *  has been called, they won't be empty (since the empty string isn't a
-     *  valid term).
+     *  Until next() is first called, this will be zero.
      */
-    std::string left_current, right_current;
+    int cmp = 0;
 
     /// Check that next() has already been called.
     void check_started() const;

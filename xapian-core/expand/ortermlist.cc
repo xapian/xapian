@@ -32,8 +32,8 @@ using namespace std;
 void
 OrTermList::check_started() const
 {
-    Assert(!left_current.empty());
-    Assert(!right_current.empty());
+    Assert(!left->get_termname().empty());
+    Assert(!right->get_termname().empty());
 }
 
 OrTermList::~OrTermList()
@@ -57,8 +57,10 @@ OrTermList::accumulate_stats(Xapian::Internal::ExpandStats & stats) const
 {
     LOGCALL_VOID(EXPAND, "OrTermList::accumulate_stats", stats);
     check_started();
-    if (left_current <= right_current) left->accumulate_stats(stats);
-    if (left_current >= right_current) right->accumulate_stats(stats);
+    if (cmp <= 0)
+	left->accumulate_stats(stats);
+    if (cmp >= 0)
+	right->accumulate_stats(stats);
 }
 
 Xapian::termcount
@@ -66,7 +68,6 @@ OrTermList::get_wdf() const
 {
     LOGCALL(EXPAND, Xapian::termcount, "OrTermList::get_wdf", NO_ARGS);
     check_started();
-    int cmp = left_current.compare(right_current);
     if (cmp < 0) RETURN(left->get_wdf());
     if (cmp > 0) RETURN(right->get_wdf());
     RETURN(left->get_wdf() + right->get_wdf());
@@ -77,8 +78,9 @@ OrTermList::get_termfreq() const
 {
     LOGCALL(EXPAND, Xapian::doccount, "OrTermList::get_termfreq", NO_ARGS);
     check_started();
-    if (left_current < right_current) RETURN(left->get_termfreq());
-    Assert(left_current > right_current || left->get_termfreq() == right->get_termfreq());
+    if (cmp < 0)
+	RETURN(left->get_termfreq());
+    Assert(cmp > 0 || left->get_termfreq() == right->get_termfreq());
     RETURN(right->get_termfreq());
 }
 
@@ -96,10 +98,8 @@ TermList *
 OrTermList::next()
 {
     LOGCALL(EXPAND, TermList *, "OrTermList::next", NO_ARGS);
-    // If we've not started yet, both left_current and right_current will be
-    // empty, so we'll take the third case below which is what we want to do to
-    // get started.
-    int cmp = left_current.compare(right_current);
+    // If we've not started yet, cmp will be zero so we'll take the third case
+    // below which is what we want to do to get started.
     if (cmp < 0) {
 	handle_prune(left, left->next());
 	if (left->at_end()) {
@@ -107,7 +107,6 @@ OrTermList::next()
 	    right = NULL;
 	    RETURN(ret);
 	}
-	left_current = left->get_termname();
     } else if (cmp > 0) {
 	handle_prune(right, right->next());
 	if (right->at_end()) {
@@ -115,9 +114,7 @@ OrTermList::next()
 	    left = NULL;
 	    RETURN(ret);
 	}
-	right_current = right->get_termname();
     } else {
-	AssertEq(left_current, right_current);
 	handle_prune(left, left->next());
 	handle_prune(right, right->next());
 	if (left->at_end()) {
@@ -132,10 +129,9 @@ OrTermList::next()
 	    left = NULL;
 	    RETURN(ret);
 	}
-	left_current = left->get_termname();
-	right_current = right->get_termname();
     }
-    current_term = left_current < right_current ? left_current : right_current;
+    cmp = left->get_termname().compare(right->get_termname());
+    current_term = cmp < 0 ? left->get_termname() : right->get_termname();
     RETURN(NULL);
 }
 
@@ -157,9 +153,8 @@ OrTermList::skip_to(const string & term)
 	left = NULL;
 	RETURN(ret);
     }
-    left_current = left->get_termname();
-    right_current = right->get_termname();
-    current_term = left_current < right_current ? left_current : right_current;
+    cmp = left->get_termname().compare(right->get_termname());
+    current_term = cmp < 0 ? left->get_termname() : right->get_termname();
     RETURN(NULL);
 }
 
@@ -194,7 +189,6 @@ FreqAdderOrTermList::get_termfreq() const
 {
     LOGCALL(EXPAND, Xapian::doccount, "FreqAdderOrTermList::get_termfreq", NO_ARGS);
     check_started();
-    int cmp = left_current.compare(right_current);
     if (cmp < 0) RETURN(left->get_termfreq());
     if (cmp > 0) RETURN(right->get_termfreq());
     RETURN(left->get_termfreq() + right->get_termfreq());
