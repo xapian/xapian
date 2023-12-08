@@ -102,6 +102,16 @@ first_time:
 	    RETURN(NULL);
 	}
 
+	// Fast check for terms without any zero bytes.  ~8.4% faster.
+	auto nul = cursor->current_key.find('\0');
+	if (nul == string::npos) {
+	    current_term = cursor->current_key;
+	    break;
+	}
+	if (cursor->current_key[nul + 1] != '\xff') {
+	    continue;
+	}
+
 	const char *p = cursor->current_key.data();
 	const char *pend = p + cursor->current_key.size();
 	if (!unpack_string_preserving_sort(&p, pend, current_term)) {
