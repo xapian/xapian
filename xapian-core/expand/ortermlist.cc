@@ -1,7 +1,7 @@
 /** @file
  * @brief Merge two TermList objects using an OR operation.
  */
-/* Copyright (C) 2007-2021 Olly Betts
+/* Copyright (C) 2007-2023 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -84,16 +84,6 @@ OrTermList::get_termfreq() const
     RETURN(right->get_termfreq());
 }
 
-// Helper function.
-static inline void
-handle_prune(TermList *& old, TermList * result)
-{
-    if (result) {
-	delete old;
-	old = result;
-    }
-}
-
 TermList *
 OrTermList::next()
 {
@@ -101,32 +91,54 @@ OrTermList::next()
     // If we've not started yet, cmp will be zero so we'll take the third case
     // below which is what we want to do to get started.
     if (cmp < 0) {
-	handle_prune(left, left->next());
-	if (left->at_end()) {
+	TermList* lret = left->next();
+	if (lret == left) {
 	    TermList *ret = right;
 	    right = NULL;
+	    // Prune.
 	    RETURN(ret);
+	}
+	if (lret) {
+	    delete left;
+	    left = lret;
 	}
     } else if (cmp > 0) {
-	handle_prune(right, right->next());
-	if (right->at_end()) {
+	TermList* rret = right->next();
+	if (rret == right) {
 	    TermList *ret = left;
 	    left = NULL;
+	    // Prune.
 	    RETURN(ret);
+	}
+	if (rret) {
+	    delete right;
+	    right = rret;
 	}
     } else {
-	handle_prune(left, left->next());
-	handle_prune(right, right->next());
-	if (left->at_end()) {
-	    // right->at_end() may also be true, but our parent will deal with
-	    // that.
+	TermList* lret = left->next();
+	if (lret && lret != left) {
+	    delete left;
+	    left = lret;
+	    lret = NULL;
+	}
+	TermList* rret = right->next();
+	if (rret && rret != right) {
+	    delete right;
+	    right = rret;
+	    rret = NULL;
+	}
+	if (lret) {
+	    if (rret)
+		return this;
 	    TermList *ret = right;
 	    right = NULL;
+	    // Prune.
 	    RETURN(ret);
 	}
-	if (right->at_end()) {
+	if (rret) {
 	    TermList *ret = left;
 	    left = NULL;
+	    // Prune.
 	    RETURN(ret);
 	}
     }
@@ -139,34 +151,39 @@ TermList *
 OrTermList::skip_to(const string & term)
 {
     LOGCALL(EXPAND, TermList *, "OrTermList::skip_to", term);
-    handle_prune(left, left->skip_to(term));
-    handle_prune(right, right->skip_to(term));
-    if (left->at_end()) {
-	// right->at_end() may also be true, but our parent will deal with
-	// that.
+    TermList* lret = left->skip_to(term);
+    if (lret && lret != left) {
+	delete left;
+	left = lret;
+	lret = NULL;
+    }
+    TermList* rret = right->skip_to(term);
+    if (rret && rret != right) {
+	delete right;
+	right = rret;
+	rret = NULL;
+    }
+    if (lret) {
+	// Left at end.
+	if (rret) {
+	    // Both at end.
+	    RETURN(this);
+	}
 	TermList *ret = right;
 	right = NULL;
+	// Prune.
 	RETURN(ret);
     }
-    if (right->at_end()) {
+    if (rret) {
+	// Right at end.
 	TermList *ret = left;
 	left = NULL;
+	// Prune.
 	RETURN(ret);
     }
     cmp = left->get_termname().compare(right->get_termname());
     current_term = cmp < 0 ? left->get_termname() : right->get_termname();
     RETURN(NULL);
-}
-
-bool
-OrTermList::at_end() const
-{
-    LOGCALL(EXPAND, bool, "OrTermList::at_end", NO_ARGS);
-    check_started();
-    // next() or skip_to() should have pruned if either child is at_end().
-    Assert(!left->at_end());
-    Assert(!right->at_end());
-    RETURN(false);
 }
 
 Xapian::termcount

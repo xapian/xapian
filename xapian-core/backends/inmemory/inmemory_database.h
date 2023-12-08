@@ -243,7 +243,6 @@ class InMemoryTermList : public TermList {
     Xapian::doccount get_termfreq() const;  // Number of docs indexed by term
     TermList * next();
     TermList * skip_to(const std::string & term);
-    bool at_end() const;
     Xapian::termcount positionlist_count() const;
     PositionList* positionlist_begin() const;
 };

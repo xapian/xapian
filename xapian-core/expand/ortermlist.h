@@ -61,8 +61,6 @@ class OrTermList : public TermList {
 
     TermList * skip_to(const std::string & term);
 
-    bool at_end() const;
-
     Xapian::termcount positionlist_count() const;
 
     PositionList* positionlist_begin() const;

@@ -403,9 +403,7 @@ TermList *
 GlassSpellingTermList::next()
 {
     if (p == data.size()) {
-	p = 0;
-	data.resize(0);
-	return NULL;
+	return this;
     }
     if (!current_term.empty()) {
 	current_term.resize(uint8_t(data[p++]) ^ MAGIC_XOR_VALUE);
@@ -422,16 +420,11 @@ GlassSpellingTermList::next()
 TermList *
 GlassSpellingTermList::skip_to(const string & term)
 {
-    while (!data.empty() && current_term < term) {
-	(void)GlassSpellingTermList::next();
+    while (current_term < term) {
+	if (GlassSpellingTermList::next())
+	    return this;
     }
     return NULL;
-}
-
-bool
-GlassSpellingTermList::at_end() const
-{
-    return data.empty();
 }
 
 Xapian::termcount

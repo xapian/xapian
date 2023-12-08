@@ -47,7 +47,7 @@ Document::Internal::ensure_terms_fetched() const
 	return;
 
     unique_ptr<TermList> t(database->open_term_list(did));
-    while (t->next(), !t->at_end()) {
+    while (t->next() == NULL) {
 	++termlist_size;
 	auto&& r = terms->emplace_hint(terms->end(),
 				       t->get_termname(),

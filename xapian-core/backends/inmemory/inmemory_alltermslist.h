@@ -64,9 +64,6 @@ class InMemoryAllTermsList : public AllTermsList
     /** next() causes the AllTermsList to move to the next term in the list.
      */
     TermList * next();
-
-    // True if we're off the end of the list
-    bool at_end() const;
 };
 
 #ifdef DISABLE_GPL_LIBXAPIAN

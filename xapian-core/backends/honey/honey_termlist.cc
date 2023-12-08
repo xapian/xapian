@@ -99,7 +99,7 @@ HoneyTermList::get_approx_size() const
 void
 HoneyTermList::accumulate_stats(Xapian::Internal::ExpandStats& stats) const
 {
-    Assert(!at_end());
+    Assert(pos != NULL);
     stats.accumulate(shard_index,
 		     current_wdf,
 		     doclen,
@@ -110,14 +110,14 @@ HoneyTermList::accumulate_stats(Xapian::Internal::ExpandStats& stats) const
 Xapian::termcount
 HoneyTermList::get_wdf() const
 {
-    Assert(!at_end());
+    Assert(pos != NULL);
     return current_wdf;
 }
 
 Xapian::doccount
 HoneyTermList::get_termfreq() const
 {
-    Assert(!at_end());
+    Assert(pos != NULL);
     if (current_termfreq == 0)
 	db->get_freqs(current_term, &current_termfreq, NULL);
     return current_termfreq;
@@ -126,12 +126,10 @@ HoneyTermList::get_termfreq() const
 TermList*
 HoneyTermList::next()
 {
-    Assert(!at_end());
+    Assert(pos != NULL);
 
     if (pos == end) {
-	// Set pos to NULL so at_end() returns true.
-	pos = NULL;
-	return NULL;
+	return this;
     }
 
     current_wdf = 0;
@@ -172,16 +170,11 @@ HoneyTermList::next()
 TermList*
 HoneyTermList::skip_to(const std::string& term)
 {
-    while (!at_end() && current_term < term) {
-	HoneyTermList::next();
+    while (current_term < term) {
+	if (HoneyTermList::next())
+	    return this;
     }
     return NULL;
-}
-
-bool
-HoneyTermList::at_end() const
-{
-    return pos == NULL;
 }
 
 Xapian::termcount

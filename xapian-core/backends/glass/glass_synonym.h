@@ -166,9 +166,6 @@ class GlassSynonymTermList : public AllTermsList {
 
     /// Advance to the first term which is >= tname.
     TermList * skip_to(const string &tname);
-
-    /// True if we're off the end of the list
-    bool at_end() const;
 };
 
 #endif // XAPIAN_INCLUDED_GLASS_SYNONYM_H

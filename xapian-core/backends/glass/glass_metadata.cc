@@ -71,17 +71,13 @@ TermList *
 GlassMetadataTermList::next()
 {
     LOGCALL(DB, TermList *, "GlassMetadataTermList::next", NO_ARGS);
-    Assert(!at_end());
+    Assert(!cursor->after_end());
 
-    if (cursor->next()) {
-	if (!startswith(cursor->current_key, prefix)) {
-	    // We've reached the end of the prefixed terms.
-	    cursor->to_end();
-	} else {
-	    current_term.assign(cursor->current_key, 2);
-	}
+    if (!cursor->next() || !startswith(cursor->current_key, prefix)) {
+	// We've reached the end of the prefixed terms.
+	RETURN(this);
     }
-
+    current_term.assign(cursor->current_key, 2);
     RETURN(NULL);
 }
 
@@ -89,7 +85,7 @@ TermList *
 GlassMetadataTermList::skip_to(const string &key)
 {
     LOGCALL(DB, TermList *, "GlassMetadataTermList::skip_to", key);
-    Assert(!at_end());
+    Assert(!cursor->after_end());
 
     if (cursor->find_entry_ge(string("\x00\xc0", 2) + key)) {
 	// Exact match.
@@ -97,21 +93,11 @@ GlassMetadataTermList::skip_to(const string &key)
     } else {
 	// The exact term we asked for isn't there, so check if the next
 	// term after it also has the right prefix.
-	if (!cursor->after_end()) {
-	    if (!startswith(cursor->current_key, prefix)) {
-		// We've reached the end of the prefixed terms.
-		cursor->to_end();
-	    } else {
-		current_term.assign(cursor->current_key, 2);
-	    }
+	if (cursor->after_end() || !startswith(cursor->current_key, prefix)) {
+	    // We've reached the end of the prefixed terms.
+	    RETURN(this);
 	}
+	current_term.assign(cursor->current_key, 2);
     }
     RETURN(NULL);
-}
-
-bool
-GlassMetadataTermList::at_end() const
-{
-    LOGCALL(DB, bool, "GlassMetadataTermList::at_end", NO_ARGS);
-    RETURN(cursor->after_end());
 }

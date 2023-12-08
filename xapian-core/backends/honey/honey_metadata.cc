@@ -72,7 +72,7 @@ TermList*
 HoneyMetadataTermList::next()
 {
     LOGCALL(DB, TermList*, "HoneyMetadataTermList::next", NO_ARGS);
-    Assert(!at_end());
+    Assert(cursor != NULL);
 
     if (cursor->after_end()) {
 	// This is the first action on a new HoneyMetadataTermList.
@@ -84,11 +84,9 @@ HoneyMetadataTermList::next()
 
     if (cursor->after_end() || !startswith(cursor->current_key, prefix)) {
 	// We've reached the end of the prefixed terms.
-	delete cursor;
-	cursor = NULL;
-    } else {
-	current_term.assign(cursor->current_key, 2);
+	RETURN(this);
     }
+    current_term.assign(cursor->current_key, 2);
     RETURN(NULL);
 }
 
@@ -96,7 +94,7 @@ TermList*
 HoneyMetadataTermList::skip_to(const string& key)
 {
     LOGCALL(DB, TermList*, "HoneyMetadataTermList::skip_to", key);
-    Assert(!at_end());
+    Assert(cursor != NULL);
 
     // k is the table key (key is the user metadata key).
     string k(2, '\0');
@@ -116,18 +114,9 @@ HoneyMetadataTermList::skip_to(const string& key)
 	// key after it also has the right prefix.
 	if (cursor->after_end() || !startswith(cursor->current_key, prefix)) {
 	    // We've reached the end of the prefixed keys.
-	    delete cursor;
-	    cursor = NULL;
-	} else {
-	    current_term.assign(cursor->current_key, 2);
+	    RETURN(this);
 	}
+	current_term.assign(cursor->current_key, 2);
     }
     RETURN(NULL);
-}
-
-bool
-HoneyMetadataTermList::at_end() const
-{
-    LOGCALL(DB, bool, "HoneyMetadataTermList::at_end", NO_ARGS);
-    RETURN(cursor == NULL);
 }

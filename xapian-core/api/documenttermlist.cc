@@ -41,7 +41,7 @@ DocumentTermList::get_approx_size() const
 Xapian::termcount
 DocumentTermList::get_wdf() const
 {
-    Assert(!at_end());
+    Assert(it != doc->terms->end());
     return it->second.get_wdf();
 }
 
@@ -80,9 +80,10 @@ DocumentTermList::next()
     while (it != doc->terms->end() && it->second.is_deleted()) {
 	++it;
     }
-    if (it != doc->terms->end()) {
-	current_term = it->first;
+    if (it == doc->terms->end()) {
+	return this;
     }
+    current_term = it->first;
     return NULL;
 }
 
@@ -93,14 +94,9 @@ DocumentTermList::skip_to(const string& term)
     while (it != doc->terms->end() && it->second.is_deleted()) {
 	++it;
     }
-    if (it != doc->terms->end()) {
-	current_term = it->first;
+    if (it == doc->terms->end()) {
+	return this;
     }
+    current_term = it->first;
     return NULL;
-}
-
-bool
-DocumentTermList::at_end() const
-{
-    return it == doc->terms->end();
 }

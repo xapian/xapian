@@ -50,7 +50,7 @@ GlassSpellingWordsList::get_termfreq() const
 {
     LOGCALL(DB, Xapian::doccount, "GlassSpellingWordsList::get_termfreq", NO_ARGS);
     Assert(cursor);
-    Assert(!at_end());
+    Assert(!cursor->after_end());
     Assert(!cursor->current_key.empty());
     Assert(cursor->current_key[0] == 'W');
     cursor->read_tag();
@@ -67,16 +67,13 @@ TermList *
 GlassSpellingWordsList::next()
 {
     LOGCALL(DB, TermList *, "GlassSpellingWordsList::next", NO_ARGS);
-    Assert(!at_end());
+    Assert(!cursor->after_end());
 
-    if (cursor->next()) {
-	if (cursor->current_key[0] != 'W') {
-	    // We've reached the end of the prefixed terms.
-	    cursor->to_end();
-	} else {
-	    current_term.assign(cursor->current_key, 1);
-	}
+    if (!cursor->next() || cursor->current_key[0] != 'W') {
+	// We've reached the end of the prefixed terms.
+	RETURN(this);
     }
+    current_term.assign(cursor->current_key, 1);
     RETURN(NULL);
 }
 
@@ -84,27 +81,19 @@ TermList *
 GlassSpellingWordsList::skip_to(const string &tname)
 {
     LOGCALL(DB, TermList *, "GlassSpellingWordsList::skip_to", tname);
-    Assert(!at_end());
+    Assert(!cursor->after_end());
 
     if (cursor->find_entry_ge("W" + tname)) {
 	// Exact match.
 	current_term = tname;
-    } else if (!cursor->after_end()) {
-	// The exact term we asked for isn't there, so check if the next
-	// term after it also has a W prefix.
-	if (cursor->current_key[0] != 'W') {
+    } else {
+	// The exact term we asked for isn't there, so check if the next term
+	// after it also has a W prefix.
+	if (cursor->after_end() || cursor->current_key[0] != 'W') {
 	    // We've reached the end of the prefixed terms.
-	    cursor->to_end();
-	} else {
-	    current_term.assign(cursor->current_key, 1);
+	    RETURN(this);
 	}
+	current_term.assign(cursor->current_key, 1);
     }
     RETURN(NULL);
-}
-
-bool
-GlassSpellingWordsList::at_end() const
-{
-    LOGCALL(DB, bool, "GlassSpellingWordsList::at_end", NO_ARGS);
-    RETURN(cursor->after_end());
 }

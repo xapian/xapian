@@ -80,9 +80,7 @@ HoneySpellingWordsList::next()
     }
     if (cursor->after_end()) {
 	// We've reached the end of the prefixed terms.
-	delete cursor;
-	cursor = NULL;
-	RETURN(NULL);
+	RETURN(this);
     }
     const string& key = cursor->current_key;
     unsigned char first = key[0];
@@ -105,13 +103,11 @@ HoneySpellingWordsList::skip_to(const string& term)
 	// Exact match.
 	current_term = term;
     } else {
-	// The exact term we asked for isn't there, so check if the next
-	// term after it also has a W prefix.
+	// The exact term we asked for isn't there, so check if the next term
+	// after it also has a W prefix.
 	if (cursor->after_end()) {
 	    // We've reached the end of the prefixed terms.
-	    delete cursor;
-	    cursor = NULL;
-	    RETURN(NULL);
+	    RETURN(this);
 	}
 	const string& key = cursor->current_key;
 	unsigned char first = key[0];
@@ -123,11 +119,4 @@ HoneySpellingWordsList::skip_to(const string& term)
 	}
     }
     RETURN(NULL);
-}
-
-bool
-HoneySpellingWordsList::at_end() const
-{
-    LOGCALL(DB, bool, "HoneySpellingWordsList::at_end", NO_ARGS);
-    RETURN(cursor == NULL);
 }

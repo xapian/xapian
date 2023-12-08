@@ -106,10 +106,11 @@ Weight::Internal::accumulate_stats(const Xapian::Database::Internal &subdb,
 	for (i = termfreqs.begin(); i != termfreqs.end(); ++i) {
 	    const string & term = i->first;
 	    TermList * ret = tl->skip_to(term);
-	    Assert(ret == NULL);
-	    (void)ret;
-	    if (tl->at_end())
+	    if (ret != NULL) {
+		// No more entries prune shouldn't happen).
+		Assert(ret == tl.get());
 		break;
+	    }
 	    if (term == tl->get_termname())
 		++i->second.reltermfreq;
 	}

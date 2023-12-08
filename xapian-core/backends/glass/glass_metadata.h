@@ -71,9 +71,6 @@ class GlassMetadataTermList : public AllTermsList {
 
     /// Advance to the first key which is >= @a key.
     TermList * skip_to(const std::string &key);
-
-    /// True if we're off the end of the list
-    bool at_end() const;
 };
 
 #endif // XAPIAN_INCLUDED_GLASS_METADATA_H

@@ -65,26 +65,26 @@ TermList *
 MultiTermList::next()
 {
     TermList* res = real_termlist->next();
-    if (!real_termlist->at_end()) {
-	current_term = real_termlist->get_termname();
+    if (res) {
+	// No more entries (prune shouldn't happen).
+	Assert(res == real_termlist);
+	return this;
     }
-    return res;
+    current_term = real_termlist->get_termname();
+    return NULL;
 }
 
 TermList *
 MultiTermList::skip_to(const std::string &term)
 {
     TermList* res = real_termlist->skip_to(term);
-    if (!real_termlist->at_end()) {
-	current_term = real_termlist->get_termname();
+    if (res) {
+	// No more entries (prune shouldn't happen).
+	Assert(res == real_termlist);
+	return this;
     }
-    return res;
-}
-
-bool
-MultiTermList::at_end() const
-{
-    return real_termlist->at_end();
+    current_term = real_termlist->get_termname();
+    return NULL;
 }
 
 Xapian::termcount

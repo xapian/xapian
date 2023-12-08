@@ -421,9 +421,11 @@ Database::get_spelling_suggestion(const string& word,
     Xapian::doccount freq_exact = 0;
     while (true) {
 	TermList* ret = merger->next();
+	if (ret == merger.get()) {
+	    // Out of entries.
+	    break;
+	}
 	if (ret) merger.reset(ret);
-
-	if (merger->at_end()) break;
 
 	string term = merger->get_termname();
 	Xapian::termcount score = merger->get_wdf();

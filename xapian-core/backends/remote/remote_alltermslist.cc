@@ -50,8 +50,7 @@ RemoteAllTermsList::next()
     }
     const char* p_end = data.data() + data.size();
     if (p == p_end) {
-	data.resize(0);
-	return NULL;
+	return this;
     }
     current_term.resize(size_t(static_cast<unsigned char>(*p++)));
     if (!unpack_string_append(&p, p_end, current_term) ||
@@ -65,16 +64,12 @@ TermList*
 RemoteAllTermsList::skip_to(const std::string& term)
 {
     if (!p) {
-	RemoteAllTermsList::next();
+	if (RemoteAllTermsList::next())
+	    return this;
     }
-    while (!RemoteAllTermsList::at_end() && current_term < term) {
-	RemoteAllTermsList::next();
+    while (current_term < term) {
+	if (RemoteAllTermsList::next())
+	    return this;
     }
     return NULL;
-}
-
-bool
-RemoteAllTermsList::at_end() const
-{
-    return data.empty();
 }

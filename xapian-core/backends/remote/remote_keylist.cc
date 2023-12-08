@@ -50,8 +50,7 @@ RemoteKeyList::next()
     }
     const char* p_end = data.data() + data.size();
     if (p == p_end) {
-	data.resize(0);
-	return NULL;
+	return this;
     }
     current_term.resize(size_t(static_cast<unsigned char>(*p++)));
     if (!unpack_string_append(&p, p_end, current_term)) {
@@ -64,16 +63,12 @@ TermList*
 RemoteKeyList::skip_to(const std::string& term)
 {
     if (!p) {
-	RemoteKeyList::next();
+	if (RemoteKeyList::next())
+	    return this;
     }
-    while (!RemoteKeyList::at_end() && current_term < term) {
-	RemoteKeyList::next();
+    while (current_term < term) {
+	if (RemoteKeyList::next())
+	    return this;
     }
     return NULL;
-}
-
-bool
-RemoteKeyList::at_end() const
-{
-    return data.empty();
 }

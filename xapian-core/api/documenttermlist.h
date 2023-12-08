@@ -64,8 +64,6 @@ class DocumentTermList final : public TermList {
     TermList * next();
 
     TermList * skip_to(const std::string& term);
-
-    bool at_end() const;
 };
 
 #endif // XAPIAN_INCLUDED_DOCUMENTTERMLIST_H

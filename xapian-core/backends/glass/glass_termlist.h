@@ -93,6 +93,14 @@ class GlassTermList : public TermList {
     GlassTermList(Xapian::Internal::intrusive_ptr<const GlassDatabase> db_,
 		  Xapian::docid did_, bool throw_if_not_present = true);
 
+    /** Check if the term isn't present.
+     *
+     *  If you call the constructor with throw_if_not_present=false then you
+     *  need to call this method to check if the term is present before you
+     *  call other methods.
+     */
+    bool not_present() const { return pos == NULL; }
+
     /** Return the length of this document.
      *
      *  This is a non-virtual method, used by GlassDatabase.
@@ -137,9 +145,6 @@ class GlassTermList : public TermList {
     TermList * next();
 
     TermList * skip_to(const std::string & term);
-
-    /// Return true if the current position is past the last term in this list.
-    bool at_end() const;
 
     /// Return the length of the position list for the current position.
     Xapian::termcount positionlist_count() const;

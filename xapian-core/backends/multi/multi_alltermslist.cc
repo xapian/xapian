@@ -67,8 +67,8 @@ MultiAllTermsList::get_termfreq() const
 	    if (tl->get_termname() != current_term)
 		break;
 	    current_termfreq += tl->get_termfreq();
-	    tl->next();
-	    if (tl->at_end()) {
+	    if (tl->next()) {
+		// Out of entries.
 		Heap::pop(termlists, termlists + count,
 			  CompareTermListsByTerm());
 		delete tl;
@@ -91,9 +91,7 @@ MultiAllTermsList::next()
 	// earliest sorting term is at the top of the heap.
 	size_t j = 0;
 	for (size_t i = 0; i != count; ++i) {
-	    TermList* tl = termlists[i];
-	    tl->next();
-	    if (!tl->at_end()) {
+	    if (termlists[i]->next() == NULL) {
 		if (i != j)
 		    swap(termlists[i], termlists[j]);
 		++j;
@@ -109,8 +107,8 @@ MultiAllTermsList::next()
 	    TermList* tl = termlists[0];
 	    if (tl->get_termname() != current_term)
 		break;
-	    tl->next();
-	    if (tl->at_end()) {
+	    if (tl->next()) {
+		// Out of entries.
 		Heap::pop(termlists, termlists + count,
 			  CompareTermListsByTerm());
 		delete tl;
@@ -127,10 +125,10 @@ MultiAllTermsList::next()
 
     if (count <= 1) {
 	if (count == 0) {
-	    current_term = std::string();
-	    return NULL;
+	    return this;
 	}
 	count = 0;
+	// Prune.
 	return termlists[0];
     }
 
@@ -146,9 +144,7 @@ MultiAllTermsList::skip_to(const std::string &term)
     // approach more like that next() uses if this ever gets heavy use.
     size_t j = 0;
     for (size_t i = 0; i != count; ++i) {
-	TermList* tl = termlists[i];
-	tl->skip_to(term);
-	if (!tl->at_end()) {
+	if (termlists[i]->skip_to(term) == NULL) {
 	    if (i != j)
 		swap(termlists[i], termlists[j]);
 	    ++j;
@@ -161,10 +157,10 @@ MultiAllTermsList::skip_to(const std::string &term)
 
     if (count <= 1) {
 	if (count == 0) {
-	    current_term = std::string();
-	    return NULL;
+	    return this;
 	}
 	count = 0;
+	// Prune.
 	return termlists[0];
     }
 
@@ -172,10 +168,4 @@ MultiAllTermsList::skip_to(const std::string &term)
 
     current_term = termlists[0]->get_termname();
     return NULL;
-}
-
-bool
-MultiAllTermsList::at_end() const
-{
-    return count == 0 && current_term.empty();
 }

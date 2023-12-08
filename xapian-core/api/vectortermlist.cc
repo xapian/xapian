@@ -39,7 +39,7 @@ VectorTermList::get_wdf() const
 {
     // Check we've started but not reached the end.
     Assert(p != data.data());
-    Assert(!VectorTermList::at_end());
+    Assert(p != NULL);
     return 1;
 }
 
@@ -53,16 +53,14 @@ TermList *
 VectorTermList::next()
 {
     // Check we've not reached the end.
-    Assert(!VectorTermList::at_end());
+    Assert(p != NULL);
 
     const char * end = data.data() + data.size();
     if (p == end) {
-	current_term.resize(0);
-	p = NULL;
-    } else {
-	if (!unpack_string(&p, end, current_term)) {
-	    unpack_throw_serialisation_error(p);
-	}
+	return this;
+    }
+    if (!unpack_string(&p, end, current_term)) {
+	unpack_throw_serialisation_error(p);
     }
 
     return NULL;
@@ -73,12 +71,6 @@ VectorTermList::skip_to(const string &)
 {
     // skip_to only makes sense for termlists which are in sorted order.
     throw Xapian::InvalidOperationError("VectorTermList::skip_to() not meaningful");
-}
-
-bool
-VectorTermList::at_end() const
-{
-    return p == NULL;
 }
 
 Xapian::termcount

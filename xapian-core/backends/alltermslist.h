@@ -55,12 +55,15 @@ class AllTermsList : public TermList {
     /** Skip forward to the specified term.
      *
      *  If the specified term isn't in the list, position ourselves on the
-     *  first term after @a term (or at_end() if no terms after @a term exist).
+     *  first term after @a term.
+     *
+     *  @return Normally returns NULL to indicate success.  If the end has been
+     *		reached, returns this; if another non-NULL pointer is
+     *		returned then the caller should substitute the returned pointer
+     *		for its pointer to us, and then delete us.  This "pruning" can
+     *		only happen for a non-leaf subclass of this class.
      */
     virtual TermList *skip_to(const std::string &term) = 0;
-
-    /// Return true if the current position is past the last term in this list.
-    virtual bool at_end() const = 0;
 
     /** Return true if the current position is past the last term in this list.
      *

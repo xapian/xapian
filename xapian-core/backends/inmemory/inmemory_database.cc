@@ -224,7 +224,7 @@ InMemoryTermList::get_wdf() const
 {
     if (db->is_closed()) InMemoryDatabase::throw_database_closed();
     Assert(started);
-    Assert(!at_end());
+    Assert(pos != end);
     return (*pos).wdf;
 }
 
@@ -233,7 +233,7 @@ InMemoryTermList::get_termfreq() const
 {
     if (db->is_closed()) InMemoryDatabase::throw_database_closed();
     Assert(started);
-    Assert(!at_end());
+    Assert(pos != end);
 
     Xapian::doccount tf;
     db->get_freqs((*pos).tname, &tf, NULL);
@@ -252,7 +252,7 @@ InMemoryTermList::accumulate_stats(Xapian::Internal::ExpandStats & stats) const
 {
     if (db->is_closed()) InMemoryDatabase::throw_database_closed();
     Assert(started);
-    Assert(!at_end());
+    Assert(pos != end);
     stats.accumulate(shard_index,
 		     InMemoryTermList::get_wdf(), document_length,
 		     InMemoryTermList::get_termfreq(),
@@ -264,13 +264,14 @@ InMemoryTermList::next()
 {
     if (db->is_closed()) InMemoryDatabase::throw_database_closed();
     if (started) {
-	Assert(!at_end());
+	Assert(pos != end);
 	++pos;
     } else {
 	started = true;
     }
-    if (pos != end)
-	current_term = pos->tname;
+    if (pos == end)
+	return this;
+    current_term = pos->tname;
     return NULL;
 }
 
@@ -284,18 +285,11 @@ InMemoryTermList::skip_to(const string & term)
 	++pos;
     }
 
-    if (pos != end)
-	current_term = pos->tname;
     started = true;
+    if (pos == end)
+	return this;
+    current_term = pos->tname;
     return NULL;
-}
-
-bool
-InMemoryTermList::at_end() const
-{
-    if (db->is_closed()) InMemoryDatabase::throw_database_closed();
-    Assert(started);
-    return (pos == end);
 }
 
 Xapian::termcount

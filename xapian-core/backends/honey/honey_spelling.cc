@@ -401,9 +401,7 @@ TermList*
 HoneySpellingTermList::next()
 {
     if (p == data.size()) {
-	p = 0;
-	data.resize(0);
-	return NULL;
+	return this;
     }
 
     size_t keep = 0;
@@ -437,16 +435,11 @@ HoneySpellingTermList::next()
 TermList*
 HoneySpellingTermList::skip_to(const string& term)
 {
-    while (!data.empty() && current_term < term) {
-	(void)HoneySpellingTermList::next();
+    while (current_term < term) {
+	if (HoneySpellingTermList::next())
+	    return this;
     }
     return NULL;
-}
-
-bool
-HoneySpellingTermList::at_end() const
-{
-    return data.empty();
 }
 
 Xapian::termcount

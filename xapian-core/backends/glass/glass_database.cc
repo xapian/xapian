@@ -748,11 +748,9 @@ GlassDatabase::get_wdfdocmax(Xapian::docid did) const
     intrusive_ptr<const GlassDatabase> ptrtothis(this);
     GlassTermList termlist(ptrtothis, did);
     Xapian::termcount max_wdf = 0;
-    termlist.next();
-    while (!termlist.at_end()) {
+    while (termlist.next() == NULL) {
 	Xapian::termcount current_wdf = termlist.get_wdf();
 	if (current_wdf > max_wdf) max_wdf = current_wdf;
-	termlist.next();
     }
     RETURN(max_wdf);
 }
@@ -1252,14 +1250,11 @@ GlassWritableDatabase::delete_document(Xapian::docid did)
 
 	version_file.delete_document(termlist.get_doclength());
 
-	termlist.next();
-	while (!termlist.at_end()) {
+	while (termlist.next() == NULL) {
 	    string tname = termlist.get_termname();
 	    inverter.delete_positionlist(did, tname);
 
 	    inverter.remove_posting(did, tname, termlist.get_wdf());
-
-	    termlist.next();
 	}
 
 	// Remove the termlist.
@@ -1333,14 +1328,16 @@ GlassWritableDatabase::replace_document(Xapian::docid did,
 	if (!modifying || document.internal->terms_modified()) {
 	    bool pos_modified = !modifying ||
 				document.internal->positions_modified();
+
+	    // Avoid the cost of throwing and handling an exception if
+	    // there's not already a document with docid did.
 	    intrusive_ptr<const GlassWritableDatabase> ptrtothis(this);
 	    GlassTermList termlist(ptrtothis, did, false);
-	    // We passed false for throw_if_not_present so check at_end()
-	    // before next() to see if the document isn't present at all.
-	    if (termlist.at_end()) {
+	    if (termlist.not_present()) {
 		(void)add_document_(did, document);
 		return;
 	    }
+
 	    Xapian::TermIterator term = document.termlist_begin();
 	    Xapian::termcount old_doclen = termlist.get_doclength();
 	    version_file.delete_document(old_doclen);
@@ -1348,10 +1345,10 @@ GlassWritableDatabase::replace_document(Xapian::docid did,
 
 	    string old_tname, new_tname;
 
-	    termlist.next();
-	    while (!termlist.at_end() || term != document.termlist_end()) {
+	    bool termlist_at_end = (termlist.next() != NULL);
+	    while (!termlist_at_end || term != document.termlist_end()) {
 		int cmp;
-		if (termlist.at_end()) {
+		if (termlist_at_end) {
 		    cmp = 1;
 		    new_tname = *term;
 		} else {
@@ -1371,7 +1368,7 @@ GlassWritableDatabase::replace_document(Xapian::docid did,
 		    inverter.remove_posting(did, old_tname, old_wdf);
 		    if (pos_modified)
 			inverter.delete_positionlist(did, old_tname);
-		    termlist.next();
+		    termlist_at_end = (termlist.next() != NULL);
 		} else if (cmp > 0) {
 		    // Term new_tname as been added.
 		    termcount new_wdf = term.get_wdf();
@@ -1404,7 +1401,7 @@ GlassWritableDatabase::replace_document(Xapian::docid did,
 		    }
 
 		    ++term;
-		    termlist.next();
+		    termlist_at_end = (termlist.next() != NULL);
 		}
 	    }
 	    LOGLINE(DB, "Calculated doclen for replacement document " << did << " as " << new_doclen);

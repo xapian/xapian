@@ -81,22 +81,26 @@ class Xapian::TermIterator::Internal : public Xapian::Internal::intrusive_base {
      *  or check() must be called before any methods which need the context of
      *  the current position.
      *
-     *  @return	If a non-NULL pointer is returned, then the caller should
-     *		substitute the returned pointer for its pointer to us, and then
-     *		delete us.  This "pruning" can only happen for a non-leaf
-     *		subclass of this class.
+     *  @return Normally returns NULL to indicate success.  If the end has been
+     *		reached, returns this; if another non-NULL pointer is
+     *		returned then the caller should substitute the returned pointer
+     *		for its pointer to us, and then delete us.  This "pruning" can
+     *		only happen for a non-leaf subclass of this class.
      */
     virtual Internal * next() = 0;
 
     /** Skip forward to the specified term.
      *
      *  If the specified term isn't in the list, position ourselves on the
-     *  first term after tname (or at_end() if no terms after tname exist).
+     *  first term after term.
+     *
+     *  @return Normally returns NULL to indicate success.  If no terms after
+     *		term exist, returns this; if another non-NULL pointer is
+     *		returned then the caller should substitute the returned pointer
+     *		for its pointer to us, and then delete us.  This "pruning" can
+     *		only happen for a non-leaf subclass of this class.
      */
     virtual Internal * skip_to(const std::string &term) = 0;
-
-    /// Return true if the current position is past the last term in this list.
-    virtual bool at_end() const = 0;
 
     /// Return the length of the position list for the current position.
     virtual Xapian::termcount positionlist_count() const = 0;

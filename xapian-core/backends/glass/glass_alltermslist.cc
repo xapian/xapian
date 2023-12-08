@@ -33,7 +33,8 @@ GlassAllTermsList::read_termfreq() const
 {
     LOGCALL_VOID(DB, "GlassAllTermsList::read_termfreq", NO_ARGS);
     Assert(!current_term.empty());
-    Assert(!at_end());
+    Assert(cursor);
+    Assert(!cursor->after_end());
 
     // Unpack the termfreq from the tag.
     cursor->read_tag();
@@ -62,7 +63,8 @@ GlassAllTermsList::get_termfreq() const
 {
     LOGCALL(DB, Xapian::doccount, "GlassAllTermsList::get_termfreq", NO_ARGS);
     Assert(!current_term.empty());
-    Assert(!at_end());
+    Assert(cursor);
+    Assert(!cursor->after_end());
     if (termfreq == 0) read_termfreq();
     RETURN(termfreq);
 }
@@ -71,7 +73,6 @@ TermList *
 GlassAllTermsList::next()
 {
     LOGCALL(DB, TermList *, "GlassAllTermsList::next", NO_ARGS);
-    Assert(!at_end());
     // Set termfreq to 0 to indicate no termfreq has been read for the current
     // term.
     termfreq = 0;
@@ -92,16 +93,15 @@ GlassAllTermsList::next()
 	    }
 	}
 	if (cursor->after_end()) {
-	    current_term.resize(0);
-	    RETURN(NULL);
+	    RETURN(this);
 	}
 	goto first_time;
     }
 
+    Assert(!cursor->after_end());
     while (true) {
 	if (!cursor->next()) {
-	    current_term.resize(0);
-	    RETURN(NULL);
+	    RETURN(this);
 	}
 
 first_time:
@@ -129,8 +129,7 @@ first_time:
 
     if (!startswith(current_term, prefix)) {
 	// We've reached the end of the prefixed terms.
-	cursor->to_end();
-	current_term.resize(0);
+	RETURN(this);
     }
 
     RETURN(NULL);
@@ -140,7 +139,6 @@ TermList *
 GlassAllTermsList::skip_to(const string &term)
 {
     LOGCALL(DB, TermList *, "GlassAllTermsList::skip_to", term);
-    Assert(!at_end());
     // Set termfreq to 0 to indicate no termfreq has been read for the current
     // term.
     termfreq = 0;
@@ -149,6 +147,7 @@ GlassAllTermsList::skip_to(const string &term)
 	cursor = database->postlist_table.cursor_get();
 	Assert(cursor); // The postlist table isn't optional.
     }
+    Assert(!cursor->after_end());
 
     string key = pack_glass_postlist_key(term);
     if (cursor->find_entry_ge(key)) {
@@ -157,8 +156,7 @@ GlassAllTermsList::skip_to(const string &term)
 	current_term = term;
     } else {
 	if (cursor->after_end()) {
-	    current_term.resize(0);
-	    RETURN(NULL);
+	    RETURN(this);
 	}
 
 	const char *p = cursor->current_key.data();
@@ -170,16 +168,8 @@ GlassAllTermsList::skip_to(const string &term)
 
     if (!startswith(current_term, prefix)) {
 	// We've reached the end of the prefixed terms.
-	cursor->to_end();
-	current_term.resize(0);
+	RETURN(this);
     }
 
     RETURN(NULL);
-}
-
-bool
-GlassAllTermsList::at_end() const
-{
-    LOGCALL(DB, bool, "GlassAllTermsList::at_end", NO_ARGS);
-    RETURN(cursor && cursor->after_end());
 }

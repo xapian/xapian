@@ -38,7 +38,7 @@ void
 HoneyAllTermsList::read_termfreq() const
 {
     LOGCALL_VOID(DB, "HoneyAllTermsList::read_termfreq", NO_ARGS);
-    Assert(!at_end());
+    Assert(cursor != NULL);
 
     // Unpack the termfreq from the tag.
     Xapian::termcount collfreq;
@@ -73,7 +73,7 @@ Xapian::doccount
 HoneyAllTermsList::get_termfreq() const
 {
     LOGCALL(DB, Xapian::doccount, "HoneyAllTermsList::get_termfreq", NO_ARGS);
-    Assert(!at_end());
+    Assert(cursor != NULL);
     if (termfreq == 0) read_termfreq();
     RETURN(termfreq);
 }
@@ -103,20 +103,14 @@ HoneyAllTermsList::next()
 	    }
 	}
 	if (cursor->after_end()) {
-	    delete cursor;
-	    cursor = NULL;
-	    database = NULL;
-	    RETURN(NULL);
+	    RETURN(this);
 	}
 	goto first_time;
     }
 
     while (true) {
 	if (!cursor->next()) {
-	    delete cursor;
-	    cursor = NULL;
-	    database = NULL;
-	    RETURN(NULL);
+	    RETURN(this);
 	}
 
 first_time:
@@ -146,9 +140,7 @@ first_time:
 
     if (!startswith(current_term, prefix)) {
 	// We've reached the end of the prefixed terms.
-	delete cursor;
-	cursor = NULL;
-	database = NULL;
+	RETURN(this);
     }
 
     RETURN(NULL);
@@ -163,10 +155,6 @@ HoneyAllTermsList::skip_to(const string& term)
     termfreq = 0;
 
     if (rare(!cursor)) {
-	if (!database) {
-	    // skip_to() once at_end() is allowed but a no-op.
-	    RETURN(NULL);
-	}
 	if (rare(term.empty())) {
 	    RETURN(next());
 	}
@@ -185,10 +173,7 @@ HoneyAllTermsList::skip_to(const string& term)
 	current_term = term;
     } else {
 	if (cursor->after_end()) {
-	    delete cursor;
-	    cursor = NULL;
-	    database = NULL;
-	    RETURN(NULL);
+	    RETURN(this);
 	}
 
 	const char* p = cursor->current_key.data();
@@ -202,19 +187,8 @@ HoneyAllTermsList::skip_to(const string& term)
 
     if (!startswith(current_term, prefix)) {
 	// We've reached the end of the prefixed terms.
-	delete cursor;
-	cursor = NULL;
-	database = NULL;
+	RETURN(this);
     }
 
     RETURN(NULL);
-}
-
-bool
-HoneyAllTermsList::at_end() const
-{
-    LOGCALL(DB, bool, "HoneyAllTermsList::at_end", NO_ARGS);
-    // Either next() or skip_to() should be called before at_end().
-    Assert(!(cursor == NULL && database));
-    RETURN(cursor == NULL);
 }

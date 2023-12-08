@@ -83,9 +83,6 @@ class HoneySpellingWordsList : public AllTermsList {
 
     /// Advance to the first term which is >= term.
     TermList* skip_to(const std::string& term);
-
-    /// True if we're off the end of the list
-    bool at_end() const;
 };
 
 #endif /* XAPIAN_INCLUDED_HONEY_SPELLINGWORDSLIST_H */

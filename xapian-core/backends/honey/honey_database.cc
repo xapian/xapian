@@ -171,11 +171,9 @@ HoneyDatabase::get_wdfdocmax(Xapian::docid did) const
     Assert(did != 0);
     HoneyTermList termlist(this, did);
     Xapian::termcount max_wdf = 0;
-    termlist.next();
-    while (!termlist.at_end()) {
+    while (termlist.next() == NULL) {
 	Xapian::termcount current_wdf = termlist.get_wdf();
 	if (current_wdf > max_wdf) max_wdf = current_wdf;
-	termlist.next();
     }
     return max_wdf;
 }

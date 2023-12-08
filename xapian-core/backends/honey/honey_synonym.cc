@@ -191,7 +191,7 @@ TermList*
 HoneySynonymTermList::next()
 {
     LOGCALL(DB, TermList*, "HoneySynonymTermList::next", NO_ARGS);
-    Assert(!at_end());
+    Assert(!cursor->after_end());
 
     if (cursor->after_end()) {
 	// This is the first action on a new HoneySynonymTermList.
@@ -202,11 +202,9 @@ HoneySynonymTermList::next()
     }
     if (cursor->after_end() || !startswith(cursor->current_key, prefix)) {
 	// We've reached the end of the prefixed terms.
-	delete cursor;
-	cursor = NULL;
-    } else {
-	current_term = cursor->current_key;
+	RETURN(this);
     }
+    current_term = cursor->current_key;
 
     RETURN(NULL);
 }
@@ -215,7 +213,7 @@ TermList*
 HoneySynonymTermList::skip_to(const string& term)
 {
     LOGCALL(DB, TermList*, "HoneySynonymTermList::skip_to", term);
-    Assert(!at_end());
+    Assert(!cursor->after_end());
 
     if (cursor->after_end() && prefix > term) {
 	// This is the first action on a new HoneySynonymTermList and we were
@@ -232,18 +230,9 @@ HoneySynonymTermList::skip_to(const string& term)
 	// term after it also has the right prefix.
 	if (cursor->after_end() || !startswith(cursor->current_key, prefix)) {
 	    // We've reached the end of the prefixed terms.
-	    delete cursor;
-	    cursor = NULL;
-	} else {
-	    current_term = cursor->current_key;
+	    RETURN(this);
 	}
+	current_term = cursor->current_key;
     }
     RETURN(NULL);
-}
-
-bool
-HoneySynonymTermList::at_end() const
-{
-    LOGCALL(DB, bool, "HoneySynonymTermList::at_end", NO_ARGS);
-    RETURN(cursor == NULL);
 }

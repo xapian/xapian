@@ -144,9 +144,6 @@ class HoneyTermList : public TermList {
 
     TermList* skip_to(const std::string& term);
 
-    /// Return true if the current position is past the last term in this list.
-    bool at_end() const;
-
     /// Return the length of the position list for the current position.
     Xapian::termcount positionlist_count() const;
 

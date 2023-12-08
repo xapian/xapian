@@ -42,14 +42,16 @@ void
 TermIterator::post_advance(Internal * res)
 {
     if (res) {
-	// This can happen with iterating allterms from multiple databases.
-	++res->_refs;
+	if (res == internal) {
+	    // No more items.
+	    res = NULL;
+	} else {
+	    // Prune - this can happen with iterating allterms from multiple
+	    // databases.
+	    ++res->_refs;
+	}
 	decref();
 	internal = res;
-    }
-    if (internal->at_end()) {
-	decref();
-	internal = NULL;
     }
 }
 

@@ -81,8 +81,6 @@ class VectorTermList : public TermList {
 
     TermList * skip_to(const std::string &);
 
-    bool at_end() const;
-
     Xapian::termcount positionlist_count() const;
 
     PositionList* positionlist_begin() const;

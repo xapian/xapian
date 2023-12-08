@@ -42,7 +42,7 @@ RemoteTermList::accumulate_stats(Xapian::Internal::ExpandStats& stats) const
 {
     // Used for query expansion with remote databases.  FIXME: Rework that and
     // drop this?
-    Assert(!at_end());
+    Assert(!data.empty());
     stats.accumulate(shard_index,
 		     current_wdf, doclen, current_termfreq, db_size);
 }
@@ -50,14 +50,14 @@ RemoteTermList::accumulate_stats(Xapian::Internal::ExpandStats& stats) const
 Xapian::termcount
 RemoteTermList::get_wdf() const
 {
-    Assert(!at_end());
+    Assert(!data.empty());
     return current_wdf;
 }
 
 Xapian::doccount
 RemoteTermList::get_termfreq() const
 {
-    Assert(!at_end());
+    Assert(!data.empty());
     return current_termfreq;
 }
 
@@ -69,8 +69,7 @@ RemoteTermList::next()
     }
     const char* p_end = data.data() + data.size();
     if (p == p_end) {
-	data.resize(0);
-	return NULL;
+	return this;
     }
     current_term.resize(size_t(static_cast<unsigned char>(*p++)));
     if (!unpack_string_append(&p, p_end, current_term) ||
@@ -85,18 +84,14 @@ TermList*
 RemoteTermList::skip_to(const std::string& term)
 {
     if (!p) {
-	RemoteTermList::next();
+	if (RemoteTermList::next())
+	    return this;
     }
-    while (!RemoteTermList::at_end() && current_term < term) {
-	RemoteTermList::next();
+    while (current_term < term) {
+	if (RemoteTermList::next())
+	    return this;
     }
     return NULL;
-}
-
-bool
-RemoteTermList::at_end() const
-{
-    return data.empty();
 }
 
 Xapian::termcount

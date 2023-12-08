@@ -60,9 +60,6 @@ class RemoteAllTermsList : public AllTermsList {
      *  first term after @a term (or at_end() if no terms after @a term exist).
      */
     TermList* skip_to(const std::string& term);
-
-    /// Return true if the current position is past the last term in this list.
-    bool at_end() const;
 };
 
 #endif // XAPIAN_INCLUDED_REMOTE_ALLTERMSLIST_H

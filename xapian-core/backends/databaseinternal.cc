@@ -467,7 +467,7 @@ reconstruct_open_poslists(TermList* termlist,
 			  size_t prefix_size = 0)
 {
     constexpr Xapian::termpos LAST_POS = Xapian::termpos(-1);
-    while (!termlist->at_end()) {
+    do {
 	const string& term = termlist->get_termname();
 	if (!end.empty() && term >= end) {
 	    break;
@@ -480,8 +480,7 @@ reconstruct_open_poslists(TermList* termlist,
 	} else {
 	    delete poslist;
 	}
-	termlist->next();
-    }
+    } while (termlist->next() == NULL);
 }
 
 string
@@ -522,8 +521,7 @@ Database::Internal::reconstruct_text(Xapian::docid did,
 	    reconstruct_open_poslists(termlist.get(), start_pos, end_pos,
 				      prefix, heap);
 	} else {
-	    termlist->skip_to(prefix);
-	    if (!termlist->at_end()) {
+	    if (termlist->skip_to(prefix) == NULL) {
 		// Calculate the first possible term without the specified
 		// prefix.
 		string term_ub = prefix;

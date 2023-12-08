@@ -40,7 +40,7 @@ Xapian::doccount
 InMemoryAllTermsList::get_termfreq() const
 {
     if (database->is_closed()) InMemoryDatabase::throw_database_closed();
-    Assert(!at_end());
+    Assert(it != tmap->end());
     Assert(!it->first.empty());
     /* FIXME: this isn't quite right. */
     return it->second.docs.size();
@@ -62,17 +62,18 @@ InMemoryAllTermsList::skip_to(const string &tname_)
 	} else if (tname.empty()) {
 	    ++it;
 	    while (it != tmap->end() && it->second.term_freq == 0) ++it;
-	    if (it != tmap->end())
-		current_term = it->first;
+	    if (it == tmap->end())
+		return this;
+	    current_term = it->first;
 	    return NULL;
 	}
     }
     it = tmap->lower_bound(tname);
     while (it != tmap->end() && it->second.term_freq == 0) ++it;
-    if (it != tmap->end() && !startswith(it->first, prefix))
-	it = tmap->end();
-    if (it != tmap->end())
-	current_term = it->first;
+    if (it == tmap->end() || !startswith(it->first, prefix)) {
+	return this;
+    }
+    current_term = it->first;
     return NULL;
 }
 
@@ -87,19 +88,11 @@ InMemoryAllTermsList::next()
 	++it;
     }
     while (it != tmap->end() && it->second.term_freq == 0) ++it;
-    if (it != tmap->end() && !startswith(it->first, prefix))
-	it = tmap->end();
-    if (it != tmap->end())
-	current_term = it->first;
+    if (it == tmap->end() || !startswith(it->first, prefix)) {
+	return this;
+    }
+    current_term = it->first;
     return NULL;
-}
-
-bool
-InMemoryAllTermsList::at_end() const
-{
-    if (database->is_closed()) InMemoryDatabase::throw_database_closed();
-    Assert(it == tmap->end() || !it->first.empty());
-    return (it == tmap->end());
 }
 
 #ifdef DISABLE_GPL_LIBXAPIAN

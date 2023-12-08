@@ -216,10 +216,15 @@ Context::expand_wildcard(const QueryWildcard* query,
     if (expansions_left == 0)
 	expansions_left = numeric_limits<decltype(expansions_left)>::max();
     while (true) {
-	t->next();
+	TermList* ret = t->next();
 done_skip_to:
-	if (t->at_end())
+	if (ret) {
+	    // Pruning shouldn't be possible, as this is iterating allterms for
+	    // a single shard.
+	    Assert(ret == t.get());
+	    // End of entries.
 	    break;
+	}
 
 	const string & term = t->get_termname();
 	if (skip_ucase && term[0] >= 'A') {
@@ -233,7 +238,7 @@ done_skip_to:
 	    skip_ucase = false;
 	    if (term[0] <= 'Z') {
 		static_assert('Z' + 1 == '[', "'Z' + 1 == '['");
-		t->skip_to("[");
+		ret = t->skip_to("[");
 		goto done_skip_to;
 	    }
 	}
@@ -293,10 +298,15 @@ Context::expand_edit_distance(const QueryEditDistance* query,
     if (expansions_left == 0)
 	expansions_left = numeric_limits<decltype(expansions_left)>::max();
     while (true) {
-	t->next();
+	TermList* res = t->next();
 done_skip_to:
-	if (t->at_end())
+	if (res) {
+	    // Pruning shouldn't be possible, as this is iterating allterms for
+	    // a single shard.
+	    Assert(ret == t.get());
+	    // Out of entries.
 	    break;
+	}
 
 	const string& term = t->get_termname();
 	if (!startswith(term, pfx))
@@ -311,7 +321,7 @@ done_skip_to:
 	    skip_ucase = false;
 	    if (term[0] <= 'Z') {
 		static_assert('Z' + 1 == '[', "'Z' + 1 == '['");
-		t->skip_to("[");
+		res = t->skip_to("[");
 		goto done_skip_to;
 	    }
 	}

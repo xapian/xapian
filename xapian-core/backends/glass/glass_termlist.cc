@@ -112,7 +112,7 @@ void
 GlassTermList::accumulate_stats(Xapian::Internal::ExpandStats & stats) const
 {
     LOGCALL_VOID(DB, "GlassTermList::accumulate_stats", stats);
-    Assert(!at_end());
+    Assert(pos != NULL);
     stats.accumulate(shard_index,
 		     current_wdf, doclen, get_termfreq(), db->get_doccount());
 }
@@ -137,10 +137,9 @@ TermList *
 GlassTermList::next()
 {
     LOGCALL(DB, TermList *, "GlassTermList::next", NO_ARGS);
-    Assert(!at_end());
+    Assert(pos != NULL);
     if (pos == end) {
-	pos = NULL;
-	RETURN(NULL);
+	RETURN(this);
     }
 
     // Reset to 0 to indicate that the termfreq needs to be read.
@@ -183,17 +182,11 @@ TermList *
 GlassTermList::skip_to(const string & term)
 {
     LOGCALL(API, TermList *, "GlassTermList::skip_to", term);
-    while (pos != NULL && current_term < term) {
-	(void)GlassTermList::next();
+    while (current_term < term) {
+	if (GlassTermList::next())
+	    RETURN(this);
     }
     RETURN(NULL);
-}
-
-bool
-GlassTermList::at_end() const
-{
-    LOGCALL(DB, bool, "GlassTermList::at_end", NO_ARGS);
-    RETURN(pos == NULL);
 }
 
 Xapian::termcount
