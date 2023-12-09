@@ -224,11 +224,6 @@ class StringAndFreqTermList final : public TermList {
 	return NULL;
     }
 
-    bool at_end() const {
-	Assert(started);
-	return it == values.end();
-    }
-
     Xapian::termcount get_approx_size() const { unsupported_method(); }
     Xapian::termcount get_wdf() const { unsupported_method(); }
     PositionList* positionlist_begin() const { unsupported_method(); }
