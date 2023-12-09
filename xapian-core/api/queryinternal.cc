@@ -303,7 +303,7 @@ done_skip_to:
 	if (res) {
 	    // Pruning shouldn't be possible, as this is iterating allterms for
 	    // a single shard.
-	    Assert(ret == t.get());
+	    Assert(res == t.get());
 	    // Out of entries.
 	    break;
 	}
