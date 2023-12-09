@@ -195,7 +195,7 @@ class StringAndFreqTermList final : public TermList {
 
     Xapian::doccount get_termfreq() const {
 	Assert(started);
-	Assert(it != spy->values.end());
+	Assert(it != values.end());
 	return it->get_frequency();
     }
 
@@ -203,7 +203,7 @@ class StringAndFreqTermList final : public TermList {
 	if (!started) {
 	    started = true;
 	} else {
-	    Assert(it != spy->values.end());
+	    Assert(it != values.end());
 	    ++it;
 	}
 	if (it == values.end()) {
