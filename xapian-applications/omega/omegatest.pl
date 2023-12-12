@@ -108,7 +108,7 @@ sub run_scriptindex {
   close $in or die $!;
   waitpid($pid, 0);
   if ($?) {
-    print "omega exit status $?\n";
+    print "scriptindex gave non-zero exit status $?\n";
     ++$failed;
   }
 }
