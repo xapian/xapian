@@ -56,7 +56,6 @@ $ENV{UBSAN_OPTIONS} = "suppressions=$srcdir/ubsan.supp";
 # Set up an empty database.
 my $test_db = 'test-db';
 remove_tree($test_db);
-print_to_file $test_db, 'inmemory\n';
 
 # Simple template which just shows the parsed query.
 my $test_template = 'test-template';
