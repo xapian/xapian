@@ -108,8 +108,10 @@ jobs:
       # if that input is empty.
       run: git status --porcelain|grep '^' && { echo "The generated files listed above are not in .gitignore" ; exit 1; }; true
 
-  GLIBCXX_DEBUG:
-    runs-on: 'ubuntu-20.04'
+  FORTIFY_SOURCE_3:
+    # _FORTIFY_SOURCE level 3 requires GCC 12, so currently we need to use
+    # Ubuntu 22.04 and the gcc-12 and g++12 packages.
+    runs-on: 'ubuntu-22.04'
     env:
       LIBEXTRACTOR_PREFIX: '/usr/lib/x86_64-linux-gnu/libextractor'
     needs: makedist
@@ -134,38 +136,46 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install \
+            gcc-12 \
+            g++-12 \
             python3-sphinx \
             uuid-dev \
-            lua5.3 \
-            liblua5.3-dev \
+            lua5.4 \
+            liblua5.4-dev \
             mono-devel \
             python3-dev \
             tcl \
             tcl-dev \
             libicu-dev \
             pkg-config
-      # tesseract's C++ API uses std::vector so would need rebuilding with
-      # -D_GLIBCXX_DEBUG too.
-      #      libtesseract-dev \
-      #      tesseract-ocr-eng
     - name: configure
       run: |
-        export CC='ccache gcc'
-        export CXX='ccache g++'
-        export CPPFLAGS='-D_GLIBCXX_DEBUG'
+        export CC='ccache gcc-12'
+        export CXX='ccache g++-12'
+        # Make this build use builddir != srcdir as we aim to support that and
+        # so want to catch regressions in support.  This build seems a good
+        # choice for that as it's as full a build as any.
+        mkdir -p _build/xapian-core _build/xapian-applications/omega _build/xapian-bindings _build/xapian-letor
+        cd _build
+        # Ubuntu's GCC packages define _FORTIFY_SOURCE=2 by default, so we need
+        # to undefine it before we define it to avoid a warning (which becomes
+        # an error with -Werror).
+        export CPPFLAGS='-U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=3'
         pushd xapian-core
-        ./configure --enable-werror
+        ../../xapian-core/configure --enable-werror
         export XAPIAN_CONFIG=$PWD/xapian-config
         popd
         pushd xapian-bindings
-        ./configure --enable-werror
+        ../../xapian-bindings/configure --enable-werror
         popd
     - name: make
       run: |
+        cd _build
         make -j2 -C xapian-core
         make -j2 -C xapian-bindings
     - name: Run tests
       run: |
         export AUTOMATED_TESTING=1
         export VERBOSE=1
+        cd _build
         make -j2 -C xapian-bindings check
