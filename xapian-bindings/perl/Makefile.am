@@ -187,10 +187,8 @@ docdata_DATA = docs/Xapian.html
 
 CLEANFILES += docs/Xapian.html pod2html?.tmp
 
-docs/Xapian.html: Xapian.pm
+docs/Xapian.html: $(nobase_dist_perllib_DATA)
 	$(MKDIR_P) docs
 	$(MKDIR_P) docs/Xapian
-	for m in Xapian.pm Xapian/*.pm ; do \
-	  $(PERL) -MPod::Html -e 'pod2html(qw(--podpath=. --htmldir=docs --infile='"$$m"' --outfile=docs/'`echo "$$m"|sed 's/\.pm$$//'`'.html))' ;\
-	  rm -f pod2htm?.tmp ;\
-	done
+	$(PERL) -MPod::Html -e 'for (@ARGV) { my $$pm = $$_; s/pm$$/html/; $$pm = "$(srcdir)/$$pm" unless -f $$pm; pod2html("--podpath=.", "--htmldir=docs", "--infile=$$pm", "--outfile=docs/$$_") }' $(nobase_dist_perllib_DATA)
+	rm -f pod2htm?.tmp
