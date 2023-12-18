@@ -86,31 +86,19 @@ install-data-hook:
 
 install-data-local:
 	$(mkinstalldirs) "$(DESTDIR)$(docdatadir)/Xapian"
-	## In a VPATH build, install files from srcdir first.  Use
-	## $(abs_builddir) because we need to cd there having already
-	## changed directory.
-	@paths=docs ; \
-	  test '$(abs_srcdir)' = '$(abs_builddir)' || paths='$(srcdir)/docs $(abs_builddir)/docs' ; \
-	  for docs in $$paths ; do \
-	    cd "$$docs" && for f in Xapian/*.html ; do \
-	      echo " $(INSTALL_DATA) '$$f' '$(DESTDIR)$(docdatadir)/$$f'"; \
-	      $(INSTALL_DATA) "$$f" "$(DESTDIR)$(docdatadir)/$$f"; \
-	    done ; \
-	  done
+	@cd docs ; for f in Xapian/*.html ; do \
+	  echo " $(INSTALL_DATA) '$$f' '$(DESTDIR)$(docdatadir)/$$f'"; \
+	  $(INSTALL_DATA) "$$f" "$(DESTDIR)$(docdatadir)/$$f"; \
+	done
 
 uninstall-local:
 	## Because we don't install the .la file, "make uninstall" doesn't work and
 	## we need to remove the file ourselves.
 	eval `grep '^dlname=' $(perlarch_LTLIBRARIES)` ; \
-	  rm -f $(DESTDIR)$(perlarchdir)/"$$dlname"
-	@paths=docs ; \
-	  test '$(abs_srcdir)' = '$(abs_builddir)' || paths='$(srcdir)/docs $(abs_builddir)/docs' ; \
-	  for docs in $$paths ; do \
-	    cd "$$docs" && for f in Xapian/*.html ; do \
-	      echo " rm -f '$(DESTDIR)$(docdatadir)/$$f'"; \
-	      rm -f "$(DESTDIR)$(docdatadir)/$$f"; \
-	    done; \
-	  done
+	@cd docs ; for f in Xapian/*.html ; do \
+	  echo " rm -f '$(DESTDIR)$(docdatadir)/$$f'"; \
+	  rm -f "$(DESTDIR)$(docdatadir)/$$f"; \
+	done
 
 
 perllibdir = $(PERL_LIB)
