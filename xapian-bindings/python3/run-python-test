@@ -1,6 +1,13 @@
 #!/bin/sh
+set -x
 PYTHONPATH=".:$PYTHONPATH"
 export PYTHONPATH
 PYTHONDONTWRITEBYTECODE=1
 export PYTHONDONTWRITEBYTECODE
+echo "===="
+env|grep PYTHON
+pwd
+ls -l *.py
+ls -lR xapian
+echo "===="
 exec $MACOS_SIP_HACK_ENV ${PYTHON3-python3} "$@"
