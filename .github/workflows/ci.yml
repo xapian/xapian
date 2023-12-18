@@ -373,25 +373,31 @@ jobs:
       run: |
         export CC='ccache gcc-12'
         export CXX='ccache g++-12'
+        # Make this build use builddir != srcdir as we aim to support that and
+        # so want to catch regressions in support.  This build seems a good
+        # choice for that as it's as full a build as any.
+        mkdir -p _build/xapian-core _build/xapian-applications/omega _build/xapian-bindings _build/xapian-letor
+        cd _build
         # Ubuntu's GCC packages define _FORTIFY_SOURCE=2 by default, so we need
         # to undefine it before we define it to avoid a warning (which becomes
         # an error with -Werror).
         export CPPFLAGS='-U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=3'
         pushd xapian-core
-        ./configure --enable-werror
+        ../../xapian-core/configure --enable-werror
         export XAPIAN_CONFIG=$PWD/xapian-config
         popd
         pushd xapian-applications/omega
-        ./configure --enable-werror
+        ../../../xapian-applications/omega/configure --enable-werror
         popd
         pushd xapian-bindings
-        ./configure --enable-werror
+        ../../xapian-bindings/configure --enable-werror
         popd
         pushd xapian-letor
-        ./configure --enable-werror
+        ../../xapian-letor/configure --enable-werror
         popd
     - name: make
       run: |
+        cd _build
         make -j2 -C xapian-core
         make -j2 -C xapian-applications/omega
         make -j2 -C xapian-bindings
@@ -400,6 +406,7 @@ jobs:
       run: |
         export AUTOMATED_TESTING=1
         export VERBOSE=1
+        cd _build
         make -j2 -C xapian-core check
         make -j2 -C xapian-applications/omega check
         make -j2 -C xapian-bindings check
