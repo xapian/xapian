@@ -758,6 +758,11 @@ static const test test_or_queries[] = {
     // Test Khmer (added in 1.5.0).
     { "\"សៀវភៅនេះថ្លៃណាស់ \"", "(សៀវភៅ@1 PHRASE 4 នេះ@1 PHRASE 4 ថ្លៃ@1 PHRASE 4 ណាស់@1)" },
 
+    // Test fullwidth Latin
+    { "\"ｈｅｌｌｏ ，ｗｏｒｌｄ！\"", "(ｈｅｌｌｏ@1 PHRASE 2 ｗｏｒｌｄ@2)" },
+    { "ＵＦＪ", "ｕｆｊ@1" },
+    { "\"三菱ＵＦＪファクター\"", "(三菱@1 PHRASE 3 ｕｆｊ@2 PHRASE 3 ファクター@3)" },
+
     { "\"久有归天愿\"", "(久@1 PHRASE 4 有@1 PHRASE 4 归天@1 PHRASE 4 愿@1)" },
     { "\"久有test归天\"", "(久@1 PHRASE 4 有@1 PHRASE 4 test@2 PHRASE 4 归天@3)" },
     { "\"归天\"", "归天@1" },

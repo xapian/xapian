@@ -176,6 +176,14 @@ static const test test_simple[] = {
     { "prefix=", "インtestタ", "test[2] イン[1] タ[3]" },
     { "", "配this is合a个 test!", "a[5] is[3] test[7] this[2] 个[6] 合[4] 配[1]" },
 
+    // Mixed fullwidth script:
+    { "", "三菱ＵＦＪファクター株式会社", "ファクター[3] 三菱[1] 株式会社[4] ｕｆｊ[2]" },
+
+    // Fullwidth vs. halfwidth script:
+    { "", "シーサイドライナー", "シーサイド[1] ライナー[2]" },
+    { "", "ｼｰｻｲﾄﾞﾗｲﾅｰ", "ｼｰｻｲﾄﾞ[1] ﾗｲﾅｰ[2]" },
+    { "", "ｈｅｌｌｏ ，ｗｏｒｌｄ！", "ｈｅｌｌｏ[1] ｗｏｒｌｄ[2]" },
+
     // Test non-word characters in a script without explicit word breaks.
     //
     // The text here contains U+FF01 FULLWIDTH EXCLAMATION MARK which is both a
