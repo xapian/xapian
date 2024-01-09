@@ -179,3 +179,65 @@ jobs:
         export VERBOSE=1
         cd _build
         make -j2 -C xapian-bindings check
+
+  Emscripten:
+    runs-on: 'ubuntu-20.04'
+    needs: makedist
+    env:
+      EM_COMPILER_WRAPPER: ccache
+    steps:
+    - name: Install CCache
+      uses: hendrikmuhs/ccache-action@v1
+      with:
+        key: ${{ github.job }}
+    - name: Fetch distribution
+      uses: actions/download-artifact@v3
+    - name: Unpack distribution
+      run: |
+        mv artifact/* .
+        rmdir artifact
+        pushd xapian-core
+        tar --strip-components=1 -xf xapian-core-*.tar.xz
+        popd
+    - name: Setup emsdk
+      uses: mymindstorm/setup-emsdk@v13
+      with:
+        version: latest
+        # This is the name of the cache folder.
+        # The cache folder will be placed in the build directory,
+        #  so make sure it doesn't conflict with anything!
+        actions-cache-folder: 'emsdk-cache'
+    - name: Use Node.js
+      uses: actions/setup-node@v3
+    - name: configure
+      run: |
+        cd xapian-core
+        export CPPFLAGS='-DFLINTLOCK_USE_FLOCK'
+        export CXXFLAGS='-Oz -s USE_ZLIB=1 -fno-rtti'
+        emconfigure ./configure --enable-werror --disable-shared
+    - name: make
+      run: |
+        cd xapian-core
+        emmake make
+    - name: Run tests
+      run: |
+        cd xapian-core
+        em++ -Oz -s USE_ZLIB=1 -std=c++11 -s WASM=1 -Iinclude emscripten/xapianjstest.cc .libs/libxapian-1.5.a -o emscripten/xapianjstest.js
+        cd emscripten
+        node xapianjstest.js
+
+  checkpatch:
+    name: 'Automated run of xapian-check-patch'
+    runs-on: 'ubuntu-latest'
+    steps:
+    - name: Check out repository code
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+    - name: "Automated run of xapian-check-patch"
+      # Run the style checking script, checking changes between the common
+      # ancestor of the target branch of the PR (or master if this isn't a PR)
+      # and the revision being checked.
+      run: |
+        env|sort
+        git diff ${GITHUB_BASE_REF:-origin/master}.. --|xapian-maintainer-tools/xapian-check-patch
