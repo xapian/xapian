@@ -102,8 +102,8 @@ is_unbroken_script(unsigned p)
 	0xF900 - 1, 0xFAFF,
 	// FE30..FE4F; CJK Compatibility Forms
 	0xFE30 - 1, 0xFE4F,
-	// FF00..FFEF; Halfwidth and Fullwidth Forms
-	0xFF00 - 1, 0xFFEF,
+	// FF65..FFDC; Halfwidth Katakana and Hangul
+	0xFF65 - 1, 0xFFDC,
 	// 1AFF0..1AFFF; Kana Extended-B
 	// 1B000..1B0FF; Kana Supplement
 	// 1B100..1B12F; Kana Extended-A
