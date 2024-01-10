@@ -2099,5 +2099,4 @@ jobs:
       # ancestor of the target branch of the PR (or master if this isn't a PR)
       # and the revision being checked.
       run: |
-        echo "GITHUB_BASE_REF='$GITHUB_BASE_REF'"
-        git diff ${GITHUB_BASE_REF:-origin/master}.. --|xapian-maintainer-tools/xapian-check-patch
+        git diff origin/${GITHUB_BASE_REF:-master}.. --|xapian-maintainer-tools/xapian-check-patch
