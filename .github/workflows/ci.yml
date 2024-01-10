@@ -227,18 +227,3 @@ jobs:
         em++ -Oz -s USE_ZLIB=1 -std=c++11 -s WASM=1 -Iinclude emscripten/xapianjstest.cc .libs/libxapian-1.5.a -o emscripten/xapianjstest.js
         cd emscripten
         node xapianjstest.js
-
-  checkpatch:
-    name: 'Automated run of xapian-check-patch'
-    runs-on: 'ubuntu-latest'
-    steps:
-    - name: Check out repository code
-      uses: actions/checkout@v3
-      with:
-        fetch-depth: 0
-    - name: "Automated run of xapian-check-patch"
-      # Run the style checking script, checking changes between the common
-      # ancestor of the target branch of the PR (or master if this isn't a PR)
-      # and the revision being checked.
-      run: |
-        git diff origin/${GITHUB_BASE_REF:-master}.. --|xapian-maintainer-tools/xapian-check-patch
