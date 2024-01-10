@@ -19,7 +19,7 @@
 /*test.py.log
 /*test.py.trs
 /test-suite.log
-/xapian.py
+/xapian__init__.py
 /xapian_wrap.cc
 /xapian_wrap.d
 /xapian_wrap.h
