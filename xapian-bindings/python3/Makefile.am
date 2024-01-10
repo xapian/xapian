@@ -19,7 +19,7 @@ RST_DOCS = \
 	docs/introduction.rst \
 	docs/xapian.rst
 
-BUILT_SOURCES = xapian_wrap.cc xapian_wrap.h xapian.py
+BUILT_SOURCES = xapian_wrap.cc xapian_wrap.h xapian__init__.py
 
 EXTRA_DIST = python.i util.i extra.i extracomments.i except.i \
 	doccomments.i \
@@ -59,11 +59,10 @@ _xapian_la_LDFLAGS = -avoid-version -module -shrext "$(PYTHON3_EXT_SUFFIX)" $(NO
 _xapian_la_SOURCES = xapian_wrap.cc
 _xapian_la_LIBADD = $(XAPIAN_LIBS) $(PYTHON3_LIBS)
 
-# We want `xapian/__init__.py` rather than xapian.py so the module is treated
-# as a package.
-xapian/__init__.py: xapian.py
+# We want `xapian/__init__.py` so the module is treated as a package.
+xapian/__init__.py: xapian__init__.py
 	$(MKDIR_P) xapian
-	cp `test -f xapian.py || echo '$(srcdir)/'`xapian.py xapian/__init__.py
+	cp `test -f xapian__init__.py || echo '$(srcdir)/'`xapian__init__.py xapian/__init__.py
 
 # We "import _xapian" first so that if we fail to import the glue library
 # we don't generate a broken .pyc or .pyo, and we do it with the current
@@ -122,14 +121,15 @@ stamp = xapian_wrap.stamp
 SWIG_FLAGS += -MD -MP -MT $(stamp)
 SWIG_FLAGS += -DSWIG_PYTHON_LEGACY_BOOL
 
-xapian_wrap.cc xapian_wrap.h xapian.py xapian_wrap.d: $(stamp)
+xapian_wrap.cc xapian_wrap.h xapian__init__.py xapian_wrap.d: $(stamp)
 	$(make_many_locked)
 $(stamp): except.i doccomments.i fixup-swig-py3-wrapper
 	$(multitarget_begin)
 	$(SWIG) $(SWIG_WERROR) -I. -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
 	    -python -threads -shadow -O \
 	    -o xapian_wrap.cc '$(srcdir)/'python.i
-	$(PERL) -i $(srcdir)/fixup-swig-py3-wrapper xapian.py
+	$(PERL) $(srcdir)/fixup-swig-py3-wrapper xapian.py > xapian__init__.py
+	rm xapian.py
 	$(multitarget_end)
 
 -include xapian_wrap.d
