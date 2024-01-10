@@ -130,7 +130,8 @@ jobs:
     - name: Setup emsdk
       uses: mymindstorm/setup-emsdk@v13
       with:
-        version: latest
+        # With 3.1.51 `emcc -c` seems to fail.
+        version: 3.1.50
         # This is the name of the cache folder.
         # The cache folder will be placed in the build directory,
         #  so make sure it doesn't conflict with anything!
