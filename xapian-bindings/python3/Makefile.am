@@ -59,6 +59,12 @@ _xapian_la_LDFLAGS = -avoid-version -module -shrext "$(PYTHON3_EXT_SUFFIX)" $(NO
 _xapian_la_SOURCES = xapian_wrap.cc
 _xapian_la_LIBADD = $(XAPIAN_LIBS) $(PYTHON3_LIBS)
 
+# We want `xapian/__init__.py` rather than xapian.py so the module is treated
+# as a package.
+xapian/__init__.py: xapian.py
+	$(MKDIR_P) xapian
+	cp `test -f xapian.py || echo '$(srcdir)/'`xapian.py xapian/__init__.py
+
 # We "import _xapian" first so that if we fail to import the glue library
 # we don't generate a broken .pyc or .pyo, and we do it with the current
 # directory set to where the module is as Python with -c always searches the
@@ -125,12 +131,6 @@ $(stamp): except.i doccomments.i fixup-swig-py3-wrapper
 	    -o xapian_wrap.cc '$(srcdir)/'python.i
 	$(PERL) -i $(srcdir)/fixup-swig-py3-wrapper xapian.py
 	$(multitarget_end)
-
-# We want `xapian/__init__.py` rather than xapian.py so the module is treated
-# as a package.
-xapian/__init__.py: xapian.py
-	$(MKDIR_P) xapian
-	cp `test -f xapian.py || echo '$(srcdir)/'`xapian.py xapian/__init__.py
 
 -include xapian_wrap.d
 
