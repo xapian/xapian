@@ -241,10 +241,4 @@ jobs:
       # ancestor of the target branch of the PR (or master if this isn't a PR)
       # and the revision being checked.
       run: |
-        echo "==="
-        git remote -v
-        echo "==="
-        git branch -a
-        echo "==="
-        env|sort
         git diff origin/${GITHUB_BASE_REF:-master}.. --|xapian-maintainer-tools/xapian-check-patch
