@@ -214,6 +214,8 @@ jobs:
         cd xapian-core
         export CPPFLAGS='-DFLINTLOCK_USE_FLOCK'
         export CXXFLAGS='-Oz -s USE_ZLIB=1 -fno-rtti'
+        which emcc || true
+        emcc --version || true
         emconfigure ./configure --enable-werror --disable-shared || { cat config.log ; exit 1; }
     - name: make
       run: |
