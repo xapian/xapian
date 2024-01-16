@@ -1819,3 +1819,16 @@ DEFINE_TESTCASE(unsupportedcheck3, !backend) {
 	TEST_EQUAL(e.get_error_string(), enoent_msg);
     }
 }
+
+// Test handling of corrupt DB with out of range levels count.
+// Regression test for #824, fixed in 1.4.25.
+DEFINE_TESTCASE(corruptdblevels1, glass) {
+    string db_path =
+	test_driver::get_srcdir() + "/testdata/glass_corrupt_level_db";
+
+    TEST_EXCEPTION(Xapian::DatabaseCorruptError,
+		   Xapian::Database db(db_path));
+
+    TEST_EXCEPTION(Xapian::DatabaseCorruptError,
+		   Xapian::Database::check(db_path));
+}
