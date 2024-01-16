@@ -1022,10 +1022,12 @@ GlassDatabase::compact(Xapian::Compactor * compactor,
 		break;
 	}
 
-	// Commit as revision 1.
-	out->flush_db();
-	out->commit(1, root_info);
-	out->sync();
+	if (out->is_modified()) {
+	    // Commit as revision 1.
+	    out->flush_db();
+	    out->commit(1, root_info);
+	    out->sync();
+	}
 	if (single_file) fl_serialised = root_info->get_free_list();
 
 	file_size_type out_size = 0;
@@ -1041,6 +1043,7 @@ GlassDatabase::compact(Xapian::Compactor * compactor,
 		    auto old_prev_size = max(prev_size,
 					     file_size_type(block_size));
 		    prev_size = db_size;
+		    db_size = max(db_size, file_size_type(block_size));
 		    db_size -= old_prev_size;
 		}
 		out_size = db_size / 1024;
