@@ -1577,6 +1577,8 @@ GlassTable::basic_open(const RootInfo * root_info, glass_revision_number_t rev)
     revision_number = rev;
     root =		   root_info->get_root();
     level =		   root_info->get_level();
+    if (rare(level >= BTREE_CURSOR_LEVELS))
+	throw Xapian::DatabaseCorruptError("Impossibly many Btree levels");
     item_count =	   root_info->get_num_entries();
     faked_root_block = root_info->get_root_is_fake();
     sequential =	   root_info->get_sequential();
@@ -1942,6 +1944,8 @@ GlassTable::cancel(const RootInfo & root_info, glass_revision_number_t rev)
     block_size =       root_info.get_blocksize();
     root =             root_info.get_root();
     level =            root_info.get_level();
+    if (rare(level >= BTREE_CURSOR_LEVELS))
+	throw Xapian::DatabaseCorruptError("Impossibly many Btree levels");
     item_count =       root_info.get_num_entries();
     faked_root_block = root_info.get_root_is_fake();
     sequential =       root_info.get_sequential();
