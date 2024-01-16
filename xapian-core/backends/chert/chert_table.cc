@@ -1428,6 +1428,8 @@ ChertTable::basic_open(bool revision_supplied, chert_revision_number_t revision_
 	block_size =       base.get_block_size();
 	root =             base.get_root();
 	level =            base.get_level();
+	if (rare(level >= BTREE_CURSOR_LEVELS))
+	    throw Xapian::DatabaseCorruptError("Impossibly many Btree levels");
 	//bit_map_size =     basep->get_bit_map_size();
 	item_count =       base.get_item_count();
 	faked_root_block = base.get_have_fakeroot();
@@ -1972,6 +1974,8 @@ ChertTable::cancel()
     block_size =       base.get_block_size();
     root =             base.get_root();
     level =            base.get_level();
+    if (rare(level >= BTREE_CURSOR_LEVELS))
+	throw Xapian::DatabaseCorruptError("Impossibly many Btree levels");
     //bit_map_size =     basep->get_bit_map_size();
     item_count =       base.get_item_count();
     faked_root_block = base.get_have_fakeroot();
