@@ -211,6 +211,7 @@ EXTRA_DIST +=\
 	testdata/apitest_declen.txt \
 	testdata/apitest_diversify.txt \
 	testdata/etext.txt \
+	testdata/glass_corrupt_level_db \
 	testdata/phraseweightcheckbug1.txt \
 	testdata/snippet.txt
 
