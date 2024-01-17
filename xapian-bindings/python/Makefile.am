@@ -83,10 +83,7 @@ xapian/__init__.pyo: xapian/__init__.py xapian/_xapian$(PYTHON2_SO)
 
 xapian/_xapian$(PYTHON2_SO): _xapian.la
 	$(MKDIR_P) xapian
-	$(LIBTOOL) --config > libtoolconfig.tmp
-## ksh requires a path on the sourced file.
-	. ./libtoolconfig.tmp; cp $$objdir/_xapian$(PYTHON2_SO) xapian
-	rm -f libtoolconfig.tmp
+	cp $(_libs)/_xapian$(PYTHON2_SO) xapian
 
 CLEANFILES = \
     xapian/_xapian$(PYTHON2_SO) \
