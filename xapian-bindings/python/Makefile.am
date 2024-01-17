@@ -5,11 +5,7 @@ include ../generic/generic.mk
 ## Test programs to be run
 TESTS = smoketest.py pythontest.py
 AM_TESTS_ENVIRONMENT = \
-	abs_builddir='$(abs_builddir)' ;\
-	srcdir='$(srcdir)' ;\
 	PYTHON='$(PYTHON2)' ;\
-	export abs_builddir ;\
-	export srcdir ;\
 	export PYTHON ;
 LOG_COMPILER = '$(srcdir)'/run-python-test
 
