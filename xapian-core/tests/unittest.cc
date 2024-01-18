@@ -918,95 +918,95 @@ static void test_parsesigned1()
 /// Test working with a block-based file using functions from io_utils.h.
 static void test_ioblock1()
 try {
-    constexpr int BLOCK_SIZE = 1024;
     const char* tmp_file = ".unittest_ioutils1";
+    int fd = -1;
+    try {
+	constexpr int BLOCK_SIZE = 1024;
 
-    int fd = io_open_block_wr(tmp_file, true);
-    TEST_REL(fd, >=, 0);
+	fd = io_open_block_wr(tmp_file, true);
+	TEST_REL(fd, >=, 0);
 
-    string buf(BLOCK_SIZE, 'x');
-    string out;
+	string buf(BLOCK_SIZE, 'x');
+	string out;
 
-    // ZFS default blocksize is 128K so we need to write at least that far
-    // into the file to be able to successfully detect support for sparse
-    // files below.  We won't detect sparse file support if the blocksize
-    // is larger, but that's not a problem.
-    io_write_block(fd, buf.data(), BLOCK_SIZE, 128);
-    out.resize(BLOCK_SIZE);
-    io_read_block(fd, &out[0], BLOCK_SIZE, 128);
-    TEST(buf == out);
+	// ZFS default blocksize is 128K so we need to write at least that far
+	// into the file to be able to successfully detect support for sparse
+	// files below.  We won't detect sparse file support if the blocksize
+	// is larger, but that's not a problem.
+	io_write_block(fd, buf.data(), BLOCK_SIZE, 128);
+	out.resize(BLOCK_SIZE);
+	io_read_block(fd, &out[0], BLOCK_SIZE, 128);
+	TEST(buf == out);
 
-    // Call io_sync() and check it claims to work.  Checking it actually has
-    // any effect is much harder to do.
-    TEST(io_sync(fd));
+	// Call io_sync() and check it claims to work.  Checking it actually has
+	// any effect is much harder to do.
+	TEST(io_sync(fd));
 
-    io_write_block(fd, buf.data(), BLOCK_SIZE, 129);
-    out.resize(BLOCK_SIZE);
-    io_read_block(fd, &out[0], BLOCK_SIZE, 129);
-    TEST(buf == out);
+	io_write_block(fd, buf.data(), BLOCK_SIZE, 129);
+	out.resize(BLOCK_SIZE);
+	io_read_block(fd, &out[0], BLOCK_SIZE, 129);
+	TEST(buf == out);
 
-    // Call io_full_sync() and check it claims to work.  Checking it actually
-    // has any effect is much harder to do.
-    TEST(io_full_sync(fd));
+	// Call io_full_sync() and check it claims to work.  Checking it actually
+	// has any effect is much harder to do.
+	TEST(io_full_sync(fd));
 
-    if constexpr(sizeof(off_t) <= 4) {
-	close(fd);
-	io_unlink(tmp_file);
-	SKIP_TEST("Skipping rest of testcase - no Large File Support");
-    }
+	if constexpr(sizeof(off_t) <= 4) {
+	    SKIP_TEST("Skipping rest of testcase - no Large File Support");
+	}
 
 #ifdef SEEK_HOLE
-    struct stat statbuf;
-    TEST(fstat(fd, &statbuf) == 0);
+	struct stat statbuf;
+	TEST(fstat(fd, &statbuf) == 0);
 
-    off_t hole = lseek(fd, 0, SEEK_HOLE);
-    if (hole < 0) {
+	off_t hole = lseek(fd, 0, SEEK_HOLE);
+	if (hole < 0) {
+	    SKIP_TEST("Skipping rest of testcase - SEEK_HOLE failed");
+	}
+	if (hole >= statbuf.st_size) {
+	    SKIP_TEST("Skipping rest of testcase - sparse file support not "
+		      "detected");
+	}
+
+	// Write a block at an offset a little above 4GB and check that we wrote
+	// the specified block by checking the filesize.  This should catch bugs
+	// which truncate the offset used.
+	constexpr off_t high_offset = (off_t{1} << 32) + BLOCK_SIZE;
+	constexpr off_t high_block = high_offset / BLOCK_SIZE;
+	try {
+	    io_write_block(fd, buf.data(), BLOCK_SIZE, high_block);
+	} catch (const Xapian::DatabaseError& e) {
+	    if (e.get_error_string() == errno_to_string(EFBIG))
+		SKIP_TEST("Skipping rest of testcase - FS doesn't allow a > 4GB "
+			  "file");
+	    throw;
+	}
+	TEST(fstat(fd, &statbuf) == 0);
+	TEST_EQUAL(statbuf.st_size, high_offset + BLOCK_SIZE);
+
+	close(fd);
+
+	fd = io_open_block_rd(tmp_file);
+
+	// We can't easily test that io_readahead_block() actually does anything if
+	// it returns true, but we can at least call it to check it doesn't crash.
+	(void)io_readahead_block(fd, BLOCK_SIZE, high_block);
+
+	// Check we can read back the same data we wrote.
+	io_read_block(fd, &out[0], BLOCK_SIZE, high_block);
+	TEST(buf == out);
+
+	close(fd);
+	fd = -1;
+	io_unlink(tmp_file);
+#else
+	SKIP_TEST("Skipping rest of testcase - SEEK_HOLE not supported");
+#endif
+    } catch (...) {
 	close(fd);
 	io_unlink(tmp_file);
-	SKIP_TEST("Skipping rest of testcase - SEEK_HOLE failed");
-    }
-    if (hole >= statbuf.st_size) {
-	close(fd);
-	io_unlink(tmp_file);
-	SKIP_TEST("Skipping rest of testcase - sparse file support not "
-		  "detected");
-    }
-
-    // Write a block at an offset a little above 4GB and check that we wrote
-    // the specified block by checking the filesize.  This should catch bugs
-    // which truncate the offset used.
-    constexpr off_t high_offset = (off_t{1} << 32) + BLOCK_SIZE;
-    constexpr off_t high_block = high_offset / BLOCK_SIZE;
-    try {
-	io_write_block(fd, buf.data(), BLOCK_SIZE, high_block);
-    } catch (const Xapian::DatabaseError& e) {
-	if (e.get_error_string() == errno_to_string(EFBIG))
-	    SKIP_TEST("Skipping rest of testcase - FS doesn't allow a > 4GB "
-		      "file");
 	throw;
     }
-    TEST(fstat(fd, &statbuf) == 0);
-    TEST_EQUAL(statbuf.st_size, high_offset + BLOCK_SIZE);
-
-    close(fd);
-
-    fd = io_open_block_rd(tmp_file);
-
-    // We can't easily test that io_readahead_block() actually does anything if
-    // it returns true, but we can at least call it to check it doesn't crash.
-    (void)io_readahead_block(fd, BLOCK_SIZE, high_block);
-
-    // Check we can read back the same data we wrote.
-    io_read_block(fd, &out[0], BLOCK_SIZE, high_block);
-    TEST(buf == out);
-
-    close(fd);
-    io_unlink(tmp_file);
-#else
-    close(fd);
-    io_unlink(tmp_file);
-    SKIP_TEST("Skipping rest of testcase - SEEK_HOLE not supported");
-#endif
 } catch (const Xapian::Error& e) {
     // Translate Xapian::Error exceptions to std::string exceptions which
     // utestsuite can catch.
