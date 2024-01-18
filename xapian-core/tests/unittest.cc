@@ -1,7 +1,7 @@
 /** @file
  * @brief Unit tests of non-Xapian-specific internal code.
  */
-/* Copyright (C) 2006-2023 Olly Betts
+/* Copyright (C) 2006-2024 Olly Betts
  * Copyright (C) 2007 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -915,18 +915,22 @@ try {
     string buf(BLOCK_SIZE, 'x');
     string out;
 
-    io_write_block(fd, buf.data(), BLOCK_SIZE, 1);
+    // ZFS default blocksize is 128K so we need to write at least that far
+    // into the file to be able to successfully detect support for sparse
+    // files below.  We won't detect sparse file support if the blocksize
+    // is larger, but that's not a problem.
+    io_write_block(fd, buf.data(), BLOCK_SIZE, 128);
     out.resize(BLOCK_SIZE);
-    io_read_block(fd, &out[0], BLOCK_SIZE, 1);
+    io_read_block(fd, &out[0], BLOCK_SIZE, 128);
     TEST(buf == out);
 
     // Call io_sync() and check it claims to work.  Checking it actually has
     // any effect is much harder to do.
     TEST(io_sync(fd));
 
-    io_write_block(fd, buf.data(), BLOCK_SIZE, 12);
+    io_write_block(fd, buf.data(), BLOCK_SIZE, 129);
     out.resize(BLOCK_SIZE);
-    io_read_block(fd, &out[0], BLOCK_SIZE, 12);
+    io_read_block(fd, &out[0], BLOCK_SIZE, 129);
     TEST(buf == out);
 
     // Call io_full_sync() and check it claims to work.  Checking it actually
@@ -939,14 +943,21 @@ try {
 	SKIP_TEST("Skipping rest of testcase - no Large File Support");
     }
 
-#ifndef __WIN32__
+#ifdef SEEK_HOLE
     struct stat statbuf;
     TEST(fstat(fd, &statbuf) == 0);
-    TEST_REL(statbuf.st_blocks, >=, BLOCK_SIZE / 512 * 2);
-    if (statbuf.st_blocks >= BLOCK_SIZE / 512 * (12 + 1)) {
+
+    off_t hole = lseek(fd, 0, SEEK_HOLE);
+    if (hole < 0) {
 	close(fd);
 	io_unlink(tmp_file);
-	SKIP_TEST("Skipping rest of testcase - sparse files not supported");
+	SKIP_TEST("Skipping rest of testcase - SEEK_HOLE failed");
+    }
+    if (hole >= statbuf.st_size) {
+	close(fd);
+	io_unlink(tmp_file);
+	SKIP_TEST("Skipping rest of testcase - sparse file support not "
+		  "detected");
     }
 
     // Write a block at an offset a little above 4GB and check that we wrote
@@ -982,7 +993,7 @@ try {
 #else
     close(fd);
     io_unlink(tmp_file);
-    SKIP_TEST("Skipping rest of testcase - FS doesn't support holes");
+    SKIP_TEST("Skipping rest of testcase - SEEK_HOLE not supported");
 #endif
 } catch (const Xapian::Error& e) {
     // Translate Xapian::Error exceptions to std::string exceptions which
