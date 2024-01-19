@@ -1,7 +1,7 @@
 /** @file
  * @brief GlassVersion class
  */
-/* Copyright (C) 2006,2007,2008,2009,2010,2013,2014,2015,2016,2017 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010,2013,2014,2015,2016,2017,2024 Olly Betts
  * Copyright (C) 2011 Dan Colish
  *
  * This program is free software; you can redistribute it and/or modify
@@ -463,7 +463,10 @@ RootInfo::unserialise(const char ** p, const char * end)
 	!unpack_uint(p, end, &blocksize) ||
 	!unpack_uint(p, end, &compress_min) ||
 	!unpack_string(p, end, fl_serialised)) return false;
-    level = val >> 2;
+    int level_ = val >> 2;
+    if (rare(level_ >= GLASS_BTREE_CURSOR_LEVELS))
+	throw Xapian::DatabaseCorruptError("Impossibly deep Btree");
+    level = level_;
     sequential = val & 0x02;
     root_is_fake = val & 0x01;
     blocksize <<= 11;
