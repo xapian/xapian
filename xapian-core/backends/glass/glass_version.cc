@@ -436,25 +436,33 @@ RootInfo::serialise(string &s) const
 bool
 RootInfo::unserialise(const char ** p, const char * end)
 {
-    unsigned val;
+    unsigned val, b;
     if (!unpack_uint(p, end, &root) ||
 	!unpack_uint(p, end, &val) ||
 	!unpack_uint(p, end, &num_entries) ||
-	!unpack_uint(p, end, &blocksize) ||
+	!unpack_uint(p, end, &b) ||
 	!unpack_uint(p, end, &compress_min) ||
 	!unpack_string(p, end, fl_serialised)) return false;
-    int level_ = val >> 2;
+    auto level_ = val >> 2;
     if (rare(level_ >= GLASS_BTREE_CURSOR_LEVELS))
 	throw Xapian::DatabaseCorruptError("Impossibly deep Btree");
     level = level_;
     sequential = val & 0x02;
     root_is_fake = val & 0x01;
-    blocksize <<= 11;
-    AssertRel(blocksize,>=,2048);
+
+    b <<= 11;
+    if (rare(b < GLASS_MIN_BLOCKSIZE ||
+	     b > GLASS_MAX_BLOCKSIZE ||
+	     (b & (b - 1)) != 0)) {
+	throw Xapian::DatabaseCorruptError("Invalid block size");
+    }
+    blocksize = b;
+
     // Map old default to new default.
     if (compress_min == 4) {
 	compress_min = COMPRESS_MIN;
     }
+
     return true;
 }
 

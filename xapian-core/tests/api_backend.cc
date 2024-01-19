@@ -1820,23 +1820,18 @@ DEFINE_TESTCASE(unsupportedcheck3, !backend) {
     }
 }
 
-// Test handling of corrupt DB with out of range levels count.
+// Test handling of corrupt DB with out of range values in the version file.
 // Regression test for #824, fixed in 1.4.25.
-DEFINE_TESTCASE(corruptdblevels1, glass) {
+DEFINE_TESTCASE(corruptglass1, glass) {
     string db_path =
-	test_driver::get_srcdir() + "/testdata/glass_corrupt_level_db1";
+	test_driver::get_srcdir() + "/testdata/glass_corrupt_db1";
 
-    TEST_EXCEPTION(Xapian::DatabaseCorruptError,
-		   Xapian::Database db(db_path));
+    for (int n = '1'; n <= '3'; ++n) {
+	db_path.back() = n;
+	TEST_EXCEPTION(Xapian::DatabaseCorruptError,
+		       Xapian::Database db(db_path));
 
-    TEST_EXCEPTION(Xapian::DatabaseCorruptError,
-		   Xapian::Database::check(db_path));
-
-    db_path.back() = '2';
-
-    TEST_EXCEPTION(Xapian::DatabaseCorruptError,
-		   Xapian::Database db(db_path));
-
-    TEST_EXCEPTION(Xapian::DatabaseCorruptError,
-		   Xapian::Database::check(db_path));
+	TEST_EXCEPTION(Xapian::DatabaseCorruptError,
+		       Xapian::Database::check(db_path));
+    }
 }

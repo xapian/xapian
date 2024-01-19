@@ -223,8 +223,9 @@ EXTRA_DIST +=\
 	testdata/apitest_sortrel.txt \
 	testdata/apitest_declen.txt \
 	testdata/etext.txt \
-	testdata/glass_corrupt_level_db1 \
-	testdata/glass_corrupt_level_db2 \
+	testdata/glass_corrupt_db1 \
+	testdata/glass_corrupt_db2 \
+	testdata/glass_corrupt_db3 \
 	testdata/phraseweightcheckbug1.txt \
 	testdata/snippet.txt
 
