@@ -605,8 +605,10 @@ GlassTable::split_root(uint4 split_n)
 
     /* check level overflow - this isn't something that should ever happen
      * but deserves more than an Assert()... */
-    if (level == BTREE_CURSOR_LEVELS) {
-	throw Xapian::DatabaseCorruptError("Btree has grown impossibly large (" STRINGIZE(BTREE_CURSOR_LEVELS) " levels)");
+    if (level == GLASS_BTREE_CURSOR_LEVELS) {
+	throw Xapian::DatabaseCorruptError("Btree has grown impossibly large ("
+					   STRINGIZE(GLASS_BTREE_CURSOR_LEVELS)
+					   " levels)");
     }
 
     uint8_t * q = C[level].init(block_size);
@@ -1578,8 +1580,6 @@ GlassTable::basic_open(const RootInfo * root_info, glass_revision_number_t rev)
     revision_number = rev;
     root =		   root_info->get_root();
     level =		   root_info->get_level();
-    if (rare(level >= BTREE_CURSOR_LEVELS))
-	throw Xapian::DatabaseCorruptError("Impossibly many Btree levels");
     item_count =	   root_info->get_num_entries();
     faked_root_block = root_info->get_root_is_fake();
     sequential =	   root_info->get_sequential();
@@ -1945,8 +1945,6 @@ GlassTable::cancel(const RootInfo & root_info, glass_revision_number_t rev)
     block_size =       root_info.get_blocksize();
     root =             root_info.get_root();
     level =            root_info.get_level();
-    if (rare(level >= BTREE_CURSOR_LEVELS))
-	throw Xapian::DatabaseCorruptError("Impossibly many Btree levels");
     item_count =       root_info.get_num_entries();
     faked_root_block = root_info.get_root_is_fake();
     sequential =       root_info.get_sequential();

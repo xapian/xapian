@@ -396,11 +396,6 @@ class BItem_wr : public BItem_base<uint8_t *> {
     }
 };
 
-// Allow for BTREE_CURSOR_LEVELS levels in the B-tree.
-// With 10, overflow is practically impossible
-// FIXME: but we want it to be completely impossible...
-const int BTREE_CURSOR_LEVELS = 10;
-
 }
 
 using Glass::RootInfo;
@@ -886,7 +881,7 @@ class GlassTable {
      */
     static uint4 block_given_by(const uint8_t * p, int c);
 
-    mutable Glass::Cursor C[Glass::BTREE_CURSOR_LEVELS];
+    mutable Glass::Cursor C[GLASS_BTREE_CURSOR_LEVELS];
 
     /** Buffer used when splitting a block.
      *

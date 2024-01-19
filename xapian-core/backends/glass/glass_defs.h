@@ -1,7 +1,7 @@
 /** @file
  * @brief Definitions, types, etc for use inside glass.
  */
-/* Copyright (C) 2010,2014,2015,2017 Olly Betts
+/* Copyright (C) 2010,2014,2015,2017,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,6 +34,13 @@
 
 /// Maximum B-tree block size.
 #define GLASS_MAX_BLOCKSIZE 65536
+
+/** Allow for this many levels in the B-tree.
+ *
+ * With 10, overflow is practically impossible.
+ * FIXME: but we want it to be completely impossible...
+ */
+#define GLASS_BTREE_CURSOR_LEVELS 10
 
 /** The largest docid value supported by glass.
  *
