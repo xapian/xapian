@@ -716,6 +716,10 @@ static const test test_or_queries[] = {
     { "\"久有归\"", "(久@1 PHRASE 3 有@1 PHRASE 3 归@1)" },
     { "\"久有test归\"", "(久@1 PHRASE 4 有@1 PHRASE 4 test@2 PHRASE 4 归@3)" },
     // FIXME: this should work: { "久 NEAR 有", "(久@1 NEAR 11 有@2)" },
+
+    { "x 我y",  "(Zx@1 OR 我@2 OR Zy@3)" }, // WORD_BREAK ends group term
+    { "x 我 y", "(Zx@1 OR 我@2 OR Zy@3)" }, // WORD_BREAK ends group term
+
     { NULL, NULL }
 };
 
