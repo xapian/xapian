@@ -741,6 +741,8 @@ static const test test_or_queries[] = {
     { "title:久有 归 天愿", "((XT久@1 AND XT有@1) OR 归@2 OR (天@3 AND 愿@3))" },
 
     { "h众ello万众", "(Zh@1 OR 众@2 OR Zello@3 OR (万@4 AND 众@4))" },
+    { "x 我y",  "(Zx@1 OR 我@2 OR Zy@3)" }, // WORD_BREAK ends group term
+    { "x 我 y", "(Zx@1 OR 我@2 OR Zy@3)" }, // WORD_BREAK ends group term
 
     // Korean splits some words by whitespace, and there is no available tool
     // to crosscheck Korean word splits for these tests. So the expected values
