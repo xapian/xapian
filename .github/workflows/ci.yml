@@ -31,7 +31,7 @@ jobs:
     - name: Check out repository code
       uses: actions/checkout@v4
       with:
-        progress: false
+        show-progress: false
     - name: Install CCache
       uses: hendrikmuhs/ccache-action@v1
       with:
@@ -2097,7 +2097,7 @@ jobs:
       uses: actions/checkout@v4
       with:
         fetch-depth: 0
-        progress: false
+        show-progress: false
     - name: "Automated run of xapian-check-patch"
       # Run the style checking script, checking changes between the common
       # ancestor of the target branch of the PR (or master if this isn't a PR)
