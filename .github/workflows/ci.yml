@@ -37,7 +37,7 @@ jobs:
       with:
         key: ${{ github.job }}
     - name: Cache bootstrap tools
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: |
           BUILD
