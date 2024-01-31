@@ -903,7 +903,7 @@ jobs:
         #  so make sure it doesn't conflict with anything!
         actions-cache-folder: 'emsdk-cache'
     - name: Use Node.js
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
     - name: configure
       run: |
         cd xapian-core
