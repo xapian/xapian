@@ -450,6 +450,11 @@ if test no != "$with_php" ; then
 	PHP_PATH_SEPARATOR=`$PHP -r 'echo PATH_SEPARATOR;'`
 	AC_SUBST([PHP_PATH_SEPARATOR])
 	AC_MSG_RESULT([$PHP_PATH_SEPARATOR])
+
+	AC_MSG_CHECKING([for PHP shared library suffix])
+	PHP_SHLIB_SUFFIX=`$PHP -r 'echo PHP_SHLIB_SUFFIX;'`
+	AC_SUBST([PHP_SHLIB_SUFFIX])
+	AC_MSG_RESULT([$PHP_SHLIB_SUFFIX])
       fi
 
       case $host_os in
