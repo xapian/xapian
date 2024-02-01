@@ -95,6 +95,7 @@ uninstall-local:
 	## Because we don't install the .la file, "make uninstall" doesn't work and
 	## we need to remove the file ourselves.
 	eval `grep '^dlname=' $(perlarch_LTLIBRARIES)` ; \
+	  rm -f $(DESTDIR)$(perlarchdir)/"$$dlname"
 	@cd docs ; for f in Xapian/*.html ; do \
 	  echo " rm -f '$(DESTDIR)$(docdatadir)/$$f'"; \
 	  rm -f "$(DESTDIR)$(docdatadir)/$$f"; \
