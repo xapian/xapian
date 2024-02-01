@@ -41,12 +41,11 @@ install-data-hook:
 # Because we don't install the .la file, "make uninstall" doesn't work and
 # we need to remove the file ourselves.
 uninstall-local:
-	eval `grep '^dlname=' $(phpext_LTLIBRARIES)` ; \
-	  rm -f $(DESTDIR)$(phpextdir)/"$$dlname"
+	rm -f $(DESTDIR)$(phpextdir)/xapian.$(PHP_SHLIB_SUFFIX)
 
 AM_CPPFLAGS = $(PHP_INC)
 AM_CXXFLAGS = $(SWIG_CXXFLAGS) $(XAPIAN_CXXFLAGS)
-xapian_la_LDFLAGS = -avoid-version -module $(NO_UNDEFINED)
+xapian_la_LDFLAGS = -avoid-version -module -shrext .$(PHP_SHLIB_SUFFIX) $(NO_UNDEFINED)
 xapian_la_SOURCES = php/xapian_wrap.cc php/xapian_wrap.h
 xapian_la_LIBADD = $(XAPIAN_LIBS) $(PHP_LIBS)
 
