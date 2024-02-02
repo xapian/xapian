@@ -142,6 +142,7 @@ jobs:
           ccache --set-config=compression=true
         run: |
           set -e
+          ulimit
           export CC='ccache cc'
           export CXX='ccache c++'
           cd xapian-core
