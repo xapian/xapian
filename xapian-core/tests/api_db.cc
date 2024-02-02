@@ -844,21 +844,11 @@ DEFINE_TESTCASE(collapsekey4, backend) {
 
 // test for keepalives
 DEFINE_TESTCASE(keepalive1, remote) {
-#ifdef __NetBSD__
-    SKIP_TEST("Skipping for NetBSD");
-#else
     Xapian::Database db(get_remote_database("apitest_simpledata", 5000));
 
     /* Test that keep-alives work */
     for (int i = 0; i < 10; ++i) {
-#ifdef __NetBSD__
-	struct timespec ts;
-	ts->tv_sec = 2;
-	ts->tv_nsec = 0;
-	nanosleep(&ts, nullptr);
-#else
 	sleep(2);
-#endif
 	db.keep_alive();
     }
     Xapian::Enquire enquire(db);
@@ -866,21 +856,13 @@ DEFINE_TESTCASE(keepalive1, remote) {
     enquire.get_mset(0, 10);
 
     /* Test that things break without keepalives */
-#ifdef __NetBSD__
-    struct timespec ts;
-    ts->tv_sec = 10;
-    ts->tv_nsec = 0;
-    nanosleep(&ts, nullptr);
-#else
     sleep(10);
-#endif
     enquire.set_query(Xapian::Query("word"));
     /* Currently this can throw NetworkError or NetworkTimeoutError (which is
      * a subclass of NetworkError).
      */
     TEST_EXCEPTION_BASE_CLASS(Xapian::NetworkError,
 			      enquire.get_mset(0, 10));
-#endif
 }
 
 // test that iterating through all terms in a database works.
