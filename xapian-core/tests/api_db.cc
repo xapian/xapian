@@ -844,6 +844,9 @@ DEFINE_TESTCASE(collapsekey4, backend) {
 
 // test for keepalives
 DEFINE_TESTCASE(keepalive1, remote) {
+#ifdef netbsd
+    SKIP_TEST("Skipping for NetBSD");
+#else
     Xapian::Database db(get_remote_database("apitest_simpledata", 5000));
 
     /* Test that keep-alives work */
@@ -877,6 +880,7 @@ DEFINE_TESTCASE(keepalive1, remote) {
      */
     TEST_EXCEPTION_BASE_CLASS(Xapian::NetworkError,
 			      enquire.get_mset(0, 10));
+#endif
 }
 
 // test that iterating through all terms in a database works.
