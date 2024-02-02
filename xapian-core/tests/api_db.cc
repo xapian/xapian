@@ -844,14 +844,14 @@ DEFINE_TESTCASE(collapsekey4, backend) {
 
 // test for keepalives
 DEFINE_TESTCASE(keepalive1, remote) {
-#ifdef netbsd
+#ifdef __NetBSD__
     SKIP_TEST("Skipping for NetBSD");
 #else
     Xapian::Database db(get_remote_database("apitest_simpledata", 5000));
 
     /* Test that keep-alives work */
     for (int i = 0; i < 10; ++i) {
-#ifdef netbsd
+#ifdef __NetBSD__
 	struct timespec ts;
 	ts->tv_sec = 2;
 	ts->tv_nsec = 0;
@@ -866,7 +866,7 @@ DEFINE_TESTCASE(keepalive1, remote) {
     enquire.get_mset(0, 10);
 
     /* Test that things break without keepalives */
-#ifdef netbsd
+#ifdef __NetBSD__
     struct timespec ts;
     ts->tv_sec = 10;
     ts->tv_nsec = 0;
