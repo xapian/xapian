@@ -2045,13 +2045,11 @@ jobs:
         rmdir artifact
         # Do actual unpacking on freebsd, mostly to help reduce the size of the
         # rsync output in the logs.
-    - name: Run in FreeBSD VM
-      uses: vmactions/freebsd-vm@v1
-      # Should no longer be needed, but we shouldn't need to run for this
-      # long so seems worth keeping just in case (originally added to reduce
-      # impact of https://github.com/vmactions/freebsd-vm/issues/74).
+    - uses: vmactions/freebsd-vm@v1
+      # Limit wasted resources if the VM action gets into an infinite loop.
       timeout-minutes: 60
       with:
+        # The default is csh!
         usesh: true
         prepare: |
           set -e
