@@ -848,7 +848,14 @@ DEFINE_TESTCASE(keepalive1, remote) {
 
     /* Test that keep-alives work */
     for (int i = 0; i < 10; ++i) {
+#ifdef netbsd
+	struct timespec ts;
+	ts->tv_sec = 2;
+	ts->tv_nsec = 0;
+	nanosleep(&ts, nullptr);
+#else
 	sleep(2);
+#endif
 	db.keep_alive();
     }
     Xapian::Enquire enquire(db);
@@ -856,7 +863,14 @@ DEFINE_TESTCASE(keepalive1, remote) {
     enquire.get_mset(0, 10);
 
     /* Test that things break without keepalives */
+#ifdef netbsd
+    struct timespec ts;
+    ts->tv_sec = 10;
+    ts->tv_nsec = 0;
+    nanosleep(&ts, nullptr);
+#else
     sleep(10);
+#endif
     enquire.set_query(Xapian::Query("word"));
     /* Currently this can throw NetworkError or NetworkTimeoutError (which is
      * a subclass of NetworkError).
