@@ -93,7 +93,7 @@ darwin*)
       *) INTREE_DYLD_PATH=`pwd`/$INTREE_DYLD_PATH ;;
     esac
     dnl Add .libs or equivalent.
-    INTREE_DYLD_PATH=`echo "$INTREE_DYLD_PATH"|sed 's,\(.*/\).*,\1,'`$lt_cv_objdir
+    INTREE_DYLD_PATH=`echo "$INTREE_DYLD_PATH"|sed 's,\(.*/\).*,\1,'`$_libs
     AC_SUBST([INTREE_DYLD_PATH])
   fi
   ;;
