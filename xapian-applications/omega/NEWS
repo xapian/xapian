@@ -1,3 +1,38 @@
+up to: bbb1eead090d13b738fb4eac9eec0e6047930e7e
+
+Omega 1.4.25 (2024-02-??):
+
+general:
+
+documentation:
+
+indexers:
+
+* omindex:
+
+* scriptindex:
+
+omega:
+
+templates:
+
+testsuite:
+
+* omegatest.pl: Correct program name in error message.
+
+build system:
+
+* configure: DragonflyBSD automatically pulls in library dependencies, so set
+  link_all_deplibs_CXX=no there.
+
+* configure: Avoid compiler warning during GCC version check when compiler
+  needs an option to enable C++11 support (same fix as applied to xapian-core
+  in 1.4.23).
+
+portability:
+
+packaging:
+
 Omega 1.4.24 (2023-11-06):
 
 documentation:

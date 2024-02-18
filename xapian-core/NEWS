@@ -1,3 +1,91 @@
+up to: bbb1eead090d13b738fb4eac9eec0e6047930e7e
+
+Xapian-core 1.4.25 (2024-02-15):
+
+API:
+
+* MSet::get_eset(): Don't fetch the collection frequency for each term unless
+  we're using the Bo1EWeight expansion scheme which actually needs it.  In a
+  simple test this reduced the time taken to do a search and generate expand
+  terms by a third.  Partly addresses #264.
+
+testsuite:
+
+* unittest: Improve sparse file detection by using SEEK_HOLE, which is
+  specified by POSIX and seems to be widely supported.  On platforms without it
+  or on an FS with a > 128K block size we will skip the tests involving a 4GB
+  file, but that's acceptable.  On ZFS st_blocks reports the number of blocks
+  after compression and also lags behind when data has only been committed to
+  the journal, which means our previous check based on st_blocks couldn't be
+  made to work without potentially falsely detecting sparse file support.
+  Fixes #823, reported by someplaceguy.
+
+* apitest: Enable adddoc2 and adddoc5 testcases for sharded databases.  We
+  now just skip the TermIterator::get_termfreq() checks in this case.
+
+matcher:
+
+
+glass backend:
+
+* Check Btree level value from disk is in range, which avoids potential out of
+  range access on corrupt database.  Fixes #824, reported by group13.
+
+* Reject invalid blocksize read from corrupted version file.  Throw
+  DatabaseCorruptError if value is out of range or not a power of two.
+
+* Optimise allterms iteration.  Most terms don't contain any zero bytes, and
+  for such terms the key for the first chunk in the termlist table is just the
+  termname so no decoding is needed when advancing the iterator.  This optimisation
+  is 8.4% faster in a simple test of iterating allterms via xapian-delve.
+
+* Compaction of an empty non-optional table now gives an empty output, whereas
+  previous it was one block in size (8K by default).  This isn't important in
+  general as the non-optional tables are not likely to be empty in a real
+  database, but it's helpful for making small test database and it seems weird
+  that compaction would make a database much larger in percentage terms in this
+  edge case.
+
+chert backend:
+
+* Check Btree level value from disk is in range, which avoids potential out of
+  range access on corrupt database.  Fixes #824, reported by group13.
+
+remote backend:
+
+
+inmemory backend:
+
+
+build system:
+
+* configure: DragonflyBSD automatically pulls in library dependencies, so set
+  link_all_deplibs_CXX=no there.
+
+documentation:
+
+* Document allterms_begin() and termlist_begin() iteration order.  Thanks to
+  Eric Wong for querying this.
+
+* Document TermIterator::get_termfreq() quirk.  In the case of a TermIterator
+  from termlist_begin() on a Document from a sharded database, you get term
+  frequencies from just the shard.  Fixes #423
+
+tools:
+
+
+examples:
+
+
+portability:
+
+
+packaging:
+
+
+debug code:
+
+
 Xapian-core 1.4.24 (2023-11-06):
 
 testsuite:

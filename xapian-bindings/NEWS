@@ -1,3 +1,58 @@
+up to: bbb1eead090d13b738fb4eac9eec0e6047930e7e
+
+Xapian-bindings 1.4.25 (2024-02-??):
+
+Documentation:
+
+General:
+
+* configure: DragonflyBSD automatically pulls in library dependencies, so set
+  link_all_deplibs_CXX=no there.
+
+* configure: Avoid using lt_cv_objdir, which seems to be a libtool implementation
+  detail.  We already have its value available via a documented interface.
+
+Packaging:
+
+Portability:
+
+CSharp:
+
+Java:
+
+Lua:
+
+Perl:
+
+* Fix conversion of POD to HTML when builddir!=srcdir.
+
+* Simplify uninstall-local to use the shared object extension in PERL_SO.
+
+PHP8:
+
+* Use PHP_SHLIB_SUFFIX as the filename extension for the compiled extension
+  module.  Previously we used the extension libtool thought appropriate for
+  the current platform.  We're not aware of a platform where the two don't
+  agree, but should they not agree we should use what PHP expects.
+
+Python:
+
+* Fix `make check` when builddir!=srcdir.
+
+Python3:
+
+* Fix `make check` when builddir!=srcdir.
+
+Ruby:
+
+* Fix probe for rdoc to default to using the rdoc which matches the Ruby
+  interpreter.  This was always the intention, but the code was buggy and
+  this default previously never kicked in.  This was likely to only be a
+  problem if you were overriding RUBY=/path/to/ruby but not overriding RDOC as
+  well.  Reported by Vitaly Chikunov on the xapian-devel list.
+
+Tcl:
+
 Xapian-bindings 1.4.24 (2023-11-06):
 
 Portability:
