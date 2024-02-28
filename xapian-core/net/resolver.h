@@ -96,7 +96,9 @@ class Resolver {
 	if (host != "::1" && host != "127.0.0.1" && host != "localhost") {
 	    flags |= AI_ADDRCONFIG;
 	}
+#ifdef AI_NUMERICSERV
 	flags |= AI_NUMERICSERV;
+#endif
 
 	struct addrinfo hints;
 	std::memset(&hints, 0, sizeof(struct addrinfo));
