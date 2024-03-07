@@ -717,8 +717,11 @@ static const test test_or_queries[] = {
     { "\"久有test归\"", "(久@1 PHRASE 4 有@1 PHRASE 4 test@2 PHRASE 4 归@3)" },
     // FIXME: this should work: { "久 NEAR 有", "(久@1 NEAR 11 有@2)" },
 
-    { "x 我y",  "(Zx@1 OR 我@2 OR Zy@3)" }, // WORD_BREAK ends group term
-    { "x 我 y", "(Zx@1 OR 我@2 OR Zy@3)" }, // WORD_BREAK ends group term
+    // Regression tests that UNBROKEN_WORDS ends a term group:
+    { "x 我y",  "(Zx@1 OR 我@2 OR Zy@3)" },
+    { "x 我 y", "(Zx@1 OR 我@2 OR Zy@3)" },
+    { "w x 我y",  "(Zw@1 OR Zx@2 OR 我@3 OR Zy@4)" },
+    { "w x 我 y", "(Zw@1 OR Zx@2 OR 我@3 OR Zy@4)" },
 
     { NULL, NULL }
 };
