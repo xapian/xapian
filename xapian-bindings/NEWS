@@ -1,8 +1,4 @@
-up to: bbb1eead090d13b738fb4eac9eec0e6047930e7e
-
-Xapian-bindings 1.4.25 (2024-02-??):
-
-Documentation:
+Xapian-bindings 1.4.25 (2024-03-08):
 
 General:
 
@@ -11,16 +7,6 @@ General:
 
 * configure: Avoid using lt_cv_objdir, which seems to be a libtool implementation
   detail.  We already have its value available via a documented interface.
-
-Packaging:
-
-Portability:
-
-CSharp:
-
-Java:
-
-Lua:
 
 Perl:
 
@@ -50,8 +36,6 @@ Ruby:
   this default previously never kicked in.  This was likely to only be a
   problem if you were overriding RUBY=/path/to/ruby but not overriding RDOC as
   well.  Reported by Vitaly Chikunov on the xapian-devel list.
-
-Tcl:
 
 Xapian-bindings 1.4.24 (2023-11-06):
 

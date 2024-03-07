@@ -1,6 +1,4 @@
-up to: bbb1eead090d13b738fb4eac9eec0e6047930e7e
-
-Xapian-core 1.4.25 (2024-02-15):
+Xapian-core 1.4.25 (2024-03-08):
 
 API:
 
@@ -8,6 +6,11 @@ API:
   we're using the Bo1EWeight expansion scheme which actually needs it.  In a
   simple test this reduced the time taken to do a search and generate expand
   terms by a third.  Partly addresses #264.
+
+* QueryParser::parse_query(): Fix parse error when using FLAG_CJK_NGRAM (aka
+  FLAG_NGRAMS) with a query string which has non-CJK followed by whitespace,
+  CJK, and more non-CJK.  Patch from Robert Stepanek
+  (https://github.com/xapian/xapian/pulls/331).
 
 testsuite:
 
@@ -22,9 +25,6 @@ testsuite:
 
 * apitest: Enable adddoc2 and adddoc5 testcases for sharded databases.  We
   now just skip the TermIterator::get_termfreq() checks in this case.
-
-matcher:
-
 
 glass backend:
 
@@ -51,12 +51,6 @@ chert backend:
 * Check Btree level value from disk is in range, which avoids potential out of
   range access on corrupt database.  Fixes #824, reported by group13.
 
-remote backend:
-
-
-inmemory backend:
-
-
 build system:
 
 * configure: DragonflyBSD automatically pulls in library dependencies, so set
@@ -71,20 +65,10 @@ documentation:
   from termlist_begin() on a Document from a sharded database, you get term
   frequencies from just the shard.  Fixes #423
 
-tools:
-
-
-examples:
-
-
 portability:
 
-
-packaging:
-
-
-debug code:
-
+* Support building on platforms without AI_NUMERICSERV (e.g. macOS 10.5).
+  Patch from Sergey Fedorov.
 
 Xapian-core 1.4.24 (2023-11-06):
 
