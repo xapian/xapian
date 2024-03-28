@@ -26,12 +26,16 @@
 
 #include "errno_to_string.h"
 
+// On Linux, sys_errlist and sys_nerr need <stdio.h>, though the man page
+// says <errno.h>.  The man page seems to match other platforms such as
+// NetBSD, so include both headers to ensure we get them.
+#include <errno.h>
 // <cstring> doesn't give us strerror_r() with Sun C++ 5.9.
 #include <string.h>
 #if defined HAVE__SYS_ERRLIST_AND__SYS_NERR || \
     defined HAVE_SYS_ERRLIST_AND_SYS_NERR
 # include <stdio.h>
-// Under mingw and MSVC these are in stdlib.h.
+// With mingw and MSVC they're provided by <stdlib.h>.
 # include <stdlib.h>
 #endif
 
