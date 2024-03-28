@@ -979,6 +979,9 @@ DEFINE_TESTCASE(collapsekey4, backend) {
 
 // test for keepalives
 DEFINE_TESTCASE(keepalive1, remote) {
+#ifdef __NetBSD__
+    SKIP_TEST("Testcase appears to cause apitest to exit on NetBSD");
+#endif
     Xapian::Database db(get_remote_database("apitest_simpledata", 5000));
 
     /* Test that keep-alives work */
