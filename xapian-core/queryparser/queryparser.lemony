@@ -1506,6 +1506,9 @@ phrased_term:
 
 	    if (needs_word_break) {
 		Parse(&parser, UNBROKEN_WORDS, term_obj, &state);
+		// Drop out of IN_GROUP mode.
+		if (mode == IN_GROUP || mode == IN_GROUP2)
+		    mode = DEFAULT;
 		if (it == end) break;
 		continue;
 	    }

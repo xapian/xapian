@@ -742,6 +742,12 @@ static const test test_or_queries[] = {
 
     { "h众ello万众", "(Zh@1 OR 众@2 OR Zello@3 OR (万@4 AND 众@4))" },
 
+    // Regression tests that UNBROKEN_WORDS ends a term group:
+    { "x 我y",  "(Zx@1 OR 我@2 OR Zy@3)" },
+    { "x 我 y", "(Zx@1 OR 我@2 OR Zy@3)" },
+    { "w x 我y",  "(Zw@1 OR Zx@2 OR 我@3 OR Zy@4)" },
+    { "w x 我 y", "(Zw@1 OR Zx@2 OR 我@3 OR Zy@4)" },
+
     // Korean splits some words by whitespace, and there is no available tool
     // to crosscheck Korean word splits for these tests. So the expected values
     // here are best guess only.
