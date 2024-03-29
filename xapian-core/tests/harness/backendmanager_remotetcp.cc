@@ -123,7 +123,7 @@ class ServerData {
 #ifdef HAVE_FORK
 	// Kill the process group that we put the server in so that we kill
 	// the server itself and not just the /bin/sh that launched it.
-	if (kill(-pid, SIGKILL) < 0) {
+	if (killpg(pid, SIGKILL) < 0) {
 	    throw Xapian::DatabaseError("Couldn't kill remote server",
 					errno);
 	}
