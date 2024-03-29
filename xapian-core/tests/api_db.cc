@@ -844,14 +844,14 @@ DEFINE_TESTCASE(collapsekey4, backend) {
 
 // test for keepalives
 DEFINE_TESTCASE(keepalive1, remote) {
-#ifdef __NetBSD__
-    SKIP_TEST("Testcase appears to cause apitest to exit on NetBSD");
-#endif
     Xapian::Database db(get_remote_database("apitest_simpledata", 5000));
 
     /* Test that keep-alives work */
+    struct timespec ts;
+    ts.tv_sec = 2;
+    ts.tv_nsec = 0;
     for (int i = 0; i < 10; ++i) {
-	sleep(2);
+	nanosleep(&ts, nullptr);
 	db.keep_alive();
     }
     Xapian::Enquire enquire(db);
@@ -859,7 +859,8 @@ DEFINE_TESTCASE(keepalive1, remote) {
     enquire.get_mset(0, 10);
 
     /* Test that things break without keepalives */
-    sleep(10);
+    ts.tv_sec = 10;
+    nanosleep(&ts, nullptr);
     enquire.set_query(Xapian::Query("word"));
     /* Currently this can throw NetworkError or NetworkTimeoutError (which is
      * a subclass of NetworkError).
