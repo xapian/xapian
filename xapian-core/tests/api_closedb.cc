@@ -606,9 +606,6 @@ DEFINE_TESTCASE(remotefailure1, remotetcp) {
 
 /// Check API methods which might either work or throw an exception.
 DEFINE_TESTCASE(remotefailure3, remotetcp) {
-#ifdef __NetBSD__
-    SKIP_TEST("Testcase appears to cause apitest to exit on NetBSD");
-#endif
 #ifdef __MINGW32__
     XFAIL("Remote failure handling or testing is buggy on __MINGW32__");
 #endif
@@ -648,9 +645,6 @@ DEFINE_TESTCASE(remotefailure3, remotetcp) {
 
 /// Test the effects of remote server failure on transactions
 DEFINE_TESTCASE(remotefailure5, remotetcp) {
-#ifdef __NetBSD__
-    SKIP_TEST("Testcase appears to cause apitest to exit on NetBSD");
-#endif
 #ifdef __MINGW32__
     XFAIL("Remote failure handling or testing is buggy on __MINGW32__");
 #endif
@@ -703,9 +697,6 @@ DEFINE_TESTCASE(remotefailure5, remotetcp) {
 
 // Test WritableDatabase methods.
 DEFINE_TESTCASE(remotefailure7, remotetcp) {
-#ifdef __NetBSD__
-    SKIP_TEST("Testcase appears to cause apitest to exit on NetBSD");
-#endif
 #ifdef __MINGW32__
     XFAIL("Remote failure handling or testing is buggy on __MINGW32__");
 #endif
@@ -730,9 +721,6 @@ DEFINE_TESTCASE(remotefailure7, remotetcp) {
 
 // Test spelling related methods.
 DEFINE_TESTCASE(remotefailure8, remotetcp) {
-#ifdef __NetBSD__
-    SKIP_TEST("Testcase appears to cause apitest to exit on NetBSD");
-#endif
 #ifdef __MINGW32__
     XFAIL("Remote failure handling or testing is buggy on __MINGW32__");
 #endif
@@ -756,9 +744,6 @@ DEFINE_TESTCASE(remotefailure8, remotetcp) {
 
 // Test synonym related methods.
 DEFINE_TESTCASE(remotefailure9, remotetcp) {
-#ifdef __NetBSD__
-    SKIP_TEST("Testcase appears to cause apitest to exit on NetBSD");
-#endif
 #ifdef __MINGW32__
     XFAIL("Remote failure handling or testing is buggy on __MINGW32__");
 #endif
@@ -781,9 +766,6 @@ DEFINE_TESTCASE(remotefailure9, remotetcp) {
 
 // Test metadata related methods.
 DEFINE_TESTCASE(remotefailure10, remotetcp) {
-#ifdef __NetBSD__
-    SKIP_TEST("Testcase appears to cause apitest to exit on NetBSD");
-#endif
 #ifdef __MINGW32__
     XFAIL("Remote failure handling or testing is buggy on __MINGW32__");
 #endif
