@@ -116,6 +116,7 @@ class ServerData {
 	WaitForSingleObject(pid, INFINITE);
 	CloseHandle(pid);
 #endif
+	pid = UNUSED_PID;
     }
 
     bool kill_remote(const void* dbi) {
@@ -134,7 +135,6 @@ class ServerData {
 	}
 #endif
 	clean_up();
-	pid = UNUSED_PID;
 	return true;
     }
 };
