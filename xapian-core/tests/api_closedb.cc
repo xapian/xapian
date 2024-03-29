@@ -562,9 +562,6 @@ struct remotefailure1_iterators {
 
 // Test for a remote server failing.
 DEFINE_TESTCASE(remotefailure1, remotetcp) {
-#ifdef __NetBSD__
-    SKIP_TEST("Testcase appears to cause apitest to exit on NetBSD");
-#endif
 #ifdef __MINGW32__
     XFAIL("Remote failure handling or testing is buggy on __MINGW32__");
 #endif
