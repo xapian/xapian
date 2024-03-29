@@ -645,6 +645,9 @@ DEFINE_TESTCASE(remotefailure3, remotetcp) {
 
 /// Test the effects of remote server failure on transactions
 DEFINE_TESTCASE(remotefailure5, remotetcp) {
+#ifdef __NetBSD__
+    SKIP_TEST("Testcase appears to cause apitest to exit on NetBSD");
+#endif
 #ifdef __MINGW32__
     XFAIL("Remote failure handling or testing is buggy on __MINGW32__");
 #endif
