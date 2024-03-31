@@ -123,8 +123,8 @@ class ServerData {
 	if (pid == UNUSED_PID || dbi != db_internal) return false;
 #ifdef HAVE_FORK
 	printf("\nPID %ld, killing process group %ld\n", (long)getpid(), (long)pid);
-	if (system("ps -ux -O pgid")) { }
-	printf("Killing process group %ld\n", (long)pid);
+	fflush(nullptr);
+	if (system("ps -wwux -O pgid")) { }
 	// Kill the process group that we put the server in so that we kill
 	// the server itself and not just the /bin/sh that launched it.
 	if (killpg(pid, SIGKILL) < 0) {
@@ -185,6 +185,7 @@ try_next_port:
 	// `child` only kills the /bin/sh and leaves the server running.
 	if (setpgid(0, 0) < 0) {
 	    perror("setpgid(0,0)");
+	    fflush(nullptr);
 	}
 	// Child process.
 	close(fds[0]);
