@@ -158,6 +158,8 @@ static unsigned first_unused_server_data = 0;
 
 #ifdef HAVE_FORK
 
+static unsigned active_pipes = 0;
+
 static std::pair<int, ServerData&>
 launch_xapian_tcpsrv(const string & args)
 {
@@ -216,6 +218,12 @@ try_next_port:
 	errno_to_string(fork_errno, msg);
 	throw msg;
     }
+
+    if (active_pipes == 0) {
+	signal(SIGPIPE, SIG_IGN);
+    }
+    ++active_pipes;
+    // FIXME: decrement and revert signal handler if 0 in suitable places.
 
     // Parent process.
 
