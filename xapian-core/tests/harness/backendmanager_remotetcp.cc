@@ -122,7 +122,8 @@ class ServerData {
     bool kill_remote(const void* dbi) {
 	if (pid == UNUSED_PID || dbi != db_internal) return false;
 #ifdef HAVE_FORK
-	system("ps -ux -O pgid");
+	printf("\nPID %ld, killing process group %ld\n", (long)getpid(), (long)pid);
+	if (system("ps -ux -O pgid")) { }
 	printf("Killing process group %ld\n", (long)pid);
 	// Kill the process group that we put the server in so that we kill
 	// the server itself and not just the /bin/sh that launched it.
@@ -179,6 +180,12 @@ try_next_port:
 
     pid_t child = fork();
     if (child == 0) {
+	// Put this process into its own process group so that we can kill the
+	// server itself easily by killing the process group.  Just killing
+	// `child` only kills the /bin/sh and leaves the server running.
+	if (setpgid(0, 0) < 0) {
+	    perror("setpgid(0,0)");
+	}
 	// Child process.
 	close(fds[0]);
 	// Connect stdout and stderr to the socket.
@@ -195,10 +202,6 @@ try_next_port:
 	dup2(fds[1], 1);
 	dup2(fds[1], 2);
 	close(fds[1]);
-	// Put this process into its own process group so that we can kill the
-	// server itself easily by killing the process group.  Just killing
-	// `child` only kills the /bin/sh and leaves the server running.
-	setpgid(0, 0);
 	execl("/bin/sh", "/bin/sh", "-c", cmd.c_str(), static_cast<void*>(0));
 	_exit(-1);
     }
