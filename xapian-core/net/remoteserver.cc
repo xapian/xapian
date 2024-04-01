@@ -100,7 +100,7 @@ RemoteServer::RemoteServer(const vector<string>& dbpaths,
     //
     // This is OK because RemoteServer subclasses are only used in
     // specialised programs - if we expose any of them as API classes
-    // then we should use SO_NOSIGPIE/MSG_NOSIGNAL instead like we do
+    // then we should use SO_NOSIGPIPE/MSG_NOSIGNAL instead like we do
     // on the client side.
     if (signal(SIGPIPE, SIG_IGN) == SIG_ERR)
 	throw Xapian::NetworkError("Couldn't set SIGPIPE to SIG_IGN", errno);
