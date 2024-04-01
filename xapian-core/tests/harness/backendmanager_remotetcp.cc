@@ -122,12 +122,9 @@ class ServerData {
     bool kill_remote(const void* dbi) {
 	if (pid == UNUSED_PID || dbi != db_internal) return false;
 #ifdef HAVE_FORK
-	printf("\nPID %ld, killing process group %ld\n", (long)getpid(), (long)pid);
-	fflush(nullptr);
-	if (system("ps -wwux -O pgid")) { }
 	// Kill the process group that we put the server in so that we kill
 	// the server itself and not just the /bin/sh that launched it.
-	if (killpg(pid, SIGKILL) < 0) {
+	if (kill(-pid, SIGKILL) < 0) {
 	    throw Xapian::DatabaseError("Couldn't kill remote server",
 					errno);
 	}
@@ -158,8 +155,6 @@ static unsigned first_unused_server_data = 0;
 
 #ifdef HAVE_FORK
 
-static unsigned active_pipes = 0;
-
 static std::pair<int, ServerData&>
 launch_xapian_tcpsrv(const string & args)
 {
@@ -174,7 +169,16 @@ try_next_port:
     if (RUNNING_ON_VALGRIND) cmd = "./runsrv " + cmd;
 #endif
     int fds[2];
-    if (socketpair(AF_UNIX, SOCK_STREAM|SOCK_CLOEXEC, PF_UNSPEC, fds) < 0) {
+    constexpr int socketpair_type = SOCK_STREAM|SOCK_CLOEXEC
+#ifdef SOCK_NOSIGPIPE
+	// Avoids testcases keepalive1 and remotefailure* causing apitest to
+	// die on NetBSD.  Not entirely clear why this happens as we close
+	// both of the sockets created by socketpair() on the parent side after
+	// we have confirmed that xapian-tcpsrv has successfully started.
+	|SOCK_NOSIGPIPE
+#endif
+	;
+    if (socketpair(AF_UNIX, socketpair_type, PF_UNSPEC, fds) < 0) {
 	string msg("Couldn't create socketpair: ");
 	errno_to_string(errno, msg);
 	throw msg;
@@ -185,10 +189,7 @@ try_next_port:
 	// Put this process into its own process group so that we can kill the
 	// server itself easily by killing the process group.  Just killing
 	// `child` only kills the /bin/sh and leaves the server running.
-	if (setpgid(0, 0) < 0) {
-	    perror("setpgid(0,0)");
-	    fflush(nullptr);
-	}
+	setpgid(0, 0);
 	// Child process.
 	close(fds[0]);
 	// Connect stdout and stderr to the socket.
@@ -218,12 +219,6 @@ try_next_port:
 	errno_to_string(fork_errno, msg);
 	throw msg;
     }
-
-    if (active_pipes == 0) {
-	signal(SIGPIPE, SIG_IGN);
-    }
-    ++active_pipes;
-    // FIXME: decrement and revert signal handler if 0 in suitable places.
 
     // Parent process.
 
