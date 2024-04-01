@@ -169,7 +169,15 @@ try_next_port:
     if (RUNNING_ON_VALGRIND) cmd = "./runsrv " + cmd;
 #endif
     int fds[2];
-    if (socketpair(AF_UNIX, SOCK_STREAM|SOCK_CLOEXEC, PF_UNSPEC, fds) < 0) {
+    int type = SOCK_STREAM | SOCK_CLOEXEC;
+#ifdef SOCK_NOSIGPIPE
+    // Avoids remotefailure* testcases causing apitest to die on NetBSD. Not
+    // entirely clear why this happens as we close both of the sockets created
+    // by socketpair() on the parent side after we have confirmed that
+    // xapian-tcpsrv has successfully started.
+    type |= SOCK_NOSIGPIPE;
+#endif
+    if (socketpair(AF_UNIX, type, PF_UNSPEC, fds) < 0) {
 	string msg("Couldn't create socketpair: ");
 	errno_to_string(errno, msg);
 	throw msg;
