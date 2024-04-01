@@ -83,9 +83,9 @@ AC_PROG_CXX
 
 AC_CANONICAL_HOST
 
-# Checked: dragonfly6.4 freebsd8.0 openbsd4.6 solaris2.9 solaris2.10
+# Checked: dragonfly6.4 freebsd8.0 netbsd9.3 openbsd4.6 solaris2.9 solaris2.10
 case $host_os in
-  linux* | k*bsd*-gnu | dragonfly* | freebsd* | openbsd* | solaris*)
+  linux* | k*bsd*-gnu | dragonfly* | freebsd* | netbsd* | openbsd* | solaris*)
     dnl Vanilla libtool sets this to "unknown" which it then handles as "yes".
     link_all_deplibs_CXX=no
     ;;
