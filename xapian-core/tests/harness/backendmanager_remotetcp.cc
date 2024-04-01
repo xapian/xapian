@@ -131,6 +131,10 @@ try_next_port:
 
     pid_t child = fork();
     if (child == 0) {
+	// Put this process into its own process group so that we can kill the
+	// server itself easily by killing the process group.  Just killing
+	// `child` only kills the /bin/sh and leaves the server running.
+	setpgid(0, 0);
 	// Child process.
 	close(fds[0]);
 	// Connect stdout and stderr to the socket.
