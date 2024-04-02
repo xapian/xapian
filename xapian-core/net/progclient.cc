@@ -67,7 +67,11 @@ ProgClient::run_program(const string& progname,
 #if defined HAVE_SOCKETPAIR && defined HAVE_FORK
     int fds[2];
 
-    if (socketpair(PF_UNIX, SOCK_STREAM|SOCK_CLOEXEC|SOCK_NOSIGPIPE, 0, fds) < 0) {
+    int type = SOCK_STREAM|SOCK_CLOEXEC;
+#ifdef SOCK_NOSIGPIPE
+    type |= SOCK_NOSIGPIPE;
+#endif
+    if (socketpair(PF_UNIX, type, 0, fds) < 0) {
 	throw Xapian::NetworkError("socketpair failed", context, errno);
     }
 
