@@ -183,6 +183,7 @@ test_driver::test_driver(const test_desc *tests_)
 static SIGJMP_BUF jb;
 static int signum = 0;
 static void * sigaddr = NULL;
+static int sigfd = -1;
 
 // Needs C linkage so we can pass it to sigaction()/signal() without problems.
 extern "C" {
@@ -202,6 +203,7 @@ static void handle_sig(int signum_, siginfo_t *si, void *)
     if (signum_ != SIGSEGV) sigaction(SIGSEGV, &sa, NULL);
     if (signum_ != SIGFPE) sigaction(SIGFPE, &sa, NULL);
     if (signum_ != SIGILL) sigaction(SIGILL, &sa, NULL);
+    if (signum_ != SIGPIPE) sigaction(SIGPIPE, &sa, NULL);
 # ifdef SIGBUS
     if (signum_ != SIGBUS) sigaction(SIGBUS, &sa, NULL);
 # endif
@@ -210,6 +212,7 @@ static void handle_sig(int signum_, siginfo_t *si, void *)
 # endif
     signum = signum_;
     sigaddr = si->si_addr;
+    sigfd = si->si_fd;
     SIGLONGJMP(jb, 1);
 }
 
@@ -223,6 +226,7 @@ static void handle_sig(int signum_)
     signal(SIGSEGV, SIG_DFL);
     signal(SIGFPE, SIG_DFL);
     signal(SIGILL, SIG_DFL);
+    signal(SIGPIPE, SIG_DFL);
 #ifdef SIGBUS
     signal(SIGBUS, SIG_DFL);
 #endif
@@ -245,6 +249,7 @@ class SignalRedirector {
 	active = true;
 	signum = 0;
 	sigaddr = NULL;
+	sigfd = -1;
 	// SA_SIGINFO is not universal (e.g. not present on Linux < 2.2 or
 	// older Hurd).  If we have it, we use it to report the address
 	// associated with the signal (for signals where that makes sense).
@@ -256,6 +261,7 @@ class SignalRedirector {
 	sigaction(SIGSEGV, &sa, NULL);
 	sigaction(SIGFPE, &sa, NULL);
 	sigaction(SIGILL, &sa, NULL);
+	sigaction(SIGPIPE, &sa, NULL);
 # ifdef SIGBUS
 	sigaction(SIGBUS, &sa, NULL);
 # endif
@@ -266,6 +272,7 @@ class SignalRedirector {
 	signal(SIGSEGV, handle_sig);
 	signal(SIGFPE, handle_sig);
 	signal(SIGILL, handle_sig);
+	signal(SIGPIPE, handle_sig);
 # ifdef SIGBUS
 	signal(SIGBUS, handle_sig);
 # endif
@@ -650,6 +657,10 @@ test_driver::runtest(const test_desc *test)
 	    case SIGSEGV: signame = "SIGSEGV"; break;
 	    case SIGFPE: signame = "SIGFPE"; break;
 	    case SIGILL: signame = "SIGILL"; break;
+	    case SIGPIPE:
+		signame = "SIGPIPE";
+		show_addr = false;
+		break;
 #ifdef SIGBUS
 	    case SIGBUS: signame = "SIGBUS"; break;
 #endif
@@ -661,6 +672,14 @@ test_driver::runtest(const test_desc *test)
 #endif
 	}
 	out << " " << col_red << signame;
+	if (sigfd >= 0) {
+	    out << " fd " << sigfd;
+	    char buf[256];
+	    auto len = readlink(("/proc/self/fd/" + str(sigfd)).c_str(), buf, sizeof(buf));
+	    if (len > 0) {
+		out << " \"" << string_view(buf, len) << '"';
+	    }
+	}
 	if (show_addr) {
 	    out << " at " << str(sigaddr);
 	}
