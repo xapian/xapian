@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002-2023 Olly Betts
+ * Copyright 2002-2024 Olly Betts
  * Copyright 2007 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -202,6 +202,7 @@ static void handle_sig(int signum_, siginfo_t *si, void *)
     if (signum_ != SIGSEGV) sigaction(SIGSEGV, &sa, NULL);
     if (signum_ != SIGFPE) sigaction(SIGFPE, &sa, NULL);
     if (signum_ != SIGILL) sigaction(SIGILL, &sa, NULL);
+    if (signum_ != SIGPIPE) sigaction(SIGPIPE, &sa, NULL);
 # ifdef SIGBUS
     if (signum_ != SIGBUS) sigaction(SIGBUS, &sa, NULL);
 # endif
@@ -223,6 +224,7 @@ static void handle_sig(int signum_)
     signal(SIGSEGV, SIG_DFL);
     signal(SIGFPE, SIG_DFL);
     signal(SIGILL, SIG_DFL);
+    signal(SIGPIPE, SIG_DFL);
 #ifdef SIGBUS
     signal(SIGBUS, SIG_DFL);
 #endif
@@ -256,6 +258,7 @@ class SignalRedirector {
 	sigaction(SIGSEGV, &sa, NULL);
 	sigaction(SIGFPE, &sa, NULL);
 	sigaction(SIGILL, &sa, NULL);
+	sigaction(SIGPIPE, &sa, NULL);
 # ifdef SIGBUS
 	sigaction(SIGBUS, &sa, NULL);
 # endif
@@ -266,6 +269,7 @@ class SignalRedirector {
 	signal(SIGSEGV, handle_sig);
 	signal(SIGFPE, handle_sig);
 	signal(SIGILL, handle_sig);
+	signal(SIGPIPE, handle_sig);
 # ifdef SIGBUS
 	signal(SIGBUS, handle_sig);
 # endif
@@ -650,6 +654,10 @@ test_driver::runtest(const test_desc *test)
 	    case SIGSEGV: signame = "SIGSEGV"; break;
 	    case SIGFPE: signame = "SIGFPE"; break;
 	    case SIGILL: signame = "SIGILL"; break;
+	    case SIGPIPE:
+		signame = "SIGPIPE";
+		show_addr = false;
+		break;
 #ifdef SIGBUS
 	    case SIGBUS: signame = "SIGBUS"; break;
 #endif
