@@ -169,6 +169,10 @@ jobs:
           make -j2 -C xapian-letor V=0 || make -C xapian-letor
           export AUTOMATED_TESTING=1
           export VERBOSE=1
+          make -j2 -C xapian-core/tests apitest V=0
+          cd xapian-core/tests
+          ./runtest ./apitest -v keepalive1
+          cd ../..
           make -j2 -C xapian-core check V=0
           make -j2 -C xapian-applications/omega check V=0
           make -j2 -C xapian-letor check V=0
