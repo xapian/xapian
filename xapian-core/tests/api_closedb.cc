@@ -565,6 +565,9 @@ DEFINE_TESTCASE(remotefailure1, remotetcp) {
 #ifdef __MINGW32__
     XFAIL("Remote failure handling or testing is buggy on __MINGW32__");
 #endif
+#ifdef __NetBSD__
+    SKIP_TEST("Testcase sometimes fails with SIGPIPE on NetBSD");
+#endif
     Xapian::Database db(get_database("apitest_simpledata"));
     remotefailure1_iterators iters;
 
@@ -609,6 +612,9 @@ DEFINE_TESTCASE(remotefailure3, remotetcp) {
 #ifdef __MINGW32__
     XFAIL("Remote failure handling or testing is buggy on __MINGW32__");
 #endif
+#ifdef __NetBSD__
+    SKIP_TEST("Testcase sometimes fails with SIGPIPE on NetBSD");
+#endif
     Xapian::Database db(get_database("etext"));
     const string & uuid = db.get_uuid();
     kill_remote(db);
@@ -647,6 +653,9 @@ DEFINE_TESTCASE(remotefailure3, remotetcp) {
 DEFINE_TESTCASE(remotefailure5, remotetcp) {
 #ifdef __MINGW32__
     XFAIL("Remote failure handling or testing is buggy on __MINGW32__");
+#endif
+#ifdef __NetBSD__
+    SKIP_TEST("Testcase sometimes fails with SIGPIPE on NetBSD");
 #endif
     {
 	Xapian::WritableDatabase wdb = get_writable_database();
@@ -700,6 +709,9 @@ DEFINE_TESTCASE(remotefailure7, remotetcp) {
 #ifdef __MINGW32__
     XFAIL("Remote failure handling or testing is buggy on __MINGW32__");
 #endif
+#ifdef __NetBSD__
+    SKIP_TEST("Testcase sometimes fails with SIGPIPE on NetBSD");
+#endif
     Xapian::WritableDatabase db(get_writable_database());
     db.add_document(Xapian::Document());
     kill_remote(db);
@@ -724,6 +736,9 @@ DEFINE_TESTCASE(remotefailure8, remotetcp) {
 #ifdef __MINGW32__
     XFAIL("Remote failure handling or testing is buggy on __MINGW32__");
 #endif
+#ifdef __NetBSD__
+    SKIP_TEST("Testcase sometimes fails with SIGPIPE on NetBSD");
+#endif
     Xapian::WritableDatabase db(get_writable_database());
     db.add_spelling("pneumatic");
     db.add_spelling("pneumonia");
@@ -747,6 +762,9 @@ DEFINE_TESTCASE(remotefailure9, remotetcp) {
 #ifdef __MINGW32__
     XFAIL("Remote failure handling or testing is buggy on __MINGW32__");
 #endif
+#ifdef __NetBSD__
+    SKIP_TEST("Testcase sometimes fails with SIGPIPE on NetBSD");
+#endif
     Xapian::WritableDatabase db(get_writable_database());
     db.add_synonym("color", "colour");
     db.add_synonym("honor", "honour");
@@ -768,6 +786,9 @@ DEFINE_TESTCASE(remotefailure9, remotetcp) {
 DEFINE_TESTCASE(remotefailure10, remotetcp) {
 #ifdef __MINGW32__
     XFAIL("Remote failure handling or testing is buggy on __MINGW32__");
+#endif
+#ifdef __NetBSD__
+    SKIP_TEST("Testcase sometimes fails with SIGPIPE on NetBSD");
 #endif
     Xapian::WritableDatabase db(get_writable_database());
     db.set_metadata("foo", "FOO");

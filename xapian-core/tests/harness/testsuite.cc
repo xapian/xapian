@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002-2023 Olly Betts
+ * Copyright 2002-2024 Olly Betts
  * Copyright 2007 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -183,7 +183,6 @@ test_driver::test_driver(const test_desc *tests_)
 static SIGJMP_BUF jb;
 static int signum = 0;
 static void * sigaddr = NULL;
-static int sigfd = -1;
 
 // Needs C linkage so we can pass it to sigaction()/signal() without problems.
 extern "C" {
@@ -212,7 +211,6 @@ static void handle_sig(int signum_, siginfo_t *si, void *)
 # endif
     signum = signum_;
     sigaddr = si->si_addr;
-    sigfd = si->si_fd;
     SIGLONGJMP(jb, 1);
 }
 
@@ -249,7 +247,6 @@ class SignalRedirector {
 	active = true;
 	signum = 0;
 	sigaddr = NULL;
-	sigfd = -1;
 	// SA_SIGINFO is not universal (e.g. not present on Linux < 2.2 or
 	// older Hurd).  If we have it, we use it to report the address
 	// associated with the signal (for signals where that makes sense).
@@ -672,14 +669,6 @@ test_driver::runtest(const test_desc *test)
 #endif
 	}
 	out << " " << col_red << signame;
-	if (sigfd >= 0) {
-	    out << " fd " << sigfd;
-	    char buf[256];
-	    auto len = readlink(("/proc/self/fd/" + str(sigfd)).c_str(), buf, sizeof(buf));
-	    if (len > 0) {
-		out << " \"" << string_view(buf, len) << '"';
-	    }
-	}
 	if (show_addr) {
 	    out << " at " << str(sigaddr);
 	}
