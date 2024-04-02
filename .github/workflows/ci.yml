@@ -129,5 +129,6 @@ jobs:
           export VERBOSE=1
           make -j2 -C xapian-core/tests apitest V=0
           cd xapian-core/tests
-          time ./runtest ./apitest -v -b remoteprog_glass keepalive1 || echo "Exit status: $?"
-          ./runtest gdb -ex run -ex bt --args ./apitest -v -b remoteprog_glass keepalive1
+          ./runtest ./apitest -v -b remoteprog_glass keepalive1 || echo "Exit status: $?"
+          kill -l
+          ./runtest 'gdb -ex run -ex bt' ./apitest -v -b remoteprog_glass keepalive1
