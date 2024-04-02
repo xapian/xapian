@@ -77,9 +77,9 @@ class EditDistanceCalculator {
      *
      *  We set the bit corresponding to each codepoint in the word and then
      *  xor the bitmaps for the target and candidate and count the bits to
-     *  give to compute a lower bound on the edit distance.  Rather than
-     *  flagging each Unicode code point uniquely, we reduce the code points
-     *  modulo the number of available bits which can only reduce the bound we
+     *  compute a lower bound on the edit distance.  Rather than flagging
+     *  each Unicode code point uniquely, we reduce the code points modulo
+     *  the number of available bits which can only reduce the bound we
      *  calculate.
      */
     freqs_bitmap target_freqs = 0;

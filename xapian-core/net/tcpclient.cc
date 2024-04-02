@@ -62,8 +62,8 @@ TcpClient::open_socket(const string& hostname, int port,
 	socktype |= SOCK_NONBLOCK;
 #endif
 #ifdef SOCK_NOSIGPIPE
-	// This seems to be needed on NetBSD to avoid testcase keepalive1
-	// causing apitest to exit.  Not seen this on any other platform.
+	// FIXME: Hoped this might fix issue on NetBSD to avoid testcase
+	// keepalive1 causing apitest to exit, but it doesn't seem to help.
 	socktype |= SOCK_NOSIGPIPE;
 #endif
 	int fd = socket(r.ai_family, socktype, r.ai_protocol);
