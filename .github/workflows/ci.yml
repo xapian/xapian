@@ -171,7 +171,7 @@ jobs:
           export VERBOSE=1
           make -j2 -C xapian-core/tests apitest V=0
           cd xapian-core/tests
-          ./runtest ./apitest -v keepalive1
+          time ./runtest ./apitest -v -b remotetcp_glass keepalive1
           cd ../..
           make -j2 -C xapian-core check V=0
           make -j2 -C xapian-applications/omega check V=0
