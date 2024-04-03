@@ -174,7 +174,7 @@ try_next_port:
     int fds[2];
     int type = SOCK_STREAM | SOCK_CLOEXEC;
 #ifdef SOCK_NOSIGPIPE
-    // Avoids remotefailure* testcases causing apitest to die on NetBSD. Not
+    // Avoids remotefailure* testcases causing apitest to die on NetBSD.  Not
     // entirely clear why this happens as we close both of the sockets created
     // by socketpair() on the parent side after we have confirmed that
     // xapian-tcpsrv has successfully started.
