@@ -51,7 +51,7 @@ class FlintLock {
 	INUSE, // Already locked by someone else.
 	UNSUPPORTED, // Locking probably not supported (e.g. NFS without lockd).
 	FDLIMIT, // Process hit its file descriptor limit.
-	UNKNOWN // The attempt failed for some unspecified reason.
+	UNKNOWN // Locking failed for some unspecified reason (keep this last).
     } reason;
 
     /** Standard constructor. */
