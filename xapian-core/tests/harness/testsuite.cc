@@ -202,9 +202,11 @@ static void handle_sig(int signum_, siginfo_t *si, void *)
     if (signum_ != SIGSEGV) sigaction(SIGSEGV, &sa, NULL);
     if (signum_ != SIGFPE) sigaction(SIGFPE, &sa, NULL);
     if (signum_ != SIGILL) sigaction(SIGILL, &sa, NULL);
-    if (signum_ != SIGPIPE) sigaction(SIGPIPE, &sa, NULL);
 # ifdef SIGBUS
     if (signum_ != SIGBUS) sigaction(SIGBUS, &sa, NULL);
+# endif
+# ifdef SIGPIPE
+    if (signum_ != SIGPIPE) sigaction(SIGPIPE, &sa, NULL);
 # endif
 # ifdef SIGSTKFLT
     if (signum_ != SIGSTKFLT) sigaction(SIGSTKFLT, &sa, NULL);
@@ -224,9 +226,11 @@ static void handle_sig(int signum_)
     signal(SIGSEGV, SIG_DFL);
     signal(SIGFPE, SIG_DFL);
     signal(SIGILL, SIG_DFL);
-    signal(SIGPIPE, SIG_DFL);
 #ifdef SIGBUS
     signal(SIGBUS, SIG_DFL);
+#endif
+#ifdef SIGPIPE
+    signal(SIGPIPE, SIG_DFL);
 #endif
 #ifdef SIGSTKFLT
     signal(SIGSTKFLT, SIG_DFL);
@@ -258,9 +262,11 @@ class SignalRedirector {
 	sigaction(SIGSEGV, &sa, NULL);
 	sigaction(SIGFPE, &sa, NULL);
 	sigaction(SIGILL, &sa, NULL);
-	sigaction(SIGPIPE, &sa, NULL);
 # ifdef SIGBUS
 	sigaction(SIGBUS, &sa, NULL);
+# endif
+# ifdef SIGPIPE
+	sigaction(SIGPIPE, &sa, NULL);
 # endif
 # ifdef SIGSTKFLT
 	sigaction(SIGSTKFLT, &sa, NULL);
@@ -269,9 +275,11 @@ class SignalRedirector {
 	signal(SIGSEGV, handle_sig);
 	signal(SIGFPE, handle_sig);
 	signal(SIGILL, handle_sig);
-	signal(SIGPIPE, handle_sig);
 # ifdef SIGBUS
 	signal(SIGBUS, handle_sig);
+# endif
+# ifdef SIGPIPE
+	signal(SIGPIPE, handle_sig);
 # endif
 # ifdef SIGSTKFLT
 	signal(SIGSTKFLT, handle_sig);
@@ -654,12 +662,14 @@ test_driver::runtest(const test_desc *test)
 	    case SIGSEGV: signame = "SIGSEGV"; break;
 	    case SIGFPE: signame = "SIGFPE"; break;
 	    case SIGILL: signame = "SIGILL"; break;
+#ifdef SIGBUS
+	    case SIGBUS: signame = "SIGBUS"; break;
+#endif
+#ifdef SIGPIPE
 	    case SIGPIPE:
 		signame = "SIGPIPE";
 		show_addr = false;
 		break;
-#ifdef SIGBUS
-	    case SIGBUS: signame = "SIGBUS"; break;
 #endif
 #ifdef SIGSTKFLT
 	    case SIGSTKFLT:
