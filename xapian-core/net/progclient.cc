@@ -67,6 +67,10 @@ ProgClient::run_program(const string& progname,
 #if defined HAVE_SOCKETPAIR && defined HAVE_FORK
     int fds[2];
 
+    // Set the close-on-exec flag.  Our child will clear it after we fork() but
+    // before the child exec()s so that there's no window where another thread
+    // in the parent process could fork()+exec() and end up with these fds
+    // still open.
     if (socketpair(PF_UNIX, SOCK_STREAM|SOCK_CLOEXEC, 0, fds) < 0) {
 	throw Xapian::NetworkError("socketpair failed", context, errno);
     }
@@ -118,26 +122,23 @@ ProgClient::run_program(const string& progname,
     // Close the parent's end of the pipe.
     ::close(fds[0]);
 
-# if defined F_SETFD && defined FD_CLOEXEC
-    // Clear close-on-exec flag, if we set it when we called socketpair().
-    // Clearing it here means there's no window where another thread in the
-    // parent process could fork()+exec() and end up with this fd still
-    // open (assuming close-on-exec is supported).
-    //
-    // We can't use a preprocessor check on the *value* of SOCK_CLOEXEC as
-    // on Linux SOCK_CLOEXEC is an enum, with '#define SOCK_CLOEXEC
-    // SOCK_CLOEXEC' to allow '#ifdef SOCK_CLOEXEC' to work.
-    if (SOCK_CLOEXEC != 0)
-	(void)fcntl(fds[1], F_SETFD, 0);
-# endif
+    // Connect pipe to stdin and stdout.  If we set the close-on-exec flag
+    // above, we want to ensure that both fds 0 and 1 are the result of a
+    // dup2() call so that their close-on-exec flags are cleared which we
+    // can do with a little care here.
+    int dup_to_first = 0;
+    if (SOCK_CLOEXEC != 0 && fds[1] == 0) {
+	dup_to_first = 1;
+    }
 
-    // Connect pipe to stdin and stdout.
-    dup2(fds[1], 0);
-    dup2(fds[1], 1);
+    dup2(fds[1], dup_to_first);
 
     // Make sure we don't hang on to open files which may get deleted but
-    // not have their disk space released until we exit.
+    // not have their disk space released until we exit.  Do this before
+    // the second dup2() to ensure there's a free file descriptor.
     closefrom(2);
+
+    dup2(dup_to_first, dup_to_first ^ 1);
 
     // Redirect stderr to /dev/null
     int devnull = open("/dev/null", O_WRONLY);
