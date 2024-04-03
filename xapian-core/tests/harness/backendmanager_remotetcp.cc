@@ -68,17 +68,17 @@ using namespace std;
 
 class ServerData {
 #ifdef HAVE_FORK
-    /// Value of pid which indicates an unused entry.
-    static constexpr pid_t UNUSED_PID = 0;
+    /// Value of pid which indicates an entry kill_remote() was called on.
+    static constexpr pid_t DEAD_PID = 0;
 
     typedef pid_t pid_type;
 #elif defined __WIN32__
-    /** Value of pid which indicates an unused entry.
+    /** Value of pid which indicates an entry kill_remote() was called on.
      *
      *  This is a #define because it's a pointer type which doesn't work as a
      *  `static const` or `static constexpr` class member.
      */
-#define UNUSED_PID INVALID_HANDLE_VALUE
+#define DEAD_PID INVALID_HANDLE_VALUE
 
     typedef HANDLE pid_type;
 #else
@@ -99,12 +99,15 @@ class ServerData {
     const void* db_internal;
 
   public:
-    void set_pid(pid_type pid_) { pid = pid_; }
+    void init(pid_type pid_) {
+	pid = pid_;
+	db_internal = nullptr;
+    }
 
     void set_db_internal(const void* dbi) { db_internal = dbi; }
 
     void clean_up() {
-	if (pid == UNUSED_PID) return;
+	if (pid == DEAD_PID) return;
 #ifdef HAVE_FORK
 	int status;
 	while (waitpid(pid, &status, 0) == -1 && errno == EINTR) { }
@@ -119,7 +122,7 @@ class ServerData {
     }
 
     bool kill_remote(const void* dbi) {
-	if (pid == UNUSED_PID || dbi != db_internal) return false;
+	if (pid == DEAD_PID || dbi != db_internal) return false;
 #ifdef HAVE_FORK
 	// Kill the process group that we put the server in so that we kill
 	// the server itself and not just the /bin/sh that launched it.
@@ -134,7 +137,7 @@ class ServerData {
 	}
 #endif
 	clean_up();
-	pid = UNUSED_PID;
+	pid = DEAD_PID;
 	return true;
     }
 };
@@ -270,7 +273,7 @@ try_next_port:
     }
 
     auto& data = server_data[first_unused_server_data++];
-    data.set_pid(child);
+    data.init(child);
     return {port, data};
 }
 
@@ -377,7 +380,7 @@ try_next_port:
     }
 
     auto& data = server_data[first_unused_server_data++];
-    data.set_pid(procinfo.hProcess);
+    data.init(procinfo.hProcess);
     return {port, data};
 }
 
