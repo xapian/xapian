@@ -327,7 +327,7 @@ report_dup_failure:
 	    _exit((errno == EMFILE || errno == ENFILE) ? FDLIMIT : UNKNOWN);
 	}
 	close(parentfd);
-	if (rare(dup2(dup_parent_to_first, dup_parent_to_first ^ 1)))
+	if (rare(dup2(dup_parent_to_first, dup_parent_to_first ^ 1) < 0))
 	    goto report_dup_failure;
 
 	// Ensure lockfd is fd 2, and clear close-on-exec if necessary.
