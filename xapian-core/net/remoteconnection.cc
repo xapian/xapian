@@ -294,7 +294,7 @@ RemoteConnection::send_message(char type, const string &message,
     while (true) {
 	// We've set write to non-blocking, so just try writing as there
 	// will usually be space.
-#if defined MSG_NOSIGNAL && !defined SO_NOSIGPIPE
+#if defined MSG_NOSIGNAL && (!defined SO_NOSIGPIPE || defined __NetBSD__)
 	ssize_t n = send(fdout, str->data() + count, str->size() - count,
 			 MSG_NOSIGNAL);
 	if (n < 0 && errno == ENOTSOCK) {
@@ -448,7 +448,7 @@ RemoteConnection::send_file(char type, int fd, double end_time)
     while (true) {
 	// We've set write to non-blocking, so just try writing as there
 	// will usually be space.
-#if defined MSG_NOSIGNAL && !defined SO_NOSIGPIPE
+#if defined MSG_NOSIGNAL && (!defined SO_NOSIGPIPE || defined __NetBSD__)
 	ssize_t n = send(fdout, buf + count, c - count, MSG_NOSIGNAL);
 	if (n < 0 && errno == ENOTSOCK) {
 	    // In some testcases in the testsuite and in xapian-progsrv (in
