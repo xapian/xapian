@@ -844,6 +844,10 @@ DEFINE_TESTCASE(collapsekey4, backend) {
 
 // test for keepalives
 DEFINE_TESTCASE(keepalive1, remote) {
+    // So far noted as failing with test harness backends:
+    // multi_glass_remoteprog_glass
+    // multi_remoteprog_glass
+    // remoteprog_glass
 #if 0 // def __NetBSD__
     SKIP_TEST("Testcase sometimes fails with SIGPIPE on NetBSD");
 #endif

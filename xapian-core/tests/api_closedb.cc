@@ -612,6 +612,8 @@ DEFINE_TESTCASE(remotefailure3, remotetcp) {
 #ifdef __MINGW32__
     XFAIL("Remote failure handling or testing is buggy on __MINGW32__");
 #endif
+    // FIXME: All the other remotefailure* testcases definitely can fail in
+    // this way but this one not explicitly noted as doing so yet...
 #if 0 // def __NetBSD__
     SKIP_TEST("Testcase sometimes fails with SIGPIPE on NetBSD");
 #endif
