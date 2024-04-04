@@ -1,7 +1,7 @@
 /** @file
  * @brief Run an external filter and capture its output in a std::string.
  */
-/* Copyright (C) 2003-2023 Olly Betts
+/* Copyright (C) 2003-2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -47,6 +47,7 @@
 # include <signal.h>
 #endif
 
+#include "closefrom.h"
 #include "freemem.h"
 #include "setenv.h"
 #include "stringutils.h"
@@ -257,6 +258,8 @@ run_filter(int fd_in, const string& cmd, bool use_shell, string* out,
     int fds[2];
     if (socketpair(AF_UNIX, SOCK_STREAM, PF_UNSPEC, fds) < 0)
 	throw ReadError("socketpair failed");
+    // Ensure fds[1] != 0 to simplify handling in child process.
+    if (rare(fds[1] == 0)) swap(fds[0], fds[1]);
 
     pid_t child = fork();
     if (child == 0) {
@@ -271,14 +274,19 @@ run_filter(int fd_in, const string& cmd, bool use_shell, string* out,
 	// Close the parent's side of the socket pair.
 	close(fds[0]);
 
-	if (fd_in != -1) {
-	    // Connect piped input to stdin.
-	    dup2(fd_in, 0);
-	    close(fd_in);
+	if (fd_in > -1) {
+	    // Connect piped input to stdin if it's not already fd 0.
+	    if (fd_in != 0) {
+		dup2(fd_in, 0);
+		close(fd_in);
+	    }
 	}
 
 	// Connect stdout to our side of the socket pair.
 	dup2(fds[1], 1);
+
+	// Close extraneous file descriptors (but leave stderr alone).
+	closefrom(3);
 
 #ifdef HAVE_SETRLIMIT
 	// Impose some pretty generous resource limits to prevent run-away
