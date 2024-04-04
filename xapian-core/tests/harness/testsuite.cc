@@ -65,6 +65,7 @@
 #  include <cxxabi.h>
 # endif
 #endif
+#include <execinfo.h>
 
 #ifndef NO_LIBXAPIAN
 # include <xapian/error.h>
@@ -183,6 +184,8 @@ test_driver::test_driver(const test_desc *tests_)
 static SIGJMP_BUF jb;
 static int signum = 0;
 static void * sigaddr = NULL;
+static void * sigbacktrace[16];
+static size_t sigbacktrace_depth = 0;
 
 // Needs C linkage so we can pass it to sigaction()/signal() without problems.
 extern "C" {
@@ -213,6 +216,7 @@ static void handle_sig(int signum_, siginfo_t *si, void *)
 # endif
     signum = signum_;
     sigaddr = si->si_addr;
+    sigbacktrace_depth = backtrace(sigbacktrace, std::size(sigbacktrace));
     SIGLONGJMP(jb, 1);
 }
 
@@ -251,6 +255,7 @@ class SignalRedirector {
 	active = true;
 	signum = 0;
 	sigaddr = NULL;
+	sigbacktrace_depth = 0;
 	// SA_SIGINFO is not universal (e.g. not present on Linux < 2.2 or
 	// older Hurd).  If we have it, we use it to report the address
 	// associated with the signal (for signals where that makes sense).
@@ -683,6 +688,10 @@ test_driver::runtest(const test_desc *test)
 	    out << " at " << str(sigaddr);
 	}
 	out << col_reset;
+	if (sigbacktrace_depth > 0) {
+	    out << flush;
+	    backtrace_symbols_fd(sigbacktrace, sigbacktrace_depth, 0);
+	}
 	write_and_clear_tout();
 	return FAIL;
     }
