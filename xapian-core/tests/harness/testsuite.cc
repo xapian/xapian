@@ -65,6 +65,7 @@
 #  include <cxxabi.h>
 # endif
 #endif
+#include <dlfcn.h> // FIXME: if we keep this it needs to be probed by configure, as does dladdr().
 
 #ifndef NO_LIBXAPIAN
 # include <xapian/error.h>
@@ -668,7 +669,7 @@ test_driver::runtest(const test_desc *test)
 #ifdef SIGPIPE
 	    case SIGPIPE:
 		signame = "SIGPIPE";
-		show_addr = false;
+//		show_addr = false;
 		break;
 #endif
 #ifdef SIGSTKFLT
@@ -681,6 +682,16 @@ test_driver::runtest(const test_desc *test)
 	out << " " << col_red << signame;
 	if (show_addr) {
 	    out << " at " << str(sigaddr);
+#if 1 // def HAVE_DLADDR
+	    Dl_info dlinfo;
+	    if (dladdr(sigaddr, &dlinfo)) {
+		out << " " << static_cast<char*>(sigaddr) - static_cast<char*>(dlinfo.dli_saddr)
+		    << " bytes inside symbol " << dlinfo.dli_sname;
+		if (dlinfo.dli_fname) {
+		    out << " in object " << dlinfo.dli_fname;
+		}
+	    }
+#endif
 	}
 	out << col_reset;
 	write_and_clear_tout();
