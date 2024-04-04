@@ -848,6 +848,7 @@ DEFINE_TESTCASE(keepalive1, remote) {
     // multi_glass_remoteprog_glass
     // multi_remoteprog_glass
     // remoteprog_glass
+    // remotetcp_glass (not every time)
 #if 0 // def __NetBSD__
     SKIP_TEST("Testcase sometimes fails with SIGPIPE on NetBSD");
 #endif

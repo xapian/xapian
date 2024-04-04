@@ -614,9 +614,12 @@ DEFINE_TESTCASE(remotefailure3, remotetcp) {
 #endif
     // FIXME: All the other remotefailure* testcases definitely can fail in
     // this way but this one not explicitly noted as doing so yet...
+    // Seems erratic for all of them, but haven't actually yet noted these
+    // passing: 1 8 9 10
 #if 0 // def __NetBSD__
     SKIP_TEST("Testcase sometimes fails with SIGPIPE on NetBSD");
 #endif
+    *const_cast<char*>("abc") = 1;
     Xapian::Database db(get_database("etext"));
     const string & uuid = db.get_uuid();
     kill_remote(db);
