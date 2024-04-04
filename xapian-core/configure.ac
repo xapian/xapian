@@ -1011,6 +1011,8 @@ fi
 XAPIAN_LIBS=$LIBS
 LIBS=$save_LIBS
 
+AC_SEARCH_LIBS([backtrace], [execinfo], [])
+
 AC_ARG_ENABLE([visibility],
   [AS_HELP_STRING([--disable-visibility], [disable use of GCC visibility])],
   [case ${enableval} in
