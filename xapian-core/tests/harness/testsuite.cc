@@ -685,7 +685,7 @@ test_driver::runtest(const test_desc *test)
 #if 1 // def HAVE_DLADDR
 	    Dl_info dlinfo;
 	    if (dladdr(sigaddr, &dlinfo)) {
-		out << " " << static_cast<char*>(sigaddr) - static_cast<char*>(dlinfo.dli_saddr)
+		out << " " << static_cast<char*>(sigaddr) - static_cast<const char*>(dlinfo.dli_saddr)
 		    << " bytes inside symbol " << dlinfo.dli_sname;
 		if (dlinfo.dli_fname) {
 		    out << " in object " << dlinfo.dli_fname;
