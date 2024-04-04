@@ -286,6 +286,9 @@ class SignalRedirector {
 	signal(SIGSTKFLT, handle_sig);
 # endif
 #endif
+#ifdef __NetBSD__
+	signal(SIGPIPE, SIG_IGN);
+#endif
     }
     ~SignalRedirector() {
 	if (active) {
