@@ -291,6 +291,9 @@ class SignalRedirector {
 # ifdef SIGBUS
 	    sigaction(SIGBUS, &sa, NULL);
 # endif
+# ifdef SIGPIPE
+	    sigaction(SIGPIPE, &sa, NULL);
+# endif
 # ifdef SIGSTKFLT
 	    sigaction(SIGSTKFLT, &sa, NULL);
 # endif
@@ -300,6 +303,9 @@ class SignalRedirector {
 	    signal(SIGILL, SIG_DFL);
 # ifdef SIGBUS
 	    signal(SIGBUS, SIG_DFL);
+# endif
+# ifdef SIGPIPE
+	    signal(SIGPIPE, SIG_DFL);
 # endif
 # ifdef SIGSTKFLT
 	    signal(SIGSTKFLT, SIG_DFL);
