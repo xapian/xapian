@@ -306,10 +306,11 @@ RemoteConnection::ready_to_read() const
 #endif
 }
 
+#ifndef __WIN32__
 ssize_t
 RemoteConnection::send_or_write(const void* p, size_t len)
 {
-#ifdef USE_MSG_NOSIGNAL
+# ifdef USE_MSG_NOSIGNAL
     if (send_flags) {
 	ssize_t n = send(fdout, p, len, send_flags);
 	if (usual(n >= 0 || errno != ENOTSOCK)) return n;
@@ -318,9 +319,10 @@ RemoteConnection::send_or_write(const void* p, size_t len)
 	// send() once in this case.
 	send_flags = 0;
     }
-#endif
+# endif
     return write(fdout, p, len);
 }
+#endif
 
 void
 RemoteConnection::send_message(char type, const string &message,
