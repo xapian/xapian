@@ -1,7 +1,7 @@
 /** @file
  *  @brief RemoteConnection class used by the remote backend.
  */
-/* Copyright (C) 2006,2007,2008,2010,2011,2014,2015,2019 Olly Betts
+/* Copyright (C) 2006,2007,2008,2010,2011,2014,2015,2019,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -58,6 +58,31 @@ class RemoteConnection {
      */
     int fdout;
 
+    // On Unix-like platforms we want to avoid generating SIGPIPE when writing
+    // to a socket when the other end has been closed since signals break the
+    // encapsulation of what we're doing inside the library - either user code
+    // would need to handle the SIGPIPE, or we set a signal handler for SIGPIPE
+    // but that would handle *any* SIGPIPE in the process, not just those we
+    // might trigger, and that could break user code which expects to trigger
+    // and handle SIGPIPE.
+    //
+    // We don't need SIGPIPE since we can check errno==EPIPE instead (which is
+    // actually simpler to do).
+    //
+    // We support using SO_NOSIGPIPE (not standardised) or MSG_NOSIGNAL
+    // (specified by POSIX but more awkward to use) which seems to cover all
+    // modern Unix-like platforms.  For platforms without either we currently
+    // just set the SIGPIPE signal handler to SIG_IGN.
+#if defined(SO_NOSIGPIPE) && !defined(__NetBSD__)
+    // Prefer using SO_NOSIGPIPE and write(), except on NetBSD where we seem to
+    // still get SIGPIPE despite using it.
+# define USE_SO_NOSIGPIPE
+#elif defined MSG_NOSIGNAL
+    // Use send(..., MSG_NOSIGNAL).
+    int send_flags = MSG_NOSIGNAL;
+# define USE_MSG_NOSIGNAL
+#endif
+
     /// Buffer to hold unprocessed input.
     std::string buffer;
 
@@ -92,6 +117,9 @@ class RemoteConnection {
      *  This will raise a timeout exception if end_time has already passed.
      */
     DWORD calc_read_wait_msecs(double end_time);
+#else
+    /** Helper which calls send() or write(). */
+    ssize_t send_or_write(const void* p, size_t n);
 #endif
 
   protected:
