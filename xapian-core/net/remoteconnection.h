@@ -60,6 +60,7 @@ class RemoteConnection {
      */
     int fdout;
 
+#ifndef __WIN32__
     // On Unix-like platforms we want to avoid generating SIGPIPE when writing
     // to a socket when the other end has been closed since signals break the
     // encapsulation of what we're doing inside the library - either user code
@@ -75,14 +76,15 @@ class RemoteConnection {
     // (specified by POSIX but more awkward to use) which seems to cover all
     // modern Unix-like platforms.  For platforms without either we currently
     // just set the SIGPIPE signal handler to SIG_IGN.
-#if defined(SO_NOSIGPIPE) && !defined(__NetBSD__)
+# if defined(SO_NOSIGPIPE) && !defined(__NetBSD__)
     // Prefer using SO_NOSIGPIPE and write(), except on NetBSD where we seem to
     // still get SIGPIPE despite using it.
-# define USE_SO_NOSIGPIPE
-#elif defined MSG_NOSIGNAL
+#  define USE_SO_NOSIGPIPE
+# elif defined MSG_NOSIGNAL
     // Use send(..., MSG_NOSIGNAL).
     int send_flags = MSG_NOSIGNAL;
-# define USE_MSG_NOSIGNAL
+#  define USE_MSG_NOSIGNAL
+# endif
 #endif
 
     /// Buffer to hold unprocessed input.
