@@ -1,7 +1,7 @@
 /** @file
  *  @brief RemoteConnection class used by the remote backend.
  */
-/* Copyright (C) 2006-2023 Olly Betts
+/* Copyright (C) 2006-2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -98,6 +98,45 @@ RemoteConnection::RemoteConnection(int fdin_, int fdout_,
 	throw Xapian::NetworkError("Failed to setup OVERLAPPED",
 				   context, -int(GetLastError()));
 
+#elif defined USE_SO_NOSIGPIPE
+    // SO_NOSIGPIPE is a non-standardised socket option supported by a number
+    // of platforms - at least DragonFlyBSD, FreeBSD, macOS (not older
+    // versions, e.g. 10.15 apparently lacks it), Solaris; notably not
+    // supported by Linux or OpenBSD though.
+    //
+    // We use it where supported due to one big advantage over POSIX's
+    // MSG_NOSIGNAL which is that we can just set it once for a socket whereas
+    // with MSG_NOSIGNAL we need to call send(..., MSG_NOSIGNAL) instead of
+    // write(...), but send() only works on sockets, so with MSG_NOSIGNAL any
+    // code which might be working with files or pipes as well as sockets needs
+    // conditional handling depending on whether the fd is a socket or not.
+    //
+    // SO_NOSIGPIPE is present on NetBSD, but it seems when using it we still
+    // get SIGPIPE (reproduced on NetBSD 9.3 and 10.0) so we avoid using it
+    // there.
+    int on = 1;
+    if (setsockopt(fdout, SOL_SOCKET, SO_NOSIGPIPE,
+		   reinterpret_cast<char*>(&on), sizeof(on)) < 0) {
+	if (errno != ENOTSOCK) {
+	    throw Xapian::NetworkError("Couldn't set SO_NOSIGPIPE on socket",
+				       errno);
+	}
+    }
+#elif defined MSG_NOSIGNAL
+    // We can use send(..., MSG_NOSIGNAL) to avoid generating SIGPIPE
+    // (MSG_NOSIGNAL was added in POSIX.1-2008).  This seems to be pretty much
+    // universally supported by current Unix-like platforms, but older macOS
+    // and Solaris apparently didn't have it.
+    //
+    // If fdout is not a socket, we'll set send_flags = 0 when the first send()
+    // fails with ENOTSOCK and use write() instead from then on.
+#else
+    // It's simplest to just ignore SIGPIPE.  Not ideal, but it seems only old
+    // versions of macOS and of Solaris will end up here so let's not bother
+    // trying to do any clever trickery.
+    if (signal(SIGPIPE, SIG_IGN) == SIG_ERR) {
+	throw Xapian::NetworkError("Couldn't set SIGPIPE to SIG_IGN", errno);
+    }
 #endif
 }
 
@@ -267,6 +306,22 @@ RemoteConnection::ready_to_read() const
 #endif
 }
 
+ssize_t
+RemoteConnection::send_or_write(const void* p, size_t n)
+{
+#ifdef USE_MSG_NOSIGNAL
+    if (send_flags) {
+	ssize_t n = send(fdout, p, n, send_flags);
+	if (usual(n >= 0 || errno != ENOTSOCK)) return n;
+	// In some testcases in the testsuite and in xapian-progsrv (in some
+	// cases) fdout won't be a socket.  Clear send_flags so we only try
+	// send() once in this case.
+	send_flags = 0;
+    }
+#endif
+    return write(fdout, p, n);
+}
+
 void
 RemoteConnection::send_message(char type, const string &message,
 			       double end_time)
@@ -328,17 +383,7 @@ RemoteConnection::send_message(char type, const string &message,
     while (true) {
 	// We've set write to non-blocking, so just try writing as there
 	// will usually be space.
-#if defined MSG_NOSIGNAL && !defined SO_NOSIGPIPE
-	ssize_t n = send(fdout, str->data() + count, str->size() - count,
-			 MSG_NOSIGNAL);
-	if (n < 0 && errno == ENOTSOCK) {
-	    // In some testcases in the testsuite and in xapian-progsrv (in
-	    // some cases) the fd won't be a socket.
-	    n = write(fdout, str->data() + count, str->size() - count);
-	}
-#else
-	ssize_t n = write(fdout, str->data() + count, str->size() - count);
-#endif
+	ssize_t n = send_or_write(str->data() + count, str->size() - count);
 
 	if (n >= 0) {
 	    count += n;
@@ -481,16 +526,7 @@ RemoteConnection::send_file(char type, int fd, double end_time)
     while (true) {
 	// We've set write to non-blocking, so just try writing as there
 	// will usually be space.
-#if defined MSG_NOSIGNAL && !defined SO_NOSIGPIPE
-	ssize_t n = send(fdout, buf + count, c - count, MSG_NOSIGNAL);
-	if (n < 0 && errno == ENOTSOCK) {
-	    // In some testcases in the testsuite and in xapian-progsrv (in
-	    // some cases) the fd won't be a socket.
-	    n = write(fdout, buf + count, c - count);
-	}
-#else
-	ssize_t n = write(fdout, buf + count, c - count);
-#endif
+	ssize_t n = send_or_write(buf + count, c - count);
 
 	if (n >= 0) {
 	    count += n;
