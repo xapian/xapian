@@ -116,7 +116,13 @@ RemoteConnection::RemoteConnection(int fdin_, int fdout_,
     int on = 1;
     if (setsockopt(fdout, SOL_SOCKET, SO_NOSIGPIPE,
 		   reinterpret_cast<char*>(&on), sizeof(on)) < 0) {
-	if (errno != ENOTSOCK) {
+	// Some platforms (including FreeBSD, macOS, DragonflyBSD) seem to
+	// fail with EBADF instead of ENOTSOCK when passed a non-socket so
+	// allow either.  If the descriptor is actually not valid we'll report
+	// it the next time we try to use it (as we would when not trying to
+	// use SO_NOSIGPIPE so this actually gives a more consistent error
+	// across platforms.
+	if (errno != ENOTSOCK && errno != EBADF) {
 	    throw Xapian::NetworkError("Couldn't set SO_NOSIGPIPE on socket",
 				       errno);
 	}
