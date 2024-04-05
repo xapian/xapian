@@ -27,6 +27,8 @@
 
 #ifdef __WIN32__
 # include "safewinsock2.h"
+#else
+# include "safesyssocket.h"
 #endif
 
 /** A RemoteConnection object provides a bidirectional connection to another

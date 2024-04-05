@@ -121,7 +121,7 @@ RemoteConnection::RemoteConnection(int fdin_, int fdout_,
 				       errno);
 	}
     }
-#elif defined MSG_NOSIGNAL
+#elif defined USE_MSG_NOSIGNAL
     // We can use send(..., MSG_NOSIGNAL) to avoid generating SIGPIPE
     // (MSG_NOSIGNAL was added in POSIX.1-2008).  This seems to be pretty much
     // universally supported by current Unix-like platforms, but older macOS
@@ -273,11 +273,11 @@ RemoteConnection::read_at_least(size_t min_len, double end_time)
 }
 
 ssize_t
-RemoteConnection::send_or_write(const void* p, size_t n)
+RemoteConnection::send_or_write(const void* p, size_t len)
 {
 #ifdef USE_MSG_NOSIGNAL
     if (send_flags) {
-	ssize_t n = send(fdout, p, n, send_flags);
+	ssize_t n = send(fdout, p, len, send_flags);
 	if (usual(n >= 0 || errno != ENOTSOCK)) return n;
 	// In some testcases in the testsuite and in xapian-progsrv (in some
 	// cases) fdout won't be a socket.  Clear send_flags so we only try
@@ -285,7 +285,7 @@ RemoteConnection::send_or_write(const void* p, size_t n)
 	send_flags = 0;
     }
 #endif
-    return write(fdout, p, n);
+    return write(fdout, p, len);
 }
 
 void
