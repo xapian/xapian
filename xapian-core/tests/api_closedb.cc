@@ -619,7 +619,6 @@ DEFINE_TESTCASE(remotefailure3, remotetcp) {
 #if 0 // def __NetBSD__
     SKIP_TEST("Testcase sometimes fails with SIGPIPE on NetBSD");
 #endif
-    *const_cast<char*>("abc") = 1;
     Xapian::Database db(get_database("etext"));
     const string & uuid = db.get_uuid();
     kill_remote(db);
