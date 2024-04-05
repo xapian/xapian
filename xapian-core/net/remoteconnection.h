@@ -104,6 +104,7 @@ inline int socket_errno() {
 // else the socket remains in the CLOSE_WAIT state.
 # define CLOSESOCKET(S) closesocket(S)
 #else
+# include "safesyssocket.h"
 inline int socket_errno() { return errno; }
 
 # define CLOSESOCKET(S) close(S)

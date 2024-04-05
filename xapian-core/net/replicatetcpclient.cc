@@ -32,7 +32,7 @@ using namespace std;
 ReplicateTcpClient::ReplicateTcpClient(const string & hostname, int port,
 				       double timeout_connect,
 				       double socket_timeout)
-    : socket(open_socket(hostname, port, timeout_connect)),
+    : socket{open_socket(hostname, port, timeout_connect)},
       remconn(-1, socket)
 {
     set_socket_timeouts(socket, socket_timeout);
