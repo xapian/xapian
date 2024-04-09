@@ -160,24 +160,41 @@ As of Xapian 1.4.6 building using MSVC is supported by the autotools build
 system.  You need to install a set of Unix-like tools first - we recommended
 MSYS2: https://www.msys2.org/
 
-You also need to have the MSVC command line tools on your PATH.  This is done
-by running a batch file in the MSVC install in the terminal before building.
-The exact details vary by MSVC version, 32- vs 64-bit, and the directory and
-drive where MSVC is installed.  For MSVC 2017 it should be something like::
+You also need to have the MSVC command line tools on your PATH.  MSVC provides
+a batch file which sets up PATH and other environment variables.  The exact
+details vary by MSVC version, 32- vs 64-bit, and the directory and
+drive where MSVC is installed, but for MSVC 2017 it should be something like::
 
-  "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars32.bat"
+  "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"
 
 or::
 
-  "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"
+  "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars32.bat"
+
+It doesn't work to run this after starting the MSYS2 shell because the
+environment variables set by the batch file don't get propagated back to the
+MSYS2 shell.  The simplest approach which works is to run this batch file in
+the developer command prompt, then start the MSYS2 shell from there (e.g.
+by entering the command `start msys2_shell.cmd -use-full-path`).
 
 You'll need to have the zlib library available.  You can add
 ``CPPFLAGS=-I/path/to/zlib LDFLAGS=-L/path/to/zlib`` to the configure command
 line to tell MSVC where to find the zlib headers and library.
 
-To build, first run configure from a bash shell like so::
+If you build zlib from source, beware that zlib's `win32/Makefile.msc` performs
+a debug build by default.  You'll either need to specify `CXXFLAGS=-MD` when
+configuring Xapian, or remove `-MD` from `CFLAGS` in zlib's `win32/Makefile.msc`.
+If you're building 64-bit you may also want to remove `-base:0x5A4C0000` from
+the link command for `$(SHAREDLIB)` as this triggers a linker warning (LNK4281).
+
+To build Xapian, first run configure from the MSYS2 shell like so::
 
   ./configure CC="cl -nologo" CXX="$PWD/compile cl -nologo" CXXFLAGS=-EHsc AR=lib
+
+If you want a `.pdb` file (which contains debugging information), add `-Zi` to
+`CXXFLAGS`, i.e.:
+
+  ./configure CC="cl -nologo" CXX="$PWD/compile cl -nologo" CXXFLAGS="-EHsc -Zi" AR=lib
 
 Then build using GNU make::
 
