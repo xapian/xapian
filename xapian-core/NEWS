@@ -36,8 +36,9 @@ glass backend:
 
 * Optimise allterms iteration.  Most terms don't contain any zero bytes, and
   for such terms the key for the first chunk in the termlist table is just the
-  termname so no decoding is needed when advancing the iterator.  This optimisation
-  is 8.4% faster in a simple test of iterating allterms via xapian-delve.
+  termname so no decoding is needed when advancing the iterator.  This
+  optimisation is 8.4% faster in a simple test of iterating allterms via
+  xapian-delve.
 
 * Compaction of an empty non-optional table now gives an empty output, whereas
   previous it was one block in size (8K by default).  This isn't important in
@@ -170,7 +171,7 @@ debug code:
   + `goto` and `until` now go to the entry *after* the specified key if there's
     no exact match, which seems more natural.
 
-  + New `count" command.  This is actually just the same as `until` which
+  + New `count` command.  This is actually just the same as `until` which
     already reports a count of the number of entries advanced by, except that
     `count` suppresses printing each entry.
 
