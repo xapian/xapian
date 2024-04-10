@@ -66,6 +66,7 @@ install:
         $env:CXXFLAGS="-EHsc"
         $env:CPPFLAGS="-Ic:/projects/xapian/zlib"
         $env:AR="lib"
+        $env:LD="link"
         $env:LDFLAGS="-Lc:/projects/xapian/zlib"
       }
 build_script:
