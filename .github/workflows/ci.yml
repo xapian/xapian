@@ -1315,8 +1315,9 @@ jobs:
         export CPPFLAGS="-I$PWD/zlib"
         # Standard C++ stack unwinding; assume extern "C" functions never throw.
         export CXXFLAGS=-EHsc
-        export LD="link"
+        export LD=link
         export LDFLAGS="-L$PWD/zlib"
+        export NM=dumpbin
         PATH=/c/Users/runneradmin/.cargo/bin:$PATH
         pushd xapian-core
         ./configure --enable-werror --disable-shared
@@ -1411,8 +1412,9 @@ jobs:
         export CPPFLAGS="-I$PWD/zlib"
         # Standard C++ stack unwinding; assume extern "C" functions never throw.
         export CXXFLAGS=-EHsc
-        export LD="link"
+        export LD=link
         export LDFLAGS="-L$PWD/zlib"
+        export NM=dumpbin
         PATH=/c/Users/runneradmin/.cargo/bin:$PATH
         pushd xapian-core
         ./configure --enable-werror --disable-shared
@@ -1504,8 +1506,9 @@ jobs:
         export CPPFLAGS="-I$PWD/zlib"
         # Standard C++ stack unwinding; assume extern "C" functions never throw.
         export CXXFLAGS=-EHsc
-        export LD="link"
+        export LD=link
         export LDFLAGS="-L$PWD/zlib"
+        export NM=dumpbin
         PATH=/c/Users/runneradmin/.cargo/bin:$PATH
         pushd xapian-core
         ./configure --enable-werror --disable-shared
@@ -1597,8 +1600,9 @@ jobs:
         export CPPFLAGS="-I$PWD/zlib"
         # Standard C++ stack unwinding; assume extern "C" functions never throw.
         export CXXFLAGS=-EHsc
-        export LD="link"
+        export LD=link
         export LDFLAGS="-L$PWD/zlib"
+        export NM=dumpbin
         PATH=/c/Users/runneradmin/.cargo/bin:$PATH
         pushd xapian-core
         ./configure --enable-werror --disable-shared

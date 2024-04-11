@@ -76,6 +76,7 @@ install:
         $env:AR="lib"
         $env:LD="link"
         $env:LDFLAGS="-Lc:/projects/xapian/zlib"
+        $env:NM="dumpbin"
       }
 build_script:
   - bash -c 'time ./configure $CONFIGOPTS'
