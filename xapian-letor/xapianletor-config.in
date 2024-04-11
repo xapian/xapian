@@ -96,12 +96,6 @@ need_explicit_dependencies()
     return 0 # "true"
 }
 
-# Any extra ldflags needed.
-set_F_to_extra_ldflags() {
-    F=
-    [ -n "@ldflags@" ] && F="@ldflags@ "
-}
-
 # -L option required (if any).
 set_L_to_library_path() {
     L=
@@ -271,18 +265,16 @@ for arg in $actions ; do
 	    exit 1
 	fi
 	##UNINSTONLYEND
-	set_F_to_extra_ldflags
 	set_L_to_library_path
 	D=
 	if need_explicit_dependencies ; then
 	    extract_dependency_libs "@libdir@/libxapianletor.la"
 	    [ -n "$dependency_libs" ] && D=" $dependency_libs"
 	fi
-	echo "$F$L -lxapianletor$D"
+	echo "$L -lxapianletor$D"
 	;;
 
     --ltlibs)
-	set_F_to_extra_ldflags
 	##UNINSTONLYBEGIN
 	if is_uninstalled ; then
 	    # Don't check if libxapianletor.la exists yet since we want to allow
@@ -304,7 +296,7 @@ for arg in $actions ; do
 	# behaviour.
 	if need_explicit_dependencies ; then
 	    if [ -f "@libdir@/libxapianletor.la" ]; then
-		echo "${F}@libdir@/libxapianletor.la"
+		echo "@libdir@/libxapianletor.la"
 		continue
 	    fi
 
@@ -313,7 +305,7 @@ for arg in $actions ; do
 	fi
 
 	set_L_to_library_path
-	echo "$F$L -lxapianletor"
+	echo "$L -lxapianletor"
 	;;
     esac
 done
