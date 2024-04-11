@@ -294,8 +294,10 @@ xo_fn_unknown_option_check() {
   dnl
   dnl Check compiler stderr for known strings:
   dnl * MSVC: Command line warning D9002 : ignoring unknown option '...'
+  dnl * MSVC: LINK : warning LNK4044: unrecognized option '...'; ignored
   dnl * icc strings cribbed from automake's depend.m4
   $GREP 'ignoring unknown option' conftest.err >/dev/null 2>&1 ||
+      $GREP 'unrecognized option' conftest.err >/dev/null 2>&1 ||
       $GREP 'ignoring option' conftest.err >/dev/null 2>&1 ||
       $GREP 'not supported' conftest.err >/dev/null 2>&1 ||
       return 1
