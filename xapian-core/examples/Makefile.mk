@@ -11,25 +11,25 @@ bin_PROGRAMS +=\
 	examples/xapian-pos
 
 examples_copydatabase_SOURCES = examples/copydatabase.cc
-examples_copydatabase_LDADD = $(ldflags) $(libxapian_la)
+examples_copydatabase_LDADD = $(libxapian_la)
 
 examples_quest_SOURCES = examples/quest.cc
-examples_quest_LDADD = $(ldflags) libgetopt.la $(libxapian_la)
+examples_quest_LDADD = libgetopt.la $(libxapian_la)
 
 examples_simpleexpand_SOURCES = examples/simpleexpand.cc
-examples_simpleexpand_LDADD = $(ldflags) $(libxapian_la)
+examples_simpleexpand_LDADD = $(libxapian_la)
 
 examples_simpleindex_SOURCES = examples/simpleindex.cc
-examples_simpleindex_LDADD = $(ldflags) $(libxapian_la)
+examples_simpleindex_LDADD = $(libxapian_la)
 
 examples_simplesearch_SOURCES = examples/simplesearch.cc
-examples_simplesearch_LDADD = $(ldflags) $(libxapian_la)
+examples_simplesearch_LDADD = $(libxapian_la)
 
 examples_xapian_metadata_SOURCES = examples/xapian-metadata.cc
-examples_xapian_metadata_LDADD = $(ldflags) $(libxapian_la)
+examples_xapian_metadata_LDADD = $(libxapian_la)
 
 examples_xapian_pos_SOURCES = examples/xapian-pos.cc
-examples_xapian_pos_LDADD = $(ldflags) libgetopt.la $(libxapian_la)
+examples_xapian_pos_LDADD = libgetopt.la $(libxapian_la)
 
 if !MAINTAINER_NO_DOCS
 dist_man_MANS +=\

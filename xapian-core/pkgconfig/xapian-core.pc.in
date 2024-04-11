@@ -8,5 +8,5 @@ Description: Search Engine Library
 URL: https://xapian.org/
 Version: @VERSION@
 Cflags: -I${includedir} @abi_affecting_cxxflags@
-Libs: @ldflags@ -L${libdir} -lxapian@LIBRARY_VERSION_SUFFIX@
+Libs: -L${libdir} -lxapian@LIBRARY_VERSION_SUFFIX@
 Libs.private: @XAPIAN_LIBS@

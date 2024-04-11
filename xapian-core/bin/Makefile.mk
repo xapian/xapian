@@ -41,13 +41,13 @@ endif
 endif
 
 bin_xapian_check_SOURCES = bin/xapian-check.cc
-bin_xapian_check_LDADD = $(ldflags) $(libxapian_la)
+bin_xapian_check_LDADD = $(libxapian_la)
 
 bin_xapian_compact_SOURCES = bin/xapian-compact.cc
-bin_xapian_compact_LDADD = $(ldflags) libgetopt.la $(libxapian_la)
+bin_xapian_compact_LDADD = libgetopt.la $(libxapian_la)
 
 bin_xapian_delve_SOURCES = bin/xapian-delve.cc
-bin_xapian_delve_LDADD = $(ldflags) libgetopt.la $(libxapian_la)
+bin_xapian_delve_LDADD = libgetopt.la $(libxapian_la)
 
 bin_xapian_inspect_CPPFLAGS =\
 	$(AM_CPPFLAGS)\
@@ -72,19 +72,19 @@ bin_xapian_inspect_SOURCES = bin/xapian-inspect.cc\
 	unicode/utf8itor.cc
 
 # XAPIAN_LIBS gives us zlib and any library needed for UUIDs.
-bin_xapian_inspect_LDADD = $(ldflags) libgetopt.la $(XAPIAN_LIBS)
+bin_xapian_inspect_LDADD = libgetopt.la $(XAPIAN_LIBS)
 
 bin_xapian_progsrv_SOURCES = bin/xapian-progsrv.cc
-bin_xapian_progsrv_LDADD = $(ldflags) libgetopt.la $(libxapian_la)
+bin_xapian_progsrv_LDADD = libgetopt.la $(libxapian_la)
 
 bin_xapian_replicate_SOURCES = bin/xapian-replicate.cc
-bin_xapian_replicate_LDADD = $(ldflags) libgetopt.la $(libxapian_la)
+bin_xapian_replicate_LDADD = libgetopt.la $(libxapian_la)
 
 bin_xapian_replicate_server_SOURCES = bin/xapian-replicate-server.cc
-bin_xapian_replicate_server_LDADD = $(ldflags) libgetopt.la $(libxapian_la)
+bin_xapian_replicate_server_LDADD = libgetopt.la $(libxapian_la)
 
 bin_xapian_tcpsrv_SOURCES = bin/xapian-tcpsrv.cc
-bin_xapian_tcpsrv_LDADD = $(ldflags) libgetopt.la $(libxapian_la)
+bin_xapian_tcpsrv_LDADD = libgetopt.la $(libxapian_la)
 
 if DOCUMENTATION_RULES
 bin/xapian-check.1: bin/xapian-check$(EXEEXT) makemanpage
