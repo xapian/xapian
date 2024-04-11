@@ -1757,7 +1757,7 @@ jobs:
         # usesh: true
         prepare: |
           set -e
-          /usr/sbin/pkg_add ccache perl pcre2
+          /usr/sbin/pkg_add -u ccache perl pcre2
           ccache --set-config=cache_dir='/Users/runner/work/xapian/xapian/.ccache'
           ccache --set-config=max_size='500M'
           ccache --set-config=compression=true
