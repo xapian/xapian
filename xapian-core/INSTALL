@@ -189,12 +189,12 @@ the link command for `$(SHAREDLIB)` as this triggers a linker warning (LNK4281).
 
 To build Xapian, first run configure from the MSYS2 shell like so::
 
-  ./configure CC="cl -nologo" CXX="$PWD/compile cl -nologo" CXXFLAGS=-EHsc AR=lib LD=link
+  ./configure CC="cl -nologo" CXX="$PWD/compile cl -nologo" CXXFLAGS=-EHsc AR=lib LD=link NM=dumpbin
 
 If you want a `.pdb` file (which contains debugging information), add `-Zi` to
 `CXXFLAGS`, i.e.:
 
-  ./configure CC="cl -nologo" CXX="$PWD/compile cl -nologo" CXXFLAGS="-EHsc -Zi" AR=lib LD=link
+  ./configure CC="cl -nologo" CXX="$PWD/compile cl -nologo" CXXFLAGS="-EHsc -Zi" AR=lib LD=link NM=dumpbin
 
 Then build using GNU make::
 
