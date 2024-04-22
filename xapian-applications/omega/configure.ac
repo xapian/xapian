@@ -582,6 +582,16 @@ AH_BOTTOM(
 # pragma warning(disable:4800)
 #endif
 
+/* MSVC defines _WIN32 but not __WIN32__. */
+#if !defined __WIN32__ && defined _WIN32
+# define __WIN32__
+#endif
+
+/* MSVC defines _WIN64 but not __WIN64__. */
+#if !defined __WIN64__ && defined _WIN64
+# define __WIN64__
+#endif
+
 /* Default to enabling _FORTIFY_SOURCE at level 2 for GCC-like compilers.  It
  * shouldn't cause a problem to define it where it's not supported.
  *
