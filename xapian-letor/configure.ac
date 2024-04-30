@@ -151,6 +151,23 @@ AC_PREPROC_IFELSE([AC_LANG_SOURCE([[
 #endif
 ]])], [win32=no], [win32=yes])
 
+xo_fn_unknown_option_check() {
+  dnl Some compilers don't error out on unknown options which unhelpfully
+  dnl means we would think the option is supported, use it, and end up
+  dnl with a warning or note diagnostic every time we use the option.
+  dnl
+  dnl Check compiler stderr for known strings:
+  dnl * MSVC: Command line warning D9002 : ignoring unknown option '...'
+  dnl * MSVC: LINK : warning LNK4044: unrecognized option '...'; ignored
+  dnl * icc strings cribbed from automake's depend.m4
+  $GREP 'ignoring unknown option' conftest.err >/dev/null 2>&1 ||
+      $GREP 'unrecognized option' conftest.err >/dev/null 2>&1 ||
+      $GREP 'ignoring option' conftest.err >/dev/null 2>&1 ||
+      $GREP 'not supported' conftest.err >/dev/null 2>&1 ||
+      return 1
+  return 0
+}
+
 AC_DEFUN([XAPIAN_TEST_FLAGS_],
   [
   m4_define([cachevar],
@@ -160,13 +177,19 @@ AC_DEFUN([XAPIAN_TEST_FLAGS_],
     XTF_save_$1=${$1}
     $1="${$1} $3"
     $2([AC_LANG_PROGRAM([], [])],
-      [cachevar=yes
-       $1=$XTF_save_$1
-       $4="${$4} $3"
-       $5],
-      [cachevar=no
-       $1=$XTF_save_$1
-       $6])
+      [if xo_fn_unknown_option_check ; then
+	 cachevar=no
+       else
+	 cachevar=yes
+       fi],
+      [cachevar=no])
+    $1=$XTF_save_$1
+    if test "$cachevar" = yes ; then
+      $4="${$4} $3"
+      $5
+    else :
+      $6
+    fi
     ])
   ])
 
