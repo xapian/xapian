@@ -241,6 +241,9 @@ AC_CHECK_DECLS([_addcarry_u32(unsigned char, unsigned, unsigned, unsigned*),
 		_subborrow_u64(unsigned char, unsigned __int64, unsigned __int64, unsigned __int64*)],
 	       [], [], [#include <intrin.h>])
 
+dnl Check for time functions.
+AC_CHECK_FUNCS([clock_gettime sleep nanosleep gettimeofday ftime])
+
 dnl Used by tests/harness/testsuite.cc
 AC_CHECK_FUNCS([sigaction])
 dnl These can be macros (and sigsetjmp is with glibc at least).
