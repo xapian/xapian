@@ -153,7 +153,9 @@ noinst_HEADERS = omega.h query.h cgiparam.h index_file.h mime.h\
 
 # headers maintained in xapian-core
 noinst_HEADERS +=\
+	common/alignment_cast.h\
 	common/append_filename_arg.h\
+	common/closefrom.h\
 	common/gnu_getopt.h\
 	common/keyword.h\
 	common/msvc_dirent.h\
@@ -205,7 +207,7 @@ omindex_SOURCES = omindex.cc myhtmlparse.cc htmlparse.cc index_file.cc mime.cc\
  runfilter.cc freemem.cc common/msvc_dirent.cc xpsxmlparse.cc common/str.cc\
  pkglibbindir.cc svgparse.cc tmpdir.cc urlencode.cc atomparse.cc xlsxparse.cc\
  opendocparse.cc common/keyword.cc msxmlparse.cc common/safe.cc timegm.cc\
- datetime.cc
+ datetime.cc common/closefrom.cc
 if NEED_MKDTEMP
 omindex_SOURCES += portability/mkdtemp.cc
 endif
