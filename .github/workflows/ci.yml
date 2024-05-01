@@ -1105,6 +1105,10 @@ jobs:
         make -j3 -C xapian-applications/omega check
         make -j3 -C xapian-bindings check
         make -j3 -C xapian-letor check
+    - uses: actions/upload-artifact@v4
+      with:
+        path: |
+          **/config.log
 
   mingw64-i686-cross:
     runs-on: 'ubuntu-22.04'
