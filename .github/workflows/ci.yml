@@ -1105,10 +1105,13 @@ jobs:
         make -j3 -C xapian-applications/omega check
         make -j3 -C xapian-bindings check
         make -j3 -C xapian-letor check
-    - uses: actions/upload-artifact@v4
+    - name: Save log files
+      if: ${{ failure() }}
+      uses: actions/upload-artifact@v4
       with:
         path: |
-          **/config.log
+          **/*.log
+          !**/testdata/**
 
   mingw64-i686-cross:
     runs-on: 'ubuntu-22.04'
