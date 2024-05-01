@@ -785,6 +785,8 @@ jobs:
       if: ${{ failure() }}
       uses: actions/upload-artifact@v4
       with:
+        name: logs-${{ github.job }}-${{ github.sha }}
+        overwrite: true
         path: |
           **/*.log
           !**/testdata/**
