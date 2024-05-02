@@ -24,8 +24,8 @@
 #include "handler.h"
 #include "str.h"
 
-#include <poppler/glib/poppler-document.h>
-#include <poppler/glib/poppler-page.h>
+#include <poppler-document.h>
+#include <poppler-page.h>
 
 using namespace std;
 
