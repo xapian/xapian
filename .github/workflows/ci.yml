@@ -757,13 +757,13 @@ jobs:
       run: |
         export CC='ccache gcc'
         export CXX='ccache g++'
-        export PKG_CONFIG_PATH=/usr/local/opt/icu4c/lib/pkgconfig
+        export PKG_CONFIG_PATH="$(brew --prefix icu4c)/lib/pkgconfig"
         pushd xapian-core
         ./configure --enable-werror --prefix='${{ runner.temp }}/XapianInstall'
         export XAPIAN_CONFIG=$PWD/xapian-config
         popd
         pushd xapian-applications/omega
-        ./configure --enable-werror --with-libiconv-prefix=/usr/local/opt/libiconv
+        ./configure --enable-werror --with-libiconv-prefix="$(brew --prefix libiconv)"
         popd
         pushd xapian-bindings
         ./configure --enable-werror
