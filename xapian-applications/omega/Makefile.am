@@ -113,7 +113,7 @@ AM_CPPFLAGS = \
 	-DCONFIGFILE_SYSTEM=\"$(sysconfdir)/omega.conf\" \
 	-DPKGLIBBINDIR=\"$(pkglibbindir)\"
 AM_CXXFLAGS += $(WERROR)
-AM_CXXFLAGS += $(XAPIAN_CXXFLAGS)
+AM_CXXFLAGS += $(XAPIAN_CXXFLAGS) $(MAGIC_CFLAGS)
 
 pkglibbindir = $(pkglibdir)/bin
 pkglibbin_PROGRAMS = omega
@@ -177,7 +177,7 @@ noinst_HEADERS +=\
 	common/str.h\
 	common/stringutils.h
 
-AM_LDFLAGS = $(NO_UNDEFINED) $(MAGIC_LDFLAGS)
+AM_LDFLAGS = $(NO_UNDEFINED)
 
 # We want to compile transform.cc with PCRE2_CFLAGS, but if this adds a -I for
 # a directory with a different version of iconv, then we get problems (this
