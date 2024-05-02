@@ -1053,7 +1053,6 @@ jobs:
             libabw \
             libarchive \
             libcdr \
-            libeatmydata \
             libetonyek \
             libextractor \
             libiconv \
@@ -1067,6 +1066,11 @@ jobs:
             pygments \
             python \
             sphinx-doc
+        # libeatmydata doesn't currently actually do anything on macOS:
+        # https://github.com/stewartsmith/libeatmydata/issues/34
+        # It's also started failing to even run in homebrew so don't install
+        # for now.
+        #
         # homebrew tesseract 5.2.0 only extracts "ee" from img/Test1.gif (5.1.0
         # worked).
         # tesseract
@@ -1074,8 +1078,6 @@ jobs:
       run: |
         export CC='ccache gcc'
         export CXX='ccache g++'
-        # Workaround for https://github.com/Homebrew/homebrew-core/issues/136873
-        export EATMYDATA=$(brew --prefix libeatmydata)/bin/eatmydata
         export PKG_CONFIG_PATH=/usr/local/opt/icu4c/lib/pkgconfig
         pushd xapian-core
         ./configure --enable-werror --prefix='${{ runner.temp }}/XapianInstall'
