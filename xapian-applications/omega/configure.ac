@@ -186,24 +186,6 @@ dnl See if we have closefrom(), or some functions that are useful to implement
 dnl closefrom() on platforms which don't provide it.
 AC_CHECK_FUNCS([closefrom getdirentries getrlimit])
 
-dnl libmagic used to detect MIME types for files we don't detect by extension.
-AC_CHECK_HEADERS([magic.h])
-if test $ac_cv_header_magic_h != yes ; then
-  if test -r /etc/debian_version ; then
-    pkg="libmagic-dev"
-  else
-    pkg="file-devel (or maybe libmagic-devel)"
-  fi
-  AC_MSG_ERROR([libmagic required but magic.h not found.  If you're installing from packages, you probably need to install a package called something like $pkg in order to be able to build $PACKAGE_NAME.])
-fi
-
-dnl On mingw there are several dependent libraries, so AC_CHECK_LIB would
-dnl fail - we'd have to use LT_OUTPUT and then perform the test link with
-dnl libtool, but we've checked for magic.h, so checking the library would
-dnl not really gain us much - we know it is -lmagic.
-MAGIC_LIBS=-lmagic
-AC_SUBST([MAGIC_LIBS])
-
 if test $ac_cv_func_ftime = yes ; then
   dnl See if ftime returns void (as it does on mingw)
   AC_MSG_CHECKING([return type of ftime])
@@ -392,6 +374,37 @@ if test x"$enable_documentation" = xyes; then
   test -z "$RST2HTML" && AC_MSG_ERROR([rst2html is required to build documentation])
 fi
 
+AC_ARG_VAR(PKG_CONFIG, [Location of pkg-config])
+AC_PATH_TOOL(PKG_CONFIG, [pkg-config], [])
+
+dnl libmagic used to detect MIME types for files we don't detect by extension.
+MAGIC_LIBS=
+if test -n "$PKG_CONFIG" ; then
+  MAGIC_CFLAGS=`$PKG_CONFIG libmagic --cflags 2>/dev/null`
+  MAGIC_LIBS=`$PKG_CONFIG libmagic --libs 2>/dev/null`
+fi
+if test -z "$MAGIC_LIBS" ; then
+  MAGIC_CFLAGS=
+  AC_CHECK_HEADERS([magic.h])
+  if test $ac_cv_header_magic_h = yes ; then
+    dnl On mingw there are several dependent libraries, so AC_CHECK_LIB would
+    dnl fail - we'd have to use LT_OUTPUT and then perform the test link with
+    dnl libtool, but we've checked for magic.h, so checking the library would
+    dnl not really gain us much - we know it is -lmagic.
+    MAGIC_LIBS=-lmagic
+  fi
+fi
+if test -z "$MAGIC_LIBS" ; then
+  if test -r /etc/debian_version ; then
+    pkg="libmagic-dev"
+  else
+    pkg="file-devel (or maybe libmagic-devel)"
+  fi
+  AC_MSG_ERROR([libmagic required but development files not found.  If you're installing from packages, you probably need to install a package called something like $pkg in order to be able to build $PACKAGE_NAME.])
+fi
+AC_SUBST([MAGIC_CFLAGS])
+AC_SUBST([MAGIC_LIBS])
+
 pcre_runtime_installed() {
   dnl Simple check to see if the problem is likely to be that we're using a
   dnl "packaged" pcre but only have the runtime package installed.
@@ -412,8 +425,6 @@ pcre_runtime_installed() {
 PCRE2_LIBS_FLAG=--libs8
 AC_ARG_VAR(PCRE2_CONFIG, [Location of pcre2-config])
 if test -z "$PCRE2_CONFIG" ; then
-  AC_ARG_VAR(PKG_CONFIG, [Location of pkg-config])
-  AC_PATH_TOOL(PKG_CONFIG, [pkg-config])
   if test -n "$PKG_CONFIG" ; then
     pcre_try="$PKG_CONFIG libpcre2-8"
     if $pcre_try 2>/dev/null ; then
