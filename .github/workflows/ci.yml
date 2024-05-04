@@ -1015,9 +1015,6 @@ jobs:
 
   macos:
     runs-on: 'macos-latest'
-    env:
-      # FIXME: Should be /usr/local/lib/libextractor for intel macOS
-      LIBEXTRACTOR_PREFIX: '/opt/homebrew/lib/libextractor'
     needs: makedist
     steps:
     - name: Install CCache
@@ -1044,7 +1041,6 @@ jobs:
         popd
     - name: Install package dependencies
       run: |
-        env | sort
         # Workaround apparent homebrew bug 2024-01-17
         rm -f /usr/local/bin/2to3-3.* /usr/local/bin/idle3.* /usr/local/bin/pydoc3.* /usr/local/bin/python3.* /usr/local/bin/python3.*-config
         rm -f /usr/local/bin/2to3 /usr/local/bin/idle3 /usr/local/bin/pydoc3 /usr/local/bin/python3 /usr/local/bin/python3-config
@@ -1103,6 +1099,7 @@ jobs:
         make -j3 -C xapian-letor
     - name: Run tests
       run: |
+        export LIBEXTRACTOR_PREFIX=${HOMEBREW_PREFIX:-/usr/local}/lib/libextractor
         export AUTOMATED_TESTING=1
         export VERBOSE=1
         make -j3 -C xapian-core check
