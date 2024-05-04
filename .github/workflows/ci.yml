@@ -743,12 +743,14 @@ jobs:
             libiconv \
             libmagic \
             lua \
-            mono-mdk \
             pcre2 \
             pkgconfig \
             pygments \
             python \
             sphinx-doc
+        # mono-mdk: "make check" fails on aarch64 macos-latest (but works on
+        # x86_64 macos-12 and macos-13).  Last checked 2024-05-05.
+        #
         # libeatmydata doesn't currently actually do anything on macOS:
         # https://github.com/stewartsmith/libeatmydata/issues/34
         # It's also started failing to even run in homebrew so don't install
