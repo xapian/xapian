@@ -97,8 +97,6 @@ jobs:
 
   clang-santisers:
     runs-on: 'ubuntu-latest'
-    env:
-      LIBEXTRACTOR_PREFIX: '/usr/lib/x86_64-linux-gnu/libextractor'
     needs: makedist
     steps:
     - name: Install CCache
@@ -134,22 +132,7 @@ jobs:
             python3-dev \
             tcl \
             tcl-dev \
-            libicu-dev \
-            pkg-config \
-            libpoppler-glib-dev \
-            libglib2.0-dev \
-            libe-book-dev \
-            libetonyek-dev \
-            libgepub-0.6-dev \
-            libgmime-3.0-dev \
-            libarchive-dev \
-            libabw-dev \
-            libcdr-dev \
-            libextractor-dev \
-            libmwaw-dev \
-            libreofficekit-dev libreoffice-calc libreoffice-draw libreoffice-impress libreoffice-writer \
-            libtesseract-dev \
-            tesseract-ocr-eng
+            pkg-config
     - name: configure
       run: |
         # We use clang here because (at least currently) it supports a few
@@ -664,8 +647,6 @@ jobs:
   debian-stable:
     runs-on: 'ubuntu-latest'
     container: debian:stable
-    env:
-      LIBEXTRACTOR_PREFIX: '/usr/lib/x86_64-linux-gnu/libextractor'
     needs: makedist
     steps:
     - name: Install package dependencies
