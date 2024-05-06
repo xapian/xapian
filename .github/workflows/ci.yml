@@ -1087,7 +1087,10 @@ jobs:
         ./configure --enable-werror --with-libiconv-prefix="$(brew --prefix libiconv)"
         popd
         pushd xapian-bindings
-        ./configure --enable-werror
+        # Homebrew package mono-mdk-for-visual-studio is pre-installed in the
+        # image so we need to select the bindings we want except for csharp
+        # as that currently fails on aarch64 macos.
+        ./configure --enable-werror --with-java --with-lua --with-perl --with-ruby
         popd
         pushd xapian-letor
         ./configure --enable-werror
