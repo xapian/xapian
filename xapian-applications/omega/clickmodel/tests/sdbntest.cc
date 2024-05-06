@@ -60,9 +60,9 @@ almost_equal(double x, double y, double epsilon = 0.001) {
 int main() {
     string srcdir = get_srcdir();
 
-    string sample_log1 = srcdir + "/clickmodel/testdata/test1.log";
-    string sample_log2 = srcdir + "/clickmodel/testdata/test2.log";
-    string sample_log3 = srcdir + "/clickmodel/testdata/test3.log";
+    string sample_log1 = srcdir + "/clickmodel/testdata/clicklog1";
+    string sample_log2 = srcdir + "/clickmodel/testdata/clicklog2";
+    string sample_log3 = srcdir + "/clickmodel/testdata/clicklog3";
 
     sessions_testcase sessions_tests[] = {
 	{sample_log1, {"821f03288846297c2cf43c34766a38f7",

@@ -1119,7 +1119,6 @@ jobs:
         overwrite: true
         path: |
           **/*.log
-          !**/testdata/**
 
   mingw64-i686-cross:
     runs-on: 'ubuntu-22.04'

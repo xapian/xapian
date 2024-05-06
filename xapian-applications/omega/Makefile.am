@@ -59,9 +59,9 @@ EXTRA_PROGRAMS =\
 	omindex_libreofficekit
 
 EXTRA_DIST =\
-	clickmodel/testdata/test1.log\
-	clickmodel/testdata/test2.log\
-	clickmodel/testdata/test3.log\
+	clickmodel/testdata/clicklog1\
+	clickmodel/testdata/clicklog2\
+	clickmodel/testdata/clicklog3\
 	common/Tokeniseise.pm \
 	extra/omegascript.vim \
 	extra/omegascript.vim.in \
