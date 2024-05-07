@@ -4,7 +4,7 @@
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 James Aylett
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002-2023 Olly Betts
+ * Copyright 2002-2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -127,6 +127,51 @@ parse_db_params(const pair<IT, IT>& dbs)
 	    p = q + 1;
 	}
     }
+}
+
+#define FILTER_CODE \
+    "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_-"
+
+template<typename T>
+static void
+filters_encode_uint(T v)
+{
+    do {
+	if (v >= 64)
+	    filters += ' ';
+	filters += FILTER_CODE[v & 63];
+	v >>= 6;
+    } while (v);
+}
+
+static void
+filters_append(const string& bterm, const string* prev)
+{
+    auto reuse = prev ? common_prefix_length(*prev, bterm) : 0u;
+    if (prev)
+	filters_encode_uint(reuse);
+    filters_encode_uint(bterm.size() - reuse);
+    filters.append(bterm, reuse);
+
+    auto e = bterm.find(filter_sep);
+    if (usual(e == string::npos)) {
+	old_filters += bterm;
+    } else {
+	// For old_filters, we don't try to reuse part of the previous term,
+	// and if a filter contains filter_sep then we double it to escape.
+	// Each filter must start with an alnum (checked before we get called)
+	// and the value after the last filter is the default op, which is
+	// encoded as a non-alnum so filter_sep followed by something other
+	// than filter_sep must be separating filters.
+	string::size_type b = 0;
+	while (e != string::npos) {
+	    old_filters.append(bterm, b, e + 1 - b);
+	    b = e;
+	    e = bterm.find(filter_sep, b + 1);
+	}
+	old_filters.append(bterm, b, string::npos);
+    }
+    old_filters += filter_sep;
 }
 
 int main(int argc, char *argv[])
@@ -312,29 +357,41 @@ try {
 	    }
 	}
 	sort(filter_v.begin(), filter_v.end());
-	vector<string>::const_iterator j;
-	for (j = filter_v.begin(); j != filter_v.end(); ++j) {
-	    const string & bterm = *j;
-	    string::size_type e = bterm.find(filter_sep);
-	    if (usual(e == string::npos)) {
-		filters += bterm;
-	    } else {
-		// If a filter contains filter_sep then double it to escape.
-		// Each filter must start with an alnum (checked above) and
-		// the value after the last filter is the default op, which
-		// is encoded as a non-alnum so filter_sep followed by
-		// something other than filter_sep must be separating filters.
-		string::size_type b = 0;
-		while (e != string::npos) {
-		    filters.append(bterm, b, e + 1 - b);
-		    b = e;
-		    e = bterm.find(filter_sep, b + 1);
-		}
-		filters.append(bterm, b, string::npos);
-	    }
-	    filters += filter_sep;
+	const string* prev = NULL;
+	for (const string& bterm : filter_v) {
+	    filters_append(bterm, prev);
+	    prev = &bterm;
 	}
     }
+
+    // Current filters format:
+    //
+    // [<encoded length><boolean filter term>]*
+    // ['!'[<encoded length><negated boolean filter term>]*]?
+    // ['.'<collapse key>]?
+    // ['$'<encoded date range slot (omitted for term-based)>?
+    //     ['!'<date start>]?
+    //     ['.'<date end>]?
+    //     ['~'<date span>]?
+    // [['-'?<sort key>[['-'|'+']<sort key>]+]|<sort key>|]?
+    // <encoded integer of default_op, docid_order, sort_after, sort_reverse>
+    //
+    // (filter terms in ascending byte sorted order, and with second and
+    // subsequent actually stored as <reuse character><tail>)
+    //
+    // old_filters format:
+    //
+    // [<boolean filter term with any '~' escaped to '~~'>'~']*
+    // ['!'<negated boolean filter term with any '~' escaped to '~~'>'~']*
+    // ['$'<date range slot>'$'<date start>'$'<date end>'$'<date span>]*
+    // ['.'|'-']   ; default_op AND vs OR
+    // <date start>'~'<date end>'~'<date span>['~'<date value slot>]?
+    // ['~'<collapse key>]?   ; present if <collapse key> non-empty or
+    //                        ; previous element present
+    // ['D'|'X']? ; 'D' for docid_order DESCENDING; 'X' for DONT_CARE.
+    // [['-'?<sort key>[['-'|'+']<sort key>]+]|<sort key>]? ['R'|'F'|'f']?
+    //
+    // (filter terms in ascending byte sorted order)
 
     // set any negated boolean filters
     g = cgi_params.equal_range("N");
@@ -348,29 +405,29 @@ try {
 		filter_v.push_back(v);
 	    }
 	}
-	sort(filter_v.begin(), filter_v.end());
-	vector<string>::const_iterator j;
-	for (j = filter_v.begin(); j != filter_v.end(); ++j) {
-	    const string & nterm = *j;
-	    string::size_type e = nterm.find(filter_sep);
+	if (!filter_v.empty()) {
 	    filters += '!';
-	    if (usual(e == string::npos)) {
-		filters += nterm;
-	    } else {
-		// If a filter contains filter_sep then double it to escape.
-		// Each filter must start with an alnum (checked above) and
-		// the value after the last filter is the default op, which
-		// is encoded as a non-alnum so filter_sep followed by
-		// something other than filter_sep must be separating filters.
-		string::size_type b = 0;
-		while (e != string::npos) {
-		    filters.append(nterm, b, e + 1 - b);
-		    b = e;
-		    e = nterm.find(filter_sep, b + 1);
-		}
-		filters.append(nterm, b, string::npos);
+	    sort(filter_v.begin(), filter_v.end());
+	    const string* prev = NULL;
+	    for (const string& nterm : filter_v) {
+		old_filters += '!';
+		filters_append(nterm, prev);
+		prev = &nterm;
 	    }
-	    filters += filter_sep;
+	}
+    }
+
+    // collapsing
+    val = cgi_params.find("COLLAPSE");
+    if (val != cgi_params.end()) {
+	const string& v = val->second;
+	if (!v.empty()) {
+	    if (!parse_unsigned(val->second.c_str(), collapse_key)) {
+		throw "COLLAPSE parameter must be >= 0";
+	    }
+	    collapse = true;
+	    filters += '.';
+	    filters_encode_uint(collapse_key);
 	}
     }
 
@@ -418,47 +475,73 @@ try {
 	    date_ranges[slot].span = v;
 	}
     }
-    for (auto i : date_ranges) {
-	auto slot = i.first;
-	auto r = i.second;
-	add_date_filter(r.start, r.end, r.span, slot);
-	filters += '$';
-	filters += str(slot);
-	filters += '$';
-	filters += r.start;
-	filters += '$';
-	filters += r.end;
-	filters += '$';
-	filters += r.span;
-    }
 
     string date_start, date_end, date_span;
+    val = cgi_params.find("START");
+    if (val != cgi_params.end()) {
+	date_start = val->second;
+    }
+    val = cgi_params.find("END");
+    if (val != cgi_params.end()) {
+	date_end = val->second;
+    }
+    val = cgi_params.find("SPAN");
+    if (val != cgi_params.end()) {
+	date_span = val->second;
+    }
     val = cgi_params.find("DATEVALUE");
     Xapian::valueno date_value_slot = Xapian::BAD_VALUENO;
     if (val != cgi_params.end() &&
 	!parse_unsigned(val->second.c_str(), date_value_slot)) {
 	throw "DATEVALUE slot must be >= 0";
     }
-    // Process DATEVALUE=n and associated values unless we saw START.n=...
-    // or END.n=... or SPAN.n=...
-    if (date_ranges.find(date_value_slot) == date_ranges.end()) {
-	val = cgi_params.find("START");
-	if (val != cgi_params.end()) date_start = val->second;
-	val = cgi_params.find("END");
-	if (val != cgi_params.end()) date_end = val->second;
-	val = cgi_params.find("SPAN");
-	if (val != cgi_params.end()) date_span = val->second;
-	add_date_filter(date_start, date_end, date_span, date_value_slot);
+    if (date_value_slot != Xapian::BAD_VALUENO ||
+	!date_start.empty() ||
+	!date_end.empty() ||
+	!date_span.empty()) {
+	// Process DATEVALUE=n and associated values unless we saw START.n=...
+	// or END.n=... or SPAN.n=...
+	date_ranges.emplace(date_value_slot,
+			    date_range{date_start, date_end, date_span});
+    }
+    for (auto i : date_ranges) {
+	auto slot = i.first;
+	auto r = i.second;
+	add_date_filter(r.start, r.end, r.span, slot);
+	filters += '$';
+	if (slot != Xapian::BAD_VALUENO) {
+	    filters_encode_uint(slot);
+	    if (slot != date_value_slot) {
+		old_filters += '$';
+		old_filters += str(slot);
+		old_filters += '$';
+		old_filters += r.start;
+		old_filters += '$';
+		old_filters += r.end;
+		old_filters += '$';
+		old_filters += r.span;
+	    }
+	}
+	if (!r.start.empty()) {
+	    filters += '!';
+	    filters += r.start;
+	}
+	if (!r.end.empty()) {
+	    filters += '.';
+	    filters += r.end;
+	}
+	if (!r.span.empty()) {
+	    filters += '~';
+	    filters += r.span;
+	}
     }
 
-    // If more default_op values are supported, encode them as non-alnums
-    // other than filter_sep, '!' or '$'.
-    filters += (default_op == Xapian::Query::OP_AND ? '.' : '-');
-    filters += date_start;
-    filters += filter_sep;
-    filters += date_end;
-    filters += filter_sep;
-    filters += date_span;
+    old_filters += (default_op == Xapian::Query::OP_AND ? '.' : '-');
+    old_filters += date_start;
+    old_filters += filter_sep;
+    old_filters += date_end;
+    old_filters += filter_sep;
+    old_filters += date_span;
     if (date_value_slot != Xapian::BAD_VALUENO) {
 	// This means we'll force the first page when reloading or changing
 	// page starting from existing URLs upon upgrade to 1.4.1, but the
@@ -466,8 +549,8 @@ try {
 	// filter where we want to force the first page, so there's an inherent
 	// ambiguity there.  Forcing first page in this case seems the least
 	// problematic side-effect.
-	filters += filter_sep;
-	filters += str(date_value_slot);
+	old_filters += filter_sep;
+	old_filters += str(date_value_slot);
     }
 
     // Percentage relevance cut-off
@@ -489,23 +572,13 @@ try {
 	}
     }
 
-    // collapsing
-    val = cgi_params.find("COLLAPSE");
-    if (val != cgi_params.end()) {
-	const string & v = val->second;
-	if (!v.empty()) {
-	    if (!parse_unsigned(val->second.c_str(), collapse_key)) {
-		throw "COLLAPSE parameter must be >= 0";
-	    }
-	    collapse = true;
-	    filters += filter_sep;
-	    filters += str(collapse_key);
-	}
-    }
-    if (!collapse && date_value_slot != Xapian::BAD_VALUENO) {
+    if (collapse) {
+	old_filters += filter_sep;
+	old_filters += str(collapse_key);
+    } else if (date_value_slot != Xapian::BAD_VALUENO) {
 	// We need to either omit filter_sep for both or neither, or else the
 	// encoding is ambiguous.
-	filters += filter_sep;
+	old_filters += filter_sep;
     }
 
     // docid order
@@ -516,16 +589,16 @@ try {
 	    char ch = v[0];
 	    if (ch == 'D') {
 		docid_order = Xapian::Enquire::DESCENDING;
-		filters += 'D';
+		old_filters += 'D';
 	    } else if (ch != 'A') {
 		docid_order = Xapian::Enquire::DONT_CARE;
 	    } else {
-		// This is a bug (should add nothing here and 'X' in the (ch !=
-		// 'A') case, but the current "DONT_CARE" implementation
-		// actually always results in ascending docid order so it's not
-		// worth breaking compatibility to fix - let's just do it next
-		// time we change the encoding $filters uses.
-		filters += 'X';
+		// This was a bug in the 1.4.x filter encoding (we should have
+		// added nothing here and 'X' in the `ch != 'A'` case), but the
+		// current "DONT_CARE" implementation actually always results
+		// in ascending docid order so it wasn't worth breaking
+		// compatibility in a stable release series to fix.
+		old_filters += 'X';
 	    }
 	}
     }
@@ -557,8 +630,12 @@ try {
 		// Multiple sort keys specified, so we need a KeyMaker.
 
 		// Omit leading '+'.
-		if (reverse_sort) filters += '-';
-		filters += str(sort_key);
+		if (reverse_sort) {
+		    filters += '-';
+		    old_filters += '-';
+		}
+		filters_encode_uint(sort_key);
+		old_filters += str(sort_key);
 
 		sort_keymaker = new Xapian::MultiValueKeyMaker;
 		sort_keymaker->add_value(sort_key, !reverse_sort);
@@ -568,7 +645,9 @@ try {
 
 	    if (sort_keymaker) {
 		filters += (rev ? '-' : '+');
-		filters += str(slot);
+		old_filters += (rev ? '-' : '+');
+		filters_encode_uint(slot);
+		old_filters += str(slot);
 		sort_keymaker->add_value(slot, !rev);
 	    } else {
 		sort_key = slot;
@@ -597,18 +676,44 @@ try {
 	}
 
 	// Add the sorting related options to filters too.
-	if (!sort_keymaker) filters += str(sort_key);
+	if (!sort_keymaker) {
+	    filters_encode_uint(sort_key);
+	    old_filters += str(sort_key);
+	}
 	if (sort_after) {
 	    if (reverse_sort) {
-		filters += 'R';
+		old_filters += 'R';
 	    } else {
-		filters += 'F';
+		old_filters += 'F';
 	    }
 	} else {
 	    if (!reverse_sort) {
-		filters += 'f';
+		old_filters += 'f';
 	    }
 	}
+    }
+
+    {
+	// Encode default_op, docid_order, reverse_sort and sort_after together
+	// in a single character.
+	unsigned v = 0;
+	switch (default_op) {
+	  case Xapian::Query::OP_AND:
+	    break;
+	  case Xapian::Query::OP_OR:
+	    v = 0x01 * 12;
+	    break;
+	  default:
+	    // Additional supported value should encode as:
+	    // 0x02 * 12
+	    // 0x03 * 12
+	    // ...
+	    break;
+	}
+	v |= 0x04 * static_cast<unsigned>(docid_order);
+	if (reverse_sort) v |= 0x01;
+	if (sort_after) v |= 0x02;
+	filters_encode_uint(v);
     }
 
     // min_hits (fill mset past topdoc+(hits_per_page+1) to

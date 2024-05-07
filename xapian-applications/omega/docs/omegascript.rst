@@ -210,13 +210,20 @@ $filesize{SIZE}
         Omega 1.4.x and earlier instead ignored anything after the initial part
         of ``SIZE`` which could be parsed as an integer value.
 
-$filters
+$filters[{WANTOLDFORMAT}]
         compact serialisation of filter-like settings (currently ``B``, ``N``,
         ``DATEVALUE``, ``START``, ``END``, ``SPAN``, ``START.``\ *SLOT*,
         ``END.``\ *SLOT*, ``SPAN.``\ *SLOT*, ``COLLAPSE``,
         ``DOCIDORDER``, ``SORT``, ``SORTREVERSE``, ``SORTAFTER``, and
         ``DEFAULTOP``) - set ``xFILTERS`` to this so that Omega can detect when
         the filters have changed and display the first page of results.
+
+        If an argument is supplied and non-empty, an older version of the filter
+        encoding is used instead.  Omega checks for either format in ``xFILTERS``
+        to allow the encoding to be improved over time, while keeping
+        compatibility with the previous release series.  This ability to get
+        the older format encoding is only intended for use in Omega's testsuite
+        and probably isn't useful otherwise.
 
 $filterterms{PREFIX}
         list of all terms in the database with prefix ``PREFIX``, intended to

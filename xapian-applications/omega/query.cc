@@ -1113,7 +1113,7 @@ T(eq,		   2, 2, N, 0), // test equality
 T(error,	   0, 0, N, 0), // error message
 T(field,	   1, 2, N, 0), // lookup field in record
 T(filesize,	   1, 1, N, 0), // pretty printed filesize
-T(filters,	   0, 0, N, 0), // serialisation of current filters
+T(filters,	   0, 1, N, 0), // serialisation of current filters
 T(filterterms,	   1, 1, N, 0), // list of terms with a given prefix
 T(find,		   2, 2, N, 0), // find entry in list
 T(fmt,		   0, 0, N, 0), // name of current format
@@ -1674,7 +1674,7 @@ eval(const string& fmt, vector<string>& param)
 		break;
 	    }
 	    case CMD_filters:
-		value = filters;
+		value = args.size() ? old_filters : filters;
 		break;
 	    case CMD_filterterms: {
 		Xapian::TermIterator term = db.allterms_begin();
