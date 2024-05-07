@@ -1,7 +1,7 @@
 /** @file
  *  @brief Xapian remote backend server base class
  */
-/* Copyright (C) 2006-2023 Olly Betts
+/* Copyright (C) 2006-2024 Olly Betts
  * Copyright (C) 2006,2007,2009,2010 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -234,6 +234,9 @@ RemoteServer::run()
 		    continue;
 		case MSG_SETMETADATA:
 		    msg_setmetadata(message);
+		    continue;
+		case MSG_REQUESTDOCUMENT:
+		    msg_requestdocument(message);
 		    continue;
 		case MSG_ADDSPELLING:
 		    msg_addspelling(message);
@@ -953,6 +956,20 @@ RemoteServer::msg_setmetadata(const string & message)
     }
     string val(p, p_end - p);
     wdb->set_metadata(key, val);
+
+    send_message(REPLY_DONE, string());
+}
+
+void
+RemoteServer::msg_requestdocument(const string& message)
+{
+    const char* p = message.data();
+    const char* p_end = p + message.size();
+    Xapian::docid did;
+    if (!unpack_uint_last(&p, p_end, &did)) {
+	throw Xapian::NetworkError("Bad MSG_REQUESTDOCUMENT");
+    }
+    db->internal->request_document(did);
 
     send_message(REPLY_DONE, string());
 }

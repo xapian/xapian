@@ -1,7 +1,7 @@
 /** @file
  *  @brief Remote backend database class
  */
-/* Copyright (C) 2006-2023 Olly Betts
+/* Copyright (C) 2006-2024 Olly Betts
  * Copyright (C) 2007,2009,2010 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -920,6 +920,16 @@ RemoteDatabase::set_metadata(const string & key, const string & value)
     pack_string(message, key);
     message += value;
     send_message(MSG_SETMETADATA, message);
+
+    get_message(message, REPLY_DONE);
+}
+
+void
+RemoteDatabase::request_document(Xapian::docid did) const
+{
+    string message;
+    pack_uint(message, did);
+    send_message(MSG_REQUESTDOCUMENT, message);
 
     get_message(message, REPLY_DONE);
 }

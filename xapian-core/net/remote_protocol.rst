@@ -1,7 +1,7 @@
 Remote Backend Protocol
 =======================
 
-This document describes *version 46.0* of the protocol used by Xapian's
+This document describes *version 46.1* of the protocol used by Xapian's
 remote backend. The major protocol version increased to 46 in Xapian
 1.5.0.
 
@@ -306,6 +306,12 @@ Metadata keys
 
 -  ``MSG_METADATAKEYLIST <prefix>``
 -  ``REPLY_METADATAKEYLIST [C<chars of previous term to reuse> S<string to append>]...``
+
+Request document
+----------------
+
+-  ``MSG_REQUESTDOCUMENT I<docid>``
+-  ``REPLY_DONE``
 
 Add spelling
 ------------

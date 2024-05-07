@@ -1,7 +1,7 @@
 /** @file
  *  @brief RemoteDatabase is the baseclass for remote database implementations.
  */
-/* Copyright (C) 2006-2023 Olly Betts
+/* Copyright (C) 2006-2024 Olly Betts
  * Copyright (C) 2007,2009,2010 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -302,6 +302,8 @@ class RemoteDatabase : public Xapian::Database::Internal {
     std::string get_metadata(const std::string& key) const;
 
     void set_metadata(const std::string& key, const std::string& value);
+
+    void request_document(Xapian::docid did) const;
 
     void add_spelling(const std::string& word, Xapian::termcount freqinc) const;
 

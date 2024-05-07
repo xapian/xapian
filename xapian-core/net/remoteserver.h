@@ -1,7 +1,7 @@
 /** @file
  *  @brief Xapian remote backend server base class
  */
-/* Copyright (C) 2006,2007,2008,2009,2010,2014,2017 Olly Betts
+/* Copyright (C) 2006-2024 Olly Betts
  * Copyright (C) 2007,2009,2010 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -193,6 +193,10 @@ class XAPIAN_VISIBILITY_DEFAULT RemoteServer : private RemoteConnection {
     // set metadata
     XAPIAN_VISIBILITY_INTERNAL
     void msg_setmetadata(const std::string & message);
+
+    // request a document (pre-fetch hint)
+    XAPIAN_VISIBILITY_INTERNAL
+    void msg_requestdocument(const std::string& message);
 
     // add a spelling
     XAPIAN_VISIBILITY_INTERNAL

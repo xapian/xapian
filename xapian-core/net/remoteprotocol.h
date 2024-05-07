@@ -1,7 +1,7 @@
 /** @file
  *  @brief Remote protocol version and message numbers
  */
-/* Copyright (C) 2006-2023 Olly Betts
+/* Copyright (C) 2006-2024 Olly Betts
  * Copyright (C) 2007,2010 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -57,9 +57,10 @@
 // 44: pre-1.5.0 pack_uint() now used; many other changes
 // 44.1: pre-1.5.0 MSG_RECONSTRUCTTEXT added
 // 45: pre-1.5.0 Remote support for sorters
-// 46: 1.5.0 Drop unused fields; front-code term names in serialised stats
+// 46: pre-1.5.0 Drop unused fields; front-code term names in serialised stats
+// 46.1: 1.5.0 MSG_REQUESTDOCUMENT added
 #define XAPIAN_REMOTE_PROTOCOL_MAJOR_VERSION 46
-#define XAPIAN_REMOTE_PROTOCOL_MINOR_VERSION 0
+#define XAPIAN_REMOTE_PROTOCOL_MINOR_VERSION 1
 
 /** Message types (client -> server).
  *
@@ -106,6 +107,7 @@ enum message_type {
     MSG_ADDSYNONYM,		// Add a synonym
     MSG_REMOVESYNONYM,		// Remove a synonym
     MSG_CLEARSYNONYMS,		// Clear synonyms for a term
+    MSG_REQUESTDOCUMENT,        // Request a document (pre-read hint)
     MSG_MAX
 };
 
