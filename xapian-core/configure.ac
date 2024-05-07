@@ -517,6 +517,22 @@ dnl Check how to find the hostname: uname() in sys/utsname.h, or gethostname()
 AC_CHECK_HEADERS([sys/utsname.h], [], [], [ ])
 AC_CHECK_FUNCS([gethostname])
 
+AC_MSG_CHECKING([whether std::from_chars() works for double])
+AC_LINK_IFELSE([AC_LANG_PROGRAM(
+dnl std::from_chars() was added in C++17, but support it with floating point
+dnl types was slow to get implemented so probe for it.  We can fall back to
+dnl using strtod() instead (which is affected by the currently set locale and
+dnl less thread-safe.
+[[#include <charconv>]],
+[[  const char* p = "3.14";
+  double v;
+  const auto& r = std::from_chars(p, p + 4, v);
+  if (r.ec != std::errc() || r.ptr != p + 4) return 1;]])],
+  AC_DEFINE([HAVE_STD_FROM_CHARS_DOUBLE], [1], [Define if std::from_chars() works for double])
+  AC_MSG_RESULT([yes]),
+  AC_MSG_RESULT([no])
+)
+
 dnl mingw (for instance) lacks ssize_t
 AC_TYPE_SSIZE_T
 

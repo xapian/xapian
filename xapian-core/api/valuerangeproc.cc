@@ -1,7 +1,7 @@
 /** @file
  * @brief Standard RangeProcessor subclass implementations
  */
-/* Copyright (C) 2007,2008,2009,2010,2012,2016,2018,2019 Olly Betts
+/* Copyright (C) 2007-2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,7 +23,11 @@
 #include <xapian/queryparser.h>
 
 #include <cerrno>
-#include <cstdlib> // For strtod().
+#ifdef HAVE_STD_FROM_CHARS_DOUBLE
+# include <charconv>
+#else
+# include <cstdlib> // For strtod().
+#endif
 
 #include <string>
 #include "stringutils.h"
@@ -249,6 +253,15 @@ NumberRangeProcessor::operator()(const string& b, const string& e)
     double num_b, num_e;
 
     if (!b.empty()) {
+#ifdef HAVE_STD_FROM_CHARS_DOUBLE
+	const char* startptr = b.data();
+	const char* endptr = startptr + b.size();
+	const auto& r = from_chars(startptr, endptr, num_b);
+	if (r.ec != std::errc() || r.ptr != endptr) {
+	    // Invalid characters in string || overflow or underflow.
+	    goto not_our_range;
+	}
+#else
 	errno = 0;
 	const char * startptr = b.c_str();
 	char * endptr;
@@ -257,12 +270,22 @@ NumberRangeProcessor::operator()(const string& b, const string& e)
 	    // Invalid characters in string || overflow or underflow.
 	    goto not_our_range;
 	}
+#endif
     } else {
 	// Silence GCC warning.
 	num_b = 0.0;
     }
 
     if (!e.empty()) {
+#ifdef HAVE_STD_FROM_CHARS_DOUBLE
+	const char* startptr = e.data();
+	const char* endptr = startptr + e.size();
+	const auto& r = from_chars(startptr, endptr, num_e);
+	if (r.ec != std::errc() || r.ptr != endptr) {
+	    // Invalid characters in string || overflow or underflow.
+	    goto not_our_range;
+	}
+#else
 	errno = 0;
 	const char * startptr = e.c_str();
 	char * endptr;
@@ -271,6 +294,7 @@ NumberRangeProcessor::operator()(const string& b, const string& e)
 	    // Invalid characters in string || overflow or underflow.
 	    goto not_our_range;
 	}
+#endif
     } else {
 	// Silence GCC warning.
 	num_e = 0.0;
@@ -314,6 +338,16 @@ UnitRangeProcessor::operator()(const string& b, const string& e)
     bool b_has_unit = false;
 
     if (!b.empty()) {
+#ifdef HAVE_STD_FROM_CHARS_DOUBLE
+	const char* startptr = b.data();
+	const char* endptr = startptr + b.size();
+	const auto& r = from_chars(startptr, endptr, num_b);
+	if (r.ec != std::errc()) {
+	    // Invalid characters in string || overflow or underflow.
+	    goto not_our_range;
+	}
+	endptr = r.ptr;
+#else
 	errno = 0;
 	const char * startptr = b.c_str();
 	char * endptr;
@@ -323,6 +357,7 @@ UnitRangeProcessor::operator()(const string& b, const string& e)
 	    // overflow or underflow
 	    goto not_our_range;
 	}
+#endif
 
 	// For lower range having a unit, e.g. 100K..
 	if (endptr == startptr + b.size() - 1) {
@@ -340,6 +375,16 @@ UnitRangeProcessor::operator()(const string& b, const string& e)
     }
 
     if (!e.empty()) {
+#ifdef HAVE_STD_FROM_CHARS_DOUBLE
+	const char* startptr = e.data();
+	const char* endptr = startptr + e.size();
+	const auto& r = from_chars(startptr, endptr, num_e);
+	if (r.ec != std::errc()) {
+	    // Invalid characters in string || overflow or underflow.
+	    goto not_our_range;
+	}
+	endptr = r.ptr;
+#else
 	errno = 0;
 	const char * startptr = e.c_str();
 	char * endptr;
@@ -349,6 +394,7 @@ UnitRangeProcessor::operator()(const string& b, const string& e)
 	    // overflow or underflow
 	    goto not_our_range;
 	}
+#endif
 
 	// For upper range having a unit, e.g. ..100K
 	if (endptr == startptr + e.size() - 1) {
