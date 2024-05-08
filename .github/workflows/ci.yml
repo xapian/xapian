@@ -795,6 +795,166 @@ jobs:
         path: |
           **/*.log
 
+  macos-13:
+    runs-on: 'macos-13'
+    needs: makedist
+    steps:
+    - name: Install CCache
+      uses: hendrikmuhs/ccache-action@v1
+      with:
+        key: ${{ github.job }}
+    - name: Fetch distribution
+      uses: actions/download-artifact@v4
+    - name: Unpack distribution
+      run: |
+        mv artifact/* .
+        rmdir artifact
+        pushd xapian-core
+        tar --strip-components=1 -xf xapian-core-*.tar.xz
+        popd
+        pushd xapian-applications/omega
+        tar --strip-components=1 -xf xapian-omega-*.tar.xz
+        popd
+        pushd xapian-bindings
+        tar --strip-components=1 -xf xapian-bindings-*.tar.xz
+        popd
+    - name: Install package dependencies
+      run: |
+        # Workaround apparent homebrew bug 2024-01-17
+        rm -f /usr/local/bin/2to3-3.* /usr/local/bin/idle3.* /usr/local/bin/pydoc3.* /usr/local/bin/python3.* /usr/local/bin/python3.*-config
+        rm -f /usr/local/bin/2to3 /usr/local/bin/idle3 /usr/local/bin/pydoc3 /usr/local/bin/python3 /usr/local/bin/python3-config
+        brew update
+        brew install \
+            libiconv \
+            libmagic \
+            lua \
+            mono-mdk \
+            pcre2 \
+            pkgconfig \
+            pygments \
+            python \
+            sphinx-doc
+        # libeatmydata doesn't currently actually do anything on macOS:
+        # https://github.com/stewartsmith/libeatmydata/issues/34
+        # It's also started failing to even run in homebrew so don't install
+        # for now.
+    - name: configure
+      run: |
+        export CC='ccache gcc'
+        export CXX='ccache g++'
+        export PKG_CONFIG_PATH="$(brew --prefix icu4c)/lib/pkgconfig"
+        pushd xapian-core
+        ./configure --enable-werror --prefix='${{ runner.temp }}/XapianInstall'
+        export XAPIAN_CONFIG=$PWD/xapian-config
+        popd
+        pushd xapian-applications/omega
+        ./configure --enable-werror --with-libiconv-prefix="$(brew --prefix libiconv)"
+        popd
+        pushd xapian-bindings
+        ./configure --enable-werror
+        popd
+    - name: make
+      run: |
+        make -j3 -C xapian-core
+        make -j3 -C xapian-core install
+        make -j3 -C xapian-applications/omega
+        make -j3 -C xapian-bindings
+    - name: Run tests
+      run: |
+        export AUTOMATED_TESTING=1
+        export VERBOSE=1
+        make -j3 -C xapian-core check
+        make -j3 -C xapian-applications/omega check
+        make -j3 -C xapian-bindings check
+    - name: Save log files
+      if: ${{ failure() }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: logs-${{ github.job }}-${{ github.sha }}
+        overwrite: true
+        path: |
+          **/*.log
+
+  macos-12:
+    runs-on: 'macos-12'
+    needs: makedist
+    steps:
+    - name: Install CCache
+      uses: hendrikmuhs/ccache-action@v1
+      with:
+        key: ${{ github.job }}
+    - name: Fetch distribution
+      uses: actions/download-artifact@v4
+    - name: Unpack distribution
+      run: |
+        mv artifact/* .
+        rmdir artifact
+        pushd xapian-core
+        tar --strip-components=1 -xf xapian-core-*.tar.xz
+        popd
+        pushd xapian-applications/omega
+        tar --strip-components=1 -xf xapian-omega-*.tar.xz
+        popd
+        pushd xapian-bindings
+        tar --strip-components=1 -xf xapian-bindings-*.tar.xz
+        popd
+    - name: Install package dependencies
+      run: |
+        # Workaround apparent homebrew bug 2024-01-17
+        rm -f /usr/local/bin/2to3-3.* /usr/local/bin/idle3.* /usr/local/bin/pydoc3.* /usr/local/bin/python3.* /usr/local/bin/python3.*-config
+        rm -f /usr/local/bin/2to3 /usr/local/bin/idle3 /usr/local/bin/pydoc3 /usr/local/bin/python3 /usr/local/bin/python3-config
+        brew update
+        brew install \
+            libiconv \
+            libmagic \
+            lua \
+            mono-mdk \
+            pcre2 \
+            pkgconfig \
+            pygments \
+            python \
+            sphinx-doc
+        # libeatmydata doesn't currently actually do anything on macOS:
+        # https://github.com/stewartsmith/libeatmydata/issues/34
+        # It's also started failing to even run in homebrew so don't install
+        # for now.
+    - name: configure
+      run: |
+        export CC='ccache gcc'
+        export CXX='ccache g++'
+        export PKG_CONFIG_PATH="$(brew --prefix icu4c)/lib/pkgconfig"
+        pushd xapian-core
+        ./configure --enable-werror --prefix='${{ runner.temp }}/XapianInstall'
+        export XAPIAN_CONFIG=$PWD/xapian-config
+        popd
+        pushd xapian-applications/omega
+        ./configure --enable-werror --with-libiconv-prefix="$(brew --prefix libiconv)"
+        popd
+        pushd xapian-bindings
+        ./configure --enable-werror
+        popd
+    - name: make
+      run: |
+        make -j3 -C xapian-core
+        make -j3 -C xapian-core install
+        make -j3 -C xapian-applications/omega
+        make -j3 -C xapian-bindings
+    - name: Run tests
+      run: |
+        export AUTOMATED_TESTING=1
+        export VERBOSE=1
+        make -j3 -C xapian-core check
+        make -j3 -C xapian-applications/omega check
+        make -j3 -C xapian-bindings check
+    - name: Save log files
+      if: ${{ failure() }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: logs-${{ github.job }}-${{ github.sha }}
+        overwrite: true
+        path: |
+          **/*.log
+
   mingw64-i686-cross:
     runs-on: 'ubuntu-22.04'
     needs: makedist
