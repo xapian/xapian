@@ -96,6 +96,8 @@ class Resolver {
 	if (host != "::1" && host != "127.0.0.1" && host != "localhost") {
 	    flags |= AI_ADDRCONFIG;
 	}
+	// Not defined on older macOS (such as 10.5 which Apple no longer
+	// support but newer versions no longer support PowerPC Macs).
 #ifdef AI_NUMERICSERV
 	flags |= AI_NUMERICSERV;
 #endif
