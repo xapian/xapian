@@ -62,6 +62,9 @@ Languages Supported Elsewhere
 Erlang		Available from:
 		https://github.com/arcusfelis/xapian-erlang-bindings/#readme
 
+Guile		Available from:
+		https://guile-xapian.systemreboot.net/
+
 Node.js		Available from:
 		https://github.com/mtibeica/node-xapian#readme
 
