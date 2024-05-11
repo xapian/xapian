@@ -132,10 +132,6 @@ Go		There are some basic Go bindings written by Marius Tibeica in
 Ocaml		Dan Colish did some initial work on Ocaml support -
 		see: https://trac.xapian.org/ticket/588
 
-Guile		rm@fabula.de did some work on getting Guile bindings working,
-		but sadly most of this was lost when his laptop's hard disk
-		died.
-
 Pike		Bill Welliver has written some Pike bindings for Xapian
 		covering some of the API, which are available from here:
 		http://modules.gotpike.org/module/Public.Xapian?selected=1.10
