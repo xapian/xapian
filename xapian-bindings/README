@@ -68,5 +68,8 @@ Guile		Available from:
 Node.js		Available from:
 		https://github.com/mtibeica/node-xapian#readme
 
+R		Available from:
+		https://github.com/amandaJayanetti/RXapian#readme
+
 If you're interest in getting other languages supported, see the "Adding
 support for other programming languages" section in the file HACKING.
