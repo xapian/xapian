@@ -11,6 +11,8 @@ AC_CONFIG_HEADERS([config.h])
 
 AC_CONFIG_MACRO_DIRS([m4])
 
+AM_PROG_AR
+
 dnl The AM_ICONV macro requires a stack of macros including AC_LIB_PROG_LD,
 dnl which is just a copy of libtool's LT_PATH_LD with the name changed.
 dnl We will already have run LT_PATH_LD, so make AC_LIB_PROG_LD a no-op
