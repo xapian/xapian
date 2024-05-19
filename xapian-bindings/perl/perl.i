@@ -435,7 +435,7 @@ class perl##CLASS : public NS::CLASS {
 	SvREFCNT_dec(callback);
     }
 
-    bool operator()(const std::string &term) const {
+    bool operator()(const std::string& term) const override {
 	dSP;
 
 	ENTER;
@@ -484,7 +484,7 @@ class perlMatchDecider : public Xapian::MatchDecider {
 	SvREFCNT_dec(callback);
     }
 
-    bool operator()(const Xapian::Document &doc) const {
+    bool operator()(const Xapian::Document& doc) const override {
 	dSP;
 
 	ENTER;
@@ -527,7 +527,7 @@ class perlStemImplementation : public Xapian::StemImplementation {
 	SvREFCNT_dec(callback);
     }
 
-    std::string operator()(const std::string& word) {
+    std::string operator()(const std::string& word) override {
 	dSP;
 
 	ENTER;
@@ -578,7 +578,7 @@ class perlKeyMaker : public Xapian::KeyMaker {
 	SvREFCNT_dec(callback);
     }
 
-    std::string operator()(const Xapian::Document &doc) const {
+    std::string operator()(const Xapian::Document& doc) const override {
 	dSP;
 
 	ENTER;
@@ -624,7 +624,8 @@ class perlRangeProcessor : public Xapian::RangeProcessor {
 	SvREFCNT_dec(callback);
     }
 
-    Xapian::Query operator()(const std::string& begin, const std::string& end) {
+    Xapian::Query operator()(const std::string& begin,
+			     const std::string& end) override {
 	dSP;
 
 	ENTER;
@@ -685,7 +686,7 @@ class perlFieldProcessor : public Xapian::FieldProcessor {
 	SvREFCNT_dec(callback);
     }
 
-    Xapian::Query operator()(const std::string &str) {
+    Xapian::Query operator()(const std::string& str) override {
 	dSP;
 
 	ENTER;
@@ -743,7 +744,7 @@ class perlMatchSpy : public Xapian::MatchSpy {
 	SvREFCNT_dec(callback);
     }
 
-    void operator()(const Xapian::Document &doc, double wt) {
+    void operator()(const Xapian::Document& doc, double wt) override {
 	dSP;
 
 	ENTER;
