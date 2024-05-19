@@ -66,7 +66,7 @@ class lua##CLASS : public NS::CLASS {
 	luaL_unref(L, LUA_REGISTRYINDEX, r);
     }
 
-    bool operator()(const std::string &term) const {
+    bool operator()(const std::string& term) const override {
 	lua_rawgeti(L, LUA_REGISTRYINDEX, r);
 	if (!lua_isfunction(L, -1)) {
 	    luaL_typerror(L, -1, "function");
@@ -109,7 +109,7 @@ class luaMatchDecider : public Xapian::MatchDecider {
 	luaL_unref(L, LUA_REGISTRYINDEX, r);
     }
 
-    bool operator()(const Xapian::Document &doc) const {
+    bool operator()(const Xapian::Document& doc) const override {
 	lua_rawgeti(L, LUA_REGISTRYINDEX, r);
 	if (!lua_isfunction(L, -1)) {
 	    luaL_typerror(L, -1, "function");
@@ -147,7 +147,7 @@ class luaStemImplementation : public Xapian::StemImplementation {
 	luaL_unref(L, LUA_REGISTRYINDEX, r);
     }
 
-    std::string operator()(const std::string &word) {
+    std::string operator()(const std::string& word) override {
 	lua_rawgeti(L, LUA_REGISTRYINDEX, r);
 	if (!lua_isfunction(L, -1)) {
 	    luaL_typerror(L, -1, "function");
@@ -207,7 +207,7 @@ class luaKeyMaker : public Xapian::KeyMaker {
 	luaL_unref(L, LUA_REGISTRYINDEX, r);
     }
 
-    std::string operator()(const Xapian::Document &doc) const {
+    std::string operator()(const Xapian::Document& doc) const override {
 	lua_rawgeti(L, LUA_REGISTRYINDEX, r);
 	if (!lua_isfunction(L, -1)) {
 	    luaL_typerror(L, -1, "function");
@@ -247,7 +247,8 @@ class luaRangeProcessor : public Xapian::RangeProcessor {
 	luaL_unref(L, LUA_REGISTRYINDEX, r);
     }
 
-    Xapian::Query operator()(const std::string& begin, const std::string& end) {
+    Xapian::Query operator()(const std::string& begin,
+			     const std::string& end) override {
 	lua_rawgeti(L, LUA_REGISTRYINDEX, r);
 	if (!lua_isfunction(L, -1)) {
 	    luaL_typerror(L, -1, "function");
@@ -341,7 +342,7 @@ class luaFieldProcessor : public Xapian::FieldProcessor {
 	luaL_unref(L, LUA_REGISTRYINDEX, r);
     }
 
-    Xapian::Query operator()(const std::string &str) {
+    Xapian::Query operator()(const std::string& str) override {
 	lua_rawgeti(L, LUA_REGISTRYINDEX, r);
 	if (!lua_isfunction(L, -1)) {
 	    luaL_typerror(L, -1, "function");
@@ -394,7 +395,7 @@ class luaMatchSpy : public Xapian::MatchSpy {
 	luaL_unref(L, LUA_REGISTRYINDEX, r);
     }
 
-    void operator()(const Xapian::Document &doc, double wt) {
+    void operator()(const Xapian::Document& doc, double wt) override {
 	lua_rawgeti(L, LUA_REGISTRYINDEX, r);
 	if (!lua_isfunction(L, -1)) {
 	    luaL_typerror(L, -1, "function");
