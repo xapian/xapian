@@ -1,7 +1,7 @@
 /** @file
  *  @brief Implementation of RemoteDatabase using a spawned server.
  */
-/* Copyright (C) 2007,2010,2011,2014,2019,2023 Olly Betts
+/* Copyright (C) 2007,2010,2011,2014,2019,2023,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,6 +20,9 @@
 
 #ifndef XAPIAN_INCLUDED_PROGCLIENT_H
 #define XAPIAN_INCLUDED_PROGCLIENT_H
+
+#include <string>
+#include <string_view>
 
 #include <sys/types.h>
 
@@ -61,8 +64,8 @@ class ProgClient : public RemoteDatabase {
      *  To help avoid accidentally trying to use member variables, this method
      *  has been deliberately made "static".
      */
-    static std::pair<int, std::string> run_program(const std::string& progname,
-						   const std::string& args,
+    static std::pair<int, std::string> run_program(std::string_view progname,
+						   std::string_view args,
 #ifndef __WIN32__
 						   pid_t& child
 #else
@@ -79,8 +82,8 @@ class ProgClient : public RemoteDatabase {
      *  @param writable	Is this a WritableDatabase?
      *  @param flags	Xapian::DB_RETRY_LOCK or 0.
      */
-    ProgClient(const std::string& progname,
-	       const std::string& args,
+    ProgClient(std::string_view progname,
+	       std::string_view args,
 	       double timeout_,
 	       bool writable,
 	       int flags)

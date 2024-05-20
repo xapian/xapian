@@ -1,7 +1,7 @@
 /** @file
  * @brief Iterate all terms in a remote database.
  */
-/* Copyright (C) 2007,2008,2018 Olly Betts
+/* Copyright (C) 2007,2008,2018,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -61,7 +61,7 @@ RemoteAllTermsList::next()
 }
 
 TermList*
-RemoteAllTermsList::skip_to(const std::string& term)
+RemoteAllTermsList::skip_to(std::string_view term)
 {
     if (!p) {
 	if (RemoteAllTermsList::next())

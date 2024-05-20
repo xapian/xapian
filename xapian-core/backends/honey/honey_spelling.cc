@@ -1,7 +1,7 @@
 /** @file
  * @brief Spelling correction data for a honey database.
  */
-/* Copyright (C) 2004-2023 Olly Betts
+/* Copyright (C) 2004-2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,6 +37,7 @@
 #include <vector>
 #include <set>
 #include <string>
+#include <string_view>
 
 using namespace Honey;
 using namespace std;
@@ -92,8 +93,7 @@ HoneySpellingTable::merge_changes()
     }
     termlist_deltas.clear();
 
-    map<string, Xapian::termcount>::const_iterator j;
-    for (j = wordfreq_changes.begin(); j != wordfreq_changes.end(); ++j) {
+    for (auto j = wordfreq_changes.begin(); j != wordfreq_changes.end(); ++j) {
 	const string& key = make_spelling_wordlist_key(j->first);
 	Xapian::termcount wordfreq = j->second;
 	if (wordfreq) {
@@ -130,7 +130,7 @@ HoneySpellingTable::add_word(const string& word, Xapian::termcount freqinc)
 {
     if (word.size() <= 1) return;
 
-    map<string, Xapian::termcount>::iterator i = wordfreq_changes.find(word);
+    auto i = wordfreq_changes.find(word);
     if (i != wordfreq_changes.end()) {
 	// Word "word" already exists and has been modified.
 	if (i->second) {
@@ -164,7 +164,7 @@ HoneySpellingTable::remove_word(const string& word, Xapian::termcount freqdec)
 {
     if (word.size() <= 1) return freqdec;
 
-    map<string, Xapian::termcount>::iterator i = wordfreq_changes.find(word);
+    auto i = wordfreq_changes.find(word);
     if (i != wordfreq_changes.end()) {
 	if (i->second == 0) {
 	    // Word has already been deleted.
@@ -258,7 +258,7 @@ struct TermListGreaterApproxSize {
 };
 
 TermList*
-HoneySpellingTable::open_termlist(const string& word)
+HoneySpellingTable::open_termlist(string_view word)
 {
     // This should have been handled by Database::get_spelling_suggestion().
     AssertRel(word.size(),>,1);
@@ -352,10 +352,9 @@ HoneySpellingTable::open_termlist(const string& word)
 }
 
 Xapian::doccount
-HoneySpellingTable::get_word_frequency(const string& word) const
+HoneySpellingTable::get_word_frequency(string_view word) const
 {
-    map<string, Xapian::termcount>::const_iterator i;
-    i = wordfreq_changes.find(word);
+    auto i = wordfreq_changes.find(word);
     if (i != wordfreq_changes.end()) {
 	// Modified frequency for word:
 	return i->second;
@@ -433,7 +432,7 @@ HoneySpellingTermList::next()
 }
 
 TermList*
-HoneySpellingTermList::skip_to(const string& term)
+HoneySpellingTermList::skip_to(string_view term)
 {
     while (current_term < term) {
 	if (HoneySpellingTermList::next())

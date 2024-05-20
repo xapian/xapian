@@ -1,7 +1,7 @@
 /** @file
  * @brief Helper functions for database handling
  */
-/* Copyright 2002-2020 Olly Betts
+/* Copyright 2002-2024 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -26,6 +26,7 @@
 #include <cerrno>
 #include <fstream>
 #include <string>
+#include <string_view>
 
 #include "fileutils.h"
 #include "parseint.h"
@@ -77,7 +78,7 @@ template<typename A1,
 	 typename A5,
 	 typename A6>
 void
-read_stub_file(const std::string& file,
+read_stub_file(std::string_view file,
 	       A1 action_auto,
 	       A2 action_glass,
 	       A3 action_honey,
@@ -92,7 +93,7 @@ read_stub_file(const std::string& file,
     //
     // Any paths specified in stub database files which are relative will be
     // considered to be relative to the directory containing the stub database.
-    std::ifstream stub(file.c_str());
+    std::ifstream stub(std::string{file});
     if (!stub) {
 	std::string msg = "Couldn't open stub database file: ";
 	msg += file;
@@ -208,7 +209,7 @@ read_stub_file(const std::string& file,
 	// arrange for it to be read as a stub database via infelicities in
 	// an application which uses Xapian.  The line number is enough
 	// information to identify the problem line.
-	std::string msg = file;
+	std::string msg{file};
 	msg += ':';
 	msg += str(line_no);
 	msg += ": Bad line";

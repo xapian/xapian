@@ -1,7 +1,7 @@
 /** @file
  * @brief Convert types to std::string
  */
-/* Copyright (C) 2009,2015 Olly Betts
+/* Copyright (C) 2009,2015,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +22,7 @@
 #define XAPIAN_INCLUDED_STR_H
 
 #include <string>
+#include <string_view>
 
 namespace Xapian {
 namespace Internal {
@@ -56,6 +57,9 @@ std::string str(const void * value);
  *  type and have it work if that type is std::string.
  */
 inline std::string str(const std::string & value) { return value; }
+
+/// Convert std::string_view to std::string.
+inline std::string str(std::string_view value) { return std::string(value); }
 
 /// Convert const char * to std::string.
 inline std::string str(const char * value) { return value; }

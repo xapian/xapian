@@ -1,7 +1,7 @@
 /** @file
  * @brief Xapian::Query internals
  */
-/* Copyright (C) 2011,2012,2013,2014,2015,2016,2017,2018,2019 Olly Betts
+/* Copyright (C) 2011,2012,2013,2014,2015,2016,2017,2018,2019,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -47,7 +47,7 @@ class QueryTerm : public Query::Internal {
     // Construct a "MatchAll" QueryTerm.
     QueryTerm() : term(), wqf(1), pos(0) { }
 
-    QueryTerm(const std::string & term_,
+    QueryTerm(std::string_view term_,
 	      Xapian::termcount wqf_,
 	      Xapian::termpos pos_)
 	: term(term_), wqf(wqf_), pos(pos_) { }
@@ -142,8 +142,8 @@ class QueryValueRange : public QueryValueBase {
 
   public:
     QueryValueRange(Xapian::valueno slot_,
-		    const std::string &begin_,
-		    const std::string &end_)
+		    std::string_view begin_,
+		    std::string_view end_)
 	: QueryValueBase(slot_), begin(begin_), end(end_) { }
 
     PostList* postlist(QueryOptimiser* qopt, double factor,
@@ -160,7 +160,7 @@ class QueryValueLE : public QueryValueBase {
     std::string limit;
 
   public:
-    QueryValueLE(Xapian::valueno slot_, const std::string &limit_)
+    QueryValueLE(Xapian::valueno slot_, std::string_view limit_)
 	: QueryValueBase(slot_), limit(limit_) { }
 
     PostList* postlist(QueryOptimiser* qopt, double factor,
@@ -177,7 +177,7 @@ class QueryValueGE : public QueryValueBase {
     std::string limit;
 
   public:
-    QueryValueGE(Xapian::valueno slot_, const std::string &limit_)
+    QueryValueGE(Xapian::valueno slot_, std::string_view limit_)
 	: QueryValueBase(slot_), limit(limit_) { }
 
     PostList* postlist(QueryOptimiser* qopt, double factor,
@@ -507,7 +507,7 @@ class QueryWildcard : public Query::Internal {
 			size_t i) const;
 
   public:
-    QueryWildcard(const std::string &pattern_,
+    QueryWildcard(std::string_view pattern_,
 		  Xapian::termcount max_expansion_,
 		  int flags_,
 		  Query::op combiner_);
@@ -580,7 +580,7 @@ class QueryEditDistance : public Query::Internal {
     size_t fixed_prefix_len;
 
   public:
-    QueryEditDistance(const std::string& pattern_,
+    QueryEditDistance(std::string_view pattern_,
 		      Xapian::termcount max_expansion_,
 		      int flags_,
 		      Query::op combiner_,

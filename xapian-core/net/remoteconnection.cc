@@ -297,8 +297,7 @@ RemoteConnection::send_or_write(const void* p, size_t len)
 #endif
 
 void
-RemoteConnection::send_message(char type, const string &message,
-			       double end_time)
+RemoteConnection::send_message(char type, string_view message, double end_time)
 {
     LOGCALL_VOID(REMOTE, "RemoteConnection::send_message", type | message | end_time);
     if (fdout == -1)
@@ -307,10 +306,11 @@ RemoteConnection::send_message(char type, const string &message,
     string header;
     header += type;
     pack_uint(header, message.size());
+    string_view header_view = header;
 
 #ifdef __WIN32__
     HANDLE hout = fd_to_handle(fdout);
-    const string * str = &header;
+    const string_view* str = &header_view;
 
     size_t count = 0;
     while (true) {
@@ -351,7 +351,7 @@ RemoteConnection::send_message(char type, const string &message,
 				   context, errno);
     }
 
-    const string * str = &header;
+    const string_view* str = &header_view;
 
     size_t count = 0;
     while (true) {
@@ -743,7 +743,7 @@ RemoteConnection::shutdown()
 
     // We can be called from a destructor, so we can't throw an exception.
     try {
-	send_message(MSG_SHUTDOWN, string(), 0.0);
+	send_message(MSG_SHUTDOWN, {}, 0.0);
 #ifdef __WIN32__
 	HANDLE hin = fd_to_handle(fdin);
 	char dummy;

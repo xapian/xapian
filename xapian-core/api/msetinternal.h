@@ -1,7 +1,7 @@
 /** @file
  * @brief Xapian::MSet internals
  */
-/* Copyright 2016,2017 Olly Betts
+/* Copyright 2016,2017,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -32,6 +32,7 @@
 
 #include <memory>
 #include <string>
+#include <string_view>
 #include <unordered_map>
 #include <vector>
 
@@ -133,12 +134,13 @@ class MSet::Internal : public Xapian::Internal::intrusive_base {
 
     void merge_stats(const Internal* o, bool collapsing);
 
-    std::string snippet(const std::string & text, size_t length,
+    std::string snippet(std::string_view text,
+			size_t length,
 			const Xapian::Stem & stemmer,
 			unsigned flags,
-			const std::string & hi_start,
-			const std::string & hi_end,
-			const std::string & omit) const;
+			std::string_view hi_start,
+			std::string_view hi_end,
+			std::string_view omit) const;
 
     /** Serialise this object.
      *

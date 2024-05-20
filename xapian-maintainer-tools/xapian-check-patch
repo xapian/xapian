@@ -759,6 +759,8 @@ QUOTELOOP:  while (1) {
 		} elsif ($op eq '~' && $postch =~ /[A-Za-z0-9_]/ && substr($l, 0, $pre[1]) =~ /(?:\s|::)$/) {
 		    # ~Foo()
 		    # Foo::~Foo()
+		} elsif ($op eq '>>' && $prech eq '<') {
+		    # std::map<std::string, int, std::less<>>*
 		} else {
 		    # Don't complain about this if it's actually whitespace at
 		    # line end.

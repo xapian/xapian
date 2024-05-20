@@ -1,7 +1,7 @@
 /** @file
  *  @brief Class representing a list of search results
  */
-/* Copyright (C) 2015,2016,2017,2019,2023 Olly Betts
+/* Copyright (C) 2015,2016,2017,2019,2023,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -28,6 +28,7 @@
 
 #include <iterator>
 #include <string>
+#include <string_view>
 
 #include <xapian/attributes.h>
 #include <xapian/document.h>
@@ -183,7 +184,7 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
      *  with no sub-databases); in earlier versions,
      *  Xapian::InvalidOperationError was thrown in this case.
      */
-    Xapian::doccount get_termfreq(const std::string & term) const;
+    Xapian::doccount get_termfreq(std::string_view term) const;
 
     /** Get the term weight of a term.
      *
@@ -197,7 +198,7 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
      *  was thrown for the first case, and Xapian::InvalidArgumentError for the
      *  second.
      */
-    double get_termweight(const std::string & term) const;
+    double get_termweight(std::string_view term) const;
 
     /** Rank of first item in this MSet.
      *
@@ -338,13 +339,13 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
      *
      *  @since Added in 1.3.5.
      */
-    std::string snippet(const std::string & text,
+    std::string snippet(std::string_view text,
 			size_t length = 500,
 			const Xapian::Stem & stemmer = Xapian::Stem(),
 			unsigned flags = SNIPPET_BACKGROUND_MODEL|SNIPPET_EXHAUSTIVE,
-			const std::string & hi_start = "<b>",
-			const std::string & hi_end = "</b>",
-			const std::string & omit = "...") const;
+			std::string_view hi_start = "<b>",
+			std::string_view hi_end = "</b>",
+			std::string_view omit = "...") const;
 
     /** Prefetch hint a range of items.
      *

@@ -1,7 +1,7 @@
 /** @file
  * @brief Pack types into strings and unpack them again.
  */
-/* Copyright (C) 2009,2015,2016,2017,2018 Olly Betts
+/* Copyright (C) 2009,2015,2016,2017,2018,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,8 +25,8 @@
 # error config.h must be included first in each C++ source file
 #endif
 
-#include <cstring>
 #include <string>
+#include <string_view>
 #include <type_traits>
 
 #include "omassert.h"
@@ -420,7 +420,7 @@ unpack_uint_backwards(const char** p, const char* start, U* result)
  *  @param value	The std::string to encode.
  */
 inline void
-pack_string(std::string& s, const std::string& value)
+pack_string(std::string& s, std::string_view value)
 {
     pack_uint(s, value.size());
     s += value;
@@ -428,8 +428,8 @@ pack_string(std::string& s, const std::string& value)
 
 /** Append an empty encoded std::string to a string.
  *
- *  This is equivalent to pack_string(s, std::string()) but is probably a bit
- *  more efficient.
+ *  This is equivalent to pack_string(s, ""sv) but is probably a bit more
+ *  efficient.
  *
  *  @param s		The string to append to.
  */
@@ -437,20 +437,6 @@ inline void
 pack_string_empty(std::string& s)
 {
     s += '\0';
-}
-
-/** Append an encoded C-style string to a string.
- *
- *  @param s		The string to append to.
- *  @param ptr		The C-style string to encode.
- */
-inline void
-pack_string(std::string& s, const char* ptr)
-{
-    Assert(ptr);
-    size_t len = std::strlen(ptr);
-    pack_uint(s, len);
-    s.append(ptr, len);
 }
 
 /** Decode a std::string from a string.
@@ -520,7 +506,7 @@ unpack_string_append(const char** p, const char* end, std::string& result)
  *  where nothing does and get a shorter encoding in those cases.
  */
 inline void
-pack_string_preserving_sort(std::string& s, const std::string& value,
+pack_string_preserving_sort(std::string& s, std::string_view value,
 			    bool last = false)
 {
     std::string::size_type b = 0, e;
@@ -566,7 +552,7 @@ unpack_string_preserving_sort(const char** p, const char* end,
 }
 
 inline std::string
-pack_glass_postlist_key(const std::string& term)
+pack_glass_postlist_key(std::string_view term)
 {
     // Special case for doclen lists.
     if (term.empty())
@@ -578,7 +564,7 @@ pack_glass_postlist_key(const std::string& term)
 }
 
 inline std::string
-pack_glass_postlist_key(const std::string& term, Xapian::docid did)
+pack_glass_postlist_key(std::string_view term, Xapian::docid did)
 {
     // Special case for doclen lists.
     if (term.empty()) {
@@ -594,7 +580,7 @@ pack_glass_postlist_key(const std::string& term, Xapian::docid did)
 }
 
 inline std::string
-pack_honey_postlist_key(const std::string& term)
+pack_honey_postlist_key(std::string_view term)
 {
     Assert(!term.empty());
     std::string key;
@@ -603,7 +589,7 @@ pack_honey_postlist_key(const std::string& term)
 }
 
 inline std::string
-pack_honey_postlist_key(const std::string& term, Xapian::docid did)
+pack_honey_postlist_key(std::string_view term, Xapian::docid did)
 {
     Assert(!term.empty());
     std::string key;

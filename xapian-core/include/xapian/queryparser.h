@@ -1,7 +1,7 @@
 /** @file
  * @brief parsing a user query string to build a Xapian::Query object
  */
-/* Copyright (C) 2005-2023 Olly Betts
+/* Copyright (C) 2005-2024 Olly Betts
  * Copyright (C) 2010 Adam Sjøgren
  *
  * This program is free software; you can redistribute it and/or
@@ -34,6 +34,7 @@
 #include <xapian/visibility.h>
 
 #include <string>
+#include <string_view>
 #include <unordered_set>
 
 namespace Xapian {
@@ -188,7 +189,7 @@ class XAPIAN_VISIBILITY_DEFAULT RangeProcessor
      *			   suffix only on the end (e.g. 2..12kg).
      */
     explicit RangeProcessor(Xapian::valueno slot_,
-			    const std::string& str_ = std::string(),
+			    std::string_view str_ = {},
 			    unsigned flags_ = 0)
 	: slot(slot_), str(str_), flags(flags_) { }
 
@@ -269,7 +270,7 @@ class XAPIAN_VISIBILITY_DEFAULT DateRangeProcessor : public RangeProcessor {
     explicit DateRangeProcessor(Xapian::valueno slot_,
 				unsigned flags_ = 0,
 				int epoch_year_ = 1970)
-	: RangeProcessor(slot_, std::string(), flags_),
+	: RangeProcessor(slot_, {}, flags_),
 	  epoch_year(epoch_year_) { }
 
     /** Constructor.
@@ -313,7 +314,7 @@ class XAPIAN_VISIBILITY_DEFAULT DateRangeProcessor : public RangeProcessor {
      *  and the range processor has been added to the queryparser, the
      *  queryparser will accept "created:1/1/2000..31/12/2001".
      */
-    DateRangeProcessor(Xapian::valueno slot_, const std::string &str_,
+    DateRangeProcessor(Xapian::valueno slot_, std::string_view str_,
 		       unsigned flags_ = 0, int epoch_year_ = 1970)
 	: RangeProcessor(slot_, str_, flags_),
 	  epoch_year(epoch_year_) { }
@@ -380,7 +381,7 @@ class XAPIAN_VISIBILITY_DEFAULT NumberRangeProcessor : public RangeProcessor {
      *  valid ranges.
      */
     NumberRangeProcessor(Xapian::valueno slot_,
-			 const std::string &str_ = std::string(),
+			 std::string_view str_ = {},
 			 unsigned flags_ = 0)
 	: RangeProcessor(slot_, str_, flags_) { }
 
@@ -423,7 +424,7 @@ class XAPIAN_VISIBILITY_DEFAULT UnitRangeProcessor : public RangeProcessor {
      *  accept "size:3K..10K" as a valid range.
      */
     UnitRangeProcessor(Xapian::valueno slot_,
-		       const std::string &str_ = std::string())
+		       std::string_view str_ = {})
 	: RangeProcessor(slot_, str_) { }
 
     /** Check for a valid byte value range.
@@ -903,9 +904,9 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      *		   @li Syntax: &lt;expression&gt; OR &lt;expression&gt;
      *		   @li Syntax: &lt;expression&gt; XOR &lt;expression&gt;
      */
-    Query parse_query(const std::string &query_string,
+    Query parse_query(std::string_view query_string,
 		      unsigned flags = FLAG_DEFAULT,
-		      const std::string &default_prefix = std::string());
+		      const std::string& default_prefix = {});
 
     /** Add a free-text field term prefix.
      *
@@ -1005,7 +1006,7 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      *			document can have multiple terms with this prefix).
      *			[default: NULL]
      */
-    void add_boolean_prefix(const std::string &field, const std::string &prefix,
+    void add_boolean_prefix(const std::string& field, const std::string& prefix,
 			    const std::string* grouping = NULL);
 
     /** Add a boolean term prefix allowing the user to restrict a
@@ -1024,7 +1025,7 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      *			each filter (this is sometimes useful when each
      *			document can have multiple terms with this prefix).
      */
-    void add_boolean_prefix(const std::string &field, const std::string &prefix,
+    void add_boolean_prefix(const std::string& field, const std::string& prefix,
 			    bool exclusive) {
 	if (exclusive) {
 	    add_boolean_prefix(field, prefix);
@@ -1036,7 +1037,8 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
 
     /** Register a FieldProcessor for a boolean prefix.
      */
-    void add_boolean_prefix(const std::string &field, Xapian::FieldProcessor *proc,
+    void add_boolean_prefix(const std::string& field,
+			    Xapian::FieldProcessor* proc,
 			    const std::string* grouping = NULL);
 
     /** Register a FieldProcessor for a boolean prefix.
@@ -1044,7 +1046,8 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      *  This is an older version of this method - use the version with
      *  the `grouping` parameter in preference to this one.
      */
-    void add_boolean_prefix(const std::string &field, Xapian::FieldProcessor *proc,
+    void add_boolean_prefix(const std::string& field,
+			    Xapian::FieldProcessor* proc,
 			    bool exclusive) {
 	if (exclusive) {
 	    add_boolean_prefix(field, proc);
@@ -1063,10 +1066,10 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
     }
 
     /// Begin iterator over unstemmed forms of the given stemmed query term.
-    TermIterator unstem_begin(const std::string &term) const;
+    TermIterator unstem_begin(std::string_view term) const;
 
     /// End iterator over unstemmed forms of the given stemmed query term.
-    TermIterator unstem_end(const std::string&) const noexcept {
+    TermIterator unstem_end(std::string_view) const noexcept {
 	return TermIterator();
     }
 
@@ -1137,7 +1140,7 @@ inline std::string sortable_serialise(double value) {
  *  @param serialised	The serialised string to decode.
  */
 XAPIAN_VISIBILITY_DEFAULT
-double sortable_unserialise(const std::string& serialised) noexcept;
+double sortable_unserialise(std::string_view serialised) noexcept;
 
 }
 

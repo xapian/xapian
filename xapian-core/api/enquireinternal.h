@@ -1,7 +1,7 @@
 /** @file
  * @brief Xapian::Enquire internals
  */
-/* Copyright 2017 Olly Betts
+/* Copyright 2017,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -101,7 +101,7 @@ class Enquire::Internal : public Xapian::Internal::intrusive_base {
 		  const ExpandDecider* edecider_,
 		  double min_weight) const;
 
-    doccount get_termfreq(const std::string& term) const {
+    doccount get_termfreq(std::string_view term) const {
 	return db.get_termfreq(term);
     }
 

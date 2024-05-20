@@ -1,7 +1,7 @@
 /** @file
  * @brief Abstract base class for a document
  */
-/* Copyright 2017,2018,2019,2023 Olly Betts
+/* Copyright 2017,2018,2019,2023,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -30,10 +30,12 @@
 #include "backends/databaseinternal.h"
 #include "overflow.h"
 
+#include <functional>
 #include <limits>
 #include <map>
 #include <memory>
 #include <string>
+#include <string_view>
 
 class DocumentTermList;
 class DocumentValueList;
@@ -72,7 +74,8 @@ class Document::Internal : public Xapian::Internal::intrusive_base {
      *  invalidates existing iterators upon insert() if rehashing occurs,
      *  whereas existing iterators remain valid for std::map<>.
      */
-    mutable std::unique_ptr<std::map<std::string, TermInfo>> terms;
+    mutable
+    std::unique_ptr<std::map<std::string, TermInfo, std::less<>>> terms;
 
     /** The number of distinct terms in @a terms.
      *
@@ -239,12 +242,12 @@ class Document::Internal : public Xapian::Internal::intrusive_base {
     }
 
     /// Set the document data.
-    void set_data(const std::string& data_) {
+    void set_data(std::string_view data_) {
 	data.reset(new std::string(data_));
     }
 
     /// Add a term to this document.
-    void add_term(const std::string& term, Xapian::termcount wdf_inc) {
+    void add_term(std::string_view term, Xapian::termcount wdf_inc) {
 	ensure_terms_fetched();
 
 	auto i = terms->find(term);
@@ -258,7 +261,7 @@ class Document::Internal : public Xapian::Internal::intrusive_base {
     }
 
     /// Remove a term from this document.
-    bool remove_term(const std::string& term) {
+    bool remove_term(std::string_view term) {
 	ensure_terms_fetched();
 
 	auto i = terms->find(term);
@@ -276,7 +279,7 @@ class Document::Internal : public Xapian::Internal::intrusive_base {
     }
 
     /// Add a posting for a term.
-    void add_posting(const std::string& term,
+    void add_posting(std::string_view term,
 		     Xapian::termpos term_pos,
 		     Xapian::termcount wdf_inc) {
 	ensure_terms_fetched();
@@ -296,7 +299,7 @@ class Document::Internal : public Xapian::Internal::intrusive_base {
 
     /// Remove a posting for a term.
     remove_posting_result
-    remove_posting(const std::string& term,
+    remove_posting(std::string_view term,
 		   Xapian::termpos term_pos,
 		   Xapian::termcount wdf_dec) {
 	ensure_terms_fetched();
@@ -319,7 +322,7 @@ class Document::Internal : public Xapian::Internal::intrusive_base {
      *  Can only return OK or NO_TERM.
      */
     remove_posting_result
-    remove_postings(const std::string& term,
+    remove_postings(std::string_view term,
 		    Xapian::termpos term_pos_first,
 		    Xapian::termpos term_pos_last,
 		    Xapian::termcount wdf_dec,
@@ -353,7 +356,7 @@ class Document::Internal : public Xapian::Internal::intrusive_base {
 		// terms to clear.
 		return;
 	    }
-	    terms.reset(new std::map<std::string, TermInfo>());
+	    terms.reset(new std::map<std::string, TermInfo, std::less<>>());
 	} else {
 	    terms->clear();
 	}
@@ -398,7 +401,7 @@ class Document::Internal : public Xapian::Internal::intrusive_base {
     }
 
     /// Add a value to a slot in this document.
-    void add_value(Xapian::valueno slot, const std::string& value) {
+    void add_value(Xapian::valueno slot, std::string_view value) {
 	ensure_values_fetched();
 
 	if (!value.empty()) {

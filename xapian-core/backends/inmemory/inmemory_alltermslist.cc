@@ -2,7 +2,7 @@
  * @brief Iterate all terms in an inmemory db
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2003,2004,2007,2008,2009,2017 Olly Betts
+ * Copyright 2003,2004,2007,2008,2009,2017,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -46,8 +46,8 @@ InMemoryAllTermsList::get_termfreq() const
     return it->second.docs.size();
 }
 
-TermList *
-InMemoryAllTermsList::skip_to(const string &tname_)
+TermList*
+InMemoryAllTermsList::skip_to(string_view tname_)
 {
     if (database->is_closed()) InMemoryDatabase::throw_database_closed();
     string tname(tname_);

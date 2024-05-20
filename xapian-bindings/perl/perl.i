@@ -3,7 +3,7 @@
 /* perl.i: SWIG interface file for the Perl bindings
  *
  * Copyright (C) 2009 Kosei Moriyama
- * Copyright (C) 2011,2012,2013,2015,2016,2019,2020 Olly Betts
+ * Copyright (C) 2011,2012,2013,2015,2016,2019,2020,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -402,10 +402,10 @@ std::string stem_word(std::string word) {
 
 /* Xapian::WritableDatabase */
 %rename(replace_document_by_term) \
-	Xapian::WritableDatabase::replace_document(const std::string &,
-						   const Xapian::Document &);
+	Xapian::WritableDatabase::replace_document(std::string_view,
+						   const Xapian::Document&);
 %rename(delete_document_by_term) \
-	Xapian::WritableDatabase::delete_document(const std::string &);
+	Xapian::WritableDatabase::delete_document(std::string_view);
 
 %feature("shadow") Xapian::WritableDatabase::WritableDatabase
 %{

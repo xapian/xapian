@@ -1,7 +1,7 @@
 /** @file
  * @brief TermGenerator class internals
  */
-/* Copyright (C) 2007-2023 Olly Betts
+/* Copyright (C) 2007-2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,6 +38,7 @@
 #include <limits>
 #include <list>
 #include <string>
+#include <string_view>
 #include <unordered_map>
 #include <vector>
 
@@ -280,7 +281,7 @@ endofterm:
 
 void
 TermGenerator::Internal::index_text(Utf8Iterator itor, termcount wdf_inc,
-				    const string & prefix, bool with_positions)
+				    string_view prefix, bool with_positions)
 {
 #ifndef USE_ICU
     if (flags & FLAG_WORD_BREAKS) {
@@ -300,8 +301,24 @@ TermGenerator::Internal::index_text(Utf8Iterator itor, termcount wdf_inc,
 	current_stop_mode = stop_mode;
     }
 
+    // Create two std::string objects which we effectively use as buffers to
+    // build the prefixed terms we generate (one for non-stemmed and one for
+    // stemmed terms).  This is a simple way to avoid creating a temporary
+    // std::string object each time we generate a prefixed term.
+    string prefixed_term;
+    auto prefix_size = prefix.size();
+    prefixed_term.reserve(prefix_size + max_word_length);
+    prefixed_term.assign(prefix);
+
+    string prefixed_stemmed_term;
+    int add_z = (strategy != TermGenerator::STEM_ALL);
+    prefixed_stemmed_term.reserve(add_z + prefix_size + max_word_length);
+    if (add_z) prefixed_stemmed_term.assign(1, 'Z');
+    prefixed_stemmed_term.append(prefix);
+    auto prefixed_stemmed_size = prefixed_stemmed_term.size();
+
     parse_terms(itor, break_flags, with_positions,
-	[=
+	[=, &prefixed_term, &prefixed_stemmed_term
 #if __cplusplus >= 201907L
 // C++20 no longer supports implicit `this` in lambdas but older C++ versions
 // don't allow `this` here.
@@ -318,16 +335,18 @@ TermGenerator::Internal::index_text(Utf8Iterator itor, termcount wdf_inc,
 	    if (strategy == TermGenerator::STEM_SOME ||
 		strategy == TermGenerator::STEM_NONE ||
 		strategy == TermGenerator::STEM_SOME_FULL_POS) {
+		prefixed_term.append(term);
 		if (positional) {
-		    doc.add_posting(prefix + term, ++cur_pos, wdf_inc);
+		    doc.add_posting(prefixed_term, ++cur_pos, wdf_inc);
 		} else {
-		    doc.add_term(prefix + term, wdf_inc);
+		    doc.add_term(prefixed_term, wdf_inc);
 		}
+		prefixed_term.resize(prefix_size);
 	    }
 
 	    // MSVC seems to need "this->" on member variables in this
 	    // situation.
-	    if ((this->flags & FLAG_SPELLING) && prefix.empty())
+	    if ((this->flags & FLAG_SPELLING) && prefix_size == 0)
 		db.add_spelling(term);
 
 	    if (strategy == TermGenerator::STEM_NONE || stemmer.is_none())
@@ -347,18 +366,15 @@ TermGenerator::Internal::index_text(Utf8Iterator itor, termcount wdf_inc,
 	    // Add stemmed form without positional information.
 	    const string& stem = stemmer(term);
 	    if (rare(stem.empty())) return true;
-	    string stemmed_term;
-	    if (strategy != TermGenerator::STEM_ALL) {
-		stemmed_term += "Z";
-	    }
-	    stemmed_term += prefix;
-	    stemmed_term += stem;
+	    prefixed_stemmed_term.append(stem);
 	    if (strategy != TermGenerator::STEM_SOME && positional) {
 		if (strategy != TermGenerator::STEM_SOME_FULL_POS) ++cur_pos;
-		doc.add_posting(stemmed_term, cur_pos, wdf_inc);
+		doc.add_posting(prefixed_stemmed_term, cur_pos, wdf_inc);
 	    } else {
-		doc.add_term(stemmed_term, wdf_inc);
+		doc.add_term(prefixed_stemmed_term, wdf_inc);
 	    }
+	    prefixed_stemmed_term.resize(prefixed_stemmed_size);
+
 	    return true;
 	});
 }
@@ -404,11 +420,11 @@ class SnipPipe {
 
     void done();
 
-    bool drain(const string & input,
-	       const string & hi_start,
-	       const string & hi_end,
-	       const string & omit,
-	       string & output);
+    bool drain(string_view input,
+	       string_view hi_start,
+	       string_view hi_end,
+	       string_view omit,
+	       string& output);
 };
 
 #define DECAY 2.0
@@ -581,11 +597,11 @@ append_escaping_xml(const char* p, const char* end, string& output)
 }
 
 inline bool
-SnipPipe::drain(const string & input,
-		const string & hi_start,
-		const string & hi_end,
-		const string & omit,
-		string & output)
+SnipPipe::drain(string_view input,
+		string_view hi_start,
+		string_view hi_end,
+		string_view omit,
+		string& output)
 {
     if (best_pipe.empty() && !pipe.empty()) {
 	swap(best_pipe, pipe);
@@ -798,17 +814,17 @@ check_term(unordered_map<string, double> & loose_terms,
 }
 
 string
-MSet::Internal::snippet(const string & text,
+MSet::Internal::snippet(string_view text,
 			size_t length,
 			const Xapian::Stem & stemmer,
 			unsigned flags,
-			const string & hi_start,
-			const string & hi_end,
-			const string & omit) const
+			string_view hi_start,
+			string_view hi_end,
+			string_view omit) const
 {
     if (hi_start.empty() && hi_end.empty() && text.size() <= length) {
 	// Too easy!
-	return text;
+	return string{text};
     }
 
 #ifndef USE_ICU

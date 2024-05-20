@@ -2,7 +2,7 @@
  * @brief Btree implementation
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2012,2013,2014,2015,2016,2019 Olly Betts
+ * Copyright 2002-2024 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -41,6 +41,7 @@
 
 #include <algorithm>
 #include <string>
+#include <string_view>
 
 namespace Glass {
 
@@ -242,8 +243,8 @@ class LeafItem_wr : public LeafItem_base<uint8_t *> {
 	if (rare(I &~ ITEM_SIZE_MASK)) throw Xapian::DatabaseError("item too large!");
 	setI(I);
     }
-    void form_key(const std::string & key_) {
-	std::string::size_type key_len = key_.length();
+    void form_key(std::string_view key_) {
+	auto key_len = key_.length();
 	if (key_len > GLASS_BTREE_MAX_KEY_LEN) {
 	    // We check term length when a term is added to a document but
 	    // glass doubles zero bytes, so this can still happen for terms
@@ -256,12 +257,13 @@ class LeafItem_wr : public LeafItem_base<uint8_t *> {
 	}
 
 	set_key_len(key_len);
-	std::memmove(p + I2 + K1, key_.data(), key_len);
 	*p |= I_FIRST_BIT;
+	if (key_len)
+	    std::memmove(p + I2 + K1, key_.data(), key_len);
     }
     // FIXME passing cd here is icky
     void set_tag(int cd, const char *start, int len, bool compressed, int i, int m) {
-	std::memmove(p + cd, start, len);
+	if (len) std::memmove(p + cd, start, len);
 	set_size(cd + len);
 	if (compressed) *p |= I_COMPRESSED_BIT;
 	if (i == m) *p |= I_LAST_BIT;
@@ -461,7 +463,7 @@ class GlassTable {
      *  @param lazy		If true, don't create the table until it's
      *			needed.
      */
-    GlassTable(const char * tablename_, const std::string & path_,
+    GlassTable(const char* tablename_, std::string_view path_,
 	       bool readonly_, bool lazy = false);
 
     GlassTable(const char * tablename_, int fd, off_t offset_,
@@ -481,7 +483,7 @@ class GlassTable {
      */
     void close(bool permanent = false);
 
-    bool readahead_key(const string &key) const;
+    bool readahead_key(std::string_view key) const;
 
     /** Determine whether the btree exists on disk.
      */
@@ -561,7 +563,7 @@ class GlassTable {
      *  @return true if key is found in table,
      *          false if key is not found in table.
      */
-    bool get_exact_entry(const std::string & key, std::string & tag) const;
+    bool get_exact_entry(std::string_view key, std::string& tag) const;
 
     /** Check if a key exists in the Btree.
      *
@@ -574,7 +576,7 @@ class GlassTable {
      *  @return true if key is found in table,
      *          false if key is not found in table.
      */
-    bool key_exists(const std::string &key) const;
+    bool key_exists(std::string_view key) const;
 
     /** Read the tag value for the key pointed to by cursor C_.
      *
@@ -604,8 +606,8 @@ class GlassTable {
      *		for example because it is being opaquely copied
      *		(default: false).
      */
-    void add(const std::string& key,
-	     const std::string& tag,
+    void add(std::string_view key,
+	     std::string_view tag,
 	     bool already_compressed = false);
 
     /** Delete an entry from the table.
@@ -623,7 +625,7 @@ class GlassTable {
      *
      *  @return true if an entry was removed; false if it did not exist.
      */
-    bool del(const std::string &key);
+    bool del(std::string_view key);
 
     int get_flags() const { return flags; }
 
@@ -758,7 +760,7 @@ class GlassTable {
     int add_kt(bool found);
     void read_root();
     void split_root(uint4 split_n);
-    void form_key(const std::string & key) const;
+    void form_key(std::string_view key) const;
 
     /// The name of the table (used when writing changesets).
     const char * tablename;

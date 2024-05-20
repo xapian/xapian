@@ -1,7 +1,7 @@
 /** @file
  * @brief Xapian::Query internals
  */
-/* Copyright (C) 2007-2022 Olly Betts
+/* Copyright (C) 2007-2024 Olly Betts
  * Copyright (C) 2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -62,6 +62,7 @@
 #include <list>
 #include <memory>
 #include <string>
+#include <string_view>
 #include <unordered_set>
 #include <vector>
 
@@ -777,7 +778,7 @@ AndContext::postlist(TermFreqs* termfreqs)
 	    // positional filters are irrelevant.
 	    return NULL;
 	}
-	pl.reset(qopt->open_post_list(string(), 0, 0.0, nullptr));
+	pl.reset(qopt->open_post_list({}, 0, 0.0, nullptr));
 	break;
       case 1:
 	pl.reset(pls[0]);
@@ -1138,7 +1139,7 @@ Query::Internal::unserialise(const char ** p, const char * end,
 			!unpack_uint(p, end, &pos)) {
 			throw SerialisationError("not enough data");
 		    }
-		    return new Xapian::Internal::QueryTerm(string(), wqf, pos);
+		    return new Xapian::Internal::QueryTerm({}, wqf, pos);
 		}
 		case 0x0f:
 		    return new Xapian::Internal::QueryTerm();
@@ -1502,7 +1503,7 @@ QueryValueRange::postlist(QueryOptimiser* qopt, double factor,
 		// This value is set for all documents in the current shard, so
 		// we can replace it with a MatchAll postlist, which is
 		// especially efficient if there are no gaps in the docids.
-		RETURN(db.open_post_list(string()));
+		RETURN(db.open_post_list({}));
 	    }
 	    // We need to check which documents have a value set in this slot
 	    // but don't need to worry about the range bounds so we can use
@@ -1597,7 +1598,7 @@ QueryValueLE::postlist(QueryOptimiser* qopt, double factor,
 	    // This value is set for all documents in the current shard, so
 	    // we can replace it with a MatchAll postlist, which is
 	    // especially efficient if there are no gaps in the docids.
-	    RETURN(db.open_post_list(string()));
+	    RETURN(db.open_post_list({}));
 	}
 	// We need to check which documents have a value set in this slot
 	// but don't need to worry about the range bounds so we can use
@@ -1688,7 +1689,7 @@ QueryValueGE::postlist(QueryOptimiser* qopt, double factor,
 	    // This value is set for all documents in the current shard, so
 	    // we can replace it with a MatchAll postlist, which is
 	    // especially efficient if there are no gaps in the docids.
-	    RETURN(db.open_post_list(string()));
+	    RETURN(db.open_post_list({}));
 	}
 	// We need to check which documents have a value set in this slot
 	// but don't need to worry about the range bounds so we can use
@@ -1731,7 +1732,7 @@ QueryValueGE::get_description() const
     return desc;
 }
 
-QueryWildcard::QueryWildcard(const std::string &pattern_,
+QueryWildcard::QueryWildcard(std::string_view pattern_,
 			     Xapian::termcount max_expansion_,
 			     int flags_,
 			     Query::op combiner_)

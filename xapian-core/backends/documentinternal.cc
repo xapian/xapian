@@ -1,7 +1,7 @@
 /** @file
  * @brief Abstract base class for a document
  */
-/* Copyright 2017 Olly Betts
+/* Copyright 2017,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -41,7 +41,7 @@ Document::Internal::ensure_terms_fetched() const
     if (terms)
 	return;
 
-    terms.reset(new map<string, TermInfo>());
+    terms.reset(new map<string, TermInfo, std::less<>>());
     termlist_size = 0;
     if (!database)
 	return;

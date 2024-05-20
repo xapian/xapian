@@ -1,7 +1,7 @@
 /** @file
  * @brief HoneyCursor class
  */
-/* Copyright (C) 2017,2018 Olly Betts
+/* Copyright (C) 2017,2018,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -167,7 +167,7 @@ HoneyCursor::read_tag(bool keep_compressed)
 }
 
 bool
-HoneyCursor::do_find(const string& key, bool greater_than)
+HoneyCursor::do_find(string_view key, bool greater_than)
 {
     // FIXME: Actually use this!
     (void)greater_than;

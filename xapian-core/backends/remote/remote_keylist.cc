@@ -1,7 +1,7 @@
 /** @file
  * @brief Iterate keys in a remote database.
  */
-/* Copyright (C) 2007,2008,2018,2020 Olly Betts
+/* Copyright (C) 2007,2008,2018,2020,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -60,7 +60,7 @@ RemoteKeyList::next()
 }
 
 TermList*
-RemoteKeyList::skip_to(const std::string& term)
+RemoteKeyList::skip_to(std::string_view term)
 {
     if (!p) {
 	if (RemoteKeyList::next())

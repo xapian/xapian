@@ -1,7 +1,7 @@
 /** @file
  * @brief Synonym data for a glass database.
  */
-/* Copyright (C) 2005,2007,2008,2009,2011,2014,2016,2017 Olly Betts
+/* Copyright (C) 2005,2007,2008,2009,2011,2014,2016,2017,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,8 +27,10 @@
 #include "glass_lazytable.h"
 #include "api/termlist.h"
 
+#include <functional>
 #include <set>
 #include <string>
+#include <string_view>
 
 class GlassDatabase;
 
@@ -42,7 +44,7 @@ class GlassSynonymTable : public GlassLazyTable {
     mutable std::string last_term;
 
     /// The synonyms for the last term which was updated.
-    mutable std::set<std::string> last_synonyms;
+    mutable std::set<std::string, std::less<>> last_synonyms;
 
   public:
     /** Create a new GlassSynonymTable object.
@@ -72,25 +74,25 @@ class GlassSynonymTable : public GlassLazyTable {
      *
      *  If the synonym has already been added, no action is taken.
      */
-    void add_synonym(const std::string & term, const std::string & synonym);
+    void add_synonym(std::string_view term, std::string_view synonym);
 
     /** Remove a synonym for @a term.
      *
      *  If the synonym doesn't exist, no action is taken.
      */
-    void remove_synonym(const std::string & term, const std::string & synonym);
+    void remove_synonym(std::string_view term, std::string_view synonym);
 
     /** Remove all synonyms for @a term.
      *
      *  If @a term has no synonyms, no action is taken.
      */
-    void clear_synonyms(const std::string & term);
+    void clear_synonyms(std::string_view term);
 
     /** Open synonym termlist for a term.
      *
      *  If @a term has no synonyms, NULL is returned.
      */
-    TermList * open_termlist(const std::string & term);
+    TermList* open_termlist(std::string_view term);
 
     /** Override methods of GlassTable.
      *
@@ -139,7 +141,7 @@ class GlassSynonymTermList : public AllTermsList {
   public:
     GlassSynonymTermList(Xapian::Internal::intrusive_ptr<const GlassDatabase> database_,
 			 GlassCursor * cursor_,
-			 const string & prefix_)
+			 std::string_view prefix_)
 	    : database(database_), cursor(cursor_), prefix(prefix_)
     {
 	// Position the cursor on the highest key before the first key we want,
@@ -165,7 +167,7 @@ class GlassSynonymTermList : public AllTermsList {
     TermList * next();
 
     /// Advance to the first term which is >= tname.
-    TermList * skip_to(const string &tname);
+    TermList* skip_to(std::string_view tname);
 };
 
 #endif // XAPIAN_INCLUDED_GLASS_SYNONYM_H

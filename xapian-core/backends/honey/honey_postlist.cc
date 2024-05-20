@@ -1,7 +1,7 @@
 /** @file
  * @brief PostList in a honey database.
  */
-/* Copyright (C) 2017,2018,2022 Olly Betts
+/* Copyright (C) 2017,2018,2022,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -30,6 +30,7 @@
 #include "pack.h"
 
 #include <string>
+#include <string_view>
 
 using namespace Honey;
 using namespace std;
@@ -50,7 +51,7 @@ HoneyPostList::update_reader()
 #define TOP_BIT_SET(T) ((static_cast<T>(-1) >> 1) + 1)
 
 HoneyPostList::HoneyPostList(const HoneyDatabase* db_,
-			     const string& term_,
+			     string_view term_,
 			     HoneyCursor* cursor_)
     : LeafPostList(term_), cursor(cursor_), db(db_)
 {
@@ -119,7 +120,7 @@ HoneyPostList::~HoneyPostList()
 }
 
 bool
-HoneyPostList::open_nearby_postlist(const std::string& term_,
+HoneyPostList::open_nearby_postlist(std::string_view term_,
 				    bool need_read_pos,
 				    LeafPostList*& pl) const
 {
@@ -269,7 +270,7 @@ HoneyPostList::get_description() const
 }
 
 HoneyPosPostList::HoneyPosPostList(const HoneyDatabase* db_,
-				   const std::string& term_,
+				   std::string_view term_,
 				   HoneyCursor* cursor_)
     : HoneyPostList(db_, term_, cursor_),
       position_list(db_->position_table) {}

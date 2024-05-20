@@ -3,7 +3,7 @@
  */
 /* Copyright 2008,2009 Lemur Consulting Ltd
  * Copyright 2010,2011 Richard Boulton
- * Copyright 2012,2013,2014,2015,2016 Olly Betts
+ * Copyright 2012,2013,2014,2015,2016,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -31,6 +31,7 @@
 #include <iterator>
 #include <vector>
 #include <string>
+#include <string_view>
 
 #include <xapian/attributes.h>
 #include <xapian/derefwrapper.h>
@@ -123,7 +124,7 @@ struct XAPIAN_VISIBILITY_DEFAULT LatLongCoord {
      *  a valid serialised latitude-longitude pair, or contains extra data at
      *  the end of it.
      */
-    void unserialise(const std::string & serialised);
+    void unserialise(std::string_view serialised);
 
     /** Unserialise a buffer and set this object to its coordinate.
      *
@@ -278,7 +279,7 @@ class XAPIAN_VISIBILITY_DEFAULT LatLongCoords {
      *  a valid serialised latitude-longitude pair, or contains junk at the end
      *  of it.
      */
-    void unserialise(const std::string & serialised);
+    void unserialise(std::string_view serialised);
 
     /** Return a serialised form of the coordinate list.
      */
@@ -333,7 +334,7 @@ class XAPIAN_VISIBILITY_DEFAULT LatLongMetric {
      *  @param a The first coordinate list.
      *  @param b The second coordinate list, in serialised form.
      */
-    double operator()(const LatLongCoords & a, const std::string & b) const
+    double operator()(const LatLongCoords& a, std::string_view b) const
     {
 	return (*this)(a, b.data(), b.size());
     }

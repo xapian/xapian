@@ -1,7 +1,7 @@
 /** @file
  * @brief Inverter class which "inverts the file".
  */
-/* Copyright (C) 2009,2010,2013,2014,2023 Olly Betts
+/* Copyright (C) 2009,2010,2013,2014,2023,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,6 +27,7 @@
 
 #include <map>
 #include <string>
+#include <string_view>
 #include <vector>
 
 #include "negate_unsigned.h"
@@ -125,7 +126,7 @@ class Inverter {
     };
 
     /// Buffered changes to postlists.
-    std::map<std::string, PostingChanges> postlist_changes;
+    std::map<std::string, PostingChanges, std::less<>> postlist_changes;
 
     /** Cached answer to Inverter::has_positions().
      *
@@ -136,17 +137,19 @@ class Inverter {
     mutable int has_positions_cache = -1;
 
     /// Buffered changes to positional data.
-    std::map<std::string, std::map<Xapian::docid, std::string>> pos_changes;
+    std::map<std::string,
+	     std::map<Xapian::docid, std::string>,
+	     std::less<>> pos_changes;
 
     void store_positions(const GlassPositionListTable & position_table,
 			 Xapian::docid did,
-			 const std::string & tname,
+			 std::string_view tname,
 			 const Xapian::VecCOW<Xapian::termpos> & posvec,
 			 bool modifying);
 
     void set_positionlist(Xapian::docid did,
-			  const std::string & term,
-			  const std::string & s);
+			  std::string_view term,
+			  std::string_view s);
 
   public:
     /// Buffered changes to document lengths.
@@ -155,8 +158,7 @@ class Inverter {
   public:
     void add_posting(Xapian::docid did, const std::string & term,
 		     Xapian::doccount wdf) {
-	std::map<std::string, PostingChanges>::iterator i;
-	i = postlist_changes.find(term);
+	auto i = postlist_changes.find(term);
 	if (i == postlist_changes.end()) {
 	    postlist_changes.insert(
 		std::make_pair(term, PostingChanges(did, wdf)));
@@ -167,8 +169,7 @@ class Inverter {
 
     void remove_posting(Xapian::docid did, const std::string & term,
 			Xapian::doccount wdf) {
-	std::map<std::string, PostingChanges>::iterator i;
-	i = postlist_changes.find(term);
+	auto i = postlist_changes.find(term);
 	if (i == postlist_changes.end()) {
 	    postlist_changes.insert(
 		std::make_pair(term, PostingChanges(did, wdf, false)));
@@ -180,8 +181,7 @@ class Inverter {
     void update_posting(Xapian::docid did, const std::string & term,
 			Xapian::termcount old_wdf,
 			Xapian::termcount new_wdf) {
-	std::map<std::string, PostingChanges>::iterator i;
-	i = postlist_changes.find(term);
+	auto i = postlist_changes.find(term);
 	if (i == postlist_changes.end()) {
 	    postlist_changes.insert(
 		std::make_pair(term, PostingChanges(did, old_wdf, new_wdf)));
@@ -192,15 +192,15 @@ class Inverter {
 
     void set_positionlist(const GlassPositionListTable & position_table,
 			  Xapian::docid did,
-			  const std::string & tname,
+			  std::string_view tname,
 			  const Xapian::TermIterator & term,
 			  bool modifying = false);
 
     void delete_positionlist(Xapian::docid did,
-			     const std::string & term);
+			     std::string_view term);
 
     bool get_positionlist(Xapian::docid did,
-			  const std::string & term,
+			  std::string_view term,
 			  std::string & s) const;
 
     bool has_positions(const GlassPositionListTable & position_table) const;
@@ -225,8 +225,7 @@ class Inverter {
     }
 
     bool get_doclength(Xapian::docid did, Xapian::termcount & doclen) const {
-	std::map<Xapian::docid, Xapian::termcount>::const_iterator i;
-	i = doclen_changes.find(did);
+	auto i = doclen_changes.find(did);
 	if (i == doclen_changes.end())
 	    return false;
 	if (rare(i->second == DELETED_POSTING))
@@ -239,13 +238,13 @@ class Inverter {
     void flush_doclengths(GlassPostListTable & table);
 
     /// Flush postlist changes for @a term.
-    void flush_post_list(GlassPostListTable & table, const std::string & term);
+    void flush_post_list(GlassPostListTable& table, std::string_view term);
 
     /// Flush postlist changes for all terms.
     void flush_all_post_lists(GlassPostListTable & table);
 
     /// Flush postlist changes for all terms which start with @a pfx.
-    void flush_post_lists(GlassPostListTable & table, const std::string & pfx);
+    void flush_post_lists(GlassPostListTable& table, std::string_view pfx);
 
     /// Flush all postlist table changes.
     void flush(GlassPostListTable & table);
@@ -253,11 +252,10 @@ class Inverter {
     /// Flush position changes.
     void flush_pos_lists(GlassPositionListTable & table);
 
-    bool get_deltas(const std::string& term,
+    bool get_deltas(std::string_view term,
 		    Xapian::termcount& tf_delta,
 		    Xapian::termcount& cf_delta) const {
-	std::map<std::string, PostingChanges>::const_iterator i;
-	i = postlist_changes.find(term);
+	auto i = postlist_changes.find(term);
 	if (i == postlist_changes.end()) {
 	    return false;
 	}

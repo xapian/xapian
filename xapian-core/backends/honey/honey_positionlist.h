@@ -1,7 +1,7 @@
 /** @file
  * @brief A position list in a honey database.
  */
-/* Copyright (C) 2005,2006,2008,2009,2010,2011,2013,2016,2017,2019 Olly Betts
+/* Copyright (C) 2005-2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -31,6 +31,7 @@
 #include "pack.h"
 
 #include <string>
+#include <string_view>
 
 /** Base-class for a position list in a honey database. */
 class HoneyBasePositionList : public PositionList {
@@ -129,7 +130,7 @@ class HoneyRePositionList : public HoneyBasePositionList {
 
 class HoneyPositionTable : public HoneyLazyTable {
   public:
-    static std::string make_key(Xapian::docid did, const std::string& term) {
+    static std::string make_key(Xapian::docid did, std::string_view term) {
 	std::string key;
 	pack_string_preserving_sort(key, term);
 	pack_uint_preserving_sort(key, did);
@@ -151,7 +152,7 @@ class HoneyPositionTable : public HoneyLazyTable {
 	: HoneyLazyTable("position", fd, offset_, readonly_) { }
 
     HoneyPositionList* open_position_list(Xapian::docid did,
-					  const std::string& term) const {
+					  std::string_view term) const {
 	std::string pos_data;
 	if (!get_exact_entry(make_key(did, term), pos_data))
 	    return nullptr;

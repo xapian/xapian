@@ -2,7 +2,7 @@
  *  @brief Postlists for remote databases
  */
 /* Copyright (C) 2007,2009 Lemur Consulting Ltd
- * Copyright (C) 2007,2008,2009,2011,2019 Olly Betts
+ * Copyright (C) 2007,2008,2009,2011,2019,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -29,6 +29,8 @@
 #include "omassert.h"
 #include "remote-database.h"
 
+#include <string_view>
+
 /** A postlist in a remote database.
  */
 class NetworkPostList : public LeafPostList {
@@ -47,7 +49,7 @@ class NetworkPostList : public LeafPostList {
   public:
     /// Constructor.
     NetworkPostList(Xapian::Internal::intrusive_ptr<const RemoteDatabase> db_,
-		    const std::string& term_,
+		    std::string_view term_,
 		    Xapian::doccount termfreq_,
 		    std::string&& postings_)
 	: LeafPostList(term_), db(db_), postings(std::move(postings_)) {

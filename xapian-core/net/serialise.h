@@ -1,7 +1,7 @@
 /** @file
  * @brief functions to convert classes to strings and back
  */
-/* Copyright (C) 2006,2007,2008,2009,2012,2014 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2012,2014,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +22,8 @@
 #define XAPIAN_INCLUDED_SERIALISE_H
 
 #include <string>
+#include <string_view>
+
 #include "xapian/weight.h"
 
 // Forward class declarations:
@@ -78,6 +80,6 @@ std::string serialise_document(const Xapian::Document &doc);
  *
  *  @return		The unserialised Xapian::Document object.
  */
-Xapian::Document unserialise_document(const std::string &s);
+Xapian::Document unserialise_document(std::string_view s);
 
 #endif

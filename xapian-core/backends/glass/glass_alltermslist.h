@@ -1,7 +1,7 @@
 /** @file
  * @brief A termlist containing all terms in a glass database.
  */
-/* Copyright (C) 2005,2007,2008,2009,2010,2011 Olly Betts
+/* Copyright (C) 2005,2007,2008,2009,2010,2011,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,6 +25,8 @@
 #include "backends/alltermslist.h"
 #include "glass_database.h"
 #include "glass_postlist.h"
+
+#include <string_view>
 
 class GlassCursor;
 
@@ -58,7 +60,7 @@ class GlassAllTermsList : public AllTermsList {
 
   public:
     GlassAllTermsList(Xapian::Internal::intrusive_ptr<const GlassDatabase> database_,
-		      const std::string & prefix_)
+		      std::string_view prefix_)
 	: database(database_), cursor(NULL), prefix(prefix_), termfreq(0) { }
 
     /// Destructor.
@@ -77,7 +79,7 @@ class GlassAllTermsList : public AllTermsList {
     TermList * next();
 
     /// Advance to the first term which is >= tname.
-    TermList * skip_to(const std::string &tname);
+    TermList* skip_to(std::string_view tname);
 };
 
 #endif /* XAPIAN_INCLUDED_GLASS_ALLTERMSLIST_H */

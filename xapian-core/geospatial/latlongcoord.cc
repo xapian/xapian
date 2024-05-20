@@ -3,6 +3,7 @@
  */
 /* Copyright 2008 Lemur Consulting Ltd
  * Copyright 2011 Richard Boulton
+ * Copyright 2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -29,6 +30,7 @@
 #include "str.h"
 
 #include <cmath>
+#include <string_view>
 
 using namespace Xapian;
 using namespace std;
@@ -44,7 +46,7 @@ LatLongCoord::LatLongCoord(double latitude_, double longitude_)
 }
 
 void
-LatLongCoord::unserialise(const string & serialised)
+LatLongCoord::unserialise(string_view serialised)
 {
     const char * ptr = serialised.data();
     const char * end = ptr + serialised.size();
@@ -91,7 +93,7 @@ LatLongCoord::get_description() const
 }
 
 void
-LatLongCoords::unserialise(const string & serialised)
+LatLongCoords::unserialise(string_view serialised)
 {
     const char * ptr = serialised.data();
     const char * end_ptr = ptr + serialised.size();

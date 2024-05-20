@@ -1,7 +1,7 @@
 /** @file
  * @brief Sharded database backend
  */
-/* Copyright (C) 2017,2019,2020,2022 Olly Betts
+/* Copyright (C) 2017,2019,2020,2022,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,6 +31,7 @@
 #include "negate_unsigned.h"
 
 #include <memory>
+#include <string_view>
 
 using namespace std;
 
@@ -61,7 +62,7 @@ MultiDatabase::close()
 }
 
 PostList*
-MultiDatabase::open_post_list(const string& term) const
+MultiDatabase::open_post_list(string_view term) const
 {
     PostList** postlists = new PostList*[shards.size()];
     size_t count = 0;
@@ -80,7 +81,7 @@ MultiDatabase::open_post_list(const string& term) const
 }
 
 LeafPostList*
-MultiDatabase::open_leaf_post_list(const string&, bool) const
+MultiDatabase::open_leaf_post_list(string_view, bool) const
 {
     // This should never get called.
     Assert(false);
@@ -106,7 +107,7 @@ MultiDatabase::open_term_list_direct(Xapian::docid did) const
 }
 
 TermList*
-MultiDatabase::open_allterms(const string& prefix) const
+MultiDatabase::open_allterms(string_view prefix) const
 {
     size_t count = 0;
     TermList** termlists = new TermList*[shards.size()];
@@ -136,7 +137,7 @@ MultiDatabase::has_positions() const
 }
 
 PositionList*
-MultiDatabase::open_position_list(Xapian::docid did, const string& term) const
+MultiDatabase::open_position_list(Xapian::docid did, string_view term) const
 {
     auto n_shards = shards.size();
     auto shard = shards[shard_number(did, n_shards)];
@@ -188,7 +189,7 @@ MultiDatabase::get_total_length() const
 }
 
 void
-MultiDatabase::get_freqs(const string& term,
+MultiDatabase::get_freqs(string_view term,
 			 Xapian::doccount* tf_ptr,
 			 Xapian::termcount* cf_ptr) const
 {
@@ -294,7 +295,7 @@ MultiDatabase::get_doclength_upper_bound() const
 }
 
 Xapian::termcount
-MultiDatabase::get_wdf_upper_bound(const string& term) const
+MultiDatabase::get_wdf_upper_bound(string_view term) const
 {
     Assert(!term.empty());
 
@@ -370,7 +371,7 @@ MultiDatabase::open_document(Xapian::docid did, bool lazy) const
 }
 
 bool
-MultiDatabase::term_exists(const string& term) const
+MultiDatabase::term_exists(string_view term) const
 {
     for (auto&& shard : shards) {
 	if (shard->term_exists(term))
@@ -388,7 +389,7 @@ MultiDatabase::keep_alive()
 }
 
 TermList*
-MultiDatabase::open_spelling_termlist(const string& word) const
+MultiDatabase::open_spelling_termlist(string_view word) const
 {
     vector<TermList*> termlists;
     termlists.reserve(shards.size());
@@ -432,7 +433,7 @@ MultiDatabase::open_spelling_wordlist() const
 }
 
 Xapian::doccount
-MultiDatabase::get_spelling_frequency(const string& word) const
+MultiDatabase::get_spelling_frequency(string_view word) const
 {
     Xapian::doccount result = 0;
     for (auto&& shard : shards) {
@@ -445,7 +446,7 @@ MultiDatabase::get_spelling_frequency(const string& word) const
 }
 
 TermList*
-MultiDatabase::open_synonym_termlist(const string& term) const
+MultiDatabase::open_synonym_termlist(string_view term) const
 {
     vector<TermList*> termlists;
     termlists.reserve(shards.size());
@@ -467,7 +468,7 @@ MultiDatabase::open_synonym_termlist(const string& term) const
 }
 
 TermList*
-MultiDatabase::open_synonym_keylist(const string& prefix) const
+MultiDatabase::open_synonym_keylist(string_view prefix) const
 {
     vector<TermList*> termlists;
     termlists.reserve(shards.size());
@@ -489,13 +490,13 @@ MultiDatabase::open_synonym_keylist(const string& prefix) const
 }
 
 string
-MultiDatabase::get_metadata(const string& key) const
+MultiDatabase::get_metadata(string_view key) const
 {
     return shards[0]->get_metadata(key);
 }
 
 TermList*
-MultiDatabase::open_metadata_keylist(const string& prefix) const
+MultiDatabase::open_metadata_keylist(string_view prefix) const
 {
     return shards[0]->open_metadata_keylist(prefix);
 }
@@ -619,7 +620,7 @@ MultiDatabase::delete_document(Xapian::docid did)
 }
 
 void
-MultiDatabase::delete_document(const string& term)
+MultiDatabase::delete_document(string_view term)
 {
     for (auto&& shard : shards) {
 	shard->delete_document(term);
@@ -635,7 +636,7 @@ MultiDatabase::replace_document(Xapian::docid did, const Xapian::Document& doc)
 }
 
 Xapian::docid
-MultiDatabase::replace_document(const string& term, const Xapian::Document& doc)
+MultiDatabase::replace_document(string_view term, const Xapian::Document& doc)
 {
     auto n_shards = shards.size();
     unique_ptr<PostList> pl(open_post_list(term));
@@ -679,14 +680,14 @@ MultiDatabase::request_document(Xapian::docid did) const
 }
 
 void
-MultiDatabase::add_spelling(const string& word,
+MultiDatabase::add_spelling(string_view word,
 			    Xapian::termcount freqinc) const
 {
     shards[0]->add_spelling(word, freqinc);
 }
 
 Xapian::termcount
-MultiDatabase::remove_spelling(const string& word,
+MultiDatabase::remove_spelling(string_view word,
 			       Xapian::termcount freqdec) const
 {
     for (auto&& shard : shards) {
@@ -698,15 +699,15 @@ MultiDatabase::remove_spelling(const string& word,
 }
 
 void
-MultiDatabase::add_synonym(const string& term,
-			   const string& synonym) const
+MultiDatabase::add_synonym(string_view term,
+			   string_view synonym) const
 {
     shards[0]->add_synonym(term, synonym);
 }
 
 void
-MultiDatabase::remove_synonym(const string& term,
-			      const string& synonym) const
+MultiDatabase::remove_synonym(string_view term,
+			      string_view synonym) const
 {
     for (auto&& shard : shards) {
 	shard->remove_synonym(term, synonym);
@@ -714,7 +715,7 @@ MultiDatabase::remove_synonym(const string& term,
 }
 
 void
-MultiDatabase::clear_synonyms(const string& term) const
+MultiDatabase::clear_synonyms(string_view term) const
 {
     for (auto&& shard : shards) {
 	shard->clear_synonyms(term);
@@ -722,7 +723,7 @@ MultiDatabase::clear_synonyms(const string& term) const
 }
 
 void
-MultiDatabase::set_metadata(const string& key, const string& value)
+MultiDatabase::set_metadata(string_view key, string_view value)
 {
     shards[0]->set_metadata(key, value);
 }
@@ -730,7 +731,7 @@ MultiDatabase::set_metadata(const string& key, const string& value)
 string
 MultiDatabase::reconstruct_text(Xapian::docid did,
 				size_t length,
-				const string& prefix,
+				string_view prefix,
 				Xapian::termpos start_pos,
 				Xapian::termpos end_pos) const
 {

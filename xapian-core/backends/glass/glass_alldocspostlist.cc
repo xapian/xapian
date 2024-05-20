@@ -1,7 +1,7 @@
 /** @file
  * @brief A PostList which iterates over all documents in a GlassDatabase.
  */
-/* Copyright (C) 2006,2007,2008,2009 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2024 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -34,7 +34,7 @@ using Xapian::Internal::intrusive_ptr;
 
 GlassAllDocsPostList::GlassAllDocsPostList(intrusive_ptr<const GlassDatabase> db_,
 					   Xapian::doccount doccount)
-	: GlassPostList(db_, string(), true)
+	: GlassPostList(db_, {}, true)
 {
     LOGCALL_CTOR(DB, "GlassAllDocsPostList", db_.get() | doccount);
     /* For an all documents postlist the term frequency is the number of

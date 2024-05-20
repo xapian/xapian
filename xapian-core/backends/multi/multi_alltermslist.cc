@@ -1,7 +1,7 @@
 /** @file
  * @brief Class for merging AllTermsList objects from subdatabases.
  */
-/* Copyright (C) 2007,2008,2009,2011,2017,2018,2020 Olly Betts
+/* Copyright (C) 2007,2008,2009,2011,2017,2018,2020,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -136,8 +136,8 @@ MultiAllTermsList::next()
     return NULL;
 }
 
-TermList *
-MultiAllTermsList::skip_to(const std::string &term)
+TermList*
+MultiAllTermsList::skip_to(std::string_view term)
 {
     // Assume the skip is likely to be a long distance, and rebuild the heap
     // from scratch.  FIXME: It would be useful to profile this against an

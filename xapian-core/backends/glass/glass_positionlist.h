@@ -1,7 +1,7 @@
 /** @file
  * @brief A position list in a glass database.
  */
-/* Copyright (C) 2005,2006,2008,2009,2010,2011,2013,2016,2017,2019 Olly Betts
+/* Copyright (C) 2005-2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -130,7 +130,7 @@ class GlassRePositionList : public GlassBasePositionList {
 
 class GlassPositionListTable : public GlassLazyTable {
   public:
-    static std::string make_key(Xapian::docid did, const std::string& term) {
+    static std::string make_key(Xapian::docid did, std::string_view term) {
 	std::string key;
 	pack_string_preserving_sort(key, term);
 	pack_uint_preserving_sort(key, did);
@@ -152,7 +152,7 @@ class GlassPositionListTable : public GlassLazyTable {
 	: GlassLazyTable("position", fd, offset_, readonly_) { }
 
     GlassPositionList* open_position_list(Xapian::docid did,
-					  const std::string& term) {
+					  std::string_view term) {
 	std::string pos_data;
 	if (!get_exact_entry(make_key(did, term), pos_data))
 	    return nullptr;

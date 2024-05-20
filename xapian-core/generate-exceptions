@@ -1,6 +1,6 @@
 # generate-exceptions: generate C++ files for Xapian's exception hierarchy.
 #
-# Copyright (C) 2003,2004,2006,2007,2008,2009,2011,2012,2013,2014,2015,2017,2019 Olly Betts
+# Copyright (C) 2003-2024 Olly Betts
 # Copyright (C) 2007 Richard Boulton
 #
 # This program is free software; you can redistribute it and/or
@@ -104,14 +104,14 @@ class XAPIAN_VISIBILITY_DEFAULT Error {
     /** @private @internal
      *  @brief Constructor for use by constructors of derived classes.
      */
-    Error(const std::string &msg_, const std::string &context_,
-	  const char * type_, const char * error_string_);
+    Error(std::string_view msg_, std::string_view context_,
+	  const char* type_, const char* error_string_);
 
     /** @private @internal
      *  @brief Constructor for use by constructors of derived classes.
      */
-    Error(const std::string &msg_, const std::string &context_,
-	  const char * type_, int errno_)
+    Error(std::string_view msg_, std::string_view context_,
+	  const char* type_, int errno_)
 	: msg(msg_), context(context_), error_string(), type(type_),
 	  my_errno(errno_) { }
 
@@ -193,13 +193,13 @@ class XAPIAN_VISIBILITY_DEFAULT $class : public $parent {
     /** \@private \@internal
      *  \@brief Constructor for use by constructors of derived classes.
      */
-    $class(const std::string \&msg_, const std::string \&context_, const char * type_, const char * error_string_)
+    $class(std::string_view msg_, std::string_view context_, const char* type_, const char* error_string_)
 	: $parent(msg_, context_, type_, error_string_) {}
 
     /** \@private \@internal
      *  \@brief Constructor for use by constructors of derived classes.
      */
-    $class(const std::string \&msg_, const std::string \&context_, const char * type_, int errno_)
+    $class(std::string_view msg_, std::string_view context_, const char* type_, int errno_)
 	: $parent(msg_, context_, type_, errno_) {}
 };
 EOF
@@ -224,7 +224,7 @@ class XAPIAN_VISIBILITY_DEFAULT $class : public $parent {
      *
      *  \@param error_string_	Optional string describing error.  May be NULL.
      */
-    $class(const std::string \&msg_, const std::string \&context_, const char * error_string_)
+    $class(std::string_view msg_, std::string_view context_, const char* error_string_)
 	: $parent(msg_, context_, "$code$class", error_string_) {}
     /** General purpose constructor.
      *
@@ -233,7 +233,7 @@ class XAPIAN_VISIBILITY_DEFAULT $class : public $parent {
      *  \@param context_	Optional context information for this error.
      *  \@param errno_		Optional errno value associated with this error.
      */
-    explicit $class(const std::string \&msg_, const std::string \&context_ = std::string(), int errno_ = 0)
+    explicit $class(std::string_view msg_, std::string_view context_ = {}, int errno_ = 0)
 	: $parent(msg_, context_, "$code$class", errno_) {}
     /** Construct from message and errno value.
      *
@@ -241,19 +241,19 @@ class XAPIAN_VISIBILITY_DEFAULT $class : public $parent {
      *				for human consumption.
      *  \@param errno_		Optional errno value associated with this error.
      */
-    $class(const std::string \&msg_, int errno_)
+    $class(std::string_view msg_, int errno_)
 	: $parent(msg_, std::string(), "$code$class", errno_) {}
   protected:
     /** \@private \@internal
      *  \@brief Constructor for use by constructors of derived classes.
      */
-    $class(const std::string \&msg_, const std::string \&context_, const char * type_, const char * error_string_)
+    $class(std::string_view msg_, std::string_view context_, const char* type_, const char* error_string_)
 	: $parent(msg_, context_, type_, error_string_) {}
 
     /** \@private \@internal
      *  \@brief Constructor for use by constructors of derived classes.
      */
-    $class(const std::string \&msg_, const std::string \&context_, const char * type_, int errno_)
+    $class(std::string_view msg_, std::string_view context_, const char* type_, int errno_)
 	: $parent(msg_, context_, type_, errno_) {}
 };
 EOF

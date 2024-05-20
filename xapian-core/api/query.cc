@@ -1,7 +1,7 @@
 /** @file
  * @brief Xapian::Query API class
  */
-/* Copyright (C) 2011,2012,2013,2015,2016,2017,2018 Olly Betts
+/* Copyright (C) 2011,2012,2013,2015,2016,2017,2018,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,6 +24,7 @@
 #include "queryinternal.h"
 
 #include <algorithm>
+#include <string_view>
 
 #include "debuglog.h"
 #include "omassert.h"
@@ -40,7 +41,7 @@ const Query Query::MatchAll((string()));
 
 const Query Query::MatchNothing;
 
-Query::Query(const string & term, Xapian::termcount wqf, Xapian::termpos pos)
+Query::Query(string_view term, Xapian::termcount wqf, Xapian::termpos pos)
     : internal(new Xapian::Internal::QueryTerm(term, wqf, pos))
 {
     LOGCALL_CTOR(API, "Query", term | wqf | pos);
@@ -83,7 +84,7 @@ Query::Query(op op_, const Xapian::Query & subquery, double factor)
     internal = new Xapian::Internal::QueryScaleWeight(factor, subquery);
 }
 
-Query::Query(op op_, Xapian::valueno slot, const std::string & limit)
+Query::Query(op op_, Xapian::valueno slot, std::string_view limit)
 {
     LOGCALL_CTOR(API, "Query", op_ | slot | limit);
 
@@ -100,7 +101,7 @@ Query::Query(op op_, Xapian::valueno slot, const std::string & limit)
 }
 
 Query::Query(op op_, Xapian::valueno slot,
-	     const std::string & begin, const std::string & end)
+	     std::string_view begin, std::string_view end)
 {
     LOGCALL_CTOR(API, "Query", op_ | slot | begin | end);
 
@@ -115,7 +116,7 @@ Query::Query(op op_, Xapian::valueno slot,
 }
 
 Query::Query(op op_,
-	     const std::string & pattern,
+	     std::string_view pattern,
 	     Xapian::termcount max_expansion,
 	     int flags,
 	     op combiner)
@@ -173,7 +174,7 @@ Query::Query(op op_,
 }
 
 Query::Query(op op_,
-	     const std::string& pattern,
+	     std::string_view pattern,
 	     Xapian::termcount max_expansion,
 	     int flags,
 	     op combiner,
@@ -262,7 +263,7 @@ Query::serialise() const
 }
 
 const Query
-Query::unserialise(const string & s, const Registry & reg)
+Query::unserialise(string_view s, const Registry& reg)
 {
     const char * p = s.data();
     const char * end = p + s.size();

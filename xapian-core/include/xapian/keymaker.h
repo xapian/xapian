@@ -1,7 +1,7 @@
 /** @file
  * @brief Build key strings for MSet ordering or collapsing.
  */
-/* Copyright (C) 2007,2009,2011,2013,2014,2015,2016,2019 Olly Betts
+/* Copyright (C) 2007,2009,2011,2013,2014,2015,2016,2019,2024 Olly Betts
  * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -27,6 +27,7 @@
 #endif
 
 #include <string>
+#include <string_view>
 #include <vector>
 
 #include <xapian/intrusive_ptr.h>
@@ -158,7 +159,7 @@ class XAPIAN_VISIBILITY_DEFAULT MultiValueKeyMaker : public KeyMaker {
 	bool reverse;
 	std::string defvalue;
 	KeySpec(Xapian::valueno slot_, bool reverse_,
-		const std::string & defvalue_)
+		std::string_view defvalue_)
 		: slot(slot_), reverse(reverse_), defvalue(defvalue_)
 	{}
     };
@@ -192,7 +193,7 @@ class XAPIAN_VISIBILITY_DEFAULT MultiValueKeyMaker : public KeyMaker {
      *			this slot.
      */
     void add_value(Xapian::valueno slot, bool reverse = false,
-		   const std::string & defvalue = std::string()) {
+		   std::string_view defvalue = {}) {
 	slots.push_back(KeySpec(slot, reverse, defvalue));
     }
 

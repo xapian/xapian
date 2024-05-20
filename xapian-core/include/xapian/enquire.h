@@ -1,7 +1,7 @@
 /** @file
  * @brief Querying session
  */
-/* Copyright (C) 2005,2013,2016,2017 Olly Betts
+/* Copyright (C) 2005,2013,2016,2017,2024 Olly Betts
  * Copyright (C) 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -456,7 +456,7 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
      *  @param expand_k  The parameter required for TradWeight query expansion.
      *                   A default value of 1.0 is used if none is specified.
      */
-    void set_expansion_scheme(const std::string &eweightname,
+    void set_expansion_scheme(std::string_view eweightname,
 			      double expand_k = 1.0) const;
 
     /** Flag telling get_eset() to allow query terms in Xapian::ESet.

@@ -32,6 +32,8 @@
 #include "testsuite.h"
 #include "testutils.h"
 
+#include <string_view>
+
 using namespace std;
 
 // Check the version functions give consistent results.

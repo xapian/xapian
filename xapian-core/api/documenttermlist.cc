@@ -1,7 +1,7 @@
 /** @file
  * @brief Iteration over terms in a document
  */
-/* Copyright 2017 Olly Betts
+/* Copyright 2017,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -88,7 +88,7 @@ DocumentTermList::next()
 }
 
 TermList*
-DocumentTermList::skip_to(const string& term)
+DocumentTermList::skip_to(string_view term)
 {
     it = doc->terms->lower_bound(term);
     while (it != doc->terms->end() && it->second.is_deleted()) {

@@ -1,7 +1,7 @@
 %{
 /* xapian-headers.i: Getting SWIG to parse Xapian's C++ headers.
  *
- * Copyright 2004,2006,2011,2012,2013,2014,2015,2016,2017,2019,2020 Olly Betts
+ * Copyright 2004-2024 Olly Betts
  * Copyright 2014 Assem Chelli
  *
  * This program is free software; you can redistribute it and/or
@@ -255,6 +255,13 @@ STANDARD_IGNORES(Xapian, Query)
 %ignore Query(op op_, XapianSWIGQueryItor qbegin, XapianSWIGQueryItor qend,
 	      Xapian::termcount parameter = 0);
 #endif
+%ignore Xapian::Query::Query(const std::string&, Xapian::termcount = 1, Xapian::termpos = 0);
+%ignore Xapian::Query::Query(const char*, Xapian::termcount = 1, Xapian::termpos = 0);
+%extend Xapian::Query {
+    Query(op op_, std::string_view a, std::string_view b) {
+	return new Xapian::Query(op_, a, b);
+    }
+}
 %include <xapian/query.h>
 
 // Suppress warning that Xapian::Internal::intrusive_base is unknown.
@@ -270,12 +277,12 @@ STANDARD_IGNORES(Xapian, Stem)
 STANDARD_IGNORES(Xapian, TermGenerator)
 %ignore Xapian::TermGenerator::operator=;
 /* Ignore forms which use Utf8Iterator, as we don't wrap that class. */
-%ignore Xapian::TermGenerator::index_text(const Xapian::Utf8Iterator &);
-%ignore Xapian::TermGenerator::index_text(const Xapian::Utf8Iterator &, Xapian::termcount);
-%ignore Xapian::TermGenerator::index_text(const Xapian::Utf8Iterator &, Xapian::termcount, const std::string &);
-%ignore Xapian::TermGenerator::index_text_without_positions(const Xapian::Utf8Iterator &);
-%ignore Xapian::TermGenerator::index_text_without_positions(const Xapian::Utf8Iterator &, Xapian::termcount);
-%ignore Xapian::TermGenerator::index_text_without_positions(const Xapian::Utf8Iterator &, Xapian::termcount, const std::string &);
+%ignore Xapian::TermGenerator::index_text(const Xapian::Utf8Iterator&);
+%ignore Xapian::TermGenerator::index_text(const Xapian::Utf8Iterator&, Xapian::termcount);
+%ignore Xapian::TermGenerator::index_text(const Xapian::Utf8Iterator&, Xapian::termcount, std::string_view);
+%ignore Xapian::TermGenerator::index_text_without_positions(const Xapian::Utf8Iterator&);
+%ignore Xapian::TermGenerator::index_text_without_positions(const Xapian::Utf8Iterator&, Xapian::termcount);
+%ignore Xapian::TermGenerator::index_text_without_positions(const Xapian::Utf8Iterator&, Xapian::termcount, std::string_view);
 %ignore Xapian::TermGenerator::TermGenerator(const TermGenerator &);
 %include <xapian/termgenerator.h>
 
@@ -433,11 +440,11 @@ INPUT_ITERATOR_METHODS(Xapian, LatLongCoordsIterator, LatLongCoord, get_coord)
 STANDARD_IGNORES(Xapian, Database)
 STANDARD_IGNORES(Xapian, WritableDatabase)
 %ignore Xapian::WritableDatabase::WritableDatabase(Database::Internal *);
-%ignore Xapian::Database::check(const std::string &, int, std::ostream *);
-%ignore Xapian::Database::check(int fd, int, std::ostream *);
+%ignore Xapian::Database::check(std::string_view, int, std::ostream*);
+%ignore Xapian::Database::check(int fd, int, std::ostream*);
 %include <xapian/database.h>
 %extend Xapian::Database {
-    static size_t check(const std::string &path, int opts = 0) {
+    static size_t check(std::string_view path, int opts = 0) {
 	return Xapian::Database::check(path, opts, opts ? &std::cout : NULL);
     }
 }

@@ -1,7 +1,7 @@
 /** @file
  * @brief Access to metadata for a glass database.
  */
-/* Copyright (C) 2005,2007,2008,2009,2011,2017 Olly Betts
+/* Copyright (C) 2005,2007,2008,2009,2011,2017,2024 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -54,7 +54,7 @@ class GlassMetadataTermList : public AllTermsList {
 
   public:
     GlassMetadataTermList(Xapian::Internal::intrusive_ptr<const Xapian::Database::Internal> database_,
-			  GlassCursor * cursor_, const std::string &prefix_);
+			  GlassCursor* cursor_, std::string_view prefix_);
 
     ~GlassMetadataTermList();
 
@@ -70,7 +70,7 @@ class GlassMetadataTermList : public AllTermsList {
     TermList * next();
 
     /// Advance to the first key which is >= @a key.
-    TermList * skip_to(const std::string &key);
+    TermList* skip_to(std::string_view key);
 };
 
 #endif // XAPIAN_INCLUDED_GLASS_METADATA_H

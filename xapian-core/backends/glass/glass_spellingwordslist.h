@@ -1,7 +1,7 @@
 /** @file
  * @brief A termlist containing all words which are spelling targets.
  */
-/* Copyright (C) 2005,2008,2009,2010,2011,2017 Olly Betts
+/* Copyright (C) 2005,2008,2009,2010,2011,2017,2024 Olly Betts
  * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -79,7 +79,7 @@ class GlassSpellingWordsList : public AllTermsList {
     TermList * next();
 
     /// Advance to the first term which is >= tname.
-    TermList * skip_to(const std::string &tname);
+    TermList* skip_to(std::string_view tname);
 };
 
 #endif /* XAPIAN_INCLUDED_GLASS_SPELLINGWORDSLIST_H */

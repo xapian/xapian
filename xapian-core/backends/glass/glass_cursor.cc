@@ -2,7 +2,7 @@
  * @brief Btree cursor implementation
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2012,2013,2015,2016 Olly Betts
+ * Copyright 2002-2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -30,21 +30,22 @@
 #include "debuglog.h"
 #include "omassert.h"
 
+#include <string_view>
+
 using namespace Glass;
+using namespace std;
 
 #ifdef XAPIAN_DEBUG_LOG
 static string
-hex_display_encode(const string & input)
+hex_display_encode(string_view input)
 {
-    const char * table = "0123456789abcdef";
+    const char* table = "0123456789abcdef";
     string result;
-    for (string::const_iterator i = input.begin(); i != input.end(); ++i) {
-	unsigned char val = *i;
+    for (unsigned char val : input) {
 	result += "\\x";
-	result += table[val / 16];
-	result += table[val % 16];
+	result += table[val >> 4];
+	result += table[val & 0x0f];
     }
-
     return result;
 }
 #endif
@@ -237,7 +238,7 @@ GlassCursor::find_exact(const string &key)
 }
 
 bool
-GlassCursor::find_entry_ge(const string &key)
+GlassCursor::find_entry_ge(string_view key)
 {
     LOGCALL(DB, bool, "GlassCursor::find_entry_ge", key);
     if (B->cursor_version != version) {

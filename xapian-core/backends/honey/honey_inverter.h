@@ -1,7 +1,7 @@
 /** @file
  * @brief HoneyInverter class which "inverts the file".
  */
-/* Copyright (C) 2009,2010,2013,2014,2023 Olly Betts
+/* Copyright (C) 2009,2010,2013,2014,2023,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -125,10 +125,12 @@ class HoneyInverter {
     };
 
     /// Buffered changes to postlists.
-    std::map<std::string, PostingChanges> postlist_changes;
+    std::map<std::string, PostingChanges, std::less<>> postlist_changes;
 
     /// Buffered changes to positional data.
-    std::map<std::string, std::map<Xapian::docid, std::string>> pos_changes;
+    std::map<std::string,
+	     std::map<Xapian::docid, std::string>,
+	     std::less<>> pos_changes;
 
     void store_positions(const HoneyPositionTable& position_table,
 			 Xapian::docid did,
@@ -147,8 +149,7 @@ class HoneyInverter {
   public:
     void add_posting(Xapian::docid did, const std::string& term,
 		     Xapian::doccount wdf) {
-	std::map<std::string, PostingChanges>::iterator i;
-	i = postlist_changes.find(term);
+	auto i = postlist_changes.find(term);
 	if (i == postlist_changes.end()) {
 	    postlist_changes.insert(
 		std::make_pair(term, PostingChanges(did, wdf)));
@@ -159,8 +160,7 @@ class HoneyInverter {
 
     void remove_posting(Xapian::docid did, const std::string& term,
 			Xapian::doccount wdf) {
-	std::map<std::string, PostingChanges>::iterator i;
-	i = postlist_changes.find(term);
+	auto i = postlist_changes.find(term);
 	if (i == postlist_changes.end()) {
 	    postlist_changes.insert(
 		std::make_pair(term, PostingChanges(did, wdf, false)));
@@ -172,8 +172,7 @@ class HoneyInverter {
     void update_posting(Xapian::docid did, const std::string& term,
 			Xapian::termcount old_wdf,
 			Xapian::termcount new_wdf) {
-	std::map<std::string, PostingChanges>::iterator i;
-	i = postlist_changes.find(term);
+	auto i = postlist_changes.find(term);
 	if (i == postlist_changes.end()) {
 	    postlist_changes.insert(
 		std::make_pair(term, PostingChanges(did, old_wdf, new_wdf)));
@@ -218,8 +217,7 @@ class HoneyInverter {
     }
 
     bool get_doclength(Xapian::docid did, Xapian::termcount& doclen) const {
-	std::map<Xapian::docid, Xapian::termcount>::const_iterator i;
-	i = doclen_changes.find(did);
+	auto i = doclen_changes.find(did);
 	if (i == doclen_changes.end())
 	    return false;
 	if (rare(i->second == DELETED_POSTING))
@@ -246,11 +244,10 @@ class HoneyInverter {
     /// Flush position changes.
     void flush_pos_lists(HoneyPositionTable& table);
 
-    bool get_deltas(const std::string& term,
+    bool get_deltas(std::string_view term,
 		    Xapian::termcount& tf_delta,
 		    Xapian::termcount& cf_delta) const {
-	std::map<std::string, PostingChanges>::const_iterator i;
-	i = postlist_changes.find(term);
+	auto i = postlist_changes.find(term);
 	if (i == postlist_changes.end()) {
 	    return false;
 	}

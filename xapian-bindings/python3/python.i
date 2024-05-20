@@ -201,6 +201,13 @@ class XapianSWIG_Python_Thread_Allow {
 %typemap(directorin) std::string, const std::string & %{
     $input = PyBytes_FromStringAndSize($1_name.data(), $1_name.size());
 %}
+// Similarly for std::string_view (`out` typemap not currently used).
+%typemap(out) std::string_view %{
+    $result = PyBytes_FromStringAndSize($1.data(), $1.size());
+%}
+%typemap(directorin) std::string_view %{
+    $input = PyBytes_FromStringAndSize($1_name.data(), $1_name.size());
+%}
 
 // And const char * too.
 %typemap(out) const char * %{
@@ -226,6 +233,18 @@ class XapianSWIG_Python_Thread_Allow {
     bytes.assign(p, len);
     $1 = &bytes;
 }
+
+// Parameters where passing Unicode makes no sense.
+%typemap(typecheck) std::string_view serialised %{
+    $1 = PyBytes_Check($input) ? 1 : 0;
+%}
+%typemap(in) std::string_view serialised {
+    char * p;
+    Py_ssize_t len;
+    if (PyBytes_AsStringAndSize($input, &p, &len) < 0) SWIG_fail;
+    $1 = std::string_view(p, len);
+}
+%typemap(freearg) std::string_view serialised "";
 
 #define XAPIAN_MIXED_SUBQUERIES_BY_ITERATOR_TYPEMAP
 

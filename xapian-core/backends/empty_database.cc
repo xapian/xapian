@@ -1,7 +1,7 @@
 /** @file
  * @brief Empty database internals
  */
-/* Copyright (C) 2017 Olly Betts
+/* Copyright (C) 2017,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,6 +24,8 @@
 #include "omassert.h"
 #include "xapian/error.h"
 
+#include <string_view>
+
 using namespace std;
 
 [[noreturn]]
@@ -44,13 +46,13 @@ EmptyDatabase::close()
 }
 
 PostList*
-EmptyDatabase::open_post_list(const string&) const
+EmptyDatabase::open_post_list(string_view) const
 {
     return NULL;
 }
 
 LeafPostList*
-EmptyDatabase::open_leaf_post_list(const string&, bool) const
+EmptyDatabase::open_leaf_post_list(string_view, bool) const
 {
     return NULL;
 }
@@ -68,7 +70,7 @@ EmptyDatabase::open_term_list_direct(Xapian::docid) const
 }
 
 TermList*
-EmptyDatabase::open_allterms(const string&) const
+EmptyDatabase::open_allterms(string_view) const
 {
     return NULL;
 }
@@ -80,7 +82,7 @@ EmptyDatabase::has_positions() const
 }
 
 PositionList*
-EmptyDatabase::open_position_list(Xapian::docid, const string&) const
+EmptyDatabase::open_position_list(Xapian::docid, string_view) const
 {
     no_subdatabases();
 }
@@ -104,7 +106,7 @@ EmptyDatabase::get_total_length() const
 }
 
 void
-EmptyDatabase::get_freqs(const string& term,
+EmptyDatabase::get_freqs(string_view term,
 			 Xapian::doccount* tf_ptr,
 			 Xapian::termcount* cf_ptr) const
 {
@@ -148,7 +150,7 @@ EmptyDatabase::get_doclength_upper_bound() const
 }
 
 Xapian::termcount
-EmptyDatabase::get_wdf_upper_bound(const string& term) const
+EmptyDatabase::get_wdf_upper_bound(string_view term) const
 {
     Assert(!term.empty());
     (void)term;
@@ -194,13 +196,13 @@ EmptyDatabase::open_document(Xapian::docid did, bool) const
 }
 
 bool
-EmptyDatabase::term_exists(const string&) const
+EmptyDatabase::term_exists(string_view) const
 {
     return false;
 }
 
 TermList*
-EmptyDatabase::open_spelling_termlist(const string&) const
+EmptyDatabase::open_spelling_termlist(string_view) const
 {
     return NULL;
 }
@@ -212,31 +214,31 @@ EmptyDatabase::open_spelling_wordlist() const
 }
 
 Xapian::doccount
-EmptyDatabase::get_spelling_frequency(const string&) const
+EmptyDatabase::get_spelling_frequency(string_view) const
 {
     return 0;
 }
 
 TermList*
-EmptyDatabase::open_synonym_termlist(const string&) const
+EmptyDatabase::open_synonym_termlist(string_view) const
 {
     return NULL;
 }
 
 TermList*
-EmptyDatabase::open_synonym_keylist(const string&) const
+EmptyDatabase::open_synonym_keylist(string_view) const
 {
     return NULL;
 }
 
 string
-EmptyDatabase::get_metadata(const string&) const
+EmptyDatabase::get_metadata(string_view) const
 {
     return string();
 }
 
 TermList*
-EmptyDatabase::open_metadata_keylist(const string&) const
+EmptyDatabase::open_metadata_keylist(string_view) const
 {
     return NULL;
 }
@@ -302,7 +304,7 @@ EmptyDatabase::delete_document(Xapian::docid)
 }
 
 void
-EmptyDatabase::delete_document(const string&)
+EmptyDatabase::delete_document(string_view)
 {
     no_subdatabases();
 }
@@ -314,43 +316,43 @@ EmptyDatabase::replace_document(Xapian::docid, const Xapian::Document&)
 }
 
 Xapian::docid
-EmptyDatabase::replace_document(const string&, const Xapian::Document&)
+EmptyDatabase::replace_document(string_view, const Xapian::Document&)
 {
     no_subdatabases();
 }
 
 void
-EmptyDatabase::add_spelling(const string&, Xapian::termcount) const
+EmptyDatabase::add_spelling(string_view, Xapian::termcount) const
 {
     no_subdatabases();
 }
 
 Xapian::termcount
-EmptyDatabase::remove_spelling(const string&, Xapian::termcount) const
+EmptyDatabase::remove_spelling(string_view, Xapian::termcount) const
 {
     no_subdatabases();
 }
 
 void
-EmptyDatabase::add_synonym(const string&, const string&) const
+EmptyDatabase::add_synonym(string_view, string_view) const
 {
     no_subdatabases();
 }
 
 void
-EmptyDatabase::remove_synonym(const string&, const string&) const
+EmptyDatabase::remove_synonym(string_view, string_view) const
 {
     no_subdatabases();
 }
 
 void
-EmptyDatabase::clear_synonyms(const string&) const
+EmptyDatabase::clear_synonyms(string_view) const
 {
     no_subdatabases();
 }
 
 void
-EmptyDatabase::set_metadata(const string&, const string&)
+EmptyDatabase::set_metadata(string_view, string_view)
 {
     no_subdatabases();
 }

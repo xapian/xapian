@@ -64,6 +64,7 @@ using namespace std;
 
 %include exception.i
 %include stl.i
+%include std_string_view.i
 
 // Disable errors about not including headers individually.
 #define XAPIAN_IN_XAPIAN_H

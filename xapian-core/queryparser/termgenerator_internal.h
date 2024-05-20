@@ -1,7 +1,7 @@
 /** @file
  * @brief TermGenerator class internals
  */
-/* Copyright (C) 2007,2012,2016 Olly Betts
+/* Copyright (C) 2007,2012,2016,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -49,7 +49,7 @@ class TermGenerator::Internal : public Xapian::Internal::intrusive_base {
 
     void index_text(Utf8Iterator itor,
 		    termcount weight,
-		    const std::string & prefix,
+		    std::string_view prefix,
 		    bool with_positions);
 };
 

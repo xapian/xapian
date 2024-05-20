@@ -240,7 +240,7 @@ class RemoteConnection {
      *				(end_time == 0.0) then the operation will
      *				never timeout.
      */
-    void send_message(char type, const std::string & s, double end_time);
+    void send_message(char type, std::string_view s, double end_time);
 
     /** Send the contents of a file as a message.
      *

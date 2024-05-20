@@ -1,7 +1,7 @@
 /** @file
  * @brief Merge two TermList objects using an OR operation.
  */
-/* Copyright (C) 2007-2023 Olly Betts
+/* Copyright (C) 2007-2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -147,8 +147,8 @@ OrTermList::next()
     RETURN(NULL);
 }
 
-TermList *
-OrTermList::skip_to(const string & term)
+TermList*
+OrTermList::skip_to(string_view term)
 {
     LOGCALL(EXPAND, TermList *, "OrTermList::skip_to", term);
     TermList* lret = left->skip_to(term);

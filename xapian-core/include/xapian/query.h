@@ -1,7 +1,7 @@
 /** @file
  * @brief Xapian::Query API class
  */
-/* Copyright (C) 2011,2012,2013,2014,2015,2016,2017,2018,2019 Olly Betts
+/* Copyright (C) 2011,2012,2013,2014,2015,2016,2017,2018,2019,2024 Olly Betts
  * Copyright (C) 2008 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -27,6 +27,7 @@
 #endif
 
 #include <string>
+#include <string_view>
 
 #include <xapian/attributes.h>
 #include <xapian/intrusive_ptr.h>
@@ -64,11 +65,12 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 
     /** A query matching all documents.
      *
-     *  This is a static instance of <code>Xapian::Query(std::string())</code>.
+     *  This is a static instance of
+     *  <code>Xapian::Query(std::string_view())</code>.
      *  If you are constructing Query objects which use @a MatchAll in
      *  different threads then the reference counting of the static object can
      *  get messed up by concurrent access so you should instead use
-     *  <code>Xapian::Query(std::string())</code> directly.
+     *  <code>Xapian::Query(std::string_view())</code> directly.
      */
     static const Xapian::Query MatchAll;
 
@@ -282,8 +284,8 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 
 	/** Value returned by get_type() for MatchAll or equivalent.
 	 *
-	 *  This is returned for any <code>Xapian::Query(std::string())</code>
-	 *  object.
+	 *  This is returned for any
+	 *  <code>Xapian::Query(std::string_view())</code> object.
 	 */
 	LEAF_MATCH_ALL,
 
@@ -380,7 +382,37 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
      *		    determine the order of terms obtained via
      *		    get_terms_begin(). (default: 0)
      */
-    Query(const std::string & term,
+    Query(const std::string& term,
+	  Xapian::termcount wqf = 1,
+	  Xapian::termpos pos = 0)
+	: Query(std::string_view(term), wqf, pos)
+    { }
+
+    /** Construct a Query object for a term.
+     *
+     *  @param term The term.  An empty string constructs a query matching
+     *		    all documents (@a MatchAll is a static instance of this).
+     *  @param wqf  The within-query frequency. (default: 1)
+     *  @param pos  The query position.  Currently this is mainly used to
+     *		    determine the order of terms obtained via
+     *		    get_terms_begin(). (default: 0)
+     */
+    Query(const char* term,
+	  Xapian::termcount wqf = 1,
+	  Xapian::termpos pos = 0)
+	: Query(std::string_view(term), wqf, pos)
+    { }
+
+    /** Construct a Query object for a term.
+     *
+     *  @param term The term.  An empty string constructs a query matching
+     *		    all documents (@a MatchAll is a static instance of this).
+     *  @param wqf  The within-query frequency. (default: 1)
+     *  @param pos  The query position.  Currently this is mainly used to
+     *		    determine the order of terms obtained via
+     *		    get_terms_begin(). (default: 0)
+     */
+    Query(std::string_view term,
 	  Xapian::termcount wqf = 1,
 	  Xapian::termpos pos = 0);
 
@@ -426,11 +458,16 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
      *  @param a	First term.
      *  @param b	Second term.
      */
-    Query(op op_, const std::string & a, const std::string & b)
+    template<typename S1, typename S2,
+	typename
+	std::enable_if<std::is_constructible<std::string_view, S1>::value &&
+		       std::is_constructible<std::string_view, S2>::value,
+		       bool>::type = true>
+    Query(op op_, S1 a, S2 b)
     {
 	init(op_, 2);
-	add_subquery(false, a);
-	add_subquery(false, b);
+	add_subquery(false, std::string_view(a));
+	add_subquery(false, std::string_view(b));
 	done();
     }
 
@@ -440,7 +477,7 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
      *  @param slot		The value slot to work over.
      *  @param range_limit	The limit of the range.
      */
-    Query(op op_, Xapian::valueno slot, const std::string & range_limit);
+    Query(op op_, Xapian::valueno slot, std::string_view range_limit);
 
     /** Construct a Query object for a value range.
      *
@@ -450,7 +487,7 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
      *  @param range_upper	Upper end of the range.
      */
     Query(op op_, Xapian::valueno slot,
-	  const std::string & range_lower, const std::string & range_upper);
+	  std::string_view range_lower, std::string_view range_upper);
 
     /** Query constructor for OP_EDIT_DISTANCE and OP_WILDCARD queries.
      *
@@ -491,7 +528,7 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
      *	ASCII capital letter, as this is assumed to be part of a term prefix.
      */
     Query(op op_,
-	  const std::string & pattern,
+	  std::string_view pattern,
 	  Xapian::termcount max_expansion = 0,
 	  int flags = WILDCARD_LIMIT_ERROR,
 	  op combiner = OP_SYNONYM);
@@ -529,7 +566,7 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
      *			that is required to match exactly.  Default: 0
      */
     Query(op op_,
-	  const std::string& pattern,
+	  std::string_view pattern,
 	  Xapian::termcount max_expansion,
 	  int flags,
 	  op combiner,
@@ -539,8 +576,8 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
     /** Construct a Query object from a begin/end iterator pair.
      *
      *  Dereferencing the iterator should return a Xapian::Query, a non-NULL
-     *  Xapian::Query*, a std::string or a type which converts to one of
-     *  these (e.g. const char*).
+     *  Xapian::Query*, a std::string_view or a type which converts to one of
+     *  these (e.g. std::string or const char*).
      *
      *  If begin == end then there are no subqueries and the resulting Query
      *  won't match anything.
@@ -551,7 +588,8 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
      *  @param window	Window size for OP_NEAR and OP_PHRASE, or 0 to use the
      *			number of subqueries as the window size (default: 0).
      */
-    template<typename I>
+    template<typename I,
+	     typename = typename std::iterator_traits<I>::iterator_category>
     Query(op op_, I begin, I end, Xapian::termcount window = 0)
     {
 	if (begin != end) {
@@ -623,7 +661,7 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
      *				user-subclasses of Xapian::PostingSource
      *				(default: standard registry).
      */
-    static const Query unserialise(const std::string & serialised,
+    static const Query unserialise(std::string_view serialised,
 				   const Registry & reg = Registry());
 
     /** Get the type of the top level of the query. */
@@ -722,7 +760,15 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 
     void add_subquery(bool positional, const Xapian::Query & subquery);
 
-    void add_subquery(bool, const std::string & subquery) {
+    void add_subquery(bool, const std::string& subquery) {
+	add_subquery(false, Xapian::Query(subquery));
+    }
+
+    void add_subquery(bool, const char* subquery) {
+	add_subquery(false, Xapian::Query(subquery));
+    }
+
+    void add_subquery(bool, std::string_view subquery) {
 	add_subquery(false, Xapian::Query(subquery));
     }
 
@@ -801,7 +847,7 @@ class InvertedQuery_ {
     InvertedQuery_(const InvertedQuery_ & o) : query(o.query) { }
 
     operator Query() const {
-	return Query(Query::OP_AND_NOT, Query(std::string()), query);
+	return Query(Query::OP_AND_NOT, Query(std::string_view{}), query);
     }
 
     friend const InvertedQuery_ operator~(const Query &q);

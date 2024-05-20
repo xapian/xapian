@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016 Olly Betts
+ * Copyright 2002-2024 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -53,6 +53,7 @@
 
 #include <algorithm>  // for std::min()
 #include <string>
+#include <string_view>
 
 #include "xapian/constants.h"
 
@@ -1245,7 +1246,7 @@ The bracketed parts are left blank. The key is filled in with key_len bytes and
 K set accordingly. c is set to 1.
 */
 
-void GlassTable::form_key(const string & key) const
+void GlassTable::form_key(string_view key) const
 {
     LOGCALL_VOID(DB, "GlassTable::form_key", key);
     kt.form_key(key);
@@ -1275,7 +1276,7 @@ void GlassTable::form_key(const string & key) const
 */
 
 void
-GlassTable::add(const string& key, const string& tag, bool already_compressed)
+GlassTable::add(string_view key, string_view tag, bool already_compressed)
 {
     LOGCALL_VOID(DB, "GlassTable::add", key | tag | already_compressed);
     Assert(writable);
@@ -1390,7 +1391,7 @@ GlassTable::add(const string& key, const string& tag, bool already_compressed)
 */
 
 bool
-GlassTable::del(const string &key)
+GlassTable::del(string_view key)
 {
     LOGCALL(DB, bool, "GlassTable::del", key);
     Assert(writable);
@@ -1426,7 +1427,7 @@ GlassTable::del(const string &key)
 }
 
 bool
-GlassTable::readahead_key(const string &key) const
+GlassTable::readahead_key(string_view key) const
 {
     LOGCALL(DB, bool, "GlassTable::readahead_key", key);
     Assert(!key.empty());
@@ -1469,7 +1470,7 @@ GlassTable::readahead_key(const string &key) const
 }
 
 bool
-GlassTable::get_exact_entry(const string &key, string & tag) const
+GlassTable::get_exact_entry(string_view key, string& tag) const
 {
     LOGCALL(DB, bool, "GlassTable::get_exact_entry", key | tag);
     Assert(!key.empty());
@@ -1492,7 +1493,7 @@ GlassTable::get_exact_entry(const string &key, string & tag) const
 }
 
 bool
-GlassTable::key_exists(const string &key) const
+GlassTable::key_exists(string_view key) const
 {
     LOGCALL(DB, bool, "GlassTable::key_exists", key);
     Assert(!key.empty());
@@ -1694,7 +1695,7 @@ GlassTable::do_open_to_write(const RootInfo * root_info,
     seq_count = SEQ_START_POINT;
 }
 
-GlassTable::GlassTable(const char * tablename_, const string & path_,
+GlassTable::GlassTable(const char* tablename_, string_view path_,
 		       bool readonly_, bool lazy_)
 	: tablename(tablename_),
 	  revision_number(0),

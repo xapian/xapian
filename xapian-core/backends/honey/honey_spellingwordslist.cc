@@ -1,7 +1,7 @@
 /** @file
  * @brief Iterator for the spelling correction words in a honey database.
  */
-/* Copyright (C) 2004,2005,2006,2007,2008,2009,2017,2018 Olly Betts
+/* Copyright (C) 2004,2005,2006,2007,2008,2009,2017,2018,2024 Olly Betts
  * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -94,7 +94,7 @@ HoneySpellingWordsList::next()
 }
 
 TermList*
-HoneySpellingWordsList::skip_to(const string& term)
+HoneySpellingWordsList::skip_to(string_view term)
 {
     LOGCALL(DB, TermList*, "HoneySpellingWordsList::skip_to", term);
     Assert(cursor);

@@ -1,7 +1,7 @@
 /** @file
  * @brief HoneyTable class
  */
-/* Copyright (C) 2017,2018,2023 Olly Betts
+/* Copyright (C) 2017,2018,2023,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,6 +38,7 @@
 #include "xapian/error.h"
 
 #include <algorithm>
+#include <string_view>
 #if 0
 #include <iostream> // FIXME
 #endif
@@ -574,7 +575,7 @@ class HoneyTable {
      */
     off_t offset = 0;
 
-    bool get_exact_entry(const std::string& key, std::string* tag) const;
+    bool get_exact_entry(std::string_view key, std::string* tag) const;
 
     bool read_key(std::string& key, size_t& val_size, bool& compressed) const;
 
@@ -659,7 +660,7 @@ class HoneyTable {
 	return num_entries == 0;
     }
 
-    bool get_exact_entry(const std::string& key, std::string& tag) const {
+    bool get_exact_entry(std::string_view key, std::string& tag) const {
 	return get_exact_entry(key, &tag);
     }
 

@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2007,2008,2009,2011,2013,2014,2015,2017 Olly Betts
+ * Copyright 2002-2024 Olly Betts
  * Copyright 2007,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -36,6 +36,7 @@
 #include <memory>
 #include <map>
 #include <string>
+#include <string_view>
 
 class GlassCursor;
 class GlassDatabase;
@@ -84,29 +85,29 @@ class GlassPostListTable : public GlassTable {
     }
 
     /// Merge changes for a term.
-    void merge_changes(const std::string& term,
+    void merge_changes(std::string_view term,
 		       const Inverter::PostingChanges& changes);
 
     /// Merge document length changes.
     void merge_doclen_changes(const std::map<Xapian::docid,
 					Xapian::termcount>& doclens);
 
-    Xapian::docid get_chunk(const std::string& tname,
+    Xapian::docid get_chunk(std::string_view tname,
 			    Xapian::docid did, bool adding,
 			    Glass::PostlistChunkReader** from,
 			    Glass::PostlistChunkWriter** to);
 
     /// Compose a key from a termname and docid.
-    static std::string make_key(const std::string& term, Xapian::docid did) {
+    static std::string make_key(std::string_view term, Xapian::docid did) {
 	return pack_glass_postlist_key(term, did);
     }
 
     /// Compose a key from a termname.
-    static std::string make_key(const std::string& term) {
+    static std::string make_key(std::string_view term) {
 	return pack_glass_postlist_key(term);
     }
 
-    bool term_exists(const std::string& term) const {
+    bool term_exists(std::string_view term) const {
 	return key_exists(make_key(term));
     }
 
@@ -121,10 +122,10 @@ class GlassPostListTable : public GlassTable {
      *			of @a term in the database (or NULL not to
      *			return)
      */
-    void get_freqs(const std::string& term,
-		   Xapian::doccount * termfreq_ptr,
-		   Xapian::termcount * collfreq_ptr,
-		   Xapian::termcount * wdfub_ptr = NULL) const;
+    void get_freqs(std::string_view term,
+		   Xapian::doccount* termfreq_ptr,
+		   Xapian::termcount* collfreq_ptr,
+		   Xapian::termcount* wdfub_ptr = NULL) const;
 
     /** Returns the length of document @a did. */
     Xapian::termcount get_doclength(Xapian::docid did,
@@ -235,7 +236,7 @@ class GlassPostList : public LeafPostList {
     bool move_forward_in_chunk_to_at_least(Xapian::docid desired_did);
 
     GlassPostList(Xapian::Internal::intrusive_ptr<const GlassDatabase> this_db_,
-		  const std::string& term,
+		  std::string_view term,
 		  GlassCursor * cursor_);
 
     void init();
@@ -243,13 +244,13 @@ class GlassPostList : public LeafPostList {
   public:
     /// Default constructor.
     GlassPostList(Xapian::Internal::intrusive_ptr<const GlassDatabase> this_db_,
-		  const std::string& term,
+		  std::string_view term,
 		  bool keep_reference);
 
     /// Destructor.
     ~GlassPostList();
 
-    bool open_nearby_postlist(const std::string& term_,
+    bool open_nearby_postlist(std::string_view term_,
 			      bool need_read_pos,
 			      LeafPostList*& pl) const;
 

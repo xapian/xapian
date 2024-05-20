@@ -1,7 +1,7 @@
 /** @file
  * @brief Iterator for the spelling correction words in a glass database.
  */
-/* Copyright (C) 2004,2005,2006,2007,2008,2009,2017 Olly Betts
+/* Copyright (C) 2004,2005,2006,2007,2008,2009,2017,2024 Olly Betts
  * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -30,6 +30,8 @@
 #include "glass_database.h"
 #include "pack.h"
 #include "stringutils.h"
+
+using namespace std;
 
 GlassSpellingWordsList::~GlassSpellingWordsList()
 {
@@ -77,13 +79,13 @@ GlassSpellingWordsList::next()
     RETURN(NULL);
 }
 
-TermList *
-GlassSpellingWordsList::skip_to(const string &tname)
+TermList*
+GlassSpellingWordsList::skip_to(string_view tname)
 {
     LOGCALL(DB, TermList *, "GlassSpellingWordsList::skip_to", tname);
     Assert(!cursor->after_end());
 
-    if (cursor->find_entry_ge("W" + tname)) {
+    if (cursor->find_entry_ge("W"s.append(tname))) {
 	// Exact match.
 	current_term = tname;
     } else {

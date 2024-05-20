@@ -1,7 +1,7 @@
 /** @file
  * @brief Subclass of HoneyTable which holds postlists.
  */
-/* Copyright (C) 2007,2008,2009,2010,2013,2014,2015,2016,2018 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010,2013,2014,2015,2016,2018,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,6 +30,7 @@
 #include "pack.h"
 
 #include <string>
+#include <string_view>
 
 class HoneyDatabase;
 class PostingChanges;
@@ -50,15 +51,15 @@ class HoneyPostListTable : public HoneyTable {
     HoneyPostListTable(int fd, off_t offset_, bool readonly)
 	: HoneyTable("postlist", fd, offset_, readonly) { }
 
-    bool term_exists(const std::string& term) const {
+    bool term_exists(std::string_view term) const {
 	return key_exists(pack_honey_postlist_key(term));
     }
 
     HoneyPostList* open_post_list(const HoneyDatabase* db,
-				  const std::string& term,
+				  std::string_view term,
 				  bool need_read_pos) const;
 
-    void get_freqs(const std::string& term,
+    void get_freqs(std::string_view term,
 		   Xapian::doccount* termfreq_ptr,
 		   Xapian::termcount* collfreq_ptr) const;
 
@@ -66,11 +67,12 @@ class HoneyPostListTable : public HoneyTable {
 			      Xapian::docid& first,
 			      Xapian::docid& last) const;
 
-    Xapian::termcount get_wdf_upper_bound(const std::string& term) const;
+    Xapian::termcount get_wdf_upper_bound(std::string_view term) const;
 
-    std::string get_metadata(const std::string& key) const {
+    std::string get_metadata(std::string_view key) const {
+	using namespace std::string_literals;
 	std::string value;
-	(void)get_exact_entry(std::string("\0", 2) + key, value);
+	(void)get_exact_entry("\0\0"s.append(key), value);
 	return value;
     }
 

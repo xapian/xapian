@@ -1,7 +1,7 @@
 /** @file
  * @brief Iterate all terms in a remote database.
  */
-/* Copyright (C) 2007,2008,2011,2018 Olly Betts
+/* Copyright (C) 2007,2008,2011,2018,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +23,8 @@
 
 #include "backends/alltermslist.h"
 
+#include <string_view>
+
 /// Iterate all terms in a remote database.
 class RemoteAllTermsList : public AllTermsList {
     /// Don't allow assignment.
@@ -39,7 +41,7 @@ class RemoteAllTermsList : public AllTermsList {
 
   public:
     /// Construct.
-    RemoteAllTermsList(const std::string& prefix,
+    RemoteAllTermsList(std::string_view prefix,
 		       std::string&& data_)
 	: data(data_) {
 	current_term = prefix;
@@ -59,7 +61,7 @@ class RemoteAllTermsList : public AllTermsList {
      *  If the specified term isn't in the list, position ourselves on the
      *  first term after @a term (or at_end() if no terms after @a term exist).
      */
-    TermList* skip_to(const std::string& term);
+    TermList* skip_to(std::string_view term);
 };
 
 #endif // XAPIAN_INCLUDED_REMOTE_ALLTERMSLIST_H

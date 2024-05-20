@@ -1,7 +1,7 @@
 /** @file
  * @brief Adapter class for a TermList in a multidatabase
  */
-/* Copyright (C) 2007,2008,2009,2011,2017 Olly Betts
+/* Copyright (C) 2007,2008,2009,2011,2017,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -74,8 +74,8 @@ MultiTermList::next()
     return NULL;
 }
 
-TermList *
-MultiTermList::skip_to(const std::string &term)
+TermList*
+MultiTermList::skip_to(std::string_view term)
 {
     TermList* res = real_termlist->skip_to(term);
     if (res) {

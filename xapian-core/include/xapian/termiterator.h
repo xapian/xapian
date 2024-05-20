@@ -1,7 +1,7 @@
 /** @file
  *  @brief Class for iterating over a list of terms
  */
-/* Copyright (C) 2007,2008,2009,2010,2011,2012,2013,2014,2015,2023 Olly Betts
+/* Copyright (C) 2007-2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -28,6 +28,7 @@
 
 #include <iterator>
 #include <string>
+#include <string_view>
 
 #include <xapian/attributes.h>
 #include <xapian/derefwrapper.h>
@@ -129,7 +130,7 @@ class XAPIAN_VISIBILITY_DEFAULT TermIterator {
      *			the stream being iterated, then the iterator is moved
      *			to the next term after it which is.
      */
-    void skip_to(const std::string &term);
+    void skip_to(std::string_view term);
 
     /// Return a string describing this object.
     std::string get_description() const;

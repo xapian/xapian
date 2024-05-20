@@ -1,7 +1,7 @@
 /** @file
  * @brief Virtual base class for Database internals
  */
-/* Copyright 2004,2006,2007,2008,2009,2011,2014,2015,2016,2017,2019 Olly Betts
+/* Copyright 2004-2024 Olly Betts
  * Copyright 2007,2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -34,6 +34,7 @@
 #include <xapian/valueiterator.h>
 
 #include <string>
+#include <string_view>
 
 typedef Xapian::TermIterator::Internal TermList;
 typedef Xapian::PositionIterator::Internal PositionList;
@@ -160,7 +161,7 @@ class Database::Internal : public Xapian::Internal::intrusive_base {
      *  @param collfreq_ptr	Point to return number of occurrences of @a
      *				term in the database (or NULL not to return)
      */
-    virtual void get_freqs(const std::string& term,
+    virtual void get_freqs(std::string_view term,
 			   doccount* termfreq_ptr,
 			   termcount* collfreq_ptr) const = 0;
 
@@ -201,7 +202,7 @@ class Database::Internal : public Xapian::Internal::intrusive_base {
     virtual termcount get_doclength_upper_bound() const = 0;
 
     /// Get an upper bound on the wdf of term @a term.
-    virtual termcount get_wdf_upper_bound(const std::string& term) const = 0;
+    virtual termcount get_wdf_upper_bound(std::string_view term) const = 0;
 
     /// Get a lower bound on the unique terms size of a document in this DB.
     virtual termcount get_unique_terms_lower_bound() const;
@@ -209,13 +210,13 @@ class Database::Internal : public Xapian::Internal::intrusive_base {
     /// Get an upper bound on the unique terms size of a document in this DB.
     virtual termcount get_unique_terms_upper_bound() const;
 
-    virtual bool term_exists(const std::string& term) const = 0;
+    virtual bool term_exists(std::string_view term) const = 0;
 
     /** Check whether this database contains any positional information. */
     virtual bool has_positions() const = 0;
 
     /** Return a PostList suitable for use in a PostingIterator. */
-    virtual PostList* open_post_list(const std::string& term) const = 0;
+    virtual PostList* open_post_list(std::string_view term) const = 0;
 
     /** Create a LeafPostList for use during a match.
      *
@@ -227,7 +228,7 @@ class Database::Internal : public Xapian::Internal::intrusive_base {
      *				open_position_list() may still be called even
      *				if need_read_pos is false.
      */
-    virtual LeafPostList* open_leaf_post_list(const std::string& term,
+    virtual LeafPostList* open_leaf_post_list(std::string_view term,
 					      bool need_read_pos) const = 0;
 
     /** Open a value stream.
@@ -250,10 +251,10 @@ class Database::Internal : public Xapian::Internal::intrusive_base {
      */
     virtual TermList* open_term_list_direct(docid did) const = 0;
 
-    virtual TermList* open_allterms(const std::string& prefix) const = 0;
+    virtual TermList* open_allterms(std::string_view prefix) const = 0;
 
     virtual PositionList* open_position_list(docid did,
-					     const std::string& term) const = 0;
+					     std::string_view term) const = 0;
 
     /** Open a handle on a document.
      *
@@ -277,7 +278,7 @@ class Database::Internal : public Xapian::Internal::intrusive_base {
      *
      *  If there are no trigrams, returns NULL.
      */
-    virtual TermList* open_spelling_termlist(const std::string& word) const;
+    virtual TermList* open_spelling_termlist(std::string_view word) const;
 
     /** Return a termlist which returns the words which are spelling
      *  correction targets.
@@ -287,7 +288,7 @@ class Database::Internal : public Xapian::Internal::intrusive_base {
     virtual TermList* open_spelling_wordlist() const;
 
     /** Return the number of times @a word was added as a spelling. */
-    virtual doccount get_spelling_frequency(const std::string& word) const;
+    virtual doccount get_spelling_frequency(std::string_view word) const;
 
     /** Add a word to the spelling dictionary.
      *
@@ -296,7 +297,7 @@ class Database::Internal : public Xapian::Internal::intrusive_base {
      *  @param word	The word to add.
      *  @param freqinc	How much to increase its frequency by.
      */
-    virtual void add_spelling(const std::string& word,
+    virtual void add_spelling(std::string_view word,
 			      termcount freqinc) const;
 
     /** Remove a word from the spelling dictionary.
@@ -309,48 +310,48 @@ class Database::Internal : public Xapian::Internal::intrusive_base {
      *
      *  @return Any freqdec not "used up".
      */
-    virtual termcount remove_spelling(const std::string& word,
+    virtual termcount remove_spelling(std::string_view word,
 				      termcount freqdec) const;
 
     /** Open a termlist returning synonyms for a term.
      *
      *  If @a term has no synonyms, returns NULL.
      */
-    virtual TermList* open_synonym_termlist(const std::string& term) const;
+    virtual TermList* open_synonym_termlist(std::string_view term) const;
 
     /** Open a termlist returning each term which has synonyms.
      *
      *  @param prefix   If non-empty, only terms with this prefix are
      *		    returned.
      */
-    virtual TermList* open_synonym_keylist(const std::string& prefix) const;
+    virtual TermList* open_synonym_keylist(std::string_view prefix) const;
 
     /** Add a synonym for a term.
      *
      *  If @a synonym is already a synonym for @a term, then no action is
      *  taken.
      */
-    virtual void add_synonym(const std::string& term,
-			     const std::string& synonym) const;
+    virtual void add_synonym(std::string_view term,
+			     std::string_view synonym) const;
 
     /** Remove a synonym for a term.
      *
      *  If @a synonym isn't a synonym for @a term, then no action is taken.
      */
-    virtual void remove_synonym(const std::string& term,
-				const std::string& synonym) const;
+    virtual void remove_synonym(std::string_view term,
+				std::string_view synonym) const;
 
     /** Clear all synonyms for a term.
      *
      *  If @a term has no synonyms, no action is taken.
      */
-    virtual void clear_synonyms(const std::string& term) const;
+    virtual void clear_synonyms(std::string_view term) const;
 
     /** Get the metadata associated with a given key.
      *
      *  See Database::get_metadata() for more information.
      */
-    virtual std::string get_metadata(const std::string& key) const;
+    virtual std::string get_metadata(std::string_view key) const;
 
     /** Open a termlist returning each metadata key.
      *
@@ -359,13 +360,13 @@ class Database::Internal : public Xapian::Internal::intrusive_base {
      *
      *  @param prefix   If non-empty, only keys with this prefix are returned.
      */
-    virtual TermList* open_metadata_keylist(const std::string& prefix) const;
+    virtual TermList* open_metadata_keylist(std::string_view prefix) const;
 
     /** Set the metadata associated with a given key.
      *
      *  See WritableDatabase::set_metadata() for more information.
      */
-    virtual void set_metadata(const std::string& key, const std::string& value);
+    virtual void set_metadata(std::string_view key, std::string_view value);
 
     /** Reopen the database to the latest available revision.
      *
@@ -398,13 +399,13 @@ class Database::Internal : public Xapian::Internal::intrusive_base {
     virtual void delete_document(docid did);
 
     /** Delete any documents indexed by a term from the database. */
-    virtual void delete_document(const std::string& unique_term);
+    virtual void delete_document(std::string_view unique_term);
 
     virtual void replace_document(docid did,
 				  const Document& document);
 
     /** Replace any documents matching a term. */
-    virtual docid replace_document(const std::string& unique_term,
+    virtual docid replace_document(std::string_view unique_term,
 				   const Document& document);
 
     /** Request a document.
@@ -512,7 +513,7 @@ class Database::Internal : public Xapian::Internal::intrusive_base {
 
     virtual std::string reconstruct_text(Xapian::docid did,
 					 size_t length,
-					 const std::string& prefix,
+					 std::string_view prefix,
 					 Xapian::termpos start_pos,
 					 Xapian::termpos end_pos) const;
 

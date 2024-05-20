@@ -1,7 +1,7 @@
 /** @file
  * @brief A vector-like container of terms which can be iterated.
  */
-/* Copyright (C) 2011,2012,2017 Olly Betts
+/* Copyright (C) 2011,2012,2017,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -79,7 +79,7 @@ class VectorTermList : public TermList {
 
     TermList * next();
 
-    TermList * skip_to(const std::string &);
+    TermList* skip_to(std::string_view);
 
     Xapian::termcount positionlist_count() const;
 

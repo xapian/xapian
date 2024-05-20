@@ -1,7 +1,7 @@
 /** @file
  * @brief A TermList in a honey database.
  */
-/* Copyright (C) 2007,2008,2009,2010,2011 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010,2011,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -142,7 +142,7 @@ class HoneyTermList : public TermList {
      */
     TermList* next();
 
-    TermList* skip_to(const std::string& term);
+    TermList* skip_to(std::string_view term);
 
     /// Return the length of the position list for the current position.
     Xapian::termcount positionlist_count() const;

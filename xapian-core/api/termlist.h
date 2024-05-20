@@ -1,7 +1,7 @@
 /** @file
  * @brief Abstract base class for termlists.
  */
-/* Copyright (C) 2007,2010,2013,2020 Olly Betts
+/* Copyright (C) 2007,2010,2013,2020,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,6 +26,7 @@
 #include "backends/positionlist.h"
 
 #include <string>
+#include <string_view>
 
 #include "xapian/intrusive_ptr.h"
 #include <xapian/types.h>
@@ -100,7 +101,7 @@ class Xapian::TermIterator::Internal : public Xapian::Internal::intrusive_base {
      *		for its pointer to us, and then delete us.  This "pruning" can
      *		only happen for a non-leaf subclass of this class.
      */
-    virtual Internal * skip_to(const std::string &term) = 0;
+    virtual Internal* skip_to(std::string_view term) = 0;
 
     /// Return the length of the position list for the current position.
     virtual Xapian::termcount positionlist_count() const = 0;

@@ -1,7 +1,7 @@
 /** @file
  * @brief Class representing a document
  */
-/* Copyright (C) 2010,2015,2016,2017,2018,2019,2023 Olly Betts
+/* Copyright (C) 2010,2015,2016,2017,2018,2019,2023,2024 Olly Betts
  * Copyright 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -28,6 +28,7 @@
 #endif
 
 #include <string>
+#include <string_view>
 
 #include <xapian/attributes.h>
 #include <xapian/intrusive_ptr.h>
@@ -119,10 +120,10 @@ class XAPIAN_VISIBILITY_DEFAULT Document {
      *  to impose whatever structure you want on it.  If you want to store
      *  structured data, consider using something like protocol buffers.
      */
-    void set_data(const std::string& data);
+    void set_data(std::string_view data);
 
     /// Add a term to this document.
-    void add_term(const std::string& term, Xapian::termcount wdf_inc = 1);
+    void add_term(std::string_view term, Xapian::termcount wdf_inc = 1);
 
     /** Add a boolean filter term to the document.
      *
@@ -142,13 +143,13 @@ class XAPIAN_VISIBILITY_DEFAULT Document {
      *  @since This method was added in Xapian 1.0.18.
      *
      */
-    void add_boolean_term(const std::string& term) { add_term(term, 0); }
+    void add_boolean_term(std::string_view term) { add_term(term, 0); }
 
     /// Remove a term from this document.
-    void remove_term(const std::string& term);
+    void remove_term(std::string_view term);
 
     /// Add a posting for a term.
-    void add_posting(const std::string& term,
+    void add_posting(std::string_view term,
 		     Xapian::termpos term_pos,
 		     Xapian::termcount wdf_inc = 1);
 
@@ -167,7 +168,7 @@ class XAPIAN_VISIBILITY_DEFAULT Document {
      *  Since 1.5.0, if the final position is removed and the wdf becomes zero
      *  then the term will be removed from the document.
      */
-    void remove_posting(const std::string& term,
+    void remove_posting(std::string_view term,
 			Xapian::termpos term_pos,
 			Xapian::termcount wdf_dec = 1);
 
@@ -192,7 +193,7 @@ class XAPIAN_VISIBILITY_DEFAULT Document {
      *
      *  @since Added in Xapian 1.4.8.
      */
-    Xapian::termpos remove_postings(const std::string& term,
+    Xapian::termpos remove_postings(std::string_view term,
 				    Xapian::termpos term_pos_first,
 				    Xapian::termpos term_pos_last,
 				    Xapian::termcount wdf_dec = 1);
@@ -233,14 +234,14 @@ class XAPIAN_VISIBILITY_DEFAULT Document {
      *  @param slot	The slot to set
      *  @param value	The new value
      */
-    void add_value(Xapian::valueno slot, const std::string& value);
+    void add_value(Xapian::valueno slot, std::string_view value);
 
     /** Remove any value from the specified slot.
      *
      *  @param slot	The slot to remove any value from.
      */
     void remove_value(Xapian::valueno slot) {
-	add_value(slot, std::string());
+	add_value(slot, {});
     }
 
     /// Clear all value slots in this document.
@@ -272,7 +273,7 @@ class XAPIAN_VISIBILITY_DEFAULT Document {
     std::string serialise() const;
 
     /** Unserialise a document from a string produced by serialise(). */
-    static Document unserialise(const std::string& serialised);
+    static Document unserialise(std::string_view serialised);
 
     /// Return a string describing this object.
     std::string get_description() const;

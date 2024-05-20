@@ -1,7 +1,7 @@
 /** @file
  * @brief A vector-like container of terms which can be iterated.
  */
-/* Copyright (C) 2011,2015 Olly Betts
+/* Copyright (C) 2011,2015,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -66,8 +66,8 @@ VectorTermList::next()
     return NULL;
 }
 
-TermList *
-VectorTermList::skip_to(const string &)
+TermList*
+VectorTermList::skip_to(string_view)
 {
     // skip_to only makes sense for termlists which are in sorted order.
     throw Xapian::InvalidOperationError("VectorTermList::skip_to() not meaningful");

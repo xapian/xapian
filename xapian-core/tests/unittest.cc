@@ -30,6 +30,7 @@
 #include <cstring>
 #include <iostream>
 #include <limits>
+#include <string_view>
 #include <utility>
 
 #include "safeunistd.h"
@@ -100,7 +101,7 @@ using namespace std;
 // The full implementation needs Xapian::Utf8Iterator and
 // Xapian::Unicode::append_utf8().
 void
-description_append(std::string & desc, const std::string &s)
+description_append(std::string& desc, std::string_view s)
 {
     desc += s;
 }
@@ -332,7 +333,7 @@ static void test_packstring1()
 static void test_packstring2()
 {
     string s;
-    pack_string(s, string());
+    pack_string(s, {});
     string s_empty;
     pack_string_empty(s_empty);
     TEST_EQUAL(s, s_empty);

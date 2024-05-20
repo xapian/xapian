@@ -1,7 +1,7 @@
 /** @file
  * @brief functions to convert Xapian objects to strings and back
  */
-/* Copyright (C) 2006-2023 Olly Betts
+/* Copyright (C) 2006-2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -208,7 +208,7 @@ serialise_document(const Xapian::Document &doc)
 }
 
 Xapian::Document
-unserialise_document(const string &s)
+unserialise_document(string_view s)
 {
     Xapian::Document doc;
     const char * p = s.data();
@@ -257,6 +257,6 @@ unserialise_document(const string &s)
 	}
     }
 
-    doc.set_data(string(p, p_end - p));
+    doc.set_data(string_view(p, p_end - p));
     return doc;
 }

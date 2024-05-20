@@ -1,7 +1,7 @@
 /** @file
  * @brief Test the user metadata functionality.
  */
-/* Copyright (C) 2007,2009,2011 Olly Betts
+/* Copyright (C) 2007,2009,2011,2024 Olly Betts
  * Copyright (C) 2007,2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -77,18 +77,18 @@ DEFINE_TESTCASE(metadata2, metadata && writable) {
 
     // Check for transparent handling of zero bytes.
     db.set_metadata("foo", "value of foo");
-    db.set_metadata(string("foo\0bar", 7), string(1, '\0'));
-    db.set_metadata(string("foo\0", 4), string("foo\0bar", 7));
+    db.set_metadata("foo\0bar"sv, "\0"sv);
+    db.set_metadata("foo\0"sv, "foo\0bar"sv);
 
     TEST_EQUAL(db.get_metadata("foo"), "value of foo");
-    TEST_EQUAL(db.get_metadata(string("foo\0bar", 7)), string(1, '\0'));
-    TEST_EQUAL(db.get_metadata(string("foo\0", 4)), string("foo\0bar", 7));
+    TEST_EQUAL(db.get_metadata("foo\0bar"sv), "\0"sv);
+    TEST_EQUAL(db.get_metadata("foo\0"sv), "foo\0bar"sv);
 
     db.commit();
 
     TEST_EQUAL(db.get_metadata("foo"), "value of foo");
-    TEST_EQUAL(db.get_metadata(string("foo\0bar", 7)), string(1, '\0'));
-    TEST_EQUAL(db.get_metadata(string("foo\0", 4)), string("foo\0bar", 7));
+    TEST_EQUAL(db.get_metadata("foo\0bar"sv), "\0"sv);
+    TEST_EQUAL(db.get_metadata("foo\0"sv), "foo\0bar"sv);
 }
 
 // Test that metadata gets applied at same time as other changes.

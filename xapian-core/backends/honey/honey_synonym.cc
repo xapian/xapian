@@ -1,7 +1,7 @@
 /** @file
  * @brief Synonym data for a honey database.
  */
-/* Copyright (C) 2004,2005,2006,2007,2008,2009,2011,2017 Olly Betts
+/* Copyright (C) 2004,2005,2006,2007,2008,2009,2011,2017,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,6 +31,7 @@
 
 #include <set>
 #include <string>
+#include <string_view>
 #include <vector>
 
 using namespace std;
@@ -62,7 +63,7 @@ HoneySynonymTable::merge_changes()
 }
 
 void
-HoneySynonymTable::add_synonym(const string& term, const string& synonym)
+HoneySynonymTable::add_synonym(string_view term, string_view synonym)
 {
     if (last_term != term) {
 	merge_changes();
@@ -84,11 +85,11 @@ HoneySynonymTable::add_synonym(const string& term, const string& synonym)
 	}
     }
 
-    last_synonyms.insert(synonym);
+    last_synonyms.emplace(synonym);
 }
 
 void
-HoneySynonymTable::remove_synonym(const string& term, const string& synonym)
+HoneySynonymTable::remove_synonym(string_view term, string_view synonym)
 {
     if (last_term != term) {
 	merge_changes();
@@ -104,17 +105,21 @@ HoneySynonymTable::remove_synonym(const string& term, const string& synonym)
 		    (len = uint8_t(*p) ^ MAGIC_XOR_VALUE) >= size_t(end - p))
 		    throw Xapian::DatabaseCorruptError("Bad synonym data");
 		++p;
-		last_synonyms.insert(string(p, len));
+		last_synonyms.emplace(p, len);
 		p += len;
 	    }
 	}
     }
 
+#ifdef __cpp_lib_associative_heterogeneous_erasure // C++23
     last_synonyms.erase(synonym);
+#else
+    last_synonyms.erase(string(synonym));
+#endif
 }
 
 void
-HoneySynonymTable::clear_synonyms(const string& term)
+HoneySynonymTable::clear_synonyms(string_view term)
 {
     // We don't actually ever need to merge_changes() here, but it's quite
     // likely that someone might clear_synonyms() and then add_synonym() for
@@ -130,7 +135,7 @@ HoneySynonymTable::clear_synonyms(const string& term)
 }
 
 TermList*
-HoneySynonymTable::open_termlist(const string& term) const
+HoneySynonymTable::open_termlist(string_view term) const
 {
     vector<string> synonyms;
 
@@ -205,7 +210,7 @@ HoneySynonymTermList::next()
 }
 
 TermList*
-HoneySynonymTermList::skip_to(const string& term)
+HoneySynonymTermList::skip_to(string_view term)
 {
     LOGCALL(DB, TermList*, "HoneySynonymTermList::skip_to", term);
     if (cursor->after_end() && prefix > term) {

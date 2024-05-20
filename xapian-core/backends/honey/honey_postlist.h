@@ -1,7 +1,7 @@
 /** @file
  * @brief PostList in a honey database.
  */
-/* Copyright (C) 2007,2009,2011,2013,2015,2016,2017,2018 Olly Betts
+/* Copyright (C) 2007,2009,2011,2013,2015,2016,2017,2018,2024 Olly Betts
  * Copyright (C) 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -27,6 +27,7 @@
 #include "pack.h"
 
 #include <string>
+#include <string_view>
 
 class HoneyCursor;
 class HoneyDatabase;
@@ -35,7 +36,7 @@ namespace Honey {
 
 /** Generate a key for a posting initial chunk. */
 inline std::string
-make_postingchunk_key(const std::string& term)
+make_postingchunk_key(std::string_view term)
 {
     std::string key;
     pack_string_preserving_sort(key, term, true);
@@ -44,7 +45,7 @@ make_postingchunk_key(const std::string& term)
 
 /** Generate a key for a posting continuation chunk. */
 inline std::string
-make_postingchunk_key(const std::string& term, Xapian::docid did)
+make_postingchunk_key(std::string_view term, Xapian::docid did)
 {
     std::string key;
     pack_string_preserving_sort(key, term);
@@ -185,12 +186,12 @@ class HoneyPostList : public LeafPostList {
   public:
     /// Create HoneyPostList from already positioned @a cursor_.
     HoneyPostList(const HoneyDatabase* db_,
-		  const std::string& term_,
+		  std::string_view term_,
 		  HoneyCursor* cursor_);
 
     ~HoneyPostList();
 
-    bool open_nearby_postlist(const std::string& term_,
+    bool open_nearby_postlist(std::string_view term_,
 			      bool need_read_pos,
 			      LeafPostList*& pl) const;
 
@@ -228,7 +229,7 @@ class HoneyPosPostList : public HoneyPostList {
 
   public:
     HoneyPosPostList(const HoneyDatabase* db_,
-		     const std::string& term_,
+		     std::string_view term_,
 		     HoneyCursor* cursor_);
 
     PositionList* read_position_list();

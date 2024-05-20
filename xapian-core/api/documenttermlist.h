@@ -1,7 +1,7 @@
 /** @file
  * @brief Iteration over terms in a document
  */
-/* Copyright 2017 Olly Betts
+/* Copyright 2017,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -27,6 +27,8 @@
 
 #include "omassert.h"
 
+#include <functional>
+
 /// Iteration over terms in a document.
 class DocumentTermList final : public TermList {
     /// Don't allow assignment.
@@ -42,7 +44,7 @@ class DocumentTermList final : public TermList {
      *
      *  If we haven't started yet, this will be set to: doc->terms.end()
      */
-    std::map<std::string, TermInfo>::const_iterator it;
+    std::map<std::string, TermInfo, std::less<>>::const_iterator it;
 
   public:
     explicit
@@ -63,7 +65,7 @@ class DocumentTermList final : public TermList {
 
     TermList * next();
 
-    TermList * skip_to(const std::string& term);
+    TermList* skip_to(std::string_view term);
 };
 
 #endif // XAPIAN_INCLUDED_DOCUMENTTERMLIST_H

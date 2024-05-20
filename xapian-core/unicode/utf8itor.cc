@@ -1,7 +1,7 @@
 /** @file
  * @brief iterate over a utf8 string.
  */
-/* Copyright (C) 2006,2007,2010,2013,2015,2019 Olly Betts
+/* Copyright (C) 2006,2007,2010,2013,2015,2019,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,8 +21,6 @@
 #include <config.h>
 
 #include <xapian/unicode.h>
-
-#include <cstring>
 
 using namespace std;
 
@@ -62,11 +60,6 @@ nonascii_to_utf8(unsigned ch, char* buf)
     return 0;
 }
 
-}
-
-Utf8Iterator::Utf8Iterator(const char* p_)
-{
-    assign(p_, strlen(p_));
 }
 
 bool

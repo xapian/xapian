@@ -3,6 +3,7 @@
  */
 /* Copyright (C) 2010 Richard Boulton
  * Copyright (C) 2016 Richhiey Thomas
+ * Copyright (C) 2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -79,12 +80,7 @@ TermListGroup::add_document(const Document& document, const Stopper* stopper)
 	if (term[0] != 'Z')
 	    continue;
 
-	unordered_map<string, doccount>::iterator i;
-	i = termfreq.find(term);
-	if (i == termfreq.end())
-	    termfreq[term] = 1;
-	else
-	    ++i->second;
+	++termfreq[term];
     }
 }
 
@@ -203,7 +199,7 @@ class PointTermIterator : public TermIterator::Internal {
 	throw UnimplementedError("PointTermIterator doesn't support "
 				 "positionlist_begin()");
     }
-    Internal* skip_to(const string&) {
+    Internal* skip_to(string_view) {
 	throw UnimplementedError("PointTermIterator doesn't support skip_to()");
     }
 };
@@ -232,17 +228,25 @@ PointType::termlist_begin() const
 }
 
 bool
-PointType::contains(const string& term) const
+PointType::contains(string_view term) const
 {
     LOGCALL(API, bool, "PointType::contains", term);
+#ifdef __cpp_lib_generic_unordered_lookup // C++20
     return weights.find(term) != weights.end();
+#else
+    return weights.find(string(term)) != weights.end();
+#endif
 }
 
 double
-PointType::get_weight(const string& term) const
+PointType::get_weight(string_view term) const
 {
     LOGCALL(API, double, "PointType::get_weight", term);
-    unordered_map<string, double>::const_iterator it = weights.find(term);
+#ifdef __cpp_lib_generic_unordered_lookup // C++20
+    auto it = weights.find(term);
+#else
+    auto it = weights.find(string(term));
+#endif
     return (it == weights.end()) ? 0.0 : it->second;
 }
 
@@ -253,22 +257,25 @@ PointType::get_magnitude() const {
 }
 
 void
-PointType::add_weight(const string& term, double weight)
+PointType::add_weight(string_view term, double weight)
 {
     LOGCALL_VOID(API, "PointType::add_weight", term | weight);
-    unordered_map<string, double>::iterator it;
-    it = weights.find(term);
-    if (it != weights.end())
-	it->second += weight;
-    else
-	weights[term] = weight;
+#ifdef __cpp_lib_generic_unordered_lookup // C++20
+    weights[term] += weight;
+#else
+    weights[string(term)] += weight;
+#endif
 }
 
 void
-PointType::set_weight(const string& term, double weight)
+PointType::set_weight(string_view term, double weight)
 {
     LOGCALL_VOID(API, "PointType::set_weight", term | weight);
-    weights[term] = weight;
+#ifdef __cpp_lib_associative_heterogeneous_insertion // C++26
+    weights.insert_or_assign(term, weight);
+#else
+    weights.insert_or_assign(string(term), weight);
+#endif
 }
 
 termcount
@@ -627,23 +634,23 @@ StemStopper::get_description() const
 }
 
 void
-StemStopper::add(const string& term)
+StemStopper::add(string_view term)
 {
     LOGCALL_VOID(API, "StemStopper::add", term);
     switch (stem_action) {
 	case STEM_NONE:
-	    stop_words.insert(term);
+	    stop_words.emplace(term);
 	    break;
 	case STEM_ALL_Z:
-	    stop_words.insert('Z' + stemmer(term));
+	    stop_words.insert('Z' + stemmer(string(term)));
 	    break;
 	case STEM_ALL:
-	    stop_words.insert(stemmer(term));
+	    stop_words.insert(stemmer(string(term)));
 	    break;
 	case STEM_SOME:
 	case STEM_SOME_FULL_POS:
-	    stop_words.insert(term);
-	    stop_words.insert('Z' + stemmer(term));
+	    stop_words.emplace(term);
+	    stop_words.insert('Z' + stemmer(string(term)));
 	    break;
     }
 }

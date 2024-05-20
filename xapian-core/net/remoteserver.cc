@@ -146,7 +146,7 @@ RemoteServer::get_message(double timeout, string & result,
 }
 
 void
-RemoteServer::send_message(reply_type type, const string &message)
+RemoteServer::send_message(reply_type type, string_view message)
 {
     double end_time = RealTime::end_time(active_timeout);
     unsigned char type_as_char = static_cast<unsigned char>(type);
@@ -311,7 +311,7 @@ RemoteServer::run()
 	    return;
 	} catch (...) {
 	    // Propagate an unknown exception to the client.
-	    send_message(REPLY_EXCEPTION, string());
+	    send_message(REPLY_EXCEPTION, {});
 	    // And rethrow it so our caller can log it and close the
 	    // connection.
 	    throw;
@@ -473,7 +473,7 @@ void
 RemoteServer::msg_reopen(const string & msg)
 {
     if (!db->reopen()) {
-	send_message(REPLY_DONE, string());
+	send_message(REPLY_DONE, {});
 	return;
     }
     msg_update(msg);
@@ -694,7 +694,7 @@ RemoteServer::msg_document(const string &message)
 	item += *i;
 	send_message(REPLY_VALUE, item);
     }
-    send_message(REPLY_DONE, string());
+    send_message(REPLY_DONE, {});
 }
 
 void
@@ -702,13 +702,14 @@ RemoteServer::msg_keepalive(const string &)
 {
     // Ensure *our* database stays alive, as it may contain remote databases!
     db->keep_alive();
-    send_message(REPLY_DONE, string());
+    send_message(REPLY_DONE, {});
 }
 
 void
 RemoteServer::msg_termexists(const string &term)
 {
-    send_message((db->term_exists(term) ? REPLY_TERMEXISTS : REPLY_TERMDOESNTEXIST), string());
+    send_message((db->term_exists(term) ? REPLY_TERMEXISTS
+					: REPLY_TERMDOESNTEXIST), {});
 }
 
 void
@@ -810,7 +811,7 @@ RemoteServer::msg_reconstructtext(const string& message)
 	throw Xapian::NetworkError("Bad MSG_RECONSTRUCTTEXT");
     }
     send_message(REPLY_RECONSTRUCTTEXT,
-		 db->reconstruct_text(did, length, string(p, p_end),
+		 db->reconstruct_text(did, length, {p, size_t(p_end - p)},
 				      start_pos, end_pos));
 }
 
@@ -822,7 +823,7 @@ RemoteServer::msg_commit(const string &)
 
     wdb->commit();
 
-    send_message(REPLY_DONE, string());
+    send_message(REPLY_DONE, {});
 }
 
 void
@@ -836,7 +837,7 @@ RemoteServer::msg_cancel(const string &)
     wdb->begin_transaction(false);
     wdb->cancel_transaction();
 
-    send_message(REPLY_DONE, string());
+    send_message(REPLY_DONE, {});
 }
 
 void
@@ -867,7 +868,7 @@ RemoteServer::msg_deletedocument(const string & message)
 
     wdb->delete_document(did);
 
-    send_message(REPLY_DONE, string());
+    send_message(REPLY_DONE, {});
 }
 
 void
@@ -878,7 +879,7 @@ RemoteServer::msg_deletedocumentterm(const string & message)
 
     wdb->delete_document(message);
 
-    send_message(REPLY_DONE, string());
+    send_message(REPLY_DONE, {});
 }
 
 void
@@ -896,7 +897,7 @@ RemoteServer::msg_replacedocument(const string & message)
 
     wdb->replace_document(did, unserialise_document(string(p, p_end)));
 
-    send_message(REPLY_DONE, string());
+    send_message(REPLY_DONE, {});
 }
 
 void
@@ -957,7 +958,7 @@ RemoteServer::msg_setmetadata(const string & message)
     string val(p, p_end - p);
     wdb->set_metadata(key, val);
 
-    send_message(REPLY_DONE, string());
+    send_message(REPLY_DONE, {});
 }
 
 void
@@ -987,7 +988,7 @@ RemoteServer::msg_addspelling(const string & message)
     }
     wdb->add_spelling(string(p, p_end - p), freqinc);
 
-    send_message(REPLY_DONE, string());
+    send_message(REPLY_DONE, {});
 }
 
 void
@@ -1053,7 +1054,7 @@ RemoteServer::msg_addsynonym(const string& message)
 	throw Xapian::NetworkError("Bad MSG_ADDSYNONYM");
     }
     wdb->add_synonym(term, string(p, p_end - p));
-    send_message(REPLY_DONE, string());
+    send_message(REPLY_DONE, {});
 }
 
 void
@@ -1069,7 +1070,7 @@ RemoteServer::msg_removesynonym(const string& message)
 	throw Xapian::NetworkError("Bad MSG_REMOVESYNONYM");
     }
     wdb->remove_synonym(term, string(p, p_end - p));
-    send_message(REPLY_DONE, string());
+    send_message(REPLY_DONE, {});
 }
 
 void
@@ -1078,5 +1079,5 @@ RemoteServer::msg_clearsynonyms(const string& message)
     if (!wdb)
 	throw_read_only();
     wdb->clear_synonyms(message);
-    send_message(REPLY_DONE, string());
+    send_message(REPLY_DONE, {});
 }

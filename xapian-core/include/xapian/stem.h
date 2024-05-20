@@ -1,7 +1,7 @@
 /** @file
  * @brief stemming algorithms
  */
-/* Copyright (C) 2005,2007,2010,2011,2013,2014,2015,2018,2019 Olly Betts
+/* Copyright (C) 2005,2007,2010,2011,2013,2014,2015,2018,2019,2024 Olly Betts
  * Copyright (C) 2010 Evgeny Sizikov
  *
  * This program is free software; you can redistribute it and/or
@@ -31,6 +31,7 @@
 #include <xapian/visibility.h>
 
 #include <string>
+#include <string_view>
 
 namespace Xapian {
 
@@ -134,7 +135,7 @@ class XAPIAN_VISIBILITY_DEFAULT Stem {
      *  @exception	Xapian::InvalidArgumentError is thrown if
      *			@a language isn't recognised and @a fallback is false.
      */
-    Stem(const std::string& language, bool fallback = false);
+    Stem(std::string_view language, bool fallback = false);
 
     /** Construct a Xapian::Stem object with a user-provided stemming algorithm.
      *

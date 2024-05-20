@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2006,2007,2008,2009,2010,2014,2019 Olly Betts
+ * Copyright 2002,2003,2004,2006,2007,2008,2009,2010,2014,2019,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -178,8 +178,8 @@ GlassTermList::next()
     RETURN(NULL);
 }
 
-TermList *
-GlassTermList::skip_to(const string & term)
+TermList*
+GlassTermList::skip_to(string_view term)
 {
     LOGCALL(API, TermList *, "GlassTermList::skip_to", term);
     while (current_term < term) {

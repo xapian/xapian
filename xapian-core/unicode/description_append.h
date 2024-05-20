@@ -1,7 +1,7 @@
 /** @file
  *  @brief Append a string to an object description, escaping invalid UTF-8
  */
-/* Copyright (C) 2013 Olly Betts
+/* Copyright (C) 2013,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,7 +22,8 @@
 #define XAPIAN_INCLUDED_DESCRIPTION_APPEND_H
 
 #include <string>
+#include <string_view>
 
-void description_append(std::string& desc, const std::string& s);
+void description_append(std::string& desc, std::string_view s);
 
 #endif

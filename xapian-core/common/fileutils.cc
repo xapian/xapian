@@ -2,7 +2,7 @@
  *  @brief File and path manipulation routines.
  */
 /* Copyright (C) 2008 Lemur Consulting Ltd
- * Copyright (C) 2008,2009,2010,2012 Olly Betts
+ * Copyright (C) 2008,2009,2010,2012,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -83,14 +83,14 @@ removedir(const string &dirname)
 #ifdef __WIN32__
 /// Return true iff a path starts with a drive letter.
 static bool
-has_drive(const string &path)
+has_drive(string_view path)
 {
     return (path.size() >= 2 && path[1] == ':');
 }
 
 /// Return true iff path is a UNCW path.
 static bool
-uncw_path(const string & path)
+uncw_path(string_view path)
 {
     return (path.size() >= 4 && memcmp(path.data(), "\\\\?\\", 4) == 0);
 }
@@ -102,7 +102,7 @@ static inline bool slash(char ch)
 #endif
 
 void
-resolve_relative_path(string & path, const string & base)
+resolve_relative_path(string& path, string_view base)
 {
 #ifndef __WIN32__
     if (path.empty() || path[0] != '/') {

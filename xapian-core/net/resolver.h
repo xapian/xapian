@@ -1,7 +1,7 @@
 /** @file
  * @brief Resolve hostnames and ip addresses
  */
-/* Copyright (C) 2017,2018 Olly Betts
+/* Copyright (C) 2017,2018,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +22,8 @@
 #define XAPIAN_INCLUDED_RESOLVER_H
 
 #include <cstring>
+#include <string_view>
+
 #include "safenetdb.h"
 #include "safesyssocket.h"
 #include "str.h"
@@ -108,7 +110,8 @@ class Resolver {
 	}
     };
 
-    Resolver(const std::string& host, int port, int flags = 0) {
+    Resolver(std::string_view host, int port, int flags = 0) {
+	using namespace std::string_literals;
 	// RFC 3493 has an extra sentence in its definition of
 	// AI_ADDRCONFIG which POSIX doesn't:
 	//
@@ -156,10 +159,10 @@ class Resolver {
 	hints.ai_flags = flags;
 	hints.ai_protocol = 0;
 
-	const char * node = host.empty() ? NULL : host.c_str();
-	int r = getaddrinfo(node, str(port).c_str(), &hints, &result);
+	int r = getaddrinfo(host.empty() ? nullptr : str(host).c_str(),
+			    str(port).c_str(), &hints, &result);
 	if (r != 0) {
-	    throw Xapian::NetworkError("Couldn't resolve host " + host,
+	    throw Xapian::NetworkError("Couldn't resolve host "s.append(host),
 				       eai_to_xapian(r));
 	}
     }

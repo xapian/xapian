@@ -1,7 +1,7 @@
 /** @file
  * @brief Test the Unicode and UTF-8 classes and functions.
  */
-/* Copyright (C) 2006-2023 Olly Betts
+/* Copyright (C) 2006-2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,6 +28,7 @@
 #include "testutils.h"
 
 #include <cctype>
+#include <string_view>
 
 using namespace std;
 
@@ -98,11 +99,10 @@ DEFINE_TESTCASE(utf8iterator1, !backend) {
     for (p = testcases; p->a; ++p) {
 	tout.str(string());
 	tout << '"' << p->a << "\" and \"" << p->b << "\"\n";
-	size_t a_len = strlen(p->a);
-	Xapian::Utf8Iterator a(p->a, a_len);
-
-	size_t b_len = strlen(p->b);
-	Xapian::Utf8Iterator b(p->b, b_len);
+	// Exercise construction from pointer and length.
+	Xapian::Utf8Iterator a(p->a, strlen(p->a));
+	// Exercise construction from std::string_view.
+	Xapian::Utf8Iterator b(string_view(p->b));
 
 	while (a != Xapian::Utf8Iterator() && b != Xapian::Utf8Iterator()) {
 	    TEST_EQUAL(*a, *b);

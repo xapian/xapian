@@ -34,8 +34,10 @@
 
 #include <cerrno>
 #include <cstdlib>
+#include <functional>
 #include <map>
 #include <string>
+#include <string_view>
 #ifdef HAVE_STD_FROM_CHARS_DOUBLE
 # include <cstring>
 # include <charconv>
@@ -129,7 +131,7 @@ class Weight::Internal {
 
     /** Map of term frequencies and relevant term frequencies for the
      *  collection. */
-    std::map<std::string, TermFreqs> termfreqs;
+    std::map<std::string, TermFreqs, std::less<>> termfreqs;
 
     Internal() { }
 
@@ -162,7 +164,7 @@ class Weight::Internal {
      *  collfreq is the total number of occurrences of the term in all
      *  documents.
      */
-    bool get_stats(const std::string & term,
+    bool get_stats(std::string_view term,
 		   Xapian::doccount & termfreq,
 		   Xapian::doccount & reltermfreq,
 		   Xapian::termcount & collfreq) const {
@@ -191,7 +193,7 @@ class Weight::Internal {
     }
 
     /// Get just the termfreq.
-    bool get_stats(const std::string & term,
+    bool get_stats(std::string_view term,
 		   Xapian::doccount & termfreq) const {
 	Xapian::doccount dummy1;
 	Xapian::termcount dummy2;
@@ -199,7 +201,7 @@ class Weight::Internal {
     }
 
     /// Get the termweight.
-    bool get_termweight(const std::string & term, double & termweight) const {
+    bool get_termweight(std::string_view term, double& termweight) const {
 #ifdef XAPIAN_ASSERTIONS
 	finalised = true;
 #endif

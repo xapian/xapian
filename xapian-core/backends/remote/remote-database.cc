@@ -48,6 +48,7 @@
 #include <cerrno>
 #include <memory>
 #include <string>
+#include <string_view>
 #include <vector>
 
 #include "xapian/constants.h"
@@ -141,13 +142,13 @@ RemoteDatabase::positionlist_count(Xapian::docid did,
 void
 RemoteDatabase::keep_alive()
 {
-    send_message(MSG_KEEPALIVE, string());
+    send_message(MSG_KEEPALIVE, {});
     string message;
     get_message(message, REPLY_DONE);
 }
 
 TermList*
-RemoteDatabase::open_metadata_keylist(const std::string& prefix) const
+RemoteDatabase::open_metadata_keylist(std::string_view prefix) const
 {
     send_message(MSG_METADATAKEYLIST, prefix);
     string message;
@@ -189,7 +190,7 @@ RemoteDatabase::open_term_list_direct(Xapian::docid did) const
 }
 
 TermList*
-RemoteDatabase::open_allterms(const string& prefix) const
+RemoteDatabase::open_allterms(string_view prefix) const
 {
     send_message(MSG_ALLTERMS, prefix);
     string message;
@@ -197,8 +198,8 @@ RemoteDatabase::open_allterms(const string& prefix) const
     return new RemoteAllTermsList(prefix, std::move(message));
 }
 
-PostList *
-RemoteDatabase::open_post_list(const string& term) const
+PostList*
+RemoteDatabase::open_post_list(string_view term) const
 {
     if (term.empty()) {
 	if (!cached_stats_valid) update_stats();
@@ -230,8 +231,8 @@ RemoteDatabase::open_post_list(const string& term) const
 			       std::move(message));
 }
 
-LeafPostList *
-RemoteDatabase::open_leaf_post_list(const string&, bool) const
+LeafPostList*
+RemoteDatabase::open_leaf_post_list(string_view, bool) const
 {
     // This method is only called during the match, and remote shards are
     // handled by running the match on the remote.
@@ -239,8 +240,8 @@ RemoteDatabase::open_leaf_post_list(const string&, bool) const
     return nullptr;
 }
 
-PositionList *
-RemoteDatabase::open_position_list(Xapian::docid did, const string &term) const
+PositionList*
+RemoteDatabase::open_position_list(Xapian::docid did, string_view term) const
 {
     string message;
     pack_uint(message, did);
@@ -419,12 +420,12 @@ RemoteDatabase::get_total_length() const
 }
 
 bool
-RemoteDatabase::term_exists(const string & tname) const
+RemoteDatabase::term_exists(string_view term) const
 {
-    if (tname.empty()) {
+    if (term.empty()) {
 	return get_doccount() != 0;
     }
-    send_message(MSG_TERMEXISTS, tname);
+    send_message(MSG_TERMEXISTS, term);
     string message;
     reply_type type = get_message(message,
 				  REPLY_TERMEXISTS,
@@ -433,9 +434,9 @@ RemoteDatabase::term_exists(const string & tname) const
 }
 
 void
-RemoteDatabase::get_freqs(const string & term,
-			  Xapian::doccount * termfreq_ptr,
-			  Xapian::termcount * collfreq_ptr) const
+RemoteDatabase::get_freqs(string_view term,
+			  Xapian::doccount* termfreq_ptr,
+			  Xapian::termcount* collfreq_ptr) const
 {
     Assert(!term.empty());
     string message;
@@ -527,7 +528,7 @@ RemoteDatabase::get_doclength_upper_bound() const
 }
 
 Xapian::termcount
-RemoteDatabase::get_wdf_upper_bound(const string &) const
+RemoteDatabase::get_wdf_upper_bound(string_view) const
 {
     // The default implementation returns get_collection_freq(), but we
     // don't want the overhead of a remote message and reply per query
@@ -628,7 +629,7 @@ RemoteDatabase::get_message(string &result,
 }
 
 void
-RemoteDatabase::send_message(message_type type, const string &message) const
+RemoteDatabase::send_message(message_type type, string_view message) const
 {
     double end_time = RealTime::end_time(timeout);
     while (pending_reply) {
@@ -783,7 +784,7 @@ RemoteDatabase::commit()
 {
     if (!uncommitted_changes) return;
 
-    send_message(MSG_COMMIT, string());
+    send_message(MSG_COMMIT, {});
 
     // We need to wait for a response to ensure documents have been committed.
     string message;
@@ -800,7 +801,7 @@ RemoteDatabase::cancel()
     cached_stats_valid = false;
     mru_slot = Xapian::BAD_VALUENO;
 
-    send_message(MSG_CANCEL, string());
+    send_message(MSG_CANCEL, {});
     string dummy;
     get_message(dummy, REPLY_DONE);
 
@@ -843,7 +844,7 @@ RemoteDatabase::delete_document(Xapian::docid did)
 }
 
 void
-RemoteDatabase::delete_document(const std::string & unique_term)
+RemoteDatabase::delete_document(std::string_view unique_term)
 {
     cached_stats_valid = false;
     mru_slot = Xapian::BAD_VALUENO;
@@ -872,7 +873,7 @@ RemoteDatabase::replace_document(Xapian::docid did,
 }
 
 Xapian::docid
-RemoteDatabase::replace_document(const std::string & unique_term,
+RemoteDatabase::replace_document(std::string_view unique_term,
 				 const Xapian::Document & doc)
 {
     cached_stats_valid = false;
@@ -903,7 +904,7 @@ RemoteDatabase::get_uuid() const
 }
 
 string
-RemoteDatabase::get_metadata(const string & key) const
+RemoteDatabase::get_metadata(string_view key) const
 {
     send_message(MSG_GETMETADATA, key);
     string metadata;
@@ -912,7 +913,7 @@ RemoteDatabase::get_metadata(const string & key) const
 }
 
 void
-RemoteDatabase::set_metadata(const string & key, const string & value)
+RemoteDatabase::set_metadata(string_view key, string_view value)
 {
     uncommitted_changes = true;
 
@@ -935,7 +936,7 @@ RemoteDatabase::request_document(Xapian::docid did) const
 }
 
 void
-RemoteDatabase::add_spelling(const string & word,
+RemoteDatabase::add_spelling(string_view word,
 			     Xapian::termcount freqinc) const
 {
     uncommitted_changes = true;
@@ -949,7 +950,7 @@ RemoteDatabase::add_spelling(const string & word,
 }
 
 Xapian::termcount
-RemoteDatabase::remove_spelling(const string & word,
+RemoteDatabase::remove_spelling(string_view word,
 				Xapian::termcount freqdec) const
 {
     uncommitted_changes = true;
@@ -971,25 +972,25 @@ RemoteDatabase::remove_spelling(const string & word,
 }
 
 TermList*
-RemoteDatabase::open_synonym_termlist(const string& word) const
+RemoteDatabase::open_synonym_termlist(string_view word) const
 {
     string message;
     send_message(MSG_SYNONYMTERMLIST, word);
     get_message(message, REPLY_SYNONYMTERMLIST);
-    return new RemoteKeyList(string(), std::move(message));
+    return new RemoteKeyList({}, std::move(message));
 }
 
 TermList*
-RemoteDatabase::open_synonym_keylist(const string& prefix) const
+RemoteDatabase::open_synonym_keylist(string_view prefix) const
 {
     string message;
     send_message(MSG_SYNONYMKEYLIST, prefix);
     get_message(message, REPLY_SYNONYMKEYLIST);
-    return new RemoteKeyList(string(), std::move(message));
+    return new RemoteKeyList({}, std::move(message));
 }
 
 void
-RemoteDatabase::add_synonym(const string& word, const string& synonym) const
+RemoteDatabase::add_synonym(string_view word, string_view synonym) const
 {
     uncommitted_changes = true;
 
@@ -1001,7 +1002,7 @@ RemoteDatabase::add_synonym(const string& word, const string& synonym) const
 }
 
 void
-RemoteDatabase::remove_synonym(const string& word, const string& synonym) const
+RemoteDatabase::remove_synonym(string_view word, string_view synonym) const
 {
     uncommitted_changes = true;
 
@@ -1013,7 +1014,7 @@ RemoteDatabase::remove_synonym(const string& word, const string& synonym) const
 }
 
 void
-RemoteDatabase::clear_synonyms(const string& word) const
+RemoteDatabase::clear_synonyms(string_view word) const
 {
     uncommitted_changes = true;
 
@@ -1031,7 +1032,7 @@ RemoteDatabase::locked() const
 string
 RemoteDatabase::reconstruct_text(Xapian::docid did,
 				 size_t length,
-				 const string& prefix,
+				 string_view prefix,
 				 Xapian::termpos start_pos,
 				 Xapian::termpos end_pos) const
 {

@@ -1,7 +1,7 @@
 /** @file
  *  @brief Xapian::Error base class.
  */
-/* Copyright (C) 2007,2008,2011,2013,2014,2015 Olly Betts
+/* Copyright (C) 2007,2008,2011,2013,2014,2015,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -38,7 +38,7 @@
 
 using namespace std;
 
-Xapian::Error::Error(const std::string &msg_, const std::string &context_,
+Xapian::Error::Error(std::string_view msg_, std::string_view context_,
 		     const char * type_, const char * error_string_)
     : msg(msg_), context(context_), error_string(), type(type_),
       my_errno(0)

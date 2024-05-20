@@ -1,7 +1,7 @@
 /** @file
  * @brief Access to metadata for a honey database.
  */
-/* Copyright (C) 2005,2007,2008,2009,2011,2017 Olly Betts
+/* Copyright (C) 2005,2007,2008,2009,2011,2017,2024 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -31,6 +31,7 @@
 #include "api/termlist.h"
 
 #include <string>
+#include <string_view>
 
 class HoneyCursor;
 
@@ -54,7 +55,8 @@ class HoneyMetadataTermList : public AllTermsList {
 
   public:
     HoneyMetadataTermList(const Xapian::Database::Internal* database_,
-			  HoneyCursor* cursor_, const std::string& prefix_);
+			  HoneyCursor* cursor_,
+			  std::string_view prefix_);
 
     ~HoneyMetadataTermList();
 
@@ -70,7 +72,7 @@ class HoneyMetadataTermList : public AllTermsList {
     TermList* next();
 
     /// Advance to the first key which is >= @a key.
-    TermList* skip_to(const std::string& key);
+    TermList* skip_to(std::string_view key);
 };
 
 #endif // XAPIAN_INCLUDED_HONEY_METADATA_H

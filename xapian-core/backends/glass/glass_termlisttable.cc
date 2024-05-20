@@ -1,7 +1,7 @@
 /** @file
  * @brief Subclass of GlassTable which holds termlists.
  */
-/* Copyright (C) 2007,2008,2009,2010 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -47,7 +47,7 @@ GlassTermListTable::set_termlist(Xapian::docid did,
 	// doclen is sum(wdf) so should be zero if there are no terms.
 	Assert(doclen == 0);
 	Assert(doc.termlist_begin() == doc.termlist_end());
-	add(make_key(did), string());
+	add(make_key(did), {});
 	return;
     }
 

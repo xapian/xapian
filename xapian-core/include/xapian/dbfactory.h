@@ -1,7 +1,7 @@
 /** @file
  * @brief Factory functions for constructing Database and WritableDatabase objects
  */
-/* Copyright (C) 2005,2006,2007,2008,2009,2011,2013,2014,2016 Olly Betts
+/* Copyright (C) 2005,2006,2007,2008,2009,2011,2013,2014,2016,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -27,6 +27,7 @@
 #endif
 
 #include <string>
+#include <string_view>
 
 #include <xapian/constants.h>
 #include <xapian/database.h>
@@ -61,7 +62,10 @@ namespace Remote {
  *				10000ms, which is 10 seconds).
  */
 XAPIAN_VISIBILITY_DEFAULT
-Database open(const std::string &host, unsigned int port, unsigned timeout = 10000, unsigned connect_timeout = 10000);
+Database open(std::string_view host,
+	      unsigned int port,
+	      unsigned timeout = 10000,
+	      unsigned connect_timeout = 10000);
 
 /** Construct a WritableDatabase object for update access to a remote database
  *  accessed via a TCP connection.
@@ -83,7 +87,11 @@ Database open(const std::string &host, unsigned int port, unsigned timeout = 100
  * @param flags		Xapian::DB_RETRY_LOCK or 0.
  */
 XAPIAN_VISIBILITY_DEFAULT
-WritableDatabase open_writable(const std::string &host, unsigned int port, unsigned timeout = 0, unsigned connect_timeout = 10000, int flags = 0);
+WritableDatabase open_writable(std::string_view host,
+			       unsigned int port,
+			       unsigned timeout = 0,
+			       unsigned connect_timeout = 10000,
+			       int flags = 0);
 
 /** Construct a Database object for read-only access to a remote database
  *  accessed via a program.
@@ -100,7 +108,9 @@ WritableDatabase open_writable(const std::string &host, unsigned int port, unsig
  *			is 10 seconds).
  */
 XAPIAN_VISIBILITY_DEFAULT
-Database open(const std::string &program, const std::string &args, unsigned timeout = 10000);
+Database open(std::string_view program,
+	      std::string_view args,
+	      unsigned timeout = 10000);
 
 /** Construct a WritableDatabase object for update access to a remote database
  *  accessed via a program.
@@ -117,7 +127,10 @@ Database open(const std::string &program, const std::string &args, unsigned time
  * @param flags		Xapian::DB_RETRY_LOCK or 0.
  */
 XAPIAN_VISIBILITY_DEFAULT
-WritableDatabase open_writable(const std::string &program, const std::string &args, unsigned timeout = 0, int flags = 0);
+WritableDatabase open_writable(std::string_view program,
+			       std::string_view args,
+			       unsigned timeout = 0,
+			       int flags = 0);
 
 }
 #endif

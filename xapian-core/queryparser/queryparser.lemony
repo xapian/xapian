@@ -43,6 +43,7 @@
 #include <limits>
 #include <list>
 #include <string>
+#include <string_view>
 #include <vector>
 
 // We create the yyParser on the stack.
@@ -975,8 +976,8 @@ fractional:
 %code {
 
 Query
-QueryParser::Internal::parse_query(const string &qs, unsigned flags,
-				   const string &default_prefix)
+QueryParser::Internal::parse_query(string_view qs, unsigned flags,
+				   const string& default_prefix)
 {
 #ifndef USE_ICU
     // Overall it seems best to check for this up front - otherwise we create
@@ -1013,7 +1014,7 @@ QueryParser::Internal::parse_query(const string &qs, unsigned flags,
     {
 	const FieldInfo * default_field_info = &def_pfx;
 	if (default_prefix.empty()) {
-	    auto f = field_map.find(string());
+	    auto f = field_map.find(string_view{});
 	    if (f != field_map.end()) default_field_info = &(f->second);
 	}
 
@@ -1265,8 +1266,7 @@ leading_wildcard:
 		p = it;
 		while (*p != ':')
 		    Unicode::append_utf8(field, *p++);
-		map<string, FieldInfo>::const_iterator f;
-		f = field_map.find(field);
+		auto f = field_map.find(field);
 		if (f != field_map.end()) {
 		    // Special handling for prefixed fields, depending on the
 		    // type of the prefix.

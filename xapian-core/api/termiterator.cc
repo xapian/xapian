@@ -1,7 +1,7 @@
 /** @file
  *  @brief Class for iterating over a list of terms.
  */
-/* Copyright (C) 2008,2009,2010,2011,2013 Olly Betts
+/* Copyright (C) 2008,2009,2010,2011,2013,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -140,7 +140,7 @@ TermIterator::positionlist_begin() const
 }
 
 void
-TermIterator::skip_to(const string & term)
+TermIterator::skip_to(string_view term)
 {
     LOGCALL_VOID(API, "TermIterator::skip_to", term);
     if (internal)

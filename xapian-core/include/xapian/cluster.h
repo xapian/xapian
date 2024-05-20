@@ -4,6 +4,7 @@
 /* Copyright (C) 2010 Richard Boulton
  * Copyright (C) 2016 Richhiey Thomas
  * Copyright (C) 2018 Uppinder Chugh
+ * Copyright (C) 2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -34,6 +35,7 @@
 #include <xapian/types.h>
 #include <xapian/visibility.h>
 
+#include <string_view>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
@@ -65,7 +67,7 @@ class XAPIAN_VISIBILITY_DEFAULT StemStopper : public Xapian::Stopper {
     }
 
     /// Add a single stop word and its stemmed equivalent
-    void add(const std::string &term);
+    void add(std::string_view term);
 
   private:
     stem_strategy stem_action;
@@ -241,7 +243,7 @@ class XAPIAN_VISIBILITY_DEFAULT PointType
      *  @param weight	The weight to which the mapping of the
      *			term is to be set
      */
-    void set_weight(const std::string &term, double weight);
+    void set_weight(std::string_view term, double weight);
 
   public:
     /// Default constructor
@@ -260,13 +262,13 @@ class XAPIAN_VISIBILITY_DEFAULT PointType
      *
      *  @param term	Term which is to be searched
      */
-    bool contains(const std::string &term) const;
+    bool contains(std::string_view term) const;
 
     /** Return the TF-IDF weight associated with a certain term
      *
      *  @param term	Term for which TF-IDF weight is returned
      */
-    double get_weight(const std::string &term) const;
+    double get_weight(std::string_view term) const;
 
     /** Add the weight 'weight' to the mapping of a term
      *
@@ -274,7 +276,7 @@ class XAPIAN_VISIBILITY_DEFAULT PointType
      *  @param weight	Weight which has to be added to the existing
      *			mapping of the term
      */
-    void add_weight(const std::string &term, double weight);
+    void add_weight(std::string_view term, double weight);
 
     /// Return the pre-computed squared magnitude
     double get_magnitude() const;

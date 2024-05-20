@@ -1,7 +1,7 @@
 /** @file
  * @brief A termlist containing all terms in a glass database.
  */
-/* Copyright (C) 2005,2007,2008,2009,2010,2017 Olly Betts
+/* Copyright (C) 2005,2007,2008,2009,2010,2017,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -27,6 +27,10 @@
 #include "debuglog.h"
 #include "pack.h"
 #include "stringutils.h"
+
+#include <string_view>
+
+using namespace std;
 
 void
 GlassAllTermsList::read_termfreq() const
@@ -135,8 +139,8 @@ first_time:
     RETURN(NULL);
 }
 
-TermList *
-GlassAllTermsList::skip_to(const string &term)
+TermList*
+GlassAllTermsList::skip_to(string_view term)
 {
     LOGCALL(DB, TermList *, "GlassAllTermsList::skip_to", term);
     // Set termfreq to 0 to indicate no termfreq has been read for the current

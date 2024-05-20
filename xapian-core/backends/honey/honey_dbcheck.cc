@@ -1,7 +1,7 @@
 /** @file
  * @brief Check a honey table.
  */
-/* Copyright (C) 2019 Olly Betts
+/* Copyright (C) 2019,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -27,7 +27,7 @@ using namespace std;
 
 size_t
 check_honey_table(const char* tablename,
-		  const string& db_dir,
+		  string_view db_dir,
 		  int fd,
 		  off_t offset_,
 		  const HoneyVersion& version_file,

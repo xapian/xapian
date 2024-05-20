@@ -1,7 +1,7 @@
 /** @file
  * @brief Spelling correction data for a glass database.
  */
-/* Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2011,2015,2017,2020 Olly Betts
+/* Copyright (C) 2004-2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,6 +37,7 @@
 #include <vector>
 #include <set>
 #include <string>
+#include <string_view>
 
 using namespace Glass;
 using namespace std;
@@ -109,7 +110,7 @@ GlassSpellingTable::merge_changes()
 }
 
 void
-GlassSpellingTable::toggle_fragment(fragment frag, const string & word)
+GlassSpellingTable::toggle_fragment(fragment frag, string_view word)
 {
     auto i = termlist_deltas.find(frag);
     if (i == termlist_deltas.end()) {
@@ -117,7 +118,7 @@ GlassSpellingTable::toggle_fragment(fragment frag, const string & word)
     }
     // The commonest case is that we're adding lots of words, so try insert
     // first and if that reports that the word already exists, remove it.
-    auto res = i->second.insert(word);
+    auto res = i->second.emplace(word);
     if (!res.second) {
 	// word is already in the set, so remove it.
 	i->second.erase(res.first);
@@ -125,11 +126,11 @@ GlassSpellingTable::toggle_fragment(fragment frag, const string & word)
 }
 
 void
-GlassSpellingTable::add_word(const string & word, Xapian::termcount freqinc)
+GlassSpellingTable::add_word(string_view word, Xapian::termcount freqinc)
 {
     if (word.size() <= 1) return;
 
-    map<string, Xapian::termcount>::iterator i = wordfreq_changes.find(word);
+    auto i = wordfreq_changes.find(word);
     if (i != wordfreq_changes.end()) {
 	// Word "word" already exists and has been modified.
 	if (i->second) {
@@ -140,7 +141,7 @@ GlassSpellingTable::add_word(const string & word, Xapian::termcount freqinc)
 	// we need to execute the code below to re-add trigrams for it.
 	i->second = freqinc;
     } else {
-	string key = "W" + word;
+	string key = "W"s.append(word);
 	string data;
 	if (get_exact_entry(key, data)) {
 	    // Word "word" already exists, so increment its count.
@@ -149,10 +150,10 @@ GlassSpellingTable::add_word(const string & word, Xapian::termcount freqinc)
 	    if (!unpack_uint_last(&p, p + data.size(), &freq) || freq == 0) {
 		throw Xapian::DatabaseCorruptError("Bad spelling word freq");
 	    }
-	    wordfreq_changes[word] = freq + freqinc;
+	    wordfreq_changes.emplace(word, freq + freqinc);
 	    return;
 	}
-	wordfreq_changes[word] = freqinc;
+	wordfreq_changes.emplace(word, freqinc);
     }
 
     // Add trigrams for word.
@@ -160,11 +161,11 @@ GlassSpellingTable::add_word(const string & word, Xapian::termcount freqinc)
 }
 
 Xapian::termcount
-GlassSpellingTable::remove_word(const string & word, Xapian::termcount freqdec)
+GlassSpellingTable::remove_word(string_view word, Xapian::termcount freqdec)
 {
     if (word.size() <= 1) return freqdec;
 
-    map<string, Xapian::termcount>::iterator i = wordfreq_changes.find(word);
+    auto i = wordfreq_changes.find(word);
     if (i != wordfreq_changes.end()) {
 	if (i->second == 0) {
 	    // Word has already been deleted.
@@ -180,7 +181,7 @@ GlassSpellingTable::remove_word(const string & word, Xapian::termcount freqdec)
 	// Mark word as deleted.
 	i->second = 0;
     } else {
-	string key = "W" + word;
+	string key = "W"s.append(word);
 	string data;
 	if (!get_exact_entry(key, data)) {
 	    // This word doesn't exist.
@@ -193,13 +194,13 @@ GlassSpellingTable::remove_word(const string & word, Xapian::termcount freqdec)
 	    throw Xapian::DatabaseCorruptError("Bad spelling word freq");
 	}
 	if (freqdec < freq) {
-	    wordfreq_changes[word] = freq - freqdec;
+	    wordfreq_changes.emplace(word, freq - freqdec);
 	    return 0;
 	}
 	freqdec -= freq;
 
 	// Mark word as deleted.
-	wordfreq_changes[word] = 0;
+	wordfreq_changes.emplace(word, 0);
     }
 
     // Remove trigrams for word.
@@ -209,7 +210,7 @@ GlassSpellingTable::remove_word(const string & word, Xapian::termcount freqdec)
 }
 
 void
-GlassSpellingTable::toggle_word(const string & word)
+GlassSpellingTable::toggle_word(string_view word)
 {
     fragment buf;
     // Head:
@@ -258,8 +259,8 @@ struct TermListGreaterApproxSize {
     }
 };
 
-TermList *
-GlassSpellingTable::open_termlist(const string & word)
+TermList*
+GlassSpellingTable::open_termlist(string_view word)
 {
     // This should have been handled by Database::get_spelling_suggestion().
     AssertRel(word.size(),>,1);
@@ -352,16 +353,15 @@ GlassSpellingTable::open_termlist(const string & word)
 }
 
 Xapian::doccount
-GlassSpellingTable::get_word_frequency(const string & word) const
+GlassSpellingTable::get_word_frequency(string_view word) const
 {
-    map<string, Xapian::termcount>::const_iterator i;
-    i = wordfreq_changes.find(word);
+    auto i = wordfreq_changes.find(word);
     if (i != wordfreq_changes.end()) {
 	// Modified frequency for word:
 	return i->second;
     }
 
-    string key = "W" + word;
+    string key = "W"s.append(word);
     string data;
     if (get_exact_entry(key, data)) {
 	// Word "word" already exists.
@@ -416,8 +416,8 @@ GlassSpellingTermList::next()
     return NULL;
 }
 
-TermList *
-GlassSpellingTermList::skip_to(const string & term)
+TermList*
+GlassSpellingTermList::skip_to(string_view term)
 {
     while (current_term < term) {
 	if (GlassSpellingTermList::next())

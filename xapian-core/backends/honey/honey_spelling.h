@@ -1,7 +1,7 @@
 /** @file
  * @brief Spelling correction data for a honey database.
  */
-/* Copyright (C) 2007,2008,2009,2010,2011,2014,2015,2016,2017,2018 Olly Betts
+/* Copyright (C) 2007-2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,6 +29,7 @@
 #include <map>
 #include <set>
 #include <string>
+#include <string_view>
 #include <cstring> // For memcpy() and memcmp().
 
 namespace Honey {
@@ -40,11 +41,11 @@ const unsigned KEY_PREFIX_TAIL = 0x03;
 const unsigned KEY_PREFIX_WORD = 0x04;
 
 inline std::string
-make_spelling_wordlist_key(const std::string& word)
+make_spelling_wordlist_key(std::string_view word)
 {
     if (rare(static_cast<unsigned char>(word[0]) <= KEY_PREFIX_WORD))
-	return char(KEY_PREFIX_WORD) + word;
-    return word;
+	return std::string(1, KEY_PREFIX_WORD).append(word);
+    return std::string(word);
 }
 
 struct fragment {
@@ -77,7 +78,9 @@ class HoneySpellingTable : public HoneyLazyTable {
     void toggle_word(const std::string& word);
     void toggle_fragment(Honey::fragment frag, const std::string& word);
 
-    mutable std::map<std::string, Xapian::termcount> wordfreq_changes;
+    mutable std::map<std::string,
+		     Xapian::termcount,
+		     std::less<>> wordfreq_changes;
 
     /** Changes to make to the termlists.
      *
@@ -114,9 +117,9 @@ class HoneySpellingTable : public HoneyLazyTable {
     Xapian::termcount remove_word(const std::string& word,
 				  Xapian::termcount freqdec);
 
-    TermList* open_termlist(const std::string& word);
+    TermList* open_termlist(std::string_view word);
 
-    Xapian::doccount get_word_frequency(const std::string& word) const;
+    Xapian::doccount get_word_frequency(std::string_view word) const;
 
     void set_wordfreq_upper_bound(Xapian::termcount ub) {
 	wordfreq_upper_bound = ub;
@@ -208,7 +211,7 @@ class HoneySpellingTermList : public TermList {
 
     TermList* next();
 
-    TermList* skip_to(const std::string& term);
+    TermList* skip_to(std::string_view term);
 
     Xapian::termcount positionlist_count() const;
 

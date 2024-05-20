@@ -1,7 +1,7 @@
 /** @file
  * @brief Synonym data for a glass database.
  */
-/* Copyright (C) 2004,2005,2006,2007,2008,2009,2011,2017 Olly Betts
+/* Copyright (C) 2004,2005,2006,2007,2008,2009,2011,2017,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,6 +31,7 @@
 
 #include <set>
 #include <string>
+#include <string_view>
 #include <vector>
 
 using namespace std;
@@ -60,7 +61,7 @@ GlassSynonymTable::merge_changes()
 }
 
 void
-GlassSynonymTable::add_synonym(const string & term, const string & synonym)
+GlassSynonymTable::add_synonym(string_view term, string_view synonym)
 {
     if (last_term != term) {
 	merge_changes();
@@ -82,11 +83,11 @@ GlassSynonymTable::add_synonym(const string & term, const string & synonym)
 	}
     }
 
-    last_synonyms.insert(synonym);
+    last_synonyms.emplace(synonym);
 }
 
 void
-GlassSynonymTable::remove_synonym(const string & term, const string & synonym)
+GlassSynonymTable::remove_synonym(string_view term, string_view synonym)
 {
     if (last_term != term) {
 	merge_changes();
@@ -102,17 +103,21 @@ GlassSynonymTable::remove_synonym(const string & term, const string & synonym)
 		    (len = uint8_t(*p) ^ MAGIC_XOR_VALUE) >= size_t(end - p))
 		    throw Xapian::DatabaseCorruptError("Bad synonym data");
 		++p;
-		last_synonyms.insert(string(p, len));
+		last_synonyms.emplace(p, len);
 		p += len;
 	    }
 	}
     }
 
+#ifdef __cpp_lib_associative_heterogeneous_erasure // C++23
     last_synonyms.erase(synonym);
+#else
+    last_synonyms.erase(string(synonym));
+#endif
 }
 
 void
-GlassSynonymTable::clear_synonyms(const string & term)
+GlassSynonymTable::clear_synonyms(string_view term)
 {
     // We don't actually ever need to merge_changes() here, but it's quite
     // likely that someone might clear_synonyms() and then add_synonym() for
@@ -127,8 +132,8 @@ GlassSynonymTable::clear_synonyms(const string & term)
     }
 }
 
-TermList *
-GlassSynonymTable::open_termlist(const string & term)
+TermList*
+GlassSynonymTable::open_termlist(string_view term)
 {
     vector<string> synonyms;
 
@@ -196,8 +201,8 @@ GlassSynonymTermList::next()
     RETURN(NULL);
 }
 
-TermList *
-GlassSynonymTermList::skip_to(const string &tname)
+TermList*
+GlassSynonymTermList::skip_to(string_view tname)
 {
     LOGCALL(DB, TermList *, "GlassSynonymTermList::skip_to", tname);
     Assert(!cursor->after_end());

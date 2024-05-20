@@ -1,7 +1,7 @@
 /** @file
  * @brief HoneyTable class
  */
-/* Copyright (C) 2017,2018 Olly Betts
+/* Copyright (C) 2017,2018,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -244,7 +244,7 @@ HoneyTable::read_val(std::string& val, size_t val_size) const
 }
 
 bool
-HoneyTable::get_exact_entry(const std::string& key, std::string* tag) const
+HoneyTable::get_exact_entry(std::string_view key, std::string* tag) const
 {
     if (!read_only) std::abort();
     if (rare(!store.is_open())) {

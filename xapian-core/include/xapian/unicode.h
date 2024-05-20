@@ -1,7 +1,7 @@
 /** @file
  * @brief Unicode and UTF-8 related classes and functions.
  */
-/* Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2018,2019 Olly Betts
+/* Copyright (C) 2006-2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,6 +29,7 @@
 #include <xapian/visibility.h>
 
 #include <string>
+#include <string_view>
 
 namespace Xapian {
 
@@ -89,17 +90,7 @@ class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
      *  @param s The string to read.  Must not be modified while the iteration
      *		 is in progress.
      */
-    void assign(const std::string& s) { assign(s.data(), s.size()); }
-
-    /** Create an iterator given a pointer to a null terminated string.
-     *
-     *  The iterator will return characters from the start of the string when
-     *  next called.  The string is not copied into the iterator, so it must
-     *  remain valid while the iteration is in progress.
-     *
-     *  @param p_ A pointer to the start of the null terminated string to read.
-     */
-    explicit Utf8Iterator(const char* p_);
+    void assign(std::string_view s) { assign(s.data(), s.size()); }
 
     /** Create an iterator given a pointer and a length.
      *
@@ -121,8 +112,14 @@ class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
      *
      *  @param s The string to read.  Must not be modified while the iteration
      *		 is in progress.
+     *
+     *		 This parameter is of type std::string_view, so you can pass in
+     *		 types which automatically convert to that such as
+     *		 `std::string`, or a `const char*` pointing to a nul-terminated
+     *		 string.
      */
-    Utf8Iterator(const std::string& s) { assign(s.data(), s.size()); }
+    explicit
+    Utf8Iterator(std::string_view s) { assign(s.data(), s.size()); }
 
     /** Create an iterator which is at the end of its iteration.
      *
@@ -403,9 +400,9 @@ inline unsigned toupper(unsigned ch) {
     return unsigned(int(ch) - Internal::get_delta(info));
 }
 
-/// Convert a UTF-8 std::string to lowercase.
+/// Convert a UTF-8 string to lowercase.
 inline std::string
-tolower(const std::string& term)
+tolower(std::string_view term)
 {
     std::string result;
     result.reserve(term.size());
@@ -415,9 +412,9 @@ tolower(const std::string& term)
     return result;
 }
 
-/// Convert a UTF-8 std::string to uppercase.
+/// Convert a UTF-8 string to uppercase.
 inline std::string
-toupper(const std::string& term)
+toupper(std::string_view term)
 {
     std::string result;
     result.reserve(term.size());

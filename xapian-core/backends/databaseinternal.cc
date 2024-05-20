@@ -1,7 +1,7 @@
 /** @file
  * @brief Virtual base class for Database internals
  */
-/* Copyright 2003-2023 Olly Betts
+/* Copyright 2003-2024 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -35,6 +35,7 @@
 #include <limits>
 #include <memory>
 #include <string>
+#include <string_view>
 
 using namespace std;
 using Xapian::Internal::intrusive_ptr;
@@ -187,7 +188,7 @@ Database::Internal::delete_document(Xapian::docid)
 }
 
 void
-Database::Internal::delete_document(const string& unique_term)
+Database::Internal::delete_document(string_view unique_term)
 {
     // Default implementation - overridden for remote and sharded databases.
 
@@ -231,8 +232,8 @@ Database::Internal::replace_document(Xapian::docid, const Xapian::Document &)
 }
 
 Xapian::docid
-Database::Internal::replace_document(const string & unique_term,
-				     const Xapian::Document & document)
+Database::Internal::replace_document(string_view unique_term,
+				     const Xapian::Document& document)
 {
     // Default implementation - overridden for remote and sharded databases.
 
@@ -276,7 +277,7 @@ Database::Internal::open_value_list(Xapian::valueno slot) const
 }
 
 TermList *
-Database::Internal::open_spelling_termlist(const string &) const
+Database::Internal::open_spelling_termlist(string_view) const
 {
     // Only implemented for some database backends - others will just not
     // suggest spelling corrections (or not contribute to them in a multiple
@@ -294,7 +295,7 @@ Database::Internal::open_spelling_wordlist() const
 }
 
 Xapian::doccount
-Database::Internal::get_spelling_frequency(const string &) const
+Database::Internal::get_spelling_frequency(string_view) const
 {
     // Only implemented for some database backends - others will just not
     // suggest spelling corrections (or not contribute to them in a multiple
@@ -303,19 +304,19 @@ Database::Internal::get_spelling_frequency(const string &) const
 }
 
 void
-Database::Internal::add_spelling(const string &, Xapian::termcount) const
+Database::Internal::add_spelling(string_view, Xapian::termcount) const
 {
     throw Xapian::UnimplementedError("This backend doesn't implement spelling correction");
 }
 
 Xapian::termcount
-Database::Internal::remove_spelling(const string &, Xapian::termcount) const
+Database::Internal::remove_spelling(string_view, Xapian::termcount) const
 {
     throw Xapian::UnimplementedError("This backend doesn't implement spelling correction");
 }
 
 TermList *
-Database::Internal::open_synonym_termlist(const string &) const
+Database::Internal::open_synonym_termlist(string_view) const
 {
     // Only implemented for some database backends - others will just not
     // expand synonyms (or not contribute to them in a multiple database
@@ -324,7 +325,7 @@ Database::Internal::open_synonym_termlist(const string &) const
 }
 
 TermList *
-Database::Internal::open_synonym_keylist(const string &) const
+Database::Internal::open_synonym_keylist(string_view) const
 {
     // Only implemented for some database backends - others will just not
     // expand synonyms (or not contribute to them in a multiple database
@@ -333,31 +334,31 @@ Database::Internal::open_synonym_keylist(const string &) const
 }
 
 void
-Database::Internal::add_synonym(const string &, const string &) const
+Database::Internal::add_synonym(string_view, string_view) const
 {
     throw Xapian::UnimplementedError("This backend doesn't implement synonyms");
 }
 
 void
-Database::Internal::remove_synonym(const string &, const string &) const
+Database::Internal::remove_synonym(string_view, string_view) const
 {
     throw Xapian::UnimplementedError("This backend doesn't implement synonyms");
 }
 
 void
-Database::Internal::clear_synonyms(const string &) const
+Database::Internal::clear_synonyms(string_view) const
 {
     throw Xapian::UnimplementedError("This backend doesn't implement synonyms");
 }
 
 string
-Database::Internal::get_metadata(const string &) const
+Database::Internal::get_metadata(string_view) const
 {
     return string();
 }
 
 TermList*
-Database::Internal::open_metadata_keylist(const string&) const
+Database::Internal::open_metadata_keylist(string_view) const
 {
     // Only implemented for some database backends - others will simply report
     // there being no metadata keys.
@@ -365,7 +366,7 @@ Database::Internal::open_metadata_keylist(const string&) const
 }
 
 void
-Database::Internal::set_metadata(const string&, const string&)
+Database::Internal::set_metadata(string_view, string_view)
 {
     throw Xapian::UnimplementedError("This backend doesn't implement metadata");
 }
@@ -462,7 +463,7 @@ static void
 reconstruct_open_poslists(TermList* termlist,
 			  Xapian::termpos start_pos,
 			  Xapian::termpos end_pos,
-			  const string& end,
+			  string_view end,
 			  vector<unique_ptr<Pos>>& heap,
 			  size_t prefix_size = 0)
 {
@@ -486,7 +487,7 @@ reconstruct_open_poslists(TermList* termlist,
 string
 Database::Internal::reconstruct_text(Xapian::docid did,
 				     size_t length,
-				     const std::string& prefix,
+				     std::string_view prefix,
 				     Xapian::termpos start_pos,
 				     Xapian::termpos end_pos) const
 {
@@ -524,7 +525,7 @@ Database::Internal::reconstruct_text(Xapian::docid did,
 	    if (termlist->skip_to(prefix) == NULL) {
 		// Calculate the first possible term without the specified
 		// prefix.
-		string term_ub = prefix;
+		string term_ub{prefix};
 		size_t i = term_ub.find_last_not_of('\xff');
 		term_ub.resize(i + 1);
 		if (i != string::npos) {

@@ -2,7 +2,7 @@
  * @brief Postlists in a glass database
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002-2022 Olly Betts
+ * Copyright 2002-2024 Olly Betts
  * Copyright 2007,2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -59,7 +59,9 @@ get_tname_from_key(const char **src, const char *end, string &tname)
 }
 
 static inline bool
-check_tname_in_key_lite(const char **keypos, const char *keyend, const string &tname)
+check_tname_in_key_lite(const char** keypos,
+			const char* keyend,
+			string_view tname)
 {
     string tname_in_key;
 
@@ -76,7 +78,7 @@ check_tname_in_key_lite(const char **keypos, const char *keyend, const string &t
 }
 
 static inline bool
-check_tname_in_key(const char **keypos, const char *keyend, const string &tname)
+check_tname_in_key(const char** keypos, const char* keyend, string_view tname)
 {
     if (*keypos == keyend) return false;
 
@@ -148,10 +150,10 @@ read_start_of_chunk(const char ** posptr,
 }
 
 void
-GlassPostListTable::get_freqs(const string & term,
-			      Xapian::doccount * termfreq_ptr,
-			      Xapian::termcount * collfreq_ptr,
-			      Xapian::termcount * wdfub_ptr) const
+GlassPostListTable::get_freqs(string_view term,
+			      Xapian::doccount* termfreq_ptr,
+			      Xapian::termcount* collfreq_ptr,
+			      Xapian::termcount* wdfub_ptr) const
 {
     string key = make_key(term);
     string tag;
@@ -197,7 +199,7 @@ GlassPostListTable::get_doclength(Xapian::docid did,
     if (!doclen_pl) {
 	// Don't keep a reference back to the database, since this
 	// would make a reference loop.
-	doclen_pl.reset(new GlassPostList(db, string(), false));
+	doclen_pl.reset(new GlassPostList(db, {}, false));
     }
     if (!doclen_pl->jump_to(did))
 	throw Xapian::DocNotFoundError("Document " + str(did) + " not found");
@@ -211,7 +213,7 @@ GlassPostListTable::document_exists(Xapian::docid did,
     if (!doclen_pl) {
 	// Don't keep a reference back to the database, since this
 	// would make a reference loop.
-	doclen_pl.reset(new GlassPostList(db, string(), false));
+	doclen_pl.reset(new GlassPostList(db, {}, false));
     }
     return (doclen_pl->jump_to(did));
 }
@@ -231,9 +233,9 @@ const unsigned int CHUNKSIZE = 2000;
  */
 class Glass::PostlistChunkWriter {
   public:
-    PostlistChunkWriter(const string &orig_key_,
+    PostlistChunkWriter(string_view orig_key_,
 			bool is_first_chunk_,
-			const string &tname_,
+			string_view tname_,
 			bool is_last_chunk_);
 
     /// Append an entry to this chunk.
@@ -329,9 +331,9 @@ PostlistChunkReader::next()
     }
 }
 
-PostlistChunkWriter::PostlistChunkWriter(const string &orig_key_,
+PostlistChunkWriter::PostlistChunkWriter(string_view orig_key_,
 					 bool is_first_chunk_,
-					 const string &tname_,
+					 string_view tname_,
 					 bool is_last_chunk_)
 	: orig_key(orig_key_),
 	  tname(tname_), is_first_chunk(is_first_chunk_),
@@ -693,7 +695,7 @@ void GlassPostList::read_freqs(const char** posptr,
  *  standard chunk.
  */
 GlassPostList::GlassPostList(intrusive_ptr<const GlassDatabase> this_db_,
-			     const string & term_,
+			     string_view term_,
 			     bool keep_reference)
 	: LeafPostList(term_),
 	  this_db(keep_reference ? this_db_ : NULL),
@@ -706,7 +708,7 @@ GlassPostList::GlassPostList(intrusive_ptr<const GlassDatabase> this_db_,
 }
 
 GlassPostList::GlassPostList(intrusive_ptr<const GlassDatabase> this_db_,
-			     const string & term_,
+			     string_view term_,
 			     GlassCursor * cursor_)
 	: LeafPostList(term_),
 	  this_db(this_db_),
@@ -760,7 +762,7 @@ GlassPostList::~GlassPostList()
 }
 
 bool
-GlassPostList::open_nearby_postlist(const std::string & term_,
+GlassPostList::open_nearby_postlist(std::string_view term_,
 				    bool need_read_pos,
 				    LeafPostList*& pl) const
 {
@@ -1057,7 +1059,7 @@ GlassPostList::get_description() const
 
 // Returns the last did to allow in this chunk.
 Xapian::docid
-GlassPostListTable::get_chunk(const string &tname,
+GlassPostListTable::get_chunk(string_view tname,
 			      Xapian::docid did, bool adding,
 			      PostlistChunkReader ** from,
 			      PostlistChunkWriter **to)
@@ -1081,10 +1083,13 @@ GlassPostListTable::get_chunk(const string &tname,
 	// NB "adding" will only be true if we are adding, but it may sometimes
 	// be false in some cases where we are actually adding.
 	if (!adding)
-	    throw Xapian::DatabaseCorruptError("Attempted to delete or modify an entry in a non-existent posting list for " + tname);
+	    throw Xapian::DatabaseCorruptError("Attempted to delete or modify "
+					       "an entry in a non-existent "
+					       "posting list "
+					       "for "s.append(tname));
 
 	*from = NULL;
-	*to = new PostlistChunkWriter(string(), true, tname, true);
+	*to = new PostlistChunkWriter({}, true, tname, true);
 	RETURN(Xapian::docid(-1));
     }
 
@@ -1152,7 +1157,7 @@ GlassPostListTable::merge_doclen_changes(const map<Xapian::docid, Xapian::termco
     if (doclens.empty()) return;
 
     // Ensure there's a first chunk.
-    string current_key = make_key(string());
+    string current_key = make_key({});
     if (!key_exists(current_key)) {
 	LOGLINE(DB, "Adding dummy first chunk");
 	// Zero values except the "last chunk" flag is set.
@@ -1166,7 +1171,7 @@ GlassPostListTable::merge_doclen_changes(const map<Xapian::docid, Xapian::termco
     Xapian::docid max_did;
     PostlistChunkReader *from;
     PostlistChunkWriter *to;
-    max_did = get_chunk(string(), j->first, true, &from, &to);
+    max_did = get_chunk({}, j->first, true, &from, &to);
     LOGVALUE(DB, max_did);
     for ( ; j != doclens.end(); ++j) {
 	Xapian::docid did = j->first;
@@ -1186,7 +1191,7 @@ next_doclen_chunk:
 	    delete from;
 	    to->flush(this);
 	    delete to;
-	    max_did = get_chunk(string(), did, false, &from, &to);
+	    max_did = get_chunk({}, did, false, &from, &to);
 	    goto next_doclen_chunk;
 	}
 
@@ -1208,8 +1213,8 @@ next_doclen_chunk:
 }
 
 void
-GlassPostListTable::merge_changes(const string &term,
-				  const Inverter::PostingChanges & changes)
+GlassPostListTable::merge_changes(string_view term,
+				  const Inverter::PostingChanges& changes)
 {
     {
 	// Rewrite the first chunk of this posting list with the updated
@@ -1326,7 +1331,7 @@ GlassPostListTable::get_used_docid_range(Xapian::docid & first,
 {
     LOGCALL(DB, Xapian::docid, "GlassPostListTable::get_used_docid_range", "&first, &used");
     unique_ptr<GlassCursor> cur(cursor_get());
-    if (!cur->find_entry(pack_glass_postlist_key(string()))) {
+    if (!cur->find_entry(pack_glass_postlist_key({}))) {
 	// Empty database.
 	first = last = 0;
 	return;
@@ -1338,13 +1343,13 @@ GlassPostListTable::get_used_docid_range(Xapian::docid & first,
 
     first = read_start_of_first_chunk(&p, e, NULL, NULL);
 
-    (void)cur->find_entry(pack_glass_postlist_key(string(), GLASS_MAX_DOCID));
+    (void)cur->find_entry(pack_glass_postlist_key({}, GLASS_MAX_DOCID));
     Assert(!cur->after_end());
 
     const char * keypos = cur->current_key.data();
     const char * keyend = keypos + cur->current_key.size();
     // Check we're still in same postlist
-    if (!check_tname_in_key_lite(&keypos, keyend, string())) {
+    if (!check_tname_in_key_lite(&keypos, keyend, {})) {
 	// Shouldn't happen - we already handled the empty database case above.
 	Assert(false);
 	first = last = 0;

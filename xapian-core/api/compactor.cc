@@ -1,7 +1,7 @@
 /** @file
  * @brief Compact a database, or merge and compact several.
  */
-/* Copyright (C) 2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2015,2016,2017,2018 Olly Betts
+/* Copyright (C) 2003-2024 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -26,6 +26,7 @@
 
 #include <algorithm>
 #include <fstream>
+#include <string_view>
 #include <vector>
 
 #include <cerrno>
@@ -123,7 +124,7 @@ backend_mismatch(const Xapian::Database::Internal* db, int backend1,
 namespace Xapian {
 
 void
-Database::compact_(const string * output_ptr, int fd, unsigned flags,
+Database::compact_(const string_view* output_ptr, int fd, unsigned flags,
 		   int block_size,
 		   Xapian::Compactor * compactor) const
 {
@@ -217,7 +218,7 @@ Database::compact_(const string * output_ptr, int fd, unsigned flags,
 	    }
 
 #ifdef XAPIAN_ASSERTIONS
-	    PostList* pl = shard->open_post_list(string());
+	    PostList* pl = shard->open_post_list({});
 	    // We don't do this for an empty shard.
 	    Assert(pl);
 	    pl->next();

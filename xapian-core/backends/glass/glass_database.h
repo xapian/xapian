@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2019 Olly Betts
+ * Copyright 2002-2024 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -45,6 +45,7 @@
 #include "xapian/constants.h"
 
 #include <map>
+#include <string_view>
 
 class GlassTermList;
 class GlassAllDocsPostList;
@@ -227,7 +228,7 @@ class GlassDatabase : public Xapian::Database::Internal {
      *                    correct value, when the database is being
      *                    created.
      */
-    explicit GlassDatabase(const string& db_dir_,
+    explicit GlassDatabase(std::string_view db_dir_,
 			   int flags = Xapian::DB_READONLY_,
 			   unsigned int block_size = 0u);
 
@@ -248,21 +249,21 @@ class GlassDatabase : public Xapian::Database::Internal {
     Xapian::termcount get_doclength(Xapian::docid did) const;
     Xapian::termcount get_unique_terms(Xapian::docid did) const;
     Xapian::termcount get_wdfdocmax(Xapian::docid did) const;
-    void get_freqs(const string & term,
-		   Xapian::doccount * termfreq_ptr,
-		   Xapian::termcount * collfreq_ptr) const;
+    void get_freqs(std::string_view term,
+		   Xapian::doccount* termfreq_ptr,
+		   Xapian::termcount* collfreq_ptr) const;
     Xapian::doccount get_value_freq(Xapian::valueno slot) const;
     std::string get_value_lower_bound(Xapian::valueno slot) const;
     std::string get_value_upper_bound(Xapian::valueno slot) const;
     Xapian::termcount get_doclength_lower_bound() const;
     Xapian::termcount get_doclength_upper_bound() const;
-    Xapian::termcount get_wdf_upper_bound(const string & term) const;
+    Xapian::termcount get_wdf_upper_bound(std::string_view term) const;
     Xapian::termcount get_unique_terms_lower_bound() const;
-    bool term_exists(const string & tname) const;
+    bool term_exists(std::string_view term) const;
     bool has_positions() const;
 
-    PostList * open_post_list(const string & tname) const;
-    LeafPostList* open_leaf_post_list(const string& term,
+    PostList* open_post_list(std::string_view tname) const;
+    LeafPostList* open_leaf_post_list(std::string_view term,
 				      bool need_read_pos) const;
     ValueList * open_value_list(Xapian::valueno slot) const;
     Xapian::Document::Internal* open_document(Xapian::docid did,
@@ -274,20 +275,20 @@ class GlassDatabase : public Xapian::Database::Internal {
     virtual Xapian::termcount positionlist_count(Xapian::docid did,
 						 const string& term) const;
     PositionList* open_position_list(Xapian::docid did,
-				     const string& term) const;
+				     std::string_view term) const;
     TermList * open_term_list(Xapian::docid did) const;
     TermList * open_term_list_direct(Xapian::docid did) const;
-    TermList * open_allterms(const string & prefix) const;
+    TermList* open_allterms(std::string_view prefix) const;
 
-    TermList * open_spelling_termlist(const string & word) const;
+    TermList* open_spelling_termlist(std::string_view word) const;
     TermList * open_spelling_wordlist() const;
-    Xapian::doccount get_spelling_frequency(const string & word) const;
+    Xapian::doccount get_spelling_frequency(std::string_view word) const;
 
-    TermList * open_synonym_termlist(const string & term) const;
-    TermList * open_synonym_keylist(const string & prefix) const;
+    TermList* open_synonym_termlist(std::string_view term) const;
+    TermList* open_synonym_keylist(std::string_view prefix) const;
 
-    string get_metadata(const string & key) const;
-    TermList * open_metadata_keylist(const std::string &prefix) const;
+    string get_metadata(std::string_view key) const;
+    TermList* open_metadata_keylist(std::string_view prefix) const;
     void write_changesets_to_fd(int fd,
 				const string & start_revision,
 				bool need_whole_db,
@@ -417,7 +418,7 @@ class GlassWritableDatabase : public GlassDatabase {
      *
      *  @param dir directory holding glass tables
      */
-    GlassWritableDatabase(const string &dir, int flags, int block_size);
+    GlassWritableDatabase(std::string_view dir, int flags, int block_size);
 
     ~GlassWritableDatabase();
 
@@ -425,17 +426,17 @@ class GlassWritableDatabase : public GlassDatabase {
     //@{
     Xapian::termcount get_doclength(Xapian::docid did) const;
     Xapian::termcount get_unique_terms(Xapian::docid did) const;
-    void get_freqs(const string & term,
-		   Xapian::doccount * termfreq_ptr,
-		   Xapian::termcount * collfreq_ptr) const;
+    void get_freqs(std::string_view term,
+		   Xapian::doccount* termfreq_ptr,
+		   Xapian::termcount* collfreq_ptr) const;
     Xapian::doccount get_value_freq(Xapian::valueno slot) const;
     std::string get_value_lower_bound(Xapian::valueno slot) const;
     std::string get_value_upper_bound(Xapian::valueno slot) const;
-    bool term_exists(const string & tname) const;
+    bool term_exists(std::string_view term) const;
     bool has_positions() const;
 
-    PostList * open_post_list(const string & tname) const;
-    LeafPostList* open_leaf_post_list(const string& term,
+    PostList* open_post_list(std::string_view term) const;
+    LeafPostList* open_leaf_post_list(std::string_view term,
 				      bool need_read_pos) const;
     ValueList * open_value_list(Xapian::valueno slot) const;
 
@@ -445,20 +446,20 @@ class GlassWritableDatabase : public GlassDatabase {
     Xapian::termcount positionlist_count(Xapian::docid did,
 					 const string& term) const;
     PositionList* open_position_list(Xapian::docid did,
-				     const string& term) const;
-    TermList * open_allterms(const string & prefix) const;
+				     std::string_view term) const;
+    TermList* open_allterms(std::string_view prefix) const;
 
-    void add_spelling(const string & word, Xapian::termcount freqinc) const;
-    Xapian::termcount remove_spelling(const string & word,
+    void add_spelling(std::string_view word, Xapian::termcount freqinc) const;
+    Xapian::termcount remove_spelling(std::string_view word,
 				      Xapian::termcount freqdec) const;
     TermList * open_spelling_wordlist() const;
 
-    TermList * open_synonym_keylist(const string & prefix) const;
-    void add_synonym(const string & word, const string & synonym) const;
-    void remove_synonym(const string & word, const string & synonym) const;
-    void clear_synonyms(const string & word) const;
+    TermList* open_synonym_keylist(std::string_view prefix) const;
+    void add_synonym(std::string_view word, std::string_view synonym) const;
+    void remove_synonym(std::string_view word, std::string_view synonym) const;
+    void clear_synonyms(std::string_view word) const;
 
-    void set_metadata(const string & key, const string & value);
+    void set_metadata(std::string_view key, std::string_view value);
     void invalidate_doc_object(Xapian::Document::Internal * obj) const;
     //@}
 

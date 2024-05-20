@@ -1,7 +1,7 @@
 /** @file
  * @brief Convert types to pretty representations
  */
-/* Copyright (C) 2010,2011,2012,2014,2016,2017,2019,2023 Olly Betts
+/* Copyright (C) 2010,2011,2012,2014,2016,2017,2019,2023,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,6 +25,7 @@
 #include <map>
 #include <ostream>
 #include <string>
+#include <string_view>
 #include <vector>
 
 #include "api/smallvector.h"
@@ -161,6 +162,29 @@ inline PrettyOStream<S> &
 operator<<(PrettyOStream<S> &ps, std::string *)
 {
     ps.os << "std::string*";
+    return ps;
+}
+
+template<class S>
+inline PrettyOStream<S>&
+operator<<(PrettyOStream<S>& ps, std::string_view str)
+{
+    ps.os << '"';
+    for (char ch : str) {
+	write_ch(ps.os, ch);
+    }
+    ps.os << '"';
+    return ps;
+}
+
+template<class S>
+inline PrettyOStream<S>&
+operator<<(PrettyOStream<S>& ps, const std::string_view* p_str)
+{
+    if (p_str)
+	ps.os << *p_str;
+    else
+	ps.os << "NULL";
     return ps;
 }
 

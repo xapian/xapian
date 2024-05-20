@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2014,2015,2019 Olly Betts
+ * Copyright 2002-2024 Olly Betts
  * Copyright 2006,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -31,9 +31,10 @@
 #include "backends/databaseinternal.h"
 #include "backends/leafpostlist.h"
 #include "backends/valuestats.h"
-#include <map>
-#include <vector>
 #include <algorithm>
+#include <map>
+#include <string_view>
+#include <vector>
 #include <xapian/document.h>
 #include "inmemory_positionlist.h"
 #include "internaltypes.h"
@@ -155,7 +156,7 @@ class InMemoryPostList : public LeafPostList {
     Xapian::termcount wdf_upper_bound;
 
     InMemoryPostList(const InMemoryDatabase* db,
-		     const InMemoryTerm & imterm, const std::string & term_);
+		     const InMemoryTerm& imterm, std::string_view term_);
   public:
     Xapian::docid get_docid() const;     // Gets current docid
     Xapian::termcount get_wdf() const;	   // Within Document Frequency
@@ -242,7 +243,7 @@ class InMemoryTermList : public TermList {
     Xapian::termcount get_wdf() const;
     Xapian::doccount get_termfreq() const;  // Number of docs indexed by term
     TermList * next();
-    TermList * skip_to(const std::string & term);
+    TermList* skip_to(std::string_view term);
     Xapian::termcount positionlist_count() const;
     PositionList* positionlist_begin() const;
 };
@@ -257,7 +258,7 @@ class InMemoryDatabase : public Xapian::Database::Internal {
     friend class InMemoryAllDocsPostList;
     friend class InMemoryDocument;
 
-    std::map<std::string, InMemoryTerm> postlists;
+    std::map<std::string, InMemoryTerm, std::less<>> postlists;
     std::vector<InMemoryDoc> termlists;
     std::vector<std::string> doclists;
     std::vector<std::map<Xapian::valueno, std::string>> valuelists;
@@ -265,7 +266,7 @@ class InMemoryDatabase : public Xapian::Database::Internal {
 
     std::vector<Xapian::termcount> doclengths;
 
-    std::map<std::string, std::string> metadata;
+    std::map<std::string, std::string, std::less<>> metadata;
 
     Xapian::doccount totdocs;
 
@@ -337,7 +338,7 @@ class InMemoryDatabase : public Xapian::Database::Internal {
     Xapian::termcount get_unique_terms(Xapian::docid did) const;
     Xapian::termcount get_wdfdocmax(Xapian::docid did) const;
 
-    void get_freqs(const std::string& term,
+    void get_freqs(std::string_view term,
 		   Xapian::doccount* termfreq_ptr,
 		   Xapian::termcount* collfreq_ptr) const;
     Xapian::doccount get_value_freq(Xapian::valueno slot) const;
@@ -345,27 +346,27 @@ class InMemoryDatabase : public Xapian::Database::Internal {
     std::string get_value_upper_bound(Xapian::valueno slot) const;
     Xapian::termcount get_doclength_lower_bound() const;
     Xapian::termcount get_doclength_upper_bound() const;
-    Xapian::termcount get_wdf_upper_bound(const std::string& term) const;
-    bool term_exists(const std::string& tname) const;
+    Xapian::termcount get_wdf_upper_bound(std::string_view term) const;
+    bool term_exists(std::string_view term) const;
     bool has_positions() const;
 
-    PostList* open_post_list(const std::string& tname) const;
-    LeafPostList* open_leaf_post_list(const std::string& term,
+    PostList* open_post_list(std::string_view tname) const;
+    LeafPostList* open_leaf_post_list(std::string_view term,
 				      bool need_read_pos) const;
     TermList * open_term_list(Xapian::docid did) const;
     TermList * open_term_list_direct(Xapian::docid did) const;
     Xapian::Document::Internal* open_document(Xapian::docid did,
 					      bool lazy) const;
 
-    std::string get_metadata(const std::string & key) const;
-    TermList * open_metadata_keylist(const std::string &prefix) const;
-    void set_metadata(const std::string & key, const std::string & value);
+    std::string get_metadata(std::string_view key) const;
+    TermList* open_metadata_keylist(std::string_view prefix) const;
+    void set_metadata(std::string_view key, std::string_view value);
 
     Xapian::termcount positionlist_count(Xapian::docid did,
 					 const std::string& tname) const;
     PositionList* open_position_list(Xapian::docid did,
-				     const std::string& tname) const;
-    TermList* open_allterms(const std::string& prefix) const;
+				     std::string_view tname) const;
+    TermList* open_allterms(std::string_view prefix) const;
 
     [[noreturn]]
     static void throw_database_closed();

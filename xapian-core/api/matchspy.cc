@@ -1,7 +1,7 @@
 /** @file
  * @brief MatchSpy implementation.
  */
-/* Copyright (C) 2007,2008,2009,2010,2011,2012,2013,2014,2015,2018 Olly Betts
+/* Copyright (C) 2007-2024 Olly Betts
  * Copyright (C) 2007,2009 Lemur Consulting Ltd
  * Copyright (C) 2010 Richard Boulton
  *
@@ -31,6 +31,7 @@
 #include <map>
 #include <memory>
 #include <string>
+#include <string_view>
 #include <vector>
 
 #include "debuglog.h"
@@ -122,7 +123,7 @@ class ValueCountTermList final : public TermList {
 	return NULL;
     }
 
-    TermList * skip_to(const string & term) {
+    TermList* skip_to(string_view term) {
 	while (it != spy->values.end() && it->first < term) {
 	    ++it;
 	}
@@ -213,7 +214,7 @@ class StringAndFreqTermList final : public TermList {
 	return NULL;
     }
 
-    TermList * skip_to(const string & term) {
+    TermList* skip_to(string_view term) {
 	while (it != values.end() && it->get_string() < term) {
 	    ++it;
 	}

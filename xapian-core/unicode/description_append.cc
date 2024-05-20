@@ -1,7 +1,7 @@
 /** @file
  *  @brief Append a string to an object description, escaping invalid UTF-8
  */
-/* Copyright (C) 2013,2019 Olly Betts
+/* Copyright (C) 2013,2019,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,11 +24,12 @@
 #include "xapian/unicode.h"
 
 #include <string>
+#include <string_view>
 
 using namespace std;
 
 void
-description_append(std::string& desc, const std::string& s)
+description_append(std::string& desc, std::string_view s)
 {
     desc.reserve(desc.size() + s.size());
     for (Xapian::Utf8Iterator i(s); i != Xapian::Utf8Iterator(); ++i) {

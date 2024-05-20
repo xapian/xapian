@@ -1,7 +1,7 @@
 /** @file
  *  @brief Implementation of Xapian::Stem API class.
  */
-/* Copyright (C) 2007,2008,2010,2011,2012,2015,2018,2019 Olly Betts
+/* Copyright (C) 2007,2008,2010,2011,2012,2015,2018,2019,2024 Olly Betts
  * Copyright (C) 2010 Evgeny Sizikov
  *
  * This program is free software; you can redistribute it and/or
@@ -32,12 +32,13 @@
 #include "sbl-dispatch.h"
 
 #include <string>
+#include <string_view>
 
 using namespace std;
 
 namespace Xapian {
 
-Stem::Stem(const std::string& language, bool fallback)
+Stem::Stem(std::string_view language, bool fallback)
 {
     int l = keyword2(tab, language.data(), language.size());
     if (l >= 0) {
@@ -135,7 +136,11 @@ Stem::Stem(const std::string& language, bool fallback)
     }
     if (fallback || language.empty())
 	return;
-    throw Xapian::InvalidArgumentError("Language code " + language + " unknown");
+
+    string m{"Language code "};
+    m += language;
+    m += " unknown";
+    throw Xapian::InvalidArgumentError(m);
 }
 
 string

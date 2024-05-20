@@ -1,7 +1,7 @@
 /** @file
  * @brief Check the consistency of a database or table.
  */
-/* Copyright 2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2019 Olly Betts
+/* Copyright 2007-2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -48,6 +48,7 @@
 
 #include <ostream>
 #include <stdexcept>
+#include <string_view>
 
 using namespace std;
 
@@ -121,10 +122,12 @@ reserve_doclens(vector<Xapian::termcount>& doclens, Xapian::docid last_docid,
 #endif
 
 static size_t
-check_db_dir(const string & path, int opts, std::ostream *out)
+check_db_dir(string_view path, int opts, std::ostream *out)
 {
     struct stat sb;
-    if (stat((path + "/iamglass").c_str(), &sb) == 0) {
+    string filename{path};
+    filename += "/iamglass";
+    if (stat(filename.c_str(), &sb) == 0) {
 #ifndef XAPIAN_HAS_GLASS_BACKEND
 	(void)opts;
 	(void)out;
@@ -149,11 +152,11 @@ check_db_dir(const string & path, int opts, std::ostream *out)
 	GlassVersion version_file(path);
 	version_file.read();
 	for (auto r = version_file.get_revision(); r != 0; --r) {
-	    string changes_file = path;
-	    changes_file += "/changes";
-	    changes_file += str(r);
-	    if (file_exists(changes_file))
-		GlassChanges::check(changes_file);
+	    filename.resize(path.size());
+	    filename += "/changes";
+	    filename += str(r);
+	    if (file_exists(filename))
+		GlassChanges::check(filename);
 	}
 
 	Xapian::docid doccount = version_file.get_doccount();
@@ -175,7 +178,9 @@ check_db_dir(const string & path, int opts, std::ostream *out)
 #endif
     }
 
-    if (stat((path + "/iamhoney").c_str(), &sb) == 0) {
+    filename.resize(path.size());
+    filename += "/iamhoney";
+    if (stat(filename.c_str(), &sb) == 0) {
 #ifndef XAPIAN_HAS_HONEY_BACKEND
 	(void)opts;
 	(void)out;
@@ -229,22 +234,30 @@ check_db_dir(const string & path, int opts, std::ostream *out)
 #endif
     }
 
-    if (stat((path + "/iamchert").c_str(), &sb) == 0) {
+    filename.resize(path.size());
+    filename += "/iamchert";
+    if (stat(filename.c_str(), &sb) == 0) {
 	// Chert is no longer supported as of Xapian 1.5.0.
 	throw Xapian::FeatureUnavailableError("Chert database support was removed in Xapian 1.5.0");
     }
 
-    if (stat((path + "/iamflint").c_str(), &sb) == 0) {
+    filename.resize(path.size());
+    filename += "/iamflint";
+    if (stat(filename.c_str(), &sb) == 0) {
 	// Flint is no longer supported as of Xapian 1.3.0.
 	throw Xapian::FeatureUnavailableError("Flint database support was removed in Xapian 1.3.0");
     }
 
-    if (stat((path + "/iambrass").c_str(), &sb) == 0) {
+    filename.resize(path.size());
+    filename += "/iambrass";
+    if (stat(filename.c_str(), &sb) == 0) {
 	// Brass was renamed to glass as of Xapian 1.3.2.
 	throw Xapian::FeatureUnavailableError("Brass database support was removed in Xapian 1.3.2");
     }
 
-    if (stat((path + "/record_DB").c_str(), &sb) == 0) {
+    filename.resize(path.size());
+    filename += "/record_DB";
+    if (stat(filename.c_str(), &sb) == 0) {
 	// Quartz is no longer supported as of Xapian 1.1.0.
 	throw Xapian::FeatureUnavailableError("Quartz database support was removed in Xapian 1.1.0");
     }
@@ -261,7 +274,7 @@ check_db_dir(const string & path, int opts, std::ostream *out)
  *  @param backend	Backend type (a BACKEND_XXX constant)
  */
 static size_t
-check_db_table(const string& filename, int opts, std::ostream* out, int backend)
+check_db_table(string_view filename, int opts, std::ostream* out, int backend)
 {
     size_t p = filename.find_last_of(DIR_SEPS);
     // If we found a directory separator, advance p to the next character.  If
@@ -435,7 +448,10 @@ check_stub(const string& stub_path, int opts, std::ostream* out)
 }
 
 size_t
-Database::check_(const string * path_ptr, int fd, int opts, std::ostream *out)
+Database::check_(const string_view* path_ptr,
+		 int fd,
+		 int opts,
+		 std::ostream *out)
 {
     if (!out) {
 	// If we have nowhere to write output, then disable all the options
@@ -447,32 +463,35 @@ Database::check_(const string * path_ptr, int fd, int opts, std::ostream *out)
 	return check_db_fd(fd, opts, out, BACKEND_UNKNOWN);
     }
 
-    const string & path = *path_ptr;
-    if (path.empty()) throw_no_db_to_check();
+    if (path_ptr->empty()) {
+	throw_no_db_to_check();
+    }
+
+    string filename{*path_ptr};
     struct stat sb;
-    if (stat(path.c_str(), &sb) == 0) {
+    if (stat(filename.c_str(), &sb) == 0) {
 	if (S_ISDIR(sb.st_mode)) {
-	    return check_db_dir(path, opts, out);
+	    return check_db_dir(filename, opts, out);
 	}
 
 	if (S_ISREG(sb.st_mode)) {
-	    int backend = test_if_single_file_db(sb, path, &fd);
+	    int backend = test_if_single_file_db(sb, filename, &fd);
 	    if (backend != BACKEND_UNKNOWN) {
 		return check_db_fd(fd, opts, out, backend);
 	    }
 	    // Could be a single table or a stub database file.  Look at the
 	    // extension to determine the type.
-	    if (endswith(path, ".DB")) {
+	    if (endswith(filename, ".DB")) {
 		backend = BACKEND_OLD;
-	    } else if (endswith(path, "." GLASS_TABLE_EXTENSION)) {
+	    } else if (endswith(filename, "." GLASS_TABLE_EXTENSION)) {
 		backend = BACKEND_GLASS;
-	    } else if (endswith(path, "." HONEY_TABLE_EXTENSION)) {
+	    } else if (endswith(filename, "." HONEY_TABLE_EXTENSION)) {
 		backend = BACKEND_HONEY;
 	    } else {
-		return check_stub(path, opts, out);
+		return check_stub(filename, opts, out);
 	    }
 
-	    return check_db_table(path, opts, out, backend);
+	    return check_db_table(filename, opts, out, backend);
 	}
 
 	throw Xapian::DatabaseOpeningError("Not a regular file or directory");
@@ -482,7 +501,6 @@ Database::check_(const string * path_ptr, int fd, int opts, std::ostream *out)
     // table (perhaps with "." after it), so the user can do xapian-check on
     // "foo/termlist" or "foo/termlist." (which you would get from filename
     // completion with older backends).
-    string filename = path;
     if (endswith(filename, '.')) {
 	filename.resize(filename.size() - 1);
     }
@@ -499,7 +517,7 @@ Database::check_(const string * path_ptr, int fd, int opts, std::ostream *out)
 	throw_no_db_to_check();
     }
 
-    return check_db_table(path, opts, out, backend);
+    return check_db_table(*path_ptr, opts, out, backend);
 }
 
 }

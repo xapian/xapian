@@ -1,7 +1,7 @@
 /** @file
  * @brief HoneyCursor class
  */
-/* Copyright (C) 2017,2018 Olly Betts
+/* Copyright (C) 2017,2018,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,7 +30,7 @@ class HoneyCursor {
      *  If it's true, then the cursor will be left on the first key >
      *  @a key; otherwise it may be left at an unspecified position.
      */
-    bool do_find(const std::string& key, bool greater_than);
+    bool do_find(std::string_view key, bool greater_than);
 
     bool do_next();
 
@@ -103,11 +103,11 @@ class HoneyCursor {
 
     bool read_tag(bool keep_compressed = false);
 
-    bool find_exact(const std::string& key) {
+    bool find_exact(std::string_view key) {
 	return do_find(key, false);
     }
 
-    bool find_entry_ge(const std::string& key) {
+    bool find_entry_ge(std::string_view key) {
 	return do_find(key, true);
     }
 

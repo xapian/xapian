@@ -1,7 +1,7 @@
 /** @file
  * @brief The non-lemon-generated parts of the QueryParser class.
  */
-/* Copyright (C) 2005-2023 Olly Betts
+/* Copyright (C) 2005-2024 Olly Betts
  * Copyright (C) 2010 Adam Sjøgren
  *
  * This program is free software; you can redistribute it and/or
@@ -88,11 +88,11 @@ class QueryParser::Internal : public Xapian::Internal::intrusive_base {
     const char* errmsg = nullptr;
     Database db;
     std::list<std::string> stoplist;
-    std::multimap<std::string, std::string> unstem;
+    std::multimap<std::string, std::string, std::less<>> unstem;
 
     // Map "from" -> "A" ; "subject" -> "C" ; "newsgroups" -> "G" ;
     // "foobar" -> "XFOO". FIXME: it does more than this now!
-    std::map<std::string, FieldInfo> field_map;
+    std::map<std::string, FieldInfo, std::less<>> field_map;
 
     std::list<RangeProc> rangeprocs;
 
@@ -136,7 +136,7 @@ class QueryParser::Internal : public Xapian::Internal::intrusive_base {
   public:
     Internal() { }
 
-    Query parse_query(const std::string& query_string,
+    Query parse_query(std::string_view query_string,
 		      unsigned int flags,
 		      const std::string& default_prefix);
 };

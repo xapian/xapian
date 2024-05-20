@@ -1,7 +1,7 @@
 /** @file
  * @brief Xapian::Enquire class
  */
-/* Copyright (C) 2009,2017 Olly Betts
+/* Copyright (C) 2009,2017,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -213,7 +213,8 @@ Enquire::get_matching_terms_begin(docid did) const
 }
 
 void
-Enquire::set_expansion_scheme(const std::string &eweightname, double expand_k) const
+Enquire::set_expansion_scheme(std::string_view eweightname,
+			      double expand_k) const
 {
     if (eweightname == "bo1") {
 	internal->eweight = Enquire::Internal::EXPAND_BO1;

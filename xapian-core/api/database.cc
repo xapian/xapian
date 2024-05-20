@@ -1,7 +1,7 @@
 /** @file
  * @brief Database API class
  */
-/* Copyright 2006,2007,2008,2009,2010,2011,2013,2014,2015,2016,2017,2019 Olly Betts
+/* Copyright 2006-2024 Olly Betts
  * Copyright 2007,2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -189,7 +189,7 @@ Database::add_database_(const Database& o, bool read_only)
 }
 
 PostingIterator
-Database::postlist_begin(const string& term) const
+Database::postlist_begin(string_view term) const
 {
     PostList* pl = internal->open_post_list(term);
     if (!pl) return PostingIterator();
@@ -206,7 +206,7 @@ Database::termlist_begin(Xapian::docid did) const
 }
 
 TermIterator
-Database::allterms_begin(const string& prefix) const
+Database::allterms_begin(string_view prefix) const
 {
     return TermIterator(internal->open_allterms(prefix));
 }
@@ -218,7 +218,7 @@ Database::has_positions() const
 }
 
 PositionIterator
-Database::positionlist_begin(Xapian::docid did, const string& term) const
+Database::positionlist_begin(Xapian::docid did, string_view term) const
 {
     if (did == 0)
 	docid_zero_invalid();
@@ -259,7 +259,7 @@ Database::get_total_length() const
 }
 
 Xapian::doccount
-Database::get_termfreq(const string& term) const
+Database::get_termfreq(string_view term) const
 {
     if (term.empty())
 	return get_doccount();
@@ -270,7 +270,7 @@ Database::get_termfreq(const string& term) const
 }
 
 Xapian::termcount
-Database::get_collection_freq(const string& term) const
+Database::get_collection_freq(string_view term) const
 {
     if (term.empty())
 	return get_doccount();
@@ -311,7 +311,7 @@ Database::get_doclength_upper_bound() const
 }
 
 Xapian::termcount
-Database::get_wdf_upper_bound(const string& term) const
+Database::get_wdf_upper_bound(string_view term) const
 {
     if (term.empty())
 	return 0;
@@ -375,7 +375,7 @@ Database::get_document(Xapian::docid did, unsigned flags) const
 }
 
 bool
-Database::term_exists(const string& term) const
+Database::term_exists(string_view term) const
 {
     // NB Internal::term_exists() handles term.empty().
     return internal->term_exists(term);
@@ -401,7 +401,7 @@ Database::get_description() const
 #define TRIGRAM_SCORE_THRESHOLD 2
 
 string
-Database::get_spelling_suggestion(const string& word,
+Database::get_spelling_suggestion(string_view word,
 				  unsigned max_edit_distance) const
 {
     if (word.size() <= 1 || max_edit_distance == 0)
@@ -473,19 +473,19 @@ Database::spellings_begin() const
 }
 
 TermIterator
-Database::synonyms_begin(const string& term) const
+Database::synonyms_begin(string_view term) const
 {
     return TermIterator(internal->open_synonym_termlist(term));
 }
 
 TermIterator
-Database::synonym_keys_begin(const string& prefix) const
+Database::synonym_keys_begin(string_view prefix) const
 {
     return TermIterator(internal->open_synonym_keylist(prefix));
 }
 
 string
-Database::get_metadata(const string& key) const
+Database::get_metadata(string_view key) const
 {
     if (rare(key.empty()))
 	empty_metadata_key();
@@ -494,7 +494,7 @@ Database::get_metadata(const string& key) const
 }
 
 Xapian::TermIterator
-Database::metadata_keys_begin(const string& prefix) const
+Database::metadata_keys_begin(string_view prefix) const
 {
     return TermIterator(internal->open_metadata_keylist(prefix));
 }
@@ -530,7 +530,7 @@ Database::get_revision() const
 string
 Database::reconstruct_text(Xapian::docid did,
 			   size_t length,
-			   const std::string& prefix,
+			   std::string_view prefix,
 			   Xapian::termpos start_pos,
 			   Xapian::termpos end_pos) const
 {
@@ -568,7 +568,7 @@ WritableDatabase::delete_document(Xapian::docid did)
 }
 
 void
-WritableDatabase::delete_document(const string& term)
+WritableDatabase::delete_document(string_view term)
 {
     if (term.empty())
 	empty_term_invalid();
@@ -586,7 +586,7 @@ WritableDatabase::replace_document(Xapian::docid did, const Document& doc)
 }
 
 Xapian::docid
-WritableDatabase::replace_document(const string& term, const Document& doc)
+WritableDatabase::replace_document(string_view term, const Document& doc)
 {
     if (term.empty())
 	empty_term_invalid();
@@ -595,41 +595,41 @@ WritableDatabase::replace_document(const string& term, const Document& doc)
 }
 
 void
-WritableDatabase::add_spelling(const string& word,
+WritableDatabase::add_spelling(string_view word,
 			       Xapian::termcount freqinc) const
 {
     internal->add_spelling(word, freqinc);
 }
 
 Xapian::termcount
-WritableDatabase::remove_spelling(const string& word,
+WritableDatabase::remove_spelling(string_view word,
 				  Xapian::termcount freqdec) const
 {
     return internal->remove_spelling(word, freqdec);
 }
 
 void
-WritableDatabase::add_synonym(const string& term,
-			      const string& synonym) const
+WritableDatabase::add_synonym(string_view term,
+			      string_view synonym) const
 {
     internal->add_synonym(term, synonym);
 }
 
 void
-WritableDatabase::remove_synonym(const string& term,
-				 const string& synonym) const
+WritableDatabase::remove_synonym(string_view term,
+				 string_view synonym) const
 {
     internal->remove_synonym(term, synonym);
 }
 
 void
-WritableDatabase::clear_synonyms(const string& term) const
+WritableDatabase::clear_synonyms(string_view term) const
 {
     internal->clear_synonyms(term);
 }
 
 void
-WritableDatabase::set_metadata(const string& key, const string& value)
+WritableDatabase::set_metadata(string_view key, string_view value)
 {
     if (rare(key.empty()))
 	empty_metadata_key();

@@ -2,7 +2,7 @@
  * @brief Edit distance calculation algorithm.
  */
 /* Copyright (C) 2003 Richard Boulton
- * Copyright (C) 2007,2008,2017,2019 Olly Betts
+ * Copyright (C) 2007,2008,2017,2019,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -98,7 +98,7 @@ class EditDistanceCalculator {
      *  @param target_	Target string to calculate edit distances to.
      */
     explicit
-    EditDistanceCalculator(const std::string& target_)
+    EditDistanceCalculator(std::string_view target_)
 	: target_bytes(target_.size()) {
 	using Xapian::Utf8Iterator;
 	for (Utf8Iterator it(target_); it != Utf8Iterator(); ++it) {

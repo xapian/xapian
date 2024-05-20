@@ -1,7 +1,7 @@
 /** @file
  * @brief Inverter class which "inverts the file".
  */
-/* Copyright (C) 2009,2013 Olly Betts
+/* Copyright (C) 2009,2013,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,7 +35,7 @@ using namespace std;
 void
 Inverter::store_positions(const GlassPositionListTable & position_table,
 			  Xapian::docid did,
-			  const string & tname,
+			  string_view tname,
 			  const Xapian::VecCOW<Xapian::termpos> & posvec,
 			  bool modifying)
 {
@@ -72,7 +72,7 @@ Inverter::store_positions(const GlassPositionListTable & position_table,
 void
 Inverter::set_positionlist(const GlassPositionListTable & position_table,
 			   Xapian::docid did,
-			   const string & tname,
+			   string_view tname,
 			   const Xapian::TermIterator & term,
 			   bool modifying)
 {
@@ -102,8 +102,8 @@ Inverter::set_positionlist(const GlassPositionListTable & position_table,
 
 void
 Inverter::set_positionlist(Xapian::docid did,
-			   const string & term,
-			   const string & s)
+			   string_view term,
+			   string_view s)
 {
     has_positions_cache = s.empty() ? -1 : 1;
     pos_changes.insert(make_pair(term, map<Xapian::docid, string>()))
@@ -112,14 +112,14 @@ Inverter::set_positionlist(Xapian::docid did,
 
 void
 Inverter::delete_positionlist(Xapian::docid did,
-			      const string & term)
+			      string_view term)
 {
-    set_positionlist(did, term, string());
+    set_positionlist(did, term, {});
 }
 
 bool
 Inverter::get_positionlist(Xapian::docid did,
-			   const string & term,
+			   string_view term,
 			   string & s) const
 {
     auto i = pos_changes.find(term);
@@ -164,10 +164,9 @@ Inverter::flush_doclengths(GlassPostListTable & table)
 }
 
 void
-Inverter::flush_post_list(GlassPostListTable & table, const string & term)
+Inverter::flush_post_list(GlassPostListTable& table, string_view term)
 {
-    map<string, PostingChanges>::iterator i;
-    i = postlist_changes.find(term);
+    auto i = postlist_changes.find(term);
     if (i == postlist_changes.end()) return;
 
     // Flush buffered changes for just this term's postlist.
@@ -178,22 +177,21 @@ Inverter::flush_post_list(GlassPostListTable & table, const string & term)
 void
 Inverter::flush_all_post_lists(GlassPostListTable & table)
 {
-    map<string, PostingChanges>::const_iterator i;
-    for (i = postlist_changes.begin(); i != postlist_changes.end(); ++i) {
+    for (auto i = postlist_changes.begin(); i != postlist_changes.end(); ++i) {
 	table.merge_changes(i->first, i->second);
     }
     postlist_changes.clear();
 }
 
 void
-Inverter::flush_post_lists(GlassPostListTable & table, const string & pfx)
+Inverter::flush_post_lists(GlassPostListTable& table, string_view pfx)
 {
     if (pfx.empty())
 	return flush_all_post_lists(table);
 
-    map<string, PostingChanges>::iterator i, begin, end;
-    begin = postlist_changes.lower_bound(pfx);
-    string pfxinc = pfx;
+    auto begin = postlist_changes.lower_bound(pfx);
+    decltype(begin) end;
+    string pfxinc{pfx};
     while (true) {
 	if (pfxinc.back() != '\xff') {
 	    ++pfxinc.back();
@@ -207,7 +205,7 @@ Inverter::flush_post_lists(GlassPostListTable & table, const string & pfx)
 	}
     }
 
-    for (i = begin; i != end; ++i) {
+    for (auto i = begin; i != end; ++i) {
 	table.merge_changes(i->first, i->second);
     }
 

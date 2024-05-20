@@ -1,7 +1,7 @@
 /** @file
  *  @brief Open a TCP connection to a server.
  */
-/* Copyright 2007-2023 Olly Betts
+/* Copyright 2007-2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -43,10 +43,12 @@
 # include <netinet/tcp.h>
 #endif
 
+#include <string_view>
+
 using namespace std;
 
 int
-TcpClient::open_socket(const string& hostname, int port,
+TcpClient::open_socket(std::string_view hostname, int port,
 		       double timeout_connect, bool tcp_nodelay,
 		       const string& context)
 {

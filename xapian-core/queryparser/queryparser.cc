@@ -1,7 +1,7 @@
 /** @file
  * @brief The non-lemon-generated parts of the QueryParser class.
  */
-/* Copyright (C) 2005,2006,2007,2008,2010,2011,2012,2013,2015,2016 Olly Betts
+/* Copyright (C) 2005-2024 Olly Betts
  * Copyright (C) 2010 Adam Sjøgren
  *
  * This program is free software; you can redistribute it and/or
@@ -166,8 +166,8 @@ QueryParser::set_min_wildcard_prefix(unsigned min_prefix_len,
 }
 
 Query
-QueryParser::parse_query(const string &query_string, unsigned flags,
-			 const string &default_prefix)
+QueryParser::parse_query(string_view query_string, unsigned flags,
+			 const string& default_prefix)
 {
     if (!(flags & FLAG_ACCUMULATE)) {
 	internal->stoplist.clear();
@@ -222,11 +222,11 @@ QueryParser::stoplist_begin() const
 }
 
 TermIterator
-QueryParser::unstem_begin(const string &term) const
+QueryParser::unstem_begin(string_view term) const
 {
-    struct range_adaptor : public multimap<string, string>::iterator {
-	range_adaptor(multimap<string, string>::iterator i) :
-	    multimap<string, string>::iterator(i) {}
+    using unstem_type = multimap<string, string, std::less<>>;
+    struct range_adaptor : public unstem_type::iterator {
+	range_adaptor(unstem_type::iterator i) : unstem_type::iterator(i) {}
 	const string & operator*() const { return (*this)->second; }
     };
     auto range = internal->unstem.equal_range(term);

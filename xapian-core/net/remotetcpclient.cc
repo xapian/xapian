@@ -1,7 +1,7 @@
 /** @file
  *  @brief TCP/IP socket based RemoteDatabase implementation
  */
-/* Copyright (C) 2008,2010 Olly Betts
+/* Copyright (C) 2008,2010,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -30,7 +30,7 @@
 using namespace std;
 
 pair<int, string>
-RemoteTcpClient::open_socket(const string& hostname, int port,
+RemoteTcpClient::open_socket(string_view hostname, int port,
 			     double timeout_connect)
 {
     // Build a context string for use when constructing Xapian::NetworkError.

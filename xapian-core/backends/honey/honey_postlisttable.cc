@@ -1,7 +1,7 @@
 /** @file
  * @brief Subclass of HoneyTable which holds postlists.
  */
-/* Copyright (C) 2007-2022 Olly Betts
+/* Copyright (C) 2007-2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,13 +30,14 @@
 #include "honey_postlist_encodings.h"
 
 #include <memory>
+#include <string_view>
 
 using namespace Honey;
 using namespace std;
 
 HoneyPostList*
 HoneyPostListTable::open_post_list(const HoneyDatabase* db,
-				   const std::string& term,
+				   std::string_view term,
 				   bool need_read_pos) const
 {
     Assert(!term.empty());
@@ -53,7 +54,7 @@ HoneyPostListTable::open_post_list(const HoneyDatabase* db,
 }
 
 void
-HoneyPostListTable::get_freqs(const std::string& term,
+HoneyPostListTable::get_freqs(std::string_view term,
 			      Xapian::doccount* termfreq_ptr,
 			      Xapian::termcount* collfreq_ptr) const
 {
@@ -125,7 +126,7 @@ HoneyPostListTable::get_used_docid_range(Xapian::doccount doccount,
 }
 
 Xapian::termcount
-HoneyPostListTable::get_wdf_upper_bound(const std::string& term) const
+HoneyPostListTable::get_wdf_upper_bound(std::string_view term) const
 {
     string chunk;
     if (!get_exact_entry(Honey::make_postingchunk_key(term), chunk)) {

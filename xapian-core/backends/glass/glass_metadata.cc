@@ -1,7 +1,7 @@
 /** @file
  * @brief Access to metadata for a glass database.
  */
-/* Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2011,2017 Olly Betts
+/* Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2011,2017,2024 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -32,14 +32,19 @@
 
 #include "xapian/error.h"
 
+#include <string_view>
+
 using namespace std;
+using namespace std::string_literals;
 using Xapian::Internal::intrusive_ptr;
 
 GlassMetadataTermList::GlassMetadataTermList(
 	intrusive_ptr<const Xapian::Database::Internal> database_,
 	GlassCursor * cursor_,
-	const string &prefix_)
-	: database(database_), cursor(cursor_), prefix(string("\x00\xc0", 2) + prefix_)
+	string_view prefix_)
+	: database(database_),
+	  cursor(cursor_),
+	  prefix("\x00\xc0"s.append(prefix_))
 {
     LOGCALL_CTOR(DB, "GlassMetadataTermList", database_ | cursor_ | prefix_);
     Assert(cursor);
@@ -81,13 +86,13 @@ GlassMetadataTermList::next()
     RETURN(NULL);
 }
 
-TermList *
-GlassMetadataTermList::skip_to(const string &key)
+TermList*
+GlassMetadataTermList::skip_to(string_view key)
 {
     LOGCALL(DB, TermList *, "GlassMetadataTermList::skip_to", key);
     Assert(!cursor->after_end());
 
-    if (cursor->find_entry_ge(string("\x00\xc0", 2) + key)) {
+    if (cursor->find_entry_ge(string("\x00\xc0", 2).append(key))) {
 	// Exact match.
 	current_term = key;
     } else {

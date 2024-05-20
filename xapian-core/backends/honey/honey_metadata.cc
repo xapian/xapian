@@ -1,7 +1,7 @@
 /** @file
  * @brief Access to metadata for a honey database.
  */
-/* Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2011,2017 Olly Betts
+/* Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2011,2017,2024 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -32,14 +32,18 @@
 
 #include "xapian/error.h"
 
+#include <string>
+#include <string_view>
+
 using namespace std;
+using namespace std::string_literals;
 using Xapian::Internal::intrusive_ptr;
 
 HoneyMetadataTermList::HoneyMetadataTermList(
 	const Xapian::Database::Internal* database_,
 	HoneyCursor* cursor_,
-	const string& prefix_)
-    : database(database_), cursor(cursor_), prefix(string("\0", 2) + prefix_)
+	string_view prefix_)
+    : database(database_), cursor(cursor_), prefix("\0\0"s.append(prefix_))
 {
     LOGCALL_CTOR(DB, "HoneyMetadataTermList", database_ | cursor_ | prefix_);
     Assert(cursor);
@@ -91,7 +95,7 @@ HoneyMetadataTermList::next()
 }
 
 TermList*
-HoneyMetadataTermList::skip_to(const string& key)
+HoneyMetadataTermList::skip_to(string_view key)
 {
     LOGCALL(DB, TermList*, "HoneyMetadataTermList::skip_to", key);
     Assert(cursor != NULL);

@@ -1,7 +1,7 @@
 /** @file
  * @brief Abstract base class for leaf postlists.
  */
-/* Copyright (C) 2007,2009,2011,2013,2014,2017 Olly Betts
+/* Copyright (C) 2007,2009,2011,2013,2014,2017,2024 Olly Betts
  * Copyright (C) 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -66,8 +66,7 @@ LeafPostList::gather_position_lists(OrPositionList* orposlist)
 }
 
 bool
-LeafPostList::open_nearby_postlist(const std::string&, bool,
-				   LeafPostList*&) const
+LeafPostList::open_nearby_postlist(std::string_view, bool, LeafPostList*&) const
 {
     return false;
 }

@@ -1,7 +1,7 @@
 /** @file
  * @brief A TermList in a honey database.
  */
-/* Copyright (C) 2007,2008,2009,2010,2011,2018 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010,2011,2018,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -168,7 +168,7 @@ HoneyTermList::next()
 }
 
 TermList*
-HoneyTermList::skip_to(const std::string& term)
+HoneyTermList::skip_to(std::string_view term)
 {
     while (current_term < term) {
 	if (HoneyTermList::next())

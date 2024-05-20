@@ -1,7 +1,7 @@
 /** @file
  * @brief Merge two TermList objects using an OR operation.
  */
-/* Copyright (C) 2007,2010 Olly Betts
+/* Copyright (C) 2007,2010,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -59,7 +59,7 @@ class OrTermList : public TermList {
 
     TermList *next();
 
-    TermList * skip_to(const std::string & term);
+    TermList* skip_to(std::string_view term);
 
     Xapian::termcount positionlist_count() const;
 

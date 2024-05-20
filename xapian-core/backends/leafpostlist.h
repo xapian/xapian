@@ -1,7 +1,7 @@
 /** @file
  * @brief Abstract base class for leaf postlists.
  */
-/* Copyright (C) 2007-2022 Olly Betts
+/* Copyright (C) 2007-2024 Olly Betts
  * Copyright (C) 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -25,6 +25,7 @@
 #include "postlist.h"
 
 #include <string>
+#include <string_view>
 
 namespace Xapian {
     class Weight;
@@ -55,7 +56,7 @@ class LeafPostList : public PostList {
     Xapian::termcount collfreq;
 
     /// Only constructable as a base class for derived classes.
-    explicit LeafPostList(const std::string & term_)
+    explicit LeafPostList(std::string_view term_)
 	: term(term_) { }
 
   public:
@@ -134,7 +135,7 @@ class LeafPostList : public PostList {
      *			(in which case the caller should probably open the
      *			postlist via the database instead).
      */
-    virtual bool open_nearby_postlist(const std::string& term_,
+    virtual bool open_nearby_postlist(std::string_view term_,
 				      bool need_read_pos,
 				      LeafPostList*& pl) const;
 
@@ -148,7 +149,7 @@ class LeafPostList : public PostList {
      *  This is used when we optimise a term matching all documents to an
      *  all documents postlist so that postlist reports the correct termname.
      */
-    void set_term(const std::string& term_) { term = term_; }
+    void set_term(std::string_view term_) { term = term_; }
 };
 
 #endif // XAPIAN_INCLUDED_LEAFPOSTLIST_H

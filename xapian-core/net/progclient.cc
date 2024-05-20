@@ -1,7 +1,7 @@
 /** @file
  *  @brief Implementation of RemoteDatabase using a spawned server.
  */
-/* Copyright (C) 2007-2023 Olly Betts
+/* Copyright (C) 2007-2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,6 +26,7 @@
 
 #include <cerrno>
 #include <string>
+#include <string_view>
 #include <vector>
 
 #include "safefcntl.h"
@@ -47,8 +48,7 @@
 using namespace std;
 
 pair<int, string>
-ProgClient::run_program(const string& progname,
-			const string& args,
+ProgClient::run_program(string_view progname, string_view args,
 #ifndef __WIN32__
 			pid_t& child
 #else
@@ -75,14 +75,17 @@ ProgClient::run_program(const string& progname,
 	throw Xapian::NetworkError("socketpair failed", context, errno);
     }
 
+    // We need the program name as a nul-terminated string.
+    string progname_string{progname};
+
     // Make a copy of args - we replace spaces with zero bytes and build
     // a char* array that points into this which we pass to execvp() as argv.
     //
     // We do this before we call fork() because we shouldn't do anything
     // which calls malloc() in the child process.
-    string args_buf = args;
+    string args_buf{args};
     vector<char*> argv;
-    argv.push_back(const_cast<char*>(progname.c_str()));
+    argv.push_back(&progname_string[0]);
     if (!args_buf.empty()) {
 	// Split argument list on spaces.
 	argv.push_back(&args_buf[0]);
@@ -152,7 +155,7 @@ ProgClient::run_program(const string& progname,
 	::close(devnull);
     }
 
-    execvp(progname.c_str(), argv.data());
+    execvp(progname_string.c_str(), argv.data());
 
     // execvp() failed - all we can usefully do is exit.
     _exit(-1);
@@ -215,12 +218,16 @@ ProgClient::run_program(const string& progname,
     startupinfo.hStdInput = hClient;
     startupinfo.dwFlags |= STARTF_USESTDHANDLES;
 
+    // We need the program name as a nul-terminated string.
+    string progname_string{progname};
+
     string cmdline{progname};
     cmdline += ' ';
     cmdline += args;
     // For some reason Windows wants a modifiable command line so we
     // pass `&cmdline[0]` rather than `cmdline.c_str()`.
-    BOOL ok = CreateProcess(progname.c_str(), &cmdline[0], 0, 0, TRUE, 0, 0, 0,
+    BOOL ok = CreateProcess(progname_string.c_str(), &cmdline[0],
+			    0, 0, TRUE, 0, 0, 0,
 			    &startupinfo, &procinfo);
     if (!ok) {
 	throw Xapian::NetworkError("CreateProcess failed",

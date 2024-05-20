@@ -1,7 +1,7 @@
 /** @file
  * @brief Xapian::MSet class
  */
-/* Copyright (C) 2017 Olly Betts
+/* Copyright (C) 2017,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,6 +35,7 @@
 #include <algorithm>
 #include <cfloat>
 #include <string>
+#include <string_view>
 
 using namespace std;
 
@@ -82,7 +83,7 @@ MSet::convert_to_percent(double weight) const
 }
 
 Xapian::doccount
-MSet::get_termfreq(const std::string& term) const
+MSet::get_termfreq(std::string_view term) const
 {
     // Check the cached data for query terms first.
     Xapian::doccount termfreq;
@@ -101,7 +102,7 @@ MSet::get_termfreq(const std::string& term) const
 }
 
 double
-MSet::get_termweight(const std::string& term) const
+MSet::get_termweight(std::string_view term) const
 {
     // A term not in the query has no termweight, so 0.0 makes sense as the
     // answer in such cases.
@@ -181,13 +182,13 @@ MSet::size() const
 }
 
 std::string
-MSet::snippet(const std::string& text,
+MSet::snippet(std::string_view text,
 	      size_t length,
 	      const Xapian::Stem& stemmer,
 	      unsigned flags,
-	      const std::string& hi_start,
-	      const std::string& hi_end,
-	      const std::string& omit) const
+	      std::string_view hi_start,
+	      std::string_view hi_end,
+	      std::string_view omit) const
 {
     // The actual implementation is in queryparser/termgenerator_internal.cc.
     return internal->snippet(text, length, stemmer, flags,

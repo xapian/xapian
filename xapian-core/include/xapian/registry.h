@@ -2,7 +2,7 @@
  * @brief Class for looking up user subclasses during unserialisation.
  */
 /* Copyright 2009 Lemur Consulting Ltd
- * Copyright 2009,2011,2013,2014,2019 Olly Betts
+ * Copyright 2009,2011,2013,2014,2019,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -106,8 +106,7 @@ class XAPIAN_VISIBILITY_DEFAULT Registry {
      *			object is owned by the registry and so must not be
      *			deleted by the caller.
      */
-    const Xapian::Weight *
-	    get_weighting_scheme(const std::string & name) const;
+    const Xapian::Weight* get_weighting_scheme(std::string_view name) const;
 
     /** Register a user-defined posting source class.
      *
@@ -123,8 +122,8 @@ class XAPIAN_VISIBILITY_DEFAULT Registry {
      *			object is owned by the registry and so must not be
      *			deleted by the caller.
      */
-    const Xapian::PostingSource *
-	    get_posting_source(const std::string & name) const;
+    const Xapian::PostingSource*
+	    get_posting_source(std::string_view name) const;
 
     /** Register a user-defined match spy class.
      *
@@ -140,8 +139,7 @@ class XAPIAN_VISIBILITY_DEFAULT Registry {
      *			object is owned by the registry and so must not be
      *			deleted by the caller.
      */
-    const Xapian::MatchSpy *
-	    get_match_spy(const std::string & name) const;
+    const Xapian::MatchSpy* get_match_spy(std::string_view name) const;
 
     /// Register a user-defined lat-long metric class.
     void register_lat_long_metric(const Xapian::LatLongMetric &metric);
@@ -152,8 +150,8 @@ class XAPIAN_VISIBILITY_DEFAULT Registry {
      *
      *  Returns NULL if the metric could not be found.
      */
-    const Xapian::LatLongMetric *
-	    get_lat_long_metric(const std::string & name) const;
+    const Xapian::LatLongMetric*
+	    get_lat_long_metric(std::string_view name) const;
 
     /** Register a user-defined KeyMaker subclass.
      *
@@ -175,7 +173,7 @@ class XAPIAN_VISIBILITY_DEFAULT Registry {
      *			KeyMaker could not be found.  The returned
      *			object must <b>not</b> be deleted by the caller.
      */
-    const Xapian::KeyMaker* get_key_maker(const std::string& name) const;
+    const Xapian::KeyMaker* get_key_maker(std::string_view name) const;
 };
 
 }

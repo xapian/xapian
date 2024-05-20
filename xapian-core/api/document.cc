@@ -1,7 +1,7 @@
 /** @file
  * @brief Class representing a document
  */
-/* Copyright 2008,2017,2018 Olly Betts
+/* Copyright 2008,2017,2018,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,6 +23,7 @@
 #include "xapian/document.h"
 
 #include <string>
+#include <string_view>
 
 #include "backends/documentinternal.h"
 #include "net/serialise.h"
@@ -77,13 +78,13 @@ Document::get_data() const
 }
 
 void
-Document::set_data(const string& data)
+Document::set_data(string_view data)
 {
     internal->set_data(data);
 }
 
 void
-Document::add_term(const string& term, Xapian::termcount wdf_inc)
+Document::add_term(string_view term, Xapian::termcount wdf_inc)
 {
     if (term.empty()) {
 	throw_invalid_arg_empty_term();
@@ -92,7 +93,7 @@ Document::add_term(const string& term, Xapian::termcount wdf_inc)
 }
 
 void
-Document::remove_term(const string& term)
+Document::remove_term(string_view term)
 {
     if (term.empty()) {
 	throw_invalid_arg_empty_term();
@@ -107,7 +108,7 @@ Document::remove_term(const string& term)
 }
 
 void
-Document::add_posting(const string& term,
+Document::add_posting(string_view term,
 		      Xapian::termpos term_pos,
 		      Xapian::termcount wdf_inc)
 {
@@ -118,7 +119,7 @@ Document::add_posting(const string& term,
 }
 
 void
-Document::remove_posting(const string& term,
+Document::remove_posting(string_view term,
 			 Xapian::termpos term_pos,
 			 Xapian::termcount wdf_dec)
 {
@@ -140,7 +141,7 @@ Document::remove_posting(const string& term,
 }
 
 Xapian::termpos
-Document::remove_postings(const string& term,
+Document::remove_postings(string_view term,
 			  Xapian::termpos term_pos_first,
 			  Xapian::termpos term_pos_last,
 			  Xapian::termcount wdf_dec)
@@ -187,7 +188,7 @@ Document::get_value(Xapian::valueno slot) const
 }
 
 void
-Document::add_value(Xapian::valueno slot, const string& value)
+Document::add_value(Xapian::valueno slot, string_view value)
 {
     internal->add_value(slot, value);
 }
@@ -216,7 +217,7 @@ Document::serialise() const
 }
 
 Document
-Document::unserialise(const string& serialised)
+Document::unserialise(string_view serialised)
 {
     return unserialise_document(serialised);
 }

@@ -1,7 +1,7 @@
 /** @file
  * @brief Class for merging AllTermsList objects from subdatabases.
  */
-/* Copyright (C) 2007,2008,2011,2017 Olly Betts
+/* Copyright (C) 2007,2008,2011,2017,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -72,7 +72,7 @@ class MultiAllTermsList : public AllTermsList {
      *  If the specified term isn't in the list, position ourselves on the
      *  first term after @a term (or at_end() if no terms after @a term exist).
      */
-    TermList *skip_to(const std::string &term);
+    TermList* skip_to(std::string_view term);
 };
 
 #endif // XAPIAN_INCLUDED_MULTI_ALLTERMSLIST_H

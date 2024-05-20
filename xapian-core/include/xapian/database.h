@@ -1,7 +1,7 @@
 /** @file
  * @brief An indexed database of documents
  */
-/* Copyright 2003-2023 Olly Betts
+/* Copyright 2003-2024 Olly Betts
  * Copyright 2007,2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -29,6 +29,7 @@
 
 #include <iosfwd>
 #include <string>
+#include <string_view>
 #include <utility>
 #include <vector>
 
@@ -74,13 +75,13 @@ class WritableDatabase;
  */
 class XAPIAN_VISIBILITY_DEFAULT Database {
     /// @internal Implementation behind check() static methods.
-    static size_t check_(const std::string* path_ptr,
+    static size_t check_(const std::string_view* path_ptr,
 			 int fd,
 			 int opts,
 			 std::ostream* out);
 
     /// @internal Implementation behind public compact() methods.
-    void compact_(const std::string* output_ptr,
+    void compact_(const std::string_view* output_ptr,
 		  int fd,
 		  unsigned flags,
 		  int block_size,
@@ -135,7 +136,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
      *  @exception Xapian::DatabaseVersionError if the specified database has
      *		   a format too old or too new to be supported.
      */
-    explicit Database(const std::string& path, int flags = 0);
+    explicit Database(std::string_view path, int flags = 0);
 
     /** Open a single-file Database.
      *
@@ -247,10 +248,10 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
      *			acts as a special pseudo-term which indexes all the
      *			documents in the database with a wdf of 1.
      */
-    PostingIterator postlist_begin(const std::string& term) const;
+    PostingIterator postlist_begin(std::string_view term) const;
 
     /** End iterator corresponding to postlist_begin(). */
-    PostingIterator postlist_end(const std::string&) const noexcept {
+    PostingIterator postlist_end(std::string_view) const noexcept {
 	return PostingIterator();
     }
 
@@ -280,11 +281,12 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
      *			then a valid iterator is still returned, but it will be
      *			equal to positionlist_end().
      */
-    PositionIterator positionlist_begin(Xapian::docid did, const std::string& term) const;
+    PositionIterator positionlist_begin(Xapian::docid did,
+					std::string_view term) const;
 
     /** End iterator corresponding to positionlist_begin(). */
     PositionIterator positionlist_end(Xapian::docid,
-				      const std::string&) const noexcept {
+				      std::string_view) const noexcept {
 	return PositionIterator();
     }
 
@@ -295,10 +297,10 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
      *  @param prefix	The prefix to restrict the returned terms to (default:
      *			iterate all terms)
      */
-    TermIterator allterms_begin(const std::string& prefix = std::string()) const;
+    TermIterator allterms_begin(std::string_view prefix = {}) const;
 
     /** End iterator corresponding to allterms_begin(prefix). */
-    TermIterator allterms_end(const std::string& = std::string()) const noexcept
+    TermIterator allterms_end(std::string_view = {}) const noexcept
     {
 	return TermIterator();
     }
@@ -329,7 +331,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
      *			If the term isn't present in the database, 0 is
      *			returned.
      */
-    Xapian::doccount get_termfreq(const std::string& term) const;
+    Xapian::doccount get_termfreq(std::string_view term) const;
 
     /** Test is a particular term is present in any document.
      *
@@ -341,7 +343,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
      *	db.term_exists(t) gives the same answer as db.get_termfreq(t) != 0, but
      *	is typically more efficient.
      */
-    bool term_exists(const std::string& term) const;
+    bool term_exists(std::string_view term) const;
 
     /** Get the total number of occurrences of a specified term.
      *
@@ -355,7 +357,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
      *			get_doccount().  If the term isn't present in the
      *			database, 0 is returned.
      */
-    Xapian::termcount get_collection_freq(const std::string& term) const;
+    Xapian::termcount get_collection_freq(std::string_view term) const;
 
     /** Return the frequency of a given value slot.
      *
@@ -394,7 +396,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
     Xapian::termcount get_doclength_upper_bound() const;
 
     /// Get an upper bound on the wdf of term @a term.
-    Xapian::termcount get_wdf_upper_bound(const std::string& term) const;
+    Xapian::termcount get_wdf_upper_bound(std::string_view term) const;
 
     /// Get a lower bound on the unique terms size of a document in this DB.
     Xapian::termcount get_unique_terms_lower_bound() const;
@@ -468,7 +470,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
      *					transposition of two adjacent
      *					characters (default is 2).
      */
-    std::string get_spelling_suggestion(const std::string& word,
+    std::string get_spelling_suggestion(std::string_view word,
 					unsigned max_edit_distance = 2) const;
 
     /** An iterator which returns all the spelling correction targets.
@@ -488,10 +490,10 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
      *
      *  @param term	The term to return synonyms for.
      */
-    Xapian::TermIterator synonyms_begin(const std::string& term) const;
+    Xapian::TermIterator synonyms_begin(std::string_view term) const;
 
     /// End iterator corresponding to synonyms_begin(term).
-    Xapian::TermIterator synonyms_end(const std::string&) const noexcept {
+    Xapian::TermIterator synonyms_end(std::string_view) const noexcept {
 	return Xapian::TermIterator();
     }
 
@@ -499,11 +501,11 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
      *
      *  @param prefix	If non-empty, only terms with this prefix are returned.
      */
-    Xapian::TermIterator synonym_keys_begin(const std::string& prefix = std::string()) const;
+    Xapian::TermIterator synonym_keys_begin(std::string_view prefix = {}) const;
 
     /// End iterator corresponding to synonym_keys_begin(prefix).
     Xapian::TermIterator
-    synonym_keys_end(const std::string& = std::string()) const noexcept {
+    synonym_keys_end(std::string_view = {}) const noexcept {
 	return Xapian::TermIterator();
     }
 
@@ -530,7 +532,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
      *  @exception Xapian::InvalidArgumentError will be thrown if the key
      *		   supplied is empty.
      */
-    std::string get_metadata(const std::string& key) const;
+    std::string get_metadata(std::string_view key) const;
 
     /** An iterator which returns all user-specified metadata keys.
      *
@@ -548,11 +550,12 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
      *		   iterating its keys (currently this happens for the InMemory
      *		   backend).
      */
-    Xapian::TermIterator metadata_keys_begin(const std::string&prefix = std::string()) const;
+    Xapian::TermIterator
+	metadata_keys_begin(std::string_view prefix = {}) const;
 
     /// End iterator corresponding to metadata_keys_begin().
     Xapian::TermIterator
-    metadata_keys_end(const std::string& = std::string()) const noexcept {
+    metadata_keys_end(std::string_view = {}) const noexcept {
 	return Xapian::TermIterator();
     }
 
@@ -636,7 +639,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
      *  @param opts	Options to use for check
      *  @param out	std::ostream to write output to (NULL for no output)
      */
-    static size_t check(const std::string& path,
+    static size_t check(std::string_view path,
 			int opts = 0,
 			std::ostream* out = NULL) {
 	return check_(&path, 0, opts, out);
@@ -703,7 +706,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
      *  @since 1.3.4 This method was added to replace various methods of the
      *		     Compactor class.
      */
-    void compact(const std::string& output,
+    void compact(std::string_view output,
 		 unsigned flags = 0,
 		 int block_size = 0) {
 	compact_(&output, 0, flags, block_size, NULL);
@@ -812,7 +815,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
      *  @since 1.3.4 This method was added to replace various methods of the
      *		     Compactor class.
      */
-    void compact(const std::string& output,
+    void compact(std::string_view output,
 		 unsigned flags,
 		 int block_size,
 		 Xapian::Compactor& compactor)
@@ -900,7 +903,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
      */
     std::string reconstruct_text(Xapian::docid did,
 				 size_t length = 0,
-				 const std::string& prefix = std::string(),
+				 std::string_view prefix = {},
 				 Xapian::termpos start_pos = 0,
 				 Xapian::termpos end_pos = 0) const;
 };
@@ -1013,7 +1016,7 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
      *  @exception Xapian::DatabaseVersionError if the specified database has
      *		   a format too old or too new to be supported.
      */
-    explicit WritableDatabase(const std::string& path,
+    explicit WritableDatabase(std::string_view path,
 			      int flags = 0,
 			      int block_size = 0);
 
@@ -1220,7 +1223,7 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
      *		     Previously automatic commits could happen during the
      *		     batch.
      */
-    void delete_document(const std::string& unique_term);
+    void delete_document(std::string_view unique_term);
 
     /** Replace a document in the database.
      *
@@ -1272,7 +1275,7 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
      *		     Previously automatic commits could happen during the
      *		     batch.
      */
-    Xapian::docid replace_document(const std::string& unique_term,
+    Xapian::docid replace_document(std::string_view unique_term,
 				   const Xapian::Document& document);
 
     /** Add a word to the spelling dictionary.
@@ -1282,7 +1285,7 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
      *  @param word	The word to add.
      *  @param freqinc	How much to increase its frequency by (default 1).
      */
-    void add_spelling(const std::string& word,
+    void add_spelling(std::string_view word,
 		      Xapian::termcount freqinc = 1) const;
 
     /** Remove a word from the spelling dictionary.
@@ -1297,7 +1300,7 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
      *		freqdec then the difference is returned, else 0 is returned).
      *		Prior to 1.5.0 this method had void return type.
      */
-    termcount remove_spelling(const std::string& word,
+    termcount remove_spelling(std::string_view word,
 			      termcount freqdec = 1) const;
 
     /** Add a synonym for a term.
@@ -1306,8 +1309,8 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
      *  @param synonym	The synonym to add.  If this is already a synonym for
      *			@a term, then no action is taken.
      */
-    void add_synonym(const std::string& term,
-		     const std::string& synonym) const;
+    void add_synonym(std::string_view term,
+		     std::string_view synonym) const;
 
     /** Remove a synonym for a term.
      *
@@ -1315,15 +1318,15 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
      *  @param synonym	The synonym to remove.  If this isn't currently a
      *			synonym for @a term, then no action is taken.
      */
-    void remove_synonym(const std::string& term,
-			const std::string& synonym) const;
+    void remove_synonym(std::string_view term,
+			std::string_view synonym) const;
 
     /** Remove all synonyms for a term.
      *
      *  @param term	The term to remove all synonyms for.  If the term has
      *			no synonyms, no action is taken.
      */
-    void clear_synonyms(const std::string& term) const;
+    void clear_synonyms(std::string_view term) const;
 
     /** Set the user-specified metadata associated with a given key.
      *
@@ -1367,7 +1370,7 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
      *  @exception Xapian::UnimplementedError will be thrown if the database
      *		   backend in use doesn't support user-specified metadata.
      */
-    void set_metadata(const std::string& key, const std::string& metadata);
+    void set_metadata(std::string_view key, std::string_view metadata);
 
     /// Return a string describing this object.
     std::string get_description() const;

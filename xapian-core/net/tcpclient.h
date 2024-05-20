@@ -1,7 +1,7 @@
 /** @file
  *  @brief Open a TCP connection to a server.
  */
-/* Copyright (C) 2007,2008,2010 Olly Betts
+/* Copyright (C) 2007,2008,2010,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,6 +22,7 @@
 #define XAPIAN_INCLUDED_TCPCLIENT_H
 
 #include <string>
+#include <string_view>
 
 namespace TcpClient {
     /** Attempt to open a TCP/IP socket connection to a server.
@@ -29,7 +30,7 @@ namespace TcpClient {
      *  Connect to the server running on port @a port of host @a hostname.
      *  Give up trying to connect after @a timeout_connect seconds.
      */
-    int open_socket(const std::string& hostname, int port,
+    int open_socket(std::string_view hostname, int port,
 		    double timeout_connect, bool tcp_nodelay,
 		    const std::string& context);
 }

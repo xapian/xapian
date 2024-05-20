@@ -1,7 +1,7 @@
 /** @file
  * @brief Subclass of GlassTable for deriving lazy tables from.
  */
-/* Copyright (C) 2009,2013,2014,2015,2016 Olly Betts
+/* Copyright (C) 2009,2013,2014,2015,2016,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,7 +31,7 @@ class GlassLazyTable : public GlassTable {
      *  @param path		The path for the table.
      *  @param readonly		true if the table is read-only, else false.
      */
-    GlassLazyTable(const char * name_, const std::string & path, bool readonly)
+    GlassLazyTable(const char* name_, std::string_view path, bool readonly)
 	: GlassTable(name_, path, readonly, true) { }
 
     GlassLazyTable(const char * name_, int fd, off_t offset_, bool readonly)

@@ -1,7 +1,7 @@
 /** @file
  * @brief parse free text and generate terms
  */
-/* Copyright (C) 2007,2009,2011,2012,2013,2014,2018,2023 Olly Betts
+/* Copyright (C) 2007,2009,2011,2012,2013,2014,2018,2023,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,6 +31,7 @@
 #include <xapian/visibility.h>
 
 #include <string>
+#include <string_view>
 
 namespace Xapian {
 
@@ -237,17 +238,17 @@ class XAPIAN_VISIBILITY_DEFAULT TermGenerator {
      */
     void index_text(const Xapian::Utf8Iterator & itor,
 		    Xapian::termcount wdf_inc = 1,
-		    const std::string & prefix = std::string());
+		    std::string_view prefix = {});
 
-    /** Index some text in a std::string.
+    /** Index some text.
      *
      * @param text	The text to index.
      * @param wdf_inc	The wdf increment (default 1).
      * @param prefix	The term prefix to use (default is no prefix).
      */
-    void index_text(const std::string & text,
+    void index_text(std::string_view text,
 		    Xapian::termcount wdf_inc = 1,
-		    const std::string & prefix = std::string()) {
+		    std::string_view prefix = {}) {
 	index_text(Utf8Iterator(text), wdf_inc, prefix);
     }
 
@@ -263,9 +264,9 @@ class XAPIAN_VISIBILITY_DEFAULT TermGenerator {
      */
     void index_text_without_positions(const Xapian::Utf8Iterator & itor,
 				      Xapian::termcount wdf_inc = 1,
-				      const std::string & prefix = std::string());
+				      std::string_view prefix = {});
 
-    /** Index some text in a std::string without positional information.
+    /** Index some text without positional information.
      *
      * Just like index_text, but no positional information is generated.  This
      * means that the database will be significantly smaller, but that phrase
@@ -275,9 +276,9 @@ class XAPIAN_VISIBILITY_DEFAULT TermGenerator {
      * @param wdf_inc	The wdf increment (default 1).
      * @param prefix	The term prefix to use (default is no prefix).
      */
-    void index_text_without_positions(const std::string & text,
+    void index_text_without_positions(std::string_view text,
 				      Xapian::termcount wdf_inc = 1,
-				      const std::string & prefix = std::string()) {
+				      std::string_view prefix = {}) {
 	index_text_without_positions(Utf8Iterator(text), wdf_inc, prefix);
     }
 

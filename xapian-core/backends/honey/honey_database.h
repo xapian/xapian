@@ -1,7 +1,7 @@
 /** @file
  * @brief Database using honey backend
  */
-/* Copyright 2004,2006,2007,2008,2009,2011,2014,2015,2016,2017 Olly Betts
+/* Copyright 2004,2006,2007,2008,2009,2011,2014,2015,2016,2017,2024 Olly Betts
  * Copyright 2007,2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -34,6 +34,8 @@
 #include "honey_values.h"
 #include "honey_version.h"
 #include "xapian/compactor.h"
+
+#include <string_view>
 
 class HoneyAllTermsList;
 class HoneyCursor;
@@ -86,7 +88,7 @@ class HoneyDatabase : public Xapian::Database::Internal {
 
   public:
     explicit
-    HoneyDatabase(const std::string& path_, int flags = Xapian::DB_READONLY_);
+    HoneyDatabase(std::string_view path_, int flags = Xapian::DB_READONLY_);
 
     explicit
     HoneyDatabase(int fd, int flags = Xapian::DB_READONLY_);
@@ -122,7 +124,7 @@ class HoneyDatabase : public Xapian::Database::Internal {
      *  @param collfreq_ptr	Point to return number of occurrences of @a
      *				term in the database (or NULL not to return)
      */
-    void get_freqs(const std::string& term,
+    void get_freqs(std::string_view term,
 		   Xapian::doccount* termfreq_ptr,
 		   Xapian::termcount* collfreq_ptr) const;
 
@@ -163,7 +165,7 @@ class HoneyDatabase : public Xapian::Database::Internal {
     Xapian::termcount get_doclength_upper_bound() const;
 
     /// Get an upper bound on the wdf of term @a term.
-    Xapian::termcount get_wdf_upper_bound(const std::string& term) const;
+    Xapian::termcount get_wdf_upper_bound(std::string_view term) const;
 
     /// Get a lower bound on the unique terms size of a document in this DB.
     Xapian::termcount get_unique_terms_lower_bound() const;
@@ -171,14 +173,14 @@ class HoneyDatabase : public Xapian::Database::Internal {
     /// Get an upper bound on the unique terms size of a document in this DB.
     Xapian::termcount get_unique_terms_upper_bound() const;
 
-    bool term_exists(const std::string& term) const;
+    bool term_exists(std::string_view term) const;
 
     /** Check whether this database contains any positional information. */
     bool has_positions() const;
 
-    PostList* open_post_list(const std::string& term) const;
+    PostList* open_post_list(std::string_view term) const;
 
-    LeafPostList* open_leaf_post_list(const std::string& term,
+    LeafPostList* open_leaf_post_list(std::string_view term,
 				      bool need_read_pos) const;
 
     /** Open a value stream.
@@ -201,10 +203,10 @@ class HoneyDatabase : public Xapian::Database::Internal {
      */
     TermList* open_term_list_direct(Xapian::docid did) const;
 
-    TermList* open_allterms(const std::string& prefix) const;
+    TermList* open_allterms(std::string_view prefix) const;
 
     PositionList* open_position_list(Xapian::docid did,
-				     const std::string& term) const;
+				     std::string_view term) const;
 
     /** Open a handle on a document.
      *
@@ -229,7 +231,7 @@ class HoneyDatabase : public Xapian::Database::Internal {
      *
      *  If there are no trigrams, returns NULL.
      */
-    TermList* open_spelling_termlist(const std::string& word) const;
+    TermList* open_spelling_termlist(std::string_view word) const;
 
     /** Return a termlist which returns the words which are spelling
      *  correction targets.
@@ -239,7 +241,7 @@ class HoneyDatabase : public Xapian::Database::Internal {
     TermList* open_spelling_wordlist() const;
 
     /** Return the number of times @a word was added as a spelling. */
-    Xapian::doccount get_spelling_frequency(const std::string& word) const;
+    Xapian::doccount get_spelling_frequency(std::string_view word) const;
 
     /** Add a word to the spelling dictionary.
      *
@@ -248,7 +250,7 @@ class HoneyDatabase : public Xapian::Database::Internal {
      *  @param word	The word to add.
      *  @param freqinc	How much to increase its frequency by.
      */
-    void add_spelling(const std::string& word,
+    void add_spelling(std::string_view word,
 		      Xapian::termcount freqinc) const;
 
     /** Remove a word from the spelling dictionary.
@@ -261,48 +263,48 @@ class HoneyDatabase : public Xapian::Database::Internal {
      *
      *  @return Any freqdec not "used up".
      */
-    Xapian::termcount remove_spelling(const std::string& word,
+    Xapian::termcount remove_spelling(std::string_view word,
 				      Xapian::termcount freqdec) const;
 
     /** Open a termlist returning synonyms for a term.
      *
      *  If @a term has no synonyms, returns NULL.
      */
-    TermList* open_synonym_termlist(const std::string& term) const;
+    TermList* open_synonym_termlist(std::string_view term) const;
 
     /** Open a termlist returning each term which has synonyms.
      *
      *  @param prefix   If non-empty, only terms with this prefix are
      *		    returned.
      */
-    TermList* open_synonym_keylist(const std::string& prefix) const;
+    TermList* open_synonym_keylist(std::string_view prefix) const;
 
     /** Add a synonym for a term.
      *
      *  If @a synonym is already a synonym for @a term, then no action is
      *  taken.
      */
-    void add_synonym(const std::string& term,
-		     const std::string& synonym) const;
+    void add_synonym(std::string_view term,
+		     std::string_view synonym) const;
 
     /** Remove a synonym for a term.
      *
      *  If @a synonym isn't a synonym for @a term, then no action is taken.
      */
-    void remove_synonym(const std::string& term,
-			const std::string& synonym) const;
+    void remove_synonym(std::string_view term,
+			std::string_view synonym) const;
 
     /** Clear all synonyms for a term.
      *
      *  If @a term has no synonyms, no action is taken.
      */
-    void clear_synonyms(const std::string& term) const;
+    void clear_synonyms(std::string_view term) const;
 
     /** Get the metadata associated with a given key.
      *
      *  See Database::get_metadata() for more information.
      */
-    std::string get_metadata(const std::string& key) const;
+    std::string get_metadata(std::string_view key) const;
 
     /** Open a termlist returning each metadata key.
      *
@@ -311,13 +313,13 @@ class HoneyDatabase : public Xapian::Database::Internal {
      *
      *  @param prefix   If non-empty, only keys with this prefix are returned.
      */
-    TermList* open_metadata_keylist(const std::string& prefix) const;
+    TermList* open_metadata_keylist(std::string_view prefix) const;
 
     /** Set the metadata associated with a given key.
      *
      *  See WritableDatabase::set_metadata() for more information.
      */
-    void set_metadata(const std::string& key, const std::string& value);
+    void set_metadata(std::string_view key, std::string_view value);
 
     /** Reopen the database to the latest available revision.
      *

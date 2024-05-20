@@ -1,7 +1,7 @@
 /** @file
  * @brief Abstract base class for iterating all terms in a database.
  */
-/* Copyright (C) 2007,2008,2011 Olly Betts
+/* Copyright (C) 2007,2008,2011,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -63,7 +63,7 @@ class AllTermsList : public TermList {
      *		for its pointer to us, and then delete us.  This "pruning" can
      *		only happen for a non-leaf subclass of this class.
      */
-    virtual TermList *skip_to(const std::string &term) = 0;
+    virtual TermList* skip_to(std::string_view term) = 0;
 
     /** Return true if the current position is past the last term in this list.
      *

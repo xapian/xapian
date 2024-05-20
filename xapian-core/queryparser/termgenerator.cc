@@ -1,7 +1,7 @@
 /** @file
  * @brief TermGenerator class implementation
  */
-/* Copyright (C) 2007,2012 Olly Betts
+/* Copyright (C) 2007,2012,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,6 +27,8 @@
 #include "termgenerator_internal.h"
 
 #include "str.h"
+
+#include <string_view>
 
 using namespace std;
 using namespace Xapian;
@@ -105,7 +107,7 @@ TermGenerator::set_max_word_length(unsigned max_word_length)
 void
 TermGenerator::index_text(const Xapian::Utf8Iterator & itor,
 			  Xapian::termcount weight,
-			  const string & prefix)
+			  string_view prefix)
 {
     internal->index_text(itor, weight, prefix, true);
 }
@@ -113,7 +115,7 @@ TermGenerator::index_text(const Xapian::Utf8Iterator & itor,
 void
 TermGenerator::index_text_without_positions(const Xapian::Utf8Iterator & itor,
 					    Xapian::termcount weight,
-					    const string & prefix)
+					    string_view prefix)
 {
     internal->index_text(itor, weight, prefix, false);
 }

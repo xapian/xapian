@@ -1,7 +1,7 @@
 /** @file
  * @brief Iterate terms in a remote document
  */
-/* Copyright (C) 2007,2008,2018 Olly Betts
+/* Copyright (C) 2007,2008,2018,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -81,7 +81,7 @@ RemoteTermList::next()
 }
 
 TermList*
-RemoteTermList::skip_to(const std::string& term)
+RemoteTermList::skip_to(std::string_view term)
 {
     if (!p) {
 	if (RemoteTermList::next())

@@ -1,7 +1,7 @@
 /** @file
  * @brief A termlist containing all terms in a honey database.
  */
-/* Copyright (C) 2005,2007,2008,2009,2010,2011,2017 Olly Betts
+/* Copyright (C) 2005,2007,2008,2009,2010,2011,2017,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,6 +25,8 @@
 #include "backends/alltermslist.h"
 #include "honey_database.h"
 #include "honey_postlist.h"
+
+#include <string_view>
 
 class HoneyCursor;
 
@@ -70,7 +72,7 @@ class HoneyAllTermsList : public AllTermsList {
 
   public:
     HoneyAllTermsList(const HoneyDatabase* database_,
-		      const std::string& prefix_)
+		      std::string_view prefix_)
 	: database(database_), prefix(prefix_) {}
 
     /// Destructor.
@@ -89,7 +91,7 @@ class HoneyAllTermsList : public AllTermsList {
     TermList* next();
 
     /// Advance to the first term which is >= term.
-    TermList* skip_to(const std::string& term);
+    TermList* skip_to(std::string_view term);
 };
 
 #endif /* XAPIAN_INCLUDED_HONEY_ALLTERMSLIST_H */

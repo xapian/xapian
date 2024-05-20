@@ -1,7 +1,7 @@
 /** @file
  * @brief Database factories for non-remote databases.
  */
-/* Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2011,2012,2013,2014,2015,2016,2017,2019,2020 Olly Betts
+/* Copyright 2002-2024 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -61,27 +61,27 @@ using namespace std;
 namespace Xapian {
 
 static void
-open_stub(Database& db, const string& file)
+open_stub(Database& db, string_view file)
 {
     read_stub_file(file,
-		   [&db](const string& path) {
+		   [&db](string_view path) {
 		       db.add_database(Database(path));
 		   },
-		   [&db](const string& path) {
+		   [&db](string_view path) {
 #ifdef XAPIAN_HAS_GLASS_BACKEND
 		       db.add_database(Database(new GlassDatabase(path)));
 #else
 		       (void)path;
 #endif
 		   },
-		   [&db](const string& path) {
+		   [&db](string_view path) {
 #ifdef XAPIAN_HAS_HONEY_BACKEND
 		       db.add_database(Database(new HoneyDatabase(path)));
 #else
 		       (void)path;
 #endif
 		   },
-		   [&db](const string& prog, const string& args) {
+		   [&db](string_view prog, string_view args) {
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
 		       db.add_database(Remote::open(prog, args));
 #else
@@ -89,7 +89,7 @@ open_stub(Database& db, const string& file)
 		       (void)args;
 #endif
 		   },
-		   [&db](const string& host, unsigned port) {
+		   [&db](string_view host, unsigned port) {
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
 		       db.add_database(Remote::open(host, port));
 #else
@@ -99,7 +99,7 @@ open_stub(Database& db, const string& file)
 		   },
 		   [&db]() {
 #ifdef XAPIAN_HAS_INMEMORY_BACKEND
-		       db.add_database(Database(string(), DB_BACKEND_INMEMORY));
+		       db.add_database(Database(""sv, DB_BACKEND_INMEMORY));
 #endif
 		   });
 
@@ -113,21 +113,21 @@ open_stub(Database& db, const string& file)
 }
 
 static void
-open_stub(WritableDatabase& db, const string& file, int flags)
+open_stub(WritableDatabase& db, string_view file, int flags)
 {
     read_stub_file(file,
-		   [&db, flags](const string& path) {
+		   [&db, flags](string_view path) {
 		       db.add_database(WritableDatabase(path, flags));
 		   },
-		   [&db, &flags](const string& path) {
+		   [&db, &flags](string_view path) {
 		       flags |= DB_BACKEND_GLASS;
 		       db.add_database(WritableDatabase(path, flags));
 		   },
-		   [](const string&) {
+		   [](string_view) {
 		       auto msg = "Honey databases don't support writing";
 		       throw Xapian::DatabaseOpeningError(msg);
 		   },
-		   [&db, flags](const string& prog, const string& args) {
+		   [&db, flags](string_view prog, string_view args) {
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
 		       db.add_database(Remote::open_writable(prog, args,
 							     0, flags));
@@ -136,7 +136,7 @@ open_stub(WritableDatabase& db, const string& file, int flags)
 		       (void)args;
 #endif
 		   },
-		   [&db, flags](const string& host, unsigned port) {
+		   [&db, flags](string_view host, unsigned port) {
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
 		       db.add_database(Remote::open_writable(host, port,
 							     0, 10000, flags));
@@ -146,16 +146,16 @@ open_stub(WritableDatabase& db, const string& file, int flags)
 #endif
 		   },
 		   [&db]() {
-		       db.add_database(WritableDatabase(string(),
+		       db.add_database(WritableDatabase(""sv,
 							DB_BACKEND_INMEMORY));
 		   });
 
     if (db.internal->size() == 0) {
-	throw DatabaseOpeningError(file + ": No databases listed");
+	throw DatabaseOpeningError(string{file} + ": No databases listed");
     }
 }
 
-Database::Database(const string& path, int flags)
+Database::Database(string_view path, int flags)
     : Database()
 {
     LOGCALL_CTOR(API, "Database", path|flags);
@@ -190,12 +190,15 @@ Database::Database(const string& path, int flags)
 #endif
     }
 
+    string filename{path};
     struct stat statbuf;
-    if (stat(path.c_str(), &statbuf) == -1) {
+    if (stat(filename.c_str(), &statbuf) == -1) {
 	if (errno == ENOENT) {
-	    throw DatabaseNotFoundError("Couldn't stat '" + path + "'", errno);
+	    throw DatabaseNotFoundError("Couldn't stat '" + filename + "'",
+					errno);
 	} else {
-	    throw DatabaseOpeningError("Couldn't stat '" + path + "'", errno);
+	    throw DatabaseOpeningError("Couldn't stat '" + filename + "'",
+				       errno);
 	}
     }
 
@@ -204,7 +207,7 @@ Database::Database(const string& path, int flags)
 
 	// Initialise to avoid bogus warning from GCC 4.9.2 with -Os.
 	int fd = -1;
-	switch (test_if_single_file_db(statbuf, path, &fd)) {
+	switch (test_if_single_file_db(statbuf, filename, &fd)) {
 	    case BACKEND_GLASS:
 #ifdef XAPIAN_HAS_GLASS_BACKEND
 		// Single file glass format.
@@ -228,45 +231,57 @@ Database::Database(const string& path, int flags)
     }
 
     if (rare(!S_ISDIR(statbuf.st_mode))) {
-	throw DatabaseOpeningError("Not a regular file or directory: '" + path + "'");
+	throw DatabaseOpeningError("Not a regular file or directory: "
+				   "'" + filename + "'");
     }
 
 #ifdef XAPIAN_HAS_GLASS_BACKEND
-    if (file_exists(path + "/iamglass")) {
+    filename += "/iamglass";
+    if (file_exists(filename)) {
 	internal = new GlassDatabase(path);
 	return;
     }
 #endif
 
 #ifdef XAPIAN_HAS_HONEY_BACKEND
-    if (file_exists(path + "/iamhoney")) {
+    filename.resize(path.size());
+    filename += "/iamhoney";
+    if (file_exists(filename)) {
 	internal = new HoneyDatabase(path);
 	return;
     }
 #endif
 
     // Check for "stub directories".
-    string stub_file = path;
-    stub_file += "/XAPIANDB";
-    if (usual(file_exists(stub_file))) {
-	open_stub(*this, stub_file);
+    filename.resize(path.size());
+    filename += "/XAPIANDB";
+    if (usual(file_exists(filename))) {
+	open_stub(*this, filename);
 	return;
     }
 
 #ifndef XAPIAN_HAS_GLASS_BACKEND
-    if (file_exists(path + "/iamglass")) {
+    filename.resize(path.size());
+    filename += "/iamglass";
+    if (file_exists(filename)) {
 	throw FeatureUnavailableError("Glass backend disabled");
     }
 #endif
 #ifndef XAPIAN_HAS_HONEY_BACKEND
-    if (file_exists(path + "/iamhoney")) {
+    filename.resize(path.size());
+    filename += "/iamhoney";
+    if (file_exists(filename)) {
 	throw FeatureUnavailableError("Honey backend disabled");
     }
 #endif
-    if (file_exists(path + "/iamchert")) {
+    filename.resize(path.size());
+    filename += "/iamchert";
+    if (file_exists(filename)) {
 	throw FeatureUnavailableError("Chert backend no longer supported");
     }
-    if (file_exists(path + "/iamflint")) {
+    filename.resize(path.size());
+    filename += "/iamflint";
+    if (file_exists(filename)) {
 	throw FeatureUnavailableError("Flint backend no longer supported");
     }
 
@@ -311,7 +326,7 @@ database_factory(int fd, int flags)
 #endif
 
     (void)::close(fd);
-    throw DatabaseOpeningError("Couldn't detect type of database");
+    throw DatabaseOpeningError("Couldn't detect type of database fd");
 }
 
 Database::Database(int fd, int flags)
@@ -324,21 +339,25 @@ Database::Database(int fd, int flags)
 #define HAVE_DISK_BACKEND
 #endif
 
-WritableDatabase::WritableDatabase(const std::string &path, int flags, int block_size)
+WritableDatabase::WritableDatabase(std::string_view path,
+				   int flags,
+				   int block_size)
     : Database()
 {
     LOGCALL_CTOR(API, "WritableDatabase", path|flags|block_size);
     // Avoid warning if all disk-based backends are disabled.
     (void)block_size;
+    string filename{path};
     int type = flags & DB_BACKEND_MASK_;
     // Clear the backend bits, so we just pass on other flags to open_stub, etc.
     flags &= ~DB_BACKEND_MASK_;
     if (type == 0) {
 	struct stat statbuf;
-	if (stat(path.c_str(), &statbuf) == -1) {
+	if (stat(filename.c_str(), &statbuf) == -1) {
 	    // ENOENT probably just means that we need to create the directory.
 	    if (errno != ENOENT)
-		throw DatabaseOpeningError("Couldn't stat '" + path + "'", errno);
+		throw DatabaseOpeningError("Couldn't stat '" + filename + "'",
+					   errno);
 	} else {
 	    // File or directory already exists.
 
@@ -349,34 +368,48 @@ WritableDatabase::WritableDatabase(const std::string &path, int flags, int block
 	    }
 
 	    if (rare(!S_ISDIR(statbuf.st_mode))) {
-		throw DatabaseOpeningError("Not a regular file or directory: '" + path + "'");
+		throw DatabaseOpeningError("Not a regular file or directory: "
+					   "'" + filename + "'");
 	    }
 
-	    if (file_exists(path + "/iamglass")) {
+	    filename += "/iamglass";
+	    if (file_exists(filename)) {
 		// Existing glass DB.
 #ifdef XAPIAN_HAS_GLASS_BACKEND
 		type = DB_BACKEND_GLASS;
 #else
 		throw FeatureUnavailableError("Glass backend disabled");
 #endif
-	    } else if (file_exists(path + "/iamhoney")) {
+	    }
+
+	    filename.resize(path.size());
+	    filename += "/iamhoney";
+	    if (file_exists(filename)) {
 		// Existing honey DB.
 		throw InvalidOperationError("Honey backend doesn't support "
 					    "updating existing databases");
-	    } else if (file_exists(path + "/iamchert")) {
+	    }
+
+	    filename.resize(path.size());
+	    filename += "/iamchert";
+	    if (file_exists(filename)) {
 		// Existing chert DB.
 		throw FeatureUnavailableError("Chert backend no longer supported");
-	    } else if (file_exists(path + "/iamflint")) {
+	    }
+
+	    filename.resize(path.size());
+	    filename += "/iamflint";
+	    if (file_exists(filename)) {
 		// Existing flint DB.
 		throw FeatureUnavailableError("Flint backend no longer supported");
-	    } else {
-		// Check for "stub directories".
-		string stub_file = path;
-		stub_file += "/XAPIANDB";
-		if (usual(file_exists(stub_file))) {
-		    open_stub(*this, stub_file, flags);
-		    return;
-		}
+	    }
+
+	    // Check for "stub directories".
+	    filename.resize(path.size());
+	    filename += "/XAPIANDB";
+	    if (usual(file_exists(filename))) {
+		open_stub(*this, filename, flags);
+		return;
 	    }
 	}
     }

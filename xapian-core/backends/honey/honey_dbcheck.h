@@ -1,7 +1,7 @@
 /** @file
  * @brief Check a honey table.
  */
-/* Copyright (C) 2008,2009,2012,2013,2014,2016 Olly Betts
+/* Copyright (C) 2008,2009,2012,2013,2014,2016,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -27,18 +27,19 @@
 #include <sys/types.h> // For size_t and off_t.
 #include <iosfwd>
 #include <string>
+#include <string_view>
 #include <vector>
 
 class HoneyVersion;
 
-size_t check_honey_table(const char* tablename, const std::string& db_dir,
+size_t check_honey_table(const char* tablename, std::string_view db_dir,
 			 int fd, off_t offset_,
 			 const HoneyVersion& version_file, int opts,
 			 std::vector<Xapian::termcount>& doclens,
 			 std::ostream* out);
 
 inline size_t
-check_honey_table(const char* tablename, const std::string& db_dir,
+check_honey_table(const char* tablename, std::string_view db_dir,
 		  const HoneyVersion& version_file, int opts,
 		  std::vector<Xapian::termcount>& doclens,
 		  std::ostream* out)

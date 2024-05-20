@@ -1,7 +1,7 @@
 /** @file
- * @brief Serialise floating point values to string which sort the same way.
+ * @brief Serialise floating point values to strings which sort the same way.
  */
-/* Copyright (C) 2007,2009,2015,2016 Olly Betts
+/* Copyright (C) 2007,2009,2015,2016,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,6 +37,7 @@
 #include <cstring>
 
 #include <string>
+#include <string_view>
 
 using namespace std;
 
@@ -173,13 +174,13 @@ Xapian::sortable_serialise_(double value, char* buf) noexcept
 /// Get a number from the character at a given position in a string, returning
 /// 0 if the string isn't long enough.
 static inline unsigned char
-numfromstr(const std::string & str, std::string::size_type pos)
+numfromstr(std::string_view str, std::string::size_type pos)
 {
     return (pos < str.size()) ? static_cast<unsigned char>(str[pos]) : '\0';
 }
 
 double
-Xapian::sortable_unserialise(const std::string& value) noexcept
+Xapian::sortable_unserialise(std::string_view value) noexcept
 {
     // Zero.
     if (value.size() == 1 && value[0] == '\x80') return 0.0;

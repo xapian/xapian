@@ -2,7 +2,7 @@
  * @brief Check consistency of a glass table.
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002-2022 Olly Betts
+ * Copyright 2002-2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -58,10 +58,10 @@ struct VStats : public ValueStats {
 };
 
 size_t
-check_glass_table(const char * tablename, const string &db_dir, int fd,
+check_glass_table(const char* tablename, string_view db_dir, int fd,
 		  off_t offset_,
-		  const GlassVersion & version_file, int opts,
-		  vector<Xapian::termcount> & doclens, ostream * out)
+		  const GlassVersion& version_file, int opts,
+		  vector<Xapian::termcount>& doclens, ostream* out)
 {
     Xapian::docid db_last_docid = version_file.get_last_docid();
     if (out)
