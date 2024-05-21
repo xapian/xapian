@@ -394,7 +394,7 @@ HoneyValueManager::delete_document(Xapian::docid did,
 				   map<Xapian::valueno, ValueStats>& val_stats)
 {
     Assert(termlist_table.is_open());
-    map<Xapian::docid, string>::iterator it = slots.find(did);
+    auto it = slots.find(did);
     string s;
     if (it != slots.end()) {
 	swap(s, it->second);
@@ -634,10 +634,9 @@ void
 HoneyValueManager::set_value_stats(map<Xapian::valueno, ValueStats>& val_stats)
 {
     LOGCALL_VOID(DB, "HoneyValueManager::set_value_stats", val_stats);
-    map<Xapian::valueno, ValueStats>::const_iterator i;
-    for (i = val_stats.begin(); i != val_stats.end(); ++i) {
-	string key = Honey::make_valuestats_key(i->first);
-	const ValueStats& stats = i->second;
+    for (auto&& i : val_stats) {
+	string key = Honey::make_valuestats_key(i.first);
+	const ValueStats& stats = i.second;
 	if (stats.freq != 0) {
 	    postlist_table.add(key, encode_valuestats(stats.freq,
 						      stats.lower_bound,

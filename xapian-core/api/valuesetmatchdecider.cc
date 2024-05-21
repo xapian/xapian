@@ -33,12 +33,7 @@ namespace Xapian {
 bool
 ValueSetMatchDecider::operator()(const Xapian::Document& doc) const
 {
-    string value = doc.get_value(valuenum);
-    set<string>::const_iterator it = testset.find(value);
-    if (inclusive)
-	return it != testset.end();
-    else
-	return it == testset.end();
+    return (testset.find(doc.get_value(valuenum)) == testset.end()) ^ inclusive;
 }
 
 }

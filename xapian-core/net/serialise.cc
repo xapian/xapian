@@ -49,10 +49,9 @@ serialise_stats(const Xapian::Weight::Internal &stats)
     pack_bool(result, stats.have_max_part);
 
     pack_uint(result, stats.termfreqs.size());
-    map<string, TermFreqs>::const_iterator i;
     string_view prev_term;
-    for (i = stats.termfreqs.begin(); i != stats.termfreqs.end(); ++i) {
-	const string& term = i->first;
+    for (auto&& i : stats.termfreqs) {
+	const string& term = i.first;
 	// We reduce the size of the encoding by reusing any prefix which is in
 	// common with the previous term.  This is much more compact if there
 	// are a lot of terms, especially if they share a prefix such as an
@@ -71,12 +70,12 @@ serialise_stats(const Xapian::Weight::Internal &stats)
 	    pack_uint(result, append);
 	}
 	result.append(term.data() + reuse, append);
-	pack_uint(result, i->second.termfreq);
+	pack_uint(result, i.second.termfreq);
 	if (stats.rset_size != 0)
-	    pack_uint(result, i->second.reltermfreq);
-	pack_uint(result, i->second.collfreq);
+	    pack_uint(result, i.second.reltermfreq);
+	pack_uint(result, i.second.collfreq);
 	if (stats.have_max_part)
-	    result += serialise_double(i->second.max_part);
+	    result += serialise_double(i.second.max_part);
 	prev_term = term;
     }
 

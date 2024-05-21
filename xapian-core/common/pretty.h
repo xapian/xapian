@@ -141,8 +141,8 @@ inline PrettyOStream<S> &
 operator<<(PrettyOStream<S> &ps, const std::string & str)
 {
     ps.os << '"';
-    for (std::string::const_iterator i = str.begin(); i != str.end(); ++i) {
-	write_ch(ps.os, *i);
+    for (char ch : str) {
+	write_ch(ps.os, ch);
     }
     ps.os << '"';
     return ps;

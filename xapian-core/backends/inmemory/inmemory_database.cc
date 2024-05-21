@@ -471,7 +471,7 @@ InMemoryDatabase::get_freqs(const string & term,
 			    Xapian::termcount * collfreq_ptr) const
 {
     if (closed) InMemoryDatabase::throw_database_closed();
-    map<string, InMemoryTerm>::const_iterator i = postlists.find(term);
+    auto i = postlists.find(term);
     if (i != postlists.end()) {
 	if (termfreq_ptr)
 	    *termfreq_ptr = i->second.term_freq;
@@ -489,7 +489,7 @@ Xapian::doccount
 InMemoryDatabase::get_value_freq(Xapian::valueno slot) const
 {
     if (closed) InMemoryDatabase::throw_database_closed();
-    map<Xapian::valueno, ValueStats>::const_iterator i = valuestats.find(slot);
+    auto i = valuestats.find(slot);
     if (i == valuestats.end()) return 0;
     return i->second.freq;
 }
@@ -498,7 +498,7 @@ std::string
 InMemoryDatabase::get_value_lower_bound(Xapian::valueno slot) const
 {
     if (closed) InMemoryDatabase::throw_database_closed();
-    map<Xapian::valueno, ValueStats>::const_iterator i = valuestats.find(slot);
+    auto i = valuestats.find(slot);
     if (i == valuestats.end()) return string();
     return i->second.lower_bound;
 }
@@ -507,7 +507,7 @@ std::string
 InMemoryDatabase::get_value_upper_bound(Xapian::valueno slot) const
 {
     if (closed) InMemoryDatabase::throw_database_closed();
-    map<Xapian::valueno, ValueStats>::const_iterator i = valuestats.find(slot);
+    auto i = valuestats.find(slot);
     if (i == valuestats.end()) return string();
     return i->second.upper_bound;
 }
@@ -634,7 +634,7 @@ std::string
 InMemoryDatabase::get_metadata(const std::string & key) const
 {
     if (closed) InMemoryDatabase::throw_database_closed();
-    map<string, string>::const_iterator i = metadata.find(key);
+    auto i = metadata.find(key);
     if (i == metadata.end())
 	return string();
     return i->second;
@@ -711,24 +711,22 @@ InMemoryDatabase::add_values(Xapian::docid did,
     valuelists[did - 1] = values_;
 
     // Update the statistics.
-    map<Xapian::valueno, string>::const_iterator j;
-    for (j = values_.begin(); j != values_.end(); ++j) {
-	std::pair<map<Xapian::valueno, ValueStats>::iterator, bool> i;
-	i = valuestats.insert(make_pair(j->first, ValueStats()));
+    for (auto&& j : values_) {
+	auto i = valuestats.insert(make_pair(j.first, ValueStats()));
 
 	// Now, modify the stored statistics.
 	if ((i.first->second.freq)++ == 0) {
 	    // If the value count was previously zero, set the upper and lower
 	    // bounds to the newly added value.
-	    i.first->second.lower_bound = j->second;
-	    i.first->second.upper_bound = j->second;
+	    i.first->second.lower_bound = j.second;
+	    i.first->second.upper_bound = j.second;
 	} else {
 	    // Otherwise, simply make sure they reflect the new value.
-	    if (j->second < i.first->second.lower_bound) {
-		i.first->second.lower_bound = j->second;
+	    if (j.second < i.first->second.lower_bound) {
+		i.first->second.lower_bound = j.second;
 	    }
-	    if (j->second > i.first->second.upper_bound) {
-		i.first->second.upper_bound = j->second;
+	    if (j.second > i.first->second.upper_bound) {
+		i.first->second.upper_bound = j.second;
 	    }
 	}
     }
@@ -756,10 +754,8 @@ InMemoryDatabase::delete_document(Xapian::docid did)
     }
     termlists[did - 1].is_valid = false;
     doclists[did - 1] = string();
-    map<Xapian::valueno, string>::const_iterator j;
-    for (j = valuelists[did - 1].begin(); j != valuelists[did - 1].end(); ++j) {
-	map<Xapian::valueno, ValueStats>::iterator i;
-	i = valuestats.find(j->first);
+    for (auto&& j : valuelists[did - 1]) {
+	auto i = valuestats.find(j.first);
 	if (--(i->second.freq) == 0) {
 	    i->second.lower_bound.resize(0);
 	    i->second.upper_bound.resize(0);
@@ -774,13 +770,10 @@ InMemoryDatabase::delete_document(Xapian::docid did)
     // InMemory structure without being very inefficient.
     if (totdocs == 0) positions_present = false;
 
-    vector<InMemoryTermEntry>::const_iterator i;
-    for (i = termlists[did - 1].terms.begin();
-	 i != termlists[did - 1].terms.end();
-	 ++i) {
-	map<string, InMemoryTerm>::iterator t = postlists.find(i->tname);
+    for (auto&& i : termlists[did - 1].terms) {
+	auto t = postlists.find(i.tname);
 	Assert(t != postlists.end());
-	t->second.collection_freq -= i->wdf;
+	t->second.collection_freq -= i.wdf;
 	--t->second.term_freq;
 
 	// Just invalidate erased doc ids - otherwise we need to erase
@@ -806,10 +799,8 @@ InMemoryDatabase::replace_document(Xapian::docid did,
     if (closed) InMemoryDatabase::throw_database_closed();
 
     if (doc_exists(did)) {
-	map<Xapian::valueno, string>::const_iterator j;
-	for (j = valuelists[did - 1].begin(); j != valuelists[did - 1].end(); ++j) {
-	    map<Xapian::valueno, ValueStats>::iterator i;
-	    i = valuestats.find(j->first);
+	for (auto&& j : valuelists[did - 1]) {
+	    auto i = valuestats.find(j.first);
 	    if (--(i->second.freq) == 0) {
 		i->second.lower_bound.resize(0);
 		i->second.upper_bound.resize(0);
@@ -828,13 +819,10 @@ InMemoryDatabase::replace_document(Xapian::docid did,
 	termlists[did - 1].is_valid = true;
     }
 
-    vector<InMemoryTermEntry>::const_iterator i;
-    for (i = termlists[did - 1].terms.begin();
-	 i != termlists[did - 1].terms.end();
-	 ++i) {
-	map<string, InMemoryTerm>::iterator t = postlists.find(i->tname);
+    for (auto&& i : termlists[did - 1].terms) {
+	auto t = postlists.find(i.tname);
 	Assert(t != postlists.end());
-	t->second.collection_freq -= i->wdf;
+	t->second.collection_freq -= i.wdf;
 	--t->second.term_freq;
 
 	// Just invalidate erased doc ids - otherwise we need to erase
@@ -976,7 +964,7 @@ InMemoryDatabase::term_exists(const string & tname) const
     if (tname.empty()) {
 	return totdocs != 0;
     }
-    map<string, InMemoryTerm>::const_iterator i = postlists.find(tname);
+    auto i = postlists.find(tname);
     if (i == postlists.end()) return false;
     return (i->second.term_freq != 0);
 }

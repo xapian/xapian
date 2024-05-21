@@ -106,10 +106,8 @@ string
 LatLongCoords::serialise() const
 {
     string result;
-    vector<LatLongCoord>::const_iterator coord;
-    for (coord = coords.begin(); coord != coords.end(); ++coord)
-    {
-	GeoEncode::encode(coord->latitude, coord->longitude, result);
+    for (auto&& coord : coords) {
+	GeoEncode::encode(coord.latitude, coord.longitude, result);
     }
     return result;
 }
@@ -118,8 +116,7 @@ string
 LatLongCoords::get_description() const
 {
     string res("Xapian::LatLongCoords(");
-    vector<LatLongCoord>::const_iterator coord;
-    for (coord = coords.begin(); coord != coords.end(); ++coord) {
+    for (auto coord = coords.begin(); coord != coords.end(); ++coord) {
 	if (coord != coords.begin()) {
 	    res += ", ";
 	}

@@ -62,9 +62,8 @@ Weight::Internal::operator+=(const Weight::Internal & inc)
     rset_size += inc.rset_size;
 
     // Add termfreqs and reltermfreqs
-    map<string, TermFreqs>::const_iterator i;
-    for (i = inc.termfreqs.begin(); i != inc.termfreqs.end(); ++i) {
-	termfreqs[i->first] += i->second;
+    for (auto&& i : inc.termfreqs) {
+	termfreqs[i.first] += i.second;
     }
     return *this;
 }
@@ -102,9 +101,8 @@ Weight::Internal::accumulate_stats(const Xapian::Database::Internal &subdb,
 	// and we can skip the document's termlist, so look for each query term
 	// in the document.
 	unique_ptr<TermList> tl(subdb.open_term_list(did));
-	map<string, TermFreqs>::iterator i;
-	for (i = termfreqs.begin(); i != termfreqs.end(); ++i) {
-	    const string & term = i->first;
+	for (auto&& i : termfreqs) {
+	    const string& term = i.first;
 	    TermList * ret = tl->skip_to(term);
 	    if (ret != NULL) {
 		// No more entries prune shouldn't happen).
@@ -112,7 +110,7 @@ Weight::Internal::accumulate_stats(const Xapian::Database::Internal &subdb,
 		break;
 	    }
 	    if (term == tl->get_termname())
-		++i->second.reltermfreq;
+		++i.second.reltermfreq;
 	}
     }
 }
@@ -143,8 +141,7 @@ Weight::Internal::get_description() const
     desc += str(finalised);
 #endif
     desc += ", termfreqs={";
-    map<string, TermFreqs>::const_iterator i;
-    for (i = termfreqs.begin(); i != termfreqs.end(); ++i) {
+    for (auto i = termfreqs.begin(); i != termfreqs.end(); ++i) {
 	if (i != termfreqs.begin())
 	    desc += ", ";
 	desc += i->first;

@@ -172,10 +172,9 @@ ESet::Internal::get_description() const
     string desc("ESet::Internal(ebound=");
     desc += str(ebound);
 
-    vector<Xapian::Internal::ExpandTerm>::const_iterator i;
-    for (i = items.begin(); i != items.end(); ++i) {
+    for (auto&& i : items) {
 	desc += ", ";
-	desc += i->get_description();
+	desc += i.get_description();
     }
     desc += ')';
 

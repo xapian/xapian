@@ -159,8 +159,7 @@ HoneyInverter::flush_doclengths(HoneyPostListTable& table)
 void
 HoneyInverter::flush_post_list(HoneyPostListTable& table, const string& term)
 {
-    map<string, PostingChanges>::iterator i;
-    i = postlist_changes.find(term);
+    auto i = postlist_changes.find(term);
     if (i == postlist_changes.end()) return;
 
     // Flush buffered changes for just this term's postlist.
@@ -171,9 +170,8 @@ HoneyInverter::flush_post_list(HoneyPostListTable& table, const string& term)
 void
 HoneyInverter::flush_all_post_lists(HoneyPostListTable& table)
 {
-    map<string, PostingChanges>::const_iterator i;
-    for (i = postlist_changes.begin(); i != postlist_changes.end(); ++i) {
-	table.merge_changes(i->first, i->second);
+    for (auto&& i : postlist_changes) {
+	table.merge_changes(i.first, i.second);
     }
     postlist_changes.clear();
 }
@@ -184,8 +182,8 @@ HoneyInverter::flush_post_lists(HoneyPostListTable& table, const string& pfx)
     if (pfx.empty())
 	return flush_all_post_lists(table);
 
-    map<string, PostingChanges>::iterator i, begin, end;
-    begin = postlist_changes.lower_bound(pfx);
+    auto begin = postlist_changes.lower_bound(pfx);
+    decltype(begin) end;
     string pfxinc = pfx;
     while (true) {
 	if (pfxinc.back() != '\xff') {
@@ -200,7 +198,7 @@ HoneyInverter::flush_post_lists(HoneyPostListTable& table, const string& pfx)
 	}
     }
 
-    for (i = begin; i != end; ++i) {
+    for (auto i = begin; i != end; ++i) {
 	table.merge_changes(i->first, i->second);
     }
 

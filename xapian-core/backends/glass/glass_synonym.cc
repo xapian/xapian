@@ -49,14 +49,10 @@ GlassSynonymTable::merge_changes()
 	del(last_term);
     } else {
 	string tag;
-
-	set<string>::const_iterator i;
-	for (i = last_synonyms.begin(); i != last_synonyms.end(); ++i) {
-	    const string & synonym = *i;
+	for (const auto& synonym : last_synonyms) {
 	    tag += uint8_t(synonym.size() ^ MAGIC_XOR_VALUE);
 	    tag += synonym;
 	}
-
 	add(last_term, tag);
 	last_synonyms.clear();
     }
@@ -140,9 +136,8 @@ GlassSynonymTable::open_termlist(const string & term)
 	if (last_synonyms.empty()) return NULL;
 
 	synonyms.reserve(last_synonyms.size());
-	set<string>::const_iterator i;
-	for (i = last_synonyms.begin(); i != last_synonyms.end(); ++i) {
-	    synonyms.push_back(*i);
+	for (const auto& i : last_synonyms) {
+	    synonyms.push_back(i);
 	}
     } else {
 	string tag;

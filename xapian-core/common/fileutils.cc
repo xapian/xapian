@@ -146,10 +146,9 @@ resolve_relative_path(string & path, const string & base)
 	    if (sl) {
 		// With the \\?\ prefix, '/' isn't recognised so change it
 		// to '\' in path.
-		string::iterator i;
-		for (i = path.begin(); i != path.end(); ++i) {
-		    if (*i == '/')
-			*i = '\\';
+		for (auto& ch : path) {
+		    if (ch == '/')
+			ch = '\\';
 		}
 		path.insert(0, base, 0, sl);
 	    }
@@ -176,10 +175,9 @@ resolve_relative_path(string & path, const string & base)
 	    if (uncw_path(base)) {
 		// With the \\?\ prefix, '/' isn't recognised so change it
 		// to '\' in path.
-		string::iterator i;
-		for (i = path.begin(); i != path.end(); ++i) {
-		    if (*i == '/')
-			*i = '\\';
+		for (auto& ch : path) {
+		    if (ch == '/')
+			ch = '\\';
 		}
 	    }
 	    path.insert(b, base, b, last_slash + 1 - b);

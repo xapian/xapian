@@ -36,9 +36,8 @@ InMemoryDocument::fetch_value(Xapian::valueno slot) const
     db = static_cast<const InMemoryDatabase*>(database.get());
     if (rare(did > db->valuelists.size()))
 	RETURN(string());
-    map<Xapian::valueno, string> values_ = db->valuelists[did - 1];
-    map<Xapian::valueno, string>::const_iterator i;
-    i = values_.find(slot);
+    const auto& values_ = db->valuelists[did - 1];
+    auto i = values_.find(slot);
     if (i == values_.end())
 	RETURN(string());
     RETURN(i->second);

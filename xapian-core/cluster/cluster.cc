@@ -99,7 +99,7 @@ doccount
 TermListGroup::get_termfreq(const string& tname) const
 {
     LOGCALL(API, doccount, "TermListGroup::get_termfreq", tname);
-    unordered_map<string, doccount>::const_iterator it = termfreq.find(tname);
+    auto it = termfreq.find(tname);
     if (it != termfreq.end())
 	return it->second;
     else
@@ -328,10 +328,9 @@ Centroid::divide(double cluster_size)
 {
     LOGCALL_VOID(API, "Centroid::divide", cluster_size);
     magnitude = 0;
-    unordered_map<string, double>::iterator it;
-    for (it = weights.begin(); it != weights.end(); ++it) {
-	double new_weight = it->second / cluster_size;
-	it->second = new_weight;
+    for (auto&& it : weights) {
+	double new_weight = it.second / cluster_size;
+	it.second = new_weight;
 	magnitude += new_weight * new_weight;
     }
 }
@@ -619,8 +618,7 @@ string
 StemStopper::get_description() const
 {
     string desc("Xapian::StemStopper(");
-    unordered_set<string>::const_iterator i;
-    for (i = stop_words.begin(); i != stop_words.end(); ++i) {
+    for (auto i = stop_words.begin(); i != stop_words.end(); ++i) {
 	if (i != stop_words.begin()) desc += ' ';
 	desc += *i;
     }

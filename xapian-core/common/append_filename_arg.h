@@ -38,17 +38,17 @@ append_filename_argument(std::string& cmd,
 	++prefix;
     cmd += prefix;
 
-    for (std::string::const_iterator i = arg.begin(); i != arg.end(); ++i) {
-	if (*i == '/') {
+    for (char ch : arg) {
+	if (ch == '/') {
 	    // Convert Unix path separators to backslashes.  C library
 	    // functions understand "/" in paths, but we are going to
 	    // call commands like "xcopy" or "rd" which don't.
 	    cmd += '\\';
-	} else if (*i < 32 || std::strchr("<>\"|*?", *i)) {
+	} else if (ch < 32 || std::strchr("<>\"|*?", ch)) {
 	    // Check for illegal characters in filename.
 	    return false;
 	} else {
-	    cmd += *i;
+	    cmd += ch;
 	}
     }
     cmd += '"';
@@ -65,8 +65,8 @@ append_filename_argument(std::string& cmd,
 	++prefix;
     cmd += prefix;
 
-    for (std::string::const_iterator i = arg.begin(); i != arg.end(); ++i) {
-	if (*i == '\'') {
+    for (char ch : arg) {
+	if (ch == '\'') {
 	    // Wrapping the whole argument in single quotes works for
 	    // everything except a single quote - for that we drop out of
 	    // single quotes, then use a backslash-escaped single quote, then
@@ -74,7 +74,7 @@ append_filename_argument(std::string& cmd,
 	    cmd += "'\\''";
 	    continue;
 	}
-	cmd += *i;
+	cmd += ch;
     }
     cmd += '\'';
 #endif

@@ -92,10 +92,9 @@ GlassSpellingTable::merge_changes()
     }
     termlist_deltas.clear();
 
-    map<string, Xapian::termcount>::const_iterator j;
-    for (j = wordfreq_changes.begin(); j != wordfreq_changes.end(); ++j) {
-	string key = "W" + j->first;
-	Xapian::termcount wordfreq = j->second;
+    for (auto&& j : wordfreq_changes) {
+	string key = "W" + j.first;
+	Xapian::termcount wordfreq = j.second;
 	if (wordfreq) {
 	    string tag;
 	    pack_uint_last(tag, wordfreq);
