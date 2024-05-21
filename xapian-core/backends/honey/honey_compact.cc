@@ -1,7 +1,7 @@
 /** @file
  * @brief Compact a honey database, or merge and compact several.
  */
-/* Copyright (C) 2004-2023 Olly Betts
+/* Copyright (C) 2004-2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -1673,14 +1673,15 @@ merge_synonyms(T* out, U b, U e)
 	    pq.pop();
 	}
 
-	string lastword;
+	string_view lastword;
 	while (!pqtag.empty()) {
 	    ByteLengthPrefixedStringItor* it = pqtag.top();
 	    pqtag.pop();
-	    if (**it != lastword) {
-		lastword = **it;
-		tag += uint8_t(lastword.size() ^ MAGIC_XOR_VALUE);
-		tag += lastword;
+	    string_view word = **it;
+	    if (word != lastword) {
+		tag += uint8_t(word.size() ^ MAGIC_XOR_VALUE);
+		tag += word;
+		lastword = word;
 	    }
 	    ++*it;
 	    if (!it->at_end()) {

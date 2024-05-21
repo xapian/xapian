@@ -1,7 +1,7 @@
 /** @file
  * @brief Handle decoding lists of strings with byte lengths
  */
-/* Copyright (C) 2004,2005,2006,2007,2008,2009,2010 Olly Betts
+/* Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -44,9 +44,14 @@ class ByteLengthPrefixedStringItor {
 	: p(reinterpret_cast<const unsigned char *>(s.data())),
 	  left(s.size()) { }
 
-    std::string operator*() const {
+    /** Get the current entry.
+     *
+     *  @return A std::string_view which remains valid while the buffer passed
+     *	        to the constructor does.
+     */
+    std::string_view operator*() const {
 	size_t len = *p ^ MAGIC_XOR_VALUE;
-	return std::string(reinterpret_cast<const char *>(p + 1), len);
+	return std::string_view(reinterpret_cast<const char *>(p + 1), len);
     }
 
     ByteLengthPrefixedStringItor operator++(int) {
