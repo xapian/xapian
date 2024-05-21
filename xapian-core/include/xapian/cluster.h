@@ -62,7 +62,7 @@ class XAPIAN_VISIBILITY_DEFAULT StemStopper : public Xapian::Stopper {
 
     std::string get_description() const;
 
-    bool operator()(const std::string & term) const {
+    bool operator()(const std::string& term) const override {
 	return stop_words.find(term) != stop_words.end();
     }
 

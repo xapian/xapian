@@ -139,7 +139,7 @@ described above which only matches ranges with a prefix (e.g.
     struct AuthorRangeProcessor : public Xapian::RangeProcessor {
         AuthorRangeProcessor() : RangeProcessor(4, "author:") { }
 
-        Xapian::valueno operator()(const std::string& b, const std::string& e) {
+        Xapian::valueno operator()(const std::string& b, const std::string& e) override {
             // Let the base class do the prefix check.
             return RangeProcessor::operator()(Xapian::Unicode::tolower(b),
                                               Xapian::Unicode::tolower(e));

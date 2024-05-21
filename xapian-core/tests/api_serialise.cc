@@ -267,26 +267,25 @@ class MyPostingSource2 : public Xapian::ValuePostingSource {
     {
     }
 
-    MyPostingSource2 * clone() const
-    {
+    MyPostingSource2* clone() const override {
 	return new MyPostingSource2(desc);
     }
 
-    std::string name() const {
+    std::string name() const override {
 	return "MyPostingSource2";
     }
 
-    std::string serialise() const {
+    std::string serialise() const override {
 	return desc;
     }
 
-    MyPostingSource2 * unserialise(const std::string & s) const {
+    MyPostingSource2* unserialise(const std::string& s) const override {
 	return new MyPostingSource2(s);
     }
 
-    double get_weight() const { return 1.0; }
+    double get_weight() const override { return 1.0; }
 
-    std::string get_description() const {
+    std::string get_description() const override {
 	return "MyPostingSource2(" + desc + ")";
     }
 };
@@ -330,28 +329,28 @@ class ExceptionalPostingSource : public Xapian::PostingSource {
 
     ExceptionalPostingSource(failmode fail_) : fail(fail_) { }
 
-    string name() const {
+    string name() const override {
 	return "ExceptionalPostingSource";
     }
 
-    PostingSource * clone() const {
+    PostingSource* clone() const override {
 	if (fail == CLONE)
 	    throw bad_alloc();
 	return new ExceptionalPostingSource(fail);
     }
 
-    void init(const Xapian::Database &) { }
+    void init(const Xapian::Database&) override { }
 
-    Xapian::doccount get_termfreq_min() const { return 0; }
-    Xapian::doccount get_termfreq_est() const { return 1; }
-    Xapian::doccount get_termfreq_max() const { return 2; }
+    Xapian::doccount get_termfreq_min() const override { return 0; }
+    Xapian::doccount get_termfreq_est() const override { return 1; }
+    Xapian::doccount get_termfreq_max() const override { return 2; }
 
-    void next(double) { }
+    void next(double) override { }
 
-    void skip_to(Xapian::docid, double) { }
+    void skip_to(Xapian::docid, double) override { }
 
-    bool at_end() const { return true; }
-    Xapian::docid get_docid() const { return 0; }
+    bool at_end() const override { return true; }
+    Xapian::docid get_docid() const override { return 0; }
 };
 
 /// Check that exceptions when registering a postingsource are handled well.
@@ -388,36 +387,36 @@ class ExceptionalWeight : public Xapian::Weight {
 
     ExceptionalWeight(failmode fail_) : fail(fail_) { }
 
-    string name() const {
+    string name() const override {
 	return "ExceptionalWeight";
     }
 
-    string short_name() const {
+    string short_name() const override {
 	return "excep";
     }
 
-    Weight * clone() const {
+    Weight* clone() const override {
 	if (fail == CLONE)
 	    throw bad_alloc();
 	return new ExceptionalWeight(fail);
     }
 
-    void init(double) { }
+    void init(double) override { }
 
     double get_sumpart(Xapian::termcount,
 		       Xapian::termcount,
 		       Xapian::termcount,
-		       Xapian::termcount) const {
+		       Xapian::termcount) const override {
 	return 0;
     }
-    double get_maxpart() const { return 0; }
+    double get_maxpart() const override { return 0; }
 
     double get_sumextra(Xapian::termcount,
 			Xapian::termcount,
-			Xapian::termcount) const {
+			Xapian::termcount) const override {
 	return 0;
     }
-    double get_maxextra() const { return 0; }
+    double get_maxextra() const override { return 0; }
 };
 
 /// Check that exceptions when registering are handled well.
@@ -452,17 +451,17 @@ class ExceptionalMatchSpy : public Xapian::MatchSpy {
 
     ExceptionalMatchSpy(failmode fail_) : fail(fail_) { }
 
-    string name() const {
+    string name() const override {
 	return "ExceptionalMatchSpy";
     }
 
-    MatchSpy * clone() const {
+    MatchSpy* clone() const override {
 	if (fail == CLONE)
 	    throw bad_alloc();
 	return new ExceptionalMatchSpy(fail);
     }
 
-    void operator()(const Xapian::Document &, double) {
+    void operator()(const Xapian::Document&, double) override {
     }
 };
 

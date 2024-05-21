@@ -137,7 +137,7 @@ static const char DEFAULT_LOG_ENTRY[] =
 
 class MyStopper : public Xapian::Stopper {
   public:
-    bool operator()(const string &t) const {
+    bool operator()(const string& t) const override {
 	switch (t[0]) {
 	    case 'a':
 		return (t == "a" || t == "about" || t == "an" || t == "and" ||

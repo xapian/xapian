@@ -1381,10 +1381,10 @@ class CustomFeature : public Xapian::Feature {
 	need_stat(Xapian::Feature::COLLECTION_LENGTH);
 	need_stat(Xapian::Feature::INVERSE_DOCUMENT_FREQUENCY);
     }
-    std::vector<double> get_values() const {
+    std::vector<double> get_values() const override {
 	return vector<double>();
     }
-    std::string name() const {
+    std::string name() const override {
 	return "CustomFeature";
     }
     void test_stats() {

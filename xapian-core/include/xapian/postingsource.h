@@ -1,7 +1,7 @@
 /** @file
  *  @brief External sources of posting information
  */
-/* Copyright (C) 2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2019 Olly Betts
+/* Copyright (C) 2007-2024 Olly Betts
  * Copyright (C) 2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -628,18 +628,19 @@ class XAPIAN_VISIBILITY_DEFAULT DecreasingValueWeightPostingSource
 				       Xapian::docid range_start_ = 0,
 				       Xapian::docid range_end_ = 0);
 
-    double get_weight() const;
-    DecreasingValueWeightPostingSource * clone() const;
-    std::string name() const;
-    std::string serialise() const;
-    DecreasingValueWeightPostingSource * unserialise(const std::string &serialised) const;
-    void init(const Xapian::Database & db_);
+    double get_weight() const override;
+    DecreasingValueWeightPostingSource* clone() const override;
+    std::string name() const override;
+    std::string serialise() const override;
+    DecreasingValueWeightPostingSource*
+	unserialise(const std::string& serialised) const override;
+    void init(const Xapian::Database& db_) override;
 
-    void next(double min_wt);
-    void skip_to(Xapian::docid min_docid, double min_wt);
-    bool check(Xapian::docid min_docid, double min_wt);
+    void next(double min_wt) override;
+    void skip_to(Xapian::docid min_docid, double min_wt) override;
+    bool check(Xapian::docid min_docid, double min_wt) override;
 
-    std::string get_description() const;
+    std::string get_description() const override;
 };
 
 
@@ -685,14 +686,15 @@ class XAPIAN_VISIBILITY_DEFAULT ValueMapPostingSource
      */
     void set_default_weight(double wt);
 
-    double get_weight() const;
-    ValueMapPostingSource * clone() const;
-    std::string name() const;
-    std::string serialise() const;
-    ValueMapPostingSource * unserialise(const std::string &serialised) const;
-    void init(const Database & db_);
+    double get_weight() const override;
+    ValueMapPostingSource* clone() const override;
+    std::string name() const override;
+    std::string serialise() const override;
+    ValueMapPostingSource*
+	unserialise(const std::string& serialised) const override;
+    void init(const Database& db_) override;
 
-    std::string get_description() const;
+    std::string get_description() const override;
 };
 
 
@@ -724,27 +726,28 @@ class XAPIAN_VISIBILITY_DEFAULT FixedWeightPostingSource : public PostingSource 
      */
     explicit FixedWeightPostingSource(double wt);
 
-    Xapian::doccount get_termfreq_min() const;
-    Xapian::doccount get_termfreq_est() const;
-    Xapian::doccount get_termfreq_max() const;
+    Xapian::doccount get_termfreq_min() const override;
+    Xapian::doccount get_termfreq_est() const override;
+    Xapian::doccount get_termfreq_max() const override;
 
-    double get_weight() const;
+    double get_weight() const override;
 
-    void next(double min_wt);
-    void skip_to(Xapian::docid min_docid, double min_wt);
-    bool check(Xapian::docid min_docid, double min_wt);
+    void next(double min_wt) override;
+    void skip_to(Xapian::docid min_docid, double min_wt) override;
+    bool check(Xapian::docid min_docid, double min_wt) override;
 
-    bool at_end() const;
+    bool at_end() const override;
 
-    Xapian::docid get_docid() const;
+    Xapian::docid get_docid() const override;
 
-    FixedWeightPostingSource * clone() const;
-    std::string name() const;
-    std::string serialise() const;
-    FixedWeightPostingSource * unserialise(const std::string &serialised) const;
-    void init(const Database & db_);
+    FixedWeightPostingSource* clone() const override;
+    std::string name() const override;
+    std::string serialise() const override;
+    FixedWeightPostingSource*
+	unserialise(const std::string& serialised) const override;
+    void init(const Database& db_) override;
 
-    std::string get_description() const;
+    std::string get_description() const override;
 };
 
 }

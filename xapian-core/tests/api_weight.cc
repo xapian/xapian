@@ -1290,7 +1290,7 @@ class CheckInitWeight : public Xapian::Weight {
 	need_stat(DOC_LENGTH);
     }
 
-    void init(double factor_) {
+    void init(double factor_) override {
 	factor = factor_;
 	if (factor == 0.0)
 	    ++zero_inits;
@@ -1298,24 +1298,24 @@ class CheckInitWeight : public Xapian::Weight {
 	    ++non_zero_inits;
     }
 
-    Weight * clone() const {
+    Weight* clone() const override {
 	return new CheckInitWeight(zero_inits, non_zero_inits);
     }
 
     double get_sumpart(Xapian::termcount, Xapian::termcount,
-		       Xapian::termcount, Xapian::termcount) const {
+		       Xapian::termcount, Xapian::termcount) const override {
 	return 1.0;
     }
 
-    double get_maxpart() const { return 1.0; }
+    double get_maxpart() const override { return 1.0; }
 
     double get_sumextra(Xapian::termcount doclen,
 			Xapian::termcount,
-			Xapian::termcount) const {
+			Xapian::termcount) const override {
 	return 1.0 / doclen;
     }
 
-    double get_maxextra() const { return 1.0; }
+    double get_maxextra() const override { return 1.0; }
 };
 
 /// Regression test - check init() is called for the term-indep Weight obj.
@@ -1740,34 +1740,34 @@ class CheckStatsWeight5 : public Xapian::Weight {
 	need_stat(WDF_DOC_MAX);
     }
 
-    void init(double factor_) {
+    void init(double factor_) override {
 	factor = factor_;
     }
 
-    Weight* clone() const {
+    Weight* clone() const override {
 	return new CheckStatsWeight5(db, stat_code);
     }
 
     double get_sumpart(Xapian::termcount,
 		       Xapian::termcount,
 		       Xapian::termcount,
-		       Xapian::termcount wdfdocmax) const {
+		       Xapian::termcount wdfdocmax) const override {
 	// The query is a synonym of all terms, so should match all documents.
 	++did;
 	TEST_REL(wdfdocmax,==,db.get_doclength(did));
 	return 1.0 / wdfdocmax;
     }
 
-    double get_maxpart() const {
+    double get_maxpart() const override {
 	return 1.0;
     }
 
     double get_sumextra(Xapian::termcount, Xapian::termcount,
-			Xapian::termcount) const {
+			Xapian::termcount) const override {
 	return 0.0;
     }
 
-    double get_maxextra() const { return 0.0; }
+    double get_maxextra() const override { return 0.0; }
 };
 
 /// Check wdfdocmax is clamped to doclen even if wdf and doclen aren't wanted.

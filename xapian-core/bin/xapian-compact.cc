@@ -74,12 +74,12 @@ class MyCompactor : public Xapian::Compactor {
 
     void set_quiet(bool quiet_) { quiet = quiet_; }
 
-    void set_status(const string & table, const string & status);
+    void set_status(const string& table, const string& status) override;
 
     string
     resolve_duplicate_metadata(const string & key,
 			       size_t n,
-			       const string tags[]);
+			       const string tags[]) override;
 };
 
 void

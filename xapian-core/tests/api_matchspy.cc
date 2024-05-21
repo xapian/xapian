@@ -45,7 +45,7 @@ class SimpleMatchSpy : public Xapian::MatchSpy {
     // Vector which will be filled with all the document contents seen.
     std::vector<std::string> seen;
 
-    void operator()(const Xapian::Document &doc, double) {
+    void operator()(const Xapian::Document& doc, double) override {
 	// Note that this is not recommended usage of get_data() - you
 	// generally shouldn't call get_data() from inside a MatchSpy, because
 	// it is (likely to be) a slow operation resulting in considerable IO.
@@ -306,7 +306,7 @@ DEFINE_TESTCASE(matchspy5, backend)
 }
 
 class MySpy : public Xapian::MatchSpy {
-    void operator()(const Xapian::Document &, double) {
+    void operator()(const Xapian::Document&, double) override {
     }
 };
 

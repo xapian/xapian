@@ -55,21 +55,21 @@ term scores one point::
 	CoordinateWeight() { }
 	~CoordinateWeight() { }
 
-	std::string name() const { return "Coord"; }
-	std::string serialise() const { return ""; }
-	CoordinateWeight * unserialise(const std::string &) const {
+	std::string name() const override { return "Coord"; }
+	std::string serialise() const override { return ""; }
+	CoordinateWeight * unserialise(const std::string &) const override {
 	    return new CoordinateWeight;
 	}
 
-	double get_sumpart(Xapian::termcount, Xapian::termcount, Xapian::termcount) const {
+	double get_sumpart(Xapian::termcount, Xapian::termcount, Xapian::termcount) const override {
             return 1;
         }
-	double get_maxpart() const { return 1; }
+	double get_maxpart() const override { return 1; }
 
-	double get_sumextra(Xapian::termcount, Xapian::termcount) const { return 0; }
-	double get_maxextra() const { return 0; }
+	double get_sumextra(Xapian::termcount, Xapian::termcount) const override { return 0; }
+	double get_maxextra() const override { return 0; }
 
-	bool get_sumpart_needs_doclength() const { return false; }
+	bool get_sumpart_needs_doclength() const override { return false; }
     };
 
 .. FIXME: add a more complex example once user-defined weight classes can

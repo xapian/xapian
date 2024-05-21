@@ -38,40 +38,40 @@ class MyDontUsePostingSource : public Xapian::PostingSource {
   public:
     MyDontUsePostingSource() : Xapian::PostingSource() {}
     PostingSource* clone() const { return new MyDontUsePostingSource(); }
-    void init(const Xapian::Database&) { }
+    void init(const Xapian::Database&) override { }
 
-    double get_weight() const {
+    double get_weight() const override {
 	FAIL_TEST("MyDontUsePostingSource::get_weight() called");
     }
 
     // These bounds could be better, but that's not important here.
-    Xapian::doccount get_termfreq_min() const {
+    Xapian::doccount get_termfreq_min() const override {
 	FAIL_TEST("MyDontUsePostingSource::get_termfreq_min() called");
     }
-    Xapian::doccount get_termfreq_est() const {
+    Xapian::doccount get_termfreq_est() const override {
 	FAIL_TEST("MyDontUsePostingSource::get_termfreq_est() called");
     }
-    Xapian::doccount get_termfreq_max() const {
+    Xapian::doccount get_termfreq_max() const override {
 	FAIL_TEST("MyDontUsePostingSource::get_termfreq_max() called");
     }
 
-    void next(double) {
+    void next(double) override {
 	FAIL_TEST("MyDontUsePostingSource::next() called");
     }
 
-    void skip_to(Xapian::docid, double) {
+    void skip_to(Xapian::docid, double) override {
 	FAIL_TEST("MyDontUsePostingSource::skip_to() called");
     }
 
-    bool at_end() const {
+    bool at_end() const override {
 	FAIL_TEST("MyDontUsePostingSource::at_end() called");
     }
 
-    Xapian::docid get_docid() const {
+    Xapian::docid get_docid() const override {
 	FAIL_TEST("MyDontUsePostingSource::get_docid() called");
     }
 
-    string get_description() const {
+    string get_description() const override {
 	return "MyDontUsePostingSource";
     }
 };

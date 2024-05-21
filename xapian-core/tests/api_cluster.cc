@@ -72,9 +72,9 @@ class RoundRobin : public Xapian::Clusterer {
      *  @param mset    MSet object containing the documents that are to
      *                 be clustered
      */
-    Xapian::ClusterSet cluster(const Xapian::MSet &mset);
+    Xapian::ClusterSet cluster(const Xapian::MSet& mset) override;
 
-    std::string get_description() const {
+    std::string get_description() const override {
 	return "RoundRobin()";
     }
 };

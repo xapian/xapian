@@ -2263,7 +2263,8 @@ static const test test_value_customrange1_queries[] = {
 struct AuthorRangeProcessor : public Xapian::RangeProcessor {
     AuthorRangeProcessor() : Xapian::RangeProcessor(4, "author:") { }
 
-    Xapian::Query operator()(const std::string& b, const std::string& e)
+    Xapian::Query operator()(const std::string& b,
+			     const std::string& e) override
     {
 	string begin = Xapian::Unicode::tolower(b);
 	string end = Xapian::Unicode::tolower(e);
@@ -2299,7 +2300,7 @@ DEFINE_TESTCASE(qp_customrange1, !backend) {
 }
 
 class TitleFieldProcessor : public Xapian::FieldProcessor {
-    Xapian::Query operator()(const std::string & str) {
+    Xapian::Query operator()(const std::string& str) override {
 	if (str == "all")
 	    return Xapian::Query::MatchAll;
 	return Xapian::Query("S" + str);
@@ -2307,7 +2308,7 @@ class TitleFieldProcessor : public Xapian::FieldProcessor {
 };
 
 class HostFieldProcessor : public Xapian::FieldProcessor {
-    Xapian::Query operator()(const std::string & str) {
+    Xapian::Query operator()(const std::string& str) override {
 	if (str == "*")
 	    return Xapian::Query::MatchAll;
 	string res = "H";
@@ -2356,7 +2357,7 @@ DEFINE_TESTCASE(qp_fieldproc1, !backend) {
 }
 
 class DateRangeFieldProcessor : public Xapian::FieldProcessor {
-    Xapian::Query operator()(const std::string & str) {
+    Xapian::Query operator()(const std::string& str) override {
 	// In reality, these would be built from the current date, but for
 	// testing it is much simpler to fix the date.
 	if (str == "today")
