@@ -420,7 +420,7 @@ class CheckMatchDecider : public Xapian::MatchDecider {
   public:
     CheckMatchDecider() : called(false) { }
 
-    bool operator()(const Xapian::Document &) const {
+    bool operator()(const Xapian::Document &) const override {
 	called = true;
 	return true;
     }

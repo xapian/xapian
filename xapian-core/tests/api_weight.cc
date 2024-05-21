@@ -892,7 +892,7 @@ class CheckInitWeight : public Xapian::Weight {
     CheckInitWeight(unsigned &z, unsigned &n)
 	: factor(-1.0), zero_inits(z), non_zero_inits(n) { }
 
-    void init(double factor_) {
+    void init(double factor_) override {
 	factor = factor_;
 	if (factor == 0.0)
 	    ++zero_inits;
@@ -900,22 +900,23 @@ class CheckInitWeight : public Xapian::Weight {
 	    ++non_zero_inits;
     }
 
-    Weight * clone() const {
+    Weight* clone() const override {
 	return new CheckInitWeight(zero_inits, non_zero_inits);
     }
 
     double get_sumpart(Xapian::termcount, Xapian::termcount,
-		       Xapian::termcount) const {
+		       Xapian::termcount) const override {
 	return 1.0;
     }
 
-    double get_maxpart() const { return 1.0; }
+    double get_maxpart() const override { return 1.0; }
 
-    double get_sumextra(Xapian::termcount doclen, Xapian::termcount) const {
+    double get_sumextra(Xapian::termcount doclen,
+			Xapian::termcount) const override {
 	return 1.0 / doclen;
     }
 
-    double get_maxextra() const { return 1.0; }
+    double get_maxextra() const override { return 1.0; }
 };
 
 /// Regression test - check init() is called for the term-indep Weight obj.

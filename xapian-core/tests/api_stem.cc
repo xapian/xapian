@@ -31,13 +31,13 @@
 using namespace std;
 
 class MyStemImpl : public Xapian::StemImplementation {
-    string operator()(const string & word) {
+    string operator()(const string& word) override {
 	if (word == "vanish")
 	    return string();
 	return word.substr(0, 3);
     }
 
-    string get_description() const {
+    string get_description() const override {
 	return "MyStem()";
     }
 };

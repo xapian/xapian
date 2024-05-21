@@ -77,7 +77,7 @@ class OmegaExpandDecider : public Xapian::ExpandDecider {
   public:
     OmegaExpandDecider(const Xapian::Database & db_,
 		       set<string> * querytermset = NULL);
-    bool operator()(const string & term) const;
+    bool operator()(const string& term) const override;
 };
 
 std::string html_escape(const std::string &str);

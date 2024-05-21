@@ -79,19 +79,19 @@ class LazyWeight : public Xapian::Weight {
 	  factor(factor_)
     { }
 
-    std::string name() const;
+    std::string name() const override;
 
-    std::string serialise() const;
-    LazyWeight * unserialise(const std::string & serialised) const;
+    std::string serialise() const override;
+    LazyWeight* unserialise(const std::string& serialised) const override;
 
     double get_sumpart(Xapian::termcount wdf,
 		       Xapian::termcount doclen,
-		       Xapian::termcount uniqterms) const;
-    double get_maxpart() const;
+		       Xapian::termcount uniqterms) const override;
+    double get_maxpart() const override;
 
     double get_sumextra(Xapian::termcount doclen,
-			Xapian::termcount uniqterms) const;
-    double get_maxextra() const;
+			Xapian::termcount uniqterms) const override;
+    double get_maxextra() const override;
 };
 
 LazyWeight *

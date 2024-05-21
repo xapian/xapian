@@ -1,7 +1,7 @@
 /** @file
  * @brief tests of posting sources
  */
-/* Copyright 2008,2009,2011,2015,2016,2019 Olly Betts
+/* Copyright 2008,2009,2011,2015,2016,2019,2024 Olly Betts
  * Copyright 2008,2009 Lemur Consulting Ltd
  * Copyright 2010 Richard Boulton
  *
@@ -53,37 +53,39 @@ class MyOddPostingSource : public Xapian::PostingSource {
 	: num_docs(db.get_doccount()), last_docid(db.get_lastdocid()), did(0)
     { }
 
-    PostingSource * clone() const { return new MyOddPostingSource(num_docs, last_docid); }
+    PostingSource* clone() const override {
+	return new MyOddPostingSource(num_docs, last_docid);
+    }
 
-    void init(const Xapian::Database &) { did = 0; }
+    void init(const Xapian::Database&) override { did = 0; }
 
     // These bounds could be better, but that's not important here.
-    Xapian::doccount get_termfreq_min() const { return 0; }
+    Xapian::doccount get_termfreq_min() const override { return 0; }
 
-    Xapian::doccount get_termfreq_est() const { return num_docs / 2; }
+    Xapian::doccount get_termfreq_est() const override { return num_docs / 2; }
 
-    Xapian::doccount get_termfreq_max() const { return num_docs; }
+    Xapian::doccount get_termfreq_max() const override { return num_docs; }
 
-    void next(double wt) {
+    void next(double wt) override {
 	(void)wt;
 	++did;
 	if (did % 2 == 0) ++did;
     }
 
-    void skip_to(Xapian::docid to_did, double wt) {
+    void skip_to(Xapian::docid to_did, double wt) override {
 	(void)wt;
 	did = to_did;
 	if (did % 2 == 0) ++did;
     }
 
-    bool at_end() const {
+    bool at_end() const override {
 	// Doesn't work if last_docid is 2^32 - 1.
 	return did > last_docid;
     }
 
-    Xapian::docid get_docid() const { return did; }
+    Xapian::docid get_docid() const override { return did; }
 
-    string get_description() const { return "MyOddPostingSource"; }
+    string get_description() const override { return "MyOddPostingSource"; }
 };
 
 DEFINE_TESTCASE(externalsource1, backend && !remote && !multi) {
@@ -153,41 +155,41 @@ class MyOddWeightingPostingSource : public Xapian::PostingSource {
 	: num_docs(db.get_doccount()), last_docid(db.get_lastdocid()), did(0)
     { }
 
-    PostingSource * clone() const {
+    PostingSource* clone() const override {
 	return new MyOddWeightingPostingSource(num_docs, last_docid);
     }
 
-    void init(const Xapian::Database &) { did = 0; }
+    void init(const Xapian::Database&) override { did = 0; }
 
-    double get_weight() const {
+    double get_weight() const override {
 	return (did % 2) ? 1000 : 0.001;
     }
 
     // These bounds could be better, but that's not important here.
-    Xapian::doccount get_termfreq_min() const { return 0; }
+    Xapian::doccount get_termfreq_min() const override { return 0; }
 
-    Xapian::doccount get_termfreq_est() const { return num_docs / 2; }
+    Xapian::doccount get_termfreq_est() const override { return num_docs / 2; }
 
-    Xapian::doccount get_termfreq_max() const { return num_docs; }
+    Xapian::doccount get_termfreq_max() const override { return num_docs; }
 
-    void next(double wt) {
+    void next(double wt) override {
 	(void)wt;
 	++did;
     }
 
-    void skip_to(Xapian::docid to_did, double wt) {
+    void skip_to(Xapian::docid to_did, double wt) override {
 	(void)wt;
 	did = to_did;
     }
 
-    bool at_end() const {
+    bool at_end() const override {
 	// Doesn't work if last_docid is 2^32 - 1.
 	return did > last_docid;
     }
 
-    Xapian::docid get_docid() const { return did; }
+    Xapian::docid get_docid() const override { return did; }
 
-    string get_description() const {
+    string get_description() const override {
 	return "MyOddWeightingPostingSource";
     }
 };
@@ -252,43 +254,45 @@ class MyDontAskWeightPostingSource : public Xapian::PostingSource {
   public:
     MyDontAskWeightPostingSource() : Xapian::PostingSource() {}
 
-    PostingSource * clone() const { return new MyDontAskWeightPostingSource(num_docs, last_docid); }
+    PostingSource* clone() const override {
+	return new MyDontAskWeightPostingSource(num_docs, last_docid);
+    }
 
-    void init(const Xapian::Database &db) {
+    void init(const Xapian::Database& db) override {
 	num_docs = db.get_doccount();
 	last_docid = db.get_lastdocid();
 	did = 0;
     }
 
-    double get_weight() const {
+    double get_weight() const override {
 	FAIL_TEST("MyDontAskWeightPostingSource::get_weight() called");
     }
 
     // These bounds could be better, but that's not important here.
-    Xapian::doccount get_termfreq_min() const { return num_docs; }
+    Xapian::doccount get_termfreq_min() const override { return num_docs; }
 
-    Xapian::doccount get_termfreq_est() const { return num_docs; }
+    Xapian::doccount get_termfreq_est() const override { return num_docs; }
 
-    Xapian::doccount get_termfreq_max() const { return num_docs; }
+    Xapian::doccount get_termfreq_max() const override { return num_docs; }
 
-    void next(double wt) {
+    void next(double wt) override {
 	(void)wt;
 	++did;
     }
 
-    void skip_to(Xapian::docid to_did, double wt) {
+    void skip_to(Xapian::docid to_did, double wt) override {
 	(void)wt;
 	did = to_did;
     }
 
-    bool at_end() const {
+    bool at_end() const override {
 	// Doesn't work if last_docid is 2^32 - 1.
 	return did > last_docid;
     }
 
-    Xapian::docid get_docid() const { return did; }
+    Xapian::docid get_docid() const override { return did; }
 
-    string get_description() const {
+    string get_description() const override {
 	return "MyDontAskWeightPostingSource";
     }
 };
@@ -455,9 +459,9 @@ class ChangeMaxweightPostingSource : public Xapian::PostingSource {
     ChangeMaxweightPostingSource(Xapian::docid maxid_accessed_)
 	    : did(0), maxid_accessed(maxid_accessed_) { }
 
-    void init(const Xapian::Database &) { did = 0; }
+    void init(const Xapian::Database&) override { did = 0; }
 
-    double get_weight() const {
+    double get_weight() const override {
 	if (did > maxid_accessed) {
 	    FAIL_TEST("ChangeMaxweightPostingSource::get_weight() called "
 		      "for docid " + str(did) + ", max id accessed "
@@ -466,23 +470,25 @@ class ChangeMaxweightPostingSource : public Xapian::PostingSource {
 	return 5 - did;
     }
 
-    Xapian::doccount get_termfreq_min() const { return 4; }
-    Xapian::doccount get_termfreq_est() const { return 4; }
-    Xapian::doccount get_termfreq_max() const { return 4; }
+    Xapian::doccount get_termfreq_min() const override { return 4; }
+    Xapian::doccount get_termfreq_est() const override { return 4; }
+    Xapian::doccount get_termfreq_max() const override { return 4; }
 
-    void next(double) {
+    void next(double) override {
 	++did;
 	set_maxweight(5 - did);
     }
 
-    void skip_to(Xapian::docid to_did, double) {
+    void skip_to(Xapian::docid to_did, double) override {
 	did = to_did;
 	set_maxweight(5 - did);
     }
 
-    bool at_end() const { return did >= 5; }
-    Xapian::docid get_docid() const { return did; }
-    string get_description() const { return "ChangeMaxweightPostingSource"; }
+    bool at_end() const override { return did >= 5; }
+    Xapian::docid get_docid() const override { return did; }
+    string get_description() const override {
+	return "ChangeMaxweightPostingSource";
+    }
 };
 
 // Test a posting source with a variable maxweight.
@@ -593,12 +599,11 @@ class SlowDecreasingValueWeightPostingSource
     SlowDecreasingValueWeightPostingSource(int & count_)
 	: Xapian::DecreasingValueWeightPostingSource(0), count(count_) { }
 
-    SlowDecreasingValueWeightPostingSource * clone() const
-    {
+    SlowDecreasingValueWeightPostingSource* clone() const override {
 	return new SlowDecreasingValueWeightPostingSource(count);
     }
 
-    void next(double min_wt) {
+    void next(double min_wt) override {
 	sleep(1);
 	++count;
 	return Xapian::DecreasingValueWeightPostingSource::next(min_wt);
@@ -651,12 +656,11 @@ class CheckBoundsPostingSource
 	  doclen_lb(doclen_lb_),
 	  doclen_ub(doclen_ub_) { }
 
-    CheckBoundsPostingSource * clone() const
-    {
+    CheckBoundsPostingSource* clone() const override {
 	return new CheckBoundsPostingSource(doclen_lb, doclen_ub);
     }
 
-    void init(const Xapian::Database& database) {
+    void init(const Xapian::Database& database) override {
 	doclen_lb = database.get_doclength_lower_bound();
 	doclen_ub = database.get_doclength_upper_bound();
 	Xapian::DecreasingValueWeightPostingSource::init(database);
@@ -691,30 +695,30 @@ class CloneTestPostingSource : public Xapian::PostingSource {
 	: clone_count(clone_count_)
     { }
 
-    PostingSource * clone() const {
+    PostingSource* clone() const override {
 	++clone_count;
 	return new CloneTestPostingSource(clone_count);
     }
 
-    void init(const Xapian::Database&) { }
+    void init(const Xapian::Database&) override { }
 
-    Xapian::doccount get_termfreq_min() const { return 0; }
+    Xapian::doccount get_termfreq_min() const override { return 0; }
 
-    Xapian::doccount get_termfreq_est() const { return 1; }
+    Xapian::doccount get_termfreq_est() const override { return 1; }
 
-    Xapian::doccount get_termfreq_max() const { return 2; }
+    Xapian::doccount get_termfreq_max() const override { return 2; }
 
-    void next(double) { }
+    void next(double) override { }
 
-    void skip_to(Xapian::docid, double) { }
+    void skip_to(Xapian::docid, double) override { }
 
-    bool at_end() const {
+    bool at_end() const override {
 	return true;
     }
 
-    Xapian::docid get_docid() const { return 0; }
+    Xapian::docid get_docid() const override { return 0; }
 
-    string get_description() const { return "CloneTestPostingSource"; }
+    string get_description() const override { return "CloneTestPostingSource"; }
 };
 
 /// Test cloning of initial object, which regressed in 1.3.5.
@@ -753,11 +757,11 @@ class OnlyTheFirstPostingSource : public Xapian::PostingSource {
     explicit
     OnlyTheFirstPostingSource(bool allow_clone_) : allow_clone(allow_clone_) {}
 
-    PostingSource* clone() const {
+    PostingSource* clone() const override {
 	return allow_clone ? new OnlyTheFirstPostingSource(true) : nullptr;
     }
 
-    void init(const Xapian::Database& db) {
+    void init(const Xapian::Database& db) override {
 	did = 0;
 	if (shard_index == 0) {
 	    last_docid = db.get_lastdocid();
@@ -767,31 +771,35 @@ class OnlyTheFirstPostingSource : public Xapian::PostingSource {
 	++shard_index;
     }
 
-    Xapian::doccount get_termfreq_min() const { return 0; }
+    Xapian::doccount get_termfreq_min() const override { return 0; }
 
-    Xapian::doccount get_termfreq_est() const { return last_docid / 2; }
+    Xapian::doccount get_termfreq_est() const override {
+	return last_docid / 2;
+    }
 
-    Xapian::doccount get_termfreq_max() const { return last_docid; }
+    Xapian::doccount get_termfreq_max() const override { return last_docid; }
 
-    void next(double wt) {
+    void next(double wt) override {
 	(void)wt;
 	++did;
 	if (did > last_docid) did = 0;
     }
 
-    void skip_to(Xapian::docid to_did, double wt) {
+    void skip_to(Xapian::docid to_did, double wt) override {
 	(void)wt;
 	did = to_did;
 	if (did > last_docid) did = 0;
     }
 
-    bool at_end() const {
+    bool at_end() const override {
 	return did == 0;
     }
 
-    Xapian::docid get_docid() const { return did; }
+    Xapian::docid get_docid() const override { return did; }
 
-    string get_description() const { return "OnlyTheFirstPostingSource"; }
+    string get_description() const override {
+	return "OnlyTheFirstPostingSource";
+    }
 };
 
 Xapian::doccount OnlyTheFirstPostingSource::shard_index;
@@ -834,33 +842,35 @@ class EstimatePS : public Xapian::PostingSource {
 	: lb(lb_), est(est_), ub(ub_)
     { }
 
-    PostingSource * clone() const { return new EstimatePS(lb, est, ub); }
+    PostingSource* clone() const override {
+	return new EstimatePS(lb, est, ub);
+    }
 
-    void init(const Xapian::Database &) { }
+    void init(const Xapian::Database&) override { }
 
-    Xapian::doccount get_termfreq_min() const { return lb; }
+    Xapian::doccount get_termfreq_min() const override { return lb; }
 
-    Xapian::doccount get_termfreq_est() const { return est; }
+    Xapian::doccount get_termfreq_est() const override { return est; }
 
-    Xapian::doccount get_termfreq_max() const { return ub; }
+    Xapian::doccount get_termfreq_max() const override { return ub; }
 
-    void next(double) {
+    void next(double) override {
 	FAIL_TEST("EstimatePS::next() shouldn't be called");
     }
 
-    void skip_to(Xapian::docid, double) {
+    void skip_to(Xapian::docid, double) override {
 	FAIL_TEST("EstimatePS::skip_to() shouldn't be called");
     }
 
-    bool at_end() const {
+    bool at_end() const override {
 	return false;
     }
 
-    Xapian::docid get_docid() const {
+    Xapian::docid get_docid() const override {
 	FAIL_TEST("EstimatePS::get_docid() shouldn't be called");
     }
 
-    string get_description() const { return "EstimatePS"; }
+    string get_description() const override { return "EstimatePS"; }
 };
 
 /// Check estimate is rounded to suitable number of S.F. - new in 1.4.3.

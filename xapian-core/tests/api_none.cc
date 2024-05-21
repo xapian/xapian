@@ -271,8 +271,7 @@ class TestRangeProcessor : public Xapian::RangeProcessor {
     TestRangeProcessor(bool & destroyed_)
 	: Xapian::RangeProcessor(0), destroyed(destroyed_) { }
 
-    Xapian::Query operator()(const std::string&, const std::string&)
-    {
+    Xapian::Query operator()(const std::string&, const std::string&) override {
 	return Xapian::Query::MatchAll;
     }
 };
@@ -353,7 +352,7 @@ class TestFieldProcessor : public Xapian::FieldProcessor {
   public:
     TestFieldProcessor(bool & destroyed_) : destroyed(destroyed_) { }
 
-    Xapian::Query operator()(const string &str) {
+    Xapian::Query operator()(const string& str) override {
 	return Xapian::Query(str);
     }
 };
@@ -417,7 +416,7 @@ class TestMatchSpy : public Xapian::MatchSpy {
   public:
     TestMatchSpy(bool & destroyed_) : destroyed(destroyed_) { }
 
-    void operator()(const Xapian::Document &, double) { }
+    void operator()(const Xapian::Document&, double) override { }
 };
 
 /// Check reference counting of MatchSpy.
@@ -481,7 +480,7 @@ class TestStopper : public Xapian::Stopper {
   public:
     TestStopper(bool & destroyed_) : destroyed(destroyed_) { }
 
-    bool operator()(const std::string&) const { return true; }
+    bool operator()(const std::string&) const override { return true; }
 };
 
 /// Check reference counting of Stopper with QueryParser.
@@ -630,7 +629,9 @@ class TestKeyMaker : public Xapian::KeyMaker {
   public:
     TestKeyMaker(bool & destroyed_) : destroyed(destroyed_) { }
 
-    string operator()(const Xapian::Document&) const { return string(); }
+    string operator()(const Xapian::Document&) const override {
+	return string();
+    }
 };
 
 /// Check reference counting of KeyMaker.
@@ -711,7 +712,7 @@ class TestExpandDecider : public Xapian::ExpandDecider {
   public:
     TestExpandDecider(bool & destroyed_) : destroyed(destroyed_) { }
 
-    bool operator()(const string&) const { return true; }
+    bool operator()(const string&) const override { return true; }
 };
 
 /// Check reference counting of ExpandDecider.

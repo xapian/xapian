@@ -251,8 +251,7 @@ DEFINE_TESTCASE(sortfunctor3, backend && !remote && valuestats) {
 
 class NeverUseMeKeyMaker : public Xapian::KeyMaker {
   public:
-    std::string operator() (const Xapian::Document &) const
-    {
+    std::string operator() (const Xapian::Document&) const override {
 	FAIL_TEST("NeverUseMeKeyMaker was called");
     }
 };

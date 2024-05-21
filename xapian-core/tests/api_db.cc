@@ -500,7 +500,7 @@ class GrepMatchDecider : public Xapian::MatchDecider {
     explicit GrepMatchDecider(const string& needle_)
 	: needle(needle_) {}
 
-    bool operator()(const Xapian::Document &doc) const {
+    bool operator()(const Xapian::Document& doc) const override {
 	// Note that this is not recommended usage of get_data()
 	return doc.get_data().find(needle) != string::npos;
     }
@@ -1903,21 +1903,28 @@ class MyWeight : public Xapian::Weight {
     MyWeight * clone() const {
 	return new MyWeight;
     }
-    void init(double factor) {
+    void init(double factor) override {
 	scale_factor = factor;
     }
     MyWeight() { }
     ~MyWeight() { }
-    std::string name() const { return "MyWeight"; }
-    string serialise() const { return string(); }
-    MyWeight * unserialise(const string &) const { return new MyWeight; }
-    double get_sumpart(Xapian::termcount, Xapian::termcount, Xapian::termcount) const {
+    std::string name() const override { return "MyWeight"; }
+    string serialise() const override { return string(); }
+    MyWeight* unserialise(const string&) const override {
+	return new MyWeight;
+    }
+    double get_sumpart(Xapian::termcount,
+		       Xapian::termcount,
+		       Xapian::termcount) const override {
 	return scale_factor;
     }
-    double get_maxpart() const { return scale_factor; }
+    double get_maxpart() const override { return scale_factor; }
 
-    double get_sumextra(Xapian::termcount, Xapian::termcount) const { return 0; }
-    double get_maxextra() const { return 0; }
+    double get_sumextra(Xapian::termcount,
+			Xapian::termcount) const override {
+	return 0;
+    }
+    double get_maxextra() const override { return 0; }
 };
 
 // tests user weighting scheme.

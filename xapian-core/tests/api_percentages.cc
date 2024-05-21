@@ -81,8 +81,7 @@ class MyPostingSource : public Xapian::PostingSource {
   public:
     MyPostingSource() : started(false) { }
 
-    PostingSource * clone() const
-    {
+    PostingSource* clone() const override {
 	return new MyPostingSource(weights, get_maxweight());
     }
 
@@ -91,15 +90,21 @@ class MyPostingSource : public Xapian::PostingSource {
 	if (wt > get_maxweight()) set_maxweight(wt);
     }
 
-    void init(const Xapian::Database &) { started = false; }
+    void init(const Xapian::Database&) override { started = false; }
 
-    double get_weight() const { return i->second; }
+    double get_weight() const override { return i->second; }
 
-    Xapian::doccount get_termfreq_min() const { return weights.size(); }
-    Xapian::doccount get_termfreq_est() const { return weights.size(); }
-    Xapian::doccount get_termfreq_max() const { return weights.size(); }
+    Xapian::doccount get_termfreq_min() const override {
+	return weights.size();
+    }
+    Xapian::doccount get_termfreq_est() const override {
+	return weights.size();
+    }
+    Xapian::doccount get_termfreq_max() const override {
+	return weights.size();
+    }
 
-    void next(double /*wt*/) {
+    void next(double /*wt*/) override {
 	if (!started) {
 	    i = weights.begin();
 	    started = true;
@@ -108,13 +113,13 @@ class MyPostingSource : public Xapian::PostingSource {
 	}
     }
 
-    bool at_end() const {
+    bool at_end() const override {
 	return (i == weights.end());
     }
 
-    Xapian::docid get_docid() const { return i->first; }
+    Xapian::docid get_docid() const override { return i->first; }
 
-    string get_description() const {
+    string get_description() const override {
 	return "MyPostingSource";
     }
 };
