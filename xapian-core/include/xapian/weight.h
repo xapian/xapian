@@ -65,7 +65,6 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
 	/// Number of unique terms in the current document.
 	UNIQUE_TERMS = 8192,
 	/** Sum of lengths of all documents in the collection.
-	 *
 	 *  This gives the total number of term occurrences.
 	 */
 	TOTAL_LENGTH = COLLECTION_SIZE | AVERAGE_LENGTH
