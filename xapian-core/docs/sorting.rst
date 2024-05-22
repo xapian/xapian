@@ -46,34 +46,9 @@ You can also implement your own weighting scheme, provided it can be expressed
 in the form of a sum over the matching terms, plus an extra term which depends
 on term-independent statistics (such as the normalised document length).
 
-For example, here's an implementation of "coordinate matching" - each matching
-term scores one point::
-
-    class CoordinateWeight : public Xapian::Weight {
-      public:
-	CoordinateWeight * clone() const { return new CoordinateWeight; }
-	CoordinateWeight() { }
-	~CoordinateWeight() { }
-
-	std::string name() const override { return "Coord"; }
-	std::string serialise() const override { return ""; }
-	CoordinateWeight * unserialise(const std::string &) const override {
-	    return new CoordinateWeight;
-	}
-
-	double get_sumpart(Xapian::termcount, Xapian::termcount, Xapian::termcount) const override {
-            return 1;
-        }
-	double get_maxpart() const override { return 1; }
-
-	double get_sumextra(Xapian::termcount, Xapian::termcount) const override { return 0; }
-	double get_maxextra() const override { return 0; }
-
-	bool get_sumpart_needs_doclength() const override { return false; }
-    };
-
-.. FIXME: add a more complex example once user-defined weight classes can
-   see the statistics.
+For details and examples, see the `"Custom Weighting Schemes"
+<https://getting-started-with-xapian.readthedocs.io/en/latest/advanced/custom_weighting.html>`_
+section in "Getting Started with Xapian".
 
 Sorting by Other Properties
 ===========================
