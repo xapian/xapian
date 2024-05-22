@@ -174,7 +174,6 @@ read_stub_file(std::string_view file,
 			action_remote_tcp(line, port);
 			continue;
 		    }
-		    line.back() = ']';
 		}
 	    }
 #else
