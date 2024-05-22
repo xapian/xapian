@@ -147,13 +147,13 @@ read_stub_file(std::string_view file,
 		// Is it a security risk?
 		space = line.find(' ');
 		std::string args;
-		if (space != std::string::npos) {
-		    args.assign(line, space + 1, std::string::npos);
-		    line.assign(line, 1, space - 1);
-		} else {
-		    line.erase(0, 1);
+		if (space == std::string::npos) {
+		    action_remote_prog(std::string_view(line).substr(1),
+				       std::string_view());
+		    continue;
 		}
-		action_remote_prog(line, args);
+		action_remote_prog(std::string_view(&line[1], space - 1),
+				   std::string_view(line).substr(space + 1));
 		continue;
 	    }
 	    std::string::size_type colon = line.rfind(':');
@@ -166,12 +166,12 @@ read_stub_file(std::string_view file,
 		if (!(line[0] == '[' && line.back() == ']')) {
 		    unsigned int port;
 		    if (parse_unsigned(line.c_str() + colon + 1, port)) {
-			line.erase(colon);
-			if (line[0] == '[' && line.back() == ']') {
-			    line.erase(line.size() - 1, 1);
-			    line.erase(0, 1);
+			std::string_view host{line};
+			host = host.substr(0, colon);
+			if (host[0] == '[' && host.back() == ']') {
+			    host = host.substr(1, host.size() - 2);
 			}
-			action_remote_tcp(line, port);
+			action_remote_tcp(host, port);
 			continue;
 		    }
 		}

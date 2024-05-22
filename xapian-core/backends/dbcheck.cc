@@ -421,22 +421,22 @@ check_stub(const string& stub_path, int opts, std::ostream* out)
 {
     size_t errors = 0;
     read_stub_file(stub_path,
-		   [&errors, opts, out](const string& path) {
+		   [&errors, opts, out](string_view path) {
 		       errors += Database::check(path, opts, out);
 		   },
-		   [&errors, opts, out](const string& path) {
+		   [&errors, opts, out](string_view path) {
 		       // FIXME: Doesn't check the database type is glass.
 		       errors += Database::check(path, opts, out);
 		   },
-		   [&errors, opts, out](const string& path) {
+		   [&errors, opts, out](string_view path) {
 		       // FIXME: Doesn't check the database type is honey.
 		       errors += Database::check(path, opts, out);
 		   },
-		   [](const string&, const string&) {
+		   [](string_view, string_view) {
 		       auto msg = "Remote database checking not implemented";
 		       throw Xapian::UnimplementedError(msg);
 		   },
-		   [](const string&, unsigned) {
+		   [](string_view, unsigned) {
 		       auto msg = "Remote database checking not implemented";
 		       throw Xapian::UnimplementedError(msg);
 		   },
