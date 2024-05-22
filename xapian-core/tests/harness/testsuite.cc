@@ -470,7 +470,7 @@ test_driver::runtest(const test_desc *test)
 			// real...
 			if (runcount == 0) {
 			    out << col_yellow << " PROBABLY LEAKED MEMORY - RETRYING TEST" << col_reset;
-			    ++runcount;
+			    runcount += 1;
 			    // Ensure that any cached memory from fd tracking
 			    // is allocated before we rerun the test.
 			    (void)fdtracker.check();
@@ -494,7 +494,7 @@ test_driver::runtest(const test_desc *test)
 			// false positives.
 			if (runcount == 0) {
 			    out << col_yellow << " POSSIBLE UNRELEASED MEMORY - RETRYING TEST" << col_reset;
-			    ++runcount;
+			    runcount += 1;
 			    // Ensure that any cached memory from fd tracking
 			    // is allocated before we rerun the test.
 			    (void)fdtracker.check();
@@ -508,7 +508,7 @@ test_driver::runtest(const test_desc *test)
 		if (!fdtracker.check()) {
 		    if (runcount == 0) {
 			out << col_yellow << " POSSIBLE FDLEAK:" << fdtracker.get_message() << col_reset;
-			++runcount;
+			runcount += 1;
 			continue;
 		    }
 		    out << col_red << " FDLEAK:" << fdtracker.get_message() << col_reset;
