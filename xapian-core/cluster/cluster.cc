@@ -231,22 +231,14 @@ bool
 PointType::contains(string_view term) const
 {
     LOGCALL(API, bool, "PointType::contains", term);
-#ifdef __cpp_lib_generic_unordered_lookup // C++20
-    return weights.find(term) != weights.end();
-#else
     return weights.find(string(term)) != weights.end();
-#endif
 }
 
 double
 PointType::get_weight(string_view term) const
 {
     LOGCALL(API, double, "PointType::get_weight", term);
-#ifdef __cpp_lib_generic_unordered_lookup // C++20
-    auto it = weights.find(term);
-#else
     auto it = weights.find(string(term));
-#endif
     return (it == weights.end()) ? 0.0 : it->second;
 }
 
@@ -260,22 +252,14 @@ void
 PointType::add_weight(string_view term, double weight)
 {
     LOGCALL_VOID(API, "PointType::add_weight", term | weight);
-#ifdef __cpp_lib_generic_unordered_lookup // C++20
-    weights[term] += weight;
-#else
     weights[string(term)] += weight;
-#endif
 }
 
 void
 PointType::set_weight(string_view term, double weight)
 {
     LOGCALL_VOID(API, "PointType::set_weight", term | weight);
-#ifdef __cpp_lib_associative_heterogeneous_insertion // C++26
-    weights.insert_or_assign(term, weight);
-#else
     weights.insert_or_assign(string(term), weight);
-#endif
 }
 
 termcount
