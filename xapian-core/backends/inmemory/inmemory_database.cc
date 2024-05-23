@@ -48,32 +48,63 @@ using namespace std;
 using Xapian::Internal::intrusive_ptr;
 
 inline void
-InMemoryTerm::add_posting(InMemoryPosting&& post)
+InMemoryTerm::add_posting(Xapian::docid did,
+			  Xapian::termcount wdf,
+			  Xapian::termpos position,
+			  bool use_position)
 {
-    // Add document to right place in list
+    InMemoryPosting posting;
+    posting.did = did;
+
+    // Find the right place in the sorted list.
     vector<InMemoryPosting>::iterator p;
     p = lower_bound(docs.begin(), docs.end(),
-		    post, InMemoryPostingLessThan());
-    if (p == docs.end() || InMemoryPostingLessThan()(post, *p)) {
-	docs.insert(p, std::move(post));
+		    posting, InMemoryPostingLessThan());
+    if (p == docs.end() || InMemoryPostingLessThan()(posting, *p)) {
+	// Adding new entry.
+	if (use_position) {
+	    posting.positions.push_back(position);
+	}
+	posting.wdf = wdf;
+	posting.valid = true;
+	docs.insert(p, std::move(posting));
     } else if (!p->valid) {
-	*p = std::move(post);
-    } else {
-	(*p).merge(post);
+	// Resurrecting deleted entry.
+	p->did = did;
+	p->positions.clear();
+	if (use_position) {
+	    p->positions.push_back(position);
+	}
+	p->wdf = wdf;
+	p->valid = true;
+    } else if (use_position) {
+	// Adding position to existing entry.
+	p->add_position(position);
     }
 }
 
 inline void
-InMemoryDoc::add_posting(InMemoryTermEntry&& post)
+InMemoryDoc::add_posting(const string& tname,
+			 Xapian::termcount wdf,
+			 Xapian::termpos position,
+			 bool use_position)
 {
-    // Add document to right place in list
+    InMemoryTermEntry termentry;
+    termentry.tname = tname;
+
+    // Find the right place in the sorted list.
     vector<InMemoryTermEntry>::iterator p;
     p = lower_bound(terms.begin(), terms.end(),
-		    post, InMemoryTermEntryLessThan());
-    if (p == terms.end() || InMemoryTermEntryLessThan()(post, *p)) {
-	terms.insert(p, std::move(post));
-    } else {
-	(*p).merge(post);
+		    termentry, InMemoryTermEntryLessThan());
+    if (p == terms.end() || InMemoryTermEntryLessThan()(termentry, *p)) {
+	// Adding new entry.
+	if (use_position) {
+	    termentry.positions.push_back(position);
+	}
+	termentry.wdf = wdf;
+	terms.insert(p, std::move(termentry));
+    } else if (use_position) {
+	p->add_position(position);
     }
 }
 
@@ -943,28 +974,8 @@ void InMemoryDatabase::make_posting(InMemoryDoc * doc,
     Assert(did > 0 && did <= doclengths.size());
     Assert(doc_exists(did));
 
-    // Make the posting
-    InMemoryPosting posting;
-    posting.did = did;
-    if (use_position) {
-	posting.positions.push_back(position);
-    }
-    posting.wdf = wdf;
-    posting.valid = true;
-
-    // Now record the posting
-    postlists[tname].add_posting(std::move(posting));
-
-    // Make the termentry
-    InMemoryTermEntry termentry;
-    termentry.tname = tname;
-    if (use_position) {
-	termentry.positions.push_back(position);
-    }
-    termentry.wdf = wdf;
-
-    // Now record the termentry
-    doc->add_posting(std::move(termentry));
+    postlists[tname].add_posting(did, wdf, position, use_position);
+    doc->add_posting(tname, wdf, position, use_position);
 }
 
 bool

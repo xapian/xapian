@@ -49,17 +49,11 @@ class InMemoryPosting {
     Xapian::VecCOW<Xapian::termpos> positions; // Sorted vector of positions
     Xapian::termcount wdf;
 
-    // Merge two postings (same term/doc pair, new positional info)
-    void merge(const InMemoryPosting & post) {
-	Assert(did == post.did);
-
-	positions.reserve(positions.size() + post.positions.size());
-	for (auto&& pos : post.positions) {
-	    positions.push_back(pos);
-	}
-	std::inplace_merge(positions.begin(),
-			   positions.begin() + post.positions.size(),
-			   positions.end());
+    // Add new position entry preserving sorted order.
+    void add_position(Xapian::termpos pos) {
+	auto p = std::lower_bound(positions.begin(), positions.end(), pos);
+	Assert(p == positions.end() || *p != pos);
+	positions.insert(p, pos);
     }
 };
 
@@ -69,17 +63,11 @@ class InMemoryTermEntry {
     Xapian::VecCOW<Xapian::termpos> positions; // Sorted vector of positions
     Xapian::termcount wdf;
 
-    // Merge two postings (same term/doc pair, new positional info)
-    void merge(const InMemoryTermEntry & post) {
-	Assert(tname == post.tname);
-
-	positions.reserve(positions.size() + post.positions.size());
-	for (auto&& pos : post.positions) {
-	    positions.push_back(pos);
-	}
-	std::inplace_merge(positions.begin(),
-			   positions.begin() + post.positions.size(),
-			   positions.end());
+    // Add new position entry preserving sorted order.
+    void add_position(Xapian::termpos pos) {
+	auto p = std::lower_bound(positions.begin(), positions.end(), pos);
+	Assert(p == positions.end() || *p != pos);
+	positions.insert(p, pos);
     }
 };
 
@@ -114,7 +102,10 @@ class InMemoryTerm {
 
     InMemoryTerm() : term_freq(0), collection_freq(0) {}
 
-    void add_posting(InMemoryPosting&& post);
+    void add_posting(Xapian::docid did,
+		     Xapian::termcount wdf,
+		     Xapian::termpos position,
+		     bool use_position);
 };
 
 /// Class representing a document and the terms indexing it.
@@ -131,7 +122,10 @@ class InMemoryDoc {
     // Initialise specifying validity.
     explicit InMemoryDoc(bool is_valid_) : is_valid(is_valid_) {}
 
-    void add_posting(InMemoryTermEntry&& post);
+    void add_posting(const std::string& tname,
+		     Xapian::termcount wdf,
+		     Xapian::termpos position,
+		     bool use_position);
 };
 
 class InMemoryDatabase;
