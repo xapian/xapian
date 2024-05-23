@@ -1,7 +1,7 @@
 /** @file
  * @brief Custom vector implementations using small vector optimisation
  */
-/* Copyright (C) 2012,2013,2014,2017,2018,2019,2023 Olly Betts
+/* Copyright (C) 2012,2013,2014,2017,2018,2019,2023,2024 Olly Betts
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -219,12 +219,50 @@ class Vec {
     }
 
     void insert(const_iterator pos, const T& elt) {
-	push_back(T());
-	T* p = const_cast<T*>(end());
-	while (--p != pos) {
-	    *p = p[-1];
+	// Optimised to reduce copying when we need to reallocate.
+	T* blk = nullptr;
+	auto cap = capacity();
+	auto n = size();
+	if (n == cap || (COW && is_external() && u.p.b[-1] > 0)) {
+	    if (n == cap) {
+		cap *= 2;
+		// Logic error or size_t wrapping.
+		if (rare(COW ? cap < c : cap <= c))
+		    throw std::bad_alloc();
+	    }
+	    blk = new T[cap + COW];
+	    if (COW)
+		*blk++ = 0;
 	}
-	*(const_cast<T*>(pos)) = elt;
+
+	auto b = cbegin();
+	auto e = cend();
+	T* db;
+	if (blk) {
+	    // Copy elements before the insertion point to the new block.
+	    std::copy(b, pos, blk);
+	    db = blk;
+	} else {
+	    db = (is_external() ? u.p.b : u.v);
+	}
+	// Copy elements after the insertion point.
+	std::copy_backward(pos, e, db + n + 1);
+
+	// Insert the new element.
+	db[pos - b] = elt;
+
+	if (blk) {
+	    if (is_external()) {
+		do_free();
+	    }
+	    u.p.b = blk;
+	    u.p.e = blk + n + 1;
+	    c = cap;
+	} else if (is_external()) {
+	    ++u.p.e;
+	} else {
+	    ++c;
+	}
     }
 
     const T& operator[](size_type idx) const {
