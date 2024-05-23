@@ -1,7 +1,7 @@
 /** @file
  * @brief Handle encoding and decoding prefix-compressed lists of strings
  */
-/* Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2018 Olly Betts
+/* Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2018,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -51,6 +51,9 @@ class PrefixCompressedStringItor {
 
     PrefixCompressedStringItor(PrefixCompressedStringItor& o)
 	: p(o.p), left(o.left), current(o.current), tail(o.tail) {}
+
+    PrefixCompressedStringItor(PrefixCompressedStringItor&& o)
+	: p(o.p), left(o.left), current(std::move(o.current)), tail(o.tail) {}
 
   public:
     /** Construct for glass.
