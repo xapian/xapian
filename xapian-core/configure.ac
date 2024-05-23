@@ -237,12 +237,12 @@ if test no = "$xo_cv_cxx_works" ; then
 fi
 
 dnl Probe for C++ standards version selection options.  We need at least C++17
-dnl support, but enable support for a standards version if the compiler
+dnl support, but enable support for a newer standards version if the compiler
 dnl supports it since then we can conditionally make use of newer features.
 AX_CXX_COMPILE_STDCXX([23], [], [optional])
-if test HAVE_CXX23 = 0 ; then
+if test "$HAVE_CXX23" = 0 ; then
   AX_CXX_COMPILE_STDCXX([20], [], [optional])
-  if test HAVE_CXX20 = 0 ; then
+  if test "$HAVE_CXX20" = 0 ; then
     AX_CXX_COMPILE_STDCXX([17])
   fi
 fi
