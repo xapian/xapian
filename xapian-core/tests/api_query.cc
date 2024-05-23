@@ -1,7 +1,7 @@
 /** @file
  * @brief Query-related tests.
  */
-/* Copyright (C) 2008-2022 Olly Betts
+/* Copyright (C) 2008-2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -832,9 +832,12 @@ DEFINE_TESTCASE(editdist1, backend) {
     }
 }
 
+// u8"foo" is const char8_t[] in C++20 and later.
+#define UTF8(X) reinterpret_cast<const char*>(u8"" X "")
+
 static const
 editdist_testcase editdist2_testcases[] = {
-    { u8"\U00010000",	1, 8, 'E', { u8"a\U00010000", 0, 0, 0 } },
+    { UTF8("\U00010000"),	1, 8, 'E', { UTF8("a\U00010000"), 0, 0, 0 } },
 };
 
 /// Test Unicode edit distance calculations.
@@ -844,7 +847,7 @@ DEFINE_TESTCASE(editdist2, backend) {
 					  const string&)
 				       {
 					   Xapian::Document doc;
-					   doc.add_term(u8"a\U00010000");
+					   doc.add_term(UTF8("a\U00010000"));
 					   wdb.add_document(doc);
 				       });
     Xapian::Enquire enq(db);
