@@ -1,7 +1,7 @@
 /** @file
  * @brief Handle encoding and decoding prefix-compressed lists of strings
  */
-/* Copyright (C) 2004,2005,2006,2007,2008,2009,2010 Olly Betts
+/* Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -41,6 +41,9 @@ class PrefixCompressedStringItor {
     PrefixCompressedStringItor(const unsigned char * p_, size_t left_,
 			       const std::string &current_)
 	: p(p_), left(left_), current(current_) { }
+
+    PrefixCompressedStringItor(PrefixCompressedStringItor&& o)
+	: p(o.p), left(o.left), current(std::move(o.current)) {}
 
   public:
     explicit PrefixCompressedStringItor(const std::string & s)
