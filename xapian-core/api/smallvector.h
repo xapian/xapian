@@ -108,7 +108,7 @@ class Vec {
 	std::swap(c, o.c);
     }
 
-    explicit Vec(size_type n) : c(0) {
+    explicit Vec(size_type n) {
 	reserve(n);
     }
 
