@@ -52,6 +52,7 @@ template<typename T,
 	     (std::is_trivially_copyable_v<T> &&
 	      (!COW || std::is_integral_v<T>))>>
 class Vec {
+    // This gives capacity() if c > INTERNAL_CAPACITY, or size() otherwise.
     std::size_t c = 0;
 
     static constexpr std::size_t INTERNAL_CAPACITY = 2 * sizeof(T*) / sizeof(T);
