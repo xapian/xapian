@@ -99,7 +99,7 @@ class Vec {
     }
 
     Vec(Vec&& o) noexcept : Vec() {
-	std::memcpy(&u, &o.u, sizeof(u));
+	u = o.u;
 	std::swap(c, o.c);
     }
 
