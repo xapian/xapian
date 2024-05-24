@@ -918,6 +918,8 @@ DEFINE_TESTCASE(removepostings, !backend) {
     auto num_pos = t.positionlist_count();
     TEST_EQUAL(t.get_wdf(), num_pos);
 
+    Xapian::PositionIterator pi = t.positionlist_begin();
+
     // Out of order is a no-op.
     TEST_EQUAL(doc.remove_postings("foo", 2, 1), 0);
     t = doc.termlist_begin();
@@ -942,6 +944,12 @@ DEFINE_TESTCASE(removepostings, !backend) {
     TEST_EQUAL(t.positionlist_count(), num_pos - 3);
     TEST_EQUAL(t.get_wdf(), num_pos - 3);
 
+    // Test an existing PositionIterator isn't affected.
+    TEST_EQUAL(*pi, 1);
+    TEST_EQUAL(*++pi, 2);
+    TEST_EQUAL(*++pi, 3);
+    TEST_EQUAL(*++pi, 5);
+
     // Remove the end position.
     TEST_EQUAL(doc.remove_postings("foo", 876, 987), 1);
     t = doc.termlist_begin();
@@ -965,9 +973,18 @@ DEFINE_TESTCASE(removepostings, !backend) {
     TEST_EQUAL(*expect, 9999);
     TEST_EQUAL(t.get_wdf(), 6);
 
+    pi = t.positionlist_begin();
+
+    // Test remove_position().
+    doc.remove_posting("foo", 8);
+
+    // Test an existing PositionIterator isn't affected.
+    TEST_EQUAL(*pi, 5);
+    TEST_EQUAL(*++pi, 8);
+
     // Check removing all positions removes the term too if the wdf reaches 0
     // (since 1.5.0).
-    TEST_EQUAL(doc.remove_postings("foo", 5, 1000), 6);
+    TEST_EQUAL(doc.remove_postings("foo", 5, 1000), 5);
     t = doc.termlist_begin();
     TEST(t == doc.termlist_end());
 
@@ -979,6 +996,19 @@ DEFINE_TESTCASE(removepostings, !backend) {
     TEST(t != doc.termlist_end());
     TEST(t.positionlist_begin() == t.positionlist_end());
     TEST_EQUAL(t.get_wdf(), 1);
+
+    // Test removing the last posting is handled correctly (this case is
+    // special-cased internally to be O(1)).
+    t = doc.termlist_begin();
+    doc.add_posting("foo", 12);
+    doc.add_posting("foo", 23);
+    pi = t.positionlist_begin();
+    doc.remove_posting("foo", 23);
+    TEST_EQUAL(*pi, 12);
+    ++pi;
+    TEST_EQUAL(*pi, 23);
+    ++pi;
+    TEST(pi == t.positionlist_end());
 }
 
 [[noreturn]]

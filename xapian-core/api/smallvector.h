@@ -184,6 +184,9 @@ class Vec {
 
     void pop_back() {
 	if (is_external()) {
+	    if (COW && u.p.b[-1] > 0) {
+		do_cow();
+	    }
 	    --u.p.e;
 	} else {
 	    --c;
@@ -197,6 +200,11 @@ class Vec {
     }
 
     void erase(const_iterator it) {
+	if (COW && is_external() && u.p.b[-1] > 0) {
+	    auto i = it - u.p.b;
+	    do_cow();
+	    it = u.p.b + i;
+	}
 	T* p = const_cast<T*>(it);
 	std::memmove(p, p + 1, (end() - it - 1) * sizeof(T));
 	if (is_external()) {
@@ -209,6 +217,12 @@ class Vec {
     void erase(const_iterator b, const_iterator e) {
 	auto n_erased = e - b;
 	if (n_erased == 0) return;
+	if (COW && is_external() && u.p.b[-1] > 0) {
+	    auto i = b - u.p.b;
+	    do_cow();
+	    b = u.p.b + i;
+	    e = b + n_erased;
+	}
 	std::memmove(const_cast<T*>(b), const_cast<T*>(e),
 		     (end() - e) * sizeof(T));
 	if (is_external()) {
