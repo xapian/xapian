@@ -32,7 +32,7 @@
 #include <memory>
 #include <string>
 
-class GlassCursor;
+#include "glass_cursor.h"
 
 namespace Glass {
 
