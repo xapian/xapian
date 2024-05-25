@@ -1397,6 +1397,8 @@ AH_BOTTOM(
 # pragma warning(disable:4706)
 /* A "performance" warning for converting int to bool. */
 # pragma warning(disable:4800)
+/* Character in string literal can't be represented in current code page. */
+# pragma warning(disable:4566)
 
 /* POSIX get to deprecate POSIX things, not Microsoft. */
 # define _CRT_NONSTDC_NO_WARNINGS
