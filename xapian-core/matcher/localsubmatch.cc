@@ -61,9 +61,9 @@ class LazyWeight : public Xapian::Weight {
 
     const Xapian::Database::Internal* shard;
 
-    LazyWeight * clone() const;
+    LazyWeight* clone() const override;
 
-    void init(double factor_);
+    void init(double factor_) override;
 
   public:
     LazyWeight(LeafPostList * pl_,
