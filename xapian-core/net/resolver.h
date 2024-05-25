@@ -101,11 +101,11 @@ class Resolver {
 	    return const_iterator(old_p);
 	}
 
-	bool operator==(const const_iterator& o) {
+	bool operator==(const const_iterator& o) const {
 	    return p == o.p;
 	}
 
-	bool operator!=(const const_iterator& o) {
+	bool operator!=(const const_iterator& o) const {
 	    return !(*this == o);
 	}
     };
