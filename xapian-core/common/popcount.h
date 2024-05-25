@@ -67,14 +67,4 @@ add_popcount(A& accumulator, V value)
     }
 }
 
-/// Count the number of set bits in value.
-template<typename V>
-static unsigned
-popcount(V value)
-{
-    unsigned accumulator = 0;
-    add_popcount(accumulator, value);
-    return accumulator;
-}
-
 #endif // XAPIAN_INCLUDED_POPCOUNT_H
