@@ -1723,7 +1723,7 @@ class MyWeight : public Xapian::Weight {
     double scale_factor;
 
   public:
-    MyWeight * clone() const {
+    MyWeight* clone() const override {
 	return new MyWeight;
     }
     void init(double factor) override {
