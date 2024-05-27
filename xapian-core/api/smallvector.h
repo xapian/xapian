@@ -99,14 +99,14 @@ class Vec {
     }
 
     Vec(Vec&& o) noexcept : Vec() {
-	u = o.u;
 	std::swap(c, o.c);
+	if (c) u = o.u;
     }
 
     void operator=(Vec&& o) {
 	clear();
-	u = o.u;
 	std::swap(c, o.c);
+	if (c) u = o.u;
     }
 
     explicit Vec(size_type n) {
@@ -332,18 +332,16 @@ class Vec {
     }
 
     void do_copy_from(const Vec& o) {
+	c = o.c;
 	if (!o.is_external()) {
-	    u = o.u;
-	    c = o.c;
+	    if (c) u = o.u;
 	} else if (COW) {
 	    u = o.u;
-	    c = o.c;
 	    ++u.p.b[-1];
 	} else {
-	    T* blk = new T[o.c];
+	    T* blk = new T[c];
 	    u.p.e = std::copy(o.u.p.b, o.u.p.e, blk);
 	    u.p.b = blk;
-	    c = o.c;
 	}
     }
 
