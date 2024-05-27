@@ -300,28 +300,28 @@ class ZWeight : public Xapian::Weight {
   public:
     ZWeight() { }
 
-    void init(double) { }
+    void init(double) override { }
 
-    Weight * clone() const {
+    Weight* clone() const override {
 	return new ZWeight();
     }
 
     double get_sumpart(Xapian::termcount,
 		       Xapian::termcount,
-		       Xapian::termcount) const {
+		       Xapian::termcount) const override {
 	return 0.0;
     }
 
-    double get_maxpart() const {
+    double get_maxpart() const override {
 	return 0.0;
     }
 
     double get_sumextra(Xapian::termcount doclen,
-			Xapian::termcount) const {
+			Xapian::termcount) const override {
 	return 1.0 / doclen;
     }
 
-    double get_maxextra() const {
+    double get_maxextra() const override {
 	return 1.0;
     }
 };
