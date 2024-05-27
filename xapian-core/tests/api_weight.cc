@@ -1387,11 +1387,11 @@ class CheckStatsWeight : public Xapian::Weight {
 		     Xapian::termcount & sum_squares_)
 	: CheckStatsWeight(db_, term_, string(), sum_, sum_squares_) { }
 
-    void init(double factor_) {
+    void init(double factor_) override {
 	factor = factor_;
     }
 
-    Weight * clone() const {
+    Weight* clone() const override {
 	auto res = new CheckStatsWeight(db, term1, term2, sum, sum_squares);
 	if (term2 == "=") {
 	    // The object passed to Enquire::set_weighting_scheme() is cloned
@@ -1409,7 +1409,7 @@ class CheckStatsWeight : public Xapian::Weight {
     double get_sumpart(Xapian::termcount wdf,
 		       Xapian::termcount doclen,
 		       Xapian::termcount uniqueterms,
-		       Xapian::termcount wdfdocmax) const {
+		       Xapian::termcount wdfdocmax) const override {
 	Xapian::doccount num_docs = db.get_doccount();
 	TEST_EQUAL(get_collection_size(), num_docs);
 	TEST_EQUAL(get_rset_size(), 0);
@@ -1483,7 +1483,7 @@ class CheckStatsWeight : public Xapian::Weight {
 	return 1.0;
     }
 
-    double get_maxpart() const {
+    double get_maxpart() const override {
 	if (len_upper == 0) {
 	    len_lower = get_doclength_lower_bound();
 	    len_upper = get_doclength_upper_bound();
@@ -1494,11 +1494,11 @@ class CheckStatsWeight : public Xapian::Weight {
 
     double get_sumextra(Xapian::termcount doclen,
 			Xapian::termcount,
-			Xapian::termcount) const {
+			Xapian::termcount) const override {
 	return 1.0 / doclen;
     }
 
-    double get_maxextra() const { return 1.0; }
+    double get_maxextra() const override { return 1.0; }
 };
 
 /// Check the weight subclass gets the correct stats.
