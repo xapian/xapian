@@ -447,7 +447,8 @@ dnl Set flags to control warnings (enable more, or disable annoying ones).
 if test yes = "$GXX"; then
   dnl Intel's C++ compiler and clang both lie and define __GNUC__, so check which
   dnl we actually have, as neither is really 100% compatible.
-  case `echo __INTEL_COMPILER __clang__|$CXX -E - 2>&AS_MESSAGE_LOG_FD|grep -v '^#'` in
+  echo __INTEL_COMPILER __clang__ > conftest.cc
+  case `$CXX -E conftest.cc 2>&AS_MESSAGE_LOG_FD|grep -v '^#'` in
     *__INTEL_COMPILER*__clang__*)
       dnl GCC (since neither substituted):
 
@@ -516,6 +517,7 @@ if test yes = "$GXX"; then
       WERROR=-Werror
       ;;
   esac
+  rm -f conftest.cc
 elif test yes = "$msvc"; then
   dnl -W1 is command-line default, -W3 IDE default, -W4 highest numbered level.
   dnl AM_CXXFLAGS="$AM_CXXFLAGS -W4"
