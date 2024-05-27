@@ -37,7 +37,10 @@ using namespace std;
 class MyDontUsePostingSource : public Xapian::PostingSource {
   public:
     MyDontUsePostingSource() : Xapian::PostingSource() {}
-    PostingSource* clone() const { return new MyDontUsePostingSource(); }
+    PostingSource* clone() const override {
+	return new MyDontUsePostingSource();
+    }
+
     void init(const Xapian::Database&) override { }
 
     double get_weight() const override {
