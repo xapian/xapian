@@ -686,7 +686,7 @@ test_driver::runtest(const test_desc *test)
 	}
 	out << " " << col_red << signame;
 	if (show_addr) {
-	    out << " at " << str(sigaddr);
+	    out << " at " << sigaddr;
 	}
 	out << col_reset;
 	write_and_clear_tout();
