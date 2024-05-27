@@ -1325,8 +1325,14 @@ elif test yes = "$msvc"; then
   WERROR=-WX
 fi
 
+AC_MSG_CHECKING([for option to turn warnings into errors])
 if test x$enable_werror != xyes; then
   WERROR=
+  AC_MSG_RESULT([not requested])
+elif test -z "$WERROR" ; then
+  AC_MSG_RESULT([unknown for $CXX])
+else
+  AC_MSG_RESULT([$WERROR])
 fi
 
 XAPIAN_TEST_LDFLAGS([-Wl,-Bsymbolic-functions], [XAPIAN_LDFLAGS])
