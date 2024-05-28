@@ -2,7 +2,7 @@
  * @brief Tests of the query optimiser.
  */
 /* Copyright (C) 2009 Lemur Consulting Ltd
- * Copyright (C) 2019 Olly Betts
+ * Copyright (C) 2019,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -41,7 +41,7 @@ class MyDontUsePostingSource : public Xapian::PostingSource {
 	return new MyDontUsePostingSource();
     }
 
-    void init(const Xapian::Database&) override { }
+    void reset(const Xapian::Database&, Xapian::doccount) override { }
 
     double get_weight() const override {
 	FAIL_TEST("MyDontUsePostingSource::get_weight() called");

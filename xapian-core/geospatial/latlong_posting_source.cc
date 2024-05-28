@@ -251,9 +251,10 @@ LatLongDistancePostingSource::unserialise_with_registry(const string &s,
 }
 
 void
-LatLongDistancePostingSource::init(const Database & db_)
+LatLongDistancePostingSource::reset(const Database& db_,
+				    Xapian::doccount shard_index)
 {
-    ValuePostingSource::init(db_);
+    ValuePostingSource::reset(db_, shard_index);
     if (max_range > 0.0) {
 	// Possible that no documents are in range.
 	set_termfreq_min(0);

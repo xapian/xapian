@@ -57,7 +57,7 @@ class MyOddPostingSource : public Xapian::PostingSource {
 	return new MyOddPostingSource(num_docs, last_docid);
     }
 
-    void init(const Xapian::Database&) override { did = 0; }
+    void reset(const Xapian::Database&, Xapian::doccount) override { did = 0; }
 
     // These bounds could be better, but that's not important here.
     Xapian::doccount get_termfreq_min() const override { return 0; }
@@ -159,6 +159,8 @@ class MyOddWeightingPostingSource : public Xapian::PostingSource {
 	return new MyOddWeightingPostingSource(num_docs, last_docid);
     }
 
+    // Deliberately override init() instead of reset() here to test that still
+    // works.
     void init(const Xapian::Database&) override { did = 0; }
 
     double get_weight() const override {
@@ -258,7 +260,7 @@ class MyDontAskWeightPostingSource : public Xapian::PostingSource {
 	return new MyDontAskWeightPostingSource(num_docs, last_docid);
     }
 
-    void init(const Xapian::Database& db) override {
+    void reset(const Xapian::Database& db, Xapian::doccount) override {
 	num_docs = db.get_doccount();
 	last_docid = db.get_lastdocid();
 	did = 0;
@@ -459,7 +461,7 @@ class ChangeMaxweightPostingSource : public Xapian::PostingSource {
     ChangeMaxweightPostingSource(Xapian::docid maxid_accessed_)
 	    : did(0), maxid_accessed(maxid_accessed_) { }
 
-    void init(const Xapian::Database&) override { did = 0; }
+    void reset(const Xapian::Database&, Xapian::doccount) override { did = 0; }
 
     double get_weight() const override {
 	if (did > maxid_accessed) {
@@ -663,7 +665,7 @@ class CheckBoundsPostingSource
 	return new CheckBoundsPostingSource(doclen_lb, doclen_ub);
     }
 
-    void init(const Xapian::Database& database) override {
+    void reset(const Xapian::Database& database, Xapian::doccount) override {
 	doclen_lb = database.get_doclength_lower_bound();
 	doclen_ub = database.get_doclength_upper_bound();
 	Xapian::DecreasingValueWeightPostingSource::init(database);
@@ -703,7 +705,7 @@ class CloneTestPostingSource : public Xapian::PostingSource {
 	return new CloneTestPostingSource(clone_count);
     }
 
-    void init(const Xapian::Database&) override { }
+    void reset(const Xapian::Database&, Xapian::doccount) override { }
 
     Xapian::doccount get_termfreq_min() const override { return 0; }
 
@@ -843,7 +845,7 @@ class EstimatePS : public Xapian::PostingSource {
 	return new EstimatePS(lb, est, ub);
     }
 
-    void init(const Xapian::Database&) override { }
+    void reset(const Xapian::Database&, Xapian::doccount) override { }
 
     Xapian::doccount get_termfreq_min() const override { return lb; }
 

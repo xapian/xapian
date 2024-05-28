@@ -529,7 +529,7 @@ class XAPIAN_VISIBILITY_DEFAULT LatLongDistancePostingSource : public ValuePosti
     LatLongDistancePostingSource *
 	    unserialise_with_registry(const std::string &serialised,
 				      const Registry & registry) const;
-    void init(const Database & db_);
+    void reset(const Database& db_, Xapian::doccount shard_index);
 
     std::string get_description() const;
 };

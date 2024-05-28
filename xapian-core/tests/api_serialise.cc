@@ -2,7 +2,7 @@
  * @brief Tests of serialisation functionality.
  */
 /* Copyright 2009 Lemur Consulting Ltd
- * Copyright 2009,2011,2012,2013 Olly Betts
+ * Copyright 2009,2011,2012,2013,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -339,7 +339,7 @@ class ExceptionalPostingSource : public Xapian::PostingSource {
 	return new ExceptionalPostingSource(fail);
     }
 
-    void init(const Xapian::Database&) override { }
+    void reset(const Xapian::Database&, Xapian::doccount) override { }
 
     Xapian::doccount get_termfreq_min() const override { return 0; }
     Xapian::doccount get_termfreq_est() const override { return 1; }

@@ -1,7 +1,7 @@
 /** @file
  * @brief External sources of posting information
  */
-/* Copyright (C) 2008-2022 Olly Betts
+/* Copyright (C) 2008-2024 Olly Betts
  * Copyright (C) 2008,2009 Lemur Consulting Ltd
  * Copyright (C) 2010 Richard Boulton
  *
@@ -201,7 +201,7 @@ ValuePostingSource::get_docid() const
 }
 
 void
-ValuePostingSource::init(const Database & db_)
+ValuePostingSource::reset(const Database& db_, Xapian::doccount)
 {
     db = db_;
     started = false;
@@ -269,9 +269,10 @@ ValueWeightPostingSource::unserialise(const string &s) const
 }
 
 void
-ValueWeightPostingSource::init(const Database & db_)
+ValueWeightPostingSource::reset(const Database& db_,
+				Xapian::doccount shard_index)
 {
-    ValuePostingSource::init(db_);
+    ValuePostingSource::reset(db_, shard_index);
 
     string upper_bound = get_database().get_value_upper_bound(get_slot());
     if (upper_bound.empty()) {
@@ -388,9 +389,9 @@ ValueMapPostingSource::unserialise(const string &s) const
 }
 
 void
-ValueMapPostingSource::init(const Database & db_)
+ValueMapPostingSource::reset(const Database& db_, Xapian::doccount shard_index)
 {
-    ValuePostingSource::init(db_);
+    ValuePostingSource::reset(db_, shard_index);
     set_maxweight(max(max_weight_in_map, default_weight));
 }
 
@@ -534,7 +535,7 @@ FixedWeightPostingSource::unserialise(const string &s) const
 }
 
 void
-FixedWeightPostingSource::init(const Xapian::Database & db_)
+FixedWeightPostingSource::reset(const Xapian::Database& db_, Xapian::doccount)
 {
     db = db_;
     termfreq = db_.get_doccount();

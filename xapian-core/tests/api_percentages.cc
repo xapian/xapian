@@ -2,7 +2,7 @@
  * @brief Tests of percentage calculations.
  */
 /* Copyright (C) 2008,2009 Lemur Consulting Ltd
- * Copyright (C) 2008,2009,2010,2011,2012,2014 Olly Betts
+ * Copyright (C) 2008,2009,2010,2011,2012,2014,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -90,7 +90,9 @@ class MyPostingSource : public Xapian::PostingSource {
 	if (wt > get_maxweight()) set_maxweight(wt);
     }
 
-    void init(const Xapian::Database&) override { started = false; }
+    void reset(const Xapian::Database&, Xapian::doccount) override {
+	started = false;
+    }
 
     double get_weight() const override { return i->second; }
 

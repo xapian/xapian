@@ -2,7 +2,7 @@
  * @brief A posting source which returns decreasing weights from a value.
  */
 /* Copyright (C) 2009 Lemur Consulting Ltd
- * Copyright (C) 2011,2012,2015,2016 Olly Betts
+ * Copyright (C) 2011,2012,2015,2016,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -77,8 +77,10 @@ DecreasingValueWeightPostingSource::unserialise(const std::string &s) const {
 }
 
 void
-DecreasingValueWeightPostingSource::init(const Xapian::Database & db_) {
-    Xapian::ValueWeightPostingSource::init(db_);
+DecreasingValueWeightPostingSource::reset(const Xapian::Database& db_,
+					  Xapian::doccount shard_index)
+{
+    Xapian::ValueWeightPostingSource::reset(db_, shard_index);
     if (range_end == 0 || get_database().get_doccount() <= range_end)
 	items_at_end = false;
     else

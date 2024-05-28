@@ -460,7 +460,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValuePostingSource : public PostingSource {
 
     Xapian::docid get_docid() const;
 
-    void init(const Database & db_);
+    void reset(const Database& db_, Xapian::doccount shard_index);
 
     /** The database we're reading values from.
      *
@@ -566,7 +566,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueWeightPostingSource
     std::string name() const;
     std::string serialise() const;
     ValueWeightPostingSource * unserialise(const std::string &serialised) const;
-    void init(const Database & db_);
+    void reset(const Database& db_, Xapian::doccount shard_index);
 
     std::string get_description() const;
 };
@@ -634,7 +634,7 @@ class XAPIAN_VISIBILITY_DEFAULT DecreasingValueWeightPostingSource
     std::string serialise() const override;
     DecreasingValueWeightPostingSource*
 	unserialise(const std::string& serialised) const override;
-    void init(const Xapian::Database& db_) override;
+    void reset(const Database& db_, Xapian::doccount shard_index) override;
 
     void next(double min_wt) override;
     void skip_to(Xapian::docid min_docid, double min_wt) override;
@@ -692,7 +692,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueMapPostingSource
     std::string serialise() const override;
     ValueMapPostingSource*
 	unserialise(const std::string& serialised) const override;
-    void init(const Database& db_) override;
+    void reset(const Database& db_, Xapian::doccount shard_index) override;
 
     std::string get_description() const override;
 };
@@ -745,7 +745,7 @@ class XAPIAN_VISIBILITY_DEFAULT FixedWeightPostingSource : public PostingSource 
     std::string serialise() const override;
     FixedWeightPostingSource*
 	unserialise(const std::string& serialised) const override;
-    void init(const Database& db_) override;
+    void reset(const Database& db_, Xapian::doccount shard_index) override;
 
     std::string get_description() const override;
 };
