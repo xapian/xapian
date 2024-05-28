@@ -71,7 +71,7 @@ DEFINE_TESTCASE(latlongpostingsource1, backend && !remote && !inmemory) {
     // Test a search with no range restriction.
     {
 	Xapian::LatLongDistancePostingSource ps(0, coord1, metric);
-	ps.init(db);
+	ps.reset(db, 0);
 
 	ps.next(0.0);
 	TEST_EQUAL(ps.at_end(), false);
@@ -95,7 +95,7 @@ DEFINE_TESTCASE(latlongpostingsource1, backend && !remote && !inmemory) {
     // Test a search with no range restriction and implicit metric.
     {
 	Xapian::LatLongDistancePostingSource ps(0, coord1);
-	ps.init(db);
+	ps.reset(db, 0);
 
 	ps.next(0.0);
 	TEST_EQUAL(ps.at_end(), false);
@@ -119,7 +119,7 @@ DEFINE_TESTCASE(latlongpostingsource1, backend && !remote && !inmemory) {
     // Test a search with a tight range restriction
     {
 	Xapian::LatLongDistancePostingSource ps(0, centre, metric, coorddist * 0.5);
-	ps.init(db);
+	ps.reset(db, 0);
 
 	ps.next(0.0);
 	TEST_EQUAL(ps.at_end(), false);
@@ -132,7 +132,7 @@ DEFINE_TESTCASE(latlongpostingsource1, backend && !remote && !inmemory) {
     // Test a search with a tight range restriction and implicit metric.
     {
 	Xapian::LatLongDistancePostingSource ps(0, centre, coorddist * 0.5);
-	ps.init(db);
+	ps.reset(db, 0);
 
 	ps.next(0.0);
 	TEST_EQUAL(ps.at_end(), false);
@@ -145,7 +145,7 @@ DEFINE_TESTCASE(latlongpostingsource1, backend && !remote && !inmemory) {
     // Test a search with a looser range restriction
     {
 	Xapian::LatLongDistancePostingSource ps(0, centre, metric, coorddist);
-	ps.init(db);
+	ps.reset(db, 0);
 
 	ps.next(0.0);
 	TEST_EQUAL(ps.at_end(), false);
@@ -163,7 +163,7 @@ DEFINE_TESTCASE(latlongpostingsource1, backend && !remote && !inmemory) {
     // Test a search with a looser range restriction and implicit metric.
     {
 	Xapian::LatLongDistancePostingSource ps(0, centre, coorddist);
-	ps.init(db);
+	ps.reset(db, 0);
 
 	ps.next(0.0);
 	TEST_EQUAL(ps.at_end(), false);
@@ -182,7 +182,7 @@ DEFINE_TESTCASE(latlongpostingsource1, backend && !remote && !inmemory) {
     // the next document.
     {
 	Xapian::LatLongDistancePostingSource ps(0, centre, metric, coorddist * 1.5);
-	ps.init(db);
+	ps.reset(db, 0);
 
 	ps.next(0.0);
 	TEST_EQUAL(ps.at_end(), false);
@@ -201,7 +201,7 @@ DEFINE_TESTCASE(latlongpostingsource1, backend && !remote && !inmemory) {
     // the next document and implicit metric.
     {
 	Xapian::LatLongDistancePostingSource ps(0, centre, coorddist * 1.5);
-	ps.init(db);
+	ps.reset(db, 0);
 
 	ps.next(0.0);
 	TEST_EQUAL(ps.at_end(), false);
@@ -220,7 +220,7 @@ DEFINE_TESTCASE(latlongpostingsource1, backend && !remote && !inmemory) {
     // be returned.
     {
 	Xapian::LatLongDistancePostingSource ps(0, centre, metric, coorddist * 2.5);
-	ps.init(db);
+	ps.reset(db, 0);
 
 	ps.next(0.0);
 	TEST_EQUAL(ps.at_end(), false);
@@ -244,7 +244,7 @@ DEFINE_TESTCASE(latlongpostingsource1, backend && !remote && !inmemory) {
     // be returned and implicit metric.
     {
 	Xapian::LatLongDistancePostingSource ps(0, centre, coorddist * 2.5);
-	ps.init(db);
+	ps.reset(db, 0);
 
 	ps.next(0.0);
 	TEST_EQUAL(ps.at_end(), false);

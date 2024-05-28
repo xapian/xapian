@@ -172,7 +172,7 @@ DEFINE_TESTCASE(valueweightsource5, valuestats) {
     Xapian::Database db = get_database("valueweightsource5",
 				       gen_valueweightsource5_db);
     Xapian::ValueWeightPostingSource src(1);
-    src.init(db);
+    src.reset(db, 0);
     src.next(0.0);
     TEST(!src.at_end());
     TEST_EQUAL(src.get_docid(), 1);
@@ -244,7 +244,7 @@ DEFINE_TESTCASE(valuemapsource2, backend && !multi) {
 
     {
 	Xapian::ValueMapPostingSource src(100);
-	src.init(db);
+	src.reset(db, 0);
 	TEST(src.at_end() == false);
 	src.next(0.0);
 	TEST(src.at_end() == true);
@@ -252,7 +252,7 @@ DEFINE_TESTCASE(valuemapsource2, backend && !multi) {
 
     {
 	Xapian::ValueMapPostingSource src(100);
-	src.init(db);
+	src.reset(db, 0);
 	TEST(src.at_end() == false);
 	src.skip_to(1, 0.0);
 	TEST(src.at_end() == true);
@@ -260,7 +260,7 @@ DEFINE_TESTCASE(valuemapsource2, backend && !multi) {
 
     {
 	Xapian::ValueMapPostingSource src(100);
-	src.init(db);
+	src.reset(db, 0);
 	TEST(src.at_end() == false);
 	src.check(1, 0.0);
 	TEST(src.at_end() == true);
@@ -274,7 +274,7 @@ DEFINE_TESTCASE(fixedweightsource2, !backend) {
 
     {
 	Xapian::FixedWeightPostingSource src(5.0);
-	src.init(db);
+	src.reset(db, 0);
 	TEST(src.at_end() == false);
 	src.next(0.0);
 	TEST(src.at_end() == true);
@@ -282,7 +282,7 @@ DEFINE_TESTCASE(fixedweightsource2, !backend) {
 
     {
 	Xapian::FixedWeightPostingSource src(5.0);
-	src.init(db);
+	src.reset(db, 0);
 	TEST(src.at_end() == false);
 	src.skip_to(1, 0.0);
 	TEST(src.at_end() == true);
@@ -309,7 +309,7 @@ DEFINE_TESTCASE(decvalwtsource1, writable) {
     // Check basic function
     {
 	Xapian::DecreasingValueWeightPostingSource src(1);
-	src.init(db);
+	src.reset(db, 0);
 
 	src.next(0.0);
 	TEST(!src.at_end());
@@ -330,7 +330,7 @@ DEFINE_TESTCASE(decvalwtsource1, writable) {
     // Check skipping to end of list due to weight
     {
 	Xapian::DecreasingValueWeightPostingSource src(1);
-	src.init(db);
+	src.reset(db, 0);
 
 	src.next(1.5);
 	TEST(!src.at_end());
@@ -350,7 +350,7 @@ DEFINE_TESTCASE(decvalwtsource1, writable) {
 
     {
 	Xapian::DecreasingValueWeightPostingSource src(1, 1, 3);
-	src.init(db);
+	src.reset(db, 0);
 
 	src.next(1.5);
 	TEST(!src.at_end());
@@ -370,7 +370,7 @@ DEFINE_TESTCASE(decvalwtsource1, writable) {
 
     {
 	Xapian::DecreasingValueWeightPostingSource src(1, 1, 3);
-	src.init(db);
+	src.reset(db, 0);
 
 	src.next(1.5);
 	TEST(!src.at_end());
@@ -386,7 +386,7 @@ DEFINE_TESTCASE(decvalwtsource1, writable) {
 
     {
 	Xapian::DecreasingValueWeightPostingSource src(1, 1, 3);
-	src.init(db);
+	src.reset(db, 0);
 
 	src.next(1.5);
 	TEST(!src.at_end());
@@ -420,7 +420,7 @@ DEFINE_TESTCASE(decvalwtsource2, writable) {
     // Check basic function
     {
 	Xapian::DecreasingValueWeightPostingSource src(1);
-	src.init(db);
+	src.reset(db, 0);
 
 	src.next(0.0);
 	TEST(!src.at_end());
@@ -445,7 +445,7 @@ DEFINE_TESTCASE(decvalwtsource2, writable) {
     // Check skipping to end of list due to weight
     {
 	Xapian::DecreasingValueWeightPostingSource src(1, 2);
-	src.init(db);
+	src.reset(db, 0);
 
 	src.next(1.5);
 	TEST(!src.at_end());
@@ -469,7 +469,7 @@ DEFINE_TESTCASE(decvalwtsource2, writable) {
 
     {
 	Xapian::DecreasingValueWeightPostingSource src(1, 2, 4);
-	src.init(db);
+	src.reset(db, 0);
 
 	src.next(1.5);
 	TEST(!src.at_end());
@@ -493,7 +493,7 @@ DEFINE_TESTCASE(decvalwtsource2, writable) {
 
     {
 	Xapian::DecreasingValueWeightPostingSource src(1, 2, 4);
-	src.init(db);
+	src.reset(db, 0);
 
 	TEST(src.check(1, 1.5));
 	TEST(!src.at_end());
@@ -513,7 +513,7 @@ DEFINE_TESTCASE(decvalwtsource2, writable) {
 
     {
 	Xapian::DecreasingValueWeightPostingSource src(1, 2, 4);
-	src.init(db);
+	src.reset(db, 0);
 
 	TEST(src.check(1, 1.5));
 	TEST(!src.at_end());

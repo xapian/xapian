@@ -364,7 +364,7 @@ DEFINE_TESTCASE(valueweightsource1, backend) {
 DEFINE_TESTCASE(valueweightsource2, valuestats) {
     Xapian::Database db(get_database("apitest_phrase"));
     Xapian::ValueWeightPostingSource src(11);
-    src.init(db);
+    src.reset(db, 0);
     TEST_EQUAL(src.get_termfreq_min(), 17);
     TEST_EQUAL(src.get_termfreq_est(), 17);
     TEST_EQUAL(src.get_termfreq_max(), 17);
@@ -375,7 +375,7 @@ DEFINE_TESTCASE(valueweightsource2, valuestats) {
 DEFINE_TESTCASE(valueweightsource3, valuestats) {
     Xapian::Database db(get_database("apitest_phrase"));
     Xapian::ValueWeightPostingSource src(11);
-    src.init(db);
+    src.reset(db, 0);
     TEST(!src.at_end());
     src.skip_to(8, 0.0);
     TEST(!src.at_end());
@@ -408,7 +408,7 @@ DEFINE_TESTCASE(fixedweightsource1, backend) {
     {
 	// Check next and skip_to().
 	Xapian::FixedWeightPostingSource src(wt);
-	src.init(db);
+	src.reset(db, 0);
 
 	src.next(1.0);
 	TEST(!src.at_end());
@@ -425,7 +425,7 @@ DEFINE_TESTCASE(fixedweightsource1, backend) {
     {
 	// Check check() as the first operation, followed by next.
 	Xapian::FixedWeightPostingSource src(wt);
-	src.init(db);
+	src.reset(db, 0);
 
 	TEST_EQUAL(src.check(5, 1.0), true);
 	TEST(!src.at_end());
@@ -437,7 +437,7 @@ DEFINE_TESTCASE(fixedweightsource1, backend) {
     {
 	// Check check() as the first operation, followed by skip_to().
 	Xapian::FixedWeightPostingSource src(wt);
-	src.init(db);
+	src.reset(db, 0);
 
 	TEST_EQUAL(src.check(5, 1.0), true);
 	TEST(!src.at_end());
@@ -636,7 +636,7 @@ DEFINE_TESTCASE(matchtimelimit1, backend && !remote)
 
     int count = 0;
     SlowDecreasingValueWeightPostingSource src(count);
-    src.init(db);
+    src.reset(db, 0);
     Xapian::Enquire enquire(db);
     enquire.set_query(Xapian::Query(&src));
 
@@ -665,10 +665,12 @@ class CheckBoundsPostingSource
 	return new CheckBoundsPostingSource(doclen_lb, doclen_ub);
     }
 
-    void reset(const Xapian::Database& database, Xapian::doccount) override {
+    void reset(const Xapian::Database& database,
+	       Xapian::doccount shard_index) override {
 	doclen_lb = database.get_doclength_lower_bound();
 	doclen_ub = database.get_doclength_upper_bound();
-	Xapian::DecreasingValueWeightPostingSource::init(database);
+	Xapian::DecreasingValueWeightPostingSource::reset(database,
+							  shard_index);
     }
 };
 
