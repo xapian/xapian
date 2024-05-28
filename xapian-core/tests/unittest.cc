@@ -926,6 +926,7 @@ try {
 
 	fd = io_open_block_wr(tmp_file, true);
 	TEST_REL(fd, >=, 0);
+	io_protect_from_write(fd);
 
 	string buf(BLOCK_SIZE, 'x');
 	string out;

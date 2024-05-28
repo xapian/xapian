@@ -1,7 +1,7 @@
 /** @file
  * @brief Wrappers for low-level POSIX I/O routines.
  */
-/* Copyright (C) 2006,2007,2008,2009,2011,2014,2015,2016,2018 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2011,2014,2015,2016,2018,2024 Olly Betts
  * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or modify
@@ -29,6 +29,7 @@
 #include <sys/types.h>
 #include "safefcntl.h"
 #include "safeunistd.h"
+#include <limits>
 #include <string>
 
 /** Open a block-based file for reading.
@@ -189,5 +190,29 @@ bool io_unlink(const std::string & filename);
  *		be set appropriately).
  */
 bool io_tmp_rename(const std::string & tmp_file, const std::string & real_file);
+
+/** Protect against stray writes to fds we use pwrite() on.
+ *
+ *  Protect against user code or other libraries accidentally trying to
+ * write to our fd by setting the file position high.  To avoid problems
+ * we're rolling this out gradually on platforms we've tested it on.
+ */
+static inline void io_protect_from_write(int fd) {
+#ifdef __linux__
+    // The maximum off_t value works for at least btrfs.
+    if (lseek(fd, std::numeric_limits<off_t>::max(), SEEK_SET) < 0) {
+	// Try the actual maximum for ext4 (which matches the documented
+	// maximum filesize) since ext4 is very widely used.
+	(void)lseek(fd, 0xffffffff000, SEEK_SET);
+    }
+#endif
+#if defined __FreeBSD__ || defined __APPLE__ || defined __OpenBSD__
+    // The maximum off_t value worked in testing on:
+    // * FreeBSD 14.0
+    // * macOS 10.10 and 12.6
+    // * OpenBSD 7.5
+    (void)lseek(fd, std::numeric_limits<off_t>::max(), SEEK_SET);
+#endif
+}
 
 #endif // XAPIAN_INCLUDED_IO_UTILS_H
