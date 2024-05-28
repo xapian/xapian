@@ -682,9 +682,11 @@ multimerge_postlists(Xapian::Compactor * compactor,
 	    if (j == tmp.size() - 1) ++j;
 
 	    string dest = tmpdir;
-	    char buf[64];
-	    sprintf(buf, "/tmp%u_%u.", c, i / 2);
-	    dest += buf;
+	    dest += "/tmp";
+	    dest += str(c);
+	    dest += '_';
+	    dest += str(i / 2);
+	    dest += '.';
 
 	    // Don't compress temporary tables, even if the final table would
 	    // be.
