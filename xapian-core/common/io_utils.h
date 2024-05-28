@@ -205,13 +205,14 @@ static inline void io_protect_from_write(int fd) {
 	// maximum filesize) since ext4 is very widely used.
 	(void)lseek(fd, 0xffffffff000, SEEK_SET);
     }
-#endif
-#if defined __FreeBSD__ || defined __APPLE__ || defined __OpenBSD__
+#elif defined __FreeBSD__ || defined __APPLE__ || defined __OpenBSD__
     // The maximum off_t value worked in testing on:
     // * FreeBSD 14.0
     // * macOS 10.10 and 12.6
     // * OpenBSD 7.5
     (void)lseek(fd, std::numeric_limits<off_t>::max(), SEEK_SET);
+#else
+    (void)fd;
 #endif
 }
 
