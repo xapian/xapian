@@ -188,26 +188,26 @@ QueryParser::parse_query(string_view query_string, unsigned flags,
 }
 
 void
-QueryParser::add_prefix(const string &field, const string &prefix)
+QueryParser::add_prefix(string_view field, string_view prefix)
 {
     internal->add_prefix(field, prefix);
 }
 
 void
-QueryParser::add_prefix(const string &field, Xapian::FieldProcessor * proc)
+QueryParser::add_prefix(string_view field, Xapian::FieldProcessor* proc)
 {
     internal->add_prefix(field, proc);
 }
 
 void
-QueryParser::add_boolean_prefix(const string &field, const string &prefix,
+QueryParser::add_boolean_prefix(string_view field, string_view prefix,
 				const string* grouping)
 {
     internal->add_boolean_prefix(field, prefix, grouping);
 }
 
 void
-QueryParser::add_boolean_prefix(const string &field,
+QueryParser::add_boolean_prefix(string_view field,
 				Xapian::FieldProcessor * proc,
 				const string* grouping)
 {

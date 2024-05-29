@@ -947,11 +947,11 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      *  @param field   The user visible field name
      *  @param prefix  The term prefix to map this to
      */
-    void add_prefix(const std::string& field, const std::string& prefix);
+    void add_prefix(std::string_view field, std::string_view prefix);
 
     /** Register a FieldProcessor.
      */
-    void add_prefix(const std::string& field, Xapian::FieldProcessor * proc);
+    void add_prefix(std::string_view field, Xapian::FieldProcessor* proc);
 
     /** Add a boolean term prefix allowing the user to restrict a
      *  search with a boolean filter specified in the free text query.
@@ -1006,7 +1006,7 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      *			document can have multiple terms with this prefix).
      *			[default: NULL]
      */
-    void add_boolean_prefix(const std::string& field, const std::string& prefix,
+    void add_boolean_prefix(std::string_view field, std::string_view prefix,
 			    const std::string* grouping = NULL);
 
     /** Add a boolean term prefix allowing the user to restrict a
@@ -1025,7 +1025,7 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      *			each filter (this is sometimes useful when each
      *			document can have multiple terms with this prefix).
      */
-    void add_boolean_prefix(const std::string& field, const std::string& prefix,
+    void add_boolean_prefix(std::string_view field, std::string_view prefix,
 			    bool exclusive) {
 	if (exclusive) {
 	    add_boolean_prefix(field, prefix);
@@ -1037,7 +1037,7 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
 
     /** Register a FieldProcessor for a boolean prefix.
      */
-    void add_boolean_prefix(const std::string& field,
+    void add_boolean_prefix(std::string_view field,
 			    Xapian::FieldProcessor* proc,
 			    const std::string* grouping = NULL);
 
@@ -1046,7 +1046,7 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      *  This is an older version of this method - use the version with
      *  the `grouping` parameter in preference to this one.
      */
-    void add_boolean_prefix(const std::string& field,
+    void add_boolean_prefix(std::string_view field,
 			    Xapian::FieldProcessor* proc,
 			    bool exclusive) {
 	if (exclusive) {
