@@ -515,12 +515,15 @@ Database::Internal::reconstruct_text(Xapian::docid did,
     unique_ptr<TermList> termlist(open_term_list_direct(did));
     if (usual(termlist)) {
 	if (prefix.empty()) {
-	    termlist->next();
-	    reconstruct_open_poslists(termlist.get(), start_pos, end_pos,
-				      "A", heap);
-	    termlist->skip_to("[");
-	    reconstruct_open_poslists(termlist.get(), start_pos, end_pos,
-				      prefix, heap);
+	    if (termlist->next() == NULL) {
+		reconstruct_open_poslists(termlist.get(), start_pos, end_pos,
+					  "A", heap);
+		if (termlist->skip_to("[") == NULL) {
+		    reconstruct_open_poslists(termlist.get(),
+					      start_pos, end_pos,
+					      prefix, heap);
+		}
+	    }
 	} else {
 	    if (termlist->skip_to(prefix) == NULL) {
 		// Calculate the first possible term without the specified

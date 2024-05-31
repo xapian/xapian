@@ -1857,6 +1857,19 @@ DEFINE_TESTCASE(reconstruct1, backend) {
     TEST_STRINGS_EQUAL(db.reconstruct_text(6, 0, "", 1, 3), "and yet anoth");
 }
 
+DEFINE_TESTCASE(reconstruct2, writable) {
+    Xapian::Database db = get_database("reconstruct2",
+				       [](Xapian::WritableDatabase& wdb,
+					  const string&)
+				       {
+					   Xapian::Document doc;
+					   doc.add_posting("XMBABxyz", 100);
+					   doc.add_posting("XMBABabc", 101);
+					   wdb.add_document(doc);
+				       });
+    TEST_STRINGS_EQUAL(db.reconstruct_text(1), "");
+}
+
 /** Regression test for bug fixed in git master before 1.5.0.
  *
  *  A PositionIterator from a PostingIterator in a multidatabase always used
