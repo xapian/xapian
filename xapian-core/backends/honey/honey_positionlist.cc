@@ -54,7 +54,7 @@ HoneyPositionTable::pack(string& s,
 
 Xapian::termcount
 HoneyPositionTable::positionlist_count(Xapian::docid did,
-				       const string& term) const
+				       string_view term) const
 {
     LOGCALL(DB, Xapian::termcount, "HoneyPositionTable::positionlist_count", did | term);
 

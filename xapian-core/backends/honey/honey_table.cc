@@ -71,7 +71,7 @@ HoneyTable::open(int flags_, const RootInfo& root_info, honey_revision_number_t)
 }
 
 void
-HoneyTable::add(const std::string& key,
+HoneyTable::add(std::string_view key,
 		const char* val,
 		size_t val_size,
 		bool compressed)

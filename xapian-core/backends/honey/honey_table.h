@@ -377,7 +377,8 @@ class SSTIndex {
 #endif
     }
 
-    void maybe_add_entry(const std::string& key, off_t ptr) {
+    void maybe_add_entry(std::string_view key, off_t ptr) {
+	Assert(!key.empty());
 #ifdef SSTINDEX_ARRAY
 	unsigned char initial = key[0];
 	if (!pointers) {
@@ -629,13 +630,13 @@ class HoneyTable {
 
     const std::string& get_path() const { return path; }
 
-    void add(const std::string& key,
+    void add(std::string_view key,
 	     const char* val,
 	     size_t val_size,
 	     bool compressed = false);
 
-    void add(const std::string& key,
-	     const std::string& val,
+    void add(std::string_view key,
+	     std::string_view val,
 	     bool compressed = false) {
 	add(key, val.data(), val.size(), compressed);
     }

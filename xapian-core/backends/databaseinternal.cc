@@ -386,7 +386,8 @@ Database::Internal::request_document(Xapian::docid) const
 }
 
 void
-Database::Internal::write_changesets_to_fd(int, const string&, bool, ReplicationInfo*)
+Database::Internal::write_changesets_to_fd(int, string_view, bool,
+					   ReplicationInfo*)
 {
     throw Xapian::UnimplementedError("This backend doesn't provide changesets");
 }

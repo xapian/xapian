@@ -271,9 +271,9 @@ class GlassDatabase : public Xapian::Database::Internal {
 
     virtual void read_position_list(GlassRePositionList* pos_list,
 				    Xapian::docid did,
-				    const string& term) const;
+				    std::string_view term) const;
     virtual Xapian::termcount positionlist_count(Xapian::docid did,
-						 const string& term) const;
+						 std::string_view term) const;
     PositionList* open_position_list(Xapian::docid did,
 				     std::string_view term) const;
     TermList * open_term_list(Xapian::docid did) const;
@@ -290,7 +290,7 @@ class GlassDatabase : public Xapian::Database::Internal {
     string get_metadata(std::string_view key) const;
     TermList* open_metadata_keylist(std::string_view prefix) const;
     void write_changesets_to_fd(int fd,
-				const string & start_revision,
+				std::string_view start_revision,
 				bool need_whole_db,
 				Xapian::ReplicationInfo * info);
     /** Get the revision number which the tables are opened at.
@@ -442,9 +442,9 @@ class GlassWritableDatabase : public GlassDatabase {
 
     void read_position_list(GlassRePositionList* pos_list,
 			    Xapian::docid did,
-			    const string& term) const;
+			    std::string_view term) const;
     Xapian::termcount positionlist_count(Xapian::docid did,
-					 const string& term) const;
+					 std::string_view term) const;
     PositionList* open_position_list(Xapian::docid did,
 				     std::string_view term) const;
     TermList* open_allterms(std::string_view prefix) const;

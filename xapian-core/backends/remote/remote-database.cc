@@ -118,7 +118,7 @@ RemoteDatabase::RemoteDatabase(pair<int, string> fd_and_context,
 
 Xapian::termcount
 RemoteDatabase::positionlist_count(Xapian::docid did,
-				   const std::string& term) const
+				   std::string_view term) const
 {
     if (cached_stats_valid && !has_positional_info)
 	return 0;

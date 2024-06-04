@@ -431,7 +431,7 @@ class Database::Internal : public Xapian::Internal::intrusive_base {
      *  recent version of the database.
      */
     virtual void write_changesets_to_fd(int fd,
-					const std::string& start_revision,
+					std::string_view start_revision,
 					bool need_whole_db,
 					ReplicationInfo* info);
 

@@ -245,7 +245,7 @@ EmptyDatabase::open_metadata_keylist(string_view) const
 
 void
 EmptyDatabase::write_changesets_to_fd(int,
-				      const std::string&,
+				      std::string_view,
 				      bool,
 				      Xapian::ReplicationInfo*)
 {

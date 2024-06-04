@@ -163,7 +163,7 @@ class RemoteDatabase : public Xapian::Database::Internal {
      *  Extra method for RemoteDatabase.
      */
     Xapian::termcount positionlist_count(Xapian::docid did,
-					 const std::string& term) const;
+					 std::string_view term) const;
 
     /// Send a keep-alive message.
     void keep_alive();

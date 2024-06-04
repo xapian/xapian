@@ -168,19 +168,19 @@ class HoneyPositionTable : public HoneyLazyTable {
 
     /** Set the position list for term tname in document did.
      */
-    void set_positionlist(Xapian::docid did, const std::string& tname,
-			  const std::string& s) {
+    void set_positionlist(Xapian::docid did, std::string_view tname,
+			  std::string_view s) {
 	add(make_key(did, tname), s);
     }
 
     /// Delete the position list for term tname in document did.
-    void delete_positionlist(Xapian::docid did, const std::string& tname) {
+    void delete_positionlist(Xapian::docid did, std::string_view tname) {
 	del(make_key(did, tname));
     }
 
     /// Return the number of entries in specified position list.
     Xapian::termcount positionlist_count(Xapian::docid did,
-					 const std::string& term) const;
+					 std::string_view term) const;
 };
 
 #endif /* XAPIAN_INCLUDED_HONEY_POSITIONLIST_H */

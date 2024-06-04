@@ -531,7 +531,7 @@ MultiDatabase::locked() const
 
 void
 MultiDatabase::write_changesets_to_fd(int,
-				      const std::string&,
+				      std::string_view,
 				      bool,
 				      Xapian::ReplicationInfo*)
 {

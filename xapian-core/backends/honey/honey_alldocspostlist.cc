@@ -36,7 +36,7 @@ using namespace std;
 
 HoneyAllDocsPostList::HoneyAllDocsPostList(const HoneyDatabase* db,
 					   Xapian::doccount doccount)
-    : LeafPostList(string()),
+    : LeafPostList({}),
       cursor(db->get_postlist_cursor())
 {
     LOGCALL_CTOR(DB, "HoneyAllDocsPostList", db | doccount);

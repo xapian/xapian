@@ -44,7 +44,7 @@ class ContiguousAllDocsPostList : public LeafPostList {
     /// Constructor.
     explicit
     ContiguousAllDocsPostList(Xapian::doccount doccount)
-	: LeafPostList(std::string()) {
+	: LeafPostList({}) {
 	/* For an all documents postlist the term frequency is the number of
 	 * documents in the database.
 	 */

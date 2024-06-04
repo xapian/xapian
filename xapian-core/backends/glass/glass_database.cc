@@ -474,7 +474,7 @@ GlassDatabase::send_whole_database(RemoteConnection & conn, double end_time)
 
 void
 GlassDatabase::write_changesets_to_fd(int fd,
-				      const string & revision,
+				      string_view revision,
 				      bool need_whole_db,
 				      ReplicationInfo * info)
 {
@@ -905,14 +905,14 @@ GlassDatabase::open_document(Xapian::docid did, bool lazy) const
 void
 GlassDatabase::read_position_list(GlassRePositionList* pos_list,
 				  Xapian::docid did,
-				  const string& term) const
+				  string_view term) const
 {
     Assert(did != 0);
     pos_list->read_data(did, term);
 }
 
 Xapian::termcount
-GlassDatabase::positionlist_count(Xapian::docid did, const string& term) const
+GlassDatabase::positionlist_count(Xapian::docid did, string_view term) const
 {
     return position_table.positionlist_count(did, term);
 }
@@ -1596,7 +1596,7 @@ GlassWritableDatabase::open_value_list(Xapian::valueno slot) const
 void
 GlassWritableDatabase::read_position_list(GlassRePositionList* pos_list,
 					  Xapian::docid did,
-					  const string& term) const
+					  string_view term) const
 {
     Assert(did != 0);
     string data;
@@ -1609,7 +1609,7 @@ GlassWritableDatabase::read_position_list(GlassRePositionList* pos_list,
 
 Xapian::termcount
 GlassWritableDatabase::positionlist_count(Xapian::docid did,
-					  const string& term) const
+					  string_view term) const
 {
     Assert(did != 0);
     string data;

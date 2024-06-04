@@ -343,7 +343,7 @@ InMemoryTermList::positionlist_begin() const
 /////////////////////////////
 
 InMemoryAllDocsPostList::InMemoryAllDocsPostList(const InMemoryDatabase* db_)
-	: LeafPostList(std::string()), did(0), db(db_)
+	: LeafPostList({}), did(0), db(db_)
 {
     collfreq = termfreq = db->totdocs;
 }
@@ -704,7 +704,7 @@ InMemoryDatabase::set_metadata(std::string_view key,
 
 Xapian::termcount
 InMemoryDatabase::positionlist_count(Xapian::docid did,
-				     const string & tname) const
+				     string_view tname) const
 {
     if (closed) InMemoryDatabase::throw_database_closed();
     if (!doc_exists(did)) {

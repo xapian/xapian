@@ -357,7 +357,7 @@ class InMemoryDatabase : public Xapian::Database::Internal {
     void set_metadata(std::string_view key, std::string_view value);
 
     Xapian::termcount positionlist_count(Xapian::docid did,
-					 const std::string& tname) const;
+					 std::string_view tname) const;
     PositionList* open_position_list(Xapian::docid did,
 				     std::string_view tname) const;
     TermList* open_allterms(std::string_view prefix) const;

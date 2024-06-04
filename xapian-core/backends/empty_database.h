@@ -99,7 +99,7 @@ class EmptyDatabase : public Xapian::Database::Internal {
     TermList* open_metadata_keylist(std::string_view prefix) const;
 
     void write_changesets_to_fd(int fd,
-				const std::string& start_revision,
+				std::string_view start_revision,
 				bool need_whole_db,
 				Xapian::ReplicationInfo* info);
 

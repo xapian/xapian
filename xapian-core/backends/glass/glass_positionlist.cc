@@ -52,7 +52,7 @@ GlassPositionListTable::pack(string & s,
 }
 
 Xapian::termcount
-GlassPositionListTable::positionlist_count(const string& data) const
+GlassPositionListTable::positionlist_count(string_view data) const
 {
     LOGCALL(DB, Xapian::termcount, "GlassPositionListTable::positionlist_count", data);
 
@@ -78,7 +78,7 @@ GlassPositionListTable::positionlist_count(const string& data) const
 
 Xapian::termcount
 GlassPositionListTable::positionlist_count(Xapian::docid did,
-					   const string & term) const
+					   string_view term) const
 {
     LOGCALL(DB, Xapian::termcount, "GlassPositionListTable::positionlist_count", did | term);
 
@@ -93,7 +93,7 @@ GlassPositionListTable::positionlist_count(Xapian::docid did,
 ///////////////////////////////////////////////////////////////////////////
 
 void
-GlassBasePositionList::set_data(const string& data)
+GlassBasePositionList::set_data(string_view data)
 {
     LOGCALL_VOID(DB, "GlassBasePositionList::set_data", data);
 
@@ -212,7 +212,7 @@ GlassRePositionList::assign_data(string&& data)
 
 void
 GlassRePositionList::read_data(Xapian::docid did,
-			       const string& term)
+			       string_view term)
 {
     LOGCALL_VOID(DB, "GlassRePositionList::read_data", did | term);
 
