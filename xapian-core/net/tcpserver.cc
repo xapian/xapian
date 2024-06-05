@@ -312,7 +312,7 @@ TcpServer::run()
 
 		handle_one_connection(connected_socket);
 		close(connected_socket);
-		exit(0);
+		_exit(0);
 	    }
 
 	    // Parent process.
