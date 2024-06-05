@@ -313,7 +313,7 @@ TcpServer::run()
 		close(connected_socket);
 
 		if (verbose) cout << "Connection closed." << endl;
-		exit(0);
+		_exit(0);
 	    }
 
 	    // Parent process.
