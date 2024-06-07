@@ -1409,21 +1409,31 @@ AH_BOTTOM(
 # pragma warning(disable:4566)
 
 /* POSIX get to deprecate POSIX things, not Microsoft. */
-# define _CRT_NONSTDC_NO_WARNINGS
-# define _CRT_SECURE_NO_WARNINGS
+# ifndef _CRT_NONSTDC_NO_WARNINGS
+#  define _CRT_NONSTDC_NO_WARNINGS
+# endif
+# ifndef _CRT_SECURE_NO_WARNINGS
+#  define _CRT_SECURE_NO_WARNINGS
+# endif
 
 /* WSAAddressToStringA() is deprecated and we should apparently use
  * WSAAddressToStringW(), but we don't want wide character output so
  * that would mean we'd have to convert the result back to ASCII
  * which is a really stupid idea.
  */
-# define _WINSOCK_DEPRECATED_NO_WARNINGS
+# ifndef _WINSOCK_DEPRECATED_NO_WARNINGS
+#  define _WINSOCK_DEPRECATED_NO_WARNINGS
+# endif
 
 /* Tell MSVC we want M_PI, etc defined. */
-# define _USE_MATH_DEFINES
+# ifndef _USE_MATH_DEFINES
+#  define _USE_MATH_DEFINES
+# endif
 
 /* Tell MSVC we don't want max() and min() macros defined. */
-# define NOMINMAX
+# ifndef NOMINMAX
+#  define NOMINMAX
+# endif
 #endif
 
 /* Tell zlib to include const in method signatures.  Define this in config.h

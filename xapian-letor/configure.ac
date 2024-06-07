@@ -648,8 +648,12 @@ AH_BOTTOM(
 # pragma warning(disable:4800)
 
 /* POSIX get to deprecate POSIX things, not Microsoft. */
-# define _CRT_NONSTDC_NO_WARNINGS
-# define _CRT_SECURE_NO_WARNINGS
+# ifndef _CRT_NONSTDC_NO_WARNINGS
+#  define _CRT_NONSTDC_NO_WARNINGS
+# endif
+# ifndef _CRT_SECURE_NO_WARNINGS
+#  define _CRT_SECURE_NO_WARNINGS
+# endif
 
 #endif
 
