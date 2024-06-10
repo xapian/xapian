@@ -2,6 +2,7 @@
  * @brief Xapian::DiceCoeffWeight class
  */
 /* Copyright (C) 2018 Guruprasad Hegde
+ * Copyright (C) 2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -35,25 +36,39 @@ DiceCoeffWeight::clone() const
 }
 
 void
-DiceCoeffWeight::init(double factor_)
+DiceCoeffWeight::init(double factor)
 {
-    if (factor_ == 0.0) {
+    if (factor == 0.0) {
 	// This object is for the term-independent contribution, and that's
 	// always zero for this scheme.
 	return;
     }
 
-    factor = get_wqf() * factor_;
+    numerator = get_wqf() * 2 * factor;
 
-    // Upper bound computation:
-    // dice_coeff(q, d) = 2.0 * (q ∩ d) / (|q| + |d|)
-    // To maximize the result minimize the denominator, hence
-    // |q|= 1, |d| = lower bound on unique term.
-    // FIXME lower bound on unique term is not tracked in database,
-    // hence keeping its value as 1, this will not give a tight bound.
-    // Plan to fix in future.
-    double uniqtermlen_lb = 1;
-    upper_bound = factor * (2.0 / (get_query_length() + uniqtermlen_lb));
+    // The Dice Coefficient formula is
+    //
+    //   dice_coeff(q, d) = 2.0 * (q ∩ d) / (|q| + |d|)
+    //
+    // where q is the set of query terms and d the set of document terms.
+    //
+    // The value of (q ∩ d) is the sum of wqf for query terms matching the
+    // current document.  That summing is done by the matcher, and each term
+    // needs to contribute:
+    //
+    //   2.0 * wqf / (query_length + unique_term_count)
+    //
+    // We multiply that by factor, which is 1.0 unless OP_SCALE_WEIGHT has
+    // been applied.
+    //
+    //   factor * 2.0 * wqf / (query_length + unique_term_count)
+    //
+    // We need an upper bound on this for any document in a given database.
+    // Note that wdf and query_length are determined by the query, and only
+    // unique_term_count varies by document.  We want to minimise the
+    // denominator and so minimise unique_term_count.
+    auto denominator = get_query_length() + get_unique_terms_lower_bound();
+    upper_bound = numerator / denominator;
 }
 
 string
@@ -91,7 +106,7 @@ DiceCoeffWeight::get_sumpart(Xapian::termcount wdf,
 			     Xapian::termcount) const
 {
     if (wdf == 0) return 0.0;
-    return factor * 2.0 / (get_query_length() + uniqterms);
+    return numerator / (get_query_length() + uniqterms);
 }
 
 double

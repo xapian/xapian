@@ -49,6 +49,10 @@ Weight::init_(const Internal & stats, Xapian::termcount query_length,
 	doclength_upper_bound_ = shard->get_doclength_upper_bound();
     if (stats_needed & DOC_LENGTH_MIN)
 	doclength_lower_bound_ = shard->get_doclength_lower_bound();
+    if (stats_needed & UNIQUE_TERMS_MAX)
+	unique_terms_upper_bound_ = shard->get_unique_terms_upper_bound();
+    if (stats_needed & UNIQUE_TERMS_MIN)
+	unique_terms_lower_bound_ = shard->get_unique_terms_lower_bound();
     if (stats_needed & TOTAL_LENGTH)
 	total_length_ = stats.total_length;
     collectionfreq_ = 0;
@@ -75,6 +79,10 @@ Weight::init_(const Internal & stats, Xapian::termcount query_length,
 	doclength_upper_bound_ = shard->get_doclength_upper_bound();
     if (stats_needed & DOC_LENGTH_MIN)
 	doclength_lower_bound_ = shard->get_doclength_lower_bound();
+    if (stats_needed & UNIQUE_TERMS_MAX)
+	unique_terms_upper_bound_ = shard->get_unique_terms_upper_bound();
+    if (stats_needed & UNIQUE_TERMS_MIN)
+	unique_terms_lower_bound_ = shard->get_unique_terms_lower_bound();
     if (stats_needed & TOTAL_LENGTH)
 	total_length_ = stats.total_length;
     if (stats_needed & WDF_MAX) {

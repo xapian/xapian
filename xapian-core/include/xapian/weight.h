@@ -71,7 +71,11 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
 	 */
 	TOTAL_LENGTH = 16384,
 	/// Maximum wdf in the current document.
-	WDF_DOC_MAX = 32768
+	WDF_DOC_MAX = 32768,
+	/// Lower bound on number of unique terms in a document.
+	UNIQUE_TERMS_MIN = 65536,
+	/// Upper bound on number of unique terms in a document.
+	UNIQUE_TERMS_MAX = 131072
     } stat_flags;
 
     /** Tell Xapian that your subclass will want a particular statistic.
@@ -148,6 +152,12 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
 
     /// Total length of all documents in the collection.
     Xapian::totallength total_length_;
+
+    /// A lower bound on the number of unique terms in any document.
+    Xapian::termcount unique_terms_lower_bound_;
+
+    /// An upper bound on the number of unique terms in any document.
+    Xapian::termcount unique_terms_upper_bound_;
 
   public:
 
@@ -456,6 +466,24 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
     /// Total length of all documents in the collection.
     Xapian::totallength get_total_length() const {
 	return total_length_;
+    }
+
+    /** A lower bound on the number of unique terms in any document.
+     *
+     *  This bound does not include any zero-length documents.
+     *
+     *  This should only be used by get_maxpart() and get_maxextra().
+     */
+    Xapian::termcount get_unique_terms_upper_bound() const {
+	return unique_terms_upper_bound_;
+    }
+
+    /** An upper bound on the number of unique terms in any document.
+     *
+     *  This should only be used by get_maxpart() and get_maxextra().
+     */
+    Xapian::termcount get_unique_terms_lower_bound() const {
+	return unique_terms_lower_bound_;
     }
 };
 
@@ -1824,13 +1852,13 @@ class XAPIAN_VISIBILITY_DEFAULT CoordWeight : public Weight {
  *  coefficients.
  */
 class XAPIAN_VISIBILITY_DEFAULT DiceCoeffWeight : public Weight {
-    /// The factor to multiply weights by.
-    double factor;
+    /// The numerator in the weight calculation.
+    double numerator;
 
     /// Upper bound on the weight
     double upper_bound;
 
-    void init(double factor_);
+    void init(double factor);
 
   public:
     DiceCoeffWeight * clone() const;
@@ -1840,6 +1868,7 @@ class XAPIAN_VISIBILITY_DEFAULT DiceCoeffWeight : public Weight {
 	need_stat(WQF);
 	need_stat(QUERY_LENGTH);
 	need_stat(UNIQUE_TERMS);
+	need_stat(UNIQUE_TERMS_MIN);
     }
 
     std::string name() const;
