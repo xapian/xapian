@@ -1785,7 +1785,7 @@ class XAPIAN_VISIBILITY_DEFAULT LMWeight : public Weight {
 
 /** Xapian::Weight subclass implementing Coordinate Matching.
  *
- *  Each matching term score one point.  See Managing Gigabytes, Second Edition
+ *  Each matching term scores one point.  See Managing Gigabytes, Second Edition
  *  p181.
  */
 class XAPIAN_VISIBILITY_DEFAULT CoordWeight : public Weight {
