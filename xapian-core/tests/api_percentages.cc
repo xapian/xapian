@@ -247,6 +247,13 @@ DEFINE_TESTCASE(topercent5, backend) {
     // the top hit got 4% in this testcase.  In 1.2.x it gets 50%, which is
     // better, but >50% would be more natural.
     TEST_REL(mset[0].get_percent(), >=, 50);
+
+    // Repeat tests with TradWeight.
+    enquire.set_weighting_scheme(Xapian::TradWeight());
+    mset = enquire.get_mset(0, 10);
+    TEST(!mset.empty());
+    TEST(mset[0].get_percent() < 100);
+    TEST_REL(mset[0].get_percent(), >=, 50);
 }
 
 /// Test that OP_FILTER doesn't affect percentages.
