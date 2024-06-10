@@ -1837,7 +1837,7 @@ class XAPIAN_VISIBILITY_DEFAULT DiceCoeffWeight : public Weight {
 
     /** Construct a DiceCoeffWeight. */
     DiceCoeffWeight() {
-	need_stat(DOC_LENGTH_MIN);
+	need_stat(WQF);
 	need_stat(QUERY_LENGTH);
 	need_stat(UNIQUE_TERMS);
     }
