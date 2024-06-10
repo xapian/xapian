@@ -170,20 +170,6 @@ TradWeight::get_maxpart() const
     return termweight * (wdf_max / (doclen_lb * len_factor + wdf_max));
 }
 
-double
-TradWeight::get_sumextra(Xapian::termcount,
-			 Xapian::termcount,
-			 Xapian::termcount) const
-{
-    return 0;
-}
-
-double
-TradWeight::get_maxextra() const
-{
-    return 0;
-}
-
 static inline void
 parameter_error(const char* message)
 {

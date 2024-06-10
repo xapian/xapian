@@ -1,7 +1,7 @@
 /** @file
  * @brief Xapian::Weight base class
  */
-/* Copyright (C) 2007,2008,2009,2014,2017,2019 Olly Betts
+/* Copyright (C) 2007,2008,2009,2014,2017,2019,2024 Olly Betts
  * Copyright (C) 2009 Lemur Consulting Ltd
  * Copyright (C) 2017 Vivek Pal
  *
@@ -152,6 +152,20 @@ Weight *
 Weight::unserialise(const string &) const
 {
     throw Xapian::UnimplementedError("unserialise() not supported for this Xapian::Weight subclass");
+}
+
+double
+Weight::get_sumextra(Xapian::termcount,
+		     Xapian::termcount,
+		     Xapian::termcount) const
+{
+    return 0.0;
+}
+
+double
+Weight::get_maxextra() const
+{
+    return 0.0;
 }
 
 const Weight *

@@ -161,20 +161,6 @@ DPHWeight::get_maxpart() const
     return upper_bound;
 }
 
-double
-DPHWeight::get_sumextra(Xapian::termcount,
-			Xapian::termcount,
-			Xapian::termcount) const
-{
-    return 0;
-}
-
-double
-DPHWeight::get_maxextra() const
-{
-    return 0;
-}
-
 DPHWeight *
 DPHWeight::create_from_parameters(const char * p) const
 {

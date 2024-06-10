@@ -139,20 +139,6 @@ InL2Weight::get_maxpart() const
     return upper_bound;
 }
 
-double
-InL2Weight::get_sumextra(Xapian::termcount,
-			 Xapian::termcount,
-			 Xapian::termcount) const
-{
-    return 0;
-}
-
-double
-InL2Weight::get_maxextra() const
-{
-    return 0;
-}
-
 static inline void
 parameter_error(const char* message)
 {

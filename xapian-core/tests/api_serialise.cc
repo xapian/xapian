@@ -410,13 +410,6 @@ class ExceptionalWeight : public Xapian::Weight {
 	return 0;
     }
     double get_maxpart() const override { return 0; }
-
-    double get_sumextra(Xapian::termcount,
-			Xapian::termcount,
-			Xapian::termcount) const override {
-	return 0;
-    }
-    double get_maxextra() const override { return 0; }
 };
 
 /// Check that exceptions when registering are handled well.

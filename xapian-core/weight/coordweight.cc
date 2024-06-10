@@ -80,20 +80,6 @@ CoordWeight::get_maxpart() const
     return factor;
 }
 
-double
-CoordWeight::get_sumextra(Xapian::termcount,
-			  Xapian::termcount,
-			  Xapian::termcount) const
-{
-    return 0;
-}
-
-double
-CoordWeight::get_maxextra() const
-{
-    return 0;
-}
-
 CoordWeight *
 CoordWeight::create_from_parameters(const char * p) const
 {

@@ -1743,13 +1743,6 @@ class MyWeight : public Xapian::Weight {
 	return scale_factor;
     }
     double get_maxpart() const override { return scale_factor; }
-
-    double get_sumextra(Xapian::termcount,
-			Xapian::termcount,
-			Xapian::termcount) const override {
-	return 0;
-    }
-    double get_maxextra() const override { return 0; }
 };
 
 // tests user weighting scheme.

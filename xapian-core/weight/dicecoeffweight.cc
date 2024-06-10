@@ -100,20 +100,6 @@ DiceCoeffWeight::get_maxpart() const
     return upper_bound;
 }
 
-double
-DiceCoeffWeight::get_sumextra(Xapian::termcount,
-			      Xapian::termcount,
-			      Xapian::termcount) const
-{
-    return 0;
-}
-
-double
-DiceCoeffWeight::get_maxextra() const
-{
-    return 0;
-}
-
 DiceCoeffWeight *
 DiceCoeffWeight::create_from_parameters(const char * p) const
 {

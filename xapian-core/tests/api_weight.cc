@@ -1761,13 +1761,6 @@ class CheckStatsWeight5 : public Xapian::Weight {
     double get_maxpart() const override {
 	return 1.0;
     }
-
-    double get_sumextra(Xapian::termcount, Xapian::termcount,
-			Xapian::termcount) const override {
-	return 0.0;
-    }
-
-    double get_maxextra() const override { return 0.0; }
 };
 
 /// Check wdfdocmax is clamped to doclen even if wdf and doclen aren't wanted.

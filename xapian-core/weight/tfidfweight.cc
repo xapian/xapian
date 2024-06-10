@@ -229,21 +229,6 @@ TfIdfWeight::get_maxpart() const
     return get_wtn(wdfn * idfn, wt_norm_) * wqf_factor;
 }
 
-// There is no extra per document component in the TfIdfWeighting scheme.
-double
-TfIdfWeight::get_sumextra(Xapian::termcount,
-			  Xapian::termcount,
-			  Xapian::termcount) const
-{
-    return 0;
-}
-
-double
-TfIdfWeight::get_maxextra() const
-{
-    return 0;
-}
-
 // Return normalized wdf, idf and weight depending on the normalization string.
 double
 TfIdfWeight::get_wdfn(Xapian::termcount wdf, Xapian::termcount doclen,

@@ -203,20 +203,6 @@ DLHWeight::get_maxpart() const
     return upper_bound;
 }
 
-double
-DLHWeight::get_sumextra(Xapian::termcount,
-			Xapian::termcount,
-			Xapian::termcount) const
-{
-    return 0;
-}
-
-double
-DLHWeight::get_maxextra() const
-{
-    return 0;
-}
-
 DLHWeight *
 DLHWeight::create_from_parameters(const char * p) const
 {

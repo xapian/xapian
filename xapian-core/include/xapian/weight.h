@@ -1,7 +1,7 @@
 /** @file
  * @brief Weighting scheme API.
  */
-/* Copyright (C) 2004,2007,2008,2009,2010,2011,2012,2015,2016,2017,2019 Olly Betts
+/* Copyright (C) 2004-2024 Olly Betts
  * Copyright (C) 2009 Lemur Consulting Ltd
  * Copyright (C) 2013,2014 Aarsh Shah
  * Copyright (C) 2016,2017 Vivek Pal
@@ -255,6 +255,9 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
 
     /** Calculate the term-independent weight component for a document.
      *
+     *  The default implementation always returns 0 (in Xapian < 1.5.0 this
+     *  was a pure virtual method).
+     *
      *  The parameter gives information about the document which may be used
      *  in the calculations:
      *
@@ -263,15 +266,18 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
      */
     virtual double get_sumextra(Xapian::termcount doclen,
 				Xapian::termcount uniqterms,
-				Xapian::termcount wdfdocmax) const = 0;
+				Xapian::termcount wdfdocmax) const;
 
     /** Return an upper bound on what get_sumextra() can return for any
      *  document.
      *
+     *  The default implementation always returns 0 (in Xapian < 1.5.0 this
+     *  was a pure virtual method).
+     *
      *  This information is used by the matcher to perform various
      *  optimisations, so strive to make the bound as tight as possible.
      */
-    virtual double get_maxextra() const = 0;
+    virtual double get_maxextra() const;
 
     /** @private @internal Initialise this object to calculate weights for term
      *  @a term.
@@ -477,11 +483,6 @@ class XAPIAN_VISIBILITY_DEFAULT BoolWeight : public Weight {
 		       Xapian::termcount uniqterms,
 		       Xapian::termcount wdfdocmax) const;
     double get_maxpart() const;
-
-    double get_sumextra(Xapian::termcount doclen,
-			Xapian::termcount uniqterms,
-			Xapian::termcount wdfdocmax) const;
-    double get_maxextra() const;
 
     BoolWeight * create_from_parameters(const char * params) const;
 };
@@ -808,11 +809,6 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
 		       Xapian::termcount wdfdocmax) const;
     double get_maxpart() const;
 
-    double get_sumextra(Xapian::termcount doclen,
-			Xapian::termcount uniqterms,
-			Xapian::termcount wdfdocmax) const;
-    double get_maxextra() const;
-
     TfIdfWeight * create_from_parameters(const char * params) const;
 };
 
@@ -1111,11 +1107,6 @@ class XAPIAN_VISIBILITY_DEFAULT TradWeight : public Weight {
 		       Xapian::termcount wdfdocmax) const;
     double get_maxpart() const;
 
-    double get_sumextra(Xapian::termcount doclen,
-			Xapian::termcount uniqterms,
-			Xapian::termcount wdfdocmax) const;
-    double get_maxextra() const;
-
     TradWeight * create_from_parameters(const char * params) const;
 };
 
@@ -1188,11 +1179,6 @@ class XAPIAN_VISIBILITY_DEFAULT InL2Weight : public Weight {
 		       Xapian::termcount uniqterms,
 		       Xapian::termcount wdfdocmax) const;
     double get_maxpart() const;
-
-    double get_sumextra(Xapian::termcount doclen,
-			Xapian::termcount uniqterms,
-			Xapian::termcount wdfdocmax) const;
-    double get_maxextra() const;
 
     InL2Weight * create_from_parameters(const char * params) const;
 };
@@ -1267,11 +1253,6 @@ class XAPIAN_VISIBILITY_DEFAULT IfB2Weight : public Weight {
 		       Xapian::termcount wdfdocmax) const;
     double get_maxpart() const;
 
-    double get_sumextra(Xapian::termcount doclen,
-			Xapian::termcount uniqterms,
-			Xapian::termcount wdfdocmax) const;
-    double get_maxextra() const;
-
     IfB2Weight * create_from_parameters(const char * params) const;
 };
 
@@ -1342,11 +1323,6 @@ class XAPIAN_VISIBILITY_DEFAULT IneB2Weight : public Weight {
 		       Xapian::termcount uniqterms,
 		       Xapian::termcount wdfdocmax) const;
     double get_maxpart() const;
-
-    double get_sumextra(Xapian::termcount doclen,
-			Xapian::termcount uniqterms,
-			Xapian::termcount wdfdocmax) const;
-    double get_maxextra() const;
 
     IneB2Weight * create_from_parameters(const char * params) const;
 };
@@ -1424,11 +1400,6 @@ class XAPIAN_VISIBILITY_DEFAULT BB2Weight : public Weight {
 		       Xapian::termcount wdfdocmax) const;
     double get_maxpart() const;
 
-    double get_sumextra(Xapian::termcount doclen,
-			Xapian::termcount uniqterms,
-			Xapian::termcount wdfdocmax) const;
-    double get_maxextra() const;
-
     BB2Weight * create_from_parameters(const char * params) const;
 };
 
@@ -1484,11 +1455,6 @@ class XAPIAN_VISIBILITY_DEFAULT DLHWeight : public Weight {
 		       Xapian::termcount uniqterms,
 		       Xapian::termcount wdfdocmax) const;
     double get_maxpart() const;
-
-    double get_sumextra(Xapian::termcount doclen,
-			Xapian::termcount uniqterms,
-			Xapian::termcount wdfdocmax) const;
-    double get_maxextra() const;
 
     DLHWeight * create_from_parameters(const char * params) const;
 };
@@ -1568,11 +1534,6 @@ class XAPIAN_VISIBILITY_DEFAULT PL2Weight : public Weight {
 		       Xapian::termcount wdfdocmax) const;
     double get_maxpart() const;
 
-    double get_sumextra(Xapian::termcount doclen,
-			Xapian::termcount uniqterms,
-			Xapian::termcount wdfdocmax) const;
-    double get_maxextra() const;
-
     PL2Weight * create_from_parameters(const char * params) const;
 };
 
@@ -1651,11 +1612,6 @@ class XAPIAN_VISIBILITY_DEFAULT PL2PlusWeight : public Weight {
 		       Xapian::termcount wdfdocmax) const;
     double get_maxpart() const;
 
-    double get_sumextra(Xapian::termcount doclen,
-			Xapian::termcount uniqterms,
-			Xapian::termcount wdfdocmax) const;
-    double get_maxextra() const;
-
     PL2PlusWeight * create_from_parameters(const char * params) const;
 };
 
@@ -1714,11 +1670,6 @@ class XAPIAN_VISIBILITY_DEFAULT DPHWeight : public Weight {
 		       Xapian::termcount uniqterms,
 		       Xapian::termcount wdfdocmax) const;
     double get_maxpart() const;
-
-    double get_sumextra(Xapian::termcount doclen,
-			Xapian::termcount uniqterms,
-			Xapian::termcount wdfdocmax) const;
-    double get_maxextra() const;
 
     DPHWeight * create_from_parameters(const char * params) const;
 };
@@ -1861,11 +1812,6 @@ class XAPIAN_VISIBILITY_DEFAULT CoordWeight : public Weight {
 		       Xapian::termcount wdfdocmax) const;
     double get_maxpart() const;
 
-    double get_sumextra(Xapian::termcount,
-			Xapian::termcount,
-			Xapian::termcount) const;
-    double get_maxextra() const;
-
     CoordWeight * create_from_parameters(const char * params) const;
 };
 
@@ -1907,11 +1853,6 @@ class XAPIAN_VISIBILITY_DEFAULT DiceCoeffWeight : public Weight {
 		       Xapian::termcount uniqterm,
 		       Xapian::termcount wdfdocmax) const;
     double get_maxpart() const;
-
-    double get_sumextra(Xapian::termcount,
-			Xapian::termcount,
-			Xapian::termcount) const;
-    double get_maxextra() const;
 
     DiceCoeffWeight * create_from_parameters(const char * params) const;
 };
