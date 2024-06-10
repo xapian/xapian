@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2015,2016,2017,2020 Olly Betts
+ * Copyright 2002-2024 Olly Betts
  * Copyright 2006,2008 Lemur Consulting Ltd
  * Copyright 2011 Action Without Borders
  *
@@ -1451,33 +1451,40 @@ DEFINE_TESTCASE(qterminfo1, backend) {
     enquire1.set_query(myquery);
     enquire2.set_query(myquery);
 
-    // retrieve the results
-    Xapian::MSet mymset1a = enquire1.get_mset(0, 0);
-    Xapian::MSet mymset2a = enquire2.get_mset(0, 0);
+    for (int i = 1; i <= 2; ++i) {
+	// Retrieve the results.
+	Xapian::MSet mymset1a = enquire1.get_mset(0, 0);
+	Xapian::MSet mymset2a = enquire2.get_mset(0, 0);
 
-    TEST_EQUAL(mymset1a.get_termfreq(term1),
-	       mymset2a.get_termfreq(term1));
-    TEST_EQUAL(mymset1a.get_termfreq(term2),
-	       mymset2a.get_termfreq(term2));
-    TEST_EQUAL(mymset1a.get_termfreq(term3),
-	       mymset2a.get_termfreq(term3));
+	TEST_EQUAL(mymset1a.get_termfreq(term1),
+		   mymset2a.get_termfreq(term1));
+	TEST_EQUAL(mymset1a.get_termfreq(term2),
+		   mymset2a.get_termfreq(term2));
+	TEST_EQUAL(mymset1a.get_termfreq(term3),
+		   mymset2a.get_termfreq(term3));
 
-    TEST_EQUAL(mymset1a.get_termfreq(term1), 3);
-    TEST_EQUAL(mymset1a.get_termfreq(term2), 1);
-    TEST_EQUAL(mymset1a.get_termfreq(term3), 0);
+	TEST_EQUAL(mymset1a.get_termfreq(term1), 3);
+	TEST_EQUAL(mymset1a.get_termfreq(term2), 1);
+	TEST_EQUAL(mymset1a.get_termfreq(term3), 0);
 
-    TEST_NOT_EQUAL(mymset1a.get_termweight(term1), 0);
-    TEST_NOT_EQUAL(mymset1a.get_termweight(term2), 0);
-    // non-existent terms should have 0 weight.
-    TEST_EQUAL(mymset1a.get_termweight(term3), 0);
+	TEST_NOT_EQUAL(mymset1a.get_termweight(term1), 0);
+	TEST_NOT_EQUAL(mymset1a.get_termweight(term2), 0);
+	// Non-existent terms should have zero weight.
+	TEST_EQUAL(mymset1a.get_termweight(term3), 0);
 
-    TEST_EQUAL(mymset1a.get_termfreq(stemmer("banana")), 1);
-    TEST_EXCEPTION(Xapian::InvalidArgumentError,
-		   mymset1a.get_termweight(stemmer("banana")));
+	TEST_EQUAL(mymset1a.get_termfreq(stemmer("banana")), 1);
+	TEST_EXCEPTION(Xapian::InvalidArgumentError,
+		       mymset1a.get_termweight(stemmer("banana")));
 
-    TEST_EQUAL(mymset1a.get_termfreq("sponge"), 0);
-    TEST_EXCEPTION(Xapian::InvalidArgumentError,
-		   mymset1a.get_termweight("sponge"));
+	TEST_EQUAL(mymset1a.get_termfreq("sponge"), 0);
+	TEST_EXCEPTION(Xapian::InvalidArgumentError,
+		       mymset1a.get_termweight("sponge"));
+
+	// Repeat tests with TradWeight.  (Regression test to ensure
+	// non-existent terms get zero weight with TradWeight.)
+	enquire1.set_weighting_scheme(Xapian::TradWeight());
+	enquire2.set_weighting_scheme(Xapian::TradWeight());
+    }
 }
 
 /// Regression test for bug #37.

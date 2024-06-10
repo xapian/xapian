@@ -157,8 +157,7 @@ TradWeight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len,
 double
 TradWeight::get_maxpart() const
 {
-    // FIXME: need to force non-zero wdf_max to stop percentages breaking...
-    double wdf_max = max(get_wdf_upper_bound(), Xapian::termcount(1));
+    double wdf_max = get_wdf_upper_bound();
     Xapian::termcount doclen_lb = get_doclength_lower_bound();
     return termweight * (wdf_max / (doclen_lb * len_factor + wdf_max));
 }
