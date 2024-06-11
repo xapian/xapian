@@ -660,7 +660,7 @@ class AndContext : public Context {
     }
 
     bool add_postlist(PostList* pl, TermFreqs* termfreqs) {
-	if (termfreqs) termfreqs_list.emplace_back(*termfreqs);
+	add_termfreqs(termfreqs);
 	if (pl) {
 	    if (pls.empty() && termfreqs_list.size() > 1) {
 		qopt->destroy_postlist(pl);
