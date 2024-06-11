@@ -39,43 +39,43 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
     /// Stats which the weighting scheme can use (see @a need_stat()).
     typedef enum {
 	/// Number of documents in the collection.
-	COLLECTION_SIZE = 1,
+	COLLECTION_SIZE = 0,
 	/// Number of documents in the RSet.
-	RSET_SIZE = 2,
+	RSET_SIZE = 0,
 	/// Average length of documents in the collection.
 	AVERAGE_LENGTH = 4,
 	/// How many documents the current term is in.
-	TERMFREQ = 8,
+	TERMFREQ = 1,
 	/// How many documents in the RSet the current term is in.
-	RELTERMFREQ = 16,
+	RELTERMFREQ = 1,
 	/// Sum of wqf for terms in the query.
-	QUERY_LENGTH = 32,
+	QUERY_LENGTH = 0,
 	/// Within-query-frequency of the current term.
-	WQF = 64,
+	WQF = 0,
 	/// Within-document-frequency of the current term in the current document.
-	WDF = 128,
+	WDF = 2,
 	/// Length of the current document (sum wdf).
-	DOC_LENGTH = 256,
+	DOC_LENGTH = 8,
 	/// Lower bound on (non-zero) document lengths.
-	DOC_LENGTH_MIN = 512,
+	DOC_LENGTH_MIN = 16,
 	/// Upper bound on document lengths.
-	DOC_LENGTH_MAX = 1024,
+	DOC_LENGTH_MAX = 32,
 	/// Upper bound on wdf.
-	WDF_MAX = 2048,
+	WDF_MAX = 64,
 	/// Sum of wdf over the whole collection for the current term.
-	COLLECTION_FREQ = 4096,
+	COLLECTION_FREQ = 1,
 	/// Number of unique terms in the current document.
-	UNIQUE_TERMS = 8192,
+	UNIQUE_TERMS = 128,
 	/** Sum of lengths of all documents in the collection.
 	 *  This gives the total number of term occurrences.
 	 */
-	TOTAL_LENGTH = 16384,
+	TOTAL_LENGTH = 256,
 	/// Maximum wdf in the current document.
-	WDF_DOC_MAX = 32768,
+	WDF_DOC_MAX = 512,
 	/// Lower bound on number of unique terms in a document.
-	UNIQUE_TERMS_MIN = 65536,
+	UNIQUE_TERMS_MIN = 1024,
 	/// Upper bound on number of unique terms in a document.
-	UNIQUE_TERMS_MAX = 131072
+	UNIQUE_TERMS_MAX = 2048
     } stat_flags;
 
     /** Tell Xapian that your subclass will want a particular statistic.
@@ -85,6 +85,16 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
      *  should call need_stat() from your constructor for each statistic
      *  needed by the weighting scheme you are implementing (possibly
      *  conditional on the values of parameters of the weighting scheme).
+     *
+     *  Some of the statistics are currently available by default and their
+     *  constants above have value 0 (e.g. COLLECTION_SIZE).  You should
+     *  still call need_stat() for these (the compiler should optimise away
+     *  these calls and any conditional checks for them).
+     *
+     *  Some statistics are currently fetched together and so their constants
+     *  have the same numeric value - if you need more than one of these
+     *  statistics you should call need_stat() for each one.  The compiler
+     *  should optimise this too.
      *
      *  Prior to 1.5.0, it was assumed that if get_maxextra() returned
      *  a non-zero value then get_sumextra() needed the document length even if
