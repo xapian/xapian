@@ -540,6 +540,40 @@ DEFINE_TESTCASE(wildcard2, backend) {
     TEST_EQUAL(mset.size(), 6);
 }
 
+/** Regression test for bug in initial OP_WILDCARD implementation.
+ *
+ *  Fix overly high reported termweight values in some cases.
+ */
+DEFINE_TESTCASE(wildcard4, backend) {
+    Xapian::Database db = get_database("apitest_simpledata");
+    Xapian::Enquire enq(db);
+    Xapian::Query q(Xapian::Query::OP_WILDCARD, "u", 0,
+		    Xapian::Query::WILDCARD_LIMIT_ERROR,
+		    Xapian::Query::OP_OR);
+    q |= Xapian::Query("xyzzy");
+    q |= Xapian::Query("use");
+    enq.set_query(q);
+    Xapian::MSet mset = enq.get_mset(0, 10);
+    TEST_EQUAL(mset.size(), 4);
+    TEST_EQUAL(mset[0].get_percent(), 25);
+    TEST_EQUAL_DOUBLE(mset.get_termweight("up"), 1.48489483900601);
+    // The exact termweight value here depends on the backend, but before the
+    // bug fix we were doubling the termweight of "use".
+    TEST_REL(mset.get_termweight("use"), <, 0.9);
+    TEST_EQUAL(mset.get_termweight("xyzzy"), 0.0);
+    // Enquire::get_matching_terms_begin() doesn't report terms from wildcard
+    // expansion, but it should report an explicit query term which also
+    // happens be in a wildcard expansion.
+    string terms;
+    for (auto t = enq.get_matching_terms_begin(*mset[1]);
+	 t != enq.get_matching_terms_end(*mset[1]);
+	 ++t) {
+	if (!terms.empty()) terms += ' ';
+	terms += *t;
+    }
+    TEST_EQUAL(terms, "use");
+}
+
 DEFINE_TESTCASE(dualprefixwildcard1, backend) {
     Xapian::Database db = get_database("apitest_simpledata");
     Xapian::Query q(Xapian::Query::OP_SYNONYM,

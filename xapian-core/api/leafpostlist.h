@@ -84,8 +84,10 @@ class LeafPostList : public PostList {
 	need_doclength = weight->get_sumpart_needs_doclength_();
 	// We get such terms from the database so they should exist.
 	Assert(get_termfreq() > 0);
-	stats->termfreqs[term].max_part += weight->get_maxpart();
-	return stats->termfreqs[term].max_part;
+	double result = weight->get_maxpart();
+	double& max_part = stats->termfreqs[term].max_part;
+	max_part = std::max(max_part, result);
+	return result;
     }
 
     /** Return the exact term frequency.
