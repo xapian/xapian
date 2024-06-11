@@ -68,7 +68,9 @@ struct TermFreqs {
 	termfreq += other.termfreq;
 	reltermfreq += other.reltermfreq;
 	collfreq += other.collfreq;
-	max_part += other.max_part;
+	// max_part shouldn't be set yet.
+	Assert(max_part == 0.0);
+	Assert(other.max_part == 0.0);
     }
 
     void operator*=(double factor) {
@@ -243,11 +245,13 @@ class Weight::Internal {
 
     /// Set max_part for a term.
     void set_max_part(const std::string & term, double max_part) {
-	have_max_part = true;
 	Assert(!term.empty());
 	auto i = termfreqs.find(term);
-	if (i != termfreqs.end())
-	    i->second.max_part += max_part;
+	if (i != termfreqs.end()) {
+	    have_max_part = true;
+	    double& val = i->second.max_part;
+	    val = std::max(val, max_part);
+	}
     }
 
     Xapian::doclength get_average_length() const {

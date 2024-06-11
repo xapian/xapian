@@ -98,8 +98,10 @@ class LeafPostList : public PostList {
 	delete const_weight_;
 	// We get such terms from the database so they should exist.
 	Assert(get_termfreq() > 0);
-	stats->termfreqs[term].max_part += weight->get_maxpart();
-	return stats->termfreqs[term].max_part;
+	double result = weight->get_maxpart();
+	double& max_part = stats->termfreqs[term].max_part;
+	max_part = std::max(max_part, result);
+	return result;
     }
 
     double get_weight(Xapian::termcount doclen,
