@@ -76,8 +76,8 @@ Notes
 -----
 
 A remote search should behave just like the equivalent local one, except
-a few features aren't currently implemented (e.g. spelling, synonyms,
-user metadata).
+a few features aren't currently implemented (e.g. spelling correction,
+``Xapian::MatchDecider``).
 
 Exceptions are propagated across the link and thrown again at the client
 end.
