@@ -31,6 +31,7 @@
 #include "internaltypes.h"
 #include "omassert.h"
 
+#include <algorithm>
 #include <map>
 #include <string>
 
