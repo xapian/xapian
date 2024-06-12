@@ -50,3 +50,13 @@
     obj:/usr/lib/libz.so.1.2.*
     fun:deflate
 }
+
+# Workaround valgrind bug where it moans about memmove() with overlapping
+# source and destination (which is defined to work, unlike memcpy()):
+# https://bugs.kde.org/show_bug.cgi?id=402833
+{
+   memmove overlapping source and destination
+   Memcheck:Overlap
+   fun:__memcpy_chk
+   fun:memmove
+}
