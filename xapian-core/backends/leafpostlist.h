@@ -24,6 +24,7 @@
 
 #include "postlist.h"
 
+#include <algorithm>
 #include <string>
 #include <string_view>
 

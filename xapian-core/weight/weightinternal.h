@@ -32,6 +32,7 @@
 #include "internaltypes.h"
 #include "omassert.h"
 
+#include <algorithm>
 #include <cerrno>
 #include <cstdlib>
 #include <functional>
