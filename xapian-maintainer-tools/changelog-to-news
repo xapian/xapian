@@ -177,8 +177,10 @@ if (defined $new_version) {
 print NEWSTMP $news if defined $news;
 while (<NEWS>) {
     if (!defined $new_version) {
-	if (s/^([A-Za-z][-\w]* (\d+(?:\.\d+)+) \()\d{4}-\d\d-\d\d(\):)$/$1$date$3/) {
+	# Handle placeholder date like ????-??-??.
+	if (/^([A-Za-z][-\w]* (\d+(?:\.\d+)+) \()....-..-..:)$/) {
 	    $new_version = $2;
+	    s/^([A-Za-z][-\w]* (\d+(?:\.\d+)+) \()\d{4}-\d\d-\d\d(\):)$/$1$date$3/) {
 	}
     }
     print NEWSTMP;
