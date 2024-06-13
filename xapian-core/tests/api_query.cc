@@ -540,7 +540,7 @@ DEFINE_TESTCASE(wildcard2, backend) {
     TEST_EQUAL(mset.size(), 6);
 }
 
-/** Regression test for bug in initial OP_WILDCARD implementation.
+/** Regression test for OP_WILDCARD bug, fixed in 1.4.26.
  *
  *  Fix overly high reported termweight values in some cases.
  */
