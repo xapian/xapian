@@ -31,15 +31,14 @@
 #include "backends/databaseinternal.h"
 #include "internaltypes.h"
 #include "omassert.h"
-#include "unorderedstringmap.h"
 
 #include <algorithm>
 #include <cerrno>
 #include <cstdlib>
 #include <functional>
+#include <map>
 #include <string>
 #include <string_view>
-#include <unordered_map>
 #ifdef HAVE_STD_FROM_CHARS_DOUBLE
 # include <cstring>
 # include <charconv>
@@ -133,8 +132,9 @@ class Weight::Internal {
     /** The query. */
     Xapian::Query query;
 
-    /** Termfreq, reltermfreq and collfreq for query terms. */
-    unordered_string_map<TermFreqs> termfreqs;
+    /** Map of term frequencies and relevant term frequencies for the
+     *  collection. */
+    std::map<std::string, TermFreqs, std::less<>> termfreqs;
 
     Internal() { }
 
@@ -183,7 +183,7 @@ class Weight::Internal {
 	    return true;
 	}
 
-	auto i = termfreqs.find(STRING_MAP_KEY(term));
+	auto i = termfreqs.find(term);
 	if (i == termfreqs.end()) {
 	    termfreq = reltermfreq = collfreq = 0;
 	    return false;
@@ -213,7 +213,7 @@ class Weight::Internal {
 	    return false;
 	}
 
-	auto i = termfreqs.find(STRING_MAP_KEY(term));
+	auto i = termfreqs.find(term);
 	if (i == termfreqs.end()) {
 	    return false;
 	}
@@ -245,9 +245,9 @@ class Weight::Internal {
     }
 
     /// Set max_part for a term.
-    void set_max_part(std::string_view term, double max_part) {
+    void set_max_part(const std::string & term, double max_part) {
 	Assert(!term.empty());
-	auto i = termfreqs.find(STRING_MAP_KEY(term));
+	auto i = termfreqs.find(term);
 	if (i != termfreqs.end()) {
 	    have_max_part = true;
 	    double& val = i->second.max_part;

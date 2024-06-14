@@ -45,7 +45,6 @@ noinst_HEADERS +=\
 	common/setenv.h\
 	common/socket_utils.h\
 	common/str.h\
-	common/unorderedstringmap.h\
 	common/stringutils.h\
 	common/wordaccess.h
 
