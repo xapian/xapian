@@ -1,5 +1,3 @@
-ACLOCAL_AMFLAGS = -I m4
-
 lib_LTLIBRARIES = profiler.la
 
 profiler_la_SOURCES = profiler.c
