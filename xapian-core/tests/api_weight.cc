@@ -2031,3 +2031,33 @@ DEFINE_TESTCASE(dicecoeffweight2, backend) {
 	TEST_EQUAL_DOUBLE(15.0 * mset1[i].get_weight(), mset2[i].get_weight());
     }
 }
+
+// Test handling of a term with zero wdf.
+DEFINE_TESTCASE(dicecoeffweight3, backend) {
+    Xapian::Database db = get_database("dicecoeffweight3",
+				       [](Xapian::WritableDatabase& wdb,
+					  const string&) {
+					   Xapian::Document doc;
+					   doc.add_term("radio", 2);
+					   doc.add_term("seahorse");
+					   doc.add_term("zebra");
+					   doc.add_boolean_term("false");
+					   doc.add_boolean_term("true");
+					   wdb.add_document(doc);
+				       });
+    Xapian::Enquire enquire(db);
+    enquire.set_weighting_scheme(Xapian::DiceCoeffWeight());
+
+    // OP_SYNONYM gives wdf zero is need_stat(WDF) isn't specified (and
+    // it isn't by DiceCoeffWeight).
+    Xapian::Query q(Xapian::Query::OP_SYNONYM,
+		    Xapian::Query("false"), Xapian::Query("true"));
+    enquire.set_query(Xapian::Query(Xapian::Query::OP_SCALE_WEIGHT,
+				    q, 6.0));
+    Xapian::MSet mset = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset.size(), 1);
+
+    // factor * 2.0 * wqf / (query_length + unique_term_count)
+    // = 6.0 * 2.0 * 1 / (2 + 4) = 4.0
+    TEST_EQUAL_DOUBLE(mset[0].get_weight(), 4.0);
+}

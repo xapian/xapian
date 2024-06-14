@@ -100,12 +100,11 @@ DiceCoeffWeight::unserialise(const string & s) const
 }
 
 double
-DiceCoeffWeight::get_sumpart(Xapian::termcount wdf,
+DiceCoeffWeight::get_sumpart(Xapian::termcount,
 			     Xapian::termcount,
 			     Xapian::termcount uniqterms,
 			     Xapian::termcount) const
 {
-    if (wdf == 0) return 0.0;
     return numerator / (get_query_length() + uniqterms);
 }
 
