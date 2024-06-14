@@ -634,6 +634,12 @@ cd ..
 ACLOCAL="${ACLOCAL-aclocal} -I `pwd`/xapian-core/m4-macros"
 export ACLOCAL
 
+# It seems we also need to specify the local macros dir via -I, since
+# even with AC_CONFIG_MACRO_DIRS([m4]) in configure.ac macros there
+# won't be used if a version is installed in a directory specifed by
+# -I.
+ACLOCAL="${ACLOCAL-aclocal} -I m4"
+
 aclocal_ac_dir=`${ACLOCAL-aclocal} --print-ac-dir`
 aclocal_system_needed=
 if [ ! -r "$aclocal_ac_dir/pkg.m4" ] ; then
