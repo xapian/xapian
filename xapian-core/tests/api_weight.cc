@@ -2053,11 +2053,11 @@ DEFINE_TESTCASE(dicecoeffweight3, backend) {
     Xapian::Query q(Xapian::Query::OP_SYNONYM,
 		    Xapian::Query("false"), Xapian::Query("true"));
     enquire.set_query(Xapian::Query(Xapian::Query::OP_SCALE_WEIGHT,
-				    q, 6.0));
+				    q, 6.0), 2);
     Xapian::MSet mset = enquire.get_mset(0, 10);
     TEST_EQUAL(mset.size(), 1);
 
     // factor * 2.0 * wqf / (query_length + unique_term_count)
-    // = 6.0 * 2.0 * 1 / (2 + 4) = 4.0
-    TEST_EQUAL_DOUBLE(mset[0].get_weight(), 4.0);
+    // = 6.0 * 2.0 * 1 / (2 + 4) = 2.0
+    TEST_EQUAL_DOUBLE(mset[0].get_weight(), 2.0);
 }
