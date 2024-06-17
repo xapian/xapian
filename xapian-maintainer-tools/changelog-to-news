@@ -152,6 +152,7 @@ while (<BLAME>) {
 #	    }
 #	}
     }
+    s/[ \t]+$//;
     print NEWSTMP;
     ++$lines;
 }
