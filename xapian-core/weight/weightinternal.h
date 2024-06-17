@@ -50,12 +50,13 @@ namespace Internal {
 
 /// The frequencies for a term.
 struct TermFreqs {
-    Xapian::doccount termfreq;
-    Xapian::doccount reltermfreq;
-    Xapian::termcount collfreq;
-    double max_part;
+    Xapian::doccount termfreq = 0;
+    Xapian::doccount reltermfreq = 0;
+    Xapian::termcount collfreq = 0;
 
-    TermFreqs() : termfreq(0), reltermfreq(0), collfreq(0), max_part(0.0) {}
+    double max_part = 0.0;
+
+    TermFreqs() {}
     TermFreqs(Xapian::doccount termfreq_,
 	      Xapian::doccount reltermfreq_,
 	      Xapian::termcount collfreq_,
