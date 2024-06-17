@@ -178,9 +178,14 @@ print NEWSTMP $news if defined $news;
 while (<NEWS>) {
     if (!defined $new_version) {
 	# Handle placeholder date like ????-??-??.
-	if (/^([A-Za-z][-\w]* (\d+(?:\.\d+)+) \()....-..-..:)$/) {
+	if (/^([A-Za-z][-\w]* (\d+(?:\.\d+)+) \()(....-..-..)(\):)$/) {
+	    my $pre = $1;
 	    $new_version = $2;
-	    s/^([A-Za-z][-\w]* (\d+(?:\.\d+)+) \()\d{4}-\d\d-\d\d(\):)$/$1$date$3/) {
+	    my $old_date = $3;
+	    my $post = $4;
+	    if ($old_date =~ /^\d{4}-\d\d-\d\d$/) {
+		$_ = "$pre$date$post";
+	    }
 	}
     }
     print NEWSTMP;
