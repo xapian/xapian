@@ -1375,11 +1375,15 @@ class CheckStatsWeight : public Xapian::Weight {
 	need_stat(DOC_LENGTH);
 	need_stat(DOC_LENGTH_MIN);
 	need_stat(DOC_LENGTH_MAX);
+	need_stat(DB_DOC_LENGTH_MIN);
+	need_stat(DB_DOC_LENGTH_MAX);
 	need_stat(WDF_MAX);
 	need_stat(COLLECTION_FREQ);
 	need_stat(UNIQUE_TERMS);
 	need_stat(UNIQUE_TERMS_MIN);
 	need_stat(UNIQUE_TERMS_MAX);
+	need_stat(DB_UNIQUE_TERMS_MIN);
+	need_stat(DB_UNIQUE_TERMS_MAX);
 	need_stat(TOTAL_LENGTH);
 	need_stat(WDF_DOC_MAX);
     }
@@ -1483,6 +1487,26 @@ class CheckStatsWeight : public Xapian::Weight {
 	TEST_REL(wdf,<=,wdf_upper);
 	TEST_REL(wdfdocmax,<=,doclen);
 	TEST_REL(wdfdocmax,>=,wdf);
+
+	auto db_len_lower = db.get_doclength_lower_bound();
+	auto db_len_upper = db.get_doclength_upper_bound();
+	auto db_uniqueterms_lower = db.get_unique_terms_lower_bound();
+	auto db_uniqueterms_upper = db.get_unique_terms_upper_bound();
+	TEST_EQUAL(get_db_doclength_lower_bound(), db_len_lower);
+	TEST_EQUAL(get_db_doclength_upper_bound(), db_len_upper);
+	TEST_EQUAL(get_db_unique_terms_lower_bound(), db_uniqueterms_lower);
+	TEST_EQUAL(get_db_unique_terms_upper_bound(), db_uniqueterms_upper);
+	if (db.size() == 1) {
+	    TEST_EQUAL(len_lower, db_len_lower);
+	    TEST_EQUAL(len_upper, db_len_upper);
+	    TEST_EQUAL(uniqueterms_lower, db_uniqueterms_lower);
+	    TEST_EQUAL(uniqueterms_upper, db_uniqueterms_upper);
+	} else {
+	    TEST_REL(len_lower,>=,db_len_lower);
+	    TEST_REL(len_upper,<=,db_len_upper);
+	    TEST_REL(uniqueterms_lower,>=,db_uniqueterms_lower);
+	    TEST_REL(uniqueterms_upper,<=,db_uniqueterms_upper);
+	}
 	if (term2 != "_") {
 	    sum += wdf;
 	    sum_squares += wdf * wdf;

@@ -65,13 +65,17 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
 	/** Upper bound on document lengths.
 	 *  This bound is for the current shard and is suitable for using to
 	 *  calculate upper bounds to return from get_maxpart() and
-	 *  get_maxextra().
+	 *  get_maxextra().  If you need a bound for calculating a returned
+	 *  weight from get_sumpart() or get_sumextra() then you should use
+	 *  DB_DOC_LENGTH_MIN instead.
 	 */
 	DOC_LENGTH_MAX = 32,
 	/** Upper bound on wdf.
 	 *  This bound is for the current shard and is suitable for using to
 	 *  calculate upper bounds to return from get_maxpart() and
-	 *  get_maxextra().
+	 *  get_maxextra().  If you need a bound for calculating a returned
+	 *  weight from get_sumpart() or get_sumextra() then you should use
+	 *  DB_DOC_LENGTH_MAX instead.
 	 */
 	WDF_MAX = 64,
 	/// Sum of wdf over the whole collection for the current term.
@@ -87,15 +91,44 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
 	/** Lower bound on number of unique terms in a document.
 	 *  This bound is for the current shard and is suitable for using to
 	 *  calculate upper bounds to return from get_maxpart() and
-	 *  get_maxextra().
+	 *  get_maxextra().  If you need a bound for calculating a returned
+	 *  weight from get_sumpart() or get_sumextra() then you should use
+	 *  DB_UNIQUE_TERMS_MIN instead.
 	 */
 	UNIQUE_TERMS_MIN = 1024,
 	/** Upper bound on number of unique terms in a document.
 	 *  This bound is for the current shard and is suitable for using to
 	 *  calculate upper bounds to return from get_maxpart() and
-	 *  get_maxextra().
+	 *  get_maxextra().  If you need a bound for calculating a returned
+	 *  weight from get_sumpart() or get_sumextra() then you should use
+	 *  DB_UNIQUE_TERMS_MAX instead.
 	 */
-	UNIQUE_TERMS_MAX = 2048
+	UNIQUE_TERMS_MAX = 2048,
+	/** Lower bound on (non-zero) document lengths.
+	 *  This is a suitable bound for calculating a returned weight from
+	 *  get_sumpart() or get_sumextra().
+	 */
+	DB_DOC_LENGTH_MIN = 4096,
+	/** Upper bound on document lengths.
+	 *  This is a suitable bound for calculating a returned weight from
+	 *  get_sumpart() or get_sumextra().
+	 */
+	DB_DOC_LENGTH_MAX = 8192,
+	/** Lower bound on number of unique terms in a document.
+	 *  This is a suitable bound for calculating a returned weight from
+	 *  get_sumpart() or get_sumextra();
+	 */
+	DB_UNIQUE_TERMS_MIN = 16384,
+	/** Upper bound on number of unique terms in a document.
+	 *  This is a suitable bound for calculating a returned weight from
+	 *  get_sumpart() or get_sumextra();
+	 */
+	DB_UNIQUE_TERMS_MAX = 32768,
+	/** Upper bound on wdf of this term.
+	 *  This is a suitable bound for calculating a returned weight from
+	 *  get_sumpart().
+	 */
+	DB_WDF_MAX = 65536
     } stat_flags;
 
     /** Tell Xapian that your subclass will want a particular statistic.
@@ -192,6 +225,25 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
      *  shard.
      */
     Xapian::termcount unique_terms_upper_bound_;
+
+    /// A lower bound on the minimum length of any document in the database.
+    Xapian::termcount db_doclength_lower_bound_;
+
+    /// An upper bound on the maximum length of any document in the database.
+    Xapian::termcount db_doclength_upper_bound_;
+
+    /// An upper bound on the wdf of this term in the database.
+    Xapian::termcount db_wdf_upper_bound_;
+
+    /** A lower bound on the number of unique terms in any document in the
+     *  database.
+     */
+    Xapian::termcount db_unique_terms_lower_bound_;
+
+    /** An upper bound on the number of unique terms in any document in the
+     *  database.
+     */
+    Xapian::termcount db_unique_terms_upper_bound_;
 
   public:
 
@@ -520,6 +572,42 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
      */
     Xapian::termcount get_unique_terms_lower_bound() const {
 	return unique_terms_lower_bound_;
+    }
+
+    /** An upper bound on the maximum length of any document in the database.
+     */
+    Xapian::termcount get_db_doclength_upper_bound() const {
+	return db_doclength_upper_bound_;
+    }
+
+    /** A lower bound on the minimum length of any document in the database.
+     *
+     *  This bound does not include any zero-length documents.
+     */
+    Xapian::termcount get_db_doclength_lower_bound() const {
+	return db_doclength_lower_bound_;
+    }
+
+    /** A lower bound on the number of unique terms in any document in the
+     *  database.
+     *
+     *  This bound does not include any zero-length documents.
+     */
+    Xapian::termcount get_db_unique_terms_upper_bound() const {
+	return db_unique_terms_upper_bound_;
+    }
+
+    /** An upper bound on the number of unique terms in any document in the
+     *  database.
+     */
+    Xapian::termcount get_db_unique_terms_lower_bound() const {
+	return db_unique_terms_lower_bound_;
+    }
+
+    /** An upper bound on the wdf of this term in the database.
+     */
+    Xapian::termcount get_db_wdf_upper_bound() const {
+	return db_wdf_upper_bound_;
     }
 };
 

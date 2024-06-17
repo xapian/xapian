@@ -58,9 +58,10 @@
 // 44.1: pre-1.5.0 MSG_RECONSTRUCTTEXT added
 // 45: pre-1.5.0 Remote support for sorters
 // 46: pre-1.5.0 Drop unused fields; front-code term names in serialised stats
-// 46.1: 1.5.0 MSG_REQUESTDOCUMENT added
-#define XAPIAN_REMOTE_PROTOCOL_MAJOR_VERSION 46
-#define XAPIAN_REMOTE_PROTOCOL_MINOR_VERSION 1
+// 46.1: pre-1.5.0 MSG_REQUESTDOCUMENT added
+// 47: 1.5.0 Updated Weight::Internal serialisation for db_*_bound
+#define XAPIAN_REMOTE_PROTOCOL_MAJOR_VERSION 47
+#define XAPIAN_REMOTE_PROTOCOL_MINOR_VERSION 0
 
 /** Message types (client -> server).
  *

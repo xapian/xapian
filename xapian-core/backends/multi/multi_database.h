@@ -105,6 +105,10 @@ class MultiDatabase : public Xapian::Database::Internal {
 
     Xapian::termcount get_wdf_upper_bound(std::string_view term) const;
 
+    Xapian::termcount get_unique_terms_lower_bound() const;
+
+    Xapian::termcount get_unique_terms_upper_bound() const;
+
     ValueList* open_value_list(Xapian::valueno slot) const;
 
     Xapian::termcount get_doclength(Xapian::docid did) const;

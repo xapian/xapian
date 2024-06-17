@@ -2,7 +2,7 @@
  * @brief Xapian::Weight::Internal class, holding database and term statistics.
  */
 /* Copyright (C) 2007 Lemur Consulting Ltd
- * Copyright (C) 2009,2010,2011,2012,2013,2014,2015,2017,2020 Olly Betts
+ * Copyright (C) 2009,2010,2011,2012,2013,2014,2015,2017,2020,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,6 +25,7 @@
 
 #include "xapian/enquire.h"
 
+#include "min_non_zero.h"
 #include "omassert.h"
 #include "api/rsetinternal.h"
 #include "str.h"
@@ -61,6 +62,16 @@ Weight::Internal::operator+=(const Weight::Internal & inc)
     collection_size += inc.collection_size;
     rset_size += inc.rset_size;
 
+    db_doclength_lower_bound = min_non_zero(db_doclength_lower_bound,
+					    inc.db_doclength_lower_bound);
+    db_doclength_upper_bound = std::max(db_doclength_upper_bound,
+					inc.db_doclength_upper_bound);
+
+    db_unique_terms_lower_bound = min_non_zero(db_unique_terms_lower_bound,
+					       inc.db_unique_terms_lower_bound);
+    db_unique_terms_upper_bound = std::max(db_unique_terms_upper_bound,
+					   inc.db_unique_terms_upper_bound);
+
     // Add termfreqs and reltermfreqs
     for (auto&& i : inc.termfreqs) {
 	termfreqs[i.first] += i.second;
@@ -79,6 +90,17 @@ Weight::Internal::accumulate_stats(const Xapian::Database::Internal &subdb,
     total_length += subdb.get_total_length();
     collection_size += subdb.get_doccount();
     rset_size += rset.size();
+
+    db_doclength_lower_bound = min_non_zero(db_doclength_lower_bound,
+					    subdb.get_doclength_lower_bound());
+    db_doclength_upper_bound = std::max(db_doclength_upper_bound,
+					subdb.get_doclength_upper_bound());
+    db_unique_terms_lower_bound =
+	min_non_zero(db_unique_terms_lower_bound,
+		     subdb.get_unique_terms_lower_bound());
+    db_unique_terms_upper_bound =
+	std::max(db_unique_terms_upper_bound,
+		 subdb.get_unique_terms_upper_bound());
 
     Xapian::TermIterator t;
     for (t = query.get_unique_terms_begin(); t != Xapian::TermIterator(); ++t) {

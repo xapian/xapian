@@ -55,6 +55,14 @@ Weight::init_(const Internal & stats, Xapian::termcount query_length,
 	unique_terms_lower_bound_ = shard->get_unique_terms_lower_bound();
     if (stats_needed & TOTAL_LENGTH)
 	total_length_ = stats.total_length;
+    if (stats_needed & DB_DOC_LENGTH_MAX)
+	db_doclength_upper_bound_ = stats.db_doclength_upper_bound;
+    if (stats_needed & DB_DOC_LENGTH_MIN)
+	db_doclength_lower_bound_ = stats.db_doclength_lower_bound;
+    if (stats_needed & DB_UNIQUE_TERMS_MAX)
+	db_unique_terms_upper_bound_ = stats.db_unique_terms_upper_bound;
+    if (stats_needed & DB_UNIQUE_TERMS_MIN)
+	db_unique_terms_lower_bound_ = stats.db_unique_terms_lower_bound;
     collectionfreq_ = 0;
     wdf_upper_bound_ = 0;
     termfreq_ = 0;
@@ -88,6 +96,21 @@ Weight::init_(const Internal & stats, Xapian::termcount query_length,
     if (stats_needed & WDF_MAX) {
 	auto postlist = static_cast<LeafPostList*>(postlist_void);
 	wdf_upper_bound_ = postlist->get_wdf_upper_bound();
+    }
+    if (stats_needed & DB_DOC_LENGTH_MAX)
+	db_doclength_upper_bound_ = stats.db_doclength_upper_bound;
+    if (stats_needed & DB_DOC_LENGTH_MIN)
+	db_doclength_lower_bound_ = stats.db_doclength_lower_bound;
+    if (stats_needed & DB_UNIQUE_TERMS_MAX)
+	db_unique_terms_upper_bound_ = stats.db_unique_terms_upper_bound;
+    if (stats_needed & DB_UNIQUE_TERMS_MIN)
+	db_unique_terms_lower_bound_ = stats.db_unique_terms_lower_bound;
+    if (stats_needed & DB_WDF_MAX) {
+	// FIXME: Nothing uses this stat, so for now return a correct but
+	// likely fairly loose upper bound.  Once we have something that
+	// wants to use this we can implement tracking a per-term wdf_max
+	// across the whole database.
+	db_wdf_upper_bound_ = stats.db_doclength_upper_bound;
     }
     if (stats_needed & (TERMFREQ | RELTERMFREQ | COLLECTION_FREQ)) {
 	bool ok = stats.get_stats(term,
@@ -131,6 +154,23 @@ Weight::init_(const Internal & stats, Xapian::termcount query_length,
 	unique_terms_lower_bound_ = shard->get_unique_terms_lower_bound();
     if (stats_needed & TOTAL_LENGTH)
 	total_length_ = stats.total_length;
+    if (stats_needed & (DB_DOC_LENGTH_MAX | DB_WDF_MAX)) {
+	db_doclength_upper_bound_ = stats.db_doclength_upper_bound;
+	// The doclength is an upper bound on the wdf.  This is obviously true
+	// for normal terms, but SynonymPostList ensures that it is also true
+	// for synonym terms by clamping the wdf values returned to the
+	// doclength.
+	//
+	// (This clamping is only actually necessary in cases where a
+	// constituent term of the synonym is repeated.)
+	db_wdf_upper_bound_ = db_doclength_upper_bound_;
+    }
+    if (stats_needed & DB_DOC_LENGTH_MIN)
+	db_doclength_lower_bound_ = stats.db_doclength_lower_bound;
+    if (stats_needed & DB_UNIQUE_TERMS_MAX)
+	db_unique_terms_upper_bound_ = stats.db_unique_terms_upper_bound;
+    if (stats_needed & DB_UNIQUE_TERMS_MIN)
+	db_unique_terms_lower_bound_ = stats.db_unique_terms_lower_bound;
 
     termfreq_ = termfreq;
     reltermfreq_ = reltermfreq;

@@ -123,6 +123,18 @@ class Weight::Internal {
     /** Number of relevant documents in the collection. */
     Xapian::doccount rset_size = 0;
 
+    /// A lower bound on the minimum length of any document in the database.
+    Xapian::termcount db_doclength_lower_bound = 0;
+
+    /// An upper bound on the maximum length of any document in the database.
+    Xapian::termcount db_doclength_upper_bound = 0;
+
+    /// A lower bound on the number of unique terms in any document.
+    Xapian::termcount db_unique_terms_lower_bound = 0;
+
+    /// An upper bound on the number of unique terms in any document.
+    Xapian::termcount db_unique_terms_upper_bound = 0;
+
     /** Has max_part been set for any term?
      *
      *  If not, we can avoid having to serialise max_part.

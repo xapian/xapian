@@ -46,6 +46,12 @@ serialise_stats(const Xapian::Weight::Internal &stats)
     pack_uint(result, stats.total_length);
     pack_uint(result, stats.collection_size);
     pack_uint(result, stats.rset_size);
+    pack_uint(result, stats.db_doclength_lower_bound);
+    pack_uint(result, stats.db_doclength_upper_bound -
+		      stats.db_doclength_lower_bound);
+    pack_uint(result, stats.db_unique_terms_lower_bound);
+    pack_uint(result, stats.db_unique_terms_upper_bound -
+		      stats.db_unique_terms_lower_bound);
     pack_bool(result, stats.have_max_part);
 
     pack_uint(result, stats.termfreqs.size());
@@ -90,10 +96,16 @@ unserialise_stats(const char* p, const char* p_end,
     if (!unpack_uint(&p, p_end, &stat.total_length) ||
 	!unpack_uint(&p, p_end, &stat.collection_size) ||
 	!unpack_uint(&p, p_end, &stat.rset_size) ||
+	!unpack_uint(&p, p_end, &stat.db_doclength_lower_bound) ||
+	!unpack_uint(&p, p_end, &stat.db_doclength_upper_bound) ||
+	!unpack_uint(&p, p_end, &stat.db_unique_terms_lower_bound) ||
+	!unpack_uint(&p, p_end, &stat.db_unique_terms_upper_bound) ||
 	!unpack_bool(&p, p_end, &stat.have_max_part) ||
 	!unpack_uint(&p, p_end, &n)) {
 	unpack_throw_serialisation_error(p);
     }
+    stat.db_doclength_upper_bound += stat.db_doclength_lower_bound;
+    stat.db_unique_terms_upper_bound += stat.db_unique_terms_lower_bound;
 
     string term;
     for ( ; n; --n) {

@@ -306,6 +306,36 @@ MultiDatabase::get_wdf_upper_bound(string_view term) const
     return result;
 }
 
+Xapian::termcount
+MultiDatabase::get_unique_terms_lower_bound() const
+{
+    // We want the smallest answer from amongst the shards, except that 0 means
+    // that all documents have no unique terms (including the special case of
+    // there being no documents), so any non-zero answer should "beat" 0.  To
+    // achieve this we find the *maximum* after negating each of the values
+    // (which since Xapian::termcount is an unsigned type leaves 0 alone but
+    // flips the order of all other values), then negate the answer again at
+    // the end.
+    static_assert(std::is_unsigned_v<Xapian::termcount>,
+		  "Unsigned type required");
+    Xapian::termcount result = 0;
+    for (auto&& shard : shards) {
+	Xapian::termcount shard_result = shard->get_unique_terms_lower_bound();
+	result = max(result, negate_unsigned(shard_result));
+    }
+    return negate_unsigned(result);
+}
+
+Xapian::termcount
+MultiDatabase::get_unique_terms_upper_bound() const
+{
+    Xapian::termcount result = 0;
+    for (auto&& shard : shards) {
+	result = max(result, shard->get_unique_terms_upper_bound());
+    }
+    return result;
+}
+
 ValueList*
 MultiDatabase::open_value_list(Xapian::valueno slot) const
 {
