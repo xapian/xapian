@@ -1030,3 +1030,12 @@ DEFINE_TESTCASE(errorcopyctor, !backend) {
     }
     FAIL_TEST("Expected exception to be thrown");
 }
+
+DEFINE_TESTCASE(emptydbbounds, !backend) {
+    Xapian::Database db;
+    TEST_EQUAL(db.get_doclength_lower_bound(), 0);
+    TEST_EQUAL(db.get_doclength_upper_bound(), 0);
+    // We always returned 1 here in the initial implementation.
+    TEST_EQUAL(db.get_unique_terms_lower_bound(), 0);
+    TEST_EQUAL(db.get_unique_terms_upper_bound(), 0);
+}

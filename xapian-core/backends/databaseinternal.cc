@@ -68,7 +68,7 @@ Database::Internal::readahead_for_query(const Xapian::Query &) const
 Xapian::termcount
 Database::Internal::get_unique_terms_lower_bound() const
 {
-    return 1;
+    return get_doclength_upper_bound() ? 1 : 0;
 }
 
 Xapian::termcount
