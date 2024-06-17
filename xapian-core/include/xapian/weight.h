@@ -58,7 +58,11 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
 	DOC_LENGTH_MIN = 512,
 	/// Upper bound on document lengths.
 	DOC_LENGTH_MAX = 1024,
-	/// Upper bound on wdf.
+	/** Upper bound on wdf.
+	 *  This bound is for the current shard and is suitable for using to
+	 *  calculate upper bounds to return from get_maxpart() and
+	 *  get_maxextra().
+	 */
 	WDF_MAX = 2048,
 	/// Sum of wdf over the whole collection for the current term.
 	COLLECTION_FREQ = 4096,
@@ -125,13 +129,13 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
     /// The within-query-frequency of this term.
     Xapian::termcount wqf_;
 
-    /// A lower bound on the minimum length of any document in the database.
+    /// A lower bound on the minimum length of any document in the shard.
     Xapian::termcount doclength_lower_bound_;
 
-    /// An upper bound on the maximum length of any document in the database.
+    /// An upper bound on the maximum length of any document in the shard.
     Xapian::termcount doclength_upper_bound_;
 
-    /// An upper bound on the wdf of this term.
+    /// An upper bound on the wdf of this term in the shard.
     Xapian::termcount wdf_upper_bound_;
 
   public:
@@ -382,7 +386,7 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
     /// The within-query-frequency of this term.
     Xapian::termcount get_wqf() const { return wqf_; }
 
-    /** An upper bound on the maximum length of any document in the database.
+    /** An upper bound on the maximum length of any document in the shard.
      *
      *  This should only be used by get_maxpart() and get_maxextra().
      */
@@ -390,7 +394,7 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
 	return doclength_upper_bound_;
     }
 
-    /** A lower bound on the minimum length of any document in the database.
+    /** A lower bound on the minimum length of any document in the shard.
      *
      *  This bound does not include any zero-length documents.
      *
@@ -400,7 +404,7 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
 	return doclength_lower_bound_;
     }
 
-    /** An upper bound on the wdf of this term.
+    /** An upper bound on the wdf of this term in the shard.
      *
      *  This should only be used by get_maxpart() and get_maxextra().
      */
