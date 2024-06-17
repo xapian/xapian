@@ -119,8 +119,8 @@ Weight::init_(const Internal & stats, Xapian::termcount query_length,
 	// for synonym terms by clamping the wdf values returned to the
 	// doclength.
 	//
-	// (This clamping is only actually necessary in cases where a constituent
-	// term of the synonym is repeated.)
+	// (This clamping is only actually necessary in cases where a
+	// constituent term of the synonym is repeated.)
 	wdf_upper_bound_ = doclength_upper_bound_;
     }
     if (stats_needed & UNIQUE_TERMS_MAX)
