@@ -1,7 +1,7 @@
 /** @file
  * @brief tests of Xapian::Weight subclasses
  */
-/* Copyright (C) 2004,2012,2013,2016,2017,2018,2019 Olly Betts
+/* Copyright (C) 2004,2012,2013,2016,2017,2018,2019,2024 Olly Betts
  * Copyright (C) 2013 Aarsh Shah
  * Copyright (C) 2016 Vivek Pal
  *
@@ -1335,7 +1335,7 @@ DEFINE_TESTCASE(checkinitweight1, backend && !multi && !remote) {
 
 class CheckStatsWeight : public Xapian::Weight {
   public:
-    double factor;
+    double factor = -1.0;
 
     Xapian::Database db;
 
@@ -1350,18 +1350,19 @@ class CheckStatsWeight : public Xapian::Weight {
     Xapian::termcount & sum;
     Xapian::termcount & sum_squares;
 
-    mutable Xapian::termcount len_upper;
-    mutable Xapian::termcount len_lower;
-    mutable Xapian::termcount wdf_upper;
+    mutable Xapian::termcount len_upper = 0;
+    mutable Xapian::termcount len_lower = Xapian::termcount(-1);
+    mutable Xapian::termcount uniqueterms_upper = 0;
+    mutable Xapian::termcount uniqueterms_lower = Xapian::termcount(-1);
+    mutable Xapian::termcount wdf_upper = 0;
 
     CheckStatsWeight(const Xapian::Database & db_,
 		     const string & term1_,
 		     const string & term2_,
 		     Xapian::termcount & sum_,
 		     Xapian::termcount & sum_squares_)
-	: factor(-1.0), db(db_), term1(term1_), term2(term2_),
-	  sum(sum_), sum_squares(sum_squares_),
-	  len_upper(0), len_lower(Xapian::termcount(-1)), wdf_upper(0)
+	: db(db_), term1(term1_), term2(term2_),
+	  sum(sum_), sum_squares(sum_squares_)
     {
 	need_stat(COLLECTION_SIZE);
 	need_stat(RSET_SIZE);
@@ -1377,6 +1378,8 @@ class CheckStatsWeight : public Xapian::Weight {
 	need_stat(WDF_MAX);
 	need_stat(COLLECTION_FREQ);
 	need_stat(UNIQUE_TERMS);
+	need_stat(UNIQUE_TERMS_MIN);
+	need_stat(UNIQUE_TERMS_MAX);
 	need_stat(TOTAL_LENGTH);
 	need_stat(WDF_DOC_MAX);
     }
@@ -1470,9 +1473,13 @@ class CheckStatsWeight : public Xapian::Weight {
 	TEST_REL(doclen,<=,len_upper);
 	if (doclen > 0) {
 	    TEST_REL(uniqueterms,>=,1);
+	    TEST_REL(uniqueterms_lower,>=,1);
 	    TEST_REL(wdfdocmax,>=,1);
 	}
+	TEST_REL(uniqueterms,>=,uniqueterms_lower);
+	TEST_REL(uniqueterms,<=,uniqueterms_upper);
 	TEST_REL(uniqueterms,<=,doclen);
+	TEST_REL(uniqueterms_upper,<=,len_upper);
 	TEST_REL(wdf,<=,wdf_upper);
 	TEST_REL(wdfdocmax,<=,doclen);
 	TEST_REL(wdfdocmax,>=,wdf);
@@ -1487,6 +1494,8 @@ class CheckStatsWeight : public Xapian::Weight {
 	if (len_upper == 0) {
 	    len_lower = get_doclength_lower_bound();
 	    len_upper = get_doclength_upper_bound();
+	    uniqueterms_lower = get_unique_terms_lower_bound();
+	    uniqueterms_upper = get_unique_terms_upper_bound();
 	    wdf_upper = get_wdf_upper_bound();
 	}
 	return 1.0;
