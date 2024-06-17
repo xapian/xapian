@@ -56,9 +56,17 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
 	WDF = 2,
 	/// Length of the current document (sum wdf).
 	DOC_LENGTH = 8,
-	/// Lower bound on (non-zero) document lengths.
+	/** Lower bound on (non-zero) document lengths.
+	 *  This bound is for the current shard and is suitable for using to
+	 *  calculate upper bounds to return from get_maxpart() and
+	 *  get_maxextra().
+	 */
 	DOC_LENGTH_MIN = 16,
-	/// Upper bound on document lengths.
+	/** Upper bound on document lengths.
+	 *  This bound is for the current shard and is suitable for using to
+	 *  calculate upper bounds to return from get_maxpart() and
+	 *  get_maxextra().
+	 */
 	DOC_LENGTH_MAX = 32,
 	/** Upper bound on wdf.
 	 *  This bound is for the current shard and is suitable for using to
