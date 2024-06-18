@@ -1,7 +1,7 @@
 /** @file
  * @brief tests of Xapian::Weight subclasses
  */
-/* Copyright (C) 2004,2012,2013,2016,2017,2018,2019,2024 Olly Betts
+/* Copyright (C) 2004-2024 Olly Betts
  * Copyright (C) 2013 Aarsh Shah
  * Copyright (C) 2016 Vivek Pal
  *
@@ -24,6 +24,7 @@
 
 #include "api_weight.h"
 #include <cmath>
+#include <memory>
 
 #include <xapian.h>
 
@@ -32,6 +33,90 @@
 #include "testutils.h"
 
 using namespace std;
+
+template<class W>
+static inline void
+test_weight_class_no_params(const char* name)
+{
+    tout << name << '\n';
+    W obj;
+    // Check name() returns the class name.
+    TEST_EQUAL(obj.name(), name);
+    // If there are no parameters, there's nothing to serialise.
+    string obj_serialised = obj.serialise();
+    TEST_EQUAL(obj_serialised.size(), 0);
+    // Check serialising and unserialising gives object with same serialisation.
+    unique_ptr<Xapian::Weight> wt(W().unserialise(obj_serialised));
+    TEST_EQUAL(obj_serialised, wt->serialise());
+}
+
+#define TEST_WEIGHT_CLASS_NO_PARAMS(W) test_weight_class_no_params<W>(#W)
+
+template<class W>
+static inline void
+test_weight_class(const char* name, const W& obj_default, const W& obj_other)
+{
+    tout << name << '\n';
+    W obj;
+    // Check name() returns the class name.
+    TEST_EQUAL(obj.name(), name);
+    TEST_EQUAL(obj_default.name(), name);
+    TEST_EQUAL(obj_other.name(), name);
+    // Check serialisation matches that of object constructed with explicit
+    // parameter values of what the defaults are meant to be.
+    string obj_serialised = obj.serialise();
+    TEST_EQUAL(obj_serialised, obj_default.serialise());
+    // Check serialisation is different to object with different parameters.
+    string obj_other_serialised = obj_other.serialise();
+    TEST_NOT_EQUAL(obj_serialised, obj_other_serialised);
+    // Check serialising and unserialising gives object with same serialisation.
+    unique_ptr<Xapian::Weight> wt(W().unserialise(obj_serialised));
+    TEST_EQUAL(obj_serialised, wt->serialise());
+    // Check serialising and unserialising of object with different parameters.
+    unique_ptr<Xapian::Weight> wt2(W().unserialise(obj_other_serialised));
+    TEST_EQUAL(obj_other_serialised, wt2->serialise());
+}
+
+// W Should be the class name.
+//
+// DEFAULT should be a parenthesised parameter list to explicitly construct
+// an object of class W with the documented default parameters.
+//
+// OTHER should be a parenthesised parameter list to construct an object with
+// non-default parameters.
+#define TEST_WEIGHT_CLASS(W, DEFAULT, OTHER) \
+    test_weight_class<W>(#W, W DEFAULT, W OTHER)
+
+/// Test serialisation and introspection of built-in weighting schemes.
+DEFINE_TESTCASE(weightserialisation1, !backend) {
+    // Parameter-free weighting schemes.
+    TEST_WEIGHT_CLASS_NO_PARAMS(Xapian::BoolWeight);
+    TEST_WEIGHT_CLASS_NO_PARAMS(Xapian::CoordWeight);
+    TEST_WEIGHT_CLASS_NO_PARAMS(Xapian::DLHWeight);
+    TEST_WEIGHT_CLASS_NO_PARAMS(Xapian::DPHWeight);
+    TEST_WEIGHT_CLASS_NO_PARAMS(Xapian::DiceCoeffWeight);
+
+    // Parameterised weighting schemes.
+    TEST_WEIGHT_CLASS(Xapian::TradWeight, (1.0), (2.0));
+    TEST_WEIGHT_CLASS(Xapian::BM25Weight,
+		      (1, 0, 1, 0.5, 0.5),
+		      (1, 0.5, 1, 0.5, 0.5));
+    TEST_WEIGHT_CLASS(Xapian::BM25PlusWeight,
+		      (1, 0, 1, 0.5, 0.5, 1.0),
+		      (1, 0, 1, 0.5, 0.5, 2.0));
+    TEST_WEIGHT_CLASS(Xapian::TfIdfWeight, ("ntn"), ("bpn"));
+    TEST_WEIGHT_CLASS(Xapian::InL2Weight, (1.0), (2.0));
+    TEST_WEIGHT_CLASS(Xapian::IfB2Weight, (1.0), (2.0));
+    TEST_WEIGHT_CLASS(Xapian::IneB2Weight, (1.0), (2.0));
+    TEST_WEIGHT_CLASS(Xapian::BB2Weight, (1.0), (2.0));
+    TEST_WEIGHT_CLASS(Xapian::PL2Weight, (1.0), (2.0));
+    TEST_WEIGHT_CLASS(Xapian::PL2PlusWeight,
+		      (1.0, 0.8),
+		      (2.0, 0.9));
+    TEST_WEIGHT_CLASS(Xapian::LMWeight,
+		      (0.0, Xapian::Weight::TWO_STAGE_SMOOTHING, 0.7, 2000.0),
+		      (0.0, Xapian::Weight::JELINEK_MERCER_SMOOTHING, 0.7));
+}
 
 // Test exception for junk after serialised weight.
 DEFINE_TESTCASE(tradweight3, !backend) {
