@@ -2,7 +2,7 @@
 %{
 /* csharp.i: SWIG interface file for the C# bindings
  *
- * Copyright (c) 2005,2006,2008,2009,2011,2012,2018,2019 Olly Betts
+ * Copyright (c) 2005,2006,2008,2009,2011,2012,2018,2019,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -151,24 +151,8 @@ WRAP_INPUT_ITERATOR(PositionIterator)
 
 }
 
-%define WARN_CSHARP_COVARIANT_RET 842 %enddef
-
-%warnfilter(WARN_CSHARP_COVARIANT_RET) Xapian::BB2Weight::create_from_parameters;
-%warnfilter(WARN_CSHARP_COVARIANT_RET) Xapian::BM25PlusWeight::create_from_parameters;
-%warnfilter(WARN_CSHARP_COVARIANT_RET) Xapian::BM25Weight::create_from_parameters;
-%warnfilter(WARN_CSHARP_COVARIANT_RET) Xapian::BoolWeight::create_from_parameters;
-%warnfilter(WARN_CSHARP_COVARIANT_RET) Xapian::CoordWeight::create_from_parameters;
-%warnfilter(WARN_CSHARP_COVARIANT_RET) Xapian::DLHWeight::create_from_parameters;
-%warnfilter(WARN_CSHARP_COVARIANT_RET) Xapian::DPHWeight::create_from_parameters;
-%warnfilter(WARN_CSHARP_COVARIANT_RET) Xapian::IfB2Weight::create_from_parameters;
-%warnfilter(WARN_CSHARP_COVARIANT_RET) Xapian::IneB2Weight::create_from_parameters;
-%warnfilter(WARN_CSHARP_COVARIANT_RET) Xapian::InL2Weight::create_from_parameters;
-%warnfilter(WARN_CSHARP_COVARIANT_RET) Xapian::LMWeight::create_from_parameters;
-%warnfilter(WARN_CSHARP_COVARIANT_RET) Xapian::PL2PlusWeight::create_from_parameters;
-%warnfilter(WARN_CSHARP_COVARIANT_RET) Xapian::PL2Weight::create_from_parameters;
-%warnfilter(WARN_CSHARP_COVARIANT_RET) Xapian::TfIdfWeight::create_from_parameters;
-%warnfilter(WARN_CSHARP_COVARIANT_RET) Xapian::TradWeight::create_from_parameters;
-%warnfilter(WARN_CSHARP_COVARIANT_RET) Xapian::Weight::create_from_parameters;
+%warnfilter(SWIGWARN_CSHARP_COVARIANT_RET)
+    *::create_from_parameters(const char*) const;
 
 // For QueryParser::add_boolean_prefix() and add_rangeprocessor().
 %typemap(ctype) const std::string* "char*"
