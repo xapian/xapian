@@ -2256,36 +2256,6 @@ DEFINE_TESTCASE(scaleweight2, backend) {
     TEST_EQUAL(ids1, ids5);
 }
 
-// Regression test for bug fixed in 1.0.5 - this test would failed under
-// valgrind because it used an uninitialised value.
-DEFINE_TESTCASE(bm25weight1, backend) {
-    Xapian::Enquire enquire(get_database("apitest_simpledata"));
-    enquire.set_weighting_scheme(Xapian::BM25Weight(1, 25, 1, 0.01, 0.5));
-    enquire.set_query(Xapian::Query("word"));
-
-    Xapian::MSet mset = enquire.get_mset(0, 25);
-}
-
-// Feature test for TradWeight.
-DEFINE_TESTCASE(tradweight1, backend) {
-    Xapian::Enquire enquire(get_database("apitest_simpledata"));
-    enquire.set_weighting_scheme(Xapian::TradWeight());
-    enquire.set_query(Xapian::Query("word"));
-
-    Xapian::MSet mset = enquire.get_mset(0, 25);
-    TEST_EQUAL(mset.size(), 2);
-
-    enquire.set_weighting_scheme(Xapian::TradWeight(0));
-    enquire.set_query(Xapian::Query("this"));
-
-    mset = enquire.get_mset(0, 25);
-    TEST_EQUAL(mset.size(), 6);
-
-    // Check that TradWeight(0) means wdf and doc length really don't affect
-    // the weights as stated in the documentation.
-    TEST_EQUAL(mset[0].get_weight(), mset[5].get_weight());
-}
-
 // Test TradWeight when weighting documents using an RSet.
 // Simply changed the weighting scheme used by rset2 testcase.
 DEFINE_TESTCASE(tradweight4, backend) {
