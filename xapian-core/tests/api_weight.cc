@@ -116,6 +116,75 @@ DEFINE_TESTCASE(weightserialisation1, !backend) {
 		      (0.0, Xapian::Weight::JELINEK_MERCER_SMOOTHING, 0.7));
 }
 
+/** Regression test for bug fixed in 1.0.5.
+ *
+ * This test would fail under valgrind because it used an uninitialised value.
+ */
+DEFINE_TESTCASE(bm25weight1, backend) {
+    Xapian::Enquire enquire(get_database("apitest_simpledata"));
+    enquire.set_weighting_scheme(Xapian::BM25Weight(1, 25, 1, 0.01, 0.5));
+    enquire.set_query(Xapian::Query("word"));
+
+    Xapian::MSet mset = enquire.get_mset(0, 25);
+}
+
+/// Feature test for TradWeight.
+DEFINE_TESTCASE(tradweight1, backend) {
+    Xapian::Enquire enquire(get_database("apitest_simpledata"));
+    enquire.set_weighting_scheme(Xapian::TradWeight());
+    enquire.set_query(Xapian::Query("word"));
+
+    Xapian::MSet mset = enquire.get_mset(0, 25);
+    TEST_EQUAL(mset.size(), 2);
+
+    // Different wdf and document length should result in different weights.
+    TEST_NOT_EQUAL(mset[0].get_weight(), mset[1].get_weight());
+}
+
+/** Test we give equal weights for BM25Weight(0, 0, 0, 0, 1).
+ *
+ *  Regression test for bug fixed in 1.2.4.
+ */
+DEFINE_TESTCASE(bm25weight2, backend) {
+    Xapian::Database db(get_database("etext"));
+    Xapian::Enquire enquire(db);
+    enquire.set_query(Xapian::Query("the"));
+    enquire.set_weighting_scheme(Xapian::BM25Weight(0, 0, 0, 0, 1));
+    Xapian::MSet mset = enquire.get_mset(0, 100);
+    TEST_REL(mset.size(),>=,2);
+    double weight0 = mset[0].get_weight();
+    for (Xapian::doccount i = 1; i != mset.size(); ++i) {
+	TEST_EQUAL(weight0, mset[i].get_weight());
+    }
+}
+
+DEFINE_TESTCASE(unigramlmweight2, backend) {
+    Xapian::Database db(get_database("etext"));
+    Xapian::Enquire enquire(db);
+    enquire.set_query(Xapian::Query("the"));
+    enquire.set_weighting_scheme(Xapian::LMWeight());
+    Xapian::MSet mset = enquire.get_mset(0, 100);
+    TEST_REL(mset.size(),>=,2);
+}
+
+/** Test we give equal weights for TradWeight(0).
+ *
+ * As mentioned in the documentation, when parameter k is 0, wdf and document
+ * length don't affect the weights.  Regression test for bug fixed in 1.2.4.
+ */
+DEFINE_TESTCASE(tradweight2, backend) {
+    Xapian::Database db(get_database("etext"));
+    Xapian::Enquire enquire(db);
+    enquire.set_query(Xapian::Query("the"));
+    enquire.set_weighting_scheme(Xapian::TradWeight(0));
+    Xapian::MSet mset = enquire.get_mset(0, 100);
+    TEST_REL(mset.size(),>=,2);
+    double weight0 = mset[0].get_weight();
+    for (Xapian::doccount i = 1; i != mset.size(); ++i) {
+	TEST_EQUAL(weight0, mset[i].get_weight());
+    }
+}
+
 // Test exception for junk after serialised weight.
 DEFINE_TESTCASE(tradweight3, !backend) {
     Xapian::TradWeight wt(42);
