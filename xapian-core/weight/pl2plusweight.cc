@@ -2,7 +2,7 @@
  * @brief Xapian::PL2PlusWeight class - the PL2+ weighting scheme of the DFR framework.
  */
 /* Copyright (C) 2013 Aarsh Shah
- * Copyright (C) 2013,2014,2016,2017 Olly Betts
+ * Copyright (C) 2013,2014,2016,2017,2024 Olly Betts
  * Copyright (C) 2016 Vivek Pal
  *
  * This program is free software; you can redistribute it and/or
@@ -170,7 +170,8 @@ double
 PL2PlusWeight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len,
 			   Xapian::termcount, Xapian::termcount) const
 {
-    if (wdf == 0 || mean < 1) return 0.0;
+    // Note: lambda_t in the paper is 1/mean.
+    if (wdf == 0 || mean > 1) return 0.0;
 
     double wdfn = wdf * log2(1 + cl / len);
 

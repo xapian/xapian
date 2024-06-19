@@ -118,6 +118,45 @@ DEFINE_TESTCASE(weightserialisation1, !backend) {
 		      (0.0, Xapian::Weight::JELINEK_MERCER_SMOOTHING, 0.7));
 }
 
+/// Basic test of using weighting schemes.
+DEFINE_TESTCASE(weight1, backend) {
+    Xapian::Database db(get_database("etext"));
+    Xapian::Enquire enquire(db);
+    auto term = "robinson";
+    enquire.set_query(Xapian::Query(term));
+    auto expected_matches = db.get_termfreq(term);
+#define TEST_WEIGHTING_SCHEME(W, SAME_WEIGHTS) do { \
+    tout << #W << '\n'; \
+    enquire.set_weighting_scheme(W()); \
+    Xapian::MSet mset = enquire.get_mset(0, expected_matches + 1); \
+    TEST_EQUAL(mset.size(), expected_matches); \
+    if (SAME_WEIGHTS) \
+	TEST_EQUAL(mset[0].get_weight(), mset.back().get_weight()); \
+    else \
+	TEST_NOT_EQUAL(mset[0].get_weight(), mset.back().get_weight()); \
+} while (false)
+    // These weighting schemes should return the same weight for each document
+    // with a single term query.
+    TEST_WEIGHTING_SCHEME(Xapian::BoolWeight, true);
+    TEST_WEIGHTING_SCHEME(Xapian::CoordWeight, true);
+    // These weighting schemes should return different document weights.
+    TEST_WEIGHTING_SCHEME(Xapian::DLHWeight, false);
+    TEST_WEIGHTING_SCHEME(Xapian::DPHWeight, false);
+    TEST_WEIGHTING_SCHEME(Xapian::DiceCoeffWeight, false);
+    TEST_WEIGHTING_SCHEME(Xapian::TradWeight, false);
+    TEST_WEIGHTING_SCHEME(Xapian::BM25Weight, false);
+    TEST_WEIGHTING_SCHEME(Xapian::BM25PlusWeight, false);
+    TEST_WEIGHTING_SCHEME(Xapian::TfIdfWeight, false);
+    TEST_WEIGHTING_SCHEME(Xapian::InL2Weight, false);
+    TEST_WEIGHTING_SCHEME(Xapian::IfB2Weight, false);
+    TEST_WEIGHTING_SCHEME(Xapian::IneB2Weight, false);
+    TEST_WEIGHTING_SCHEME(Xapian::BB2Weight, false);
+    TEST_WEIGHTING_SCHEME(Xapian::PL2Weight, false);
+    TEST_WEIGHTING_SCHEME(Xapian::PL2PlusWeight, false);
+    TEST_WEIGHTING_SCHEME(Xapian::LMWeight, false);
+#undef TEST_WEIGHTING_SCHEME
+}
+
 /** Regression test for bug fixed in 1.0.5.
  *
  * This test would fail under valgrind because it used an uninitialised value.
@@ -128,19 +167,6 @@ DEFINE_TESTCASE(bm25weight1, backend) {
     enquire.set_query(Xapian::Query("word"));
 
     Xapian::MSet mset = enquire.get_mset(0, 25);
-}
-
-/// Feature test for TradWeight.
-DEFINE_TESTCASE(tradweight1, backend) {
-    Xapian::Enquire enquire(get_database("apitest_simpledata"));
-    enquire.set_weighting_scheme(Xapian::TradWeight());
-    enquire.set_query(Xapian::Query("word"));
-
-    Xapian::MSet mset = enquire.get_mset(0, 25);
-    TEST_EQUAL(mset.size(), 2);
-
-    // Different wdf and document length should result in different weights.
-    TEST_NOT_EQUAL(mset[0].get_weight(), mset[1].get_weight());
 }
 
 /** Test we give equal weights for BM25Weight(0, 0, 0, 0, 1).
@@ -158,15 +184,6 @@ DEFINE_TESTCASE(bm25weight2, backend) {
     for (Xapian::doccount i = 1; i != mset.size(); ++i) {
 	TEST_EQUAL(weight0, mset[i].get_weight());
     }
-}
-
-DEFINE_TESTCASE(unigramlmweight2, backend) {
-    Xapian::Database db(get_database("etext"));
-    Xapian::Enquire enquire(db);
-    enquire.set_query(Xapian::Query("the"));
-    enquire.set_weighting_scheme(Xapian::LMWeight());
-    Xapian::MSet mset = enquire.get_mset(0, 100);
-    TEST_REL(mset.size(),>=,2);
 }
 
 /** Test we give equal weights for TradWeight(0).
