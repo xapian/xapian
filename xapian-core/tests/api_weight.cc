@@ -1611,9 +1611,12 @@ DEFINE_TESTCASE(checkstatsweight2, backend && !remote) {
 
 /// Check the weight subclass gets the correct stats with OP_WILDCARD.
 // Regression test for bug fixed in 1.4.1.
-// Don't run with multi-database, as the termfreq checks don't work
-// there - FIXME: Investigate this - it smells like a bug.
-DEFINE_TESTCASE(checkstatsweight3, backend && !remote && !multi) {
+DEFINE_TESTCASE(checkstatsweight3, backend && !remote) {
+    // The most correct thing to do would be to collate termfreqs across shards
+    // for this, but if that's too hard to do efficiently we could at least
+    // scale up the termfreqs proportional to the size of the shard.
+    XFAIL_FOR_BACKEND("multi", "OP_WILDCARD+OP_SYNONYM use shard termfreqs");
+
     struct PlCmp {
 	bool operator()(const Xapian::PostingIterator& a,
 			const Xapian::PostingIterator& b) {
