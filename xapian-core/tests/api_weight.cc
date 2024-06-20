@@ -305,7 +305,6 @@ DEFINE_TESTCASE(bm25plusweight3, backend) {
     TEST_EQUAL_DOUBLE(mset[4].get_weight(), 0.7210119356168847);
 }
 
-
 // Test for invalid values of c.
 DEFINE_TESTCASE(inl2weight2, !backend) {
     // InvalidArgumentError should be thrown if the parameter c is invalid.
