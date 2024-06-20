@@ -150,8 +150,10 @@ DEFINE_TESTCASE(weight1, backend) {
     enquire.set_query(q);
     enquire_scaled.set_query(q * 15.0);
     auto expected_matches = db.get_termfreq(term);
-    auto helper = [&](const Xapian::Weight& weight, string_view name) {
-	tout << name << '\n';
+    auto helper = [&](const Xapian::Weight& weight,
+		      string_view name,
+		      string_view params) {
+	tout << name << '(' << params << ")\n";
 	enquire.set_weighting_scheme(weight);
 	enquire_scaled.set_weighting_scheme(weight);
 	Xapian::MSet mset = enquire.get_mset(0, expected_matches + 1);
@@ -164,6 +166,10 @@ DEFINE_TESTCASE(weight1, backend) {
 	    /* All weights should be 1 for a single term query. */
 	    TEST_EQUAL(mset[0].get_weight(), 1.0);
 	    TEST_EQUAL(mset.back().get_weight(), 1.0);
+	} else if (!params.empty()) {
+	    /* All weights should be equal with these particular parameters. */
+	    TEST_NOT_EQUAL(mset[0].get_weight(), 0.0);
+	    TEST_EQUAL(mset[0].get_weight(), mset.back().get_weight());
 	} else {
 	    TEST_NOT_EQUAL(mset[0].get_weight(), 0.0);
 	    TEST_NOT_EQUAL(mset[0].get_weight(), mset.back().get_weight());
@@ -175,7 +181,7 @@ DEFINE_TESTCASE(weight1, backend) {
 			      mset[i].get_weight() * 15.0);
 	}
     };
-#define TEST_WEIGHTING_SCHEME(W) helper(W(), #W)
+#define TEST_WEIGHTING_SCHEME(W, ...) helper(W(__VA_ARGS__), #W, #__VA_ARGS__)
     TEST_WEIGHTING_SCHEME(Xapian::BoolWeight);
     TEST_WEIGHTING_SCHEME(Xapian::CoordWeight);
     TEST_WEIGHTING_SCHEME(Xapian::DLHWeight);
@@ -192,6 +198,13 @@ DEFINE_TESTCASE(weight1, backend) {
     TEST_WEIGHTING_SCHEME(Xapian::PL2Weight);
     TEST_WEIGHTING_SCHEME(Xapian::PL2PlusWeight);
     TEST_WEIGHTING_SCHEME(Xapian::LMWeight);
+    // Regression test for bug fixed in 1.2.4.
+    TEST_WEIGHTING_SCHEME(Xapian::BM25Weight, 0, 0, 0, 0, 1);
+    /* As mentioned in the documentation, when parameter k is 0, wdf and
+     * document length don't affect the weights.  Regression test for bug fixed
+     * in 1.2.4.
+     */
+    TEST_WEIGHTING_SCHEME(Xapian::TradWeight, 0);
 #undef TEST_WEIGHTING_SCHEME
 }
 
@@ -205,41 +218,6 @@ DEFINE_TESTCASE(bm25weight1, backend) {
     enquire.set_query(Xapian::Query("word"));
 
     Xapian::MSet mset = enquire.get_mset(0, 25);
-}
-
-/** Test we give equal weights for BM25Weight(0, 0, 0, 0, 1).
- *
- *  Regression test for bug fixed in 1.2.4.
- */
-DEFINE_TESTCASE(bm25weight2, backend) {
-    Xapian::Database db(get_database("etext"));
-    Xapian::Enquire enquire(db);
-    enquire.set_query(Xapian::Query("the"));
-    enquire.set_weighting_scheme(Xapian::BM25Weight(0, 0, 0, 0, 1));
-    Xapian::MSet mset = enquire.get_mset(0, 100);
-    TEST_REL(mset.size(),>=,2);
-    double weight0 = mset[0].get_weight();
-    for (Xapian::doccount i = 1; i != mset.size(); ++i) {
-	TEST_EQUAL(weight0, mset[i].get_weight());
-    }
-}
-
-/** Test we give equal weights for TradWeight(0).
- *
- * As mentioned in the documentation, when parameter k is 0, wdf and document
- * length don't affect the weights.  Regression test for bug fixed in 1.2.4.
- */
-DEFINE_TESTCASE(tradweight2, backend) {
-    Xapian::Database db(get_database("etext"));
-    Xapian::Enquire enquire(db);
-    enquire.set_query(Xapian::Query("the"));
-    enquire.set_weighting_scheme(Xapian::TradWeight(0));
-    Xapian::MSet mset = enquire.get_mset(0, 100);
-    TEST_REL(mset.size(),>=,2);
-    double weight0 = mset[0].get_weight();
-    for (Xapian::doccount i = 1; i != mset.size(); ++i) {
-	TEST_EQUAL(weight0, mset[i].get_weight());
-    }
 }
 
 // Test parameter combinations which should be unaffected by doclength.
