@@ -68,25 +68,22 @@ PL2PlusWeight::init(double factor_)
 	return;
     }
 
-    factor = factor_;
+    factor = factor_ * get_wqf();
 
-    if (get_wdf_upper_bound() == 0) {
-	// The "extra" weight object is cloned, init() called and then
-	// get_maxextra() is called and we discover that we don't need it.
-	// So we need to handle that case (which will give us 0 from
-	// get_wdf_upper_bound() here).
+    auto wdf_upper_bound = get_wdf_upper_bound();
+    mean = double(get_collection_freq()) / get_collection_size();
+    if (rare(wdf_upper_bound == 0 || mean > 1)) {
+	// PL2+ is based on a modified PL2 which "essentially ignores
+	// non-discriminative query terms".
 	upper_bound = 0;
 	return;
     }
 
-    factor *= get_wqf();
-
-    cl = param_c * get_average_length();
-
     double base_change(1.0 / log(2.0));
-    mean = double(get_collection_freq()) / get_collection_size();
     P1 = mean * base_change + 0.5 * log2(2.0 * M_PI);
     P2 = log2(mean) + base_change;
+
+    cl = param_c * get_average_length();
 
     double wdfn_lower = log2(1 + cl / get_doclength_upper_bound());
     double divisior = max(get_wdf_upper_bound(), get_doclength_lower_bound());
@@ -120,8 +117,8 @@ PL2PlusWeight::init(double factor_)
     //
     // So there are no local minima or maxima, and the function is continuous
     // in the range of interest, so the sign of this differential tells us
-    // whether we want to maximise or minimise wdfn, and since x>1, we can
-    // just consider the sign of: (P1 + P2)
+    // whether we want to maximise or minimise wdfn, and the denominator is
+    // always positive so we can just consider the sign of: (P1 + P2)
     //
     // Commonly P1 + P2 > 0, in which case we evaluate P at wdfn=wdfn_upper
     // giving us a bound that can't be bettered if wdfn_upper is tight.
@@ -129,7 +126,7 @@ PL2PlusWeight::init(double factor_)
     double P_max2b = (P1 - P2 * wdfn_optb) / (wdfn_optb + 1.0);
     upper_bound = factor * (P_max2a + P_max2b + dw);
 
-    if (rare(upper_bound <= 0)) upper_bound = 0;
+    if (rare(upper_bound < 0)) upper_bound = 0;
 }
 
 string
@@ -163,7 +160,11 @@ PL2PlusWeight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len,
 			   Xapian::termcount) const
 {
     // Note: lambda_t in the paper is 1/mean.
-    if (wdf == 0 || mean > 1) return 0.0;
+    if (wdf == 0 || mean > 1) {
+	// PL2+ is based on a modified PL2 which "essentially ignores
+	// non-discriminative query terms".
+	return 0.0;
+    }
 
     double wdfn = wdf * log2(1 + cl / len);
 
