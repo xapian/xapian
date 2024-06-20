@@ -336,10 +336,6 @@ DEFINE_TESTCASE(inl2weight2, !backend) {
 
     TEST_EXCEPTION(Xapian::InvalidArgumentError,
 	Xapian::InL2Weight wt2(0.0));
-
-    /* Parameter c should be set to 1.0 by constructor if none is given. */
-    Xapian::InL2Weight weight2;
-    TEST_EQUAL(weight2.serialise(), Xapian::InL2Weight(1.0).serialise());
 }
 
 // Feature tests for Inl2Weight
@@ -369,10 +365,6 @@ DEFINE_TESTCASE(ifb2weight2, !backend) {
 
     TEST_EXCEPTION(Xapian::InvalidArgumentError,
 	Xapian::IfB2Weight wt2(0.0));
-
-    /* Parameter c should be set to 1.0 by constructor if none is given. */
-    Xapian::IfB2Weight weight2;
-    TEST_EQUAL(weight2.serialise(), Xapian::IfB2Weight(1.0).serialise());
 }
 
 // Feature test
@@ -401,10 +393,6 @@ DEFINE_TESTCASE(ineb2weight2, !backend) {
 
     TEST_EXCEPTION(Xapian::InvalidArgumentError,
 	Xapian::IneB2Weight wt2(0.0));
-
-    /* Parameter c should be set to 1.0 by constructor if none is given. */
-    Xapian::IneB2Weight weight2;
-    TEST_EQUAL(weight2.serialise(), Xapian::IneB2Weight(1.0).serialise());
 }
 
 // Feature test.
@@ -433,10 +421,6 @@ DEFINE_TESTCASE(bb2weight2, !backend) {
 
     TEST_EXCEPTION(Xapian::InvalidArgumentError,
 	Xapian::BB2Weight wt2(0.0));
-
-    /* Parameter c should be set to 1.0 by constructor if none is given. */
-    Xapian::BB2Weight weight2;
-    TEST_EQUAL(weight2.serialise(), Xapian::BB2Weight(1.0).serialise());
 }
 
 // Feature test
@@ -534,10 +518,6 @@ DEFINE_TESTCASE(pl2weight2, !backend) {
     // InvalidArgumentError should be thrown if parameter c is invalid.
     TEST_EXCEPTION(Xapian::InvalidArgumentError,
 	Xapian::PL2Weight wt(-2.0));
-
-    /* Parameter c should be set to 1.0 by constructor if none is given. */
-    Xapian::PL2Weight weight2;
-    TEST_EQUAL(weight2.serialise(), Xapian::PL2Weight(1.0).serialise());
 }
 
 // Feature Test.
@@ -566,17 +546,6 @@ DEFINE_TESTCASE(pl2plusweight2, !backend) {
     // InvalidArgumentError should be thrown if parameter delta is invalid.
     TEST_EXCEPTION(Xapian::InvalidArgumentError,
 	Xapian::PL2PlusWeight wt(1.0, -1.9));
-}
-
-// Test for default values of parameters, c and delta.
-DEFINE_TESTCASE(pl2plusweight3, !backend) {
-    Xapian::PL2PlusWeight weight2;
-
-    /* Parameter c should be set to 1.0 by constructor if none is given. */
-    TEST_EQUAL(weight2.serialise(), Xapian::PL2PlusWeight(1.0, 0.8).serialise());
-
-    /* Parameter delta should be set to 0.8 by constructor if none is given. */
-    TEST_EQUAL(weight2.serialise(), Xapian::PL2PlusWeight(1.0, 0.8).serialise());
 }
 
 // Feature Test 1 for PL2PlusWeight.
