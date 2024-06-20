@@ -181,7 +181,11 @@ DEFINE_TESTCASE(weight1, backend) {
 			      mset[i].get_weight() * 15.0);
 	}
     };
-#define TEST_WEIGHTING_SCHEME(W, ...) helper(W(__VA_ARGS__), #W, #__VA_ARGS__)
+
+    // MSVC gives nothing for #__VA_ARGS__ when there are no varargs.
+#define TEST_WEIGHTING_SCHEME(W, ...) \
+	helper(W(__VA_ARGS__), #W, "" #__VA_ARGS__)
+
     TEST_WEIGHTING_SCHEME(Xapian::BoolWeight);
     TEST_WEIGHTING_SCHEME(Xapian::CoordWeight);
     TEST_WEIGHTING_SCHEME(Xapian::DLHWeight);
