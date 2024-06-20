@@ -268,7 +268,16 @@ Registry::Internal::add_defaults()
     weighting_scheme = new Xapian::DPHWeight;
     wtschemes[weighting_scheme->name()] = weighting_scheme;
     wtschemes_short[weighting_scheme->short_name()] = weighting_scheme;
-    weighting_scheme = new Xapian::LMWeight;
+    weighting_scheme = new Xapian::LMJMWeight;
+    wtschemes[weighting_scheme->name()] = weighting_scheme;
+    wtschemes_short[weighting_scheme->short_name()] = weighting_scheme;
+    weighting_scheme = new Xapian::LMDirichletWeight;
+    wtschemes[weighting_scheme->name()] = weighting_scheme;
+    wtschemes_short[weighting_scheme->short_name()] = weighting_scheme;
+    weighting_scheme = new Xapian::LMAbsDiscountWeight;
+    wtschemes[weighting_scheme->name()] = weighting_scheme;
+    wtschemes_short[weighting_scheme->short_name()] = weighting_scheme;
+    weighting_scheme = new Xapian::LM2StageWeight;
     wtschemes[weighting_scheme->name()] = weighting_scheme;
     wtschemes_short[weighting_scheme->short_name()] = weighting_scheme;
     weighting_scheme = new Xapian::DiceCoeffWeight;

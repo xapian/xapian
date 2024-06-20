@@ -59,7 +59,10 @@ XAPIAN_SWIG_JAVA_SRCS=\
 	org/xapian/IneB2Weight.java\
 	org/xapian/InL2Weight.java\
 	org/xapian/KeyMaker.java\
-	org/xapian/LMWeight.java \
+	org/xapian/LM2StageWeight.java\
+	org/xapian/LMAbsDiscountWeight.java\
+	org/xapian/LMDirichletWeight.java\
+	org/xapian/LMJMWeight.java\
 	org/xapian/LatLongCoord.java\
 	org/xapian/LatLongCoords.java\
 	org/xapian/LatLongCoordsIterator.java\

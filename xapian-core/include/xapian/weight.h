@@ -250,18 +250,6 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
     /// Default constructor, needed by subclass constructors.
     Weight() : stats_needed() { }
 
-    /** Type of smoothing to use with the Language Model Weighting scheme.
-     *
-     *  Default is TWO_STAGE_SMOOTHING.
-     */
-    typedef enum {
-	TWO_STAGE_SMOOTHING = 1,
-	DIRICHLET_SMOOTHING = 2,
-	ABSOLUTE_DISCOUNT_SMOOTHING = 3,
-	JELINEK_MERCER_SMOOTHING = 4,
-	DIRICHLET_PLUS_SMOOTHING = 5
-    } type_smoothing;
-
     class Internal;
 
     /** Virtual destructor, because we have virtual methods. */
@@ -1827,99 +1815,269 @@ class XAPIAN_VISIBILITY_DEFAULT DPHWeight : public Weight {
 };
 
 
-/** Xapian::Weight subclass implementing the Language Model formula.
+/** Language Model weighting with Jelinek-Mercer smoothing.
  *
- * This class implements the "Language Model" Weighting scheme, as
- * described by the early papers on LM by Bruce Croft.
+ * As described in:
  *
- * LM works by comparing the query to a Language Model of the document.
- * The language model itself is parameter-free, though LMWeight takes
- * parameters which specify the smoothing used.
+ * Zhai, C., & Lafferty, J.D. (2004). A study of smoothing methods for language
+ * models applied to information retrieval. ACM Trans. Inf. Syst., 22, 179-214.
  */
-class XAPIAN_VISIBILITY_DEFAULT LMWeight : public Weight {
+class XAPIAN_VISIBILITY_DEFAULT LMJMWeight : public Weight {
     /// The factor to multiply weights by.
     double factor;
 
-    /** The type of smoothing to use. */
-    type_smoothing select_smoothing;
+    /// Parameter controlling the smoothing.
+    double param_lambda;
 
-    // Parameters for handling negative value of log, and for smoothing.
-    double param_log, param_smoothing1, param_smoothing2;
+    /// Precalculated multiplier for use in weight calculations.
+    double multiplier;
 
-    // Collection weight.
-    double weight_collection;
-
-    LMWeight * clone() const;
+    LMJMWeight* clone() const;
 
     void init(double factor_);
 
   public:
-    /** Construct a LMWeight.
+    /** Construct a LMJMWeight.
      *
-     *  @param param_log_	A non-negative parameter controlling how much
-     *				to clamp negative values returned by the log.
-     *				The log is calculated by multiplying the
-     *				actual weight by param_log.  If param_log is
-     *				0.0, then the document length upper bound will
-     *				be used (default: document length upper	bound)
+     *  @param lambda	A parameter strictly between 0 and 1 which linearly
+     *			interpolates between the maximum likelihood model (the
+     *			limit as λ→0) and the collection model (the limit as
+     *			λ→1).
      *
-     *  @param select_smoothing_	A parameter of type enum
-     *					type_smoothing.  This parameter
-     *					controls which smoothing type to use.
-     *					(default: TWO_STAGE_SMOOTHING)
+     *			Values of λ around 0.1 are apparently optimal for short
+     *			queries and around 0.7 for long queries.  If lambda is
+     *			out of range (i.e. <= 0 or >= 1) then the λ value used
+     *			is chosen dynamically based on the query length using
+     *			the formula:
      *
-     *  @param param_smoothing1_	A non-negative parameter for smoothing
-     *					whose meaning depends on
-     *					select_smoothing_.  In
-     *					JELINEK_MERCER_SMOOTHING, it plays the
-     *					role of estimation and in
-     *					DIRICHLET_SMOOTHING the role of query
-     *					modelling. (default JELINEK_MERCER,
-     *					ABSOLUTE, TWOSTAGE(0.7),
-     *					DIRCHLET(2000))
+     *			  (query_length - 1) / 10.0
      *
-     *  @param param_smoothing2_	A non-negative parameter which is used
-     *					with TWO_STAGE_SMOOTHING as parameter for Dirichlet's
-     *					smoothing (default: 2000) and as parameter delta to
-     *					control the scale of the tf lower bound in the
-     *					DIRICHLET_PLUS_SMOOTHING (default 0.05).
-     *
+     *			The result is clamped to 0.1 for query_length <= 2, and
+     *			to 0.7 for query_length >= 8.
      */
-    // Unigram LM Constructor to specifically mention all parameters for handling negative log value and smoothing.
-    explicit LMWeight(double param_log_ = 0.0,
-		      type_smoothing select_smoothing_ = TWO_STAGE_SMOOTHING,
-		      double param_smoothing1_ = -1.0,
-		      double param_smoothing2_ = -1.0)
-	: select_smoothing(select_smoothing_), param_log(param_log_), param_smoothing1(param_smoothing1_),
-	  param_smoothing2(param_smoothing2_)
-    {
-	if (param_smoothing1 < 0) param_smoothing1 = 0.7;
-	if (param_smoothing2 < 0) {
-	    if (select_smoothing == TWO_STAGE_SMOOTHING)
-		param_smoothing2 = 2000.0;
-	    else
-		param_smoothing2 = 0.05;
-	}
+    explicit LMJMWeight(double lambda = 0.0) : param_lambda(lambda) {
+	need_stat(QUERY_LENGTH);
 	need_stat(DOC_LENGTH);
-	need_stat(RSET_SIZE);
-	need_stat(TERMFREQ);
-	need_stat(RELTERMFREQ);
-	need_stat(DOC_LENGTH_MAX);
 	need_stat(WDF);
 	need_stat(WDF_MAX);
 	need_stat(COLLECTION_FREQ);
 	need_stat(TOTAL_LENGTH);
-	if (select_smoothing == ABSOLUTE_DISCOUNT_SMOOTHING)
-	    need_stat(UNIQUE_TERMS);
-	if (select_smoothing == DIRICHLET_PLUS_SMOOTHING)
-	    need_stat(DOC_LENGTH_MIN);
+	need_stat(DOC_LENGTH_MIN);
     }
+
+    double get_sumpart(Xapian::termcount wdf,
+		       Xapian::termcount doclen,
+		       Xapian::termcount uniqterm,
+		       Xapian::termcount wdfdocmax) const;
+
+    double get_maxpart() const;
 
     std::string name() const;
     std::string short_name() const;
 
     std::string serialise() const;
-    LMWeight * unserialise(const std::string & serialised) const;
+    LMJMWeight* unserialise(const std::string& serialised) const;
+
+    LMJMWeight* create_from_parameters(const char* params) const;
+};
+
+/** Language Model weighting with Dirichlet or Dir+ smoothing.
+ *
+ * Dirichlet smoothing is as described in:
+ *
+ * Zhai, C., & Lafferty, J.D. (2004). A study of smoothing methods for language
+ * models applied to information retrieval. ACM Trans. Inf. Syst., 22, 179-214.
+ *
+ * Dir+ is described in:
+ *
+ * Lv, Y., & Zhai, C. (2011). Lower-bounding term frequency normalization.
+ * International Conference on Information and Knowledge Management.
+ */
+class XAPIAN_VISIBILITY_DEFAULT LMDirichletWeight : public Weight {
+    /// The factor to multiply weights by.
+    double factor;
+
+    /// Parameter controlling the smoothing.
+    double param_mu;
+
+    /// A pseudo TF value to control the scale of the TF lower bound.
+    double param_delta;
+
+    /// Precalculated multiplier for use in weight calculations.
+    double multiplier;
+
+    /** Precalculated offset to add to every sumextra.
+     *
+     * This is needed because the formula can return a negative
+     * term-independent weight.
+     */
+    double extra_offset;
+
+    LMDirichletWeight* clone() const;
+
+    void init(double factor_);
+
+  public:
+    /** Construct a LMDirichletWeight.
+     *
+     *  @param mu	A parameter which is > 0.  Default: 2000
+     *  @param delta	A parameter which is >= 0, which is "a pseudo [wdf]
+     *			value to control the scale of the [wdf] lower bound".
+     *			If this parameter is > 0, then the smoothing is Dir+;
+     *			if it's zero, it's Dirichlet.  Default: 0.05
+     */
+    explicit LMDirichletWeight(double mu = 2000.0, double delta = 0.05)
+	: param_mu(mu), param_delta(delta) {
+	need_stat(QUERY_LENGTH);
+	need_stat(DOC_LENGTH);
+	need_stat(WDF);
+	need_stat(WDF_MAX);
+	need_stat(COLLECTION_FREQ);
+	need_stat(TOTAL_LENGTH);
+	need_stat(DOC_LENGTH_MIN);
+	need_stat(DOC_LENGTH_MAX);
+    }
+
+    double get_sumpart(Xapian::termcount wdf,
+		       Xapian::termcount doclen,
+		       Xapian::termcount uniqterm,
+		       Xapian::termcount wdfdocmax) const;
+
+    double get_maxpart() const;
+
+    double get_sumextra(Xapian::termcount doclen,
+			Xapian::termcount,
+			Xapian::termcount) const;
+
+    double get_maxextra() const;
+
+    std::string name() const;
+    std::string short_name() const;
+
+    std::string serialise() const;
+    LMDirichletWeight* unserialise(const std::string& serialised) const;
+
+    LMDirichletWeight* create_from_parameters(const char* params) const;
+};
+
+/** Language Model weighting with Absolute Discount smoothing.
+ *
+ * As described in:
+ *
+ * Zhai, C., & Lafferty, J.D. (2004). A study of smoothing methods for language
+ * models applied to information retrieval. ACM Trans. Inf. Syst., 22, 179-214.
+ */
+class XAPIAN_VISIBILITY_DEFAULT LMAbsDiscountWeight : public Weight {
+    /// The factor to multiply weights by.
+    double factor;
+
+    /// Parameter controlling the smoothing.
+    double param_delta;
+
+    /// Precalculated multiplier for use in weight calculations.
+    double multiplier;
+
+    /** Precalculated offset to add to every sumextra.
+     *
+     * This is needed because the formula can return a negative
+     * term-independent weight.
+     */
+    double extra_offset;
+
+    LMAbsDiscountWeight* clone() const;
+
+    void init(double factor_);
+
+  public:
+    /** Construct a LMAbsDiscountWeight.
+     *
+     *  @param delta	A parameter between 0 and 1.  Default: 0.7
+     */
+    explicit LMAbsDiscountWeight(double delta = 0.7) : param_delta(delta) {
+	need_stat(QUERY_LENGTH);
+	need_stat(DOC_LENGTH);
+	need_stat(WDF);
+	need_stat(WDF_MAX);
+	need_stat(COLLECTION_FREQ);
+	need_stat(TOTAL_LENGTH);
+	need_stat(DOC_LENGTH_MIN);
+	need_stat(UNIQUE_TERMS);
+	need_stat(DOC_LENGTH_MAX);
+    }
+
+    double get_sumpart(Xapian::termcount wdf,
+		       Xapian::termcount,
+		       Xapian::termcount uniqterm,
+		       Xapian::termcount wdfdocmax) const;
+
+    double get_maxpart() const;
+
+    double get_sumextra(Xapian::termcount doclen,
+			Xapian::termcount,
+			Xapian::termcount) const;
+
+    double get_maxextra() const;
+
+    std::string name() const;
+    std::string short_name() const;
+
+    std::string serialise() const;
+    LMAbsDiscountWeight* unserialise(const std::string& serialised) const;
+
+    LMAbsDiscountWeight* create_from_parameters(const char* params) const;
+};
+
+/** Language Model weighting with Two Stage smoothing.
+ *
+ * As described in:
+ *
+ * Zhai, C., & Lafferty, J.D. (2004). A study of smoothing methods for language
+ * models applied to information retrieval. ACM Trans. Inf. Syst., 22, 179-214.
+ */
+class XAPIAN_VISIBILITY_DEFAULT LM2StageWeight : public Weight {
+    /// The factor to multiply weights by.
+    double factor;
+
+    /// Parameter controlling the smoothing.
+    double param_lambda;
+
+    /// Parameter controlling the smoothing.
+    double param_mu;
+
+    /// Precalculated multiplier for use in weight calculations.
+    double multiplier;
+
+    /** Precalculated offset to add to every sumextra.
+     *
+     * This is needed because the formula can return a negative
+     * term-independent weight.
+     */
+    double extra_offset;
+
+    LM2StageWeight* clone() const;
+
+    void init(double factor_);
+
+  public:
+    /** Construct a LM2StageWeight.
+     *
+     *  @param lambda	A parameter between 0 and 1 which linearly interpolates
+     *			between the maximum likelihood model (at 0) and the
+     *			collection model (at 1).  Default: 0.7
+     *  @param mu	A parameter which is greater than 0.  Default: 2000
+     */
+    explicit LM2StageWeight(double lambda = 0.7, double mu = 2000.0)
+	: param_lambda(lambda), param_mu(mu)
+    {
+	need_stat(QUERY_LENGTH);
+	need_stat(DOC_LENGTH);
+	need_stat(WDF);
+	need_stat(WDF_MAX);
+	need_stat(COLLECTION_FREQ);
+	need_stat(TOTAL_LENGTH);
+	need_stat(DOC_LENGTH_MIN);
+	need_stat(DOC_LENGTH_MAX);
+    }
 
     double get_sumpart(Xapian::termcount wdf,
 		       Xapian::termcount doclen,
@@ -1928,11 +2086,17 @@ class XAPIAN_VISIBILITY_DEFAULT LMWeight : public Weight {
     double get_maxpart() const;
 
     double get_sumextra(Xapian::termcount doclen,
-			Xapian::termcount,
-			Xapian::termcount) const;
+			Xapian::termcount uniqterm,
+			Xapian::termcount wdfdocmax) const;
     double get_maxextra() const;
 
-    LMWeight * create_from_parameters(const char * params) const;
+    std::string name() const;
+    std::string short_name() const;
+
+    std::string serialise() const;
+    LM2StageWeight* unserialise(const std::string& serialised) const;
+
+    LM2StageWeight* create_from_parameters(const char* params) const;
 };
 
 /** Xapian::Weight subclass implementing Coordinate Matching.

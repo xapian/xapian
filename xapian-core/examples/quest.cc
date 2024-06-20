@@ -120,7 +120,10 @@ enum {
     WEIGHT_IFB2,
     WEIGHT_INEB2,
     WEIGHT_INL2,
-    WEIGHT_LM,
+    WEIGHT_LM2STAGE,
+    WEIGHT_LMABSDISCOUNT,
+    WEIGHT_LMDIRICHLET,
+    WEIGHT_LMJM,
     WEIGHT_PL2,
     WEIGHT_PL2PLUS,
     WEIGHT_TFIDF,
@@ -128,21 +131,24 @@ enum {
 };
 
 static const tab_entry wt_tab[] = {
-    { "bb2",	WEIGHT_BB2 },
-    { "bm25",	WEIGHT_BM25 },
-    { "bm25+",	WEIGHT_BM25PLUS },
-    { "bool",	WEIGHT_BOOL },
-    { "coord",	WEIGHT_COORD },
-    { "dlh",	WEIGHT_DLH },
-    { "dph",	WEIGHT_DPH },
-    { "ifb2",	WEIGHT_IFB2 },
-    { "ineb2",	WEIGHT_INEB2 },
-    { "inl2",	WEIGHT_INL2 },
-    { "lm",	WEIGHT_LM },
-    { "pl2",	WEIGHT_PL2 },
-    { "pl2+",	WEIGHT_PL2PLUS },
-    { "tfidf",	WEIGHT_TFIDF },
-    { "trad",	WEIGHT_TRAD }
+    { "bb2",		WEIGHT_BB2 },
+    { "bm25",		WEIGHT_BM25 },
+    { "bm25+",		WEIGHT_BM25PLUS },
+    { "bool",		WEIGHT_BOOL },
+    { "coord",		WEIGHT_COORD },
+    { "dlh",		WEIGHT_DLH },
+    { "dph",		WEIGHT_DPH },
+    { "ifb2",		WEIGHT_IFB2 },
+    { "ineb2",		WEIGHT_INEB2 },
+    { "inl2",		WEIGHT_INL2 },
+    { "lm2stage",	WEIGHT_LM2STAGE },
+    { "lmabsdiscount",	WEIGHT_LMABSDISCOUNT },
+    { "lmdirichlet",	WEIGHT_LMDIRICHLET },
+    { "lmjm",		WEIGHT_LMJM },
+    { "pl2",		WEIGHT_PL2 },
+    { "pl2+",		WEIGHT_PL2PLUS },
+    { "tfidf",		WEIGHT_TFIDF },
+    { "trad",		WEIGHT_TRAD }
 };
 
 /** The number of spaces to indent by in print_table.
@@ -398,8 +404,17 @@ try {
 	case WEIGHT_INL2:
 	    enquire.set_weighting_scheme(Xapian::InL2Weight());
 	    break;
-	case WEIGHT_LM:
-	    enquire.set_weighting_scheme(Xapian::LMWeight());
+	case WEIGHT_LM2STAGE:
+	    enquire.set_weighting_scheme(Xapian::LM2StageWeight());
+	    break;
+	case WEIGHT_LMABSDISCOUNT:
+	    enquire.set_weighting_scheme(Xapian::LMAbsDiscountWeight());
+	    break;
+	case WEIGHT_LMDIRICHLET:
+	    enquire.set_weighting_scheme(Xapian::LMDirichletWeight());
+	    break;
+        case WEIGHT_LMJM:
+	    enquire.set_weighting_scheme(Xapian::LMJMWeight());
 	    break;
 	case WEIGHT_PL2:
 	    enquire.set_weighting_scheme(Xapian::PL2Weight());

@@ -135,9 +135,14 @@ DEFINE_TESTCASE(weightserialisation1, !backend) {
     TEST_WEIGHT_CLASS(Xapian::PL2PlusWeight,
 		      (1.0, 0.8),
 		      (2.0, 0.9));
-    TEST_WEIGHT_CLASS(Xapian::LMWeight,
-		      (0.0, Xapian::Weight::TWO_STAGE_SMOOTHING, 0.7, 2000.0),
-		      (0.0, Xapian::Weight::JELINEK_MERCER_SMOOTHING, 0.7));
+    TEST_WEIGHT_CLASS(Xapian::LM2StageWeight,
+		      (0.7, 2000.0),
+		      (0.5, 2000.0));
+    TEST_WEIGHT_CLASS(Xapian::LMAbsDiscountWeight, (0.7), (0.75));
+    TEST_WEIGHT_CLASS(Xapian::LMDirichletWeight,
+		      (2000.0, 0.05),
+		      (2034.0, 0.0));
+    TEST_WEIGHT_CLASS(Xapian::LMJMWeight, (0.0), (0.5));
 }
 
 /// Basic test of using weighting schemes.
@@ -176,9 +181,26 @@ DEFINE_TESTCASE(weight1, backend) {
 	}
 	Xapian::MSet mset_scaled = enquire_scaled.get_mset(0, expected_matches);
 	TEST_EQUAL(mset_scaled.size(), expected_matches);
+	auto lm = name.find("::LM");
+	// All the LM* schemes have sumextra except LMJMWeight.
+	//
+	// BM25 and BM25+ have sumextra, but by default k2 is 0 which means
+	// sumextra is zero too.
+	bool has_sumextra = lm != string::npos && name[lm + 4] != 'J';
 	for (Xapian::doccount i = 0; i < expected_matches; ++i) {
-	    TEST_EQUAL_DOUBLE(mset_scaled[i].get_weight(),
-			      mset[i].get_weight() * 15.0);
+	    double w = mset[i].get_weight();
+	    double ws = mset_scaled[i].get_weight();
+	    if (has_sumextra) {
+		// sumextra is not scaled, so we can't test for (near)
+		// equality, but we can test that the weight is affected by the
+		// scaling, and that it's between the unscaled weight and the
+		// fully scaled weight.
+		TEST_NOT_EQUAL_DOUBLE(ws, w);
+		TEST_REL(ws, <=, w * 15.0);
+		TEST_REL(ws, >=, w);
+	    } else {
+		TEST_EQUAL_DOUBLE(ws, w * 15.0);
+	    }
 	}
     };
 
@@ -201,7 +223,10 @@ DEFINE_TESTCASE(weight1, backend) {
     TEST_WEIGHTING_SCHEME(Xapian::BB2Weight);
     TEST_WEIGHTING_SCHEME(Xapian::PL2Weight);
     TEST_WEIGHTING_SCHEME(Xapian::PL2PlusWeight);
-    TEST_WEIGHTING_SCHEME(Xapian::LMWeight);
+    TEST_WEIGHTING_SCHEME(Xapian::LM2StageWeight);
+    TEST_WEIGHTING_SCHEME(Xapian::LMAbsDiscountWeight);
+    TEST_WEIGHTING_SCHEME(Xapian::LMDirichletWeight);
+    TEST_WEIGHTING_SCHEME(Xapian::LMJMWeight);
     // Regression test for bug fixed in 1.2.4.
     TEST_WEIGHTING_SCHEME(Xapian::BM25Weight, 0, 0, 0, 0, 1);
     /* As mentioned in the documentation, when parameter k is 0, wdf and
@@ -1640,68 +1665,8 @@ DEFINE_TESTCASE(checkstatsweight5, backend && !multi && !remote) {
     Xapian::MSet mset3 = enquire.get_mset(0, db.get_doccount());
 }
 
-// Two stage should perform same as Jelinek mercer if smoothing parameter for mercer is kept 1 in both.
-DEFINE_TESTCASE(unigramlmweight4, backend) {
-    Xapian::Database db = get_database("apitest_simpledata");
-    Xapian::Enquire enquire1(db);
-    Xapian::Enquire enquire2(db);
-    enquire1.set_query(Xapian::Query("paragraph"));
-    Xapian::MSet mset1;
-    enquire2.set_query(Xapian::Query("paragraph"));
-    Xapian::MSet mset2;
-    // 5 documents available with term paragraph so mset size should be 5
-    enquire1.set_weighting_scheme(Xapian::LMWeight(0, Xapian::Weight::TWO_STAGE_SMOOTHING, 1, 0));
-    enquire2.set_weighting_scheme(Xapian::LMWeight(0, Xapian::Weight::JELINEK_MERCER_SMOOTHING, 1, 0));
-    mset1 = enquire1.get_mset(0, 10);
-    mset2 = enquire2.get_mset(0, 10);
-
-    TEST_EQUAL(mset1.size(), 5);
-    TEST_EQUAL_DOUBLE(mset1[1].get_weight(), mset2[1].get_weight());
-}
-
-/* Test for checking if we don't use smoothing all
- * of them should give same result i.e wdf_double/len_double */
-DEFINE_TESTCASE(unigramlmweight5, backend) {
-    Xapian::Database db = get_database("apitest_simpledata");
-    Xapian::Enquire enquire1(db);
-    Xapian::Enquire enquire2(db);
-    Xapian::Enquire enquire3(db);
-    Xapian::Enquire enquire4(db);
-    enquire1.set_query(Xapian::Query("paragraph"));
-    Xapian::MSet mset1;
-    enquire2.set_query(Xapian::Query("paragraph"));
-    Xapian::MSet mset2;
-    enquire3.set_query(Xapian::Query("paragraph"));
-    Xapian::MSet mset3;
-    enquire4.set_query(Xapian::Query("paragraph"));
-    Xapian::MSet mset4;
-    // 5 documents available with term paragraph so mset size should be 5
-    enquire1.set_weighting_scheme(Xapian::LMWeight(10000.0, Xapian::Weight::TWO_STAGE_SMOOTHING, 0, 0));
-    enquire2.set_weighting_scheme(Xapian::LMWeight(10000.0, Xapian::Weight::JELINEK_MERCER_SMOOTHING, 0, 0));
-    enquire3.set_weighting_scheme(Xapian::LMWeight(10000.0, Xapian::Weight::ABSOLUTE_DISCOUNT_SMOOTHING, 0, 0));
-    enquire4.set_weighting_scheme(Xapian::LMWeight(10000.0, Xapian::Weight::DIRICHLET_SMOOTHING, 0, 0));
-
-    mset1 = enquire1.get_mset(0, 10);
-    mset2 = enquire2.get_mset(0, 10);
-    mset3 = enquire3.get_mset(0, 10);
-    mset4 = enquire4.get_mset(0, 10);
-
-    TEST_EQUAL(mset1.size(), 5);
-    TEST_EQUAL(mset2.size(), 5);
-    TEST_EQUAL(mset3.size(), 5);
-    TEST_EQUAL(mset4.size(), 5);
-    for (Xapian::doccount i = 0; i < 5; ++i) {
-	TEST_EQUAL_DOUBLE(mset3[i].get_weight(), mset4[i].get_weight());
-	TEST_EQUAL_DOUBLE(mset2[i].get_weight(), mset4[i].get_weight());
-	TEST_EQUAL_DOUBLE(mset1[i].get_weight(), mset2[i].get_weight());
-	TEST_EQUAL_DOUBLE(mset3[i].get_weight(), mset2[i].get_weight());
-	TEST_EQUAL_DOUBLE(mset1[i].get_weight(), mset4[i].get_weight());
-	TEST_EQUAL_DOUBLE(mset1[i].get_weight(), mset3[i].get_weight());
-    }
-}
-
-// Feature test for Dir+ function.
-DEFINE_TESTCASE(unigramlmweight7, backend) {
+// Feature test for Dir+ weighting.
+DEFINE_TESTCASE(lmdirichletweight1, backend) {
     Xapian::Database db = get_database("apitest_simpledata");
     Xapian::Enquire enquire1(db);
     Xapian::Enquire enquire2(db);
@@ -1710,8 +1675,8 @@ DEFINE_TESTCASE(unigramlmweight7, backend) {
     Xapian::MSet mset1;
     Xapian::MSet mset2;
 
-    enquire1.set_weighting_scheme(Xapian::LMWeight(0, Xapian::Weight::DIRICHLET_SMOOTHING, 2000, 0));
-    enquire2.set_weighting_scheme(Xapian::LMWeight(0, Xapian::Weight::DIRICHLET_PLUS_SMOOTHING, 2000, 0.05));
+    enquire1.set_weighting_scheme(Xapian::LMDirichletWeight(2000, 0));
+    enquire2.set_weighting_scheme(Xapian::LMDirichletWeight(2000, 0.05));
 
     mset1 = enquire1.get_mset(0, 10);
     mset2 = enquire2.get_mset(0, 10);
@@ -1720,38 +1685,13 @@ DEFINE_TESTCASE(unigramlmweight7, backend) {
     TEST_EQUAL(mset1.size(), 5);
     TEST_EQUAL(mset2.size(), 5);
 
-    // Expect mset weights associated with Dir+ more than mset weights by Dir
-    // because of the presence of extra weight component in Dir+ function.
-    TEST_REL(mset2[0].get_weight(),>,mset1[0].get_weight());
-    TEST_REL(mset2[1].get_weight(),>,mset1[1].get_weight());
-    TEST_REL(mset2[2].get_weight(),>,mset1[2].get_weight());
-    TEST_REL(mset2[3].get_weight(),>,mset1[3].get_weight());
-    TEST_REL(mset2[4].get_weight(),>,mset1[4].get_weight());
-}
-
-// Regression test that OP_SCALE_WEIGHT works with LMWeight (fixed in 1.4.1).
-DEFINE_TESTCASE(unigramlmweight8, backend) {
-    Xapian::Database db = get_database("apitest_simpledata");
-    Xapian::Enquire enquire(db);
-    Xapian::Query query("paragraph");
-
-    enquire.set_query(query);
-    enquire.set_weighting_scheme(Xapian::LMWeight(0, Xapian::Weight::DIRICHLET_SMOOTHING, 2000, 0));
-
-    Xapian::MSet mset1;
-    mset1 = enquire.get_mset(0, 10);
-    TEST_EQUAL(mset1.size(), 5);
-
-    enquire.set_query(Xapian::Query(Xapian::Query::OP_SCALE_WEIGHT, query, 15.0));
-    enquire.set_weighting_scheme(Xapian::LMWeight(0, Xapian::Weight::DIRICHLET_SMOOTHING, 2000, 0));
-
-    Xapian::MSet mset2;
-    mset2 = enquire.get_mset(0, 10);
-    TEST_EQUAL(mset2.size(), mset1.size());
-    TEST_NOT_EQUAL_DOUBLE(mset1[0].get_weight(), 0.0);
-    for (Xapian::doccount i = 0; i < mset1.size(); ++i) {
-	TEST_EQUAL_DOUBLE(15.0 * mset1[i].get_weight(), mset2[i].get_weight());
-    }
+    // Expect mset weights from Dir+ to be less than mset weights from
+    // Dirichlet for this testcase.
+    TEST_REL(mset2[0].get_weight(),<,mset1[0].get_weight());
+    TEST_REL(mset2[1].get_weight(),<,mset1[1].get_weight());
+    TEST_REL(mset2[2].get_weight(),<,mset1[2].get_weight());
+    TEST_REL(mset2[3].get_weight(),<,mset1[3].get_weight());
+    TEST_REL(mset2[4].get_weight(),<,mset1[4].get_weight());
 }
 
 // Feature test for CoordWeight.

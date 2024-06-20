@@ -315,6 +315,7 @@ class Weight::Internal {
 	return true;
     }
 
+    [[noreturn]]
     static void parameter_error(const char * msg,
 				const std::string & scheme) {
 	std::string m(msg);

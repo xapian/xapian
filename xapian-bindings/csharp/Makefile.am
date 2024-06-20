@@ -35,7 +35,10 @@ XAPIAN_SWIG_CS_SRCS=\
 	generated-csharp/IneB2Weight.cs \
 	generated-csharp/InL2Weight.cs \
 	generated-csharp/KeyMaker.cs \
-	generated-csharp/LMWeight.cs \
+	generated-csharp/LM2StageWeight.cs \
+	generated-csharp/LMAbsDiscountWeight.cs \
+	generated-csharp/LMDirichletWeight.cs \
+	generated-csharp/LMJMWeight.cs \
 	generated-csharp/LatLongCoord.cs \
 	generated-csharp/LatLongCoords.cs \
 	generated-csharp/LatLongCoordsIterator.cs \
