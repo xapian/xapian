@@ -638,16 +638,16 @@ DEFINE_TESTCASE(pl2plusweight3, !backend) {
 DEFINE_TESTCASE(pl2plusweight4, backend) {
     Xapian::Database db = get_database("apitest_simpledata");
     Xapian::Enquire enquire(db);
-    enquire.set_query(Xapian::Query("paragraph"));
+    enquire.set_query(Xapian::Query("to"));
     Xapian::MSet mset;
 
     enquire.set_weighting_scheme(Xapian::PL2PlusWeight(2.0, 0.8));
     mset = enquire.get_mset(0, 10);
-    TEST_EQUAL(mset.size(), 5);
-    // Expected weight difference calculated in extended precision using stats
-    // from the test database.
-    TEST_EQUAL_DOUBLE(mset[2].get_weight(),
-		      mset[3].get_weight() + 0.0086861771701328694);
+    TEST_EQUAL(mset.size(), 3);
+    // Expected weight difference calculated in Python using stats from the
+    // test database.
+    TEST_EQUAL_DOUBLE(mset[1].get_weight(),
+		      mset[2].get_weight() + 0.016760925252262027);
 }
 
 // Feature Test 2 for PL2PlusWeight
