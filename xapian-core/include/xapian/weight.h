@@ -930,6 +930,7 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
 	: wdf_norm_(wdf_norm::NONE), idf_norm_(idf_norm::TFIDF),
 	  wt_norm_(wt_norm::NONE), param_slope(0.2), param_delta(1.0)
     {
+	need_stat(WQF);
 	need_stat(TERMFREQ);
 	need_stat(WDF);
 	need_stat(WDF_MAX);
@@ -1856,6 +1857,7 @@ class XAPIAN_VISIBILITY_DEFAULT LMJMWeight : public Weight {
      *			to 0.7 for query_length >= 8.
      */
     explicit LMJMWeight(double lambda = 0.0) : param_lambda(lambda) {
+	need_stat(WQF);
 	need_stat(QUERY_LENGTH);
 	need_stat(DOC_LENGTH);
 	need_stat(WDF);
@@ -1928,6 +1930,7 @@ class XAPIAN_VISIBILITY_DEFAULT LMDirichletWeight : public Weight {
      */
     explicit LMDirichletWeight(double mu = 2000.0, double delta = 0.05)
 	: param_mu(mu), param_delta(delta) {
+	need_stat(WQF);
 	need_stat(QUERY_LENGTH);
 	need_stat(DOC_LENGTH);
 	need_stat(WDF);
@@ -1994,6 +1997,7 @@ class XAPIAN_VISIBILITY_DEFAULT LMAbsDiscountWeight : public Weight {
      *  @param delta	A parameter between 0 and 1.  Default: 0.7
      */
     explicit LMAbsDiscountWeight(double delta = 0.7) : param_delta(delta) {
+	need_stat(WQF);
 	need_stat(QUERY_LENGTH);
 	need_stat(DOC_LENGTH);
 	need_stat(WDF);
@@ -2069,6 +2073,7 @@ class XAPIAN_VISIBILITY_DEFAULT LM2StageWeight : public Weight {
     explicit LM2StageWeight(double lambda = 0.7, double mu = 2000.0)
 	: param_lambda(lambda), param_mu(mu)
     {
+	need_stat(WQF);
 	need_stat(QUERY_LENGTH);
 	need_stat(DOC_LENGTH);
 	need_stat(WDF);
