@@ -31,6 +31,7 @@
 #include "backends/databaseinternal.h"
 #include "internaltypes.h"
 #include "omassert.h"
+#include "stringutils.h"
 
 #include <algorithm>
 #include <cerrno>
@@ -284,6 +285,8 @@ class Weight::Internal {
     static bool double_param(const char ** p, double * ptr_val) {
 #ifdef HAVE_STD_FROM_CHARS_DOUBLE
 	const char* startptr = *p;
+	// Unlike strtod(), std::from_chars() doesn't skip leading whitespace.
+	while (C_isspace(*startptr)) ++startptr;
 	const char* endptr = startptr + std::strlen(startptr);
 	double v;
 	const auto& r = std::from_chars(startptr, endptr, v);

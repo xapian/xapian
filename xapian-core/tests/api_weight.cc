@@ -249,6 +249,23 @@ DEFINE_TESTCASE(bm25weight1, backend) {
     Xapian::MSet mset = enquire.get_mset(0, 25);
 }
 
+/// Test Weight::create() for BM25Weight.
+DEFINE_TESTCASE(bm25weight2, !backend) {
+    {
+	auto wt_ptr = Xapian::Weight::create("bm25");
+	auto wt = Xapian::BM25Weight();
+	TEST_EQUAL(wt_ptr->serialise(), wt.serialise());
+	delete wt_ptr;
+    }
+
+    {
+	auto wt_ptr = Xapian::Weight::create("bm25 1 0 1 0.5 0.5");
+	auto wt = Xapian::BM25Weight(1, 0, 1, 0.5, 0.5);
+	TEST_EQUAL(wt_ptr->serialise(), wt.serialise());
+	delete wt_ptr;
+    }
+}
+
 // Test parameter combinations which should be unaffected by doclength.
 DEFINE_TESTCASE(bm25weight4, backend) {
     Xapian::Database db = get_database("apitest_simpledata");
