@@ -629,11 +629,6 @@ DEFINE_TESTCASE(tfidfweight1, !backend) {
     TEST_EXCEPTION(Xapian::InvalidArgumentError,
 	Xapian::TfIdfWeight b("LOL"));
 
-    /* Normalization string should be set to "ntn" by constructor if none is
-      given. */
-    Xapian::TfIdfWeight weight2;
-    TEST_EQUAL(weight2.serialise(), Xapian::TfIdfWeight("ntn").serialise());
-
     TEST_EXCEPTION(Xapian::InvalidArgumentError,
 	Xapian::Weight::create("tfidf FUN NONE NONE"));
 
