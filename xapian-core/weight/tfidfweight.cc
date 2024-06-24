@@ -3,7 +3,7 @@
  */
 /* Copyright (C) 2013 Aarsh Shah
  * Copyright (C) 2016 Vivek Pal
- * Copyright (C) 2016,2017 Olly Betts
+ * Copyright (C) 2016,2017,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -339,45 +339,48 @@ TfIdfWeight::get_wtn(double wt, wt_norm wt_normalization) const
     return wt;
 }
 
+[[noreturn]]
 static inline void
-parameter_error(const char* message)
+parameter_error(const char* message, const char* params)
 {
-    Xapian::Weight::Internal::parameter_error(message, "tfidf");
+    Xapian::Weight::Internal::parameter_error(message, "tfidf", params);
 }
 
 TfIdfWeight *
-TfIdfWeight::create_from_parameters(const char * p) const
+TfIdfWeight::create_from_parameters(const char* params) const
 {
+    const char* p = params;
     if (*p == '\0')
 	return new Xapian::TfIdfWeight();
-    string wdf_normalisation, idf_normalisation, wt_normalisation;
-    if (!Xapian::Weight::Internal::param_name(&p, wdf_normalisation))
-	parameter_error("Parameter 1 (wdf_normalisation) is invalid");
-    if (!Xapian::Weight::Internal::param_name(&p, idf_normalisation))
-	parameter_error("Parameter 2 (idf_normalisation) is invalid");
-    if (!Xapian::Weight::Internal::param_name(&p, wt_normalisation))
-	parameter_error("Parameter 3 (wt_normalisation) is invalid");
-    if (*p)
-	parameter_error("Extra data after wt_normalisation");
 
-    int wdf_code = keyword(wdf_norm_tab, wdf_normalisation.data(),
-			   wdf_normalisation.size());
-    if (wdf_code < 0) {
-	parameter_error("Parameter 1 (wdf_normalisation) is invalid");
+    string s;
+    int code = 0;
+
+    if (!Xapian::Weight::Internal::param_name(&p, s) ||
+	(code = keyword(wdf_norm_tab, s.data(), s.size())) < 0) {
+	if (code < 0 && s.size() == 3 && *p == '\0') {
+	    // Support 3 letter SMART codes such as "ntn".
+	    return new Xapian::TfIdfWeight(s);
+	}
+	parameter_error("Parameter 1 (wdf_normalisation) is invalid", params);
     }
-    wdf_norm wdf_normalisation_ = static_cast<wdf_norm>(wdf_code);
+    wdf_norm wdf_normalisation_ = static_cast<wdf_norm>(code);
 
-    int idf_code = keyword(idf_norm_tab, idf_normalisation.data(),
-			   idf_normalisation.size());
-    if (idf_code < 0) {
-	parameter_error("Parameter 2 (idf_normalisation) is invalid");
+    s.resize(0);
+    if (!Xapian::Weight::Internal::param_name(&p, s) ||
+	(code = keyword(idf_norm_tab, s.data(), s.size())) < 0) {
+	parameter_error("Parameter 2 (idf_normalisation) is invalid", params);
     }
-    idf_norm idf_normalisation_ = static_cast<idf_norm>(idf_code);
+    idf_norm idf_normalisation_ = static_cast<idf_norm>(code);
 
-    if (wt_normalisation != "NONE") {
-	parameter_error("Parameter 3 (wt_normalisation) is invalid");
+    s.resize(0);
+    if (!Xapian::Weight::Internal::param_name(&p, s) || s != "NONE") {
+	parameter_error("Parameter 3 (wt_normalisation) is invalid", params);
     }
     wt_norm wt_normalisation_ = wt_norm::NONE;
+
+    if (*p)
+	parameter_error("Extra data after parameter 3", params);
     return new Xapian::TfIdfWeight(wdf_normalisation_, idf_normalisation_,
 				   wt_normalisation_);
 }

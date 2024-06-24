@@ -1,7 +1,7 @@
 /** @file
  * @brief Xapian::BM25PlusWeight class - the BM25+ probabilistic formula
  */
-/* Copyright (C) 2009,2010,2011,2012,2014,2015,2016 Olly Betts
+/* Copyright (C) 2009,2010,2011,2012,2014,2015,2016,2024 Olly Betts
  * Copyright (C) 2016  Vivek Pal
  *
  * This program is free software; you can redistribute it and/or
@@ -187,15 +187,17 @@ BM25PlusWeight::get_maxextra() const
 			    param_min_normlen)));
 }
 
+[[noreturn]]
 static inline void
-parameter_error(const char* message)
+parameter_error(const char* message, const char* params)
 {
-    Xapian::Weight::Internal::parameter_error(message, "bm25+");
+    Xapian::Weight::Internal::parameter_error(message, "bm25+", params);
 }
 
 BM25PlusWeight *
-BM25PlusWeight::create_from_parameters(const char * p) const
+BM25PlusWeight::create_from_parameters(const char* params) const
 {
+    const char* p = params;
     if (*p == '\0')
 	return new Xapian::BM25PlusWeight();
     double k1 = 1;
@@ -205,19 +207,19 @@ BM25PlusWeight::create_from_parameters(const char * p) const
     double min_normlen = 0.5;
     double delta = 1.0;
     if (!Xapian::Weight::Internal::double_param(&p, &k1))
-	parameter_error("Parameter 1 (k1) is invalid");
+	parameter_error("Parameter 1 (k1) is invalid", params);
     if (*p && !Xapian::Weight::Internal::double_param(&p, &k2))
-	parameter_error("Parameter 2 (k2) is invalid");
+	parameter_error("Parameter 2 (k2) is invalid", params);
     if (*p && !Xapian::Weight::Internal::double_param(&p, &k3))
-	parameter_error("Parameter 3 (k3) is invalid");
+	parameter_error("Parameter 3 (k3) is invalid", params);
     if (*p && !Xapian::Weight::Internal::double_param(&p, &b))
-	parameter_error("Parameter 4 (b) is invalid");
+	parameter_error("Parameter 4 (b) is invalid", params);
     if (*p && !Xapian::Weight::Internal::double_param(&p, &min_normlen))
-	parameter_error("Parameter 5 (min_normlen) is invalid");
+	parameter_error("Parameter 5 (min_normlen) is invalid", params);
     if (*p && !Xapian::Weight::Internal::double_param(&p, &delta))
-	parameter_error("Parameter 6 (delta) is invalid");
+	parameter_error("Parameter 6 (delta) is invalid", params);
     if (*p)
-	parameter_error("Extra data after parameter 6");
+	parameter_error("Extra data after parameter 6", params);
     return new Xapian::BM25PlusWeight(k1, k2, k3, b, min_normlen, delta);
 }
 

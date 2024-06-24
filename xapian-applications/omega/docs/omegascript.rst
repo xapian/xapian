@@ -623,15 +623,30 @@ $set{OPT,VALUE}
           parameters to use if the weighting scheme supports them.  The syntax
           is a string consisting of the scheme name followed by any parameters,
           all separated by whitespace.  Any parameters not specified will use
-          their default values.  Valid scheme names are
-          ``bb2`` (in Omega >= 1.3.2), ``bm25``, ``bool``,
-          ``coord`` (in Omega >= 1.4.1),
-          ``dlh`` (in Omega >= 1.3.2), ``dph`` (in Omega >= 1.3.2),
-          ``ifb2`` (in Omega >= 1.3.2), ``ineb2`` (in Omega >= 1.3.2),
-          ``inl2`` (in Omega >= 1.3.2), ``lm`` (in Omega >= 1.3.2),
-          ``pl2`` (in Omega >= 1.3.2), ``tfidf`` (in Omega >= 1.3.1),
-          and ``trad``.  e.g.  ``$set{weighting,bm25 1 0.8}``
+          their default values.
 
+          E.g. ``$set{weighting,bool}`` or ``$set{weighting,bm25 1 0.8}``
+
+          Valid scheme names are
+          ``bb2`` (in Omega >= 1.3.2),
+          ``bm25``,
+          ``bm25+`` (in Omega >= 1.4.26),
+          ``bool``,
+          ``coord`` (in Omega >= 1.4.1),
+          ``dicecoeff`` (in Omega >= 1.5.0),
+          ``dlh`` (in Omega >= 1.3.2),
+          ``dph`` (in Omega >= 1.3.2),
+          ``ifb2`` (in Omega >= 1.3.2),
+          ``ineb2`` (in Omega >= 1.3.2),
+          ``inl2`` (in Omega >= 1.3.2),
+          ``lm2stage`` (in Omega >= 1.5.0),
+          ``lmabsdiscount`` (in Omega >= 1.5.0),
+          ``lmdirichlet`` (in Omega >= 1.5.0),
+          ``lmjm`` (in Omega >= 1.5.0),
+          ``pl2`` (in Omega >= 1.3.2),
+          ``pl2+`` (in Omega >= 1.4.26),
+          ``tfidf`` (in Omega >= 1.3.1), and
+          ``trad``.
         * expansion - set the query expansion scheme to use, and (optionally)
           the parameters to use if the expansion scheme supports them. The syntax
           is a string consisting of the scheme name followed by any parameters,

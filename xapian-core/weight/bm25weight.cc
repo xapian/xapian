@@ -1,7 +1,7 @@
 /** @file
  * @brief Xapian::BM25Weight class - the BM25 probabilistic formula
  */
-/* Copyright (C) 2009,2010,2011,2012,2014,2015 Olly Betts
+/* Copyright (C) 2009,2010,2011,2012,2014,2015,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -231,15 +231,17 @@ BM25Weight::get_maxextra() const
 			    param_min_normlen)));
 }
 
+[[noreturn]]
 static inline void
-parameter_error(const char* message)
+parameter_error(const char* message, const char* params)
 {
-    Xapian::Weight::Internal::parameter_error(message, "bm25");
+    Xapian::Weight::Internal::parameter_error(message, "bm25", params);
 }
 
-BM25Weight *
-BM25Weight::create_from_parameters(const char * p) const
+BM25Weight*
+BM25Weight::create_from_parameters(const char* params) const
 {
+    const char* p = params;
     if (*p == '\0')
 	return new Xapian::BM25Weight();
     double k1 = 1;
@@ -248,17 +250,17 @@ BM25Weight::create_from_parameters(const char * p) const
     double b = 0.5;
     double min_normlen = 0.5;
     if (!Xapian::Weight::Internal::double_param(&p, &k1))
-	parameter_error("Parameter 1 (k1) is invalid");
+	parameter_error("Parameter 1 (k1) is invalid", params);
     if (*p && !Xapian::Weight::Internal::double_param(&p, &k2))
-	parameter_error("Parameter 2 (k2) is invalid");
+	parameter_error("Parameter 2 (k2) is invalid", params);
     if (*p && !Xapian::Weight::Internal::double_param(&p, &k3))
-	parameter_error("Parameter 3 (k3) is invalid");
+	parameter_error("Parameter 3 (k3) is invalid", params);
     if (*p && !Xapian::Weight::Internal::double_param(&p, &b))
-	parameter_error("Parameter 4 (b) is invalid");
+	parameter_error("Parameter 4 (b) is invalid", params);
     if (*p && !Xapian::Weight::Internal::double_param(&p, &min_normlen))
-	parameter_error("Parameter 5 (min_normlen) is invalid");
+	parameter_error("Parameter 5 (min_normlen) is invalid", params);
     if (*p)
-	parameter_error("Extra data after parameter 5");
+	parameter_error("Extra data after parameter 5", params);
     return new Xapian::BM25Weight(k1, k2, k3, b, min_normlen);
 }
 

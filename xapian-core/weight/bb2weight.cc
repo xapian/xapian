@@ -2,7 +2,7 @@
  * @brief Xapian::BB2Weight class - the BB2 weighting scheme of the DFR framework.
  */
 /* Copyright (C) 2013,2014 Aarsh Shah
- * Copyright (C) 2014,2015,2016,2017 Olly Betts
+ * Copyright (C) 2014,2015,2016,2017,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -180,23 +180,25 @@ BB2Weight::get_maxpart() const
     return upper_bound;
 }
 
+[[noreturn]]
 static inline void
-parameter_error(const char* message)
+parameter_error(const char* message, const char* params)
 {
-    Xapian::Weight::Internal::parameter_error(message, "bb2");
+    Xapian::Weight::Internal::parameter_error(message, "bb2", params);
 }
 
-BB2Weight *
-BB2Weight::create_from_parameters(const char * p) const
+BB2Weight*
+BB2Weight::create_from_parameters(const char* params) const
 {
+    const char* p = params;
     if (*p == '\0')
 	return new Xapian::BB2Weight();
-    double k = 1.0;
-    if (!Xapian::Weight::Internal::double_param(&p, &k))
-	parameter_error("Parameter is invalid");
+    double c = 1.0;
+    if (!Xapian::Weight::Internal::double_param(&p, &c))
+	parameter_error("Parameter is invalid", params);
     if (*p)
-	parameter_error("Extra data after parameter");
-    return new Xapian::BB2Weight(k);
+	parameter_error("Extra data after parameter", params);
+    return new Xapian::BB2Weight(c);
 }
 
 }

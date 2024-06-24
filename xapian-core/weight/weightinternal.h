@@ -319,11 +319,16 @@ class Weight::Internal {
     }
 
     [[noreturn]]
-    static void parameter_error(const char * msg,
-				const std::string & scheme) {
+    static void parameter_error(const char* msg,
+				const std::string& scheme,
+				const char* params) {
 	std::string m(msg);
 	m += ": '";
 	m += scheme;
+	if (*params) {
+	    m += ' ';
+	    m += params;
+	}
 	m += "'";
 	throw InvalidArgumentError(m);
     }

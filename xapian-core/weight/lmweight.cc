@@ -38,9 +38,10 @@ using namespace std;
 
 [[noreturn]]
 static inline void
-parameter_error(const char* message, const std::string& scheme)
+parameter_error(const char* message, const std::string& scheme,
+		const char* params)
 {
-    Xapian::Weight::Internal::parameter_error(message, scheme);
+    Xapian::Weight::Internal::parameter_error(message, scheme, params);
 }
 
 /* The equations for Jelinek-Mercer, Dirichlet, and Absolute Discount smoothing
@@ -145,13 +146,14 @@ LMJMWeight::unserialise(const string& s) const
 
 
 LMJMWeight*
-LMJMWeight::create_from_parameters(const char* p) const
+LMJMWeight::create_from_parameters(const char* params) const
 {
+    const char* p = params;
     double lambda = 0.0;
     if (*p && !Xapian::Weight::Internal::double_param(&p, &lambda))
-	parameter_error("Parameter lambda is invalid", "lmjm");
+	parameter_error("Parameter lambda is invalid", "lmjm", params);
     if (*p)
-	parameter_error("Extra data after parameter", "lmjm");
+	parameter_error("Extra data after parameter", "lmjm", params);
     return new Xapian::LMJMWeight(lambda);
 }
 
@@ -272,16 +274,17 @@ LMDirichletWeight::unserialise(const string& s) const
 
 
 LMDirichletWeight*
-LMDirichletWeight::create_from_parameters(const char* p) const
+LMDirichletWeight::create_from_parameters(const char* params) const
 {
+    const char* p = params;
     double mu = 2000.0;
     double delta = 0.05;
     if (*p && !Xapian::Weight::Internal::double_param(&p, &mu))
-	parameter_error("Parameter mu is invalid", "lmdirichlet");
+	parameter_error("Parameter mu is invalid", "lmdirichlet", params);
     if (*p && !Xapian::Weight::Internal::double_param(&p, &delta))
-	parameter_error("Parameter delta is invalid", "lmdirichlet");
+	parameter_error("Parameter delta is invalid", "lmdirichlet", params);
     if (*p)
-	parameter_error("Extra data after parameters", "lmdirichlet");
+	parameter_error("Extra data after parameters", "lmdirichlet", params);
     return new Xapian::LMDirichletWeight(mu, delta);
 }
 
@@ -398,13 +401,14 @@ LMAbsDiscountWeight::unserialise(const string& s) const
 
 
 LMAbsDiscountWeight*
-LMAbsDiscountWeight::create_from_parameters(const char* p) const
+LMAbsDiscountWeight::create_from_parameters(const char* params) const
 {
+    const char* p = params;
     double delta = 0.7;
     if (*p && !Xapian::Weight::Internal::double_param(&p, &delta))
-	parameter_error("Parameter delta is invalid", "lmabsdiscount");
+	parameter_error("Parameter delta is invalid", "lmabsdiscount", params);
     if (*p)
-	parameter_error("Extra data after parameter", "lmabsdiscount");
+	parameter_error("Extra data after parameter", "lmabsdiscount", params);
     return new Xapian::LMAbsDiscountWeight(delta);
 }
 
@@ -543,16 +547,17 @@ LM2StageWeight::unserialise(const string & s) const
 }
 
 LM2StageWeight*
-LM2StageWeight::create_from_parameters(const char* p) const
+LM2StageWeight::create_from_parameters(const char* params) const
 {
+    const char* p = params;
     double lambda = 0.7;
     double mu = 2000.0;
     if (*p && !Xapian::Weight::Internal::double_param(&p, &lambda))
-	parameter_error("Parameter lambda is invalid", "lm2stage");
+	parameter_error("Parameter lambda is invalid", "lm2stage", params);
     if (*p && !Xapian::Weight::Internal::double_param(&p, &mu))
-	parameter_error("Parameter mu is invalid", "lm2stage");
+	parameter_error("Parameter mu is invalid", "lm2stage", params);
     if (*p)
-	parameter_error("Extra data after parameters", "lm2stage");
+	parameter_error("Extra data after parameters", "lm2stage", params);
     return new Xapian::LM2StageWeight(lambda, mu);
 }
 
