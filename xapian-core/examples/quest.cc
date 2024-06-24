@@ -1,7 +1,7 @@
 /** @file
  * @brief Command line search tool using Xapian::QueryParser.
  */
-/* Copyright (C) 2004-2022 Olly Betts
+/* Copyright (C) 2004-2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -109,48 +109,6 @@ static const tab_entry default_op_tab[] = {
     { "synonym", Xapian::Query::OP_SYNONYM }
 };
 
-enum {
-    WEIGHT_BB2,
-    WEIGHT_BM25,
-    WEIGHT_BM25PLUS,
-    WEIGHT_BOOL,
-    WEIGHT_COORD,
-    WEIGHT_DLH,
-    WEIGHT_DPH,
-    WEIGHT_IFB2,
-    WEIGHT_INEB2,
-    WEIGHT_INL2,
-    WEIGHT_LM2STAGE,
-    WEIGHT_LMABSDISCOUNT,
-    WEIGHT_LMDIRICHLET,
-    WEIGHT_LMJM,
-    WEIGHT_PL2,
-    WEIGHT_PL2PLUS,
-    WEIGHT_TFIDF,
-    WEIGHT_TRAD
-};
-
-static const tab_entry wt_tab[] = {
-    { "bb2",		WEIGHT_BB2 },
-    { "bm25",		WEIGHT_BM25 },
-    { "bm25+",		WEIGHT_BM25PLUS },
-    { "bool",		WEIGHT_BOOL },
-    { "coord",		WEIGHT_COORD },
-    { "dlh",		WEIGHT_DLH },
-    { "dph",		WEIGHT_DPH },
-    { "ifb2",		WEIGHT_IFB2 },
-    { "ineb2",		WEIGHT_INEB2 },
-    { "inl2",		WEIGHT_INL2 },
-    { "lm2stage",	WEIGHT_LM2STAGE },
-    { "lmabsdiscount",	WEIGHT_LMABSDISCOUNT },
-    { "lmdirichlet",	WEIGHT_LMDIRICHLET },
-    { "lmjm",		WEIGHT_LMJM },
-    { "pl2",		WEIGHT_PL2 },
-    { "pl2+",		WEIGHT_PL2PLUS },
-    { "tfidf",		WEIGHT_TFIDF },
-    { "trad",		WEIGHT_TRAD }
-};
-
 /** The number of spaces to indent by in print_table.
  *
  *  This needs to match the indent in the help message in show_usage() below.
@@ -200,9 +158,11 @@ static void show_usage() {
 "  -o, --default-op=OP               specify QueryParser default operator\n"
 "                                    (default: or).  Valid operators:"
 << print_table(default_op_tab) <<
-"  -w, --weight=SCHEME               specify weighting scheme to use\n"
-"                                    (default: bm25).  Valid schemes:"
-<< print_table(wt_tab) <<
+"  -w, --weight=SCHEME               specify weighting scheme to use, which\n"
+"                                    can include parameters, e.g.\n"
+"                                    --weight='bm25 1 0 0 1 0' (default: bm25).\n"
+// FIXME: It would be nice to report valid schemes like we used to when we had
+// a hard-coded list of scheme names here.
 "  -F, --freqs                       show query term frequencies\n"
 "  -h, --help                        display this help and exit\n"
 "  -v, --version                     output version information and exit\n";
@@ -240,7 +200,7 @@ try {
     unsigned flags = 0;
     bool flags_set = false;
     bool show_termfreqs = false;
-    int weight = -1;
+    const char* weighting_scheme = "bm25";
 
     int c;
     while ((c = gnu_getopt_long(argc, argv, opts, long_opts, 0)) != -1) {
@@ -320,14 +280,9 @@ try {
 		parser.set_default_op(static_cast<Xapian::Query::op>(op));
 		break;
 	    }
-	    case 'w': {
-		weight = decode(wt_tab, optarg);
-		if (weight < 0) {
-		    cerr << "Unknown weighting scheme '" << optarg << "'\n";
-		    exit(1);
-		}
+	    case 'w':
+		weighting_scheme = optarg;
 		break;
-	    }
 	    case 'F':
 		show_termfreqs = true;
 		break;
@@ -372,62 +327,10 @@ try {
 
     Xapian::Enquire enquire(db);
     enquire.set_query(query);
-
-    switch (weight) {
-	case WEIGHT_BB2:
-	    enquire.set_weighting_scheme(Xapian::BB2Weight());
-	    break;
-	case WEIGHT_BOOL:
-	    enquire.set_weighting_scheme(Xapian::BoolWeight());
-	    break;
-	case WEIGHT_COORD:
-	    enquire.set_weighting_scheme(Xapian::CoordWeight());
-	    break;
-	case WEIGHT_BM25:
-	    enquire.set_weighting_scheme(Xapian::BM25Weight());
-	    break;
-	case WEIGHT_BM25PLUS:
-	    enquire.set_weighting_scheme(Xapian::BM25PlusWeight());
-	    break;
-	case WEIGHT_DLH:
-	    enquire.set_weighting_scheme(Xapian::DLHWeight());
-	    break;
-	case WEIGHT_DPH:
-	    enquire.set_weighting_scheme(Xapian::DPHWeight());
-	    break;
-	case WEIGHT_IFB2:
-	    enquire.set_weighting_scheme(Xapian::IfB2Weight());
-	    break;
-	case WEIGHT_INEB2:
-	    enquire.set_weighting_scheme(Xapian::IneB2Weight());
-	    break;
-	case WEIGHT_INL2:
-	    enquire.set_weighting_scheme(Xapian::InL2Weight());
-	    break;
-	case WEIGHT_LM2STAGE:
-	    enquire.set_weighting_scheme(Xapian::LM2StageWeight());
-	    break;
-	case WEIGHT_LMABSDISCOUNT:
-	    enquire.set_weighting_scheme(Xapian::LMAbsDiscountWeight());
-	    break;
-	case WEIGHT_LMDIRICHLET:
-	    enquire.set_weighting_scheme(Xapian::LMDirichletWeight());
-	    break;
-        case WEIGHT_LMJM:
-	    enquire.set_weighting_scheme(Xapian::LMJMWeight());
-	    break;
-	case WEIGHT_PL2:
-	    enquire.set_weighting_scheme(Xapian::PL2Weight());
-	    break;
-	case WEIGHT_PL2PLUS:
-	    enquire.set_weighting_scheme(Xapian::PL2PlusWeight());
-	    break;
-	case WEIGHT_TFIDF:
-	    enquire.set_weighting_scheme(Xapian::TfIdfWeight());
-	    break;
-	case WEIGHT_TRAD:
-	    enquire.set_weighting_scheme(Xapian::TradWeight());
-	    break;
+    {
+	const Xapian::Weight* weight = Xapian::Weight::create(weighting_scheme);
+	enquire.set_weighting_scheme(*weight);
+	delete weight;
     }
 
     Xapian::MSet mset = enquire.get_mset(0, msize, check_at_least);
