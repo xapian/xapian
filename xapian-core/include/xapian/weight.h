@@ -459,10 +459,9 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
     static const Weight * create(const std::string & scheme,
 				 const Registry & reg = Registry());
 
-    /** Return the parameterised weighting scheme object.
+    /** Create from a human-readable parameter string.
      *
-     * @param params	the pointer to the string containing parameter values
-     *			for a weighting scheme
+     * @param params	string containing weighting scheme parameter values.
      */
     virtual Weight * create_from_parameters(const char * params) const;
 
