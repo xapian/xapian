@@ -2,7 +2,7 @@
 .. This document was originally written by Richard Boulton.
 
 .. Copyright (C) 2007 Lemur Consulting Ltd
-.. Copyright (C) 2007,2008,2009,2010,2011,2012,2013,2015,2016 Olly Betts
+.. Copyright (C) 2007,2008,2009,2010,2011,2012,2013,2015,2016,2024 Olly Betts
 
 ===========
 Deprecation
@@ -271,6 +271,15 @@ Deprecated Remove Feature name                        Upgrade suggestion and com
 1.3.6      1.5.0  |add_valuerangeprocessor|           Use ``Xapian::QueryParser::add_rangeprocessor()`` instead, with a
                                                       ``Xapian::RangeProcessor`` object instead of a |VRP| object (added in
                                                       1.3.6).
+---------- ------ ----------------------------------- ------------------------------------------------------------------------
+1.4.26     1.5.0  ``LMWeight`` class                  We do not recommend using this class.  It was meant to implement the
+                                                      "Language Model" Weighting scheme, but we discovered the implementation
+                                                      was incorrect and fixing it requires ABI-incompatible changes.
+
+                                                      For 1.4.x we've left it in place so as not to break existing code.  It
+                                                      will be removed in the next release series and replaced with new
+                                                      separate classes implementing Language Model weighting with each
+                                                      smoothing.
 ---------- ------ ----------------------------------- ------------------------------------------------------------------------
 1.4.11     1.7.0  Environment variable                If you require Xapian >= 1.4.23, specify via the flags
                   ``XAPIAN_CJK_NGRAM``                ``Xapian::QueryParser::FLAG_NGRAMS``,

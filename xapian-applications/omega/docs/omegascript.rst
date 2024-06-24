@@ -627,11 +627,14 @@ $set{OPT,VALUE}
           ``ifb2`` (in Omega >= 1.3.2),
           ``ineb2`` (in Omega >= 1.3.2),
           ``inl2`` (in Omega >= 1.3.2),
-          ``lm`` (in Omega >= 1.3.2),
           ``pl2`` (in Omega >= 1.3.2),
           ``pl2+`` (in Omega >= 1.4.26),
           ``tfidf`` (in Omega >= 1.3.1), and
           ``trad``.
+
+          The deprecated scheme name ``lm`` is also recognised (in Omega >=
+          1.3.2), but this selects ``Xapian::LMWeight`` which is incorrectly
+          implemented and so we do not recommend using it.
         * expansion - set the query expansion scheme to use, and (optionally)
           the parameters to use if the expansion scheme supports them. The syntax
           is a string consisting of the scheme name followed by any parameters,

@@ -1402,12 +1402,13 @@ class XAPIAN_VISIBILITY_DEFAULT DPHWeight : public Weight {
 
 /** Xapian::Weight subclass implementing the Language Model formula.
  *
- * This class implements the "Language Model" Weighting scheme, as
- * described by the early papers on LM by Bruce Croft.
+ * We do not recommend using this class.  It was meant to implement the
+ * "Language Model" Weighting scheme, but we discovered the implementation was
+ * incorrect and fixing it requires ABI-incompatible changes.
  *
- * LM works by comparing the query to a Language Model of the document.
- * The language model itself is parameter-free, though LMWeight takes
- * parameters which specify the smoothing used.
+ * For 1.4.x we've left it in place so as not to break existing code.  It will
+ * be removed in the next release series and replaced with new separate classes
+ * implementing Language Model weighting with each smoothing.
  */
 class XAPIAN_VISIBILITY_DEFAULT LMWeight : public Weight {
     /** The type of smoothing to use. */
