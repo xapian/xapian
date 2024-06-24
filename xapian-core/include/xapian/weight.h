@@ -128,7 +128,11 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
 	 *  This is a suitable bound for calculating a returned weight from
 	 *  get_sumpart().
 	 */
-	DB_WDF_MAX = 65536
+	DB_WDF_MAX = 65536,
+	/** @private @internal Flag only set for BoolWeight.
+	 *  This allows us to efficiently indentify BoolWeight objects.
+	 */
+	IS_BOOLWEIGHT_ = static_cast<int>(0x80000000)
     } stat_flags;
 
     /** Tell Xapian that your subclass will want a particular statistic.
@@ -467,11 +471,10 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
 
     /// @private @internal Test if this is a BoolWeight object.
     bool is_bool_weight_() const {
-	// Checking the name isn't ideal, but (get_maxpart() == 0.0) isn't
-	// required to work without init() having been called.  We can at
-	// least avoid the virtual method call in most non-BoolWeight cases
-	// as most other classes will need at least some stats.
-	return stats_needed == 0 && name() == "bool";
+	// We use a special flag bit to make this check efficient.  Note we
+	// can't use (get_maxpart() == 0.0) since that's not required to work
+	// without init() having been called.
+	return stats_needed & IS_BOOLWEIGHT_;
     }
 
     /** @private @internal Return true if the max WDF of document is needed.
@@ -616,7 +619,9 @@ class XAPIAN_VISIBILITY_DEFAULT BoolWeight : public Weight {
 
   public:
     /** Construct a BoolWeight. */
-    BoolWeight() { }
+    BoolWeight() {
+	need_stat(IS_BOOLWEIGHT_);
+    }
 
     std::string name() const;
 
