@@ -242,6 +242,16 @@ DEFINE_TESTCASE(weight1, backend) {
 #undef TEST_WEIGHTING_SCHEME
 }
 
+/// Feature tests for Weight::create().
+DEFINE_TESTCASE(weightcreate1, !backend) {
+    TEST_EXCEPTION(Xapian::InvalidArgumentError,
+	delete Xapian::Weight::create(""));
+    TEST_EXCEPTION(Xapian::InvalidArgumentError,
+	delete Xapian::Weight::create("invalid"));
+    TEST_EXCEPTION(Xapian::InvalidArgumentError,
+	delete Xapian::Weight::create("invalid 1.0"));
+}
+
 /** Regression test for bug fixed in 1.0.5.
  *
  * This test would fail under valgrind because it used an uninitialised value.

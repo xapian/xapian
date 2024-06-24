@@ -227,7 +227,11 @@ Weight::create(const string & s, const Registry & reg)
     }
 
     if (*p == ' ') p++;
-    return reg.get_weighting_scheme(scheme)->create_from_parameters(p);
+    auto weight = reg.get_weighting_scheme(scheme);
+    if (!weight) {
+	throw InvalidArgumentError("Unknown weighting scheme: " + scheme);
+    }
+    return weight->create_from_parameters(p);
 }
 
 Weight *
