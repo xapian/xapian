@@ -96,12 +96,6 @@ IfB2Weight::init(double factor)
 string
 IfB2Weight::name() const
 {
-    return "Xapian::IfB2Weight";
-}
-
-string
-IfB2Weight::short_name() const
-{
     return "ifb2";
 }
 

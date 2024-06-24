@@ -43,12 +43,6 @@ BoolWeight::init(double)
 string
 BoolWeight::name() const
 {
-    return "Xapian::BoolWeight";
-}
-
-string
-BoolWeight::short_name() const
-{
     return "bool";
 }
 

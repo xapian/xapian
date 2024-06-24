@@ -95,12 +95,6 @@ IneB2Weight::init(double factor)
 string
 IneB2Weight::name() const
 {
-    return "Xapian::IneB2Weight";
-}
-
-string
-IneB2Weight::short_name() const
-{
     return "ineb2";
 }
 

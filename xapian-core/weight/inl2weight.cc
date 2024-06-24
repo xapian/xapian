@@ -93,12 +93,6 @@ InL2Weight::init(double factor)
 string
 InL2Weight::name() const
 {
-    return "Xapian::InL2Weight";
-}
-
-string
-InL2Weight::short_name() const
-{
     return "inl2";
 }
 

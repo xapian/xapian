@@ -122,12 +122,6 @@ BB2Weight::init(double factor)
 string
 BB2Weight::name() const
 {
-    return "Xapian::BB2Weight";
-}
-
-string
-BB2Weight::short_name() const
-{
     return "bb2";
 }
 

@@ -80,13 +80,7 @@ BM25PlusWeight::init(double factor)
 string
 BM25PlusWeight::name() const
 {
-    return "Xapian::BM25PlusWeight";
-}
-
-string
-BM25PlusWeight::short_name() const
-{
-    return "bm25plus";
+    return "bm25+";
 }
 
 string
@@ -196,7 +190,7 @@ BM25PlusWeight::get_maxextra() const
 static inline void
 parameter_error(const char* message)
 {
-    Xapian::Weight::Internal::parameter_error(message, "bm25plus");
+    Xapian::Weight::Internal::parameter_error(message, "bm25+");
 }
 
 BM25PlusWeight *

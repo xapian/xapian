@@ -157,12 +157,6 @@ DLHWeight::init(double factor)
 string
 DLHWeight::name() const
 {
-    return "Xapian::DLHWeight";
-}
-
-string
-DLHWeight::short_name() const
-{
     return "dlh";
 }
 

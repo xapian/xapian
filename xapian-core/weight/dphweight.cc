@@ -113,12 +113,6 @@ DPHWeight::init(double factor)
 string
 DPHWeight::name() const
 {
-    return "Xapian::DPHWeight";
-}
-
-string
-DPHWeight::short_name() const
-{
     return "dph";
 }
 

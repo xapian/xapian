@@ -47,9 +47,6 @@ class Xapian::Registry::Internal : public Xapian::Internal::intrusive_base {
     /// Registered weighting schemes.
     map<string, Xapian::Weight*, std::less<>> wtschemes;
 
-    /// Registered weighting schemes by their short names. E.g. "bm25".
-    map<string, Xapian::Weight*, std::less<>> wtschemes_short;
-
     /// Registered external posting sources.
     map<string, Xapian::PostingSource*, std::less<>> postingsources;
 
@@ -134,54 +131,6 @@ register_object(map<string, T*, std::less<>>& registry, const T& obj)
     r.first->second = clone;
 }
 
-template<class T>
-static inline void
-register_object(map<string, T*, std::less<>>& registry1,
-		map<string, T*, std::less<>>& registry2,
-		const T& obj)
-{
-    string name = obj.name();
-    if (rare(name.empty())) {
-	throw Xapian::InvalidOperationError("Unable to register object - name() method returned empty string");
-    }
-
-    auto r1 = registry1.insert(make_pair(name, static_cast<T*>(NULL)));
-    decltype(r1) r2;
-
-    string short_name = obj.short_name();
-    if (!short_name.empty()) {
-	r2 = registry2.insert(make_pair(short_name, static_cast<T*>(NULL)));
-	if (r1.second != r2.second || (!r1.second && r2.first->second != r1.first->second)) {
-	    throw Xapian::InvalidOperationError("Unable to register object - weighting scheme with the same name but a different short name already registered");
-	}
-    }
-
-    if (!r1.second) {
-	// Existing element with this key, so replace the pointer with NULL
-	// and delete the existing pointer.
-	//
-	// If the delete throws, this will leave a NULL entry in the map, but
-	// that won't affect behaviour as we return NULL for "not found"
-	// anyway.  The memory used will be leaked if the dtor throws, but
-	// throwing exceptions from the dtor is bad form, so that's not a big
-	// problem.
-	T * p = NULL;
-	swap(p, r1.first->second);
-	delete p;
-    }
-
-    T * clone = obj.clone();
-    if (rare(!clone)) {
-	throw Xapian::InvalidOperationError("Unable to register object - clone() method returned NULL");
-    }
-
-    r1.first->second = clone;
-
-    if (!short_name.empty()) {
-	r2.first->second = clone;
-    }
-}
-
 /// Look up an optionally ref-counted object.
 template<class T>
 static inline const T*
@@ -228,61 +177,42 @@ Registry::Internal::add_defaults()
     Xapian::Weight * weighting_scheme;
     weighting_scheme = new Xapian::BB2Weight;
     wtschemes[weighting_scheme->name()] = weighting_scheme;
-    wtschemes_short[weighting_scheme->short_name()] = weighting_scheme;
     weighting_scheme = new Xapian::BM25Weight;
     wtschemes[weighting_scheme->name()] = weighting_scheme;
-    wtschemes_short[weighting_scheme->short_name()] = weighting_scheme;
     weighting_scheme = new Xapian::BM25PlusWeight;
     wtschemes[weighting_scheme->name()] = weighting_scheme;
-    wtschemes_short[weighting_scheme->short_name()] = weighting_scheme;
     weighting_scheme = new Xapian::BoolWeight;
     wtschemes[weighting_scheme->name()] = weighting_scheme;
-    wtschemes_short[weighting_scheme->short_name()] = weighting_scheme;
     weighting_scheme = new Xapian::CoordWeight;
     wtschemes[weighting_scheme->name()] = weighting_scheme;
-    wtschemes_short[weighting_scheme->short_name()] = weighting_scheme;
     weighting_scheme = new Xapian::TradWeight;
     wtschemes[weighting_scheme->name()] = weighting_scheme;
-    wtschemes_short[weighting_scheme->short_name()] = weighting_scheme;
     weighting_scheme = new Xapian::TfIdfWeight;
     wtschemes[weighting_scheme->name()] = weighting_scheme;
-    wtschemes_short[weighting_scheme->short_name()] = weighting_scheme;
     weighting_scheme = new Xapian::InL2Weight;
     wtschemes[weighting_scheme->name()] = weighting_scheme;
-    wtschemes_short[weighting_scheme->short_name()] = weighting_scheme;
     weighting_scheme = new Xapian::IfB2Weight;
     wtschemes[weighting_scheme->name()] = weighting_scheme;
-    wtschemes_short[weighting_scheme->short_name()] = weighting_scheme;
     weighting_scheme = new Xapian::IneB2Weight;
     wtschemes[weighting_scheme->name()] = weighting_scheme;
-    wtschemes_short[weighting_scheme->short_name()] = weighting_scheme;
     weighting_scheme = new Xapian::DLHWeight;
     wtschemes[weighting_scheme->name()] = weighting_scheme;
-    wtschemes_short[weighting_scheme->short_name()] = weighting_scheme;
     weighting_scheme = new Xapian::PL2PlusWeight;
     wtschemes[weighting_scheme->name()] = weighting_scheme;
-    wtschemes_short[weighting_scheme->short_name()] = weighting_scheme;
     weighting_scheme = new Xapian::PL2Weight;
     wtschemes[weighting_scheme->name()] = weighting_scheme;
-    wtschemes_short[weighting_scheme->short_name()] = weighting_scheme;
     weighting_scheme = new Xapian::DPHWeight;
     wtschemes[weighting_scheme->name()] = weighting_scheme;
-    wtschemes_short[weighting_scheme->short_name()] = weighting_scheme;
     weighting_scheme = new Xapian::LMJMWeight;
     wtschemes[weighting_scheme->name()] = weighting_scheme;
-    wtschemes_short[weighting_scheme->short_name()] = weighting_scheme;
     weighting_scheme = new Xapian::LMDirichletWeight;
     wtschemes[weighting_scheme->name()] = weighting_scheme;
-    wtschemes_short[weighting_scheme->short_name()] = weighting_scheme;
     weighting_scheme = new Xapian::LMAbsDiscountWeight;
     wtschemes[weighting_scheme->name()] = weighting_scheme;
-    wtschemes_short[weighting_scheme->short_name()] = weighting_scheme;
     weighting_scheme = new Xapian::LM2StageWeight;
     wtschemes[weighting_scheme->name()] = weighting_scheme;
-    wtschemes_short[weighting_scheme->short_name()] = weighting_scheme;
     weighting_scheme = new Xapian::DiceCoeffWeight;
     wtschemes[weighting_scheme->name()] = weighting_scheme;
-    wtschemes_short[weighting_scheme->short_name()] = weighting_scheme;
 
     Xapian::PostingSource * source;
     source = new Xapian::ValueWeightPostingSource(0);
@@ -382,19 +312,13 @@ void
 Registry::register_weighting_scheme(const Xapian::Weight &wt)
 {
     LOGCALL_VOID(API, "Xapian::Registry::register_weighting_scheme", wt.name());
-    register_object(internal->wtschemes, internal->wtschemes_short, wt);
+    register_object(internal->wtschemes, wt);
 }
 
 const Xapian::Weight *
 Registry::get_weighting_scheme(string_view name) const
 {
     LOGCALL(API, const Xapian::Weight *, "Xapian::Registry::get_weighting_scheme", name);
-    if (!name.empty() && C_islower(name[0])) {
-	const Xapian::Weight * wt_short = lookup_object(internal->wtschemes_short, name);
-	if (wt_short != NULL) {
-	    RETURN(wt_short);
-	}
-    }
     RETURN(lookup_object(internal->wtschemes, name));
 }
 

@@ -127,12 +127,6 @@ TradWeight::init(double factor)
 string
 TradWeight::name() const
 {
-    return "Xapian::TradWeight";
-}
-
-string
-TradWeight::short_name() const
-{
     return "trad";
 }
 

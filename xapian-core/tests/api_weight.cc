@@ -36,9 +36,9 @@ using namespace std;
 
 template<class W>
 static inline void
-test_weight_class_no_params(const char* name)
+test_weight_class_no_params(const char* classname, const char* name)
 {
-    tout << name << '\n';
+    tout << classname << '\n';
     W obj;
     // Check name() returns the class name.
     TEST_EQUAL(obj.name(), name);
@@ -52,22 +52,24 @@ test_weight_class_no_params(const char* name)
     // The easy case to test is extra junk after the serialised weight.
     try {
 	unique_ptr<Xapian::Weight> bad(W().unserialise(obj_serialised + "X"));
-	FAIL_TEST(name << " did not throw for unserialise with junk appended");
+	FAIL_TEST(classname << " did not throw for unserialise with junk "
+		  "appended");
     } catch (const Xapian::SerialisationError& e) {
 	// Check the exception message contains the weighting scheme name
 	// (regression test for TradWeight's exception saying "BM25").
-	string target = name + CONST_STRLEN("Xapian::");
+	string target = classname + CONST_STRLEN("Xapian::");
 	TEST(e.get_msg().find(target) != string::npos);
     }
 }
 
-#define TEST_WEIGHT_CLASS_NO_PARAMS(W) test_weight_class_no_params<W>(#W)
+#define TEST_WEIGHT_CLASS_NO_PARAMS(W, N) test_weight_class_no_params<W>(#W, N)
 
 template<class W>
 static inline void
-test_weight_class(const char* name, const W& obj_default, const W& obj_other)
+test_weight_class(const char* classname, const char* name,
+		  const W& obj_default, const W& obj_other)
 {
-    tout << name << '\n';
+    tout << classname << '\n';
     W obj;
     // Check name() returns the class name.
     TEST_EQUAL(obj.name(), name);
@@ -90,11 +92,12 @@ test_weight_class(const char* name, const W& obj_default, const W& obj_other)
     // The easy case to test is extra junk after the serialised weight.
     try {
 	unique_ptr<Xapian::Weight> bad(W().unserialise(obj_serialised + "X"));
-	FAIL_TEST(name << " did not throw for unserialise with junk appended");
+	FAIL_TEST(classname << " did not throw for unserialise with junk "
+		  "appended");
     } catch (const Xapian::SerialisationError& e) {
 	// Check the exception message contains the weighting scheme name
 	// (regression test for TradWeight's exception saying "BM25").
-	string target = name + CONST_STRLEN("Xapian::");
+	string target = classname + CONST_STRLEN("Xapian::");
 	TEST(e.get_msg().find(target) != string::npos);
     }
 }
@@ -106,43 +109,45 @@ test_weight_class(const char* name, const W& obj_default, const W& obj_other)
 //
 // OTHER should be a parenthesised parameter list to construct an object with
 // non-default parameters.
-#define TEST_WEIGHT_CLASS(W, DEFAULT, OTHER) \
-    test_weight_class<W>(#W, W DEFAULT, W OTHER)
+#define TEST_WEIGHT_CLASS(W, N, DEFAULT, OTHER) \
+    test_weight_class<W>(#W, N, W DEFAULT, W OTHER)
 
 /// Test serialisation and introspection of built-in weighting schemes.
 DEFINE_TESTCASE(weightserialisation1, !backend) {
     // Parameter-free weighting schemes.
-    TEST_WEIGHT_CLASS_NO_PARAMS(Xapian::BoolWeight);
-    TEST_WEIGHT_CLASS_NO_PARAMS(Xapian::CoordWeight);
-    TEST_WEIGHT_CLASS_NO_PARAMS(Xapian::DLHWeight);
-    TEST_WEIGHT_CLASS_NO_PARAMS(Xapian::DPHWeight);
-    TEST_WEIGHT_CLASS_NO_PARAMS(Xapian::DiceCoeffWeight);
+    TEST_WEIGHT_CLASS_NO_PARAMS(Xapian::BoolWeight, "bool");
+    TEST_WEIGHT_CLASS_NO_PARAMS(Xapian::CoordWeight, "coord");
+    TEST_WEIGHT_CLASS_NO_PARAMS(Xapian::DLHWeight, "dlh");
+    TEST_WEIGHT_CLASS_NO_PARAMS(Xapian::DPHWeight, "dph");
+    TEST_WEIGHT_CLASS_NO_PARAMS(Xapian::DiceCoeffWeight, "dicecoeff");
 
     // Parameterised weighting schemes.
-    TEST_WEIGHT_CLASS(Xapian::TradWeight, (1.0), (2.0));
-    TEST_WEIGHT_CLASS(Xapian::BM25Weight,
+    TEST_WEIGHT_CLASS(Xapian::TradWeight, "trad", (1.0), (2.0));
+    TEST_WEIGHT_CLASS(Xapian::BM25Weight, "bm25",
 		      (1, 0, 1, 0.5, 0.5),
 		      (1, 0.5, 1, 0.5, 0.5));
-    TEST_WEIGHT_CLASS(Xapian::BM25PlusWeight,
+    TEST_WEIGHT_CLASS(Xapian::BM25PlusWeight, "bm25+",
 		      (1, 0, 1, 0.5, 0.5, 1.0),
 		      (1, 0, 1, 0.5, 0.5, 2.0));
-    TEST_WEIGHT_CLASS(Xapian::TfIdfWeight, ("ntn"), ("bpn"));
-    TEST_WEIGHT_CLASS(Xapian::InL2Weight, (1.0), (2.0));
-    TEST_WEIGHT_CLASS(Xapian::IfB2Weight, (1.0), (2.0));
-    TEST_WEIGHT_CLASS(Xapian::IneB2Weight, (1.0), (2.0));
-    TEST_WEIGHT_CLASS(Xapian::BB2Weight, (1.0), (2.0));
-    TEST_WEIGHT_CLASS(Xapian::PL2Weight, (1.0), (2.0));
-    TEST_WEIGHT_CLASS(Xapian::PL2PlusWeight,
+    TEST_WEIGHT_CLASS(Xapian::TfIdfWeight, "tfidf", ("ntn"), ("bpn"));
+    TEST_WEIGHT_CLASS(Xapian::InL2Weight, "inl2", (1.0), (2.0));
+    TEST_WEIGHT_CLASS(Xapian::IfB2Weight, "ifb2", (1.0), (2.0));
+    TEST_WEIGHT_CLASS(Xapian::IneB2Weight, "ineb2", (1.0), (2.0));
+    TEST_WEIGHT_CLASS(Xapian::BB2Weight, "bb2", (1.0), (2.0));
+    TEST_WEIGHT_CLASS(Xapian::PL2Weight, "pl2", (1.0), (2.0));
+    TEST_WEIGHT_CLASS(Xapian::PL2PlusWeight, "pl2+",
 		      (1.0, 0.8),
 		      (2.0, 0.9));
-    TEST_WEIGHT_CLASS(Xapian::LM2StageWeight,
+    TEST_WEIGHT_CLASS(Xapian::LM2StageWeight, "lm2stage",
 		      (0.7, 2000.0),
 		      (0.5, 2000.0));
-    TEST_WEIGHT_CLASS(Xapian::LMAbsDiscountWeight, (0.7), (0.75));
-    TEST_WEIGHT_CLASS(Xapian::LMDirichletWeight,
+    TEST_WEIGHT_CLASS(Xapian::LMAbsDiscountWeight, "lmabsdiscount",
+		      (0.7),
+		      (0.75));
+    TEST_WEIGHT_CLASS(Xapian::LMDirichletWeight, "lmdirichlet",
 		      (2000.0, 0.05),
 		      (2034.0, 0.0));
-    TEST_WEIGHT_CLASS(Xapian::LMJMWeight, (0.0), (0.5));
+    TEST_WEIGHT_CLASS(Xapian::LMJMWeight, "lmjm", (0.0), (0.5));
 }
 
 /// Basic test of using weighting schemes.

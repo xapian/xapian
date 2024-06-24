@@ -273,18 +273,28 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
      */
     virtual Weight * clone() const = 0;
 
-    /** Return the name of this weighting scheme.
+    /** Return the name of this weighting scheme, e.g. "bm25+".
      *
-     *  This name is used by the remote backend.  It is passed along with the
-     *  serialised parameters to the remote server so that it knows which class
-     *  to create.
+     *  This is the name that the weighting scheme gets registered under
+     *  when passed to Xapian:Registry::register_weighting_scheme().
      *
-     *  Return the full namespace-qualified name of your class here - if
-     *  your class is called FooWeight, return "FooWeight" from this method
-     *  (Xapian::BM25Weight returns "Xapian::BM25Weight" here).
+     *  As a result:
      *
-     *  If you don't want to support the remote backend, you can use the
-     *  default implementation which simply returns an empty string.
+     *  * this is the name that needs to be used in Weight::create() to
+     *    create a Weight object from a human-readable string description.
+     *
+     *  * it is also used by the remote backend where it is sent (along with
+     *    the serialised parameters) to the remote server so that it knows
+     *    which class to create.
+     *
+     *  For 1.4.x and earlier we recommended returning the full
+     *  namespace-qualified name of your class here, but now we recommend
+     *  returning a just the name in lower case, e.g. "foo" instead of
+     *  "FooWeight", "bm25+" instead of "Xapian::BM25PlusWeight".
+     *
+     *  If you don't want to support creation via Weight::create() or the
+     *  remote backend, you can use the default implementation which simply
+     *  returns an empty string.
      */
     virtual std::string name() const;
 
@@ -456,16 +466,13 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
      */
     virtual Weight * create_from_parameters(const char * params) const;
 
-    /** Return the short name of the weighting scheme. E.g. "bm25". */
-    virtual std::string short_name() const;
-
     /// @private @internal Test if this is a BoolWeight object.
     bool is_bool_weight_() const {
 	// Checking the name isn't ideal, but (get_maxpart() == 0.0) isn't
 	// required to work without init() having been called.  We can at
 	// least avoid the virtual method call in most non-BoolWeight cases
 	// as most other classes will need at least some stats.
-	return stats_needed == 0 && short_name() == "bool";
+	return stats_needed == 0 && name() == "bool";
     }
 
     /** @private @internal Return true if the max WDF of document is needed.
@@ -613,7 +620,6 @@ class XAPIAN_VISIBILITY_DEFAULT BoolWeight : public Weight {
     BoolWeight() { }
 
     std::string name() const;
-    std::string short_name() const;
 
     std::string serialise() const;
     BoolWeight * unserialise(const std::string & serialised) const;
@@ -939,8 +945,6 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
 
     std::string name() const;
 
-    std::string short_name() const;
-
     std::string serialise() const;
     TfIdfWeight * unserialise(const std::string & serialised) const;
 
@@ -1047,7 +1051,6 @@ class XAPIAN_VISIBILITY_DEFAULT BM25Weight : public Weight {
     }
 
     std::string name() const;
-    std::string short_name() const;
 
     std::string serialise() const;
     BM25Weight * unserialise(const std::string & serialised) const;
@@ -1171,7 +1174,6 @@ class XAPIAN_VISIBILITY_DEFAULT BM25PlusWeight : public Weight {
     }
 
     std::string name() const;
-    std::string short_name() const;
 
     std::string serialise() const;
     BM25PlusWeight * unserialise(const std::string & serialised) const;
@@ -1237,7 +1239,6 @@ class XAPIAN_VISIBILITY_DEFAULT TradWeight : public Weight {
     }
 
     std::string name() const;
-    std::string short_name() const;
 
     std::string serialise() const;
     TradWeight * unserialise(const std::string & serialised) const;
@@ -1310,7 +1311,6 @@ class XAPIAN_VISIBILITY_DEFAULT InL2Weight : public Weight {
     }
 
     std::string name() const;
-    std::string short_name() const;
 
     std::string serialise() const;
     InL2Weight * unserialise(const std::string & serialised) const;
@@ -1383,7 +1383,6 @@ class XAPIAN_VISIBILITY_DEFAULT IfB2Weight : public Weight {
     }
 
     std::string name() const;
-    std::string short_name() const;
 
     std::string serialise() const;
     IfB2Weight * unserialise(const std::string & serialised) const;
@@ -1454,7 +1453,6 @@ class XAPIAN_VISIBILITY_DEFAULT IneB2Weight : public Weight {
     }
 
     std::string name() const;
-    std::string short_name() const;
 
     std::string serialise() const;
     IneB2Weight * unserialise(const std::string & serialised) const;
@@ -1530,7 +1528,6 @@ class XAPIAN_VISIBILITY_DEFAULT BB2Weight : public Weight {
     }
 
     std::string name() const;
-    std::string short_name() const;
 
     std::string serialise() const;
     BB2Weight * unserialise(const std::string & serialised) const;
@@ -1586,7 +1583,6 @@ class XAPIAN_VISIBILITY_DEFAULT DLHWeight : public Weight {
     }
 
     std::string name() const;
-    std::string short_name() const;
 
     std::string serialise() const;
     DLHWeight * unserialise(const std::string & serialised) const;
@@ -1664,7 +1660,6 @@ class XAPIAN_VISIBILITY_DEFAULT PL2Weight : public Weight {
     }
 
     std::string name() const;
-    std::string short_name() const;
 
     std::string serialise() const;
     PL2Weight * unserialise(const std::string & serialised) const;
@@ -1742,7 +1737,6 @@ class XAPIAN_VISIBILITY_DEFAULT PL2PlusWeight : public Weight {
     }
 
     std::string name() const;
-    std::string short_name() const;
 
     std::string serialise() const;
     PL2PlusWeight * unserialise(const std::string & serialised) const;
@@ -1801,7 +1795,6 @@ class XAPIAN_VISIBILITY_DEFAULT DPHWeight : public Weight {
     }
 
     std::string name() const;
-    std::string short_name() const;
 
     std::string serialise() const;
     DPHWeight * unserialise(const std::string & serialised) const;
@@ -1875,7 +1868,6 @@ class XAPIAN_VISIBILITY_DEFAULT LMJMWeight : public Weight {
     double get_maxpart() const;
 
     std::string name() const;
-    std::string short_name() const;
 
     std::string serialise() const;
     LMJMWeight* unserialise(const std::string& serialised) const;
@@ -1955,7 +1947,6 @@ class XAPIAN_VISIBILITY_DEFAULT LMDirichletWeight : public Weight {
     double get_maxextra() const;
 
     std::string name() const;
-    std::string short_name() const;
 
     std::string serialise() const;
     LMDirichletWeight* unserialise(const std::string& serialised) const;
@@ -2023,7 +2014,6 @@ class XAPIAN_VISIBILITY_DEFAULT LMAbsDiscountWeight : public Weight {
     double get_maxextra() const;
 
     std::string name() const;
-    std::string short_name() const;
 
     std::string serialise() const;
     LMAbsDiscountWeight* unserialise(const std::string& serialised) const;
@@ -2096,7 +2086,6 @@ class XAPIAN_VISIBILITY_DEFAULT LM2StageWeight : public Weight {
     double get_maxextra() const;
 
     std::string name() const;
-    std::string short_name() const;
 
     std::string serialise() const;
     LM2StageWeight* unserialise(const std::string& serialised) const;
@@ -2122,7 +2111,6 @@ class XAPIAN_VISIBILITY_DEFAULT CoordWeight : public Weight {
     CoordWeight() { }
 
     std::string name() const;
-    std::string short_name() const;
 
     std::string serialise() const;
     CoordWeight * unserialise(const std::string & serialised) const;
@@ -2165,7 +2153,6 @@ class XAPIAN_VISIBILITY_DEFAULT DiceCoeffWeight : public Weight {
     }
 
     std::string name() const;
-    std::string short_name() const;
 
     std::string serialise() const;
     DiceCoeffWeight * unserialise(const std::string & serialised) const;

@@ -134,13 +134,7 @@ PL2PlusWeight::init(double factor_)
 string
 PL2PlusWeight::name() const
 {
-    return "Xapian::PL2PlusWeight";
-}
-
-string
-PL2PlusWeight::short_name() const
-{
-    return "pl2plus";
+    return "pl2+";
 }
 
 string
@@ -195,7 +189,7 @@ PL2PlusWeight::get_maxpart() const
 static inline void
 parameter_error(const char* message)
 {
-    Xapian::Weight::Internal::parameter_error(message, "pl2plus");
+    Xapian::Weight::Internal::parameter_error(message, "pl2+");
 }
 
 PL2PlusWeight *

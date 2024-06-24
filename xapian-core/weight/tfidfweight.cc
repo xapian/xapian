@@ -171,12 +171,6 @@ TfIdfWeight::init(double factor_)
 string
 TfIdfWeight::name() const
 {
-    return "Xapian::TfIdfWeight";
-}
-
-string
-TfIdfWeight::short_name() const
-{
     return "tfidf";
 }
 

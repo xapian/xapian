@@ -74,12 +74,6 @@ DiceCoeffWeight::init(double factor)
 string
 DiceCoeffWeight::name() const
 {
-    return "Xapian::DiceCoeffWeight";
-}
-
-string
-DiceCoeffWeight::short_name() const
-{
     return "dicecoeff";
 }
 

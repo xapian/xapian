@@ -130,12 +130,6 @@ PL2Weight::init(double factor_)
 string
 PL2Weight::name() const
 {
-    return "Xapian::PL2Weight";
-}
-
-string
-PL2Weight::short_name() const
-{
     return "pl2";
 }
 

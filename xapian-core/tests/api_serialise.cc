@@ -388,11 +388,7 @@ class ExceptionalWeight : public Xapian::Weight {
     ExceptionalWeight(failmode fail_) : fail(fail_) { }
 
     string name() const override {
-	return "ExceptionalWeight";
-    }
-
-    string short_name() const override {
-	return "excep";
+	return "exceptional";
     }
 
     Weight* clone() const override {

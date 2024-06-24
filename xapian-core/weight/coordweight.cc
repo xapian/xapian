@@ -43,12 +43,6 @@ CoordWeight::init(double factor_)
 string
 CoordWeight::name() const
 {
-    return "Xapian::CoordWeight";
-}
-
-string
-CoordWeight::short_name() const
-{
     return "coord";
 }
 

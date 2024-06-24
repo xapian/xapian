@@ -122,12 +122,6 @@ LMJMWeight::clone() const {
 string
 LMJMWeight::name() const
 {
-    return "Xapian::LMJMWeight";
-}
-
-string
-LMJMWeight::short_name() const
-{
     return "lmjm";
 }
 
@@ -251,12 +245,6 @@ LMDirichletWeight::clone() const {
 
 string
 LMDirichletWeight::name() const
-{
-    return "Xapian::LMDirichletWeight";
-}
-
-string
-LMDirichletWeight::short_name() const
 {
     return "lmdirichlet";
 }
@@ -386,12 +374,6 @@ LMAbsDiscountWeight::clone() const {
 
 string
 LMAbsDiscountWeight::name() const
-{
-    return "Xapian::LMAbsDiscountWeight";
-}
-
-string
-LMAbsDiscountWeight::short_name() const
 {
     return "lmabsdiscount";
 }
@@ -535,12 +517,6 @@ LM2StageWeight::clone() const {
 
 string
 LM2StageWeight::name() const
-{
-    return "Xapian::LM2StageWeight";
-}
-
-string
-LM2StageWeight::short_name() const
 {
     return "lm2stage";
 }
