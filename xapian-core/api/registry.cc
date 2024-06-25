@@ -185,8 +185,6 @@ Registry::Internal::add_defaults()
     wtschemes[weighting_scheme->name()] = weighting_scheme;
     weighting_scheme = new Xapian::CoordWeight;
     wtschemes[weighting_scheme->name()] = weighting_scheme;
-    weighting_scheme = new Xapian::TradWeight;
-    wtschemes[weighting_scheme->name()] = weighting_scheme;
     weighting_scheme = new Xapian::TfIdfWeight;
     wtschemes[weighting_scheme->name()] = weighting_scheme;
     weighting_scheme = new Xapian::InL2Weight;

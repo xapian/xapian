@@ -214,6 +214,13 @@ Weight::get_maxextra() const
     return 0.0;
 }
 
+[[noreturn]]
+static inline void
+parameter_error(const char* message, const string& scheme, const char* params)
+{
+    Xapian::Weight::Internal::parameter_error(message, scheme, params);
+}
+
 const Weight *
 Weight::create(const string & s, const Registry & reg)
 {
@@ -229,6 +236,20 @@ Weight::create(const string & s, const Registry & reg)
     if (*p == ' ') p++;
     auto weight = reg.get_weighting_scheme(scheme);
     if (!weight) {
+	// Allow "trad" and "trad <k>" to work despite TradWeight now just
+	// being a thin subclass of BM25Weight.
+	if (scheme == "trad") {
+	    const char* params = p;
+	    double k = 1.0;
+	    if (*p != '\0') {
+		if (!Xapian::Weight::Internal::double_param(&p, &k))
+		    parameter_error("Parameter is invalid", scheme, params);
+		if (*p)
+		    parameter_error("Extra data after parameter",
+				    scheme, params);
+	    }
+	    return new BM25Weight(k, 0.0, 0.0, 1.0, 0.0);
+	}
 	throw InvalidArgumentError("Unknown weighting scheme: " + scheme);
     }
     return weight->create_from_parameters(p);

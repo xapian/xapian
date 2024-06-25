@@ -23,6 +23,7 @@
 
 #include "api_percentages.h"
 
+#define XAPIAN_DEPRECATED(X) X
 #include <xapian.h>
 
 #include "apitest.h"

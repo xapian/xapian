@@ -220,6 +220,10 @@ Deprecated Remove Feature name                        Upgrade suggestion and com
                                                       with Xapian < 1.4.23 too, use ``Xapian::QueryParser::FLAG_CJK_NGRAM``,
                                                       ``Xapian::TermGenerator::FLAG_CJK_NGRAM`` and
                                                       ``Xapian::MSet::SNIPPET_CJK_NGRAM``.
+---------- ------ ----------------------------------- ------------------------------------------------------------------------
+1.5.0      1.7.0  ``TradWeight`` class                Instead of ``TradWeight(k)`` use ``Xapian::BM25Weight(k, 0, 0, 1, 0)``;
+                                                      instead of ``TradWeight()`` use ``Xapian::BM25Weight(1, 0, 0, 1, 0)``.
+                                                      (Since 1.5.0, ``TradWeight`` is just a thin subclass of ``BM25Weight``.)
 ========== ====== =================================== ========================================================================
 
 Bindings
@@ -240,6 +244,8 @@ Omega
 ========== ====== =================================== ========================================================================
 Deprecated Remove Feature name                        Upgrade suggestion and comments
 ========== ====== =================================== ========================================================================
+1.5.0      1.7.0  ``$set{weighting,trad k}`` and      Use ``$set{weighting,bm25 k 0 0 1 0}`` and
+                  ``$set{weighting,trad}``            ``$set{weighting,bm25 1 0 0 1 0}`` instead.
 ========== ====== =================================== ========================================================================
 
 .. Features currently marked as experimental

@@ -27,6 +27,7 @@
 #include <string>
 
 #include <xapian/database.h>
+#include <xapian/deprecated.h>
 #include <xapian/registry.h>
 #include <xapian/types.h>
 #include <xapian/visibility.h>
@@ -1202,23 +1203,15 @@ class XAPIAN_VISIBILITY_DEFAULT BM25PlusWeight : public Weight {
  * described by the early papers on Probabilistic Retrieval.  BM25 generally
  * gives better results.
  *
- * TradWeight(k) is equivalent to BM25Weight(k, 0, 0, 1, 0), except that
- * the latter returns weights (k+1) times larger.
+ * TradWeight(k) is equivalent to BM25Weight(k, 0, 0, 1, 0), and since Xapian
+ * 1.5.0 TradWeight is actually implemented as a subclass of BM25Weight.  In
+ * earlier versions is was a separate class which was equivalent except it
+ * returned weights (k+1) times smaller.
+ *
+ * @deprecated Use BM25Weight(k, 0, 0, 1, 0) instead.
  */
-class XAPIAN_VISIBILITY_DEFAULT TradWeight : public Weight {
-    /// Factor to multiply the document length by.
-    mutable Xapian::doclength len_factor;
-
-    /// Factor combining all the document independent factors.
-    mutable double termweight;
-
-    /// The parameter in the formula.
-    double param_k;
-
-    TradWeight * clone() const;
-
-    void init(double factor);
-
+class XAPIAN_DEPRECATED_CLASS TradWeight : public BM25Weight
+{
   public:
     /** Construct a TradWeight.
      *
@@ -1227,33 +1220,7 @@ class XAPIAN_VISIBILITY_DEFAULT TradWeight : public Weight {
      *		  k=0 means that wdf and document length don't affect the
      *		  weights.  The larger k is, the more they do.  (default 1)
      */
-    explicit TradWeight(double k = 1.0) : param_k(k) {
-	if (param_k < 0) param_k = 0;
-	if (param_k != 0.0) {
-	    need_stat(AVERAGE_LENGTH);
-	    need_stat(DOC_LENGTH);
-	}
-	need_stat(COLLECTION_SIZE);
-	need_stat(RSET_SIZE);
-	need_stat(TERMFREQ);
-	need_stat(RELTERMFREQ);
-	need_stat(DOC_LENGTH_MIN);
-	need_stat(WDF);
-	need_stat(WDF_MAX);
-    }
-
-    std::string name() const;
-
-    std::string serialise() const;
-    TradWeight * unserialise(const std::string & serialised) const;
-
-    double get_sumpart(Xapian::termcount wdf,
-		       Xapian::termcount doclen,
-		       Xapian::termcount uniqueterms,
-		       Xapian::termcount wdfdocmax) const;
-    double get_maxpart() const;
-
-    TradWeight * create_from_parameters(const char * params) const;
+    explicit TradWeight(double k = 1.0) : BM25Weight(k, 0.0, 0.0, 1.0, 0.0) { }
 };
 
 /** This class implements the InL2 weighting scheme.

@@ -24,7 +24,6 @@ lib_src +=\
 	weight/pl2plusweight.cc\
 	weight/pl2weight.cc\
 	weight/tfidfweight.cc\
-	weight/tradweight.cc\
 	weight/weight.cc\
 	weight/weightinternal.cc
 

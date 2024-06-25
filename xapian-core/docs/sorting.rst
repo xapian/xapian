@@ -1,5 +1,5 @@
 
-.. Copyright (C) 2007,2009,2011,2014 Olly Betts
+.. Copyright (C) 2007,2009,2011,2014,2024 Olly Betts
 
 =========================
 Sorting of Search Results
@@ -24,23 +24,10 @@ using ``enquire.set_docid_order(enquire.DONT_CARE);``.
 Sorting by Relevance
 ====================
 
-The BM25 weighting formula which Xapian uses by default has a number of
-parameters.  We have picked some default parameter values which do a good job
-in general.  The optimal values of these parameters depend on the data being
-indexed and the type of queries being run, so you may be able to improve the
-effectiveness of your search system by adjusting these values, but it's a
-fiddly process to tune them so people tend not to bother.
-
-See the `BM25 documentation <bm25.html>`_ for more details of BM25.
-
-The other included weighting schemes are ``TradWeight`` and ``BoolWeight``.
-
-TradWeight implements the original probabilistic weighting formula, which is
-essentially a special case of BM25 (it's BM25 with k2 = 0, k3 = 0, b = 1, and
-min_normlen = 0, except that the weights are scaled by a constant factor).
-
-BoolWeight assigns a weight of 0 to all documents, so the ordering is
-determined solely by other factors.
+Xapian include implementation of a number of weighting schemes, with the default
+being BM25.  See `"Built-in weighting schemes"
+<https://getting-started-with-xapian.readthedocs.io/en/latest/howtos/weighting_scheme.html>`_
+for more details.
 
 You can also implement your own weighting scheme, provided it can be expressed
 in the form of a sum over the matching terms, plus an extra term which depends

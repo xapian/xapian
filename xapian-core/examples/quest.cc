@@ -30,6 +30,7 @@
 #include <iostream>
 
 #include "gnu_getopt.h"
+#include "stringutils.h"
 
 using namespace std;
 

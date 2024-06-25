@@ -26,6 +26,7 @@
 #include <cmath>
 #include <memory>
 
+#define XAPIAN_DEPRECATED(D) D
 #include <xapian.h>
 
 #include "apitest.h"
@@ -95,9 +96,12 @@ test_weight_class(const char* classname, const char* name,
 	FAIL_TEST(classname << " did not throw for unserialise with junk "
 		  "appended");
     } catch (const Xapian::SerialisationError& e) {
-	// Check the exception message contains the weighting scheme name
-	// (regression test for TradWeight's exception saying "BM25").
+	// Check the exception message contains the correct weighting scheme
+	// name (originally a regression test for TradWeight's exception saying
+	// "BM25", but not TradWeight is just a thin subclass of BM25Weight so
+	// it's expected it reports as BM25Weight now!)
 	string target = classname + CONST_STRLEN("Xapian::");
+	if (target == "TradWeight") target = "BM25Weight";
 	TEST(e.get_msg().find(target) != string::npos);
     }
 }
@@ -122,7 +126,7 @@ DEFINE_TESTCASE(weightserialisation1, !backend) {
     TEST_WEIGHT_CLASS_NO_PARAMS(Xapian::DiceCoeffWeight, "dicecoeff");
 
     // Parameterised weighting schemes.
-    TEST_WEIGHT_CLASS(Xapian::TradWeight, "trad", (1.0), (2.0));
+    TEST_WEIGHT_CLASS(Xapian::TradWeight, "bm25", (1.0), (2.0));
     TEST_WEIGHT_CLASS(Xapian::BM25Weight, "bm25",
 		      (1, 0, 1, 0.5, 0.5),
 		      (1, 0.5, 1, 0.5, 0.5));
