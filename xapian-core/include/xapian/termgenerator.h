@@ -301,6 +301,15 @@ class XAPIAN_VISIBILITY_DEFAULT TermGenerator {
      */
     void set_termpos(Xapian::termpos termpos);
 
+    /** Set the term position limit.
+     *
+     *  @param termpos_limit  Upper bound on term positions that can be added.
+     *
+     *  By default the only limit is the maximum value of the Xapian::termpos
+     *  type.
+     */
+    void set_termpos_limit(Xapian::termpos termpos_limit);
+
     /// Return a string describing this object.
     std::string get_description() const;
 };

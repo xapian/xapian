@@ -945,3 +945,43 @@ DEFINE_TESTCASE(tg_max_word_length1, !backend) {
     TEST_STRINGS_EQUAL(format_doc_termlist(doc),
 		       "Zcup:1 Zmug:1 cups[1] mugs[2]");
 }
+
+/// Feature tests for TermGenerator termpos methods.
+DEFINE_TESTCASE(tg_termpos1, !backend) {
+    Xapian::TermGenerator termgen;
+    TEST_EQUAL(termgen.get_termpos(), 0);
+
+    Xapian::Document doc;
+    termgen.set_document(doc);
+
+    // Test default of only complaining on overflow.
+    termgen.set_termpos(Xapian::termpos(-1) - 1);
+    termgen.index_text("up");
+    TEST_EQUAL(termgen.get_termpos(), Xapian::termpos(-1));
+    TEST_EXCEPTION(Xapian::RangeError,
+		   termgen.index_text("up"));
+    TEST_EQUAL(termgen.get_termpos(), Xapian::termpos(-1));
+    termgen.set_termpos(0);
+
+    termgen.index_text("A beginning");
+    termgen.set_stemming_strategy(termgen.STEM_NONE);
+    TEST_EQUAL(termgen.get_termpos(), 2);
+    termgen.increase_termpos();
+    TEST_EQUAL(termgen.get_termpos(), 102);
+    termgen.increase_termpos(17);
+    TEST_EQUAL(termgen.get_termpos(), 119);
+    termgen.set_termpos_limit(120);
+    termgen.index_text("z");
+
+    termgen.set_termpos(99);
+    TEST_EQUAL(termgen.get_termpos(), 99);
+    termgen.set_termpos_limit(102);
+    TEST_EXCEPTION(Xapian::RangeError,
+		   termgen.index_text("we shall over flow"));
+
+    TEST_STRINGS_EQUAL(format_doc_termlist(doc),
+		       "a[1] beginning[2] over[102] shall[101] "
+		       "up[4294967295] we[100] z[120]");
+
+    TEST_EQUAL(termgen.get_termpos(), 102);
+}

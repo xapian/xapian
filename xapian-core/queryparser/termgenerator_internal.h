@@ -40,6 +40,7 @@ class TermGenerator::Internal : public Xapian::Internal::intrusive_base {
     stop_strategy stop_mode = STOP_STEMMED;
     Document doc;
     termpos cur_pos = 0;
+    termpos pos_limit = termpos(-1);
     TermGenerator::flags flags = 0;
     unsigned max_word_length = 64;
     WritableDatabase db;

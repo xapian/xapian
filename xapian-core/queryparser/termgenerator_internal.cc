@@ -337,6 +337,8 @@ TermGenerator::Internal::index_text(Utf8Iterator itor, termcount wdf_inc,
 		strategy == TermGenerator::STEM_SOME_FULL_POS) {
 		prefixed_term.append(term);
 		if (positional) {
+		    if (rare(cur_pos >= pos_limit))
+			throw Xapian::RangeError("termpos limit exceeded");
 		    doc.add_posting(prefixed_term, ++cur_pos, wdf_inc);
 		} else {
 		    doc.add_term(prefixed_term, wdf_inc);
@@ -368,7 +370,11 @@ TermGenerator::Internal::index_text(Utf8Iterator itor, termcount wdf_inc,
 	    if (rare(stem.empty())) return true;
 	    prefixed_stemmed_term.append(stem);
 	    if (strategy != TermGenerator::STEM_SOME && positional) {
-		if (strategy != TermGenerator::STEM_SOME_FULL_POS) ++cur_pos;
+		if (strategy != TermGenerator::STEM_SOME_FULL_POS) {
+		    if (rare(cur_pos >= pos_limit))
+			throw Xapian::RangeError("termpos limit exceeded");
+		    ++cur_pos;
+		}
 		doc.add_posting(prefixed_stemmed_term, cur_pos, wdf_inc);
 	    } else {
 		doc.add_term(prefixed_stemmed_term, wdf_inc);

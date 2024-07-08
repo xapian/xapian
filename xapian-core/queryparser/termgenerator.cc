@@ -138,6 +138,12 @@ TermGenerator::set_termpos(Xapian::termpos termpos)
     internal->cur_pos = termpos;
 }
 
+void
+TermGenerator::set_termpos_limit(Xapian::termpos termpos_limit)
+{
+    internal->pos_limit = termpos_limit;
+}
+
 string
 TermGenerator::get_description() const
 {
