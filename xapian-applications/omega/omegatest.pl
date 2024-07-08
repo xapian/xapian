@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 # omegatest: Test omega CGI
 #
-# Copyright (C) 2015-2023 Olly Betts
+# Copyright (C) 2015-2024 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -1552,6 +1552,14 @@ print_to_file $test_template, '$setmap{foo,key 1,1,key"2,$split{1 2},key3,$split
 testcase('{"key 1":[2],"key\"2":[2,3],"key3":[3,4,6]}');
 print_to_file $test_template, '$setmap{foo,key 1,,key"2,1,key3,0}$jsonobject{foo,$upper{$_},$jsonarray{$_,$add{$_}}}';
 testcase('{"KEY 1":[],"KEY\"2":[1],"KEY3":[0]}');
+
+# Feature tests for $jsonobject2
+print_to_file $test_template, '$jsonobject2{$split{$cgi{K}},$split{$cgi{V}},,"$json{$upper{$_}}"}$error';
+testcase '{"k1":"VALUE1","k2":"VAL2","key3":"V3"}', 'K=k1 k2 key3', 'V=value1 val2 v3';
+testcase 'Exception: $jsonobject2: Different number of keys and values', 'K=1 2', 'V=one';
+testcase 'Exception: $jsonobject2: Different number of keys and values', 'K=1', 'V=one two';
+testcase '{"k1":""}', 'K=k1', 'V=';
+testcase '{}', 'K=', 'V=';
 
 # Feature tests for $stoplist
 print_to_file $test_template, '$setmap{prefix,foo,XFOO}[$list{$stoplist,|}]';

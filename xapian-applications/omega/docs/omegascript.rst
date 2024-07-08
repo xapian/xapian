@@ -386,6 +386,30 @@ $jsonobject{MAP[,KEYFORMAT[,VALUEFORMAT]]}
         contains newlines, which makes it usable as a single line serialisation
         format without post-processing.
 
+$jsonobject2{KEYLIST,VALUELIST[,KEYFORMAT[,VALUEFORMAT]]}
+        encodes OmegaScript lists ``KEYLIST`` and ``VALUELIST`` as a JSON
+        object.
+
+        An error is raised if the number of elements in ``KEYS`` and ``VALUES``
+        is not the same (except that it's OK for ``VALUES`` to be empty if
+        ``KEYS`` has a single element, because an OmegaScript list can't
+        represent a list with a single empty entry distinct from a list with
+        no entries).
+
+        ``KEYFORMAT`` and ``VALUEFORMAT`` work identically to how they do for
+        ``$jsonobject``.
+
+        Simple example::
+
+          $jsonobject2{$split{k1 k2 k3},$split{v1 v2 v3}}
+
+        More complex example which upper-cases the keys and uses JSON integers
+        for the values::
+
+          $jsonobject2{$split{k1 k2 k3},$split{1 2 3},$upper{$_},$_}
+
+        Added in Omega 1.5.0.
+
 $keys{MAP}
         returns a list containing the keys of MAP (as set by ``$setmap``).
         The keys are in sorted order (by raw byte comparison).

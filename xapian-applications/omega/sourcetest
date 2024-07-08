@@ -1,7 +1,7 @@
 #!/bin/sh
 # sourcetest: Test some things about the source code
 #
-# Copyright (C) 2019 Olly Betts
+# Copyright (C) 2019,2024 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -30,4 +30,4 @@ grep '^CMD_[a-z]' query.cc|sort -c
 grep '^T(' query.cc|sort -c
 
 # Test the case statement for omegascript commands is in sorted order.
-grep 'case CMD_[a-z]' query.cc|sort -c
+sed 's/\(case CMD_[a-z][^:]*\):.*/\1/p;d' query.cc|sort -c
