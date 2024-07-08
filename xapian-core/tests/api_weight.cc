@@ -1546,6 +1546,7 @@ DEFINE_TESTCASE(checkstatsweight3, backend && !remote) {
     };
     for (auto pattern : testcases) {
 	Xapian::Query q(Xapian::Query::OP_WILDCARD, pattern);
+	tout.str(string{});
 	tout << q.get_description() << '\n';
 	enquire.set_query(q);
 	Xapian::termcount sum = 0;
