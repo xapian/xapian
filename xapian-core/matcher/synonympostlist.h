@@ -2,7 +2,7 @@
  * @brief Combine subqueries, weighting as if they are synonyms
  */
 /* Copyright 2007,2009 Lemur Consulting Ltd
- * Copyright 2009,2011,2014,2017,2018 Olly Betts
+ * Copyright 2009,2011,2014,2017,2018,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -47,29 +47,30 @@ class SynonymPostList : public WrapperPostList {
     /// Flag indicating whether the weighting object needs the wdfdocmax.
     bool want_wdfdocmax = false;
 
-    /** Are the subquery's wdf contributions disjoint?
+    /** Does the synonym need the document length?
      *
-     *  This is true is each wdf from the document contributes at most itself
-     *  to the wdf of the subquery.  That means that the wdf of the subquery
-     *  can't possibly ever exceed the document length, so we can avoid the
-     *  need to check and clamp wdf to be <= document length.
+     *  This is true if either of these are true:
+     *
+     *  Each wdf from the document contributes at most itself to the wdf of
+     *  the subquery.  That means that the wdf of the subquery can't possibly
+     *  ever exceed the document length, so we don't need to check and clamp
+     *  wdf to be <= document length.
+     *
+     *  Or the weighting scheme in use doesn't use document length, in which
+     *  case we assume that it doesn't rely on wdf <= document_length being
+     *  an invariant, and so we don't enforce it.
      */
-    bool wdf_disjoint;
+    bool needs_doclen;
 
     PostListTree* pltree;
 
-    /// Lower bound on doclength in the subdatabase we're working over.
-    Xapian::termcount doclen_lower_bound;
-
   public:
     SynonymPostList(PostList * subtree,
-		    const Xapian::Database::Internal* db,
 		    PostListTree* pltree_,
-		    bool wdf_disjoint_)
+		    bool needs_doclen_)
 	: WrapperPostList(subtree),
-	  wdf_disjoint(wdf_disjoint_),
-	  pltree(pltree_),
-	  doclen_lower_bound(db->get_doclength_lower_bound()) { }
+	  needs_doclen(needs_doclen_),
+	  pltree(pltree_) { }
 
     ~SynonymPostList();
 

@@ -166,7 +166,6 @@ class LocalSubMatch {
     PostList* make_synonym_postlist(PostListTree* pltree,
 				    PostList* or_pl,
 				    double factor,
-				    bool wdf_disjoint,
 				    const TermFreqs& termfreqs);
 
     LeafPostList* open_post_list(const std::string& term,

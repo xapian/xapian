@@ -335,10 +335,22 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
      *  in the calculations:
      *
      *  @param wdf    The within document frequency of the term in the document.
+     *		      You need to call need_stat(WDF) if you use this value.
      *  @param doclen The document's length (unnormalised).
-     *  @param uniqterms	Number of unique terms in the document (used
-     *				for absolute smoothing).
-     *  @param wdfdocmax	Maximum wdf value in the document.
+     *		      You need to call need_stat(DOC_LENGTH) if you use this
+     *		      value.
+     *  @param uniqterms
+     *		      Number of unique terms in the document.
+     *		      You need to call need_stat(UNIQUE_TERMS) if you use this
+     *		      value.
+     *  @param wdfdocmax
+     *		      Maximum wdf value in the document.
+     *		      You need to call need_stat(WDF_DOC_MAX) if you use this
+     *		      value.
+     *
+     *	You can rely of wdf <= doclen if you call both need_stat(WDF) and
+     *	need_stat(DOC_LENGTH) - this is trivially true for terms, but Xapian
+     *	also ensure it's true for OP_SYNONYM, where the wdf is approximated.
      */
     virtual double get_sumpart(Xapian::termcount wdf,
 			       Xapian::termcount doclen,

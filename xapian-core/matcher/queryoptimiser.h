@@ -139,10 +139,8 @@ class QueryOptimiser {
      */
     PostList* make_synonym_postlist(PostList* or_pl,
 				    double factor,
-				    bool wdf_disjoint,
 				    const TermFreqs& termfreqs) {
 	return localsubmatch.make_synonym_postlist(matcher, or_pl, factor,
-						   wdf_disjoint,
 						   termfreqs);
     }
 

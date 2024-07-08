@@ -1,7 +1,7 @@
 /** @file
  *  @brief SubMatch class for a local database.
  */
-/* Copyright (C) 2006-2022 Olly Betts
+/* Copyright (C) 2006-2024 Olly Betts
  * Copyright (C) 2007,2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -208,12 +208,12 @@ PostList *
 LocalSubMatch::make_synonym_postlist(PostListTree* pltree,
 				     PostList* or_pl,
 				     double factor,
-				     bool wdf_disjoint,
 				     const TermFreqs& termfreqs)
 {
-    LOGCALL(MATCH, PostList*, "LocalSubMatch::make_synonym_postlist", pltree | or_pl | factor | wdf_disjoint | termfreqs);
-    unique_ptr<SynonymPostList> res(new SynonymPostList(or_pl, db, pltree,
-							wdf_disjoint));
+    LOGCALL(MATCH, PostList*, "LocalSubMatch::make_synonym_postlist", pltree | or_pl | factor | termfreqs);
+    bool needs_doclen = wt_factory.get_sumpart_needs_doclength_();
+    unique_ptr<SynonymPostList> res(new SynonymPostList(or_pl, pltree,
+							needs_doclen));
     unique_ptr<Xapian::Weight> wt(wt_factory.clone());
 
     // We shortcut an empty shard and avoid creating a postlist tree for it,

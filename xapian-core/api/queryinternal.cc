@@ -1925,12 +1925,8 @@ QueryWildcard::postlist(QueryOptimiser* qopt, double factor,
 
 	// We build an OP_OR tree for OP_SYNONYM and then wrap it in a
 	// SynonymPostList, which supplies the weights.
-	//
-	// We know the subqueries from a wildcard expansion are wdf-disjoint
-	// (i.e. each wdf from the document contributes at most itself to the
-	// wdf of the subquery).
 	RETURN(qopt->make_synonym_postlist(ctx.postlist(&synonym_freqs, true),
-					   factor, true, synonym_freqs));
+					   factor, synonym_freqs));
     }
 
     ctx.expand_wildcard(this, factor, termfreqs);
@@ -2039,12 +2035,8 @@ QueryEditDistance::postlist(QueryOptimiser* qopt, double factor,
 
 	// We build an OP_OR tree for OP_SYNONYM and then wrap it in a
 	// SynonymPostList, which supplies the weights.
-	//
-	// We know the subqueries from an edit distance expansion are
-	// wdf-disjoint (i.e. each wdf from the document contributes at most
-	// itself to the wdf of the subquery).
 	RETURN(qopt->make_synonym_postlist(ctx.postlist(&synonym_freqs, true),
-					   factor, true, synonym_freqs));
+					   factor, synonym_freqs));
     }
 
     ctx.expand_edit_distance(this, factor, termfreqs);
@@ -2307,54 +2299,6 @@ QueryBranch::do_synonym(QueryOptimiser* qopt,
     qopt->compound_weight = old_compound_weight;
     if (!pl) return NULL;
 
-    bool wdf_disjoint = false;
-    Assert(!subqueries.empty());
-    auto type = subqueries.front().get_type();
-    if (type == Query::OP_WILDCARD) {
-	// Detect common easy case where all subqueries are OP_WILDCARD whose
-	// constant prefixes form a prefix-free set.
-	wdf_disjoint = true;
-	vector<string> prefixes;
-	for (auto&& q : subqueries) {
-	    if (q.get_type() != Query::OP_WILDCARD) {
-		wdf_disjoint = false;
-		break;
-	    }
-	    auto qw = static_cast<const QueryWildcard*>(q.internal.get());
-	    prefixes.push_back(qw->get_fixed_prefix());
-	}
-
-	if (wdf_disjoint) {
-	    sort(prefixes.begin(), prefixes.end());
-	    const string* prev = nullptr;
-	    for (const auto& i : prefixes) {
-		if (prev) {
-		    if (startswith(i, *prev)) {
-			wdf_disjoint = false;
-			break;
-		    }
-		}
-		prev = &i;
-	    }
-	}
-    } else if (type == Query::LEAF_TERM) {
-	// Detect common easy case where all subqueries are terms, none of
-	// which are the same.
-	wdf_disjoint = true;
-	unordered_set<string> terms;
-	for (auto&& q : subqueries) {
-	    if (q.get_type() != Query::LEAF_TERM) {
-		wdf_disjoint = false;
-		break;
-	    }
-	    auto qt = static_cast<const QueryTerm*>(q.internal.get());
-	    if (!terms.insert(qt->get_term()).second) {
-		wdf_disjoint = false;
-		break;
-	    }
-	}
-    }
-
     // We currently assume wqf is 1 for calculating the synonym's weight
     // since conceptually the synonym is one "virtual" term.  If we were
     // to combine multiple occurrences of the same synonym expansion into
@@ -2362,8 +2306,7 @@ QueryBranch::do_synonym(QueryOptimiser* qopt,
 
     // We build an OP_OR tree for OP_SYNONYM and then wrap it in a
     // SynonymPostList, which supplies the weights.
-    RETURN(qopt->make_synonym_postlist(pl, factor, wdf_disjoint,
-				       synonym_freqs));
+    RETURN(qopt->make_synonym_postlist(pl, factor, synonym_freqs));
 }
 
 PostList *
