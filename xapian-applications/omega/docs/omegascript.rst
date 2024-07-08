@@ -730,6 +730,11 @@ $set{OPT,VALUE}
 	Similarly, ``XFOO:stemmer`` specifies the stemmer to use for field
 	``XFOO``, with ``stemmer`` providing a default.
 
+        Omega 1.5.0 added support for specifying the operator to use to
+        combine multiple parsed query strings.  By default this is ``AND``,
+        but you can specify ``OR`` instead using ``$set{intra_query_op,OR}``
+        (``or`` also works).  Currently other operators aren't supported.
+
 $seterror{ERROR_MESSAGE}
 	set error message for the current execution, which can also be looked
 	up using ``$error``.

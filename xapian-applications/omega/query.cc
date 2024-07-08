@@ -437,7 +437,22 @@ parse_queries(const string& oldp)
 	    if (!q.empty())
 		queries.push_back(q);
 	}
-	query = Xapian::Query(query.OP_AND, queries.begin(), queries.end());
+
+	Xapian::Query::op intra_query_op = Xapian::Query::OP_AND;
+	if (queries.size() > 1) {
+	    // Determine operator to use to combine multiple P and P.<prefix>
+	    // parameters.  Note that we only need to bother if there are two
+	    // or more query strings, since for one or none the operator
+	    // specified isn't actually used.
+	    opt_it = option.find("intra_query_op");
+	    if (opt_it != option.end()) {
+		const string& v = opt_it->second;
+		if (v == "OR" || v == "or") {
+		    intra_query_op = Xapian::Query::OP_OR;
+		}
+	    }
+	}
+	query = Xapian::Query(intra_query_op, queries.begin(), queries.end());
     } catch (Xapian::QueryParserError &e) {
 	error_msg = e.get_msg();
 	return BAD_QUERY;

@@ -644,6 +644,14 @@ qtestcase('(Znear@1 NEAR 11 Zdistanc@2)', 'P=nearing NEAR distances', 'stem_stra
 qtestcase('(capitalised@1 AND tests@2 AND Zstem@3)', 'P=Capitalised "tests" stemmed', 'stem_strategy=some', 'stem_all=true');
 qtestcase('(nearing@1 NEAR 11 distances@2)', 'P=nearing NEAR distances', 'stem_strategy=some', 'stem_all=true');
 
+# Test intra_query_op.
+print_to_file $test_template, '$if{$cgi{iqop},$set{intra_query_op,$cgi{iqop}}}$querydescription';
+qtestcase 'testing@1', 'P=Testing', 'iqop=OR';
+qtestcase '(Ztest@1 AND ZStitl@1)', 'P=testing', 'P.S=title';
+qtestcase '(Ztest@1 OR ZStitl@1)', 'P=testing', 'P.S=title', 'iqop=OR';
+qtestcase '(Ztest@1 OR ZStitl@1)', 'P=testing', 'P.S=title', 'iqop=or';
+qtestcase '(Ztest@1 AND ZStitl@1)', 'P=testing', 'P.S=title', 'iqop=invalid';
+
 # Feature tests for $contains.
 print_to_file $test_template, '$contains{$cgi{a},$cgi{b}}';
 testcase('6', 'P=text', 'a=fish', 'b=Hello fish');
