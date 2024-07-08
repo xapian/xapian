@@ -979,9 +979,9 @@ DEFINE_TESTCASE(tg_termpos1, !backend) {
     TEST_EXCEPTION(Xapian::RangeError,
 		   termgen.index_text("we shall over flow"));
 
-    TEST_STRINGS_EQUAL(format_doc_termlist(doc),
-		       "a[1] beginning[2] over[102] shall[101] "
-		       "up[4294967295] we[100] z[120]");
+    string expect = "a[1] beginning[2] over[102] shall[101] up[" +
+		    str(Xapian::termpos(-1)) + "] we[100] z[120]";
+    TEST_STRINGS_EQUAL(format_doc_termlist(doc), expect);
 
     TEST_EQUAL(termgen.get_termpos(), 102);
 }
