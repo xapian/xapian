@@ -2699,8 +2699,13 @@ static const test test_synonym_op_queries[] = {
     { "-~search terms", "(Zterm@2 AND_NOT (Zsearch@1 SYNONYM find@1))" },
     { "~search terms", "((Zsearch@1 SYNONYM find@1) OR Zterm@2)" },
     { "~foo:search", "(ZXFOOsearch@1 SYNONYM prefixated@1)" },
-    // FIXME: should look for multi-term synonym...
-    { "~\"search terms\"", "(search@1 PHRASE 2 terms@2)" },
+    { "~\"search terms\"", "(SYNONYM (search@1 PHRASE 2 terms@2))" },
+    { "~\"  search  terms  \"", "(SYNONYM (search@1 PHRASE 2 terms@2))" },
+    { "~\" \tsearch \t terms \t\"", "(SYNONYM (search@1 PHRASE 2 terms@2))" },
+    { "~foo:\"search terms\"", "(SYNONYM (XFOOsearch@1 PHRASE 2 XFOOterms@2))" },
+    { "~\"two words\"", "((two@1 PHRASE 2 words@2) SYNONYM biverbal@1)" },
+    { "~\"  two  words  \"", "((two@1 PHRASE 2 words@2) SYNONYM biverbal@1)" },
+    { "~foo:\"two words\"", "((XFOOtwo@1 PHRASE 2 XFOOwords@2) SYNONYM pair@1)" },
     { NULL, NULL }
 };
 
@@ -2716,6 +2721,10 @@ DEFINE_TESTCASE(qp_synonym3, synonyms) {
 					   wdb.add_synonym("Zseek", "Zsearch");
 					   wdb.add_synonym("ZXFOOsearch",
 							   "prefixated");
+					   wdb.add_synonym("two words",
+							   "biverbal");
+					   wdb.add_synonym("XFOOtwo words",
+							   "pair");
 				       });
 
     Xapian::QueryParser qp;

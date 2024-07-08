@@ -1286,13 +1286,34 @@ just_had_operator_needing_term:
 			// Or if not after whitespace, +, -, or an open bracket.
 			break;
 		    }
-		    if (!is_wordchar(*it)) {
+		    if (!is_wordchar(*it) && !is_double_quote(*it)) {
 			// Ignore if not followed by a word character.
 			break;
 		    }
 		    Parse(&parser, SYNONYM, NULL, &state);
 		    mode = EXPLICIT_SYNONYM;
-		    goto just_had_operator_needing_term;
+		    if (!is_double_quote(*it))
+			goto just_had_operator_needing_term;
+
+		    // Support ~"foo bar" syntax to explicitly expand
+		    // a multi-word synonym.
+
+		    // Skip whitespace.
+		    ++it;
+		    it = find_if(it, end, is_not_whitespace);
+		    if (it == end) {
+			// Ignore an unmatched " at the end of the query to
+			// avoid generating an empty pair of QUOTEs which will
+			// cause a parse error.
+			goto done;
+		    }
+		    if (is_double_quote(*it)) {
+			// Ignore empty ~"".
+			newprev = *it++;
+			break;
+		    }
+		    Parse(&parser, QUOTE, NULL, &state);
+		    mode = IN_QUOTES;
 		}
 		break;
 	      case '*':
@@ -2035,6 +2056,46 @@ class Terms {
 	return as_opwindow_query(Query::OP_PHRASE, 0);
     }
 
+    /// Convert to a Xapian::Query * using adjacent OP_PHRASE.
+    Query* as_synonym_phrase_query(State* state) const {
+	string name;
+	termpos pos = 0;
+	for (Term* t : terms) {
+	    if (!name.empty()) {
+		name += ' ';
+	    } else {
+		pos = t->pos;
+	    }
+	    name += t->name;
+	}
+
+	for (auto&& prefix : *prefixes) {
+	    // Only try unstemmed for multi-word.
+	    string term;
+	    if (!prefix.empty()) {
+		term += prefix;
+		if (prefix_needs_colon(prefix, name[0])) term += ':';
+	    }
+	    term += name;
+
+	    Xapian::Database db = state->get_database();
+	    Xapian::TermIterator syn = db.synonyms_begin(term);
+	    Xapian::TermIterator end = db.synonyms_end(term);
+
+	    // Caution: this does `delete this;`!
+	    Query* q = as_opwindow_query(Query::OP_PHRASE, 0);
+	    // FIXME: Is this right when there's more than one entry in
+	    // prefixes?
+	    Query* q2 = new Query(q->OP_SYNONYM,
+				  SynonymIterator(syn, pos, q),
+				  SynonymIterator(end));
+	    delete q;
+	    return q2;
+	    // FIXME: Handle multiple prefixes properly...
+	}
+	return new Query();
+    }
+
     /// Convert to a Xapian::Query * using OP_NEAR.
     Query * as_near_query() const {
 	// The common meaning of 'a NEAR b' is "a within 10 terms of b", which
@@ -2480,6 +2541,9 @@ compound_term(T) ::= SYNONYM TERM(U). {
     T = new Query(U->get_query_with_synonyms());
     delete U;
 }
+
+compound_term(T) ::= SYNONYM QUOTE phrase(P) QUOTE.
+    { T = P->as_synonym_phrase_query(state); }
 
 compound_term(T) ::= UNBROKEN_WORDS(U). {
     { T = U->as_unbroken_query(); /*T-overwrites-U*/ }
