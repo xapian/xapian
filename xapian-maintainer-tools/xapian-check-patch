@@ -1,5 +1,5 @@
 #! /usr/bin/perl -w
-# Copyright (c) 2007-2020 Olly Betts
+# Copyright (c) 2007-2024 Olly Betts
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -913,7 +913,7 @@ QUOTELOOP:  while (1) {
     if (defined $fnm && $fnm !~ m!xapian-check-patch|ChangeLog|NEWS|stemming/.*/(?:voc2?|output2?)\.txt$|omega/testfiles/|unicode/UnicodeData\.txt!) {
 	if ($fullline =~ /^\+.*?(?:\b|_)(xapain|the the|initialsing|ipv5|outputing|intened|wull|extrac|if it possible|betweem|differen|auxiliar|wat(?:|ed|ing|s)|wth|teh|ned|incase)(?:\b|_)/i ||
 	    # Cases which just need to be the prefix of a word
-	    $fullline =~ /^\+.*?(?:\b|_)((?:deafult|parm|peform|acessor|comptib|seach|seperat|seprat|separater|iteratat|calulat|delimitor|delimeter|charactor|databse|operatoar|implict|differnt|orignal|straterg|unecessar|comamnd|docuemnt|implment|initilias|capatil|reprensent|ommit|openning|openned|appropirate|labrar|returm|interati|termfrequenc|continous|juding|gradinet|clearling|clearled|retreiv|reteriv|filedescriptor|avalil*ab|assessem|contruct|particlar|revelan|releven|relv|intial|eal|specifiy|(?:tera|mega|kilo)?btye|comunic|accumlat|useage|existant|regrex|next(?!step)[eis])[a-z]*(?:\b|_))/i ||
+	    $fullline =~ /^\+.*?(?:\b|_)((?:additon|deafult|parm|peform|acessor|comptib|seach|seperat|seprat|separater|iteratat|calulat|delimitor|delimeter|charactor|databse|operatoar|implict|differnt|orignal|straterg|unecessar|comamnd|docuemnt|implment|initilias|capatil|reprensent|ommit|openning|openned|appropirate|labrar|returm|interati|termfrequenc|continous|juding|gradinet|clearling|clearled|retreiv|reteriv|filedescriptor|avalil*ab|assessem|contruct|particlar|revelan|releven|relv|intial|eal|specifiy|(?:tera|mega|kilo)?btye|comunic|accumlat|useage|existant|regrex|next(?!step)[eis])[a-z]*(?:\b|_))/i ||
 	    # Case-sensitive cases
 	    $fullline =~ /^\+.*?\b(and and|dont|Dont)\b/) {
 	    diagnostic('error', "Typo '$1'");
