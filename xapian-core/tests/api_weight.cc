@@ -1520,6 +1520,50 @@ DEFINE_TESTCASE(checkstatsweight2, backend && !remote) {
     }
 }
 
+/// Check the weight subclass gets the correct stats with OP_SYNONYM.
+// Test the case where we need to clamp wdf to <= doclen.
+DEFINE_TESTCASE(checkstatsweight6, backend && !remote) {
+    Xapian::Database db = get_database("checkstatsweight6",
+				       [](Xapian::WritableDatabase& wdb,
+					  const string&) {
+					   Xapian::Document doc;
+					   doc.add_term("book");
+					   doc.add_term("radio", 4);
+					   doc.add_term("tv");
+					   wdb.add_document(doc);
+				       });
+    Xapian::Enquire enquire(db);
+    Xapian::TermIterator a;
+    // Check the case where a term is repeated in the synonym.
+    string term{"radio"};
+    Xapian::Query q(Xapian::Query::OP_SYNONYM, term, term);
+    tout << q.get_description() << '\n';
+    enquire.set_query(q);
+    Xapian::termcount sum = 0;
+    Xapian::termcount sum_squares = 0;
+    CheckStatsWeight wt(db, term, term, sum, sum_squares);
+    enquire.set_weighting_scheme(wt);
+    Xapian::MSet mset = enquire.get_mset(0, db.get_doccount());
+
+    // The document order in the multi-db case isn't the same as the
+    // postlist order on the combined DB, so it's hard to compare the
+    // wdf for each document in the Weight objects, but we can sum
+    // the wdfs and the squares of the wdfs which provides a decent
+    // check that we're not getting the wrong wdf values (it ensures
+    // they have the right mean and standard deviation).
+    Xapian::termcount expected_sum = 0;
+    Xapian::termcount expected_sum_squares = 0;
+    for (auto i = db.postlist_begin(term);
+	 i != db.postlist_end(term);
+	++i) {
+	auto wdf = std::min(i.get_wdf() * 2, db.get_doclength(*i));
+	expected_sum += wdf;
+	expected_sum_squares += wdf * wdf;
+    }
+    TEST_EQUAL(sum, expected_sum);
+    TEST_EQUAL(sum_squares, expected_sum_squares);
+}
+
 /// Check the weight subclass gets the correct stats with OP_WILDCARD.
 // Regression test for bug fixed in 1.4.1.
 DEFINE_TESTCASE(checkstatsweight3, backend && !remote) {
