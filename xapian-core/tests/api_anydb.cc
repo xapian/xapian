@@ -352,7 +352,7 @@ DEFINE_TESTCASE(expandweights5, backend) {
     TEST_EQUAL_DOUBLE(eset[2].get_weight(), 5.58090119783738);
 }
 
-// test that "trad" can be set as an expansion scheme.
+// test that "prob" and "trad" can be set as the expansion scheme.
 DEFINE_TESTCASE(expandweights6, backend) {
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
     enquire.set_query(Xapian::Query("this"));
@@ -364,8 +364,18 @@ DEFINE_TESTCASE(expandweights6, backend) {
     myrset.add_document(*i);
     myrset.add_document(*(++i));
 
-    enquire.set_expansion_scheme("trad");
+    enquire.set_expansion_scheme("prob");
     Xapian::ESet eset = enquire.get_eset(3, myrset, enquire.USE_EXACT_TERMFREQ);
+
+    TEST_EQUAL(eset.size(), 3);
+    TEST_REL(eset.get_ebound(), >=, eset.size());
+    TEST_EQUAL_DOUBLE(eset[0].get_weight(), 6.08904001099445);
+    TEST_EQUAL_DOUBLE(eset[1].get_weight(), 6.08904001099445);
+    TEST_EQUAL_DOUBLE(eset[2].get_weight(), 4.73383620844021);
+
+    // Older scheme name "trad" (alias for "prob").
+    enquire.set_expansion_scheme("trad");
+    eset = enquire.get_eset(3, myrset, enquire.USE_EXACT_TERMFREQ);
 
     TEST_EQUAL(eset.size(), 3);
     TEST_REL(eset.get_ebound(), >=, eset.size());

@@ -65,7 +65,7 @@ set_expansion_scheme(Xapian::Enquire & enq, const map<string, string> & opt)
     const string & scheme = i->second;
     if (scheme.empty()) return;
 
-    if (startswith(scheme, "trad")) {
+    if (startswith(scheme, "prob") || startswith(scheme, "trad")) {
 	const char *p = scheme.c_str() + 4;
 	if (*p == '\0') {
 	    enq.set_expansion_scheme("trad");
