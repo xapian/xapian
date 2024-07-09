@@ -404,10 +404,12 @@ The sum extends over the terms of *Q* which index d. :math:`f_t` is
 the wdf of t in d, :math:`L_d` is the ndl of d, and k is some suitably
 chosen constant.
 
+In Xapian, this weighting scheme is available by using `Xapian::BM25Weight
+class <apidoc/html/classXapian_1_1BM25Weight.html>`_ with `k1` set to k, `b=1`
+and the other parameters set to `0`.
+
 The factor :math:`k+1` is actually redundant, but helps with the interpretation
-of the equation. In Xapian, this weighting scheme is implemented by the
-`Xapian::TradWeight class <apidoc/html/classXapian_1_1TradWeight.html>`_
-and the factor :math:`(k+1)` is ignored.
+of the equation.
 
 If :math:`k` is set to zero the factor before :math:`w(t)` is 1, and the wdfs are
 ignored. As k tends to infinity, the factor becomes
