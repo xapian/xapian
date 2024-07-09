@@ -1022,7 +1022,7 @@ DEFINE_TESTCASE(checkstatsweight2, backend && !remote) {
 	// The OP_SYNONYM's wdf should be equal to the sum of the wdfs of
 	// the individual terms.
 	TEST_EQUAL(sum, expected_sum);
-	TEST_REL(sum_squares, >=, expected_sum_squares);
+	TEST_EQUAL(sum_squares, expected_sum_squares);
     }
 }
 
@@ -1099,7 +1099,7 @@ DEFINE_TESTCASE(checkstatsweight3, backend && !remote) {
 	// The OP_SYNONYM's wdf should be equal to the sum of the wdfs of
 	// the individual terms.
 	TEST_EQUAL(sum, expected_sum);
-	TEST_REL(sum_squares, >=, expected_sum_squares);
+	TEST_EQUAL(sum_squares, expected_sum_squares);
     }
 }
 
