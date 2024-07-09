@@ -224,6 +224,9 @@ Deprecated Remove Feature name                        Upgrade suggestion and com
 1.5.0      1.7.0  ``TradWeight`` class                Instead of ``TradWeight(k)`` use ``Xapian::BM25Weight(k, 0, 0, 1, 0)``;
                                                       instead of ``TradWeight()`` use ``Xapian::BM25Weight(1, 0, 0, 1, 0)``.
                                                       (Since 1.5.0, ``TradWeight`` is just a thin subclass of ``BM25Weight``.)
+---------- ------ ----------------------------------- ------------------------------------------------------------------------
+1.5.0      1.7.0  ``Enquire::set_expansion_scheme()`` Use ``"prob"`` instead, supported by Xapian >= 1.4.26.
+                  with ``"trad""`` for eweightname
 ========== ====== =================================== ========================================================================
 
 Bindings

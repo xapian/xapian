@@ -218,11 +218,11 @@ Enquire::set_expansion_scheme(std::string_view eweightname,
 {
     if (eweightname == "bo1") {
 	internal->eweight = Enquire::Internal::EXPAND_BO1;
-    } else if (eweightname == "trad") {
-	internal->eweight = Enquire::Internal::EXPAND_TRAD;
+    } else if (eweightname == "prob" || eweightname == "trad") {
+	internal->eweight = Enquire::Internal::EXPAND_PROB;
     } else {
 	throw_invalid_arg("Enquire::set_expansion_scheme(): eweightname must "
-			  "be 'bo1' or 'trad'");
+			  "be 'bo1', 'prob' or 'trad'");
     }
     internal->expand_k = expand_k;
 }
@@ -469,10 +469,10 @@ Enquire::Internal::get_eset(termcount maxitems,
 	eset.internal->expand(maxitems, db, rset, edecider.get(), bo1eweight,
 			      min_weight);
     } else {
-	AssertEq(eweight, Enquire::Internal::EXPAND_TRAD);
-	using Xapian::Internal::TradEWeight;
-	TradEWeight tradeweight(db, rset.size(), use_exact_termfreq, expand_k);
-	eset.internal->expand(maxitems, db, rset, edecider.get(), tradeweight,
+	AssertEq(eweight, Enquire::Internal::EXPAND_PROB);
+	using Xapian::Internal::ProbEWeight;
+	ProbEWeight probeweight(db, rset.size(), use_exact_termfreq, expand_k);
+	eset.internal->expand(maxitems, db, rset, edecider.get(), probeweight,
 			      min_weight);
     }
 

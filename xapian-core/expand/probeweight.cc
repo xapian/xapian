@@ -1,5 +1,5 @@
 /** @file
- * @brief Xapian::TradEWeight class - The TradWeight scheme for query expansion.
+ * @brief Xapian::ProbEWeight class - probabilistic query expansion.
  */
 /* Copyright (C) 2013 Aarsh Shah
  *
@@ -29,7 +29,7 @@ namespace Xapian {
 namespace Internal {
 
 double
-TradEWeight::get_weight() const
+ProbEWeight::get_weight() const
 {
     double reldocs_without_term = get_rsize() - stats.rtermfreq;
     double num = (stats.rtermfreq + 0.5) *

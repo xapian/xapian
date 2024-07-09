@@ -1,7 +1,7 @@
 /** @file
  * @brief Collate statistics and calculate the term weights for the ESet.
  */
-/* Copyright (C) 2007,2008,2009,2011,2016,2019,2023 Olly Betts
+/* Copyright (C) 2007,2008,2009,2011,2016,2019,2023,2024 Olly Betts
  * Copyright (C) 2013 Aarsh Shah
  *
  * This program is free software; you can redistribute it and/or
@@ -41,7 +41,7 @@ class ExpandStats {
     /// Average document length in the whole database.
     Xapian::doclength avlen;
 
-    /// The parameter k to be used for TradWeight query expansion.
+    /// The parameter k to be used for probabilistic query expansion.
     double expand_k;
 
   public:
@@ -57,13 +57,13 @@ class ExpandStats {
     /// The number of documents from the RSet indexed by the current term (r).
     Xapian::doccount rtermfreq;
 
-    /// The multiplier to be used in TradWeight query expansion.
+    /// The multiplier to be used in probabilistic query expansion.
     double multiplier;
 
     /** Constructor.
      *
      *  @param avlen_	    Average document length
-     *  @param expand_k_    Parameter k used by TradEWeight (default: 0)
+     *  @param expand_k_    Parameter k used by ProbEWeight (default: 0)
      */
     ExpandStats(Xapian::doclength avlen_, double expand_k_ = 0.0)
 	: avlen(avlen_), expand_k(expand_k_) { }
@@ -149,7 +149,7 @@ class ExpandWeight {
      *  @param want_collection_freq_
      *				    Does the expansion scheme use collection
      *				    frequency?
-     *  @param expand_k_	    Parameter for TradEWeight (default: 0)
+     *  @param expand_k_	    Parameter for ProbEWeight (default: 0)
      */
     ExpandWeight(const Xapian::Database& db_,
 		 Xapian::doccount rsize_,
@@ -193,11 +193,11 @@ class ExpandWeight {
     Xapian::doccount get_dbsize() const { return dbsize; }
 };
 
-/** This class implements the TradWeight scheme for query expansion.
+/** This class implements the probabilistic scheme for query expansion.
  *
  *  It is the default scheme for query expansion.
  */
-class TradEWeight : public ExpandWeight {
+class ProbEWeight : public ExpandWeight {
   public:
     /** Constructor.
      *
@@ -206,11 +206,11 @@ class TradEWeight : public ExpandWeight {
      *  @param use_exact_termfreq_ When expanding over a combined database,
      *				   should we use the exact termfreq (if false
      *				   a cheaper approximation is used).
-     *  @param expand_k_ The parameter for TradWeight query expansion.
+     *  @param expand_k_ The parameter for probabilistic query expansion.
      *
      *  All the parameters are passed to the parent ExpandWeight object.
      */
-    TradEWeight(const Xapian::Database& db_,
+    ProbEWeight(const Xapian::Database& db_,
 		Xapian::doccount rsize_,
 		bool use_exact_termfreq_,
 		double expand_k_)

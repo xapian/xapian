@@ -446,14 +446,16 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
      *
      *  If you don't call this method, the default is as if you'd used:
      *
-     *  get_expansion_scheme("trad");
+     *  get_expansion_scheme("prob");
      *
      *  @param eweightname  A string in lowercase specifying the name of
      *                      the scheme to be used. The following schemes
      *                      are currently available:
-     *                       "bo1" : The Bo1 scheme for query expansion.
-     *                       "trad" : The TradWeight scheme for query expansion.
-     *  @param expand_k  The parameter required for TradWeight query expansion.
+     *                      * "bo1": Bose-Einstein 1 model from the Divergence
+     *			      From Randomness framework.
+     *                      * "prob" : Probabilistic model (since 1.4.26).
+     *                      * "trad" : Deprecated alias for "prob".
+     *  @param expand_k  Parameter k for probabilistic query expansion.
      *                   A default value of 1.0 is used if none is specified.
      */
     void set_expansion_scheme(std::string_view eweightname,

@@ -672,12 +672,14 @@ $set{OPT,VALUE}
           ``tfidf`` (in Omega >= 1.3.1), and
           ``trad``.
         * expansion - set the query expansion scheme to use, and (optionally)
-          the parameters to use if the expansion scheme supports them. The syntax
-          is a string consisting of the scheme name followed by any parameters,
-          all separated by whitespace.  Any parameters not specified will use
-          their default values.  Valid expansion schemes names are
-          ``trad`` and ``bo1``.  e.g.
-          ``$set{expansion,trad 2.0}``
+          the parameters to use if the expansion scheme supports them. The
+          syntax is the scheme name followed by any parameters, all separated
+          by whitespace.  Any parameters not specified will use their default
+          values.  Valid expansion schemes names are ``prob``, ``bo1`` and
+          ``trad`` (deprecated alias for ``prob``).
+
+          E.g. ``$set{expansion,trad 2.0}``.  If not specified, the
+          default scheme used is equivalent to ``$set{expansion,trad 1.0}``.
         * weightingpurefilter - normally a query consisting only of filter
           terms won't have relevance weights calculated.  This option allows
           you to specify a weighting scheme to use for such queries, with the

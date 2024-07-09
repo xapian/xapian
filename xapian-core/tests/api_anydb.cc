@@ -255,7 +255,7 @@ DEFINE_TESTCASE(expandweights1, backend) {
     TEST_EQUAL_DOUBLE(eset[2].get_weight(), 4.73383620844021);
 
     // Test non-default k too.
-    enquire.set_expansion_scheme("trad", 2.0);
+    enquire.set_expansion_scheme("prob", 2.0);
     eset = enquire.get_eset(3, myrset, enquire.USE_EXACT_TERMFREQ);
     TEST_EQUAL(eset.size(), 3);
     TEST_REL(eset.get_ebound(), >=, eset.size());
@@ -353,7 +353,7 @@ DEFINE_TESTCASE(expandweights5, backend) {
     TEST_EQUAL_DOUBLE(eset[2].get_weight(), 5.58090119783738);
 }
 
-// test that "trad" can be set as an expansion scheme.
+// test that "prob" and "trad" can be set as the expansion scheme.
 DEFINE_TESTCASE(expandweights6, backend) {
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
     enquire.set_query(Xapian::Query("this"));
@@ -365,8 +365,18 @@ DEFINE_TESTCASE(expandweights6, backend) {
     myrset.add_document(*i);
     myrset.add_document(*(++i));
 
-    enquire.set_expansion_scheme("trad");
+    enquire.set_expansion_scheme("prob");
     Xapian::ESet eset = enquire.get_eset(3, myrset, enquire.USE_EXACT_TERMFREQ);
+
+    TEST_EQUAL(eset.size(), 3);
+    TEST_REL(eset.get_ebound(), >=, eset.size());
+    TEST_EQUAL_DOUBLE(eset[0].get_weight(), 6.08904001099445);
+    TEST_EQUAL_DOUBLE(eset[1].get_weight(), 6.08904001099445);
+    TEST_EQUAL_DOUBLE(eset[2].get_weight(), 4.73383620844021);
+
+    // Test deprecated scheme name "trad" (alias for "prob").
+    enquire.set_expansion_scheme("trad");
+    eset = enquire.get_eset(3, myrset, enquire.USE_EXACT_TERMFREQ);
 
     TEST_EQUAL(eset.size(), 3);
     TEST_REL(eset.get_ebound(), >=, eset.size());
@@ -396,7 +406,7 @@ DEFINE_TESTCASE(expandweights8, backend) {
     myrset.add_document(*(++i));
 
     // Set expand_k to 1.0 and min_wt to 0
-    enquire.set_expansion_scheme("trad", 1.0);
+    enquire.set_expansion_scheme("prob", 1.0);
     Xapian::ESet eset = enquire.get_eset(50, myrset, 0, 0, 0);
     // With a multi backend, the top three terms all happen to occur in both
     // shard so their termfreq is exactly known even without

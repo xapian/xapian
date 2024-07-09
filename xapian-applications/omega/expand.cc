@@ -62,10 +62,10 @@ set_expansion_scheme(Xapian::Enquire & enq, const map<string, string> & opt)
     const string & scheme = i->second;
     if (scheme.empty()) return;
 
-    if (startswith(scheme, "trad")) {
+    if (startswith(scheme, "prob") || startswith(scheme, "trad")) {
 	const char *p = scheme.c_str() + 4;
 	if (*p == '\0') {
-	    enq.set_expansion_scheme("trad");
+	    enq.set_expansion_scheme("prob");
 	    return;
 	}
 	if (C_isspace(*p)) {
@@ -75,7 +75,7 @@ set_expansion_scheme(Xapian::Enquire & enq, const map<string, string> & opt)
 		parameter_error("Parameter k is invalid", scheme);
 	    if (*p)
 		parameter_error("Extra data after first parameter", scheme);
-	    enq.set_expansion_scheme("trad", k);
+	    enq.set_expansion_scheme("prob", k);
 	    return;
 	}
     }

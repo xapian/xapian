@@ -79,7 +79,7 @@ class Enquire::Internal : public Xapian::Internal::intrusive_base {
 
     double time_limit = 0.0;
 
-    enum { EXPAND_TRAD, EXPAND_BO1 } eweight = EXPAND_TRAD;
+    enum { EXPAND_PROB, EXPAND_BO1 } eweight = EXPAND_PROB;
 
     double expand_k = 1.0;
 
