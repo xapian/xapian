@@ -28,7 +28,7 @@ MIRROR=http://httpredir.debian.org/debian/
 
 DEBIAN_CODENAMES='bookworm bullseye'
 UBUNTU_CODENAMES='noble mantic jammy focal bionic xenial'
-UBUNTU_FIRST=`echo "$UBUNTU_CODENAMES"|sed 's/.* //'`
+UBUNTU_LATEST=`echo "$UBUNTU_CODENAMES"|sed 's/ .*//'`
 
 V_OPT=
 BUILD_INT=1
@@ -240,11 +240,11 @@ END
 
   include_src_opt=
   case $backport_version in
-    *99$UBUNTU_FIRST+1)
+    *99$UBUNTU_LATEST+1)
       # We don't really want to upload the orig tarball for all Ubuntu
       # backports, only if it isn't already in the archive.  So for now, just
-      # upload it for the first codename in alphabetical order, and only if
-      # the BUILD_INT (N in the +N suffix) is 1.
+      # upload it for the most recent Ubuntu release we currently backport to,
+      # and only if the BUILD_INT (N in the +N suffix) is 1.
       include_src_opt=-sa ;;
   esac
   debuild ${BUILDPACKAGE_SRC_OPTS} $include_src_opt
@@ -345,5 +345,18 @@ cd ..
 
 echo "Backported ${PKG} ${VERSION} for $CODENAME successfully"
 done
+
+PPA=
+case ${PKG} in
+  *xapian*) PPA=ppa:xapian/backports ;;
+  survex) PPA=ppa:survex-devs/ppa ;;
+esac
+if [ -n "$PPA" ] ; then
+  for CODENAME in $CODENAMES ; do
+    if [ `expr " $UBUNTU_CODENAMES " : " $CODENAME "` != 0 ] ; then
+      echo "dput -U $PPA build/${PKG}_${VERSION}${BACKPORT_SUFFIX}_source.changes"
+    fi
+  done
+fi
 
 trap - EXIT
