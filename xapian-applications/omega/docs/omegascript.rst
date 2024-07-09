@@ -670,7 +670,7 @@ $set{OPT,VALUE}
           ``pl2`` (in Omega >= 1.3.2),
           ``pl2+`` (in Omega >= 1.4.26),
           ``tfidf`` (in Omega >= 1.3.1), and
-          ``trad``.
+          ``trad`` (deprecated in Omega >= 1.5.0).
         * expansion - set the query expansion scheme to use, and (optionally)
           the parameters to use if the expansion scheme supports them. The
           syntax is the scheme name followed by any parameters, all separated
