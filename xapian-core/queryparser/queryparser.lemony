@@ -691,6 +691,11 @@ static void yy_parse_failed(yyParser *);
 void
 QueryParser::Internal::add_prefix(string_view field, string_view prefix)
 {
+    // Allow for optional trailing `:` for consistency with how range prefixes
+    // are specified.
+    if (!field.empty() && field.back() == ':') {
+	field = field.substr(0, field.size() - 1);
+    }
 #ifdef  __cpp_lib_associative_heterogeneous_insertion // C++26
     auto [it, inserted] = field_map.try_emplace(field, NON_BOOLEAN);
 #else
@@ -729,6 +734,11 @@ QueryParser::Internal::add_prefix(string_view field, string_view prefix)
 void
 QueryParser::Internal::add_prefix(string_view field, FieldProcessor* proc)
 {
+    // Allow for optional trailing `:` for consistency with how range prefixes
+    // are specified.
+    if (!field.empty() && field.back() == ':') {
+	field = field.substr(0, field.size() - 1);
+    }
 #ifdef  __cpp_lib_associative_heterogeneous_insertion // C++26
     auto [it, inserted] = field_map.try_emplace(field,
 						NON_BOOLEAN, proc);
@@ -763,6 +773,11 @@ QueryParser::Internal::add_boolean_prefix(string_view field,
 					  string_view prefix,
 					  const string* grouping)
 {
+    // Allow for optional trailing `:` for consistency with how range prefixes
+    // are specified.
+    if (!field.empty() && field.back() == ':') {
+	field = field.substr(0, field.size() - 1);
+    }
     // Don't allow the empty prefix to be set as boolean as it doesn't
     // really make sense.
     if (field.empty())
@@ -812,6 +827,11 @@ QueryParser::Internal::add_boolean_prefix(string_view field,
 					  FieldProcessor *proc,
 					  const string* grouping)
 {
+    // Allow for optional trailing `:` for consistency with how range prefixes
+    // are specified.
+    if (!field.empty() && field.back() == ':') {
+	field = field.substr(0, field.size() - 1);
+    }
     // Don't allow the empty prefix to be set as boolean as it doesn't
     // really make sense.
     if (field.empty())
