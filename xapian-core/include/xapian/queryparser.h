@@ -1144,8 +1144,13 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      *  In 1.0.3 and earlier, subsequent calls to this method with the same
      *  value of @a field had no effect.
      *
-     *  @param field   The user visible field name
-     *  @param prefix  The term prefix to map this to
+     *  @param field   The user visible field name.  Currently this needs to
+     *		       consist of characters for which
+     *		       Xapian::Unicode::is_wordchar() is true (approximately
+     *		       alphanumerics plus connector punctuation such as `_`).
+     *		       Since 1.4.26 it can optionally end in a `:` for
+     *		       consistency with how range prefixes are specified.
+     *  @param prefix  The term prefix to map this to.
      */
     void add_prefix(const std::string& field, const std::string& prefix);
 
@@ -1195,7 +1200,13 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      *  In 1.0.3 and earlier, subsequent calls to this method with the same
      *  value of @a field had no effect.
      *
-     *  @param field   The user visible field name
+     *  @param field   The user visible field name, which may not be empty
+     *		       for a boolean filter.  Currently this needs to
+     *		       consist of characters for which
+     *		       Xapian::Unicode::is_wordchar() is true (approximately
+     *		       alphanumerics plus connector punctuation such as `_`).
+     *		       Since 1.4.26 it can optionally end in a `:` for
+     *		       consistency with how range prefixes are specified.
      *  @param prefix  The term prefix to map this to
      *  @param grouping	Controls how multiple filters are combined - filters
      *			with the same grouping value are combined with OP_OR,
@@ -1215,7 +1226,13 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      *  This is an older version of this method - use the version with
      *  the `grouping` parameter in preference to this one.
      *
-     *  @param field   The user visible field name
+     *  @param field   The user visible field name, which may not be empty
+     *		       for a boolean filter.  Currently this needs to
+     *		       consist of characters for which
+     *		       Xapian::Unicode::is_wordchar() is true (approximately
+     *		       alphanumerics plus connector punctuation such as `_`).
+     *		       Since 1.4.26 it can optionally end in a `:` for
+     *		       consistency with how range prefixes are specified.
      *  @param prefix  The term prefix to map this to
      *  @param exclusive Controls how multiple filters are combined.  If
      *			true then @a prefix is used as the `grouping` value,

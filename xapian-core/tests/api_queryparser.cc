@@ -1,7 +1,11 @@
 /** @file
  * @brief Tests of Xapian::QueryParser
  */
+<<<<<<< HEAD
 /* Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2015,2016,2019 Olly Betts
+=======
+/* Copyright (C) 2002-2024 Olly Betts
+>>>>>>> 043b292aae29 (Allow an optional trailing : on QP field names)
  * Copyright (C) 2006,2007,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -731,13 +735,20 @@ DEFINE_TESTCASE(queryparser1, !backend) {
     queryparser.set_stemmer(Xapian::Stem("english"));
     queryparser.set_stemming_strategy(Xapian::QueryParser::STEM_SOME);
     queryparser.add_prefix("author", "A");
+<<<<<<< HEAD
     queryparser.add_prefix("writer", "A");
+=======
+    queryparser.add_prefix("writer:", "A");
+    // Check that a redundant add_prefix() doesn't result in redundant terms in
+    // the Query object.
+    queryparser.add_prefix("author", "A");
+>>>>>>> 043b292aae29 (Allow an optional trailing : on QP field names)
     queryparser.add_prefix("title", "XT");
     queryparser.add_prefix("subject", "XT");
     queryparser.add_prefix("authortitle", "A");
     queryparser.add_prefix("authortitle", "XT");
     queryparser.add_boolean_prefix("site", "H");
-    queryparser.add_boolean_prefix("site2", "J");
+    queryparser.add_boolean_prefix("site2:", "J");
     queryparser.add_boolean_prefix("multisite", "H");
     queryparser.add_boolean_prefix("multisite", "J");
     queryparser.add_boolean_prefix("category", "XCAT", false);
@@ -2165,8 +2176,10 @@ class HostFieldProcessor : public Xapian::FieldProcessor {
 
 static const test test_fieldproc1_queries[] = {
     { "title:test", "Stest" },
+    { "subject:test", "Stest" },
     { "title:all", "<alldocuments>" },
     { "host:Xapian.org", "0 * Hxapian.org" },
+    { "host2:Xapian.org", "0 * Hxapian.org" },
     { "host:*", "0 * <alldocuments>" },
     { "host:\"Space Station.Example.Org\"", "0 * Hspace station.example.org" },
     { NULL, NULL }
@@ -2178,7 +2191,9 @@ DEFINE_TESTCASE(qp_fieldproc1, !backend) {
     TitleFieldProcessor title_fproc;
     HostFieldProcessor host_fproc;
     qp.add_prefix("title", &title_fproc);
+    qp.add_prefix("subject:", &title_fproc);
     qp.add_boolean_prefix("host", &host_fproc);
+    qp.add_boolean_prefix("host2:", &host_fproc);
     for (const test *p = test_fieldproc1_queries; p->query; ++p) {
 	string expect, parsed;
 	if (p->expect)

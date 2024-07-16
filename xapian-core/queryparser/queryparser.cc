@@ -1,7 +1,7 @@
 /** @file
  * @brief The non-lemon-generated parts of the QueryParser class.
  */
-/* Copyright (C) 2005,2006,2007,2008,2010,2011,2012,2013,2015,2016 Olly Betts
+/* Copyright (C) 2005,2006,2007,2008,2010,2011,2012,2013,2015,2016,2024 Olly Betts
  * Copyright (C) 2010 Adam Sjøgren
  *
  * This program is free software; you can redistribute it and/or
@@ -29,6 +29,7 @@
 #include "api/vectortermlist.h"
 #include "omassert.h"
 #include "queryparser_internal.h"
+#include "stringutils.h"
 
 #include <cstring>
 
@@ -183,14 +184,22 @@ void
 QueryParser::add_prefix(const string &field, const string &prefix)
 {
     Assert(internal.get());
-    internal->add_prefix(field, prefix);
+    if (endswith(field, ':')) {
+	internal->add_prefix(field.substr(0, field.size() - 1), prefix);
+    } else {
+	internal->add_prefix(field, prefix);
+    }
 }
 
 void
 QueryParser::add_prefix(const string &field, Xapian::FieldProcessor * proc)
 {
     Assert(internal.get());
-    internal->add_prefix(field, proc);
+    if (endswith(field, ':')) {
+	internal->add_prefix(field.substr(0, field.size() - 1), proc);
+    } else {
+	internal->add_prefix(field, proc);
+    }
 }
 
 void
@@ -198,7 +207,12 @@ QueryParser::add_boolean_prefix(const string &field, const string &prefix,
 				const string* grouping)
 {
     Assert(internal.get());
-    internal->add_boolean_prefix(field, prefix, grouping);
+    if (endswith(field, ':')) {
+	internal->add_boolean_prefix(field.substr(0, field.size() - 1),
+				     prefix, grouping);
+    } else {
+	internal->add_boolean_prefix(field, prefix, grouping);
+    }
 }
 
 void
@@ -207,7 +221,12 @@ QueryParser::add_boolean_prefix(const string &field,
 				const string* grouping)
 {
     Assert(internal.get());
-    internal->add_boolean_prefix(field, proc, grouping);
+    if (endswith(field, ':')) {
+	internal->add_boolean_prefix(field.substr(0, field.size() - 1),
+				     proc, grouping);
+    } else {
+	internal->add_boolean_prefix(field, proc, grouping);
+    }
 }
 
 TermIterator
