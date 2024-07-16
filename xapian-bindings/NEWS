@@ -1,3 +1,150 @@
+Xapian-bindings 1.4.25 (2024-03-08):
+
+General:
+
+* configure: DragonflyBSD automatically pulls in library dependencies, so set
+  link_all_deplibs_CXX=no there.
+
+* configure: Avoid using lt_cv_objdir, which seems to be a libtool implementation
+  detail.  We already have its value available via a documented interface.
+
+Perl:
+
+* Fix conversion of POD to HTML when builddir!=srcdir.
+
+* Simplify uninstall-local to use the shared object extension in PERL_SO.
+
+PHP8:
+
+* Use PHP_SHLIB_SUFFIX as the filename extension for the compiled extension
+  module.  Previously we used the extension libtool thought appropriate for
+  the current platform.  We're not aware of a platform where the two don't
+  agree, but should they not agree we should use what PHP expects.
+
+Python:
+
+* Fix `make check` when builddir!=srcdir.
+
+Python3:
+
+* Fix `make check` when builddir!=srcdir.
+
+Ruby:
+
+* Fix probe for rdoc to default to using the rdoc which matches the Ruby
+  interpreter.  This was always the intention, but the code was buggy and
+  this default previously never kicked in.  This was likely to only be a
+  problem if you were overriding RUBY=/path/to/ruby but not overriding RDOC as
+  well.  Reported by Vitaly Chikunov on the xapian-devel list.
+
+Xapian-bindings 1.4.24 (2023-11-06):
+
+Portability:
+
+* swig-depcomp: Strip CR from generated files which fixes an issue in some
+  cases when building from git on Microsoft Windows.
+
+Lua:
+
+* Use pkg-config for Lua flags instead of some rather ad-hoc configure probes.
+  This improves portability to platforms which require linking to a Lua
+  library, or which install the Lua headers directly without a versioned
+  containing directory.
+
+PHP8:
+
+* Update configure probe PHP_LIBS on cygwin.  Based on patch found in cygwin
+  packaging, authored by Yaakov Selkowitz.
+
+Tcl:
+
+* Fix to handle the case of tcl_pkgPath not existing, which happens on
+  Microsoft Windows builds of Tcl.
+
+* run-tcl-test: Fix not to hardcode smoketest.tcl and instead run the program
+  specified on the command line.
+
+* Use TCL_SHLIB_EXT for the installed extension which is what Tcl expects.
+  Previously the installed Tcl extension used the filename extension that
+  libtool thinks is right for modules on the current platform.  We're not
+  currently aware of platform where these actually differ, so this may be just
+  a latent bug.
+
+* Improve configure probe for stub library to work if the tclConfig.sh we find
+  forwards to a different script, as is the case with /usr/lib/tclConfig.sh on
+  current Debian.  On Debian at least our method for finding the tclConfig.sh
+  to use doesn't find such a forwarding script, but it seems better to be
+  robust to this.
+
+* Eliminate special cygwin handling which is no longer needed.
+
+Xapian-bindings 1.4.23 (2023-07-07):
+
+Documentation:
+
+* Where we document how to build the bindings, link to the download page so
+  the reader can easily find the source to download.  Reported by John G. Heim.
+
+* Update lists of debian packages to install for bindings development to
+  show be for the latest stable release and the one before (bookworm and
+  bullseye).
+
+* HACKING: Fix typos in deprecation warning section
+
+* HACKING: Update link to Pike bindings
+
+* HACKING: Document issues caused by macOS SIP.  Fixes #732.
+
+General:
+
+* Add `FLAG_NGRAMS` as a preferred new alias for `FLAG_CJK_NGRAM` and
+  `SNIPPET_NGRAMS` as a preferred new alias for `SNIPPET_CJK_NGRAM`.
+  In the next release series these features have been expanded to cover many
+  more languages so the "CJK" in the name has become inaccurate as it stands
+  for "Chinese, Japanese and Korean").
+
+* Avoid running pwd in makefiles since the directories we need are available in
+  automake variables.
+
+CSharp:
+
+* SmokeTest.cs: Fix some incorrect messages if testcases fail.
+
+* Smoketest.cs: Test stemmer description.
+
+Lua:
+
+* Update docs for supported Lua versions.
+
+Perl:
+
+* Generate HTML docs for each class.
+
+* Document all QueryParser FLAG_* constants.
+
+* Update one place which didn't correctly indicate the current status of the
+  Perl bindings.  Fixes #523.
+
+Python:
+
+* Fix bug in wrapper for xapian.Query when constructing OP_WILDCARD queries.
+  A workaround for this bug which works with existing releases is to pass
+  0 for the third and fourth optional parameters like so:
+
+  xapian.Query(xapian.Query.OP_WILDCARD, "xyz", 0, 0)
+
+Python3:
+
+* Fix bug in wrapper for xapian.Query when constructing OP_WILDCARD queries.
+  A workaround for this bug which works with existing releases is to pass
+  0 for the third and fourth optional parameters like so:
+
+  xapian.Query(xapian.Query.OP_WILDCARD, "xyz", 0, 0)
+
+Ruby:
+
+* Improve documentation about __call__ methods.
+
 Xapian-bindings 1.4.22 (2023-02-02):
 
 Lua:
