@@ -1,11 +1,7 @@
 /** @file
  * @brief Tests of Xapian::QueryParser
  */
-<<<<<<< HEAD
-/* Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2015,2016,2019 Olly Betts
-=======
 /* Copyright (C) 2002-2024 Olly Betts
->>>>>>> 043b292aae29 (Allow an optional trailing : on QP field names)
  * Copyright (C) 2006,2007,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -735,14 +731,7 @@ DEFINE_TESTCASE(queryparser1, !backend) {
     queryparser.set_stemmer(Xapian::Stem("english"));
     queryparser.set_stemming_strategy(Xapian::QueryParser::STEM_SOME);
     queryparser.add_prefix("author", "A");
-<<<<<<< HEAD
-    queryparser.add_prefix("writer", "A");
-=======
     queryparser.add_prefix("writer:", "A");
-    // Check that a redundant add_prefix() doesn't result in redundant terms in
-    // the Query object.
-    queryparser.add_prefix("author", "A");
->>>>>>> 043b292aae29 (Allow an optional trailing : on QP field names)
     queryparser.add_prefix("title", "XT");
     queryparser.add_prefix("subject", "XT");
     queryparser.add_prefix("authortitle", "A");
