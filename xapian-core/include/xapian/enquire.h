@@ -270,7 +270,7 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	 *
 	 *  If you don't call this method, the default is as if you'd used:
 	 *
-	 *  get_expansion_scheme("prob");
+	 *  set_expansion_scheme("prob");
 	 *
 	 *  @param eweightname_  A string in lowercase specifying the name of
 	 *                       the scheme to be used. The following schemes
