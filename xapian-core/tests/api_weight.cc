@@ -149,8 +149,8 @@ DEFINE_TESTCASE(weight1, backend) {
     enquire_scaled.set_query(q * 15.0);
     auto expected_matches = db.get_termfreq(term);
     auto helper = [&](const Xapian::Weight& weight,
-		      string_view name,
-		      string_view params) {
+		      const string& name,
+		      const string& params) {
 	tout << name << '(' << params << ")\n";
 	enquire.set_weighting_scheme(weight);
 	enquire_scaled.set_weighting_scheme(weight);
