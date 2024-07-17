@@ -45,15 +45,15 @@ Diversify::Diversify(Diversify&&) = default;
 Diversify&
 Diversify::operator=(Diversify&&) = default;
 
-Diversify::Diversify(Xapian::doccount k_,
-		     Xapian::doccount r_,
-		     double lambda_,
-		     double b_,
-		     double sigma_sqr_)
-    : internal(new Xapian::Diversify::Internal(k_, r_, lambda_, b_, sigma_sqr_))
+Diversify::Diversify(Xapian::doccount k,
+		     Xapian::doccount r,
+		     double lambda,
+		     double b,
+		     double sigma_sqr)
+    : internal(new Xapian::Diversify::Internal(k, r, lambda, b, sigma_sqr))
 {
-    LOGCALL_CTOR(API, "Diversify", k_ | r_ | lambda_ | b_ | sigma_sqr_);
-    if (r_ == 0)
+    LOGCALL_CTOR(API, "Diversify", k | r | lambda | b | sigma_sqr);
+    if (r == 0)
 	throw InvalidArgumentError("Value of r should be greater than zero");
 }
 
@@ -149,7 +149,7 @@ Diversify::Internal::evaluate_dmset(const vector<Xapian::docid>& dmset,
 	for (auto doc_id : dmset) {
 	    auto key = get_key(doc_id, c);
 	    double sim = pairwise_sim[key];
-	    double weight = 2 * b * sigma_sqr / log(1 + pos) * (1 - sim);
+	    double weight = factor / log(1 + pos) * (1 - sim);
 	    min_dist = min(min_dist, weight);
 	    ++pos;
 	}

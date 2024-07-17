@@ -73,26 +73,26 @@ class XAPIAN_VISIBILITY_DEFAULT Diversify {
 
     /** Constructor specifying the number of diversified search results
      *
-     *  @param  k_	Number of required diversified documents in the
+     *  @param  k	Number of required diversified documents in the
      *  		diversified document set
-     *  @param  r_	Number of documents from each cluster used for
+     *  @param  r	Number of documents from each cluster used for
      *  		building topC
-     *  @param  lambda_	Trade-off between relevance of top-k diversified
+     *  @param  lambda	Trade-off between relevance of top-k diversified
      *  		document set and its similarity to the rest of the
      *  		documents in the document match set. Belongs to the
      *  		range [0,1] with 0 meaning no weighting to
      *  		relevance of the diversified document set and 1
      *  		allowing for full weighting to relevance of the
      *  		diversified document set.
-     *  @param  b_	Parameter for MPT, normally in the range [1,10]
-     *  @param  sigma_sqr_	Parameter for MPT, normally in the range
+     *  @param  b	Parameter for MPT, normally in the range [1,10]
+     *  @param  sigma_sqr	Parameter for MPT, normally in the range
      *	  			[1e-6,1]
      */
-    explicit Diversify(Xapian::doccount k_,
-		       Xapian::doccount r_,
-		       double lambda_ = 0.5,
-		       double b_ = 5.0,
-		       double sigma_sqr_ = 1e-3);
+    Diversify(Xapian::doccount k,
+	      Xapian::doccount r,
+	      double lambda = 0.5,
+	      double b = 5.0,
+	      double sigma_sqr = 1e-3);
 
     /// Destructor
     ~Diversify();

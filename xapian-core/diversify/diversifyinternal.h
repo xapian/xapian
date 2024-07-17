@@ -42,8 +42,11 @@ class Xapian::Diversify::Internal : public Xapian::Internal::intrusive_base {
     /// Number of relevant documents from each cluster used for building topC
     Xapian::doccount r;
 
-    /// MPT parameters
-    double lambda, b, sigma_sqr;
+    /// MPT parameter.
+    double lambda;
+
+    /// MPT factor: this is 2 * b * sigma_sqr
+    double factor;
 
     /// Store each document from given mset as a point
     std::unordered_map<Xapian::docid, Xapian::Point> points;
@@ -59,12 +62,12 @@ class Xapian::Diversify::Internal : public Xapian::Internal::intrusive_base {
 
   public:
     /// Constructor for initialising diversification parameters
-    explicit Internal(Xapian::doccount k_,
-		      Xapian::doccount r_,
-		      double lambda_,
-		      double b_,
-		      double sigma_sqr_)
-	: k(k_), r(r_), lambda(lambda_), b(b_), sigma_sqr(sigma_sqr_) {}
+    Internal(Xapian::doccount k_,
+	     Xapian::doccount r_,
+	     double lambda_,
+	     double b,
+	     double sigma_sqr)
+	: k(k_), r(r_), lambda(lambda_), factor(2.0 * b * sigma_sqr) { }
 
     /** Initialise diversified document set
      *
