@@ -215,9 +215,9 @@ class XAPIAN_VISIBILITY_DEFAULT TermListGroup : public FreqSource {
      *
      *  @param tname	The term for which to return the term frequency
      */
-    doccount get_termfreq(const std::string &tname) const;
+    doccount get_termfreq(const std::string& tname) const override;
 
-    doccount get_doccount() const;
+    doccount get_doccount() const override;
 };
 
 /** Abstract class representing a point in the VSM
@@ -541,10 +541,10 @@ class XAPIAN_VISIBILITY_DEFAULT CosineDistance : public Similarity {
     /** Calculates and returns the cosine similarity using the
      *  formula  cos(theta) = a.b/(|a|*|b|)
      */
-    double similarity(const PointType &a, const PointType &b) const;
+    double similarity(const PointType& a, const PointType& b) const override;
 
     /// Return a string describing this object
-    std::string get_description() const;
+    std::string get_description() const override;
 };
 
 /** Class representing an abstract class for a clusterer to be implemented
@@ -640,7 +640,7 @@ class XAPIAN_VISIBILITY_DEFAULT KMeans : public Clusterer {
      *  @param mset    MSet object containing the documents that are to
      *                 be clustered
      */
-    ClusterSet cluster(const MSet &mset);
+    ClusterSet cluster(const MSet &mset) override;
 
     /** Set the Xapian::Stopper object to be used for identifying stopwords.
      *
@@ -652,7 +652,7 @@ class XAPIAN_VISIBILITY_DEFAULT KMeans : public Clusterer {
     void set_stopper(const Xapian::Stopper* stop = NULL) { stopper = stop; }
 
     /// Return a string describing this object
-    std::string get_description() const;
+    std::string get_description() const override;
 };
 
 /** LCD clusterer:
@@ -676,10 +676,10 @@ class XAPIAN_VISIBILITY_DEFAULT LCDClusterer : public Clusterer {
      *  @param mset    MSet object containing the documents that are to
      *                 be clustered
      */
-    ClusterSet cluster(const MSet &mset);
+    ClusterSet cluster(const MSet &mset) override;
 
     /// Return a string describing this object
-    std::string get_description() const;
+    std::string get_description() const override;
 };
 }
 #endif // XAPIAN_INCLUDED_CLUSTER_H
