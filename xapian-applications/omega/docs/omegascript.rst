@@ -1055,7 +1055,8 @@ Numeric Operators:
 
 OmegaScript numeric operators are forgiving in their interpretation of
 numeric arguments.  Any characters after an initial span of ASCII digits
-are ignored, so ``123abc`` is interpreted the same as ``123`` and values with no leading digits are interpreted as zero, including an empty string.
+are ignored, so ``123abc`` is interpreted the same as ``123`` and values with
+no leading digits are interpreted as zero, including an empty string.
 
 A reason for this behaviour is that it gives more robust handling for numeric
 values which are specified in CGI parameters - for example, if an Omega URL
