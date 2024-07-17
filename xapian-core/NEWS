@@ -1,3 +1,148 @@
+Xapian-core 1.4.26 (2024-07-18):
+
+API:
+
+* Weight: Document that Weight statistics DOC_LENGTH_MIN, DOC_LENGTH_MAX and
+  WDF_MAX are for the shard rather than the whole database.  Usually this is
+  what we want as with a sharded database it gives tighter bounds and so better
+  match optimisation, but it does make them unsuitable for uses such as
+  calculating a suitable offset to add to every get_sumextra() to allow
+  implementing a weighting formula which can give a negative term independent
+  weight contribution.  This case will be addressed in the next release series
+  which also provides bounds such as DB_DOC_LENGTH_MIN which are for the whole
+  database.
+
+* LMWeight: This class was meant to implement the "Language Model" Weighting
+  scheme, but we've discovered the implementation was incorrect and fixing it
+  requires ABI-incompatible changes.  For 1.4.x we need to leave it in place so
+  as not to break existing code, but it's now deprecated and we recommend
+  avoiding using it.  It will be removed in the next release series and
+  replaced with new separate classes implementing Language Model weighting with
+  each smoothing.  Thanks to Sourav Saha for reporting this problem.
+
+* PL2PlusWeight: Fix bug in implementation of formula.  Our variable mean is
+  1/lambda_t from the PL2+ paper, so we need to check mean>1 for lambda_t<1 but
+  we were actually checking mean<1 instead.  The result of this is that PL2+
+  actually returned a zero weight unless the term occurred frequently enough in
+  the collection.
+
+* TradWeight::get_maxpart() no longer forces the wdf_max value to be at least
+  one.  We used to do this so that a non-existent term in the query would cause
+  it not to achieve 100%, but now we calculate percentages based on the number
+  of matching subqueries, and it is more natural for a non-existent term to get
+  zero weight (ditto for a term which always has wdf 0).  This was already
+  addressed for BM25Weight in 1.2.1 back in 2010.
+
+* Enquire::set_expansion_scheme(): Add "prob" as new preferred name for
+  probabilistic query expansion, with the previous "trad" still being accepted
+  for now.
+
+* QueryParser::set_prefix() and set_boolean_prefix(): Allow an optional
+  trailing `:` on the field name.  This makes the API here more consistent with
+  ranges, where you need to include the `:` if you want one.  See #720.
+
+testsuite:
+
+* Catch and report if a testcase causes signal SIGPIPE.
+
+* Suppress valgrind errors about calling memmove() with overlapping source and
+  destination (which is valid, valgrind is just confused when memcpy() and
+  memmove() share an implementation).
+
+* Add more testing of weighting schemes.
+
+* Mark checkstatsweight3 with a sharded database as XFAIL (expected to fail).
+  This testcase was previous not run for sharded databases, with a FIXME
+  comment noting this.  Investigating shows it's due to a bug where we use the
+  shard's termfreqs rather than those for the whole database for an expanded
+  wildcard, but this seems complex to fix.
+
+matcher:
+
+* Fix minor wildcard weighting bug spotted while reading the code.  We were
+  returning too high a value from the first call to get_maxpart() in some
+  cases.  Mostly this just means the matcher continue working when it could
+  have stopped, but it will also cause MSet::get_termweight() to return a
+  higher value than the actual known upper bound.
+
+glass backend:
+
+* Simplify file descriptor handling for lock files on Unix-like platforms
+  which don't support OFD locks.  This eliminates corner cases where we
+  could end up with file descriptors without close-on-exec set in the main
+  process.
+
+remote backend:
+
+* xapian-tcpsrv: Use _exit() instead of exit() to end child processes which
+  avoids the risk of duplicated output from stdio buffers getting copied by
+  fork() then flushed in both processes.
+
+* Simplify file descriptor handling when launching prog remote.
+
+inmemory backend:
+
+* Fix bug adding posting entries.
+
+build system:
+
+* Improve probe for -Bsymbolic-functions.  MSVC doesn't support this flag, but
+  it only emits a warning when it is used and that warning didn't match any of
+  the patterns we already check for so we were detecting it as supported.
+
+* Report result of probe to determine compiler support for -Werror or
+  equivalent.
+
+documentation:
+
+* Improve MSVC build instructions.  Thanks to Baran Demir for feedback.
+
+* Improve formatting of stat_flags API documentation.
+
+* sorting.rst: Replace custom weighting scheme documentation with a link to the
+  more complete equivalent in "Getting Started with Xapian".
+
+* remote.rst: Update to reflect that user metadata is fully supported (since
+  1.2.4).
+
+portability:
+
+* Fix to compile as C++20 and C++23.
+
+* Resolve SIGPIPE issues on NetBSD, which were causing testcase keepalive1 to
+  fail.  These seem to be due to SO_NOSIGPIPE not working correctly there so
+  we now use MSG_NOSIGNAL instead for NetBSD.
+
+* Include <errno.h> for sys_errlist.  We already do this for the configure
+  check but were failing to when actually using sys_errlist, which probably
+  affects at least NetBSD.
+
+* configure: Fix clang detection which wasn't working when configure determined
+  a -std=X option was needed to get C++11 support.  The obvious symptom was
+  that --enable-werror wouldn't add -Werror.
+
+* configure: NetBSD automatically pulls in library dependencies, so set
+  link_all_deplibs_CXX=no there.
+
+* Avoid using sprintf() if snprintf() is available, even in cases where the
+  output size is bounded, to avoid deprecation warnings on macOS.  For 1.4.x
+  we still fall back to sprintf() to avoid a point release breaking support
+  for any platform still lacking snprintf().
+
+* Stop linking with --enable-runtime-pseudo-reloc.  We were requiring this for
+  cygwin and mingw, but from the documentation it should only be needed for a
+  library which exports data symbols, which we don't do, and the build works
+  without it.
+
+* Use `override` for subclassing functors.  This is good practice as it gives a
+  clear compile error if we have to change the signature of an virtual method
+  on such a functor.  See #830.
+
+* Avoid redefining MSVC-specific macros if they are already defined.  This
+  avoids an MSVC warning and potential for the code to be ill-formed if the
+  user defines these macros with a value other than 1.  Patch from A. Jiang
+  (https://github.com/xapian/xapian/pull/334).
+
 Xapian-core 1.4.25 (2024-03-08):
 
 API:
@@ -123,23 +268,23 @@ build system:
 portability:
 
 * We now avoid triggering SIGPIPE in library code on most platforms.
-    
+
   On Unix-like platforms we want to avoid generating SIGPIPE when writing to a
   socket when the other end has been closed since signals break the
   encapsulation of what we're doing inside the library - either user code would
   need to handle the SIGPIPE, or we set a signal handler for SIGPIPE but that
   would handle *any* SIGPIPE in the process, not just those we might trigger,
   and that could break user code which expects to trigger and handle SIGPIPE.
-    
+
   We don't need SIGPIPE since we can check errno==EPIPE instead (which is
   actually simpler to do).
-    
+
   It seems all current Unix-like platforms now support SO_NOSIGPIPE or
   MSG_NOSIGNAL, so currently we just fall back to setting SIGPIPE to SIG_IGN.
   If there are actually current platforms which have SIGPIPE without
   SO_NOSIGPIPE or MSG_NOSIGNAL then we can look at other ways to avoid
   generating the signal.
-    
+
 * Avoid MSVC warning C4312 which is a reasonable warning in general, but in
   this case we checked that the value wasn't truncated when cast to an int.
 

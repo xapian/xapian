@@ -1,3 +1,59 @@
+Omega 1.4.26 (2024-07-18):
+
+indexers:
+
+* omindex:
+
+  + Make robust to the indexer process being run with stdin or stdout closed.
+
+omega:
+
+* Support "bm25+" and "pl2+" in "$set{weighting,...}".
+
+* Deprecate "lm" in "$set{weighting,...}".  This was meant to implement the
+  "Language Model" Weighting scheme, but we've discovered the implementation
+  was incorrect and fixing it requires ABI-incompatible changes in xapian-core.
+  For 1.4.x we need to leave it in place so as not to break existing code, but
+  we recommended avoiding using it.  It will be removed in the next release
+  series and replaced with new separate classes implementing Language Model
+  weighting with each smoothing.
+
+* Add "prob" as new preferred name for probabilistic query expansion in
+  "$set{expansion,...}", with the previous "trad" still being accepted for now.
+
+build system:
+
+* Report result of probe to determine compiler support for -Werror or
+  equivalent.
+
+* If pkg-config is available, use it to probe for libmagic.
+
+* configure: Probe for closefrom().  Patch from Qiu Yingbo in
+  https://github.com/xapian/xapian/pull/323
+
+portability:
+
+* configure: Fix clang detection which wasn't working when configure determined
+  a -std=X option was needed to get C++11 support.  The obvious symptom was
+  that --enable-werror wouldn't add -Werror.
+
+* configure: NetBSD automatically pulls in library dependencies, so set
+  link_all_deplibs_CXX=no there.
+
+* Define __WIN32__/__WIN64__ like we do for xapian-core.  Spotted by Baran Demir.
+
+* Avoid using sprintf() if snprintf() is available, even in cases where the
+  output size is bounded to avoid deprecation warnings on macOS.  For 1.4.x
+  we still fall back to sprintf() to avoid a point release breaking support
+  for any platform still lacking snprintf().
+
+* Use `override` for subclassing functors.  This is good practice as it gives a
+  clear compile error if we have to change the signature of an virtual method
+  on such a functor.  See #830.
+
+* Fix building with MSVC - it seems to support AR=lib we need to use AM_PROG_AR
+  which probes for AR's command line interface.
+
 Omega 1.4.25 (2024-03-08):
 
 testsuite:
