@@ -54,9 +54,6 @@ class Xapian::ClusterSet::Internal : public Xapian::Internal::intrusive_base {
     Xapian::doccount size() const;
 
     /// Return the cluster at index 'i'
-    Cluster& get_cluster(Xapian::doccount i);
-
-    /// Return the cluster at index 'i'
     const Cluster& get_cluster(Xapian::doccount i) const;
 
     /// Clear all the clusters in the ClusterSet
@@ -103,9 +100,6 @@ class Xapian::Cluster::Internal : public Xapian::Internal::intrusive_base {
     void clear();
 
     /// Return the point at the given index in the cluster
-    Point& get_point(Xapian::doccount i);
-
-    /// Return the point at the given index in the cluster
     const Point& get_point(Xapian::doccount i) const;
 
     /// Return the documents that are contained within the cluster
@@ -145,9 +139,6 @@ class Xapian::DocumentSet::Internal : public Xapian::Internal::intrusive_base {
 
     /// Returns the size of the DocumentSet
     Xapian::doccount size() const;
-
-    /// Returns the Document at the index 'i' in the DocumentSet
-    Xapian::Document& get_document(Xapian::doccount i);
 
     /// Returns the Document at the index 'i' in the DocumentSet
     const Xapian::Document& get_document(Xapian::doccount i) const;

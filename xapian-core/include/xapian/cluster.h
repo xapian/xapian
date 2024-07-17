@@ -119,9 +119,6 @@ class XAPIAN_VISIBILITY_DEFAULT DocumentSet {
     Xapian::doccount size() const;
 
     /// Return the Document in the DocumentSet at index i
-    Xapian::Document& operator[](Xapian::doccount i);
-
-    /// Return the Document in the DocumentSet at index i
     const Xapian::Document& operator[](Xapian::doccount i) const;
 
     /** Add a new Document to the DocumentSet
@@ -421,9 +418,6 @@ class XAPIAN_VISIBILITY_DEFAULT Cluster {
     void clear();
 
     /// Return the point at the given index in the cluster
-    Point& operator[](Xapian::doccount i);
-
-    /// Return the point at the given index in the cluster
     const Point& operator[](Xapian::doccount i) const;
 
     /// Return the documents that are contained within the cluster
@@ -502,9 +496,6 @@ class XAPIAN_VISIBILITY_DEFAULT ClusterSet {
 
     /// Return the number of clusters
     Xapian::doccount size() const;
-
-    /// Return the cluster at index 'i'
-    Cluster& operator[](Xapian::doccount i);
 
     /// Return the cluster at index 'i'
     const Cluster& operator[](Xapian::doccount i) const;

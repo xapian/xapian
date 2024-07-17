@@ -143,18 +143,6 @@ DocumentSet::Internal::add_document(const Document& document)
     documents.push_back(document);
 }
 
-Document&
-DocumentSet::operator[](doccount i)
-{
-    return internal->get_document(i);
-}
-
-Document&
-DocumentSet::Internal::get_document(doccount i)
-{
-    return documents[i];
-}
-
 const Document&
 DocumentSet::operator[](doccount i) const
 {
@@ -380,18 +368,6 @@ Cluster::Internal::get_documents() const
     return docs;
 }
 
-Point&
-Cluster::operator[](Xapian::doccount i)
-{
-    return internal->get_point(i);
-}
-
-Point&
-Cluster::Internal::get_point(Xapian::doccount i)
-{
-    return cluster_docs[i];
-}
-
 const Point&
 Cluster::operator[](Xapian::doccount i) const
 {
@@ -446,18 +422,6 @@ ClusterSet::add_cluster(const Cluster& cluster)
 {
     LOGCALL_VOID(API, "ClusterSet::add_cluster", cluster);
     internal->add_cluster(cluster);
-}
-
-Cluster&
-ClusterSet::Internal::get_cluster(doccount i)
-{
-    return clusters[i];
-}
-
-Cluster&
-ClusterSet::operator[](doccount i)
-{
-    return internal->get_cluster(i);
 }
 
 const Cluster&
