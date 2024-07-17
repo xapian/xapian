@@ -1,3 +1,205 @@
+up to: d72a7d16fe81bf5f6e0e986b95e1d8098256ee84
+
+Omega 1.5.0 (2024-0?-??):
+
+general:
+
+* Add click logging and analysis to generate training data for the xapian-letor
+  module.  Patch from Vivek Pal.
+
+* Remove htdig2omega scripts.  The last htdig release was in 2004 so these
+  scripts no longer seem at all useful.
+
+documentation:
+
+indexers:
+
+* Our XML and HTML parser now treats XML (and XHTML) more correctly rather
+  thank treating everything like HTML.  In particular for XML and XHTML we now
+  parse tag names and attribute names case sensitively, and disable special
+  handling for htdig and similar "ignore this bit" comments, and also disable
+  special handling inside <script> tags.
+
+* We now parse XML/HTML attributes lazily.  We often don't look at them so
+  just do the minimal parsing up front (skip balanced pairs of `"` and `'`
+  while scanning for the tag's closing `>`), and only parse the attribute
+  data for the requested attribute - in practice we're rarely asked for more
+  than one attribute for a particular tag so this will usually mean less work
+  since we can just stop once we've found the attribute, and we save the work
+  on building up and tearing down the structure to store the parsed attributes
+  in.
+
+* Remove undocumented feature which preserved some HTML formatting in the
+  generated sample, encoded using different whitespace characters.  This
+  feature was added in 1.3.2, but never documented (its not even mentioned in
+  the NEWS file), only applied to documents in HTML or processed via HTML, and
+  nothing actually uses this formatting information.  It can result in CR
+  characters in the document data, which can be confusing when looking at an
+  Omega database with xapian-delve.  I think the original intent was that the
+  sample generating/selecting code might use this information, but in hindsight
+  I'm not sure that it's very useful there even.
+
+* Convert HTML checkboxes to Unicode checkbox characters in the sample.
+
+* Use C++17 std::string_view to avoid some copying of data during indexing.
+  See #785.
+
+* omindex:
+
+  + Support piping input to filter commands on stdin, which is supported by
+    most of the external filters we support out of the box.  Piping input
+    means we can avoid having to open the input file an extra time (omindex
+    needs to open the input file so it can calculate a checksum of the contents
+    for duplicate detection, and also may need to use libmagic to find the
+    file's MIME Content-Type).
+
+  + Remove deprecated omindex --preserve-nonduplicates which was replaced by
+    --no-delete in 1.2.4.
+
+  + Add support for extracting text using a library.  The code which calls
+    each library is run in a worker sub-process so that bugs in the library
+    can't crash the indexer.  So far we have workers for the following
+    libraries and formats:
+    - Poppler: PDFs
+    - libe-book: fb2, fb2.zip, lrf, tcr, pdb and jar
+    - libetonyek: Apple iWork (keynote, pages, numbers)
+    - Gmime: MIME Email and Usenet articles
+    - Tesseract: extract text from image files using OCR
+    - libarchive: OpenDocument format, Microsoft XML formats (docx, xlsx, pptx, xps)
+    - libabw: Abiword formats
+    - libcdr: CorelDRAW formats
+    - libextractor: extract meta-data from audio and video files
+    - libreofficekit: Formats which LibreOffice supports
+    - libgepub: EPUB ebooks (#780)
+    The framework and workers were implemented by Bruno Baruffaldi, Parth
+    Kapadia and Olly Betts.
+
+  + Store created time in a value slot.
+
+  + Delay relatively expensive libmagic checks and the creation of the
+    Xapian::Document object until after we've checked if the document is
+    already indexed or already in our failed list.
+    Fixes #743. Patch from Bruno Baruffaldi.
+
+  + Don't index date terms by default.  Using values for date filtering has
+    been supported for more than 10 years (since 1.0.0) and has many advantages
+    - continuing to add all the terms as well is pointless overhead for the
+    majority of users at this point.  The omindex --date-terms option can be
+    used if you still want these terms (this option is supported since 1.4.22
+    for forward compatibility).
+
+  + Atom feed parsing: type="xhtml" is now understood.
+
+  + rfc822tohtml: Warn if "Date:" header parsing fails.
+
+* scriptindex:
+
+  + Add unxml action to strip out XML tags.
+
+  + Adjust scriptindex deletion handling rules.  Previously scriptindex would
+    delete a document if it only had input fields which only match a line in
+    the index script containing the "unique" action but this is problematic if
+    you want to process the same input field in two different ways using
+    commands which modify the current text - for example, `hash unique=Q
+    boolean=Q` and `split=/ boolean=XP` can't be combined into a single line of
+    actions with the same effect as each on a separate line.
+
+    Now the check is based on whether there are any input fields which don't
+    match a line in the index script containing the "unique" action, and the
+    example above works when written as two lines.
+
+omega:
+
+* Support new QueryParser options: flag_fuzzy flag_wildcard_glob
+  flag_wildcard_multi flag_wildcard_single flag_word_breaks
+
+* New $random and $srandom OmegaScript commands. Patch from Tanmay Sachan.
+
+* New $hash{} OmegaScript command which calculates a hash for an input string.
+
+* The weighting scheme specified by the `weighting` CGI parameter is now parsed
+  using the new C++ `Xapian::Weight::create()` API.
+
+* $snippet now supports additional optional arguments to allow specifying the
+  flags, and strings for bra, ket and gap.
+
+* $log{} now returns an error message.  This is upwardly incompatible in cases
+  where $log fails, but means it's now possible to report logging errors, and
+  one can wrap the `$log{...}` in `$if{` and `}` to ignore errors which also
+  works with older versions.
+
+* $filesize{} with an empty input previously gave ``0`` but now gives an
+  empty result.
+
+* Remove deprecated $set{spelling,true}.
+
+* Note $set{weighting,trad} as deprecated in omega docs.
+
+* Add $set{intra_query_op,OR} to allow combining multiple parsed query strings
+  with OR instead of AND.
+
+* Add $jsonobject2 which is is a variant of $jsonobject which takes separate
+  lists of keys and values.
+
+* $filters now uses a new encoding which is more compact in most cases,
+  especially when there are a lot of filter terms with repeated prefixes.
+  The xFILTERS parameter is still checked against the $filters output which
+  1.4.x would have given, but it's no longer checked against $filters output
+  from 1.2.x.  This means really old links to later pages of search results
+  will likely show the first page of results, but the final 1.2.x release was
+  in 2016 so this shouldn't be a problem.  Fixes #737.
+
+* Add error handling for CGI parameters.  Patch from Vaibhav Kansagara.
+
+templates:
+
+* Remove unused images for showing the relevance score which don't appear to
+  have been used since 2007 except in commented out lines of the query
+  template.  The active version in the template which draws these with CSS
+  seems a better approach.
+
+testsuite:
+
+* Add omindextest to provide test coverage for omindex's handling of
+  file formats.  Patch from Bruno Baruffaldi.
+
+* omegatest: Add feature tests for $snippet.
+
+build system:
+
+* We now require a C++17 compiler to build Xapian.  This means if you're using
+  GCC you'll need at least GCC 7.0.  Compilers which haven't been updated to
+  support C++17 are no longer supported (e.g. HP's aCC and Sun's C++ compiler).
+
+* Use AC_CONFIG_MACRO_DIRS, which replaces the need to specify the same
+  directory via both AC_CONFIG_MACRO_DIR and ACLOCAL_AMFLAGS.  It was added in
+  automake 1.13, so that's now the minimum required version (was 1.12.2).
+
+* Simplify probe for posix_fadvise().  We've been using the simpler probe in
+  xapian-core since 1.3.4 with no reports of issues.
+
+portability:
+
+packaging:
+
+* We no longer provide RPM spec files.  In the early days of Xapian it was
+  perhaps useful to provide them so that people could build their own RPM
+  packages, but now all mainstream distros seem to provide packages, and
+  doubtless maintain their own packaging separately rather than just taking
+  what we ship as-is.
+
+debug code:
+
+* Allow using UBSan's unsigned-overflow check
+    In C and C++ unsigned overflow has defined behaviour (unlike signed
+    overflow) but in many cases it happening is not intended and indicates
+    a bug.
+    UBSan supports an unsigned-overflow check (at least the clang version
+    does - currently the GCC version doesn't seem to) so I've annotated the
+    few places in the code where we deliberately rely on unsigned overflow
+    (and eliminated a few cases where we can easily not rely on it) and
+    added this check to the clang-sanitisers job.
+
 Omega 1.4.25 (2024-03-08):
 
 testsuite:
@@ -137,7 +339,7 @@ portability:
 
 * Remove lingering traces of IRIX support as it's been dead for many years.
 
-Omega 1.4.22 (2023-02-02):
+Omega 1.4.22 (2023-03-17):
 
 documentation:
 

@@ -1,3 +1,73 @@
+up to: d72a7d16fe81bf5f6e0e986b95e1d8098256ee84
+
+Xapian-bindings 1.5.0 (2024-0?-??):
+
+Documentation:
+
+General:
+
+* Update for changes to C++ API.
+
+Build system:
+
+* We now require a C++17 compiler to build Xapian.  This means if you're using
+  GCC you'll need at least GCC 7.0.  Compilers which haven't been updated to
+  support C++17 are no longer supported (e.g. HP's aCC and Sun's C++ compiler).
+
+* Use AC_CONFIG_MACRO_DIRS, which replaces the need to specify the same
+  directory via both AC_CONFIG_MACRO_DIR and ACLOCAL_AMFLAGS.  It was added in
+  automake 1.13, so that's now the minimum required version (was 1.12.2).
+
+Packaging:
+
+* We no longer provide RPM spec files.  In the early days of Xapian it was
+  perhaps useful to provide them so that people could build their own RPM
+  packages, but now all mainstream distros seem to provide packages, and
+  doubtless maintain their own packaging separately.
+
+Portability:
+
+CSharp:
+
+* Expand tests for nul and codepoints >= U+10000.  See #46.
+
+Java:
+
+* Expand tests for nul and codepoints >= U+10000.  See #46.
+
+Lua:
+
+* The Lua bindings allows passing a Lua function where the C++ API takes a
+  Xapian::StemImplementation object.  Previously this function served to
+  implement the stemmer and provide its description, with nil being passed in
+  to indicate to return a description.  This seems more annoying than helpful
+  as it forces you to implement a description (or else your code will fail in a
+  logging build of Xapian even if you never explicitly request the description
+  in your own code), so now a fixed description of "luaStemImplementation()" is
+  returned. Existing Lua stemmer implementations will continue to work, but any
+  code in them to return a description will no longer get used.
+
+Perl:
+
+PHP:
+
+* Only PHP8 is now supported.  PHP5 has it's been out of security support
+  upstream since 2019-01-10 and PHP7 since 2022-11-28. If you haven't migrated
+  to PHP8 yet, you'll need to use Xapian <= 1.4.21 for PHP5 or PHP7 support.
+
+Python:
+
+* Drop support for Python 2 as it's been end-of-life upstream since 2020-01-01.
+  If you're still using it, you'll need to stick with Xapian 1.4.x.
+
+Python3:
+
+Ruby:
+
+Tcl:
+
+* Expand tests for nul.  See #46.
+
 Xapian-bindings 1.4.25 (2024-03-08):
 
 General:
@@ -145,7 +215,7 @@ Ruby:
 
 * Improve documentation about __call__ methods.
 
-Xapian-bindings 1.4.22 (2023-02-02):
+Xapian-bindings 1.4.22 (2023-03-17):
 
 Lua:
 
