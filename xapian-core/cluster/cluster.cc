@@ -215,55 +215,6 @@ PointType::termlist_begin() const
     return TermIterator(new PointTermIterator(weights));
 }
 
-bool
-PointType::contains(string_view term) const
-{
-    LOGCALL(API, bool, "PointType::contains", term);
-    return weights.find(string(term)) != weights.end();
-}
-
-double
-PointType::get_weight(string_view term) const
-{
-    LOGCALL(API, double, "PointType::get_weight", term);
-    auto it = weights.find(string(term));
-    return (it == weights.end()) ? 0.0 : it->second;
-}
-
-double
-PointType::get_magnitude() const {
-    LOGCALL(API, double, "PointType::get_magnitude", NO_ARGS);
-    return magnitude;
-}
-
-void
-PointType::add_weight(string_view term, double weight)
-{
-    LOGCALL_VOID(API, "PointType::add_weight", term | weight);
-    weights[string(term)] += weight;
-}
-
-void
-PointType::set_weight(string_view term, double weight)
-{
-    LOGCALL_VOID(API, "PointType::set_weight", term | weight);
-    weights.insert_or_assign(string(term), weight);
-}
-
-termcount
-PointType::termlist_size() const
-{
-    LOGCALL(API, termcount, "PointType::termlist_size", NO_ARGS);
-    return weights.size();
-}
-
-Document
-Point::get_document() const
-{
-    LOGCALL(API, Document, "Point::get_document", NO_ARGS);
-    return document;
-}
-
 Point::Point(const FreqSource& freqsource, const Document& document_)
 {
     LOGCALL_CTOR(API, "Point", freqsource | document_);
@@ -314,13 +265,6 @@ Centroid::divide(double cluster_size)
     }
 }
 
-void
-Centroid::clear()
-{
-    LOGCALL_VOID(API, "Centroid::clear", NO_ARGS);
-    weights.clear();
-}
-
 Cluster&
 Cluster::operator=(const Cluster&) = default;
 
@@ -345,11 +289,6 @@ Cluster::Cluster(const Centroid& centroid)
 Cluster::~Cluster()
 {
     LOGCALL_DTOR(API, "Cluster");
-}
-
-Centroid::Centroid()
-{
-    LOGCALL_CTOR(API, "Centroid", NO_ARGS);
 }
 
 DocumentSet

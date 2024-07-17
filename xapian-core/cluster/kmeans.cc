@@ -57,13 +57,6 @@ KMeans::get_description() const
 }
 
 void
-KMeans::set_stopper(const Stopper* stopper_)
-{
-    LOGCALL_VOID(API, "KMeans::set_stopper", stopper_);
-    stopper = stopper_;
-}
-
-void
 KMeans::initialise_clusters(ClusterSet& cset, doccount num_of_points)
 {
     LOGCALL_VOID(API, "KMeans::initialise_clusters", cset | num_of_points);

@@ -240,7 +240,9 @@ class XAPIAN_VISIBILITY_DEFAULT PointType
      *  @param weight	The weight to which the mapping of the
      *			term is to be set
      */
-    void set_weight(std::string_view term, double weight);
+    void set_weight(std::string_view term, double weight) {
+	weights[std::string(term)] = weight;
+    }
 
   public:
     /// Default constructor
@@ -259,13 +261,18 @@ class XAPIAN_VISIBILITY_DEFAULT PointType
      *
      *  @param term	Term which is to be searched
      */
-    bool contains(std::string_view term) const;
+    bool contains(std::string_view term) const {
+	return weights.find(std::string(term)) != weights.end();
+    }
 
     /** Return the TF-IDF weight associated with a certain term
      *
      *  @param term	Term for which TF-IDF weight is returned
      */
-    double get_weight(std::string_view term) const;
+    double get_weight(std::string_view term) const {
+	auto it = weights.find(std::string(term));
+	return (it == weights.end()) ? 0.0 : it->second;
+    }
 
     /** Add the weight 'weight' to the mapping of a term
      *
@@ -273,13 +280,15 @@ class XAPIAN_VISIBILITY_DEFAULT PointType
      *  @param weight	Weight which has to be added to the existing
      *			mapping of the term
      */
-    void add_weight(std::string_view term, double weight);
+    void add_weight(std::string_view term, double weight) {
+	weights[std::string(term)] += weight;
+    }
 
     /// Return the pre-computed squared magnitude
-    double get_magnitude() const;
+    double get_magnitude() const { return magnitude; }
 
     /// Return the size of the termlist
-    Xapian::termcount termlist_size() const;
+    Xapian::termcount termlist_size() const { return weights.size(); }
 
     /** Start reference counting this object.
      *
@@ -326,7 +335,7 @@ class XAPIAN_VISIBILITY_DEFAULT Point : public PointType {
     Point(const FreqSource& freqsource, const Document& document);
 
     /// Returns the document corresponding to this Point
-    Document get_document() const;
+    Document get_document() const { return document; }
 };
 
 /** Class to represent cluster centroids in the vector space
@@ -334,7 +343,7 @@ class XAPIAN_VISIBILITY_DEFAULT Point : public PointType {
 class XAPIAN_VISIBILITY_DEFAULT Centroid : public PointType {
   public:
     /// Default constructor
-    Centroid();
+    Centroid() { }
 
     /** Constructor with Point argument
      *
@@ -353,7 +362,7 @@ class XAPIAN_VISIBILITY_DEFAULT Centroid : public PointType {
     void divide(double cluster_size);
 
     /// Clear the terms and corresponding values of the centroid
-    void clear();
+    void clear() { weights.clear(); }
 };
 
 /** Class to represents a Cluster which contains Points and Centroid
@@ -640,7 +649,7 @@ class XAPIAN_VISIBILITY_DEFAULT KMeans : public Clusterer {
      *  @param stop	The Stopper object to set (default NULL, which means no
      *			stopwords)
      */
-    void set_stopper(const Xapian::Stopper *stop = NULL);
+    void set_stopper(const Xapian::Stopper* stop = NULL) { stopper = stop; }
 
     /// Return a string describing this object
     std::string get_description() const;
