@@ -266,7 +266,7 @@ Point::get_document() const
 
 Point::Point(const FreqSource& freqsource, const Document& document_)
 {
-    LOGCALL_CTOR(API, "Point::initialize", freqsource | document_);
+    LOGCALL_CTOR(API, "Point", freqsource | document_);
     doccount size = freqsource.get_doccount();
     document = document_;
     for (TermIterator it = document.termlist_begin();
