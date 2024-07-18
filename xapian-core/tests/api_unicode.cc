@@ -178,6 +178,8 @@ DEFINE_TESTCASE(unicode1, !backend) {
     TEST_EQUAL(Unicode::get_category(0x20C0), Unicode::CURRENCY_SYMBOL);
     // U+2FFE was added in Unicode 15.1.0.
     TEST_EQUAL(Unicode::get_category(0x2FFE), Unicode::OTHER_SYMBOL);
+    // Added in Unicode 16.0.0.
+    TEST_EQUAL(Unicode::get_category(0x1C89), Unicode::UPPERCASE_LETTER);
     // U+0242 was added in Unicode 5.0.0.
     TEST_EQUAL(Unicode::get_category(0xa3), Unicode::CURRENCY_SYMBOL);
     // U+0CF1 changed category in Unicode 6.0.0.
@@ -357,6 +359,9 @@ DEFINE_TESTCASE(unicode1, !backend) {
     // Added in Unicode 15.1.0.
     TEST_EQUAL(Unicode::get_category(0x2EBF0), Unicode::OTHER_LETTER);
     TEST_EQUAL(Unicode::get_category(0x2EE5D), Unicode::OTHER_LETTER);
+
+    // Added in Unicode 16.0.0.
+    TEST_EQUAL(Unicode::get_category(0x105C0), Unicode::OTHER_LETTER);
 
     // Test some invalid Unicode values.
     TEST_EQUAL(Unicode::get_category(0x110000), Unicode::UNASSIGNED);
@@ -547,6 +552,7 @@ DEFINE_TESTCASE(unicodepredicates1, !backend) {
 	// LOWERCASE_LETTER (added in Unicode 5.1.0)
 	0x371, 0x373, 0x377, 0x514, 0x516, 0x518, 0x51a, 0x51c, 0x51e,
 	0x520, 0x522,
+	0x1C8A, // (added in Unicode 16.0.0)
 	0xA7C1, // (added in Unicode 14.0.0)
 	0x16E78, // (added in Unicode 11.0.0)
 	0x1DF2A, // (added in Unicode 15.0.0)
@@ -556,6 +562,7 @@ DEFINE_TESTCASE(unicodepredicates1, !backend) {
 	0x370, 0x372, 0x376, 0x3cf, 0x515, 0x517, 0x519, 0x51b, 0x51d, 0x51f,
 	0x521, 0x523, 0x2c6d, 0x2c6e, 0x2c6f,
 	0xA7C0, // (added in Unicode 14.0.0)
+	0xA7CB, // (added in Unicode 16.0.0)
 	0x16E45, // (added in Unicode 11.0.0)
 	// OTHER_LETTER
 	0x870, // (added in Unicode 14.0.0)
@@ -565,18 +572,21 @@ DEFINE_TESTCASE(unicodepredicates1, !backend) {
 	0xe86, // Added in Unicode 12.0.0
 	0x312e, // Added in Unicode 10.0.0
 	0x10345,
+	0x18CFF, // Added in Unicode 16.0.0
 	0x1e4d0, // Added in Unicode 15.0.0
 	0x2ee2e, // Added in Unicode 15.1.0
 	// MODIFIER_LETTER
 	0x2ec, // Added in Unicode 5.1.0
 	0x374, // Added in Unicode 5.1.0
 	0x8c9, // Added in Unicode 14.0.0
+	0x10D6F, // Added in Unicode 16.0.0
 	0x16fe1, // Added in Unicode 10.0.0
 	0x16fe3, // Added in Unicode 12.0.0
 	0x1e4eb, // Added in Unicode 15.0.0
 	// NON_SPACING_MARK (added to is_wordchar() in 1.1.0)
 	0x651,
 	0x487, // Added in Unicode 5.1.0
+	0x897, // Added in Unicode 16.0.0
 	0x899, // Added in Unicode 14.0.0
 	0x8d3, // Added in Unicode 11.0.0
 	0x8db, // Added in Unicode 9.0.0
@@ -614,6 +624,7 @@ DEFINE_TESTCASE(unicodepredicates1, !backend) {
 	// DASH_PUNCTUATION
 	0x5be, // Added in Unicode 5.1.0
 	0x2e5d, // Added in Unicode 14.0.0
+	0x10D6E, // Added in Unicode 16.0.0
 	// OTHER_SYMBOL
 	0xd4f, // Added in Unicode 9.0.0
 	0x2b97, // Added in Unicode 13.0.0
@@ -625,6 +636,7 @@ DEFINE_TESTCASE(unicodepredicates1, !backend) {
 	0x1f263, // Added in Unicode 10.0.0
 	0x1fa62, // Added in Unicode 11.0.0
 	0x1f6dc, // Added in Unicode 15.0.0
+	0x1FADC, // Added in Unicode 16.0.0
 	// FORMAT
 	0x61c, // Added in Unicode 6.3.0
 	0x891, // Added in Unicode 14.0.0

@@ -1,5 +1,5 @@
-UnicodeData.txt is for Unicode 15.1.0, downloaded from:
-https://www.unicode.org/Public/15.1.0/ucd/UnicodeData.txt
+UnicodeData.txt is for Unicode 16.0.0, downloaded from:
+https://www.unicode.org/Public/16.0.0/ucd/UnicodeData.txt
 
 Copyright and licensing information from https://www.unicode.org/license.html
 follows:
@@ -8,7 +8,7 @@ UNICODE LICENSE V3
 
 COPYRIGHT AND PERMISSION NOTICE
 
-Copyright © 1991-2023 Unicode, Inc.
+Copyright © 1991-2024 Unicode, Inc.
 
 NOTICE TO USER: Carefully read the following legal agreement. BY
 DOWNLOADING, INSTALLING, COPYING OR OTHERWISE USING DATA FILES, AND/OR
