@@ -224,13 +224,15 @@ Point::Point(const FreqSource& freqsource, const Document& document_)
 	 it != document.termlist_end();
 	 ++it) {
 	doccount wdf = it.get_wdf();
+	// Ignore filter terms.
+	if (wdf == 0)
+	    continue;
 	string term = *it;
 	double termfreq = freqsource.get_termfreq(term);
 
-	// If the term exists in only one document, or if it exists in
-	// every document within the MSet, or if it is a filter term, then
-	// these terms are not used for document vector calculations
-	if (wdf < 1 || termfreq <= 1 || size == termfreq)
+	// Ignore terms which index only one document in the MSet, or
+	// which index all documents in the MSet.
+	if (termfreq <= 1 || termfreq == size)
 	    continue;
 
 	double tf = 1 + log(double(wdf));
