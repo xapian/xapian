@@ -616,21 +616,22 @@ $set{OPT,VALUE}
 
           E.g. ``$set{weighting,bool}`` or ``$set{weighting,bm25 1 0.8}``
 
-          Valid scheme names are
-          ``bb2`` (in Omega >= 1.3.2),
-          ``bm25``,
-          ``bm25+`` (in Omega >= 1.4.26),
-          ``bool``,
-          ``coord`` (in Omega >= 1.4.1),
-          ``dlh`` (in Omega >= 1.3.2),
-          ``dph`` (in Omega >= 1.3.2),
-          ``ifb2`` (in Omega >= 1.3.2),
-          ``ineb2`` (in Omega >= 1.3.2),
-          ``inl2`` (in Omega >= 1.3.2),
-          ``pl2`` (in Omega >= 1.3.2),
-          ``pl2+`` (in Omega >= 1.4.26),
-          ``tfidf`` (in Omega >= 1.3.1), and
-          ``trad``.
+          Valid scheme names are:
+
+          - ``bb2`` (in Omega >= 1.3.2)
+          - ``bm25``
+          - ``bm25+`` (in Omega >= 1.4.26)
+          - ``bool``
+          - ``coord`` (in Omega >= 1.4.1)
+          - ``dlh`` (in Omega >= 1.3.2)
+          - ``dph`` (in Omega >= 1.3.2)
+          - ``ifb2`` (in Omega >= 1.3.2)
+          - ``ineb2`` (in Omega >= 1.3.2)
+          - ``inl2`` (in Omega >= 1.3.2)
+          - ``pl2`` (in Omega >= 1.3.2)
+          - ``pl2+`` (in Omega >= 1.4.26)
+          - ``tfidf`` (in Omega >= 1.3.1)
+          - ``trad``
 
           The deprecated scheme name ``lm`` is also recognised (in Omega >=
           1.3.2), but this selects ``Xapian::LMWeight`` which is incorrectly
