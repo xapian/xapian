@@ -1770,7 +1770,8 @@ found_special:
     min_len = max_len = prefix.size();
 
     tail = i;
-    bool had_qm = false, had_star = false;
+    size_t qm_count = 0;
+    bool had_star = false;
     while (i != pattern.size()) {
 	switch (pattern[i]) {
 	    default:
@@ -1787,7 +1788,7 @@ default_case:
 		had_star = true;
 		tail = i + 1;
 		if (!suffix.empty()) {
-		    check_pattern = true;
+		    min_check_len = 0;
 		    suffix.clear();
 		}
 		break;
@@ -1798,16 +1799,10 @@ default_case:
 		// Matches exactly one character.
 		tail = i + 1;
 		if (!suffix.empty()) {
-		    check_pattern = true;
+		    min_check_len = 0;
 		    suffix.clear();
 		}
-		// `?` matches one Unicode character, which is 1-4 bytes in
-		// UTF-8, so we have to actually check the pattern if there's
-		// more than one `?` in it.
-		if (had_qm) {
-		    check_pattern = true;
-		}
-		had_qm = true;
+		++qm_count;
 		++min_len;
 		max_len += MAX_UTF_8_CHARACTER_LENGTH;
 		break;
@@ -1818,12 +1813,16 @@ default_case:
 
     if (had_star) {
 	max_len = numeric_limits<decltype(max_len)>::max();
-    } else {
-	// If the pattern only contains `?` wildcards we'll need to check it
-	// since `?` matches one Unicode character, which is 1-4 bytes in
-	// UTF-8.  FIXME: We can avoid this if there's only one `?` wildcard
-	// and the candidate is min_len bytes long.
-	check_pattern = true;
+    } else if (qm_count > 1) {
+	// `?` matches one Unicode character, which is 1-4 bytes in UTF-8, so
+	// we have to actually check the pattern if there's more than one `?`
+	// in it.
+	min_check_len = 0;
+    } else if (qm_count == 1) {
+	// If the pattern contains exactly one `?` wildcard we need to check it
+	// unless the candidate is exactly min_len bytes long.  Note that we
+	// know it can't match if it's < min_len long.
+	min_check_len = min_len + 1;
     }
 }
 
@@ -1881,7 +1880,7 @@ QueryWildcard::test_prefix_known(const string& candidate) const
     if (candidate.size() > max_len) return false;
     if (!endswith(candidate, suffix)) return false;
 
-    if (!check_pattern) return true;
+    if (candidate.size() < min_check_len) return true;
 
     return test_wildcard_(candidate, prefix.size(),
 			  candidate.size() - suffix.size(),

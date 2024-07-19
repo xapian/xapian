@@ -494,12 +494,17 @@ class QueryWildcard : public Query::Internal {
      */
     size_t head = 0, tail = 0, min_len = 0, max_len = 0;
 
-    // If the pattern is fixed apart from `*` or `*?` or `?*` then the length
-    // checks and head/tail checks are sufficient.  This covers a lot of common
-    // cases, so special-case it.  Note that we can't handle cases like `*??`
-    // here since `?` matches a single UTF-8 character, which can be more than
-    // one byte.
-    bool check_pattern = false;
+    // If candidate.size() >= min_len && candidate.size() < min_check_len then
+    // we don't need to actually do the pattern check since the length and
+    // head/tail checks are enough.
+    //
+    // This optimises cases `*` or `*?` or `?*` (which covers a lot of common
+    // cases) and also a pattern where there's no `*` and a single `?` where
+    // we only need to check the pattern when candidate.size() > min_len.
+    //
+    // Note that we can't handle cases like `*??` here since `?` matches a
+    // single UTF-8 character, which can be more than one byte.
+    size_t min_check_len = size_t(-1);
 
     std::string prefix, suffix;
 
