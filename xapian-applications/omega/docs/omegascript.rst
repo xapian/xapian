@@ -651,10 +651,10 @@ $set{OPT,VALUE}
           ``$set{weightingpurefilter,coord}`` will weight such queries by
           how many filter terms match each document.
 
-	Omega 1.2.5 and later support the following options, which can be set
-	to a non-empty value to enable the corresponding ``QueryParser`` flag.
-	Omega sets ``flag_default`` to ``true`` by default - you can set it to
-	an empty value to turn it off (``$set{flag_default,}``):
+        Omega 1.2.5 and later also support the following options, which can be
+        set to a non-empty value to enable the corresponding ``QueryParser``
+        flag.  Omega sets ``flag_default`` to ``true`` by default - you can set
+        it to an empty value to turn it off (``$set{flag_default,}``):
 
 	* flag_auto_multiword_synonyms
 	* flag_auto_synonyms
