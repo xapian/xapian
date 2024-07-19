@@ -68,6 +68,24 @@ Tcl:
 
 * Expand tests for nul.  See #46.
 
+Xapian-bindings 1.4.26 (2024-07-18):
+
+Documentation:
+
+* README: Add link to separately maintained Guile bindings.  Patch from Arun
+  Isaac.
+
+* README: Add link to separately maintained R bindings.
+
+Portability:
+
+* configure: NetBSD automatically pulls in library dependencies, so set
+  link_all_deplibs_CXX=no there.
+
+* Use `override` for subclassing functors.  This is good practice as it gives a
+  clear compile error if we have to change the signature of an virtual method
+  on such a functor.  See #830.
+
 Xapian-bindings 1.4.25 (2024-03-08):
 
 General:
@@ -215,7 +233,7 @@ Ruby:
 
 * Improve documentation about __call__ methods.
 
-Xapian-bindings 1.4.22 (2023-03-17):
+Xapian-bindings 1.4.22 (2023-02-02):
 
 Lua:
 
