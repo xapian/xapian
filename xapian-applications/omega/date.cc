@@ -32,6 +32,7 @@
 #include <cstdlib>
 #include <ctime>
 #include "parseint.h"
+#include "timegm.h"
 
 using namespace std;
 
@@ -206,7 +207,7 @@ date_range_filter(const string & date_start, const string & date_end,
 	    t.tm_hour = 12;
 	    t.tm_min = t.tm_sec = 0;
 	    t.tm_isdst = -1;
-	    time_t then = mktime(&t) - secs;
+	    time_t then = safe_mktime(&t) - secs;
 	    struct tm *t2 = localtime(&then);
 	    y1 = t2->tm_year + 1900;
 	    m1 = t2->tm_mon + 1;
@@ -220,7 +221,7 @@ date_range_filter(const string & date_start, const string & date_end,
 	    t.tm_hour = 12;
 	    t.tm_min = t.tm_sec = 0;
 	    t.tm_isdst = -1;
-	    time_t end = mktime(&t) + secs;
+	    time_t end = safe_mktime(&t) + secs;
 	    struct tm *t2 = localtime(&end);
 	    y2 = t2->tm_year + 1900;
 	    m2 = t2->tm_mon + 1;

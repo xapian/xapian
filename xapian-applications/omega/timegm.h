@@ -1,7 +1,7 @@
 /** @file
  * @brief Portable implementation of timegm().
  */
-/* Copyright (c) 2013 Olly Betts
+/* Copyright (c) 2013,2024 Olly Betts
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -30,8 +30,11 @@
 #endif
 
 #include <time.h>
+
+time_t safe_mktime(struct tm* tm);
+
 #ifndef HAVE_TIMEGM
-time_t timegm(struct tm *tm);
+time_t timegm(struct tm* tm);
 #endif
 
 #endif
