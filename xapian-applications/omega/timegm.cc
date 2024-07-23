@@ -28,8 +28,6 @@
 #include "setenv.h"
 #include <time.h>
 
-using namespace std;
-
 time_t
 safe_mktime(struct tm* tm)
 {
