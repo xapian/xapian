@@ -2280,13 +2280,15 @@ jobs:
         prepare: |
           set -e
           pkg install -y bash ccache perl5 pcre2
-          ccache --set-config=cache_dir='/Users/runner/work/xapian/xapian/.ccache'
+          ccache --set-config=cache_dir="$HOME/work/xapian/xapian/.ccache"
           ccache --set-config=max_size='500M'
           ccache --set-config=compression=true
         run: |
           set -e
           export CC='ccache cc'
           export CXX='ccache c++'
+          mv xapian-* "$HOME"
+          cd
           cd xapian-core
           tar --strip-components=1 -xf xapian-core-*.tar.xz
           ./configure --enable-werror
@@ -2314,8 +2316,6 @@ jobs:
           make -j2 -C xapian-core check V=0
           make -j2 -C xapian-applications/omega check V=0
           make -j2 -C xapian-letor check V=0
-          # Clean so the rsync back does less pointless copying.
-          rm -rf xapian-*
 
   dragonfly:
     runs-on: 'ubuntu-22.04'
@@ -2341,13 +2341,15 @@ jobs:
         prepare: |
           set -e
           pkg install -y bash ccache perl5 pcre2
-          ccache --set-config=cache_dir='/Users/runner/work/xapian/xapian/.ccache'
+          ccache --set-config=cache_dir="$HOME/work/xapian/xapian/.ccache"
           ccache --set-config=max_size='500M'
           ccache --set-config=compression=true
         run: |
           set -e
           export CC='ccache cc'
           export CXX='ccache c++'
+          mv xapian-* "$HOME"
+          cd
           cd xapian-core
           tar --strip-components=1 -xf xapian-core-*.tar.xz
           ./configure --enable-werror
@@ -2375,8 +2377,6 @@ jobs:
           make -j2 -C xapian-core check V=0
           make -j2 -C xapian-applications/omega check V=0
           make -j2 -C xapian-letor check V=0
-          # Clean so the rsync back does less pointless copying.
-          rm -rf xapian-*
 
   netbsd:
     runs-on: 'ubuntu-22.04'
@@ -2403,7 +2403,7 @@ jobs:
         prepare: |
           set -e
           /usr/sbin/pkg_add -u ccache perl pcre2
-          ccache --set-config=cache_dir='/Users/runner/work/xapian/xapian/.ccache'
+          ccache --set-config=cache_dir="$HOME/work/xapian/xapian/.ccache"
           ccache --set-config=max_size='500M'
           ccache --set-config=compression=true
         run: |
@@ -2411,6 +2411,8 @@ jobs:
           ulimit
           export CC='ccache cc'
           export CXX='ccache c++'
+          mv xapian-* "$HOME"
+          cd
           cd xapian-core
           tar --strip-components=1 -xf xapian-core-*.tar.xz
           ./configure --enable-werror
@@ -2438,8 +2440,6 @@ jobs:
           make -j2 -C xapian-core check V=0
           make -j2 -C xapian-applications/omega check V=0
           make -j2 -C xapian-letor check V=0
-          # Clean so the rsync back does less pointless copying.
-          rm -rf xapian-*
 
   checkpatch:
     name: 'Automated run of xapian-check-patch'
