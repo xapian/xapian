@@ -1933,7 +1933,7 @@ jobs:
       run: |
         mv artifact/* .
         rmdir artifact
-        # Do actual unpacking on freebsd, mostly to help reduce the size of the
+        # Do actual unpacking in the VM, mostly to help reduce the size of the
         # rsync output in the logs.
     - uses: vmactions/freebsd-vm@v1
       # Limit wasted resources if the VM action gets into an infinite loop.
