@@ -30,8 +30,6 @@
 #include "setenv.h"
 #include <time.h>
 
-using namespace std;
-
 time_t
 timegm(struct tm *tm)
 {
