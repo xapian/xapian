@@ -2098,7 +2098,17 @@ jobs:
         show-progress: false
     - name: "Automated run of xapian-check-patch"
       # Run the style checking script, checking changes between the common
-      # ancestor of the target branch of the PR (or master if this isn't a PR)
-      # and the revision being checked.
+      # ancestor of the target branch of the PR (or RELEASE/1.4 if this isn't a
+      # PR) and the revision being checked.
       run: |
-        git diff origin/${GITHUB_BASE_REF:-RELEASE/1.4}.. --|xapian-maintainer-tools/xapian-check-patch
+        case ${GITHUB_BASE_REF:+PR}:`git remote get-url origin` in
+          PR:*)
+            BASE=origin/$GITHUB_BASE_REF ;;
+          :https://github.com/xapian/xapian)
+            BASE=origin/RELEASE/1.4 ;;
+          *)
+            git remote add xapian https://github.com/xapian/xapian.git
+            git fetch --no-tags xapian RELEASE/1.4
+            BASE=xapian/RELEASE/1.4 ;;
+        esac
+        git diff "${BASE}.." --|xapian-maintainer-tools/xapian-check-patch
