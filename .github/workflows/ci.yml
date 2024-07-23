@@ -2314,6 +2314,8 @@ jobs:
           make -j2 -C xapian-core check V=0
           make -j2 -C xapian-applications/omega check V=0
           make -j2 -C xapian-letor check V=0
+          # Clean so the rsync back does less pointless copying.
+          rm -rf xapian-*
 
   dragonfly:
     runs-on: 'ubuntu-22.04'
@@ -2373,6 +2375,8 @@ jobs:
           make -j2 -C xapian-core check V=0
           make -j2 -C xapian-applications/omega check V=0
           make -j2 -C xapian-letor check V=0
+          # Clean so the rsync back does less pointless copying.
+          rm -rf xapian-*
 
   netbsd:
     runs-on: 'ubuntu-22.04'
@@ -2434,6 +2438,8 @@ jobs:
           make -j2 -C xapian-core check V=0
           make -j2 -C xapian-applications/omega check V=0
           make -j2 -C xapian-letor check V=0
+          # Clean so the rsync back does less pointless copying.
+          rm -rf xapian-*
 
   checkpatch:
     name: 'Automated run of xapian-check-patch'
