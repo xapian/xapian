@@ -177,6 +177,7 @@ TestRunner::run_tests(int argc, char ** argv)
 	}
 #endif
 
+#ifdef XAPIAN_HAS_CHERT_BACKEND
 	{
 	    BackendManagerChert chert_man(datadir);
 
@@ -184,7 +185,6 @@ TestRunner::run_tests(int argc, char ** argv)
 	    vector<BackendManager*> multi_mans;
 	    multi_mans = {&chert_man, &chert_man};
 
-#ifdef XAPIAN_HAS_CHERT_BACKEND
 	    do_tests_for_backend(chert_man);
 	    do_tests_for_backend(BackendManagerMulti(datadir, multi_mans));
 # ifdef XAPIAN_HAS_REMOTE_BACKEND
