@@ -2017,8 +2017,14 @@ DEFINE_TESTCASE(unsupportedcheck1, path) {
 	<< ' ' << get_database_path("apitest_simpledata") << '\n';
     out.close();
 
-    TEST_EXCEPTION(Xapian::UnimplementedError,
-		   Xapian::Database::check(stubpath));
+    try {
+	Xapian::Database::check(stubpath);
+	FAIL_TEST("Managed to check remote stub");
+    } catch (const Xapian::UnimplementedError& e) {
+	// Check the message is appropriate.
+	TEST_STRINGS_EQUAL(e.get_msg(),
+			   "Remote database checking not implemented");
+    }
 }
 
 // Test exception for check() on inmemory via stub.

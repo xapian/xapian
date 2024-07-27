@@ -337,26 +337,6 @@ DEFINE_TESTCASE(stubdb8, inmemory) {
     }
 }
 
-/// Test error running Database::check() on a remote stub database.
-DEFINE_TESTCASE(stubdb9, path) {
-    mkdir(".stub", 0755);
-    const char * dbpath = ".stub/stubdb9";
-    ofstream out(dbpath);
-    TEST(out.is_open());
-    out << "remote :" << BackendManager::get_xapian_progsrv_command()
-	<< ' ' << get_database_path("apitest_simpledata") << '\n';
-    out.close();
-
-    try {
-	Xapian::Database::check(dbpath);
-	FAIL_TEST("Managed to check remote stub");
-    } catch (const Xapian::UnimplementedError& e) {
-	// Check the message is appropriate.
-	TEST_STRINGS_EQUAL(e.get_msg(),
-			   "Remote database checking not implemented");
-    }
-}
-
 class GrepMatchDecider : public Xapian::MatchDecider {
     string needle;
   public:
