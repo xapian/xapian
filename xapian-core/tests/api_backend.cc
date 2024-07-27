@@ -2020,10 +2020,14 @@ DEFINE_TESTCASE(unsupportedcheck1, path) {
     try {
 	Xapian::Database::check(stubpath);
 	FAIL_TEST("Managed to check remote stub");
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
     } catch (const Xapian::UnimplementedError& e) {
 	// Check the message is appropriate.
 	TEST_STRINGS_EQUAL(e.get_msg(),
 			   "Remote database checking not implemented");
+#else
+    } catch (const Xapian::FeatureUnavailableError& e) {
+#endif
     }
 }
 
