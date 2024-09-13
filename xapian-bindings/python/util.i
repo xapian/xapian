@@ -90,7 +90,7 @@ namespace Xapian {
 }
 %}
 
-%typedef PyObject *LangSpecificListType;
+typedef PyObject *LangSpecificListType;
 
 %inline %{
 #define MSET_DID 0
