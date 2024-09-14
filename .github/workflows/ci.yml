@@ -1247,8 +1247,6 @@ jobs:
   android-cross:
     runs-on: 'ubuntu-22.04'
     env:
-      NDK: '/usr/local/lib/android/sdk/ndk/25.2.9519653'
-      # NDK: '/home/runner/ndk'
       host_triplet: 'armv7a-linux-androideabi33'
     needs: makedist
     steps:
@@ -1267,7 +1265,7 @@ jobs:
         popd
     - name: configure
       run: |
-        PATH=$PATH:$NDK/toolchains/llvm/prebuilt/linux-x86_64/bin
+        PATH=$PATH:$ANDROID_NDK/toolchains/llvm/prebuilt/linux-x86_64/bin
         cd xapian-core
         ./configure --enable-werror \
             --host=$host_triplet \
@@ -1276,7 +1274,7 @@ jobs:
             PKG_CONFIG=/bin/false
     - name: make
       run: |
-        PATH=$PATH:$NDK/toolchains/llvm/prebuilt/linux-x86_64/bin
+        PATH=$PATH:$ANDROID_NDK/toolchains/llvm/prebuilt/linux-x86_64/bin
         make -j2 -C xapian-core
       # FIXME: Run tests under android emulator?
 
