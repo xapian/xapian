@@ -1932,7 +1932,7 @@ jobs:
         PATH=/c/Users/runneradmin/.cargo/bin:$PATH
         make -j2 -C xapian-core
         # make -j2 -C xapian-applications/omega
-        # make -j2 -C xapian-binding
+        # make -j2 -C xapian-bindings
         make -j2 -C xapian-letor
     - name: Run tests
       run: |
@@ -2037,7 +2037,7 @@ jobs:
         PATH=/c/Users/runneradmin/.cargo/bin:$PATH
         make -j2 -C xapian-core
         # make -j2 -C xapian-applications/omega
-        # make -j2 -C xapian-binding
+        # make -j2 -C xapian-bindings
         make -j2 -C xapian-letor
     - name: Run tests
       run: |
@@ -2139,7 +2139,7 @@ jobs:
         PATH=/c/Users/runneradmin/.cargo/bin:$PATH
         make -j2 -C xapian-core
         # make -j2 -C xapian-applications/omega
-        # make -j2 -C xapian-binding
+        # make -j2 -C xapian-bindings
         make -j2 -C xapian-letor
     - name: Run tests
       run: |
@@ -2241,7 +2241,7 @@ jobs:
         PATH=/c/Users/runneradmin/.cargo/bin:$PATH
         make -j2 -C xapian-core
         # make -j2 -C xapian-applications/omega
-        # make -j2 -C xapian-binding
+        # make -j2 -C xapian-bindings
         make -j2 -C xapian-letor
     - name: Run tests
       run: |
