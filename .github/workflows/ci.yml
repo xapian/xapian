@@ -1971,7 +1971,7 @@ jobs:
           # the log, but re-run without V=0 on failure to show the compiler
           # command line.
           make -j2 -C xapian-core V=0 || make -C xapian-core
-          make -j2 -C xapian-applications/omega V=0 || make -C xapian-core
+          make -j2 -C xapian-applications/omega V=0 || make -C xapian-applications/omega
           export AUTOMATED_TESTING=1
           export VERBOSE=1
           make -j2 -C xapian-core check V=0
@@ -2026,7 +2026,7 @@ jobs:
           # the log, but re-run without V=0 on failure to show the compiler
           # command line.
           make -j2 -C xapian-core V=0 || make -C xapian-core
-          make -j2 -C xapian-applications/omega V=0 || make -C xapian-core
+          make -j2 -C xapian-applications/omega V=0 || make -C xapian-applications/omega
           export AUTOMATED_TESTING=1
           export VERBOSE=1
           make -j2 -C xapian-core check V=0
@@ -2083,7 +2083,7 @@ jobs:
           # the log, but re-run without V=0 on failure to show the compiler
           # command line.
           make -j2 -C xapian-core V=0 || make -C xapian-core
-          make -j2 -C xapian-applications/omega V=0 || make -C xapian-core
+          make -j2 -C xapian-applications/omega V=0 || make -C xapian-applications/omega
           export AUTOMATED_TESTING=1
           export VERBOSE=1
           make -j2 -C xapian-core check V=0
