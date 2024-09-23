@@ -1517,7 +1517,7 @@ jobs:
   android-cross:
     runs-on: 'ubuntu-22.04'
     env:
-      host_triplet: 'armv7a-linux-androideabi33'
+      host_triplet: 'armv7a-linux-androideabi35'
     needs: makedist
     steps:
     - name: Install CCache
@@ -1537,8 +1537,12 @@ jobs:
       run: |
         PATH=$PATH:$ANDROID_NDK/toolchains/llvm/prebuilt/linux-x86_64/bin
         cd xapian-core
+        # A shared build used to work with NDK 25.2.9519653 but fails with
+        # 26.3.11579264 and 27.1.12297006 with link errors like:
+        # ld.lld: error: non-exported symbol '__aeabi_uidivmod' in '/usr/local/lib/android/sdk/ndk/27.1.12297006/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/18/lib/linux/libclang_rt.builtins-arm-android.a(aeabi_uidivmod.S.o)' is referenced by DSO './.libs/libxapian-1.5.so'
         ./configure --enable-werror \
             --host=$host_triplet \
+            --disable-shared --enable-static \
             CC="ccache ${host_triplet}-clang" \
             CXX="ccache ${host_triplet}-clang++" \
             PKG_CONFIG=/bin/false
