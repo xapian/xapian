@@ -1487,7 +1487,9 @@ jobs:
         msystem: ucrt64
         install: base-devel
         pacboy: >-
+          file:p
           gcc:p
+          pcre2:p
           zlib:p
     - name: Install CCache
       uses: hendrikmuhs/ccache-action@v1
@@ -1503,9 +1505,9 @@ jobs:
         pushd xapian-core
         tar --strip-components=1 -xf xapian-core-*.tar.xz
         popd
-        # pushd xapian-applications/omega
-        # tar --strip-components=1 -xf xapian-omega-*.tar.xz
-        # popd
+        pushd xapian-applications/omega
+        tar --strip-components=1 -xf xapian-omega-*.tar.xz
+        popd
         # pushd xapian-bindings
         # tar --strip-components=1 -xf xapian-bindings-*.tar.xz
         # popd
@@ -1518,9 +1520,9 @@ jobs:
         ./configure --enable-werror
         export XAPIAN_CONFIG=$PWD/xapian-config
         popd
-        # pushd xapian-applications/omega
-        # ./configure --enable-werror
-        # popd
+        pushd xapian-applications/omega
+        ./configure --enable-werror
+        popd
         # pushd xapian-bindings
         # ./configure --enable-werror
         # popd
@@ -1528,7 +1530,7 @@ jobs:
       run: |
         PATH=/c/Users/runneradmin/.cargo/bin:$PATH
         make -j2 -C xapian-core
-        # make -j2 -C xapian-applications/omega
+        make -j2 -C xapian-applications/omega
         # make -j2 -C xapian-bindings
     - name: Run tests
       run: |
@@ -1536,7 +1538,7 @@ jobs:
         export AUTOMATED_TESTING=1
         export VERBOSE=1
         make -j2 -C xapian-core check
-        # make -j2 -C xapian-applications/omega check
+        make -j2 -C xapian-applications/omega check
         # make -j2 -C xapian-bindings check
 
   msvc2019:
