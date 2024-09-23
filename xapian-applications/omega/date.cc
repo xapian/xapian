@@ -187,6 +187,49 @@ parse_date(const string & date, int *y, int *m, int *d, bool start)
     *d = DIGIT2(date.c_str() + 6);
 }
 
+static int
+ymd_to_days(int y, int m, int d)
+{
+    static const int m_to_d[12] = {
+	0 + 365,
+	31 + 365,
+	59,
+	90,
+	120,
+	151,
+	181,
+	212,
+	243,
+	273,
+	304,
+	334
+    };
+    if (m < 3)
+	--y;
+    return d + (y * 365) + m_to_d[m - 1] + (y / 4) - (y / 100) + (y / 400);
+}
+
+static void
+days_to_ymd(int days, int& y, int& m, int& d)
+{
+    // Clamp to avoid negative years.
+    if (days < 0) days = 0;
+    days += 146037;
+    int g = days / 146097 - 1;
+    int dg = days % 146097;
+    int c = (dg / 36524 + 1) * 3 / 4;
+    int dc = dg - c * 36524;
+    int b = dc / 1461;
+    int db = dc % 1461;
+    int a = (db / 365 + 1) * 3 / 4;
+    int da = db - a * 365;
+    int Y = g * 400 + c * 100 + b * 4 + a;
+    int M = (da * 5 + 308) / 153;
+    y = Y + M / 12;
+    m = M % 12 + 1;
+    d = da - (M + 2) * 153 / 5 + 123;
+}
+
 Xapian::Query
 date_range_filter(const string & date_start, const string & date_end,
 		  const string & date_span)
@@ -197,46 +240,23 @@ date_range_filter(const string & date_start, const string & date_end,
 	if (!parse_unsigned(date_span.c_str(), days)) {
 	    throw "Datespan value must be >= 0";
 	}
-	time_t secs = days * (24 * 60 * 60);
 	if (!date_end.empty()) {
 	    parse_date(date_end, &y2, &m2, &d2, false);
-	    struct tm t;
-	    t.tm_year = y2 - 1900;
-	    t.tm_mon = m2 - 1;
-	    t.tm_mday = d2;
-	    t.tm_hour = 12;
-	    t.tm_min = t.tm_sec = 0;
-	    t.tm_isdst = -1;
-	    time_t then = safe_mktime(&t) - secs;
-	    struct tm *t2 = localtime(&then);
-	    y1 = t2->tm_year + 1900;
-	    m1 = t2->tm_mon + 1;
-	    d1 = t2->tm_mday;
+	    int then = ymd_to_days(y2, m2, d2) - days;
+	    days_to_ymd(then, y1, m1, d1);
 	} else if (!date_start.empty()) {
 	    parse_date(date_start, &y1, &m1, &d1, true);
-	    struct tm t;
-	    t.tm_year = y1 - 1900;
-	    t.tm_mon = m1 - 1;
-	    t.tm_mday = d1;
-	    t.tm_hour = 12;
-	    t.tm_min = t.tm_sec = 0;
-	    t.tm_isdst = -1;
-	    time_t end = safe_mktime(&t) + secs;
-	    struct tm *t2 = localtime(&end);
-	    y2 = t2->tm_year + 1900;
-	    m2 = t2->tm_mon + 1;
-	    d2 = t2->tm_mday;
+	    int end = ymd_to_days(y1, m1, d1) + days;
+	    days_to_ymd(end, y2, m2, d2);
 	} else {
 	    time_t end = time(NULL);
 	    struct tm *t = localtime(&end);
 	    y2 = t->tm_year + 1900;
 	    m2 = t->tm_mon + 1;
 	    d2 = t->tm_mday;
-	    time_t then = end - secs;
-	    struct tm *t2 = localtime(&then);
-	    y1 = t2->tm_year + 1900;
-	    m1 = t2->tm_mon + 1;
-	    d1 = t2->tm_mday;
+	    parse_date(date_end, &y2, &m2, &d2, false);
+	    int then = ymd_to_days(y2, m2, d2) - days;
+	    days_to_ymd(then, y1, m1, d1);
 	}
     } else {
 	if (date_start.empty()) {
