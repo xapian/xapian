@@ -2443,6 +2443,76 @@ jobs:
           make -j2 -C xapian-applications/omega check V=0
           make -j2 -C xapian-letor check V=0
 
+  openbsd:
+    runs-on: 'ubuntu-22.04'
+    needs: makedist
+    steps:
+    - name: Install CCache
+      uses: hendrikmuhs/ccache-action@v1
+      with:
+        key: ${{ github.job }}
+    - name: Fetch distribution
+      uses: actions/download-artifact@v4
+    - name: Unpack distribution
+      run: |
+        mv artifact/* .
+        rmdir artifact
+        # Do actual unpacking in the VM, mostly to help reduce the size of the
+        # rsync output in the logs.
+    - uses: vmactions/openbsd-vm@v1
+      # Limit wasted resources if the VM action gets into an infinite loop.
+      timeout-minutes: 60
+      with:
+        # Default is ksh, which should be OK.
+        # usesh: true
+        prepare: |
+          set -e
+          pkg_add ccache gtar-1.35 libmagic
+          ccache --set-config=cache_dir="$HOME/work/xapian/xapian/.ccache"
+          ccache --set-config=max_size='500M'
+          ccache --set-config=compression=true
+        run: |
+          set -e
+          export CC='ccache cc'
+          export CXX='ccache c++'
+          mv xapian-* "$HOME"
+          cd
+          cd xapian-core
+          gtar --strip-components=1 -xf xapian-core-*.tar.xz
+          ./configure --enable-werror
+          export XAPIAN_CONFIG=$PWD/xapian-config
+          $XAPIAN_CONFIG --ltlibs || true
+          $XAPIAN_CONFIG --libs || true
+          $XAPIAN_CONFIG --cxxflags || true
+          cd ..
+          cd xapian-applications/omega
+          gtar --strip-components=1 -xf xapian-omega-*.tar.xz
+          ./configure --enable-werror
+          cd ../..
+          # cd xapian-bindings
+          # gtar --strip-components=1 -xf xapian-bindings-*.tar.xz
+          # ./configure --enable-werror
+          # cd ..
+          cd xapian-letor
+          gtar --strip-components=1 -xf xapian-letor-*.tar.xz
+          ./configure --enable-werror
+          cd ..
+          # Everything gets run in one script so use V=0 to reduce the size of
+          # the log, but re-run without V=0 on failure to show the compiler
+          # command line.
+          make -j2 -C xapian-core V=0 || make -C xapian-core
+          make -j2 -C xapian-applications/omega V=0 || make -C xapian-applications/omega
+          # make -j2 -C xapian-bindings V=0 || make -C xapian-bindings
+          make -j2 -C xapian-letor V=0 || make -C xapian-letor
+          export AUTOMATED_TESTING=1
+          export VERBOSE=1
+          make -j2 -C xapian-core check V=0
+          make -j2 -C xapian-applications/omega check V=0
+          # make -j2 -C xapian-bindings check V=0
+          make -j2 -C xapian-letor check V=0
+          # Avoid bloating output with a huge file tree visualisation.
+          rm -rf xapian-*
+
   checkpatch:
     name: 'Automated run of xapian-check-patch'
     runs-on: 'ubuntu-latest'
