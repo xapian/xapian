@@ -1101,14 +1101,6 @@ if test yes = "$GXX" ; then
   dnl with GCC 2.95 and we don't support anything older.
   SWIG_CXXFLAGS="-fno-strict-aliasing"
 
-  dnl We need to explicitly link against -lstdc++ on OpenBSD (discovered
-  dnl on OpenBSD 3.7 with GCC 3.3.5 but this appears to be due to a
-  dnl deliberate decision on the part of OpenBSD developers).  Luckily
-  dnl we can just always specify -lstdc++ explicitly if GCC is the
-  dnl compiler and libtool will eliminate the duplicate on other
-  dnl platforms.
-  XAPIAN_LIBS="$XAPIAN_LIBS -lstdc++"
-
   dnl Intel's C++ compiler is identified as "GXX" by autoconf's test - check
   dnl which we actually have.
   AC_EGREP_CPP(yes,
