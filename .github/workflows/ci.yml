@@ -1999,6 +1999,7 @@ jobs:
       # Limit wasted resources if the VM action gets into an infinite loop.
       timeout-minutes: 60
       with:
+        # The default is csh!
         usesh: true
         prepare: |
           set -e
