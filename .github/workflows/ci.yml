@@ -2091,6 +2091,8 @@ jobs:
           export VERBOSE=1
           make -j2 -C xapian-core check V=0
           make -j2 -C xapian-applications/omega check V=0
+          # Avoid bloating output with a huge file tree visualisation.
+          rm -rf xapian-*
 
   openbsd:
     runs-on: 'ubuntu-22.04'
