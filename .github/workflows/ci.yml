@@ -411,7 +411,7 @@ jobs:
         # Make this build use builddir != srcdir as we aim to support that and
         # so want to catch regressions in support.  This build seems a good
         # choice for that as it's as full a build as any.
-        mkdir -p _build/xapian-core _build/xapian-applications/omega _build/xapian-bindings _build/xapian-letor
+        mkdir -p _build/xapian-core _build/xapian-applications/omega _build/xapian-bindings
         cd _build
         # Ubuntu's GCC packages define _FORTIFY_SOURCE=2 by default, so we need
         # to undefine it before we define it to avoid a warning (which becomes
