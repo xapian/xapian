@@ -264,6 +264,7 @@ esac
 BINDINGS=
 
 if test no != "$with_python3" ; then
+  python3_ok=no
   dnl See comment for AC_PATH_PROGS(SWIG, ...).
   if test -n "$PYTHON3" ; then
     AC_PATH_PROGS(PYTHON3, ["$PYTHON3"], [])
@@ -272,6 +273,7 @@ if test no != "$with_python3" ; then
   fi
   AC_ARG_VAR(PYTHON3, [Python 3 interpreter])
   if test -n "$PYTHON3" ; then
+    python3_ok=yes
     dnl Require Python 3.3 or newer, as that's the oldest version we can
     dnl easily test with.  If anyone's keen to support older versions, please
     dnl test and send in any patches needed to get it to work.
@@ -282,28 +284,23 @@ if test no != "$with_python3" ; then
       AC_MSG_RESULT([$version])
       ;;
     *)
-      AC_MSG_RESULT([$version (too old)])
-      if test yes = "$with_python3" ; then
-	AC_MSG_ERROR([Only Python 3.3 or newer is supported ($python3 is $version)])
-      fi
-      PYTHON3=
+      AC_MSG_RESULT([$version (too old, only 3.3 or newer is supported)])
+      python3_ok=no
       ;;
     esac
-    if test -n "$PYTHON3" ; then
+    if test yes = "$python3_ok" ; then
       PYTHON3_INC=`$PYTHON3 -c 'import os,sysconfig;print(sysconfig.get_path("include").replace(os.sep,"/"))' 2>/dev/null`
       AC_SUBST(PYTHON3_INC)
-    fi
-    AC_MSG_CHECKING([for python3 sphinx module])
-    if $PYTHON3 -c 'import sphinx' >&5 2>&5 ; then
-      AC_MSG_RESULT([yes])
-    else
-      AC_MSG_RESULT([no])
-      if test yes = "$with_python3" ; then
-	AC_MSG_ERROR([Couldn't import sphinx module for Python3 - try package python3-sphinx])
+
+      AC_MSG_CHECKING([for python3 sphinx module])
+      if $PYTHON3 -c 'import sphinx' >&5 2>&5 ; then
+	AC_MSG_RESULT([yes])
+      else
+	AC_MSG_RESULT([no (try installing package python3-sphinx])
+	python3_ok=no
       fi
-      PYTHON3=
     fi
-    if test -n "$PYTHON3" ; then
+    if test yes = "$python3_ok" ; then
       dnl Check that Python.h is there, which is a good way to check that
       dnl the appropriate python3-dev package has been installed.
       AC_MSG_CHECKING([for $PYTHON3_INC/Python.h])
@@ -354,15 +351,16 @@ if test no != "$with_python3" ; then
 	PYTHON3_CACHE_OPT1_EXT=`$PYTHON3 -O -c 'import importlib,importlib.util,sys;print("{1}{2}".format(*importlib.util.cache_from_source("").rpartition(sys.implementation.cache_tag)))' 2>/dev/null || $PYTHON3 -c 'import imp;print(imp.get_tag()+".pyo")'`
 	AC_SUBST(PYTHON3_CACHE_OPT1_EXT)
 	AC_MSG_RESULT([$PYTHON3_CACHE_OPT1_EXT])
-
-	BINDINGS="$BINDINGS python3"
       else
 	AC_MSG_RESULT([no (install python3-dev or python3-devel package or similar)])
-	if test yes = "$with_python3" ; then
-	  AC_MSG_ERROR([Python.h not found])
-	fi
+	python3_ok=no
       fi
     fi
+  fi
+  if test yes = "$python3_ok" ; then
+    BINDINGS="$BINDINGS python3"
+  elif test yes = "$with_python3" ; then
+    AC_MSG_ERROR([Python3 bindings build dependencies not found])
   fi
 fi
 
@@ -378,6 +376,7 @@ if test x$USE_MAINTAINER_MODE = xyes; then
 fi
 
 if test no != "$with_php" ; then
+  php_ok=no
   dnl See comment for AC_PATH_PROGS(SWIG, ...).
   if test -n "$PHP_CONFIG" ; then
     AC_PATH_PROGS(PHP_CONFIG, ["$PHP_CONFIG"], [])
@@ -388,15 +387,13 @@ if test no != "$with_php" ; then
   AC_ARG_VAR(PHP_CONFIG, [php-config utility for PHP])
   AC_ARG_VAR(PHP, [PHP interpreter (optional - only needed to run PHP testsuite with)])
   if test -n "$PHP_CONFIG" ; then
+    php_ok=yes
     AC_MSG_CHECKING([$PHP_CONFIG version])
     version=`$PHP_CONFIG --version 2>/dev/null`
     case $version in
     [[01234567].*])
       AC_MSG_RESULT([$version (not supported, PHP bindings need PHP >= 8)])
-      if test yes = "$with_php" ; then
-	AC_MSG_ERROR([$PHP_CONFIG reports version $version - PHP bindings PHP >= 8])
-      fi
-      with_php=no
+      php_ok=no
       ;;
     *)
       AC_MSG_RESULT([$version])
@@ -405,21 +402,17 @@ if test no != "$with_php" ; then
     esac
     AC_SUBST(PHP_MAJOR_VERSION)
 
-    if test no != "$with_php" ; then
+    if test yes = "$php_ok" ; then
       AC_MSG_CHECKING([for PHP extension directory])
       if test -z "$PHP_EXTENSION_DIR" ; then
 	PHP_EXTENSION_DIR=`$PHP_CONFIG --extension-dir`
       fi
       AC_MSG_RESULT([$PHP_EXTENSION_DIR])
       AC_ARG_VAR(PHP_EXTENSION_DIR, [Directory to install PHP extensions in])
-    fi
 
-    if test no != "$with_php" ; then
       PHP_INC=`$PHP_CONFIG --includes`
       AC_SUBST(PHP_INC)
-    fi
 
-    if test no != "$with_php" ; then
       if test x"$PHP" = x ; then
 	AC_MSG_CHECKING([for PHP interpreter])
 	PHP=`$PHP_CONFIG --php-binary 2>/dev/null`
@@ -469,12 +462,17 @@ if test no != "$with_php" ; then
 	PHP_LIBS= ;;
       esac
       AC_SUBST(PHP_LIBS)
-      BINDINGS="$BINDINGS php"
     fi
+  fi
+  if test yes = "$php_ok" ; then
+    BINDINGS="$BINDINGS php"
+  elif test yes = "$with_php" ; then
+    AC_MSG_ERROR([PHP bindings build dependencies not found])
   fi
 fi
 
 if test no != "$with_tcl" ; then
+  tcl_ok=no
   dnl The documented minimum requirement is Tcl 8.5.  Older versions may work,
   dnl but we don't test with them regularly, and they are no longer supported
   dnl upstream.  Also ::tcl::pkgconfig was added in Tcl 8.5, which makes the
@@ -490,6 +488,7 @@ if test no != "$with_tcl" ; then
   AC_PATH_PROGS(TCLSH, ["${TCLSH-tclsh}"], [])
   AC_ARG_VAR(TCLSH, [Tcl interpreter])
   if test -n "$TCLSH" ; then
+    tcl_ok=yes
     AC_MSG_CHECKING([$TCLSH version])
     if echo 'if {$tcl_version < '"$tcl_min"' } { exit 1 }'|$TCLSH 2> /dev/null ; then
       tcl_version=`echo 'puts "$tcl_version"'|$TCLSH`
@@ -515,28 +514,21 @@ if test no != "$with_tcl" ; then
 	tcl_hdr_version=`awk '($1 == "#define" && $2 == "TCL_VERSION") {print $3}' "$TCL_INC/tcl.h"|sed 's/"//g'`
 	if test x"$tcl_hdr_version" = x"$tcl_version" ; then
 	  AC_MSG_RESULT([$TCL_INC/tcl.h])
-	  BINDINGS="$BINDINGS tcl8"
 	  if test x"$TCL_INC" != x"/usr/include" ; then
 	    TCL_CPPFLAGS="-I$TCL_INC"
 	  fi
 	else
-	  AC_MSG_RESULT([not found])
-	  if test yes = "$with_tcl" ; then
-	    AC_MSG_ERROR([Found tcl.h from version $tcl_hdr_version, not $tcl_version - specify TCL_INC on configure command line])
-	  fi
-	  TCLSH=
+	  AC_MSG_RESULT([$TCL_INC/tcl.h from Tcl $tcl_hdr_version, not $tcl_version - specify TCL_INC on configure command line])
+	  tcl_ok=no
 	fi
       else
 	AC_MSG_RESULT([not found])
-	if test yes = "$with_tcl" ; then
-	  AC_MSG_ERROR([Can't find tcl.h])
-	fi
-	TCLSH=
+	tcl_ok=no
       fi
 
       TCL_LIBS=
       TCL_SHLIB_EXT=
-      if test -n "$TCLSH" ; then
+      if test yes = "$tcl_ok" ; then
 	dnl ::tcl::pkgconfig was added in Tcl 8.5.  Prior to 8.6 it's only
 	dnl actually necessary to link against -ltclstub on platforms which
 	dnl don't allow libraries to have unresolved symbols (cygwin, mingw,
@@ -560,19 +552,18 @@ if test no != "$with_tcl" ; then
       AC_SUBST(TCL_SHLIB_EXT)
     else
       AC_MSG_RESULT([< $tcl_min (too old)])
-      if test yes = "$with_tcl" ; then
-	AC_MSG_ERROR([$TCLSH too old (Tcl $tcl_min or newer required)])
-      fi
+      tcl_ok=no
     fi
-  else
-    if test yes = "$with_tcl" ; then
-      AC_MSG_ERROR([tclsh not found])
-    fi
+  fi
+  if test yes = "$tcl_ok" ; then
+    BINDINGS="$BINDINGS tcl8"
+  elif test yes = "$with_tcl" ; then
+    AC_MSG_ERROR([Tcl bindings build dependencies not found])
   fi
 fi
 
 if test no != "$with_csharp" ; then
-  csc_note=
+  csharp_ok=no
   AC_ARG_VAR(CSC, [CSharp compiler command])
   if test -n "$CSC" ; then
     AC_PATH_PROGS(CSC, ["$CSC"], [])
@@ -594,14 +585,13 @@ if test no != "$with_csharp" ; then
 	AC_MSG_CHECKING([whether $CSC is from GNU Mono])
 	if (exec >&5 2>&5;$CSC --version </dev/null;exit $?) ; then
 	  AC_MSG_RESULT(yes)
+	  csharp_ok=yes
 	else
-	  AC_MSG_RESULT(no)
-	  CSC=
-	  csc_note="$csc_note (found different mcs program)"
+	  AC_MSG_RESULT([no (ignoring $CSC)])
 	fi
       fi
     fi
-    if test -z "$CSC" ; then
+    if test no = "$csharp_ok" ; then
       dnl csc is the Microsoft CSharp compiler.
       AC_PATH_PROGS(CSC, [csc], [])
       if test -n "$CSC" ; then
@@ -611,17 +601,16 @@ if test no != "$with_csharp" ; then
 	dnl csc.exe.
 	AC_MSG_CHECKING([whether $CSC is for CSharp])
 	if $CSC -version 2>/dev/null|grep chicken > /dev/null ; then
-	  AC_MSG_RESULT(no)
-	  CSC=
-	  csc_note="$csc_note (found Chicken csc program)"
+	  AC_MSG_RESULT([no (ignoring $CSC from Chicken)])
 	else
 	  AC_MSG_RESULT(yes)
+	  csharp_ok=yes
 	fi
       fi
     fi
   fi
 
-  if test -n "$CSC" ; then
+  if test yes = "$csharp_ok" ; then
     AC_ARG_VAR(GACUTIL, [gacutil utility to use for CSharp bindings])
     if test -n "$GACUTIL" ; then
       AC_PATH_PROGS(GACUTIL, ["$GACUTIL"], [])
@@ -637,7 +626,7 @@ if test no != "$with_csharp" ; then
     if test -z "$SN" ; then
       AC_PATH_PROGS(SN, [cli-sn sn], [])
     fi
-    if test -n "$GACUTIL" -a -n "$SN" ; then
+    if test -n "$GACUTIL" && test -n "$SN" ; then
       AC_MSG_CHECKING([whether the CSharp compiler works])
       [echo 'class conftest { public static void Main() { System.Console.WriteLine("OK"); } }' > conftest.cs]
       if (exec >&5 2>&5;$CSC /out:conftest.exe conftest.cs;exit $?) ; then
@@ -679,32 +668,24 @@ if test no != "$with_csharp" ; then
 	else
 	  AC_MSG_RESULT([$GACUTIL_FLAGS])
 	fi
-
-	BINDINGS="$BINDINGS csharp"
       else
 	AC_MSG_RESULT(no)
-	if test yes = "$with_csharp" ; then
-	  AC_MSG_ERROR([CSharp compiler $CSC doesn't work])
-	fi
+	csharp_ok=no
       fi
     else
-      if test yes = "$with_csharp" ; then
-	if test -z "$GACUTIL" ; then
-	  AC_MSG_ERROR([Mono gacutil not found])
-	elif test -z "$SN" ; then
-	  AC_MSG_ERROR([Mono sn not found])
-	fi
-      fi
+      csharp_ok=no
     fi
-  else
-    if test yes = "$with_csharp" ; then
-      AC_MSG_ERROR([CSharp compiler not found$csc_note])
-    fi
+  fi
+  if test yes = "$csharp_ok" ; then
+    BINDINGS="$BINDINGS csharp"
+  elif test yes = "$with_csharp" ; then
+    AC_MSG_ERROR([CSharp bindings build dependencies not found])
   fi
 fi
 
 JAVA_CPPFLAGS=
 if test no != "$with_java" ; then
+  java_ok=no
   AC_PATH_PROGS(JAVA, ["${JAVA-java}"], [],
 	[${JAVA_HOME+$JAVA_HOME/bin:}${JDK_HOME+$JDK_HOME/bin:}$PATH])
   AC_PATH_PROGS(JAVAC, ["${JAVAC-javac}"], [],
@@ -717,7 +698,7 @@ if test no != "$with_java" ; then
   AC_ARG_VAR(JAVA_HOME, [Pathname of the directory where the JDK is installed])
   AC_ARG_VAR(JDK_HOME, [Pathname of the directory where the JDK is installed])
   AC_ARG_VAR(JNI_INCLUDE_DIR, [Pathname of the directory where jni.h is installed])
-  if test -n "$JAVA" -a -n "$JAVAC" -a -n "$JAR" ; then
+  if test -n "$JAVA" && test -n "$JAVAC" && test -n "$JAR" ; then
     dnl Eric says:
     dnl  The JNI library *requires* "Java 2", which is 1.2 or better.
     dnl
@@ -725,7 +706,6 @@ if test no != "$with_java" ; then
     dnl Note: jni.h #defines JNI_VERSION_1_[12468] (but not 3, 5 or 7 it seems).
     dnl So we could check for one of these if we want to check for a particular
     dnl JDK version...
-    java_ok=no
     AC_CHECK_HEADER([jni.h], [java_ok=yes], [
       SAVE_CPPFLAGS=$CPPFLAGS
       real_javac=$JAVAC
@@ -791,7 +771,6 @@ if test no != "$with_java" ; then
 	fi
       done
       CPPFLAGS=$SAVE_CPPFLAGS
-      test noyes = $java_ok$with_java && AC_MSG_ERROR([jni.h not found])
       ], [ ])
     AC_SUBST(JAVA_CPPFLAGS)
     if test yes = $java_ok ; then
@@ -802,7 +781,6 @@ if test no != "$with_java" ; then
 	AC_SUBST(JAVA_PATHSEP)
 	if test -n "$JAVA_PATHSEP" ; then
 	  AC_MSG_RESULT($JAVA_PATHSEP)
-	  BINDINGS="$BINDINGS java"
 
 	  dnl If -Xcheck:jni is supported then run tests with it.
 	  dnl
@@ -820,31 +798,24 @@ dnl	    AC_MSG_RESULT([no])
 dnl	  fi
 	  AC_SUBST([JAVA_CHECK_JNI_OPTION])
 	else
-	  AC_MSG_RESULT([failed to run test program])
+	  AC_MSG_RESULT([failed to run Java test program])
 	  java_ok=no
 	fi
       else
-	AC_MSG_RESULT([failed to compile test program])
+	AC_MSG_RESULT([failed to compile Java test program])
 	java_ok=no
       fi
-      if test no = "$java_ok" ; then
-	test yes = "$with_java" && AC_MSG_ERROR([Couldn't compile and run a simple Java test program])
-      fi
     fi
-  else
-    if test yes = "$with_java" ; then
-      if test -z "$JAVA" ; then
-	AC_MSG_ERROR([java not found])
-      elif test -z "$JAVAC" ; then
-	AC_MSG_ERROR([javac not found])
-      elif test -z "$JAR" ; then
-	AC_MSG_ERROR([jar not found])
-      fi
-    fi
+  fi
+  if test yes = "$java_ok" ; then
+    BINDINGS="$BINDINGS java"
+  elif test yes = "$with_java" ; then
+    AC_MSG_ERROR([Java bindings build dependencies not found])
   fi
 fi
 
 if test no != "$with_ruby" ; then
+  ruby_ok=no
   dnl See comment for AC_PATH_PROGS(SWIG, ...).
   if test -n "$RUBY" ; then
     AC_PATH_PROGS(RUBY, ["$RUBY"], [])
@@ -860,21 +831,13 @@ if test no != "$with_ruby" ; then
     version=`$RUBY -e 'print RUBY_VERSION' 2>/dev/null`
     case $version in
     "")
-      AC_MSG_RESULT([\$RUBY -e 'print RUBY_VERSION' didn't work])
-      if test yes = "$with_ruby" ; then
-	AC_MSG_ERROR([Working Ruby interpreter not found])
-      fi
-      RUBY=
-      ;;
+      AC_MSG_RESULT([\$RUBY -e 'print RUBY_VERSION' didn't work]) ;;
     [[01].*|2.0.*])
-      AC_MSG_RESULT([$version (too old)])
-      if test yes = "$with_ruby" ; then
-	AC_MSG_ERROR([Only Ruby 2.1 or newer is supported ($RUBY is $version)])
-      fi
-      RUBY=
-      ;;
+      AC_MSG_RESULT([$version (too old, only Ruby 2.1 or newer is supported)]) ;;
+    *)
+      ruby_ok=yes ;;
     esac
-    if test -n "$RUBY" ; then
+    if test yes = "$ruby_ok" ; then
       AC_MSG_RESULT([$version])
       AC_ARG_VAR(RUBY_INC, [Directory where ruby.h can be found])
       if test -z "$RUBY_INC" ; then
@@ -925,26 +888,32 @@ if test no != "$with_ruby" ; then
 	  fi
 	fi
 	AC_PATH_PROGS(RDOC, [rdoc], [])
-	if test -n "$RDOC"; then
-	  BINDINGS="$BINDINGS ruby"
+	if test -z "$RDOC"; then
+	  ruby_ok=no
 	fi
 	AC_ARG_VAR([RDOC], [Ruby documentation generator])
+
+	RUBY_DLEXT=`$RUBY -rrbconfig -e 'print RbConfig::CONFIG[["DLEXT"]]'`
+	AC_SUBST(RUBY_DLEXT)
       else
 	AC_MSG_RESULT([no (install ruby-dev or ruby-devel package or similar)])
-	if test yes = "$with_ruby" ; then
-	  AC_MSG_ERROR([ruby.h not found])
-	fi
+	ruby_ok=no
       fi
-      RUBY_DLEXT=`$RUBY -rrbconfig -e 'print RbConfig::CONFIG[["DLEXT"]]'`
-      AC_SUBST(RUBY_DLEXT)
     fi
+  fi
+  if test yes = "$ruby_ok" ; then
+    BINDINGS="$BINDINGS ruby"
+  elif test yes = "$with_ruby" ; then
+    AC_MSG_ERROR([Ruby bindings build dependencies not found])
   fi
 fi
 
 if test no != "$with_perl" ; then
+  perl_ok=no
   AC_PATH_PROGS(PERL, ["${PERL-perl}"], [])
   AC_ARG_VAR(PERL, [Perl interpreter])
   if test -n "$PERL" ; then
+    perl_ok=yes
     if test -z "$PERL_INC" ; then
       PERL_INC=`$PERL -MConfig -e 'print $Config{archlibexp}, "/CORE"'`
     fi
@@ -978,27 +947,43 @@ if test no != "$with_perl" ; then
       esac
     fi
     AC_SUBST(PERL_XAPIAN_VERSION)
-
+  fi
+  if test yes = "$perl_ok" ; then
     BINDINGS="$BINDINGS perl"
-  else
-    if test yes = "$with_perl" ; then
-      AC_MSG_ERROR([perl not found])
-    fi
+  elif test yes = "$with_perl" ; then
+    AC_MSG_ERROR([Perl bindings build dependencies not found])
   fi
 fi
 
 if test no != "$with_lua" ; then
+  lua_ok=no
   AC_PATH_PROGS(LUA, ["${LUA-lua}"], [])
   AC_ARG_VAR(LUA, [lua interpreter])
   if test -n "$LUA" ; then
-    dnl We need Lua 5.1 or later.
-    PKG_CHECK_MODULES([LUA], [lua$lua_version >= 5.1], [], [LUA=])
+    lua_ok=yes
+    AC_MSG_CHECKING([$LUA version])
+    lua_version=`$LUA -e 'print(_VERSION:sub(_VERSION:find(" ")+1))' 2>&AS_MESSAGE_LOG_FD`
+    if test -n "$lua_version"; then
+      AC_MSG_RESULT([$lua_version])
+      dnl We need Lua 5.1 or later.  Unhelpfully there are different naming
+      dnl schemes for Lua in pkg-config on different platforms.
+      PKG_CHECK_MODULES([LUA], [lua$lua_version >= 5.1], [], [
+	PKG_CHECK_MODULES([LUA], [lua-$lua_version >= 5.1], [], [
+	  if test yes = "$with_lua" ; then
+	    AC_MSG_ERROR([pkg-config module for LUA $lua_version not found])
+	  fi
+	  lua_ok=no
+	])
+      ])
+    else
+      AC_MSG_RESULT([could not determine])
+    fi
 
-    if test -n "$LUA" ; then
+    if test yes = "$lua_ok" ; then
       AC_ARG_VAR([LUA_LIB], [Directory to install compiled Lua modules into])
       AC_ARG_VAR([LUA_SO], [Extension for compiled Lua modules (e.g. LUA_SO=.so)])
       AC_MSG_CHECKING([for directory to install compiled Lua modules into])
-      if test -z "$LUA_LIB" -o -z "$LUA_SO" ; then
+      if test -z "$LUA_LIB" || test -z "$LUA_SO" ; then
 	lua_cpath=`$LUA -e 'require("package") print(package.cpath)'`
 	dnl Look for the first absolute path in lua_cpath which has leaf
 	dnl "?.<ext>" and put the directory part into lua_lib and <ext> into
@@ -1038,7 +1023,7 @@ if test no != "$with_lua" ; then
       fi
       if test -z "$LUA_LIB"; then
 	AC_MSG_RESULT([not found])
-	LUA=
+	lua_ok=no
       else
 	AC_MSG_RESULT([$LUA_LIB])
       fi
@@ -1047,7 +1032,7 @@ if test no != "$with_lua" ; then
       AC_MSG_CHECKING([for extension to use for compiled Lua modules])
       if test -z "$LUA_SO"; then
 	AC_MSG_RESULT([not found])
-	LUA=
+	lua_ok=no
       else
 	AC_MSG_RESULT([$LUA_SO])
       fi
@@ -1055,7 +1040,7 @@ if test no != "$with_lua" ; then
     fi
   fi
 
-  if test -n "$LUA" ; then
+  if test yes = "$lua_ok" ; then
     BINDINGS="$BINDINGS lua"
   elif test yes = "$with_lua" ; then
     AC_MSG_ERROR([lua not found])
