@@ -383,7 +383,7 @@ if test no != "$with_php" ; then
     AC_PATH_PROGS(PHP_CONFIG, ["$PHP_CONFIG"], [])
   fi
   if test -z "$PHP_CONFIG" ; then
-    AC_PATH_PROGS(PHP_CONFIG, [php-config8.2 php-config8.1 php-config8.0 php-config], [])
+    AC_PATH_PROGS(PHP_CONFIG, [php-config8.4 php-config8.3 php-config8.2 php-config8.1 php-config8.0 php-config], [])
   fi
   AC_ARG_VAR(PHP_CONFIG, [php-config utility for PHP])
   AC_ARG_VAR(PHP, [PHP interpreter (optional - only needed to run PHP testsuite with)])
