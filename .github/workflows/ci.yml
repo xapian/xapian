@@ -2281,7 +2281,7 @@ jobs:
         usesh: true
         prepare: |
           set -e
-          pkg install -y bash ccache lua54 perl5 php82 pcre2 pkgconf py311-sphinx python3 ruby
+          pkg install -y bash ccache lua54 perl5 php82 pcre2 pkgconf py311-sphinx python3 ruby rubygem-rdoc rubygem-test-unit
           ccache --set-config=cache_dir="$HOME/work/xapian/xapian/.ccache"
           ccache --set-config=max_size='500M'
           ccache --set-config=compression=true
@@ -2347,7 +2347,7 @@ jobs:
         usesh: true
         prepare: |
           set -e
-          pkg install -y bash ccache lua54 perl5 php82 pcre2 pkgconf py39-sphinx python3 ruby
+          pkg install -y bash ccache lua54 perl5 php82 pcre2 pkgconf py39-sphinx python3 ruby rubygem-rdoc rubygem-test-unit
           ccache --set-config=cache_dir="$HOME/work/xapian/xapian/.ccache"
           ccache --set-config=max_size='500M'
           ccache --set-config=compression=true
