@@ -15,6 +15,7 @@ installcheck-local:
 EXTRA_DIST = lua.i util.i except.i \
 	generate-lua-exceptions \
 	docs/index.rst \
+	unpick-cpath.lua \
 	$(TESTS) $(SWIG_GENERATED)
 
 lualibdir = @LUA_LIB@
