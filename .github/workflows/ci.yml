@@ -1560,7 +1560,7 @@ jobs:
     needs: makedist
     defaults:
       run:
-        # `-o incr` needed as GHA supplies shell fragments with DOS EOLs.
+        # `-o igncr` needed as GHA supplies shell fragments with DOS EOLs.
         shell: 'C:\tools\cygwin\bin\bash.EXE --noprofile --norc -e -o igncr -o pipefail {0}'
     steps:
     - name: Install Cygwin
