@@ -167,7 +167,7 @@ class luaStemImplementation : public Xapian::StemImplementation {
 	return result;
     }
 
-    std::string get_description() const {
+    std::string get_description() const override {
 	lua_rawgeti(L, LUA_REGISTRYINDEX, r);
 	if (!lua_isfunction(L, -1)) {
 	    luaL_typerror(L, -1, "function");
