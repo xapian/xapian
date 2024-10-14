@@ -85,7 +85,7 @@ single_quoted:
 	    if (j == s.npos) {
 		// Unmatched ' in command string.
 		// dash exits 2 in this case, bash exits 1.
-		_exit(2);
+		throw ReadError(2 << 8);
 	    }
 	    // Replace four character sequence '\'' with ' - this is
 	    // how a single quote inside single quotes gets escaped.
@@ -261,6 +261,69 @@ run_filter(int fd_in, const string& cmd, bool use_shell, string* out,
     // Ensure fds[1] != 0 to simplify handling in child process.
     if (rare(fds[1] == 0)) swap(fds[0], fds[1]);
 
+    string s;
+    vector<const char *> argv;
+    vector<pair<const char *, const char*>> env;
+    vector<pair<int, int>> dups;
+    if (!use_shell) {
+	// Parse the command line before we fork() it's not safe to call
+	// malloc() between fork() and exec and std::string and std::vector
+	// creation is likely to need to allocate memory.
+	//
+	// FIXME: Maybe we should do this once per command and cache the
+	// results.
+	s = cmd;
+	// Handle any environment variable assignments.
+	// Name must start with alpha or '_', contain only alphanumerics and
+	// '_', and there must be no quoting of either the name or the '='.
+	size_t j = 0;
+	while (true) {
+	    j = s.find_first_not_of(" \t\n", j);
+	    if (!(C_isalpha(s[j]) || s[j] == '_')) break;
+	    size_t i = j;
+	    do ++j; while (C_isalnum(s[j]) || s[j] == '_');
+	    if (s[j] != '=') {
+		j = i;
+		break;
+	    }
+
+	    size_t eq = j;
+	    unquote(s, j);
+	    s[eq] = '\0';
+	    env.emplace_back(&s[i], &s[eq + 1]);
+	    j = s.find_first_not_of(" \t\n", j);
+	}
+
+	while (true) {
+	    size_t i = s.find_first_not_of(" \t\n", j);
+	    if (i == string::npos) break;
+	    bool quoted = unquote(s, j);
+	    const char * word = s.c_str() + i;
+	    if (!quoted) {
+		// Handle simple cases of redirection.
+		if (strcmp(word, ">/dev/null") == 0) {
+		    dups.emplace_back(devnull, 1);
+		    continue;
+		}
+		if (strcmp(word, "2>/dev/null") == 0) {
+		    dups.emplace_back(devnull, 2);
+		    continue;
+		}
+		if (strcmp(word, "2>&1") == 0) {
+		    dups.emplace_back(1, 2);
+		    continue;
+		}
+		if (strcmp(word, "1>&2") == 0) {
+		    dups.emplace_back(2, 1);
+		    continue;
+		}
+	    }
+	    argv.push_back(word);
+	}
+	if (argv.empty()) return; // Empty command!
+	argv.push_back(NULL);
+    }
+
     pid_t child = fork();
     if (child == 0) {
 	// We're the child process.
@@ -304,6 +367,8 @@ run_filter(int fd_in, const string& cmd, bool use_shell, string* out,
 		static_cast<rlim_t>(mem),
 		RLIM_INFINITY
 	    };
+	    // FIXME: setrlimit() is not listed in signal-safety(7) as safe to
+	    // call between fork() and exec...
 #ifdef RLIMIT_AS
 	    setrlimit(RLIMIT_AS, &ram_limit);
 #elif defined RLIMIT_VMEM
@@ -322,57 +387,15 @@ run_filter(int fd_in, const string& cmd, bool use_shell, string* out,
 	    _exit(-1);
 	}
 
-	string s(cmd);
-	// Handle any environment variable assignments.
-	// Name must start with alpha or '_', contain only alphanumerics and
-	// '_', and there must be no quoting of either the name or the '='.
-	size_t j = 0;
-	while (true) {
-	    j = s.find_first_not_of(" \t\n", j);
-	    if (!(C_isalpha(s[j]) || s[j] == '_')) break;
-	    size_t i = j;
-	    do ++j; while (C_isalnum(s[j]) || s[j] == '_');
-	    if (s[j] != '=') {
-		j = i;
-		break;
-	    }
-
-	    size_t eq = j;
-	    unquote(s, j);
-	    s[eq] = '\0';
-	    setenv(&s[i], &s[eq + 1], 1);
-	    j = s.find_first_not_of(" \t\n", j);
+	// Process any environment variable assignments.
+	for (auto& e : env) {
+	    setenv(e.first, e.second, 1);
 	}
 
-	vector<const char *> argv;
-	while (true) {
-	    size_t i = s.find_first_not_of(" \t\n", j);
-	    if (i == string::npos) break;
-	    bool quoted = unquote(s, j);
-	    const char * word = s.c_str() + i;
-	    if (!quoted) {
-		// Handle simple cases of redirection.
-		if (strcmp(word, ">/dev/null") == 0) {
-		    dup2(devnull, 1);
-		    continue;
-		}
-		if (strcmp(word, "2>/dev/null") == 0) {
-		    dup2(devnull, 2);
-		    continue;
-		}
-		if (strcmp(word, "2>&1") == 0) {
-		    dup2(1, 2);
-		    continue;
-		}
-		if (strcmp(word, "1>&2") == 0) {
-		    dup2(2, 1);
-		    continue;
-		}
-	    }
-	    argv.push_back(word);
+	// Process any redirections.
+	for (auto& d : dups) {
+	    dup2(d.first, d.second);
 	}
-	if (argv.empty()) _exit(0);
-	argv.push_back(NULL);
 
 	execvp(argv[0], const_cast<char **>(&argv[0]));
 	// Emulate shell behaviour and exit with status 127 if the command
