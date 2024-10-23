@@ -1,7 +1,7 @@
 /** @file
  * @brief run an external filter and capture its output in a std::string.
  */
-/* Copyright (C) 2007,2013,2015,2019 Olly Betts
+/* Copyright (C) 2007,2013,2015,2019,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -54,12 +54,36 @@ void runfilter_init();
 /** Run command @a cmd, optionally capturing its stdout.
  *
  *  @param fd_in	FD for piped input, or -1 for input from file.
+ *  @param cmd		The command to run as a NULL terminated argv array.
+ *  @param out		Pointer to std::string to put stdout in or NULL to
+ *			discard stdout.  (default: NULL)
+ *  @param alt_status	Exit status to treat as success in addition to 0
+ *			(default: Only treat exit status 0 as success).
+ *
+ *  If the command isn't installed (detected by exit status 127) then
+ *  NoSuchFilter is thrown.
+ *
+ *  If the command fails to completed successfully (detected by an exit status
+ *  other than 0 or alt_status) then ReadError is thrown.
+ */
+void run_filter(int fd_in,
+		const char* const cmd[],
+		std::string* out = nullptr,
+		int alt_status = 0);
+
+/** Run command @a cmd, optionally capturing its stdout.
+ *
+ *  @param fd_in	FD for piped input, or -1 for input from file.
  *  @param cmd		The command to run.
  *  @param use_shell	If false, try to avoid using a shell to run the command.
  *  @param out		Pointer to std::string to put stdout in or NULL to
  *			discard stdout.  (default: NULL)
  *  @param alt_status	Exit status to treat as success in addition to 0
  *			(default: Only treat exit status 0 as success).
+ *
+ *  This is like the overloaded version taking an argv array except that
+ *  it takes the command as a single string, plus a use_shell flag
+ *  indicating whether the command string can be run without a shell.
  *
  *  Note: use_shell=false mode makes some assumptions about the command:
  *
@@ -94,12 +118,32 @@ void run_filter(int fd_in,
 		int alt_status = 0);
 
 static inline void
+run_filter(const char* const cmd[],
+	   std::string* out = nullptr,
+	   int alt_status = 0)
+{
+    run_filter(-1, cmd, out, alt_status);
+}
+
+static inline void
 run_filter(const std::string& cmd,
 	   bool use_shell,
 	   std::string* out = nullptr,
 	   int alt_status = 0)
 {
     run_filter(-1, cmd, use_shell, out, alt_status);
+}
+
+/** Run command @a cmd, capture its stdout, and return it as a std::string.
+ *
+ *  This is a simple wrapper around run_filter().
+ */
+static inline std::string
+stdout_to_string(const char* const cmd[], int alt_status = 0)
+{
+    std::string out;
+    run_filter(cmd, &out, alt_status);
+    return out;
 }
 
 /** Run command @a cmd, capture its stdout, and return it as a std::string.

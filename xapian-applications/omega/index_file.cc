@@ -130,6 +130,22 @@ skip(const string& urlterm, const string& context, const string& msg,
 }
 
 static void
+skip_cmd_failed(const string& urlterm, const string& context,
+		const char* const cmd[],
+		off_t size, time_t last_mod)
+{
+    string message;
+    const char* sep = "['";
+    for (auto i = cmd; *i; ++i) {
+	message += sep;
+	message += *i;
+	sep = "', '";
+    }
+    message += "'] failed";
+    skip(urlterm, context, message, size, last_mod);
+}
+
+static void
 skip_cmd_failed(const string& urlterm, const string& context, const string& cmd,
 		off_t size, time_t last_mod)
 {
@@ -528,7 +544,10 @@ get_pdf_metainfo(int fd, string& author, string& title,
 {
     try {
 	string pdfinfo;
-	run_filter(fd, "pdfinfo -enc UTF-8 -", false, &pdfinfo);
+	static const char* const cmd[] = {
+	    "pdfinfo", "-enc", "UTF-8", "-", NULL
+	};
+	run_filter(fd, cmd);
 	parse_pdf_metainfo(pdfinfo, author, title, keywords, topic, pages);
     } catch (const ReadError&) {
 	// It's probably best to index the document even if pdfinfo fails.
@@ -540,9 +559,11 @@ get_pdf_metainfo(const string& file, string& author, string& title,
 		 string& keywords, string& topic, int& pages)
 {
     try {
-	string cmd = "pdfinfo -enc UTF-8";
-	append_filename_argument(cmd, file);
-	parse_pdf_metainfo(stdout_to_string(cmd, false),
+	const char* cmd[] = {
+	    "pdfinfo", "-enc", "UTF-8", NULL, NULL
+	};
+	cmd[3] = file.c_str();
+	parse_pdf_metainfo(stdout_to_string(cmd),
 			   author, title, keywords, topic, pages);
     } catch (const ReadError&) {
 	// It's probably best to index the document even if pdfinfo fails.
@@ -1011,9 +1032,11 @@ index_mimetype(const string& file, const string& urlterm, const string& url,
 		// FIXME: What charset is the file?  Look at contents?
 	    }
 	} else if (mimetype == "application/pdf") {
-	    const char* cmd = "pdftotext -enc UTF-8 - -";
+	    const char* const cmd[] = {
+		"pdftotext", "-enc", "UTF-8", "-", "-", NULL
+	    };
 	    try {
-		run_filter(d.get_fd(), cmd, false, &dump);
+		run_filter(d.get_fd(), cmd, &dump);
 	    } catch (const ReadError&) {
 		skip_cmd_failed(urlterm, context, cmd,
 				d.get_size(), d.get_mtime());
@@ -1038,14 +1061,17 @@ index_mimetype(const string& file, const string& urlterm, const string& url,
 		     d.get_size(), d.get_mtime());
 		return;
 	    }
-	    string cmd = "ps2pdf -";
-	    append_filename_argument(cmd, tmpfile);
+	    const char* cmd[] = {
+		"ps2pdf", "-", NULL, NULL
+	    };
+	    cmd[2] = tmpfile.c_str();
 	    try {
-		run_filter(d.get_fd(), cmd, false);
-		cmd = "pdftotext -enc UTF-8";
-		append_filename_argument(cmd, tmpfile);
-		cmd += " -";
-		run_filter(cmd, false, &dump);
+		run_filter(d.get_fd(), cmd);
+		const char* cmd2[] = {
+		    "pdftotext", "-enc", "UTF-8", NULL, "-", NULL
+		};
+		cmd2[3] = tmpfile.c_str();
+		run_filter(cmd2, &dump);
 	    } catch (const ReadError&) {
 		skip_cmd_failed(urlterm, context, cmd,
 				d.get_size(), d.get_mtime());
@@ -1188,12 +1214,13 @@ index_mimetype(const string& file, const string& urlterm, const string& url,
 	    dump = abiwordparser.dump;
 	} else if (mimetype == "application/oxps" ||
 		   mimetype == "application/vnd.ms-xpsdocument") {
-	    string cmd = "unzip -p";
-	    append_filename_argument(cmd, file);
-	    cmd += " 'Documents/*/Pages/*.fpage'";
+	    const char* cmd[] = {
+		"unzip", "-p", NULL, "Documents/*/Pages/*.fpage", NULL
+	    };
+	    cmd[2] = file.c_str();
 	    try {
 		XpsParser xpsparser;
-		run_filter(cmd, false, &dump);
+		run_filter(cmd,  &dump);
 		xpsparser.parse(dump);
 		dump = xpsparser.dump;
 	    } catch (const ReadError&) {
@@ -1202,12 +1229,13 @@ index_mimetype(const string& file, const string& urlterm, const string& url,
 		return;
 	    }
 
-	    cmd = "unzip -p";
-	    append_filename_argument(cmd, file);
-	    cmd += " docProps/core.xml";
+	    const char* cmd2[] = {
+		"unzip", "-p", NULL, "docProps/core.xml", NULL
+	    };
+	    cmd2[2] = file.c_str();
 	    try {
 		OpenDocMetaParser metaparser;
-		metaparser.parse(stdout_to_string(cmd, false));
+		metaparser.parse(stdout_to_string(cmd2));
 		title = metaparser.title;
 		keywords = metaparser.keywords;
 		// FIXME: topic = metaparser.topic;
