@@ -47,6 +47,7 @@
 # include <signal.h>
 #endif
 
+#include "append_filename_arg.h"
 #include "closefrom.h"
 #include "freemem.h"
 #include "setenv.h"
