@@ -47,11 +47,14 @@
 # include <signal.h>
 #endif
 
-#include "append_filename_arg.h"
 #include "closefrom.h"
 #include "freemem.h"
 #include "setenv.h"
 #include "stringutils.h"
+
+#ifdef __WIN32__
+# include "append_filename_arg.h"
+#endif
 
 using namespace std;
 
