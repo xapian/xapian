@@ -21,6 +21,7 @@
 #ifndef XAPIAN_INCLUDED_RESOLVER_H
 #define XAPIAN_INCLUDED_RESOLVER_H
 
+#include <cerrno>
 #include <cstring>
 #include <string_view>
 
