@@ -840,8 +840,8 @@ jobs:
         make -j2 -C xapian-applications/omega check
         make -j2 -C xapian-bindings check
 
-  macos:
-    runs-on: 'macos-latest'
+  macos-15:
+    runs-on: 'macos-15'
     needs: makedist
     steps:
     - name: Install CCache
@@ -874,11 +874,12 @@ jobs:
             libmagic \
             lua \
             pcre2 \
+            php \
             pkgconfig \
             pygments \
             python \
             sphinx-doc
-        # mono-mdk: "make check" fails on aarch64 macos-latest (but works on
+        # mono-mdk: "make check" fails on arm64 macos-15 (but works on
         # x86_64 macos-12 and macos-13).  Last checked 2024-05-05.
         #
         # libeatmydata doesn't currently actually do anything on macOS:
@@ -901,7 +902,110 @@ jobs:
         # Homebrew package mono-mdk-for-visual-studio is pre-installed in the
         # image so we need to select the bindings we want except for csharp
         # as that currently fails on aarch64 macos.
-        ./configure --enable-werror --with-java --with-lua --with-perl --with-ruby
+        ./configure --enable-werror --with-java --with-lua --with-perl --with-php --with-python3 --with-ruby --with-tcl
+        popd
+    - name: make
+      run: |
+        make -j3 -C xapian-core
+        make -j3 -C xapian-core install
+        make -j3 -C xapian-applications/omega
+        make -j3 -C xapian-bindings
+    - name: Run tests
+      run: |
+        export LIBEXTRACTOR_PREFIX=${HOMEBREW_PREFIX:-/usr/local}/lib/libextractor
+        export AUTOMATED_TESTING=1
+        export VERBOSE=1
+        make -j3 -C xapian-core check
+        make -j3 -C xapian-applications/omega check
+        make -j3 -C xapian-bindings check
+    - name: Save log files
+      if: ${{ failure() }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: logs-${{ github.job }}-${{ github.sha }}
+        overwrite: true
+        path: |
+          **/*.log
+
+  macos-14:
+    runs-on: 'macos-14'
+    needs: makedist
+    steps:
+    - name: Install CCache
+      uses: hendrikmuhs/ccache-action@v1
+      with:
+        key: ${{ github.job }}
+        restore-keys: macos # temporary, so the ccache migrates
+    - name: Fetch distribution
+      uses: actions/download-artifact@v4
+    - name: Unpack distribution
+      run: |
+        mv artifact/* .
+        rmdir artifact
+        pushd xapian-core
+        tar --strip-components=1 -xf xapian-core-*.tar.xz
+        popd
+        pushd xapian-applications/omega
+        tar --strip-components=1 -xf xapian-omega-*.tar.xz
+        popd
+        pushd xapian-bindings
+        tar --strip-components=1 -xf xapian-bindings-*.tar.xz
+        popd
+    - name: Install package dependencies
+      run: |
+        # Workaround apparent homebrew bug 2024-01-17
+        rm -f /usr/local/bin/2to3-3.* /usr/local/bin/idle3.* /usr/local/bin/pydoc3.* /usr/local/bin/python3.* /usr/local/bin/python3.*-config
+        rm -f /usr/local/bin/2to3 /usr/local/bin/idle3 /usr/local/bin/pydoc3 /usr/local/bin/python3 /usr/local/bin/python3-config
+        brew update
+        brew install -q \
+            gmime \
+            icu4c \
+            libabw \
+            libarchive \
+            libcdr \
+            libetonyek \
+            libextractor \
+            libiconv \
+            libmagic \
+            libmwaw \
+            lua \
+            pcre2 \
+            php \
+            pkgconfig \
+            poppler \
+            pygments \
+            python \
+            sphinx-doc
+        # mono-mdk: "make check" fails on aarch64 macos-14 (but works on
+        # x86_64 macos-12 and macos-13):
+        # System.DllNotFoundException: _XapianSharp assembly:<unknown assembly> type:<unknown type> member:(null)
+        # Last checked 2024-10-24.
+        #
+        # libeatmydata doesn't currently actually do anything on macOS:
+        # https://github.com/stewartsmith/libeatmydata/issues/34
+        # It's also started failing to even run in homebrew so don't install
+        # for now.
+        #
+        # homebrew tesseract 5.2.0 only extracts "ee" from img/Test1.gif (5.1.0
+        # worked).
+        # tesseract
+    - name: configure
+      run: |
+        export CC='ccache gcc'
+        export CXX='ccache g++'
+        export PKG_CONFIG_PATH="$(brew --prefix icu4c)/lib/pkgconfig"
+        pushd xapian-core
+        ./configure --enable-werror --prefix='${{ runner.temp }}/XapianInstall'
+        export XAPIAN_CONFIG=$PWD/xapian-config
+        popd
+        pushd xapian-applications/omega
+        ./configure --enable-werror --with-libiconv-prefix="$(brew --prefix libiconv)"
+        popd
+        pushd xapian-bindings
+        # Homebrew package mono-mdk-for-visual-studio is pre-installed in the
+        # image so we need to select the bindings we want except for csharp
+        # as that currently fails on aarch64 macos.
+        ./configure --enable-werror --with-java --with-lua --with-perl --with-php --with-python3 --with-ruby --with-tcl
         popd
     - name: make
       run: |
@@ -950,7 +1054,7 @@ jobs:
         popd
     - name: Install package dependencies
       run: |
-        # Workaround apparent homebrew bug 2024-01-17
+        # Workaround apparent homebrew bug 2024-10-24
         rm -f /usr/local/bin/2to3-3.* /usr/local/bin/idle3.* /usr/local/bin/pydoc3.* /usr/local/bin/python3.* /usr/local/bin/python3.*-config
         rm -f /usr/local/bin/2to3 /usr/local/bin/idle3 /usr/local/bin/pydoc3 /usr/local/bin/python3 /usr/local/bin/python3-config
         brew update
@@ -981,87 +1085,7 @@ jobs:
         ./configure --enable-werror --with-libiconv-prefix="$(brew --prefix libiconv)"
         popd
         pushd xapian-bindings
-        ./configure --enable-werror
-        popd
-    - name: make
-      run: |
-        make -j3 -C xapian-core
-        make -j3 -C xapian-core install
-        make -j3 -C xapian-applications/omega
-        make -j3 -C xapian-bindings
-    - name: Run tests
-      run: |
-        export AUTOMATED_TESTING=1
-        export VERBOSE=1
-        make -j3 -C xapian-core check
-        make -j3 -C xapian-applications/omega check
-        make -j3 -C xapian-bindings check
-    - name: Save log files
-      if: ${{ failure() }}
-      uses: actions/upload-artifact@v4
-      with:
-        name: logs-${{ github.job }}-${{ github.sha }}
-        overwrite: true
-        path: |
-          **/*.log
-
-  macos-12:
-    runs-on: 'macos-12'
-    needs: makedist
-    steps:
-    - name: Install CCache
-      uses: hendrikmuhs/ccache-action@v1
-      with:
-        key: ${{ github.job }}
-    - name: Fetch distribution
-      uses: actions/download-artifact@v4
-    - name: Unpack distribution
-      run: |
-        mv artifact/* .
-        rmdir artifact
-        pushd xapian-core
-        tar --strip-components=1 -xf xapian-core-*.tar.xz
-        popd
-        pushd xapian-applications/omega
-        tar --strip-components=1 -xf xapian-omega-*.tar.xz
-        popd
-        pushd xapian-bindings
-        tar --strip-components=1 -xf xapian-bindings-*.tar.xz
-        popd
-    - name: Install package dependencies
-      run: |
-        # Workaround apparent homebrew bug 2024-01-17
-        rm -f /usr/local/bin/2to3-3.* /usr/local/bin/idle3.* /usr/local/bin/pydoc3.* /usr/local/bin/python3.* /usr/local/bin/python3.*-config
-        rm -f /usr/local/bin/2to3 /usr/local/bin/idle3 /usr/local/bin/pydoc3 /usr/local/bin/python3 /usr/local/bin/python3-config
-        brew update
-        brew install -q \
-            libiconv \
-            libmagic \
-            lua \
-            mono-mdk \
-            pcre2 \
-            pkgconfig \
-            pygments \
-            python \
-            sphinx-doc
-        # libeatmydata doesn't currently actually do anything on macOS:
-        # https://github.com/stewartsmith/libeatmydata/issues/34
-        # It's also started failing to even run in homebrew so don't install
-        # for now.
-    - name: configure
-      run: |
-        export CC='ccache gcc'
-        export CXX='ccache g++'
-        export PKG_CONFIG_PATH="$(brew --prefix icu4c)/lib/pkgconfig"
-        pushd xapian-core
-        ./configure --enable-werror --prefix='${{ runner.temp }}/XapianInstall'
-        export XAPIAN_CONFIG=$PWD/xapian-config
-        popd
-        pushd xapian-applications/omega
-        ./configure --enable-werror --with-libiconv-prefix="$(brew --prefix libiconv)"
-        popd
-        pushd xapian-bindings
-        ./configure --enable-werror
+        ./configure --enable-werror --with-csharp --with-java --with-lua --with-perl --with-php --with-python3 --with-ruby --with-tcl
         popd
     - name: make
       run: |
