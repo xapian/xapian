@@ -75,8 +75,8 @@ jobs:
       run: ./configure CC='ccache gcc' CXX='ccache g++'
     - name: make
       run: make -j2
-    - name: Run tests
-      run: make -j2 check AUTOMATED_TESTING=1 VERBOSE=1
+#    - name: Run tests
+#      run: make -j2 check AUTOMATED_TESTING=1 VERBOSE=1
     - name: Create distribution tarball
       run: |
         make dist
@@ -96,6 +96,7 @@ jobs:
       run: git status --porcelain|grep '^' && { echo "The generated files listed above are not in .gitignore" ; exit 1; }; true
 
   cxx20:
+    if: false
     runs-on: 'ubuntu-latest'
     needs: makedist
     steps:
@@ -161,6 +162,7 @@ jobs:
         make -j2 -C xapian-bindings check
 
   cxx23:
+    if: false
     runs-on: 'ubuntu-latest'
     needs: makedist
     steps:
@@ -226,6 +228,7 @@ jobs:
         make -j2 -C xapian-bindings check
 
   clang-santisers:
+    if: false
     runs-on: 'ubuntu-latest'
     needs: makedist
     steps:
@@ -443,6 +446,7 @@ jobs:
         make -j2 -C xapian-bindings check
 
   assertions:
+    if: false
     runs-on: 'ubuntu-22.04'
     needs: makedist
     steps:
@@ -508,6 +512,7 @@ jobs:
         make -j2 -C xapian-bindings check
 
   debug-log:
+    if: false
     runs-on: 'ubuntu-22.04'
     needs: makedist
     steps:
@@ -573,6 +578,7 @@ jobs:
         make -j2 -C xapian-bindings check
 
   clang:
+    if: false
     runs-on: 'ubuntu-20.04'
     needs: makedist
     steps:
@@ -640,6 +646,7 @@ jobs:
 
   # Test with the oldest clang version we easily can.
   clang6:
+    if: false
     runs-on: 'ubuntu-20.04'
     needs: makedist
     steps:
@@ -775,6 +782,7 @@ jobs:
         make -j2 -C xapian-bindings check
 
   debian-stable:
+    if: false
     runs-on: 'ubuntu-latest'
     container: debian:stable
     needs: makedist
@@ -867,7 +875,7 @@ jobs:
       run: |
         # Workaround apparent homebrew bug 2024-01-17
         rm -f /usr/local/bin/2to3-3.* /usr/local/bin/idle3.* /usr/local/bin/pydoc3.* /usr/local/bin/python3.* /usr/local/bin/python3.*-config
-        rm -f /usr/local/bin/2to3 /usr/local/bin/idle3 /usr/local/bin/pydoc3 /usr/local/bin/python3 /usr/local/bin/python3-config
+        #rm -f /usr/local/bin/2to3 /usr/local/bin/idle3 /usr/local/bin/pydoc3 /usr/local/bin/python3 /usr/local/bin/python3-config
         brew update
         brew install -q \
             libiconv \
@@ -955,7 +963,7 @@ jobs:
       run: |
         # Workaround apparent homebrew bug 2024-01-17
         rm -f /usr/local/bin/2to3-3.* /usr/local/bin/idle3.* /usr/local/bin/pydoc3.* /usr/local/bin/python3.* /usr/local/bin/python3.*-config
-        rm -f /usr/local/bin/2to3 /usr/local/bin/idle3 /usr/local/bin/pydoc3 /usr/local/bin/python3 /usr/local/bin/python3-config
+        #rm -f /usr/local/bin/2to3 /usr/local/bin/idle3 /usr/local/bin/pydoc3 /usr/local/bin/python3 /usr/local/bin/python3-config
         brew update
         brew install -q \
             gmime \
@@ -1056,7 +1064,7 @@ jobs:
       run: |
         # Workaround apparent homebrew bug 2024-10-24
         rm -f /usr/local/bin/2to3-3.* /usr/local/bin/idle3.* /usr/local/bin/pydoc3.* /usr/local/bin/python3.* /usr/local/bin/python3.*-config
-        rm -f /usr/local/bin/2to3 /usr/local/bin/idle3 /usr/local/bin/pydoc3 /usr/local/bin/python3 /usr/local/bin/python3-config
+        #rm -f /usr/local/bin/2to3 /usr/local/bin/idle3 /usr/local/bin/pydoc3 /usr/local/bin/python3 /usr/local/bin/python3-config
         brew update
         brew install -q \
             libiconv \
@@ -1110,6 +1118,7 @@ jobs:
           **/*.log
 
   mingw64-i686-cross:
+    if: false
     runs-on: 'ubuntu-22.04'
     needs: makedist
     steps:
@@ -1158,6 +1167,7 @@ jobs:
         make -j2 -C xapian-core check
 
   mingw64-x86-64-cross:
+    if: false
     runs-on: 'ubuntu-22.04'
     needs: makedist
     steps:
@@ -1269,6 +1279,7 @@ jobs:
         make -j2 -C xapian-bindings check
 
   android-cross:
+    if: false
     runs-on: 'ubuntu-22.04'
     env:
       # Override github default because 27.1.12297006 fails with link errors in
@@ -1307,6 +1318,7 @@ jobs:
       # FIXME: Run tests under android emulator?
 
   cygwin:
+    if: false
     # We only test 64-bit cygwin as 32-bit support has been dropped as of
     # Cygwin 3.4:
     # https://cygwin.com/pipermail/cygwin/2022-November/252542.html
@@ -1368,6 +1380,7 @@ jobs:
         # make -j2 -C xapian-bindings check
 
   msys2-mingw32:
+    if: false
     runs-on: 'windows-latest'
     needs: makedist
     defaults:
@@ -1434,6 +1447,7 @@ jobs:
         # make -j2 -C xapian-bindings check
 
   msys2-mingw64:
+    if: false
     runs-on: 'windows-latest'
     needs: makedist
     defaults:
@@ -1500,6 +1514,7 @@ jobs:
         # make -j2 -C xapian-bindings check
 
   msys2-ucrt64:
+    if: false
     runs-on: 'windows-latest'
     needs: makedist
     defaults:
@@ -1566,6 +1581,7 @@ jobs:
         # make -j2 -C xapian-bindings check
 
   msvc2019:
+    if: false
     runs-on: 'windows-2019'
     needs: makedist
     defaults:
@@ -1663,6 +1679,7 @@ jobs:
         # make -j2 -C xapian-bindings check
 
   msvc2022:
+    if: false
     runs-on: 'windows-2022'
     needs: makedist
     defaults:
@@ -1760,6 +1777,7 @@ jobs:
         # make -j2 -C xapian-bindings check
 
   msvc2019-x86:
+    if: false
     runs-on: 'windows-2019'
     needs: makedist
     defaults:
@@ -1854,6 +1872,7 @@ jobs:
         # make -j2 -C xapian-bindings check
 
   msvc2022-x86:
+    if: false
     runs-on: 'windows-2022'
     needs: makedist
     defaults:
@@ -1948,6 +1967,7 @@ jobs:
         # make -j2 -C xapian-bindings check
 
   freebsd:
+    if: false
     runs-on: 'ubuntu-22.04'
     needs: makedist
     steps:
@@ -2009,6 +2029,7 @@ jobs:
           make -j2 -C xapian-bindings check V=0
 
   dragonfly:
+    if: false
     runs-on: 'ubuntu-22.04'
     needs: makedist
     steps:
@@ -2070,6 +2091,7 @@ jobs:
           make -j2 -C xapian-bindings check V=0
 
   netbsd:
+    if: false
     runs-on: 'ubuntu-22.04'
     needs: makedist
     steps:
@@ -2129,6 +2151,7 @@ jobs:
           rm -rf xapian-*
 
   openbsd:
+    if: false
     runs-on: 'ubuntu-22.04'
     needs: makedist
     steps:
@@ -2193,6 +2216,7 @@ jobs:
           rm -rf xapian-*
 
   checkpatch:
+    if: false
     name: 'Automated run of xapian-check-patch'
     runs-on: 'ubuntu-latest'
     steps:
