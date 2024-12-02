@@ -107,8 +107,6 @@ If you want to be compatible with earlier versions, you can continue to use
 TODO list:
 ##########
 
-* Write SimpleExpand.java.
-
 * Fix string passing to be zero-byte clean:
   https://trac.xapian.org/ticket/46
 
@@ -116,8 +114,6 @@ TODO list:
   SmokeTest.java:
 
     - optional parameter "parameter" for Query ctor.
-
-    - new QueryParser API.
 
     - changes to Enquire sorting API.
 
