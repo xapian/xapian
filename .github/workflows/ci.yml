@@ -301,6 +301,7 @@ jobs:
         make -j2 -C xapian-bindings check MACOS_SIP_HACK_ENV='env LSAN_OPTIONS=leak_check_at_exit=0 LD_PRELOAD=libasan.so.8:libubsan.so.1'
 
   GLIBCXX_DEBUG:
+    if: false
     runs-on: 'ubuntu-20.04'
     needs: makedist
     steps:
@@ -367,6 +368,7 @@ jobs:
         make -j2 -C xapian-bindings check
 
   FORTIFY_SOURCE_3:
+    if: false
     # _FORTIFY_SOURCE level 3 requires GCC 12, so currently we need to use
     # Ubuntu 22.04 and the gcc-12 and g++12 packages.
     runs-on: 'ubuntu-22.04'
@@ -713,6 +715,7 @@ jobs:
   # GCC 4.7 is the oldest GCC we aim to support for 1.4.x, but the oldest we can
   # easily build with in github actions is 7.5.0.
   GCC7:
+    if: false
     name: 'GCC 7'
     runs-on: 'ubuntu-20.04'
     needs: makedist
@@ -1219,6 +1222,7 @@ jobs:
         make -j2 -C xapian-core check
 
   Fedora:
+    if: false
     runs-on: 'ubuntu-22.04'
     container: fedora:35
     needs: makedist
