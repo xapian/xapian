@@ -511,16 +511,25 @@ if test no != "$with_tcl" ; then
       TCL_CPPFLAGS=
       AC_MSG_CHECKING([for tcl.h from Tcl $tcl_version])
       if test x"$TCL_INC" != x && test -f "$TCL_INC/tcl.h" ; then
-	tcl_hdr_version=`awk '($1 == "#define" && $2 == "TCL_VERSION") {print $3}' "$TCL_INC/tcl.h"|sed 's/"//g'`
-	if test x"$tcl_hdr_version" = x"$tcl_version" ; then
-	  AC_MSG_RESULT([$TCL_INC/tcl.h])
-	  if test x"$TCL_INC" != x"/usr/include" ; then
-	    TCL_CPPFLAGS="-I$TCL_INC"
-	  fi
-	else
-	  AC_MSG_RESULT([$TCL_INC/tcl.h from Tcl $tcl_hdr_version, not $tcl_version - specify TCL_INC on configure command line])
-	  tcl_ok=no
+	if test x"$TCL_INC" != x"/usr/include" ; then
+	  TCL_CPPFLAGS="-I$TCL_INC"
 	fi
+	save_CPPFLAGS=$CPPFLAGS
+	[tcl_major=`expr "$tcl_version" : '\([^.]*\)'`]
+	[tcl_minor=`expr "$tcl_version" : '[^.]*\.\([^.]*\)'`]
+	CPPFLAGS="$CPPFLAGS $TCL_CPPFLAGS -DMAJOR=$tcl_major -DMINOR=$tcl_minor"
+	AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
+#include <tcl.h>
+#if TCL_MAJOR_VERSION != MAJOR || TCL_MINOR_VERSION != MINOR
+#error different tcl version
+#endif
+	  ]])], [
+	    AC_MSG_RESULT([$TCL_INC/tcl.h])
+	  ], [
+	    AC_MSG_RESULT([$TCL_INC/tcl.h not from Tcl $tcl_version - specify TCL_INC on configure command line])
+	    tcl_ok=no
+	  ])
+	CPPFLAGS=$save_CPPFLAGS
       else
 	AC_MSG_RESULT([not found])
 	tcl_ok=no
