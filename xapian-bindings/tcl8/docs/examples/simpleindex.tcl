@@ -18,9 +18,6 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
-# We need at least Tcl version 8.1.
-package require Tcl 8.1
-
 # We need at least Xapian 1.0.0 for TermGenerator.
 package require xapian 1.0.0
 

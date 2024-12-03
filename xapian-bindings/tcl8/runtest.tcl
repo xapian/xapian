@@ -19,9 +19,6 @@
 
 # Syntax: runtest.tcl SCRIPT.TCL [ARGS]
 
-# We need at least Tcl version 8
-package require Tcl 8
-
 lappend auto_path "."
 
 set argv0 [lindex $argv 0]
