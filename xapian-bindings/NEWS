@@ -1,3 +1,80 @@
+up to: c2d0be20b5d260a71527d4819f967ca696d9941e
+
+Xapian-bindings 1.4.27 (2024-12-??):
+
+Documentation:
+
+General:
+
+* We now consistently fail at configure time if bindings for a target
+  language are explicitly enabled (using e.g. `--with-lua`) but required
+  dependencies are not found.  Previously in some cases we would continue
+  but effectively ignore the option.
+
+Packaging:
+
+Portability:
+
+* We no longer explicitly link bindings with -lstdc++.  This was added in 0.9.3
+  in 2005 as a workaround for a linking problem on OpenBSD, but nowadays it
+  causes link failures on platforms which use clang+libc++ as the C++ compiler
+  which includes OpenBSD so it seems this fix is no longer useful anywhere.
+  Fixes #834, reported by David Gessel.
+
+  If this change results in you getting a link failure, please let us know
+  about it.  You can probably workaround the failure by specifying an explicit
+  link with -lstdc++ like so:
+
+      make LIBS=-lstdc++
+
+  This assumes the C++ compiler you are using uses libstdc++ - if it uses
+  libc++ then try:
+
+      make LIBS=-lc++
+
+CSharp:
+
+Java:
+
+* Formally declare Java bindings API stable.  This API has been de-facto stable
+  for several years and any incompatible changes can now be handled in the
+  usual way at the start of a release series.
+
+* Improve build on FreeBSD and DragonFlyBSD to find the jni_md.h header
+  automatically.
+
+Lua:
+
+* Overhaul Lua configure probes.  As part of this we now check for the Lua
+  interpreter with a versioned name (e.g. lua5.4 and lua54) and handle a DOS
+  drive letter on the directories in `package.cpath`.
+
+Perl:
+
+PHP:
+
+* Fix small memory leak on each access to a PHP attribute in the wrapped API
+  (introduced by the changes to support PHP8 in xapian-bindings 1.4.22).
+
+* Check for php-config8.4 and php-config8.3
+
+Python:
+
+Python3:
+
+* Handle PYTHONOPTIMIZE being set in the environment.  Fixes #836, reported by
+  Дилян Палаузов.
+
+Ruby:
+
+Tcl:
+
+* Tcl 9.0 is now supported.
+
+* Fix probe for TCL_LIB which was always probing an empty value, causing a
+  build failure on the few platforms where TCL_LIB should not be empty.
+  Problem introduced in 1.4.24.
+
 Xapian-bindings 1.4.26 (2024-07-18):
 
 Documentation:
