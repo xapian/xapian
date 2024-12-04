@@ -878,6 +878,7 @@ jobs:
             pkgconfig \
             pygments \
             python \
+            tcl-tk \
             sphinx-doc
         # mono-mdk: "make check" fails on arm64 macos-15 (but works on
         # x86_64 macos-12 and macos-13).  Last checked 2024-05-05.
@@ -975,6 +976,7 @@ jobs:
             poppler \
             pygments \
             python \
+            tcl-tk \
             sphinx-doc
         # mono-mdk: "make check" fails on aarch64 macos-14 (but works on
         # x86_64 macos-12 and macos-13):
@@ -1067,6 +1069,7 @@ jobs:
             pkgconfig \
             pygments \
             python \
+            tcl-tk \
             sphinx-doc
         # libeatmydata doesn't currently actually do anything on macOS:
         # https://github.com/stewartsmith/libeatmydata/issues/34
