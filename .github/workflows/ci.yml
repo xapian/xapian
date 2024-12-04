@@ -1063,8 +1063,8 @@ jobs:
             poppler \
             pygments \
             python \
-            tcl-tk \
-            sphinx-doc
+            tcl-tk
+        pip3 install --user --break-system-packages Sphinx
         # mono-mdk: "make check" fails on arm64 macos-15 (but works on
         # x86_64 macos-12 and macos-13).  Last checked 2024-05-05.
         #
@@ -1092,7 +1092,7 @@ jobs:
         # Homebrew package mono-mdk-for-visual-studio is pre-installed in the
         # image so we need to select the bindings we want except for csharp
         # as that currently fails on aarch64 macos.
-        ./configure --enable-werror --with-java --with-lua --with-perl --with-php --with-python --with-ruby --with-tcl
+        ./configure --enable-werror --with-java --with-lua --with-perl --with-php --with-python3 --with-ruby --with-tcl
         popd
         pushd xapian-letor
         ./configure --enable-werror
@@ -1173,8 +1173,8 @@ jobs:
             poppler \
             pygments \
             python \
-            tcl-tk \
-            sphinx-doc
+            tcl-tk
+        pip3 install --user --break-system-packages Sphinx
         # mono-mdk: "make check" fails on aarch64 macos-14 (but works on
         # x86_64 macos-12 and macos-13):
         # System.DllNotFoundException: _XapianSharp assembly:<unknown assembly> type:<unknown type> member:(null)
@@ -1204,7 +1204,7 @@ jobs:
         # Homebrew package mono-mdk-for-visual-studio is pre-installed in the
         # image so we need to select the bindings we want except for csharp
         # as that currently fails on aarch64 macos.
-        ./configure --enable-werror --with-java --with-lua --with-perl --with-php --with-python --with-ruby --with-tcl
+        ./configure --enable-werror --with-java --with-lua --with-perl --with-php --with-python3 --with-ruby --with-tcl
         popd
         pushd xapian-letor
         ./configure --enable-werror
@@ -1284,8 +1284,8 @@ jobs:
             poppler \
             pygments \
             python \
-            tcl-tk \
-            sphinx-doc
+            tcl-tk
+        pip3 install --user --break-system-packages Sphinx
         # libeatmydata doesn't currently actually do anything on macOS:
         # https://github.com/stewartsmith/libeatmydata/issues/34
         # It's also started failing to even run in homebrew so don't install
@@ -1307,7 +1307,7 @@ jobs:
         ./configure --enable-werror --with-libiconv-prefix="$(brew --prefix libiconv)"
         popd
         pushd xapian-bindings
-        ./configure --enable-werror --with-csharp --with-java --with-lua --with-perl --with-php --with-python --with-ruby --with-tcl
+        ./configure --enable-werror --with-csharp --with-java --with-lua --with-perl --with-php --with-python3 --with-ruby --with-tcl
         popd
         pushd xapian-letor
         ./configure --enable-werror
