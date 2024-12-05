@@ -74,8 +74,8 @@ xapian/__init__.py: xapian__init__.py
 # doesn't cope with being xapian/__init__.py (currently it needs fixing
 # up, which is done by fixup-swig-py3-wrapper).
 xapian/__pycache__/__init__.@PYTHON3_CACHE_TAG@.pyc: xapian/__init__.py xapian/_xapian$(PYTHON3_EXT_SUFFIX)
-	$(MACOS_SIP_HACK_ENV) $(PYTHON3) -c 'import os;os.chdir("xapian");import _xapian'
-	$(MACOS_SIP_HACK_ENV) $(PYTHON3) -c 'import xapian'
+	$(MACOS_SIP_HACK_ENV) PYTHONOPTIMIZE= $(PYTHON3) -c 'import os;os.chdir("xapian");import _xapian'
+	$(MACOS_SIP_HACK_ENV) PYTHONOPTIMIZE= $(PYTHON3) -c 'import xapian'
 
 xapian/__pycache__/__init__.@PYTHON3_CACHE_OPT1_EXT@: xapian/__init__.py xapian/_xapian$(PYTHON3_EXT_SUFFIX)
 	$(MACOS_SIP_HACK_ENV) $(PYTHON3) -O -c 'import os;os.chdir("xapian");import _xapian'
