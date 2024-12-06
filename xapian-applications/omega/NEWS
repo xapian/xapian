@@ -1,28 +1,10 @@
-up to: 0b3262d1c24b85c3e426b6fb30d1c99ba530a274
-
-Omega 1.4.27 (2024-12-??):
-
-general:
-
-documentation:
-
-indexers:
-
-* omindex:
-
-* scriptindex:
+Omega 1.4.27 (2024-12-06):
 
 omega:
 
 * Calculate date spans in days rather than converting to time_t, which
   side-steps issues due to 32-bit time_t and some implementations not handling
   negative time_t values.
-
-templates:
-
-testsuite:
-
-build system:
 
 portability:
 
@@ -33,8 +15,6 @@ portability:
 * Remove unnecessary 'using namespace std' to fix build on (at least) FreeBSD
   where's nothing in the std namespace to import at this point so we get a
   compiler error.
-
-packaging:
 
 Omega 1.4.26 (2024-07-18):
 

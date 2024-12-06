@@ -1,8 +1,4 @@
-up to: c2d0be20b5d260a71527d4819f967ca696d9941e
-
-Xapian-bindings 1.4.27 (2024-12-??):
-
-Documentation:
+Xapian-bindings 1.4.27 (2024-12-06):
 
 General:
 
@@ -10,8 +6,6 @@ General:
   language are explicitly enabled (using e.g. `--with-lua`) but required
   dependencies are not found.  Previously in some cases we would continue
   but effectively ignore the option.
-
-Packaging:
 
 Portability:
 
@@ -32,8 +26,6 @@ Portability:
 
       make LIBS=-lc++
 
-CSharp:
-
 Java:
 
 * Formally declare Java bindings API stable.  This API has been de-facto stable
@@ -49,8 +41,6 @@ Lua:
   interpreter with a versioned name (e.g. lua5.4 and lua54) and handle a DOS
   drive letter on the directories in `package.cpath`.
 
-Perl:
-
 PHP:
 
 * Fix small memory leak on each access to a PHP attribute in the wrapped API
@@ -58,14 +48,10 @@ PHP:
 
 * Check for php-config8.4 and php-config8.3
 
-Python:
-
 Python3:
 
 * Handle PYTHONOPTIMIZE being set in the environment.  Fixes #836, reported by
   Дилян Палаузов.
-
-Ruby:
 
 Tcl:
 
