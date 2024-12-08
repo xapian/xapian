@@ -354,7 +354,7 @@ esac
 if [ -n "$PPA" ] ; then
   for CODENAME in $CODENAMES ; do
     if [ `expr " $UBUNTU_CODENAMES " : " $CODENAME "` != 0 ] ; then
-      echo "dput -U $PPA build/${PKG}_${VERSION}${BACKPORT_SUFFIX}_source.changes"
+      echo "dput -U $PPA build/${PKG}_${VERSION}${SUFFIX}${BACKPORT_SUFFIX}_source.changes"
     fi
   done
 fi
