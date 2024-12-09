@@ -201,9 +201,11 @@ static inline void io_protect_from_write(int fd) {
 #ifdef __linux__
     // The maximum off_t value works for at least btrfs.
     if (lseek(fd, std::numeric_limits<off_t>::max(), SEEK_SET) < 0) {
-	// Try the actual maximum for ext4 (which matches the documented
-	// maximum filesize) since ext4 is very widely used.
-	(void)lseek(fd, 0xffffffff000, SEEK_SET);
+	if (sizeof(off_t) > 4) {
+	    // Try the actual maximum for ext4 (which matches the documented
+	    // maximum filesize) since ext4 is very widely used.
+	    (void)lseek(fd, off_t(0xffffffff000), SEEK_SET);
+	}
     }
 #elif defined __FreeBSD__ || \
       defined __APPLE__ || \
