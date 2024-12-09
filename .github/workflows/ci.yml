@@ -1438,10 +1438,11 @@ jobs:
         #   *** stack smashing detected ***: terminated
         # Rerunning the last good run fails the same way so this appears to be
         # down to a bug introduced in one of the dependencies rather than a
-        # bug in xapian-omega.  Replace omindextest with a simple script which
-        # marks the test as skipped for now.
-        printf '#!/bin/sh\nexit 77\n' > omindextest
-        chmod 755 omindextest
+        # bug in xapian-omega.  The 32-bit msys2 environments are deprecated
+        # so this doesn't seem worth investing a lot of time into so just
+        # replace omindextest with a simple script which skips this test.
+        printf '#!/bin/sh\nexit 77\n' > xapian-applications/omega/omindextest
+        chmod 755 xapian-applications/omega/omindextest
         make -j2 -C xapian-applications/omega check
         # make -j2 -C xapian-bindings check
 
