@@ -71,11 +71,19 @@ AC_SUBST([NO_INSTALL])
 dnl Probe for any options needed to enable C++11 support.
 AX_CXX_COMPILE_STDCXX([11])
 
+dnl Enable large file support if possible.  There's a bug in this macro in
+dnl autoconf 2.72 where it always tests with the C compiler.  We could just
+dnl let it, but Xapian is only C++ so the C compiler could be a totally
+dnl different compiler with different large-file settings, so we temporarily
+dnl set CC to the C++ compiler in order to actually test the C++ compiler.
+AC_LANG([C])
+save_CC=$CC
+CC=$CXX
+AC_SYS_LARGEFILE
+CC=$save_CC
+
 dnl Run tests using the C++ compiler.
 AC_LANG([C++])
-
-dnl Enable large file support if possible.
-AC_SYS_LARGEFILE
 
 dnl Test if the compiler works with $1 added to CXXFLAGS; if it does, add $1 to
 dnl variable $2.  If the test passes, also do $3; if it fails, also do $4.
