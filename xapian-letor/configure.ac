@@ -123,6 +123,17 @@ AC_PROG_CC
 dnl Check endianness.
 AC_C_BIGENDIAN
 
+dnl Enable large file support if possible.  There's a bug in this macro in
+dnl autoconf 2.72 where it always tests with the C compiler.  We could just
+dnl let it, but Xapian is only C++ so the C compiler could be a totally
+dnl different compiler with different large-file settings, so we temporarily
+dnl set CC to the C++ compiler in order to actually test the C++ compiler.
+AC_LANG([C])
+save_CC=$CC
+CC=$CXX
+AC_SYS_LARGEFILE
+CC=$save_CC
+
 dnl Run tests using the C++ compiler.
 AC_LANG([C++])
 
@@ -132,8 +143,6 @@ XO_LIB_XAPIAN([], [],
 			  [^\([0-9]*\.[0-9]*[13579]\)\..*$], [-\1]))
 XO_REQUIRE([1.4.0])
 
-dnl Enable large file support if possible.
-AC_SYS_LARGEFILE
 dnl With xlC on AIX, -D_LARGE_FILES changes the ABI of std::string, so it
 dnl also needs to be used when compiling user code.
 abi_affecting_cxxflags=
