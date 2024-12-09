@@ -973,7 +973,7 @@ try {
 	// Write a block at an offset a little above 4GB and check that we wrote
 	// the specified block by checking the filesize.  This should catch bugs
 	// which truncate the offset used.
-	constexpr off_t high_offset = (off_t{1} << 32) + BLOCK_SIZE;
+	constexpr off_t high_offset = off_t(0x100000000 + BLOCK_SIZE);
 	constexpr off_t high_block = high_offset / BLOCK_SIZE;
 	try {
 	    io_write_block(fd, buf.data(), BLOCK_SIZE, high_block);
