@@ -594,21 +594,21 @@ if need_to_build $args autoconf ; then
   AUTOM4TE=$instdir/bin/autom4te
   export AUTOM4TE
 fi
-args='automake 1.16.5'
+args='automake 1.17'
 if need_to_build $args automake ; then
   lazy_build $args \
-    tar.xz f01d58cd6d9d77fbdca9eb4bbd5ead1988228fdb73d6f7a201f5f8d6b118b469 \
-    tar.gz 07bd24ad08a64bc17250ce09ec56e921d6343903943e99ccf63bbf0705e34605
+    tar.xz 8920c1fc411e13b90bf704ef9db6f29d540e76d232cb3b2c9f4dc4cc599bd990 \
+    tar.gz 397767d4db3018dd4440825b60c64258b636eaf6bf99ac8b0897f06c89310acd
   ACLOCAL=$instdir/bin/aclocal
   export ACLOCAL
   AUTOMAKE=$instdir/bin/automake
   export AUTOMAKE
 fi
-args='libtool 2.4.7'
+args='libtool 2.5.4'
 if need_to_build $args libtool ; then
   lazy_build $args \
-    tar.xz 4f7f217f057ce655ff22559ad221a0fd8ef84ad1fc5fcb6990cecc333aa1635d \
-    tar.gz 04e96c2404ea70c590c546eba4202a4e12722c640016c12b9b2f1ce3d481e9a8
+    tar.xz f81f5860666b0bc7d84baddefa60d1cb9fa6fceb2398cc3baca6afaa60266675 \
+    tar.gz da8ebb2ce4dcf46b90098daf962cffa68f4b4f62ea60f798d0ef12929ede6adf
   LIBTOOLIZE=$instdir/bin/libtoolize
   export LIBTOOLIZE
   libtool_aclocal=$instdir/share/aclocal
