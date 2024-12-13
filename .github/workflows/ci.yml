@@ -1942,7 +1942,7 @@ jobs:
         export NM=dumpbin
         PATH=/c/Users/runneradmin/.cargo/bin:$PATH
         pushd xapian-core
-        ./configure --enable-werror --disable-shared
+        ./configure --enable-werror
         export XAPIAN_CONFIG=$PWD/xapian-config
         popd
         # pushd xapian-applications/omega
@@ -1952,7 +1952,7 @@ jobs:
         # ./configure --enable-werror
         # popd
         pushd xapian-letor
-        ./configure --enable-werror --disable-shared
+        ./configure --enable-werror
         popd
     - name: make
       run: |
@@ -2047,7 +2047,7 @@ jobs:
         export NM=dumpbin
         PATH=/c/Users/runneradmin/.cargo/bin:$PATH
         pushd xapian-core
-        ./configure --enable-werror --disable-shared
+        ./configure --enable-werror
         export XAPIAN_CONFIG=$PWD/xapian-config
         popd
         # pushd xapian-applications/omega
@@ -2057,7 +2057,7 @@ jobs:
         # ./configure --enable-werror
         # popd
         pushd xapian-letor
-        ./configure --enable-werror --disable-shared
+        ./configure --enable-werror
         popd
     - name: make
       run: |
@@ -2149,7 +2149,7 @@ jobs:
         export NM=dumpbin
         PATH=/c/Users/runneradmin/.cargo/bin:$PATH
         pushd xapian-core
-        ./configure --enable-werror --disable-shared
+        ./configure --enable-werror
         export XAPIAN_CONFIG=$PWD/xapian-config
         popd
         # pushd xapian-applications/omega
@@ -2159,7 +2159,7 @@ jobs:
         # ./configure --enable-werror
         # popd
         pushd xapian-letor
-        ./configure --enable-werror --disable-shared
+        ./configure --enable-werror
         popd
     - name: make
       run: |
@@ -2251,7 +2251,7 @@ jobs:
         export NM=dumpbin
         PATH=/c/Users/runneradmin/.cargo/bin:$PATH
         pushd xapian-core
-        ./configure --enable-werror --disable-shared
+        ./configure --enable-werror
         export XAPIAN_CONFIG=$PWD/xapian-config
         popd
         # pushd xapian-applications/omega
@@ -2261,7 +2261,7 @@ jobs:
         # ./configure --enable-werror
         # popd
         pushd xapian-letor
-        ./configure --enable-werror --disable-shared
+        ./configure --enable-werror
         popd
     - name: make
       run: |

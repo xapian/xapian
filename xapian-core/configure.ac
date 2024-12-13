@@ -1618,6 +1618,7 @@ AC_SUBST([XAPIAN_CMAKE_LIBS])
 XAPIAN_CMAKE_SHARED=
 if test "$enable_shared" = yes; then
   XAPIAN_CMAKE_SHARED=ON
+  AC_DEFINE([ENABLE_SHARED], [1], [Define to 1 if libxapian is built as a shared library.])
 else
   XAPIAN_CMAKE_SHARED=OFF
 fi
