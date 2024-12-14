@@ -24,8 +24,9 @@ environment:
     APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
     VCVARS_BAT: "\"C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\VC\\Auxiliary\\Build\\vcvars64.bat\""
 install:
-  - ps: >-
+  - ps: |
       $env:CONFIGOPTS="--disable-documentation"
+      $env:PATH="c:\msys64\usr\bin;$env:PATH"
   - bash -c 'time ./bootstrap --fetch-url-command="curl --retry 5 --retry-connrefused -L" xapian-core'
   - if defined VCVARS_BAT call %VCVARS_BAT%
   - mkdir zlib
