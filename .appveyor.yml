@@ -20,6 +20,7 @@ environment:
 install:
   - ps: >-
       $env:CONFIGOPTS="--disable-documentation"
+      $env:PATH="c:\msys64\usr\bin;$env:PATH"
   - bash -c 'time ./bootstrap --fetch-url-command="curl --retry 5 --retry-connrefused -L" xapian-core'
   - if defined VCVARS_BAT call %VCVARS_BAT%
   - mkdir zlib
