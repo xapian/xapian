@@ -19,9 +19,10 @@ environment:
     VCVARS_BAT: "\"C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\VC\\Auxiliary\\Build\\vcvars64.bat\""
 install:
   - ps: >-
-      $env:CONFIGOPTS="--disable-documentation"
-  - ps: >-
-      $env:PATH="c:\msys64\usr\bin;$env:PATH"
+      {
+        $env:CONFIGOPTS="--disable-documentation"
+        $env:PATH="c:\msys64\usr\bin;$env:PATH"
+      }
   - bash -c 'time ./bootstrap --fetch-url-command="curl --retry 5 --retry-connrefused -L" xapian-core'
   - if defined VCVARS_BAT call %VCVARS_BAT%
   - mkdir zlib
@@ -38,14 +39,16 @@ install:
   # Fetch pre-built unicode-data.cc to avoid having to get working tclsh.
   - curl --retry 5 --retry-connrefused https://oligarchy.co.uk/xapian/patches/unicode-data16.cc > xapian-core\unicode\unicode-data.cc
   - ps: >-
-      $env:CC="cl -nologo"
-      $env:CXX="$(automake --print-libdir)/compile cl -nologo"
-      $env:CXXFLAGS="-EHsc"
-      $env:CPPFLAGS="-Ic:/projects/xapian/zlib"
-      $env:AR="lib"
-      $env:LD="link"
-      $env:LDFLAGS="-Lc:/projects/xapian/zlib"
-      $env:NM="dumpbin"
+      {
+        $env:CC="cl -nologo"
+        $env:CXX="$(automake --print-libdir)/compile cl -nologo"
+        $env:CXXFLAGS="-EHsc"
+        $env:CPPFLAGS="-Ic:/projects/xapian/zlib"
+        $env:AR="lib"
+        $env:LD="link"
+        $env:LDFLAGS="-Lc:/projects/xapian/zlib"
+        $env:NM="dumpbin"
+      }
 build_script:
   - bash -c 'time ./configure $CONFIGOPTS'
   - bash -c 'time make -j2' < nul
