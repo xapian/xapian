@@ -37,7 +37,7 @@ install:
   - curl --retry 5 --retry-connrefused https://oligarchy.co.uk/xapian/patches/unicode-data16.cc > xapian-core\unicode\unicode-data.cc
   - ps: >-
       $env:CC="cl -nologo"
-      $env:CXX="c:/projects/xapian/INST/share/automake-1.16/compile cl -nologo"
+      $env:CXX="$(automake --print-libdir)/compile cl -nologo"
       $env:CXXFLAGS="-EHsc"
       $env:CPPFLAGS="-Ic:/projects/xapian/zlib"
       $env:AR="lib"
