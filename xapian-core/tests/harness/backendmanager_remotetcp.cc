@@ -68,28 +68,25 @@ using namespace std;
 
 class ServerData {
 #ifdef HAVE_FORK
-    /// Value of pid which indicates an entry kill_remote() was called on.
-    static constexpr pid_t DEAD_PID = 0;
-
     typedef pid_t pid_type;
 #elif defined __WIN32__
-    /** Value of pid which indicates an entry kill_remote() was called on.
-     *
-     *  This is a #define because it's a pointer type which doesn't work as a
-     *  `static const` or `static constexpr` class member.
-     */
-#define DEAD_PID INVALID_HANDLE_VALUE
-
-    typedef HANDLE pid_type;
+    typedef DWORD pid_type;
 #else
 # error Neither HAVE_FORK nor __WIN32__ is defined
 #endif
+
+    /// Value of pid which indicates an entry kill_remote() was called on.
+    static constexpr pid_type DEAD_PID = 0;
 
     /** The remote server process ID.
      *
      *  Under Unix, this will actually be the /bin/sh process.
      */
     pid_type pid;
+
+#ifdef __WIN32__
+    HANDLE handle;
+#endif
 
     /** The internal pointer of the Database object.
      *
@@ -99,10 +96,18 @@ class ServerData {
     const void* db_internal;
 
   public:
+#ifndef __WIN32__
     void init(pid_type pid_) {
 	pid = pid_;
 	db_internal = nullptr;
     }
+#else
+    void init(pid_type pid_, HANDLE handle_) {
+	pid = pid_;
+	handle = handle_;
+	db_internal = nullptr;
+    }
+#endif
 
     void set_db_internal(const void* dbi) { db_internal = dbi; }
 
@@ -116,8 +121,8 @@ class ServerData {
 	// to SIG_IGN.  If we did somehow see that, it seems reasonable to
 	// treat the child as successfully cleaned up.
 #elif defined __WIN32__
-	WaitForSingleObject(pid, INFINITE);
-	CloseHandle(pid);
+	WaitForSingleObject(handle, INFINITE);
+	CloseHandle(handle);
 #endif
     }
 
@@ -131,7 +136,10 @@ class ServerData {
 					errno);
 	}
 #elif defined __WIN32__
-	if (!TerminateProcess(pid, 0)) {
+	// We want to kill the whole process group so we need to use
+	// GenerateConsoleCtrlEvent() - TerminateProcess() can only
+	// terminate one process given its handle.
+	if (!GenerateConsoleCtrlEvent(CTRL_BREAK_EVENT, pid)) {
 	    throw Xapian::DatabaseError("Couldn't kill remote server",
 					-int(GetLastError()));
 	}
@@ -327,7 +335,8 @@ try_next_port:
 
     // For some reason Windows wants a modifiable command line string
     // so pass a pointer to the first character rather than using c_str().
-    if (!CreateProcess(XAPIAN_TCPSRV, &cmd[0], 0, 0, TRUE, 0, 0, 0,
+    if (!CreateProcess(XAPIAN_TCPSRV, &cmd[0], 0, 0, TRUE,
+		       CREATE_NEW_PROCESS_GROUP, 0, 0,
 		       &startupinfo, &procinfo)) {
 	win32_throw_error_string("Couldn't create child process");
     }
@@ -372,7 +381,7 @@ try_next_port:
     }
 
     auto& data = server_data[first_unused_server_data++];
-    data.init(procinfo.hProcess);
+    data.init(procinfo.dwProcessId, procinfo.hProcess);
     return {port, data};
 }
 

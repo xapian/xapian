@@ -562,8 +562,12 @@ struct remotefailure1_iterators {
 
 // Test for a remote server failing.
 DEFINE_TESTCASE(remotefailure1, remotetcp) {
-#if defined __WIN32__ && defined ENABLE_SHARED
-    XFAIL("Remote failure handling or testing is buggy in shared build on Microsoft Windows");
+#ifdef __WIN32__
+    // Calling GenerateConsoleCtrlEvent(CTRL_BREAK_EVENT, pid) to kill
+    // a whole process group fails under Wine with ERROR_INVALID_HANDLE.
+    // We haven't managed to reduce a testcase for this.
+    if (getenv("XAPIAN_TESTSUITE_RUNNING_UNDER_WINE"))
+	SKIP_TEST("This testcase doesn't work under Wine");
 #endif
     Xapian::Database db(get_database("apitest_simpledata"));
     remotefailure1_iterators iters;
@@ -606,8 +610,9 @@ DEFINE_TESTCASE(remotefailure1, remotetcp) {
 
 /// Check API methods which might either work or throw an exception.
 DEFINE_TESTCASE(remotefailure3, remotetcp) {
-#if defined __WIN32__ && defined ENABLE_SHARED
-    XFAIL("Remote failure handling or testing is buggy in shared build on Microsoft Windows");
+#ifdef __WIN32__
+    if (getenv("XAPIAN_TESTSUITE_RUNNING_UNDER_WINE"))
+	SKIP_TEST("This testcase doesn't work under Wine");
 #endif
     Xapian::Database db(get_database("etext"));
     const string & uuid = db.get_uuid();
@@ -645,8 +650,9 @@ DEFINE_TESTCASE(remotefailure3, remotetcp) {
 
 /// Test the effects of remote server failure on transactions
 DEFINE_TESTCASE(remotefailure5, remotetcp) {
-#if defined __WIN32__ && defined ENABLE_SHARED
-    XFAIL("Remote failure handling or testing is buggy in shared build on Microsoft Windows");
+#ifdef __WIN32__
+    if (getenv("XAPIAN_TESTSUITE_RUNNING_UNDER_WINE"))
+	SKIP_TEST("This testcase doesn't work under Wine");
 #endif
     {
 	Xapian::WritableDatabase wdb = get_writable_database();
@@ -697,8 +703,9 @@ DEFINE_TESTCASE(remotefailure5, remotetcp) {
 
 // Test WritableDatabase methods.
 DEFINE_TESTCASE(remotefailure7, remotetcp) {
-#if defined __WIN32__ && defined ENABLE_SHARED
-    XFAIL("Remote failure handling or testing is buggy in shared build on Microsoft Windows");
+#ifdef __WIN32__
+    if (getenv("XAPIAN_TESTSUITE_RUNNING_UNDER_WINE"))
+	SKIP_TEST("This testcase doesn't work under Wine");
 #endif
     Xapian::WritableDatabase db(get_writable_database());
     db.add_document(Xapian::Document());
@@ -721,8 +728,9 @@ DEFINE_TESTCASE(remotefailure7, remotetcp) {
 
 // Test spelling related methods.
 DEFINE_TESTCASE(remotefailure8, remotetcp) {
-#if defined __WIN32__ && defined ENABLE_SHARED
-    XFAIL("Remote failure handling or testing is buggy in shared build on Microsoft Windows");
+#ifdef __WIN32__
+    if (getenv("XAPIAN_TESTSUITE_RUNNING_UNDER_WINE"))
+	SKIP_TEST("This testcase doesn't work under Wine");
 #endif
     Xapian::WritableDatabase db(get_writable_database());
     db.add_spelling("pneumatic");
@@ -744,8 +752,9 @@ DEFINE_TESTCASE(remotefailure8, remotetcp) {
 
 // Test synonym related methods.
 DEFINE_TESTCASE(remotefailure9, remotetcp) {
-#if defined __WIN32__ && defined ENABLE_SHARED
-    XFAIL("Remote failure handling or testing is buggy in shared build on Microsoft Windows");
+#ifdef __WIN32__
+    if (getenv("XAPIAN_TESTSUITE_RUNNING_UNDER_WINE"))
+	SKIP_TEST("This testcase doesn't work under Wine");
 #endif
     Xapian::WritableDatabase db(get_writable_database());
     db.add_synonym("color", "colour");
@@ -766,8 +775,9 @@ DEFINE_TESTCASE(remotefailure9, remotetcp) {
 
 // Test metadata related methods.
 DEFINE_TESTCASE(remotefailure10, remotetcp) {
-#if defined __WIN32__ && defined ENABLE_SHARED
-    XFAIL("Remote failure handling or testing is buggy in shared build on Microsoft Windows");
+#ifdef __WIN32__
+    if (getenv("XAPIAN_TESTSUITE_RUNNING_UNDER_WINE"))
+	SKIP_TEST("This testcase doesn't work under Wine");
 #endif
     Xapian::WritableDatabase db(get_writable_database());
     db.set_metadata("foo", "FOO");
