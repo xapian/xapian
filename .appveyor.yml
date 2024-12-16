@@ -10,6 +10,7 @@ clone_folder: c:\projects\xapian
 environment:
   global:
     AUTOMATED_TESTING: 1
+    CONFIGOPTS: --disable-documentation
   matrix:
   - platform: x86
     APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
@@ -18,11 +19,7 @@ environment:
     APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
     VCVARS_BAT: "\"C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\VC\\Auxiliary\\Build\\vcvars64.bat\""
 install:
-  - ps: >-
-      {
-        $env:CONFIGOPTS="--disable-documentation"
-        $env:PATH="c:\msys64\usr\bin;$env:PATH"
-      }
+  - ps: $env:PATH="c:\msys64\usr\bin;$env:PATH"
   - bash -c 'time ./bootstrap --fetch-url-command="curl --retry 5 --retry-connrefused -L" xapian-core'
   - if defined VCVARS_BAT call %VCVARS_BAT%
   - mkdir zlib
@@ -38,17 +35,16 @@ install:
   - cd ..
   # Fetch pre-built unicode-data.cc to avoid having to get working tclsh.
   - curl --retry 5 --retry-connrefused https://oligarchy.co.uk/xapian/patches/unicode-data16.cc > xapian-core\unicode\unicode-data.cc
-  - ps: >-
-      {
-        $env:CC="cl -nologo"
-        $env:CXX="$(automake --print-libdir)/compile cl -nologo"
-        $env:CXXFLAGS="-EHsc"
-        $env:CPPFLAGS="-Ic:/projects/xapian/zlib"
-        $env:AR="lib"
-        $env:LD="link"
-        $env:LDFLAGS="-Lc:/projects/xapian/zlib"
-        $env:NM="dumpbin"
-      }
+  - ps: |
+      $env:AR="lib"
+      $env:CC="cl -nologo"
+      $env:CXX="c:/projects/xapian/xapian-core/compile cl -nologo"
+      $env:CPPFLAGS="-Ic:/projects/xapian/zlib"
+      # Standard C++ stack unwinding; assume extern "C" functions never throw.
+      $env:CXXFLAGS="-EHsc"
+      $env:LD="link"
+      $env:LDFLAGS="-Lc:/projects/xapian/zlib"
+      $env:NM="dumpbin"
 build_script:
   - bash -c 'time ./configure $CONFIGOPTS'
   - bash -c 'time make -j2' < nul
