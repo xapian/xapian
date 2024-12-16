@@ -1392,6 +1392,7 @@ jobs:
         export AUTOMATED_TESTING=1
         export VERBOSE=1
         export WINEPATH="$PWD/xapian-core/.libs;/usr/lib/gcc/i686-w64-mingw32/`i686-w64-mingw32-g++ --version 2>/dev/null|head -n1|sed 's/.*) //;s/ .*//'`"
+        export XAPIAN_TESTSUITE_RUNNING_UNDER_WINE=1
         make -j2 -C xapian-core check
         export WINEPATH="$PWD/xapian-letor/.libs;$WINEPATH"
         make -j2 -C xapian-letor check
@@ -1455,6 +1456,7 @@ jobs:
         export AUTOMATED_TESTING=1
         export VERBOSE=1
         export WINEPATH="$PWD/xapian-core/.libs;/usr/lib/gcc/x86_64-w64-mingw32/`x86_64-w64-mingw32-g++ --version 2>/dev/null|head -n1|sed 's/.*) //;s/ .*//'`"
+        export XAPIAN_TESTSUITE_RUNNING_UNDER_WINE=1
         make -j2 -C xapian-core check
         export WINEPATH="$PWD/xapian-letor/.libs;$WINEPATH"
         make -j2 -C xapian-letor check
