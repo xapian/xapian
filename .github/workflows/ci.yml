@@ -113,6 +113,14 @@ jobs:
       # grep '^' passes through all input while giving a non-zero exit status
       # if that input is empty.
       run: git status --porcelain|grep '^' && { echo "The generated files listed above are not in .gitignore" ; exit 1; }; true
+    - name: Save log files
+      if: ${{ failure() }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: logs-${{ github.job }}-${{ github.sha }}
+        overwrite: true
+        path: |
+          **/*.log
 
   clang-santisers:
     runs-on: 'ubuntu-latest'
@@ -216,6 +224,14 @@ jobs:
         make -j2 -C xapian-applications/omega check
         # make -j2 -C xapian-bindings check MACOS_SIP_HACK_ENV='env LSAN_OPTIONS=leak_check_at_exit=0 LD_PRELOAD=libasan.so.8:libubsan.so.1'
         make -j2 -C xapian-letor check
+    - name: Save log files
+      if: ${{ failure() }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: logs-${{ github.job }}-${{ github.sha }}
+        overwrite: true
+        path: |
+          **/*.log
 
   GLIBCXX_DEBUG:
     runs-on: 'ubuntu-20.04'
@@ -309,6 +325,14 @@ jobs:
         make -j2 -C xapian-applications/omega check
         make -j2 -C xapian-bindings check
         make -j2 -C xapian-letor check
+    - name: Save log files
+      if: ${{ failure() }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: logs-${{ github.job }}-${{ github.sha }}
+        overwrite: true
+        path: |
+          **/*.log
 
   FORTIFY_SOURCE_3:
     # _FORTIFY_SOURCE level 3 requires GCC 12, so currently we need to use
@@ -415,6 +439,14 @@ jobs:
         make -j2 -C xapian-applications/omega check
         make -j2 -C xapian-bindings check
         make -j2 -C xapian-letor check
+    - name: Save log files
+      if: ${{ failure() }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: logs-${{ github.job }}-${{ github.sha }}
+        overwrite: true
+        path: |
+          **/*.log
 
   assertions:
     runs-on: 'ubuntu-22.04'
@@ -506,6 +538,14 @@ jobs:
         make -j2 -C xapian-applications/omega check
         make -j2 -C xapian-bindings check
         make -j2 -C xapian-letor check
+    - name: Save log files
+      if: ${{ failure() }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: logs-${{ github.job }}-${{ github.sha }}
+        overwrite: true
+        path: |
+          **/*.log
 
   debug-log:
     runs-on: 'ubuntu-22.04'
@@ -597,6 +637,14 @@ jobs:
         make -j2 -C xapian-applications/omega check
         make -j2 -C xapian-bindings check
         make -j2 -C xapian-letor check
+    - name: Save log files
+      if: ${{ failure() }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: logs-${{ github.job }}-${{ github.sha }}
+        overwrite: true
+        path: |
+          **/*.log
 
   clang:
     runs-on: 'ubuntu-20.04'
@@ -689,6 +737,14 @@ jobs:
         make -j2 -C xapian-applications/omega check
         make -j2 -C xapian-bindings check
         make -j2 -C xapian-letor check
+    - name: Save log files
+      if: ${{ failure() }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: logs-${{ github.job }}-${{ github.sha }}
+        overwrite: true
+        path: |
+          **/*.log
 
   # Test with the oldest clang version we easily can.
   clang6:
@@ -779,6 +835,14 @@ jobs:
         make -j2 -C xapian-applications/omega check
         make -j2 -C xapian-bindings check
         make -j2 -C xapian-letor check
+    - name: Save log files
+      if: ${{ failure() }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: logs-${{ github.job }}-${{ github.sha }}
+        overwrite: true
+        path: |
+          **/*.log
 
   # GCC 7 is the oldest GCC we currently aim to support.
   # Ubuntu 20.04 has GCC 7.5.0.
@@ -873,6 +937,14 @@ jobs:
         make -j2 -C xapian-applications/omega check
         make -j2 -C xapian-bindings check
         make -j2 -C xapian-letor check
+    - name: Save log files
+      if: ${{ failure() }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: logs-${{ github.job }}-${{ github.sha }}
+        overwrite: true
+        path: |
+          **/*.log
 
   Emscripten:
     runs-on: 'ubuntu-20.04'
@@ -920,6 +992,14 @@ jobs:
         em++ -Oz -s USE_ZLIB=1 -std=c++11 -s WASM=1 -Iinclude emscripten/xapianjstest.cc .libs/libxapian-1.5.a -o emscripten/xapianjstest.js
         cd emscripten
         node xapianjstest.js
+    - name: Save log files
+      if: ${{ failure() }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: logs-${{ github.job }}-${{ github.sha }}
+        overwrite: true
+        path: |
+          **/*.log
 
   debian-stable:
     runs-on: 'ubuntu-latest'
@@ -1012,6 +1092,14 @@ jobs:
         make -j2 -C xapian-applications/omega check
         make -j2 -C xapian-bindings check
         make -j2 -C xapian-letor check
+    - name: Save log files
+      if: ${{ failure() }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: logs-${{ github.job }}-${{ github.sha }}
+        overwrite: true
+        path: |
+          **/*.log
 
   macos-15:
     runs-on: 'macos-15'
@@ -1396,6 +1484,14 @@ jobs:
         make -j2 -C xapian-core check
         export WINEPATH="$PWD/xapian-letor/.libs;$WINEPATH"
         make -j2 -C xapian-letor check
+    - name: Save log files
+      if: ${{ failure() }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: logs-${{ github.job }}-${{ github.sha }}
+        overwrite: true
+        path: |
+          **/*.log
 
   mingw64-x86-64-cross:
     runs-on: 'ubuntu-22.04'
@@ -1460,6 +1556,14 @@ jobs:
         make -j2 -C xapian-core check
         export WINEPATH="$PWD/xapian-letor/.libs;$WINEPATH"
         make -j2 -C xapian-letor check
+    - name: Save log files
+      if: ${{ failure() }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: logs-${{ github.job }}-${{ github.sha }}
+        overwrite: true
+        path: |
+          **/*.log
 
   Fedora:
     runs-on: 'ubuntu-22.04'
@@ -1528,6 +1632,14 @@ jobs:
         make -j2 -C xapian-applications/omega check
         make -j2 -C xapian-bindings check
         make -j2 -C xapian-letor check
+    - name: Save log files
+      if: ${{ failure() }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: logs-${{ github.job }}-${{ github.sha }}
+        overwrite: true
+        path: |
+          **/*.log
 
   android-cross:
     runs-on: 'ubuntu-22.04'
@@ -1566,6 +1678,14 @@ jobs:
         PATH=$PATH:$ANDROID_NDK/toolchains/llvm/prebuilt/linux-x86_64/bin
         make -j2 -C xapian-core
       # FIXME: Run tests under android emulator?
+    - name: Save log files
+      if: ${{ failure() }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: logs-${{ github.job }}-${{ github.sha }}
+        overwrite: true
+        path: |
+          **/*.log
 
   cygwin:
     # We only test 64-bit cygwin as 32-bit support has been dropped as of
@@ -1635,6 +1755,14 @@ jobs:
         make -j2 -C xapian-applications/omega check
         # make -j2 -C xapian-bindings check
         make -j2 -C xapian-letor check
+    - name: Save log files
+      if: ${{ failure() }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: logs-${{ github.job }}-${{ github.sha }}
+        overwrite: true
+        path: |
+          **/*.log
 
   msys2-mingw32:
     runs-on: 'windows-latest'
@@ -1719,6 +1847,14 @@ jobs:
         make -j2 -C xapian-applications/omega check
         # make -j2 -C xapian-bindings check
         make -j2 -C xapian-letor check
+    - name: Save log files
+      if: ${{ failure() }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: logs-${{ github.job }}-${{ github.sha }}
+        overwrite: true
+        path: |
+          **/*.log
 
   msys2-mingw64:
     runs-on: 'windows-latest'
@@ -1793,6 +1929,14 @@ jobs:
         make -j2 -C xapian-applications/omega check
         # make -j2 -C xapian-bindings check
         make -j2 -C xapian-letor check
+    - name: Save log files
+      if: ${{ failure() }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: logs-${{ github.job }}-${{ github.sha }}
+        overwrite: true
+        path: |
+          **/*.log
 
   msys2-ucrt64:
     runs-on: 'windows-latest'
@@ -1867,6 +2011,14 @@ jobs:
         make -j2 -C xapian-applications/omega check
         # make -j2 -C xapian-bindings check
         make -j2 -C xapian-letor check
+    - name: Save log files
+      if: ${{ failure() }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: logs-${{ github.job }}-${{ github.sha }}
+        overwrite: true
+        path: |
+          **/*.log
 
   msvc2019:
     runs-on: 'windows-2019'
@@ -1972,6 +2124,14 @@ jobs:
         # make -j2 -C xapian-applications/omega check
         # make -j2 -C xapian-bindings check
         make -j2 -C xapian-letor check
+    - name: Save log files
+      if: ${{ failure() }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: logs-${{ github.job }}-${{ github.sha }}
+        overwrite: true
+        path: |
+          **/*.log
 
   msvc2022:
     runs-on: 'windows-2022'
@@ -2077,6 +2237,14 @@ jobs:
         # make -j2 -C xapian-applications/omega check
         # make -j2 -C xapian-bindings check
         make -j2 -C xapian-letor check
+    - name: Save log files
+      if: ${{ failure() }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: logs-${{ github.job }}-${{ github.sha }}
+        overwrite: true
+        path: |
+          **/*.log
 
   msvc2019-x86:
     runs-on: 'windows-2019'
@@ -2179,6 +2347,14 @@ jobs:
         # make -j2 -C xapian-applications/omega check
         # make -j2 -C xapian-bindings check
         make -j2 -C xapian-letor check
+    - name: Save log files
+      if: ${{ failure() }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: logs-${{ github.job }}-${{ github.sha }}
+        overwrite: true
+        path: |
+          **/*.log
 
   msvc2022-x86:
     runs-on: 'windows-2022'
@@ -2281,6 +2457,14 @@ jobs:
         # make -j2 -C xapian-applications/omega check
         # make -j2 -C xapian-bindings check
         make -j2 -C xapian-letor check
+    - name: Save log files
+      if: ${{ failure() }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: logs-${{ github.job }}-${{ github.sha }}
+        overwrite: true
+        path: |
+          **/*.log
 
   freebsd:
     runs-on: 'ubuntu-22.04'
@@ -2348,6 +2532,14 @@ jobs:
           make -j2 -C xapian-applications/omega check V=0
           make -j2 -C xapian-bindings check V=0
           make -j2 -C xapian-letor check V=0
+    - name: Save log files
+      if: ${{ failure() }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: logs-${{ github.job }}-${{ github.sha }}
+        overwrite: true
+        path: |
+          **/*.log
 
   dragonfly:
     runs-on: 'ubuntu-22.04'
@@ -2415,6 +2607,14 @@ jobs:
           make -j2 -C xapian-applications/omega check V=0
           make -j2 -C xapian-bindings check V=0
           make -j2 -C xapian-letor check V=0
+    - name: Save log files
+      if: ${{ failure() }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: logs-${{ github.job }}-${{ github.sha }}
+        overwrite: true
+        path: |
+          **/*.log
 
   netbsd:
     runs-on: 'ubuntu-22.04'
@@ -2480,6 +2680,14 @@ jobs:
           make -j2 -C xapian-letor check V=0
           # Avoid bloating output with a huge file tree visualisation.
           rm -rf xapian-*
+    - name: Save log files
+      if: ${{ failure() }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: logs-${{ github.job }}-${{ github.sha }}
+        overwrite: true
+        path: |
+          **/*.log
 
   openbsd:
     runs-on: 'ubuntu-22.04'
@@ -2550,6 +2758,14 @@ jobs:
           make -j2 -C xapian-letor check V=0
           # Avoid bloating output with a huge file tree visualisation.
           rm -rf xapian-*
+    - name: Save log files
+      if: ${{ failure() }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: logs-${{ github.job }}-${{ github.sha }}
+        overwrite: true
+        path: |
+          **/*.log
 
   checkpatch:
     name: 'Automated run of xapian-check-patch'
