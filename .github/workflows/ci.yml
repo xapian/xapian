@@ -2491,7 +2491,7 @@ jobs:
         prepare: |
           set -e
           pkg install -y bash ccache lua54 openjdk17 openjdk17-jre perl5 php82 pcre2 pkgconf py311-sphinx python3 ruby rubygem-rdoc rubygem-test-unit tcl86
-          ccache --set-config=cache_dir="$HOME/work/xapian/xapian/.ccache"
+          ccache --set-config=cache_dir="$GITHUB_WORKSPACE/.ccache"
           ccache --set-config=max_size='500M'
           ccache --set-config=compression=true
         run: |
@@ -2566,7 +2566,7 @@ jobs:
         prepare: |
           set -e
           pkg install -y bash ccache lua54 openjdk17 openjdk17-jre perl5 php82 pcre2 pkgconf py39-sphinx python3 ruby rubygem-rdoc rubygem-test-unit tcl86
-          ccache --set-config=cache_dir="$HOME/work/xapian/xapian/.ccache"
+          ccache --set-config=cache_dir="$GITHUB_WORKSPACE/.ccache"
           ccache --set-config=max_size='500M'
           ccache --set-config=compression=true
         run: |
@@ -2641,7 +2641,7 @@ jobs:
         prepare: |
           set -e
           /usr/sbin/pkg_add -u ccache perl pcre2
-          ccache --set-config=cache_dir="$HOME/work/xapian/xapian/.ccache"
+          ccache --set-config=cache_dir="$GITHUB_WORKSPACE/.ccache"
           ccache --set-config=max_size='500M'
           ccache --set-config=compression=true
         run: |
@@ -2715,7 +2715,7 @@ jobs:
         prepare: |
           set -e
           pkg_add ccache gtar-- libmagic
-          ccache --set-config=cache_dir="$HOME/work/xapian/xapian/.ccache"
+          ccache --set-config=cache_dir="$GITHUB_WORKSPACE/.ccache"
           ccache --set-config=max_size='500M'
           ccache --set-config=compression=true
         run: |
@@ -2792,7 +2792,7 @@ jobs:
         prepare: |
           set -e
           pkgutil -y -i ccache gmake gtar perl # libmagic_dev libpcre2_dev
-          ccache --set-config=cache_dir="$HOME/work/xapian/xapian/.ccache"
+          ccache --set-config=cache_dir="$GITHUB_WORKSPACE/.ccache"
           ccache --set-config=max_size='500M'
           ccache --set-config=compression=true
         run: |
