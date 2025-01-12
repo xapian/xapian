@@ -2,7 +2,7 @@
  * @brief Btree implementation
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2012,2013,2014,2015,2016 Olly Betts
+ * Copyright 2002-2025 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -173,6 +173,10 @@ template<class T> class LeafItem_base {
     /* LeafItem from block address and offset to item pointer */
     LeafItem_base(T p_, int c) : p(p_ + getD(p_, c)) { }
     explicit LeafItem_base(T p_) : p(p_) { }
+
+    void init(T p_, int c) { p = p_ + getD(p_, c); }
+    void init(T p_) { p = p_; }
+
     T get_address() const { return p; }
     /** SIZE in diagram above. */
     int size() const {

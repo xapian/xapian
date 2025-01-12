@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016 Olly Betts
+ * Copyright 2002-2025 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -1512,19 +1512,15 @@ GlassTable::read_tag(Glass::Cursor * C_, string *tag, bool keep_compressed) cons
 
     tag->resize(0);
 
-    bool first = true;
-    bool compressed = false;
+    LeafItem item(C_[0].get_p(), C_[0].c);
+    bool compressed = item.get_compressed();
     bool decompress = false;
+    if (compressed && !keep_compressed) {
+	comp_stream.decompress_start();
+	decompress = true;
+    }
+
     while (true) {
-	LeafItem item(C_[0].get_p(), C_[0].c);
-	if (first) {
-	    first = false;
-	    compressed = item.get_compressed();
-	    if (compressed && !keep_compressed) {
-		comp_stream.decompress_start();
-		decompress = true;
-	    }
-	}
 	bool last = item.last_component();
 	if (decompress) {
 	    // Decompress each chunk as we read it so we don't need both the
@@ -1542,6 +1538,7 @@ GlassTable::read_tag(Glass::Cursor * C_, string *tag, bool keep_compressed) cons
 	if (!next(C_, 0)) {
 	    throw Xapian::DatabaseCorruptError("Unexpected end of table when reading continuation of tag");
 	}
+	item.init(C_[0].get_p(), C_[0].c);
     }
     // At this point the cursor is on the last item - calling next will move
     // it to the next key (GlassCursor::read_tag() relies on this).
