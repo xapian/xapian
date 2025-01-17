@@ -39,6 +39,7 @@
 /jsonesctest
 /md5test
 /omindexcheck
+/timecheck
 /urlenctest
 /utf8converttest
 /*test.log

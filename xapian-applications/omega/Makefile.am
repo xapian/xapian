@@ -164,7 +164,7 @@ dist_pkglibbin_SCRIPTS = mhtml2html outlookmsg2html rfc822tohtml vcard2text
 bin_PROGRAMS = omindex scriptindex omindex-list generate-qrel-file
 dist_bin_SCRIPTS = dbi2omega mbox2omega postprocess
 
-check_PROGRAMS = atomparsertest csvesctest htmlparsertest jsonesctest md5test sdbntest urlenctest utf8converttest omindexcheck
+check_PROGRAMS = atomparsertest csvesctest htmlparsertest jsonesctest md5test sdbntest urlenctest utf8converttest omindexcheck timecheck
 dist_check_SCRIPTS = omegatest.pl sourcetest omindextest
 TESTS_ENVIRONMENT = UBSAN_OPTIONS=suppressions=$(srcdir)/ubsan.supp $(EATMYDATA)
 TESTS =	atomparsertest$(EXEEXT)\
@@ -354,6 +354,9 @@ jsonesctest_LDADD = $(NO_INSTALL) $(XAPIAN_LIBS)
 
 omindexcheck_SOURCES = omindexcheck.cc
 omindexcheck_LDADD = $(NO_INSTALL) $(XAPIAN_LIBS)
+
+timecheck_SOURCES = timecheck.cc
+timecheck_LDADD = $(NO_INSTALL)
 
 if !MAINTAINER_NO_DOCS
 dist_man_MANS = omindex.1 scriptindex.1 omindex-list.1

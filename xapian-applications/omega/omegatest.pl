@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 # omegatest: Test omega CGI
 #
-# Copyright (C) 2015-2024 Olly Betts
+# Copyright (C) 2015-2025 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -33,6 +33,7 @@ sub print_to_file {
 
 my $omega = $ENV{OMEGA} // './omega';
 my $scriptindex = $ENV{SCRIPTINDEX} // './scriptindex';
+my $timecheck = $ENV{TIMECHECK} // './timecheck';
 my $faketime = $ENV{FAKETIME} // 'faketime';
 my $srcdir = ($0 =~ m,(.*)/,)[0] // '.';
 
@@ -573,7 +574,7 @@ qtestcase('(<alldocuments> AND_NOT (Len OR Lfr))', 'N=Lfr', 'N=Len');
 qtestcase('(VALUE_RANGE 0 2015 201501~ AND_NOT Len)', 'DATEVALUE=0', 'START=20150101', 'END=20150131', 'N=Len');
 
 if ($faketime ne '') {
-  my $out = `$faketime -f '1980-12-08 00:00:00' date +%Y 2>&1`;
+  my $out = `$faketime -f '1980-12-08 00:00:00' $timecheck`;
   chomp($out);
   my $rc = $? >> 8;
   if ($rc == 127) {
