@@ -123,7 +123,7 @@ jobs:
           **/*.log
 
   clang-santisers:
-    runs-on: 'ubuntu-latest'
+    runs-on: 'ubuntu-24.04'
     env:
       LIBEXTRACTOR_PREFIX: '/usr/lib/x86_64-linux-gnu/libextractor'
     needs: makedist
@@ -170,7 +170,7 @@ jobs:
             libglib2.0-dev \
             libe-book-dev \
             libetonyek-dev \
-            libgepub-0.6-dev \
+            libgepub-0.7-dev \
             libgmime-3.0-dev \
             libarchive-dev \
             libabw-dev \
