@@ -121,7 +121,7 @@ dist_pkglibbin_SCRIPTS = mhtml2html outlookmsg2html rfc822tohtml vcard2text
 bin_PROGRAMS = omindex scriptindex omindex-list
 dist_bin_SCRIPTS = dbi2omega htdig2omega mbox2omega
 
-check_PROGRAMS = atomparsetest csvesctest htmlparsetest jsonesctest md5test urlenctest utf8converttest
+check_PROGRAMS = atomparsetest csvesctest htmlparsetest jsonesctest md5test urlenctest utf8converttest timecheck
 dist_check_SCRIPTS = omegatest.pl sourcetest
 TESTS_ENVIRONMENT = $(EATMYDATA)
 TESTS =	atomparsetest$(EXEEXT)\
@@ -247,6 +247,9 @@ csvesctest_LDADD = $(NO_INSTALL)
 
 jsonesctest_SOURCES = jsonesctest.cc jsonescape.cc
 jsonesctest_LDADD = $(NO_INSTALL) $(XAPIAN_LIBS)
+
+timecheck_SOURCES = timecheck.cc
+timecheck_LDADD = $(NO_INSTALL)
 
 if !MAINTAINER_NO_DOCS
 dist_man_MANS = omindex.1 scriptindex.1 omindex-list.1

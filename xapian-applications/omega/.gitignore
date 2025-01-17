@@ -38,6 +38,7 @@
 /htmlparsetest
 /jsonesctest
 /md5test
+/timecheck
 /urlenctest
 /utf8converttest
 /*test.log
