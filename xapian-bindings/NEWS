@@ -11,9 +11,9 @@ Portability:
 
 * We no longer explicitly link bindings with -lstdc++.  This was added in 0.9.3
   in 2005 as a workaround for a linking problem on OpenBSD, but nowadays it
-  causes link failures on platforms which use clang+libc++ as the C++ compiler
-  which includes OpenBSD so it seems this fix is no longer useful anywhere.
-  Fixes #834, reported by David Gessel.
+  causes link failures on platforms which use clang+libc++, as the C++ compiler
+  which includes OpenBSD does, so it seems this fix is no longer useful
+  anywhere.  Fixes #834, reported by David Gessel.
 
   If this change results in you getting a link failure, please let us know
   about it.  You can probably workaround the failure by specifying an explicit
