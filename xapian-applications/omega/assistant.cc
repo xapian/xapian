@@ -76,7 +76,7 @@ send_field(Field field,
 	   size_t len)
 {
     if (len == 0) return;
-    putc(static_cast<unsigned char>(field), sockt);
+    PUTC(static_cast<unsigned char>(field), sockt);
     if (!write_string(sockt, data, len)) {
 	_Exit(OMEGA_EX_SOCKET_WRITE_ERROR);
     }
@@ -85,14 +85,14 @@ send_field(Field field,
 static void
 send_field_end()
 {
-    putc(static_cast<unsigned char>(FIELD_END), sockt);
+    PUTC(static_cast<unsigned char>(FIELD_END), sockt);
 }
 
 void
 send_field_page_count(int value)
 {
     if (value < 0) return;
-    putc(static_cast<unsigned char>(FIELD_PAGE_COUNT), sockt);
+    PUTC(static_cast<unsigned char>(FIELD_PAGE_COUNT), sockt);
     if (!write_unsigned(sockt, unsigned(value))) {
 	_Exit(OMEGA_EX_SOCKET_WRITE_ERROR);
     }
@@ -102,7 +102,7 @@ void
 send_field_created_date(time_t value)
 {
     if (value == time_t(-1)) return;
-    putc(static_cast<unsigned char>(FIELD_CREATED_DATE), sockt);
+    PUTC(static_cast<unsigned char>(FIELD_CREATED_DATE), sockt);
     auto u_value = static_cast<unsigned long>(value);
     if (!write_unsigned(sockt, u_value)) {
 	_Exit(OMEGA_EX_SOCKET_WRITE_ERROR);

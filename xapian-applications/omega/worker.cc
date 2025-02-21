@@ -289,7 +289,7 @@ Worker::extract(const std::string& filename,
     // Send a filename and wait for the reply.
     if (write_string(sockt, filename) && write_string(sockt, mimetype)) {
 	while (true) {
-	    int field_code = getc(sockt);
+	    int field_code = GETC(sockt);
 	    string* value;
 	    switch (field_code) {
 	      case FIELD_PAGE_COUNT: {

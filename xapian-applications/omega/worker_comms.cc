@@ -31,14 +31,14 @@ bool
 read_string(FILE* f, string& s)
 {
     // Extracting the length of the string
-    int ch = getc(f);
+    int ch = GETC(f);
     if (ch < 0) return false;
     size_t len = ch;
     if (len >= 253) {
 	unsigned i = len - 251;
 	len = 0;
 	for ( ; i; --i) {
-	    ch = getc(f);
+	    ch = GETC(f);
 	    if (ch < 0) return false;
 	    len = (len << 8) | ch;
 	}
@@ -51,7 +51,7 @@ read_string(FILE* f, string& s)
     char buf[buffer_size];
 
     while (len) {
-	size_t n = fread(buf, 1, min(sizeof(buf), len), f);
+	size_t n = FREAD(buf, 1, min(sizeof(buf), len), f);
 	if (n == 0) {
 	    // Error or EOF!
 	    return false;
@@ -67,26 +67,26 @@ bool
 write_string(FILE* f, const char* p, size_t len)
 {
     if (len < 253) {
-	putc(static_cast<unsigned char>(len), f);
+	PUTC(static_cast<unsigned char>(len), f);
     } else if (len < 0x10000) {
-	putc(253, f);
-	putc(static_cast<unsigned char>(len >> 8), f);
-	putc(static_cast<unsigned char>(len), f);
+	PUTC(253, f);
+	PUTC(static_cast<unsigned char>(len >> 8), f);
+	PUTC(static_cast<unsigned char>(len), f);
     } else if (len < 0x1000000) {
-	putc(254, f);
-	putc(static_cast<unsigned char>(len >> 16), f);
-	putc(static_cast<unsigned char>(len >> 8), f);
-	putc(static_cast<unsigned char>(len), f);
+	PUTC(254, f);
+	PUTC(static_cast<unsigned char>(len >> 16), f);
+	PUTC(static_cast<unsigned char>(len >> 8), f);
+	PUTC(static_cast<unsigned char>(len), f);
     } else {
-	putc(255, f);
-	putc(static_cast<unsigned char>(len >> 24), f);
-	putc(static_cast<unsigned char>(len >> 16), f);
-	putc(static_cast<unsigned char>(len >> 8), f);
-	putc(static_cast<unsigned char>(len), f);
+	PUTC(255, f);
+	PUTC(static_cast<unsigned char>(len >> 24), f);
+	PUTC(static_cast<unsigned char>(len >> 16), f);
+	PUTC(static_cast<unsigned char>(len >> 8), f);
+	PUTC(static_cast<unsigned char>(len), f);
     }
 
     while (len) {
-	size_t n = fwrite(p, 1, len, f);
+	size_t n = FWRITE(p, 1, len, f);
 	if (n == 0) {
 	    // EOF.
 	    return false;
@@ -105,7 +105,7 @@ read_unsigned(FILE* f, unsigned& v)
     unsigned char* p = data;
     int ch;
     do {
-	ch = getc(f);
+	ch = GETC(f);
 	if (p - data == sizeof(data) || ch < 0) return false;
 	*p++ = ch & 0x7f;
     } while (ch & 0x80);
@@ -124,7 +124,7 @@ read_unsigned(FILE* f, unsigned long& v)
     unsigned char* p = data;
     int ch;
     do {
-	ch = getc(f);
+	ch = GETC(f);
 	if (p - data == sizeof(data) || ch < 0) return false;
 	*p++ = ch & 0x7f;
     } while (ch & 0x80);
@@ -140,18 +140,18 @@ bool
 write_unsigned(FILE* f, unsigned long v)
 {
     while (v >= 0x80) {
-	if (putc(v | 0x80, f) < 0) return false;
+	if (PUTC(v | 0x80, f) < 0) return false;
 	v >>= 7;
     }
-    return !(putc(v, f) < 0);
+    return !(PUTC(v, f) < 0);
 }
 
 bool
 write_unsigned(FILE* f, unsigned v)
 {
     while (v >= 0x80) {
-	if (putc(v | 0x80, f) < 0) return false;
+	if (PUTC(v | 0x80, f) < 0) return false;
 	v >>= 7;
     }
-    return !(putc(v, f) < 0);
+    return !(PUTC(v, f) < 0);
 }

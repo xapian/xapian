@@ -193,6 +193,11 @@ dnl See if we have closefrom(), or some functions that are useful to implement
 dnl closefrom() on platforms which don't provide it.
 AC_CHECK_FUNCS([closefrom getdirentries getrlimit])
 
+dnl For worker comms we don't access a FILE* from multiple threads and using
+dnl the unlocked versions have significantly less overhead, especially when
+dnl reading/writing byte-by-byte.
+AC_CHECK_FUNCS([getc_unlocked putc_unlocked fread_unlocked fwrite_unlocked])
+
 if test $ac_cv_func_ftime = yes ; then
   dnl See if ftime returns void (as it does on mingw)
   AC_MSG_CHECKING([return type of ftime])

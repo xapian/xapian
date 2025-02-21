@@ -1,7 +1,7 @@
 /** @file
  * @brief Communication with worker processes
  */
-/* Copyright (C) 2011,2022 Olly Betts
+/* Copyright (C) 2011,2022,2025 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -19,8 +19,33 @@
  * USA
  */
 
+#ifndef PACKAGE
+# error config.h must be included first in each C++ source file
+#endif
+
 #include <cstdio>
 #include <string>
+
+#ifdef HAVE_FREAD_UNLOCKED
+# define FREAD(P, S, N, F) fread_unlocked(P, S, N, F)
+#else
+# define FREAD(P, S, N, F) fread(P, S, N, F)
+#endif
+#ifdef HAVE_FWRITE_UNLOCKED
+# define FWRITE(P, S, N, F) fwrite_unlocked(P, S, N, F)
+#else
+# define FWRITE(P, S, N, F) fwrite(P, S, N, F)
+#endif
+#ifdef HAVE_GETC_UNLOCKED
+# define GETC(F) getc_unlocked(F)
+#else
+# define GETC(F) getc(F)
+#endif
+#ifdef HAVE_PUTC_UNLOCKED
+# define PUTC(C, F) putc_unlocked(C, F)
+#else
+# define PUTC(C, F) putc(C, F)
+#endif
 
 /// Read a string from the file descriptor @a f and storage it in @a s.
 bool read_string(std::FILE* f, std::string& s);
