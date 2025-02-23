@@ -144,7 +144,6 @@ read_stub_file(std::string_view file,
 	    if (line[0] == ':') {
 		// prog
 		// FIXME: timeouts
-		// Is it a security risk?
 		space = line.find(' ');
 		std::string args;
 		if (space == std::string::npos) {
