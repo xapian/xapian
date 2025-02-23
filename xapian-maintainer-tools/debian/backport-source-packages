@@ -145,7 +145,7 @@ build_it() {
 
   # Mainly for Survex.
   case $CODENAME in
-      jammy|focal|bionic|bullseye|buster)
+      jammy|focal|bionic|bullseye)
 	if grep -q libwxgtk3.2-dev $CONTROL_SOURCE ; then
 	    sed -i 's/libwxgtk3.2-dev/libwxgtk3.0-gtk3-dev/g' $CONTROL_SOURCE
 	    dch -a "$CONTROL_SOURCE: Build with wxWidgets 3.0."
@@ -291,17 +291,13 @@ trap "echo \"backport-source-packages failed\"" EXIT
 # before any other modification (and since dapper, Ubuntu codenames are
 # allocated alphabetically).  To handle the wrapping from zesty to artful,
 # we add ".999$CODENAME" for artful and later.  For Debian releases, we use
-# backports.org-compatible package versions - e.g. we append "~bpo10+1" for
-# Debian 10 (buster) (and a suffix starting "~" sorts as less than no suffix).
+# backports.org-compatible package versions - e.g. we append "~bpo12+1" for
+# Debian 12 (bookworm) (and a suffix starting "~" sorts as less than no suffix).
 case $CODENAME in
 bookworm)
   BACKPORT_SUFFIX="~bpo12+$BUILD_INT" ;;
 bullseye)
   BACKPORT_SUFFIX="~bpo11+$BUILD_INT" ;;
-buster)
-  BACKPORT_SUFFIX="~bpo10+$BUILD_INT" ;;
-stretch)
-  BACKPORT_SUFFIX="~bpo9+$BUILD_INT" ;;
 *)
   if [ x"$ubuntu" = x0 ] ; then
     echo "Debian codename '$CODENAME' not mapped to a ~bpoN suffix"
