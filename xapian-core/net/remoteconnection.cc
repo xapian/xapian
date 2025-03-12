@@ -1,7 +1,7 @@
 /** @file
  *  @brief RemoteConnection class used by the remote backend.
  */
-/* Copyright (C) 2006-2024 Olly Betts
+/* Copyright (C) 2006-2025 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -65,9 +65,9 @@ throw_database_closed()
 
 [[noreturn]]
 static void
-throw_network_error_insane_message_length()
+throw_network_error_message_too_long_for_off_t()
 {
-    throw Xapian::NetworkError("Insane message length specified!");
+    throw Xapian::NetworkError("Message too long for size to fit in off_t");
 }
 
 [[noreturn]]
@@ -662,7 +662,7 @@ RemoteConnection::get_message_chunked(double end_time)
     chunked_data_left = off_t(len);
     // Check that the value of len fits in an off_t without loss.
     if (rare(uint_least64_t(chunked_data_left) != len)) {
-	throw_network_error_insane_message_length();
+	throw_network_error_message_too_long_for_off_t();
     }
     size_t header_len = (p - buffer.data());
     unsigned char type = buffer[0];
