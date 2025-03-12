@@ -1346,8 +1346,13 @@ GlassTable::add(const string& key, const string& tag, bool already_compressed)
     /* FIXME: sort out this error higher up and turn this into
      * an assert.
      */
-    if (m >= BYTE_PAIR_RANGE)
-	throw Xapian::UnimplementedError("Can't handle insanely large tags");
+    if (m >= BYTE_PAIR_RANGE) {
+	string m = "Btree tag entry of size ";
+	m += str(tag_size);
+	m += " is too large to store - "
+	     "increase the block size to raise this limit";
+	throw Xapian::UnimplementedError(m);
+    }
 
     size_t o = 0;                     // Offset into the tag
     size_t residue = tag_size;        // Bytes of the tag remaining to add in
