@@ -1347,11 +1347,11 @@ GlassTable::add(const string& key, const string& tag, bool already_compressed)
      * an assert.
      */
     if (m >= BYTE_PAIR_RANGE) {
-	string m = "Btree tag entry of size ";
-	m += str(tag_size);
-	m += " is too large to store - "
+	string message = "Btree tag entry of size ";
+	message += str(tag_size);
+	message += " is too large to store - "
 	     "increase the block size to raise this limit";
-	throw Xapian::UnimplementedError(m);
+	throw Xapian::UnimplementedError(message);
     }
 
     size_t o = 0;                     // Offset into the tag
