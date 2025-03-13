@@ -124,6 +124,13 @@ need_to_build() {
 	      echo "$binary $version_installed installed, exactly what's needed"
 	      return 1
 	    fi
+	    # Deal with Debian libtool package unhelpfully reporting this:
+	    # libtool (GNU libtool) 2.4.7 Debian-2.5.4-3
+	    # This seems to actually be upstream 2.5.4.
+	    case $version_installed in
+	      Debian-*)
+		version_installed=`echo "$version_installed"|sed 's/Debian-//;s/-.*//'` ;;
+	    esac
 	    if check_at_least "$version_installed" "$version" ; then
 	      echo "$binary $version_installed installed >= $version required"
 	      return 1
