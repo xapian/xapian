@@ -43,13 +43,20 @@ inline int xapian_convert_socket_to_int_(SOCKET sock) {
     // Winsock2 function socket() and accept() return the unsigned type SOCKET,
     // which is a 32-bit type for WIN32 and a 64-bit type for WIN64.
     //
-    // It seems we can always safely assign SOCKET to an int and treat the
-    // result like a file descriptor (with < 0 signalling invalid).  Failure is
-    // indicated by INVALID_SOCKET which will cast to -1 as an int, and it
-    // seems in practice that valid values all fit in 31-bits (and that we're
-    // not the only code to assume this since it makes it much easier to write
-    // code that deals with BSD sockets and winsock2's bastardised version of
-    // them) so Microsoft are unlikely to arbitrarily change that).
+    // https://learn.microsoft.com/en-us/windows/win32/winprog64/interprocess-communication
+    // says that only the lower 32 bits are significant and one can
+    // truncate to 32 bits or sign-extend to 64 bits.
+    //
+    // We make a slight additional assumption that valid socket values fit
+    // in 31 bits (with INVALID_SOCKET being all bits set), which seems to
+    // be true in practice.  This means we can cast SOCKET to int and treat
+    // the result like a file descriptor (and INVALID_SOCKET casts to -1
+    // which matches file descriptor semantics).
+    //
+    // Ours is not the only code to assume this since it makes it much easier
+    // to write code that deals with BSD sockets and winsock2's bastardised
+    // version of them) so hopefully Microsoft are unlikely to arbitrarily
+    // change this.
     //
     // We check this assumption rather than quietly mangling the value.
     if (rare(sock > SOCKET(0x7fffffff) && sock != INVALID_SOCKET)) {
