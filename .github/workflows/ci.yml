@@ -2244,7 +2244,7 @@ jobs:
         usesh: true
         prepare: |
           set -e
-          pkg install -y bash ccache lua54 openjdk17 openjdk17-jre perl5 php82 pcre2 pkgconf py39-sphinx python3 ruby rubygem-rdoc rubygem-test-unit tcl86
+          pkg install -y bash ccache lua54 openjdk17 openjdk17-jre perl5 php82 pcre2 pkgconf py311-sphinx python3 ruby rubygem-rdoc rubygem-test-unit tcl86
           ccache --set-config=cache_dir="$GITHUB_WORKSPACE/.ccache"
           ccache --set-config=max_size='500M'
           ccache --set-config=compression=true
