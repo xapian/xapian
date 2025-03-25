@@ -1108,12 +1108,13 @@ index_mimetype(const string& file, const string& urlterm, const string& url,
 		return;
 	    }
 
-	    cmd = "unzip -p";
-	    append_filename_argument(cmd, file);
-	    cmd += " meta.xml";
+	    const char* cmd2[] = {
+		"unzip", "-p", NULL, "meta.xml", NULL
+	    };
+	    cmd2[2] = file.c_str();
 	    try {
 		OpenDocMetaParser metaparser;
-		metaparser.parse(stdout_to_string(cmd, false));
+		metaparser.parse(stdout_to_string(cmd2));
 		title = metaparser.title;
 		keywords = metaparser.keywords;
 		// FIXME: topic = metaparser.topic;
@@ -1184,12 +1185,13 @@ index_mimetype(const string& file, const string& urlterm, const string& url,
 		}
 	    }
 
-	    string cmd = "unzip -p";
-	    append_filename_argument(cmd, file);
-	    cmd += " docProps/core.xml";
+	    const char* cmd[] = {
+		"unzip", "-p", NULL, "docProps/core.xml", NULL
+	    };
+	    cmd[2] = file.c_str();
 	    try {
 		OpenDocMetaParser metaparser;
-		metaparser.parse(stdout_to_string(cmd, false));
+		metaparser.parse(stdout_to_string(cmd));
 		title = metaparser.title;
 		keywords = metaparser.keywords;
 		// FIXME: topic = metaparser.topic;
@@ -1282,9 +1284,11 @@ index_mimetype(const string& file, const string& urlterm, const string& url,
 	    author = svgparser.author;
 	} else if (mimetype == "application/vnd.debian.binary-package" ||
 		   mimetype == "application/x-debian-package") {
-	    const char* cmd = "dpkg-deb -f - Description";
+	    const char* const cmd[] = {
+		"dpkg-deb", "-f", "-", "Description", NULL
+	    };
 	    string desc;
-	    run_filter(d.get_fd(), cmd, false, &desc);
+	    run_filter(d.get_fd(), cmd, &desc);
 	    // First line is short description, which we use as the title.
 	    string::size_type idx = desc.find('\n');
 	    title.assign(desc, 0, idx);
@@ -1293,10 +1297,13 @@ index_mimetype(const string& file, const string& urlterm, const string& url,
 	    }
 	} else if (mimetype == "application/x-redhat-package-manager" ||
 		   mimetype == "application/x-rpm") {
-	    string cmd("rpm -q --qf '%{SUMMARY}\\n%{DESCRIPTION}' -p");
-	    append_filename_argument(cmd, file);
+	    const char* cmd[] = {
+		"rpm", "-q", "--qf", "%{SUMMARY}\\n%{DESCRIPTION}", "-p",
+		NULL, NULL
+	    };
+	    cmd[5] = file.c_str();
 	    string desc;
-	    run_filter(cmd, false, &desc);
+	    run_filter(cmd, &desc);
 	    // First line is summary, which we use as the title.
 	    string::size_type idx = desc.find('\n');
 	    title.assign(desc, 0, idx);
