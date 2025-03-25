@@ -1129,9 +1129,7 @@ index_mimetype(const string& file, const string& urlterm, const string& url,
 	    const char* args = NULL;
 	    string tail(mimetype, 46);
 	    if (startswith(tail, "wordprocessingml.")) {
-		// unzip returns exit code 11 if a file to extract wasn't found
-		// which we want to ignore, because there may be no headers or
-		// no footers.
+		// There may be no headers or no footers.
 		args = " word/document.xml"
 		       " 'word/header*.xml'"
 		       " 'word/footer*.xml'"
@@ -1156,9 +1154,7 @@ index_mimetype(const string& file, const string& urlterm, const string& url,
 		    return;
 		}
 	    } else if (startswith(tail, "presentationml.")) {
-		// unzip returns exit code 11 if a file to extract wasn't found
-		// which we want to ignore, because there may be no notesSlides
-		// or comments.
+		// There may be no notesSlides or no comments.
 		args = " 'ppt/slides/slide*.xml'"
 		       " 'ppt/notesSlides/notesSlide*.xml'"
 		       " 'ppt/comments/comment*.xml'"
