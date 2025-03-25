@@ -1,7 +1,7 @@
 /** @file
  * @brief functions to serialise and unserialise a double
  */
-/* Copyright (C) 2006,2007,2008,2009,2015 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2015,2025 Olly Betts
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -108,6 +108,27 @@ string serialise_double(double v)
 		      sizeof(uint64_t));
     }
 
+    if (rare(!isfinite(v))) {
+	// frexp() returns an unspecified exponent for infinities and NaN so
+	// we need to special case these.
+	const static char pos_inf[] = {
+	    '\x7f', '\xf0', '\x00', '\x00', '\x00', '\x00', '\x00', '\x00'
+	};
+	const static char neg_inf[] = {
+	    '\xff', '\xf0', '\x00', '\x00', '\x00', '\x00', '\x00', '\x00'
+	};
+	const static char pos_nan[] = {
+	    '\x7f', '\xf8', '\x00', '\x00', '\x00', '\x00', '\x00', '\x00'
+	};
+	const static char neg_nan[] = {
+	    '\xff', '\xf8', '\x00', '\x00', '\x00', '\x00', '\x00', '\x00'
+	};
+	if (isinf(v)) {
+	    return string(v > 0 ? pos_inf : neg_inf, 8);
+	}
+	return string(v > 0 ? pos_nan : neg_nan, 8);
+    }
+
     bool negative = (v < 0.0);
     if (negative) {
 	v = -v;
@@ -161,6 +182,18 @@ double unserialise_double(const char ** p, const char * end) {
     *p += 8;
 
     if (exp + 1023 == 0 && mantissa_bp == 0) return 0.0;
+
+    if (rare(exp == 1024)) {
+	// Infinity or NaN.  The mantissa is non-zero for NaN.
+	if (mantissa_bp != 0) {
+	    // If NaNs are not supported, nan() returns zero which seems as
+	    // good a value as any to use.
+	    return negative ? -nan("") : nan("");
+	}
+	// HUGE_VAL is infinity is the implementation support infinity,
+	// and otherwise is a very large value which is our best fallback.
+	return negative ? -HUGE_VAL : HUGE_VAL;
+    }
 
 # if FLT_RADIX == 2
     double result = scalbn(mantissa_bp, -52);

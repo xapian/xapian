@@ -1,7 +1,7 @@
 /** @file
  * @brief Serialise floating point values to strings which sort the same way.
  */
-/* Copyright (C) 2007,2009,2015,2016,2024 Olly Betts
+/* Copyright (C) 2007,2009,2015,2016,2024,2025 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -48,13 +48,23 @@ using namespace std;
 size_t
 Xapian::sortable_serialise_(double value, char* buf) noexcept
 {
-    double mantissa;
+    /* Special case for infinities and NaN.  We check this first since frexp()
+     * on infinity or NaN returns an unspecified value for the exponent.
+     */
+    if (rare(!isfinite(value))) {
+handle_as_infinity:
+	if (value < 0) {
+	    // Negative infinity.
+	    return 0;
+	} else {
+	    // Positive infinity.
+	    memset(buf, '\xff', 9);
+	    return 9;
+	}
+    }
+
     int exponent;
-
-    // Negative infinity.
-    if (value < -DBL_MAX) return 0;
-
-    mantissa = frexp(value, &exponent);
+    double mantissa = frexp(value, &exponent);
 
     /* Deal with zero specially.
      *
@@ -64,25 +74,18 @@ Xapian::sortable_serialise_(double value, char* buf) noexcept
      * -2039 - if smaller exponents are possible anywhere, we underflow such
      *  numbers to 0.
      */
-    if (mantissa == 0.0 || exponent < -2039) {
+    if (mantissa == 0.0 || rare(exponent < -2039)) {
 	*buf = '\x80';
 	return 1;
     }
 
+    if (rare(exponent > 2055)) {
+	// Extremely large non-IEEE representation.
+	goto handle_as_infinity;
+    }
+
     bool negative = (mantissa < 0);
     if (negative) mantissa = -mantissa;
-
-    // Infinity, or extremely large non-IEEE representation.
-    if (value > DBL_MAX || exponent > 2055) {
-	if (negative) {
-	    // This can only happen with a non-IEEE representation, because
-	    // we've already tested for value < -DBL_MAX
-	    return 0;
-	} else {
-	    memset(buf, '\xff', 9);
-	    return 9;
-	}
-    }
 
     // Encoding:
     //
