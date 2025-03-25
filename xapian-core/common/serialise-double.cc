@@ -1,7 +1,7 @@
 /** @file
  * @brief functions to serialise and unserialise a double
  */
-/* Copyright (C) 2006,2007,2008,2009,2015 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2015,2025 Olly Betts
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -66,6 +66,19 @@ using namespace std;
 #endif
 
 static int base256ify_double(double &v) {
+    if (rare(!isfinite(v))) {
+	// frexp() returns an unspecified exponent for infinities and NaN so
+	// we need to special case these.
+	if (isinf(v)) {
+	    // Map infinities to maximum representable finite value with the
+	    // same sign.
+	    v = v > 0 ? DBL_MAX : -DBL_MAX;
+	} else {
+	    // Rather arbitrarily we map NaN to zero.
+	    v = 0.0;
+	}
+    }
+
     int exp;
     v = frexp(v, &exp);
     // v is now in the range [0.5, 1.0)
