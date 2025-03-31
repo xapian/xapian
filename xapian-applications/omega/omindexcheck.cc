@@ -3,7 +3,7 @@
  */
 /* Copyright (C) 2019 Bruno Baruffaldi
  * Copyright (C) 2020 Parth Kapadia
- * Copyright (C) 2021,2022,2023 Olly Betts
+ * Copyright (C) 2021,2022,2023,2025 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -231,10 +231,9 @@ index_test()
 # undef LO
 #endif
 #if defined HAVE_LIBABW
-    // Title term is not being tested here because some older versions of Libabw
-    // lack a bug fix for the title to be handled properly. (< libabw-0.1.2)
     tests.insert({"abw/test.abw",
-		  {{"ZAparth", "Zabiword", "Zsampl", "Zdocument"}}});
+		  {{"Sabiword", "Stitle", "ZAparth",
+		    "Zabiword", "Zsampl", "Zdocument"}}});
     tests.insert({"abw/macbeth.zabw",
 		  {{"Ashakespeare", "Awilliam", "Smacbeth",
 		    "ambition", "macduff", "shall"}}});

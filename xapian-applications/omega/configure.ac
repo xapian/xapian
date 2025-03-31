@@ -303,8 +303,11 @@ PKG_CHECK_MODULES([LIBARCHIVE], [libarchive], [
     AC_DEFINE(HAVE_LIBARCHIVE, 1, [Define HAVE_LIBARCHIVE if the library is available])
     OMINDEX_MODULES="$OMINDEX_MODULES omindex_libarchive"],[ ])
 
-dnl check if libabw is available.
-PKG_CHECK_MODULES([LIBABW], [libabw-0.1,librevenge-0.0,librevenge-generators-0.0,librevenge-stream-0.0], [
+dnl Check if libabw is available.  We require libabw >= 0.1.2 because older
+dnl versions had a bug extracting the title, but libabw 0.1.1 is old enough
+dnl that it is reasonable to not support it which means the testsuite can check
+dnl we successfully extract the title.
+PKG_CHECK_MODULES([LIBABW], [libabw-0.1 >= 0.1.2,librevenge-0.0,librevenge-generators-0.0,librevenge-stream-0.0], [
     AC_DEFINE(HAVE_LIBABW, 1, [Define HAVE_LIBABW if the library is available])
     OMINDEX_MODULES="$OMINDEX_MODULES omindex_libabw"],[ ])
 
