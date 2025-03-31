@@ -323,7 +323,7 @@ PKG_CHECK_MODULES([LIBMWAW], [libmwaw-0.3,librevenge-0.0,librevenge-generators-0
     AC_DEFINE(HAVE_LIBMWAW, 1, [Define HAVE_LIBMWAW if the library is available])
     OMINDEX_MODULES="$OMINDEX_MODULES omindex_libmwaw"],[ ])
 
-dnl Check if libreofficekit is available.  It's know to be broken on macOS
+dnl Check if libreofficekit is available.  It's known to be broken on macOS
 dnl so avoid trying to use it there as it only fails at runtime:
 dnl https://bugs.documentfoundation.org/show_bug.cgi?id=145127
 LIBREOFFICEKIT_LIBS=
