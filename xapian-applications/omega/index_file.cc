@@ -938,17 +938,25 @@ index_mimetype(const string& file, const string& urlterm, const string& url,
 		// It's probably best to index the document even if this fails.
 	    }
 	} else if (mimetype == "application/x-abiword") {
-	    // FIXME: Implement support for metadata.
 	    XmlParser xmlparser;
 	    const string & text = d.file_to_string();
 	    xmlparser.parse_xml(text);
 	    dump = xmlparser.dump;
+	    title = xmlparser.title;
+	    keywords = xmlparser.keywords;
+	    sample = xmlparser.sample;
+	    author = xmlparser.author;
+	    created = xmlparser.created;
 	    md5_string(text, md5);
 	} else if (mimetype == "application/x-abiword-compressed") {
-	    // FIXME: Implement support for metadata.
 	    XmlParser xmlparser;
 	    xmlparser.parse_xml(d.gzfile_to_string());
 	    dump = xmlparser.dump;
+	    title = xmlparser.title;
+	    keywords = xmlparser.keywords;
+	    sample = xmlparser.sample;
+	    author = xmlparser.author;
+	    created = xmlparser.created;
 	} else if (mimetype == "application/oxps" ||
 		   mimetype == "application/vnd.ms-xpsdocument") {
 	    string cmd = "unzip -p";
