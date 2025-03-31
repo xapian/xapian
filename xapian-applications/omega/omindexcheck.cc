@@ -49,6 +49,13 @@ enum test_result { PASS, FAIL };
 // invalid in UTF-8 so probably not a problematic limitation.
 #define OPT(T) (T "\xff")
 
+// Macro to mark terms which should NOT be indexed.
+//
+// This works by appending '\xfe', which we remove before comparing.  This
+// means terms ending with this byte can't be used in testcases, but it's
+// invalid in UTF-8 so probably not a problematic limitation.
+#define NOT(T) (T "\xfe")
+
 struct testcase {
     vector<string> terms;
 
@@ -92,7 +99,7 @@ index_test()
 		    "XMID:E1p1II7-008OVw-1w@example.org",
 		    "XTOada", "XTOexample", "XTOorg", "XTOuser",
 		    "html", "message", "test"},
-		  {{{VALUE_CREATED, "c\x8a\xb4\xb3"}, // 1670034611
+		  {{{VALUE_CREATED, int_to_binary_string(1670034611)},
 		    {VALUE_SIZE, Xapian::sortable_serialise(450)},
 		    {VALUE_MD5, "y.<0RW\xb0\xf4\xd2+\xa8\x09\xde\xff|\x0d"}
 		   }}}});
@@ -102,7 +109,7 @@ index_test()
 		    "XTOexample", "XTOorg", "XTOuser",
 		    "comment1", "comment2", "keyword1", "keyword2",
 		    "message", "plain", "text"},
-		  {{{VALUE_CREATED, "c\x8a\xb4\xb3"}, // 1670034611
+		  {{{VALUE_CREATED, int_to_binary_string(1670034611)},
 		    {VALUE_SIZE, Xapian::sortable_serialise(477)},
 		    {VALUE_MD5,
 		     "C\x7f\x17;;\x87\x91\x5c\x05?\x83\x14\xec\xaa\xad\x94"}
@@ -230,22 +237,23 @@ index_test()
 # undef NOTLO
 # undef LO
 #endif
-#if defined HAVE_LIBABW
     tests.insert({"abw/test.abw",
 		  {{"Sabiword", "Stitle", "ZAparth",
-		    "Zabiword", "Zsampl", "Zdocument"}}});
+		    "Zabiword", "Zsampl", "Zdocument"}
+#ifndef HAVE_LIBABW // libabw doesn't currently extract created date.
+		  , {{{VALUE_CREATED, int_to_binary_string(1595794074)}}}
+#endif
+		 }});
     tests.insert({"abw/macbeth.zabw",
 		  {{"Ashakespeare", "Awilliam", "Smacbeth",
-		    "ambition", "macduff", "shall"}}});
-#else
-    // Indexed using AbiwordParser class, which doesn't currently handle metadata.
-    tests.insert({"abw/test.abw",
-		  {{"Zabiword", "Zsampl", "Zdocument"}}});
-    tests.insert({"abw/macbeth.zabw",
-		  {{"ambition", "macduff", "shall"}}});
+		    "ambition", "macduff", "shall"}
+#ifndef HAVE_LIBABW // libabw doesn't currently extract created date.
+		  , {{{VALUE_CREATED, int_to_binary_string(1641662439)}}}
 #endif
+		 }});
     tests.insert({"abw/test1.abw",
-		  {{"Zедой", "Z喬伊不分享食物"}}});
+		  {{"Zедой", "Z喬伊不分享食物",
+		    NOT("aaauiwaalimbeku")}}});
     tests.insert({"abw/Friendly-Letter.awt",
 		  {{"address", "addressee", "body", "dear", "sincerely"}}});
 #if defined HAVE_LIBCDR
@@ -324,6 +332,15 @@ compare_test(testcase& test, const Xapian::Document& doc, const string& file)
 	    } else {
 		no_optional = false;
 	    }
+	} else if (i.back() == '\xfe') {
+	    string t(i, 0, i.size() - 1);
+	    term_iterator.skip_to(t);
+	    // Term which should not be indexed.
+	    if (term_iterator != doc.termlist_end() && *term_iterator == t) {
+		cerr << file << ": error: Term " << t
+		     << " indexes this file but shouldn't\n";
+		all_required_terms_exist = false;
+	    }
 	} else {
 	    auto t = i;
 	    term_iterator.skip_to(t);
@@ -363,6 +380,9 @@ compare_test(testcase& test, const Xapian::Document& doc, const string& file)
 	if (t.back() == '\xff') {
 	    // Optional term.
 	    cerr << " OPT(" << t.substr(0, t.size() - 1) << ')';
+	} else if (t.back() == '\xfe') {
+	    // Optional term.
+	    cerr << " NOT(" << t.substr(0, t.size() - 1) << ')';
 	} else {
 	    cerr << ' ' << t;
 	}

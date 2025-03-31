@@ -1204,11 +1204,21 @@ index_mimetype(const string& file, const string& urlterm, const string& url,
 	    const string& text = d.file_to_string();
 	    abiwordparser.parse(text);
 	    dump = abiwordparser.dump;
+	    title = abiwordparser.title;
+	    keywords = abiwordparser.keywords;
+	    sample = abiwordparser.sample;
+	    author = abiwordparser.author;
+	    created = abiwordparser.created;
 	    md5_string(text, md5);
 	} else if (mimetype == "application/x-abiword-compressed") {
 	    AbiwordParser abiwordparser;
 	    abiwordparser.parse(d.gzfile_to_string());
 	    dump = abiwordparser.dump;
+	    title = abiwordparser.title;
+	    keywords = abiwordparser.keywords;
+	    sample = abiwordparser.sample;
+	    author = abiwordparser.author;
+	    created = abiwordparser.created;
 	} else if (mimetype == "application/oxps" ||
 		   mimetype == "application/vnd.ms-xpsdocument") {
 	    const char* cmd[] = {
