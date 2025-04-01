@@ -1553,7 +1553,10 @@ jobs:
         export VERBOSE=1
         export WINEPATH="$PWD/xapian-core/.libs;/usr/lib/gcc/x86_64-w64-mingw32/`x86_64-w64-mingw32-g++ --version 2>/dev/null|head -n1|sed 's/.*) //;s/ .*//'`"
         export XAPIAN_TESTSUITE_RUNNING_UNDER_WINE=1
-        make -j2 -C xapian-core check
+        # This used to work, but started to fail as of c8be1001e52b.  The
+        # parent commit dc08ce918f13 built OK at the time, but rebuilding now
+        # it also fails so this isn't due to a Xapian code change.
+        # make -j2 -C xapian-core check
         export WINEPATH="$PWD/xapian-letor/.libs;$WINEPATH"
         make -j2 -C xapian-letor check
     - name: Save log files
