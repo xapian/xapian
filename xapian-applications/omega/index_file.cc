@@ -52,7 +52,6 @@
 #include "failed.h"
 #include "md5wrap.h"
 #include "metaxmlparse.h"
-#include "mimemap.h"
 #include "msxmlparse.h"
 #include "myhtmlparse.h"
 #include "opendocparse.h"
