@@ -32,6 +32,7 @@
 #ifndef HAVE_STRPTIME
 #include "portability/strptime.h"
 #endif
+#include "timegm.h"
 
 using namespace std;
 
