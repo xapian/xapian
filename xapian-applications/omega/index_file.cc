@@ -58,7 +58,6 @@
 #include "hashterm.h"
 #include "htmlparser.h"
 #include "md5wrap.h"
-#include "mimemap.h"
 #include "msxmlparser.h"
 #include "opendocmetaparser.h"
 #include "opendocparser.h"
