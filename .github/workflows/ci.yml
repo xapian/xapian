@@ -1290,13 +1290,13 @@ jobs:
             mingw-w64-x86-64-dev \
             binutils-mingw-w64-x86-64 \
             libz-mingw-w64-dev \
-            mingw-w64-tools \
-            wine-binfmt \
-            wine \
-            wine64
-        sudo dpkg --add-architecture i386
-        sudo apt-get update
-        sudo apt-get install wine32
+            mingw-w64-tools
+        #    wine-binfmt \
+        #    wine \
+        #    wine64
+        #sudo dpkg --add-architecture i386
+        #sudo apt-get update
+        #sudo apt-get install wine32
     - name: configure
       run: |
         export EATMYDATA=
@@ -1312,7 +1312,10 @@ jobs:
         export AUTOMATED_TESTING=1
         export VERBOSE=1
         export WINEPATH="$PWD/xapian-core/.libs;/usr/lib/gcc/x86_64-w64-mingw32/`x86_64-w64-mingw32-g++ --version 2>/dev/null|head -n1|sed 's/.*) //;s/ .*//'`"
-        make -j2 -C xapian-core check
+        # This used to work, but started to fail as of c8be1001e52b.  The
+        # parent commit dc08ce918f13 built OK at the time, but rebuilding now
+        # it also fails so this isn't due to a Xapian code change.
+        # make -j2 -C xapian-core check
     - name: Save log files
       if: ${{ failure() }}
       uses: actions/upload-artifact@v4
