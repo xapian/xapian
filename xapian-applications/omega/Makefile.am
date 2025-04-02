@@ -193,8 +193,9 @@ noinst_HEADERS = omega.h query.h cgiparam.h index_file.h mime.h\
  namedents.h pkglibbindir.h datevalue.h genericxmlparser.h sample.h strcasecmp.h\
  utf8truncate.h diritor.h runfilter.h freemem.h xpsparser.h transform.h\
  weight.h expand.h svgparser.h tmpdir.h urldecode.h urlencode.h unixperm.h atomparser.h\
- xlsxparser.h opendocparser.h msxmlparser.h sort.h timegm.h csvescape.h\
- portability/mkdtemp.h portability/strptime.h\
+ xlsxparser.h opendocparser.h msxmlparser.h sort.h\
+ mkdtemp.h strptime.h timegm.h\
+ csvescape.h\
  clickmodel/simplifieddbn.h clickmodel/session.h worker.h worker_comms.h handler.h
 
 # headers maintained in xapian-core
@@ -253,14 +254,9 @@ omindex_SOURCES = omindex.cc htmlparser.cc xmlparser.cc index_file.cc mime.cc\
  md5wrap.cc abiwordparser.cc opendocmetaparser.cc sample.cc diritor.cc\
  runfilter.cc freemem.cc common/msvc_dirent.cc xpsparser.cc common/str.cc\
  pkglibbindir.cc svgparser.cc tmpdir.cc urlencode.cc atomparser.cc xlsxparser.cc\
- opendocparser.cc common/keyword.cc msxmlparser.cc common/safe.cc timegm.cc\
+ opendocparser.cc common/keyword.cc msxmlparser.cc common/safe.cc\
+ mkdtemp.cc strptime.cc timegm.cc\
  datetime.cc common/closefrom.cc worker.cc worker_comms.cc
-if NEED_MKDTEMP
-omindex_SOURCES += portability/mkdtemp.cc
-endif
-if NEED_STRPTIME
-omindex_SOURCES += portability/strptime.cc
-endif
 omindex_LDADD = $(MAGIC_LIBS) $(XAPIAN_LIBS) $(ZLIB_LIBS) libutf8convert.la
 
 omindex_poppler_SOURCES = assistant.cc worker_comms.cc common/str.cc handler_poppler.cc
@@ -316,10 +312,7 @@ scriptindex_SOURCES = scriptindex.cc\
  genericxmlparser.cc htmlparser.cc xmlparser.cc\
  common/getopt.cc common/str.cc commonhelp.cc utils.cc hashterm.cc loadfile.cc\
  utf8truncate.cc\
- common/keyword.cc timegm.cc datetime.cc
-if NEED_STRPTIME
-scriptindex_SOURCES += portability/strptime.cc
-endif
+ common/keyword.cc strptime.cc timegm.cc datetime.cc
 scriptindex_LDADD = $(XAPIAN_LIBS) libutf8convert.la
 
 omindex_list_SOURCES = common/getopt.cc omindex-list.cc

@@ -20,18 +20,11 @@
 
 #include <config.h>
 
-#ifdef __CYGWIN__
-// Needed to get strptime() declared.
-# define _GNU_SOURCE
-#endif
-
 #include "abiwordparser.h"
 
 #include <ctime>
 
-#ifndef HAVE_STRPTIME
-#include "portability/strptime.h"
-#endif
+#include "strptime.h"
 #include "timegm.h"
 
 using namespace std;

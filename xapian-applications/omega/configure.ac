@@ -237,13 +237,13 @@ fi
 dnl Check for lstat() (not available under mingw for example).
 AC_CHECK_FUNCS(lstat)
 
-dnl Add in portable replacement for mkdtemp() on platforms which lack it.
+dnl Check for mkdtemp().  We have a fallback implementation for platforms
+dnl which don't provide it.
 AC_CHECK_FUNCS(mkdtemp)
-AM_CONDITIONAL(NEED_MKDTEMP, [test yes != "$ac_cv_func_mkdtemp"])
 
-dnl Add in portable replacement for strptime() on platforms which lack it.
+dnl Check for strptime().  We have a fallback implementation for platforms
+dnl which don't provide it.
 AC_CHECK_FUNCS(strptime)
-AM_CONDITIONAL(NEED_STRPTIME, [test yes != "$ac_cv_func_strptime"])
 
 AC_CHECK_FUNCS([posix_fadvise])
 
@@ -677,6 +677,11 @@ AH_BOTTOM(
     }())
 #else
 # define UNSIGNED_OVERFLOW_OK(X) (X)
+#endif
+
+#ifdef __CYGWIN__
+// Needed to get strptime() declared.
+# define _GNU_SOURCE
 #endif
 ])
 

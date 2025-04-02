@@ -1,7 +1,7 @@
 /** @file
- * @brief Implement strptime() using std::get_time()
+ * @brief Fallback implementation of mkdtemp()
  */
-/* Copyright 2019 Olly Betts
+/* Copyright 2013,2025 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -19,15 +19,19 @@
  * USA
  */
 
-#ifndef OMEGA_INCLUDED_STRPTIME_H
-#define OMEGA_INCLUDED_STRPTIME_H
+#ifndef OMEGA_INCLUDED_MKDTEMP_H
+#define OMEGA_INCLUDED_MKDTEMP_H
 
-#include <ctime>
+#ifndef PACKAGE
+# error You must #include <config.h> before #include "mkdtemp.h"
+#endif
 
-char* strptime_using_std_get_time(const char* date_string,
-				  const char* format,
-				  struct std::tm* tm);
+#include <stdlib.h>
 
-#define strptime(D, F, TM) strptime_using_std_get_time(D, F, TM)
+#ifndef HAVE_MKDTEMP
+char* fallback_mkdtemp(char *);
+
+#define mkdtemp(TEMPLATE) fallback_mkdtemp(TEMPLATE)
+#endif
 
 #endif

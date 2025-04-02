@@ -4,7 +4,7 @@
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Sam Liddicott
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002-2023 Olly Betts
+ * Copyright 2002-2025 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,11 +23,6 @@
  */
 
 #include <config.h>
-
-#ifdef __CYGWIN__
-// Needed to get setenv() and strptime() declared.
-# define _GNU_SOURCE
-#endif
 
 #include <xapian.h>
 
@@ -57,13 +52,10 @@
 #include "setenv.h"
 #include "str.h"
 #include "stringutils.h"
+#include "strptime.h"
 #include "timegm.h"
 #include "utf8truncate.h"
 #include "values.h"
-
-#ifndef HAVE_STRPTIME
-#include "portability/strptime.h"
-#endif
 
 #include "gnu_getopt.h"
 

@@ -31,6 +31,9 @@
  */
 
 #include <config.h>
+
+#ifndef HAVE_MKDTEMP
+
 #include "mkdtemp.h"
 
 #include <sys/types.h>
@@ -130,7 +133,9 @@ do_mkdtemp(char *path)
 }
 
 char *
-mkdtemp(char *path)
+fallback_mkdtemp(char *path)
 {
 	return (do_mkdtemp(path) ? path : (char *)0);
 }
+
+#endif
