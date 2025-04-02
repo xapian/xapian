@@ -258,6 +258,9 @@ omindex_SOURCES = omindex.cc htmlparser.cc xmlparser.cc index_file.cc mime.cc\
 if NEED_MKDTEMP
 omindex_SOURCES += portability/mkdtemp.cc
 endif
+if NEED_STRPTIME
+omindex_SOURCES += portability/strptime.cc
+endif
 omindex_LDADD = $(MAGIC_LIBS) $(XAPIAN_LIBS) $(ZLIB_LIBS) libutf8convert.la
 
 omindex_poppler_SOURCES = assistant.cc worker_comms.cc common/str.cc handler_poppler.cc
