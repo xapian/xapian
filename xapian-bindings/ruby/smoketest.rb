@@ -6,7 +6,7 @@
 # Originally based on smoketest.php from the PHP4 bindings.
 #
 # Copyright (C) 2006 Networked Knowledge Systems, Inc.
-# Copyright (C) 2008,2009,2010,2011,2016,2017,2019 Olly Betts
+# Copyright (C) 2008,2009,2010,2011,2016,2017,2019,2025 Olly Betts
 # Copyright (C) 2010 Richard Boulton
 #
 # This program is free software; you can redistribute it and/or
@@ -59,6 +59,20 @@ class XapianSmoketest < Test::Unit::TestCase
     # Test that the non-constant wrapping prior to 1.4.10 still works.
     @enq.collapse_key = Xapian::BAD_VALUENO()
   end # setup
+
+  def mset_expect_order(mset, a)
+    if mset.size() != a.size
+      puts "MSet has #{mset.size()} entries, expected #{a.size}"
+      exit(1)
+    end
+    a.each_with_index { |expected, j|
+      docid = mset.hit(j).docid
+      if docid != expected
+        puts "Expected MSet[#{j}] to be #{a[j]}, got #{docid}"
+        exit(1)
+      end
+    }
+  end # mset_expect_order
 
   def test_version
     # Test the version number reporting functions give plausible results.
@@ -277,14 +291,85 @@ class XapianSmoketest < Test::Unit::TestCase
     assert_equal(query2.description(), "Query(5 * foo)")
   end
 
-  def test_014_sortable_serialise
+  def test_014_multivaluekeymaker
+    db2 = Xapian::WritableDatabase.new('', Xapian::DB_BACKEND_INMEMORY)
+    doc = Xapian::Document.new()
+    doc.add_term("foo")
+    doc.add_value(0, "ABB")
+    db2.add_document(doc)
+    doc.add_value(0, "ABC")
+    db2.add_document(doc)
+    doc.add_value(0, "ABC\0")
+    db2.add_document(doc)
+    doc.add_value(0, "ABCD")
+    db2.add_document(doc)
+    doc.add_value(0, "ABC\xff")
+    db2.add_document(doc)
+
+    enquire = Xapian::Enquire.new(db2)
+    enquire.query = Xapian::Query.new("foo")
+
+    begin
+      sorter = Xapian::MultiValueKeyMaker.new()
+      sorter.add_value(0)
+      enquire.set_sort_by_key(sorter, true)
+      mset = enquire.mset(0, 10)
+      mset_expect_order(mset, [5, 4, 3, 2, 1])
+    end
+
+    begin
+      sorter = Xapian::MultiValueKeyMaker.new()
+      sorter.add_value(0, true)
+      enquire.set_sort_by_key(sorter, true)
+      mset = enquire.mset(0, 10)
+      mset_expect_order(mset, [1, 2, 3, 4, 5])
+    end
+
+    begin
+      sorter = Xapian::MultiValueKeyMaker.new()
+      sorter.add_value(0)
+      sorter.add_value(1)
+      enquire.set_sort_by_key(sorter, true)
+      mset = enquire.mset(0, 10)
+      mset_expect_order(mset, [5, 4, 3, 2, 1])
+    end
+
+    begin
+      sorter = Xapian::MultiValueKeyMaker.new()
+      sorter.add_value(0, true)
+      sorter.add_value(1)
+      enquire.set_sort_by_key(sorter, true)
+      mset = enquire.mset(0, 10)
+      mset_expect_order(mset, [1, 2, 3, 4, 5])
+    end
+
+    begin
+      sorter = Xapian::MultiValueKeyMaker.new()
+      sorter.add_value(0)
+      sorter.add_value(1, true)
+      enquire.set_sort_by_key(sorter, true)
+      mset = enquire.mset(0, 10)
+      mset_expect_order(mset, [5, 4, 3, 2, 1])
+    end
+
+    begin
+      sorter = Xapian::MultiValueKeyMaker.new()
+      sorter.add_value(0, true)
+      sorter.add_value(1, true)
+      enquire.set_sort_by_key(sorter, true)
+      mset = enquire.mset(0, 10)
+      mset_expect_order(mset, [1, 2, 3, 4, 5])
+    end
+  end
+
+  def test_015_sortable_serialise
     # In Xapian 1.0.13/1.1.1 and earlier, the SWIG generated wrapper code
     # didn't handle integer values > MAXINT for double parameters.
     v = 51767811298
     assert_equal(v, Xapian::sortable_unserialise(Xapian::sortable_serialise(v)))
   end
 
-  def test_015_valuecount_matchspy
+  def test_016_valuecount_matchspy
     spy = Xapian::ValueCountMatchSpy.new(0)
     doc = Xapian::Document.new()
     doc.add_posting("term", 1)
@@ -316,7 +401,7 @@ class XapianSmoketest < Test::Unit::TestCase
                  "2:yes,3:yes,4:maybe,5:no")
   end
 
-  def test_016_compactor
+  def test_017_compactor
     Dir.mktmpdir("smokerb") {|tmpdir|
         db1path = "#{tmpdir}/db1"
         db2path = "#{tmpdir}/db2"
@@ -361,7 +446,7 @@ class XapianSmoketest < Test::Unit::TestCase
     }
   end
 
-  def test_017_latlongcoords_iterator
+  def test_018_latlongcoords_iterator
     coords = Xapian::LatLongCoords.new()
     coords.append(Xapian::LatLongCoord.new(0, 0))
     assert_equal(coords.size(), 1)
@@ -372,7 +457,7 @@ class XapianSmoketest < Test::Unit::TestCase
     assert_equal(s, "Xapian::LatLongCoord(0, 0)")
   end
 
-  def test_018_spellings
+  def test_019_spellings
     # The inmemory backend doesn't support spellings so we need to create a
     # "real" database for these tests.
     Dir.mktmpdir("smokerb") {|tmpdir|
@@ -396,7 +481,7 @@ class XapianSmoketest < Test::Unit::TestCase
     }
   end
 
-  def test_019_synonyms
+  def test_020_synonyms
     # The inmemory backend doesn't support synonyms so we need to create a
     # "real" database for these tests.
     Dir.mktmpdir("smokerb") {|tmpdir|
@@ -442,7 +527,7 @@ class XapianSmoketest < Test::Unit::TestCase
     }
   end
 
-  def test_020_queryparser
+  def test_021_queryparser
     stopper = Xapian::SimpleStopper.new()
     stopper.add('a')
     stopper.add('the')
