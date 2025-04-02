@@ -1,7 +1,7 @@
 /** @file
  * @brief Portable implementation of timegm().
  */
-/* Copyright (c) 2013 Olly Betts
+/* Copyright (c) 2013,2025 Olly Betts
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -31,7 +31,7 @@
 #include <time.h>
 
 time_t
-timegm(struct tm *tm)
+fallback_timegm(struct tm* tm)
 {
     static bool set_tz = false;
     if (!set_tz) {
