@@ -517,7 +517,7 @@ function mset_expect_order($mset, $a) {
     for ($j = 0; $j < sizeof($a); ++$j) {
 	$docid = $mset->get_hit($j)->get_docid();
 	if ($docid != $a[$j]) {
-	    print "Expected MSet[$j] to be $a[$j], got ".$docid()."\n";
+	    print "Expected MSet[$j] to be $a[$j], got $docid\n";
 	    exit(1);
 	}
     }
