@@ -211,6 +211,9 @@ omindex_SOURCES = omindex.cc myhtmlparse.cc htmlparse.cc index_file.cc mime.cc\
 if NEED_MKDTEMP
 omindex_SOURCES += portability/mkdtemp.cc
 endif
+if NEED_STRPTIME
+omindex_SOURCES += portability/strptime.cc
+endif
 omindex_LDADD = $(MAGIC_LIBS) $(XAPIAN_LIBS) $(ZLIB_LIBS) libutf8convert.la
 
 scriptindex_SOURCES = scriptindex.cc myhtmlparse.cc htmlparse.cc\
