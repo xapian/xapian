@@ -22,16 +22,12 @@
 
 #include "tmpdir.h"
 
-#include "safesysstat.h"
+#include "mkdtemp.h"
+
 #include "safeunistd.h"
-#include <sys/types.h>
-#include <stdlib.h> // Not cstdlib as we want mkdtemp.
+#include <cstdlib>
 #include <cstring>
 #include <string>
-
-#ifndef HAVE_MKDTEMP
-#include "portability/mkdtemp.h"
-#endif
 
 #include "stringutils.h"
 

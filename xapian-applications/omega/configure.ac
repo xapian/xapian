@@ -231,13 +231,13 @@ fi
 dnl Check for lstat() (not available under mingw for example).
 AC_CHECK_FUNCS(lstat)
 
-dnl Add in portable replacement for mkdtemp() on platforms which lack it.
+dnl Check for mkdtemp().  We have a fallback implementation for platforms
+dnl which don't provide it.
 AC_CHECK_FUNCS(mkdtemp)
-AM_CONDITIONAL(NEED_MKDTEMP, [test yes != "$ac_cv_func_mkdtemp"])
 
-dnl Add in portable replacement for strptime() on platforms which lack it.
+dnl Check for strptime().  We have a fallback implementation for platforms
+dnl which don't provide it.
 AC_CHECK_FUNCS(strptime)
-AM_CONDITIONAL(NEED_STRPTIME, [test yes != "$ac_cv_func_strptime"])
 
 dnl Need a full link check for posix_fadvise.
 AC_LINK_IFELSE([
@@ -647,6 +647,11 @@ AH_BOTTOM(
 #else
 # define rare(COND) (COND)
 # define usual(COND) (COND)
+#endif
+
+#ifdef __CYGWIN__
+// Needed to get strptime() declared.
+# define _GNU_SOURCE
 #endif
 ])
 

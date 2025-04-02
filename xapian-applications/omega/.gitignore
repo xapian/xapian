@@ -24,7 +24,6 @@
 /test-suite.log
 /.common.git
 /.deps
-/portability/.deps/
 /.libs
 /autom4te*.cache
 /depcomp

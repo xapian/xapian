@@ -1,7 +1,7 @@
 /** @file
  * @brief Implement strptime() using std::get_time()
  */
-/* Copyright 2019 Olly Betts
+/* Copyright 2019,2025 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,6 +21,8 @@
 
 #include <config.h>
 
+#ifndef HAVE_STRPTIME
+
 #include "strptime.h"
 
 #include <ctime>
@@ -37,3 +39,5 @@ strptime_using_std_get_time(const char* date_string,
     if (s.fail()) return NULL;
     return const_cast<char*>(date_string + s.tellg());
 }
+
+#endif
