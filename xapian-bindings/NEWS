@@ -1,3 +1,35 @@
+up to: 3b493de5030e3165ecf3405c0e1c57ae2618afc2
+
+Xapian-bindings 1.4.28 (2025-04-??):
+
+Documentation:
+
+* Clarify wording of previous NEWS entry.
+
+General:
+
+Packaging:
+
+Portability:
+
+CSharp:
+
+Java:
+
+Lua:
+
+Perl:
+
+PHP:
+
+Python:
+
+Python3:
+
+Ruby:
+
+Tcl:
+
 Xapian-bindings 1.4.27 (2024-12-06):
 
 General:

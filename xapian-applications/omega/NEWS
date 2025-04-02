@@ -1,3 +1,46 @@
+up to: ae641dfd583f0fc2c4020f0eda71b33be91e1138
+
+Omega 1.4.28 (2025-04-??):
+
+general:
+
+documentation:
+
+indexers:
+
+* omindex:
+
+  + Abiword indexing now includes metadata, and also no longer tries to index
+    base64 encoded data for embedded images, etc.  Mostly this would be skipped
+    due to being longer than the 64 byte default word length limit, but junk
+    terms could result from `/` or `+` in the base64 data, or a shorter final
+    line.
+
+* scriptindex:
+
+omega:
+
+templates:
+
+testsuite:
+
+build system:
+
+portability:
+
+* Improve check for broken faketime.  We now test the output of a small helper
+  program which calls time() and gmtime() and reports the year.  Previously we
+  tested the output of date +%Y but GNU date seems to call clock_gettime() on
+  Linux and that doesn't catch if faketime fails to intercept time(), which is
+  the case that we actually need to work.  Reported by Ian Jackson.
+
+* Workaround autoconf 2.72 AC_SYS_LARGEFILE bug.  This configure probe always
+  fails when run with the C++ compiler, like we do, which leads to large file
+  support not being enabled when it isn't the default (e.g. on 32-bit Linux
+  platforms).  Reported by Adrian Bunk.
+
+packaging:
+
 Omega 1.4.27 (2024-12-06):
 
 omega:

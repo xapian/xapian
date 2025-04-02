@@ -1,3 +1,68 @@
+up to: f646687b7475e9e3cec3eab842878dd999319a6c
+
+Xapian-core 1.4.28 (2025-04-??):
+
+
+API:
+
+
+testsuite:
+
+
+matcher:
+
+
+glass backend:
+
+* Improve exception message when asked to store too large a tag.  Reported by
+  Jean-Francois Dockes on xapian-discuss.
+
+* Optimise reading tag.  A special case for handling the first chunk of an item
+  gives a measurable speed improvement.  Reported by uis.
+
+chert backend:
+
+
+remote backend:
+
+
+inmemory backend:
+
+
+build system:
+
+
+documentation:
+
+
+tools:
+
+
+examples:
+
+
+portability:
+
+* Workaround autoconf 2.72 AC_SYS_LARGEFILE bug.  This configure probe always
+  fails when run with the C++ compiler, like we do, which leads to large file
+  support not being enabled when it isn't the default (e.g. on 32-bit Linux
+  platforms).  Reported by Adrian Bunk.
+
+* Fix C23 compatibility issues.  GCC 15 fails with compile errors due to C23
+  dropping support for old-style function declarations and function
+  definitions.
+
+* Avoid calling frexp() on infinity or NaN.  The specification for frexp() says
+  it returns an "unspecified" exponent for these cases.  Reported by awilfox.
+
+* Fix GCC warning with 32-bit off_t.  Reported by Adrian Bunk.
+
+packaging:
+
+
+debug code:
+
+
 Xapian-core 1.4.27 (2024-12-06):
 
 testsuite:
