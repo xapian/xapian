@@ -27,13 +27,13 @@ class AbiwordParser : public XmlParser {
     std::string* target = nullptr;
   public:
     std::string dump, title, keywords, sample, author;
+    time_t created = time_t(-1);
 
     AbiwordParser() { }
 
     void process_content(const std::string& content);
     bool opening_tag(const std::string& tag);
     bool closing_tag(const std::string& tag);
-    time_t created = time_t(-1);
 
     void parse(std::string_view text) {
 	charset = "utf-8";
