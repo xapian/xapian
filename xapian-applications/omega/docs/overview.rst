@@ -241,8 +241,9 @@ site. (Note that the ``--depth-limit`` option may come in handy if you have
 sites '/products' and '/products/large', or similar.)
 
 omindex has built-in support for indexing HTML, PHP, text files, CSV
-(Comma-Separated Values) files, SVG, Atom feeds, and AbiWord documents.  It can
-also index a number of other formats using external programs or libraries.  Filter programs and libraries
+(Comma-Separated Values) files, SVG, Atom feeds, AbiWord documents and
+Gnumeric spreadsheets.  It can also index a number of other formats using
+external programs or libraries.  Filter programs and libraries
 are run with CPU, time and memory limits to prevent them from
 blocking indexing of other files or crashing omindex. If for one format both
 options are available, libraries would be preferred because they have a better runtime behaviour.
@@ -295,6 +296,7 @@ other filters too - see below):
   also possible to use pages2text as an external filter)
 * AbiWord documents (.abw, .awt)
 * Compressed AbiWord documents (.zabw)
+* Gnumeric spreadsheets (.gnumeric)
 * Rich Text Format documents (.rtf) if unrtf is available
 * Perl POD documentation (.pl, .pm, .pod) if pod2text is available
 * reStructured text (.rst, .rest) if rst2html is available (comes with

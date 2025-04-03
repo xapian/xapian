@@ -125,6 +125,8 @@ abw		application/x-abiword
 awt		application/x-abiword
 # AbiWord compressed document
 zabw		application/x-abiword-compressed
+# Gnumeric document
+gnumeric	application/x-gnumeric
 # RTF -- application/rtf is also registered with IANA and understood by
 # omindex >= 1.4.18), but libmagic seems to always report text/rtf, so
 # we map to that.

@@ -189,7 +189,8 @@ dist_sysconf_DATA = omega.conf
 noinst_HEADERS = omega.h query.h cgiparam.h index_file.h mime.h\
  htmlparser.h xmlparser.h utils.h configfile.h date.h datetime.h\
  commonhelp.h cdb.h cdb_int.h failed.h fields.h hashterm.h jsonescape.h\
- loadfile.h md5.h md5wrap.h abiwordparser.h opendocmetaparser.h values.h utf8convert.h\
+ loadfile.h md5.h md5wrap.h abiwordparser.h gnumericparser.h\
+ opendocmetaparser.h values.h utf8convert.h\
  namedents.h pkglibbindir.h datevalue.h genericxmlparser.h sample.h strcasecmp.h\
  utf8truncate.h diritor.h runfilter.h freemem.h xpsparser.h transform.h\
  weight.h expand.h svgparser.h tmpdir.h urldecode.h urlencode.h unixperm.h atomparser.h\
@@ -251,7 +252,8 @@ omega_LDADD = $(XAPIAN_LIBS) libtransform.la
 
 omindex_SOURCES = omindex.cc htmlparser.cc xmlparser.cc index_file.cc mime.cc\
  common/getopt.cc commonhelp.cc utils.cc hashterm.cc loadfile.cc md5.cc\
- md5wrap.cc abiwordparser.cc opendocmetaparser.cc sample.cc diritor.cc\
+ md5wrap.cc abiwordparser.cc gnumericparser.cc opendocmetaparser.cc\
+ sample.cc diritor.cc\
  runfilter.cc freemem.cc common/msvc_dirent.cc xpsparser.cc common/str.cc\
  pkglibbindir.cc svgparser.cc tmpdir.cc urlencode.cc atomparser.cc xlsxparser.cc\
  opendocparser.cc common/keyword.cc msxmlparser.cc common/safe.cc\

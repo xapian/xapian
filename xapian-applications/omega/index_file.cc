@@ -4,7 +4,7 @@
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2005 James Aylett
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002-2023 Olly Betts
+ * Copyright 2002-2025 Olly Betts
  * Copyright 2009 Frank J Bruzzaniti
  * Copyright 2012 Mihai Bivol
  * Copyright 2019 Bruno Baruffaldi
@@ -55,6 +55,7 @@
 #include "datetime.h"
 #include "diritor.h"
 #include "failed.h"
+#include "gnumericparser.h"
 #include "hashterm.h"
 #include "htmlparser.h"
 #include "md5wrap.h"
@@ -1219,6 +1220,15 @@ index_mimetype(const string& file, const string& urlterm, const string& url,
 	    sample = abiwordparser.sample;
 	    author = abiwordparser.author;
 	    created = abiwordparser.created;
+	} else if (mimetype == "application/x-gnumeric") {
+	    GnumericParser p;
+	    p.parse(d.gzfile_to_string());
+	    dump = p.dump;
+	    title = p.title;
+	    keywords = p.keywords;
+	    sample = p.sample;
+	    author = p.author;
+	    created = p.created;
 	} else if (mimetype == "application/oxps" ||
 		   mimetype == "application/vnd.ms-xpsdocument") {
 	    const char* cmd[] = {

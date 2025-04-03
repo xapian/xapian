@@ -256,6 +256,11 @@ index_test()
 		    NOT("aaauiwaalimbeku")}}});
     tests.insert({"abw/Friendly-Letter.awt",
 		  {{"address", "addressee", "body", "dear", "sincerely"}}});
+    tests.insert({"gnumeric/invoice.gnumeric",
+		  {{"100", "21", "3.5", "Sgnumeric", "Stitle",
+		    "emboldened", "invoice", "sheetname", "test"},
+		  {{{VALUE_CREATED, int_to_binary_string(1743446406)}}}
+		 }});
 #if defined HAVE_LIBCDR
     // .cdr versions >= 16 are not included in the tests as they will work
     // correctly only with libcdr >= 0.1.6
