@@ -102,6 +102,7 @@ EXTRA_DIST =\
 	testfiles/fb2/hello.fb2 \
 	testfiles/fb2/lang-name.fb2 \
 	testfiles/fb2/lang2.fb2 \
+	testfiles/gnumeric/invoice.gnumeric \
 	testfiles/image/Test1.gif \
 	testfiles/image/Test2.pgm \
 	testfiles/image/Test3.ppm \
