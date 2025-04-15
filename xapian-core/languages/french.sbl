@@ -189,9 +189,7 @@ backwardmode (
             '{a^}mes' '{a^}t' '{a^}tes' 'a' 'ai' 'aIent' 'ais' 'ait' 'ant'
             'ante' 'antes' 'ants' 'as' 'asse' 'assent' 'asses' 'assiez'
             'assions'
-                (delete
-                 try(['e'] delete)
-                )
+                ( try('e']) delete )
         )
     )
 
