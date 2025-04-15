@@ -8,10 +8,10 @@
  */
 
 routines (
-	remove_category_1
-	check_category_2
-	remove_category_2
-	remove_category_3
+  remove_category_1
+  check_category_2
+  remove_category_2
+  remove_category_3
 )
 
 stringescapes {}
@@ -52,43 +52,43 @@ stringdef dsv     '{U+094D}'  // DEVANAGARI_SIGN_VIRAMA
 
 externals ( stem )
 backwardmode (
-	define remove_category_1 as(
-		[substring] among (
-			'{dlm}{dvsaa}{dlr}{dsv}{dlpha}{dlta}' '{dld}{dsv}{dlv}{dvsaa}{dlr}{dvsaa}' '{dls}{dsc}{dlg}{dvsai}' '{dls}{dsa}{dlg}'
-			'{dls}{dsc}{dlg}' '{dll}{dvsaa}{dli}' '{dll}{dvsaa}{dlii}' '{dlpa}{dlc}{dvsi}'
-			'{dll}{dvse}' '{dlr}{dlta}' '{dlm}{dvsai}' '{dlm}{dvsaa}'
-			(delete)
-			'{dlka}{dvso}' '{dlka}{dvsaa}' '{dlka}{dvsi}' '{dlka}{dvsii}' '{dlka}{dvsai}'(('{dle}' or '{dvse}' ()) or delete)
-		)
-	)
+  define remove_category_1 as(
+    [substring] among (
+      '{dlm}{dvsaa}{dlr}{dsv}{dlpha}{dlta}' '{dld}{dsv}{dlv}{dvsaa}{dlr}{dvsaa}' '{dls}{dsc}{dlg}{dvsai}' '{dls}{dsa}{dlg}'
+      '{dls}{dsc}{dlg}' '{dll}{dvsaa}{dli}' '{dll}{dvsaa}{dlii}' '{dlpa}{dlc}{dvsi}'
+      '{dll}{dvse}' '{dlr}{dlta}' '{dlm}{dvsai}' '{dlm}{dvsaa}'
+      (delete)
+      '{dlka}{dvso}' '{dlka}{dvsaa}' '{dlka}{dvsi}' '{dlka}{dvsii}' '{dlka}{dvsai}'(('{dle}' or '{dvse}' ()) or delete)
+    )
+  )
 
-	define check_category_2 as(
-		[substring] among(
-			'{dsc}' '{dsa}' '{dvsai}'
-		)
-	)
+  define check_category_2 as(
+    [substring] among(
+      '{dsc}' '{dsa}' '{dvsai}'
+    )
+  )
 
-	define remove_category_2 as (
-		[substring] among(
-		'{dsc}' '{dsa}' ('{dly}{dvsau}' or '{dlc}{dvsau}' or '{dln}{dvsau}' or '{dltha}{dvse}' delete)
-		'{dvsai}' ('{dlta}{dsv}{dlr}' delete)
-		)
-	)
+  define remove_category_2 as (
+    [substring] among(
+    '{dsc}' '{dsa}' ('{dly}{dvsau}' or '{dlc}{dvsau}' or '{dln}{dvsau}' or '{dltha}{dvse}' delete)
+    '{dvsai}' ('{dlta}{dsv}{dlr}' delete)
+    )
+  )
 
-	define remove_category_3 as(
-		[substring] among(
-			'{dltha}{dvsi}{dli}{dls}{dsv}' '{dlh}{dvsu}{dln}{dvse}{dlc}' '{dlh}{dvsu}{dln}{dsv}{dlc}' '{dln}{dvse}{dlc}{dls}{dsv}' '{dln}{dvse}{dlc}{dln}{dsv}' '{dli}{dle}{dlka}{dvsii}' '{dli}{dle}{dlka}{dvsaa}' '{dli}{dle}{dlka}{dvso}' '{dvsi}{dle}{dlka}{dvsii}' '{dvsi}{dle}{dlka}{dvsaa}' '{dvsi}{dle}{dlka}{dvso}' '{dli}{dlc}{dln}{dsv}' '{dvsi}{dlc}{dln}{dsv}' '{dli}{dlc}{dls}{dsv}' '{dvsi}{dlc}{dls}{dsv}' '{dle}{dlc}{dln}{dsv}' '{dvse}{dlc}{dln}{dsv}' '{dle}{dlc}{dls}{dsv}' '{dvse}{dlc}{dls}{dsv}' '{dlc}{dvsi}{dln}{dsv}' '{dlc}{dvse}{dls}{dsv}' '{dlc}{dsv}{dly}{dvsau}' '{dltha}{dvsi}{dln}{dsv}' '{dltha}{dvsi}{dly}{dvso}' '{dltha}{dvsi}{dly}{dvsau}' '{dltha}{dvsi}{dls}{dsv}' '{dltha}{dsv}{dly}{dvso}' '{dltha}{dsv}{dly}{dvsau}' '{dld}{dvsi}{dly}{dvso}' '{dld}{dvse}{dlkha}{dvsi}' '{dld}{dvse}{dlkha}{dvsii}' '{dll}{dvsaa}{dln}{dsv}' '{dlm}{dvsaa}{dltha}{dvsi}' '{dln}{dvse}{dlka}{dvsai}' '{dln}{dvse}{dlka}{dvsaa}' '{dln}{dvse}{dlka}{dvso}' '{dln}{dvse}{dlc}{dvsau}' '{dlh}{dvso}{dls}{dsv}' '{dli}{dln}{dsv}{dlc}' '{dvsi}{dln}{dsv}{dlc}' '{dln}{dvse}{dlc}{dvsu}' '{dli}{dlc}{dvsau}' '{dvsi}{dlc}{dvsau}' 			'{dli}{dls}{dsv}' '{dvsi}{dls}{dsv}' '{dvsi}{dly}{dvso}' '{dli}{dly}{dvso}' '{dle}{dlka}{dvsaa}' '{dvse}{dlka}{dvsaa}' '{dle}{dlka}{dvsii}' '{dvse}{dlka}{dvsii}' '{dle}{dlka}{dvsai}' '{dvse}{dlka}{dvsai}' '{dle}{dlka}{dvso}' '{dvse}{dlka}{dvso}' '{dle}{dlc}{dvsu}' '{dvse}{dlc}{dvsu}' '{dle}{dlc}{dvsau}' '{dvse}{dlc}{dvsau}' '{dlc}{dln}{dsv}' '{dlc}{dls}{dsv}' '{dltha}{dvsi}{dle}' '{dlpa}{dlr}{dsv}' '{dlb}{dly}{dvso}' '{dlh}{dlr}{dvsu}' '{dlh}{dlr}{dvsuu}' '{dvsi}{dld}{dvsaa}' '{dli}{dld}{dvsaa}' '{dvsi}{dld}{dvso}' '{dli}{dld}{dvso}' '{dvsi}{dld}{dvsai}' '{dli}{dld}{dvsai}' '{dln}{dvse}{dlc}' '{dli}{dlc}' '{dvsi}{dlc}' '{dle}{dlc}' '{dvse}{dlc}' '{dlc}{dvsu}' '{dlc}{dvse}' '{dlc}{dvsau}' '{dltha}{dvsii}' '{dltha}{dvse}' '{dld}{dvsaa}' '{dld}{dvsii}' '{dld}{dvsai}' '{dld}{dvso}' '{dln}{dvsu}' '{dln}{dvse}' '{dly}{dvso}' '{dly}{dvsau}' '{dlc}'
-			(delete)
-		)
-	)
+  define remove_category_3 as(
+    [substring] among(
+      '{dltha}{dvsi}{dli}{dls}{dsv}' '{dlh}{dvsu}{dln}{dvse}{dlc}' '{dlh}{dvsu}{dln}{dsv}{dlc}' '{dln}{dvse}{dlc}{dls}{dsv}' '{dln}{dvse}{dlc}{dln}{dsv}' '{dli}{dle}{dlka}{dvsii}' '{dli}{dle}{dlka}{dvsaa}' '{dli}{dle}{dlka}{dvso}' '{dvsi}{dle}{dlka}{dvsii}' '{dvsi}{dle}{dlka}{dvsaa}' '{dvsi}{dle}{dlka}{dvso}' '{dli}{dlc}{dln}{dsv}' '{dvsi}{dlc}{dln}{dsv}' '{dli}{dlc}{dls}{dsv}' '{dvsi}{dlc}{dls}{dsv}' '{dle}{dlc}{dln}{dsv}' '{dvse}{dlc}{dln}{dsv}' '{dle}{dlc}{dls}{dsv}' '{dvse}{dlc}{dls}{dsv}' '{dlc}{dvsi}{dln}{dsv}' '{dlc}{dvse}{dls}{dsv}' '{dlc}{dsv}{dly}{dvsau}' '{dltha}{dvsi}{dln}{dsv}' '{dltha}{dvsi}{dly}{dvso}' '{dltha}{dvsi}{dly}{dvsau}' '{dltha}{dvsi}{dls}{dsv}' '{dltha}{dsv}{dly}{dvso}' '{dltha}{dsv}{dly}{dvsau}' '{dld}{dvsi}{dly}{dvso}' '{dld}{dvse}{dlkha}{dvsi}' '{dld}{dvse}{dlkha}{dvsii}' '{dll}{dvsaa}{dln}{dsv}' '{dlm}{dvsaa}{dltha}{dvsi}' '{dln}{dvse}{dlka}{dvsai}' '{dln}{dvse}{dlka}{dvsaa}' '{dln}{dvse}{dlka}{dvso}' '{dln}{dvse}{dlc}{dvsau}' '{dlh}{dvso}{dls}{dsv}' '{dli}{dln}{dsv}{dlc}' '{dvsi}{dln}{dsv}{dlc}' '{dln}{dvse}{dlc}{dvsu}' '{dli}{dlc}{dvsau}' '{dvsi}{dlc}{dvsau}' '{dli}{dls}{dsv}' '{dvsi}{dls}{dsv}' '{dvsi}{dly}{dvso}' '{dli}{dly}{dvso}' '{dle}{dlka}{dvsaa}' '{dvse}{dlka}{dvsaa}' '{dle}{dlka}{dvsii}' '{dvse}{dlka}{dvsii}' '{dle}{dlka}{dvsai}' '{dvse}{dlka}{dvsai}' '{dle}{dlka}{dvso}' '{dvse}{dlka}{dvso}' '{dle}{dlc}{dvsu}' '{dvse}{dlc}{dvsu}' '{dle}{dlc}{dvsau}' '{dvse}{dlc}{dvsau}' '{dlc}{dln}{dsv}' '{dlc}{dls}{dsv}' '{dltha}{dvsi}{dle}' '{dlpa}{dlr}{dsv}' '{dlb}{dly}{dvso}' '{dlh}{dlr}{dvsu}' '{dlh}{dlr}{dvsuu}' '{dvsi}{dld}{dvsaa}' '{dli}{dld}{dvsaa}' '{dvsi}{dld}{dvso}' '{dli}{dld}{dvso}' '{dvsi}{dld}{dvsai}' '{dli}{dld}{dvsai}' '{dln}{dvse}{dlc}' '{dli}{dlc}' '{dvsi}{dlc}' '{dle}{dlc}' '{dvse}{dlc}' '{dlc}{dvsu}' '{dlc}{dvse}' '{dlc}{dvsau}' '{dltha}{dvsii}' '{dltha}{dvse}' '{dld}{dvsaa}' '{dld}{dvsii}' '{dld}{dvsai}' '{dld}{dvso}' '{dln}{dvsu}' '{dln}{dvse}' '{dly}{dvso}' '{dly}{dvsau}' '{dlc}'
+      (delete)
+    )
+  )
 
 )
 
 define stem as (
-	backwards (
-		do remove_category_1
-			do (
-				repeat (do (check_category_2 and remove_category_2) remove_category_3)
-			)
-	)
+  backwards (
+    do remove_category_1
+      do (
+        repeat (do (check_category_2 and remove_category_2) remove_category_3)
+      )
+  )
 )
