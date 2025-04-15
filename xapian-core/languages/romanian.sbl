@@ -191,7 +191,7 @@ backwardmode (
             'i{s,}i' 'ir{a+}m' 'ir{a+}{t,}i' 'ir{a+}'
             '{a^}i' '{a^}{s,}i' '{a^}r{a+}m' '{a^}r{a+}{t,}i' '{a^}r{a+}'
 
-            // pluferfect:
+            // pluperfect:
             'asem' 'ase{s,}i' 'ase' 'aser{a+}m' 'aser{a+}{t,}i' 'aser{a+}'
             'isem' 'ise{s,}i' 'ise' 'iser{a+}m' 'iser{a+}{t,}i' 'iser{a+}'
             '{a^}sem' '{a^}se{s,}i' '{a^}se' '{a^}ser{a+}m' '{a^}ser{a+}{t,}i'
