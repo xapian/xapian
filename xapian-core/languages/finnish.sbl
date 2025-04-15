@@ -44,8 +44,8 @@ define mark_regions as (
     $p1 = limit
     $p2 = limit
 
-    goto V1  gopast non-V1  setmark p1
-    goto V1  gopast non-V1  setmark p2
+    gopast V1  gopast non-V1  setmark p1
+    gopast V1  gopast non-V1  setmark p2
 )
 
 backwardmode (

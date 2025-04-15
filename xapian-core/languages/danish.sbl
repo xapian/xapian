@@ -33,7 +33,7 @@ define mark_regions as (
     $p1 = limit
 
     test ( hop 3 setmark x )
-    goto v gopast non-v  setmark p1
+    gopast v  gopast non-v  setmark p1
     try ( $p1 < x  $p1 = x )
 )
 
