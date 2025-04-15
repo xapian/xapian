@@ -37,14 +37,13 @@ define v 'aeiyou{a'}{e'}{i'}{u'}{e.}{u-}'
 
 // all lithuanian stemmer routines: 4 steps
 routines (
-  step2 R1 step1 fix_chdz fix_gd fix_conflicts
+  step2 step1 fix_chdz fix_gd fix_conflicts
 )
 
 backwardmode (
 
-  define R1 as $p1 <= cursor
   define step1 as (
-    setlimit tomark p1 for ([substring]) R1 among (
+    setlimit tomark p1 for ([substring]) among (
       // Daiktavardžiai (Nouns)
       // I linksniuotė (declension I)
       'as' 'ias' 'is' 'ys'        // vyras, kelias, brolis, gaidys
