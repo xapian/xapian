@@ -54,7 +54,7 @@ define prelude as (
             '{u"}' '{u'}'
                 (<- 'u')
             ''  (next)
-        ) //or next
+        )
     )
     try(['y'] <- 'Y')
     repeat goto (
@@ -80,7 +80,7 @@ define postlude as repeat (
         'Y'  (<- 'y')
         'I'  (<- 'i')
         ''   (next)
-    ) //or next
+    )
 
 )
 
