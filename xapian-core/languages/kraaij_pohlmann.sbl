@@ -46,7 +46,7 @@ backwardmode (
 
     define Step_1 as
     (
-        [among ( (])
+        [substring] among (
 
             '{'}s' (delete)
             's'    (R1 not ('t' R1) C delete)
@@ -68,7 +68,7 @@ backwardmode (
 
     define Step_2 as
     (
-        [among ( (])
+        [substring] among (
             'je'   (('{'}t' ] delete) or
                     ('et'   ] R1 C delete) or
                     ('rnt'  ] <-'rn') or
@@ -92,7 +92,7 @@ backwardmode (
 
     define Step_3 as
     (
-        [among ( (])
+        [substring] among (
             'atie'  (R1 <-'eer')
             'iteit' (R1 delete lengthen_V)
             'heid'
@@ -112,7 +112,7 @@ backwardmode (
 
     define Step_4 as
     (
-        (   [among ( (])
+        (   [substring] among (
                 'ioneel'  (R1 <-'ie')
                 'atief'   (R1 <-'eer')
                 'baar'    (R1 delete)
@@ -132,7 +132,7 @@ backwardmode (
             )
         )
         or
-        (   [among ( (])
+        (   [substring] among (
                 'iger'
                 'igst'
                 'ig'      (R1 C delete lengthen_V)
@@ -142,7 +142,7 @@ backwardmode (
 
     define Step_7 as
     (
-        [among ( (])
+        [substring] among (
             'kt'   (<-'k')
             'ft'   (<-'f')
             'pt'   (<-'p')
@@ -151,7 +151,7 @@ backwardmode (
 
     define Step_6 as
     (
-        [among ( (])
+        [substring] among (
             'bb'   (<-'b')
             'cc'   (<-'c')
             'dd'   (<-'d')
@@ -179,7 +179,7 @@ backwardmode (
 
     define Step_1c as
     (
-        [among ( (] R1 C)
+        [substring] among ( (R1 C)
             'd' (not ('n' R1) delete)
             't' (not ('h' R1) delete)
         )
@@ -200,11 +200,8 @@ define Lose_infix as (
 )
 
 define measure as (
-    do (
-        tolimit
-        setmark p1
-        setmark p2
-    )
+    $p1 = limit
+    $p2 = limit
     do(
         repeat non-v  atleast 1 ('ij' or v)  non-v  setmark p1
         repeat non-v  atleast 1 ('ij' or v)  non-v  setmark p2
