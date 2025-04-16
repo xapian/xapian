@@ -428,14 +428,15 @@ backwardmode (
 	// appends U to stems ending with d or g, decides which vowel to add
 	// based on the last vowel in the stem
 	define append_U_to_stems_ending_with_d_or_g as (
-		test('d' or 'g')
-		(test((goto vowel) 'a' or '{i'}') <+ '{i'}')
+		[] ('d' or 'g') goto vowel
+
+		(('a' or '{i'}') <- '{i'}')
 		or
-		(test((goto vowel) 'e' or 'i') <+ 'i')
+		(('e' or 'i') <- 'i')
 		or
-		(test((goto vowel) 'o' or 'u') <+ 'u')
+		(('o' or 'u') <- 'u')
 		or
-		(test((goto vowel) '{o"}' or '{u"}') <+ '{u"}')
+		(('{o"}' or '{u"}') <- '{u"}')
 	)
 
 	define is_reserved_word as (
