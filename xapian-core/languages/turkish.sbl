@@ -82,22 +82,22 @@ stringescapes	{ }
 /* Special characters in Unicode Latin-1 and Latin Extended-A */
 stringdef cc	'{U+00E7}'	// LATIN SMALL LETTER C WITH CEDILLA
 stringdef g~	'{U+011F}'	// LATIN SMALL LETTER G WITH BREVE
-stringdef i'	'{U+0131}'	// LATIN SMALL LETTER I WITHOUT DOT
+stringdef i 	'{U+0131}'	// LATIN SMALL LETTER I WITHOUT DOT
 stringdef o"	'{U+00F6}'	// LATIN SMALL LETTER O WITH DIAERESIS
-stringdef s,	'{U+015F}'	// LATIN SMALL LETTER S WITH CEDILLA
+stringdef sc	'{U+015F}'	// LATIN SMALL LETTER S WITH CEDILLA
 stringdef u"	'{U+00FC}'	// LATIN SMALL LETTER U WITH DIAERESIS
 
 booleans	( continue_stemming_noun_suffixes )
 
 groupings	( vowel U vowel1 vowel2 vowel3 vowel4 vowel5 vowel6)
 
-define vowel	'ae{i'}io{o"}u{u"}'
-define U	'{i'}iu{u"}'
+define vowel	'ae{i}io{o"}u{u"}'
+define U	'{i}iu{u"}'
 
 // the vowel grouping definitions below are used for checking vowel harmony
-define vowel1	'a{i'}ou'		// vowels that can end with suffixes containing 'a'
+define vowel1	'a{i}ou'		// vowels that can end with suffixes containing 'a'
 define vowel2	'ei{o"}{u"}'		// vowels that can end with suffixes containing 'e'
-define vowel3	'a{i'}'			// vowels that can end with suffixes containing 'i''
+define vowel3	'a{i}'			// vowels that can end with suffixes containing 'i''
 define vowel4	'ei'			// vowels that can end with suffixes containing 'i'
 define vowel5	'ou'			// vowels that can end with suffixes containing 'o' or 'u'
 define vowel6	'{o"}{u"}'		// vowels that can end with suffixes containing 'o"' or 'u"'
@@ -115,7 +115,7 @@ backwardmode (
 			(
 				('a' goto vowel1) or
 				('e' goto vowel2) or
-				('{i'}' goto vowel3) or
+				('{i}' goto vowel3) or
 				('i' goto vowel4) or
 				('o' goto vowel5) or
 				('{o"}' goto vowel6) or
@@ -164,8 +164,8 @@ backwardmode (
 	)
 
 	define mark_possessives as (
-		among ('m{i'}z' 'miz' 'muz' 'm{u"}z'
-		       'n{i'}z' 'niz' 'nuz' 'n{u"}z' 'm' 'n')
+		among ('m{i}z' 'miz' 'muz' 'm{u"}z'
+		       'n{i}z' 'niz' 'nuz' 'n{u"}z' 'm' 'n')
 		(mark_suffix_with_optional_U_vowel)
 	)
 
@@ -176,7 +176,7 @@ backwardmode (
 	)
 
 	define mark_lArI as (
-		among ('leri' 'lar{i'}')
+		among ('leri' 'lar{i}')
 	)
 
 	define mark_yU as (
@@ -187,12 +187,12 @@ backwardmode (
 
 	define mark_nU as (
 		check_vowel_harmony
-		among ('n{i'}' 'ni' 'nu' 'n{u"}')
+		among ('n{i}' 'ni' 'nu' 'n{u"}')
 	)
 
 	define mark_nUn as (
 		check_vowel_harmony
-		among ('{i'}n' 'in' 'un' '{u"}n')
+		among ('{i}n' 'in' 'un' '{u"}n')
 		(mark_suffix_with_optional_n_consonant)
 	)
 
@@ -245,23 +245,23 @@ backwardmode (
 
 	define mark_yUm as (
 		check_vowel_harmony
-		among ('{i'}m' 'im' 'um' '{u"}m')
+		among ('{i}m' 'im' 'um' '{u"}m')
 		(mark_suffix_with_optional_y_consonant)
 	)
 
 	define mark_sUn as (
 		check_vowel_harmony
-		among ('s{i'}n' 'sin' 'sun' 's{u"}n' )
+		among ('s{i}n' 'sin' 'sun' 's{u"}n' )
 	)
 
 	define mark_yUz as (
 		check_vowel_harmony
-		among ('{i'}z' 'iz' 'uz' '{u"}z')
+		among ('{i}z' 'iz' 'uz' '{u"}z')
 		(mark_suffix_with_optional_y_consonant)
 	)
 
 	define mark_sUnUz as (
-		among ('s{i'}n{i'}z' 'siniz' 'sunuz' 's{u"}n{u"}z')
+		among ('s{i}n{i}z' 'siniz' 'sunuz' 's{u"}n{u"}z')
 	)
 
 	define mark_lAr as (
@@ -271,24 +271,24 @@ backwardmode (
 
 	define mark_nUz as (
 		check_vowel_harmony
-		among ('n{i'}z' 'niz' 'nuz' 'n{u"}z')
+		among ('n{i}z' 'niz' 'nuz' 'n{u"}z')
 	)
 
 	define mark_DUr as (
 		check_vowel_harmony
-		among ('t{i'}r' 'tir' 'tur' 't{u"}r' 'd{i'}r' 'dir' 'dur' 'd{u"}r')
+		among ('t{i}r' 'tir' 'tur' 't{u"}r' 'd{i}r' 'dir' 'dur' 'd{u"}r')
 	)
 
 	define mark_cAsInA as (
-		among ('cas{i'}na' 'cesine')
+		among ('cas{i}na' 'cesine')
 	)
 
 	define mark_yDU as (
 		check_vowel_harmony
-		among ('t{i'}m' 'tim' 'tum' 't{u"}m' 'd{i'}m' 'dim' 'dum' 'd{u"}m'
-			't{i'}n' 'tin' 'tun' 't{u"}n' 'd{i'}n' 'din' 'dun' 'd{u"}n'
-			't{i'}k' 'tik' 'tuk' 't{u"}k' 'd{i'}k' 'dik' 'duk' 'd{u"}k'
-			't{i'}' 'ti' 'tu' 't{u"}' 'd{i'}' 'di' 'du' 'd{u"}')
+		among ('t{i}m' 'tim' 'tum' 't{u"}m' 'd{i}m' 'dim' 'dum' 'd{u"}m'
+			't{i}n' 'tin' 'tun' 't{u"}n' 'd{i}n' 'din' 'dun' 'd{u"}n'
+			't{i}k' 'tik' 'tuk' 't{u"}k' 'd{i}k' 'dik' 'duk' 'd{u"}k'
+			't{i}' 'ti' 'tu' 't{u"}' 'd{i}' 'di' 'du' 'd{u"}')
 		(mark_suffix_with_optional_y_consonant)
 	)
 
@@ -300,7 +300,7 @@ backwardmode (
 
 	define mark_ymUs_ as (
 		check_vowel_harmony
-		among ('m{i'}{s,}' 'mi{s,}' 'mu{s,}' 'm{u"}{s,}')
+		among ('m{i}{sc}' 'mi{sc}' 'mu{sc}' 'm{u"}{sc}')
 		(mark_suffix_with_optional_y_consonant)
 	)
 
@@ -430,7 +430,7 @@ backwardmode (
 	define append_U_to_stems_ending_with_d_or_g as (
 		[] ('d' or 'g') goto vowel
 
-		(('a' or '{i'}') <- '{i'}')
+		(('a' or '{i}') <- '{i}')
 		or
 		(('e' or 'i') <- 'i')
 		or
