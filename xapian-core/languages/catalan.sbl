@@ -24,7 +24,7 @@ stringescapes {}
 
 stringdef a'   '{U+00E1}'  // a-acute
 stringdef a`   '{U+00E0}'  // a-grave
-stringdef c,   '{U+00E7}'  // c-cedilla
+stringdef cc   '{U+00E7}'  // c-cedilla
 stringdef e'   '{U+00E9}'  // e-acute
 stringdef e`   '{U+00E8}'  // e-grave
 stringdef i'   '{U+00ED}'  // i-acute
@@ -95,7 +95,7 @@ backwardmode (
             'i{o'}' 'itat' 'itats' 'itzar' 'iva' 'ives' 'ivisme' 'ius'
             'fer' 'ment' 'amen' 'ament' 'aments' 'ments' 'ot' 'sfera' 'al' 'als' 'era' 'ana' 'iste'
             'aire' 'eria' 'esa' 'eses' 'esos' 'or' '{i'}cia' '{i'}cies' 'icis' 'ici' '{i'}ci' '{i'}cis'
-            '{a`}ria' '{a`}ries' 'alla' 'ci{o'}' 'cions' 'n{c,}a' 'nces' '{o'}' 'dor' 'all'
+            '{a`}ria' '{a`}ries' 'alla' 'ci{o'}' 'cions' 'n{cc}a' 'nces' '{o'}' 'dor' 'all'
             'il' '{i'}stic' 'enc' 'enca' '{i'}s' 'issa' 'issos' '{i'}ssem' '{i'}ssiu' 'issem' 'isseu' '{i'}sseu'
             '{o'}s' 'osa'  'dora' 'dores' 'dors' 'adura' 'ble' 'bles' '{i'}vol' '{i'}vola' 'd{i'}s' 'egar' 'ejar' 'ificar'
             'itar' 'ables' 'adors' 'idores' 'idors'

@@ -27,7 +27,7 @@ stringdef i'   '{U+00ED}'  // i-acute
 stringdef o^   '{U+00F4}'  // o-circumflex
 stringdef o'   '{U+00F3}'  // o-acute
 stringdef u'   '{U+00FA}'  // u-acute
-stringdef c,   '{U+00E7}'  // c-cedilla
+stringdef cc   '{U+00E7}'  // c-cedilla
 
 stringdef a~   '{U+00E3}'  // a-tilde
 stringdef o~   '{U+00F5}'  // o-tilde
@@ -88,8 +88,8 @@ backwardmode (
             'amento' 'amentos'
             'imento' 'imentos'
 
-           'adora' 'ador' 'a{c,}a~o'
-           'adoras' 'adores' 'a{c,}o~es'  // no -ic test
+           'adora' 'ador' 'a{cc}a~o'
+           'adoras' 'adores' 'a{cc}o~es'  // no -ic test
            'ante' 'antes' '{a^}ncia' // Note 1
             (
                 R2 delete
@@ -99,7 +99,7 @@ backwardmode (
             (
                 R2 <- 'log'
             )
-            'u{c,}a~o' 'u{c,}o~es'
+            'u{cc}a~o' 'u{cc}o~es'
             (
                 R2 <- 'u'
             )
@@ -195,7 +195,7 @@ backwardmode (
             'e' '{e'}' '{e^}'
                 ( RV delete [('u'] test 'g') or
                              ('i'] test 'c') RV delete )
-            '{c,}' (<-'c')
+            '{cc}' (<-'c')
         )
     )
 )
