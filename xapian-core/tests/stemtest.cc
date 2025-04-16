@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2007,2008,2009,2012,2015 Olly Betts
+ * Copyright 2002,2003,2004,2007,2008,2009,2012,2015,2025 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,8 +26,9 @@
 #include <cstdlib>
 
 #include <string>
-#include <fstream>
 #include <iostream>
+
+#include <zlib.h>
 
 #include <xapian.h>
 #include "testsuite.h"
@@ -116,41 +117,58 @@ test_stemdict()
 {
     string dir = srcdir + "/../../xapian-data/stemming/";
 
-    ifstream voc((dir + language + "/voc.txt").c_str());
-    if (!voc.is_open()) {
-	SKIP_TEST(language << "/voc.txt not found");
+    gzFile voc = gzopen((dir + language + "/voc.txt").c_str(), "rb");
+    if (!voc) {
+	voc = gzopen((dir + language + "/voc.txt.gz").c_str(), "rb");
+	if (!voc) {
+	    SKIP_TEST(language << "/voc.txt not found");
+	}
     }
 
-    ifstream st((dir + language + "/output.txt").c_str());
-    if (!st.is_open()) {
-	voc.close();
-	FAIL_TEST(language << "/output.txt not found");
+    gzFile st = gzopen((dir + language + "/output.txt").c_str(), "rb");
+    if (!st) {
+	st = gzopen((dir + language + "/output.txt.gz").c_str(), "rb");
+	if (!st) {
+	    gzclose(voc);
+	    FAIL_TEST(language << "/output.txt not found");
+	}
     }
 
     tout << "Testing " << language << " with Snowball dictionary...\n";
 
     int pass = 1;
+    string word, expect;
     while (true) {
-	string word, stem, expect;
-	while (!voc.eof() && !st.eof()) {
-	    getline(voc, word);
-	    getline(st, expect);
+	while (!gzeof(voc) && !gzeof(st)) {
+	    word.clear();
+	    while (true) {
+		int ch = gzgetc(voc);
+		if (ch == EOF || ch == '\n') break;
+		word += ch;
+	    }
 
-	    stem = stemmer(word);
+	    expect.clear();
+	    while (true) {
+		int ch = gzgetc(st);
+		if (ch == EOF || ch == '\n') break;
+		expect += ch;
+	    }
+
+	    string stem = stemmer(word);
 
 	    TEST_EQUAL(stem, expect);
 	}
-	voc.close();
-	st.close();
+	gzclose(voc);
+	gzclose(st);
 
 	if (pass == 2) break;
 
-	voc.open((dir + language + "/voc2.txt").c_str());
-	if (!voc.is_open()) break;
+	voc = gzopen((dir + language + "/voc2.txt").c_str(), "rb");
+	if (!voc) break;
 
-	st.open((dir + language + "/output2.txt").c_str());
-	if (!st.is_open()) {
-	    voc.close();
+	st = gzopen((dir + language + "/output2.txt").c_str(), "rb");
+	if (!st) {
+	    gzclose(voc);
 	    FAIL_TEST(language << "/output2.txt not found");
 	}
 	tout << "Testing " << language << " with supplemental dictionary...\n";

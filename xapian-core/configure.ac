@@ -827,6 +827,25 @@ case $host_os in
 esac
 XAPIAN_BACKEND_ENABLE([remote], [$default_enable_backend_remote], [yes (except for MSDOS)])
 
+save_LIBS=$LIBS
+LIBS=
+dnl We use zlib in stemtest for reading compressed word lists, and for
+dnl compressing tags in chert and glass.
+
+dnl Check for zlib.h.
+AC_CHECK_HEADERS([zlib.h], [], [
+  AC_MSG_ERROR([zlib.h not found - required for chert and glass (you may need to install the zlib1g-dev or zlib-devel package)])
+  ], [ ])
+
+dnl Check for zlibVersion - normally it's in -lz but the mingw build needs -lzlib or -lzdll.
+AC_SEARCH_LIBS([zlibVersion], [z zlib zdll], [], [
+  AC_MSG_ERROR([zlibVersion() not found in -lz, -lzlib, or -lzdll - required for glass (you may need to install the zlib1g-dev or zlib-devel package)])
+  ])
+
+ZLIB_LIBS=$LIBS
+AC_SUBST([ZLIB_LIBS])
+LIBS=$save_LIBS
+
 dnl Save and empty LIBS while we probe for libraries to link libxapian against
 dnl so we can just use AC_SEARCH_LIBS then copy LIBS to XAPIAN_LIBS and restore
 dnl the value saved here.
@@ -872,22 +891,8 @@ AC_SEARCH_LIBS([timer_create], [rt],
 win32_need_lws2_32=0
 case $enable_backend_chert$enable_backend_glass in
 *yes*)
-  dnl We use zlib for compressing tags in chert/glass.  We could
-  dnl automatically disable support if zlib isn't found, but overall that
-  dnl probably does more harm than good - it's most likely that someone just
-  dnl forgot to install the -dev package for zlib.
-  dnl
-  dnl Similarly for uuid support.
-
-  dnl Check for zlib.h.
-  AC_CHECK_HEADERS([zlib.h], [], [
-    AC_MSG_ERROR([zlib.h not found - required for chert and glass (you may need to install the zlib1g-dev or zlib-devel package)])
-    ], [ ])
-
-  dnl Check for zlibVersion - normally it's in -lz but the mingw build needs -lzlib or -lzdll.
-  AC_SEARCH_LIBS([zlibVersion], [z zlib zdll], [], [
-    AC_MSG_ERROR([zlibVersion() not found in -lz, -lzlib, or -lzdll - required for chert and glass (you may need to install the zlib1g-dev or zlib-devel package)])
-    ])
+  dnl Link libxapian against zlib.
+  LIBS="$LIBS${LIBS:+ }$ZLIB_LIBS"
 
   dnl Find a way to generate UUIDs.
 
