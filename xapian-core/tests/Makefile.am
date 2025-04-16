@@ -145,7 +145,7 @@ apitest_LDADD = ../libgetopt.la ../$(libxapian_la)
 
 stemtest_SOURCES = stemtest.cc $(testharness_sources)
 stemtest_LDFLAGS = $(NO_INSTALL)
-stemtest_LDADD = ../libgetopt.la ../$(libxapian_la)
+stemtest_LDADD = ../libgetopt.la ../$(libxapian_la) $(ZLIB_LIBS)
 
 internaltest_SOURCES = internaltest.cc $(testharness_sources)
 internaltest_LDFLAGS = $(NO_INSTALL)
