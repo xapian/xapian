@@ -64,9 +64,9 @@ backwardmode (
     // prefix not in {ke, peng, per}
     define SUFFIX_KAN_OK as (
         // On page 29, the example "kompas Q.31" says "Both Nazief and Porter
-        // stemmer converted the word peledakan (blast, explotion) to ledak (to
-        // blast, to explode)".  However, the algorithm as described doesn't
-        // behave in this way - grammatically the prefix pe- occurs as a
+        // stemmer converted the word peledakan (blast, explotion [sic]) to
+        // ledak (to blast, to explode)".  However, the algorithm as described
+        // doesn't behave in this way - grammatically the prefix pe- occurs as a
         // variation of both the first-order derivational prefix peng- and the
         // second-order derivational prefix per-, but table 2.5 doesn't include
         // "pe", only table 2.6 does, so "peledakan" is handled (incorrectly)
@@ -106,13 +106,19 @@ backwardmode (
         //
         // Elsewhere the paper defines V... as meaning "the stem starts with
         // a vowel" and K... as meaning "the stem starts with a consonant".
+        // The meaning of | isn't actually defined, but clearly means
+        // alternation.
         //
-        // In other places where it says X|Y... it seems the | binds more
+        // However nowhere is the precedence of | vs ... defined, and there
+        // isn't a standard precedence we could reasonably assume.  In other
+        // places where the paper says X|Y... it seems the | binds more
         // tightly, so it's (V|K)...cᵢcⱼ not V|(K...cᵢcⱼ).  That seems a bit
         // odd as the first letter must be either a vowel or a consonant, so
-        // that really just means "ends cᵢcⱼ".  However, nowhere in the paper
-        // uses or defines a notation such as ...X, which may explain this
-        // seemingly redundant way of specifying this.
+        // that really just means "ends cᵢcⱼ" (and has at least one letter
+        // before cᵢ but we only call SUFFIX_I_OK if $measure > 2 which
+        // ensures that part).  However, nowhere in the paper uses or defines
+        // a notation such as ...X, which may explain this seemingly redundant
+        // way of specifying this.
         //
         // The conditions elsewhere on prefix removal (e.g. V...) are clearly
         // on the stem left after the prefix is removed.  None of the other
@@ -120,7 +126,7 @@ backwardmode (
         // consistency with the prefix rules we might expect that the cᵢcⱼ
         // test is on what's left *after* removing the "i" suffix.
         //
-        // However, studying Indonesian wordlists and discussion with a native
+        // Studying Indonesian wordlists and discussion with a native
         // speaker leads us to conclude that the purpose of this check is to
         // protect words of foreign origin (e.g. "televisi", "organisasi",
         // "komunikasi") from stemming, and the common feature of these is
