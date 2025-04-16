@@ -23,7 +23,7 @@ stringescapes {}
 
 stringdef a^   '{U+00E2}'  // a-circumflex
 stringdef a`   '{U+00E0}'  // a-grave
-stringdef c,   '{U+00E7}'  // c-cedilla
+stringdef cc   '{U+00E7}'  // c-cedilla
 
 stringdef e"   '{U+00EB}'  // e-diaeresis (rare)
 stringdef e'   '{U+00E9}'  // e-acute
@@ -232,7 +232,7 @@ define stem as (
                  )
                  and
                  try( [ ('Y'   ] <- 'i' ) or
-                        ('{c,}'] <- 'c' )
+                        ('{cc}'] <- 'c' )
                  )
             ) or
             residual_suffix

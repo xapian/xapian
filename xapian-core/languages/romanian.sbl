@@ -25,19 +25,19 @@ stringescapes {}
 stringdef a^   '{U+00E2}'  // a circumflex
 stringdef i^   '{U+00EE}'  // i circumflex
 stringdef a+   '{U+0103}'  // a breve
-stringdef s~   '{U+015F}'  // s cedilla
-stringdef t~   '{U+0163}'  // t cedilla
+stringdef sc   '{U+015F}'  // s cedilla
+stringdef tc   '{U+0163}'  // t cedilla
 stringdef s,   '{U+0219}'  // s comma
 stringdef t,   '{U+021B}'  // t comma
 
 define v 'aeiou{a^}{i^}{a+}'
 
-// normalize s~ to s, and t~ to t,
+// Normalize old cedilla forms to correct comma-below forms.
 define norm as (
     do repeat goto (
         [substring] among (
-            '{s~}'    (<- '{s,}')
-            '{t~}'    (<- '{t,}')
+            '{sc}'    (<- '{s,}')
+            '{tc}'    (<- '{t,}')
         )
     )
 )
