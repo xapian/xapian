@@ -57,9 +57,19 @@ define prelude as (
         )
     )
     try(['y'] <- 'Y')
-    repeat goto (
-        v [('i'] v <- 'I') or
-           ('y']   <- 'Y')
+    repeat (
+        gopast v
+        try (
+            // If we see `i` not followed by a vowel then we know it couldn't
+            // match on the next iteration so we can advance past it.
+            //
+            // However if we replace `i` with `I` we do need to check the vowel
+            // after the `i` in the next iteration to match the documented
+            // behaviour, e.g. consider input `iiiii`.  This may well not make
+            // a difference for any actual Dutch words though.
+            [('i'] do(v <- 'I')) or
+             ('y']      <- 'Y')
+        )
     )
 )
 
