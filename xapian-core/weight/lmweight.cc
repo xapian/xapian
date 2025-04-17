@@ -2,7 +2,7 @@
  * @brief Unigram Language Modelling weighting classes
  */
 /* Copyright (C) 2012 Gaurav Arora
- * Copyright (C) 2016,2019,2024 Olly Betts
+ * Copyright (C) 2016,2019,2024,2025 Olly Betts
  * Copyright (C) 2016 Vivek Pal
  *
  * This program is free software; you can redistribute it and/or
@@ -67,11 +67,11 @@ LMJMWeight::init(double factor_)
 {
     factor = factor_ * get_wqf();
 
-    Xapian::totallength total_length = get_total_length();
-    if (rare(total_length == 0)) {
-	// Avoid dividing by zero in the corner case where the database has no
-	// terms with wdf.
-	AssertEq(get_collection_freq(), 0);
+    auto collection_freq = get_collection_freq();
+    if (rare(collection_freq == 0)) {
+	// Avoid dividing by zero in the corner case where the term has zero
+	// collection frequency.
+	factor = 0;
 	multiplier = 0;
 	return;
     }
@@ -89,7 +89,7 @@ LMJMWeight::init(double factor_)
     }
 
     // Pre-calculate multiplier.
-    auto collection_freq = get_collection_freq();
+    Xapian::totallength total_length = get_total_length();
     multiplier = (1.0 - lambda) * total_length / (lambda * collection_freq);
 }
 
@@ -171,17 +171,17 @@ LMDirichletWeight::init(double factor_)
 	return;
     }
 
-    Xapian::totallength total_length = get_total_length();
-    if (rare(total_length == 0)) {
-	// Avoid dividing by zero in the corner case where the database has no
-	// terms with wdf.
-	AssertEq(get_collection_freq(), 0);
+    auto collection_freq = get_collection_freq();
+    if (rare(collection_freq == 0)) {
+	// Avoid dividing by zero in the corner case where the term has zero
+	// collection frequency.
+	factor = 0;
 	multiplier = 0;
 	return;
     }
 
     // Pre-calculate the factor to multiply by.
-    multiplier = total_length / (get_collection_freq() * mu);
+    multiplier = get_total_length() / (collection_freq * mu);
 
     double delta = param_delta;
     if (delta != 0.0) {
@@ -296,17 +296,18 @@ LMAbsDiscountWeight::init(double factor_)
     auto doclen_max = get_doclength_upper_bound();
     extra_offset = get_query_length() * log(double(doclen_max));
 
-    Xapian::totallength total_length = get_total_length();
-    if (rare(total_length == 0)) {
+    auto collection_freq = get_collection_freq();
+    if (rare(collection_freq == 0)) {
 	// Avoid dividing by zero in the corner case where the database has no
-	// terms with wdf.
-	AssertEq(get_collection_freq(), 0);
+	// collection frequency.
+	factor = 0;
 	multiplier = 0;
 	return;
     }
 
     // Pre-calculate the factor to multiply by.
-    multiplier = total_length / (param_delta * get_collection_freq());
+    Xapian::totallength total_length = get_total_length();
+    multiplier = total_length / (param_delta * collection_freq);
 }
 
 double
@@ -424,17 +425,17 @@ LM2StageWeight::init(double factor_)
     extra_offset = -log((lambda * doclen_max + mu) / (doclen_max + mu));
     extra_offset *= get_query_length();
 
-    Xapian::totallength total_length = get_total_length();
-    if (rare(total_length == 0)) {
+    auto collection_freq = get_collection_freq();
+    if (rare(collection_freq == 0)) {
 	// Avoid dividing by zero in the corner case where the database has no
-	// terms with wdf.
-	AssertEq(get_collection_freq(), 0);
+	// collection_freq.
+	factor = 0;
 	multiplier = 0;
 	return;
     }
 
     // Pre-calculate the factor to multiply by.
-    multiplier = (1 - lambda) * total_length / get_collection_freq();
+    multiplier = (1 - lambda) * get_total_length() / collection_freq;
 }
 
 double
