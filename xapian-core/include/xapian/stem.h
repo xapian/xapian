@@ -125,6 +125,10 @@ class XAPIAN_VISIBILITY_DEFAULT Stem {
      *  - tamil (ta) - Since Xapian 1.4.7
      *  - turkish (tr)
      *
+     *  Also dutch_porter is an alias for dutch since Xapian 1.4.28 (to
+     *  provide forward compatibility to the next release series where
+     *  we plan to switch to using the kraaij_pohlmann stemmer by default).
+     *
      *  @param fallback If true then treat unknown @a language as "none",
      *			otherwise an exception is thrown (default: false).
      *			Parameter added in Xapian 1.4.14 - older versions
