@@ -229,7 +229,7 @@ LMDirichletWeight::get_sumextra(Xapian::termcount doclen,
     //   query_len * log(doclen_max + mu) - query_len * log(doclen + mu)
     //
     // We pre-calculate the first part in init() and save it in member variable
-    // extra_weight.
+    // extra_offset.
     return extra_offset - get_query_length() * log(doclen + param_mu);
 }
 
@@ -359,7 +359,7 @@ LMAbsDiscountWeight::get_sumextra(Xapian::termcount doclen,
     //      = query_len * log(doclen_max) + query_len * log(uniqterms / doclen)
     //
     // We pre-calculate the first part in init() and save it in member variable
-    // extra_weight.
+    // extra_offset.
     return extra_offset + get_query_length() * log(double(uniqterms) / doclen);
 }
 
