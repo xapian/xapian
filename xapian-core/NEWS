@@ -2,11 +2,17 @@ Xapian-core 1.4.28 (2025-04-17):
 
 API:
 
-* Optimise stemming algorithms.  The biggest improvement is for Tamil
-  where there's a 47% reduction in the time taken to stem all the words
-  in our test vocabulary.  Less dramatic improvements for Arabic,
-  Danish, Dutch, English, French, Finnish, Irish, Kraaij-Pohlmann,
-  Lithuanian, Norwegian, Swedish and Turkish.
+* Stem:
+
+  + Optimise stemming algorithms.  The biggest improvement is for Tamil where
+    there's a 47% reduction in the time taken to stem all the words in our test
+    vocabulary.  Less dramatic improvements for Arabic, Danish, Dutch, English,
+    French, Finnish, Irish, Kraaij-Pohlmann, Lithuanian, Norwegian, Swedish and
+    Turkish.
+
+  + Add dutch_porter as alias for current dutch stemmer for forward
+    compatibility with the next release series where we will have
+    kraaij_pohlmann as the default dutch stemmer.
 
 testsuite:
 
@@ -36,6 +42,8 @@ portability:
   it returns an "unspecified" exponent for these cases.  Reported by awilfox.
 
 * Fix GCC warning with 32-bit off_t.  Reported by Adrian Bunk.
+
+* Fix compile error with newer emscripten.
 
 Xapian-core 1.4.27 (2024-12-06):
 
