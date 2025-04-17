@@ -110,7 +110,7 @@ class XAPIAN_VISIBILITY_DEFAULT Stem {
      *  - finnish (fi)
      *  - french (fr)
      *  - german (de)
-     *  - german2 - Normalises umlauts and &szlig;
+     *  - german2 - Normalises umlauts (e.g. ä and ae)
      *  - hungarian (hu)
      *  - indonesian (id) - Since Xapian 1.4.6
      *  - irish (ga) - Since Xapian 1.4.7
