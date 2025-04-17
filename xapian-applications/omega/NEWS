@@ -1,10 +1,4 @@
-up to: ae641dfd583f0fc2c4020f0eda71b33be91e1138
-
-Omega 1.4.28 (2025-04-??):
-
-general:
-
-documentation:
+Omega 1.4.28 (2025-04-17):
 
 indexers:
 
@@ -15,16 +9,6 @@ indexers:
     due to being longer than the 64 byte default word length limit, but junk
     terms could result from `/` or `+` in the base64 data, or a shorter final
     line.
-
-* scriptindex:
-
-omega:
-
-templates:
-
-testsuite:
-
-build system:
 
 portability:
 
@@ -38,8 +22,6 @@ portability:
   fails when run with the C++ compiler, like we do, which leads to large file
   support not being enabled when it isn't the default (e.g. on 32-bit Linux
   platforms).  Reported by Adrian Bunk.
-
-packaging:
 
 Omega 1.4.27 (2024-12-06):
 
