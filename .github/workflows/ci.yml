@@ -1159,7 +1159,6 @@ jobs:
             libiconv \
             libmagic \
             lua \
-            mono-mdk \
             pcre2 \
             pkgconfig \
             pygments \
