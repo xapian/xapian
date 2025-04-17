@@ -1032,7 +1032,6 @@ jobs:
       uses: hendrikmuhs/ccache-action@v1
       with:
         key: ${{ github.job }}
-        restore-keys: macos # temporary, so the ccache migrates
     - name: Fetch distribution
       uses: actions/download-artifact@v4
     - name: Unpack distribution
