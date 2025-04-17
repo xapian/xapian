@@ -58,8 +58,8 @@ dnl 42:5:12 1.4.24 No API changes
 dnl 42:6:12 1.4.25 No API changes
 dnl 43:0:13 1.4.26 set_expansion_scheme("prob")
 dnl 43:1:13 1.4.27 No API changes
-dnl 43:2:13 1.4.28 No API changes
-LIBRARY_VERSION_INFO=43:1:13
+dnl 44:0:14 1.4.28 dutch_porter alias in Xapian::Stem
+LIBRARY_VERSION_INFO=43:0:14
 AC_SUBST([LIBRARY_VERSION_INFO])
 
 LIBRARY_VERSION_SUFFIX=
