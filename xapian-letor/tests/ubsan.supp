@@ -1,1 +1,5 @@
 unsigned-integer-overflow:basic_string.h$
+
+unsigned-integer-overflow:string_view$
+
+unsigned-integer-overflow:bits/string_view.tcc$
