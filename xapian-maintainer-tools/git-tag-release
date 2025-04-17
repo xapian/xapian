@@ -184,4 +184,4 @@ mutt -E -H tmp.msg
 echo 'Hit enter to push branch and new tag'
 read dummy
 git push
-git push --tags "$tag"
+git push origin "$tag"
