@@ -249,7 +249,7 @@ jobs:
           **/*.log
 
   clang-santisers:
-    runs-on: 'ubuntu-latest'
+    runs-on: 'ubuntu-24.04'
     needs: makedist
     steps:
     - name: Install CCache
@@ -329,7 +329,7 @@ jobs:
           **/*.log
 
   GLIBCXX_DEBUG:
-    runs-on: 'ubuntu-20.04'
+    runs-on: 'ubuntu-24.04'
     needs: makedist
     steps:
     - name: Install CCache
@@ -359,8 +359,8 @@ jobs:
             uuid-dev \
             libpcre2-dev \
             libmagic-dev \
-            lua5.3 \
-            liblua5.3-dev \
+            lua5.4 \
+            liblua5.4-dev \
             mono-devel \
             python2-dev \
             python3-dev \
@@ -636,7 +636,7 @@ jobs:
           **/*.log
 
   clang:
-    runs-on: 'ubuntu-20.04'
+    runs-on: 'ubuntu-22.04'
     needs: makedist
     steps:
     - name: Install CCache
@@ -670,6 +670,8 @@ jobs:
             uuid-dev \
             libpcre2-dev \
             libmagic-dev \
+            lua5.4 \
+            liblua5.4-dev \
             python3-dev \
             tcl \
             tcl-dev
@@ -710,8 +712,8 @@ jobs:
           **/*.log
 
   # Test with the oldest clang version we easily can.
-  clang6:
-    runs-on: 'ubuntu-20.04'
+  clang11:
+    runs-on: 'ubuntu-22.04'
     needs: makedist
     steps:
     - name: Install CCache
@@ -738,7 +740,7 @@ jobs:
         env
         sudo apt-get update
         sudo apt-get install \
-            clang-6.0
+            clang-11
         sudo apt-get install \
             python3-sphinx \
             uuid-dev \
@@ -749,8 +751,8 @@ jobs:
             tcl-dev
     - name: configure
       run: |
-        export CC='ccache clang-6.0'
-        export CXX='ccache clang++-6.0'
+        export CC='ccache clang-11'
+        export CXX='ccache clang++-11'
         pushd xapian-core
         ./configure --enable-werror
         export XAPIAN_CONFIG=$PWD/xapian-config
@@ -783,10 +785,10 @@ jobs:
           **/*.log
 
   # GCC 4.7 is the oldest GCC we aim to support for 1.4.x, but the oldest we can
-  # easily build with in github actions is 7.5.0.
+  # easily build with in github actions is 9.3.0.
   GCC7:
-    name: 'GCC 7'
-    runs-on: 'ubuntu-20.04'
+    name: 'GCC 9'
+    runs-on: 'ubuntu-22.04'
     needs: makedist
     steps:
     - name: Install CCache
@@ -812,15 +814,15 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install \
-            gcc-7 \
-            g++-7
+            gcc-9 \
+            g++-9
         sudo apt-get install \
             python3-sphinx \
             uuid-dev \
             libpcre2-dev \
             libmagic-dev \
-            lua5.3 \
-            liblua5.3-dev \
+            lua5.4 \
+            liblua5.4-dev \
             mono-devel \
             python2-dev \
             python3-dev \
@@ -828,8 +830,8 @@ jobs:
             tcl-dev
     - name: configure
       run: |
-        export CC='ccache gcc-7'
-        export CXX='ccache g++-7'
+        export CC='ccache gcc-9'
+        export CXX='ccache g++-9'
         pushd xapian-core
         ./configure --enable-werror
         export XAPIAN_CONFIG=$PWD/xapian-config
