@@ -121,8 +121,8 @@ xapian-core packaging does this.
 Compilers
 =========
 
-We aim to support compilation with any C++ compiler which support ISO C++11, or
-a reasonable approximation to it.
+We aim to support compilation with any C++ compiler which supports ISO C++11,
+or a reasonable approximation to it.
 
 GCC
 ---
