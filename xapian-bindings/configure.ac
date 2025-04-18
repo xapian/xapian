@@ -994,9 +994,11 @@ if test no != "$with_ruby" ; then
 	fi
 	AC_SUBST(RUBY_LIB_ARCH)
 
-	dnl It seems the Ruby norm is to explicitly link to librubyX.Y, even
-	dnl on platforms that support undefined symbols in dynamic libraries.
-	[RUBY_LIBS=`$RUBY -rrbconfig -e 'c=RbConfig::CONFIG;l=c["archlibdir"];print (l==nil||l==""?"":("-L"+l+" ")),c["LIBRUBYARG"]'`]
+	RUBY_LIBS=
+	if test unsupported = "$allow_undefined_flag" ; then
+	  dnl For Microsoft Windows and a few other platforms.
+	  [RUBY_LIBS=`$RUBY -rrbconfig -e 'print RbConfig::CONFIG["LIBRUBYARG"]'`]
+	fi
 	AC_SUBST(RUBY_LIBS)
 
 	dnl rdoc is included as part of the Ruby core distribution, so run it
