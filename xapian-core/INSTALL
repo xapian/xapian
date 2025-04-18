@@ -126,8 +126,8 @@ xapian-core packaging does this.
 Compilers
 =========
 
-We aim to support compilation with any C++ compiler which support ISO C++17, or
-a reasonable approximation to it.  If you still need to build Xapian with an
+We aim to support compilation with any C++ compiler which supports ISO C++17,
+or a reasonable approximation to it.  If you still need to build Xapian with an
 older compiler then Xapian 1.4.x only requires C++11.
 
 GCC
