@@ -1,3 +1,8 @@
+Omega 1.4.29 (2025-04-18):
+
+No changes since 1.4.28 except to bump the version - this release was made to
+fix an incorrect library version information update in xapian-core 1.4.28.
+
 Omega 1.4.28 (2025-04-17):
 
 indexers:

@@ -1,3 +1,14 @@
+Xapian-core 1.4.29 (2025-04-18):
+
+build system:
+
+* 1.4.28 had its library version information incorrectly set.  This resulted in
+  the shared library having an incorrect SONUMBER - e.g. on Linux,
+  libxapian.so.29 instead of libxapian.so.30.  This release has been made to
+  fix this problem.  We have added a check to configure that the SONUMBER has
+  the expected value to avoid repeats of this (it happened previously in 1.2.11
+  as well).  Thanks to Vitaly Chikunov and Sven Joachim for reporting this.
+
 Xapian-core 1.4.28 (2025-04-17):
 
 API:

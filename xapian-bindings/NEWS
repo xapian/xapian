@@ -1,3 +1,13 @@
+Xapian-bindings 1.4.29 (2025-04-18):
+
+Ruby:
+
+* Link to RUBY_LIBS on all platforms.  We were avoiding this on platforms which
+  allow undefined symbols in shared libraries (which then get resolved when the
+  Ruby interpreter dynamically loads the module).  However this was failing to
+  work on macOS, and it seems the Ruby norm is to explicitly link to librubyX.Y
+  so we now do that.  Fixes #837, reported by Graeme Porteous.
+
 Xapian-bindings 1.4.28 (2025-04-17):
 
 Documentation:
