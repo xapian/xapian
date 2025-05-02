@@ -112,7 +112,7 @@ class EstimateOp {
 	estimates.last = last;
     }
 
-    /** NEAR, PHRASE or EXACT_PHRASE.
+    /** DECIDER, NEAR, PHRASE or EXACT_PHRASE.
      *
      *  These operate as filters so have a single subquery.
      */
