@@ -1452,3 +1452,27 @@ DEFINE_TESTCASE(docidrangebugs1, backend) {
     mset = enq.get_mset(0, 1);
     TEST_EQUAL(mset.size(), 1);
 }
+
+DEFINE_TESTCASE(estimateopbug1, backend) {
+    Xapian::Database db = get_database("estimateopbug1",
+				       [](Xapian::WritableDatabase& wdb,
+					  const string&)
+				       {
+					   Xapian::Document doc;
+					   doc.add_posting("XFgroups", 7);
+					   doc.add_posting("XSchange", 216);
+					   doc.add_posting("XSmember", 214);
+					   wdb.add_document(doc);
+					   Xapian::Document doc2;
+					   doc2.add_boolean_term("XEP");
+					   wdb.add_document(doc2);
+				       });
+    Xapian::Query q{Xapian::Query::OP_PHRASE,
+		    Xapian::Query{"XSmember"},
+		    Xapian::Query{"XSchange"}};
+    q = Xapian::Query{"XFgroups"} & (q | Xapian::Query{"XSmember"});
+    q &= ~Xapian::Query{"XEP"};
+    Xapian::Enquire enquire(db);
+    enquire.set_query(q);
+    Xapian::MSet matches = enquire.get_mset(0, 10);
+}

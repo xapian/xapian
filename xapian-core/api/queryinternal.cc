@@ -785,7 +785,6 @@ AndContext::postlist(TermFreqs* termfreqs)
 	break;
       default:
 	pl.reset(new AndPostList(pls.begin(), pls.end(), matcher));
-	qopt->add_op(EstimateOp::AND, pls.size(), first, last);
 	break;
     }
 
@@ -831,6 +830,10 @@ AndContext::postlist(TermFreqs* termfreqs)
 	    qopt->add_op(EstimateOp::AND_NOT, 2, first, last);
 	}
 	not_ctx.reset();
+    }
+
+    if (pls.size() > 1) {
+	qopt->add_op(EstimateOp::AND, pls.size(), first, last);
     }
 
     // Sort the positional filters to try to apply them in an efficient order.
