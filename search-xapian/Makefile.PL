@@ -186,7 +186,6 @@ push @writemakefile_args, (
     'LD'		=> $LD,
     'INC'		=> $inc, # e.g., '-I/usr/include/other'
     'OBJECT'		=> '$(BASEEXT)$(OBJ_EXT) handle_exception$(OBJ_EXT)',
-    'XSOPT'		=> '-C++',
     # 'typemap' is implicitly added to this list.
     'TYPEMAPS'		=> ['perlobject.map', 'typemap-errorclasses'],
     'clean'		=> {
