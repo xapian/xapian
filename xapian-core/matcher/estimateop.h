@@ -73,8 +73,6 @@ class EstimateOp {
      *    adjusted by a call to report_range_ratio()).
      *  * DECIDER/NEAR/PHRASE/EXACT_PHRASE: Filled in on PostList deletion by
      *    calling report_ratio(): min = accepted, max = rejected
-     *  * RANGE: Already known exact leaf term frequency (in min/est/max)
-     *    or value range min/est/max.
      *  * POSTING_SOURCE: Filled in on PostList construction with min/est/max
      *    from PostingSource object.
      */
