@@ -118,6 +118,10 @@ class EstimateOp {
 	: next(next_), type(type_), estimates(0, 0, 0), n_subqueries(1) { }
 
     void report_ratio(Xapian::doccount accepted, Xapian::doccount rejected) {
+	Assert(type == DECIDER ||
+	       type == NEAR ||
+	       type == PHRASE ||
+	       type == EXACT_PHRASE);
 	// Store ratio to use later.
 	estimates.min = accepted;
 	estimates.max = rejected;
@@ -126,6 +130,10 @@ class EstimateOp {
     /** Adjust static estimates for value range. */
     void report_range_ratio(Xapian::doccount accepted,
 			    Xapian::doccount rejected) {
+	AssertEq(type, KNOWN);
+	AssertEq(estimates.first, 1);
+	AssertEq(estimates.last, Xapian::docid(-1));
+
 	// The static min is 0.
 	AssertEq(estimates.min, 0);
 	estimates.min = accepted;
@@ -150,6 +158,7 @@ class EstimateOp {
     void report_termfreqs(Xapian::doccount min_,
 			  Xapian::doccount est,
 			  Xapian::doccount max_) {
+	AssertEq(type, POSTING_SOURCE);
 	estimates.min = min_;
 	estimates.est = est;
 	estimates.max = max_;
