@@ -997,7 +997,7 @@ if test no != "$with_ruby" ; then
 	AC_MSG_CHECKING([for libraries to link for Ruby])
 	dnl It seems the Ruby norm is to explicitly link to librubyX.Y, even
 	dnl on platforms that support undefined symbols in dynamic libraries.
-	[RUBY_LIBS=`$RUBY -rrbconfig -e 'c=RbConfig::CONFIG;l=c["archlibdir"];print (l==nil||l==""?"":("-L"+l+" ")),c["LIBRUBYARG"]'`]
+	[RUBY_LIBS=`$RUBY -rrbconfig -e 'c=RbConfig::CONFIG;a=c["archlibdir"];l=c["libdir"];print (a==nil||a==""?"":("-L"+a+" ")),(l==nil||l==""?"":("-L"+l+" ")),c["LIBRUBYARG"]'`]
 	AC_MSG_RESULT([$RUBY_LIBS])
 	AC_SUBST(RUBY_LIBS)
 
