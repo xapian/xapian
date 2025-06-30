@@ -880,6 +880,7 @@ jobs:
             liblua5.4-dev \
             mono-devel \
             python3-dev \
+            ruby-dev \
             tcl \
             tcl-dev
     - name: Install CCache
