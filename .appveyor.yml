@@ -24,6 +24,12 @@ environment:
   - platform: x64
     APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
     VCVARS_BAT: "\"C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\VC\\Auxiliary\\Build\\vcvars64.bat\""
+  - platform: x86
+    APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+    VCVARS_BAT: "\"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Auxiliary\\Build\\vcvars32.bat\""
+  - platform: x64
+    APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+    VCVARS_BAT: "\"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Auxiliary\\Build\\vcvars64.bat\""
 install:
   - ps: $env:PATH="c:\msys64\usr\bin;$env:PATH"
   - bash -c 'time ./bootstrap --fetch-url-command="curl --retry 5 --retry-connrefused -L" xapian-core'
