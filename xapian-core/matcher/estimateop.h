@@ -131,8 +131,9 @@ class EstimateOp {
     void report_range_ratio(Xapian::doccount accepted,
 			    Xapian::doccount rejected) {
 	AssertEq(type, KNOWN);
-	AssertEq(estimates.first, 1);
-	AssertEq(estimates.last, Xapian::docid(-1));
+
+	// Degenerate range case.
+	if (estimates.min == estimates.max) return;
 
 	// The static min is 0.
 	AssertEq(estimates.min, 0);
@@ -181,6 +182,8 @@ class EstimateOp {
     }
 
     EstimateOp* get_next() const { return next; }
+
+    void set_next(EstimateOp* new_next) { next = new_next; }
 
     unsigned get_subquery_count() const { return n_subqueries; }
 };

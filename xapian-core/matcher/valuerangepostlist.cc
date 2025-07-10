@@ -35,13 +35,7 @@ using namespace std;
 ValueRangePostList::~ValueRangePostList()
 {
     delete valuelist;
-    if (estimate_op && (accepted || rejected)) {
-	// Only call report_range_ratio() if there are counts.  During the
-	// building of the PostList tree we sometimes need to delete PostList
-	// objects and their associated EstimateOp and it's hard to arrange
-	// that they are always deleted in the correct order.
-	estimate_op->report_range_ratio(accepted, rejected);
-    }
+    estimate_op->report_range_ratio(accepted, rejected);
 }
 
 Xapian::docid
