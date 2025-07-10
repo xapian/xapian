@@ -140,7 +140,7 @@ class EstimateOp {
 
 	// Combine the static estimate already in estimate.est with a dynamic
 	// estimate based on accepted/rejected ratio using a weighted average
-	// based on the proporition of value_freq actually looked at.
+	// based on the proportion of value_freq actually looked at.
 	auto est = double(estimates.max - accepted - rejected);
 	est = est / estimates.max * estimates.est;
 	estimates.est = accepted + Xapian::doccount(est + 0.5);
