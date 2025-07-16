@@ -35,10 +35,12 @@ SvgParser::process_content(const string& content)
 	    break;
 	case TITLE:
 	    target = &title;
+	    title.resize(0);
 	    break;
 	case DC_TITLE:
 	    // Prefer <title> to <dc:title>.
 	    if (!title.empty()) return;
+	    target = &title;
 	    break;
 	case KEYWORDS:
 	    target = &keywords;

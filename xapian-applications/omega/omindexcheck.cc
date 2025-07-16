@@ -88,6 +88,9 @@ index_test()
 		  {{"ZFcsv", "Zbreak", "Zwere"}}});
     tests.insert({"test-html.html",
 		  {{"Ajeroen", "ZAoom", "ZSworld", "Shello", "Zchapter"}}});
+    tests.insert({"svg/dctitle.svg",
+		  {{"Sreal", "Stitle", NOT("Signored"),
+		    "Timage/svg+xml", "Zstart"}}});
     tests.insert({"svg/diagram.svg",
 		  {{"Sdiagram", "Timage/svg+xml", "Zstart"}}});
     tests.insert({"svg/diagram.svgz",
