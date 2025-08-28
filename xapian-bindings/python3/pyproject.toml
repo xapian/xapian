@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools >=  80.3.1"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "xapian"
+version = "1.5.0+master"
+description = "Xapian bindigs for Python"
+requires-python = ">= 3"
+dependencies = []
+license = "GPL-2.0-or-later"
+authors = []
+classifiers = []
+
+[project.urls]
+Homepage = 'https://xapian.org/'
+
+[tool.setuptools.packages.find]
+include = ["xapian"]
+
+[tool.setuptools]
+ext-modules = [{ name = "xapian._xapian", sources = [] }]
