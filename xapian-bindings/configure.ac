@@ -207,7 +207,7 @@ if test x$USE_MAINTAINER_MODE = xyes; then
 fi
 
 AC_ARG_WITH(python,
-  AC_HELP_STRING([--with-python], [enable Python 2 bindings]),
+  AS_HELP_STRING([--with-python], [enable Python 2 bindings]),
   [],
   [with_python=])
 
