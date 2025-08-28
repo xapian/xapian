@@ -660,6 +660,8 @@ if [ ! -r "$aclocal_ac_dir/pkg.m4" ] ; then
     aclocal_system_needed=/usr/local/share/aclocal
   elif [ -r /opt/local/share/aclocal/pkg.m4 ] ; then
     aclocal_system_needed=/opt/local/share/aclocal
+  elif [ -r /opt/homebrew/share/aclocal/pkg.m4 ] ; then
+    aclocal_system_needed=/opt/homebrew/share/aclocal
   fi
 fi
 
