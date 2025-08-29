@@ -1694,7 +1694,7 @@ jobs:
     # We only test 64-bit cygwin as 32-bit support has been dropped as of
     # Cygwin 3.4:
     # https://cygwin.com/pipermail/cygwin/2022-November/252542.html
-    runs-on: 'windows-latest'
+    runs-on: 'windows-2025'
     needs: makedist
     defaults:
       run:
@@ -1768,7 +1768,7 @@ jobs:
           **/*.log
 
   msys2-mingw32:
-    runs-on: 'windows-latest'
+    runs-on: 'windows-2025'
     needs: makedist
     defaults:
       run:
@@ -1860,7 +1860,7 @@ jobs:
           **/*.log
 
   msys2-mingw64:
-    runs-on: 'windows-latest'
+    runs-on: 'windows-2025'
     needs: makedist
     defaults:
       run:
@@ -1942,7 +1942,7 @@ jobs:
           **/*.log
 
   msys2-ucrt64:
-    runs-on: 'windows-latest'
+    runs-on: 'windows-2025'
     needs: makedist
     defaults:
       run:
@@ -2024,7 +2024,7 @@ jobs:
           **/*.log
 
   msvc2022:
-    runs-on: 'windows-2022'
+    runs-on: 'windows-2025'
     needs: makedist
     defaults:
       run:
@@ -2137,7 +2137,7 @@ jobs:
           **/*.log
 
   msvc2022-x86:
-    runs-on: 'windows-2022'
+    runs-on: 'windows-2025'
     needs: makedist
     defaults:
       run:
