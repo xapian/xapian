@@ -141,6 +141,7 @@ EXTRA_DIST =\
 	testfiles/staroffice/text_template.stw \
 	testfiles/svg/diagram.svg \
 	testfiles/svg/diagram.svgz \
+	testfiles/svg/dctitle.svg \
 	testfiles/test-csv.csv \
 	testfiles/test-html.html \
 	testfiles/plaintext/iso88591.txt \
