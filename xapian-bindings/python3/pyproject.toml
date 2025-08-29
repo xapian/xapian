@@ -1,10 +1,10 @@
 [build-system]
-requires = ["setuptools >=  80.3.1"]
+requires = ["setuptools ==  80.9.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
+dynamic = ["version"]
 name = "xapian"
-version = "1.5.0+master"
 description = "Xapian bindigs for Python"
 requires-python = ">= 3"
 dependencies = []
@@ -15,8 +15,5 @@ classifiers = []
 [project.urls]
 Homepage = 'https://xapian.org/'
 
-[tool.setuptools.packages.find]
-include = ["xapian"]
-
 [tool.setuptools]
-ext-modules = [{ name = "xapian._xapian", sources = [] }]
+packages = { find = { include = ["xapian"] } }
