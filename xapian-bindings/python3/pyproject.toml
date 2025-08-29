@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 dynamic = ["version"]
 name = "xapian"
-description = "Xapian bindigs for Python"
+description = "Xapian bindings for Python"
 requires-python = ">= 3"
 dependencies = []
 license = "GPL-2.0-or-later"
@@ -16,4 +16,4 @@ classifiers = []
 Homepage = 'https://xapian.org/'
 
 [tool.setuptools]
-packages = { find = { include = ["xapian"] } }
+packages = ["xapian"]
