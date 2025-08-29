@@ -653,12 +653,18 @@ aclocal_ac_dir=`${ACLOCAL-aclocal} --print-ac-dir`
 aclocal_system_needed=
 if [ ! -r "$aclocal_ac_dir/pkg.m4" ] ; then
   if [ -r /usr/share/aclocal/pkg.m4 ] ; then
+    # Typical system install location (e.g. for Linux distros).
     aclocal_system_needed=/usr/share/aclocal
   elif [ -r /usr/local/share/aclocal/pkg.m4 ] ; then
+    # Default prefix when built from source; also older Homebrew.
     aclocal_system_needed=/usr/local/share/aclocal
   elif [ -r /opt/local/share/aclocal/pkg.m4 ] ; then
+    # Darwin ports.
     aclocal_system_needed=/opt/local/share/aclocal
   elif [ -n "$HOMEBREW_PREFIX" ] && [ -r "${HOMEBREW_PREFIX}/share/aclocal/pkg.m4" ] ; then
+    # Modern Homebrew sets HOMEBREW_PREFIX (which defaults to /opt/homebrew
+    # on ARM Macs).  Older Homebrew doesn't set this used /usr/local which
+    # is checked for above.
     aclocal_system_needed="${HOMEBREW_PREFIX}/share/aclocal"
   fi
 fi
