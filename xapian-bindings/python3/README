@@ -1,0 +1,29 @@
+Building a Python package
+=========================
+
+First, build xapian-core for static linking:
+
+$ cd xapian-core
+$ ./configure --enable-static --disable-shared --enable-pic [--enable-maintainer-mode] (when building from git)
+$ make
+
+Install the required Python packages:
+
+$ pip install sphinx build
+
+Then build the Python module:
+
+$ cd xapian-bindings
+$ XAPIAN_CONFIG=../xapian-core/xapian-config ./configure --with-python3 [--enable-maintainer-mode] (when building from git)
+$ cd python3
+$ make
+
+Make sure that the module is usable:
+
+$ python test_xapian_star.py
+
+Finally, build the Python package:
+
+$ python -m build --wheel
+
+The package will be in in dist/.
