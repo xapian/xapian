@@ -14,7 +14,7 @@ unicode/unicode-data.cc: unicode/uniParse.tcl unicode/UnicodeData.txt
 	## Need to create the directory here in a VPATH build configured with:
 	## --enable-maintainer-mode --disable-dependency-tracking
 	$(MKDIR_P) unicode
-	tclsh $(srcdir)/unicode/uniParse.tcl $(srcdir)/unicode/UnicodeData.txt 16.0.0 unicode/unicode-data.cc
+	tclsh $(srcdir)/unicode/uniParse.tcl $(srcdir)/unicode/UnicodeData.txt 17.0.0 unicode/unicode-data.cc
 
 unicode/c_istab.h: unicode/gen_c_istab
 	## Need to create the directory here in a VPATH build configured with:

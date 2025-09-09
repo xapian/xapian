@@ -1,7 +1,7 @@
 /** @file
  * @brief Test the Unicode and UTF-8 classes and functions.
  */
-/* Copyright (C) 2006-2024 Olly Betts
+/* Copyright (C) 2006-2025 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -363,6 +363,28 @@ DEFINE_TESTCASE(unicode1, !backend) {
     // Added in Unicode 16.0.0.
     TEST_EQUAL(Unicode::get_category(0x105C0), Unicode::OTHER_LETTER);
 
+    // Added or changed category in Unicode 17.0.0:
+    TEST_EQUAL(Unicode::get_category(0x0295), Unicode::OTHER_LETTER);
+    TEST_EQUAL(Unicode::get_category(0x088F), Unicode::OTHER_LETTER);
+    TEST_EQUAL(Unicode::get_category(0x0C5C), Unicode::OTHER_LETTER);
+    TEST_EQUAL(Unicode::get_category(0x0CDC), Unicode::OTHER_LETTER);
+    TEST_EQUAL(Unicode::get_category(0xA7D2), Unicode::UPPERCASE_LETTER);
+    TEST_EQUAL(Unicode::get_category(0xA7D4), Unicode::UPPERCASE_LETTER);
+    TEST_EQUAL(Unicode::get_category(0x10959), Unicode::OTHER_LETTER);
+    TEST_EQUAL(Unicode::get_category(0x11DDB), Unicode::OTHER_LETTER);
+    TEST_EQUAL(Unicode::get_category(0x16ED3), Unicode::LOWERCASE_LETTER);
+    TEST_EQUAL(Unicode::get_category(0x187FF), Unicode::OTHER_LETTER);
+    TEST_EQUAL(Unicode::get_category(0x18D1E), Unicode::OTHER_LETTER);
+    TEST_EQUAL(Unicode::get_category(0x1CCFB), Unicode::OTHER_SYMBOL);
+    TEST_EQUAL(Unicode::get_category(0x1E6FE), Unicode::OTHER_LETTER);
+    TEST_EQUAL(Unicode::get_category(0x1FA8E), Unicode::OTHER_SYMBOL);
+    TEST_EQUAL(Unicode::get_category(0x1FACD), Unicode::OTHER_SYMBOL);
+    TEST_EQUAL(Unicode::get_category(0x1FBFA), Unicode::OTHER_SYMBOL);
+    TEST_EQUAL(Unicode::get_category(0x2B73F), Unicode::OTHER_LETTER);
+    TEST_EQUAL(Unicode::get_category(0x2CEAD), Unicode::OTHER_LETTER);
+    TEST_EQUAL(Unicode::get_category(0x323B0), Unicode::OTHER_LETTER);
+    TEST_EQUAL(Unicode::get_category(0x33479), Unicode::OTHER_LETTER);
+
     // Test some invalid Unicode values.
     TEST_EQUAL(Unicode::get_category(0x110000), Unicode::UNASSIGNED);
     TEST_EQUAL(Unicode::get_category(0xFFFFFFFF), Unicode::UNASSIGNED);
@@ -509,6 +531,12 @@ DEFINE_TESTCASE(caseconvert2, !backend) {
     TEST_EQUAL(Unicode::toupper(0x2C5F), 0x2C2F);
     TEST_EQUAL(Unicode::toupper(0x2C2F), 0x2C2F);
     TEST_EQUAL(Unicode::tolower(0x2C2F), 0x2C5F);
+
+    // Uppercase versions and mappings added in Unicode 17.0.0:
+    TEST_EQUAL(Unicode::tolower(0xA7D2), 0xA7D3);
+    TEST_EQUAL(Unicode::toupper(0xA7D3), 0xA7D2);
+    TEST_EQUAL(Unicode::tolower(0xA7D4), 0xA7D5);
+    TEST_EQUAL(Unicode::toupper(0xA7D5), 0xA7D4);
 }
 
 DEFINE_TESTCASE(utf8convert1, !backend) {
@@ -611,6 +639,8 @@ DEFINE_TESTCASE(unicodepredicates1, !backend) {
 	0x1e2ff,
 	// CURRENCY_SYMBOL (added in Unicode 14.0.0)
 	0x20c0,
+	// CURRENCY_SYMBOL (added in Unicode 17.0.0)
+	0x20c1,
 	0
     };
     static const unsigned whitespace[] = {
