@@ -200,6 +200,54 @@ debug code:
     (and eliminated a few cases where we can easily not rely on it) and
     added this check to the clang-sanitisers job.
 
+Omega 1.4.29 (2025-04-18):
+
+No changes since 1.4.28 except to bump the version - this release was made to
+fix an incorrect library version information update in xapian-core 1.4.28.
+
+Omega 1.4.28 (2025-04-17):
+
+indexers:
+
+* omindex:
+
+  + Abiword indexing now includes metadata, and also no longer tries to index
+    base64 encoded data for embedded images, etc.  Mostly this would be skipped
+    due to being longer than the 64 byte default word length limit, but junk
+    terms could result from `/` or `+` in the base64 data, or a shorter final
+    line.
+
+portability:
+
+* Improve check for broken faketime.  We now test the output of a small helper
+  program which calls time() and gmtime() and reports the year.  Previously we
+  tested the output of date +%Y but GNU date seems to call clock_gettime() on
+  Linux and that doesn't catch if faketime fails to intercept time(), which is
+  the case that we actually need to work.  Reported by Ian Jackson.
+
+* Workaround autoconf 2.72 AC_SYS_LARGEFILE bug.  This configure probe always
+  fails when run with the C++ compiler, like we do, which leads to large file
+  support not being enabled when it isn't the default (e.g. on 32-bit Linux
+  platforms).  Reported by Adrian Bunk.
+
+Omega 1.4.27 (2024-12-06):
+
+omega:
+
+* Calculate date spans in days rather than converting to time_t, which
+  side-steps issues due to 32-bit time_t and some implementations not handling
+  negative time_t values.
+
+portability:
+
+* Fix build with UCRT64 variant of mingw-w64 by stopping defining
+  __MSVCRT_VERSION__ by default.  We fixed this for xapian-core in 1.4.24 but
+  missed that omega defined it too.
+
+* Remove unnecessary 'using namespace std' to fix build on (at least) FreeBSD
+  where's nothing in the std namespace to import at this point so we get a
+  compiler error.
+
 Omega 1.4.26 (2024-07-18):
 
 indexers:

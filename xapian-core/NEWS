@@ -804,6 +804,82 @@ debug code:
     (and eliminated a few cases where we can easily not rely on it) and
     added this check to the clang-sanitisers job.
 
+Xapian-core 1.4.29 (2025-04-18):
+
+build system:
+
+* 1.4.28 had its library version information incorrectly set.  This resulted in
+  the shared library having an incorrect SONUMBER - e.g. on Linux,
+  libxapian.so.29 instead of libxapian.so.30.  This release has been made to
+  fix this problem.  We have added a check to configure that the SONUMBER has
+  the expected value to avoid repeats of this (it happened previously in 1.2.11
+  as well).  Thanks to Vitaly Chikunov and Sven Joachim for reporting this.
+
+Xapian-core 1.4.28 (2025-04-17):
+
+API:
+
+* Stem:
+
+  + Optimise stemming algorithms.  The biggest improvement is for Tamil where
+    there's a 47% reduction in the time taken to stem all the words in our test
+    vocabulary.  Less dramatic improvements for Arabic, Danish, Dutch, English,
+    French, Finnish, Irish, Kraaij-Pohlmann, Lithuanian, Norwegian, Swedish and
+    Turkish.
+
+  + Add dutch_porter as alias for current dutch stemmer for forward
+    compatibility with the next release series where we will have
+    kraaij_pohlmann as the default dutch stemmer.
+
+testsuite:
+
+* stemtest: Add support for gzipped vocabulary lists, which means we
+  no longer skip testcase stemdict for Arabic.
+
+glass backend:
+
+* Improve exception message when asked to store too large a tag.  Reported by
+  Jean-Francois Dockes on xapian-discuss.
+
+* Optimise reading tag.  A special case for handling the first chunk of an item
+  gives a measurable speed improvement.  Reported by uis.
+
+portability:
+
+* Work around autoconf 2.72 AC_SYS_LARGEFILE bug.  This configure probe always
+  fails when run with the C++ compiler, like we do, which leads to large file
+  support not being enabled when it isn't the default (e.g. on 32-bit Linux
+  platforms).  Reported by Adrian Bunk.
+
+* Fix C23 compatibility issues.  GCC 15 fails with compile errors due to C23
+  dropping support for old-style function declarations and function
+  definitions.
+
+* Avoid calling frexp() on infinity or NaN.  The specification for frexp() says
+  it returns an "unspecified" exponent for these cases.  Reported by awilfox.
+
+* Fix GCC warning with 32-bit off_t.  Reported by Adrian Bunk.
+
+* Fix compile error with newer emscripten.
+
+Xapian-core 1.4.27 (2024-12-06):
+
+testsuite:
+
+* Fix testcase unsupportedcheck1 for --disable-backend-remote.  Reported by
+  Matthieu Gautier in #832.
+
+* Merge testcases unsupportedcheck1 and stubdb9 which are essentially the same
+  testcase!
+
+build system:
+
+* Fix build with --disable-backend-chert.  Patch from Matthieu Gautier in #832.
+
+portability:
+
+* Add missing include of <cerrno> to fix build failure on macOS 15.
+
 Xapian-core 1.4.26 (2024-07-18):
 
 API:

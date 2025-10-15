@@ -68,6 +68,93 @@ Tcl:
 
 * Expand tests for nul.  See #46.
 
+Xapian-bindings 1.4.29 (2025-04-18):
+
+Ruby:
+
+* Link to RUBY_LIBS on all platforms.  We were avoiding this on platforms which
+  allow undefined symbols in shared libraries (which then get resolved when the
+  Ruby interpreter dynamically loads the module).  However this was failing to
+  work on macOS, and it seems the Ruby norm is to explicitly link to librubyX.Y
+  so we now do that.  Fixes #837, reported by Graeme Porteous.
+
+Xapian-bindings 1.4.28 (2025-04-17):
+
+Documentation:
+
+* Clarify wording of previous NEWS entry.
+
+PHP:
+
+* smoketest.php: Fix bad code reporting a particular test failure.
+
+Ruby:
+
+* Add test coverage for MultiValueKeyMaker.
+
+Xapian-bindings 1.4.27 (2024-12-06):
+
+General:
+
+* We now consistently fail at configure time if bindings for a target
+  language are explicitly enabled (using e.g. `--with-lua`) but required
+  dependencies are not found.  Previously in some cases we would continue
+  but effectively ignore the option.
+
+Portability:
+
+* We no longer explicitly link bindings with -lstdc++.  This was added in 0.9.3
+  in 2005 as a workaround for a linking problem on OpenBSD, but nowadays it
+  causes link failures on platforms which use clang+libc++ such as modern
+  OpenBSD, so it seems this workaround is no longer useful anywhere.  Fixes
+  #834, reported by David Gessel.
+
+  If this change results in you getting a link failure, please let us know
+  about it.  You can probably workaround the failure by specifying an explicit
+  link with -lstdc++ like so:
+
+      make LIBS=-lstdc++
+
+  This assumes the C++ compiler you are using uses libstdc++ - if it uses
+  libc++ then try:
+
+      make LIBS=-lc++
+
+Java:
+
+* Formally declare Java bindings API stable.  This API has been de-facto stable
+  for several years and any incompatible changes can now be handled in the
+  usual way at the start of a release series.
+
+* Improve build on FreeBSD and DragonFlyBSD to find the jni_md.h header
+  automatically.
+
+Lua:
+
+* Overhaul Lua configure probes.  As part of this we now check for the Lua
+  interpreter with a versioned name (e.g. lua5.4 and lua54) and handle a DOS
+  drive letter on the directories in `package.cpath`.
+
+PHP:
+
+* Fix small memory leak on each access to a PHP attribute in the wrapped API
+  (introduced by the changes to support PHP8 in xapian-bindings 1.4.22).
+
+* Check for php-config8.4 and php-config8.3
+
+Python3:
+
+* Handle PYTHONOPTIMIZE being set in the environment.  Fixes #836, reported by
+  Дилян Палаузов.
+
+Tcl:
+
+* Tcl 9.0 is now supported.
+
+* Fix probe for TCL_LIB which was always probing an empty value, causing a
+  build failure on the few platforms where TCL_LIB should not be empty.
+  Problem introduced in 1.4.24.
+
 Xapian-bindings 1.4.26 (2024-07-18):
 
 Documentation:
