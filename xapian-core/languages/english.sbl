@@ -173,6 +173,7 @@ define exception1 as (
 
         /* special changes: */
 
+        'skis'      (<-'ski')
         'skies'     (<-'sky')
         'dying'     (<-'die')
         'lying'     (<-'lie')
