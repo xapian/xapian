@@ -10,6 +10,19 @@ the following 3 simple steps:
  2) Run "make" to build Xapian
  3) Run "make install" to install Xapian
 
+Building in a separate directory
+--------------------------------
+
+If you wish to perform your build in a separate directory from the source,
+create and change to the build directory, then run the configure script (in
+the source directory) from the build directory, like so:
+
+  mkdir BUILD
+  cd BUILD
+  ../configure
+  make
+  make install
+
 Prerequisites
 =============
 
@@ -220,8 +233,52 @@ at configure time like so::
 
   ./configure --disable-shared
 
+Command-line options to pass to configure
+=========================================
+
+You can see a full list of the command-line options supported by configure
+using:
+
+./configure --help
+
+First we highlight a few of the more commonly used options, then we show
+the options to use for some particular scenarios.
+
+  --enable-assertions
+        You should use this to build a version of Xapian with many internal
+        consistency checks.  This will run more slowly, but is useful if you
+        suspect a bug in Xapian.
+
+  --enable-backend-chert
+  --enable-backend-glass
+  --enable-backend-inmemory
+  --enable-backend-remote
+        These options enable (or disable if --disable-backend-XXX is specified)
+        the compiling of each backend (database access methods).  By default,
+        all backends for which the appropriate libraries and OS support are
+        available will be enabled.  Note: Currently disabling the remote
+        backend also disables replication (because the network code is shared).
+
+The following can be specified as environment variables, or on the configure
+command line, e.g.:
+
+export CXX=/usr/bin/g++-15
+./configure
+
+or:
+
+./configure CXX=/usr/bin/g++-15
+
+  CXX         C++ compiler command
+  CXXFLAGS    C++ compiler flags
+  LDFLAGS     linker flags, e.g. -L<lib dir> if you have libraries in a
+              nonstandard directory <lib dir>
+  LIBS        libraries to pass to the linker, e.g. -l<library>
+  CPPFLAGS    C/C++ preprocessor flags, e.g. -I<include dir> if you have
+              headers in a nonstandard directory <include dir>
+
 Multi-Arch
-==========
+----------
 
 When using GCC on platforms which support multiple architectures, the simplest
 way to select a non-default architecture is to pass a CXX setting to configure
@@ -229,35 +286,6 @@ which includes the appropriate -m option - e.g. to build for x86 on x86-64
 you would configure with:
 
 ./configure CXX='g++ -m32'
-
-Building in a separate directory
-================================
-
-If you wish to perform your build in a separate directory from the source,
-create and change to the build directory, and run the configure script (in
-the source directory) from the build directory, like so:
-
-  mkdir BUILD
-  cd BUILD
-  ../configure
-
-Options to give to configure
-============================
-
---enable-assertions
-	You should use this to build a version of Xapian with many internal
-	consistency checks.  This will run more slowly, but is useful if you
-	suspect a bug in Xapian.
-
---enable-backend-chert
---enable-backend-glass
---enable-backend-inmemory
---enable-backend-remote
-	These options enable (or disable if --disable-backend-XXX is specified)
-	the compiling of each backend (database access methods).  By default,
-	all backends for which the appropriate libraries and OS support are
-	available will be enabled.  Note: Currently disabling the remote
-	backend also disables replication (because the network code is shared).
 
 _FORTIFY_SOURCE
 ---------------
