@@ -1,7 +1,7 @@
 /** @file
  * @brief Test the stemming API
  */
-/* Copyright (C) 2010,2012,2019 Olly Betts
+/* Copyright (C) 2010,2012,2019,2025 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -74,6 +74,16 @@ DEFINE_TESTCASE(stem3, !backend) {
     TEST_EQUAL(earlyenglish("loving"), "love");
     TEST_EQUAL(earlyenglish("loveth"), "love");
     TEST_EQUAL(earlyenglish("givest"), "give");
+}
+
+/// Regression test for `skis` exception (incorrectly dropped in 1.4.29).
+DEFINE_TESTCASE(stem4, !backend) {
+    Xapian::Stem stemmer("en");
+    TEST_EQUAL(stemmer("ski"), "ski");
+    TEST_EQUAL(stemmer("sky"), "sky");
+    TEST_EQUAL(stemmer("skies"), "sky");
+    TEST_EQUAL(stemmer("skiing"), "ski");
+    TEST_EQUAL(stemmer("skis"), "ski");
 }
 
 /// Test handling of a stemmer returning an empty string.
