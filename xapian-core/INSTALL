@@ -1,5 +1,5 @@
-Welcome to Xapian
-=================
+Installing xapian-core
+======================
 
 Xapian's build system is built using GNU autoconf, automake, and libtool.
 If you've installed other Open Source projects from source, you should
@@ -7,8 +7,8 @@ find yourself in familiar territory.  Building and installing involves
 the following 3 simple steps:
 
  1) Run "./configure", possibly with some extra arguments (see below)
- 2) Run "make" to build Xapian
- 3) Run "make install" to install Xapian
+ 2) Run "make" to build
+ 3) Run "make install" to install
 
 Building in a separate directory
 --------------------------------
@@ -259,8 +259,8 @@ the options to use for some particular scenarios.
         available will be enabled.  Note: Currently disabling the remote
         backend also disables replication (because the network code is shared).
 
-The following can be specified as environment variables, or on the configure
-command line, e.g.:
+The following variables can be specified as environment variables, or on the
+configure command line, e.g.:
 
 export CXX=/usr/bin/g++-15
 ./configure
@@ -281,9 +281,9 @@ Multi-Arch
 ----------
 
 When using GCC on platforms which support multiple architectures, the simplest
-way to select a non-default architecture is to pass a CXX setting to configure
-which includes the appropriate -m option - e.g. to build for x86 on x86-64
-you would configure with:
+way to select a non-default architecture is to set `CXX` to include the
+appropriate `-m` option - e.g. to build for x86 on x86-64 you would configure
+with:
 
 ./configure CXX='g++ -m32'
 
@@ -335,10 +335,10 @@ us (via the bug tracker or mailing lists).
 -fvisibility
 ------------
 
-When compiling with GCC >= 4.0 for platforms which support symbol visibility,
-we automatically pass -fvisibility=hidden to g++ when building the library, and
-mark classes, methods, and functions which need exporting with attributes to
-make them visible.
+We automatically pass -fvisibility=hidden to the compiler when building the
+library when we detect that the compiler supports this option and the platform
+supports symbol visibility.  We've marked classes, methods, and functions which
+need exporting with attributes to make them visible.
 
 Should you wish to disable this for some reason, you can configure like so:
 
