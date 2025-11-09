@@ -1,6 +1,6 @@
-up to: d72a7d16fe81bf5f6e0e986b95e1d8098256ee84
+up to: ee0572731bf7731b460d196a46aaeecee8a07508
 
-Xapian-core 1.5.0 (2024-0?-??):
+Xapian-core 1.5.0 (2025-1?-??):
 
 API:
 
@@ -56,6 +56,14 @@ API:
 
   + Portuguese: Replace Spanish suffixes by Portuguese suffixes.  Patch from
     Helder.
+
+  + Romanian: Fix to work with modern unicode text
+    Currently the stemmer does not work with s-comma and t-comma characters,
+    but only with their cedilla "approximations" from before Romanian had
+    full Unicode support.
+    The old cedilla "approximations" are normalized to the proper unicode
+    characters by the stemmer.
+Cherry-picked from snowball upstream, patch by Robert Muir.
 
   + Russian: Normalise "ё" to "e" before stemming.  The Snowball documentation
     for the Russian stemmer has long suggested that the caller should perform
