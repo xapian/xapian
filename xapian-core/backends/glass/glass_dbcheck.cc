@@ -88,7 +88,7 @@ check_glass_table(const char* tablename, string_view db_dir, int fd,
     }
 
     // Check the btree structure.
-    unique_ptr<GlassTable> table(
+    unique_ptr<GlassTableCheck> table(
 	    GlassTableCheck::check(tablename, db_dir, fd, offset_,
 				   version_file, opts, out));
 
