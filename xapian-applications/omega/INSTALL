@@ -1,223 +1,168 @@
-Omega Installation
-==================
+Installing xapian-omega
+=======================
 
-Originally based on automake's generic "Installation Instructions" which are:
+Xapian's build system is built using GNU autoconf, automake, and libtool.
+If you've installed other Open Source projects from source, you should
+find yourself in familiar territory.  Building and installing involves
+the following 3 simple steps:
 
-Copyright (C) 1994, 1995, 1996, 1999, 2000, 2001, 2002, 2004, 2005,
-2006, 2007, 2008, 2009 Free Software Foundation, Inc.
-
-   Copying and distribution of this file, with or without modification,
-are permitted in any medium without royalty provided the copyright
-notice and this notice are preserved.  This file is offered as-is,
-without warranty of any kind.
-
-Prerequisites
-=============
-
-You need the following libraries installed before building Omega.  If you
-install these from packages, make sure you install any corresponding -dev or
--devel packages as well:
-
-  * zlib <https://www.zlib.net/>
-  * PCRE2 <https://www.pcre.org/>
-  * libmagic (which comes with the file program
-    <https://www.darwinsys.com/file/>) - on RPM-based package systems, the
-    package with the header in is often named file-devel
-
-Quick Installation Guide
-========================
-
-The simplest way to compile this package is:
-
-  1. 'cd' to the directory containing the package's source code and type
-     './configure' to configure the package for your system.
-
-     You need to make sure that xapian-config from xapian-core is on your path,
-     or else pass its full path to omega's configure script:
-
-       ./configure XAPIAN_CONFIG=/path/to/xapian-config
-
-     Running 'configure' might take a while.  While running, it prints
-     some messages telling which features it is checking for.
-
-  2. Type 'make' to compile the package.
-
-  3. Optionally, type 'make check' to run the self-tests that come with
-     the package, using the just-built uninstalled binaries.
-
-  4. Type 'make install' to install the programs and any data files and
-     documentation.  When installing into a prefix owned by root, it is
-     recommended that the package be configured and built as a regular
-     user, and only the 'make install' phase executed with root
-     privileges.
-
-  5. You can remove the program binaries and object files from the
-     source code directory by typing 'make clean'.  To also remove the
-     files that 'configure' created (so you can compile the package for
-     a different kind of computer), type 'make distclean'.  There is
-     also a 'make maintainer-clean' target, but that is intended mainly
-     for the package's developers.  If you use it, you may have to get
-     all sorts of other programs in order to regenerate files that came
-     with the distribution.
-
-  6. You can also type 'make uninstall' to remove the installed files
-     again.
-
-Compilers and Options
-=====================
-
-   Some systems may require unusual options for compilation or linking that
-the 'configure' script does not know about.  Run './configure --help'
-for details on some of the pertinent environment variables.
-
-   You can give 'configure' initial values for configuration parameters
-by setting variables in the command line or in the environment.  Here
-is an example:
-
-     ./configure CXX=g++-4.9 CFLAGS=-O2 LIBS=-lposix
-
-   If your system requires special flags, do let us know.  Where possible
-we'd prefer configure to determine such flags by itself, but if we can't
-then at least we can document the special flags to help other users of
-systems like yours.
-
-Compiling For Multiple Architectures
-====================================
-
-When using GCC on platforms which support multiple architectures, the simplest
-way to select a non-default architecture is to pass a CXX setting to configure
-which includes the appropriate -m option - e.g. to build for x86 on x86-64
-you would configure with:
-
-./configure CXX='g++ -m32'
-
-On macOS 10.5 and later systems, you can create libraries and
-executables that work on multiple system types--known as "fat" or
-"universal" binaries--by specifying multiple '-arch' options to the
-compiler but only a single '-arch' option to the preprocessor.  Like
-this:
-
-     ./configure CC="gcc -arch i386 -arch x86_64 -arch ppc -arch ppc64" \
-                 CXX="g++ -arch i386 -arch x86_64 -arch ppc -arch ppc64" \
-                 CPP="gcc -E" CXXCPP="g++ -E"
+ 1) Run "./configure", possibly with some extra arguments (see below)
+ 2) Run "make" to build
+ 3) Run "make install" to install
 
 Building in a separate directory
-================================
+--------------------------------
 
 If you wish to perform your build in a separate directory from the source,
-create and change to the build directory, and run the configure script (in
+create and change to the build directory, then run the configure script (in
 the source directory) from the build directory, like so:
 
   mkdir BUILD
   cd BUILD
   ../configure
+  make
+  make install
 
-Installation Names
-==================
+Prerequisites
+=============
 
-   By default, 'make install' installs the package's commands under
-'/usr/local/bin', include files under '/usr/local/include', etc.  You
-can specify an installation prefix other than '/usr/local' by giving
-'configure' the option '--prefix=PREFIX', where PREFIX must be an
-absolute file name.
+You need the following libraries installed before building Omega:
 
-   You can specify separate installation prefixes for
-architecture-specific files and architecture-independent files.  If you
-pass the option '--exec-prefix=PREFIX' to 'configure', the package uses
-PREFIX as the prefix for installing programs and libraries.
-Documentation and other data files still use the regular prefix.
+ * xapian-core: We recommend using matching versions of xapian-core and
+   xapian-omega as we don't test non-matching versions.  If you install
+   xapian-core from a package, make sure you also install the development files
+   which are often packaged separately (e.g. in libxapian-dev or
+   xapian-core-devel).
+ * zlib <https://www.zlib.net/>.  If you install from a package, make sure you
+   install any corresponding -dev or -devel package as well.  (On Debian,
+   Ubuntu, and derived distros the package is `zlib1g-dev`.)
+ * PCRE2 <https://www.pcre.org/>.  If you install from a package, make sure you
+   install any corresponding -dev or -devel package as well.
+ * libmagic (which comes with the file program
+   <https://www.darwinsys.com/file/>).  If you install from a package, make
+   sure you install any corresponding -dev or -devel package as well.  On
+   RPM-based package systems, this is often named `file-devel`.
+ * (optional) libiconv.  There is built in support for converting utf-8,
+   us-ascii, iso-8859-1, iso-8859-15, windows-1252/cp-1252, utf-16/ucs-2,
+   utf-16be/ucs-2be and utf-16le/ucs-2le.
 
-   In addition, if you use an unusual directory layout you can give
-options like '--bindir=DIR' to specify different values for particular
-kinds of files.  Run 'configure --help' for a list of the directories
-you can set and what kinds of files go in them.
+Compilers
+=========
 
-Specifying the System Type
-==========================
+We aim to support compilation with any C++ compiler which supports ISO C++11,
+or a reasonable approximation to it.
 
-   There may be some features 'configure' cannot figure out
-automatically, but needs to determine by the type of machine the package
-will run on.  Usually, assuming the package is built to be run on the
-_same_ architectures, 'configure' can figure that out, but if it prints
-a message saying it cannot guess the machine type, give it the
-'--build=TYPE' option.  TYPE can either be a short name for the system
-type, such as 'sun4', or a canonical name which has the form:
+GCC
+---
 
-     CPU-COMPANY-SYSTEM
+If you're using GCC, we currently recommend GCC 4.7 or newer (this is the
+oldest version we regularly test with).
 
-where SYSTEM can have one of these forms:
+The current hard minimum requirement is also GCC 4.7 (due to requiring good
+support for C++11, for example non-static data member initializers aren't
+supported by earlier versions).
 
-     OS
-     KERNEL-OS
+If you really still need to use an older version of GCC, Xapian 1.2.x doesn't
+require C++11 support and should build with older versions - probably as far
+back as GCC 3.1.
 
-   See the file 'config.sub' for the possible values of each field.  If
-'config.sub' isn't included in this package, then this package doesn't
-need to know the machine type.
+Clang
+-----
 
-   If you want to _use_ a cross compiler, that generates code for a
-platform different from the build platform, you should specify the
-"host" platform (i.e., that on which the generated programs will
-eventually be run) with '--host=TYPE'.
+Clang 6.0 is known to work.  We haven't identified the exact minimum
+requirement, but it's probably at least Clang 3.2.
 
-Sharing Defaults
-================
+MSVC
+----
 
-   If you want to set default values for 'configure' scripts to share,
-you can create a site shell script called 'config.site' that gives
-default values for variables like 'CXX', 'cache_file', and 'prefix'.
-'configure' looks for 'PREFIX/share/config.site' if it exists, then
-'PREFIX/etc/config.site' if it exists.  Or, you can set the
-'CONFIG_SITE' environment variable to the location of the site script.
-A warning: not all 'configure' scripts look for a site script.
+Xapian-core can be built using MS Visual C++.  Theoretically xapian-omega
+can be too but we haven't tested this.  If you want to get this working, see
+the xapian-core installation instructions for a starting point.
 
-Defining Variables
-==================
+HP's aCC
+--------
 
-   Variables not defined in a site shell script can be set in the
-environment passed to 'configure'.  However, some packages may run
-configure again during the build, and the customized values of these
-variables may be lost.  In order to avoid this problem, you should set
-them in the 'configure' command line, using 'VAR=value'.  For example:
+When using HP's aCC, Xapian must be compiled with +std=c++11, which
+xapian-core's configure automatically detects and passes.  You don't have to
+pass this option when building code which uses Xapian, but you can.
 
-     ./configure CXX=/usr/local2/bin/g++
+Command-line options to pass to configure
+=========================================
 
-causes the specified 'g++' to be used as the C++ compiler (unless it is
-overridden in the site shell script).
+You can see a full list of the command-line options supported by configure
+using:
 
-'configure' Invocation
-======================
+./configure --help
 
-'configure' recognizes the following standard options to control how it
-operates:
+First we highlight a few of the more commonly used options, then we show
+the options to use for some particular scenarios.
 
-'--help'
-'-h'
-     Print a summary of all of the options to 'configure', and exit.
+The following variables can be specified as environment variables, or on the
+configure command line, e.g.:
 
-'--version'
-'-V'
-     Print the version of Autoconf used to generate the 'configure'
-     script, and exit.
+export CXX=/usr/bin/g++-15
+./configure
 
-'--cache-file=FILE'
-     Enable the cache: use and save the results of the tests in FILE,
-     traditionally 'config.cache'.  FILE defaults to '/dev/null' to
-     disable caching.
+or:
 
-'--config-cache'
-'-C'
-     Alias for '--cache-file=config.cache'.
+./configure CXX=/usr/bin/g++-15
 
-'--quiet'
-'--silent'
-'-q'
-     Do not print messages saying which checks are being made.  To
-     suppress all normal output, redirect it to '/dev/null' (any error
-     messages will still be shown).
+  CXX         C++ compiler command
+  CXXFLAGS    C++ compiler flags
+  LDFLAGS     linker flags, e.g. -L<lib dir> if you have libraries in a
+              nonstandard directory <lib dir>
+  LIBS        libraries to pass to the linker, e.g. -l<library>
+  CPPFLAGS    C/C++ preprocessor flags, e.g. -I<include dir> if you have
+              headers in a nonstandard directory <include dir>
 
-'--srcdir=DIR'
-     Look for the package's source code in directory DIR.  Usually
-     'configure' can determine that directory automatically.
+By default, xapian-omega will search `PATH` to find `xapian-config` for
+the xapian-core install to use.  If your xapian-core is installed in a
+prefix which isn't listed in `PATH`, or if you have multiple xapian-core
+versions installed, you can point xapian-binding's `configure` to the
+`xapian-config` to use, for example:
 
-'configure' also accepts some other, not widely useful, options.  Run
-'configure --help' for more details.
+./configure XAPIAN_CONFIG=/opt/bin/xapian-config
+
+Multi-Arch
+----------
+
+When using GCC on platforms which support multiple architectures, the simplest
+way to select a non-default architecture is to set `CXX` to include the
+appropriate `-m` option - e.g. to build for x86 on x86-64 you would configure
+with:
+
+./configure CXX='g++ -m32'
+
+_FORTIFY_SOURCE
+---------------
+
+When compiling with GCC, by default Xapian will be built with _FORTIFY_SOURCE
+set to 2 (except on mingw-w64).  This enables some compile time and runtime
+checking of values passed to library functions when building with glibc >=
+2.34.  If you wish to disable this for any reason, you can just configure like
+so:
+
+./configure CPPFLAGS=-D_FORTIFY_SOURCE=0
+
+Or you can set the "fortification level" to 1 or (with new enough glibc and
+GCC) 3 instead of 2:
+
+./configure CPPFLAGS=-D_FORTIFY_SOURCE=1
+
+./configure CPPFLAGS=-D_FORTIFY_SOURCE=3
+
+If you're disabling _FORTIFY_SOURCE because it causes problems, please also
+report this to us (via the bug tracker or mailing lists).
+
+On mingw-w64 Xapian doesn't automatically enable _FORTIFY_SOURCE as an extra
+library is needed.  You can enable it by hand and specify this library like
+so:
+
+./configure CPPFLAGS=-D_FORTIFY_SOURCE=2 LIBS=-lssp
+
+Developers
+==========
+
+There are additional scripts and configure options to help people doing
+development work on Xapian itself, and people who are building from git.
+Read HACKING to find out about them.
