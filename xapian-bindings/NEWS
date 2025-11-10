@@ -1,3 +1,47 @@
+up to: 82062534ab8183d587d0cf133ca943136f5581dd
+
+Xapian-bindings 1.4.30 (2025-11-??):
+
+Documentation:
+
+* INSTALL: Replace with an improved version based on xapian-core's INSTALL.
+  Fixes #839, reported by Дилян Палаузов.
+
+General:
+
+Packaging:
+
+Portability:
+
+* Fix "warning: The macro 'AC_HELP_STRING' is obsolete" if autoconf is rerun.
+  In 1.4.19 we updated most uses of this macro, but missed the one for Python2
+  because that isn't on git master where this change was first made.  Reported
+  by jberkel.
+
+CSharp:
+
+Java:
+
+Lua:
+
+Perl:
+
+PHP:
+
+Python:
+
+Python3:
+
+Ruby:
+
+* Link to RUBY_LIBS on all platforms.  We were avoiding this on platforms which
+  allow undefined symbols in shared libraries (which then get resolved when the
+  Ruby interpreter dynamically loads the module).  However this was failing to
+  work on macOS, and it seems the Ruby norm is to explicitly link to librubyX.Y
+  so we now do that.  Fixes #837, reported by Graeme Porteous.
+
+Tcl:
+
 Xapian-bindings 1.4.29 (2025-04-18):
 
 Ruby:
