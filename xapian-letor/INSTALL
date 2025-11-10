@@ -1,18 +1,42 @@
-Welcome to Xapian's Learning to Rank Framework
-==============================================
+Installing xapian-letor
+=======================
 
 Xapian's build system is built using GNU autoconf, automake, and libtool.
 If you've installed other Open Source projects from source, you should
 find yourself in familiar territory.  Building and installing involves
 the following 3 simple steps:
 
- 1) Run "./bootstrap xapian-core xapian-letor" in the top level directory.
-    Note: It is preferred that you bootstrap all of the xapian project together.
-    To do that, run:
-    "./bootstrap xapian-core xapian-applications/omega swig xapian-bindings xapian-letor"
- 2) Run "./configure", possibly with some extra arguments
- 3) Run "make" to build
- 4) Run "make install" to install
+ 1) Run "./configure", possibly with some extra arguments (see below)
+ 2) Run "make" to build
+ 3) Run "make install" to install
+
+If you're building from git (as you likely are currently, since we haven't
+yet made a release of xapian-letor), you should (at the top-level of the
+tree) run the following which will hook up letor to build against the in-tree
+xapian-core:
+
+./bootstrap
+./configure
+make
+make install
+
+By default, bootstrap enables all modules - if you only want core and letor
+you can specify them explicitly:
+
+./bootstrap xapian-core xapian-letor
+
+Building in a separate directory
+--------------------------------
+
+If you wish to perform your build in a separate directory from the source,
+create and change to the build directory, then run the configure script (in
+the source directory) from the build directory, like so:
+
+  mkdir BUILD
+  cd BUILD
+  ../configure
+  make
+  make install
 
 Prerequisites
 =============
@@ -24,3 +48,199 @@ build xapian-letor:
    xapian-letor.  If you install xapian-core from a package, make sure you
    also install the development files which are often packaged separately
    (e.g. in libxapian-dev or xapian-core-devel).
+
+Compilers
+=========
+
+We aim to support compilation with any C++ compiler which supports ISO C++17,
+or a reasonable approximation to it.
+
+GCC
+---
+
+If you're using GCC, we currently recommend GCC 7.0 or newer (this is the
+oldest version we regularly test with).
+
+The current hard minimum requirement is also GCC 7.0 (due to requiring good
+support for C++17, for example non-static data member initializers aren't
+supported by earlier versions).
+
+Clang
+-----
+
+Clang 6.0 is known to work.  We haven't identified the exact minimum
+requirement, but it's probably at least Clang 4.0.
+
+MSVC
+----
+
+If you're using MS Visual C++, you'll need at least MSVS 2017 for C++17
+support. We support both 32-bit and 64-bit compilation.
+
+As of Xapian 1.4.6 building using MSVC is supported by the autotools build
+system.  You need to install a set of Unix-like tools first - we recommended
+MSYS2: https://www.msys2.org/
+
+You also need to have the MSVC command line tools on your PATH.  MSVC provides
+a batch file which sets up PATH and other environment variables.  The exact
+details vary by MSVC version, 32- vs 64-bit, and the directory and
+drive where MSVC is installed, but for MSVC 2017 it should be something like::
+
+  "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"
+
+or::
+
+  "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars32.bat"
+
+It doesn't work to run this after starting the MSYS2 shell because the
+environment variables set by the batch file don't get propagated back to the
+MSYS2 shell.  The simplest approach which works is to run this batch file in
+the developer command prompt, then start the MSYS2 shell from there (e.g.
+by entering the command `start msys2_shell.cmd -use-full-path`).
+
+You'll need to have the zlib library available.  You can add
+``CPPFLAGS=-I/path/to/zlib LDFLAGS=-L/path/to/zlib`` to the configure command
+line to tell MSVC where to find the zlib headers and library.
+
+If you build zlib from source, beware that zlib's `win32/Makefile.msc` performs
+a debug build by default.  You'll either need to specify `CXXFLAGS=-MD` when
+configuring Xapian, or remove `-MD` from `CFLAGS` in zlib's `win32/Makefile.msc`.
+If you're building 64-bit you may also want to remove `-base:0x5A4C0000` from
+the link command for `$(SHAREDLIB)` as this triggers a linker warning (LNK4281).
+
+To build Xapian, first run configure from the MSYS2 shell like so::
+
+  ./configure CC="cl -nologo" CXX="$PWD/compile cl -nologo" CXXFLAGS=-EHsc AR=lib LD=link NM=dumpbin
+
+If you want a `.pdb` file (which contains debugging information), add `-Zi` to
+`CXXFLAGS`, i.e.:
+
+  ./configure CC="cl -nologo" CXX="$PWD/compile cl -nologo" CXXFLAGS="-EHsc -Zi" AR=lib LD=link NM=dumpbin
+
+Then build using GNU make::
+
+  make
+
+HP's aCC
+--------
+
+This compiler doesn't seem to have been updated to support C++17.
+
+Sun C++ Compiler
+----------------
+
+This compiler doesn't seem to have been updated to support C++17.
+
+Command-line options to pass to configure
+=========================================
+
+You can see a full list of the command-line options supported by configure
+using:
+
+./configure --help
+
+First we highlight a few of the more commonly used options, then we show
+the options to use for some particular scenarios.
+
+The following variables can be specified as environment variables, or on the
+configure command line, e.g.:
+
+export CXX=/usr/bin/g++-15
+./configure
+
+or:
+
+./configure CXX=/usr/bin/g++-15
+
+  CXX         C++ compiler command
+  CXXFLAGS    C++ compiler flags
+  LDFLAGS     linker flags, e.g. -L<lib dir> if you have libraries in a
+              nonstandard directory <lib dir>
+  LIBS        libraries to pass to the linker, e.g. -l<library>
+  CPPFLAGS    C/C++ preprocessor flags, e.g. -I<include dir> if you have
+              headers in a nonstandard directory <include dir>
+
+By default, xapian-letor will search `PATH` to find `xapian-config` for
+the xapian-core install to use.  If your xapian-core is installed in a
+prefix which isn't listed in `PATH`, or if you have multiple xapian-core
+versions installed, you can point xapian-letor's `configure` to the
+`xapian-config` to use, for example:
+
+./configure XAPIAN_CONFIG=/opt/bin/xapian-config
+
+Multi-Arch
+----------
+
+When using GCC on platforms which support multiple architectures, the simplest
+way to select a non-default architecture is to set `CXX` to include the
+appropriate `-m` option - e.g. to build for x86 on x86-64 you would configure
+with:
+
+./configure CXX='g++ -m32'
+
+_FORTIFY_SOURCE
+---------------
+
+When compiling with GCC, by default Xapian will be built with _FORTIFY_SOURCE
+set to 2 (except on mingw-w64).  This enables some compile time and runtime
+checking of values passed to library functions when building with glibc >=
+2.34.  If you wish to disable this for any reason, you can just configure like
+so:
+
+./configure CPPFLAGS=-D_FORTIFY_SOURCE=0
+
+Or you can set the "fortification level" to 1 or (with new enough glibc and
+GCC) 3 instead of 2:
+
+./configure CPPFLAGS=-D_FORTIFY_SOURCE=1
+
+./configure CPPFLAGS=-D_FORTIFY_SOURCE=3
+
+If you're disabling _FORTIFY_SOURCE because it causes problems, please also
+report this to us (via the bug tracker or mailing lists).
+
+On mingw-w64 Xapian doesn't automatically enable _FORTIFY_SOURCE as an extra
+library is needed.  You can enable it by hand and specify this library like
+so:
+
+./configure CPPFLAGS=-D_FORTIFY_SOURCE=2 LIBS=-lssp
+
+-Bsymbolic-functions
+--------------------
+
+If -Wl,-Bsymbolic-functions is supported (for example it is by GCC with modern
+ld) then it will be automatically used when linking the library.  This causes
+all references from inside the library to symbols inside the library to be
+resolved when the library is created, rather than when the shared library is
+loaded, which decreases the time taken to load the library, reduces its size,
+and is also likely to make the code run a little faster.
+
+Should you wish to disable this for some reason, you can configure like so
+which disables the probe for -Bsymbolic-functions so it won't ever be used:
+
+./configure xo_cv_symbolic_functions=no
+
+If you're disabling it because it causes problems, please also report this to
+us (via the bug tracker or mailing lists).
+
+-fvisibility
+------------
+
+We automatically pass -fvisibility=hidden to the compiler when building the
+library when we detect that the compiler supports this option and the platform
+supports symbol visibility.  We've marked classes, methods, and functions which
+need exporting with attributes to make them visible.
+
+Should you wish to disable this for some reason, you can configure like so:
+
+./configure --disable-visibility
+
+If you're disabling it because it causes problems, please also report this to
+us (via the bug tracker or mailing lists).
+
+Developers
+==========
+
+There are additional scripts and configure options to help people doing
+development work on Xapian itself, and people who are building from git.
+Read HACKING to find out about them.
