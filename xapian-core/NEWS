@@ -745,9 +745,9 @@ portability:
 
 * Support building with emscripten.  Patch from Peter Salomonsen.
 
-* Define Z_CONST to get const-correct zstream API.  This makes the minimum zlib
-  requirement 1.2.5.2, but that was released 2011-12-17 so it's unlikely to be
-  a problem for anyone.
+* Define ZLIB_CONST to get const-correct zstream API.  This makes the minimum
+  zlib requirement 1.2.5.2, but that was released 2011-12-17 so it's unlikely
+  to be a problem for anyone.
 
 * Microsoft Windows: Use QueryPerformanceCounter() for creating unique pipe
   names for "prog" remotes.  We were using a static variable as a counter
