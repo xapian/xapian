@@ -78,7 +78,8 @@ jobs:
             libmwaw-dev \
             libreofficekit-dev libreoffice-calc libreoffice-draw libreoffice-impress libreoffice-writer \
             libtesseract-dev \
-            tesseract-ocr-eng
+            tesseract-ocr-eng \
+            valgrind
     - name: bootstrap source tree
       run: |
         # If we restored cached bootstrap tools their timestamps will be older
