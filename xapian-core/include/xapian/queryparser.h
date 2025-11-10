@@ -906,7 +906,7 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      */
     Query parse_query(std::string_view query_string,
 		      unsigned flags = FLAG_DEFAULT,
-		      const std::string& default_prefix = {});
+		      std::string_view default_prefix = {});
 
     /** Add a free-text field term prefix.
      *

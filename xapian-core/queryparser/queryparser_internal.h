@@ -148,7 +148,7 @@ class QueryParser::Internal : public Xapian::Internal::intrusive_base {
 
     Query parse_query(std::string_view query_string,
 		      unsigned int flags,
-		      const std::string& default_prefix);
+		      std::string_view default_prefix);
 };
 
 }

@@ -167,7 +167,7 @@ QueryParser::set_min_wildcard_prefix(unsigned min_prefix_len,
 
 Query
 QueryParser::parse_query(string_view query_string, unsigned flags,
-			 const string& default_prefix)
+			 string_view default_prefix)
 {
     if (!(flags & FLAG_ACCUMULATE)) {
 	internal->stoplist.clear();

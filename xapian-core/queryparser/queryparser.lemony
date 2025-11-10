@@ -1061,7 +1061,7 @@ fractional:
 
 Query
 QueryParser::Internal::parse_query(string_view qs, unsigned flags,
-				   const string& default_prefix)
+				   string_view default_prefix)
 {
 #ifndef USE_ICU
     // Overall it seems best to check for this up front - otherwise we create
