@@ -1,7 +1,7 @@
 /** @file
  * @brief Wrappers for low-level POSIX I/O routines.
  */
-/* Copyright (C) 2006,2007,2008,2009,2011,2014,2015,2016,2018,2024 Olly Betts
+/* Copyright (C) 2006-2025 Olly Betts
  * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or modify
@@ -210,12 +210,14 @@ static inline void io_protect_from_write(int fd) {
 #elif defined __FreeBSD__ || \
       defined __APPLE__ || \
       defined __NetBSD__ || \
-      defined __OpenBSD__
+      defined __OpenBSD__ || \
+      defined __sun__
     // The maximum off_t value worked in testing on:
     // * FreeBSD 14.0
     // * macOS 10.10 and 12.6
     // * NetBSD 10.0
     // * OpenBSD 7.5
+    // * Solaris 11.4
     (void)lseek(fd, std::numeric_limits<off_t>::max(), SEEK_SET);
 #else
     (void)fd;
