@@ -193,9 +193,9 @@ bool io_tmp_rename(const std::string & tmp_file, const std::string & real_file);
 
 /** Protect against stray writes to fds we use pwrite() on.
  *
- *  Protect against user code or other libraries accidentally trying to
- *  write to our fd by setting the file position high.  To avoid problems
- *  we're rolling this out gradually on platforms we've tested it on.
+ *  Set the file position high to protect against user code or other libraries
+ *  accidentally trying to write to our fd.  To avoid problems we're rolling
+ *  this out gradually on platforms we've tested it on.
  */
 static inline void io_protect_from_write(int fd) {
 #ifdef __linux__
@@ -213,11 +213,11 @@ static inline void io_protect_from_write(int fd) {
       defined __OpenBSD__ || \
       defined __sun__
     // The maximum off_t value worked in testing on:
-    // * FreeBSD 14.0
+    // * FreeBSD 14.0 and 15.0
     // * macOS 10.10 and 12.6
     // * NetBSD 10.0
     // * OpenBSD 7.5
-    // * Solaris 11.4
+    // * Solaris 10 and 11.4
     (void)lseek(fd, std::numeric_limits<off_t>::max(), SEEK_SET);
 #else
     (void)fd;
