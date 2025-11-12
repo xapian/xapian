@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2011,2012,2013,2014,2015,2016,2017,2019,2023 Olly Betts
+ * Copyright 2002-2025 Olly Betts
  * Copyright 2006,2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -159,7 +159,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	 *  or to recover from a Xapian::DatabaseModifiedError.
 	 *
 	 *  Calling reopen() on a database which has been closed (with @a
-	 *  close()) will always raise a Xapian::DatabaseError.
+	 *  close()) will always raise a Xapian::DatabaseClosedError.
 	 *
 	 *  @return	true if the database might have been reopened (if false
 	 *		is returned, the database definitely hasn't been
@@ -179,7 +179,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	 *
 	 *  Closing a database cannot be undone - in particular, calling
 	 *  reopen() after close() will not reopen it, but will instead throw a
-	 *  Xapian::DatabaseError exception.
+	 *  Xapian::DatabaseClosedError exception.
 	 *
 	 *  Calling close() again on a database which has already been closed
 	 *  has no effect (and doesn't raise an exception).
@@ -192,8 +192,8 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	 *     been closed (this can only happen if all the required data is
 	 *     cached)
 	 *
-	 *   - raise a Xapian::DatabaseError exception indicating that the
-	 *     database is closed.
+	 *   - raise a Xapian::DatabaseClosedError exception indicating that
+	 *     the database is closed.
 	 *
 	 *  The reason for this behaviour is that otherwise we'd have to check
 	 *  that the database is still open on every method call on every
