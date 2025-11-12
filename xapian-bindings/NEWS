@@ -154,8 +154,9 @@ General:
 * configure: DragonflyBSD automatically pulls in library dependencies, so set
   link_all_deplibs_CXX=no there.
 
-* configure: Avoid using lt_cv_objdir, which seems to be a libtool implementation
-  detail.  We already have its value available via a documented interface.
+* configure: Avoid using lt_cv_objdir, which seems to be a libtool
+  implementation detail.  We already have its value available via a documented
+  interface.
 
 Perl:
 
@@ -464,7 +465,8 @@ Portability:
 
 CSharp:
 
-* Wrap const std::string* parameters to accept a string or null in C#.  See #204.
+* Wrap const std::string* parameters to accept a string or null in C#.  See
+  #204.
 
 Java:
 
@@ -4512,8 +4514,8 @@ Java:
 
 Python:
 
-* When converting a python list to vector<string> we know the number of elements
-  so reserve that number in the vector.
+* When converting a python list to vector<string> we know the number of
+  elements so reserve that number in the vector.
 
 Xapian-bindings 0.9.1 (2005-06-06):
 

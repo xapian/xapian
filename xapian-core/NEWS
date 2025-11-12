@@ -1131,8 +1131,8 @@ API:
   suggested terms may not have been as good as they should be in this
   situation.
 
-* Enquire::get_eset(): Use string::compare() to avoid 1/3 of the string compares
-  on average.
+* Enquire::get_eset(): Use string::compare() to avoid 1/3 of the string
+  compares on average.
 
 documentation:
 
@@ -1252,7 +1252,8 @@ testsuite:
   + Backport testcases boolorbug1, emptynot1, emptymaybe1 and
     phraseweightcheckbug1 from git master - these are regression tests for
     fixed bugs which only affected git master, but it's useful to confirm that
-    these bugs don't currently affect 1.4, and ensure they don't get introduced.
+    these bugs don't currently affect 1.4, and ensure they don't get
+    introduced.
 
 * perftest: Store memory sizes as long long since on Microsoft Windows long is
   only 32 bits, which is less than common memory sizes.
@@ -4266,7 +4267,8 @@ documentation:
 * HACKING: Drop note about needing git-svn if you're using git - bootstrap now
   only uses git-svn if your Xapian tree was checked out using git-svn.
 
-* HACKING: Need sphinx-doc to generate API docs for Python and Python 3 bindings.
+* HACKING: Need sphinx-doc to generate API docs for Python and Python 3
+  bindings.
 
 * HACKING: Note that MacTeX seems to be the best option if using homebrew.
 
@@ -5516,7 +5518,8 @@ portability:
   rather than the now deprecated cygwin_conv_to_win32_path().  Reported by
   "Haroogan" on the xapian-devel mailing list.
 
-* common/safeuuid.h: Add missing '#include <cstdlib>' and qualify free with std.
+* common/safeuuid.h: Add missing '#include <cstdlib>' and qualify free with
+  std.
 
 * Fix 'unused label' warning when chert backend is disabled.
 
@@ -6798,8 +6801,8 @@ API:
   API we aren't happy with.  Replication is still supported via the
   command line programs.  (ticket#347)
 
-* Xapian::score_evenness(): Remove as it turns out not to be useful in practice.
-  (ticket#435)
+* Xapian::score_evenness(): Remove as it turns out not to be useful in
+  practice.  (ticket#435)
 
 * Xapian::ValueWeightPostingSource: A ValueWeightPostingSource with no entries
   would report -infinity as its upper bound, which could cause no results to be
@@ -9732,10 +9735,11 @@ API:
 
 * Xapian::Database:
 
-  + The Database(const std::string &) constructor has been marked as "explicit".
-    Hopefully this won't affect real code, but it's possible.  Instead of
-    passing a std::string where a Xapian::Database is expected, you'll now
-    have to explicitly write `Xapian::Database(path)' instead of `path'.
+  + The Database(const std::string &) constructor has been marked as
+    "explicit".  Hopefully this won't affect real code, but it's possible.
+    Instead of passing a std::string where a Xapian::Database is expected,
+    you'll now have to explicitly write `Xapian::Database(path)' instead of
+    `path'.
 
   + Fixed problem when calling skip_to() on an allterms iterator over multiple
     databases which could cause a debug assertion in debug builds, and possible
@@ -9749,8 +9753,8 @@ API:
 
   + Xapian::Error::get_type() now returns const char* rather than std::string.
     Generally existing code will just work (only one change was required in
-    Xapian itself) - the simplest change is to write `std::string(e.get_type())'
-    instead of `e.get_type()'.
+    Xapian itself) - the simplest change is to write
+    `std::string(e.get_type())' instead of `e.get_type()'.
 
   + Previously, the errno value was lost when an error was propagated from
     a remote server to the client, because errno values aren't portable
@@ -10135,8 +10139,8 @@ documentation:
   using doxygen to generated the API reference) have been improved, and some
   missing ones added.  Also, internal classes, members, and methods are now all
   marked as such so that none should appear in the generated documentation.  In
-  particular, the class inheritance graphs should be a lot clearer.  A few other
-  problems have also been addressed.
+  particular, the class inheritance graphs should be a lot clearer.  A few
+  other problems have also been addressed.
 
 * docs/internals.html: New separate index page for the "internal"
   documentation.
@@ -10487,7 +10491,8 @@ API:
 testsuite:
 
 * Add targets "check-flint", "check-quartz", and "check-remote" in tests and at
-  the top level which run the subset of tests which test the respective backend.
+  the top level which run the subset of tests which test the respective
+  backend.
 
 * apitest: Run tests on flint if flint is enabled, rather than if quartz is
   enabled!
