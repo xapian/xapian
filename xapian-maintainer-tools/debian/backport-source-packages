@@ -2,7 +2,7 @@
 # Backport Debian source packages for Xapian.
 #
 # Copyright (C) 2004 Richard Boulton
-# Copyright (C) 2006-2024 Olly Betts
+# Copyright (C) 2006-2025 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -26,8 +26,8 @@ set -e
 
 MIRROR=http://httpredir.debian.org/debian/
 
-DEBIAN_CODENAMES='bookworm bullseye'
-UBUNTU_CODENAMES='oracular noble mantic jammy focal bionic xenial'
+DEBIAN_CODENAMES='trixie bookworm bullseye'
+UBUNTU_CODENAMES='questing plucky noble jammy focal bionic xenial'
 UBUNTU_LATEST=`echo "$UBUNTU_CODENAMES"|sed 's/ .*//'`
 
 V_OPT=
@@ -135,7 +135,7 @@ build_it() {
 
   overrides=
   case $PKG:$CODENAME:$VERSION in
-    xapian-bindings:stretch:*|xapian-bindings:xenial:*)
+    xapian-bindings:xenial:*)
       # Make sure we add python3-xapian to debian/control.
       overrides='PYTHON3_VERSIONS=dummy RUBY_VERSIONS=2.3' ;;
     xapian-bindings:*:*)
@@ -151,7 +151,7 @@ build_it() {
 	    dch -a "$CONTROL_SOURCE: Build with wxWidgets 3.0."
 	fi
 	;;
-      xenial|stretch)
+      xenial)
 	if grep -q libwxgtk3.2-dev $CONTROL_SOURCE ; then
 	    sed -i 's/libwxgtk3.2-dev/libwxgtk3.0-dev/g' $CONTROL_SOURCE
 	    dch -a "$CONTROL_SOURCE: Build with wxWidgets 3.0."
