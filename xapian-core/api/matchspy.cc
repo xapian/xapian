@@ -308,7 +308,7 @@ TermIterator
 ValueCountMatchSpy::top_values_begin(size_t maxvalues) const
 {
     Assert(internal);
-    unique_ptr<StringAndFreqTermList> termlist(nullptr);
+    unique_ptr<StringAndFreqTermList> termlist;
     if (usual(maxvalues > 0)) {
 	termlist.reset(new StringAndFreqTermList);
 	get_most_frequent_items(termlist->values, internal->values, maxvalues);
