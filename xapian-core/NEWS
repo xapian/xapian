@@ -1,11 +1,11 @@
-up to: edd9a32e1ce10041728b84957cc87aab73f365f3
+up to: f6f4dcdf5a81f7e742d7548ee25121cac1e5d07c
 
 Xapian-core 1.4.30 (2025-11-??):
 
 API:
 
 * Stem: 1.4.28 changed the English stemmer code to remove an exception
-  for "skis" which we (incorrectly) thought wasn't needed.  This was not
+  for "skis" which we incorrectly thought wasn't needed.  This was not
   intended to be a functional change, so we've restored the exception.
 
 testsuite:
@@ -31,6 +31,9 @@ build system:
 
 documentation:
 
+* The API docs still said DatabaseError was thrown for operations on a closed
+  database, but since 1.4.10 we throw its subclass DatabaseClosedError instead.
+
 * INSTALL: List the more commonly used variable-like configure options and
   reorder the sections to present the information in a more logical order.
 
@@ -42,6 +45,11 @@ examples:
 
 portability:
 
+* Fix instance of undefined behaviour in Database::check() for glass databases.
+  We would end up deleting a pointer to a non-virtual class via a pointer to
+  the base class, so delete ended up called with the wrong size.  In practice
+  this probably doesn't cause problems (it was detected by checks added to
+  recent valgrind versions).
 
 packaging:
 

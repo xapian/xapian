@@ -1,4 +1,4 @@
-up to: 15efa2c11f9755ccd07a21e2e2a3639ef4980ded
+up to: 926ad5efea31a23104203e8b914c7f43194d5683
 
 Omega 1.4.30 (2025-11-??):
 
@@ -13,7 +13,7 @@ indexers:
 * omindex:
 
   + Fix segmentation fault if an SVG file contains both <dc:title> and <title>
-    with <dc:tittle> first.  Bug introduced in 1.4.21.
+    with <dc:title> first.  Bug introduced in 1.4.21.
 
 * scriptindex:
 
