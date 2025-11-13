@@ -178,7 +178,7 @@ int SnowballStemImplementation::get_utf8(int * slot) {
         *slot = (b0 & 0xF) << 12 | b1 << 6 | b2;
         return 3;
     }
-    *slot = (b0 & 0xE) << 18 | b1 << 12 | b2 << 6 | (p[tmp] & 0x3F);
+    *slot = (b0 & 0x7) << 18 | b1 << 12 | b2 << 6 | (p[tmp] & 0x3F);
     return 4;
 }
 
@@ -203,7 +203,7 @@ int SnowballStemImplementation::get_b_utf8(int * slot) {
         *slot = (b & 0xF) << 12 | a;
         return 3;
     }
-    *slot = (p[--tmp] & 0xE) << 18 | (b & 0x3F) << 12 | a;
+    *slot = (p[--tmp] & 0x7) << 18 | (b & 0x3F) << 12 | a;
     return 4;
 }
 
