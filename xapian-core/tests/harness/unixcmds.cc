@@ -1,7 +1,7 @@
 /** @file
  *  @brief C++ function versions of useful Unix commands.
  */
-/* Copyright (C) 2003,2004,2007,2012,2014,2015,2018 Olly Betts
+/* Copyright (C) 2003,2004,2007,2012,2014,2015,2018,2025 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -123,23 +123,34 @@ void rm_rf(const string &filename) {
 
 	// nftw() either returns 0 for OK, -1 for error, or the non-zero return
 	// value of the helper (which in our case is an errno value).
-	if (eno < 0)
+	if (eno < 0) {
 	    eno = errno;
-	if (!(eno == EEXIST || eno == ENOTEMPTY) || --retries == 0) {
+	    retries = 0;
+	} else if (eno == EEXIST) {
+	    // On NFS, rmdir() can fail with EEXIST or ENOTEMPTY (POSIX allows
+	    // either) due to .nfs* files which are used by NFS clients to
+	    // implement the Unix semantics of a deleted but open file
+	    // continuing to exist.  We sleep and retry a few times in this
+	    // situation to give the NFS client a chance to process the closing
+	    // of the open handle.
+	    --retries;
+	} else if (EEXIST != ENOTEMPTY && eno == ENOTEMPTY) {
+	    // Alternative errno code.  On AIX, EEXIST == ENOTEMPTY so avoid
+	    // compiler warnings from redundant if tests.
+	    --retries;
+	} else {
+	    retries = 0;
+	}
+	if (retries == 0) {
 	    string msg = "recursive delete of \"";
 	    msg += filename;
 	    msg += "\") failed, errno = ";
 	    errno_to_string(eno, msg);
 	    throw msg;
 	}
-
-	// On NFS, rmdir() can fail with EEXIST or ENOTEMPTY (POSIX allows
-	// either) due to .nfs* files which are used by NFS clients to
-	// implement the Unix semantics of a deleted but open file continuing
-	// to exist.  We sleep and retry a few times in this situation to give
-	// the NFS client a chance to process the closing of the open handle.
 	sleep(5);
     }
+
 #else
 # ifdef __WIN32__
     string cmd("rd /s /q");
