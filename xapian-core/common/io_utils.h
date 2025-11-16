@@ -198,7 +198,11 @@ bool io_tmp_rename(const std::string & tmp_file, const std::string & real_file);
  *  this out gradually on platforms we've tested it on.
  */
 static inline void io_protect_from_write(int fd) {
-#ifdef __linux__
+#if !defined HAVE_PREAD || !defined HAVE_PWRITE
+    // No point setting the file position high here as it'll just get reset
+    // by the first block read or write.
+    (void)fd;
+#elif defined __linux__
     // The maximum off_t value works for at least btrfs.
     if (lseek(fd, std::numeric_limits<off_t>::max(), SEEK_SET) < 0) {
 	if constexpr (sizeof(off_t) > 4) {
