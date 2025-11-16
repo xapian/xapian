@@ -207,6 +207,14 @@ static inline void io_protect_from_write(int fd) {
 	    (void)lseek(fd, off_t(0xffffffff000), SEEK_SET);
 	}
     }
+#elif defined _AIX
+    // It seems prudent to try the maximum off_t value first.
+    if (lseek(fd, std::numeric_limits<off_t>::max(), SEEK_SET) < 0) {
+	if constexpr (sizeof(off_t) > 4) {
+	    // Actual maximum seen in testing AIX 7.1 and 7.3 on JFS.
+	    (void)lseek(fd, off_t(0xffffffff000), SEEK_SET);
+	}
+    }
 #elif defined __FreeBSD__ || \
       defined __APPLE__ || \
       defined __NetBSD__ || \
