@@ -45,8 +45,6 @@ static const char * unittest_assertion_failed = NULL;
 
 #include "testsuite.h"
 
-using namespace std;
-
 #define UNITTEST_ASSERT_LOCATION__(LINE,MSG) __FILE__":"#LINE": "#MSG
 #define UNITTEST_ASSERT_LOCATION_(LINE,MSG) UNITTEST_ASSERT_LOCATION__(LINE,MSG)
 #define UNITTEST_ASSERT_LOCATION(MSG) UNITTEST_ASSERT_LOCATION_(__LINE__,MSG)
@@ -74,6 +72,7 @@ using namespace std;
     } while (0)
 
 // Code we're unit testing:
+#include "../backends/uuids.cc"
 #include "../common/closefrom.cc"
 #include "../common/errno_to_string.cc"
 #include "../common/io_utils.cc"
@@ -83,7 +82,6 @@ using namespace std;
 #include "../common/posixy_wrapper.cc"
 #include "../common/serialise-double.cc"
 #include "../common/str.cc"
-#include "../backends/uuids.cc"
 #include "../net/length.cc"
 #include "../net/serialise-error.cc"
 #include "../api/error.cc"
@@ -94,6 +92,8 @@ using namespace std;
 
 // The UUID code uses hex_decode().
 #include "../api/constinfo.cc"
+
+using namespace std;
 
 // Stub replacement, which doesn't deal with escaping or producing valid UTF-8.
 // The full implementation needs Xapian::Utf8Iterator and
