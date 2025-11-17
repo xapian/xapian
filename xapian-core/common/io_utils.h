@@ -231,6 +231,12 @@ static inline void io_protect_from_write(int fd) {
     // * OpenBSD 7.5
     // * Solaris 10 and 11.4
     (void)lseek(fd, std::numeric_limits<off_t>::max(), SEEK_SET);
+#elif defined __EMSCRIPTEN__
+    if constexpr (sizeof(off_t) > 4) {
+	// Anything larger fails with EOVERFLOW (tested with Emscripten SDK
+	// 4.0.19).
+	(void)lseek(fd, off_t(0x20000000000000), SEEK_SET);
+    }
 #else
     (void)fd;
 #endif
