@@ -241,6 +241,12 @@ static inline void io_protect_from_write(int fd) {
 	// 4.0.19).
 	(void)lseek(fd, off_t(0x20000000000000), SEEK_SET);
     }
+#elif defined __WIN32__
+    // For Microsoft Windows we open the file with CreateFile() and
+    // FILE_FLAG_OVERLAPPED so write() will always fail with EINVAL which
+    // protects us from accidental writes.  Tested on Microsoft Windows Server
+    // 2025 10.0.26100.
+    (void)fd;
 #else
     (void)fd;
 #endif
