@@ -219,12 +219,16 @@ static inline void io_protect_from_write(int fd) {
 	    (void)lseek(fd, off_t(0xffffffff000), SEEK_SET);
 	}
     }
-#elif defined __FreeBSD__ || \
+#elif defined __CYGWIN__ || \
+      defined __DragonFly__ || \
+      defined __FreeBSD__ || \
       defined __APPLE__ || \
       defined __NetBSD__ || \
       defined __OpenBSD__ || \
       defined __sun__
     // The maximum off_t value worked in testing on:
+    // * Cygwin 3.6.5
+    // * DragonFlyBSD 6.4.2
     // * FreeBSD 14.0 and 15.0
     // * macOS 10.10 and 12.6
     // * NetBSD 10.0
