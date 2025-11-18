@@ -1,7 +1,7 @@
 /** @file
  * @brief Wrappers for low-level POSIX I/O routines.
  */
-/* Copyright (C) 2004,2006,2007,2008,2009,2011,2012,2014,2015,2016 Olly Betts
+/* Copyright (C) 2004-2025 Olly Betts
  * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or modify
@@ -61,20 +61,15 @@ io_unlink(const std::string & filename)
 }
 
 // The smallest fd we want to use for a writable handle.
+//
+// We want to avoid using fd < MIN_WRITE_FD, in case some other code in the
+// same process tries to write to stdout or stderr, which would end up
+// corrupting our database.
 const int MIN_WRITE_FD = 3;
 
-int
-io_open_block_wr(const char* filename, bool anew)
+static int
+move_to_higher_fd_(int fd)
 {
-    // Use auto because on AIX O_CLOEXEC may be a 64-bit integer constant.
-    auto flags = O_RDWR | O_BINARY | O_CLOEXEC;
-    if (anew) flags |= O_CREAT | O_TRUNC;
-    int fd = ::open(filename, flags, 0666);
-    if (fd >= MIN_WRITE_FD || fd < 0) return fd;
-
-    // We want to avoid using fd < MIN_WRITE_FD, in case some other code in
-    // the same process tries to write to stdout or stderr, which would end up
-    // corrupting our database.
     int badfd = fd;
 #ifdef F_DUPFD_CLOEXEC
     // dup to the first unused fd >= MIN_WRITE_FD.
@@ -117,6 +112,23 @@ io_open_block_wr(const char* filename, bool anew)
 #endif
     Assert(fd >= MIN_WRITE_FD || fd < 0);
     return fd;
+}
+
+static inline int
+move_to_higher_fd(int fd)
+{
+    if (usual(fd >= MIN_WRITE_FD || fd < 0)) return fd;
+    return move_to_higher_fd_(fd);
+}
+
+int
+io_open_block_wr(const char* filename, bool anew)
+{
+    // Use auto because on AIX O_CLOEXEC may be a 64-bit integer constant.
+    auto flags = O_RDWR | O_BINARY | O_CLOEXEC;
+    if (anew) flags |= O_CREAT | O_TRUNC;
+    int fd = ::open(filename, flags, 0666);
+    return move_to_higher_fd(fd);
 }
 
 size_t
