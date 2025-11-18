@@ -130,6 +130,16 @@ io_open_block_wr(const char* filename, bool anew)
     return move_to_higher_fd(fd);
 }
 
+int
+io_open_stream_wr(const char* filename, bool anew)
+{
+    // Use auto because on AIX O_CLOEXEC may be a 64-bit integer constant.
+    auto flags = O_RDWR | O_BINARY | O_CLOEXEC;
+    if (anew) flags |= O_CREAT | O_TRUNC;
+    int fd = ::open(filename, flags, 0666);
+    return move_to_higher_fd(fd);
+}
+
 size_t
 io_read(int fd, char * p, size_t n, size_t min)
 {

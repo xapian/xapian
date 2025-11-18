@@ -158,11 +158,10 @@ class BufferedFile {
 	read_only = read_only_;
 	int fd;
 	if (read_only) {
-	    // FIXME: add new io_open_stream_rd() etc?
-	    fd = io_open_block_rd(path);
+	    fd = io_open_stream_rd(path);
 	} else {
 	    // FIXME: Always create anew for now...
-	    fd = io_open_block_wr(path, true);
+	    fd = io_open_stream_wr(path, true);
 	}
 	if (fd < 0) return false;
 	common = new BufferedFileCommon(fd, 0);

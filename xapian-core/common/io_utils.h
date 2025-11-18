@@ -66,6 +66,40 @@ inline int io_open_block_wr(const std::string& filename, bool anew)
     return io_open_block_wr(filename.c_str(), anew);
 }
 
+/** Open a stream-based file for reading.
+ *
+ *  @param filename  The path of the file to open.
+ */
+inline int io_open_stream_rd(const char* filename) {
+    return ::open(filename, O_RDONLY | O_BINARY | O_CLOEXEC);
+}
+
+/** Open a stream-based file for reading.
+ *
+ *  @param filename  The path of the file to open.
+ */
+inline int io_open_stream_rd(const std::string& filename)
+{
+    return io_open_stream_rd(filename.c_str());
+}
+
+/** Open a stream-based file for writing.
+ *
+ *  @param filename  The path of the file to open.
+ *  @param anew   If true, open the file anew (create or truncate it).
+ */
+int io_open_stream_wr(const char* filename, bool anew);
+
+/** Open a stream-based file for writing.
+ *
+ *  @param filename  The path of the file to open.
+ *  @param anew  If true, open the file anew (create or truncate it).
+ */
+inline int io_open_stream_wr(const std::string& filename, bool anew)
+{
+    return io_open_stream_wr(filename.c_str(), anew);
+}
+
 /** Ensure all data previously written to file descriptor fd has been written to
  *  disk.
  *
