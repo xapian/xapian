@@ -64,12 +64,12 @@ io_unlink(const std::string & filename)
 const int MIN_WRITE_FD = 3;
 
 int
-io_open_block_wr(const char * fname, bool anew)
+io_open_block_wr(const char* filename, bool anew)
 {
     // Use auto because on AIX O_CLOEXEC may be a 64-bit integer constant.
     auto flags = O_RDWR | O_BINARY | O_CLOEXEC;
     if (anew) flags |= O_CREAT | O_TRUNC;
-    int fd = ::open(fname, flags, 0666);
+    int fd = ::open(filename, flags, 0666);
     if (fd >= MIN_WRITE_FD || fd < 0) return fd;
 
     // We want to avoid using fd < MIN_WRITE_FD, in case some other code in
