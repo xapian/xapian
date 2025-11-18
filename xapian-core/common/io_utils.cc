@@ -36,6 +36,10 @@
 #include "omassert.h"
 #include "str.h"
 
+#ifdef __WIN32__
+# include "safewindows.h"
+#endif
+
 // Trying to include the correct headers with the correct defines set to
 // get pread() and pwrite() prototyped on every platform without breaking any
 // other platform is a real can of worms.  So instead we probe for what
@@ -173,6 +177,12 @@ protect_from_write(int fd)
 	// 4.0.19).
 	(void)lseek(fd, off_t(0x20000000000000), SEEK_SET);
     }
+#elif defined __WIN32__
+    // For Microsoft Windows we open the file with CreateFile() and
+    // FILE_FLAG_OVERLAPPED so write() will always fail with EINVAL which
+    // protects us from accidental writes.  Tested on Microsoft Windows Server
+    // 2025 10.0.26100.
+    (void)fd;
 #else
     (void)fd;
 #endif
@@ -181,10 +191,35 @@ protect_from_write(int fd)
 int
 io_open_block_wr(const char* filename, bool anew)
 {
+#ifndef __WIN32__
     // Use auto because on AIX O_CLOEXEC may be a 64-bit integer constant.
     auto flags = O_RDWR | O_BINARY | O_CLOEXEC;
     if (anew) flags |= O_CREAT | O_TRUNC;
     int fd = ::open(filename, flags, 0666);
+#else
+    // Microsoft Windows lacks the POSIX standard function pwrite().
+    // We can still protect the fd from accidental writes by opening the file
+    // with CreateFile() and specifying FILE_FLAG_OVERLAPPED, then wrapping the
+    // returned handle in a file descriptor to give a file descriptor for which
+    // write() fails with EINVAL.  We implement an equivalent to pwrite() using
+    // WriteFile().
+    HANDLE handleWin =
+	CreateFile(filename,
+		   GENERIC_READ | GENERIC_WRITE,
+		   /* Subsequent operations may open this file to read, write
+		    * or delete it */
+		   FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+		   NULL,
+		   anew ? CREATE_ALWAYS : OPEN_EXISTING,
+		   FILE_ATTRIBUTE_NORMAL | FILE_FLAG_OVERLAPPED,
+		   NULL);
+    if (handleWin == INVALID_HANDLE_VALUE) {
+	return posixy_set_errno_from_getlasterror();
+    }
+
+    // Wrap in a standard file descriptor.
+    int fd = _open_osfhandle((intptr_t)(handleWin), O_RDWR|O_BINARY);
+#endif
     if (fd >= 0) {
 	fd = move_to_higher_fd(fd);
 	protect_from_write(fd);
@@ -241,8 +276,8 @@ io_write(int fd, const char * p, size_t n)
 size_t
 io_pread(int fd, char * p, size_t n, off_t o, size_t min)
 {
-    size_t total = 0;
 #ifdef HAVE_PREAD
+    size_t total = 0;
     while (true) {
 	ssize_t c = pread(fd, p, n, o);
 	// We should get a full read most of the time, so streamline that case.
@@ -267,7 +302,36 @@ io_pread(int fd, char * p, size_t n, off_t o, size_t min)
 	n -= c;
 	o += c;
     }
+#elif defined __WIN32__
+    HANDLE h = (HANDLE)_get_osfhandle(fd);
+    if (h == INVALID_HANDLE_VALUE) {
+	// _get_osfhandle() sets errno to EBADF.
+	throw Xapian::DatabaseError("Error reading database", errno);
+    }
+
+    OVERLAPPED overlapped;
+    memset(&overlapped, 0, sizeof(overlapped));
+    overlapped.Offset = (DWORD)o;
+    if constexpr (sizeof(off_t) > 4) {
+	overlapped.OffsetHigh = o >> 32;
+    }
+    DWORD c;
+    if (!ReadFile(h, p, n, &c, &overlapped)) {
+	if (GetLastError() != ERROR_IO_PENDING ||
+	    !GetOverlappedResult(h,
+				 &overlapped,
+				 &c,
+				 TRUE)) {
+	    throw Xapian::DatabaseError("Error reading database",
+					-GetLastError());
+	}
+    }
+    if (c < min) {
+	throw Xapian::DatabaseError("EOF reading database");
+    }
+    return c;
 #else
+    size_t total = 0;
     if (rare(lseek(fd, o, SEEK_SET) < 0))
 	throw Xapian::DatabaseError("Error seeking database", errno);
     while (true) {
@@ -312,6 +376,30 @@ io_pwrite(int fd, const char * p, size_t n, off_t o)
 	p += c;
 	n -= c;
 	o += c;
+    }
+#elif defined __WIN32__
+    HANDLE h = (HANDLE)_get_osfhandle(fd);
+    if (h == INVALID_HANDLE_VALUE) {
+	// _get_osfhandle() sets errno to EBADF.
+	throw Xapian::DatabaseError("Error reading database", errno);
+    }
+
+    OVERLAPPED overlapped;
+    memset(&overlapped, 0, sizeof(overlapped));
+    overlapped.Offset = (DWORD)o;
+    if constexpr (sizeof(off_t) > 4) {
+	overlapped.OffsetHigh = o >> 32;
+    }
+    DWORD c;
+    if (!WriteFile(h, p, n, &c, &overlapped)) {
+	if (GetLastError() != ERROR_IO_PENDING ||
+	    !GetOverlappedResult(h,
+				 &overlapped,
+				 &c,
+				 TRUE)) {
+	    throw Xapian::DatabaseError("Error writing database",
+					-GetLastError());
+	}
     }
 #else
     if (rare(lseek(fd, o, SEEK_SET) < 0))
@@ -366,6 +454,33 @@ io_read_block(int fd, char * p, size_t n, off_t b, off_t o)
 	n -= c;
 	o += c;
     }
+#elif defined __WIN32__
+    // Using ReadFile() seems to be faster than lseek() and read().
+    HANDLE h = (HANDLE)_get_osfhandle(fd);
+    if (h == INVALID_HANDLE_VALUE) {
+	// _get_osfhandle() sets errno to EBADF.
+	throw_block_error("Error reading block ", b, errno);
+    }
+
+    OVERLAPPED overlapped;
+    memset(&overlapped, 0, sizeof(overlapped));
+    overlapped.Offset = (DWORD)o;
+    if constexpr (sizeof(off_t) > 4) {
+	overlapped.OffsetHigh = o >> 32;
+    }
+    DWORD c;
+    if (!ReadFile(h, p, n, &c, &overlapped)) {
+	if (GetLastError() != ERROR_IO_PENDING ||
+	    !GetOverlappedResult(h,
+				 &overlapped,
+				 &c,
+				 TRUE)) {
+	    throw_block_error("Error reading block ", b, -GetLastError());
+	}
+    }
+    if (c != n) {
+	throw_block_error("EOF reading block ", b);
+    }
 #else
     if (rare(lseek(fd, o, SEEK_SET) < 0))
 	throw_block_error("Error seeking to block ", b, errno);
@@ -410,6 +525,29 @@ io_write_block(int fd, const char * p, size_t n, off_t b, off_t o)
 	p += c;
 	n -= c;
 	o += c;
+    }
+#elif defined __WIN32__
+    HANDLE h = (HANDLE)_get_osfhandle(fd);
+    if (h == INVALID_HANDLE_VALUE) {
+	// _get_osfhandle() sets errno to EBADF.
+	throw_block_error("Error writing block ", b, errno);
+    }
+
+    OVERLAPPED overlapped;
+    memset(&overlapped, 0, sizeof(overlapped));
+    overlapped.Offset = (DWORD)o;
+    if constexpr (sizeof(off_t) > 4) {
+	overlapped.OffsetHigh = o >> 32;
+    }
+    DWORD c;
+    if (!WriteFile(h, p, n, &c, &overlapped)) {
+	if (GetLastError() != ERROR_IO_PENDING ||
+	    !GetOverlappedResult(h,
+				 &overlapped,
+				 &c,
+				 TRUE)) {
+	    throw_block_error("Error writing block ", b, -GetLastError());
+	}
     }
 #else
     if (rare(lseek(fd, o, SEEK_SET) < 0))
