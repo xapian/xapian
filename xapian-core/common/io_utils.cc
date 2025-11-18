@@ -28,6 +28,7 @@
 
 #include <cerrno>
 #include <cstring>
+#include <limits>
 #include <string>
 
 #include <xapian/error.h>
@@ -121,6 +122,63 @@ move_to_higher_fd(int fd)
     return move_to_higher_fd_(fd);
 }
 
+/** Protect against stray writes to fds we use pwrite() on.
+ *
+ *  Set the file position high to protect against user code or other libraries
+ *  accidentally trying to write to our fd.  To avoid problems we're rolling
+ *  this out gradually on platforms we've tested it on.
+ */
+static inline void
+protect_from_write(int fd)
+{
+#if !defined HAVE_PREAD || !defined HAVE_PWRITE
+    // No point setting the file position high here as it'll just get reset
+    // by the first block read or write.
+    (void)fd;
+#elif defined __linux__
+    // The maximum off_t value works for at least btrfs.
+    if (lseek(fd, std::numeric_limits<off_t>::max(), SEEK_SET) < 0) {
+	if constexpr (sizeof(off_t) > 4) {
+	    // Try the actual maximum for ext4 (which matches the documented
+	    // maximum filesize) since ext4 is very widely used.
+	    (void)lseek(fd, off_t(0xffffffff000), SEEK_SET);
+	}
+    }
+#elif defined _AIX
+    // It seems prudent to try the maximum off_t value first.
+    if (lseek(fd, std::numeric_limits<off_t>::max(), SEEK_SET) < 0) {
+	if constexpr (sizeof(off_t) > 4) {
+	    // Actual maximum seen in testing AIX 7.1 and 7.3 on JFS.
+	    (void)lseek(fd, off_t(0xffffffff000), SEEK_SET);
+	}
+    }
+#elif defined __CYGWIN__ || \
+      defined __DragonFly__ || \
+      defined __FreeBSD__ || \
+      defined __APPLE__ || \
+      defined __NetBSD__ || \
+      defined __OpenBSD__ || \
+      defined __sun__
+    // The maximum off_t value worked in testing on:
+    // * Cygwin 3.6.5
+    // * DragonFlyBSD 6.4.2
+    // * FreeBSD 14.0 and 15.0
+    // * macOS 10.10 and 12.6
+    // * NetBSD 10.0
+    // * OpenBSD 7.5
+    // * Solaris 10 and 11.4
+    (void)lseek(fd, std::numeric_limits<off_t>::max(), SEEK_SET);
+#elif defined __EMSCRIPTEN__
+    if constexpr (sizeof(off_t) > 4) {
+	// Anything larger fails with EOVERFLOW (tested with Emscripten SDK
+	// 4.0.19).
+	(void)lseek(fd, off_t(0x20000000000000), SEEK_SET);
+    }
+#else
+    (void)fd;
+#endif
+}
+
 int
 io_open_block_wr(const char* filename, bool anew)
 {
@@ -128,7 +186,11 @@ io_open_block_wr(const char* filename, bool anew)
     auto flags = O_RDWR | O_BINARY | O_CLOEXEC;
     if (anew) flags |= O_CREAT | O_TRUNC;
     int fd = ::open(filename, flags, 0666);
-    return move_to_higher_fd(fd);
+    if (fd >= 0) {
+	fd = move_to_higher_fd(fd);
+	protect_from_write(fd);
+    }
+    return fd;
 }
 
 size_t
