@@ -307,7 +307,7 @@ io_pwrite(int fd, const char * p, size_t n, off_t o)
 	    return;
 	if (c < 0) {
 	    if (errno == EINTR) continue;
-	    throw Xapian::DatabaseError("Error writing to file", errno);
+	    throw Xapian::DatabaseError("Error writing database", errno);
 	}
 	p += c;
 	n -= c;
