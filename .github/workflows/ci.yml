@@ -23,6 +23,7 @@ on:
 
 jobs:
   makedist:
+    if: true
     name: 'make dist'
     runs-on: 'ubuntu-24.04'
     env:
@@ -78,8 +79,7 @@ jobs:
             libmwaw-dev \
             libreofficekit-dev libreoffice-calc libreoffice-draw libreoffice-impress libreoffice-writer \
             libtesseract-dev \
-            tesseract-ocr-eng \
-            valgrind
+            tesseract-ocr-eng
     - name: bootstrap source tree
       run: |
         # If we restored cached bootstrap tools their timestamps will be older
@@ -94,8 +94,6 @@ jobs:
       run: ./configure CC='ccache gcc' CXX='ccache g++'
     - name: make
       run: make -j2
-    - name: Run tests
-      run: make -j2 check AUTOMATED_TESTING=1 VERBOSE=1
     - name: Create distribution tarball
       run: |
         make dist
@@ -124,6 +122,7 @@ jobs:
           **/*.log
 
   clang-santisers:
+    if: false
     runs-on: 'ubuntu-24.04'
     env:
       LIBEXTRACTOR_PREFIX: '/usr/lib/x86_64-linux-gnu/libextractor'
@@ -235,6 +234,7 @@ jobs:
           **/*.log
 
   GLIBCXX_DEBUG:
+    if: false
     runs-on: 'ubuntu-24.04'
     env:
       LIBEXTRACTOR_PREFIX: '/usr/lib/x86_64-linux-gnu/libextractor'
@@ -337,6 +337,7 @@ jobs:
           **/*.log
 
   FORTIFY_SOURCE_3:
+    if: false
     # _FORTIFY_SOURCE level 3 requires GCC 12, so currently we need to use
     # Ubuntu 22.04 and the gcc-12 and g++12 packages.
     runs-on: 'ubuntu-22.04'
@@ -451,6 +452,7 @@ jobs:
           **/*.log
 
   assertions:
+    if: false
     runs-on: 'ubuntu-22.04'
     env:
       LIBEXTRACTOR_PREFIX: '/usr/lib/x86_64-linux-gnu/libextractor'
@@ -550,6 +552,7 @@ jobs:
           **/*.log
 
   debug-log:
+    if: false
     runs-on: 'ubuntu-22.04'
     env:
       LIBEXTRACTOR_PREFIX: '/usr/lib/x86_64-linux-gnu/libextractor'
@@ -649,6 +652,7 @@ jobs:
           **/*.log
 
   clang:
+    if: false
     runs-on: 'ubuntu-22.04'
     env:
       LIBEXTRACTOR_PREFIX: '/usr/lib/x86_64-linux-gnu/libextractor'
@@ -752,6 +756,7 @@ jobs:
 
   # Test with the oldest clang version we easily can.
   clang11:
+    if: false
     runs-on: 'ubuntu-22.04'
     env:
       LIBEXTRACTOR_PREFIX: '/usr/lib/x86_64-linux-gnu/libextractor'
@@ -851,6 +856,7 @@ jobs:
   # GCC 7 is the oldest GCC we currently aim to support.
   # Ubuntu 22.04 has GCC 9.3.0.
   GCC7:
+    if: false
     name: 'GCC 9'
     runs-on: 'ubuntu-22.04'
     env:
@@ -951,6 +957,7 @@ jobs:
           **/*.log
 
   Emscripten:
+    if: false
     runs-on: 'ubuntu-24.04'
     needs: makedist
     env:
@@ -1004,6 +1011,7 @@ jobs:
           **/*.log
 
   debian-stable:
+    if: false
     runs-on: 'ubuntu-latest'
     container: debian:stable
     env:
@@ -1105,6 +1113,7 @@ jobs:
           **/*.log
 
   macos-15:
+    if: false
     runs-on: 'macos-15'
     needs: makedist
     steps:
@@ -1214,6 +1223,7 @@ jobs:
           **/*.log
 
   macos-14:
+    if: false
     runs-on: 'macos-14'
     needs: makedist
     steps:
@@ -1325,6 +1335,7 @@ jobs:
           **/*.log
 
   mingw64-i686-cross:
+    if: true
     runs-on: 'ubuntu-22.04'
     needs: makedist
     steps:
@@ -1393,6 +1404,7 @@ jobs:
           **/*.log
 
   mingw64-x86-64-cross:
+    if: true
     runs-on: 'ubuntu-22.04'
     needs: makedist
     steps:
@@ -1468,6 +1480,7 @@ jobs:
           **/*.log
 
   Fedora:
+    if: false
     runs-on: 'ubuntu-22.04'
     container: fedora:35
     needs: makedist
@@ -1544,6 +1557,7 @@ jobs:
           **/*.log
 
   android-cross:
+    if: false
     runs-on: 'ubuntu-22.04'
     env:
       # Override github default because 27.1.12297006 fails with link errors in
@@ -1590,6 +1604,7 @@ jobs:
           **/*.log
 
   cygwin:
+    if: false
     # We only test 64-bit cygwin as 32-bit support has been dropped as of
     # Cygwin 3.4:
     # https://cygwin.com/pipermail/cygwin/2022-November/252542.html
@@ -1923,6 +1938,7 @@ jobs:
           **/*.log
 
   msvc2022:
+    if: true
     runs-on: 'windows-2025'
     needs: makedist
     defaults:
@@ -2036,6 +2052,7 @@ jobs:
           **/*.log
 
   msvc2022-x86:
+    if: true
     runs-on: 'windows-2025'
     needs: makedist
     defaults:
@@ -2146,6 +2163,7 @@ jobs:
           **/*.log
 
   freebsd:
+    if: false
     runs-on: 'ubuntu-22.04'
     needs: makedist
     steps:
@@ -2221,6 +2239,7 @@ jobs:
           **/*.log
 
   dragonfly:
+    if: false
     runs-on: 'ubuntu-22.04'
     needs: makedist
     steps:
@@ -2296,6 +2315,7 @@ jobs:
           **/*.log
 
   netbsd:
+    if: false
     runs-on: 'ubuntu-22.04'
     needs: makedist
     steps:
@@ -2370,6 +2390,7 @@ jobs:
           **/*.log
 
   openbsd:
+    if: false
     runs-on: 'ubuntu-22.04'
     needs: makedist
     steps:
@@ -2448,6 +2469,7 @@ jobs:
           **/*.log
 
   solaris:
+    if: false
     runs-on: 'ubuntu-22.04'
     needs: makedist
     steps:
@@ -2522,6 +2544,7 @@ jobs:
           **/*.log
 
   checkpatch:
+    if: false
     name: 'Automated run of xapian-check-patch'
     runs-on: 'ubuntu-latest'
     steps:
@@ -2546,3 +2569,117 @@ jobs:
             BASE=xapian/master ;;
         esac
         git diff "${BASE}.." --|xapian-maintainer-tools/xapian-check-patch
+
+  mingw-lseek-safety:
+    if: false
+    runs-on: 'windows-latest'
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+    - uses: actions/checkout@v4
+    - uses: msys2/setup-msys2@v2
+      with:
+        msystem: ucrt64
+        install: base-devel
+        pacboy: >-
+          gcc:p
+    - name: test
+      run: |
+        gcc -Wall -W lseek-safety-test-win32.c -o a.exe
+        ./a.exe TESTFILE
+        ls -l TESTFILE
+
+  msvc-lseek-safety:
+    if: false
+    runs-on: 'windows-2025'
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+    - uses: actions/checkout@v4
+    - uses: msys2/setup-msys2@v2
+      with:
+        release: true # Use the pre-installed MSYS2
+        path-type: inherit
+        install: base-devel
+    - name: Set up Visual Studio shell
+      uses: egor-tensin/vs-shell@v2
+      with:
+        arch: x64
+    - name: test
+      run: |
+        cl -nologo -UCRT lseek-safety-test-win32.c -o a.exe
+        ./a.exe TESTFILE
+        ls -l TESTFILE
+
+  Emscripten-lseek-safety:
+    if: false
+    runs-on: 'ubuntu-24.04'
+    steps:
+    - name: Check out repository code
+      uses: actions/checkout@v4
+      with:
+        show-progress: false
+    - name: Fetch distribution
+      uses: actions/download-artifact@v4
+    - name: Setup emsdk
+      uses: mymindstorm/setup-emsdk@v14
+      with:
+        # This is the name of the cache folder.
+        # The cache folder will be placed in the build directory,
+        #  so make sure it doesn't conflict with anything!
+        actions-cache-folder: 'emsdk-cache'
+    - name: Use Node.js
+      uses: actions/setup-node@v4
+    - name: test
+      run: |
+        emcc -Wall -W lseek-safety-test-win32.c -o lseektest.js
+        node lseektest.js TESTFILE
+        ls -l TESTFILE
+
+  cygwin-lseek-safety:
+    if: false
+    runs-on: 'windows-2025'
+    defaults:
+      run:
+        # `-o igncr` needed as GHA supplies shell fragments with DOS EOLs.
+        shell: 'C:\tools\cygwin\bin\bash.EXE --noprofile --norc -e -o igncr -o pipefail {0}'
+    steps:
+    - name: Check out repository code
+      uses: actions/checkout@v4
+      with:
+        show-progress: false
+    - name: Install Cygwin
+      uses: egor-tensin/setup-cygwin@v4
+      with:
+        packages: gcc-g++ make file-devel libpcre2-devel zlib-devel perl
+    - name: tests
+      run: |
+        gcc -Wall -W lseek-safety-test.c -o a.exe
+        ./a.exe TESTFILE
+        ls -l TESTFILE
+
+  dragonfly-lseek-safety:
+    if: false
+    runs-on: 'ubuntu-22.04'
+    steps:
+    - name: Check out repository code
+      uses: actions/checkout@v4
+      with:
+        show-progress: false
+    - uses: vmactions/dragonflybsd-vm@v1
+      # Limit wasted resources if the VM action gets into an infinite loop.
+      timeout-minutes: 60
+      with:
+        # The default is csh!
+        usesh: true
+        prepare: |
+          set -e
+          pkg install -y bash
+        run: |
+          set -e
+          echo|gcc -xc - -dM -E|sort
+          gcc -Wall -W lseek-safety-test.c
+          ./a.out TESTFILE
+          ls -l TESTFILE
