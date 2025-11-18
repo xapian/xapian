@@ -1683,7 +1683,6 @@ GlassTable::do_open_to_write(const RootInfo * root_info,
 	    message += GLASS_TABLE_EXTENSION" read/write";
 	    throw Xapian::DatabaseOpeningError(message, errno);
 	}
-	io_protect_from_write(handle);
     }
 
     writable = true;
