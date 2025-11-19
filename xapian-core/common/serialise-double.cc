@@ -137,9 +137,9 @@ std::string serialise_double(double v)
 
     size_t n = result.size();
     do {
-	unsigned char byte = static_cast<unsigned char>(v);
-	result += char(byte);
-	v -= double(byte);
+	unsigned char next_byte = static_cast<unsigned char>(v);
+	result += char(next_byte);
+	v -= double(next_byte);
 	v *= 256.0;
     } while (v != 0.0 && --maxbytes);
 
