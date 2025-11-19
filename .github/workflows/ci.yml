@@ -488,6 +488,104 @@ jobs:
         path: |
           **/*.log
 
+  valgrind:
+    runs-on: 'ubuntu-24.04'
+    needs: makedist
+    steps:
+    - name: Install CCache
+      uses: hendrikmuhs/ccache-action@v1
+      with:
+        key: ${{ github.job }}
+    - name: Fetch distribution
+      uses: actions/download-artifact@v4
+    - name: Unpack distribution
+      run: |
+        mv artifact/* .
+        rmdir artifact
+        pushd xapian-core
+        tar --strip-components=1 -xf xapian-core-*.tar.xz
+        popd
+        pushd xapian-applications/omega
+        tar --strip-components=1 -xf xapian-omega-*.tar.xz
+        popd
+        pushd xapian-bindings
+        tar --strip-components=1 -xf xapian-bindings-*.tar.xz
+        popd
+        pushd xapian-letor
+        tar --strip-components=1 -xf xapian-letor-*.tar.xz
+        popd
+    - name: Install package dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install \
+            python3-sphinx \
+            uuid-dev \
+            libpcre2-dev \
+            libmagic-dev \
+            lua5.4 \
+            liblua5.4-dev \
+            mono-devel \
+            python3-dev \
+            tcl \
+            tcl-dev \
+            libicu-dev \
+            pkg-config \
+            libpoppler-glib-dev \
+            libglib2.0-dev \
+            libe-book-dev \
+            libetonyek-dev \
+            libgepub-0.7-dev \
+            libgmime-3.0-dev \
+            libarchive-dev \
+            libabw-dev \
+            libcdr-dev \
+            libextractor-dev \
+            libextractor-plugins-all \
+            libmwaw-dev \
+            libreofficekit-dev libreoffice-calc libreoffice-draw libreoffice-impress libreoffice-writer \
+            libtesseract-dev \
+            tesseract-ocr-eng \
+            valgrind
+    - name: configure
+      run: |
+        export CC='ccache gcc'
+        export CXX='ccache g++'
+        pushd xapian-core
+        ./configure --enable-werror
+        export XAPIAN_CONFIG=$PWD/xapian-config
+        popd
+        pushd xapian-applications/omega
+        ./configure --enable-werror
+        popd
+        pushd xapian-bindings
+        ./configure --enable-werror
+        popd
+        pushd xapian-letor
+        ./configure --enable-werror
+        popd
+    - name: make
+      run: |
+        make -j2 -C xapian-core
+        make -j2 -C xapian-applications/omega
+        make -j2 -C xapian-bindings
+        make -j2 -C xapian-letor
+    - name: Run tests
+      run: |
+        export AUTOMATED_TESTING=1
+        export VERBOSE=1
+        make -j2 -C xapian-core check
+        make -j2 -C xapian-applications/omega check
+        make -j2 -C xapian-bindings check
+        make -j2 -C xapian-letor check
+    - name: Save log files
+      if: ${{ failure() }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: logs-${{ github.job }}-${{ github.sha }}
+        overwrite: true
+        path: |
+          **/*.log
+
   assertions:
     runs-on: 'ubuntu-22.04'
     needs: makedist
