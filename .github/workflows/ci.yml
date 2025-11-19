@@ -1108,7 +1108,6 @@ jobs:
         make -j3 -C xapian-bindings
     - name: Run tests
       run: |
-        export LIBEXTRACTOR_PREFIX=${HOMEBREW_PREFIX:-/usr/local}/lib/libextractor
         export AUTOMATED_TESTING=1
         export VERBOSE=1
         make -j3 -C xapian-core check
