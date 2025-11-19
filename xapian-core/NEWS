@@ -1,4 +1,4 @@
-up to: f6f4dcdf5a81f7e742d7548ee25121cac1e5d07c
+up to: 0429dcf3a6dc3a138e5a88cbc7d057a44f4ffda6
 
 Xapian-core 1.4.30 (2025-11-??):
 
@@ -7,6 +7,13 @@ API:
 * Stem: 1.4.28 changed the English stemmer code to remove an exception
   for "skis" which we incorrectly thought wasn't needed.  This was not
   intended to be a functional change, so we've restored the exception.
+
+* Stem: Fix a bug in Snowball's runtime code for decoding 4-byte UTF-8
+  sequences.  This affects grouping checks against Unicode codepoints U+40000
+  to U+7FFFF and U+80000 to U+FFFFF, and we would decode a higher codepoint
+  value.  The largest codepoint used in a grouping in any stemmer we ship is
+  U+0585 so this seems to be a latent bug.  Reported in Snowball by Stephane
+  Carrez.
 
 testsuite:
 
@@ -50,6 +57,14 @@ portability:
   the base class, so delete ended up called with the wrong size.  In practice
   this probably doesn't cause problems (it was detected by checks added to
   recent valgrind versions).
+
+* Fix probe for -Bsymbolic-function on AIX.  The AIX linker doesn't support
+  this flag, but it only emits a warning when it is used and that warning
+  didn't match any of the patterns we already check for so we were detecting it
+  as supported with the result that the build would use this option and AIX ld
+  would emit a warning about ignoring it as unsupported.
+
+* Fix compiler warnings in testsuite when building on AIX.
 
 packaging:
 
