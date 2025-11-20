@@ -68,6 +68,28 @@ Tcl:
 
 * Expand tests for nul.  See #46.
 
+Xapian-bindings 1.4.30 (2025-11-20):
+
+Documentation:
+
+* INSTALL: Replace with an improved version based on xapian-core's INSTALL.
+  Fixes #839, reported by Дилян Палаузов.
+
+Portability:
+
+* Fix "warning: The macro 'AC_HELP_STRING' is obsolete" if autoconf is rerun.
+  In 1.4.19 we updated most uses of this macro, but missed the one for Python2
+  because that isn't on git master where this change was first made.  Reported
+  by jberkel.
+
+Ruby:
+
+* Link to RUBY_LIBS on all platforms.  We were avoiding this on platforms which
+  allow undefined symbols in shared libraries (which then get resolved when the
+  Ruby interpreter dynamically loads the module).  However this was failing to
+  work on macOS, and it seems the Ruby norm is to explicitly link to librubyX.Y
+  so we now do that.  Fixes #837, reported by Graeme Porteous.
+
 Xapian-bindings 1.4.29 (2025-04-18):
 
 Ruby:
@@ -180,8 +202,9 @@ General:
 * configure: DragonflyBSD automatically pulls in library dependencies, so set
   link_all_deplibs_CXX=no there.
 
-* configure: Avoid using lt_cv_objdir, which seems to be a libtool implementation
-  detail.  We already have its value available via a documented interface.
+* configure: Avoid using lt_cv_objdir, which seems to be a libtool
+  implementation detail.  We already have its value available via a documented
+  interface.
 
 Perl:
 
@@ -490,7 +513,8 @@ Portability:
 
 CSharp:
 
-* Wrap const std::string* parameters to accept a string or null in C#.  See #204.
+* Wrap const std::string* parameters to accept a string or null in C#.  See
+  #204.
 
 Java:
 
@@ -4538,8 +4562,8 @@ Java:
 
 Python:
 
-* When converting a python list to vector<string> we know the number of elements
-  so reserve that number in the vector.
+* When converting a python list to vector<string> we know the number of
+  elements so reserve that number in the vector.
 
 Xapian-bindings 0.9.1 (2005-06-06):
 

@@ -200,6 +200,19 @@ debug code:
     (and eliminated a few cases where we can easily not rely on it) and
     added this check to the clang-sanitisers job.
 
+Omega 1.4.30 (2025-11-20):
+
+documentation:
+
+* INSTALL: Replace with improved version based on xapian-core's.
+
+indexers:
+
+* omindex:
+
+  + Fix segmentation fault if an SVG file contains both <dc:title> and <title>
+    with <dc:title> first.  Bug introduced in 1.4.21.
+
 Omega 1.4.29 (2025-04-18):
 
 No changes since 1.4.28 except to bump the version - this release was made to
@@ -290,7 +303,8 @@ portability:
 * configure: NetBSD automatically pulls in library dependencies, so set
   link_all_deplibs_CXX=no there.
 
-* Define __WIN32__/__WIN64__ like we do for xapian-core.  Spotted by Baran Demir.
+* Define __WIN32__/__WIN64__ like we do for xapian-core.  Spotted by Baran
+  Demir.
 
 * Avoid using sprintf() if snprintf() is available, even in cases where the
   output size is bounded to avoid deprecation warnings on macOS.  For 1.4.x
@@ -1475,9 +1489,9 @@ indexers:
 
   + Handle PHP as MIME type text/x-php.  The main difference this makes is that
     PHP files which don't have extension '.php' (e.g. .phtml, .phps, .php5,
-    .ph4, etc) get identified by libmagic as text/x-php and will now be indexed.
-    It also means that the user can now more easily configure different filters
-    for HTML and PHP.
+    .ph4, etc) get identified by libmagic as text/x-php and will now be
+    indexed.  It also means that the user can now more easily configure
+    different filters for HTML and PHP.
 
   + Don't use meta description as sample by default.  Now we have dynamic
     snippets (via $snippet), the body text is a better default.  Also generated
@@ -1836,8 +1850,8 @@ portability:
 
 * Now we require C++11, just include <cstdint> for uint32_t.
 
-* Link omindex-list with our (GNU) getopt for platforms which don't use GNU libc.
-  Thanks to James Aylett
+* Link omindex-list with our (GNU) getopt for platforms which don't use GNU
+  libc.  Thanks to James Aylett
 
 * Add timegm.cc to scriptindex_SOURCES to fix build on platforms which don't
   provide timegm().
@@ -3674,8 +3688,8 @@ build system:
   little, and is what we do elsewhere.
 
 * configure: Warning flags for GCC weren't actually getting used.  Fix this to
-  work and use the same warning flags for GCC and Intel C++ as xapian-core does.
-  Fix all the warnings this uncovered!
+  work and use the same warning flags for GCC and Intel C++ as xapian-core
+  does.  Fix all the warnings this uncovered!
 
 * omega,omindex,scriptindex: Remove some old unused code.
 
@@ -3977,7 +3991,8 @@ Omega 0.9.2 (2005-07-15):
 
 * omega: Added $length{} and $stoplist{} commands to OmegaScript.
 
-* scriptindex: Fix infinite loop if there's no newline at the end of a dumpfile.
+* scriptindex: Fix infinite loop if there's no newline at the end of a
+  dumpfile.
 
 * docs/termprefixes.txt: Explain how to use termprefixes with scriptindex and
   omega, since that's what most people will want to know.
@@ -4047,7 +4062,8 @@ documentation:
 
 * docs/omegascript.txt: Clarify $field description slightly.
 
-* docs/cgiparams.txt,docs/omegascript.txt: Fixed 3 references to OmXxxx classes.
+* docs/cgiparams.txt,docs/omegascript.txt: Fixed 3 references to OmXxxx
+  classes.
 
 * docs/termprefixes.txt: Added a single document covering all aspects of term
   prefixes.
