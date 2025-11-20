@@ -1,6 +1,6 @@
-up to: d72a7d16fe81bf5f6e0e986b95e1d8098256ee84
+up to: 0a0a8ff32010d0b8129d27af5b8ae02ebec670c2
 
-Omega 1.5.0 (2024-0?-??):
+Omega 1.5.0 (2025-0?-??):
 
 general:
 
@@ -53,8 +53,12 @@ indexers:
     for duplicate detection, and also may need to use libmagic to find the
     file's MIME Content-Type).
 
-  + Remove deprecated omindex --preserve-nonduplicates which was replaced by
-    --no-delete in 1.2.4.
+  + Switch hard-coded filter commands to use argv arrays.  We already avoided a
+    shell for them, but now we also avoid the overhead of having to parse a
+    command line string into an argv array.
+
+  + Perform shell emulation parsing before fork() since we're not meant to call
+    malloc() between fork() and exec*().
 
   + Add support for extracting text using a library.  The code which calls
     each library is run in a worker sub-process so that bugs in the library
@@ -74,6 +78,8 @@ indexers:
     The framework and workers were implemented by Bruno Baruffaldi, Parth
     Kapadia and Olly Betts.
 
+  + Add support for indexing Gnumeric spreadsheets.
+
   + Store created time in a value slot.
 
   + Delay relatively expensive libmagic checks and the creation of the
@@ -91,6 +97,9 @@ indexers:
   + Atom feed parsing: type="xhtml" is now understood.
 
   + rfc822tohtml: Warn if "Date:" header parsing fails.
+
+  + Remove deprecated omindex --preserve-nonduplicates which was replaced by
+    --no-delete in 1.2.4.
 
 * scriptindex:
 
@@ -179,6 +188,11 @@ build system:
   xapian-core since 1.3.4 with no reports of issues.
 
 portability:
+
+* Unlike most implementations, Microsoft's mktime() doesn't handle dates
+  before 1970.  We now work around this, which fixes handling of such dates
+  when parsing document metadata for some formats, scriptindex's `parsedate`
+  action, and date range filtering.
 
 packaging:
 

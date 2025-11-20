@@ -1,4 +1,4 @@
-up to: ee0572731bf7731b460d196a46aaeecee8a07508
+up to: 0a0a8ff32010d0b8129d27af5b8ae02ebec670c2
 
 Xapian-core 1.5.0 (2025-1?-??):
 
@@ -57,13 +57,12 @@ API:
   + Portuguese: Replace Spanish suffixes by Portuguese suffixes.  Patch from
     Helder.
 
-  + Romanian: Fix to work with modern unicode text
-    Currently the stemmer does not work with s-comma and t-comma characters,
-    but only with their cedilla "approximations" from before Romanian had
-    full Unicode support.
-    The old cedilla "approximations" are normalized to the proper unicode
-    characters by the stemmer.
-Cherry-picked from snowball upstream, patch by Robert Muir.
+  + Romanian: The stemmer now handles Romanian written using the proper
+    Unicode s-comma and t-comma characters.  Previously only with their cedilla
+    "approximations" which used to be commonly used before Romanian had full
+    Unicode support.  The old cedilla forms are now normalised to the comma
+    forms by the stemmer.  Cherry-picked from snowball upstream, patch by
+    Robert Muir.
 
   + Russian: Normalise "ё" to "e" before stemming.  The Snowball documentation
     for the Russian stemmer has long suggested that the caller should perform
@@ -206,10 +205,10 @@ Cherry-picked from snowball upstream, patch by Robert Muir.
 
 * WritableDatabase::remove_spelling() now works more sensibly with sharded
   databases.  Previously it tried to reduce the frequency by freqdec in
-  each shard, but now it tries to remove the spelling from each shard until all
-  of freqdec has been dealt with, and then returns any "unused" freqdec.  To
-  support this for the remote backend, the remote protocol major version has
-  been bumped (which is why we couldn't address this in 1.4.x).
+  each shard, but now it tries to remove the spelling from each shard in turn
+  until all of freqdec has been dealt with, and then returns any "unused"
+  freqdec.  To support this for the remote backend, the remote protocol major
+  version has been bumped (which is why we couldn't address this in 1.4.x).
 
 * Database and WritableDatabase are now reference counted handles like most
   other API classes - previously they worked like a typedef to vector<shard>
@@ -355,26 +354,23 @@ testsuite:
   https://github.com/xapian/xapian/pull/200 from Guruprasad Hegde, and
   https://github.com/xapian/xapian/pull/294 from Alexander Slesarev.
 
-Author: tanmaysachan <tnmysachan@gmail.com>
-    Add high_resolution_clock to track slow testcases
-    Report testcases which take more than 10 seconds to run.
+* The test harness now times each testcase and reports slow testcases
+  (currently those which take more than 10 seconds to run).  Patch from
+  Tanmay Sachan.
 
-Author: tanmaysachan <tnmysachan@gmail.com>
-    Add remoteprog support to BackendManagerMulti
-    BackendManagerMulti now supports a remoteprog db
-    as an alternate sub manager alongside glass.
+* The test harness how supports sharded databases containing remoteprog
+  shards.  Patch from Tanmay Sachan.
 
 * Add test coverage for collapsing with a percentage cutoff.
 
-* Test get_description() shows correct classname
+* Test get_description() shows the correct classname.
 
-* Run valgrind with --error-limit=no
-    This means that a testsuite run which triggers more than 100 valgrind
-    errors now reports the errors fully for later testcases.
+* Run valgrind with --error-limit=no so that a testsuite run which triggers
+  more than 100 valgrind errors now reports the errors fully for later
+  testcases.
 
-* Add workaround for appveyor test failures
-    It seems we get "rename failed" for no good reason, and retrying it
-    works!
+* Add workaround for appveyor test failures.  Sometimes we get "rename failed"
+  for no obvious reason, and retrying it works!
 
 matcher:
 
@@ -382,9 +378,9 @@ matcher:
   provides a replace() operation that's like push() followed by pop(),
   but more efficient.
 
-* Handle an empty query sooner in get_mset()
-    An empty query means an empty MSet, so it's an easy case to handle
-    without doing much work, and simplifies the matcher a little.
+* Shortcut handling of an empty query.  This always returns an empty MSet
+  so it's an easy case to handle without doing much work, and doing this
+  means the matcher can assume the query isn't empty.
 
 * Reimplement the matcher
     The new implementation handles remote databases by merging MSet objects
@@ -563,12 +559,23 @@ chert backend:
 
 glass backend:
 
-* Protect glass table file descriptors from stray writes.  We only use pwrite()
-  to write to these tables, so try to set the file position to a really high
-  value so that if user code or another library (or errant code in libxapian
-  itself) writes to our file descriptor then it'll fail rather than corrupting
-  the database.  Currently this is enabled for Linux, FreeBSD, macOS, NetBSD
-  and OpenBSD.  Partly addresses #651.
+* Protect glass table file descriptors from stray writes.  Modern platforms
+  support the POSIX pwrite() function, and when available we only use this to
+  write to these tables.  After opening, we can set the file position to a
+  really high value so that if user code or another library (or errant code in
+  libxapian itself) writes to our file descriptor then it'll fail rather than
+  corrupting the database.  Microsoft Windows lack pwrite(), so there we
+  achieve equivalent protection by using lower-level platform-specific
+  functions to open the file with "overlapped IO" enabled, which makes write()
+  fail with EINVAL.
+
+  A suitable value to set the file position to depends on the platform so we're
+  checking platforms before enabling it there.  Currently this protection is
+  enabled for AIX, Cygwin, DragonFlyBSD, Emscripten, FreeBSD, Linux, macOS,
+  Microsoft Windows, NetBSD, OpenBSD and Solaris.  If you'd like to see this
+  on another platform, please talk to us.
+
+  Partly addresses #651.
 
 * Simplify recovery from failed commit()
     We were increasing the revision number by one and attempt to write
@@ -641,15 +648,14 @@ remote backend:
     Eliminate a copy when reading remote document data
     Use C++11 std::move().
 
-Author: tanmaysachan <tnmysachan@gmail.com>
     Use little endian IEEE-754 format for serialising doubles.
-    Fixes #673.
+    Patch from Tanmay Sachan.  Fixes #673.
 
-Author: Gaurav Arora <gauravarora.daiict@gmail.com>
     Add synonym support to the remote backend
     Synonym expansion in the QueryParser is currently handled locally with
     the synonym data sent across the link, which may mean this doesn't scale
     well if you have a lot of synonyms.
+    Patch from Gaurav Arora.
     Closes https://github.com/xapian/xapian/pull/284
     Partly addresses https://trac.xapian.org/ticket/178
 

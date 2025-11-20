@@ -1,6 +1,6 @@
-up to: d72a7d16fe81bf5f6e0e986b95e1d8098256ee84
+up to: 0a0a8ff32010d0b8129d27af5b8ae02ebec670c2
 
-Xapian-bindings 1.5.0 (2024-0?-??):
+Xapian-bindings 1.5.0 (2025-0?-??):
 
 Documentation:
 
@@ -26,6 +26,9 @@ Packaging:
   doubtless maintain their own packaging separately.
 
 Portability:
+
+* C++11 added `thread_local` and we now require at least C++17 so remove code
+  to handle it not being available.
 
 CSharp:
 
