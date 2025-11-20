@@ -32,7 +32,6 @@
 #include <cstdlib>
 #include <ctime>
 #include "parseint.h"
-#include "timegm.h"
 
 using namespace std;
 
