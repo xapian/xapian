@@ -2,7 +2,7 @@ dnl Process this file with autoconf to produce a configure script.
 
 dnl NB When updating the version for a release, update LIBRARY_VERSION_INFO
 dnl below too.
-AC_INIT([xapian-core], [1.4.29], [https://xapian.org/bugs])
+AC_INIT([xapian-core], [1.4.30], [https://xapian.org/bugs])
 dnl See HACKING document for details of the reasons for required versions.
 AC_PREREQ([2.64])
 dnl Extract from the libtool info manual:
@@ -60,7 +60,8 @@ dnl 43:0:13 1.4.26 set_expansion_scheme("prob")
 dnl 43:1:13 1.4.27 No API changes
 dnl 43:0:14 1.4.28 dutch_porter alias in Xapian::Stem; WRONG SOVERSION
 dnl 44:1:14 1.4.29 Fix incorrect SOVERSION in 1.4.28
-LIBRARY_VERSION_INFO=44:1:14
+dnl 44:2:14 1.4.30 No API changes
+LIBRARY_VERSION_INFO=44:2:14
 AC_SUBST([LIBRARY_VERSION_INFO])
 
 if expr `echo "$LIBRARY_VERSION_INFO"|sed 's/:.*:/ - /'` != 30 ; then
