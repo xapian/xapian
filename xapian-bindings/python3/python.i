@@ -64,11 +64,7 @@ development files, or again online at <https://xapian.org/docs/>.
  */
 #define SWIG_PYTHON_NO_USE_GIL
 
-#ifdef THREAD_LOCAL
-
-static THREAD_LOCAL PyThreadState * swig_pythreadstate = NULL;
-
-inline void swig_pythreadstate_ensure_init() { }
+static thread_local PyThreadState * swig_pythreadstate = NULL;
 
 inline PyThreadState * swig_pythreadstate_reset() {
     PyThreadState * v = swig_pythreadstate;
@@ -82,37 +78,6 @@ inline PyThreadState * swig_pythreadstate_set(PyThreadState * v) {
     return old;
 }
 
-#else
-
-#include <pthread.h>
-
-static pthread_key_t swig_pythreadstate_key;
-static pthread_once_t swig_pythreadstate_key_once = PTHREAD_ONCE_INIT;
-
-static void swig_pythreadstate_make_key()
-{
-    if (pthread_key_create(&swig_pythreadstate_key, NULL) != 0)
-	Py_FatalError("pthread_key_create failed");
-}
-
-inline void swig_pythreadstate_ensure_init() {
-    pthread_once(&swig_pythreadstate_key_once, swig_pythreadstate_make_key);
-}
-
-inline PyThreadState * swig_pythreadstate_reset() {
-    PyThreadState * v = (PyThreadState*)pthread_getspecific(swig_pythreadstate_key);
-    if (v) pthread_setspecific(swig_pythreadstate_key, NULL);
-    return v;
-}
-
-inline PyThreadState* swig_pythreadstate_set(PyThreadState * v) {
-    PyThreadState * old = (PyThreadState*)pthread_getspecific(swig_pythreadstate_key);
-    pthread_setspecific(swig_pythreadstate_key, (void*)v);
-    return old;
-}
-
-#endif
-
 class XapianSWIG_Python_Thread_Block {
     bool status;
   public:
@@ -123,7 +88,6 @@ class XapianSWIG_Python_Thread_Block {
 	// deprecated in 3.9.
 	if (!PyEval_ThreadsInitialized()) return;
 #endif
-	swig_pythreadstate_ensure_init();
 	PyThreadState* ts = swig_pythreadstate_reset();
 	if (ts) {
 	    status = true;
@@ -153,7 +117,6 @@ class XapianSWIG_Python_Thread_Allow {
 	    return;
 	}
 #endif
-	swig_pythreadstate_ensure_init();
 	if (swig_pythreadstate_set(PyEval_SaveThread()))
 	    Py_FatalError("swig_pythreadstate set in XapianSWIG_Python_Thread_Allow ctor");
     }
