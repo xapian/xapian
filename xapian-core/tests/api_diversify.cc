@@ -2,7 +2,7 @@
  *  @brief Diversification API tests
  */
 /* Copyright (C) 2018 Uppinder Chugh
- * Copyright (C) 2020 Olly Betts
+ * Copyright (C) 2020,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -30,19 +30,19 @@
 #include "testsuite.h"
 #include "testutils.h"
 
-// Test that diversified document set is not empty
+// Test that diversified MSet doesn't change size.
 DEFINE_TESTCASE(diversify1, backend)
 {
     Xapian::Database db = get_database("apitest_diversify");
     Xapian::Enquire enq(db);
     enq.set_query(Xapian::Query("java"));
     Xapian::MSet matches = enq.get_mset(0, 10);
+    auto msize = matches.size();
+    TEST(msize != 0);
 
     unsigned int k = 4, r = 2;
-    Xapian::Diversify d(k, r);
-    Xapian::DocumentSet dset = d.get_dmset(matches);
-
-    TEST(dset.size() != 0);
+    matches.diversify(k, r);
+    TEST_EQUAL(matches.size(), msize);
 }
 
 /** LCD cluster Test

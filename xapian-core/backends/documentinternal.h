@@ -85,6 +85,23 @@ class Document::Internal : public Xapian::Internal::intrusive_base {
      */
     mutable Xapian::termcount termlist_size;
 
+    /** An index value, unused by Document itself.
+     *
+     *  This is used by the diversification code.
+     *
+     *  It is in a bit field with a bool flag so that it doesn't incur any
+     *  additional space cost for cases where it isn't used.
+     *
+     *  The bool flag is stored in the top bit, which is likely to be very
+     *  cheap to check (since it's the sign bit for a signed integer value).
+     *
+     *  We initialise this in the constructors to avoid valgrind warning
+     *  that positions_modified_ is used uninitialised.  Valgrind is meant
+     *  to track undefined-ness at the bit level, so this shouldn't be
+     *  needed.  FIXME: Investigate!
+     */
+    Xapian::doccount index : 31;
+
     /** Are there any changes to term positions in @a terms?
      *
      *  If a document is read from a database, modified and then replaced at
@@ -95,7 +112,7 @@ class Document::Internal : public Xapian::Internal::intrusive_base {
      *  It's OK for this to be true when there aren't any modifications (it
      *  just means that the backend can't shortcut as directly).
      */
-    mutable bool positions_modified_ = false;
+    mutable bool positions_modified_ : 1;
 
     /** Ensure terms have been fetched from @a database.
      *
@@ -140,7 +157,7 @@ class Document::Internal : public Xapian::Internal::intrusive_base {
     /// Constructor used by subclasses.
     Internal(Xapian::Internal::intrusive_ptr<const Xapian::Database::Internal> database_,
 	     Xapian::docid did_)
-	: database(database_), did(did_) {}
+	: index(), positions_modified_(false), database(database_), did(did_) {}
 
     /// Constructor used by RemoteDocument subclass.
     Internal(const Xapian::Database::Internal* database_,
@@ -148,6 +165,7 @@ class Document::Internal : public Xapian::Internal::intrusive_base {
 	     std::string&& data_,
 	     std::map<Xapian::valueno, std::string>&& values_)
 	: data(new std::string(std::move(data_))),
+	  index(), positions_modified_(false),
 	  values(new std::map<Xapian::valueno, std::string>(std::move(values_))),
 	  database(database_),
 	  did(did_) {}
@@ -176,7 +194,7 @@ class Document::Internal : public Xapian::Internal::intrusive_base {
 
   public:
     /// Construct an empty document.
-    Internal() : did(0) {}
+    Internal() : index(), positions_modified_(false), did(0) {}
 
     /** We have virtual methods and want to be able to delete derived classes
      *  using a pointer to the base class, so we need a virtual destructor.
@@ -233,6 +251,12 @@ class Document::Internal : public Xapian::Internal::intrusive_base {
      *  are being searched.
      */
     Xapian::docid get_docid() const { return did; }
+
+    /// Internal method used by MSet::diversify().
+    Xapian::doccount get_index() const { return index; }
+
+    /// Internal method used by MSet::diversify().
+    void set_index(Xapian::doccount new_index) { index = new_index; }
 
     /// Get the document data.
     std::string get_data() const {

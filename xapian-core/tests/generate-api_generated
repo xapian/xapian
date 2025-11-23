@@ -46,7 +46,6 @@ my %uncopyableclasses = (
 my %copyableclasses = (
     'Database' => '',
     'Document' => '',
-    'Diversify' => '10, 4',
     'ESet' => '',
     'ESetIterator' => '',
     'Enquire' => 'Xapian::Database(std::string(), Xapian::DB_BACKEND_INMEMORY)',

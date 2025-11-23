@@ -2,6 +2,7 @@
  *  @brief Class representing a list of search results
  */
 /* Copyright (C) 2015,2016,2017,2019,2023,2024 Olly Betts
+ * Copyright (C) 2018 Uppinder Chugh
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -62,6 +63,12 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
      *  @param wt	new weight to assign to the document at index @a i
      */
     void set_item_weight(Xapian::doccount i, double wt);
+
+    /// Helper for diversify() method.
+    void diversify_(Xapian::doccount k,
+		    Xapian::doccount r,
+		    double factor1,
+		    double factor2);
 
   public:
     /// Class representing the MSet internals.
@@ -143,6 +150,41 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
      *  This invalidates any MSetIterator objects active on this MSet.
      */
     void sort_by_relevance();
+
+    /** Reorder MSet entries to diversify results.
+     *
+     *  The algorithm used is C²GLS-MPT as described in the paper: Scalable and
+     *  Efficient Web Search Result Diversification, Naini et al. 2016
+     *
+     *  @param  k	The number of MSet entries to make more diverse
+     *  @param  r	Number of documents from each cluster used for
+     *  		building topC
+     *  @param  lambda	Trade-off between relevance of top-k diversified
+     *  		document set and its similarity to the rest of the
+     *  		documents in the document match set.  Must be in
+     *  		the range [0,1] with 0 meaning no weighting to
+     *  		relevance of the diversified document set and 1
+     *  		allowing for full weighting to relevance of the
+     *  		diversified document set.
+     *  @param  b	Parameter for MPT, normally in the range [1,10]
+     *  @param  sigma_sqr	Parameter for MPT, normally in the range
+     *	  			[1e-6,1]
+     */
+    void diversify(Xapian::doccount k,
+		   Xapian::doccount r,
+		   double lambda = 0.5,
+		   double b = 5.0,
+		   double sigma_sqr = 1e-3) {
+	// Inline the argument value checks and the calculation of the scale
+	// factor for score_2 so the compiler can optimise in the case where
+	// some or all parameter values are compile-time constants.
+	if (r == 0)
+	    throw InvalidArgumentError("r must be > 0");
+	if (lambda < 0.0 || lambda > 1.0)
+	    throw InvalidArgumentError("lambda must be between 0 and 1");
+	if (k > 1)
+	    diversify_(k, r, lambda, (1.0 - lambda) * b * sigma_sqr * 2.0);
+    }
 
     /** Convert a weight to a percentage.
      *
