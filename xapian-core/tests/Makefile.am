@@ -101,11 +101,9 @@ collated_apitest_sources = \
  api_anydb.cc \
  api_backend.cc \
  api_closedb.cc \
- api_cluster.cc \
  api_collapse.cc \
  api_compact.cc \
  api_db.cc \
- api_diversify.cc \
  api_generated.cc \
  api_geospatial.cc \
  api_matchspy.cc \
@@ -136,6 +134,8 @@ collated_apitest_sources = \
  api_valuestream.cc \
  api_weight.cc \
  api_wrdb.cc
+
+# FIXME: Need more work before being released: api_cluster.cc api_diversify.cc
 
 apitest_SOURCES = apitest.cc dbcheck.cc $(collated_apitest_sources) \
  api_all.h api_collated.h $(testharness_sources)

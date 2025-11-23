@@ -64,11 +64,13 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
      */
     void set_item_weight(Xapian::doccount i, double wt);
 
+#if 0 // FIXME: Need work before release.
     /// Helper for diversify() method.
     void diversify_(Xapian::doccount k,
 		    Xapian::doccount r,
 		    double factor1,
 		    double factor2);
+#endif
 
   public:
     /// Class representing the MSet internals.
@@ -151,6 +153,7 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
      */
     void sort_by_relevance();
 
+#if 0 // FIXME: Need work before release.
     /** Reorder MSet entries to diversify results.
      *
      *  The algorithm used is C²GLS-MPT as described in the paper: Scalable and
@@ -185,6 +188,7 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
 	if (k > 1)
 	    diversify_(k, r, lambda, (1.0 - lambda) * b * sigma_sqr * 2.0);
     }
+#endif
 
     /** Convert a weight to a percentage.
      *

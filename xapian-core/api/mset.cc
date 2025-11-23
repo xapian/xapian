@@ -24,7 +24,7 @@
 #include "msetinternal.h"
 #include "xapian/mset.h"
 
-#include "xapian/cluster.h"
+// FIXME: Clustering API needs work: #include "xapian/cluster.h"
 
 #include "backends/documentinternal.h"
 #include "net/serialise.h"
@@ -74,6 +74,7 @@ MSet::set_item_weight(Xapian::doccount i, double weight)
     internal->set_item_weight(i, weight);
 }
 
+#if 0 // FIXME: Diversification API needs work.
 /** Evaluate a diversified mset
  *
  *  Evaluate a diversified mset using MPT algorithm
@@ -261,6 +262,7 @@ MSet::diversify_(Xapian::doccount k,
 			 return promoted.count(result.get_docid());
 		     });
 }
+#endif
 
 void
 MSet::sort_by_relevance()
