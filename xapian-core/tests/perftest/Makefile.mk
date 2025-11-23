@@ -18,9 +18,10 @@ perftest/get_machine_info: perftest/get_machine_info.in
 noinst_HEADERS += perftest/perftest.h
 
 collated_perftest_sources = \
- perftest/perftest_diversify.cc \
  perftest/perftest_matchdecider.cc \
  perftest/perftest_randomidx.cc
+
+# FIXME: Need more work before being released: perftest/perftest_diversify.cc
 
 perftest_perftest_SOURCES = perftest/perftest.cc $(collated_perftest_sources) \
  perftest/perftest_all.h perftest/perftest_collated.h \
