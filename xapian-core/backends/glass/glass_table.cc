@@ -573,6 +573,10 @@ GlassTable::compact(uint8_t * p)
 	for (int c = DIR_START; c < dir_end; c += D2) {
 	    LeafItem item(p, c);
 	    int l = item.size();
+	    if (e < l) {
+		throw Xapian::DatabaseCorruptError("Unexpectedly large "
+						   "LeafItem size");
+	    }
 	    e -= l;
 	    memcpy(b + e, item.get_address(), l);
 	    LeafItem_wr::setD(p, c, e);  /* reform in b */
@@ -582,6 +586,10 @@ GlassTable::compact(uint8_t * p)
 	for (int c = DIR_START; c < dir_end; c += D2) {
 	    BItem item(p, c);
 	    int l = item.size();
+	    if (e < l) {
+		throw Xapian::DatabaseCorruptError("Unexpectedly large "
+						   "BItem size");
+	    }
 	    e -= l;
 	    memcpy(b + e, item.get_address(), l);
 	    BItem_wr::setD(p, c, e);  /* reform in b */
