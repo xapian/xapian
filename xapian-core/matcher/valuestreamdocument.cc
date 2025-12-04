@@ -82,7 +82,7 @@ ValueStreamDocument::do_get_value(Xapian::valueno slot) const
 	} else if (vl->get_docid() == did) {
 	    Assert(vl);
 	    string v = vl->get_value();
-	    AssertEq(v, doc->get_value(slot));
+	    AssertEqParanoid(v, doc->get_value(slot));
 	    return v;
 	}
     }
