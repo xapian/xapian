@@ -66,6 +66,7 @@ ValueStreamDocument::do_get_value(Xapian::valueno slot) const
     if (ret.second) {
 	// Entry didn't already exist, so open a value list for slot.
 	vl = database->open_value_list(slot);
+	Assert(vl);
 	ret.first->second = vl;
     } else {
 	vl = ret.first->second;
@@ -80,7 +81,6 @@ ValueStreamDocument::do_get_value(Xapian::valueno slot) const
 	    delete vl;
 	    ret.first->second = NULL;
 	} else if (vl->get_docid() == did) {
-	    Assert(vl);
 	    string v = vl->get_value();
 	    AssertEqParanoid(v, doc->get_value(slot));
 	    return v;
