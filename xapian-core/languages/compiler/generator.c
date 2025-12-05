@@ -2485,7 +2485,15 @@ static void generate_header_file(struct generator * g) {
              "~-~M}~N"
              "~N"
              "~Mstd::string get_description() const override {~N~+"
-             "~Mreturn \"~n\";~N"
+             "~Mreturn \"");
+        for (int i = 0; i < SIZE(o->output_leaf); i++) {
+            byte ch = o->output_leaf[i];
+            if (ch == '\"' || ch == '\\') {
+                write_char(g, '\\');
+            }
+            write_char(g, ch);
+        }
+        w(g, "\";~N"
              "~-~M}~N"
              "~-~M};~N~N");
 
