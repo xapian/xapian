@@ -102,9 +102,8 @@ class XAPIAN_VISIBILITY_DEFAULT Stem {
      *  - english (en) - Martin Porter's 2002 revision of his stemmer
      *  - earlyenglish - Early English (e.g. Shakespeare, Dickens) stemmer
      *    (since Xapian 1.3.2)
-     *  - english_lovins (lovins) - Lovin's stemmer
-     *  - english_porter (porter) - Porter's stemmer as described in
-     *			his 1980 paper
+     *  - lovins - Lovin's English stemmer
+     *  - porter - Porter's English stemmer exactly matching his 1980 paper
      *  - finnish (fi)
      *  - french (fr)
      *  - german (de)
