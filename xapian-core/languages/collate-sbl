@@ -2,7 +2,7 @@
 use strict;
 use warnings;
 my $copyright = <<'EOF';
-/* Copyright (C) 2007,2012,2013,2015 Olly Betts
+/* Copyright (C) 2007,2012,2013,2015,2025 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -41,6 +41,7 @@ EOF
 my $hdr = Tokeniseise->new('languages/sbl-dispatch.h', 'Map string to language code', $copyright, 'XAPIAN_INCLUDED_SBL_DISPATCH_H', 'sbl_code', 2);
 $hdr->add('none', 'NONE');
 my @langs;
+$hdr->append("#define SNOWBALL_DISPATCH \\");
 foreach (sort @ARGV) {
     m{.*/(.*)\.sbl$} or die "Failed to parse snowball source: $_\n";
     my $lang = $1;
@@ -57,7 +58,13 @@ foreach (sort @ARGV) {
     for (split /\s+/, $l) {
 	$hdr->add($_, $enum);
     }
+
+    my $class = $lang;
+    $class =~ s/(?:^|_)([a-z])/\U$1/g;
+    $hdr->append("    case $enum: internal = new Xapian::Internal::Snowball::$class; return; \\");
 }
+$hdr->append("    case NONE: return;");
+$hdr->append("");
 
 print ALL_HEADER <<"EOF";
 

@@ -4,9 +4,6 @@ if VPATH_BUILD
 AM_CPPFLAGS += -I$(top_srcdir)/languages -Ilanguages
 endif
 
-noinst_HEADERS +=\
-	languages/steminternal.h
-
 snowball_algorithms =\
 	languages/arabic.sbl\
 	languages/armenian.sbl\
@@ -51,8 +48,7 @@ snowball_sources =\
 
 snowball_headers =\
 	languages/compiler/header.h\
-	languages/compiler/syswords.h\
-	languages/compiler/syswords2.h
+	languages/compiler/syswords.h
 
 EXTRA_DIST += $(snowball_sources) $(snowball_headers) $(snowball_algorithms) $(snowball_built_sources)\
 	languages/collate-sbl\
@@ -90,21 +86,18 @@ if MAINTAINER_MODE
 $(snowball_built_sources): languages/snowball $(snowball_algorithms)
 
 languages/snowball: $(snowball_sources) $(snowball_headers)
-	$(CC_FOR_BUILD) -o languages/snowball \
-	    -DDISABLE_CSHARP -DDISABLE_GO -DDISABLE_JAVA -DDISABLE_JS -DDISABLE_PASCAL -DDISABLE_PYTHON -DDISABLE_RUST \
+	$(CC_FOR_BUILD) -g -o languages/snowball -DTARGET_C_ONLY \
 	    `for f in $(snowball_sources) ; do test -f $$f && echo $$f || echo $(srcdir)/$$f ; done`
 
-# /bin/tr on Solaris doesn't follow POSIX and requires [ and ] around ranges.
-# With a POSIX-compliant tr, these are harmless as they mean replace [ with [
-# and ] with ].
 .sbl.cc:
-	languages/snowball $< -o `echo $@|$(SED) 's!\.cc$$!!'` -c++ -u -n InternalStem`echo $<|$(SED) 's!.*/\(.\).*!\1!'|tr '[a-z]' '[A-Z]'``echo $<|$(SED) 's!.*/.!!;s!\.sbl!!'` -p SnowballStemImplementation
+	languages/snowball $< -o $@ -c++ -u \
+		-p 'Xapian::StemImplementation' \
+		-P 'Xapian::Internal::Snowball' \
+		-cheader 'config.h' \
+		-hheader 'xapian/stem.h'
 
-# /bin/tr on Solaris doesn't follow POSIX and requires [ and ] around ranges.
-# With a POSIX-compliant tr, these are harmless as they mean replace [ with [
-# and ] with ].
 .sbl.h:
-	languages/snowball $< -o `echo $@|$(SED) 's!\.h$$!!'` -c++ -u -n InternalStem`echo $<|$(SED) 's!.*/\(.\).*!\1!'|tr '[a-z]' '[A-Z]'``echo $<|$(SED) 's!.*/.!!;s!\.sbl!!'` -p SnowballStemImplementation
+	touch $<
 
 languages/allsnowballheaders.h: languages/sbl-dispatch.h
 languages/sbl-dispatch.h languages/allsnowballheaders.h: languages/collate-sbl languages/Makefile.mk common/Tokeniseise.pm
@@ -116,6 +109,10 @@ BUILT_SOURCES += $(snowball_built_sources)\
 CLEANFILES += languages/snowball
 endif
 
+noinst_HEADERS +=\
+	languages/api.h\
+	languages/snowball_runtime.h
+
 lib_src += $(snowball_built_sources)\
-	languages/stem.cc\
-	languages/steminternal.cc
+	languages/stem.cc \
+	languages/utilities.cc
