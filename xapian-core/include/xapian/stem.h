@@ -128,7 +128,8 @@ class XAPIAN_VISIBILITY_DEFAULT Stem {
      *
      *  Also dutch_porter is an alias for dutch since Xapian 1.4.28 (to
      *  provide forward compatibility to the next release series where
-     *  we plan to switch to using the kraaij_pohlmann stemmer by default).
+     *  we will switch dutch to refer to a version of the kraaij_pohlmann
+     *  stemmer).
      *
      *  @param fallback If true then treat unknown @a language as "none",
      *			otherwise an exception is thrown (default: false).
