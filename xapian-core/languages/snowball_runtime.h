@@ -5,9 +5,16 @@
 
 #define HEAD 2*sizeof(int)
 
-#define SIZE(p)        ((const int *)(p))[-1]
-#define SET_SIZE(p, n) ((int *)(p))[-1] = n
-#define CAPACITY(p)    ((int *)(p))[-2]
+#ifdef __cplusplus
+/* Use reinterpret_cast<> to avoid -Wcast-align warnings from clang++. */
+# define SIZE(p)        (reinterpret_cast<const int *>(p))[-1]
+# define SET_SIZE(p, n) (reinterpret_cast<int *>(p))[-1] = n
+# define CAPACITY(p)    (reinterpret_cast<int *>(p))[-2]
+#else
+# define SIZE(p)        ((const int *)(p))[-1]
+# define SET_SIZE(p, n) ((int *)(p))[-1] = n
+# define CAPACITY(p)    ((int *)(p))[-2]
+#endif
 
 #ifdef SNOWBALL_RUNTIME_THROW_EXCEPTIONS
 # define SNOWBALL_ERR void
