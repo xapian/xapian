@@ -1,176 +1,328 @@
-// Alias: nl dutch_porter
+// Alias: nl kraaij_pohlmann
+
+// Dutch stemming algorithm developed by Wessel Kraaij and Renée Pohlmann
+
+strings ( ch )
+integers ( p1 p2 )
+booleans ( stemmed GE_removed )
 
 routines (
-           prelude postlude
-           e_ending
-           en_ending
-           mark_regions
-           R1 R2
-           undouble
-           standard_suffix
+
+   R1 R2
+   C V VX
+   lengthen_V
+   Step_1 Step_2 Step_3 Step_4 Step_7
+   Step_6 Step_1c
+   Lose_prefix
+   Lose_infix
+   measure
 )
 
 externals ( stem )
 
-booleans ( e_found )
-
-integers ( p1 p2 )
-
-groupings ( v v_I v_j )
+groupings ( v v_WX A AEIOU AIOU E I O U )
 
 stringescapes {}
 
 /* special characters */
 
+stringdef a`   '{U+00E0}'
+stringdef a'   '{U+00E1}'
+stringdef a^   '{U+00E2}'
 stringdef a"   '{U+00E4}'
+stringdef e`   '{U+00E8}'
+stringdef e'   '{U+00E9}'
+stringdef e^   '{U+00EA}'
 stringdef e"   '{U+00EB}'
+stringdef i`   '{U+00EC}'
+stringdef i'   '{U+00ED}'
+stringdef i^   '{U+00EE}'
 stringdef i"   '{U+00EF}'
+stringdef o`   '{U+00F2}'
+stringdef o'   '{U+00F3}'
+stringdef o^   '{U+00F4}'
 stringdef o"   '{U+00F6}'
+stringdef u`   '{U+00F9}'
+stringdef u'   '{U+00FA}'
+stringdef u^   '{U+00FB}'
 stringdef u"   '{U+00FC}'
 
-stringdef a'   '{U+00E1}'
-stringdef e'   '{U+00E9}'
-stringdef i'   '{U+00ED}'
-stringdef o'   '{U+00F3}'
-stringdef u'   '{U+00FA}'
+define A        'a{a"}{a'}{a`}{a^}'
+define E        'e{e"}{e'}{e`}{e^}'
+define I        'i{i"}{i'}{i`}{i^}'
+define O        'o{o"}{o'}{o`}{o^}'
+define U        'u{u"}{u'}{u`}{u^}'
 
-stringdef e`   '{U+00E8}'
-
-define v       'aeiouy{e`}'
-define v_I     v + 'I'
-define v_j     v + 'j'
-
-define prelude as (
-    test repeat (
-        [substring] among(
-            '{a"}' '{a'}'
-                (<- 'a')
-            '{e"}' '{e'}'
-                (<- 'e')
-            '{i"}' '{i'}'
-                (<- 'i')
-            '{o"}' '{o'}'
-                (<- 'o')
-            '{u"}' '{u'}'
-                (<- 'u')
-            ''  (next)
-        )
-    )
-    try(['y'] <- 'Y')
-    repeat (
-        gopast v
-        try (
-            // If we see `i` not followed by a vowel then we know it couldn't
-            // match on the next iteration so we can advance past it.
-            //
-            // However if we replace `i` with `I` we do need to check the vowel
-            // after the `i` in the next iteration to match the documented
-            // behaviour, e.g. consider input `iiiii`.  This may well not make
-            // a difference for any actual Dutch words though.
-            [('i'] do(v <- 'I')) or
-             ('y']      <- 'Y')
-        )
-    )
-)
-
-define mark_regions as (
-
-    $p1 = limit
-    $p2 = limit
-
-    gopast v  gopast non-v  setmark p1
-    try($p1 < 3  $p1 = 3)  // at least 3
-    gopast v  gopast non-v  setmark p2
-
-)
-
-define postlude as repeat (
-
-    [substring] among(
-        'Y'  (<- 'y')
-        'I'  (<- 'i')
-        ''   (next)
-    )
-
-)
+define AIOU     A + I + O + U
+define AEIOU    A + E + I + O + U
+define v        AEIOU + 'y'
+define v_WX     v + 'wx'
 
 backwardmode (
 
-    define R1 as $p1 <= cursor
-    define R2 as $p2 <= cursor
+    define R1 as ($p1 <= cursor)
+    define R2 as ($p2 <= cursor)
 
-    define undouble as (
-        test among('kk' 'dd' 'tt') [next] delete
+    define V  as test (v or 'ij')
+    define VX as test (next v or 'ij')
+    define C  as test (not 'ij' non-v)
+
+    define lengthen_V as do (
+        non-v_WX
+        [substring] among (
+            'a' '{a"}' '{a'}' '{a`}' '{a^}'
+            'o' '{o"}' '{o'}' '{o`}' '{o^}'
+            'u' '{u"}' '{u'}' '{u`}' '{u^}'
+                (test (non-AEIOU or atlimit)
+                 ->ch insert ch)
+            'e' '{e'}' '{e`}' '{e^}'
+                (test (non-AEIOU or atlimit
+                               not (AIOU or (E atlimit))
+                               not (next AIOU non-AEIOU))
+                 ->ch insert ch)
+            'e{e"}'
+                (<-'e{e"}e')
+            'i{e"}'
+                (<-'iee')
+        )
     )
 
-    define e_ending as (
-        unset e_found
-        ['e'] R1 test non-v delete
-        set e_found
-        undouble
+    define Step_1 as
+    (
+        [substring] among (
+
+            '{'}s' (delete)
+            's'    (R1 not ('t' R1) C delete)
+            'ies'  (R1 <-'ie')
+            'es'
+                   ((test ('ar' R1 C) delete lengthen_V) or
+                    (test ('er' R1 C) delete) or
+                    (R1 C <-'e'))
+
+            '{e'}s'
+                   (R1 <-'{e'}')
+            'aus'  (R1 V <-'au')
+            'en'   (('hed' R1 ] <-'heid') or
+                    ('nd' delete) or
+                    ('d' R1 C ] delete) or
+                    ('i' or 'j' V delete) or
+                    (R1 C delete lengthen_V))
+            'nde'  (<-'nd')
+        )
     )
 
-    define en_ending as (
-        R1 non-v and not 'gem' delete
-        undouble
+    define Step_2 as
+    (
+        [substring] among (
+            'je'   (('{'}t' ] delete) or
+                    ('et'   ] R1 C delete) or
+                    ('rnt'  ] <-'rn') or
+                    ('t'    ] R1 VX delete) or
+                    ('ink'  ] <-'ing') or
+                    ('mp'   ] <-'m') or
+                    ('{'}'  ] R1 delete) or
+                    (] R1 C delete))
+            'ge'   (R1 <-'g')
+            'lijke'(R1 <-'lijk')
+            'ische'(R1 <-'isch')
+            'de'   (R1 C delete)
+            'te'   (R1 <-'t')
+            'se'   (R1 <-'s')
+            're'   (R1 <-'r')
+            'le'   (R1 delete attach 'l' lengthen_V)
+            'ene'  (R1 C delete attach 'en' lengthen_V)
+            'ieve' (R1 C <-'ief')
+        )
     )
 
-    define standard_suffix as (
-        do (
-            [substring] among(
-                'heden'
-                (   R1 <- 'heid'
-                )
-                'en' 'ene'
-                (   en_ending
-                )
-                's' 'se'
-                (   R1 non-v_j delete
-                )
+    define Step_3 as
+    (
+        [substring] among (
+            'atie'  (R1 <-'eer')
+            'iteit' (R1 delete lengthen_V)
+            'heid'
+            'sel'
+            'ster'  (R1 delete)
+            'rder'  (<-'r')
+            'ing'
+            'isme'
+            'erij'  (// Exception added to avoid conflating
+                     // `schilderij` (painting) and `schild` (shield).
+                     ('ild' <- 'er')
+                     or
+                     (R1 delete lengthen_V))
+            'arij'  (R1 C <-'aar')
+            'fie'   (R2 delete attach 'f' lengthen_V)
+            'gie'   (R2 delete attach 'g' lengthen_V)
+            'tst'   (R1 C <-'t')
+            'dst'   (R1 C <-'d')
+        )
+    )
+
+    define Step_4 as
+    (
+        (   [substring] among (
+                'ioneel'  (R1 <-'ie')
+                'atief'   (R1 <-'eer')
+                'baar'    (R1 delete)
+                'naar'    (R1 V <-'n')
+                'laar'    (R1 V <-'l')
+                'raar'    (R1 V <-'r')
+                'tant'    (R1 <-'teer')
+                'lijker'
+                'lijkst'  (R1 <-'lijk')
+                'achtig'
+                'achtiger'
+                'achtigst'(R1 delete)
+                'eriger'
+                'erigst'
+                'erig'
+                'end'     (R1 C delete lengthen_V)
             )
         )
-        do e_ending
-
-        do ( ['heid'] R2 not 'c' delete
-             ['en'] en_ending
-           )
-
-        do (
-            [substring] among(
-                'end' 'ing'
-                (   R2 delete
-                    (['ig'] R2 not 'e' delete) or undouble
-                )
-                'ig'
-                (   R2 not 'e' delete
-                )
-                'lijk'
-                (   R2 delete e_ending
-                )
-                'baar'
-                (   R2 delete
-                )
-                'bar'
-                (   R2 e_found delete
-                )
+        or
+        (   [substring] among (
+                'iger'
+                'igst'
+                'ig'      (R1
+                           // Exception added to avoid conflating
+                           // `innig` (intimate) and `in` (in).
+                           not ('inn' atlimit)
+                           C delete lengthen_V)
             )
         )
-        do (
-            non-v_I
-            test (
-                among ('aa' 'ee' 'oo' 'uu')
-                non-v
+    )
+
+    define Step_7 as
+    (
+        [substring] among (
+            'kt'   (<-'k')
+            'ft'   (<-'f')
+            'pt'   (<-'p')
+        )
+    )
+
+    define Step_6 as
+    (
+        [substring] among (
+            'bb'   (<-'b')
+            'cc'   (<-'c')
+            'dd'   (<-'d')
+            'ff'   (<-'f')
+            'gg'   (<-'g')
+            'hh'   (<-'h')
+            'jj'   (<-'j')
+            'kk'   (<-'k')
+            'll'   (<-'l')
+            'mm'   (<-'m')
+            'nn'   (// Exception added to avoid conflating
+                    // `innen` (to collect/cash) and `in` (in).
+                    not ('i' atlimit)
+                    <-'n')
+            'pp'   (<-'p')
+            'qq'   (<-'q')
+            'rr'   (<-'r')
+            'ss'   (<-'s')
+            'tt'   (<-'t')
+            'vv'   (<-'v')
+            'ww'   (<-'w')
+            'xx'   (<-'x')
+            'zz'   (<-'z')
+            'v'    (<-'f')
+            'z'    (<-'s')
+        )
+    )
+
+    define Step_1c as
+    (
+        [substring] R1 C among (
+            'd' (not ('n' R1)
+                 // Exception added to avoid conflating
+                 // `geïnd` (collected/cashed) and `in` (in).
+                 // Instead we conflate `geïnd` with `innen`.
+                 ('in' atlimit <-'n') or
+                 delete)
+            't' (not ('h' R1)
+                 // Exception added to avoid conflating
+                 // `geënt` (grafted) and `en` (and).
+                 not ('en' atlimit)
+                 delete
             )
-            [next] delete
         )
     )
 )
 
+define Lose_prefix as (
+    ['ge'] test hop 3 test (gopast ('ij' or v) repeat ('ij' or v) not atlimit)
+    // Exceptions added:
+    among (
+        // Avoid conflating `geeft` and `effen`/`effende`\`geeffende`.
+        'eft' (false)
+
+        // Avoid conflating `gevallen`/`geval` and `vallen`.
+        'val' (false)
+        'vali' (true)
+
+        // Avoid conflating `gevaren`/`gevaar` (danger), `gevaarten` (huge
+        // objects) and `varen` (to sail)
+        'vaa' 'vare' (false)
+
+        '' (true)
+    )
+    set GE_removed
+    delete
+    do ( [substring] among (
+        '{e"}' (<-'e')
+        '{i"}' (<-'i')
+      )
+    )
+)
+
+define Lose_infix as (
+    next
+    gopast (['ge']) test hop 3 test (gopast ('ij' or v) repeat ('ij' or v) not atlimit)
+    set GE_removed
+    delete
+    do ( [substring] among (
+        '{e"}' (<-'e')
+        '{i"}' (<-'i')
+      )
+    )
+)
+
+define measure as (
+    $p1 = limit
+    $p2 = limit
+    do(
+        repeat non-v  atleast 1 ('ij' or v)  non-v  setmark p1
+        repeat non-v  atleast 1 ('ij' or v)  non-v  setmark p2
+    )
+
+)
 define stem as (
 
-        do prelude
-        do mark_regions
-        backwards
-            do standard_suffix
-        do postlude
+    unset stemmed
+
+    measure
+
+    backwards (
+            do (Step_1 set stemmed )
+            do (Step_2 set stemmed )
+            do (Step_3 set stemmed )
+            do (Step_4 set stemmed )
+    )
+    unset GE_removed
+    do (Lose_prefix and measure)
+    backwards (
+            do (GE_removed set stemmed Step_1c)
+        )
+    unset GE_removed
+    do (Lose_infix and measure)
+    backwards (
+            do (GE_removed set stemmed Step_1c)
+        )
+    backwards (
+            do (Step_7 set stemmed )
+            do (stemmed Step_6)
+        )
 )

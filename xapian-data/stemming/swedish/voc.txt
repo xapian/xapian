@@ -221,6 +221,7 @@ agera
 agerande
 agg
 aggande
+aggressivitet
 agn
 agnar
 agnes
@@ -269,6 +270,7 @@ albuske
 aldng
 aldrig
 alexander
+alfabet
 alfred
 alfvar
 algeriet
@@ -599,6 +601,8 @@ annorstädes
 annoterade
 anns
 annu
+annuitet
+anonymitet
 anonymt
 anordnande
 anordningar
@@ -720,6 +724,7 @@ antidreyfusistisk
 antik
 antika
 antikvariat
+antikvitet
 antikviteter
 antingen
 antisemitism
@@ -970,6 +975,7 @@ aura
 auskultant
 australien
 australneger
+autenticitet
 automat
 automatiskt
 automobil
@@ -1386,6 +1392,10 @@ bart
 basar
 baserad
 basilisken
+basröst
+basrösten
+basröster
+basrösterna
 bastanta
 bastigt
 bastu
@@ -3913,6 +3923,7 @@ dens
 densamma
 densamme
 denscöconens
+densitet
 departemanget
 departement
 deporterad
@@ -4873,6 +4884,7 @@ elegant
 eleganta
 eleganten
 eleganter
+elektricitet
 elektrisk
 elektriska
 elektriskt
@@ -5039,6 +5051,7 @@ epileptisk
 episod
 episoder
 epistlar
+epitet
 epok
 epokgörande
 epåletter
@@ -5531,6 +5544,9 @@ fi
 fiaddra
 fiat
 fibrer
+fibrös
+fibrösa
+fibröst
 fichn
 ficj
 fick
@@ -5751,6 +5767,7 @@ fler
 flera
 flesta
 flestas
+flexibilitet
 fli
 flicka
 flickaktig
@@ -8181,6 +8198,9 @@ förökat
 förökning
 förövas
 fösa
+föst
+föste
+föstes
 fött
 föttcrna
 fötter
@@ -8370,6 +8390,12 @@ generat
 generation
 generationer
 generations
+generositet
+generös
+generösa
+generösare
+generöse
+generöst
 gengäld
 geni
 genier
@@ -8571,6 +8597,10 @@ gladja
 gladlynt
 gladt
 glam
+glamorös
+glamorösa
+glamorösare
+glamoröst
 glan
 glans
 glansen
@@ -8864,6 +8894,7 @@ gravar
 gravarna
 graven
 gravera
+graviditet
 gravlika
 gravstenar
 gravstenarna
@@ -9209,6 +9240,7 @@ gummiring
 gummor
 gummorna
 gummors
+gumröst
 gung
 gunga
 gungade
@@ -11153,6 +11185,7 @@ ideligen
 ideligt
 iden
 identifiera
+identitet
 idio
 idiot
 idioten
@@ -11361,6 +11394,9 @@ inbränt
 inbunden
 inburen
 inbäddad
+incestuös
+incestuösa
+incestuöst
 ind
 indad
 inde
@@ -11619,6 +11655,7 @@ inspiration
 inspirationer
 insprängande
 inspärrad
+instabilitet
 installerad
 insteg
 instiftelseorden
@@ -11673,8 +11710,10 @@ intagit
 intar
 intc
 inte
+integritet
 intelligens
 intelligent
+intensitet
 intensivt
 interiör
 intermezzot
@@ -11688,6 +11727,7 @@ intillträdgårdensstora
 intima
 intimare
 intime
+intimitet
 intimt
 intog
 intogos
@@ -11695,6 +11735,7 @@ intonerade
 intorkade
 intrassla
 intrasslade
+intravenöst
 intressant
 intressanta
 intressantare
@@ -12359,6 +12400,7 @@ kantring
 kaos
 kapa
 kapabel
+kapacitet
 kapell
 kapellens
 kapital
@@ -12989,9 +13031,12 @@ kolsyran
 kolt
 kolv
 kom
+komatösa
+komatöst
 komediantfolk
 komedien
 komedier
+komet
 komfortabelt
 komisk
 komiskt
@@ -13023,6 +13068,7 @@ kommo
 kommod
 kommoden
 kommunionen
+kommunitet
 komna
 kompan
 kompaner
@@ -13032,7 +13078,9 @@ kompanjonerna
 kompanjons
 kompanjonskap
 kompass
+kompatibilitet
 kompetent
+komplexitet
 komplimang
 komponerar
 kompositören
@@ -13117,6 +13165,7 @@ kontanta
 kontanter
 konterfej
 kontinent
+kontinuitet
 kontor
 kontoret
 kontrabesök
@@ -13645,6 +13694,7 @@ kvall
 kvalm
 kvalmig
 kvalmiga
+kvantitet
 kvar
 kvarblevo
 kvarglömd
@@ -14270,6 +14320,7 @@ lefvernet
 legat
 legenden
 legendens
+legitimitet
 lejd
 lejon
 lejonet
@@ -14490,6 +14541,7 @@ liktydigt
 likvidera
 likviderade
 likviderande
+likviditet
 likvisst
 likväl
 likör
@@ -14870,6 +14922,7 @@ luktar
 lukten
 luktärter
 lullade
+luminositet
 lummiga
 lummigt
 lump
@@ -15466,6 +15519,7 @@ maj
 majestät
 majestätet
 majestäts
+majoritet
 majrock
 majsen
 majstänger
@@ -15610,6 +15664,7 @@ maskiner
 maskineriet
 maskinerna
 maskor
+maskulinitet
 mass
 massa
 massage
@@ -15790,6 +15845,8 @@ mellanrummet
 mellantid
 mellantiden
 mellantider
+mellanöstern
+mellanösterns
 mellberg
 meller
 mellersta
@@ -15863,6 +15920,7 @@ meta
 metade
 metall
 metallens
+metallicitet
 metallisk
 metallklangen
 metar
@@ -16125,6 +16183,7 @@ mn
 mna
 mngen
 mnn
+mobilitet
 mod
 modd
 modehandlerskor
@@ -16141,6 +16200,7 @@ moderlöse
 modern
 moderna
 moderniserad
+modernitet
 moderns
 modernt
 moders
@@ -16193,6 +16253,9 @@ monark
 monda
 mondäna
 monsieur
+monstruös
+monstruösa
+monstruöst
 monte
 montmartre
 mor
@@ -17060,6 +17123,7 @@ net
 neta
 netas
 netty
+neutralitet
 ni
 nia
 niais
@@ -17580,6 +17644,7 @@ oblandad
 oblandadt
 obligeant
 obligera
+oblikvitet
 oblyg
 oblyga
 oblygare
@@ -18645,6 +18710,7 @@ pastorn
 pastorns
 pastorsadjunkt
 pastorsadjunkten
+pastöst
 patent
 pater
 paternoster
@@ -19046,6 +19112,10 @@ politiker
 politiska
 polityr
 polityrkärl
+pompös
+pompösa
+pompöse
+pompöst
 pomril
 ponerar
 ponken
@@ -19089,10 +19159,15 @@ portvalvet
 portvin
 portör
 portören
+porös
+porösa
+porösare
+poröst
 pose
 poserande
 poserar
 position
+positivitet
 post
 postb
 postbäraren
@@ -19201,6 +19276,7 @@ prinsen
 prinsessa
 prinsessan
 prior
+prioritet
 pris
 prisa
 prisade
@@ -19390,6 +19466,7 @@ psykiska
 psykofjanter
 ptockade
 pu
+publicitet
 publik
 publika
 publiken
@@ -19590,6 +19667,7 @@ påverkan
 pöbeln
 pöbelvanan
 pölar
+pösa
 pöser
 pöste
 qu
@@ -20043,7 +20121,11 @@ ridån
 rierna
 rigeln
 riggad
+rigiditet
 rigla
+rigorös
+rigorösa
+rigoröst
 rigtad
 rigtig
 rigtiga
@@ -20134,6 +20216,7 @@ ritat
 rium
 riva
 rival
+rivalitet
 rivande
 river
 rivilligt
@@ -20715,7 +20798,9 @@ röst
 rösten
 röstens
 röster
+röstern
 rösterna
+rösters
 rösts
 röt
 röta
@@ -21166,6 +21251,7 @@ sentimentalt
 september
 septemberdag
 ser
+serendipitet
 sermo
 servera
 serverade
@@ -21196,6 +21282,7 @@ sextonskilling
 sextonårig
 sextonåriga
 sextonårigt
+sexualitet
 sf
 sffälle
 sfi
@@ -23418,6 +23505,7 @@ spleen
 splitter
 spolen
 spoling
+spontanitet
 spord
 sporer
 sporra
@@ -24457,6 +24545,7 @@ sutinera
 sutte
 suttit
 sutto
+suveränitet
 svada
 svag
 svaga
@@ -24711,6 +24800,9 @@ sybågen
 sydamerika
 sydde
 sydhavspalm
+sydöst
+sydösta
+sydöstra
 syfilidologi
 syforening
 syforeningens
@@ -25247,6 +25339,8 @@ talorgan
 talrika
 talriken
 talrikhet
+talröst
+talrösten
 talt
 talte
 taltes
@@ -28017,6 +28111,8 @@ utöfvade
 utöfvandet
 utöfvat
 utöfver
+utösa
+utöst
 utöva
 utövade
 utövar
@@ -28277,6 +28373,7 @@ varf
 varfor
 varför
 vari
+variabilitet
 variant
 varibland
 variden
@@ -28451,6 +28548,7 @@ veno
 venster
 venstra
 venus
+venöst
 ver
 verallt
 veranda
@@ -28852,7 +28950,12 @@ viskning
 viskningar
 viskningarna
 viskningen
+viskositet
 visky
+viskös
+viskösa
+viskösare
+visköst
 visligen
 visor
 visorna
@@ -28932,6 +29035,7 @@ voa
 voila
 voix
 voll
+voluminöst
 volym
 volymer
 von
@@ -30179,6 +30283,7 @@ zuaver
 ödas
 ödda
 öde
+ödematöst
 öden
 ödesbestämda
 ödesbestämt
@@ -30438,6 +30543,7 @@ zuaver
 ösa
 ösregn
 ösregna
+öst
 östan
 östanvinden
 öste
@@ -30615,6 +30721,15 @@ zuaver
 överväldigad
 överändakastad
 överändakastade
+överösa
+överösas
+överöser
+överöses
+överöst
+överösta
+överöste
+överöstes
+överösts
 övning
 övningen
 övre

@@ -9773,6 +9773,7 @@ būv
 būv
 būv
 būt
+bʰ
 c
 ca
 café
@@ -80950,7 +80951,6 @@ zur
 zygomatic
 zyl
 zyl
-×
 ß
 à
 á
@@ -86101,4 +86101,5 @@ t
 žūt
 ƒ
 ǝ
+ə
 ẽ

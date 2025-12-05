@@ -1288,7 +1288,7 @@ alimentici
 aliment
 aliment
 aliment
-alineacion
+alin
 alin
 alin
 alin
@@ -6508,7 +6508,7 @@ constat
 constat
 const
 constern
-constitucion
+constitu
 constitu
 constitucional
 constitucional
@@ -6965,7 +6965,7 @@ cornej
 cornoy
 cor
 coron
-coronacion
+coron
 coron
 coron
 coron
@@ -8181,7 +8181,7 @@ depresion
 depriment
 deprim
 deprim
-depuracion
+depur
 depur
 depuradisim
 depur
@@ -9740,6 +9740,7 @@ edu
 edu
 eduard
 eduard
+educ
 educ
 educ
 educ
@@ -11331,7 +11332,7 @@ evacu
 evad
 evad
 evad
-evaluacion
+evalu
 evalu
 evalu
 evalu
@@ -20116,7 +20117,7 @@ peñasc
 pendient
 pendient
 pendleton
-penetracion
+penetr
 penetr
 penetr
 penetr
@@ -22674,7 +22675,7 @@ recomiend
 recom
 recompens
 recompr
-reconciliacion
+reconcili
 reconcili
 reconcil
 reconduccion
@@ -23436,7 +23437,7 @@ resistent
 resist
 resist
 resist
-resolucion
+resolu
 resolu
 resolu
 resolv

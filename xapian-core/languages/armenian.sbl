@@ -1,7 +1,4 @@
 // Alias: hy
-// From: https://snowballstem.org/algorithms/armenian/stemmer.html
-// Author: Astghik Mkrtchyan
-// Licence: 3-clause BSD, as per https://snowballstem.org/license.html
 
 stringescapes {}
 

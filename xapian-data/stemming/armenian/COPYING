@@ -1,0 +1,13 @@
+voc.txt was generated from a dump of the Armenian wikipedia by the script
+wikipedia-most-common-words like so:
+
+WikiExtractor.py hywiki-latest-pages-articles.xml.bz2
+cat text/*/* | scripts/wikipedia-most-common-words 10 armenian > voc.txt
+
+The dump used was dated 2021-01-01.
+
+output.txt was generated from voc.txt by running it through the stemmer:
+
+stemwords -l armenian -c UTF_8 -i armenian/voc.txt -o armenian/output.txt
+
+Wikipedia is licensed as: https://creativecommons.org/licenses/by-sa/3.0/

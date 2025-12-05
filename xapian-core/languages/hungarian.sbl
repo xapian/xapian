@@ -47,12 +47,14 @@ define mark_regions as (
 
     $p1 = limit
 
-    (v goto non-v
-     among('cs' 'gy' 'ly' 'ny' 'sz' 'ty' 'zs' 'dzs') or next
-     setmark p1)
-    or
-
-    (non-v gopast v setmark p1)
+    (
+        // Word start with a vowel, start R1 after: V...C
+        v
+        do (gopast non-v setmark p1)
+    ) or (
+        // Word start with a non-vowel, start R1 after: C...V
+        gopast v setmark p1
+    )
 )
 
 backwardmode (

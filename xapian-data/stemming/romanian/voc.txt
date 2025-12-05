@@ -77775,7 +77775,6 @@ tinereți
 tinereții
 tinereților
 tineri
-tineri tipograf
 tinerii
 tinerilor
 tinerimii
@@ -79022,7 +79021,6 @@ trezise
 trezit
 trezite
 trezită
-trezită trib
 treziţi
 treziţii
 treziţilor
@@ -80652,11 +80650,11 @@ următoarele
 următoarelor
 următor
 următori
-următori urna
 următorii
 următorilor
 următorul
 următorului
+urna
 urne
 urnei
 urnele

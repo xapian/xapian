@@ -334,10 +334,10 @@ define remove_vetrumai_urupukal as (
 )
 
 define remove_tense_suffixes as (
- set found_a_match
- repeat ( found_a_match (do remove_tense_suffix) )
+ repeat remove_tense_suffix
 )
 
+// Gives signal t if a tense suffix was removed, signal f otherwise.
 define remove_tense_suffix as (
  unset found_a_match
  has_min_length
@@ -419,6 +419,7 @@ define remove_tense_suffix as (
     )
  )
  do fix_endings
+ found_a_match
 )
 
 define stem as (

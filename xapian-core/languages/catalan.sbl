@@ -1,7 +1,4 @@
 // Alias: ca
-// From: https://snowballstem.org/algorithms/catalan/stemmer.html
-// Author: Israel Olalla
-// Licence: 3-clause BSD, as per https://snowballstem.org/license.html
 
 routines (
            cleaning mark_regions
@@ -198,10 +195,3 @@ define stem as (
     )
     do cleaning
 )
-
-/*
-     First works 2010/07/19
-     First Grammatical Reviews: https://ca.wikipedia.org/wiki/Gram%C3%A0tica_del_catal%C3%A0
-     Suffix list: https://ca.wikipedia.org/wiki/Llista_de_sufixos
-     Irregular Verbs: https://ca.wikipedia.org/wiki/Flexi%C3%B3_verbal_del_catal%C3%A0
-*/

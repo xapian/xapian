@@ -1,14 +1,30 @@
-voc.txt is a mixture of data licensed as BSD 3-clause (as described in
-../COPYING) and CC BY-SA.
+voc.txt is a merge of data from:
 
-voc.txt was derived in part from a dump of the French Wikipedia by the
-script wikipedia-most-common-words like so:
+* The original Snowball french/voc.txt which is licensed as BSD 3-clause (as
+  described in ../COPYING)
 
-WikiExtractor.py frwiki-latest-pages-articles.xml.bz2
-cat text/*/* | ./wikipedia-most-common-words 50 latin1
+* A word list extracted from a downloaded dump of the French Wikipedia using
+  the script wikipedia-most-common-words like so:
 
-The dump used was dated June 1st 2018.
+    WikiExtractor.py frwiki-20180601-pages-articles.xml.bz2
+    cat text/*/* | scripts/wikipedia-most-common-words 50 latin1 > voc1.txt
 
-output.txt was generated from voc.txt by running it through the stemmer.
+* A word list specific to words containing apostrophes extracted from a
+  downloaded dump of the French Wikipedia using the scripts
+  wikipedia-dump-to-freq and freq-to-voc like so:
+
+    scripts/wikipedia-dump-to-freq frwiki-20240102-pages-articles.xml.bz2 4000 latin1 |\
+        grep "'" | scripts/freq-to-voc > voc2.txt
+
+* A small number of hand selected words to provide better test coverage for
+  changes to the algorithm.
+
+The word lists were then merged like so:
+
+  LANG=C sort -u voc.txt voc1.txt voc2.txt > french/voc.txt
+
+output.txt was generated from voc.txt by running it through the stemmer:
+
+  stemwords -l french -c UTF_8 -i french/voc.txt -o french/output.txt
 
 Wikipedia is licensed as: https://creativecommons.org/licenses/by-sa/3.0/

@@ -1,6 +1,7 @@
 // Alias: sv
 
 routines (
+           et_condition
            mark_regions
            main_suffix
            consonant_pair
@@ -11,7 +12,7 @@ externals ( stem )
 
 integers ( p1 x )
 
-groupings ( v s_ending )
+groupings ( v s_ending ost_ending )
 
 stringescapes {}
 
@@ -25,6 +26,8 @@ define v 'aeiouy{a"}{ao}{o"}'
 
 define s_ending  'bcdfghjklmnoprtvy'
 
+define ost_ending 'iklnprtuv'
+
 define mark_regions as (
 
     $p1 = limit
@@ -34,6 +37,54 @@ define mark_regions as (
 )
 
 backwardmode (
+
+    define et_condition as (
+        (non-v v not atlimit)
+        and not among (
+            // frihet, nyhet, råhet, trohet
+            'h'
+            // societet
+            'iet'
+            // annuitet, kontinuitet
+            'uit'
+            // alfabet
+            'fab'
+            // autenticitet, elektricitet, kapacitet, metallicitet, publicitet
+            'cit'
+            // graviditet, likviditet, rigiditet
+            'dit'
+            // neutralitet, rivalitet, sexualitet
+            'alit'
+            // flexibilitet, instabilitet, kompatibilitet, mobilitet, variabilitet
+            'ilit'
+            // anonymitet, intimitet, legitimitet
+            'mit'
+            // kommunitet, maskulinitet, modernitet, spontanitet, suveränitet
+            'nit'
+            // epitet, serendipitet
+            'pit'
+            // auktoritet, integritet, majoritet, popularitet, prioritet
+            'rit'
+            // densitet, generositet, intensitet, luminositet, viskositet
+            'sit'
+            // identitet, kvantitet
+            'tit'
+            // aggressivitet, positivitet
+            'ivit'
+            // antikvitet, oblikvitet
+            'kvit'
+            // komplexitet
+            'xit'
+            // komet
+            'kom'
+            // raket
+            'rak'
+            // paket
+            'pak'
+            // staket
+            'stak'
+        )
+    )
 
     define main_suffix as (
         setlimit tomark p1 for ([substring])
@@ -45,7 +96,9 @@ backwardmode (
             'hetens' 'erns' 'at' 'andet' 'het' 'ast'
                 (delete)
             's'
-                (s_ending delete)
+                ( ('et' et_condition ]) or s_ending  delete )
+            'et'
+                ( et_condition delete )
         )
     )
 
@@ -54,10 +107,11 @@ backwardmode (
         and ([next] delete)
     )
 
-    define other_suffix as setlimit tomark p1 for (
-        [substring] among(
+    define other_suffix as (
+        setlimit tomark p1 for ([substring])
+        among(
             'lig' 'ig' 'els' (delete)
-            'l{o"}st'        (<-'l{o"}s')
+            '{o"}st'         (ost_ending <-'{o"}s')
             'fullt'          (<-'full')
         )
     )

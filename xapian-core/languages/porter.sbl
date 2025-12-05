@@ -40,11 +40,11 @@ backwardmode (
                 test gopast v  delete
                 test substring among(
                     'at' 'bl' 'iz'
-                         (<+ 'e')
+                         (insert 'e')
                     'bb' 'dd' 'ff' 'gg' 'mm' 'nn' 'pp' 'rr' 'tt'
                     // ignoring double c, h, j, k, q, v, w, and x
                          ([next]  delete)
-                    ''   (atmark p1  test shortv  <+ 'e')
+                    ''   (atmark p1  test shortv  insert 'e')
                 )
             )
         )

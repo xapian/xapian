@@ -77775,7 +77775,6 @@ tiner
 tiner
 tiner
 tiner
-tineri tipograf
 tiner
 tiner
 tinerim
@@ -79022,7 +79021,6 @@ trez
 trezit
 trezit
 trezit
-trezită trib
 trez
 trez
 trez
@@ -80652,11 +80650,11 @@ urmat
 urmat
 urmat
 urmat
-următori urn
 urmat
 urmat
 urmat
 urmat
+urna
 urne
 urne
 urne

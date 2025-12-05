@@ -59,6 +59,8 @@ define mark_regions as (
     do (
         ( v (non-v gopast v) or (v gopast non-v) )
         or
+        'divan' // Otherwise "divano" stems to "div" and collides with "diva".
+        or
         ( non-v (non-v gopast v) or (v next) )
         setmark pV
     )
@@ -108,7 +110,7 @@ backwardmode (
             'ismi' 'abile' 'abili' 'ibile' 'ibili' 'ista' 'iste' 'isti'
             'ist{a`}' 'ist{e`}' 'ist{i`}' 'oso' 'osi' 'osa' 'ose' 'mente'
             'atrice' 'atrici'
-            'ante' 'anti' // Note 1
+            'ante' 'anti'
                ( R2 delete )
             'azione' 'azioni' 'atore' 'atori'
                ( R2 delete
@@ -180,17 +182,12 @@ backwardmode (
 )
 
 define stem as (
-    do prelude
-    do mark_regions
-    backwards (
-        do attached_pronoun
-        do (standard_suffix or verb_suffix)
-        do vowel_suffix
-    )
-    do postlude
+      do prelude
+      do mark_regions
+      backwards (
+          do attached_pronoun
+          do (standard_suffix or verb_suffix)
+          do vowel_suffix
+      )
+      do postlude
 )
-
-/*
-    Note 1: additions of 15 Jun 2005
-*/
-

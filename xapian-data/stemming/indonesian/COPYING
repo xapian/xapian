@@ -1,6 +1,16 @@
-voc.txt was generated from a dump of the Indonesian wikipedia by the script
-wikipedia-most-common-words.  The dump used was dated April 2nd 2018.
+voc.txt was derived in part from a dump of the Indonesian wikipedia by the
+script wikipedia-most-common-words like so:
 
-output.txt was generated from voc.txt by running it through the stemmer.
+WikiExtractor.py idwiki-latest-pages-articles.xml.bz2
+cat text/*/* | scripts/wikipedia-most-common-words 7 ascii > voc.txt
+
+The dump used was dated April 2nd 2018.
+
+31 examples given in the paper which weren't already in the generated voc.txt
+have been added.
+
+output.txt was generated from voc.txt by running it through the stemmer:
+
+stemwords -l indonesian -c UTF_8 -i indonesian/voc.txt -o indonesian/output.txt
 
 Wikipedia is licensed as: https://creativecommons.org/licenses/by-sa/3.0/

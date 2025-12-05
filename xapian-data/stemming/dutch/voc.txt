@@ -20894,6 +20894,7 @@ lager
 lagere
 lagergeschoolden
 lagers
+lagerweij
 lagerwey
 lagune
 laidlaw

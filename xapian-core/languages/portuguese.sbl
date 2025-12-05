@@ -90,7 +90,7 @@ backwardmode (
 
            'adora' 'ador' 'a{cc}a~o'
            'adoras' 'adores' 'a{cc}o~es'  // no -ic test
-           'ante' 'antes' '{a^}ncia' // Note 1
+           'ante' 'antes' '{a^}ncia'
             (
                 R2 delete
             )
@@ -124,7 +124,7 @@ backwardmode (
                 R2 delete
                 try (
                     [substring] among(
-                        'ante' // Note 1
+                        'ante'
                         'avel'
                         '{i'}vel' (R2 delete)
                     )
@@ -214,7 +214,3 @@ define stem as (
     )
     do postlude
 )
-
-/*
-    Note 1: additions of 15 Jun 2005
-*/

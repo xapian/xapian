@@ -21,11 +21,15 @@ stringescapes {}
 
 stringdef ae   '{U+00E6}'
 stringdef ao   '{U+00E5}'
+stringdef e^   '{U+00EA}'  // e-circumflex
+stringdef o`   '{U+00F2}'  // o-grave
+stringdef o'   '{U+00F3}'  // o-acute
+stringdef o^   '{U+00F4}'  // o-circumflex
 stringdef o/   '{U+00F8}'
 
-define v 'aeiouy{ae}{ao}{o/}'
+define v 'ae{e^}io{o`}{o'}{o^}uy{ae}{ao}{o/}'
 
-define s_ending  'bcdfghjlmnoprtvyz'
+define s_ending  'bcdfghjlmnoptvyz'
 
 define mark_regions as (
 
@@ -44,10 +48,20 @@ backwardmode (
 
             'a' 'e' 'ede' 'ande' 'ende' 'ane' 'ene' 'hetene' 'en' 'heten' 'ar'
             'er' 'heter' 'as' 'es' 'edes' 'endes' 'enes' 'hetenes' 'ens'
-            'hetens' 'ers' 'ets' 'et' 'het' 'ast'
+            'hetens' 'ets' 'et' 'het' 'ast'
                 (delete)
+            'ers'
+                (
+                  among (
+                    'amm' 'ast' 'ind' 'kap' 'kk' 'lt' 'nk' 'omm' 'pp' 'v'
+                    '{o/}st'
+                        ()
+                    'giv' 'hav' 'skap' ''
+                        (delete)
+                  )
+                )
             's'
-                (s_ending or ('k' non-v) delete)
+                (s_ending or ('r' not 'e') or ('k' non-v) delete)
             'erte' 'ert'
                 (<-'er')
         )

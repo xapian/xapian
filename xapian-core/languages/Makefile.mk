@@ -10,30 +10,36 @@ snowball_algorithms =\
 	languages/basque.sbl\
 	languages/catalan.sbl\
 	languages/danish.sbl\
+	languages/dutch_porter.sbl\
 	languages/dutch.sbl\
-	languages/english.sbl\
 	languages/earlyenglish.sbl\
+	languages/english.sbl\
+	languages/esperanto.sbl\
+	languages/estonian.sbl\
 	languages/finnish.sbl\
 	languages/french.sbl\
-	languages/german2.sbl\
 	languages/german.sbl\
+	languages/greek.sbl\
+	languages/hindi.sbl\
 	languages/hungarian.sbl\
 	languages/indonesian.sbl\
 	languages/irish.sbl\
 	languages/italian.sbl\
-	languages/kraaij_pohlmann.sbl\
 	languages/lithuanian.sbl\
 	languages/lovins.sbl\
 	languages/nepali.sbl\
 	languages/norwegian.sbl\
+	languages/polish.sbl\
 	languages/porter.sbl\
 	languages/portuguese.sbl\
 	languages/romanian.sbl\
 	languages/russian.sbl\
+	languages/serbian.sbl\
 	languages/spanish.sbl\
 	languages/swedish.sbl\
 	languages/tamil.sbl\
-	languages/turkish.sbl
+	languages/turkish.sbl\
+	languages/yiddish.sbl
 
 snowball_built_sources =\
 	$(snowball_algorithms:.sbl=.cc)\

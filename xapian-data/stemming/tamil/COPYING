@@ -1,6 +1,12 @@
 voc.txt was generated from a dump of the Tamil wikipedia by the script
-tawiki-freq-analysis.  The dump used was dated April 2nd 2018.
+tawiki-freq-analysis like so:
 
-output.txt was generated from voc.txt by running it through the stemmer.
+bzcat tawiki-latest-pages-articles.xml.bz2|./tawiki-freq-analysis > voc.txt
+
+The dump used was dated April 2nd 2018.
+
+output.txt was generated from voc.txt by running it through the stemmer:
+
+stemwords -l tamil -c UTF_8 -i tamil/voc.txt -o tamil/output.txt
 
 Wikipedia is licensed as: https://creativecommons.org/licenses/by-sa/3.0/

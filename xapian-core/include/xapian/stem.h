@@ -1,7 +1,7 @@
 /** @file
  * @brief stemming algorithms
  */
-/* Copyright (C) 2005,2007,2010,2011,2013,2014,2015,2018,2019,2024 Olly Betts
+/* Copyright (C) 2005-2025 Olly Betts
  * Copyright (C) 2010 Evgeny Sizikov
  *
  * This program is free software; you can redistribute it and/or
@@ -100,36 +100,44 @@ class XAPIAN_VISIBILITY_DEFAULT Stem {
      *  - basque (eu) - Since Xapian 1.3.0
      *  - catalan (ca) - Since Xapian 1.3.0
      *  - danish (da)
-     *  - dutch (nl)
+     *  - dutch (nl, kraaij_pohlmann) - Before Xapian 2.0.0, "dutch" was
+     *    Martin Porter's Dutch stemmer, and a stemmer which approximately
+     *    implemented the Kraaij-Pohlmann Dutch stemmer was available
+     *    separately as "kraaij_pohlmann".
+     *  - dutch_porter - This was the "dutch" stemmer before Xapian 2.0.0.
+     *    In 1.4.x for x >= 28, "dutch_porter" was an alias for dutch to
+     *    provide forward compatibility to 2.0.x.
      *  - english (en) - Martin Porter's 2002 revision of his stemmer
      *  - earlyenglish - Early English (e.g. Shakespeare, Dickens) stemmer
      *    (since Xapian 1.3.2)
      *  - lovins - Lovin's English stemmer
      *  - porter - Porter's English stemmer exactly matching his 1980 paper
+     *	- esperanto (eo) - Since Xapian 2.0.0
+     *	- estonian (et) - Since Xapian 2.0.0
      *  - finnish (fi)
      *  - french (fr)
-     *  - german (de)
-     *  - german2 - Normalises umlauts (e.g. ä and ae)
+     *  - german (de, german2) - Before Xapian 2.0.0, german2 was a separate
+     *    variant of the german stemmer which normalised umlauts (e.g. ä and
+     *    ae).  The two variants have now been merged into one.
+     *  - greek (el) - Since Xapian 2.0.0
+     *  - hindi (hi) - Since Xapian 2.0.0
      *  - hungarian (hu)
      *  - indonesian (id) - Since Xapian 1.4.6
      *  - irish (ga) - Since Xapian 1.4.7
      *  - italian (it)
-     *  - kraaij_pohlmann - A different Dutch stemmer
      *  - lithuanian (lt) - Since Xapian 1.4.7
      *  - nepali (ne) - Since Xapian 1.4.7
      *  - norwegian (nb, nn, no)
+     *  - polish (pl) - Since Xapian 2.0.0
      *  - portuguese (pt)
      *  - romanian (ro)
      *  - russian (ru)
+     *  - serbian (sr) - Since Xapian 2.0.0
      *  - spanish (es)
      *  - swedish (sv)
      *  - tamil (ta) - Since Xapian 1.4.7
      *  - turkish (tr)
-     *
-     *  Also dutch_porter is an alias for dutch since Xapian 1.4.28 (to
-     *  provide forward compatibility to the next release series where
-     *  we will switch dutch to refer to a version of the kraaij_pohlmann
-     *  stemmer).
+     *  - yiddish (yi) - Since Xapian 2.0.0
      *
      *  @param fallback If true then treat unknown @a language as "none",
      *			otherwise an exception is thrown (default: false).

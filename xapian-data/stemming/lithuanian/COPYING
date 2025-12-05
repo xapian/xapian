@@ -2,10 +2,12 @@ voc.txt was generated from a dump of the Lithuanian wikipedia by the script
 wikipedia-most-common-words like so:
 
 WikiExtractor.py ltwiki-latest-pages-articles.xml.bz2
-cat text/*/*|./wikipedia-most-common-words 10 latin > voc.txt
+cat text/*/* | scripts/wikipedia-most-common-words 10 latin > voc.txt
 
 The dump used was dated May 3rd 2018.
 
-output.txt was generated from voc.txt by running it through the stemmer.
+output.txt was generated from voc.txt by running it through the stemmer:
+
+stemwords -l lithuanian -c UTF_8 -i lithuanian/voc.txt -o lithuanian/output.txt
 
 Wikipedia is licensed as: https://creativecommons.org/licenses/by-sa/3.0/

@@ -33,7 +33,7 @@ struct constinfo {
     char str[8];
     unsigned stemmer_name_len;
     // FIXME: We don't want to fix the size of this in the API headers.
-    char stemmer_data[256];
+    char stemmer_data[512];
 };
 
 /** @private @internal

@@ -357,7 +357,7 @@ define stem as (
 
   do (
     // priešdėlis 'a' ilgeniuose nei 6 raidės žodžiuose, pvz. 'a-liejus'.
-    try (test 'a' $(len > 6) hop 1)
+    try ('a' $(len > 6))
 
     gopast v  gopast non-v  setmark p1
   )

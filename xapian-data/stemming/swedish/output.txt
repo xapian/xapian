@@ -41,7 +41,7 @@ adelsmän
 adelsvap
 aderton
 adertond
-adertonhundratalet
+adertonhundratal
 adertonskilling
 adjunk
 adjunk
@@ -171,7 +171,7 @@ afstyrk
 afstå
 afstånd
 afsänd
-aftaget
+aftag
 aftagit
 aftn
 aftn
@@ -179,7 +179,7 @@ aftn
 aftog
 afton
 aftonbl
-aftonbladet
+aftonblad
 aftonbordet
 aftonbön
 afton
@@ -187,7 +187,7 @@ afton
 aftonfläk
 aftonlampan
 aftonl
-aftonljuset
+aftonljus
 aftonmåltid
 aftonmåltid
 aftonpipan
@@ -221,6 +221,7 @@ ager
 ager
 agg
 agg
+aggressivitet
 agn
 agn
 agn
@@ -269,6 +270,7 @@ albusk
 aldng
 aldr
 alexand
+alfabet
 alfred
 alfv
 algeriet
@@ -343,7 +345,7 @@ alltsedan
 alltså
 alltäamman
 allv
-allvaret
+allvar
 allvar
 allvar
 allvar
@@ -372,8 +374,8 @@ alt
 alt
 alt
 alt
-altaret
-altaret
+altar
+altar
 altarrund
 altartavl
 altartavlan
@@ -418,7 +420,7 @@ anbelang
 anblick
 anblick
 anbud
-anbudet
+anbud
 and
 and
 andak
@@ -499,7 +501,7 @@ angelägen
 angelägen
 angelägen
 angelägen
-angeläget
+angeläg
 angelägn
 angelägn
 ang
@@ -599,6 +601,8 @@ annorstäd
 annoter
 ann
 annu
+annuitet
+anonymitet
 anonymt
 anordn
 anordning
@@ -653,7 +657,7 @@ anslå
 anspelning
 ansprakslös
 anspråk
-anspråket
+anspråk
 anspråksfull
 anspråkslös
 anspråkslös
@@ -687,7 +691,7 @@ anstöt
 ansv
 ansvar
 ansvar
-ansvaret
+ansvar
 ansvarsfull
 ansät
 ansåg
@@ -706,7 +710,7 @@ antagit
 antag
 antagn
 antal
-antalet
+antal
 ant
 antast
 anteckn
@@ -720,6 +724,7 @@ antidreyfusistisk
 antik
 antik
 antikvari
+antikvitet
 antikvitet
 anting
 antisemitism
@@ -764,7 +769,7 @@ apollinaris
 apostl
 apotek
 apotek
-apoteket
+apotek
 apparans
 apparition
 applåd
@@ -790,8 +795,8 @@ arbet
 arbet
 arbet
 arbetersk
-arbetet
-arbetet
+arbet
+arbet
 arbetsam
 arbetsam
 arbetsamm
@@ -849,8 +854,8 @@ arm
 arm
 armhåg
 armod
-armodet
-armodet
+armod
+armod
 armtag
 arn
 arnman
@@ -970,6 +975,7 @@ aur
 auskultant
 australi
 australneg
+autenticitet
 autom
 automatisk
 automobil
@@ -1060,7 +1066,7 @@ avlägsn
 avlägsn
 avlång
 avlöp
-avlöst
+avlös
 avlöv
 avmagr
 avmät
@@ -1081,7 +1087,7 @@ avsik
 avsik
 avskav
 avsked
-avskedet
+avsked
 avskedsansökan
 avskedsblick
 avskedsmåltid
@@ -1200,8 +1206,8 @@ badd
 baddräk
 bad
 bad
-badet
-badhuset
+bad
+badhus
 badkur
 badning
 badrum
@@ -1319,7 +1325,7 @@ barnavårdsnämnd
 barnbarn
 barnbarn
 barnbördshus
-barnbördshuset
+barnbördshus
 barndom
 barndom
 barndom
@@ -1335,7 +1341,7 @@ barnet
 barneu
 barnflick
 barnhemmet
-barnhuset
+barnhus
 barnjungfru
 barnjungfrun
 barnkamm
@@ -1349,7 +1355,7 @@ barnmorskan
 barnmorskan
 barnmorsk
 barnpension
-barnröst
+barnrös
 barn
 barnsbörd
 barnskaran
@@ -1386,6 +1392,10 @@ bart
 bas
 baser
 basilisk
+basrös
+basrös
+basrös
+basrös
 bastant
 bast
 bastu
@@ -1523,7 +1533,7 @@ befrämj
 befrämj
 befunnit
 befunno
-befälet
+befäl
 befäng
 befäng
 befäng
@@ -1556,7 +1566,7 @@ begrav
 begravd
 begrav
 begrav
-begravet
+begrav
 begravit
 begravn
 begravning
@@ -1573,7 +1583,7 @@ begrip
 begrip
 begrip
 begrip
-begripet
+begrip
 begripit
 begrip
 begrip
@@ -1600,8 +1610,8 @@ begärd
 begärd
 begär
 begär
-begäret
-begäret
+begär
+begär
 begär
 begär
 begärt
@@ -1622,7 +1632,7 @@ behag
 behag
 behag
 behag
-behaget
+behag
 behagfull
 behag
 behag
@@ -1652,8 +1662,8 @@ behov
 behov
 behovd
 behov
-behovet
-behovet
+behov
+behov
 behäft
 behäft
 behäftad
@@ -1782,7 +1792,7 @@ belägr
 belägr
 belåt
 belåten
-belåtet
+belåt
 belåtn
 belåtn
 belåtn
@@ -1825,13 +1835,13 @@ ben
 ben
 benedi
 ben
-benet
+ben
 benkläd
 benn
 benn
 benno
 benäg
-benäget
+benäg
 benämn
 benämn
 benämnd
@@ -1879,7 +1889,7 @@ bergman
 bergning
 bergshäll
 bergshäll
-bergsmanstapet
+bergsmanstap
 bergsprängning
 bergsspets
 bergtroll
@@ -1969,7 +1979,7 @@ beskaff
 beskaffen
 beskaffen
 besked
-beskedet
+besked
 besked
 besked
 besked
@@ -2005,14 +2015,14 @@ beskäft
 beskärd
 beskåd
 beslag
-beslaget
+beslag
 beslut
 beslut
 beslut
 beslut
 beslut
 beslut
-beslutet
+beslut
 beslutit
 beslutsam
 beslutsam
@@ -2037,7 +2047,7 @@ bestrid
 beströ
 bestyr
 bestyr
-bestyret
+bestyr
 bestyrk
 beställ
 beställd
@@ -2088,7 +2098,7 @@ besvär
 besvär
 besvär
 besvär
-besväret
+besvär
 besvärj
 besvär
 besvär
@@ -2111,7 +2121,7 @@ besök
 besök
 besök
 besök
-besöket
+besök
 besök
 besök
 besök
@@ -2260,7 +2270,7 @@ bevis
 bevis
 bevis
 bevis
-beviset
+bevis
 bevist
 bevist
 bevittn
@@ -2287,7 +2297,7 @@ bibelspråk
 bibl
 bibl
 bibliotek
-biblioteket
+bibliotek
 biblioteksfontän
 biblioteksrum
 biblioteksrummet
@@ -2398,7 +2408,7 @@ bitit
 biträd
 biträd
 biträd
-biträdet
+biträd
 bitt
 bitter
 bitter
@@ -2411,7 +2421,7 @@ bittr
 bittring
 biått
 bjelk
-bjelklaget
+bjelklag
 bju
 bjud
 bjud
@@ -2447,7 +2457,7 @@ björn
 björnar
 björn
 björn
-björnspråket
+björnspråk
 bl
 bla
 black
@@ -2456,7 +2466,7 @@ blacksud
 black
 blad
 blad
-bladet
+blad
 bladrik
 bladverket
 blanch
@@ -2550,8 +2560,8 @@ blixtsnabbt
 blod
 blodd
 bloddropp
-blodet
-blodet
+blod
+blod
 blodfläck
 blodfull
 blodhund
@@ -2575,7 +2585,7 @@ blombuket
 blombuket
 blomdoft
 blomfrön
-blomglaset
+blomglas
 blomkruk
 blomkruk
 blomlik
@@ -2660,7 +2670,7 @@ blund
 blus
 blus
 blusliv
-bluslivet
+blusliv
 bly
 blyertspen
 blyg
@@ -2770,7 +2780,7 @@ boett
 bof
 bog
 bog
-bohaget
+bohag
 bohuslänning
 bohuslän
 bohuslänsk
@@ -2787,7 +2797,7 @@ bokhyll
 bokhyll
 bokn
 bokskåp
-bokskåpet
+bokskåp
 bokstaf
 bokstafv
 bokstav
@@ -2852,7 +2862,7 @@ bondhustru
 bondkvin
 bondkvin
 bondkärran
-bonemotet
+bonemot
 bonhomi
 boning
 boning
@@ -3036,8 +3046,8 @@ brett
 brev
 brevbärarinnan
 brev
-brevet
-brevet
+brev
+brev
 brevid
 brevlådan
 brick
@@ -3082,7 +3092,7 @@ broder
 brod
 brod
 broderskap
-brodet
+brod
 brok
 brok
 brok
@@ -3129,7 +3139,7 @@ brudgum
 brudklädning
 brudklänning
 brudpall
-brudparet
+brudpar
 brudskaran
 brudskrud
 brudslöj
@@ -3141,7 +3151,7 @@ bruk
 bruk
 bruk
 brukb
-bruket
+bruk
 bruk
 brukspatron
 brum
@@ -3186,7 +3196,7 @@ brustn
 brusto
 brutal
 brut
-brutet
+brut
 brutit
 brutn
 bry
@@ -3216,9 +3226,9 @@ brädd
 brädd
 bräd
 bräd
-brädet
+bräd
 brädgård
-brädspelet
+brädspel
 brädspelsbordet
 bräkt
 bränd
@@ -3237,8 +3247,8 @@ bränning
 brännpunk
 brännskadan
 brännvin
-brännvinet
-brännvinet
+brännvin
+brännvin
 brännvinsgl
 bränt
 bränvin
@@ -3248,7 +3258,7 @@ brätt
 brättet
 bråckband
 bråddjup
-bråddjupet
+bråddjup
 brådsk
 brådskan
 brådsk
@@ -3265,7 +3275,7 @@ bråkdel
 bråk
 brån
 bråt
-bråtet
+bråt
 bråtl
 brått
 bråttom
@@ -3276,12 +3286,12 @@ brödbit
 bröd
 bröd
 bröd
-brödet
+bröd
 brödkak
 brödstyck
 brödutdelning
 bröllop
-bröllopet
+bröllop
 bröllop
 bröllopsdag
 bröllopsgäst
@@ -3298,7 +3308,7 @@ bröstet
 bröstfickan
 bröstfickan
 bröstförkläd
-bröstkråset
+bröstkrås
 bröstvärk
 bröt
 bröto
@@ -3312,7 +3322,7 @@ buch
 buckl
 buckl
 bud
-budet
+bud
 budord
 budordet
 bud
@@ -3389,7 +3399,7 @@ butik
 butiksfönst
 buttert
 buttr
-buvudet
+buvud
 by
 byar
 byff
@@ -3426,7 +3436,7 @@ byrånyckel
 bysättning
 byt
 byt
-bytet
+byt
 byting
 bytt
 bytt
@@ -3500,7 +3510,7 @@ båglamp
 bågn
 bål
 båld
-bålet
+bål
 bålrik
 bålst
 bångl
@@ -3516,7 +3526,7 @@ båt
 båt
 båt
 båt
-båthuset
+båthus
 båtkarl
 båtslöjtnant
 böck
@@ -3635,7 +3645,7 @@ chasseur
 chelon
 chevaleresk
 chevelyr
-cheviotstyget
+cheviotstyg
 chic
 chicago
 chiff
@@ -3728,8 +3738,8 @@ dag
 dagar
 dag
 dagbl
-dagbladet
-dagbladskontoret
+dagblad
+dagbladskontor
 dagbok
 dagbok
 dagboksbl
@@ -3754,7 +3764,7 @@ dagning
 dag
 dagsarbet
 dagsljus
-dagsljuset
+dagsljus
 dagslång
 dagslång
 dagsres
@@ -3776,7 +3786,7 @@ dalmålning
 dalsted
 dam
 dam
-damastöverdraget
+damastöverdrag
 dam
 dam
 dam
@@ -3845,7 +3855,7 @@ dct
 dcu
 de
 debat
-debet
+deb
 decemb
 decembermörk
 decemberstorm
@@ -3854,7 +3864,7 @@ definitivt
 defunt
 deg
 deg
-degkaret
+degkar
 deje
 dekadan
 deklamer
@@ -3913,6 +3923,7 @@ den
 densamm
 densamm
 denscöcon
+densitet
 departemanget
 departement
 deporter
@@ -3989,7 +4000,7 @@ digt
 dikant
 dik
 dik
-diket
+dik
 dikt
 dikt
 diktarefeb
@@ -4067,7 +4078,7 @@ djup
 djup
 djup
 djupblå
-djupet
+djup
 djupsinn
 djupsinn
 djupsinn
@@ -4076,8 +4087,8 @@ djur
 djuransiktet
 djurbild
 djur
-djuret
-djuret
+djur
+djur
 djurgård
 djurgård
 djurgård
@@ -4099,7 +4110,7 @@ djävulskvin
 dli
 dll
 dln
-dlodet
+dlod
 docent
 dock
 dock
@@ -4167,7 +4178,7 @@ domsagan
 domsag
 don
 dopattest
-dopet
+dop
 dopp
 dopp
 dopp
@@ -4200,7 +4211,7 @@ drag
 drag
 drag
 drag
-draget
+drag
 dragg
 dragg
 dragit
@@ -4440,7 +4451,7 @@ duv
 duvan
 duv
 duv
-duvoröst
+duvorös
 duvoving
 duvoögon
 duvung
@@ -4569,7 +4580,7 @@ dån
 dån
 dån
 dån
-dånet
+dån
 dåning
 dår
 dår
@@ -4657,10 +4668,10 @@ dörr
 dörrcn
 dörrell
 dörr
-dörrlaset
+dörrlas
 dörrskylt
 dörrspring
-dörrvredet
+dörrvred
 dött
 döttr
 döttr
@@ -4821,7 +4832,7 @@ ekbord
 ekered
 ekhult
 ekhult
-ekipaget
+ekipag
 eklatant
 eklund
 eklund
@@ -4862,7 +4873,7 @@ eldros
 eldröd
 eldröt
 eldsk
-eldskenet
+eldsken
 eldstrimm
 eldsvåd
 eldtung
@@ -4873,6 +4884,7 @@ elegant
 elegant
 elegant
 elegant
+elektricitet
 elektrisk
 elektrisk
 elektrisk
@@ -5014,7 +5026,7 @@ enton
 enton
 enton
 enträg
-enträget
+enträg
 enträgn
 enträgn
 enträgn
@@ -5039,6 +5051,7 @@ epileptisk
 episod
 episod
 epistl
+epitet
 epok
 epokgör
 epålet
@@ -5059,7 +5072,7 @@ erfaren
 erfaren
 erfaren
 erfar
-erfaret
+erfar
 erfarit
 erf
 erf
@@ -5283,7 +5296,7 @@ familjelifvet
 familj
 familj
 familj
-familjeträdet
+familjeträd
 familj
 familjtafl
 faml
@@ -5299,8 +5312,8 @@ famn
 famn
 famn
 famntag
-famntaget
-famntaget
+famntag
+famntag
 famntag
 fan
 fan
@@ -5362,8 +5375,8 @@ fart
 fart
 fartyg
 fartyg
-fartyget
-fartyget
+fartyg
+fartyg
 fartyg
 farvat
 farväl
@@ -5382,7 +5395,7 @@ fass
 fast
 fast
 fast
-fastaget
+fastag
 fastan
 fast
 fastbund
@@ -5411,7 +5424,7 @@ fastän
 fastån
 fat
 fatalt
-fatet
+fat
 fatt
 fatt
 fattadc
@@ -5475,7 +5488,7 @@ felakt
 fel
 fel
 fel
-felet
+fel
 felfri
 felix
 felmodeller
@@ -5490,7 +5503,7 @@ femt
 femtio
 femtiosex
 femtiosju
-femtiotalet
+femtiotal
 femtioåt
 femton
 femtond
@@ -5531,6 +5544,9 @@ fi
 fiaddr
 fiat
 fibr
+fibrös
+fibrös
+fibrös
 fichn
 ficj
 fick
@@ -5656,11 +5672,11 @@ fisk
 fisk
 fisk
 fisket
-fiskfatet
+fiskfat
 fiskläg
 fiskläg
-fiskläget
-fiskläget
+fiskläg
+fiskläg
 fisknot
 fiskr
 fiskredskap
@@ -5751,6 +5767,7 @@ fler
 fler
 flest
 flest
+flexibilitet
 fli
 flick
 flickakt
@@ -5760,7 +5777,7 @@ flickan
 flick
 flickbarn
 flickb
-flickbröst
+flickbrös
 flickdrömmeri
 flickförtjusning
 flickhufvud
@@ -5773,7 +5790,7 @@ flick
 flick
 flick
 flickor
-flickröst
+flickrös
 flickskolan
 flicksnärt
 flicktid
@@ -5813,8 +5830,8 @@ flor
 floreal
 florentin
 florer
-floret
-floret
+flor
+flor
 florsdraperi
 florstun
 floss
@@ -5909,7 +5926,7 @@ flöd
 flöd
 flöd
 flöd
-flödet
+flöd
 flög
 flögo
 flöjel
@@ -5935,11 +5952,11 @@ fnösk
 foaj
 fock
 fockmast
-fockskotet
+fockskot
 fodcr
 foderverket
 fodral
-fodralet
+fodral
 fodringsäg
 fog
 fog
@@ -5965,7 +5982,7 @@ folket
 folket
 folkhop
 folkliv
-folklivet
+folkliv
 folkmelodi
 folk
 folksamling
@@ -6027,7 +6044,7 @@ form
 form
 formlös
 formuler
-formuläret
+formulär
 formåg
 forn
 forn
@@ -6435,7 +6452,7 @@ frukost
 frukostbordet
 frukost
 frukoster
-frukostlovet
+frukostlov
 frukostr
 frukt
 frukt
@@ -6468,13 +6485,13 @@ fruntimmershat
 fruntimmershistori
 fruntimmerskapp
 fruntimmerskjortel
-fruntimmersröst
+fruntimmersrös
 fruntimr
 fruntimr
 fruntimret
 frus
 frus
-fruset
+frus
 frusit
 frusn
 frust
@@ -6594,7 +6611,7 @@ frökn
 fröknarn
 fröknarno
 fröknartl
-frömjölet
+frömjöl
 frön
 frön
 frös
@@ -6641,7 +6658,7 @@ fullkomn
 fullmån
 fullsat
 fullsat
-fullskrivet
+fullskriv
 fullständ
 fullständ
 fullt
@@ -6886,7 +6903,7 @@ får
 fårakt
 fårbog
 får
-fåret
+får
 fårskall
 fått
 fö
@@ -6941,8 +6958,8 @@ fömuft
 fön
 fönst
 fönsterblecket
-fönsterbrädet
-fönsterglaset
+fönsterbräd
+fönsterglas
 fönsterglugg
 fönsterkarm
 fönsterkarm
@@ -6993,7 +7010,7 @@ förarg
 förarg
 förarg
 förarg
-förarsätet
+förarsät
 för
 förb
 förban
@@ -7046,7 +7063,7 @@ förbittr
 förbittring
 förbjud
 förbjud
-förbjudet
+förbjud
 förbjudit
 förbjudn
 förbjöd
@@ -7144,7 +7161,7 @@ förebud
 förebygg
 föredrag
 föredrag
-föredraget
+föredrag
 föredragshåll
 föredrog
 föredöm
@@ -7179,7 +7196,7 @@ föreläsning
 föreläsningssal
 föremål
 föremål
-föremålet
+föremål
 för
 fören
 fören
@@ -7232,7 +7249,7 @@ företag
 företag
 företag
 företag
-företaget
+företag
 företagit
 företagsam
 föret
@@ -7245,7 +7262,7 @@ företräd
 företräd
 företräd
 företrädesvis
-företrädet
+företräd
 förevändning
 förevändning
 förevändning
@@ -7266,7 +7283,7 @@ förfat
 författat
 förfel
 förfin
-förfluget
+förflug
 förflut
 förflutit
 förflutn
@@ -7392,7 +7409,7 @@ förhöjning
 förhöll
 förhör
 förhör
-förhöret
+förhör
 förifr
 förint
 förirr
@@ -7420,7 +7437,7 @@ förkling
 förkläd
 förkläd
 förkläd
-förklädet
+förkläd
 förklädn
 förknappning
 förknipp
@@ -7493,11 +7510,11 @@ förlov
 förlov
 förlov
 förlov
-förlovingskalaset
+förlovingskalas
 förlovning
 förlovning
 förlovning
-förlovningskalaset
+förlovningskalas
 förlovningskyss
 förlovningsring
 förlust
@@ -7507,7 +7524,7 @@ förlustelseställ
 förlust
 förläg
 förlägen
-förläget
+förläg
 förlägg
 förlägn
 förläng
@@ -7529,7 +7546,7 @@ förlös
 förlös
 förmad
 förmak
-förmaket
+förmak
 förman
 förman
 förman
@@ -7566,7 +7583,7 @@ förmän
 förmärk
 förmärk
 förmär
-förmätet
+förmät
 förmät
 förmå
 förmåd
@@ -7766,8 +7783,8 @@ förskön
 försköning
 försköt
 förslag
-förslaget
-förslaget
+förslag
+förslag
 förslapp
 förslog
 förslår
@@ -7797,7 +7814,7 @@ förson
 försorg
 försov
 förspegling
-förspelet
+förspel
 förspild
 förspill
 förspilld
@@ -7845,7 +7862,7 @@ förstugudörr
 förstuguqvist
 förstuguqvist
 förstul
-förstulet
+förstul
 förstuln
 förstumm
 förstumm
@@ -7928,7 +7945,7 @@ försåt
 försök
 försök
 försök
-försöket
+försök
 försök
 försök
 försörjningsinrättning
@@ -7940,7 +7957,7 @@ förtal
 förtal
 förteg
 förteg
-förteget
+förteg
 förtid
 fört
 fört
@@ -8015,11 +8032,11 @@ förträff
 förträff
 förträff
 förträff
-förtröst
+förtrös
 förtröstan
-förtröst
+förtrös
 förtröstansfull
-förtröst
+förtrös
 förtröt
 fört
 förtun
@@ -8108,7 +8125,7 @@ förvisso
 förvred
 förvrid
 förvrid
-förvridet
+förvrid
 förvridn
 förvräng
 förvägn
@@ -8181,6 +8198,9 @@ förök
 förökning
 föröv
 fös
+föst
+föst
+föst
 fött
 föttcrn
 fött
@@ -8218,7 +8238,7 @@ galeas
 gal
 galenskap
 galenskap
-galet
+gal
 galg
 galjonsbild
 gall
@@ -8270,7 +8290,7 @@ gap
 gap
 gap
 gap
-gapet
+gap
 gapskrat
 gapskrat
 gapskrat
@@ -8286,7 +8306,7 @@ gardin
 gardin
 gardinstyg
 gardintyg
-gardintyget
+gardintyg
 gard
 gardsplan
 garibaldi
@@ -8333,7 +8353,7 @@ gav
 gcstalt
 gcting
 ge
-gebitet
+gebit
 ged
 gedign
 gehör
@@ -8370,6 +8390,12 @@ gener
 generation
 generation
 generation
+generositet
+generös
+generös
+generös
+generös
+generös
 gengäld
 geni
 geni
@@ -8457,7 +8483,7 @@ geting
 getseman
 gett
 gevär
-geväret
+gevär
 gevärskolfv
 gick
 gif
@@ -8473,10 +8499,10 @@ giftbäg
 gift
 gift
 giftermål
-giftermålet
+giftermål
 giftermålsanbud
 giftermålsanmälan
-giftermålsförslaget
+giftermålsförslag
 giftermålsförsök
 giftermålsplan
 giftermålsspekulation
@@ -8541,7 +8567,7 @@ giv
 giv
 giv
 giv
-givet
+giv
 givit
 givmild
 givmild
@@ -8571,6 +8597,10 @@ gladj
 gladlynt
 gladt
 glam
+glamorös
+glamorös
+glamorös
+glamorös
 glan
 glan
 glans
@@ -8585,8 +8615,8 @@ glasburk
 glasdisk
 glasdörr
 glas
-glaset
-glaset
+glas
+glas
 glas
 glasklar
 glaskup
@@ -8756,7 +8786,7 @@ godt
 godt
 godtgjord
 godtyck
-goivet
+goiv
 gol
 golf
 golfvet
@@ -8837,7 +8867,7 @@ grannlåtsdock
 grannlåtsrumm
 grannqvin
 grannskap
-grannskapet
+grannskap
 grannstränd
 grannstugan
 grannt
@@ -8864,6 +8894,7 @@ grav
 grav
 grav
 graver
+graviditet
 gravlik
 gravsten
 gravsten
@@ -8988,7 +9019,7 @@ grupp
 grupp
 grupper
 grus
-gruset
+grus
 gruv
 gruv
 gruv
@@ -9041,7 +9072,7 @@ gräs
 gräsbevux
 gräsbevuxn
 gräsbänk
-gräset
+gräs
 gräs
 gräs
 gräs
@@ -9068,7 +9099,7 @@ grådask
 grågrön
 gråhet
 gråkappeexcellens
-gråkulet
+gråkul
 grån
 grån
 grån
@@ -9092,7 +9123,7 @@ gröfst
 grön
 grön
 grönakt
-gröngräset
+gröngräs
 grönmål
 grönmål
 grönsk
@@ -9209,6 +9240,7 @@ gummiring
 gumm
 gumm
 gummor
+gumrös
 gung
 gung
 gung
@@ -9324,7 +9356,7 @@ gång
 gång
 gångmattan
 gångn
-gångspelet
+gångspel
 gångst
 går
 gård
@@ -9517,7 +9549,7 @@ halvkvävd
 halvkvävd
 halvligg
 halvläk
-halvmedvetet
+halvmedvet
 halvmörkret
 halvrök
 halvskymd
@@ -9572,7 +9604,7 @@ hand
 hand
 handfall
 handfat
-handfatet
+handfat
 handflatan
 handfull
 handhafv
@@ -9603,7 +9635,7 @@ handsk
 handsk
 handslag
 handstil
-handtaget
+handtag
 handteckning
 handteckning
 handter
@@ -9633,7 +9665,7 @@ hard
 har
 harem
 haremsdam
-haret
+har
 har
 harkl
 harkrank
@@ -9675,7 +9707,7 @@ hat
 hat
 hat
 hat
-hatet
+hat
 hatfull
 hatsk
 hatt
@@ -9689,12 +9721,12 @@ hau
 hav
 hav
 hav
-havannamagasinet
+havannamagasin
 hav
 hav
 hav
-havet
-havet
+hav
+hav
 havrebröd
 hav
 havsbottn
@@ -9799,8 +9831,8 @@ helt
 helv
 helvet
 helvet
-helvetet
-helvetet
+helvet
+helvet
 helvetisk
 helvetisk
 hem
@@ -9944,15 +9976,15 @@ herrgårdsbyggnad
 herrgårdsdam
 herrgårdsekipag
 herrgårdsfrök
-herrgårdsköket
+herrgårdskök
 herrgårdsliv
 herrgårdsrum
 herrinnan
 herrn
 herrskap
 herrskaper
-herrskapet
-herrskapet
+herrskap
+herrskap
 herrskap
 herrskapsfolket
 herrskapsklass
@@ -10007,8 +10039,8 @@ himmel
 himmel
 himmel
 himmeln
-himmelriket
-himmelriket
+himmelrik
+himmelrik
 himmel
 himmelsk
 himmelsk
@@ -10104,8 +10136,8 @@ hjord
 hjortronplan
 hjul
 hjul
-hjulet
-hjulet
+hjul
+hjul
 hjulspår
 hjälp
 hjälp
@@ -10153,7 +10185,7 @@ hjärtenär
 hjärterknek
 hjärteröt
 hjärtesorg
-hjärtfelet
+hjärtfel
 hjärtförlamning
 hjärtklappning
 hjärtklappning
@@ -10233,7 +10265,7 @@ hopfälld
 hopgyttr
 hopklämd
 hopknip
-hopknipet
+hopknip
 hopknipn
 hopknyckl
 hopknäppt
@@ -10328,7 +10360,7 @@ hudsjukdom
 hufvu
 hufvud
 hufvud
-hufvudet
+hufvud
 hufvudgärd
 hufvudkud
 hufvudperson
@@ -10393,7 +10425,7 @@ hund
 hund
 hundgård
 hundhjärn
-hundlivet
+hundliv
 hundr
 hundr
 hundratal
@@ -10438,8 +10470,8 @@ hus
 hus
 huser
 huseru
-huset
-huset
+hus
+hus
 husfolket
 husfrid
 husfrid
@@ -10449,9 +10481,9 @@ husfrun
 husfrus
 husföreståndersk
 husgeråd
-husgerådet
+husgeråd
 husgöromål
-husgöromålet
+husgöromål
 hushåll
 hushåll
 hushåll
@@ -10512,7 +10544,7 @@ hustrus
 husundersökning
 hut
 huttr
-huvadet
+huvad
 huvan
 huv
 huvu
@@ -10526,7 +10558,7 @@ huvudduk
 huvud
 huvuden
 huvuden
-huvudet
+huvud
 huvudfiend
 huvudgrupp
 huvudgärd
@@ -10540,7 +10572,7 @@ huvudsak
 huvudst
 huvudstad
 huvudstad
-huvudvillkoret
+huvudvillkor
 huvudvärk
 huvudvärk
 hux
@@ -10831,7 +10863,7 @@ härnäst
 härom
 häromdag
 häromkväll
-häromåret
+häromår
 härpå
 härrörd
 härsk
@@ -10918,8 +10950,8 @@ hård
 hårdn
 hårdnacken
 hård
-håret
-håret
+hår
+hår
 hårflät
 hårfästet
 hår
@@ -10953,7 +10985,7 @@ hög
 högblå
 högbur
 högdrag
-högdraget
+högdrag
 hög
 höge
 hög
@@ -10974,8 +11006,8 @@ högljud
 högljut
 högmo
 högmod
-högmodet
-högmodet
+högmod
+högmod
 högmod
 högmod
 högmod
@@ -11073,7 +11105,7 @@ hörnkamm
 hörnkammarn
 hörnrum
 hörnrummet
-hörröret
+hörrör
 hör
 hörsel
 hört
@@ -11101,7 +11133,7 @@ höstregnet
 höststorm
 höststorm
 höststorm
-höstutsädet
+höstutsäd
 höstvind
 höstviol
 höstvädr
@@ -11153,6 +11185,7 @@ ide
 ide
 iden
 identifier
+identitet
 idio
 idiot
 idiot
@@ -11237,7 +11270,7 @@ ijml
 ijud
 ijud
 ijud
-ijudet
+ijud
 ijum
 ijumm
 ijumt
@@ -11249,11 +11282,11 @@ ijusblat
 ijusblå
 ijusboll
 ijusbrun
-ijuset
+ijus
 ijusfläck
-ijushuvudet
+ijushuvud
 ijussk
-ijusskenet
+ijussken
 ijusstrimm
 ijust
 ijuv
@@ -11361,6 +11394,9 @@ inbränt
 inbund
 inbur
 inbäd
+incestuös
+incestuös
+incestuös
 ind
 ind
 ind
@@ -11480,8 +11516,8 @@ inkomst
 inkomst
 inkomst
 inkrup
-inkråmet
-inköpet
+inkråm
+inköp
 inkörsport
 inl
 inlag
@@ -11508,7 +11544,7 @@ inmur
 innan
 innandörn
 innanför
-innanmätet
+innanmät
 inn
 inneb
 inneboend
@@ -11592,7 +11628,7 @@ inskeppad
 inskjut
 inskrifvet
 inskriv
-inskrivet
+inskriv
 inskrivningsbok
 inskrivningspeng
 inskränk
@@ -11619,6 +11655,7 @@ inspiration
 inspiration
 inspräng
 inspärr
+instabilitet
 installer
 insteg
 instiftelseord
@@ -11673,8 +11710,10 @@ intagit
 int
 intc
 int
+integritet
 intel
 intelligent
+intensitet
 intensivt
 interiör
 intermezzot
@@ -11688,6 +11727,7 @@ intillträdgårdensstor
 intim
 intim
 intim
+intimitet
 intimt
 intog
 intogo
@@ -11695,6 +11735,7 @@ intoner
 intork
 intrassl
 intrassl
+intravenös
 intressant
 intressant
 intressant
@@ -11721,7 +11762,7 @@ inträd
 inträd
 inträd
 inträd
-inträdet
+inträd
 inträd
 inträff
 inträff
@@ -11869,7 +11910,7 @@ iykt
 iyktan
 iykt
 iykt
-iyktskenet
+iyktsken
 iynn
 iys
 iys
@@ -11913,7 +11954,7 @@ jag
 jag
 jag
 jagat
-jaget
+jag
 jah
 jak
 jakob
@@ -12013,7 +12054,7 @@ jord
 jordbebygg
 jordbrunt
 jordbundn
-jordelivet
+jordeliv
 jord
 jord
 jordevandring
@@ -12021,7 +12062,7 @@ jordfästning
 jordisk
 jordisk
 jordisk
-jordklotet
+jordklot
 jordvåning
 jordytan
 joscf
@@ -12069,7 +12110,7 @@ julhögtid
 juli
 juli
 juli
-julstöket
+julstök
 jung
 jungfru
 jungfrudom
@@ -12100,7 +12141,7 @@ juster
 juster
 justiti
 justitierevision
-justitierådet
+justitieråd
 jutland
 juvel
 juvel
@@ -12227,14 +12268,14 @@ kakelugn
 kakelugnsfris
 kakelugnskant
 kakf
-kakfatet
+kakfat
 kak
 kakpapp
 kaksmet
 kal
 kalas
 kalas
-kalaset
+kalas
 kalasskjort
 kalend
 kali
@@ -12340,7 +12381,7 @@ kanotiär
 kanskc
 kansk
 kansl
-kanslirådet
+kansliråd
 kanslisekreter
 kansl
 kant
@@ -12359,6 +12400,7 @@ kantring
 kaos
 kap
 kapabel
+kapacitet
 kapell
 kapell
 kapital
@@ -12399,10 +12441,10 @@ karaktär
 karaktärslös
 karamell
 karamell
-karamellkoket
+karamellkok
 karbol
 kardborr
-karet
+kar
 karikatyr
 karin
 karl
@@ -12505,7 +12547,7 @@ kavaljer
 kavalj
 kavaljersman
 kavat
-kavet
+kav
 kax
 kedj
 kedjan
@@ -12536,7 +12578,7 @@ killingsfäll
 kin
 kind
 kindb
-kindbenet
+kindben
 kind
 kind
 kind
@@ -12643,7 +12685,7 @@ klassrumm
 klassrummet
 klatsch
 klav
-klaveret
+klaver
 kled
 klef
 klem
@@ -12794,7 +12836,7 @@ klämt
 klämt
 klämt
 klämtslag
-klämtslaget
+klämtslag
 klän
 kläng
 kläng
@@ -12803,8 +12845,8 @@ klänning
 klänning
 klänningsfick
 klänningskjol
-klänningslivet
-klänningstyget
+klänningsliv
+klänningstyg
 kläp
 kläpp
 klär
@@ -12847,7 +12889,7 @@ knapp
 knapphandl
 knapphandl
 knapphål
-knapphålet
+knapphål
 knappnål
 knappt
 knappt
@@ -12903,7 +12945,7 @@ knut
 knut
 knut
 knut
-knutet
+knut
 knutit
 knutn
 knyck
@@ -12989,9 +13031,12 @@ kolsyran
 kolt
 kolv
 kom
+komatös
+komatös
 komediantfolk
 komedi
 komedi
+komet
 komfortabelt
 komisk
 komisk
@@ -13023,6 +13068,7 @@ kommo
 kommod
 kommod
 kommunion
+kommunitet
 komn
 kompan
 kompan
@@ -13032,7 +13078,9 @@ kompanjon
 kompanjon
 kompanjonskap
 kompass
+kompatibilitet
 kompetent
+komplexitet
 komplimang
 komponer
 kompositör
@@ -13117,8 +13165,9 @@ kontant
 kontant
 konterfej
 kontinent
+kontinuitet
 kont
-kontoret
+kontor
 kontrabesök
 kontrahent
 kontr
@@ -13158,7 +13207,7 @@ kor
 koral
 koral
 kordong
-koret
+kor
 korg
 korg
 korg
@@ -13316,8 +13365,8 @@ krig
 krig
 krig
 krigarsläk
-kriget
-kriget
+krig
+krig
 krigsklang
 krigslist
 krigsmak
@@ -13326,7 +13375,7 @@ krigstillståndet
 kriminalberätt
 krimskram
 kring
-kringbjudet
+kringbjud
 kringelkrok
 kringfar
 kringfladdr
@@ -13429,7 +13478,7 @@ krus
 krus
 krusning
 krut
-krutet
+krut
 krutrök
 krutspräng
 kry
@@ -13470,7 +13519,7 @@ kräftskal
 kräk
 kräk
 kräk
-kräket
+kräk
 kräkt
 kräl
 kräl
@@ -13493,7 +13542,7 @@ krångl
 krång
 krång
 kråsb
-kråset
+krås
 kråsnål
 krök
 krök
@@ -13508,7 +13557,7 @@ krön
 krön
 krön
 krön
-krönet
+krön
 krönik
 kröningsdag
 kröningsmarsch
@@ -13529,7 +13578,7 @@ kujoner
 kul
 kulan
 kul
-kulet
+kul
 kuliss
 kuliss
 kuliss
@@ -13645,6 +13694,7 @@ kvall
 kvalm
 kvalm
 kvalm
+kvantitet
 kvar
 kvarblevo
 kvarglömd
@@ -13666,8 +13716,8 @@ kvarsit
 kvarstod
 kvarstå
 kvart
-kvartalet
-kvartalet
+kvartal
+kvartal
 kvartalsvis
 kvarteis
 kvart
@@ -13717,8 +13767,8 @@ kvinn
 kvinn
 kvinnorov
 kvinnor
-kvinnoröst
-kvinnoröst
+kvinnorös
+kvinnorös
 kvinnosidan
 kvinnoskep
 kvinnovar
@@ -13807,7 +13857,7 @@ kyrkplik
 kyrkport
 kyrksilvret
 kyrkspiran
-kyrktaket
+kyrktak
 kyrktornet
 kyrktrappan
 kyrktupp
@@ -13975,7 +14025,7 @@ kår
 kår
 kåttjefull
 kökemästarn
-köket
+kök
 kök
 köksbordet
 köksfönst
@@ -13988,7 +14038,7 @@ köld
 köld
 köldrysning
 kön
-könet
+kön
 königsmarck
 königsmarck
 könsdrift
@@ -13999,7 +14049,7 @@ köp
 köp
 köparinnan
 köp
-köpet
+köp
 köpman
 köpmangatan
 köpman
@@ -14016,7 +14066,7 @@ körd
 körd
 körj
 körsbär
-körsbäret
+körsbär
 körsbärssaft
 körsbärssylt
 körsbärsträd
@@ -14065,7 +14115,7 @@ lagen
 lag
 lag
 lagerheim
-laget
+lag
 laggargaml
 lag
 lag
@@ -14084,7 +14134,7 @@ lagsökning
 lagt
 lakan
 lakan
-lakanet
+lakan
 lakej
 lakonisk
 lall
@@ -14100,11 +14150,11 @@ lamp
 lamp
 lampan
 lampet
-lampglaset
+lampglas
 lamp
 lamp
 lampsk
-lampskenet
+lampsken
 lamt
 lan
 land
@@ -14124,7 +14174,7 @@ landsbyg
 lands
 landsförsamling
 landskap
-landskapet
+landskap
 landskyrk
 landsmål
 landsort
@@ -14134,7 +14184,7 @@ landsväg
 landsänd
 landt
 landväg
-lanet
+lan
 lang
 lang
 lang
@@ -14229,7 +14279,7 @@ led
 led
 led
 led
-ledmotivet
+ledmotiv
 ledning
 ledo
 led
@@ -14270,9 +14320,10 @@ lefvernet
 leg
 legend
 legend
+legitimitet
 lejd
 lejon
-lejonet
+lejon
 lejonhon
 lek
 lek
@@ -14460,7 +14511,7 @@ likaval
 likaväl
 lik
 lik
-liket
+lik
 likgilt
 likgilt
 likgilt
@@ -14490,6 +14541,7 @@ liktyd
 likvider
 likvider
 likvider
+likviditet
 likvisst
 likväl
 likör
@@ -14538,14 +14590,14 @@ lindr
 lindr
 lindr
 lindring
-lindträdet
-linet
-linet
+lindträd
+lin
+lin
 linfrö
 ling
 lingon
 lingonris
-lingonriset
+lingonris
 lingult
 linj
 linj
@@ -14562,8 +14614,8 @@ linn
 linnet
 linoleummat
 linongsklänning
-linsädet
-lintyget
+linsäd
+lintyg
 lionardo
 lip
 lip
@@ -14590,7 +14642,7 @@ litct
 lit
 lite
 lit
-litet
+lit
 litografer
 litt
 litteratur
@@ -14604,8 +14656,8 @@ liv
 livct
 live
 liv
-livet
-livet
+liv
+liv
 livförsäkringspremi
 livgardist
 livkusk
@@ -14646,7 +14698,7 @@ ljud
 ljud
 ljud
 ljud
-ljudet
+ljud
 ljudit
 ljud
 ljud
@@ -14681,8 +14733,8 @@ ljusblåt
 ljusbrun
 ljus
 ljus
-ljuset
-ljuset
+ljus
+ljus
 ljusfläck
 ljusfläck
 ljusgrå
@@ -14703,7 +14755,7 @@ ljusning
 ljusrand
 ljusring
 ljussk
-ljusskenet
+ljussken
 ljusskylt
 ljusskymt
 ljusstak
@@ -14745,7 +14797,7 @@ lock
 lock
 lock
 lockbet
-lockbetet
+lockbet
 lock
 locket
 lock
@@ -14779,7 +14831,7 @@ lojtnant
 lojtnantsfru
 lokal
 lokal
-lokomotivet
+lokomotiv
 lombardbruck
 lon
 lopp
@@ -14841,7 +14893,7 @@ ludn
 luff
 lufsandc
 luft
-luftdraget
+luftdrag
 luft
 luft
 luft
@@ -14870,6 +14922,7 @@ lukt
 lukt
 luktärt
 lull
+luminositet
 lumm
 lumm
 lump
@@ -15063,14 +15116,14 @@ lägen
 lägen
 läg
 lägereld
-läget
+läg
 lägg
 lägg
 lägg
 lägg
 lägg
 lägg
-läggspelet
+läggspel
 läg
 läg
 lägr
@@ -15088,8 +15141,8 @@ läk
 läkarförening
 läk
 läkarpjosk
-läkarsällskapet
-läkarsällskapet
+läkarsällskap
+läkarsällskap
 läk
 läkedom
 läkemedel
@@ -15265,12 +15318,12 @@ lån
 lån
 lån
 lån
-lånet
+lån
 lång
 lång
 långan
 långbyx
-långdraget
+långdrag
 långfingret
 långhalsduk
 långholm
@@ -15300,8 +15353,8 @@ låntag
 lår
 lås
 lås
-låset
-låset
+lås
+lås
 låst
 låst
 låt
@@ -15336,11 +15389,11 @@ löj
 löj
 löjebland
 löj
-löjet
 löj
 löj
 löj
-löjliget
+löj
+löj
 löj
 löj
 löj
@@ -15435,7 +15488,7 @@ madon
 madr
 mag
 magasin
-magasinet
+magasin
 magd
 magdalen
 magd
@@ -15464,8 +15517,9 @@ mahänd
 maintenon
 maj
 majestät
-majestätet
 majestät
+majestät
+majoritet
 majrock
 majs
 majstäng
@@ -15504,7 +15558,7 @@ malm
 malmskillnadsgatan
 malmtorgsgatan
 malät
-malätet
+malät
 mamm
 mamm
 mamm
@@ -15523,7 +15577,7 @@ mandelblomm
 manderskiöld
 manderström
 man
-maneret
+maner
 mang
 mangfald
 manhaft
@@ -15610,6 +15664,7 @@ maskin
 maskineriet
 maskin
 mask
+maskulinitet
 mass
 mass
 massag
@@ -15651,7 +15706,7 @@ matm
 matmor
 matmödrar
 mato
-matoset
+matos
 matron
 matronan
 matron
@@ -15764,7 +15819,7 @@ medvet
 medvet
 medvet
 medveten
-medvetet
+medvet
 medvetn
 medvetslös
 medvetslös
@@ -15790,6 +15845,8 @@ mellanrummet
 mellantid
 mellantid
 mellantid
+mellanös
+mellanös
 mellberg
 mell
 mellerst
@@ -15822,7 +15879,7 @@ mening
 mening
 meningslös
 meningslös
-meningsutbytet
+meningsutbyt
 men
 menlös
 menlös
@@ -15863,6 +15920,7 @@ met
 met
 metall
 metall
+metallicitet
 metallisk
 metallklang
 met
@@ -16025,13 +16083,13 @@ missmod
 missnöjd
 missnöjd
 missnöj
-missnöjet
+missnöj
 missräkning
 missräkning
 misstag
 misstag
 misstag
-misstaget
+misstag
 misstagit
 misstank
 misstank
@@ -16062,7 +16120,7 @@ misstänk
 missun
 missöd
 missöd
-missödet
+missöd
 mist
 mist
 mist
@@ -16103,10 +16161,10 @@ mjöl
 mjöl
 mjölk
 mjölk
-mjölkaret
+mjölkar
 mjölkbyt
 mjölk
-mjölkmagasinet
+mjölkmagasin
 mjölkmugg
 mjölkvälling
 mjölnarn
@@ -16125,6 +16183,7 @@ mn
 mna
 mngen
 mnn
+mobilitet
 mod
 modd
 modehandlersk
@@ -16141,17 +16200,18 @@ moderlös
 mod
 mod
 moderniser
+modernitet
 mod
 modernt
 moder
 modersbarm
-modersbröst
+modersbrös
 modersbröstet
 modershjert
 modershjärt
-moderskapet
+moderskap
 modest
-modet
+mod
 modfäld
 modfälld
 mod
@@ -16167,7 +16227,7 @@ moduler
 modus
 modärn
 mog
-moget
+mog
 mogm
 mogn
 mogn
@@ -16193,6 +16253,9 @@ monark
 mond
 mondän
 monsieur
+monstruös
+monstruös
+monstruös
 mont
 montmartr
 mor
@@ -16335,7 +16398,7 @@ ms
 mte
 muff
 mul
-mulet
+mul
 mull
 mull
 mul
@@ -16383,7 +16446,7 @@ munvädr
 mur
 mur
 mur
-murbruket
+murbruk
 mur
 murk
 murket
@@ -16408,7 +16471,7 @@ musik
 musik
 musiknumm
 muskel
-muskelspelet
+muskelspel
 muskelstark
 muskl
 muskulatur
@@ -16431,7 +16494,7 @@ myck
 mycken
 mycket
 myckn
-myeket
+myek
 mygg
 myggan
 mygg
@@ -16593,7 +16656,7 @@ målarfärg
 målarmäst
 mål
 mål
-målet
+mål
 mållös
 målning
 mål
@@ -16638,11 +16701,11 @@ mångår
 mångår
 månklar
 månljus
-månljuset
+månljus
 månn
 månn
 månsk
-månskenet
+månsken
 månskensfant
 månskensnat
 månskensnat
@@ -16753,7 +16816,7 @@ möt
 möt
 mötesplat
 mötesplats
-mötet
+möt
 möt
 mött
 mött
@@ -16793,9 +16856,9 @@ naiv
 naivt
 nak
 naken
-naket
+nak
 nakn
-nakterhuset
+nakterhus
 nalk
 nalk
 namn
@@ -16843,7 +16906,7 @@ nast
 nastan
 nat
 natarligtvis
-natet
+nat
 nationaleko
 nationer
 nation
@@ -16893,7 +16956,7 @@ nattvardsgäst
 nattvardsgång
 nattvardskalk
 nattvardskapsl
-nattvardsvinet
+nattvardsvin
 nattvind
 nattvind
 natur
@@ -17054,12 +17117,13 @@ nervtråd
 nervvärk
 nervös
 nervös
-nervöst
+nervös
 nes
 net
 net
 net
 netty
+neutralitet
 ni
 nia
 niais
@@ -17221,7 +17285,7 @@ nyast
 nyck
 nyckel
 nyckelhål
-nyckelhålet
+nyckelhål
 nyckeln
 nyck
 nyck
@@ -17233,7 +17297,7 @@ nyfall
 nyfik
 nyfiken
 nyfiken
-nyfiket
+nyfik
 nyfikn
 nyfrälst
 nyfärg
@@ -17297,7 +17361,7 @@ nyttj
 nytänd
 nyvun
 nyväck
-nyåret
+nyår
 nyårsafton
 nyårsny
 näbb
@@ -17330,7 +17394,7 @@ när
 när
 närap
 närapå
-närbeläget
+närbeläg
 närd
 närd
 närd
@@ -17360,7 +17424,7 @@ närvaro
 närvaron
 näs
 näsan
-näsbenet
+näsben
 näsborr
 näsborr
 näsduk
@@ -17386,8 +17450,8 @@ näsvis
 näsvis
 näsvist
 nät
-nätet
-nätet
+nät
+nät
 näthin
 nätt
 nätt
@@ -17471,7 +17535,7 @@ nöj
 nöjen
 nöj
 nöj
-nöjet
+nöj
 nöj
 nöjsam
 nöp
@@ -17483,13 +17547,13 @@ nött
 nött
 o
 oa
-oafbrutet
+oafbrut
 oafgjord
 oaktad
 oakt
 oan
 oand
-oangripet
+oangrip
 oansen
 oanständ
 oanständ
@@ -17497,7 +17561,7 @@ oart
 oartikulerad
 oartikuler
 oavbrut
-oavbrutet
+oavbrut
 oavbrutn
 oavlåt
 oavund
@@ -17510,7 +17574,7 @@ obegrip
 obegrip
 obegräns
 obehag
-obehaget
+obehag
 obehag
 obehag
 obehag
@@ -17580,6 +17644,7 @@ obland
 oblandad
 obligeant
 obliger
+oblikvitet
 oblyg
 oblyg
 oblyg
@@ -17614,7 +17679,7 @@ oderton
 odh
 odjur
 odjur
-odjuret
+odjur
 odjur
 odl
 odl
@@ -17725,7 +17790,7 @@ oförsynt
 oförsynt
 oförsynt
 oförsörjd
-oförtrutet
+oförtrut
 oförtrutn
 oförtöfvad
 oförutsed
@@ -17751,7 +17816,7 @@ ogonspring
 ograciös
 ogrannlag
 ogrund
-ogräset
+ogräs
 ogudakt
 ogunst
 ogunst
@@ -17817,7 +17882,7 @@ okäns
 okänt
 oköp
 ola
-olatet
+olat
 oldsmobil
 olid
 olid
@@ -17881,7 +17946,7 @@ olös
 olöst
 om
 omak
-omaket
+omak
 oman
 ombed
 ombild
@@ -17898,7 +17963,7 @@ omedelbart
 omedgör
 omedgör
 omedvet
-omedvetet
+omedvet
 omedvetn
 omelet
 omen
@@ -17908,7 +17973,7 @@ omfamning
 omfar
 omfat
 omfat
-omflutet
+omflut
 omfång
 omfånget
 omförmäl
@@ -17920,7 +17985,7 @@ omgift
 omgifv
 omgiv
 omgiv
-omgivet
+omgiv
 omgivning
 omgivning
 omgjord
@@ -17944,7 +18009,7 @@ omisstänksamm
 omkläd
 omklädseln
 omkläd
-omknutet
+omknut
 omkomm
 omkommit
 omkret
@@ -17974,7 +18039,7 @@ omotiver
 omring
 områd
 områd
-området
+områd
 oms
 omsid
 omskrivning
@@ -18140,7 +18205,7 @@ ordning
 ordrik
 ord
 ordspråk
-ordspråket
+ordspråk
 ordspråksvisdom
 ordström
 ored
@@ -18178,7 +18243,7 @@ orgverk
 orh
 orienter
 original
-originalspråket
+originalspråk
 originalutgåvan
 originell
 orikt
@@ -18248,7 +18313,7 @@ orättvis
 orättvisan
 orättvist
 oråd
-orådet
+oråd
 orör
 orörd
 orörd
@@ -18361,7 +18426,7 @@ otyd
 otyd
 otyd
 otyg
-otyget
+otyg
 otygl
 otymp
 otäck
@@ -18387,7 +18452,7 @@ oundvik
 oundvik
 oupphör
 oupphör
-oupptaget
+oupptag
 outgrund
 outgrund
 outhärd
@@ -18558,7 +18623,7 @@ pappask
 pappenheim
 papp
 papper
-papperet
+papper
 papperskniv
 papperslapp
 papperslapp
@@ -18575,7 +18640,7 @@ par
 parad
 paradigm
 paradis
-paradiset
+paradis
 parant
 paraply
 paraplyet
@@ -18588,8 +18653,8 @@ parasoll
 parc
 par
 parent
-paret
-paret
+par
+par
 parfym
 parfym
 paris
@@ -18640,11 +18705,12 @@ passopp
 past
 past
 pastor
-pastoratet
+pastorat
 pastorn
 pastorn
 pastorsadjunk
 pastorsadjunk
+pastös
 patent
 pat
 paternost
@@ -18712,7 +18778,7 @@ pennfjädr
 penning
 penning
 penning
-penningbegäret
+penningbegär
 penningeaffär
 penningeförlägen
 penning
@@ -18904,7 +18970,7 @@ plan
 plan
 planer
 planer
-planet
+plan
 planet
 plank
 plank
@@ -19008,7 +19074,7 @@ pock
 pock
 pock
 poem
-poemet
+poem
 poesi
 poesibok
 poesi
@@ -19046,6 +19112,10 @@ politik
 politisk
 polityr
 polityrkärl
+pompös
+pompös
+pompös
+pompös
 pomril
 poner
 ponk
@@ -19063,7 +19133,7 @@ porl
 porl
 porslin
 porslin
-porslinet
+porslin
 porslinspröd
 porslinsvas
 port
@@ -19089,10 +19159,15 @@ portvalvet
 portvin
 portör
 portör
+porös
+porös
+porös
+porös
 pos
 poser
 poser
 position
+positivitet
 post
 postb
 postbär
@@ -19133,7 +19208,7 @@ prat
 prat
 prat
 prat
-pratet
+prat
 pratlystn
 pratsamm
 prcdikan
@@ -19190,7 +19265,7 @@ prick
 prick
 prick
 primadolm
-primariiämbetet
+primariiämbet
 primarius
 primus
 princess
@@ -19201,6 +19276,7 @@ prins
 prinsess
 prinsessan
 prior
+prioritet
 pris
 pris
 pris
@@ -19209,14 +19285,14 @@ pris
 pris
 pris
 pris
-priset
+pris
 priv
 privatbank
 privatdöpt
 privilegium
 pro
 problem
-problemet
+problem
 procent
 procent
 procentarhänd
@@ -19235,7 +19311,7 @@ professorer
 professorn
 professorn
 professor
-profet
+prof
 profet
 profet
 profeter
@@ -19286,7 +19362,7 @@ protester
 protester
 prov
 prov
-provet
+prov
 provins
 provisorn
 provkandid
@@ -19390,6 +19466,7 @@ psykisk
 psykofjant
 ptock
 pu
+publicitet
 publik
 publik
 publik
@@ -19434,7 +19511,7 @@ punschbrick
 punschbutelj
 punsch
 punschgl
-punschglaset
+punschglas
 punschhalvan
 punschorgi
 pupill
@@ -19498,7 +19575,7 @@ pärl
 pärlskum
 pärlstickning
 pärm
-päronet
+päron
 päronträd
 på
 påa
@@ -19515,7 +19592,7 @@ pådrifv
 påfall
 påfan
 påflugen
-påfluget
+påflug
 påfogel
 påfordr
 påfund
@@ -19590,6 +19667,7 @@ påverkan
 pöbeln
 pöbelvanan
 pöl
+pös
 pös
 pöst
 qu
@@ -19818,7 +19896,7 @@ reflexion
 reflexionsspegel
 reflexionsspegeln
 reflexrör
-reflexskenet
+reflexsken
 reflexverkan
 refräng
 refug
@@ -19887,7 +19965,7 @@ religionslär
 religiositet
 religiös
 religiös
-religiöst
+religiös
 reling
 reling
 reling
@@ -19990,7 +20068,7 @@ rest
 rest
 resulst
 result
-resultatet
+resultat
 resulter
 resur
 resurs
@@ -20043,7 +20121,11 @@ ridån
 riern
 rigeln
 rigg
+rigiditet
 rigl
+rigorös
+rigorös
+rigorös
 rigt
 rigt
 rigt
@@ -20118,7 +20200,7 @@ ring
 rinn
 rinn
 ris
-riset
+ris
 risk
 risk
 risk
@@ -20134,6 +20216,7 @@ rit
 rium
 riv
 rival
+rivalitet
 riv
 riv
 rivil
@@ -20162,7 +20245,7 @@ rockhandeln
 rock
 rockskört
 rockskörtet
-rockslaget
+rockslag
 rocksvarv
 rockärm
 rockärm
@@ -20230,7 +20313,7 @@ rop
 rop
 rop
 rop
-ropet
+rop
 ror
 rord
 rord
@@ -20359,8 +20442,8 @@ rus
 rus
 rus
 rus
-ruset
-ruset
+rus
+rus
 rus
 rus
 rusk
@@ -20571,13 +20654,13 @@ rådbråk
 rådd
 råd
 råd
-rådet
+råd
 rådfråg
 rådfråg
 rådfråg
 rådgiv
 rådgör
-rådhuset
+rådhus
 råd
 rådlös
 rådlös
@@ -20587,7 +20670,7 @@ rådplägning
 rådrum
 råd
 rådsförsamling
-rådslaget
+rådslag
 rådt
 rådvill
 råe
@@ -20680,7 +20763,7 @@ röl
 römt
 rön
 rön
-rönet
+rön
 rönl
 rönn
 rönnbär
@@ -20702,7 +20785,7 @@ rör
 rör
 rör
 rör
-röret
+rör
 rör
 rör
 rör
@@ -20716,6 +20799,8 @@ röst
 röst
 röst
 röst
+röst
+röster
 röst
 röt
 röt
@@ -20833,7 +20918,7 @@ sam
 sam
 samhäll
 samhället
-samhällslivet
+samhällsliv
 samhällsorganisation
 samhällsvetenskap
 samhör
@@ -20844,7 +20929,7 @@ saml
 saml
 saml
 samlag
-samlalet
+samlal
 saml
 saml
 saml
@@ -20856,7 +20941,7 @@ samm
 samman
 sammanbind
 sammanbind
-sammanbitet
+sammanbit
 sammanbitn
 sammanbland
 sammanbrot
@@ -20926,8 +21011,8 @@ samspråk
 samt
 samtal
 samtal
-samtalet
-samtalet
+samtal
+samtal
 samtalsform
 samtalsämnet
 samtid
@@ -20941,8 +21026,8 @@ samuelsgatan
 samvaro
 samvet
 samvet
-samvetet
-samvetet
+samvet
+samvet
 samvetsagg
 samvetsgran
 samvetsgrant
@@ -21032,7 +21117,7 @@ scgra
 sch
 schabrak
 schack
-schackbrädet
+schackbräd
 schackproblem
 schackspel
 schackspir
@@ -21120,7 +21205,7 @@ segr
 segr
 segr
 segr
-sekelslutet
+sekelslut
 sekl
 seklet
 seklet
@@ -21166,6 +21251,7 @@ sentimentalt
 septemb
 septemberdag
 ser
+serendipitet
 sermo
 server
 server
@@ -21196,6 +21282,7 @@ sextonskilling
 sextonår
 sextonår
 sextonår
+sexualitet
 sf
 sffäll
 sfi
@@ -21217,7 +21304,7 @@ sidan
 sid
 sidenband
 sidenduk
-sidenet
+siden
 sidenhat
 sidenkapp
 sidenkläd
@@ -21235,7 +21322,7 @@ sidenroset
 sidenschal
 sidentak
 sidentyg
-sidentyget
+sidentyg
 sidentäck
 sidlänt
 sidoblick
@@ -21284,9 +21371,9 @@ silk
 silk
 silkesblomm
 silkesduk
-silkesfloret
+silkesflor
 silkeshalsduk
-silkeshåret
+silkeshår
 silkesl
 silkeslen
 silkeslent
@@ -21319,7 +21406,7 @@ silverkling
 silverkniv
 silverpapp
 silverpokal
-silverröst
+silverrös
 silversked
 silverskål
 silverslant
@@ -21488,7 +21575,7 @@ sjuttonar
 sjuttonar
 sjuttonaring
 sjuttond
-sjuttonhundratalet
+sjuttonhundratal
 sjuår
 sjuår
 sjä
@@ -21552,7 +21639,7 @@ sjöfogl
 sjöfågl
 sjöförklaring
 sjögräs
-sjögräset
+sjögräs
 sjögrönt
 sjögång
 sjöhistori
@@ -21582,7 +21669,7 @@ sjöskumspip
 sjöslag
 sjöstr
 sjötullstaxan
-sjötungsfilet
+sjötungsfil
 sjöväsendet
 sk
 ska
@@ -21599,7 +21686,7 @@ skadeglat
 skadeglädj
 skadeglädj
 skadegör
-skadespelet
+skadespel
 skad
 skad
 skad
@@ -21632,7 +21719,7 @@ skald
 skald
 skald
 skal
-skalet
+skal
 skall
 skall
 skall
@@ -21709,7 +21796,7 @@ sken
 sken
 skenbar
 skenbart
-skenet
+sken
 skenhe
 skenhe
 skenliv
@@ -21782,7 +21869,7 @@ skilj
 skilj
 skilj
 skilj
-skiljobrevet
+skiljobrev
 skilling
 skilln
 skillnad
@@ -21827,7 +21914,7 @@ skivan
 skiv
 skjort
 skjortan
-skjortbröst
+skjortbrös
 skjortkrag
 skjort
 skjortsöm
@@ -21892,14 +21979,14 @@ skolgoss
 skolgoss
 skolgoss
 skolgård
-skolhuset
+skolhus
 skolkamrat
 skolk
 skolklockan
 skollär
 skolmamsell
 skolpojk
-skolpojkslivet
+skolpojksliv
 skolpojkssättet
 skolrummet
 skolsal
@@ -21927,7 +22014,7 @@ skorstensfej
 skosmörj
 skot
 skot
-skotet
+skot
 skott
 skottet
 skottkärran
@@ -21945,7 +22032,7 @@ skrap
 skrap
 skrap
 skrap
-skrapet
+skrap
 skrapning
 skratt
 skratt
@@ -21991,7 +22078,7 @@ skrik
 skrik
 skrik
 skrik
-skriket
+skrik
 skrik
 skrikit
 skritt
@@ -22005,7 +22092,7 @@ skriv
 skriv
 skriv
 skriv
-skrivet
+skriv
 skrivit
 skrivit
 skrivkonst
@@ -22063,11 +22150,11 @@ skrämm
 skrämsel
 skrämseln
 skrämt
-skränet
+skrän
 skränpatriotisk
 skräp
 skräp
-skräpet
+skräp
 skräp
 skräpkamm
 skräpkamr
@@ -22243,7 +22330,7 @@ skäggbot
 skägget
 skägg
 skäl
-skälet
+skäl
 skälfv
 skäll
 skäll
@@ -22331,7 +22418,7 @@ skådespel
 skådespel
 skådespel
 skådespelersk
-skådespelet
+skådespel
 skål
 skål
 skål
@@ -22341,7 +22428,7 @@ skåmt
 skån
 skåp
 skåpdörr
-skåpet
+skåp
 skök
 sköld
 sköldborg
@@ -22382,7 +22469,7 @@ skötersk
 sköterskam
 sköterskan
 skötersk
-skötet
+sköt
 sköto
 sköt
 skött
@@ -22401,7 +22488,7 @@ slagbordet
 slagdäng
 slagdäng
 slag
-slaget
+slag
 slagfältet
 slagit
 slagit
@@ -22552,7 +22639,7 @@ slut
 slut
 sluten
 slut
-slutet
+slut
 slutit
 slutit
 slutkapitlet
@@ -22816,7 +22903,7 @@ småakt
 småbarn
 småbarnskläd
 småborger
-småbrödet
+småbröd
 småbåt
 småbåt
 smådd
@@ -22826,7 +22913,7 @@ smågnol
 smågnol
 smågräl
 småherr
-småherrskapet
+småherrskap
 småjag
 småkräk
 småkrämaraffär
@@ -22869,7 +22956,7 @@ smörbak
 smörbyt
 smörbyt
 smörduk
-smöret
+smör
 smörgas
 smörgås
 smörgås
@@ -22999,7 +23086,7 @@ snål
 snål
 snår
 snår
-snåret
+snår
 snö
 snöa
 snöad
@@ -23018,7 +23105,7 @@ snöp
 snörd
 snör
 snör
-snöret
+snör
 snörpt
 snörrät
 snörvl
@@ -23062,7 +23149,7 @@ soffhörnet
 soffkarm
 sofflock
 soff
-sofföverdraget
+sofföverdrag
 sofi
 sofi
 sofi
@@ -23100,12 +23187,12 @@ sol
 sol
 sol
 solk
-solljuset
+solljus
 solnedgång
 solnedgång
 solsidan
 solsk
-solskenet
+solsken
 solskensdag
 solskensdag
 solskensdag
@@ -23136,7 +23223,7 @@ somm
 somm
 sommarfarväl
 sommarfjäril
-sommarfloret
+sommarflor
 sommargrönskan
 sommarhem
 sommarhettan
@@ -23144,7 +23231,7 @@ sommarklänning
 sommarklänning
 sommarkostym
 sommarkväll
-sommarlovet
+sommarlov
 sommarmoln
 sommarmorgn
 sommarmorgon
@@ -23154,7 +23241,7 @@ sommarnattsskymning
 sommarn
 sommarnät
 sommarnöj
-sommarnöjet
+sommarnöj
 sommarrestaurang
 sommarrum
 sommarsöndag
@@ -23191,7 +23278,7 @@ sorgbrev
 sorgbunden
 sorgdräk
 sorgefärd
-sorgehuset
+sorgehus
 sorg
 sorg
 sorg
@@ -23302,7 +23389,7 @@ spegehl
 spegel
 spegelbild
 spegelbordet
-spegelglaset
+spegelglas
 spegellåd
 spegeln
 spegelyt
@@ -23337,7 +23424,7 @@ spel
 spelbordet
 spelct
 spel
-spelet
+spel
 spelevink
 spelfågl
 spelkort
@@ -23418,6 +23505,7 @@ spleen
 splitt
 spol
 spoling
+spontanitet
 spord
 spor
 sporr
@@ -23497,8 +23585,8 @@ språk
 språk
 språk
 språkbruk
-språket
-språket
+språk
+språk
 språk
 språk
 språklär
@@ -23544,7 +23632,7 @@ spår
 spår
 spår
 spår
-spåret
+spår
 spårhund
 spårhund
 spårvagn
@@ -23616,7 +23704,7 @@ stafv
 stagnelius
 stak
 staket
-staketet
+staket
 stal
 stall
 stallbrod
@@ -23672,7 +23760,7 @@ station
 station
 station
 station
-stationshuset
+stationshus
 stationshållet
 stationsinspek
 stationsinspek
@@ -23696,7 +23784,7 @@ steg
 steg
 stegem
 steg
-steget
+steg
 stego
 stegr
 stegr
@@ -23744,7 +23832,7 @@ ster
 steril
 steril
 stetoskop
-stetoskopet
+stetoskop
 sti
 stia
 stick
@@ -23924,7 +24012,7 @@ storm
 stormod
 stormod
 stormvand
-storsjöodjuret
+storsjöodjur
 storskärm
 storståt
 stort
@@ -24199,7 +24287,7 @@ styr
 styrd
 styr
 styr
-styret
+styr
 styrk
 styrk
 styrk
@@ -24337,7 +24425,7 @@ stöd
 stödd
 stödd
 stödd
-stödet
+stöd
 stödj
 stödj
 stödj
@@ -24346,7 +24434,7 @@ stöfl
 stöfl
 stök
 stök
-stöket
+stök
 stöld
 stön
 stön
@@ -24452,11 +24540,12 @@ sus
 sus
 sus
 sus
-suset
+sus
 sutiner
 sutt
 suttit
 sutto
+suveränitet
 svad
 svag
 svag
@@ -24523,7 +24612,7 @@ svararl
 svar
 svarat
 svar
-svaret
+svar
 svarh
 svarl
 svar
@@ -24711,6 +24800,9 @@ sybåg
 sydamerik
 sydd
 sydhavspalm
+sydöst
+sydöst
+sydöstr
 syfilidologi
 syforening
 syforening
@@ -24833,7 +24925,7 @@ sysslolös
 sysslolös
 sysslolös
 syssl
-systemet
+system
 syst
 systerdot
 systerhovmästarinnan
@@ -24895,18 +24987,18 @@ sällsamm
 sällsamt
 sällskap
 sällskap
-sällskapet
-sällskapet
+sällskap
+sällskap
 sällskapsbrod
 sällskapsbröd
 sällskapsgåfv
 sällskapskret
 sällskapslifvet
-sällskapslivet
-sällskapslivet
+sällskapsliv
+sällskapsliv
 sällskapsman
 sällskapsnöj
-sällskapsnöjet
+sällskapsnöj
 sällsynt
 sällsynt
 sällsynt
@@ -25035,7 +25127,7 @@ sår
 sår
 sårb
 sår
-såret
+sår
 sårtid
 sås
 såsom
@@ -25106,7 +25198,7 @@ sönderplock
 sönderrivn
 sönderskur
 sönderslag
-sönderslaget
+sönderslag
 söndersleto
 sönderslit
 sönderslit
@@ -25153,7 +25245,7 @@ tackar
 tack
 tackel
 tacklad
-tacklaget
+tacklag
 tackling
 tacklös
 tacksam
@@ -25190,7 +25282,7 @@ tageldyn
 tag
 tag
 tag
-taget
+tag
 tagg
 tagg
 tagit
@@ -25201,8 +25293,8 @@ tag
 tak
 takdroppet
 tak
-taket
-taket
+tak
+tak
 takfönstret
 taklampan
 takrän
@@ -25227,8 +25319,8 @@ tal
 tal
 tal
 talesät
-talet
-talet
+tal
+tal
 talg
 talg
 tal
@@ -25247,6 +25339,8 @@ talorgan
 talrik
 talrik
 talrik
+talrös
+talrös
 talt
 talt
 talt
@@ -25269,7 +25363,7 @@ tankeföljd
 tankegång
 tankekret
 tank
-tankeruset
+tankerus
 tankeverksam
 tankfull
 tankfull
@@ -25359,7 +25453,7 @@ teddybjörn
 teddybjörn
 teet
 tef
-tefatet
+tefat
 teg
 teg
 tegel
@@ -25476,7 +25570,7 @@ tidning
 tidning
 tidningsbl
 tidningskant
-tidningskontoret
+tidningskontor
 tidningspack
 tidningspojk
 tidningsurklipp
@@ -25519,7 +25613,7 @@ tillbakahåll
 tillbakalut
 tillbakalut
 tillbakaskjut
-tillbakastruket
+tillbakastruk
 tillbakasänd
 tillbakavis
 tillbalk
@@ -25527,7 +25621,7 @@ tillbedjan
 tillbedj
 tillbedj
 tillbedjar
-tillbehöret
+tillbehör
 tillb
 tillbet
 tillbrag
@@ -25698,7 +25792,7 @@ tillsänd
 tillsänd
 tilltag
 tilltag
-tilltaget
+tilltag
 tilltagsen
 tilltal
 tilltal
@@ -25714,7 +25808,7 @@ tillvaro
 tillvaron
 tillvaron
 tillverk
-tillvridet
+tillvrid
 tillväxt
 tillägg
 tillägg
@@ -25737,13 +25831,13 @@ tillåt
 tillåt
 tillåt
 tillåt
-tillåtet
+tillåt
 tillåtit
 tillåtn
 tillökning
 tillök
 tilt
-timglaset
+timglas
 timjan
 tim
 tim
@@ -25802,13 +25896,13 @@ tisk
 tisk
 tissl
 tistelöb
-tistelöherrskapet
+tistelöherrskap
 tistelön
 tistelön
 tistelöpacket
 tistelöros
 titel
-titelbladet
+titelblad
 titeln
 titelsidan
 titet
@@ -26118,7 +26212,7 @@ trapprummet
 trapprummet
 trappsteg
 trappsteg
-trappsteget
+trappsteg
 tras
 tras
 tras
@@ -26224,7 +26318,7 @@ trofast
 trof
 trofasu
 trog
-troget
+trog
 trogn
 trogn
 trohet
@@ -26335,7 +26429,7 @@ träd
 trädd
 träd
 träd
-trädet
+träd
 trädgard
 trädgr
 trädgren
@@ -26368,7 +26462,7 @@ träff
 träffat
 träfi
 träg
-träget
+träg
 trägn
 trägn
 trähink
@@ -26404,7 +26498,7 @@ trådgård
 trådnystan
 trådslit
 trådsmal
-tråget
+tråg
 tråk
 tråk
 tråk
@@ -26628,7 +26722,7 @@ tvärsigenom
 tvärstan
 tvärsäkert
 tvärsöv
-tvärsövet
+tvärsöv
 tvärt
 tvärtemot
 tvärtom
@@ -26650,7 +26744,7 @@ två
 tvåa
 tvådubbl
 tvål
-tvålfatet
+tvålfat
 tvång
 tvånget
 tvångsarbet
@@ -26691,7 +26785,7 @@ tygellost
 tygeln
 tyg
 tyg
-tyget
+tyg
 tygl
 tygl
 tygstuv
@@ -26742,7 +26836,7 @@ täck
 täck
 täck
 tädk
-täget
+täg
 tägg
 tälj
 täll
@@ -26806,14 +26900,14 @@ tåg
 tåg
 tågbygnad
 tåg
-tåget
+tåg
 tågpassager
 tågverket
 tågändan
 tål
 tål
 tålamod
-tålamodet
+tålamod
 tåld
 tål
 tål
@@ -26909,7 +27003,7 @@ umdr
 umgick
 umgäll
 umgäng
-umgängeslivet
+umgängesliv
 umgängesvän
 umgänget
 umgås
@@ -26929,7 +27023,7 @@ undanrödj
 undanröjt
 undanspark
 undantag
-undantaget
+undantag
 undcrbart
 und
 und
@@ -26991,7 +27085,7 @@ undermedvetn
 underordn
 underordn
 underordn
-underredet
+underred
 underrät
 underrät
 underrät
@@ -27113,8 +27207,8 @@ ungkarl
 ungkarl
 ungkarlsbost
 ungkarlsliv
-ungkarlslivet
-ungkarlslivet
+ungkarlsliv
+ungkarlsliv
 ungkarlsrum
 ungkarlssoff
 ungkarlsståndet
@@ -27132,7 +27226,7 @@ uniform
 uniformsmöss
 uniformsrock
 union
-universitetet
+universitet
 unk
 unkn
 unn
@@ -27163,10 +27257,10 @@ uppdrag
 uppdrag
 uppdrag
 uppdrag
-uppdraget
+uppdrag
 uppdragit
 uppdragn
-uppdrivet
+uppdriv
 uppdrog
 uppduk
 uppdyk
@@ -27462,7 +27556,7 @@ uppskat
 uppskjut
 uppskjut
 uppskjut
-uppskjutet
+uppskjut
 uppskjutn
 uppskriv
 uppskriv
@@ -27470,7 +27564,7 @@ uppskrämd
 uppskrämd
 uppslag
 uppslag
-uppslaget
+uppslag
 uppslagn
 uppslitn
 uppslits
@@ -27497,7 +27591,7 @@ uppstigning
 uppstod
 uppstodo
 uppstoffer
-uppstruket
+uppstruk
 uppställ
 uppställd
 uppställt
@@ -27524,7 +27618,7 @@ upptack
 upptag
 upptag
 upptag
-upptaget
+upptag
 upptagit
 upptagit
 upptagn
@@ -27543,7 +27637,7 @@ uppträd
 uppträd
 uppträd
 uppträd
-uppträdet
+uppträd
 uppträt
 upptäck
 upptäck
@@ -27691,7 +27785,7 @@ utdel
 utdelning
 utdet
 utdrag
-utdraget
+utdrag
 utdrog
 utdunstning
 utdöd
@@ -27799,7 +27893,7 @@ utlånt
 utlåt
 utlåt
 utlösning
-utlöst
+utlös
 utman
 utmark
 utmarscher
@@ -27843,7 +27937,7 @@ utrikesminist
 utrop
 utrop
 utrop
-utropet
+utrop
 utropsteck
 utrus
 utrust
@@ -27893,10 +27987,10 @@ utskynd
 utskämm
 utslag
 utslag
-utslaget
+utslag
 utslagn
 utslit
-utslitet
+utslit
 utslitn
 utslockn
 utsläck
@@ -27956,7 +28050,7 @@ uttal
 uttal
 uttal
 uttal
-uttalet
+uttal
 uttog
 uttork
 uttork
@@ -28017,6 +28111,8 @@ utöfv
 utöfv
 utöfv
 utöfv
+utös
+utöst
 utöv
 utöv
 utöv
@@ -28089,7 +28185,7 @@ vak
 vak
 vak
 vak
-vaket
+vak
 vakll
 vakn
 vakn
@@ -28127,7 +28223,7 @@ vald
 valdsamt
 vald
 valerius
-valet
+val
 valhänt
 valk
 vall
@@ -28277,6 +28373,7 @@ varf
 varf
 varför
 vari
+variabilitet
 variant
 varibland
 varid
@@ -28356,7 +28453,7 @@ vatt
 vattenbutik
 vattendropp
 vattengl
-vattenglaset
+vattenglas
 vattenhink
 vattenkaml
 vattenkannan
@@ -28451,6 +28548,7 @@ veno
 venst
 venstr
 venus
+venös
 ver
 verallt
 verand
@@ -28668,7 +28766,7 @@ vill
 villastäd
 villc
 vill
-villebradet
+villebrad
 villebråd
 villervall
 villfar
@@ -28678,7 +28776,7 @@ vil
 vil
 villk
 villkor
-villkoret
+villkor
 vill
 vill
 villoväg
@@ -28704,7 +28802,7 @@ vind
 vind
 vind
 vinddrag
-vinddraget
+vinddrag
 vind
 vind
 vindfläk
@@ -28718,15 +28816,15 @@ vindskamm
 vindskamm
 vindskup
 vindskupan
-vindslitet
+vindslit
 vindsrummet
 vindstill
 vindstrappan
 vindstöt
 vin
 vin
-vinet
-vinet
+vin
+vin
 vinflaskan
 ving
 ving
@@ -28829,7 +28927,7 @@ visdom
 visdomstid
 vis
 vis
-viset
+vis
 vis
 vishetsspråk
 vision
@@ -28852,7 +28950,12 @@ viskning
 viskning
 viskning
 viskning
+viskositet
 visky
+viskös
+viskös
+viskös
+viskös
 vis
 vis
 vis
@@ -28894,7 +28997,7 @@ vistat
 vist
 vistelseort
 visthusdörr
-visthuset
+visthus
 vit
 vit
 vitalis
@@ -28932,6 +29035,7 @@ voa
 voil
 voix
 voll
+voluminös
 volym
 volym
 von
@@ -29009,7 +29113,7 @@ väck
 väck
 väck
 väd
-väderbitet
+väderbit
 väderbitn
 väderhan
 väderhorn
@@ -29049,7 +29153,7 @@ vägg
 väggf
 väggklockan
 väggskåp
-väggskåpet
+väggskåp
 vägkant
 vägn
 vägr
@@ -29256,8 +29360,8 @@ värdinnan
 värdinnan
 värdshus
 värdshus
-värdshuset
-värdskapet
+värdshus
+värdskap
 värds
 värd
 värj
@@ -29407,7 +29511,7 @@ våning
 våning
 våning
 vånn
-våpet
+våp
 vår
 vår
 vår
@@ -29531,7 +29635,7 @@ xxxi
 xxxii
 xxxiii
 y
-yaket
+yak
 yanke
 yar
 yart
@@ -29581,7 +29685,7 @@ yrket
 yrsel
 yrseln
 yrvak
-yrvaket
+yrvak
 yrvakn
 ys
 yt
@@ -29638,7 +29742,7 @@ zuav
 äfvensom
 äfventyr
 äfventyr
-äfventyret
+äfventyr
 äga
 äganderät
 ägar
@@ -29667,8 +29771,8 @@ zuav
 äint
 äkt
 äktenskap
-äktenskapet
-äktenskapet
+äktenskap
+äktenskap
 äktenskap
 äktenskapsförbind
 äktenskapsskilln
@@ -29677,7 +29781,7 @@ zuav
 äldst
 äldst
 älghuvud
-älghuvudet
+älghuvud
 älsk
 älsk
 älsk
@@ -29722,7 +29826,7 @@ zuav
 ämabl
 ämad
 ämar
-ämbetet
+ämbet
 ämbet
 ämbetsberk
 ämbetsbroder
@@ -29746,8 +29850,8 @@ zuav
 änd
 ändalmål
 ändamål
-ändamålet
-ändamålet
+ändamål
+ändamål
 ändamålslös
 ändan
 änd
@@ -29884,7 +29988,7 @@ zuav
 ävensom
 äventyr
 äventyr
-äventyret
+äventyr
 äventyr
 äventyrslyst
 ävlan
@@ -29919,7 +30023,7 @@ zuav
 åjo
 åka
 åkdon
-åkdonet
+åkdon
 åker
 åkerman
 åkern
@@ -29991,7 +30095,7 @@ zuav
 året
 århundr
 århundr
-århundradet
+århundrad
 årl
 årl
 årl
@@ -30165,7 +30269,7 @@ zuav
 åtsmet
 åtsnurr
 åtstram
-åtstruket
+åtstruk
 ått
 ått
 åttiofjerd
@@ -30179,12 +30283,13 @@ zuav
 ödas
 ödd
 öde
+ödematös
 öden
 ödesbestämd
 ödesbestämt
 ödesdigert
 ödeshemman
-ödeshemmanet
+ödeshemman
 ödet
 ödet
 ödipus
@@ -30438,6 +30543,7 @@ zuav
 ösa
 ösregn
 ösregn
+öst
 östan
 östanvind
 öst
@@ -30464,10 +30570,10 @@ zuav
 överblivn
 överbrygg
 överdrag
-överdraget
+överdrag
 överdriv
 överdriv
-överdrivet
+överdriv
 överdrivn
 överdrog
 överdåd
@@ -30501,7 +30607,7 @@ zuav
 övergick
 övergiv
 övergiv
-övergivet
+övergiv
 övergivit
 övergivn
 övergjut
@@ -30561,7 +30667,7 @@ zuav
 överrock
 överräkn
 överräkn
-överröst
+överrös
 översat
 överseendet
 översh
@@ -30615,6 +30721,15 @@ zuav
 överväld
 överändakast
 överändakast
+överös
+överös
+överös
+överös
+överös
+överös
+överös
+överös
+överös
 övning
 övning
 övr

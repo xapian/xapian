@@ -1,0 +1,13 @@
+voc.txt was generated from a dump of the Hindi wikipedia by the script
+wikipedia-most-common-words like so:
+
+WikiExtractor.py hiwiki-latest-pages-articles.xml.bz2
+cat text/*/* | scripts/wikipedia-most-common-words 10 devanagari > voc.txt
+
+The dump used was dated May 3rd 2018.
+
+output.txt was generated from voc.txt by running it through the stemmer:
+
+stemwords -l hindi -c UTF_8 -i hindi/voc.txt -o hindi/output.txt
+
+Wikipedia is licensed as: https://creativecommons.org/licenses/by-sa/3.0/

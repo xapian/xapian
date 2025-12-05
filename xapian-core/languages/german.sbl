@@ -1,8 +1,4 @@
-// Alias: de
-
-/*
-    Extra rule for -nisse ending added 11 Dec 2009
-*/
+// Alias: de german2
 
 routines (
            prelude postlude
@@ -15,7 +11,7 @@ externals ( stem )
 
 integers ( p1 p2 x )
 
-groupings ( v s_ending st_ending )
+groupings ( v et_ending s_ending st_ending )
 
 stringescapes {}
 
@@ -28,21 +24,28 @@ stringdef ss   '{U+00DF}'
 
 define v 'aeiouy{a"}{o"}{u"}'
 
+define et_ending 'dfgklmnrstUz{a"}'
 define s_ending  'bdfghklmnrt'
 define st_ending s_ending - 'r'
 
 define prelude as (
 
-    test repeat (
-        (
-            ['{ss}'] <- 'ss'
-        ) or next
-    )
-
-    repeat goto (
+    test repeat goto (
         v [('u'] v <- 'U') or
            ('y'] v <- 'Y')
     )
+
+    repeat (
+        [substring] among(
+            '{ss}' (<- 'ss')
+            'ae'   (<- '{a"}')
+            'oe'   (<- '{o"}')
+            'ue'   (<- '{u"}')
+            'qu'   ()
+            ''     (next)
+        )
+    )
+
 )
 
 define mark_regions as (
@@ -79,7 +82,12 @@ backwardmode (
     define standard_suffix as (
         do (
             [substring] R1 among(
-                'em' 'ern' 'er'
+                'em'
+                (   not 'syst' // don't remove -em from words ending -system
+                    delete
+                )
+                'ern' 'er'
+                'erin' 'erinnen' // conflate female versions of nouns
                 (   delete
                 )
                 'e' 'en' 'es'
@@ -88,6 +96,9 @@ backwardmode (
                 )
                 's'
                 (   s_ending delete
+                )
+                'ln' 'lns'
+                (   <- 'l'
                 )
             )
         )
@@ -98,6 +109,17 @@ backwardmode (
                 )
                 'st'
                 (   st_ending hop 3 delete
+                )
+                'et'
+                (   test et_ending
+                    not among (
+                        'geordn' // Still conflate untergeordnet/untergeordnetere, etc.
+                        'intern' // Don't conflate Internet and internes.
+                        'plan' // Don't conflate Plan and Planet.
+                        'tick' // Don't conflate Tick and Ticket.
+                        'tr'   // Still conflate Vertreter/Vertretung, etc.
+                    )
+                    delete
                 )
             )
         )

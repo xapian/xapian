@@ -1,0 +1,13 @@
+The file voc.txt was produced from the "srWaC – Serbian web corpus"
+version 1.0, downloaded from: http://nlp.ffzg.hr/resources/corpora/srwac/
+
+Java Application was used to parse tokens from corpus and create voc.temp.txt file.
+After that voc.temp.txt was manually reduced to 30000 tokens and saved to voc.txt.
+
+output.txt was generated from voc.txt by running it through the stemmer
+using the command:
+
+stemwords -l serbian -c UTF_8 -i serbian/voc.txt -o serbian/output.txt
+
+The "srWaC – Serbian web corpus" is licensed under the CC-BY-SA license:
+https://creativecommons.org/licenses/by-sa/4.0/

@@ -9740,6 +9740,7 @@ edu
 edú
 eduard
 eduardo
+educacion
 educación
 educada
 educador

@@ -70,6 +70,8 @@ routines (
   post_process_last_consonants
   postlude
 
+  remove_proper_noun_suffix
+
   stem_nominal_verb_suffixes
   stem_noun_suffixes
   stem_suffix_chain_before_ki
@@ -130,7 +132,7 @@ backwardmode (
   define mark_suffix_with_optional_n_consonant as (
     ('n' (test vowel))
     or
-    ((not(test 'n')) test(next vowel))
+    ((not 'n') test(next vowel))
   )
 
   // if the last consonant before suffix is vowel and s then advance and delete
@@ -140,7 +142,7 @@ backwardmode (
   define mark_suffix_with_optional_s_consonant as (
     ('s' (test vowel))
     or
-    ((not(test 's')) test(next vowel))
+    ((not 's') test(next vowel))
   )
 
   // if the last consonant before suffix is vowel and y then advance and delete
@@ -150,13 +152,13 @@ backwardmode (
   define mark_suffix_with_optional_y_consonant as (
     ('y' (test vowel))
     or
-    ((not(test 'y')) test(next vowel))
+    ((not 'y') test(next vowel))
   )
 
   define mark_suffix_with_optional_U_vowel as (
     (U (test non-vowel))
     or
-    ((not(test U)) test(next non-vowel))
+    ((not U) test(next non-vowel))
   )
 
   define mark_possessives as (
@@ -440,6 +442,23 @@ backwardmode (
   )
 )
 
+define remove_proper_noun_suffix as (
+  // Remove any leading apostrophes (e.g. from tokenisation of single-quoted
+  // text).
+  do ([goto not '{'}'] delete)
+
+  // https://en.wikipedia.org/wiki/Turkish_language says "In modern
+  // Turkish orthography, an apostrophe is used to separate proper names
+  // from any suffixes" with the example "Türkiye'dir ("it is Turkey")".
+  // Therefore we truncate at the first apostrophe, provided there are at least
+  // two characters before it (which avoids adversely affecting some foreign
+  // names and words such as "o'connor", "l'entrée").
+  do (
+    hop 2
+    goto '{'}' [ tolimit ] delete
+  )
+)
+
 // Test if there is more than one syllable.
 // In Turkish each vowel indicates a distinct syllable.
 define more_than_one_syllable_word as (
@@ -455,6 +474,8 @@ define postlude as (
 )
 
 define stem as (
+  do remove_proper_noun_suffix
+
   more_than_one_syllable_word
 
   backwards (
