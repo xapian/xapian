@@ -58,7 +58,8 @@ struct among
     int function;
 };
 
-#ifdef __cplusplus
+/* MSVC doesn't like functions declared `extern "C"` throwing exceptions. */
+#if defined __cplusplus && !defined SNOWBALL_RUNTIME_THROW_EXCEPTIONS
 extern "C" {
 #endif
 
@@ -102,7 +103,7 @@ extern SNOWBALL_ERR assign_to(struct SN_env * z, symbol ** p);
 
 extern int len_utf8(const symbol * p);
 
-#ifdef __cplusplus
+#if defined __cplusplus && !defined SNOWBALL_RUNTIME_THROW_EXCEPTIONS
 }
 #endif
 
