@@ -4,57 +4,131 @@ integers ( p1 p2 )
 booleans ( Y_found )
 
 routines (
-   shortv
-   R1 R2
-   Step_1a Step_1b Step_1c Step_2 Step_3 Step_4 Step_5a Step_5b
+    prelude postlude
+    mark_regions
+    shortv
+    R1 R2
+    Step_1a Step_1b Step_1c Step_2 Step_3 Step_4 Step_5
+    exception1
 )
 
 externals ( stem )
 
-groupings ( v v_WXY )
+groupings ( aeo v v_WXY valid_LI )
 
+stringescapes {}
+
+define aeo      'aeo'
 define v        'aeiouy'
 define v_WXY    v + 'wxY'
 
+define valid_LI 'cdeghkmnrt'
+
+define prelude as (
+    unset Y_found
+    do ( ['{'}'] delete)
+    do ( ['y'] <-'Y' set Y_found)
+    do repeat(goto (v ['y']) <-'Y' set Y_found)
+)
+
+define mark_regions as (
+    $p1 = limit
+    $p2 = limit
+    do(
+        among (
+            'gener'   // generate/general/generic/generous
+            'commun'  // communication/communism/community
+            'arsen'   // arsenic/arsenal
+            'past'    // past/paste
+            'univers' // universe/universal/university
+            'later'   // lateral/later
+            'emerg'   // emerge/emergency
+            'organ'   // organ/organic/organize
+            'inter'   // intern/internal/international/internment; interfere; interval
+            // ... extensions possible here ...
+        ) or (gopast v  gopast non-v)
+        setmark p1
+        gopast v  gopast non-v  setmark p2
+    )
+)
+
 backwardmode (
 
-    define shortv as ( non-v_WXY v non-v )
+    define shortv as (
+        ( non-v_WXY v non-v )
+        or
+        ( non-v v atlimit )
+        or
+        ( 'past' ) // pasted/pasting
+    )
 
     define R1 as $p1 <= cursor
     define R2 as $p2 <= cursor
 
     define Step_1a as (
+        try (
+            [substring] among (
+                '{'}' '{'}s' '{'}s{'}'
+                       (delete)
+            )
+        )
         [substring] among (
             'sses' (<-'ss')
-            'ies'  (<-'i')
-            'ss'   ()
-            's'    (delete)
+            'ied' 'ies'
+                   ((hop 2 <-'i') or <-'ie')
+            's'    (next gopast v delete)
+            'us' 'ss'
         )
     )
 
     define Step_1b as (
         [substring] among (
-            'eed'  (R1 <-'ee')
-            'ed'
-            'est'
-            'eth'
-            'ing' (
-                test gopast v  delete
-                test substring among(
-                    'at' 'bl' 'iz'
-                         (<+ 'e')
-                    'bb' 'dd' 'ff' 'gg' 'mm' 'nn' 'pp' 'rr' 'tt'
-                    // ignoring double c, h, j, k, q, v, w, and x
-                         ([next]  delete)
-                    ''   (atmark p1  test shortv  <+ 'e')
+            'eed' 'eedly'
+                (
+                do (
+                    R1
+                    among (
+                        'proc' 'exc' 'succ'
+                            (atlimit)
+                    ) or (
+                        <-'ee'
+                    )
                 )
             )
+            'ed' 'edly' 'ingly' 'est' 'eth'
+                (false) // Handled below.
+            'ing'
+                ( // Handle exceptional cases here, rest handled below.
+                among (
+                    // dying->die, lying->die, tying->tie, vying->vie
+                    'y'
+                        (test(non-v atlimit) ] <-'ie')
+                    // Leave inning, outing, etc alone.
+                    'inn' 'out' 'cann' 'herr' 'earr' 'even'
+                        (atlimit)
+                )
+            )
+            ''  ()
+        ) or (
+            // Handle 'ed' 'edly' 'ing' 'ingly'
+            test gopast v  delete
+            [] test (
+                substring among(
+                    'at' 'bl' 'iz'
+                         (fail(<- 'e'))
+                    'bb' 'dd' 'ff' 'gg' 'mm' 'nn' 'pp' 'rr' 'tt'
+                    // ignoring double c, h, j, k, q, v, w, and x
+                         (not (aeo atlimit))
+                    ''   (fail(atmark p1  test shortv  <- 'e'))
+                )
+            )
+            [next]  delete
         )
     )
 
     define Step_1c as (
         ['y' or 'Y']
-        gopast v
+        non-v not atlimit
         <-'i'
     )
 
@@ -65,79 +139,111 @@ backwardmode (
             'anci'    (<-'ance')
             'abli'    (<-'able')
             'entli'   (<-'ent')
-            'eli'     (<-'e')
             'izer' 'ization'
                       (<-'ize')
             'ational' 'ation' 'ator'
                       (<-'ate')
-            'alli'    (<-'al')
-            'alism' 'aliti'
+            'alism' 'aliti' 'alli'
                       (<-'al')
             'fulness' (<-'ful')
             'ousli' 'ousness'
                       (<-'ous')
             'iveness' 'iviti'
                       (<-'ive')
-            'biliti'  (<-'ble')
+            'biliti' 'bli'
+                      (<-'ble')
+            'ogist'   (<-'og')
+            'ogi'     ('l' <-'og')
+            'fulli'   (<-'ful')
+            'lessli'  (<-'less')
+            'li'      (valid_LI delete)
         )
     )
 
     define Step_3 as (
         [substring] R1 among (
+            'tional'  (<-'tion')
+            'ational' (<-'ate')
             'alize'   (<-'al')
             'icate' 'iciti' 'ical'
                       (<-'ic')
-            'ative' 'ful' 'ness'
+            'ful' 'ness'
                       (delete)
+            'ative'
+                      (R2 delete)
         )
     )
 
     define Step_4 as (
         [substring] R2 among (
             'al' 'ance' 'ence' 'er' 'ic' 'able' 'ible' 'ant' 'ement'
-            'ment' 'ent' 'ou' 'ism' 'ate' 'iti' 'ous' 'ive' 'ize'
+            'ment' 'ent' 'ism' 'ate' 'iti' 'ous' 'ive' 'ize'
                       (delete)
             'ion'     ('s' or 't' delete)
         )
     )
 
-    define Step_5a as (
-        ['e']
-        R2 or (R1 not shortv)
-        delete
-    )
-
-    define Step_5b as (
-        ['l']
-        R2 'l'
-        delete
+    define Step_5 as (
+        [substring] among (
+            'e' (R2 or (R1 not shortv) delete)
+            'l' (R2 'l' delete)
+        )
     )
 )
 
+define exception1 as (
+
+    [substring] atlimit among(
+
+        /* special changes: */
+
+        'skis'      (<-'ski')
+        'skies'     (<-'sky')
+
+        /* special -LY cases */
+
+        'idly'      (<-'idl')
+        'gently'    (<-'gentl')
+        'ugly'      (<-'ugli')
+        'early'     (<-'earli')
+        'only'      (<-'onli')
+        'singly'    (<-'singl')
+
+        // ... extensions possible here ...
+
+        /* invariant forms: */
+
+        'sky'
+        'news'
+        'howe'
+
+        'atlas' 'cosmos' 'bias' 'andes' // not plural forms
+
+        // ... extensions possible here ...
+    )
+)
+
+define postlude as (Y_found  repeat(goto (['Y']) <-'y'))
+
 define stem as (
 
-    unset Y_found
-    do ( ['y'] <-'Y' set Y_found)
-    do repeat(goto (v ['y']) <-'Y' set Y_found)
+    exception1 or
+    not hop 3 or (
+        do prelude
+        do mark_regions
+        backwards (
 
-    $p1 = limit
-    $p2 = limit
-    do(
-        gopast v  gopast non-v  setmark p1
-        gopast v  gopast non-v  setmark p2
+            do Step_1a
+
+            do Step_1b
+            do Step_1c
+
+            do Step_2
+            do Step_3
+            do Step_4
+
+            do Step_5
+        )
+        do postlude
     )
-
-    backwards (
-        do Step_1a
-        do Step_1b
-        do Step_1c
-        do Step_2
-        do Step_3
-        do Step_4
-        do Step_5a
-        do Step_5b
-    )
-
-    do(Y_found  repeat(goto (['Y']) <-'y'))
-
 )
