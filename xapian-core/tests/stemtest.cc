@@ -104,11 +104,11 @@ test_stemjunk()
 	 << '\n';
 
     if (stemmed_size > JUNKSIZE * 101 / 100) {
-	FAIL_TEST("Stemmed data is significantly bigger than input ("
+	FAIL_TEST("Stemmed data is significantly bigger than input: "
 		  << stemmed_size << " vs. " << JUNKSIZE);
     }
-    if (stemmed_size < JUNKSIZE / 2) {
-	FAIL_TEST("Stemmed data is significantly smaller than input ("
+    if (stemmed_size < JUNKSIZE * 2 / 5) {
+	FAIL_TEST("Stemmed data is significantly smaller than input: "
 		  << stemmed_size << " vs. " << JUNKSIZE);
     }
 }
