@@ -651,6 +651,59 @@ jobs:
         path: |
           **/*.log
 
+  assertions-partial:
+    runs-on: 'ubuntu-22.04'
+    env:
+      LIBEXTRACTOR_PREFIX: '/usr/lib/x86_64-linux-gnu/libextractor'
+    needs: makedist
+    steps:
+    - name: Install CCache
+      uses: hendrikmuhs/ccache-action@v1
+      with:
+        key: ${{ github.job }}
+    - name: Fetch distribution
+      uses: actions/download-artifact@v4
+    - name: Unpack distribution
+      run: |
+        mv artifact/* .
+        rmdir artifact
+        pushd xapian-core
+        tar --strip-components=1 -xf xapian-core-*.tar.xz
+        popd
+        # Only build xapian-core as the `assertions` job enables all the same
+        # assertions and more - this job's purpose is mainly to catch
+        # compilation problems with `--enable-assertions=partial`.
+    - name: Install package dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install \
+            python3-sphinx \
+            uuid-dev
+    - name: configure
+      run: |
+        export CC='ccache gcc'
+        export CXX='ccache g++'
+        pushd xapian-core
+        ./configure --enable-werror --enable-assertions=partial
+        export XAPIAN_CONFIG=$PWD/xapian-config
+        popd
+    - name: make
+      run: |
+        make -j2 -C xapian-core
+    - name: Run tests
+      run: |
+        export AUTOMATED_TESTING=1
+        export VERBOSE=1
+        make -j2 -C xapian-core check
+    - name: Save log files
+      if: ${{ failure() }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: logs-${{ github.job }}-${{ github.sha }}
+        overwrite: true
+        path: |
+          **/*.log
+
   debug-log:
     runs-on: 'ubuntu-22.04'
     needs: makedist
