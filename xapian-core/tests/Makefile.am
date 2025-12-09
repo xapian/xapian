@@ -215,6 +215,8 @@ EXTRA_DIST +=\
 	testdata/glass_corrupt_db2 \
 	testdata/glass_corrupt_db3 \
 	testdata/glass_corrupt_db4 \
+	testdata/glass_corrupt_item_too_big1 \
+	testdata/glass_corrupt_item_too_big2 \
 	testdata/phraseweightcheckbug1.txt \
 	testdata/snippet.txt
 

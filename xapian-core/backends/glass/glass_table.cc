@@ -60,6 +60,13 @@
 using namespace Glass;
 using namespace std;
 
+[[noreturn]]
+static void
+throw_corrupt(const char* message)
+{
+    throw Xapian::DatabaseCorruptError(message);
+}
+
 //#define BTREE_DEBUG_FULL 1
 #undef BTREE_DEBUG_FULL
 
@@ -574,6 +581,7 @@ GlassTable::compact(uint8_t * p)
 	    LeafItem item(p, c);
 	    int l = item.size();
 	    e -= l;
+	    if (e < 0) throw_corrupt("Leaf item size extends outside block");
 	    memcpy(b + e, item.get_address(), l);
 	    LeafItem_wr::setD(p, c, e);  /* reform in b */
 	}
@@ -583,12 +591,14 @@ GlassTable::compact(uint8_t * p)
 	    BItem item(p, c);
 	    int l = item.size();
 	    e -= l;
+	    if (e < 0) throw_corrupt("Branch item size extends outside block");
 	    memcpy(b + e, item.get_address(), l);
 	    BItem_wr::setD(p, c, e);  /* reform in b */
 	}
     }
     memcpy(p + e, b + e, block_size - e);  /* copy back */
     e -= dir_end;
+    if (e < 0) throw_corrupt("Items overlap with item pointers");
     SET_TOTAL_FREE(p, e);
     SET_MAX_FREE(p, e);
 }
