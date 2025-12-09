@@ -2110,3 +2110,25 @@ DEFINE_TESTCASE(remotefdleak1, remote && writable) {
     TEST_EXCEPTION(Xapian::DatabaseLockError,
 		   auto wdb2 = get_writable_database_again());
 }
+
+// Test handling of corrupted item sizes.
+DEFINE_TESTCASE(corruptglass2, glass) {
+    string src_db_path =
+	test_driver::get_srcdir() + "/testdata/glass_corrupt_item_too_bigX";
+
+    string db_path = get_named_writable_database_path("corruptglass2");
+
+    for (int n = '1'; n <= '2'; ++n) {
+	src_db_path.back() = n;
+	rm_rf(db_path);
+	cp_R(src_db_path, db_path);
+	TEST_EXCEPTION(Xapian::DatabaseCorruptError,
+		       Xapian::Database::check(db_path));
+
+	Xapian::WritableDatabase wdb(db_path);
+	Xapian::Document doc;
+	doc.set_data("hello world");
+	TEST_EXCEPTION(Xapian::DatabaseCorruptError,
+		       wdb.add_document(doc));
+    }
+}

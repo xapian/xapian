@@ -149,7 +149,7 @@ failure(const char *msg, uint4 n, int c)
     }
     e += ": ";
     e += msg;
-    throw Xapian::DatabaseError(e);
+    throw Xapian::DatabaseCorruptError(e);
 }
 
 void
