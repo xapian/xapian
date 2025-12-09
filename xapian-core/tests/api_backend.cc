@@ -1799,9 +1799,9 @@ DEFINE_TESTCASE(unsupportedcheck3, !backend) {
 // Regression test for #824, fixed in 1.4.25.
 DEFINE_TESTCASE(corruptglass1, glass) {
     string db_path =
-	test_driver::get_srcdir() + "/testdata/glass_corrupt_db1";
+	test_driver::get_srcdir() + "/testdata/glass_corrupt_dbX";
 
-    for (int n = '1'; n <= '3'; ++n) {
+    for (int n = '1'; n <= '4'; ++n) {
 	db_path.back() = n;
 	TEST_EXCEPTION(Xapian::DatabaseCorruptError,
 		       Xapian::Database db(db_path));
