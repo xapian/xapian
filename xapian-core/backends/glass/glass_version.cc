@@ -470,6 +470,10 @@ RootInfo::unserialise(const char ** p, const char * end)
     sequential = val & 0x02;
     root_is_fake = val & 0x01;
 
+    if (root_is_fake && level > 0) {
+	throw Xapian::DatabaseCorruptError("Fake root but level > 0");
+    }
+
     b <<= 11;
     if (rare(b < GLASS_MIN_BLOCKSIZE ||
 	     b > GLASS_MAX_BLOCKSIZE ||
