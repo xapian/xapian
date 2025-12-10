@@ -5,41 +5,41 @@ AM_CPPFLAGS += -I$(top_srcdir)/languages -Ilanguages
 endif
 
 snowball_algorithms =\
-	languages/arabic.sbl\
-	languages/armenian.sbl\
-	languages/basque.sbl\
-	languages/catalan.sbl\
-	languages/danish.sbl\
-	languages/dutch_porter.sbl\
-	languages/dutch.sbl\
-	languages/earlyenglish.sbl\
-	languages/english.sbl\
-	languages/esperanto.sbl\
-	languages/estonian.sbl\
-	languages/finnish.sbl\
-	languages/french.sbl\
-	languages/german.sbl\
-	languages/greek.sbl\
-	languages/hindi.sbl\
-	languages/hungarian.sbl\
-	languages/indonesian.sbl\
-	languages/irish.sbl\
-	languages/italian.sbl\
-	languages/lithuanian.sbl\
-	languages/lovins.sbl\
-	languages/nepali.sbl\
-	languages/norwegian.sbl\
-	languages/polish.sbl\
-	languages/porter.sbl\
-	languages/portuguese.sbl\
-	languages/romanian.sbl\
-	languages/russian.sbl\
-	languages/serbian.sbl\
-	languages/spanish.sbl\
-	languages/swedish.sbl\
-	languages/tamil.sbl\
-	languages/turkish.sbl\
-	languages/yiddish.sbl
+	languages/algorithms/arabic.sbl\
+	languages/algorithms/armenian.sbl\
+	languages/algorithms/basque.sbl\
+	languages/algorithms/catalan.sbl\
+	languages/algorithms/danish.sbl\
+	languages/algorithms/dutch_porter.sbl\
+	languages/algorithms/dutch.sbl\
+	languages/algorithms/earlyenglish.sbl\
+	languages/algorithms/english.sbl\
+	languages/algorithms/esperanto.sbl\
+	languages/algorithms/estonian.sbl\
+	languages/algorithms/finnish.sbl\
+	languages/algorithms/french.sbl\
+	languages/algorithms/german.sbl\
+	languages/algorithms/greek.sbl\
+	languages/algorithms/hindi.sbl\
+	languages/algorithms/hungarian.sbl\
+	languages/algorithms/indonesian.sbl\
+	languages/algorithms/irish.sbl\
+	languages/algorithms/italian.sbl\
+	languages/algorithms/lithuanian.sbl\
+	languages/algorithms/lovins.sbl\
+	languages/algorithms/nepali.sbl\
+	languages/algorithms/norwegian.sbl\
+	languages/algorithms/polish.sbl\
+	languages/algorithms/porter.sbl\
+	languages/algorithms/portuguese.sbl\
+	languages/algorithms/romanian.sbl\
+	languages/algorithms/russian.sbl\
+	languages/algorithms/serbian.sbl\
+	languages/algorithms/spanish.sbl\
+	languages/algorithms/swedish.sbl\
+	languages/algorithms/tamil.sbl\
+	languages/algorithms/turkish.sbl\
+	languages/algorithms/yiddish.sbl
 
 snowball_built_sources =\
 	$(snowball_algorithms:.sbl=.cc)\
@@ -99,6 +99,7 @@ languages/snowball: $(snowball_sources) $(snowball_headers)
 	languages/snowball $< -o $@ -c++ -u \
 		-p 'Xapian::StemImplementation' \
 		-P 'Xapian::Internal::Snowball' \
+		-r 'languages/' \
 		-cheader 'config.h' \
 		-hheader 'xapian/stem.h'
 

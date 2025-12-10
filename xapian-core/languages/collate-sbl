@@ -47,7 +47,7 @@ foreach (sort @ARGV) {
     my $lang = $1;
     push @langs, $lang;
     # Include the headers for all the snowball stemmers.
-    print ALL_HEADER "#include \"$lang.h\"\n";
+    print ALL_HEADER "#include \"algorithms/$lang.h\"\n";
     my $enum = uc $lang;
     $hdr->add($lang, $enum);
     open SBL, '<', "$srcdir/$_" or die "Open $srcdir/$_ failed: $!\n";
