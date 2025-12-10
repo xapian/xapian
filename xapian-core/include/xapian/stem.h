@@ -170,10 +170,13 @@ class XAPIAN_VISIBILITY_DEFAULT Stem {
 
     /** Stem a word.
      *
-     *  @param word		a word to stem.
+     *  @param word	a word to stem.
      *  @return		the stem
      */
-    std::string operator()(const std::string &word) const;
+    std::string operator()(const std::string& word) const {
+	if (!internal || word.empty()) return word;
+	return internal->operator()(word);
+    }
 
     /// Return true if this is a no-op stemmer.
     bool is_none() const { return !internal; }

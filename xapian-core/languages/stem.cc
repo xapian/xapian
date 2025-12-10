@@ -54,13 +54,6 @@ Stem::Stem(std::string_view language, bool fallback)
 }
 
 string
-Stem::operator()(const std::string &word) const
-{
-    if (!internal || word.empty()) return word;
-    return internal->operator()(word);
-}
-
-string
 Stem::get_description() const
 {
     string desc = "Xapian::Stem(";
