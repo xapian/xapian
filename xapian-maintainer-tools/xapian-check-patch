@@ -160,7 +160,8 @@ while (<>) {
 	    $doxygen_first_line = 0;
 	    $check_end_new_line = 0;
 	} elsif ($ext eq 'cc') {
-	    if ($fnm =~ m!\b(?:cdb|portability/mkdtemp)! ||
+	    if ($fnm =~ m!\bomega/cdb! ||
+		$fnm =~ m!\bomega/mkdtemp\.! ||
 		$fnm =~ m!\bcommon/getopt\.cc$! ||
 		$fnm =~ m!\bomega/md5\.cc$! ||
 		$fnm =~ m!\bcommon/msvc_dirent\.cc$!) {
@@ -184,8 +185,8 @@ while (<>) {
 		$fnm =~ m!\blanguages/compiler/! ||
 		$fnm =~ m!\bcommon/msvc_dirent\.h$! ||
 		$fnm =~ m!\bcommon/heap\.h$! ||
-		$fnm =~ m!/omega/cdb! ||
-		$fnm =~ m!\bportability/mkdtemp!) {
+		$fnm =~ m!\bomega/cdb! ||
+		$fnm =~ m!\bomega/mkdtemp\.!) {
 		$check_trailing = 0;
 	    } else {
 		$header = 1;
