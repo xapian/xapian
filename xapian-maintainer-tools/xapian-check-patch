@@ -128,13 +128,17 @@ my $case_no_brace;
 my $header;
 # First line number for doxygen @file comment check.
 my $doxygen_first_line;
+my $git_diff = 0;
 while (<>) {
     if (defined $next_top_level) {
 	$top_level = $next_top_level;
 	$next_top_level = undef;
     }
 
-    if (/^Index: (.+)/ || m!^diff --git a/.+ b/(.+)! || m!^\+\+\+ (\S+)!) {
+    if (/^Index: (.+)/ || m!^diff --git a/.+ b/(.+)! || (!$git_diff && m!^\+\+\+ (\S+)!)) {
+	if (m!^diff --git a/.+ b/(.+)!) {
+	    $git_diff = 1;
+	}
 	++$files;
 	$fnm = $1;
 	(($ext) = ($fnm =~ /\.([\w.]+)$/)) or $ext = '';
@@ -242,6 +246,10 @@ while (<>) {
     }
     if ($pre3 eq '---' || $pre3 eq '+++') {
 	next;
+    }
+    if (/^new file mode 120000$/) {
+	# New symlink - the target is reported as having no trailing newline.
+	$check_end_new_line = 0;
     }
 
     if (!/^.\s*$/) {
