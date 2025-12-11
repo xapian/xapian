@@ -213,7 +213,7 @@ class State {
 	if ((flags & QueryParser::FLAG_NO_POSITIONS)) {
 	    if (is_positional(effective_default_op)) {
 		effective_default_op = Query::OP_AND;
-		}
+	    }
 	}
     }
 
