@@ -165,6 +165,9 @@ class Context {
 	add_termfreqs(termfreqs);
 	if (pl) {
 	    pls.emplace_back(pl);
+	    // Take the union of the docid ranges, which is suitable for
+	    // OrContext and XorContext.  AndContext() implements its own
+	    // version of add_postlist() which takes the intersection.
 	    Xapian::docid f = 1;
 	    Xapian::docid l = Xapian::docid(-1);
 	    pl->get_docid_range(f, l);
