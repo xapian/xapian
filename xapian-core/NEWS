@@ -2392,7 +2392,7 @@ API:
   all the databases listed in it (or throw Xapian::UnimplementedError for
   backends which don't support checking).
 
-* Xapian::Document: When updating a document use a emplace_hint() to make the
+* Xapian::Document: When updating a document use emplace_hint() to make the
   bulk insertion O(n) instead of O(n·log(n)), and use std::move() to avoid
   copying OmDocumentTerm objects.
 
