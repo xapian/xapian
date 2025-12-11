@@ -111,7 +111,12 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	add_database_(other, true);
     }
 
-    /** Return number of shards in this Database object. */
+    /** Return number of shards in this Database object.
+     *
+     *  If you want the number of documents, see @ get_doccount().
+     *
+     *  @since Xapian 1.4.12
+     */
     size_t size() const;
 
     /** Construct a Database containing no shards.
