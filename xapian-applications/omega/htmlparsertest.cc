@@ -1,7 +1,7 @@
 /** @file
  * @brief test the HtmlParser class
  */
-/* Copyright (C) 2006-2023 Olly Betts
+/* Copyright (C) 2006-2025 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -44,9 +44,6 @@ struct testcase {
 #define WIDE(X) "\0" X "\0"
 
 static const testcase tests[] = {
-    { "<body>test<!--htdig_noindex-->icle<!--/htdig_noindex-->s</body>",
-      "tests", "", "", "" },
-    { "<body>test<!--htdig_noindex-->ing</body>", "test", "", "", "" },
     { "hello<!-- bl>ah --> world", "hello world", "", "", "" },
     { "hello<!-- blah > world", "hello world", "", "", "" },
     { "<script>\nif (a<b) a = b;</script>test", "test", "", "", "" },
@@ -77,7 +74,6 @@ static const testcase tests[] = {
     { "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?><html><head><title>\xc2\xae</title></head><body>\xc2\xa3</body></html>", "\xc3\x82\xc2\xa3", "\xc3\x82\xc2\xae", "", "" },
     // Check the XML gets case-sensitive handling.
     { "<?xml version=\"1.0\"?><html><head><TITLE>Not really a title</TITLE><meta Name='keywords' value='not really keywords'/></head><body>test</body></html>", "Not really a titletest", "", "", "" },
-    { "<!--UdmComment-->test<!--/UdmComment--><div id='body'>test</div>", "test", "", "", "" },
     { "Foo<![CDATA[ & bar <literal>\"]]> ok", "Foo & bar <literal>\" ok", "", "", "" },
     { "Foo<![CDATA", "Foo", "", "", "" },
     { "foo<![CDATA[bar", "foobar", "", "", "" },
@@ -110,6 +106,14 @@ static const testcase tests[] = {
     { "<?xml version=\"1.0\"?><html><head><meta name=keywords Content='testing'/></head><body>Body</body></html>", "Body", "", "", "" },
     // Test handling of PHP tags.
     { "T<?php $a=PHP_MAJOR_VERSION > 7 ?>\r\ne<? if ($a) new(); ?>\ns<?= $a ?>\rting<? ?>\n\nPHP<?php $a=0;", "Testing PHP", "", "", "" },
+    // Test handling of "magic" comments to mark content to ignore.
+    { "<body>test<!--htdig_noindex-->icle<!--/htdig_noindex-->s</body>",
+      "tests", "", "", "" },
+    { "<body>test<!--htdig_noindex-->ing</body>", "test", "", "", "" },
+    { "<!--UdmComment-->test<!--/UdmComment--><div id='body'>test</div>", "test", "", "", "" },
+    // Test magic comments also work in XHTML.
+    { "<?xml version=\"1.0\"?><body>test<!--htdig_noindex-->ing</body>", "test", "", "", "" },
+    { "<?xml version=\"1.0\"?><!--UdmComment-->test<!--/UdmComment--><div id='body'>test</div>", "test", "", "", "" },
     { 0, 0, 0, 0, 0 }
 };
 
