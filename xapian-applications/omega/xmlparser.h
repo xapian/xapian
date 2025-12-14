@@ -35,11 +35,17 @@ class XmlParser {
      *
      *  Defaults to XML, which means no HTML-specific handling.
      *
+     *  XHTML is like XML, except that magic comments marking content to
+     *  ignore are recognised.
+     *
      *  The HtmlParser subclass overrides this to HTML at construction time,
      *  and then it can change to HTML_IN_SCRIPT and back to HTML as we
      *  move in and out of parsing script elements.
+     *
+     *  Note: The order here is relied on by tests for <= XHTML and >= HTML (to
+     *  gate HTML-specific behaviour such as case insensitive tag names).
      */
-    enum { XML, HTML, HTML_IN_SCRIPT } state = XML;
+    enum { XML, XHTML, HTML, HTML_IN_SCRIPT } state = XML;
 
     std::string charset;
 

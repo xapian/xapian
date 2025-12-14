@@ -87,7 +87,7 @@ XmlParser::get_attribute(const string& name, string& value) const
 	size_t len = p - start;
 	bool found = (name.size() == len);
 	if (found) {
-	    if (state == XML) {
+	    if (state <= XHTML) {
 		// XML attribute names are case sensitive.
 		found = memcmp(start, name.data(), len) == 0;
 	    } else {
@@ -263,8 +263,8 @@ XmlParser::parse(string_view text)
 		if (p[2] != 'x' || p[3] != 'm' || p[4] != 'l') break;
 		if (strchr(" \t\r\n", p[5]) == NULL) break;
 
-		// Switch for XML mode for XHTML.
-		state = XML;
+		// If parsing HTML switch to XHTML mode.
+		if (state >= HTML) state = XHTML;
 
 		auto decl_end = find(p + 6, text.end(), '?');
 		if (decl_end == text.end()) break;
@@ -477,7 +477,7 @@ XmlParser::parse(string_view text)
 
 	    p = find_if(start, text.end(), p_nottag);
 	    string tag(start, p);
-	    if (state != XML) {
+	    if (state >= HTML) {
 		// Convert tagname to lowercase.
 		lowercase_string(tag);
 	    }
