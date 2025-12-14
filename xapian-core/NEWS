@@ -2538,7 +2538,7 @@ documentation:
 
 * Correct some class names in doxygen file documentation comments.
 
-* Mark up shell command as code-block:: sh.
+* Mark up shell command as `code-block:: sh`.
 
 tools:
 
