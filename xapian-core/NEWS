@@ -1,6 +1,50 @@
-up to: 0a0a8ff32010d0b8129d27af5b8ae02ebec670c2
+up to: 7b52e04a5859fa01b89ab3282daed8729da10682
 
-Xapian-core 1.5.0 (2025-1?-??):
+
+    Upgrade stemming algorithms to latest Snowball
+    Updated French stemmer removes elisions, mostly addressing #609.
+
+
+    Update snowball compiler and runtime
+    .
+    We were using a 6-year old version of the Snowball compiler, with a
+    number of Xapian-specific patches.
+    .
+    We're now using the compiler and runtime from upstream git commit
+    94d5e77b3ccee55681ed740dad0c3377dbd72e3a.  The only differences from
+    upstream are that `utilities.c` is renamed to `.cc` and the following
+    line added to it:
+    .
+        #define SNOWBALL_RUNTIME_THROW_EXCEPTIONS
+    .
+    Most of the patches we were carrying have either been merged upstream
+    in some form, or eliminated in favour of new functionality upstream.
+    .
+    The exception is the patch we were carrying which created an overlapping
+    pool of string constants.  The benefits of this were that it reduced the
+    size of the constant data segment, and reduced the number of runtime
+    dynamic relocations.
+    .
+    The relocations are from strings used in among tables, and I'm working
+    on a new way to implement among which is significantly faster and avoids
+    this problem.
+    .
+    The size saving is probably fairly modest.  It would reduce cache
+    pressure, but on the flip side it might make loading a string address
+    slightly slower.  I plan to profile to see if the former change is
+    acutally beneficial, and if so I'll rebase it onto current Snowball
+    and get it merged upstream.
+
+
+    Turn off clustering and diversification APIs
+    These need more work before being released, so let's omit them from
+    the .0 release and slot them into a later point release once we've
+    addressed the problems.
+    See #804.
+
+
+
+Xapian-core 1.5.0 (2026-0?-??):
 
 API:
 
@@ -23,10 +67,10 @@ API:
 * PostingIterator: On a sharded database, a heap is now used to merge postings
   from the shards more efficiently.
 
-* Enquire: Optimise get_eset().  We now use a custom heap implementation which
-  provides a replace() operation that's like push() followed by pop(), but
-  more efficient.  We've also reduced the number of virtual method calls and
-  string copies that happen.
+* Enquire::get_eset(): Now more optimised.  We now use a custom heap
+  implementation which provides a replace() operation that's like push()
+  followed by pop(), but more efficient.  We've also reduced the number of
+  virtual method calls and string copies that happen.
 
 * Enquire: A default-constructed Database object now acts as an empty database
   in a search, which can be helpful in some applications (previously it would
@@ -39,7 +83,6 @@ API:
 
 * Stem: Sync algorithm changes from Snowball.  There are optimisations to
   several algorithms, and also the following functional changes:
-  Arabic
 
   + Arabic: Change algorithm to not remove punctuation marks - in Xapian such
     characters typically won't appear in the text passed to the stemmer anyway.
@@ -47,6 +90,9 @@ API:
   + Danish: Adjust definition of "consonant" to be "letter but not vowel"
     instead of just "not vowel" to avoid the stemmer mangling alphanumeric
     codes which end with two or more digits.
+
+  + Early English: The "earlyenglish" stemmer is now based on "english" not
+    "porter".
 
   + Finnish: Adjust definition of "consonant" to be "letter but not vowel"
     instead of just "not vowel" to avoid the stemmer truncating numbers.
@@ -57,17 +103,16 @@ API:
   + Portuguese: Replace Spanish suffixes by Portuguese suffixes.  Patch from
     Helder.
 
-  + Romanian: The stemmer now handles Romanian written using the proper
-    Unicode s-comma and t-comma characters.  Previously only with their cedilla
-    "approximations" which used to be commonly used before Romanian had full
-    Unicode support.  The old cedilla forms are now normalised to the comma
-    forms by the stemmer.  Cherry-picked from snowball upstream, patch by
-    Robert Muir.
+  + Romanian: Update to work better with modern Unicode text.  Previously this
+    stemmer only handled 'ş' and 'ţ' when encoded as their cedilla
+    "approximations", which were widely used for Romanian before full Unicode
+    support was available.  The stemmer now normalises the cedilla forms to
+    the proper Unicode characters.  Patch by Robert Muir.
 
   + Russian: Normalise "ё" to "e" before stemming.  The Snowball documentation
     for the Russian stemmer has long suggested that the caller should perform
     this normalisation, but Xapian doesn't do that for you and it's much more
-    convenient for the algorithm to do it automatically. Reported by Eugene
+    convenient for the algorithm to do it automatically.  Reported by Eugene
     Mirotin.
 
 * TermGenerator::set_termpos_limit(): New method which allows setting a maximum
@@ -93,16 +138,14 @@ API:
     Weight objects from human-readable string descriptions.  Patch from Vivek
     Pal.
 
-    Make unique terms bounds available to Xapian::Weight
+  + Make unique terms bounds available to weighting schemes.
 
-    Provide Weight::get_sumextra() and get_maxextra()
-    Providing default implementations in the base class which return
-    0 mean that subclasses for weighting schemes without a term-independent
-    contribution (which is most weighting schemes) don't need to implement
-    these methods.
-    This also reduces the number of load-time relocations for libxapian
-    because we add two symbols, but remove 26 - this will speed up library
-    load time a little.
+  + Provide default implementations of Weight::get_sumextra() and
+    Weight::get_maxextra() which return 0 so that subclasses for weighting
+    schemes without a term-independent contribution (which is most weighting
+    schemes) don't need to implement these methods.  This also reduces the
+    number of load-time relocations for libxapian because we add two symbols,
+    but remove 26 - this will speed up library load time a little.
 
 * DiceCoeffWeight: New weighting scheme (implementing
   https://en.wikipedia.org/wiki/S%C3%B8rensen%E2%80%93Dice_coefficient).
@@ -120,9 +163,6 @@ API:
   + Optimise to only calculating the normalised IDF once per term (its value
     doesn't depend on the document).
 
-  + Support new "pivoted" WDF and IDF normalisations from Piv+.  Patch from
-    Vivek Pal.
-
   + Support new normalisations.  Patches from Dipanshu Garg.  Support for
     maxwdf statistic needed for some of these implemented by Nishad Dawkhar.
 
@@ -131,6 +171,9 @@ API:
 
     - IDF normalisations "incremented global frequency", "square root global
       frequency", "global frequency" and "log global frequency".
+
+  + Support new "pivoted" WDF and IDF normalisations from Piv+.  Patch from
+    Vivek Pal.
 
   + Support specifying TfIdf normalisations via enums.  Previously the
     normalisations had to be specified in TfIdfWeight's constructor via a 3
@@ -154,12 +197,6 @@ API:
   usleep man page even notes: "Programs will be more portable if they never
   mention this type explicitly."
 
-* TermIterator::get_termfreq() now returns the exact term frequency in a
-  sharded database instead of approximating as it's not significantly more
-  work.
-
-* RSet: Improve get_description() output.
-
 * MSet: Add methods replace_weights() and sort_by_relevance() which
   allow replacing the weights of all the documents in a MSet and then sort
   the MSet on the basis of these new weights.  These support implementing
@@ -170,6 +207,12 @@ API:
 
 * Query: New get_leaf_wqf() and get_leaf_pos() methods which allow
   introspecting on details of terms in a query.  Patch from Nihal N.
+
+* RSet: Improve get_description() output.
+
+* TermIterator::get_termfreq() now returns the exact term frequency in a
+  sharded database instead of approximating as it's not significantly more
+  work.
 
 * ValuePostingSource: Add a get_description() method rather than relying
   on PostingSource::get_description() so that ValuePostingSource objects
@@ -241,14 +284,16 @@ API:
   get_unique_terms_upper_bound() to report bounds on what get_unique_terms()
   can return.  Patch from Guruprasad Hegde.
 
+* Update to Unicode 17.0.0.
+
 * Support finding word boundaries in QueryParser, TermGenerator and
   MSet::snippet() using ICU (International Components for Unicode library:
   https://site.icu-project.org/).  Specify flags FLAG_WORD_BREAKS and
   SNIPPET_WORD_BREAKS to enable this feature.  With these flags, ICU is
   only consulted for spans of text written using scripts which we know ICU has
-  word splitting dictionaries for.
-
-  The current list of scripts covered is: FIXME Add Thai, Lana Tai and Pali codepoints to codepoint_is_cjk() test
+  word splitting dictionaries for.  The current list of scripts covered is:
+  Thai, Lao, Myanmar (Burmese), Hangul, Khmer, Han, Hiragana, Katakana, Bopomofo.
+FIXME: FIXME Add [...] Lana Tai and Pali codepoints to codepoint_is_cjk() test
 
   The dependency on ICU is optional - if xapian-core is built without ICU then
   attempting to use these flags will throw FeatureUnavailableError.
@@ -266,8 +311,6 @@ API:
 
   Currently the same list of scripts is used for this as for FLAG_WORD_BREAKS.
   Patch from Robert Stepanek.
-
-* Update to Unicode 15.1.0.
 
 * Query: Add support for extended wildcard queries via new OP_WILDCARD flags
   WILDCARD_PATTERN_MULTI (which supports `*` wildcards anywhere in the term,
@@ -327,23 +370,20 @@ API:
 * QueryParser: New flag FLAG_FUZZY which enables parsing of foo~ foo~1 and
   foo~0.4 as OP_EDIT_DISTANCE subqueries to provide a fuzzy matching feature.
 
-* Reimplement Xapian::MSet
-    get_termfreq() and get_termweight() now just return 0 rather than
-    throwing exceptions when called on a default-constructed MSet, which
-    is makes it easier to use such an MSet as a placeholder for an empty
-    search.
-    get_termweight() also now returns zero when called on a term which
-    wasn't in the query rather than throwing an exception - this seems
-    logical as such terms don't contribute weight to any documents in
-    the MSet.
+* MSet: get_termfreq() and get_termweight() now just return 0 rather than
+  throwing exceptions when called on a default-constructed MSet, which
+  is makes it easier to use such an MSet as a placeholder for an empty
+  search.  get_termweight() also now returns zero when called on a term which
+  wasn't in the query rather than throwing an exception - this seems logical as
+  such terms don't contribute weight to any documents in the MSet.
 
-* Reimplement Document::Internal
-    TermIterator from a Document now keeps a reference to the document
-    (new regression testcase orphaneddoctermitor1).
-    Term positions are now stored in a custom vector implementation which
-    uses no external storage when small ("Small Vector Optimisation") and
-    eliminates a lot of copying that was previously happening (thanks to
-    a combination of C++11 move semantics and copy-on-write).
+* TermIterator: A TermIterator obtained from a Document now keeps a reference
+  to the document.
+
+* Document: Term positions are now stored in a custom vector implementation
+  which uses no external storage when small ("Small Vector Optimisation") and
+  eliminates a lot of copying that was previously happening (thanks to a
+  combination of C++11 move semantics and copy-on-write).
 
 testsuite:
 
@@ -355,66 +395,30 @@ testsuite:
   https://github.com/xapian/xapian/pull/294 from Alexander Slesarev.
 
 * The test harness now times each testcase and reports slow testcases
-  (currently those which take more than 10 seconds to run).  Patch from
+  (currently those which take more than 10 seconds to run).  Implemented by
   Tanmay Sachan.
 
-* The test harness how supports sharded databases containing remoteprog
-  shards.  Patch from Tanmay Sachan.
+* apitest: The test harness now supports remoteprog shards in sharded
+  databases.  Implemented by Tanmay Sachan.
 
 * Add test coverage for collapsing with a percentage cutoff.
 
 * Test get_description() shows the correct classname.
 
-* Run valgrind with --error-limit=no so that a testsuite run which triggers
-  more than 100 valgrind errors now reports the errors fully for later
-  testcases.
+* The testharness now runs valgrind with `--error-limit=no` so that runs
+  which trigger more than 100 valgrind errors now reports the errors fully for
+  later testcases.
 
-* Add workaround for appveyor test failures.  Sometimes we get "rename failed"
-  for no obvious reason, and retrying it works!
+* The testharness now retries if a rename fails with EACCES and
+  _doserrno is ERROR_SHARING_VIOLATION, which works around mysterious failures
+  running under CI with appveyor.
 
 matcher:
 
-* Optimise OP_NEAR and OP_OR by using a custom heap implementation which
-  provides a replace() operation that's like push() followed by pop(),
-  but more efficient.
-
-* Shortcut handling of an empty query.  This always returns an empty MSet
-  so it's an easy case to handle without doing much work, and doing this
-  means the matcher can assume the query isn't empty.
-
-* Reimplement the matcher
-    The new implementation handles remote databases by merging MSet objects
-    rather than feeding them into the standard matcher via MSetPostList.
-    A custom heap implementation is used, which provides a "replace"
-    operation - this probably addresses slow collapsing as reported by
-    Gareth Rees (ticket #682).
-
-* ExtraWeightPostList,SynonymPostList: get doclen from DB not PostList
-    Store a pointer to the appropriate subdatabase
-    and use that to get document lengths - asking the PostList tree
-    means we have to recursively call down to a leaf which then just asks
-    the database anyway, so going direct is a bit more efficient.
-
-* Use BoolOrContext instead of OrContext more
-    In any unweighted context BoolOrContext is a better choice as it will
-    build a single BoolOrPostList object optimised for the unweighted case
-    instead of a tree of general-purpose OrPostList objects.
-    --
-    Handle the RHS of OP_AND_NOT as BoolOrContext
-    It's unweighted so doesn't need to use OrContext, and BoolOrContext
-    is a better choice as it will build a single BoolOrPostList object
-    optimised for the unweighted case instead of a tree of general-purpose
-    OrPostList objects.
-
-    Apply MatchDecider as part of the PostList tree
-    New DeciderPostList class now handles this.
-
-    Eliminate PostList::get_maxweight()
-    A new PostListTree class takes care of caching the result of
-    PostList::recalc_maxweight() during the match and invalidating the
-    cached value when appropriate.
-
-* Use an unordered map for collapsing
+* The matcher has been replaced with a new implementation which is more
+  efficient in both memory and time in numerous ways.  A custom heap
+  implementation is now used, which provides a "replace" operation - this
+  should address slow collapsing as reported by Gareth Rees (ticket #682).
 
 * The matcher now uses docid ranges to optimise the query and to report tighter
   bounds on, and a better estimate of the total number of matching documents.
@@ -422,6 +426,27 @@ matcher:
   find all matches we can skip the calculation entirely) and the observed rate
   of accepting vs rejecting is now used to improve the estimates for positional
   operators and value ranges.
+
+* Remote shards are now handled by merging MSet objects rather than feeding
+  them into the standard matcher via MSetPostList.
+
+* Optimise OP_NEAR and OP_OR by using a custom heap implementation which
+  provides a replace() operation that's like push() followed by pop(),
+  but more efficient.
+
+* Shortcut handling of an empty Query object.  This always returns an empty
+  MSet so it's an easy case to handle without doing much work, and doing this
+  means the matcher can assume the query isn't empty.
+
+* Document lengths and the number of unique terms in a candidate document are
+  now fetched from the database directly rather than recursively calling down
+  the postlist tree to a leaf, which then asks the database.  (The old design
+  dates back to when backends stored the document length in every postlist
+  entry, but that took significant extra space and made updating a document
+  harder.)
+
+* MatchDecider is now applied as part of the PostList tree, so there's
+  absolutely no overhead if there's no MatchDecider.
 
 * Wildcard/edit distance expansion with WILDCARD_LIMIT_MOST_FREQUENT
   no longer registers the culled expansions for stats.
@@ -440,49 +465,21 @@ matcher:
   store the value in a base class member variable and have a non-virtual base
   class get_termfreq() method which returns it.
 
-* Optimise termfreq handling in alldocs optimisation
-    Under certain conditions, we use an all-docs PostList for a term
-    which indexes all documents.  The check for such a term now always
-    creates the actual PostList first and gets the termfreq from that
-    instead of asking the database for the termfreq.  This reduces the
-    work in the common case where the term doesn't match all documents
-    and is similar work in the case where it does (for glass, there's
-    the extra overhead of creating a cursor but we still need to read and
-    decode the same data).
+* Under certain conditions, we use an all-docs PostList for a term
+  which indexes all documents.  The check for such a term now always creates
+  the actual PostList first and gets the termfreq from that instead of asking
+  the database for the termfreq.  This reduces the work in the common case
+  where the term doesn't match all documents and is similar work in the case
+  where it does (for glass, there's the extra overhead of creating a cursor but
+  we still need to read and decode the same data).
 
 * Use document length bounds from the shard rather than the whole database
   to calculate the upper bound on the possible weight contribution of each
   term.  Testing show a very minor improvement, but it could be more
   significant if some shards only have big documents and others only small.
 
-    Improve edit distance length-based optimisations
-    We can get a better upper bound from considering the number of UTF-8
-    bytes, and an alternative lower bound which is sometimes tighter.
-
-    Rework the histogram edit distance optimisation
-    Use a bitmap in an unsigned long long instead of an array.  This catches
-    nearly as many cases (it's only less effective if there are repeated
-    characters in one or both of the two words being compared (or rather
-    repeated characters modulo 64, assuming an 8-bit unsigned long long),
-    but is faster to check, and overall results in a speed up even though we
-    have to perform the full edit distance calculation a little more often.
-
-    Order fkp by column instead of row
-    This speeds up the edit distance calculation a little.
-
-    Adjust so we can clear fkp with memset()
-    It's significantly faster to memset() than std::fill_n() with an int
-    value, so fill with the msb of INT_MIN, which for 32-bit 2's
-    complement int means -2139062144 instead of -2147483648, which is
-    fine what we need here.
-
-    Optimise edit distance calculation more
-    We're always calculating edit distances to a fixed target, so we
-    can lazily allocate the amount of space we'll need, and pre-compute
-    the frequency histogram for the target.
-    The length-based check before we convert the candidate to UTF-32
-    now uses the UTF-32 length of the target, which makes it a bit
-    more effective.
+* The edit distance calculator (used by spelling correction and the new
+  Query::OP_EDIT_DISTANCE) has been optimised in numerous ways).
 
 * We no longer automatically convert OP_NEAR/OP_PHRASE to OP_AND when a
   database has no positional information.  It's a potentially surprising
@@ -492,66 +489,43 @@ matcher:
   is positional data.  If you want the current behaviour, then you can apply
   this flag if `!db.has_positions()`.
 
-* Special case handling for unweighted OP_OR.
-    This special case handling is faster, which notably speeds up
-    wildcards which expand to a lot of terms.
+* Special case handling for unweighted OP_OR (and "OR" operations which
+  can occur in other contexts), which notably speeds up wildcards which expand
+  to a lot of terms.
 
-* Improve sinking AND_NOT below positional checks
-    We already handled this if the AND_NOT wasn't at the top of the
-    AND-like cluster, but now we should handle it in all cases.
-    This change actually makes the code simpler!
+* Improve sinking AND_NOT below positional checks.  We already handled this if
+  the AND_NOT wasn't at the top of the AND-like cluster, but now we should
+  handle it in all cases.
 
-* Optimise away subqueries with max weight 0 on the RHS of OP_AND_MAYBE
-    Unless we're under OP_SYNONYM and using a weighting scheme which uses
-    wdf such subqueries can't make any difference to the result.
-    Based on patch by Richard Boulton in #400.
+* Optimise away subqueries with max weight 0 on the RHS of OP_AND_MAYBE.
+  Unless we're under OP_SYNONYM and using a weighting scheme which uses
+  wdf such subqueries can't make any difference to the result.  Based on patch
+  by Richard Boulton in #400.
 
-* Optimise away MatchAll when part of and-like query
-    `foo (NOT bar)` is now turned into the same PostList tree as
-    `foo NOT bar`, whereas previously the former included an extra all-docs
-    postlist.
-    To enable this to work cleanly the QueryParser now scales MatchAll
-    weights by 0 in a pure NOT, which seems better in general anyway.
+* Optimise away MatchAll when part of an and-like query.  `foo (NOT bar)` is
+  now turned into the same PostList tree as `foo NOT bar`, whereas previously
+  the former included an extra all-docs postlist.  To enable this to work
+  cleanly the QueryParser now scales MatchAll weights by 0 in a pure NOT, which
+  seems better in general anyway.
 
-    Pass doclen and unique_terms down from PostListTree
-    Previously postlists called down the tree to the leaves to fetch
-    these stats to use when calculating weights.  In the flint backend
-    and before, the postlists stored the document length which is why we
-    implemented it this way, but in chert we changed that to store a single
-    list of document lengths (which is more update-friendly and needs less
-    space because we don't redundantly store each document length many
-    times).
-    Now we no longer need to support flint-style storage, it makes more
-    sense to pass down these stats from PostListTree, with a mechanism for
-    explicitly fetching them from PostListTree in special cases.
+* Posting lists used inside the matcher no longer have a reference count
+  (needed for those used by Xapian::PostingIterator) which reduces memory
+  usage during the match a little.
 
-    Split PostList and PostingIterator::Internal
-    This means we avoid the overhead of a reference count in every
-    PostList object, which we don't need for those used during the
-    match, and so reduces the memory used during the match.
+* The mechanism PostingSource objects used to tell the matcher that their
+  maxweight has changed is now simpler and more efficient.
 
-    Change how PostingSource tells matcher maxweight changed
-    Previously each PostingSource object stored a pointer an internal object in
-    a void* pointer, and internally this was cast to the right type and
-    a particular method called on it, which cleared a bool
-    member in the object.
-    Now we instead store a pointer to that bool in each
-    PostingSource.  This seems cleaner, and also allows
-    set_maxweight() to be declared inline in the public API header.
+* The matcher now waits for remote databases in parallel and handles
+  their results as they become available.
 
-    Wait for remote databases in parallel in the matcher
-    Expose read fds for remote databases and use poll() or select() to
-    wait for them in the matcher so we can handle them as they become
-    available.
-
-    Simplify how we clamp wdf to <= doclen
-    We need to do with for OP_SYNONYM where the wdf is approximated.
-    We now only clamp when need_stat(WDF) and need_stat(DOC_LENGTH)
-    have both been called - when they both have we can rely on having
-    both stats, so the clamping is cheap, and otherwise the weighting
-    scheme can't reasonably rely on wdf <= doclen.
-    This completely avoids the need to compute whether each wildcard or
-    edit distance expansion is wdf_disjoint.
+* Simplify clamping of wdf to <= doclen for OP_SYNONYM.  We approximate
+  the wdf of the synonymm, but want to allow weighting schemes to assume
+  it doesn't exceed the document length.  We now only clamp when need_stat(WDF)
+  and need_stat(DOC_LENGTH) have both been called - when they both have we can
+  rely on having both stats, so the clamping is cheap, and otherwise the
+  weighting scheme can't reasonably rely on wdf <= doclen.  This completely
+  avoids the need to compute whether each wildcard or edit distance expansion
+  is wdf-disjoint.
 
 chert backend:
 
@@ -564,7 +538,7 @@ glass backend:
   write to these tables.  After opening, we can set the file position to a
   really high value so that if user code or another library (or errant code in
   libxapian itself) writes to our file descriptor then it'll fail rather than
-  corrupting the database.  Microsoft Windows lack pwrite(), so there we
+  corrupting the database.  Microsoft Windows lacks pwrite(), so there we
   achieve equivalent protection by using lower-level platform-specific
   functions to open the file with "overlapped IO" enabled, which makes write()
   fail with EINVAL.
@@ -577,96 +551,65 @@ glass backend:
 
   Partly addresses #651.
 
-* Simplify recovery from failed commit()
-    We were increasing the revision number by one and attempt to write
-    a new version file.  This strategy has been carried over from older
-    backends where each table was committed in turn, and a failed commit
-    could have already committed some tables.  Starting from a new revision
-    number simplified things there, but now we commit all tables together so
-    this is no longer needed and just complicates things unnecessarily.
-    A failed commit should now leave us in the same situation as an
-    explicit cancel() would have.
+* Simplify recovery from failed commit(), which is now handled like an explicit
+  cancel().
 
-* Reduce overheads of PostList positional data support
-    Probably the majority of PostList objects aren't involved in phrases
-    or OP_NEAR during the match, so avoid the overhead of a position
-    list object when we know we won't need it.  For glass, we lazily
-    create it (so only have the overhead of a pointer, while for honey
-    we use a special subclass to eliminate the size overhead completely).
-    We also now avoid copying interpolative coded positional data in
-    order to iterate it in most cases.
+* Reduce overheads of PostList positional data support.  Most PostList objects
+  aren't involved in phrases or OP_NEAR during the match, so avoid the overhead
+  of a position list object when we know we won't need it.  
+
+* We now avoid copying interpolative coded positional data in order to iterate
+  it in most cases.
 
 honey backend:
 
 * New backend.  Currently honey doesn't support update - it must be created
   from a glass database using xapian-compact.
 
-    [honey] Don't allow mixed wdf for a term
-    A given term in a honey database must either always have wdf=0 (i.e.
-    a boolean term) or never have wdf=0.
-    Currently we make use of this to reduce the size of the postlist header
-    and to avoid storing wdf explicitly when we can deduce it must be 1 for
-    the second and subsequent occurrence.
+  Honey imposes a restriction on wdf values which previous backends haven't:
+  Each term in a a honey database must either always have wdf=0 (i.e. a boolean
+  term) or never have wdf=0.  This seems a logical requirement, and allows us
+  to encode posting lists more compactly in some cases.
 
 remote backend:
 
 * Support IPv6 for remote backend and replication.  Fixes #374.
 
-    Overhaul remote protocol (version 47.0)
-    The biggest change is that pack_uint() is now used instead of
-    encode_length() for encoding integers and string lengths - it's
-    faster and usually results in a smaller encoding.  Fixes #782, reported
-    by Germán M. Bravo.
-    The ordering of items in some messages and object serialisations has been
-    adjusted to simplify decoding.
-    Some items in messages which weren't actually used by the recipient have
-    been removed.
-    REPLY_TERMLIST0 has been renamed to REPLY_TERMLISTHEADER.
-    REPLY_POSTLIST has been renamed to REPLY_POSTLISTHEADER and instead of
-    sending one REPLY_POSTLISTITEM per entry followed by REPLY_DONE and
-    then joining these all together into one string on the client we now
-    send a single REPLY_POSTLIST with all the entries.
-    Now only one REPLY_POSITIONLIST is sent containing all the entries
-    rather than sending one REPLY_POSITIONLIST for each position list entry
-    followed by REPLY_DONE.
-    Prefix-compress termnames when serialising stats
-    This particularly saves a lot of network traffic for OP_WILDCARD.
-    Fixes #638
+* Overhaul remote protocol (version 47.0).  Most notable changes:
 
-    Adjust MSG_QUERY message
-    Avoid sending the value slot when not sorting by value, as it'll
-    be Xapian::BAD_VALUENO which is 0xffffffff.
+  + Integers and string lengths are now encoded in way a that's faster and
+    usually results in a smaller encoding.  Fixes #782, reported by Germán M.
+    Bravo.
 
-    Reimplement remote TermIterator internals
-    Pass the encoded termlist data across as one message, rather than one
-    message per termlist entry, and then lazily decode that data as the
-    termlist is iterated, rather than exploding it into a vector of
-    structures.
-    We also now avoid ensuring that the cached stats are up to date before
-    iterating allterms or metadata keys.
+  + Use little endian IEEE-754 format for serialising doubles.  Fixes #673.
+    Patch from Tanmay Sachan.
 
-    Eliminate a copy when reading remote document data
-    Use C++11 std::move().
+  + The ordering of items in some messages and object serialisations has been
+    adjusted to simplify decoding.  Some items in messages which weren't
+    actually used by the recipient have been removed.
 
-    Use little endian IEEE-754 format for serialising doubles.
-    Patch from Tanmay Sachan.  Fixes #673.
+  + Prefix-compress term names when serialising stats.  This particularly saves
+    lot of network traffic for OP_WILDCARD.  Fixes #638
 
-    Add synonym support to the remote backend
-    Synonym expansion in the QueryParser is currently handled locally with
-    the synonym data sent across the link, which may mean this doesn't scale
-    well if you have a lot of synonyms.
-    Patch from Gaurav Arora.
-    Closes https://github.com/xapian/xapian/pull/284
-    Partly addresses https://trac.xapian.org/ticket/178
+  + Replies containing data for PositionIterator, PostingIterator and
+    TermIterator used to be sent as a reply per entry, but are instead now sent
+    as a single message containing a blob of encoded data which is decoded
+    lazily upon iteration.
+
+* Avoid ensuring that the cached database stats are up to date in some cases
+  where we don't actually use them.
+
+* Eliminate a copy when reading remote document data.
+
+* Support remote use of synonyms.  Synonym expansion in the QueryParser is
+  currently handled locally with the synonym data sent across the link, which
+  may mean this doesn't scale well if you have a lot of synonyms.  Partly
+  addresses #178.  Patch from Gaurav Arora.
 
 * Support remote use of KeyMaker objects.  Xapian::MultiValueKeyMaker now
   supports this out of the box, and user Xapian::KeyMaker subclasses can too by
   implementing name(), serialise() and unserialise() methods.  Fixes #413,
   originally reported in #384 by Marek Mizier.
-
-    Move RemoteTcpServer from libxapian to xapian-tcpsrv
-    It's only used in the latter so that's a sensible place to put it and
-    doing so eliminates some of the "private API" symbols (see #63).
 
 * Implement TermIterator::positionlist_count() for remote databases.
 
@@ -691,31 +634,22 @@ build system:
   directory via both AC_CONFIG_MACRO_DIR and ACLOCAL_AMFLAGS.  It was added in
   automake 1.13, so that's now the minimum required version (was 1.12.2).
 
-    bootstrap: Use automake 1.16.1 instead of 1.15.1
-
-    Add configure --disable-gpl-libxapian option
-    This disables backends which still use unrelicensable code - if any
-    such library code still gets compiled, the build should fail with a
-    compile-time error.
+* New --disable-gpl-libxapian configure option.  This disables backends which
+  still use unrelicensable code - if any such library code still gets compiled,
+  the build should fail with a compile-time error.  The main thing such a
+  build currently lacks is a disk-based backend which supports updating
+  databases.
 
 documentation:
 
-* Better document that WritableDatabase supports sharded databases (it has
-  since 1.3.2).
-
-* Improve API docs for when DatabaseClosedError is thrown.  We were
-  still saying that DatabaseError was thrown, which was the case before
-  DatabaseClosedError was added.  DatabaseClosedError can be caught as
-  DatabaseError because it's a subclass.
-
-Author: James Aylett <james@tartarus.org>
-    Update HACKING and README
+* Update HACKING and README
     Remove content which is now in the dev guide
     Add a pointer from HACKING to help people find its new home.
     Improve the pointer to the previous contents of xapian-core/HACKING
     which has been moved to the Xapian developer guide.
     Mention both developer and user guide in README, since they're
     probably the most useful places to get started now.
+Patch from James Aylett.
 
 * Update the matcher design notes which had got very out of date.
 
@@ -732,24 +666,28 @@ examples:
 
 portability:
 
+* Support building with emscripten.  Patch from Peter Salomonsen.
+
 * Eliminate all remaining uses of atoi(), strtol(), etc in the library.  Calls
   to strtod() are also avoided if std::from_chars() is available with support for
   double.  The replaced calls are potentially problematic in a multithreaded
   application if setlocale() is called by another thread at the same time.  See
   #665.
 
-    Add XAPIAN_VISIBILITY_INTERNAL and use it
-    Some API classes have internal methods which only get called from
-    within the library - e.g. a common pattern is a constructor
-    Foo(Foo::Internal*).  By setting visibility of such methods to
-    "internal" they won't get exported from the shared library, which
-    speeds up dynamic library loading a little.
+* Add XAPIAN_VISIBILITY_INTERNAL for API class methods which aren't part of the
+  public API and only get called from within the library - e.g. a common
+  pattern is a constructor Foo(Foo::Internal*).  This means symbols for these
+  methods won't get exported from the shared library, reducing the number of
+  runtime relocations and speeding up dynamic library loading a little.
 
 * Dispatch remote message codes using a switch statement instead of an array of
   function pointers which reduces the number of relocations needed to load the
   dynamic library, reducing start up time.
 
-* Support building with emscripten.  Patch from Peter Salomonsen.
+* Move some code only used by xapian-tcpsrv out of libxapian, which eliminates
+  some of the remaining "private API" symbols, reducing the number of
+  relocations needed to load the dynamic library and so reducing start up time.
+  (see #63).
 
 * Define ZLIB_CONST to get const-correct zstream API.  This makes the minimum
   zlib requirement 1.2.5.2, but that was released 2011-12-17 so it's unlikely
@@ -760,7 +698,7 @@ portability:
   but that could potentially result in non-unique pipe names in multi-threaded
   use.
 
-* Microsoft Windows: Stop the Microsoft-specific _set_errno() function
+* Microsoft Windows: Stop using the Microsoft-specific _set_errno() function
   for setting errno, which we were using in just one place in the code - in
   more than 30 other places in core we just assign to errno directly.  The docs
   don't give any reason why _set_errno() should be needed, and a conforming
@@ -785,7 +723,7 @@ debug code:
   log entries are less likely to be lost if there's a crash, but O_SYNC can
   incur a significant performance overhead and most debugging is not of such
   crashes.  Now synchronous logging is only enabled if requested by including
-  escape %! in the filename specified with XAPIAN_DEBUG_LOG (which is replaced
+  escape %! in the filename specified with XAPIAN_DEBUG_LOG (the %! is replaced
   with the empty string).  We also now use O_DSYNC if available in preference
   to O_SYNC, since the mtime of the log file isn't important.
 
@@ -799,7 +737,7 @@ debug code:
   + Document that "until" with no arguments advances to the end of the table,
     which wasn't previously mentioned in the help.
 
-  + "until" now counts and reports the number of entries advanced by.
+  + "until" now counts and reports the number of entries it advances by.
 
   + The key specified to commands "goto" and "until" is now expected to be
     escaped in the same way that keys are escaped for display.  This makes it
@@ -808,15 +746,13 @@ debug code:
 * xapian-inspect-honey: Equivalent to the xapian-inspect debug tool, but
   for honey databases.
 
-* Allow using UBSan's unsigned-overflow check
-    In C and C++ unsigned overflow has defined behaviour (unlike signed
-    overflow) but in many cases it happening is not intended and indicates
-    a bug.
-    UBSan supports an unsigned-overflow check (at least the clang version
-    does - currently the GCC version doesn't seem to) so I've annotated the
-    few places in the code where we deliberately rely on unsigned overflow
-    (and eliminated a few cases where we can easily not rely on it) and
-    added this check to the clang-sanitisers job.
+* Allow using UBSan's unsigned-overflow check.  C and C++ unsigned overflow
+  has defined behaviour (unlike signed overflow) but it's often not expected
+  to happen so may indicate a bug.  UBSan supports an unsigned-overflow check
+  (currently only in the clang version) so we've annotated the few places in
+  the code where we deliberately rely on unsigned overflow, eliminated a few
+  cases where we can easily not rely on it, and added this check to the
+  clang-sanitisers CI job.
 
 Xapian-core 1.4.30 (2025-11-20):
 

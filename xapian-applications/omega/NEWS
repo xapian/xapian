@@ -1,11 +1,11 @@
-up to: 0a0a8ff32010d0b8129d27af5b8ae02ebec670c2
+up to: a8e8e28135be5f88c2d264f876b21f913bb7f220
 
-Omega 1.5.0 (2025-0?-??):
+Omega 1.5.0 (2026-0?-??):
 
 general:
 
-* Add click logging and analysis to generate training data for the xapian-letor
-  module.  Patch from Vivek Pal.
+* Add support for result click logging and analysis to generate training data
+  for the xapian-letor module.  Patch from Vivek Pal.
 
 * Remove htdig2omega scripts.  The last htdig release was in 2004 so these
   scripts no longer seem at all useful.
@@ -15,10 +15,10 @@ documentation:
 indexers:
 
 * Our XML and HTML parser now treats XML (and XHTML) more correctly rather
-  thank treating everything like HTML.  In particular for XML and XHTML we now
-  parse tag names and attribute names case sensitively, and disable special
-  handling for htdig and similar "ignore this bit" comments, and also disable
-  special handling inside <script> tags.
+  than treating everything like HTML.  We now parse XML and XHTML tag names and
+  attribute names case sensitively.  Special handling for htdig and similar
+  "ignore this bit" comments is now only active for HTML and XHTML.  Special
+  handling inside <script> tags is now only active for HTML.
 
 * We now parse XML/HTML attributes lazily.  We often don't look at them so
   just do the minimal parsing up front (skip balanced pairs of `"` and `'`
@@ -26,8 +26,8 @@ indexers:
   data for the requested attribute - in practice we're rarely asked for more
   than one attribute for a particular tag so this will usually mean less work
   since we can just stop once we've found the attribute, and we save the work
-  on building up and tearing down the structure to store the parsed attributes
-  in.
+  on building up and tearing down a data structure to store the parsed
+  attributes in.
 
 * Remove undocumented feature which preserved some HTML formatting in the
   generated sample, encoded using different whitespace characters.  This
@@ -60,18 +60,18 @@ indexers:
   + Perform shell emulation parsing before fork() since we're not meant to call
     malloc() between fork() and exec*().
 
-  + Add support for extracting text using a library.  The code which calls
+  + Add support for extracting text using libraries.  The code which calls
     each library is run in a worker sub-process so that bugs in the library
     can't crash the indexer.  So far we have workers for the following
     libraries and formats:
-    - Poppler: PDFs
+    - Poppler: PDF
     - libe-book: fb2, fb2.zip, lrf, tcr, pdb and jar
     - libetonyek: Apple iWork (keynote, pages, numbers)
     - Gmime: MIME Email and Usenet articles
     - Tesseract: extract text from image files using OCR
     - libarchive: OpenDocument format, Microsoft XML formats (docx, xlsx, pptx, xps)
-    - libabw: Abiword formats
-    - libcdr: CorelDRAW formats
+    - libabw: Abiword documents (.abw, .abt, .zabw)
+    - libcdr: CorelDRAW format (.cdr)
     - libextractor: extract meta-data from audio and video files
     - libreofficekit: Formats which LibreOffice supports
     - libgepub: EPUB ebooks (#780)
@@ -84,15 +84,15 @@ indexers:
 
   + Delay relatively expensive libmagic checks and the creation of the
     Xapian::Document object until after we've checked if the document is
-    already indexed or already in our failed list.
-    Fixes #743. Patch from Bruno Baruffaldi.
+    already indexed or already in our failed list.  Fixes #743.  Patch from
+    Bruno Baruffaldi.
 
-  + Don't index date terms by default.  Using values for date filtering has
-    been supported for more than 10 years (since 1.0.0) and has many advantages
-    - continuing to add all the terms as well is pointless overhead for the
-    majority of users at this point.  The omindex --date-terms option can be
-    used if you still want these terms (this option is supported since 1.4.22
-    for forward compatibility).
+  + Using values for date filtering has been supported since 2007 (Omega 1.0.0)
+    and has many advantages over date terms, so date terms are no longer
+    indexed by default - they are just pointless overhead for the majority of
+    users at this point.  The omindex --date-terms option can be used if you
+    still want these terms (this option is recognised since 1.4.22 for forward
+    compatibility, but 1.4.x still always indexes these terms).
 
   + Atom feed parsing: type="xhtml" is now understood.
 
@@ -204,15 +204,13 @@ packaging:
 
 debug code:
 
-* Allow using UBSan's unsigned-overflow check
-    In C and C++ unsigned overflow has defined behaviour (unlike signed
-    overflow) but in many cases it happening is not intended and indicates
-    a bug.
-    UBSan supports an unsigned-overflow check (at least the clang version
-    does - currently the GCC version doesn't seem to) so I've annotated the
-    few places in the code where we deliberately rely on unsigned overflow
-    (and eliminated a few cases where we can easily not rely on it) and
-    added this check to the clang-sanitisers job.
+* Allow using UBSan's unsigned-overflow check.  C and C++ unsigned overflow
+  has defined behaviour (unlike signed overflow) but it's often not expected
+  to happen so may indicate a bug.  UBSan supports an unsigned-overflow check
+  (currently only in the clang version) so we've annotated the few places in
+  the code where we deliberately rely on unsigned overflow, eliminated a few
+  cases where we can easily not rely on it, and added this check to the
+  clang-sanitisers CI job.
 
 Omega 1.4.30 (2025-11-20):
 

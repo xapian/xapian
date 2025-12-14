@@ -1,6 +1,6 @@
-up to: 0a0a8ff32010d0b8129d27af5b8ae02ebec670c2
+up to: 4cba215151bc5412fe915a85895c93b3a89785be
 
-Xapian-bindings 1.5.0 (2025-0?-??):
+Xapian-bindings 1.5.0 (2026-0?-??):
 
 Documentation:
 
@@ -40,7 +40,7 @@ Java:
 
 Lua:
 
-* The Lua bindings allows passing a Lua function where the C++ API takes a
+* The Lua bindings allow passing a Lua function where the C++ API takes a
   Xapian::StemImplementation object.  Previously this function served to
   implement the stemmer and provide its description, with nil being passed in
   to indicate to return a description.  This seems more annoying than helpful
