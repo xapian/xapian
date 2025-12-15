@@ -35,8 +35,7 @@ inline constexpr typename std::enable_if_t<std::is_unsigned_v<T>, T>
 negate_unsigned(T value)
 {
 #ifdef _MSC_VER
-// Suppress warning about negating an unsigned type, which we do deliberately
-// in a few places in the code.
+// Suppress warning about negating an unsigned type.
 # pragma warning(push)
 # pragma warning(disable:4146)
 #endif
