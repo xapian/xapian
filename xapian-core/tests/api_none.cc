@@ -2,7 +2,7 @@
  * @brief tests which don't need a backend
  */
 /* Copyright (C) 2009 Richard Boulton
- * Copyright (C) 2009-2023 Olly Betts
+ * Copyright (C) 2009-2025 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -241,6 +241,28 @@ DEFINE_TESTCASE(singlesubquery3, !backend) {
     singlesubquery3_(OP_ELITE_SET);
     singlesubquery3_(OP_SYNONYM);
     singlesubquery3_(OP_MAX);
+}
+
+DEFINE_TESTCASE(pairwisequery1, !backend) {
+    // Test that constructing from string literals gives the same result as
+    // explicitly constructing Query objects for the subqueries.  This serves
+    // as a regression test for using string literals not compiling in 1.4.x.
+    Xapian::Query qa("a");
+    Xapian::Query qb("b");
+#define pairwisequery1_(OP) \
+    TEST_STRINGS_EQUAL(Xapian::Query(qa.OP, "a", "b").get_description(),\
+		       Xapian::Query(qa.OP, qa, qb).get_description())
+    pairwisequery1_(OP_AND);
+    pairwisequery1_(OP_OR);
+    pairwisequery1_(OP_AND_NOT);
+    pairwisequery1_(OP_XOR);
+    pairwisequery1_(OP_AND_MAYBE);
+    pairwisequery1_(OP_FILTER);
+    pairwisequery1_(OP_NEAR);
+    pairwisequery1_(OP_PHRASE);
+    pairwisequery1_(OP_ELITE_SET);
+    pairwisequery1_(OP_SYNONYM);
+    pairwisequery1_(OP_MAX);
 }
 
 /// Check we no longer combine wqf for same term at the same position.
