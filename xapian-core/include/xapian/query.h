@@ -1,7 +1,7 @@
 /** @file
  * @brief Xapian::Query API class
  */
-/* Copyright (C) 2011,2012,2013,2014,2015,2016,2017,2018,2019 Olly Betts
+/* Copyright (C) 2011-2025 Olly Betts
  * Copyright (C) 2008 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -463,7 +463,10 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
      *  @param window	Window size for OP_NEAR and OP_PHRASE, or 0 to use the
      *			number of subqueries as the window size (default: 0).
      */
-    template<typename I>
+    template<typename I,
+	     // Don't enable for char*/const char* via SFINAE trick so that we
+	     // don't try to handle Query(op, "a", "b") here.
+	     int = 1 / (sizeof(typename std::iterator_traits<I>::value_type) - 1)>
     Query(op op_, I begin, I end, Xapian::termcount window = 0)
     {
 	if (begin != end) {
