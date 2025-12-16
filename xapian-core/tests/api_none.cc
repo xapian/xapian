@@ -246,7 +246,8 @@ DEFINE_TESTCASE(singlesubquery3, !backend) {
 DEFINE_TESTCASE(pairwisequery1, !backend) {
     // Test that constructing from string literals gives the same result as
     // explicitly constructing Query objects for the subqueries.  This serves
-    // as a regression test for using string literals not compiling in 1.4.x.
+    // as a regression test for using string literals not compiling with
+    // Xapian <= 1.4.30.
     Xapian::Query qa("a");
     Xapian::Query qb("b");
 #define pairwisequery1_(OP) \
