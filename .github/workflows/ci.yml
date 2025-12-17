@@ -1305,7 +1305,8 @@ jobs:
             poppler \
             pygments \
             python \
-            tcl-tk
+            tcl-tk \
+            tesseract
         pip3 install --user --break-system-packages Sphinx
         # mono-mdk: "make check" fails on arm64 macos-15 (but worked on
         # x86_64 macos-12 and macos-13).  Last checked 2025-12-17.
@@ -1314,10 +1315,6 @@ jobs:
         # https://github.com/stewartsmith/libeatmydata/issues/34
         # It's also started failing to even run in homebrew so don't install
         # for now.
-        #
-        # homebrew tesseract 5.2.0 only extracts "ee" from img/Test1.gif (5.1.0
-        # worked).
-        # tesseract
     - name: configure
       run: |
         export CC='ccache gcc'
@@ -1328,7 +1325,7 @@ jobs:
         export XAPIAN_CONFIG=$PWD/xapian-config
         popd
         pushd xapian-applications/omega
-        ./configure --enable-werror --with-libiconv-prefix="$(brew --prefix libiconv)"
+        ./configure --enable-werror --with-libiconv-prefix="$(brew --prefix libiconv)" CPPFLAGS="-I${HOMEBREW_PREFIX:-/usr/local}/include"
         popd
         pushd xapian-bindings
         # Homebrew package mono-mdk-for-visual-studio is pre-installed in the
@@ -1411,7 +1408,8 @@ jobs:
             poppler \
             pygments \
             python \
-            tcl-tk
+            tcl-tk \
+            tesseract
         pip3 install --user --break-system-packages Sphinx
         # mono-mdk: "make check" fails on aarch64 macos-14 (but worked on
         # x86_64 macos-12 and macos-13):
@@ -1422,10 +1420,6 @@ jobs:
         # https://github.com/stewartsmith/libeatmydata/issues/34
         # It's also started failing to even run in homebrew so don't install
         # for now.
-        #
-        # homebrew tesseract 5.2.0 only extracts "ee" from img/Test1.gif (5.1.0
-        # worked).
-        # tesseract
     - name: configure
       run: |
         export CC='ccache gcc'
@@ -1436,7 +1430,7 @@ jobs:
         export XAPIAN_CONFIG=$PWD/xapian-config
         popd
         pushd xapian-applications/omega
-        ./configure --enable-werror --with-libiconv-prefix="$(brew --prefix libiconv)"
+        ./configure --enable-werror --with-libiconv-prefix="$(brew --prefix libiconv)" CPPFLAGS="-I${HOMEBREW_PREFIX:-/usr/local}/include"
         popd
         pushd xapian-bindings
         # Homebrew package mono-mdk-for-visual-studio is pre-installed in the
