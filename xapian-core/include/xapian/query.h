@@ -905,30 +905,32 @@ struct TermFreqs;
 }
 
 /** @private @internal */
-class XAPIAN_VISIBILITY_INTERNAL Query::Internal
-    : public Xapian::Internal::intrusive_base {
+class Query::Internal : public Xapian::Internal::intrusive_base {
   public:
     Internal() noexcept { }
 
-    XAPIAN_VISIBILITY_DEFAULT
     virtual ~Internal();
 
+    XAPIAN_VISIBILITY_INTERNAL
     virtual Xapian::Internal::PostList*
     postlist(Xapian::Internal::QueryOptimiser* qopt,
 	     double factor,
 	     Xapian::Internal::TermFreqs* termfreqs) const = 0;
 
+    XAPIAN_VISIBILITY_INTERNAL
     virtual bool
     postlist_sub_and_like(Xapian::Internal::AndContext& ctx,
 			  Xapian::Internal::QueryOptimiser* qopt,
 			  double factor,
 			  Xapian::Internal::TermFreqs* termfreqs) const;
 
+    XAPIAN_VISIBILITY_INTERNAL
     virtual void
     postlist_sub_bool_or_like(Xapian::Internal::OrContext& ctx,
 			      Xapian::Internal::QueryOptimiser* qopt,
 			      Xapian::Internal::TermFreqs* termfreqs) const;
 
+    XAPIAN_VISIBILITY_INTERNAL
     virtual void
     postlist_sub_or_like(Xapian::Internal::OrContext& ctx,
 			 Xapian::Internal::QueryOptimiser* qopt,
@@ -936,28 +938,39 @@ class XAPIAN_VISIBILITY_INTERNAL Query::Internal
 			 Xapian::Internal::TermFreqs* termfreqs,
 			 bool keep_zero_weight = true) const;
 
+    XAPIAN_VISIBILITY_INTERNAL
     virtual void
     postlist_sub_xor(Xapian::Internal::XorContext& ctx,
 		     Xapian::Internal::QueryOptimiser* qopt,
 		     double factor,
 		     Xapian::Internal::TermFreqs* termfreqs) const;
 
+    XAPIAN_VISIBILITY_INTERNAL
     virtual termcount get_length() const noexcept XAPIAN_PURE_FUNCTION;
 
+    XAPIAN_VISIBILITY_INTERNAL
     virtual void serialise(std::string & result) const = 0;
 
+    XAPIAN_VISIBILITY_INTERNAL
     static Query::Internal* unserialise(const char** p, const char* end,
 					const Registry& reg);
 
+    XAPIAN_VISIBILITY_INTERNAL
     virtual Query::op get_type() const noexcept XAPIAN_PURE_FUNCTION = 0;
+    XAPIAN_VISIBILITY_INTERNAL
     virtual size_t get_num_subqueries() const noexcept XAPIAN_PURE_FUNCTION;
+    XAPIAN_VISIBILITY_INTERNAL
     virtual const Query get_subquery(size_t n) const;
+    XAPIAN_VISIBILITY_INTERNAL
     virtual termcount get_wqf() const;
+    XAPIAN_VISIBILITY_INTERNAL
     virtual termpos get_pos() const;
 
+    XAPIAN_VISIBILITY_INTERNAL
     virtual std::string get_description() const = 0;
 
     // Pass argument as void* to avoid need to include <vector>.
+    XAPIAN_VISIBILITY_INTERNAL
     virtual void gather_terms(void * void_terms) const;
 };
 
