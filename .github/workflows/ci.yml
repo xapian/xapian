@@ -1308,7 +1308,7 @@ jobs:
             tcl-tk
         pip3 install --user --break-system-packages Sphinx
         # mono-mdk: "make check" fails on arm64 macos-15 (but worked on
-        # x86_64 macos-12 and macos-13).  Last checked 2024-05-05.
+        # x86_64 macos-12 and macos-13).  Last checked 2025-12-17.
         #
         # libeatmydata doesn't currently actually do anything on macOS:
         # https://github.com/stewartsmith/libeatmydata/issues/34
@@ -1416,7 +1416,7 @@ jobs:
         # mono-mdk: "make check" fails on aarch64 macos-14 (but worked on
         # x86_64 macos-12 and macos-13):
         # System.DllNotFoundException: _XapianSharp assembly:<unknown assembly> type:<unknown type> member:(null)
-        # Last checked 2024-10-24.
+        # Last checked 2025-12-17.
         #
         # libeatmydata doesn't currently actually do anything on macOS:
         # https://github.com/stewartsmith/libeatmydata/issues/34
