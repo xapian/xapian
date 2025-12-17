@@ -905,10 +905,12 @@ struct TermFreqs;
 }
 
 /** @private @internal */
-class Query::Internal : public Xapian::Internal::intrusive_base {
+class XAPIAN_VISIBILITY_INTERNAL Query::Internal
+    : public Xapian::Internal::intrusive_base {
   public:
     Internal() noexcept { }
 
+    XAPIAN_VISIBILITY_DEFAULT
     virtual ~Internal();
 
     virtual Xapian::Internal::PostList*
