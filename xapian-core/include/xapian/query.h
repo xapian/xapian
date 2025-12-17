@@ -589,8 +589,9 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
      *			number of subqueries as the window size (default: 0).
      */
     template<typename I,
-	     typename std::enable_if<!std::is_same<const char*, I>::value, bool>::type = true,
-	     typename = typename std::iterator_traits<I>::iterator_category>
+	typename std::enable_if<!std::is_convertible<I, const char*>::value,
+				bool>::type = true,
+	typename = typename std::iterator_traits<I>::iterator_category>
     Query(op op_, I begin, I end, Xapian::termcount window = 0)
     {
 	if (begin != end) {
