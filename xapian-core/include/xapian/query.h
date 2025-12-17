@@ -595,7 +595,7 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
     Query(op op_, I begin, I end, Xapian::termcount window = 0)
     {
 	if (begin != end) {
-	    typedef typename std::iterator_traits<I>::iterator_category iterator_category;
+	    using typename std::iterator_traits<I>::iterator_category;
 	    init(op_, window, begin, end, iterator_category());
 	    bool positional = (op_ == OP_NEAR || op_ == OP_PHRASE);
 	    for (I i = begin; i != end; ++i) {
