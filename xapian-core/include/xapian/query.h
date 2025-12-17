@@ -464,13 +464,14 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
      *			number of subqueries as the window size (default: 0).
      */
     template<typename I,
-	     // Don't enable for char*/const char* via SFINAE trick so that we
-	     // don't try to handle Query(op, "a", "b") here.
-	     int = 1 / (sizeof(typename std::iterator_traits<I>::value_type) - 1)>
+	// Don't enable when I is char*/const char* via SFINAE trick so
+	// that we don't try to handle Query(op, "a", "b") here.
+	int = 1 / (sizeof(typename std::iterator_traits<I>::value_type) - 1),
+	typename iterator_category =
+	    typename std::iterator_traits<I>::iterator_category>
     Query(op op_, I begin, I end, Xapian::termcount window = 0)
     {
 	if (begin != end) {
-	    using typename std::iterator_traits<I>::iterator_category;
 	    init(op_, window, begin, end, iterator_category());
 	    bool positional = (op_ == OP_NEAR || op_ == OP_PHRASE);
 	    for (I i = begin; i != end; ++i) {
