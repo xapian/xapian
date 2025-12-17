@@ -1105,9 +1105,6 @@ jobs:
         popd
     - name: Install package dependencies
       run: |
-        # Workaround apparent homebrew bug 2024-01-17
-        rm -f /usr/local/bin/2to3-3.* /usr/local/bin/idle3.* /usr/local/bin/pydoc3.* /usr/local/bin/python3.* /usr/local/bin/python3.*-config
-        rm -f /usr/local/bin/2to3 /usr/local/bin/idle3 /usr/local/bin/pydoc3 /usr/local/bin/python3 /usr/local/bin/python3-config
         brew update
         brew install -q \
             libiconv \
@@ -1192,9 +1189,6 @@ jobs:
         popd
     - name: Install package dependencies
       run: |
-        # Workaround apparent homebrew bug 2024-01-17
-        rm -f /usr/local/bin/2to3-3.* /usr/local/bin/idle3.* /usr/local/bin/pydoc3.* /usr/local/bin/python3.* /usr/local/bin/python3.*-config
-        rm -f /usr/local/bin/2to3 /usr/local/bin/idle3 /usr/local/bin/pydoc3 /usr/local/bin/python3 /usr/local/bin/python3-config
         brew update
         brew install -q \
             gmime \
