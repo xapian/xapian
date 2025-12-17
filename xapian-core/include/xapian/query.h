@@ -589,13 +589,19 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
      *			number of subqueries as the window size (default: 0).
      */
     template<typename I,
-	typename std::enable_if<!std::is_convertible<I, const char*>::value,
-				bool>::type = true,
-	typename = typename std::iterator_traits<I>::iterator_category>
+	typename std::enable_if<
+	    std::is_convertible<typename std::iterator_traits<I>::value_type,
+				Xapian::Query>::value ||
+	    std::is_convertible<typename std::iterator_traits<I>::value_type,
+				Xapian::Query*>::value ||
+	    std::is_convertible<typename std::iterator_traits<I>::value_type,
+				std::string_view>::value,
+	    bool>::type = true,
+	typename iterator_category =
+	    typename std::iterator_traits<I>::iterator_category>
     Query(op op_, I begin, I end, Xapian::termcount window = 0)
     {
 	if (begin != end) {
-	    using typename std::iterator_traits<I>::iterator_category;
 	    init(op_, window, begin, end, iterator_category());
 	    bool positional = (op_ == OP_NEAR || op_ == OP_PHRASE);
 	    for (I i = begin; i != end; ++i) {
