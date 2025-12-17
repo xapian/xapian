@@ -525,23 +525,7 @@ jobs:
             python3-dev \
             tcl \
             tcl-dev \
-            libicu-dev \
             pkg-config \
-            libpoppler-glib-dev \
-            libglib2.0-dev \
-            libe-book-dev \
-            libetonyek-dev \
-            libgepub-0.7-dev \
-            libgmime-3.0-dev \
-            libarchive-dev \
-            libabw-dev \
-            libcdr-dev \
-            libextractor-dev \
-            libextractor-plugins-all \
-            libmwaw-dev \
-            libreofficekit-dev libreoffice-calc libreoffice-draw libreoffice-impress libreoffice-writer \
-            libtesseract-dev \
-            tesseract-ocr-eng \
             valgrind
     - name: configure
       run: |
@@ -653,8 +637,6 @@ jobs:
 
   assertions-partial:
     runs-on: 'ubuntu-22.04'
-    env:
-      LIBEXTRACTOR_PREFIX: '/usr/lib/x86_64-linux-gnu/libextractor'
     needs: makedist
     steps:
     - name: Install CCache
@@ -1128,7 +1110,6 @@ jobs:
       run: |
         export CC='ccache gcc'
         export CXX='ccache g++'
-        export PKG_CONFIG_PATH="$(brew --prefix icu4c)/lib/pkgconfig"
         pushd xapian-core
         ./configure --enable-werror --prefix='${{ runner.temp }}/XapianInstall'
         export XAPIAN_CONFIG=$PWD/xapian-config
@@ -1191,16 +1172,8 @@ jobs:
       run: |
         brew update
         brew install -q \
-            gmime \
-            icu4c \
-            libabw \
-            libarchive \
-            libcdr \
-            libetonyek \
-            libextractor \
             libiconv \
             libmagic \
-            libmwaw \
             lua \
             pcre2 \
             php \
@@ -1219,15 +1192,10 @@ jobs:
         # https://github.com/stewartsmith/libeatmydata/issues/34
         # It's also started failing to even run in homebrew so don't install
         # for now.
-        #
-        # homebrew tesseract 5.2.0 only extracts "ee" from img/Test1.gif (5.1.0
-        # worked).
-        # tesseract
     - name: configure
       run: |
         export CC='ccache gcc'
         export CXX='ccache g++'
-        export PKG_CONFIG_PATH="$(brew --prefix icu4c)/lib/pkgconfig"
         pushd xapian-core
         ./configure --enable-werror --prefix='${{ runner.temp }}/XapianInstall'
         export XAPIAN_CONFIG=$PWD/xapian-config
