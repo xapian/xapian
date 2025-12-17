@@ -242,15 +242,29 @@ DEFINE_TESTCASE(singlesubquery3, !backend) {
 }
 
 DEFINE_TESTCASE(pairwisequery1, !backend) {
-    // Test that constructing from string literals gives the same result as
-    // explicitly constructing Query objects for the subqueries.  This serves
-    // as a regression test for using string literals not compiling with
-    // Xapian <= 1.4.30.
-    Xapian::Query qa("a");
-    Xapian::Query qb("b");
-#define pairwisequery1_(OP) \
-    TEST_STRINGS_EQUAL(Xapian::Query(qa.OP, "a", "b").get_description(),\
-		       Xapian::Query(qa.OP, qa, qb).get_description())
+    // Test that constructing from char* and const char* gives the same result
+    // as explicitly constructing Query objects for the subqueries.  This
+    // serves as a regression test for using char*/const char* not compiling
+    // with Xapian <= 1.4.30.
+#define lit_a "a"
+#define lit_b "b"
+    char aa[] = lit_a;
+    char ab[] = lit_b;
+    const char* ca = aa;
+    const char* cb = ab;
+    Xapian::Query qa(aa);
+    Xapian::Query qb(ab);
+
+#define pairwisequery1_(OP) do {\
+	auto expect = Xapian::Query(qa.OP, lit_a, lit_b).get_description(); \
+	TEST_STRINGS_EQUAL(expect, \
+			   Xapian::Query(qa.OP, aa, ab).get_description()); \
+	TEST_STRINGS_EQUAL(expect, \
+			   Xapian::Query(qa.OP, ca, cb).get_description()); \
+	TEST_STRINGS_EQUAL(expect, \
+			   Xapian::Query(qa.OP, qa, qb).get_description()); \
+    } while (false)
+
     pairwisequery1_(OP_AND);
     pairwisequery1_(OP_OR);
     pairwisequery1_(OP_AND_NOT);
