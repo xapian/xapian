@@ -467,7 +467,7 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	// Don't enable when I is char*/const char* via SFINAE trick so
 	// that we don't try to handle Query(op, "a", "b") here.
 	typename =
-	    int[sizeof(typename std::iterator_traits<I>::value_type) - 1],
+	    int[sizeof(typename std::iterator_traits<I>::value_type) * 2 - 3],
 	typename iterator_category =
 	    typename std::iterator_traits<I>::iterator_category>
     Query(op op_, I begin, I end, Xapian::termcount window = 0)
