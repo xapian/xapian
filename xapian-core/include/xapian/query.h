@@ -42,6 +42,16 @@ namespace Xapian {
 
 class PostingSource;
 
+namespace Internal {
+    // You need a C++11 compiler to build Xapian 1.4.x, but we aim to support
+    // the headers being included without having to select C++11 mode.  That's
+    // become much less of an issue as most compilers have switched to at least
+    // C++11 by default, but it seems better not to change this mid release
+    // series, so we define our own version of std::enable_if<>.
+    template<bool, typename T = void> struct EnableIf { };
+    template<typename T> struct EnableIf<true, T> { typedef T type; };
+}
+
 /// Class representing a query.
 class XAPIAN_VISIBILITY_DEFAULT Query {
   public:
@@ -464,10 +474,10 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
      *			number of subqueries as the window size (default: 0).
      */
     template<typename I,
-	typename I_traits = typename std::iterator_traits<I>,
-	typename std::enable_if<sizeof(typename I_traits::value_type) != 1,
-				bool>::type = true,
-	typename iterator_category = typename I_traits::iterator_category>
+	typename T = typename std::iterator_traits<I>,
+	typename V = typename T::value_type,
+	typename Xapian::Internal::EnableIf<sizeof(V) != 1, bool>::type = true,
+	typename iterator_category = typename T::iterator_category>
     Query(op op_, I begin, I end, Xapian::termcount window = 0)
     {
 	if (begin != end) {
