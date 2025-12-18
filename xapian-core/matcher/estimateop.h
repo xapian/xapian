@@ -1,7 +1,7 @@
 /** @file
  *  @brief Calculated bounds on and estimate of number of matches
  */
-/* Copyright (C) 2022 Olly Betts
+/* Copyright (C) 2022,2025 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -116,6 +116,14 @@ class EstimateOp {
      */
     EstimateOp(EstimateOp* next_, op_type type_)
 	: next(next_), type(type_), estimates(0, 0, 0), n_subqueries(1) { }
+
+    /** Report the first docid indexed.
+     *
+     *  Called by ValueRangePostList if it starts with next().
+     */
+    void report_first(Xapian::docid first) {
+	estimates.first = first;
+    }
 
     void report_ratio(Xapian::doccount accepted, Xapian::doccount rejected) {
 	Assert(type == DECIDER ||

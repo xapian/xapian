@@ -1,7 +1,7 @@
 /** @file
  * @brief Return document ids matching a range test on a specified doc value.
  */
-/* Copyright 2007,2008,2009,2010,2011,2013,2016,2017 Olly Betts
+/* Copyright 2007,2008,2009,2010,2011,2013,2016,2017,2022,2025 Olly Betts
  * Copyright 2009 Lemur Consulting Ltd
  * Copyright 2010 Richard Boulton
  *
@@ -79,13 +79,22 @@ PostList *
 ValueRangePostList::next(double)
 {
     Assert(db);
-    if (!valuelist) valuelist = db->open_value_list(slot);
+    bool report_first = false;
+    if (!valuelist) {
+	report_first = true;
+	valuelist = db->open_value_list(slot);
+    }
     valuelist->next();
     while (!valuelist->at_end()) {
 	const string & v = valuelist->get_value();
 	if (v >= begin && v <= end) {
+	    ++accepted;
+	    if (report_first) {
+		estimate_op->report_first(valuelist->get_docid());
+	    }
 	    return NULL;
 	}
+	++rejected;
 	valuelist->next();
     }
     db = NULL;
@@ -101,8 +110,10 @@ ValueRangePostList::skip_to(Xapian::docid did, double)
     while (!valuelist->at_end()) {
 	const string & v = valuelist->get_value();
 	if (v >= begin && v <= end) {
+	    ++accepted;
 	    return NULL;
 	}
+	++rejected;
 	valuelist->next();
     }
     db = NULL;
@@ -121,6 +132,10 @@ ValueRangePostList::check(Xapian::docid did, double, bool &valid)
     }
     const string & v = valuelist->get_value();
     valid = (v >= begin && v <= end);
+    if (valid)
+	++accepted;
+    else
+	++rejected;
     return NULL;
 }
 
