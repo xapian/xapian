@@ -35,19 +35,17 @@ PostList *
 ValueGePostList::next(double)
 {
     Assert(db);
-    bool report_first = false;
     if (!valuelist) {
-	report_first = true;
 	valuelist = db->open_value_list(slot);
+	valuelist->next();
+	estimate_op->report_first(valuelist->get_docid());
+    } else {
+	valuelist->next();
     }
-    valuelist->next();
     while (!valuelist->at_end()) {
 	const string & v = valuelist->get_value();
 	if (v >= begin) {
 	    ++accepted;
-	    if (report_first) {
-		estimate_op->report_first(valuelist->get_docid());
-	    }
 	    return NULL;
 	}
 	++rejected;
