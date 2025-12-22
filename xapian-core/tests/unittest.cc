@@ -104,7 +104,7 @@ description_append(std::string & desc, const std::string &s)
     desc += s;
 }
 
-DEFINE_TESTCASE_(simple_exceptions_work1) {
+DEFINE_TESTCASE(simple_exceptions_work1) {
     try {
 	throw 42;
     } catch (int val) {
@@ -114,7 +114,7 @@ DEFINE_TESTCASE_(simple_exceptions_work1) {
 
 class TestException { };
 
-DEFINE_TESTCASE_(class_exceptions_work1) {
+DEFINE_TESTCASE(class_exceptions_work1) {
     try {
 	throw TestException();
     } catch (const TestException &) {
@@ -128,7 +128,7 @@ r_r_p(string a, const string & b)
     return a;
 }
 
-DEFINE_TESTCASE_(resolverelativepath1) {
+DEFINE_TESTCASE(resolverelativepath1) {
     TEST_EQUAL(r_r_p("/abs/o/lute", ""), "/abs/o/lute");
     TEST_EQUAL(r_r_p("/abs/o/lute", "/"), "/abs/o/lute");
     TEST_EQUAL(r_r_p("/abs/o/lute", "//"), "/abs/o/lute");
@@ -228,7 +228,7 @@ check_double_serialisation(double u)
 }
 
 // Check serialisation of doubles.
-DEFINE_TESTCASE_(serialisedouble1) {
+DEFINE_TESTCASE(serialisedouble1) {
     static const double test_values[] = {
 	3.14159265,
 	1e57,

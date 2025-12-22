@@ -306,8 +306,6 @@ extern bool TEST_EQUAL_DOUBLE_(double a, double b);
 	"Expected '" STRINGIZE(a) "' and '" STRINGIZE(b) "' not to be equal:" \
 	" were " << (a) << " and " << (b))
 
-#define DEFINE_TESTCASE(S,COND) void test_##S()
-
 // Newer test macros:
 #include "testmacros.h"
 

@@ -1,7 +1,7 @@
 /** @file
- * @brief Macros for testing conditions hold.
+ * @brief Macros for defining and writing testcases.
  */
-/* Copyright (C) 2009,2012 Olly Betts
+/* Copyright (C) 2009,2012,2025 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,9 +22,13 @@
 #ifndef XAPIAN_INCLUDED_TESTMACROS_H
 #define XAPIAN_INCLUDED_TESTMACROS_H
 
-// FIXME: DEFINE_TESTCASE is used by apitest but is external and takes a flags
-// argument.
-#define DEFINE_TESTCASE_(T)	static void test_##T()
+#ifdef XAPIAN_UNITTEST
+# define DEFINE_TESTCASE(T)	static void test_##T()
+#else
+// We ignore the condition `C` here - it's picked up by the collate-test script
+// which generates code to check the conditions.
+# define DEFINE_TESTCASE(T,C)	void test_##T()
+#endif
 #define TESTCASE(T)		{ #T, test_##T }
 #define END_OF_TESTCASES	{ 0, 0 }
 
