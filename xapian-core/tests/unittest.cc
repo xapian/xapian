@@ -1,7 +1,7 @@
 /** @file
  * @brief Unit tests of non-Xapian-specific internal code.
  */
-/* Copyright (C) 2006-2024 Olly Betts
+/* Copyright (C) 2006-2025 Olly Betts
  * Copyright (C) 2007 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -86,6 +86,7 @@ static const char * unittest_assertion_failed = NULL;
 #include "../common/str.cc"
 #include "../net/serialise-error.cc"
 #include "../api/error.cc"
+#include "../api/smallvector.cc"
 #include "../api/sortable-serialise.cc"
 #include "../include/xapian/intrusive_ptr.h"
 
@@ -1014,6 +1015,17 @@ try {
     throw e.get_description();
 }
 
+DEFINE_TESTCASE(vec1) {
+    Xapian::Vec<int> v_int;
+    Xapian::Vec<double> v_double;
+    Xapian::Vec<char> v_char;
+    for (int i = 0; i < 100; ++i) {
+	v_int.push_back(i);
+	v_double.push_back(double(i));
+	v_char.push_back(char(i & 0xff));
+    }
+}
+
 static const test_desc tests[] = {
     TESTCASE(simple_exceptions_work1),
     TESTCASE(class_exceptions_work1),
@@ -1038,6 +1050,7 @@ static const test_desc tests[] = {
     TESTCASE(parseunsigned1),
     TESTCASE(parsesigned1),
     TESTCASE(ioblock1),
+    TESTCASE(vec1),
     END_OF_TESTCASES
 };
 
