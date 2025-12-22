@@ -155,15 +155,19 @@ class Vec {
 	// FIXME: This is a bit eager - non-const begin() is often invoked when
 	// no modification is needed, but doing it lazily is a bit tricky as
 	// the pointer will change when we COW.
-	if (COW && is_external() && u.p.b[-1] > 0) {
-	    do_cow();
+	if constexpr(COW) {
+	    if (u.p.b[-1] > 0) {
+		do_cow();
+	    }
 	}
 	return is_external() ? u.p.b : u.v;
     }
 
     iterator end() {
-	if (COW && is_external() && u.p.b[-1] > 0) {
-	    do_cow();
+	if constexpr(COW) {
+	    if (is_external() && u.p.b[-1] > 0) {
+		do_cow();
+	    }
 	}
 	return is_external() ? u.p.e : u.v + c;
     }
@@ -174,8 +178,10 @@ class Vec {
 	    do_reserve(cap * 2);
 	}
 	if (c >= INTERNAL_CAPACITY) {
-	    if (COW && u.p.b[-1] > 0)
-		do_cow();
+	    if constexpr(COW) {
+		if (u.p.b[-1] > 0)
+		    do_cow();
+	    }
 	    *(u.p.e++) = elt;
 	} else {
 	    u.v[c++] = elt;
@@ -184,8 +190,10 @@ class Vec {
 
     void pop_back() {
 	if (is_external()) {
-	    if (COW && u.p.b[-1] > 0) {
-		do_cow();
+	    if constexpr(COW) {
+		if (u.p.b[-1] > 0) {
+		    do_cow();
+		}
 	    }
 	    --u.p.e;
 	} else {
@@ -200,10 +208,12 @@ class Vec {
     }
 
     void erase(const_iterator it) {
-	if (COW && is_external() && u.p.b[-1] > 0) {
-	    auto i = it - u.p.b;
-	    do_cow();
-	    it = u.p.b + i;
+	if constexpr(COW) {
+	    if (is_external() && u.p.b[-1] > 0) {
+		auto i = it - u.p.b;
+		do_cow();
+		it = u.p.b + i;
+	    }
 	}
 	T* p = const_cast<T*>(it);
 	std::memmove(p, p + 1, (end() - it - 1) * sizeof(T));
@@ -217,11 +227,13 @@ class Vec {
     void erase(const_iterator b, const_iterator e) {
 	auto n_erased = e - b;
 	if (n_erased == 0) return;
-	if (COW && is_external() && u.p.b[-1] > 0) {
-	    auto i = b - u.p.b;
-	    do_cow();
-	    b = u.p.b + i;
-	    e = b + n_erased;
+	if constexpr(COW) {
+	    if (is_external() && u.p.b[-1] > 0) {
+		auto i = b - u.p.b;
+		do_cow();
+		b = u.p.b + i;
+		e = b + n_erased;
+	    }
 	}
 	std::memmove(const_cast<T*>(b), const_cast<T*>(e),
 		     (end() - e) * sizeof(T));
@@ -245,7 +257,7 @@ class Vec {
 		    throw std::bad_alloc();
 	    }
 	    blk = new T[cap + COW];
-	    if (COW)
+	    if constexpr(COW)
 		*blk++ = 0;
 	}
 
@@ -284,8 +296,10 @@ class Vec {
     }
 
     T& operator[](size_type idx) {
-	if (COW && is_external() && u.p.b[-1] > 0) {
-	    do_cow();
+	if constexpr(COW) {
+	    if (is_external() && u.p.b[-1] > 0) {
+		do_cow();
+	    }
 	}
 	return const_cast<T&>(begin()[idx]);
     }
@@ -300,10 +314,14 @@ class Vec {
 
   protected:
     void do_free() {
-	if (!COW || u.p.b[-1] == 0)
-	    delete [] (u.p.b - COW);
-	else
-	    --u.p.b[-1];
+	if constexpr(COW) {
+	    if (u.p.b[-1] > 0)
+		--u.p.b[-1];
+	    else
+		delete [] (u.p.b - 1);
+	} else {
+	    delete [] u.p.b;
+	}
     }
 
     void do_reserve(size_type n) {
@@ -311,7 +329,7 @@ class Vec {
 	if (rare(COW ? n < c : n <= c))
 	    throw std::bad_alloc();
 	T* blk = new T[n + COW];
-	if (COW)
+	if constexpr(COW)
 	    *blk++ = 0;
 	if (is_external()) {
 	    u.p.e = std::copy(u.p.b, u.p.e, blk);
@@ -335,7 +353,7 @@ class Vec {
 	c = o.c;
 	if (!o.is_external()) {
 	    if (c) u = o.u;
-	} else if (COW) {
+	} else if constexpr(COW) {
 	    u = o.u;
 	    ++u.p.b[-1];
 	} else {

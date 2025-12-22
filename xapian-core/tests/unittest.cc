@@ -1019,10 +1019,12 @@ DEFINE_TESTCASE(vec1) {
     Xapian::Vec<int> v_int;
     Xapian::Vec<double> v_double;
     Xapian::Vec<char> v_char;
+    Xapian::Vec<const char*> v_charstar;
     for (int i = 0; i < 100; ++i) {
 	v_int.push_back(i);
 	v_double.push_back(double(i));
 	v_char.push_back(char(i & 0xff));
+	v_charstar.push_back("string");
     }
 }
 
