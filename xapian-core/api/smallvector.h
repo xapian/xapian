@@ -1,7 +1,7 @@
 /** @file
  * @brief Custom vector implementations using small vector optimisation
  */
-/* Copyright (C) 2012,2013,2014,2017,2018,2019,2023,2024 Olly Betts
+/* Copyright (C) 2012,2013,2014,2017,2018,2019,2023,2024,2025 Olly Betts
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -156,7 +156,7 @@ class Vec {
 	// no modification is needed, but doing it lazily is a bit tricky as
 	// the pointer will change when we COW.
 	if constexpr(COW) {
-	    if (u.p.b[-1] > 0) {
+	    if (is_external() && u.p.b[-1] > 0) {
 		do_cow();
 	    }
 	}
