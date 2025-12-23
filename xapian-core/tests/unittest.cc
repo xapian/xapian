@@ -30,6 +30,7 @@
 #include <cstring>
 #include <iostream>
 #include <limits>
+#include <memory>
 #include <string_view>
 #include <utility>
 
@@ -1019,12 +1020,22 @@ DEFINE_TESTCASE(vec1) {
     Xapian::Vec<int> v_int;
     Xapian::Vec<double> v_double;
     Xapian::Vec<char> v_char;
-    Xapian::Vec<const char*> v_charstar;
+    Xapian::Vec<const char*> v_cstring;
     for (int i = 0; i < 100; ++i) {
 	v_int.push_back(i);
 	v_double.push_back(double(i));
 	v_char.push_back(char(i & 0xff));
-	v_charstar.push_back("string");
+	v_cstring.push_back("string");
+    }
+}
+
+DEFINE_TESTCASE(vecdeleter1) {
+    Xapian::VecUniquePtr<int> v_unique_int;
+    struct U { int x; };
+    Xapian::VecUniquePtr<U> v_unique_u;
+    for (int i = 0; i < 100; ++i) {
+	v_unique_int.push_back(new int(42));
+	v_unique_u.push_back(new U());
     }
 }
 
@@ -1053,6 +1064,7 @@ static const test_desc tests[] = {
     TESTCASE(parsesigned1),
     TESTCASE(ioblock1),
     TESTCASE(vec1),
+    TESTCASE(vecdeleter1),
     END_OF_TESTCASES
 };
 

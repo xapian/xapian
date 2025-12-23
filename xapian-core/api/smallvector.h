@@ -38,6 +38,8 @@ namespace Xapian {
 
 /** Suitable for "simple" type T.
  *
+ *  T needs to be trivially copyable.
+ *
  *  If sizeof(T) > 2 * sizeof(T*) this isn't going to work, and it's not very
  *  useful when sizeof(T) == 2 * sizeof(T*) as you can only store a single
  *  element inline.
@@ -48,8 +50,11 @@ namespace Xapian {
  */
 template<typename T,
 	 bool COW = false,
+	 bool UNIQUEPTR = false,
 	 typename = typename std::enable_if_t<
 	     (std::is_trivially_copyable_v<T> &&
+	      (!(COW && UNIQUEPTR)) &&
+	      (!UNIQUEPTR || std::is_pointer_v<T>) &&
 	      (!COW || std::is_integral_v<T>))>>
 class Vec {
     // This gives capacity() if c > INTERNAL_CAPACITY, or size() otherwise.
@@ -94,7 +99,8 @@ class Vec {
 	do_copy_from(o.ref);
     }
 
-    Vec_to_copy copy() const {
+    template<bool ENABLE = !UNIQUEPTR>
+    auto copy() const -> typename std::enable_if_t<ENABLE, Vec_to_copy> {
 	return Vec_to_copy(*this);
     }
 
@@ -202,6 +208,10 @@ class Vec {
     }
 
     void clear() {
+	if constexpr(UNIQUEPTR) {
+	    for (const_iterator i = begin(); i != end(); ++i)
+		delete *i;
+	}
 	if (is_external())
 	    do_free();
 	c = 0;
@@ -214,6 +224,9 @@ class Vec {
 		do_cow();
 		it = u.p.b + i;
 	    }
+	}
+	if constexpr(UNIQUEPTR) {
+	    delete *it;
 	}
 	T* p = const_cast<T*>(it);
 	std::memmove(p, p + 1, (end() - it - 1) * sizeof(T));
@@ -234,6 +247,10 @@ class Vec {
 		b = u.p.b + i;
 		e = b + n_erased;
 	    }
+	}
+	if constexpr(UNIQUEPTR) {
+	    for (const_iterator i = b; i != e; ++i)
+		delete *i;
 	}
 	std::memmove(const_cast<T*>(b), const_cast<T*>(e),
 		     (end() - e) * sizeof(T));
@@ -371,6 +388,9 @@ class Vec {
 
 template<typename T>
 using VecCOW = Vec<T, true>;
+
+template<typename T>
+using VecUniquePtr = Vec<T*, false, true>;
 
 class SmallVector_ {
     std::size_t c = 0;
