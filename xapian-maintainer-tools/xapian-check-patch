@@ -489,7 +489,7 @@ QUOTELOOP:  while (1) {
 		# Closing } of a namespace often has a blank line before it,
 		# and that seems reasonable.
 		diagnostic_last('error', "Blank line at end of block") unless ($top_level // 1);
-	    } elsif ($penultimate_line_block_start && /^.(\s|\}$)/) {
+	    } elsif ($penultimate_line_block_start) {
 		diagnostic_last('error', "Blank line at start of block");
 	    }
 	}
@@ -780,7 +780,11 @@ QUOTELOOP:  while (1) {
 	if (/^\+.*;;\s*$/) {
 	    diagnostic('error', "Extra ';' at end of line");
 	}
-	if (/^\+\s*?\S.*? (,|->)/) {
+	if (/^\+\s*?\S.*? (,)/) {
+	    diagnostic('error', "Space before '$1'");
+	}
+	if (/^\+\s*?\S.*? (->)(?!\s*typename\b)/) {
+	    # Try not to warn for trailing return type.
 	    diagnostic('error', "Space before '$1'");
 	}
 	if (/^\+[\s#]*?[^\s#]  /) {
@@ -1011,7 +1015,9 @@ QUOTELOOP:  while (1) {
 	$last_line_block_end = undef;
     }
     $penultimate_line_block_start = $last_line_block_start;
-    if (/^.(.*\{)\s*$/) {
+    # Opening { of a namespace, extern "C" block, or lemon directive often has
+    # a blank line after it, and that seems reasonable.
+    if (/^.(.*\{)\s*$/ && !/^.(?:\bnamespace\b|\bextern\s*"|\%)/) {
 	$last_line_block_start = $1;
     } else {
 	$last_line_block_start = undef;
