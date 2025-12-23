@@ -36,7 +36,7 @@ static string created_dummy_string;
 bool
 AbiwordParser::opening_tag(const string& tag)
 {
-    if (target != nullptr ) return true;
+    if (target != nullptr) return true;
 
     if (tag == "m") {
 	string value;

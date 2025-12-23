@@ -34,7 +34,7 @@ static string created_dummy_string;
 bool
 GnumericParser::opening_tag(const string& tag)
 {
-    if (target != nullptr ) return true;
+    if (target != nullptr) return true;
 
     if (tag.size() < 8) return true;
     if (tag == "gnm:Cell") {
