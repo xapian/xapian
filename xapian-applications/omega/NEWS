@@ -1,4 +1,4 @@
-up to: a8e8e28135be5f88c2d264f876b21f913bb7f220
+up to: fc9872e7d9e1f03147cbd4b1f772a7ed2eb37d27
 
 Omega 1.5.0 (2026-0?-??):
 
@@ -62,7 +62,7 @@ indexers:
 
   + Add support for extracting text using libraries.  The code which calls
     each library is run in a worker sub-process so that bugs in the library
-    can't crash the indexer.  So far we have workers for the following
+    can't crash the indexer.  We currently have workers for the following
     libraries and formats:
     - Poppler: PDF
     - libe-book: fb2, fb2.zip, lrf, tcr, pdb and jar

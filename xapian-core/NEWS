@@ -1,11 +1,219 @@
-up to: 7b52e04a5859fa01b89ab3282daed8729da10682
+up to: d499daab1df8729f3afa040526dbc451a52eca7d
 
+* Add API for clustering search results.  Patch from Richhiey Thomas.
+* Add API for diversifying search results.  Patch from Uppinder Chugh.
+    Turn off clustering and diversification APIs
+    These need more work before being released, so let's omit them from
+    the .0 release and slot them into a later point release once we've
+    addressed the problems.
+    See #804.
+
+Xapian-core 1.5.0 (2026-0?-??):
+
+API:
+
+* Use std::string_view in API.  Fixes #785, reported by Germán M. Bravo.
+
+* Mark API functions which take pointers which shouldn't be NULL with a
+  new XAPIAN_NONNULL macro which maps to compiler-specific attributes
+  where supported so that such API misuse can be reported at compile-time.
+
+* Database::check(): Cross-check the document length upper and lower bounds
+  with the document length.  Patch from Uppinder Chugh.
+
+* Database::compact(): Now accepts DB_BACKEND_* in flags so you can create a
+  honey database by compacting a glass one.
+
+* PostingIterator: On a sharded database, a heap is now used to merge postings
+  from the shards more efficiently.
+
+* Enquire::get_eset(): Now more optimised.  We now use a custom heap
+  implementation which provides a replace() operation that's like push()
+  followed by pop(), but more efficient.  We've also reduced the number of
+  virtual method calls and string copies that happen.
+
+* Enquire: A default-constructed Database object now acts as an empty database
+  in a search, which can be helpful in some applications (previously it would
+  throw Xapian::InvalidArgumentError).
+
+* SimpleStopper: Use std::unordered_set instead of std::set to store the
+  stopwords internally, which improves scaling: inserting and checking
+  stopwords will now be O(1) instead of O(log(n)) in the number of stopwords.
+  Patch from Richhiey Thomas.
+
+* Stem: Sync algorithm changes from Snowball.  There are optimisations to
+  several algorithms, and also the following functional changes:
 
     Upgrade stemming algorithms to latest Snowball
-    Updated French stemmer removes elisions, mostly addressing #609.
+New:
+Esperanto
+Estonian
+Greek
+Hindi
+Nepali
+Polish
+Serbian
+Yiddish
 
+No functional changes:
+Armenian
+Basque
+Catalan
+Hungarian
+Indonesian
+Lovins
+Porter
 
-    Update snowball compiler and runtime
+  + Arabic: Change algorithm to not remove punctuation marks - in Xapian such
+    characters typically won't appear in the text passed to the stemmer anyway.
+
+  + Danish: Adjust definition of "consonant" to be "letter but not vowel"
+    instead of just "not vowel" to avoid the stemmer mangling alphanumeric
+    codes which end with two or more digits.
+
++ Dutch: now based on kp
+
++ Dutch (porter): dutch.sbl: Fix UTF-8 R1 handling
+    The "at least 3 characters" part of the R1 definition was actually
+    implemented such that when working in UTF-8 it was "at least 3 bytes".
+    .
+    We set R1 having stripped most accents found in Dutch, but we leave `è`
+    alone.  I've not managed to find a Dutch word starting `è` which was
+    stemmed differently depending on encoding, but proper nouns and other
+    words of foreign origin may contain other accented characters and it
+    seems better for the stemmer to handle such words the same way
+    regardless of the encoding in use.
+
+  + Early English: The "earlyenglish" stemmer is now based on "english" not
+    "porter".
+
++ English:
+Improve stemming of
+ past/paste/pasted/pasting (reported by Sonny)
+ universe/universal/university (reported by Clem Wong)
+ lateral/later (reported by Steve Tolkin),
+ emerge/emergency (reported by Frederick Ross),
+ organ/organic/organize
+ intern/internal/international/internment; interfere; interval
+ -ogist/-ogy (reported by Marc Schipperheijn)
+ evening/even (report by Ann B)
+ add/ad, egg/eg, off/of, etc (reported by Ed Page)
+
+  + Finnish: Adjust definition of "consonant" to be "letter but not vowel"
+    instead of just "not vowel" to avoid the stemmer truncating numbers.
+    Fixes issue with truncating numbers reported by samiasmundi.
+
+  + French: Recognise suffixes which have a diaereses on the first letter.
+  Patch from David Corbett.
+
+* French: Remove elisions as first step.  Fixes #609, reported by Paul Rudin
+  and kelson42.
+
+* French: Remove -aise and -aises so for example, "française" and "françaises"
+  are now conflated with "français".  Reported by ririsoft and Fred Fung.
+
+* French: Avoid incorrect conflation of `mauvais` (bad) with `mauve` (mauve,
+  mallow or seagull); avoid conflating `mal` with `malais`, `pal` with
+  `palais`, etc.
+
+* French: Avoid conflating `ni` (neither/nor) with `niais`
+  (inexperienced/silly) and `nie`/`nié`/`nier`/`nierais`/`nierons` (to deny).
+
+* French: -oux -> -ou.  Reported by merwok.
+
+* German: Replace with the "german2" variant.  This normalises umlauts ("ä" to
+  "ae", "ö" to "oe", "ü" to "ue") which is presumably much less common in
+  newly created text than it once was as modern computer systems generally
+  don't have the limitations which motivated this, but there will still be
+  large amounts of legacy text which it seems helpful for the stemmer to
+  handle without having to know to select a variant.
+
+  On our sample German vocabulary which contains 35033 words, 77 words give
+  different stems.  A significant proportion of these are foreign words, and
+  some are proper nouns.  Some cases definitely seem improved, and quite a few
+  are just different but effectively just change the stem for a word or group
+  of words to a stem that isn't otherwise generated.  There don't seem any
+  changes that are clearly worse, though there are some changes that have both
+  good and bad aspects to them.
+
+  Reported by jrabensc.
+
+  + German: Don't remove -em if preceded by -syst to avoid overstemming words
+    ending -system.  This change means we now conflate e.g. "system" and
+    "systemen".  Reported by Olga Gusenikova.
+
+  + German: Remove -erin and -erinnen suffixes which conflates singular and
+    plural female versions of nouns with the male versions.  Reported by Olga
+    Gusenikova.
+
+  + German: Replace -ln and -lns with -l.  This improves 82 cases in the
+    current sample data without making anything worse.  Tests on a larger word
+    list look good too.  Reported by Olga Gusenikova.
+
+  + German: Remove -et suffix when we safely can.  Reported by Robert Frunzke.
+
+  + Italian: Address overstemming of "divano" (sofa) which previously stemmed
+    to "div", which is the stem for 'diva' (diva).  Now it is stemmed to
+    'divan', which is what its plural form 'divani' already stemmed to.
+    Reported by francesco.
+
+  + Lithuanian: Don't remove -er- before normal suffixes
+    These aren't real grammatic suffixes and seem to have been included
+    mainly to try to conflate ancient forms of the Lithuanian word for
+    "sister" (e.g. "sesers") with modern forms (e.g. "sesė").  We weren't
+    even doing a complete job there however as "seserimis" and "seseris"
+    were not handled.
+    Removing these suffixes entirely means we no longer try to conflate
+    the ancient and modern forms here, but at least all the forms of the old
+    word get grouped, as do all forms of the new word.  The stemming for
+    ~150 other words is also improved, without obvious downsides.
+    Patch from Justas Sakalauskas.
+    FIXME
+
+  + Norwegian: Improve stemming of words ending -ers.  Reported by Karianne
+    Berg.
+
+  + Norwegian: Include more accented vowels - treating "ê", "ò", "ó" and "ô"
+    as vowels improves the stemming of a fairly small number of words, but
+    there's basically no cost to having extra vowels in the grouping, and some
+    of these words are commonly used.  Reported by András Jankovics.
+
+  + Portuguese: Replace Spanish suffixes by Portuguese suffixes.  Patch from
+    Helder.
+
+  + Romanian: Update to work better with modern Unicode text.  Previously this
+    stemmer only handled 'ş' and 'ţ' when encoded as their cedilla
+    "approximations", which were widely used for Romanian before full Unicode
+    support was available.  The stemmer now normalises the cedilla forms to
+    the proper Unicode characters.  Patch by Robert Muir.
+
+  + Russian: Normalise "ё" to "e" before stemming.  The Snowball documentation
+    for the Russian stemmer has long suggested that the caller should perform
+    this normalisation, but Xapian doesn't do that for you and it's much more
+    convenient for the algorithm to do it automatically.  Reported by Eugene
+    Mirotin.
+
+  + Spanish: Handle -acion like -ación and -ucion like -ución.  It's apparently
+    common to miss off accents in Spanish, and there are examples in our test
+    vocabulary that these changes help.  Proposed by Damian Janowski.
+
+  + Swedish: Replace suffix "öst" with "ös" when preceded by any of 'iklnprtuv'
+    rather than just 'l'.  The new rule only requires the "öst" to be in R1
+    whereas previously we required all of "löst" to be.  This second tweak
+    doesn't seem to affect any words ending "löst" but it conflates a few extra
+    cases when combined with the expanded list of preceding letters, and seems
+    more logical linguistically (since "ös" is akin to "ous" in English).
+    Reported by znakeeye.
+
+* Swedish: Remove -et/-ets in cases where it helps.  Removing -et can't be done
+  unconditionally because many words end in -et where this isn't a suffix.
+  However it's a very common suffix so it seems worth crafting a more complex
+  condition under which to remove.  Fixes #47.
+
+* Turkish: Remove proper noun suffixes.  For example, `Türkiye'dir` ("it is
+  Turkey") is now conflated with `Türkiye` ("Turkey").  Fixes #188.
+
+* Stem: Update snowball compiler and runtime FIXME
     .
     We were using a 6-year old version of the Snowball compiler, with a
     number of Xapian-specific patches.
@@ -35,85 +243,6 @@ up to: 7b52e04a5859fa01b89ab3282daed8729da10682
     acutally beneficial, and if so I'll rebase it onto current Snowball
     and get it merged upstream.
 
-
-    Turn off clustering and diversification APIs
-    These need more work before being released, so let's omit them from
-    the .0 release and slot them into a later point release once we've
-    addressed the problems.
-    See #804.
-
-
-
-Xapian-core 1.5.0 (2026-0?-??):
-
-API:
-
-* Use std::string_view in API.  Fixes #785, reported by Germán M. Bravo.
-
-* Mark API functions which take pointers which shouldn't be NULL with a
-  new XAPIAN_NONNULL macro which maps to compiler-specific attributes
-  where supported so that such API misuse can be reported at compile-time.
-
-* Add API for clustering search results.  Patch from Richhiey Thomas.
-
-* Add API for diversifying search results.  Patch from Uppinder Chugh.
-
-* Database::check(): Cross-check the document length upper and lower bounds
-  with the document length.  Patch from Uppinder Chugh.
-
-* Database::compact(): Now accepts DB_BACKEND_* in flags so you can create a
-  honey database by compacting a glass one.
-
-* PostingIterator: On a sharded database, a heap is now used to merge postings
-  from the shards more efficiently.
-
-* Enquire::get_eset(): Now more optimised.  We now use a custom heap
-  implementation which provides a replace() operation that's like push()
-  followed by pop(), but more efficient.  We've also reduced the number of
-  virtual method calls and string copies that happen.
-
-* Enquire: A default-constructed Database object now acts as an empty database
-  in a search, which can be helpful in some applications (previously it would
-  throw Xapian::InvalidArgumentError).
-
-* SimpleStopper: Use std::unordered_set instead of std::set to store the
-  stopwords internally, which improves scaling: inserting and checking
-  stopwords will now be O(1) instead of O(log(n)) in the number of stopwords.
-  Patch from Richhiey Thomas.
-
-* Stem: Sync algorithm changes from Snowball.  There are optimisations to
-  several algorithms, and also the following functional changes:
-
-  + Arabic: Change algorithm to not remove punctuation marks - in Xapian such
-    characters typically won't appear in the text passed to the stemmer anyway.
-
-  + Danish: Adjust definition of "consonant" to be "letter but not vowel"
-    instead of just "not vowel" to avoid the stemmer mangling alphanumeric
-    codes which end with two or more digits.
-
-  + Early English: The "earlyenglish" stemmer is now based on "english" not
-    "porter".
-
-  + Finnish: Adjust definition of "consonant" to be "letter but not vowel"
-    instead of just "not vowel" to avoid the stemmer truncating numbers.
-    Fixes issue with truncating numbers reported by samiasmundi.
-
-  + French: Recognise suffixes which have a diaereses on the first letter.
-
-  + Portuguese: Replace Spanish suffixes by Portuguese suffixes.  Patch from
-    Helder.
-
-  + Romanian: Update to work better with modern Unicode text.  Previously this
-    stemmer only handled 'ş' and 'ţ' when encoded as their cedilla
-    "approximations", which were widely used for Romanian before full Unicode
-    support was available.  The stemmer now normalises the cedilla forms to
-    the proper Unicode characters.  Patch by Robert Muir.
-
-  + Russian: Normalise "ё" to "e" before stemming.  The Snowball documentation
-    for the Russian stemmer has long suggested that the caller should perform
-    this normalisation, but Xapian doesn't do that for you and it's much more
-    convenient for the algorithm to do it automatically.  Reported by Eugene
-    Mirotin.
 
 * TermGenerator::set_termpos_limit(): New method which allows setting a maximum
   termpos value, exceeding which will trigger Xapian::RangeError.  The default
@@ -556,7 +685,7 @@ glass backend:
 
 * Reduce overheads of PostList positional data support.  Most PostList objects
   aren't involved in phrases or OP_NEAR during the match, so avoid the overhead
-  of a position list object when we know we won't need it.  
+  of a position list object when we know we won't need it.
 
 * We now avoid copying interpolative coded positional data in order to iterate
   it in most cases.
@@ -719,29 +848,10 @@ packaging:
 
 debug code:
 
-* We were always opening the debug log file with O_SYNC so that the most recent
-  log entries are less likely to be lost if there's a crash, but O_SYNC can
-  incur a significant performance overhead and most debugging is not of such
-  crashes.  Now synchronous logging is only enabled if requested by including
-  escape %! in the filename specified with XAPIAN_DEBUG_LOG (the %! is replaced
-  with the empty string).  We also now use O_DSYNC if available in preference
-  to O_SYNC, since the mtime of the log file isn't important.
-
 * Update make targets for generating lcov code coverage reports.  It seems we
   to longer need --disable-shared (it's not needed on Debian stretch for
   example) so remove it and instead provide a generic mechanism to allow the
   user to specify extra configure options.
-
-* xapian-inspect:
-
-  + Document that "until" with no arguments advances to the end of the table,
-    which wasn't previously mentioned in the help.
-
-  + "until" now counts and reports the number of entries it advances by.
-
-  + The key specified to commands "goto" and "until" is now expected to be
-    escaped in the same way that keys are escaped for display.  This makes it
-    much simpler to interact with tables with binary keys.
 
 * xapian-inspect-honey: Equivalent to the xapian-inspect debug tool, but
   for honey databases.
