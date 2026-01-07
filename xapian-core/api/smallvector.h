@@ -1,7 +1,7 @@
 /** @file
  * @brief Custom vector implementations using small vector optimisation
  */
-/* Copyright (C) 2012,2013,2014,2017,2018,2019,2023,2024,2025 Olly Betts
+/* Copyright (C) 2012-2026 Olly Betts
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -47,6 +47,9 @@ namespace Xapian {
  *  Offers optional Copy-On-Write functionality - if COW is true, then copying
  *  a Vec with external data only makes a copy of that data if you attempt
  *  to modify it.  Current COW is only supported for integral types T.
+ *
+ *  Offers optional unique pointer handling - if UNIQUEPTR is true it acts in
+ *  a similar way to std::vector<std::unique_ptr<T>>.
  */
 template<typename T,
 	 bool COW = false,
@@ -70,6 +73,7 @@ class Vec {
 	} p;
     } u;
 
+    // Only useful if !UNIQUEPTR, but can't be accessed without copy().
     struct Vec_to_copy {
 	const Vec& ref;
 	explicit Vec_to_copy(const Vec& o) : ref(o) {}
@@ -87,6 +91,7 @@ class Vec {
     // Prevent inadvertent copying.
     Vec(const Vec&) = delete;
 
+    // Only useful if !UNIQUEPTR, but can't be accessed without copy().
     Vec(const Vec_to_copy& o) {
 	do_copy_from(o.ref);
     }
@@ -94,6 +99,7 @@ class Vec {
     // Prevent inadvertent copying.
     void operator=(const Vec&) = delete;
 
+    // Only useful if !UNIQUEPTR, but can't be accessed without copy().
     void operator=(const Vec_to_copy& o) {
 	clear();
 	do_copy_from(o.ref);
@@ -327,6 +333,15 @@ class Vec {
 
     const T& back() const {
 	return end()[-1];
+    }
+
+    // Like `v[idx].release()` for `std::vector<std::unique_ptr<T>> v`.
+    template<bool ENABLE = !UNIQUEPTR>
+    T release_at(size_type idx)
+    {
+	T r = nullptr;
+	std::swap(r, begin()[idx]);
+	return r;
     }
 
   protected:
