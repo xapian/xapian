@@ -1,7 +1,7 @@
 /** @file
  * @brief Details passed around while building PostList tree from Query tree
  */
-/* Copyright (C) 2007-2022 Olly Betts
+/* Copyright (C) 2007-2026 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -53,6 +53,8 @@ class QueryOptimiser {
 
     bool hint_owned = false;
 
+    bool no_estimates = false;
+
   public:
     bool need_positions = false;
 
@@ -79,20 +81,15 @@ class QueryOptimiser {
 	if (hint_owned) delete hint;
     }
 
-    template<typename... Args>
-    EstimateOp* add_op(Args... args) {
-	return localsubmatch.add_op(args...);
-    }
-
-    void pop_op() {
-	localsubmatch.pop_op();
-    }
-
     void inc_total_subqs() { ++total_subqs; }
 
     Xapian::termcount get_total_subqs() const { return total_subqs; }
 
     void set_total_subqs(Xapian::termcount n) { total_subqs = n; }
+
+    bool get_no_estimates() const { return no_estimates; }
+
+    void set_no_estimates(bool f) { no_estimates = f; }
 
     /** Create a PostList object for @a term.
      *
@@ -101,18 +98,20 @@ class QueryOptimiser {
      *		be for the whole database not just the current shard.  This
      *		is used to estimate TermFreqs for an OP_SYNONYM.
      */
-    PostList* open_post_list(const std::string& term,
-			     Xapian::termcount wqf,
-			     double factor,
-			     TermFreqs* termfreqs) {
+    PostListAndEstimate
+    open_post_list(const std::string& term,
+		   Xapian::termcount wqf,
+		   double factor,
+		   TermFreqs* termfreqs) {
 	return localsubmatch.open_post_list(term, wqf, factor, need_positions,
 					    compound_weight, this, false,
 					    termfreqs);
     }
 
-    LeafPostList* open_lazy_post_list(const std::string& term,
-				      Xapian::termcount wqf,
-				      double factor) {
+    PostListAndEstimate
+    open_lazy_post_list(const std::string& term,
+			Xapian::termcount wqf,
+			double factor) {
 	return localsubmatch.open_post_list(term, wqf, factor, need_positions,
 					    compound_weight, this, true,
 					    NULL);
@@ -137,11 +136,11 @@ class QueryOptimiser {
      *			    PostList objects for children of the OP_SYNONYM.
      *  @param termfreqs    Estimated TermFreqs for @a or_pl.
      */
-    PostList* make_synonym_postlist(PostList* or_pl,
-				    double factor,
-				    const TermFreqs& termfreqs) {
-	return localsubmatch.make_synonym_postlist(matcher, or_pl, factor,
-						   termfreqs);
+    PostListAndEstimate make_synonym_postlist(PostListAndEstimate or_pl,
+					      double factor,
+					      const TermFreqs& termfreqs) {
+	return localsubmatch.make_synonym_postlist(matcher, std::move(or_pl),
+						   factor, termfreqs);
     }
 
     const LeafPostList * get_hint_postlist() const { return hint; }
@@ -171,9 +170,6 @@ class QueryOptimiser {
 	    }
 	    delete pl;
 	}
-	// Remove the EstimateOp (and any sub-ops) which we generated for this
-	// PostList.
-	localsubmatch.pop_op();
     }
 
     bool need_wdf_for_compound_weight() const {

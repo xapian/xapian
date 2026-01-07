@@ -1,7 +1,7 @@
 /** @file
  * @brief Matcher class
  */
-/* Copyright (C) 2006-2022 Olly Betts
+/* Copyright (C) 2006-2026 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -366,11 +366,19 @@ Matcher::get_local_mset(Xapian::doccount first,
     postlists.reserve(locals.size());
     PostListTree pltree(vsdoc, db, wtscheme);
     Xapian::termcount total_subqs = 0;
+    /** EstimateOp tree to calculate an Estimates object for each local shard.
+     *
+     *  This allows the estimate to be calculated at the end of the match so
+     *  that it can incorporate information about things such as how many
+     *  documents were accepted and rejected by positional checks.
+     */
+    Xapian::VecUniquePtr<EstimateOp> estimates(locals.size());
     try {
 	bool all_null = true;
 	for (size_t i = 0; i != locals.size(); ++i) {
 	    if (!locals[i]) {
-		postlists.push_back(NULL);
+		postlists.push_back(nullptr);
+		estimates.push_back(nullptr);
 		continue;
 	    }
 	    // Pick the highest total subqueries answer amongst the
@@ -378,21 +386,26 @@ Matcher::get_local_mset(Xapian::doccount first,
 	    // recurse into positional queries for shards that don't have
 	    // positional data when at least one other shard does.
 	    Xapian::termcount total_subqs_i = 0;
-	    PostList* pl = locals[i]->get_postlist(&pltree, &total_subqs_i);
+	    PostListAndEstimate plest = locals[i]->get_postlist(&pltree,
+								&total_subqs_i);
 	    total_subqs = max(total_subqs, total_subqs_i);
-	    if (pl != NULL) {
+	    if (plest.pl != nullptr) {
 		all_null = false;
 		if (mdecider) {
-		    auto estimate_op = locals[i]->add_op(EstimateOp::DECIDER);
+		    plest.est.reset(new EstimateOp(EstimateOp::DECIDER,
+						   plest.est.release()));
 		    if (check_at_least) {
 			// No point creating the DeciderPostList if we aren't
 			// actually going to run the match.
-			pl = new DeciderPostList(pl, estimate_op,
-						 mdecider, &vsdoc, &pltree);
+			plest.pl = new DeciderPostList(plest.pl,
+						       plest.est.get(),
+						       mdecider, &vsdoc,
+						       &pltree);
 		    }
 		}
 	    }
-	    postlists.push_back(pl);
+	    postlists.push_back(plest.pl);
+	    estimates.push_back(plest.est.release());
 	}
 	Assert(!postlists.empty());
 
@@ -438,9 +451,10 @@ Matcher::get_local_mset(Xapian::doccount first,
 	Xapian::doccount matches_lower_bound = 0;
 	Xapian::doccount matches_estimated = 0;
 	Xapian::doccount matches_upper_bound = 0;
-	for (size_t i = 0; i != locals.size(); ++i) {
-	    if (locals[i]) {
-		Estimates e = locals[i]->resolve();
+	for (size_t i = 0; i != estimates.size(); ++i) {
+	    if (estimates[i]) {
+		Assert(locals[i].get());
+		Estimates e = locals[i]->resolve(estimates[i]);
 		matches_lower_bound += e.min;
 		matches_estimated += e.est;
 		matches_upper_bound += e.max;
@@ -555,7 +569,8 @@ Matcher::get_local_mset(Xapian::doccount first,
     pltree.delete_postlists();
 
     return proto_mset.finalise(mdecider,
-			       locals);
+			       locals,
+			       estimates);
 }
 
 Xapian::MSet

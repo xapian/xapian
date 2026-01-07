@@ -1,7 +1,7 @@
 /** @file
  * @brief Base class for classes which filter another PostList
  */
-/* Copyright 2017-2022 Olly Betts
+/* Copyright 2017-2026 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -53,7 +53,7 @@ SelectPostList::vet(double w_min)
 
 SelectPostList::~SelectPostList()
 {
-    estimate_op->report_ratio(accepted, rejected);
+    if (estimate_op) estimate_op->report_ratio(accepted, rejected);
 }
 
 double

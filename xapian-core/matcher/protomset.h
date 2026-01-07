@@ -1,7 +1,7 @@
 /** @file
  * @brief ProtoMSet class
  */
-/* Copyright (C) 2004-2023 Olly Betts
+/* Copyright (C) 2004-2026 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +23,7 @@
 
 #include "api/enquireinternal.h"
 #include "api/result.h"
+#include "api/smallvector.h"
 #include "collapser.h"
 #include "heap.h"
 #include "matchtimeout.h"
@@ -488,7 +489,8 @@ class ProtoMSet {
 
     Xapian::MSet
     finalise(const Xapian::MatchDecider* mdecider,
-	     const std::vector<std::unique_ptr<LocalSubMatch>>& locals) {
+	     const std::vector<std::unique_ptr<LocalSubMatch>>& locals,
+	     const Xapian::VecUniquePtr<EstimateOp>& estimates) {
 	finalise_percentages();
 
 	Xapian::doccount matches_lower_bound;
@@ -531,9 +533,10 @@ class ProtoMSet {
 	    matches_lower_bound = 0;
 	    matches_estimated = 0;
 	    matches_upper_bound = 0;
-	    for (size_t i = 0; i != locals.size(); ++i) {
-		if (locals[i]) {
-		    Estimates e = locals[i]->resolve();
+	    for (size_t i = 0; i != estimates.size(); ++i) {
+		if (estimates[i]) {
+		    Assert(locals[i].get());
+		    Estimates e = locals[i]->resolve(estimates[i]);
 		    matches_lower_bound += e.min;
 		    matches_estimated += e.est;
 		    matches_upper_bound += e.max;

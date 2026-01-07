@@ -1,7 +1,7 @@
 /** @file
  *  @brief Calculated bounds on and estimate of number of matches
  */
-/* Copyright (C) 2022 Olly Betts
+/* Copyright (C) 2022,2026 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -59,8 +59,9 @@ EstimateOp::resolve(Xapian::doccount db_size,
 	result.min = max_range;
 	result.max = max_range;
 	double est = max_range;
+	auto n_subqueries = sub_estimates.size();
 	for (unsigned n = 0; n < n_subqueries; ++n) {
-	    Estimates r = resolve_next(db_size, db_first, db_last);
+	    Estimates r = sub_estimates[n]->resolve(db_size, db_first, db_last);
 
 	    // The number of matching documents is minimised when we have the
 	    // minimum number of matching documents from each sub-postlist, and
@@ -100,10 +101,9 @@ EstimateOp::resolve(Xapian::doccount db_size,
 	break;
       }
       case AND_NOT: {
-	AssertEq(n_subqueries, 2);
-	// NB: The RHS comes first, then the LHS.
-	Estimates r = resolve_next(db_size, db_first, db_last);
-	result = resolve_next(db_size, db_first, db_last);
+	AssertEq(sub_estimates.size(), 2);
+	result = sub_estimates[0]->resolve(db_size, db_first, db_last);
+	Estimates r = sub_estimates[1]->resolve(db_size, db_first, db_last);
 
 	// An AND_NOT with no overlap gets optimised away before now, so we
 	// know the ranges overlap.
@@ -178,12 +178,12 @@ EstimateOp::resolve(Xapian::doccount db_size,
 	// * For max try to allocate where there's least overlap
 	// * For est assume each range splits proportionally over the regions
 	//   it participates (potentially O(n*n) in number of subqueries)
-	result = resolve_next(db_size, db_first, db_last);
+	result = sub_estimates[0]->resolve(db_size, db_first, db_last);
 	double scale = max_range == 0.0 ? 1.0 : 1.0 / max_range;
 	double P_est = result.est * scale;
-	auto n = n_subqueries;
-	while (--n) {
-	    Estimates r = resolve_next(db_size, db_first, db_last);
+	auto n_subqueries = sub_estimates.size();
+	for (unsigned i = 1; i != n_subqueries; ++i) {
+	    Estimates r = sub_estimates[i]->resolve(db_size, db_first, db_last);
 
 	    result.min = std::max(result.min, r.min);
 
@@ -226,9 +226,11 @@ EstimateOp::resolve(Xapian::doccount db_size,
 
 	// Need to buffer min and max values from subqueries so we can compute
 	// our min as a second pass.
+	auto n_subqueries = sub_estimates.size();
 	unique_ptr<Estimates[]> min_and_max{new Estimates[n_subqueries]};
 	for (unsigned i = 0; i < n_subqueries; ++i) {
-	    min_and_max[j] = resolve_next(db_size, db_first, db_last);
+	    min_and_max[j] =
+		sub_estimates[i]->resolve(db_size, db_first, db_last);
 	    const Estimates& r = min_and_max[j];
 
 	    if (r.min == db_size) {
@@ -306,8 +308,8 @@ EstimateOp::resolve(Xapian::doccount db_size,
       case DECIDER:
       case NEAR:
       case PHRASE:
-      case EXACT_PHRASE:
-	result = resolve_next(db_size, db_first, db_last);
+      case EXACT_PHRASE: {
+	result = sub_estimates[0]->resolve(db_size, db_first, db_last);
 	if (estimates.min == 0 && estimates.max == 0) {
 	    result.min = 0;
 	    // We've arranged for type's value to be the factor we want to
@@ -321,6 +323,7 @@ EstimateOp::resolve(Xapian::doccount db_size,
 	result.est = Xapian::doccount(result.est * scale + 0.5);
 	result.est = std::clamp(result.est, result.min, result.max);
 	break;
+      }
     }
     AssertRel(result.min, <=, result.est);
     AssertRel(result.est, <=, result.max);

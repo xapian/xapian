@@ -1,7 +1,7 @@
 /** @file
  *  @brief SubMatch class for a local database.
  */
-/* Copyright (C) 2006-2024 Olly Betts
+/* Copyright (C) 2006-2026 Olly Betts
  * Copyright (C) 2007,2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -170,26 +170,26 @@ LazyWeight::get_maxextra() const
     throw Xapian::InvalidOperationError("LazyWeight::get_maxextra()");
 }
 
-PostList *
+PostListAndEstimate
 LocalSubMatch::get_postlist(PostListTree * matcher,
 			    Xapian::termcount * total_subqs_ptr)
 {
     LOGCALL(MATCH, PostList *, "LocalSubMatch::get_postlist", matcher | total_subqs_ptr);
 
     if (query.empty() || db->get_doccount() == 0)
-	RETURN(NULL); // MatchNothing
+	RETURN({nullptr, nullptr}); // MatchNothing
 
     // Build the postlist tree for the query.  This calls
     // LocalSubMatch::open_post_list() for each term in the query.
-    PostList * pl;
+    PostListAndEstimate plest;
     {
 	QueryOptimiser opt(*db, *this, matcher, shard_index);
 	double factor = wt_factory.is_bool_weight_() ? 0.0 : 1.0;
-	pl = query.internal->postlist(&opt, factor, NULL);
+	plest = query.internal->postlist(&opt, factor, NULL);
 	*total_subqs_ptr = opt.get_total_subqs();
     }
 
-    if (pl) {
+    if (plest.pl) {
 	unique_ptr<Xapian::Weight> extra_wt(wt_factory.clone());
 	// Only uses term-independent stats.
 	extra_wt->init_(*total_stats, qlen, db);
@@ -197,22 +197,23 @@ LocalSubMatch::get_postlist(PostListTree * matcher,
 	    // There's a term-independent weight contribution, so we combine
 	    // the postlist tree with an ExtraWeightPostList which adds in this
 	    // contribution.
-	    pl = new ExtraWeightPostList(pl, extra_wt.release(), matcher);
+	    plest.pl = new ExtraWeightPostList(plest.pl, extra_wt.release(),
+					       matcher);
 	}
     }
 
-    RETURN(pl);
+    RETURN(plest);
 }
 
-PostList *
+PostListAndEstimate
 LocalSubMatch::make_synonym_postlist(PostListTree* pltree,
-				     PostList* or_pl,
+				     PostListAndEstimate or_pl,
 				     double factor,
 				     const TermFreqs& termfreqs)
 {
-    LOGCALL(MATCH, PostList*, "LocalSubMatch::make_synonym_postlist", pltree | or_pl | factor | termfreqs);
+    LOGCALL(MATCH, PostListAndEstimate, "LocalSubMatch::make_synonym_postlist", pltree | or_pl | factor | termfreqs);
     bool needs_doclen = wt_factory.get_sumpart_needs_doclength_();
-    unique_ptr<SynonymPostList> res(new SynonymPostList(or_pl, pltree,
+    unique_ptr<SynonymPostList> res(new SynonymPostList(or_pl.pl, pltree,
 							needs_doclen));
     unique_ptr<Xapian::Weight> wt(wt_factory.clone());
 
@@ -224,10 +225,10 @@ LocalSubMatch::make_synonym_postlist(PostListTree* pltree,
 	      db);
 
     res->set_weight(wt.release());
-    RETURN(res.release());
+    RETURN({res.release(), std::move(or_pl.est)});
 }
 
-LeafPostList*
+PostListAndEstimate
 LocalSubMatch::open_post_list(const string& term,
 			      Xapian::termcount wqf,
 			      double factor,
@@ -237,7 +238,7 @@ LocalSubMatch::open_post_list(const string& term,
 			      bool lazy_weight,
 			      TermFreqs* termfreqs)
 {
-    LOGCALL(MATCH, LeafPostList*, "LocalSubMatch::open_post_list", term | wqf | factor | need_positions | qopt | lazy_weight | termfreqs);
+    LOGCALL(MATCH, PostListAndEstimate, "LocalSubMatch::open_post_list", term | wqf | factor | need_positions | qopt | lazy_weight | termfreqs);
 
     bool weighted = false;
 
@@ -313,10 +314,15 @@ LocalSubMatch::open_post_list(const string& term,
 	}
     }
 
-    if (pl) {
-	Xapian::docid first = 1, last = Xapian::docid(-1);
-	pl->get_docid_range(first, last);
-	add_op(pl->get_termfreq(), first, last);
+    if (!pl) {
+	RETURN({nullptr, nullptr});
     }
-    RETURN(pl);
+
+    Xapian::docid first = 1, last = Xapian::docid(-1);
+    pl->get_docid_range(first, last);
+
+    EstimateOp* est = nullptr;
+    if (!qopt->get_no_estimates())
+	est = new EstimateOp(pl->get_termfreq(), first, last);
+    RETURN({pl, est});
 }

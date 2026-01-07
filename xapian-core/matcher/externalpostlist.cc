@@ -1,7 +1,7 @@
 /** @file
  * @brief Return document ids from an external source.
  */
-/* Copyright 2008-2022 Olly Betts
+/* Copyright 2008-2026 Olly Betts
  * Copyright 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -55,9 +55,11 @@ ExternalPostList::ExternalPostList(const Xapian::Database& db,
     source->set_max_weight_cached_flag_ptr_(max_weight_cached_flag_ptr);
     source->reset(db, shard_index);
     termfreq = source->get_termfreq_est();
-    estimate_op->report_termfreqs(source->get_termfreq_min(),
-				  termfreq,
-				  source->get_termfreq_max());
+    if (estimate_op) {
+	estimate_op->report_termfreqs(source->get_termfreq_min(),
+				      termfreq,
+				      source->get_termfreq_max());
+    }
 }
 
 Xapian::docid

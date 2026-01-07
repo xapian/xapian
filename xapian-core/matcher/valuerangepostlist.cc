@@ -1,7 +1,7 @@
 /** @file
  * @brief Return document ids matching a range test on a specified doc value.
  */
-/* Copyright 2007,2008,2009,2010,2011,2013,2016,2017,2022,2025 Olly Betts
+/* Copyright 2007,2008,2009,2010,2011,2013,2016,2017,2022,2025,2026 Olly Betts
  * Copyright 2009 Lemur Consulting Ltd
  * Copyright 2010 Richard Boulton
  *
@@ -34,7 +34,7 @@ using namespace std;
 ValueRangePostList::~ValueRangePostList()
 {
     delete valuelist;
-    estimate_op->report_range_ratio(accepted, rejected);
+    if (estimate_op) estimate_op->report_range_ratio(accepted, rejected);
 }
 
 Xapian::docid
@@ -82,7 +82,7 @@ ValueRangePostList::next(double)
     if (!valuelist) {
 	valuelist = db->open_value_list(slot);
 	valuelist->next();
-	estimate_op->report_first(valuelist->get_docid());
+	if (estimate_op) estimate_op->report_first(valuelist->get_docid());
     } else {
 	valuelist->next();
     }

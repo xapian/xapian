@@ -91,6 +91,9 @@ class Vec {
     // Prevent inadvertent copying.
     Vec(const Vec&) = delete;
 
+    // Allow moving.
+//    Vec(const Vec&&) = default;
+
     // Only useful if !UNIQUEPTR, but can't be accessed without copy().
     Vec(const Vec_to_copy& o) {
 	do_copy_from(o.ref);

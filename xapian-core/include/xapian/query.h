@@ -1,7 +1,7 @@
 /** @file
  * @brief Xapian::Query API class
  */
-/* Copyright (C) 2011-2025 Olly Betts
+/* Copyright (C) 2011-2026 Olly Betts
  * Copyright (C) 2008 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -899,7 +899,7 @@ class AndContext;
 class OrContext;
 class XorContext;
 
-class PostList;
+struct PostListAndEstimate;
 class QueryOptimiser;
 struct TermFreqs;
 }
@@ -912,7 +912,7 @@ class Query::Internal : public Xapian::Internal::intrusive_base {
     virtual ~Internal();
 
     XAPIAN_VISIBILITY_INTERNAL
-    virtual Xapian::Internal::PostList*
+    virtual Xapian::Internal::PostListAndEstimate
     postlist(Xapian::Internal::QueryOptimiser* qopt,
 	     double factor,
 	     Xapian::Internal::TermFreqs* termfreqs) const = 0;

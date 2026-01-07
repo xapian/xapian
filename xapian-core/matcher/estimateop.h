@@ -1,7 +1,7 @@
 /** @file
  *  @brief Calculated bounds on and estimate of number of matches
  */
-/* Copyright (C) 2022,2025 Olly Betts
+/* Copyright (C) 2022,2025,2026 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,9 +21,13 @@
 #ifndef XAPIAN_INCLUDED_ESTIMATEOP_H
 #define XAPIAN_INCLUDED_ESTIMATEOP_H
 
+#include <memory>
+
 #include "xapian/types.h"
 
+#include "api/smallvector.h"
 #include "omassert.h"
+#include "backends/postlist.h"
 
 struct Estimates {
     Xapian::doccount min, est, max;
@@ -49,6 +53,14 @@ struct Estimates {
 # undef NEAR
 #endif
 
+/** Class for estimating the total number of matching documents.
+ *
+ *  We build a tree of EstimateOp objects which largely follows the Query
+ *  tree/PostList tree, but there are some differences.  Here we only care
+ *  about the number of matches, so operations which only affect ordering are
+ *  equivalent, so for example, we use OR here for any of OP_OR, OP_SYNONYM
+ *  and OP_MAX; OP_AND_MAYBE and its RHS are omitted.
+ */
 class EstimateOp {
   public:
     enum op_type {
@@ -62,8 +74,6 @@ class EstimateOp {
     };
 
   private:
-    EstimateOp* next;
-
     op_type type;
 
     /** Estimates.
@@ -78,34 +88,41 @@ class EstimateOp {
      */
     Estimates estimates;
 
-    /** Used by get_subquery_count().
-     *
-     *  Set to zero for leaf operators.
-     */
-    unsigned n_subqueries = 0;
+    Xapian::VecUniquePtr<EstimateOp> sub_estimates;
 
   public:
     /// Leaf term.
-    EstimateOp(EstimateOp* next_, Xapian::doccount tf_,
+    EstimateOp(Xapian::doccount tf_,
 	       Xapian::docid first, Xapian::docid last)
-	: next(next_), type(KNOWN), estimates(tf_, tf_, tf_, first, last) { }
+	: type(KNOWN), estimates(tf_, tf_, tf_, first, last) { }
 
     /// PostingSource
-    EstimateOp(EstimateOp* next_)
-	: next(next_), type(POSTING_SOURCE) { }
+    EstimateOp()
+	: type(POSTING_SOURCE) { }
 
     /// Value range.
-    EstimateOp(EstimateOp* next_, Estimates estimates_)
-	: next(next_), type(KNOWN), estimates(estimates_) { }
+    EstimateOp(Estimates estimates_)
+	: type(KNOWN), estimates(estimates_) { }
 
     /// Value range degenerate case.
-    EstimateOp(EstimateOp* next_, Xapian::doccount tf_)
-	: next(next_), type(KNOWN), estimates(tf_, tf_, tf_) { }
+    EstimateOp(Xapian::doccount tf_)
+	: type(KNOWN), estimates(tf_, tf_, tf_) { }
 
     /// AND, AND_NOT, OR or XOR.
-    EstimateOp(EstimateOp* next_, op_type type_, unsigned n_subqueries_,
-	       Xapian::docid first, Xapian::docid last)
-	: next(next_), type(type_), n_subqueries(n_subqueries_) {
+    EstimateOp(op_type type_, Xapian::docid first, Xapian::docid last,
+	       Xapian::VecUniquePtr<EstimateOp>&& sub_estimates_)
+	: type(type_), sub_estimates(std::move(sub_estimates_)) {
+	estimates.first = first;
+	estimates.last = last;
+    }
+
+    /// AND, AND_NOT, OR or XOR (pair-wise).
+    EstimateOp(op_type type_, Xapian::docid first, Xapian::docid last,
+	       std::unique_ptr<EstimateOp>&& est1,
+	       std::unique_ptr<EstimateOp>&& est2)
+	: type(type_) {
+	sub_estimates.push_back(est1.release());
+	sub_estimates.push_back(est2.release());
 	estimates.first = first;
 	estimates.last = last;
     }
@@ -114,8 +131,10 @@ class EstimateOp {
      *
      *  These operate as filters so have a single subquery.
      */
-    EstimateOp(EstimateOp* next_, op_type type_)
-	: next(next_), type(type_), estimates(0, 0, 0), n_subqueries(1) { }
+    EstimateOp(op_type type_, EstimateOp* sub_estimate)
+	: type(type_), estimates(0, 0, 0) {
+	sub_estimates.push_back(sub_estimate);
+    }
 
     /** Report the first docid indexed.
      *
@@ -179,21 +198,37 @@ class EstimateOp {
 		      Xapian::docid db_first,
 		      Xapian::docid db_last);
 
-    Estimates resolve_next(Xapian::doccount db_size,
-			   Xapian::docid db_first,
-			   Xapian::docid db_last) {
-	Estimates result = next->resolve(db_size, db_first, db_last);
-	EstimateOp* old_next = next;
-	next = next->next;
-	delete old_next;
-	return result;
-    }
-
-    EstimateOp* get_next() const { return next; }
-
-    void set_next(EstimateOp* new_next) { next = new_next; }
-
-    unsigned get_subquery_count() const { return n_subqueries; }
+    unsigned get_subquery_count() const { return sub_estimates.size(); }
 };
+
+namespace Xapian::Internal {
+
+struct PostListAndEstimate {
+    // Note that pl may hold a pointer to est and pl's destructor may try to
+    // report stats via that pointer, so the order of destruction of pl and
+    // est matters.  We don't currently enforce that here, but instead the
+    // stats reporting is skipped if no matching has yet occurred, which is
+    // enough to avoid calls to a deleted est (after matching we carefully
+    // arrange to destroy the postlist tree before the estimates).
+    //
+    // FIXME: It would be cleaner to enforce that pl gets destroyed first here,
+    // but that seems to require that this struct owns the pl which requires a
+    // significant refactor.
+    PostList* pl = nullptr;
+
+    std::unique_ptr<EstimateOp> est;
+
+    PostListAndEstimate() { }
+
+    PostListAndEstimate(PostList* pl_, EstimateOp* est_)
+	: pl(pl_), est(est_) { }
+
+    PostListAndEstimate(PostList* pl_, std::unique_ptr<EstimateOp>&& est_)
+	: pl(pl_), est(std::move(est_)) { }
+};
+
+}
+
+using Xapian::Internal::PostListAndEstimate;
 
 #endif // XAPIAN_INCLUDED_ESTIMATEOP_H

@@ -1,7 +1,7 @@
 /** @file
  * @brief Return document ids matching a range test on a specified doc value.
  */
-/* Copyright 2007,2008,2011,2013,2025 Olly Betts
+/* Copyright 2007,2008,2011,2013,2025,2026 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  * Copyright 2010 Richard Boulton
  *
@@ -38,7 +38,7 @@ ValueGePostList::next(double)
     if (!valuelist) {
 	valuelist = db->open_value_list(slot);
 	valuelist->next();
-	estimate_op->report_first(valuelist->get_docid());
+	if (estimate_op) estimate_op->report_first(valuelist->get_docid());
     } else {
 	valuelist->next();
     }
