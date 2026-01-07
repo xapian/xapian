@@ -1219,7 +1219,7 @@ testsuite:
 
 matcher:
 
-* Reorder fields in each MSet entry to avoid structure padding on x86-64
+* Reorder fields in each MSet entry to avoid structure padding on x86-64 and
   probably other 64-bit platforms.  This reduces the memory needed to hold an
   MSet by 8 bytes per entry on such platforms.
 
@@ -1739,7 +1739,7 @@ API:
 
 * Clamp edit distance to one less than the length of the word we've been asked
   to correct, which makes the algorithm we use more efficient.  We already
-  require suggestion to have at least one character in common, so the only
+  require any suggestion to have at least one character in common, so the only
   change to suggestions is we'll no longer suggest corrections which are
   twice as long or longer even if the edit distance would allow it, which
   seems like an improvement in itself.
@@ -3404,7 +3404,7 @@ documentation:
 
 * Correct some class names in doxygen file documentation comments.
 
-* Mark up shell command as code-block:: sh.
+* Mark up shell command as `code-block:: sh`.
 
 tools:
 
