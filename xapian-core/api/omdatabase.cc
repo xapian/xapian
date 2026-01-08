@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2013,2014,2016 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2013,2014,2016,2026 Olly Betts
  * Copyright 2006,2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -586,10 +586,6 @@ freq_edit_lower_bound(const vector<unsigned> & a, const vector<unsigned> & b)
     return (total + 1) / 2;
 }
 
-// Word must have a trigram score at least this close to the best score seen
-// so far.
-#define TRIGRAM_SCORE_THRESHOLD 2
-
 string
 Database::get_spelling_suggestion(const string &word,
 				  unsigned max_edit_distance) const
@@ -620,78 +616,73 @@ Database::get_spelling_suggestion(const string &word,
 
     vector<unsigned> utf32_term;
 
-    Xapian::termcount best = 1;
     string result;
     int edist_best = max_edit_distance;
     Xapian::doccount freq_best = 0;
     Xapian::doccount freq_exact = 0;
     while (true) {
 	TermList *ret = merger->next();
-	if (ret) merger.reset(ret);
+	if (rare(ret)) merger.reset(ret);
 
-	if (merger->at_end()) break;
+	if (rare(merger->at_end())) break;
 
-	string term = merger->get_termname();
-	Xapian::termcount score = merger->get_wdf();
+	const string& term = merger->get_termname();
 
-	LOGLINE(SPELLING, "Term \"" << term << "\" ngram score " << score);
-	if (score + TRIGRAM_SCORE_THRESHOLD >= best) {
-	    if (score > best) best = score;
+	LOGLINE(SPELLING, "Term \"" << term << "\"");
 
-	    // There's no point considering a word where the difference
-	    // in length is greater than the smallest number of edits we've
-	    // found so far.
+	// There's no point considering a word where the difference
+	// in length is greater than the smallest number of edits we've
+	// found so far.
 
-	    // First check the length of the encoded UTF-8 version of term.
-	    // Each UTF-32 character is 1-4 bytes in UTF-8.
-	    if (abs(long(term.size()) - long(word.size())) > edist_best * 4) {
-		LOGLINE(SPELLING, "Lengths much too different");
+	// First check the length of the encoded UTF-8 version of term.
+	// Each UTF-32 character is 1-4 bytes in UTF-8.
+	if (abs(long(term.size()) - long(word.size())) > edist_best * 4) {
+	    LOGLINE(SPELLING, "Lengths much too different");
+	    continue;
+	}
+
+	// Now convert to UTF-32, and compare the true lengths more
+	// strictly.
+	utf32_term.assign(Utf8Iterator(term), Utf8Iterator());
+
+	if (abs(long(utf32_term.size()) - long(utf32_word.size()))
+		> edist_best) {
+	    LOGLINE(SPELLING, "Lengths too different");
+	    continue;
+	}
+
+	if (freq_edit_lower_bound(utf32_term, utf32_word) > edist_best) {
+	    LOGLINE(SPELLING, "Rejected by character frequency test");
+	    continue;
+	}
+
+	int edist = edit_distance_unsigned(&utf32_term[0],
+					   int(utf32_term.size()),
+					   &utf32_word[0],
+					   int(utf32_word.size()),
+					   edist_best);
+	LOGLINE(SPELLING, "Edit distance " << edist);
+
+	if (edist <= edist_best) {
+	    Xapian::doccount freq = 0;
+	    for (size_t j = 0; j < internal.size(); ++j)
+		freq += internal[j]->get_spelling_frequency(term);
+
+	    LOGLINE(SPELLING, "Freq " << freq << " best " << freq_best);
+	    // Even if we have an exact match, there may be a much more
+	    // frequent potential correction which will still be
+	    // interesting.
+	    if (edist == 0) {
+		freq_exact = freq;
 		continue;
 	    }
 
-	    // Now convert to UTF-32, and compare the true lengths more
-	    // strictly.
-	    utf32_term.assign(Utf8Iterator(term), Utf8Iterator());
-
-	    if (abs(long(utf32_term.size()) - long(utf32_word.size()))
-		    > edist_best) {
-		LOGLINE(SPELLING, "Lengths too different");
-		continue;
-	    }
-
-	    if (freq_edit_lower_bound(utf32_term, utf32_word) > edist_best) {
-		LOGLINE(SPELLING, "Rejected by character frequency test");
-		continue;
-	    }
-
-	    int edist = edit_distance_unsigned(&utf32_term[0],
-					       int(utf32_term.size()),
-					       &utf32_word[0],
-					       int(utf32_word.size()),
-					       edist_best);
-	    LOGLINE(SPELLING, "Edit distance " << edist);
-
-	    if (edist <= edist_best) {
-		Xapian::doccount freq = 0;
-		for (size_t j = 0; j < internal.size(); ++j)
-		    freq += internal[j]->get_spelling_frequency(term);
-
-		LOGLINE(SPELLING, "Freq " << freq << " best " << freq_best);
-		// Even if we have an exact match, there may be a much more
-		// frequent potential correction which will still be
-		// interesting.
-		if (edist == 0) {
-		    freq_exact = freq;
-		    continue;
-		}
-
-		if (edist < edist_best || freq > freq_best) {
-		    LOGLINE(SPELLING, "Best so far: \"" << term <<
-				      "\" edist " << edist << " freq " << freq);
-		    result = term;
-		    edist_best = edist;
-		    freq_best = freq;
-		}
+	    if (edist < edist_best || freq > freq_best) {
+		LOGLINE(SPELLING, "Best so far: \"" << term <<
+				  "\" edist " << edist << " freq " << freq);
+		result = term;
+		edist_best = edist;
+		freq_best = freq;
 	    }
 	}
     }
