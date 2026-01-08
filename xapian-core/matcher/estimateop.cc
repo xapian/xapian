@@ -324,6 +324,22 @@ EstimateOp::resolve(Xapian::doccount db_size,
 	result.est = std::clamp(result.est, result.min, result.max);
 	break;
       }
+#if defined __GNUC__ && !defined __clang__
+      default:
+	// Without this, GCC (noted with 13.3.0 and 15.2.0) incorrectly warns
+	// that result.max may be used uninitialised.
+	//
+	// It seems unhelpful to add a default initialisation as that would
+	// mean compilers wouldn't warn if we genuinely failed to initialise.
+	//
+	// Adding this default case unconditionally seems similarly unhelpful
+	// as it would prevent compilers warning if an enum value isn't handled
+	// by this switch.
+	//
+	// (GCC now won't warn about the latter, but at least other compilers
+	// still can.)
+	__builtin_unreachable();
+#endif
     }
     AssertRel(result.min, <=, result.est);
     AssertRel(result.est, <=, result.max);
