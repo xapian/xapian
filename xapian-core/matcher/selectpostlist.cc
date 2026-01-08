@@ -53,7 +53,13 @@ SelectPostList::vet(double w_min)
 
 SelectPostList::~SelectPostList()
 {
-    if (estimate_op) estimate_op->report_ratio(accepted, rejected);
+    if (estimate_op && (accepted || rejected)) {
+	// Only call report_ratio() if there are counts.  During the building
+	// of the PostList tree we sometimes need to delete PostList objects
+	// and their associated EstimateOp and it's hard to arrange that they
+	// are always deleted in the correct order.
+	estimate_op->report_ratio(accepted, rejected);
+    }
 }
 
 double

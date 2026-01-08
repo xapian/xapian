@@ -1476,3 +1476,23 @@ DEFINE_TESTCASE(estimateopbug1, backend) {
     enquire.set_query(q);
     Xapian::MSet matches = enquire.get_mset(0, 10);
 }
+
+struct Exception_estimateop2 {};
+class MDecider_estimateop2 : public Xapian::MatchDecider {
+    bool operator()(const Xapian::Document&) const override {
+	throw Exception_estimateop2();
+    }
+};
+
+DEFINE_TESTCASE(estimateopbug2, backend && !remote) {
+    Xapian::Database db = get_database("apitest_simpledata");
+    Xapian::Query query{"it"};
+    Xapian::Enquire enq{db};
+    enq.set_query(query);
+    MDecider_estimateop2 mdecider;
+    try {
+	auto mset = enq.get_mset(0, 10, nullptr, &mdecider);
+	FAIL_TEST("Expected exception Exception_estimateop2 not thrown");
+    } catch (const Exception_estimateop2&) {
+    }
+}
