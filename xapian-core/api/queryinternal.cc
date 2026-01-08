@@ -1369,7 +1369,7 @@ PostListAndEstimate
 QueryTerm::postlist(QueryOptimiser* qopt, double factor,
 		    TermFreqs* termfreqs) const
 {
-    LOGCALL(QUERY, PostList*, "QueryTerm::postlist", qopt | factor | termfreqs);
+    LOGCALL(QUERY, PostListAndEstimate, "QueryTerm::postlist", qopt | factor | termfreqs);
     if (factor != 0.0)
 	qopt->inc_total_subqs();
     RETURN(qopt->open_post_list(term, wqf, factor, termfreqs));
@@ -1393,7 +1393,7 @@ PostListAndEstimate
 QueryPostingSource::postlist(QueryOptimiser* qopt, double factor,
 			     TermFreqs* termfreqs) const
 {
-    LOGCALL(QUERY, PostList*, "QueryPostingSource::postlist", qopt | factor | termfreqs);
+    LOGCALL(QUERY, PostListAndEstimate, "QueryPostingSource::postlist", qopt | factor | termfreqs);
     Assert(source);
     if (factor != 0.0)
 	qopt->inc_total_subqs();
@@ -1430,7 +1430,7 @@ PostListAndEstimate
 QueryScaleWeight::postlist(QueryOptimiser* qopt, double factor,
 			   TermFreqs* termfreqs) const
 {
-    LOGCALL(QUERY, PostList*, "QueryScaleWeight::postlist", qopt | factor | termfreqs);
+    LOGCALL(QUERY, PostListAndEstimate, "QueryScaleWeight::postlist", qopt | factor | termfreqs);
     RETURN(subquery.internal->postlist(qopt, factor * scale_factor, termfreqs));
 }
 
@@ -1533,7 +1533,7 @@ PostListAndEstimate
 QueryValueRange::postlist(QueryOptimiser* qopt, double factor,
 			  TermFreqs* termfreqs) const
 {
-    LOGCALL(QUERY, PostList*, "QueryValueRange::postlist", qopt | factor | termfreqs);
+    LOGCALL(QUERY, PostListAndEstimate, "QueryValueRange::postlist", qopt | factor | termfreqs);
     if (factor != 0.0)
 	qopt->inc_total_subqs();
     const Xapian::Database::Internal & db = qopt->db;
@@ -1642,7 +1642,7 @@ PostListAndEstimate
 QueryValueLE::postlist(QueryOptimiser* qopt, double factor,
 		       TermFreqs* termfreqs) const
 {
-    LOGCALL(QUERY, PostList*, "QueryValueLE::postlist", qopt | factor | termfreqs);
+    LOGCALL(QUERY, PostListAndEstimate, "QueryValueLE::postlist", qopt | factor | termfreqs);
     if (factor != 0.0)
 	qopt->inc_total_subqs();
     const Xapian::Database::Internal & db = qopt->db;
@@ -1739,7 +1739,7 @@ PostListAndEstimate
 QueryValueGE::postlist(QueryOptimiser* qopt, double factor,
 		       TermFreqs* termfreqs) const
 {
-    LOGCALL(QUERY, PostList*, "QueryValueGE::postlist", qopt | factor | termfreqs);
+    LOGCALL(QUERY, PostListAndEstimate, "QueryValueGE::postlist", qopt | factor | termfreqs);
     if (factor != 0.0)
 	qopt->inc_total_subqs();
     const Xapian::Database::Internal & db = qopt->db;
@@ -1986,7 +1986,7 @@ PostListAndEstimate
 QueryWildcard::postlist(QueryOptimiser* qopt, double factor,
 			TermFreqs* termfreqs) const
 {
-    LOGCALL(QUERY, PostList*, "QueryWildcard::postlist", qopt | factor | termfreqs);
+    LOGCALL(QUERY, PostListAndEstimate, "QueryWildcard::postlist", qopt | factor | termfreqs);
     OrContext ctx(qopt, 0);
     Query::op op = combiner;
     if (factor == 0.0 || op == Query::OP_SYNONYM) {
@@ -2096,7 +2096,7 @@ PostListAndEstimate
 QueryEditDistance::postlist(QueryOptimiser* qopt, double factor,
 			    TermFreqs* termfreqs) const
 {
-    LOGCALL(QUERY, PostList*, "QueryEditDistance::postlist", qopt | factor | termfreqs);
+    LOGCALL(QUERY, PostListAndEstimate, "QueryEditDistance::postlist", qopt | factor | termfreqs);
     OrContext ctx(qopt, 0);
     Query::op op = combiner;
     if (factor == 0.0 || op == Query::OP_SYNONYM) {
@@ -2373,7 +2373,7 @@ QueryBranch::do_synonym(QueryOptimiser* qopt,
 			double factor,
 			TermFreqs* termfreqs) const
 {
-    LOGCALL(MATCH, PostList*, "QueryBranch::do_synonym", qopt | factor | termfreqs);
+    LOGCALL(MATCH, PostListAndEstimate, "QueryBranch::do_synonym", qopt | factor | termfreqs);
     OrContext ctx(qopt, subqueries.size());
     if (factor == 0.0) {
 	// If we have a factor of 0, we don't care about the weights, so
@@ -2409,7 +2409,7 @@ QueryBranch::do_max(QueryOptimiser* qopt,
 		    double factor,
 		    TermFreqs* termfreqs) const
 {
-    LOGCALL(MATCH, PostList*, "QueryBranch::do_max", qopt | factor | termfreqs);
+    LOGCALL(MATCH, PostListAndEstimate, "QueryBranch::do_max", qopt | factor | termfreqs);
     OrContext ctx(qopt, subqueries.size());
     if (factor == 0.0) {
 	// Without the weights we're just like a normal OR query.
@@ -2590,7 +2590,7 @@ PostListAndEstimate
 QueryAndLike::postlist(QueryOptimiser* qopt, double factor,
 		       TermFreqs* termfreqs) const
 {
-    LOGCALL(QUERY, PostList*, "QueryAndLike::postlist", qopt | factor | termfreqs);
+    LOGCALL(QUERY, PostListAndEstimate, "QueryAndLike::postlist", qopt | factor | termfreqs);
     AndContext ctx(qopt, subqueries.size());
     if (!postlist_sub_and_like(ctx, qopt, factor, termfreqs)) {
 	RETURN({});
@@ -2706,7 +2706,7 @@ PostListAndEstimate
 QueryOr::postlist(QueryOptimiser* qopt, double factor,
 		  TermFreqs* termfreqs) const
 {
-    LOGCALL(QUERY, PostList*, "QueryOr::postlist", qopt | factor | termfreqs);
+    LOGCALL(QUERY, PostListAndEstimate, "QueryOr::postlist", qopt | factor | termfreqs);
     OrContext ctx(qopt, subqueries.size());
     if (factor == 0.0) {
 	do_bool_or_like(ctx, qopt, termfreqs);
@@ -2737,7 +2737,7 @@ PostListAndEstimate
 QueryAndNot::postlist(QueryOptimiser* qopt, double factor,
 		      TermFreqs* termfreqs) const
 {
-    LOGCALL(QUERY, PostList*, "QueryAndNot::postlist", qopt | factor | termfreqs);
+    LOGCALL(QUERY, PostListAndEstimate, "QueryAndNot::postlist", qopt | factor | termfreqs);
     AndContext ctx(qopt, 1);
     if (!QueryAndNot::postlist_sub_and_like(ctx, qopt, factor, termfreqs)) {
 	RETURN({});
@@ -2766,7 +2766,7 @@ PostListAndEstimate
 QueryXor::postlist(QueryOptimiser* qopt, double factor,
 		   TermFreqs* termfreqs) const
 {
-    LOGCALL(QUERY, PostList*, "QueryXor::postlist", qopt | factor | termfreqs);
+    LOGCALL(QUERY, PostListAndEstimate, "QueryXor::postlist", qopt | factor | termfreqs);
     XorContext ctx(qopt, subqueries.size());
     postlist_sub_xor(ctx, qopt, factor, termfreqs);
     RETURN(ctx.postlist(termfreqs));
@@ -2790,7 +2790,7 @@ PostListAndEstimate
 QueryAndMaybe::postlist(QueryOptimiser* qopt, double factor,
 			TermFreqs* termfreqs) const
 {
-    LOGCALL(QUERY, PostList*, "QueryAndMaybe::postlist", qopt | factor | termfreqs);
+    LOGCALL(QUERY, PostListAndEstimate, "QueryAndMaybe::postlist", qopt | factor | termfreqs);
     AndContext ctx(qopt, 1);
     if (!QueryAndMaybe::postlist_sub_and_like(ctx, qopt, factor, termfreqs)) {
 	RETURN({});
@@ -2830,7 +2830,7 @@ PostListAndEstimate
 QueryFilter::postlist(QueryOptimiser* qopt, double factor,
 		      TermFreqs* termfreqs) const
 {
-    LOGCALL(QUERY, PostList*, "QueryFilter::postlist", qopt | factor | termfreqs);
+    LOGCALL(QUERY, PostListAndEstimate, "QueryFilter::postlist", qopt | factor | termfreqs);
     AndContext ctx(qopt, subqueries.size());
     if (!QueryFilter::postlist_sub_and_like(ctx, qopt, factor, termfreqs)) {
 	RETURN({});
@@ -2938,7 +2938,7 @@ PostListAndEstimate
 QueryEliteSet::postlist(QueryOptimiser* qopt, double factor,
 			TermFreqs* termfreqs) const
 {
-    LOGCALL(QUERY, PostList*, "QueryEliteSet::postlist", qopt | factor | termfreqs);
+    LOGCALL(QUERY, PostListAndEstimate, "QueryEliteSet::postlist", qopt | factor | termfreqs);
     OrContext ctx(qopt, subqueries.size());
     do_or_like(ctx, qopt, factor, termfreqs, set_size);
     RETURN(ctx.postlist(termfreqs));
@@ -2957,7 +2957,7 @@ PostListAndEstimate
 QuerySynonym::postlist(QueryOptimiser* qopt, double factor,
 		       TermFreqs* termfreqs) const
 {
-    LOGCALL(QUERY, PostList*, "QuerySynonym::postlist", qopt | factor | termfreqs);
+    LOGCALL(QUERY, PostListAndEstimate, "QuerySynonym::postlist", qopt | factor | termfreqs);
     // Save and restore total_subqs so we only add one for the whole
     // OP_SYNONYM subquery (or none if we're not weighted).
     Xapian::termcount save_total_subqs = qopt->get_total_subqs();
@@ -2965,7 +2965,7 @@ QuerySynonym::postlist(QueryOptimiser* qopt, double factor,
 	++save_total_subqs;
     PostListAndEstimate plest = do_synonym(qopt, factor, termfreqs);
     qopt->set_total_subqs(save_total_subqs);
-    RETURN(plest);
+    return plest;
 }
 
 Query::Internal *
@@ -3005,7 +3005,7 @@ PostListAndEstimate
 QueryMax::postlist(QueryOptimiser* qopt, double factor,
 		   TermFreqs* termfreqs) const
 {
-    LOGCALL(QUERY, PostList*, "QueryMax::postlist", qopt | factor | termfreqs);
+    LOGCALL(QUERY, PostListAndEstimate, "QueryMax::postlist", qopt | factor | termfreqs);
     // Save and restore total_subqs so we only add one for the whole
     // OP_MAX subquery (or none if we're not weighted).
     Xapian::termcount save_total_subqs = qopt->get_total_subqs();
@@ -3013,7 +3013,7 @@ QueryMax::postlist(QueryOptimiser* qopt, double factor,
 	++save_total_subqs;
     PostListAndEstimate plest = do_max(qopt, factor, termfreqs);
     qopt->set_total_subqs(save_total_subqs);
-    RETURN(plest);
+    return plest;
 }
 
 Xapian::Query::op

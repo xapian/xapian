@@ -1,7 +1,7 @@
 /** @file
  * @brief Convert types to pretty representations
  */
-/* Copyright (C) 2010,2011,2012,2014,2016,2017,2019,2023,2024 Olly Betts
+/* Copyright (C) 2010,2011,2012,2014,2016,2017,2019,2023,2024,2026 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -327,6 +327,7 @@ namespace Xapian {
 	class ExpandStats;
 	class ExpandWeight;
 	class OrContext;
+	struct PostListAndEstimate;
     }
 }
 
@@ -366,6 +367,7 @@ XAPIAN_PRETTY_AS_CLASSNAME(Xapian::Internal::AndContext)
 XAPIAN_PRETTY_AS_CLASSNAME(Xapian::Internal::ExpandStats)
 XAPIAN_PRETTY_AS_CLASSNAME(Xapian::Internal::ExpandWeight)
 XAPIAN_PRETTY_AS_CLASSNAME(Xapian::Internal::OrContext)
+XAPIAN_PRETTY_AS_CLASSNAME(Xapian::Internal::PostListAndEstimate)
 XAPIAN_PRETTY_AS_CLASSNAME(Glass::RootInfo)
 XAPIAN_PRETTY_AS_CLASSNAME(GlassCursor)
 XAPIAN_PRETTY_AS_CLASSNAME(GlassFreeListChecker)
