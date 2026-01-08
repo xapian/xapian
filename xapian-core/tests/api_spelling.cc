@@ -1,7 +1,7 @@
 /** @file
  * @brief Test the spelling correction suggestion API.
  */
-/* Copyright (C) 2007-2023 Olly Betts
+/* Copyright (C) 2007-2025 Olly Betts
  * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -327,4 +327,15 @@ DEFINE_TESTCASE(spell9, spelling) {
 				       });
     TEST_EQUAL(db.get_spelling_suggestion("gel", 1), "eel");
     TEST_EQUAL(db.get_spelling_suggestion("thru", 2), "ruru");
+}
+
+/// Regression test for bug due to rejecting based on matching n-gram count.
+DEFINE_TESTCASE(spell10, spelling) {
+    Xapian::Database db = get_database("spell10",
+				       [](Xapian::WritableDatabase& wdb,
+					  const string&) {
+					   wdb.add_spelling("Schiedsrichterstuhl", 1);
+					   wdb.add_spelling("Stuhl", 1);
+				       });
+    TEST_EQUAL(db.get_spelling_suggestion("Schtuhl", 3), "Stuhl");
 }

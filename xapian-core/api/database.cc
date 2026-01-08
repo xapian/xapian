@@ -396,10 +396,6 @@ Database::get_description() const
     return desc;
 }
 
-// Word must have a trigram score at least this close to the best score seen
-// so far.
-#define TRIGRAM_SCORE_THRESHOLD 2
-
 string
 Database::get_spelling_suggestion(string_view word,
 				  unsigned max_edit_distance) const
@@ -414,50 +410,56 @@ Database::get_spelling_suggestion(string_view word,
 	return string();
 
     EditDistanceCalculator edcalc(word);
-    Xapian::termcount best = 1;
     string result;
     int edist_best = max_edit_distance;
     Xapian::doccount freq_best = 0;
     Xapian::doccount freq_exact = 0;
     while (true) {
 	TermList* ret = merger->next();
-	if (ret == merger.get()) {
+	if (rare(ret == merger.get())) {
 	    // Out of entries.
 	    break;
 	}
-	if (ret) merger.reset(ret);
+	if (rare(ret)) merger.reset(ret);
 
-	string term = merger->get_termname();
-	Xapian::termcount score = merger->get_wdf();
-
+	const string& term = merger->get_termname();
 	LOGVALUE(SPELLING, term);
-	LOGVALUE(SPELLING, score);
-	if (score + TRIGRAM_SCORE_THRESHOLD >= best) {
-	    if (score > best) best = score;
 
-	    int edist = edcalc(term, edist_best);
-	    LOGVALUE(SPELLING, edist);
+	// We can get the number of matching n-grams from merger->get_wdf() but
+	// a long candidate can match all the n-grams yet be too many edits
+	// away, while a candidate within edit distance range can match fewer
+	// n-grams.  E.g. if looking for corrections for `kuarq` we consider
+	// entries with n-grams `^ku`, `kua`, `uar`, `arq` or `rq$`.
+	//
+	// * `kuazzzuarq` contains all 5 n-grams but is 5 edits away
+	// * `quark` matches a single n-gram but is 2 edits away
+	//
+	// A single edit can potentially eliminate 3 n-grams which possibly
+	// gives us a potential criteria for rejecting based on the n-gram
+	// count, but in practice it seems it rejects so few candidates that
+	// it's actually cheaper to not try it.
 
-	    if (edist <= edist_best) {
-		Xapian::doccount freq = internal->get_spelling_frequency(term);
+	int edist = edcalc(term, edist_best);
+	LOGVALUE(SPELLING, edist);
 
-		LOGVALUE(SPELLING, freq);
-		LOGVALUE(SPELLING, freq_best);
-		// Even if we have an exact match, there may be a much more
-		// frequent potential correction which will still be
-		// interesting.
-		if (edist == 0) {
-		    freq_exact = freq;
-		    continue;
-		}
+	if (edist <= edist_best) {
+	    Xapian::doccount freq = internal->get_spelling_frequency(term);
 
-		if (edist < edist_best || freq > freq_best) {
-		    LOGLINE(SPELLING, "Best so far: \"" << term <<
-				      "\" edist " << edist << " freq " << freq);
-		    result = term;
-		    edist_best = edist;
-		    freq_best = freq;
-		}
+	    LOGVALUE(SPELLING, freq);
+	    LOGVALUE(SPELLING, freq_best);
+	    // Even if we have an exact match, there may be a much more
+	    // frequent potential correction which will still be interesting.
+	    if (rare(edist == 0)) {
+		freq_exact = freq;
+		continue;
+	    }
+
+	    if (edist < edist_best || freq > freq_best) {
+		LOGLINE(SPELLING, "Best so far: \"" << term <<
+				  "\" edist " << edist << " freq " << freq);
+		result = term;
+		edist_best = edist;
+		freq_best = freq;
 	    }
 	}
     }
