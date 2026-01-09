@@ -1,3 +1,101 @@
+up to: 1a1ad16ae0656331918f8281a2c25ada3b086e9c
+
+Xapian-core 1.4.31 (2026-0?-??):
+
+API:
+
+* Database::get_spelling_suggestion(): Remove a flawed optimisation which was
+  rejecting candidate corrections based only on how many n-grams match.  This
+  can unfortunately reject the best (or indeed only) candidate within the
+  requested number of edits.
+
+  Profiling an example dictionary of 244506 German words, searching for a
+  correction takes an extra ~2 milliseconds with this fix applied (21% more
+  time when timing opening the database and calling get_spelling_suggestion()).
+  Xapian 2.0.0 will include several optimisations to the edit distance
+  calculator which mean that Xapian 2.0.0 (which includes this fix) is actually
+  slightly faster than Xapian 1.4.30 (without this fix).
+
+  Reported by Veloman Yunkan.
+
+* Query: Attempting to construct a pairwise Query from an operator and two
+  `char*` or `const char*` term names failed to compile because these types are
+  iterator types and matched the template which allows construction from a pair
+  of iterators which are meant to dereference to give a type convertible to
+  std::string or Xapian::Query or Xapian::Query*.  We solve this by using
+  SFINAE tricks to not enable this template for iterators where
+  sizeof(value_type) is 1.
+
+testsuite:
+
+
+matcher:
+
+
+glass backend:
+
+* Compacting a database with corrupt item sizes could try to copy an
+  item outside of the allocated block.  Now we throw DatabaseCorruptError
+  in this situation.  Not realistically exploitable (you would need to
+  run compact on a carefully crafted corrupt Xapian database made by an
+  attacker).  Patch from A. Jiang in https://github.com/xapian/xapian/pull/337.
+
+* Opening a database table now throws DatabaseCorruptError if the number of
+  levels is non-zero but the `fake_root` flag is set.  This flag should mean
+  that the table hasn't been used yet.
+
+chert backend:
+
+
+remote backend:
+
+
+inmemory backend:
+
+
+build system:
+
+
+documentation:
+
+* The API documentation for Xapian::Stem has always listed
+  `english_lovins` and `english_porter`, but these haven't worked for over
+  18½ years (since 0.9.10).  Nobody has reported this before now and I only
+  noticed because we only noticed while merged some new stemming algorithms
+  so we've aligned the docs with long-term reality.  These stemmers have always
+  been available under the names `lovins` and `porter` respectively.
+
+* Update API documentation wording about `dutch_porter`.
+
+* Document how to use `XAPIAN_AT_LEAST()` if you still want to support Xapian
+  versions before it was added (1.4.2).  An obvious approach works with newer
+  Xapian but fails with < 1.4.2 so warn about this and recommend an approach.
+
+* Improve API documentation for `Database::size()` to note when it was added
+  and to point people who actually want the number of documents to
+  get_doccount().
+
+* NEWS: Fix some typos in old entries
+
+tools:
+
+
+examples:
+
+
+portability:
+
+
+packaging:
+
+
+debug code:
+
+* Fix build with `--enable-assertions=partial`.  Patch from A. Jiang.
+
+* Move an assertion that a pointer is not NULL to before where we dereference
+  it.
+
 Xapian-core 1.4.30 (2025-11-20):
 
 API:

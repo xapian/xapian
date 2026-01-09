@@ -1,3 +1,31 @@
+up to: 5be9b519bc81e2d4cbdea077a2c1ff6b3eb2c5e6
+
+Omega 1.4.31 (2026-0?-??):
+
+general:
+
+documentation:
+
+indexers:
+
+* omindex:
+
+* scriptindex:
+
+omega:
+
+templates:
+
+testsuite:
+
+* Add test that magic comments work in XHTML.
+
+build system:
+
+portability:
+
+packaging:
+
 Omega 1.4.30 (2025-11-20):
 
 documentation:
