@@ -199,16 +199,19 @@ EditDistanceCalculator::calc(const unsigned* ptr, int len,
     // Calculate a cheap lower bound on the edit distance by considering
     // frequency histograms.
     freqs_bitmap freqs = 0;
+    freqs_bitmap freqs2 = 0;
     for (int i = 0; i != len; ++i) {
 	unsigned ch = ptr[i];
-	freqs |= freqs_bitmap(1) << (ch & FREQS_MASK);
+	auto bit = freqs_bitmap(1) << (ch & FREQS_MASK);
+	freqs2 |= (freqs & bit);
+	freqs |= bit;
     }
     // Each insertion or deletion adds at most 1 to total.  Each transposition
     // doesn't change it at all.  But each substitution can change it by 2 so
     // we need to divide it by 2.  We round up since the unpaired change must
     // be due to an actual edit.
     unsigned bits = 1;
-    add_popcount(bits, freqs ^ target_freqs);
+    add_popcount(bits, (freqs ^ target_freqs) | (freqs2 ^ target_freqs2));
     int ed_lower_bound = bits / 2;
     if (ed_lower_bound > max_distance) {
 	// It's OK to return any distance > max_distance if the true answer is

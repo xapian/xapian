@@ -77,12 +77,26 @@ class EditDistanceCalculator {
      *
      *  We set the bit corresponding to each codepoint in the word and then
      *  xor the bitmaps for the target and candidate and count the bits to
-     *  compute a lower bound on the edit distance.  Rather than flagging
-     *  each Unicode code point uniquely, we reduce the code points modulo
-     *  the number of available bits which can only reduce the bound we
-     *  calculate.
+     *  compute a lower bound on the edit distance.
+     *
+     *  Rather than flagging each Unicode code point uniquely, we reduce the
+     *  code points modulo the number of available bits which can only reduce
+     *  the bound we calculate.
      */
     freqs_bitmap target_freqs = 0;
+
+    /** Second occurrence bitmap for target sequence.
+     *
+     *  We set the bit corresponding to each codepoint in the word which
+     *  we see a second time, which enables us to calculate a tighter edit
+     *  distance lower bound when there's more than one occurence of a
+     *  character in the target and/or candidate word.
+     *
+     *  Rather than flagging each Unicode code point uniquely, we reduce the
+     *  code points modulo the number of available bits which can only reduce
+     *  the bound we calculate.
+     */
+    freqs_bitmap target_freqs2 = 0;
 
     static constexpr unsigned FREQS_MASK = sizeof(freqs_bitmap) * 8 - 1;
 
@@ -104,7 +118,9 @@ class EditDistanceCalculator {
 	for (Utf8Iterator it(target_); it != Utf8Iterator(); ++it) {
 	    unsigned ch = *it;
 	    target.push_back(ch);
-	    target_freqs |= freqs_bitmap(1) << (ch & FREQS_MASK);
+	    auto bit = freqs_bitmap(1) << (ch & FREQS_MASK);
+	    target_freqs2 |= (target_freqs & bit);
+	    target_freqs |= bit;
 	}
     }
 
