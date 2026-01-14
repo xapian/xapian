@@ -1,7 +1,7 @@
 /** @file
  * @brief Command line search tool using Xapian::QueryParser.
  */
-/* Copyright (C) 2004-2022 Olly Betts
+/* Copyright (C) 2004-2026 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -171,6 +171,19 @@ print_table(const T& table)
     return '\n';
 }
 
+/** List strings from a string to integer mapping table, one per line.
+ *
+ *  @param table  Array of tab_entry in ascending string order.
+ */
+template<typename T>
+static void
+list_table(const T& table)
+{
+    for (auto& i : table) {
+	cout << i.s << '\n';
+    }
+}
+
 static void show_usage() {
     cout << "Usage: " PROG_NAME " [OPTIONS] 'QUERY'\n"
 "NB: QUERY should be quoted to protect it from the shell.\n\n"
@@ -293,7 +306,9 @@ try {
 			*comma++ = '\0';
 		    int flag = decode(flag_tab, optarg);
 		    if (flag < 0) {
-			cerr << "Unknown flag '" << optarg << "'\n";
+			cerr << "Unknown flag '" << optarg << "'\n"
+				"Available flags are:\n";
+			list_table(flag_tab);
 			exit(1);
 		    }
 		    flags |= unsigned(flag);
@@ -303,7 +318,9 @@ try {
 	    case 'o': {
 		int op = decode(default_op_tab, optarg);
 		if (op < 0) {
-		    cerr << "Unknown op '" << optarg << "'\n";
+		    cerr << "Unknown operator '" << optarg << "'\n"
+			    "Available operators are:\n";
+		    list_table(default_op_tab);
 		    exit(1);
 		}
 		parser.set_default_op(static_cast<Xapian::Query::op>(op));
