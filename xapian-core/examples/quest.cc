@@ -141,6 +141,31 @@ print_table(const T& table)
     return '\n';
 }
 
+/** Print available stemmers, line wrapped. */
+static char
+print_stemmers()
+{
+    size_t pos = 256;
+    const string langs = Xapian::Stem::get_available_languages();
+    size_t p = 0;
+    while (p != string::npos) {
+	size_t space = langs.find(' ', p);
+	size_t len = (space != string::npos) ? space - p : langs.size() - p;
+	if (pos < 256) cout << ',';
+	if (pos + len >= 78) {
+	    cout << "\n" INDENT;
+	    pos = sizeof(INDENT) - 2;
+	} else {
+	    cout << ' ';
+	}
+	cout << string_view(langs.data() + p, len);
+	pos += len + 2;
+	p = space;
+	if (p != string::npos) ++p;
+    }
+    return '\n';
+}
+
 /** List strings from a string to integer mapping table, one per line.
  *
  *  @param table  Array of tab_entry in ascending string order.
@@ -163,7 +188,9 @@ static void show_usage() {
 "  -m, --msize=MSIZE                 maximum number of matches to return\n"
 "  -c, --check-at-least=HOWMANY      minimum number of matches to check\n"
 "  -s, --stemmer=LANG                set the stemming language, the default is\n"
-"                                    'english' (pass 'none' to disable stemming)\n"
+"                                    'english' (pass 'none' to disable stemming).\n"
+"                                    Valid stemmers:"
+<< print_stemmers() <<
 "  -p, --prefix=PFX:TERMPFX          add a prefix\n"
 "  -b, --boolean-prefix=PFX:TERMPFX  add a boolean prefix\n"
 "  -f, --flags=FLAG1[,FLAG2]...      specify QueryParser flags (default:\n"
