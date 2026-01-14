@@ -211,7 +211,8 @@ EditDistanceCalculator::calc(const unsigned* ptr, int len,
     // we need to divide it by 2.  We round up since the unpaired change must
     // be due to an actual edit.
     unsigned bits = 1;
-    add_popcount(bits, (freqs ^ target_freqs) | (freqs2 ^ target_freqs2));
+    add_popcount(bits, freqs ^ target_freqs);
+    add_popcount(bits, freqs2 ^ target_freqs2);
     int ed_lower_bound = bits / 2;
     if (ed_lower_bound > max_distance) {
 	// It's OK to return any distance > max_distance if the true answer is
