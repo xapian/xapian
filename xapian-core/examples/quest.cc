@@ -140,6 +140,14 @@ static const tab_entry wt_tab[] = {
     { "trad",	WEIGHT_TRAD }
 };
 
+static const tab_entry stem_strategy_tab[] = {
+    { "all", Xapian::QueryParser::STEM_ALL },
+    { "all_z", Xapian::QueryParser::STEM_ALL_Z },
+    { "none", Xapian::QueryParser::STEM_NONE },
+    { "some", Xapian::QueryParser::STEM_SOME },
+    { "some_full_pos", Xapian::QueryParser::STEM_SOME_FULL_POS }
+};
+
 /** The number of spaces to indent by in print_table.
  *
  *  This needs to match the indent in the help message in show_usage() below.
@@ -147,7 +155,7 @@ static const tab_entry wt_tab[] = {
 #define INDENT \
 "                                    "
 
-/** Print string from a string to integer mapping table.
+/** Print strings from a string to integer mapping table.
  *
  *  @param table  Array of tab_entry in ascending string order.
  */
@@ -221,6 +229,9 @@ static void show_usage() {
 "                                    'english' (pass 'none' to disable stemming).\n"
 "                                    Valid stemmers:"
 << print_stemmers() <<
+"  -S, --stem-strategy=STRATEGY      set the stemming strategy (default: some).\n"
+"                                    Valid strategies:"
+<< print_table(stem_strategy_tab) <<
 "  -p, --prefix=PFX:TERMPFX          add a prefix\n"
 "  -b, --boolean-prefix=PFX:TERMPFX  add a boolean prefix\n"
 "  -f, --flags=FLAG1[,FLAG2]...      specify QueryParser flags (default:\n"
@@ -240,12 +251,13 @@ static void show_usage() {
 int
 main(int argc, char **argv)
 try {
-    const char * opts = "d:m:c:s:p:b:f:o:w:Fhv";
+    const char * opts = "d:m:c:s:S:p:b:f:o:w:Fhv";
     static const struct option long_opts[] = {
 	{ "db",		required_argument, 0, 'd' },
 	{ "msize",	required_argument, 0, 'm' },
 	{ "check-at-least",	required_argument, 0, 'c' },
 	{ "stemmer",	required_argument, 0, 's' },
+	{ "stem-strategy",	required_argument, 0, 'S' },
 	{ "prefix",	required_argument, 0, 'p' },
 	{ "boolean-prefix",	required_argument, 0, 'b' },
 	{ "flags",	required_argument, 0, 'f' },
@@ -353,6 +365,19 @@ try {
 		parser.set_default_op(static_cast<Xapian::Query::op>(op));
 		break;
 	    }
+	    case 'S': {
+		int s = decode(stem_strategy_tab, optarg);
+		if (s < 0) {
+		    cerr << "Unknown stem strategy '" << optarg << "'\n"
+			    "Available stem strategies are:\n";
+		    list_table(stem_strategy_tab);
+		    exit(1);
+		}
+		auto strategy =
+		    static_cast<Xapian::QueryParser::stem_strategy>(s);
+		parser.set_stemming_strategy(strategy);
+		break;
+	    }
 	    case 'w': {
 		weight = decode(wt_tab, optarg);
 		if (weight < 0) {
@@ -385,7 +410,6 @@ try {
 
     parser.set_database(db);
     parser.set_stemmer(stemmer);
-    parser.set_stemming_strategy(Xapian::QueryParser::STEM_SOME);
     parser.set_stopper(&mystopper);
 
     if (!flags_set) {
