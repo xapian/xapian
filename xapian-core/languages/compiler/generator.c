@@ -2483,8 +2483,53 @@ static void generate_header_file(struct generator * g) {
         w(g, "stem(z);~N"
              "~Mreturn std::string(reinterpret_cast<const char*>(z->p), SIZE(z->p));~N"
              "~-~M}~N"
-             "~N"
-             "~Mstd::string get_description() const override {~N~+"
+             "~N");
+
+        // FIXME: Hard-coding this information here isn't great.
+        int use_proper_noun_heuristic = false;
+        switch (SIZE(o->output_leaf)) {
+          case 5:
+            if (memcmp(o->output_leaf, "dutch", 5) == 0)
+                use_proper_noun_heuristic = true;
+            break;
+          case 6:
+            if (memcmp(o->output_leaf, "danish", 6) == 0 ||
+                memcmp(o->output_leaf, "french", 6) == 0 ||
+                memcmp(o->output_leaf, "lovins", 6) == 0 ||
+                memcmp(o->output_leaf, "porter", 6) == 0)
+                use_proper_noun_heuristic = true;
+            break;
+          case 7:
+            if (memcmp(o->output_leaf, "catalan", 7) == 0 ||
+                memcmp(o->output_leaf, "english", 7) == 0 ||
+                memcmp(o->output_leaf, "italian", 7) == 0 ||
+                memcmp(o->output_leaf, "spanish", 7) == 0 ||
+                memcmp(o->output_leaf, "swedish", 7) == 0)
+                use_proper_noun_heuristic = true;
+            break;
+          case 9:
+            if (memcmp(o->output_leaf, "norwegian", 9) == 0)
+                use_proper_noun_heuristic = true;
+            break;
+          case 10:
+            if (memcmp(o->output_leaf, "indonesian", 10) == 0 ||
+                memcmp(o->output_leaf, "portuguese", 10) == 0)
+                use_proper_noun_heuristic = true;
+            break;
+          case 12:
+            if (memcmp(o->output_leaf, "dutch_porter", 12) == 0 ||
+                memcmp(o->output_leaf, "earlyenglish", 12) == 0)
+                use_proper_noun_heuristic = true;
+            break;
+        }
+        if (use_proper_noun_heuristic) {
+            w(g, "~Mbool use_proper_noun_heuristic() const override {~N~+"
+                 "~Mreturn true;~N"
+                 "~-~M}~N"
+                 "~N");
+        }
+
+        w(g, "~Mstd::string get_description() const override {~N~+"
              "~Mreturn \"");
         for (int i = 0; i < SIZE(o->output_leaf); i++) {
             byte ch = o->output_leaf[i];

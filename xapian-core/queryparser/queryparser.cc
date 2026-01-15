@@ -1,7 +1,7 @@
 /** @file
  * @brief The non-lemon-generated parts of the QueryParser class.
  */
-/* Copyright (C) 2005-2024 Olly Betts
+/* Copyright (C) 2005-2026 Olly Betts
  * Copyright (C) 2010 Adam Sjøgren
  *
  * This program is free software; you can redistribute it and/or
@@ -179,7 +179,11 @@ QueryParser::parse_query(string_view query_string, unsigned flags,
 
     Query result = internal->parse_query(query_string, flags, default_prefix);
     if (internal->errmsg && strcmp(internal->errmsg, "parse error") == 0) {
-	flags &= FLAG_NGRAMS | FLAG_WORD_BREAKS | FLAG_NO_POSITIONS;
+	flags &=
+	    FLAG_NGRAMS |
+	    FLAG_WORD_BREAKS |
+	    FLAG_NO_POSITIONS |
+	    FLAG_NO_PROPER_NOUN_HEURISTIC;
 	result = internal->parse_query(query_string, flags, default_prefix);
     }
 

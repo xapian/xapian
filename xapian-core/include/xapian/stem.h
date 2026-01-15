@@ -1,7 +1,7 @@
 /** @file
  * @brief stemming algorithms
  */
-/* Copyright (C) 2005-2025 Olly Betts
+/* Copyright (C) 2005-2026 Olly Betts
  * Copyright (C) 2010 Evgeny Sizikov
  *
  * This program is free software; you can redistribute it and/or
@@ -54,6 +54,17 @@ class XAPIAN_VISIBILITY_DEFAULT StemImplementation
 
     /// Stem the specified word.
     virtual std::string operator()(const std::string & word) = 0;
+
+    /** Should QueryParser suppress stemming for capitalised words?
+     *
+     *  See QueryParser::feature_flag value FLAG_NO_PROPER_NOUN_HEURISTIC
+     *  for details.
+     *
+     *  The default implementation of this method returns false.
+     *
+     *  @since Xapian 2.0.0.
+     */
+    virtual bool use_proper_noun_heuristic() const;
 
     /// Return a string describing this object.
     virtual std::string get_description() const = 0;

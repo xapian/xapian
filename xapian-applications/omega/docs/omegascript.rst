@@ -630,10 +630,9 @@ $set{OPT,VALUE}
             been stored for stemmed terms too.
 
           Unknown values are ignored.  Added in Omega 1.4.8.
-	* stem_all - if "true", then tell the query parser to stem all words,
-          even capitalised ones.  Now deprecated in favour of setting
-          ``stem_strategy`` to ``all``, and ignored if ``stem_strategy`` is
-          also set.
+	* stem_all - if "true", then tell the query parser to stem all words.
+          Now deprecated in favour of setting ``stem_strategy`` to ``all``, and
+          ignored if ``stem_strategy`` is also set.
 	* fieldnames - if set to a non-empty value then the document data is
 	  parsed with each line being the value of a field, and the names
 	  are taken from entries in the list in fieldnames.  So
@@ -704,6 +703,7 @@ $set{OPT,VALUE}
 	* flag_fuzzy (new in 1.5.0)
 	* flag_lovehate
 	* flag_no_positions (new in 1.4.19)
+	* flag_no_proper_noun_heuristic (new in 2.0.0)
 	* flag_partial
 	* flag_phrase
 	* flag_pure_not

@@ -1,7 +1,7 @@
 /** @file
  *  @brief Implementation of Xapian::Stem API class.
  */
-/* Copyright (C) 2007,2008,2010,2011,2012,2015,2018,2019,2024,2025 Olly Betts
+/* Copyright (C) 2007-2026 Olly Betts
  * Copyright (C) 2010 Evgeny Sizikov
  *
  * This program is free software; you can redistribute it and/or
@@ -64,6 +64,12 @@ Stem::get_description() const
 	desc += "none)";
     }
     return desc;
+}
+
+bool
+StemImplementation::use_proper_noun_heuristic() const
+{
+    return false;
 }
 
 StemImplementation::~StemImplementation() { }

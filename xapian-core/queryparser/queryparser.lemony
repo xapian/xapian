@@ -2,7 +2,7 @@
 /** @file
  * @brief build a Xapian::Query object from a user query string
  */
-/* Copyright (C) 2004-2024 Olly Betts
+/* Copyright (C) 2004-2026 Olly Betts
  * Copyright (C) 2007,2008,2009 Lemur Consulting Ltd
  * Copyright (C) 2010 Adam Sjøgren
  *
@@ -217,11 +217,21 @@ class State {
     Query query;
     const char* error = NULL;
     unsigned flags;
+    unsigned int should_stem_mask =
+	(1 << Unicode::LOWERCASE_LETTER) |
+	(1 << Unicode::TITLECASE_LETTER) |
+	(1 << Unicode::MODIFIER_LETTER) |
+	(1 << Unicode::OTHER_LETTER);
     Query::op effective_default_op;
 
     State(QueryParser::Internal * qpi_, unsigned flags_)
 	: qpi(qpi_), flags(flags_), effective_default_op(qpi_->default_op)
     {
+	if ((flags & QueryParser::FLAG_NO_PROPER_NOUN_HEURISTIC) ||
+	    qpi->stemmer.is_none() ||
+	    !qpi->stemmer.internal->use_proper_noun_heuristic()) {
+	    should_stem_mask |= (1 << Unicode::UPPERCASE_LETTER);
+	}
 	if ((flags & QueryParser::FLAG_NO_POSITIONS)) {
 	    if (is_positional(effective_default_op)) {
 		effective_default_op = Query::OP_AND;
@@ -627,15 +637,10 @@ is_stem_preventer(unsigned ch)
 }
 
 inline bool
-should_stem(const string & term)
+should_stem(const string& term, const State& state)
 {
-    const unsigned int SHOULD_STEM_MASK =
-	(1 << Unicode::LOWERCASE_LETTER) |
-	(1 << Unicode::TITLECASE_LETTER) |
-	(1 << Unicode::MODIFIER_LETTER) |
-	(1 << Unicode::OTHER_LETTER);
     Utf8Iterator u(term);
-    return ((SHOULD_STEM_MASK >> Unicode::get_category(*u)) & 1);
+    return ((state.should_stem_mask >> Unicode::get_category(*u)) & 1);
 }
 
 /** Value representing "ignore this" when returned by check_infix() or
@@ -1570,9 +1575,11 @@ phrased_term:
 		    stem_term = STEM_NONE;
 		} else if (stem_term == STEM_SOME ||
 			   stem_term == STEM_SOME_FULL_POS) {
-		    if (!should_stem(unstemmed_term) ||
-			(it != end && is_stem_preventer(*it))) {
-			// Don't stem this particular term.
+		    if (!should_stem(unstemmed_term, state)) {
+			// E.g. don't stem `Tony` or `Keating`.
+			stem_term = STEM_NONE;
+		    } else if (it != end && is_stem_preventer(*it)) {
+			// E.g. don't stem `tony` in `tony@example.org`.
 			stem_term = STEM_NONE;
 		    }
 		}

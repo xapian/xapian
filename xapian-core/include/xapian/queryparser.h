@@ -1,7 +1,7 @@
 /** @file
  * @brief parsing a user query string to build a Xapian::Query object
  */
-/* Copyright (C) 2005-2024 Olly Betts
+/* Copyright (C) 2005-2026 Olly Betts
  * Copyright (C) 2010 Adam Sjøgren
  *
  * This program is free software; you can redistribute it and/or
@@ -715,6 +715,44 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
 	 *  @since Added in Xapian 1.4.19.
 	 */
 	FLAG_NO_POSITIONS = 0x20000,
+
+	/** Turn off special handling of capitalised words.
+	 *
+	 *  By default capitalising a word prevents it from being considered
+	 *  for stemming.  This only has any effect when both stemmed and
+	 *  non-stemmed terms are available (i.e. when stem_strategy is the
+	 *  default STEM_SOME or STEM_SOME_FULL_POS), and since Xapian 2.0.0 it
+	 *  is only done for languages where it is helpful.
+	 *
+	 *  This attempts to limit problems which stemming can cause with
+	 *  proper names.  For example, the English stemmer conflates `Tony`
+	 *  with `Toni` and `Keats` with `Keating`, which can lead to unwanted
+	 *  matches with irrelevant documents.
+	 *
+	 *  One downside is it prevents stemming of words that aren't proper
+	 *  nouns but are capitalised for other reasons (e.g. in a title or
+	 *  at the start of a sentence).
+	 *
+	 *  Another is that proper nouns can be inflected in some languages.
+	 *  In English some can be pluralised ("How many Tonys do you know?"),
+	 *  and in some languages proper nouns can take an -s suffix to
+	 *  indicate the genitive case (e.g. "Köpenhamns" in Swedish is
+	 *  like "Copenhagen's" in English).
+	 *
+	 *  If inflection is limited to plurals and genitive-s, the benefits
+	 *  of this special handling still seem to outweigh the downsides.
+	 *  However for languages with more extensive inflection of proper
+	 *  nouns it seems too problematic so (since Xapian 2.0.0) we don't
+	 *  enable it for such languages.  It's also off for German where all
+	 *  nouns are capitalised (not just proper nouns).
+	 *
+	 *  This special handling is also only useful in languages where proper
+	 *  nouns are capitalised (so for example, it's not useful for
+	 *  languages written in alphabets without upper case).
+	 *
+	 *  @since FLAG_NO_PROPER_NOUN_HEURISTIC was added in Xapian 2.0.0.
+	 */
+	FLAG_NO_PROPER_NOUN_HEURISTIC = 0x40000,
 
 	/** The default flags.
 	 *

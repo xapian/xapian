@@ -1,7 +1,7 @@
 /** @file
  * @brief Tests of Xapian::QueryParser
  */
-/* Copyright (C) 2002-2024 Olly Betts
+/* Copyright (C) 2002-2026 Olly Betts
  * Copyright (C) 2006,2007,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -3235,6 +3235,76 @@ DEFINE_TESTCASE(qp_nopos, !backend) {
     Xapian::QueryParser qp;
     const auto flags = qp.FLAG_DEFAULT | qp.FLAG_NO_POSITIONS;
     for (const test& p : tests) {
+	string expect, parsed;
+	if (p.expect)
+	    expect = p.expect;
+	else
+	    expect = "parse error";
+	try {
+	    Xapian::Query q = qp.parse_query(p.query, flags);
+	    parsed = q.get_description();
+	    expect = string("Query(") + expect + ')';
+	} catch (const Xapian::QueryParserError& e) {
+	    parsed = e.get_msg();
+	} catch (const Xapian::Error& e) {
+	    parsed = e.get_description();
+	} catch (...) {
+	    parsed = "Unknown exception!";
+	}
+	tout << "Query: " << p.query << '\n';
+	TEST_STRINGS_EQUAL(parsed, expect);
+    }
+}
+
+DEFINE_TESTCASE(qp_nopropernounheuristic, !backend) {
+    static const test tests[] = {
+	// Capitalisation has no effect without a stemmer.
+	{ "Tony tony", "(tony@1 OR tony@2)" },
+	{ nullptr, "FLAG_NO_PROPER_NOUN_HEURISTIC" },
+	{ "Tony tony", "(tony@1 OR tony@2)" },
+
+	// Capitalisation prevents stemming for English.
+	{ nullptr, "FLAG_DEFAULT" },
+	{ nullptr, "stem=english" },
+	{ "Tony Keating", "(tony@1 OR keating@2)" },
+	// But not if FLAG_NO_PROPER_NOUN_HEURISTIC is set.
+	{ nullptr, "FLAG_NO_PROPER_NOUN_HEURISTIC" },
+	{ "Tony Keating", "(Ztoni@1 OR Zkeat@2)" },
+
+	// Check FLAG_NO_PROPER_NOUN_HEURISTIC stays on if we reparse with
+	// fewer flags.
+	{ "a-b NEAR Tony", "((a@1 PHRASE 2 b@2) OR (Znear@3 OR Ztoni@4))" },
+
+	// Capitalisation does not prevent stemming for German.
+	{ nullptr, "FLAG_DEFAULT" },
+	{ nullptr, "stem=german" },
+	{ "die Berge", "(Zdie@1 OR Zberg@2)" },
+	{ nullptr, "FLAG_NO_PROPER_NOUN_HEURISTIC" },
+	{ "die Berge", "(Zdie@1 OR Zberg@2)" },
+
+	// Capitalisation does not prevent stemming for Turkish.
+	{ nullptr, "FLAG_DEFAULT" },
+	{ nullptr, "stem=turkish" },
+	{ "Türkiye'dir", "Ztürki@1" },
+	{ nullptr, "FLAG_NO_PROPER_NOUN_HEURISTIC" },
+	{ "Türkiye'dir", "Ztürki@1" },
+
+    };
+    Xapian::QueryParser qp;
+    unsigned flags = qp.FLAG_DEFAULT;
+    for (const test& p : tests) {
+	if (!p.query) {
+	    if (strcmp(p.expect, "FLAG_NO_PROPER_NOUN_HEURISTIC") == 0) {
+		flags = qp.FLAG_DEFAULT | qp.FLAG_NO_PROPER_NOUN_HEURISTIC;
+	    } else if (strcmp(p.expect, "FLAG_DEFAULT") == 0) {
+		flags = qp.FLAG_DEFAULT;
+	    } else if (memcmp(p.expect, "stem=", 5) == 0) {
+		qp.set_stemmer(Xapian::Stem(p.expect + 5));
+	    } else {
+		FAIL_TEST("Unexpected test directive: " << p.expect);
+	    }
+	    continue;
+	}
 	string expect, parsed;
 	if (p.expect)
 	    expect = p.expect;

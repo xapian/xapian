@@ -5,7 +5,7 @@
  * Copyright 2001 James Aylett
  * Copyright 2001,2002 Ananova Ltd
  * Copyright 2002 Intercede 1749 Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2013,2014,2015,2016,2017,2018,2019,2020,2021 Olly Betts
+ * Copyright 2002-2026 Olly Betts
  * Copyright 2008 Thomas Viehmann
  *
  * This program is free software; you can redistribute it and/or
@@ -290,6 +290,10 @@ read_qp_flags(const string & opt_pfx, unsigned f)
 	    case 'n':
 		if (strcmp(s, "no_positions") == 0) {
 		    mask = Xapian::QueryParser::FLAG_NO_POSITIONS;
+		    break;
+		}
+		if (strcmp(s, "no_proper_noun_heuristic") == 0) {
+		    mask = Xapian::QueryParser::FLAG_NO_PROPER_NOUN_HEURISTIC;
 		    break;
 		}
 		if (strcmp(s, "ngrams") == 0) {

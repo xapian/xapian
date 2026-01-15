@@ -104,11 +104,20 @@ might find documents by dickens with shop in the title. You can also
 specify a prefix on a quoted phrase (e.g. ``author:"charles dickens"``)
 or on a bracketed subexpression (e.g. ``title:(mice men)``).
 
-Searching for proper names
+Searching for proper nouns
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-If a query term is entered with a capitalised first letter, then it will
-be searched for unstemmed.
+If stemming is enabled it can cause problems with some proper nouns in
+some languages.  For example, the English stemmer conflates ``Tony`` with
+``Toni`` and ``Keating`` with ``Keats``.  If you want a word to be
+searched for unstemmed, you can quote it (like a phrase, but with just
+one word).  This only works if unstemmed terms have been indexed (so
+only for stem strategies ``STEM_SOME`` and ``STEM_SOME_FULL_POS``).
+
+The QueryParser also uses a heuristic which prevents stemming of words which
+start with a capital letter.  Since Xapian 2.0.0, this heuristic is only
+enabled for some languages as it is unhelpful for languages where proper
+nouns are inflected, and also in German where all nouns are capitalised.
 
 Range searches
 ~~~~~~~~~~~~~~

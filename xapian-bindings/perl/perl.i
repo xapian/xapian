@@ -3,7 +3,7 @@
 /* perl.i: SWIG interface file for the Perl bindings
  *
  * Copyright (C) 2009 Kosei Moriyama
- * Copyright (C) 2011,2012,2013,2015,2016,2019,2020,2024 Olly Betts
+ * Copyright (C) 2011,2012,2013,2015,2016,2019,2020,2024,2026 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -94,6 +94,7 @@ extern "C" {
 %constant int FLAG_NGRAMS = Xapian::QueryParser::FLAG_NGRAMS;
 %constant int FLAG_CJK_NGRAM = Xapian::QueryParser::FLAG_CJK_NGRAM;
 %constant int FLAG_WORD_BREAKS = Xapian::QueryParser::FLAG_WORD_BREAKS;
+%constant int FLAG_NO_PROPER_NOUN_HEURISTIC = Xapian::QueryParser::FLAG_NO_PROPER_NOUN_HEURISTIC;
 %constant int FLAG_DEFAULT = Xapian::QueryParser::FLAG_DEFAULT;
 %constant int STEM_NONE = Xapian::QueryParser::STEM_NONE;
 %constant int STEM_SOME = Xapian::QueryParser::STEM_SOME;

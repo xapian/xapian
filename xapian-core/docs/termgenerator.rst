@@ -1,4 +1,4 @@
-.. Copyright (C) 2007 Olly Betts
+.. Copyright (C) 2007,2026 Olly Betts
 
 ========================================
 Xapian 1.0 Term Indexing/Querying Scheme
@@ -9,7 +9,7 @@ Xapian 1.0 Term Indexing/Querying Scheme
 Introduction
 ============
 
-In Xapian 1.0, the default indexing scheme has been changed significantly, to address
+In Xapian 1.0 the default indexing scheme was changed significantly to address
 lessons learned from observing the old scheme in real world use.  This document
 describes the new scheme, with references to differences from the old.
 
@@ -18,22 +18,28 @@ Stemming
 
 The most obvious difference is the handling of stemmed forms.
 
-Previously all words were indexed stemmed without a prefix, and capitalised words were
+Before 1.0, all words were indexed stemmed without a prefix, and capitalised words were
 indexed unstemmed (but lower cased) with an 'R' prefix.  The rationale for doing this was
 that people want to be able to search for exact proper nouns (e.g. the English stemmer
-conflates ``Tony`` and ``Toni``).  But of course this also indexes words at the start
-of sentences, words in titles, and in German all nouns are capitalised so will be indexed.
-Both the normal and R-prefixed terms were indexed with positional information.
+conflates ``Tony`` with ``Toni`` and ``Keats`` with ``Keating``).  But of
+course this also indexed words at the start of sentences, words in titles, and
+in German all nouns are capitalised so were indexed as R-prefixed terms.  Both
+the normal and R-prefixed terms were indexed with positional information.
 
 Now we index all words lowercased with positional information, and also stemmed with a
 'Z' prefix (unless they start with a digit), but without positional information.  By default
-a Xapian::Stopper is used to avoid indexed stemmed forms of stopwords (tests show this shaves
+a Xapian::Stopper is used to avoid indexing stemmed forms of stopwords (tests show this shaves
 around 1% off the database size).
 
-The new scheme allows exact phrase searching (which the old scheme didn't).  ``NEAR``
-now has to operate on unstemmed forms, but that's reasonable enough.  We can also disable
-stemming of words which are capitalised in the query, to achieve good results for
-proper nouns.  And Omega's $topterms will now always suggest unstemmed forms!
+The new scheme allows exact phrase searching (which the old scheme didn't).
+``NEAR`` now has to operate on unstemmed forms, but that's reasonable enough.
+
+Special handling for capitalised words to improve results for proper nouns now
+happens in the QueryParser where they result in the unstemmed term being
+searched for instead of the stemmed one (since Xapian 2.0.0 this is only done
+for some languages).
+
+Also Omega's $topterms now always suggest unstemmed forms!
 
 The main rationale for prefixing the stemmed forms is that there are simply fewer of
 them!  As a side benefit, it opens the way for storing stemmed forms for multiple
