@@ -27,7 +27,6 @@ NOT
 *expression* NOT *expression* matches documents which are matched by
 only the first subexpression. This can also be written as *expression*
 AND NOT *expression*. If ``FLAG_PURE_NOT`` is enabled, then
-
 NOT *expression* will match documents which don't match the
 subexpression.
 
