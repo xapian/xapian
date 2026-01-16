@@ -134,13 +134,35 @@ which they have been specified).
 Wildcards
 ~~~~~~~~~
 
-The QueryParser supports using a trailing '\*' wildcard, which matches
-any number of trailing characters, so ``wildc*`` would match wildcard,
-wildcarded, wildcards, wildcat, wildcats, etc. This feature is disabled
-by default - pass ``Xapian::QueryParser::FLAG_WILDCARD`` in the flags
-argument of ``Xapian::QueryParser::parse_query(query_string, flags)`` to
-enable it, and tell the QueryParser which database to expand wildcards
-from using the ``QueryParser::set_database(database)`` method.
+The QueryParser supports using wildcards, but this support is not
+enabled by default.  Matching wildcard queries is inherently more
+work which may be problematic for heavily used search systems.
+
+Prior to Xapian 2.0.0, only a trailing ``*`` wildcard was supported.
+This matches any number of trailing characters, so ``wildc*`` would match
+wildcard, wildcarded, wildcards, wildcat, wildcats, etc.  This wildcard
+mode is enabled by passing ``Xapian::QueryParser::FLAG_WILDCARD`` in the flags
+argument of ``Xapian::QueryParser::parse_query(query_string, flags)``.
+
+(In Xapian 1.2.x you also needed to tell the QueryParser which database to
+expand wildcards from using the ``QueryParser::set_database(database)`` method.
+Since Xapian 1.3.3 wildcards are only expanded when ``Enquire::get_mset()``
+is called, and expansion now uses the database being searched.)
+
+Xapian 2.0.0 added an "extended wildcard" feature, which supports
+both ``*`` (matching zero or more characters) and ``?`` (matching
+exactly one character).  These can be used anywhere in the term,
+and can appear multiple times in a term.  Extended wildcards are
+enabled using flag ``Xapian::QueryParser::FLAG_WILDCARD_GLOB``
+(or ``Xapian::QueryParser::FLAG_WILDCARD_MULTI`` if you only
+want to support ``*``, or ``Xapian::QueryParser::FLAG_WILDCARD_SINGLE`` if you
+only want to support ``?``).  A term cannot consist entirely of wildcards.
+
+You can specify a minimum length for the fixed initial portion in
+wildcard pattern with ``QueryParser::set_min_wildcard_prefix()``, for example
+to prevent users searching for ``e*`` which would expand to thousands of term
+and be a fairly slow query.  By default there is no minimum length, so with
+extended wildcards users can use wildcards at the start of a term.
 
 You can limit the number of terms a wildcard will expand to by
 calling ``Xapian::QueryParser::set_max_expansion()``.  This supports
