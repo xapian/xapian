@@ -1810,10 +1810,14 @@ jobs:
       run: |
         PATH=$PATH:$ANDROID_NDK/toolchains/llvm/prebuilt/linux-x86_64/bin
         cd xapian-core
+        # Since NDK r27 apparently -static-libstdc++ is required, which in turn
+        # seems to require --disable-shared.
         ./configure --enable-werror \
             --host=$host_triplet \
+            --disable-shared \
             CC="ccache ${host_triplet}-clang" \
             CXX="ccache ${host_triplet}-clang++" \
+            LDFLAGS="-static-libstdc++" \
             PKG_CONFIG=/bin/false
     - name: make
       run: |
