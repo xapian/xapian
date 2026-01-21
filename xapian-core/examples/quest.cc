@@ -196,7 +196,7 @@ print_stemmers()
 	} else {
 	    cout << ' ';
 	}
-	cout << string_view(langs.data() + p, len);
+	cout << string(langs.data() + p, len);
 	pos += len + 2;
 	p = space;
 	if (p != string::npos) ++p;
