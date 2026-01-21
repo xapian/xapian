@@ -995,7 +995,6 @@ GlassDatabase::compact(Xapian::Compactor * compactor,
 	}
 
 	out->set_full_compaction(compaction != compactor->STANDARD);
-	if (compaction == compactor->FULLER) out->set_max_item_size(1);
 
 	switch (t->type) {
 	    case Glass::POSTLIST: {

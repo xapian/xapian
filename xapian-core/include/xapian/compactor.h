@@ -1,7 +1,7 @@
 /** @file
  * @brief Compact a database, or merge and compact several.
  */
-/* Copyright (C) 2003,2004,2005,2006,2007,2008,2009,2010,2011,2013,2014,2015,2018 Olly Betts
+/* Copyright (C) 2003-2026 Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -46,7 +46,10 @@ class XAPIAN_VISIBILITY_DEFAULT Compactor {
 	/** Split items whenever it saves space (the default). */
 	FULL = 1,
 	/** Allow oversize items to save more space (not recommended if you
-	 *  ever plan to update the compacted database). */
+	 *  ever plan to update the compacted database).
+	 *
+	 *  @since 1.4.31 Has the same effect as FULL.
+	 */
 	FULLER = 2
     } compaction_level;
 

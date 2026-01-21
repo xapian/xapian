@@ -1,7 +1,7 @@
 /** @file
  * @brief An indexed database of documents
  */
-/* Copyright 2003-2024 Olly Betts
+/* Copyright 2003-2026 Olly Betts
  * Copyright 2007,2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -696,7 +696,9 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
      *     - Xapian::Compactor::FULLER   - Allow oversize items to save more
      *					   space (not recommended if you ever
      *					   plan to update the compacted
-     *					   database).
+     *					   database).  @since 1.4.31 Has the
+     *					   same effect as FULL.
+     *
      *   - At most one of the following to specify the output format (currently
      *     only glass to honey conversion is supported, and all shards of the
      *     input must have the same format):
@@ -754,7 +756,8 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
      *     - Xapian::Compactor::FULLER   - Allow oversize items to save more
      *					   space (not recommended if you ever
      *					   plan to update the compacted
-     *					   database).
+     *					   database).  @since 1.4.31 Has the
+     *					   same effect as FULL.
      *
      *  @param block_size	This specifies the block size (in bytes) for to
      *				use for the output.  For glass, the block size
@@ -807,7 +810,8 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
      *     - Xapian::Compactor::FULLER   - Allow oversize items to save more
      *					   space (not recommended if you ever
      *					   plan to update the compacted
-     *					   database).
+     *					   database).  @since 1.4.31 Has the
+     *					   same effect as FULL.
      *
      *  @param block_size	This specifies the block size (in bytes) for to
      *				use for the output.  For glass, the block size
@@ -868,7 +872,8 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
      *     - Xapian::Compactor::FULLER   - Allow oversize items to save more
      *					   space (not recommended if you ever
      *					   plan to update the compacted
-     *					   database).
+     *					   database).  @since 1.4.31 Has the
+     *					   same effect as FULL.
      *
      *  @param block_size	This specifies the block size (in bytes) for to
      *				use for the output.  For glass, the block size

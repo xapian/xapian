@@ -1,7 +1,7 @@
 /** @file
  * @brief Compact a database, or merge and compact several.
  */
-/* Copyright (C) 2003,2004,2005,2006,2007,2008,2009,2010,2015,2018 Olly Betts
+/* Copyright (C) 2003-2026 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -51,8 +51,7 @@ static void show_usage() {
 "                     present only glass to honey conversion is implemented -\n"
 "                     otherwise the backend must be the same.\n"
 "  -n, --no-full      Disable full compaction\n"
-"  -F, --fuller       Enable fuller compaction (not recommended if you plan to\n"
-"                     update the compacted database)\n"
+"  -F, --fuller       No effect for glass since Xapian 1.4.31\n"
 "  -m, --multipass    If merging more than 3 databases, merge the postlists in\n"
 "                     multiple passes (which is generally faster but requires\n"
 "                     more disk space for temporary files)\n"
