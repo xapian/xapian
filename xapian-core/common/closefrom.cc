@@ -1,7 +1,7 @@
 /** @file
  * @brief Implementation of closefrom() function.
  */
-/* Copyright (C) 2010,2011,2012,2016,2018,2019 Olly Betts
+/* Copyright (C) 2010,2011,2012,2016,2018,2019,2026 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -70,6 +70,9 @@ get_maxfd() {
 // These platforms are known to support fcntl() with F_CLOSEM:
 // AIX, NetBSD >= 2.0
 //
+// These platforms are known to provide close_range() but not closefrom():
+// Android NDK >= r34
+//
 // These platforms have getdirentries() and a "magic" directory with an entry
 // for each FD open in the current process:
 // Linux (at least with glibc)
@@ -81,7 +84,7 @@ get_maxfd() {
 // Other platforms just use a loop up to a limit obtained from
 // fcntl(0, F_MAXFD), getrlimit(RLIMIT_NOFILE, ...), or sysconf(_SC_OPEN_MAX)
 // - known examples:
-// Android (bionic libc doesn't provide getdirentries())
+// Android < NDK r34 (bionic libc doesn't provide getdirentries())
 
 void
 Xapian::Internal::closefrom(int fd)
@@ -89,6 +92,9 @@ Xapian::Internal::closefrom(int fd)
     int maxfd = -1;
 #ifdef F_CLOSEM
     if (fcntl(fd, F_CLOSEM, 0) >= 0)
+	return;
+#elif defined HAVE_CLOSE_RANGE
+    if (close_range(fd, ~0U, 0) >= 0)
 	return;
 #elif defined HAVE_GETDIRENTRIES && defined __linux__
     const char* path = "/proc/self/fd";
