@@ -190,7 +190,7 @@ AC_CHECK_DECLS([_putenv_s(const char*, const char*)], [], [],
 
 dnl See if we have closefrom(), or some functions that are useful to implement
 dnl closefrom() on platforms which don't provide it.
-AC_CHECK_FUNCS([closefrom getdirentries getrlimit])
+AC_CHECK_FUNCS([closefrom close_range getdirentries getrlimit])
 
 if test $ac_cv_func_ftime = yes ; then
   dnl See if ftime returns void (as it does on mingw)
