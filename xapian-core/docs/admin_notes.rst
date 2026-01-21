@@ -373,28 +373,42 @@ Compacting a database
 ---------------------
 
 Xapian databases normally have some spare space in each block to allow
-new information to be efficiently slotted into the database.  However, the
+new information to be efficiently inserted into the database.  However, the
 smaller a database is, the faster it can be searched, so if there aren't
-expected to be many further modifications, it can be desirable to compact the
-database.
+expected to be many further modifications then it can be desirable to
+eliminate this spare space, which can be done by compacting the database.
 
-Xapian includes a tool called ``xapian-compact`` for compacting databases.
-This tool makes a copy of a database, and takes advantage of
-the sorted nature of the source Xapian database to write the database out
-without leaving spare space for future modifications.  This can result in a
-large space saving.
+Xapian includes an API to allow compacting database, and a command-line tool
+called ``xapian-compact`` which is a thin wrapper around this API.  This
+feature makes a copy of a database, and takes advantage of the sorted nature of
+the source Xapian database to write the database out without leaving spare
+space for future modifications.  This can result in a large space saving.
 
 The downside of compaction is that future modifications may take a little
 longer, due to needing to reorganise the database to make space for them.
 However, modifications are still possible, and if many modifications are made,
 the database will gradually develop spare space.
 
-There's an option (``-F``) to perform a "fuller" compaction.  This option
-compacts the database as much as possible, but it violates the design of the
-Btree format slightly to achieve this, so it is not recommended if further
-modifications are at all likely in future.  If you do need to modify a "fuller"
-compacted database, we recommend you run ``xapian-compact`` on it without ``-F``
-first.
+There's an option (``xapian-compact -F``, or ``FULLER`` in the compaction API)
+to perform a "fuller" compaction.  Since Xapian 1.4.31, this option is the same
+as ``xapian-compact`` without ``-F``, or ``FULL`` in the compaction API.
+In older versions, it did the same as ``FULL`` but in addition it increased
+the maximum size of the low-level items in the database tables.  The idea was
+that this would reduce the overhead required because larger items would not
+need to be split into as many pieces (or even split at all in some cases).
+
+A downside of ``FULLER`` was it violated the design of the Btree format
+slightly and this resulted in corner-case bugs which are tricky to fix.  Also
+while ``FULLER`` did result in smaller compacted databases when it was added
+for the quartz backend in 2005, testing with the glass backend in 2026 showed
+it actually gave **larger** output than ``FULL`` for typical databases.  For
+these reasons, since Xapian 1.4.31 ``FULLER`` has exactly the same effect as
+``FULL``.
+
+If you have a ``FULLER`` compacted database from Xapian 1.4.30 or earlier, we do
+not recommended applying updates to it.  If you find you need to update such a
+database, we recommend you run ``xapian-compact`` (without ``-F``) to create a
+database that's safer to update.
 
 You can specify the blocksize to use for the compacted database (which should
 be a power of 2 between 2KB and 64KB, with the default being 8KB).

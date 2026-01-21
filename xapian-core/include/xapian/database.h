@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002-2025 Olly Betts
+ * Copyright 2003-2026 Olly Betts
  * Copyright 2006,2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -621,7 +621,8 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	 *       space (the default).
 	 *     - Xapian::Compactor::FULLER   - Allow oversize items to save
 	 *       more space (not recommended if you ever plan to update the
-	 *       compacted database).
+	 *       compacted database).  @since 1.4.31 Has the same effect as
+	 *       FULL.
 	 *
 	 *  @param block_size This specifies the block size (in bytes) for
 	 *		to use for the output.  For glass, the block size must

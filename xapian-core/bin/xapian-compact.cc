@@ -1,7 +1,7 @@
 /** @file
  * @brief Compact a database, or merge and compact several.
  */
-/* Copyright (C) 2003,2004,2005,2006,2007,2008,2009,2010,2015 Olly Betts
+/* Copyright (C) 2003-2026 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -44,8 +44,7 @@ static void show_usage() {
 "  -b, --blocksize=B  Set the blocksize in bytes (e.g. 4096) or K (e.g. 4K)\n"
 "                     (must be between 2K and 64K and a power of 2, default 8K)\n"
 "  -n, --no-full      Disable full compaction\n"
-"  -F, --fuller       Enable fuller compaction (not recommended if you plan to\n"
-"                     update the compacted database)\n"
+"  -F, --fuller       No effect for glass since Xapian 1.4.31\n"
 "  -m, --multipass    If merging more than 3 databases, merge the postlists in\n"
 "                     multiple passes (which is generally faster but requires\n"
 "                     more disk space for temporary files)\n"
