@@ -1,4 +1,4 @@
-up to: 1a1ad16ae0656331918f8281a2c25ada3b086e9c
+up to: 8db14964ec6e41c46af15eb7b9f86c27f15b62ff
 
 Xapian-core 1.4.31 (2026-0?-??):
 
@@ -18,6 +18,22 @@ API:
 
   Reported by Veloman Yunkan.
 
+* Database::compact(): FULLER compaction now does exactly the same as FULL.
+  Previously FULLER did the same as FULL but in addition it increased the
+  maximum size of the low-level items in the database tables.  The idea
+  was that this would reduce the overhead required because larger items
+  would not need to be split into as many pieces (or even split at all in
+  some cases).
+
+  A downside of this was that it violated the design of the Btree format
+  slightly and this resulted in corner-case bugs which are tricky to fix.
+  Also while FULLER did result in smaller compacted databases when it was
+  added for the quartz backend in 2005, testing with the glass backend in
+  2026 showed it actually gave **larger** output than FULL for typical
+  databases.
+
+  Fixes #842, reported by Veloman Yunkan.
+
 * Query: Attempting to construct a pairwise Query from an operator and two
   `char*` or `const char*` term names failed to compile because these types are
   iterator types and matched the template which allows construction from a pair
@@ -25,6 +41,12 @@ API:
   std::string or Xapian::Query or Xapian::Query*.  We solve this by using
   SFINAE tricks to not enable this template for iterators where
   sizeof(value_type) is 1.
+
+* QueryParser: Improve FLAG_PARTIAL handling for stopwords.  With FLAG_PARTIAL,
+  we expand a partial word at the end of the query as a wildcard, but also
+  include the term that the word would normally generate as an alternative.
+  This is now extended to considering if the term would normally be omitted as
+  a stopword - if so FLAG_PARTIAL now just expands it to be a wildcard.
 
 testsuite:
 
@@ -75,16 +97,28 @@ documentation:
   and to point people who actually want the number of documents to
   get_doccount().
 
+* queryparser.rst: Remove unwanted paragraph break.
+
+* Update references to 1.5.0 - the upcoming new release series will be 2.0.x.
+
 * NEWS: Fix some typos in old entries
 
 tools:
 
+* quest: Add --stem-strategy option.
+
+* quest: List stemming languages in --help.
+
+* quest: List valid flags/query ops if an invalid one is specified.
 
 examples:
 
 
 portability:
 
+* Use close_range() to implement closefrom() on Android (available
+  since NDK r34; we fallback to looping over possible fds if not
+  available at runtime).
 
 packaging:
 

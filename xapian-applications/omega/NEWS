@@ -1,10 +1,12 @@
-up to: 5be9b519bc81e2d4cbdea077a2c1ff6b3eb2c5e6
+up to: 8db14964ec6e41c46af15eb7b9f86c27f15b62ff
 
 Omega 1.4.31 (2026-0?-??):
 
 general:
 
 documentation:
+
+* Update references to 1.5.0 - the upcoming new release series will be 2.0.x.
 
 indexers:
 
@@ -23,6 +25,10 @@ testsuite:
 build system:
 
 portability:
+
+* Use close_range() to implement closefrom() on Android (available
+  since NDK r34; we fallback to looping over possible fds if not
+  available at runtime).
 
 packaging:
 
