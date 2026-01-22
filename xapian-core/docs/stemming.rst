@@ -24,6 +24,7 @@ the variant forms of a word are reduced to a common form, for example,
         connective          --->   connect
         connected
         connecting
+        connects
 
 It is important to appreciate that we use stemming with the intention of
 improving the performance of IR systems. It is not an exercise in
@@ -42,6 +43,7 @@ be constant at the front, and to vary at the end::
                 connect-ive
                        -ed
                        -ing
+                       -s
 
 The variable part is the `ending`, or `suffix`. Taking these endings
 off is called `suffix stripping` or `stemming`, and the residual part
