@@ -1423,6 +1423,26 @@ DEFINE_TESTCASE(qp_flag_partial1, backend) {
     TEST_STRINGS_EQUAL(qobj.get_description(), "Query((WILDCARD SYNONYM a OR Za@1))");
     qobj = qp.parse_query("o", Xapian::QueryParser::FLAG_PARTIAL);
     TEST_STRINGS_EQUAL(qobj.get_description(), "Query((WILDCARD SYNONYM o OR Zo@1))");
+
+    // Check that the partial term isn't included if it's a stopword.  Feature
+    // test for behavioural change in 1.4.31.
+    static const char * const stopwords[] = { "a", "an", "the" };
+    Xapian::SimpleStopper stop(stopwords, stopwords + 3);
+    qp.set_stopper(&stop);
+    qp.set_stemming_strategy(Xapian::QueryParser::STEM_SOME);
+    qp.set_min_wildcard_prefix(0, Xapian::QueryParser::FLAG_PARTIAL);
+    qobj = qp.parse_query("a", Xapian::QueryParser::FLAG_PARTIAL);
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(WILDCARD SYNONYM a)");
+    qobj = qp.parse_query("an", Xapian::QueryParser::FLAG_PARTIAL);
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(WILDCARD SYNONYM an)");
+    qobj = qp.parse_query("ant", Xapian::QueryParser::FLAG_PARTIAL);
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query((WILDCARD SYNONYM ant OR Zant@1))");
+    qobj = qp.parse_query("th", Xapian::QueryParser::FLAG_PARTIAL);
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query((WILDCARD SYNONYM th OR Zth@1))");
+    qobj = qp.parse_query("the", Xapian::QueryParser::FLAG_PARTIAL);
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(WILDCARD SYNONYM the)");
+    qobj = qp.parse_query("theo", Xapian::QueryParser::FLAG_PARTIAL);
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query((WILDCARD SYNONYM theo OR Ztheo@1))");
 }
 
 /// Feature test for fuzzy matching.

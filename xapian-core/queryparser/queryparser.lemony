@@ -562,8 +562,11 @@ Term::as_partial_query(State * state_) const
 	// Combine with OP_OR, and apply OP_SYNONYM afterwards.
 	subqs_partial.push_back(Query(Query::OP_WILDCARD, root, max, max_type,
 				      Query::OP_OR));
-	// Add the term, as it would normally be handled, as an alternative.
-	subqs_full.push_back(Query(make_term(prefix), 1, pos));
+	if (!state->is_stopword(this)) {
+	    // Add the term, as it would normally be handled, as an alternative
+	    // (unless it is a stopword).
+	    subqs_full.push_back(Query(make_term(prefix), 1, pos));
+	}
     }
     Query * q = new Query(Query::OP_OR,
 			  Query(Query::OP_SYNONYM,
