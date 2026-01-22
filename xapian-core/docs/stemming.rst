@@ -3,15 +3,11 @@
 Stemming Algorithms
 ===================
 
-Xapian uses the `Snowball Stemming
-Algorithms <https://snowballstem.org/>`_. At present, these support
-Armenian, Basque, Catalan, Danish, Dutch, English, Finnish, French, German,
-Hungarian, Italian, Norwegian, Portuguese, Romanian, Russian, Spanish, Swedish,
-and Turkish.
-
-There are also implementations of Lovins' English stemmer, Porter's
-original English stemmer, the Kraaij-Pohlmann Dutch stemmer, and a
-variation of the German stemmer which normalises umlauts.
+Xapian uses the `Snowball Stemming Algorithms <https://snowballstem.org/>`_
+which provide stemmers for more than 30 languages.  See the `Xapian::Stem API
+documentation
+<apidoc/html/classXapian_1_1Stem.html#aa6c9376cf9bd70db28bc61850e334804>`_
+for a list.
 
 We'd like to add stemmers for more languages - see the Snowball site for
 information on how to contribute.
