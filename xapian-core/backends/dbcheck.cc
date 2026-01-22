@@ -237,8 +237,8 @@ check_db_dir(string_view path, int opts, std::ostream *out)
     filename.resize(path.size());
     filename += "/iamchert";
     if (stat(filename.c_str(), &sb) == 0) {
-	// Chert is no longer supported as of Xapian 1.5.0.
-	throw Xapian::FeatureUnavailableError("Chert database support was removed in Xapian 1.5.0");
+	// Chert is no longer supported as of Xapian 2.0.0.
+	throw Xapian::FeatureUnavailableError("Chert database support was removed in Xapian 2.0.0");
     }
 
     filename.resize(path.size());
@@ -335,8 +335,8 @@ check_db_table(string_view filename, int opts, std::ostream* out, int backend)
     // to give an appropriate error.
     struct stat sb;
     if (stat((dir + "/iamchert").c_str(), &sb) == 0) {
-	// Chert is no longer supported as of Xapian 1.5.0.
-	throw Xapian::FeatureUnavailableError("Chert database support was removed in Xapian 1.5.0");
+	// Chert is no longer supported as of Xapian 2.0.0.
+	throw Xapian::FeatureUnavailableError("Chert database support was removed in Xapian 2.0.0");
     }
     if (stat((dir + "/iamflint").c_str(), &sb) == 0) {
 	// Flint is no longer supported as of Xapian 1.3.0.

@@ -224,7 +224,7 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
      *		(but is more efficient for query terms as it returns a
      *		value cached during the search.)
      *
-     *  Since 1.5.0, this method returns 0 if called on an MSet which is
+     *  Since 2.0.0, this method returns 0 if called on an MSet which is
      *  not associated with a database (which is consistent with
      *  Database::get_termfreq() returning 0 when called on a Database
      *  with no sub-databases); in earlier versions,
@@ -237,7 +237,7 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
      *  @return	The maximum weight that @a term could have contributed to a
      *		document.
      *
-     *  Since 1.5.0, this method returns 0.0 if called on an MSet which is
+     *  Since 2.0.0, this method returns 0.0 if called on an MSet which is
      *  not associated with a database, or with a term which wasn't present
      *  in the query (since in both cases the term contributes no weight to any
      *  matching documents); in earlier versions, Xapian::InvalidOperationError
@@ -321,7 +321,7 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
 	 *  in 1.4.11).
 	 *
          *  In 1.4.x this feature was specific to CJK (Chinese, Japanese and
-         *  Korean), but in 1.5.0 it's been extended to other languages.  To
+         *  Korean), but in 2.0.0 it's been extended to other languages.  To
          *  reflect this change the new and preferred name is SNIPPET_NGRAMS,
          *  which was added as an alias for forward compatibility in Xapian
          *  1.4.23.  Use SNIPPET_CJK_NGRAM instead if you aim to support Xapian
@@ -351,7 +351,7 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
 	 *  The TermGenerator::FLAG_WORD_BREAKS flag needs to have been used at
 	 *  index time.
 	 *
-	 *  @since Added in Xapian 1.5.0.
+	 *  @since Added in Xapian 2.0.0.
 	 */
 	SNIPPET_WORD_BREAKS = 4096
     };

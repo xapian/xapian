@@ -126,7 +126,7 @@ DEFINE_TESTCASE(canceltransaction2, transactions) {
     TEST_EQUAL(doc_out.get_data(), "pending");
 }
 
-/// Regression test for glass bug fixed in 1.4.6 and 1.5.0.
+/// Regression test for glass bug fixed in 1.4.6.
 DEFINE_TESTCASE(canceltransaction3, transactions && path) {
     {
 	Xapian::WritableDatabase db = get_named_writable_database("canceltransaction3");

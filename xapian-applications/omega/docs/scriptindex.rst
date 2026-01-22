@@ -221,7 +221,7 @@ unique[=PREFIX[,missing=MISSINGACTION]]
         replaced or deleted.
 
         Deletion happens if the only input field present has the ``unique``
-        action applied to it.  (Prior to 1.5.0, if there were multiple lists
+        action applied to it.  (Prior to 2.0.0, if there were multiple lists
         of actions applied to an input field this triggered replacement instead
         of deletion).  If you want to suppress this deletion feature, supplying
         a dummy input field which doesn't match the index script will achieve
@@ -241,7 +241,7 @@ unique[=PREFIX[,missing=MISSINGACTION]]
         an empty value.  It can be one of:
 
           * ``error``: Exit with an error upon encountering such a document
-            (default in Omega >= 1.5.0)
+            (default in Omega >= 2.0.0)
           * ``new``: Create a new document (default in Omega < 1.4.20 when
             ``unique`` not triggered)
           * ``warn+new``: Issue a warning and create a new document (default in
@@ -255,7 +255,7 @@ unxml
         ``unhtml``, but ``unhtml`` varies the whitespace type or omits it
         entirely, based on HTML tag semantics).
 
-        ``unxml`` was added in Omega 1.5.0.
+        ``unxml`` was added in Omega 2.0.0.
 
 value=VALUESLOT
 	add as a Xapian document value in slot VALUESLOT.  Values can be used

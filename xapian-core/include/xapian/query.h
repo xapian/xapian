@@ -264,7 +264,7 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	 *  deletion or substitution of a character, or transposition of two
 	 *  adjacent characters) of a specified target.
 	 *
-	 *  @since Added in Xapian 1.5.0.
+	 *  @since Added in Xapian 2.0.0.
 	 */
 	OP_EDIT_DISTANCE = 16,
 
@@ -324,19 +324,19 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 
 	/** Support * which matches 0 or more characters.
 	 *
-	 *  @since Added in Xapian 1.5.0
+	 *  @since Added in Xapian 2.0.0
 	 */
 	WILDCARD_PATTERN_MULTI = 0x10,
 
 	/** Support ? which matches a single character.
 	 *
-	 *  @since Added in Xapian 1.5.0.
+	 *  @since Added in Xapian 2.0.0.
 	 */
 	WILDCARD_PATTERN_SINGLE = 0x20,
 
 	/** Enable all supported glob-like features.
 	 *
-	 *  @since Added in Xapian 1.5.0.
+	 *  @since Added in Xapian 2.0.0.
 	 */
 	WILDCARD_PATTERN_GLOB = WILDCARD_PATTERN_MULTI|WILDCARD_PATTERN_SINGLE
     };

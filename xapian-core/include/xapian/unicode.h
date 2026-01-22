@@ -136,7 +136,7 @@ class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
      *  reached.
      *
      *  This handling applies to invalid byte sequences, truncated UTF-8
-     *  sequences, overlong sequences and (since Xapian 1.5.0) surrogate pair
+     *  sequences, overlong sequences and (since Xapian 2.0.0) surrogate pair
      *  codepoints encoded as UTF-8.
      *
      *  If you want to reject or otherwise discriminate invalid UTF-8 sequences
@@ -155,7 +155,7 @@ class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
      *  until valid UTF-8 or the end of the input is reached.
      *
      *  This handling applies to invalid byte sequences, truncated UTF-8
-     *  sequences, overlong sequences and (since Xapian 1.5.0) surrogate pair
+     *  sequences, overlong sequences and (since Xapian 2.0.0) surrogate pair
      *  codepoints encoded as UTF-8.
      *
      *  Returns unsigned(-1) if the iterator has reached the end of its buffer.

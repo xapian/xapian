@@ -1790,7 +1790,7 @@ test_scriptindex 'HASH without argument',
   'url=http://xapian.org';
 
 # Test the same actions for multiple fields works (briefly broken in git master
-# before 1.5.0).
+# before 2.0.0).
 print_to_file $test_indexscript, 'tag1 tag2 tag3 : boolean=T field';
 test_scriptindex 'multiple fields on an action line',
   "tag1=one\ntag2=two\ntag3=three";

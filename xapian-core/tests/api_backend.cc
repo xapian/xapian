@@ -576,7 +576,7 @@ DEFINE_TESTCASE(replacedoc8, writable) {
 
 /** Check that replacing a document after clear_terms() still deletes old
  *  positional data.  Regression test for bug introduced and fixed in
- *  development prior to 1.5.0.
+ *  development prior to 2.0.0.
  */
 DEFINE_TESTCASE(replacedoc9, writable) {
     Xapian::WritableDatabase db(get_named_writable_database("replacedoc9"));
@@ -1597,7 +1597,7 @@ DEFINE_TESTCASE(getrevision1, glass) {
     TEST_EQUAL(db.get_revision(), 2);
 }
 
-/// Check get_revision() on an empty database reports 0.  (Since 1.5.0)
+/// Check get_revision() on an empty database reports 0.  (Since 2.0.0)
 DEFINE_TESTCASE(getrevision2, !backend) {
     Xapian::Database db;
     TEST_EQUAL(db.get_revision(), 0);
@@ -1707,7 +1707,7 @@ DEFINE_TESTCASE(nopositionbug1, backend) {
 
 /** Check that a TermIterator returns the correct termfreqs.
  *
- *  Prior to 1.5.0, the termfreq was approximated in the multidatabase case.
+ *  Prior to 2.0.0, the termfreq was approximated in the multidatabase case.
  */
 DEFINE_TESTCASE(termitertf1, backend) {
     Xapian::Database db = get_database("apitest_simpledata");
@@ -1728,7 +1728,7 @@ DEFINE_TESTCASE(termitertf1, backend) {
 
 /** Regression test for bug with get_mset(0, 0, N) (N > 0).
  *
- *  Fixed in 1.5.0 and 1.4.6.
+ *  Fixed in 1.4.6.
  */
 DEFINE_TESTCASE(checkatleast4, backend) {
     Xapian::Database db = get_database("apitest_simpledata");
@@ -1739,7 +1739,7 @@ DEFINE_TESTCASE(checkatleast4, backend) {
     TEST_EQUAL(mset.size(), 0);
 }
 
-/// Regression test for glass freelist leak fixed in 1.4.6 and 1.5.0.
+/// Regression test for glass freelist leak fixed in 1.4.6.
 DEFINE_TESTCASE(freelistleak1, check) {
     auto path = get_database_path("freelistleak1",
 				  [](Xapian::WritableDatabase& wdb,
@@ -1792,7 +1792,7 @@ DEFINE_TESTCASE(multidb1, backend) {
     db.add_database(db2);
     TEST_EQUAL(db.size(), db2.size());
     db.add_database(db2);
-    // Regression test for bug introduced and fixed in git master before 1.5.0.
+    // Regression test for bug introduced and fixed in git master before 2.0.0.
     // Adding a multi database to an empty database incorrectly worked just
     // like assigning the database object.  The list of shards is now copied
     // instead.
@@ -1801,7 +1801,7 @@ DEFINE_TESTCASE(multidb1, backend) {
     TEST_EQUAL(db.size(), db2.size() * 2);
 }
 
-// Regression test for bug in unreleased versions before 1.5.0.
+// Regression test for bug in unreleased versions before 2.0.0.
 DEFINE_TESTCASE(matchall3, backend) {
     Xapian::Database db = get_database("apitest_simpledata");
     Xapian::Enquire enq(db);
@@ -1835,7 +1835,7 @@ DEFINE_TESTCASE(reconstruct2, writable) {
     TEST_STRINGS_EQUAL(db.reconstruct_text(1), "");
 }
 
-/** Regression test for bug fixed in git master before 1.5.0.
+/** Regression test for bug fixed in git master before 2.0.0.
  *
  *  A PositionIterator from a PostingIterator in a multidatabase always used
  *  the first shard, which could cause a segfault if the term wasn't present

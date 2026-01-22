@@ -65,7 +65,7 @@ DEFINE_TESTCASE(lcdclusterer1, backend)
     }
 }
 
-/** Regression test for bug fixed before 1.5.0.
+/** Regression test for bug fixed before 2.0.0.
  *
  *  This segfaulted due to ignoring documents which had the same weight as
  *  others.

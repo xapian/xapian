@@ -186,7 +186,7 @@ glass
     database. It's very efficient and highly scalable.
 
 honey
-    Honey is the default backend in Xapian 1.6.x. It supports incremental
+    Honey will be the default backend in Xapian 3.0.x. It supports incremental
     modifications, concurrent single-writer and multiple-reader access to a
     database. It's very efficient and highly scalable.
 
@@ -210,11 +210,11 @@ remote
     Otherwise the TCP variant of the remote backend is used, and the rest of
     the line specifies the host and port to connect to.
 
-These are no longer supported by Xapian 1.5.x:
+These are no longer supported by Xapian 2.0.x:
 
 chert
     Chert was the default backend in Xapian 1.2.x. It was deprecated in 1.4.0
-    and removed in 1.5.0.  If you want to migrate an existing Chert
+    and removed in 2.0.0.  If you want to migrate an existing Chert
     database to Glass, the `'Admin Notes'
     <admin_notes.html#converting-a-chert-database-to-a-glass-database%60>`_
     describe how to do this.

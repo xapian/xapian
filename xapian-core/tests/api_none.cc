@@ -909,7 +909,7 @@ DEFINE_TESTCASE(orphaneddoctermitor1, !backend) {
 
 /** Test removal of terms from a document while iterating over them.
  *
- *  Prior to 1.5.0 and 1.4.6 the underlying iterator was invalidated when
+ *  Prior to 1.4.6 the underlying iterator was invalidated when
  *  preinc == false, leading to undefined behaviour (typically a segmentation
  *  fault).
  */
@@ -1020,7 +1020,7 @@ DEFINE_TESTCASE(removepostings, !backend) {
     TEST_EQUAL(*++pi, 8);
 
     // Check removing all positions removes the term too if the wdf reaches 0
-    // (since 1.5.0).
+    // (since 2.0.0).
     TEST_EQUAL(doc.remove_postings("foo", 5, 1000), 5);
     t = doc.termlist_begin();
     TEST(t == doc.termlist_end());

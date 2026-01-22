@@ -89,7 +89,7 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
 	TOTAL_LENGTH = 256,
 	/** Maximum wdf in the current document.
 	 *
-	 *  @since 1.5.0
+	 *  @since 2.0.0
 	 */
 	WDF_DOC_MAX = 512,
 	/** Lower bound on number of unique terms in a document.
@@ -99,7 +99,7 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
 	 *  weight from get_sumpart() or get_sumextra() then you should use
 	 *  DB_UNIQUE_TERMS_MIN instead.
 	 *
-	 *  @since 1.5.0
+	 *  @since 2.0.0
 	 */
 	UNIQUE_TERMS_MIN = 1024,
 	/** Upper bound on number of unique terms in a document.
@@ -109,42 +109,42 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
 	 *  weight from get_sumpart() or get_sumextra() then you should use
 	 *  DB_UNIQUE_TERMS_MAX instead.
 	 *
-	 *  @since 1.5.0
+	 *  @since 2.0.0
 	 */
 	UNIQUE_TERMS_MAX = 2048,
 	/** Lower bound on (non-zero) document lengths.
 	 *  This is a suitable bound for calculating a returned weight from
 	 *  get_sumpart() or get_sumextra().
 	 *
-	 *  @since 1.5.0
+	 *  @since 2.0.0
 	 */
 	DB_DOC_LENGTH_MIN = 4096,
 	/** Upper bound on document lengths.
 	 *  This is a suitable bound for calculating a returned weight from
 	 *  get_sumpart() or get_sumextra().
 	 *
-	 *  @since 1.5.0
+	 *  @since 2.0.0
 	 */
 	DB_DOC_LENGTH_MAX = 8192,
 	/** Lower bound on number of unique terms in a document.
 	 *  This is a suitable bound for calculating a returned weight from
 	 *  get_sumpart() or get_sumextra();
 	 *
-	 *  @since 1.5.0
+	 *  @since 2.0.0
 	 */
 	DB_UNIQUE_TERMS_MIN = 16384,
 	/** Upper bound on number of unique terms in a document.
 	 *  This is a suitable bound for calculating a returned weight from
 	 *  get_sumpart() or get_sumextra();
 	 *
-	 *  @since 1.5.0
+	 *  @since 2.0.0
 	 */
 	DB_UNIQUE_TERMS_MAX = 32768,
 	/** Upper bound on wdf of this term.
 	 *  This is a suitable bound for calculating a returned weight from
 	 *  get_sumpart().
 	 *
-	 *  @since 1.5.0
+	 *  @since 2.0.0
 	 */
 	DB_WDF_MAX = 65536,
 	/** @private @internal Flag only set for BoolWeight.
@@ -171,7 +171,7 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
      *  statistics you should call need_stat() for each one.  The compiler
      *  should optimise this too.
      *
-     *  Prior to 1.5.0, it was assumed that if get_maxextra() returned
+     *  Prior to 2.0.0, it was assumed that if get_maxextra() returned
      *  a non-zero value then get_sumextra() needed the document length even if
      *  need(DOC_LENGTH) wasn't called - the logic was that get_sumextra() could
      *  only return a constant value if it didn't use the document length.
@@ -383,7 +383,7 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
 
     /** Calculate the term-independent weight component for a document.
      *
-     *  The default implementation always returns 0 (in Xapian < 1.5.0 this
+     *  The default implementation always returns 0 (in Xapian < 2.0.0 this
      *  was a pure virtual method).
      *
      *  The parameter gives information about the document which may be used
@@ -399,7 +399,7 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
     /** Return an upper bound on what get_sumextra() can return for any
      *  document.
      *
-     *  The default implementation always returns 0 (in Xapian < 1.5.0 this
+     *  The default implementation always returns 0 (in Xapian < 2.0.0 this
      *  was a pure virtual method).
      *
      *  This information is used by the matcher to perform various
@@ -490,7 +490,7 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
      *  @param reg	Xapian::Registry object to allow users to add their own
      *			custom weighting schemes (default: standard registry).
      *
-     *  @since 1.5.0
+     *  @since 2.0.0
      */
     static const Weight * create(const std::string & scheme,
 				 const Registry & reg = Registry());
@@ -499,7 +499,7 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
      *
      * @param params	string containing weighting scheme parameter values.
      *
-     *  @since 1.5.0
+     *  @since 2.0.0
      */
     virtual Weight * create_from_parameters(const char * params) const;
 
@@ -592,7 +592,7 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
      *
      *  This should only be used by get_maxpart() and get_maxextra().
      *
-     *  @since 1.5.0
+     *  @since 2.0.0
      */
     Xapian::termcount get_unique_terms_upper_bound() const {
 	return unique_terms_upper_bound_;
@@ -603,7 +603,7 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
      *
      *  This should only be used by get_maxpart() and get_maxextra().
      *
-     *  @since 1.5.0
+     *  @since 2.0.0
      */
     Xapian::termcount get_unique_terms_lower_bound() const {
 	return unique_terms_lower_bound_;
@@ -611,7 +611,7 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
 
     /** An upper bound on the maximum length of any document in the database.
      *
-     *  @since 1.5.0
+     *  @since 2.0.0
      */
     Xapian::termcount get_db_doclength_upper_bound() const {
 	return db_doclength_upper_bound_;
@@ -621,7 +621,7 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
      *
      *  This bound does not include any zero-length documents.
      *
-     *  @since 1.5.0
+     *  @since 2.0.0
      */
     Xapian::termcount get_db_doclength_lower_bound() const {
 	return db_doclength_lower_bound_;
@@ -632,7 +632,7 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
      *
      *  This bound does not include any zero-length documents.
      *
-     *  @since 1.5.0
+     *  @since 2.0.0
      */
     Xapian::termcount get_db_unique_terms_upper_bound() const {
 	return db_unique_terms_upper_bound_;
@@ -641,7 +641,7 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
     /** An upper bound on the number of unique terms in any document in the
      *  database.
      *
-     *  @since 1.5.0
+     *  @since 2.0.0
      */
     Xapian::termcount get_db_unique_terms_lower_bound() const {
 	return db_unique_terms_lower_bound_;
@@ -649,7 +649,7 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
 
     /** An upper bound on the wdf of this term in the database.
      *
-     *  @since 1.5.0
+     *  @since 2.0.0
      */
     Xapian::termcount get_db_wdf_upper_bound() const {
 	return db_wdf_upper_bound_;
@@ -690,7 +690,7 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
   public:
     /** Wdf normalizations.
      *
-     *  @since 1.5.0
+     *  @since 2.0.0
      */
     enum class wdf_norm : unsigned char {
 	/** None
@@ -1254,7 +1254,7 @@ class XAPIAN_VISIBILITY_DEFAULT BM25PlusWeight : public Weight {
  * gives better results.
  *
  * TradWeight(k) is equivalent to BM25Weight(k, 0, 0, 1, 0), and since Xapian
- * 1.5.0 TradWeight is actually implemented as a subclass of BM25Weight.  In
+ * 2.0.0 TradWeight is actually implemented as a subclass of BM25Weight.  In
  * earlier versions is was a separate class which was equivalent except it
  * returned weights (k+1) times smaller.
  *
@@ -1837,7 +1837,7 @@ class XAPIAN_VISIBILITY_DEFAULT DPHWeight : public Weight {
  * Zhai, C., & Lafferty, J.D. (2004). A study of smoothing methods for language
  * models applied to information retrieval. ACM Trans. Inf. Syst., 22, 179-214.
  *
- * @since 1.5.0
+ * @since 2.0.0
  */
 class XAPIAN_VISIBILITY_DEFAULT LMJMWeight : public Weight {
     /// The factor to multiply weights by.
@@ -1910,7 +1910,7 @@ class XAPIAN_VISIBILITY_DEFAULT LMJMWeight : public Weight {
  * Lv, Y., & Zhai, C. (2011). Lower-bounding term frequency normalization.
  * International Conference on Information and Knowledge Management.
  *
- * @since 1.5.0
+ * @since 2.0.0
  */
 class XAPIAN_VISIBILITY_DEFAULT LMDirichletWeight : public Weight {
     /// The factor to multiply weights by.
@@ -1986,7 +1986,7 @@ class XAPIAN_VISIBILITY_DEFAULT LMDirichletWeight : public Weight {
  * Zhai, C., & Lafferty, J.D. (2004). A study of smoothing methods for language
  * models applied to information retrieval. ACM Trans. Inf. Syst., 22, 179-214.
  *
- * @since 1.5.0
+ * @since 2.0.0
  */
 class XAPIAN_VISIBILITY_DEFAULT LMAbsDiscountWeight : public Weight {
     /// The factor to multiply weights by.
@@ -2055,7 +2055,7 @@ class XAPIAN_VISIBILITY_DEFAULT LMAbsDiscountWeight : public Weight {
  * Zhai, C., & Lafferty, J.D. (2004). A study of smoothing methods for language
  * models applied to information retrieval. ACM Trans. Inf. Syst., 22, 179-214.
  *
- * @since 1.5.0
+ * @since 2.0.0
  */
 class XAPIAN_VISIBILITY_DEFAULT LM2StageWeight : public Weight {
     /// The factor to multiply weights by.
@@ -2161,7 +2161,7 @@ class XAPIAN_VISIBILITY_DEFAULT CoordWeight : public Weight {
  *  Jaccard coefficient and Cosine coefficient are other similarity
  *  coefficients.
  *
- * @since 1.5.0
+ * @since 2.0.0
  */
 class XAPIAN_VISIBILITY_DEFAULT DiceCoeffWeight : public Weight {
     /// The numerator in the weight calculation.

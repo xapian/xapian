@@ -165,7 +165,7 @@ class XAPIAN_VISIBILITY_DEFAULT Document {
      *  position which may not be present without triggering an exception you
      *  can call <code>remove_postings(term, pos, pos)</code> instead.
      *
-     *  Since 1.5.0, if the final position is removed and the wdf becomes zero
+     *  Since 2.0.0, if the final position is removed and the wdf becomes zero
      *  then the term will be removed from the document.
      */
     void remove_posting(std::string_view term,
@@ -184,7 +184,7 @@ class XAPIAN_VISIBILITY_DEFAULT Document {
      *  @a remove_posting() which throws an exception if the specified position
      *  is not present).
      *
-     *  Since 1.5.0, if all remaining positions are removed and the wdf becomes
+     *  Since 2.0.0, if all remaining positions are removed and the wdf becomes
      *  zero then the term will be removed from the document.  Note that this
      *  only happens if some positions are removed though - calling this method
      *  on a term which has no positions and zero wdf won't remove that term.

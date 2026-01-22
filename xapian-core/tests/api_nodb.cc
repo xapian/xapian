@@ -309,7 +309,7 @@ DEFINE_TESTCASE(poscollapse2, !backend) {
 }
 
 // Regression test: query on an uninitialised database segfaulted with 1.0.0.
-// As of 1.5.0, this is just handled as an empty database.
+// As of 2.0.0, this is just handled as an empty database.
 DEFINE_TESTCASE(uninitdb1, !backend) {
     Xapian::Database db;
     Xapian::Enquire enq(db);
@@ -382,7 +382,7 @@ DEFINE_TESTCASE(valuesetmatchdecider1, !backend) {
 }
 
 // Test that requesting termfreq or termweight on an empty mset returns 0.
-// New behaviour as of 1.5.0 - previously both methods threw
+// New behaviour as of 2.0.0 - previously both methods threw
 // Xapian::InvalidOperationError.
 DEFINE_TESTCASE(emptymset1, !backend) {
     Xapian::MSet emptymset;

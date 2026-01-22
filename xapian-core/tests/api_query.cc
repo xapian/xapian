@@ -1201,7 +1201,7 @@ DEFINE_TESTCASE(subdbwithoutpos1, backend) {
     TEST(!db2.has_positions());
 
     // If a database has no positional info, we used to map OP_PHRASE and
-    // OP_NEAR to OP_AND, but since 1.5.0 we no longer do.
+    // OP_NEAR to OP_AND, but since 2.0.0 we no longer do.
     Xapian::Enquire enq2(db2);
     enq2.set_query(q_near);
     Xapian::MSet mset2 = enq2.get_mset(0, 10);
@@ -1252,7 +1252,7 @@ DEFINE_TESTCASE(notandor1, backend) {
     TEST_EQUAL(mset.get_matches_estimated(), 344);
 }
 
-// Regression test for bug fixed in git master before 1.5.0.
+// Regression test for bug fixed in git master before 2.0.0.
 DEFINE_TESTCASE(boolorbug1, backend) {
     Xapian::Database db(get_database("etext"));
     using Xapian::Query;
@@ -1281,7 +1281,7 @@ DEFINE_TESTCASE(hoistnotbug1, backend) {
     TEST_EQUAL(mset.get_matches_estimated(), 42);
 }
 
-// Regression test for segfault optimising query on git master before 1.5.0.
+// Regression test for segfault optimising query on git master before 2.0.0.
 DEFINE_TESTCASE(emptynot1, backend) {
     Xapian::Database db(get_database("apitest_simpledata"));
     Xapian::Enquire enq(db);
@@ -1350,7 +1350,7 @@ DEFINE_TESTCASE(emptymaybe1, backend) {
     TEST_EQUAL(mset.size(), 1);
 }
 
-// Regression test for optimisation bug on git master before 1.5.0.
+// Regression test for optimisation bug on git master before 2.0.0.
 // The query optimiser ignored the NOT part when the LHS contained
 // a MatchAll.
 DEFINE_TESTCASE(allnot1, backend) {
@@ -1374,7 +1374,7 @@ DEFINE_TESTCASE(allnot1, backend) {
     TEST_EQUAL(mset.size(), 2);
 }
 
-// Regression test for optimisation bug on git master before 1.5.0.
+// Regression test for optimisation bug on git master before 2.0.0.
 // The query optimiser didn't handle the RHS of AND_MAYBE not matching
 // anything.
 DEFINE_TESTCASE(emptymayberhs1, backend) {

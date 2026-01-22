@@ -535,7 +535,7 @@ DEFINE_TESTCASE(poslist2, positional && writable) {
     doc4.remove_posting("hadpos", 1);
     db.replace_document(did2, doc4);
     // Removing the last position should remove the term if the wdf is 0
-    // (since 1.5.0).
+    // (since 2.0.0).
     TEST(!db.term_exists("hadpos"));
     {
 	Xapian::PositionIterator i = db.positionlist_begin(did2, "hadpos");

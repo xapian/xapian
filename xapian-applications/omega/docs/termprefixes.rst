@@ -41,7 +41,7 @@ D                    Date (numeric format: YYYYMMDD or "latest" - e.g.
 
                      These are an old way to implement date filtering, but we
                      now recommend using a value slot instead.  Since Omega
-                     1.5.0 omindex doesn't add D-prefix terms by default
+                     2.0.0 omindex doesn't add D-prefix terms by default
                      (``--date-terms`` enables them).
 ------  -----------  ----------------------------------------------------------
 E                    Extension (folded to lowercase - e.g. Ehtml, or E for no
@@ -66,7 +66,7 @@ M                    Month (numeric format: YYYYMM)
 
                      These are an old way to implement date filtering, but we
                      now recommend using a value slot instead.  Since Omega
-                     1.5.0 omindex doesn't add M-prefix terms by default
+                     2.0.0 omindex doesn't add M-prefix terms by default
                      (``--date-terms`` enables them).
 ------  -----------  ----------------------------------------------------------
 N                    ISO-3166 couNtry code (or domaiN name)
@@ -97,7 +97,7 @@ Y                    year (four digits)
 
                      These are an old way to implement date filtering, but we
                      now recommend using a value slot instead.  Since Omega
-                     1.5.0 omindex doesn't add Y-prefix terms by default
+                     2.0.0 omindex doesn't add Y-prefix terms by default
                      (``--date-terms`` enables them).
 ------  -----------  ----------------------------------------------------------
 Z                    stemmed term (may be followed by another prefix from this

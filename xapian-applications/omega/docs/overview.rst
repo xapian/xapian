@@ -400,7 +400,7 @@ written as ``%%`` (since 1.3.3).
 
 This command can take input in the following ways:
 
-* (Since 1.5.0): If the command string has a ``|`` prefix, then the input file
+* (Since 2.0.0): If the command string has a ``|`` prefix, then the input file
   will be fed to the command on ``stdin``.  This is slightly more efficient as
   it often avoids having to open the input file an extra time (omindex needs to
   open the input file so it can calculate a checksum of the contents for
@@ -472,7 +472,7 @@ If you know of a reliable filter which can extract text from a file format
 which might be of interest to others, please let us know so we can consider
 including it as a standard filter.
 
-Since 1.5.0, omindex supports worker modules which provide integrations with
+Since 2.0.0, omindex supports worker modules which provide integrations with
 extraction libraries without having to run a command line tool for every
 file.  These workers can typically extract metadata that a ``foo2text``
 program can't.  The worker runs as a subprocess, and is reused for multiple
@@ -612,7 +612,7 @@ U
     a hashing scheme is used to avoid overflowing Xapian's term length limit.
 
 If the ``--date-terms`` option is used, then the following additional boolean
-terms are added to documents (prior to Omega 1.5.0 they were added unless the
+terms are added to documents (prior to Omega 2.0.0 they were added unless the
 ``--no-date-terms`` option was used; this option was added in 1.4.22, and
 before that they were unconditionally added):
 

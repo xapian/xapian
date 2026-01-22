@@ -159,7 +159,7 @@ const int DB_BACKEND_GLASS	 = 0x100;
 
 /** Use the chert backend.
  *
- *  No longer supported as of Xapian 1.5.0.
+ *  No longer supported as of Xapian 2.0.0.
  */
 const int DB_BACKEND_CHERT	 = 0x200;
 

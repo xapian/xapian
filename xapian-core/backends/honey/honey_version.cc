@@ -52,7 +52,7 @@ using namespace std;
 
 /// Honey format version (date of change):
 #define HONEY_FORMAT_VERSION DATE_TO_VERSION(2018,4,3)
-// 2018,4,3   1.5.0 outlaw mixed-wdf terms
+// 2018,4,3   2.0.0 outlaw mixed-wdf terms
 // 2018,3,28        don't special case first entry in SSTable
 // 2018,3,27        new key format for value stats, value chunks, doclen chunks
 // 2018,3,26        use known suffix from spelling B and T keys

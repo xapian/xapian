@@ -84,7 +84,7 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
      *
      *  @param db	The database (or databases) to query.
      *
-     *  @since 1.5.0 If @a db has no subdatabases, it's handled like any other
+     *  @since 2.0.0 If @a db has no subdatabases, it's handled like any other
      *  empty database.  In earlier versions, Xapian::InvalidArgumentError was
      *  thrown in this case.
      */

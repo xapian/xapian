@@ -604,7 +604,7 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
 	 *  doing so was deprecated in 1.4.11).
 	 *
 	 *  In 1.4.x this feature was specific to CJK (Chinese, Japanese and
-	 *  Korean), but in 1.5.0 it's been extended to other languages.  To
+	 *  Korean), but in 2.0.0 it's been extended to other languages.  To
 	 *  reflect this change the new and preferred name is FLAG_NGRAMS,
 	 *  which was added as an alias for forward compatibility in Xapian
 	 *  1.4.23.  Use FLAG_CJK_NGRAM instead if you aim to support Xapian
@@ -633,7 +633,7 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
 	 *  The TermGenerator::FLAG_WORD_BREAKS flag needs to have been used at
 	 *  index time.
 	 *
-	 *  @since Added in Xapian 1.5.0.
+	 *  @since Added in Xapian 2.0.0.
 	 */
 	FLAG_WORD_BREAKS = 4096,
 
@@ -648,7 +648,7 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
 	 *
 	 *  FLAG_WILDCARD is ignored if this flag is specified.
 	 *
-	 *  @since Added in Xapian 1.5.0.
+	 *  @since Added in Xapian 2.0.0.
 	 */
 	FLAG_WILDCARD_MULTI = 8192,
 
@@ -663,7 +663,7 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
 	 *
 	 *  FLAG_WILDCARD is ignored if this flag is specified.
 	 *
-	 *  @since Added in Xapian 1.5.0.
+	 *  @since Added in Xapian 2.0.0.
 	 */
 	FLAG_WILDCARD_SINGLE = 16384,
 
@@ -674,7 +674,7 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
 	 *
 	 *  FLAG_WILDCARD is ignored if this flag is specified.
 	 *
-	 *  @since Added in Xapian 1.5.0.
+	 *  @since Added in Xapian 2.0.0.
 	 */
 	FLAG_WILDCARD_GLOB = FLAG_WILDCARD_MULTI | FLAG_WILDCARD_SINGLE,
 
@@ -686,7 +686,7 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
 	 *  foo~ uses edit distance of 2
 	 *  since~0.2 uses edit distance of length("since") * 0.2 = 5 * 0.2 = 1
 	 *
-	 *  @since Added in Xapian 1.5.0.
+	 *  @since Added in Xapian 2.0.0.
 	 */
 	FLAG_FUZZY = 32768,
 
@@ -905,7 +905,7 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      *  expand for partial matching (see @a FLAG_PARTIAL).  In this case
      *  a shorter word at the end of the query simply result in no partial
      *  matching.  The default minimum length for this case is 2 (since
-     *  1.5.0 - in earlier versions it was effectively 0).
+     *  2.0.0 - in earlier versions it was effectively 0).
      *
      *  @param min_prefix_len	Minimum length of fixed initial portion in
      *			        Unicode characters.
@@ -914,7 +914,7 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      *				the limit for both wildcards and partial
      *				terms).
      *
-     *  @since Added in Xapian 1.5.0.
+     *  @since Added in Xapian 2.0.0.
      */
     void set_min_wildcard_prefix(unsigned min_prefix_len,
 				 unsigned flags = FLAG_WILDCARD|FLAG_PARTIAL);

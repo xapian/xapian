@@ -43,7 +43,7 @@ provided in the most recent call::
     virtual void reset(const Xapian::Database& db,
                        Xapian::docccount shard_index) = 0;
 
-Prior to Xapian 1.5.0, instead of reset() there was an init() method which only
+Prior to Xapian 2.0.0, instead of reset() there was an init() method which only
 took the ``db`` parameter.  There's currently compatibility support for user
 PostingSource subclasses which override init(), but you should override reset()
 instead in new code.

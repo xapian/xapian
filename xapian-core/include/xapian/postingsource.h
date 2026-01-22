@@ -363,13 +363,13 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource
      *  so you must override either this method or init().  In new code,
      *  override this method in preference.
      *
-     *  @since Added in Xapian 1.5.0.
+     *  @since Added in Xapian 2.0.0.
      */
     virtual void reset(const Database& db, Xapian::doccount shard_index);
 
     /** Older method which did the same job as reset().
      *
-     *  Prior to 1.5.0, instead of reset() there was a method called init()
+     *  Prior to 2.0.0, instead of reset() there was a method called init()
      *  taking one parameter.  The default implementation of reset() calls
      *  init() to allow existing subclasses to continue to work.
      *

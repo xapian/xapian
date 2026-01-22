@@ -49,17 +49,17 @@
 // 37: 1.3.1 Prefix-compress termlists.
 // 38: 1.3.2 Stats serialisation now includes collection freq, and more...
 // 39: 1.3.3 New query operator OP_WILDCARD; sort keys in serialised MSet.
-// 39.1: pre-1.5.0 MSG_POSITIONLISTCOUNT added.
-// 40: pre-1.5.0 REPLY_REMOVESPELLING added.
-// 41: pre-1.5.0 Changed REPLY_ALLTERMS, REPLY_METADATAKEYLIST, REPLY_TERMLIST.
-// 42: pre-1.5.0 Use little-endian IEEE for doubles
-// 43: pre-1.5.0 REPLY_DONE sent for 5 more messages; MSG_QUERY adjusted
-// 44: pre-1.5.0 pack_uint() now used; many other changes
-// 44.1: pre-1.5.0 MSG_RECONSTRUCTTEXT added
-// 45: pre-1.5.0 Remote support for sorters
-// 46: pre-1.5.0 Drop unused fields; front-code term names in serialised stats
-// 46.1: pre-1.5.0 MSG_REQUESTDOCUMENT added
-// 47: 1.5.0 Updated Weight::Internal serialisation for db_*_bound
+// 39.1: pre-2.0.0 MSG_POSITIONLISTCOUNT added.
+// 40: pre-2.0.0 REPLY_REMOVESPELLING added.
+// 41: pre-2.0.0 Changed REPLY_ALLTERMS, REPLY_METADATAKEYLIST, REPLY_TERMLIST.
+// 42: pre-2.0.0 Use little-endian IEEE for doubles
+// 43: pre-2.0.0 REPLY_DONE sent for 5 more messages; MSG_QUERY adjusted
+// 44: pre-2.0.0 pack_uint() now used; many other changes
+// 44.1: pre-2.0.0 MSG_RECONSTRUCTTEXT added
+// 45: pre-2.0.0 Remote support for sorters
+// 46: pre-2.0.0 Drop unused fields; front-code term names in serialised stats
+// 46.1: pre-2.0.0 MSG_REQUESTDOCUMENT added
+// 47: 2.0.0 Updated Weight::Internal serialisation for db_*_bound
 #define XAPIAN_REMOTE_PROTOCOL_MAJOR_VERSION 47
 #define XAPIAN_REMOTE_PROTOCOL_MINOR_VERSION 0
 

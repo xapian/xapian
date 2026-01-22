@@ -56,7 +56,7 @@ class WritableDatabase;
  *
  *  To perform a search on a Database, you need to use an Enquire object.
  *
- *  @since 1.5.0 This class is a reference counted handle like many other
+ *  @since 2.0.0 This class is a reference counted handle like many other
  *	   Xapian API classes.  In earlier versions, it worked like a typedef
  *	   to std::vector<database_shard>.  The key difference is that
  *	   previously copying or assigning a Xapian::Database made a deep copy,
@@ -924,7 +924,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
  *  performed across these shards.  Documents added by add_document() are
  *  stored to the shards in a round-robin fashion.
  *
- *  @since 1.5.0 This class is a reference counted handle like many other
+ *  @since 2.0.0 This class is a reference counted handle like many other
  *	   Xapian API classes.  In earlier versions, it worked like a typedef
  *	   to std::vector<database_shard>.  The key difference is that
  *	   previously copying or assigning a Xapian::Database made a deep copy,
@@ -965,7 +965,7 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
      */
     void add_database(const WritableDatabase& other) {
 	// This method is provided mainly so that adding a Database to a
-	// WritableDatabase is a compile-time error - prior to 1.5.0, it
+	// WritableDatabase is a compile-time error - prior to 2.0.0, it
 	// would essentially act as a "black-hole" shard which discarded
 	// any changes made to it.
 	add_database_(other, false);
@@ -1229,7 +1229,7 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
      *
      *  @param unique_term     The term to remove references to.
      *
-     *  @since 1.5.0 The changes made by this method are made atomically.
+     *  @since 2.0.0 The changes made by this method are made atomically.
      *		     Previously automatic commits could happen during the
      *		     batch.
      */
@@ -1281,7 +1281,7 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
      *		was indexed by that term; otherwise the database allocates
      *		(get_lastdocid() + 1) as it does for add_document().
      *
-     *  @since 1.5.0 The changes made by this method are made atomically.
+     *  @since 2.0.0 The changes made by this method are made atomically.
      *		     Previously automatic commits could happen during the
      *		     batch.
      */
@@ -1308,7 +1308,7 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
      *
      *  @return Any "unused" freqdec (if the word's frequency was less than
      *		freqdec then the difference is returned, else 0 is returned).
-     *		Prior to 1.5.0 this method had void return type.
+     *		Prior to 2.0.0 this method had void return type.
      */
     termcount remove_spelling(std::string_view word,
 			      termcount freqdec = 1) const;

@@ -244,7 +244,7 @@ static const test test_simple[] = {
     { "", "11:59am", "11[1] 59am[2]" },
 
     // Regression test for ngram bug with stemming enabled.  Was only
-    // present in git master before 1.5.0.
+    // present in git master before 2.0.0.
     { "all,stem=en,ngrams", "久有归天", "久[1] 久有:1 天[4] 归[3] 归天:1 有[2] 有归:1" },
 
     { NULL, NULL, NULL }

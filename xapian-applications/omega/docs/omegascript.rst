@@ -408,7 +408,7 @@ $jsonobject2{KEYLIST,VALUELIST[,KEYFORMAT[,VALUEFORMAT]]}
 
           $jsonobject2{$split{k1 k2 k3},$split{1 2 3},$upper{$_},$_}
 
-        Added in Omega 1.5.0.
+        Added in Omega 2.0.0.
 
 $keys{MAP}
         returns a list containing the keys of MAP (as set by ``$setmap``).
@@ -449,7 +449,7 @@ $log{LOGFILE[,ENTRY]}
         to open the log file then ``ENTRY`` won't be evaluated.
 
         If the logfile can't be opened or writing to it fails then ``$log``
-        returns an error message (since Omega 1.5.0), otherwise it returns
+        returns an error message (since Omega 2.0.0), otherwise it returns
         nothing.  If you want to ignore logging errors, you can ignore the
         return value using ``$if`` with no action like so::
 
@@ -657,20 +657,20 @@ $set{OPT,VALUE}
           - ``bm25+`` (in Omega >= 1.4.26)
           - ``bool``
           - ``coord`` (in Omega >= 1.4.1)
-          - ``dicecoeff`` (in Omega >= 1.5.0)
+          - ``dicecoeff`` (in Omega >= 2.0.0)
           - ``dlh`` (in Omega >= 1.3.2)
           - ``dph`` (in Omega >= 1.3.2)
           - ``ifb2`` (in Omega >= 1.3.2)
           - ``ineb2`` (in Omega >= 1.3.2)
           - ``inl2`` (in Omega >= 1.3.2)
-          - ``lm2stage`` (in Omega >= 1.5.0)
-          - ``lmabsdiscount`` (in Omega >= 1.5.0)
-          - ``lmdirichlet`` (in Omega >= 1.5.0)
-          - ``lmjm`` (in Omega >= 1.5.0)
+          - ``lm2stage`` (in Omega >= 2.0.0)
+          - ``lmabsdiscount`` (in Omega >= 2.0.0)
+          - ``lmdirichlet`` (in Omega >= 2.0.0)
+          - ``lmjm`` (in Omega >= 2.0.0)
           - ``pl2`` (in Omega >= 1.3.2)
           - ``pl2+`` (in Omega >= 1.4.26)
           - ``tfidf`` (in Omega >= 1.3.1)
-          - ``trad`` (deprecated since Omega 1.5.0)
+          - ``trad`` (deprecated since Omega 2.0.0)
 
         * expansion - set the query expansion scheme to use, and (optionally)
           the parameters to use if the expansion scheme supports them. The
@@ -700,7 +700,7 @@ $set{OPT,VALUE}
 	* flag_cjk_ngram (new in 1.2.22 and 1.3.4)
 	* flag_ngrams (new in 1.4.23)
 	* flag_default
-	* flag_fuzzy (new in 1.5.0)
+	* flag_fuzzy (new in 2.0.0)
 	* flag_lovehate
 	* flag_no_positions (new in 1.4.19)
 	* flag_no_proper_noun_heuristic (new in 2.0.0)
@@ -711,10 +711,10 @@ $set{OPT,VALUE}
 	  correction)
 	* flag_synonym
 	* flag_wildcard
-        * flag_wildcard_glob (new in 1.5.0)
-        * flag_wildcard_multi (new in 1.5.0)
-        * flag_wildcard_single (new in 1.5.0)
-        * flag_word_breaks (new in 1.5.0)
+        * flag_wildcard_glob (new in 2.0.0)
+        * flag_wildcard_multi (new in 2.0.0)
+        * flag_wildcard_single (new in 2.0.0)
+        * flag_word_breaks (new in 2.0.0)
 
         Note that the ``Xapian::QueryParser::FLAG_ACCUMULATE`` flag is always
         enabled by Omega because it's needed for ``$stoplist`` and ``$unstem``
@@ -734,7 +734,7 @@ $set{OPT,VALUE}
 	Similarly, ``XFOO:stemmer`` specifies the stemmer to use for field
 	``XFOO``, with ``stemmer`` providing a default.
 
-        Omega 1.5.0 added support for specifying the operator to use to
+        Omega 2.0.0 added support for specifying the operator to use to
         combine multiple parsed query strings.  By default this is ``AND``,
         but you can specify ``OR`` instead using ``$set{intra_query_op,OR}``
         (``or`` also works).  Currently other operators aren't supported.
