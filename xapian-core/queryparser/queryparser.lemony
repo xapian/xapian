@@ -294,6 +294,10 @@ class State {
 	return qpi->stopper.get();
     }
 
+    QueryParser::stop_strategy get_stopper_strategy() const {
+	return qpi->stop_mode;
+    }
+
     size_t stoplist_size() const {
 	return qpi->stoplist.size();
     }
@@ -338,6 +342,13 @@ class State {
 string
 Term::make_term(const string & prefix) const
 {
+    if (state->get_stopper_strategy() == QueryParser::STOP_ALL) {
+	const Xapian::Stopper* stopper = state->get_stopper();
+	if (stopper && (*stopper)(name)) {
+	    return string();
+	}
+    }
+
     string term;
     if (stem != QueryParser::STEM_NONE && stem != QueryParser::STEM_ALL)
 	term += 'Z';
@@ -495,7 +506,9 @@ Term::get_query() const
 	return (*field_info->proc)(name);
     }
     auto piter = prefixes.begin();
-    Query q(make_term(*piter), 1, pos);
+    const string& term = make_term(*piter);
+    if (term.empty()) return Query();
+    Query q(term, 1, pos);
     while (++piter != prefixes.end()) {
 	q |= Query(make_term(*piter), 1, pos);
     }
@@ -1957,7 +1970,9 @@ reprocess:
 	}
     }
 
-    if (!empty_ok && stopper && subqs.empty() &&
+    if (!empty_ok && stopper &&
+	state->get_stopper_strategy() != QueryParser::STOP_ALL &&
+	subqs.empty() &&
 	stoplist_size < state->stoplist_size()) {
 	// This group is all stopwords, so roll-back, disable stopper
 	// temporarily, and reprocess this group.
@@ -2027,7 +2042,9 @@ class Terms {
 		    vector<Query> subqs;
 		    subqs.reserve(n_terms);
 		    for (Term* t : terms) {
-			subqs.push_back(Query(t->make_term(prefix), 1, t->pos));
+			const string& term = t->make_term(prefix);
+			if (term.empty()) continue;
+			subqs.push_back(Query(term, 1, t->pos));
 		    }
 		    add_to_query(q, Query::OP_OR, opwindow_subq(op, subqs, w));
 		}
@@ -2036,7 +2053,9 @@ class Terms {
 	    vector<Query> subqs;
 	    subqs.reserve(n_terms);
 	    for (Term* t : terms) {
-		subqs.push_back(t->get_query());
+		Query query = t->get_query();
+		if (query.get_type() == query.LEAF_MATCH_ALL) continue;
+		subqs.push_back(query);
 	    }
 	    q = new Query(opwindow_subq(op, subqs, w));
 	}

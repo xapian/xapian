@@ -91,6 +91,12 @@ QueryParser::set_stopper(const Stopper * stopper)
 }
 
 void
+QueryParser::set_stopper_strategy(stop_strategy strategy)
+{
+    internal->stop_mode = strategy;
+}
+
+void
 QueryParser::set_default_op(Query::op default_op)
 {
     switch (default_op) {

@@ -1,7 +1,7 @@
 /** @file
  * @brief The non-lemon-generated parts of the QueryParser class.
  */
-/* Copyright (C) 2005-2024 Olly Betts
+/* Copyright (C) 2005-2025 Olly Betts
  * Copyright (C) 2010 Adam Sjøgren
  *
  * This program is free software; you can redistribute it and/or
@@ -94,6 +94,7 @@ class QueryParser::Internal : public Xapian::Internal::intrusive_base {
     Stem stemmer;
     stem_strategy stem_action = STEM_SOME;
     Xapian::Internal::opt_intrusive_ptr<const Stopper> stopper;
+    stop_strategy stop_mode = STOP_STEMMED;
     Query::op default_op = Query::OP_OR;
     const char* errmsg = nullptr;
     Database db;

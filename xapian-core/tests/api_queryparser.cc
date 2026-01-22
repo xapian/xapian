@@ -3345,3 +3345,33 @@ DEFINE_TESTCASE(qp_nopropernounheuristic, !backend) {
 	TEST_STRINGS_EQUAL(parsed, expect);
     }
 }
+
+// Feature test for STOP_ALL (new in Xapian 2.0.0).
+DEFINE_TESTCASE(qp_stop_all, !backend) {
+    Xapian::QueryParser qp;
+    qp.set_stemmer(Xapian::Stem("french"));
+    qp.set_stemming_strategy(Xapian::QueryParser::STEM_ALL);
+    qp.set_stopper_strategy(Xapian::QueryParser::STOP_ALL);
+    static const char* const stopwords[] = { "le", "la", "les", "un", "une" };
+    Xapian::SimpleStopper stop(stopwords, stopwords + 5);
+    qp.set_stopper(&stop);
+    qp.add_prefix("title", "XT");
+
+    Xapian::Query qobj;
+    qobj = qp.parse_query("\"le voiture\"");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(voitur@2)");
+
+    qobj = qp.parse_query("\"tout le monde\"");
+    TEST_STRINGS_EQUAL(qobj.get_description(),
+		       "Query((tout@1 PHRASE 3 mond@3))");
+    // FIXME: except we want a window of exactly 3 not <= 3
+
+    qobj = qp.parse_query("\"le\" voiture");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(voitur@2)");
+
+    qobj = qp.parse_query("\"le la\"");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query()");
+
+    qobj = qp.parse_query("le la");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query()");
+}

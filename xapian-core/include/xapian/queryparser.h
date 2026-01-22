@@ -769,6 +769,9 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
 	STEM_NONE, STEM_SOME, STEM_ALL, STEM_ALL_Z, STEM_SOME_FULL_POS
     } stem_strategy;
 
+    /// Stopper strategies, for use with set_stopper_strategy().
+    typedef enum { STOP_NONE, STOP_ALL, STOP_STEMMED } stop_strategy;
+
     /// Copy constructor.
     QueryParser(const QueryParser & o);
 
@@ -832,6 +835,31 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      *			stopwords).
      */
     void set_stopper(const Stopper *stop = NULL);
+
+    /** Set the stopper strategy.
+     *
+     *  This method controls how the stopper is used.
+     *
+     *  You need to also call @a set_stopper() for this to have any effect.
+     *
+     *  @param strategy The strategy to use - possible values are:
+     *   - STOP_NONE:     Don't use the stopper.
+     *   - STOP_ALL:      If a word is identified as a stop word, skip it
+     *                    completely.  This makes some queries less useful
+     *                    (e.g. `"to be or not to be that is the question"`
+     *                    would become a search for just `question` if the
+     *                    other words were all stopwords).  If you index
+     *                    with `STOP_ALL` you should use it when parsing
+     *                    queries too.
+     *   - STOP_STEMMED:  If a word is identified as a stop word, assume it
+     *                    was still indexed unstemmed and don't treat it as
+     *                    a stopword in contexts where we would use the
+     *                    unstemmed form (for example, phrase searches, ADJ,
+     *                    NEAR).  (This is the default mode).
+     *
+     *  @since Added in Xapian 2.0.0.
+     */
+    void set_stopper_strategy(stop_strategy strategy);
 
     /** Set the default operator.
      *
