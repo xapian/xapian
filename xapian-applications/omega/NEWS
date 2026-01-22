@@ -369,7 +369,7 @@ indexers:
     what to do if a record doesn't trigger the unique action or triggers it
     with an empty value.  The default is now to issue a warning and create a
     new document (the same as before, except that there was only previously a
-    warning for the empty value case). In Omega 1.5.0 the default will change
+    warning for the empty value case). In Omega 2.0.0 the default will change
     to an error as that seems a better default, but is less compatible with
     potential existing use.
 
@@ -681,7 +681,7 @@ Omega 1.4.13 (2019-10-14):
 
 documentation:
 
-* Document that $log will start to return an error message in 1.5.0, and that
+* Document that $log will start to return an error message in 2.0.0, and that
   one can wrap it using a $if with no action now to be future-proof.
 
 indexers:
@@ -697,7 +697,7 @@ indexers:
 
 templates:
 
-* Future-proof use of $log against changes in 1.5.0.
+* Future-proof use of $log against changes in 2.0.0.
 
 Omega 1.4.12 (2019-07-23):
 
@@ -1199,7 +1199,7 @@ Omega 1.4.5 (2017-10-16):
 documentation:
 
 * Direct users towards $set{flag_spelling_correction,true} rather than the
-  deprecated $set{spelling,true} (which is slated for removal in 1.5.0).
+  deprecated $set{spelling,true} (which is slated for removal in 2.0.0).
 
 * Fix typo in docs.
 

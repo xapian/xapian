@@ -1387,7 +1387,7 @@ id=3
 dummy=';
 print_to_file $test_template, '$field{id,$cgi{id}}|$field{f,$cgi{id}}$error';
 testcase('1|one', 'id=1');
-# Since 1.5.0, document 2 gets deleted instead.
+# Since 2.0.0, document 2 gets deleted instead.
 testcase('2|', 'id=2');
 testcase('3|', 'id=3');
 testcase('4|', 'id=4');
@@ -1673,7 +1673,7 @@ test_scriptindex 'HASH without argument',
   'url=http://xapian.org';
 
 # Test the same actions for multiple fields works (briefly broken in git master
-# before 1.5.0).
+# before 2.0.0).
 print_to_file $test_indexscript, 'tag1 tag2 tag3 : boolean=T field';
 test_scriptindex 'multiple fields on an action line',
   "tag1=one\ntag2=two\ntag3=three";

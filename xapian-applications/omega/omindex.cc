@@ -489,7 +489,7 @@ main(int argc, char **argv)
 "  -C, --track-ctime         track each file's ctime so we can detect changes\n"
 "                            to ownership or permissions.\n"
 "      --date-terms          ignored for forward compatibility with Omega\n"
-"                            1.5.x.\n"
+"                            2.0.x.\n"
 "      --no-date-terms       don't index D, M and Y prefixed terms to support\n"
 "                            date range filtering using terms (we now recommend\n"
 "                            using a value slot for this instead).\n"
@@ -678,7 +678,7 @@ main(int argc, char **argv)
 	    use_ctime = true;
 	    break;
 	case OPT_DATE_TERMS:
-	    // Ignored for compatibility with Omega 1.5.0.
+	    // Ignored for compatibility with Omega 2.0.0.
 	    break;
 	case OPT_NO_DATE_TERMS:
 	    date_terms = false;

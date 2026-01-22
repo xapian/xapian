@@ -930,7 +930,7 @@ DEFINE_TESTCASE(nonutf8docdesc1, !backend) {
 
 /** Test removal of terms from a document while iterating over them.
  *
- *  Prior to 1.5.0 and 1.4.6 the underlying iterator was invalidated when
+ *  Prior to 1.4.6 the underlying iterator was invalidated when
  *  preinc == false, leading to undefined behaviour (typically a segmentation
  *  fault).
  */

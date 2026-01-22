@@ -40,7 +40,7 @@ D                    Date (numeric format: YYYYMMDD or "latest" - e.g.
                      D20050224 or Dlatest)
 
                      These are an old way to implement date filtering, but we
-                     now recommend using a value slot instead.  Omega 1.5.0
+                     now recommend using a value slot instead.  Omega 2.0.0
                      won't add D-prefix terms by default (with ``--date-terms``
                      to enable them).
 ------  -----------  ----------------------------------------------------------
@@ -65,7 +65,7 @@ L       language     ISO-639 Language code
 M                    Month (numeric format: YYYYMM)
 
                      These are an old way to implement date filtering, but we
-                     now recommend using a value slot instead.  Omega 1.5.0
+                     now recommend using a value slot instead.  Omega 2.0.0
                      won't add M-prefix terms by default (with ``--date-terms``
                      to enable them).
 ------  -----------  ----------------------------------------------------------
@@ -96,7 +96,7 @@ X                    longer prefix for user-defined use
 Y                    year (four digits)
 
                      These are an old way to implement date filtering, but we
-                     now recommend using a value slot instead.  Omega 1.5.0
+                     now recommend using a value slot instead.  Omega 2.0.0
                      won't add Y-prefix terms by default (with ``--date-terms``
                      to enable them).
 ------  -----------  ----------------------------------------------------------

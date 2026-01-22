@@ -884,7 +884,7 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
 	 *  doing so was deprecated in 1.4.11).
 	 *
 	 *  In 1.4.x this feature was specific to CJK (Chinese, Japanese and
-	 *  Korean), but in 1.5.0 it's been extended to other languages.  To
+	 *  Korean), but in 2.0.0 it's been extended to other languages.  To
 	 *  reflect this change the new and preferred name is FLAG_NGRAMS,
 	 *  which was added as an alias for forward compatibility in Xapian
 	 *  1.4.23.  Use FLAG_CJK_NGRAM instead if you aim to support Xapian

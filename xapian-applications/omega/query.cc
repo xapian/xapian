@@ -1691,7 +1691,7 @@ eval(const string& fmt, vector<string>& param)
 		    } catch (const Xapian::InvalidOperationError&) {
 			// In 1.4.x and earlier, InvalidOperationError is
 			// thrown if the MSet is empty and not associated with
-			// an Enquire object.  In 1.5.0 and later, a termfreq
+			// an Enquire object.  In 2.0.0 and later, a termfreq
 			// of 0 is returned for this case.
 		    }
 		}

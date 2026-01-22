@@ -860,7 +860,7 @@ DEFINE_TESTCASE(notandor1, backend) {
     TEST_EQUAL(mset.get_matches_estimated(), 344);
 }
 
-// Regression test for bug fixed in git master before 1.5.0.
+// Regression test for bug fixed in git master before 2.0.0.
 DEFINE_TESTCASE(boolorbug1, backend) {
     Xapian::Database db(get_database("etext"));
     using Xapian::Query;
@@ -889,7 +889,7 @@ DEFINE_TESTCASE(hoistnotbug1, backend) {
     TEST_EQUAL(mset.get_matches_estimated(), 42);
 }
 
-// Regression test for segfault optimising query on git master before 1.5.0.
+// Regression test for segfault optimising query on git master before 2.0.0.
 DEFINE_TESTCASE(emptynot1, backend) {
     Xapian::Database db(get_database("apitest_simpledata"));
     Xapian::Enquire enq(db);
