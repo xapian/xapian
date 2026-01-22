@@ -550,9 +550,10 @@ The progress of a query
 -----------------------
 
 Below we describe the general case of the IR model supported, including
-use of a relevance set (`RSet <glossary.html#rset>`_), query expansion,
-improved term weights and reranking. You don't have to use any of these
-for Xapian to be useful, but they are available should you need them.
+use of a relevance set (`RSet
+<https://getting-started-with-xapian.readthedocs.io/en/latest/glossary.html#rset>`_),
+query expansion, improved term weights and reranking. You don't have to use any
+of these for Xapian to be useful, but they are available should you need them.
 
 The user enters a query. This is parsed into a form the IR system
 understands, and run by the IR system, which returns two lists, a list

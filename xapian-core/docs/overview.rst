@@ -216,7 +216,7 @@ chert
     Chert was the default backend in Xapian 1.2.x. It was deprecated in 1.4.0
     and removed in 2.0.0.  If you want to migrate an existing Chert
     database to Glass, the `'Admin Notes'
-    <admin_notes.html#converting-a-chert-database-to-a-glass-database%60>`_
+    <https://getting-started-with-xapian.readthedocs.io/en/latest/advanced/admin_notes.html#converting-a-chert-database-to-a-glass-database>`_
     describe how to do this.
 
 brass
@@ -230,14 +230,14 @@ flint
     Flint was the default backend in Xapian 1.0.x, and was deprecated in
     1.2.x and removed in 1.3.0.  If you want to migrate an existing Flint
     database to Chert, `see the 'Admin Notes'
-    <admin_notes.html#converting-a-flint-database-to-a-chert-database%60>`_
+    <https://getting-started-with-xapian.readthedocs.io/en/latest/advanced/admin_notes.html#converting-a-flint-database-to-a-chert-database>`_
     for a way to do this.
 
 quartz
     Quartz was the default backend prior to Xapian 1.0, and has been removed as
     of Xapian 1.1.0. If you want to migrate an existing Quartz database to
     Flint, see `Admin Notes
-    <admin_notes.html#converting-a-quartz-database-to-a-flint-database%60>`_
+    <https://getting-started-with-xapian.readthedocs.io/en/latest/advanced/admin_notes.html#converting-a-quartz-database-to-a-flint-database>`_
     for a way to do this.
 
 Multiple databases

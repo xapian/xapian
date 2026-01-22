@@ -4,7 +4,6 @@
 
 `website <https://xapian.org/>`_ \| `install <install.html>`_ \|
 `overview <overview.html>`_ \|
-`sysadmins <admin_notes.html>`_ \| `scalability <scalability.html>`_ \|
 `API <apidoc/html/annotated.html>`_ \| `deprecated <deprecation.html>`_
 \| `IR <intro_ir.html>`_ \| `wiki <https://trac.xapian.org/wiki>`_
 
@@ -19,9 +18,9 @@ Xapian - the open source search engine
 Getting Started
 ---------------
 
-There's a new
 `Getting Started with Xapian <https://getting-started-with-xapian.readthedocs.io/>`_
-guide, which is the recommended place to start.
+is the recommended place to start, and contains updated versions of many of the
+documentation pages which used to be here.
 
 Documentation
 -------------
@@ -34,9 +33,6 @@ documentation for the `other language bindings
 We suggest you start by reading the `Installation
 Guide <install.html>`_, which covers downloading the code, and
 unpacking, configuring, building and installing it.
-
-The `glossary <glossary.html>`_ provides definitions for specialized
-terminology you might encounter while using Xapian.
 
 The `Overview <overview.html>`_ explains the API which Xapian provides
 to programmers.  A full `API Reference <apidoc/html/index.html>`_ is
@@ -53,18 +49,12 @@ also suggests some books you might want to read.
 There are a number of documents which cover particular features:
 
 -  `BM25 Weighting Scheme <bm25.html>`_
--  `Collapsing <collapsing.html>`_
--  `Database Replication <replication.html>`_
--  `Faceting <facets.html>`_
 -  `Indexing <termgenerator.html>`_
--  `PostingSource <postingsource.html>`_
 -  `Query Parser <queryparser.html>`_
 -  `Remote Backend <remote.html>`_
--  `Serialising Queries and Documents <serialisation.html>`_
 -  `Sorting Results <sorting.html>`_
 -  `Spelling Correction <spelling.html>`_
 -  `Stemming Algorithms <stemming.html>`_
--  `Synonym Support <synonyms.html>`_
 -  `Value Ranges <valueranges.html>`_
 
 For those wishing to do development work on the Xapian library itself,

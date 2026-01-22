@@ -12,29 +12,20 @@ endif
 # which we don't have the tools to generate.
 
 RSTDOCS = \
-	admin_notes.rst \
 	bm25.rst \
-	collapsing.rst \
 	deprecation.rst \
-	facets.rst \
 	geospatial.rst \
-	glossary.rst \
 	index.rst \
 	install.rst \
 	internals.rst \
 	intro_ir.rst \
 	matcherdesign.rst \
 	overview.rst \
-	postingsource.rst \
 	queryparser.rst \
 	remote.rst \
-	replication.rst \
-	scalability.rst \
-	serialisation.rst \
 	sorting.rst \
 	spelling.rst \
 	stemming.rst \
-	synonyms.rst \
 	termgenerator.rst \
 	valueranges.rst
 
