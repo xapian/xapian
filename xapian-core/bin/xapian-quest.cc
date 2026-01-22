@@ -34,7 +34,7 @@
 
 using namespace std;
 
-#define PROG_NAME "quest"
+#define PROG_NAME "xapian-quest"
 #define PROG_DESC "Xapian command line search tool"
 
 // Stopwords:

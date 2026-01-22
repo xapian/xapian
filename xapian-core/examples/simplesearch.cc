@@ -1,7 +1,7 @@
 /** @file
  * @brief Simple command-line search utility.
  *
- * See "quest" for a more sophisticated example.
+ * See "xapian-quest" for a more sophisticated example.
  */
 /* Copyright (C) 2007-2022 Olly Betts
  *

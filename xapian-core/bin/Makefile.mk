@@ -5,7 +5,8 @@ EXTRA_DIST +=\
 	bin/Makefile
 
 bin_PROGRAMS +=\
-	bin/xapian-delve
+	bin/xapian-delve\
+	bin/xapian-quest
 
 noinst_PROGRAMS =
 
@@ -28,7 +29,8 @@ if !MAINTAINER_NO_DOCS
 dist_man_MANS +=\
 	bin/xapian-check.1\
 	bin/xapian-compact.1\
-	bin/xapian-delve.1
+	bin/xapian-delve.1\
+	bin/xapian-quest.1
 endif
 endif
 
@@ -107,6 +109,9 @@ bin_xapian_inspect_honey_LDADD = libgetopt.la $(XAPIAN_LIBS)
 bin_xapian_progsrv_SOURCES = bin/xapian-progsrv.cc
 bin_xapian_progsrv_LDADD = libgetopt.la $(libxapian_la)
 
+bin_xapian_quest_SOURCES = bin/xapian-quest.cc
+bin_xapian_quest_LDADD = libgetopt.la $(libxapian_la)
+
 bin_xapian_replicate_SOURCES = bin/xapian-replicate.cc
 bin_xapian_replicate_LDADD = libgetopt.la $(libxapian_la)
 
@@ -128,6 +133,9 @@ bin/xapian-delve.1: bin/xapian-delve$(EXEEXT) makemanpage
 
 bin/xapian-progsrv.1: bin/xapian-progsrv$(EXEEXT) makemanpage
 	./makemanpage bin/xapian-progsrv $(srcdir)/bin/xapian-progsrv.cc bin/xapian-progsrv.1
+
+bin/xapian-quest.1: bin/xapian-quest$(EXEEXT) makemanpage
+	./makemanpage bin/xapian-quest $(srcdir)/bin/xapian-quest.cc bin/xapian-quest.1
 
 bin/xapian-replicate.1: bin/xapian-replicate$(EXEEXT) makemanpage
 	./makemanpage bin/xapian-replicate $(srcdir)/bin/xapian-replicate.cc bin/xapian-replicate.1

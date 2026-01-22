@@ -3,7 +3,6 @@ EXTRA_DIST +=\
 
 bin_PROGRAMS +=\
 	examples/copydatabase\
-	examples/quest\
 	examples/simpleexpand\
 	examples/simpleindex\
 	examples/simplesearch\
@@ -12,9 +11,6 @@ bin_PROGRAMS +=\
 
 examples_copydatabase_SOURCES = examples/copydatabase.cc
 examples_copydatabase_LDADD = $(libxapian_la)
-
-examples_quest_SOURCES = examples/quest.cc
-examples_quest_LDADD = libgetopt.la $(libxapian_la)
 
 examples_simpleexpand_SOURCES = examples/simpleexpand.cc
 examples_simpleexpand_LDADD = $(libxapian_la)
@@ -34,7 +30,6 @@ examples_xapian_pos_LDADD = libgetopt.la $(libxapian_la)
 if !MAINTAINER_NO_DOCS
 dist_man_MANS +=\
 	examples/copydatabase.1\
-	examples/quest.1\
 	examples/xapian-metadata.1\
 	examples/xapian-pos.1
 endif
@@ -42,9 +37,6 @@ endif
 if DOCUMENTATION_RULES
 examples/copydatabase.1: examples/copydatabase$(EXEEXT) makemanpage
 	./makemanpage examples/copydatabase $(srcdir)/examples/copydatabase.cc examples/copydatabase.1
-
-examples/quest.1: examples/quest$(EXEEXT) makemanpage
-	./makemanpage examples/quest $(srcdir)/examples/quest.cc examples/quest.1
 
 examples/xapian-metadata.1: examples/xapian-metadata$(EXEEXT) makemanpage
 	./makemanpage examples/xapian-metadata $(srcdir)/examples/xapian-metadata.cc examples/xapian-metadata.1

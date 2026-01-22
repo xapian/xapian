@@ -352,14 +352,13 @@ For example, to display the list of terms in document "1" of the database
   xapian-delve foo -r 1
 
 It is also possible to perform simple searches of a database.  Xapian includes
-another simple command-line program, ``quest``, to support this.  ``quest`` is
-only able to search for un-prefixed terms, the query string must be quoted to
-protect it from the shell.  To search the database "foo" for the phrase "hello
-world", use:
+another simple command-line program, ``xapian-quest``, to support this.  The
+query string must be quoted to protect it from the shell.  To search the
+database "foo" for the phrase "hello world", use:
 
 .. code-block:: sh
 
-  quest -d foo '"hello world"'
+  xapian-quest -d foo '"hello world"'
 
 If you have installed the "Omega" CGI application built on Xapian, this can
 also be used with the built-in "godmode" template to provide a web-based
