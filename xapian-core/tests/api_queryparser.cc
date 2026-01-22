@@ -1,7 +1,7 @@
 /** @file
  * @brief Tests of Xapian::QueryParser
  */
-/* Copyright (C) 2002-2024 Olly Betts
+/* Copyright (C) 2002-2026 Olly Betts
  * Copyright (C) 2006,2007,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -1238,6 +1238,25 @@ DEFINE_TESTCASE(qp_flag_partial1, backend) {
     TEST_STRINGS_EQUAL(qobj.get_description(), "Query(((WILDCARD OR XONEpart SYNONYM WILDCARD OR XTWOpart) OR (XONEpart@1 SYNONYM XTWOpart@1)))");
     qobj = qp.parse_query("double:partial", Xapian::QueryParser::FLAG_PARTIAL);
     TEST_STRINGS_EQUAL(qobj.get_description(), "Query(((WILDCARD OR XONEpartial SYNONYM WILDCARD OR XTWOpartial) OR (XONEpartial@1 SYNONYM XTWOpartial@1)))");
+
+    // Check that the partial term isn't included if it's a stopword.  Feature
+    // test for behavioural change in 1.4.31.
+    static const char * const stopwords[] = { "a", "an", "the" };
+    Xapian::SimpleStopper stop(stopwords, stopwords + 3);
+    qp.set_stopper(&stop);
+    qp.set_stemming_strategy(Xapian::QueryParser::STEM_SOME);
+    qobj = qp.parse_query("a", Xapian::QueryParser::FLAG_PARTIAL);
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(WILDCARD SYNONYM a)");
+    qobj = qp.parse_query("an", Xapian::QueryParser::FLAG_PARTIAL);
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(WILDCARD SYNONYM an)");
+    qobj = qp.parse_query("ant", Xapian::QueryParser::FLAG_PARTIAL);
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query((WILDCARD SYNONYM ant OR Zant@1))");
+    qobj = qp.parse_query("th", Xapian::QueryParser::FLAG_PARTIAL);
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query((WILDCARD SYNONYM th OR Zth@1))");
+    qobj = qp.parse_query("the", Xapian::QueryParser::FLAG_PARTIAL);
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(WILDCARD SYNONYM the)");
+    qobj = qp.parse_query("theo", Xapian::QueryParser::FLAG_PARTIAL);
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query((WILDCARD SYNONYM theo OR Ztheo@1))");
 }
 
 // Tests for document counts for wildcard queries.
