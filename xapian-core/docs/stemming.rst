@@ -91,9 +91,11 @@ matter of writing the stemming algorithm.
 Vocabularies
 ------------
 
-Each stemmer is issued with a vocabulary in data/voc.txt, and its
-stemmed form in data/voc.st. You can use these for testing and
-evaluation purposes.
+Each stemmer is accompanied by vocabulary list - e.g. the "english"
+stemmmer's vocabulary list is in ``xapian-data/stemmming/english/voc.txt``
+and the stemmed forms are in ``xapian-data/stemmming/english/output.txt``.
+These are used by the testsuite program ``stemtest``, and you can also
+use them for evaluation purposes.
 
 Raw materials
 -------------
@@ -344,10 +346,9 @@ result. In Italian for example, the four forms
 
         quest
 
-.. FIXME: Nice idea, but currently these lists are fictitious:
-    In the xapian-data directory in the git repository, each language
-    represented in the stemming section has, in addition to a large test
-    vocabulary, a useful stopword list in both source and stemmed form. The
-    source form, in the file ``stopsource``, is carefully annotated, and the
-    derived file, ``stopwords``, contains an equivalent list of sorted,
-    stemmed, stopwords.
+We provide stopword lists for many languages in the ``languages/stopwords``
+subdirectory of ``xapian-core``.  This is maintained in e.g. ``english.txt``
+which is carefully annotated with comments.  The build system creates
+``english.list`` from this with comments and blank lines stripped and any
+duplicate entries eliminated, leaving just the stopwords, one per line, sorted
+into ascending order by unsigned byte values.
