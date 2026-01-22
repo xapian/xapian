@@ -71,7 +71,7 @@ get_maxfd() {
 // AIX, NetBSD >= 2.0
 //
 // These platforms are known to provide close_range() but not closefrom():
-// Android NDK >= r34
+// Cygwin >= 3.5.0, Android NDK >= r34
 //
 // These platforms have getdirentries() and a "magic" directory with an entry
 // for each FD open in the current process:
@@ -85,6 +85,7 @@ get_maxfd() {
 // fcntl(0, F_MAXFD), getrlimit(RLIMIT_NOFILE, ...), or sysconf(_SC_OPEN_MAX)
 // - known examples:
 // Android < NDK r34 (bionic libc doesn't provide getdirentries())
+// Cygwin < 3.5.0
 
 void
 Xapian::Internal::closefrom(int fd)
