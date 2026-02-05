@@ -15246,7 +15246,7 @@ Mon Dec 22 13:30:53 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 	  use DatabaseReplicator subclasses instead of Database classes
 	  where necessary, to avoid failing if a partial database is
 	  transmitted.  Add additional checks to ensure that the UUID of a
-	  replicated databse is equal to that sent in the replication
+	  replicated database is equal to that sent in the replication
 	  protocol message introducing a full database copy; if they
 	  differ, a retry of the copy is needed, so ensure that the next
 	  message sent is a new copy of the database.

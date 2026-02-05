@@ -117,7 +117,7 @@ dnl AM_PROG_LIBTOOL to enable it if one of these is expanded later.
 # appropriate AC_MSG_ERROR saying that Xapian >= VERSION is needed.
 #
 # If ACTION-IF-GREATHER-THAN-OR-EQUAL is unset, the default is no
-# addtional action.
+# additional action.
 AC_DEFUN([XO_LETOR_REQUIRE],
 [
   m4_ifndef([XO_LIB_XAPIANLETOR_EXPANDED_],
