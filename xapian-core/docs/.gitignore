@@ -3,7 +3,6 @@
 /Makefile
 /.deps
 /bm25.html
-/deprecation.html
 /geospatial.html
 /index.html
 /install.html
@@ -13,8 +12,6 @@
 /overview.html
 /queryparser.html
 /remote.html
-/sorting.html
-/spelling.html
 /stemming.html
 /termgenerator.html
 /tests.html

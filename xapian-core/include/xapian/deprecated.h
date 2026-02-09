@@ -26,8 +26,8 @@
 
 // How to make use of XAPIAN_DEPRECATED, etc is documented in HACKING - see
 // the section "Marking Features as Deprecated".  Don't forget to update the
-// documentation of deprecated methods for end users in docs/deprecation.rst
-// too!
+// documentation of deprecated methods for end users in
+// xapian-docsprint/deprecation/ too!
 
 // Don't give deprecation warnings for features marked as externally deprecated
 // when building the library.

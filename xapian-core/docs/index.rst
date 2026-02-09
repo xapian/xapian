@@ -4,8 +4,8 @@
 
 `website <https://xapian.org/>`_ \| `install <install.html>`_ \|
 `overview <overview.html>`_ \|
-`API <apidoc/html/annotated.html>`_ \| `deprecated <deprecation.html>`_
-\| `IR <intro_ir.html>`_ \| `wiki <https://trac.xapian.org/wiki>`_
+`API <apidoc/html/annotated.html>`_ \|
+`IR <intro_ir.html>`_ \| `wiki <https://trac.xapian.org/wiki>`_
 
 .. raw:: html
 
@@ -37,10 +37,12 @@ unpacking, configuring, building and installing it.
 The `Overview <overview.html>`_ explains the API which Xapian provides
 to programmers.  A full `API Reference <apidoc/html/index.html>`_ is
 automatically collated using doxygen from documentation comments in
-the source code.  There's also a list of `deprecated features
-<deprecation.html>`_ which lists features scheduled for removal, and
-also features already removed, along with suggestions for
-replacements.
+the source code.
+
+The `deprecated features section of the "Getting Started" guide
+<https://getting-started-with-xapian.readthedocs.io/en/latest/deprecation/>`_
+lists features scheduled for removal and already removed, along with
+suggestions for replacements.
 
 If you want to learn more about information retrieval, there's a (reasonably
 mathematical) `introduction to the ideas behind Xapian <intro_ir.html>`_ which
@@ -52,8 +54,6 @@ There are a number of documents which cover particular features:
 -  `Indexing <termgenerator.html>`_
 -  `Query Parser <queryparser.html>`_
 -  `Remote Backend <remote.html>`_
--  `Sorting Results <sorting.html>`_
--  `Spelling Correction <spelling.html>`_
 -  `Stemming Algorithms <stemming.html>`_
 -  `Value Ranges <valueranges.html>`_
 

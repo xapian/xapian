@@ -13,7 +13,6 @@ endif
 
 RSTDOCS = \
 	bm25.rst \
-	deprecation.rst \
 	geospatial.rst \
 	index.rst \
 	install.rst \
@@ -23,8 +22,6 @@ RSTDOCS = \
 	overview.rst \
 	queryparser.rst \
 	remote.rst \
-	sorting.rst \
-	spelling.rst \
 	stemming.rst \
 	termgenerator.rst \
 	valueranges.rst
