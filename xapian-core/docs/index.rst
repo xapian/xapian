@@ -57,9 +57,9 @@ There are a number of documents which cover particular features:
 -  `Stemming Algorithms <stemming.html>`_
 -  `Value Ranges <valueranges.html>`_
 
-For those wishing to do development work on the Xapian library itself,
-there is `documentation of Xapian's internals <internals.html>`_
-available.
+The `Xapian Developer Guide <https://xapian-developer-guide.readthedocs.org/>`_
+contains information for those wishing to do development work on the Xapian
+library itself.
 
 We also have a `wiki <https://trac.xapian.org/wiki>`_ for documentation
 and examples contributed by the Xapian community.

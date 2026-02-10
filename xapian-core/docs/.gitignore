@@ -6,15 +6,12 @@
 /geospatial.html
 /index.html
 /install.html
-/internals.html
 /intro_ir.html
-/matcherdesign.html
 /overview.html
 /queryparser.html
 /remote.html
 /stemming.html
 /termgenerator.html
-/tests.html
 /valueranges.html
 /docsource.mk
 /doxygen_api.conf

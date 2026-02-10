@@ -16,9 +16,7 @@ RSTDOCS = \
 	geospatial.rst \
 	index.rst \
 	install.rst \
-	internals.rst \
 	intro_ir.rst \
-	matcherdesign.rst \
 	overview.rst \
 	queryparser.rst \
 	remote.rst \
