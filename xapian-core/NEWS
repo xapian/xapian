@@ -5859,8 +5859,8 @@ tools:
     In practice this is unlikely to actually have caused problems since
     stdin is typically still open and using fd 0.
 
-  + Simplify how we open the .DB file on the replication slave to just call
-    open() once with O_CREAT, rather than once without, than stat() if that
+  + Simplify how we open the .DB file on the replica to just call open()
+    once with O_CREAT, rather than once without, than stat() if that
     fails, and then again with O_CREAT|O_TRUNC if stat() doesn't show an
     ordinary file exists.
 

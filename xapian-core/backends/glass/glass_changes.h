@@ -33,9 +33,9 @@ class GlassChanges {
 
     /** The maximum number of changesets to keep.
      *
-     *  If a slave is more than this number of changesets behind, it will need
-     *  to be sent a full copy of the database (which can be more efficient if
-     *  a lot has changed).
+     *  If a replica is more than this number of changesets behind, it will
+     *  need to be sent a full copy of the database (which can be more
+     *  efficient if a lot has changed).
      */
     glass_revision_number_t max_changesets;
 
