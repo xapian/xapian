@@ -69,7 +69,7 @@ DEFINE_TESTCASE(snippet1, backend) {
 	{ "And of the rubbish document to this", 18, "...<b>rubbish</b> document..." },
 	{ "And if they document rubbish to be this", 18, "...document <b>rubbish</b>..." },
 
-    // Test handling of soft hyphen (added in Xapian 2.0.0).
+	// Test handling of soft hyphen (added in Xapian 2.0.0).
 #define SHY "\xc2\xad"
 	{ "rub" SHY "bish ment" SHY "ion", 20,
 	  "<b>rub" SHY "bish</b> <b>ment" SHY "ion</b>" },

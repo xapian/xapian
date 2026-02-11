@@ -254,7 +254,7 @@ static const test test_or_queries[] = {
     { "category:“(unterminated)", "0 * XCAT(unterminated)" },
     // Feature test for handling of soft hyphen, added in 2.0.0.
 #define SHY "\xc2\xad"
-    { "pro" SHY "duced in" SHY "de" SHY "pen" SHY "dently", "produced@1 OR independently@2" },
+    { "pro" SHY "duced in" SHY "de" SHY "pen" SHY "dently", "(Zproduc@1 OR Zindepend@2)" },
     // Real world examples from tweakers.net:
     { "Call to undefined function: imagecreate()", "(call@1 OR Zto@2 OR Zundefin@3 OR Zfunction@4 OR imagecreate@5)" },
     { "mysql_fetch_row(): supplied argument is not a valid MySQL result resource", "(mysql_fetch_row@1 OR (Zsuppli@2 OR Zargument@3 OR Zis@4 OR Znot@5 OR Za@6 OR Zvalid@7 OR mysql@8 OR Zresult@9 OR Zresourc@10))" },
