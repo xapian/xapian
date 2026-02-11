@@ -672,11 +672,14 @@ inline unsigned check_infix(unsigned ch) {
 	// real world cases).
 	return ch;
     }
-    if (ch >= 0x200b) {
+    if (ch >= 0x200c) {
 	// 0x2019 is Unicode apostrophe and single closing quote.
 	// 0x201b is Unicode single opening quote with the tail rising.
 	if (ch == 0x2019 || ch == 0x201b)
 	    return '\'';
+	// 0x200c and 0x200d are zero width non-joiner and joiner respectively.
+	// 0x2060 and 0xfeff are word joiners (0xfeff deprecated since Unicode
+	// 3.2).
 	if (ch <= 0x200d || ch == 0x2060 || ch == 0xfeff)
 	    return UNICODE_IGNORE;
     }

@@ -74,6 +74,10 @@ DEFINE_TESTCASE(snippet1, backend) {
 	{ "rub" SHY "bish ment" SHY "ion", 20,
 	  "<b>rub" SHY "bish</b> <b>ment" SHY "ion</b>" },
 
+	// Test handling of zero-width space (changed in Xapian 2.0.0).
+#define ZWSP "\xe2\x80\x8b"
+	{ "mention" ZWSP "rubbish" ZWSP "dolor", 30,
+	  "<b>mention</b>" ZWSP "<b>rubbish</b>" ZWSP "dolor" },
     };
 
     for (auto i : testcases) {

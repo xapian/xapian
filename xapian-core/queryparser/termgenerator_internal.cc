@@ -91,7 +91,9 @@ check_infix(unsigned ch)
     // 0x2019 is Unicode apostrophe and single closing quote.
     // 0x201b is Unicode single opening quote with the tail rising.
     if (ch == 0x2019 || ch == 0x201b) return '\'';
-    if (ch >= 0x200b && (ch <= 0x200d || ch == 0x2060 || ch == 0xfeff))
+    // 0x200c and 0x200d are zero width non-joiner and joiner respectively.
+    // 0x2060 and 0xfeff are word joiners (0xfeff deprecated since Unicode 3.2).
+    if (ch >= 0x200c && (ch <= 0x200d || ch == 0x2060 || ch == 0xfeff))
 	return UNICODE_IGNORE;
     // 0xad is SOFT HYPHEN which marks a potential hyphenation point in a word.
     if (ch == 0xad)
