@@ -26,7 +26,7 @@
 #define XAPIAN_REPLICATION_PROTOCOL_MAJOR_VERSION 1
 #define XAPIAN_REPLICATION_PROTOCOL_MINOR_VERSION 0
 
-// Reply types (master -> slave)
+// Reply types (master -> replica)
 enum replicate_reply_type {
     REPL_REPLY_END_OF_CHANGES,	// No more changes to transfer.
     REPL_REPLY_FAIL,		// Couldn't generate full set of changes.
