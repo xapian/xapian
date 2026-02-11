@@ -1,7 +1,7 @@
 /** @file
  * @brief Tests of Xapian::TermGenerator
  */
-/* Copyright (C) 2002-2022 Olly Betts
+/* Copyright (C) 2002-2026 Olly Betts
  * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -90,6 +90,11 @@ static const test test_simple[] = {
     { "", "simple-example", "example[2] simple[1]" },
     { "cont,weight=2",
 	  "simple-example", "example:3[2,104] simple:3[1,103]" },
+
+    // Test handling of soft hyphen (added in Xapian 2.0.0).
+#define SHY "\xc2\xad"
+    { "", "pro" SHY "duced in" SHY "de" SHY "pen" SHY "dently",
+	  "independently[2] produced[1]" },
 
     // Test parsing of initials
     { "", "I.B.M.", "ibm[1]" },

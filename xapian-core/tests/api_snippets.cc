@@ -2,7 +2,7 @@
  * @brief tests snippets
  */
 /* Copyright 2012 Mihai Bivol
- * Copyright 2015,2016,2017,2019,2020 Olly Betts
+ * Copyright 2015,2016,2017,2019,2020,2026 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -68,6 +68,12 @@ DEFINE_TESTCASE(snippet1, backend) {
 	// Should prefer "interesting" words for context.
 	{ "And of the rubbish document to this", 18, "...<b>rubbish</b> document..." },
 	{ "And if they document rubbish to be this", 18, "...document <b>rubbish</b>..." },
+
+    // Test handling of soft hyphen (added in Xapian 2.0.0).
+#define SHY "\xc2\xad"
+	{ "rub" SHY "bish ment" SHY "ion", 20,
+	  "<b>rub" SHY "bish</b> <b>ment" SHY "ion</b>" },
+
     };
 
     for (auto i : testcases) {

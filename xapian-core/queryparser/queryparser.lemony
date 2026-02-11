@@ -680,6 +680,9 @@ inline unsigned check_infix(unsigned ch) {
 	if (ch <= 0x200d || ch == 0x2060 || ch == 0xfeff)
 	    return UNICODE_IGNORE;
     }
+    // 0xad is SOFT HYPHEN which marks a potential hyphenation point in a word.
+    if (ch == 0xad)
+	return UNICODE_IGNORE;
     return 0;
 }
 

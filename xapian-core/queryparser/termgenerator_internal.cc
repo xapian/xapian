@@ -1,7 +1,7 @@
 /** @file
  * @brief TermGenerator class internals
  */
-/* Copyright (C) 2007-2024 Olly Betts
+/* Copyright (C) 2007-2026 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -92,6 +92,9 @@ check_infix(unsigned ch)
     // 0x201b is Unicode single opening quote with the tail rising.
     if (ch == 0x2019 || ch == 0x201b) return '\'';
     if (ch >= 0x200b && (ch <= 0x200d || ch == 0x2060 || ch == 0xfeff))
+	return UNICODE_IGNORE;
+    // 0xad is SOFT HYPHEN which marks a potential hyphenation point in a word.
+    if (ch == 0xad)
 	return UNICODE_IGNORE;
     return 0;
 }
