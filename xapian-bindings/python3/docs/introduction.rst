@@ -261,9 +261,15 @@ simplest example (which does nothing useful) would be as follows:
 ValueRangeProcessor
 ===================
 
+The `ValueRangeProcessor` class is deprecated and will be removed in Xapian
+2.0.0.  The replacement is `RangeProcessor` (added in Xapian 1.3.6).  Use
+`RangeProcessor` instead in new code - it's more flexible because it
+can return an arbitrary `Query` object.  This section documenting
+`ValueRangeProcessor` is here to aid migrating existing uses.
+
 The ValueRangeProcessor class (and its subclasses) provide an operator() method
 (which is exposed in python as a __call__() method, making the class instances
-into callables).  This method checks whether a beginning and end of a range are
+into callables).  This method checks whether the beginning and end of a range are
 in a format understood by the ValueRangeProcessor, and if so, converts the
 beginning and end into strings which sort appropriately.  ValueRangeProcessors
 can be defined in python (and then passed to the QueryParser), or there are
@@ -289,6 +295,19 @@ implementation, which returns a tuple as above.  For example::
       xapian.ValueRangeProcessor.__init__(self)
     def __call__(self, begin, end):
       return (7, "A"+begin, "B"+end)
+
+The equivalent `RangeProcessor` subclass to `MyVRP` would look like this:
+
+::
+
+  class MyRP(xapian.RangeProcessor):
+      def __init__(self):
+          xapian.RangeProcessor.__init__(self)
+      def __call__(self, begin, end):
+          return xapian.Query(xapian.Query.OP_VALUE_RANGE, "A"+begin, "B"+end)
+
+Return `xapian.Query(xapian.Query.OP_INVALID)` to signal that you don't want to
+handle an offered range.
 
 Apache and mod_python/mod_wsgi
 ==============================
