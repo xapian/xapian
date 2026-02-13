@@ -8,12 +8,14 @@ Python3 bindings for Xapian
 
 .. contents:: Table of contents
 
-Xapian's Python3 bindings are packaged in the `xapian` module - to use
-them, you'll need to add this to your code::
+The Python3 bindings for Xapian are packaged in the ``xapian`` module,
+so to use them you need to add this to your code::
 
   import xapian
 
-They currently require at least Python 3.3.
+Since Xapian 1.4.22 these bindings require Python >= 3.3.  If you still need
+support for older Python versions, Xapian <= 1.4.21 supports Python 3.2.
+If you still need Python2 support, there are separate bindings for that.
 
 The Python API largely follows the C++ API - the differences and
 additions are noted below.
@@ -47,72 +49,113 @@ on it like so::
   for i in doc.termlist():
     print(i.term.decode('utf-8'))
 
+Therefore, in order to avoid issues with character encodings, you should
+always pass text data to Xapian as unicode strings, or UTF-8 encoded byte
+strings.
+
+There is, however, no requirement for byte strings passed into
+Xapian to be valid UTF-8 encoded strings, unless they are being passed to a
+text processing routine (such as the query parser, or the stemming
+algorithms).  For example, it is perfectly valid to pass arbitrary binary
+data to the ``xapian.Document.set_data()`` method.
+
 Unicode
 =======
 
-Currently Xapian doesn't have built-in support for normalising Unicode, so
-if you want to normalise Unicode text, you'll need to do so in Python.  The
-standard `unicodedata` module provides a way to do this - you probably want the
-`NFKC` normalisation scheme, so normalising a query string prior to parsing it
-would look something like this::
+Unicode text is most often in NFC already, but if you need to normalise text
+before passing it to Xapian, the standard python module "``unicodedata``"
+provides support for normalising unicode: you probably want the "``NFKC``"
+normalisation scheme, so for example normalising a query string prior to
+parsing it would look something like this:
 
-   query_string = get_query_string()
-   query_string = unicodedata.normalize('NFKC', query_string)
-   qp = xapian.QueryParser()
-   query_obj = qp.parse_query(query_string)
+::
+    def parse_query(query_string):
+        query_string = unicodedata.normalize('NFKC', query_string)
+        qp = xapian.QueryParser()
+        query_obj = qp.parse_query(query_string)
 
 Exceptions
 ==========
 
-Xapian exceptions are translated into Python exceptions with the same names
-and inheritance hierarchy as the C++ exception classes.  The base class of
-all Xapian exceptions is the `xapian.Error` class, and this in
-turn is a child of the standard python `exceptions.Exception`
-class.
+Xapian-specific exceptions are subclasses of the :xapian-class:`Error`
+class, so you can trap all Xapian-specific exceptions like so::
 
-This means that programs can trap all xapian exceptions using `except
-xapian.Error`, and can trap all exceptions which don't indicate that
-the program should terminate using `except Exception`.
+    try:
+        do_something_with_xapian()
+    except xapian.Error as e:
+        print str(e)
+
+`xapian.Error` is a subclass of the standard Python
+`exceptions.Exception` class so will also be caught by `except Exception`.
 
 Iterators
 =========
 
-The iterator classes in the Xapian C++ API are wrapped in a Pythonic style.
+The iterator classes in the Xapian C++ API are wrapped in a pythonic style.
 The following are supported (where marked as "default iterator", it means
-`__iter__()` does the right thing, so you can for instance use
+`__iter__()` does the right thing so you can for instance use
 `for term in document` to iterate over terms in a Document object):
 
 .. table:: Python iterators
 
- ==================== =================================== ================================= =============
- Class                Python Method                       Equivalent C++ Method             Iterator type
- ==================== =================================== ================================= =============
- `MSet`               default iterator                    `begin()`                         `MSetIter`
- `ESet`               default iterator                    `begin()`                         `ESetIter`
- `Enquire`            `matching_terms()`                  `get_matching_terms_begin()`      `TermIter`
- `Query`              default iterator                    `get_terms_begin()`               `TermIter`
- `Database`           `allterms()` (and default iterator) `allterms_begin()`                `TermIter`
- `Database`           `postlist(term)`                    `postlist_begin(term)`            `PostingIter`
- `Database`           `termlist(docid)`                   `termlist_begin(docid)`           `TermIter`
- `Database`           `positionlist(docid, term)`         `positionlist_begin(docid, term)` `PositionIter`
- `Database`           `metadata_keys(prefix)`             `metadata_keys(prefix)`           `TermIter`
- `Database`           `spellings()`                       `spellings_begin(term)`           `TermIter`
- `Database`           `synonyms(term)`                    `synonyms_begin(term)`            `TermIter`
- `Database`           `synonym_keys(prefix)`              `synonym_keys_begin(prefix)`      `TermIter`
- `Document`           `values()`                          `values_begin()`                  `ValueIter`
- `Document`           `termlist()` (and default iterator) `termlist_begin()`                `TermIter`
- `QueryParser`        `stoplist()`                        `stoplist_begin()`                `TermIter`
- `QueryParser`        `unstemlist(term)`                  `unstem_begin(term)`              `TermIter`
- `ValueCountMatchSpy` `values()`                          `values_begin()`                  `TermIter`
- `ValueCountMatchSpy` `top_values()`                      `top_values_begin()`              `TermIter`
- ==================== =================================== ================================= =============
++----------------------+------------------------------------------+---------------------------------------+----------------------+
+| Class                | Python Method                            | Equivalent C++ Method                 | Python iterator type |
++======================+==========================================+=======================================+======================+
+|``MSet``              | default iterator                         | ``begin()``                           | ``MSetIter``         |
++----------------------+------------------------------------------+---------------------------------------+----------------------+
+|``ESet``              | default iterator                         | ``begin()``                           | ``ESetIter``         |
++----------------------+------------------------------------------+---------------------------------------+----------------------+
+|``Enquire``           | ``matching_terms()``                     | ``get_matching_terms_begin()``        | ``TermIter``         |
++----------------------+------------------------------------------+---------------------------------------+----------------------+
+|``Query``             | default iterator                         | ``get_terms_begin()``                 | ``TermIter``         |
++----------------------+------------------------------------------+---------------------------------------+----------------------+
+|``Database``          | ``allterms()`` (also as default iterator)| ``allterms_begin()``                  | ``TermIter``         |
++----------------------+------------------------------------------+---------------------------------------+----------------------+
+|``Database``          | ``postlist(term)``                       | ``postlist_begin(term)``              | ``PostingIter``      |
++----------------------+------------------------------------------+---------------------------------------+----------------------+
+|``Database``          | ``termlist(docid)``                      | ``termlist_begin(docid)``             | ``TermIter``         |
++----------------------+------------------------------------------+---------------------------------------+----------------------+
+|``Database``          | ``positionlist(docid, term)``            | ``positionlist_begin(docid, term)``   | ``PositionIter``     |
++----------------------+------------------------------------------+---------------------------------------+----------------------+
+|``Database``          | ``metadata_keys(prefix)``                | ``metadata_keys(prefix)``             | ``TermIter``         |
++----------------------+------------------------------------------+---------------------------------------+----------------------+
+|``Database``          | ``spellings()``                          | ``spellings_begin(term)``             | ``TermIter``         |
++----------------------+------------------------------------------+---------------------------------------+----------------------+
+|``Database``          | ``synonyms(term)``                       | ``synonyms_begin(term)``              | ``TermIter``         |
++----------------------+------------------------------------------+---------------------------------------+----------------------+
+|``Database``          | ``synonym_keys(prefix)``                 | ``synonym_keys_begin(prefix)``        | ``TermIter``         |
++----------------------+------------------------------------------+---------------------------------------+----------------------+
+|``Document``          | ``values()``                             | ``values_begin()``                    | ``ValueIter``        |
++----------------------+------------------------------------------+---------------------------------------+----------------------+
+|``Document``          | ``termlist()`` (also as default iterator)| ``termlist_begin()``                  | ``TermIter``         |
++----------------------+------------------------------------------+---------------------------------------+----------------------+
+|``QueryParser``       | ``stoplist()``                           | ``stoplist_begin()``                  | ``TermIter``         |
++----------------------+------------------------------------------+---------------------------------------+----------------------+
+|``QueryParser``       | ``unstemlist(term)``                     | ``unstem_begin(term)``                | ``TermIter``         |
++----------------------+------------------------------------------+---------------------------------------+----------------------+
+|``ValueCountMatchSpy``| ``values()``                             | ``values_begin()``                    | ``TermIter``         |
++----------------------+------------------------------------------+---------------------------------------+----------------------+
+|``ValueCountMatchSpy``| ``top_values()``                         | ``top_values_begin()``                | ``TermIter``         |
++----------------------+------------------------------------------+---------------------------------------+----------------------+
+
 
 The pythonic iterators generally return Python objects, with properties
 available as attribute values, with lazy evaluation where appropriate.  An
-exception is `PositionIter` (as returned by `Database.positionlist`), which
-returns an integer.
+exception is `PositionIter` (as returned by `Database.positionlist` for
+example), which returns an integer.
 
-The lazy evaluation is mainly transparent, but does become visible in one situation: if you keep an object returned by an iterator, without evaluating its properties to force the lazy evaluation to happen, and then move the iterator forward, the object may no longer be able to efficiently perform the lazy evaluation.  In this situation, an exception will be raised indicating that the information requested wasn't available.  This will only happen for a few of the properties - most are either not evaluated lazily (because the underlying Xapian implementation doesn't evaluate them lazily, so there's no advantage in lazy evaluation), or can be accessed even after the iterator has moved.  The simplest work around is to evaluate any properties you wish to use which are affected by this before moving the iterator.  The complete set of iterator properties affected by this is:
+The lazy evaluation is mainly transparent, but does become visible in one
+situation: if you keep an object returned by an iterator, without evaluating
+its properties to force the lazy evaluation to happen, and then move the
+iterator forward, the object may no longer be able to efficiently perform the
+lazy evaluation.  In this situation, an exception will be raised indicating
+that the information requested wasn't available.  This will only happen for a
+few of the properties - most are either not evaluated lazily (because the
+underlying Xapian implementation doesn't evaluate them lazily, so there's no
+advantage in lazy evaluation), or can be accessed even after the iterator has
+moved.  The simplest work around is to evaluate any properties you wish to use
+which are affected by this before moving the iterator.  The complete set of
+iterator properties affected by this is:
 
  * `Database.allterms` (also accessible as `Database.__iter__`): `termfreq`
  * `Database.termlist`: `termfreq` and `positer`
@@ -127,14 +170,18 @@ work using the C++ array dereferencing):
 
 .. table:: MSet additional methods
 
- ============================ ================================
- Method name                  Explanation
- ============================ ================================
- `get_hit(i)`                 returns MSetItem at index i
- `get_document_percentage(i)` `convert_to_percent(get_hit(i))`
- `get_document(i)`            `get_hit(i).get_document()`
- `get_docid(i)`               `get_hit(i).get_docid()`
- ============================ ================================
++--------------------------------+--------------------------------------+
+| Method name                    |            Explanation               |
++================================+======================================+
+| ``get_hit(i)``                 |  returns ``MSetItem`` at index ``i`` |
++--------------------------------+--------------------------------------+
+| ``get_document_percentage(i)`` | ``convert_to_percent(get_hit(i))``   |
++--------------------------------+--------------------------------------+
+| ``get_document(i)``            | ``get_hit(i).get_document()``        |
++--------------------------------+--------------------------------------+
+| ``get_docid(i)``               | ``get_hit(i).get_docid()``           |
++--------------------------------+--------------------------------------+
+
 
 Two MSet objects are equal if they have the same number and maximum possible
 number of members, and if every document member of the first MSet exists at the
@@ -177,32 +224,39 @@ In C++ there's a Xapian::Query constructor which takes a query operator and
 start/end iterators specifying a number of terms or queries, plus an optional
 parameter.  In Python, this is wrapped to accept any Python sequence (for
 example a list or tuple) of terms or queries (or even a mixture of terms
-and queries).  For example::
+and queries).  For example:
 
-   subq = xapian.Query(xapian.Query.OP_AND, "hello", "world")
-   q = xapian.Query(xapian.Query.OP_AND, [subq, "foo", xapian.Query("bar", 2)])
+
+::
+
+  subq = xapian.Query(xapian.Query.OP_AND, "hello", "world")
+  q = xapian.Query(xapian.Query.OP_AND, [subq, "foo", xapian.Query("bar", 2)])
+
 
 MatchAll and MatchNothing
 -------------------------
 
-As of 1.1.1, these are wrapped as `xapian.Query.MatchAll` and
+These are wrapped as `xapian.Query.MatchAll` and
 `xapian.Query.MatchNothing`.
+
 
 MatchDecider
 ============
 
-Custom MatchDeciders can be created in Python by subclassing
-`xapian.MatchDecider` and defining a `__call__` method
-that will do the work.  Make sure you call the base class constructor in
-your constructor.  The simplest example (which does nothing useful) would be as
-follows::
+Custom MatchDeciders can be created in Python - subclass
+`xapian.MatchDecider`, ensure you call the super-constructor from your
+constructor, and define a `__call__` method that will do the work. The
+simplest example (which does nothing useful) would be as follows:
+
+::
 
   class mymatchdecider(xapian.MatchDecider):
     def __init__(self):
       xapian.MatchDecider.__init__(self)
 
     def __call__(self, doc):
-      return 1
+      # Accept all documents.
+      return True
 
 ValueRangeProcessor
 ===================
@@ -239,10 +293,10 @@ implementation, which returns a tuple as above.  For example::
 Apache and mod_python/mod_wsgi
 ==============================
 
-Prior to Xapian 1.3.0, applications which use the xapian module had to be
-run in the main interpreter under mod_python and mod_wsgi.  As of 1.3.0,
-the xapian module no longer uses Python's simplified GIL state API, and so this
-restriction should no longer apply.
+Prior to Xapian 1.3.0, you had to tell mod_python and mod_wsgi to run
+applications which use Xapian in the main interpreter.  Xapian 1.3.0 no
+longer uses the simplified GIL state API, and so this restriction no
+longer applies.
 
 Test Suite
 ==========
