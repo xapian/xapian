@@ -20,15 +20,6 @@ If you still need Python2 support, there are separate bindings for that.
 The Python API largely follows the C++ API - the differences and
 additions are noted below.
 
-The `examples` subdirectory contains examples (based on the simple C++ example)
-showing how to use the Python bindings:
-`simpleindex.py <examples/simpleindex.py>`_,
-`simplesearch.py <examples/simplesearch.py>`_,
-`simpleexpand.py <examples/simpleexpand.py>`_.
-There's also
-`simplematchdecider.py <examples/simplematchdecider.py>`_
-which shows how to define a MatchDecider in Python.
-
 Strings
 =======
 
