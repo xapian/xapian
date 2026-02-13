@@ -59,7 +59,6 @@ provides support for normalising unicode: you probably want the "``NFKC``"
 normalisation scheme, so for example normalising a query string prior to
 parsing it would look something like this:
 
-   query_string = get_query_string()
 ::
     def parse_query(query_string):
         query_string = unicodedata.normalize('NFKC', query_string)
