@@ -277,8 +277,9 @@ class XAPIAN_VISIBILITY_DEFAULT DateRangeProcessor : public RangeProcessor {
      *
      *  @param slot_	The value slot number to query.
      *
-     *  @param str_	A string to look for to recognise values as belonging
-     *			to this date range.
+     *  @param str_	A prefix or suffix string to look for to recognise
+     *			values as belonging to this date range (@a flags_
+     *			determines whether this is a prefix or suffix).
      *
      *  @param flags_	Zero or more of the following flags, combined with
      *			bitwise-or:
@@ -303,16 +304,9 @@ class XAPIAN_VISIBILITY_DEFAULT DateRangeProcessor : public RangeProcessor {
      *  if prefix_ is false, the second value in a range must end with str_
      *  (and the first value may optionally end with str_).
      *
-     *  If str_ is empty, the Xapian::RP_SUFFIX and Xapian::RP_REPEATED are
-     *  irrelevant, and no special strings are required at the start or end of
-     *  the strings defining the range.
-     *
-     *  The remainder of both strings defining the endpoints must be valid
-     *  dates.
-     *
-     *  For example, if str_ is "created:", Xapian::RP_SUFFIX is not specified,
-     *  and the range processor has been added to the queryparser, the
-     *  queryparser will accept "created:1/1/2000..31/12/2001".
+     *  If str_ is empty then no prefix or suffix is checked for (and
+     *  Xapian::RP_SUFFIX and Xapian::RP_REPEATED are irrelevant) - anything
+     *  which looks like a date range will be processed.
      */
     DateRangeProcessor(Xapian::valueno slot_, std::string_view str_,
 		       unsigned flags_ = 0, int epoch_year_ = 1970)
@@ -321,14 +315,37 @@ class XAPIAN_VISIBILITY_DEFAULT DateRangeProcessor : public RangeProcessor {
 
     /** Check for a valid date range.
      *
-     *  If any specified prefix is present, and the range looks like a
-     *  date range, the dates are converted to the format YYYYMMDD and
-     *  combined into a value range query.
-     *
      *  @param begin	The start of the range as specified in the query string
      *			by the user.
      *  @param end	The end of the range as specified in the query string
      *			by the user.
+     *
+     *  If a prefix or suffix was specified at construction time, that must
+     *  be present on @a begin and/or @a end (taking @a Xapian::RP_SUFFIX and
+     *  @a Xapian::RP_REPEATED into account).
+     *
+     *  Then if the range looks like a date range, the dates are converted to
+     *  the format YYYYMMDD and combined into a value range query.
+     *
+     *  Most numeric date formats are recognised:
+     *
+     *  * YYYYMMDD - e.g. `20251225..20260214`
+     *  * YYYY-MM-DD (ISO) - e.g. `2025-12-25..2026-02-14`
+     *  * month/day/year (US) - e.g. `12/25/2025..2/14/2026`
+     *  * day/month/year (much of the world) - e.g. `25/12/2025..14/2/2026`
+     *
+     *  The delimiter can be `-`, `/` or `.` for any of the delimited formats,
+     *  but must be the same within a single date.
+     *
+     *  Some dates are unfortunately ambiguous and could be in either of
+     *  the last two formats - for example `2/3/2025` could be March 2nd or
+     *  February 3rd.  The range start is assumed to be before the range
+     *  end which can resolve some ambiguous cases, but otherwise
+     *  day/month/year is assumed unless flag @a Xapian::RP_DATE_PREFER_MDY
+     *  was specified.
+     *
+     *  Two digit years can be used with the last two formats - constructor
+     *  parameter @a epoch_year_ determines how these are interpreted.
      */
     Xapian::Query operator()(const std::string& begin, const std::string& end);
 };
