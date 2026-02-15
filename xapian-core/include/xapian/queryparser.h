@@ -183,10 +183,12 @@ class XAPIAN_VISIBILITY_DEFAULT RangeProcessor
      *			 * Xapian::RP_SUFFIX - require @a str_ as a suffix
      *			   instead of a prefix.
      *			 * Xapian::RP_REPEATED - optionally allow @a str_
-     *			   on both ends of the range - e.g. $1..$10 or
-     *			   5m..50m.  By default a prefix is only checked for on
-     *			   the start (e.g. date:1/1/1980..31/12/1989), and a
-     *			   suffix only on the end (e.g. 2..12kg).
+     *			   on both ends of the range, or only on the non-empty
+     *			   end - e.g. `$1..$10`, `..$10`, `5m..50m`, or `5m..`.
+     *			   By default a prefix is only checked for on
+     *			   the start (e.g. `date:1/1/1980..31/12/1989` or
+     *			   `date:..31/12/1989`), and a suffix only on the end
+     *			   (e.g. `2..12kg` or `2..kg`).
      */
     explicit RangeProcessor(Xapian::valueno slot_,
 			    const std::string& str_ = std::string(),

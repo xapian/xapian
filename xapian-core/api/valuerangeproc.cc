@@ -1,7 +1,7 @@
 /** @file
  * @brief Standard ValueRangeProcessor and RangeProcessor subclasses
  */
-/* Copyright (C) 2007,2008,2009,2010,2012,2016,2018 Olly Betts
+/* Copyright (C) 2007-2026 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -269,7 +269,19 @@ RangeProcessor::check_range(const string& b, const string& e)
     bool prefix = !(flags & Xapian::RP_SUFFIX);
     bool repeated = (flags & Xapian::RP_REPEATED);
 
-    if (prefix) {
+    if (repeated && prefix && b.empty()) {
+	// Handle empty start and prefix on end, e.g.: ..$20
+	if (!startswith(e, str)) {
+	    goto not_our_range;
+	}
+	off_e = str.size();
+    } else if (repeated && !prefix && e.empty()) {
+	// Handle empty end and suffix on start, e.g.: 20kg..
+	if (!endswith(b, str)) {
+	    goto not_our_range;
+	}
+	len_b = b.size() - str.size();
+    } else if (prefix) {
 	// If there's a prefix, require it on the start of the range.
 	if (!startswith(b, str)) {
 	    // Prefix not given.
