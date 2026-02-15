@@ -1958,18 +1958,31 @@ static const test test_value_range2_queries[] = {
     { "$10..$20", "VALUE_RANGE 4 \\xad \\xb1" },
     // Feature test for single-ended ranges (ticket#480):
     { "$..20", "VALUE_LE 4 \\xb1" },
-    { "..$20", "VALUE_LE 3 $20" }, // FIXME: probably should parse as $..20
+    { "..$20", "VALUE_LE 4 \\xb1" },
     { "$10..", "VALUE_GE 4 \\xad" },
     { "12..42kg", "VALUE_RANGE 5 \\xae \\xb5@" },
     { "12kg..42kg", "VALUE_RANGE 5 \\xae \\xb5@" },
     { "12kg..42", "VALUE_RANGE 3 12kg 42" },
+    { "..42kg", "VALUE_LE 5 \\xb5@" },
+    { "kg..42kg", "VALUE_LE 5 \\xb5@" },
+    { "12..kg", "VALUE_GE 5 \\xae" },
+    { "12kg..", "VALUE_GE 5 \\xae" },
+    { "1..5!", "VALUE_RANGE 6 \\xa0 \\xa9" },
+    { "..5!", "VALUE_LE 6 \\xa9" },
+    { "1..!", "VALUE_GE 6 \\xa0" },
     { "10..$20", "" }, // start > end
+    { "kg..42", "" }, // start > end
     { "1999-03-12..2020-12-30", "VALUE_RANGE 1 19990312 20201230" },
     { "1999/03/12..2020/12/30", "VALUE_RANGE 1 19990312 20201230" },
     { "1999.03.12..2020.12.30", "VALUE_RANGE 1 19990312 20201230" },
+    { "date:1999-03-12..2020-12-30", "VALUE_RANGE 1 19990312 20201230" },
     // Feature test for single-ended ranges (ticket#480):
     { "..2020.12.30", "VALUE_LE 1 20201230" },
     { "1999.03.12..", "VALUE_GE 1 19990312" },
+    { "date:..2020.12.30", "VALUE_LE 1 20201230" },
+    { "date:1999.03.12..", "VALUE_GE 1 19990312" },
+    { "..date:2020.12.30", "VALUE_LE 3 date:2020.12.30" },
+    { "1999.03.12..date:", "VALUE_RANGE 3 1999.03.12 date:" },
     { "12/03/99..12/04/01", "VALUE_RANGE 1 19990312 20010412" },
     { "03-12-99..04-14-01", "VALUE_RANGE 1 19990312 20010414" },
     { "1/2/3..2/3/4", "VALUE_RANGE 1 20030201 20040302" },
@@ -1981,6 +1994,9 @@ static const test test_value_range2_queries[] = {
     { "$12..13b", "VALUE_RANGE 3 $12 13b" },
     { "$12..12kg", "VALUE_RANGE 3 $12 12kg" },
     { "12..b12kg", "VALUE_RANGE 3 12 b12kg" },
+    // Test repeating without RP_REPEATED.
+    { "date:2000-01-01..date:2001-01-01", "VALUE_RANGE 3 date:2000-01-01 date:2001-01-01" },
+    { "1!..5!", "VALUE_RANGE 3 1! 5!" },
     { NULL, NULL }
 };
 
@@ -1991,14 +2007,18 @@ DEFINE_TESTCASE(qp_range2, !backend) {
     Xapian::QueryParser qp;
     qp.add_boolean_prefix("test", "XTEST");
     Xapian::DateRangeProcessor rp_date(1);
+    Xapian::DateRangeProcessor rp_date2(1, "date:");
     Xapian::NumberRangeProcessor rp_num(2);
     Xapian::RangeProcessor rp_str(3);
     Xapian::NumberRangeProcessor rp_cash(4, "$", RP_REPEATED);
     Xapian::NumberRangeProcessor rp_weight(5, "kg", RP_SUFFIX|RP_REPEATED);
+    Xapian::NumberRangeProcessor rp_suffix(6, "!", RP_SUFFIX);
     qp.add_rangeprocessor(&rp_date);
+    qp.add_rangeprocessor(&rp_date2);
     qp.add_rangeprocessor(&rp_num);
     qp.add_rangeprocessor(&rp_cash);
     qp.add_rangeprocessor(&rp_weight);
+    qp.add_rangeprocessor(&rp_suffix);
     qp.add_rangeprocessor(&rp_str);
     for (const test *p = test_value_range2_queries; p->query; ++p) {
 	string expect, parsed;
