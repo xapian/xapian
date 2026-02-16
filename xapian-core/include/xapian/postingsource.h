@@ -1,7 +1,7 @@
 /** @file
  *  @brief External sources of posting information
  */
-/* Copyright (C) 2007,2008,2009,2010,2011,2012,2013,2014,2015,2016 Olly Betts
+/* Copyright (C) 2007-2026 Olly Betts
  * Copyright (C) 2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -730,7 +730,11 @@ class XAPIAN_VISIBILITY_DEFAULT ValueMapPostingSource
 /** A posting source which returns a fixed weight for all documents.
  *
  *  This returns entries for all documents in the given database, with a fixed
- *  weight (specified by a parameter to the constructor).
+ *  weight (specified by a parameter to the constructor).  This can be used to
+ *  boost a sub-query by OP_AND-ing a FixedWeightPostingSource with that
+ *  sub-query - this OP_AND will match the same documents as the sub-query
+ *  does, but documents matching the subquery will get the specified extra
+ *  weight contribution.
  */
 class XAPIAN_VISIBILITY_DEFAULT FixedWeightPostingSource : public PostingSource {
     /// The database we're reading documents from.
