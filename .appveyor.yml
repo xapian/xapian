@@ -10,7 +10,7 @@ clone_folder: c:\projects\xapian
 environment:
   global:
     AUTOMATED_TESTING: 1
-    CONFIGOPTS: --disable-documentation
+    CONFIGOPTS: "--disable-documentation --enable-werror"
   matrix:
   - platform: x86
     APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
