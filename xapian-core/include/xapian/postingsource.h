@@ -609,18 +609,17 @@ class XAPIAN_VISIBILITY_DEFAULT ValueWeightPostingSource
  *  weight contribution to a query based on the values stored in a slot.  The
  *  values in the slot must be serialised as by @a sortable_serialise().
  *
- *  However, this posting source is additionally given a range of document IDs,
- *  within which the weight is known to be decreasing.  ie, for all documents
- *  with ids A and B within this range (including the endpoints), where A is
- *  less than B, the weight of A is less than or equal to the weight of B.
- *  This can allow the posting source to skip to the end of the range quickly
- *  if insufficient weight is left in the posting source for a particular
- *  source.
+ *  However, this posting source is additionally given an inclusive range of
+ *  document IDs within which the weight is known to be decreasing, so if
+ *  documents in this range have IDs A and B and B > A then weight of B <=
+ *  weight of A.  This can allow the posting source to skip to the end of the
+ *  range quickly if insufficient weight is left in the posting source for a
+ *  particular query to match.
  *
  *  By default, the range is assumed to cover all document IDs.
  *
- *  The ordering property can be arranged at index time, or by sorting an
- *  indexed database to produce a new, sorted, database.
+ *  The ordering property would typically be arranged at index time by
+ *  controlling the order that documents are indexed in.
  */
 class XAPIAN_VISIBILITY_DEFAULT DecreasingValueWeightPostingSource
 	: public Xapian::ValueWeightPostingSource {
