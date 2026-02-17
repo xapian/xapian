@@ -1702,8 +1702,8 @@ DEFINE_TESTCASE(termlist1, backend) {
 		   Xapian::TermIterator t = db.termlist_begin(0));
     TEST_EXCEPTION(Xapian::DocNotFoundError,
 		   Xapian::TermIterator t = db.termlist_begin(2));
-    /* Cause the database to be used properly, showing up problems
-     * with the link being in a bad state.  CME */
+    // Cause the database to be used properly, showing up problems
+    // with the link being in a bad state.
     Xapian::TermIterator temp = db.termlist_begin(1);
     TEST_EXCEPTION(Xapian::DocNotFoundError,
 		   Xapian::TermIterator t = db.termlist_begin(999999999));
