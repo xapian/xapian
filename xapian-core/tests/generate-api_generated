@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-my $copyright = 'Copyright (C) 2007,2009,2012,2014,2015,2016,2017,2018 Olly Betts';
+my $copyright = 'Copyright (C) 2007-2026 Olly Betts';
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -23,11 +23,21 @@ my $generated_warning =
 my %uncopyableclasses = (
     'BB2Weight' => '',
     'BM25Weight' => '',
+    'BM25PlusWeight' => '',
     'BoolWeight' => '',
+    'CoordWeight' => '',
+    'DiceCoeffWeight' => '',
     'DLHWeight' => '',
+    'DPHWeight' => '',
     'IfB2Weight' => '',
     'IneB2Weight' => '',
     'InL2Weight' => '',
+    'LM2StageWeight' => '',
+    'LMAbsDiscountWeight' => '',
+    'LMDirichletWeight' => '',
+    'LMJMWeight' => '',
+    'PL2Weight' => '',
+    'PL2PlusWeight' => '',
     'TfIdfWeight' => '',
     'TradWeight' => '',
     'ValuePostingSource' => '0',
@@ -60,6 +70,7 @@ my %copyableclasses = (
     'Stem' => '',
     'TermGenerator' => '',
     'TermIterator' => '',
+    'Utf8Iterator' => '',
     'ValueIterator' => '',
     'WritableDatabase' => ''
 );
@@ -72,13 +83,24 @@ my %no_get_description = (
     'Registry' => 1,
     'BB2Weight' => 1,
     'BM25Weight' => 1,
+    'BM25PlusWeight' => 1,
     'BoolWeight' => 1,
+    'CoordWeight' => 1,
+    'DiceCoeffWeight' => 1,
     'DLHWeight' => 1,
+    'DPHWeight' => 1,
     'IfB2Weight' => 1,
     'IneB2Weight' => 1,
     'InL2Weight' => 1,
+    'LM2StageWeight' => 1,
+    'LMAbsDiscountWeight' => 1,
+    'LMDirichletWeight' => 1,
+    'LMJMWeight' => 1,
+    'PL2Weight' => 1,
+    'PL2PlusWeight' => 1,
     'TfIdfWeight' => 1,
-    'TradWeight' => 1
+    'TradWeight' => 1,
+    'Utf8Iterator' => 1
 );
 
 print <<'END';
