@@ -36,7 +36,19 @@ Xapian::valueno
 StringValueRangeProcessor::operator()(string &begin, string &end)
 {
     if (str.size()) {
-	if (prefix) {
+	if (prefix && begin.empty()) {
+	    // Handle empty start and prefix on end, e.g.: ..$20
+	    if (!startswith(end, str)) {
+		return Xapian::BAD_VALUENO;
+	    }
+	    end.erase(0, str.size());
+	} else if (!prefix && end.empty()) {
+	    // Handle empty end and suffix on start, e.g.: 20kg..
+	    if (!endswith(begin, str)) {
+		return Xapian::BAD_VALUENO;
+	    }
+	    begin.resize(begin.size() - str.size());
+	} else if (prefix) {
 	    // If there's a prefix, require it on the start of the range.
 	    if (!startswith(begin, str)) {
 		// Prefix not given.

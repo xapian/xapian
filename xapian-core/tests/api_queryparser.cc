@@ -1624,7 +1624,6 @@ static const test test_value_range2_queries[] = {
     { "1999.03.12..", "VALUE_GE 1 19990312" },
     { "date:..2020.12.30", "VALUE_LE 1 20201230" },
     { "date:1999.03.12..", "VALUE_GE 1 19990312" },
-    { "..date:2020.12.30", "VALUE_LE 3 date:2020.12.30" },
     { "1999.03.12..date:", "VALUE_RANGE 3 1999.03.12 date:" },
     { "12/03/99..12/04/01", "VALUE_RANGE 1 19990312 20010412" },
     { "03-12-99..04-14-01", "VALUE_RANGE 1 19990312 20010414" },
@@ -1637,6 +1636,9 @@ static const test test_value_range2_queries[] = {
     { "$12..13b", "VALUE_RANGE 3 $12 13b" },
     { "$12..12kg", "VALUE_RANGE 3 $12 12kg" },
     { "12..b12kg", "VALUE_RANGE 3 12 b12kg" },
+    { NULL, "" },
+    // Extra test-cases for RangeProcessor only:
+    { "..date:2020.12.30", "VALUE_LE 3 date:2020.12.30" },
     // Test repeating without RP_REPEATED.
     { "date:2000-01-01..date:2001-01-01", "VALUE_RANGE 3 date:2000-01-01 date:2001-01-01" },
     { "1!..5!", "VALUE_RANGE 3 1! 5!" },
@@ -1648,14 +1650,18 @@ DEFINE_TESTCASE(qp_value_range2, !backend) {
     Xapian::QueryParser qp;
     qp.add_boolean_prefix("test", "XTEST");
     Xapian::DateValueRangeProcessor vrp_date(1);
+    Xapian::DateValueRangeProcessor vrp_date2(1, "date:");
     Xapian::NumberValueRangeProcessor vrp_num(2);
     Xapian::StringValueRangeProcessor vrp_str(3);
     Xapian::NumberValueRangeProcessor vrp_cash(4, "$");
     Xapian::NumberValueRangeProcessor vrp_weight(5, "kg", false);
+    Xapian::NumberValueRangeProcessor vrp_suffix(6, "!", false);
     qp.add_valuerangeprocessor(&vrp_date);
+    qp.add_valuerangeprocessor(&vrp_date2);
     qp.add_valuerangeprocessor(&vrp_num);
     qp.add_valuerangeprocessor(&vrp_cash);
     qp.add_valuerangeprocessor(&vrp_weight);
+    qp.add_valuerangeprocessor(&vrp_suffix);
     qp.add_valuerangeprocessor(&vrp_str);
     for (const test *p = test_value_range2_queries; p->query; ++p) {
 	string expect, parsed;
@@ -1699,7 +1705,11 @@ DEFINE_TESTCASE(qp_range2, !backend) {
     qp.add_rangeprocessor(&rp_weight);
     qp.add_rangeprocessor(&rp_suffix);
     qp.add_rangeprocessor(&rp_str);
-    for (const test *p = test_value_range2_queries; p->query; ++p) {
+    for (const test *p = test_value_range2_queries;
+	 p->query || p->expect; ++p) {
+	// Continue on to extra testcases for RangeProcessor only.
+	if (!p->query) continue;
+
 	string expect, parsed;
 	if (p->expect)
 	    expect = p->expect;
