@@ -564,13 +564,13 @@ class XAPIAN_VISIBILITY_DEFAULT MSetIterator {
     /// @private
     typedef std::random_access_iterator_tag iterator_category;
     /// @private
-    typedef std::string value_type;
+    typedef Xapian::docid value_type;
     /// @private
     typedef Xapian::termcount_diff difference_type;
     /// @private
-    typedef std::string * pointer;
+    typedef value_type* pointer;
     /// @private
-    typedef std::string & reference;
+    typedef value_type& reference;
     // @}
 
     /// Move the iterator forwards by n positions.
