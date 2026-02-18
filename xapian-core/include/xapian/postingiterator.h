@@ -149,9 +149,9 @@ class XAPIAN_VISIBILITY_DEFAULT PostingIterator {
     /// @private
     typedef Xapian::doccount_diff difference_type;
     /// @private
-    typedef Xapian::docid * pointer;
+    typedef value_type* pointer;
     /// @private
-    typedef Xapian::docid & reference;
+    typedef value_type reference;
     // @}
 
   private:

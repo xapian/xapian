@@ -136,9 +136,9 @@ class XAPIAN_VISIBILITY_DEFAULT ESet {
     /// @private
     typedef const value_type * const_pointer;
     /// @private
-    typedef value_type & reference;
+    typedef value_type reference;
     /// @private
-    typedef const value_type & const_reference;
+    typedef const value_type const_reference;
     // @}
     //
     /** @private @internal ESet is what the C++ STL calls a container.
@@ -224,9 +224,9 @@ class XAPIAN_VISIBILITY_DEFAULT ESetIterator {
     /// @private
     typedef Xapian::termcount_diff difference_type;
     /// @private
-    typedef std::string * pointer;
+    typedef value_type* pointer;
     /// @private
-    typedef std::string & reference;
+    typedef value_type reference;
     // @}
 
     /// Move the iterator forwards by n positions.

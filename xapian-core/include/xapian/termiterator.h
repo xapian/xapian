@@ -153,9 +153,9 @@ class XAPIAN_VISIBILITY_DEFAULT TermIterator {
     /// @private
     typedef Xapian::termcount_diff difference_type;
     /// @private
-    typedef std::string * pointer;
+    typedef value_type* pointer;
     /// @private
-    typedef std::string & reference;
+    typedef value_type reference;
     // @}
 
   private:

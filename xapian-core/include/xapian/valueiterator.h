@@ -194,9 +194,9 @@ class XAPIAN_VISIBILITY_DEFAULT ValueIterator {
     /// @private
     typedef Xapian::doccount_diff difference_type;
     /// @private
-    typedef std::string * pointer;
+    typedef value_type* pointer;
     /// @private
-    typedef std::string & reference;
+    typedef value_type reference;
     // @}
 };
 
