@@ -2,7 +2,7 @@
  * @brief tests which don't need a backend
  */
 /* Copyright (C) 2009 Richard Boulton
- * Copyright (C) 2009-2025 Olly Betts
+ * Copyright (C) 2009-2026 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -31,6 +31,8 @@
 #include "str.h"
 #include "testsuite.h"
 #include "testutils.h"
+
+#include <vector>
 
 using namespace std;
 
@@ -1039,4 +1041,12 @@ DEFINE_TESTCASE(errorcopyctor, !backend) {
 	return;
     }
     FAIL_TEST("Expected exception to be thrown");
+}
+
+// Regression test for MSetIterator having incorrect iterator traits.
+DEFINE_TESTCASE(stlmsetiterator, !backend) {
+    Xapian::MSet mset;
+    vector<Xapian::docid> v;
+    // Next line gave a compile error with libc++ in 1.4.30.
+    v.insert(v.begin(), mset.begin(), mset.end());
 }

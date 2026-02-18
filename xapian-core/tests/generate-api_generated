@@ -189,4 +189,32 @@ for my $class (sort keys %copyableclasses) {
 
 print <<'END';
 }
+
+/// Test that iterator classes have consistent iterator traits.
+DEFINE_TESTCASE(itortraits1, !backend) {
+END
+
+for my $class (sort keys %copyableclasses) {
+    next unless $class =~ /Iterator$/;
+    print <<"END";
+    {
+	using traits = iterator_traits<Xapian::$class>;
+	using reference_base_ = std::remove_reference<traits::reference>::type;
+	using reference_base = std::remove_const<reference_base_>::type;
+	using pointer_base_ = std::remove_pointer<traits::pointer>::type;
+	using pointer_base = std::remove_const<pointer_base_>::type;
+	static_assert(is_same<decltype(*std::declval<Xapian::$class>()),
+			      pointer_base>::value,
+		      "iterator_traits<$class>::pointer consistent with "
+		      "type from dereferencing $class");
+	static_assert(is_same<decltype(*std::declval<Xapian::$class>()),
+			      reference_base>::value,
+		      "iterator_traits<$class>::reference consistent with "
+		      "type from dereferencing $class");
+    }
+END
+}
+
+print <<'END';
+}
 END
