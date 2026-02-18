@@ -212,8 +212,8 @@ class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
     typedef std::input_iterator_tag iterator_category;
     typedef unsigned value_type;
     typedef size_t difference_type;
-    typedef const unsigned* pointer;
-    typedef const unsigned& reference;
+    typedef value_type* pointer;
+    typedef value_type reference;
     //@}
 };
 

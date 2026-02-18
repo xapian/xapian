@@ -127,9 +127,9 @@ class XAPIAN_VISIBILITY_DEFAULT PositionIterator {
     /// @private
     typedef Xapian::termpos_diff difference_type;
     /// @private
-    typedef Xapian::termpos * pointer;
+    typedef value_type* pointer;
     /// @private
-    typedef Xapian::termpos & reference;
+    typedef value_type reference;
     // @}
 };
 

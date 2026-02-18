@@ -1078,10 +1078,67 @@ DEFINE_TESTCASE(emptydbbounds, !backend) {
     TEST_EQUAL(db.get_unique_terms_upper_bound(), 0);
 }
 
-// Regression test for MSetIterator having incorrect iterator traits.
+// Test ESetIterator iterator_traits.
+DEFINE_TESTCASE(stlesetiterator, !backend) {
+    Xapian::ESet eset;
+    vector<string> v;
+    // This gave a compile error with stdc++ and -DGLIBCXX_DEBUG in 1.4.30:
+    v.insert(v.begin(), eset.begin(), eset.end());
+}
+
+// Test MSetIterator iterator_traits.
 DEFINE_TESTCASE(stlmsetiterator, !backend) {
     Xapian::MSet mset;
     vector<Xapian::docid> v;
-    // Next line gave a compile error with libc++ in 1.4.30.
+    // In Xapian <= 1.4.30 this gave a compile error with libc++, or
+    // with stdc++ and -DGLIBCXX_DEBUG:
     v.insert(v.begin(), mset.begin(), mset.end());
+}
+
+// Test PositionIterator iterator_traits.
+DEFINE_TESTCASE(stlpositioniterator, !backend) {
+    Xapian::Database db;
+    vector<Xapian::termpos> v;
+    if (db.get_doccount() > 0) {
+	// In Xapian <= 1.4.30 this gave a compile error with stdc++ and
+	// -DGLIBCXX_DEBUG:
+	v.insert(v.begin(),
+		 db.positionlist_begin(1, ""),
+		 db.positionlist_end(1, ""));
+    }
+}
+
+// Test PostingIterator iterator_traits.
+DEFINE_TESTCASE(stlpostingiterator, !backend) {
+    Xapian::Database db;
+    vector<Xapian::docid> v;
+    // In Xapian <= 1.4.30 this gave a compile error with stdc++ and
+    // -DGLIBCXX_DEBUG:
+    v.insert(v.begin(), db.postlist_begin(""), db.postlist_end(""));
+}
+
+// Test TermIterator iterator_traits.
+DEFINE_TESTCASE(stltermiterator, !backend) {
+    Xapian::Document doc;
+    vector<string> v;
+    // In Xapian <= 1.4.30 this gave a compile error with stdc++ and
+    // -DGLIBCXX_DEBUG:
+    v.insert(v.begin(), doc.termlist_begin(), doc.termlist_end());
+}
+
+// Test Utf8Iterator iterator_traits.
+DEFINE_TESTCASE(stlutf8iterator, !backend) {
+    vector<unsigned> v;
+    // In Xapian <= 1.4.30 this gave a compile error with stdc++ and
+    // -DGLIBCXX_DEBUG:
+    v.insert(v.begin(), Xapian::Utf8Iterator(""), Xapian::Utf8Iterator());
+}
+
+// Test ValueIterator iterator_traits.
+DEFINE_TESTCASE(stlvalueiterator, !backend) {
+    Xapian::Document doc;
+    vector<string> v;
+    // In Xapian <= 1.4.30 this gave a compile error with stdc++ and
+    // -DGLIBCXX_DEBUG:
+    v.insert(v.begin(), doc.values_begin(), doc.values_end());
 }

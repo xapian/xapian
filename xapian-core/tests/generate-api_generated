@@ -103,6 +103,12 @@ my %no_get_description = (
     'Utf8Iterator' => 1
 );
 
+# Classes which are STL-compatible containers.
+my %container_classes = (
+    'ESet' => 1,
+    'MSet' => 1
+);
+
 print <<'END';
 /** @file
  * @brief test common features of API classes
@@ -210,18 +216,41 @@ for my $class (sort keys %copyableclasses) {
     print <<"END";
     {
 	using traits = iterator_traits<Xapian::$class>;
-	using reference_base_ = std::remove_reference<traits::reference>::type;
-	using reference_base = std::remove_const<reference_base_>::type;
-	using pointer_base_ = std::remove_pointer<traits::pointer>::type;
-	using pointer_base = std::remove_const<pointer_base_>::type;
+	using pointer_base = std::remove_pointer<traits::pointer>::type;
+	using reference_base = std::remove_reference<traits::reference>::type;
 	static_assert(is_same<decltype(*std::declval<Xapian::$class>()),
 			      pointer_base>::value,
-		      "iterator_traits<$class>::pointer consistent with "
+		      "iterator_traits<$class>::pointer inconsistent with "
 		      "type from dereferencing $class");
 	static_assert(is_same<decltype(*std::declval<Xapian::$class>()),
 			      reference_base>::value,
-		      "iterator_traits<$class>::reference consistent with "
+		      "iterator_traits<$class>::reference inconsistent with "
 		      "type from dereferencing $class");
+    }
+END
+}
+
+print <<'END';
+}
+
+/// Test that container classes have consistent iterator traits.
+DEFINE_TESTCASE(containertraits1, !backend) {
+END
+
+for my $class (sort keys %container_classes) {
+    print <<"END";
+    {
+	using pointer_base =
+	    std::remove_pointer<Xapian::${class}::pointer>::type;
+	using reference_base =
+	    std::remove_reference<Xapian::${class}::reference>::type;
+	using value_type = Xapian::${class}::value_type;
+	static_assert(is_same<value_type, pointer_base>::value,
+		      "Xapian::${class}::pointer inconsistent with "
+		      "Xapian::${class}::value_type");
+	static_assert(is_same<value_type, reference_base>::value,
+		      "Xapian::${class}::reference inconsistent with "
+		      "Xapian::${class}::value_type");
     }
 END
 }

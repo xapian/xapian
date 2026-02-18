@@ -480,9 +480,9 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
     /// @private
     typedef const value_type * const_pointer;
     /// @private
-    typedef value_type & reference;
+    typedef value_type reference;
     /// @private
-    typedef const value_type & const_reference;
+    typedef const value_type const_reference;
     // @}
     //
     /** @private @internal MSet is what the C++ STL calls a container.
@@ -570,7 +570,7 @@ class XAPIAN_VISIBILITY_DEFAULT MSetIterator {
     /// @private
     typedef value_type* pointer;
     /// @private
-    typedef value_type& reference;
+    typedef value_type reference;
     // @}
 
     /// Move the iterator forwards by n positions.
