@@ -1,6 +1,6 @@
-up to: fc9872e7d9e1f03147cbd4b1f772a7ed2eb37d27
+up to: cf984d95d4154d393cbb0ab45808c225d5b765c1
 
-Omega 1.5.0 (2026-0?-??):
+Omega 2.0.0 (2026-0?-??):
 
 general:
 
@@ -8,7 +8,9 @@ general:
   for the xapian-letor module.  Patch from Vivek Pal.
 
 * Remove htdig2omega scripts.  The last htdig release was in 2004 so these
-  scripts no longer seem at all useful.
+  scripts no longer seem at all useful.  (Note that omindex still supports
+  htdig's <!--htdig_noindex-->...<!--/htdig_noindex--> markup of sections
+  of pages not to index.)
 
 documentation:
 
@@ -37,28 +39,28 @@ indexers:
   characters in the document data, which can be confusing when looking at an
   Omega database with xapian-delve.  I think the original intent was that the
   sample generating/selecting code might use this information, but in hindsight
-  I'm not sure that it's very useful there even.
+  it doesn't seem useful there even.
 
 * Convert HTML checkboxes to Unicode checkbox characters in the sample.
 
-* Use C++17 std::string_view to avoid some copying of data during indexing.
+* Use C++17 std::string_view to eliminate some copying of data during indexing.
   See #785.
 
 * omindex:
 
   + Support piping input to filter commands on stdin, which is supported by
-    most of the external filters we support out of the box.  Piping input
-    means we can avoid having to open the input file an extra time (omindex
-    needs to open the input file so it can calculate a checksum of the contents
-    for duplicate detection, and also may need to use libmagic to find the
+    most of the external filter commands we support out of the box.  Piping
+    input means we can avoid having to open the input file an extra time
+    (which omindex needs to do so it can calculate a checksum of the contents
+    for duplicate detection, and also if it needs to use libmagic to find the
     file's MIME Content-Type).
 
   + Switch hard-coded filter commands to use argv arrays.  We already avoided a
     shell for them, but now we also avoid the overhead of having to parse a
     command line string into an argv array.
 
-  + Perform shell emulation parsing before fork() since we're not meant to call
-    malloc() between fork() and exec*().
+  + Perform shell emulation parsing before fork() since malloc() isn't safe to
+    call between fork() and exec*().
 
   + Add support for extracting text using libraries.  The code which calls
     each library is run in a worker sub-process so that bugs in the library
@@ -69,7 +71,8 @@ indexers:
     - libetonyek: Apple iWork (keynote, pages, numbers)
     - Gmime: MIME Email and Usenet articles
     - Tesseract: extract text from image files using OCR
-    - libarchive: OpenDocument format, Microsoft XML formats (docx, xlsx, pptx, xps)
+    - libarchive: OpenDocument format, Microsoft XML formats (docx, xlsx, pptx,
+      xps)
     - libabw: Abiword documents (.abw, .abt, .zabw)
     - libcdr: CorelDRAW format (.cdr)
     - libextractor: extract meta-data from audio and video files
@@ -113,14 +116,14 @@ indexers:
     boolean=Q` and `split=/ boolean=XP` can't be combined into a single line of
     actions with the same effect as each on a separate line.
 
-    Now the check is based on whether there are any input fields which don't
-    match a line in the index script containing the "unique" action, and the
-    example above works when written as two lines.
+    Now the check is instead based on whether there are any input fields which
+    don't match a line in the index script containing the "unique" action -
+    with this rule the example above works when written as two lines.
 
 omega:
 
-* Support new QueryParser options: flag_fuzzy flag_wildcard_glob
-  flag_wildcard_multi flag_wildcard_single flag_word_breaks
+* Support new QueryParser options: flag_fuzzy flag_no_proper_noun_heuristic
+  flag_wildcard_glob flag_wildcard_multi flag_wildcard_single flag_word_breaks
 
 * New $random and $srandom OmegaScript commands. Patch from Tanmay Sachan.
 
@@ -132,17 +135,18 @@ omega:
 * $snippet now supports additional optional arguments to allow specifying the
   flags, and strings for bra, ket and gap.
 
-* $log{} now returns an error message.  This is upwardly incompatible in cases
-  where $log fails, but means it's now possible to report logging errors, and
-  one can wrap the `$log{...}` in `$if{` and `}` to ignore errors which also
-  works with older versions.
+* $log{} now returns an error message if there's a problem updating the log.
+  This is upwardly incompatible in cases where $log fails, but means it's now
+  possible to report logging errors, and one can wrap the `$log{...}` in `$if{`
+  and `}` to ignore errors which also works with older versions.
 
 * $filesize{} with an empty input previously gave ``0`` but now gives an
   empty result.
 
 * Remove deprecated $set{spelling,true}.
 
-* Note $set{weighting,trad} as deprecated in omega docs.
+* Note $set{weighting,trad} as deprecated in omega docs.  The replacement is
+  $set{weighting,prob} which is supported since 1.4.26.
 
 * Add $set{intra_query_op,OR} to allow combining multiple parsed query strings
   with OR instead of AND.
@@ -186,6 +190,8 @@ build system:
 
 * Simplify probe for posix_fadvise().  We've been using the simpler probe in
   xapian-core since 1.3.4 with no reports of issues.
+
+* lib-link.m4: Update to newer version.
 
 portability:
 

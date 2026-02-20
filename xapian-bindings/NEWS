@@ -1,6 +1,6 @@
-up to: c320d64724f493dd8d479bf8b11d4df3185c1333
+up to: b6f1792203ea567ad48234e3f523881824bb6817
 
-Xapian-bindings 1.5.0 (2026-0?-??):
+Xapian-bindings 2.0.0 (2026-0?-??):
 
 Documentation:
 
@@ -53,10 +53,6 @@ Lua:
 Perl:
 
 PHP:
-
-* Only PHP8 is now supported.  PHP5 has it's been out of security support
-  upstream since 2019-01-10 and PHP7 since 2022-11-28. If you haven't migrated
-  to PHP8 yet, you'll need to use Xapian <= 1.4.21 for PHP5 or PHP7 support.
 
 Python:
 

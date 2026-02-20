@@ -1,351 +1,47 @@
-up to: d499daab1df8729f3afa040526dbc451a52eca7d
+up to: efdd98f45cb8cee965d44240aaf9b076097aaadc
 
-* Add API for clustering search results.  Patch from Richhiey Thomas.
-* Add API for diversifying search results.  Patch from Uppinder Chugh.
+FIXME:
+* clean up documentation section
+* move all docs to xapian-docsprint or xapian-docs top level module?
+* Note these have been excluded from this release:
+  - Add API for clustering search results.  Patch from Richhiey Thomas.
+  - Add API for diversifying search results.  Patch from Uppinder Chugh.
     Turn off clustering and diversification APIs
     These need more work before being released, so let's omit them from
     the .0 release and slot them into a later point release once we've
     addressed the problems.
     See #804.
+* Stemmers with no functional changes (we should document somewhere when you
+  might want to reindex and when not, and these are relevant to that):
+  Armenian
+  Basque
+  Catalan
+  Hungarian
+  Indonesian
+  Lovins
+  Porter
 
-Xapian-core 1.5.0 (2026-0?-??):
+Xapian-core 2.0.0 (2026-0?-??):
 
 API:
 
-* Use std::string_view in API.  Fixes #785, reported by Germán M. Bravo.
-
-* Mark API functions which take pointers which shouldn't be NULL with a
-  new XAPIAN_NONNULL macro which maps to compiler-specific attributes
-  where supported so that such API misuse can be reported at compile-time.
-
-* Database::check(): Cross-check the document length upper and lower bounds
-  with the document length.  Patch from Uppinder Chugh.
-
-* Database::compact(): Now accepts DB_BACKEND_* in flags so you can create a
-  honey database by compacting a glass one.
-
-* PostingIterator: On a sharded database, a heap is now used to merge postings
-  from the shards more efficiently.
-
-* Enquire::get_eset(): Now more optimised.  We now use a custom heap
-  implementation which provides a replace() operation that's like push()
-  followed by pop(), but more efficient.  We've also reduced the number of
-  virtual method calls and string copies that happen.
-
-* Enquire: A default-constructed Database object now acts as an empty database
-  in a search, which can be helpful in some applications (previously it would
-  throw Xapian::InvalidArgumentError).
-
-* SimpleStopper: Use std::unordered_set instead of std::set to store the
-  stopwords internally, which improves scaling: inserting and checking
-  stopwords will now be O(1) instead of O(log(n)) in the number of stopwords.
-  Patch from Richhiey Thomas.
-
-* Stem: Sync algorithm changes from Snowball.  There are optimisations to
-  several algorithms, and also the following functional changes:
-
-    Upgrade stemming algorithms to latest Snowball
-New:
-Esperanto
-Estonian
-Greek
-Hindi
-Nepali
-Polish
-Serbian
-Yiddish
-
-No functional changes:
-Armenian
-Basque
-Catalan
-Hungarian
-Indonesian
-Lovins
-Porter
-
-  + Arabic: Change algorithm to not remove punctuation marks - in Xapian such
-    characters typically won't appear in the text passed to the stemmer anyway.
-
-  + Danish: Adjust definition of "consonant" to be "letter but not vowel"
-    instead of just "not vowel" to avoid the stemmer mangling alphanumeric
-    codes which end with two or more digits.
-
-+ Dutch: now based on kp
-
-+ Dutch (porter): dutch.sbl: Fix UTF-8 R1 handling
-    The "at least 3 characters" part of the R1 definition was actually
-    implemented such that when working in UTF-8 it was "at least 3 bytes".
-    .
-    We set R1 having stripped most accents found in Dutch, but we leave `è`
-    alone.  I've not managed to find a Dutch word starting `è` which was
-    stemmed differently depending on encoding, but proper nouns and other
-    words of foreign origin may contain other accented characters and it
-    seems better for the stemmer to handle such words the same way
-    regardless of the encoding in use.
-
-  + Early English: The "earlyenglish" stemmer is now based on "english" not
-    "porter".
-
-+ English:
-Improve stemming of
- past/paste/pasted/pasting (reported by Sonny)
- universe/universal/university (reported by Clem Wong)
- lateral/later (reported by Steve Tolkin),
- emerge/emergency (reported by Frederick Ross),
- organ/organic/organize
- intern/internal/international/internment; interfere; interval
- -ogist/-ogy (reported by Marc Schipperheijn)
- evening/even (report by Ann B)
- add/ad, egg/eg, off/of, etc (reported by Ed Page)
-
-  + Finnish: Adjust definition of "consonant" to be "letter but not vowel"
-    instead of just "not vowel" to avoid the stemmer truncating numbers.
-    Fixes issue with truncating numbers reported by samiasmundi.
-
-  + French: Recognise suffixes which have a diaereses on the first letter.
-  Patch from David Corbett.
-
-* French: Remove elisions as first step.  Fixes #609, reported by Paul Rudin
-  and kelson42.
-
-* French: Remove -aise and -aises so for example, "française" and "françaises"
-  are now conflated with "français".  Reported by ririsoft and Fred Fung.
-
-* French: Avoid incorrect conflation of `mauvais` (bad) with `mauve` (mauve,
-  mallow or seagull); avoid conflating `mal` with `malais`, `pal` with
-  `palais`, etc.
-
-* French: Avoid conflating `ni` (neither/nor) with `niais`
-  (inexperienced/silly) and `nie`/`nié`/`nier`/`nierais`/`nierons` (to deny).
-
-* French: -oux -> -ou.  Reported by merwok.
-
-* German: Replace with the "german2" variant.  This normalises umlauts ("ä" to
-  "ae", "ö" to "oe", "ü" to "ue") which is presumably much less common in
-  newly created text than it once was as modern computer systems generally
-  don't have the limitations which motivated this, but there will still be
-  large amounts of legacy text which it seems helpful for the stemmer to
-  handle without having to know to select a variant.
-
-  On our sample German vocabulary which contains 35033 words, 77 words give
-  different stems.  A significant proportion of these are foreign words, and
-  some are proper nouns.  Some cases definitely seem improved, and quite a few
-  are just different but effectively just change the stem for a word or group
-  of words to a stem that isn't otherwise generated.  There don't seem any
-  changes that are clearly worse, though there are some changes that have both
-  good and bad aspects to them.
-
-  Reported by jrabensc.
-
-  + German: Don't remove -em if preceded by -syst to avoid overstemming words
-    ending -system.  This change means we now conflate e.g. "system" and
-    "systemen".  Reported by Olga Gusenikova.
-
-  + German: Remove -erin and -erinnen suffixes which conflates singular and
-    plural female versions of nouns with the male versions.  Reported by Olga
-    Gusenikova.
-
-  + German: Replace -ln and -lns with -l.  This improves 82 cases in the
-    current sample data without making anything worse.  Tests on a larger word
-    list look good too.  Reported by Olga Gusenikova.
-
-  + German: Remove -et suffix when we safely can.  Reported by Robert Frunzke.
-
-  + Italian: Address overstemming of "divano" (sofa) which previously stemmed
-    to "div", which is the stem for 'diva' (diva).  Now it is stemmed to
-    'divan', which is what its plural form 'divani' already stemmed to.
-    Reported by francesco.
-
-  + Lithuanian: Don't remove -er- before normal suffixes
-    These aren't real grammatic suffixes and seem to have been included
-    mainly to try to conflate ancient forms of the Lithuanian word for
-    "sister" (e.g. "sesers") with modern forms (e.g. "sesė").  We weren't
-    even doing a complete job there however as "seserimis" and "seseris"
-    were not handled.
-    Removing these suffixes entirely means we no longer try to conflate
-    the ancient and modern forms here, but at least all the forms of the old
-    word get grouped, as do all forms of the new word.  The stemming for
-    ~150 other words is also improved, without obvious downsides.
-    Patch from Justas Sakalauskas.
-    FIXME
-
-  + Norwegian: Improve stemming of words ending -ers.  Reported by Karianne
-    Berg.
-
-  + Norwegian: Include more accented vowels - treating "ê", "ò", "ó" and "ô"
-    as vowels improves the stemming of a fairly small number of words, but
-    there's basically no cost to having extra vowels in the grouping, and some
-    of these words are commonly used.  Reported by András Jankovics.
-
-  + Portuguese: Replace Spanish suffixes by Portuguese suffixes.  Patch from
-    Helder.
-
-  + Romanian: Update to work better with modern Unicode text.  Previously this
-    stemmer only handled 'ş' and 'ţ' when encoded as their cedilla
-    "approximations", which were widely used for Romanian before full Unicode
-    support was available.  The stemmer now normalises the cedilla forms to
-    the proper Unicode characters.  Patch by Robert Muir.
-
-  + Russian: Normalise "ё" to "e" before stemming.  The Snowball documentation
-    for the Russian stemmer has long suggested that the caller should perform
-    this normalisation, but Xapian doesn't do that for you and it's much more
-    convenient for the algorithm to do it automatically.  Reported by Eugene
-    Mirotin.
-
-  + Spanish: Handle -acion like -ación and -ucion like -ución.  It's apparently
-    common to miss off accents in Spanish, and there are examples in our test
-    vocabulary that these changes help.  Proposed by Damian Janowski.
-
-  + Swedish: Replace suffix "öst" with "ös" when preceded by any of 'iklnprtuv'
-    rather than just 'l'.  The new rule only requires the "öst" to be in R1
-    whereas previously we required all of "löst" to be.  This second tweak
-    doesn't seem to affect any words ending "löst" but it conflates a few extra
-    cases when combined with the expanded list of preceding letters, and seems
-    more logical linguistically (since "ös" is akin to "ous" in English).
-    Reported by znakeeye.
-
-* Swedish: Remove -et/-ets in cases where it helps.  Removing -et can't be done
-  unconditionally because many words end in -et where this isn't a suffix.
-  However it's a very common suffix so it seems worth crafting a more complex
-  condition under which to remove.  Fixes #47.
-
-* Turkish: Remove proper noun suffixes.  For example, `Türkiye'dir` ("it is
-  Turkey") is now conflated with `Türkiye` ("Turkey").  Fixes #188.
-
-* Stem: Update snowball compiler and runtime FIXME
-    .
-    We were using a 6-year old version of the Snowball compiler, with a
-    number of Xapian-specific patches.
-    .
-    We're now using the compiler and runtime from upstream git commit
-    94d5e77b3ccee55681ed740dad0c3377dbd72e3a.  The only differences from
-    upstream are that `utilities.c` is renamed to `.cc` and the following
-    line added to it:
-    .
-        #define SNOWBALL_RUNTIME_THROW_EXCEPTIONS
-    .
-    Most of the patches we were carrying have either been merged upstream
-    in some form, or eliminated in favour of new functionality upstream.
-    .
-    The exception is the patch we were carrying which created an overlapping
-    pool of string constants.  The benefits of this were that it reduced the
-    size of the constant data segment, and reduced the number of runtime
-    dynamic relocations.
-    .
-    The relocations are from strings used in among tables, and I'm working
-    on a new way to implement among which is significantly faster and avoids
-    this problem.
-    .
-    The size saving is probably fairly modest.  It would reduce cache
-    pressure, but on the flip side it might make loading a string address
-    slightly slower.  I plan to profile to see if the former change is
-    acutally beneficial, and if so I'll rebase it onto current Snowball
-    and get it merged upstream.
-
-
-* TermGenerator::set_termpos_limit(): New method which allows setting a maximum
-  termpos value, exceeding which will trigger Xapian::RangeError.  The default
-  maximum is the largest value of the Xapian::termpos type - previously the
-  term position could quietly overflow to zero, but now this triggers an
-  exception.
-
-* Utf8Iterator: Handle surrogate pair codepoints as invalid UTF-8 since RFC
-  3629 defined them as invalid.
-
-* ValueCountMatchSpy: Optimise top_values_begin() by using a custom heap
-  implementation which provides a replace() operation that's like push()
-  followed by pop(), but more efficient.
-
-* Weight:
-
-  + Pass new wdfdocmax statistic to weighting schemes.  If you have a custom
-    subclass of Xapian::Weight you'll need to update it to add the new
-    parameters.  Patch from Dipanshu Garg and Nishad Dawkhar.
-
-  + Add create() and create_from_parameters() methods which support creating
-    Weight objects from human-readable string descriptions.  Patch from Vivek
-    Pal.
-
-  + Make unique terms bounds available to weighting schemes.
-
-  + Provide default implementations of Weight::get_sumextra() and
-    Weight::get_maxextra() which return 0 so that subclasses for weighting
-    schemes without a term-independent contribution (which is most weighting
-    schemes) don't need to implement these methods.  This also reduces the
-    number of load-time relocations for libxapian because we add two symbols,
-    but remove 26 - this will speed up library load time a little.
-
-* DiceCoeffWeight: New weighting scheme (implementing
-  https://en.wikipedia.org/wiki/S%C3%B8rensen%E2%80%93Dice_coefficient).
-  Patch from Guruprasad Hegde.
-
-* LMWeight: This was using incorrect formulae for all the smoothing schemes
-  so it has been removed and replaced with a new separate class for each
-  normalisation (except that Dirichlet and Dir+ are combined into one class):
-  LM2StageWeight, LMAbsDiscountWeight, LMDirichletWeight, LMJMWeight.  Fixes
-  #779 and https://github.com/xapian/xapian/pull/230, reported by Sourav
-  Saha.
-
-* TfIdfWeight:
-
-  + Optimise to only calculating the normalised IDF once per term (its value
-    doesn't depend on the document).
-
-  + Support new normalisations.  Patches from Dipanshu Garg.  Support for
-    maxwdf statistic needed for some of these implemented by Nishad Dawkhar.
-
-    - WDF normalistions "max-norm", "aug-norm", "augmented log", "square root"
-      and "augmented average term frequency".
-
-    - IDF normalisations "incremented global frequency", "square root global
-      frequency", "global frequency" and "log global frequency".
-
-  + Support new "pivoted" WDF and IDF normalisations from Piv+.  Patch from
-    Vivek Pal.
-
-  + Support specifying TfIdf normalisations via enums.  Previously the
-    normalisations had to be specified in TfIdfWeight's constructor via a 3
-    character string.  There are character codes for the normalisations SMART
-    supported and some newer ones, but not all normalisations we want to
-    support have existing codes, and allocating them ourselves risks clashes.
-    These strings are also rather cryptic, whereas enum names can be more
-    self-explanatory.  Patch from Dipanshu Garg.
-
-* Deprecate TradWeight in favour of BM25Weight with particular parameters
-  and reimplement TradWeight as a simple subclass of BM25Weight.  Profiling
-  shows negligible additional overhead with current Xapian code and TradWeight
-  is not a scheme people are likely to want to actually use anyway except
-  perhaps for experiments comparing weighting schemes.
-
-* Replace uses of useconds_t in the API by unsigned.  In 1.3.x we deprecated
-  Xapian::timeout (a typedef for unsigned) and started to use useconds_t
-  instead.  However, useconds_t is now obsolete and anyway was intended to
-  represent a time in microseconds (confusing when Xapian's timeouts are
-  in milliseconds) so it wasn't a good choice for a replacement.  The Linux
-  usleep man page even notes: "Programs will be more portable if they never
-  mention this type explicitly."
-
-* MSet: Add methods replace_weights() and sort_by_relevance() which
-  allow replacing the weights of all the documents in a MSet and then sort
-  the MSet on the basis of these new weights.  These support implementing
-  re-ranking algorithms, such as xapian-letor.  Patch from Ayush Pandey.
-
-* MSet::fetch() with remote shards now triggers a prefetch on the remote
-  server.  Fixes #353.
-
-* Query: New get_leaf_wqf() and get_leaf_pos() methods which allow
-  introspecting on details of terms in a query.  Patch from Nihal N.
-
-* RSet: Improve get_description() output.
-
-* TermIterator::get_termfreq() now returns the exact term frequency in a
-  sharded database instead of approximating as it's not significantly more
-  work.
-
-* ValuePostingSource: Add a get_description() method rather than relying
-  on PostingSource::get_description() so that ValuePostingSource objects
-  report a more useful description than "Xapian::PostingSource subclass".
+* General:
+
+  + Update to Unicode 17.0.0.
+
+  + Use std::string_view in API.  Fixes #785, reported by Germán M. Bravo.
+
+  + Mark API functions which take pointers which shouldn't be NULL with a
+    new XAPIAN_NONNULL macro which maps to compiler-specific attributes
+    where supported so that such API misuse can be reported at compile-time.
+
+  + Replace uses of useconds_t in the API by unsigned.  In 1.3.x we deprecated
+    Xapian::timeout (a typedef for unsigned) and started to use useconds_t
+    instead.  However, useconds_t is now obsolete and anyway was intended to
+    represent a time in microseconds (confusing when Xapian's timeouts are in
+    milliseconds) so it wasn't a good choice for a replacement.  The Linux
+    usleep man page even notes: "Programs will be more portable if they never
+    mention this type explicitly."
 
 * Remove deprecated API features:
 
@@ -375,144 +71,478 @@ Improve stemming of
     and WritableDatabase() constructors with a Xapian::DB_BACKEND_* constant
     instead (added in 1.3.2).
 
-* WritableDatabase::remove_spelling() now works more sensibly with sharded
-  databases.  Previously it tried to reduce the frequency by freqdec in
-  each shard, but now it tries to remove the spelling from each shard in turn
-  until all of freqdec has been dealt with, and then returns any "unused"
-  freqdec.  To support this for the remote backend, the remote protocol major
-  version has been bumped (which is why we couldn't address this in 1.4.x).
+* Word tokenisation changes in QueryParser, TermGenerator and MSet::snippet():
 
-* Database and WritableDatabase are now reference counted handles like most
-  other API classes - previously they worked like a typedef to vector<shard>
-  which made copying and assignment O(#shards).  The main observable difference
-  is that if you add a shard to a copy, it's now added to the original (which
-  is consistent with other API classes, e.g. adding a document to an RSet).
+  + Optionally support finding word boundaries using ICU (International
+    Components for Unicode library: https://site.icu-project.org/).  Specify
+    flags FLAG_WORD_BREAKS and SNIPPET_WORD_BREAKS to enable this feature.
+    With these flags, ICU is only consulted for spans of text written using
+    scripts which we know ICU has word splitting dictionaries for.  The
+    current list of scripts covered is: Thai, Lana Tai, Pali, Lao, Myanmar
+    (Burmese), Hangul, Khmer, Han, Hiragana, Katakana, Bopomofo.  We require
+    at least ICU 54.1, but that was released 2014-10-01 so this doesn't seem
+    problematic, especially as the ICU dependency is optional - if xapian-core
+    is built without ICU then attempting to use these flags will throw
+    FeatureUnavailableError.  Patch from Robert Stepanek.
 
-* WritableDatabase: Adding a read-only shard is now statically caught at
-  compile time in simple cases, and if the static check is bypassed then
-  InvalidOperationError is thrown when you attempt a WritableDatabase operation
-  on that shard.  Previously such a shard acted as a black hole which quietly
-  accepted and ignored changes.
+  + FLAG_NGRAMS and SNIPPET_NGRAMS have been expanded to include additional CJK
+    codepoints and more scripts which are typically not written with explicit
+    word breaks (currently the same list used by FLAG_WORD_BREAKS and
+    SNIPPET_WORD_BREAKS).  Currently the same list of scripts is used for this
+    as for FLAG_WORD_BREAKS.  Patch from Robert Stepanek.
 
-* Database, WritableDatabase: Operations on a database with a single shard
-  should have a bit less overhead.
+  + Unicode character U+200B (ZERO WIDTH SPACE) is now treated as whitespace
+    rather than an ignored infix character.  It's used to mark word breaks in
+    languages without visible space between words so should result in a word
+    break.
 
-* Database: Spelling correction on a sharded database should be faster.
+  + Unicode character U+00AD (SOFT HYPHEN) is now treated as an ignored infix
+    character so no longer results in a word break.  There are two common uses
+    of this character: one is to mark potential hyphenation points (which this
+    change means we now handle better), the other is to mark hyphens which have
+    been inserted into text that has been word-wrapped (where it will be
+    followed by the end of the line, so we'll handle such cases as we did
+    before).
+
+* Database:
+
+  + Database and WritableDatabase are now reference counted handles like most
+    other API classes and so are very cheap to copy and assign; previously they
+    were like vector<shard> which made copying and assignment O(#shards).  The
+    main observable difference is that if you add a shard to a copy of a
+    Database/WritableDatabase, it's now added to the original (which is
+    consistent with other API classes, e.g. adding a document to an RSet).
+
+  + Operations on a database with a single shard now have a bit less overhead.
+
+  + Add lock() and unlock() methods which provide a way to take and release the
+    write lock on an already open database.  You can also use lock() to
+    efficiently change the flags for an open WritableDatabase.
+
+  + Spelling correction on a sharded database should be faster.
+
+  + Cross-check the document length upper and lower bounds
+    with the document length.  Patch from Uppinder Chugh.
+
+  + Database::compact() now accepts DB_BACKEND_* in flags so you can create a
+    honey database by compacting a glass one.
+
+  + New methods get_unique_terms_lower_bound() and
+    get_unique_terms_upper_bound() to report bounds on what get_unique_terms()
+    can return.  Patch from Guruprasad Hegde.
+
+  + Database::close() is no longer virtual - we never override it, and it's not
+    useful for user code to override it.
+
+  + New reconstruct(): New method to reconstruct document text from positional
+    data.  Reading the required positional information is potentially quite I/O
+    intensive.  The reconstructed text will be missing punctuation and most
+    capitalisation.  The key reason for putting this in the API is that it
+    allows us to handle the reconstruction on the server for remote databases,
+    which is much more efficient than opening a remote position list for every
+    term in the document.
+
+  + WritableDatabase::remove_spelling() now works more sensibly with sharded
+    databases.  Previously it tried to reduce the frequency by freqdec in each
+    shard, but now it tries to remove the spelling from each shard in turn
+    until all of freqdec has been dealt with, and then returns any "unused"
+    freqdec.  To support this for the remote backend, the remote protocol major
+    version has been bumped (which is why we couldn't address this in 1.4.x).
+
+  + Adding a read-only shard to a WritableDatabase is now statically caught at
+    compile time in simple cases; in more complex cases InvalidOperationError
+    is now thrown when you attempt a WritableDatabase operation on that shard.
+    Previously such a shard acted as a black hole which quietly accepted and
+    ignored changes.
+
+* Document:
+
+  + Fetching terms from an existing document is now O(n) instead of
+    O(n*log(n)).
+
+  + The remove_posting() and remove_postings() methods will now remove the term
+    completely if the term is modified and has no positions and wdf=0 after the
+    changes.
+
+  + Term positions are now stored in a custom vector implementation which uses
+    no external storage when small ("Small Vector Optimisation") and eliminates
+    a lot of copying that was previously happening (thanks to a combination of
+    C++11 move semantics and copy-on-write).
+
+* Enquire:
+
+  + A default-constructed Database object now acts as an empty database in a
+    search, which can be helpful in some applications (previously it would
+    throw Xapian::InvalidArgumentError).
+
+  + get_eset() now uses a custom heap implementation which provides a replace()
+    operation that's like push() followed by pop(), but more efficient.  We've
+    also reduced the number of virtual method calls and string copies that
+    happen.
+
+* ESet: Use type Xapian::termcount to hold an index rather than
+  Xapian::doccount.  In a standard build both are the same underlying type, so
+  this won't usually matter, but it does if you configure with exactly one of
+  --enable-64bit-docid and --enable-64bit-termcount.
+
+* MSet:
+
+  + get_termfreq() and get_termweight() now just return 0 rather than throwing
+    exceptions when called on a default-constructed MSet, which is makes it
+    easier to use such an MSet as a placeholder for an empty search.
+    get_termweight() also now returns zero when called on a term which wasn't
+    in the query rather than throwing an exception - this seems logical as such
+    terms don't contribute weight to any documents in the MSet.
+
+  + Add methods replace_weights() and sort_by_relevance() which allow replacing
+    the weights of all the documents in a MSet and then sort the MSet on the
+    basis of these new weights.  These support implementing re-ranking
+    algorithms, such as xapian-letor.  Patch from Ayush Pandey.
+
+  + fetch() with remote shards now triggers a prefetch on the remote server.
+    Fixes #353.
+
+* PostingIterator: On a sharded database, a heap is now used to merge postings
+  from the shards more efficiently.
+
+* PostingSource: New reset() virtual method which is like init() but is passed
+  the shard index which can be useful if you have an external source of
+  postings corresponding to each shard.
+
+* Query:
+
+  + Add support for extended wildcard queries via new OP_WILDCARD flags
+    WILDCARD_PATTERN_MULTI (which supports `*` wildcards anywhere in the term,
+    not just at the end as previously), WILDCARD_PATTERN_SINGLE (which supports
+    `?` wildcards matching a single character), and WILDCARD_PATTERN_GLOB which
+    enables both of these.
+
+  + New operator OP_EDIT_DISTANCE to provide which expands similarly to
+    OP_WILDCARD but to terms that are within a specified edit distance of a
+    target word.
+
+  + New get_leaf_wqf() and get_leaf_pos() methods which allow introspecting on
+    details of terms in a query.  Patch from Nihal N.
+
+* QueryParser:
+
+  + Add new flags FLAG_WILDCARD_MULTI, FLAG_WILDCARD_SINGLE and
+    FLAG_WILDCARD_GLOB to support the new extended wildcards in parsed queries.
+
+  + New method set_min_wildcard_prefix() allows requiring a minimum length
+    constant prefix on wildcarded terms (this works for old-style trailing `*`
+    wildcards, new-style extended wildcards and also FLAG_PARTIAL implicit
+    wildcards).
+
+  + Add support for SYN operator which matches the same documents as OR but
+    weights its subqueries as synonyms.
+
+  + Support explicit multiword synonym syntax `~"multiple words"` and
+    `~foo:"multiple words"`.  See #414.
+
+  + Handle repeated add_prefix() or add_boolean_prefix() by just ignoring the
+    redundant calls rather than creating redundant terms in the parsed Query
+    object.
+
+  + New flag FLAG_FUZZY which enables parsing of foo~ foo~1 and foo~0.4 as
+    OP_EDIT_DISTANCE subqueries to provide a fuzzy matching feature.
+
+  + The heuristic that capitalised words are proper nouns which it is better
+    not to stem is now only enabled for some languages.  There's also a new
+    QueryParser flag (FLAG_NO_PROPER_NOUN_HEURISTIC) to turn it off completely.
+    Fixes #812.
+
+  + New method set_stopper_strategy() which improves parsing when documents are
+    indexed with stop_strategy STOP_ALL.  Fixes #750, reported by Matthieu
+    Gautier.
+
+* RSet: Improve get_description() output.
+
+* SimpleStopper: Use std::unordered_set instead of std::set to store the
+  stopwords internally, which improves scaling: inserting and checking
+  stopwords will now be O(1) instead of O(log(n)) in the number of stopwords.
+  Patch from Richhiey Thomas.
+
+* Stem:
+
+  + Update snowball compiler and runtime from a 6-year old version with a
+    number of Xapian-specific patches to something something very close to
+    current upstream.  This brings some speed and size improvements but the
+    number of dynamic runtime relocations has increased which will add to the
+    start-up time of programs dynamically linked to libxapian.  We hope to
+    address this in future 2.0.x releases.
+
+  + Merge algorithm changes from Snowball.  There are optimisations to several
+    algorithms, and also the following functional changes:
+
+    - Stemmers added for Esperanto, Estonian, Greek, Hindi, Nepali, Polish,
+      Serbian and Yiddish.
+
+    - Arabic: Punctuation marks are no longer removed by the stemmer - in
+      Xapian such characters typically won't appear in the text passed to the
+      stemmer anyway.
+
+    - Danish: Adjust definition of "consonant" to be "letter but not vowel"
+      instead of just "not vowel" to avoid the stemmer mangling alphanumeric
+      codes which end with two or more digits.
+
+    - Dutch: Stemmer name "dutch" now selects the Kraaij-Pohlmann algorithm
+      instead of Martin Porter's Dutch stemmer as feedback from Dutch Snowball
+      users was strongly that it does a better job.  Martin Porter's Dutch
+      stemmer is now available as "dutch_porter".  Originally reported by
+      gboer.
+
+    - Dutch (Kraaij-Pohlmann):
+
+      = Fix differences between the Snowball implementation and the original C
+	implementation - this changes the stems for 220 words in a sample
+	vocabulary of 45670 words.
+
+      = Add a small number of exceptions to the Snowball implementation to
+	avoid unwanted conflations.  This addresses all cases so far identified
+	which Martin Porter's Dutch stemmer handled better.
+
+    - Dutch (Porter): The "at least 3 characters" part of the R1 definition was
+      actually implemented such that when working in UTF-8 it was "at least 3
+      bytes".  We strip accents normally found in Dutch except for `è` before
+      setting R1, and no Dutch words starting `è` seem to stem differently
+      depending on encoding, but proper nouns and other words of foreign origin
+      may contain other accented characters and it seems better for the stemmer
+      to handle such words the same way regardless of the encoding in use.
+
+    - Early English: The "earlyenglish" stemmer is now based on the "english"
+      stemmer instead of "porter".
+
+    - English: Improve stemming of:
+
+      = past/paste/pasted/pasting (reported by Sonny)
+
+      = universe/universal/university (reported by Clem Wong)
+
+      = lateral/later (reported by Steve Tolkin)
+
+      = emerge/emergency (reported by Frederick Ross)
+
+      = organ/organic/organize
+
+      = intern/internal/international/internment; interfere; interval
+
+      = -ogist/-ogy (reported by Marc Schipperheijn)
+
+      = evening/even (report by Ann B)
+
+      = add/ad, egg/eg, off/of, etc (reported by Ed Page)
+
+    - Finnish: Adjust definition of "consonant" to be "letter but not vowel"
+      instead of just "not vowel" to avoid the stemmer truncating numbers.
+      Fixes issue with truncating numbers reported by samiasmundi.
+
+    - French:
+
+      = Recognise suffixes which have a diaereses on the first letter.
+	Patch from David Corbett.
+
+      = Remove elisions as first step.  Fixes #609, reported by Paul Rudin and
+	kelson42.
+
+      = Remove -aise and -aises so for example, "française" and "françaises"
+	are now conflated with "français".  Reported by ririsoft and Fred Fung.
+
+      = Avoid incorrect conflation of `mauvais` (bad) with `mauve` (mauve,
+	mallow or seagull); avoid conflating `mal` with `malais`, `pal` with
+	`palais`, etc.
+
+      = Avoid conflating `ni` (neither/nor) with `niais` (inexperienced/silly)
+	and `nie`/`nié`/`nier`/`nierais`/`nierons` (to deny).
+
+      = -oux -> -ou.  Reported by merwok.
+
+    - German:
+
+      = Replace with the "german2" variant which normalises umlauts ("ä" to
+	"ae", "ö" to "oe", "ü" to "ue") which is presumably much less common in
+	newly created text than it once was as modern computer systems
+	generally don't have the limitations which motivated this, but there
+	will still be large amounts of legacy text which it seems helpful for
+	the stemmer to handle without having to know to select a variant.
+
+	On our sample German vocabulary which contains 35033 words, 77 words
+	give different stems.  A significant proportion of these are foreign
+	words, and some are proper nouns.  Some cases definitely seem improved,
+	and quite a few are just different but effectively just change the stem
+	for a word or group of words to a stem that isn't otherwise generated.
+	There don't seem any changes that are clearly worse, though there are
+	some changes that have both good and bad aspects to them.  Reported by
+	jrabensc.
+
+      = Don't remove -em if preceded by -syst to avoid overstemming words
+	ending -system.  This change means we now conflate e.g. "system" and
+	"systemen".  Reported by Olga Gusenikova.
+
+      = Remove -erin and -erinnen suffixes which conflates singular and plural
+	female versions of nouns with the male versions.  Reported by Olga
+	Gusenikova.
+
+      = Replace -ln and -lns with -l.  This improves 82 cases in the current
+	sample data without making anything worse.  Tests on a larger word list
+	look good too.  Reported by Olga Gusenikova.
+
+      = Remove -et suffix when we safely can.  Reported by Robert Frunzke.
+
+    - Italian: Address overstemming of "divano" (sofa) which previously stemmed
+      to "div", which is the stem for 'diva' (diva).  Now it is stemmed to
+      'divan', which is what its plural form 'divani' already stemmed to.
+      Reported by francesco.
+
+    - Lithuanian: Don't remove -er- before normal suffixes.  These aren't real
+      grammatic suffixes and seem to have been included mainly to try to
+      conflate ancient forms of the Lithuanian word for "sister" (e.g.
+      "sesers") with modern forms (e.g. "sesė").  We weren't even doing a
+      complete job there however as "seserimis" and "seseris" were not handled.
+      Removing these suffixes entirely means we no longer try to conflate the
+      ancient and modern forms here, but at least all the forms of the old word
+      get grouped, as do all forms of the new word.  The stemming for ~150
+      other words is also improved, without obvious downsides.  Patch from
+      Justas Sakalauskas.
+
+    - Norwegian:
+
+      = Improve stemming of words ending -ers.  Reported by Karianne Berg.
+
+      = Include more accented vowels - treating "ê", "ò", "ó" and "ô" as vowels
+	improves the stemming of a fairly small number of words, but there's
+	basically no cost to having extra vowels in the grouping, and some of
+	these words are commonly used.  Reported by András Jankovics.
+
+    - Portuguese: Replace Spanish suffixes by Portuguese suffixes.  Patch from
+      Helder.
+
+    - Romanian: Update to work better with modern Unicode text.  Previously
+      this stemmer only handled 'ş' and 'ţ' when encoded as their cedilla
+      "approximations", which were widely used for Romanian before full Unicode
+      support was available.  The stemmer now normalises the cedilla forms to
+      the proper Unicode characters.  Patch by Robert Muir.
+
+    - Russian: Normalise "ё" to "e" before stemming.  The Snowball
+      documentation for the Russian stemmer has long suggested that the caller
+      should perform this normalisation, but Xapian doesn't do that for you and
+      it's much more convenient for the algorithm to do it automatically.
+      Reported by Eugene Mirotin.
+
+    - Spanish: Handle -acion like -ación and -ucion like -ución.  It's
+      apparently common to miss off accents in Spanish, and there are examples
+      in our test vocabulary that these changes help.  Proposed by Damian
+      Janowski.
+
+    - Swedish:
+
+      = Replace suffix "öst" with "ös" when preceded by any of 'iklnprtuv'
+	rather than just 'l'.  The new rule only requires the "öst" to be in R1
+	whereas previously we required all of "löst" to be.  This second tweak
+	doesn't seem to affect any words ending "löst" but it conflates a few
+	extra cases when combined with the expanded list of preceding letters,
+	and seems more logical linguistically (since "ös" is akin to "ous" in
+	English).  Reported by znakeeye.
+
+      = Remove -et/-ets in cases where it helps.  Removing -et can't be done
+	unconditionally because many words end in -et where this isn't a
+	suffix.  However it's a very common suffix so it seems worth crafting a
+	more complex condition under which to remove.  Fixes #47.
+
+    - Turkish: Remove proper noun suffixes.  For example, `Türkiye'dir` ("it is
+      Turkey") is now conflated with `Türkiye` ("Turkey").  Fixes #188.
+
+* TermGenerator:
+
+  + New method set_termpos_limit() which allows setting a maximum termpos
+    value, exceeding which will trigger Xapian::RangeError.  The default
+    maximum is the largest value of the Xapian::termpos type - previously the
+    term position could quietly overflow to zero, but now this triggers an
+    exception.
+
+  + get_termfreq() now returns the exact term frequency in a sharded database
+    instead of approximating as it's not significantly more work.
+
+  + A TermIterator obtained from a Document now keeps a reference to the
+    document.
 
 * UnitValueRangeProcessor: New class which supports range searches such
   as size:100K..1M on a value slot storing the size in bytes.  Patch from
   Uppinder Chugh.
 
-* Document: Fetching terms from an existing document is now O(n) instead of
-  O(n*log(n)).
+* Utf8Iterator: Handle surrogate pair codepoints as invalid UTF-8 since RFC
+  3629 defined them as invalid.
 
-* Pass shard_index to PostingSource::init().  This can be useful if you have an
-  external source of postings corresponding to each shard.
+* ValueCountMatchSpy: Optimise top_values_begin() by using a custom heap
+  implementation which provides a replace() operation that's like push()
+  followed by pop(), but more efficient.
 
-* Database: New methods get_unique_terms_lower_bound() and
-  get_unique_terms_upper_bound() to report bounds on what get_unique_terms()
-  can return.  Patch from Guruprasad Hegde.
+* ValuePostingSource: Add a get_description() method rather than relying
+  on PostingSource::get_description() so that ValuePostingSource objects
+  report a more useful description than "Xapian::PostingSource subclass".
 
-* Update to Unicode 17.0.0.
+* Weight:
 
-* Support finding word boundaries in QueryParser, TermGenerator and
-  MSet::snippet() using ICU (International Components for Unicode library:
-  https://site.icu-project.org/).  Specify flags FLAG_WORD_BREAKS and
-  SNIPPET_WORD_BREAKS to enable this feature.  With these flags, ICU is
-  only consulted for spans of text written using scripts which we know ICU has
-  word splitting dictionaries for.  The current list of scripts covered is:
-  Thai, Lao, Myanmar (Burmese), Hangul, Khmer, Han, Hiragana, Katakana, Bopomofo.
-FIXME: FIXME Add [...] Lana Tai and Pali codepoints to codepoint_is_cjk() test
+  + New wdfdocmax statistic passed to get_sumpart() and get_sumextra().  If you
+    have a custom subclass of Xapian::Weight you'll need to update it to add
+    the new parameters.  Patch from Dipanshu Garg and Nishad Dawkhar.
 
-  The dependency on ICU is optional - if xapian-core is built without ICU then
-  attempting to use these flags will throw FeatureUnavailableError.
+  + Add create() and create_from_parameters() methods which support creating
+    Weight objects from human-readable string descriptions.  Patch from Vivek
+    Pal.
 
-  We require at least ICU 54.1, but that was released 2014-10-01 so this
-  doesn't seem problematic, especially for an optional dependency.
+  + Make unique terms bounds available to weighting schemes.
 
-  Patch from Robert Stepanek.
+  + Provide default implementations of Weight::get_sumextra() and
+    Weight::get_maxextra() which return 0 so that subclasses for weighting
+    schemes without a term-independent contribution (which is most weighting
+    schemes) don't need to implement these methods.  This also reduces the
+    number of load-time relocations for libxapian because we add two symbols,
+    but remove 26 - this will speed up library load time a little.
 
-* FLAG_NGRAMS and SNIPPET_NGRAMS used to only generate n-grams for spans of
-  CJK characters, but have been expanded to do this for some other scripts
-  which are typically not written with explicit word breaks.  Some additional
-  blocks of CJK codepoints have been added to the list too (any added since
-  about Unicode 5.2, plus a few older more obscure blocks).
+  + DiceCoeffWeight: New weighting scheme (implementing
+    https://en.wikipedia.org/wiki/S%C3%B8rensen%E2%80%93Dice_coefficient).
+    Patch from Guruprasad Hegde.
 
-  Currently the same list of scripts is used for this as for FLAG_WORD_BREAKS.
-  Patch from Robert Stepanek.
+  + LMWeight: This was using incorrect formulae for all the smoothing schemes
+    so it has been removed and replaced with a new separate class for each
+    normalisation (except that Dirichlet and Dir+ are combined into one class):
+    LM2StageWeight, LMAbsDiscountWeight, LMDirichletWeight, LMJMWeight.  Fixes
+    #779 and https://github.com/xapian/xapian/pull/230, reported by Sourav
+    Saha.
 
-* Query: Add support for extended wildcard queries via new OP_WILDCARD flags
-  WILDCARD_PATTERN_MULTI (which supports `*` wildcards anywhere in the term,
-  not just at the end as previously), WILDCARD_PATTERN_SINGLE (which supports
-  `?` wildcards matching a single character), and WILDCARD_PATTERN_GLOB which
-  enables both of these.
+  + TfIdfWeight:
 
-* QueryParser: Add new flags FLAG_WILDCARD_MULTI, FLAG_WILDCARD_SINGLE and
-  FLAG_WILDCARD_GLOB to support the new extended wildcards in parsed queries.
+    - Optimise to only calculating the normalised IDF once per term (its value
+      doesn't depend on the document).
 
-* QueryParser::set_min_wildcard_prefix(): New method allows requiring a minimum
-  length constant prefix on wildcarded terms (this works for old-style trailing
-  `*` wildcards, new-style extended wildcards and also FLAG_PARTIAL implicit
-  wildcards).
+    - Support new normalisations.  Patches from Dipanshu Garg.  Support for
+      maxwdf statistic needed for some of these implemented by Nishad Dawkhar.
 
-* QueryParser: Add support for SYN operator which matches the same documents
-  as OR but weights its subqueries as synonyms.
+      = WDF normalistions "max-norm", "aug-norm", "augmented log", "square
+        root" and "augmented average term frequency".
 
-* QueryParser: Support explicit multiword synonym syntax `~"multiple words"`
-  and `~foo:"multiple words"`.  See #414.
+      = IDF normalisations "incremented global frequency", "square root global
+        frequency", "global frequency" and "log global frequency".
 
-* Fix integer type used by ESet to be Xapian::termcount rather than
-  Xapian::doccount.  In a standard build both are the same underlying type, so
-  this won't usually matter, but it does if you configure with exactly one of
-  --enable-64bit-docid and --enable-64bit-termcount.
+      = Support new "pivoted" WDF and IDF normalisations from Piv+.  Patch from
+        Vivek Pal.
 
-* Database: Add lock() and unlock() methods which provide a way to take and
-  release the write lock on an already open database.  You can also use lock()
-  to efficiently change the flags for an open WritableDatabase.
+    - Support specifying TfIdf normalisations via enums.  Previously the
+      normalisations had to be specified in TfIdfWeight's constructor via a 3
+      character string.  There are character codes for the normalisations SMART
+      supported and some newer ones, but not all normalisations we want to
+      support have existing codes, and allocating them ourselves risks clashes.
+      These strings are also rather cryptic, whereas enum names can be more
+      self-explanatory.  Patch from Dipanshu Garg.
 
-* Database::close(): Drop virtual from API method - we never override it, and
-  it's not useful for user code to override it.  It's been like this since this
-  API method was added - I suspect the method declaration was copied from the
-  declaration of Database::Internal::close() which does actually need to be
-  virtual.
-
-* Database::reconstruct(): New method to reconstruct document text from
-  positional data.  Reading the required positional information is potentially
-  quite I/O intensive.  The reconstructed text will be missing punctuation and
-  most capitalisation.  The key reason for putting this in the API is that
-  it allows us to handle the reconstruction on the server for remote databases,
-  which is much more efficient than opening a remote position list for every
-  term in the document.
-
-* Document: The remove_posting() and remove_postings() methods will now remove
-  the term completely if the term is modified and has no positions and wdf=0
-  after the changes.
-
-* QueryParser: Handle repeated add_prefix() or add_boolean_prefix() by just
-  ignoring the redundant calls rather than creating redundant terms in
-  the parsed Query object.
-
-* Query: New operator OP_EDIT_DISTANCE to provide which expands similarly to
-  OP_WILDCARD but to terms that are within a specified edit distance of a
-  target word.
-
-* QueryParser: New flag FLAG_FUZZY which enables parsing of foo~ foo~1 and
-  foo~0.4 as OP_EDIT_DISTANCE subqueries to provide a fuzzy matching feature.
-
-* MSet: get_termfreq() and get_termweight() now just return 0 rather than
-  throwing exceptions when called on a default-constructed MSet, which
-  is makes it easier to use such an MSet as a placeholder for an empty
-  search.  get_termweight() also now returns zero when called on a term which
-  wasn't in the query rather than throwing an exception - this seems logical as
-  such terms don't contribute weight to any documents in the MSet.
-
-* TermIterator: A TermIterator obtained from a Document now keeps a reference
-  to the document.
-
-* Document: Term positions are now stored in a custom vector implementation
-  which uses no external storage when small ("Small Vector Optimisation") and
-  eliminates a lot of copying that was previously happening (thanks to a
-  combination of C++11 move semantics and copy-on-write).
+  + TradWeight: Deprecated in favour of BM25Weight with k1=k, b=1 and other
+    parameters set to 0.  TradWeight is now implemented as a simple subclass of
+    BM25Weight (which means the weights are now scaled by (k+1) compared to
+    TradWeight in Xapian < 2.0.0).  Profiling shows negligible additional
+    overhead with current Xapian code and TradWeight is not a scheme people are
+    likely to want to actually use anyway except perhaps for experiments
+    comparing weighting schemes.
 
 testsuite:
 
@@ -534,9 +564,9 @@ testsuite:
 
 * Test get_description() shows the correct classname.
 
-* The testharness now runs valgrind with `--error-limit=no` so that runs
-  which trigger more than 100 valgrind errors now reports the errors fully for
-  later testcases.
+* The testharness now runs valgrind with `--error-limit=no` so that valgrind
+  errors are fully reported for all testcases even if more than 100 valgrind
+  errors are triggered.
 
 * The testharness now retries if a rename fails with EACCES and
   _doserrno is ERROR_SHARING_VIOLATION, which works around mysterious failures
@@ -549,23 +579,17 @@ matcher:
   implementation is now used, which provides a "replace" operation - this
   should address slow collapsing as reported by Gareth Rees (ticket #682).
 
-* The matcher now uses docid ranges to optimise the query and to report tighter
-  bounds on, and a better estimate of the total number of matching documents.
-  The bounds and estimate are now calculated lazily after the match (if we
-  find all matches we can skip the calculation entirely) and the observed rate
-  of accepting vs rejecting is now used to improve the estimates for positional
-  operators and value ranges.
-
-* Remote shards are now handled by merging MSet objects rather than feeding
-  them into the standard matcher via MSetPostList.
-
-* Optimise OP_NEAR and OP_OR by using a custom heap implementation which
-  provides a replace() operation that's like push() followed by pop(),
-  but more efficient.
+* The matcher now uses docid ranges to optimise the query, and to report
+  tighter bounds on and a better estimate of the total number of matching
+  documents.  The bounds and estimate are now calculated lazily after the match
+  (if we find all matches we can skip the calculation entirely) and the
+  observed rate of accepting vs rejecting is now used to improve the estimates
+  for positional operators and value ranges.  Thanks to Robert Stepanek for
+  finding bugs in the initial implementation of this.
 
 * Shortcut handling of an empty Query object.  This always returns an empty
   MSet so it's an easy case to handle without doing much work, and doing this
-  means the matcher can assume the query isn't empty.
+  early on means the matcher can then assume the query isn't empty.
 
 * Document lengths and the number of unique terms in a candidate document are
   now fetched from the database directly rather than recursively calling down
@@ -584,9 +608,9 @@ matcher:
   or position list, which avoids the overhead of creating an object in such
   cases.  For posting lists, this aids optimising the query.
 
-* Expanding a wildcard now gets the term frequency and collection frequency from
-  each PostList rather than asking the database.  This avoids an extra postlist
-  table access for each such term.
+* Expanding a wildcard now gets the term frequency and collection frequency
+  from each PostList rather than asking the database.  This avoids an extra
+  postlist table access for each such term.
 
 * Devirtualise PostList::get_termfreq().  In most leaf subclasses this was just
   returning a value stored in a subclass member variable, and in most branch
@@ -609,6 +633,10 @@ matcher:
 
 * The edit distance calculator (used by spelling correction and the new
   Query::OP_EDIT_DISTANCE) has been optimised in numerous ways).
+
+* Optimise OP_NEAR and OP_OR by using a custom heap implementation which
+  provides a replace() operation that's like push() followed by pop(),
+  but more efficient.
 
 * We no longer automatically convert OP_NEAR/OP_PHRASE to OP_AND when a
   database has no positional information.  It's a potentially surprising
@@ -638,11 +666,14 @@ matcher:
   seems better in general anyway.
 
 * Posting lists used inside the matcher no longer have a reference count
-  (needed for those used by Xapian::PostingIterator) which reduces memory
+  (only needed for those used by Xapian::PostingIterator) which reduces memory
   usage during the match a little.
 
 * The mechanism PostingSource objects used to tell the matcher that their
   maxweight has changed is now simpler and more efficient.
+
+* Remote shards are now handled by merging MSet objects rather than feeding
+  them into the standard matcher via MSetPostList.
 
 * The matcher now waits for remote databases in parallel and handles
   their results as they become available.
@@ -658,7 +689,9 @@ matcher:
 
 chert backend:
 
-* Remove the chert backend.
+* Remove the chert backend.  Use glass instead.  You can convert a chert
+  database to glass with 1.4.x using `copydatabase`:
+  https://getting-started-with-xapian.readthedocs.io/en/latest/advanced/admin_notes.html#converting-a-chert-database-to-a-glass-database
 
 glass backend:
 
@@ -680,7 +713,7 @@ glass backend:
 
   Partly addresses #651.
 
-* Simplify recovery from failed commit(), which is now handled like an explicit
+* Simplify recovery from failed commit() by handling it like an explicit
   cancel().
 
 * Reduce overheads of PostList positional data support.  Most PostList objects
@@ -696,9 +729,10 @@ honey backend:
   from a glass database using xapian-compact.
 
   Honey imposes a restriction on wdf values which previous backends haven't:
-  Each term in a a honey database must either always have wdf=0 (i.e. a boolean
-  term) or never have wdf=0.  This seems a logical requirement, and allows us
-  to encode posting lists more compactly in some cases.
+  Each term in a honey database must either always have wdf=0 (i.e. a boolean
+  term) or never have wdf=0.  This seems a logical requirement which is likely
+  to be true anyway, but requiring it allows us to encode posting lists more
+  compactly in some cases.
 
 remote backend:
 
@@ -710,8 +744,9 @@ remote backend:
     usually results in a smaller encoding.  Fixes #782, reported by Germán M.
     Bravo.
 
-  + Use little endian IEEE-754 format for serialising doubles.  Fixes #673.
-    Patch from Tanmay Sachan.
+  + Use little endian IEEE-754 format for serialising doubles which is faster
+    for platforms which use this format natively (as almost all modern
+    platforms do).  Fixes #673.  Patch from Tanmay Sachan.
 
   + The ordering of items in some messages and object serialisations has been
     adjusted to simplify decoding.  Some items in messages which weren't
@@ -725,22 +760,22 @@ remote backend:
     as a single message containing a blob of encoded data which is decoded
     lazily upon iteration.
 
-* Avoid ensuring that the cached database stats are up to date in some cases
-  where we don't actually use them.
+  + Avoid updating the cached database stats in some cases where we don't
+    actually use them.
+
+  + Support remote use of synonyms.  Synonym expansion in the QueryParser is
+    currently handled locally with the synonym data sent across the link, which
+    may mean this doesn't scale well if you have a lot of synonyms.  Partly
+    addresses #178.  Patch from Gaurav Arora.
+
+  + Support remote use of KeyMaker objects.  Xapian::MultiValueKeyMaker now
+    supports this out of the box, and user Xapian::KeyMaker subclasses can too
+    by implementing name(), serialise() and unserialise() methods.  Fixes #413,
+    originally reported in #384 by Marek Mizier.
+
+  + Implement TermIterator::positionlist_count() for remote databases.
 
 * Eliminate a copy when reading remote document data.
-
-* Support remote use of synonyms.  Synonym expansion in the QueryParser is
-  currently handled locally with the synonym data sent across the link, which
-  may mean this doesn't scale well if you have a lot of synonyms.  Partly
-  addresses #178.  Patch from Gaurav Arora.
-
-* Support remote use of KeyMaker objects.  Xapian::MultiValueKeyMaker now
-  supports this out of the box, and user Xapian::KeyMaker subclasses can too by
-  implementing name(), serialise() and unserialise() methods.  Fixes #413,
-  originally reported in #384 by Marek Mizier.
-
-* Implement TermIterator::positionlist_count() for remote databases.
 
 inmemory backend:
 
@@ -755,8 +790,8 @@ build system:
   C++ compiler).
 
 * If C++23 or C++20 support is detected it will be enabled.  This allows us
-  to opportunistically conditionally take advantage of newer language and
-  library features in cases where this can reduce overhead, for example
+  to opportunistically take advantage of newer language and library features in
+  cases where this can reduce overhead, for example
   __cpp_lib_associative_heterogeneous_erasure from C++23.
 
 * Use AC_CONFIG_MACRO_DIRS, which replaces the need to specify the same
@@ -780,7 +815,12 @@ documentation:
     probably the most useful places to get started now.
 Patch from James Aylett.
 
-* Update the matcher design notes which had got very out of date.
+    Move documentation of internals and protocols to xapian-developer-guide
+
+    remote.rst: Update re writable remote DBs
+    This has been supported since Xapian 0.9.7!
+
+    Eliminate docs also in "getting started" guide
 
 * Use the doxygen @since command where appropriate in API docs.
 
@@ -789,19 +829,22 @@ tools:
 * xapian-compact: Add --backend option to provide access to the new ability to
   convert glass to honey via compaction.
 
-examples:
+* xapian-quest: Promote the "quest" example to a tool, and rename to
+  xapian-quest.
 
-* quest: Support weighting scheme parameters in --weight option.
+* xapian-quest: Support weighting scheme parameters in --weight option.
+
+examples:
 
 portability:
 
 * Support building with emscripten.  Patch from Peter Salomonsen.
 
 * Eliminate all remaining uses of atoi(), strtol(), etc in the library.  Calls
-  to strtod() are also avoided if std::from_chars() is available with support for
-  double.  The replaced calls are potentially problematic in a multithreaded
-  application if setlocale() is called by another thread at the same time.  See
-  #665.
+  to strtod() are also avoided if std::from_chars() is available with support
+  for double.  The replaced calls are potentially problematic in a
+  multithreaded application if setlocale() is called by another thread at the
+  same time.  See #665.
 
 * Add XAPIAN_VISIBILITY_INTERNAL for API class methods which aren't part of the
   public API and only get called from within the library - e.g. a common
@@ -829,9 +872,9 @@ portability:
 
 * Microsoft Windows: Stop using the Microsoft-specific _set_errno() function
   for setting errno, which we were using in just one place in the code - in
-  more than 30 other places in core we just assign to errno directly.  The docs
-  don't give any reason why _set_errno() should be needed, and a conforming
-  compiler implementation should allow just assigning to errno.
+  more than 30 other places in core we just assign to errno directly.  The
+  _set_errno() docs don't give any reason why it's necessary and a conforming
+  compiler implementation should support directly assigning to errno.
 
 * Microsoft Windows: Simplify listening socket handling.  We already assume at
   least Vista, so we can just use SO_EXCLUSIVEADDRUSE and fail if we can't set
@@ -848,13 +891,13 @@ packaging:
 
 debug code:
 
-* Update make targets for generating lcov code coverage reports.  It seems we
-  to longer need --disable-shared (it's not needed on Debian stretch for
-  example) so remove it and instead provide a generic mechanism to allow the
-  user to specify extra configure options.
+* Update make targets for generating lcov code coverage reports.  It seems
+  --disable-shared is no longer required (even as far back as Debian stretch
+  for example) so remove it and instead provide a generic mechanism to allow
+  the user to specify extra configure options.
 
-* xapian-inspect-honey: Equivalent to the xapian-inspect debug tool, but
-  for honey databases.
+* xapian-inspect-honey: New tool for honey databases, equivalent to the
+  xapian-inspect debug tool for glass databases.
 
 * Allow using UBSan's unsigned-overflow check.  C and C++ unsigned overflow
   has defined behaviour (unlike signed overflow) but it's often not expected
