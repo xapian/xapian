@@ -1005,7 +1005,7 @@ if test no != "$with_ruby" ; then
 	dnl at build time rather shipping the rather large generated output in
 	dnl our source tarball.
 	if test -z "$RDOC" ; then
-	  dnl Try replace the *last* 'ruby' with 'rdoc'.
+	  dnl Try replacing the *last* 'ruby' with 'rdoc'.
 	  rdoc_best_guess=`echo "$RUBY"|sed 's,\(.*\)ruby,\1rdoc,'`
 	  if test -x "$rdoc_best_guess" ; then
 	    RDOC=$rdoc_best_guess
