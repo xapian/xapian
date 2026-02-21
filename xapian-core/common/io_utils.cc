@@ -381,7 +381,7 @@ io_pwrite(int fd, const char * p, size_t n, off_t o)
     HANDLE h = (HANDLE)_get_osfhandle(fd);
     if (h == INVALID_HANDLE_VALUE) {
 	// _get_osfhandle() sets errno to EBADF.
-	throw Xapian::DatabaseError("Error reading database", errno);
+	throw Xapian::DatabaseError("Error writing database", errno);
     }
 
     OVERLAPPED overlapped;
