@@ -175,10 +175,10 @@ API:
     search, which can be helpful in some applications (previously it would
     throw Xapian::InvalidArgumentError).
 
-  + get_eset() now uses a custom heap implementation which provides a replace()
-    operation that's like push() followed by pop(), but more efficient.  We've
-    also reduced the number of virtual method calls and string copies that
-    happen.
+  + Optimise get_eset().  We now use a custom heap implementation which
+    provides a replace() operation that's like push() followed by pop(), but
+    more efficient.  We've also reduced the number of virtual method calls and
+    string copies.
 
 * ESet: Use type Xapian::termcount to hold an index rather than
   Xapian::doccount.  In a standard build both are the same underlying type, so

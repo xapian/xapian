@@ -95,7 +95,7 @@ indexers:
     indexed by default - they are just pointless overhead for the majority of
     users at this point.  The omindex --date-terms option can be used if you
     still want these terms (this option is recognised since 1.4.22 for forward
-    compatibility, but 1.4.x still always indexes these terms).
+    compatibility, but 1.4.x still indexes these terms by default).
 
   + Atom feed parsing: type="xhtml" is now understood.
 
