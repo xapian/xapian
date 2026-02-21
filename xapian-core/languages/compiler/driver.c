@@ -379,7 +379,6 @@ static struct options * read_options(int * argc_ptr, char * argv[]) {
 
         const char * dot = strrchr(leaf, '.');
         if (dot) {
-            o->extension = create_s_from_sz(dot);
             o->output_file = create_s_from_data(leaf, dot - leaf);
         } else {
             o->output_file = create_s_from_sz(leaf);
@@ -529,9 +528,9 @@ extern int main(int argc, char * argv[]) {
                 case LANG_ADA:
                     // 1000000000: local 13.7s vs global 5.2s
                 case LANG_C:
-                    // We lack a way generate lose_s(v) on every `return` from
-                    // the function, but manually adjusting the generated code
-                    // to do this gives:
+                    // We lack a way to generate lose_s(v) on every `return`
+                    // from the function, but manually adjusting the generated
+                    // code to do this gives:
                     //
                     // 1000000000: local 44.9s vs global 6.3s
                 case LANG_CPLUSPLUS:
