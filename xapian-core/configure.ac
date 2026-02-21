@@ -64,7 +64,7 @@ dnl 44:2:14 1.4.30 No API changes
 LIBRARY_VERSION_INFO=44:2:14
 AC_SUBST([LIBRARY_VERSION_INFO])
 
-if expr `echo "$LIBRARY_VERSION_INFO"|sed 's/:.*:/ - /'` != 30 ; then
+if expr `echo "$LIBRARY_VERSION_INFO"|sed 's/:.*:/ - /'` != 30 >/dev/null ; then
   AC_MSG_ERROR([Unexpected SOVERSION change])
 fi
 
