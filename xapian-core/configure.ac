@@ -28,20 +28,24 @@ dnl
 dnl 6. If any interfaces have been removed since the last public release
 dnl    then set AGE to 0.
 dnl
-dnl LIBRARY_VERSION_INFO for libxapian1.5
-dnl 0:0:0 1.5.0 Reset as library renamed
-LIBRARY_VERSION_INFO=0:0:0
+dnl LIBRARY_VERSION_INFO for libxapian:
+dnl 44:3:14 1.4.31 No API changes
+dnl 45:0:0 2.0.0 Extensive API changes
+LIBRARY_VERSION_INFO=45:0:0
 AC_SUBST([LIBRARY_VERSION_INFO])
 
-if expr `echo "$LIBRARY_VERSION_INFO"|sed 's/:.*:/ - /'` != 0 >/dev/null ; then
+if expr `echo "$LIBRARY_VERSION_INFO"|sed 's/:.*:/ - /'` != 45 >/dev/null ; then
   AC_MSG_ERROR([Unexpected SOVERSION change])
 fi
 
+dnl This machinery was used for development release series, and
+dnl is currently unused.  We've left it in place for now in case we decide to
+dnl do them again.
 LIBRARY_VERSION_SUFFIX=
 dnl Where xapian.h, etc go.
 incdir=$includedir
 case $PACKAGE_VERSION in
-  [*.*[13579].*])
+  [1.[13].*])
     dnl Development release series:
     [dev_series=`echo "$PACKAGE_VERSION"|sed 's/\.[^.]*$//'`]
 

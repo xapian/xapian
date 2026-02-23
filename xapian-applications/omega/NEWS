@@ -1,6 +1,10 @@
-up to: cf984d95d4154d393cbb0ab45808c225d5b765c1
+Omega 1.5.0 (2026-02-24):
 
-Omega 2.0.0 (2026-0?-??):
+This is a release candidate for 2.0.0, made available to encourage wider
+testing before a final release.  It is versioned as 1.5.0 in an attempt to
+reduce potential for misunderstandings.  If all goes well the final release
+will be the same as this but with the version number updated.  However please
+do not package this as incompatible changes are still possible.
 
 general:
 
@@ -11,8 +15,6 @@ general:
   scripts no longer seem at all useful.  (Note that omindex still supports
   htdig's <!--htdig_noindex-->...<!--/htdig_noindex--> markup of sections
   of pages not to index.)
-
-documentation:
 
 indexers:
 
@@ -205,8 +207,7 @@ packaging:
 * We no longer provide RPM spec files.  In the early days of Xapian it was
   perhaps useful to provide them so that people could build their own RPM
   packages, but now all mainstream distros seem to provide packages, and
-  doubtless maintain their own packaging separately rather than just taking
-  what we ship as-is.
+  doubtless maintain their own packaging separately.
 
 debug code:
 

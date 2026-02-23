@@ -1,8 +1,10 @@
-up to: b6f1792203ea567ad48234e3f523881824bb6817
+Xapian-bindings 1.5.0 (2026-02-24):
 
-Xapian-bindings 2.0.0 (2026-0?-??):
-
-Documentation:
+This is a release candidate for 2.0.0, made available to encourage wider
+testing before a final release.  It is versioned as 1.5.0 in an attempt to
+reduce potential for misunderstandings.  If all goes well the final release
+will be the same as this but with the version number updated.  However please
+do not package this as incompatible changes are still possible.
 
 General:
 
@@ -50,18 +52,17 @@ Lua:
   returned. Existing Lua stemmer implementations will continue to work, but any
   code in them to return a description will no longer get used.
 
-Perl:
-
 PHP:
+
+* PHP lists `empty` as a reserved keyword, so we used to rename Xapian C++
+  class methods named `empty()` to `is_empty()` in these bindings.  However,
+  PHP actually allows `empty` to be used as a method name, so we now wrap
+  these methods as `empty()` and `is_empty()` in PHP.
 
 Python:
 
 * Drop support for Python 2 as it's been end-of-life upstream since 2020-01-01.
   If you're still using it, you'll need to stick with Xapian 1.4.x.
-
-Python3:
-
-Ruby:
 
 Tcl:
 
