@@ -13238,8 +13238,8 @@ summarised the most notable changes and improvements:
 
       + "om" is now "xapian-core"
       + "om-examples" is now "xapian-examples", and now contains small,
-	instructive examples which demonstrate how to use Xapian to implement
-	particularly features.
+        instructive examples which demonstrate how to use Xapian to implement
+        particularly features.
       + Added "xapian-applications" which contains larger sample applications
 
   * Much improved build system - should now build "out of the box" on many Unix
@@ -13283,13 +13283,13 @@ summarised the most notable changes and improvements:
 
       + Auto backend: can now be used to create a new database.
       + Auto backend: added support for "stub" databases - a text file
-	specifying the settings for the database to be opened (particularly
-	useful for allowing easy access to specific remote databases).
+        specifying the settings for the database to be opened (particularly
+        useful for allowing easy access to specific remote databases).
       + Quartz backend: many fixes and improvements, and the code has been
-	cleaned up a lot. Implemented deleting of items from postlists.
+        cleaned up a lot. Implemented deleting of items from postlists.
       + Remote backend: implemented term_exists() and get_termfreq();
       + Multi-backend: the document length is now fetched from the sub-postlist
-	rather than the database, which provides a huge speed-up in some cases.
+        rather than the database, which provides a huge speed-up in some cases.
       + Sleepycat backend: this experimental backend has been removed.
       + Muscat 3.6 backends: now disabled by default.
 
@@ -13297,30 +13297,30 @@ summarised the most notable changes and improvements:
 
       + Test cases added for most bug fixes and new features.
       + stemtest: rewritten in C++ rather than part C++, part perl. Now 15%
-	faster.
+        faster.
       + includetest: removed - it's no longer useful now the code has matured.
       + Removed problematic leak checking from testsuite. We plan to use
-	valgrind instead soon.
+        valgrind instead soon.
 
   * Matcher:
 
       + Fixed several matcher bugs which could cause incorrect results in some
-	situations.
+        situations.
       + Fix bug in expander due to nth_element being called on the wrong
-	element.
+        element.
       + Added sorting within relevance bands to the matcher.
       + Matcher now calculates percentages differently, such that 100%
-	relevance is actually achievable.
+        relevance is actually achievable.
       + Matcher now uses a min-heap rather than nth-element to maintain the
-	proto-mset. This is cleaner and more efficient.
+        proto-mset. This is cleaner and more efficient.
       + New operator OP_ELITE_SET replaces match_max_or_terms option.
       + Implemented multiple XOR queries.
       + Add a new query operator, OP_WEIGHT_CUTOFF, which returns only those
-	documents from a query which have a weight greater than a specified
-	cutoff value.
+        documents from a query which have a weight greater than a specified
+        cutoff value.
       + Removed OmBatchEnquire from system: it may return at a later date, but
-	for now it is simply out of date and a maintenance liability, and
-	gives no significant advantage.
+        for now it is simply out of date and a maintenance liability, and
+        gives no significant advantage.
       + Added experimental match bias functors.
 
   * The API has been cleaned up in various places:
@@ -13328,14 +13328,14 @@ summarised the most notable changes and improvements:
       + OmDocumentContents and OmIndexDoc merged to become OmDocument
       + OmQuery interface cleaned up
       + OmData and OmKey removed - methods which used them now just pass a
-	string instead
+        string instead
       + OmESetItem replaced by OmESetIterator; OmMSetItem by OmMSetIterator;
-	om_termname_list by OmTermIterator
+        om_termname_list by OmTermIterator
       + OmDocumentTerm and OmDocumentParams removed
       + OmMSet::mbound replaced by OmMSet::matches_
-	{lower_bound,estimated,upper_bound}, giving more information
+        {lower_bound,estimated,upper_bound}, giving more information
       + Xapian iterators now have default constructors
       + Most API classes now have reference counted internals, so assignment
-	and copying are cheap
+        and copying are cheap
       + OmStem now has copy constructor and assignment operator
       + and more...
