@@ -1,6 +1,4 @@
-up to: 8db14964ec6e41c46af15eb7b9f86c27f15b62ff
-
-Xapian-core 1.4.31 (2026-0?-??):
+Xapian-core 1.4.31 (2026-02-23):
 
 API:
 
@@ -9,12 +7,12 @@ API:
   can unfortunately reject the best (or indeed only) candidate within the
   requested number of edits.
 
-  Profiling an example dictionary of 244506 German words, searching for a
+  Profiling with an example dictionary of 244506 German words, searching for a
   correction takes an extra ~2 milliseconds with this fix applied (21% more
   time when timing opening the database and calling get_spelling_suggestion()).
   Xapian 2.0.0 will include several optimisations to the edit distance
-  calculator which mean that Xapian 2.0.0 (which includes this fix) is actually
-  slightly faster than Xapian 1.4.30 (without this fix).
+  calculator which mean that Xapian 2.0.0 (which also includes this fix) is
+  actually slightly faster than Xapian 1.4.30 (without this fix).
 
   Reported by Veloman Yunkan.
 
@@ -29,18 +27,17 @@ API:
   slightly and this resulted in corner-case bugs which are tricky to fix.
   Also while FULLER did result in smaller compacted databases when it was
   added for the quartz backend in 2005, testing with the glass backend in
-  2026 showed it actually gave **larger** output than FULL for typical
+  2026 showed it actually gives **larger** output than FULL for typical
   databases.
 
   Fixes #842, reported by Veloman Yunkan.
 
 * Query: Attempting to construct a pairwise Query from an operator and two
-  `char*` or `const char*` term names failed to compile because these types are
+  `char*` or `const char*` term names failed to compile because pointers are
   iterator types and matched the template which allows construction from a pair
   of iterators which are meant to dereference to give a type convertible to
-  std::string or Xapian::Query or Xapian::Query*.  We solve this by using
-  SFINAE tricks to not enable this template for iterators where
-  sizeof(value_type) is 1.
+  std::string or Xapian::Query or Xapian::Query*.  We've solved this by only
+  enabling this template for iterators where sizeof(value_type) is not 1.
 
 * QueryParser: Improve FLAG_PARTIAL handling for stopwords.  With FLAG_PARTIAL,
   we expand a partial word at the end of the query as a wildcard, but also
@@ -48,11 +45,19 @@ API:
   This is now extended to considering if the term would normally be omitted as
   a stopword - if so FLAG_PARTIAL now just expands it to be a wildcard.
 
+* RangeProcessor: Don't require prefix/suffix on empty bound when flag
+  RP_REPEATED is specified (so now `..$10` and `20kg..` work).  Case noted by
+  James Aylett in the "getting started" guide.
+
+* ValueRangeProcessor: Don't require prefix/suffix on empty bound.
+
+* Fix incorrect container and iterator traits for Xapian API classes.  Fixes
+  #850, reported by Daniel Colascione.
+
 testsuite:
 
-
-matcher:
-
+* Extend generated tests to cover newer Xapian::Weight subclasses and
+  Xapian::Utf8Iterator.
 
 glass backend:
 
@@ -66,28 +71,31 @@ glass backend:
   levels is non-zero but the `fake_root` flag is set.  This flag should mean
   that the table hasn't been used yet.
 
-chert backend:
-
-
-remote backend:
-
-
-inmemory backend:
-
-
 build system:
 
+* Suppress a bogus `0` line which was appearing in configure output due to the
+  SONUMBER check which was added in 1.4.29.
 
 documentation:
 
-* The API documentation for Xapian::Stem has always listed
-  `english_lovins` and `english_porter`, but these haven't worked for over
-  18½ years (since 0.9.10).  Nobody has reported this before now and I only
-  noticed because we only noticed while merged some new stemming algorithms
-  so we've aligned the docs with long-term reality.  These stemmers have always
-  been available under the names `lovins` and `porter` respectively.
+* The API documentation for Xapian::Stem has always listed `english_lovins` and
+  `english_porter`, but these haven't worked for over 18½ years (since 0.9.10).
+  Nobody has reported this before now and we only noticed while merging some
+  new stemming algorithms so we've aligned the docs with long-term reality.
+  These stemmers have always been available under the names `lovins` and
+  `porter` respectively.
 
 * Update API documentation wording about `dutch_porter`.
+
+* docs/stemming.rst: Update to include current locations of vocab and
+  stopwords.
+
+* docs/stemming.rst: Expand stemming example to include `-s` suffix as
+  conflating singular and plural noun forms is arguably the most important
+  thing an English stemmer does.
+
+* docs/stemming.rst: Replace out-dated list of supported stemming algorithms
+  with a link to the up-to-date list in the Xapian::Stem API docs.
 
 * Document how to use `XAPIAN_AT_LEAST()` if you still want to support Xapian
   versions before it was added (1.4.2).  An obvious approach works with newer
@@ -99,9 +107,27 @@ documentation:
 
 * queryparser.rst: Remove unwanted paragraph break.
 
-* Update references to 1.5.0 - the upcoming new release series will be 2.0.x.
+* remote.rst: Fix outdated information - writable remote DBs has been supported
+  since Xapian 0.9.7!
 
-* NEWS: Fix some typos in old entries
+* replication.rst: Minor improvements to the replication docs.
+
+* Improve DecreasingValueWeightPostingSource API documentation.  The
+  description of the required ordering of weights was inverted from what's
+  actually required, and we now suggest to achieve the required document
+  ordering by arranging the order documents are indexed in.
+
+* Document what FixedWeightPostingSource is useful for as this doesn't
+  seem obvious.
+
+* Improve DateRangeProcessor API documentation to cover the accepted date
+  formats and how ambiguous cases are resolved.
+
+* Update references to 1.5.0 - the upcoming new release series will commence
+  with 2.0.0.
+
+* Fix some typos in old NEWS entries and code comments.  Patch from Stefan
+  Weil.
 
 tools:
 
@@ -111,17 +137,11 @@ tools:
 
 * quest: List valid flags/query ops if an invalid one is specified.
 
-examples:
-
-
 portability:
 
 * Use close_range() to implement closefrom() on Android (available
-  since NDK r34; we fallback to looping over possible fds if not
-  available at runtime).
-
-packaging:
-
+  since NDK r34) and Cygwin (>= 3.5.0); we fallback to looping over possible
+  fds if close_range() is not available at runtime.
 
 debug code:
 

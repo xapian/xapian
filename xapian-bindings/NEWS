@@ -1,3 +1,19 @@
+Xapian-bindings 1.4.31 (2026-02-23):
+
+Documentation:
+
+* python3:
+
+  + Move text about examples to examples.rst.
+
+  + examples.rst: Drop emphasis of lines 12 and 15-18 in each example
+    as there are some arbitrary lines in the licensing boilerplate.
+
+  + Document migrating to RangeProcessor.
+
+  + Resolve various differences with the corresponding "getting started
+    guide" section.
+
 Xapian-bindings 1.4.30 (2025-11-20):
 
 Documentation:
