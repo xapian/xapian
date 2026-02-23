@@ -1145,7 +1145,7 @@ jobs:
     - name: Run tests
       run: |
         cd xapian-core
-        em++ -Oz -s USE_ZLIB=1 -std=c++11 -s WASM=1 -Iinclude emscripten/xapianjstest.cc .libs/libxapian-1.5.a -o emscripten/xapianjstest.js
+        em++ -Oz -s USE_ZLIB=1 -std=c++11 -s WASM=1 -Iinclude emscripten/xapianjstest.cc .libs/libxapian.a -o emscripten/xapianjstest.js
         cd emscripten
         node xapianjstest.js
     - name: Save log files
