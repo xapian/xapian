@@ -210,7 +210,7 @@ remote
     Otherwise the TCP variant of the remote backend is used, and the rest of
     the line specifies the host and port to connect to.
 
-These are no longer supported by Xapian 2.0.x:
+These are no longer supported by Xapian 2:
 
 chert
     Chert was the default backend in Xapian 1.2.x. It was deprecated in 1.4.0

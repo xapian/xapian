@@ -1,25 +1,4 @@
-up to: efdd98f45cb8cee965d44240aaf9b076097aaadc
-
-FIXME:
-* clean up documentation section
-* move all docs to xapian-docsprint or xapian-docs top level module?
-* Note these have been excluded from this release:
-  - Add API for clustering search results.  Patch from Richhiey Thomas.
-  - Add API for diversifying search results.  Patch from Uppinder Chugh.
-    Turn off clustering and diversification APIs
-    These need more work before being released, so let's omit them from
-    the .0 release and slot them into a later point release once we've
-    addressed the problems.
-    See #804.
-* Stemmers with no functional changes (we should document somewhere when you
-  might want to reindex and when not, and these are relevant to that):
-  Armenian
-  Basque
-  Catalan
-  Hungarian
-  Indonesian
-  Lovins
-  Porter
+up to: 226800b117488e14b9757e635c21c1f2bc977b98
 
 Xapian-core 2.0.0 (2026-0?-??):
 
@@ -270,7 +249,7 @@ API:
     current upstream.  This brings some speed and size improvements but the
     number of dynamic runtime relocations has increased which will add to the
     start-up time of programs dynamically linked to libxapian.  We hope to
-    address this in future 2.0.x releases.
+    address this in future Xapian 2 releases.
 
   + Merge algorithm changes from Snowball.  There are optimisations to several
     algorithms, and also the following functional changes:
@@ -410,9 +389,9 @@ API:
       = Improve stemming of words ending -ers.  Reported by Karianne Berg.
 
       = Include more accented vowels - treating "ê", "ò", "ó" and "ô" as vowels
-	improves the stemming of a fairly small number of words, but there's
-	basically no cost to having extra vowels in the grouping, and some of
-	these words are commonly used.  Reported by András Jankovics.
+        improves the stemming of a fairly small number of words, but there's
+        basically no cost to having extra vowels in the grouping, and some of
+        these words are commonly used.  Reported by András Jankovics.
 
     - Portuguese: Replace Spanish suffixes by Portuguese suffixes.  Patch from
       Helder.
@@ -437,17 +416,17 @@ API:
     - Swedish:
 
       = Replace suffix "öst" with "ös" when preceded by any of 'iklnprtuv'
-	rather than just 'l'.  The new rule only requires the "öst" to be in R1
-	whereas previously we required all of "löst" to be.  This second tweak
-	doesn't seem to affect any words ending "löst" but it conflates a few
-	extra cases when combined with the expanded list of preceding letters,
-	and seems more logical linguistically (since "ös" is akin to "ous" in
-	English).  Reported by znakeeye.
+        rather than just 'l'.  The new rule only requires the "öst" to be in R1
+        whereas previously we required all of "löst" to be.  This second tweak
+        doesn't seem to affect any words ending "löst" but it conflates a few
+        extra cases when combined with the expanded list of preceding letters,
+        and seems more logical linguistically (since "ös" is akin to "ous" in
+        English).  Reported by znakeeye.
 
       = Remove -et/-ets in cases where it helps.  Removing -et can't be done
-	unconditionally because many words end in -et where this isn't a
-	suffix.  However it's a very common suffix so it seems worth crafting a
-	more complex condition under which to remove.  Fixes #47.
+        unconditionally because many words end in -et where this isn't a
+        suffix.  However it's a very common suffix so it seems worth crafting a
+        more complex condition under which to remove.  Fixes #47.
 
     - Turkish: Remove proper noun suffixes.  For example, `Türkiye'dir` ("it is
       Turkey") is now conflated with `Türkiye` ("Turkey").  Fixes #188.
@@ -806,21 +785,8 @@ build system:
 
 documentation:
 
-* Update HACKING and README
-    Remove content which is now in the dev guide
-    Add a pointer from HACKING to help people find its new home.
-    Improve the pointer to the previous contents of xapian-core/HACKING
-    which has been moved to the Xapian developer guide.
-    Mention both developer and user guide in README, since they're
-    probably the most useful places to get started now.
-Patch from James Aylett.
-
-    Move documentation of internals and protocols to xapian-developer-guide
-
-    remote.rst: Update re writable remote DBs
-    This has been supported since Xapian 0.9.7!
-
-    Eliminate docs also in "getting started" guide
+* Move more documentation to "Getting Started with Xapian" or the Xapian
+  developer guide.  Partly done by a patch from James Aylett.
 
 * Use the doxygen @since command where appropriate in API docs.
 

@@ -117,7 +117,7 @@ class XAPIAN_VISIBILITY_DEFAULT Stem {
      *    separately as "kraaij_pohlmann".
      *  - dutch_porter - This was the "dutch" stemmer before Xapian 2.0.0.
      *    In 1.4.x for x >= 28, "dutch_porter" was an alias for dutch to
-     *    provide forward compatibility to 2.0.x.
+     *    provide forward compatibility to Xapian 2.
      *  - english (en) - Martin Porter's 2002 revision of his stemmer
      *  - earlyenglish - English stemmer with additional rules to improve
      *    handling of Early Modern English (e.g. Shakespeare, Dickens) but
