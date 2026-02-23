@@ -218,6 +218,23 @@ debug code:
   cases where we can easily not rely on it, and added this check to the
   clang-sanitisers CI job.
 
+Omega 1.4.31 (2026-02-23):
+
+documentation:
+
+* Update references to 1.5.0 - the upcoming new release series will commence
+  with 2.0.0.
+
+testsuite:
+
+* Add test that magic comments work in XHTML.
+
+portability:
+
+* Use close_range() to implement closefrom() on Android (available
+  since NDK r34; we fallback to looping over possible fds if not
+  available at runtime).
+
 Omega 1.4.30 (2025-11-20):
 
 documentation:

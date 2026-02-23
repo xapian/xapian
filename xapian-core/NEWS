@@ -873,6 +873,158 @@ debug code:
   cases where we can easily not rely on it, and added this check to the
   clang-sanitisers CI job.
 
+Xapian-core 1.4.31 (2026-02-23):
+
+API:
+
+* Database::get_spelling_suggestion(): Remove a flawed optimisation which was
+  rejecting candidate corrections based only on how many n-grams match.  This
+  can unfortunately reject the best (or indeed only) candidate within the
+  requested number of edits.
+
+  Profiling with an example dictionary of 244506 German words, searching for a
+  correction takes an extra ~2 milliseconds with this fix applied (21% more
+  time when timing opening the database and calling get_spelling_suggestion()).
+  Xapian 2.0.0 will include several optimisations to the edit distance
+  calculator which mean that Xapian 2.0.0 (which also includes this fix) is
+  actually slightly faster than Xapian 1.4.30 (without this fix).
+
+  Reported by Veloman Yunkan.
+
+* Database::compact(): FULLER compaction now does exactly the same as FULL.
+  Previously FULLER did the same as FULL but in addition it increased the
+  maximum size of the low-level items in the database tables.  The idea
+  was that this would reduce the overhead required because larger items
+  would not need to be split into as many pieces (or even split at all in
+  some cases).
+
+  A downside of this was that it violated the design of the Btree format
+  slightly and this resulted in corner-case bugs which are tricky to fix.
+  Also while FULLER did result in smaller compacted databases when it was
+  added for the quartz backend in 2005, testing with the glass backend in
+  2026 showed it actually gives **larger** output than FULL for typical
+  databases.
+
+  Fixes #842, reported by Veloman Yunkan.
+
+* Query: Attempting to construct a pairwise Query from an operator and two
+  `char*` or `const char*` term names failed to compile because pointers are
+  iterator types and matched the template which allows construction from a pair
+  of iterators which are meant to dereference to give a type convertible to
+  std::string or Xapian::Query or Xapian::Query*.  We've solved this by only
+  enabling this template for iterators where sizeof(value_type) is not 1.
+
+* QueryParser: Improve FLAG_PARTIAL handling for stopwords.  With FLAG_PARTIAL,
+  we expand a partial word at the end of the query as a wildcard, but also
+  include the term that the word would normally generate as an alternative.
+  This is now extended to considering if the term would normally be omitted as
+  a stopword - if so FLAG_PARTIAL now just expands it to be a wildcard.
+
+* RangeProcessor: Don't require prefix/suffix on empty bound when flag
+  RP_REPEATED is specified (so now `..$10` and `20kg..` work).  Case noted by
+  James Aylett in the "getting started" guide.
+
+* ValueRangeProcessor: Don't require prefix/suffix on empty bound.
+
+* Fix incorrect container and iterator traits for Xapian API classes.  Fixes
+  #850, reported by Daniel Colascione.
+
+testsuite:
+
+* Extend generated tests to cover newer Xapian::Weight subclasses and
+  Xapian::Utf8Iterator.
+
+glass backend:
+
+* Compacting a database with corrupt item sizes could try to copy an
+  item outside of the allocated block.  Now we throw DatabaseCorruptError
+  in this situation.  Not realistically exploitable (you would need to
+  run compact on a carefully crafted corrupt Xapian database made by an
+  attacker).  Patch from A. Jiang in https://github.com/xapian/xapian/pull/337.
+
+* Opening a database table now throws DatabaseCorruptError if the number of
+  levels is non-zero but the `fake_root` flag is set.  This flag should mean
+  that the table hasn't been used yet.
+
+build system:
+
+* Suppress a bogus `0` line which was appearing in configure output due to the
+  SONUMBER check which was added in 1.4.29.
+
+documentation:
+
+* The API documentation for Xapian::Stem has always listed `english_lovins` and
+  `english_porter`, but these haven't worked for over 18½ years (since 0.9.10).
+  Nobody has reported this before now and we only noticed while merging some
+  new stemming algorithms so we've aligned the docs with long-term reality.
+  These stemmers have always been available under the names `lovins` and
+  `porter` respectively.
+
+* Update API documentation wording about `dutch_porter`.
+
+* docs/stemming.rst: Update to include current locations of vocab and
+  stopwords.
+
+* docs/stemming.rst: Expand stemming example to include `-s` suffix as
+  conflating singular and plural noun forms is arguably the most important
+  thing an English stemmer does.
+
+* docs/stemming.rst: Replace out-dated list of supported stemming algorithms
+  with a link to the up-to-date list in the Xapian::Stem API docs.
+
+* Document how to use `XAPIAN_AT_LEAST()` if you still want to support Xapian
+  versions before it was added (1.4.2).  An obvious approach works with newer
+  Xapian but fails with < 1.4.2 so warn about this and recommend an approach.
+
+* Improve API documentation for `Database::size()` to note when it was added
+  and to point people who actually want the number of documents to
+  get_doccount().
+
+* queryparser.rst: Remove unwanted paragraph break.
+
+* remote.rst: Fix outdated information - writable remote DBs has been supported
+  since Xapian 0.9.7!
+
+* replication.rst: Minor improvements to the replication docs.
+
+* Improve DecreasingValueWeightPostingSource API documentation.  The
+  description of the required ordering of weights was inverted from what's
+  actually required, and we now suggest to achieve the required document
+  ordering by arranging the order documents are indexed in.
+
+* Document what FixedWeightPostingSource is useful for as this doesn't
+  seem obvious.
+
+* Improve DateRangeProcessor API documentation to cover the accepted date
+  formats and how ambiguous cases are resolved.
+
+* Update references to 1.5.0 - the upcoming new release series will commence
+  with 2.0.0.
+
+* Fix some typos in old NEWS entries and code comments.  Patch from Stefan
+  Weil.
+
+tools:
+
+* quest: Add --stem-strategy option.
+
+* quest: List stemming languages in --help.
+
+* quest: List valid flags/query ops if an invalid one is specified.
+
+portability:
+
+* Use close_range() to implement closefrom() on Android (available
+  since NDK r34) and Cygwin (>= 3.5.0); we fallback to looping over possible
+  fds if close_range() is not available at runtime.
+
+debug code:
+
+* Fix build with `--enable-assertions=partial`.  Patch from A. Jiang.
+
+* Move an assertion that a pointer is not NULL to before where we dereference
+  it.
+
 Xapian-core 1.4.30 (2025-11-20):
 
 API:
@@ -13981,8 +14133,8 @@ summarised the most notable changes and improvements:
 
       + "om" is now "xapian-core"
       + "om-examples" is now "xapian-examples", and now contains small,
-	instructive examples which demonstrate how to use Xapian to implement
-	particularly features.
+        instructive examples which demonstrate how to use Xapian to implement
+        particularly features.
       + Added "xapian-applications" which contains larger sample applications
 
   * Much improved build system - should now build "out of the box" on many Unix
@@ -14026,13 +14178,13 @@ summarised the most notable changes and improvements:
 
       + Auto backend: can now be used to create a new database.
       + Auto backend: added support for "stub" databases - a text file
-	specifying the settings for the database to be opened (particularly
-	useful for allowing easy access to specific remote databases).
+        specifying the settings for the database to be opened (particularly
+        useful for allowing easy access to specific remote databases).
       + Quartz backend: many fixes and improvements, and the code has been
-	cleaned up a lot. Implemented deleting of items from postlists.
+        cleaned up a lot. Implemented deleting of items from postlists.
       + Remote backend: implemented term_exists() and get_termfreq();
       + Multi-backend: the document length is now fetched from the sub-postlist
-	rather than the database, which provides a huge speed-up in some cases.
+        rather than the database, which provides a huge speed-up in some cases.
       + Sleepycat backend: this experimental backend has been removed.
       + Muscat 3.6 backends: now disabled by default.
 
@@ -14040,30 +14192,30 @@ summarised the most notable changes and improvements:
 
       + Test cases added for most bug fixes and new features.
       + stemtest: rewritten in C++ rather than part C++, part perl. Now 15%
-	faster.
+        faster.
       + includetest: removed - it's no longer useful now the code has matured.
       + Removed problematic leak checking from testsuite. We plan to use
-	valgrind instead soon.
+        valgrind instead soon.
 
   * Matcher:
 
       + Fixed several matcher bugs which could cause incorrect results in some
-	situations.
+        situations.
       + Fix bug in expander due to nth_element being called on the wrong
-	element.
+        element.
       + Added sorting within relevance bands to the matcher.
       + Matcher now calculates percentages differently, such that 100%
-	relevance is actually achievable.
+        relevance is actually achievable.
       + Matcher now uses a min-heap rather than nth-element to maintain the
-	proto-mset. This is cleaner and more efficient.
+        proto-mset. This is cleaner and more efficient.
       + New operator OP_ELITE_SET replaces match_max_or_terms option.
       + Implemented multiple XOR queries.
       + Add a new query operator, OP_WEIGHT_CUTOFF, which returns only those
-	documents from a query which have a weight greater than a specified
-	cutoff value.
+        documents from a query which have a weight greater than a specified
+        cutoff value.
       + Removed OmBatchEnquire from system: it may return at a later date, but
-	for now it is simply out of date and a maintenance liability, and
-	gives no significant advantage.
+        for now it is simply out of date and a maintenance liability, and
+        gives no significant advantage.
       + Added experimental match bias functors.
 
   * The API has been cleaned up in various places:
@@ -14071,14 +14223,14 @@ summarised the most notable changes and improvements:
       + OmDocumentContents and OmIndexDoc merged to become OmDocument
       + OmQuery interface cleaned up
       + OmData and OmKey removed - methods which used them now just pass a
-	string instead
+        string instead
       + OmESetItem replaced by OmESetIterator; OmMSetItem by OmMSetIterator;
-	om_termname_list by OmTermIterator
+        om_termname_list by OmTermIterator
       + OmDocumentTerm and OmDocumentParams removed
       + OmMSet::mbound replaced by OmMSet::matches_
-	{lower_bound,estimated,upper_bound}, giving more information
+        {lower_bound,estimated,upper_bound}, giving more information
       + Xapian iterators now have default constructors
       + Most API classes now have reference counted internals, so assignment
-	and copying are cheap
+        and copying are cheap
       + OmStem now has copy constructor and assignment operator
       + and more...
