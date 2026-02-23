@@ -113,9 +113,9 @@ DISTCLEANFILES += pkgconfig/xapian-core.pc
 
 libxapian_la = libxapian.la
 lib_LTLIBRARIES = libxapian.la
-libxapian_1_5_la_SOURCES = $(lib_src)
-libxapian_1_5_la_LIBADD = $(XAPIAN_LIBS) $(ICU_LIBS)
-libxapian_1_5_la_LDFLAGS = \
+libxapian_la_SOURCES = $(lib_src)
+libxapian_la_LIBADD = $(XAPIAN_LIBS) $(ICU_LIBS)
+libxapian_la_LDFLAGS = \
     $(XAPIAN_LDFLAGS) $(NO_UNDEFINED) -version-info $(LIBRARY_VERSION_INFO) $(lib_ldflags)
 
 lib_src =
