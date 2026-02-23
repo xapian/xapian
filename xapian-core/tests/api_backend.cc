@@ -244,6 +244,10 @@ DEFINE_TESTCASE(alldocspl3, backend) {
     TEST_EQUAL(db.get_termfreq(string()), 0);
     TEST_EQUAL(db.get_collection_freq(string()), 0);
     TEST(db.postlist_begin(string()) == db.postlist_end(string()));
+
+    TEST_EQUAL(db.get_termfreq(string_view()), 0);
+    TEST_EQUAL(db.get_collection_freq(string_view()), 0);
+    TEST(db.postlist_begin(string_view()) == db.postlist_end(string_view()));
 }
 
 /// Regression test for bug#392 in ModifiedPostList iteration, fixed in 1.0.15.
