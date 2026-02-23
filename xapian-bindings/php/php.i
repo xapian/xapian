@@ -55,7 +55,6 @@ extern "C" {
 %pragma(php) version=PACKAGE_VERSION
 
 %rename("is_empty") empty() const;
-%rename("clone_object") clone() const;
 
 /* Handle op as an int rather than an enum. */
 %apply int { Xapian::Query::op };
