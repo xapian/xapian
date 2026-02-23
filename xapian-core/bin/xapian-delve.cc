@@ -131,8 +131,8 @@ show_db_stats(Database &db)
 	    // All documents are empty.
 	    empty_docs = db.get_doccount();
 	} else {
-	    Xapian::PostingIterator d = db.postlist_begin(string());
-	    while (d != db.postlist_end(string())) {
+	    Xapian::PostingIterator d = db.postlist_begin(string_view{});
+	    while (d != db.postlist_end(string_view{})) {
 		if (d.get_doclength() == 0)
 		    ++empty_docs;
 		++d;

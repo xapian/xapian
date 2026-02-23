@@ -36,8 +36,7 @@ using namespace std;
 
 namespace Xapian {
 
-// Extra () are needed to resolve ambiguity with method declaration.
-const Query Query::MatchAll((string()));
+const Query Query::MatchAll(string_view{});
 
 const Query Query::MatchNothing;
 

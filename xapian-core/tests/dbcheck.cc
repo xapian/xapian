@@ -143,8 +143,8 @@ dbcheck(const Xapian::Database & db,
     Xapian::termcount doclen_lower_bound = Xapian::termcount(-1);
     Xapian::termcount doclen_upper_bound = 0;
 
-    for (Xapian::PostingIterator dociter = db.postlist_begin(string());
-	 dociter != db.postlist_end(string());
+    for (Xapian::PostingIterator dociter = db.postlist_begin(string_view());
+	 dociter != db.postlist_end(string_view());
 	 ++dociter) {
 	Xapian::docid did = *dociter;
 	TEST_EQUAL(dociter.get_wdf(), 1);
