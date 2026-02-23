@@ -19,9 +19,10 @@ to a floating point number.
 You can subclass Xapian classes in PHP and virtual methods defined in PHP are
 called from C++ in the way you'd expect.
 
-PHP has a lot of reserved words of various sorts, which sadly clash with common
-method names.  Because of this ``empty()`` methods of various
-container-like classes are wrapped as ``is_empty()`` for PHP.
+PHP lists ``empty`` as a reserved keyword, so we used to rename Xapian C++ class
+methods named ``empty()`` to ``is_empty()`` in these bindings.  However, PHP
+actually allows ``empty`` to be used as a method name, so since Xapian 2.0.0
+we wrap these methods as both ``empty()`` and ``is_empty()`` in PHP.
 
 The ``examples`` subdirectory contains examples showing how to use the
 PHP bindings based on the simple examples from ``xapian-examples``:

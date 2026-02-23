@@ -2,7 +2,7 @@
 %{
 /* php.i: SWIG interface file for the PHP bindings
  *
- * Copyright (C) 2004-2022 Olly Betts
+ * Copyright (C) 2004-2026 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -54,7 +54,16 @@ extern "C" {
 
 %pragma(php) version=PACKAGE_VERSION
 
-%rename("is_empty") empty() const;
+// We used to rename `empty()` methods to `is_empty()` in PHP.  However while
+// `empty` is a PHP reserved keyword, it's still allowed as a method name so
+// we no longer rename it, but instead wrap as `empty()` and also provide
+// is_empty() methods for backwards compatibility.
+#define XAPIAN_SWIG_IS_EMPTY_COMPAT(CLASS) %extend Xapian::CLASS { bool is_empty() const { return $self->empty(); } }
+XAPIAN_SWIG_IS_EMPTY_COMPAT(ESet)
+XAPIAN_SWIG_IS_EMPTY_COMPAT(LatLongCoords)
+XAPIAN_SWIG_IS_EMPTY_COMPAT(MSet)
+XAPIAN_SWIG_IS_EMPTY_COMPAT(Query)
+XAPIAN_SWIG_IS_EMPTY_COMPAT(RSet)
 
 /* Handle op as an int rather than an enum. */
 %apply int { Xapian::Query::op };

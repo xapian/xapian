@@ -4,7 +4,7 @@
 /* Simple test to ensure that we can load the xapian module and exercise basic
  * functionality successfully.
  *
- * Copyright (C) 2004-2022 Olly Betts
+ * Copyright (C) 2004-2026 Olly Betts
  * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -670,4 +670,50 @@ if ($query->get_description() !== 'Query(b@2)') {
     exit(1);
 }
 
+# Test wrapping of C++ empty() methods as both empty() and is_empty() in PHP.
+$eset = new XapianESet();
+if (!$eset->empty()) {
+    print "Unexpected !\$eset->empty()\n";
+    exit(1);
+}
+if (!$eset->is_empty()) {
+    print "Unexpected !\$eset->is_empty()\n";
+    exit(1);
+}
+$mset = new XapianMSet();
+if (!$mset->empty()) {
+    print "Unexpected !\$mset->empty()\n";
+    exit(1);
+}
+if (!$mset->is_empty()) {
+    print "Unexpected !\$mset->is_empty()\n";
+    exit(1);
+}
+$rset = new XapianRSet();
+if (!$rset->empty()) {
+    print "Unexpected !\$rset->empty()\n";
+    exit(1);
+}
+if (!$rset->is_empty()) {
+    print "Unexpected !\$rset->is_empty()\n";
+    exit(1);
+}
+$coords = new XapianLatLongCoords();
+if (!$coords->empty()) {
+    print "Unexpected !\$coords->empty()\n";
+    exit(1);
+}
+if (!$coords->is_empty()) {
+    print "Unexpected !\$coords->is_empty()\n";
+    exit(1);
+}
+$query = new XapianQuery();
+if (!$query->empty()) {
+    print "Unexpected !\$query->empty()\n";
+    exit(1);
+}
+if (!$query->is_empty()) {
+    print "Unexpected !\$query->is_empty()\n";
+    exit(1);
+}
 ?>
