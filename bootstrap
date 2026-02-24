@@ -420,7 +420,7 @@ gitdir=`git rev-parse --git-dir`
 
 if [ ! -d "$gitdir" ] ; then
   echo "$0: No '.git' directory found - this script should be run from a"
-  echo "git repo cloned from git://git.xapian.org/xapian or a mirror of it"
+  echo "git repo cloned from https://git.xapian.org/xapian or a mirror of it"
   exit 1
 fi
 
