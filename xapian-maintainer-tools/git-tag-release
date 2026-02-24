@@ -45,10 +45,13 @@ RELEASE_URL=$RELEASE_WEB_BASE_URL/$version/
 # Needs to NOT have a trailing `/` or else scp fails.
 RELEASE_DIR=$RELEASE_WEB_BASE_DIR/$version
 
-if [ "`git branch --color=never --contains|cut -d' ' -f2-`" != "$BRANCH" ] ; then
+case `git status -b --porcelain -uno|head -n1` in
+"## $BRANCH..."*)
+    ;;
+*)
     echo "Not on branch $BRANCH"
     exit 1
-fi
+esac
 
 # Avoid tagging a release with the wrong versions in the tarballs (as
 # happened with 1.1.4).
