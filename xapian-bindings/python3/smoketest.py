@@ -115,11 +115,6 @@ def test_all():
     expect_exception(xapian.DatabaseCreateError, None,
             lambda : xapian.WritableDatabase(b"nosuchdir/nosuchdb", xapian.DB_CREATE|xapian.DB_BACKEND_GLASS))
 
-    expect_exception(xapian.FeatureUnavailableError, None,
-            lambda : xapian.Database(b"nosuchdir/nosuchdb", xapian.DB_BACKEND_CHERT))
-    expect_exception(xapian.FeatureUnavailableError, None,
-            lambda : xapian.WritableDatabase(b"nosuchdir/nosuchdb", xapian.DB_CREATE|xapian.DB_BACKEND_CHERT))
-
     expect_exception(xapian.NetworkError, None,
                      xapian.remote_open, b"/bin/false", b"")
     expect_exception(xapian.NetworkError, None,

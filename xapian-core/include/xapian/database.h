@@ -999,7 +999,6 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
      *	    Constant                     | Meaning
      *	  ------------------------------ | -----------------------
      *	  Xapian::DB_BACKEND_GLASS	 | Create a glass database
-     *	  Xapian::DB_BACKEND_CHERT       | Create a chert database
      *	  Xapian::DB_BACKEND_INMEMORY    | Create inmemory DB (ignores @a path)
      *
      *  * any number of the following flags:

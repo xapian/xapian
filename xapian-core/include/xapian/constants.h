@@ -157,12 +157,6 @@ const int DB_RETRY_LOCK		 = 0x40;
  */
 const int DB_BACKEND_GLASS	 = 0x100;
 
-/** Use the chert backend.
- *
- *  No longer supported as of Xapian 2.0.0.
- */
-const int DB_BACKEND_CHERT	 = 0x200;
-
 /** Open a stub database file.
  *
  *  When opening a Database, this flag means to only open it if it's a stub

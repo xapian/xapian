@@ -162,8 +162,6 @@ Database::Database(string_view path, int flags)
 
     int type = flags & DB_BACKEND_MASK_;
     switch (type) {
-	case DB_BACKEND_CHERT:
-	    throw FeatureUnavailableError("Chert backend no longer supported");
 	case DB_BACKEND_GLASS:
 #ifdef XAPIAN_HAS_GLASS_BACKEND
 	    internal = new GlassDatabase(path);
@@ -429,8 +427,6 @@ WritableDatabase::WritableDatabase(std::string_view path,
 	case DB_BACKEND_HONEY:
 	    throw InvalidArgumentError("Honey backend doesn't support "
 				       "updating existing databases");
-	case DB_BACKEND_CHERT:
-	    throw FeatureUnavailableError("Chert backend no longer supported");
 	case DB_BACKEND_INMEMORY:
 #ifdef XAPIAN_HAS_INMEMORY_BACKEND
 	    internal = new InMemoryDatabase();
