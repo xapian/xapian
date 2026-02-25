@@ -403,10 +403,16 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
     /// Get an upper bound on the wdf of term @a term.
     Xapian::termcount get_wdf_upper_bound(std::string_view term) const;
 
-    /// Get a lower bound on the unique terms size of a document in this DB.
+    /** Get a lower bound on the unique terms size of a document in this DB.
+     *
+     *  @since Added in Xapian 2.0.0.
+     */
     Xapian::termcount get_unique_terms_lower_bound() const;
 
-    /// Get an upper bound on the unique terms size of a document in this DB.
+    /** Get an upper bound on the unique terms size of a document in this DB.
+     *
+     *  @since Added in Xapian 2.0.0.
+     */
     Xapian::termcount get_unique_terms_upper_bound() const;
 
     /// Return an iterator over the value in slot @a slot for each document.
@@ -434,6 +440,12 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
      */
     Xapian::termcount get_unique_terms(Xapian::docid did) const;
 
+    /** Get the maximum wdf value in a specified document.
+     *
+     *  @param did   The document id of the document
+     *
+     *  @since Added in Xapian 2.0.0.
+     */
     Xapian::termcount get_wdfdocmax(Xapian::docid did) const;
 
     /** Send a keep-alive message.
@@ -456,6 +468,8 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
      *  @param flags	Zero or more flags bitwise-or-ed together (currently
      *			only Xapian::DOC_ASSUME_VALID is supported).
      *			(default: 0)
+     *
+     *  @since The @a flags parameter was added in Xapian 2.0.0.
      *
      *  @exception Xapian::InvalidArgumentError is thrown if @a did is 0.
      *
@@ -612,6 +626,8 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
      *		      a new database.
      *
      *  @return  A WritableDatabase object open on the same database.
+     *
+     *  @since Added in Xapian 2.0.0.
      */
     Xapian::WritableDatabase lock(int flags = 0);
 
@@ -623,6 +639,8 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
      *  on is closed.
      *
      *  @return  A Database object open on the same database.
+     *
+     *  @since Added in Xapian 2.0.0.
      */
     Xapian::Database unlock();
 
@@ -910,6 +928,8 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
      *  @param prefix	  Term prefix to reconstruct (default: none)
      *  @param start_pos  First position to reconstruct (default: 0)
      *  @param end_pos    Last position to reconstruct (default: 0 meaning all)
+     *
+     *  @since Added in Xapian 2.0.0.
      */
     std::string reconstruct_text(Xapian::docid did,
 				 size_t length = 0,

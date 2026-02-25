@@ -425,6 +425,8 @@ class XAPIAN_VISIBILITY_DEFAULT NumberRangeProcessor : public RangeProcessor {
  *  Xapian::sortable_serialise() which turns numbers into strings which
  *  will sort in the same order as the numbers (the same values can be
  *  used to implement a numeric sort).
+ *
+ *  @since Added in Xapian 2.0.0.
  */
 class XAPIAN_VISIBILITY_DEFAULT UnitRangeProcessor : public RangeProcessor {
   public:
@@ -788,7 +790,10 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
 	STEM_NONE, STEM_SOME, STEM_ALL, STEM_ALL_Z, STEM_SOME_FULL_POS
     } stem_strategy;
 
-    /// Stopper strategies, for use with set_stopper_strategy().
+    /** Stopper strategies, for use with set_stopper_strategy().
+     *
+     *  @since Added in Xapian 2.0.0.
+     */
     typedef enum { STOP_NONE, STOP_ALL, STOP_STEMMED } stop_strategy;
 
     /// Copy constructor.

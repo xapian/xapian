@@ -307,6 +307,8 @@ class XAPIAN_VISIBILITY_DEFAULT TermGenerator {
      *
      *  By default the only limit is the maximum value of the Xapian::termpos
      *  type.
+     *
+     *  @since Added in Xapian 2.0.0.
      */
     void set_termpos_limit(Xapian::termpos termpos_limit);
 

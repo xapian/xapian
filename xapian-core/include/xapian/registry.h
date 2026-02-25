@@ -163,6 +163,8 @@ class XAPIAN_VISIBILITY_DEFAULT Registry {
      *		        to manage its lifetime.  The alternative approach is
      *		        for the caller to ensure the KeyMaker object remains
      *		        valid for the lifetime of the Registry object.
+     *
+     *  @since Added in Xapian 2.0.0.
      */
     void register_key_maker(Xapian::KeyMaker* keymaker);
 
@@ -172,6 +174,8 @@ class XAPIAN_VISIBILITY_DEFAULT Registry {
      *  @return		An object with the requested name, or NULL if the
      *			KeyMaker could not be found.  The returned
      *			object must <b>not</b> be deleted by the caller.
+     *
+     *  @since Added in Xapian 2.0.0.
      */
     const Xapian::KeyMaker* get_key_maker(std::string_view name) const;
 };

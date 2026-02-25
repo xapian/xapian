@@ -261,7 +261,10 @@ class XAPIAN_VISIBILITY_DEFAULT Document {
 	return ValueIterator();
     }
 
-    /** Efficiently swap this Document object with another. */
+    /** Efficiently swap this Document object with another.
+     *
+     *  @since Added in Xapian 2.0.0.
+     */
     void swap(Document& o) { internal.swap(o.internal); }
 
     /** Serialise document into a string.

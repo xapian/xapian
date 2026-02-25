@@ -564,6 +564,8 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
      *	@param min_prefix_len
      *			The length in bytes of any initial substring of target
      *			that is required to match exactly.  Default: 0
+     *
+     *  @since Added in Xapian 2.0.0.
      */
     Query(op op_,
 	  std::string_view pattern,
@@ -678,10 +680,16 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
     /** Get the number of subqueries of the top level query. */
     size_t get_num_subqueries() const noexcept XAPIAN_PURE_FUNCTION;
 
-    /** Get the wqf parameter of a leaf node. */
+    /** Get the wqf parameter of a leaf node.
+     *
+     *  @since Added in Xapian 2.0.0.
+     */
     Xapian::termcount get_leaf_wqf() const;
 
-    /** Get the pos parameter of a leaf node. */
+    /** Get the pos parameter of a leaf node.
+     *
+     *  @since Added in Xapian 2.0.0.
+     */
     Xapian::termpos get_leaf_pos() const;
 
     /** Read a top level subquery.

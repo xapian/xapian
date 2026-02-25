@@ -192,6 +192,8 @@ const int DB_BACKEND_INMEMORY	 = 0x400;
  *  database.  There's rarely a good reason to do this - it's mostly provided
  *  as equivalent functionality to that provided by the namespaced open()
  *  functions in Xapian 1.2.
+ *
+ *  @since Added in Xapian 2.0.0.
  */
 const int DB_BACKEND_HONEY	 = 0x500;
 

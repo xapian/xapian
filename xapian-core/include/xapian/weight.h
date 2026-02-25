@@ -368,6 +368,8 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
      *	You can rely of wdf <= doclen if you call both need_stat(WDF) and
      *	need_stat(DOC_LENGTH) - this is trivially true for terms, but Xapian
      *	also ensure it's true for OP_SYNONYM, where the wdf is approximated.
+     *
+     *  @since The wdfdocmax parameter was added in Xapian 2.0.0.
      */
     virtual double get_sumpart(Xapian::termcount wdf,
 			       Xapian::termcount doclen,
@@ -391,6 +393,12 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
      *
      *  @param doclen The document's length (unnormalised).
      *  @param uniqterms The number of unique terms in the document.
+     *  @param wdfdocmax
+     *		      Maximum wdf value in the document.
+     *		      You need to call need_stat(WDF_DOC_MAX) if you use this
+     *		      value.
+     *
+     *  @since The wdfdocmax parameter was added in Xapian 2.0.0.
      */
     virtual double get_sumextra(Xapian::termcount doclen,
 				Xapian::termcount uniqterms,
@@ -516,6 +524,8 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
      *  If this method returns true, then the max WDF will be
      *  fetched and passed to @a get_sumpart().  Otherwise 0 may be passed for
      *  the max wdf.
+     *
+     *  @since Added in Xapian 2.0.0.
      */
     bool get_sumpart_needs_wdfdocmax_() const {
 	return stats_needed & WDF_DOC_MAX;
@@ -762,7 +772,10 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
 	AUG = 11
     };
 
-    /** Idf normalizations. */
+    /** Idf normalizations.
+     *
+     *  @since 2.0.0
+     */
     enum class idf_norm : unsigned char {
 	/** None
 	 *
@@ -827,7 +840,10 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
 	SQRT_GLOBAL_FREQ = 10
     };
 
-    /** Weight normalizations. */
+    /** Weight normalizations.
+     *
+     *  @since 2.0.0
+     */
     enum class wt_norm : unsigned char {
 	/** None
 	 *
@@ -887,6 +903,8 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
      *     @li 'm': Max-wdf	wdfn=wdf/wdfdocmax
      *     @li 'a': Augmented max-wdf  wdfn=0.5+0.5*wdf/wdfdocmax
      *
+     *     @since Support for 'P', 'm' and 'a' was added in Xapian 2.0.0.
+     *
      * @li The second character indicates the normalization for the idf.  The
      *     following normalizations are currently supported:
      *
@@ -898,6 +916,8 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
      *     @li 'f': Freq    idfn=1/Termfreq
      *     @li 's': Squared idfn=(log(N/Termfreq))²
      *     @li 'P': Pivoted idfn=log((N+1)/Termfreq)
+     *
+     *     @since Support for 'P' was added in Xapian 2.0.0.
      *
      * @li The third and the final character indicates the normalization for
      *     the document weight.  The following normalizations are currently
@@ -932,6 +952,8 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
      *     @li 'm': Max-wdf	wdfn=wdf/wdfdocmax
      *     @li 'a': Augmented max-wdf  wdfn=0.5+0.5*wdf/wdfdocmax
      *
+     *     @since Support for 'P', 'm' and 'a' was added in Xapian 2.0.0.
+     *
      * @li The second character indicates the normalization for the idf.  The
      *     following normalizations are currently supported:
      *
@@ -943,6 +965,8 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
      *     @li 'f': Freq    idfn=1/Termfreq
      *     @li 's': Squared idfn=(log(N/Termfreq))²
      *     @li 'P': Pivoted idfn=log((N+1)/Termfreq)
+     *
+     *     @since Support for 'P' was added in Xapian 2.0.0.
      *
      * @li The third and the final character indicates the normalization for
      *     the document weight.  The following normalizations are currently
@@ -963,6 +987,8 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
      *
      * Implementing support for more normalizations of each type would require
      * extending the backend to track more statistics.
+     *
+     * @since Added in Xapian 2.0.0.
      */
     TfIdfWeight(wdf_norm wdf_normalization,
 		idf_norm idf_normalization,
@@ -982,6 +1008,8 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
      *
      * Implementing support for more normalizations of each type would require
      * extending the backend to track more statistics.
+     *
+     * @since Added in Xapian 2.0.0.
      */
     TfIdfWeight(wdf_norm wdf_norm_, idf_norm idf_norm_,
 		wt_norm wt_norm_, double slope, double delta);

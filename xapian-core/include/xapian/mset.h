@@ -61,6 +61,8 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
      *
      *  @param i	MSet index to update
      *  @param wt	new weight to assign to the document at index @a i
+     *
+     *  @since Added in Xapian 2.0.0.
      */
     void set_item_weight(Xapian::doccount i, double wt);
 
@@ -122,6 +124,8 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
      *  @exception Xapian::InvalidArgument is thrown if the total number of
      *		   elements in the input doesn't match the total number of
      *		   documents in MSet.
+     *
+     *  @since Added in Xapian 2.0.0.
      */
     template<typename Iterator>
     void replace_weights(Iterator first, Iterator last)
@@ -150,6 +154,8 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
      *  Use after calling MSet::replace_weights.
      *
      *  This invalidates any MSetIterator objects active on this MSet.
+     *
+     *  @since Added in Xapian 2.0.0.
      */
     void sort_by_relevance();
 
