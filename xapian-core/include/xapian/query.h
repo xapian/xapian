@@ -320,6 +320,7 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	 */
 	WILDCARD_LIMIT_MOST_FREQUENT = 0x02,
 
+	/** @private @internal */
 	WILDCARD_LIMIT_MASK_ = 0x03,
 
 	/** Support * which matches 0 or more characters.
