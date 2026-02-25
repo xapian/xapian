@@ -392,7 +392,12 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
      *  in the calculations:
      *
      *  @param doclen The document's length (unnormalised).
-     *  @param uniqterms The number of unique terms in the document.
+     *		      You need to call need_stat(DOC_LENGTH) if you use this
+     *		      value.
+     *  @param uniqterms
+     *		      Number of unique terms in the document.
+     *		      You need to call need_stat(UNIQUE_TERMS) if you use this
+     *		      value.
      *  @param wdfdocmax
      *		      Maximum wdf value in the document.
      *		      You need to call need_stat(WDF_DOC_MAX) if you use this

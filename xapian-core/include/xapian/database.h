@@ -423,7 +423,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	return ValueIterator();
     }
 
-    /** Get the length of a document.
+    /** Get the length of a specified document.
      *
      *  @param did   The document id of the document
      *
@@ -432,7 +432,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
      */
     Xapian::termcount get_doclength(Xapian::docid did) const;
 
-    /** Get the number of unique terms in a document.
+    /** Get the number of unique terms in a specified document.
      *
      *  @param did   The document id of the document
      *
@@ -578,7 +578,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	return Xapian::TermIterator();
     }
 
-    /** Get a UUID for the database.
+    /** Get the UUID for the database.
      *
      *  The UUID will persist for the lifetime of the database.
      *
