@@ -552,8 +552,13 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	 *  The revision is an unsigned integer which increases with each
 	 *  commit.
 	 *
-	 *  The database must have exactly one sub-database, which must be of
-	 *  type chert or glass.  Otherwise an exception will be thrown.
+	 *  @exception Xapian::InvalidOperationError If the database consists
+	 *		of more than one shard.
+	 *  @exception Xapian::UnimplementedError Currently this is only
+	 *		implemented for glass.
+	 *  @exception In Xapian < 1.4.13, if the database consists of no
+	 *		shards; In Xapian >= 1.4.13 this method returns 0 if
+	 *		there are no shards.
 	 *
 	 *  Experimental - see
 	 *  https://xapian.org/docs/deprecation#experimental-features
