@@ -96,6 +96,9 @@ sub check_comment_content {
     if (/(\@[a-z]+)\s+\1\b/) {
 	diagnostic('error', "Double Doxygen command: '$1 $1'");
     }
+    if (/\b(51 Franklin St(?:reet)?|59 Temple Place)\b/) {
+	diagnostic('error', "Old FSF postal address: '$1'");
+    }
 }
 
 my $add_lines = 0;
