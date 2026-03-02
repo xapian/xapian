@@ -2,8 +2,7 @@ dnl Process this file with autoconf to produce a configure script.
 
 dnl NB When updating the version for a release, update LIBRARY_VERSION_INFO
 dnl below too.
-m4_define([project_version], [1.5.0])
-AC_INIT([xapian-letor], project_version, [https://xapian.org/bugs])
+AC_INIT([xapian-letor], [1.5.0], [https://xapian.org/bugs])
 
 AC_PREREQ([2.64])
 dnl Extract from the libtool info manual:
@@ -138,10 +137,8 @@ dnl Run tests using the C++ compiler.
 AC_LANG([C++])
 
 dnl Check for xapian-core.
-XO_LIB_XAPIAN([], [],
-    [xapian-config]regexp(project_version,
-			  [^\([0-9]*\.[0-9]*[13579]\)\..*$], [-\1]))
-XO_REQUIRE([1.4.0])
+XO_LIB_XAPIAN([], [], [xapian-config])
+XO_REQUIRE([1.5.0])
 
 dnl With xlC on AIX, -D_LARGE_FILES changes the ABI of std::string, so it
 dnl also needs to be used when compiling user code.

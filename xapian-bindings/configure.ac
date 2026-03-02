@@ -4,8 +4,7 @@ dnl See xapian-core's HACKING document for details of the reasons for required
 dnl versions.
 AC_PREREQ([2.63])
 
-m4_define([project_version], [1.5.0])
-AC_INIT([xapian-bindings], project_version, [https://xapian.org/bugs])
+AC_INIT([xapian-bindings], [1.5.0], [https://xapian.org/bugs])
 
 dnl See xapian-core's HACKING document for details of the reasons for required
 dnl versions.
@@ -64,10 +63,8 @@ dnl Probe for any options needed to enable C++17 support.
 AX_CXX_COMPILE_STDCXX([17])
 
 dnl Check for xapian-core.
-XO_LIB_XAPIAN([], [],
-    [xapian-config]regexp(project_version,
-			  [^\([0-9]*\.[0-9]*[13579]\)\..*$], [-\1]))
-XO_REQUIRE([1.4.0])
+XO_LIB_XAPIAN([], [], [xapian-config])
+XO_REQUIRE([1.5.0])
 
 NEED_JNILIB_EXT=no
 NEED_INTREE_DYLD=no
