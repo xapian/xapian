@@ -140,8 +140,11 @@ Compilers
 =========
 
 We aim to support compilation with any C++ compiler which supports ISO C++17,
-or a reasonable approximation to it.  If you still need to build Xapian with an
-older compiler then Xapian 1.4.x only requires C++11.
+or a reasonable approximation to it.  C++ code which includes Xapian headers
+also needs to be compiled as C++17 (because the API now uses std::string_view).
+
+If you still need to build Xapian with an older compiler then Xapian 1.4.x only
+requires C++11.
 
 GCC
 ---
