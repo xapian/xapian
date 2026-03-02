@@ -483,8 +483,8 @@ API:
     number of load-time relocations for libxapian because we add two symbols,
     but remove 26 - this will speed up library load time a little.
 
-  + DiceCoeffWeight: New weighting scheme (implementing
-    https://en.wikipedia.org/wiki/S%C3%B8rensen%E2%80%93Dice_coefficient).
+  + DiceWeight: New weighting scheme (implementing
+    https://en.wikipedia.org/wiki/Dice-S%C3%B8rensen_coefficient).
     Patch from Guruprasad Hegde.
 
   + LMWeight: This was using incorrect formulae for all the smoothing schemes

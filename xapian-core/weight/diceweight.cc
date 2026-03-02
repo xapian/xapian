@@ -1,5 +1,5 @@
 /** @file
- * @brief Xapian::DiceCoeffWeight class
+ * @brief Xapian::DiceWeight class
  */
 /* Copyright (C) 2018 Guruprasad Hegde
  * Copyright (C) 2024 Olly Betts
@@ -29,14 +29,14 @@ using namespace std;
 
 namespace Xapian {
 
-DiceCoeffWeight *
-DiceCoeffWeight::clone() const
+DiceWeight*
+DiceWeight::clone() const
 {
-    return new DiceCoeffWeight();
+    return new DiceWeight();
 }
 
 void
-DiceCoeffWeight::init(double factor)
+DiceWeight::init(double factor)
 {
     if (factor == 0.0) {
 	// This object is for the term-independent contribution, and that's
@@ -72,50 +72,49 @@ DiceCoeffWeight::init(double factor)
 }
 
 string
-DiceCoeffWeight::name() const
+DiceWeight::name() const
 {
-    return "dicecoeff";
+    return "dice";
 }
 
 string
-DiceCoeffWeight::serialise() const
+DiceWeight::serialise() const
 {
     return string();
 }
 
-DiceCoeffWeight *
-DiceCoeffWeight::unserialise(const string & s) const
+DiceWeight*
+DiceWeight::unserialise(const string& s) const
 {
     if (rare(!s.empty())) {
 	throw Xapian::SerialisationError("Extra data in "
-					 "DiceCoeffWeight::unserialise()");
+					 "DiceWeight::unserialise()");
     }
-    return new DiceCoeffWeight;
+    return new DiceWeight;
 }
 
 double
-DiceCoeffWeight::get_sumpart(Xapian::termcount,
-			     Xapian::termcount,
-			     Xapian::termcount uniqterms,
-			     Xapian::termcount) const
+DiceWeight::get_sumpart(Xapian::termcount,
+			Xapian::termcount,
+			Xapian::termcount uniqterms,
+			Xapian::termcount) const
 {
     return numerator / (get_query_length() + uniqterms);
 }
 
 double
-DiceCoeffWeight::get_maxpart() const
+DiceWeight::get_maxpart() const
 {
     return upper_bound;
 }
 
-DiceCoeffWeight *
-DiceCoeffWeight::create_from_parameters(const char * p) const
+DiceWeight*
+DiceWeight::create_from_parameters(const char* p) const
 {
     if (*p != '\0') {
-	throw InvalidArgumentError("No parameters are required for "
-				   "DiceCoeffWeight");
+	throw InvalidArgumentError("No parameters are required for DiceWeight");
     }
-    return new Xapian::DiceCoeffWeight;
+    return new Xapian::DiceWeight;
 }
 
 }

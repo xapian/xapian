@@ -123,7 +123,7 @@ DEFINE_TESTCASE(weightserialisation1, !backend) {
     TEST_WEIGHT_CLASS_NO_PARAMS(Xapian::CoordWeight, "coord");
     TEST_WEIGHT_CLASS_NO_PARAMS(Xapian::DLHWeight, "dlh");
     TEST_WEIGHT_CLASS_NO_PARAMS(Xapian::DPHWeight, "dph");
-    TEST_WEIGHT_CLASS_NO_PARAMS(Xapian::DiceCoeffWeight, "dicecoeff");
+    TEST_WEIGHT_CLASS_NO_PARAMS(Xapian::DiceWeight, "dice");
 
     // Parameterised weighting schemes.
     TEST_WEIGHT_CLASS(Xapian::TradWeight, "bm25", (1.0), (2.0));
@@ -221,7 +221,7 @@ DEFINE_TESTCASE(weight1, backend) {
     TEST_WEIGHTING_SCHEME(Xapian::CoordWeight);
     TEST_WEIGHTING_SCHEME(Xapian::DLHWeight);
     TEST_WEIGHTING_SCHEME(Xapian::DPHWeight);
-    TEST_WEIGHTING_SCHEME(Xapian::DiceCoeffWeight);
+    TEST_WEIGHTING_SCHEME(Xapian::DiceWeight);
     TEST_WEIGHTING_SCHEME(Xapian::TradWeight);
     TEST_WEIGHTING_SCHEME(Xapian::BM25Weight);
     TEST_WEIGHTING_SCHEME(Xapian::BM25PlusWeight);
@@ -1794,7 +1794,7 @@ DEFINE_TESTCASE(coordweight1, backend) {
 }
 
 // Feature test.
-DEFINE_TESTCASE(dicecoeffweight2, backend) {
+DEFINE_TESTCASE(diceweight2, backend) {
     Xapian::Database db = get_database("apitest_simpledata3");
     Xapian::Enquire enquire(db);
     static const char * const terms[] = {
@@ -1802,7 +1802,7 @@ DEFINE_TESTCASE(dicecoeffweight2, backend) {
     };
     Xapian::Query query(Xapian::Query::OP_OR, terms, std::end(terms));
     enquire.set_query(query);
-    enquire.set_weighting_scheme(Xapian::DiceCoeffWeight());
+    enquire.set_weighting_scheme(Xapian::DiceWeight());
 
     Xapian::MSet mset1;
     mset1 = enquire.get_mset(0, 10);
@@ -1817,8 +1817,8 @@ DEFINE_TESTCASE(dicecoeffweight2, backend) {
 }
 
 // Test handling of a term with zero wdf.
-DEFINE_TESTCASE(dicecoeffweight3, backend) {
-    Xapian::Database db = get_database("dicecoeffweight3",
+DEFINE_TESTCASE(diceweight3, backend) {
+    Xapian::Database db = get_database("diceweight3",
 				       [](Xapian::WritableDatabase& wdb,
 					  const string&) {
 					   Xapian::Document doc;
@@ -1830,10 +1830,10 @@ DEFINE_TESTCASE(dicecoeffweight3, backend) {
 					   wdb.add_document(doc);
 				       });
     Xapian::Enquire enquire(db);
-    enquire.set_weighting_scheme(Xapian::DiceCoeffWeight());
+    enquire.set_weighting_scheme(Xapian::DiceWeight());
 
     // OP_SYNONYM gives wdf zero is need_stat(WDF) isn't specified (and
-    // it isn't by DiceCoeffWeight).
+    // it isn't by DiceWeight).
     Xapian::Query q(Xapian::Query::OP_SYNONYM,
 		    Xapian::Query("false"), Xapian::Query("true"));
     enquire.set_query(Xapian::Query(Xapian::Query::OP_SCALE_WEIGHT,

@@ -2188,15 +2188,21 @@ class XAPIAN_VISIBILITY_DEFAULT CoordWeight : public Weight {
 
 /** Xapian::Weight subclass implementing Dice Coefficient.
  *
- *  Dice Coefficient measures the degree of similarity between
- *  pair of sets (ex. between two documents or a document and a query).
+ *  The Dice Coefficient measures the degree of similarity between pairs of
+ *  sets (in Xapian, these sets are words in a document and words in a query).
+ *
+ *  https://en.wikipedia.org/wiki/Dice-S%C3%B8rensen_coefficient
+ *
+ *  (It's named after Lee Raymond Dice rather than after cubes or other
+ *  polyhedra with numbered sides which are rolled to generate random
+ *  numbers in games.)
  *
  *  Jaccard coefficient and Cosine coefficient are other similarity
  *  coefficients.
  *
- * @since 2.0.0
+ *  @since 2.0.0
  */
-class XAPIAN_VISIBILITY_DEFAULT DiceCoeffWeight : public Weight {
+class XAPIAN_VISIBILITY_DEFAULT DiceWeight : public Weight {
     /// The numerator in the weight calculation.
     double numerator;
 
@@ -2206,10 +2212,10 @@ class XAPIAN_VISIBILITY_DEFAULT DiceCoeffWeight : public Weight {
     void init(double factor);
 
   public:
-    DiceCoeffWeight * clone() const;
+    DiceWeight* clone() const;
 
-    /** Construct a DiceCoeffWeight. */
-    DiceCoeffWeight() {
+    /** Construct a DiceWeight. */
+    DiceWeight() {
 	need_stat(WQF);
 	need_stat(QUERY_LENGTH);
 	need_stat(UNIQUE_TERMS);
@@ -2219,7 +2225,7 @@ class XAPIAN_VISIBILITY_DEFAULT DiceCoeffWeight : public Weight {
     std::string name() const;
 
     std::string serialise() const;
-    DiceCoeffWeight * unserialise(const std::string & serialised) const;
+    DiceWeight* unserialise(const std::string& serialised) const;
 
     double get_sumpart(Xapian::termcount wdf,
 		       Xapian::termcount doclen,
@@ -2227,7 +2233,7 @@ class XAPIAN_VISIBILITY_DEFAULT DiceCoeffWeight : public Weight {
 		       Xapian::termcount wdfdocmax) const;
     double get_maxpart() const;
 
-    DiceCoeffWeight * create_from_parameters(const char * params) const;
+    DiceWeight* create_from_parameters(const char* params) const;
 };
 }
 

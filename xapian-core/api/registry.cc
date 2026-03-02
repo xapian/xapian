@@ -209,7 +209,7 @@ Registry::Internal::add_defaults()
     wtschemes[weighting_scheme->name()] = weighting_scheme;
     weighting_scheme = new Xapian::LM2StageWeight;
     wtschemes[weighting_scheme->name()] = weighting_scheme;
-    weighting_scheme = new Xapian::DiceCoeffWeight;
+    weighting_scheme = new Xapian::DiceWeight;
     wtschemes[weighting_scheme->name()] = weighting_scheme;
 
     Xapian::PostingSource * source;

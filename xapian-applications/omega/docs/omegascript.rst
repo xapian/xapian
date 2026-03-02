@@ -657,7 +657,7 @@ $set{OPT,VALUE}
           - ``bm25+`` (in Omega >= 1.4.26)
           - ``bool``
           - ``coord`` (in Omega >= 1.4.1)
-          - ``dicecoeff`` (in Omega >= 2.0.0)
+          - ``dice`` (in Omega >= 2.0.0)
           - ``dlh`` (in Omega >= 1.3.2)
           - ``dph`` (in Omega >= 1.3.2)
           - ``ifb2`` (in Omega >= 1.3.2)
