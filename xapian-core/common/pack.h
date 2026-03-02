@@ -255,7 +255,26 @@ do_clz(unsigned long long value) {
  *  [Glass and newer variant]
  *
  *  The appended string data will sort in the same order as the unsigned
- *  integer being encoded.
+ *  integer being encoded.  The encoding used supports types up to 64-bit wide.
+ *
+ *  The most significant of the first byte are a series of 0-7 consecutive set
+ *  bits followed by a clear bit.  The number of set bits is 2 less than the
+ *  total number of bytes in the encoded form.  The value can be got by zeroing
+ *  these leading set bits and then interpreting the bytes as a big-endian
+ *  value (so except for the 9 byte encoded form, the lower order bits of the
+ *  first byte give the most significant set byte of the value).
+ *
+ *  Values are encoded in the shortest way possible:
+ *
+ *  [0x00000000,  0x00007fff] 0AAAAAAA BBBBBBBB
+ *  [0x00008000,  0x003fffff] 10AAAAAA BBBBBBBB CCCCCCCC
+ *  [0x00400000,  0x1fffffff] 110AAAAA BBBBBBBB CCCCCCCC DDDDDDDD
+ *  [0x20000000,0x0fffffffff] 1110AAAA BBBBBBBB CCCCCCCC DDDDDDDD EEEEEEEE
+ *
+ *  and so on with a full-64bit value encoding as 0b11111110 (0xfe) followed by
+ *  the 8-byte big-endian representation:
+ *
+ *  11111110 AAAAAAAA BBBBBBBB CCCCCCCC ... HHHHHHHH
  *
  *  Note that the first byte of the encoding will never be \xff, so it is
  *  safe to store the result of this function immediately after the result of
