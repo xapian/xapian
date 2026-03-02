@@ -1,7 +1,7 @@
 /** @file
- * @brief C file implementing IO logging
+ * @brief LD_PRELOAD library implementing IO logging
  */
-/* Compile the profiler by running `make`.
+/* Compile the profiler by running `./configure` and `make`.
  *
  * Run using the xapian-io-profile script, which expects profiler.so to be in the same directory as the script:
  *
