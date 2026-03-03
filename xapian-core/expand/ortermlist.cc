@@ -1,7 +1,7 @@
-/** @file ortermlist.cc
+/** @file
  * @brief Merge two TermList objects using an OR operation.
  */
-/* Copyright (C) 2007,2010 Olly Betts
+/* Copyright (C) 2007-2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -14,8 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -32,8 +32,8 @@ using namespace std;
 void
 OrTermList::check_started() const
 {
-    Assert(!left_current.empty());
-    Assert(!right_current.empty());
+    Assert(!left->get_termname().empty());
+    Assert(!right->get_termname().empty());
 }
 
 OrTermList::~OrTermList()
@@ -57,17 +57,10 @@ OrTermList::accumulate_stats(Xapian::Internal::ExpandStats & stats) const
 {
     LOGCALL_VOID(EXPAND, "OrTermList::accumulate_stats", stats);
     check_started();
-    if (left_current <= right_current) left->accumulate_stats(stats);
-    if (left_current >= right_current) right->accumulate_stats(stats);
-}
-
-string
-OrTermList::get_termname() const
-{
-    LOGCALL(EXPAND, string, "OrTermList::get_termname", NO_ARGS);
-    check_started();
-    if (left_current < right_current) RETURN(left_current);
-    RETURN(right_current);
+    if (cmp <= 0)
+	left->accumulate_stats(stats);
+    if (cmp >= 0)
+	right->accumulate_stats(stats);
 }
 
 Xapian::termcount
@@ -75,8 +68,8 @@ OrTermList::get_wdf() const
 {
     LOGCALL(EXPAND, Xapian::termcount, "OrTermList::get_wdf", NO_ARGS);
     check_started();
-    if (left_current < right_current) RETURN(left->get_wdf());
-    if (left_current > right_current) RETURN(right->get_wdf());
+    if (cmp < 0) RETURN(left->get_wdf());
+    if (cmp > 0) RETURN(right->get_wdf());
     RETURN(left->get_wdf() + right->get_wdf());
 }
 
@@ -85,120 +78,112 @@ OrTermList::get_termfreq() const
 {
     LOGCALL(EXPAND, Xapian::doccount, "OrTermList::get_termfreq", NO_ARGS);
     check_started();
-    if (left_current < right_current) RETURN(left->get_termfreq());
-    Assert(left_current > right_current || left->get_termfreq() == right->get_termfreq());
+    if (cmp < 0)
+	RETURN(left->get_termfreq());
+    Assert(cmp > 0 || left->get_termfreq() == right->get_termfreq());
     RETURN(right->get_termfreq());
-}
-
-// Helper function.
-inline void
-handle_prune(TermList *& old, TermList * result)
-{
-    if (result) {
-	delete old;
-	old = result;
-    }
 }
 
 TermList *
 OrTermList::next()
 {
     LOGCALL(EXPAND, TermList *, "OrTermList::next", NO_ARGS);
-    // If we've not started yet, both left_current and right_current will be
-    // empty, so we'll take the third case below which is what we want to do to
-    // get started.
-    if (left_current < right_current) {
-	handle_prune(left, left->next());
-	if (left->at_end()) {
+    // If we've not started yet, cmp will be zero so we'll take the third case
+    // below which is what we want to do to get started.
+    if (cmp < 0) {
+	TermList* lret = left->next();
+	if (lret == left) {
 	    TermList *ret = right;
 	    right = NULL;
+	    // Prune.
 	    RETURN(ret);
 	}
-	left_current = left->get_termname();
-    } else if (left_current > right_current) {
-	handle_prune(right, right->next());
-	if (right->at_end()) {
+	if (lret) {
+	    delete left;
+	    left = lret;
+	}
+    } else if (cmp > 0) {
+	TermList* rret = right->next();
+	if (rret == right) {
 	    TermList *ret = left;
 	    left = NULL;
+	    // Prune.
 	    RETURN(ret);
 	}
-	right_current = right->get_termname();
+	if (rret) {
+	    delete right;
+	    right = rret;
+	}
     } else {
-	AssertEq(left_current, right_current);
-	handle_prune(left, left->next());
-	handle_prune(right, right->next());
-	if (left->at_end()) {
-	    // right->at_end() may also be true, but our parent will deal with
-	    // that.
+	TermList* lret = left->next();
+	if (lret && lret != left) {
+	    delete left;
+	    left = lret;
+	    lret = NULL;
+	}
+	TermList* rret = right->next();
+	if (rret && rret != right) {
+	    delete right;
+	    right = rret;
+	    rret = NULL;
+	}
+	if (lret) {
+	    if (rret)
+		return this;
 	    TermList *ret = right;
 	    right = NULL;
+	    // Prune.
 	    RETURN(ret);
 	}
-	if (right->at_end()) {
+	if (rret) {
 	    TermList *ret = left;
 	    left = NULL;
+	    // Prune.
 	    RETURN(ret);
 	}
-	left_current = left->get_termname();
-	right_current = right->get_termname();
     }
+    cmp = left->get_termname().compare(right->get_termname());
+    current_term = cmp < 0 ? left->get_termname() : right->get_termname();
     RETURN(NULL);
 }
 
-TermList *
-OrTermList::skip_to(const string & term)
+TermList*
+OrTermList::skip_to(string_view term)
 {
     LOGCALL(EXPAND, TermList *, "OrTermList::skip_to", term);
-    // If we've not started yet, both left_current and right_current will be
-    // empty, so we'll take the third case below which is what we want to do to
-    // get started.
-    if (left_current < right_current) {
-	handle_prune(left, left->skip_to(term));
-	if (left->at_end()) {
-	    TermList *ret = right;
-	    right = NULL;
-	    RETURN(ret);
-	}
-	left_current = left->get_termname();
-    } else if (left_current > right_current) {
-	handle_prune(right, right->skip_to(term));
-	if (right->at_end()) {
-	    TermList *ret = left;
-	    left = NULL;
-	    RETURN(ret);
-	}
-	right_current = right->get_termname();
-    } else {
-	AssertEq(left_current, right_current);
-	handle_prune(left, left->skip_to(term));
-	handle_prune(right, right->skip_to(term));
-	if (left->at_end()) {
-	    // right->at_end() may also be true, but our parent will deal with
-	    // that.
-	    TermList *ret = right;
-	    right = NULL;
-	    RETURN(ret);
-	}
-	if (right->at_end()) {
-	    TermList *ret = left;
-	    left = NULL;
-	    RETURN(ret);
-	}
-	left_current = left->get_termname();
-	right_current = right->get_termname();
+    TermList* lret = left->skip_to(term);
+    if (lret && lret != left) {
+	delete left;
+	left = lret;
+	lret = NULL;
     }
+    TermList* rret = right->skip_to(term);
+    if (rret && rret != right) {
+	delete right;
+	right = rret;
+	rret = NULL;
+    }
+    if (lret) {
+	// Left at end.
+	if (rret) {
+	    // Both at end.
+	    RETURN(this);
+	}
+	TermList *ret = right;
+	right = NULL;
+	// Prune.
+	RETURN(ret);
+    }
+    if (rret) {
+	// Right at end.
+	TermList *ret = left;
+	left = NULL;
+	// Prune.
+	RETURN(ret);
+    }
+    cmp = left->get_termname().compare(right->get_termname());
+    current_term = cmp < 0 ? left->get_termname() : right->get_termname();
     RETURN(NULL);
-}
-
-bool
-OrTermList::at_end() const
-{
-    LOGCALL(EXPAND, bool, "OrTermList::at_end", NO_ARGS);
-    check_started();
-    // next() should have pruned if either child is at_end().
-    Assert(!left->at_end());
-    Assert(!right->at_end());
-    RETURN(false);
 }
 
 Xapian::termcount
@@ -221,7 +206,7 @@ FreqAdderOrTermList::get_termfreq() const
 {
     LOGCALL(EXPAND, Xapian::doccount, "FreqAdderOrTermList::get_termfreq", NO_ARGS);
     check_started();
-    if (left_current < right_current) RETURN(left->get_termfreq());
-    if (left_current > right_current) RETURN(right->get_termfreq());
+    if (cmp < 0) RETURN(left->get_termfreq());
+    if (cmp > 0) RETURN(right->get_termfreq());
     RETURN(left->get_termfreq() + right->get_termfreq());
 }

@@ -1,4 +1,4 @@
-/** @file xapian-letor-update.cc
+/** @file
  * @brief Update statistics in user meta-data used by letor module.
  */
 /* Copyright (C) 2011 Parth Gupta
@@ -15,9 +15,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -38,7 +37,7 @@ using namespace std;
 static void
 show_usage()
 {
-    cout << "Usage: " PROG_NAME " [OPTIONS] 'QUERY'\n"
+    cout << "Usage: " PROG_NAME " [OPTIONS]\n"
 "  -d, --db=DIRECTORY  database to update stats for\n"
 "  -h, --help          display this help and exit\n"
 "  -v, --version       output version information and exit\n";
@@ -66,7 +65,7 @@ try {
 		have_db = true;
 		break;
 	    case 'v':
-		cout << PROG_NAME " - " PACKAGE_STRING << endl;
+		cout << PROG_NAME " - " PACKAGE_STRING "\n";
 		exit(0);
 	    case 'h':
 		cout << PROG_NAME " - " PROG_DESC "\n\n";
@@ -79,7 +78,7 @@ try {
 	}
     }
 
-    if (!have_db || argc - optind != 1) {
+    if (!have_db || argc - optind != 0) {
 	show_usage();
 	exit(1);
     }
@@ -100,6 +99,6 @@ try {
     db.set_metadata("collection_len_whole", str(total_len));
     db.commit();
 } catch (const Xapian::Error & e) {
-    cout << e.get_description() << endl;
+    cout << e.get_description() << '\n';
     exit(1);
 }

@@ -1,7 +1,7 @@
-/** @file honey_metadata.cc
+/** @file
  * @brief Access to metadata for a honey database.
  */
-/* Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2011,2017 Olly Betts
+/* Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2011,2017,2024 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -15,8 +15,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -32,14 +32,18 @@
 
 #include "xapian/error.h"
 
+#include <string>
+#include <string_view>
+
 using namespace std;
+using namespace std::string_literals;
 using Xapian::Internal::intrusive_ptr;
 
 HoneyMetadataTermList::HoneyMetadataTermList(
 	const Xapian::Database::Internal* database_,
 	HoneyCursor* cursor_,
-	const string& prefix_)
-    : database(database_), cursor(cursor_), prefix(string("\0", 2) + prefix_)
+	string_view prefix_)
+    : database(database_), cursor(cursor_), prefix("\0\0"s.append(prefix_))
 {
     LOGCALL_CTOR(DB, "HoneyMetadataTermList", database_ | cursor_ | prefix_);
     Assert(cursor);
@@ -61,16 +65,6 @@ HoneyMetadataTermList::get_approx_size() const
     return 1;
 }
 
-string
-HoneyMetadataTermList::get_termname() const
-{
-    LOGCALL(DB, string, "HoneyMetadataTermList::get_termname", NO_ARGS);
-    Assert(!at_end());
-    Assert(!cursor->current_key.empty());
-    Assert(startswith(cursor->current_key, prefix));
-    RETURN(cursor->current_key.substr(2));
-}
-
 Xapian::doccount
 HoneyMetadataTermList::get_termfreq() const
 {
@@ -78,19 +72,11 @@ HoneyMetadataTermList::get_termfreq() const
 					"not meaningful");
 }
 
-Xapian::termcount
-HoneyMetadataTermList::get_collection_freq() const
-{
-    throw Xapian::InvalidOperationError("HoneyMetadataTermList::"
-					"get_collection_freq() "
-					"not meaningful");
-}
-
-TermList *
+TermList*
 HoneyMetadataTermList::next()
 {
-    LOGCALL(DB, TermList *, "HoneyMetadataTermList::next", NO_ARGS);
-    Assert(!at_end());
+    LOGCALL(DB, TermList*, "HoneyMetadataTermList::next", NO_ARGS);
+    Assert(cursor != NULL);
 
     if (cursor->after_end()) {
 	// This is the first action on a new HoneyMetadataTermList.
@@ -99,20 +85,20 @@ HoneyMetadataTermList::next()
     } else {
 	cursor->next();
     }
+
     if (cursor->after_end() || !startswith(cursor->current_key, prefix)) {
 	// We've reached the end of the prefixed terms.
-	delete cursor;
-	cursor = NULL;
+	RETURN(this);
     }
-
+    current_term.assign(cursor->current_key, 2);
     RETURN(NULL);
 }
 
-TermList *
-HoneyMetadataTermList::skip_to(const string &key)
+TermList*
+HoneyMetadataTermList::skip_to(string_view key)
 {
-    LOGCALL(DB, TermList *, "HoneyMetadataTermList::skip_to", key);
-    Assert(!at_end());
+    LOGCALL(DB, TermList*, "HoneyMetadataTermList::skip_to", key);
+    Assert(cursor != NULL);
 
     // k is the table key (key is the user metadata key).
     string k(2, '\0');
@@ -124,21 +110,17 @@ HoneyMetadataTermList::skip_to(const string &key)
 	k = prefix;
     }
 
-    if (!cursor->find_entry_ge(k)) {
+    if (cursor->find_entry_ge(k)) {
+	// Exact match.
+	current_term = key;
+    } else {
 	// The exact key we asked for isn't there, so check if the next
 	// key after it also has the right prefix.
 	if (cursor->after_end() || !startswith(cursor->current_key, prefix)) {
 	    // We've reached the end of the prefixed keys.
-	    delete cursor;
-	    cursor = NULL;
+	    RETURN(this);
 	}
+	current_term.assign(cursor->current_key, 2);
     }
     RETURN(NULL);
-}
-
-bool
-HoneyMetadataTermList::at_end() const
-{
-    LOGCALL(DB, bool, "HoneyMetadataTermList::at_end", NO_ARGS);
-    RETURN(cursor == NULL);
 }

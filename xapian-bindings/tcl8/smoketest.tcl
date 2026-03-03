@@ -1,6 +1,6 @@
-# Simple test that we can load the xapian module and run a simple test
+# Simple test that we can use xapian from Tcl
 #
-# Copyright (C) 2004,2006,2009,2011,2017 Olly Betts
+# Copyright (C) 2004,2006,2009,2011,2017,2019,2023 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -13,12 +13,9 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
-# USA
+# along with this program; if not, see
+# <https://www.gnu.org/licenses/>.
 
-# We need at least Tcl version 8
-package require Tcl 8
 package require xapian 1.0.0
 
 # Test the version number reporting functions give plausible results.
@@ -48,6 +45,10 @@ if { [doc get_data] == "a" } {
 }
 if { [doc get_data] != "a\0b" } {
     puts stderr "get_data+set_data doesn't transparently handle a zero byte"
+    exit 1
+}
+if { [doc get_description] != "Document(docid=0, data=a\\xc0\\x80b)" } {
+    puts stderr "XPASS: UTF-8 encoding of zero byte fixed!"
     exit 1
 }
 
@@ -101,6 +102,10 @@ if { [$xapian::Query_MatchNothing get_description] != "Query()" } {
 }
 
 xapian::Enquire enq db
+
+# Check Xapian::BAD_VALUENO is wrapped suitably.
+enq set_collapse_key $xapian::BAD_VALUENO
+
 xapian::Query q $xapian::Query_OP_OR "there" "is"
 enq set_query q
 set mset [enq get_mset 0 10]

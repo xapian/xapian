@@ -1,7 +1,7 @@
-/** @file selectpostlist.cc
+/** @file
  * @brief Base class for classes which filter another PostList
  */
-/* Copyright 2017 Olly Betts
+/* Copyright 2017-2026 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -14,14 +14,15 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
 
 #include "selectpostlist.h"
 
+#include "estimateop.h"
 #include "omassert.h"
 #include "postlisttree.h"
 
@@ -39,20 +40,36 @@ SelectPostList::vet(double w_min)
     if (w_min <= 0.0) {
 	cached_weight = -HUGE_VAL;
     } else {
-	cached_weight = pltree->get_weight();
+	Xapian::termcount doclen = 0;
+	Xapian::termcount unique_terms = 0;
+	Xapian::termcount wdfdocmax = 0;
+	pltree->get_doc_stats(pl->get_docid(), doclen, unique_terms, wdfdocmax);
+	cached_weight = pl->get_weight(doclen, unique_terms, wdfdocmax);
 	if (cached_weight < w_min)
 	    return false;
     }
     return test_doc();
 }
 
+SelectPostList::~SelectPostList()
+{
+    if (estimate_op && (accepted || rejected)) {
+	// Only call report_ratio() if there are counts.  During the building
+	// of the PostList tree we sometimes need to delete PostList objects
+	// and their associated EstimateOp and it's hard to arrange that they
+	// are always deleted in the correct order.
+	estimate_op->report_ratio(accepted, rejected);
+    }
+}
+
 double
 SelectPostList::get_weight(Xapian::termcount doclen,
-			   Xapian::termcount unique_terms) const
+			   Xapian::termcount unique_terms,
+			   Xapian::termcount wdfdocmax) const
 {
     if (cached_weight >= 0)
 	return cached_weight;
-    return pl->get_weight(doclen, unique_terms);
+    return pl->get_weight(doclen, unique_terms, wdfdocmax);
 }
 
 bool
@@ -104,12 +121,4 @@ SelectPostList::check(Xapian::docid did, double w_min, bool& valid)
 	valid = vet(w_min);
     }
     return NULL;
-}
-
-Xapian::doccount
-SelectPostList::get_termfreq_min() const
-{
-    // In general, it's possible no documents get selected.  Subclasses where
-    // that's known not to be the case should provide their own implementation.
-    return 0;
 }

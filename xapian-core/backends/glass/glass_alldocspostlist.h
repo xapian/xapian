@@ -1,4 +1,4 @@
-/** @file glass_alldocspostlist.h
+/** @file
  * @brief A PostList which iterates over all documents in a GlassDatabase.
  */
 /* Copyright (C) 2006,2007,2008,2009 Olly Betts
@@ -15,8 +15,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_GLASS_ALLDOCSPOSTLIST_H
@@ -33,14 +33,9 @@ class GlassAllDocsPostList : public GlassPostList {
     /// Don't allow copying.
     GlassAllDocsPostList(const GlassAllDocsPostList &);
 
-    /// The number of documents in the database.
-    Xapian::doccount doccount;
-
   public:
     GlassAllDocsPostList(Xapian::Internal::intrusive_ptr<const GlassDatabase> db_,
-			 Xapian::doccount doccount_);
-
-    Xapian::doccount get_termfreq() const;
+			 Xapian::doccount doccount);
 
     Xapian::termcount get_wdf() const;
 

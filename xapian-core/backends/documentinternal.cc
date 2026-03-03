@@ -1,7 +1,7 @@
-/** @file documentinternal.cc
+/** @file
  * @brief Abstract base class for a document
  */
-/* Copyright 2017 Olly Betts
+/* Copyright 2017,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -14,8 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -41,20 +41,23 @@ Document::Internal::ensure_terms_fetched() const
     if (terms)
 	return;
 
-    terms.reset(new map<string, TermInfo>());
+    terms.reset(new map<string, TermInfo, std::less<>>());
     termlist_size = 0;
-    if (!database.get())
+    if (!database)
 	return;
 
     unique_ptr<TermList> t(database->open_term_list(did));
-    while (t->next(), !t->at_end()) {
+    while (t->next() == NULL) {
 	++termlist_size;
-	auto&& r = terms->emplace(make_pair(t->get_termname(),
-					    TermInfo(t->get_wdf())));
-	TermInfo& term = r.first->second;
+	auto&& r = terms->emplace_hint(terms->end(),
+				       t->get_termname(),
+				       TermInfo(t->get_wdf()));
+	TermInfo& term = r->second;
 	unique_ptr<PositionList> p(t->positionlist_begin());
-	while (p->next()) {
-	    term.append_position(p->get_position());
+	if (p) {
+	    while (p->next()) {
+		term.append_position(p->get_position());
+	    }
 	}
     }
 }
@@ -66,7 +69,7 @@ Document::Internal::ensure_values_fetched() const
 	return;
 
     values.reset(new map<Xapian::valueno, string>());
-    if (database.get()) {
+    if (database) {
 	fetch_all_values(*values);
     }
 }
@@ -92,7 +95,7 @@ Document::Internal::fetch_value(Xapian::valueno) const
 
 Document::Internal::~Internal()
 {
-    if (database.get())
+    if (database)
 	database->invalidate_doc_object(this);
 }
 
@@ -102,7 +105,7 @@ Document::Internal::open_term_list() const
     if (terms)
 	return new DocumentTermList(this);
 
-    if (!database.get())
+    if (!database)
 	return NULL;
 
     return database->open_term_list(did);
@@ -111,7 +114,7 @@ Document::Internal::open_term_list() const
 Xapian::ValueIterator
 Document::Internal::values_begin() const
 {
-    if (!values && database.get()) {
+    if (!values && database) {
 	values.reset(new map<Xapian::valueno, string>());
 	fetch_all_values(*values);
     }
@@ -145,7 +148,7 @@ Document::Internal::get_description() const
 	desc += ']';
     }
 
-    if (database.get()) {
+    if (database) {
 	desc += ", db=";
 	desc += database->get_description();
     }

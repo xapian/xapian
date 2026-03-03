@@ -1,7 +1,7 @@
-/** @file vectortermlist.cc
+/** @file
  * @brief A vector-like container of terms which can be iterated.
  */
-/* Copyright (C) 2011,2015 Olly Betts
+/* Copyright (C) 2011,2015,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -14,16 +14,16 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
 
 #include "vectortermlist.h"
 
-#include "net/length.h"
 #include "omassert.h"
+#include "pack.h"
 #include "xapian/error.h"
 
 using namespace std;
@@ -34,21 +34,12 @@ VectorTermList::get_approx_size() const
     return num_terms;
 }
 
-string
-VectorTermList::get_termname() const
-{
-    // Check we've started but not reached the end.
-    Assert(p != data.data());
-    Assert(!VectorTermList::at_end());
-    return current_term;
-}
-
 Xapian::termcount
 VectorTermList::get_wdf() const
 {
     // Check we've started but not reached the end.
     Assert(p != data.data());
-    Assert(!VectorTermList::at_end());
+    Assert(p != NULL);
     return 1;
 }
 
@@ -62,33 +53,24 @@ TermList *
 VectorTermList::next()
 {
     // Check we've not reached the end.
-    Assert(!VectorTermList::at_end());
+    Assert(p != NULL);
 
     const char * end = data.data() + data.size();
     if (p == end) {
-	current_term.resize(0);
-	p = NULL;
-    } else {
-	size_t len;
-	decode_length_and_check(&p, end, len);
-	current_term.assign(p, len);
-	p += len;
+	return this;
+    }
+    if (!unpack_string(&p, end, current_term)) {
+	unpack_throw_serialisation_error(p);
     }
 
     return NULL;
 }
 
-TermList *
-VectorTermList::skip_to(const string &)
+TermList*
+VectorTermList::skip_to(string_view)
 {
     // skip_to only makes sense for termlists which are in sorted order.
     throw Xapian::InvalidOperationError("VectorTermList::skip_to() not meaningful");
-}
-
-bool
-VectorTermList::at_end() const
-{
-    return p == NULL;
 }
 
 Xapian::termcount

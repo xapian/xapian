@@ -1,4 +1,4 @@
-/** @file postingiteratorinternal.h
+/** @file
  * @brief Xapian::PostingIterator internals
  */
 /* Copyright 2017 Olly Betts
@@ -14,8 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_POSTINGITERATORINTERNAL_H
@@ -23,7 +23,7 @@
 
 #include "xapian/postingiterator.h"
 
-#include "postlist.h"
+#include "backends/postlist.h"
 
 namespace Xapian {
 
@@ -58,6 +58,10 @@ class PostingIterator::Internal {
 
     Xapian::termcount get_unique_terms() const {
 	return db.get_unique_terms(pl->get_docid());
+    }
+
+    Xapian::termcount get_wdfdocmax() const {
+	return db.get_wdfdocmax(pl->get_docid());
     }
 
     PositionList* open_position_list() const {

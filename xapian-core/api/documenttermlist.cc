@@ -1,7 +1,7 @@
-/** @file documenttermlist.cc
+/** @file
  * @brief Iteration over terms in a document
  */
-/* Copyright 2017 Olly Betts
+/* Copyright 2017,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -14,8 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -38,17 +38,10 @@ DocumentTermList::get_approx_size() const
     return 0;
 }
 
-string
-DocumentTermList::get_termname() const
-{
-    Assert(!at_end());
-    return it->first;
-}
-
 Xapian::termcount
 DocumentTermList::get_wdf() const
 {
-    Assert(!at_end());
+    Assert(it != doc->terms->end());
     return it->second.get_wdf();
 }
 
@@ -73,7 +66,7 @@ DocumentTermList::positionlist_begin() const
 Xapian::termcount
 DocumentTermList::positionlist_count() const
 {
-    return it->second.get_positions()->size();
+    return it->second.count_positions();
 }
 
 TermList*
@@ -87,21 +80,23 @@ DocumentTermList::next()
     while (it != doc->terms->end() && it->second.is_deleted()) {
 	++it;
     }
+    if (it == doc->terms->end()) {
+	return this;
+    }
+    current_term = it->first;
     return NULL;
 }
 
 TermList*
-DocumentTermList::skip_to(const string& term)
+DocumentTermList::skip_to(string_view term)
 {
     it = doc->terms->lower_bound(term);
     while (it != doc->terms->end() && it->second.is_deleted()) {
 	++it;
     }
+    if (it == doc->terms->end()) {
+	return this;
+    }
+    current_term = it->first;
     return NULL;
-}
-
-bool
-DocumentTermList::at_end() const
-{
-    return it == doc->terms->end();
 }

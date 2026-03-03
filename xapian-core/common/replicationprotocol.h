@@ -1,4 +1,4 @@
-/** @file replicationprotocol.h
+/** @file
  *  @brief Replication protocol version and message numbers
  */
 /* Copyright (C) 2008 Lemur Consulting Ltd
@@ -14,8 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_REPLICATIONPROTOCOL_H
@@ -26,7 +26,7 @@
 #define XAPIAN_REPLICATION_PROTOCOL_MAJOR_VERSION 1
 #define XAPIAN_REPLICATION_PROTOCOL_MINOR_VERSION 0
 
-// Reply types (master -> slave)
+// Reply types (master -> replica)
 enum replicate_reply_type {
     REPL_REPLY_END_OF_CHANGES,	// No more changes to transfer.
     REPL_REPLY_FAIL,		// Couldn't generate full set of changes.

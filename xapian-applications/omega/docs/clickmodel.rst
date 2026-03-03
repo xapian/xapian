@@ -27,7 +27,7 @@ is a simplified variation of DBN model wherein the inference algorithm is
 relatively simpler. It contains the set of attractiveness and satisfactoriness
 parameters, which both depend on a query and a document.
 
-.. _paper: http://dl.acm.org/citation.cfm?id=1526711
+.. _paper: https://dl.acm.org/citation.cfm?id=1526711
 __ paper_
 
 Training the SDBN model

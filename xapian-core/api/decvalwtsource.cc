@@ -1,8 +1,8 @@
-/** @file decvalwtsource.cc
+/** @file
  * @brief A posting source which returns decreasing weights from a value.
  */
 /* Copyright (C) 2009 Lemur Consulting Ltd
- * Copyright (C) 2011,2012,2015,2016 Olly Betts
+ * Copyright (C) 2011,2012,2015,2016,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,17 +15,14 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
 
 #include "xapian/postingsource.h"
-#include "xapian/error.h"
-#include "net/length.h"
-#include "serialise-double.h"
-#include <cmath>
+#include "pack.h"
 
 using namespace Xapian;
 
@@ -58,9 +55,9 @@ DecreasingValueWeightPostingSource::name() const {
 std::string
 DecreasingValueWeightPostingSource::serialise() const {
     std::string result;
-    result += encode_length(get_slot());
-    result += encode_length(range_start);
-    result += encode_length(range_end);
+    pack_uint(result, get_slot());
+    pack_uint(result, range_start);
+    pack_uint_last(result, range_end);
     return result;
 }
 
@@ -70,19 +67,20 @@ DecreasingValueWeightPostingSource::unserialise(const std::string &s) const {
     const char * end = pos + s.size();
     Xapian::valueno new_slot;
     Xapian::docid new_range_start, new_range_end;
-    decode_length(&pos, end, new_slot);
-    decode_length(&pos, end, new_range_start);
-    decode_length(&pos, end, new_range_end);
-    if (pos != end)
-	throw Xapian::NetworkError("Junk at end of serialised "
-				   "DecreasingValueWeightPostingSource");
+    if (!unpack_uint(&pos, end, &new_slot) ||
+	!unpack_uint(&pos, end, &new_range_start) ||
+	!unpack_uint_last(&pos, end, &new_range_end)) {
+	unpack_throw_serialisation_error(pos);
+    }
     return new DecreasingValueWeightPostingSource(new_slot, new_range_start,
 						  new_range_end);
 }
 
 void
-DecreasingValueWeightPostingSource::init(const Xapian::Database & db_) {
-    Xapian::ValueWeightPostingSource::init(db_);
+DecreasingValueWeightPostingSource::reset(const Xapian::Database& db_,
+					  Xapian::doccount shard_index)
+{
+    Xapian::ValueWeightPostingSource::reset(db_, shard_index);
     if (range_end == 0 || get_database().get_doccount() <= range_end)
 	items_at_end = false;
     else

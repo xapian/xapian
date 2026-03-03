@@ -120,7 +120,6 @@ adagot
 adagunkat
 adag
 adagolt
-adagolt
 adagolási
 adagol
 adagolójába
@@ -163,7 +162,6 @@ adatokból
 adatokhoz
 adatokig
 adatokkal
-adatoknak
 adatoknak
 adatoknál
 adatokon
@@ -347,7 +345,6 @@ adattovábbításnak
 adattovábbításra
 adattár
 adattárak
-adattárak
 adattárakat
 adattárakkal
 adattárakra
@@ -372,7 +369,6 @@ adattömeget
 adatvesztés
 adatvesztéseket
 adatvesztést
-adatvédelem
 adatvédelem
 adatvédelemről
 adatvédelmet
@@ -458,12 +454,10 @@ adományjegy
 ad
 add
 adja
-adja
 adjak
 adjam
 adjanak
 adjon
-adjuk
 adjuk
 adjunk
 adják
@@ -656,7 +650,6 @@ adótörvényben
 adótörvények
 adóváltozatban
 adózna
-adózott
 adózott
 adózó
 adózók
@@ -933,7 +926,6 @@ ajándékát
 ajándékért
 ajándékozni
 ajándékozott
-ajándékozott
 ajándékozta
 ajándékoztam
 ajándékozunk
@@ -964,7 +956,6 @@ ajánlata
 ajánlatai
 ajánlatban
 ajánlatnak
-ajánlatnak
 ajánlatok
 ajánlatokat
 ajánlatokkal
@@ -986,7 +977,6 @@ ajánlatos
 ajánlatosabb
 ajánlattevő
 ajánlattevőnek
-ajánlattevőnek
 ajánlattevővel
 ajánlattétel
 ajánlattétellel
@@ -999,7 +989,6 @@ ajánlhat
 ajánlhatom
 ajánlható
 ajánlás
-ajánlásainak
 ajánlásainak
 ajánlásokat
 ajánlásokhoz
@@ -1111,7 +1100,6 @@ akarnál
 akarnám
 akarnának
 akarnánk
-akarnánk
 akarnék
 akarod
 akarok
@@ -1197,7 +1185,6 @@ akkori
 akkormikor
 akkormár
 akkorák
-akkorára
 akkorára
 akkorát
 akkreditált
@@ -1362,7 +1349,6 @@ alakulna
 alakulnak
 alakulni
 alakulnod
-alakult
 alakult
 alakultak
 alakultnak
@@ -1970,7 +1956,6 @@ alszanak
 alszik
 alszok
 alszom
-alszom
 alszunk
 aludjunk
 aludjék
@@ -2044,7 +2029,6 @@ alábbhagyott
 alábbi
 alábbiak
 alábbiakat
-alábbiakban
 alábbiakban
 alábbiakból
 alábbiakkal
@@ -2201,7 +2185,6 @@ amerikaiakat
 amerikaiaknak
 amerikaihoz
 amerikait
-amerikait
 amerikaitól
 amierikaiak
 amerikanizálódni
@@ -2219,7 +2202,6 @@ amikbe
 amikben
 amiken
 amikkel
-amiknek
 amiknek
 amikre
 amikről
@@ -2265,7 +2247,6 @@ amputáltakat
 amszterdami
 amulettek
 amur
-amíg
 amíg
 amúgy
 amúr
@@ -2361,7 +2342,6 @@ antikommunista
 antikvárius
 antilopot
 antirasszista
-antiszemita
 antiszemita
 antiszemitizmus
 antiszemitizmus-ellenes
@@ -3021,7 +3001,6 @@ baja
 bajai
 bajaimat
 bajait
-bajait
 bajba
 bajban
 bajjal
@@ -3297,7 +3276,6 @@ barátomhoz
 barátommal
 barátommá
 barátomnak
-barátomnak
 barátomnál
 barátomra
 barátomtól
@@ -3337,7 +3315,6 @@ barátaink
 barátainkat
 barátainkkal
 barátainknak
-barátainknak
 barátaira
 barátairól
 barátait
@@ -3370,11 +3347,9 @@ barátnőim
 barátnőimmel
 barátnőimnél
 barátnőinek
-barátnőinek
 barátnőivel
 barátnője
 barátnőjéhez
-barátnőjének
 barátnőjének
 barátnőjénél
 barátnőjét
@@ -3615,7 +3590,6 @@ befejező
 befejeződik
 befejeződtek
 befejeződött
-befejeződött
 befektetett
 befektetni
 befektettük
@@ -3653,7 +3627,6 @@ befektetőket
 befektetőkhöz
 befektetőkkel
 befektetőknek
-befektetőknek
 befektetőként
 befektetőnek
 befektetővel
@@ -3685,7 +3658,6 @@ befizetésre
 befizetéssel
 befizetést
 befizetéséig
-befizetésének
 befizetésének
 befizetésére
 befizetéséről
@@ -3878,7 +3850,6 @@ beiktatják
 bekapcsoljuk
 bekapcsol
 bekapcsolják
-bekapcsol
 bekapcsolni
 bekapcsolom
 bekapcsoltak
@@ -3931,7 +3902,6 @@ bekezdésében
 bekezdéséből
 bekezdéséhez
 bekezdésén
-bekezdésének
 bekezdésének
 bekezdésénél
 bekezdésére
@@ -4307,7 +4277,6 @@ beltaghoz
 beltagja
 beltagjához
 beltagjának
-beltagnak
 beltagnak
 beltagok
 beltagokkal
@@ -4711,13 +4680,11 @@ betegbe
 betegeihez
 betegeit
 betegek
-betegek
 betegeken
 betegeket
 betegekkel
 betegeknek
 beteges
-beteget
 beteget
 beteggel
 beteghez
@@ -5215,7 +5182,6 @@ beállítanál
 beállított
 beállítottak
 beállítottam
-beállítottam
 beállították
 beállítsuk
 beállítunk
@@ -5230,7 +5196,6 @@ beállításait
 beállításaitól
 beállításakor
 beállításban
-beállítások
 beállítások
 beállításoka
 beállításokat
@@ -5505,7 +5470,6 @@ bizakodó
 bizakodóbban
 bizalmas
 bizalmasa
-bizalmasa
 bizalmasai
 bizalmasan
 bizalmasát
@@ -5633,10 +5597,8 @@ bizonyító
 bizottsági
 bizottság
 bizottsága
-bizottsága
 bizottságai
 bizottságba
-bizottságban
 bizottságban
 bizottsággal
 bizottsághoz
@@ -5684,7 +5646,6 @@ biztonsága
 biztonságban
 biztonsággal
 biztonsággá
-biztonságnak
 biztonságos
 biztonságosabb
 biztonságosabbak
@@ -6622,7 +6583,6 @@ bánja
 bánják
 bánnak
 bánni
-bánni
 bánnia
 bánniuk
 bánnám
@@ -6798,7 +6758,6 @@ bátorítóan
 bátrabbak
 bátrabbnak
 bátyja
-bátyjának
 bátyjának
 bátyját
 bátyjával
@@ -7097,11 +7056,9 @@ bíznék
 bízom
 bízta
 bíztak
-bíztak
 bíztam
 bíztok
 bíztuk
-bíztunk
 bíztunk
 bízták
 bízunk
@@ -7370,7 +7327,6 @@ bűnösként
 bűnösnek
 bűnöst
 bűnösöket
-bűnösöknek
 bűnösöknek
 bűnösökért
 bűnösségre
@@ -7808,7 +7764,6 @@ jobb
 jobbak
 jobbal
 jobban
-jobban
 jobbat
 jobbik
 jobbjával
@@ -8021,7 +7976,6 @@ jöjjünk
 jön
 jönne
 jönnek
-jönnek
 jönni
 jönnie
 jönnék
@@ -8123,7 +8077,6 @@ jövőjükre
 jövőm
 jövőmben
 jövőmet
-jövőmmel
 jövőmmel
 jövőnek
 jövőnk
@@ -8631,7 +8584,6 @@ kapcsolatmegosztáshoz
 kapcsolatmegosztásnak
 kapcsolatnélküli
 kapcsolatod
-kapcsolatok
 kapcsolatok
 kapcsolatokat
 kapcsolatokban
@@ -9594,7 +9546,6 @@ kellék
 kelléke
 kellékei
 kellékeinek
-kellékeinek
 kellékeinél
 kellékeit
 kellékek
@@ -10075,7 +10026,6 @@ keringőztünk
 kerozint
 kert
 kertbe
-kertbe
 kertben
 kertek
 kertem
@@ -10176,7 +10126,6 @@ kerületében
 kerületének
 kerületi
 kerületiek
-kerítünk
 kerülgettük
 kerülhessen
 kerülhessenek
@@ -10382,7 +10331,6 @@ kezdenem
 kezdeni
 kezdeniük
 kezdenék
-kezdenék
 kezdenének
 kezdet
 kezdetből
@@ -10559,7 +10507,6 @@ kft.-ben
 kft.-ből
 kft.-k
 kft.-kel
-kft.-ben
 kft.-kre
 kft.-n
 kft.-nek
@@ -10647,7 +10594,6 @@ kiadásában
 kiadásához
 kiadásáig
 kiadásán
-kiadásának
 kiadásának
 kiadásánál
 kiadására
@@ -10892,7 +10838,6 @@ kicsinek
 kicsiről
 kicsit
 kicsivel
-kicsivel
 kicsikarni
 kicsikarására
 kicsikét
@@ -10964,7 +10909,6 @@ kidolgozni
 kidolgoznia
 kidolgoznunk
 kidolgozta
-kidolgoztak
 kidolgoztak
 kidolgozták
 kidolgozza
@@ -11746,7 +11690,6 @@ kiben
 ki
 kikhez
 kikkel
-kikkel
 kiknek
 kikről
 kire
@@ -11963,7 +11906,6 @@ királynő
 királynőnek
 királynőig
 királynője
-királynőnek
 királynői
 királyságbeli
 királyságnak
@@ -12863,7 +12805,6 @@ kiválasztottnak
 kiválasztva
 kiválasztás
 kiválasztása
-kiválasztása
 kiválasztásakor
 kiválasztáskor
 kiválasztásnál
@@ -12894,7 +12835,6 @@ kiváltott
 kiváltság
 kiváltságképpen
 kiváltságos
-kiváltságosok
 kiváltságosok
 kiváltságunk
 kiváltságának
@@ -13407,7 +13347,6 @@ kocsit
 kocsival
 kocsin
 kocsinak
-kocsinak
 kocsink
 kocsinkat
 kocsinkkal
@@ -13745,7 +13684,6 @@ koncentrálnom
 koncentrált
 koncentráltam
 koncentrálunk
-koncentrált
 koncentráltabb
 koncentráltabbá
 koncentráltság
@@ -14422,7 +14360,6 @@ korokról
 korom
 koromat
 koromban
-koromban
 koromból
 koromhoz
 koromig
@@ -14564,7 +14501,6 @@ korábbiakhoz
 korábbiakkal
 korábbiaknál
 korábbiakétól
-korábbihoz
 korábbihoz
 korábbinak
 korábbinál
@@ -14925,7 +14861,6 @@ kutatásra
 kutatást
 kutatásában
 kutatásához
-kutatásának
 kutatásának
 kutatásba-fejlesztésbe
 kutatási
@@ -15869,7 +15804,6 @@ kérdésében
 kérdéséhez
 kérdésén
 kérdésének
-kérdésének
 kérdésére
 kérdéséről
 kérdését
@@ -15908,7 +15842,6 @@ kérelemben
 kérelemhez
 kérelemmel
 kérelemnek
-kérelemnek
 kérelemre
 kérelemről
 kérelme
@@ -15923,7 +15856,6 @@ kérelmezni
 kérelmezésére
 kérelmező
 kérelmezők
-kérelmezőnek
 kérelmezőnek
 kérelmezőt
 kérelmében
@@ -16125,7 +16057,6 @@ készítenétek
 készítette
 készítettek
 készítettem
-készítettem
 készítették
 készítettük
 készítettünk
@@ -16252,7 +16183,6 @@ későbbre
 későre
 későbbi
 későbbiek
-későbbiekben
 későbbiekben
 későbbiekre
 késői
@@ -17138,7 +17068,6 @@ költő
 költőinek
 költők
 költőnek
-költőnek
 költőt
 költővel
 költőiséget
@@ -17328,7 +17257,6 @@ könyvtárba
 könyvtárban
 könyvtárból
 könyvtárhoz
-könyvtárnak
 könyvtárnak
 könyvtárt
 könyvtárnál
@@ -17601,7 +17529,6 @@ környéken
 környéket
 környékről
 környékén
-környékén
 környékének
 környékére
 környékét
@@ -17781,7 +17708,6 @@ köszönhetjük
 köszönhetnek
 köszönhette
 köszönhettem
-köszönhettem
 köszönhették
 köszönhetünk
 köszönhető
@@ -17816,7 +17742,6 @@ kötni
 kötnie
 kötniük
 kötötte
-kötöttek
 kötöttek
 kötöttem
 kötötten
@@ -17872,7 +17797,6 @@ kötelezettség-vállalások
 kötelezettsége
 kötelezettségei
 kötelezettségeik
-kötelezettségeinek
 kötelezettségeinek
 kötelezettségeinknek
 kötelezettségeinkre
@@ -18256,7 +18180,6 @@ következőkre
 következőkről
 következőn
 következőt
-következőt
 következőképpen
 következőleg
 követni
@@ -18576,7 +18499,6 @@ leckében
 leckéből
 leckéjévé
 leckékből
-leckéket
 leckéket
 leckémet
 leckét
@@ -19331,11 +19253,9 @@ lehetségesnek
 lehetségessé
 lehető
 lehetőleg
-lehető
 lehetősége
 lehetőség
 lehetőségben
-lehetősége
 lehetőséged
 lehetőségei
 lehetőségeihez
@@ -19476,7 +19396,6 @@ lejártát
 lejártával
 lejárttá
 lejáró
-lejátssza
 lejátssza
 lejátsszák
 lejátszhatók
@@ -19912,7 +19831,6 @@ leninizmus
 leninizmuson
 lenn
 lenne
-lenne
 lenned
 lennem
 lenni
@@ -20168,7 +20086,6 @@ leszállításról
 leszállítást
 leszállításához
 leszállításának
-leszállításának
 leszállítására
 leszállításáról
 leszállítását
@@ -20416,7 +20333,6 @@ leveleiket
 leveleinek
 leveleink
 leveleinkre
-levelei
 levelek
 levelekből
 leveleken
@@ -20488,7 +20404,6 @@ lezuhanyozhattunk
 lezuhanyozom
 lezuhanyoztam
 lezuhanyoztunk
-lezuhanyoztunk
 lezuhanyzom
 lezáratlanul
 lezáratta
@@ -20503,7 +20418,6 @@ lezárta
 lezártnak
 lezárták
 lezárt
-lezárult
 lezárult
 lezárulta
 lezáruló
@@ -20790,12 +20704,10 @@ listaárú
 lista
 listában
 listából
-listából
 listáin
 listáit
 listája
 listáján
-listájának
 listájának
 listájára
 listájáról
@@ -21354,7 +21266,6 @@ láthatok
 láthatott
 láthatta
 láthattad
-láthattam
 láthattam
 láthattuk
 láthattunk
@@ -21970,7 +21881,6 @@ lőszert
 lőterén
 lője
 lőjük
-lőjük
 lőnek
 lőni
 lőnék
@@ -22094,14 +22004,12 @@ magamban
 magamból
 magammal
 magamnak
-magamnak
 magamon
 magamra
 magamról
 magamtól
 magaménak
 magamért
-magából
 magából
 magához
 magán
@@ -22111,16 +22019,11 @@ magára
 magáról
 magát
 magától
-magától
-magával
 magával
 magáé
 magáéival
 magáénak
-magáénak
 magáért
-magáért
-magáét
 magáét
 magáévá
 magadfajta
@@ -22284,7 +22187,6 @@ magyartanár
 magyartanárom
 magyarászta
 magyarázat
-magyarázata
 magyarázata
 magyarázatai
 magyarázatait
@@ -22621,7 +22523,6 @@ mappákban
 mappákhoz
 mappákkal
 mappáké
-mappára
 mappára
 mappát
 mappával
@@ -24600,7 +24501,6 @@ meglátszik
 meglátta
 megláttak
 megláttam
-megláttam
 megláttuk
 meglátták
 meglátszódjon
@@ -24684,7 +24584,6 @@ megmondhassa
 megmondhatja
 megmondhatná
 megmondta
-megmondtam
 megmondtam
 megmondták
 megmondtátok
@@ -25043,7 +24942,6 @@ megosztásait
 megosztásból
 megosztáshoz
 megosztásnak
-megosztásnak
 megosztási
 megosztásnév
 megosztó
@@ -25065,7 +24963,6 @@ megpillantani
 megpillantja
 megpillantom
 megpillantotta
-megpillantottam
 megpillantottam
 megpillantottuk
 megpillantottunk
@@ -26305,11 +26202,9 @@ megyei
 megyeiek
 megyeihez
 megyében
-megyében
 megyéből
 megyékben
 megyéknek
-megyének
 megyének
 megyénkben
 megyénként
@@ -26587,7 +26482,6 @@ megértéséért
 megértő
 megértőbb
 mezői
-mezőkövesdi
 mezőkövesdi
 mezőny
 mezőnyben
@@ -26983,7 +26877,6 @@ miniszterelnökkel
 miniszterelnök
 miniszterelnöke
 miniszterelnöknek
-miniszterelnöknek
 miniszterelnöknél
 miniszterelnöktől
 miniszterhelyettes
@@ -27167,7 +27060,6 @@ miénkben
 miénket
 miénkhez
 miénknél
-miért
 miértet
 mióta
 mm-esre
@@ -27547,7 +27439,6 @@ munkacsoport-tagság
 munkacsoportbeli
 munkacsoportjának
 munkacsoportnak
-munkacsoportnak
 munkacsoportok
 munkacsoportokon
 munkacsoporton
@@ -27742,7 +27633,6 @@ munkavállaló-szerző
 munkavállaló-szerzőt
 munkavállalói
 munkavállalóik
-munkavállalóinak
 munkavállalóinak
 munkavállalóira
 munkavállalóit
@@ -28722,8 +28612,6 @@ módban
 móddal
 módhoz
 módja
-módja
-módjai
 módjai
 módjait
 módjaival
@@ -29114,7 +29002,6 @@ működést
 működésében
 működéséhez
 működésén
-működésének
 működésének
 működésére
 működéséről
@@ -29525,7 +29412,6 @@ nagyságot
 nagyságuk
 nagyságához
 nagyságának
-nagyságának
 nagyságára
 nagyságáról
 nagyságát
@@ -29661,7 +29547,6 @@ napjainkra
 napjait
 napjaitok
 napjában
-napjában
 napjához
 napjáig
 napján
@@ -29672,7 +29557,6 @@ napját
 napjától
 napjával
 napnak
-napnak
 napnál
 napod
 napodat
@@ -29682,7 +29566,6 @@ napokban
 napokig
 napokkal
 napoknak
-napokra
 napokra
 napokról
 napoktól
@@ -29785,7 +29668,6 @@ negyedére
 negyedét
 negyedével
 negyede
-negyedét
 negyedik
 negyedikek
 negyedekben
@@ -29883,7 +29765,6 @@ objektuma
 objektumai
 objektumainak
 objektumnál
-objektumok
 objektumok
 objektumokat
 objektumokhoz

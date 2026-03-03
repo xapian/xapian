@@ -2,13 +2,10 @@ noinst_HEADERS +=\
 	api/documenttermlist.h\
 	api/documentvaluelist.h\
 	api/editdistance.h\
-	api/emptypostlist.h\
 	api/enquireinternal.h\
-	api/leafpostlist.h\
 	api/msetinternal.h\
 	api/result.h\
 	api/postingiteratorinternal.h\
-	api/postlist.h\
 	api/queryinternal.h\
 	api/queryvector.h\
 	api/replication.h\
@@ -31,12 +28,10 @@ lib_src +=\
 	api/documenttermlist.cc\
 	api/documentvaluelist.cc\
 	api/editdistance.cc\
-	api/emptypostlist.cc\
 	api/enquire.cc\
 	api/error.cc\
 	api/expanddecider.cc\
 	api/keymaker.cc\
-	api/leafpostlist.cc\
 	api/matchspy.cc\
 	api/mset.cc\
 	api/msetiterator.cc\
@@ -44,7 +39,6 @@ lib_src +=\
 	api/positioniterator.cc\
 	api/postingiterator.cc\
 	api/postingsource.cc\
-	api/postlist.cc\
 	api/query.cc\
 	api/queryinternal.cc\
 	api/registry.cc\

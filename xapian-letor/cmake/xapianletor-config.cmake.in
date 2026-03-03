@@ -1,0 +1,5 @@
+SET(prefix "@prefix@")
+SET(exec_prefix "@exec_prefix@")
+SET(XAPIANLETOR_LIBRARIES "@libdir@/libxapianletor@SHLIBEXT@" CACHE FILEPATH "Libraries for Xapian-letor")
+SET(XAPIANLETOR_INCLUDE_DIR "@incdir@" CACHE PATH "Include path for Xapian-letor")
+SET(XAPIANLETOR_FOUND "TRUE")

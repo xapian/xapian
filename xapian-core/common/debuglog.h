@@ -1,7 +1,7 @@
-/** @file debuglog.h
+/** @file
  * @brief Debug logging macros.
  */
-/* Copyright (C) 2008,2009,2010,2011,2014,2015 Olly Betts
+/* Copyright (C) 2008,2009,2010,2011,2014,2015,2021,2023 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_DEBUGLOG_H
@@ -88,28 +88,26 @@ enum debuglog_categories {
 /// Class to actually do the logging.
 class DebugLogger {
     /// Don't allow assignment.
-    void operator=(const DebugLogger &);
+    void operator=(const DebugLogger&);
 
     /// Don't allow copying.
-    DebugLogger(const DebugLogger &);
+    DebugLogger(const DebugLogger&);
 
     /// Mask bitmap of categories the user wants log messages for.
-    unsigned int categories_mask;
+    unsigned int categories_mask = 1 << DEBUGLOG_CATEGORY_API;
 
     /// File descriptor for debug logging.
-    int fd;
+    int fd = -1;
 
     /// The current indent level.
-    int indent_level;
+    int indent_level = 0;
 
     /// Initialise categories_mask.
     void initialise_categories_mask();
 
   public:
     /// Constructor.
-    DebugLogger()
-	: categories_mask(1 << DEBUGLOG_CATEGORY_API), fd(-1), indent_level(0)
-    { }
+    DebugLogger() { }
 
     /// Destructor.
     ~DebugLogger();
@@ -126,7 +124,7 @@ class DebugLogger {
     }
 
     /// Log message @a msg of category @a category.
-    void log_line(debuglog_categories category, const std::string & msg);
+    void log_line(debuglog_categories category, const std::string& msg);
 
     void indent() { ++indent_level; }
 
@@ -180,7 +178,7 @@ extern DebugLogger xapian_debuglogger_;
  */
 class DebugLogFunc {
     /// This pointer (or 0 if this is a static method or a non-class function).
-    const void * this_ptr;
+    const void* this_ptr;
 
     /// The category of log message to use for this function/method.
     debuglog_categories category;
@@ -188,16 +186,20 @@ class DebugLogFunc {
     /// Function/method name.
     std::string func;
 
-    /// Was an uncaught exception active when we entered this function?
-    bool uncaught_exception;
+    /// Number of uncaught exceptions when we entered this function.
+    int uncaught_exceptions;
+
+    static int get_uncaught_exceptions() {
+	return std::uncaught_exceptions();
+    }
 
   public:
     /// Constructor called when logging for a "normal" method or function.
-    DebugLogFunc(const void * this_ptr_, debuglog_categories category_,
-		 const char * return_type, const char * func_name,
-		 const std::string & params)
+    DebugLogFunc(const void* this_ptr_, debuglog_categories category_,
+		 const char* return_type, const char* func_name,
+		 const std::string& params)
 	: this_ptr(this_ptr_), category(category_),
-	  uncaught_exception(std::uncaught_exception())
+	  uncaught_exceptions(get_uncaught_exceptions())
     {
 	if (is_category_wanted()) {
 	    func.assign(return_type);
@@ -212,7 +214,7 @@ class DebugLogFunc {
     }
 
     /// Log the returned value.
-    void log_return_value(const std::string & return_value) {
+    void log_return_value(const std::string& return_value) {
 	xapian_debuglogger_.outdent();
 	LOGLINE_(category, '[' << this_ptr << "] " << func << " returned: " <<
 			   return_value);
@@ -234,7 +236,7 @@ class DebugLogFunc {
     ~DebugLogFunc() {
 	if (!is_category_wanted()) return;
 	xapian_debuglogger_.outdent();
-	if (!uncaught_exception && std::uncaught_exception()) {
+	if (get_uncaught_exceptions() > uncaught_exceptions) {
 	    // An exception is causing the stack to be unwound.
 	    LOGLINE_(category, '[' << this_ptr << "] " << func <<
 			       " exited due to exception");
@@ -256,7 +258,7 @@ class DebugLogFunc {
  */
 class DebugLogFuncVoid {
     /// This pointer (or 0 if this is a static method or a non-class function).
-    const void * this_ptr;
+    const void* this_ptr;
 
     /// The category of log message to use for this function/method.
     debuglog_categories category;
@@ -264,16 +266,20 @@ class DebugLogFuncVoid {
     /// Function/method name.
     std::string func;
 
-    /// Was an uncaught exception active when we entered this function?
-    bool uncaught_exception;
+    /// Number of uncaught exceptions when we entered this function.
+    int uncaught_exceptions;
+
+    static int get_uncaught_exceptions() {
+	return std::uncaught_exceptions();
+    }
 
   public:
     /// Constructor called when logging for a "normal" method or function.
-    DebugLogFuncVoid(const void * this_ptr_, debuglog_categories category_,
-		     const char * func_name,
-		     const std::string & params)
+    DebugLogFuncVoid(const void* this_ptr_, debuglog_categories category_,
+		     const char* func_name,
+		     const std::string& params)
 	: this_ptr(this_ptr_), category(category_),
-	  uncaught_exception(std::uncaught_exception())
+	  uncaught_exceptions(get_uncaught_exceptions())
     {
 	if (is_category_wanted()) {
 	    func.assign("void ");
@@ -287,18 +293,18 @@ class DebugLogFuncVoid {
     }
 
     /// Constructor called when logging for a class constructor.
-    DebugLogFuncVoid(const void * this_ptr_, debuglog_categories category_,
-		     const std::string & params,
-		     const char * class_name)
+    DebugLogFuncVoid(const void* this_ptr_, debuglog_categories category_,
+		     const std::string& params,
+		     const char* class_name)
 	: this_ptr(this_ptr_), category(category_),
-	  uncaught_exception(std::uncaught_exception())
+	  uncaught_exceptions(get_uncaught_exceptions())
     {
 	if (is_category_wanted()) {
 	    func.assign(class_name);
 	    func += "::";
 	    // The ctor name is the last component if there are colons (e.g.
 	    // for Query::Internal, the ctor is Internal.
-	    const char * ctor_name = std::strrchr(class_name, ':');
+	    const char* ctor_name = std::strrchr(class_name, ':');
 	    if (ctor_name)
 		++ctor_name;
 	    else
@@ -313,16 +319,16 @@ class DebugLogFuncVoid {
     }
 
     /// Constructor called when logging for a class destructor.
-    DebugLogFuncVoid(const void * this_ptr_, debuglog_categories category_,
-		     const char * class_name)
+    DebugLogFuncVoid(const void* this_ptr_, debuglog_categories category_,
+		     const char* class_name)
 	: this_ptr(this_ptr_), category(category_),
-	  uncaught_exception(std::uncaught_exception())
+	  uncaught_exceptions(get_uncaught_exceptions())
     {
 	if (is_category_wanted()) {
 	    func.assign(class_name);
 	    func += "::~";
 	    // The dtor name is the last component if there are colons.
-	    const char * dtor_name = std::strrchr(class_name, ':');
+	    const char* dtor_name = std::strrchr(class_name, ':');
 	    if (dtor_name)
 		++dtor_name;
 	    else
@@ -347,8 +353,8 @@ class DebugLogFuncVoid {
     ~DebugLogFuncVoid() {
 	if (!is_category_wanted()) return;
 	xapian_debuglogger_.outdent();
-	const char * reason;
-	if (!uncaught_exception && std::uncaught_exception()) {
+	const char* reason;
+	if (get_uncaught_exceptions() > uncaught_exceptions) {
 	    // An exception is causing the stack to be unwound.
 	    reason = " exited due to exception";
 	} else {
@@ -375,7 +381,9 @@ class DebugLogFuncVoid {
 	xapian_logcall_stream_ << PARAMS; \
 	xapian_logcall_parameters_ = xapian_logcall_ostream_.str(); \
     } \
-    DebugLogFunc xapian_logcall_(static_cast<const void *>(this), DEBUGLOG_CATEGORY_##CATEGORY, #TYPE, FUNC, xapian_logcall_parameters_)
+    DebugLogFunc xapian_logcall_(static_cast<const void*>(this), \
+				 DEBUGLOG_CATEGORY_##CATEGORY, #TYPE, FUNC, \
+				 xapian_logcall_parameters_)
 
 /// Log a call to a method returning void.
 #define LOGCALL_VOID(CATEGORY, FUNC, PARAMS) \
@@ -386,7 +394,9 @@ class DebugLogFuncVoid {
 	xapian_logcall_stream_ << PARAMS; \
 	xapian_logcall_parameters_ = xapian_logcall_ostream_.str(); \
     } \
-    DebugLogFuncVoid xapian_logcall_(static_cast<const void *>(this), DEBUGLOG_CATEGORY_##CATEGORY, FUNC, xapian_logcall_parameters_)
+    DebugLogFuncVoid xapian_logcall_(static_cast<const void*>(this), \
+				     DEBUGLOG_CATEGORY_##CATEGORY, FUNC, \
+				     xapian_logcall_parameters_)
 
 /// Log a constructor call.
 #define LOGCALL_CTOR(CATEGORY, CLASS, PARAMS) \
@@ -397,11 +407,14 @@ class DebugLogFuncVoid {
 	xapian_logcall_stream_ << PARAMS; \
 	xapian_logcall_parameters_ = xapian_logcall_ostream_.str(); \
     } \
-    DebugLogFuncVoid xapian_logcall_(static_cast<const void *>(this), DEBUGLOG_CATEGORY_##CATEGORY, xapian_logcall_parameters_, CLASS)
+    DebugLogFuncVoid xapian_logcall_(static_cast<const void*>(this), \
+				     DEBUGLOG_CATEGORY_##CATEGORY, \
+				     xapian_logcall_parameters_, CLASS)
 
 /// Log a destructor call.
 #define LOGCALL_DTOR(CATEGORY, CLASS) \
-    DebugLogFuncVoid xapian_logcall_(static_cast<const void *>(this), DEBUGLOG_CATEGORY_##CATEGORY, CLASS)
+    DebugLogFuncVoid xapian_logcall_(static_cast<const void*>(this), \
+				     DEBUGLOG_CATEGORY_##CATEGORY, CLASS)
 
 /// Log a call to a static method returning a non-void type.
 #define LOGCALL_STATIC(CATEGORY, TYPE, FUNC, PARAMS) \
@@ -427,8 +440,9 @@ class DebugLogFuncVoid {
     DebugLogFuncVoid xapian_logcall_(0, DEBUGLOG_CATEGORY_##CATEGORY, FUNC, xapian_logcall_parameters_)
 
 /// Log returning a value.
-#define RETURN(A) do { \
-    xapian_logcall_return_type_ xapian_logcall_return_ = A; \
+/* Use __VA_ARGS__ so things like `RETURN({1, 2})` work. */
+#define RETURN(...) do { \
+    xapian_logcall_return_type_ xapian_logcall_return_ = __VA_ARGS__; \
     if (xapian_logcall_.is_category_wanted()) { \
 	std::ostringstream xapian_logcall_ostream_; \
 	PrettyOStream<std::ostringstream> xapian_logcall_stream_(xapian_logcall_ostream_); \
@@ -448,6 +462,17 @@ class DebugLogFuncVoid {
 /** Log the value of variable or expression @a b. */
 #define LOGVALUE(a,b) LOGLINE_(DEBUGLOG_CATEGORY_##a, #b" = " << b)
 
+/** Wrapper macro for return types containing a comma.
+ *
+ *  Use like:
+ *
+ *  LOGCALL_STATIC(DB, RETURN_TYPE(pair<int, string>), "ProgClient::run_program", progname | args | Literal("[&child]"));
+ *
+ *  This also works for return types without a comma, though it's not necessary
+ *  there and should be avoided for verbosity reasons.
+ */
+#define RETURN_TYPE(...) __VA_ARGS__
+
 #else
 
 #define LOGCALL(CATEGORY, TYPE, FUNC, PARAMS) (void)0
@@ -456,7 +481,7 @@ class DebugLogFuncVoid {
 #define LOGCALL_DTOR(CATEGORY, CLASS) (void)0
 #define LOGCALL_STATIC(CATEGORY, TYPE, FUNC, PARAMS) (void)0
 #define LOGCALL_STATIC_VOID(CATEGORY, FUNC, PARAMS) (void)0
-#define RETURN(A) return A
+#define RETURN(...) return __VA_ARGS__
 #define LOGLINE(a,b) (void)0
 #define LOGVALUE(a,b) (void)0
 

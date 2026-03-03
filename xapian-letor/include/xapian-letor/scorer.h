@@ -1,4 +1,4 @@
-/** @file scorer.h
+/** @file
  * @brief Scorer class. Measure of ranking quality.
  */
 /* Copyright (C) 2016 Ayush Tomar
@@ -14,21 +14,20 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
-#ifndef SCORER_H
-#define SCORER_H
+#ifndef XAPIAN_INCLUDED_SCORER_H
+#define XAPIAN_INCLUDED_SCORER_H
 
 #include <xapian.h>
 #include <xapian/intrusive_ptr.h>
 #include <xapian/types.h>
 #include <xapian/visibility.h>
 
-#include "featurevector.h"
-#include "letor_error.h"
+#include <xapian-letor/featurevector.h>
+#include <xapian-letor/letor_error.h>
 
 #include <string>
 
@@ -84,4 +83,4 @@ class XAPIAN_VISIBILITY_DEFAULT ERRScore : public Scorer {
 
 }
 
-#endif /* SCORER_H */
+#endif /* XAPIAN_INCLUDED_SCORER_H */

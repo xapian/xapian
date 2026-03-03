@@ -1,7 +1,7 @@
-/** @file error.cc
+/** @file
  *  @brief Xapian::Error base class.
  */
-/* Copyright (C) 2007,2008,2011,2013,2014,2015 Olly Betts
+/* Copyright (C) 2007,2008,2011,2013,2014,2015,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -14,21 +14,21 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
 
 #include <xapian/error.h>
 
-#include "safeerrno.h"
 #ifdef __WIN32__
 # include "safewindows.h"
 #else
 # include "safenetdb.h"
 #endif
 
+#include <cerrno>
 #include <cstdlib> // For abs().
 #include <cstring> // For memcmp().
 
@@ -38,7 +38,7 @@
 
 using namespace std;
 
-Xapian::Error::Error(const std::string &msg_, const std::string &context_,
+Xapian::Error::Error(std::string_view msg_, std::string_view context_,
 		     const char * type_, const char * error_string_)
     : msg(msg_), context(context_), error_string(), type(type_),
       my_errno(0)
@@ -78,7 +78,7 @@ Xapian::Error::get_error_string() const
 	} else {
 	    // POSIX says only that EAI_* constants are "non-zero" - they're
 	    // negative on Linux, but we allow for them being positive.  We
-	    // check they all that the same sign in net/remoteconnection.h.
+	    // check they all that the same sign in net/resolver.h.
 	    if (EAI_FAIL > 0)
 		error_string.assign(gai_strerror(-my_errno));
 	    else

@@ -1,6 +1,6 @@
 #!@PERL@
 # @configure_input@
-# @file mhtml2html
+# @file
 # @brief Extract HTML from an MHTML file
 #
 # Copyright (C) 2010,2015 Olly Betts

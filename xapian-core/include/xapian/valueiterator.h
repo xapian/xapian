@@ -1,4 +1,4 @@
-/** @file  valueiterator.h
+/** @file
  *  @brief Class for iterating over document values.
  */
 /* Copyright (C) 2008,2009,2010,2011,2012,2013,2014,2015 Olly Betts
@@ -14,16 +14,15 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_VALUEITERATOR_H
 #define XAPIAN_INCLUDED_VALUEITERATOR_H
 
 #if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
-# error "Never use <xapian/valueiterator.h> directly; include <xapian.h> instead."
+# error Never use <xapian/valueiterator.h> directly; include <xapian.h> instead.
 #endif
 
 #include <iterator>
@@ -56,13 +55,29 @@ class XAPIAN_VISIBILITY_DEFAULT ValueIterator {
     /// Assignment.
     ValueIterator & operator=(const ValueIterator & o);
 
+    /// Move constructor.
+    ValueIterator(ValueIterator && o)
+	: internal(o.internal) {
+	o.internal = nullptr;
+    }
+
+    /// Move assignment operator.
+    ValueIterator & operator=(ValueIterator && o) {
+	if (this != &o) {
+	    if (internal) decref();
+	    internal = o.internal;
+	    o.internal = nullptr;
+	}
+	return *this;
+    }
+
     /** Default constructor.
      *
      *  Creates an uninitialised iterator, which can't be used before being
      *  assigned to, but is sometimes syntactically convenient.
      */
-    XAPIAN_NOTHROW(ValueIterator())
-	: internal(0) { }
+    ValueIterator() noexcept
+	: internal() { }
 
     /// Destructor.
     ~ValueIterator() {
@@ -144,11 +159,11 @@ class XAPIAN_VISIBILITY_DEFAULT ValueIterator {
 #ifndef check
     bool check(Xapian::docid docid);
 #else
-    // The AssertMacros.h header in the OS X SDK currently defines a check
+    // The AssertMacros.h header in the macOS SDK currently defines a check
     // macro.  Apple have deprecated check() in favour of __Check() and
     // plan to remove check() in a "future release", but for now prevent
     // expansion of check by adding parentheses in the method prototype:
-    // http://www.opensource.apple.com/source/CarbonHeaders/CarbonHeaders-18.1/AssertMacros.h
+    // https://www.opensource.apple.com/source/CarbonHeaders/CarbonHeaders-18.1/AssertMacros.h
     //
     // We do this conditionally, as these parentheses trip up SWIG's
     // parser:
@@ -177,30 +192,24 @@ class XAPIAN_VISIBILITY_DEFAULT ValueIterator {
     /// @private
     typedef Xapian::doccount_diff difference_type;
     /// @private
-    typedef std::string * pointer;
+    typedef value_type* pointer;
     /// @private
-    typedef std::string & reference;
+    typedef value_type reference;
     // @}
 };
 
-bool
-XAPIAN_NOTHROW(operator==(const ValueIterator &a, const ValueIterator &b));
-
 /// Equality test for ValueIterator objects.
 inline bool
-operator==(const ValueIterator &a, const ValueIterator &b) XAPIAN_NOEXCEPT
+operator==(const ValueIterator& a, const ValueIterator& b) noexcept
 {
     // Use a pointer comparison - this ensures both that (a == a) and correct
     // handling of end iterators (which we ensure have NULL internals).
     return a.internal == b.internal;
 }
 
-bool
-XAPIAN_NOTHROW(operator!=(const ValueIterator &a, const ValueIterator &b));
-
 /// Inequality test for ValueIterator objects.
 inline bool
-operator!=(const ValueIterator &a, const ValueIterator &b) XAPIAN_NOEXCEPT
+operator!=(const ValueIterator& a, const ValueIterator& b) noexcept
 {
     return !(a == b);
 }

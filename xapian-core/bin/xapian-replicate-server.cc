@@ -1,4 +1,4 @@
-/** @file xapian-replicate-server.cc
+/** @file
  * @brief Service database replication requests from clients.
  */
 /* Copyright (C) 2008,2011 Olly Betts
@@ -14,9 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -26,6 +25,7 @@
 #include <xapian.h>
 
 #include "gnu_getopt.h"
+#include "parseint.h"
 
 #include <cstdlib>
 #include <iostream>
@@ -45,7 +45,7 @@ static void show_usage() {
 "  -p, --port=PORT   port to listen on\n"
 "  -o, --one-shot    serve a single connection and exit\n"
 "  --help            display this help and exit\n"
-"  --version         output version information and exit" << endl;
+"  --version         output version information and exit\n";
 }
 
 int
@@ -73,7 +73,12 @@ main(int argc, char **argv)
 		host.assign(optarg);
 		break;
 	    case 'p':
-		port = atoi(optarg);
+		if (!parse_signed(optarg, port) ||
+		    (port < 1 || port > 65535)) {
+		    cerr << "Error: must specify a valid port number "
+			    "(between 1 and 65535). \n";
+		    exit(1);
+		}
 		break;
 	    case 'o':
 		one_shot = true;
@@ -83,7 +88,7 @@ main(int argc, char **argv)
 		show_usage();
 		exit(0);
 	    case OPT_VERSION:
-		cout << PROG_NAME " - " PACKAGE_STRING << endl;
+		cout << PROG_NAME " - " PACKAGE_STRING "\n";
 		exit(0);
 	    default:
 		show_usage();
@@ -107,7 +112,7 @@ main(int argc, char **argv)
 	    server.run();
 	}
     } catch (const Xapian::Error &error) {
-	cerr << argv[0] << ": " << error.get_description() << endl;
+	cerr << argv[0] << ": " << error.get_description() << '\n';
 	exit(1);
     }
 }

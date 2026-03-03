@@ -1,7 +1,7 @@
-/** @file valuegepostlist.cc
+/** @file
  * @brief Return document ids matching a range test on a specified doc value.
  */
-/* Copyright 2007,2008,2011,2013 Olly Betts
+/* Copyright 2007,2008,2011,2013,2025,2026 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  * Copyright 2010 Richard Boulton
  *
@@ -16,14 +16,15 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
 
 #include "valuegepostlist.h"
 
+#include "estimateop.h"
 #include "omassert.h"
 #include "str.h"
 #include "unicode/description_append.h"
@@ -34,11 +35,20 @@ PostList *
 ValueGePostList::next(double)
 {
     Assert(db);
-    if (!valuelist) valuelist = db->open_value_list(slot);
-    valuelist->next();
+    if (!valuelist) {
+	valuelist = db->open_value_list(slot);
+	valuelist->next();
+	if (estimate_op) estimate_op->report_first(valuelist->get_docid());
+    } else {
+	valuelist->next();
+    }
     while (!valuelist->at_end()) {
 	const string & v = valuelist->get_value();
-	if (v >= begin) return NULL;
+	if (v >= begin) {
+	    ++accepted;
+	    return NULL;
+	}
+	++rejected;
 	valuelist->next();
     }
     db = NULL;
@@ -53,7 +63,11 @@ ValueGePostList::skip_to(Xapian::docid did, double)
     valuelist->skip_to(did);
     while (!valuelist->at_end()) {
 	const string & v = valuelist->get_value();
-	if (v >= begin) return NULL;
+	if (v >= begin) {
+	    ++accepted;
+	    return NULL;
+	}
+	++rejected;
 	valuelist->next();
     }
     db = NULL;
@@ -72,6 +86,10 @@ ValueGePostList::check(Xapian::docid did, double, bool &valid)
     }
     const string & v = valuelist->get_value();
     valid = (v >= begin);
+    if (valid)
+	++accepted;
+    else
+	++rejected;
     return NULL;
 }
 

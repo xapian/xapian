@@ -1,7 +1,7 @@
-/** @file remoteserver.h
+/** @file
  *  @brief Xapian remote backend server base class
  */
-/* Copyright (C) 2006,2007,2008,2009,2010,2014,2017 Olly Betts
+/* Copyright (C) 2006-2024 Olly Betts
  * Copyright (C) 2007,2009,2010 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -15,8 +15,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_REMOTESERVER_H
@@ -44,10 +44,10 @@ class XAPIAN_VISIBILITY_DEFAULT RemoteServer : private RemoteConnection {
      *
      *  If we're writable, this is the same as wdb.
      */
-    Xapian::Database * db;
+    Xapian::Database* db = nullptr;
 
     /// The WritableDatabase we're using, or NULL if we're read-only.
-    Xapian::WritableDatabase * wdb;
+    Xapian::WritableDatabase* wdb = nullptr;
 
     /// Do we support writing?
     bool writable;
@@ -76,11 +76,11 @@ class XAPIAN_VISIBILITY_DEFAULT RemoteServer : private RemoteConnection {
 
     /// Send a message to the client.
     XAPIAN_VISIBILITY_INTERNAL
-    void send_message(reply_type type, const std::string &message);
+    void send_message(reply_type type, std::string_view message);
 
     /// Send a message to the client, with specific end_time.
     XAPIAN_VISIBILITY_INTERNAL
-    void send_message(reply_type type, const std::string &message,
+    void send_message(reply_type type, std::string_view message,
 		      double end_time) {
 	unsigned char type_as_char = static_cast<unsigned char>(type);
 	RemoteConnection::send_message(type_as_char, message, end_time);
@@ -194,6 +194,10 @@ class XAPIAN_VISIBILITY_DEFAULT RemoteServer : private RemoteConnection {
     XAPIAN_VISIBILITY_INTERNAL
     void msg_setmetadata(const std::string & message);
 
+    // request a document (pre-fetch hint)
+    XAPIAN_VISIBILITY_INTERNAL
+    void msg_requestdocument(const std::string& message);
+
     // add a spelling
     XAPIAN_VISIBILITY_INTERNAL
     void msg_addspelling(const std::string & message);
@@ -205,6 +209,34 @@ class XAPIAN_VISIBILITY_DEFAULT RemoteServer : private RemoteConnection {
     // get number of unique terms
     XAPIAN_VISIBILITY_INTERNAL
     void msg_uniqueterms(const std::string & message);
+
+    // get max_wdf
+    XAPIAN_VISIBILITY_INTERNAL
+    void msg_wdfdocmax(const std::string& message);
+
+    // reconstruct document text
+    XAPIAN_VISIBILITY_INTERNAL
+    void msg_reconstructtext(const std::string& message);
+
+    // get synonyms for a term
+    XAPIAN_VISIBILITY_INTERNAL
+    void msg_synonymtermlist(const std::string& message);
+
+    // get terms with an entry in synonym table, starting with a prefix
+    XAPIAN_VISIBILITY_INTERNAL
+    void msg_synonymkeylist(const std::string& message);
+
+    // add a synonym
+    XAPIAN_VISIBILITY_INTERNAL
+    void msg_addsynonym(const std::string& message);
+
+    // remove a synonym
+    XAPIAN_VISIBILITY_INTERNAL
+    void msg_removesynonym(const std::string& message);
+
+    // clear synonyms for a term
+    XAPIAN_VISIBILITY_INTERNAL
+    void msg_clearsynonyms(const std::string& message);
 
   public:
     /** Construct a RemoteServer.
@@ -234,9 +266,6 @@ class XAPIAN_VISIBILITY_DEFAULT RemoteServer : private RemoteConnection {
      *  non-Xapian exception is thrown.
      */
     void run();
-
-    /// Get the registry used for (un)serialisation.
-    const Xapian::Registry & get_registry() const { return reg; }
 
     /// Set the registry used for (un)serialisation.
     void set_registry(const Xapian::Registry & reg_) { reg = reg_; }

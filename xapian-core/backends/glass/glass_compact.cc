@@ -1,7 +1,7 @@
-/** @file glass_compact.cc
+/** @file
  * @brief Compact a glass database, or merge and compact several.
  */
-/* Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2017 Olly Betts
+/* Copyright (C) 2004-2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -14,9 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -27,12 +26,11 @@
 #include "xapian/types.h"
 
 #include <algorithm>
+#include <iterator>
 #include <memory>
 #include <queue>
 
-#include <cstdio>
-
-#include "safeerrno.h"
+#include <cerrno>
 
 #include "backends/flint_lock.h"
 #include "glass_database.h"
@@ -156,7 +154,7 @@ class PostlistCursor : private GlassCursor {
 		key.erase(tmp - 1);
 	    }
 	}
-	firstdid += offset;
+	UNSIGNED_OVERFLOW_OK(firstdid += offset);
 	return true;
     }
 };
@@ -223,7 +221,8 @@ merge_postlists(Xapian::Compactor * compactor,
 			    compactor->resolve_duplicate_metadata(last_key,
 								  tags.size(),
 								  &tags[0]);
-			out->add(last_key, resolved_tag);
+			if (!resolved_tag.empty())
+			    out->add(last_key, resolved_tag);
 		    } else {
 			Assert(!last_key.empty());
 			out->add(last_key, tags[0]);
@@ -248,7 +247,8 @@ merge_postlists(Xapian::Compactor * compactor,
 		    compactor->resolve_duplicate_metadata(last_key,
 							  tags.size(),
 							  &tags[0]);
-		out->add(last_key, resolved_tag);
+		if (!resolved_tag.empty())
+		    out->add(last_key, resolved_tag);
 	    } else {
 		Assert(!last_key.empty());
 		out->add(last_key, tags[0]);
@@ -336,7 +336,7 @@ merge_postlists(Xapian::Compactor * compactor,
     }
 
     Xapian::termcount tf = 0, cf = 0; // Initialise to avoid warnings.
-    vector<pair<Xapian::docid, string> > tags;
+    vector<pair<Xapian::docid, string>> tags;
     while (true) {
 	PostlistCursor * cur = NULL;
 	if (!pq.empty()) {
@@ -363,8 +363,7 @@ merge_postlists(Xapian::Compactor * compactor,
 			throw Xapian::DatabaseCorruptError("Bad postlist chunk key");
 		}
 
-		vector<pair<Xapian::docid, string> >::const_iterator i;
-		i = tags.begin();
+		auto i = tags.begin();
 		while (++i != tags.end()) {
 		    tag = i->second;
 		    tag[0] = (i + 1 == tags.end()) ? '1' : '0';
@@ -562,14 +561,15 @@ merge_synonyms(GlassTable * out,
 	    pq.pop();
 	}
 
-	string lastword;
+	string_view lastword;
 	while (!pqtag.empty()) {
 	    ByteLengthPrefixedStringItor * it = pqtag.top();
 	    pqtag.pop();
-	    if (**it != lastword) {
-		lastword = **it;
-		tag += byte(lastword.size() ^ MAGIC_XOR_VALUE);
-		tag += lastword;
+	    string_view word = **it;
+	    if (word != lastword) {
+		tag += uint8_t(word.size() ^ MAGIC_XOR_VALUE);
+		tag += word;
+		lastword = word;
 	    }
 	    ++*it;
 	    if (!it->at_end()) {
@@ -610,9 +610,11 @@ multimerge_postlists(Xapian::Compactor * compactor,
 	    if (j == tmp.size() - 1) ++j;
 
 	    string dest = tmpdir;
-	    char buf[64];
-	    sprintf(buf, "/tmp%u_%u.", c, i / 2);
-	    dest += buf;
+	    dest += "/tmp";
+	    dest += str(c);
+	    dest += '_';
+	    dest += str(i / 2);
+	    dest += '.';
 
 	    GlassTable * tmptab = new GlassTable("postlist", dest, false);
 
@@ -751,7 +753,7 @@ merge_docid_keyed(GlassTable *out, const vector<const GlassTable*> & inputs,
 		    msg += inputs[i]->get_path();
 		    throw Xapian::DatabaseCorruptError(msg);
 		}
-		did += off;
+		UNSIGNED_OVERFLOW_OK(did += off);
 		key.resize(0);
 		pack_uint_preserving_sort(key, did);
 		if (d != e) {
@@ -778,7 +780,7 @@ GlassDatabase::compact(Xapian::Compactor * compactor,
 		       int fd,
 		       const vector<const Xapian::Database::Internal*>& sources,
 		       const vector<Xapian::docid> & offset,
-		       size_t block_size,
+		       unsigned block_size,
 		       Xapian::Compactor::compaction_level compaction,
 		       unsigned flags,
 		       Xapian::docid last_docid)
@@ -801,8 +803,7 @@ GlassDatabase::compact(Xapian::Compactor * compactor,
 	{ "spelling",	Glass::SPELLING,	true },
 	{ "synonym",	Glass::SYNONYM,		true }
     };
-    const table_list * tables_end = tables +
-	(sizeof(tables) / sizeof(tables[0]));
+    const table_list* tables_end = std::end(tables);
 
     const int FLAGS = Xapian::DB_DANGEROUS;
 
@@ -869,7 +870,7 @@ GlassDatabase::compact(Xapian::Compactor * compactor,
 
     vector<GlassTable *> tabs;
     tabs.reserve(tables_end - tables);
-    off_t prev_size = block_size;
+    file_size_type prev_size = block_size;
     for (const table_list * t = tables; t < tables_end; ++t) {
 	// The postlist table requires an N-way merge, adjusting the
 	// headers of various blocks.  The spelling and synonym tables also
@@ -897,7 +898,7 @@ GlassDatabase::compact(Xapian::Compactor * compactor,
 	// amongst the inputs.
 	bool single_file_in = false;
 
-	off_t in_size = 0;
+	file_size_type in_size = 0;
 
 	vector<const GlassTable*> inputs;
 	inputs.reserve(sources.size());
@@ -940,7 +941,7 @@ GlassDatabase::compact(Xapian::Compactor * compactor,
 		    ++inputs_present;
 		}
 	    } else {
-		off_t db_size = file_size(table->get_path());
+		auto db_size = file_size(table->get_path());
 		if (errno == 0) {
 		    in_size += db_size / 1024;
 		    output_will_exist = true;
@@ -993,7 +994,6 @@ GlassDatabase::compact(Xapian::Compactor * compactor,
 	}
 
 	out->set_full_compaction(compaction != compactor->STANDARD);
-	if (compaction == compactor->FULLER) out->set_max_item_size(1);
 
 	switch (t->type) {
 	    case Glass::POSTLIST: {
@@ -1021,15 +1021,17 @@ GlassDatabase::compact(Xapian::Compactor * compactor,
 		break;
 	}
 
-	// Commit as revision 1.
-	out->flush_db();
-	out->commit(1, root_info);
-	out->sync();
+	if (out->is_modified()) {
+	    // Commit as revision 1.
+	    out->flush_db();
+	    out->commit(1, root_info);
+	    out->sync();
+	}
 	if (single_file) fl_serialised = root_info->get_free_list();
 
-	off_t out_size = 0;
+	file_size_type out_size = 0;
 	if (!bad_stat && !single_file_in) {
-	    off_t db_size;
+	    file_size_type db_size;
 	    if (single_file) {
 		db_size = file_size(fd);
 	    } else {
@@ -1037,8 +1039,10 @@ GlassDatabase::compact(Xapian::Compactor * compactor,
 	    }
 	    if (errno == 0) {
 		if (single_file) {
-		    off_t old_prev_size = max(prev_size, off_t(block_size));
+		    auto old_prev_size = max(prev_size,
+					     file_size_type(block_size));
 		    prev_size = db_size;
+		    db_size = max(db_size, file_size_type(block_size));
 		    db_size -= old_prev_size;
 		}
 		out_size = db_size / 1024;
@@ -1084,7 +1088,7 @@ GlassDatabase::compact(Xapian::Compactor * compactor,
     // If compacting to a single file output and all the tables are empty, pad
     // the output so that it isn't mistaken for a stub database when we try to
     // open it.  For this it needs to be a multiple of 2KB in size.
-    if (single_file && prev_size < off_t(block_size)) {
+    if (single_file && prev_size < block_size) {
 #ifdef HAVE_FTRUNCATE
 	if (ftruncate(fd, block_size) < 0) {
 	    throw Xapian::DatabaseError("Failed to set size of output database", errno);

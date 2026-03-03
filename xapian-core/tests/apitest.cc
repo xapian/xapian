@@ -1,8 +1,9 @@
-/* apitest.cc: tests the Xapian API
- *
- * Copyright 1999,2000,2001 BrightStation PLC
+/** @file
+ * @brief tests the Xapian API
+ */
+/* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2004,2006,2007,2008,2009 Olly Betts
+ * Copyright 2003,2004,2006,2007,2008,2009,2018 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -16,9 +17,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -107,11 +107,19 @@ get_compaction_output_path(const std::string& name)
 }
 
 Xapian::Database
-get_remote_database(const string &dbname, unsigned int timeout)
+get_remote_database(const string& dbname,
+		    unsigned int timeout,
+		    int* port_ptr)
 {
     vector<string> dbnames;
     dbnames.push_back(dbname);
-    return backendmanager->get_remote_database(dbnames, timeout);
+    return backendmanager->get_remote_database(dbnames, timeout, port_ptr);
+}
+
+void
+kill_remote(const Xapian::Database& db)
+{
+    backendmanager->kill_remote(db);
 }
 
 Xapian::Database
@@ -139,6 +147,15 @@ skip_test_for_backend(const std::string & backend_prefix)
 {
     if (startswith(get_dbtype(), backend_prefix)) {
 	SKIP_TEST("Test not supported for " << backend_prefix << " backend");
+    }
+}
+
+void
+XFAIL_FOR_BACKEND(const std::string& backend_prefix,
+		  const char* msg)
+{
+    if (startswith(get_dbtype(), backend_prefix)) {
+	XFAIL(msg);
     }
 }
 

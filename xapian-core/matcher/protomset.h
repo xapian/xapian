@@ -1,7 +1,7 @@
-/** @file protomset.h
+/** @file
  * @brief ProtoMSet class
  */
-/* Copyright (C) 2004,2007,2017,2018 Olly Betts
+/* Copyright (C) 2004-2026 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_PROTOMSET_H
@@ -23,13 +23,13 @@
 
 #include "api/enquireinternal.h"
 #include "api/result.h"
+#include "api/smallvector.h"
 #include "collapser.h"
 #include "heap.h"
 #include "matchtimeout.h"
 #include "msetcmp.h"
 #include "omassert.h"
 #include "spymaster.h"
-#include "stdclamp.h"
 
 #include <algorithm>
 
@@ -92,13 +92,13 @@ class ProtoMSet {
     Xapian::doccount known_matching_docs = 0;
 
     /// The items in the proto-MSet.
-    vector<Result> results;
+    std::vector<Result> results;
 
     /** A heap of offsets into @a results.
      *
      *  Created lazily once we actually need it.
      */
-    vector<Xapian::doccount> min_heap;
+    std::vector<Xapian::doccount> min_heap;
 
     /// First entry wanted in MSet.
     Xapian::doccount first;
@@ -128,6 +128,8 @@ class ProtoMSet {
     bool stop_once_full;
 
     TimeOut timeout;
+
+    Xapian::doccount size() const { return Xapian::doccount(results.size()); }
 
   public:
     ProtoMSet(Xapian::doccount first_,
@@ -167,7 +169,7 @@ class ProtoMSet {
 
     Collapser& get_collapser() { return collapser; }
 
-    bool full() const { return results.size() == max_size; }
+    bool full() const { return size() == max_size; }
 
     double get_min_weight() const { return min_weight; }
 
@@ -193,6 +195,58 @@ class ProtoMSet {
 	return false;
     }
 
+    /** Resolve a pending min_weight change.
+     *
+     *  Only called when there's a percentage weight cut-off.
+     */
+    bool handle_min_weight_pending(bool finalising = false) {
+	// min_weight_pending shouldn't get set when unweighted.
+	Assert(sort_by != Xapian::Enquire::Internal::DOCID);
+	min_weight_pending = false;
+	bool weight_first = (sort_by == Xapian::Enquire::Internal::REL ||
+			     sort_by == Xapian::Enquire::Internal::REL_VAL);
+	double new_min_weight = HUGE_VAL;
+	Xapian::doccount j = 0;
+	Xapian::doccount min_elt = 0;
+	for (Xapian::doccount i = 0; i != size(); ++i) {
+	    if (results[i].get_weight() < min_weight) {
+		continue;
+	    }
+	    if (i != j) {
+		results[j] = std::move(results[i]);
+		if (collapser) {
+		    collapser.result_has_moved(i, j);
+		}
+	    }
+	    if (weight_first && results[j].get_weight() < new_min_weight) {
+		new_min_weight = results[j].get_weight();
+		min_elt = j;
+	    }
+	    ++j;
+	}
+	if (weight_first) {
+	    if (finalising) {
+		if (known_matching_docs >= check_at_least)
+		    min_weight = new_min_weight;
+	    } else {
+		if (checked_enough())
+		    min_weight = new_min_weight;
+	    }
+	}
+	if (j != size()) {
+	    results.erase(results.begin() + j, results.end());
+	    if (!finalising) {
+		return false;
+	    }
+	}
+	if (!finalising && min_elt != 0 && !collapser) {
+	    // Install the correct element at the tip of the heap, so
+	    // that Heap::make() has less to do.  NB Breaks collapsing.
+	    std::swap(results[0], results[min_elt]);
+	}
+	return true;
+    }
+
     bool early_reject(Result& new_item,
 		      bool calculated_weight,
 		      SpyMaster& spymaster,
@@ -210,10 +264,8 @@ class ProtoMSet {
 
 	// The candidate isn't good enough to make the proto-mset, but there
 	// are still things we may need to do with it.
-
-	// If we're collapsing, we need to check if this would have been
-	// collapsed before incrementing known_matching_docs.
 	if (!collapser) {
+	    // We're not collapsing so we can perform an early reject.
 	    ++known_matching_docs;
 	    double weight =
 		calculated_weight ? new_item.get_weight() : pltree.get_weight();
@@ -222,16 +274,22 @@ class ProtoMSet {
 	    return true;
 	}
 
+	// We're collapsing - the question is should we increment
+	// known_matching_docs?
+
 	if (checked_enough()) {
-	    // We've seen enough items so can drop this one.
+	    // We are collapsing but known_matching_docs has already reached
+	    // check_at_least so we don't need to worry about whether we can
+	    // increment it further.
 	    double weight =
 		calculated_weight ? new_item.get_weight() : pltree.get_weight();
 	    update_max_weight(weight);
 	    return true;
 	}
 
-	// We can't drop the item because we need to test whether it would be
-	// collapsed.
+	// We can't early reject but need to continue on and check if this item
+	// would be collapsed or not (and if not ProtoMSet::add() will get
+	// called and known_matching_docs incremented there.
 	return false;
     }
 
@@ -240,13 +298,13 @@ class ProtoMSet {
      *  Conceptually this is "add new_item", but taking into account
      *  collapsing.
      */
-    bool process(Result& new_item,
+    bool process(Result&& new_item,
 		 ValueStreamDocument& vsdoc) {
 	update_max_weight(new_item.get_weight());
 
 	if (!collapser) {
 	    // No collapsing, so just add the item.
-	    add(new_item);
+	    add(std::move(new_item));
 	} else {
 	    auto res = collapser.check(new_item, vsdoc);
 	    switch (res) {
@@ -262,14 +320,14 @@ class ProtoMSet {
 		    // entries with this key which we've seen so far.  The
 		    // entry with this key which it displaced is still in the
 		    // proto-MSet so replace it.
-		    replace(collapser.old_item, new_item);
+		    replace(collapser.old_item, std::move(new_item));
 		    return true;
 
 		default:
 		    break;
 	    }
 
-	    auto elt = add(new_item);
+	    auto elt = add(std::move(new_item));
 	    if (res != EMPTY && elt != Xapian::doccount(-1)) {
 		collapser.process(res, elt);
 	    }
@@ -285,7 +343,7 @@ class ProtoMSet {
     }
 
     // Returns the new item's index, or Xapian::doccount(-1) if not added.
-    Xapian::doccount add(const Result& item) {
+    Xapian::doccount add(Result&& item) {
 	++known_matching_docs;
 
 	if (item.get_weight() < min_weight) {
@@ -296,11 +354,11 @@ class ProtoMSet {
 	    update_max_weight(item.get_weight());
 	}
 
-	if (results.size() < max_size) {
+	if (!full()) {
 	    // We're still filling, or just about to become full.
-	    results.push_back(item);
+	    results.push_back(std::move(item));
 	    Assert(min_heap.empty());
-	    return results.size() - 1;
+	    return size() - 1;
 	}
 
 	if (min_heap.empty()) {
@@ -308,58 +366,18 @@ class ProtoMSet {
 	    // but can be used if we aren't (and could be for elements with
 	    // no collapse key too - FIXME).
 	    if (min_weight_pending) {
-		// min_weight_pending shouldn't get set when unweighted.
-		Assert(sort_by != Xapian::Enquire::Internal::DOCID);
-		min_weight_pending = false;
-		bool weight_first =
-		    sort_by == Xapian::Enquire::Internal::REL ||
-		    sort_by == Xapian::Enquire::Internal::REL_VAL;
-		double new_min_weight = HUGE_VAL;
-		size_t j = 0;
-		size_t min_elt = 0;
-		for (size_t i = 0; i != results.size(); ++i) {
-		    if (results[i].get_weight() < min_weight) {
-			continue;
-		    }
-		    if (i != j) {
-			if (collapser &&
-			    !results[i].get_collapse_key().empty()) {
-			    // FIXME: This breaks if we're collapsing (but
-			    // should be OK if there's no collapse key).
-			    throw Xapian::FeatureUnavailableError("collapsing "
-				    "and a percentage cut-off not fully "
-				    "supported");
-			}
-			results[j] = std::move(results[i]);
-		    }
-		    if (weight_first &&
-			results[j].get_weight() < new_min_weight) {
-			new_min_weight = results[j].get_weight();
-			min_elt = j;
-		    }
-		    ++j;
-		}
-		if (weight_first && checked_enough()) {
-		    min_weight = new_min_weight;
-		}
-		if (j != results.size()) {
-		    results.erase(results.begin() + j, results.end());
-		    results.push_back(item);
-		    return results.size() - 1;
-		}
-		if (min_elt != 0 && !collapser) {
-		    // Install the correct element at the tip of the heap, so
-		    // that Heap::make() has less to do.  NB Breaks collapsing.
-		    swap(results[0], results[min_elt]);
+		if (!handle_min_weight_pending()) {
+		    results.push_back(std::move(item));
+		    return size() - 1;
 		}
 	    }
 
-	    if (results.size() == 0) {
+	    if (size() == 0) {
 		// E.g. get_mset(0, 0, 10);
 		return Xapian::doccount(-1);
 	    }
-	    min_heap.reserve(results.size());
-	    for (Xapian::doccount i = 0; i != results.size(); ++i)
+	    min_heap.reserve(size());
+	    for (Xapian::doccount i = 0; i != size(); ++i)
 		min_heap.push_back(i);
 	    Heap::make(min_heap.begin(), min_heap.end(), MCmpAdaptor(this));
 	    if (sort_by == Xapian::Enquire::Internal::REL ||
@@ -376,7 +394,7 @@ class ProtoMSet {
 	    return Xapian::doccount(-1);
 	}
 
-	results[worst_idx] = item;
+	results[worst_idx] = std::move(item);
 	Heap::replace(min_heap.begin(), min_heap.end(), MCmpAdaptor(this));
 	if (sort_by == Xapian::Enquire::Internal::REL ||
 	    sort_by == Xapian::Enquire::Internal::REL_VAL) {
@@ -387,8 +405,8 @@ class ProtoMSet {
 	return worst_idx;
     }
 
-    void replace(Xapian::doccount old_item, const Result& b) {
-	results[old_item] = b;
+    void replace(Xapian::doccount old_item, Result&& b) {
+	results[old_item] = std::move(b);
 	if (min_heap.empty())
 	    return;
 
@@ -465,203 +483,204 @@ class ProtoMSet {
 	// Truncate the results if necessary.
 	set_new_min_weight(percent_threshold_factor / percent_scale);
 	if (min_weight_pending) {
-	    // min_weight_pending shouldn't get set when unweighted.
-	    Assert(sort_by != Xapian::Enquire::Internal::DOCID);
-	    min_weight_pending = false;
-	    bool weight_first = (sort_by == Xapian::Enquire::Internal::REL ||
-				 sort_by == Xapian::Enquire::Internal::REL_VAL);
-	    double new_min_weight = HUGE_VAL;
-	    size_t j = 0;
-	    size_t min_elt = 0;
-	    (void)min_elt;
-	    for (size_t i = 0; i != results.size(); ++i) {
-		if (results[i].get_weight() < min_weight) {
-		    continue;
-		}
-		if (i != j) {
-		    if (collapser && !results[i].get_collapse_key().empty()) {
-			// FIXME: This breaks if we're collapsing (but
-			// should be OK if there's no collapse key).
-			throw Xapian::FeatureUnavailableError("collapsing "
-				"and a percentage cut-off not fully supported");
-		    }
-		    results[j] = std::move(results[i]);
-		}
-		if (weight_first && results[j].get_weight() < new_min_weight) {
-		    new_min_weight = results[j].get_weight();
-		    min_elt = j;
-		}
-		++j;
-	    }
-	    if (weight_first && known_matching_docs >= check_at_least) {
-		min_weight = new_min_weight;
-	    }
-	    if (j != results.size()) {
-		results.erase(results.begin() + j, results.end());
-	    }
+	    handle_min_weight_pending(true);
 	}
     }
 
-    Xapian::MSet finalise(const Xapian::MatchDecider* mdecider,
-			  Xapian::doccount matches_lower_bound,
-			  Xapian::doccount matches_estimated,
-			  Xapian::doccount matches_upper_bound) {
+    Xapian::MSet
+    finalise(const Xapian::MatchDecider* mdecider,
+	     const std::vector<std::unique_ptr<LocalSubMatch>>& locals,
+	     const Xapian::VecUniquePtr<EstimateOp>& estimates) {
 	finalise_percentages();
 
-	AssertRel(matches_estimated, >=, matches_lower_bound);
-	AssertRel(matches_estimated, <=, matches_upper_bound);
+	Xapian::doccount matches_lower_bound;
+	Xapian::doccount matches_estimated;
+	Xapian::doccount matches_upper_bound;
+	Xapian::doccount uncollapsed_lower_bound;
+	Xapian::doccount uncollapsed_estimated;
+	Xapian::doccount uncollapsed_upper_bound;
 
-	Xapian::doccount uncollapsed_lower_bound = matches_lower_bound;
-	Xapian::doccount uncollapsed_estimated = matches_estimated;
-	Xapian::doccount uncollapsed_upper_bound = matches_upper_bound;
-
-	if (!full()) {
-	    // We didn't get all the results requested, so we know that we've
-	    // got all there are, and the bounds and estimate are all equal to
-	    // that number.
-	    matches_lower_bound = results.size();
-	    matches_estimated = matches_lower_bound;
-	    matches_upper_bound = matches_lower_bound;
-
-	    // And that should equal known_matching_docs, unless a percentage
-	    // threshold caused some matches to be excluded.
-	    if (!percent_threshold) {
-		AssertEq(matches_estimated, known_matching_docs);
+	if (!collapser && (!full() || known_matching_docs < check_at_least)) {
+	    // Under these conditions we know exactly how many matching docs
+	    // there are for the full match so we don't need to resolve the
+	    // EstimateOp stack.
+	    Xapian::doccount m;
+	    if (!full()) {
+		// We didn't get all the results requested, so we know that
+		// we've got all there are, and the bounds and estimate are
+		// all equal to that number.
+		m = size();
+		// And that should equal known_matching_docs, unless a percentage
+		// threshold caused some matches to be excluded.
+		if (!percent_threshold) {
+		    AssertEq(m, known_matching_docs);
+		} else {
+		    AssertRel(m, <=, known_matching_docs);
+		}
 	    } else {
-		AssertRel(matches_estimated, <=, known_matching_docs);
-	    }
-	} else if (!collapser && known_matching_docs < check_at_least) {
-	    // Similar to the above, but based on known_matching_docs.
-	    matches_lower_bound = known_matching_docs;
-	    matches_estimated = matches_lower_bound;
-	    matches_upper_bound = matches_lower_bound;
-	} else {
-	    // We can end up scaling the estimate more than once, so collect
-	    // the scale factors and apply them in one go to avoid rounding
-	    // more than once.
-	    double estimate_scale = 1.0;
-	    double unique_rate = 1.0;
-
-	    if (collapser) {
-		matches_lower_bound = collapser.get_matches_lower_bound();
-
-		Xapian::doccount docs_considered =
-		    collapser.get_docs_considered();
-		Xapian::doccount dups_ignored = collapser.get_dups_ignored();
-		if (docs_considered > 0) {
-		    // Scale the estimate by the rate at which we've been
-		    // finding unique documents.
-		    double unique = double(docs_considered - dups_ignored);
-		    unique_rate = unique / double(docs_considered);
-		}
-
-		// We can safely reduce the upper bound by the number of
-		// duplicates we've ignored.
-		matches_upper_bound -= dups_ignored;
+		// Otherwise we didn't reach check_at_least, so
+		// known_matching_docs gives the exact size.
+		m = known_matching_docs;
 	    }
 
-	    if (mdecider) {
-		if (!percent_threshold && !collapser) {
-		    if (known_matching_docs > matches_lower_bound) {
-			// We're not collapsing or doing a percentage
-			// threshold, so known_matching_docs is a lower bound
-			// on the total number of matches.
-			matches_lower_bound = known_matching_docs;
-		    }
-		}
+	    matches_lower_bound = matches_estimated = matches_upper_bound = m;
 
-		Xapian::doccount decider_denied = mdecider->docs_denied_;
-		Xapian::doccount decider_considered =
-		    mdecider->docs_allowed_ + mdecider->docs_denied_;
-
-		// Scale the estimate by the rate at which the MatchDecider has
-		// been accepting documents.
-		if (decider_considered > 0) {
-		    double accept = double(decider_considered - decider_denied);
-		    double accept_rate = accept / double(decider_considered);
-		    estimate_scale *= accept_rate;
-		}
-
-		// If a document is denied by the MatchDecider, it can't be
-		// found to be a duplicate, so it is safe to also reduce the
-		// upper bound by the number of documents denied by the
-		// MatchDecider.
-		matches_upper_bound -= decider_denied;
-		if (collapser) uncollapsed_upper_bound -= decider_denied;
-	    }
-
-	    if (percent_threshold) {
-		// Scale the estimate assuming that document weights are evenly
-		// distributed from 0 to the maximum weight seen.
-		estimate_scale *= (1.0 - percent_threshold_factor);
-
-		// This is all we can be sure of without additional work.
-		matches_lower_bound = results.size();
-
-		if (collapser) {
-		    uncollapsed_lower_bound = matches_lower_bound;
-		}
-	    }
-
-	    if (collapser && estimate_scale != 1.0) {
-		uncollapsed_estimated =
-		    Xapian::doccount(uncollapsed_estimated * estimate_scale +
-				     0.5);
-	    }
-
-	    estimate_scale *= unique_rate;
-
-	    if (estimate_scale != 1.0) {
-		matches_estimated =
-		    Xapian::doccount(matches_estimated * estimate_scale + 0.5);
-		if (matches_estimated < matches_lower_bound)
-		    matches_estimated = matches_lower_bound;
-	    }
-
-	    if (collapser || mdecider) {
-		// Clamp the estimate the range given by the bounds.
-		AssertRel(matches_lower_bound, <=, matches_upper_bound);
-		matches_estimated = STD_CLAMP(matches_estimated,
-					      matches_lower_bound,
-					      matches_upper_bound);
-	    } else if (!percent_threshold) {
-		AssertRel(known_matching_docs, <=, matches_upper_bound);
-		if (known_matching_docs > matches_lower_bound)
-		    matches_lower_bound = known_matching_docs;
-		if (known_matching_docs > matches_estimated)
-		    matches_estimated = known_matching_docs;
-	    }
-
-	    if (collapser && !mdecider && !percent_threshold) {
-		AssertRel(known_matching_docs, <=, uncollapsed_upper_bound);
-		if (known_matching_docs > uncollapsed_lower_bound)
-		    uncollapsed_lower_bound = known_matching_docs;
-	    }
-	}
-
-	if (collapser && matches_lower_bound > uncollapsed_lower_bound) {
-	    // Clamp the uncollapsed bound to be at least the collapsed one.
-	    uncollapsed_lower_bound = matches_lower_bound;
-	}
-
-	if (collapser) {
-	    // Clamp the estimate to lie within the known bounds.
-	    if (uncollapsed_estimated < uncollapsed_lower_bound) {
-		uncollapsed_estimated = uncollapsed_lower_bound;
-	    } else if (uncollapsed_estimated > uncollapsed_upper_bound) {
-		uncollapsed_estimated = uncollapsed_upper_bound;
-	    }
-	} else {
 	    // When not collapsing the uncollapsed bounds are just the same.
 	    uncollapsed_lower_bound = matches_lower_bound;
 	    uncollapsed_estimated = matches_estimated;
 	    uncollapsed_upper_bound = matches_upper_bound;
+	} else {
+	    matches_lower_bound = 0;
+	    matches_estimated = 0;
+	    matches_upper_bound = 0;
+	    for (size_t i = 0; i != estimates.size(); ++i) {
+		if (estimates[i]) {
+		    Assert(locals[i].get());
+		    Estimates e = locals[i]->resolve(estimates[i]);
+		    matches_lower_bound += e.min;
+		    matches_estimated += e.est;
+		    matches_upper_bound += e.max;
+		}
+	    }
+
+	    AssertRel(matches_estimated, >=, matches_lower_bound);
+	    AssertRel(matches_estimated, <=, matches_upper_bound);
+
+	    uncollapsed_lower_bound = matches_lower_bound;
+	    uncollapsed_estimated = matches_estimated;
+	    uncollapsed_upper_bound = matches_upper_bound;
+
+	    if (!full()) {
+		// We didn't get all the results requested, so we know that we've
+		// got all there are, and the bounds and estimate are all equal to
+		// that number.
+		matches_lower_bound = size();
+		matches_estimated = matches_lower_bound;
+		matches_upper_bound = matches_lower_bound;
+
+		// And that should equal known_matching_docs, unless a percentage
+		// threshold caused some matches to be excluded.
+		if (!percent_threshold) {
+		    AssertEq(matches_estimated, known_matching_docs);
+		} else {
+		    AssertRel(matches_estimated, <=, known_matching_docs);
+		}
+
+		if (matches_lower_bound > uncollapsed_lower_bound) {
+		    // Clamp the uncollapsed bound to be at least the collapsed
+		    // one.
+		    uncollapsed_lower_bound = matches_lower_bound;
+		}
+	    } else {
+		// We can end up scaling the estimate more than once, so collect
+		// the scale factors and apply them in one go to avoid rounding
+		// more than once.
+		double estimate_scale = 1.0;
+		double unique_rate = 1.0;
+
+		if (collapser) {
+		    matches_lower_bound = collapser.get_matches_lower_bound();
+
+		    Xapian::doccount docs_considered =
+			collapser.get_docs_considered();
+		    Xapian::doccount dups_ignored = collapser.get_dups_ignored();
+		    if (docs_considered > 0) {
+			// Scale the estimate by the rate at which we've been
+			// finding unique documents.
+			double unique = double(docs_considered - dups_ignored);
+			unique_rate = unique / double(docs_considered);
+		    }
+
+		    // We can safely reduce the upper bound by the number of
+		    // duplicates we've ignored.
+		    matches_upper_bound -= dups_ignored;
+		}
+
+		if (mdecider) {
+		    if (!percent_threshold && !collapser) {
+			if (known_matching_docs > matches_lower_bound) {
+			    // We're not collapsing or doing a percentage
+			    // threshold, so known_matching_docs is a lower bound
+			    // on the total number of matches.
+			    matches_lower_bound = known_matching_docs;
+			}
+		    }
+		}
+
+		if (percent_threshold) {
+		    // Scale the estimate assuming that document weights are evenly
+		    // distributed from 0 to the maximum weight seen.
+		    estimate_scale *= (1.0 - percent_threshold_factor);
+
+		    // This is all we can be sure of without additional work.
+		    matches_lower_bound = size();
+
+		    if (collapser) {
+			uncollapsed_lower_bound = matches_lower_bound;
+		    }
+		}
+
+		if (collapser && estimate_scale != 1.0) {
+		    uncollapsed_estimated =
+			Xapian::doccount(uncollapsed_estimated * estimate_scale +
+					 0.5);
+		}
+
+		estimate_scale *= unique_rate;
+
+		if (estimate_scale != 1.0) {
+		    matches_estimated =
+			Xapian::doccount(matches_estimated * estimate_scale + 0.5);
+		    if (matches_estimated < matches_lower_bound)
+			matches_estimated = matches_lower_bound;
+		}
+
+		if (collapser || mdecider) {
+		    // Clamp the estimate to the range given by the bounds.
+		    AssertRel(matches_lower_bound, <=, matches_upper_bound);
+		    matches_estimated = std::clamp(matches_estimated,
+						   matches_lower_bound,
+						   matches_upper_bound);
+		} else if (!percent_threshold) {
+		    AssertRel(known_matching_docs, <=, matches_upper_bound);
+		    if (known_matching_docs > matches_lower_bound)
+			matches_lower_bound = known_matching_docs;
+		    if (known_matching_docs > matches_estimated)
+			matches_estimated = known_matching_docs;
+		}
+
+		if (collapser) {
+		    if (!mdecider && !percent_threshold) {
+			AssertRel(known_matching_docs, <=, uncollapsed_upper_bound);
+			if (known_matching_docs > uncollapsed_lower_bound)
+			    uncollapsed_lower_bound = known_matching_docs;
+		    }
+
+		    if (matches_lower_bound > uncollapsed_lower_bound) {
+			// Clamp the uncollapsed bound to be at least the collapsed
+			// one.
+			uncollapsed_lower_bound = matches_lower_bound;
+		    }
+
+		    // Clamp the estimate to lie within the known bounds.
+		    if (uncollapsed_estimated < uncollapsed_lower_bound) {
+			uncollapsed_estimated = uncollapsed_lower_bound;
+		    } else if (uncollapsed_estimated > uncollapsed_upper_bound) {
+			uncollapsed_estimated = uncollapsed_upper_bound;
+		    }
+		} else {
+		    // When not collapsing the uncollapsed bounds are just the same.
+		    uncollapsed_lower_bound = matches_lower_bound;
+		    uncollapsed_estimated = matches_estimated;
+		    uncollapsed_upper_bound = matches_upper_bound;
+		}
+	    }
 	}
 
 	// FIXME: Profile using min_heap here (when it's been created) to
 	// handle "first" and perform the sort.
 	if (first != 0) {
-	    if (first > results.size()) {
+	    if (first > size()) {
 		results.clear();
 	    } else {
 		// We perform nth_element() on reverse iterators so that the

@@ -1,4 +1,4 @@
-/** @file valuegepostlist.h
+/** @file
  * @brief Return document ids matching a >= test on a specified doc value.
  */
 /* Copyright 2007,2011 Olly Betts
@@ -15,14 +15,16 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_VALUEGEPOSTLIST_H
 #define XAPIAN_INCLUDED_VALUEGEPOSTLIST_H
 
 #include "valuerangepostlist.h"
+
+class EstimateOp;
 
 class ValueGePostList: public ValueRangePostList {
     /// Disallow copying.
@@ -33,9 +35,12 @@ class ValueGePostList: public ValueRangePostList {
 
   public:
     ValueGePostList(const Xapian::Database::Internal *db_,
+		    EstimateOp* estimate_op_,
+		    Xapian::doccount termfreq_,
 		    Xapian::valueno slot_,
 		    const std::string &begin_)
-	: ValueRangePostList(db_, slot_, begin_, std::string()) {}
+	: ValueRangePostList(db_, estimate_op_, termfreq_,
+			     slot_, begin_, std::string()) {}
 
     PostList * next(double w_min);
 

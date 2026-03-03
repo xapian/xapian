@@ -10,9 +10,12 @@ endif
 
 AM_CPPFLAGS = -I$(top_srcdir) -I$(top_srcdir)/common -I$(top_srcdir)/include \
  -I$(top_builddir)/include -I$(srcdir)/harness
+AM_CXXFLAGS += $(WERROR)
 AM_CXXFLAGS += $(XAPIAN_CXXFLAGS)
 
-CLEANFILES =
+# If tests are run under valgrind and the test is killed at the wrong moment
+# then a log file is left behind.
+CLEANFILES = .valgrind.log.*
 
 TESTS_ENVIRONMENT = ./runtest
 
@@ -80,16 +83,53 @@ EXTRA_DIST = collate-test generate-api_generated api_all.h api_collated.h \
 ## Distribute test data:
 EXTRA_DIST +=\
 	runtest.in \
+	ubsan.supp \
 	valgrind.supp \
-	testdata/apitest_rset.txt \
-	testdata/apitest_phrase.txt \
-	testdata/apitest_allterms4.txt \
+	testdata/blank_space_before_query.txt \
+	testdata/empty_file.txt \
+	testdata/nosinglequotes.txt \
+	testdata/nospace.txt \
+	testdata/parse_query_empty_string.txt \
+	testdata/parse_query_noclosingquote.txt \
+	testdata/parse_query_noopenquote.txt \
+	testdata/parse_query_valid.txt \
 	testdata/qrel.txt \
+	testdata/qrelone.txt \
+	testdata/qrelthree_correct.txt \
 	testdata/query.txt \
-	testdata/training_data.txt
+	testdata/queryone.txt \
+	testdata/querythree.txt \
+	testdata/score_qrel.txt \
+	testdata/training_data.txt \
+	testdata/training_data_different_no_features.txt \
+	testdata/training_data_ndcg.txt \
+	testdata/training_data_one_document.txt \
+	testdata/training_data_three_correct.txt \
+	testdata/unique_query_id.txt
+
+CLEANFILES +=\
+	err_output_listmle_1.txt \
+	err_output_listmle_2.txt \
+	err_output_listmle_3.txt \
+	err_output_listnet_1.txt \
+	err_output_listnet_2.txt \
+	err_output_listnet_3.txt \
+	ndcg_output_listmle_1.txt \
+	ndcg_output_listmle_2.txt \
+	ndcg_output_listmle_3.txt \
+	ndcg_output_listnet_1.txt \
+	ndcg_output_listnet_2.txt \
+	ndcg_output_listnet_3.txt \
+	ndcg_score_output.txt \
+	ndcg_score_test.txt \
+	training_output_data_one_doc.txt \
+	training_output_empty.txt \
+	training_output_three_correct.txt \
+	training_output.txt \
+	training_output1.txt
 
 remove-cached-databases:
-	rm -rf .glass .multiglass .replicatmp .singlefileglass .stub
+	rm -rf .glass .honey .multiglass .replicatmp .singlefileglass .stub
 
 clean-local: remove-cached-databases
 

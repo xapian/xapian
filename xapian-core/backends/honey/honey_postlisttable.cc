@@ -1,7 +1,7 @@
-/** @file honey_postlisttable.cc
+/** @file
  * @brief Subclass of HoneyTable which holds postlists.
  */
-/* Copyright (C) 2007,2008,2009,2010,2013,2014,2015,2016,2017,2018 Olly Betts
+/* Copyright (C) 2007-2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -30,33 +30,31 @@
 #include "honey_postlist_encodings.h"
 
 #include <memory>
+#include <string_view>
 
 using namespace Honey;
 using namespace std;
 
 HoneyPostList*
 HoneyPostListTable::open_post_list(const HoneyDatabase* db,
-				   const std::string& term,
-				   bool need_pos) const
+				   std::string_view term,
+				   bool need_read_pos) const
 {
     Assert(!term.empty());
     // Try to position cursor first so we avoid creating HoneyPostList objects
     // for terms which don't exist.
     unique_ptr<HoneyCursor> cursor(cursor_get());
     if (!cursor->find_exact(Honey::make_postingchunk_key(term))) {
-	// FIXME: Return NULL here and handle that in Query::Internal
-	// postlist() methods as we build the PostList tree.
-	// return NULL;
-	return new HoneyPostList(db, term, NULL);
+	return nullptr;
     }
 
-    if (need_pos)
+    if (need_read_pos)
 	return new HoneyPosPostList(db, term, cursor.release());
     return new HoneyPostList(db, term, cursor.release());
 }
 
 void
-HoneyPostListTable::get_freqs(const std::string& term,
+HoneyPostListTable::get_freqs(std::string_view term,
 			      Xapian::doccount* termfreq_ptr,
 			      Xapian::termcount* collfreq_ptr) const
 {
@@ -82,7 +80,9 @@ HoneyPostListTable::get_used_docid_range(Xapian::doccount doccount,
 					 Xapian::docid& first,
 					 Xapian::docid& last) const
 {
-    unique_ptr<HoneyCursor> cursor;
+    unique_ptr<HoneyCursor> cursor(cursor_get());
+    Assert(cursor);
+
     static const char doclen_key_prefix[2] = {
 	0, char(Honey::KEY_DOCLEN_CHUNK)
     };
@@ -97,13 +97,8 @@ HoneyPostListTable::get_used_docid_range(Xapian::doccount doccount,
 	    throw Xapian::DatabaseCorruptError("Bad first doclen chunk key");
 	}
 	cursor->read_tag();
-	Xapian::docid delta;
-	const char* p = cursor->current_tag.data();
-	const char* pend = p + cursor->current_tag.size();
-	if (!unpack_uint(&p, pend, &delta)) {
-	    throw Xapian::DatabaseCorruptError("Bad first doclen chunk delta");
-	}
-	first = last_in_first_chunk - delta;
+	unsigned width = cursor->current_tag[0] / 8;
+	first = last_in_first_chunk - (cursor->current_tag.size() - 2) / width;
     }
 
     // We know the last docid is at least first - 1 + doccount, so seek
@@ -124,15 +119,14 @@ HoneyPostListTable::get_used_docid_range(Xapian::doccount doccount,
 	    return;
 	}
 	last = new_last;
-	cursor->next();
-    } while (!cursor->after_end());
+    } while (cursor->next());
 
     // We've reached the end of the table (only possible if there are no terms
     // at all!)
 }
 
 Xapian::termcount
-HoneyPostListTable::get_wdf_upper_bound(const std::string& term) const
+HoneyPostListTable::get_wdf_upper_bound(std::string_view term) const
 {
     string chunk;
     if (!get_exact_entry(Honey::make_postingchunk_key(term), chunk)) {

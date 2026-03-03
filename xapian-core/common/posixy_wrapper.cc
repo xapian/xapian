@@ -1,8 +1,8 @@
-/** @file posixy_wrapper.cc
+/** @file
  * @brief Provides wrappers with POSIXy semantics.
  */
 /* Copyright (C) 2007 Lemur Consulting Ltd
- * Copyright (C) 2007,2012 Olly Betts
+ * Copyright (C) 2007,2012,2018,2023,2025 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,25 +15,55 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
 
-#ifdef __WIN32__ /* Ignore the whole file except for __WIN32__ */
+#include <cerrno>
+
+#ifdef __CYGWIN__
+# include "posixy_wrapper.h"
+
+# include "filetests.h"
+
+int
+posixy_unlink(const char * filename)
+{
+    // On Cygwin we seem to inexplicably get ECHILD from unlink() sometimes.
+    // The path doesn't actually exists after the call when we get ECHILD, but
+    // the correct return value depends on whether it existed before so we
+    // need to check here as well.
+    if (!path_exists(filename)) {
+	errno = ENOENT;
+	return -1;
+    }
+
+    int r = unlink(filename);
+    if (r < 0) {
+	int unlink_errno = errno;
+	if (unlink_errno == ECHILD && !path_exists(filename)) {
+	    errno = 0;
+	    return 0;
+	}
+
+	errno = unlink_errno;
+    }
+    return r;
+}
+
+#elif defined __WIN32__
 
 #include "posixy_wrapper.h"
 
 #include <io.h>
 
-#include "safeerrno.h"
 #include "safefcntl.h"
 #include "safewindows.h"
 
-/** Call GetLastError() and set errno appropriately. */
-static int
-set_errno_from_getlasterror()
+int
+posixy_set_errno_from_getlasterror()
 {
     int e;
     unsigned long winerr = GetLastError();
@@ -121,13 +151,7 @@ set_errno_from_getlasterror()
 		e = EINVAL;
 	    break;
     }
-    /* Some versions of Microsoft's C++ compiler earlier than 2005 do not have
-     * _set_errno(). */
-#ifdef _set_errno
-    _set_errno(e);
-#else
     errno = e;
-#endif
     return -1;
 }
 
@@ -139,7 +163,7 @@ posixy_unlink(const char * filename)
 	return 0;
     }
 
-    return set_errno_from_getlasterror();
+    return posixy_set_errno_from_getlasterror();
 }
 
 int
@@ -196,7 +220,7 @@ posixy_open(const char *filename, int flags)
 		   FILE_ATTRIBUTE_NORMAL,
 		   NULL);
     if (handleWin == INVALID_HANDLE_VALUE) {
-	return set_errno_from_getlasterror();
+	return posixy_set_errno_from_getlasterror();
     }
 
     /* Return a standard file descriptor. */
@@ -210,7 +234,7 @@ posixy_rename(const char *from, const char *to)
 	return 0;
     }
 
-    return set_errno_from_getlasterror();
+    return posixy_set_errno_from_getlasterror();
 }
 
 #endif // __WIN32__

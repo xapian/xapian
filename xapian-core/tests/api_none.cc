@@ -1,8 +1,8 @@
-/** @file api_none.cc
+/** @file
  * @brief tests which don't need a backend
  */
 /* Copyright (C) 2009 Richard Boulton
- * Copyright (C) 2009,2010,2011,2013,2014,2015,2016,2017 Olly Betts
+ * Copyright (C) 2009-2026 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -15,9 +15,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -32,6 +31,9 @@
 #include "testsuite.h"
 #include "testutils.h"
 
+#include <string_view>
+#include <vector>
+
 using namespace std;
 
 // Check the version functions give consistent results.
@@ -42,7 +44,6 @@ DEFINE_TESTCASE(version1, !backend) {
     version += '.';
     version += str(Xapian::revision());
     TEST_EQUAL(Xapian::version_string(), version);
-    return true;
 }
 
 // Regression test: various methods on Database() used to segfault or cause
@@ -60,7 +61,11 @@ DEFINE_TESTCASE(nosubdatabases1, !backend) {
     TEST_EXCEPTION(Xapian::InvalidOperationError, db.get_doclength(1));
     TEST_EXCEPTION(Xapian::InvalidOperationError, db.get_unique_terms(1));
     TEST_EXCEPTION(Xapian::InvalidOperationError, db.get_document(1));
-    return true;
+
+    Xapian::WritableDatabase wdb;
+    TEST_EXCEPTION(Xapian::InvalidOperationError, wdb.begin_transaction());
+    TEST_EXCEPTION(Xapian::InvalidOperationError, wdb.commit_transaction());
+    TEST_EXCEPTION(Xapian::InvalidOperationError, wdb.cancel_transaction());
 }
 
 /// Feature test for Document::add_boolean_term(), new in 1.0.18/1.1.4.
@@ -76,7 +81,6 @@ DEFINE_TESTCASE(document1, !backend) {
     doc.remove_term("Hxapian.org");
     TEST_EQUAL(doc.termlist_count(), 0);
     TEST(doc.termlist_begin() == doc.termlist_end());
-    return true;
 }
 
 /// Regression test - the docid wasn't initialised prior to 1.0.22/1.2.4.
@@ -85,7 +89,6 @@ DEFINE_TESTCASE(document2, !backend) {
     // The return value is uninitialised, so running under valgrind this
     // will fail reliably prior to the fix.
     TEST_EQUAL(doc.get_docid(), 0);
-    return true;
 }
 
 /// Feature tests for Document::clear_terms().
@@ -115,8 +118,6 @@ DEFINE_TESTCASE(documentclearterms1, !backend) {
 	TEST_EQUAL(doc.termlist_count(), 0);
 	TEST(doc.termlist_begin() == doc.termlist_end());
     }
-
-    return true;
 }
 
 /// Feature tests for Document::clear_values().
@@ -143,8 +144,6 @@ DEFINE_TESTCASE(documentclearvalues1, !backend) {
 	TEST_EQUAL(doc.values_count(), 0);
 	TEST(doc.termlist_begin() == doc.termlist_end());
     }
-
-    return true;
 }
 
 /// Feature tests for errors for empty terms.
@@ -164,7 +163,10 @@ DEFINE_TESTCASE(documentemptyterm1, !backend) {
 	    doc.remove_posting(string(), 1));
     TEST_EXCEPTION(Xapian::InvalidArgumentError,
 	    doc.remove_posting(string(), 2, 3));
-    return true;
+    TEST_EXCEPTION(Xapian::InvalidArgumentError,
+	    doc.remove_postings(string(), 2, 3));
+    TEST_EXCEPTION(Xapian::InvalidArgumentError,
+	    doc.remove_postings(string(), 2, 3, 4));
 }
 
 DEFINE_TESTCASE(emptyquery4, !backend) {
@@ -182,7 +184,6 @@ DEFINE_TESTCASE(emptyquery4, !backend) {
     TEST(Xapian::Query(q.OP_ELITE_SET, &q, &q).empty());
     TEST(Xapian::Query(q.OP_SYNONYM, &q, &q).empty());
     TEST(Xapian::Query(q.OP_MAX, &q, &q).empty());
-    return true;
 }
 
 DEFINE_TESTCASE(singlesubquery1, !backend) {
@@ -203,7 +204,6 @@ DEFINE_TESTCASE(singlesubquery1, !backend) {
     singlesubquery1_(OP_ELITE_SET);
     singlesubquery1_(OP_SYNONYM);
     singlesubquery1_(OP_MAX);
-    return true;
 }
 
 DEFINE_TESTCASE(singlesubquery2, !backend) {
@@ -223,7 +223,6 @@ DEFINE_TESTCASE(singlesubquery2, !backend) {
     singlesubquery2_(OP_ELITE_SET);
     singlesubquery2_(OP_SYNONYM);
     singlesubquery2_(OP_MAX);
-    return true;
 }
 
 DEFINE_TESTCASE(singlesubquery3, !backend) {
@@ -242,7 +241,43 @@ DEFINE_TESTCASE(singlesubquery3, !backend) {
     singlesubquery3_(OP_ELITE_SET);
     singlesubquery3_(OP_SYNONYM);
     singlesubquery3_(OP_MAX);
-    return true;
+}
+
+DEFINE_TESTCASE(pairwisequery1, !backend) {
+    // Test that constructing from char* and const char* gives the same result
+    // as explicitly constructing Query objects for the subqueries.  This
+    // serves as a regression test for using char*/const char* not compiling
+    // with Xapian <= 1.4.30.
+#define lit_a "a"
+#define lit_b "b"
+    char aa[] = lit_a;
+    char ab[] = lit_b;
+    const char* ca = aa;
+    const char* cb = ab;
+    Xapian::Query qa(aa);
+    Xapian::Query qb(ab);
+
+#define pairwisequery1_(OP) do {\
+	auto expect = Xapian::Query(qa.OP, lit_a, lit_b).get_description(); \
+	TEST_STRINGS_EQUAL(expect, \
+			   Xapian::Query(qa.OP, aa, ab).get_description()); \
+	TEST_STRINGS_EQUAL(expect, \
+			   Xapian::Query(qa.OP, ca, cb).get_description()); \
+	TEST_STRINGS_EQUAL(expect, \
+			   Xapian::Query(qa.OP, qa, qb).get_description()); \
+    } while (false)
+
+    pairwisequery1_(OP_AND);
+    pairwisequery1_(OP_OR);
+    pairwisequery1_(OP_AND_NOT);
+    pairwisequery1_(OP_XOR);
+    pairwisequery1_(OP_AND_MAYBE);
+    pairwisequery1_(OP_FILTER);
+    pairwisequery1_(OP_NEAR);
+    pairwisequery1_(OP_PHRASE);
+    pairwisequery1_(OP_ELITE_SET);
+    pairwisequery1_(OP_SYNONYM);
+    pairwisequery1_(OP_MAX);
 }
 
 /// Check we no longer combine wqf for same term at the same position.
@@ -253,7 +288,6 @@ DEFINE_TESTCASE(combinewqfnomore1, !backend) {
     // Prior to 1.3.0, we would have given beer@2, but we decided that wasn't
     // really useful or helpful.
     TEST_EQUAL(q.get_description(), "Query((beer@1 OR beer@1))");
-    return true;
 }
 
 class DestroyedFlag {
@@ -276,8 +310,7 @@ class TestRangeProcessor : public Xapian::RangeProcessor {
     TestRangeProcessor(bool & destroyed_)
 	: Xapian::RangeProcessor(0), destroyed(destroyed_) { }
 
-    Xapian::Query operator()(const std::string&, const std::string&)
-    {
+    Xapian::Query operator()(const std::string&, const std::string&) override {
 	return Xapian::Query::MatchAll;
     }
 };
@@ -285,6 +318,13 @@ class TestRangeProcessor : public Xapian::RangeProcessor {
 /// Check reference counting of user-subclassable classes.
 DEFINE_TESTCASE(subclassablerefcount1, !backend) {
     bool gone_auto, gone;
+#ifdef _MSC_VER
+    // MSVC incorrectly warns these are potentially uninitialised.  It's
+    // unhelpful to always initialise these as that could mask if a genuine bug
+    // were introduced (which currently would likely be caught by a warning
+    // from a smarter compiler).
+    gone_auto = gone = false;
+#endif
 
     // Simple test of release().
     {
@@ -350,8 +390,6 @@ DEFINE_TESTCASE(subclassablerefcount1, !backend) {
 	// the pointer it has to rp.  If it does, that should get caught
 	// when tests are run under valgrind.
     }
-
-    return true;
 }
 
 class TestFieldProcessor : public Xapian::FieldProcessor {
@@ -360,7 +398,7 @@ class TestFieldProcessor : public Xapian::FieldProcessor {
   public:
     TestFieldProcessor(bool & destroyed_) : destroyed(destroyed_) { }
 
-    Xapian::Query operator()(const string &str) {
+    Xapian::Query operator()(const string& str) override {
 	return Xapian::Query(str);
     }
 };
@@ -368,6 +406,13 @@ class TestFieldProcessor : public Xapian::FieldProcessor {
 /// Check reference counting of user-subclassable classes.
 DEFINE_TESTCASE(subclassablerefcount2, !backend) {
     bool gone_auto, gone;
+#ifdef _MSC_VER
+    // MSVC incorrectly warns these are potentially uninitialised.  It's
+    // unhelpful to always initialise these as that could mask if a genuine bug
+    // were introduced (which currently would likely be caught by a warning
+    // from a smarter compiler).
+    gone_auto = gone = false;
+#endif
 
     // Simple test of release().
     {
@@ -416,8 +461,6 @@ DEFINE_TESTCASE(subclassablerefcount2, !backend) {
 	TEST(!gone_auto);
     }
     TEST(gone_auto);
-
-    return true;
 }
 
 class TestMatchSpy : public Xapian::MatchSpy {
@@ -426,7 +469,7 @@ class TestMatchSpy : public Xapian::MatchSpy {
   public:
     TestMatchSpy(bool & destroyed_) : destroyed(destroyed_) { }
 
-    void operator()(const Xapian::Document &, double) { }
+    void operator()(const Xapian::Document&, double) override { }
 };
 
 /// Check reference counting of MatchSpy.
@@ -434,6 +477,13 @@ DEFINE_TESTCASE(subclassablerefcount3, backend) {
     Xapian::Database db = get_database("apitest_simpledata");
 
     bool gone_auto, gone;
+#ifdef _MSC_VER
+    // MSVC incorrectly warns these are potentially uninitialised.  It's
+    // unhelpful to always initialise these as that could mask if a genuine bug
+    // were introduced (which currently would likely be caught by a warning
+    // from a smarter compiler).
+    gone_auto = gone = false;
+#endif
 
     // Simple test of release().
     {
@@ -482,8 +532,6 @@ DEFINE_TESTCASE(subclassablerefcount3, backend) {
 	TEST(!gone_auto);
     }
     TEST(gone_auto);
-
-    return true;
 }
 
 class TestStopper : public Xapian::Stopper {
@@ -492,12 +540,19 @@ class TestStopper : public Xapian::Stopper {
   public:
     TestStopper(bool & destroyed_) : destroyed(destroyed_) { }
 
-    bool operator()(const std::string&) const { return true; }
+    bool operator()(const std::string&) const override { return true; }
 };
 
 /// Check reference counting of Stopper with QueryParser.
 DEFINE_TESTCASE(subclassablerefcount4, !backend) {
     bool gone_auto, gone;
+#ifdef _MSC_VER
+    // MSVC incorrectly warns these are potentially uninitialised.  It's
+    // unhelpful to always initialise these as that could mask if a genuine bug
+    // were introduced (which currently would likely be caught by a warning
+    // from a smarter compiler).
+    gone_auto = gone = false;
+#endif
 
     // Simple test of release().
     {
@@ -563,13 +618,18 @@ DEFINE_TESTCASE(subclassablerefcount4, !backend) {
 	TEST(!gone_auto);
     }
     TEST(gone_auto);
-
-    return true;
 }
 
 /// Check reference counting of Stopper with TermGenerator.
 DEFINE_TESTCASE(subclassablerefcount5, !backend) {
     bool gone_auto, gone;
+#ifdef _MSC_VER
+    // MSVC incorrectly warns these are potentially uninitialised.  It's
+    // unhelpful to always initialise these as that could mask if a genuine bug
+    // were introduced (which currently would likely be caught by a warning
+    // from a smarter compiler).
+    gone_auto = gone = false;
+#endif
 
     // Simple test of release().
     {
@@ -635,8 +695,6 @@ DEFINE_TESTCASE(subclassablerefcount5, !backend) {
 	TEST(!gone_auto);
     }
     TEST(gone_auto);
-
-    return true;
 }
 
 class TestKeyMaker : public Xapian::KeyMaker {
@@ -645,7 +703,9 @@ class TestKeyMaker : public Xapian::KeyMaker {
   public:
     TestKeyMaker(bool & destroyed_) : destroyed(destroyed_) { }
 
-    string operator()(const Xapian::Document&) const { return string(); }
+    string operator()(const Xapian::Document&) const override {
+	return string();
+    }
 };
 
 /// Check reference counting of KeyMaker.
@@ -653,6 +713,13 @@ DEFINE_TESTCASE(subclassablerefcount6, backend) {
     Xapian::Database db = get_database("apitest_simpledata");
 
     bool gone_auto, gone;
+#ifdef _MSC_VER
+    // MSVC incorrectly warns these are potentially uninitialised.  It's
+    // unhelpful to always initialise these as that could mask if a genuine bug
+    // were introduced (which currently would likely be caught by a warning
+    // from a smarter compiler).
+    gone_auto = gone = false;
+#endif
 
     // Simple test of release().
     {
@@ -718,8 +785,6 @@ DEFINE_TESTCASE(subclassablerefcount6, backend) {
 	TEST(!gone_auto);
     }
     TEST(gone_auto);
-
-    return true;
 }
 
 class TestExpandDecider : public Xapian::ExpandDecider {
@@ -728,7 +793,7 @@ class TestExpandDecider : public Xapian::ExpandDecider {
   public:
     TestExpandDecider(bool & destroyed_) : destroyed(destroyed_) { }
 
-    bool operator()(const string&) const { return true; }
+    bool operator()(const string&) const override { return true; }
 };
 
 /// Check reference counting of ExpandDecider.
@@ -739,6 +804,13 @@ DEFINE_TESTCASE(subclassablerefcount7, backend) {
     rset.add_document(1);
 
     bool gone_auto, gone;
+#ifdef _MSC_VER
+    // MSVC incorrectly warns these are potentially uninitialised.  It's
+    // unhelpful to always initialise these as that could mask if a genuine bug
+    // were introduced (which currently would likely be caught by a warning
+    // from a smarter compiler).
+    gone_auto = gone = false;
+#endif
 
     for (int flags = 0;
 	 flags <= Xapian::Enquire::INCLUDE_QUERY_TERMS;
@@ -808,92 +880,6 @@ DEFINE_TESTCASE(subclassablerefcount7, backend) {
 	TEST(gone);
     }
     TEST(gone_auto);
-
-    return true;
-}
-
-class TestValueRangeProcessor : public Xapian::ValueRangeProcessor {
-    DestroyedFlag destroyed;
-
-  public:
-    TestValueRangeProcessor(bool & destroyed_) : destroyed(destroyed_) { }
-
-    Xapian::valueno operator()(std::string &, std::string &) {
-	return 42;
-    }
-};
-
-/// Check reference counting of user-subclassable classes.
-DEFINE_TESTCASE(subclassablerefcount8, !backend) {
-    bool gone_auto, gone;
-
-    // Simple test of release().
-    {
-	Xapian::ValueRangeProcessor * vrp = new TestValueRangeProcessor(gone);
-	TEST(!gone);
-	Xapian::QueryParser qp;
-	qp.add_valuerangeprocessor(vrp->release());
-	TEST(!gone);
-    }
-    TEST(gone);
-
-    // Check a second call to release() has no effect.
-    {
-	Xapian::ValueRangeProcessor * vrp = new TestValueRangeProcessor(gone);
-	TEST(!gone);
-	Xapian::QueryParser qp;
-	qp.add_valuerangeprocessor(vrp->release());
-	vrp->release();
-	TEST(!gone);
-    }
-    TEST(gone);
-
-    // Test reference counting works, and that a VRP with automatic storage
-    // works OK.
-    {
-	TestValueRangeProcessor vrp_auto(gone_auto);
-	TEST(!gone_auto);
-	{
-	    Xapian::QueryParser qp1;
-	    {
-		Xapian::QueryParser qp2;
-		Xapian::ValueRangeProcessor * vrp;
-		vrp = new TestValueRangeProcessor(gone);
-		TEST(!gone);
-		qp1.add_valuerangeprocessor(vrp->release());
-		TEST(!gone);
-		qp2.add_valuerangeprocessor(vrp);
-		TEST(!gone);
-		qp2.add_valuerangeprocessor(&vrp_auto);
-		TEST(!gone);
-		TEST(!gone_auto);
-	    }
-	    TEST(!gone);
-	}
-	TEST(gone);
-	TEST(!gone_auto);
-    }
-    TEST(gone_auto);
-
-    // Regression test for initial implementation, where ~opt_intrusive_ptr()
-    // checked the reference of the object, which may have already been deleted
-    // if it wasn't been reference counted.
-    {
-	Xapian::QueryParser qp;
-	{
-	    Xapian::ValueRangeProcessor * vrp =
-		new TestValueRangeProcessor(gone);
-	    TEST(!gone);
-	    qp.add_valuerangeprocessor(vrp);
-	    delete vrp;
-	    TEST(gone);
-	}
-	// At the end of this block, qp is destroyed, but mustn't dereference
-	// the pointer it has to vrp.  If it does, that should get caught
-	// when tests are run under valgrind.
-    }
-
-    return true;
 }
 
 /// Check encoding of non-UTF8 document data.
@@ -909,7 +895,6 @@ DEFINE_TESTCASE(nonutf8docdesc1, !backend) {
     doc.set_data("back\\slash");
     TEST_EQUAL(doc.get_description(),
 	      "Document(docid=0, data=back\\x5cslash)");
-    return true;
 }
 
 DEFINE_TESTCASE(orphaneddoctermitor1, !backend) {
@@ -920,12 +905,11 @@ DEFINE_TESTCASE(orphaneddoctermitor1, !backend) {
 	t = doc.termlist_begin();
     }
     TEST_EQUAL(*t, "foo");
-    return true;
 }
 
 /** Test removal of terms from a document while iterating over them.
  *
- *  Prior to 1.5.0 and 1.4.6 the underlying iterator was invalidated when
+ *  Prior to 1.4.6 the underlying iterator was invalidated when
  *  preinc == false, leading to undefined behaviour (typically a segmentation
  *  fault).
  */
@@ -949,5 +933,211 @@ DEFINE_TESTCASE(deletewhileiterating1, !backend) {
 	TEST_EQUAL(doc.termlist_count(), 0);
 	TEST(doc.termlist_begin() == doc.termlist_end());
     }
-    return true;
+}
+
+/// Feature test for Document::remove_postings().
+DEFINE_TESTCASE(removepostings, !backend) {
+    Xapian::Document doc;
+    // Add Fibonacci sequence as positions.
+    Xapian::termpos prev_pos = 1;
+    Xapian::termpos pos = 1;
+    while (pos < 1000) {
+	doc.add_posting("foo", pos);
+	auto new_pos = prev_pos + pos;
+	prev_pos = pos;
+	pos = new_pos;
+    }
+
+    // Check we added exactly one term.
+    TEST_EQUAL(doc.termlist_count(), 1);
+
+    Xapian::TermIterator t = doc.termlist_begin();
+    auto num_pos = t.positionlist_count();
+    TEST_EQUAL(t.get_wdf(), num_pos);
+
+    Xapian::PositionIterator pi = t.positionlist_begin();
+
+    // Out of order is a no-op.
+    TEST_EQUAL(doc.remove_postings("foo", 2, 1), 0);
+    t = doc.termlist_begin();
+    TEST_EQUAL(t.positionlist_count(), num_pos);
+    TEST_EQUAL(t.get_wdf(), num_pos);
+
+    // 6 and 7 aren't in the sequence.
+    TEST_EQUAL(doc.remove_postings("foo", 6, 7), 0);
+    t = doc.termlist_begin();
+    TEST_EQUAL(t.positionlist_count(), num_pos);
+    TEST_EQUAL(t.get_wdf(), num_pos);
+
+    // Beyond the end of the positions.
+    TEST_EQUAL(doc.remove_postings("foo", 1000, 2000), 0);
+    t = doc.termlist_begin();
+    TEST_EQUAL(t.positionlist_count(), num_pos);
+    TEST_EQUAL(t.get_wdf(), num_pos);
+
+    // 1, 2, 3 are in the sequence, 4 isn't.
+    TEST_EQUAL(doc.remove_postings("foo", 1, 4), 3);
+    t = doc.termlist_begin();
+    TEST_EQUAL(t.positionlist_count(), num_pos - 3);
+    TEST_EQUAL(t.get_wdf(), num_pos - 3);
+
+    // Test an existing PositionIterator isn't affected.
+    TEST_EQUAL(*pi, 1);
+    TEST_EQUAL(*++pi, 2);
+    TEST_EQUAL(*++pi, 3);
+    TEST_EQUAL(*++pi, 5);
+
+    // Remove the end position.
+    TEST_EQUAL(doc.remove_postings("foo", 876, 987), 1);
+    t = doc.termlist_begin();
+    TEST_EQUAL(t.positionlist_count(), num_pos - 4);
+    TEST_EQUAL(t.get_wdf(), num_pos - 4);
+
+    // Remove a range in the middle.
+    TEST_EQUAL(doc.remove_postings("foo", 33, 233), 5);
+    t = doc.termlist_begin();
+    TEST_EQUAL(t.positionlist_count(), num_pos - 9);
+    TEST_EQUAL(t.get_wdf(), num_pos - 9);
+
+    // Check the expected positions are left.
+    t = doc.termlist_begin();
+    static const Xapian::termpos expected[] = { 5, 8, 13, 21, 377, 610, 9999 };
+    const Xapian::termpos* expect = expected;
+    for (auto p = t.positionlist_begin(); p != t.positionlist_end(); ++p) {
+	TEST_EQUAL(*p, *expect);
+	++expect;
+    }
+    TEST_EQUAL(*expect, 9999);
+    TEST_EQUAL(t.get_wdf(), 6);
+
+    pi = t.positionlist_begin();
+
+    // Test remove_position().
+    doc.remove_posting("foo", 8);
+
+    // Test an existing PositionIterator isn't affected.
+    TEST_EQUAL(*pi, 5);
+    TEST_EQUAL(*++pi, 8);
+
+    // Check removing all positions removes the term too if the wdf reaches 0
+    // (since 2.0.0).
+    TEST_EQUAL(doc.remove_postings("foo", 5, 1000), 5);
+    t = doc.termlist_begin();
+    TEST(t == doc.termlist_end());
+
+    // Test the removing all positions doesn't remove the term if the wdf is
+    // still non-zero.
+    doc.add_posting("foo", 123, 2);
+    TEST_EQUAL(doc.remove_postings("foo", 1, 200), 1);
+    t = doc.termlist_begin();
+    TEST(t != doc.termlist_end());
+    TEST(t.positionlist_begin() == t.positionlist_end());
+    TEST_EQUAL(t.get_wdf(), 1);
+
+    // Test removing the last posting is handled correctly (this case is
+    // special-cased internally to be O(1)).
+    t = doc.termlist_begin();
+    doc.add_posting("foo", 12);
+    doc.add_posting("foo", 23);
+    pi = t.positionlist_begin();
+    doc.remove_posting("foo", 23);
+    TEST_EQUAL(*pi, 12);
+    ++pi;
+    TEST_EQUAL(*pi, 23);
+    ++pi;
+    TEST(pi == t.positionlist_end());
+}
+
+[[noreturn]]
+static void
+errorcopyctor_helper(Xapian::Error& error)
+{
+    // GCC 9 was giving a warning on the next line with -Wdeprecated-copy
+    // (which is enabled by -Wextra).
+    throw error;
+}
+
+/// Regression test for warning with GCC 9.
+DEFINE_TESTCASE(errorcopyctor, !backend) {
+    Xapian::RangeError e("test");
+    try {
+	errorcopyctor_helper(e);
+    } catch (Xapian::Error&) {
+	return;
+    }
+    FAIL_TEST("Expected exception to be thrown");
+}
+
+DEFINE_TESTCASE(emptydbbounds, !backend) {
+    Xapian::Database db;
+    TEST_EQUAL(db.get_doclength_lower_bound(), 0);
+    TEST_EQUAL(db.get_doclength_upper_bound(), 0);
+    // We always returned 1 here in the initial implementation.
+    TEST_EQUAL(db.get_unique_terms_lower_bound(), 0);
+    TEST_EQUAL(db.get_unique_terms_upper_bound(), 0);
+}
+
+// Test ESetIterator iterator_traits.
+DEFINE_TESTCASE(stlesetiterator, !backend) {
+    Xapian::ESet eset;
+    vector<string> v;
+    // This gave a compile error with stdc++ and -DGLIBCXX_DEBUG in 1.4.30:
+    v.insert(v.begin(), eset.begin(), eset.end());
+}
+
+// Test MSetIterator iterator_traits.
+DEFINE_TESTCASE(stlmsetiterator, !backend) {
+    Xapian::MSet mset;
+    vector<Xapian::docid> v;
+    // In Xapian <= 1.4.30 this gave a compile error with libc++, or
+    // with stdc++ and -DGLIBCXX_DEBUG:
+    v.insert(v.begin(), mset.begin(), mset.end());
+}
+
+// Test PositionIterator iterator_traits.
+DEFINE_TESTCASE(stlpositioniterator, !backend) {
+    Xapian::Database db;
+    vector<Xapian::termpos> v;
+    if (db.get_doccount() > 0) {
+	// In Xapian <= 1.4.30 this gave a compile error with stdc++ and
+	// -DGLIBCXX_DEBUG:
+	v.insert(v.begin(),
+		 db.positionlist_begin(1, ""),
+		 db.positionlist_end(1, ""));
+    }
+}
+
+// Test PostingIterator iterator_traits.
+DEFINE_TESTCASE(stlpostingiterator, !backend) {
+    Xapian::Database db;
+    vector<Xapian::docid> v;
+    // In Xapian <= 1.4.30 this gave a compile error with stdc++ and
+    // -DGLIBCXX_DEBUG:
+    v.insert(v.begin(), db.postlist_begin(""), db.postlist_end(""));
+}
+
+// Test TermIterator iterator_traits.
+DEFINE_TESTCASE(stltermiterator, !backend) {
+    Xapian::Document doc;
+    vector<string> v;
+    // In Xapian <= 1.4.30 this gave a compile error with stdc++ and
+    // -DGLIBCXX_DEBUG:
+    v.insert(v.begin(), doc.termlist_begin(), doc.termlist_end());
+}
+
+// Test Utf8Iterator iterator_traits.
+DEFINE_TESTCASE(stlutf8iterator, !backend) {
+    vector<unsigned> v;
+    // In Xapian <= 1.4.30 this gave a compile error with stdc++ and
+    // -DGLIBCXX_DEBUG:
+    v.insert(v.begin(), Xapian::Utf8Iterator(""), Xapian::Utf8Iterator());
+}
+
+// Test ValueIterator iterator_traits.
+DEFINE_TESTCASE(stlvalueiterator, !backend) {
+    Xapian::Document doc;
+    vector<string> v;
+    // In Xapian <= 1.4.30 this gave a compile error with stdc++ and
+    // -DGLIBCXX_DEBUG:
+    v.insert(v.begin(), doc.values_begin(), doc.values_end());
 }

@@ -1,7 +1,7 @@
-/** @file api_termgen.cc
+/** @file
  * @brief Tests of Xapian::TermGenerator
  */
-/* Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2015,2016 Olly Betts
+/* Copyright (C) 2002-2026 Olly Betts
  * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -15,9 +15,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -36,6 +35,7 @@
 
 using namespace std;
 
+namespace {
 struct test {
     // A string of options, separated by commas.
     // Valid options are:
@@ -52,6 +52,8 @@ struct test {
     //    (this persists for subsequent tests until it's turned off).
     //  - some: Set stemming strategy to STEM_SOME.
     //    (this persists for subsequent tests until it's turned off).
+    //  - some_full_pos: Set stemming strategy to STEM_SOME_FULL_POS.
+    //    (this persists for subsequent tests until it's turned off).
     //  - stop=en: Add a small set of English stop words. Currently, 'a',
     //    'an' and 'the' are added to the stopword list.
     //    (this persists for subsequent tests until it's turned off).
@@ -63,8 +65,10 @@ struct test {
     //    (this persists for subsequent tests until it's turned off).
     //  - prefix=FOO: Use the specified prefix.
     //    (this persists for subsequent tests until it's turned off).
-    //  - cjk: Enable FLAG_CJK_NGRAM.
-    //  - !cjk: Disable FLAG_CJK_NGRAM.
+    //  - ngrams: Enable FLAG_NGRAMS.
+    //  - !ngrams: Disable FLAG_NGRAMS.
+    //  - word_breaks: Enable FLAG_WORD_BREAKS.
+    //  - !word_breaks: Disable FLAG_WORD_BREAKS.
     const char *options;
 
     // The text to be processed.
@@ -78,12 +82,23 @@ struct test {
     // where POSITIONS is a comma separated list of numbers.
     const char *expect;
 };
+}
 
 static const test test_simple[] = {
     // A basic test with a hyphen
     { "", "simple-example", "example[2] simple[1]" },
     { "cont,weight=2",
 	  "simple-example", "example:3[2,104] simple:3[1,103]" },
+
+    // Test handling of soft hyphen (added in Xapian 2.0.0).
+#define SHY "\xc2\xad"
+    { "", "pro" SHY "duced in" SHY "de" SHY "pen" SHY "dently",
+	  "independently[2] produced[1]" },
+
+    // Test handling of zero-width space (changed in Xapian 2.0.0).
+#define ZWSP "\xe2\x80\x8b"
+    { "", "lorem" ZWSP "ipsum" ZWSP "dolor",
+	  "dolor[3] ipsum[2] lorem[1]" },
 
     // Test parsing of initials
     { "", "I.B.M.", "ibm[1]" },
@@ -125,36 +140,74 @@ static const test test_simple[] = {
     { "", "a REALLYREALLYREALLYREALLYREALLYREALLYREALLYREALLYREALLYREALLYLONGX term", "Za:1 Zterm:1 a[1] term[2]" },
 
     // In 1.1.4, ENCLOSING_MARK and COMBINING_SPACING_MARK were added, and
-    // code to ignore several zero-width space characters was added.
-    { "", "\xe1\x80\x9d\xe1\x80\xae\xe2\x80\x8b\xe1\x80\x80\xe1\x80\xae\xe2\x80\x8b\xe1\x80\x95\xe1\x80\xad\xe2\x80\x8b\xe1\x80\x9e\xe1\x80\xaf\xe1\x80\xb6\xe1\x80\xb8\xe2\x80\x8b\xe1\x80\x85\xe1\x80\xbd\xe1\x80\xb2\xe2\x80\x8b\xe1\x80\x9e\xe1\x80\xb0\xe2\x80\x8b\xe1\x80\x99\xe1\x80\xbb\xe1\x80\xac\xe1\x80\xb8\xe1\x80\x80",
+    // code to ignore several zero-width characters was added.
+    { "", "\xe1\x80\x9d\xe1\x80\xae\xe1\x80\x80\xe1\x80\xae\xe1\x80\x95\xe1\x80\xad\xe1\x80\x9e\xe1\x80\xaf\xe1\x80\xb6\xe1\x80\xb8\xe1\x80\x85\xe1\x80\xbd\xe1\x80\xb2\xe1\x80\x9e\xe1\x80\xb0\xe1\x80\x99\xe1\x80\xbb\xe1\x80\xac\xe1\x80\xb8\xe1\x80\x80",
       "Z\xe1\x80\x9d\xe1\x80\xae\xe1\x80\x80\xe1\x80\xae\xe1\x80\x95\xe1\x80\xad\xe1\x80\x9e\xe1\x80\xaf\xe1\x80\xb6\xe1\x80\xb8\xe1\x80\x85\xe1\x80\xbd\xe1\x80\xb2\xe1\x80\x9e\xe1\x80\xb0\xe1\x80\x99\xe1\x80\xbb\xe1\x80\xac\xe1\x80\xb8\xe1\x80\x80:1 \xe1\x80\x9d\xe1\x80\xae\xe1\x80\x80\xe1\x80\xae\xe1\x80\x95\xe1\x80\xad\xe1\x80\x9e\xe1\x80\xaf\xe1\x80\xb6\xe1\x80\xb8\xe1\x80\x85\xe1\x80\xbd\xe1\x80\xb2\xe1\x80\x9e\xe1\x80\xb0\xe1\x80\x99\xe1\x80\xbb\xe1\x80\xac\xe1\x80\xb8\xe1\x80\x80[1]" },
 
     { "", "fish+chips", "Zchip:1 Zfish:1 chips[2] fish[1]" },
 
-    // Basic CJK tests:
-    { "stem=,cjk", "久有归天", "久[1] 久有:1 天[4] 归[3] 归天:1 有[2] 有归:1" },
+    // Basic ngram tests:
+    { "stem=,ngrams", "久有归天", "久[1] 久有:1 天[4] 归[3] 归天:1 有[2] 有归:1" },
     { "", "극지라", "극[1] 극지:1 라[3] 지[2] 지라:1" },
     { "", "ウルス アップ", "ア[4] アッ:1 ウ[1] ウル:1 ス[3] ッ[5] ップ:1 プ[6] ル[2] ルス:1" },
 
-    // Non-CJK in CJK-mode:
+    // Test text which don't need word break finding still indexes the same:
     { "", "hello World Test", "hello[1] test[3] world[2]" },
 
-    // CJK with prefix:
+    // Ngram with prefix:
     { "prefix=XA", "发送从", "XA从[3] XA发[1] XA发送:1 XA送[2] XA送从:1" },
     { "prefix=XA", "点卡思考", "XA卡[2] XA卡思:1 XA思[3] XA思考:1 XA点[1] XA点卡:1 XA考[4]" },
 
-    // CJK mixed with non-CJK:
+    // Mixed script tests:
     { "prefix=", "インtestタ", "test[3] イ[1] イン:1 タ[4] ン[2]" },
     { "", "配this is合a个 test!", "a[5] is[3] test[7] this[2] 个[6] 合[4] 配[1]" },
 
-    // CJK with CJK punctuation
-    // the text contains U+FF01 FULLWIDTH EXCLAMATION MARK which
-    // is both a CJK character and a non-word character; it should
-    // be handled as non-word text and not appear in any term
+    // Test non-word characters in a script without explicit word breaks.
+    //
+    // The text here contains U+FF01 FULLWIDTH EXCLAMATION MARK which is both a
+    // CJK character and a non-word character; it should be handled as non-word
+    // text and not appear in any term
     { "", "申込み！月額円", "み[3] 円[6] 月[4] 月額:1 申[1] 申込:1 込[2] 込み:1 額[5] 額円:1" },
 
+    // Basic word break finding tests:
+    { "stem=,!ngrams,word_breaks", "久有归天", "久[1] 归天[3] 有[2]" },
+    { "", "극지라", "극지라[1]" },
+    { "", "ウルス アップ", "アップ[2] ウルス[1]" },
+
+    // Test text which don't need word break finding still indexes the same:
+    { "", "hello World Test", "hello[1] test[3] world[2]" },
+
+    // Word break finding with prefix:
+    { "prefix=XA", "发送从", "XA从[2] XA发送[1]" },
+    { "prefix=XA", "点卡思考", "XA卡[2] XA思考[3] XA点[1]" },
+
+    // Mixed script tests:
+    { "prefix=", "インtestタ", "test[2] イン[1] タ[3]" },
+    { "", "配this is合a个 test!", "a[5] is[3] test[7] this[2] 个[6] 合[4] 配[1]" },
+
+    // Mixed fullwidth script:
+    { "", "三菱ＵＦＪファクター株式会社", "ファクター[3] 三菱[1] 株式会社[4] ｕｆｊ[2]" },
+
+    // Fullwidth vs. halfwidth script:
+    { "", "シーサイドライナー", "シーサイド[1] ライナー[2]" },
+    { "", "ｼｰｻｲﾄﾞﾗｲﾅｰ", "ｼｰｻｲﾄﾞ[1] ﾗｲﾅｰ[2]" },
+    { "", "ｈｅｌｌｏ ，ｗｏｒｌｄ！", "ｈｅｌｌｏ[1] ｗｏｒｌｄ[2]" },
+
+    // Test non-word characters in a script without explicit word breaks.
+    //
+    // The text here contains U+FF01 FULLWIDTH EXCLAMATION MARK which is both a
+    // CJK character and a non-word character; it should be handled as non-word
+    // text and not appear in any term
+    //
+    // Note: the kuromoji Japanese word splitter (http://www.atilika.org/)
+    // would split this differently as '申込み ！月額 円'
+    { "", "申込み！月額円", "み[2] 円[4] 月額[3] 申込[1]" },
+
+    // Thai word break findings:
+    { "", "โดยตั้งใจ", "ตั้งใจ[2] โดย[1]" },
+
     // Test set_stemming_strategy():
-    { "stem=en,none,!cjk",
+    { "stem=en,none,!word_breaks",
 	  "Unstemmed words!", "unstemmed[1] words[2]" },
 
     { "all",
@@ -169,6 +222,15 @@ static const test test_simple[] = {
 
     { "stop_all",
       "The stop words.", "stop[1] words[2]" },
+
+    { "stem=en,some_full_pos,stop_none",
+      "The stemmed words.", "Zstem[2] Zthe[1] Zword[3] stemmed[2] the[1] words[3]" },
+
+    { "stem=en,some_full_pos,stop_all",
+      "The stemmed words.", "Zstem[1] Zword[2] stemmed[1] words[2]" },
+
+    { "stem=en,some_full_pos,stop_stemmed",
+      "The stemmed words.", "Zstem[2] Zword[3] stemmed[2] the[1] words[3]" },
 
     { "stem=en,some,stop_stemmed",
       "The stemmed words.", "Zstem:1 Zword:1 stemmed[2] the[1] words[3]" },
@@ -189,6 +251,10 @@ static const test test_simple[] = {
     { "stem=en,some",
 	  "11:59", "11[1] 59[2]" },
     { "", "11:59am", "11[1] 59am[2]" },
+
+    // Regression test for ngram bug with stemming enabled.  Was only
+    // present in git master before 2.0.0.
+    { "all,stem=en,ngrams", "久有归天", "久[1] 久有:1 天[4] 归[3] 归天:1 有[2] 有归:1" },
 
     { NULL, NULL, NULL }
 };
@@ -760,6 +826,9 @@ DEFINE_TESTCASE(termgen1, !backend) {
 	    } else if (strncmp(o, "none", 4) == 0) {
 		o += 4;
 		termgen.set_stemming_strategy(termgen.STEM_NONE);
+	    } else if (strncmp(o, "some_full_pos", 13) == 0) {
+		o += 13;
+		termgen.set_stemming_strategy(termgen.STEM_SOME_FULL_POS);
 	    } else if (strncmp(o, "some", 4) == 0) {
 		o += 4;
 		termgen.set_stemming_strategy(termgen.STEM_SOME);
@@ -784,12 +853,20 @@ DEFINE_TESTCASE(termgen1, !backend) {
 		    prefix += *o;
 		    ++o;
 		}
-	    } else if (strncmp(o, "cjk", 3) == 0) {
-		o += 3;
-		termgen.set_flags(termgen.FLAG_CJK_NGRAM, ~termgen.FLAG_CJK_NGRAM);
-	    } else if (strncmp(o, "!cjk", 4) == 0) {
-		o += 4;
-		termgen.set_flags(0, ~termgen.FLAG_CJK_NGRAM);
+	    } else if (strncmp(o, "ngrams", 6) == 0) {
+		o += 6;
+		termgen.set_flags(termgen.FLAG_NGRAMS,
+				  ~termgen.FLAG_NGRAMS);
+	    } else if (strncmp(o, "!ngrams", 7) == 0) {
+		o += 7;
+		termgen.set_flags(0, ~termgen.FLAG_NGRAMS);
+	    } else if (strncmp(o, "word_breaks", 11) == 0) {
+		o += 11;
+		termgen.set_flags(termgen.FLAG_WORD_BREAKS,
+				  ~termgen.FLAG_WORD_BREAKS);
+	    } else if (strncmp(o, "!word_breaks", 12) == 0) {
+		o += 12;
+		termgen.set_flags(0, ~termgen.FLAG_WORD_BREAKS);
 	    } else {
 		FAIL_TEST("Invalid options string: " << p->options);
 	    }
@@ -816,17 +893,22 @@ DEFINE_TESTCASE(termgen1, !backend) {
 	} catch (...) {
 	    output = "Unknown exception!";
 	}
+#ifndef USE_ICU
+	if (termgen.set_flags(0, ~0u) & termgen.FLAG_WORD_BREAKS) {
+	    expect = "FeatureUnavailableError: FLAG_WORD_BREAKS requires "
+		     "building Xapian to use ICU";
+	}
+#endif
 	if (prefix.empty())
 	    tout << "Text: " << p->text << '\n';
 	else
 	    tout << "Prefix: " << prefix << " Text: " << p->text << '\n';
 	TEST_STRINGS_EQUAL(output, expect);
     }
-    return true;
 }
 
 /// Test spelling data generation.
-DEFINE_TESTCASE(tg_spell1, spelling) {
+DEFINE_TESTCASE(tg_spell1, spelling && writable) {
     Xapian::WritableDatabase db = get_writable_database();
 
     Xapian::TermGenerator termgen;
@@ -846,8 +928,6 @@ DEFINE_TESTCASE(tg_spell1, spelling) {
     TEST_STRINGS_EQUAL(db.get_spelling_suggestion("mamm"), "mum");
     // Prefixed terms should be ignored for spelling currently.
     TEST_STRINGS_EQUAL(db.get_spelling_suggestion("zzebra"), "");
-
-    return true;
 }
 
 /// Regression test for bug fixed in 1.0.5 - previously this segfaulted.
@@ -859,8 +939,6 @@ DEFINE_TESTCASE(tg_spell2, !backend) {
     termgen.set_flags(Xapian::TermGenerator::FLAG_SPELLING);
 
     TEST_EXCEPTION(Xapian::InvalidOperationError, termgen.index_text("foo"));
-
-    return true;
 }
 
 DEFINE_TESTCASE(tg_max_word_length1, !backend) {
@@ -875,6 +953,44 @@ DEFINE_TESTCASE(tg_max_word_length1, !backend) {
 
     TEST_STRINGS_EQUAL(format_doc_termlist(doc),
 		       "Zcup:1 Zmug:1 cups[1] mugs[2]");
+}
 
-    return true;
+/// Feature tests for TermGenerator termpos methods.
+DEFINE_TESTCASE(tg_termpos1, !backend) {
+    Xapian::TermGenerator termgen;
+    TEST_EQUAL(termgen.get_termpos(), 0);
+
+    Xapian::Document doc;
+    termgen.set_document(doc);
+
+    // Test default of only complaining on overflow.
+    termgen.set_termpos(Xapian::termpos(-1) - 1);
+    termgen.index_text("up");
+    TEST_EQUAL(termgen.get_termpos(), Xapian::termpos(-1));
+    TEST_EXCEPTION(Xapian::RangeError,
+		   termgen.index_text("up"));
+    TEST_EQUAL(termgen.get_termpos(), Xapian::termpos(-1));
+    termgen.set_termpos(0);
+
+    termgen.index_text("A beginning");
+    termgen.set_stemming_strategy(termgen.STEM_NONE);
+    TEST_EQUAL(termgen.get_termpos(), 2);
+    termgen.increase_termpos();
+    TEST_EQUAL(termgen.get_termpos(), 102);
+    termgen.increase_termpos(17);
+    TEST_EQUAL(termgen.get_termpos(), 119);
+    termgen.set_termpos_limit(120);
+    termgen.index_text("z");
+
+    termgen.set_termpos(99);
+    TEST_EQUAL(termgen.get_termpos(), 99);
+    termgen.set_termpos_limit(102);
+    TEST_EXCEPTION(Xapian::RangeError,
+		   termgen.index_text("we shall over flow"));
+
+    string expect = "a[1] beginning[2] over[102] shall[101] up[" +
+		    str(Xapian::termpos(-1)) + "] we[100] z[120]";
+    TEST_STRINGS_EQUAL(format_doc_termlist(doc), expect);
+
+    TEST_EQUAL(termgen.get_termpos(), 102);
 }

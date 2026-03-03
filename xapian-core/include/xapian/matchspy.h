@@ -1,4 +1,4 @@
-/** @file matchspy.h
+/** @file
  * @brief MatchSpy implementation.
  */
 /* Copyright (C) 2007,2008,2009,2010,2011,2012,2013,2014,2015 Olly Betts
@@ -16,15 +16,15 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_MATCHSPY_H
 #define XAPIAN_INCLUDED_MATCHSPY_H
 
 #if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
-# error "Never use <xapian/matchspy.h> directly; include <xapian.h> instead."
+# error Never use <xapian/matchspy.h> directly; include <xapian.h> instead.
 #endif
 
 #include <xapian/attributes.h>
@@ -50,14 +50,14 @@ class XAPIAN_VISIBILITY_DEFAULT MatchSpy
     : public Xapian::Internal::opt_intrusive_base {
   private:
     /// Don't allow assignment.
-    void operator=(const MatchSpy &);
+    void operator=(const MatchSpy &) = delete;
 
     /// Don't allow copying.
-    MatchSpy(const MatchSpy &);
+    MatchSpy(const MatchSpy &) = delete;
 
   public:
     /// Default constructor, needed by subclass constructors.
-    XAPIAN_NOTHROW(MatchSpy()) {}
+    MatchSpy() noexcept {}
 
     /** Virtual destructor, because we have virtual methods. */
     virtual ~MatchSpy();
@@ -176,7 +176,7 @@ class XAPIAN_VISIBILITY_DEFAULT MatchSpy
 
     /** Start reference counting this object.
      *
-     *  You can hand ownership of a dynamically allocated MatchSpy
+     *  You can transfer ownership of a dynamically allocated MatchSpy
      *  object to Xapian by calling release() and then passing the object to a
      *  Xapian method.  Xapian will arrange to delete the object once it is no
      *  longer required.
@@ -188,7 +188,7 @@ class XAPIAN_VISIBILITY_DEFAULT MatchSpy
 
     /** Start reference counting this object.
      *
-     *  You can hand ownership of a dynamically allocated MatchSpy
+     *  You can transfer ownership of a dynamically allocated MatchSpy
      *  object to Xapian by calling release() and then passing the object to a
      *  Xapian method.  Xapian will arrange to delete the object once it is no
      *  longer required.
@@ -215,13 +215,13 @@ class XAPIAN_VISIBILITY_DEFAULT ValueCountMatchSpy : public MatchSpy {
 	Xapian::valueno slot;
 
 	/// Total number of documents seen by the match spy.
-	Xapian::doccount total;
+	Xapian::doccount total = 0;
 
 	/// The values seen so far, together with their frequency.
 	std::map<std::string, Xapian::doccount> values;
 
-	Internal() : slot(Xapian::BAD_VALUENO), total(0) {}
-	explicit Internal(Xapian::valueno slot_) : slot(slot_), total(0) {}
+	Internal() : slot(Xapian::BAD_VALUENO) {}
+	explicit Internal(Xapian::valueno slot_) : slot(slot_) {}
     };
 #endif
 
@@ -238,8 +238,8 @@ class XAPIAN_VISIBILITY_DEFAULT ValueCountMatchSpy : public MatchSpy {
 	    : internal(new Internal(slot_)) {}
 
     /** Return the total number of documents tallied. */
-    size_t XAPIAN_NOTHROW(get_total() const) {
-	return internal.get() ? internal->total : 0;
+    size_t get_total() const noexcept {
+	return internal ? internal->total : 0;
     }
 
     /** Get an iterator over the values seen in the slot.
@@ -252,7 +252,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueCountMatchSpy : public MatchSpy {
     TermIterator values_begin() const;
 
     /** End iterator corresponding to values_begin() */
-    TermIterator XAPIAN_NOTHROW(values_end() const) {
+    TermIterator values_end() const noexcept {
 	return TermIterator();
     }
 
@@ -269,7 +269,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueCountMatchSpy : public MatchSpy {
     TermIterator top_values_begin(size_t maxvalues) const;
 
     /** End iterator corresponding to top_values_begin() */
-    TermIterator XAPIAN_NOTHROW(top_values_end(size_t) const) {
+    TermIterator top_values_end(size_t) const noexcept {
 	return TermIterator();
     }
 

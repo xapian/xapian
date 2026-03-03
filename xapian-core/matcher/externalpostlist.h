@@ -1,7 +1,7 @@
-/** @file externalpostlist.h
+/** @file
  * @brief Return document ids from an external source.
  */
-/* Copyright 2008,2009,2011 Olly Betts
+/* Copyright 2008-2022 Olly Betts
  * Copyright 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -15,19 +15,20 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_EXTERNALPOSTLIST_H
 #define XAPIAN_INCLUDED_EXTERNALPOSTLIST_H
 
-#include "api/postlist.h"
+#include "backends/postlist.h"
 
 namespace Xapian {
     class PostingSource;
 }
 
+class EstimateOp;
 class PostListTree;
 
 class ExternalPostList : public PostList {
@@ -37,10 +38,9 @@ class ExternalPostList : public PostList {
     /// Disallow assignment.
     void operator=(const ExternalPostList &);
 
-    Xapian::PostingSource * source;
-    bool source_is_owned;
+    Xapian::Internal::opt_intrusive_ptr<Xapian::PostingSource> source;
 
-    Xapian::docid current;
+    Xapian::docid current = 0;
 
     double factor;
 
@@ -49,25 +49,22 @@ class ExternalPostList : public PostList {
   public:
     /** Constructor.
      *
-     *  @param matcher	The matcher to notify when maximum weight changes.
+     *  @param estimate_op		    Object to report min/est/max to.
+     *  @param max_weight_cached_flag_ptr   Pointer to flag to clear when max
+     *					    weight changes.
      */
     ExternalPostList(const Xapian::Database & db,
 		     Xapian::PostingSource *source_,
+		     EstimateOp* estimate_op,
 		     double factor_,
-		     PostListTree * matcher);
-
-    ~ExternalPostList();
-
-    Xapian::doccount get_termfreq_min() const;
-
-    Xapian::doccount get_termfreq_est() const;
-
-    Xapian::doccount get_termfreq_max() const;
+		     bool* max_weight_cached_flag_ptr,
+		     Xapian::doccount shard_index);
 
     Xapian::docid get_docid() const;
 
     double get_weight(Xapian::termcount doclen,
-		      Xapian::termcount unique_terms) const;
+		      Xapian::termcount unique_terms,
+		      Xapian::termcount wdfdocmax) const;
 
     double recalc_maxweight();
 

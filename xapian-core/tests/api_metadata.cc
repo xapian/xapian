@@ -1,7 +1,7 @@
-/** @file api_metadata.cc
+/** @file
  * @brief Test the user metadata functionality.
  */
-/* Copyright (C) 2007,2009,2011 Olly Betts
+/* Copyright (C) 2007,2009,2011,2024 Olly Betts
  * Copyright (C) 2007,2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -15,8 +15,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -33,16 +33,39 @@
 
 using namespace std;
 
-// Test basic metadata access methods.
-DEFINE_TESTCASE(metadata1, writable) {
+// Test metadata methods for non-writable databases.
+DEFINE_TESTCASE(metadata1, metadata) {
+    Xapian::Database db = get_database("metadata1",
+				       [](Xapian::WritableDatabase& wdb,
+					  const string&)
+				       {
+					   wdb.set_metadata("empty", "");
+					   wdb.set_metadata("foo", "bar");
+					   wdb.set_metadata("\0"s, "\0"s);
+					   wdb.set_metadata("\0fo"s, "\0xx"s);
+					   wdb.set_metadata("f\0o"s, "x\0x"s);
+					   wdb.set_metadata("fo\0"s, "xx\0"s);
+				       });
+    TEST_EQUAL(db.get_doccount(), 0);
+    TEST_EQUAL(db.get_metadata("empty"), "");
+    TEST_EQUAL(db.get_metadata("unset"), "");
+    TEST_EQUAL(db.get_metadata("foo"), "bar");
+
+    // Check for transparent handling of zero bytes.
+    TEST_EQUAL(db.get_metadata("\0"s), "\0"s);
+    TEST_EQUAL(db.get_metadata("\0fo"s), "\0xx"s);
+    TEST_EQUAL(db.get_metadata("f\0o"s), "x\0x"s);
+    TEST_EQUAL(db.get_metadata("fo\0"s), "xx\0"s);
+
+    TEST_EXCEPTION(Xapian::InvalidArgumentError, db.get_metadata(""));
+}
+
+// Basic test of metadata methods.
+DEFINE_TESTCASE(metadata2, metadata && writable) {
     Xapian::WritableDatabase db = get_writable_database();
 
     TEST_EQUAL(db.get_metadata("foo"), "");
-    try {
-	db.set_metadata("foo", "bar");
-    } catch (const Xapian::UnimplementedError &) {
-	SKIP_TEST("Metadata not supported by this backend");
-    }
+    db.set_metadata("foo", "bar");
     TEST_EQUAL(db.get_metadata("foo"), "bar");
     db.set_metadata("foo", "baz");
     TEST_EQUAL(db.get_doccount(), 0);
@@ -54,24 +77,23 @@ DEFINE_TESTCASE(metadata1, writable) {
 
     // Check for transparent handling of zero bytes.
     db.set_metadata("foo", "value of foo");
-    db.set_metadata(string("foo\0bar", 7), string(1, '\0'));
-    db.set_metadata(string("foo\0", 4), string("foo\0bar", 7));
+    db.set_metadata("foo\0bar"sv, "\0"sv);
+    db.set_metadata("foo\0"sv, "foo\0bar"sv);
 
     TEST_EQUAL(db.get_metadata("foo"), "value of foo");
-    TEST_EQUAL(db.get_metadata(string("foo\0bar", 7)), string(1, '\0'));
-    TEST_EQUAL(db.get_metadata(string("foo\0", 4)), string("foo\0bar", 7));
+    TEST_EQUAL(db.get_metadata("foo\0bar"sv), "\0"sv);
+    TEST_EQUAL(db.get_metadata("foo\0"sv), "foo\0bar"sv);
 
     db.commit();
 
     TEST_EQUAL(db.get_metadata("foo"), "value of foo");
-    TEST_EQUAL(db.get_metadata(string("foo\0bar", 7)), string(1, '\0'));
-    TEST_EQUAL(db.get_metadata(string("foo\0", 4)), string("foo\0bar", 7));
-
-    return true;
+    TEST_EQUAL(db.get_metadata("foo\0bar"sv), "\0"sv);
+    TEST_EQUAL(db.get_metadata("foo\0"sv), "foo\0bar"sv);
 }
 
 // Test that metadata gets applied at same time as other changes.
-DEFINE_TESTCASE(metadata2, metadata && !inmemory) {
+DEFINE_TESTCASE(metadata3, metadata && writable && !inmemory) {
+    // get_writable_database_as_database() not implemented for inmemory.
     Xapian::WritableDatabase db = get_writable_database();
     Xapian::Database dbr = get_writable_database_as_database();
 
@@ -104,24 +126,21 @@ DEFINE_TESTCASE(metadata2, metadata && !inmemory) {
     TEST_EQUAL(dbr.get_metadata("foo"), "");
 
     TEST_EQUAL(db.get_doccount(), 1);
-
-    return true;
 }
 
 // Test the empty metadata keys give an error correctly.
-DEFINE_TESTCASE(metadata3, metadata) {
+DEFINE_TESTCASE(metadata4, metadata && writable) {
     Xapian::WritableDatabase db = get_writable_database();
 
     TEST_EXCEPTION(Xapian::InvalidArgumentError, db.get_metadata(""));
     TEST_EXCEPTION(Xapian::InvalidArgumentError, db.set_metadata("", "foo"));
     TEST_EXCEPTION(Xapian::InvalidArgumentError, db.get_metadata(""));
-
-    return true;
 }
 
 // Regression test for adding a piece of metadata on its own before adding
 // other things.
-DEFINE_TESTCASE(metadata4, metadata && !inmemory) {
+DEFINE_TESTCASE(metadata5, metadata && writable && !inmemory) {
+    // get_writable_database_as_database() not implemented for inmemory.
     Xapian::WritableDatabase db = get_writable_database();
 
     db.set_metadata("foo", "foo");
@@ -132,12 +151,10 @@ DEFINE_TESTCASE(metadata4, metadata && !inmemory) {
     db.add_document(doc);
 
     Xapian::Database dbr(get_writable_database_as_database());
-
-    return true;
 }
 
 // Test metadata iterators.
-DEFINE_TESTCASE(metadata5, writable) {
+DEFINE_TESTCASE(metadata6, writable) {
     Xapian::WritableDatabase db = get_writable_database();
 
     // Check that iterator on empty database returns nothing.
@@ -263,12 +280,10 @@ DEFINE_TESTCASE(metadata5, writable) {
     // Check that skipping to a key after the last key works.
     iter.skip_to("zoo");
     TEST(iter == db.metadata_keys_end());
-
-    return true;
 }
 
 /// Regression test of reading after writing but not committing.
-DEFINE_TESTCASE(writeread1, writable && metadata) {
+DEFINE_TESTCASE(writeread1, metadata && writable) {
     Xapian::WritableDatabase db_w = get_writable_database();
     db_w.set_metadata("1", "2");
     string longitem(20000, 'j');
@@ -276,6 +291,4 @@ DEFINE_TESTCASE(writeread1, writable && metadata) {
 
     string readitem = db_w.get_metadata("2");
     TEST_EQUAL(readitem, longitem);
-
-    return true;
 }

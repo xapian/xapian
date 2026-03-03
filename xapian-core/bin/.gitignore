@@ -10,6 +10,7 @@
 /xapian-inspect
 /xapian-inspect-honey
 /xapian-progsrv
+/xapian-quest
 /xapian-replicate
 /xapian-replicate-server
 /xapian-tcpsrv
@@ -19,6 +20,7 @@
 /xapian-inspect.exe
 /xapian-inspect-honey.exe
 /xapian-progsrv.exe
+/xapian-quest.exe
 /xapian-replicate.exe
 /xapian-replicate-server.exe
 /xapian-tcpsrv.exe
@@ -27,6 +29,7 @@
 /xapian-delve.1
 /xapian-inspect.1
 /xapian-progsrv.1
+/xapian-quest.1
 /xapian-replicate.1
 /xapian-replicate-server.1
 /xapian-tcpsrv.1

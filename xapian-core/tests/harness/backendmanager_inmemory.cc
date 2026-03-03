@@ -1,4 +1,4 @@
-/** @file backendmanager_inmemory.cc
+/** @file
  * @brief BackendManager subclass for inmemory databases.
  */
 /* Copyright (C) 2007,2009,2018 Olly Betts
@@ -14,8 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -24,18 +24,16 @@
 
 using namespace std;
 
-std::string
-BackendManagerInMemory::get_dbtype() const
-{
-    return "inmemory";
-}
-
 Xapian::Database
 BackendManagerInMemory::do_get_database(const vector<string>& files)
 {
     Xapian::WritableDatabase wdb(string(), Xapian::DB_BACKEND_INMEMORY);
     index_files_to_database(wdb, files);
-    return wdb;
+    // This cast avoids a -Wreturn-std-move warning from older clang (seen
+    // with clang 8 and 11; not seen with clang 13).  We can't address this
+    // by adding the suggested std::move() because GCC 13 -Wredundant-move
+    // then warns that the std::move() is redundant!
+    return static_cast<Xapian::Database>(wdb);
 }
 
 Xapian::WritableDatabase

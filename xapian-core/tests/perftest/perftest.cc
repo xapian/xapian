@@ -1,4 +1,4 @@
-/** @file perftest.cc
+/** @file
  * @brief performance tests for Xapian.
  */
 /* Copyright 2008 Lemur Consulting Ltd
@@ -15,9 +15,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -81,7 +80,8 @@ escape_xml(const string & str)
 PerfTestLogger::PerfTestLogger()
 	: testcase_started(false),
 	  indexing_started(false),
-	  searching_started(false)
+	  searching_started(false),
+	  diversifying_started(false)
 {}
 
 PerfTestLogger::~PerfTestLogger()
@@ -134,7 +134,9 @@ get_loadavg()
     string loadavg;
     try {
 	loadavg = stdout_to_string("uptime 2>/dev/null | sed 's/.*: \\([0-9][0-9]*\\)/\\1/;s/, .*//'");
-    } catch (NoSuchProgram) {} catch (ReadError) {}
+    } catch (const NoSuchProgram&) {
+    } catch (const ReadError&) {
+    }
     return loadavg;
 #endif
 }
@@ -152,24 +154,32 @@ get_ncpus()
     try {
 	// Works on Linux, at least back to kernel 2.2.26.
 	ncpus = stdout_to_string("getconf _NPROCESSORS_ONLN 2>/dev/null | grep -v '[^0-9]'");
-    } catch (NoSuchProgram) {} catch (ReadError) {}
+    } catch (const NoSuchProgram&) {
+    } catch (const ReadError&) {
+    }
     if (ncpus.empty())
 	try {
 	    // Works on OpenBSD (and apparently FreeBSD and Darwin).
 	    ncpus = stdout_to_string("sysctl hw.ncpu 2>/dev/null | sed 's/.*=//'");
-	} catch (NoSuchProgram) {} catch (ReadError) {}
+	} catch (const NoSuchProgram&) {
+	} catch (const ReadError&) {
+	}
     if (ncpus.empty())
 	try {
 	    // Works on Solaris and OSF/1.
 	    ncpus = stdout_to_string("PATH=/usr/sbin:$PATH psrinfo 2>/dev/null | grep -c on-line");
-	} catch (NoSuchProgram) {} catch (ReadError) {}
+	} catch (const NoSuchProgram&) {
+	} catch (const ReadError&) {
+	}
     if (ncpus.empty())
 	try {
 	    // Works on Linux, just in case the getconf version doesn't.
 	    // Different architectures have different formats for /proc/cpuinfo
 	    // so this won't work as widely as getconf _NPROCESSORS_ONLN will.
 	    ncpus = stdout_to_string("grep -c processor /proc/cpuinfo 2>/dev/null");
-	} catch (NoSuchProgram) {} catch (ReadError) {}
+	} catch (const NoSuchProgram&) {
+	} catch (const ReadError&) {
+	}
 #endif
     return ncpus;
 }
@@ -183,7 +193,16 @@ get_distro()
     OSVERSIONINFO osvi;
     ZeroMemory(&osvi, sizeof(OSVERSIONINFO));
     osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+#ifdef _MSC_VER
+// GetVersionEx() is deprecated, but none of the suggested replacements seems
+// to actually provide the functionality we want here...
+# pragma warning(push)
+# pragma warning(disable:4996)
+#endif
     GetVersionEx(&osvi);
+#ifdef _MSC_VER
+# pragma warning(pop)
+#endif
     distro = "Microsoft Windows v";
     distro += str(osvi.dwMajorVersion);
     distro += '.';
@@ -193,7 +212,9 @@ get_distro()
 #else
     try {
 	distro = stdout_to_string("perftest/get_machine_info 2>/dev/null");
-    } catch (NoSuchProgram) {} catch (ReadError) {}
+    } catch (const NoSuchProgram&) {
+    } catch (const ReadError&) {
+    }
 #endif
     return distro;
 }
@@ -205,7 +226,9 @@ get_commit_ref()
     string commit_ref;
     try {
 	commit_ref = stdout_to_string("cd \"$srcdir\" && git log -n1 --abbrev-commit --format=%h");
-    } catch (NoSuchProgram) {} catch (ReadError) {}
+    } catch (const NoSuchProgram&) {
+    } catch (const ReadError&) {
+    }
 
     return commit_ref;
 }
@@ -215,7 +238,7 @@ PerfTestLogger::open(const string & logpath)
 {
     out.open(logpath.c_str(), ios::out | ios::binary | ios::trunc);
     if (!out.is_open()) {
-	cerr << "Couldn't open output logfile '" << logpath << "'" << endl;
+	cerr << "Couldn't open output logfile '" << logpath << "'\n";
 	return false;
     }
 
@@ -245,7 +268,6 @@ PerfTestLogger::open(const string & logpath)
 	write("  <commitref>" + commit_ref + "</commitref>\n");
     write("  <version>" + string(Xapian::version_string()) + "</version>\n");
     write(" </sourceinfo>\n");
-
 
     return true;
 }
@@ -380,6 +402,50 @@ PerfTestLogger::searching_end()
     if (searching_started) {
 	write("   </searchrun>\n");
 	searching_started = false;
+    }
+}
+
+void
+PerfTestLogger::diversifying_start(const string & description)
+{
+    indexing_end();
+    searching_end();
+    write("   <diversifyrun>\n"
+	  "    <description>" + escape_xml(description) + "</description>\n");
+    diversifying_started = true;
+    diversify_start();
+}
+
+void
+PerfTestLogger::diversify_start()
+{
+    diversifying_timer = RealTime::now();
+}
+
+void
+PerfTestLogger::diversify_end(Xapian::doccount k,
+			      Xapian::doccount r,
+			      const Xapian::MSet& mset)
+{
+    Assert(diversifying_started);
+    double elapsed(RealTime::now() - diversifying_timer);
+    write("    <diversify>"
+	  "<time>" + str(elapsed) + "</time>"
+	  "<dset>"
+	  "<k>" + str(k) + "</k>"
+	  "<r>" + str(r) + "</r>"
+	  "<size>" + str(mset.size()) + "</size>"
+	  "</dset>"
+	  "</diversify>\n");
+    diversify_start();
+}
+
+void
+PerfTestLogger::diversifying_end()
+{
+    if (diversifying_started) {
+	write("   </diversifyrun>\n");
+	diversifying_started = false;
     }
 }
 

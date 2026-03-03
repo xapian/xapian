@@ -1,4 +1,4 @@
-/** @file api_qpbackend.cc
+/** @file
  * @brief QueryParser tests which need a backend
  */
 /* Copyright (c) 2009,2015 Olly Betts
@@ -14,9 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -33,18 +32,20 @@
 
 using namespace std;
 
+namespace {
 struct test {
     const char *query;
     const char *expect;
 };
+}
 
 /// Regression test for bug#407 fixed in 1.0.17 and 1.1.3.
 DEFINE_TESTCASE(qpsynonympartial1, synonyms) {
     static const test test_queries[] = {
-	{ "hello", "((SYNONYM WILDCARD OR hello) OR hello@1)" },
+	{ "hello", "(WILDCARD SYNONYM hello OR hello@1)" },
 	{ "~hello", "(hello@1 SYNONYM hi@1 SYNONYM howdy@1)" },
-	{ "hello world", "(hello@1 OR ((SYNONYM WILDCARD OR world) OR world@2))" },
-	{ "~hello world", "((hello@1 SYNONYM hi@1 SYNONYM howdy@1) OR ((SYNONYM WILDCARD OR world) OR world@2))" },
+	{ "hello world", "(hello@1 OR (WILDCARD SYNONYM world OR world@2))" },
+	{ "~hello world", "((hello@1 SYNONYM hi@1 SYNONYM howdy@1) OR (WILDCARD SYNONYM world OR world@2))" },
 	{ "world ~hello", "(world@1 OR (hello@2 SYNONYM hi@2 SYNONYM howdy@2))" },
 	{ NULL, NULL }
     };
@@ -57,19 +58,20 @@ DEFINE_TESTCASE(qpsynonympartial1, synonyms) {
 	{ NULL, NULL }
     };
     static const test test_queries_partial_auto[] = {
-	{ "hello", "((SYNONYM WILDCARD OR hello) OR hello@1)" },
-	{ "~hello", "((SYNONYM WILDCARD OR hello) OR hello@1)" },
-	{ "hello world", "((hello@1 SYNONYM hi@1 SYNONYM howdy@1) OR ((SYNONYM WILDCARD OR world) OR world@2))" },
-	{ "~hello world", "((hello@1 SYNONYM hi@1 SYNONYM howdy@1) OR ((SYNONYM WILDCARD OR world) OR world@2))" },
-	{ "world ~hello", "(world@1 OR ((SYNONYM WILDCARD OR hello) OR hello@2))" },
+	{ "hello", "(WILDCARD SYNONYM hello OR hello@1)" },
+	{ "~hello", "(WILDCARD SYNONYM hello OR hello@1)" },
+	{ "hello world", "((hello@1 SYNONYM hi@1 SYNONYM howdy@1) OR (WILDCARD SYNONYM world OR world@2))" },
+	{ "~hello world", "((hello@1 SYNONYM hi@1 SYNONYM howdy@1) OR (WILDCARD SYNONYM world OR world@2))" },
+	{ "world ~hello", "(world@1 OR (WILDCARD SYNONYM hello OR hello@2))" },
 	{ NULL, NULL }
     };
 
-    Xapian::WritableDatabase db(get_writable_database());
-    db.add_synonym("hello", "hi");
-    db.add_synonym("hello", "howdy");
-    db.commit();
-
+    Xapian::Database db = get_database("qpsynonympartial1",
+				       [](Xapian::WritableDatabase& wdb,
+					  const string&) {
+					   wdb.add_synonym("hello", "hi");
+					   wdb.add_synonym("hello", "howdy");
+				       });
     Xapian::Enquire enquire(db);
     Xapian::QueryParser qp;
     Xapian::Stem stemmmer("english");
@@ -143,6 +145,4 @@ DEFINE_TESTCASE(qpsynonympartial1, synonyms) {
 	tout << "Query: " << p->query << '\n';
 	TEST_STRINGS_EQUAL(parsed, expect);
     }
-
-    return true;
 }

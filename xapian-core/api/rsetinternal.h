@@ -1,4 +1,4 @@
-/** @file rsetinternal.h
+/** @file
  * @brief Set of documents judged as relevant
  */
 /* Copyright (C) 2017 Olly Betts
@@ -12,8 +12,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_RSETINTERNAL_H
@@ -35,7 +35,7 @@ class RSet::Internal : public Xapian::Internal::intrusive_base {
     // std::set rather than std::unordered_set.
     std::set<Xapian::docid> docs;
 
-    void shard(size_t n_shards, std::vector<Xapian::RSet>& rsets) {
+    void shard(Xapian::doccount n_shards, std::vector<Xapian::RSet>& rsets) {
 	if (n_shards == 1 || docs.empty()) {
 	    // Either there's a single database (in which case we just need
 	    // to return ourself as the sharded RSet), or there are no relevance
@@ -48,7 +48,7 @@ class RSet::Internal : public Xapian::Internal::intrusive_base {
 	// Using resize() here would result in all the entries having the same
 	// internals.
 	rsets.reserve(n_shards);
-	for (size_t i = 0; i < n_shards; ++i) {
+	for (Xapian::doccount i = 0; i < n_shards; ++i) {
 	    rsets.emplace_back(RSet());
 	}
 

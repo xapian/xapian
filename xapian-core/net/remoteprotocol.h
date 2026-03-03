@@ -1,7 +1,7 @@
-/** @file remoteprotocol.h
+/** @file
  *  @brief Remote protocol version and message numbers
  */
-/* Copyright (C) 2006,2007,2008,2009,2010,2011,2013,2014,2015,2017 Olly Betts
+/* Copyright (C) 2006-2024 Olly Betts
  * Copyright (C) 2007,2010 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -15,8 +15,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_REMOTEPROTOCOL_H
@@ -49,9 +49,19 @@
 // 37: 1.3.1 Prefix-compress termlists.
 // 38: 1.3.2 Stats serialisation now includes collection freq, and more...
 // 39: 1.3.3 New query operator OP_WILDCARD; sort keys in serialised MSet.
-// 39.1: pre-1.5.0 MSG_POSITIONLISTCOUNT added.
-// 40: 1.5.0 REPLY_REMOVESPELLING added.
-#define XAPIAN_REMOTE_PROTOCOL_MAJOR_VERSION 40
+// 39.1: 1.4.12 REPLY_DONE sent for 5 more messages
+// (also 39.1: pre-2.0.0 MSG_POSITIONLISTCOUNT added.)
+// 40: pre-2.0.0 REPLY_REMOVESPELLING added.
+// 41: pre-2.0.0 Changed REPLY_ALLTERMS, REPLY_METADATAKEYLIST, REPLY_TERMLIST.
+// 42: pre-2.0.0 Use little-endian IEEE for doubles
+// 43: pre-2.0.0 REPLY_DONE sent for 5 more messages; MSG_QUERY adjusted
+// 44: pre-2.0.0 pack_uint() now used; many other changes
+// 44.1: pre-2.0.0 MSG_RECONSTRUCTTEXT added
+// 45: pre-2.0.0 Remote support for sorters
+// 46: pre-2.0.0 Drop unused fields; front-code term names in serialised stats
+// 46.1: pre-2.0.0 MSG_REQUESTDOCUMENT added
+// 47: 2.0.0 Updated Weight::Internal serialisation for db_*_bound
+#define XAPIAN_REMOTE_PROTOCOL_MAJOR_VERSION 47
 #define XAPIAN_REMOTE_PROTOCOL_MINOR_VERSION 0
 
 /** Message types (client -> server).
@@ -91,7 +101,15 @@ enum message_type {
     MSG_METADATAKEYLIST,	// Iterator for metadata keys
     MSG_FREQS,			// Get termfreq and collfreq
     MSG_UNIQUETERMS,		// Get number of unique terms in doc
+    MSG_WDFDOCMAX,		// Get the max_wdf in doc
     MSG_POSITIONLISTCOUNT,	// Get PositionList length
+    MSG_RECONSTRUCTTEXT,	// Reconstruct document text
+    MSG_SYNONYMTERMLIST,	// Get synonyms for a term
+    MSG_SYNONYMKEYLIST,		// Get terms with an entry in synonym table
+    MSG_ADDSYNONYM,		// Add a synonym
+    MSG_REMOVESYNONYM,		// Remove a synonym
+    MSG_CLEARSYNONYMS,		// Clear synonyms for a term
+    MSG_REQUESTDOCUMENT,        // Request a document (pre-read hint)
     MSG_MAX
 };
 
@@ -111,8 +129,8 @@ enum reply_type {
     REPLY_STATS,		// Stats
     REPLY_TERMLIST,		// Get Termlist
     REPLY_POSITIONLIST,		// Get PositionList
-    REPLY_POSTLISTSTART,	// Start of a postlist
-    REPLY_POSTLISTITEM,		// Item in body of a postlist
+    REPLY_POSTLISTHEADER,	// Header for get postlist
+    REPLY_POSTLIST,		// Get Postlist
     REPLY_VALUE,		// Document Value
     REPLY_ADDDOCUMENT,		// Add Document
     REPLY_RESULTS,		// Results (MSet)
@@ -120,8 +138,13 @@ enum reply_type {
     REPLY_METADATAKEYLIST,	// Iterator for metadata keys
     REPLY_FREQS,		// Get termfreq and collfreq
     REPLY_UNIQUETERMS,		// Get number of unique terms in doc
+    REPLY_WDFDOCMAX,		// Get the max_wdf in doc
     REPLY_POSITIONLISTCOUNT,	// Get PositionList length
     REPLY_REMOVESPELLING,	// Remove a spelling
+    REPLY_TERMLISTHEADER,	// Header for get termlist
+    REPLY_RECONSTRUCTTEXT,	// Reconstruct document text
+    REPLY_SYNONYMTERMLIST,	// Get synonyms for a term
+    REPLY_SYNONYMKEYLIST,	// Get terms with an entry in synonym table
     REPLY_MAX
 };
 

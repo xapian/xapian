@@ -1,7 +1,7 @@
-/** @file termgenerator_internal.h
+/** @file
  * @brief TermGenerator class internals
  */
-/* Copyright (C) 2007,2012,2016 Olly Betts
+/* Copyright (C) 2007,2012,2016,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_TERMGENERATOR_INTERNAL_H
@@ -35,21 +35,22 @@ class Stopper;
 class TermGenerator::Internal : public Xapian::Internal::intrusive_base {
     friend class TermGenerator;
     Stem stemmer;
-    stem_strategy strategy;
+    stem_strategy strategy = STEM_SOME;
     Xapian::Internal::opt_intrusive_ptr<const Stopper> stopper;
-    stop_strategy stop_mode;
+    stop_strategy stop_mode = STOP_STEMMED;
     Document doc;
-    termcount termpos;
-    TermGenerator::flags flags;
-    unsigned max_word_length;
+    termpos cur_pos = 0;
+    termpos pos_limit = termpos(-1);
+    TermGenerator::flags flags = 0;
+    unsigned max_word_length = 64;
     WritableDatabase db;
 
   public:
-    Internal() : strategy(STEM_SOME), stopper(NULL), stop_mode(STOP_STEMMED),
-	termpos(0), flags(TermGenerator::flags(0)), max_word_length(64) { }
+    Internal() { }
+
     void index_text(Utf8Iterator itor,
 		    termcount weight,
-		    const std::string & prefix,
+		    std::string_view prefix,
 		    bool with_positions);
 };
 

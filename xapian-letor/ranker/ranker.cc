@@ -1,4 +1,4 @@
-/** @file ranker.cc
+/** @file
  * @brief Implementation of Ranker class
  */
 /* Copyright (C) 2012 Parth Gupta
@@ -15,9 +15,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -30,6 +29,7 @@
 #include "xapian-letor/scorer.h"
 
 #include "debuglog.h"
+#include "omassert.h"
 #include "str.h"
 
 #include <cstdio>
@@ -63,14 +63,14 @@ static const char * sw[] = {
     "was", "what", "when", "where", "which", "who", "why", "will", "with"
 };
 
-static vector<FeatureVector>
+static vector<vector<FeatureVector>>
 load_list_fvecs(const string & filename)
 {
     fstream train_file(filename, ios::in);
     if (!train_file.good())
 	throw Xapian::FileNotFoundError("No training file found. Check path.");
 
-    std::vector<FeatureVector> fvv;
+    std::map<string, vector<FeatureVector>> fvv;
     while (train_file.peek() != EOF) {
 	// A training file looks like this:
 	// <label> qid:<xxx> n:<fval> #docid:<xxx>
@@ -105,17 +105,21 @@ load_list_fvecs(const string & filename)
 	train_file.ignore();
 
 	fv.set_score(0);
-	fvv.push_back(fv);
+	fvv[qid].push_back(fv);
     }
-    return fvv;
+    std::vector<vector<FeatureVector>> vt;
+    for (auto it : fvv) {
+	vt.push_back(it.second);
+    }
+    return vt;
 }
 
 static int
 getlabel(const Document & doc, const std::string & qid)
 {
     int label = -1;
-    string id = std::to_string(doc.get_docid());
-    map<string, map<string, int> >::const_iterator outerit;
+    string id = str(doc.get_docid());
+    map<string, map<string, int>>::const_iterator outerit;
     map<string, int>::const_iterator innerit;
 
     outerit = qrel.find(qid);
@@ -131,7 +135,7 @@ getlabel(const Document & doc, const std::string & qid)
 static map<string, map<string, int>>
 load_relevance(const std::string & qrel_file)
 {
-    map<string, map<string, int>> qrel1;     // < qid, <docid, relevance_judgement> >
+    map<string, map<string, int>> qrel1;     // <qid, <docid, relevance_judgement>>
 
     string line;
     ifstream myfile(qrel_file.c_str(), ifstream::in);
@@ -188,36 +192,39 @@ write_to_file(const std::vector<Xapian::FeatureVector> & list_fvecs, const strin
 	for (int k = 0; k < fv.get_fcount(); ++k) {
 	    train_file << " " << (k + 1) << ":" << fvals[k];
 	}
-	train_file << " #docid=" << did << endl;
+	train_file << " #docid=" << did << '\n';
     }
 }
 
+// Query file is in the format: <qid> '<query_string>'
+// Although it will accept any number of arbitrary characters between
+// the first space and the first single quote.
 static std::pair<string, string>
 parse_query_string(const string & query_line, int line_number)
 {
-    vector<string> token;
-    size_t j = 0;
-    while (j < query_line.size()) {
-	size_t i = query_line.find_first_not_of(' ', j);
-	if (i == string::npos) break;
-	j = query_line.find_first_of(' ', i);
-	token.push_back(query_line.substr(i, j - i));
+    Assert(!query_line.empty());
+    string::size_type j = query_line.find_first_of(' ');
+    if (j == 0) {
+	throw LetorParseError("Empty query id found in "
+			      "file at line:" + str(line_number));
     }
-    // Query file is in the format: <qid> <query_string>
-    // Therefore, <qid> goes into token[0] and <query_string> to token[1]
-    // Exceptions for parse errors
-    if (token.size() != 2) {
-	throw LetorParseError("Could not parse Query file at line:" + str(line_number));
+    if (j == string::npos) {
+	throw LetorParseError("Missing space between fields in Query "
+			      "file at line:" + str(line_number));
     }
-    string qid = token[0];
-    string querystr = token[1];
-    if (querystr.front() != '\'' || querystr.back() != '\'') {
-	throw LetorParseError("Could not parse query string at line:" + str(line_number));
+    string qid = query_line.substr(0, j);
+    string::size_type i = query_line.find_first_of("'", j);
+    j = query_line.length() - 1;
+    // check if the last character is '
+    if (query_line[j] != '\'' || j == i) {
+	throw LetorParseError("Could not parse Query file at line:" +
+			       str(line_number));
     }
-    querystr.erase(0, 1); // erase the first character (') from the front
-    querystr.erase(querystr.size() - 1); // erase the last character (')
+    string querystr = query_line.substr(i + 1, j - i - 1);
+
     if (querystr.empty()) {
-	throw LetorParseError("Empty query string in query file at line:" + str(line_number));
+	throw LetorParseError("Empty query string in query file at line:" +
+			       str(line_number));
     }
     return std::pair<string, string> (querystr, qid);
 }
@@ -226,7 +233,7 @@ static Xapian::QueryParser
 initialise_queryparser(const Xapian::Database & db)
 {
     Xapian::SimpleStopper* mystopper;
-    mystopper = new Xapian::SimpleStopper(sw, sw + sizeof(sw) / sizeof(sw[0]));
+    mystopper = new Xapian::SimpleStopper(sw, std::end(sw));
     Xapian::Stem stemmer("english");
     Xapian::QueryParser parser;
     parser.add_prefix("title", "S");
@@ -262,6 +269,7 @@ Xapian::prepare_training_file(const string & db_path, const string & queryfile,
     }
 
     int query_count = 0;
+    set<string> queries;
     while (!myfile1.eof()) { // reading all the queries line by line from the query file
 	getline(myfile1, str1);
 	if (str1.empty()) {
@@ -272,6 +280,9 @@ Xapian::prepare_training_file(const string & db_path, const string & queryfile,
 	std::pair<string, string> parsed_query = parse_query_string(str1, query_count);
 	string querystr = parsed_query.first;
 	string qid = parsed_query.second;
+	if (!queries.insert(qid).second) {
+	    throw Xapian::LetorParseError("Query id should be unique");
+	}
 
 	Xapian::Query query_no_prefix = parser.parse_query(querystr,
 					parser.FLAG_DEFAULT|
@@ -288,8 +299,10 @@ Xapian::prepare_training_file(const string & db_path, const string & queryfile,
 	enquire.set_query(query);
 	Xapian::MSet mset = enquire.get_mset(0, msetsize);
 
-	std::vector<FeatureVector> fvv_mset = flist.create_feature_vectors(mset, query, letor_db);
-	std::vector<FeatureVector> fvv_qrel;
+	vector<FeatureVector> fvv_mset = flist.create_feature_vectors(mset,
+								      query,
+								      letor_db);
+	vector<FeatureVector> fvv_qrel;
 	int k = 0;
 	for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); ++i) {
 	    Xapian::Document doc = i.get_document();
@@ -386,7 +399,7 @@ void
 Ranker::train_model(const std::string & input_filename, const std::string & model_key)
 {
     LOGCALL_VOID(API, "Ranker::train_model", input_filename | model_key);
-    vector<FeatureVector> list_fvecs = load_list_fvecs(input_filename);
+    vector<vector<FeatureVector>> list_fvecs = load_list_fvecs(input_filename);
     train(list_fvecs);
     save_model_to_metadata(model_key);
 }
@@ -452,8 +465,8 @@ Ranker::score(const string & query_file, const string & qrel_file,
 	enquire.set_query(query);
 	Xapian::MSet mset = enquire.get_mset(0, msetsize);
 
+	rank(mset, model_key, flist);
 	std::vector<FeatureVector> fvv_mset = flist.create_feature_vectors(mset, query, letor_db);
-	std::vector<FeatureVector> rankedfvv = rank_fvv(fvv_mset);
 	std::vector<FeatureVector> rankedfvv_qrel;
 
 	int k = 0;
@@ -461,17 +474,18 @@ Ranker::score(const string & query_file, const string & qrel_file,
 	    Xapian::Document doc = i.get_document();
 	    int label = getlabel(doc, qid);
 	    if (label != -1) { // only add FeatureVector which is found in the qrel file
-		rankedfvv[k].set_label(label);
-		rankedfvv_qrel.push_back(rankedfvv[k]);
+		fvv_mset[k].set_label(label);
+		rankedfvv_qrel.push_back(fvv_mset[k]);
 	    }
 	    ++k;
 	}
-	double iter_score = scorer->score(rankedfvv);
-	out_file << "Ranking score for qid:" << qid << " = " << iter_score << endl;
+	double iter_score = scorer->score(rankedfvv_qrel);
+	out_file << "Ranking score for qid:" << qid << " = " << iter_score
+		 << '\n';
 	total_score += iter_score;
     }
     queryfile.close();
     total_score = total_score / num_queries;
-    out_file << "Average ranking score = " << total_score << endl;
+    out_file << "Average ranking score = " << total_score << '\n';
     out_file.close();
 }

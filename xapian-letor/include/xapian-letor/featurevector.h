@@ -1,4 +1,4 @@
-/** @file featurevector.h
+/** @file
  * @brief The class for transforming the document into the feature space.
  */
 /* Copyright (C) 2012 Parth Gupta
@@ -15,20 +15,19 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
-#ifndef FEATUREVECTOR_H
-#define FEATUREVECTOR_H
+#ifndef XAPIAN_INCLUDED_FEATUREVECTOR_H
+#define XAPIAN_INCLUDED_FEATUREVECTOR_H
 
 #include <xapian.h>
 #include <xapian/intrusive_ptr.h>
 #include <xapian/types.h>
 #include <xapian/visibility.h>
 
-#include "letor_error.h"
+#include <xapian-letor/letor_error.h>
 
 #include <vector>
 
@@ -92,4 +91,4 @@ class XAPIAN_VISIBILITY_DEFAULT FeatureVector {
 
 }
 
-#endif /* FEATUREVECTOR_H */
+#endif /* XAPIAN_INCLUDED_FEATUREVECTOR_H */

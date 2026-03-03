@@ -1,4 +1,4 @@
-/** @file andmaybepostlist.h
+/** @file
  * @brief PostList class implementing Query::OP_AND_MAYBE
  */
 /* Copyright 2017 Olly Betts
@@ -14,8 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_ANDMAYBEPOSTLIST_H
@@ -41,12 +41,6 @@ class AndMaybePostList : public WrapperPostList {
     /// Current max weight from @a r.
     double r_max;
 
-    /** Total number of documents in the database.
-     *
-     *  Only used if we decay to AND.
-     */
-    Xapian::doccount db_size;
-
     PostListTree* pltree;
 
     /// Does @a r match at the current position?
@@ -57,9 +51,8 @@ class AndMaybePostList : public WrapperPostList {
 			   bool* valid_ptr = NULL);
 
   public:
-    AndMaybePostList(PostList* left, PostList* right,
-		     PostListTree* pltree_, Xapian::doccount db_size_)
-	: WrapperPostList(left), r(right), db_size(db_size_), pltree(pltree_)
+    AndMaybePostList(PostList* left, PostList* right, PostListTree* pltree_)
+	: WrapperPostList(left), r(right), pltree(pltree_)
     {}
 
     /** Construct as decay product from OrPostList.
@@ -71,19 +64,18 @@ class AndMaybePostList : public WrapperPostList {
 		     PostList* right,
 		     double lmax,
 		     double rmax,
-		     PostListTree* pltree_,
-		     Xapian::doccount db_size_)
+		     PostListTree* pltree_)
 	: WrapperPostList(left), r(right), pl_max(lmax), r_max(rmax),
-	  db_size(db_size_), pltree(pltree_)
-    {
-    }
+	  pltree(pltree_)
+    { }
 
     ~AndMaybePostList() { delete r; }
 
     Xapian::docid get_docid() const;
 
     double get_weight(Xapian::termcount doclen,
-		      Xapian::termcount unique_terms) const;
+		      Xapian::termcount unique_terms,
+		      Xapian::termcount wdfdocmax) const;
 
     double recalc_maxweight();
 

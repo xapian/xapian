@@ -1,7 +1,7 @@
-/** @file backendmanager_glass.h
+/** @file
  * @brief BackendManager subclass for glass databases.
  */
-/* Copyright (C) 2007,2008,2009 Olly Betts
+/* Copyright (C) 2007,2008,2009,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -14,8 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_BACKENDMANAGER_GLASS_H
@@ -43,10 +43,7 @@ class BackendManagerGlass : public BackendManager {
     std::string do_get_database_path(const std::vector<std::string> & files);
 
   public:
-    BackendManagerGlass() { }
-
-    /// Return a string representing the current database type.
-    std::string get_dbtype() const;
+    BackendManagerGlass(const std::string& datadir_);
 
     /// Create a Glass Xapian::WritableDatabase object indexing a single file.
     Xapian::WritableDatabase get_writable_database(const std::string & name,
@@ -55,11 +52,16 @@ class BackendManagerGlass : public BackendManager {
     /// Get the path of Glass Xapian::WritableDatabase instance.
     std::string get_writable_database_path(const std::string & name);
 
-    /// Create a Database object for the last opened WritableDatabase.
-    Xapian::Database get_writable_database_as_database();
+    std::string get_compaction_output_path(const std::string& name);
+
+    /// Get the path to use for generating a database, if supported.
+    std::string get_generated_database_path(const std::string & name);
 
     /// Create a WritableDatabase object for the last opened WritableDatabase.
     Xapian::WritableDatabase get_writable_database_again();
+
+    /// Get the path of the last opened WritableDatabase.
+    std::string get_writable_database_path_again();
 };
 
 #endif // XAPIAN_INCLUDED_BACKENDMANAGER_GLASS_H

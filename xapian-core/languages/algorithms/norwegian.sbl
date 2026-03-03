@@ -1,0 +1,98 @@
+// Alias: nb nn no
+// Snowball's "Norwegian" stemmer works for both nb and nn
+// according to AlexB on #xapian.
+
+routines (
+           mark_regions
+           main_suffix
+           consonant_pair
+           other_suffix
+)
+
+externals ( stem )
+
+integers ( p1 x )
+
+groupings ( v s_ending )
+
+stringescapes {}
+
+/* special characters */
+
+stringdef ae   '{U+00E6}'
+stringdef ao   '{U+00E5}'
+stringdef e^   '{U+00EA}'  // e-circumflex
+stringdef o`   '{U+00F2}'  // o-grave
+stringdef o'   '{U+00F3}'  // o-acute
+stringdef o^   '{U+00F4}'  // o-circumflex
+stringdef o/   '{U+00F8}'
+
+define v 'ae{e^}io{o`}{o'}{o^}uy{ae}{ao}{o/}'
+
+define s_ending  'bcdfghjlmnoptvyz'
+
+define mark_regions as (
+
+    $p1 = limit
+
+    test ( hop 3 setmark x )
+    gopast v  gopast non-v  setmark p1
+    try ( $p1 < x  $p1 = x )
+)
+
+backwardmode (
+
+    define main_suffix as (
+        setlimit tomark p1 for ([substring])
+        among(
+
+            'a' 'e' 'ede' 'ande' 'ende' 'ane' 'ene' 'hetene' 'en' 'heten' 'ar'
+            'er' 'heter' 'as' 'es' 'edes' 'endes' 'enes' 'hetenes' 'ens'
+            'hetens' 'ets' 'et' 'het' 'ast'
+                (delete)
+            'ers'
+                (
+                  among (
+                    'amm' 'ast' 'ind' 'kap' 'kk' 'lt' 'nk' 'omm' 'pp' 'v'
+                    '{o/}st'
+                        ()
+                    'giv' 'hav' 'skap' ''
+                        (delete)
+                  )
+                )
+            's'
+                (s_ending or ('r' not 'e') or ('k' non-v) delete)
+            'erte' 'ert'
+                (<-'er')
+        )
+    )
+
+    define consonant_pair as (
+        test (
+            setlimit tomark p1 for ([substring])
+            among(
+                'dt' 'vt'
+            )
+        )
+        next] delete
+    )
+
+    define other_suffix as (
+        setlimit tomark p1 for ([substring])
+        among(
+            'leg' 'eleg' 'ig' 'eig' 'lig' 'elig' 'els' 'lov' 'elov' 'slov'
+            'hetslov'
+                (delete)
+        )
+    )
+)
+
+define stem as (
+
+    do mark_regions
+    backwards (
+        do main_suffix
+        do consonant_pair
+        do other_suffix
+    )
+)

@@ -11,7 +11,7 @@ use warnings;
 BEGIN {$SIG{__WARN__} = sub { die "Terminating test due to warning: $_[0]" } };
 
 use Test::More;
-BEGIN { plan tests => 39 };
+BEGIN { plan tests => 45 };
 use Xapian qw(:all);
 
 #########################
@@ -102,6 +102,13 @@ $enquire->set_query(Xapian::Query->new("foo"));
     $enquire->set_sort_by_key($sorter, 1);
     my @matches = $enquire->matches(0, 10);
     mset_expect_order(@matches, (1, 2, 3, 4, 5));
+}
+
+{
+    # Test passing a sub as a KeyMaker.
+    $enquire->set_sort_by_key(sub {$_[0]->get_value(0)}, 1);
+    my @matches = $enquire->matches(0, 10);
+    mset_expect_order(@matches, (5, 4, 3, 2, 1));
 }
 
 1;

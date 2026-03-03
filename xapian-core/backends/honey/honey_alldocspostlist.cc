@@ -1,4 +1,4 @@
-/** @file honey_alldocspostlist.cc
+/** @file
  * @brief A PostList which iterates over all documents in a HoneyDatabase.
  */
 /* Copyright (C) 2006,2007,2008,2009,2018 Olly Betts
@@ -15,8 +15,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -35,35 +35,25 @@ using namespace Honey;
 using namespace std;
 
 HoneyAllDocsPostList::HoneyAllDocsPostList(const HoneyDatabase* db,
-					   Xapian::doccount doccount_)
-    : LeafPostList(string()),
-      cursor(db->get_postlist_cursor()),
-      doccount(doccount_)
+					   Xapian::doccount doccount)
+    : LeafPostList({}),
+      cursor(db->get_postlist_cursor())
 {
-    LOGCALL_CTOR(DB, "HoneyAllDocsPostList", db | doccount_);
+    LOGCALL_CTOR(DB, "HoneyAllDocsPostList", db | doccount);
     static const char doclen_key_prefix[2] = {
 	0, char(Honey::KEY_DOCLEN_CHUNK)
     };
     cursor->find_entry_ge(string(doclen_key_prefix, 2));
+    /* For an all documents postlist the term frequency is the number of
+     * documents in the database.
+     */
+    termfreq = doccount;
+    collfreq = doccount;
 }
 
 HoneyAllDocsPostList::~HoneyAllDocsPostList()
 {
     delete cursor;
-}
-
-Xapian::doccount
-HoneyAllDocsPostList::get_termfreq() const
-{
-    LOGCALL(DB, Xapian::doccount, "HoneyAllDocsPostList::get_termfreq", NO_ARGS);
-    RETURN(doccount);
-}
-
-Xapian::termcount
-HoneyAllDocsPostList::get_doclength() const
-{
-    LOGCALL(DB, Xapian::termcount, "HoneyAllDocsPostList::get_doclength", NO_ARGS);
-    RETURN(reader.get_doclength());
 }
 
 Xapian::docid
@@ -115,7 +105,11 @@ HoneyAllDocsPostList::skip_to(Xapian::docid did, double)
 	return NULL;
     }
 
-    Assert(!reader.at_end());
+    if (reader.at_end()) {
+	// This happens if the first operation is a skip_to().
+	reader.update(cursor);
+	Assert(!reader.at_end());
+    }
 
     if (reader.skip_to(did))
 	return NULL;
@@ -186,13 +180,18 @@ HoneyAllDocsPostList::check(Xapian::docid did, double, bool& valid)
     return NULL;
 }
 
+Xapian::termcount
+HoneyAllDocsPostList::get_wdf_upper_bound() const
+{
+    LOGCALL(DB, Xapian::termcount, "HoneyAllDocsPostList::get_wdf_upper_bound", NO_ARGS);
+    RETURN(1);
+}
+
 string
 HoneyAllDocsPostList::get_description() const
 {
-    string desc = "HoneyAllDocsPostList(did=";
-    desc += str(get_docid());
-    desc += ",doccount=";
-    desc += str(doccount);
+    string desc = "HoneyAllDocsPostList(doccount=";
+    desc += str(termfreq);
     desc += ')';
     return desc;
 }

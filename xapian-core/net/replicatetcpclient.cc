@@ -1,4 +1,4 @@
-/** @file replicatetcpclient.cc
+/** @file
  *  @brief TCP/IP replication client class.
  */
 /* Copyright (C) 2008,2010,2011,2015 Olly Betts
@@ -14,8 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -32,7 +32,7 @@ using namespace std;
 ReplicateTcpClient::ReplicateTcpClient(const string & hostname, int port,
 				       double timeout_connect,
 				       double socket_timeout)
-    : socket(open_socket(hostname, port, timeout_connect)),
+    : socket{open_socket(hostname, port, timeout_connect)},
       remconn(-1, socket)
 {
     set_socket_timeouts(socket, socket_timeout);
@@ -42,7 +42,8 @@ int
 ReplicateTcpClient::open_socket(const string & hostname, int port,
 				double timeout_connect)
 {
-    return TcpClient::open_socket(hostname, port, timeout_connect, false);
+    return TcpClient::open_socket(hostname, port, timeout_connect, false,
+				  string());
 }
 
 void
@@ -72,5 +73,5 @@ ReplicateTcpClient::update_from_master(const std::string & path,
 
 ReplicateTcpClient::~ReplicateTcpClient()
 {
-    remconn.do_close(true);
+    remconn.shutdown();
 }

@@ -1,4 +1,4 @@
-/** @file phrasepostlist.cc
+/** @file
  * @brief Return docs containing terms forming a particular phrase.
  */
 /* Copyright (C) 2006,2007,2009,2010,2011,2014,2015,2017 Olly Betts
@@ -14,8 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -33,17 +33,23 @@
 using namespace std;
 
 PhrasePostList::PhrasePostList(PostList *source_,
+			       EstimateOp* estimate_op_,
 			       Xapian::termpos window_,
 			       const vector<PostList*>::const_iterator &terms_begin,
 			       const vector<PostList*>::const_iterator &terms_end,
 			       PostListTree* pltree_)
-    : SelectPostList(source_, pltree_),
+    : SelectPostList(source_, estimate_op_, pltree_),
       window(window_),
       terms(terms_begin, terms_end)
 {
     size_t n = terms.size();
     Assert(n > 1);
     poslists = new PositionList*[n];
+
+    // It's hard to estimate how many times the phrase will occur as
+    // it depends a lot on the phrase, but usually the phrase will
+    // occur significantly less often than the individual terms.
+    termfreq = pl->get_termfreq() / 3;
 }
 
 PhrasePostList::~PhrasePostList()
@@ -63,8 +69,10 @@ PhrasePostList::test_doc()
     LOGCALL(MATCH, bool, "PhrasePostList::test_doc", NO_ARGS);
 
     start_position_list(0);
-    if (!poslists[0]->next())
+    if (!poslists[0]->next()) {
+	++rejected;
 	RETURN(false);
+    }
 
     unsigned read_hwm = 0;
     Xapian::termpos b;
@@ -73,19 +81,25 @@ PhrasePostList::test_doc()
 	Xapian::termpos pos = base;
 	unsigned i = 0;
 	do {
-	    if (++i == terms.size()) RETURN(true);
+	    if (++i == terms.size()) {
+		++accepted;
+		RETURN(true);
+	    }
 	    if (i > read_hwm) {
 		read_hwm = i;
 		start_position_list(i);
 	    }
-	    if (!poslists[i]->skip_to(pos + 1))
-		RETURN(false);
+	    if (!poslists[i]->skip_to(pos + 1)) {
+		goto reject;
+	    }
 	    pos = poslists[i]->get_position();
 	    b = pos + (terms.size() - i);
 	} while (b - base <= window);
 	// Advance the start of the window to the first position it could match
 	// in given the current position of term i.
     } while (poslists[0]->skip_to(b - window));
+reject:
+    ++rejected;
     RETURN(false);
 }
 
@@ -102,28 +116,6 @@ PhrasePostList::get_wdf() const
 	wdf = min(wdf, (*i)->get_wdf());
     }
     return wdf;
-}
-
-Xapian::doccount
-PhrasePostList::get_termfreq_est() const
-{
-    // It's hard to estimate how many times the phrase will occur as
-    // it depends a lot on the phrase, but usually the phrase will
-    // occur significantly less often than the individual terms.
-    return pl->get_termfreq_est() / 3;
-}
-
-TermFreqs
-PhrasePostList::get_termfreq_est_using_stats(
-	const Xapian::Weight::Internal & stats) const
-{
-    LOGCALL(MATCH, TermFreqs, "PhrasePostList::get_termfreq_est_using_stats", stats);
-    // No idea how to estimate this - do the same as get_termfreq_est() for
-    // now.
-    TermFreqs result(pl->get_termfreq_est_using_stats(stats));
-    result.termfreq /= 3;
-    result.reltermfreq /= 3;
-    RETURN(result);
 }
 
 string

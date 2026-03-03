@@ -1,4 +1,4 @@
-/** @file honey_defs.h
+/** @file
  * @brief Definitions, types, etc for use inside honey.
  */
 /* Copyright (C) 2010,2014,2015,2017,2018 Olly Betts
@@ -14,8 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_HONEY_DEFS_H
@@ -28,20 +28,33 @@
 /// Honey table extension.
 #define HONEY_TABLE_EXTENSION "honey"
 
-/// Default B-tree block size.
-#define HONEY_DEFAULT_BLOCKSIZE 8192
-
-/// Minimum B-tree block size.
-#define HONEY_MIN_BLOCKSIZE 2048
-
-/// Maximum B-tree block size.
-#define HONEY_MAX_BLOCKSIZE 65536
+/** Minimum size to pad a honey table to.
+ *
+ *  Having this minimum size means we can usually know from the size that a
+ *  stub database file isn't a single file database.
+ */
+#define HONEY_MIN_DB_SIZE 2048
 
 /// Maximum key length.
-#define HONEY_MAX_KEY_LEN 255
+#define HONEY_MAX_KEY_LENGTH 255
+
+/** Maximum size of a postlist chunk in bytes.
+ *
+ *  This isn't a hard maximum, but we won't exceed it by much.
+ *
+ *  FIXME: 2000 is what glass uses, but we should probably tune this.
+ */
+#define HONEY_POSTLIST_CHUNK_MAX 2000
 
 // Maximum size of a document length chunk in bytes.
-#define HONEY_DOCLEN_CHUNK_MAX 2016
+#define HONEY_DOCLEN_CHUNK_MAX 2017
+
+// HONEY_DOCLEN_CHUNK_MAX should be one more than a
+// multiple of 12 so for widths 1,2,3,4 we can fix the
+// initial byte which indicates the width for the chunk
+// plus an exact number of entries.
+static_assert((HONEY_DOCLEN_CHUNK_MAX - 1) % 12 == 0,
+	      "HONEY_DOCLEN_CHUNK_MAX should be (12 * x + 1)");
 
 /** The largest docid value supported by honey.
  *

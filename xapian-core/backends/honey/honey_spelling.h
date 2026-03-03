@@ -1,7 +1,7 @@
-/** @file honey_spelling.h
+/** @file
  * @brief Spelling correction data for a honey database.
  */
-/* Copyright (C) 2007,2008,2009,2010,2011,2014,2015,2016,2017,2018 Olly Betts
+/* Copyright (C) 2007-2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_HONEY_SPELLING_H
@@ -29,6 +29,7 @@
 #include <map>
 #include <set>
 #include <string>
+#include <string_view>
 #include <cstring> // For memcpy() and memcmp().
 
 namespace Honey {
@@ -40,11 +41,11 @@ const unsigned KEY_PREFIX_TAIL = 0x03;
 const unsigned KEY_PREFIX_WORD = 0x04;
 
 inline std::string
-make_spelling_wordlist_key(const std::string& word)
+make_spelling_wordlist_key(std::string_view word)
 {
     if (rare(static_cast<unsigned char>(word[0]) <= KEY_PREFIX_WORD))
-	return char(KEY_PREFIX_WORD) + word;
-    return word;
+	return std::string(1, KEY_PREFIX_WORD).append(word);
+    return std::string(word);
 }
 
 struct fragment {
@@ -59,14 +60,14 @@ struct fragment {
     /// Allow implicit conversion.
     explicit fragment(char data_[4]) { std::memcpy(data, data_, 4); }
 
-    char & operator[] (unsigned i) { return data[i]; }
-    const char & operator[] (unsigned i) const { return data[i]; }
+    char& operator[](unsigned i) { return data[i]; }
+    const char& operator[](unsigned i) const { return data[i]; }
 
     operator std::string() const {
 	return std::string(data, data[0] == KEY_PREFIX_MIDDLE ? 4 : 3);
     }
 
-    bool operator<(const fragment &b) const {
+    bool operator<(const fragment& b) const {
 	return std::memcmp(data, b.data, 4) < 0;
     }
 };
@@ -74,10 +75,12 @@ struct fragment {
 }
 
 class HoneySpellingTable : public HoneyLazyTable {
-    void toggle_word(const std::string & word);
-    void toggle_fragment(Honey::fragment frag, const std::string & word);
+    void toggle_word(const std::string& word);
+    void toggle_fragment(Honey::fragment frag, const std::string& word);
 
-    mutable std::map<std::string, Xapian::termcount> wordfreq_changes;
+    mutable std::map<std::string,
+		     Xapian::termcount,
+		     std::less<>> wordfreq_changes;
 
     /** Changes to make to the termlists.
      *
@@ -87,7 +90,7 @@ class HoneySpellingTable : public HoneyLazyTable {
      *  we don't need to store an additional add/remove flag for every
      *  word.
      */
-    mutable std::map<Honey::fragment, std::set<std::string> > termlist_deltas;
+    mutable std::map<Honey::fragment, std::set<std::string>> termlist_deltas;
 
     /** Used to track an upper bound on wordfreq. */
     Xapian::termcount wordfreq_upper_bound = 0;
@@ -101,7 +104,7 @@ class HoneySpellingTable : public HoneyLazyTable {
      *  @param dbdir		The directory the honey database is stored in.
      *  @param readonly		true if we're opening read-only, else false.
      */
-    HoneySpellingTable(const std::string & dbdir, bool readonly)
+    HoneySpellingTable(const std::string& dbdir, bool readonly)
 	: HoneyLazyTable("spelling", dbdir + "/spelling.", readonly) { }
 
     HoneySpellingTable(int fd, off_t offset_, bool readonly)
@@ -110,13 +113,13 @@ class HoneySpellingTable : public HoneyLazyTable {
     /** Merge in batched-up changes. */
     void merge_changes();
 
-    void add_word(const std::string & word, Xapian::termcount freqinc);
-    Xapian::termcount remove_word(const std::string & word,
+    void add_word(const std::string& word, Xapian::termcount freqinc);
+    Xapian::termcount remove_word(const std::string& word,
 				  Xapian::termcount freqdec);
 
-    TermList * open_termlist(const std::string & word);
+    TermList* open_termlist(std::string_view word);
 
-    Xapian::doccount get_word_frequency(const std::string & word) const;
+    Xapian::doccount get_word_frequency(std::string_view word) const;
 
     void set_wordfreq_upper_bound(Xapian::termcount ub) {
 	wordfreq_upper_bound = ub;
@@ -140,7 +143,7 @@ class HoneySpellingTable : public HoneyLazyTable {
 	return wordfreq_upper_bound;
     }
 
-    void cancel(const Honey::RootInfo & root_info,
+    void cancel(const Honey::RootInfo& root_info,
 		honey_revision_number_t rev) {
 	// Discard batched-up changes.
 	wordfreq_changes.clear();
@@ -160,9 +163,6 @@ class HoneySpellingTermList : public TermList {
     /// Position in the data.
     unsigned p = 0;
 
-    /// The current term.
-    std::string current_term;
-
     /** Number of constant characters on the end of the value.
      *
      *  Valid values once iterating are 0, 1, 2.  Before iteration, can be
@@ -172,10 +172,10 @@ class HoneySpellingTermList : public TermList {
     int tail = 0;
 
     /// Copying is not allowed.
-    HoneySpellingTermList(const HoneySpellingTermList &);
+    HoneySpellingTermList(const HoneySpellingTermList&);
 
     /// Assignment is not allowed.
-    void operator=(const HoneySpellingTermList &);
+    void operator=(const HoneySpellingTermList&);
 
   public:
     /// Constructor.
@@ -205,19 +205,13 @@ class HoneySpellingTermList : public TermList {
 
     Xapian::termcount get_approx_size() const;
 
-    std::string get_termname() const;
-
     Xapian::termcount get_wdf() const;
 
     Xapian::doccount get_termfreq() const;
 
-    Xapian::termcount get_collection_freq() const;
+    TermList* next();
 
-    TermList * next();
-
-    TermList * skip_to(const std::string & term);
-
-    bool at_end() const;
+    TermList* skip_to(std::string_view term);
 
     Xapian::termcount positionlist_count() const;
 

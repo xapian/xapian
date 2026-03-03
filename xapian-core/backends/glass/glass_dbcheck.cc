@@ -1,8 +1,8 @@
-/** @file glass_dbcheck.cc
+/** @file
  * @brief Check consistency of a glass table.
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017 Olly Betts
+ * Copyright 2002-2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -15,9 +15,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -58,10 +57,10 @@ struct VStats : public ValueStats {
 };
 
 size_t
-check_glass_table(const char * tablename, const string &db_dir, int fd,
+check_glass_table(const char* tablename, string_view db_dir, int fd,
 		  off_t offset_,
-		  const GlassVersion & version_file, int opts,
-		  vector<Xapian::termcount> & doclens, ostream * out)
+		  const GlassVersion& version_file, int opts,
+		  vector<Xapian::termcount>& doclens, ostream* out)
 {
     Xapian::docid db_last_docid = version_file.get_last_docid();
     if (out)
@@ -88,7 +87,7 @@ check_glass_table(const char * tablename, const string &db_dir, int fd,
     }
 
     // Check the btree structure.
-    unique_ptr<GlassTable> table(
+    unique_ptr<GlassTableCheck> table(
 	    GlassTableCheck::check(tablename, db_dir, fd, offset_,
 				   version_file, opts, out));
 
@@ -474,7 +473,7 @@ check_glass_table(const char * tablename, const string &db_dir, int fd,
 		// Continuation chunk.
 		if (current_term.empty()) {
 		    if (out)
-			*out << "First chunk for term '" << current_term
+			*out << "First chunk for term '" << term
 			     << "' is a continuation chunk" << endl;
 		    ++errors;
 		    current_term = term;
@@ -606,8 +605,7 @@ check_glass_table(const char * tablename, const string &db_dir, int fd,
 	    ++errors;
 	}
 
-	// Now check the contents of the docdata table.  Any data is valid as
-	// the tag so we don't check the tags.
+	// Now check the contents of the docdata table.
 	for ( ; !cursor->after_end(); cursor->next()) {
 	    string & key = cursor->current_key;
 
@@ -620,7 +618,9 @@ check_glass_table(const char * tablename, const string &db_dir, int fd,
 		if (out)
 		    *out << "Error unpacking docid from key" << endl;
 		++errors;
-	    } else if (pos != end) {
+		continue;
+	    }
+	    if (pos != end) {
 		if (out)
 		    *out << "Extra junk in key" << endl;
 		++errors;
@@ -632,6 +632,18 @@ check_glass_table(const char * tablename, const string &db_dir, int fd,
 			     << db_last_docid << endl;
 		    ++errors;
 		}
+	    }
+
+	    // Fetch and decompress the document data to catch problems with
+	    // the splitting into multiple items, corruption of the compressed
+	    // data, etc.
+	    cursor->read_tag();
+	    if (cursor->current_tag.empty()) {
+		// We shouldn't store empty document data.
+		if (out)
+		    *out << "Empty document data explicitly stored for "
+			    "document id " << did << endl;
+		++errors;
 	    }
 	}
     } else if (strcmp(tablename, "termlist") == 0) {
@@ -670,16 +682,20 @@ check_glass_table(const char * tablename, const string &db_dir, int fd,
 		end = pos + cursor->current_tag.size();
 
 		if (pos == end) {
-		    if (out)
-			*out << "Empty value slots used tag" << endl;
+		    if (out) {
+			*out << "document id " << did
+			     << ": Empty value slots used tag\n";
+		    }
 		    ++errors;
 		    continue;
 		}
 
 		Xapian::valueno prev_slot;
 		if (!unpack_uint(&pos, end, &prev_slot)) {
-		    if (out)
-			*out << "Value slot encoding corrupt" << endl;
+		    if (out) {
+			*out << "document id " << did
+			     << ": Value slot encoding corrupt\n";
+		    }
 		    ++errors;
 		    continue;
 		}
@@ -687,16 +703,20 @@ check_glass_table(const char * tablename, const string &db_dir, int fd,
 		while (pos != end) {
 		    Xapian::valueno slot;
 		    if (!unpack_uint(&pos, end, &slot)) {
-			if (out)
-			    *out << "Value slot encoding corrupt" << endl;
+			if (out) {
+			    *out << "document id " << did
+				 << ": Value slot encoding corrupt\n";
+			}
 			++errors;
 			break;
 		    }
 		    slot += prev_slot + 1;
 		    if (slot <= prev_slot) {
-			if (out)
-			    *out << "Value slot number overflowed ("
-				 << prev_slot << " -> " << slot << ")" << endl;
+			if (out) {
+			    *out << "document id " << did
+				 << ": Value slot number overflowed ("
+				 << prev_slot << " -> " << slot << ")\n";
+			}
 			++errors;
 		    }
 		    prev_slot = slot;
@@ -705,8 +725,9 @@ check_glass_table(const char * tablename, const string &db_dir, int fd,
 	    }
 
 	    if (pos != end) {
-		if (out)
-		    *out << "Extra junk in key" << endl;
+		if (out) {
+		    *out << "document id " << did << ": Extra junk in key\n";
+		}
 		++errors;
 		continue;
 	    }
@@ -727,37 +748,46 @@ check_glass_table(const char * tablename, const string &db_dir, int fd,
 	    // Read doclen
 	    if (!unpack_uint(&pos, end, &doclen)) {
 		if (out) {
+		    *out << "document id " << did;
 		    if (pos != 0) {
-			*out << "doclen out of range";
+			*out << ": doclen out of range\n";
 		    } else {
-			*out << "Unexpected end of data when reading doclen";
+			*out << ": Unexpected end of data when reading "
+				"doclen\n";
 		    }
-		    *out << endl;
 		}
 		++errors;
 		continue;
 	    }
 
 	    // Check doclen with doclen lower and upper bounds
-	    if (doclen < version_file.get_doclength_lower_bound() ||
-		doclen > version_file.get_doclength_upper_bound()) {
+	    if (doclen > version_file.get_doclength_upper_bound()) {
 		if (out) {
-		    *out << "doclen not within bounds" << endl;
+		    *out << "document id " << did
+			 << ": doclen " << doclen << " > upper bound "
+			 << version_file.get_doclength_upper_bound() << '\n';
 		}
 		++errors;
-		continue;
+	    } else if (doclen < version_file.get_doclength_lower_bound() &&
+		       doclen != 0) {
+		if (out) {
+		    *out << "document id " << did
+			 << ": doclen " << doclen << " < lower bound "
+			 << version_file.get_doclength_lower_bound() << '\n';
+		}
+		++errors;
 	    }
 
 	    // Read termlist_size
 	    if (!unpack_uint(&pos, end, &termlist_size)) {
 		if (out) {
+		    *out << "document id " << did;
 		    if (pos != 0) {
-			*out << "termlist_size out of range";
+			*out << ": termlist_size out of range\n";
 		    } else {
-			*out << "Unexpected end of data when reading "
-				"termlist_size";
+			*out << ": Unexpected end of data when reading "
+				"termlist_size\n";
 		    }
-		    *out << endl;
 		}
 		++errors;
 		continue;
@@ -791,13 +821,14 @@ check_glass_table(const char * tablename, const string &db_dir, int fd,
 		    // Read wdf
 		    if (!unpack_uint(&pos, end, &current_wdf)) {
 			if (out) {
+			    *out << "document id " << did;
 			    if (pos == 0) {
-				*out << "Unexpected end of data when reading "
-					"termlist current_wdf";
+				*out << ": Unexpected end of data when reading "
+					"termlist current_wdf\n";
 			    } else {
-				*out << "Size of wdf out of range in termlist";
+				*out << ": Size of wdf out of range in "
+					"termlist\n";
 			    }
-			    *out << endl;
 			}
 			++errors;
 			bad = true;
@@ -813,13 +844,18 @@ check_glass_table(const char * tablename, const string &db_dir, int fd,
 	    }
 
 	    if (termlist_size != actual_termlist_size) {
-		if (out)
-		    *out << "termlist_size != # of entries in termlist" << endl;
+		if (out) {
+		    *out << "document id " << did << ": termlist_size "
+			 << termlist_size << " != # of entries in termlist "
+			 << actual_termlist_size << '\n';
+		}
 		++errors;
 	    }
 	    if (doclen != actual_doclen) {
-		if (out)
-		    *out << "doclen != sum(wdf)" << endl;
+		if (out) {
+		    *out << "document id " << did << ": length " << doclen
+			 << " != sum(wdf) " << actual_doclen << '\n';
+		}
 		++errors;
 	    }
 
@@ -943,9 +979,11 @@ check_glass_table(const char * tablename, const string &db_dir, int fd,
 	}
     } else {
 	if (out)
-	    *out << tablename << " table: Don't know how to check structure\n"
-		 << endl;
-	return errors;
+	    *out << tablename << " table: Full structure check not "
+		"implemented, checking readability\n";
+	for ( ; !cursor->after_end(); cursor->next()) {
+	    cursor->read_tag();
+	}
     }
 
     if (out) {

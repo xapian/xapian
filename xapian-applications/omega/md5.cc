@@ -186,6 +186,13 @@ void MD5Final(unsigned char digest[16], struct MD5Context *ctx)
  * reflect the addition of 16 longwords of new data.  MD5Update blocks
  * the data and converts bytes into longwords for this routine.
  */
+#ifdef __clang__
+// Unsigned integer overflow is defined behaviour, but still something that it
+// is desirable to avoid in most code.  The code here makes use of it, so
+// turn off UBSan's optional "unsigned-integer-overflow" check for this
+// function.
+[[clang::no_sanitize("unsigned-integer-overflow")]]
+#endif
 static void MD5Transform(uint32_t buf[4], uint32_t const in[16])
 {
     uint32_t a, b, c, d;

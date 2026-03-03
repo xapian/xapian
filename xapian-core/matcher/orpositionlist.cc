@@ -1,4 +1,4 @@
-/** @file orpositionlist.cc
+/** @file
  * @brief Merge two PositionList objects using an OR operation.
  */
 /* Copyright (C) 2007,2010,2016,2017 Olly Betts
@@ -14,8 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -35,6 +35,17 @@ OrPositionList::get_approx_size() const
     Xapian::termcount size = 0;
     for (auto pl : pls) size += pl->get_approx_size();
     RETURN(size);
+}
+
+Xapian::termpos
+OrPositionList::back() const
+{
+    LOGCALL(EXPAND, Xapian::termpos, "OrPositionList::back", NO_ARGS);
+    Xapian::termpos result = 0;
+    for (auto pl : pls) {
+	result = max(result, pl->back());
+    }
+    RETURN(result);
 }
 
 Xapian::termpos

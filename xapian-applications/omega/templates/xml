@@ -1,4 +1,5 @@
 $httpheader{Content-Type,application/xml}<?xml version="1.0"?>
+$setmap{prefix,,$split{ S B F},title,S,author,A,topic,B}
 <results DBSize="$html{$dbsize}" Query="$html{$query}" TopDoc="$topdoc" Matches="$msize" Last="$last"
 ThisPage="$thispage" LastPage="$lastpage" xP="$html{$list{$queryterms,,.,.}}"
 $if{$cgi{SPAN},xSPAN="$html{$cgi{SPAN}}" }

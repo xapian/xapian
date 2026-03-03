@@ -6,7 +6,6 @@ noinst_HEADERS +=\
 	harness/backendmanager_glass.h\
 	harness/backendmanager_honey.h\
 	harness/backendmanager_inmemory.h\
-	harness/backendmanager_local.h\
 	harness/backendmanager_multi.h\
 	harness/backendmanager_remote.h\
 	harness/backendmanager_remoteprog.h\

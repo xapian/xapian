@@ -1,7 +1,7 @@
-/** @file glass_metadata.cc
+/** @file
  * @brief Access to metadata for a glass database.
  */
-/* Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2011,2017 Olly Betts
+/* Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2011,2017,2024 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -15,8 +15,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -32,14 +32,19 @@
 
 #include "xapian/error.h"
 
+#include <string_view>
+
 using namespace std;
+using namespace std::string_literals;
 using Xapian::Internal::intrusive_ptr;
 
 GlassMetadataTermList::GlassMetadataTermList(
 	intrusive_ptr<const Xapian::Database::Internal> database_,
 	GlassCursor * cursor_,
-	const string &prefix_)
-	: database(database_), cursor(cursor_), prefix(string("\x00\xc0", 2) + prefix_)
+	string_view prefix_)
+	: database(database_),
+	  cursor(cursor_),
+	  prefix("\x00\xc0"s.append(prefix_))
 {
     LOGCALL_CTOR(DB, "GlassMetadataTermList", database_ | cursor_ | prefix_);
     Assert(cursor);
@@ -61,63 +66,43 @@ GlassMetadataTermList::get_approx_size() const
     return 1;
 }
 
-string
-GlassMetadataTermList::get_termname() const
-{
-    LOGCALL(DB, string, "GlassMetadataTermList::get_termname", NO_ARGS);
-    Assert(!at_end());
-    Assert(!cursor->current_key.empty());
-    Assert(startswith(cursor->current_key, prefix));
-    RETURN(cursor->current_key.substr(2));
-}
-
 Xapian::doccount
 GlassMetadataTermList::get_termfreq() const
 {
     throw Xapian::InvalidOperationError("GlassMetadataTermList::get_termfreq() not meaningful");
 }
 
-Xapian::termcount
-GlassMetadataTermList::get_collection_freq() const
-{
-    throw Xapian::InvalidOperationError("GlassMetadataTermList::get_collection_freq() not meaningful");
-}
-
 TermList *
 GlassMetadataTermList::next()
 {
     LOGCALL(DB, TermList *, "GlassMetadataTermList::next", NO_ARGS);
-    Assert(!at_end());
+    Assert(!cursor->after_end());
 
-    cursor->next();
-    if (!cursor->after_end() && !startswith(cursor->current_key, prefix)) {
+    if (!cursor->next() || !startswith(cursor->current_key, prefix)) {
 	// We've reached the end of the prefixed terms.
-	cursor->to_end();
+	RETURN(this);
     }
-
+    current_term.assign(cursor->current_key, 2);
     RETURN(NULL);
 }
 
-TermList *
-GlassMetadataTermList::skip_to(const string &key)
+TermList*
+GlassMetadataTermList::skip_to(string_view key)
 {
     LOGCALL(DB, TermList *, "GlassMetadataTermList::skip_to", key);
-    Assert(!at_end());
+    Assert(!cursor->after_end());
 
-    if (!cursor->find_entry_ge(string("\x00\xc0", 2) + key)) {
+    if (cursor->find_entry_ge(string("\x00\xc0", 2).append(key))) {
+	// Exact match.
+	current_term = key;
+    } else {
 	// The exact term we asked for isn't there, so check if the next
 	// term after it also has the right prefix.
-	if (!cursor->after_end() && !startswith(cursor->current_key, prefix)) {
+	if (cursor->after_end() || !startswith(cursor->current_key, prefix)) {
 	    // We've reached the end of the prefixed terms.
-	    cursor->to_end();
+	    RETURN(this);
 	}
+	current_term.assign(cursor->current_key, 2);
     }
     RETURN(NULL);
-}
-
-bool
-GlassMetadataTermList::at_end() const
-{
-    LOGCALL(DB, bool, "GlassMetadataTermList::at_end", NO_ARGS);
-    RETURN(cursor->after_end());
 }

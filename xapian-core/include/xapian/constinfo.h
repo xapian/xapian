@@ -1,4 +1,4 @@
-/** @file xapian/constinfo.h
+/** @file
  *  @brief Mechanism for accessing a struct of constant information
  */
 // Copyright (C) 2003,2004,2005,2007,2008,2009,2010,2012,2013,2015 Olly Betts
@@ -14,8 +14,8 @@
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software
-// Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+// along with this program; if not, see
+// <https://www.gnu.org/licenses/>.
 
 #ifndef XAPIAN_INCLUDED_XAPIAN_CONSTINFO_H
 #define XAPIAN_INCLUDED_XAPIAN_CONSTINFO_H
@@ -33,7 +33,7 @@ struct constinfo {
     char str[8];
     unsigned stemmer_name_len;
     // FIXME: We don't want to fix the size of this in the API headers.
-    char stemmer_data[256];
+    char stemmer_data[512];
 };
 
 /** @private @internal
@@ -46,7 +46,7 @@ struct constinfo {
  *  number of pieces of information), which reduces the library load time.
  */
 XAPIAN_VISIBILITY_DEFAULT
-const struct constinfo * XAPIAN_NOTHROW(get_constinfo_()) XAPIAN_CONST_FUNCTION;
+const struct constinfo* get_constinfo_() noexcept XAPIAN_CONST_FUNCTION;
 
 }
 }

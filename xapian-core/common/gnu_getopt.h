@@ -1,4 +1,4 @@
-/** @file gnu_getopt.h
+/** @file
  * @brief Wrappers to allow GNU getopt to be used cleanly from C++ code.
  */
 /* Copyright (C) 2004,2009,2010 Olly Betts
@@ -14,9 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_GNU_GETOPT_H

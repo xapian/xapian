@@ -1,7 +1,7 @@
-/** @file multi_valuelist.cc
+/** @file
  * @brief Class for merging ValueList objects from subdatabases.
  */
-/* Copyright (C) 2007,2008,2009,2011,2017 Olly Betts
+/* Copyright (C) 2007,2008,2009,2011,2017,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -24,6 +24,7 @@
 
 #include <xapian/error.h>
 
+#include "heap.h"
 #include "omassert.h"
 
 #include <algorithm>
@@ -42,16 +43,6 @@ struct CompareSubValueListsByDocId {
 	return a->shard > b->shard;
     }
 };
-
-MultiValueList::MultiValueList(size_t n_shards_,
-			       SubValueList** valuelists_,
-			       Xapian::valueno slot_)
-    : count(n_shards_),
-      valuelists(valuelists_),
-      slot(slot_),
-      n_shards(n_shards_)
-{
-}
 
 MultiValueList::~MultiValueList()
 {
@@ -92,8 +83,8 @@ MultiValueList::next()
     if (current_docid == 0) {
 	// Make valuelists into a heap so that the one with the earliest
 	// sorting docid is at the top of the heap.
-	size_t j = 0;
-	for (size_t i = 0; i != count; ++i) {
+	Xapian::doccount j = 0;
+	for (Xapian::doccount i = 0; i != count; ++i) {
 	    valuelists[i]->next();
 	    if (valuelists[i]->at_end()) {
 		delete valuelists[i];
@@ -108,21 +99,21 @@ MultiValueList::next()
 	if (rare(count == 0))
 	    return;
 
-	make_heap(valuelists, valuelists + count,
-		  CompareSubValueListsByDocId());
+	Heap::make(valuelists, valuelists + count,
+		   CompareSubValueListsByDocId());
     } else {
 	// Advance to the next docid.
-	pop_heap(valuelists, valuelists + count,
-		 CompareSubValueListsByDocId());
-	SubValueList * vl = valuelists[count - 1];
+	SubValueList * vl = valuelists[0];
 	vl->next();
 	if (vl->at_end()) {
+	    Heap::pop(valuelists, valuelists + count,
+		      CompareSubValueListsByDocId());
 	    delete vl;
 	    if (--count == 0)
 		return;
 	} else {
-	    push_heap(valuelists, valuelists + count,
-		      CompareSubValueListsByDocId());
+	    Heap::replace(valuelists, valuelists + count,
+			  CompareSubValueListsByDocId());
 	}
     }
 
@@ -135,8 +126,8 @@ MultiValueList::skip_to(Xapian::docid did)
     // Assume the skip is likely to be a long distance, and rebuild the heap
     // from scratch.  FIXME: It would be useful to profile this against an
     // approach more like that next() uses if this ever gets heavy use.
-    size_t j = 0;
-    for (size_t i = 0; i != count; ++i) {
+    Xapian::doccount j = 0;
+    for (Xapian::doccount i = 0; i != count; ++i) {
 	valuelists[i]->skip_to(did, n_shards);
 	if (valuelists[i]->at_end()) {
 	    delete valuelists[i];
@@ -151,7 +142,7 @@ MultiValueList::skip_to(Xapian::docid did)
     if (rare(count == 0))
 	return;
 
-    make_heap(valuelists, valuelists + count, CompareSubValueListsByDocId());
+    Heap::make(valuelists, valuelists + count, CompareSubValueListsByDocId());
 
     current_docid = valuelists[0]->get_merged_docid(n_shards);
 }

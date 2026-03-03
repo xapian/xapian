@@ -1,7 +1,7 @@
-/** @file append_filename_arg.h
+/** @file
  *  @brief Append filename argument to a command string with suitable escaping
  */
-/* Copyright (C) 2003,2004,2007,2012 Olly Betts
+/* Copyright (C) 2003,2004,2007,2012,2019 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -14,8 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_APPEND_FILENAME_ARG_H
@@ -26,27 +26,29 @@
 
 /// Append filename argument arg to command cmd with suitable escaping.
 static bool
-append_filename_argument(std::string & cmd, const std::string & arg) {
+append_filename_argument(std::string& cmd,
+			 const std::string& arg,
+			 bool leading_space = true) {
 #ifdef __WIN32__
     cmd.reserve(cmd.size() + arg.size() + 5);
     // Prevent a leading "-" on the filename being interpreted as a command
     // line option.
-    if (arg[0] == '-')
-	cmd += " \".\\";
-    else
-	cmd += " \"";
+    const char* prefix = (arg[0] == '-') ? " \".\\" : " \"";
+    if (!leading_space)
+	++prefix;
+    cmd += prefix;
 
-    for (std::string::const_iterator i = arg.begin(); i != arg.end(); ++i) {
-	if (*i == '/') {
+    for (char ch : arg) {
+	if (ch == '/') {
 	    // Convert Unix path separators to backslashes.  C library
 	    // functions understand "/" in paths, but we are going to
 	    // call commands like "xcopy" or "rd" which don't.
 	    cmd += '\\';
-	} else if (*i < 32 || std::strchr("<>\"|*?", *i)) {
+	} else if (ch < 32 || std::strchr("<>\"|*?", ch)) {
 	    // Check for illegal characters in filename.
 	    return false;
 	} else {
-	    cmd += *i;
+	    cmd += ch;
 	}
     }
     cmd += '"';
@@ -58,13 +60,13 @@ append_filename_argument(std::string & cmd, const std::string & arg) {
 
     // Prevent a leading "-" on the filename being interpreted as a command
     // line option.
-    if (arg[0] == '-')
-	cmd += " './";
-    else
-	cmd += " '";
+    const char* prefix = (arg[0] == '-') ? " './" : " '";
+    if (!leading_space)
+	++prefix;
+    cmd += prefix;
 
-    for (std::string::const_iterator i = arg.begin(); i != arg.end(); ++i) {
-	if (*i == '\'') {
+    for (char ch : arg) {
+	if (ch == '\'') {
 	    // Wrapping the whole argument in single quotes works for
 	    // everything except a single quote - for that we drop out of
 	    // single quotes, then use a backslash-escaped single quote, then
@@ -72,7 +74,7 @@ append_filename_argument(std::string & cmd, const std::string & arg) {
 	    cmd += "'\\''";
 	    continue;
 	}
-	cmd += *i;
+	cmd += ch;
     }
     cmd += '\'';
 #endif

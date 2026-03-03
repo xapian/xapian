@@ -1,7 +1,7 @@
-/** @file glass_inverter.cc
+/** @file
  * @brief Inverter class which "inverts the file".
  */
-/* Copyright (C) 2009,2013 Olly Betts
+/* Copyright (C) 2009,2013,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -35,19 +35,21 @@ using namespace std;
 void
 Inverter::store_positions(const GlassPositionListTable & position_table,
 			  Xapian::docid did,
-			  const string & tname,
+			  string_view tname,
 			  const Xapian::VecCOW<Xapian::termpos> & posvec,
 			  bool modifying)
 {
     string s;
     position_table.pack(s, posvec);
-    if (modifying) {
-	map<string, map<Xapian::docid, string> >::iterator i;
-	i = pos_changes.find(tname);
+    if (modifying && has_positions_cache != 0) {
+	// If we add positions we must then have positions, but if we remove
+	// positions we don't know if we then have them or not.
+	has_positions_cache = s.empty() ? -1 : 1;
+
+	auto i = pos_changes.find(tname);
 	if (i != pos_changes.end()) {
 	    map<Xapian::docid, string> & m = i->second;
-	    map<Xapian::docid, string>::iterator j;
-	    j = m.find(did);
+	    auto j = m.find(did);
 	    if (j != m.end()) {
 		// Update existing entry.
 		swap(j->second, s);
@@ -60,6 +62,9 @@ Inverter::store_positions(const GlassPositionListTable & position_table,
 	    // Identical to existing entry on disk.
 	    return;
 	}
+    } else {
+	// If we add positions, we must then have positions.
+	if (!s.empty()) has_positions_cache = 1;
     }
     set_positionlist(did, tname, s);
 }
@@ -67,7 +72,7 @@ Inverter::store_positions(const GlassPositionListTable & position_table,
 void
 Inverter::set_positionlist(const GlassPositionListTable & position_table,
 			   Xapian::docid did,
-			   const string & tname,
+			   string_view tname,
 			   const Xapian::TermIterator & term,
 			   bool modifying)
 {
@@ -97,32 +102,31 @@ Inverter::set_positionlist(const GlassPositionListTable & position_table,
 
 void
 Inverter::set_positionlist(Xapian::docid did,
-			   const string & term,
-			   const string & s)
+			   string_view term,
+			   string_view s)
 {
+    has_positions_cache = s.empty() ? -1 : 1;
     pos_changes.insert(make_pair(term, map<Xapian::docid, string>()))
 	.first->second[did] = s;
 }
 
 void
 Inverter::delete_positionlist(Xapian::docid did,
-			      const string & term)
+			      string_view term)
 {
-    set_positionlist(did, term, string());
+    set_positionlist(did, term, {});
 }
 
 bool
 Inverter::get_positionlist(Xapian::docid did,
-			   const string & term,
+			   string_view term,
 			   string & s) const
 {
-    map<string, map<Xapian::docid, string> >::const_iterator i;
-    i = pos_changes.find(term);
+    auto i = pos_changes.find(term);
     if (i == pos_changes.end())
 	return false;
     const map<Xapian::docid, string> & m = i->second;
-    map<Xapian::docid, string>::const_iterator j;
-    j = m.find(did);
+    auto j = m.find(did);
     if (j == m.end())
 	return false;
     s = j->second;
@@ -132,26 +136,24 @@ Inverter::get_positionlist(Xapian::docid did,
 bool
 Inverter::has_positions(const GlassPositionListTable & position_table) const
 {
-    if (pos_changes.empty())
-	return !position_table.empty();
-
-    // FIXME: Can we cheaply keep track of some things to make this more
-    // efficient?  E.g. how many sets and deletes we had in total perhaps.
-    glass_tablesize_t changes = 0;
-    map<string, map<Xapian::docid, string> >::const_iterator i;
-    for (i = pos_changes.begin(); i != pos_changes.end(); ++i) {
-	const map<Xapian::docid, string> & m = i->second;
-	map<Xapian::docid, string>::const_iterator j;
-	for (j = m.begin(); j != m.end(); ++j) {
-	    const string & s = j->second;
-	    if (!s.empty())
-		return true;
-	    ++changes;
+    if (has_positions_cache < 0) {
+	// FIXME: Can we cheaply keep track of some things to make this more
+	// efficient?  E.g. how many sets and deletes we had in total perhaps.
+	glass_tablesize_t changes = 0;
+	for (const auto& i : pos_changes) {
+	    const map<Xapian::docid, string>& m = i.second;
+	    for (const auto& j : m) {
+		const string & s = j.second;
+		if (!s.empty())
+		    return true;
+		++changes;
+	    }
 	}
-    }
 
-    // We have positions unless all the existing entries are removed.
-    return changes != position_table.get_entry_count();
+	// We have positions unless all the existing entries are removed.
+	has_positions_cache = (changes != position_table.get_entry_count());
+    }
+    return has_positions_cache;
 }
 
 void
@@ -162,10 +164,9 @@ Inverter::flush_doclengths(GlassPostListTable & table)
 }
 
 void
-Inverter::flush_post_list(GlassPostListTable & table, const string & term)
+Inverter::flush_post_list(GlassPostListTable& table, string_view term)
 {
-    map<string, PostingChanges>::iterator i;
-    i = postlist_changes.find(term);
+    auto i = postlist_changes.find(term);
     if (i == postlist_changes.end()) return;
 
     // Flush buffered changes for just this term's postlist.
@@ -176,22 +177,21 @@ Inverter::flush_post_list(GlassPostListTable & table, const string & term)
 void
 Inverter::flush_all_post_lists(GlassPostListTable & table)
 {
-    map<string, PostingChanges>::const_iterator i;
-    for (i = postlist_changes.begin(); i != postlist_changes.end(); ++i) {
+    for (auto i = postlist_changes.begin(); i != postlist_changes.end(); ++i) {
 	table.merge_changes(i->first, i->second);
     }
     postlist_changes.clear();
 }
 
 void
-Inverter::flush_post_lists(GlassPostListTable & table, const string & pfx)
+Inverter::flush_post_lists(GlassPostListTable& table, string_view pfx)
 {
     if (pfx.empty())
 	return flush_all_post_lists(table);
 
-    map<string, PostingChanges>::iterator i, begin, end;
-    begin = postlist_changes.lower_bound(pfx);
-    string pfxinc = pfx;
+    auto begin = postlist_changes.lower_bound(pfx);
+    decltype(begin) end;
+    string pfxinc{pfx};
     while (true) {
 	if (pfxinc.back() != '\xff') {
 	    ++pfxinc.back();
@@ -205,7 +205,7 @@ Inverter::flush_post_lists(GlassPostListTable & table, const string & pfx)
 	}
     }
 
-    for (i = begin; i != end; ++i) {
+    for (auto i = begin; i != end; ++i) {
 	table.merge_changes(i->first, i->second);
     }
 
@@ -224,14 +224,12 @@ Inverter::flush(GlassPostListTable & table)
 void
 Inverter::flush_pos_lists(GlassPositionListTable & table)
 {
-    map<string, map<Xapian::docid, string> >::const_iterator i;
-    for (i = pos_changes.begin(); i != pos_changes.end(); ++i) {
-	const string & term = i->first;
-	const map<Xapian::docid, string> & m = i->second;
-	map<Xapian::docid, string>::const_iterator j;
-	for (j = m.begin(); j != m.end(); ++j) {
-	    Xapian::docid did = j->first;
-	    const string & s = j->second;
+    for (auto i : pos_changes) {
+	const string & term = i.first;
+	const map<Xapian::docid, string> & m = i.second;
+	for (auto j : m) {
+	    Xapian::docid did = j.first;
+	    const string & s = j.second;
 	    if (!s.empty())
 		table.set_positionlist(did, term, s);
 	    else
@@ -239,4 +237,5 @@ Inverter::flush_pos_lists(GlassPositionListTable & table)
 	}
     }
     pos_changes.clear();
+    has_positions_cache = -1;
 }

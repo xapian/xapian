@@ -1,4 +1,4 @@
-/** @file glass_values.h
+/** @file
  * @brief GlassValueManager class
  */
 /* Copyright (C) 2008,2009,2011 Olly Betts
@@ -15,8 +15,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_GLASS_VALUES_H
@@ -32,7 +32,7 @@
 #include <memory>
 #include <string>
 
-class GlassCursor;
+#include "glass_cursor.h"
 
 namespace Glass {
 
@@ -91,7 +91,7 @@ class GlassValueManager {
 
     std::map<Xapian::docid, std::string> slots;
 
-    std::map<Xapian::valueno, std::map<Xapian::docid, std::string> > changes;
+    std::map<Xapian::valueno, std::map<Xapian::docid, std::string>> changes;
 
     mutable std::unique_ptr<GlassCursor> cursor;
 
@@ -171,6 +171,7 @@ class GlassValueManager {
 	// Discard batched-up changes.
 	slots.clear();
 	changes.clear();
+	reset();
     }
 };
 

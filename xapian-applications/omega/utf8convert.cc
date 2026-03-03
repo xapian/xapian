@@ -1,6 +1,7 @@
-/* utf8convert.cc: convert a string to UTF-8 encoding.
- *
- * Copyright (C) 2006,2007,2008,2010,2013,2017 Olly Betts
+/** @file
+ * @brief convert a string to UTF-8 encoding.
+ */
+/* Copyright (C) 2006,2007,2008,2010,2013,2017,2019,2021,2023 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -13,8 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -22,10 +23,10 @@
 #include "utf8convert.h"
 
 #include <algorithm>
+#include <cerrno>
 #include <string>
 
-#include "safeerrno.h"
-#ifdef USE_ICONV
+#ifdef HAVE_ICONV
 # include <iconv.h>
 #endif
 #include <xapian.h>
@@ -34,24 +35,26 @@
 
 using namespace std;
 
-void
-convert_to_utf8(string & text, const string & charset)
+bool
+convert_to_utf8_(string_view text, const string& charset, string& output)
 {
     // Shortcut if it's already in utf8!
     if (charset.size() == 5 && strcasecmp(charset.c_str(), "utf-8") == 0)
-	return;
+	return false;
     if (charset.size() == 4 && strcasecmp(charset.c_str(), "utf8") == 0)
-	return;
+	return false;
+    if (charset.size() == 8 && strcasecmp(charset.c_str(), "us-ascii") == 0)
+	return false;
 
     // Nobody has told us what charset it's in, so do as little work as
     // possible!
     if (charset.empty())
-	return;
+	return false;
 
     char buf[1024];
     string tmp;
 
-    /* Handle iso-8859-1/windows-1252/cp-1252, utf-16/ucs-2,
+    /* Handle iso-8859-1/iso-8859-15//windows-1252/cp-1252, utf-16/ucs-2,
      * utf-16be/ucs-2be, and utf-16le/ucs-2le. */
     const char * p = charset.c_str();
 
@@ -71,10 +74,10 @@ convert_to_utf8(string & text, const string & charset)
     }
 
     if (utf16) {
-	if (text.size() < 2) return;
+	if (text.size() < 2) return false;
 
 	bool big_endian = true;
-	string::const_iterator i = text.begin();
+	auto i = text.begin();
 	if (*p == '\0') {
 	    // GNU iconv doesn't seem to handle BOMs.
 	    if (startswith(text, "\xfe\xff")) {
@@ -96,13 +99,14 @@ convert_to_utf8(string & text, const string & charset)
 	tmp.reserve(text.size() / 2);
 
 	size_t start = 0;
+	auto text_end = text.end();
 	if (text.size() & 1) {
 	    // If there's a half-character at the end, nuke it now to make the
 	    // conversion loop below simpler.
-	    text.resize(text.size() - 1);
+	    --text_end;
 	}
 
-	while (i != text.end()) {
+	while (i != text_end) {
 	    unsigned ch = static_cast<unsigned char>(*i++);
 	    unsigned ch2 = static_cast<unsigned char>(*i++);
 	    if (big_endian) {
@@ -112,7 +116,7 @@ convert_to_utf8(string & text, const string & charset)
 	    }
 	    if (ch >> 10 == 0xd800 >> 10) {
 		// Surrogate pair.
-		if (i == text.end()) break;
+		if (i == text_end) break;
 		unsigned hi = (ch & 0x3ff);
 		ch = static_cast<unsigned char>(*i++);
 		ch2 = static_cast<unsigned char>(*i++);
@@ -161,24 +165,27 @@ convert_to_utf8(string & text, const string & charset)
 	    if (strncmp(p, "8859", 4) != 0) goto try_iconv;
 	    p += 4;
 	    if (*p == '-' || *p == '_' || *p == ' ') ++p;
-	    if (strcmp(p, "1") != 0) goto try_iconv;
+	    if (*p != '1') goto try_iconv;
+	    if (strcmp(p + 1, "5") == 0) goto iso8859_15;
+	    if (p[1] != '\0') goto try_iconv;
 	}
 
 	// FIXME: pull this out as a standard "normalise utf-8" function?
 	tmp.reserve(text.size());
 
 	size_t start = 0;
-	for (string::const_iterator i = text.begin(); i != text.end(); ++i) {
+	for (unsigned char ch : text) {
 	    static const unsigned cp1252_to_unicode[32] = {
 		0x20ac, 0x0081, 0x201a, 0x0192, 0x201e, 0x2026, 0x2020, 0x2021,
 		0x02c6, 0x2030, 0x0160, 0x2039, 0x0152, 0x008d, 0x017d, 0x008f,
 		0x0090, 0x2018, 0x2019, 0x201c, 0x201d, 0x2022, 0x2013, 0x2014,
 		0x02dc, 0x2122, 0x0161, 0x203a, 0x0153, 0x009d, 0x017e, 0x0178
 	    };
-	    unsigned ch = static_cast<unsigned char>(*i);
-	    if (ch - 128 < sizeof(cp1252_to_unicode) / sizeof(*cp1252_to_unicode))
-		ch = cp1252_to_unicode[ch - 128];
-	    start += Xapian::Unicode::to_utf8(ch, buf + start);
+	    unsigned code_point = ch;
+	    unsigned i = UNSIGNED_OVERFLOW_OK(code_point - 128);
+	    if (i < std::size(cp1252_to_unicode))
+		code_point = cp1252_to_unicode[i];
+	    start += Xapian::Unicode::to_utf8(code_point, buf + start);
 	    if (start >= sizeof(buf) - 4) {
 		tmp.append(buf, start);
 		start = 0;
@@ -189,11 +196,11 @@ convert_to_utf8(string & text, const string & charset)
 
     if (false) {
 try_iconv:
-#ifdef USE_ICONV
+#ifdef HAVE_ICONV
 	iconv_t conv = iconv_open("UTF-8", charset.c_str());
 	if (conv == reinterpret_cast<iconv_t>(-1))
-	    return;
-	ICONV_INPUT_TYPE in = const_cast<char *>(text.c_str());
+	    return false;
+	ICONV_CONST char* in = const_cast<char *>(text.data());
 	size_t in_len = text.size();
 	while (in_len) {
 	    char * out = buf;
@@ -208,9 +215,37 @@ try_iconv:
 
 	(void)iconv_close(conv);
 #else
-	return;
+	return false;
 #endif
     }
 
-    swap(text, tmp);
+    if (false) {
+iso8859_15:
+	tmp.reserve(text.size());
+
+	size_t start = 0;
+	for (unsigned char ch : text) {
+	    static const unsigned iso8859_15_to_unicode[] = {
+		0x20ac, 0x00a5, 0x0160, 0x00a7, 0x0161, 0x00a9, 0x00aa, 0x00ab,
+		0x00ac, 0x00ad, 0x00ae, 0x00af, 0x00b0, 0x00b1, 0x00b2, 0x00b3,
+		0x017d, 0x00b5, 0x00b6, 0x00b7, 0x017e, 0x00b9, 0x00ba, 0x00bb,
+		0x0152, 0x0153, 0x0178
+	    };
+	    unsigned code_point = ch;
+	    unsigned i = UNSIGNED_OVERFLOW_OK(code_point - 164);
+	    if (i < std::size(iso8859_15_to_unicode))
+		code_point = iso8859_15_to_unicode[i];
+	    start += Xapian::Unicode::to_utf8(code_point, buf + start);
+	    if (start >= sizeof(buf) - 4) {
+		tmp.append(buf, start);
+		start = 0;
+	    }
+	}
+	if (start) tmp.append(buf, start);
+    }
+
+    // `output` may be a reference to the same string object as `text` so we
+    // only switch after we've done converting.
+    output = std::move(tmp);
+    return true;
 }

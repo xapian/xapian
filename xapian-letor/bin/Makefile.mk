@@ -35,9 +35,9 @@ bin/xapian-letor-update.1: bin/xapian-letor-update$(EXEEXT) makemanpage
 bin/xapian-prepare-trainingfile.1: bin/xapian-prepare-trainingfile$(EXEEXT) makemanpage
 	./makemanpage bin/xapian-prepare-trainingfile $(srcdir)/bin/xapian-prepare-trainingfile.cc bin/xapian-prepare-trainingfile.1
 
+bin/xapian-rank.1: bin/xapian-rank$(EXEEXT) makemanpage
+	./makemanpage bin/xapian-rank $(srcdir)/bin/xapian-rank.cc bin/xapian-rank.1
+
 bin/xapian-train.1: bin/xapian-train$(EXEEXT) makemanpage
 	./makemanpage bin/xapian-train $(srcdir)/bin/xapian-train.cc bin/xapian-train.1
 endif
-
-bin/xapian-rank.1: bin/xapian-rank$(EXEEXT) makemanpage
-	./makemanpage bin/xapian-rank $(srcdir)/bin/xapian-rank.cc bin/xapian-rank.1

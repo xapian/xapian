@@ -1,4 +1,4 @@
-/** @file positionlist.h
+/** @file
  * @brief Abstract base class for iterating term positions in a document.
  */
 /* Copyright (C) 2007,2010,2017 Olly Betts
@@ -14,8 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_POSITIONLIST_H
@@ -48,6 +48,9 @@ class PositionIterator::Internal : public Xapian::Internal::intrusive_base
 
     /// Return approximate size of this positionlist.
     virtual Xapian::termcount get_approx_size() const = 0;
+
+    /// Return the final entry in this positionlist.
+    virtual Xapian::termpos back() const = 0;
 
     /// Return the current position.
     virtual Xapian::termpos get_position() const = 0;

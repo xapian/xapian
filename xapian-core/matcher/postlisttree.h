@@ -1,7 +1,7 @@
-/** @file postlisttree.h
+/** @file
  * @brief Class for managing a tree of PostList objects
  */
-/* Copyright 2017 Olly Betts
+/* Copyright 2017,2019 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -14,15 +14,15 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_POSTLISTTREE_H
 #define XAPIAN_INCLUDED_POSTLISTTREE_H
 
-#include "api/postlist.h"
 #include "backends/multi.h"
+#include "backends/postlist.h"
 #include "valuestreamdocument.h"
 
 class PostListTree {
@@ -33,6 +33,8 @@ class PostListTree {
     bool need_doclength;
 
     bool need_unique_terms;
+
+    bool need_wdfdocmax;
 
     double max_weight;
 
@@ -59,19 +61,35 @@ class PostListTree {
 
     Xapian::Database& db;
 
+    Xapian::Database::Internal* shard_db = nullptr;
+
   public:
     PostListTree(ValueStreamDocument& vsdoc_,
 		 Xapian::Database& db_,
 		 const Xapian::Weight& wtscheme)
 	: need_doclength(wtscheme.get_sumpart_needs_doclength_()),
 	  need_unique_terms(wtscheme.get_sumpart_needs_uniqueterms_()),
+	  need_wdfdocmax(wtscheme.get_sumpart_needs_wdfdocmax_()),
 	  vsdoc(vsdoc_),
 	  db(db_) {}
 
-    ~PostListTree() {
+    /// Delete all the PostList objects.
+    void delete_postlists() {
 	for (Xapian::doccount i = 0; i != n_shards; ++i)
 	    delete shard_pls[i];
+	n_shards = 0;
+	shard_pls = nullptr;
     }
+
+    ~PostListTree() {
+	delete_postlists();
+    }
+
+    /** Return pointer to flag to set to false to invalidate cached max weight.
+     *
+     *  Used with ExternalPostList, which wraps a PostingSource object.
+     */
+    bool* get_max_weight_cached_flag_ptr() { return &use_cached_max_weight; }
 
     void set_postlists(PostList** pls, Xapian::doccount n_shards_) {
 	shard_pls = pls;
@@ -81,6 +99,11 @@ class PostListTree {
 	    Assert(current_shard != n_shards);
 	}
 	pl = shard_pls[current_shard];
+	shard_db = db.internal.get();
+	if (n_shards > 1) {
+	    auto multidb = static_cast<const MultiDatabase*>(shard_db);
+	    shard_db = multidb->shards[current_shard];
+	}
 	if (current_shard > 0)
 	    vsdoc.new_shard(current_shard);
     }
@@ -92,7 +115,7 @@ class PostListTree {
 	    // Start at the current shard.
 	    for (Xapian::doccount i = current_shard; i != n_shards; ++i) {
 		if (shard_pls[i])
-		   w = max(w, shard_pls[i]->recalc_maxweight());
+		   w = std::max(w, shard_pls[i]->recalc_maxweight());
 	    }
 	    max_weight = w;
 	}
@@ -103,38 +126,18 @@ class PostListTree {
 	use_cached_max_weight = false;
     }
 
-    Xapian::doccount get_termfreq_min() const {
-	Xapian::doccount result = 0;
-	for (Xapian::doccount i = 0; i != n_shards; ++i)
-	    if (shard_pls[i])
-		result += shard_pls[i]->get_termfreq_min();
-	return result;
-    }
-
-    Xapian::doccount get_termfreq_max() const {
-	Xapian::doccount result = 0;
-	for (Xapian::doccount i = 0; i != n_shards; ++i)
-	    if (shard_pls[i])
-		result += shard_pls[i]->get_termfreq_max();
-	return result;
-    }
-
-    Xapian::doccount get_termfreq_est() const {
-	Xapian::doccount result = 0;
-	for (Xapian::doccount i = 0; i != n_shards; ++i)
-	    if (shard_pls[i])
-		result += shard_pls[i]->get_termfreq_est();
-	return result;
-    }
-
     Xapian::docid get_docid() const {
 	return unshard(pl->get_docid(), current_shard, n_shards);
     }
 
+    Xapian::termcount get_doclength(Xapian::docid shard_did) const {
+	return shard_db->get_doclength(shard_did);
+    }
+
     double get_weight() const {
-	Xapian::termcount doclen = 0, unique_terms = 0;
-	get_doc_stats(doclen, unique_terms);
-	return pl->get_weight(doclen, unique_terms);
+	Xapian::termcount doclen = 0, unique_terms = 0, wdfdocmax = 0;
+	get_doc_stats(pl->get_docid(), doclen, unique_terms, wdfdocmax);
+	return pl->get_weight(doclen, unique_terms, wdfdocmax);
     }
 
     /// Return false if we're done.
@@ -170,21 +173,29 @@ class PostListTree {
 		    return false;
 	    } while (shard_pls[current_shard] == NULL);
 	    pl = shard_pls[current_shard];
+	    shard_db = db.internal.get();
+	    if (n_shards > 1) {
+		auto multidb = static_cast<const MultiDatabase*>(shard_db);
+		shard_db = multidb->shards[current_shard];
+	    }
 	    vsdoc.new_shard(current_shard);
 	    use_cached_max_weight = false;
 	}
     }
 
-    void get_doc_stats(Xapian::termcount& doclen,
-		       Xapian::termcount& unique_terms) const {
+    void get_doc_stats(Xapian::docid shard_did,
+		       Xapian::termcount& doclen,
+		       Xapian::termcount& unique_terms,
+		       Xapian::termcount& wdfdocmax) const {
 	// Fetching the document length and number of unique terms is work we
 	// can avoid if the weighting scheme doesn't use them.
-	if (need_doclength || need_unique_terms) {
-	    Xapian::docid did = get_docid();
+	if (need_doclength || need_unique_terms || need_wdfdocmax) {
 	    if (need_doclength)
-		doclen = db.get_doclength(did);
+		doclen = shard_db->get_doclength(shard_did);
 	    if (need_unique_terms)
-		unique_terms = db.get_unique_terms(did);
+		unique_terms = shard_db->get_unique_terms(shard_did);
+	    if (need_wdfdocmax)
+		wdfdocmax = shard_db->get_wdfdocmax(shard_did);
 	}
     }
 
@@ -193,7 +204,7 @@ class PostListTree {
     }
 
     std::string get_description() const {
-	string desc = "PostListTree(";
+	std::string desc = "PostListTree(";
 	for (Xapian::doccount i = 0; i != n_shards; ++i) {
 	    if (i == current_shard)
 		desc += '*';

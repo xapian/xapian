@@ -1,8 +1,9 @@
-/* internaltest.cc: test of the Xapian internals
- *
- * Copyright 1999,2000,2001 BrightStation PLC
+/** @file
+ * @brief test of the Xapian internals
+ */
+/* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2006,2007,2008,2009,2010,2011,2012,2015 Olly Betts
+ * Copyright 2002-2022 Olly Betts
  * Copyright 2006 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -16,16 +17,13 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
 
 #include <xapian.h>
-
-#include "safeerrno.h"
 
 #include <iostream>
 #include <string>
@@ -39,13 +37,13 @@ using namespace std;
 #include "str.h"
 
 class Test_Exception {
-    public:
-	int value;
-	Test_Exception(int value_) : value(value_) {}
+  public:
+    int value;
+    Test_Exception(int value_) : value(value_) {}
 };
 
 // test that nested exceptions work correctly.
-static bool test_exception1()
+static void test_exception1()
 {
     try {
 	try {
@@ -57,11 +55,9 @@ static bool test_exception1()
 	    }
 	    throw;
 	}
-    } catch (const Test_Exception & e) {
+    } catch (const Test_Exception& e) {
 	TEST_EQUAL(e.value, 1);
-	return true;
     }
-    return false;
 }
 
 // ###########################################
@@ -69,26 +65,28 @@ static bool test_exception1()
 // ###########################################
 
 class test_refcnt : public Xapian::Internal::intrusive_base {
-    private:
-	bool &deleted;
-    public:
-	test_refcnt(bool &deleted_) : deleted(deleted_) {
-	    tout << "constructor\n";
-	}
-	Xapian::Internal::intrusive_ptr<const test_refcnt> test() {
-	    return Xapian::Internal::intrusive_ptr<const test_refcnt>(this);
-	}
-	~test_refcnt() {
-	    deleted = true;
-	    tout << "destructor\n";
-	}
+    bool& deleted;
+
+  public:
+    test_refcnt(bool& deleted_) : deleted(deleted_) {
+	tout << "constructor\n";
+    }
+
+    Xapian::Internal::intrusive_ptr<const test_refcnt> test() {
+	return Xapian::Internal::intrusive_ptr<const test_refcnt>(this);
+    }
+
+    ~test_refcnt() {
+	deleted = true;
+	tout << "destructor\n";
+    }
 };
 
-static bool test_refcnt1()
+static void test_refcnt1()
 {
     bool deleted = false;
 
-    test_refcnt *p = new test_refcnt(deleted);
+    test_refcnt* p = new test_refcnt(deleted);
 
     TEST_EQUAL(p->_refs, 0);
 
@@ -110,33 +108,40 @@ static bool test_refcnt1()
     }
 
     TEST_AND_EXPLAIN(deleted, "Object not properly deleted");
-
-    return true;
 }
 
 // This is a regression test - our home-made equivalent of intrusive_ptr
 // (which was called RefCntPtr) used to delete the object pointed to if you
 // assigned it to itself and the reference count was 1.
-static bool test_refcnt2()
+static void test_refcnt2()
 {
     bool deleted = false;
 
-    test_refcnt *p = new test_refcnt(deleted);
+    test_refcnt* p = new test_refcnt(deleted);
 
     Xapian::Internal::intrusive_ptr<test_refcnt> rcp(p);
 
+#ifdef __has_warning
+# if __has_warning("-Wself-assign-overloaded")
+    // Suppress warning from newer clang about self-assignment so we can
+    // test that self-assignment works!
+#  pragma clang diagnostic push
+#  pragma clang diagnostic ignored "-Wself-assign-overloaded"
+# endif
+#endif
     rcp = rcp;
+#ifdef __has_warning
+# if __has_warning("-Wself-assign-overloaded")
+#  pragma clang diagnostic pop
+# endif
+#endif
 
     TEST_AND_EXPLAIN(!deleted, "Object deleted by self-assignment");
-
-    return true;
 }
 
 // test string comparisons
-static bool test_stringcomp1()
+static void test_stringcomp1()
 {
-    bool success = true;
-
     string s1;
     string s2;
 
@@ -144,15 +149,13 @@ static bool test_stringcomp1()
     s2 = "foo";
 
     if ((s1 != s2) || (s1 > s2)) {
-	success = false;
-	tout << "String comparisons BADLY wrong" << endl;
+	FAIL_TEST("String comparisons BADLY wrong");
     }
 
     s1 += '\0';
 
     if ((s1 == s2) || (s1 < s2)) {
-	success = false;
-	tout << "String comparisons don't cope with extra nulls" << endl;
+	FAIL_TEST("String comparisons don't cope with extra nulls");
     }
 
     s2 += '\0';
@@ -161,16 +164,12 @@ static bool test_stringcomp1()
     s2 += 'z';
 
     if ((s1.length() != 5) || (s2.length() != 5)) {
-	success = false;
-	tout << "Lengths with added nulls wrong" << endl;
+	FAIL_TEST("Lengths with added nulls wrong");
     }
 
     if ((s1 == s2) || !(s1 < s2)) {
-	success = false;
-	tout << "Characters after a null ignored in comparisons" << endl;
+	FAIL_TEST("Characters after a null ignored in comparisons");
     }
-
-    return success;
 }
 
 // By default Sun's C++ compiler doesn't call the destructor on a
@@ -188,24 +187,22 @@ struct TempDtorTest {
 
 int TempDtorTest::count = 0;
 
-static bool test_temporarydtor1()
+static void test_temporarydtor1()
 {
     TEST_EQUAL(TempDtorTest::count, 0);
     TempDtorTest::factory();
     TEST_EQUAL(TempDtorTest::count, 0);
-
-    return true;
 }
 
 /// Test pack_uint_preserving_sort()
-static bool test_pack_uint_preserving_sort1()
+static void test_pack_uint_preserving_sort1()
 {
     string prev_packed;
     for (unsigned int i = 0; i != 1000; ++i) {
 	string packed;
 	pack_uint_preserving_sort(packed, i);
-	const char * ptr = packed.data();
-	const char * end = ptr + packed.size();
+	const char* ptr = packed.data();
+	const char* end = ptr + packed.size();
 	unsigned int result;
 	TEST(unpack_uint_preserving_sort(&ptr, end, &result));
 	TEST_EQUAL(result, i);
@@ -216,8 +213,8 @@ static bool test_pack_uint_preserving_sort1()
     for (unsigned int i = 2345; i < 65000; i += 113) {
 	string packed;
 	pack_uint_preserving_sort(packed, i);
-	const char * ptr = packed.data();
-	const char * end = ptr + packed.size();
+	const char* ptr = packed.data();
+	const char* end = ptr + packed.size();
 	unsigned int result;
 	TEST(unpack_uint_preserving_sort(&ptr, end, &result));
 	TEST_EQUAL(result, i);
@@ -229,8 +226,8 @@ static bool test_pack_uint_preserving_sort1()
     for (unsigned int i = 65000; i > prev; prev = i, i = (i << 1) ^ 1337) {
 	string packed;
 	pack_uint_preserving_sort(packed, i);
-	const char * ptr = packed.data();
-	const char * end = ptr + packed.size();
+	const char* ptr = packed.data();
+	const char* end = ptr + packed.size();
 	unsigned int result;
 	TEST(unpack_uint_preserving_sort(&ptr, end, &result));
 	TEST_EQUAL(result, i);
@@ -244,20 +241,18 @@ static bool test_pack_uint_preserving_sort1()
     for (unsigned int i = 23456; i < 765432; i += 1131) {
 	pack_uint_preserving_sort(packed, i);
     }
-    const char * ptr = packed.data();
-    const char * end = ptr + packed.size();
+    const char* ptr = packed.data();
+    const char* end = ptr + packed.size();
     for (unsigned int i = 23456; i < 765432; i += 1131) {
 	unsigned int result;
 	TEST(unpack_uint_preserving_sort(&ptr, end, &result));
 	TEST_EQUAL(result, i);
     }
     TEST(ptr == end);
-
-    return true;
 }
 
 /// Test C_isupper() etc.
-static bool test_chartype1()
+static void test_chartype1()
 {
     char tested[128];
     memset(tested, 0, sizeof(tested));
@@ -277,7 +272,11 @@ static bool test_chartype1()
 	TEST(!C_isnotdigit(ch));
 	TEST(!C_isnotxdigit(ch));
 	TEST(C_isnotspace(ch));
-	TEST_EQUAL(hex_digit(ch), ch - '0');
+	int v = ch - '0';
+	TEST_EQUAL(hex_digit(ch), v);
+	TEST_EQUAL(hex_decode('0', ch), char(v));
+	TEST_EQUAL(hex_decode(ch, '0'), char(v << 4));
+	TEST_EQUAL(hex_decode(ch, ch), char((v << 4) | v));
     }
 
     for (int ch = 'A'; ch != 'F' + 1; ++ch) {
@@ -296,7 +295,11 @@ static bool test_chartype1()
 	TEST(C_isnotdigit(ch));
 	TEST(!C_isnotxdigit(ch));
 	TEST(C_isnotspace(ch));
-	TEST_EQUAL(hex_digit(ch), ch - 'A' + 10);
+	int v = ch - 'A' + 10;
+	TEST_EQUAL(hex_digit(ch), v);
+	TEST_EQUAL(hex_decode('0', ch), char(v));
+	TEST_EQUAL(hex_decode(ch, '0'), char(v << 4));
+	TEST_EQUAL(hex_decode(ch, ch), char((v << 4) | v));
     }
 
     for (int ch = 'G'; ch != 'Z' + 1; ++ch) {
@@ -333,7 +336,11 @@ static bool test_chartype1()
 	TEST(C_isnotdigit(ch));
 	TEST(!C_isnotxdigit(ch));
 	TEST(C_isnotspace(ch));
-	TEST_EQUAL(hex_digit(ch), ch - 'a' + 10);
+	int v = ch - 'a' + 10;
+	TEST_EQUAL(hex_digit(ch), v);
+	TEST_EQUAL(hex_decode('0', ch), char(v));
+	TEST_EQUAL(hex_decode(ch, '0'), char(v << 4));
+	TEST_EQUAL(hex_decode(ch, ch), char((v << 4) | v));
     }
 
     for (int ch = 'g'; ch != 'z' + 1; ++ch) {
@@ -354,7 +361,7 @@ static bool test_chartype1()
 	TEST(C_isnotspace(ch));
     }
 
-    for (const char *p = "\t\n\f\r "; *p; ++p) {
+    for (const char* p = "\t\n\f\r "; *p; ++p) {
 	int ch = *p;
 	tested[ch] = 1;
 	TEST(!C_isupper(ch));
@@ -393,7 +400,7 @@ static bool test_chartype1()
     }
 
     // Non-ASCII characters aren't anything for these functions.
-    for (int ch = 128; ch != 256; ++ch) {
+    for (unsigned char ch = 128; ch != 0; ++ch) {
 	TEST(!C_isupper(ch));
 	TEST(!C_islower(ch));
 	TEST(!C_isalpha(ch));
@@ -411,7 +418,7 @@ static bool test_chartype1()
     }
 
     // Check signed char values work the same way.
-    for (int ch = -128; ch != 0; ++ch) {
+    for (signed char ch = -128; ch != 0; ++ch) {
 	TEST(!C_isupper(ch));
 	TEST(!C_islower(ch));
 	TEST(!C_isalpha(ch));
@@ -427,8 +434,6 @@ static bool test_chartype1()
 	TEST(C_isnotxdigit(ch));
 	TEST(C_isnotspace(ch));
     }
-
-    return true;
 }
 
 // ##################################################################
@@ -447,11 +452,11 @@ static const test_desc tests[] = {
     {0, 0}
 };
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 try {
     test_driver::parse_command_line(argc, argv);
     return test_driver::run(tests);
-} catch (const char * e) {
-    cout << e << endl;
+} catch (const char* e) {
+    cout << e << '\n';
     return 1;
 }

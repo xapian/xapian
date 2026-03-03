@@ -1,7 +1,7 @@
-/** @file honey_metadata.h
+/** @file
  * @brief Access to metadata for a honey database.
  */
-/* Copyright (C) 2005,2007,2008,2009,2011,2017 Olly Betts
+/* Copyright (C) 2005,2007,2008,2009,2011,2017,2024 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -15,8 +15,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_HONEY_METADATA_H
@@ -31,22 +31,23 @@
 #include "api/termlist.h"
 
 #include <string>
+#include <string_view>
 
 class HoneyCursor;
 
 class HoneyMetadataTermList : public AllTermsList {
     /// Copying is not allowed.
-    HoneyMetadataTermList(const HoneyMetadataTermList &);
+    HoneyMetadataTermList(const HoneyMetadataTermList&);
 
     /// Assignment is not allowed.
-    void operator=(const HoneyMetadataTermList &);
+    void operator=(const HoneyMetadataTermList&);
 
     /// Keep a reference to our database to stop it being deleted.
     Xapian::Internal::intrusive_ptr<const Xapian::Database::Internal> database;
 
     /** A cursor which runs through the postlist table reading metadata keys.
      */
-    HoneyCursor * cursor;
+    HoneyCursor* cursor;
 
     /** The prefix that all returned keys must have.
      */
@@ -54,18 +55,12 @@ class HoneyMetadataTermList : public AllTermsList {
 
   public:
     HoneyMetadataTermList(const Xapian::Database::Internal* database_,
-			  HoneyCursor * cursor_, const std::string &prefix_);
+			  HoneyCursor* cursor_,
+			  std::string_view prefix_);
 
     ~HoneyMetadataTermList();
 
     Xapian::termcount get_approx_size() const;
-
-    /** Returns the current termname.
-     *
-     *  Either next() or skip_to() must have been called before this
-     *  method can be called.
-     */
-    std::string get_termname() const;
 
     /** Return the term frequency for the term at the current position.
      *
@@ -73,20 +68,11 @@ class HoneyMetadataTermList : public AllTermsList {
      */
     Xapian::doccount get_termfreq() const;
 
-    /** Return the collection frequency for the term at the current position.
-     *
-     *  Not meaningful for a HoneyMetadataTermList.
-     */
-    Xapian::termcount get_collection_freq() const;
-
     /// Advance to the next term in the list.
-    TermList * next();
+    TermList* next();
 
     /// Advance to the first key which is >= @a key.
-    TermList * skip_to(const std::string &key);
-
-    /// True if we're off the end of the list
-    bool at_end() const;
+    TermList* skip_to(std::string_view key);
 };
 
 #endif // XAPIAN_INCLUDED_HONEY_METADATA_H

@@ -4,8 +4,8 @@ include ../generic/generic.mk
 
 ## Test programs to be run
 TESTS = smoketest.rb
-LOG_COMPILER = $(OSX_SIP_HACK_ENV) $(RUBY)
-AM_LOG_FLAGS = -I.libs -I'$(srcdir)'
+LOG_COMPILER = $(MACOS_SIP_HACK_ENV) $(RUBY)
+AM_LOG_FLAGS = -I'$(_libs)' -I'$(srcdir)'
 
 installcheck-local:
 	$(MAKE) check AM_LOG_FLAGS=
@@ -38,13 +38,13 @@ _xapian_la_LIBADD = $(XAPIAN_LIBS) $(RUBY_LIBS)
 CLEANFILES =
 if MAINTAINER_MODE
 stamp = xapian_wrap.stamp
-RUN_SWIG = stamp='$(stamp)' $(PERL) '$(top_srcdir)'/swig-depcomp $(SWIG)
+SWIG_FLAGS += -MD -MP -MT $(stamp)
 
 xapian_wrap.cc xapian_wrap.h: $(stamp)
 	$(make_many_locked)
 $(stamp):
 	$(multitarget_begin)
-	$(RUN_SWIG) $(SWIG_WERROR) -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
+	$(SWIG) $(SWIG_WERROR) -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
 	    -initname _xapian -ruby \
 	    -o xapian_wrap.cc '$(srcdir)/'ruby.i
 	$(multitarget_end)

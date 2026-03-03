@@ -12,4 +12,4 @@ lib_src +=\
 	expand/esetinternal.cc\
 	expand/expandweight.cc\
 	expand/ortermlist.cc\
-	expand/tradeweight.cc
+	expand/probeweight.cc

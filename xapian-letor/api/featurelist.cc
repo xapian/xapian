@@ -1,7 +1,8 @@
-/** @file featurelist.cc
+/** @file
  *  @brief Definition of FeatureList class
  */
 /* Copyright (C) 2016 Ayush Tomar
+ * Copyright (C) 2019 Vaibhav Kansagara
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -14,9 +15,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -25,8 +25,10 @@
 #include "xapian-letor/feature.h"
 #include "xapian-letor/featurevector.h"
 #include "featurelist_internal.h"
+#include "feature_internal.h"
 
 #include "debuglog.h"
+#include "omassert.h"
 
 using namespace std;
 
@@ -41,13 +43,24 @@ FeatureList::FeatureList() : internal(new FeatureList::Internal())
     internal->feature.push_back(new CollTfCollLenFeature());
     internal->feature.push_back(new TfIdfDoclenFeature());
     internal->feature.push_back(new TfDoclenCollTfCollLenFeature());
+    for (Feature* it : internal->feature) {
+	internal->stats_needed = Internal::stat_flags(internal->stats_needed |
+						      it->get_stats());
+    }
 }
 
 FeatureList::FeatureList(const std::vector<Feature*> & f)
-    : internal(new FeatureList::Internal())
 {
     LOGCALL_CTOR(API, "FeatureList", f);
+    if (f.empty()) {
+	throw InvalidArgumentError("FeatureList cannot be empty");
+    }
+    internal = new Internal();
     internal->feature = f;
+    for (Feature* it : internal->feature) {
+	internal->stats_needed = Internal::stat_flags(internal->stats_needed |
+						      it->get_stats());
+    }
 }
 
 FeatureList::~FeatureList()
@@ -59,35 +72,25 @@ FeatureList::~FeatureList()
 }
 
 void
-FeatureList::normalise(std::vector<FeatureVector> & fvec) const
+FeatureList::normalise(std::vector<FeatureVector>& fvec) const
 {
     LOGCALL_VOID(API, "FeatureList::normalise", fvec);
-    // find the max value for each feature for all the FeatureVectors in the vector.
     int num_features = fvec[0].get_fcount();
-    double temp = 0.0;
-    double max[num_features];
-
-    for (int i = 0; i < num_features; ++i)
-	max[i] = 0.0;
-
-    for (size_t i = 0; i < fvec.size(); ++i) {
-	for (int j = 0; j < num_features; ++j) {
-	    double fval = fvec[i].get_fvals()[j];
-	    if (max[j] < fval)
-		max[j] = fval;
+    for (int j = 0; j < num_features; ++j) {
+	// Find the maximum value of this feature.
+	double max_fval = 0.0;
+	for (const auto& v : fvec) {
+	    max_fval = max(max_fval, v.get_fvals()[j]);
 	}
-    }
-    /* We have the maximum value of each feature overall.
-       Now we need to normalize each feature value of a
-       FeatureVector by dividing it by the corresponding max of the feature value
-    */
-    for (size_t i = 0; i < fvec.size(); ++i) {
-	for (int j = 0; j < num_features; ++j) {
-	    temp = fvec[i].get_feature_value(j);
-	    temp /= max[j];
-	    if (max[j] == 0) // Skip if dividing by zero
-		continue;
-	    fvec[i].set_feature_value(j, temp);
+
+	if (max_fval == 0.0) {
+	    // Skip scaling step if we'd divide by zero.
+	    continue;
+	}
+
+	// Scale all values of this feature such that the max is 1.
+	for (auto& v : fvec) {
+	    v.set_feature_value(j, v.get_feature_value(j) / max_fval);
 	}
     }
 }
@@ -101,17 +104,18 @@ FeatureList::create_feature_vectors(const Xapian::MSet & mset,
     if (mset.empty())
 	return vector<FeatureVector>();
     std::vector<FeatureVector> fvec;
+    Assert(!internal->feature.empty());
 
     for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); ++i) {
 	Xapian::Document doc = i.get_document();
 	std::vector<double> fvals;
 	internal->set_data(letor_query, letor_db, doc);
+	auto internal_feature = new Feature::Internal(letor_db,
+						      letor_query, doc);
+	// Computes and populates the Feature::Internal with required stats.
+	internal->populate_feature_internal(internal_feature);
 	for (Feature* it : internal->feature) {
-	    it->set_database(letor_db);
-	    it->set_query(letor_query);
-	    it->set_doc(doc);
-	    // Computes and populates the Feature with required stats.
-	    internal->populate_feature(it);
+	    it->internal = internal_feature;
 	    const vector<double>& values = it->get_values();
 	    // Append feature values
 	    fvals.insert(fvals.end(), values.begin(), values.end());
@@ -123,7 +127,6 @@ FeatureList::create_feature_vectors(const Xapian::MSet & mset,
 	// construct a FeatureVector object using did and fvals.
 	Xapian::FeatureVector fv(did, fvals);
 	fvec.push_back(fv);
-	internal->clear_stats();
     }
     normalise(fvec);
     return fvec;

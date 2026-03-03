@@ -24,63 +24,72 @@ Packages to install for each language
 C#
 --
 
-Debian wheezy::
+Debian bullseye and bookworm::
 
 apt-get install mono-devel
 
 Java
 ----
 
-Debian wheezy::
+Debian bullseye and bookworm::
 
-apt-get install openjdk-6-jdk
+apt-get install openjdk-17-jdk
 
 Lua
 ---
 
-Debian wheezy::
+Debian bullseye and bookworm::
 
-apt-get install lua5.2 liblua5.2-dev
+apt-get install lua5.4 liblua5.4-dev
 
 Perl
 ----
 
-Debian wheezy: all required are packages installed by default.
+Debian bullseye and bookworm: all required are packages installed by default.
 
-PHP5
-----
+PHP
+---
 
-Debian wheezy::
+Debian bookworm::
 
-apt-get install php5-dev php5-cli
+apt-get install php-cli php-dev
 
-PHP7
-----
+Python3
+-------
 
-Debian stretch::
+Debian bullseye and bookworm::
 
-apt-get install php7.0-cli php7.0-dev
-
-Python
-------
-
-Debian wheezy::
-
-apt-get install python-dev
+apt-get install python3-dev
 
 Ruby
 ----
 
-Debian wheezy::
+Debian bullseye and bookworm::
 
 apt-get install ruby-dev
 
 Tcl
 ---
 
-Debian wheezy::
+Debian bullseye and bookworm::
 
 apt-get install tcl-dev
+
+Running tests in-tree on macOS
+==============================
+
+On macOS 10.11 and later there's a new feature called System Integrity
+Protection (SIP) which locks down "system binaries" to an extent which is
+actively unhelpful when doing development work.  This breaks running tests
+in-tree for language interpreters which are system binaries because environment
+variables such as ``DYLD_LIBRARY_PATH`` are stripped from the environment and
+as a result the in-tree libxapian from xapian-core can't be found.
+
+The workaround is to ``make install`` for xapian-core before running ``make
+check`` for xapian-bindings, and we're aiming to at least keep this working.
+
+If you find having to do this too annoying, it's possible to disable SIP:
+https://developer.apple.com/documentation/security/disabling_and_enabling_system_integrity_protection
 
 Adding support for other programming languages
 ==============================================
@@ -88,9 +97,8 @@ Adding support for other programming languages
 Many languages can be done using SWIG, and it's probably easier to do so
 even though some languages may have better tools available just because it's
 less overall work.  SWIG makes it particularly easy to wrap a new method for
-all the supported languages at once, often by just copying the new method
-prototype into xapian.i (and for some headers we parse the Xapian header
-directly so no work is needed!)
+all the supported languages at once - in many cases just adding the method
+to the C++ API is enough, since SWIG parses the C++ API headers.
 
 What's really needed is someone interested in bindings for a particular
 language who knows that language well and will be using them actively.
@@ -112,46 +120,45 @@ language, how well you know it, and how well SWIG supports it.
 XS bindings for Perl have been contributed for Perl, and these are available
 on CPAN as `Search::Xapian`.  We also have SWIG-based Perl bindings which are
 in the ``perl`` subdirectory here, as a `Xapian` module.  These are replacing
-the XS-based `Search::Xapian`, and will eventually be on CPAN (certainly once
-1.4.0 is out, and probably before).  Currently SWIG's Perl backend doesn't
-support directors, so doesn't give us an easy mechanism for callbacks (e.g. for
-Xapian::MatchDecider) but perhaps we can do these by hand as they are in the XS
-bindings.
+the XS-based `Search::Xapian`, and will eventually be on CPAN.
 
 These are languages which SWIG supports and which people have done some work
 on producing Xapian bindings for:
 
+Go		There are some basic Go bindings written by Marius Tibeica in
+		the "golang" branch, which is currently based on the
+		RELEASE/1.4 branch.
+
+Ocaml		Dan Colish did some initial work on Ocaml support -
+		see: https://trac.xapian.org/ticket/588
+
 Pike		Bill Welliver has written some Pike bindings for Xapian
 		covering some of the API, which are available from here:
-		http://modules.gotpike.org/module_info.html?module_id=42
+		http://modules.gotpike.org/module/Public.Xapian?selected=1.10
 		These bindings appear to be hand-coded rather than generated
-		using SWIG.
-
-Guile		rm@fabula.de did some work on getting Guile bindings working,
-		but sadly most of this was lost when his laptop's hard disk
-		died.
+		using SWIG.  SWIG 4.0.0 has disabled Pike support due to
+		lack of recent maintenance, so SWIG is probably not a good
+		option here.
 
 There are a number of other languages which SWIG supports, but which nobody has
 yet (to our knowledge!) worked on producing Xapian bindings for - see
-http://www.swig.org/compare.html for a list of supported languages.
+https://www.swig.org/compare.html for a list of supported languages.
 
 It may be possible to support a language which isn't listed above, but it's
 likely to be harder unless you're already familiar with the tools available
 for wrapping a C++ library for use with that language.
 
 Implementing Deprecation Warnings for the Bindings
-=================================================
+==================================================
 
 Currently we don't have an equivalent of the C++ ``XAPIAN_DEPRECATED()`` macro
 for the bindings, but it would be good to have.  Here are some notes on how
 this could be achieved for various languages we support:
 
-  * PHP 5.3 added an E_USER_DEPRECATED error level, and we now require at
-    least 5.5.
+  * PHP now has an ``E_USER_DEPRECATED`` error level - in a deprecated method
+    we could do::
 
-    And then in a deprecated method we do:
-
-      trigger_error('World::hi() is deprecated, use World::hello() instead', XAPIAN_DEPRECATED);
+      trigger_error('World::hi() is deprecated, use World::hello() instead', E_USER_DEPRECATED);
 
   * Python has DeprecationWarning, which we were using in 1.2.x a bit::
 
@@ -160,7 +167,7 @@ this could be achieved for various languages we support:
   * Ruby - there are external libraries to handle deprecation warnings, but the
     simplest option without external dependencies seems to be::
 
-      warn '[DEPRECATION] 'World::hi() is deprecated, use World::hello() instead')
+      warn '[DEPRECATION] World::hi() is deprecated, use World::hello() instead'
 
   * Perl::
 

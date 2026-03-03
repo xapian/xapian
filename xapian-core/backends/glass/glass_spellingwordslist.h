@@ -1,7 +1,7 @@
-/** @file glass_spellingwordslist.h
+/** @file
  * @brief A termlist containing all words which are spelling targets.
  */
-/* Copyright (C) 2005,2008,2009,2010,2011,2017 Olly Betts
+/* Copyright (C) 2005,2008,2009,2010,2011,2017,2024 Olly Betts
  * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -15,8 +15,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_GLASS_SPELLINGWORDSLIST_H
@@ -68,13 +68,6 @@ class GlassSpellingWordsList : public AllTermsList {
 
     Xapian::termcount get_approx_size() const;
 
-    /** Returns the current termname.
-     *
-     *  Either next() or skip_to() must have been called before this
-     *  method can be called.
-     */
-    std::string get_termname() const;
-
     /** Returns the term frequency of the current term.
      *
      *  Either next() or skip_to() must have been called before this
@@ -82,21 +75,11 @@ class GlassSpellingWordsList : public AllTermsList {
      */
     Xapian::doccount get_termfreq() const;
 
-    /** Returns the collection frequency of the current term.
-     *
-     *  Either next() or skip_to() must have been called before this
-     *  method can be called.
-     */
-    Xapian::termcount get_collection_freq() const;
-
     /// Advance to the next term in the list.
     TermList * next();
 
     /// Advance to the first term which is >= tname.
-    TermList * skip_to(const std::string &tname);
-
-    /// True if we're off the end of the list
-    bool at_end() const;
+    TermList* skip_to(std::string_view tname);
 };
 
 #endif /* XAPIAN_INCLUDED_GLASS_SPELLINGWORDSLIST_H */

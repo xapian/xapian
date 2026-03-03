@@ -1,7 +1,7 @@
-/** @file expandweight.cc
+/** @file
  * @brief Calculate term weights for the ESet.
  */
-/* Copyright (C) 2007,2008,2011,2017 Olly Betts
+/* Copyright (C) 2007,2008,2011,2017,2023 Olly Betts
  * Copyright (C) 2011 Action Without Borders
  * Copyright (C) 2013 Aarsh Shah
  *
@@ -16,8 +16,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -42,7 +42,8 @@ ExpandWeight::collect_stats(TermList * merger, const std::string & term)
 
     merger->accumulate_stats(stats);
 
-    collection_freq = db.get_collection_freq(term);
+    if (want_collection_freq)
+	collection_freq = db.get_collection_freq(term);
 
     LOGVALUE(EXPAND, rsize);
     LOGVALUE(EXPAND, stats.rtermfreq);

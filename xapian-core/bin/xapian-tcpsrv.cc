@@ -1,8 +1,9 @@
-/* xapian-tcpsrv.cc: tcp daemon for use with Xapian's remote backend
- *
- * Copyright 1999,2000,2001 BrightStation PLC
+/** @file
+ * @brief tcp daemon for use with Xapian's remote backend
+ */
+/* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2006,2007,2008,2009,2010,2011,2013,2015 Olly Betts
+ * Copyright 2002,2003,2004,2006,2007,2008,2009,2010,2011,2013,2015,2023 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -15,16 +16,13 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
 
 #include <cstdlib>
-
-#include "safeerrno.h"
 
 #include <iostream>
 #include <string>
@@ -33,7 +31,8 @@
 
 #include "xapian/constants.h"
 #include "xapian/error.h"
-#include "net/remotetcpserver.h"
+#include "parseint.h"
+#include "remotetcpserver.h"
 #include "net/remoteserver.h"
 #include "stringutils.h"
 
@@ -47,8 +46,8 @@ static void register_user_weighting_schemes(RemoteTcpServer &server) {
     server.set_registry(reg);
 }
 
-const int MSECS_IDLE_TIMEOUT_DEFAULT = 60000;
-const int MSECS_ACTIVE_TIMEOUT_DEFAULT = 15000;
+#define MSECS_IDLE_TIMEOUT_DEFAULT 60000
+#define MSECS_ACTIVE_TIMEOUT_DEFAULT 15000
 
 #define PROG_NAME "xapian-tcpsrv"
 #define PROG_DESC "TCP daemon for use with Xapian's remote backend"
@@ -72,19 +71,21 @@ static const struct option long_opts[] = {
 };
 
 static void show_usage() {
-    cout << "Usage: " PROG_NAME " [OPTIONS] DATABASE_DIRECTORY...\n\n"
+    cout << "Usage: " PROG_NAME " [OPTIONS] DATABASE_PATH...\n\n"
 "Options:\n"
 "  --port PORTNUM          listen on port PORTNUM for connections (no default)\n"
 "  --interface ADDRESS     listen on the interface associated with name or\n"
 "                          address ADDRESS (default is all interfaces)\n"
-"  --idle-timeout MSECS    set timeout for idle connections (default " STRINGIZE(MSECS_IDLE_TIMEOUT_DEFAULT) "ms)\n"
-"  --active-timeout MSECS  set timeout for active connections (default " STRINGIZE(MSECS_ACTIVE_TIMEOUT_DEFAULT) "ms)\n"
+"  --idle-timeout MSECS    set timeout for idle connections (default: "
+    STRINGIZE(MSECS_IDLE_TIMEOUT_DEFAULT) "ms)\n"
+"  --active-timeout MSECS  set timeout for active connections (default: "
+    STRINGIZE(MSECS_ACTIVE_TIMEOUT_DEFAULT) "ms)\n"
 "  --timeout MSECS         set both timeout values\n"
 "  --one-shot              serve a single connection and exit\n"
 "  --quiet                 disable information messages to stdout\n"
-"  --writable              allow updates (only one database directory allowed)\n"
+"  --writable              allow updates\n"
 "  --help                  display this help and exit\n"
-"  --version               output version information and exit" << endl;
+"  --version               output version information and exit\n";
 }
 
 int main(int argc, char **argv) {
@@ -106,29 +107,46 @@ int main(int argc, char **argv) {
 		show_usage();
 		exit(0);
 	    case OPT_VERSION:
-		cout << PROG_NAME " - " PACKAGE_STRING << endl;
+		cout << PROG_NAME " - " PACKAGE_STRING "\n";
 		exit(0);
 	    case 'I':
 		host.assign(optarg);
 		break;
 	    case 'p':
-		port = atoi(optarg);
-		if (port <= 0 || port >= 65536) {
+		if (!parse_signed(optarg, port) ||
+		    (port < 1 || port > 65535)) {
 		    cerr << "Error: must specify a valid port number "
-			    "(between 1 and 65535). "
-			    "We actually got " << port << endl;
+			    "(between 1 and 65535).\n";
 		    exit(1);
 		}
 		break;
-	    case 'a':
-		active_timeout = atoi(optarg) * 1e-3;
+	    case 'a': {
+		unsigned int active;
+		if (!parse_unsigned(optarg, active)) {
+		    cerr << "Active timeout must be >= 0\n";
+		    exit(1);
+		}
+		active_timeout = active * 1e-3;
 		break;
-	    case 'i':
-		idle_timeout = atoi(optarg) * 1e-3;
+	    }
+	    case 'i': {
+		unsigned int idle;
+		if (!parse_unsigned(optarg, idle)) {
+		    cerr << "Idle timeout must be >= 0\n";
+		    exit(1);
+		}
+		idle_timeout = idle * 1e-3;
 		break;
-	    case 't':
-		active_timeout = idle_timeout = atoi(optarg) * 1e-3;
+	    }
+	    case 't': {
+		unsigned int timeout;
+		if (!parse_unsigned(optarg, timeout)) {
+		    cerr << "timeout must be >= 0\n";
+		    exit(1);
+		}
+		active_timeout = idle_timeout = timeout * 1e-3;
 		break;
+	    }
 	    case 'o':
 		one_shot = true;
 		break;
@@ -149,26 +167,22 @@ int main(int argc, char **argv) {
     }
 
     if (port == 0) {
-	cerr << "Error: You must specify a port with --port" << endl;
+	cerr << "Error: You must specify a port with --port\n";
 	exit(1);
     }
 
-    if (writable && (argc - optind) != 1) {
-	cerr << "Error: only one database directory allowed with '--writable'." << endl;
-	exit(1);
-    }
-
+    vector<string> dbnames(argv + optind, argv + argc);
     try {
-	vector<string> dbnames;
-	// Try to open the database(s) so we report problems now instead of
-	// waiting for the first connection.
-	if (writable) {
-	    Xapian::WritableDatabase db(argv[optind], Xapian::DB_CREATE_OR_OPEN);
-	    dbnames.push_back(argv[optind]);
-	} else {
-	    while (argv[optind]) {
-		dbnames.push_back(argv[optind]);
-		Xapian::Database db(argv[optind++]);
+	if (!one_shot) {
+	    // Try to open the database(s) so we report problems now instead of
+	    // waiting for the first connection.
+	    for (auto& dbname : dbnames) {
+		if (writable) {
+		    Xapian::WritableDatabase db(dbname,
+						Xapian::DB_CREATE_OR_OPEN);
+		} else {
+		    Xapian::Database db(dbname);
+		}
 	    }
 	}
 
@@ -179,14 +193,14 @@ int main(int argc, char **argv) {
 	    cout << " server on";
 	    if (!host.empty())
 		cout << " host " << host << ",";
-	    cout << " port " << port << endl;
+	    cout << " port " << port << '\n';
 	}
 
 	RemoteTcpServer server(dbnames, host, port, active_timeout,
 			       idle_timeout, writable, verbose);
 
 	if (verbose)
-	    cout << "Listening..." << endl;
+	    cout << "Listening...\n" << flush;
 
 	register_user_weighting_schemes(server);
 
@@ -196,13 +210,13 @@ int main(int argc, char **argv) {
 	    server.run();
 	}
     } catch (const Xapian::Error &e) {
-	cerr << e.get_description() << endl;
+	cerr << e.get_description() << '\n';
 	exit(1);
     } catch (const exception &e) {
-	cerr << "Caught standard exception: " << e.what() << endl;
+	cerr << "Caught standard exception: " << e.what() << '\n';
 	exit(1);
     } catch (...) {
-	cerr << "Caught unknown exception" << endl;
+	cerr << "Caught unknown exception\n";
 	exit(1);
     }
 }

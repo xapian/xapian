@@ -1,7 +1,7 @@
-/** @file msetinternal.h
+/** @file
  * @brief Xapian::MSet internals
  */
-/* Copyright 2016,2017 Olly Betts
+/* Copyright 2016,2017,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -14,8 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_MSETINTERNAL_H
@@ -32,6 +32,7 @@
 
 #include <memory>
 #include <string>
+#include <string_view>
 #include <unordered_map>
 #include <vector>
 
@@ -131,14 +132,15 @@ class MSet::Internal : public Xapian::Internal::intrusive_base {
 
     void unshard_docids(Xapian::doccount shard, Xapian::doccount n_shards);
 
-    void merge_stats(const Internal* o);
+    void merge_stats(const Internal* o, bool collapsing);
 
-    std::string snippet(const std::string & text, size_t length,
+    std::string snippet(std::string_view text,
+			size_t length,
 			const Xapian::Stem & stemmer,
 			unsigned flags,
-			const std::string & hi_start,
-			const std::string & hi_end,
-			const std::string & omit) const;
+			std::string_view hi_start,
+			std::string_view hi_end,
+			std::string_view omit) const;
 
     /** Serialise this object.
      *

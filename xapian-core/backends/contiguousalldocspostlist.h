@@ -1,4 +1,4 @@
-/** @file contiguousalldocspostlist.h
+/** @file
  * @brief Iterate all document ids when they form a contiguous range.
  */
 /* Copyright (C) 2007,2008,2009,2011,2017 Olly Betts
@@ -15,8 +15,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_CONTIGUOUSALLDOCSPOSTLIST_H
@@ -24,7 +24,7 @@
 
 #include <string>
 
-#include "api/leafpostlist.h"
+#include "leafpostlist.h"
 
 /// A PostList iterating all docids when they form a contiguous range.
 class ContiguousAllDocsPostList : public LeafPostList {
@@ -38,24 +38,19 @@ class ContiguousAllDocsPostList : public LeafPostList {
      *
      *  This will be 0 before we start and once we reach the end.
      */
-    Xapian::docid did;
-
-    /// The number of documents in the database.
-    Xapian::doccount doccount;
+    Xapian::docid did = 0;
 
   public:
     /// Constructor.
     explicit
-    ContiguousAllDocsPostList(Xapian::doccount doccount_)
-	: LeafPostList(std::string()),
-	  did(0), doccount(doccount_) { }
-
-    /** Return the term frequency.
-     *
-     *  For an all documents postlist, this is the number of documents in the
-     *  database.
-     */
-    Xapian::doccount get_termfreq() const;
+    ContiguousAllDocsPostList(Xapian::doccount doccount)
+	: LeafPostList({}) {
+	/* For an all documents postlist the term frequency is the number of
+	 * documents in the database.
+	 */
+	termfreq = doccount;
+	collfreq = doccount;
+    }
 
     /// Return the current docid.
     Xapian::docid get_docid() const;
@@ -77,6 +72,9 @@ class ContiguousAllDocsPostList : public LeafPostList {
 
     /// Return true if and only if we're off the end of the list.
     bool at_end() const;
+
+    /// Always return 1 (wdf isn't totally meaningful for us).
+    Xapian::termcount get_wdf_upper_bound() const;
 
     /// Return a string description of this object.
     std::string get_description() const;

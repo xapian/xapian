@@ -1,4 +1,4 @@
-/** @file wrapperpostlist.h
+/** @file
  * @brief Base class for a PostList which wraps another PostList
  */
 /* Copyright 2017 Olly Betts
@@ -14,14 +14,14 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_WRAPPERPOSTLIST_H
 #define XAPIAN_INCLUDED_WRAPPERPOSTLIST_H
 
-#include "api/postlist.h"
+#include "backends/postlist.h"
 
 /** Base class for a PostList which wraps another PostList.
  *
@@ -40,23 +40,17 @@ class WrapperPostList : public PostList {
     PostList* pl;
 
   public:
-    explicit WrapperPostList(PostList* pl_) : pl(pl_) {}
+    explicit WrapperPostList(PostList* pl_) : pl(pl_) {
+	termfreq = pl->get_termfreq();
+    }
 
     ~WrapperPostList() { delete pl; }
-
-    Xapian::doccount get_termfreq_min() const;
-
-    Xapian::doccount get_termfreq_max() const;
-
-    Xapian::doccount get_termfreq_est() const;
-
-    TermFreqs get_termfreq_est_using_stats(
-	    const Xapian::Weight::Internal& stats) const;
 
     Xapian::docid get_docid() const;
 
     double get_weight(Xapian::termcount doclen,
-		      Xapian::termcount unique_terms) const;
+		      Xapian::termcount unique_terms,
+		      Xapian::termcount wdfdocmax) const;
 
     bool at_end() const;
 

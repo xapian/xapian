@@ -1,4 +1,4 @@
-/** @file output.h
+/** @file
  * @brief std::ostream operator<< template for Xapian objects
  */
 /* Copyright (C) 2016 Olly Betts

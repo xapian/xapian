@@ -1,4 +1,4 @@
-/** @file backendmanager_remoteprog.cc
+/** @file
  * @brief BackendManager subclass for remoteprog databases.
  */
 /* Copyright (C) 2007,2008,2009 Olly Betts
@@ -15,8 +15,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -31,18 +31,13 @@
 
 using namespace std;
 
-std::string
-BackendManagerRemoteProg::get_dbtype() const
-{
-    return "remoteprog_" + sub_manager->get_dbtype();
-}
-
 Xapian::Database
 BackendManagerRemoteProg::do_get_database(const vector<string> & files)
 {
     // Default to a long (5 minute) timeout so that tests won't fail just
     // because the host is slow or busy.
-    return BackendManagerRemoteProg::get_remote_database(files, 300000);
+    return BackendManagerRemoteProg::get_remote_database(files, 300000,
+							 nullptr);
 }
 
 Xapian::WritableDatabase
@@ -60,11 +55,41 @@ BackendManagerRemoteProg::get_writable_database(const string & name,
     return Xapian::Remote::open_writable(XAPIAN_PROGSRV, args);
 }
 
+Xapian::WritableDatabase
+BackendManagerRemoteProg::get_remote_writable_database(string args)
+{
+#ifdef HAVE_VALGRIND
+    if (RUNNING_ON_VALGRIND) {
+	args.insert(0, XAPIAN_PROGSRV" ");
+	return Xapian::Remote::open_writable("./runsrv", args);
+    }
+#endif
+    return Xapian::Remote::open_writable(XAPIAN_PROGSRV, args);
+}
+
 Xapian::Database
 BackendManagerRemoteProg::get_remote_database(const vector<string> & files,
-					      unsigned int timeout)
+					      unsigned int timeout,
+					      int* port_ptr)
 {
     string args = get_remote_database_args(files, timeout);
+
+    // No port for remoteprog.
+    if (port_ptr) *port_ptr = 0;
+
+#ifdef HAVE_VALGRIND
+    if (RUNNING_ON_VALGRIND) {
+	args.insert(0, XAPIAN_PROGSRV" ");
+	return Xapian::Remote::open("./runsrv", args);
+    }
+#endif
+    return Xapian::Remote::open(XAPIAN_PROGSRV, args);
+}
+
+Xapian::Database
+BackendManagerRemoteProg::get_database_by_path(const string& path)
+{
+    string args = get_remote_database_args(path, 300000);
 
 #ifdef HAVE_VALGRIND
     if (RUNNING_ON_VALGRIND) {

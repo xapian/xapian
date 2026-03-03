@@ -1,4 +1,4 @@
-/** @file valuestreamdocument.h
+/** @file
  * @brief A document which gets its values from a ValueStreamManager.
  */
 /* Copyright (C) 2009,2011,2014,2017 Olly Betts
@@ -14,8 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_VALUESTREAMDOCUMENT_H
@@ -43,9 +43,9 @@ class ValueStreamDocument : public Xapian::Document::Internal {
 
     Xapian::Database db;
 
-    size_t current = 0;
+    Xapian::doccount current = 0;
 
-    size_t n_shards;
+    Xapian::doccount n_shards;
 
     mutable Xapian::Document::Internal * doc = NULL;
 
@@ -54,7 +54,7 @@ class ValueStreamDocument : public Xapian::Document::Internal {
      *  This is an implementation detail - the public constructor forwards to
      *  this constructor so we can use n_shards_ to init our parent class.
      */
-    ValueStreamDocument(const Xapian::Database& db_, size_t n_shards_)
+    ValueStreamDocument(const Xapian::Database& db_, Xapian::doccount n_shards_)
 	: Internal(n_shards_ == 1 ?
 		   db_.internal.get() :
 		   static_cast<MultiDatabase*>(db_.internal.get())->shards[0],
@@ -66,7 +66,7 @@ class ValueStreamDocument : public Xapian::Document::Internal {
     explicit ValueStreamDocument(const Xapian::Database& db_)
 	: ValueStreamDocument(db_, db_.internal->size()) {}
 
-    void new_shard(size_t n);
+    void new_shard(Xapian::doccount n);
 
     ~ValueStreamDocument();
 

@@ -1,6 +1,6 @@
 // Simple test that we can use xapian from java
 //
-// Copyright (C) 2005,2006,2007,2008,2011,2016,2017 Olly Betts
+// Copyright (C) 2005,2006,2007,2008,2011,2016,2017,2019,2023 Olly Betts
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -13,9 +13,8 @@
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software
-// Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
-// USA
+// along with this program; if not, see
+// <https://www.gnu.org/licenses/>.
 
 import org.xapian.*;
 
@@ -85,6 +84,24 @@ public class SmokeTest {
 		System.err.println("getData+setData doesn't transparently handle a zero byte");
 		System.exit(1);
 	    }
+	    if (!doc.toString().equals("Document(docid=0, data=a\\xc0\\x80b)")) {
+		System.err.println("XPASS: UTF-8 encoding of zero byte fixed!");
+		System.exit(1);
+	    }
+
+	    // Surrogate pair case:
+	    String falafel = new String(Character.toChars(0x1f9c6));
+	    doc.setData(falafel);
+	    s = doc.getData();
+	    if (!s.equals(falafel)) {
+		System.err.println("getData+setData doesn't transparently handle a surrogate pair");
+		System.exit(1);
+	    }
+	    if (!doc.toString().equals("Document(docid=0, data=\\xed\\xa0\\xbe\\xed\\xb7\\x86)")) {
+		System.err.println("XPASS: UTF-8 encoding of character >= U+10000 fixed!");
+		System.exit(1);
+	    }
+
 	    doc.setData("is there anybody out there?");
 	    doc.addTerm("XYzzy");
 // apply was stemWord() in the JNI bindings
@@ -99,6 +116,19 @@ public class SmokeTest {
 		System.err.println("Unexpected db.getDocCount()");
 		System.exit(1);
 	    }
+
+	    QueryParser qp = new QueryParser();
+
+	    // Test wrapping of null-able grouping parameter.
+	    qp.addBooleanPrefix("colour", "XC");
+	    qp.addBooleanPrefix("color", "XC");
+	    qp.addBooleanPrefix("foo", "XFOO", null);
+	    qp.addBooleanPrefix("bar", "XBAR", "XBA*");
+	    qp.addBooleanPrefix("baa", "XBAA", "XBA*");
+	    DateRangeProcessor rpdate = new DateRangeProcessor(1, Xapian.RP_DATE_PREFER_MDY, 1960);
+	    qp.addRangeprocessor(rpdate);
+	    qp.addRangeprocessor(rpdate, null);
+	    qp.addRangeprocessor(rpdate, "foo");
 
             if (!Query.MatchAll.toString().equals("Query(<alldocuments>)")) {
 		System.err.println("Unexpected Query.MatchAll.toString()");
@@ -129,6 +159,13 @@ public class SmokeTest {
 		System.exit(1);
 	    }
 	    Enquire enq = new Enquire(db);
+
+	    // Check Xapian::BAD_VALUENO is wrapped suitably.
+	    enq.setCollapseKey(Xapian.BAD_VALUENO);
+
+	    // Test that the non-constant wrapping prior to 1.4.10 still works.
+	    enq.setCollapseKey(Xapian.getBAD_VALUENO());
+
 	    enq.setQuery(new Query(Query.OP_OR, "there", "is"));
 	    MSet mset = enq.getMSet(0, 10);
 	    if (mset.size() != 1) {
@@ -221,7 +258,6 @@ public class SmokeTest {
 	    }
 
 	    {
-		QueryParser qp = new QueryParser();
 		qp.addPrefix("food", new MyFieldProcessor());
 		if (!qp.parseQuery("food:spam").toString().equals("Query(eggs)")) {
 		    System.err.println("FieldProcessor subclass doesn't work as expected");

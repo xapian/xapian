@@ -1,4 +1,4 @@
-/** @file soaktest_queries.cc
+/** @file
  * @brief Soaktest generating lots of random queries.
  */
 /* Copyright (C) 2010 Richard Boulton
@@ -15,9 +15,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -239,6 +238,4 @@ DEFINE_TESTCASE(queries1, writable && !remote && !inmemory) {
 	TEST(mset_range_is_same(mset1, 0, msetall, 0, mset1.size()));
 	TEST(mset_range_is_same(mset10, 0, msetall, 0, mset10.size()));
     }
-
-    return true;
 }

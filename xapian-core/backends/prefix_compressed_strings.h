@@ -1,7 +1,7 @@
-/** @file prefix_compressed_strings.h
+/** @file
  * @brief Handle encoding and decoding prefix-compressed lists of strings
  */
-/* Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2018 Olly Betts
+/* Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2018,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -14,9 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_PREFIX_COMPRESSED_STRINGS_H
@@ -24,6 +23,7 @@
 
 #include <xapian/error.h>
 
+#include <algorithm>
 #include <string>
 
 #include "honey/honey_spelling.h"
@@ -50,6 +50,9 @@ class PrefixCompressedStringItor {
 
     PrefixCompressedStringItor(PrefixCompressedStringItor& o)
 	: p(o.p), left(o.left), current(o.current), tail(o.tail) {}
+
+    PrefixCompressedStringItor(PrefixCompressedStringItor&& o)
+	: p(o.p), left(o.left), current(std::move(o.current)), tail(o.tail) {}
 
   public:
     /** Construct for glass.
@@ -197,6 +200,8 @@ class PrefixCompressedStringWriter {
 	    if (tail > 1)
 		AssertEq(current[current.size() - 2], word[word.size() - 2]);
 	    size_t i = common_prefix_length(current, word);
+	    // Don't allow the reused prefix to overlap with tail
+	    i = std::min(i, word.size() - tail);
 	    out += char(i ^ MAGIC_XOR_VALUE);
 	    size_t add = word.size() - i - tail;
 	    out += char(add ^ MAGIC_XOR_VALUE);

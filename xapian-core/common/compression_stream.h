@@ -1,4 +1,4 @@
-/** @file compression_stream.h
+/** @file
  * @brief class wrapper around zlib
  */
 /* Copyright (C) 2012 Dan Colish
@@ -15,8 +15,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_COMPRESSION_STREAM_H
@@ -29,15 +29,15 @@
 class CompressionStream {
     int compress_strategy;
 
-    size_t out_len;
+    size_t out_len = 0;
 
-    char* out;
+    char* out = nullptr;
 
     /// Zlib state object for deflating
-    z_stream* deflate_zstream;
+    z_stream* deflate_zstream = nullptr;
 
     /// Zlib state object for inflating
-    z_stream* inflate_zstream;
+    z_stream* inflate_zstream = nullptr;
 
     /// Allocate the zstream for deflating, if not already allocated.
     void lazy_alloc_deflate_zstream();
@@ -52,11 +52,7 @@ class CompressionStream {
      *					Z_FILTERED, Z_HUFFMAN_ONLY, or Z_RLE.
      */
     explicit CompressionStream(int compress_strategy_ = Z_DEFAULT_STRATEGY)
-	: compress_strategy(compress_strategy_),
-	  out_len(0),
-	  out(NULL),
-	  deflate_zstream(NULL),
-	  inflate_zstream(NULL)
+	: compress_strategy(compress_strategy_)
     { }
 
     ~CompressionStream();

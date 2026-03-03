@@ -1,7 +1,7 @@
-/** @file copydatabase.cc
+/** @file
  * @brief Perform a document-by-document copy of one or more Xapian databases.
  */
-/* Copyright (C) 2006,2007,2008,2009,2010,2011 Olly Betts
+/* Copyright (C) 2006-2022 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -47,7 +47,7 @@ show_usage(int rc)
 "                   one, the last occurrence will be the one which ends up in\n"
 "                   the destination database.\n"
 "  --help           display this help and exit\n"
-"  --version        output version information and exit" << endl;
+"  --version        output version information and exit\n";
     exit(rc);
 }
 
@@ -61,7 +61,7 @@ try {
 	    show_usage(0);
 	}
 	if (strcmp(argv[1], "--version") == 0) {
-	    cout << PROG_NAME " - " PACKAGE_STRING << endl;
+	    cout << PROG_NAME " - " PACKAGE_STRING "\n";
 	    exit(0);
 	}
 	if (strcmp(argv[1], "--no-renumber") == 0) {
@@ -86,10 +86,10 @@ try {
 	string src = argv[i];
 	if (!src.empty()) {
 	    // Remove any trailing directory separator.
-	    char& ch = src.back();
+	    char ch = src.back();
 	    for (char dir_sep : DIR_SEPS_LIST) {
 		if (ch == dir_sep) {
-		    ch = '\0';
+		    src.resize(src.size() - 1);
 		    break;
 		}
 	    }
@@ -108,14 +108,14 @@ try {
 	// Iterate over all the documents in db_in, copying each to db_out.
 	Xapian::doccount dbsize = db_in.get_doccount();
 	if (dbsize == 0) {
-	    cout << leaf << ": empty!" << endl;
+	    cout << leaf << ": empty!\n";
 	} else {
 	    // Calculate how many decimal digits there are in dbsize.
 	    int width = static_cast<int>(log10(double(dbsize))) + 1;
 
 	    Xapian::doccount c = 0;
-	    Xapian::PostingIterator it = db_in.postlist_begin(string());
-	    while (it != db_in.postlist_end(string())) {
+	    Xapian::PostingIterator it = db_in.postlist_begin(string_view{});
+	    while (it != db_in.postlist_end(string_view{})) {
 		Xapian::docid did = *it;
 		if (renumber) {
 		    db_out.add_document(db_in.get_document(did));
@@ -136,7 +136,7 @@ try {
 		++it;
 	    }
 
-	    cout << endl;
+	    cout << '\n';
 	}
 
 	cout << "Copying spelling data..." << flush;
@@ -145,7 +145,7 @@ try {
 	    db_out.add_spelling(*spellword, spellword.get_termfreq());
 	    ++spellword;
 	}
-	cout << " done." << endl;
+	cout << " done.\n";
 
 	cout << "Copying synonym data..." << flush;
 	Xapian::TermIterator synkey = db_in.synonym_keys_begin();
@@ -158,7 +158,7 @@ try {
 	    }
 	    ++synkey;
 	}
-	cout << " done." << endl;
+	cout << " done.\n";
 
 	cout << "Copying user metadata..." << flush;
 	Xapian::TermIterator metakey = db_in.metadata_keys_begin();
@@ -167,14 +167,14 @@ try {
 	    db_out.set_metadata(key, db_in.get_metadata(key));
 	    ++metakey;
 	}
-	cout << " done." << endl;
+	cout << " done.\n";
     }
 
     cout << "Committing..." << flush;
     // Commit explicitly so that any error is reported.
     db_out.commit();
-    cout << " done." << endl;
+    cout << " done.\n";
 } catch (const Xapian::Error & e) {
-    cerr << '\n' << argv[0] << ": " << e.get_description() << endl;
+    cerr << '\n' << argv[0] << ": " << e.get_description() << '\n';
     exit(1);
 }

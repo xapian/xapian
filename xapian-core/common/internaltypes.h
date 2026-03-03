@@ -1,4 +1,4 @@
-/** @file internaltypes.h
+/** @file
  * @brief Types used internally.
  */
 /* Copyright (C) 2009,2010,2014,2016 Olly Betts
@@ -14,9 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_INTERNALTYPES_H
@@ -29,9 +28,6 @@
 // we care about which lack them, we could use wider types with some care
 // around where we read and write them.
 
-typedef uint8_t byte;
-typedef uint16_t uint2;
 typedef uint32_t uint4;
-typedef uint64_t uint8;
 
 #endif // XAPIAN_INCLUDED_INTERNALTYPES_H

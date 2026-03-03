@@ -2,7 +2,7 @@
 %{
 /* tcl.i: SWIG interface file for the Tcl bindings
  *
- * Copyright (c) 2006,2007,2011,2012,2015 Olly Betts
+ * Copyright (c) 2006,2007,2011,2012,2015,2019,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -15,31 +15,17 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 %}
 
 %include ../xapian-head.i
 
-%{
-namespace Xapian {
-    Query *get_tcl8_query(Tcl_Interp *interp, Tcl_Obj *obj) {
-	Query * retval = 0;
-	if (SWIG_ConvertPtr(obj, (void **)&retval,
-			    SWIGTYPE_p_Xapian__Query, 0) != TCL_OK) {
-	    retval = 0;
-	}
-	return retval;
-    }
-}
-%}
-
 #define XAPIAN_MIXED_SUBQUERIES_BY_ITERATOR_TYPEMAP
 
 %typemap(typecheck, precedence=100) (XapianSWIGQueryItor qbegin, XapianSWIGQueryItor qend) {
-    int dummy;
+    Tcl_Size dummy;
     $1 = (Tcl_ListObjLength(interp, $input, &dummy) == TCL_OK);
     /* FIXME: if we add more array typemaps, we'll need to check the elements
      * of the array here to disambiguate. */
@@ -73,12 +59,14 @@ class XapianSWIGQueryItor {
     }
 
     Xapian::Query operator*() const {
-	Tcl_Obj * item = *items;
-	Xapian::Query * subq = Xapian::get_tcl8_query(interp, item);
-	if (subq)
+	Tcl_Obj* item = *items;
+	Xapian::Query* subq = 0;
+	if (SWIG_ConvertPtr(item, (void **)&subq,
+			    SWIGTYPE_p_Xapian__Query, 0) == TCL_OK) {
 	    return *subq;
+	}
 
-	int len;
+	Tcl_Size len;
 	const char *p = Tcl_GetStringFromObj(item, &len);
 	return Xapian::Query(string(p, len));
     }
@@ -92,8 +80,8 @@ class XapianSWIGQueryItor {
     }
 
     difference_type operator-(const XapianSWIGQueryItor &o) const {
-        // Note: n counts *DOWN*, so reverse subtract.
-        return o.n - n;
+	// Note: n counts *DOWN*, so reverse subtract.
+	return o.n - n;
     }
 };
 
@@ -101,7 +89,7 @@ class XapianSWIGQueryItor {
 
 %typemap(in) (XapianSWIGQueryItor qbegin, XapianSWIGQueryItor qend) {
     Tcl_Obj ** items;
-    int numitems;
+    Tcl_Size numitems;
     if (Tcl_ListObjGetElements(interp, $input, &numitems, &items) != TCL_OK) {
 	return TCL_ERROR;
     }

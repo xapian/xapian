@@ -1,7 +1,7 @@
-/** @file unittest.cc
+/** @file
  * @brief Unit tests of non-Xapian-specific internal code.
  */
-/* Copyright (C) 2006,2007,2009,2010,2012,2015,2016,2017 Olly Betts
+/* Copyright (C) 2006-2025 Olly Betts
  * Copyright (C) 2007 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -15,19 +15,22 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
 
 #include <cctype>
+#include <cerrno>
 #include <cfloat>
 #include <climits>
 #include <cmath>
 #include <cstring>
 #include <iostream>
+#include <limits>
+#include <memory>
+#include <string_view>
 #include <utility>
 
 #include "safeunistd.h"
@@ -43,8 +46,6 @@ static const char * unittest_assertion_failed = NULL;
 
 #include "testsuite.h"
 
-using namespace std;
-
 #define UNITTEST_ASSERT_LOCATION__(LINE,MSG) __FILE__":"#LINE": "#MSG
 #define UNITTEST_ASSERT_LOCATION_(LINE,MSG) UNITTEST_ASSERT_LOCATION__(LINE,MSG)
 #define UNITTEST_ASSERT_LOCATION(MSG) UNITTEST_ASSERT_LOCATION_(__LINE__,MSG)
@@ -59,7 +60,6 @@ using namespace std;
 // Utility code we use:
 #include "../backends/multi.h"
 #include "../common/stringutils.h"
-#include "../common/log2.h"
 
 // Simpler version of TEST_EXCEPTION macro.
 #define TEST_EXCEPTION(TYPE, CODE) \
@@ -73,71 +73,65 @@ using namespace std;
     } while (0)
 
 // Code we're unit testing:
+#include "../backends/uuids.cc"
 #include "../common/closefrom.cc"
 #include "../common/errno_to_string.cc"
+#include "../common/io_utils.cc"
 #include "../common/fileutils.cc"
+#include "../common/overflow.h"
+#include "../common/pack.cc"
+#include "../common/parseint.h"
+#include "../common/posixy_wrapper.cc"
 #include "../common/serialise-double.cc"
 #include "../common/str.cc"
-#include "../common/safeuuid.h"
-#ifdef USE_WIN32_UUID_API
-# include "../common/win32_uuid.cc"
-#elif defined HAVE_UUID_UUID_H
-// Implementation in library.
-#elif defined HAVE_UUID_H
-// Implementation in library.
-#elif defined USE_PROC_FOR_UUID
-# include "../common/proc_uuid.cc"
-#endif
-#include "../net/length.cc"
 #include "../net/serialise-error.cc"
 #include "../api/error.cc"
+#include "../api/smallvector.cc"
 #include "../api/sortable-serialise.cc"
 #include "../include/xapian/intrusive_ptr.h"
 
 // fileutils.cc uses opendir(), etc though not in a function we currently test.
 #include "../common/msvc_dirent.cc"
 
-// The UUID code uses hexdigit().
+// The UUID code uses hex_decode().
 #include "../api/constinfo.cc"
+
+using namespace std;
 
 // Stub replacement, which doesn't deal with escaping or producing valid UTF-8.
 // The full implementation needs Xapian::Utf8Iterator and
 // Xapian::Unicode::append_utf8().
 void
-description_append(std::string & desc, const std::string &s)
+description_append(std::string& desc, std::string_view s)
 {
     desc += s;
 }
 
-DEFINE_TESTCASE_(simple_exceptions_work1) {
+DEFINE_TESTCASE(simple_exceptions_work1) {
     try {
 	throw 42;
     } catch (int val) {
 	TEST_EQUAL(val, 42);
-	return true;
     }
-    return false;
 }
 
 class TestException { };
 
-DEFINE_TESTCASE_(class_exceptions_work1) {
+DEFINE_TESTCASE(class_exceptions_work1) {
     try {
 	throw TestException();
     } catch (const TestException &) {
-	return true;
     }
-    return false;
 }
 
-inline string
+static inline string
 r_r_p(string a, const string & b)
 {
     resolve_relative_path(a, b);
     return a;
 }
 
-DEFINE_TESTCASE_(resolverelativepath1) {
+DEFINE_TESTCASE(resolverelativepath1) {
     TEST_EQUAL(r_r_p("/abs/o/lute", ""), "/abs/o/lute");
     TEST_EQUAL(r_r_p("/abs/o/lute", "/"), "/abs/o/lute");
     TEST_EQUAL(r_r_p("/abs/o/lute", "//"), "/abs/o/lute");
@@ -208,7 +202,6 @@ DEFINE_TESTCASE_(resolverelativepath1) {
     TEST_EQUAL(r_r_p("r/elativ/e", "\\\\?\\UNC\\S\\V\\"), "\\\\?\\UNC\\S\\V\\r\\elativ\\e");
     TEST_EQUAL(r_r_p("r/elativ/e", "\\\\?\\UNC\\S\\V\\TMP\\README.TXT"), "\\\\?\\UNC\\S\\V\\TMP\\r\\elativ\\e");
 #endif
-    return true;
 }
 
 static void
@@ -230,15 +223,15 @@ check_double_serialisation(double u)
     const char * end = ptr[1] + encoded.size();
     double v = unserialise_double(&(ptr[1]), end);
     if (ptr[1] != end || u != v) {
-	cout << u << " -> " << v << ", difference = " << v - u << endl;
-	cout << "FLT_RADIX = " << FLT_RADIX << endl;
-	cout << "DBL_MAX_EXP = " << DBL_MAX_EXP << endl;
+	cout << u << " -> " << v << ", difference = " << v - u << '\n';
+	cout << "FLT_RADIX = " << FLT_RADIX << '\n';
+	cout << "DBL_MAX_EXP = " << DBL_MAX_EXP << '\n';
     }
     TEST_EQUAL(static_cast<const void*>(ptr[1]), static_cast<const void*>(end));
 }
 
 // Check serialisation of doubles.
-DEFINE_TESTCASE_(serialisedouble1) {
+DEFINE_TESTCASE(serialisedouble1) {
     static const double test_values[] = {
 	3.14159265,
 	1e57,
@@ -258,30 +251,26 @@ DEFINE_TESTCASE_(serialisedouble1) {
     check_double_serialisation(DBL_MIN);
     check_double_serialisation(-DBL_MIN);
 
-    const double *p;
-    for (p = test_values; p < test_values + sizeof(test_values) / sizeof(double); ++p) {
-	double val = *p;
+    for (double val : test_values) {
 	check_double_serialisation(val);
 	check_double_serialisation(-val);
 	check_double_serialisation(1.0 / val);
 	check_double_serialisation(-1.0 / val);
     }
-
-    return true;
 }
 
-#ifdef XAPIAN_HAS_REMOTE_BACKEND
-// Check serialisation of lengths.
-static bool test_serialiselength1()
+// Test pack_uint() and unpack_uint().
+static void test_packuint1()
 {
     size_t n = 0;
     while (n < 0xff000000) {
-	string s = encode_length(n);
-	const char *p = s.data();
-	const char *p_end = p + s.size();
+	string s;
+	pack_uint(s, n);
+	const char* p = s.data();
+	const char* p_end = p + s.size();
 	size_t decoded_n;
-	decode_length(&p, p_end, decoded_n);
-	if (n != decoded_n || p != p_end) tout << "[" << s << "]" << endl;
+	TEST(unpack_uint(&p, p_end, &decoded_n));
+	if (n != decoded_n || p != p_end) tout << "[" << s << "]\n";
 	TEST_EQUAL(n, decoded_n);
 	TEST_EQUAL(p_end - p, 0);
 	if (n < 5000) {
@@ -290,108 +279,72 @@ static bool test_serialiselength1()
 	    n += 53643;
 	}
     }
-
-    return true;
 }
 
-// Regression test: vetting the remaining buffer length
-static bool test_serialiselength2()
+static void
+packstring1_helper(size_t len)
 {
-    // Special case tests for 0
+    string s;
+    pack_string(s, string(len, 'x'));
     {
-	string s = encode_length(0);
-	{
-	    const char *p = s.data();
-	    const char *p_end = p + s.size();
-	    size_t r;
-	    decode_length_and_check(&p, p_end, r);
-	    TEST(r == 0);
-	    TEST(p == p_end);
-	}
-	s += 'x';
-	{
-	    const char *p = s.data();
-	    const char *p_end = p + s.size();
-	    size_t r;
-	    decode_length_and_check(&p, p_end, r);
-	    TEST(r == 0);
-	    TEST_EQUAL(p_end - p, 1);
-	}
+	const char* p = s.data();
+	const char* p_end = p + s.size();
+	// unpack_string() should overwrite any existing value.
+	string r = "dummy";
+	TEST(unpack_string(&p, p_end, r));
+	TEST_EQUAL(r.size(), len);
+	TEST_EQUAL(r.find_first_not_of('x'), r.npos);
+	TEST(p == p_end);
     }
-    // Special case tests for 1
+    s += 'x';
     {
-	string s = encode_length(1);
-	TEST_EXCEPTION(Xapian_NetworkError,
-	    const char *p = s.data();
-	    const char *p_end = p + s.size();
-	    size_t r;
-	    decode_length_and_check(&p, p_end, r);
-	    (void)r;
-	);
-	s += 'x';
-	{
-	    const char *p = s.data();
-	    const char *p_end = p + s.size();
-	    size_t r;
-	    decode_length_and_check(&p, p_end, r);
-	    TEST(r == 1);
-	    TEST_EQUAL(p_end - p, 1);
-	}
-	s += 'x';
-	{
-	    const char *p = s.data();
-	    const char *p_end = p + s.size();
-	    size_t r;
-	    decode_length_and_check(&p, p_end, r);
-	    TEST(r == 1);
-	    TEST_EQUAL(p_end - p, 2);
-	}
+	const char* p = s.data();
+	const char* p_end = p + s.size();
+	// unpack_string() should overwrite any existing value.
+	string r = "dummy";
+	TEST(unpack_string(&p, p_end, r));
+	TEST_EQUAL(r.size(), len);
+	TEST_EQUAL(r.find_first_not_of('x'), r.npos);
+	TEST_EQUAL(p_end - p, 1);
     }
+    // Test truncated encodings fail to unpack.
+    size_t trunc_len = s.size() - 2;
+    do {
+	const char* p = s.data();
+	const char* p_end = p + trunc_len;
+	string r;
+	TEST(!unpack_string(&p, p_end, r));
+	TEST(!p);
+	trunc_len >>= 1;
+    } while (trunc_len);
+}
+
+// Test pack_string() and unpack_string().
+static void test_packstring1()
+{
+    packstring1_helper(0);
+    packstring1_helper(1);
     // Nothing magic here, just test a range of odd and even values.
     for (size_t n = 2; n < 1000; n = (n + 1) * 2 + (n >> 1)) {
-	string s = encode_length(n);
-	TEST_EXCEPTION(Xapian_NetworkError,
-	    const char *p = s.data();
-	    const char *p_end = p + s.size();
-	    size_t r;
-	    decode_length_and_check(&p, p_end, r);
-	    (void)r;
-	);
-	s.append(n - 1, 'x');
-	TEST_EXCEPTION(Xapian_NetworkError,
-	    const char *p = s.data();
-	    const char *p_end = p + s.size();
-	    size_t r;
-	    decode_length_and_check(&p, p_end, r);
-	    (void)r;
-	);
-	s += 'x';
-	{
-	    const char *p = s.data();
-	    const char *p_end = p + s.size();
-	    size_t r;
-	    decode_length_and_check(&p, p_end, r);
-	    TEST(r == n);
-	    TEST_EQUAL(size_t(p_end - p), n);
-	}
-	s += 'x';
-	{
-	    const char *p = s.data();
-	    const char *p_end = p + s.size();
-	    size_t r;
-	    decode_length_and_check(&p, p_end, r);
-	    TEST(r == n);
-	    TEST_EQUAL(size_t(p_end - p), n + 1);
-	}
+	packstring1_helper(n);
     }
-
-    return true;
 }
 
-// Check serialisation of Xapian::Error.
-static bool test_serialiseerror1()
+// Test pack_string_empty()
+static void test_packstring2()
 {
-    string enoent_msg(strerror(ENOENT));
+    string s;
+    pack_string(s, {});
+    string s_empty;
+    pack_string_empty(s_empty);
+    TEST_EQUAL(s, s_empty);
+}
+
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
+// Check serialisation of Xapian::Error.
+static void test_serialiseerror1()
+{
+    string enoent_msg = errno_to_string(ENOENT);
     Xapian::DatabaseOpeningError e("Failed to open database", ENOENT);
     // Regression test for bug in 1.0.0 - it didn't convert errno values for
     // get_description() if they hadn't already been converted.
@@ -421,25 +374,10 @@ static bool test_serialiseerror1()
     // pointer, resulting in double calls to free().
     Xapian::DatabaseOpeningError ecopy(e);
     TEST_STRINGS_EQUAL(ecopy.get_error_string(), enoent_msg);
-
-    return true;
 }
 #endif
-
-// Test log2() (which might be our replacement version).
-static bool test_log2()
-{
-    TEST_EQUAL(log2(1.0), 0.0);
-    TEST_EQUAL(log2(2.0), 1.0);
-    TEST_EQUAL(log2(1024.0), 10.0);
-    TEST_EQUAL(log2(0.5), -1.0);
-    return true;
-}
 
 static const double test_sortableserialise_numbers[] = {
-#ifdef INFINITY
-    -INFINITY,
-#endif
     -HUGE_VAL,
     -DBL_MAX,
     -exp2(1022),
@@ -481,9 +419,6 @@ static const double test_sortableserialise_numbers[] = {
     exp2(1022),
     DBL_MAX,
     HUGE_VAL,
-#ifdef INFINITY
-    INFINITY,
-#endif
 
     64 // Magic number which we stop at.
 };
@@ -491,7 +426,7 @@ static const double test_sortableserialise_numbers[] = {
 // Test serialisation and unserialisation of various numbers.
 // This is actually a public API, but we want extra assertions in the code
 // while we test it.
-static bool test_sortableserialise1()
+static void test_sortableserialise1()
 {
     double prevnum = 0;
     string prevstr;
@@ -527,10 +462,26 @@ static bool test_sortableserialise1()
 	prevstr = str;
 	started = true;
     }
-    return true;
 }
 
-static bool test_tostring1()
+template<typename S>
+inline static void tostring_helper() {
+    const S max_val = numeric_limits<S>::max();
+    const S min_val = numeric_limits<S>::min();
+    tout << "Testing with tostring_helper\n";
+    std::ostringstream oss;
+    oss << (long long)max_val;
+    TEST_EQUAL(str(max_val), oss.str());
+    oss.str("");
+    oss.clear();
+
+    oss << (long long)min_val;
+    TEST_EQUAL(str(min_val), oss.str());
+    oss.str("");
+    oss.clear();
+}
+
+static void test_tostring1()
 {
     TEST_EQUAL(str(0), "0");
     TEST_EQUAL(str(0u), "0");
@@ -543,10 +494,19 @@ static bool test_tostring1()
     TEST_EQUAL(str(-1), "-1");
     TEST_EQUAL(str(-9), "-9");
     TEST_EQUAL(str(-10), "-10");
+    TEST_EQUAL(str(0x7f), "127");
+    TEST_EQUAL(str(-0x80), "-128");
+    TEST_EQUAL(str(0x7fff), "32767");
     TEST_EQUAL(str(0xffffffff), "4294967295");
     TEST_EQUAL(str(0x7fffffff), "2147483647");
     TEST_EQUAL(str(0x7fffffffu), "2147483647");
     TEST_EQUAL(str(-0x7fffffff), "-2147483647");
+
+    tostring_helper<char>();
+    tostring_helper<short>();
+    tostring_helper<int>();
+    tostring_helper<long>();
+    tostring_helper<long long>();
 
 #ifdef __WIN32__
     /* Test the 64 bit integer conversion to string.
@@ -559,23 +519,21 @@ static bool test_tostring1()
 // anywhere in the library.
 //    TEST_EQUAL(str(0x200000000ull), "8589934592");
 #endif
-
-    return true;
 }
 
 /// Regression test for bug fixed in 1.1.1.
-static bool test_strbool1()
+static void test_strbool1()
 {
     TEST_EQUAL(str(true), "1");
     TEST_EQUAL(str(false), "0");
-    return true;
 }
 
-static bool test_closefrom1()
+static void test_closefrom1()
 {
 #ifndef __WIN32__
-    // Simple test.
-    closefrom(8);
+    // Simple test.  Start from 13 as on macOS the FDTracker seems to get fd
+    // 10 and we don't want to collide with that.
+    closefrom(13);
 
     // Simple test when there are definitely no fds to close.
     closefrom(42);
@@ -592,15 +550,14 @@ static bool test_closefrom1()
     TEST(close(15) == -1 && errno == EBADF);
     TEST(close(18) == -1 && errno == EBADF);
 #endif
-    return true;
 }
 
-static bool test_shard1()
+static void test_shard1()
 {
     for (Xapian::docid did = 1; did != 10; ++did) {
-	for (size_t n = 1; n != 10; ++n) {
+	for (Xapian::doccount n = 1; n != 10; ++n) {
 	    Xapian::docid s_did = shard_docid(did, n);
-	    size_t shard = shard_number(did, n);
+	    Xapian::doccount shard = shard_number(did, n);
 	    TEST_EQUAL(s_did, (did - 1) / n + 1);
 	    TEST_EQUAL(shard, (did - 1) % n);
 	    if (n == 1)
@@ -615,71 +572,78 @@ static bool test_shard1()
 	    TEST_EQUAL(did, unshard(s_did, shard, n));
 	}
     }
-    return true;
 }
 
-static bool test_uuid1()
+static void test_uuid1()
 {
-    char buf[37];
-    uuid_t uuid, uuid2;
-
-    // Test null uuid.
-    uuid_clear(uuid);
-    TEST(uuid_is_null(uuid));
-    uuid_unparse_lower(uuid, buf);
-    TEST_EQUAL(buf[36], '\0');
-    TEST_EQUAL(strlen(buf), 36);
-    TEST_EQUAL(string(buf, 36), "00000000-0000-0000-0000-000000000000");
-    memset(uuid2, 0xff, sizeof(uuid));
-    uuid_parse(buf, uuid2);
-    TEST(memcmp(uuid, uuid2, sizeof(uuid)) == 0);
+    Uuid uuid, uuid2;
 
     // Test a generated uuid.
-    uuid_generate(uuid);
-    TEST(!uuid_is_null(uuid));
-    uuid_unparse_lower(uuid, buf);
-    TEST_EQUAL(buf[36], '\0');
-    TEST_EQUAL(strlen(buf), 36);
-    TEST_NOT_EQUAL(string(buf, 36), "00000000-0000-0000-0000-000000000000");
+    uuid.generate();
+    TEST(!uuid.is_null());
+    string str = uuid.to_string();
+    TEST_EQUAL(str.size(), 36);
+    TEST_NOT_EQUAL(str, "00000000-0000-0000-0000-000000000000");
     // Check UUID pattern is correct and that upper case is not used.
     for (int i = 0; i != 8; ++i) {
-	unsigned char ch = buf[i];
+	unsigned char ch = str[i];
 	TEST(isxdigit(ch));
 	TEST(!isupper(ch));
     }
-    TEST_EQUAL(buf[8], '-');
+    TEST_EQUAL(str[8], '-');
     for (int i = 9; i != 13; ++i) {
-	unsigned char ch = buf[i];
+	unsigned char ch = str[i];
 	TEST(isxdigit(ch));
 	TEST(!isupper(ch));
     }
-    TEST_EQUAL(buf[13], '-');
+    TEST_EQUAL(str[13], '-');
     for (int i = 14; i != 18; ++i) {
-	unsigned char ch = buf[i];
+	unsigned char ch = str[i];
 	TEST(isxdigit(ch));
 	TEST(!isupper(ch));
     }
-    TEST_EQUAL(buf[18], '-');
+    TEST_EQUAL(str[18], '-');
     for (int i = 19; i != 23; ++i) {
-	unsigned char ch = buf[i];
+	unsigned char ch = str[i];
 	TEST(isxdigit(ch));
 	TEST(!isupper(ch));
     }
-    TEST_EQUAL(buf[23], '-');
+    TEST_EQUAL(str[23], '-');
     for (int i = 24; i != 36; ++i) {
-	unsigned char ch = buf[i];
+	unsigned char ch = str[i];
 	TEST(isxdigit(ch));
 	TEST(!isupper(ch));
     }
-    uuid_parse(buf, uuid2);
-    TEST(memcmp(uuid, uuid2, sizeof(uuid)) == 0);
+
+    uuid2.parse(str);
+    TEST(memcmp(uuid.data(), uuid2.data(), uuid.BINARY_SIZE) == 0);
+
+    // Check the variant is "10x" and the version between 1 and 5.  Mostly this
+    // is to catch bugs where the platform's API for generating UUIDs uses a
+    // different endianness for fields (which we've run into under both WIN32
+    // and FreeBSD).
+    TEST_EQUAL(uuid.data()[8] & 0xc0, 0x80);
+    TEST_REL(str[19], >=, '8');
+    TEST_REL(str[19], <=, 'b');
+    TEST_REL(int(uuid.data()[6]), >=, 0x10);
+    TEST_REL(int(uuid.data()[6]), <=, 0x5f);
+    TEST_REL(str[14], >=, '1');
+    TEST_REL(str[14], <=, '5');
 
     // Test generating another uuid gives us a different non-null uuid.
-    uuid_generate(uuid2);
-    TEST(!uuid_is_null(uuid2));
-    TEST(memcmp(uuid, uuid2, sizeof(uuid)) != 0);
+    uuid2.generate();
+    TEST(!uuid2.is_null());
+    TEST(memcmp(uuid.data(), uuid2.data(), uuid.BINARY_SIZE) != 0);
 
-    return true;
+    // Test null uuid.
+    uuid.clear();
+    TEST(uuid.is_null());
+    str = uuid.to_string();
+    TEST_EQUAL(str, "00000000-0000-0000-0000-000000000000");
+    uuid2.generate();
+    TEST(!uuid2.is_null());
+    uuid2.parse(str);
+    TEST(memcmp(uuid.data(), uuid2.data(), uuid.BINARY_SIZE) == 0);
 }
 
 // Classes used by movesupport1 test
@@ -715,7 +679,7 @@ class B : public Xapian::Internal::opt_intrusive_base {
     }
 };
 
-static bool test_movesupport1()
+static void test_movesupport1()
 {
     {
 	// Test move semantics support for intrusive_ptr class
@@ -724,13 +688,17 @@ static bool test_movesupport1()
 
 	// Test move constructor
 	Xapian::Internal::intrusive_ptr<A> p2(std::move(p1));
+	TEST(p2);
 	TEST_EQUAL(p2->get_x(), 5);
 	TEST_EQUAL(p1.get(), 0);
+	TEST(!p1);
 
 	// Test move assignment
 	p3 = std::move(p2);
+	TEST(p3);
 	TEST_EQUAL(p3->get_x(), 5);
 	TEST_EQUAL(p2.get(), 0);
+	TEST(!p2);
     }
 
     {
@@ -740,10 +708,12 @@ static bool test_movesupport1()
 
 	// Test move constructor
 	Xapian::Internal::intrusive_ptr_nonnull<A> p2(std::move(p1));
+	TEST(p2.get());
 	TEST_EQUAL(p2->get_x(), 5);
 
 	// Test move assignment
 	p3 = std::move(p2);
+	TEST(p3.get());
 	TEST_EQUAL(p3->get_x(), 5);
     }
 
@@ -757,19 +727,315 @@ static bool test_movesupport1()
 
 	// Test move constructor
 	Xapian::Internal::opt_intrusive_ptr<B> p2(std::move(p1));
+	TEST(p2);
 	TEST_EQUAL(p2->get_x(), 5);
 	TEST_EQUAL(p1.get(), 0);
+	TEST(!p1);
 	TEST_EQUAL(alive, true);
 
 	// Test move assignment
 	p3 = std::move(p2);
+	TEST(p3);
 	TEST_EQUAL(p3->get_x(), 5);
 	TEST_EQUAL(p2.get(), 0);
+	TEST(!p2);
 	TEST_EQUAL(alive, true);
     }
     // Test that object b1 has been deleted.
     TEST_EQUAL(alive, false);
-    return true;
+}
+
+static void test_addoverflows1()
+{
+    const auto ulong_max = numeric_limits<unsigned long>::max();
+    const auto uint_max = numeric_limits<unsigned int>::max();
+    const auto ushort_max = numeric_limits<unsigned short>::max();
+    const auto uchar_max = numeric_limits<unsigned char>::max();
+
+    unsigned long res_ulong;
+    unsigned res_uint;
+    unsigned short res_ushort;
+    unsigned char res_uchar;
+
+    TEST(!add_overflows(0UL, 0UL, res_ulong));
+    TEST_EQUAL(res_ulong, 0);
+    TEST(!add_overflows(0UL, 0UL, res_uint));
+    TEST_EQUAL(res_uint, 0);
+    TEST(!add_overflows(0UL, 0UL, res_ushort));
+    TEST_EQUAL(res_ushort, 0);
+    TEST(!add_overflows(0UL, 0UL, res_uchar));
+    TEST_EQUAL(res_uchar, 0);
+
+    TEST(add_overflows(ulong_max, 1UL, res_ulong));
+    TEST_EQUAL(res_ulong, 0);
+    TEST(add_overflows(uint_max, 1UL, res_uint));
+    TEST_EQUAL(res_uint, 0);
+    TEST(add_overflows(ushort_max, 1UL, res_ushort));
+    TEST_EQUAL(res_ushort, 0);
+    TEST(add_overflows(uchar_max, 1UL, res_uchar));
+    TEST_EQUAL(res_uchar, 0);
+
+    TEST(add_overflows(1UL, ulong_max, res_ulong));
+    TEST_EQUAL(res_ulong, 0);
+    TEST(add_overflows(1UL, uint_max, res_uint));
+    TEST_EQUAL(res_uint, 0);
+    TEST(add_overflows(1UL, ushort_max, res_ushort));
+    TEST_EQUAL(res_ushort, 0);
+    TEST(add_overflows(1UL, uchar_max, res_uchar));
+    TEST_EQUAL(res_uchar, 0);
+
+    TEST(add_overflows(ulong_max, ulong_max, res_ulong));
+    TEST_EQUAL(res_ulong, ulong_max - 1UL);
+    TEST(add_overflows(uint_max, uint_max, res_uint));
+    TEST_EQUAL(res_uint, uint_max - 1UL);
+    TEST(add_overflows(ushort_max, ushort_max, res_ushort));
+    TEST_EQUAL(res_ushort, ushort_max - 1UL);
+    TEST(add_overflows(uchar_max, uchar_max, res_uchar));
+    TEST_EQUAL(res_uchar, uchar_max - 1UL);
+
+    res_uchar = 1;
+    TEST(add_overflows(res_uchar, unsigned(uchar_max) + 1U, res_uchar));
+    TEST_EQUAL(res_uchar, 1);
+}
+
+static void test_suboverflows1()
+{
+    unsigned long res;
+    TEST(!sub_overflows(0UL, 0UL, res));
+    TEST_EQUAL(res, 0);
+
+    TEST(sub_overflows(0UL, 1UL, res));
+    TEST_EQUAL(res, ULONG_MAX);
+
+    TEST(sub_overflows(ULONG_MAX - 1UL, ULONG_MAX, res));
+    TEST_EQUAL(res, ULONG_MAX);
+
+    TEST(sub_overflows(0UL, ULONG_MAX, res));
+    TEST_EQUAL(res, 1);
+}
+
+static void test_muloverflows1()
+{
+    unsigned long res;
+    TEST(!mul_overflows(0UL, 0UL, res));
+    TEST_EQUAL(res, 0);
+
+    TEST(!mul_overflows(ULONG_MAX, 0UL, res));
+    TEST_EQUAL(res, 0);
+
+    TEST(!mul_overflows(0UL, ULONG_MAX, res));
+    TEST_EQUAL(res, 0);
+
+    TEST(!mul_overflows(ULONG_MAX, 1UL, res));
+    TEST_EQUAL(res, ULONG_MAX);
+
+    TEST(!mul_overflows(1UL, ULONG_MAX, res));
+    TEST_EQUAL(res, ULONG_MAX);
+
+    TEST(mul_overflows((ULONG_MAX >> 1UL) + 1UL, 2UL, res));
+    TEST_EQUAL(res, 0);
+
+    TEST(mul_overflows(2UL, (ULONG_MAX >> 1UL) + 1UL, res));
+    TEST_EQUAL(res, 0);
+
+    TEST(mul_overflows(ULONG_MAX, ULONG_MAX, res));
+}
+
+template<typename U>
+inline static void parseunsigned_helper() {
+    U val;
+    constexpr U max_val = numeric_limits<U>::max();
+    tout << "Testing with parseunsigned_helper\n";
+    TEST(parse_unsigned("0", val));
+    TEST_EQUAL(val, 0);
+    TEST(parse_unsigned("99", val));
+    TEST_EQUAL(val, 99);
+    TEST(parse_unsigned(str(max_val).c_str(), val));
+    TEST_EQUAL(val, max_val);
+    TEST(!parse_unsigned("", val));
+    TEST(!parse_unsigned("-1", val));
+    TEST(!parse_unsigned("abc", val));
+    TEST(!parse_unsigned("0a", val));
+    // Only test if we can construct a value one larger easily.
+    if constexpr(max_val + 1ull != 0)
+	TEST(!parse_unsigned(str(max_val + 1ull).c_str(), val));
+}
+
+static void test_parseunsigned1()
+{
+    parseunsigned_helper<unsigned char>();
+    parseunsigned_helper<unsigned short>();
+    parseunsigned_helper<unsigned>();
+    parseunsigned_helper<unsigned long>();
+    parseunsigned_helper<unsigned long long>();
+}
+
+template<typename S>
+inline static void parsesigned_helper() {
+    S val;
+    const S max_val = numeric_limits<S>::max();
+    const S min_val = numeric_limits<S>::min();
+    tout << "Testing with parsesigned_helper\n";
+    TEST(parse_signed("0", val));
+    TEST_EQUAL(val, 0);
+    TEST(parse_signed("99", val));
+    TEST_EQUAL(val, 99);
+    TEST(parse_signed("-99", val));
+    TEST_EQUAL(val, -99);
+    TEST(parse_signed(str(max_val).c_str(), val));
+    TEST_EQUAL(val, max_val);
+    TEST(parse_signed(str(min_val).c_str(), val));
+    TEST_EQUAL(val, min_val);
+    TEST(!parse_signed("", val));
+    TEST(!parse_signed("abc", val));
+    TEST(!parse_signed("0a", val));
+    TEST(!parse_signed("-99a", val));
+    TEST(!parse_signed("-a99", val));
+    TEST(!parse_signed("--99", val));
+
+    unsigned long long one_too_large = max_val + 1ull;
+    TEST(!parse_signed(str(one_too_large).c_str(), val));
+
+    // We need to use an unsigned long long here so this works when S is
+    // long long.  The somewhat contorted way we calculate this is to
+    // avoid unsigned overflow and value-changing implicit conversions.
+    // These aren't undefined behaviour, but we want to limit where they
+    // happen in the library to a few low-level places and ubsan's extra
+    // checks provide a way to check that, so keeping the testsuite clean
+    // of such warnings is useful.
+    unsigned long long one_too_small_negated =
+	static_cast<unsigned long long>(-(min_val + 1)) + 2ull;
+    TEST(!parse_signed(("-" + str(one_too_small_negated)).c_str(), val));
+}
+
+static void test_parsesigned1()
+{
+    parsesigned_helper<signed char>();
+    parsesigned_helper<short>();
+    parsesigned_helper<int>();
+    parsesigned_helper<long>();
+    parsesigned_helper<long long>();
+}
+
+/// Test working with a block-based file using functions from io_utils.h.
+static void test_ioblock1()
+try {
+    const char* tmp_file = ".unittest_ioutils1";
+    int fd = -1;
+    try {
+	constexpr int BLOCK_SIZE = 1024;
+
+	fd = io_open_block_wr(tmp_file, true);
+	TEST_REL(fd, >=, 0);
+
+	string buf(BLOCK_SIZE, 'x');
+	string out;
+
+	// ZFS default blocksize is 128K so we need to write at least that far
+	// into the file to be able to successfully detect support for sparse
+	// files below.  We won't detect sparse file support if the blocksize
+	// is larger, but that's not a problem.
+	io_write_block(fd, buf.data(), BLOCK_SIZE, 128);
+	out.resize(BLOCK_SIZE);
+	io_read_block(fd, &out[0], BLOCK_SIZE, 128);
+	TEST(buf == out);
+
+	// Call io_sync() and check it claims to work.  Checking it actually has
+	// any effect is much harder to do.
+	TEST(io_sync(fd));
+
+	io_write_block(fd, buf.data(), BLOCK_SIZE, 129);
+	out.resize(BLOCK_SIZE);
+	io_read_block(fd, &out[0], BLOCK_SIZE, 129);
+	TEST(buf == out);
+
+	// Call io_full_sync() and check it claims to work.  Checking it actually
+	// has any effect is much harder to do.
+	TEST(io_full_sync(fd));
+
+	if constexpr(sizeof(off_t) <= 4) {
+	    SKIP_TEST("Skipping rest of testcase - no Large File Support");
+	}
+
+#ifdef SEEK_HOLE
+	struct stat statbuf;
+	TEST(fstat(fd, &statbuf) == 0);
+
+	off_t hole = lseek(fd, 0, SEEK_HOLE);
+	if (hole < 0) {
+	    SKIP_TEST("Skipping rest of testcase - SEEK_HOLE failed");
+	}
+	if (hole >= statbuf.st_size) {
+	    SKIP_TEST("Skipping rest of testcase - sparse file support not "
+		      "detected");
+	}
+
+	// Write a block at an offset a little above 4GB and check that we wrote
+	// the specified block by checking the filesize.  This should catch bugs
+	// which truncate the offset used.
+	constexpr off_t high_offset = off_t(0x100000000 + BLOCK_SIZE);
+	constexpr off_t high_block = high_offset / BLOCK_SIZE;
+	try {
+	    io_write_block(fd, buf.data(), BLOCK_SIZE, high_block);
+	} catch (const Xapian::DatabaseError& e) {
+	    if (e.get_error_string() == errno_to_string(EFBIG))
+		SKIP_TEST("Skipping rest of testcase - FS doesn't allow a > 4GB "
+			  "file");
+	    throw;
+	}
+	TEST(fstat(fd, &statbuf) == 0);
+	TEST_EQUAL(statbuf.st_size, high_offset + BLOCK_SIZE);
+
+	close(fd);
+
+	fd = io_open_block_rd(tmp_file);
+
+	// We can't easily test that io_readahead_block() actually does anything if
+	// it returns true, but we can at least call it to check it doesn't crash.
+	(void)io_readahead_block(fd, BLOCK_SIZE, high_block);
+
+	// Check we can read back the same data we wrote.
+	io_read_block(fd, &out[0], BLOCK_SIZE, high_block);
+	TEST(buf == out);
+
+	close(fd);
+	fd = -1;
+	io_unlink(tmp_file);
+#else
+	SKIP_TEST("Skipping rest of testcase - SEEK_HOLE not supported");
+#endif
+    } catch (...) {
+	close(fd);
+	io_unlink(tmp_file);
+	throw;
+    }
+} catch (const Xapian::Error& e) {
+    // Translate Xapian::Error exceptions to std::string exceptions which
+    // utestsuite can catch.
+    throw e.get_description();
+}
+
+DEFINE_TESTCASE(vec1) {
+    Xapian::Vec<int> v_int;
+    Xapian::Vec<double> v_double;
+    Xapian::Vec<char> v_char;
+    Xapian::Vec<const char*> v_cstring;
+    for (int i = 0; i < 100; ++i) {
+	v_int.push_back(i);
+	v_double.push_back(double(i));
+	v_char.push_back(char(i & 0xff));
+	v_cstring.push_back("string");
+    }
+}
+
+DEFINE_TESTCASE(vecdeleter1) {
+    Xapian::VecUniquePtr<int> v_unique_int;
+    struct U { int x; };
+    Xapian::VecUniquePtr<U> v_unique_u;
+    for (int i = 0; i < 100; ++i) {
+	v_unique_int.push_back(new int(42));
+	v_unique_u.push_back(new U());
+    }
 }
 
 static const test_desc tests[] = {
@@ -777,12 +1043,12 @@ static const test_desc tests[] = {
     TESTCASE(class_exceptions_work1),
     TESTCASE(resolverelativepath1),
     TESTCASE(serialisedouble1),
+    TESTCASE(packuint1),
+    TESTCASE(packstring1),
+    TESTCASE(packstring2),
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
-    TESTCASE(serialiselength1),
-    TESTCASE(serialiselength2),
     TESTCASE(serialiseerror1),
 #endif
-    TESTCASE(log2),
     TESTCASE(sortableserialise1),
     TESTCASE(tostring1),
     TESTCASE(strbool1),
@@ -790,6 +1056,14 @@ static const test_desc tests[] = {
     TESTCASE(shard1),
     TESTCASE(uuid1),
     TESTCASE(movesupport1),
+    TESTCASE(addoverflows1),
+    TESTCASE(suboverflows1),
+    TESTCASE(muloverflows1),
+    TESTCASE(parseunsigned1),
+    TESTCASE(parsesigned1),
+    TESTCASE(ioblock1),
+    TESTCASE(vec1),
+    TESTCASE(vecdeleter1),
     END_OF_TESTCASES
 };
 
@@ -798,6 +1072,6 @@ try {
     test_driver::parse_command_line(argc, argv);
     return test_driver::run(tests);
 } catch (const char * e) {
-    cout << e << endl;
+    cout << e << '\n';
     return 1;
 }

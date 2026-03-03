@@ -1,7 +1,7 @@
-/** @file backendmanager_singlefile.h
+/** @file
  * @brief BackendManager subclass for singlefile databases.
  */
-/* Copyright (C) 2007,2009,2015,2018 Olly Betts
+/* Copyright (C) 2007,2009,2015,2018,2023 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -15,8 +15,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_BACKENDMANAGER_SINGLEFILE_H
@@ -48,11 +48,16 @@ class BackendManagerSingleFile : public BackendManager {
     BackendManagerSingleFile(const std::string& datadir_,
 			     BackendManager* sub_manager_);
 
-    /// Return a string representing the current database type.
-    std::string get_dbtype() const;
+    /// Get generated database.
+    Xapian::WritableDatabase get_generated_database(const std::string& name);
+
+    /// Finalise generated database.
+    void finalise_generated_database(const std::string& name);
 
     /// Create a Xapian::WritableDatabase object.
     Xapian::WritableDatabase get_writable_database(const std::string & name, const std::string & file);
+
+    std::string get_generated_database_path(const std::string& name);
 
     std::string get_compaction_output_path(const std::string& name);
 };

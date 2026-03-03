@@ -23,6 +23,8 @@
 /.glass
 /.honey
 /.multiglass
+/.multiglassremoteprog_glass
+/.multiremoteprog_glass
 /.singlefileglass
 /.stub
 /api_all.h
@@ -35,6 +37,7 @@
 /api_collated.stamp
 /api_compact.h
 /api_db.h
+/api_diversify.h
 /api_generated.cc
 /api_generated.h
 /api_geospatial.h

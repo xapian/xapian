@@ -1,0 +1,32 @@
+#!/bin/sh
+# sourcetest: Test some things about the source code
+#
+# Copyright (C) 2019,2024 Olly Betts
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation; either version 2 of the
+# License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, see
+# <https://www.gnu.org/licenses/>.
+set -e
+
+# Avoid locale-dependent collating order.
+LC_ALL=C
+export LC_ALL
+
+# Test the CMD_foo identifiers are declared in sorted order.
+grep '^CMD_[a-z]' query.cc|sort -c
+
+# Test the omegascript command table is in sorted order.
+grep '^T(' query.cc|sort -c
+
+# Test the case statement for omegascript commands is in sorted order.
+sed 's/\(case CMD_[a-z][^:]*\):.*/\1/p;d' query.cc|sort -c

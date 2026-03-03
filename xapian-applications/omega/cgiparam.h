@@ -1,6 +1,7 @@
-/* functions to deal with CGI parameters
- *
- * Copyright 1999,2000,2001 BrightStation PLC
+/** @file
+ * @brief functions to deal with CGI parameters
+ */
+/* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002,2007,2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
@@ -14,8 +15,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef OMEGA_INCLUDED_CGIPARAM_H
@@ -23,8 +24,6 @@
 
 #include <map>
 #include <string>
-
-typedef std::multimap<std::string, std::string>::const_iterator MCI;
 
 /* decode the query from NAME=VALUE pairs given on the command line */
 extern void decode_argv(char **argv);

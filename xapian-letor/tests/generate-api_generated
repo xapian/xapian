@@ -12,8 +12,8 @@ my $copyright = 'Copyright (C) 2007,2009,2012,2014,2015,2016 Olly Betts';
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+# along with this program; if not, see
+# <https://www.gnu.org/licenses/>.
 
 use strict;
 
@@ -33,12 +33,11 @@ my %no_get_description = (
     'FeatureList' => '',
     'Letor' => '',
     'ListNETRanker' => '',
-    'NDCGScore' => '',
-    'SVMRanker' => ''
+    'NDCGScore' => ''
 );
 
 print <<'END';
-/** @file api_generated.cc
+/** @file
  * @brief test common features of API classes
  */
 END
@@ -57,8 +56,8 @@ print <<"END";
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -91,7 +90,6 @@ for my $class (sort keys %uncopyableclasses) {
 }
 
 print <<'END';
-    return true;
 }
 
 /// Test that API classes have a copy ctor and assignment operator.
@@ -120,6 +118,5 @@ for my $class (sort keys %copyableclasses) {
 }
 
 print <<'END';
-    return true;
 }
 END

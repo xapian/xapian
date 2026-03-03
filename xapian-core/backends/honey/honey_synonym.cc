@@ -1,7 +1,7 @@
-/** @file honey_synonym.cc
+/** @file
  * @brief Synonym data for a honey database.
  */
-/* Copyright (C) 2004,2005,2006,2007,2008,2009,2011,2017 Olly Betts
+/* Copyright (C) 2004,2005,2006,2007,2008,2009,2011,2017,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -31,6 +31,7 @@
 
 #include <set>
 #include <string>
+#include <string_view>
 #include <vector>
 
 using namespace std;
@@ -50,10 +51,8 @@ HoneySynonymTable::merge_changes()
     } else {
 	string tag;
 
-	set<string>::const_iterator i;
-	for (i = last_synonyms.begin(); i != last_synonyms.end(); ++i) {
-	    const string & synonym = *i;
-	    tag += byte(synonym.size() ^ MAGIC_XOR_VALUE);
+	for (auto&& synonym : last_synonyms) {
+	    tag += uint8_t(synonym.size() ^ MAGIC_XOR_VALUE);
 	    tag += synonym;
 	}
 
@@ -64,7 +63,7 @@ HoneySynonymTable::merge_changes()
 }
 
 void
-HoneySynonymTable::add_synonym(const string & term, const string & synonym)
+HoneySynonymTable::add_synonym(string_view term, string_view synonym)
 {
     if (last_term != term) {
 	merge_changes();
@@ -72,12 +71,12 @@ HoneySynonymTable::add_synonym(const string & term, const string & synonym)
 
 	string tag;
 	if (get_exact_entry(term, tag)) {
-	    const char * p = tag.data();
-	    const char * end = p + tag.size();
+	    const char* p = tag.data();
+	    const char* end = p + tag.size();
 	    while (p != end) {
 		size_t len;
 		if (p == end ||
-		    (len = byte(*p) ^ MAGIC_XOR_VALUE) >= size_t(end - p))
+		    (len = uint8_t(*p) ^ MAGIC_XOR_VALUE) >= size_t(end - p))
 		    throw Xapian::DatabaseCorruptError("Bad synonym data");
 		++p;
 		last_synonyms.insert(string(p, len));
@@ -86,11 +85,11 @@ HoneySynonymTable::add_synonym(const string & term, const string & synonym)
 	}
     }
 
-    last_synonyms.insert(synonym);
+    last_synonyms.emplace(synonym);
 }
 
 void
-HoneySynonymTable::remove_synonym(const string & term, const string & synonym)
+HoneySynonymTable::remove_synonym(string_view term, string_view synonym)
 {
     if (last_term != term) {
 	merge_changes();
@@ -98,25 +97,29 @@ HoneySynonymTable::remove_synonym(const string & term, const string & synonym)
 
 	string tag;
 	if (get_exact_entry(term, tag)) {
-	    const char * p = tag.data();
-	    const char * end = p + tag.size();
+	    const char* p = tag.data();
+	    const char* end = p + tag.size();
 	    while (p != end) {
 		size_t len;
 		if (p == end ||
-		    (len = byte(*p) ^ MAGIC_XOR_VALUE) >= size_t(end - p))
+		    (len = uint8_t(*p) ^ MAGIC_XOR_VALUE) >= size_t(end - p))
 		    throw Xapian::DatabaseCorruptError("Bad synonym data");
 		++p;
-		last_synonyms.insert(string(p, len));
+		last_synonyms.emplace(p, len);
 		p += len;
 	    }
 	}
     }
 
+#ifdef __cpp_lib_associative_heterogeneous_erasure // C++23
     last_synonyms.erase(synonym);
+#else
+    last_synonyms.erase(string(synonym));
+#endif
 }
 
 void
-HoneySynonymTable::clear_synonyms(const string & term)
+HoneySynonymTable::clear_synonyms(string_view term)
 {
     // We don't actually ever need to merge_changes() here, but it's quite
     // likely that someone might clear_synonyms() and then add_synonym() for
@@ -131,8 +134,8 @@ HoneySynonymTable::clear_synonyms(const string & term)
     }
 }
 
-TermList *
-HoneySynonymTable::open_termlist(const string & term) const
+TermList*
+HoneySynonymTable::open_termlist(string_view term) const
 {
     vector<string> synonyms;
 
@@ -140,20 +143,19 @@ HoneySynonymTable::open_termlist(const string & term) const
 	if (last_synonyms.empty()) return NULL;
 
 	synonyms.reserve(last_synonyms.size());
-	set<string>::const_iterator i;
-	for (i = last_synonyms.begin(); i != last_synonyms.end(); ++i) {
-	    synonyms.push_back(*i);
+	for (auto&& i : last_synonyms) {
+	    synonyms.push_back(i);
 	}
     } else {
 	string tag;
 	if (!get_exact_entry(term, tag)) return NULL;
 
-	const char * p = tag.data();
-	const char * end = p + tag.size();
+	const char* p = tag.data();
+	const char* end = p + tag.size();
 	while (p != end) {
 	    size_t len;
 	    if (p == end ||
-		(len = byte(*p) ^ MAGIC_XOR_VALUE) >= size_t(end - p))
+		(len = uint8_t(*p) ^ MAGIC_XOR_VALUE) >= size_t(end - p))
 		throw Xapian::DatabaseCorruptError("Bad synonym data");
 	    ++p;
 	    synonyms.push_back(string(p, len));
@@ -177,17 +179,7 @@ HoneySynonymTermList::get_approx_size() const
 {
     // This is an over-estimate, but we only use this value to build a balanced
     // or-tree, and it'll do a decent enough job for that.
-    return database->synonym_table.get_entry_count();
-}
-
-string
-HoneySynonymTermList::get_termname() const
-{
-    LOGCALL(DB, string, "HoneySynonymTermList::get_termname", NO_ARGS);
-    Assert(cursor);
-    Assert(!cursor->current_key.empty());
-    Assert(!at_end());
-    RETURN(cursor->current_key);
+    return database->synonym_table.get_approx_entry_count();
 }
 
 Xapian::doccount
@@ -197,20 +189,10 @@ HoneySynonymTermList::get_termfreq() const
 					"not meaningful");
 }
 
-Xapian::termcount
-HoneySynonymTermList::get_collection_freq() const
-{
-    throw Xapian::InvalidOperationError("HoneySynonymTermList::"
-					"get_collection_freq() "
-					"not meaningful");
-}
-
-TermList *
+TermList*
 HoneySynonymTermList::next()
 {
-    LOGCALL(DB, TermList *, "HoneySynonymTermList::next", NO_ARGS);
-    Assert(!at_end());
-
+    LOGCALL(DB, TermList*, "HoneySynonymTermList::next", NO_ARGS);
     if (cursor->after_end()) {
 	// This is the first action on a new HoneySynonymTermList.
 	if (cursor->find_entry_ge(prefix))
@@ -220,19 +202,17 @@ HoneySynonymTermList::next()
     }
     if (cursor->after_end() || !startswith(cursor->current_key, prefix)) {
 	// We've reached the end of the prefixed terms.
-	delete cursor;
-	cursor = NULL;
+	RETURN(this);
     }
+    current_term = cursor->current_key;
 
     RETURN(NULL);
 }
 
-TermList *
-HoneySynonymTermList::skip_to(const string &term)
+TermList*
+HoneySynonymTermList::skip_to(string_view term)
 {
-    LOGCALL(DB, TermList *, "HoneySynonymTermList::skip_to", term);
-    Assert(!at_end());
-
+    LOGCALL(DB, TermList*, "HoneySynonymTermList::skip_to", term);
     if (cursor->after_end() && prefix > term) {
 	// This is the first action on a new HoneySynonymTermList and we were
 	// asked to skip to a term before the prefix - this ought to leave us
@@ -240,21 +220,17 @@ HoneySynonymTermList::skip_to(const string &term)
 	RETURN(skip_to(prefix));
     }
 
-    if (!cursor->find_entry_ge(term)) {
+    if (cursor->find_entry_ge(term)) {
+	// Exact match.
+	current_term = term;
+    } else {
 	// The exact term we asked for isn't there, so check if the next
 	// term after it also has the right prefix.
 	if (cursor->after_end() || !startswith(cursor->current_key, prefix)) {
 	    // We've reached the end of the prefixed terms.
-	    delete cursor;
-	    cursor = NULL;
+	    RETURN(this);
 	}
+	current_term = cursor->current_key;
     }
     RETURN(NULL);
-}
-
-bool
-HoneySynonymTermList::at_end() const
-{
-    LOGCALL(DB, bool, "HoneySynonymTermList::at_end", NO_ARGS);
-    RETURN(cursor == NULL);
 }

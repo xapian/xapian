@@ -1,8 +1,9 @@
-/** @file featurelist_internal.cc
+/** @file
  * @brief Definition of Feature::Internal class.
  */
 /* Copyright (C) 2012 Parth Gupta
  * Copyright (C) 2016 Ayush Tomar
+ * Copyright (C) 2019 Vaibhav Kansagara
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -15,15 +16,15 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
 
 #include "xapian-letor/featurelist.h"
 #include "featurelist_internal.h"
+#include "feature_internal.h"
 
 #include <cmath>
 #include <cstdio>
@@ -35,24 +36,6 @@ using namespace std;
 using namespace Xapian;
 
 void
-FeatureList::Internal::set_database(const Xapian::Database & db)
-{
-    featurelist_db = db;
-}
-
-void
-FeatureList::Internal::set_query(const Xapian::Query & query)
-{
-    featurelist_query = query;
-}
-
-void
-FeatureList::Internal::set_doc(const Xapian::Document & doc)
-{
-    featurelist_doc = doc;
-}
-
-void
 FeatureList::Internal::set_data(const Xapian::Query & letor_query,
 				const Xapian::Database & letor_db,
 				const Xapian::Document & letor_doc)
@@ -62,8 +45,8 @@ FeatureList::Internal::set_data(const Xapian::Query & letor_query,
     set_database(letor_db);
 }
 
-void
-FeatureList::Internal::compute_termfreq()
+std::map<std::string, Xapian::termcount>
+FeatureList::Internal::compute_termfreq() const
 {
     std::map<std::string, Xapian::termcount> tf;
 
@@ -74,11 +57,11 @@ FeatureList::Internal::compute_termfreq()
 	if (docterms != featurelist_doc.termlist_end() && *qt == *docterms)
 	    tf[*qt] = docterms.get_wdf();
     }
-    std::swap(termfreq, tf);
+    return tf;
 }
 
-void
-FeatureList::Internal::compute_inverse_doc_freq()
+std::map<std::string, double>
+FeatureList::Internal::compute_inverse_doc_freq() const
 {
     std::map<std::string, double> idf;
     Xapian::doccount totaldocs = featurelist_db.get_doccount();
@@ -89,11 +72,11 @@ FeatureList::Internal::compute_inverse_doc_freq()
 	if (df != 0)
 	    idf[*qt] = log10((double)totaldocs / (double)(1 + df));
     }
-    std::swap(inverse_doc_freq, idf);
+    return idf;
 }
 
-void
-FeatureList::Internal::compute_doc_length()
+std::map<std::string, Xapian::termcount>
+FeatureList::Internal::compute_doc_length() const
 {
     std::map<std::string, Xapian::termcount> len;
 
@@ -113,11 +96,11 @@ FeatureList::Internal::compute_doc_length()
 	    featurelist_db.get_doclength(featurelist_doc.get_docid());
     len["whole"] = whole_len;
     len["body"] = whole_len - title_len;
-    std::swap(doc_length, len);
+    return len;
 }
 
-void
-FeatureList::Internal::compute_collection_length()
+std::map<std::string, Xapian::termcount>
+FeatureList::Internal::compute_collection_length() const
 {
     std::map<std::string, Xapian::termcount> len;
 
@@ -144,11 +127,11 @@ FeatureList::Internal::compute_collection_length()
 	len["whole"] = whole_len;
 	len["body"] = whole_len - title_len;
     }
-    std::swap(collection_length, len);
+    return len;
 }
 
-void
-FeatureList::Internal::compute_collection_termfreq()
+std::map<std::string, Xapian::termcount>
+FeatureList::Internal::compute_collection_termfreq() const
 {
     std::map<std::string, Xapian::termcount> tf;
 
@@ -158,46 +141,27 @@ FeatureList::Internal::compute_collection_termfreq()
 	if (coll_tf != 0)
 	    tf[*qt] = coll_tf;
     }
-    std::swap(collection_termfreq, tf);
+    return tf;
 }
 
 void
-FeatureList::Internal::populate_feature(Feature *feature_)
+FeatureList::Internal::populate_feature_internal(Feature::Internal*
+						 internal_feature)
 {
-    stat_flags stats_needed = stat_flags(feature_->get_stats());
     if (stats_needed & TERM_FREQUENCY) {
-	if (termfreq.empty())
-	    compute_termfreq();
-	feature_->set_termfreq(termfreq);
+	internal_feature->set_termfreq(compute_termfreq());
     }
     if (stats_needed & INVERSE_DOCUMENT_FREQUENCY) {
-	if (inverse_doc_freq.empty())
-	    compute_inverse_doc_freq();
-	feature_->set_inverse_doc_freq(inverse_doc_freq);
+	internal_feature->set_inverse_doc_freq(compute_inverse_doc_freq());
     }
     if (stats_needed & DOCUMENT_LENGTH) {
-	if (doc_length.empty())
-	    compute_doc_length();
-	feature_->set_doc_length(doc_length);
+	internal_feature->set_doc_length(compute_doc_length());
     }
     if (stats_needed & COLLECTION_LENGTH) {
-	if (collection_length.empty())
-	    compute_collection_length();
-	feature_->set_collection_length(collection_length);
+	internal_feature->set_collection_length(compute_collection_length());
     }
     if (stats_needed & COLLECTION_TERM_FREQ) {
-	if (collection_termfreq.empty())
-	    compute_collection_termfreq();
-	feature_->set_collection_termfreq(collection_termfreq);
+	internal_feature->set_collection_termfreq(
+			  compute_collection_termfreq());
     }
-}
-
-void
-FeatureList::Internal::clear_stats()
-{
-    termfreq.clear();
-    inverse_doc_freq.clear();
-    doc_length.clear();
-    collection_length.clear();
-    collection_termfreq.clear();
 }

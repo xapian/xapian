@@ -1,8 +1,8 @@
-/** @file synonympostlist.h
+/** @file
  * @brief Combine subqueries, weighting as if they are synonyms
  */
 /* Copyright 2007,2009 Lemur Consulting Ltd
- * Copyright 2009,2011,2014,2017 Olly Betts
+ * Copyright 2009,2011,2014,2017,2018,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,8 +15,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_SYNONYMPOSTLIST_H
@@ -39,27 +39,38 @@ class PostListTree;
  */
 class SynonymPostList : public WrapperPostList {
     /// Weighting object used for calculating the synonym weights.
-    const Xapian::Weight * wt;
+    const Xapian::Weight* wt = nullptr;
 
     /// Flag indicating whether the weighting object needs the wdf.
-    bool want_wdf;
+    bool want_wdf = false;
 
-    /// Flag indicating if we've called recalc_maxweight on the subtree yet.
-    bool have_calculated_subtree_maxweights;
+    /// Flag indicating whether the weighting object needs the wdfdocmax.
+    bool want_wdfdocmax = false;
+
+    /** Does the synonym need the document length?
+     *
+     *  This is true if either of these are true:
+     *
+     *  Each wdf from the document contributes at most itself to the wdf of
+     *  the subquery.  That means that the wdf of the subquery can't possibly
+     *  ever exceed the document length, so we don't need to check and clamp
+     *  wdf to be <= document length.
+     *
+     *  Or the weighting scheme in use doesn't use document length, in which
+     *  case we assume that it doesn't rely on wdf <= document_length being
+     *  an invariant, and so we don't enforce it.
+     */
+    bool needs_doclen;
 
     PostListTree* pltree;
 
-    /// Lower bound on doclength in the subdatabase we're working over.
-    Xapian::termcount doclen_lower_bound;
-
   public:
     SynonymPostList(PostList * subtree,
-		    const Xapian::Database::Internal* db,
-		    PostListTree* pltree_)
-	: WrapperPostList(subtree), wt(NULL), want_wdf(false),
-	  have_calculated_subtree_maxweights(false),
-	  pltree(pltree_),
-	  doclen_lower_bound(db->get_doclength_lower_bound()) { }
+		    PostListTree* pltree_,
+		    bool needs_doclen_)
+	: WrapperPostList(subtree),
+	  needs_doclen(needs_doclen_),
+	  pltree(pltree_) { }
 
     ~SynonymPostList();
 
@@ -74,12 +85,9 @@ class SynonymPostList : public WrapperPostList {
     PostList *skip_to(Xapian::docid did, double w_min);
 
     double get_weight(Xapian::termcount doclen,
-		      Xapian::termcount unique_terms) const;
+		      Xapian::termcount unique_terms,
+		      Xapian::termcount wdfdocmax) const;
     double recalc_maxweight();
-
-    // Note - we don't need to implement get_termfreq_est_using_stats()
-    // because a synonym when used as a child of a synonym will be optimised
-    // to an OR.
 
     Xapian::termcount count_matching_subqs() const;
 

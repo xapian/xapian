@@ -1,4 +1,4 @@
-/** @file cosine_sim.cc
+/** @file
  *  @brief Cosine similarity calculation between documents
  */
 /* Copyright (C) 2016 Richhiey Thomas
@@ -14,9 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -37,7 +36,7 @@ CosineDistance::get_description() const
 }
 
 double
-CosineDistance::similarity(const PointType &a, const PointType &b) const
+CosineDistance::similarity(const PointType& a, const PointType& b) const
 {
     LOGCALL(API, double, "CosineDistance::similarity", a | b);
     double denom_a = a.get_magnitude();
@@ -48,7 +47,7 @@ CosineDistance::similarity(const PointType &a, const PointType &b) const
 	return 0.0;
 
     for (TermIterator it = a.termlist_begin(); it != a.termlist_end(); ++it) {
-	const string &term = *it;
+	const string& term = *it;
 	double a_weight = a.get_weight(term);
 	if (a_weight == 0)
 	    continue;

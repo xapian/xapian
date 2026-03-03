@@ -1,4 +1,4 @@
-/** @file positioniterator.cc
+/** @file
  *  @brief Class for iterating over term positions.
  */
 /* Copyright (C) 2008,2009,2010,2011,2013 Olly Betts
@@ -14,8 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -41,7 +41,7 @@ PositionIterator::decref()
 PositionIterator::PositionIterator(Internal *internal_) : internal(internal_)
 {
     LOGCALL_CTOR(API, "PositionIterator", internal_);
-    Assert(internal);
+    if (!internal) return;
     ++internal->_refs;
     try {
 	if (!internal->next()) {

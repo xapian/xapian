@@ -1,4 +1,4 @@
-/** @file ndcg_score.cc
+/** @file
  *  @brief Implementation of NDCGScore
  */
 /* Copyright (C) 2014 Hanxiao Sun
@@ -15,9 +15,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -25,7 +24,7 @@
 #include "xapian-letor/scorer.h"
 
 #include "debuglog.h"
-#include "common/log2.h"
+#include "omassert.h"
 
 #include <algorithm>
 #include <cmath>
@@ -62,12 +61,14 @@ NDCGScore::score(const std::vector<FeatureVector> & fvv) const {
 	labels.push_back(v.get_label());
     }
     // DCG score of original ranking
-    double DCG = get_dcg(labels);
+    double dcg = get_dcg(labels);
+    if (rare(dcg == 0.0)) {
+	// Avoid dividing by 0.
+	return dcg;
+    }
     // DCG score of ideal ranking
     sort(labels.begin(), labels.end(), std::greater<double>());
-    double iDCG = get_dcg(labels);
-
-    if (iDCG == 0) // Don't divide by 0
-	return 0;
-    return DCG / iDCG;
+    double idcg = get_dcg(labels);
+    AssertRel(idcg, >=, dcg);
+    return dcg / idcg;
 }

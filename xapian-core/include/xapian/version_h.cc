@@ -1,14 +1,14 @@
-/** @file version_h.cc
+/** @file
  * @brief Template used by configure to generate xapian/version.h
  *
  * (For portability, files run through $CXXCPP must have extension .c .cc or .C)
  */
 #include <config.h>
 const char * dummy[] = {
-"/** @file version.h",
+"/** @file",
 " * @brief Define preprocessor symbols for the library version",
 " */",
-"// Copyright (C) 2002,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2015,2016,2017 Olly Betts",
+"// Copyright (C) 2002-2022 Olly Betts",
 "//",
 "// This program is free software; you can redistribute it and/or",
 "// modify it under the terms of the GNU General Public License as",
@@ -21,28 +21,24 @@ const char * dummy[] = {
 "// GNU General Public License for more details.",
 "//",
 "// You should have received a copy of the GNU General Public License",
-"// along with this program; if not, write to the Free Software",
-"// Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA",
+"// along with this program; if not, see",
+"// <https://www.gnu.org/licenses/>.",
+",
 "",
 "#ifndef XAPIAN_INCLUDED_VERSION_H",
 "#define XAPIAN_INCLUDED_VERSION_H",
 "",
-// Disabled for now, since str.h is used by omega, and includes visibility.h
-// which includes version.h.  (FIXME)
-//"#if !defined XAPIAN_INCLUDED_XAPIAN_H && !defined XAPIAN_LIB_BUILD",
-//"# error @@Never use <xapian/version.h> directly; include <xapian.h> instead.@@",
-//"#endif",
-//"",
+"#if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD",
+"# error @@Never use <xapian/version.h> directly; include <xapian.h> instead.@@",
+"#endif",
+"",
 #ifdef __GNUC__
-// When building the library with GCC, generate preprocessor code to check that
-// any version of GCC used to build applications has a matching C++ ABI. This
-// means that users get a nice explanatory error message rather than a
-// confusing link failure (or worse a program which builds but crashes).
-// Another benefit is that the check happens near the start of compilation of
-// the first source file which uses Xapian in the user's application, rather
-// than during the first attempt to link with Xapian.
+// We used to check __GXX_ABI_VERSION here which was helpful in the GCC 3 days,
+// but ABI versions 2 and up are compatible aside from obscure corner cases,
+// and GCC now defaults to using the latest ABI version it supports.  The
+// result is that this check was no longer useful enough to justify the noise.
 //
-// We also check that the setting of _GLIBCXX_DEBUG matches since that
+// We still check that the setting of _GLIBCXX_DEBUG matches since that
 // introduces ABI-like incompatibilities.
 //
 // After preprocessing with "g++ -E" or similar (which will expand macros,
@@ -54,51 +50,12 @@ const char * dummy[] = {
 //
 // So for lines we want in the output, we quote parts of the line which we
 // don't want substituting, and use @@ where we really want " in the output.
-#define V2(A,B) J2(A,B)
-#define J2(A,B) g++ A##.##B
-#define V3(A,B,C) J3(A,B,C)
-#define J3(A,B,C) g++ A##.##B##.##C
 "#ifdef __GNUC__",
-"#if __GNUC__ < 3 || (__GNUC__ == 3 && __GNUC_MINOR__ == 0)",
-"#error Xapian no longer supports GCC < 3.1",
+// Clang always masquerades as GCC 4.2; Intel's compiler seems to vary.
+"#if !defined __clang__ && !defined __INTEL_COMPILER && (__GNUC__ < 4 || (__GNUC__ == 4 && __GNUC_MINOR__ < 8))",
+"#error Xapian no longer supports GCC < 4.8",
 "#else",
-#ifndef __GXX_ABI_VERSION
-#error GCC does not have __GXX_ABI_VERSION defined
-#endif
-// GCC 3.1 reports ABI version 100 (same as 3.0), but this should actually have
-// been 101!  But we reject 3.0 above, so this doesn't actually matter.
-"#if !defined(__GXX_ABI_VERSION) || __GXX_ABI_VERSION != ", __GXX_ABI_VERSION,
-#if __GXX_ABI_VERSION >= 1002
-// ABI versions 2 and up are compatible aside from obscure corner cases, so
-// issue a warning, but don't refuse to compile as there's a good chance that
-// things will actually work.
-"#if defined __GXX_ABI_VERSION && __GXX_ABI_VERSION >= 1002",
-"#warning The C++ ABI version of compiler you are using does not exactly match",
-"#warning that of the compiler used to build the library.  If linking fails",
-"#warning due to missing symbols, this is probably the reason why.",
-#ifdef __GNUC_PATCHLEVEL__
-"#warning The Xapian library was built with ", V3(__GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__),
-#else
-"#warning The Xapian library was built with ", V2(__GNUC__, __GNUC_MINOR__),
-#endif
-"#else",
-#endif
-"#error The C++ ABI version of compiler you are using does not match",
-"#error that of the compiler used to build the library.  The versions",
-"#error must match or your program will not work correctly.",
-#ifdef __GNUC_PATCHLEVEL__
-"#error The Xapian library was built with ", V3(__GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__),
-#else
-"#error The Xapian library was built with ", V2(__GNUC__, __GNUC_MINOR__),
-#endif
-#if __GXX_ABI_VERSION >= 1002
-"#endif",
-#endif
-"#endif",
-"",
-// _GLIBCXX_DEBUG is supported by GCC 3.4 and later so we only need to check
-// it for those versions.
-#if (__GNUC__ == 3 && __GNUC_MINOR__ >= 4) || __GNUC__ >= 4
+// _GLIBCXX_DEBUG is supported by GCC 3.4 and later.
 #ifdef _GLIBCXX_DEBUG
 "#ifndef _GLIBCXX_DEBUG",
 "#error This library was compiled with _GLIBCXX_DEBUG defined, but you",
@@ -111,7 +68,6 @@ const char * dummy[] = {
 "#error was not compiled with this flag.  The settings must match or your",
 "#error program will not work correctly.",
 "#endif",
-#endif
 #endif
 "#endif",
 "#endif",
@@ -166,6 +122,9 @@ const char * dummy[] = {
 "/// Base (signed) type for Xapian::termcount and related types.",
 "#define XAPIAN_TERMCOUNT_BASE_TYPE ", XAPIAN_TERMCOUNT_BASE_TYPE,
 "",
+"/// Base (signed) type for Xapian::termpos.",
+"#define XAPIAN_TERMPOS_BASE_TYPE ", XAPIAN_TERMPOS_BASE_TYPE,
+"",
 "/// Type for returning total document length.",
 "#define XAPIAN_TOTALLENGTH_TYPE ", XAPIAN_REVISION_TYPE,
 "",
@@ -208,7 +167,23 @@ const char * dummy[] = {
 "/// #endif",
 "/// @endcode",
 "///",
-"/// Added in Xapian 1.4.2.",
+"/// XAPIAN_AT_LEAST was added in Xapian 1.4.2.  This was released 2016-12-26",
+"/// so is now a reasonable hard requirement.",
+"///",
+"/// If you really want to support older versions beware that a check like:",
+"///",
+"/// #if defined XAPIAN_AT_LEAST && XAPIAN_AT_LEAST(1,4,12)",
+"///",
+"/// works with newer Xapian but fails to compile if the macro is not",
+"/// defined:",
+"///",
+"/// error: missing binary operator before token ‘(’",
+"///",
+"/// In this situation we recommend copying the definition of XAPIAN_AT_LEAST",
+"/// into your code and wrapping it in `#ifndef XAPIAN_AT_LEAST` ... `#endif`",
+"/// so you can use it unconditionally.",
+"///",
+"/// @since Xapian 1.4.2.",
 "#define XAPIAN_AT_LEAST(A,B,C) \\",
 "    (XAPIAN_MAJOR_VERSION > (A) || \\",
 "     (XAPIAN_MAJOR_VERSION == (A) && \\",

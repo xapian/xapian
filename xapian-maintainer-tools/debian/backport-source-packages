@@ -2,7 +2,7 @@
 # Backport Debian source packages for Xapian.
 #
 # Copyright (C) 2004 Richard Boulton
-# Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013,2015,2016,2017 Olly Betts
+# Copyright (C) 2006-2025 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -15,9 +15,8 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
-# USA
+# along with this program; if not, see
+# <https://www.gnu.org/licenses/>.
 
 # Dependencies:
 # dch from package devscripts.
@@ -26,9 +25,9 @@ set -e
 
 MIRROR=http://httpredir.debian.org/debian/
 
-DEBIAN_CODENAMES='stretch jessie wheezy'
-UBUNTU_CODENAMES='artful zesty xenial trusty'
-UBUNTU_FIRST=`echo "$UBUNTU_CODENAMES"|sed 's/.* //'`
+DEBIAN_CODENAMES='trixie bookworm bullseye'
+UBUNTU_CODENAMES='questing plucky noble jammy focal bionic xenial'
+UBUNTU_LATEST=`echo "$UBUNTU_CODENAMES"|sed 's/ .*//'`
 
 V_OPT=
 BUILD_INT=1
@@ -47,7 +46,7 @@ while true ; do
     shift
     ;;
   -b*)
-    BUILD_INT=`expr substr "$1" 2 9999`
+    BUILD_INT=`expr substr "$1" 3 9999`
     ;;
   --help)
     HELP_RC=0
@@ -65,9 +64,12 @@ while true ; do
 done
 
 if [ -n "$HELP_RC" -o $# -lt 2 ] ; then
-  echo "Usage: $0 [-v <last uploaded version>] [-b <backport #>] SOURCE_PKG VERSION [CODENAME...]"
+  echo "Usage: $0 [-v <last backported version>] [-b <backport #>] SOURCE_PKG VERSION [CODENAME...]"
   echo
-  echo "e.g.: $0 xapian-core 1.2.15-1 precise"
+  echo "e.g.: $0 xapian-core 1.4.11-1 xenial"
+  echo
+  echo 'If -b not specified, default is 1'
+  echo
   echo 'If no codenames are specified, the default is to backport for all of them.'
   echo
   echo "Currently, the recognised values are:"
@@ -78,20 +80,28 @@ if [ -n "$HELP_RC" -o $# -lt 2 ] ; then
   exit ${HELP_RC:-1}
 fi
 
+# Remove any backport suffix from any -v option.
+V_OPT=`printf '%s' "$V_OPT"|sed 's/~bpo.*//'`
 PKG=$1
 VERSION=$2
 shift
 shift
 
-SUFFIX=`echo "$VERSION"|sed 's/.*-/-/'`
+SUFFIX=$VERSION
 VERSION=`echo "$VERSION"|sed 's/-[^-]*$//'`
+if [ "$VERSION" = "$SUFFIX" ] ; then
+  # Native package version so SUFFIX is empty.
+  SUFFIX=
+else
+  SUFFIX=`expr substr "$SUFFIX" \( 1 + length "$VERSION" \) 999`
+fi
 
 # Debian/Ubuntu codename or codenames to build for.
 # This will be overridden by the command line arguments, if any were passed.
 CODENAMES="$DEBIAN_CODENAMES $UBUNTU_CODENAMES"
 
 # Options to pass to dpkg-buildpackage when building source packages
-BUILDPACKAGE_SRC_OPTS="-us -uc -d -S $V_OPT"
+BUILDPACKAGE_SRC_OPTS="-us -uc -d -S $V_OPT --changes-option=-DBinary=dummy"
 
 # Add entry to changelog if we're backporting.
 adjust_changelog() {
@@ -117,56 +127,91 @@ adjust_changelog() {
 build_it() {
   adjust_changelog
 
+  # If debian/control.in exists then modify that, otherwise debian/control.
+  for CONTROL_SOURCE in debian/control.in debian/control ; do
+      test -f "$CONTROL_SOURCE" && break
+  done
+
   overrides=
   case $PKG:$CODENAME:$VERSION in
-    libsearch-xapian-perl:precise:*)
-      # Relax debhelper version requirement a little on precise.
-      sed -i 's/debhelper (>= 9\.[0-9]*)/debhelper (>= 9.20120115)/' debian/control
-      dch -a 'debian/control: Relax dependency on debhelper version a little so it is satisfied by the debhelper version in precise.  This only affects what hardening flags get used, and the backport will be no worse than the standard libsearch-xapian-perl package in precise.'
-      ;;
-    xapian-core:*:1.2.*)
-      # So we can create the backport source packages on debian unstable.
-      overrides='libxapian_soversion=22 other_abi_suffix=v5' ;;
-    xapian-core:precise:1.4.*|xapian-omega:precise:1.4.*)
-      sed -i 's/^Build-Depends: /&g++-4.7, /' debian/control.in
-      sed -i 's!/configure\>!& CXX=g++-4.7!' debian/rules
-      dch -a 'debian/control.in,debian/rules: Build with g++-4.7 for C++11 support.'
-      ;;
-    xapian-bindings:trusty:1.2.*)
-      # Make sure we add python-xapian to debian/control.
-      overrides='PYTHON_VERSIONS=dummy RUBY_VERSIONS="2.0" RUBY_PROVIDES="X-Dummy: No provides"' ;;
-    xapian-bindings:trusty:*)
-      # Make sure we add python-xapian and python3-xapian to debian/control.
-      overrides='PYTHON_VERSIONS=dummy PYTHON3_VERSIONS=dummy' ;;
-    xapian-bindings:xenial:*|xapian-bindings:yakkety:*|xapian-bindings:zesty:*|xapian-bindings:artful:*)
-      # Make sure we add python-xapian (and python3-xapian for 1.4.x packages)
-      # to debian/control.
-      overrides='PYTHON_VERSIONS=dummy PYTHON3_VERSIONS=dummy RUBY_VERSIONS=2.3 RUBY_PROVIDES="X-Dummy: No provides"' ;;
-    xapian-bindings:precise:1.4.*)
-      sed -i 's/^Build-Depends: /&g++-4.7, /' debian/control.in
-      sed -i 's!/configure\>!& CXX=g++-4.7!' debian/rules
-      dch -a 'debian/control.in,debian/rules: Build with g++-4.7 for C++11 support.'
-      # Make sure we add python-xapian and python3-xapian to debian/control.
-      overrides='PYTHON_VERSIONS=dummy PYTHON3_VERSIONS=dummy' ;;
+    xapian-bindings:xenial:*)
+      # Make sure we add python3-xapian to debian/control.
+      overrides='PYTHON3_VERSIONS=dummy RUBY_VERSIONS=2.3' ;;
     xapian-bindings:*:*)
-      # Make sure we add python-xapian to debian/control.
-      overrides='PYTHON_VERSIONS=dummy' ;;
+      # Make sure we add python3-xapian to debian/control.
+      overrides='PYTHON3_VERSIONS=dummy RUBY_VERSIONS=2.5' ;;
   esac
 
-  # libxapian30 (i.e. 1.4.x) is built with C++ "v5" ABI in stretch and newer
-  # and in xenial and newer, so append "v4" to the soname for backports to
-  # older versions so upgrades with the backport installed work cleanly.
-  case $PKG:$VERSION in
-  xapian-core:1.4.*)
-    case $CODENAME in
-    squeeze|wheezy|jessie|precise|trusty)
-      perl -i -e 'while (<>) { print; last if /^libxapian_soversion:=/ } while (<>) { print; last unless /\\$/ } print "libxapian_soversion:=\$(libxapian_soversion)v4\n"; while (<>) { print }' debian/rules
-      sed -i 's/^\(Package: libxapian@LIBXAPIAN_SOVERSION@\)\(.*\)/\1\2\nConflicts: libxapian30\2\nReplaces: libxapian30\2/' debian/control.in
-      dch -a 'debian/control.in,debian/rules: Add v4 suffix to soname. (Closes: #863705)'
-      ;;
-    esac
-    ;;
+  # Mainly for Survex.
+  case $CODENAME in
+      jammy|focal|bionic|bullseye)
+	if grep -q libwxgtk3.2-dev $CONTROL_SOURCE ; then
+	    sed -i 's/libwxgtk3.2-dev/libwxgtk3.0-gtk3-dev/g' $CONTROL_SOURCE
+	    dch -a "$CONTROL_SOURCE: Build with wxWidgets 3.0."
+	fi
+	;;
+      xenial)
+	if grep -q libwxgtk3.2-dev $CONTROL_SOURCE ; then
+	    sed -i 's/libwxgtk3.2-dev/libwxgtk3.0-dev/g' $CONTROL_SOURCE
+	    dch -a "$CONTROL_SOURCE: Build with wxWidgets 3.0."
+	elif grep -q libwxgtk3.0-gtk3-dev $CONTROL_SOURCE ; then
+	    sed -i 's/libwxgtk3.0-gtk3-dev/libwxgtk3.0-dev/g' $CONTROL_SOURCE
+	    dch -a "$CONTROL_SOURCE: Build with GTK2 version of wxWidgets."
+	fi
+	;;
   esac
+
+  case $CODENAME in
+      xenial)
+	if [ -f "debian/compat" ] && [ "`cat debian/compat`" -gt 9 ] ; then
+	    echo 9 > debian/compat
+	    sed -i 's/debhelper (>= [^)]*)/debhelper (>= 9)/' $CONTROL_SOURCE
+	    dch -a "$CONTROL_SOURCE: Lower debhelper compat level to 9."
+	    # Compat 9 doesn't default to parallel building.
+	    if grep -q 'dh_auto_test --no-parallel' debian/rules ; then
+		sed -i 's/dh_auto_test --no-parallel/dh_auto_test/' debian/rules
+		dch -a 'debian/rules: Drop --no-parallel from dh_auto_test invocation (debhelper compat level 9 does not default to parallel building).'
+	    fi
+	else
+	    COMPAT=`sed '/@XS_RUBY_VERSIONS@/d' $CONTROL_SOURCE|grep-dctrl -n -sBuild-Depends . -`
+	    case $COMPAT in
+		*debhelper-compat*)
+		    COMPAT=`echo "$COMPAT"|sed 's/.*debhelper-compat *(= *\([0-9]\+\)).*/\1/p;d'`
+		    # Switch to a versioned debhelper dependency and create debian/compat.
+		    if [ "$CONTROL_SOURCE" != debian/control ] ; then
+			# Fix generated debian/control as well to avoid error from `debian/rules clean`
+			# due to having debian/compat and a debhelper-compat dependency.
+			sed -i "s/debhelper-compat *(= *[0-9]\+)/debhelper (>= $COMPAT)/" debian/control
+		    fi
+		    sed -i "s/debhelper-compat *(= *[0-9]\+)/debhelper (>= $COMPAT)/" $CONTROL_SOURCE
+		    echo "$COMPAT" > debian/compat
+		    dch -a "$CONTROL_SOURCE,debian/compat: Use older way to specify debhelper compat level."
+		    cat >> debian/rules <<END
+
+override_dh_dwz:
+
+override_dh_builddeb:
+	DH_COMPAT=10 dh_builddeb
+END
+		    dch -a "debian/rules: Disable use of dwz to workaround bug in old dwz version"
+		    dch -a "debian/rules: Force DH_COMPAT=10 for dh_builddeb"
+		    ;;
+	    esac
+	fi
+	;;
+  esac
+
+  if [ "$PKG" = debhelper ] ; then
+      case $CODENAME in
+	  xenial)
+	      sed -i \
+		  -e "s/\(dh-autoreconf (>=\) 17/\1 12/" \
+		  -e "s/\(dh-strip-nondeterminism (>=\) 0.028/\1 0.015/" \
+		  $CONTROL_SOURCE
+	      dch -a "$CONTROL_SOURCE: Relax dependencies on dh-autoreconf and dh-strip-nondeterminism."
+	      ;;
+      esac
+  fi
 
   case `grep -c '^[^#]*\<CODENAME\>' debian/rules` in
     '')
@@ -175,8 +220,12 @@ build_it() {
       ;;
     [01])
       # Run maintclean and maint targets, if they exist.
-      fakeroot debian/rules maintclean || true
-      eval fakeroot debian/rules maint $overrides || true
+      if grep -qw maintclean debian/rules ; then
+	fakeroot debian/rules maintclean
+      fi
+      if grep -qw maint debian/rules ; then
+	eval fakeroot debian/rules maint $overrides
+      fi
       ;;
     *)
       # If debian/rules has at least two non-commented out references to
@@ -188,27 +237,20 @@ build_it() {
       ;;
   esac
 
-  case $PKG:$CODENAME:$VERSION in
-    xapian-bindings:precise:1.4.*)
-      # No dh-python for precise.
-      sed -i 's/dh-python, *//g' debian/control
-      ;;
-  esac
-
   include_src_opt=
   case $backport_version in
-    *99$UBUNTU_FIRST)
+    *99$UBUNTU_LATEST+1)
       # We don't really want to upload the orig tarball for all Ubuntu
       # backports, only if it isn't already in the archive.  So for now, just
-      # upload it for the first codename in alphabetical order, and only if
-      # there's no +N suffix on the version.
+      # upload it for the most recent Ubuntu release we currently backport to,
+      # and only if the BUILD_INT (N in the +N suffix) is 1.
       include_src_opt=-sa ;;
   esac
   debuild ${BUILDPACKAGE_SRC_OPTS} $include_src_opt
 
   if [ 1 != "$ubuntu" ] ; then
     # Debian
-    echo "sbuild --debbuildopt=$V_OPT -d $CODENAME-backports ${PKG}_$backport_version.dsc"
+    echo "cd build && sbuild --debbuildopt=$V_OPT -d $CODENAME-backports ${PKG}_$backport_version.dsc"
   fi
 }
 
@@ -248,24 +290,20 @@ trap "echo \"backport-source-packages failed\"" EXIT
 # before any other modification (and since dapper, Ubuntu codenames are
 # allocated alphabetically).  To handle the wrapping from zesty to artful,
 # we add ".999$CODENAME" for artful and later.  For Debian releases, we use
-# backports.org-compatible package versions - e.g. we append "~bpo8+1" for
-# Debian 8 (jessie) (and a suffix starting "~" sorts as less than no suffix).
+# backports.org-compatible package versions - e.g. we append "~bpo12+1" for
+# Debian 12 (bookworm) (and a suffix starting "~" sorts as less than no suffix).
 case $CODENAME in
-stretch)
-  BACKPORT_SUFFIX="~bpo9+$BUILD_INT" ;;
-jessie)
-  BACKPORT_SUFFIX="~bpo8+$BUILD_INT" ;;
-wheezy)
-  BACKPORT_SUFFIX="~bpo7+$BUILD_INT" ;;
-squeeze)
-  BACKPORT_SUFFIX="~bpo60+$BUILD_INT" ;;
+bookworm)
+  BACKPORT_SUFFIX="~bpo12+$BUILD_INT" ;;
+bullseye)
+  BACKPORT_SUFFIX="~bpo11+$BUILD_INT" ;;
 *)
   if [ x"$ubuntu" = x0 ] ; then
     echo "Debian codename '$CODENAME' not mapped to a ~bpoN suffix"
     exit 1
   fi
   case $CODENAME in
-  trusty|xenial|yakkety|zesty)
+  xenial)
     BACKPORT_SUFFIX=".99$CODENAME+$BUILD_INT" ;;
   *)
     BACKPORT_SUFFIX=".999$CODENAME+$BUILD_INT" ;;
@@ -289,6 +327,8 @@ cd build
       cmp "$DSC" "backup/$DSC" && rm -f "$DSC"
     fi
     dget -b "file://`pwd`/backup/$DSC"
+  elif [ -f "../$DSC" ] ; then
+    dget -b "file://`cd .. && pwd`/$DSC"
   else
     dget "${MIRROR}pool/main/$DIR/$PKG/$DSC"
   fi
@@ -300,5 +340,18 @@ cd ..
 
 echo "Backported ${PKG} ${VERSION} for $CODENAME successfully"
 done
+
+PPA=
+case ${PKG} in
+  *xapian*) PPA=ppa:xapian/backports ;;
+  survex) PPA=ppa:survex-devs/ppa ;;
+esac
+if [ -n "$PPA" ] ; then
+  for CODENAME in $CODENAMES ; do
+    if [ `expr " $UBUNTU_CODENAMES " : " $CODENAME "` != 0 ] ; then
+      echo "dput -U $PPA build/${PKG}_${VERSION}${SUFFIX}${BACKPORT_SUFFIX}_source.changes"
+    fi
+  done
+fi
 
 trap - EXIT

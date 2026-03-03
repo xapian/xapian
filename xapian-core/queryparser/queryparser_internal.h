@@ -1,7 +1,7 @@
-/** @file queryparser_internal.h
+/** @file
  * @brief The non-lemon-generated parts of the QueryParser class.
  */
-/* Copyright (C) 2005,2006,2007,2010,2011,2012,2013,2015,2016 Olly Betts
+/* Copyright (C) 2005-2025 Olly Betts
  * Copyright (C) 2010 Adam Sjøgren
  *
  * This program is free software; you can redistribute it and/or
@@ -15,9 +15,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_QUERYPARSER_INTERNAL_H
@@ -32,8 +31,6 @@
 #include <list>
 #include <map>
 
-using namespace std;
-
 class State;
 
 typedef enum { NON_BOOLEAN, BOOLEAN, BOOLEAN_EXCLUSIVE } filter_type;
@@ -43,26 +40,35 @@ struct FieldInfo {
     /// The type of this field.
     filter_type type;
 
-    string grouping;
+    std::string grouping;
 
     /// Field prefix strings.
-    list<string> prefixes;
+    std::vector<std::string> prefixes;
 
-    /// Field processors.  Currently only one is supported.
-    list<Xapian::Internal::opt_intrusive_ptr<Xapian::FieldProcessor> > procs;
+    /// Field processor.  Currently only one is supported.
+    Xapian::Internal::opt_intrusive_ptr<Xapian::FieldProcessor> proc;
 
-    FieldInfo(filter_type type_, const string& prefix,
-	      const string& grouping_ = string())
-	: type(type_), grouping(grouping_)
+    explicit
+    FieldInfo(filter_type type_)
+	: type(type_)
     {
-	prefixes.push_back(prefix);
     }
 
-    FieldInfo(filter_type type_, Xapian::FieldProcessor* proc,
-	      const string& grouping_ = string())
+    FieldInfo(filter_type type_, std::string_view grouping_)
 	: type(type_), grouping(grouping_)
     {
-	procs.push_back(proc);
+    }
+
+    FieldInfo(filter_type type_, Xapian::FieldProcessor* proc_,
+	      std::string_view grouping_ = {})
+	: type(type_), grouping(grouping_), proc(proc_)
+    {
+    }
+
+    FieldInfo& append(std::string_view prefix)
+    {
+	prefixes.emplace_back(prefix);
+	return *this;
     }
 };
 
@@ -85,52 +91,64 @@ class QueryParser::Internal : public Xapian::Internal::intrusive_base {
     friend class QueryParser;
     friend class ::State;
     Stem stemmer;
-    stem_strategy stem_action;
+    stem_strategy stem_action = STEM_SOME;
     Xapian::Internal::opt_intrusive_ptr<const Stopper> stopper;
-    Query::op default_op;
-    const char * errmsg;
+    stop_strategy stop_mode = STOP_STEMMED;
+    Query::op default_op = Query::OP_OR;
+    const char* errmsg = nullptr;
     Database db;
-    list<string> stoplist;
-    multimap<string, string> unstem;
+    std::list<std::string> stoplist;
+    std::multimap<std::string, std::string, std::less<>> unstem;
 
     // Map "from" -> "A" ; "subject" -> "C" ; "newsgroups" -> "G" ;
     // "foobar" -> "XFOO". FIXME: it does more than this now!
-    map<string, FieldInfo> field_map;
+    std::map<std::string, FieldInfo, std::less<>> field_map;
 
-    list<RangeProc> rangeprocs;
+    std::list<RangeProc> rangeprocs;
 
-    string corrected_query;
+    std::string corrected_query;
 
-    Xapian::termcount max_wildcard_expansion;
+    Xapian::termcount max_wildcard_expansion = 0;
 
-    Xapian::termcount max_partial_expansion;
+    Xapian::termcount max_partial_expansion = 100;
 
-    int max_wildcard_type;
+    Xapian::termcount max_fuzzy_expansion = 0;
 
-    int max_partial_type;
+    int max_wildcard_type = Xapian::Query::WILDCARD_LIMIT_ERROR;
 
-    void add_prefix(const string &field, const string &prefix);
+    int max_partial_type = Xapian::Query::WILDCARD_LIMIT_MOST_FREQUENT;
 
-    void add_prefix(const string &field, Xapian::FieldProcessor *proc);
+    int max_fuzzy_type = Xapian::Query::WILDCARD_LIMIT_ERROR;
 
-    void add_boolean_prefix(const string &field, const string &prefix,
-			    const string* grouping);
+    unsigned min_wildcard_prefix_len = 0;
 
-    void add_boolean_prefix(const string &field, Xapian::FieldProcessor *proc,
-			    const string* grouping);
+    unsigned min_partial_prefix_len = 2;
 
-    std::string parse_term(Utf8Iterator &it, const Utf8Iterator &end,
-			   bool cjk_ngram, bool &is_cjk_term,
-			   bool &was_acronym);
+    void add_prefix(std::string_view field, std::string_view prefix);
+
+    void add_prefix(std::string_view field, Xapian::FieldProcessor* proc);
+
+    void add_boolean_prefix(std::string_view field,
+			    std::string_view prefix,
+			    const std::string* grouping);
+
+    void add_boolean_prefix(std::string_view field,
+			    Xapian::FieldProcessor* proc,
+			    const std::string* grouping);
+
+    std::string parse_term(Utf8Iterator& it, const Utf8Iterator& end,
+			   bool try_word_break, unsigned flags,
+			   bool& needs_word_break, bool& was_acronym,
+			   size_t& first_wildcard,
+			   size_t& char_count,
+			   unsigned& edit_distance);
 
   public:
-    Internal() : stem_action(STEM_SOME), stopper(NULL),
-	default_op(Query::OP_OR), errmsg(NULL),
-	max_wildcard_expansion(0), max_partial_expansion(100),
-	max_wildcard_type(Xapian::Query::WILDCARD_LIMIT_ERROR),
-	max_partial_type(Xapian::Query::WILDCARD_LIMIT_MOST_FREQUENT) { }
+    Internal() { }
 
-    Query parse_query(const string & query_string, unsigned int flags, const string & default_prefix);
+    Query parse_query(std::string_view query_string,
+		      unsigned int flags,
+		      std::string_view default_prefix);
 };
 
 }

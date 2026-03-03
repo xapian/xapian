@@ -1,7 +1,7 @@
-/** @file xapian-inspect-honey.cc
+/** @file
  * @brief Inspect the contents of a honey table for development or debugging.
  */
-/* Copyright (C) 2007,2008,2009,2010,2011,2012,2017,2018 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010,2011,2012,2017,2018,2023 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,16 +14,15 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
 
-#include <iomanip>
+#include <ios>
 #include <iostream>
 #include <string>
-#include <cstdio> // For sprintf().
 
 #include "honey_cursor.h"
 #include "honey_defs.h"
@@ -52,23 +51,22 @@ static void show_usage() {
 "Options:\n"
 "  -t, --table=TABLE  which table to inspect\n"
 "  --help             display this help and exit\n"
-"  --version          output version information and exit" << endl;
+"  --version          output version information and exit\n";
 }
 
 static void
-display_nicely(const string & data) {
-    string::const_iterator i;
-    for (i = data.begin(); i != data.end(); ++i) {
-	unsigned char ch = *i;
+display_nicely(const string& data)
+{
+    for (unsigned char ch : data) {
 	if (ch < 32 || ch >= 127) {
 	    switch (ch) {
 		case '\n': cout << "\\n"; break;
 		case '\r': cout << "\\r"; break;
 		case '\t': cout << "\\t"; break;
 		default: {
-		    char buf[20];
-		    sprintf(buf, "\\x%02x", int(ch));
-		    cout << buf;
+		    cout << "\\x"
+			 << "0123456789abcdef"[ch >> 4]
+			 << "0123456789abcdef"[ch & 0x0f];
 		}
 	    }
 	} else if (ch == '\\') {
@@ -119,7 +117,7 @@ unescape(const string& s)
 		    char ch2 = *i;
 		    if (!C_isxdigit(ch1) || !C_isxdigit(ch2))
 			goto bad_escaping;
-		    ch = hex_digit(ch1) << 4 | hex_digit(ch2);
+		    ch = hex_decode(ch1, ch2);
 		    break;
 		}
 		default:
@@ -131,8 +129,7 @@ unescape(const string& s)
     return r;
 
 bad_escaping:
-    cout << "Bad escaping in specified key value, assuming literal"
-	<< endl;
+    cout << "Bad escaping in specified key value, assuming literal\n";
     return s;
 }
 
@@ -147,42 +144,44 @@ show_help()
 	    "goto K : Goto first entry with key >= K (alias 'g')\n"
 	    "until K: Display entries until key >= K (alias 'u')\n"
 	    "until  : Display entries until end (alias 'u')\n"
+	    "count K: Count entries until key >= K (alias 'c')\n"
+	    "count  : Count entries until end (alias 'c')\n"
 	    "open T : Open table T instead (alias 'o') - e.g. open postlist\n"
 	    "keys   : Toggle showing keys (default: true) (alias 'k')\n"
 	    "tags   : Toggle showing tags (default: true) (alias 't')\n"
 	    "help   : Show this (alias 'h' or '?')\n"
-	    "quit   : Quit this utility (alias 'q')" << endl;
+	    "quit   : Quit this utility (alias 'q')\n";
 }
 
 static void
-show_entry(HoneyCursor & cursor)
+show_entry(HoneyCursor& cursor)
 {
     if (cursor.after_end()) {
-	cout << "After end" << endl;
+	cout << "After end\n";
 	return;
     }
     if (cursor.current_key.empty()) {
-	cout << "Before start" << endl;
+	cout << "Before start\n";
 	return;
     }
     if (keys) {
 	cout << "Key: ";
 	display_nicely(cursor.current_key);
-	cout << endl;
+	cout << '\n';
     }
     if (tags) {
 	cout << "Tag: ";
 	cursor.read_tag();
 	display_nicely(cursor.current_tag);
-	cout << endl;
+	cout << '\n';
     }
 }
 
 static void
-do_until(HoneyCursor & cursor, const string & target)
+do_until(HoneyCursor& cursor, const string& target, bool show)
 {
     if (cursor.after_end()) {
-	cout << "At end already." << endl;
+	cout << "At end already.\n";
 	return;
     }
 
@@ -190,9 +189,9 @@ do_until(HoneyCursor & cursor, const string & target)
 	int cmp = target.compare(cursor.current_key);
 	if (cmp <= 0) {
 	    if (cmp)
-		cout << "Already after specified key." << endl;
+		cout << "Already after specified key.\n";
 	    else
-		cout << "Already at specified key." << endl;
+		cout << "Already at specified key.\n";
 	    return;
 	}
     }
@@ -200,7 +199,7 @@ do_until(HoneyCursor & cursor, const string & target)
     size_t count = 0;
     while (cursor.next()) {
 	++count;
-	show_entry(cursor);
+	if (show) show_entry(cursor);
 
 	if (target.empty())
 	    continue;
@@ -208,20 +207,20 @@ do_until(HoneyCursor & cursor, const string & target)
 	int cmp = target.compare(cursor.current_key);
 	if (cmp < 0) {
 	    cout << "No exact match, stopping at entry after, "
-		    "having advanced by " << count << " entries." << endl;
+		    "having advanced by " << count << " entries.\n";
 	    return;
 	}
 	if (cmp == 0) {
-	    cout << "Advanced by " << count << " entries." << endl;
+	    cout << "Advanced by " << count << " entries.\n";
 	    return;
 	}
     }
 
-    cout << "Reached end, having advanced by " << count << " entries." << endl;
+    cout << "Reached end, having advanced by " << count << " entries.\n";
 }
 
 int
-main(int argc, char **argv)
+main(int argc, char** argv)
 {
     static const struct option long_opts[] = {
 	{"table",	required_argument, 0, 't'},
@@ -243,7 +242,7 @@ main(int argc, char **argv)
 		show_usage();
 		exit(0);
 	    case OPT_VERSION:
-		cout << PROG_NAME " - " PACKAGE_STRING << endl;
+		cout << PROG_NAME " - " PACKAGE_STRING "\n";
 		exit(0);
 	    default:
 		show_usage();
@@ -261,8 +260,8 @@ main(int argc, char **argv)
     bool arg_is_directory = dir_exists(db_path);
     if (arg_is_directory && table_name.empty()) {
 	cerr << argv[0]
-	     << ": You need to specify a table name to inspect with --table."
-	     << endl;
+	     << ": You need to specify a table name to inspect with "
+		"--table.\n";
 	exit(1);
     }
     int single_file_fd = -1;
@@ -288,8 +287,7 @@ main(int argc, char **argv)
     } else if (!arg_is_directory) {
 	single_file_fd = open(db_path.c_str(), O_RDONLY | O_BINARY);
 	if (single_file_fd < 0) {
-	    cerr << argv[0] << ": Couldn't open file '" << db_path << "'"
-		 << endl;
+	    cerr << argv[0] << ": Couldn't open file '" << db_path << "'\n";
 	    exit(1);
 	}
     }
@@ -303,10 +301,10 @@ main(int argc, char **argv)
     HoneyVersion& version_file = *version_file_ptr;
 
     version_file.read();
-    Xapian::rev rev = version_file.get_revision();
+    honey_revision_number_t rev = version_file.get_revision();
 
     show_help();
-    cout << endl;
+    cout << '\n';
 
 open_different_table:
     try {
@@ -324,7 +322,7 @@ open_different_table:
 	} else if (table_name == "postlist") {
 	    table_code = Honey::POSTLIST;
 	} else {
-	    cerr << "Unknown table: '" << table_name << "'" << endl;
+	    cerr << "Unknown table: '" << table_name << "'\n";
 	    exit(1);
 	}
 
@@ -342,15 +340,14 @@ open_different_table:
 	HoneyTable& table = *table_ptr;
 
 	table.open(0, version_file.get_root(table_code), rev);
-	if (table.empty()) {
-	    cout << "No entries!" << endl;
-	    exit(0);
-	}
-	cout << "Table has " << table.get_entry_count() << " entries" << endl;
-
 	HoneyCursor cursor(&table);
 	cursor.rewind();
-	cursor.next();
+	if (!cursor.next()) {
+	    cout << "No entries!\n";
+	    exit(0);
+	}
+
+	cout << "Table has " << table.get_entry_count() << " entries\n";
 
 	while (!cin.eof()) {
 	    show_entry(cursor);
@@ -366,25 +363,34 @@ wait_for_input:
 
 	    if (input.empty() || input == "n" || input == "next") {
 		if (cursor.after_end()) {
-		    cout << "At end already." << endl;
+		    cout << "At end already.\n";
 		    goto wait_for_input;
 		}
 		(void)cursor.next();
 		continue;
 	    } else if (input == "p" || input == "prev") {
 		if (!cursor.prev()) {
-		    cout << "Before start already." << endl;
+		    cout << "Before start already.\n";
 		    goto wait_for_input;
 		}
 		continue;
 	    } else if (startswith(input, "u ")) {
-		do_until(cursor, unescape(input.substr(2)));
+		do_until(cursor, unescape(input.substr(2)), true);
 		goto wait_for_input;
 	    } else if (startswith(input, "until ")) {
-		do_until(cursor, unescape(input.substr(6)));
+		do_until(cursor, unescape(input.substr(6)), true);
 		goto wait_for_input;
 	    } else if (input == "u" || input == "until") {
-		do_until(cursor, string());
+		do_until(cursor, string(), true);
+		goto wait_for_input;
+	    } else if (startswith(input, "c ")) {
+		do_until(cursor, unescape(input.substr(2)), false);
+		goto wait_for_input;
+	    } else if (startswith(input, "count ")) {
+		do_until(cursor, unescape(input.substr(6)), false);
+		goto wait_for_input;
+	    } else if (input == "c" || input == "count") {
+		do_until(cursor, string(), false);
 		goto wait_for_input;
 	    } else if (input == "f" || input == "first") {
 		cursor.rewind();
@@ -396,12 +402,12 @@ wait_for_input:
 		continue;
 	    } else if (startswith(input, "g ")) {
 		if (!cursor.find_entry_ge(unescape(input.substr(2)))) {
-		    cout << "No exact match, going to entry after." << endl;
+		    cout << "No exact match, going to entry after.\n";
 		}
 		continue;
 	    } else if (startswith(input, "goto ")) {
 		if (!cursor.find_entry_ge(unescape(input.substr(5)))) {
-		    cout << "No exact match, going to entry after." << endl;
+		    cout << "No exact match, going to entry after.\n";
 		}
 		continue;
 	    } else if (startswith(input, "o ") || startswith(input, "open ")) {
@@ -415,22 +421,22 @@ wait_for_input:
 		goto open_different_table;
 	    } else if (input == "t" || input == "tags") {
 		tags = !tags;
-		cout << "Showing tags: " << boolalpha << tags << endl;
+		cout << "Showing tags: " << boolalpha << tags << '\n';
 	    } else if (input == "k" || input == "keys") {
 		keys = !keys;
-		cout << "Showing keys: " << boolalpha << keys << endl;
+		cout << "Showing keys: " << boolalpha << keys << '\n';
 	    } else if (input == "q" || input == "quit") {
 		break;
 	    } else if (input == "h" || input == "help" || input == "?") {
 		show_help();
 		goto wait_for_input;
 	    } else {
-		cout << "Unknown command." << endl;
+		cout << "Unknown command.\n";
 		goto wait_for_input;
 	    }
 	}
-    } catch (const Xapian::Error &error) {
-	cerr << argv[0] << ": " << error.get_description() << endl;
+    } catch (const Xapian::Error& error) {
+	cerr << argv[0] << ": " << error.get_description() << '\n';
 	exit(1);
     }
 }

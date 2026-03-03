@@ -1,6 +1,7 @@
-/* api_replacedoc.cc: tests of document replacing.
- *
- * Copyright 2009 Richard Boulton
+/** @file
+ * @brief tests of document replacing.
+ */
+/* Copyright 2009 Richard Boulton
  * Copyright 2015,2016 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
@@ -14,9 +15,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -24,7 +24,6 @@
 #include "api_replacedoc.h"
 
 #include <string>
-#include <map>
 
 using namespace std;
 
@@ -97,8 +96,6 @@ DEFINE_TESTCASE(poslistupdate1, positional && writable) {
     TEST_EQUAL(docterms_to_string(db, 1),
 	       "Term(pos, wdf=1), "
 	       "Term(pos2, wdf=1)");
-
-    return true;
 }
 
 static Xapian::Document
@@ -259,6 +256,4 @@ DEFINE_TESTCASE(modtermwdf1, writable) {
     TEST_EQUAL(db.get_doccount(), 0);
     TEST_EQUAL(db.get_avlength(), 0);
     TEST_EQUAL(db.get_lastdocid(), 1);
-
-    return true;
 }

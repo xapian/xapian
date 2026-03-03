@@ -1,7 +1,7 @@
-/** @file glass_spellingwordslist.cc
+/** @file
  * @brief Iterator for the spelling correction words in a glass database.
  */
-/* Copyright (C) 2004,2005,2006,2007,2008,2009,2017 Olly Betts
+/* Copyright (C) 2004,2005,2006,2007,2008,2009,2017,2024 Olly Betts
  * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -15,10 +15,9 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
-
 
 #include <config.h>
 
@@ -31,6 +30,8 @@
 #include "glass_database.h"
 #include "pack.h"
 #include "stringutils.h"
+
+using namespace std;
 
 GlassSpellingWordsList::~GlassSpellingWordsList()
 {
@@ -46,23 +47,12 @@ GlassSpellingWordsList::get_approx_size() const
     return database->spelling_table.get_entry_count();
 }
 
-string
-GlassSpellingWordsList::get_termname() const
-{
-    LOGCALL(DB, string, "GlassSpellingWordsList::get_termname", NO_ARGS);
-    Assert(cursor);
-    Assert(!at_end());
-    Assert(!cursor->current_key.empty());
-    Assert(cursor->current_key[0] == 'W');
-    RETURN(cursor->current_key.substr(1));
-}
-
 Xapian::doccount
 GlassSpellingWordsList::get_termfreq() const
 {
     LOGCALL(DB, Xapian::doccount, "GlassSpellingWordsList::get_termfreq", NO_ARGS);
     Assert(cursor);
-    Assert(!at_end());
+    Assert(!cursor->after_end());
     Assert(!cursor->current_key.empty());
     Assert(cursor->current_key[0] == 'W');
     cursor->read_tag();
@@ -75,47 +65,37 @@ GlassSpellingWordsList::get_termfreq() const
     RETURN(freq);
 }
 
-Xapian::termcount
-GlassSpellingWordsList::get_collection_freq() const
-{
-    throw Xapian::InvalidOperationError("GlassSpellingWordsList::get_collection_freq() not meaningful");
-}
-
 TermList *
 GlassSpellingWordsList::next()
 {
     LOGCALL(DB, TermList *, "GlassSpellingWordsList::next", NO_ARGS);
-    Assert(!at_end());
+    Assert(!cursor->after_end());
 
-    cursor->next();
-    if (!cursor->after_end() && !startswith(cursor->current_key, 'W')) {
+    if (!cursor->next() || cursor->current_key[0] != 'W') {
 	// We've reached the end of the prefixed terms.
-	cursor->to_end();
+	RETURN(this);
     }
-
+    current_term.assign(cursor->current_key, 1);
     RETURN(NULL);
 }
 
-TermList *
-GlassSpellingWordsList::skip_to(const string &tname)
+TermList*
+GlassSpellingWordsList::skip_to(string_view tname)
 {
     LOGCALL(DB, TermList *, "GlassSpellingWordsList::skip_to", tname);
-    Assert(!at_end());
+    Assert(!cursor->after_end());
 
-    if (!cursor->find_entry_ge("W" + tname)) {
-	// The exact term we asked for isn't there, so check if the next
-	// term after it also has a W prefix.
-	if (!cursor->after_end() && !startswith(cursor->current_key, 'W')) {
+    if (cursor->find_entry_ge("W"s.append(tname))) {
+	// Exact match.
+	current_term = tname;
+    } else {
+	// The exact term we asked for isn't there, so check if the next term
+	// after it also has a W prefix.
+	if (cursor->after_end() || cursor->current_key[0] != 'W') {
 	    // We've reached the end of the prefixed terms.
-	    cursor->to_end();
+	    RETURN(this);
 	}
+	current_term.assign(cursor->current_key, 1);
     }
     RETURN(NULL);
-}
-
-bool
-GlassSpellingWordsList::at_end() const
-{
-    LOGCALL(DB, bool, "GlassSpellingWordsList::at_end", NO_ARGS);
-    RETURN(cursor->after_end());
 }

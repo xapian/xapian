@@ -1,4 +1,4 @@
-/** @file collapser.cc
+/** @file
  * @brief Collapse documents with the same collapse key during the match.
  */
 /* Copyright (C) 2009,2011,2017 Olly Betts
@@ -14,8 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -42,9 +42,8 @@ CollapseData::check_item(const vector<Result>& results,
     // We already have collapse_max items better than result so we need to
     // eliminate the lowest ranked.
     if (collapse_count == 0 && collapse_max != 1) {
-	// Be lazy about calling make_heap - if we see <= collapse_max
-	// items with a particular collapse key, we never need to use
-	// the heap.
+	// Be lazy about building the heap - if we see <= collapse_max items
+	// with a particular collapse key, we never need to use the heap.
 	Heap::make(items.begin(), items.end(),
 		   [&](pair<Xapian::doccount, Xapian::docid> a,
 		       pair<Xapian::doccount, Xapian::docid> b) {

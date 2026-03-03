@@ -1,7 +1,7 @@
-/** @file api_opsynonym.cc
+/** @file
  * @brief tests of OP_SYNONYM and OP_MAX.
  */
-/* Copyright 2009,2011,2014 Olly Betts
+/* Copyright 2009,2011,2014,2022 Olly Betts
  * Copyright 2007,2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -15,9 +15,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -169,6 +168,18 @@ static const synonym1_data_type synonym1_data[] = {
 	}
     },
     {
+	// All 34 results should be different.  MAX under SYNONYM should just
+	// be treated as OR.
+	0, 34, 2,
+	{
+	    Xapian::Query("date"),
+	    Xapian::Query(Xapian::Query::OP_MAX,
+			  Xapian::Query("sky"),
+			  Xapian::Query("date")),
+	    NOQ, NOQ
+	}
+    },
+    {
 	// All 35 results should be different.
 	0, 35, 4,
 	{
@@ -217,10 +228,7 @@ DEFINE_TESTCASE(synonym1, backend) {
 
     const Xapian::doccount lots = 214;
 
-    for (size_t subqgroup = 0;
-	 subqgroup != sizeof(synonym1_data) / sizeof(synonym1_data[0]);
-	 ++subqgroup) {
-	const synonym1_data_type & data = synonym1_data[subqgroup];
+    for (const auto& data : synonym1_data) {
 	const Xapian::Query * qlist = data.subqs;
 	const Xapian::Query * qlist_end = qlist + data.n_subqs;
 
@@ -269,7 +277,6 @@ DEFINE_TESTCASE(synonym1, backend) {
 	    }
 	}
 
-
 	TEST_EQUAL(different_weight, data.diffweight_count);
 	TEST_EQUAL(same_weight, data.sameweight_count);
 
@@ -280,10 +287,9 @@ DEFINE_TESTCASE(synonym1, backend) {
 	TEST_EQUAL(mset_top.size(), 1);
 	TEST(mset_range_is_same(mset_top, 0, synmset, 0, 1));
     }
-    return true;
 }
 
-// Regression test - test a synonym search with a MultiAndPostlist.
+// Regression test - test a synonym search with a AndPostlist.
 DEFINE_TESTCASE(synonym2, backend) {
     Xapian::Query query;
     vector<Xapian::Query> subqueries;
@@ -313,8 +319,6 @@ DEFINE_TESTCASE(synonym2, backend) {
     double maxposs2 = mset.get_max_possible();
 
     TEST_EQUAL_DOUBLE(maxposs * 10.0, maxposs2);
-
-    return true;
 }
 
 static void
@@ -369,8 +373,6 @@ DEFINE_TESTCASE(synonym3, backend) {
 	TEST_NOT_EQUAL(mset_orig[i].get_weight(), 0.0);
 	TEST_EQUAL(mset_zero[i].get_weight(), 0.0);
     }
-
-    return true;
 }
 
 // Test synonym searches combined with various operators.
@@ -394,12 +396,10 @@ DEFINE_TESTCASE(synonym4, backend) {
 	Xapian::Query::OP_OR,
 	Xapian::Query::OP_SYNONYM
     };
-    const Xapian::Query::op * end;
-    end = operators + sizeof(operators) / sizeof(operators[0]);
-    for (const Xapian::Query::op * i = operators; i != end; ++i) {
+    for (auto op : operators) {
 	tout.str(string());
-	Xapian::Query query1(*i, syn_query, date_query);
-	Xapian::Query query2(*i, or_query, date_query);
+	Xapian::Query query1(op, syn_query, date_query);
+	Xapian::Query query2(op, or_query, date_query);
 
 	enquire.set_query(query1);
 	tout << "query1:" << query1 << '\n';
@@ -411,15 +411,13 @@ DEFINE_TESTCASE(synonym4, backend) {
 	tout << "mset2:" << mset2 << '\n';
 
 	TEST_NOT_EQUAL(mset1.size(), 0);
-	if (*i != Xapian::Query::OP_XOR) {
+	if (op != Xapian::Query::OP_XOR) {
 	    TEST_EQUAL(mset1[0].get_percent(), 100);
 	} else {
 	    TEST(mset1[0].get_percent() != 100);
 	}
 	check_msets_contain_same_docs(mset1, mset2);
     }
-
-    return true;
 }
 
 DEFINE_TESTCASE(opmax1, backend) {
@@ -458,11 +456,9 @@ DEFINE_TESTCASE(opmax1, backend) {
 	TEST(j != expected_weights.end());
 	TEST_EQUAL_DOUBLE(j->second, i.get_weight());
 	expected_weights.erase(j);
-	tout << expected_weights.size() << endl;
+	tout << expected_weights.size() << '\n';
     }
 
     // Any document in mset1 or mset2 should also be in msetmax.
     TEST_EQUAL(expected_weights.size(), 0);
-
-    return true;
 }

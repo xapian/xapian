@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FictionBook xmlns="http://www.gribuser.ru/xml/fictionbook/2.0" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <description>
+        <title-info>
+            <genre>antique</genre>
+                <author><first-name>Jeroen</first-name><last-name>Ooms</last-name></author>
+            <book-title>Hello World</book-title>
+
+            <lang>en</lang>
+
+
+        </title-info>
+        <document-info>
+            <author><first-name>Jeroen</first-name><last-name>Ooms</last-name></author>
+            <program-used>calibre 2.51.0</program-used>
+            <date>24.6.2019</date>
+            <id>6138cce6-b7ee-473b-8abf-ecf14aa46ff1</id>
+            <version>1.0</version>
+        </document-info>
+        <publish-info>
+
+
+
+        </publish-info>
+    </description>
+<body>
+<section>
+<p>Hello World <emphasis>Jeroen Ooms</emphasis> <emphasis>3/20/2018</emphasis></p>
+
+<p><strong>Chapter 1</strong></p>
+
+<p><strong>Subsection 1</strong></p>
+
+<p>Today is a beautiful day!</p>
+
+<p>1</p>
+
+<p><strong>Document Outline</strong></p>
+
+<p>Chapter 1</p>
+
+<p>Subsection 1</p>
+</section>
+
+</body>
+</FictionBook>

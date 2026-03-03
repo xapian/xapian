@@ -1,7 +1,7 @@
-/** @file expandweight.h
+/** @file
  * @brief Collate statistics and calculate the term weights for the ESet.
  */
-/* Copyright (C) 2007,2008,2009,2011,2016 Olly Betts
+/* Copyright (C) 2007,2008,2009,2011,2016,2019,2023,2024 Olly Betts
  * Copyright (C) 2013 Aarsh Shah
  *
  * This program is free software; you can redistribute it and/or
@@ -15,8 +15,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_EXPANDWEIGHT_H
@@ -41,7 +41,7 @@ class ExpandStats {
     /// Average document length in the whole database.
     Xapian::doclength avlen;
 
-    /// The parameter k to be used for TradWeight query expansion.
+    /// The parameter k to be used for probabilistic query expansion.
     double expand_k;
 
   public:
@@ -57,27 +57,19 @@ class ExpandStats {
     /// The number of documents from the RSet indexed by the current term (r).
     Xapian::doccount rtermfreq;
 
-    /// The multiplier to be used in TradWeight query expansion.
+    /// The multiplier to be used in probabilistic query expansion.
     double multiplier;
 
-    /// Keeps track of the index of the sub-database we're accumulating for.
-    size_t db_index;
+    /** Constructor.
+     *
+     *  @param avlen_	    Average document length
+     *  @param expand_k_    Parameter k used by ProbEWeight (default: 0)
+     */
+    ExpandStats(Xapian::doclength avlen_, double expand_k_ = 0.0)
+	: avlen(avlen_), expand_k(expand_k_) { }
 
-    /// Constructor for expansion schemes which do not require the "expand_k"
-    /// parameter.
-    explicit ExpandStats(Xapian::doclength avlen_)
-	: avlen(avlen_), expand_k(0), dbsize(0), termfreq(0),
-	  rcollection_freq(0), rtermfreq(0), multiplier(0), db_index(0) {
-    }
-
-    /// Constructor for expansion schemes which require the "expand_k" parameter.
-    ExpandStats(Xapian::doclength avlen_, double expand_k_)
-	: avlen(avlen_), expand_k(expand_k_), dbsize(0), termfreq(0),
-	  rcollection_freq(0), rtermfreq(0), multiplier(0), db_index(0) {
-
-    }
-
-    void accumulate(Xapian::termcount wdf, Xapian::termcount doclen,
+    void accumulate(size_t shard_index,
+		    Xapian::termcount wdf, Xapian::termcount doclen,
 		    Xapian::doccount subtf, Xapian::doccount subdbsize)
     {
 	// Boolean terms may have wdf == 0, but treat that as 1 so such terms
@@ -90,29 +82,31 @@ class ExpandStats {
 
 	// If we've not seen this sub-database before, then update dbsize and
 	// termfreq and note that we have seen it.
-	if (db_index >= dbs_seen.size() || !dbs_seen[db_index]) {
-	    if (db_index >= dbs_seen.size()) dbs_seen.resize(db_index + 1);
-	    dbs_seen[db_index] = true;
+	if (shard_index >= dbs_seen.size() || !dbs_seen[shard_index]) {
+	    if (shard_index >= dbs_seen.size()) {
+		dbs_seen.resize(shard_index + 1);
+	    }
+	    dbs_seen[shard_index] = true;
 	    dbsize += subdbsize;
 	    termfreq += subtf;
 	}
     }
 
-    /* Clear the statistics collected in the ExpandStats object before using it
-     * for a new term. */
-    void clear_stats()
-    {
+    /// Return the average document length in the database.
+    double get_average_length() const { return avlen; }
+
+    /// Reset for the next term.
+    void clear_stats() {
 	dbs_seen.clear();
 	dbsize = 0;
 	termfreq = 0;
 	rcollection_freq = 0;
 	rtermfreq = 0;
 	multiplier = 0;
-	db_index = 0;
     }
 };
 
-/// Class for calculating probabilistic ESet term weights.
+/// Class for calculating ESet term weights.
 class ExpandWeight {
     /// The combined database.
     const Xapian::Database db;
@@ -120,16 +114,13 @@ class ExpandWeight {
     /// The number of documents in the whole database.
     Xapian::doccount dbsize;
 
-    /// Average document length in the whole database.
-    Xapian::doclength avlen;
-
     /// The number of documents in the RSet.
     Xapian::doccount rsize;
 
     /// The collection frequency of the term.
-    Xapian::termcount collection_freq;
+    Xapian::termcount collection_freq = 0;
 
-    /// The total length of the databse.
+    /// The total length of the database.
     Xapian::totallength collection_len;
 
     /** Should we calculate the exact term frequency when generating an ESet?
@@ -144,56 +135,50 @@ class ExpandWeight {
      */
     bool use_exact_termfreq;
 
+    /** Does the expansion scheme use collection frequency? */
+    bool want_collection_freq;
+
   public:
     /** Constructor.
      *
-     *  @param db_ The database.
-     *  @param rsize_ The number of documents in the RSet.
-     *  @param use_exact_termfreq_ When expanding over a combined database,
-     *				   should we use the exact termfreq (if false
-     *				   a cheaper approximation is used).
+     *  @param db_		    The database
+     *  @param rsize_		    Number of documents in the RSet
+     *  @param use_exact_termfreq_  When expanding over a combined database,
+     *				    should we use the exact termfreq (if false
+     *				    a cheaper approximation is used)
+     *  @param want_collection_freq_
+     *				    Does the expansion scheme use collection
+     *				    frequency?
+     *  @param expand_k_	    Parameter for ProbEWeight (default: 0)
      */
-    ExpandWeight(const Xapian::Database &db_,
-		 Xapian::doccount rsize_,
-		 bool use_exact_termfreq_)
-	: db(db_), dbsize(db.get_doccount()), avlen(db.get_avlength()),
-	  rsize(rsize_), collection_freq(0),
-	  collection_len(avlen * dbsize + .5),
-	  use_exact_termfreq(use_exact_termfreq_), stats(avlen) {}
-
-    /** Constructor.
-     *
-     *  @param db_ The database.
-     *  @param rsize_ The number of documents in the RSet.
-     *  @param use_exact_termfreq_ When expanding over a combined database,
-     *				   should we use the exact termfreq (if false
-     *				   a cheaper approximation is used).
-     *  @param expand_k_ The parameter for TradWeight query expansion.
-     */
-    ExpandWeight(const Xapian::Database &db_,
+    ExpandWeight(const Xapian::Database& db_,
 		 Xapian::doccount rsize_,
 		 bool use_exact_termfreq_,
-		 double expand_k_)
-	: db(db_), dbsize(db.get_doccount()), avlen(db.get_avlength()),
-	  rsize(rsize_), collection_freq(0),
-	  collection_len(avlen * dbsize + .5),
-	  use_exact_termfreq(use_exact_termfreq_), stats(avlen, expand_k_) {}
+		 bool want_collection_freq_,
+		 double expand_k_ = 0.0)
+	: db(db_), dbsize(db.get_doccount()),
+	  rsize(rsize_),
+	  collection_len(db.get_total_length()),
+	  use_exact_termfreq(use_exact_termfreq_),
+	  want_collection_freq(want_collection_freq_),
+	  stats(db.get_average_length(), expand_k_) {}
 
     /** Get the term statistics.
+     *
      *  @param merger The tree of TermList objects.
      *  @param term The current term name.
      */
-    void collect_stats(TermList * merger, const std::string & term);
+    void collect_stats(TermList* merger, const std::string& term);
 
     /// Calculate the weight.
     virtual double get_weight() const = 0;
 
   protected:
-    /// An ExpandStats object to accumulate statistics.
+    /// ExpandStats object to accumulate statistics.
     ExpandStats stats;
 
-    /// Return the average length of the databse.
-    double get_avlen() const { return avlen; }
+    /// Return the average length of the database.
+    double get_average_length() const { return stats.get_average_length(); }
 
     /// Return the number of documents in the RSet.
     Xapian::doccount get_rsize() const { return rsize; }
@@ -208,11 +193,11 @@ class ExpandWeight {
     Xapian::doccount get_dbsize() const { return dbsize; }
 };
 
-/** This class implements the TradWeight scheme for query expansion.
+/** This class implements the probabilistic scheme for query expansion.
  *
  *  It is the default scheme for query expansion.
  */
-class TradEWeight : public ExpandWeight {
+class ProbEWeight : public ExpandWeight {
   public:
     /** Constructor.
      *
@@ -221,15 +206,15 @@ class TradEWeight : public ExpandWeight {
      *  @param use_exact_termfreq_ When expanding over a combined database,
      *				   should we use the exact termfreq (if false
      *				   a cheaper approximation is used).
-     *  @param expand_k_ The parameter for TradWeight query expansion.
+     *  @param expand_k_ The parameter for probabilistic query expansion.
      *
      *  All the parameters are passed to the parent ExpandWeight object.
      */
-    TradEWeight(const Xapian::Database &db_,
+    ProbEWeight(const Xapian::Database& db_,
 		Xapian::doccount rsize_,
 		bool use_exact_termfreq_,
 		double expand_k_)
-	: ExpandWeight(db_, rsize_, use_exact_termfreq_, expand_k_) { }
+	: ExpandWeight(db_, rsize_, use_exact_termfreq_, false, expand_k_) { }
 
     double get_weight() const;
 };
@@ -239,7 +224,7 @@ class TradEWeight : public ExpandWeight {
  *  Bo1 is a representative scheme of the Divergence from Randomness Framework
  *  by Gianni Amati.
  *
- *  This is a parameter free weighting scheme for query expansion and it uses
+ *  This is a parameter-free weighting scheme for query expansion and it uses
  *  the Bose-Einstein probabilistic distribution.
  *
  *  For more information about the DFR Framework and the Bo1 scheme, please
@@ -257,10 +242,10 @@ class Bo1EWeight : public ExpandWeight {
      *
      *  All the parameters are passed to the parent ExpandWeight object.
      */
-    Bo1EWeight(const Xapian::Database &db_,
+    Bo1EWeight(const Xapian::Database& db_,
 	       Xapian::doccount rsize_,
 	       bool use_exact_termfreq_)
-	: ExpandWeight(db_, rsize_, use_exact_termfreq_) {}
+	: ExpandWeight(db_, rsize_, use_exact_termfreq_, true) {}
 
     double get_weight() const;
 };

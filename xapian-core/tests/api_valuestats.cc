@@ -1,7 +1,8 @@
-/* api_valuestats.cc: tests of the value statistics functions.
- *
- * Copyright 2008 Lemur Consulting Ltd
- * Copyright 2008,2009,2011,2017 Olly Betts
+/** @file
+ * @brief tests of the value statistics functions.
+ */
+/* Copyright 2008 Lemur Consulting Ltd
+ * Copyright 2008,2009,2011,2017,2023 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -14,9 +15,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -24,6 +24,7 @@
 #include "api_valuestats.h"
 
 #include <xapian.h>
+#include "str.h"
 #include "testsuite.h"
 #include "testutils.h"
 
@@ -80,10 +81,10 @@ DEFINE_TESTCASE(valuestats1, writable && valuestats) {
     TEST_EQUAL(db_w.get_value_lower_bound(1), "cheese");
     TEST_EQUAL(db_w.get_value_upper_bound(1), "cheese");
     TEST_EQUAL(db_w.get_value_freq(0), 1);
-    if (!startswith(get_dbtype(), "multi")) {
-	TEST_EQUAL(db_w.get_value_lower_bound(0), "hello");
-    } else {
+    if (db_w.size() > 1) {
 	TEST_EQUAL(db_w.get_value_lower_bound(0), "world");
+    } else {
+	TEST_EQUAL(db_w.get_value_lower_bound(0), "hello");
     }
     TEST_EQUAL(db_w.get_value_upper_bound(0), "world");
 
@@ -107,8 +108,6 @@ DEFINE_TESTCASE(valuestats1, writable && valuestats) {
     TEST_EQUAL(db_w.get_value_freq(0), 0);
     TEST_EQUAL(db_w.get_value_lower_bound(0), "");
     TEST_EQUAL(db_w.get_value_upper_bound(0), "");
-
-    return true;
 }
 
 /// Test that value statistics stuff obeys transactions.
@@ -182,13 +181,20 @@ DEFINE_TESTCASE(valuestats2, transactions && valuestats) {
     TEST_EQUAL(db.get_value_lower_bound(0), "hello");
     TEST_EQUAL(db.get_value_upper_bound(0), "world");
 
-    // Deleting a document affects the count, but not the bounds.
+    // Deleting a document affects the count, but not usually the bounds.
     db_w.delete_document(1);
     TEST_EQUAL(db_w.get_value_freq(1), 1);
     TEST_EQUAL(db_w.get_value_lower_bound(1), "cheese");
     TEST_EQUAL(db_w.get_value_upper_bound(1), "cheese");
     TEST_EQUAL(db_w.get_value_freq(0), 1);
-    TEST_EQUAL(db_w.get_value_lower_bound(0), "hello");
+    if (db_w.size() > 1) {
+	// With a sharded database, deleting document 1 leaves that shard empty
+	// and its value bounds should be reset so the lower bound comes only
+	// from the shard the other document is in, so it's actually exact.
+	TEST_EQUAL(db_w.get_value_lower_bound(0), "world");
+    } else {
+	TEST_EQUAL(db_w.get_value_lower_bound(0), "hello");
+    }
     TEST_EQUAL(db_w.get_value_upper_bound(0), "world");
 
     // Deleting all the documents returns the bounds to their original value.
@@ -221,8 +227,6 @@ DEFINE_TESTCASE(valuestats2, transactions && valuestats) {
     TEST_EQUAL(db.get_value_freq(1), 1);
     TEST_EQUAL(db.get_value_lower_bound(1), "newval");
     TEST_EQUAL(db.get_value_upper_bound(1), "newval");
-
-    return true;
 }
 
 /// Test reading value statistics from prebuilt databases.
@@ -262,14 +266,14 @@ DEFINE_TESTCASE(valuestats3, valuestats) {
     TEST_EQUAL(db.get_value_freq(11), 6);
     TEST_EQUAL(db.get_value_lower_bound(11), "\xb9P");
     TEST_EQUAL(db.get_value_upper_bound(11), "\xc7\x04");
-
-    return true;
 }
 
 DEFINE_TESTCASE(valuestats4, transactions && valuestats) {
-    const size_t FLUSH_THRESHOLD = 10000;
+    size_t FLUSH_THRESHOLD = 10000;
     {
 	Xapian::WritableDatabase db_w = get_writable_database();
+	// The flush threshold applies per shard in a sharded database.
+	FLUSH_THRESHOLD *= db_w.size();
 	Xapian::Document doc;
 	doc.add_value(1, "test");
 	for (size_t i = 0; i < FLUSH_THRESHOLD; ++i) {
@@ -298,8 +302,6 @@ DEFINE_TESTCASE(valuestats4, transactions && valuestats) {
 	TEST_EQUAL(db.get_value_lower_bound(1), "test");
 	TEST_EQUAL(db.get_value_upper_bound(1), "test");
     }
-
-    return true;
 }
 
 /// Regression test for bug fixed in 1.1.1 which led to incorrect valuestats.
@@ -323,6 +325,33 @@ DEFINE_TESTCASE(valuestats5, !backend) {
 	++v;
     }
     TEST_EQUAL(c, 3); // 0, 2, 5
+}
 
-    return true;
+static void
+gen_valuestats6_db(Xapian::WritableDatabase& wdb, const string&)
+{
+    Xapian::Document doc;
+    // It'd be nice to test up to 32, but the glass to honey conversion
+    // currently loops over each number from 0 to the highest used slot
+    // number.
+    for (int i = 0; i < 24; ++i) {
+	Xapian::valueno slot = Xapian::valueno{1} << i;
+	doc.add_value(slot, str(slot));
+    }
+    wdb.add_document(doc);
+}
+
+/// Test large slot numbers (useful test for glass->honey conversion).
+DEFINE_TESTCASE(valuestats6, backend) {
+    Xapian::Database db = get_database("valuestats6", gen_valuestats6_db);
+    Xapian::Document doc = db.get_document(1);
+    Xapian::ValueIterator v = doc.values_begin();
+    for (int i = 0; i < 24; ++i) {
+	TEST(v != doc.values_end());
+	Xapian::valueno slot = Xapian::valueno{1} << i;
+	TEST_EQUAL(v.get_valueno(), slot);
+	slot *= 2;
+	++v;
+    }
+    TEST(v == doc.values_end());
 }

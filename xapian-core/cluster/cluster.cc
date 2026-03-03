@@ -1,8 +1,9 @@
-/** @file cluster.cc
+/** @file
  *  @brief Cluster API
  */
 /* Copyright (C) 2010 Richard Boulton
  * Copyright (C) 2016 Richhiey Thomas
+ * Copyright (C) 2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -15,9 +16,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -52,7 +52,7 @@ Clusterer::~Clusterer()
     LOGCALL_DTOR(API, "Clusterer");
 }
 
-TermListGroup::TermListGroup(const MSet &docs, const Stopper *stopper)
+TermListGroup::TermListGroup(const MSet& docs, const Stopper* stopper)
 {
     LOGCALL_CTOR(API, "TermListGroup", docs | stopper);
     for (MSetIterator it = docs.begin(); it != docs.end(); ++it)
@@ -60,29 +60,15 @@ TermListGroup::TermListGroup(const MSet &docs, const Stopper *stopper)
     num_of_documents = docs.size();
 }
 
-doccount
-DummyFreqSource::get_termfreq(const string &) const
-{
-    LOGCALL(API, doccount, "DummyFreqSource::get_termfreq", NO_ARGS);
-    return 1;
-}
-
-doccount
-DummyFreqSource::get_doccount() const
-{
-    LOGCALL(API, doccount, "DummyFreqSource::get_doccount", NO_ARGS);
-    return 1;
-}
-
 void
-TermListGroup::add_document(const Document &document, const Stopper *stopper)
+TermListGroup::add_document(const Document& document, const Stopper* stopper)
 {
     LOGCALL_VOID(API, "TermListGroup::add_document", document | stopper);
 
     TermIterator titer(document.termlist_begin());
 
     for (; titer != document.termlist_end(); ++titer) {
-	const string &term = *titer;
+	const string& term = *titer;
 
 	// Remove stopwords by using the Xapian::Stopper object
 	if (stopper && (*stopper)(term))
@@ -93,12 +79,7 @@ TermListGroup::add_document(const Document &document, const Stopper *stopper)
 	if (term[0] != 'Z')
 	    continue;
 
-	unordered_map<string, doccount>::iterator i;
-	i = termfreq.find(term);
-	if (i == termfreq.end())
-	    termfreq[term] = 1;
-	else
-	    ++i->second;
+	++termfreq[term];
     }
 }
 
@@ -110,26 +91,25 @@ TermListGroup::get_doccount() const
 }
 
 doccount
-TermListGroup::get_termfreq(const string &tname) const
+TermListGroup::get_termfreq(const string& tname) const
 {
     LOGCALL(API, doccount, "TermListGroup::get_termfreq", tname);
-    unordered_map<string, doccount>::const_iterator it = termfreq.find(tname);
+    auto it = termfreq.find(tname);
     if (it != termfreq.end())
 	return it->second;
     else
 	return 0;
 }
 
-DocumentSet::DocumentSet(const DocumentSet &other)
-    : internal(other.internal)
-{
-}
+DocumentSet::DocumentSet(const DocumentSet&) = default;
 
-void
-DocumentSet::operator=(const DocumentSet &other)
-{
-    internal = other.internal;
-}
+DocumentSet&
+DocumentSet::operator=(const DocumentSet&) = default;
+
+DocumentSet::DocumentSet(DocumentSet&&) = default;
+
+DocumentSet&
+DocumentSet::operator=(DocumentSet&&) = default;
 
 DocumentSet::DocumentSet()
     : internal(new Xapian::DocumentSet::Internal)
@@ -150,27 +130,16 @@ DocumentSet::Internal::size() const
 }
 
 void
-DocumentSet::add_document(const Document &document)
+DocumentSet::add_document(const Document& document)
 {
     LOGCALL_VOID(API, "DocumentSet::add_document", document);
     internal->add_document(document);
 }
+
 void
-DocumentSet::Internal::add_document(const Document &document)
+DocumentSet::Internal::add_document(const Document& document)
 {
     documents.push_back(document);
-}
-
-Document&
-DocumentSet::operator[](doccount i)
-{
-    return internal->get_document(i);
-}
-
-Document&
-DocumentSet::Internal::get_document(doccount i)
-{
-    return documents[i];
 }
 
 const Document&
@@ -196,44 +165,46 @@ class PointTermIterator : public TermIterator::Internal {
     termcount size;
     bool started;
   public:
-    PointTermIterator(const unordered_map<string, double> &termlist)
+    PointTermIterator(const unordered_map<string, double>& termlist)
 	: i(termlist.begin()), end(termlist.end()),
 	  size(termlist.size()), started(false)
     {}
     termcount get_approx_size() const { return size; }
-    termcount get_wdf() const { throw UnimplementedError("PointIterator doesn't support get_wdf()"); }
-    string get_termname() const { return i->first; }
-    doccount get_termfreq() const { throw UnimplementedError("PointIterator doesn't support get_termfreq()"); }
-    Internal * next();
+    termcount get_wdf() const {
+	throw UnimplementedError("PointIterator doesn't support get_wdf()");
+    }
+    doccount get_termfreq() const {
+	throw UnimplementedError("PointIterator doesn't support "
+				 "get_termfreq()");
+    }
+    Internal* next();
     termcount positionlist_count() const {
-	throw UnimplementedError("PointTermIterator doesn't support positionlist_count()");
+	throw UnimplementedError("PointTermIterator doesn't support "
+				 "positionlist_count()");
     }
-    bool at_end() const;
     PositionList* positionlist_begin() const {
-	throw UnimplementedError("PointTermIterator doesn't support positionlist_begin()");
+	throw UnimplementedError("PointTermIterator doesn't support "
+				 "positionlist_begin()");
     }
-    Internal * skip_to(const string &) {
+    Internal* skip_to(string_view) {
 	throw UnimplementedError("PointTermIterator doesn't support skip_to()");
     }
 };
 
-TermIterator::Internal *
+TermIterator::Internal*
 PointTermIterator::next()
 {
     if (!started) {
 	started = true;
-	return NULL;
+    } else {
+	Assert(i != end);
+	++i;
     }
-    Assert(i != end);
-    ++i;
+    if (i == end) {
+	return this;
+    }
+    current_term = i->first;
     return NULL;
-}
-
-bool
-PointTermIterator::at_end() const
-{
-    if (!started) return false;
-    return i == end;
 }
 
 TermIterator
@@ -243,77 +214,27 @@ PointType::termlist_begin() const
     return TermIterator(new PointTermIterator(weights));
 }
 
-bool
-PointType::contains(const string &term) const
+Point::Point(const FreqSource& freqsource, const Document& document_)
 {
-    LOGCALL(API, bool, "PointType::contains", term);
-    return weights.find(term) != weights.end();
-}
-
-double
-PointType::get_weight(const string &term) const
-{
-    LOGCALL(API, double, "PointType::get_weight", term);
-    unordered_map<string, double>::const_iterator it = weights.find(term);
-    return (it == weights.end()) ? 0.0 : it->second;
-}
-
-double
-PointType::get_magnitude() const {
-    LOGCALL(API, double, "PointType::get_magnitude", NO_ARGS);
-    return magnitude;
-}
-
-void
-PointType::add_weight(const string &term, double weight)
-{
-    LOGCALL_VOID(API, "PointType::add_weight", term | weight);
-    unordered_map<string, double>::iterator it;
-    it = weights.find(term);
-    if (it != weights.end())
-	it->second += weight;
-    else
-	weights[term] = weight;
-}
-
-void
-PointType::set_weight(const string &term, double weight)
-{
-    LOGCALL_VOID(API, "PointType::set_weight", term | weight);
-    weights[term] = weight;
-}
-
-termcount
-PointType::termlist_size() const
-{
-    LOGCALL(API, termcount, "PointType::termlist_size", NO_ARGS);
-    return weights.size();
-}
-
-Document
-Point::get_document() const
-{
-    LOGCALL(API, Document, "Point::get_document", NO_ARGS);
-    return document;
-}
-
-Point::Point(const TermListGroup &tlg, const Document &document_)
-{
-    LOGCALL_CTOR(API, "Point::initialize", tlg | document_);
-    doccount size = tlg.get_doccount();
+    LOGCALL_CTOR(API, "Point", freqsource | document_);
+    doccount size = freqsource.get_doccount();
     document = document_;
-    for (TermIterator it = document.termlist_begin(); it != document.termlist_end(); ++it) {
+    for (TermIterator it = document.termlist_begin();
+	 it != document.termlist_end();
+	 ++it) {
 	doccount wdf = it.get_wdf();
+	// Ignore filter terms.
+	if (wdf == 0)
+	    continue;
 	string term = *it;
-	double termfreq = tlg.get_termfreq(term);
+	double termfreq = freqsource.get_termfreq(term);
 
-	// If the term exists in only one document, or if it exists in
-	// every document within the MSet, or if it is a filter term, then
-	// these terms are not used for document vector calculations
-	if (wdf < 1 || termfreq <= 1 || size == termfreq)
+	// Ignore terms which index only one document in the MSet, or
+	// which index all documents in the MSet.
+	if (termfreq <= 1 || termfreq == size)
 	    continue;
 
-	double tf = 1 + log((double)wdf);
+	double tf = 1 + log(double(wdf));
 	double idf = log(size / termfreq);
 	double wt = tf * idf;
 
@@ -322,10 +243,14 @@ Point::Point(const TermListGroup &tlg, const Document &document_)
     }
 }
 
-Centroid::Centroid(const Point &point) {
+Centroid::Centroid(const Point& point)
+{
     LOGCALL_CTOR(API, "Centroid", point);
-    for (TermIterator it = point.termlist_begin(); it != point.termlist_end(); ++it)
+    for (TermIterator it = point.termlist_begin();
+	 it != point.termlist_end();
+	 ++it) {
 	weights[*it] = point.get_weight(*it);
+    }
     magnitude = point.get_magnitude();
 }
 
@@ -334,40 +259,29 @@ Centroid::divide(double cluster_size)
 {
     LOGCALL_VOID(API, "Centroid::divide", cluster_size);
     magnitude = 0;
-    unordered_map<string, double>::iterator it;
-    for (it = weights.begin(); it != weights.end(); ++it) {
-	double new_weight = it->second / cluster_size;
-	it->second = new_weight;
+    for (auto&& it : weights) {
+	double new_weight = it.second / cluster_size;
+	it.second = new_weight;
 	magnitude += new_weight * new_weight;
     }
 }
 
-void
-Centroid::clear()
-{
-    LOGCALL_VOID(API, "Centroid::clear", NO_ARGS);
-    weights.clear();
-}
+Cluster&
+Cluster::operator=(const Cluster&) = default;
+
+Cluster::Cluster(const Cluster&) = default;
+
+Cluster::Cluster(Cluster&&) = default;
 
 Cluster&
-Cluster::operator=(const Cluster &other)
-{
-    // pointers are reference counted.
-    internal = other.internal;
-    return *this;
-}
-
-Cluster::Cluster(const Cluster &other)
-    : internal(other.internal)
-{
-}
+Cluster::operator=(Cluster&&) = default;
 
 Cluster::Cluster() : internal(new Xapian::Cluster::Internal)
 {
     LOGCALL_CTOR(API, "Cluster", NO_ARGS);
 }
 
-Cluster::Cluster(const Centroid &centroid)
+Cluster::Cluster(const Centroid& centroid)
     : internal(new Xapian::Cluster::Internal(centroid))
 {
     LOGCALL_CTOR(API, "Cluster", centroid);
@@ -376,11 +290,6 @@ Cluster::Cluster(const Centroid &centroid)
 Cluster::~Cluster()
 {
     LOGCALL_DTOR(API, "Cluster");
-}
-
-Centroid::Centroid()
-{
-    LOGCALL_CTOR(API, "Centroid", NO_ARGS);
 }
 
 DocumentSet
@@ -399,18 +308,6 @@ Cluster::Internal::get_documents() const
     return docs;
 }
 
-Point&
-Cluster::operator[](Xapian::doccount i)
-{
-    return internal->get_point(i);
-}
-
-Point&
-Cluster::Internal::get_point(Xapian::doccount i)
-{
-    return cluster_docs[i];
-}
-
 const Point&
 Cluster::operator[](Xapian::doccount i) const
 {
@@ -424,17 +321,14 @@ Cluster::Internal::get_point(Xapian::doccount i) const
 }
 
 ClusterSet&
-ClusterSet::operator=(const ClusterSet &other)
-{
-    // pointers are reference counted.
-    internal = other.internal;
-    return *this;
-}
+ClusterSet::operator=(const ClusterSet&) = default;
 
-ClusterSet::ClusterSet(const ClusterSet &other)
-    : internal(other.internal)
-{
-}
+ClusterSet::ClusterSet(const ClusterSet&) = default;
+
+ClusterSet&
+ClusterSet::operator=(ClusterSet&&) = default;
+
+ClusterSet::ClusterSet(ClusterSet&&) = default;
 
 ClusterSet::ClusterSet() : internal(new Xapian::ClusterSet::Internal)
 {
@@ -458,28 +352,16 @@ ClusterSet::size() const
 }
 
 void
-ClusterSet::Internal::add_cluster(const Cluster &cluster)
+ClusterSet::Internal::add_cluster(const Cluster& cluster)
 {
     clusters.push_back(cluster);
 }
 
 void
-ClusterSet::add_cluster(const Cluster &cluster)
+ClusterSet::add_cluster(const Cluster& cluster)
 {
     LOGCALL_VOID(API, "ClusterSet::add_cluster", cluster);
     internal->add_cluster(cluster);
-}
-
-Cluster&
-ClusterSet::Internal::get_cluster(doccount i)
-{
-    return clusters[i];
-}
-
-Cluster&
-ClusterSet::operator[](doccount i)
-{
-    return internal->get_cluster(i);
 }
 
 const Cluster&
@@ -495,13 +377,13 @@ ClusterSet::operator[](doccount i) const
 }
 
 void
-ClusterSet::Internal::add_to_cluster(const Point &point, unsigned int index)
+ClusterSet::Internal::add_to_cluster(const Point& point, unsigned int index)
 {
     clusters[index].add_point(point);
 }
 
 void
-ClusterSet::add_to_cluster(const Point &point, unsigned int index)
+ClusterSet::add_to_cluster(const Point& point, unsigned int index)
 {
     LOGCALL_VOID(API, "ClusterSet::add_to_cluster", point | index);
     internal->add_to_cluster(point, index);
@@ -549,14 +431,14 @@ Cluster::Internal::size() const
 }
 
 void
-Cluster::add_point(const Point &point)
+Cluster::add_point(const Point& point)
 {
     LOGCALL_VOID(API, "Cluster::add_point", point);
     internal->add_point(point);
 }
 
 void
-Cluster::Internal::add_point(const Point &point)
+Cluster::Internal::add_point(const Point& point)
 {
     cluster_docs.push_back(point);
 }
@@ -588,14 +470,14 @@ Cluster::Internal::get_centroid() const
 }
 
 void
-Cluster::set_centroid(const Centroid &centroid_)
+Cluster::set_centroid(const Centroid& centroid_)
 {
     LOGCALL_VOID(API, "Cluster::set_centroid", centroid_);
     internal->set_centroid(centroid_);
 }
 
 void
-Cluster::Internal::set_centroid(const Centroid &centroid_)
+Cluster::Internal::set_centroid(const Centroid& centroid_)
 {
     centroid = centroid_;
 }
@@ -612,13 +494,16 @@ Cluster::Internal::recalculate()
 {
     centroid.clear();
     for (const Point& temp : cluster_docs) {
-	for (TermIterator titer = temp.termlist_begin(); titer != temp.termlist_end(); ++titer)
+	for (TermIterator titer = temp.termlist_begin();
+	     titer != temp.termlist_end();
+	     ++titer) {
 	    centroid.add_weight(*titer, temp.get_weight(*titer));
+	}
     }
     centroid.divide(size());
 }
 
-StemStopper::StemStopper(const Stem &stemmer_, stem_strategy strategy)
+StemStopper::StemStopper(const Stem& stemmer_, stem_strategy strategy)
     : stem_action(strategy), stemmer(stemmer_)
 {
     LOGCALL_CTOR(API, "StemStopper", stemmer_ | strategy);
@@ -628,8 +513,7 @@ string
 StemStopper::get_description() const
 {
     string desc("Xapian::StemStopper(");
-    unordered_set<string>::const_iterator i;
-    for (i = stop_words.begin(); i != stop_words.end(); ++i) {
+    for (auto i = stop_words.begin(); i != stop_words.end(); ++i) {
 	if (i != stop_words.begin()) desc += ' ';
 	desc += *i;
     }
@@ -638,22 +522,23 @@ StemStopper::get_description() const
 }
 
 void
-StemStopper::add(const string &term)
+StemStopper::add(string_view term)
 {
     LOGCALL_VOID(API, "StemStopper::add", term);
     switch (stem_action) {
 	case STEM_NONE:
-	    stop_words.insert(term);
+	    stop_words.emplace(term);
 	    break;
 	case STEM_ALL_Z:
-	    stop_words.insert('Z' + stemmer(term));
+	    stop_words.insert('Z' + stemmer(string(term)));
 	    break;
 	case STEM_ALL:
-	    stop_words.insert(stemmer(term));
+	    stop_words.insert(stemmer(string(term)));
 	    break;
 	case STEM_SOME:
-	    stop_words.insert(term);
-	    stop_words.insert('Z' + stemmer(term));
+	case STEM_SOME_FULL_POS:
+	    stop_words.emplace(term);
+	    stop_words.insert('Z' + stemmer(string(term)));
 	    break;
     }
 }

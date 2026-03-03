@@ -1,7 +1,7 @@
-/** @file databaseinternal.h
+/** @file
  * @brief Virtual base class for Database internals
  */
-/* Copyright 2004,2006,2007,2008,2009,2011,2014,2015,2016,2017 Olly Betts
+/* Copyright 2004-2024 Olly Betts
  * Copyright 2007,2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -15,8 +15,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_DATABASEINTERNAL_H
@@ -34,6 +34,7 @@
 #include <xapian/valueiterator.h>
 
 #include <string>
+#include <string_view>
 
 typedef Xapian::TermIterator::Internal TermList;
 typedef Xapian::PositionIterator::Internal PositionList;
@@ -122,7 +123,7 @@ class Database::Internal : public Xapian::Internal::intrusive_base {
      */
     virtual ~Internal() {}
 
-    typedef size_t size_type;
+    typedef Xapian::doccount size_type;
 
     virtual size_type size() const;
 
@@ -146,6 +147,12 @@ class Database::Internal : public Xapian::Internal::intrusive_base {
      */
     virtual termcount get_unique_terms(docid did) const = 0;
 
+    /** Get the max wdf in document.
+     *
+     *  @param did  The document id of the document to return this value for.
+     */
+    virtual termcount get_wdfdocmax(docid did) const = 0;
+
     /** Returns frequencies for a term.
      *
      *  @param term		The term to get frequencies for
@@ -154,58 +161,75 @@ class Database::Internal : public Xapian::Internal::intrusive_base {
      *  @param collfreq_ptr	Point to return number of occurrences of @a
      *				term in the database (or NULL not to return)
      */
-    virtual void get_freqs(const std::string& term,
+    virtual void get_freqs(std::string_view term,
 			   doccount* termfreq_ptr,
 			   termcount* collfreq_ptr) const = 0;
 
     /** Return the frequency of a given value slot.
      *
-     *  This is the number of documents which have a (non-empty) value
-     *  stored in the slot.
+     *  This is the number of documents which have a (non-empty) value stored
+     *  in the slot.
      *
      *  @param slot The value slot to examine.
-     *
-     *  @exception UnimplementedError The frequency of the value isn't
-     *  available for this database type.
      */
-    virtual doccount get_value_freq(valueno slot) const;
+    virtual doccount get_value_freq(valueno slot) const = 0;
 
     /** Get a lower bound on the values stored in the given value slot.
      *
-     *  If the lower bound isn't available for the given database type,
-     *  this will return the lowest possible bound - the empty string.
+     *  If there are no values stored in the given value slot, this will return
+     *  an empty string.
      *
      *  @param slot The value slot to examine.
      */
-    virtual std::string get_value_lower_bound(valueno slot) const;
+    virtual std::string get_value_lower_bound(valueno slot) const = 0;
 
     /** Get an upper bound on the values stored in the given value slot.
      *
-     *  @param slot The value slot to examine.
+     *  If there are no values stored in the given value slot, this will return
+     *  an empty string.
      *
-     *  @exception UnimplementedError The upper bound of the values isn't
-     *  available for this database type.
+     *  @param slot The value slot to examine.
      */
-    virtual std::string get_value_upper_bound(valueno slot) const;
+    virtual std::string get_value_upper_bound(valueno slot) const = 0;
 
-    /// Get a lower bound on the length of a document in this DB.
-    virtual termcount get_doclength_lower_bound() const;
+    /** Get a lower bound on the length of a document in this DB.
+     *
+     *  This bound does not include any zero-length documents.
+     */
+    virtual termcount get_doclength_lower_bound() const = 0;
 
     /// Get an upper bound on the length of a document in this DB.
-    virtual termcount get_doclength_upper_bound() const;
+    virtual termcount get_doclength_upper_bound() const = 0;
 
     /// Get an upper bound on the wdf of term @a term.
-    virtual termcount get_wdf_upper_bound(const std::string& term) const;
+    virtual termcount get_wdf_upper_bound(std::string_view term) const = 0;
 
-    virtual bool term_exists(const std::string& term) const = 0;
+    /// Get a lower bound on the unique terms size of a document in this DB.
+    virtual termcount get_unique_terms_lower_bound() const;
+
+    /// Get an upper bound on the unique terms size of a document in this DB.
+    virtual termcount get_unique_terms_upper_bound() const;
+
+    virtual bool term_exists(std::string_view term) const = 0;
 
     /** Check whether this database contains any positional information. */
     virtual bool has_positions() const = 0;
 
-    virtual PostList* open_post_list(const std::string& term) const = 0;
+    /** Return a PostList suitable for use in a PostingIterator. */
+    virtual PostList* open_post_list(std::string_view term) const = 0;
 
-    virtual LeafPostList* open_leaf_post_list(const std::string& term,
-					      bool need_pos) const = 0;
+    /** Create a LeafPostList for use during a match.
+     *
+     *  @param term		The term to open a postlist for, or the empty
+     *				string to create an all-docs postlist.
+     *
+     *  @param need_read_pos	Does the postlist need to support
+     *				read_position_list()?  Note that
+     *				open_position_list() may still be called even
+     *				if need_read_pos is false.
+     */
+    virtual LeafPostList* open_leaf_post_list(std::string_view term,
+					      bool need_read_pos) const = 0;
 
     /** Open a value stream.
      *
@@ -227,10 +251,10 @@ class Database::Internal : public Xapian::Internal::intrusive_base {
      */
     virtual TermList* open_term_list_direct(docid did) const = 0;
 
-    virtual TermList* open_allterms(const std::string& prefix) const = 0;
+    virtual TermList* open_allterms(std::string_view prefix) const = 0;
 
     virtual PositionList* open_position_list(docid did,
-					     const std::string& term) const = 0;
+					     std::string_view term) const = 0;
 
     /** Open a handle on a document.
      *
@@ -254,7 +278,7 @@ class Database::Internal : public Xapian::Internal::intrusive_base {
      *
      *  If there are no trigrams, returns NULL.
      */
-    virtual TermList* open_spelling_termlist(const std::string& word) const;
+    virtual TermList* open_spelling_termlist(std::string_view word) const;
 
     /** Return a termlist which returns the words which are spelling
      *  correction targets.
@@ -264,7 +288,7 @@ class Database::Internal : public Xapian::Internal::intrusive_base {
     virtual TermList* open_spelling_wordlist() const;
 
     /** Return the number of times @a word was added as a spelling. */
-    virtual doccount get_spelling_frequency(const std::string& word) const;
+    virtual doccount get_spelling_frequency(std::string_view word) const;
 
     /** Add a word to the spelling dictionary.
      *
@@ -273,7 +297,7 @@ class Database::Internal : public Xapian::Internal::intrusive_base {
      *  @param word	The word to add.
      *  @param freqinc	How much to increase its frequency by.
      */
-    virtual void add_spelling(const std::string& word,
+    virtual void add_spelling(std::string_view word,
 			      termcount freqinc) const;
 
     /** Remove a word from the spelling dictionary.
@@ -286,48 +310,48 @@ class Database::Internal : public Xapian::Internal::intrusive_base {
      *
      *  @return Any freqdec not "used up".
      */
-    virtual termcount remove_spelling(const std::string& word,
+    virtual termcount remove_spelling(std::string_view word,
 				      termcount freqdec) const;
 
     /** Open a termlist returning synonyms for a term.
      *
      *  If @a term has no synonyms, returns NULL.
      */
-    virtual TermList* open_synonym_termlist(const std::string& term) const;
+    virtual TermList* open_synonym_termlist(std::string_view term) const;
 
     /** Open a termlist returning each term which has synonyms.
      *
      *  @param prefix   If non-empty, only terms with this prefix are
      *		    returned.
      */
-    virtual TermList* open_synonym_keylist(const std::string& prefix) const;
+    virtual TermList* open_synonym_keylist(std::string_view prefix) const;
 
     /** Add a synonym for a term.
      *
      *  If @a synonym is already a synonym for @a term, then no action is
      *  taken.
      */
-    virtual void add_synonym(const std::string& term,
-			     const std::string& synonym) const;
+    virtual void add_synonym(std::string_view term,
+			     std::string_view synonym) const;
 
     /** Remove a synonym for a term.
      *
      *  If @a synonym isn't a synonym for @a term, then no action is taken.
      */
-    virtual void remove_synonym(const std::string& term,
-				const std::string& synonym) const;
+    virtual void remove_synonym(std::string_view term,
+				std::string_view synonym) const;
 
     /** Clear all synonyms for a term.
      *
      *  If @a term has no synonyms, no action is taken.
      */
-    virtual void clear_synonyms(const std::string& term) const;
+    virtual void clear_synonyms(std::string_view term) const;
 
     /** Get the metadata associated with a given key.
      *
      *  See Database::get_metadata() for more information.
      */
-    virtual std::string get_metadata(const std::string& key) const;
+    virtual std::string get_metadata(std::string_view key) const;
 
     /** Open a termlist returning each metadata key.
      *
@@ -336,13 +360,13 @@ class Database::Internal : public Xapian::Internal::intrusive_base {
      *
      *  @param prefix   If non-empty, only keys with this prefix are returned.
      */
-    virtual TermList* open_metadata_keylist(const std::string& prefix) const;
+    virtual TermList* open_metadata_keylist(std::string_view prefix) const;
 
     /** Set the metadata associated with a given key.
      *
      *  See WritableDatabase::set_metadata() for more information.
      */
-    virtual void set_metadata(const std::string& key, const std::string& value);
+    virtual void set_metadata(std::string_view key, std::string_view value);
 
     /** Reopen the database to the latest available revision.
      *
@@ -375,13 +399,13 @@ class Database::Internal : public Xapian::Internal::intrusive_base {
     virtual void delete_document(docid did);
 
     /** Delete any documents indexed by a term from the database. */
-    virtual void delete_document(const std::string& unique_term);
+    virtual void delete_document(std::string_view unique_term);
 
     virtual void replace_document(docid did,
 				  const Document& document);
 
     /** Replace any documents matching a term. */
-    virtual docid replace_document(const std::string& unique_term,
+    virtual docid replace_document(std::string_view unique_term,
 				   const Document& document);
 
     /** Request a document.
@@ -407,7 +431,7 @@ class Database::Internal : public Xapian::Internal::intrusive_base {
      *  recent version of the database.
      */
     virtual void write_changesets_to_fd(int fd,
-					const std::string& start_revision,
+					std::string_view start_revision,
 					bool need_whole_db,
 					ReplicationInfo* info);
 
@@ -438,9 +462,9 @@ class Database::Internal : public Xapian::Internal::intrusive_base {
     /** Get backend information about this database.
      *
      *  @param path	If non-NULL, and set the pointed to string to the file
-     *			path of this database (or if to some string describing
+     *			path of this database (or to some string describing
      *			the database in a backend-specified format if "path"
-     *			isn't a concept which  make sense).
+     *			isn't a concept which makes sense).
      *
      *  @return	A constant indicating the backend type.
      */
@@ -448,8 +472,14 @@ class Database::Internal : public Xapian::Internal::intrusive_base {
 
     /** Find lowest and highest docids actually in use.
      *
-     *  Only used by compaction, so only needs to be implemented by
-     *  backends which support compaction.
+     *  Used during local matching and compaction, so only needs to be
+     *  implemented by backends which support one or both of these.
+     *
+     *  For example, EmptyDatabase, MultiDatabase and RemoteDatabase don't need
+     *  to implement this (empty shards are skipped early by the matcher;
+     *  sharded databases are handled explicitly by the matcher rather than via
+     *  the "multi" backend; matching for remote shards runs as a local match
+     *  on the remote).
      */
     virtual void get_used_docid_range(docid& first,
 				      docid& last) const;
@@ -463,6 +493,29 @@ class Database::Internal : public Xapian::Internal::intrusive_base {
      *  throw Xapian::UnimplementedError).
      */
     virtual bool locked() const;
+
+    /** Lock a read-only database for writing or unlock a writable database.
+     *
+     *  This is the internal method behind Database::lock() and
+     *  Database::unlock().
+     *
+     *  In the unlocking case, the writable database is closed.  In the
+     *  locking case, the read-only database is left open.
+     *
+     *  @param flags  Xapian::DB_READONLY_ to unlock, otherwise the flags
+     *		      to use when opening from writing.
+     *
+     *  @return  The new Database::Internal object (or the current object
+     *		 if no action is required - e.g. unlock on a read-only
+     *		 database).
+     */
+    virtual Internal* update_lock(int flags);
+
+    virtual std::string reconstruct_text(Xapian::docid did,
+					 size_t length,
+					 std::string_view prefix,
+					 Xapian::termpos start_pos,
+					 Xapian::termpos end_pos) const;
 
     /// Return a string describing this object.
     virtual std::string get_description() const = 0;

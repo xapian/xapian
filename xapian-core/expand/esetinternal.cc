@@ -1,7 +1,7 @@
-/** @file esetinternal.cc
+/** @file
  * @brief Xapian::ESet::Internal class
  */
-/* Copyright (C) 2008,2010,2011,2013,2016,2017 Olly Betts
+/* Copyright (C) 2008,2010,2011,2013,2016,2017,2018 Olly Betts
  * Copyright (C) 2011 Action Without Borders
  *
  * This program is free software; you can redistribute it and/or modify
@@ -15,8 +15,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -30,6 +30,7 @@
 #include "debuglog.h"
 #include "api/rsetinternal.h"
 #include "expandweight.h"
+#include "heap.h"
 #include "omassert.h"
 #include "ortermlist.h"
 #include "str.h"
@@ -37,6 +38,7 @@
 #include "termlistmerger.h"
 #include "unicode/description_append.h"
 
+#include <functional>
 #include <memory>
 #include <set>
 #include <string>
@@ -56,10 +58,6 @@ Internal::ExpandTerm::get_description() const
     desc += ')';
     return desc;
 }
-
-template<class CLASS> struct delete_ptr {
-    void operator()(CLASS *p) const { delete p; }
-};
 
 /** Build a tree of binary TermList objects like QueryOptimiser does for
  *  OrPostList objects.
@@ -81,7 +79,8 @@ build_termlist_tree(const Xapian::Database &db, const RSet & rset)
 	Assert(!termlists.empty());
 	return make_termlist_merger(termlists);
     } catch (...) {
-	for_each(termlists.begin(), termlists.end(), delete_ptr<TermList>());
+	for_each(termlists.begin(), termlists.end(),
+		 [](TermList* p) { delete p; });
 	throw;
     }
 }
@@ -104,18 +103,20 @@ ESet::Internal::expand(Xapian::termcount max_esize,
     Assert(items.empty());
 
     unique_ptr<TermList> tree(build_termlist_tree(db, rset));
-    Assert(tree.get());
+    Assert(tree);
 
     bool is_heap = false;
     while (true) {
 	// See if the root needs replacing.
 	TermList * new_root = tree->next();
+	if (new_root == tree.get()) {
+	    // No more entries.
+	    break;
+	}
 	if (new_root) {
 	    LOGLINE(EXPAND, "Replacing the root of the termlist tree");
 	    tree.reset(new_root);
 	}
-
-	if (tree->at_end()) break;
 
 	string term = tree->get_termname();
 
@@ -131,29 +132,35 @@ ESet::Internal::expand(Xapian::termcount max_esize,
 	double wt = eweight.get_weight();
 
 	// If the weights are equal, we prefer the lexically smaller term and
-	// so we use "<=" not "<" here.
+	// since we process terms in ascending order we use "<=" not "<" here.
 	if (wt <= min_wt) continue;
 
-	items.push_back(Xapian::Internal::ExpandTerm(wt, term));
-
-	// The candidate ESet is overflowing, so remove the worst element in it
-	// using a min-heap.
-	if (items.size() > max_esize) {
-	    if (rare(!is_heap)) {
-		is_heap = true;
-		make_heap(items.begin(), items.end());
-	    } else {
-		push_heap(items.begin(), items.end());
-	    }
-	    pop_heap(items.begin(), items.end());
-	    items.pop_back();
-	    min_wt = items.front().wt;
+	if (items.size() < max_esize) {
+	    items.emplace_back(wt, term);
+	    continue;
 	}
+
+	// We have the desired number of items, so it's one-in one-out from
+	// now on.
+	Assert(items.size() == max_esize);
+	if (rare(!is_heap)) {
+	    Heap::make(items.begin(), items.end(),
+		       std::less<Xapian::Internal::ExpandTerm>());
+	    min_wt = items.front().wt;
+	    is_heap = true;
+	    if (wt <= min_wt) continue;
+	}
+
+	items.front() = Xapian::Internal::ExpandTerm(wt, term);
+	Heap::replace(items.begin(), items.end(),
+		      std::less<Xapian::Internal::ExpandTerm>());
+	min_wt = items.front().wt;
     }
 
     // Now sort the contents of the new ESet.
     if (is_heap) {
-	sort_heap(items.begin(), items.end());
+	Heap::sort(items.begin(), items.end(),
+		   std::less<Xapian::Internal::ExpandTerm>());
     } else {
 	sort(items.begin(), items.end());
     }
@@ -165,10 +172,9 @@ ESet::Internal::get_description() const
     string desc("ESet::Internal(ebound=");
     desc += str(ebound);
 
-    vector<Xapian::Internal::ExpandTerm>::const_iterator i;
-    for (i = items.begin(); i != items.end(); ++i) {
+    for (auto&& i : items) {
 	desc += ", ";
-	desc += i->get_description();
+	desc += i.get_description();
     }
     desc += ')';
 
@@ -177,21 +183,22 @@ ESet::Internal::get_description() const
 
 ESet::ESet() : internal(new ESet::Internal) {}
 
-ESet::ESet(const ESet & o) : internal(o.internal) { }
+ESet::ESet(const ESet &) = default;
 
 ESet&
-ESet::operator=(const ESet & o)
-{
-    internal = o.internal;
-    return *this;
-}
+ESet::operator=(const ESet &) = default;
+
+ESet::ESet(ESet &&) = default;
+
+ESet&
+ESet::operator=(ESet &&) = default;
 
 ESet::~ESet() { }
 
-Xapian::doccount
+Xapian::termcount
 ESet::size() const
 {
-    return internal->items.size();
+    return Xapian::termcount(internal->items.size());
 }
 
 Xapian::termcount

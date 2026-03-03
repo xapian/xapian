@@ -1,4 +1,4 @@
-/** @file contiguousalldocspostlist.cc
+/** @file
  * @brief Iterate all document ids when they form a contiguous range.
  */
 /* Copyright (C) 2007,2008,2009,2011,2017 Olly Betts
@@ -14,8 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -28,12 +28,6 @@
 #include "str.h"
 
 using namespace std;
-
-Xapian::doccount
-ContiguousAllDocsPostList::get_termfreq() const
-{
-    return doccount;
-}
 
 Xapian::docid
 ContiguousAllDocsPostList::get_docid() const
@@ -65,7 +59,8 @@ ContiguousAllDocsPostList::open_position_list() const
 PostList *
 ContiguousAllDocsPostList::next(double)
 {
-    if (did == doccount) {
+    // Docids are contiguous from 1 so termfreq gives the highest docid.
+    if (did == termfreq) {
 	did = 0;
     } else {
 	++did;
@@ -77,7 +72,8 @@ PostList *
 ContiguousAllDocsPostList::skip_to(Xapian::docid target, double)
 {
     if (target > did) {
-	if (target > doccount) {
+	// Docids are contiguous from 1 so termfreq gives the highest docid.
+	if (target > termfreq) {
 	    did = 0;
 	} else {
 	    did = target;
@@ -92,11 +88,17 @@ ContiguousAllDocsPostList::at_end() const
     return did == 0;
 }
 
+Xapian::termcount
+ContiguousAllDocsPostList::get_wdf_upper_bound() const
+{
+    return 1;
+}
+
 string
 ContiguousAllDocsPostList::get_description() const
 {
     string msg("ContiguousAllDocsPostList(1..");
-    msg += str(doccount);
+    msg += str(termfreq);
     msg += ')';
     return msg;
 }

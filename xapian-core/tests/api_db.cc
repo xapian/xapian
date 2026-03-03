@@ -1,8 +1,9 @@
-/* api_db.cc: tests which need a backend
- *
- * Copyright 1999,2000,2001 BrightStation PLC
+/** @file
+ * @brief tests which need a backend
+ */
+/* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2011,2012,2013,2015,2016,2017 Olly Betts
+ * Copyright 2002-2023 Olly Betts
  * Copyright 2006,2007,2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -16,9 +17,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -37,7 +37,6 @@
 #include <xapian.h>
 
 #include "backendmanager.h"
-#include "backendmanager_local.h"
 #include "testsuite.h"
 #include "testutils.h"
 #include "unixcmds.h"
@@ -65,18 +64,15 @@ DEFINE_TESTCASE(termstats, backend) {
     TEST_EQUAL(db.get_termfreq("banana"), 1);
     TEST(db.term_exists("paragraph"));
     TEST_EQUAL(db.get_termfreq("paragraph"), 5);
-
-    return true;
 }
 
 // Check that stub databases work.
-DEFINE_TESTCASE(stubdb1, backend && !inmemory && !remote) {
-    // Only works for backends which have a path.
+DEFINE_TESTCASE(stubdb1, check && path) {
     mkdir(".stub", 0755);
     const char * dbpath = ".stub/stubdb1";
     ofstream out(dbpath);
     TEST(out.is_open());
-    out << "auto ../" << get_database_path("apitest_simpledata") << endl;
+    out << "auto ../" << get_database_path("apitest_simpledata") << '\n';
     out.close();
 
     {
@@ -92,18 +88,17 @@ DEFINE_TESTCASE(stubdb1, backend && !inmemory && !remote) {
 	enquire.get_mset(0, 10);
     }
 
-    return true;
+    TEST_EQUAL(Xapian::Database::check(dbpath), 0);
 }
 
 // Check that stub databases work remotely.
-DEFINE_TESTCASE(stubdb2, backend && !inmemory && !remote) {
-    // Only works for backends which have a path.
+DEFINE_TESTCASE(stubdb2, path) {
     mkdir(".stub", 0755);
     const char * dbpath = ".stub/stubdb2";
     ofstream out(dbpath);
     TEST(out.is_open());
     out << "remote :" << BackendManager::get_xapian_progsrv_command()
-	<< ' ' << get_database_path("apitest_simpledata") << endl;
+	<< ' ' << get_database_path("apitest_simpledata") << '\n';
     out.close();
 
     try {
@@ -130,7 +125,7 @@ DEFINE_TESTCASE(stubdb2, backend && !inmemory && !remote) {
 
     out.open(dbpath);
     TEST(out.is_open());
-    out << "remote" << endl;
+    out << "remote\n";
     out.close();
 
     // Quietly ignored prior to 1.4.1.
@@ -151,7 +146,7 @@ DEFINE_TESTCASE(stubdb2, backend && !inmemory && !remote) {
 
     out.open(dbpath);
     TEST(out.is_open());
-    out << "remote foo" << endl;
+    out << "remote foo\n";
     out.close();
 
     // Quietly ignored prior to 1.4.1.
@@ -167,20 +162,24 @@ DEFINE_TESTCASE(stubdb2, backend && !inmemory && !remote) {
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
     out.open(dbpath);
     TEST(out.is_open());
-    out << "remote [::1]:80" << endl;
+    out << "remote [::1]:65535\n";
     out.close();
 
     try {
 	Xapian::Database db(dbpath, Xapian::DB_BACKEND_STUB);
     } catch (const Xapian::NetworkError& e) {
-	// 1.4.0 threw (Linux):
+	// 1.4.0 threw (on Linux) the confusing message:
 	//  NetworkError: Couldn't resolve host [ (context: remote:tcp([:0)) (No address associated with hostname)
 	// 1.4.1 throws (because we don't actually support IPv6 yet) on Linux (EAI_ADDRFAMILY):
-	//  NetworkError: Couldn't resolve host ::1 (context: remote:tcp(::1:80)) (nodename nor servname provided, or not known)
-	// or on OS X (EAI_NONAME):
-	//  NetworkError: Couldn't resolve host ::1 (context: remote:tcp(::1:80)) (Address family for hostname not supported)
-	// So we test the message instead of the error string for portability.
-	TEST(e.get_msg().find("host ::1") != string::npos);
+	//  NetworkError: Couldn't resolve host ::1 (context: remote:tcp(::1:65535)) (nodename nor servname provided, or not known)
+	// or on macOS (EAI_NONAME):
+	//  NetworkError: Couldn't resolve host ::1 (context: remote:tcp(::1:65535)) (Address family for hostname not supported)
+	//
+	// But NetBSD seems to resolve ::1 to an IPv4 address and then tries
+	// to connect to it (which hopefully fails), so just test the message
+	// doesn't match the bad 1.4.0 result.
+	TEST(e.get_msg().find("host [") == string::npos);
+	TEST_EQUAL(e.get_context(), "remote:tcp(::1:65535)");
     }
 
     try {
@@ -189,18 +188,23 @@ DEFINE_TESTCASE(stubdb2, backend && !inmemory && !remote) {
 	// 1.4.0 threw (Linux):
 	//  NetworkError: Couldn't resolve host [ (context: remote:tcp([:0)) (No address associated with hostname)
 	// 1.4.1 throws (because we don't actually support IPv6 yet) on Linux (EAI_ADDRFAMILY):
-	//  NetworkError: Couldn't resolve host ::1 (context: remote:tcp(::1:80)) (nodename nor servname provided, or not known)
-	// or on OS X (EAI_NONAME):
-	//  NetworkError: Couldn't resolve host ::1 (context: remote:tcp(::1:80)) (Address family for hostname not supported)
+	//  NetworkError: Couldn't resolve host ::1 (context: remote:tcp(::1:65535)) (nodename nor servname provided, or not known)
+	// or on macOS (EAI_NONAME):
+	//  NetworkError: Couldn't resolve host ::1 (context: remote:tcp(::1:65535)) (Address family for hostname not supported)
 	// So we test the message instead of the error string for portability.
-	TEST(e.get_msg().find("host ::1") != string::npos);
+	//
+	// But NetBSD seems to resolve ::1 to an IPv4 address and then tries
+	// to connect to it (which hopefully fails), so just test the message
+	// doesn't match the bad 1.4.0 result.
+	TEST(e.get_msg().find("host [") == string::npos);
+	TEST_EQUAL(e.get_context(), "remote:tcp(::1:65535)");
     }
 #endif
 
     out.open(dbpath);
     TEST(out.is_open());
     // Invalid - the port number is required.
-    out << "remote [::1]" << endl;
+    out << "remote [::1]\n";
     out.close();
 
     // 1.4.0 threw:
@@ -214,13 +218,10 @@ DEFINE_TESTCASE(stubdb2, backend && !inmemory && !remote) {
     TEST_EXCEPTION(EXPECTED_EXCEPTION,
 	Xapian::WritableDatabase db(dbpath, Xapian::DB_BACKEND_STUB);
     );
-
-    return true;
 }
 
 // Regression test - bad entries were ignored after a good entry prior to 1.0.8.
-DEFINE_TESTCASE(stubdb3, backend && !inmemory && !remote) {
-    // Only works for backends which have a path.
+DEFINE_TESTCASE(stubdb3, path) {
     mkdir(".stub", 0755);
     const char * dbpath = ".stub/stubdb3";
     ofstream out(dbpath);
@@ -234,13 +235,10 @@ DEFINE_TESTCASE(stubdb3, backend && !inmemory && !remote) {
 
     TEST_EXCEPTION(Xapian::DatabaseOpeningError,
 	Xapian::Database db(dbpath));
-
-    return true;
 }
 
 // Test a stub database with just a bad entry.
-DEFINE_TESTCASE(stubdb4, backend && !inmemory && !remote) {
-    // Only works for backends which have a path.
+DEFINE_TESTCASE(stubdb4, !backend) {
     mkdir(".stub", 0755);
     const char * dbpath = ".stub/stubdb4";
     ofstream out(dbpath);
@@ -253,20 +251,17 @@ DEFINE_TESTCASE(stubdb4, backend && !inmemory && !remote) {
 
     TEST_EXCEPTION(Xapian::DatabaseOpeningError,
 	Xapian::Database db(dbpath));
-
-    return true;
 }
 
 // Test a stub database with a bad entry with no spaces (prior to 1.1.0 this
 // was deliberately allowed, though not documented.
-DEFINE_TESTCASE(stubdb5, backend && !inmemory && !remote) {
-    // Only works for backends which have a path.
+DEFINE_TESTCASE(stubdb5, path) {
     mkdir(".stub", 0755);
     const char * dbpath = ".stub/stubdb5";
     ofstream out(dbpath);
     TEST(out.is_open());
     out << "bad\n"
-	   "auto ../" << get_database_path("apitest_simpledata") << endl;
+	   "auto ../" << get_database_path("apitest_simpledata") << '\n';
     out.close();
 
     TEST_EXCEPTION(Xapian::DatabaseOpeningError,
@@ -274,8 +269,6 @@ DEFINE_TESTCASE(stubdb5, backend && !inmemory && !remote) {
 
     TEST_EXCEPTION(Xapian::DatabaseOpeningError,
 	Xapian::Database db(dbpath));
-
-    return true;
 }
 
 // Test a stub database with an inmemory database (new feature in 1.1.0).
@@ -320,8 +313,6 @@ DEFINE_TESTCASE(stubdb6, inmemory) {
 	db.add_document(Xapian::Document());
 	TEST_EQUAL(db.get_doccount(), 1);
     }
-
-    return true;
 }
 
 /// Test error running Database::check() on a stub database.
@@ -338,12 +329,11 @@ DEFINE_TESTCASE(stubdb8, inmemory) {
     try {
 	Xapian::Database::check(dbpath);
 	FAIL_TEST("Managed to check inmemory stub");
-    } catch (const Xapian::DatabaseOpeningError & e) {
+    } catch (const Xapian::UnimplementedError& e) {
 	// Check the message is appropriate.
 	TEST_STRINGS_EQUAL(e.get_msg(),
-			   "File is not a Xapian database or database table");
+			   "InMemory database checking not implemented");
     }
-    return true;
 }
 
 class GrepMatchDecider : public Xapian::MatchDecider {
@@ -352,7 +342,7 @@ class GrepMatchDecider : public Xapian::MatchDecider {
     explicit GrepMatchDecider(const string& needle_)
 	: needle(needle_) {}
 
-    bool operator()(const Xapian::Document &doc) const {
+    bool operator()(const Xapian::Document& doc) const override {
 	// Note that this is not recommended usage of get_data()
 	return doc.get_data().find(needle) != string::npos;
     }
@@ -483,8 +473,6 @@ DEFINE_TESTCASE(matchdecider1, backend && !remote) {
     TEST_REL(mymset.get_uncollapsed_matches_upper_bound(),<=,6);
     TEST_REL(mymset.get_uncollapsed_matches_estimated(),>,0);
     TEST_REL(mymset.get_uncollapsed_matches_estimated(),<=,6);
-
-    return true;
 }
 
 // Test Xapian::MatchDecider functor used as a match spy.
@@ -516,8 +504,6 @@ DEFINE_TESTCASE(matchdecider2, backend && !remote) {
 	    TEST(!myfunctor(db.get_document(did)));
 	}
     }
-
-    return true;
 }
 
 // Regression test for lower bound using functor, sorting and collapsing.
@@ -553,14 +539,13 @@ DEFINE_TESTCASE(matchdecider3, backend && !remote) {
     TEST_REL(mset1.get_uncollapsed_matches_lower_bound(),<=,mset1.get_uncollapsed_matches_estimated());
     TEST_REL(mset1.get_uncollapsed_matches_estimated(),<=,mset1.get_uncollapsed_matches_upper_bound());
 
-    // The uncollapsed match would match all documents but the one the
-    // matchdecider rejects.
-    TEST_REL(mset1.get_uncollapsed_matches_upper_bound(),>=,db.get_doccount() - 1);
-    TEST_REL(mset1.get_uncollapsed_matches_upper_bound(),<=,db.get_doccount());
-    TEST_REL(mset2.get_uncollapsed_matches_upper_bound(),>=,db.get_doccount() - 1);
-    TEST_REL(mset2.get_uncollapsed_matches_upper_bound(),<=,db.get_doccount());
-
-    return true;
+    // We ask for 2 or more results so the matcher checks all candidates and
+    // can see that there would be exactly one uncollapsed match.
+    //
+    // In 1.4.x the matcher was less clever and gave doccount or (doccount - 1)
+    // as the uncollapsed upper bound.
+    TEST_EQUAL(mset1.get_uncollapsed_matches_upper_bound(), 1);
+    TEST_EQUAL(mset2.get_uncollapsed_matches_upper_bound(), 1);
 }
 
 // tests that mset iterators on msets compare correctly.
@@ -604,8 +589,6 @@ DEFINE_TESTCASE(msetiterator1, backend) {
     TEST_EQUAL(n, m);
     TEST_NOT_EQUAL(n, mymset.begin());
     TEST_EQUAL(n, mymset.end());
-
-    return true;
 }
 
 // tests that mset iterators on empty msets compare equal.
@@ -624,8 +607,6 @@ DEFINE_TESTCASE(msetiterator2, backend) {
     TEST_EQUAL(j, l);
     TEST_EQUAL(j, j);
     TEST_EQUAL(k, k);
-
-    return true;
 }
 
 // tests that begin().get_document() works when first != 0
@@ -639,8 +620,6 @@ DEFINE_TESTCASE(msetiterator3, backend) {
     TEST(!mymset.empty());
     Xapian::Document doc(mymset.begin().get_document());
     TEST(!doc.get_data().empty());
-
-    return true;
 }
 
 // tests that eset iterators on empty esets compare equal.
@@ -688,8 +667,6 @@ DEFINE_TESTCASE(esetiterator1, backend) {
     TEST_EQUAL(n, m);
     TEST_NOT_EQUAL(n, myeset.begin());
     TEST_EQUAL(n, myeset.end());
-
-    return true;
 }
 
 // tests that eset iterators on empty esets compare equal.
@@ -716,8 +693,6 @@ DEFINE_TESTCASE(esetiterator2, backend) {
     TEST_EQUAL(j, l);
     TEST_EQUAL(j, j);
     TEST_EQUAL(k, k);
-
-    return true;
 }
 
 // tests the collapse-on-key
@@ -743,16 +718,15 @@ DEFINE_TESTCASE(collapsekey1, backend) {
 	    values[value] = *i;
 	}
     }
-
-    return true;
 }
 
 // tests that collapse-on-key modifies the predicted bounds for the number of
 // matches appropriately.
-DEFINE_TESTCASE(collapsekey2, backend) {
-    SKIP_TEST("Don't have a suitable database currently");
-    // FIXME: this needs an appropriate database creating, but that's quite
-    // subtle to do it seems.
+DEFINE_TESTCASE(collapsekey2, multi && remote) {
+    // FIXME: This needs an appropriate database creating to work for other
+    // backend combinations - currently those return the same bound after
+    // collapsing (which is valid, but doesn't show the effect we are trying
+    // to test for here).
     Xapian::Enquire enquire(get_database("apitest_simpledata2"));
     enquire.set_query(Xapian::Query("this"));
 
@@ -769,8 +743,6 @@ DEFINE_TESTCASE(collapsekey2, backend) {
 	TEST_REL(mset.get_matches_lower_bound(),<,mset1.get_matches_lower_bound());
 	TEST_EQUAL(mset.get_matches_upper_bound(), mset1.get_matches_upper_bound());
     }
-
-    return true;
 }
 
 // tests that collapse-on-key modifies the predicted bounds for the number of
@@ -820,8 +792,6 @@ DEFINE_TESTCASE(collapsekey3, backend) {
 	    values[value] = *i;
 	}
     }
-
-    return true;
 }
 
 // tests that collapse-on-key modifies the predicted bounds for the number of
@@ -849,8 +819,6 @@ DEFINE_TESTCASE(collapsekey4, backend) {
 	    values[value] = *i;
 	}
     }
-
-    return true;
 }
 
 // test for keepalives
@@ -869,10 +837,11 @@ DEFINE_TESTCASE(keepalive1, remote) {
     /* Test that things break without keepalives */
     sleep(10);
     enquire.set_query(Xapian::Query("word"));
-    TEST_EXCEPTION(Xapian::NetworkError,
-		   enquire.get_mset(0, 10));
-
-    return true;
+    /* Currently this can throw NetworkError or NetworkTimeoutError (which is
+     * a subclass of NetworkError).
+     */
+    TEST_EXCEPTION_BASE_CLASS(Xapian::NetworkError,
+			      enquire.get_mset(0, 10));
 }
 
 // test that iterating through all terms in a database works.
@@ -902,8 +871,6 @@ DEFINE_TESTCASE(allterms1, backend) {
 
     ati++;
     TEST(ati == db.allterms_end());
-
-    return true;
 }
 
 // test that iterating through all terms in two databases works.
@@ -944,8 +911,6 @@ DEFINE_TESTCASE(allterms2, backend) {
 
     ati++;
     TEST(ati == db.allterms_end());
-
-    return true;
 }
 
 // test that skip_to sets at_end (regression test)
@@ -956,8 +921,6 @@ DEFINE_TESTCASE(allterms3, backend) {
 
     ati.skip_to(string("zzzzzz"));
     TEST(ati == db.allterms_end());
-
-    return true;
 }
 
 // test that next ignores extra entries due to long posting lists being
@@ -973,8 +936,6 @@ DEFINE_TESTCASE(allterms4, backend) {
     TEST(i.get_termfreq() == 682);
     ++i;
     TEST(i == db.allterms_end());
-
-    return true;
 }
 
 // test that skip_to with an exact match sets the current term (regression test
@@ -986,8 +947,6 @@ DEFINE_TESTCASE(allterms5, backend) {
     ati.skip_to("three");
     TEST(ati != db.allterms_end());
     TEST_EQUAL(*ati, "three");
-
-    return true;
 }
 
 // test allterms iterators with prefixes
@@ -1032,8 +991,6 @@ DEFINE_TESTCASE(allterms6, backend) {
 
     ati = db.allterms_begin("absent");
     TEST(ati == db.allterms_end("absent"));
-
-    return true;
 }
 
 // test that searching for a term with a special characters in it works
@@ -1069,8 +1026,6 @@ DEFINE_TESTCASE(specialterms1, backend) {
     count = 0;
     for (m = mymset.begin(); m != mymset.end(); ++m) ++count;
     TEST_EQUAL(count, 1);
-
-    return true;
 }
 
 // test that terms with a special characters in appear correctly when iterating
@@ -1098,8 +1053,6 @@ DEFINE_TESTCASE(specialterms2, backend) {
     t.skip_to(string("big\0zero", 8));
     TEST_NOT_EQUAL(t, db.allterms_end());
     TEST_EQUAL(*t, string("big\0zero", 8));
-
-    return true;
 }
 
 // test that rsets behave correctly with multiDBs
@@ -1135,8 +1088,6 @@ DEFINE_TESTCASE(rsetmultidb2, backend && !multi) {
     TEST(mset_range_is_same_weights(mymset1b, 0, mymset2b, 0, 2));
     TEST_NOT_EQUAL(mymset1a, mymset1b);
     TEST_NOT_EQUAL(mymset2a, mymset2b);
-
-    return true;
 }
 
 // tests an expand across multiple databases
@@ -1192,8 +1143,6 @@ DEFINE_TESTCASE(multiexpand1, backend && !multi) {
 	++j;
     }
     TEST(!eset1_eq_eset2);
-
-    return true;
 }
 
 // tests that opening a non-existent postlist returns an empty list
@@ -1210,8 +1159,6 @@ DEFINE_TESTCASE(postlist1, backend) {
 
     // A regression test (no, really!)
     TEST_NOT_EQUAL(db.postlist_begin("a"), db.postlist_end("a"));
-
-    return true;
 }
 
 // tests that a Xapian::PostingIterator works as an STL iterator
@@ -1249,8 +1196,6 @@ DEFINE_TESTCASE(postlist2, backend) {
 
     TEST_STRINGS_EQUAL(p.get_description(), "PostingIterator()");
     TEST_STRINGS_EQUAL(pend.get_description(), "PostingIterator()");
-
-    return true;
 }
 
 // tests that a Xapian::PostingIterator still works when the DB is deleted
@@ -1270,7 +1215,6 @@ DEFINE_TESTCASE(postlist3, backend) {
 	p++;
 	u++;
     }
-    return true;
 }
 
 // tests skip_to
@@ -1280,15 +1224,12 @@ DEFINE_TESTCASE(postlist4, backend) {
     i.skip_to(1);
     i.skip_to(999999999);
     TEST(i == db.postlist_end("this"));
-    return true;
 }
 
 // tests long postlists
 DEFINE_TESTCASE(postlist5, backend) {
     Xapian::Database db(get_database("apitest_manydocs"));
-    // Allow for databases which don't support length
-    if (db.get_avlength() != 1)
-	TEST_EQUAL_DOUBLE(db.get_avlength(), 4);
+    TEST_EQUAL_DOUBLE(db.get_avlength(), 4);
     Xapian::PostingIterator i = db.postlist_begin("this");
     unsigned int j = 1;
     while (i != db.postlist_end("this")) {
@@ -1297,7 +1238,6 @@ DEFINE_TESTCASE(postlist5, backend) {
 	j++;
     }
     TEST_EQUAL(j, 513);
-    return true;
 }
 
 // tests document length in postlists
@@ -1316,7 +1256,6 @@ DEFINE_TESTCASE(postlist6, backend) {
 	TEST_REL(i.get_wdf() + i.get_unique_terms() - 1,<=,i.get_doclength());
 	++i;
     }
-    return true;
 }
 
 // tests collection frequency
@@ -1340,8 +1279,6 @@ DEFINE_TESTCASE(collfreq1, backend) {
     TEST_EQUAL(db2.get_collection_freq("first"), 1);
     TEST_EQUAL(db2.get_collection_freq("last"), 0);
     TEST_EQUAL(db2.get_collection_freq("word"), 11);
-
-    return true;
 }
 
 // Regression test for split msets being incorrect when sorting
@@ -1351,7 +1288,7 @@ DEFINE_TESTCASE(sortvalue1, backend) {
 
     for (int pass = 1; pass <= 2; ++pass) {
 	for (Xapian::valueno value_no = 1; value_no < 7; ++value_no) {
-	    tout << "Sorting on value " << value_no << endl;
+	    tout << "Sorting on value " << value_no << '\n';
 	    enquire.set_sort_by_value(value_no, true);
 	    Xapian::MSet allbset = enquire.get_mset(0, 100);
 	    Xapian::MSet partbset1 = enquire.get_mset(0, 3);
@@ -1363,7 +1300,7 @@ DEFINE_TESTCASE(sortvalue1, backend) {
 	    Xapian::MSetIterator i, j;
 	    j = allbset.begin();
 	    for (i = partbset1.begin(); i != partbset1.end(); ++i) {
-		tout << "Entry " << n << ": " << *i << " | " << *j << endl;
+		tout << "Entry " << n << ": " << *i << " | " << *j << '\n';
 		TEST(j != allbset.end());
 		if (*i != *j) ok = false;
 		++j;
@@ -1371,7 +1308,7 @@ DEFINE_TESTCASE(sortvalue1, backend) {
 	    }
 	    tout << "===\n";
 	    for (i = partbset2.begin(); i != partbset2.end(); ++i) {
-		tout << "Entry " << n << ": " << *i << " | " << *j << endl;
+		tout << "Entry " << n << ": " << *i << " | " << *j << '\n';
 		TEST(j != allbset.end());
 		if (*i != *j) ok = false;
 		++j;
@@ -1383,8 +1320,6 @@ DEFINE_TESTCASE(sortvalue1, backend) {
 	}
 	enquire.set_docid_order(Xapian::Enquire::DESCENDING);
     }
-
-    return true;
 }
 
 // consistency check match - vary mset size and check results agree.
@@ -1406,7 +1341,7 @@ DEFINE_TESTCASE(consistency1, backend && !remote) {
 		    TEST_EQUAL(start + mset.size(),
 			       min(start + size, bigmset.size()));
 		} else if (size) {
-//		tout << start << mset.size() << bigmset.size() << endl;
+//		tout << start << mset.size() << bigmset.size() << '\n';
 		    TEST(start >= bigmset.size());
 		}
 		for (Xapian::doccount i = 0; i < mset.size(); ++i) {
@@ -1420,45 +1355,75 @@ DEFINE_TESTCASE(consistency1, backend && !remote) {
 	// consistency1 is a long test - may timeout with the remote backend...
 	SKIP_TEST("Test taking too long");
     }
-    return true;
 }
 
-// tests that specifying a nonexistent input file throws an exception.
-DEFINE_TESTCASE(glassdatabaseopeningerror1, glass) {
-#ifdef XAPIAN_HAS_GLASS_BACKEND
-    mkdir(".glass", 0755);
+// Test that specifying a nonexistent input file throws an exception
+// (backend-specific cases).
+DEFINE_TESTCASE(databasenotfounderror1, glass || honey) {
+    string db_dir = "." + get_dbtype();
 
-    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
-	    Xapian::Database(".glass/nosuchdirectory",
-		Xapian::DB_BACKEND_GLASS));
-    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
-	    Xapian::WritableDatabase(".glass/nosuchdirectory",
-		Xapian::DB_OPEN|Xapian::DB_BACKEND_GLASS));
+    int db_type_flag;
+    if (get_dbtype() == "glass") {
+	db_type_flag = Xapian::DB_BACKEND_GLASS;
+    } else if (get_dbtype() == "honey") {
+	db_type_flag = Xapian::DB_BACKEND_HONEY;
+    } else {
+	FAIL_TEST("Backend " + get_dbtype() + " not handled by testcase");
+    }
 
-    mkdir(".glass/emptydirectory", 0700);
-    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
-	    Xapian::Database(".glass/emptydirectory",
-		Xapian::DB_BACKEND_GLASS));
+    mkdir(db_dir.c_str(), 0755);
+    db_dir += '/';
 
-    touch(".glass/somefile");
-    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
-	    Xapian::Database(".glass/somefile",
-		Xapian::DB_BACKEND_GLASS));
-    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
-	    Xapian::WritableDatabase(".glass/somefile",
-		Xapian::DB_OPEN|Xapian::DB_BACKEND_GLASS));
-    TEST_EXCEPTION(Xapian::DatabaseCreateError,
-	    Xapian::WritableDatabase(".glass/somefile",
-		Xapian::DB_CREATE|Xapian::DB_BACKEND_GLASS));
-    TEST_EXCEPTION(Xapian::DatabaseCreateError,
-	    Xapian::WritableDatabase(".glass/somefile",
-		Xapian::DB_CREATE_OR_OPEN|Xapian::DB_BACKEND_GLASS));
-    TEST_EXCEPTION(Xapian::DatabaseCreateError,
-	    Xapian::WritableDatabase(".glass/somefile",
-		Xapian::DB_CREATE_OR_OVERWRITE|Xapian::DB_BACKEND_GLASS));
-#endif
+    TEST_EXCEPTION(Xapian::DatabaseNotFoundError,
+	    Xapian::Database(db_dir + "nosuchdirectory", db_type_flag));
+    if (db_type_flag != Xapian::DB_BACKEND_HONEY) {
+	TEST_EXCEPTION(Xapian::DatabaseNotFoundError,
+		Xapian::WritableDatabase(db_dir + "nosuchdirectory",
+		    db_type_flag | Xapian::DB_OPEN));
+    }
 
-    return true;
+    string empty_dir = db_dir + "emptydirectory";
+    mkdir(empty_dir.c_str(), 0700);
+    TEST_EXCEPTION(Xapian::DatabaseNotFoundError,
+	    Xapian::Database(empty_dir, db_type_flag));
+
+    string some_file = db_dir + "somefile";
+    touch(some_file);
+    TEST_EXCEPTION(Xapian::DatabaseNotFoundError,
+	    Xapian::Database(some_file, db_type_flag));
+    if (db_type_flag != Xapian::DB_BACKEND_HONEY) {
+	TEST_EXCEPTION(Xapian::DatabaseNotFoundError,
+		Xapian::WritableDatabase(some_file,
+		    db_type_flag | Xapian::DB_OPEN));
+	TEST_EXCEPTION(Xapian::DatabaseCreateError,
+		Xapian::WritableDatabase(some_file,
+		    db_type_flag | Xapian::DB_CREATE));
+	TEST_EXCEPTION(Xapian::DatabaseCreateError,
+		Xapian::WritableDatabase(some_file,
+		    db_type_flag | Xapian::DB_CREATE_OR_OPEN));
+	TEST_EXCEPTION(Xapian::DatabaseCreateError,
+		Xapian::WritableDatabase(some_file,
+		    db_type_flag | Xapian::DB_CREATE_OR_OVERWRITE));
+    }
+}
+
+// Test that specifying a nonexistent input file throws an exception
+// (non-backend-specific cases).
+DEFINE_TESTCASE(databasenotfounderror2, !backend) {
+    TEST_EXCEPTION(Xapian::DatabaseNotFoundError,
+	    Xapian::Database("nosuchdirectory"));
+    TEST_EXCEPTION(Xapian::DatabaseNotFoundError,
+	    Xapian::Database("no/such/directory"));
+
+    TEST_EXCEPTION(Xapian::DatabaseNotFoundError,
+	    Xapian::WritableDatabase("nosuchdirectory", Xapian::DB_OPEN));
+    TEST_EXCEPTION(Xapian::DatabaseNotFoundError,
+	    Xapian::WritableDatabase("no/such/directory", Xapian::DB_OPEN));
+
+    string empty_dir = "emptydirectory";
+    mkdir(empty_dir.c_str(), 0700);
+    TEST_EXCEPTION(Xapian::DatabaseNotFoundError,
+	    Xapian::Database{empty_dir});
 }
 
 /// Test opening of a glass database
@@ -1518,8 +1483,6 @@ DEFINE_TESTCASE(glassdatabaseopen1, glass) {
 	Xapian::Database(dbdir, Xapian::DB_BACKEND_GLASS);
     }
 #endif
-
-    return true;
 }
 
 // feature test for Enquire:
@@ -1545,7 +1508,7 @@ DEFINE_TESTCASE(sortrel1, backend) {
     static const Xapian::docid order9[] = { 7,6,2,9,5,1,8,4,3 };
 
     Xapian::MSet mset;
-    size_t i;
+    Xapian::doccount i;
 
     mset = enquire.get_mset(0, 10);
     TEST_EQUAL(mset.size(), sizeof(order1) / sizeof(Xapian::docid));
@@ -1650,14 +1613,56 @@ DEFINE_TESTCASE(sortrel1, backend) {
     for (i = 0; i < sizeof(order9) / sizeof(Xapian::docid); ++i) {
 	TEST_EQUAL(*mset[i], order9[i]);
     }
+}
 
-    return true;
+static void
+make_netstats1_db(Xapian::WritableDatabase& db, const string&)
+{
+    static const struct { Xapian::docid did; const char* text; } content[] = {
+	{1, "This is a test document used with the API test. This paragraph "
+	    "must be at least three lines (including the blank line) to be "
+	    "counted as a \"paragraph\"."},
+	{2, "This is a second simple data test, used to test multiple "
+	    "(inmemory anyway) databases.  The text in this file is "
+	    "unimportant, although I suppose it ought to include the "
+	    "standard word \"word\" in a few places."},
+	{3, "This file will be indexed by paragraph, and the simple query will "
+	    "search for the word \"word\".  Well expect the mset to contain "
+	    "two documents, including this paragraph and the fourth, below.  "
+	    "Since this paragraph uses the word \"word\" so much, this "
+	    "should be the first one in the match set.  Ill just say the word "
+	    "a few more times (word!) to make sure of that.  If this doesnt "
+	    "word (typo, I meant work), then there may be fourletter words "
+	    "spoken."},
+	{4, "Ill leave this at two paragraphs.  This one hasnt got any useful "
+	    "information in it either."},
+	{5, "This paragraph only has a load of absolute rubbish, and nothing "
+	    "of any use whatsoever."},
+	{7, "This is the other paragraph with the word in the simple query "
+	    "in it.  For simplicity, all paragraphs are at least two lines, "
+	    "due to how the hacked up indexer works."},
+	{9, "This is another paragraph which wont be returned.  Well, not "
+	    "with the simple query, anyway."},
+	{11, "And yet another.  This one does mention banana splits, though, "
+	     "so cant be that bad."}
+    };
+
+    Xapian::TermGenerator indexer;
+    indexer.set_stemmer(Xapian::Stem("english"));
+    indexer.set_stemming_strategy(indexer.STEM_ALL);
+
+    for (auto& i : content) {
+	Xapian::Document doc;
+	indexer.set_document(doc);
+	indexer.index_text(i.text);
+	db.replace_document(i.did, doc);
+    }
+
+    db.commit();
 }
 
 // Test network stats and local stats give the same results.
-DEFINE_TESTCASE(netstats1, remote) {
-    BackendManagerLocal local_manager(test_driver::get_srcdir() + "/testdata/");
-
+DEFINE_TESTCASE(netstats1, backend) {
     static const char * const words[] = { "paragraph", "word" };
     Xapian::Query query(Xapian::Query::OP_OR, words, words + 2);
     const size_t MSET_SIZE = 10;
@@ -1666,66 +1671,30 @@ DEFINE_TESTCASE(netstats1, remote) {
     rset.add_document(4);
     rset.add_document(9);
 
-    Xapian::MSet mset_alllocal;
     {
-	Xapian::Database db;
-	db.add_database(local_manager.get_database("apitest_simpledata"));
-	db.add_database(local_manager.get_database("apitest_simpledata2"));
-
-	Xapian::Enquire enq(db);
-	enq.set_query(query);
-	mset_alllocal = enq.get_mset(0, MSET_SIZE, &rset);
-    }
-
-    {
-	Xapian::Database db;
-	db.add_database(local_manager.get_database("apitest_simpledata"));
-	db.add_database(get_database("apitest_simpledata2"));
+	Xapian::Database db = get_database("netstats1", make_netstats1_db);
 
 	Xapian::Enquire enq(db);
 	enq.set_query(query);
 	Xapian::MSet mset = enq.get_mset(0, MSET_SIZE, &rset);
-	TEST_EQUAL(mset.get_matches_lower_bound(), mset_alllocal.get_matches_lower_bound());
-	TEST_EQUAL(mset.get_matches_upper_bound(), mset_alllocal.get_matches_upper_bound());
-	TEST_EQUAL(mset.get_matches_estimated(), mset_alllocal.get_matches_estimated());
-	TEST_EQUAL(mset.get_max_attained(), mset_alllocal.get_max_attained());
-	TEST_EQUAL(mset.size(), mset_alllocal.size());
-	TEST(mset_range_is_same(mset, 0, mset_alllocal, 0, mset.size()));
+	TEST_EQUAL(mset.get_matches_lower_bound(), 7);
+	TEST_EQUAL(mset.get_matches_upper_bound(), 7);
+	TEST_EQUAL(mset.get_matches_estimated(), 7);
+	TEST_EQUAL_DOUBLE(mset.get_max_attained(), 1.445962071042388164);
+	TEST_EQUAL(mset.size(), 7);
+
+	static const pair<Xapian::docid, double> to_compare[] = {
+	    {7, 1.445962071042388164},
+	    {3, 1.4140112748017070743},
+	    {1, 1.3747698831232337824},
+	    {5, 1.1654938419498412916},
+	    {9, 1.1654938419498412916},
+	    {4, 1.1543806706320836053},
+	    {2, 0.12268031290495594321}
+	};
+
+	TEST(mset_range_is_same(mset, 0, to_compare, mset.size()));
     }
-
-    {
-	Xapian::Database db;
-	db.add_database(get_database("apitest_simpledata"));
-	db.add_database(local_manager.get_database("apitest_simpledata2"));
-
-	Xapian::Enquire enq(db);
-	enq.set_query(query);
-	Xapian::MSet mset = enq.get_mset(0, MSET_SIZE, &rset);
-	TEST_EQUAL(mset.get_matches_lower_bound(), mset_alllocal.get_matches_lower_bound());
-	TEST_EQUAL(mset.get_matches_upper_bound(), mset_alllocal.get_matches_upper_bound());
-	TEST_EQUAL(mset.get_matches_estimated(), mset_alllocal.get_matches_estimated());
-	TEST_EQUAL(mset.get_max_attained(), mset_alllocal.get_max_attained());
-	TEST_EQUAL(mset.size(), mset_alllocal.size());
-	TEST(mset_range_is_same(mset, 0, mset_alllocal, 0, mset.size()));
-    }
-
-    {
-	Xapian::Database db;
-	db.add_database(get_database("apitest_simpledata"));
-	db.add_database(get_database("apitest_simpledata2"));
-
-	Xapian::Enquire enq(db);
-	enq.set_query(query);
-	Xapian::MSet mset = enq.get_mset(0, MSET_SIZE, &rset);
-	TEST_EQUAL(mset.get_matches_lower_bound(), mset_alllocal.get_matches_lower_bound());
-	TEST_EQUAL(mset.get_matches_upper_bound(), mset_alllocal.get_matches_upper_bound());
-	TEST_EQUAL(mset.get_matches_estimated(), mset_alllocal.get_matches_estimated());
-	TEST_EQUAL(mset.get_max_attained(), mset_alllocal.get_max_attained());
-	TEST_EQUAL(mset.size(), mset_alllocal.size());
-	TEST(mset_range_is_same(mset, 0, mset_alllocal, 0, mset.size()));
-    }
-
-    return true;
 }
 
 // Coordinate matching - scores 1 for each matching term
@@ -1733,24 +1702,26 @@ class MyWeight : public Xapian::Weight {
     double scale_factor;
 
   public:
-    MyWeight * clone() const {
+    MyWeight* clone() const override {
 	return new MyWeight;
     }
-    void init(double factor) {
+    void init(double factor) override {
 	scale_factor = factor;
     }
     MyWeight() { }
     ~MyWeight() { }
-    std::string name() const { return "MyWeight"; }
-    string serialise() const { return string(); }
-    MyWeight * unserialise(const string &) const { return new MyWeight; }
-    double get_sumpart(Xapian::termcount, Xapian::termcount, Xapian::termcount) const {
+    std::string name() const override { return "MyWeight"; }
+    string serialise() const override { return string(); }
+    MyWeight* unserialise(const string&) const override {
+	return new MyWeight;
+    }
+    double get_sumpart(Xapian::termcount,
+		       Xapian::termcount,
+		       Xapian::termcount,
+		       Xapian::termcount) const override {
 	return scale_factor;
     }
-    double get_maxpart() const { return scale_factor; }
-
-    double get_sumextra(Xapian::termcount, Xapian::termcount) const { return 0; }
-    double get_maxextra() const { return 0; }
+    double get_maxpart() const override { return scale_factor; }
 };
 
 // tests user weighting scheme.
@@ -1762,8 +1733,8 @@ DEFINE_TESTCASE(userweight1, backend && !remote) {
     static const char * const query[] = {
 	"this", "line", "paragraph", "rubbish"
     };
-    enquire.set_query(Xapian::Query(Xapian::Query::OP_OR, query,
-				    query + sizeof(query) / sizeof(query[0])));
+    enquire.set_query(Xapian::Query(Xapian::Query::OP_OR,
+				    std::begin(query), std::end(query)));
     Xapian::MSet mymset1 = enquire.get_mset(0, 100);
     // MyWeight scores 1 for each matching term, so the weight should equal
     // the number of matching terms.
@@ -1776,8 +1747,6 @@ DEFINE_TESTCASE(userweight1, backend && !remote) {
 	}
 	TEST_EQUAL(i.get_weight(), matching_terms);
     }
-
-    return true;
 }
 
 // tests MatchAll queries
@@ -1804,8 +1773,6 @@ DEFINE_TESTCASE(matchall1, backend) {
     TEST_EQUAL(mset[mset.size() - 1].get_weight(), 0);
     TEST_EQUAL(*mset[0], 1);
     TEST_EQUAL(*mset[mset.size() - 1], mset.size());
-
-    return true;
 }
 
 // Test using a ValueSetMatchDecider
@@ -1825,6 +1792,4 @@ DEFINE_TESTCASE(valuesetmatchdecider2, backend && !remote) {
     mset_expect_order(mymset, 6, 12);
     mymset = enq.get_mset(0, 20, 0, NULL, &vsmd2);
     mset_expect_order(mymset, 8, 4, 5, 7, 10, 11, 13, 9, 14);
-
-    return true;
 }

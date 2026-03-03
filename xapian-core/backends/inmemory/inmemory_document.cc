@@ -1,4 +1,4 @@
-/** @file inmemory_document.cc
+/** @file
  * @brief A document read from a InMemoryDatabase.
  */
 /* Copyright (C) 2008,2009,2016 Olly Betts
@@ -14,8 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -26,6 +26,8 @@
 
 #include "debuglog.h"
 
+using namespace std;
+
 string
 InMemoryDocument::fetch_value(Xapian::valueno slot) const
 {
@@ -34,9 +36,8 @@ InMemoryDocument::fetch_value(Xapian::valueno slot) const
     db = static_cast<const InMemoryDatabase*>(database.get());
     if (rare(did > db->valuelists.size()))
 	RETURN(string());
-    map<Xapian::valueno, string> values_ = db->valuelists[did - 1];
-    map<Xapian::valueno, string>::const_iterator i;
-    i = values_.find(slot);
+    const auto& values_ = db->valuelists[did - 1];
+    auto i = values_.find(slot);
     if (i == values_.end())
 	RETURN(string());
     RETURN(i->second);

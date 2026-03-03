@@ -1,8 +1,8 @@
-/** @file fileutils.cc
+/** @file
  *  @brief File and path manipulation routines.
  */
 /* Copyright (C) 2008 Lemur Consulting Ltd
- * Copyright (C) 2008,2009,2010,2012 Olly Betts
+ * Copyright (C) 2008,2009,2010,2012,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,8 +15,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -25,9 +25,9 @@
 
 #include "xapian/error.h"
 #include "safedirent.h"
-#include "safeerrno.h"
 #include "safeunistd.h"
 
+#include <cerrno>
 #include <cstring>
 #include <string>
 #include <sys/types.h>
@@ -83,26 +83,26 @@ removedir(const string &dirname)
 #ifdef __WIN32__
 /// Return true iff a path starts with a drive letter.
 static bool
-has_drive(const string &path)
+has_drive(string_view path)
 {
     return (path.size() >= 2 && path[1] == ':');
 }
 
 /// Return true iff path is a UNCW path.
 static bool
-uncw_path(const string & path)
+uncw_path(string_view path)
 {
     return (path.size() >= 4 && memcmp(path.data(), "\\\\?\\", 4) == 0);
 }
 
-inline bool slash(char ch)
+static inline bool slash(char ch)
 {
     return ch == '/' || ch == '\\';
 }
 #endif
 
 void
-resolve_relative_path(string & path, const string & base)
+resolve_relative_path(string& path, string_view base)
 {
 #ifndef __WIN32__
     if (path.empty() || path[0] != '/') {
@@ -146,10 +146,9 @@ resolve_relative_path(string & path, const string & base)
 	    if (sl) {
 		// With the \\?\ prefix, '/' isn't recognised so change it
 		// to '\' in path.
-		string::iterator i;
-		for (i = path.begin(); i != path.end(); ++i) {
-		    if (*i == '/')
-			*i = '\\';
+		for (auto& ch : path) {
+		    if (ch == '/')
+			ch = '\\';
 		}
 		path.insert(0, base, 0, sl);
 	    }
@@ -176,10 +175,9 @@ resolve_relative_path(string & path, const string & base)
 	    if (uncw_path(base)) {
 		// With the \\?\ prefix, '/' isn't recognised so change it
 		// to '\' in path.
-		string::iterator i;
-		for (i = path.begin(); i != path.end(); ++i) {
-		    if (*i == '/')
-			*i = '\\';
+		for (auto& ch : path) {
+		    if (ch == '/')
+			ch = '\\';
 		}
 	    }
 	    path.insert(b, base, b, last_slash + 1 - b);

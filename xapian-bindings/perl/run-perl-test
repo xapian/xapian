@@ -2,11 +2,9 @@
 use strict;
 use warnings;
 
-# If App::Prove isn't found, exit with status 77 which causes the testharness
-# to treat the tests as skipped.
-#
-# App::Prove is a Perl core module so it's unlikely to be missing, but e.g. on
-# Debian you might be able to have perl-core installed with perl.
+# App::Prove is a Perl core module so it's unlikely to be missing, but if it
+# isn't found we exit with status 77 which causes the testharness to treat the
+# tests as skipped.
 eval { require App::Prove };
 $@ and exit 77;
 

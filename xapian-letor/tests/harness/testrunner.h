@@ -1,8 +1,8 @@
-/** @file testrunner.h
+/** @file
  * @brief Run multiple tests for different backends.
  */
 /* Copyright 2008 Lemur Consulting Ltd
- * Copyright 2008,2009,2014,2015 Olly Betts
+ * Copyright 2008,2009,2014,2015,2017,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -15,9 +15,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_TESTRUNNER_H
@@ -56,9 +55,17 @@ class TestRunner {
      */
     void set_properties_for_backend(const std::string & backend_name);
 
+    void do_tests_for_backend_(BackendManager* manager);
+
     /** Run the tests with the specified backend.
      */
-    void do_tests_for_backend(BackendManager * manager);
+    void do_tests_for_backend(BackendManager&& manager) {
+	do_tests_for_backend_(&manager);
+    }
+
+    void do_tests_for_backend(BackendManager& manager) {
+	do_tests_for_backend_(&manager);
+    }
 
   protected:
     enum {
@@ -72,11 +79,18 @@ class TestRunner {
 	SYNONYMS	= 0x00000080,
 	REPLICAS	= 0x00000100,
 	VALUESTATS	= 0x00000200,
-	GENERATED	= 0x00000400,
-	MULTI		= 0x00000800,
-	SINGLEFILE	= 0x00001000,
-	INMEMORY	= 0x00002000,
-	GLASS		= 0x00004000,
+	MULTI		= 0x00000400,
+	SINGLEFILE	= 0x00000800,
+	INMEMORY	= 0x00001000,
+	GLASS		= 0x00002000,
+	COMPACT		= 0x00004000,
+	HONEY		= 0x00008000,
+	/// Requires get_database_path() or similar.
+	PATH		= 0x00010000,
+	/// TCP variant of remote.
+	REMOTETCP	= 0x00020000,
+	/// Supports Xapian::Database::check().
+	CHECK		= 0x00040000,
     };
 
   public:

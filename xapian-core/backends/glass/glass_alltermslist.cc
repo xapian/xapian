@@ -1,6 +1,7 @@
-/* glass_alltermslist.cc: A termlist containing all terms in a glass database.
- *
- * Copyright (C) 2005,2007,2008,2009,2010,2017 Olly Betts
+/** @file
+ * @brief A termlist containing all terms in a glass database.
+ */
+/* Copyright (C) 2005,2007,2008,2009,2010,2017,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -13,9 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -27,19 +27,23 @@
 #include "pack.h"
 #include "stringutils.h"
 
-void
-GlassAllTermsList::read_termfreq_and_collfreq() const
-{
-    LOGCALL_VOID(DB, "GlassAllTermsList::read_termfreq_and_collfreq", NO_ARGS);
-    Assert(!current_term.empty());
-    Assert(!at_end());
+#include <string_view>
 
-    // Unpack the termfreq and collfreq from the tag.  Only do this if
-    // one or other is actually read.
+using namespace std;
+
+void
+GlassAllTermsList::read_termfreq() const
+{
+    LOGCALL_VOID(DB, "GlassAllTermsList::read_termfreq", NO_ARGS);
+    Assert(!current_term.empty());
+    Assert(cursor);
+    Assert(!cursor->after_end());
+
+    // Unpack the termfreq from the tag.
     cursor->read_tag();
     const char *p = cursor->current_tag.data();
     const char *pend = p + cursor->current_tag.size();
-    GlassPostList::read_number_of_entries(&p, pend, &termfreq, &collfreq);
+    GlassPostList::read_freqs(&p, pend, &termfreq, NULL);
 }
 
 GlassAllTermsList::~GlassAllTermsList()
@@ -57,42 +61,23 @@ GlassAllTermsList::get_approx_size() const
     return database->postlist_table.get_entry_count();
 }
 
-string
-GlassAllTermsList::get_termname() const
-{
-    LOGCALL(DB, string, "GlassAllTermsList::get_termname", NO_ARGS);
-    Assert(!current_term.empty());
-    Assert(!at_end());
-    RETURN(current_term);
-}
-
 Xapian::doccount
 GlassAllTermsList::get_termfreq() const
 {
     LOGCALL(DB, Xapian::doccount, "GlassAllTermsList::get_termfreq", NO_ARGS);
     Assert(!current_term.empty());
-    Assert(!at_end());
-    if (termfreq == 0) read_termfreq_and_collfreq();
+    Assert(cursor);
+    Assert(!cursor->after_end());
+    if (termfreq == 0) read_termfreq();
     RETURN(termfreq);
-}
-
-Xapian::termcount
-GlassAllTermsList::get_collection_freq() const
-{
-    LOGCALL(DB, Xapian::termcount, "GlassAllTermsList::get_collection_freq", NO_ARGS);
-    Assert(!current_term.empty());
-    Assert(!at_end());
-    if (termfreq == 0) read_termfreq_and_collfreq();
-    RETURN(collfreq);
 }
 
 TermList *
 GlassAllTermsList::next()
 {
     LOGCALL(DB, TermList *, "GlassAllTermsList::next", NO_ARGS);
-    Assert(!at_end());
-    // Set termfreq to 0 to indicate no termfreq/collfreq have been read for
-    // the current term.
+    // Set termfreq to 0 to indicate no termfreq has been read for the current
+    // term.
     termfreq = 0;
 
     if (rare(!cursor)) {
@@ -110,15 +95,27 @@ GlassAllTermsList::next()
 		RETURN(NULL);
 	    }
 	}
+	if (cursor->after_end()) {
+	    RETURN(this);
+	}
 	goto first_time;
     }
 
+    Assert(!cursor->after_end());
     while (true) {
-	cursor->next();
+	if (!cursor->next()) {
+	    RETURN(this);
+	}
+
 first_time:
-	if (cursor->after_end()) {
-	    current_term.resize(0);
-	    RETURN(NULL);
+	// Fast check for terms without any zero bytes.  ~8.4% faster.
+	auto nul = cursor->current_key.find('\0');
+	if (nul == string::npos) {
+	    current_term = cursor->current_key;
+	    break;
+	}
+	if (cursor->current_key[nul + 1] != '\xff') {
+	    continue;
 	}
 
 	const char *p = cursor->current_key.data();
@@ -135,26 +132,25 @@ first_time:
 
     if (!startswith(current_term, prefix)) {
 	// We've reached the end of the prefixed terms.
-	cursor->to_end();
-	current_term.resize(0);
+	RETURN(this);
     }
 
     RETURN(NULL);
 }
 
-TermList *
-GlassAllTermsList::skip_to(const string &term)
+TermList*
+GlassAllTermsList::skip_to(string_view term)
 {
     LOGCALL(DB, TermList *, "GlassAllTermsList::skip_to", term);
-    Assert(!at_end());
-    // Set termfreq to 0 to indicate no termfreq/collfreq have been read for
-    // the current term.
+    // Set termfreq to 0 to indicate no termfreq has been read for the current
+    // term.
     termfreq = 0;
 
     if (rare(!cursor)) {
 	cursor = database->postlist_table.cursor_get();
 	Assert(cursor); // The postlist table isn't optional.
     }
+    Assert(!cursor->after_end());
 
     string key = pack_glass_postlist_key(term);
     if (cursor->find_entry_ge(key)) {
@@ -163,8 +159,7 @@ GlassAllTermsList::skip_to(const string &term)
 	current_term = term;
     } else {
 	if (cursor->after_end()) {
-	    current_term.resize(0);
-	    RETURN(NULL);
+	    RETURN(this);
 	}
 
 	const char *p = cursor->current_key.data();
@@ -176,16 +171,8 @@ GlassAllTermsList::skip_to(const string &term)
 
     if (!startswith(current_term, prefix)) {
 	// We've reached the end of the prefixed terms.
-	cursor->to_end();
-	current_term.resize(0);
+	RETURN(this);
     }
 
     RETURN(NULL);
-}
-
-bool
-GlassAllTermsList::at_end() const
-{
-    LOGCALL(DB, bool, "GlassAllTermsList::at_end", NO_ARGS);
-    RETURN(cursor && cursor->after_end());
 }

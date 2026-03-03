@@ -1,4 +1,4 @@
-/** @file ranker.h
+/** @file
  * @brief Ranker class - weighting scheme based on Learning to Rank
  */
 /* Copyright (C) 2012 Parth Gupta
@@ -15,22 +15,21 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
-#ifndef RANKER_H
-#define RANKER_H
+#ifndef XAPIAN_INCLUDED_RANKER_H
+#define XAPIAN_INCLUDED_RANKER_H
 
 #include <xapian.h>
 #include <xapian/intrusive_ptr.h>
 #include <xapian/types.h>
 #include <xapian/visibility.h>
 
-#include "featurelist.h"
-#include "featurevector.h"
-#include "letor_error.h"
+#include <xapian-letor/featurelist.h>
+#include <xapian-letor/featurevector.h>
+#include <xapian-letor/letor_error.h>
 
 #include <string>
 #include <vector>
@@ -193,7 +192,7 @@ class XAPIAN_VISIBILITY_DEFAULT Ranker : public Xapian::Internal::intrusive_base
   protected:
     /// Method to train the model. Overridden in ranker subclass.
     virtual void
-    train(const std::vector<Xapian::FeatureVector> & training_data) = 0;
+    train(const std::vector<std::vector<FeatureVector>>& training_data) = 0;
 
     /** Method to save model as db metadata. Overridden in ranker subclass.
      *
@@ -247,7 +246,7 @@ class XAPIAN_VISIBILITY_DEFAULT Ranker : public Xapian::Internal::intrusive_base
 class XAPIAN_VISIBILITY_DEFAULT ListNETRanker: public Ranker {
     /// Ranker parameters
     std::vector<double> parameters;
-    /// Learning rate (Default is 0.0001)
+    /// Learning rate (Default is 0.001)
     double learning_rate;
     /// Number of iterations (Default is 15)
     int iterations;
@@ -256,7 +255,7 @@ class XAPIAN_VISIBILITY_DEFAULT ListNETRanker: public Ranker {
      *
      * @exception LetorInternalError will be thrown if training data is null.
      */
-    void train(const std::vector<Xapian::FeatureVector> & training_data);
+    void train(const std::vector<std::vector<FeatureVector>>& training_data);
 
     /** Method to save ListNET model as db metadata.
      *
@@ -290,66 +289,20 @@ class XAPIAN_VISIBILITY_DEFAULT ListNETRanker: public Ranker {
      *  @exception	LetorInternalError will be thrown if model file
      *			is not compatible.
      */
-    std::vector<Xapian::FeatureVector>
-    rank_fvv(const std::vector<Xapian::FeatureVector> & fvv) const;
+    std::vector<FeatureVector>
+    rank_fvv(const std::vector<FeatureVector>& fvv) const;
 
   public:
     /* Construct ListNet instance
      * @param learn_rate       Learning rate
-     * @param num_interations  Number of iterations
+     * @param num_iterations   Number of iterations
      */
     explicit ListNETRanker(double learn_rate = 0.001,
-			    int num_interations = 15)
-	: learning_rate(learn_rate), iterations(num_interations) { }
+			   int num_iterations = 15)
+	: learning_rate(learn_rate), iterations(num_iterations) { }
 
     /// Destructor
     ~ListNETRanker();
-};
-
-/// SVMRanker class
-class XAPIAN_VISIBILITY_DEFAULT SVMRanker: public Ranker {
-    /// Model data string
-    std::string model_data;
-
-    /** Method to train the model.
-     *
-     *  @exception LetorInternalError will be thrown if training data is null.
-     */
-    void train(const std::vector<Xapian::FeatureVector> & training_data);
-
-    /** Method to save SVMRanker model as db metadata.
-     *
-     *  @param model_key      Metadata key using which model is to be stored.
-     */
-    void save_model_to_metadata(const std::string & model_key);
-
-    /** Method to load model from an external file.
-     *
-     *  @param model_key        Metadata key using which model is to be
-     *				loaded.
-     *
-     *  @exception LetorInternalError will be thrown if no model exists
-     *		   corresponding to the supplied key
-     */
-    void load_model_from_metadata(const std::string & model_key);
-
-    /** Method to re-rank a std::vector<Xapian::FeatureVector> by using the
-     *  model.
-     *
-     *  @param fvv vector<FeatureVector> that will be re-ranked
-     */
-    std::vector<Xapian::FeatureVector>
-    rank_fvv(const std::vector<Xapian::FeatureVector> & fvv) const;
-
-  public:
-    /* TODO: Pass struct svm_parameter* to constructor to be able to configure
-     * libsvm params at run time.
-     */
-    /// Constructor
-    SVMRanker();
-
-    /// Destructor
-    ~SVMRanker();
 };
 
 class XAPIAN_VISIBILITY_DEFAULT ListMLERanker : public Ranker {
@@ -365,7 +318,7 @@ class XAPIAN_VISIBILITY_DEFAULT ListMLERanker : public Ranker {
      * @exception InvalidArgumentError will be thrown if training_data is
      *            empty.
      */
-    void train(const std::vector<Xapian::FeatureVector>& training_data);
+    void train(const std::vector<std::vector<FeatureVector>>& training_data);
 
     /** Save ListMLE model as db metadata.
      *
@@ -393,17 +346,17 @@ class XAPIAN_VISIBILITY_DEFAULT ListMLERanker : public Ranker {
      *  @exception	InvalidArgumentError will be thrown if model file
      *			is not compatible.
      */
-    std::vector<Xapian::FeatureVector>
-    rank_fvv(const std::vector<Xapian::FeatureVector>& fvv) const;
+    std::vector<FeatureVector>
+    rank_fvv(const std::vector<FeatureVector>& fvv) const;
 
   public:
     /* Construct ListMLE instance
      * @param learn_rate       Learning rate (Default is 0.001)
-     * @param num_interations  Number of iterations (Default is 10)
+     * @param num_iterations   Number of iterations (Default is 10)
      */
     explicit ListMLERanker(double learn_rate = 0.001,
-			    int num_interations = 10)
-	: learning_rate(learn_rate), iterations(num_interations) { }
+			   int num_iterations = 10)
+	: learning_rate(learn_rate), iterations(num_iterations) { }
 
     /// Destructor
     ~ListMLERanker();
@@ -411,4 +364,4 @@ class XAPIAN_VISIBILITY_DEFAULT ListMLERanker : public Ranker {
 
 }
 
-#endif /* RANKER_H */
+#endif /* XAPIAN_INCLUDED_RANKER_H */

@@ -1,7 +1,7 @@
-/** @file deciderpostlist.h
+/** @file
  * @brief PostList which applies a MatchDecider
  */
-/* Copyright (C) 2017 Olly Betts
+/* Copyright (C) 2017,2022 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_DECIDERPOSTLIST_H
@@ -31,6 +31,8 @@ namespace Xapian {
 class MatchDecider;
 }
 
+class EstimateOp;
+
 /// PostList which applies a MatchDecider
 class DeciderPostList : public SelectPostList {
     /// The MatchDecider to apply.
@@ -44,15 +46,14 @@ class DeciderPostList : public SelectPostList {
 
   public:
     DeciderPostList(PostList* pl_,
+		    EstimateOp* estimate_op_,
 		    const Xapian::MatchDecider* decider_,
 		    ValueStreamDocument* vsdoc,
 		    PostListTree* pltree_)
-	: SelectPostList(pl_, pltree_), decider(decider_), doc(vsdoc)
-    {
-	// These get zeroed once per shard in use, but that all happens before
-	// the match starts so isn't a problem.
-	decider->docs_allowed_ = decider->docs_denied_ = 0;
-    }
+	: SelectPostList(pl_, estimate_op_, pltree_),
+	  decider(decider_),
+	  doc(vsdoc)
+    { }
 
     std::string get_description() const;
 };

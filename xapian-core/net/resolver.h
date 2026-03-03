@@ -1,7 +1,7 @@
-/** @file resolver.h
+/** @file
  * @brief Resolve hostnames and ip addresses
  */
-/* Copyright (C) 2017 Olly Betts
+/* Copyright (C) 2017,2018,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,23 +14,73 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_RESOLVER_H
 #define XAPIAN_INCLUDED_RESOLVER_H
 
+#include <cerrno>
 #include <cstring>
+#include <string_view>
+
 #include "safenetdb.h"
 #include "safesyssocket.h"
 #include "str.h"
 #include "xapian/error.h"
 
-using namespace std;
-
 class Resolver {
     struct addrinfo* result = NULL;
+
+    int eai_to_xapian(int e) {
+	// Under WIN32, the EAI_* constants are defined to be WSA_* constants
+	// with roughly equivalent meanings, so we can just let them be handled
+	// as any other WSA_* error codes would be.
+#ifndef __WIN32__
+	// Ensure they all have the same sign - this switch will fail to
+	// compile if we bitwise-or some 1 and some 2 bits to get 3.
+#define C(X) ((X) < 0 ? 2 : 1)
+	// Switch on a value there is a case for, to avoid clang warning: "no
+	// case matching constant switch condition '0'"
+	switch (3) {
+	    case
+		C(EAI_AGAIN)|
+		C(EAI_BADFLAGS)|
+		C(EAI_FAIL)|
+		C(EAI_FAMILY)|
+		C(EAI_MEMORY)|
+		C(EAI_NONAME)|
+		C(EAI_SERVICE)|
+		C(EAI_SOCKTYPE)|
+		C(EAI_SYSTEM)|
+#ifdef EAI_ADDRFAMILY
+		// In RFC 2553 but not RFC 3493 or POSIX:
+		C(EAI_ADDRFAMILY)|
+#endif
+#ifdef EAI_NODATA
+		// In RFC 2553 but not RFC 3493 or POSIX:
+		C(EAI_NODATA)|
+#endif
+#ifdef EAI_OVERFLOW
+		// In RFC 3493 and POSIX but not RFC 2553:
+		C(EAI_OVERFLOW)|
+#endif
+		0: break;
+	    case 3: break;
+	}
+#undef C
+
+	// EAI_SYSTEM means "look at errno".
+	if (e == EAI_SYSTEM)
+	    return errno;
+	// POSIX only says that EAI_* constants are "non-zero".  On Linux they
+	// are negative, but allow for them being positive too.
+	if (EAI_FAIL > 0)
+	    return -e;
+#endif
+	return e;
+    }
 
   public:
     class const_iterator {
@@ -39,7 +89,7 @@ class Resolver {
 	explicit const_iterator(struct addrinfo* p_) : p(p_) { }
 
 	struct addrinfo& operator*() const {
-	   return *p;
+	    return *p;
 	}
 
 	void operator++() {
@@ -52,16 +102,17 @@ class Resolver {
 	    return const_iterator(old_p);
 	}
 
-	bool operator==(const const_iterator& o) {
+	bool operator==(const const_iterator& o) const {
 	    return p == o.p;
 	}
 
-	bool operator!=(const const_iterator& o) {
+	bool operator!=(const const_iterator& o) const {
 	    return !(*this == o);
 	}
     };
 
-    Resolver(const std::string& host, int port, int flags = 0) {
+    Resolver(std::string_view host, int port, int flags = 0) {
+	using namespace std::string_literals;
 	// RFC 3493 has an extra sentence in its definition of
 	// AI_ADDRCONFIG which POSIX doesn't:
 	//
@@ -96,19 +147,23 @@ class Resolver {
 	if (host != "::1" && host != "127.0.0.1" && host != "localhost") {
 	    flags |= AI_ADDRCONFIG;
 	}
+	// Not defined on older macOS (such as 10.5 which Apple no longer
+	// support but newer versions no longer support PowerPC Macs).
+#ifdef AI_NUMERICSERV
 	flags |= AI_NUMERICSERV;
+#endif
 
 	struct addrinfo hints;
 	std::memset(&hints, 0, sizeof(struct addrinfo));
-	hints.ai_family = AF_INET;
+	hints.ai_family = AF_UNSPEC;
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_flags = flags;
 	hints.ai_protocol = 0;
 
-	const char * node = host.empty() ? NULL : host.c_str();
-	int r = getaddrinfo(node, str(port).c_str(), &hints, &result);
+	int r = getaddrinfo(host.empty() ? nullptr : str(host).c_str(),
+			    str(port).c_str(), &hints, &result);
 	if (r != 0) {
-	    throw Xapian::NetworkError("Couldn't resolve host " + host,
+	    throw Xapian::NetworkError("Couldn't resolve host "s.append(host),
 				       eai_to_xapian(r));
 	}
     }

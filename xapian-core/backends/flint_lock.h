@@ -1,4 +1,4 @@
-/** @file flint_lock.h
+/** @file
  * @brief Flint-compatible database locking.
  */
 /* Copyright (C) 2005,2006,2007,2008,2009,2012,2014,2016,2017 Olly Betts
@@ -14,13 +14,16 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_FLINT_LOCK_H
 #define XAPIAN_INCLUDED_FLINT_LOCK_H
+
+#ifndef PACKAGE
+# error config.h must be included first in each C++ source file
+#endif
 
 #include <string>
 
@@ -47,7 +50,7 @@ class FlintLock {
 	INUSE, // Already locked by someone else.
 	UNSUPPORTED, // Locking probably not supported (e.g. NFS without lockd).
 	FDLIMIT, // Process hit its file descriptor limit.
-	UNKNOWN // The attempt failed for some unspecified reason.
+	UNKNOWN // Locking failed for some unspecified reason (keep this last).
     } reason;
 
     /** Standard constructor. */

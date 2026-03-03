@@ -1,7 +1,7 @@
-/** @file enquire.h
+/** @file
  * @brief Querying session
  */
-/* Copyright (C) 2005,2013,2016,2017 Olly Betts
+/* Copyright (C) 2005,2013,2016,2017,2024 Olly Betts
  * Copyright (C) 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -15,16 +15,15 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_ENQUIRE_H
 #define XAPIAN_INCLUDED_ENQUIRE_H
 
 #if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
-# error "Never use <xapian/enquire.h> directly; include <xapian.h> instead."
+# error Never use <xapian/enquire.h> directly; include <xapian.h> instead.
 #endif
 
 #include <string>
@@ -74,11 +73,17 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
      */
     Enquire& operator=(const Enquire& o);
 
+    /// Move constructor.
+    Enquire(Enquire&& o);
+
+    /// Move assignment operator.
+    Enquire& operator=(Enquire&& o);
+
     /** Constructor.
      *
      *  @param db	The database (or databases) to query.
      *
-     *  @since 1.5.0 If @a db has no subdatabases, it's handled like any other
+     *  @since 2.0.0 If @a db has no subdatabases, it's handled like any other
      *  empty database.  In earlier versions, Xapian::InvalidArgumentError was
      *  thrown in this case.
      */
@@ -134,11 +139,11 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
     /** Set sort order for document IDs.
      *
      *  This order only has an effect on documents which would otherwise
-     *  have equal rank.  For a weighted probabilistic match with no sort
-     *  value, this means documents with equal weight.  For a boolean match,
-     *  with no sort value, this means all documents.  And if a sort key
+     *  have equal rank.  When ordering by relevance without a sort key,
+     *  this means documents with equal weight.  For a boolean match
+     *  with no sort key, this means all documents.  And if a sort key
      *  is used, this means documents with the same sort key (and also equal
-     *  weight if ordering on relevance before or after the sort).
+     *  weight if ordering on relevance before or after the sort key).
      *
      * @param order  This can be:
      * - Xapian::Enquire::ASCENDING
@@ -324,9 +329,9 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
      *  @param spy       The MatchSpy subclass to add.  The caller must
      *                   ensure that this remains valid while the Enquire
      *                   object remains active, or until @a
-     *                   clear_matchspies() is called, or else disown the
-     *                   MatchSpy object by calling spy->release() before
-     *                   passing it in.
+     *                   clear_matchspies() is called, or else allocate
+     *                   the MatchSpy object with new and then disown it by
+     *                   calling spy->release() before passing it in.
      */
     void add_matchspy(MatchSpy* spy) XAPIAN_NONNULL();
 
@@ -427,12 +432,12 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
     }
 
     /// End iterator corresponding to @a get_matching_terms_begin().
-    TermIterator XAPIAN_NOTHROW(get_matching_terms_end(docid) const) {
+    TermIterator get_matching_terms_end(docid) const noexcept {
 	return TermIterator();
     }
 
     /// End iterator corresponding to @a get_matching_terms_begin().
-    TermIterator XAPIAN_NOTHROW(get_matching_terms_end(const MSetIterator&) const) {
+    TermIterator get_matching_terms_end(const MSetIterator&) const noexcept {
 	return TermIterator();
     }
 
@@ -440,17 +445,19 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
      *
      *  If you don't call this method, the default is as if you'd used:
      *
-     *  get_expansion_scheme("trad");
+     *  set_expansion_scheme("prob");
      *
      *  @param eweightname  A string in lowercase specifying the name of
      *                      the scheme to be used. The following schemes
      *                      are currently available:
-     *                       "bo1" : The Bo1 scheme for query expansion.
-     *                       "trad" : The TradWeight scheme for query expansion.
-     *  @param expand_k  The parameter required for TradWeight query expansion.
+     *                      * "bo1": Bose-Einstein 1 model from the Divergence
+     *			      From Randomness framework.
+     *                      * "prob" : Probabilistic model (since 1.4.26).
+     *                      * "trad" : Deprecated alias for "prob".
+     *  @param expand_k  Parameter k for probabilistic query expansion.
      *                   A default value of 1.0 is used if none is specified.
      */
-    void set_expansion_scheme(const std::string &eweightname,
+    void set_expansion_scheme(std::string_view eweightname,
 			      double expand_k = 1.0) const;
 
     /** Flag telling get_eset() to allow query terms in Xapian::ESet.
@@ -511,9 +518,9 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
      *
      *	@return	Xapian::ESet object containing a list of terms with weights.
      */
-    inline ESet get_eset(termcount maxitems,
-			 const RSet& rset,
-			 const ExpandDecider* edecider) const {
+    ESet get_eset(termcount maxitems,
+		  const RSet& rset,
+		  const ExpandDecider* edecider) const {
 	return get_eset(maxitems, rset, 0, edecider);
     }
 

@@ -76,12 +76,13 @@ Notes
 -----
 
 A remote search should behave just like the equivalent local one, except
-a few features aren't currently implemented (e.g. spelling, synonyms,
-user metadata).
+a few features aren't currently implemented (e.g. spelling correction,
+``Xapian::MatchDecider``).
 
 Exceptions are propagated across the link and thrown again at the client
 end.
 
-The remote backend now support writable databases. Just start
-``xapian-progsrv`` or ``xapian-tcpsrv`` with the option ``--writable``.
-Only one database may be specified when ``--writable`` is used.
+The remote backend supports writable databases, but the default is
+read-only.  To enable writing, run ``xapian-progsrv`` or ``xapian-tcpsrv``
+with the ``--writable`` option.  Since Xapian 1.4.23, multiple database paths
+can be specified with ``--writable``.

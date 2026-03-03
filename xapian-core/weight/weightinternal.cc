@@ -1,22 +1,22 @@
-/** @file weightinternal.cc
+/** @file
  * @brief Xapian::Weight::Internal class, holding database and term statistics.
  */
 /* Copyright (C) 2007 Lemur Consulting Ltd
- * Copyright (C) 2009,2010,2011,2012,2013,2014,2015,2017 Olly Betts
+ * Copyright (C) 2009,2010,2011,2012,2013,2014,2015,2017,2020,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -25,13 +25,13 @@
 
 #include "xapian/enquire.h"
 
+#include "min_non_zero.h"
 #include "omassert.h"
 #include "api/rsetinternal.h"
 #include "str.h"
 #include "api/termlist.h"
 
 #include <memory>
-#include <set>
 
 using namespace std;
 
@@ -61,12 +61,20 @@ Weight::Internal::operator+=(const Weight::Internal & inc)
     total_length += inc.total_length;
     collection_size += inc.collection_size;
     rset_size += inc.rset_size;
-    total_term_count += inc.total_term_count;
+
+    db_doclength_lower_bound = min_non_zero(db_doclength_lower_bound,
+					    inc.db_doclength_lower_bound);
+    db_doclength_upper_bound = std::max(db_doclength_upper_bound,
+					inc.db_doclength_upper_bound);
+
+    db_unique_terms_lower_bound = min_non_zero(db_unique_terms_lower_bound,
+					       inc.db_unique_terms_lower_bound);
+    db_unique_terms_upper_bound = std::max(db_unique_terms_upper_bound,
+					   inc.db_unique_terms_upper_bound);
 
     // Add termfreqs and reltermfreqs
-    map<string, TermFreqs>::const_iterator i;
-    for (i = inc.termfreqs.begin(); i != inc.termfreqs.end(); ++i) {
-	termfreqs[i->first] += i->second;
+    for (auto&& i : inc.termfreqs) {
+	termfreqs[i.first] += i.second;
     }
     return *this;
 }
@@ -83,7 +91,17 @@ Weight::Internal::accumulate_stats(const Xapian::Database::Internal &subdb,
     collection_size += subdb.get_doccount();
     rset_size += rset.size();
 
-    total_term_count += subdb.get_doccount() * subdb.get_total_length();
+    db_doclength_lower_bound = min_non_zero(db_doclength_lower_bound,
+					    subdb.get_doclength_lower_bound());
+    db_doclength_upper_bound = std::max(db_doclength_upper_bound,
+					subdb.get_doclength_upper_bound());
+    db_unique_terms_lower_bound =
+	min_non_zero(db_unique_terms_lower_bound,
+		     subdb.get_unique_terms_lower_bound());
+    db_unique_terms_upper_bound =
+	std::max(db_unique_terms_upper_bound,
+		 subdb.get_unique_terms_upper_bound());
+
     Xapian::TermIterator t;
     for (t = query.get_unique_terms_begin(); t != Xapian::TermIterator(); ++t) {
 	const string & term = *t;
@@ -96,7 +114,7 @@ Weight::Internal::accumulate_stats(const Xapian::Database::Internal &subdb,
 	tf.collfreq += sub_cf;
     }
 
-    if (!rset.internal.get())
+    if (!rset.internal)
 	return;
 
     for (Xapian::docid did : rset.internal->docs) {
@@ -105,17 +123,27 @@ Weight::Internal::accumulate_stats(const Xapian::Database::Internal &subdb,
 	// and we can skip the document's termlist, so look for each query term
 	// in the document.
 	unique_ptr<TermList> tl(subdb.open_term_list(did));
-	map<string, TermFreqs>::iterator i;
-	for (i = termfreqs.begin(); i != termfreqs.end(); ++i) {
-	    const string & term = i->first;
+	for (auto&& i : termfreqs) {
+	    const string& term = i.first;
 	    TermList * ret = tl->skip_to(term);
-	    Assert(ret == NULL);
-	    (void)ret;
-	    if (tl->at_end())
+	    if (ret != NULL) {
+		// No more entries prune shouldn't happen).
+		Assert(ret == tl.get());
 		break;
+	    }
 	    if (term == tl->get_termname())
-		++i->second.reltermfreq;
+		++i.second.reltermfreq;
 	}
+    }
+}
+
+void
+Weight::Internal::merge(const Weight::Internal& o)
+{
+    if (!o.have_max_part) return;
+    for (auto i : o.termfreqs) {
+	double& max_part = termfreqs[i.first].max_part;
+	max_part = max(max_part, i.second.max_part);
     }
 }
 
@@ -128,8 +156,6 @@ Weight::Internal::get_description() const
     desc += str(collection_size);
     desc += ", rset_size=";
     desc += str(rset_size);
-    desc += ", total_term_count=";
-    desc += str(total_term_count);
 #ifdef XAPIAN_ASSERTIONS
     desc += ", subdbs=";
     desc += str(subdbs);
@@ -137,8 +163,7 @@ Weight::Internal::get_description() const
     desc += str(finalised);
 #endif
     desc += ", termfreqs={";
-    map<string, TermFreqs>::const_iterator i;
-    for (i = termfreqs.begin(); i != termfreqs.end(); ++i) {
+    for (auto i = termfreqs.begin(); i != termfreqs.end(); ++i) {
 	if (i != termfreqs.begin())
 	    desc += ", ";
 	desc += i->first;

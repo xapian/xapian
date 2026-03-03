@@ -27,63 +27,86 @@ something without a standard prefix, you create your own starting with an X
 you're prefixing starts with a capital letter or ":", add a ":" between prefix
 and term to resolve ambiguity about where the prefix ends and the term begins.
 
-Here's the current allocation list:
+Here's the current allocation list (annotated with Dublinc
 
-A
-        Author
-B
-        Topic (mnemonic: what the document is aBout)
-D
-        Date (numeric format: YYYYMMDD or "latest" - e.g. D20050224 or Dlatest)
-E
-        Extension (folded to lowercase - e.g. Ehtml, or E for no extension)
-F
-        Filename
-G
-        newsGroup (or similar entity - e.g. a web forum name)
-H
-        Hostname
-I
-	boolean filter term for "can see" permission (mnemonic: Include)
-J
-	Site term (mnemonic: Jumping off point)
-K
-        Keyword
-L
-        ISO Language code
-M
-        Month (numeric format: YYYYMM)
-N
-        ISO couNtry code (or domaiN name)
-O
-	Owner
-P
-        Pathname
-Q
-        uniQue id
-R
-        Raw (i.e. unstemmed) term (unused by Xapian since 1.0.0)
-S
-        Subject (or title)
-T
-        mimeType
-U
-        full URL of indexed document - if the resulting term would be > 240
-	bytes, a hashing scheme is used to prevent overflowing
-	the Xapian term length limit (see omindex for how to do this).
-V
-	boolean filter term for "can't see" permission (mnemonic: grep -v)
-X
-        longer prefix for user-defined use
-Y
-        year (four digits)
-Z
-        stemmed term
+======  ===========  ==========================================================
+Prefix  Dublin Core  Description
+======  ===========  ==========================================================
+A       creator      Author
+------  -----------  ----------------------------------------------------------
+B                    aBstract or summary or topic
+------  -----------  ----------------------------------------------------------
+D                    Date (numeric format: YYYYMMDD or "latest" - e.g.
+                     D20050224 or Dlatest)
+
+                     These are an old way to implement date filtering, but we
+                     now recommend using a value slot instead.  Since Omega
+                     2.0.0 omindex doesn't add D-prefix terms by default
+                     (``--date-terms`` enables them).
+------  -----------  ----------------------------------------------------------
+E                    Extension (folded to lowercase - e.g. Ehtml, or E for no
+                     extension)
+------  -----------  ----------------------------------------------------------
+F                    Filename
+------  -----------  ----------------------------------------------------------
+G                    newsGroup (or similar entity - e.g. a web forum name)
+------  -----------  ----------------------------------------------------------
+H                    Hostname
+------  -----------  ----------------------------------------------------------
+I                    boolean filter term for "can see" permission (mnemonic:
+                     Include)
+------  -----------  ----------------------------------------------------------
+J                    Site term (mnemonic: Jumping off point)
+------  -----------  ----------------------------------------------------------
+K       subject      Keyword
+------  -----------  ----------------------------------------------------------
+L       language     ISO-639 Language code
+------  -----------  ----------------------------------------------------------
+M                    Month (numeric format: YYYYMM)
+
+                     These are an old way to implement date filtering, but we
+                     now recommend using a value slot instead.  Since Omega
+                     2.0.0 omindex doesn't add M-prefix terms by default
+                     (``--date-terms`` enables them).
+------  -----------  ----------------------------------------------------------
+N                    ISO-3166 couNtry code (or domaiN name)
+------  -----------  ----------------------------------------------------------
+O                    Owner
+------  -----------  ----------------------------------------------------------
+P                    Pathname
+------  -----------  ----------------------------------------------------------
+Q                    uniQue id
+------  -----------  ----------------------------------------------------------
+R                    Raw (i.e. unstemmed) term (unused by Xapian since 1.0.0)
+------  -----------  ----------------------------------------------------------
+S       title        Title (or email Subject); dc:title
+------  -----------  ----------------------------------------------------------
+T                    mimeType
+------  -----------  ----------------------------------------------------------
+U                    full URL of indexed document - if the resulting term would
+                     be > 240 bytes, a hashing scheme is used to prevent
+                     overflowing the Xapian term length limit (see omindex for
+                     how to do this).
+------  -----------  ----------------------------------------------------------
+V                    boolean filter term for "can't see" permission (mnemonic:
+                     ``grep -v``)
+------  -----------  ----------------------------------------------------------
+X                    longer prefix for user-defined use
+------  -----------  ----------------------------------------------------------
+Y                    year (four digits)
+
+                     These are an old way to implement date filtering, but we
+                     now recommend using a value slot instead.  Since Omega
+                     2.0.0 omindex doesn't add Y-prefix terms by default
+                     (``--date-terms`` enables them).
+------  -----------  ----------------------------------------------------------
+Z                    stemmed term (may be followed by another prefix from this
+                     list - e.g. ZS for stemmed terms from the document title)
+======  ===========  ==========================================================
 
 Reserved but currently unallocated: CW
 
-There are two main uses for prefixes - boolean filters and probabilistic
-(i.e. free text) fields.
+There are two main uses for prefixes - boolean filters and free-text fields.
 
 Boolean Filters
 ===============
@@ -94,7 +117,7 @@ So a sundial might be 'material=Stone', a letter might be 'material=paper',
 etc.  There's no standard prefix for 'material', so you might allocate ``XM``.
 If you lowercase the field contents, you can avoid having to add a colon to
 separate the prefix and content, so documents would be indexed by terms such as
-``XMstone``` or ``XMpaper``.
+``XMstone`` or ``XMpaper``.
 
 If you're indexing using scriptindex, and have a field in the input file
 such as "material=Stone", and then your index script would have a rule
@@ -184,8 +207,8 @@ to that used for filters specified by ``B`` CGI parameters, with terms with the
 same prefixed combined with ``OP_OR`` by default, or ``OP_AND`` specified by
 ``$setmap{nonexclusiveprefix,...}``.
 
-Probabilistic Fields
-====================
+Free-Text Fields
+================
 
 Say you want to index the title of the document such that the user can
 search within the title by specifying title:report (for example) in their
@@ -207,7 +230,7 @@ Or if you're writing your own search frontend, like this::
 
     Xapian::QueryParser qp;
     qp.add_prefix("subject", "S");
-    // And similar lines for other probabilistic prefixes...
+    // And similar lines for other free-text prefixes...
     // And any other QueryParser configuration (e.g. stemmer, stopper).
     Xapian::Query query = qp.parse_query(user_query_string);
 

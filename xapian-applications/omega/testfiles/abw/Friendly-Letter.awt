@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE abiword PUBLIC "-//ABISOURCE//DTD AWML 1.0 Strict//EN" "http://www.abisource.com/awml.dtd">
+<abiword template="true" styles="unlocked" version="0.99.2" xmlns:math="http://www.w3.org/1998/Math/MathML" xmlns:dc="http://purl.org/dc/elements/1.1/" fileformat="1.0" xmlns:fo="http://www.w3.org/1999/XSL/Format" xmlns:svg="http://www.w3.org/2000/svg" xmlns:awml="http://www.abisource.com/awml.dtd" xmlns="http://www.abisource.com/awml.dtd" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" props="dom-dir:ltr; lang:en-US">
+<!-- ======================================================================== -->
+<!-- This file is an AbiWord document.                                        -->
+<!-- AbiWord is a free, Open Source word processor.                           -->
+<!-- More information about AbiWord is available at http://www.abisource.com/ -->
+<!-- You should not edit this file by hand.                                   -->
+<!-- ======================================================================== -->
+
+<metadata>
+<m key="dc.format">application/x-abiword</m>
+<m key="abiword.generator">AbiWord</m>
+</metadata>
+<history version="1" edit-time="793" last-saved="1096736888" uid="c94377b2-1493-11d9-9525-9e1170ef822d">
+<version id="1" started="1096736888" uid="a22a447e-1495-11d9-9525-9e1170ef822d" auto="0"/>
+</history>
+<styles>
+<s followedby="Return Address Section" name="Return Address Section" basedon="Normal" type="P" props="font-weight:normal; font-family:Times New Roman; margin-top:0pt; font-style:normal; margin-left:4.5000in; lang:en-US; font-variant:normal; text-indent:0in; margin-bottom:0pt; text-decoration:none; bgcolor:transparent; margin-right:0.0000in; color:000000; font-size:12pt; line-height:1.0; text-align:left; widows:2; font-stretch:normal"/>
+<s type="P" name="Normal" followedby="Current Settings" props="text-indent:0in; margin-top:0pt; margin-left:0pt; font-stretch:normal; line-height:1.0; text-align:left; bgcolor:transparent; lang:en-US; margin-bottom:0pt; text-decoration:none; font-weight:normal; font-variant:normal; color:000000; text-position:normal; font-size:12pt; margin-right:0pt; font-style:normal; widows:2; font-family:Times New Roman"/>
+<s followedby="Letter Body" name="Greeting" basedon="Normal" type="P" props="font-weight:normal; font-family:Times New Roman; margin-top:12pt; font-style:normal; margin-left:0pt; lang:en-US; font-variant:normal; text-indent:0in; margin-bottom:0pt; text-decoration:none; bgcolor:transparent; margin-right:0pt; color:000000; font-size:12pt; line-height:1.0; text-align:left; widows:2; font-stretch:normal"/>
+<s followedby="Letter Body" name="Letter Body" basedon="Normal" type="P" props="font-weight:normal; font-family:Times New Roman; margin-top:12pt; font-style:normal; margin-left:0pt; lang:en-US; font-variant:normal; text-indent:0.5000in; margin-bottom:0pt; text-decoration:none; bgcolor:transparent; margin-right:0pt; color:000000; font-size:12pt; line-height:1.0; text-align:left; widows:2; font-stretch:normal"/>
+<s followedby="Signature Line" name="Closing" basedon="Normal" type="P" props="font-weight:normal; font-family:Times New Roman; margin-top:12pt; font-style:normal; margin-left:4.5000in; lang:en-US; font-variant:normal; text-indent:0in; margin-bottom:48pt; text-decoration:none; bgcolor:transparent; margin-right:0pt; color:000000; font-size:12pt; line-height:1.0; text-align:left; widows:2; font-stretch:normal"/>
+<s type="P" name="Signature Line" basedon="Return Address Section" followedby="Block Text" props="font-weight:normal; font-family:Times New Roman; margin-top:0pt; font-style:normal; margin-left:4.5000in; lang:en-US; font-variant:normal; text-indent:0in; margin-bottom:0pt; text-decoration:none; bgcolor:transparent; margin-right:0.0000in; color:000000; font-size:12pt; line-height:1.0; text-align:left; widows:2; font-stretch:normal"/>
+</styles>
+<pagesize pagetype="Letter" orientation="portrait" width="8.500000" height="11.000000" units="in" page-scale="1.000000"/>
+<section props="page-margin-footer:0.5in; page-margin-header:0.5in">
+<p style="Return Address Section"><c props="lang:en-US">&lt;RETURN ADDRESS 1&gt;</c></p>
+<p style="Return Address Section"><c props="lang:en-US">&lt;RETURN CITY/ST/ZIP&gt;</c></p>
+<p style="Return Address Section"></p>
+<p style="Return Address Section"><field type="date_mdy" props="lang:en-US"></field></p>
+<p style="Greeting"><c props="lang:en-US">Dear &lt;ADDRESSEE NAME&gt;,</c></p>
+<p style="Letter Body"><c props="lang:en-US">This is where the body of your letter goes.  Just select this section and type over.  To fill in the other fields, you can do the same.  The date field auto-updates to the current date.  If you wish to save the current date in the file (for archival purposes, for instance), select and type over it.  When using this form, there is no need to manually indent or double-space after a paragraph.  AbiWord's styles take care of this for you.</c></p>
+<p style="Closing"><c props="lang:en-US">Sincerely,</c></p>
+<p style="Signature Line"><c props="lang:en-US">&lt;YOUR NAME&gt;</c></p>
+</section>
+</abiword>

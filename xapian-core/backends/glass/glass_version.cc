@@ -1,7 +1,7 @@
-/** @file glass_version.cc
+/** @file
  * @brief GlassVersion class
  */
-/* Copyright (C) 2006,2007,2008,2009,2010,2013,2014,2015,2016,2017 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010,2013,2014,2015,2016,2017,2024 Olly Betts
  * Copyright (C) 2011 Dan Colish
  *
  * This program is free software; you can redistribute it and/or modify
@@ -15,8 +15,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -32,9 +32,9 @@
 #include "posixy_wrapper.h"
 #include "stringutils.h" // For STRINGIZE() and CONST_STRLEN().
 
+#include <cerrno>
 #include <cstring> // For memcmp().
 #include <string>
-#include "safeerrno.h"
 #include <sys/types.h>
 #include "safesysstat.h"
 #include "safefcntl.h"
@@ -42,7 +42,7 @@
 #include "str.h"
 #include "stringutils.h"
 
-#include "common/safeuuid.h"
+#include "backends/uuids.h"
 
 #include "xapian/constants.h"
 #include "xapian/error.h"
@@ -113,6 +113,9 @@ GlassVersion::read()
 	if (rare(fd_in < 0)) {
 	    string msg = filename;
 	    msg += ": Failed to open glass revision file for reading";
+	    if (errno == ENOENT || errno == ENOTDIR) {
+		throw Xapian::DatabaseNotFoundError(msg, errno);
+	    }
 	    throw Xapian::DatabaseOpeningError(msg, errno);
 	}
 	close_fd = fd_in;
@@ -148,8 +151,8 @@ GlassVersion::read()
     }
 
     p += GLASS_VERSION_MAGIC_AND_VERSION_LEN;
-    memcpy(uuid, p, 16);
-    p += 16;
+    uuid.assign(p);
+    p += uuid.BINARY_SIZE;
 
     if (!unpack_uint(&p, end, &rev))
 	throw Xapian::DatabaseCorruptError("Rev file failed to decode revision");
@@ -271,7 +274,7 @@ GlassVersion::write(glass_revision_number_t new_rev, int flags)
     LOGCALL(DB, const string, "GlassVersion::write", new_rev|flags);
 
     string s(GLASS_VERSION_MAGIC, GLASS_VERSION_MAGIC_AND_VERSION_LEN);
-    s.append(reinterpret_cast<const char *>(uuid), 16);
+    s.append(uuid.data(), uuid.BINARY_SIZE);
 
     pack_uint(s, new_rev);
 
@@ -292,7 +295,26 @@ GlassVersion::write(glass_revision_number_t new_rev, int flags)
 	else
 	    tmpfile += "/v.tmp";
 
-	fd = posixy_open(tmpfile.c_str(), O_CREAT|O_TRUNC|O_WRONLY|O_BINARY, 0666);
+#ifdef __EMSCRIPTEN__
+	// Emscripten < 1.39.10 fails to create a file if O_TRUNC is specified
+	// and the filename is the previous name of a renamed file (which it
+	// will be the second time we write out the version file for a DB):
+	//
+	// https://github.com/emscripten-core/emscripten/issues/8187
+	//
+	// We avoid triggering this bug by not using O_TRUNC and instead
+	// truncating once the file is opened.
+	fd = posixy_open(tmpfile.c_str(),
+			 O_CREAT|O_WRONLY|O_BINARY,
+			 0666);
+	if (fd >= 0)
+	    ftruncate(fd, 0);
+#else
+	fd = posixy_open(tmpfile.c_str(),
+			 O_CREAT|O_TRUNC|O_WRONLY|O_BINARY,
+			 0666);
+#endif
+
 	if (rare(fd < 0))
 	    throw Xapian::DatabaseOpeningError("Couldn't write new rev file: " + tmpfile,
 					       errno);
@@ -373,8 +395,14 @@ GlassVersion::sync(const string & tmpfile,
     return true;
 }
 
-// Only try to compress tags longer than this many bytes.
-const size_t COMPRESS_MIN = 4;
+/* Only try to compress tags strictly longer than this many bytes.
+ *
+ * This can theoretically usefully be set as low as 4, but in practical terms
+ * zlib can't compress in very many cases for short inputs and even when it can
+ * the savings are small, so we default to a higher threshold to save CPU time
+ * for marginal size reductions.
+ */
+const size_t COMPRESS_MIN = 18;
 
 static const uint4 compress_min_tab[] = {
     0, // POSTLIST
@@ -389,7 +417,7 @@ void
 GlassVersion::create(unsigned blocksize)
 {
     AssertRel(blocksize,>=,GLASS_MIN_BLOCKSIZE);
-    uuid_generate(uuid);
+    uuid.generate();
     for (unsigned table_no = 0; table_no < Glass::MAX_; ++table_no) {
 	root[table_no].init(blocksize, compress_min_tab[table_no]);
     }
@@ -428,18 +456,37 @@ RootInfo::serialise(string &s) const
 bool
 RootInfo::unserialise(const char ** p, const char * end)
 {
-    unsigned val;
+    unsigned val, b;
     if (!unpack_uint(p, end, &root) ||
 	!unpack_uint(p, end, &val) ||
 	!unpack_uint(p, end, &num_entries) ||
-	!unpack_uint(p, end, &blocksize) ||
+	!unpack_uint(p, end, &b) ||
 	!unpack_uint(p, end, &compress_min) ||
 	!unpack_string(p, end, fl_serialised)) return false;
-    level = val >> 2;
+    auto level_ = val >> 2;
+    if (rare(level_ >= GLASS_BTREE_CURSOR_LEVELS))
+	throw Xapian::DatabaseCorruptError("Impossibly deep Btree");
+    level = level_;
     sequential = val & 0x02;
     root_is_fake = val & 0x01;
-    blocksize <<= 11;
-    AssertRel(blocksize,>=,GLASS_MIN_BLOCKSIZE);
+
+    if (root_is_fake && level > 0) {
+	throw Xapian::DatabaseCorruptError("Fake root but level > 0");
+    }
+
+    b <<= 11;
+    if (rare(b < GLASS_MIN_BLOCKSIZE ||
+	     b > GLASS_MAX_BLOCKSIZE ||
+	     (b & (b - 1)) != 0)) {
+	throw Xapian::DatabaseCorruptError("Invalid block size");
+    }
+    blocksize = b;
+
+    // Map old default to new default.
+    if (compress_min == 4) {
+	compress_min = COMPRESS_MIN;
+    }
+
     return true;
 }
 

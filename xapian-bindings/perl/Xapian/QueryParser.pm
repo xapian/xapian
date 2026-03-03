@@ -69,17 +69,20 @@ Parses the query string according to the rules defined in the query parser
 documentation below. You can specify certain flags to modify the
 searching behaviour:
 
-  FLAG_BOOLEAN, FLAG_PHRASE, FLAG_LOVEHATE, FLAG_BOOLEAN_ANY_CASE,
+  FLAG_DEFAULT, FLAG_ACCUMULATE, FLAG_BOOLEAN, FLAG_FUZZY,
+  FLAG_NO_POSITIONS, FLAG_PHRASE, FLAG_LOVEHATE, FLAG_BOOLEAN_ANY_CASE,
   FLAG_WILDCARD, FLAG_PURE_NOT, FLAG_PARTIAL, FLAG_SPELLING_CORRECTION,
+  FLAG_WILDCARD_GLOB, FLAG_WILDCARD_MULTI, FLAG_WILDCARD_SINGLE,
   FLAG_SYNONYM, FLAG_AUTO_SYNONYMS, FLAG_AUTO_MULTIWORD_SYNONYMS,
-  FLAG_CJK_NGRAM
+  FLAG_NGRAMS, FLAG_WORD_BREAKS, FLAG_CJK_NGRAM, FLAG_NO_PROPER_NOUN_HEURISTIC
 
 To specify multiple flags, "bitwise or" them together (with C<|>).  The
-default flags are C<FLAG_PHRASE|FLAG_BOOLEAN|FLAG_LOVEHATE>
+default flags are C<FLAG_DEFAULT> which is equivalent to
+C<FLAG_PHRASE|FLAG_BOOLEAN|FLAG_LOVEHATE>.
 
 =item add_prefix <field> <prefix>
 
-Add a probabilistic term prefix.  E.g. $qp->add_prefix("author", "A");
+Add a term prefix mapping.  E.g. $qp->add_prefix("author", "A");
 
 Allows the user to search for author:orwell which will search for the term
 "Aorwel" (assuming English stemming is in use). Multiple fields can be mapped
@@ -92,13 +95,13 @@ prefix	The term prefix to map this to
 
 =item add_boolean_prefix <field> prefix
 
-Add a boolean term prefix allowing the user to restrict a search with a
-boolean filter specified in the free text query.  E.g.
+Add a boolean term prefix mapping, allowing the user to restrict a search with
+a boolean filter specified in the free text query.  E.g.
 
   $p->add_boolean_prefix("site", "H");
 
 Allows the user to restrict a search with site:xapian.org which will be
-converted to Hxapian.org combined with any probabilistic query with
+converted to Hxapian.org combined with the rest of the parsed query using
 C<OP_FILTER>.
 
 Multiple fields can be mapped to the same prefix (so you can e.g. make site:

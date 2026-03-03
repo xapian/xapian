@@ -1,7 +1,7 @@
-/** @file termgenerator_internal.cc
+/** @file
  * @brief TermGenerator class internals
  */
-/* Copyright (C) 2007,2010,2011,2012,2015,2016,2017 Olly Betts
+/* Copyright (C) 2007-2026 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -38,26 +38,30 @@
 #include <limits>
 #include <list>
 #include <string>
+#include <string_view>
 #include <unordered_map>
 #include <vector>
 
-#include "cjk-tokenizer.h"
+#include "word-breaker.h"
 
 using namespace std;
 
 namespace Xapian {
 
-inline bool
-U_isupper(unsigned ch) {
-    return (ch < 128 && C_isupper(static_cast<unsigned char>(ch)));
+static inline bool
+U_isupper(unsigned ch)
+{
+    return ch < 128 && C_isupper(static_cast<unsigned char>(ch));
 }
 
-inline unsigned check_wordchar(unsigned ch) {
+static inline unsigned
+check_wordchar(unsigned ch)
+{
     if (Unicode::is_wordchar(ch)) return Unicode::tolower(ch);
     return 0;
 }
 
-inline bool
+static inline bool
 should_stem(const std::string & term)
 {
     const unsigned int SHOULD_STEM_MASK =
@@ -72,9 +76,11 @@ should_stem(const std::string & term)
 /** Value representing "ignore this" when returned by check_infix() or
  *  check_infix_digit().
  */
-const unsigned UNICODE_IGNORE = numeric_limits<unsigned>::max();
+static const unsigned UNICODE_IGNORE = numeric_limits<unsigned>::max();
 
-inline unsigned check_infix(unsigned ch) {
+static inline unsigned
+check_infix(unsigned ch)
+{
     if (ch == '\'' || ch == '&' || ch == 0xb7 || ch == 0x5f4 || ch == 0x2027) {
 	// Unicode includes all these except '&' in its word boundary rules,
 	// as well as 0x2019 (which we handle below) and ':' (for Swedish
@@ -85,12 +91,19 @@ inline unsigned check_infix(unsigned ch) {
     // 0x2019 is Unicode apostrophe and single closing quote.
     // 0x201b is Unicode single opening quote with the tail rising.
     if (ch == 0x2019 || ch == 0x201b) return '\'';
-    if (ch >= 0x200b && (ch <= 0x200d || ch == 0x2060 || ch == 0xfeff))
+    // 0x200c and 0x200d are zero width non-joiner and joiner respectively.
+    // 0x2060 and 0xfeff are word joiners (0xfeff deprecated since Unicode 3.2).
+    if (ch >= 0x200c && (ch <= 0x200d || ch == 0x2060 || ch == 0xfeff))
+	return UNICODE_IGNORE;
+    // 0xad is SOFT HYPHEN which marks a potential hyphenation point in a word.
+    if (ch == 0xad)
 	return UNICODE_IGNORE;
     return 0;
 }
 
-inline unsigned check_infix_digit(unsigned ch) {
+static inline unsigned
+check_infix_digit(unsigned ch)
+{
     // This list of characters comes from Unicode's word identifying algorithm.
     switch (ch) {
 	case ',':
@@ -111,15 +124,58 @@ inline unsigned check_infix_digit(unsigned ch) {
     return 0;
 }
 
-inline bool
+static inline bool
 is_digit(unsigned ch) {
     return (Unicode::get_category(ch) == Unicode::DECIMAL_DIGIT_NUMBER);
 }
 
-inline unsigned check_suffix(unsigned ch) {
+static inline unsigned
+check_suffix(unsigned ch)
+{
     if (ch == '+' || ch == '#') return ch;
     // FIXME: what about '-'?
     return 0;
+}
+
+static_assert(int(MSet::SNIPPET_WORD_BREAKS) == TermGenerator::FLAG_WORD_BREAKS,
+	      "WORD_BREAKS flags have same value");
+
+template<typename ACTION>
+static bool
+break_words(Utf8Iterator& itor, unsigned break_flags, bool with_positions,
+	    ACTION action)
+{
+#ifdef USE_ICU
+    if (break_flags & MSet::SNIPPET_WORD_BREAKS) {
+	const char* start = itor.raw();
+	// get_unbroken() returns the number of codepoints, which we aren't
+	// interested in here.
+	(void)get_unbroken(itor);
+	size_t left = itor.raw() - start;
+	for (WordIterator tk(start, left); tk != WordIterator(); ++tk) {
+	    const string& token = *tk;
+	    left -= token.length();
+	    if (!action(token, with_positions, itor.left() + left))
+		return false;
+	}
+	return true;
+    }
+#else
+    (void)break_flags;
+#endif
+
+    NgramIterator tk(itor);
+    while (tk != NgramIterator()) {
+	const string& token = *tk;
+	// FLAG_NGRAMS only sets positions for tokens of length 1.
+	bool with_pos = with_positions && tk.unigram();
+	if (!action(token, with_pos, tk.get_utf8iterator().left()))
+	    return false;
+	++tk;
+    }
+    // Update itor to point the end of the span of text in an unbroken script.
+    itor = tk.get_utf8iterator();
+    return true;
 }
 
 /** Templated framework for processing terms.
@@ -128,8 +184,10 @@ inline unsigned check_suffix(unsigned ch) {
  *  std::string holding the term, and positional is a bool indicating
  *  if this term carries positional information.
  */
-template<typename ACTION> void
-parse_terms(Utf8Iterator itor, bool cjk_ngram, bool with_positions, ACTION action)
+template<typename ACTION>
+static void
+parse_terms(Utf8Iterator itor, unsigned break_flags, bool with_positions,
+	    ACTION action)
 {
     while (true) {
 	// Advance to the start of the next term.
@@ -164,15 +222,9 @@ parse_terms(Utf8Iterator itor, bool cjk_ngram, bool with_positions, ACTION actio
 	}
 
 	while (true) {
-	    if (cjk_ngram &&
-		CJK::codepoint_is_cjk(*itor) &&
-		Unicode::is_wordchar(*itor)) {
-		const string & cjk = CJK::get_cjk(itor);
-		for (CJKTokenIterator tk(cjk); tk != CJKTokenIterator(); ++tk) {
-		    const string & cjk_token = *tk;
-		    if (!action(cjk_token, with_positions && tk.get_length() == 1, itor))
-			return;
-		}
+	    if (break_flags && is_unbroken_wordchar(*itor)) {
+		if (!break_words(itor, break_flags, with_positions, action))
+		    return;
 		while (true) {
 		    if (itor == Utf8Iterator()) return;
 		    ch = check_wordchar(*itor);
@@ -186,7 +238,7 @@ parse_terms(Utf8Iterator itor, bool cjk_ngram, bool with_positions, ACTION actio
 		Unicode::append_utf8(term, ch);
 		prevch = ch;
 		if (++itor == Utf8Iterator() ||
-		    (cjk_ngram && CJK::codepoint_is_cjk(*itor)))
+		    (break_flags && is_unbroken_script(*itor)))
 		    goto endofterm;
 		ch = check_wordchar(*itor);
 	    } while (ch);
@@ -227,49 +279,88 @@ parse_terms(Utf8Iterator itor, bool cjk_ngram, bool with_positions, ACTION actio
 	}
 
 endofterm:
-	if (!action(term, with_positions, itor))
+	if (!action(term, with_positions, itor.left()))
 	    return;
     }
 }
 
 void
 TermGenerator::Internal::index_text(Utf8Iterator itor, termcount wdf_inc,
-				    const string & prefix, bool with_positions)
+				    string_view prefix, bool with_positions)
 {
-    bool cjk_ngram = (flags & FLAG_CJK_NGRAM) || CJK::is_cjk_enabled();
+#ifndef USE_ICU
+    if (flags & FLAG_WORD_BREAKS) {
+	throw Xapian::FeatureUnavailableError("FLAG_WORD_BREAKS requires "
+					      "building Xapian to use ICU");
+    }
+#endif
+    unsigned break_flags = flags & (FLAG_NGRAMS | FLAG_WORD_BREAKS);
+    if (break_flags == 0 && is_ngram_enabled()) {
+	break_flags = FLAG_NGRAMS;
+    }
 
     stop_strategy current_stop_mode;
-    if (!stopper.get()) {
+    if (!stopper) {
 	current_stop_mode = TermGenerator::STOP_NONE;
     } else {
 	current_stop_mode = stop_mode;
     }
 
-    parse_terms(itor, cjk_ngram, with_positions,
-	[=](const string & term, bool positional, const Utf8Iterator &) {
+    // Create two std::string objects which we effectively use as buffers to
+    // build the prefixed terms we generate (one for non-stemmed and one for
+    // stemmed terms).  This is a simple way to avoid creating a temporary
+    // std::string object each time we generate a prefixed term.
+    string prefixed_term;
+    auto prefix_size = prefix.size();
+    prefixed_term.reserve(prefix_size + max_word_length);
+    prefixed_term.assign(prefix);
+
+    string prefixed_stemmed_term;
+    int add_z = (strategy != TermGenerator::STEM_ALL);
+    prefixed_stemmed_term.reserve(add_z + prefix_size + max_word_length);
+    if (add_z) prefixed_stemmed_term.assign(1, 'Z');
+    prefixed_stemmed_term.append(prefix);
+    auto prefixed_stemmed_size = prefixed_stemmed_term.size();
+
+    parse_terms(itor, break_flags, with_positions,
+	[=, &prefixed_term, &prefixed_stemmed_term
+#if __cplusplus >= 201907L
+// C++20 no longer supports implicit `this` in lambdas but older C++ versions
+// don't allow `this` here.
+	, this
+#endif
+	](const string & term, bool positional, size_t) {
 	    if (term.size() > max_word_length) return true;
 
-	    if (current_stop_mode == TermGenerator::STOP_ALL && (*stopper)(term))
+	    if (current_stop_mode == TermGenerator::STOP_ALL &&
+		(*stopper)(term)) {
 		return true;
+	    }
 
 	    if (strategy == TermGenerator::STEM_SOME ||
-		strategy == TermGenerator::STEM_NONE) {
+		strategy == TermGenerator::STEM_NONE ||
+		strategy == TermGenerator::STEM_SOME_FULL_POS) {
+		prefixed_term.append(term);
 		if (positional) {
-		    doc.add_posting(prefix + term, ++termpos, wdf_inc);
+		    if (rare(cur_pos >= pos_limit))
+			throw Xapian::RangeError("termpos limit exceeded");
+		    doc.add_posting(prefixed_term, ++cur_pos, wdf_inc);
 		} else {
-		    doc.add_term(prefix + term, wdf_inc);
+		    doc.add_term(prefixed_term, wdf_inc);
 		}
+		prefixed_term.resize(prefix_size);
 	    }
 
 	    // MSVC seems to need "this->" on member variables in this
 	    // situation.
-	    if ((this->flags & FLAG_SPELLING) && prefix.empty())
+	    if ((this->flags & FLAG_SPELLING) && prefix_size == 0)
 		db.add_spelling(term);
 
-	    if (strategy == TermGenerator::STEM_NONE ||
-		!stemmer.internal.get()) return true;
+	    if (strategy == TermGenerator::STEM_NONE || stemmer.is_none())
+		return true;
 
-	    if (strategy == TermGenerator::STEM_SOME) {
+	    if (strategy == TermGenerator::STEM_SOME ||
+		strategy == TermGenerator::STEM_SOME_FULL_POS) {
 		if (current_stop_mode == TermGenerator::STOP_STEMMED &&
 		    (*stopper)(term))
 		    return true;
@@ -282,17 +373,19 @@ TermGenerator::Internal::index_text(Utf8Iterator itor, termcount wdf_inc,
 	    // Add stemmed form without positional information.
 	    const string& stem = stemmer(term);
 	    if (rare(stem.empty())) return true;
-	    string stemmed_term;
-	    if (strategy != TermGenerator::STEM_ALL) {
-		stemmed_term += "Z";
-	    }
-	    stemmed_term += prefix;
-	    stemmed_term += stem;
-	    if (strategy != TermGenerator::STEM_SOME && with_positions) {
-		doc.add_posting(stemmed_term, ++termpos, wdf_inc);
+	    prefixed_stemmed_term.append(stem);
+	    if (strategy != TermGenerator::STEM_SOME && positional) {
+		if (strategy != TermGenerator::STEM_SOME_FULL_POS) {
+		    if (rare(cur_pos >= pos_limit))
+			throw Xapian::RangeError("termpos limit exceeded");
+		    ++cur_pos;
+		}
+		doc.add_posting(prefixed_stemmed_term, cur_pos, wdf_inc);
 	    } else {
-		doc.add_term(stemmed_term, wdf_inc);
+		doc.add_term(prefixed_stemmed_term, wdf_inc);
 	    }
+	    prefixed_stemmed_term.resize(prefixed_stemmed_size);
+
 	    return true;
 	});
 }
@@ -338,11 +431,11 @@ class SnipPipe {
 
     void done();
 
-    bool drain(const string & input,
-	       const string & hi_start,
-	       const string & hi_end,
-	       const string & omit,
-	       string & output);
+    bool drain(string_view input,
+	       string_view hi_start,
+	       string_view hi_end,
+	       string_view omit,
+	       string& output);
 };
 
 #define DECAY 2.0
@@ -434,12 +527,92 @@ SnipPipe::done()
     }
 }
 
+// Check if a non-word character is should be included at the start of the
+// snippet.  We want to include certain leading non-word characters, but not
+// others.
+static inline bool
+snippet_check_leading_nonwordchar(unsigned ch) {
+    if (Unicode::is_currency(ch) ||
+	Unicode::get_category(ch) == Unicode::OPEN_PUNCTUATION ||
+	Unicode::get_category(ch) == Unicode::INITIAL_QUOTE_PUNCTUATION) {
+	return true;
+    }
+    switch (ch) {
+	case '"':
+	case '#':
+	case '%':
+	case '&':
+	case '\'':
+	case '+':
+	case '-':
+	case '/':
+	case '<':
+	case '@':
+	case '\\':
+	case '`':
+	case '~':
+	case 0x00A1: // INVERTED EXCLAMATION MARK
+	case 0x00A7: // SECTION SIGN
+	case 0x00BF: // INVERTED QUESTION MARK
+	    return true;
+    }
+    return false;
+}
+
+// Check if a non-word character is should be included at the end of the
+// snippet.  We want to include certain trailing non-word characters, but not
+// others.
+static inline bool
+snippet_check_trailing_nonwordchar(unsigned ch) {
+    if (Unicode::is_currency(ch) ||
+	Unicode::get_category(ch) == Unicode::CLOSE_PUNCTUATION ||
+	Unicode::get_category(ch) == Unicode::FINAL_QUOTE_PUNCTUATION) {
+	return true;
+    }
+    switch (ch) {
+	case '"':
+	case '%':
+	case '\'':
+	case '+':
+	case '-':
+	case '/':
+	case '>':
+	case '@':
+	case '\\':
+	case '`':
+	case '~':
+	    return true;
+    }
+    return false;
+}
+
+static inline void
+append_escaping_xml(const char* p, const char* end, string& output)
+{
+    while (p != end) {
+	char ch = *p++;
+	switch (ch) {
+	    case '&':
+		output += "&amp;";
+		break;
+	    case '<':
+		output += "&lt;";
+		break;
+	    case '>':
+		output += "&gt;";
+		break;
+	    default:
+		output += ch;
+	}
+    }
+}
+
 inline bool
-SnipPipe::drain(const string & input,
-		const string & hi_start,
-		const string & hi_end,
-		const string & omit,
-		string & output)
+SnipPipe::drain(string_view input,
+		string_view hi_start,
+		string_view hi_end,
+		string_view omit,
+		string& output)
 {
     if (best_pipe.empty() && !pipe.empty()) {
 	swap(best_pipe, pipe);
@@ -451,28 +624,45 @@ SnipPipe::drain(const string & input,
 
 	// See if this is the end of a sentence.
 	// FIXME: This is quite simplistic - look at the Unicode rules:
-	// http://unicode.org/reports/tr29/#Sentence_Boundaries
-	bool punc = false;
+	// https://unicode.org/reports/tr29/#Sentence_Boundaries
+	bool sentence_end = false;
 	Utf8Iterator i(input.data() + best_end, tail_len);
 	while (i != Utf8Iterator()) {
 	    unsigned ch = *i;
-	    if (punc && Unicode::is_whitespace(ch)) break;
+	    if (sentence_end && Unicode::is_whitespace(ch)) break;
 
 	    // Allow "...", "!!", "!?!", etc...
-	    punc = (ch == '.' || ch == '?' || ch == '!');
+	    sentence_end = (ch == '.' || ch == '?' || ch == '!');
 
 	    if (Unicode::is_wordchar(ch)) break;
 	    ++i;
 	}
 
-	if (punc) {
+	if (sentence_end) {
 	    // Include end of sentence punctuation.
-	    output.append(input.data() + best_end, i.raw());
-	} else {
-	    // Append "..." or equivalent if this doesn't seem to be the start
-	    // of a sentence.
-	    output += omit;
+	    append_escaping_xml(input.data() + best_end, i.raw(), output);
+	    return false;
 	}
+
+	// Include trailing punctuation which includes meaning or context.
+	i.assign(input.data() + best_end, tail_len);
+	int trailing_punc = 0;
+	while (i != Utf8Iterator() && snippet_check_trailing_nonwordchar(*i)) {
+	    // But limit how much trailing punctuation we include.
+	    if (++trailing_punc > 4) {
+		trailing_punc = 0;
+		break;
+	    }
+	    ++i;
+	}
+	if (trailing_punc) {
+	    append_escaping_xml(input.data() + best_end, i.raw(), output);
+	    if (i == Utf8Iterator()) return false;
+	}
+
+	// Append "..." or equivalent as this doesn't seem to be the start
+	// of a sentence.
+	output += omit;
 
 	return false;
     }
@@ -504,12 +694,21 @@ SnipPipe::drain(const string & input,
 		case YES:
 		    break;
 	    }
+
+	    // Start the snippet at the start of the first word, but include
+	    // certain punctuation too.
 	    if (Unicode::is_wordchar(ch)) {
-		// Start the snippet at the start of the first word.
-		best_begin = i.raw() - input.data();
+		// But limit how much leading punctuation we include.
+		size_t word_begin = i.raw() - input.data();
+		if (word_begin - best_begin > 4) {
+		    best_begin = word_begin;
+		}
 		break;
 	    }
 	    ++i;
+	    if (!snippet_check_leading_nonwordchar(ch)) {
+		best_begin = i.raw() - input.data();
+	    }
 	}
 
 	// Add "..." or equivalent if this doesn't seem to be the start of a
@@ -525,8 +724,7 @@ SnipPipe::drain(const string & input,
 	while (i != Utf8Iterator()) {
 	    unsigned ch = *i;
 	    if (Unicode::is_wordchar(ch)) {
-		const char * p = input.data() + best_begin;
-		output.append(p, i.raw() - p);
+		append_escaping_xml(input.data() + best_begin, i.raw(), output);
 		best_begin = i.raw() - input.data();
 		break;
 	    }
@@ -539,22 +737,9 @@ SnipPipe::drain(const string & input,
 	if (phrase_len) output += hi_start;
     }
 
-    while (best_begin != word.term_end) {
-	char ch = input[best_begin++];
-	switch (ch) {
-	    case '&':
-		output += "&amp;";
-		break;
-	    case '<':
-		output += "&lt;";
-		break;
-	    case '>':
-		output += "&gt;";
-		break;
-	    default:
-		output += ch;
-	}
-    }
+    const char* p = input.data();
+    append_escaping_xml(p + best_begin, p + word.term_end, output);
+    best_begin = word.term_end;
 
     if (phrase_len && --phrase_len == 0) output += hi_end;
 
@@ -566,7 +751,8 @@ static void
 check_query(const Xapian::Query & query,
 	    list<vector<string>> & exact_phrases,
 	    unordered_map<string, double> & loose_terms,
-	    list<string> & wildcards,
+	    list<const Xapian::Internal::QueryWildcard*> & wildcards,
+	    list<const Xapian::Internal::QueryEditDistance*> & fuzzies,
 	    size_t & longest_phrase)
 {
     // FIXME: OP_NEAR, non-tight OP_PHRASE, OP_PHRASE with non-term subqueries
@@ -577,9 +763,15 @@ check_query(const Xapian::Query & query,
 	    *static_cast<const Xapian::Internal::QueryTerm *>(query.internal.get());
 	loose_terms.insert(make_pair(qt.get_term(), 0));
     } else if (op == query.OP_WILDCARD) {
-	const Xapian::Internal::QueryWildcard & qw =
-	    *static_cast<const Xapian::Internal::QueryWildcard *>(query.internal.get());
-	wildcards.push_back(qw.get_pattern());
+	using Xapian::Internal::QueryWildcard;
+	const QueryWildcard* qw =
+	    static_cast<const QueryWildcard*>(query.internal.get());
+	wildcards.push_back(qw);
+    } else if (op == query.OP_EDIT_DISTANCE) {
+	using Xapian::Internal::QueryEditDistance;
+	const QueryEditDistance* qed =
+	    static_cast<const QueryEditDistance*>(query.internal.get());
+	fuzzies.push_back(qed);
     } else if (op == query.OP_PHRASE) {
 	const Xapian::Internal::QueryPhrase & phrase =
 	    *static_cast<const Xapian::Internal::QueryPhrase *>(query.internal.get());
@@ -607,7 +799,7 @@ check_query(const Xapian::Query & query,
 non_term_subquery:
     for (size_t i = 0; i != n_subqs; ++i)
 	check_query(query.get_subquery(i), exact_phrases, loose_terms,
-		    wildcards, longest_phrase);
+		    wildcards, fuzzies, longest_phrase);
 }
 
 static double*
@@ -633,20 +825,30 @@ check_term(unordered_map<string, double> & loose_terms,
 }
 
 string
-MSet::Internal::snippet(const string & text,
+MSet::Internal::snippet(string_view text,
 			size_t length,
 			const Xapian::Stem & stemmer,
 			unsigned flags,
-			const string & hi_start,
-			const string & hi_end,
-			const string & omit) const
+			string_view hi_start,
+			string_view hi_end,
+			string_view omit) const
 {
     if (hi_start.empty() && hi_end.empty() && text.size() <= length) {
 	// Too easy!
-	return text;
+	return string{text};
     }
 
-    bool cjk_ngram = CJK::is_cjk_enabled();
+#ifndef USE_ICU
+    if (flags & MSet::SNIPPET_WORD_BREAKS) {
+	throw Xapian::FeatureUnavailableError("SNIPPET_WORD_BREAKS requires "
+					      "building Xapian to use ICU");
+    }
+#endif
+    auto SNIPPET_BREAK_MASK = MSet::SNIPPET_NGRAMS | MSet::SNIPPET_WORD_BREAKS;
+    unsigned break_flags = flags & SNIPPET_BREAK_MASK;
+    if (break_flags == 0 && is_ngram_enabled()) {
+	break_flags = MSet::SNIPPET_NGRAMS;
+    }
 
     size_t term_start = 0;
     double min_tw = 0, max_tw = 0;
@@ -661,14 +863,19 @@ MSet::Internal::snippet(const string & text,
 	max_tw *= 1.015625;
     }
 
+    Xapian::Query query;
+    if (enquire) {
+	query = enquire->query;
+    }
     SnipPipe snip(length);
 
     list<vector<string>> exact_phrases;
     unordered_map<string, double> loose_terms;
-    list<string> wildcards;
+    list<const Xapian::Internal::QueryWildcard*> wildcards;
+    list<const Xapian::Internal::QueryEditDistance*> fuzzies;
     size_t longest_phrase = 0;
-    check_query(enquire->query, exact_phrases, loose_terms,
-		wildcards, longest_phrase);
+    check_query(query, exact_phrases, loose_terms,
+		wildcards, fuzzies, longest_phrase);
 
     vector<double> exact_phrases_relevance;
     exact_phrases_relevance.reserve(exact_phrases.size());
@@ -678,11 +885,19 @@ MSet::Internal::snippet(const string & text,
     }
 
     vector<double> wildcards_relevance;
-    wildcards_relevance.reserve(exact_phrases.size());
+    wildcards_relevance.reserve(wildcards.size());
     for (auto&& pattern : wildcards) {
 	// FIXME: What relevance to use?
 	(void)pattern;
 	wildcards_relevance.push_back(max_tw + min_tw);
+    }
+
+    vector<double> fuzzies_relevance;
+    fuzzies_relevance.reserve(fuzzies.size());
+    for (auto&& pattern : fuzzies) {
+	// FIXME: What relevance to use?
+	(void)pattern;
+	fuzzies_relevance.push_back(max_tw + min_tw);
     }
 
     // Background relevance is the same for a given MSet, so cache it
@@ -693,8 +908,8 @@ MSet::Internal::snippet(const string & text,
     if (longest_phrase) phrase.resize(longest_phrase - 1);
     size_t phrase_next = 0;
     bool matchfound = false;
-    parse_terms(Utf8Iterator(text), cjk_ngram, true,
-	[&](const string & term, bool positional, const Utf8Iterator & it) {
+    parse_terms(Utf8Iterator(text), break_flags, true,
+	[&](const string & term, bool positional, size_t left) {
 	    // FIXME: Don't hardcode this here.
 	    const size_t max_word_length = 64;
 
@@ -704,7 +919,7 @@ MSet::Internal::snippet(const string & text,
 	    // We get segments with any "inter-word" characters in front of
 	    // each word, e.g.:
 	    // [The][ cat][ sat][ on][ the][ mat]
-	    size_t term_end = text.size() - it.left();
+	    size_t term_end = text.size() - left;
 
 	    double* relevance = 0;
 	    size_t highlight = 0;
@@ -714,7 +929,7 @@ MSet::Internal::snippet(const string & text,
 		    if (term == terms.back()) {
 			size_t n = terms.size() - 1;
 			bool match = true;
-			while (n--) {
+			while (UNSIGNED_OVERFLOW_OK(n--)) {
 			    if (terms[n] != phrase[(n + phrase_next) % (longest_phrase - 1)]) {
 				match = false;
 				break;
@@ -747,11 +962,29 @@ MSet::Internal::snippet(const string & text,
 		}
 
 		// Check wildcards.
-		// FIXME: Sort wildcards, shortest pattern first or something?
+		// FIXME: Sort wildcards, cheapest to check first or something?
 		i = 0;
-		for (auto&& pattern : wildcards) {
-		    if (startswith(term, pattern)) {
+		for (auto&& qw : wildcards) {
+		    if (qw->test(term)) {
 			relevance = &wildcards_relevance[i];
+			highlight = 1;
+			goto relevance_done;
+		    }
+		    ++i;
+		}
+
+		// Check fuzzies.
+		// FIXME: Sort fuzzies, cheapest to check first or something?
+		i = 0;
+		for (auto&& qed : fuzzies) {
+		    // test() returns 0 for no match, or edit_distance + 1.
+		    int ed_result = qed->test(term);
+		    if (ed_result) {
+			// FIXME: Reduce relevance the more edits there are?
+			// We can't just divide by ed_result here as this
+			// relevance is used by any term matching this
+			// subquery.
+			relevance = &fuzzies_relevance[i];
 			highlight = 1;
 			goto relevance_done;
 		    }

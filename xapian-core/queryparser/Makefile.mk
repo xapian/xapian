@@ -5,12 +5,12 @@ AM_CPPFLAGS += -I$(top_srcdir)/queryparser
 endif
 
 noinst_HEADERS +=\
-	queryparser/cjk-tokenizer.h\
 	queryparser/mathml.h\
 	queryparser/mathtermgenerator_internal.h\
 	queryparser/queryparser_internal.h\
 	queryparser/queryparser_token.h\
-	queryparser/termgenerator_internal.h
+	queryparser/termgenerator_internal.h\
+	queryparser/word-breaker.h
 
 lemon_built_sources =\
 	queryparser/queryparser_internal.cc\
@@ -60,10 +60,10 @@ CLEANFILES += queryparser/lemon
 endif
 
 lib_src +=\
-	queryparser/cjk-tokenizer.cc\
 	queryparser/mathtermgenerator.cc\
 	queryparser/mathtermgenerator_internal.cc\
 	queryparser/queryparser.cc\
 	queryparser/queryparser_internal.cc\
 	queryparser/termgenerator.cc\
-	queryparser/termgenerator_internal.cc
+	queryparser/termgenerator_internal.cc\
+	queryparser/word-breaker.cc

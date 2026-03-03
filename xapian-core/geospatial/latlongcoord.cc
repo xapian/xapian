@@ -1,8 +1,9 @@
-/** @file latlongcoord.cc
+/** @file
  * @brief Latitude and longitude representations.
  */
 /* Copyright 2008 Lemur Consulting Ltd
  * Copyright 2011 Richard Boulton
+ * Copyright 2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -15,9 +16,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -29,6 +29,7 @@
 #include "str.h"
 
 #include <cmath>
+#include <string_view>
 
 using namespace Xapian;
 using namespace std;
@@ -44,7 +45,7 @@ LatLongCoord::LatLongCoord(double latitude_, double longitude_)
 }
 
 void
-LatLongCoord::unserialise(const string & serialised)
+LatLongCoord::unserialise(string_view serialised)
 {
     const char * ptr = serialised.data();
     const char * end = ptr + serialised.size();
@@ -91,18 +92,14 @@ LatLongCoord::get_description() const
 }
 
 void
-LatLongCoords::unserialise(const string & serialised)
+LatLongCoords::unserialise(string_view serialised)
 {
     const char * ptr = serialised.data();
     const char * end_ptr = ptr + serialised.size();
     coords.clear();
     while (ptr != end_ptr) {
-	coords.push_back(LatLongCoord());
+	coords.emplace_back();
 	coords.back().unserialise(&ptr, end_ptr);
-    }
-    if (ptr != end_ptr) {
-	throw SerialisationError("Junk found at end of serialised "
-				 "LatLongCoords");
     }
 }
 
@@ -110,10 +107,8 @@ string
 LatLongCoords::serialise() const
 {
     string result;
-    vector<LatLongCoord>::const_iterator coord;
-    for (coord = coords.begin(); coord != coords.end(); ++coord)
-    {
-	GeoEncode::encode(coord->latitude, coord->longitude, result);
+    for (auto&& coord : coords) {
+	GeoEncode::encode(coord.latitude, coord.longitude, result);
     }
     return result;
 }
@@ -122,8 +117,7 @@ string
 LatLongCoords::get_description() const
 {
     string res("Xapian::LatLongCoords(");
-    vector<LatLongCoord>::const_iterator coord;
-    for (coord = coords.begin(); coord != coords.end(); ++coord) {
+    for (auto coord = coords.begin(); coord != coords.end(); ++coord) {
 	if (coord != coords.begin()) {
 	    res += ", ";
 	}

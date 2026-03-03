@@ -3,15 +3,19 @@ noinst_HEADERS +=\
 	backends/backends.h\
 	backends/byte_length_strings.h\
 	backends/contiguousalldocspostlist.h\
+	backends/databasehelpers.h\
 	backends/databaseinternal.h\
 	backends/databasereplicator.h\
 	backends/documentinternal.h\
 	backends/empty_database.h\
 	backends/flint_lock.h\
+	backends/leafpostlist.h\
 	backends/multi.h\
 	backends/positionlist.h\
+	backends/postlist.h\
 	backends/prefix_compressed_strings.h\
 	backends/slowvaluelist.h\
+	backends/uuids.h\
 	backends/valuelist.h\
 	backends/valuestats.h
 
@@ -21,12 +25,16 @@ EXTRA_DIST +=\
 lib_src +=\
 	backends/alltermslist.cc\
 	backends/dbcheck.cc\
+	backends/databasehelpers.cc\
 	backends/databaseinternal.cc\
 	backends/databasereplicator.cc\
 	backends/dbfactory.cc\
 	backends/documentinternal.cc\
 	backends/empty_database.cc\
+	backends/leafpostlist.cc\
+	backends/postlist.cc\
 	backends/slowvaluelist.cc\
+	backends/uuids.cc\
 	backends/valuelist.cc
 
 if BUILD_BACKEND_REMOTE

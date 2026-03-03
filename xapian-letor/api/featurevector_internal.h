@@ -1,4 +1,4 @@
-/** @file featurevector_internal.h
+/** @file
  * @brief Internals of FeatureVector class
  */
 /* Copyright (C) 2012 Parth Gupta
@@ -15,19 +15,16 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
-#ifndef FEATUREVECTOR_INTERNAL_H
-#define FEATUREVECTOR_INTERNAL_H
+#ifndef XAPIAN_INCLUDED_FEATUREVECTOR_INTERNAL_H
+#define XAPIAN_INCLUDED_FEATUREVECTOR_INTERNAL_H
 
 #include "xapian-letor/featurevector.h"
 
 #include <vector>
-
-using namespace std;
 
 namespace Xapian {
 
@@ -42,4 +39,4 @@ class FeatureVector::Internal : public Xapian::Internal::intrusive_base
 
 }
 
-#endif // FEATUREVECTOR_INTERNAL_H
+#endif // XAPIAN_INCLUDED_FEATUREVECTOR_INTERNAL_H

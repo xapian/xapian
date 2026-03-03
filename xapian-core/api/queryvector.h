@@ -1,4 +1,4 @@
-/** @file queryvector.h
+/** @file
  * @brief Append only vector of Query objects
  */
 /* Copyright (C) 2013 Olly Betts

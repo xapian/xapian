@@ -1,7 +1,7 @@
-/** @file multi_alltermslist.h
+/** @file
  * @brief Class for merging AllTermsList objects from subdatabases.
  */
-/* Copyright (C) 2007,2008,2011,2017 Olly Betts
+/* Copyright (C) 2007,2008,2011,2017,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_MULTI_ALLTERMSLIST_H
@@ -37,12 +37,11 @@ class MultiAllTermsList : public AllTermsList {
     /// Don't allow copying.
     MultiAllTermsList(const MultiAllTermsList &);
 
-    /** Current termname.
+    /* Current termname (now in base class).
      *
-     *  If current_term.empty(), then either we haven't started yet (and
-     *  count != 0) or we've reached the end (and count == 0).
+     * If current_term.empty(), then either we haven't started yet (and
+     * count != 0) or we've reached the end (and count == 0).
      */
-    std::string current_term;
 
     /// Current termfreq (or 0 if not yet calculated).
     mutable Xapian::doccount current_termfreq;
@@ -62,9 +61,6 @@ class MultiAllTermsList : public AllTermsList {
 
     Xapian::termcount get_approx_size() const;
 
-    /// Return the termname at the current position.
-    std::string get_termname() const;
-
     /// Return the term frequency for the term at the current position.
     Xapian::doccount get_termfreq() const;
 
@@ -76,10 +72,7 @@ class MultiAllTermsList : public AllTermsList {
      *  If the specified term isn't in the list, position ourselves on the
      *  first term after @a term (or at_end() if no terms after @a term exist).
      */
-    TermList *skip_to(const std::string &term);
-
-    /// Return true if the current position is past the last term in this list.
-    bool at_end() const;
+    TermList* skip_to(std::string_view term);
 };
 
 #endif // XAPIAN_INCLUDED_MULTI_ALLTERMSLIST_H

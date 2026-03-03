@@ -1,7 +1,7 @@
-/** @file safefcntl.h
+/** @file
  * @brief #include <fcntl.h>, but working around broken platforms.
  */
-/* Copyright (C) 2006,2007,2012 Olly Betts
+/* Copyright (C) 2006,2007,2012,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -14,9 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_SAFEFCNTL_H
@@ -24,7 +23,28 @@
 
 #include <fcntl.h>
 
-#if defined __cplusplus && defined open
+#ifdef _AIX
+
+#include <stdarg.h>
+
+// On AIX, O_CLOEXEC may be a 64-bit constant which won't fit in "int flags".
+// The solution is to call open64x() instead of open() when the flags don't fit
+// in an int, which this overload achieves.
+
+inline int open(const char *filename, int64_t flags, ...) {
+    va_list ap;
+    va_start(ap, flags);
+    mode_t mode = 0;
+    if (flags & O_CREAT) {
+	mode = va_arg(ap, mode_t);
+    }
+    va_end(ap);
+    // open64x() takes a non-const path but is not documented as modifying it.
+    char* f = const_cast<char*>(filename);
+    return open64x(f, flags, mode, 0);
+}
+
+#elif defined __cplusplus && defined open
 
 // On some versions of Solaris, fcntl.h pollutes the namespace by #define-ing
 // "open" to "open64" when largefile support is enabled.  This causes problems
@@ -61,9 +81,13 @@ inline int open(const char *filename, int flags) {
 # endif
 #endif
 
-// If O_CLOEXEC isn't supported, we probably can't mark fds as close-on-exec.
 #ifndef O_CLOEXEC
-# define O_CLOEXEC 0
+# ifdef O_NOINHERIT
+#  define O_CLOEXEC O_NOINHERIT
+# else
+// If O_CLOEXEC isn't supported, we probably can't mark fds as close-on-exec.
+#  define O_CLOEXEC 0
+# endif
 #endif
 
 #endif /* XAPIAN_INCLUDED_SAFEFCNTL_H */

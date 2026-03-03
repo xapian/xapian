@@ -1,7 +1,7 @@
-/** @file glass_termlist.h
+/** @file
  * @brief A TermList in a glass database.
  */
-/* Copyright (C) 2007,2008,2009,2010,2011 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010,2011,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_GLASS_TERMLIST_H
@@ -69,9 +69,6 @@ class GlassTermList : public TermList {
     /// Pointer to the end of the encoded tag value.
     const char *end;
 
-    /// The termname at the current position.
-    std::string current_term;
-
     /// The wdf for the term at the current position.
     Xapian::termcount current_wdf;
 
@@ -83,9 +80,26 @@ class GlassTermList : public TermList {
     mutable Xapian::doccount current_termfreq;
 
   public:
-    /// Create a new GlassTermList object for document @a did_ in DB @a db_
+    /** Create a new GlassTermList object for document @a did_ in DB @a db_
+     *
+     *  @param throw_if_not_present  Specifies behaviour if document @a did_
+     *				     isn't present: if true then throw
+     *				     DocNotFoundError, otherwise the
+     *				     constructed GlassTermList object will
+     *				     signal at_end() before next() is called
+     *				     (normally at_end() isn't meaningful
+     *				     on a freshly constructed TermList).
+     */
     GlassTermList(Xapian::Internal::intrusive_ptr<const GlassDatabase> db_,
-		  Xapian::docid did_);
+		  Xapian::docid did_, bool throw_if_not_present = true);
+
+    /** Check if the term isn't present.
+     *
+     *  If you call the constructor with throw_if_not_present=false then you
+     *  need to call this method to check if the term is present before you
+     *  call other methods.
+     */
+    bool not_present() const { return pos == NULL; }
 
     /** Return the length of this document.
      *
@@ -107,9 +121,6 @@ class GlassTermList : public TermList {
 
     /// Collate weighting information for the current term.
     void accumulate_stats(Xapian::Internal::ExpandStats & stats) const;
-
-    /// Return the termname at the current position.
-    std::string get_termname() const;
 
     /// Return the wdf for the term at the current position.
     Xapian::termcount get_wdf() const;
@@ -133,10 +144,7 @@ class GlassTermList : public TermList {
      */
     TermList * next();
 
-    TermList * skip_to(const std::string & term);
-
-    /// Return true if the current position is past the last term in this list.
-    bool at_end() const;
+    TermList* skip_to(std::string_view term);
 
     /// Return the length of the position list for the current position.
     Xapian::termcount positionlist_count() const;

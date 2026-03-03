@@ -1,7 +1,7 @@
-/** @file glass_alldocspostlist.cc
+/** @file
  * @brief A PostList which iterates over all documents in a GlassDatabase.
  */
-/* Copyright (C) 2006,2007,2008,2009 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2024 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -15,8 +15,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -33,18 +33,14 @@ using namespace std;
 using Xapian::Internal::intrusive_ptr;
 
 GlassAllDocsPostList::GlassAllDocsPostList(intrusive_ptr<const GlassDatabase> db_,
-					   Xapian::doccount doccount_)
-	: GlassPostList(db_, string(), true),
-	  doccount(doccount_)
+					   Xapian::doccount doccount)
+	: GlassPostList(db_, {}, true)
 {
-    LOGCALL_CTOR(DB, "GlassAllDocsPostList", db_.get() | doccount_);
-}
-
-Xapian::doccount
-GlassAllDocsPostList::get_termfreq() const
-{
-    LOGCALL(DB, Xapian::doccount, "GlassAllDocsPostList::get_termfreq", NO_ARGS);
-    RETURN(doccount);
+    LOGCALL_CTOR(DB, "GlassAllDocsPostList", db_.get() | doccount);
+    /* For an all documents postlist the term frequency is the number of
+     * documents in the database.
+     */
+    termfreq = doccount;
 }
 
 Xapian::termcount
@@ -72,10 +68,8 @@ GlassAllDocsPostList::open_position_list() const
 string
 GlassAllDocsPostList::get_description() const
 {
-    string desc = "GlassAllDocsPostList(did=";
-    desc += str(get_docid());
-    desc += ",doccount=";
-    desc += str(doccount);
+    string desc = "GlassAllDocsPostList(doccount=";
+    desc += str(termfreq);
     desc += ')';
     return desc;
 }

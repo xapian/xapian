@@ -8,12 +8,16 @@ if MAINTAINER_MODE
 export ACLOCAL AUTOCONF AUTOHEADER AUTOM4TE AUTOMAKE
 endif
 
+AM_CXXFLAGS += $(WERROR)
+
 AM_CPPFLAGS = -I$(top_srcdir)/common -I$(top_srcdir)/include
 if VPATH_BUILD
 # Needed for the generated files include/xapian/version.h
 # include/xapian/error.h and include/xapian/errordispatch.h
 AM_CPPFLAGS += -I'$(top_builddir)/include'
 endif
+AM_CPPFLAGS += $(ICU_CPPFLAGS)
+AM_CXXFLAGS += $(ICU_CFLAGS)
 
 # Order is relevant: when building, tests must be after ".".
 SUBDIRS = . docs tests
@@ -42,13 +46,12 @@ EXTRA_PROGRAMS =
 check-@PERCENT@:
 	cd tests && $(MAKE) $(AM_MAKEFLAGS) $@
 
-## --disable-shared as shared builds fail for me on x86-64 Debian etch.
-## If you're using ccache, you need ccache >= 3.0, released 2010-06-20 (older
-## versions don't handle --coverage properly).  You need ccache >= 3.2.2 to
-## actually cache compilations with --coverage - older 3.x just disables
-## caching for them.
+## -O0 - optimisation can result in confusing coverage reports.
+## --coverage - inserts code to generate coverage data
+## VALGRIND= - generating coverage data is slow enough by itself.
 COVERAGE_CONFIGURE = \
-    $(srcdir)/configure CXXFLAGS='-O0 --coverage' --disable-shared VALGRIND=
+    $(srcdir)/configure CXXFLAGS='-O0 --coverage' VALGRIND= \
+	$(COVERAGE_CONFIGURE_ARGS)
 
 coverage-reconfigure: distclean
 	$(COVERAGE_CONFIGURE)
@@ -64,7 +67,7 @@ coverage-check:
 	rm -f xapian-core.lcov
 	lcov --capture -d . --quiet --rc 'lcov_branch_coverage=1' --no-external -o xapian-core.lcov
 	rm -rf lcov
-	genhtml --demangle-cpp --branch-coverage $(GENHTML_ARGS) -q -p "`pwd`" -t "Test Coverage for xapian-core `git log -n1 --abbrev-commit --format=%h`" -o lcov xapian-core.lcov
+	genhtml --demangle-cpp --branch-coverage $(GENHTML_ARGS) -q -p '$(abs_builddir)' -t "Test Coverage for xapian-core `git log -n1 --abbrev-commit --format=%h`" -o lcov xapian-core.lcov
 
 # We want to clean out build tree paths from the copy of xapian-config we
 # install, mostly in the interests of facilitating reproducible builds.
@@ -85,8 +88,12 @@ noinst_SCRIPTS = xapian-config
 DISTCLEANFILES += xapian-config
 
 EXTRA_DIST = ChangeLog ChangeLog.0 ChangeLog.examples HACKING PLATFORMS \
- xapian-core.spec include/xapian/error.h include/xapian/errordispatch.h \
+ include/xapian/error.h include/xapian/errordispatch.h \
  generate-exceptions exception_data.pm preautoreconf
+
+EXTRA_DIST += \
+ emscripten/README.md \
+ emscripten/xapianjstest.cc
 
 cmakedir = $(libdir)/cmake/xapian
 cmake_DATA = cmake/xapian-config.cmake cmake/xapian-config-version.cmake
@@ -97,18 +104,18 @@ include docsource.mk
 
 # Install the m4 file containing the XO_LIB_XAPIAN autoconf macro.
 m4datadir = $(datadir)/aclocal
-dist_m4data_DATA = m4-macros/xapian-1.5.m4
+dist_m4data_DATA = m4-macros/xapian.m4
 
 # Install the pkg-config file containing the correct compiler options.
 pkgconfigdir = $(libdir)/pkgconfig
-nodist_pkgconfig_DATA = pkgconfig/xapian-core-1.5.pc
-DISTCLEANFILES += pkgconfig/xapian-core-1.5.pc
+nodist_pkgconfig_DATA = pkgconfig/xapian-core.pc
+DISTCLEANFILES += pkgconfig/xapian-core.pc
 
-libxapian_la = libxapian-1.5.la
-lib_LTLIBRARIES = libxapian-1.5.la
-libxapian_1_5_la_SOURCES = $(lib_src)
-libxapian_1_5_la_LIBADD = $(XAPIAN_LIBS)
-libxapian_1_5_la_LDFLAGS = \
+libxapian_la = libxapian.la
+lib_LTLIBRARIES = libxapian.la
+libxapian_la_SOURCES = $(lib_src)
+libxapian_la_LIBADD = $(XAPIAN_LIBS) $(ICU_LIBS)
+libxapian_la_LDFLAGS = \
     $(XAPIAN_LDFLAGS) $(NO_UNDEFINED) -version-info $(LIBRARY_VERSION_INFO) $(lib_ldflags)
 
 lib_src =
@@ -121,7 +128,8 @@ endif
 include api/Makefile.mk
 include bin/Makefile.mk
 include backends/Makefile.mk
-include cluster/Makefile.mk
+# FIXME: Clustering API needs further work before release.
+#include cluster/Makefile.mk
 include common/Makefile.mk
 include examples/Makefile.mk
 include expand/Makefile.mk

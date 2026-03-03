@@ -1,28 +1,28 @@
-/** @file pl2weight.cc
+/** @file
  * @brief Xapian::PL2Weight class - the PL2 weighting scheme of the DFR framework.
  */
 /* Copyright (C) 2013 Aarsh Shah
- * Copyright (C) 2013,2014,2016 Olly Betts
+ * Copyright (C) 2013,2014,2016,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
 
 #include "xapian/weight.h"
-#include "common/log2.h"
+
 #include "weightinternal.h"
 
 #include "serialise-double.h"
@@ -30,6 +30,7 @@
 #include "xapian/error.h"
 
 #include <algorithm>
+#include <cmath>
 
 using namespace std;
 
@@ -38,7 +39,7 @@ namespace Xapian {
 PL2Weight::PL2Weight(double c) : param_c(c)
 {
     if (param_c <= 0)
-	throw Xapian::InvalidArgumentError("Parameter c is invalid.");
+	throw Xapian::InvalidArgumentError("Parameter c is invalid");
     need_stat(AVERAGE_LENGTH);
     need_stat(DOC_LENGTH);
     need_stat(DOC_LENGTH_MIN);
@@ -129,12 +130,6 @@ PL2Weight::init(double factor_)
 string
 PL2Weight::name() const
 {
-    return "Xapian::PL2Weight";
-}
-
-string
-PL2Weight::short_name() const
-{
     return "pl2";
 }
 
@@ -157,7 +152,7 @@ PL2Weight::unserialise(const string & s) const
 
 double
 PL2Weight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len,
-		       Xapian::termcount) const
+		       Xapian::termcount, Xapian::termcount) const
 {
     if (wdf == 0) return 0.0;
 
@@ -175,29 +170,25 @@ PL2Weight::get_maxpart() const
     return upper_bound;
 }
 
-double
-PL2Weight::get_sumextra(Xapian::termcount, Xapian::termcount) const
+[[noreturn]]
+static inline void
+parameter_error(const char* message, const char* params)
 {
-    return 0;
+    Xapian::Weight::Internal::parameter_error(message, "pl2", params);
 }
 
-double
-PL2Weight::get_maxextra() const
+PL2Weight*
+PL2Weight::create_from_parameters(const char* params) const
 {
-    return 0;
-}
-
-PL2Weight *
-PL2Weight::create_from_parameters(const char * p) const
-{
+    const char* p = params;
     if (*p == '\0')
 	return new Xapian::PL2Weight();
-    double k = 1.0;
-    if (!Xapian::Weight::Internal::double_param(&p, &k))
-	Xapian::Weight::Internal::parameter_error("Parameter is invalid", "pl2");
+    double c = 1.0;
+    if (!Xapian::Weight::Internal::double_param(&p, &c))
+	parameter_error("Parameter is invalid", params);
     if (*p)
-	Xapian::Weight::Internal::parameter_error("Extra data after parameter", "pl2");
-    return new Xapian::PL2Weight(k);
+	parameter_error("Extra data after parameter", params);
+    return new Xapian::PL2Weight(c);
 }
 
 }

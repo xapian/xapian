@@ -1,7 +1,8 @@
-/** @file feature.cc
+/** @file
  * @brief Description of Feature class
  */
 /* Copyright (C) 2016 Ayush Tomar
+ * Copyright (C) 2019 Vaibhav Kansagara
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -14,19 +15,19 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
 
 #include "xapian-letor/feature.h"
+#include "api/feature_internal.h"
 #include "debuglog.h"
 
 namespace Xapian {
 
-Feature::Feature() : stats_needed()
+Feature::Feature() : stats_needed(), internal(new Feature::Internal())
 {
     LOGCALL_CTOR(API, "Feature", NO_ARGS);
 }
@@ -35,63 +36,39 @@ Feature::~Feature() {
     LOGCALL_DTOR(API, "Feature");
 }
 
-void
-Feature::set_database(const Xapian::Database & db)
+Xapian::termcount
+Feature::get_termfreq(const std::string& term) const
 {
-    LOGCALL_VOID(API, "Feature::set_database", db);
-    feature_db = db;
+    LOGCALL(API, Xapian::termcount, "Feature::get_termfreq", term);
+    return internal->get_termfreq(term);
 }
 
-void
-Feature::set_query(const Xapian::Query & query)
+double
+Feature::get_inverse_doc_freq(const std::string& term) const
 {
-    LOGCALL_VOID(API, "Feature::set_query", query);
-    feature_query = query;
+    LOGCALL(API, double, "Feature::get_inverse_doc_freq", term);
+    return internal->get_inverse_doc_freq(term);
 }
 
-void
-Feature::set_doc(const Xapian::Document & doc)
+Xapian::termcount
+Feature::get_doc_length(const std::string& term) const
 {
-    LOGCALL_VOID(API, "Feature::set_doc", doc);
-    feature_doc = doc;
+    LOGCALL(API, Xapian::termcount, "Feature::get_doc_length", term);
+    return internal->get_doc_length(term);
 }
 
-void
-Feature::set_termfreq(const std::map<std::string, Xapian::termcount> & tf)
+Xapian::termcount
+Feature::get_collection_length(const std::string& term) const
 {
-    LOGCALL_VOID(API, "Feature::set_termfreq", tf);
-    termfreq = tf;
+    LOGCALL(API, Xapian::termcount, "Feature::get_collection_length", term);
+    return internal->get_collection_length(term);
 }
 
-void
-Feature::set_inverse_doc_freq(const std::map<std::string, double> & idf)
+Xapian::termcount
+Feature::get_collection_termfreq(const std::string& term) const
 {
-    LOGCALL_VOID(API, "Feature::set_inverse_doc_freq", idf);
-    inverse_doc_freq = idf;
-}
-
-void
-Feature::set_doc_length(const std::map<std::string,
-			Xapian::termcount> & doc_len)
-{
-    LOGCALL_VOID(API, "Feature::set_doc_length", doc_len);
-    doc_length = doc_len;
-}
-
-void
-Feature::set_collection_length(const std::map<std::string,
-			       Xapian::termcount> & collection_len)
-{
-    LOGCALL_VOID(API, "Feature::set_collection_length", collection_len);
-    collection_length = collection_len;
-}
-
-void
-Feature::set_collection_termfreq(const std::map<std::string,
-				 Xapian::termcount> &collection_tf)
-{
-    LOGCALL_VOID(API, "Feature::set_collection_termfreq", collection_tf);
-    collection_termfreq = collection_tf;
+    LOGCALL(API, Xapian::termcount, "Feature::get_collection_termfreq", term);
+    return internal->get_collection_termfreq(term);
 }
 
 }

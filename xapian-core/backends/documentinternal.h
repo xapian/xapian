@@ -1,7 +1,7 @@
-/** @file documentinternal.h
+/** @file
  * @brief Abstract base class for a document
  */
-/* Copyright 2017 Olly Betts
+/* Copyright 2017,2018,2019,2023,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -14,8 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_DOCUMENTINTERNAL_H
@@ -28,10 +28,14 @@
 #include "api/terminfo.h"
 #include "api/termlist.h"
 #include "backends/databaseinternal.h"
+#include "overflow.h"
 
+#include <functional>
+#include <limits>
 #include <map>
 #include <memory>
 #include <string>
+#include <string_view>
 
 class DocumentTermList;
 class DocumentValueList;
@@ -70,7 +74,8 @@ class Document::Internal : public Xapian::Internal::intrusive_base {
      *  invalidates existing iterators upon insert() if rehashing occurs,
      *  whereas existing iterators remain valid for std::map<>.
      */
-    mutable std::unique_ptr<std::map<std::string, TermInfo>> terms;
+    mutable
+    std::unique_ptr<std::map<std::string, TermInfo, std::less<>>> terms;
 
     /** The number of distinct terms in @a terms.
      *
@@ -79,6 +84,23 @@ class Document::Internal : public Xapian::Internal::intrusive_base {
      *  This may be less than terms.size() if any terms have been deleted.
      */
     mutable Xapian::termcount termlist_size;
+
+    /** An index value, unused by Document itself.
+     *
+     *  This is used by the diversification code.
+     *
+     *  It is in a bit field with a bool flag so that it doesn't incur any
+     *  additional space cost for cases where it isn't used.
+     *
+     *  The bool flag is stored in the top bit, which is likely to be very
+     *  cheap to check (since it's the sign bit for a signed integer value).
+     *
+     *  We initialise this in the constructors to avoid valgrind warning
+     *  that positions_modified_ is used uninitialised.  Valgrind is meant
+     *  to track undefined-ness at the bit level, so this shouldn't be
+     *  needed.  FIXME: Investigate!
+     */
+    Xapian::doccount index : 31;
 
     /** Are there any changes to term positions in @a terms?
      *
@@ -90,7 +112,7 @@ class Document::Internal : public Xapian::Internal::intrusive_base {
      *  It's OK for this to be true when there aren't any modifications (it
      *  just means that the backend can't shortcut as directly).
      */
-    mutable bool positions_modified_ = false;
+    mutable bool positions_modified_ : 1;
 
     /** Ensure terms have been fetched from @a database.
      *
@@ -135,14 +157,15 @@ class Document::Internal : public Xapian::Internal::intrusive_base {
     /// Constructor used by subclasses.
     Internal(Xapian::Internal::intrusive_ptr<const Xapian::Database::Internal> database_,
 	     Xapian::docid did_)
-	: database(database_), did(did_) {}
+	: index(), positions_modified_(false), database(database_), did(did_) {}
 
     /// Constructor used by RemoteDocument subclass.
     Internal(const Xapian::Database::Internal* database_,
 	     Xapian::docid did_,
-	     const std::string& data_,
+	     std::string&& data_,
 	     std::map<Xapian::valueno, std::string>&& values_)
-	: data(new std::string(data_)),
+	: data(new std::string(std::move(data_))),
+	  index(), positions_modified_(false),
 	  values(new std::map<Xapian::valueno, std::string>(std::move(values_))),
 	  database(database_),
 	  did(did_) {}
@@ -171,7 +194,7 @@ class Document::Internal : public Xapian::Internal::intrusive_base {
 
   public:
     /// Construct an empty document.
-    Internal() : did(0) {}
+    Internal() : index(), positions_modified_(false), did(0) {}
 
     /** We have virtual methods and want to be able to delete derived classes
      *  using a pointer to the base class, so we need a virtual destructor.
@@ -229,6 +252,12 @@ class Document::Internal : public Xapian::Internal::intrusive_base {
      */
     Xapian::docid get_docid() const { return did; }
 
+    /// Internal method used by MSet::diversify().
+    Xapian::doccount get_index() const { return index; }
+
+    /// Internal method used by MSet::diversify().
+    void set_index(Xapian::doccount new_index) { index = new_index; }
+
     /// Get the document data.
     std::string get_data() const {
 	if (data)
@@ -237,18 +266,18 @@ class Document::Internal : public Xapian::Internal::intrusive_base {
     }
 
     /// Set the document data.
-    void set_data(const std::string& data_) {
+    void set_data(std::string_view data_) {
 	data.reset(new std::string(data_));
     }
 
     /// Add a term to this document.
-    void add_term(const std::string& term, Xapian::termcount wdf_inc) {
+    void add_term(std::string_view term, Xapian::termcount wdf_inc) {
 	ensure_terms_fetched();
 
 	auto i = terms->find(term);
 	if (i == terms->end()) {
 	    ++termlist_size;
-	    terms->emplace(make_pair(term, TermInfo(wdf_inc)));
+	    terms->emplace(term, TermInfo(wdf_inc));
 	} else {
 	    if (i->second.increase_wdf(wdf_inc))
 		++termlist_size;
@@ -256,14 +285,14 @@ class Document::Internal : public Xapian::Internal::intrusive_base {
     }
 
     /// Remove a term from this document.
-    bool remove_term(const std::string& term) {
+    bool remove_term(std::string_view term) {
 	ensure_terms_fetched();
 
 	auto i = terms->find(term);
 	if (i == terms->end()) {
 	    return false;
 	}
-	if (!i->second.get_positions()->empty()) {
+	if (i->second.has_positions()) {
 	    positions_modified_ = true;
 	}
 	if (!i->second.remove()) {
@@ -274,7 +303,7 @@ class Document::Internal : public Xapian::Internal::intrusive_base {
     }
 
     /// Add a posting for a term.
-    void add_posting(const std::string& term,
+    void add_posting(std::string_view term,
 		     Xapian::termpos term_pos,
 		     Xapian::termcount wdf_inc) {
 	ensure_terms_fetched();
@@ -294,7 +323,7 @@ class Document::Internal : public Xapian::Internal::intrusive_base {
 
     /// Remove a posting for a term.
     remove_posting_result
-    remove_posting(const std::string& term,
+    remove_posting(std::string_view term,
 		   Xapian::termpos term_pos,
 		   Xapian::termcount wdf_dec) {
 	ensure_terms_fetched();
@@ -306,28 +335,58 @@ class Document::Internal : public Xapian::Internal::intrusive_base {
 	if (!i->second.remove_position(term_pos)) {
 	    return remove_posting_result::NO_POS;
 	}
-	if (wdf_dec)
-	    i->second.decrease_wdf(wdf_dec);
+	if (i->second.decrease_wdf(wdf_dec))
+	    --termlist_size;
 	positions_modified_ = true;
+	return remove_posting_result::OK;
+    }
+
+    /** Remove a range of postings for a term.
+     *
+     *  Can only return OK or NO_TERM.
+     */
+    remove_posting_result
+    remove_postings(std::string_view term,
+		    Xapian::termpos term_pos_first,
+		    Xapian::termpos term_pos_last,
+		    Xapian::termcount wdf_dec,
+		    Xapian::termpos& n_removed) {
+	ensure_terms_fetched();
+
+	auto i = terms->find(term);
+	if (i == terms->end() || i->second.is_deleted()) {
+	    return remove_posting_result::NO_TERM;
+	}
+	n_removed = i->second.remove_positions(term_pos_first,
+					       term_pos_last);
+	if (n_removed) {
+	    positions_modified_ = true;
+	    Xapian::termcount wdf_delta;
+	    if (mul_overflows(n_removed, wdf_dec, wdf_delta)) {
+		// Decreasing by the maximum value will zero the wdf.
+		wdf_delta = std::numeric_limits<Xapian::termcount>::max();
+	    }
+	    if (i->second.decrease_wdf(wdf_delta))
+		--termlist_size;
+	}
 	return remove_posting_result::OK;
     }
 
     /// Clear all terms from the document.
     void clear_terms() {
 	if (!terms) {
-	    if (database.get()) {
-		terms.reset(new map<string, TermInfo>());
-		termlist_size = 0;
-	    } else {
+	    if (!database) {
 		// We didn't come from a database, so there are no unfetched
 		// terms to clear.
+		return;
 	    }
+	    terms.reset(new std::map<std::string, TermInfo, std::less<>>());
 	} else {
 	    terms->clear();
-	    termlist_size = 0;
-	    // Assume there was positional data if there's any in the database.
-	    positions_modified_ = database.get() && database->has_positions();
 	}
+	termlist_size = 0;
+	// Assume there was positional data if there's any in the database.
+	positions_modified_ = database && database->has_positions();
     }
 
     /// Return the number of distinct terms in this document.
@@ -335,7 +394,7 @@ class Document::Internal : public Xapian::Internal::intrusive_base {
 	if (terms)
 	    return termlist_size;
 
-	if (!database.get())
+	if (!database)
 	    return 0;
 
 	std::unique_ptr<TermList> tl(database->open_term_list(did));
@@ -366,7 +425,7 @@ class Document::Internal : public Xapian::Internal::intrusive_base {
     }
 
     /// Add a value to a slot in this document.
-    void add_value(Xapian::valueno slot, const std::string& value) {
+    void add_value(Xapian::valueno slot, std::string_view value) {
 	ensure_values_fetched();
 
 	if (!value.empty()) {
@@ -381,8 +440,8 @@ class Document::Internal : public Xapian::Internal::intrusive_base {
     /// Clear all value slots in this document.
     void clear_values() {
 	if (!values) {
-	    if (database.get()) {
-		values.reset(new map<Xapian::valueno, string>());
+	    if (database) {
+		values.reset(new std::map<Xapian::valueno, std::string>());
 	    } else {
 		// We didn't come from a database, so there are no unfetched
 		// values to clear.

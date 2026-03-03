@@ -5,16 +5,12 @@ include ../generic/generic.mk
 ## Test programs to be run
 TESTS = smoketest.py pythontest.py
 AM_TESTS_ENVIRONMENT = \
-	abs_builddir='$(abs_builddir)' ;\
-	srcdir='$(srcdir)' ;\
 	PYTHON3='$(PYTHON3)' ;\
-	export abs_builddir ;\
-	export srcdir ;\
 	export PYTHON3 ;
 LOG_COMPILER = '$(srcdir)'/run-python-test
 
 installcheck-local:
-	$(MAKE) check  LOG_COMPILER='$(PYTHON3)' AM_TESTS_ENVIRONMENT= \
+	$(MAKE) check LOG_COMPILER='$(PYTHON3)' AM_TESTS_ENVIRONMENT= \
 	    PYTHONDONTWRITEBYTECODE=1
 
 RST_DOCS = \
@@ -23,20 +19,15 @@ RST_DOCS = \
 	docs/introduction.rst \
 	docs/xapian.rst
 
-# FIXME: replicationtest.py attempts to test performing replication whilst
-# modifications are in progress.  However, it sometimes fails due to a race
-# condition in it.  It also contains hard-coded paths to the replication
-# server and client, which assume the file layout in a repo checkout.
-# Therefore, we don't run it by default currently.
-# replicationtest.py
-
-BUILT_SOURCES = xapian_wrap.cc xapian_wrap.h xapian.py
+BUILT_SOURCES = xapian_wrap.cc xapian_wrap.h xapian__init__.py
 
 EXTRA_DIST = python.i util.i extra.i extracomments.i except.i \
+	doccomments.i \
 	doxy2swig.py \
 	fixup-swig-py3-wrapper \
 	generate-python-exceptions \
 	run-python-test \
+	sphinx-build \
 	testsuite.py \
 	test_xapian_star.py \
 	$(TESTS) $(BUILT_SOURCES) $(RST_DOCS)
@@ -60,19 +51,18 @@ install-data-hook:
 # Because we don't install the .la file, "make uninstall" doesn't work and
 # we need to remove the file ourselves.
 uninstall-local:
-	rm -f $(DESTDIR)$(pkgpylibdir)/_xapian$(PYTHON3_SO)
+	rm -f $(DESTDIR)$(pkgpylibdir)/_xapian$(PYTHON3_EXT_SUFFIX)
 
 AM_CPPFLAGS = -I$(PYTHON3_INC)
 AM_CXXFLAGS = $(SWIG_CXXFLAGS) $(XAPIAN_CXXFLAGS)
-_xapian_la_LDFLAGS = -avoid-version -module -shrext "$(PYTHON3_SO)" $(NO_UNDEFINED)
+_xapian_la_LDFLAGS = -avoid-version -module -shrext "$(PYTHON3_EXT_SUFFIX)" $(NO_UNDEFINED)
 _xapian_la_SOURCES = xapian_wrap.cc
 _xapian_la_LIBADD = $(XAPIAN_LIBS) $(PYTHON3_LIBS)
 
-# We want `xapian/__init__.py` rather than xapian.py so the module is treated
-# as a package.
-xapian/__init__.py: xapian.py
+# We want `xapian/__init__.py` so the module is treated as a package.
+xapian/__init__.py: xapian__init__.py
 	$(MKDIR_P) xapian
-	cp `test -f xapian.py || echo '$(srcdir)/'`xapian.py xapian/__init__.py
+	cp `test -f xapian__init__.py || echo '$(srcdir)/'`xapian__init__.py xapian/__init__.py
 
 # We "import _xapian" first so that if we fail to import the glue library
 # we don't generate a broken .pyc or .pyo, and we do it with the current
@@ -83,33 +73,32 @@ xapian/__init__.py: xapian.py
 # are once installed - in particular this will fail if the SWIG shadow wrapper
 # doesn't cope with being xapian/__init__.py (currently it needs fixing
 # up, which is done by fixup-swig-py3-wrapper).
-xapian/__pycache__/__init__.@PYTHON3_CACHE_TAG@.pyc: xapian/__init__.py xapian/_xapian$(PYTHON3_SO)
-	$(OSX_SIP_HACK_ENV) $(PYTHON3) -c 'import os;os.chdir("xapian");import _xapian'
-	$(OSX_SIP_HACK_ENV) $(PYTHON3) -c 'import xapian'
+xapian/__pycache__/__init__.@PYTHON3_CACHE_TAG@.pyc: xapian/__init__.py xapian/_xapian$(PYTHON3_EXT_SUFFIX)
+	$(MACOS_SIP_HACK_ENV) PYTHONOPTIMIZE= $(PYTHON3) -c 'import os;os.chdir("xapian");import _xapian'
+	$(MACOS_SIP_HACK_ENV) PYTHONOPTIMIZE= $(PYTHON3) -c 'import xapian'
 
-xapian/__pycache__/__init__.@PYTHON3_CACHE_OPT1_EXT@: xapian/__init__.py xapian/_xapian$(PYTHON3_SO)
-	$(OSX_SIP_HACK_ENV) $(PYTHON3) -O -c 'import os;os.chdir("xapian");import _xapian'
-	$(OSX_SIP_HACK_ENV) $(PYTHON3) -O -c 'import xapian'
+xapian/__pycache__/__init__.@PYTHON3_CACHE_OPT1_EXT@: xapian/__init__.py xapian/_xapian$(PYTHON3_EXT_SUFFIX)
+	$(MACOS_SIP_HACK_ENV) $(PYTHON3) -O -c 'import os;os.chdir("xapian");import _xapian'
+	$(MACOS_SIP_HACK_ENV) $(PYTHON3) -O -c 'import xapian'
 
-xapian/_xapian$(PYTHON3_SO): _xapian.la
+xapian/_xapian$(PYTHON3_EXT_SUFFIX): _xapian.la
 	$(MKDIR_P) xapian
-	$(LIBTOOL) --config > libtoolconfig.tmp
-## ksh requires a path on the sourced file.
-	. ./libtoolconfig.tmp; cp $$objdir/_xapian$(PYTHON3_SO) xapian
-	rm -f libtoolconfig.tmp
+	cp $(_libs)/_xapian$(PYTHON3_EXT_SUFFIX) xapian
 
 CLEANFILES = \
-    xapian/_xapian$(PYTHON3_SO) \
+    xapian/_xapian$(PYTHON3_EXT_SUFFIX) \
     xapian/__init__.py \
     xapian/__pycache__/__init__.@PYTHON3_CACHE_TAG@.pyc \
     xapian/__pycache__/__init__.@PYTHON3_CACHE_OPT1_EXT@ \
     $(srcdir)/*.pyc
 
-# Clean the xapian directory which we created, if it's empty, and any
-# databases created by test cases.
+# Clean the xapian directory which we created and its __pycache__ subdirectory
+# (if they're empty), output from sphinx, and any databases created by test
+# cases.
 clean-local:
+	-rmdir xapian/__pycache__
 	-rmdir xapian
-	rm -rf db_test_* dbs_replication
+	rm -rf doctrees docs/html db_test_* dbs_replication
 
 if MAINTAINER_MODE
 BUILT_SOURCES += except.i doccomments.i
@@ -124,26 +113,23 @@ doccomments.i: doxy2swig.py ../../xapian-core/exception_data.pm ../doxygen-xml/i
 	$(PYTHON) $(srcdir)/doxy2swig.py ../doxygen-xml/index.xml doccomments.i
 endif
 
-# Update the Python 3 versions from the Python 2 ones.
-2to3:
-	for a in pythontest replicationtest smoketest testsuite ; do cp ../python/$${a}.py $${a}.py ; 2to3 -w --no-diffs $${a}.py ; done
-
 # We need to explicitly set -outdir because on Windows, SWIG splits paths at
 # "\" when extracting the output directory from the value passed to the -o
 # option.
 
 stamp = xapian_wrap.stamp
-RUN_SWIG = stamp='$(stamp)' $(PERL) '$(top_srcdir)'/swig-depcomp $(SWIG)
+SWIG_FLAGS += -MD -MP -MT $(stamp)
 SWIG_FLAGS += -DSWIG_PYTHON_LEGACY_BOOL
 
-xapian_wrap.cc xapian_wrap.h xapian.py xapian_wrap.d: $(stamp)
+xapian_wrap.cc xapian_wrap.h xapian__init__.py xapian_wrap.d: $(stamp)
 	$(make_many_locked)
 $(stamp): except.i doccomments.i fixup-swig-py3-wrapper
 	$(multitarget_begin)
-	$(RUN_SWIG) $(SWIG_WERROR) -I. -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
-	    -python -threads -shadow -modern -O \
+	$(SWIG) $(SWIG_WERROR) -I. -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
+	    -python -threads -shadow -O \
 	    -o xapian_wrap.cc '$(srcdir)/'python.i
-	$(PERL) -i $(srcdir)/fixup-swig-py3-wrapper xapian.py
+	$(PERL) $(srcdir)/fixup-swig-py3-wrapper xapian.py > xapian__init__.py
+	rm xapian.py
 	$(multitarget_end)
 
 -include xapian_wrap.d
@@ -167,17 +153,7 @@ install-data-local:
 
 all-local: $(sphinxdocs)
 
-$(sphinxdocs): xapian/__init__.py xapian/_xapian$(PYTHON3_SO) docs/conf.py $(RST_DOCS) $(dist_exampledata_DATA)
-## We need to run Sphinx for the right version of Python here, so we can't
-## just run sphinx-build as that might be for a different version.
-##
-## sphinx >= 1.7.0 no longer skips the first argument passed to
-## sphinx.main(). Therefore we have to skip it ourselves (by
-## taking a slice of sys.argv), and then have a skippable first
-## argument for sphinx < 1.7.0. -bhtml duplicates the subsequent
-## -b html, and so apparently is safe.
-##
-## Change was merged here: https://github.com/sphinx-doc/sphinx/pull/3668
-	PYTHONPATH=..:$$PYTHONPATH $(OSX_SIP_HACK_ENV) $(PYTHON3) \
-		-c 'import sphinx,sys;sys.exit(sphinx.main(sys.argv[1:]))' \
-		-bhtml -b html -d doctrees -c docs $(srcdir)/docs docs/html
+$(sphinxdocs): xapian/__init__.py xapian/_xapian$(PYTHON3_EXT_SUFFIX) docs/conf.py $(RST_DOCS) $(dist_exampledata_DATA)
+	PYTHONPATH=..:$$PYTHONPATH $(MACOS_SIP_HACK_ENV) $(PYTHON3) \
+		$(srcdir)/sphinx-build \
+		-b html -d doctrees -c docs $(srcdir)/docs docs/html

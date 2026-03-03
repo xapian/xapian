@@ -1,7 +1,8 @@
-/* inmemory_alltermslist.cc
- *
- * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2003,2004,2007,2008,2009,2017 Olly Betts
+/** @file
+ * @brief Iterate all terms in an inmemory db
+ */
+/* Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2003,2004,2007,2008,2009,2017,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -14,15 +15,16 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
 #include "inmemory_alltermslist.h"
 
 #include "stringutils.h"
+
+using namespace std;
 
 Xapian::termcount
 InMemoryAllTermsList::get_approx_size() const
@@ -33,36 +35,18 @@ InMemoryAllTermsList::get_approx_size() const
     return tmap->size();
 }
 
-string
-InMemoryAllTermsList::get_termname() const
-{
-    if (database->is_closed()) InMemoryDatabase::throw_database_closed();
-    Assert(!at_end());
-    Assert(!it->first.empty());
-    return it->first;
-}
-
 Xapian::doccount
 InMemoryAllTermsList::get_termfreq() const
 {
     if (database->is_closed()) InMemoryDatabase::throw_database_closed();
-    Assert(!at_end());
+    Assert(it != tmap->end());
     Assert(!it->first.empty());
     /* FIXME: this isn't quite right. */
     return it->second.docs.size();
 }
 
-Xapian::termcount
-InMemoryAllTermsList::get_collection_freq() const
-{
-    if (database->is_closed()) InMemoryDatabase::throw_database_closed();
-    Assert(!at_end());
-    Assert(!it->first.empty());
-    throw Xapian::UnimplementedError("Collection frequency not implemented in InMemory backend");
-}
-
-TermList *
-InMemoryAllTermsList::skip_to(const string &tname_)
+TermList*
+InMemoryAllTermsList::skip_to(string_view tname_)
 {
     if (database->is_closed()) InMemoryDatabase::throw_database_closed();
     string tname(tname_);
@@ -76,13 +60,19 @@ InMemoryAllTermsList::skip_to(const string &tname_)
 	    tname = prefix;
 	} else if (tname.empty()) {
 	    ++it;
+	    while (it != tmap->end() && it->second.term_freq == 0) ++it;
+	    if (it == tmap->end())
+		return this;
+	    current_term = it->first;
 	    return NULL;
 	}
     }
     it = tmap->lower_bound(tname);
     while (it != tmap->end() && it->second.term_freq == 0) ++it;
-    if (it != tmap->end() && !startswith(it->first, prefix))
-	it = tmap->end();
+    if (it == tmap->end() || !startswith(it->first, prefix)) {
+	return this;
+    }
+    current_term = it->first;
     return NULL;
 }
 
@@ -97,17 +87,11 @@ InMemoryAllTermsList::next()
 	++it;
     }
     while (it != tmap->end() && it->second.term_freq == 0) ++it;
-    if (it != tmap->end() && !startswith(it->first, prefix))
-	it = tmap->end();
+    if (it == tmap->end() || !startswith(it->first, prefix)) {
+	return this;
+    }
+    current_term = it->first;
     return NULL;
-}
-
-bool
-InMemoryAllTermsList::at_end() const
-{
-    if (database->is_closed()) InMemoryDatabase::throw_database_closed();
-    Assert(it == tmap->end() || !it->first.empty());
-    return (it == tmap->end());
 }
 
 #ifdef DISABLE_GPL_LIBXAPIAN

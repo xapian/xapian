@@ -1,0 +1,178 @@
+// Alias: pl
+
+/* Polish stemmer. Author: Dmitry Shachnev */
+
+stringescapes {}
+
+stringdef ak '{U+0105}' // ą a + ogonek
+stringdef ek '{U+0119}' // ę e + ogonek
+stringdef l/ '{U+0142}' // ł l + stroke
+stringdef c' '{U+0107}' // ć c + acute (kreska)
+stringdef n' '{U+0144}' // ń n + acute (kreska)
+stringdef o' '{U+00f3}' // ó o + acute (kreska)
+stringdef s' '{U+015b}' // ś s + acute (kreska)
+stringdef z' '{U+017a}' // ź z + acute (kreska)
+
+
+externals (stem)
+
+
+routines (
+  mark_regions
+  remove_endings
+  normalize_consonant
+  R1
+)
+
+integers ( p1 )
+
+groupings ( v )
+
+define v 'a{ak}e{ek}io{o'}uy'
+
+
+define mark_regions as (
+  $p1 = limit
+  gopast v
+  gopast non-v  setmark p1
+)
+
+backwardmode (
+  define R1 as ($p1 <= cursor)
+
+  define remove_endings as (
+    // Verbs.
+    do (
+      setlimit tomark p1 for ([substring]) among (
+        // conditionals:
+        'bym'        // 1st person singular (czytał(a)bym)
+        'by{s'}'     // 2nd person singular (czytał(a)byś)
+        'by{s'}my'   // 1st person plural (czytalibyśmy)
+        'by{s'}cie'  // 2nd person plural (czytalibyście)
+        'by'         // 3rd person singular/plural (czytał(a)by, czytaliby)
+          (delete)
+      )
+    )
+    [substring] among (
+      'asz'  'esz'  'isz'  // present 2nd person singular (czytasz, piszesz, nosisz)
+      'amy'  'emy'  'imy'  // present 1st person plural (czytamy, piszemy, nosimy)
+      'acie' 'ecie' 'icie' // present 2nd person plural (czytacie, piszecie, nosicie)
+      'aj{ak}'             // present 3rd person plural (czytają)
+      'e{s'}{c'}'          // infinitive (przynieść)
+      'a{s'}{c'}'          // infinitive (popaść)
+      'a{c'}'              // infinitive (czytać)
+      'ie{c'}'             // infinitive (lecieć)
+      'i{c'}'              // infinitive (wozić)
+      '{ak}{c'}'           // infinitive (marznąć)
+      'aj{ak}c' '{ak}c'    // contemporary adverbial participle (transgressive) (czytając, lecąc)
+      'a{l/}em'       'ia{l/}em'       'i{l/}em'       // past 1st person singular masculine (czytałem, leciałem, chodziłem)
+      'a{l/}am'       'ia{l/}am'       'i{l/}am'  'am' // past 1st person singular feminine (czytałam, leciałam, chodziłam, marzłam)
+      'a{l/}e{s'}'    'ia{l/}e{s'}'    'i{l/}e{s'}'    // past 2nd person singular masculine (czytałeś, leciałeś, chodziłeś)
+      'a{l/}a{s'}'    'ia{l/}a{s'}'    'i{l/}a{s'}'    // past 2nd person singular feminine (czytałaś, leciałaś, chodziłaś)
+      'a{l/}'         'ia{l/}'         'i{l/}'         // past 3rd person singular masculine (czytał, leciał, chodził)
+      'a{l/}a'        'ia{l/}a'        'i{l/}a'        // past 3rd person singular feminine (czytała, leciała, chodziła)
+      'a{l/}o'        'ia{l/}o'        'i{l/}o'        // past 3rd person singular neuter (czytało, leciało, chodziło)
+      'ali{s'}my'     'ieli{s'}my'     'ili{s'}my'     // past 1st person plural virile (czytaliśmy, lecieliśmy, chodziliśmy)
+      'a{l/}y{s'}my'  'ia{l/}y{s'}my'  'i{l/}y{s'}my'  // past 1st person plural nonvirile (czytałyśmy, leciałyśmy, chodziłyśmy)
+      'ali{s'}cie'    'ieli{s'}cie'    'ili{s'}cie'    // past 2nd person plural virile (czytaliście, lecieliście, chodziliście)
+      'a{l/}y{s'}cie' 'ia{l/}y{s'}cie' 'i{l/}y{s'}cie' // past 2nd person plural nonvirile (czytałyście, leciałyście, chodziłyście)
+      'ali'           'ieli'           'ili'           // past 3rd person plural virile (czytali, lecieli, chodzili)
+      'a{l/}y'        'ia{l/}y'        'i{l/}y'        // past 3rd person plural nonvirile (czytały, leciały, chodziły)
+      'aj'     // imperative 2nd person singular (czytaj)
+      'ajcie'  // imperative 2nd person plural (czytajcie)
+      'cie'    // imperative 2nd person plural (chodźcie)
+      '{ek}'   // present 1st person singular (lecę)
+        (delete)
+      'sz{ek}' // present 1st person singular (noszę)
+        (<- 's')
+      'sz{ak}' // present 3rd person plural (noszą)
+        // Also an adjectival form (singular feminine accusative), e.g. lepszą.
+        // This heuristic does the right thing in common cases.
+        (R1 and delete or <-'s')
+
+      // There are short verbs whose root consists of only one consonant, e.g. być, żyć.
+      // Stemming them to one letter would merge them with these letters used in other
+      // contexts, which is undesirable. But let's at least merge all past tense forms
+      // together, e.g. byłem, byłam, byłyśmy, etc. to był.
+      '{l/}e{s'}'
+      '{l/}a{s'}'
+      'li{s'}my'
+      '{l/}y{s'}my'
+      'li{s'}cie'
+      '{l/}y{s'}cie'
+        (<- '{l/}')
+
+      // Adjectives (including comparative/superlative forms)
+      // as well as participles.
+      'y'          // singular masculine nominative (nowy)
+      'ego' 'iego' // singular masculine genitive (nowego, polskiego)
+      'emu' 'iemu' // singular masculine dative (nowemu, polskiemu)
+      'ym'  'im'   // singular masculine instrumental (nowym, polskim)
+      'ej'  'iej'  // singular feminine genitive (nowej, polskiej)
+      'ych' 'ich'  // plural genitive (nowych, polskich)
+      'ymi' 'imi'  // plural instrumental (nowymi, polskimi)
+        (
+          delete
+          try (
+            [substring] among (
+              'aj{ak}c'  // participle suffix (czytający)
+              '{ak}c'    // participle suffix (lecący)
+              'iejsz'    // comparative suffix (piękniejszy)
+              'sz'       // comparative suffix (lepszy)
+                (delete)
+              'sz{ak}c'  // participle suffix (noszący)
+                (<- 's')
+            )
+          )
+        )
+      // We cannot remove endings like -ą and -e unconditionally, because these
+      // letters appear in too many contexts. But we can safely remove them if we
+      // know that our word is a participle or a comparative/superlative form.
+      'aj{ak}ca'    '{ak}ca'    'iejsza'    'sza'  // singular feminine nominative (czytająca, lecąca, piękniejsza, lepsza)
+      'aj{ak}c{ak}' '{ak}c{ak}' 'iejsz{ak}'        // singular feminine accusative (czytającą, lecącą, piękniejszą); -szą is handled separately
+      'aj{ak}ce'    '{ak}ce'    'iejsze'    'sze'  // singular neuter nominative (czytające, lecące, piękniejsze, lepsze)
+        (delete)
+      // Handle participles like nosząca, prosząca.
+      'sz{ak}ca'
+      'sz{ak}c{ak}'
+      'sz{ak}ce'
+        (<- 's')
+
+      // Noun forms (excluding endings that were already handled above).
+      'a' R1  'o' R1                            // singular nominative (książka, lato)
+      'i' R1  'u' R1  'ia' R1                   // singular genitive (książki, stołu, słonia)
+      'owi' R1  'iowi' R1                       // singular dative (stołowi, słoniowi)
+      '{ak}' R1  'i{ak}' R1  'em' R1  'iem' R1  // singular instrumental (książką, możliwością, stołem, słoniem)
+      'e' R1  'iu' R1                           // singular locative (stole, słoniu)
+      'ie' R1                                   // plural nominative (słonie)
+      '{o'}w' R1                                // plural genitive (stołów)
+      'om' R1   'iom' R1                        // plural dative (książkom, słoniom)
+      'ami' R1  'iami' R1                       // plural instrumental (książkami, słoniami)
+      'ach' R1  'iach' R1                       // plural locative (książkach, słoniach)
+        (delete)
+    )
+  )
+
+  define normalize_consonant as (
+    // Remove kreska mark, because most of oblique cases do not have it.
+    // Don't mutate single character inputs.
+    [substring] not atlimit among (
+      '{c'}' (<- 'c') // e.g. miłość → miłośc
+      '{n'}' (<- 'n') // e.g. słoń → słon
+      '{s'}' (<- 's') // e.g. gęś → gęs
+      '{z'}' (<- 'z') // e.g. miedź → miedz
+    )
+  )
+)
+
+define stem as (
+  do mark_regions
+  // Make sure we don't produce too short outputs.  The "backwards" will
+  // set the backwards limit to the current cursor position.
+  (
+    hop 2
+    backwards remove_endings
+  ) or (
+    backwards normalize_consonant
+  )
+)

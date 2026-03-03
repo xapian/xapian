@@ -1,7 +1,7 @@
-/** @file api_sorting.cc
+/** @file
  * @brief tests of MSet sorting
  */
-/* Copyright (C) 2007,2008,2009,2012,2017 Olly Betts
+/* Copyright (C) 2007,2008,2009,2012,2017,2019 Olly Betts
  * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or modify
@@ -15,8 +15,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -30,7 +30,7 @@
 
 using namespace std;
 
-DEFINE_TESTCASE(sortfunctor1, backend && !remote) {
+DEFINE_TESTCASE(sortfunctor1, backend) {
     Xapian::Enquire enquire(get_database("apitest_sortrel"));
     enquire.set_query(Xapian::Query("woman"));
 
@@ -113,25 +113,26 @@ DEFINE_TESTCASE(sortfunctor1, backend && !remote) {
 	    TEST_EQUAL(m.get_sort_key(), exp);
 	}
     }
-
-    return true;
 }
 
 /// Test reverse sort functor.
-DEFINE_TESTCASE(sortfunctor2, writable && !remote) {
-    Xapian::WritableDatabase db = get_writable_database();
-    Xapian::Document doc;
-    doc.add_term("foo");
-    doc.add_value(0, "ABB");
-    db.add_document(doc);
-    doc.add_value(0, "ABC");
-    db.add_document(doc);
-    doc.add_value(0, string("ABC", 4));
-    db.add_document(doc);
-    doc.add_value(0, "ABCD");
-    db.add_document(doc);
-    doc.add_value(0, "ABC\xff");
-    db.add_document(doc);
+DEFINE_TESTCASE(sortfunctor2, backend) {
+    Xapian::Database db = get_database("sortfunctor2",
+				       [](Xapian::WritableDatabase& wdb,
+					  const string&) {
+					   Xapian::Document doc;
+					   doc.add_term("foo");
+					   doc.add_value(0, "ABB");
+					   wdb.add_document(doc);
+					   doc.add_value(0, "ABC");
+					   wdb.add_document(doc);
+					   doc.add_value(0, string("ABC", 4));
+					   wdb.add_document(doc);
+					   doc.add_value(0, "ABCD");
+					   wdb.add_document(doc);
+					   doc.add_value(0, "ABC\xff");
+					   wdb.add_document(doc);
+				       });
 
     Xapian::Enquire enquire(db);
     enquire.set_query(Xapian::Query("foo"));
@@ -187,12 +188,10 @@ DEFINE_TESTCASE(sortfunctor2, writable && !remote) {
 	Xapian::MSet mset = enquire.get_mset(0, 10);
 	mset_expect_order(mset, 1, 2, 3, 4, 5);
     }
-
-    return true;
 }
 
 // Test sort functor with some empty values.
-DEFINE_TESTCASE(sortfunctor3, backend && !remote && valuestats) {
+DEFINE_TESTCASE(sortfunctor3, valuestats) {
     Xapian::Database db(get_database("apitest_sortrel"));
     Xapian::Enquire enquire(db);
     enquire.set_query(Xapian::Query("woman"));
@@ -248,14 +247,11 @@ DEFINE_TESTCASE(sortfunctor3, backend && !remote && valuestats) {
 	Xapian::MSet mset = enquire.get_mset(0, 10);
 	mset_expect_order(mset, 1, 3, 4, 5, 8, 9, 2, 6, 7);
     }
-
-    return true;
 }
 
 class NeverUseMeKeyMaker : public Xapian::KeyMaker {
   public:
-    std::string operator() (const Xapian::Document &) const
-    {
+    std::string operator() (const Xapian::Document&) const override {
 	FAIL_TEST("NeverUseMeKeyMaker was called");
     }
 };
@@ -293,12 +289,10 @@ DEFINE_TESTCASE(changesorter1, backend && !remote) {
 	FAIL_TEST("NeverUseMeKeyMaker::operator() didn't throw TestFail");
     } catch (const TestFail &) {
     }
-
-    return true;
 }
 
 /// Regression test - an empty MultiValueSorter hung in 1.0.9 and earlier.
-DEFINE_TESTCASE(sortfunctorempty1, backend && !remote) {
+DEFINE_TESTCASE(sortfunctorempty1, backend) {
     Xapian::Enquire enquire(get_database("apitest_sortrel"));
     enquire.set_query(Xapian::Query("woman"));
 
@@ -310,8 +304,6 @@ DEFINE_TESTCASE(sortfunctorempty1, backend && !remote) {
 	Xapian::MSet mset = enquire.get_mset(0, 10);
 	mset_expect_order(mset, 1, 2, 3, 4, 5, 6, 7, 8, 9);
     }
-
-    return true;
 }
 
 DEFINE_TESTCASE(multivaluekeymaker1, !backend) {
@@ -345,8 +337,6 @@ DEFINE_TESTCASE(multivaluekeymaker1, !backend) {
     sorter.add_value(0, true, "hi");
     TEST_EQUAL(sorter(doc), string("\0\0f\0\xffo\0\0\0\0xyz\0\0\xff\xff\0\0hi"
 				   "\0\0\x97\x96\xff\xff", 27));
-
-    return true;
 }
 
 DEFINE_TESTCASE(sortfunctorremote1, remote) {
@@ -354,10 +344,10 @@ DEFINE_TESTCASE(sortfunctorremote1, remote) {
     NeverUseMeKeyMaker sorter;
     enquire.set_query(Xapian::Query("word"));
     enquire.set_sort_by_key(&sorter, true);
+    // NeverUseMeKeyMaker doesn't implemented serialise(), etc so should fail.
     TEST_EXCEPTION(Xapian::UnimplementedError,
 	Xapian::MSet mset = enquire.get_mset(0, 10);
     );
-    return true;
 }
 
 DEFINE_TESTCASE(replace_weights1, backend) {
@@ -375,7 +365,6 @@ DEFINE_TESTCASE(replace_weights1, backend) {
     TEST_EQUAL_DOUBLE(i.get_weight(), new_weight);
     TEST_EQUAL_DOUBLE(mymset.get_max_attained(), new_weight);
     TEST_EQUAL_DOUBLE(mymset.get_max_possible(), old_max_possible);
-    return true;
 }
 
 DEFINE_TESTCASE(replace_weights2, backend) {
@@ -386,7 +375,6 @@ DEFINE_TESTCASE(replace_weights2, backend) {
     static const double weights[] = {1.0, 2.0};
     TEST_EXCEPTION(Xapian::InvalidArgumentError,
 		   mymset.replace_weights(begin(weights), end(weights)));
-    return true;
 }
 
 DEFINE_TESTCASE(sort_existing_mset_by_relevance, backend) {
@@ -394,9 +382,9 @@ DEFINE_TESTCASE(sort_existing_mset_by_relevance, backend) {
     Xapian::Enquire enquire(db);
     enquire.set_query(Xapian::Query("word"));
     Xapian::MSet mymset = enquire.get_mset(0, 10);
-    // old max_possible = 1.17367567757238, max_attained = 1.04648168717725
     static const Xapian::docid docids[] = {*mymset[0], *mymset[1]};
-    static const double weights[] = {1.18, 1.19};
+    double max_weight = mymset.get_max_attained();
+    double weights[] = {max_weight * 0.5, max_weight + 1.0};
     mymset.replace_weights(begin(weights), end(weights));
     mymset.sort_by_relevance();
     // The order of documents should have been reversed.
@@ -406,7 +394,7 @@ DEFINE_TESTCASE(sort_existing_mset_by_relevance, backend) {
 	TEST_EQUAL(*m, docids[k]);
 	TEST_EQUAL_DOUBLE(m.get_weight(), weights[k]);
     }
+    // Test that setting larger weights is reflected in these methods.
     TEST_EQUAL_DOUBLE(mymset.get_max_attained(), weights[1]);
     TEST_EQUAL_DOUBLE(mymset.get_max_possible(), weights[1]);
-    return true;
 }

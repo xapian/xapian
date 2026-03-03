@@ -10,6 +10,7 @@ endif
 
 AM_CPPFLAGS = -I$(top_srcdir) -I$(top_srcdir)/common -I$(top_srcdir)/include \
  -I$(top_builddir)/include -I$(srcdir)/harness
+AM_CXXFLAGS += $(WERROR)
 
 # If tests are run under valgrind and the test is killed at the wrong moment
 # then a log file is left behind.
@@ -100,7 +101,6 @@ collated_apitest_sources = \
  api_anydb.cc \
  api_backend.cc \
  api_closedb.cc \
- api_cluster.cc \
  api_collapse.cc \
  api_compact.cc \
  api_db.cc \
@@ -118,6 +118,7 @@ collated_apitest_sources = \
  api_postingsource.cc \
  api_qpbackend.cc \
  api_query.cc \
+ api_queryopt.cc \
  api_queryparser.cc \
  api_replacedoc.cc \
  api_replicate.cc \
@@ -135,22 +136,24 @@ collated_apitest_sources = \
  api_weight.cc \
  api_wrdb.cc
 
+# FIXME: Need more work before being released: api_cluster.cc api_diversify.cc
+
 apitest_SOURCES = apitest.cc dbcheck.cc $(collated_apitest_sources) \
  api_all.h api_collated.h $(testharness_sources)
 
-apitest_LDFLAGS = $(NO_INSTALL) $(ldflags)
+apitest_LDFLAGS = $(NO_INSTALL)
 apitest_LDADD = ../libgetopt.la ../$(libxapian_la)
 
 stemtest_SOURCES = stemtest.cc $(testharness_sources)
-stemtest_LDFLAGS = $(NO_INSTALL) $(ldflags)
-stemtest_LDADD = ../libgetopt.la ../$(libxapian_la)
+stemtest_LDFLAGS = $(NO_INSTALL)
+stemtest_LDADD = ../libgetopt.la ../$(libxapian_la) $(ZLIB_LIBS)
 
 internaltest_SOURCES = internaltest.cc $(testharness_sources)
-internaltest_LDFLAGS = $(NO_INSTALL) $(ldflags)
+internaltest_LDFLAGS = $(NO_INSTALL)
 internaltest_LDADD = ../libgetopt.la ../$(libxapian_la)
 
 unittest_SOURCES = unittest.cc $(utestharness_sources)
-unittest_LDFLAGS = $(NO_INSTALL) $(ldflags)
+unittest_LDFLAGS = $(NO_INSTALL)
 unittest_LDADD = ../libgetopt.la $(XAPIAN_LIBS)
 
 BUILT_SOURCES =
@@ -188,11 +191,13 @@ EXTRA_DIST = collate-test generate-api_generated api_all.h api_collated.h \
 ## Distribute test data:
 EXTRA_DIST +=\
 	runtest.in \
+	ubsan.supp \
 	valgrind.supp \
 	testdata/apitest_allformulae.txt \
 	testdata/apitest_onedoc.txt \
 	testdata/apitest_simpledata.txt \
 	testdata/apitest_simpledata2.txt \
+	testdata/apitest_simpledata3.txt \
 	testdata/apitest_termorder.txt \
 	testdata/apitest_rset.txt \
 	testdata/apitest_phrase.txt \
@@ -206,11 +211,20 @@ EXTRA_DIST +=\
 	testdata/apitest_sortconsist.txt \
 	testdata/apitest_sortrel.txt \
 	testdata/apitest_declen.txt \
+	testdata/apitest_diversify.txt \
 	testdata/etext.txt \
+	testdata/glass_corrupt_db1 \
+	testdata/glass_corrupt_db2 \
+	testdata/glass_corrupt_db3 \
+	testdata/glass_corrupt_db4 \
+	testdata/glass_corrupt_item_too_big1 \
+	testdata/glass_corrupt_item_too_big2 \
+	testdata/phraseweightcheckbug1.txt \
 	testdata/snippet.txt
 
 remove-cached-databases:
-	rm -rf .glass .honey .multiglass .replicatmp .singlefileglass .stub
+	rm -rf .glass .honey .multiglass .multiglassremoteprog_glass \
+	       .multiremoteprog_glass .replicatmp .singlefileglass .stub
 
 clean-local: remove-cached-databases
 

@@ -1,4 +1,4 @@
-/** @file backendmanager_remote.cc
+/** @file
  * @brief BackendManager subclass for remote databases.
  */
 /* Copyright (C) 2006,2007,2008,2009,2011,2015 Olly Betts
@@ -15,45 +15,51 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
 #include "backendmanager_remote.h"
+
+#include "backendmanager_glass.h"
 #include <cstdlib>
 #include <string>
 #include "str.h"
 
-#ifdef XAPIAN_HAS_REMOTE_BACKEND
+std::string
+BackendManagerRemote::get_generated_database_path(const std::string& name) {
+    return sub_manager->get_writable_database_path(name);
+}
 
-BackendManagerRemote::BackendManagerRemote(const std::string & remote_type_)
-	: remote_type(remote_type_)
+Xapian::WritableDatabase
+BackendManagerRemote::get_generated_database(const std::string& name)
 {
-#ifdef XAPIAN_HAS_GLASS_BACKEND
-    if (remote_type == "glass") return;
-#endif
-    throw ("Unknown backend type \"" + remote_type + "\" specified for remote database");
+    return sub_manager->get_writable_database(name, std::string());
 }
 
 std::string
 BackendManagerRemote::get_writable_database_args(const std::string & name,
 						 const std::string & file)
 {
-    last_wdb_name = name;
-
     // Default to a long (5 minute) timeout so that tests won't fail just
     // because the host is slow or busy.
     std::string args = "-t300000 --writable ";
 
-#ifdef XAPIAN_HAS_GLASS_BACKEND
-    if (remote_type == "glass") {
-	(void)getwritedb_glass(name, std::vector<std::string>(1, file));
-	args += ".glass/";
-    }
-#endif
-    args += name;
+    sub_manager->get_writable_database(name, file);
+    args += sub_manager->get_writable_database_path(name);
 
+    return args;
+}
+
+std::string
+BackendManagerRemote::get_writable_database_args(const std::string& path,
+						 unsigned int timeout)
+{
+    std::string args = "-t";
+    args += str(timeout);
+    args += " --writable ";
+    args += path;
     return args;
 }
 
@@ -64,12 +70,18 @@ BackendManagerRemote::get_remote_database_args(const std::vector<std::string> & 
     std::string args = "-t";
     args += str(timeout);
     args += ' ';
-#ifdef XAPIAN_HAS_GLASS_BACKEND
-	if (remote_type == "glass") {
-	    args += createdb_glass(files);
-	}
-#endif
+    args += sub_manager->get_database_path(files);
+    return args;
+}
 
+std::string
+BackendManagerRemote::get_remote_database_args(const std::string& path,
+					       unsigned int timeout)
+{
+    std::string args = "-t";
+    args += str(timeout);
+    args += ' ';
+    args += path;
     return args;
 }
 
@@ -77,13 +89,7 @@ std::string
 BackendManagerRemote::get_writable_database_as_database_args()
 {
     std::string args = "-t300000 ";
-#ifdef XAPIAN_HAS_GLASS_BACKEND
-    if (remote_type == "glass") {
-	args += ".glass/";
-    }
-#endif
-    args += last_wdb_name;
-
+    args += sub_manager->get_writable_database_path_again();
     return args;
 }
 
@@ -91,14 +97,6 @@ std::string
 BackendManagerRemote::get_writable_database_again_args()
 {
     std::string args = "-t300000 --writable ";
-#ifdef XAPIAN_HAS_GLASS_BACKEND
-    if (remote_type == "glass") {
-	args += ".glass/";
-    }
-#endif
-    args += last_wdb_name;
-
+    args += sub_manager->get_writable_database_path_again();
     return args;
 }
-
-#endif // XAPIAN_HAS_REMOTE_BACKEND

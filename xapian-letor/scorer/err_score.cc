@@ -1,4 +1,4 @@
-/** @file err_score.cc
+/** @file
  *  @brief Implementation of ERRScore
  *
  *  ERR Score is adapted from the paper: http://olivier.chapelle.cc/pub/err.pdf
@@ -18,9 +18,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -69,7 +68,7 @@ ERRScore::score(const std::vector<FeatureVector> & fvv) const
 	/* Compute the probability of relevance for the document.
 	 * Probability of relevance is calculated in accordance with the gain
 	 * function for the Discounted Cumulative Gain in the paper:
-	 * http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.74.9057&rep=rep1&type=pdf
+	 * https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.74.9057&rep=rep1&type=pdf
 	 */
 	auto label = fvv[rank - 1].get_label();
 	double relevance_probability = (exp2(label) - 1) / max_value;
@@ -78,7 +77,7 @@ ERRScore::score(const std::vector<FeatureVector> & fvv) const
 	* ((satisfaction probability * p) / rank).
 	* Expected Reciprocal Rank(err_score) is calculated in accordance with
 	* algorithm 2 in the paper http://olivier.chapelle.cc/pub/err.pdf
-	* The paper assumes discrete relevances but continous relevances can
+	* The paper assumes discrete relevances but continuous relevances can
 	* be scored using this scorer.
 	*/
 	err_score = err_score + (p * relevance_probability / rank);

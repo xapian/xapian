@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FictionBook xmlns="http://www.gribuser.ru/xml/fictionbook/2.0" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <description>
+    <title-info>
+      <author>
+        <first-name>David</first-name>
+        <last-name>Tardon</last-name>
+      </author>
+      <book-title>Language test</book-title>
+      <lang>English</lang>
+    </title-info>
+    <document-info>
+      <author>
+        <first-name>David</first-name>
+        <last-name>Tardon</last-name>
+      </author>
+      <date>2015-06-17</date>
+      <version>1.0</version>
+    </document-info>
+  </description>
+  <body>
+    <section>
+      <p>My hovercraft is full of eels.</p>
+    </section>
+  </body>
+</FictionBook>

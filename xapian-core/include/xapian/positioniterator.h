@@ -1,4 +1,4 @@
-/** @file  positioniterator.h
+/** @file
  *  @brief Class for iterating over term positions.
  */
 /* Copyright (C) 2008,2009,2010,2011,2012,2013,2014,2015 Olly Betts
@@ -14,16 +14,15 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_POSITIONITERATOR_H
 #define XAPIAN_INCLUDED_POSITIONITERATOR_H
 
 #if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
-# error "Never use <xapian/positioniterator.h> directly; include <xapian.h> instead."
+# error Never use <xapian/positioniterator.h> directly; include <xapian.h> instead.
 #endif
 
 #include <iterator>
@@ -56,13 +55,29 @@ class XAPIAN_VISIBILITY_DEFAULT PositionIterator {
     /// Assignment.
     PositionIterator & operator=(const PositionIterator & o);
 
+    /// Move constructor.
+    PositionIterator(PositionIterator && o)
+	: internal(o.internal) {
+	o.internal = nullptr;
+    }
+
+    /// Move assignment operator.
+    PositionIterator & operator=(PositionIterator && o) {
+	if (this != &o) {
+	    if (internal) decref();
+	    internal = o.internal;
+	    o.internal = nullptr;
+	}
+	return *this;
+    }
+
     /** Default constructor.
      *
      *  Creates an uninitialised iterator, which can't be used before being
      *  assigned to, but is sometimes syntactically convenient.
      */
-    XAPIAN_NOTHROW(PositionIterator())
-	: internal(0) { }
+    PositionIterator() noexcept
+	: internal() { }
 
     /// Destructor.
     ~PositionIterator() {
@@ -111,30 +126,24 @@ class XAPIAN_VISIBILITY_DEFAULT PositionIterator {
     /// @private
     typedef Xapian::termpos_diff difference_type;
     /// @private
-    typedef Xapian::termpos * pointer;
+    typedef value_type* pointer;
     /// @private
-    typedef Xapian::termpos & reference;
+    typedef value_type reference;
     // @}
 };
 
-bool
-XAPIAN_NOTHROW(operator==(const PositionIterator &a, const PositionIterator &b));
-
 /// Equality test for PositionIterator objects.
 inline bool
-operator==(const PositionIterator &a, const PositionIterator &b) XAPIAN_NOEXCEPT
+operator==(const PositionIterator& a, const PositionIterator& b) noexcept
 {
     // Use a pointer comparison - this ensures both that (a == a) and correct
     // handling of end iterators (which we ensure have NULL internals).
     return a.internal == b.internal;
 }
 
-bool
-XAPIAN_NOTHROW(operator!=(const PositionIterator &a, const PositionIterator &b));
-
 /// Inequality test for PositionIterator objects.
 inline bool
-operator!=(const PositionIterator &a, const PositionIterator &b) XAPIAN_NOEXCEPT
+operator!=(const PositionIterator& a, const PositionIterator& b) noexcept
 {
     return !(a == b);
 }

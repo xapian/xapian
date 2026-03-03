@@ -1,6 +1,7 @@
-/* perftest_randomidx.cc: performance tests involving a randomly generated index
- *
- * Copyright 2008 Lemur Consulting Ltd
+/** @file
+ * @brief performance tests involving a randomly generated index
+ */
+/* Copyright 2008 Lemur Consulting Ltd
  * Copyright 2009,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
@@ -14,9 +15,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -51,8 +51,6 @@ rand_int(unsigned int min, unsigned int max)
 {
     return min + unsigned((max + 1 - min) * (rand() / (RAND_MAX + 1.0)));
 }
-
-
 
 /** Generate a random double in range 0.0 <= v < 1.0
  */
@@ -145,5 +143,4 @@ DEFINE_TESTCASE(randomidx1, writable && !inmemory) {
     logger.indexing_end();
 
     logger.testcase_end();
-    return true;
 }

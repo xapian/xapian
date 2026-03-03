@@ -2,9 +2,6 @@ use strict;
 # Before 'make install' is performed this script should be runnable with
 # 'make test'. After 'make install' it should work as 'perl test.pl'
 
-# FIXME: these tests pass in the XS version.
-my $disable_fixme = 1;
-
 #########################
 
 # Make warnings fatal
@@ -13,7 +10,7 @@ BEGIN {$SIG{__WARN__} = sub { die "Terminating test due to warning: $_[0]" } };
 
 use Test::More;
 use Devel::Peek;
-BEGIN { plan tests => 107 };
+BEGIN { plan tests => 76 };
 use Xapian qw(:standard);
 ok(1); # If we made it this far, we're ok.
 
@@ -55,6 +52,11 @@ is( $query->get_description(), 'Query((one@1 OR (two@2 AND three@3)))' );
 ok( my $enq = $database->enquire( $query ) );
 
 {
+  is( $qp->set_stopper(sub { $_[0] eq 'bad' }), undef );
+  is( $qp->parse_query("bad news")->get_description(), 'Query(news@2)' );
+}
+
+{
   my @stopwords = qw(a the in on and);
   my $stopper;
   ok( $stopper = new Xapian::SimpleStopper(@stopwords) );
@@ -73,11 +75,6 @@ my $rp;
 ok( $rp = new Xapian::RangeProcessor(1) );
 $qp->add_rangeprocessor($rp);
 $qp->add_boolean_prefix("test", "XTEST");
-my $qpo = new Xapian::QueryParser();
-my $vrp;
-ok( $vrp = new Xapian::StringValueRangeProcessor(1) );
-$qpo->add_valuerangeprocessor($vrp);
-$qpo->add_boolean_prefix("test", "XTEST");
 
 my $pair;
 foreach $pair (
@@ -97,8 +94,6 @@ foreach $pair (
     ) {
     my ($str, $res) = @{$pair};
     my $query = $qp->parse_query($str);
-    is( $query->get_description(), "Query($res)" );
-    $query = $qpo->parse_query($str);
     is( $query->get_description(), "Query($res)" );
 }
 
@@ -120,25 +115,6 @@ $qp->add_rangeprocessor( $rp7 );
 $qp->add_rangeprocessor( $rp3 );
 
 $qp->add_boolean_prefix("test", "XTEST");
-
-$qpo = new Xapian::QueryParser();
-
-my $vrp1 = new Xapian::DateValueRangeProcessor(1);
-my $vrp2 = new Xapian::NumberValueRangeProcessor(2);
-my $vrp3 = new Xapian::StringValueRangeProcessor(3);
-my $vrp4 = new Xapian::NumberValueRangeProcessor(4, '$');
-my $vrp5 = new Xapian::NumberValueRangeProcessor(5, 'kg', 0);
-my $vrp6 = new Xapian::StringValueRangeProcessor(6, 'country:');
-my $vrp7 = new Xapian::StringValueRangeProcessor(7, ':name', 0);
-$qpo->add_valuerangeprocessor( $vrp1 );
-$qpo->add_valuerangeprocessor( $vrp2 );
-$qpo->add_valuerangeprocessor( $vrp4 );
-$qpo->add_valuerangeprocessor( $vrp5 );
-$qpo->add_valuerangeprocessor( $vrp6 );
-$qpo->add_valuerangeprocessor( $vrp7 );
-$qpo->add_valuerangeprocessor( $vrp3 );
-
-$qpo->add_boolean_prefix("test", "XTEST");
 
 foreach $pair (
     [ 'a..b', 'VALUE_RANGE 3 a b' ],
@@ -162,22 +138,22 @@ foreach $pair (
     my ($str, $res) = @{$pair};
     my $query = $qp->parse_query($str);
     is( $query->get_description(), "Query($res)" );
-    $query = $qpo->parse_query($str);
+}
+
+$qp = new Xapian::QueryParser();
+$qp->add_rangeprocessor( sub { Xapian::Query->new("spam") } );
+foreach $pair (
+    [ '123..345', '0 * spam' ],
+    ) {
+    my ($str, $res) = @{$pair};
+    my $query = $qp->parse_query($str);
     is( $query->get_description(), "Query($res)" );
 }
 
 $qp = new Xapian::QueryParser();
-
 {
   my $rpdate = new Xapian::DateRangeProcessor(1, Xapian::RP_DATE_PREFER_MDY, 1960);
   $qp->add_rangeprocessor( $rpdate );
-}
-
-$qpo = new Xapian::QueryParser();
-
-{
-  my $vrpdate = new Xapian::DateValueRangeProcessor(1, 1, 1960);
-  $qpo->add_valuerangeprocessor( $vrpdate );
 }
 
 foreach $pair (
@@ -188,9 +164,11 @@ foreach $pair (
     my ($str, $res) = @{$pair};
     my $query = $qp->parse_query($str);
     is( $query->get_description(), "Query($res)" );
-    $query = $qpo->parse_query($str);
-    is( $query->get_description(), "Query($res)" );
 }
+
+$qp = new Xapian::QueryParser();
+$qp->add_prefix("foo", sub {return new Xapian::Query('foo')});
+is( $qp->parse_query("foo:test")->get_description(), 'Query(foo)' );
 
 # Regression test for Search::Xapian bug fixed in 1.0.5.0.  In 1.0.0.0-1.0.4.0
 # we tried to catch const char * not Xapian::Error, so std::terminate got
@@ -203,7 +181,6 @@ ok($@);
 is(ref($@), "Xapian::QueryParserError", "correct class for exception");
 ok($@->isa('Xapian::Error'));
 is($@->get_msg, "Syntax: <expression> AND <expression>", "get_msg works");
-ok( $disable_fixme || $@ =~ /^Exception: Syntax: <expression> AND <expression>(?: at \S+ line \d+\.)?$/ );
 
 # Check FLAG_DEFAULT is wrapped (new in 1.0.11.0).
 ok( $qp->parse_query('hello world', FLAG_DEFAULT|FLAG_BOOLEAN_ANY_CASE) );

@@ -1,7 +1,7 @@
-/** @file termgenerator.cc
+/** @file
  * @brief TermGenerator class implementation
  */
-/* Copyright (C) 2007,2012 Olly Betts
+/* Copyright (C) 2007,2012,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -28,16 +28,20 @@
 
 #include "str.h"
 
+#include <string_view>
+
 using namespace std;
 using namespace Xapian;
 
-TermGenerator::TermGenerator(const TermGenerator & o) : internal(o.internal) { }
+TermGenerator::TermGenerator(const TermGenerator &) = default;
 
 TermGenerator &
-TermGenerator::operator=(const TermGenerator & o) {
-    internal = o.internal;
-    return *this;
-}
+TermGenerator::operator=(const TermGenerator &) = default;
+
+TermGenerator::TermGenerator(TermGenerator &&) = default;
+
+TermGenerator &
+TermGenerator::operator=(TermGenerator &&) = default;
 
 TermGenerator::TermGenerator() : internal(new TermGenerator::Internal) { }
 
@@ -59,7 +63,7 @@ void
 TermGenerator::set_document(const Xapian::Document & doc)
 {
     internal->doc = doc;
-    internal->termpos = 0;
+    internal->cur_pos = 0;
 }
 
 const Xapian::Document &
@@ -103,7 +107,7 @@ TermGenerator::set_max_word_length(unsigned max_word_length)
 void
 TermGenerator::index_text(const Xapian::Utf8Iterator & itor,
 			  Xapian::termcount weight,
-			  const string & prefix)
+			  string_view prefix)
 {
     internal->index_text(itor, weight, prefix, true);
 }
@@ -111,27 +115,33 @@ TermGenerator::index_text(const Xapian::Utf8Iterator & itor,
 void
 TermGenerator::index_text_without_positions(const Xapian::Utf8Iterator & itor,
 					    Xapian::termcount weight,
-					    const string & prefix)
+					    string_view prefix)
 {
     internal->index_text(itor, weight, prefix, false);
 }
 
 void
-TermGenerator::increase_termpos(Xapian::termcount delta)
+TermGenerator::increase_termpos(Xapian::termpos delta)
 {
-    internal->termpos += delta;
+    internal->cur_pos += delta;
 }
 
-Xapian::termcount
+Xapian::termpos
 TermGenerator::get_termpos() const
 {
-    return internal->termpos;
+    return internal->cur_pos;
 }
 
 void
-TermGenerator::set_termpos(Xapian::termcount termpos)
+TermGenerator::set_termpos(Xapian::termpos termpos)
 {
-    internal->termpos = termpos;
+    internal->cur_pos = termpos;
+}
+
+void
+TermGenerator::set_termpos_limit(Xapian::termpos termpos_limit)
+{
+    internal->pos_limit = termpos_limit;
 }
 
 string
@@ -139,13 +149,13 @@ TermGenerator::get_description() const
 {
     string s("Xapian::TermGenerator(stem=");
     s += internal->stemmer.get_description();
-    if (internal->stopper.get()) {
+    if (internal->stopper) {
 	s += ", stopper set";
     }
     s += ", doc=";
     s += internal->doc.get_description();
     s += ", termpos=";
-    s += str(internal->termpos);
+    s += str(internal->cur_pos);
     s += ")";
     return s;
 }

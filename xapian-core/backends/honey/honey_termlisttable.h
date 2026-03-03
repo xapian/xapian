@@ -1,4 +1,4 @@
-/** @file honey_termlisttable.h
+/** @file
  * @brief Subclass of HoneyTable which holds termlists.
  */
 /* Copyright (C) 2007,2008,2009,2010,2013,2014,2015,2016 Olly Betts
@@ -14,8 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_HONEY_TERMLISTTABLE_H
@@ -50,7 +50,7 @@ class HoneyTermListTable : public HoneyTable {
      *  @param readonly	    true if we're opening read-only, else false.
      *  @param lazy_	    Don't create a termlist if there isn't one.
      */
-    HoneyTermListTable(const std::string & dbdir, bool readonly, bool lazy_)
+    HoneyTermListTable(const std::string& dbdir, bool readonly, bool lazy_)
 	: HoneyTable("termlist", dbdir + "/termlist.", readonly, lazy_) { }
 
     HoneyTermListTable(int fd, off_t offset_, bool readonly, bool lazy_)
@@ -64,7 +64,7 @@ class HoneyTermListTable : public HoneyTable {
      *  @param doc	The Xapian::Document object to read term data from.
      *  @param doclen	The document length.
      */
-    void set_termlist(Xapian::docid did, const Xapian::Document & doc,
+    void set_termlist(Xapian::docid did, const Xapian::Document& doc,
 		      Xapian::termcount doclen);
 
     /** Delete the termlist data for document @a did.

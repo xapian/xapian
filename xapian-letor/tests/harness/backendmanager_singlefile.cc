@@ -1,7 +1,7 @@
-/** @file backendmanager_singlefile.cc
+/** @file
  * @brief BackendManager subclass for singlefile databases.
  */
-/* Copyright (C) 2007,2008,2009,2011,2012,2013,2015 Olly Betts
+/* Copyright (C) 2007,2008,2009,2011,2012,2013,2015,2018,2023 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -15,8 +15,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -28,76 +28,75 @@
 #include "unixcmds.h"
 
 #include <cstdio> // For rename().
-#include <cstring>
-#include "safeerrno.h"
-
-#ifdef XAPIAN_HAS_GLASS_BACKEND
 
 using namespace std;
 
-BackendManagerSingleFile::BackendManagerSingleFile(const std::string & subtype_)
-	: subtype(subtype_)
+BackendManagerSingleFile::BackendManagerSingleFile(const string& datadir_,
+						   BackendManager* sub_manager_)
+    : BackendManager(datadir_, "singlefile_" + sub_manager_->get_dbtype()),
+      sub_manager(sub_manager_),
+      cachedir(".singlefile" + sub_manager_->get_dbtype())
 {
-#ifdef XAPIAN_HAS_GLASS_BACKEND
-    if (subtype == "glass") return;
-#endif
-    throw ("Unknown backend type \"" + subtype + "\" specified for singlefile database subdatabases");
-}
-
-std::string
-BackendManagerSingleFile::get_dbtype() const
-{
-    return "singlefile_" + subtype;
-}
-
-#define NUMBER_OF_SUB_DBS 2
-
-string
-BackendManagerSingleFile::createdb_singlefile(const vector<string> & files)
-{
-    string dbdir = ".singlefile" + subtype;
-    create_dir_if_needed(dbdir);
-
-    string dbname = "db";
-    vector<string>::const_iterator i;
-    for (i = files.begin(); i != files.end(); ++i) {
-	dbname += "__";
-	dbname += *i;
-    }
-    string dbpath = dbdir + "/" + dbname;
-
-    if (file_exists(dbpath)) return dbpath;
-
-    string db_source = dbpath + ".src";
-    int flags = Xapian::DB_CREATE_OR_OVERWRITE;
-    if (subtype == "glass") {
-	flags |= Xapian::DB_BACKEND_GLASS;
-    } else {
-	string msg = "Unknown singlefiledb subtype: ";
-	msg += subtype;
-	throw msg;
-    }
-
-    string tmpfile = dbpath;
-    tmpfile += ".tmp";
-
-    Xapian::WritableDatabase db(db_source, flags);
-    FileIndexer(get_datadir(), files).index_to(db);
-    db.commit();
-    db.compact(tmpfile, Xapian::DBCOMPACT_SINGLE_FILE);
-    db.close();
-
-    rm_rf(db_source);
-
-    rename(tmpfile.c_str(), dbpath.c_str());
-
-    return dbpath;
+    // Ensure the directory we store cached test databases in exists.
+    (void)create_dir_if_needed(cachedir);
 }
 
 string
 BackendManagerSingleFile::do_get_database_path(const vector<string> & files)
 {
-    return createdb_singlefile(files);
+    string db_path = cachedir + "/db";
+    for (const string& file : files) {
+	db_path += "__";
+	db_path += file;
+    }
+
+    if (!file_exists(db_path)) {
+	// No cached DB exists.  Create at a temporary path and rename
+	// so we don't leave a partial DB in place upon failure.
+	string tmp_path = db_path + ".tmp";
+	sub_manager->get_database(files).compact(tmp_path,
+						 Xapian::DBCOMPACT_SINGLE_FILE |
+						 Xapian::DBCOMPACT_NO_RENUMBER);
+	if (rename(tmp_path.c_str(), db_path.c_str()) < 0) {
+	    throw Xapian::DatabaseError("rename failed", errno);
+	}
+    }
+
+    return db_path;
+}
+
+Xapian::WritableDatabase
+BackendManagerSingleFile::get_generated_database(const string& name)
+{
+    // Create generated database inside sub_manager's cache.
+    return sub_manager->get_generated_database(name);
+}
+
+void
+BackendManagerSingleFile::finalise_generated_database(const string& name)
+{
+    create_dir_if_needed(cachedir);
+
+    // path to the temporary generated db
+    string generated_db_path = sub_manager->get_generated_database_path(name);
+
+    // path to final singlefile db
+    string path = cachedir + "/" + name;
+
+    // path to tmpfile
+    string tmpfile = path + ".tmp";
+
+    // Convert to singlefile db.
+    {
+	Xapian::Database db(generated_db_path);
+	db.compact(tmpfile,
+		   Xapian::DBCOMPACT_SINGLE_FILE |
+		   Xapian::DBCOMPACT_NO_RENUMBER);
+    }
+
+    if (rename(tmpfile.c_str(), path.c_str()) < 0) {
+	throw Xapian::DatabaseError("rename failed", errno);
+    }
 }
 
 Xapian::WritableDatabase
@@ -106,4 +105,14 @@ BackendManagerSingleFile::get_writable_database(const string &, const string &)
     throw Xapian::UnimplementedError("Single-file databases don't support writing");
 }
 
-#endif // XAPIAN_HAS_GLASS_BACKEND
+string
+BackendManagerSingleFile::get_generated_database_path(const string& name)
+{
+    return cachedir + "/" + name;
+}
+
+string
+BackendManagerSingleFile::get_compaction_output_path(const string& name)
+{
+    return cachedir + "/" + name;
+}

@@ -1,7 +1,7 @@
-/** @file  remoteconnection.h
+/** @file
  *  @brief RemoteConnection class used by the remote backend.
  */
-/* Copyright (C) 2006,2007,2008,2010,2011,2014,2015 Olly Betts
+/* Copyright (C) 2006,2007,2008,2010,2011,2014,2015,2019,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_REMOTECONNECTION_H
@@ -24,140 +24,12 @@
 #include <string>
 
 #include "remoteprotocol.h"
-#include "safeerrno.h"
-#include "safenetdb.h" // For EAI_* constants.
-#include "safeunistd.h"
 
 #ifdef __WIN32__
 # include "safewinsock2.h"
-
-# include <xapian/error.h>
-
-/** Class to initialise winsock and keep it initialised while we use it.
- *
- *  We need to get WinSock initialised before we use it, and make it clean up
- *  after we've finished using it.  This class performs this initialisation when
- *  constructed and cleans up when destructed.  Multiple instances of the class
- *  may be instantiated - windows keeps a count of the number of times that
- *  WSAStartup has been successfully called and only performs the actual cleanup
- *  when WSACleanup has been called the same number of times.
- *
- *  Simply ensure that an instance of this class is initialised whenever we're
- *  doing socket handling.  This class can be used as a mixin class (just
- *  inherit from it) or instantiated as a class member or local variable).
- */
-struct WinsockInitializer {
-    WinsockInitializer() {
-	WSADATA wsadata;
-	int wsaerror = WSAStartup(MAKEWORD(2, 2), &wsadata);
-	// FIXME - should we check the returned information in wsadata to check
-	// that we have a version of winsock which is recent enough for us?
-
-	if (wsaerror != 0) {
-	    throw Xapian::NetworkError("Failed to initialize winsock", wsaerror);
-	}
-    }
-
-    ~WinsockInitializer() {
-	WSACleanup();
-    }
-};
-
-/** Get the errno value of the last error to occur due to a socket operation.
- *
- *  This is specific to the calling thread.
- *
- *  This is needed because some platforms (Windows) separate errors due to
- *  socket operations from other errors.  On platforms which don't do this,
- *  the return value will be the value of errno.
- */
-inline int socket_errno() {
-    int wsa_err = WSAGetLastError();
-    switch (wsa_err) {
-# ifdef EADDRINUSE
-	case WSAEADDRINUSE: return EADDRINUSE;
-# endif
-# ifdef ETIMEDOUT
-	case WSAETIMEDOUT: return ETIMEDOUT;
-# endif
-# ifdef EINPROGRESS
-	case WSAEINPROGRESS: return EINPROGRESS;
-# endif
-	default: return wsa_err;
-    }
-}
-
-/* Newer compilers define these, in which case we map to those already defined
- * values in socket_errno() above.
- */
-# ifndef EADDRINUSE
-#  define EADDRINUSE WSAEADDRINUSE
-# endif
-# ifndef ETIMEDOUT
-#  define ETIMEDOUT WSAETIMEDOUT
-# endif
-# ifndef EINPROGRESS
-#  define EINPROGRESS WSAEINPROGRESS
-# endif
-
-// We must call closesocket() (instead of just close()) under __WIN32__ or
-// else the socket remains in the CLOSE_WAIT state.
-# define CLOSESOCKET(S) closesocket(S)
 #else
-// Use a macro so we don't need to pull safeerrno.h in here.
-# define socket_errno() errno
-
-# define CLOSESOCKET(S) close(S)
+# include "safesyssocket.h"
 #endif
-
-inline int eai_to_xapian(int e) {
-    // Under WIN32, the EAI_* constants are defined to be WSA_* constants with
-    // roughly equivalent meanings, so we can just let them be handled as any
-    // other WSA_* error codes would be.
-#ifndef __WIN32__
-    // Ensure they all have the same sign - this switch will fail to compile if
-    // we bitwise-or some 1 and some 2 bits to get 3.
-#define C(X) ((X) < 0 ? 2 : 1)
-    // Switch on a value there is a case for, to avoid clang warning:
-    // "no case matching constant switch condition '0'"
-    switch (3) {
-	case
-	    C(EAI_AGAIN)|
-	    C(EAI_BADFLAGS)|
-	    C(EAI_FAIL)|
-	    C(EAI_FAMILY)|
-	    C(EAI_MEMORY)|
-	    C(EAI_NONAME)|
-	    C(EAI_SERVICE)|
-	    C(EAI_SOCKTYPE)|
-	    C(EAI_SYSTEM)|
-#ifdef EAI_ADDRFAMILY
-	    // In RFC 2553 but not RFC 3493 or POSIX:
-	    C(EAI_ADDRFAMILY)|
-#endif
-#ifdef EAI_NODATA
-	    // In RFC 2553 but not RFC 3493 or POSIX:
-	    C(EAI_NODATA)|
-#endif
-#ifdef EAI_OVERFLOW
-	    // In RFC 3493 and POSIX but not RFC 2553:
-	    C(EAI_OVERFLOW)|
-#endif
-	    0: break;
-	case 3: break;
-    }
-#undef C
-
-    // EAI_SYSTEM means "look at errno".
-    if (e == EAI_SYSTEM)
-	return errno;
-    // POSIX only says that EAI_* constants are "non-zero".  On Linux they are
-    // negative, but allow for them being positive too.
-    if (EAI_FAIL > 0)
-	return -e;
-#endif
-    return e;
-}
 
 /** A RemoteConnection object provides a bidirectional connection to another
  *  RemoteConnection object on a remote machine.
@@ -188,6 +60,33 @@ class RemoteConnection {
      */
     int fdout;
 
+#ifndef __WIN32__
+    // On Unix-like platforms we want to avoid generating SIGPIPE when writing
+    // to a socket when the other end has been closed since signals break the
+    // encapsulation of what we're doing inside the library - either user code
+    // would need to handle the SIGPIPE, or we set a signal handler for SIGPIPE
+    // but that would handle *any* SIGPIPE in the process, not just those we
+    // might trigger, and that could break user code which expects to trigger
+    // and handle SIGPIPE.
+    //
+    // We don't need SIGPIPE since we can check errno==EPIPE instead (which is
+    // actually simpler to do).
+    //
+    // We support using SO_NOSIGPIPE (not standardised) or MSG_NOSIGNAL
+    // (specified by POSIX but more awkward to use) which seems to cover all
+    // modern Unix-like platforms.  For platforms without either we currently
+    // just set the SIGPIPE signal handler to SIG_IGN.
+# if defined(SO_NOSIGPIPE) && !defined(__NetBSD__)
+    // Prefer using SO_NOSIGPIPE and write(), except on NetBSD where we seem to
+    // still get SIGPIPE despite using it.
+#  define USE_SO_NOSIGPIPE
+# elif defined MSG_NOSIGNAL
+    // Use send(..., MSG_NOSIGNAL).
+    int send_flags = MSG_NOSIGNAL;
+#  define USE_MSG_NOSIGNAL
+# endif
+#endif
+
     /// Buffer to hold unprocessed input.
     std::string buffer;
 
@@ -212,7 +111,8 @@ class RemoteConnection {
     /** On Windows we use overlapped IO.  We share an overlapped structure
      *  for both reading and writing, as we know that we always wait for
      *  one to finish before starting another (ie, we don't *really* use
-     *  overlapped IO - no IO is overlapped - its used only to manage timeouts)
+     *  overlapped IO - no IO is overlapped - it's used only to manage
+     *  timeouts)
      */
     WSAOVERLAPPED overlapped;
 
@@ -221,6 +121,9 @@ class RemoteConnection {
      *  This will raise a timeout exception if end_time has already passed.
      */
     DWORD calc_read_wait_msecs(double end_time);
+#else
+    /** Helper which calls send() or write(). */
+    ssize_t send_or_write(const void* p, size_t n);
 #endif
 
   protected:
@@ -240,11 +143,8 @@ class RemoteConnection {
     ~RemoteConnection();
 #endif
 
-    /** See if there is data available to read.
-     *
-     *  @return		true if there is data waiting to be read.
-     */
-    bool ready_to_read() const;
+    /** Return the underlying fd this remote connection reads from. */
+    int get_read_fd() const { return fdin; }
 
     /** Check what the next message type is.
      *
@@ -340,7 +240,7 @@ class RemoteConnection {
      *				(end_time == 0.0) then the operation will
      *				never timeout.
      */
-    void send_message(char type, const std::string & s, double end_time);
+    void send_message(char type, std::string_view s, double end_time);
 
     /** Send the contents of a file as a message.
      *
@@ -355,10 +255,34 @@ class RemoteConnection {
 
     /** Shutdown the connection.
      *
-     *  @param wait	If true, wait for the remote end to close the
-     *			connection before returning.
+     *  Sends a shutdown message to the server and waits for it to close its
+     *  end of the connection.
      */
-    void do_close(bool wait);
+    void shutdown();
+
+    /** Close the connection. */
+    void do_close();
+
+    /** Return the context to report with errors. */
+    const std::string& get_context() const { return context; }
+};
+
+/** RemoteConnection which owns its own fd(s).
+ *
+ *  The object takes ownership of the fd(s) for the connection and will close
+ *  them when it is destroyed.
+ */
+class OwnedRemoteConnection : public RemoteConnection {
+  public:
+    /// Constructor.
+    OwnedRemoteConnection(int fdin_, int fdout_,
+			  const std::string& context_ = std::string())
+	: RemoteConnection(fdin_, fdout_, context_) { }
+
+    /// Destructor.
+    ~OwnedRemoteConnection() {
+	do_close();
+    }
 };
 
 #endif // XAPIAN_INCLUDED_REMOTECONNECTION_H

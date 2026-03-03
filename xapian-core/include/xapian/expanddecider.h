@@ -1,4 +1,4 @@
-/** @file expanddecider.h
+/** @file
  * @brief Allow rejection of terms during ESet generation.
  */
 /* Copyright (C) 2007,2011,2013,2014,2015,2016 Olly Betts
@@ -14,15 +14,15 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_EXPANDDECIDER_H
 #define XAPIAN_INCLUDED_EXPANDDECIDER_H
 
 #if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
-# error "Never use <xapian/expanddecider.h> directly; include <xapian.h> instead."
+# error Never use <xapian/expanddecider.h> directly; include <xapian.h> instead.
 #endif
 
 #include <set>
@@ -37,10 +37,10 @@ namespace Xapian {
 class XAPIAN_VISIBILITY_DEFAULT ExpandDecider
     : public Xapian::Internal::opt_intrusive_base {
     /// Don't allow assignment.
-    void operator=(const ExpandDecider &);
+    void operator=(const ExpandDecider &) = delete;
 
     /// Don't allow copying.
-    ExpandDecider(const ExpandDecider &);
+    ExpandDecider(const ExpandDecider &) = delete;
 
   public:
     /// Default constructor.
@@ -57,7 +57,7 @@ class XAPIAN_VISIBILITY_DEFAULT ExpandDecider
 
     /** Start reference counting this object.
      *
-     *  You can hand ownership of a dynamically allocated ExpandDecider
+     *  You can transfer ownership of a dynamically allocated ExpandDecider
      *  object to Xapian by calling release() and then passing the object to a
      *  Xapian method.  Xapian will arrange to delete the object once it is no
      *  longer required.
@@ -69,7 +69,7 @@ class XAPIAN_VISIBILITY_DEFAULT ExpandDecider
 
     /** Start reference counting this object.
      *
-     *  You can hand ownership of a dynamically allocated ExpandDecider
+     *  You can transfer ownership of a dynamically allocated ExpandDecider
      *  object to Xapian by calling release() and then passing the object to a
      *  Xapian method.  Xapian will arrange to delete the object once it is no
      *  longer required.
@@ -128,7 +128,7 @@ class XAPIAN_VISIBILITY_DEFAULT ExpandDeciderFilterTerms : public ExpandDecider 
      *				TermIterator or char **).
      *  @param reject_end	End iterator for the list of terms to reject.
      */
-    template <class Iterator>
+    template<class Iterator>
     ExpandDeciderFilterTerms(Iterator reject_begin, Iterator reject_end)
 	: rejects(reject_begin, reject_end) { }
 

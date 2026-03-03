@@ -1,7 +1,7 @@
-/** @file xapian/types.h
+/** @file
  *  @brief typedefs for Xapian
  */
-/* Copyright (C) 2007,2010,2011,2013,2014,2017 Olly Betts
+/* Copyright (C) 2007,2010,2011,2013,2014,2017,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -14,15 +14,15 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_TYPES_H
 #define XAPIAN_INCLUDED_TYPES_H
 
 #if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
-# error "Never use <xapian/types.h> directly; include <xapian.h> instead."
+# error Never use <xapian/types.h> directly; include <xapian.h> instead.
 #endif
 
 #include <xapian/version.h>
@@ -72,14 +72,14 @@ typedef XAPIAN_TERMCOUNT_BASE_TYPE termcount_diff;
 
 /** A term position within a document or query.
  */
-typedef unsigned termpos;
+typedef unsigned XAPIAN_TERMPOS_BASE_TYPE termpos;
 
 /** A signed difference between two term positions.
  *
  *  This is used by the Xapian classes which are STL containers of positions
  *  for "difference_type".
  */
-typedef int termpos_diff; /* FIXME: can overflow. */
+typedef XAPIAN_TERMPOS_BASE_TYPE termpos_diff; /* FIXME: can overflow. */
 
 /** The number for a value slot in a document.
  *
@@ -109,7 +109,7 @@ typedef XAPIAN_REVISION_TYPE rev;
 
 /** The total length of all documents in a database.
  *
- *  Added in Xapian 1.4.5.
+ *  @since Added in Xapian 1.4.5.
  */
 typedef XAPIAN_TOTALLENGTH_TYPE totallength;
 

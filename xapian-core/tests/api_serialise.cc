@@ -1,8 +1,8 @@
-/** @file api_serialise.cc
+/** @file
  * @brief Tests of serialisation functionality.
  */
 /* Copyright 2009 Lemur Consulting Ltd
- * Copyright 2009,2011,2012,2013 Olly Betts
+ * Copyright 2009,2011,2012,2013,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,8 +15,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -104,19 +104,20 @@ DEFINE_TESTCASE(serialise_document1, !backend) {
     TEST_EQUAL(k, doc2.values_end());
 
     TEST_EQUAL(doc2.get_data(), "baz");
-
-    return true;
 }
 
 // Test for serialising a document obtained from a database.
-DEFINE_TESTCASE(serialise_document2, writable) {
-    Xapian::Document origdoc;
-    origdoc.add_term("foo", 2);
-    origdoc.add_posting("foo", 10);
-    origdoc.add_value(1, "bar");
-    origdoc.set_data("baz");
-    Xapian::WritableDatabase db = get_writable_database();
-    db.add_document(origdoc);
+DEFINE_TESTCASE(serialise_document2, backend) {
+    Xapian::Database db = get_database("serialise_document2",
+				       [](Xapian::WritableDatabase& wdb,
+					  const string&) {
+					   Xapian::Document doc;
+					   doc.add_term("foo", 2);
+					   doc.add_posting("foo", 10);
+					   doc.add_value(1, "bar");
+					   doc.set_data("baz");
+					   wdb.add_document(doc);
+				       });
 
     Xapian::Document doc = db.get_document(1);
 
@@ -173,8 +174,6 @@ DEFINE_TESTCASE(serialise_document2, writable) {
     TEST_EQUAL(k, doc2.values_end());
 
     TEST_EQUAL(doc2.get_data(), "baz");
-
-    return true;
 }
 
 // Test for serialising a query
@@ -213,8 +212,6 @@ DEFINE_TESTCASE(serialise_query1, !backend) {
     q = Xapian::Query(q.OP_SCALE_WEIGHT, q, 3.14);
     q2 = Xapian::Query::unserialise(q.serialise());
     TEST_EQUAL(q.get_description(), q2.get_description());
-
-    return true;
 }
 
 // Test for serialising a query which contains a PostingSource.
@@ -237,8 +234,6 @@ DEFINE_TESTCASE(serialise_query2, !backend) {
     q2 = Xapian::Query::unserialise(q.serialise());
     TEST_EQUAL(q.get_description(), q2.get_description());
     TEST_EQUAL(q.get_description(), "Query(PostingSource(Xapian::FixedWeightPostingSource(wt=5.5)))");
-
-    return true;
 }
 
 // Test for unserialising a query using the default registry.
@@ -262,8 +257,6 @@ DEFINE_TESTCASE(serialise_query3, !backend) {
     q2 = Xapian::Query::unserialise(q.serialise(), reg);
     TEST_EQUAL(q.get_description(), q2.get_description());
     TEST_EQUAL(q.get_description(), "Query(PostingSource(Xapian::FixedWeightPostingSource(wt=5.5)))");
-
-    return true;
 }
 
 class MyPostingSource2 : public Xapian::ValuePostingSource {
@@ -274,26 +267,25 @@ class MyPostingSource2 : public Xapian::ValuePostingSource {
     {
     }
 
-    MyPostingSource2 * clone() const
-    {
+    MyPostingSource2* clone() const override {
 	return new MyPostingSource2(desc);
     }
 
-    std::string name() const {
+    std::string name() const override {
 	return "MyPostingSource2";
     }
 
-    std::string serialise() const {
+    std::string serialise() const override {
 	return desc;
     }
 
-    MyPostingSource2 * unserialise(const std::string & s) const {
+    MyPostingSource2* unserialise(const std::string& s) const override {
 	return new MyPostingSource2(s);
     }
 
-    double get_weight() const { return 1.0; }
+    double get_weight() const override { return 1.0; }
 
-    std::string get_description() const {
+    std::string get_description() const override {
 	return "MyPostingSource2(" + desc + ")";
     }
 };
@@ -312,8 +304,6 @@ DEFINE_TESTCASE(serialise_query4, !backend) {
     reg.register_posting_source(s1);
     Xapian::Query q2 = Xapian::Query::unserialise(serialised, reg);
     TEST_EQUAL(q.get_description(), q2.get_description());
-
-    return true;
 }
 
 /// Test for memory leaks when registering posting sources or weights twice.
@@ -329,8 +319,6 @@ DEFINE_TESTCASE(double_register_leak, !backend) {
     reg.register_weighting_scheme(w1);
     reg.register_weighting_scheme(w1);
     reg.register_weighting_scheme(w1);
-
-    return true;
 }
 
 class ExceptionalPostingSource : public Xapian::PostingSource {
@@ -341,28 +329,28 @@ class ExceptionalPostingSource : public Xapian::PostingSource {
 
     ExceptionalPostingSource(failmode fail_) : fail(fail_) { }
 
-    string name() const {
+    string name() const override {
 	return "ExceptionalPostingSource";
     }
 
-    PostingSource * clone() const {
+    PostingSource* clone() const override {
 	if (fail == CLONE)
 	    throw bad_alloc();
 	return new ExceptionalPostingSource(fail);
     }
 
-    void init(const Xapian::Database &) { }
+    void reset(const Xapian::Database&, Xapian::doccount) override { }
 
-    Xapian::doccount get_termfreq_min() const { return 0; }
-    Xapian::doccount get_termfreq_est() const { return 1; }
-    Xapian::doccount get_termfreq_max() const { return 2; }
+    Xapian::doccount get_termfreq_min() const override { return 0; }
+    Xapian::doccount get_termfreq_est() const override { return 1; }
+    Xapian::doccount get_termfreq_max() const override { return 2; }
 
-    void next(double) { }
+    void next(double) override { }
 
-    void skip_to(Xapian::docid, double) { }
+    void skip_to(Xapian::docid, double) override { }
 
-    bool at_end() const { return true; }
-    Xapian::docid get_docid() const { return 0; }
+    bool at_end() const override { return true; }
+    Xapian::docid get_docid() const override { return 0; }
 };
 
 /// Check that exceptions when registering a postingsource are handled well.
@@ -378,7 +366,7 @@ DEFINE_TESTCASE(registry1, !backend) {
 	try {
 	    ExceptionalPostingSource eps_clone(ExceptionalPostingSource::CLONE);
 	    reg.register_posting_source(eps_clone);
-	    return false;
+	    FAIL_TEST("Expected bad_alloc exception to be thrown");
 	} catch (const bad_alloc &) {
 	}
 
@@ -389,8 +377,6 @@ DEFINE_TESTCASE(registry1, !backend) {
 	    TEST_EQUAL(p->name(), "ExceptionalPostingSource");
 	}
     }
-
-    return true;
 }
 
 class ExceptionalWeight : public Xapian::Weight {
@@ -401,29 +387,25 @@ class ExceptionalWeight : public Xapian::Weight {
 
     ExceptionalWeight(failmode fail_) : fail(fail_) { }
 
-    string name() const {
-	return "ExceptionalWeight";
+    string name() const override {
+	return "exceptional";
     }
 
-    string short_name() const {
-	return "excep";
-    }
-
-    Weight * clone() const {
+    Weight* clone() const override {
 	if (fail == CLONE)
 	    throw bad_alloc();
 	return new ExceptionalWeight(fail);
     }
 
-    void init(double) { }
+    void init(double) override { }
 
-    double get_sumpart(Xapian::termcount, Xapian::termcount, Xapian::termcount) const {
+    double get_sumpart(Xapian::termcount,
+		       Xapian::termcount,
+		       Xapian::termcount,
+		       Xapian::termcount) const override {
 	return 0;
     }
-    double get_maxpart() const { return 0; }
-
-    double get_sumextra(Xapian::termcount, Xapian::termcount) const { return 0; }
-    double get_maxextra() const { return 0; }
+    double get_maxpart() const override { return 0; }
 };
 
 /// Check that exceptions when registering are handled well.
@@ -437,7 +419,7 @@ DEFINE_TESTCASE(registry2, !backend) {
 	try {
 	    ExceptionalWeight ewt_clone(ExceptionalWeight::CLONE);
 	    reg.register_weighting_scheme(ewt_clone);
-	    return false;
+	    FAIL_TEST("Expected bad_alloc exception to be thrown");
 	} catch (const bad_alloc &) {
 	}
 
@@ -448,8 +430,6 @@ DEFINE_TESTCASE(registry2, !backend) {
 	    TEST_EQUAL(p->name(), "ExceptionalWeight");
 	}
     }
-
-    return true;
 }
 
 class ExceptionalMatchSpy : public Xapian::MatchSpy {
@@ -460,17 +440,17 @@ class ExceptionalMatchSpy : public Xapian::MatchSpy {
 
     ExceptionalMatchSpy(failmode fail_) : fail(fail_) { }
 
-    string name() const {
+    string name() const override {
 	return "ExceptionalMatchSpy";
     }
 
-    MatchSpy * clone() const {
+    MatchSpy* clone() const override {
 	if (fail == CLONE)
 	    throw bad_alloc();
 	return new ExceptionalMatchSpy(fail);
     }
 
-    void operator()(const Xapian::Document &, double) {
+    void operator()(const Xapian::Document&, double) override {
     }
 };
 
@@ -485,7 +465,7 @@ DEFINE_TESTCASE(registry3, !backend) {
 	try {
 	    ExceptionalMatchSpy ems_clone(ExceptionalMatchSpy::CLONE);
 	    reg.register_match_spy(ems_clone);
-	    return false;
+	    FAIL_TEST("Expected bad_alloc exception to be thrown");
 	} catch (const bad_alloc &) {
 	}
 
@@ -496,6 +476,4 @@ DEFINE_TESTCASE(registry3, !backend) {
 	    TEST_EQUAL(p->name(), "ExceptionalMatchSpy");
 	}
     }
-
-    return true;
 }

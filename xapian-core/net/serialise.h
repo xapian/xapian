@@ -1,7 +1,7 @@
-/** @file serialise.h
+/** @file
  * @brief functions to convert classes to strings and back
  */
-/* Copyright (C) 2006,2007,2008,2009,2012,2014 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2012,2014,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,14 +14,16 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_SERIALISE_H
 #define XAPIAN_INCLUDED_SERIALISE_H
 
 #include <string>
+#include <string_view>
+
 #include "xapian/weight.h"
 
 // Forward class declarations:
@@ -41,11 +43,12 @@ std::string serialise_stats(const Xapian::Weight::Internal &stats);
 
 /** Unserialise a serialised stats object.
  *
- *  @param s		The string to unserialise.
- *
+ *  @param p		Pointer to data to unserialise.
+ *  @param p_end	End of data to unserialise.
  *  @param stats	The stats object to unserialise to.
  */
-void unserialise_stats(const std::string &s, Xapian::Weight::Internal &stats);
+void unserialise_stats(const char* p, const char* p_end,
+		       Xapian::Weight::Internal& stats);
 
 /** Serialise a Xapian::RSet object.
  *
@@ -77,6 +80,6 @@ std::string serialise_document(const Xapian::Document &doc);
  *
  *  @return		The unserialised Xapian::Document object.
  */
-Xapian::Document unserialise_document(const std::string &s);
+Xapian::Document unserialise_document(std::string_view s);
 
 #endif

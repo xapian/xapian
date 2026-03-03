@@ -1,4 +1,4 @@
-/** @file api_geospatial.cc
+/** @file
  * @brief Tests of geospatial functionality.
  */
 /* Copyright 2008 Lemur Consulting Ltd
@@ -16,9 +16,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -56,7 +55,7 @@ builddb_coords1(Xapian::WritableDatabase &db, const string &)
 }
 
 /// Test behaviour of the LatLongDistancePostingSource
-DEFINE_TESTCASE(latlongpostingsource1, generated && !remote && !inmemory) {
+DEFINE_TESTCASE(latlongpostingsource1, backend && !remote && !inmemory) {
     Xapian::Database db = get_database("coords1", builddb_coords1, "");
     Xapian::LatLongCoord coord1(10, 10);
     Xapian::LatLongCoord coord2(20, 10);
@@ -71,7 +70,7 @@ DEFINE_TESTCASE(latlongpostingsource1, generated && !remote && !inmemory) {
     // Test a search with no range restriction.
     {
 	Xapian::LatLongDistancePostingSource ps(0, coord1, metric);
-	ps.init(db);
+	ps.reset(db, 0);
 
 	ps.next(0.0);
 	TEST_EQUAL(ps.at_end(), false);
@@ -95,7 +94,7 @@ DEFINE_TESTCASE(latlongpostingsource1, generated && !remote && !inmemory) {
     // Test a search with no range restriction and implicit metric.
     {
 	Xapian::LatLongDistancePostingSource ps(0, coord1);
-	ps.init(db);
+	ps.reset(db, 0);
 
 	ps.next(0.0);
 	TEST_EQUAL(ps.at_end(), false);
@@ -119,7 +118,7 @@ DEFINE_TESTCASE(latlongpostingsource1, generated && !remote && !inmemory) {
     // Test a search with a tight range restriction
     {
 	Xapian::LatLongDistancePostingSource ps(0, centre, metric, coorddist * 0.5);
-	ps.init(db);
+	ps.reset(db, 0);
 
 	ps.next(0.0);
 	TEST_EQUAL(ps.at_end(), false);
@@ -132,7 +131,7 @@ DEFINE_TESTCASE(latlongpostingsource1, generated && !remote && !inmemory) {
     // Test a search with a tight range restriction and implicit metric.
     {
 	Xapian::LatLongDistancePostingSource ps(0, centre, coorddist * 0.5);
-	ps.init(db);
+	ps.reset(db, 0);
 
 	ps.next(0.0);
 	TEST_EQUAL(ps.at_end(), false);
@@ -145,7 +144,7 @@ DEFINE_TESTCASE(latlongpostingsource1, generated && !remote && !inmemory) {
     // Test a search with a looser range restriction
     {
 	Xapian::LatLongDistancePostingSource ps(0, centre, metric, coorddist);
-	ps.init(db);
+	ps.reset(db, 0);
 
 	ps.next(0.0);
 	TEST_EQUAL(ps.at_end(), false);
@@ -163,7 +162,7 @@ DEFINE_TESTCASE(latlongpostingsource1, generated && !remote && !inmemory) {
     // Test a search with a looser range restriction and implicit metric.
     {
 	Xapian::LatLongDistancePostingSource ps(0, centre, coorddist);
-	ps.init(db);
+	ps.reset(db, 0);
 
 	ps.next(0.0);
 	TEST_EQUAL(ps.at_end(), false);
@@ -182,7 +181,7 @@ DEFINE_TESTCASE(latlongpostingsource1, generated && !remote && !inmemory) {
     // the next document.
     {
 	Xapian::LatLongDistancePostingSource ps(0, centre, metric, coorddist * 1.5);
-	ps.init(db);
+	ps.reset(db, 0);
 
 	ps.next(0.0);
 	TEST_EQUAL(ps.at_end(), false);
@@ -201,7 +200,7 @@ DEFINE_TESTCASE(latlongpostingsource1, generated && !remote && !inmemory) {
     // the next document and implicit metric.
     {
 	Xapian::LatLongDistancePostingSource ps(0, centre, coorddist * 1.5);
-	ps.init(db);
+	ps.reset(db, 0);
 
 	ps.next(0.0);
 	TEST_EQUAL(ps.at_end(), false);
@@ -220,7 +219,7 @@ DEFINE_TESTCASE(latlongpostingsource1, generated && !remote && !inmemory) {
     // be returned.
     {
 	Xapian::LatLongDistancePostingSource ps(0, centre, metric, coorddist * 2.5);
-	ps.init(db);
+	ps.reset(db, 0);
 
 	ps.next(0.0);
 	TEST_EQUAL(ps.at_end(), false);
@@ -244,7 +243,7 @@ DEFINE_TESTCASE(latlongpostingsource1, generated && !remote && !inmemory) {
     // be returned and implicit metric.
     {
 	Xapian::LatLongDistancePostingSource ps(0, centre, coorddist * 2.5);
-	ps.init(db);
+	ps.reset(db, 0);
 
 	ps.next(0.0);
 	TEST_EQUAL(ps.at_end(), false);
@@ -263,8 +262,6 @@ DEFINE_TESTCASE(latlongpostingsource1, generated && !remote && !inmemory) {
 	ps.next(0.0);
 	TEST_EQUAL(ps.at_end(), true);
     }
-
-    return true;
 }
 
 // Test various methods of LatLongCoord and LatLongCoords
@@ -335,8 +332,6 @@ DEFINE_TESTCASE(latlongcoords1, !backend) {
     TEST_EQUAL(g2.size(), 0);
     TEST_EQUAL(g2.get_description(), "Xapian::LatLongCoords()");
     TEST(g2.begin() == g2.end());
-
-    return true;
 }
 
 // Test various methods of LatLongMetric
@@ -366,8 +361,6 @@ DEFINE_TESTCASE(latlongmetric1, !backend) {
     TEST_EQUAL_DOUBLE(d2, d3);
 
     delete m3;
-
-    return true;
 }
 
 // Test LatLongMetric on lists of coords.
@@ -391,8 +384,6 @@ DEFINE_TESTCASE(latlongmetric2, !backend) {
     TEST_EQUAL(d1, dl1);
     double d1_str = m1(cl1, c2_str);
     TEST_EQUAL(d1, d1_str);
-
-    return true;
 }
 
 // Test a LatLongDistanceKeyMaker directly.
@@ -428,6 +419,4 @@ DEFINE_TESTCASE(latlongkeymaker1, !backend) {
     std::string k4b = keymaker2(doc4);
     TEST_EQUAL(k3, k3b);
     TEST_REL(k3b, >, k4b);
-
-    return true;
 }

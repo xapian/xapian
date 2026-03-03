@@ -1,7 +1,7 @@
-/** @file externalpostlist.cc
+/** @file
  * @brief Return document ids from an external source.
  */
-/* Copyright 2008,2009,2010,2011 Olly Betts
+/* Copyright 2008-2026 Olly Betts
  * Copyright 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -15,8 +15,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -26,52 +26,40 @@
 #include <xapian/postingsource.h>
 
 #include "debuglog.h"
+#include "estimateop.h"
 #include "omassert.h"
 
 using namespace std;
 
-ExternalPostList::ExternalPostList(const Xapian::Database & db,
-				   Xapian::PostingSource *source_,
+ExternalPostList::ExternalPostList(const Xapian::Database& db,
+				   Xapian::PostingSource* source_,
+				   EstimateOp* estimate_op,
 				   double factor_,
-				   PostListTree * matcher)
-    : source(source_), source_is_owned(false), current(0), factor(factor_)
+				   bool* max_weight_cached_flag_ptr,
+				   Xapian::doccount shard_index)
+    : factor(factor_)
 {
-    Assert(source);
-    Xapian::PostingSource * newsource = source->clone();
+    Assert(source_);
+    Xapian::PostingSource* newsource = source_->clone();
     if (newsource != NULL) {
-	source = newsource;
-	source_is_owned = true;
+	source = newsource->release();
+    } else if (shard_index == 0) {
+	// Allow use of a non-clone-able PostingSource with a non-sharded
+	// Database.
+	source = source_;
+    } else {
+	throw Xapian::InvalidOperationError("PostingSource subclass must "
+					    "implement clone() to support use "
+					    "with a sharded database");
     }
-    source->register_matcher_(static_cast<void*>(matcher));
-    source->init(db);
-}
-
-ExternalPostList::~ExternalPostList()
-{
-    if (source_is_owned) {
-	delete source;
+    source->set_max_weight_cached_flag_ptr_(max_weight_cached_flag_ptr);
+    source->reset(db, shard_index);
+    termfreq = source->get_termfreq_est();
+    if (estimate_op) {
+	estimate_op->report_termfreqs(source->get_termfreq_min(),
+				      termfreq,
+				      source->get_termfreq_max());
     }
-}
-
-Xapian::doccount
-ExternalPostList::get_termfreq_min() const
-{
-    Assert(source);
-    return source->get_termfreq_min();
-}
-
-Xapian::doccount
-ExternalPostList::get_termfreq_est() const
-{
-    Assert(source);
-    return source->get_termfreq_est();
-}
-
-Xapian::doccount
-ExternalPostList::get_termfreq_max() const
-{
-    Assert(source);
-    return source->get_termfreq_max();
 }
 
 Xapian::docid
@@ -84,6 +72,7 @@ ExternalPostList::get_docid() const
 
 double
 ExternalPostList::get_weight(Xapian::termcount,
+			     Xapian::termcount,
 			     Xapian::termcount) const
 {
     LOGCALL(MATCH, double, "ExternalPostList::get_weight", NO_ARGS);
@@ -97,7 +86,7 @@ ExternalPostList::recalc_maxweight()
 {
     LOGCALL(MATCH, double, "ExternalPostList::recalc_maxweight", NO_ARGS);
     // source will be NULL here if we've reached the end.
-    if (source == NULL) RETURN(0.0);
+    if (!source) RETURN(0.0);
     if (factor == 0.0) RETURN(0.0);
     RETURN(factor * source->get_maxweight());
 }
@@ -114,7 +103,6 @@ ExternalPostList::update_after_advance() {
     Assert(source);
     if (source->at_end()) {
 	LOGLINE(MATCH, "ExternalPostList now at end");
-	if (source_is_owned) delete source;
 	source = NULL;
     } else {
 	current = source->get_docid();
@@ -153,7 +141,6 @@ ExternalPostList::check(Xapian::docid did, double w_min, bool &valid)
     valid = source->check(did, w_min);
     if (source->at_end()) {
 	LOGLINE(MATCH, "ExternalPostList now at end");
-	if (source_is_owned) delete source;
 	source = NULL;
     } else {
 	current = valid ? source->get_docid() : current;
@@ -165,7 +152,7 @@ bool
 ExternalPostList::at_end() const
 {
     LOGCALL(MATCH, bool, "ExternalPostList::at_end", NO_ARGS);
-    RETURN(source == NULL);
+    RETURN(!source);
 }
 
 Xapian::termcount

@@ -1,7 +1,8 @@
-/** @file mset.cc
+/** @file
  * @brief Xapian::MSet class
  */
-/* Copyright (C) 2017 Olly Betts
+/* Copyright (C) 2017,2024,2025 Olly Betts
+ * Copyright (C) 2018 Uppinder Chugh
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +15,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -23,9 +24,13 @@
 #include "msetinternal.h"
 #include "xapian/mset.h"
 
-#include "net/length.h"
+// FIXME: Clustering API needs work: #include "xapian/cluster.h"
+
+#include "backends/documentinternal.h"
 #include "net/serialise.h"
 #include "matcher/msetcmp.h"
+#include "omassert.h"
+#include "pack.h"
 #include "roundestimate.h"
 #include "serialise-double.h"
 #include "str.h"
@@ -34,19 +39,22 @@
 #include <algorithm>
 #include <cfloat>
 #include <string>
+#include <string_view>
+#include <unordered_set>
 
 using namespace std;
 
 namespace Xapian {
 
-MSet::MSet(const MSet& o) : internal(o.internal) {}
+MSet::MSet(const MSet&) = default;
 
 MSet&
-MSet::operator=(const MSet& o)
-{
-    internal = o.internal;
-    return *this;
-}
+MSet::operator=(const MSet&) = default;
+
+MSet::MSet(MSet&&) = default;
+
+MSet&
+MSet::operator=(MSet&&) = default;
 
 MSet::MSet() : internal(new MSet::Internal) {}
 
@@ -66,6 +74,196 @@ MSet::set_item_weight(Xapian::doccount i, double weight)
     internal->set_item_weight(i, weight);
 }
 
+#if 0 // FIXME: Diversification API needs work.
+/** Evaluate a diversified mset
+ *
+ *  Evaluate a diversified mset using MPT algorithm
+ *
+ *  @param dmset	Set of points representing candidate diversifed set of
+ *			documents.
+ *  @param cset		Set of clusters of given MSet.
+ */
+static double
+evaluate_dmset(const vector<Xapian::docid>& dmset,
+	       const Xapian::ClusterSet& cset,
+	       double factor1,
+	       double factor2,
+	       const Xapian::MSet& mset,
+	       const vector<double>& dissimilarity)
+{
+    double score_1 = 0, score_2 = 0;
+
+    // FIXME: We could compute score_1 once then adjust for each candidate
+    // change.
+    // Seems hard to do similar for score_2 though.
+    for (auto mset_index : dmset)
+	score_1 += mset[mset_index].get_weight();
+
+    auto cset_size = cset.size();
+    for (Xapian::doccount c = 0; c < cset_size; ++c) {
+	double min_dist = numeric_limits<double>::max();
+	unsigned int pos = 1;
+	for (auto mset_index : dmset) {
+	    // FIXME: Pre-compute 1.0 / log(2.0 + i) for i = [0, dmset.size()) ?
+	    double weight = dissimilarity[mset_index * cset_size + c];
+	    weight /= log(1.0 + pos);
+	    min_dist = min(min_dist, weight);
+	    ++pos;
+	}
+	score_2 += min_dist;
+    }
+
+    return factor2 * score_2 - factor1 * score_1;
+}
+
+void
+MSet::diversify_(Xapian::doccount k,
+		 Xapian::doccount r,
+		 double factor1,
+		 double factor2)
+{
+    // Ensured by inlined caller.
+    AssertRel(k, >=, 2);
+
+    auto mset_size = size();
+    if (mset_size <= k) {
+	// Picking k documents would pick the whole MSet so nothing to do.
+	//
+	// Since k >= 2, this means we don't try to diversify an MSet with
+	// 2 documents (for which reordering can't usefully improve diversity
+	// since the only possible change is to swap the order of the 2
+	// documents).
+	return;
+    }
+
+    /// Store MSet indices of top k diversified documents
+    std::vector<Xapian::doccount> main_dmset;
+    main_dmset.reserve(k);
+
+    Xapian::doccount count = 0;
+    TermListGroup tlg(*this);
+    std::vector<Xapian::Point> points;
+    points.reserve(mset_size);
+    for (MSetIterator it = begin(); it != end(); ++it) {
+	Xapian::Document doc = it.get_document();
+	doc.internal->set_index(count);
+	points.push_back(Xapian::Point(tlg, doc));
+	// Initial top-k diversified documents
+	if (count < k) {
+	    // The initial diversified document set is the top-k documents from
+	    // the MSet.
+	    main_dmset.push_back(count);
+	}
+	++count;
+    }
+
+    // Cluster the MSet into k clusters.
+    Xapian::ClusterSet cset = Xapian::LCDClusterer(k).cluster(*this);
+
+    /** Precompute dissimilarity scores between each document and cluster
+     *  centroid.
+     *
+     *  These scores are:
+     *
+     *  1.0 - cosine_similarity(docid, cluster_index)
+     *
+     *  The index into dissimilarity is:
+     *
+     *    mset_index * number_of_clusters + cluster_index
+     */
+
+    // Pre-compute all the dissimilarity values.
+    auto cset_size = cset.size();
+    std::vector<double> dissimilarity;
+    dissimilarity.reserve(cset_size * points.size());
+    {
+	Xapian::CosineDistance d;
+	for (const auto& point : points) {
+	    for (unsigned int c = 0; c < cset_size; ++c) {
+		double dist = d.similarity(point, cset[c].get_centroid());
+		dissimilarity.push_back(1.0 - dist);
+	    }
+	}
+    }
+
+    // Build topc, which contains the union of the top-r relevant documents of
+    // each cluster.
+    vector<Xapian::docid> topc;
+    for (Xapian::doccount c = 0; c < cset_size; ++c) {
+	// FIXME: This is supposed to pick the `r` most relevant documents, but
+	// actually seems to pick those with the lowest docids.
+	auto documents = cset[c].get_documents();
+	auto limit = std::min(r, documents.size());
+	for (Xapian::doccount d = 0; d < limit; ++d) {
+	    auto mset_index = documents[d].internal->get_index();
+	    topc.push_back(mset_index);
+	}
+    }
+
+    vector<Xapian::doccount> curr_dmset = main_dmset;
+
+    while (true) {
+	bool found_better_dmset = false;
+	for (unsigned int i = 0; i < main_dmset.size(); ++i) {
+	    auto curr_doc = main_dmset[i];
+	    double best_score = evaluate_dmset(curr_dmset, cset,
+					       factor1, factor2,
+					       *this, dissimilarity);
+	    bool found_better_doc = false;
+
+	    for (unsigned int j = 0; j < topc.size(); ++j) {
+		// Continue if candidate document from topc already
+		// exists in curr_dmset.  FIXME: Linear search!
+		auto candidate_doc = find(curr_dmset.begin(), curr_dmset.end(),
+					  topc[j]);
+		if (candidate_doc != curr_dmset.end()) {
+		    continue;
+		}
+
+		auto temp_doc = curr_dmset[i];
+		curr_dmset[i] = topc[j];
+		double score = evaluate_dmset(curr_dmset, cset,
+					      factor1, factor2,
+					      *this, dissimilarity);
+
+		if (score < best_score) {
+		    curr_doc = curr_dmset[i];
+		    best_score = score;
+		    found_better_doc = true;
+		}
+
+		curr_dmset[i] = temp_doc;
+	    }
+	    if (found_better_doc) {
+		curr_dmset[i] = curr_doc;
+		found_better_dmset = true;
+	    }
+	}
+
+	// Terminate algorithm when there's no change in current
+	// document matchset
+	if (!found_better_dmset)
+	    break;
+
+	main_dmset = curr_dmset;
+    }
+
+    // Reorder the results to reflect the diversification.  To do this we need
+    // to partition the MSet so the promoted documents come first (in original
+    // MSet order), followed by the non-promoted documents (also in original
+    // MSet order).
+    unordered_set<Xapian::docid> promoted{k};
+    for (auto mset_index : main_dmset) {
+	promoted.insert(internal->items[mset_index].get_docid());
+    }
+
+    stable_partition(internal->items.begin(), internal->items.end(),
+		     [&](const Result& result) {
+			 return promoted.count(result.get_docid());
+		     });
+}
+#endif
+
 void
 MSet::sort_by_relevance()
 {
@@ -80,7 +278,7 @@ MSet::convert_to_percent(double weight) const
 }
 
 Xapian::doccount
-MSet::get_termfreq(const std::string& term) const
+MSet::get_termfreq(std::string_view term) const
 {
     // Check the cached data for query terms first.
     Xapian::doccount termfreq;
@@ -88,7 +286,7 @@ MSet::get_termfreq(const std::string& term) const
 	return termfreq;
     }
 
-    if (rare(internal->enquire.get() == NULL)) {
+    if (rare(!internal->enquire)) {
 	// Consistent with get_termfreq() on an empty database which always
 	// returns 0.
 	return 0;
@@ -99,7 +297,7 @@ MSet::get_termfreq(const std::string& term) const
 }
 
 double
-MSet::get_termweight(const std::string& term) const
+MSet::get_termweight(std::string_view term) const
 {
     // A term not in the query has no termweight, so 0.0 makes sense as the
     // answer in such cases.
@@ -175,18 +373,17 @@ MSet::get_max_possible() const
 Xapian::doccount
 MSet::size() const
 {
-    Assert(internal.get());
     return internal->items.size();
 }
 
 std::string
-MSet::snippet(const std::string& text,
+MSet::snippet(std::string_view text,
 	      size_t length,
 	      const Xapian::Stem& stemmer,
 	      unsigned flags,
-	      const std::string& hi_start,
-	      const std::string& hi_end,
-	      const std::string& omit) const
+	      std::string_view hi_start,
+	      std::string_view hi_end,
+	      std::string_view omit) const
 {
     // The actual implementation is in queryparser/termgenerator_internal.cc.
     return internal->snippet(text, length, stemmer, flags,
@@ -209,14 +406,14 @@ MSet::Internal::get_document(Xapian::doccount index) const
 	msg += str(items.size());
 	throw Xapian::RangeError(msg);
     }
-    Assert(enquire.get());
+    Assert(enquire);
     return enquire->get_document(items[index].get_docid());
 }
 
 void
 MSet::Internal::fetch(Xapian::doccount first_, Xapian::doccount last) const
 {
-    if (items.empty() || enquire.get() == NULL) {
+    if (items.empty() || !enquire) {
 	return;
     }
     if (last > items.size() - 1) {
@@ -291,14 +488,19 @@ MSet::Internal::unshard_docids(Xapian::doccount shard,
 }
 
 void
-MSet::Internal::merge_stats(const Internal* o)
+MSet::Internal::merge_stats(const Internal* o, bool collapsing)
 {
     if (snippet_bg_relevance.empty()) {
 	snippet_bg_relevance = o->snippet_bg_relevance;
     } else {
 	Assert(snippet_bg_relevance == o->snippet_bg_relevance);
     }
-    matches_lower_bound += o->matches_lower_bound;
+    if (collapsing) {
+	matches_lower_bound = max(matches_lower_bound, o->matches_lower_bound);
+	// matches_estimated will get adjusted later in this case.
+    } else {
+	matches_lower_bound += o->matches_lower_bound;
+    }
     matches_estimated += o->matches_estimated;
     matches_upper_bound += o->matches_upper_bound;
     uncollapsed_lower_bound += o->uncollapsed_lower_bound;
@@ -316,33 +518,32 @@ MSet::Internal::serialise() const
 {
     string result;
 
-    result += encode_length(first);
+    result += serialise_double(max_possible);
+    result += serialise_double(max_attained);
+
+    result += serialise_double(percent_scale_factor);
+
+    pack_uint(result, first);
     // Send back the raw matches_* values.  MSet::get_matches_estimated()
     // rounds the estimate lazily, but when we merge MSet objects we really
     // want to merge based on the raw estimates.
     //
     // It is also cleaner that a round-trip through serialisation gives you an
     // object which is as close to the original as possible.
-    result += encode_length(matches_lower_bound);
-    result += encode_length(matches_estimated);
-    result += encode_length(matches_upper_bound);
-    result += encode_length(uncollapsed_lower_bound);
-    result += encode_length(uncollapsed_estimated);
-    result += encode_length(uncollapsed_upper_bound);
-    result += serialise_double(max_possible);
-    result += serialise_double(max_attained);
+    pack_uint(result, matches_lower_bound);
+    pack_uint(result, matches_estimated);
+    pack_uint(result, matches_upper_bound);
+    pack_uint(result, uncollapsed_lower_bound);
+    pack_uint(result, uncollapsed_estimated);
+    pack_uint(result, uncollapsed_upper_bound);
 
-    result += serialise_double(percent_scale_factor);
-
-    result += encode_length(items.size());
+    pack_uint(result, items.size());
     for (auto&& item : items) {
 	result += serialise_double(item.get_weight());
-	result += encode_length(item.get_docid());
-	result += encode_length(item.get_sort_key().size());
-	result += item.get_sort_key();
-	result += encode_length(item.get_collapse_key().size());
-	result += item.get_collapse_key();
-	result += encode_length(item.get_collapse_count());
+	pack_uint(result, item.get_docid());
+	pack_string(result, item.get_sort_key());
+	pack_string(result, item.get_collapse_key());
+	pack_uint(result, item.get_collapse_count());
     }
 
     if (stats)
@@ -356,40 +557,40 @@ MSet::Internal::unserialise(const char * p, const char * p_end)
 {
     items.clear();
 
-    decode_length(&p, p_end, first);
-    decode_length(&p, p_end, matches_lower_bound);
-    decode_length(&p, p_end, matches_estimated);
-    decode_length(&p, p_end, matches_upper_bound);
-    decode_length(&p, p_end, uncollapsed_lower_bound);
-    decode_length(&p, p_end, uncollapsed_estimated);
-    decode_length(&p, p_end, uncollapsed_upper_bound);
     max_possible = unserialise_double(&p, p_end);
     max_attained = unserialise_double(&p, p_end);
 
     percent_scale_factor = unserialise_double(&p, p_end);
 
     size_t msize;
-    decode_length(&p, p_end, msize);
-    while (msize-- > 0) {
+    if (!unpack_uint(&p, p_end, &first) ||
+	!unpack_uint(&p, p_end, &matches_lower_bound) ||
+	!unpack_uint(&p, p_end, &matches_estimated) ||
+	!unpack_uint(&p, p_end, &matches_upper_bound) ||
+	!unpack_uint(&p, p_end, &uncollapsed_lower_bound) ||
+	!unpack_uint(&p, p_end, &uncollapsed_estimated) ||
+	!unpack_uint(&p, p_end, &uncollapsed_upper_bound) ||
+	!unpack_uint(&p, p_end, &msize)) {
+	unpack_throw_serialisation_error(p);
+    }
+    for ( ; msize; --msize) {
 	double wt = unserialise_double(&p, p_end);
 	Xapian::docid did;
-	decode_length(&p, p_end, did);
-	size_t len;
-	decode_length_and_check(&p, p_end, len);
-	string sort_key(p, len);
-	p += len;
-	decode_length_and_check(&p, p_end, len);
-	string key(p, len);
-	p += len;
+	string sort_key, key;
 	Xapian::doccount collapse_cnt;
-	decode_length(&p, p_end, collapse_cnt);
+	if (!unpack_uint(&p, p_end, &did) ||
+	    !unpack_string(&p, p_end, sort_key) ||
+	    !unpack_string(&p, p_end, key) ||
+	    !unpack_uint(&p, p_end, &collapse_cnt)) {
+	    unpack_throw_serialisation_error(p);
+	}
 	items.emplace_back(wt, did, std::move(key), collapse_cnt,
 			   std::move(sort_key));
     }
 
     if (p != p_end) {
 	stats.reset(new Xapian::Weight::Internal());
-	unserialise_stats(string(p, p_end - p), *stats);
+	unserialise_stats(p, p_end, *stats);
     }
 }
 

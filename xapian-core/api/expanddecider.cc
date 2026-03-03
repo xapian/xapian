@@ -1,4 +1,4 @@
-/** @file expanddecider.cc
+/** @file
  * @brief Allow rejection of terms during ESet generation.
  */
 /* Copyright (C) 2007,2016 Olly Betts
@@ -14,8 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -38,12 +38,7 @@ ExpandDeciderAnd::operator()(const string &term) const
 bool
 ExpandDeciderFilterTerms::operator()(const string &term) const
 {
-    /* Some older compilers (such as Sun's CC) return an iterator from find()
-     * and a const_iterator from end() in this situation, and then can't
-     * compare the two!  We workaround this problem by explicitly assigning the
-     * result of find() to a const_iterator. */
-    set<string>::const_iterator i = rejects.find(term);
-    return i == rejects.end();
+    return rejects.find(term) == rejects.end();
 }
 
 bool

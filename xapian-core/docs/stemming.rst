@@ -3,15 +3,11 @@
 Stemming Algorithms
 ===================
 
-Xapian uses the `Snowball Stemming
-Algorithms <http://snowballstem.org/>`_. At present, these support
-Armenian, Basque, Catalan, Danish, Dutch, English, Finnish, French, German,
-Hungarian, Italian, Norwegian, Portuguese, Romanian, Russian, Spanish, Swedish,
-and Turkish.
-
-There are also implementations of Lovins' English stemmer, Porter's
-original English stemmer, the Kraaij-Pohlmann Dutch stemmer, and a
-variation of the German stemmer which normalises umlauts.
+Xapian uses the `Snowball Stemming Algorithms <https://snowballstem.org/>`_
+which provide stemmers for more than 30 languages.  See the `Xapian::Stem API
+documentation
+<apidoc/html/classXapian_1_1Stem.html#aa6c9376cf9bd70db28bc61850e334804>`_
+for a list.
 
 We'd like to add stemmers for more languages - see the Snowball site for
 information on how to contribute.
@@ -28,6 +24,7 @@ the variant forms of a word are reduced to a common form, for example,
         connective          --->   connect
         connected
         connecting
+        connects
 
 It is important to appreciate that we use stemming with the intention of
 improving the performance of IR systems. It is not an exercise in
@@ -46,6 +43,7 @@ be constant at the front, and to vary at the end::
                 connect-ive
                        -ed
                        -ing
+                       -s
 
 The variable part is the `ending`, or `suffix`. Taking these endings
 off is called `suffix stripping` or `stemming`, and the residual part
@@ -93,9 +91,11 @@ matter of writing the stemming algorithm.
 Vocabularies
 ------------
 
-Each stemmer is issued with a vocabulary in data/voc.txt, and its
-stemmed form in data/voc.st. You can use these for testing and
-evaluation purposes.
+Each stemmer is accompanied by vocabulary list - e.g. the "english"
+stemmmer's vocabulary list is in ``xapian-data/stemmming/english/voc.txt``
+and the stemmed forms are in ``xapian-data/stemmming/english/output.txt``.
+These are used by the testsuite program ``stemtest``, and you can also
+use them for evaluation purposes.
 
 Raw materials
 -------------
@@ -346,10 +346,9 @@ result. In Italian for example, the four forms
 
         quest
 
-.. FIXME: Nice idea, but currently these lists are fictitious:
-    In the xapian-data directory in the git repository, each language
-    represented in the stemming section has, in addition to a large test
-    vocabulary, a useful stopword list in both source and stemmed form. The
-    source form, in the file ``stopsource``, is carefully annotated, and the
-    derived file, ``stopwords``, contains an equivalent list of sorted,
-    stemmed, stopwords.
+We provide stopword lists for many languages in the ``languages/stopwords``
+subdirectory of ``xapian-core``.  This is maintained in e.g. ``english.txt``
+which is carefully annotated with comments.  The build system creates
+``english.list`` from this with comments and blank lines stripped and any
+duplicate entries eliminated, leaving just the stopwords, one per line, sorted
+into ascending order by unsigned byte values.

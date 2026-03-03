@@ -1,4 +1,4 @@
-/** @file valuerangepostlist.h
+/** @file
  * @brief Return document ids matching a range test on a specified doc value.
  */
 /* Copyright 2007,2008,2009,2011 Olly Betts
@@ -16,16 +16,18 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_VALUERANGEPOSTLIST_H
 #define XAPIAN_INCLUDED_VALUERANGEPOSTLIST_H
 
-#include "api/postlist.h"
+#include "backends/postlist.h"
 #include "backends/valuelist.h"
 #include "xapian/database.h"
+
+class EstimateOp;
 
 class ValueRangePostList : public PostList {
   protected:
@@ -35,9 +37,16 @@ class ValueRangePostList : public PostList {
 
     const std::string begin, end;
 
-    Xapian::doccount db_size;
+    /// Number of times the range test accepted the candidate document.
+    Xapian::doccount accepted = 0;
 
-    ValueList * valuelist;
+    /// Number of times the range test rejected the candidate document.
+    Xapian::doccount rejected = 0;
+
+    /// Object to report accepted/rejected counts to.
+    EstimateOp* estimate_op;
+
+    ValueList* valuelist = nullptr;
 
     /// Disallow copying.
     ValueRangePostList(const ValueRangePostList &);
@@ -47,26 +56,26 @@ class ValueRangePostList : public PostList {
 
   public:
     ValueRangePostList(const Xapian::Database::Internal *db_,
+		       EstimateOp* estimate_op_,
+		       Xapian::doccount termfreq_,
 		       Xapian::valueno slot_,
 		       const std::string &begin_, const std::string &end_)
 	: db(db_), slot(slot_), begin(begin_), end(end_),
-	  db_size(db->get_doccount()), valuelist(0) { }
+	  estimate_op(estimate_op_)
+    {
+	// Static estimate of termfreq based on the slot bounds and range ends.
+	termfreq = termfreq_;
+    }
 
     ~ValueRangePostList();
-
-    Xapian::doccount get_termfreq_min() const;
-
-    Xapian::doccount get_termfreq_est() const;
-
-    Xapian::doccount get_termfreq_max() const;
-
-    TermFreqs get_termfreq_est_using_stats(
-	const Xapian::Weight::Internal & stats) const;
 
     Xapian::docid get_docid() const;
 
     double get_weight(Xapian::termcount doclen,
-		      Xapian::termcount unique_terms) const;
+		      Xapian::termcount unique_terms,
+		      Xapian::termcount wdfdocmax) const;
+
+    Xapian::termcount get_wdfdocmax() const;
 
     double recalc_maxweight();
 

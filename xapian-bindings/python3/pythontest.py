@@ -1,7 +1,7 @@
 # Tests of Python-specific parts of the xapian bindings.
 #
 # Copyright (C) 2007 Lemur Consulting Ltd
-# Copyright (C) 2008,2009,2010,2011,2013,2014,2015,2016 Olly Betts
+# Copyright (C) 2008,2009,2010,2011,2013,2014,2015,2016,2019 Olly Betts
 # Copyright (C) 2010,2011 Richard Boulton
 #
 # This program is free software; you can redistribute it and/or
@@ -15,9 +15,8 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
-# USA
+# along with this program; if not, see
+# <https://www.gnu.org/licenses/>.
 
 import os
 import random
@@ -845,49 +844,6 @@ def test_spell():
     dbr.close()
     shutil.rmtree(dbpath)
 
-def test_queryparser_custom_vrp():
-    """Test QueryParser with a custom (in python) ValueRangeProcessor.
-
-    """
-    class MyVRP(xapian.ValueRangeProcessor):
-        def __init__(self):
-            xapian.ValueRangeProcessor.__init__(self)
-
-        def __call__(self, begin, end):
-            return (7, "A"+begin, "B"+end)
-
-    queryparser = xapian.QueryParser()
-    myvrp = MyVRP()
-
-    queryparser.add_valuerangeprocessor(myvrp)
-    query = queryparser.parse_query('5..8')
-
-    expect(str(query),
-           'Query(VALUE_RANGE 7 A5 B8)')
-
-def test_queryparser_custom_vrp_deallocation():
-    """Test that QueryParser doesn't delete ValueRangeProcessors too soon.
-
-    """
-    class MyVRP(xapian.ValueRangeProcessor):
-        def __init__(self):
-            xapian.ValueRangeProcessor.__init__(self)
-
-        def __call__(self, begin, end):
-            return (7, "A"+begin, "B"+end)
-
-    def make_parser():
-        queryparser = xapian.QueryParser()
-        myvrp = MyVRP()
-        queryparser.add_valuerangeprocessor(myvrp)
-        return queryparser
-
-    queryparser = make_parser()
-    query = queryparser.parse_query('5..8')
-
-    expect(str(query),
-           'Query(VALUE_RANGE 7 A5 B8)')
-
 def test_queryparser_custom_rp():
     """Test QueryParser with a custom (in python) RangeProcessor.
 
@@ -1324,7 +1280,7 @@ def test_value_mods():
     check_vals(db, vals)
 
     db.close()
-    expect_exception(xapian.DatabaseError, "Database has been closed", check_vals, db, vals)
+    expect_exception(xapian.DatabaseClosedError, "Database has been closed", check_vals, db, vals)
     shutil.rmtree(dbpath)
 
 def test_serialise_document():
@@ -1696,12 +1652,14 @@ def test_repr():
     expect(repr(xapian.InvalidOperationError('foo')) is None, False)
     expect(repr(xapian.UnimplementedError('foo')) is None, False)
     expect(repr(xapian.DatabaseError('foo')) is None, False)
+    expect(repr(xapian.DatabaseClosedError('foo')) is None, False)
     expect(repr(xapian.DatabaseCorruptError('foo')) is None, False)
     expect(repr(xapian.DatabaseCreateError('foo')) is None, False)
     expect(repr(xapian.DatabaseLockError('foo')) is None, False)
     expect(repr(xapian.DatabaseModifiedError('foo')) is None, False)
     expect(repr(xapian.DatabaseOpeningError('foo')) is None, False)
     expect(repr(xapian.DatabaseVersionError('foo')) is None, False)
+    expect(repr(xapian.DatabaseNotFoundError('foo')) is None, False)
     expect(repr(xapian.DocNotFoundError('foo')) is None, False)
     expect(repr(xapian.FeatureUnavailableError('foo')) is None, False)
     expect(repr(xapian.InternalError('foo')) is None, False)
@@ -1724,9 +1682,6 @@ def test_repr():
     expect(repr(xapian.RangeProcessor()) is None, False)
     expect(repr(xapian.DateRangeProcessor(1)) is None, False)
     expect(repr(xapian.NumberRangeProcessor(1)) is None, False)
-    expect(repr(xapian.StringValueRangeProcessor(1)) is None, False)
-    expect(repr(xapian.DateValueRangeProcessor(1)) is None, False)
-    expect(repr(xapian.NumberValueRangeProcessor(1)) is None, False)
     expect(repr(xapian.QueryParser()) is None, False)
     expect(repr(xapian.BoolWeight()) is None, False)
     expect(repr(xapian.TfIdfWeight()) is None, False)
@@ -1741,7 +1696,10 @@ def test_repr():
     expect(repr(xapian.PL2Weight()) is None, False)
     expect(repr(xapian.PL2PlusWeight()) is None, False)
     expect(repr(xapian.DPHWeight()) is None, False)
-    expect(repr(xapian.LMWeight()) is None, False)
+    expect(repr(xapian.LM2StageWeight()) is None, False)
+    expect(repr(xapian.LMAbsDiscountWeight()) is None, False)
+    expect(repr(xapian.LMDirichletWeight()) is None, False)
+    expect(repr(xapian.LMJMWeight()) is None, False)
     expect(repr(xapian.CoordWeight()) is None, False)
     expect(repr(xapian.Compactor()) is None, False)
     expect(repr(xapian.ValuePostingSource(1)) is None, False)
@@ -1755,6 +1713,17 @@ def test_repr():
     expect(repr(xapian.GreatCircleMetric()) is None, False)
     expect(repr(xapian.Database()) is None, False)
     expect(repr(xapian.WritableDatabase()) is None, False)
+
+def test_lone_surrogate():
+    # Test that a lone surrogate in input data raises UnicodeEncodeError.
+    # Regression test for bug fixed in 1.4.12 (previous versions quietly
+    # skipped the lone surrogate when converting to UTF-8).
+    noop_stemmer = xapian.Stem("none")
+    try:
+        term = noop_stemmer(u"a\udead0")
+        raise TestFail("Lone surrogate accepted (output as %s)" % term)
+    except UnicodeEncodeError:
+        pass
 
 result = True
 

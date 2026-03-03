@@ -1,7 +1,7 @@
-/** @file enquire.cc
+/** @file
  * @brief Xapian::Enquire class
  */
-/* Copyright (C) 2009,2017 Olly Betts
+/* Copyright (C) 2009,2017,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -27,6 +27,7 @@
 #include "expand/expandweight.h"
 #include "matcher/matcher.h"
 #include "msetinternal.h"
+#include "omassert.h"
 #include "vectortermlist.h"
 #include "weight/weightinternal.h"
 #include "xapian/database.h"
@@ -53,14 +54,15 @@ throw_invalid_arg(const char* msg) {
 
 namespace Xapian {
 
-Enquire::Enquire(const Enquire& o) : internal(o.internal) {}
+Enquire::Enquire(const Enquire&) = default;
 
 Enquire&
-Enquire::operator=(const Enquire& o)
-{
-    internal = o.internal;
-    return *this;
-}
+Enquire::operator=(const Enquire&) = default;
+
+Enquire::Enquire(Enquire&&) = default;
+
+Enquire&
+Enquire::operator=(Enquire&&) = default;
 
 Enquire::Enquire(const Database& db) : internal(new Enquire::Internal(db)) {}
 
@@ -211,15 +213,16 @@ Enquire::get_matching_terms_begin(docid did) const
 }
 
 void
-Enquire::set_expansion_scheme(const std::string &eweightname, double expand_k) const
+Enquire::set_expansion_scheme(std::string_view eweightname,
+			      double expand_k) const
 {
     if (eweightname == "bo1") {
 	internal->eweight = Enquire::Internal::EXPAND_BO1;
-    } else if (eweightname == "trad") {
-	internal->eweight = Enquire::Internal::EXPAND_TRAD;
+    } else if (eweightname == "prob" || eweightname == "trad") {
+	internal->eweight = Enquire::Internal::EXPAND_PROB;
     } else {
 	throw_invalid_arg("Enquire::set_expansion_scheme(): eweightname must "
-			  "be 'bo1' or 'trad'");
+			  "be 'bo1', 'prob' or 'trad'");
     }
     internal->expand_k = expand_k;
 }
@@ -270,7 +273,7 @@ Enquire::Internal::get_mset(doccount first,
     }
 
     // Lazily initialise weight to its default if necessary.
-    if (!weight.get())
+    if (!weight)
 	weight.reset(new BM25Weight);
 
     // Lazily initialise query_length if it wasn't explicitly specified.
@@ -294,7 +297,6 @@ Enquire::Internal::get_mset(doccount first,
 		    rset,
 		    *stats,
 		    *weight,
-		    (sort_functor.get() != NULL),
 		    (mdecider != NULL),
 		    collapse_key,
 		    collapse_max,
@@ -325,7 +327,7 @@ Enquire::Internal::get_mset(doccount first,
 			       time_limit,
 			       matchspies);
 
-    if (first_orig != first && mset.internal.get()) {
+    if (first_orig != first) {
 	mset.internal->set_first(first_orig);
     }
 
@@ -450,7 +452,7 @@ Enquire::Internal::get_eset(termcount maxitems,
     if ((flags & Enquire::INCLUDE_QUERY_TERMS) == 0 && !query.empty()) {
 	auto edft = new ExpandDeciderFilterTerms(query.get_terms_begin(),
 						 query.get_terms_end());
-	if (edecider.get() == NULL) {
+	if (!edecider) {
 	    edecider = edft->release();
 	} else {
 	    // Make sure ExpandDeciderFilterTerms doesn't leak if new throws.
@@ -467,10 +469,10 @@ Enquire::Internal::get_eset(termcount maxitems,
 	eset.internal->expand(maxitems, db, rset, edecider.get(), bo1eweight,
 			      min_weight);
     } else {
-	AssertEq(eweight, Enquire::Internal::EXPAND_TRAD);
-	using Xapian::Internal::TradEWeight;
-	TradEWeight tradeweight(db, rset.size(), use_exact_termfreq, expand_k);
-	eset.internal->expand(maxitems, db, rset, edecider.get(), tradeweight,
+	AssertEq(eweight, Enquire::Internal::EXPAND_PROB);
+	using Xapian::Internal::ProbEWeight;
+	ProbEWeight probeweight(db, rset.size(), use_exact_termfreq, expand_k);
+	eset.internal->expand(maxitems, db, rset, edecider.get(), probeweight,
 			      min_weight);
     }
 

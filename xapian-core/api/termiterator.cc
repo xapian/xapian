@@ -1,7 +1,7 @@
-/** @file termiterator.cc
+/** @file
  *  @brief Class for iterating over a list of terms.
  */
-/* Copyright (C) 2008,2009,2010,2011,2013 Olly Betts
+/* Copyright (C) 2008,2009,2010,2011,2013,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -42,14 +42,16 @@ void
 TermIterator::post_advance(Internal * res)
 {
     if (res) {
-	// This can happen with iterating allterms from multiple databases.
-	++res->_refs;
+	if (res == internal) {
+	    // No more items.
+	    res = NULL;
+	} else {
+	    // Prune - this can happen with iterating allterms from multiple
+	    // databases.
+	    ++res->_refs;
+	}
 	decref();
 	internal = res;
-    }
-    if (internal->at_end()) {
-	decref();
-	internal = NULL;
     }
 }
 
@@ -138,7 +140,7 @@ TermIterator::positionlist_begin() const
 }
 
 void
-TermIterator::skip_to(const string & term)
+TermIterator::skip_to(string_view term)
 {
     LOGCALL_VOID(API, "TermIterator::skip_to", term);
     if (internal)

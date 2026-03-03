@@ -63,7 +63,7 @@ example you might index both stemmed and unstemmed forms of some or all
 terms. Or a stemming algorithm could conceivably produce more than one
 stem in some cases (this isn't the case for any of the stemming
 algorithms Xapian currently supports, but consider the `Double
-Metaphone <http://en.wikipedia.org/wiki/Double_Metaphone>`_ phonetic
+Metaphone <https://en.wikipedia.org/wiki/Double_Metaphone>`_ phonetic
 algorithm which can produce two codes from a single input).
 
 Xapian's context within IR
@@ -74,14 +74,14 @@ next section. This could be called the antediluvian period, or
 generation zero. The first generation of IR research dates from the
 early sixties, and was dominated by model building, experimentation, and
 heuristics. The big names were `Gerard
-Salton <http://en.wikipedia.org/wiki/Gerard_Salton>`_ and `Karen Sparck
-Jones <http://en.wikipedia.org/wiki/Karen_Sparck_Jones>`_. The second
+Salton <https://en.wikipedia.org/wiki/Gerard_Salton>`_ and `Karen Sparck
+Jones <https://en.wikipedia.org/wiki/Karen_Sparck_Jones>`_. The second
 period, which began in the mid-seventies, saw a big shift towards
 mathematics, and a rise of the IR model based upon probability theory -
 probabilistic IR. The big name here was, and continues to be, `Stephen
 Robertson <http://www.soi.city.ac.uk/~ser/homepage.html>`_. More
 recently `Keith van
-Rijsbergen <http://en.wikipedia.org/wiki/C._J._van_Rijsbergen>`_ has led
+Rijsbergen <https://en.wikipedia.org/wiki/C._J._van_Rijsbergen>`_ has led
 a group that has developed underlying logical models of IR, but
 interesting as this new work is, it has not as yet led to results that
 offer improvements for the IR system builder.
@@ -116,7 +116,7 @@ A Boolean construct of terms retrieves a corresponding set of documents.
 So, if:
 
     |    :math:`t_1` indexes documents  1 2 3 5 8
-    |    :math:`t_1` indexes documents  2 3 6
+    |    :math:`t_2` indexes documents  2 3 6
 
 then
 
@@ -232,7 +232,7 @@ important tests across a number of test collections reduces the effects
 caused by accidental features of individual collections, and the results
 obtained by these tests in modern research are generally accepted as
 trustworthy. Nowadays such research with test collections is organised
-from `TREC <http://trec.nist.gov/>`_.
+from `TREC <https://trec.nist.gov/>`_.
 
 Probabilistic term weights
 --------------------------
@@ -404,10 +404,12 @@ The sum extends over the terms of *Q* which index d. :math:`f_t` is
 the wdf of t in d, :math:`L_d` is the ndl of d, and k is some suitably
 chosen constant.
 
+In Xapian, this weighting scheme is available by using `Xapian::BM25Weight
+class <apidoc/html/classXapian_1_1BM25Weight.html>`_ with `k1` set to k, `b=1`
+and the other parameters set to `0`.
+
 The factor :math:`k+1` is actually redundant, but helps with the interpretation
-of the equation. In Xapian, this weighting scheme is implemented by the
-`Xapian::TradWeight class <apidoc/html/classXapian_1_1TradWeight.html>`_
-and the factor :math:`(k+1)` is ignored.
+of the equation.
 
 If :math:`k` is set to zero the factor before :math:`w(t)` is 1, and the wdfs are
 ignored. As k tends to infinity, the factor becomes
@@ -548,9 +550,10 @@ The progress of a query
 -----------------------
 
 Below we describe the general case of the IR model supported, including
-use of a relevance set (`RSet <glossary.html#rset>`_), query expansion,
-improved term weights and reranking. You don't have to use any of these
-for Xapian to be useful, but they are available should you need them.
+use of a relevance set (`RSet
+<https://getting-started-with-xapian.readthedocs.io/en/latest/glossary.html#rset>`_),
+query expansion, improved term weights and reranking. You don't have to use any
+of these for Xapian to be useful, but they are available should you need them.
 
 The user enters a query. This is parsed into a form the IR system
 understands, and run by the IR system, which returns two lists, a list
@@ -574,7 +577,7 @@ Further Reading
 ---------------
 
 If you want to find out more, then `"Simple, proven approaches to text
-retrieval" <http://citeseer.ist.psu.edu/viewdoc/summary?doi=10.1.1.53.8337>`_
+retrieval" <https://citeseer.ist.psu.edu/viewdoc/summary?doi=10.1.1.53.8337>`_
 is a worthwhile read. It's a good introduction to Probabilistic
 Information retrieval, which is basically what Xapian provides.
 

@@ -1,4 +1,4 @@
-/** @file valuestreamdocument.cc
+/** @file
  * @brief A document which gets its values from a ValueStreamManager.
  */
 /* Copyright (C) 2009,2011,2014,2017 Olly Betts
@@ -14,8 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -44,7 +44,7 @@ ValueStreamDocument::~ValueStreamDocument()
 }
 
 void
-ValueStreamDocument::new_shard(size_t n)
+ValueStreamDocument::new_shard(Xapian::doccount n)
 {
     AssertRel(n,>,0);
     AssertRel(n,<,n_shards);

@@ -1,4 +1,4 @@
-/** @file tmpdir.cc
+/** @file
  * @brief create a temporary directory securely
  */
 /* Copyright (C) 2007,2011,2016 Olly Betts
@@ -14,24 +14,20 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
 
 #include "tmpdir.h"
 
-#include "safesysstat.h"
+#include "mkdtemp.h"
+
 #include "safeunistd.h"
-#include <sys/types.h>
-#include <stdlib.h> // Not cstdlib as we want mkdtemp.
+#include <cstdlib>
 #include <cstring>
 #include <string>
-
-#ifndef HAVE_MKDTEMP
-#include "portability/mkdtemp.h"
-#endif
 
 #include "stringutils.h"
 

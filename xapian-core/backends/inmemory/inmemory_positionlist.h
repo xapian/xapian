@@ -1,4 +1,4 @@
-/** @file inmemory_positionlist.h
+/** @file
  * @brief PositionList from an InMemory DB or a Document object
  */
 /* Copyright 2017 Olly Betts
@@ -14,8 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_INMEMORY_POSITIONLIST_H
@@ -42,7 +42,11 @@ class InMemoryPositionList : public PositionList {
     InMemoryPositionList(const InMemoryPositionList&) = delete;
 
   public:
-    /// Construct with an empty position list.
+    /** Construct with an empty position list.
+     *
+     *  Used to construct the InMemoryPositionList embedded in each
+     *  InMemoryPostList.
+     */
     InMemoryPositionList() {}
 
     /// Move construct with positional data.
@@ -68,6 +72,8 @@ class InMemoryPositionList : public PositionList {
     }
 
     Xapian::termcount get_approx_size() const;
+
+    Xapian::termpos back() const;
 
     Xapian::termpos get_position() const;
 

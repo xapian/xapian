@@ -1,7 +1,7 @@
-/** @file api_backend.cc
+/** @file
  * @brief Backend-related tests.
  */
-/* Copyright (C) 2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018 Olly Betts
+/* Copyright (C) 2008-2023 Olly Betts
  * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -15,9 +15,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -27,8 +26,11 @@
 #include <xapian.h>
 
 #include "backendmanager.h"
+#include "errno_to_string.h"
 #include "filetests.h"
+#include "net/resolver.h"
 #include "str.h"
+#include "socket_utils.h"
 #include "testrunner.h"
 #include "testsuite.h"
 #include "testutils.h"
@@ -37,6 +39,7 @@
 #include "apitest.h"
 
 #include "safefcntl.h"
+#include "safenetdb.h"
 #include "safesysstat.h"
 #include "safeunistd.h"
 #ifdef HAVE_SOCKETPAIR
@@ -45,6 +48,7 @@
 # include "safesyswait.h"
 #endif
 
+#include <cerrno>
 #include <fstream>
 #include <iterator>
 
@@ -70,8 +74,6 @@ DEFINE_TESTCASE(lockfileumask1, glass) {
 
     umask(old_umask);
 #endif
-
-    return true;
 }
 
 /// Check that the backend handles total document length > 0xffffffff.
@@ -104,7 +106,6 @@ DEFINE_TESTCASE(totaldoclen1, writable) {
 	TEST_EQUAL(dbr.get_avlength(), 2000000000);
 	TEST_EQUAL(dbr.get_total_length(), 44000000000ull);
     }
-    return true;
 }
 
 // Check that exceeding 32bit in combined database doesn't cause a problem
@@ -113,39 +114,44 @@ DEFINE_TESTCASE(exceed32bitcombineddb1, writable) {
     // Test case is for 64-bit Xapian::docid.
     // FIXME: Though we should check that the overflow is handled gracefully
     // for 32-bit...
-    if (sizeof(Xapian::docid) == 4) return true;
+    if constexpr(sizeof(Xapian::docid) == 4) {
+	SKIP_TEST("Not supported with 32-bit docid currently");
+    } else {
+	// The InMemory backend uses a vector for the documents, so trying to
+	// add a document with the maximum docid is likely to fail because we
+	// can't allocate enough memory!
+	SKIP_TEST_FOR_BACKEND("inmemory");
 
-    // The InMemory backend uses a vector for the documents, so trying to add
-    // a document with the maximum docid is likely to fail because we can't
-    // allocate enough memory!
-    SKIP_TEST_FOR_BACKEND("inmemory");
+	Xapian::WritableDatabase db1 = get_writable_database();
+	Xapian::Document doc;
+	doc.set_data("prose");
+	doc.add_term("word");
+	Xapian::docid max_32bit_id = 0xffffffff;
+	db1.replace_document(max_32bit_id, doc);
+	db1.commit();
 
-    Xapian::WritableDatabase db1 = get_writable_database();
-    Xapian::WritableDatabase db2 = get_writable_database();
-    Xapian::Document doc;
-    doc.set_data("prose");
-    doc.add_term("word");
+	Xapian::Database db2 = get_writable_database_as_database();
 
-    Xapian::docid max_id = 0xffffffff;
+	Xapian::Database db;
+	db.add_database(db1);
+	db.add_database(db2);
 
-    db1.replace_document(max_id, doc);
-    db2.replace_document(max_id, doc);
+	Xapian::Enquire enquire(db);
+	enquire.set_query(Xapian::Query::MatchAll);
+	Xapian::MSet mymset = enquire.get_mset(0, 10);
 
-    Xapian::Database db;
-    db.add_database(db1);
-    db.add_database(db2);
+	TEST_EQUAL(2, mymset.size());
 
-    Xapian::Enquire enquire(db);
-    enquire.set_query(Xapian::Query::MatchAll);
-    Xapian::MSet mymset = enquire.get_mset(0, 10);
-
-    TEST_EQUAL(2, mymset.size());
-
-    for (Xapian::MSetIterator i = mymset.begin(); i != mymset.end(); ++i) {
-	TEST_EQUAL("prose", i.get_document().get_data());
+	// We can't usefully check the shard docid if the testharness backend
+	// is multi.
+	bool multi = (db1.size() > 1);
+	for (Xapian::MSetIterator i = mymset.begin(); i != mymset.end(); ++i) {
+	    doc = i.get_document();
+	    if (!multi)
+		TEST_EQUAL(doc.get_docid(), max_32bit_id);
+	    TEST_EQUAL(doc.get_data(), "prose");
+	}
     }
-
-    return true;
 }
 
 DEFINE_TESTCASE(dbstats1, backend) {
@@ -167,7 +173,8 @@ DEFINE_TESTCASE(dbstats1, backend) {
 	TEST_REL(db.get_doclength_lower_bound(),<=,min_len);
     }
 
-    if (get_dbtype() != "inmemory" && !startswith(get_dbtype(), "remote")) {
+    if (get_dbtype() != "inmemory" &&
+	get_dbtype().find("remote") == string::npos) {
 	TEST_EQUAL(db.get_wdf_upper_bound("the"), max_wdf);
     } else {
 	// For inmemory and remote backends, we usually give rather loose
@@ -180,7 +187,12 @@ DEFINE_TESTCASE(dbstats1, backend) {
     // 1.3.2.
     TEST_EQUAL(db.get_wdf_upper_bound(""), 0);
 
-    return true;
+    if (get_dbtype() == "honey") {
+	const Xapian::termcount min_unique_len = 2;
+	const Xapian::termcount max_unique_len = 272;
+	TEST_EQUAL(db.get_unique_terms_lower_bound(), min_unique_len);
+	TEST_EQUAL(db.get_unique_terms_upper_bound(), max_unique_len);
+    }
 }
 
 // Check stats with a single document.  In a multi-database situation, this
@@ -204,7 +216,8 @@ DEFINE_TESTCASE(dbstats2, backend) {
 	TEST_REL(db.get_doclength_lower_bound(),<=,min_len);
     }
 
-    if (get_dbtype() != "inmemory" && !startswith(get_dbtype(), "remote")) {
+    if (get_dbtype() != "inmemory" &&
+	get_dbtype().find("remote") == string::npos) {
 	TEST_EQUAL(db.get_wdf_upper_bound("word"), max_wdf);
     } else {
 	// For inmemory and remote backends, we usually give rather loose
@@ -215,7 +228,12 @@ DEFINE_TESTCASE(dbstats2, backend) {
 
     TEST_EQUAL(db.get_wdf_upper_bound(""), 0);
 
-    return true;
+    if (get_dbtype() == "honey") {
+	const Xapian::termcount min_unique_len = 9;
+	const Xapian::termcount max_unique_len = 9;
+	TEST_EQUAL(db.get_unique_terms_lower_bound(), min_unique_len);
+	TEST_EQUAL(db.get_unique_terms_upper_bound(), max_unique_len);
+    }
 }
 
 /// Check handling of alldocs on an empty database.
@@ -226,7 +244,9 @@ DEFINE_TESTCASE(alldocspl3, backend) {
     TEST_EQUAL(db.get_collection_freq(string()), 0);
     TEST(db.postlist_begin(string()) == db.postlist_end(string()));
 
-    return true;
+    TEST_EQUAL(db.get_termfreq(string_view()), 0);
+    TEST_EQUAL(db.get_collection_freq(string_view()), 0);
+    TEST(db.postlist_begin(string_view()) == db.postlist_end(string_view()));
 }
 
 /// Regression test for bug#392 in ModifiedPostList iteration, fixed in 1.0.15.
@@ -244,8 +264,6 @@ DEFINE_TESTCASE(modifiedpostlist1, writable) {
     db.replace_document(1, b);
 
     mset_expect_order(enq.get_mset(0, 2), 2);
-
-    return true;
 }
 
 /// Regression test for chert bug fixed in 1.1.3 (ticket#397).
@@ -257,7 +275,6 @@ DEFINE_TESTCASE(doclenaftercommit1, writable) {
     db.commit();
     TEST_EQUAL(db.get_doclength(1), 0);
     TEST_EQUAL(db.get_unique_terms(1), 0);
-    return true;
 }
 
 DEFINE_TESTCASE(valuesaftercommit1, writable) {
@@ -271,7 +288,6 @@ DEFINE_TESTCASE(valuesaftercommit1, writable) {
     TEST_EQUAL(db.get_document(3).get_value(0), "value");
     db.commit();
     TEST_EQUAL(db.get_document(3).get_value(0), "value");
-    return true;
 }
 
 DEFINE_TESTCASE(lockfilefd0or1, glass) {
@@ -312,8 +328,6 @@ DEFINE_TESTCASE(lockfilefd0or1, glass) {
     close(old_stdin);
     close(old_stdout);
 #endif
-
-    return true;
 }
 
 /// Regression test for bug fixed in 1.2.13 and 1.3.1.
@@ -333,8 +347,6 @@ DEFINE_TESTCASE(lockfilealreadyopen1, glass) {
 	throw;
     }
     close(fd);
-
-    return true;
 }
 
 /// Feature tests for Database::locked().
@@ -363,28 +375,112 @@ DEFINE_TESTCASE(testlock1, glass) {
 	TEST(db.locked());
 	TEST(rdb.locked());
 	// After close(), locked() should either work as if close() hadn't been
-	// called or throw Xapian::DatabaseError.
+	// called or throw Xapian::DatabaseClosedError.
 	try {
 	    TEST(db_as_database.locked());
-	} catch (const Xapian::DatabaseError&) {
+	} catch (const Xapian::DatabaseClosedError&) {
 	}
 	db.close();
 	TEST(!rdb.locked());
 	try {
 	    TEST(!db_as_database.locked());
-	} catch (const Xapian::DatabaseError&) {
+	} catch (const Xapian::DatabaseClosedError&) {
 	}
     }
     TEST(!rdb.locked());
-    return true;
 }
 
-/// Test that locked() returns false for backends which don't support update.
-/// Regression test for bug fixed in 1.4.6.
-DEFINE_TESTCASE(testlock2, backend && !writable && !multi) {
+/** Test that locked() returns false for backends which don't support update.
+ *
+ *  Regression test for bug fixed in 1.4.6.
+ */
+DEFINE_TESTCASE(testlock2, backend && !writable) {
     Xapian::Database db = get_database("apitest_simpledata");
     TEST(!db.locked());
-    return true;
+    db.close();
+    TEST(!db.locked());
+}
+
+/** Test locked() on inmemory Database objects.
+ *
+ *  An inmemory Database is always actually a WritableDatabase viewed as a
+ *  Database, so it should always report being locked for writing, unless
+ *  close() has been called.
+ *
+ *  Regression test for bug fixed in 1.4.14 - earlier versions always returned
+ *  false for an inmemory Database here.
+ *
+ *  Regression test for bug fixed in 1.4.15 - false should be returned after
+ *  close() has been called.
+ */
+DEFINE_TESTCASE(testlock3, inmemory) {
+    Xapian::Database db = get_database("apitest_simpledata");
+    TEST(db.locked());
+    db.close();
+    TEST(!db.locked());
+}
+
+/// Feature tests for Database::lock() and unlock().
+DEFINE_TESTCASE(testlock4, glass) {
+    Xapian::Database rdb;
+    TEST(!rdb.locked());
+
+    {
+	Xapian::WritableDatabase db = get_named_writable_database("testlock4");
+	TEST(db.locked());
+	Xapian::Database db_as_database = db;
+	TEST(db_as_database.locked());
+	TEST(!rdb.locked());
+
+	{
+	    rdb = get_writable_database_as_database();
+	    // Test lock() fails (already open to write as db).
+	    TEST_EXCEPTION(Xapian::DatabaseLockError,
+			   auto wdb = rdb.lock());
+	}
+
+	rdb = db.unlock();
+	try {
+	    TEST(!rdb.locked());
+	    // unlock() should have closed the underlying WritableDatabase so
+	    // locked() should either report that it isn't locked, or throw
+	    // Xapian::DatabaseClosedError.
+	    try {
+		TEST(!db.locked());
+	    } catch (const Xapian::DatabaseClosedError&) {
+	    }
+	    try {
+		TEST(!db_as_database.locked());
+	    } catch (const Xapian::DatabaseClosedError&) {
+	    }
+	} catch (const Xapian::FeatureUnavailableError&) {
+	    SKIP_TEST("Database::locked() not supported on this platform");
+	}
+
+	db.close();
+	TEST(!db.locked());
+	TEST(!db_as_database.locked());
+	TEST(!rdb.locked());
+	TEST_EXCEPTION(Xapian::DatabaseClosedError,
+		       db.lock());
+	TEST_EXCEPTION(Xapian::DatabaseClosedError,
+		       db.unlock());
+	TEST_EXCEPTION(Xapian::DatabaseClosedError,
+		       db_as_database.lock());
+	TEST_EXCEPTION(Xapian::DatabaseClosedError,
+		       db_as_database.unlock());
+
+	{
+	    auto wdb = rdb.lock();
+	    TEST(rdb.locked());
+	}
+
+	rdb.close();
+	TEST_EXCEPTION(Xapian::DatabaseClosedError,
+		       rdb.lock());
+	TEST_EXCEPTION(Xapian::DatabaseClosedError,
+		       rdb.unlock());
+    }
 }
 
 class CheckMatchDecider : public Xapian::MatchDecider {
@@ -393,7 +489,7 @@ class CheckMatchDecider : public Xapian::MatchDecider {
   public:
     CheckMatchDecider() : called(false) { }
 
-    bool operator()(const Xapian::Document &) const {
+    bool operator()(const Xapian::Document &) const override {
 	called = true;
 	return true;
     }
@@ -413,8 +509,6 @@ DEFINE_TESTCASE(matchdecider4, remote) {
     TEST_EXCEPTION(Xapian::UnimplementedError,
 	mset = enquire.get_mset(0, 10, NULL, &mdecider));
     TEST(!mdecider.was_called());
-
-    return true;
 }
 
 /** Check that replacing an unmodified document doesn't increase the automatic
@@ -455,7 +549,6 @@ DEFINE_TESTCASE(replacedoc7, writable && !inmemory && !remote) {
     TEST(rodb.reopen());
 
     TEST_EQUAL(rodb.get_doccount(), 2);
-    return true;
 }
 
 /** Check that replacing a document deleted since the last commit works.
@@ -482,15 +575,35 @@ DEFINE_TESTCASE(replacedoc8, writable) {
     Xapian::PostingIterator p = db.postlist_begin("takeaway");
     TEST(p != db.postlist_end("takeaway"));
     TEST_EQUAL(p.get_wdf(), 2);
-    return true;
+}
+
+/** Check that replacing a document after clear_terms() still deletes old
+ *  positional data.  Regression test for bug introduced and fixed in
+ *  development prior to 2.0.0.
+ */
+DEFINE_TESTCASE(replacedoc9, writable) {
+    Xapian::WritableDatabase db(get_named_writable_database("replacedoc9"));
+    {
+	Xapian::Document doc;
+	doc.set_data("food");
+	doc.add_posting("falafel", 1);
+	db.add_document(doc);
+    }
+    db.commit();
+    Xapian::Document doc = db.get_document(1);
+    doc.clear_terms();
+    doc.add_term("falafel");
+    db.replace_document(1, doc);
+    db.commit();
+
+    // The positions should have been removed, but the bug meant they weren't.
+    TEST_EQUAL(db.positionlist_begin(1, "falafel"),
+	       db.positionlist_end(1, "falafel"));
 }
 
 /// Test coverage for DatabaseModifiedError.
-DEFINE_TESTCASE(databasemodified1, writable && !inmemory && !remote && !multi) {
+DEFINE_TESTCASE(databasemodified1, writable && !inmemory && !multi) {
     // The inmemory backend doesn't support revisions.
-    //
-    // The remote backend doesn't work as expected here, I think due to
-    // test harness issues.
     //
     // With multi, DatabaseModifiedError doesn't trigger as easily.
     Xapian::WritableDatabase db(get_writable_database());
@@ -515,7 +628,7 @@ DEFINE_TESTCASE(databasemodified1, writable && !inmemory && !remote && !multi) {
     db.add_document(doc);
     try {
 	TEST_EQUAL(*rodb.termlist_begin(N - 1), "abc");
-	return false;
+	FAIL_TEST("Expected DatabaseModifiedError wasn't thrown");
     } catch (const Xapian::DatabaseModifiedError &) {
     }
 
@@ -523,11 +636,9 @@ DEFINE_TESTCASE(databasemodified1, writable && !inmemory && !remote && !multi) {
 	Xapian::Enquire enq(rodb);
 	enq.set_query(Xapian::Query("abc"));
 	Xapian::MSet mset = enq.get_mset(0, 10);
-	return false;
+	FAIL_TEST("Expected DatabaseModifiedError wasn't thrown");
     } catch (const Xapian::DatabaseModifiedError &) {
     }
-
-    return true;
 }
 
 /// Regression test for bug#462 fixed in 1.0.19 and 1.1.5.
@@ -549,16 +660,14 @@ DEFINE_TESTCASE(qpmemoryleak1, writable && !inmemory) {
     Xapian::Database database(get_writable_database_as_database());
     Xapian::QueryParser queryparser;
     queryparser.set_database(database);
-    TEST_EXCEPTION(Xapian::DatabaseModifiedError,
+    TEST_EXCEPTION3(Xapian::DatabaseModifiedError,
 	for (int k = 0; k < 1000; ++k) {
 	    wdb.add_document(doc);
 	    wdb.commit();
 	    (void)queryparser.parse_query("1", queryparser.FLAG_PARTIAL);
-	}
+	},
 	SKIP_TEST("didn't manage to trigger DatabaseModifiedError");
     );
-
-    return true;
 }
 
 static void
@@ -580,7 +689,7 @@ make_msize1_db(Xapian::WritableDatabase &db, const string &)
 }
 
 /// Regression test for ticket#464, fixed in 1.1.6 and 1.0.20.
-DEFINE_TESTCASE(msize1, generated) {
+DEFINE_TESTCASE(msize1, backend) {
     Xapian::Database db = get_database("msize1", make_msize1_db);
     Xapian::Enquire enq(db);
     enq.set_sort_by_value(1, false);
@@ -609,8 +718,6 @@ DEFINE_TESTCASE(msize1, generated) {
     TEST_EQUAL(lb3, ub3);
     TEST_EQUAL(lb3, est3);
     TEST_EQUAL(est, est3);
-
-    return true;
 }
 
 static void
@@ -630,7 +737,7 @@ make_msize2_db(Xapian::WritableDatabase &db, const string &)
 }
 
 /// Regression test for bug related to ticket#464, fixed in 1.1.6 and 1.0.20.
-DEFINE_TESTCASE(msize2, generated) {
+DEFINE_TESTCASE(msize2, backend) {
     Xapian::Database db = get_database("msize2", make_msize2_db);
     Xapian::Enquire enq(db);
     enq.set_sort_by_value(1, false);
@@ -659,8 +766,6 @@ DEFINE_TESTCASE(msize2, generated) {
     TEST_EQUAL(lb3, ub3);
     TEST_EQUAL(lb3, est3);
     TEST_EQUAL(est, est3);
-
-    return true;
 }
 
 static void
@@ -677,7 +782,7 @@ make_xordecay1_db(Xapian::WritableDatabase &db, const string &)
 }
 
 /// Regression test for bug in decay of XOR, fixed in 1.2.1 and 1.0.21.
-DEFINE_TESTCASE(xordecay1, generated) {
+DEFINE_TESTCASE(xordecay1, backend) {
     Xapian::Database db = get_database("xordecay1", make_xordecay1_db);
     Xapian::Enquire enq(db);
     enq.set_query(Xapian::Query(Xapian::Query::OP_XOR,
@@ -689,7 +794,6 @@ DEFINE_TESTCASE(xordecay1, generated) {
     Xapian::MSet msetall = enq.get_mset(0, db.get_doccount());
 
     TEST(mset_range_is_same(mset1, 0, msetall, 0, mset1.size()));
-    return true;
 }
 
 static void
@@ -710,7 +814,7 @@ make_ordecay_db(Xapian::WritableDatabase &db, const string &)
 }
 
 /// Regression test for bug in decay of OR to AND, fixed in 1.2.1 and 1.0.21.
-DEFINE_TESTCASE(ordecay1, generated) {
+DEFINE_TESTCASE(ordecay1, backend) {
     Xapian::Database db = get_database("ordecay", make_ordecay_db);
     Xapian::Enquire enq(db);
     enq.set_query(Xapian::Query(Xapian::Query::OP_OR,
@@ -722,13 +826,12 @@ DEFINE_TESTCASE(ordecay1, generated) {
 	Xapian::MSet submset = enq.get_mset(0, i);
 	TEST(mset_range_is_same(submset, 0, msetall, 0, submset.size()));
     }
-    return true;
 }
 
 /** Regression test for bug in decay of OR to AND_MAYBE, fixed in 1.2.1 and
  *  1.0.21.
  */
-DEFINE_TESTCASE(ordecay2, generated) {
+DEFINE_TESTCASE(ordecay2, backend) {
     Xapian::Database db = get_database("ordecay", make_ordecay_db);
     Xapian::Enquire enq(db);
     std::vector<Xapian::Query> q;
@@ -746,7 +849,6 @@ DEFINE_TESTCASE(ordecay2, generated) {
 	Xapian::MSet submset = enq.get_mset(0, i);
 	TEST(mset_range_is_same(submset, 0, msetall, 0, submset.size()));
     }
-    return true;
 }
 
 static void
@@ -788,7 +890,7 @@ make_orcheck_db(Xapian::WritableDatabase &db, const string &)
 /** Regression test for bugs in the check() method of OrPostList. (ticket #485)
  *  Bugs introduced and fixed between 1.2.0 and 1.2.1 (never in a release).
  */
-DEFINE_TESTCASE(orcheck1, generated) {
+DEFINE_TESTCASE(orcheck1, backend) {
     Xapian::Database db = get_database("orcheck1", make_orcheck_db);
     Xapian::Enquire enq(db);
     Xapian::Query q1("T1");
@@ -826,7 +928,6 @@ DEFINE_TESTCASE(orcheck1, generated) {
     // both documents are in q2, and document 8 has a higher length.
     mset_expect_order(enq.get_mset(0, db.get_doccount()), 6, 8);
 
-    return true;
 }
 
 /** Regression test for bug fixed in 1.2.1 and 1.0.21.
@@ -846,7 +947,6 @@ DEFINE_TESTCASE(failedreplace1, glass) {
     db.commit();
     TEST_EQUAL(db.get_doccount(), 0);
     TEST_EQUAL(db.get_termfreq("foo"), 0);
-    return true;
 }
 
 DEFINE_TESTCASE(failedreplace2, glass) {
@@ -867,7 +967,6 @@ DEFINE_TESTCASE(failedreplace2, glass) {
     db.commit();
     TEST_EQUAL(db.get_doccount(), db_size);
     TEST_EQUAL(db.get_termfreq("foo"), 0);
-    return true;
 }
 
 /// Coverage for SelectPostList::skip_to().
@@ -882,7 +981,6 @@ DEFINE_TESTCASE(phrase3, positional) {
     enquire.set_query(q);
     Xapian::MSet mset = enquire.get_mset(0, 5);
 
-    return true;
 }
 
 /// Check that get_mset(<large number>, 10) doesn't exhaust memory needlessly.
@@ -903,45 +1001,6 @@ DEFINE_TESTCASE(msetfirst2, backend) {
     enquire.set_query(Xapian::Query::MatchNothing);
     mset = enquire.get_mset(1, 1);
     TEST_EQUAL(mset.get_firstitem(), 1);
-    return true;
-}
-
-DEFINE_TESTCASE(bm25weight2, backend) {
-    Xapian::Database db(get_database("etext"));
-    Xapian::Enquire enquire(db);
-    enquire.set_query(Xapian::Query("the"));
-    enquire.set_weighting_scheme(Xapian::BM25Weight(0, 0, 0, 0, 1));
-    Xapian::MSet mset = enquire.get_mset(0, 100);
-    TEST_REL(mset.size(),>=,2);
-    double weight0 = mset[0].get_weight();
-    for (size_t i = 1; i != mset.size(); ++i) {
-	TEST_EQUAL(weight0, mset[i].get_weight());
-    }
-    return true;
-}
-
-DEFINE_TESTCASE(unigramlmweight2, backend) {
-    Xapian::Database db(get_database("etext"));
-    Xapian::Enquire enquire(db);
-    enquire.set_query(Xapian::Query("the"));
-    enquire.set_weighting_scheme(Xapian::LMWeight());
-    Xapian::MSet mset = enquire.get_mset(0, 100);
-    TEST_REL(mset.size(),>=,2);
-    return true;
-}
-
-DEFINE_TESTCASE(tradweight2, backend) {
-    Xapian::Database db(get_database("etext"));
-    Xapian::Enquire enquire(db);
-    enquire.set_query(Xapian::Query("the"));
-    enquire.set_weighting_scheme(Xapian::TradWeight(0));
-    Xapian::MSet mset = enquire.get_mset(0, 100);
-    TEST_REL(mset.size(),>=,2);
-    double weight0 = mset[0].get_weight();
-    for (size_t i = 1; i != mset.size(); ++i) {
-	TEST_EQUAL(weight0, mset[i].get_weight());
-    }
-    return true;
 }
 
 // Regression test for bug fix in 1.2.9.
@@ -956,31 +1015,66 @@ DEFINE_TESTCASE(emptydb1, backend) {
 	Xapian::Query::OP_FILTER,
 	Xapian::Query::OP_NEAR,
 	Xapian::Query::OP_PHRASE,
-	Xapian::Query::OP_ELITE_SET
+	Xapian::Query::OP_ELITE_SET,
+	Xapian::Query::OP_SYNONYM,
+	Xapian::Query::OP_MAX
     };
-    const Xapian::Query::op * p;
-    for (p = ops; p - ops != sizeof(ops) / sizeof(*ops); ++p) {
-	tout << *p << endl;
+    for (Xapian::Query::op op : ops) {
+	tout << op << '\n';
 	Xapian::Enquire enquire(db);
-	Xapian::Query query(*p, Xapian::Query("a"), Xapian::Query("b"));
+	Xapian::Query query(op, Xapian::Query("a"), Xapian::Query("b"));
 	enquire.set_query(query);
 	Xapian::MSet mset = enquire.get_mset(0, 10);
 	TEST_EQUAL(mset.get_matches_estimated(), 0);
 	TEST_EQUAL(mset.get_matches_upper_bound(), 0);
 	TEST_EQUAL(mset.get_matches_lower_bound(), 0);
     }
-    return true;
+}
+
+/** Test operators which should allow more than two arguments.
+ *
+ *  Regression test for bug with OP_FILTER fixed in 1.4.15, and also for bugs
+ *  with deleting the PostList which is currently set as the QueryOptimiser's
+ *  hint fixed in 1.4.15.
+ */
+DEFINE_TESTCASE(multiargop1, backend) {
+    Xapian::Database db(get_database("apitest_simpledata"));
+    static const struct { unsigned hits; Xapian::Query::op op; } tests[] = {
+	{ 0, Xapian::Query::OP_AND },
+	{ 6, Xapian::Query::OP_OR },
+	{ 0, Xapian::Query::OP_AND_NOT },
+	{ 5, Xapian::Query::OP_XOR },
+	{ 2, Xapian::Query::OP_AND_MAYBE },
+	{ 0, Xapian::Query::OP_FILTER },
+	{ 0, Xapian::Query::OP_NEAR },
+	{ 0, Xapian::Query::OP_PHRASE },
+	{ 6, Xapian::Query::OP_ELITE_SET },
+	{ 6, Xapian::Query::OP_SYNONYM },
+	{ 6, Xapian::Query::OP_MAX }
+    };
+    static const char* terms[] = {"two", "all", "paragraph", "banana"};
+    Xapian::Enquire enquire(db);
+    for (auto& test : tests) {
+	Xapian::Query::op op = test.op;
+	Xapian::doccount hits = test.hits;
+	tout << op << " should give " << hits << " hits\n";
+	Xapian::Query query(op, terms, terms + 4);
+	enquire.set_query(query);
+	Xapian::MSet mset = enquire.get_mset(0, 10);
+	TEST_EQUAL(mset.get_matches_estimated(), hits);
+	TEST_EQUAL(mset.get_matches_upper_bound(), hits);
+	TEST_EQUAL(mset.get_matches_lower_bound(), hits);
+    }
 }
 
 /// Test error opening non-existent stub databases.
 // Regression test for bug fixed in 1.3.1 and 1.2.11.
 DEFINE_TESTCASE(stubdb7, !backend) {
-    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
+    TEST_EXCEPTION(Xapian::DatabaseNotFoundError,
 	    Xapian::Database("nosuchdirectory", Xapian::DB_BACKEND_STUB));
-    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
+    TEST_EXCEPTION(Xapian::DatabaseNotFoundError,
 	    Xapian::WritableDatabase("nosuchdirectory",
 		Xapian::DB_OPEN|Xapian::DB_BACKEND_STUB));
-    return true;
 }
 
 /// Test which checks the weights are as expected.
@@ -1005,7 +1099,7 @@ DEFINE_TESTCASE(msetweights1, backend) {
     };
 
     TEST_EQUAL(mset.size(), sizeof(expected) / sizeof(expected[0]));
-    for (size_t i = 0; i < mset.size(); ++i) {
+    for (Xapian::doccount i = 0; i < mset.size(); ++i) {
 	TEST_EQUAL(*mset[i], expected[i].did);
 	TEST_EQUAL_DOUBLE(mset[i].get_weight(), expected[i].wt);
     }
@@ -1021,12 +1115,10 @@ DEFINE_TESTCASE(msetweights1, backend) {
     };
 
     TEST_EQUAL(mset.size(), sizeof(expected2) / sizeof(expected2[0]));
-    for (size_t i = 0; i < mset.size(); ++i) {
+    for (Xapian::doccount i = 0; i < mset.size(); ++i) {
 	TEST_EQUAL(*mset[i], expected2[i].did);
 	TEST_EQUAL_DOUBLE(mset[i].get_weight(), expected2[i].wt);
     }
-
-    return true;
 }
 
 DEFINE_TESTCASE(itorskiptofromend1, backend) {
@@ -1056,8 +1148,6 @@ DEFINE_TESTCASE(itorskiptofromend1, backend) {
     // These segfaulted prior to 1.3.2.
     v.skip_to(999999);
     v.check(9999999);
-
-    return true;
 }
 
 /// Check handling of invalid block sizes.
@@ -1074,11 +1164,10 @@ DEFINE_TESTCASE(blocksize1, glass) {
     } else {
 	FAIL_TEST("Unhandled backend type");
     }
-    static const unsigned bad_sizes[] = {
+    static const int bad_sizes[] = {
 	65537, 8000, 2000, 1024, 16, 7, 3, 1, 0
     };
-    for (size_t i = 0; i < sizeof(bad_sizes) / sizeof(bad_sizes[0]); ++i) {
-	size_t block_size = bad_sizes[i];
+    for (int block_size : bad_sizes) {
 	rm_rf(db_dir);
 	Xapian::WritableDatabase db(db_dir, flags, block_size);
 	Xapian::Document doc;
@@ -1087,7 +1176,6 @@ DEFINE_TESTCASE(blocksize1, glass) {
 	db.add_document(doc);
 	db.commit();
     }
-    return true;
 }
 
 /// Feature test for Xapian::DB_NO_TERMLIST.
@@ -1108,7 +1196,6 @@ DEFINE_TESTCASE(notermlist1, glass) {
     db.commit();
     TEST(!file_exists(db_dir + "/termlist.glass"));
     TEST_EXCEPTION(Xapian::FeatureUnavailableError, db.termlist_begin(1));
-    return true;
 }
 
 /// Regression test for bug starting a new glass freelist block.
@@ -1129,8 +1216,6 @@ DEFINE_TESTCASE(newfreelistblock1, writable) {
 	wdb.add_document(doc);
 	wdb.commit();
     }
-
-    return true;
 }
 
 /** Check that the parent directory for the database doesn't need to be
@@ -1161,7 +1246,6 @@ DEFINE_TESTCASE(readonlyparentdir1, glass) {
     }
     TEST(chmod(path.c_str(), 0700) == 0);
 #endif
-    return true;
 }
 
 static void
@@ -1177,7 +1261,7 @@ make_phrasebug1_db(Xapian::WritableDatabase &db, const string &)
 }
 
 /// Regression test for ticket#653, fixed in 1.3.2 and 1.2.19.
-DEFINE_TESTCASE(phrasebug1, generated && positional) {
+DEFINE_TESTCASE(phrasebug1, positional) {
     Xapian::Database db = get_database("phrasebug1", make_phrasebug1_db);
     static const char * const qterms[] = { "katrina", "hurricane" };
     Xapian::Enquire e(db);
@@ -1190,11 +1274,10 @@ DEFINE_TESTCASE(phrasebug1, generated && positional) {
     e.set_query(q2);
     mset = e.get_mset(0, 100);
     TEST_EQUAL(mset.size(), 1);
-    return true;
 }
 
 /// Feature test for Xapian::DB_RETRY_LOCK
-DEFINE_TESTCASE(retrylock1, writable && !inmemory && !remote) {
+DEFINE_TESTCASE(retrylock1, writable && path) {
     // FIXME: Can't see an easy way to test this for remote databases - the
     // harness doesn't seem to provide a suitable way to reopen a remote.
 #if defined HAVE_FORK && defined HAVE_SOCKETPAIR
@@ -1202,6 +1285,8 @@ DEFINE_TESTCASE(retrylock1, writable && !inmemory && !remote) {
     if (socketpair(AF_UNIX, SOCK_STREAM|SOCK_CLOEXEC, PF_UNSPEC, fds) < 0) {
 	FAIL_TEST("socketpair() failed");
     }
+    if (fds[1] >= FD_SETSIZE)
+	SKIP_TEST("socketpair() gave fd >= FD_SETSIZE");
     if (fcntl(fds[1], F_SETFL, O_NONBLOCK) < 0)
 	FAIL_TEST("fcntl() failed to set O_NONBLOCK");
     pid_t child = fork();
@@ -1241,7 +1326,7 @@ DEFINE_TESTCASE(retrylock1, writable && !inmemory && !remote) {
 	    result[0] = 'y';
 	} else {
 	    // Error.
-	    tout << "errno=" << errno << ": " << strerror(errno) << endl;
+	    tout << "errno=" << errno << ": " << errno_to_string(errno) << '\n';
 	    result[0] = 'e';
 	}
 	r = 1;
@@ -1272,12 +1357,10 @@ retry:
 	struct timeval tv;
 	tv.tv_sec = 3;
 	tv.tv_usec = 0;
-	fd_set fr, fe;
-	FD_ZERO(&fr);
-	FD_SET(fds[1], &fr);
-	FD_ZERO(&fe);
-	FD_SET(fds[1], &fe);
-	int sr = select(fds[1] + 1, &fr, NULL, &fe, &tv);
+	fd_set fdset;
+	FD_ZERO(&fdset);
+	FD_SET(fds[1], &fdset);
+	int sr = select(fds[1] + 1, &fdset, NULL, NULL, &tv);
 	if (sr == 0) {
 	    // Timed out.
 	    result[0] = 'T';
@@ -1285,14 +1368,16 @@ retry:
 	} else if (sr == -1) {
 	    if (errno == EINTR || errno == EAGAIN)
 		goto retry;
-	    tout << "select() failed with errno=" << errno << ": " << strerror(errno) << endl;
+	    tout << "select() failed with errno=" << errno << ": "
+		 << errno_to_string(errno) << '\n';
 	    result[0] = 'S';
 	    r = 1;
 	} else {
 	    r = read(fds[1], result, sizeof(result));
 	    if (r == -1) {
 		// Error.
-		tout << "read failed with errno=" << errno << ": " << strerror(errno) << endl;
+		tout << "read() failed with errno=" << errno << ": "
+		     << errno_to_string(errno) << '\n';
 		result[0] = 'R';
 		r = 1;
 	    } else if (r == 0) {
@@ -1311,15 +1396,13 @@ retry:
 	if (errno != EINTR) break;
     }
 
-    tout << string(result, r) << endl;
+    tout << string(result, r) << '\n';
     TEST_EQUAL(result[0], 'y');
 #endif
-
-    return true;
 }
 
 // Opening a WritableDatabase with low fds available - it should avoid them.
-DEFINE_TESTCASE(dbfilefd012, glass) {
+DEFINE_TESTCASE(dbfilefd012, writable && !remote) {
 #if !defined __WIN32__ && !defined __CYGWIN__ && !defined __OS2__
     int oldfds[3];
     for (int i = 0; i < 3; ++i) {
@@ -1371,12 +1454,10 @@ DEFINE_TESTCASE(dbfilefd012, glass) {
 	close(oldfds[j]);
     }
 #endif
-
-    return true;
 }
 
 /// Regression test for #675, fixed in 1.3.3 and 1.2.21.
-DEFINE_TESTCASE(cursorbug1, glass) {
+DEFINE_TESTCASE(cursorbug1, writable && path) {
     Xapian::WritableDatabase wdb = get_writable_database();
     Xapian::Database db = get_writable_database_as_database();
     Xapian::Enquire enq(db);
@@ -1385,7 +1466,7 @@ DEFINE_TESTCASE(cursorbug1, glass) {
     // The original problem triggered for chert and glass on repeat==7.
     for (int repeat = 0; repeat < 10; ++repeat) {
 	tout.str(string());
-	tout << "iteration #" << repeat << endl;
+	tout << "iteration #" << repeat << '\n';
 
 	const int ITEMS = 10;
 	int free_id = db.get_doccount();
@@ -1413,8 +1494,6 @@ DEFINE_TESTCASE(cursorbug1, glass) {
 	    (void)m2.get_document().get_value(0);
 	}
     }
-
-    return true;
 }
 
 // Regression test for #674, fixed in 1.2.21 and 1.3.3.
@@ -1434,7 +1513,6 @@ DEFINE_TESTCASE(sortvalue2, backend) {
 	TEST(old_key <= key);
 	swap(old_key, key);
     }
-    return true;
 }
 
 /// Check behaviour of Enquire::get_query().
@@ -1442,7 +1520,6 @@ DEFINE_TESTCASE(enquiregetquery1, backend) {
     Xapian::Database db = get_database("apitest_simpledata");
     Xapian::Enquire enq(db);
     TEST_EQUAL(enq.get_query().get_description(), "Query()");
-    return true;
 }
 
 DEFINE_TESTCASE(embedded1, singlefile) {
@@ -1472,8 +1549,6 @@ DEFINE_TESTCASE(embedded1, singlefile) {
 	    Xapian::Database::check(fd, Xapian::DBCHECK_SHOW_STATS, &tout);
 	TEST_EQUAL(check_errors, 0);
     }
-
-    return true;
 }
 
 /// Regression test for bug fixed in 1.3.7.
@@ -1504,8 +1579,6 @@ DEFINE_TESTCASE(exactxor1, backend) {
     TEST_EQUAL(mset.get_matches_upper_bound(), 5);
     // Test improved lower bound in 1.3.7 (earlier versions gave 0).
     TEST_EQUAL(mset.get_matches_lower_bound(), 1);
-
-    return true;
 }
 
 /// Feature test for Database::get_revision().
@@ -1525,7 +1598,14 @@ DEFINE_TESTCASE(getrevision1, glass) {
     db.add_document(doc);
     db.commit();
     TEST_EQUAL(db.get_revision(), 2);
-    return true;
+}
+
+/// Check get_revision() on an empty database reports 0.  (Since 2.0.0)
+DEFINE_TESTCASE(getrevision2, !backend) {
+    Xapian::Database db;
+    TEST_EQUAL(db.get_revision(), 0);
+    Xapian::Database wdb;
+    TEST_EQUAL(wdb.get_revision(), 0);
 }
 
 /// Feature test for DOC_ASSUME_VALID.
@@ -1535,7 +1615,6 @@ DEFINE_TESTCASE(getdocumentlazy1, backend) {
     Xapian::Document doc = db.get_document(2);
     TEST_EQUAL(doc.get_data(), doc_lazy.get_data());
     TEST_EQUAL(doc.get_value(0), doc_lazy.get_value(0));
-    return true;
 }
 
 /// Feature test for DOC_ASSUME_VALID for a docid that doesn't actually exist.
@@ -1552,7 +1631,6 @@ DEFINE_TESTCASE(getdocumentlazy2, backend) {
     TEST_EXCEPTION(Xapian::DocNotFoundError,
 	doc = db.get_document(db.get_lastdocid() + 1);
     );
-    return true;
 }
 
 static void
@@ -1570,7 +1648,7 @@ gen_uniqterms_gt_doclen_db(Xapian::WritableDatabase& db, const string&)
     db.add_document(doc2);
 }
 
-DEFINE_TESTCASE(getuniqueterms1, generated) {
+DEFINE_TESTCASE(getuniqueterms1, backend) {
     Xapian::Database db =
 	get_database("uniqterms_gt_doclen", gen_uniqterms_gt_doclen_db);
 
@@ -1587,8 +1665,6 @@ DEFINE_TESTCASE(getuniqueterms1, generated) {
     // Ideally it'd be equal to 2, but the current backends can't always
     // efficiently ensure an exact answer and here it is actually 3.
     TEST_REL(unique2, >=, 2);
-
-    return true;
 }
 
 /** Regression test for bug fixed in 1.4.6.
@@ -1597,7 +1673,7 @@ DEFINE_TESTCASE(getuniqueterms1, generated) {
  *  position 1 if it had the lowest term frequency amongst the OP_NEAR's
  *  subqueries.
  */
-DEFINE_TESTCASE(nopositionbug1, generated) {
+DEFINE_TESTCASE(nopositionbug1, backend) {
     Xapian::Database db =
 	get_database("uniqterms_gt_doclen", gen_uniqterms_gt_doclen_db);
 
@@ -1630,31 +1706,11 @@ DEFINE_TESTCASE(nopositionbug1, generated) {
     enq.set_query(Xapian::Query(Xapian::Query::OP_PHRASE,
 				begin(terms2), end(terms2), 2));
     TEST_EQUAL(enq.get_mset(0, 5).size(), 0);
-
-    return true;
-}
-
-/// Check estimate is rounded to suitable number of S.F. - new in 1.4.3.
-DEFINE_TESTCASE(estimaterounding1, backend) {
-    Xapian::Database db = get_database("etext");
-    Xapian::Enquire enquire(db);
-    enquire.set_query(Xapian::Query("the") | Xapian::Query("road"));
-    Xapian::MSet mset = enquire.get_mset(0, 10);
-    // MSet::get_description() includes bounds and raw estimate.
-    tout << mset.get_description() << endl;
-    // Bounds are 411-439, raw estimate is 419.
-    TEST_EQUAL(mset.get_matches_estimated() % 10, 0);
-    enquire.set_query(Xapian::Query("king") | Xapian::Query("prussia"));
-    mset = enquire.get_mset(0, 10);
-    tout << mset.get_description() << endl;
-    // Bounds are 111-138, raw estimate is 133.
-    TEST_EQUAL(mset.get_matches_estimated() % 10, 0);
-    return true;
 }
 
 /** Check that a TermIterator returns the correct termfreqs.
  *
- *  Prior to 1.5.0, the termfreq was approximated in the multidatabase case.
+ *  Prior to 2.0.0, the termfreq was approximated in the multidatabase case.
  */
 DEFINE_TESTCASE(termitertf1, backend) {
     Xapian::Database db = get_database("apitest_simpledata");
@@ -1671,13 +1727,11 @@ DEFINE_TESTCASE(termitertf1, backend) {
     t.skip_to("queri");
     TEST_EQUAL(*t, "queri");
     TEST_EQUAL(t.get_termfreq(), 3);
-
-    return true;
 }
 
 /** Regression test for bug with get_mset(0, 0, N) (N > 0).
  *
- *  Fixed in 1.5.0 and 1.4.6.
+ *  Fixed in 1.4.6.
  */
 DEFINE_TESTCASE(checkatleast4, backend) {
     Xapian::Database db = get_database("apitest_simpledata");
@@ -1686,25 +1740,337 @@ DEFINE_TESTCASE(checkatleast4, backend) {
     // This used to cause access to an element in an empty vector.
     Xapian::MSet mset = enq.get_mset(0, 0, 4);
     TEST_EQUAL(mset.size(), 0);
-    return true;
 }
 
-/// Regression test for glass bug fixed in 1.4.6 and 1.5.0.
-DEFINE_TESTCASE(nodocs1, transactions && !remote) {
-    {
-	Xapian::WritableDatabase db = get_named_writable_database("nodocs1");
-	db.set_metadata("foo", "bar");
-	db.commit();
-	Xapian::Document doc;
-	doc.add_term("baz");
-	db.add_document(doc);
-	db.commit();
-    }
-
+/// Regression test for glass freelist leak fixed in 1.4.6.
+DEFINE_TESTCASE(freelistleak1, check) {
+    auto path = get_database_path("freelistleak1",
+				  [](Xapian::WritableDatabase& wdb,
+				     const string&)
+				  {
+				      wdb.set_metadata("foo", "bar");
+				      wdb.commit();
+				      Xapian::Document doc;
+				      doc.add_term("baz");
+				      wdb.add_document(doc);
+				  });
     size_t check_errors =
-	Xapian::Database::check(get_named_writable_database_path("nodocs1"),
-				Xapian::DBCHECK_SHOW_STATS, &tout);
+	Xapian::Database::check(path, Xapian::DBCHECK_SHOW_STATS, &tout);
     TEST_EQUAL(check_errors, 0);
+}
 
-    return true;
+/// Regression test for split position handling - broken in 1.4.8.
+DEFINE_TESTCASE(splitpostings1, writable) {
+    Xapian::WritableDatabase db = get_writable_database();
+    Xapian::Document doc;
+    // Add postings to create a split internally.
+    for (Xapian::termpos pos = 0; pos <= 100; pos += 10) {
+	doc.add_posting("foo", pos);
+    }
+    for (Xapian::termpos pos = 5; pos <= 100; pos += 20) {
+	doc.add_posting("foo", pos);
+    }
+    db.add_document(doc);
+    db.commit();
+
+    Xapian::termpos expect = 0;
+    Xapian::termpos pos = 0;
+    for (auto p = db.positionlist_begin(1, "foo");
+	 p != db.positionlist_end(1, "foo"); ++p) {
+	TEST_REL(expect, <=, 100);
+	pos = *p;
+	TEST_EQUAL(pos, expect);
+	expect += 5;
+	if (expect % 20 == 15) expect += 5;
+    }
+    TEST_EQUAL(pos, 100);
+}
+
+/// Feature tests for Database::size().
+DEFINE_TESTCASE(multidb1, backend) {
+    Xapian::Database db;
+    TEST_EQUAL(db.size(), 0);
+    Xapian::Database db2 = get_database("apitest_simpledata");
+    TEST(db2.size() != 0);
+    db.add_database(db2);
+    TEST_EQUAL(db.size(), db2.size());
+    db.add_database(db2);
+    // Regression test for bug introduced and fixed in git master before 2.0.0.
+    // Adding a multi database to an empty database incorrectly worked just
+    // like assigning the database object.  The list of shards is now copied
+    // instead.
+    TEST_EQUAL(db.size(), db2.size() * 2);
+    db.add_database(Xapian::Database());
+    TEST_EQUAL(db.size(), db2.size() * 2);
+}
+
+// Regression test for bug in unreleased versions before 2.0.0.
+DEFINE_TESTCASE(matchall3, backend) {
+    Xapian::Database db = get_database("apitest_simpledata");
+    Xapian::Enquire enq(db);
+    Xapian::Query qw(Xapian::Query::OP_WILDCARD, "nosuch");
+    enq.set_query(0 * (Xapian::Query::MatchAll & qw));
+    TEST_EQUAL(enq.get_mset(0, 10).size(), 0);
+    enq.set_query(0 * (qw & Xapian::Query::MatchAll));
+    TEST_EQUAL(enq.get_mset(0, 10).size(), 0);
+}
+
+DEFINE_TESTCASE(reconstruct1, backend) {
+    Xapian::Database db = get_database("apitest_simpledata");
+    TEST_STRINGS_EQUAL(db.reconstruct_text(6),
+		       "and yet anoth this one doe mention banana split "
+		       "though so cant be that bad");
+    TEST_STRINGS_EQUAL(db.reconstruct_text(1, 14), "this is a test");
+    TEST_STRINGS_EQUAL(db.reconstruct_text(1, 10, "S"), "");
+    TEST_STRINGS_EQUAL(db.reconstruct_text(6, 0, "", 1, 3), "and yet anoth");
+}
+
+DEFINE_TESTCASE(reconstruct2, writable) {
+    Xapian::Database db = get_database("reconstruct2",
+				       [](Xapian::WritableDatabase& wdb,
+					  const string&)
+				       {
+					   Xapian::Document doc;
+					   doc.add_posting("XMBABxyz", 100);
+					   doc.add_posting("XMBABabc", 101);
+					   wdb.add_document(doc);
+				       });
+    TEST_STRINGS_EQUAL(db.reconstruct_text(1), "");
+}
+
+/** Regression test for bug fixed in git master before 2.0.0.
+ *
+ *  A PositionIterator from a PostingIterator in a multidatabase always used
+ *  the first shard, which could cause a segfault if the term wasn't present
+ *  in that shard.
+ */
+DEFINE_TESTCASE(positfrompostit1, positional) {
+    Xapian::Database db = get_database("apitest_simpledata");
+    {
+	// Wrong results - this was giving (4) instead of (5, 18).
+	auto postit = db.postlist_begin("paragraph");
+	TEST_NOT_EQUAL(postit, db.postlist_end("paragraph"));
+	postit.skip_to(4);
+	TEST_NOT_EQUAL(postit, db.postlist_end("paragraph"));
+	auto p = postit.positionlist_begin();
+	TEST_NOT_EQUAL(p, postit.positionlist_end());
+	TEST_EQUAL(*p, 5);
+	++p;
+	TEST_NOT_EQUAL(p, postit.positionlist_end());
+	TEST_EQUAL(*p, 18);
+	++p;
+	TEST_EQUAL(p, postit.positionlist_end());
+    }
+    {
+	// This was giving a segmentation fault.
+	auto postit = db.postlist_begin("split");
+	TEST_NOT_EQUAL(postit, db.postlist_end("split"));
+	postit.skip_to(6);
+	TEST_NOT_EQUAL(postit, db.postlist_end("split"));
+	auto p = postit.positionlist_begin();
+	TEST_NOT_EQUAL(p, postit.positionlist_end());
+	TEST_EQUAL(*p, 9);
+	++p;
+	TEST_EQUAL(p, postit.positionlist_end());
+    }
+}
+
+/* Test searching for non-existent terms returns zero results.
+ *
+ * Regression test for GlassTable::readahead_key() throwing "Key too long"
+ * error if passed an oversized key.
+ */
+DEFINE_TESTCASE(nosuchterm, backend) {
+    Xapian::Database db = get_database("apitest_simpledata");
+    Xapian::Enquire enquire{db};
+    // Test up to a length longer than any backend supports.
+    const unsigned MAX_LEN = 300;
+    string term;
+    term.reserve(MAX_LEN);
+    while (term.size() < MAX_LEN) {
+	term += 'x';
+	enquire.set_query(Xapian::Query(term));
+	TEST_EQUAL(enquire.get_mset(0, 10).size(), 0);
+    }
+}
+
+// Test that all the terms returned exist.
+DEFINE_TESTCASE(allterms7, backend) {
+    Xapian::Database db = get_database("etext");
+    for (auto i = db.allterms_begin(); i != db.allterms_end(); ++i) {
+	string term = *i;
+	TEST(db.get_termfreq(term) > 0);
+	TEST(db.postlist_begin(term) != db.postlist_end(term));
+    }
+}
+
+/* Test that we can't run a second server on the same port.
+ *
+ * This testcase is motivated by Microsoft's stupid and insecure semantics for
+ * SO_REUSEADDR which prior to Server 2003 allowed any process to bind to any
+ * port, even if it was already in use by a different process (and even if the
+ * original process hadn't used SO_REUSEADDR.
+ *
+ * The external behaviour we check here is that another process can't bind to
+ * the port xapian-tcpsrv is using, whatever socket options is uses.
+ *
+ * We use SO_REUSEADDR on Unix so that a connection in TIME_WAIT state doesn't
+ * block binding to the socket.  Apparently that's the default behaviour on
+ * Microsoft Windows.  Ideally we'd have an external test for this too, but it
+ * seems hard to write a reliable one.
+ */
+DEFINE_TESTCASE(remoteportreuse1, remotetcp) {
+    int port;
+    Xapian::Database db = get_remote_database("apitest_simpledata",
+					      300000,
+					      &port);
+
+    // We test with (up to) 3 different socket options combinations:
+    //
+    // 0: no socket options
+    // 1: SO_REUSEADDR
+    // 2: SO_EXCLUSIVEADDRUSE (Microsoft-specific option)
+    //
+    // We don't test with SO_REUSEADDR and SO_EXCLUSIVEADDRUSE together because
+    // that's not a valid combination (second setsockopt() call fails with
+    // WSAEINVAL).
+    for (int reuse_options : { 0, 1,
+#ifdef SO_EXCLUSIVEADDRUSE
+			       2
+#endif
+			     }) {
+	tout << "reuse_options = " << reuse_options << '\n';
+	int socketfd = -1;
+	int bind_errno = 0;
+	for (auto&& r : Resolver("127.0.0.1", port, AI_PASSIVE)) {
+	    int socktype = r.ai_socktype | SOCK_CLOEXEC;
+	    int fd = socket(r.ai_family, socktype, r.ai_protocol);
+	    if (fd == -1)
+		continue;
+
+	    if (reuse_options == 1) {
+		int on = 1;
+		// 4th argument might need to be void* or char* - cast it to
+		// char* since C++ allows implicit conversion to void* but not
+		// from void*.
+		int retval = setsockopt(fd, SOL_SOCKET, SO_REUSEADDR,
+					reinterpret_cast<char*>(&on),
+					sizeof(on));
+
+		if (retval < 0) {
+		    int setsockopt_errno = socket_errno();
+		    CLOSESOCKET(fd);
+		    FAIL_TEST("setsockopt SO_REUSEADDR failed " +
+			      errno_to_string(setsockopt_errno));
+		}
+#ifdef SO_EXCLUSIVEADDRUSE
+	    } else if (reuse_options == 2) {
+		int on = 1;
+		int retval = setsockopt(fd, SOL_SOCKET, SO_EXCLUSIVEADDRUSE,
+					reinterpret_cast<char*>(&on),
+					sizeof(on));
+
+		if (retval < 0) {
+		    int setsockopt_errno = socket_errno();
+		    CLOSESOCKET(fd);
+		    FAIL_TEST("setsockopt SO_EXCLUSIVEADDRUSE failed " +
+			      errno_to_string(setsockopt_errno));
+		}
+#endif
+	    }
+
+	    if (::bind(fd, r.ai_addr, r.ai_addrlen) == 0) {
+		socketfd = fd;
+		break;
+	    }
+
+	    // Note down the error code for the first address we try, which
+	    // seems likely to be more helpful than the last in the case where
+	    // they differ.
+	    if (bind_errno == 0)
+		bind_errno = socket_errno();
+
+	    CLOSESOCKET(fd);
+	}
+
+	if (socketfd >= 0) {
+	    CLOSESOCKET(socketfd);
+	    FAIL_TEST("Managed to bind to TCP port used by xapian-tcpsrv");
+	}
+
+#ifdef __WIN32__
+	// Gives WSAEACCES instead in some cases involving SO_EXCLUSIVEADDRUSE.
+	if (bind_errno == WSAEACCES) bind_errno = EADDRINUSE;
+#endif
+
+	if (bind_errno != EADDRINUSE) {
+	    FAIL_TEST("bind() failed with unexpected error: " +
+		      errno_to_string(bind_errno));
+	}
+    }
+}
+
+// Test exception for check() on remote via stub.
+DEFINE_TESTCASE(unsupportedcheck1, path) {
+    mkdir(".stub", 0755);
+    const char* stubpath = ".stub/unsupportedcheck1";
+    ofstream out(stubpath);
+    TEST(out.is_open());
+    out << "remote :" << BackendManager::get_xapian_progsrv_command()
+	<< ' ' << get_database_path("apitest_simpledata") << '\n';
+    out.close();
+
+    try {
+	Xapian::Database::check(stubpath);
+	FAIL_TEST("Managed to check remote stub");
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
+    } catch (const Xapian::UnimplementedError& e) {
+	// Check the message is appropriate.
+	TEST_STRINGS_EQUAL(e.get_msg(),
+			   "Remote database checking not implemented");
+#else
+    } catch (const Xapian::FeatureUnavailableError& e) {
+#endif
+    }
+}
+
+// Test exception for check() on inmemory via stub.
+DEFINE_TESTCASE(unsupportedcheck2, inmemory) {
+    mkdir(".stub", 0755);
+    const char* stubpath = ".stub/unsupportedcheck2";
+    ofstream out(stubpath);
+    TEST(out.is_open());
+    out << "inmemory\n";
+    out.close();
+
+    TEST_EXCEPTION(Xapian::UnimplementedError,
+		   Xapian::Database::check(stubpath));
+}
+
+// Test exception for passing empty filename to check().
+DEFINE_TESTCASE(unsupportedcheck3, !backend) {
+    // Regression test, exception was DatabaseOpeningError with description:
+    // Failed to rewind file descriptor -1 (Bad file descriptor)
+    try {
+	Xapian::Database::check(""s);
+    } catch (const Xapian::DatabaseOpeningError& e) {
+	string enoent_msg = errno_to_string(ENOENT);
+	TEST_EQUAL(e.get_error_string(), enoent_msg);
+    }
+}
+
+// Test handling of corrupt DB with out of range values in the version file.
+// Regression test for #824, fixed in 1.4.25.
+DEFINE_TESTCASE(corruptglass1, glass) {
+    string db_path =
+	test_driver::get_srcdir() + "/testdata/glass_corrupt_dbX";
+
+    for (int n = '1'; n <= '4'; ++n) {
+	db_path.back() = n;
+	TEST_EXCEPTION(Xapian::DatabaseCorruptError,
+		       Xapian::Database db(db_path));
+
+	TEST_EXCEPTION(Xapian::DatabaseCorruptError,
+		       Xapian::Database::check(db_path));
+    }
 }

@@ -1,4 +1,4 @@
-/** @file inmemory_positionlist.cc
+/** @file
  * @brief PositionList from an InMemory DB or a Document object
  */
 /* Copyright 2017 Olly Betts
@@ -14,8 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -35,6 +35,12 @@ InMemoryPositionList::get_approx_size() const
 }
 
 Xapian::termpos
+InMemoryPositionList::back() const
+{
+    return positions.back();
+}
+
+Xapian::termpos
 InMemoryPositionList::get_position() const
 {
     AssertRel(index, <, positions.size());
@@ -44,7 +50,8 @@ InMemoryPositionList::get_position() const
 bool
 InMemoryPositionList::next()
 {
-    ++index;
+    // We start index at size_t(-1) so the first increment gives 0.
+    UNSIGNED_OVERFLOW_OK(++index);
     AssertRel(index, <=, positions.size());
     return index != positions.size();
 }

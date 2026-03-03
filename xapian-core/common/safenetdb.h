@@ -1,7 +1,7 @@
-/** @file safenetdb.h
+/** @file
  *  @brief #include <netdb.h>, with portability workarounds.
  */
-/* Copyright (C) 2013,2015 Olly Betts
+/* Copyright (C) 2013,2015,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -14,9 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
- * MA 02110-1301, USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_SAFENETDB_H
@@ -38,6 +37,9 @@
 # endif
 # ifndef AI_ADDRCONFIG
 #  define AI_ADDRCONFIG 0x400
+# endif
+# ifndef AI_V4MAPPED
+#  define AI_V4MAPPED 0x800
 # endif
 
 #endif

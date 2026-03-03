@@ -17,9 +17,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 %}
 
@@ -598,7 +597,7 @@ def _queryparser_gen_unstemlist_iter(self, tname):
                     return_strings=True)
 QueryParser.unstemlist = _queryparser_gen_unstemlist_iter
 
-# Modify ValueCountMatchSpy to add an "values()" method.
+# Modify ValueCountMatchSpy to add a "values()" method.
 def wrapper():
     begin = ValueCountMatchSpy.values_begin
     del ValueCountMatchSpy.values_begin
@@ -619,7 +618,7 @@ def wrapper():
 ValueCountMatchSpy.values = wrapper()
 del wrapper
 
-# Modify ValueCountMatchSpy to add an "top_values()" method.
+# Modify ValueCountMatchSpy to add a "top_values()" method.
 def wrapper():
     begin = ValueCountMatchSpy.top_values_begin
     del ValueCountMatchSpy.top_values_begin
@@ -689,19 +688,6 @@ def _enquire_get_query(self):
 _enquire_get_query.__doc__ = __enquire_get_query_orig.__doc__
 Enquire.get_query = _enquire_get_query
 del _enquire_get_query
-
-# When we set a ValueRangeProcessor into the QueryParser, keep a python
-# reference so it won't be deleted. This hack can probably be removed once
-# xapian bug #186 is fixed.
-__queryparser_add_valuerangeprocessor_orig = QueryParser.add_valuerangeprocessor
-def _queryparser_add_valuerangeprocessor(self, vrproc):
-    if not hasattr(self, '_vrps'):
-        self._vrps = []
-    self._vrps.append(vrproc)
-    return __queryparser_add_valuerangeprocessor_orig(self, vrproc)
-_queryparser_add_valuerangeprocessor.__doc__ = __queryparser_add_valuerangeprocessor_orig.__doc__
-QueryParser.add_valuerangeprocessor = _queryparser_add_valuerangeprocessor
-del _queryparser_add_valuerangeprocessor
 
 # When we set a RangeProcessor into the QueryParser, keep a python
 # reference so it won't be deleted. This hack can probably be removed once
@@ -1171,11 +1157,6 @@ def _stem_init(self, *args):
 _stem_init.__doc__ = Stem.__init__.__doc__
 Stem.__init__ = _stem_init
 
-
-# Remove static methods which shouldn't be in the API.
-del Document_unserialise
-del Query_unserialise
-del Stem_get_available_languages
 
 # Add wrappers for Query::MatchAll and Query::MatchNothing
 Query.MatchAll = Query("")

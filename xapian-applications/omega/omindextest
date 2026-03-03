@@ -1,0 +1,69 @@
+#!/bin/sh
+# omindextest: Test omindex
+#
+# Copyright (C) 2019 Bruno Baruffaldi
+# Copyright (C) 2020-2023 Olly Betts
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation; either version 2 of the
+# License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, see
+# <https://www.gnu.org/licenses/>.
+
+set -e
+
+: ${OMINDEX=./omindex}
+: ${XAPIAN_OMEGA_PKGLIBBINDIR=.}
+export XAPIAN_OMEGA_PKGLIBBINDIR
+
+# Don't complain about memory left allocated on exit - the OS will reclaim
+# all memory at that point.
+LSAN_OPTIONS=leak_check_at_exit=0
+export LSAN_OPTIONS
+
+# Turn off msys2's argument conversion as we shouldn't need it and it breaks
+# some testcases.
+MSYS2_ARG_CONV_EXCL=*
+export MSYS2_ARG_CONV_EXCL
+
+srcdir=`echo "$0"|sed 's!/*[^/]*$!!'`
+TEST_FILES="$srcdir/testfiles"
+TEST_DB="testdatabase"
+
+# Remove the database on exit unless run with `--no-clean` option.
+case $@ in
+  *--no-clean*) ;;
+  *) trap 'rm -rf "$TEST_DB"' 0 1 2 13 15 ;;
+esac
+
+$OMINDEX --verbose --overwrite --db "$TEST_DB" --empty-docs=index --url=/ "$TEST_FILES"
+for subdir in opendoc staroffice msxml ; do
+  echo "Trying to index $subdir with omindex_libreofficekit"
+  $OMINDEX --verbose --db "$TEST_DB" --empty-docs=index --no-delete \
+    --worker=application/vnd.oasis.opendocument.graphics:omindex_libreofficekit \
+    --worker=application/vnd.oasis.opendocument.presentation:omindex_libreofficekit \
+    --worker=application/vnd.oasis.opendocument.presentation-template:omindex_libreofficekit \
+    --worker=application/vnd.oasis.opendocument.spreadsheet:omindex_libreofficekit \
+    --worker=application/vnd.oasis.opendocument.spreadsheet-template:omindex_libreofficekit \
+    --worker=application/vnd.oasis.opendocument.text:omindex_libreofficekit \
+    --worker=application/vnd.oasis.opendocument.text-template:omindex_libreofficekit \
+    --worker=application/vnd.openxmlformats-officedocument.presentationml.presentation:omindex_libreofficekit \
+    --worker=application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:omindex_libreofficekit \
+    --worker=application/vnd.openxmlformats-officedocument.wordprocessingml.document:omindex_libreofficekit \
+    --worker=application/vnd.sun.xml.calc:omindex_libreofficekit \
+    --worker=application/vnd.sun.xml.calc.template:omindex_libreofficekit \
+    --worker=application/vnd.sun.xml.impress:omindex_libreofficekit \
+    --worker=application/vnd.sun.xml.impress.template:omindex_libreofficekit \
+    --worker=application/vnd.sun.xml.writer:omindex_libreofficekit \
+    --worker=application/vnd.sun.xml.writer.template:omindex_libreofficekit \
+    --url="/lok-$subdir" "$TEST_FILES/$subdir"
+done
+./omindexcheck "$TEST_DB"

@@ -1,5 +1,5 @@
 %{
-/** @file xapian-head.i
+/** @file
  * @brief Header for SWIG interface file for Xapian.
  */
 /* Copyright (C) 2005,2006,2007,2008,2009,2011,2012,2013,2014,2015,2016,2017 Olly Betts
@@ -15,9 +15,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 // Disable any deprecation warnings for Xapian methods/functions/classes.
@@ -64,6 +63,7 @@ using namespace std;
 
 %include exception.i
 %include stl.i
+%include std_string_view.i
 
 // Disable errors about not including headers individually.
 #define XAPIAN_IN_XAPIAN_H
@@ -77,8 +77,6 @@ using namespace std;
 #define XAPIAN_VISIBILITY_INTERNAL
 #define XAPIAN_CONST_FUNCTION
 #define XAPIAN_PURE_FUNCTION
-#define XAPIAN_NOEXCEPT
-#define XAPIAN_NOTHROW(D) D
 
 // This works around buggy behaviour in SWIG's preprocessor, and only works
 // because we currently only use XAPIAN_NONNULL() with an empty argument:

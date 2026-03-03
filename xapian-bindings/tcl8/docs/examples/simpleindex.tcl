@@ -15,11 +15,8 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
-
-# We need at least Tcl version 8.1.
-package require Tcl 8.1
+# along with this program; if not, see
+# <https://www.gnu.org/licenses/>.
 
 # We need at least Xapian 1.0.0 for TermGenerator.
 package require xapian 1.0.0

@@ -1,0 +1,27 @@
+Spellchecking dictionary for Yiddish language.The Yiddish spell checker (YIVO) was created
+and is actualised by Simcha Taub of the ייִדיש לעבט project. It is a side effect of the works
+on creating the Yiddish language corpus. Origin: http://yiddish-sources.com/yiddish-spell-checker
+
+Yiddish spell checker contains entries in standard YIVO orthography and is compatible 
+with the previously developed specification, which assumes not using typographic ligatures 
+in the simple text because of their special functions. This specification is currently used 
+and respected by the majority of scientific institutions and Yiddish language publishing houses.
+
+First versions of the spell checker, which were unnumbered and weren’t widely spread, 
+were based partly on Raphael A. Finkel’s MySpell dictionary available under LGPLv2+, GPLv2+ or MPLv1.1 licenses.
+
+The spell checker is developed and distributed in three versions: as pure Hunspell files and 
+Mozilla and OpenOffice packages with the same version number. Each of them is available under 
+double licenses: GPLv3+ and Creative Commons BY-SA 3.0.
+
+########
+Updated by Assaf Urieli to replace certain glyphs:
+- וו with װ
+- יי with ײ
+- וי with ױ
+־ with -
+׳ with '
+Also, added some common additions at the end of the list
+
+All updates continue to be available under the double licenses: GPLv3+ and Creative Commons BY-SA 3.0.
+

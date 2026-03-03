@@ -1,7 +1,7 @@
-/** @file documenttermlist.h
+/** @file
  * @brief Iteration over terms in a document
  */
-/* Copyright 2017 Olly Betts
+/* Copyright 2017,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -14,8 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_DOCUMENTTERMLIST_H
@@ -27,8 +27,10 @@
 
 #include "omassert.h"
 
+#include <functional>
+
 /// Iteration over terms in a document.
-class DocumentTermList : public TermList {
+class DocumentTermList final : public TermList {
     /// Don't allow assignment.
     void operator=(const DocumentTermList&) = delete;
 
@@ -42,7 +44,7 @@ class DocumentTermList : public TermList {
      *
      *  If we haven't started yet, this will be set to: doc->terms.end()
      */
-    std::map<std::string, TermInfo>::const_iterator it;
+    std::map<std::string, TermInfo, std::less<>>::const_iterator it;
 
   public:
     explicit
@@ -50,8 +52,6 @@ class DocumentTermList : public TermList {
 	: doc(doc_), it(doc->terms->end()) {}
 
     Xapian::termcount get_approx_size() const;
-
-    std::string get_termname() const;
 
     Xapian::termcount get_wdf() const;
 
@@ -65,9 +65,7 @@ class DocumentTermList : public TermList {
 
     TermList * next();
 
-    TermList * skip_to(const std::string& term);
-
-    bool at_end() const;
+    TermList* skip_to(std::string_view term);
 };
 
 #endif // XAPIAN_INCLUDED_DOCUMENTTERMLIST_H

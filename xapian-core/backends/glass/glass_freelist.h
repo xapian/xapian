@@ -1,4 +1,4 @@
-/** @file glass_freelist.h
+/** @file
  * @brief Glass freelist
  */
 /* Copyright 2014 Olly Betts
@@ -14,9 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_GLASS_FREELIST_H
@@ -68,9 +67,9 @@ class GlassFreeList {
 
     void operator=(const GlassFreeList &);
 
-    void read_block(const GlassTable * B, uint4 n, byte * p);
+    void read_block(const GlassTable * B, uint4 n, uint8_t * p);
 
-    void write_block(const GlassTable * B, uint4 n, byte * p, uint4 rev);
+    void write_block(const GlassTable * B, uint4 n, uint8_t * p, uint4 rev);
 
   protected:
     uint4 revision;
@@ -83,10 +82,10 @@ class GlassFreeList {
 
   private:
     /// Current freelist block.
-    byte * p;
+    uint8_t * p;
 
     /// Current freelist block we're writing.
-    byte * pw;
+    uint8_t * pw;
 
   public:
     GlassFreeList() {

@@ -1,9 +1,9 @@
-/** @file geospatial.h
+/** @file
  * @brief Geospatial search support routines.
  */
 /* Copyright 2008,2009 Lemur Consulting Ltd
  * Copyright 2010,2011 Richard Boulton
- * Copyright 2012,2013,2014,2015,2016 Olly Betts
+ * Copyright 2012,2013,2014,2015,2016,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,21 +16,21 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_GEOSPATIAL_H
 #define XAPIAN_INCLUDED_GEOSPATIAL_H
 
 #if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
-# error "Never use <xapian/geospatial.h> directly; include <xapian.h> instead."
+# error Never use <xapian/geospatial.h> directly; include <xapian.h> instead.
 #endif
 
 #include <iterator>
 #include <vector>
 #include <string>
+#include <string_view>
 
 #include <xapian/attributes.h>
 #include <xapian/derefwrapper.h>
@@ -44,27 +44,27 @@ namespace Xapian {
 class Registry;
 
 double
-XAPIAN_NOTHROW(miles_to_metres(double miles)) XAPIAN_CONST_FUNCTION;
+miles_to_metres(double miles) noexcept XAPIAN_CONST_FUNCTION;
 
 /** Convert from miles to metres.
  *
  *  Experimental - see https://xapian.org/docs/deprecation#experimental-features
  */
 inline double
-miles_to_metres(double miles) XAPIAN_NOEXCEPT
+miles_to_metres(double miles) noexcept
 {
     return 1609.344 * miles;
 }
 
 double
-XAPIAN_NOTHROW(metres_to_miles(double metres)) XAPIAN_CONST_FUNCTION;
+metres_to_miles(double metres) noexcept XAPIAN_CONST_FUNCTION;
 
 /** Convert from metres to miles.
  *
  *  Experimental - see https://xapian.org/docs/deprecation#experimental-features
  */
 inline double
-metres_to_miles(double metres) XAPIAN_NOEXCEPT
+metres_to_miles(double metres) noexcept
 {
     return metres * (1.0 / 1609.344);
 }
@@ -99,7 +99,7 @@ struct XAPIAN_VISIBILITY_DEFAULT LatLongCoord {
 
     /** Construct an uninitialised coordinate.
      */
-    XAPIAN_NOTHROW(LatLongCoord()) {}
+    LatLongCoord() noexcept {}
 
     /** Construct a coordinate.
      *
@@ -123,7 +123,7 @@ struct XAPIAN_VISIBILITY_DEFAULT LatLongCoord {
      *  a valid serialised latitude-longitude pair, or contains extra data at
      *  the end of it.
      */
-    void unserialise(const std::string & serialised);
+    void unserialise(std::string_view serialised);
 
     /** Unserialise a buffer and set this object to its coordinate.
      *
@@ -147,8 +147,7 @@ struct XAPIAN_VISIBILITY_DEFAULT LatLongCoord {
      *  This is mostly provided so that things like std::map<LatLongCoord> work
      *  - the ordering isn't particularly meaningful.
      */
-    bool XAPIAN_NOTHROW(operator<(const LatLongCoord & other) const)
-    {
+    bool operator<(const LatLongCoord& other) const noexcept {
 	if (latitude < other.latitude) return true;
 	if (latitude > other.latitude) return false;
 	return (longitude < other.longitude);
@@ -279,7 +278,7 @@ class XAPIAN_VISIBILITY_DEFAULT LatLongCoords {
      *  a valid serialised latitude-longitude pair, or contains junk at the end
      *  of it.
      */
-    void unserialise(const std::string & serialised);
+    void unserialise(std::string_view serialised);
 
     /** Return a serialised form of the coordinate list.
      */
@@ -334,7 +333,7 @@ class XAPIAN_VISIBILITY_DEFAULT LatLongMetric {
      *  @param a The first coordinate list.
      *  @param b The second coordinate list, in serialised form.
      */
-    double operator()(const LatLongCoords & a, const std::string & b) const
+    double operator()(const LatLongCoords& a, std::string_view b) const
     {
 	return (*this)(a, b.data(), b.size());
     }
@@ -394,7 +393,7 @@ class XAPIAN_VISIBILITY_DEFAULT LatLongMetric {
  *  formula is subject to inaccuracy due to numerical errors for coordinates on
  *  the opposite side of the sphere.
  *
- *  See http://en.wikipedia.org/wiki/Haversine_formula
+ *  See https://en.wikipedia.org/wiki/Haversine_formula
  */
 class XAPIAN_VISIBILITY_DEFAULT GreatCircleMetric : public LatLongMetric {
     /** The radius of the sphere in metres.
@@ -529,7 +528,7 @@ class XAPIAN_VISIBILITY_DEFAULT LatLongDistancePostingSource : public ValuePosti
     LatLongDistancePostingSource *
 	    unserialise_with_registry(const std::string &serialised,
 				      const Registry & registry) const;
-    void init(const Database & db_);
+    void reset(const Database& db_, Xapian::doccount shard_index);
 
     std::string get_description() const;
 };

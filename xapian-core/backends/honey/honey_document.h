@@ -1,4 +1,4 @@
-/** @file honey_document.h
+/** @file
  * @brief A document read from a HoneyDatabase.
  */
 /* Copyright (C) 2008,2009,2010,2011,2017 Olly Betts
@@ -14,8 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_HONEY_DOCUMENT_H
@@ -29,16 +29,16 @@
 /// A document read from a HoneyDatabase.
 class HoneyDocument : public Xapian::Document::Internal {
     /// Don't allow assignment.
-    void operator=(const HoneyDocument &);
+    void operator=(const HoneyDocument&);
 
     /// Don't allow copying.
-    HoneyDocument(const HoneyDocument &);
+    HoneyDocument(const HoneyDocument&);
 
     /// Used for lazy access to document values.
-    const HoneyValueManager *value_manager;
+    const HoneyValueManager* value_manager;
 
     /// Used for lazy access to document data.
-    const HoneyDocDataTable *docdata_table;
+    const HoneyDocDataTable* docdata_table;
 
     /// HoneyDatabase::open_document() needs to call our private constructor.
     friend class HoneyDatabase;
@@ -46,16 +46,17 @@ class HoneyDocument : public Xapian::Document::Internal {
     /// Private constructor - only called by HoneyDatabase::open_document().
     HoneyDocument(const Xapian::Database::Internal* db,
 		  Xapian::docid did_,
-		  const HoneyValueManager *value_manager_,
-		  const HoneyDocDataTable *docdata_table_)
+		  const HoneyValueManager* value_manager_,
+		  const HoneyDocDataTable* docdata_table_)
 	: Xapian::Document::Internal(db, did_),
 	  value_manager(value_manager_), docdata_table(docdata_table_) { }
 
   protected:
     /** Implementation of virtual methods @{ */
-    string fetch_value(Xapian::valueno slot) const;
-    void fetch_all_values(map<Xapian::valueno, string> & values_) const;
-    string fetch_data() const;
+    std::string fetch_value(Xapian::valueno slot) const;
+    void fetch_all_values(std::map<Xapian::valueno,
+				   std::string>& values_) const;
+    std::string fetch_data() const;
     /** @} */
 };
 

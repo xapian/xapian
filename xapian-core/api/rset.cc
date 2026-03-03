@@ -1,4 +1,4 @@
-/** @file rset.cc
+/** @file
  * @brief Set of documents judged as relevant
  */
 /* Copyright (C) 2017 Olly Betts
@@ -12,8 +12,8 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -29,14 +29,15 @@ using namespace std;
 
 namespace Xapian {
 
-RSet::RSet(const RSet& o) : internal(o.internal) {}
+RSet::RSet(const RSet&) = default;
 
 RSet&
-RSet::operator=(const RSet& o)
-{
-    internal = o.internal;
-    return *this;
-}
+RSet::operator=(const RSet&) = default;
+
+RSet::RSet(RSet &&) = default;
+
+RSet&
+RSet::operator=(RSet &&) = default;
 
 RSet::RSet() {}
 
@@ -47,7 +48,7 @@ RSet::~RSet() {}
 Xapian::doccount
 RSet::size() const
 {
-    return internal.get() ? internal->docs.size() : 0;
+    return internal ? internal->docs.size() : 0;
 }
 
 void
@@ -55,7 +56,7 @@ RSet::add_document(Xapian::docid did)
 {
     if (rare(did == 0))
 	throw Xapian::InvalidArgumentError("Docid 0 not valid in an RSet");
-    if (!internal.get())
+    if (!internal)
 	internal = new RSet::Internal;
     internal->docs.insert(did);
 }
@@ -65,20 +66,21 @@ RSet::remove_document(Xapian::docid did)
 {
     if (rare(did == 0))
 	throw Xapian::InvalidArgumentError("Docid 0 not valid in an RSet");
-    if (internal.get())
-	internal->docs.erase(did); }
+    if (internal)
+	internal->docs.erase(did);
+}
 
 bool
 RSet::contains(Xapian::docid did) const
 {
-    return internal.get() && internal->docs.find(did) != internal->docs.end();
+    return internal && internal->docs.find(did) != internal->docs.end();
 }
 
 string
 RSet::get_description() const
 {
     string desc = "RSet(";
-    if (!internal.get() || internal->docs.empty()) {
+    if (!internal || internal->docs.empty()) {
 	desc += ')';
     } else {
 	for (auto&& did : internal->docs) {

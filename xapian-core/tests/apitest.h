@@ -1,4 +1,4 @@
-/** @file apitest.h
+/** @file
  * @brief test functionality of the Xapian API
  */
 /* Copyright (C) 2007,2009,2011,2018 Olly Betts
@@ -14,8 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_APITEST_H
@@ -51,7 +51,16 @@ std::string get_named_writable_database_path(const std::string &name);
 
 std::string get_compaction_output_path(const std::string& name);
 
-Xapian::Database get_remote_database(const std::string &db, unsigned timeout);
+Xapian::Database get_remote_database(const std::string& db,
+				     unsigned timeout,
+				     int* port_ptr = nullptr);
+
+/** Kill the server associated with remote database @a db.
+ *
+ *  Currently only supported for remotetcp and only for a database with a
+ *  single shard.
+ */
+void kill_remote(const Xapian::Database& db);
 
 Xapian::Database get_writable_database_as_database();
 
@@ -73,5 +82,8 @@ void skip_test_for_backend(const std::string & backend_prefix);
 
 #define SKIP_TEST_UNLESS_BACKEND(B) skip_test_unless_backend(B)
 #define SKIP_TEST_FOR_BACKEND(B) skip_test_for_backend(B)
+
+void XFAIL_FOR_BACKEND(const std::string& backend_prefix,
+		       const char* msg);
 
 #endif // XAPIAN_INCLUDED_APITEST_H

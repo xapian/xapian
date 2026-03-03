@@ -1,0 +1,20 @@
+#!/bin/sh
+
+# The AM_ICONV macro requires a stack of macros from gettext which include
+# copies of macros and scripts from libtool with the names changed.  But we
+# already use libtool and it's stupid to be running the same macros and
+# scripts twice.
+#
+# This script is a replacement for gettext's config.rpath which simply
+# reuses the existing answers libtool already found.
+cat <<'EOF'
+acl_cv_wl=$lt_prog_compiler_wl_CXX
+acl_cv_libext=$libext
+acl_cv_shlibext=$shlibext
+acl_cv_libname_spec=$libname_spec
+acl_cv_library_names_spec=$library_names_spec
+acl_cv_hardcode_libdir_flag_spec=$hardcode_libdir_flag_spec_CXX
+acl_cv_hardcode_libdir_separator=$hardcode_libdir_separator_CXX
+acl_cv_hardcode_direct=$hardcode_direct_CXX
+acl_cv_hardcode_minus_L=$hardcode_minus_L_CXX
+EOF

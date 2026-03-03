@@ -1,7 +1,7 @@
-/** @file ortermlist.h
+/** @file
  * @brief Merge two TermList objects using an OR operation.
  */
-/* Copyright (C) 2007,2010 Olly Betts
+/* Copyright (C) 2007,2010,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -14,8 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_ORTERMLIST_H
@@ -34,13 +34,11 @@ class OrTermList : public TermList {
     /// The two TermList objects we're merging.
     TermList *left, *right;
 
-    /** The current term for left and right respectively.
+    /** The result of left->get_termname().compare(right->get_termname()).
      *
-     *  Until next() is first called, these will be empty strings.  Once next()
-     *  has been called, they won't be empty (since the empty string isn't a
-     *  valid term).
+     *  Until next() is first called, this will be zero.
      */
-    std::string left_current, right_current;
+    int cmp = 0;
 
     /// Check that next() has already been called.
     void check_started() const;
@@ -55,17 +53,13 @@ class OrTermList : public TermList {
 
     void accumulate_stats(Xapian::Internal::ExpandStats & stats) const;
 
-    std::string get_termname() const;
-
     Xapian::termcount get_wdf() const;
 
     Xapian::doccount get_termfreq() const;
 
     TermList *next();
 
-    TermList * skip_to(const std::string & term);
-
-    bool at_end() const;
+    TermList* skip_to(std::string_view term);
 
     Xapian::termcount positionlist_count() const;
 
@@ -79,12 +73,12 @@ class OrTermList : public TermList {
  *  frequencies are equal.  This is appropriate for spelling termlists.
  */
 class FreqAdderOrTermList : public OrTermList {
-    public:
-	FreqAdderOrTermList(TermList * left_, TermList * right_)
-		: OrTermList(left_, right_)
-	{ }
+  public:
+    FreqAdderOrTermList(TermList * left_, TermList * right_)
+	    : OrTermList(left_, right_)
+    { }
 
-	Xapian::doccount get_termfreq() const;
+    Xapian::doccount get_termfreq() const;
 };
 
 #endif // XAPIAN_INCLUDED_ORTERMLIST_H

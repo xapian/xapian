@@ -9,8 +9,15 @@ by a term.
 
 This iterator represents a stream of documents indexed by a term. It overloads
 C<++> for advancing the iterator, or you can explicitly call the C<inc> method.
-This class also overloads C<eq>, C<ne>, C<==>, C<!=>, and C<"">
-(stringification).
+This class also overloads C<eq>, C<ne>, C<==>, and C<!=>.
+
+=head2 Compatibility with Search::Xapian
+
+Search::Xapian overloads <""> (stringification) on this class to call
+the C<get_description> method.  Call C<get_description> explicitly instead.
+
+Search::Xapian overloads <0+> (convert to an integer) on this class to call
+the C<get_docid> method.  Call C<get_docid> explicitly instead.
 
 =head1 METHODS
 
@@ -24,47 +31,44 @@ Constructor. Defaults to an uninitialized iterator.
 
 =item inc
 
-Advance the iterator by one. (Called implictly by C<++> overloading).
+Advance the iterator by one. (Called implicitly by C<++> overloading).
 
-=item skip_to <tname>
+=item skip_to <docid>
 
-Skip the iterator to term tname, or the first term after tname if tname
-isn't in the list of terms being iterated.
+Advance the iterator to document docid, or the first document after docid if docid
+isn't in the list of documents being iterated.
 
 =item get_docid
 
-Get the unique id of this document.
+Get the unique id of the document at the current position of the iterator.
 
 =item get_wdf
 
-Return the wdf of the current term (if meaningful).
+Return the wdf for the current position of the iterator.
 
 =item positionlist_begin
 
-Return L<Xapian::PositionIterator> pointing to start of positionlist for current term.
+Return L<Xapian::PositionIterator> pointing to start of positionlist for
+current document.
 
 =item positionlist_end
 
-Return L<Xapian::PositionIterator> pointing to end of positionlist for current term.
+Return L<Xapian::PositionIterator> pointing to end of positionlist for
+current document.
 
 =item get_doclength
 
-Get the length of the document at the current position in the postlist.
+Get the length of the document at the current position of the iterator.
 
-This information may be stored in the postlist, in which case this lookup
-should be extremely fast (indeed, not require further disk access). If the
-information is not present in the postlist, it will be retrieved from the
-database, at a greater performance cost.
+=item equal <postingiterator>
 
-=item equal <term>
+Compare for equality with another Xapian::PostingIterator object. Also
+overloaded to the C<eq> and C<==> operators.
 
-Checks if a term is the same as this term. Also overloaded to the C<eq>
-and C<==> operators.
+=item nequal <postingiterator>
 
-=item nequal <term>
-
-Checks if a term is different from this term. Also overloaded to the C<ne>
-and C<!=> operators.
+Compare for inequality with another Xapian::PostingIterator object. Also
+overloaded to the C<ne> and C<!=> operators.
 
 =item get_description
 

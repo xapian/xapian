@@ -1,4 +1,4 @@
-/** @file safeunistd.h
+/** @file
  * @brief <unistd.h>, but with compat. and large file support for MSVC.
  */
 /* Copyright (C) 2007,2015 Olly Betts
@@ -14,13 +14,16 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_SAFEUNISTD_H
 #define XAPIAN_INCLUDED_SAFEUNISTD_H
+
+#ifndef PACKAGE
+# error config.h must be included first in each C++ source file
+#endif
 
 #ifndef _MSC_VER
 # include <unistd.h>

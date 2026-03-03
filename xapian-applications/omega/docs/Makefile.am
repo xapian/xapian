@@ -10,6 +10,7 @@ RSTDOCS = \
 	cgiparams.rst\
 	encodings.rst\
 	index.rst\
+	newformat.rst\
 	omegascript.rst\
 	overview.rst\
 	quickstart.rst\

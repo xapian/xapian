@@ -1,4 +1,4 @@
-/** @file andmaybepostlist.cc
+/** @file
  * @brief PostList class implementing Query::OP_AND_MAYBE
  */
 /* Copyright 2017 Olly Betts
@@ -14,15 +14,15 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
 
 #include "andmaybepostlist.h"
 
-#include "multiandpostlist.h"
+#include "andpostlist.h"
 
 using namespace std;
 
@@ -31,7 +31,7 @@ AndMaybePostList::decay_to_and(Xapian::docid did,
 			       double w_min,
 			       bool* valid_ptr)
 {
-    pl = new MultiAndPostList(pl, r, pl_max, r_max, pltree, db_size);
+    pl = new AndPostList(pl, r, pl_max, r_max, pltree, termfreq);
     r = NULL;
     PostList* result;
     if (valid_ptr) {
@@ -55,11 +55,12 @@ AndMaybePostList::get_docid() const
 
 double
 AndMaybePostList::get_weight(Xapian::termcount doclen,
-			     Xapian::termcount unique_terms) const
+			     Xapian::termcount unique_terms,
+			     Xapian::termcount wdfdocmax) const
 {
-    auto res = pl->get_weight(doclen, unique_terms);
+    auto res = pl->get_weight(doclen, unique_terms, wdfdocmax);
     if (maybe_matches())
-	res += r->get_weight(doclen, unique_terms);
+	res += r->get_weight(doclen, unique_terms, wdfdocmax);
     return res;
 }
 

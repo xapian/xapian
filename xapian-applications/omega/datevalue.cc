@@ -1,7 +1,7 @@
-/** @file datevalue.cc
+/** @file
  * @brief date filtering using value ranges
  */
-/* Copyright (C) 2006,2015 Olly Betts
+/* Copyright (C) 2006,2015,2021 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -28,6 +28,7 @@
 
 #include <xapian.h>
 
+#include "parseint.h"
 #include "timegm.h"
 #include "values.h"
 
@@ -98,7 +99,22 @@ class DateRangeLimit {
 	if (!is_set()) {
 	    return start ? string() : string(4, '\xff');
 	}
-	return int_to_binary_string(timegm(&tm));
+	time_t s = timegm(&tm);
+	if (s <= 0) {
+	    // This encoding can't represent dates before the epoch, so treat
+	    // the range as having an open start.
+	    return string();
+	}
+	if constexpr(sizeof(time_t) > 4) {
+	    if (s >= 0xffffffff) {
+		// This encoding can't represent dates after 0xffffffff, so
+		// clamp the range end to that and Xapian's matcher will see
+		// the range end is >= the slot upper bound and optimise this
+		// to an open upper range end.
+		return string(4, '\xff');
+	    }
+	}
+	return int_to_binary_string(uint32_t(s));
     }
 };
 
@@ -205,7 +221,8 @@ DateRangeLimit::format(bool start) const
     } else {
 	while (len && buf[len - 1] == '9') --len;
 	if (len < 14) {
-	    // Append a character that will sort after any valid extra precision.
+	    // Append a character that will sort after any valid extra
+	    // precision.
 	    buf[len++] = '~';
 	}
     }
@@ -223,7 +240,11 @@ date_value_range(bool as_time_t,
     DateRangeLimit end(date_end, false);
 
     if (!date_span.empty()) {
-	time_t span = atoi(date_span.c_str()) * (24 * 60 * 60) - 1;
+	unsigned int days;
+	if (!parse_unsigned(date_span.c_str(), days)) {
+	    throw "Datespan value must be >= 0";
+	}
+	time_t span = days * (24 * 60 * 60) - 1;
 	if (end.is_set()) {
 	    // If START, END and SPAN are all set, we (somewhat arbitrarily)
 	    // ignore START.

@@ -1,6 +1,7 @@
-/* freemem.cc: determine how much free physical memory there is.
- *
- * Copyright (C) 2007,2008,2009,2010 Olly Betts
+/** @file
+ * @brief determine how much free physical memory there is.
+ */
+/* Copyright (C) 2007,2008,2009,2010,2020 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -14,8 +15,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -26,7 +27,10 @@
 #include <climits>
 #include "safeunistd.h"
 #ifdef HAVE_SYS_SYSCTL_H
-# include <sys/sysctl.h>
+// Linux also has sys/sysctl.h but newer versions give a deprecation warning.
+# ifndef __linux__
+#  include <sys/sysctl.h>
+# endif
 #endif
 #ifdef HAVE_VM_VM_PARAM_H
 # include <vm/vm_param.h>
@@ -49,7 +53,7 @@
 #endif
 
 /* Tested on:
- * Linux, FreeBSD, IRIX, HP-UX, Microsoft Windows.
+ * Linux, FreeBSD, HP-UX, Microsoft Windows.
  */
 
 long
@@ -68,13 +72,6 @@ get_free_physical_memory()
      */
     pagesize = sysconf(_SC_PAGESIZE);
     pages = sysconf(_SC_PHYS_PAGES);
-#elif defined HAVE_SYSMP
-    /* IRIX: (rminfo64 and MPSA_RMINFO64?) */
-    struct rminfo meminfo;
-    if (sysmp(MP_SAGET, MPSA_RMINFO, &meminfo, sizeof(meminfo)) == 0) {
-	pagesize = sysconf(_SC_PAGESIZE);
-	pages = meminfo.availrmem;
-    }
 #elif defined HAVE_PSTAT_GETDYNAMIC
     /* HP-UX: */
     struct pst_dynamic info;

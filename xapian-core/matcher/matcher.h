@@ -1,7 +1,7 @@
-/** @file matcher.h
+/** @file
  * @brief Matcher class
  */
-/* Copyright (C) 2017 Olly Betts
+/* Copyright (C) 2017,2018,2019 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,12 +14,16 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_MATCHER_H
 #define XAPIAN_INCLUDED_MATCHER_H
+
+#ifndef PACKAGE
+# error config.h must be included first in each C++ source file
+#endif
 
 #include "api/enquireinternal.h"
 #include "localsubmatch.h"
@@ -27,7 +31,6 @@
 #include "weight/weightinternal.h"
 
 #include "xapian/database.h"
-#include "xapian/query.h"
 
 #include <memory>
 #include <vector>
@@ -36,6 +39,7 @@ namespace Xapian {
     class KeyMaker;
     class MatchDecider;
     class MSet;
+    class Query;
     class Weight;
 }
 
@@ -44,12 +48,43 @@ class Matcher {
 
     Xapian::Database db;
 
-    Xapian::Query query;
-
+    /** LocalSubMatch objects for local databases.
+     *
+     *  The entries are at the same index as the corresponding shard in the
+     *  Database object, with NULL entries for any remote shards.
+     */
     std::vector<std::unique_ptr<LocalSubMatch>> locals;
 
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
+    /** RemoteSubMatch objects for remote databases.
+     *
+     *  Unlike @a locals, this *only* contains entries for remote shards, and
+     *  each RemoteSubMatch object knows its shard index.
+     *
+     *  If poll() isn't available then select() has to be used to wait for fds
+     *  to become ready to read, which imposes some limitations:
+     *
+     *  * Generally select() only works for fds < FD_SETSIZE
+     *  * On Microsoft Windows, select() only works for sockets and FD_SETSIZE
+     *    has a different meaning - it's the maximum number of sockets which
+     *    we can select() on at once.
+     *
+     *  To work within these limitations, we order the objects in the vector
+     *  so the ones we can select() on all come before the ones we can't
+     *  select() on.
+     *
+     *  The partition point is recorded in @a first_nonselectable.
+     */
     std::vector<std::unique_ptr<RemoteSubMatch>> remotes;
+
+# ifndef HAVE_POLL
+    /** Partition point in @a remotes.
+     *
+     *  We call select() on remotes[i]->get_read_fd() for all i <
+     *  first_nonselectable.  See doc comment for remotes for more details.
+     */
+    std::size_t first_nonselectable;
+# endif
 #endif
 
     Matcher(const Matcher&) = delete;
@@ -74,6 +109,9 @@ class Matcher {
 				double time_limit,
 				const std::vector<opt_ptr_spy>& matchspies);
 
+    /// Perform action on remotes as they become ready using poll() or select().
+    template<typename Action> void for_all_remotes(Action action);
+
   public:
     /** Constructor.
      *
@@ -83,7 +121,6 @@ class Matcher {
      *  @param rset		Relevance set (NULL for none)
      *  @param stats		Object to collate stats into
      *  @param wtscheme		Weight object to use as factory
-     *  @param have_sorter	KeyMaker in use for sort keys?
      *  @param have_mdecider	MatchDecider specified?
      *  @param collapse_key	value slot to collapse on (Xapian::BAD_VALUENO
      *				which means no collapsing)
@@ -105,7 +142,6 @@ class Matcher {
 	    const Xapian::RSet* rset,
 	    Xapian::Weight::Internal& stats,
 	    const Xapian::Weight& wtscheme,
-	    bool have_sorter,
 	    bool have_mdecider,
 	    Xapian::valueno collapse_key,
 	    Xapian::doccount collapse_max,
@@ -171,10 +207,6 @@ class Matcher {
 			  bool sort_val_reverse,
 			  double time_limit,
 			  const std::vector<opt_ptr_spy>& matchspies);
-
-    bool full_db_has_positions() const {
-	return db.has_positions();
-    }
 };
 
 #endif // XAPIAN_INCLUDED_MATCHER_H

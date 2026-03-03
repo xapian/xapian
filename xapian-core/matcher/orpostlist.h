@@ -1,4 +1,4 @@
-/** @file orpostlist.h
+/** @file
  * @brief PostList class implementing Query::OP_OR
  */
 /* Copyright 2017 Olly Betts
@@ -14,14 +14,14 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_ORPOSTLIST_H
 #define XAPIAN_INCLUDED_ORPOSTLIST_H
 
-#include "api/postlist.h"
+#include "backends/postlist.h"
 
 class PostListTree;
 
@@ -52,9 +52,6 @@ class OrPostList : public PostList {
 
     double r_max = 0;
 
-    /** Total number of documents in the database. */
-    Xapian::doccount db_size;
-
     PostListTree* pltree;
 
     PostList* decay_to_and(Xapian::docid did,
@@ -68,29 +65,18 @@ class OrPostList : public PostList {
 				bool* valid_ptr = NULL);
 
   public:
-    OrPostList(PostList* left, PostList* right,
-	       PostListTree* pltree_, Xapian::doccount db_size_)
-	: l(left), r(right), db_size(db_size_), pltree(pltree_)
-    {}
+    OrPostList(PostList* left, PostList* right, PostListTree* pltree_);
 
     ~OrPostList() {
 	delete l;
 	delete r;
     }
 
-    Xapian::doccount get_termfreq_min() const;
-
-    Xapian::doccount get_termfreq_max() const;
-
-    Xapian::doccount get_termfreq_est() const;
-
-    TermFreqs get_termfreq_est_using_stats(
-	    const Xapian::Weight::Internal& stats) const;
-
     Xapian::docid get_docid() const;
 
     double get_weight(Xapian::termcount doclen,
-		      Xapian::termcount unique_terms) const;
+		      Xapian::termcount unique_terms,
+		      Xapian::termcount wdfdocmax) const;
 
     bool at_end() const;
 
@@ -101,6 +87,8 @@ class OrPostList : public PostList {
     PostList* skip_to(Xapian::docid did, double w_min);
 
     PostList* check(Xapian::docid did, double w_min, bool& valid);
+
+    void get_docid_range(Xapian::docid& first, Xapian::docid& last) const;
 
     std::string get_description() const;
 

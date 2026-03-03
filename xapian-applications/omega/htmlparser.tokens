@@ -1,0 +1,50 @@
+address		SPACE
+applet		SPACE	VOID
+blockquote	SPACE
+br		SPACE	VOID
+center		SPACE
+dd		SPACE
+dir		SPACE
+div		SPACE
+dl		SPACE
+dt		SPACE
+embed		SPACE	VOID
+fieldset	SPACE
+form		SPACE
+h1		SPACE
+h2		SPACE
+h3		SPACE
+h4		SPACE
+h5		SPACE
+h6		SPACE
+hr		SPACE
+iframe		SPACE
+img		SPACE	VOID
+input		SPACE	VOID
+isindex		SPACE	VOID
+keygen		SPACE	VOID
+legend		SPACE
+li		SPACE
+listing		SPACE
+marquee		SPACE
+menu		SPACE
+meta			VOID
+multicol	SPACE
+object		SPACE	VOID
+ol		SPACE
+option		SPACE
+p		SPACE
+plaintext	SPACE
+pre		SPACE
+q		SPACE
+script
+select		SPACE
+style
+table		SPACE
+td		SPACE
+textarea	SPACE
+th		SPACE
+title
+tr		SPACE
+ul		SPACE
+xmp		SPACE

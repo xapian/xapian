@@ -1,10 +1,10 @@
-/* api_nodb.cc: tests which don't use any of the backends
- *
- * Copyright 1999,2000,2001 BrightStation PLC
+/** @file
+ * @brief tests which don't use any of the backends
+ */
+/* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2015,2016,2017 Olly Betts
+ * Copyright 2002-2024 Olly Betts
  * Copyright 2006 Lemur Consulting Ltd
- * Copyright (C) 2016 Vivek Pal
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,9 +17,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -37,11 +36,6 @@
 #include <vector>
 
 using namespace std;
-
-// always succeeds
-DEFINE_TESTCASE(trivial1, !backend) {
-    return true;
-}
 
 // tests that get_query_terms() returns the terms in the right order
 DEFINE_TESTCASE(getqterms1, !backend) {
@@ -68,7 +62,6 @@ DEFINE_TESTCASE(getqterms1, !backend) {
     TEST(list1 == answers_list);
     list<string> list2(myquery.get_terms_begin(), myquery.get_terms_end());
     TEST(list2 == answers_list);
-    return true;
 }
 
 // tests that get_query_terms() doesn't SEGV on an empty query
@@ -76,7 +69,8 @@ DEFINE_TESTCASE(getqterms1, !backend) {
 DEFINE_TESTCASE(getqterms2, !backend) {
     Xapian::Query empty_query;
     TEST_EQUAL(empty_query.get_terms_begin(), empty_query.get_terms_end());
-    return true;
+    TEST_EQUAL(empty_query.get_unique_terms_begin(),
+	       empty_query.get_unique_terms_end());
 }
 
 // tests that empty queries work correctly
@@ -88,7 +82,6 @@ DEFINE_TESTCASE(emptyquery2, !backend) {
     vector<Xapian::Query> v;
     TEST(Xapian::Query(Xapian::Query::OP_OR, v.begin(), v.end()).empty());
     TEST(Xapian::Query(Xapian::Query::OP_OR, v.begin(), v.end()).get_length() == 0);
-    return true;
 }
 
 /// Regression test for behaviour for an empty query with AND_NOT.
@@ -102,18 +95,16 @@ DEFINE_TESTCASE(emptyquery3, !backend) {
     };
 
     for (size_t i = 0; i < sizeof(ops) / sizeof(ops[0]); ++i) {
-	tout << "Testing op #" << i << endl;
+	tout << "Testing op #" << i << '\n';
 	Xapian::Query empty;
 	Xapian::Query q("test");
 	Xapian::Query qcombine(ops[i], empty, q);
-	tout << qcombine.get_description() << endl;
+	tout << qcombine.get_description() << '\n';
 	Xapian::Query qcombine2(ops[i], q, empty);
-	tout << qcombine2.get_description() << endl;
+	tout << qcombine2.get_description() << '\n';
 	Xapian::Query qcombine3(ops[i], empty, empty);
-	tout << qcombine3.get_description() << endl;
+	tout << qcombine3.get_description() << '\n';
     }
-
-    return true;
 }
 
 // tests that query lengths are calculated correctly
@@ -131,7 +122,6 @@ DEFINE_TESTCASE(querylen1, !backend) {
 
     TEST_EQUAL(myquery.get_length(), 4);
     TEST(!myquery.empty());
-    return true;
 }
 
 // tests that query lengths are calculated correctly
@@ -176,15 +166,6 @@ DEFINE_TESTCASE(querylen2, !backend) {
     myquery = Xapian::Query(Xapian::Query::OP_OR, myq1, myq2);
     tout << "myquery=" << myquery << "\n";
     TEST_EQUAL(myquery.get_length(), 10);
-
-    return true;
-}
-
-// tests that queries validate correctly
-DEFINE_TESTCASE(queryvalid1, !backend) {
-    Xapian::Query q2(Xapian::Query::OP_XOR, Xapian::Query("foo"), Xapian::Query("bar"));
-    tout << "XOR (\"foo\", \"bar\") checked" << endl;
-    return true;
 }
 
 /** Check we no longer flatten subqueries combined with the same operator.
@@ -215,8 +196,6 @@ DEFINE_TESTCASE(dontflattensubqueries1, !backend) {
     Xapian::Query myquery2(Xapian::Query::OP_AND, vec2.begin(), vec2.end());
     TEST_EQUAL(myquery2.get_description(),
 	       "Query(((jelly AND belly) AND wibble AND wobble))");
-
-    return true;
 }
 
 // test behaviour when creating a query from an empty vector
@@ -227,16 +206,16 @@ DEFINE_TESTCASE(emptyquerypart1, !backend) {
     TEST(Xapian::Query(Xapian::Query::OP_AND, query, Xapian::Query("x")).get_length() == 0);
     TEST(!Xapian::Query(Xapian::Query::OP_OR, query, Xapian::Query("x")).empty());
     TEST(Xapian::Query(Xapian::Query::OP_OR, query, Xapian::Query("x")).get_length() == 1);
-    return true;
 }
 
 DEFINE_TESTCASE(stemlangs1, !backend) {
     string langs = Xapian::Stem::get_available_languages();
-    tout << "available languages '" << langs << "'" << endl;
+    tout << "available languages '" << langs << "'\n";
     TEST(!langs.empty());
 
-    // Also test the language codes and none.
-    langs += " da nl en fi fr de hu it no pt ro ru es sv tr none";
+    // Also test the language codes.
+    langs += " ar hy eu ca da nl en fi fr de hu id ga it lt ne nb nn no pt ro"
+	     " ru es sv ta tr";
 
     string::size_type i = 0;
     while (true) {
@@ -248,8 +227,9 @@ DEFINE_TESTCASE(stemlangs1, !backend) {
 	// Try making a stemmer for this language.  We should be able to create
 	// it without an exception being thrown.
 	string language(langs, i, spc - i);
-	tout << "checking language code '" << language << "' works" << endl;
+	tout << "checking language code '" << language << "' works\n";
 	Xapian::Stem stemmer(language);
+	TEST(!stemmer.is_none());
 	if (language.size() > 2) {
 	    string expected("Xapian::Stem(");
 	    expected += language;
@@ -261,160 +241,19 @@ DEFINE_TESTCASE(stemlangs1, !backend) {
 	i = spc + 1;
     }
 
-    // Stem("") should give an object which doesn't change any input.
-    Xapian::Stem stem_nothing = Xapian::Stem("");
-    TEST_EQUAL(stem_nothing.get_description(), "Xapian::Stem(none)");
+    {
+	// Stem("none") should give a no-op stemmer.
+	Xapian::Stem stem_nothing = Xapian::Stem("none");
+	TEST(stem_nothing.is_none());
+	TEST_EQUAL(stem_nothing.get_description(), "Xapian::Stem(none)");
+    }
 
-    return true;
-}
-
-// Some simple tests of the built in weighting schemes.
-DEFINE_TESTCASE(weight1, !backend) {
-    Xapian::Weight * wt;
-
-    Xapian::BoolWeight boolweight;
-    TEST_EQUAL(boolweight.name(), "Xapian::BoolWeight");
-    wt = Xapian::BoolWeight().unserialise(boolweight.serialise());
-    TEST_EQUAL(boolweight.serialise(), wt->serialise());
-    delete wt;
-
-    Xapian::CoordWeight coordweight;
-    TEST_EQUAL(coordweight.name(), "Xapian::CoordWeight");
-    wt = Xapian::CoordWeight().unserialise(coordweight.serialise());
-    TEST_EQUAL(coordweight.serialise(), wt->serialise());
-    delete wt;
-
-    Xapian::TradWeight tradweight_dflt;
-    Xapian::TradWeight tradweight(1.0);
-    TEST_EQUAL(tradweight.name(), "Xapian::TradWeight");
-    TEST_EQUAL(tradweight_dflt.serialise(), tradweight.serialise());
-    wt = Xapian::TradWeight().unserialise(tradweight.serialise());
-    TEST_EQUAL(tradweight.serialise(), wt->serialise());
-    delete wt;
-
-    Xapian::TradWeight tradweight2(2.0);
-    TEST_NOT_EQUAL(tradweight.serialise(), tradweight2.serialise());
-
-    Xapian::BM25Weight bm25weight_dflt;
-    Xapian::BM25Weight bm25weight(1, 0, 1, 0.5, 0.5);
-    TEST_EQUAL(bm25weight.name(), "Xapian::BM25Weight");
-    TEST_EQUAL(bm25weight_dflt.serialise(), bm25weight.serialise());
-    wt = Xapian::BM25Weight().unserialise(bm25weight.serialise());
-    TEST_EQUAL(bm25weight.serialise(), wt->serialise());
-    delete wt;
-
-    Xapian::BM25Weight bm25weight2(1, 0.5, 1, 0.5, 0.5);
-    TEST_NOT_EQUAL(bm25weight.serialise(), bm25weight2.serialise());
-
-    Xapian::BM25PlusWeight bm25plusweight_dflt;
-    Xapian::BM25PlusWeight bm25plusweight(1, 0, 1, 0.5, 0.5, 1.0);
-    TEST_EQUAL(bm25plusweight.name(), "Xapian::BM25PlusWeight");
-    TEST_EQUAL(bm25plusweight_dflt.serialise(), bm25plusweight.serialise());
-    wt = Xapian::BM25PlusWeight().unserialise(bm25plusweight.serialise());
-    TEST_EQUAL(bm25plusweight.serialise(), wt->serialise());
-    delete wt;
-
-    Xapian::BM25PlusWeight bm25plusweight2(1, 0, 1, 0.5, 0.5, 2.0);
-    TEST_NOT_EQUAL(bm25plusweight.serialise(), bm25plusweight2.serialise());
-
-    Xapian::TfIdfWeight tfidfweight_dflt;
-    Xapian::TfIdfWeight tfidfweight("ntn");
-    TEST_EQUAL(tfidfweight.name(), "Xapian::TfIdfWeight");
-    TEST_EQUAL(tfidfweight_dflt.serialise(), tfidfweight.serialise());
-    wt = Xapian::TfIdfWeight().unserialise(tfidfweight.serialise());
-    TEST_EQUAL(tfidfweight.serialise(), wt->serialise());
-    delete wt;
-
-    Xapian::TfIdfWeight tfidfweight2("bpn");
-    TEST_NOT_EQUAL(tfidfweight.serialise(), tfidfweight2.serialise());
-
-    Xapian::InL2Weight inl2weight_dflt;
-    Xapian::InL2Weight inl2weight(1.0);
-    TEST_EQUAL(inl2weight.name(), "Xapian::InL2Weight");
-    TEST_EQUAL(inl2weight_dflt.serialise(), inl2weight.serialise());
-    wt = Xapian::InL2Weight().unserialise(inl2weight.serialise());
-    TEST_EQUAL(inl2weight.serialise(), wt->serialise());
-    delete wt;
-
-    Xapian::InL2Weight inl2weight2(2.0);
-    TEST_NOT_EQUAL(inl2weight.serialise(), inl2weight2.serialise());
-
-    Xapian::IfB2Weight ifb2weight_dflt;
-    Xapian::IfB2Weight ifb2weight(1.0);
-    TEST_EQUAL(ifb2weight.name(), "Xapian::IfB2Weight");
-    TEST_EQUAL(ifb2weight_dflt.serialise(), ifb2weight.serialise());
-    wt = Xapian::IfB2Weight().unserialise(ifb2weight.serialise());
-    TEST_EQUAL(ifb2weight.serialise(), wt->serialise());
-    delete wt;
-
-    Xapian::IfB2Weight ifb2weight2(2.0);
-    TEST_NOT_EQUAL(ifb2weight.serialise(), ifb2weight2.serialise());
-
-    Xapian::IneB2Weight ineb2weight_dflt;
-    Xapian::IneB2Weight ineb2weight(1.0);
-    TEST_EQUAL(ineb2weight.name(), "Xapian::IneB2Weight");
-    TEST_EQUAL(ineb2weight_dflt.serialise(), ineb2weight.serialise());
-    wt = Xapian::IneB2Weight().unserialise(ineb2weight.serialise());
-    TEST_EQUAL(ineb2weight.serialise(), wt->serialise());
-    delete wt;
-
-    Xapian::IneB2Weight ineb2weight2(2.0);
-    TEST_NOT_EQUAL(ineb2weight.serialise(), ineb2weight2.serialise());
-
-    Xapian::BB2Weight bb2weight_dflt;
-    Xapian::BB2Weight bb2weight(1.0);
-    TEST_EQUAL(bb2weight.name(), "Xapian::BB2Weight");
-    TEST_EQUAL(bb2weight_dflt.serialise(), bb2weight.serialise());
-    wt = Xapian::BB2Weight().unserialise(bb2weight.serialise());
-    TEST_EQUAL(bb2weight.serialise(), wt->serialise());
-    delete wt;
-
-    Xapian::BB2Weight bb2weight2(2.0);
-    TEST_NOT_EQUAL(bb2weight.serialise(), bb2weight2.serialise());
-
-    Xapian::DLHWeight dlhweight;
-    TEST_EQUAL(dlhweight.name(), "Xapian::DLHWeight");
-    wt = Xapian::DLHWeight().unserialise(dlhweight.serialise());
-    TEST_EQUAL(dlhweight.serialise(), wt->serialise());
-    delete wt;
-
-    Xapian::PL2Weight pl2weight_dflt;
-    Xapian::PL2Weight pl2weight(1.0);
-    TEST_EQUAL(pl2weight.name(), "Xapian::PL2Weight");
-    TEST_EQUAL(pl2weight_dflt.serialise(), pl2weight.serialise());
-    wt = Xapian::PL2Weight().unserialise(pl2weight.serialise());
-    TEST_EQUAL(pl2weight.serialise(), wt->serialise());
-    delete wt;
-
-    Xapian::PL2Weight pl2weight2(2.0);
-    TEST_NOT_EQUAL(pl2weight.serialise(), pl2weight2.serialise());
-
-    Xapian::PL2PlusWeight pl2plusweight_dflt;
-    Xapian::PL2PlusWeight pl2plusweight(1.0, 0.8);
-    TEST_EQUAL(pl2plusweight.name(), "Xapian::PL2PlusWeight");
-    TEST_EQUAL(pl2plusweight_dflt.serialise(), pl2plusweight.serialise());
-    wt = Xapian::PL2PlusWeight().unserialise(pl2plusweight.serialise());
-    TEST_EQUAL(pl2plusweight.serialise(), wt->serialise());
-    delete wt;
-
-    Xapian::PL2PlusWeight pl2plusweight2(2.0, 0.9);
-    TEST_NOT_EQUAL(pl2plusweight.serialise(), pl2plusweight2.serialise());
-
-    Xapian::DPHWeight dphweight;
-    TEST_EQUAL(dphweight.name(), "Xapian::DPHWeight");
-    wt = Xapian::DPHWeight().unserialise(dphweight.serialise());
-    TEST_EQUAL(dphweight.serialise(), wt->serialise());
-    delete wt;
-
-    Xapian::LMWeight unigramlmweight_dflt;
-    Xapian::LMWeight unigramlmweight(32000, Xapian::Weight::DIRICHLET_SMOOTHING, 2034.0, 0.0);
-    TEST_EQUAL(unigramlmweight.name(), "Xapian::LMWeight");
-    TEST_NOT_EQUAL(unigramlmweight_dflt.serialise(), unigramlmweight.serialise());
-    wt = Xapian::LMWeight().unserialise(unigramlmweight.serialise());
-    TEST_EQUAL(unigramlmweight.serialise(), wt->serialise());
-    delete wt;
-
-    return true;
+    {
+	// Stem("") should be equivalent.
+	Xapian::Stem stem_nothing = Xapian::Stem("");
+	TEST(stem_nothing.is_none());
+	TEST_EQUAL(stem_nothing.get_description(), "Xapian::Stem(none)");
+    }
 }
 
 // Regression test.
@@ -439,8 +278,6 @@ DEFINE_TESTCASE(nosuchdb1, !backend) {
 	TEST_STRINGS_EQUAL(e.get_msg(),
 			   "Couldn't find Xapian database or table to check");
     }
-
-    return true;
 }
 
 // Feature tests for value manipulations.
@@ -462,23 +299,19 @@ DEFINE_TESTCASE(addvalue1, !backend) {
     TEST_EQUAL(doc.get_value(2), "");
     TEST_EQUAL(doc.get_value(3), "free");
     TEST_EQUAL(doc.get_value(4), "");
-
-    return true;
 }
 
 // tests that the collapsing on termpos optimisation gives correct query length
 DEFINE_TESTCASE(poscollapse2, !backend) {
     Xapian::Query q(Xapian::Query::OP_OR, Xapian::Query("this", 1, 1), Xapian::Query("this", 1, 1));
     TEST_EQUAL(q.get_length(), 2);
-    return true;
 }
 
 // Regression test: query on an uninitialised database segfaulted with 1.0.0.
-// As of 1.5.0, this is just handled as an empty database.
+// As of 2.0.0, this is just handled as an empty database.
 DEFINE_TESTCASE(uninitdb1, !backend) {
     Xapian::Database db;
     Xapian::Enquire enq(db);
-    return true;
 }
 
 // Test a scaleweight query applied to a match nothing query
@@ -486,7 +319,6 @@ DEFINE_TESTCASE(scaleweight3, !backend) {
     Xapian::Query matchnothing(Xapian::Query::MatchNothing);
     Xapian::Query query(Xapian::Query::OP_SCALE_WEIGHT, matchnothing, 3.0);
     TEST_EQUAL(query.get_description(), "Query()");
-    return true;
 }
 
 // Regression test - before 1.1.0, you could add docid 0 to an RSet.
@@ -500,7 +332,6 @@ DEFINE_TESTCASE(rset3, !backend) {
     TEST_EXCEPTION(Xapian::InvalidArgumentError, rset.add_document(0));
     TEST(!rset.empty());
     TEST_EQUAL(rset.size(), 2);
-    return true;
 }
 
 // Regression test - RSet::get_description() gave a malformed answer in 1.0.7.
@@ -512,7 +343,6 @@ DEFINE_TESTCASE(rset4, !backend) {
     TEST_STRINGS_EQUAL(rset.get_description(), "RSet(2)");
     rset.add_document(1);
     TEST_STRINGS_EQUAL(rset.get_description(), "RSet(1,2)");
-    return true;
 }
 
 // Direct test of ValueSetMatchDecider
@@ -548,18 +378,15 @@ DEFINE_TESTCASE(valuesetmatchdecider1, !backend) {
     TEST(vsmd1(doc));
     TEST(!vsmd2(doc));
     TEST(vsmd3(doc));
-
-    return true;
 }
 
 // Test that requesting termfreq or termweight on an empty mset returns 0.
-// New behaviour as of 1.5.0 - previously both methods threw
+// New behaviour as of 2.0.0 - previously both methods threw
 // Xapian::InvalidOperationError.
 DEFINE_TESTCASE(emptymset1, !backend) {
     Xapian::MSet emptymset;
     TEST_EQUAL(emptymset.get_termfreq("foo"), 0);
     TEST_EQUAL(emptymset.get_termweight("foo"), 0.0);
-    return true;
 }
 
 DEFINE_TESTCASE(expanddeciderfilterprefix1, !backend) {
@@ -572,6 +399,4 @@ DEFINE_TESTCASE(expanddeciderfilterprefix1, !backend) {
     TEST(decider("two"));
     TEST(decider("twitter"));
     TEST(decider(prefix));
-
-    return true;
 }

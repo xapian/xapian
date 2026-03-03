@@ -1,7 +1,7 @@
-/** @file honey_postlist.cc
+/** @file
  * @brief PostList in a honey database.
  */
-/* Copyright (C) 2017,2018 Olly Betts
+/* Copyright (C) 2017,2018,2022,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -14,8 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -26,9 +26,11 @@
 #include "honey_database.h"
 #include "honey_positionlist.h"
 #include "honey_postlist_encodings.h"
+#include "overflow.h"
 #include "pack.h"
 
 #include <string>
+#include <string_view>
 
 using namespace Honey;
 using namespace std;
@@ -49,7 +51,7 @@ HoneyPostList::update_reader()
 #define TOP_BIT_SET(T) ((static_cast<T>(-1) >> 1) + 1)
 
 HoneyPostList::HoneyPostList(const HoneyDatabase* db_,
-			     const string& term_,
+			     string_view term_,
 			     HoneyCursor* cursor_)
     : LeafPostList(term_), cursor(cursor_), db(db_)
 {
@@ -57,6 +59,9 @@ HoneyPostList::HoneyPostList(const HoneyDatabase* db_,
 	// Term not present in db.
 	reader.init();
 	last_did = 0;
+	wdf_max = 0;
+	termfreq = 0;
+	collfreq = 0;
 	return;
     }
 
@@ -72,7 +77,6 @@ HoneyPostList::HoneyPostList(const HoneyDatabase* db_,
     Xapian::docid first_did;
     Xapian::termcount first_wdf;
     Xapian::docid chunk_last;
-    Xapian::termcount wdf_max;
     if (!decode_initial_chunk_header(&p, pend, tf, cf,
 				     first_did, last_did,
 				     chunk_last, first_wdf, wdf_max))
@@ -88,12 +92,12 @@ HoneyPostList::HoneyPostList(const HoneyDatabase* db_,
 	cf_info = 1 | TOP_BIT_SET(decltype(cf_info));
     } else {
 	cf_info = 1;
-	Xapian::termcount remaining_cf_for_flat_wdf = (tf - 1) * wdf_max;
-	// Check this matches and that it isn't a false match due
-	// to overflow of the multiplication above.
-	if (cf - first_wdf == remaining_cf_for_flat_wdf &&
-	    usual(wdf_max == 0 ||
-		  remaining_cf_for_flat_wdf / wdf_max == tf - 1)) {
+	// wdf_max can only be zero if cf == 0 (and
+	// decode_initial_chunk_header() should ensure this).
+	Assert(wdf_max != 0);
+	Xapian::termcount remaining_cf_for_flat_wdf;
+	if (!mul_overflows(tf - 1, wdf_max, remaining_cf_for_flat_wdf) &&
+	    cf - first_wdf == remaining_cf_for_flat_wdf) {
 	    // Set cl_info to the flat wdf value with the top bit set to
 	    // signify that this is a flat wdf value.
 	    cf_info = wdf_max;
@@ -104,6 +108,8 @@ HoneyPostList::HoneyPostList(const HoneyDatabase* db_,
 	}
     }
 
+    termfreq = tf;
+    collfreq = cf;
     reader.init(tf, cf_info);
     reader.assign(p, pend - p, first_did, last_did, first_wdf);
 }
@@ -113,35 +119,27 @@ HoneyPostList::~HoneyPostList()
     delete cursor;
 }
 
-Xapian::doccount
-HoneyPostList::get_termfreq() const
-{
-    return reader.get_termfreq();
-}
-
-LeafPostList*
-HoneyPostList::open_nearby_postlist(const string& term_, bool need_pos) const
+bool
+HoneyPostList::open_nearby_postlist(std::string_view term_,
+				    bool need_read_pos,
+				    LeafPostList*& pl) const
 {
     Assert(!term_.empty());
-    if (!cursor) return NULL;
-    // FIXME: Once Honey supports writing, we need to return NULL here if the
+    if (!cursor) return false;
+    // FIXME: Once Honey supports writing, we need to return false here if the
     // DB is writable and has uncommitted modifications.
 
     unique_ptr<HoneyCursor> new_cursor(new HoneyCursor(*cursor));
     if (!new_cursor->find_exact(Honey::make_postingchunk_key(term_))) {
-	// FIXME: Return NULL here and handle that in Query::Internal
-	// postlist() methods as we build the PostList tree.
-	// We also need to distinguish this case from "open_nearby_postlist()
-	// not supported" though.
-	// return NULL;
-	//
-	// No need to consider need_pos for an empty posting list.
-	return new HoneyPostList(db, term_, NULL);
+	pl = nullptr;
+	return true;
     }
 
-    if (need_pos)
-	return new HoneyPosPostList(db, term_, new_cursor.release());
-    return new HoneyPostList(db, term_, new_cursor.release());
+    if (need_read_pos)
+	pl = new HoneyPosPostList(db, term_, new_cursor.release());
+    else
+	pl = new HoneyPostList(db, term_, new_cursor.release());
+    return true;
 }
 
 Xapian::docid
@@ -165,7 +163,7 @@ HoneyPostList::at_end() const
 PositionList*
 HoneyPostList::open_position_list() const
 {
-    return new HoneyPositionList(db->position_table, get_docid(), term);
+    return db->position_table.open_position_list(get_docid(), term);
 }
 
 PostList*
@@ -243,6 +241,25 @@ HoneyPostList::skip_to(Xapian::docid did, double)
     return NULL;
 }
 
+Xapian::termcount
+HoneyPostList::get_wdf_upper_bound() const
+{
+    return wdf_max;
+}
+
+void
+HoneyPostList::get_docid_range(Xapian::docid& first, Xapian::docid& last) const
+{
+    Assert(!started);
+    if (termfreq) {
+	first = reader.get_docid();
+	last = last_did;
+	AssertRel(first,<=,last);
+    } else {
+	last = 0;
+    }
+}
+
 string
 HoneyPostList::get_description() const
 {
@@ -253,7 +270,7 @@ HoneyPostList::get_description() const
 }
 
 HoneyPosPostList::HoneyPosPostList(const HoneyDatabase* db_,
-				   const std::string& term_,
+				   std::string_view term_,
 				   HoneyCursor* cursor_)
     : HoneyPostList(db_, term_, cursor_),
       position_list(db_->position_table) {}
@@ -280,7 +297,7 @@ HoneyPosPostList::get_description() const
 namespace Honey {
 
 void
-PostingChunkReader::assign(const char * p_, size_t len,
+PostingChunkReader::assign(const char* p_, size_t len,
 			   Xapian::docid chunk_last)
 {
     const char* pend = p_ + len;
@@ -295,7 +312,7 @@ PostingChunkReader::assign(const char * p_, size_t len,
 }
 
 void
-PostingChunkReader::assign(const char * p_, size_t len, Xapian::docid did_,
+PostingChunkReader::assign(const char* p_, size_t len, Xapian::docid did_,
 			   Xapian::docid last_did_in_chunk,
 			   Xapian::termcount wdf_)
 {

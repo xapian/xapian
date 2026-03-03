@@ -1,7 +1,7 @@
-/** @file localsubmatch.h
+/** @file
  *  @brief SubMatch class for a local database.
  */
-/* Copyright (C) 2006,2007,2009,2010,2011,2013,2014,2015,2016,2017 Olly Betts
+/* Copyright (C) 2006-2026 Olly Betts
  * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -15,23 +15,30 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_LOCALSUBMATCH_H
 #define XAPIAN_INCLUDED_LOCALSUBMATCH_H
 
-#include "backends/databaseinternal.h"
-#include "api/leafpostlist.h"
 #include "api/queryinternal.h"
+#include "backends/databaseinternal.h"
+#include "backends/leafpostlist.h"
+#include "estimateop.h"
+#include "weight/weightinternal.h"
 #include "xapian/enquire.h"
 #include "xapian/weight.h"
 
-#include <map>
-
-class LeafPostList;
 class PostListTree;
+
+namespace Xapian {
+namespace Internal {
+class PostList;
+}
+}
+
+using Xapian::Internal::PostList;
 
 class LocalSubMatch {
     /// Don't allow assignment.
@@ -41,9 +48,9 @@ class LocalSubMatch {
     LocalSubMatch(const LocalSubMatch &) = delete;
 
     /// The statistics for the collection.
-    Xapian::Weight::Internal* total_stats;
+    Xapian::Weight::Internal* total_stats = nullptr;
 
-    /// The original query before any rearrangement.
+    /// The query.
     Xapian::Query query;
 
     /// The query length (used by some weighting schemes).
@@ -55,8 +62,8 @@ class LocalSubMatch {
     /// Weight object (used as a factory by calling create on it).
     const Xapian::Weight& wt_factory;
 
-    /// Do any of the subdatabases have positional information?
-    bool full_db_has_positions;
+    /// 0-based index for the subdatabase.
+    Xapian::doccount shard_index;
 
   public:
     /// Constructor.
@@ -64,11 +71,22 @@ class LocalSubMatch {
 		  const Xapian::Query& query_,
 		  Xapian::termcount qlen_,
 		  const Xapian::Weight& wt_factory_,
-		  bool full_db_has_positions_)
-	: total_stats(NULL), query(query_), qlen(qlen_), db(db_),
+		  Xapian::doccount shard_index_)
+	: query(query_), qlen(qlen_), db(db_),
 	  wt_factory(wt_factory_),
-	  full_db_has_positions(full_db_has_positions_)
+	  shard_index(shard_index_)
     {}
+
+    Estimates resolve(EstimateOp* estimate_op) {
+	Assert(estimate_op);
+	auto db_size = db->get_doccount();
+	// We shortcut an empty shard and avoid creating a postlist tree for
+	// it so shouldn't need to resolve estimates for it.
+	Assert(db_size);
+	Xapian::docid db_first, db_last;
+	db->get_used_docid_range(db_first, db_last);
+	return estimate_op->resolve(db_size, db_first, db_last);
+    }
 
     /** Fetch and collate statistics.
      *
@@ -94,22 +112,53 @@ class LocalSubMatch {
     }
 
     /// Get PostList.
-    PostList * get_postlist(PostListTree* matcher,
-			    Xapian::termcount* total_subqs_ptr);
+    PostListAndEstimate get_postlist(PostListTree* matcher,
+				     Xapian::termcount* total_subqs_ptr);
 
     /** Convert a postlist into a synonym postlist.
      */
-    PostList * make_synonym_postlist(PostListTree* pltree,
-				     PostList* or_pl,
-				     double factor);
+    PostListAndEstimate make_synonym_postlist(PostListTree* pltree,
+					      PostListAndEstimate or_pl,
+					      double factor,
+					      const TermFreqs& termfreqs);
 
-    PostList * open_post_list(const std::string& term,
-			      Xapian::termcount wqf,
-			      double factor,
-			      bool need_positions,
-			      bool in_synonym,
-			      Xapian::Internal::QueryOptimiser* qopt,
-			      bool lazy_weight);
+    PostListAndEstimate
+    open_post_list(const std::string& term,
+		   Xapian::termcount wqf,
+		   double factor,
+		   bool need_positions,
+		   bool compound_weight,
+		   Xapian::Internal::QueryOptimiser* qopt,
+		   bool lazy_weight,
+		   TermFreqs* termfreqs);
+
+    void register_lazy_postlist_for_stats(LeafPostList* pl,
+					  TermFreqs* termfreqs) {
+	auto res = total_stats->termfreqs.emplace(pl->get_term(), TermFreqs());
+	if (res.second) {
+	    // Only register if the term isn't already registered - e.g. a term
+	    // from a wildcard expansion which is also present in the query
+	    // verbatim such as: foo* food
+	    res.first->second.termfreq = pl->get_termfreq();
+	    res.first->second.collfreq = pl->get_collfreq();
+#ifdef XAPIAN_ASSERTIONS
+	    Xapian::doccount tf;
+	    Xapian::termcount cf;
+	    db->get_freqs(pl->get_term(), &tf, &cf);
+	    AssertEq(res.first->second.termfreq, tf);
+	    AssertEq(res.first->second.collfreq, cf);
+#endif
+	}
+	if (termfreqs) *termfreqs = res.first->second;
+    }
+
+    bool weight_needs_wdf() const {
+	return wt_factory.get_sumpart_needs_wdf_();
+    }
+
+    const Xapian::Weight::Internal* get_stats() const {
+	return total_stats;
+    }
 };
 
 #endif /* XAPIAN_INCLUDED_LOCALSUBMATCH_H */

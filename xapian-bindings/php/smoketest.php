@@ -4,7 +4,7 @@
 /* Simple test to ensure that we can load the xapian module and exercise basic
  * functionality successfully.
  *
- * Copyright (C) 2004,2005,2006,2007,2009,2011,2012,2013,2014,2015,2016,2017 Olly Betts
+ * Copyright (C) 2004-2026 Olly Betts
  * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -18,9 +18,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 # Die on any error, warning, notice, etc.
@@ -35,8 +34,6 @@ function die_on_error($errno, $errstr, $file, $line) {
 }
 set_error_handler("die_on_error", -1);
 
-include "xapian.php";
-
 # Test the version number reporting functions give plausible results.
 $v = Xapian::major_version().'.'.Xapian::minor_version().'.'.Xapian::revision();
 $v2 = Xapian::version_string();
@@ -48,7 +45,7 @@ if ($v != $v2) {
 $db = new XapianWritableDatabase('', Xapian::DB_BACKEND_INMEMORY);
 $db2 = new XapianWritableDatabase('', Xapian::DB_BACKEND_INMEMORY);
 
-# Check PHP5 handling of Xapian::DocNotFoundError
+# Check handling of Xapian::DocNotFoundError
 try {
     $doc2 = $db->get_document(2);
     print "Retrieved non-existent document\n";
@@ -80,8 +77,8 @@ try {
     print "Opened non-existent stub database\n";
     exit(1);
 } catch (Exception $e) {
-    if ($e->getMessage() !== "DatabaseOpeningError: Couldn't open stub database file: nosuchdir/nosuchdb (No such file or directory)") {
-	print "DatabaseOpeningError Exception string not as expected, got: '{$e->getMessage()}'\n";
+    if ($e->getMessage() !== "DatabaseNotFoundError: Couldn't open stub database file: nosuchdir/nosuchdb (No such file or directory)") {
+	print "DatabaseNotFoundError Exception string not as expected, got: '{$e->getMessage()}'\n";
 	exit(1);
     }
 }
@@ -93,24 +90,10 @@ try {
     print "Opened non-existent stub database\n";
     exit(1);
 } catch (Exception $e) {
-    if ($e->getMessage() !== "DatabaseOpeningError: Couldn't open stub database file: nosuchdir/nosuchdb (No such file or directory)") {
-	print "DatabaseOpeningError Exception string not as expected, got: '{$e->getMessage()}'\n";
+    if ($e->getMessage() !== "DatabaseNotFoundError: Couldn't open stub database file: nosuchdir/nosuchdb (No such file or directory)") {
+	print "DatabaseNotFoundError Exception string not as expected, got: '{$e->getMessage()}'\n";
 	exit(1);
     }
-}
-
-# Regression test for bug#193, fixed in 1.0.3.
-$vrp = new XapianNumberValueRangeProcessor(0, '$', true);
-$a = '$10';
-$b = '20';
-$vrp->apply($a, $b);
-if (Xapian::sortable_unserialise($a) != 10) {
-    print Xapian::sortable_unserialise($a)." != 10\n";
-    exit(1);
-}
-if (Xapian::sortable_unserialise($b) != 20) {
-    print Xapian::sortable_unserialise($b)." != 20\n";
-    exit(1);
 }
 
 $stem = new XapianStem("english");
@@ -176,6 +159,13 @@ if ($query3->get_description() != "Query((a OR b))") {
     exit(1);
 }
 $enq = new XapianEnquire($db);
+
+// Check Xapian::BAD_VALUENO is wrapped suitably.
+$enq->set_collapse_key(Xapian::BAD_VALUENO);
+
+// Test that the non-constant wrapping prior to 1.4.10 still works.
+$enq->set_collapse_key(Xapian::BAD_VALUENO_get());
+
 $enq->set_query(new XapianQuery(XapianQuery::OP_OR, "there", "is"));
 $mset = $enq->get_mset(0, 10);
 if ($mset->size() != 1) {
@@ -282,32 +272,53 @@ if ($query->get_description() !== 'Query(VALUE_RANGE 1 19991203 20011204)') {
     exit(1);
 }
 
-# Check DateValueRangeProcessor works.
-function add_vrp_date(&$qp) {
-    $vrpdate = new XapianDateValueRangeProcessor(1, 1, 1960);
-    $qp->add_valuerangeprocessor($vrpdate);
-}
-$qp = new XapianQueryParser();
-add_vrp_date($qp);
-$query = $qp->parse_query('12/03/99..12/04/01');
-if ($query->get_description() !== 'Query(VALUE_RANGE 1 19991203 20011204)') {
-    print "XapianDateValueRangeProcessor didn't work - result was ".$query->get_description()."\n";
-    exit(1);
-}
-
 # Feature test for XapianFieldProcessor
 class testfieldprocessor extends XapianFieldProcessor {
+    static $count = 0;
+
+    function __construct() {
+        ++self::$count;
+        parent::__construct();
+    }
+
+    function __destruct() {
+        --self::$count;
+    }
+
     function apply($str) {
 	if ($str === 'spam') throw new Exception('already spam');
 	return new XapianQuery("spam");
     }
 }
 
-$tfp = new testfieldprocessor();
-$qp->add_prefix('spam', $tfp);
+$fp = new testfieldprocessor;
+if (testfieldprocessor::$count !== 1) {
+    print "testfieldprocessor counting not working\n";
+    exit(1);
+}
+{
+    # Check object is still usable after being assigned to an object that gets
+    # deleted.  The initial development version of PHP8 bindings failed to
+    # handle this case.
+    $qptmp = new XapianQueryParser;
+    $qptmp->add_prefix('spam', $fp);
+    unset($qptmp);
+}
+if (testfieldprocessor::$count === 0) {
+    print "testfieldprocessor object deleted early\n";
+    exit(1);
+}
+$qp->add_prefix('spam', $fp);
+unset($fp);
+$qp->add_boolean_prefix('filter', new testfieldprocessor);
 $query = $qp->parse_query('spam:ignored');
 if ($query->get_description() !== 'Query(spam)') {
     print "testfieldprocessor didn't work - result was ".$query->get_description()."\n";
+    exit(1);
+}
+$query = $qp->parse_query('filter:ignored');
+if ($query->get_description() !== 'Query(0 * spam)') {
+    print "Boolean testfieldprocessor didn't work - result was ".$query->get_description()."\n";
     exit(1);
 }
 
@@ -320,6 +331,15 @@ try {
 	print "Exception has wrong message\n";
 	exit(1);
     }
+}
+
+if (testfieldprocessor::$count === 0) {
+    print "testfieldprocessor deleted early\n";
+    exit(1);
+}
+unset($qp);
+if (testfieldprocessor::$count !== 0) {
+    print "testfieldprocessor object not deleted\n";
 }
 
 # Test setting and getting metadata
@@ -428,12 +448,12 @@ $enquire->set_query(new XapianQuery("foo"));
 	exit(1);
     }
 
-    $mset = $enquire->get_mset(0, 10, 0, null, $md, null);
+    $mset = $enquire->get_mset(0, 10, 0, null, $md);
     mset_expect_order($mset, array(2));
 
     $md = new XapianValueSetMatchDecider(0, false);
     $md->add_value("ABC");
-    $mset = $enquire->get_mset(0, 10, 0, null, $md, null);
+    $mset = $enquire->get_mset(0, 10, 0, null, $md);
     mset_expect_order($mset, array(1, 3, 4, 5));
 }
 
@@ -445,7 +465,7 @@ function mset_expect_order($mset, $a) {
     for ($j = 0; $j < sizeof($a); ++$j) {
 	$docid = $mset->get_hit($j)->get_docid();
 	if ($docid != $a[$j]) {
-	    print "Expected MSet[$j] to be $a[$j], got ".$docid()."\n";
+	    print "Expected MSet[$j] to be $a[$j], got $docid\n";
 	    exit(1);
 	}
     }
@@ -507,6 +527,17 @@ if ($query->get_description() != 'Query()') {
 
 {
     class testspy extends XapianMatchSpy {
+        static $count = 0;
+
+        function __construct() {
+            ++self::$count;
+            parent::__construct();
+        }
+
+        function __destruct() {
+            --self::$count;
+        }
+
 	public $matchspy_count = 0;
 
 	function apply($doc, $wt) {
@@ -515,12 +546,26 @@ if ($query->get_description() != 'Query()') {
     }
 
     $matchspy = new testspy();
+    if (testspy::$count !== 1) {
+        print "testspy counting not working\n";
+        exit(1);
+    }
     $enquire->clear_matchspies();
     $enquire->add_matchspy($matchspy);
     $enquire->get_mset(0, 10);
     if ($matchspy->matchspy_count != 4) {
 	print "Unexpected matchspy count of {$matchspy->matchspy_count}\n";
 	exit(1);
+    }
+    unset($matchspy);
+    if (testspy::$count === 0) {
+        print "testspy object deleted early\n";
+        exit(1);
+    }
+    unset($enquire);
+    if (testspy::$count !== 0) {
+        print "testspy object not deleted\n";
+        exit(1);
     }
 }
 
@@ -552,6 +597,16 @@ if ($s !== 'ask:1 i:1 in:2 nothing:1 return:2 tea:1 time:2 ') {
     exit(1);
 }
 
+// Test that XapianTermGenerator keeps a reference to XapianStopper.
+$indexer->set_stopper_strategy(XapianTermGenerator::STOP_ALL);
+{
+    $stop = new XapianSimpleStopper();
+    $stop->add('a');
+    $indexer->set_stopper($stop);
+    $stop = null;
+}
+$indexer->index_text("a b");
+
 # Test GeoSpatial API
 $coord = new XapianLatLongCoord();
 $coord = new XapianLatLongCoord(-41.288889, 174.777222);
@@ -577,6 +632,9 @@ $centre->append(new XapianLatLongCoord(40.6048, -74.4427));
 $ps = new XapianLatLongDistancePostingSource(COORD_SLOT, $centre, $metric, $range);
 $q = new XapianQuery("coffee");
 $q = new XapianQuery(XapianQuery::OP_AND, $q, new XapianQuery($ps));
+$q = new XapianQuery(XapianQuery::OP_OR, [$q, XapianQuery::MatchNothing()]);
+// Check that we keep a reference via XapianQuery.
+$ps = null;
 
 $enq = new XapianEnquire($db);
 $enq->set_query($q);
@@ -602,6 +660,8 @@ $qp = new XapianQueryParser();
     $stop = new XapianSimpleStopper();
     $stop->add('a');
     $qp->set_stopper($stop);
+    // Test that XapianQueryParser keeps a reference to XapianStopper.
+    $stop = null;
 }
 $query = $qp->parse_query('a b');
 if ($query->get_description() !== 'Query(b@2)') {
@@ -609,4 +669,50 @@ if ($query->get_description() !== 'Query(b@2)') {
     exit(1);
 }
 
+# Test wrapping of C++ empty() methods as both empty() and is_empty() in PHP.
+$eset = new XapianESet();
+if (!$eset->empty()) {
+    print "Unexpected !\$eset->empty()\n";
+    exit(1);
+}
+if (!$eset->is_empty()) {
+    print "Unexpected !\$eset->is_empty()\n";
+    exit(1);
+}
+$mset = new XapianMSet();
+if (!$mset->empty()) {
+    print "Unexpected !\$mset->empty()\n";
+    exit(1);
+}
+if (!$mset->is_empty()) {
+    print "Unexpected !\$mset->is_empty()\n";
+    exit(1);
+}
+$rset = new XapianRSet();
+if (!$rset->empty()) {
+    print "Unexpected !\$rset->empty()\n";
+    exit(1);
+}
+if (!$rset->is_empty()) {
+    print "Unexpected !\$rset->is_empty()\n";
+    exit(1);
+}
+$coords = new XapianLatLongCoords();
+if (!$coords->empty()) {
+    print "Unexpected !\$coords->empty()\n";
+    exit(1);
+}
+if (!$coords->is_empty()) {
+    print "Unexpected !\$coords->is_empty()\n";
+    exit(1);
+}
+$query = new XapianQuery();
+if (!$query->empty()) {
+    print "Unexpected !\$query->empty()\n";
+    exit(1);
+}
+if (!$query->is_empty()) {
+    print "Unexpected !\$query->is_empty()\n";
+    exit(1);
+}
 ?>

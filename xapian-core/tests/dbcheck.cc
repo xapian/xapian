@@ -1,6 +1,7 @@
-/* dbcheck.cc: test database contents and consistency.
- *
- * Copyright 2009 Richard Boulton
+/** @file
+ * @brief test database contents and consistency.
+ */
+/* Copyright 2009 Richard Boulton
  * Copyright 2010,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
@@ -14,9 +15,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -142,8 +142,8 @@ dbcheck(const Xapian::Database & db,
     Xapian::termcount doclen_lower_bound = Xapian::termcount(-1);
     Xapian::termcount doclen_upper_bound = 0;
 
-    for (Xapian::PostingIterator dociter = db.postlist_begin(string());
-	 dociter != db.postlist_end(string());
+    for (Xapian::PostingIterator dociter = db.postlist_begin(string_view());
+	 dociter != db.postlist_end(string_view());
 	 ++dociter) {
 	Xapian::docid did = *dociter;
 	TEST_EQUAL(dociter.get_wdf(), 1);

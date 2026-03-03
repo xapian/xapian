@@ -1,7 +1,7 @@
-/** @file glass_positionlist.h
+/** @file
  * @brief A position list in a glass database.
  */
-/* Copyright (C) 2005,2006,2008,2009,2010,2011,2013,2016,2017 Olly Betts
+/* Copyright (C) 2005-2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -14,9 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_GLASS_POSITIONLIST_H
@@ -31,54 +30,6 @@
 #include "backends/positionlist.h"
 
 #include <string>
-
-using namespace std;
-
-class GlassPositionListTable : public GlassLazyTable {
-  public:
-    static string make_key(Xapian::docid did, const string & term) {
-	string key;
-	pack_string_preserving_sort(key, term);
-	pack_uint_preserving_sort(key, did);
-	return key;
-    }
-
-    /** Create a new GlassPositionListTable object.
-     *
-     *  This method does not create or open the table on disk - you
-     *  must call the create() or open() methods respectively!
-     *
-     *  @param dbdir		The directory the glass database is stored in.
-     *  @param readonly		true if we're opening read-only, else false.
-     */
-    GlassPositionListTable(const string & dbdir, bool readonly)
-	: GlassLazyTable("position", dbdir + "/position.", readonly) { }
-
-    GlassPositionListTable(int fd, off_t offset_, bool readonly_)
-	: GlassLazyTable("position", fd, offset_, readonly_) { }
-
-    /** Pack a position list into a string.
-     *
-     *  @param s The string to append the position list data to.
-     */
-    void pack(string & s, const Xapian::VecCOW<Xapian::termpos> & vec) const;
-
-    /** Set the position list for term tname in document did.
-     */
-    void set_positionlist(Xapian::docid did, const string & tname,
-			  const string & s) {
-	add(make_key(did, tname), s);
-    }
-
-    /// Delete the position list for term tname in document did.
-    void delete_positionlist(Xapian::docid did, const string & tname) {
-	del(make_key(did, tname));
-    }
-
-    /// Return the number of entries in specified position list.
-    Xapian::termcount positionlist_count(Xapian::docid did,
-					 const string & term) const;
-};
 
 /** Base-class for a position list in a glass database. */
 class GlassBasePositionList : public PositionList {
@@ -104,12 +55,21 @@ class GlassBasePositionList : public PositionList {
     /// Have we started iterating yet?
     bool have_started;
 
+    /** Set positional data and start to decode it.
+     *
+     *  @param data	The positional data.  Must stay valid
+     *			while this object is using it.
+     */
+    void set_data(std::string_view data);
+
   public:
     /// Default constructor.
     GlassBasePositionList() {}
 
     /// Returns size of position list.
     Xapian::termcount get_approx_size() const;
+
+    Xapian::termpos back() const;
 
     /** Returns current position.
      *
@@ -139,12 +99,7 @@ class GlassPositionList : public GlassBasePositionList {
   public:
     /// Construct and initialise with data.
     explicit
-    GlassPositionList(const string& data);
-
-    /// Construct and initialise with data.
-    GlassPositionList(const GlassTable* table,
-		      Xapian::docid did,
-		      const string& term);
+    GlassPositionList(std::string&& data);
 };
 
 /** A reusable position list in a glass database. */
@@ -165,8 +120,69 @@ class GlassRePositionList : public GlassBasePositionList {
 	: cursor(table) {}
 
     /** Fill list with data, and move the position to the start. */
+    void assign_data(std::string&& data);
+
+    /** Fill list with data, and move the position to the start. */
     void read_data(Xapian::docid did,
-		   const string& term);
+		   std::string_view term);
+};
+
+class GlassPositionListTable : public GlassLazyTable {
+  public:
+    static std::string make_key(Xapian::docid did, std::string_view term) {
+	std::string key;
+	pack_string_preserving_sort(key, term);
+	pack_uint_preserving_sort(key, did);
+	return key;
+    }
+
+    /** Create a new GlassPositionListTable object.
+     *
+     *  This method does not create or open the table on disk - you
+     *  must call the create() or open() methods respectively!
+     *
+     *  @param dbdir		The directory the glass database is stored in.
+     *  @param readonly		true if we're opening read-only, else false.
+     */
+    GlassPositionListTable(const std::string& dbdir, bool readonly)
+	: GlassLazyTable("position", dbdir + "/position.", readonly) { }
+
+    GlassPositionListTable(int fd, off_t offset_, bool readonly_)
+	: GlassLazyTable("position", fd, offset_, readonly_) { }
+
+    GlassPositionList* open_position_list(Xapian::docid did,
+					  std::string_view term) {
+	std::string pos_data;
+	if (!get_exact_entry(make_key(did, term), pos_data))
+	    return nullptr;
+
+	return new GlassPositionList(std::move(pos_data));
+    }
+
+    /** Pack a position list into a string.
+     *
+     *  @param s The string to append the position list data to.
+     */
+    void pack(std::string& s, const Xapian::VecCOW<Xapian::termpos>& vec) const;
+
+    /** Set the position list for term tname in document did.
+     */
+    void set_positionlist(Xapian::docid did, std::string_view tname,
+			  std::string_view s) {
+	add(make_key(did, tname), s);
+    }
+
+    /// Delete the position list for term tname in document did.
+    void delete_positionlist(Xapian::docid did, std::string_view tname) {
+	del(make_key(did, tname));
+    }
+
+    /// Return the number of entries in specified position list data.
+    Xapian::termcount positionlist_count(std::string_view data) const;
+
+    /// Return the number of entries in specified position list.
+    Xapian::termcount positionlist_count(Xapian::docid did,
+					 std::string_view term) const;
 };
 
 #endif /* XAPIAN_INCLUDED_GLASS_POSITIONLIST_H */

@@ -1,7 +1,7 @@
-/** @file bitstream.h
+/** @file
  * @brief Classes to encode/decode a bitstream.
  */
-/* Copyright (C) 2004,2005,2006,2008,2012,2013,2014,2017 Olly Betts
+/* Copyright (C) 2004,2005,2006,2008,2012,2013,2014,2017,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -14,9 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_BITSTREAM_H
@@ -34,22 +33,22 @@ namespace Xapian {
 /// Create a stream to which non-byte-aligned values can be written.
 class BitWriter {
     std::string buf;
-    int n_bits;
-    unsigned int acc;
+    int n_bits = 0;
+    Xapian::termpos acc = 0;
 
   public:
     /// Construct empty.
-    BitWriter() : n_bits(0), acc(0) { }
+    BitWriter() { }
 
     /// Construct with the contents of seed already in the stream.
-    explicit BitWriter(const std::string & seed)
-	: buf(seed), n_bits(0), acc(0) { }
+    explicit BitWriter(const std::string& seed)
+	: buf(seed) { }
 
     /// Encode value, known to be less than outof.
-    void encode(size_t value, size_t outof);
+    void encode(Xapian::termpos value, Xapian::termpos outof);
 
     /// Finish encoding and return the encoded data as a std::string.
-    std::string & freeze() {
+    std::string& freeze() {
 	if (n_bits) {
 	    buf += char(acc);
 	    n_bits = 0;
@@ -59,7 +58,8 @@ class BitWriter {
     }
 
     /// Perform interpolative encoding of pos elements between j and k.
-    void encode_interpolative(const Xapian::VecCOW<Xapian::termpos> &pos, int j, int k);
+    void encode_interpolative(const Xapian::VecCOW<Xapian::termpos>& pos,
+			      int j, int k);
 };
 
 /// Read a stream created by BitWriter.
@@ -70,9 +70,9 @@ class BitReader {
 
     int n_bits;
 
-    unsigned int acc;
+    Xapian::termpos acc;
 
-    unsigned int read_bits(int count);
+    Xapian::termpos read_bits(int count);
 
     struct DIStack {
 	int j, k;
@@ -100,7 +100,7 @@ class BitReader {
 	    set_j(j_, pos_j_);
 	    set_k(k_, pos_k_);
 	}
-	void operator=(const DIStack & o) {
+	void operator=(const DIStack& o) {
 	    j = o.j;
 	    set_k(o.k, o.pos_k);
 	}
@@ -111,7 +111,7 @@ class BitReader {
 	// Given pos[j] = pos_j and pos[k] = pos_k, how many possible position
 	// values are there for the value midway between?
 	Xapian::termpos outof() const {
-	    return pos_k - pos_j + j - k + 1;
+	    return pos_k - pos_j - Xapian::termpos(k - j) + 1;
 	}
     };
 
@@ -134,11 +134,6 @@ class BitReader {
 	acc = 0;
 	di_stack.clear();
 	di_current.uninit();
-    }
-
-    // Initialise with fresh data.
-    void init(const char* p_, size_t len) {
-	init(p_, p_ + len);
     }
 
     // Decode value, known to be less than outof.

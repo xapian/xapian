@@ -5,11 +5,9 @@ if BUILD_BACKEND_HONEY
 noinst_HEADERS +=\
 	backends/honey/honey_alldocspostlist.h\
 	backends/honey/honey_alltermslist.h\
-	backends/honey/honey_changes.h\
 	backends/honey/honey_check.h\
 	backends/honey/honey_cursor.h\
 	backends/honey/honey_database.h\
-	backends/honey/honey_databasereplicator.h\
 	backends/honey/honey_dbcheck.h\
 	backends/honey/honey_defs.h\
 	backends/honey/honey_docdata.h\
@@ -22,7 +20,6 @@ noinst_HEADERS +=\
 	backends/honey/honey_postlist.h\
 	backends/honey/honey_postlist_encodings.h\
 	backends/honey/honey_postlisttable.h\
-	backends/honey/honey_replicate_internal.h\
 	backends/honey/honey_spelling.h\
 	backends/honey/honey_spellingwordslist.h\
 	backends/honey/honey_synonym.h\
@@ -36,7 +33,6 @@ noinst_HEADERS +=\
 lib_src +=\
 	backends/honey/honey_alldocspostlist.cc\
 	backends/honey/honey_alltermslist.cc\
-	backends/honey/honey_changes.cc\
 	backends/honey/honey_check.cc\
 	backends/honey/honey_compact.cc\
 	backends/honey/honey_cursor.cc\
@@ -58,10 +54,5 @@ lib_src +=\
 	backends/honey/honey_valuelist.cc\
 	backends/honey/honey_values.cc\
 	backends/honey/honey_version.cc
-
-if BUILD_BACKEND_REMOTE
-lib_src += \
-	backends/honey/honey_databasereplicator.cc
-endif
 
 endif

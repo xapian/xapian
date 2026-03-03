@@ -4,7 +4,7 @@ include ../generic/generic.mk
 
 ## Test programs to be run
 TESTS = SmokeTest.exe
-LOG_COMPILER = $(OSX_SIP_HACK_ENV) $(RUN_CSHARP)
+LOG_COMPILER = $(MACOS_SIP_HACK_ENV) $(RUN_CSHARP)
 
 ASSEMBLY=XapianSharp
 
@@ -17,8 +17,8 @@ XAPIAN_SWIG_CS_SRCS=\
 	generated-csharp/CoordWeight.cs \
 	generated-csharp/Database.cs \
 	generated-csharp/DateRangeProcessor.cs \
-	generated-csharp/DateValueRangeProcessor.cs \
 	generated-csharp/DecreasingValueWeightPostingSource.cs \
+	generated-csharp/DiceWeight.cs \
 	generated-csharp/DLHWeight.cs \
 	generated-csharp/DPHWeight.cs \
 	generated-csharp/Document.cs \
@@ -35,7 +35,10 @@ XAPIAN_SWIG_CS_SRCS=\
 	generated-csharp/IneB2Weight.cs \
 	generated-csharp/InL2Weight.cs \
 	generated-csharp/KeyMaker.cs \
-	generated-csharp/LMWeight.cs \
+	generated-csharp/LM2StageWeight.cs \
+	generated-csharp/LMAbsDiscountWeight.cs \
+	generated-csharp/LMDirichletWeight.cs \
+	generated-csharp/LMJMWeight.cs \
 	generated-csharp/LatLongCoord.cs \
 	generated-csharp/LatLongCoords.cs \
 	generated-csharp/LatLongCoordsIterator.cs \
@@ -48,7 +51,6 @@ XAPIAN_SWIG_CS_SRCS=\
 	generated-csharp/MSetIterator.cs \
 	generated-csharp/MultiValueKeyMaker.cs \
 	generated-csharp/NumberRangeProcessor.cs \
-	generated-csharp/NumberValueRangeProcessor.cs \
 	generated-csharp/PL2PlusWeight.cs \
 	generated-csharp/PL2Weight.cs \
 	generated-csharp/PositionIterator.cs \
@@ -65,7 +67,6 @@ XAPIAN_SWIG_CS_SRCS=\
 	generated-csharp/Stem.cs \
 	generated-csharp/StemImplementation.cs \
 	generated-csharp/Stopper.cs \
-	generated-csharp/StringValueRangeProcessor.cs \
 	generated-csharp/TermGenerator.cs \
 	generated-csharp/TermIterator.cs \
 	generated-csharp/TfIdfWeight.cs \
@@ -75,7 +76,6 @@ XAPIAN_SWIG_CS_SRCS=\
 	generated-csharp/ValueIterator.cs \
 	generated-csharp/ValueMapPostingSource.cs \
 	generated-csharp/ValuePostingSource.cs \
-	generated-csharp/ValueRangeProcessor.cs \
 	generated-csharp/ValueSetMatchDecider.cs \
 	generated-csharp/ValueWeightPostingSource.cs \
 	generated-csharp/Version.cs \
@@ -85,14 +85,17 @@ XAPIAN_SWIG_CS_SRCS=\
 	generated-csharp/XapianPINVOKE.cs
 
 XapianSharp.snk:
-	$(SN) -k $@
+## Older cli-sn fails with certain TERM setting (e.g. xterm-256color) due to:
+## https://github.com/mono/mono/issues/6752
+## Seen on Kubuntu 18.10.
+	TERM= $(SN) -k $@
 
 $(ASSEMBLY).dll: $(XAPIAN_SWIG_CS_SRCS) AssemblyInfo.cs XapianSharp.snk
 ## We specify both -keyfile and -keycontainer - hopefully this means that if
 ## this is the first time we're signing, the key in the file is used and
 ## then stored in the key container.  From then on, the key in the container
 ## is used.
-	$(CSC) -unsafe -target:library -out:$(ASSEMBLY).dll \
+	TERM= $(CSC) -unsafe -target:library -out:$(ASSEMBLY).dll \
 	    -keyfile:XapianSharp.snk -keycontainer:"Xapian Signing Key" \
 	    `for f in $(XAPIAN_SWIG_CS_SRCS); do if test -f "$$f"; then echo $$f; else echo $(srcdir)/$$f ; fi ; done` \
 	    AssemblyInfo.cs
@@ -116,7 +119,7 @@ install-data-hook:
 uninstall-local:
 	eval `grep '^dlname=' $(lib_LTLIBRARIES)` ; \
 	  rm -f $(DESTDIR)$(libdir)/"$$dlname"
-	$(GACUTIL) /u $(ASSEMBLY) /f $(GACUTIL_FLAGS)
+	TERM= $(GACUTIL) /u $(ASSEMBLY) /f $(GACUTIL_FLAGS)
 
 AM_CXXFLAGS = @SWIG_CXXFLAGS@ $(XAPIAN_CXXFLAGS)
 _XapianSharp_la_LDFLAGS = -avoid-version -module $(NO_UNDEFINED)
@@ -124,10 +127,10 @@ _XapianSharp_la_SOURCES = xapian_wrap.cc
 _XapianSharp_la_LIBADD = $(XAPIAN_LIBS)
 
 install-data-local: $(ASSEMBLY).dll
-	$(GACUTIL) /i $(ASSEMBLY).dll /f $(GACUTIL_FLAGS)
+	TERM= $(GACUTIL) /i $(ASSEMBLY).dll /f $(GACUTIL_FLAGS)
 
 SmokeTest.exe: SmokeTest.cs $(ASSEMBLY).dll
-	$(CSC) -unsafe -target:exe -out:SmokeTest.exe `test -f SmokeTest.cs||echo '$(srcdir)/'`SmokeTest.cs -r:$(ASSEMBLY).dll
+	TERM= $(CSC) -unsafe -target:exe -out:SmokeTest.exe `test -f SmokeTest.cs||echo '$(srcdir)/'`SmokeTest.cs -r:$(ASSEMBLY).dll
 
 all-am: $(ASSEMBLY).dll
 
@@ -135,7 +138,7 @@ CLEANFILES = XapianSharp.snk $(ASSEMBLY).dll SmokeTest.exe
 
 if MAINTAINER_MODE
 stamp = xapian_wrap.stamp
-RUN_SWIG = stamp='$(stamp)' $(PERL) '$(top_srcdir)'/swig-depcomp $(SWIG)
+SWIG_FLAGS += -MD -MP -MT $(stamp)
 
 xapian_wrap.cc xapian_wrap.h $(XAPIAN_SWIG_CS_SRCS): $(stamp)
 	$(make_many_locked)
@@ -145,7 +148,7 @@ $(stamp):
 	: # case where SWIG changes its mind as to which files it generates.
 	-rm -f generated-csharp/*
 	$(MKDIR_P) generated-csharp
-	$(RUN_SWIG) $(SWIG_WERROR) -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
+	$(SWIG) $(SWIG_WERROR) -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
 	    -csharp -namespace Xapian -module Xapian -dllimport _XapianSharp \
 	    -o xapian_wrap.cc -outdir generated-csharp '$(srcdir)/'csharp.i
 	: # Check that exactly the sources we expected were generated.

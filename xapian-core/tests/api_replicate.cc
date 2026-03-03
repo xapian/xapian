@@ -1,7 +1,8 @@
-/* api_replicate.cc: tests of replication functionality
- *
- * Copyright 2008 Lemur Consulting Ltd
- * Copyright 2009,2010,2011,2012,2013,2014,2015,2016,2017 Olly Betts
+/** @file
+ * @brief tests of replication functionality
+ */
+/* Copyright 2008 Lemur Consulting Ltd
+ * Copyright 2009-2022 Olly Betts
  * Copyright 2010 Richard Boulton
  * Copyright 2011 Dan Colish
  *
@@ -16,9 +17,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -30,23 +30,23 @@
 
 #include "apitest.h"
 #include "dbcheck.h"
+#include "errno_to_string.h"
 #include "fd.h"
 #include "filetests.h"
 #include "safedirent.h"
-#include "safeerrno.h"
 #include "safefcntl.h"
 #include "safesysstat.h"
 #include "safeunistd.h"
+#include "setenv.h"
 #include "testsuite.h"
 #include "testutils.h"
 #include "unixcmds.h"
 
 #include <sys/types.h>
 
+#include <cerrno>
 #include <cstdlib>
 #include <string>
-
-#include <stdlib.h> // For setenv() or putenv() or _putenv_s()
 
 using namespace std;
 
@@ -61,14 +61,6 @@ static void mktmpdir(const string & path) {
     if (mkdir(path.c_str(), 0700) == -1 && errno != EEXIST) {
 	FAIL_TEST("Can't make temporary directory");
     }
-}
-
-static off_t get_file_size(const string & path) {
-    off_t size = file_size(path);
-    if (errno) {
-	FAIL_TEST("Can't stat '" << path << "'");
-    }
-    return size;
 }
 
 static size_t do_read(int fd, char * p, size_t desired)
@@ -102,8 +94,10 @@ static void do_write(int fd, const char * p, size_t n)
 }
 
 // Make a truncated copy of a file.
-static off_t
-truncated_copy(const string & srcpath, const string & destpath, off_t tocopy)
+static file_size_type
+truncated_copy(const string& srcpath,
+	       const string& destpath,
+	       file_size_type tocopy)
 {
     FD fdin(open(srcpath.c_str(), O_RDONLY | O_BINARY));
     if (fdin == -1) {
@@ -235,28 +229,7 @@ check_equal_dbs(const string & masterpath, const string & replicapath)
     }
 }
 
-#if 0 // Dynamic version which we don't currently need.
-static void
-set_max_changesets(int count) {
-#if HAVE_DECL__PUTENV_S
-    _putenv_s("XAPIAN_MAX_CHANGESETS", str(count).c_str());
-#elif defined HAVE_SETENV
-    setenv("XAPIAN_MAX_CHANGESETS", str(count).c_str(), 1);
-#else
-    static char buf[64] = "XAPIAN_MAX_CHANGESETS=";
-    sprintf(buf + CONST_STRLEN("XAPIAN_MAX_CHANGESETS="), "%d", count);
-    putenv(buf);
-#endif
-}
-#endif
-
-#if HAVE_DECL__PUTENV_S
-# define set_max_changesets(N) _putenv_s("XAPIAN_MAX_CHANGESETS", #N)
-#elif defined HAVE_SETENV
-# define set_max_changesets(N) setenv("XAPIAN_MAX_CHANGESETS", #N, 1)
-#else
-# define set_max_changesets(N) putenv(const_cast<char*>("XAPIAN_MAX_CHANGESETS="#N))
-#endif
+#define set_max_changesets(N) setenv("XAPIAN_MAX_CHANGESETS", #N, 1)
 
 struct unset_max_changesets_helper_ {
     unset_max_changesets_helper_() { }
@@ -345,9 +318,10 @@ DEFINE_TESTCASE(replicate1, replicas) {
 	// the temporary directory on Windows.
     }
 
+    TEST_EQUAL(Xapian::Database::check(masterpath), 0);
+
     rmtmpdir(tempdir);
 #endif
-    return true;
 }
 
 // Test replication from a replicated copy.
@@ -451,7 +425,6 @@ DEFINE_TESTCASE(replicate2, replicas) {
 
     rmtmpdir(tempdir);
 #endif
-    return true;
 }
 
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
@@ -469,9 +442,12 @@ replicate_with_brokenness(Xapian::DatabaseMaster & master,
 
     // Try applying truncated changesets of various different lengths.
     string brokenchangesetpath = tempdir + "/changeset_broken";
-    off_t filesize = get_file_size(changesetpath);
-    off_t len = 10;
-    off_t copylen;
+    auto filesize = file_size(changesetpath);
+    if (errno) {
+	FAIL_TEST("Can't stat '" << changesetpath << "'");
+    }
+    file_size_type len = 10;
+    file_size_type copylen;
     while (len < filesize) {
 	copylen = truncated_copy(changesetpath, brokenchangesetpath, len);
 	TEST_EQUAL(copylen, len);
@@ -545,7 +521,6 @@ DEFINE_TESTCASE(replicate3, replicas) {
 
     rmtmpdir(tempdir);
 #endif
-    return true;
 }
 
 // Tests for max_changesets
@@ -615,7 +590,7 @@ DEFINE_TESTCASE(replicate4, replicas) {
 	check_equal_dbs(masterpath, replicapath);
 	TEST(!file_exists(masterpath + "/changes1"));
 
-	// Turn off replication, make sure we dont write anything
+	// Turn off replication, make sure we don't write anything.
 	if (get_dbtype() != "glass") {
 	    set_max_changesets(0);
 	}
@@ -644,9 +619,7 @@ DEFINE_TESTCASE(replicate4, replicas) {
 
     rmtmpdir(tempdir);
 #endif
-    return true;
 }
-
 
 // Tests for max_changesets
 DEFINE_TESTCASE(replicate5, replicas) {
@@ -777,7 +750,6 @@ DEFINE_TESTCASE(replicate5, replicas) {
 
     rmtmpdir(tempdir);
 #endif
-    return true;
 }
 
 /// Test --full-copy option.
@@ -844,7 +816,6 @@ DEFINE_TESTCASE(replicate6, replicas) {
 
     rmtmpdir(tempdir);
 #endif
-    return true;
 }
 
 /// Test healing a corrupt replica (new in 1.3.5).
@@ -896,7 +867,7 @@ DEFINE_TESTCASE(replicate7, replicas) {
 	    if (!entry) {
 		if (errno == 0)
 		    break;
-		FAIL_TEST("readdir failed: " << strerror(errno));
+		FAIL_TEST("readdir failed: " << errno_to_string(errno));
 	    }
 
 	    // Skip '.' and '..'.
@@ -905,7 +876,7 @@ DEFINE_TESTCASE(replicate7, replicas) {
 	    string file = d;
 	    file += '/';
 	    file += entry->d_name;
-	    int fd = open(file.c_str(), O_WRONLY|O_TRUNC, 0666);
+	    int fd = open(file.c_str(), O_WRONLY|O_TRUNC);
 	    TEST(fd != -1);
 	    TEST(close(fd) == 0);
 	}
@@ -927,5 +898,4 @@ DEFINE_TESTCASE(replicate7, replicas) {
 
     rmtmpdir(tempdir);
 #endif
-    return true;
 }

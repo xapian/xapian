@@ -1,4 +1,4 @@
-/** @file slowvaluelist.h
+/** @file
  * @brief Slow implementation for backends which don't streamed values.
  */
 /* Copyright (C) 2007,2008,2011,2014 Olly Betts
@@ -14,8 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_SLOWVALUELIST_H
@@ -49,11 +49,11 @@ class SlowValueList : public ValueList {
     std::string current_value;
 
     /// The document id at the current position.
-    Xapian::docid current_did;
+    Xapian::docid current_did = 0;
 
   public:
     SlowValueList(const Xapian::Database::Internal * db_, Xapian::valueno slot_)
-	: db(db_), last_docid(db_->get_lastdocid()), slot(slot_), current_did(0)
+	: db(db_), last_docid(db_->get_lastdocid()), slot(slot_)
     { }
 
     Xapian::docid get_docid() const;

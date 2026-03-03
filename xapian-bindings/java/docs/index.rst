@@ -1,12 +1,11 @@
 Xapian Java Bindings
 ********************
 
-The current API should be regarded as experimental - we plan to review it,
-possibly make some changes and then declare it stable early in the 1.4.x
-release series.
-
 How to build the bindings:
 ##########################
+
+If you want to install from source you'll need to `download the source
+code <https://xapian.org/download>`_ if you haven't already done so.
 
 Running "make" and then "make install" will "install" a JNI glue shared library
 into a "built" subdirectory of the java build directory.  The jar file is built
@@ -40,10 +39,12 @@ JNI library is located.
  java -Djava.library.path=built -classpath built/xapian.jar:docs/examples \
       SimpleSearch ./test.db index words like java
 
-Alternatively, you can avoid needing the -Djava.library.path setting by
-setting the LD_LIBRARY_PATH environment variable, or by installing the JNI
+Alternatively, you can avoid needing the `-Djava.library.path` setting by
+setting the `LD_LIBRARY_PATH` environment variable, or by installing the JNI
 library in the appropriate directory so your JVM finds it automatically
-(for example, on Mac OS X you can copy it into /Library/Java/Extensions/).
+(for example, on macOS you can copy it into `/Library/Java/Extensions/`
+- you can also copy the `.jar` file there and avoid needing to specify it
+via `-classpath`).
 
 The java bindings have been tested recently with OpenJDK versions 1.8.0_77,
 1.7.0_03, and 1.6.0_38, but they should work with any java toolchain with
@@ -106,8 +107,6 @@ If you want to be compatible with earlier versions, you can continue to use
 TODO list:
 ##########
 
-* Write SimpleExpand.java.
-
 * Fix string passing to be zero-byte clean:
   https://trac.xapian.org/ticket/46
 
@@ -115,8 +114,6 @@ TODO list:
   SmokeTest.java:
 
     - optional parameter "parameter" for Query ctor.
-
-    - new QueryParser API.
 
     - changes to Enquire sorting API.
 

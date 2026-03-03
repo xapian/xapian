@@ -1,4 +1,4 @@
-/** @file replication.h
+/** @file
  * @brief Replication support for Xapian databases.
  */
 /* Copyright 2008 Lemur Consulting Ltd
@@ -15,9 +15,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_REPLICATION_H
@@ -32,23 +31,19 @@ namespace Xapian {
 /** Information about the steps involved in performing a replication. */
 struct ReplicationInfo {
     /// Number of changesets applied.
-    int changeset_count;
+    int changeset_count = 0;
 
     /// Number of times a full database copy was performed.
-    int fullcopy_count;
+    int fullcopy_count = 0;
 
     /** True if and only if the replication corresponds to a change in the
      *  live version of the database.  Note that this may be false even if
      *  changeset_count and fullcopy_count are non-zero, since the changes
      *  may have been made to a non-live copy of the database.
      */
-    bool changed;
+    bool changed = false;
 
-    ReplicationInfo()
-	: changeset_count(0),
-	  fullcopy_count(0),
-	  changed(false)
-    {}
+    ReplicationInfo() { }
 
     void clear() {
 	changeset_count = 0;

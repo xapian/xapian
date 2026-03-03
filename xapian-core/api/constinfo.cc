@@ -1,4 +1,4 @@
-/** @file constinfo.cc
+/** @file
  * @brief Mechanism for accessing a struct of constant information
  */
 /* Copyright (C) 2013,2015 Olly Betts
@@ -40,7 +40,7 @@ static const struct Xapian::Internal::constinfo const_info = {
 
 namespace Xapian {
 namespace Internal {
-const struct constinfo * get_constinfo_() XAPIAN_NOEXCEPT {
+const struct constinfo* get_constinfo_() noexcept {
     return & const_info;
 }
 }

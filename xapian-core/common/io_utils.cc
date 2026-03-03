@@ -1,7 +1,7 @@
-/** @file io_utils.cc
+/** @file
  * @brief Wrappers for low-level POSIX I/O routines.
  */
-/* Copyright (C) 2004,2006,2007,2008,2009,2011,2012,2014,2015,2016,2018 Olly Betts
+/* Copyright (C) 2004-2025 Olly Betts
  * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or modify
@@ -15,8 +15,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -24,16 +24,21 @@
 #include "io_utils.h"
 #include "posixy_wrapper.h"
 
-#include "safeerrno.h"
 #include "safeunistd.h"
 
+#include <cerrno>
 #include <cstring>
+#include <limits>
 #include <string>
 
 #include <xapian/error.h>
 
 #include "omassert.h"
 #include "str.h"
+
+#ifdef __WIN32__
+# include "safewindows.h"
+#endif
 
 // Trying to include the correct headers with the correct defines set to
 // get pread() and pwrite() prototyped on every platform without breaking any
@@ -60,19 +65,15 @@ io_unlink(const std::string & filename)
 }
 
 // The smallest fd we want to use for a writable handle.
+//
+// We want to avoid using fd < MIN_WRITE_FD, in case some other code in the
+// same process tries to write to stdout or stderr, which would end up
+// corrupting our database.
 const int MIN_WRITE_FD = 3;
 
-int
-io_open_block_wr(const char * fname, bool anew)
+static int
+move_to_higher_fd_(int fd)
 {
-    int flags = O_RDWR | O_BINARY | O_CLOEXEC;
-    if (anew) flags |= O_CREAT | O_TRUNC;
-    int fd = ::open(fname, flags, 0666);
-    if (fd >= MIN_WRITE_FD || fd < 0) return fd;
-
-    // We want to avoid using fd < MIN_WRITE_FD, in case some other code in
-    // the same process tries to write to stdout or stderr, which would end up
-    // corrupting our database.
     int badfd = fd;
 #ifdef F_DUPFD_CLOEXEC
     // dup to the first unused fd >= MIN_WRITE_FD.
@@ -117,6 +118,125 @@ io_open_block_wr(const char * fname, bool anew)
     return fd;
 }
 
+static inline int
+move_to_higher_fd(int fd)
+{
+    if (usual(fd >= MIN_WRITE_FD || fd < 0)) return fd;
+    return move_to_higher_fd_(fd);
+}
+
+/** Protect against stray writes to fds we use pwrite() on.
+ *
+ *  Set the file position high to protect against user code or other libraries
+ *  accidentally trying to write to our fd.  To avoid problems we're rolling
+ *  this out gradually on platforms we've tested it on.
+ */
+static inline void
+protect_from_write(int fd)
+{
+#if !defined HAVE_PREAD || !defined HAVE_PWRITE
+    // No point setting the file position high here as it'll just get reset
+    // by the first block read or write.
+    (void)fd;
+#elif defined __linux__
+    // The maximum off_t value works for at least btrfs.
+    if (lseek(fd, std::numeric_limits<off_t>::max(), SEEK_SET) < 0) {
+	if constexpr (sizeof(off_t) > 4) {
+	    // Try the actual maximum for ext4 (which matches the documented
+	    // maximum filesize) since ext4 is very widely used.
+	    (void)lseek(fd, off_t(0xffffffff000), SEEK_SET);
+	}
+    }
+#elif defined _AIX
+    // It seems prudent to try the maximum off_t value first.
+    if (lseek(fd, std::numeric_limits<off_t>::max(), SEEK_SET) < 0) {
+	if constexpr (sizeof(off_t) > 4) {
+	    // Actual maximum seen in testing AIX 7.1 and 7.3 on JFS.
+	    (void)lseek(fd, off_t(0xffffffff000), SEEK_SET);
+	}
+    }
+#elif defined __CYGWIN__ || \
+      defined __DragonFly__ || \
+      defined __FreeBSD__ || \
+      defined __APPLE__ || \
+      defined __NetBSD__ || \
+      defined __OpenBSD__ || \
+      defined __sun__
+    // The maximum off_t value worked in testing on:
+    // * Cygwin 3.6.5
+    // * DragonFlyBSD 6.4.2
+    // * FreeBSD 14.0 and 15.0
+    // * macOS 10.10 and 12.6
+    // * NetBSD 10.0
+    // * OpenBSD 7.5
+    // * Solaris 10 and 11.4
+    (void)lseek(fd, std::numeric_limits<off_t>::max(), SEEK_SET);
+#elif defined __EMSCRIPTEN__
+    if constexpr (sizeof(off_t) > 4) {
+	// Anything larger fails with EOVERFLOW (tested with Emscripten SDK
+	// 4.0.19).
+	(void)lseek(fd, off_t(0x20000000000000), SEEK_SET);
+    }
+#elif defined __WIN32__
+    // For Microsoft Windows we open the file with CreateFile() and
+    // FILE_FLAG_OVERLAPPED so write() will always fail with EINVAL which
+    // protects us from accidental writes.  Tested on Microsoft Windows Server
+    // 2025 10.0.26100.
+    (void)fd;
+#else
+    (void)fd;
+#endif
+}
+
+int
+io_open_block_wr(const char* filename, bool anew)
+{
+#ifndef __WIN32__
+    // Use auto because on AIX O_CLOEXEC may be a 64-bit integer constant.
+    auto flags = O_RDWR | O_BINARY | O_CLOEXEC;
+    if (anew) flags |= O_CREAT | O_TRUNC;
+    int fd = ::open(filename, flags, 0666);
+#else
+    // Microsoft Windows lacks the POSIX standard function pwrite().
+    // We can still protect the fd from accidental writes by opening the file
+    // with CreateFile() and specifying FILE_FLAG_OVERLAPPED, then wrapping the
+    // returned handle in a file descriptor to give a file descriptor for which
+    // write() fails with EINVAL.  We implement an equivalent to pwrite() using
+    // WriteFile().
+    HANDLE handleWin =
+	CreateFile(filename,
+		   GENERIC_READ | GENERIC_WRITE,
+		   /* Subsequent operations may open this file to read, write
+		    * or delete it */
+		   FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+		   NULL,
+		   anew ? CREATE_ALWAYS : OPEN_EXISTING,
+		   FILE_ATTRIBUTE_NORMAL | FILE_FLAG_OVERLAPPED,
+		   NULL);
+    if (handleWin == INVALID_HANDLE_VALUE) {
+	return posixy_set_errno_from_getlasterror();
+    }
+
+    // Wrap in a standard file descriptor.
+    int fd = _open_osfhandle((intptr_t)(handleWin), O_RDWR|O_BINARY);
+#endif
+    if (fd >= 0) {
+	fd = move_to_higher_fd(fd);
+	protect_from_write(fd);
+    }
+    return fd;
+}
+
+int
+io_open_stream_wr(const char* filename, bool anew)
+{
+    // Use auto because on AIX O_CLOEXEC may be a 64-bit integer constant.
+    auto flags = O_RDWR | O_BINARY | O_CLOEXEC;
+    if (anew) flags |= O_CREAT | O_TRUNC;
+    int fd = ::open(filename, flags, 0666);
+    return move_to_higher_fd(fd);
+}
+
 size_t
 io_read(int fd, char * p, size_t n, size_t min)
 {
@@ -156,8 +276,8 @@ io_write(int fd, const char * p, size_t n)
 size_t
 io_pread(int fd, char * p, size_t n, off_t o, size_t min)
 {
-    size_t total = 0;
 #ifdef HAVE_PREAD
+    size_t total = 0;
     while (true) {
 	ssize_t c = pread(fd, p, n, o);
 	// We should get a full read most of the time, so streamline that case.
@@ -182,7 +302,36 @@ io_pread(int fd, char * p, size_t n, off_t o, size_t min)
 	n -= c;
 	o += c;
     }
+#elif defined __WIN32__
+    HANDLE h = (HANDLE)_get_osfhandle(fd);
+    if (h == INVALID_HANDLE_VALUE) {
+	// _get_osfhandle() sets errno to EBADF.
+	throw Xapian::DatabaseError("Error reading database", errno);
+    }
+
+    OVERLAPPED overlapped;
+    memset(&overlapped, 0, sizeof(overlapped));
+    overlapped.Offset = (DWORD)o;
+    if constexpr (sizeof(off_t) > 4) {
+	overlapped.OffsetHigh = o >> 32;
+    }
+    DWORD c;
+    if (!ReadFile(h, p, n, &c, &overlapped)) {
+	if (GetLastError() != ERROR_IO_PENDING ||
+	    !GetOverlappedResult(h,
+				 &overlapped,
+				 &c,
+				 TRUE)) {
+	    throw Xapian::DatabaseError("Error reading database",
+					-GetLastError());
+	}
+    }
+    if (c < min) {
+	throw Xapian::DatabaseError("EOF reading database");
+    }
+    return c;
 #else
+    size_t total = 0;
     if (rare(lseek(fd, o, SEEK_SET) < 0))
 	throw Xapian::DatabaseError("Error seeking database", errno);
     while (true) {
@@ -207,6 +356,55 @@ io_pread(int fd, char * p, size_t n, off_t o, size_t min)
 	p += c;
 	n -= c;
     }
+#endif
+}
+
+void
+io_pwrite(int fd, const char * p, size_t n, off_t o)
+{
+#ifdef HAVE_PWRITE
+    while (n) {
+	ssize_t c = pwrite(fd, p, n, o);
+	// We should get a full write most of the time, so streamline that
+	// case.
+	if (usual(c == ssize_t(n)))
+	    return;
+	if (c < 0) {
+	    if (errno == EINTR) continue;
+	    throw Xapian::DatabaseError("Error writing database", errno);
+	}
+	p += c;
+	n -= c;
+	o += c;
+    }
+#elif defined __WIN32__
+    HANDLE h = (HANDLE)_get_osfhandle(fd);
+    if (h == INVALID_HANDLE_VALUE) {
+	// _get_osfhandle() sets errno to EBADF.
+	throw Xapian::DatabaseError("Error writing database", errno);
+    }
+
+    OVERLAPPED overlapped;
+    memset(&overlapped, 0, sizeof(overlapped));
+    overlapped.Offset = (DWORD)o;
+    if constexpr (sizeof(off_t) > 4) {
+	overlapped.OffsetHigh = o >> 32;
+    }
+    DWORD c;
+    if (!WriteFile(h, p, n, &c, &overlapped)) {
+	if (GetLastError() != ERROR_IO_PENDING ||
+	    !GetOverlappedResult(h,
+				 &overlapped,
+				 &c,
+				 TRUE)) {
+	    throw Xapian::DatabaseError("Error writing database",
+					-GetLastError());
+	}
+    }
+#else
+    if (rare(lseek(fd, o, SEEK_SET) < 0))
+	throw Xapian::DatabaseError("Error seeking database", errno);
+    io_write(fd, p, n);
 #endif
 }
 
@@ -256,6 +454,33 @@ io_read_block(int fd, char * p, size_t n, off_t b, off_t o)
 	n -= c;
 	o += c;
     }
+#elif defined __WIN32__
+    // Using ReadFile() seems to be faster than lseek() and read().
+    HANDLE h = (HANDLE)_get_osfhandle(fd);
+    if (h == INVALID_HANDLE_VALUE) {
+	// _get_osfhandle() sets errno to EBADF.
+	throw_block_error("Error reading block ", b, errno);
+    }
+
+    OVERLAPPED overlapped;
+    memset(&overlapped, 0, sizeof(overlapped));
+    overlapped.Offset = (DWORD)o;
+    if constexpr (sizeof(off_t) > 4) {
+	overlapped.OffsetHigh = o >> 32;
+    }
+    DWORD c;
+    if (!ReadFile(h, p, n, &c, &overlapped)) {
+	if (GetLastError() != ERROR_IO_PENDING ||
+	    !GetOverlappedResult(h,
+				 &overlapped,
+				 &c,
+				 TRUE)) {
+	    throw_block_error("Error reading block ", b, -GetLastError());
+	}
+    }
+    if (c != n) {
+	throw_block_error("EOF reading block ", b);
+    }
 #else
     if (rare(lseek(fd, o, SEEK_SET) < 0))
 	throw_block_error("Error seeking to block ", b, errno);
@@ -301,6 +526,29 @@ io_write_block(int fd, const char * p, size_t n, off_t b, off_t o)
 	n -= c;
 	o += c;
     }
+#elif defined __WIN32__
+    HANDLE h = (HANDLE)_get_osfhandle(fd);
+    if (h == INVALID_HANDLE_VALUE) {
+	// _get_osfhandle() sets errno to EBADF.
+	throw_block_error("Error writing block ", b, errno);
+    }
+
+    OVERLAPPED overlapped;
+    memset(&overlapped, 0, sizeof(overlapped));
+    overlapped.Offset = (DWORD)o;
+    if constexpr (sizeof(off_t) > 4) {
+	overlapped.OffsetHigh = o >> 32;
+    }
+    DWORD c;
+    if (!WriteFile(h, p, n, &c, &overlapped)) {
+	if (GetLastError() != ERROR_IO_PENDING ||
+	    !GetOverlappedResult(h,
+				 &overlapped,
+				 &c,
+				 TRUE)) {
+	    throw_block_error("Error writing block ", b, -GetLastError());
+	}
+    }
 #else
     if (rare(lseek(fd, o, SEEK_SET) < 0))
 	throw_block_error("Error seeking to block ", b, errno);
@@ -331,7 +579,7 @@ io_tmp_rename(const std::string & tmp_file, const std::string & real_file)
     // case someone calls this with files on different devices.
     //
     // We're not sure exactly which kernels are buggy in this way, but there's
-    // discussion here: http://www.spinics.net/lists/linux-nfs/msg17306.html
+    // discussion here: https://www.spinics.net/lists/linux-nfs/msg17306.html
     //
     // Reported at: https://trac.xapian.org/ticket/698
     int retries = 5;

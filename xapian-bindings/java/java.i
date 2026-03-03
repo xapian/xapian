@@ -2,7 +2,7 @@
 %{
 /* java.i: SWIG interface file for the Java bindings
  *
- * Copyright (c) 2007,2009,2011,2012,2014,2016,2017,2018 Olly Betts
+ * Copyright (c) 2007,2009,2011,2012,2014,2016,2017,2018,2019,2024 Olly Betts
  * Copyright (c) 2012 Dan Colish
  *
  * This program is free software; you can redistribute it and/or
@@ -16,9 +16,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 %}
 
@@ -116,18 +115,16 @@ namespace Xapian {
 %ignore revision;
 
 // For compatibility with the original JNI wrappers.
-// FIXME: These make use of the fact that the default ctor for PostingIterator,
-// TermIterator, and ValueIterator produces an end iterator.
 %extend PostingIterator {
     Xapian::docid next () {
-        Xapian::docid tmp;
-        if (Xapian::iterator_valid(*self)) {
-            tmp = (**self);
-            ++(*self);
-        } else {
-            tmp = -1;
-        }
-        return tmp;
+	Xapian::docid tmp;
+	if (Xapian::iterator_valid(*self)) {
+	    tmp = (**self);
+	    ++(*self);
+	} else {
+	    tmp = -1;
+	}
+	return tmp;
     }
 
     bool hasNext() const { return Xapian::iterator_valid(*self); }
@@ -135,14 +132,12 @@ namespace Xapian {
 
 %extend TermIterator {
     std::string next () {
-        std:string tmp;
-        if (Xapian::iterator_valid(*self)) {
-            tmp = (**self);
-            ++(*self);
-        } else {
-            tmp = "";
-        }
-        return tmp;
+	std:string tmp;
+	if (Xapian::iterator_valid(*self)) {
+	    tmp = (**self);
+	    ++(*self);
+	}
+	return tmp;
     }
 
     bool hasNext() const { return Xapian::iterator_valid(*self); }
@@ -150,14 +145,12 @@ namespace Xapian {
 
 %extend ValueIterator {
     std::string next () {
-        std:string tmp;
-        if (Xapian::iterator_valid(*self)) {
-            tmp = (**self);
-            ++(*self);
-        } else {
-            tmp = "";
-        }
-        return tmp;
+	std:string tmp;
+	if (Xapian::iterator_valid(*self)) {
+	    tmp = (**self);
+	    ++(*self);
+	}
+	return tmp;
     }
 
     bool hasNext() const { return Xapian::iterator_valid(*self); }
@@ -169,8 +162,6 @@ namespace Xapian {
 	if (Xapian::iterator_valid(*self)) {
 	    tmp = (**self);
 	    ++(*self);
-	} else {
-	    tmp = "";
 	}
 	return tmp;
     }
@@ -215,13 +206,13 @@ class XapianSWIGStrItor {
     XapianSWIGStrItor() { }
 
     void begin(JNIEnv * jenv_, jobjectArray array_) {
-        jenv = jenv_;
-        array = array_;
-        i = 0;
+	jenv = jenv_;
+	array = array_;
+	i = 0;
     }
 
     void end(jsize len_) {
-        i = len_;
+	i = len_;
     }
 
     XapianSWIGStrItor & operator++() {
@@ -247,7 +238,7 @@ class XapianSWIGStrItor {
     }
 
     difference_type operator-(const XapianSWIGStrItor &o) const {
-        return i - o.i;
+	return i - o.i;
     }
 };
 
@@ -283,7 +274,7 @@ class XapianSWIGQueryItor {
     }
 
     difference_type operator-(const XapianSWIGQueryItor &o) const {
-        return p - o.p;
+	return p - o.p;
     }
 };
 
@@ -329,16 +320,16 @@ class XapianSWIGQueryItor {
 
 %typemap(javacode) Xapian::Query %{
     // For compatibility with the original JNI wrappers.
-    public final static op OP_AND = new op("OP_AND");
-    public final static op OP_OR = new op("OP_OR");
-    public final static op OP_AND_NOT = new op("OP_AND_NOT");
-    public final static op OP_XOR = new op("OP_XOR");
-    public final static op OP_AND_MAYBE = new op("OP_AND_MAYBE");
-    public final static op OP_FILTER = new op("OP_FILTER");
-    public final static op OP_NEAR = new op("OP_NEAR");
-    public final static op OP_PHRASE = new op("OP_PHRASE");
-    public final static op OP_ELITE_SET = new op("OP_ELITE_SET");
-    public final static op OP_VALUE_RANGE = new op("OP_VALUE_RANGE");
+    public final static op OP_AND = op.OP_AND;
+    public final static op OP_OR = op.OP_OR;
+    public final static op OP_AND_NOT = op.OP_AND_NOT;
+    public final static op OP_XOR = op.OP_XOR;
+    public final static op OP_AND_MAYBE = op.OP_AND_MAYBE;
+    public final static op OP_FILTER = op.OP_FILTER;
+    public final static op OP_NEAR = op.OP_NEAR;
+    public final static op OP_PHRASE = op.OP_PHRASE;
+    public final static op OP_ELITE_SET = op.OP_ELITE_SET;
+    public final static op OP_VALUE_RANGE = op.OP_VALUE_RANGE;
 
     public final static Query MatchAll = new Query("");
     public final static Query MatchNothing = new Query();
@@ -428,10 +419,10 @@ class XapianSWIGQueryItor {
     $input = jenv->NewByteArray($1_len);
     Swig::LocalRefGuard $1_refguard(jenv, $input);
     {
-        const jbyte* data = reinterpret_cast<const jbyte*>($1.data());
-        // Final parameter was not const in Java 6 and earlier.
-        jbyte* data_nc = const_cast<jbyte*>(data);
-        jenv->SetByteArrayRegion($input, 0, $1_len, data_nc);
+	const jbyte* data = reinterpret_cast<const jbyte*>($1.data());
+	// Final parameter was not const in Java 6 and earlier.
+	jbyte* data_nc = const_cast<jbyte*>(data);
+	jenv->SetByteArrayRegion($input, 0, $1_len, data_nc);
     }
 }
 
@@ -443,9 +434,6 @@ class XapianSWIGQueryItor {
 typedef std::string binary_std_string;
 %}
 
-%apply const binary_std_string & { const std::string & range_limit };
-%apply const binary_std_string & { const std::string & range_lower };
-%apply const binary_std_string & { const std::string & range_upper };
 %apply const binary_std_string & { const std::string & serialised };
 %apply const binary_std_string & { const std::string & value };
 
@@ -456,7 +444,84 @@ typedef std::string binary_std_string;
 %apply binary_std_string { std::string Xapian::ValueIterator::operator*() };
 %apply binary_std_string { std::string Xapian::sortable_serialise(double) };
 
+// Typemaps for converting C++ std::string_view from Java byte[] for cases
+// where the C++ API uses it for binary data.
+//
+// Terms, document data and user metadata can also be binary data, but for at
+// least for now we won't worry about that.
+
+%typemap(in) binary_std_string_view %{
+    if (!$input) {
+	SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null array");
+	return $null;
+    }
+    jbyte* $1_jarr = jenv->GetByteArrayElements($input, NULL);
+    if (!$1_jarr) return $null;
+    $1 = std::string_view(reinterpret_cast<char*>($1_jarr),
+			  jenv->GetArrayLength($input));
+%}
+
+%typemap(freearg) binary_std_string_view %{
+    jenv->ReleaseByteArrayElements($input, $1_jarr, JNI_ABORT);
+%}
+
+%typemap(directorin, descriptor="B[", noblock=1) binary_std_string_view {
+    size_t $1_len = $1.size();
+    $input = jenv->NewByteArray($1_len);
+    Swig::LocalRefGuard $1_refguard(jenv, $input);
+    {
+	const jbyte* data = reinterpret_cast<const jbyte*>($1.data());
+	// Final parameter was not const in Java 6 and earlier.
+	jbyte* data_nc = const_cast<jbyte*>(data);
+	jenv->SetByteArrayRegion($input, 0, $1_len, data_nc);
+    }
+}
+
+%typemap(jni) binary_std_string_view "jbyteArray"
+%typemap(jtype) binary_std_string_view "byte[]"
+%typemap(jstype) binary_std_string_view "byte[]"
+
+%inline %{
+typedef std::string_view binary_std_string_view;
+%}
+
+%apply binary_std_string_view { std::string_view range_limit };
+%apply binary_std_string_view { std::string_view range_lower };
+%apply binary_std_string_view { std::string_view range_upper };
+%apply binary_std_string_view { std::string_view serialised };
+%apply binary_std_string_view { std::string_view value };
+
 #pragma SWIG nowarn=822 /* Suppress warning about covariant return types (FIXME - check if this is a problem!) */
+
+// For QueryParser::add_boolean_prefix() and add_rangeprocessor().
+%typemap(jni) const std::string* "char*"
+%typemap(jtype) const std::string* "String"
+%typemap(jstype) const std::string* "String"
+
+%typemap(in) const std::string* %{
+    $*1_ltype $1_str;
+    if ($input) {
+        $1_str.assign($input);
+        $1 = &$1_str;
+    } else {
+        $1 = nullptr;
+    }
+%}
+
+%typemap(javain) const std::string* "$javainput"
+
+%typecheck(SWIG_TYPECHECK_STRING) const std::string* ""
 
 %include ../generic/except.i
 %include ../xapian-headers.i
+
+// Compatibility wrapping for Xapian::BAD_VALUENO (wrapped as a constant since
+// xapian-bindings 1.4.10).
+%rename("getBAD_VALUENO") getBAD_VALUENO;
+%inline %{
+namespace Xapian {
+static Xapian::valueno getBAD_VALUENO() { return Xapian::BAD_VALUENO; }
+}
+%}
+// Can't throw an exception.
+%exception Xapian::getBAD_VALUENO "$action"

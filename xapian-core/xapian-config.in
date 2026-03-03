@@ -14,9 +14,8 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
-# USA
+# along with this program; if not, see
+# <https://www.gnu.org/licenses/>.
 
 PROG_NAME=xapian-config
 PROG_DESC="report information about the installed version of xapian"
@@ -94,12 +93,6 @@ need_explicit_dependencies()
     [ no != "@link_all_deplibs_CXX@" ] || return 1 # "false"
 
     return 0 # "true"
-}
-
-# Any extra ldflags needed.
-set_F_to_extra_ldflags() {
-    F=
-    [ -n "@ldflags@" ] && F="@ldflags@ "
 }
 
 # -L option required (if any).
@@ -271,18 +264,16 @@ for arg in $actions ; do
 	    exit 1
 	fi
 	##UNINSTONLYEND
-	set_F_to_extra_ldflags
 	set_L_to_library_path
 	D=
 	if need_explicit_dependencies ; then
 	    extract_dependency_libs "@libdir@/libxapian@LIBRARY_VERSION_SUFFIX@.la"
 	    [ -n "$dependency_libs" ] && D=" $dependency_libs"
 	fi
-	echo "$F$L-lxapian@LIBRARY_VERSION_SUFFIX@$D"
+	echo "$L-lxapian@LIBRARY_VERSION_SUFFIX@$D"
 	;;
 
     --ltlibs)
-	set_F_to_extra_ldflags
 	##UNINSTONLYBEGIN
 	if is_uninstalled ; then
 	    # Don't check if libxapian@LIBRARY_VERSION_SUFFIX@.la exists yet since we want to allow
@@ -304,7 +295,7 @@ for arg in $actions ; do
 	# behaviour.
 	if need_explicit_dependencies ; then
 	    if [ -f "@libdir@/libxapian@LIBRARY_VERSION_SUFFIX@.la" ]; then
-		echo "${F}@libdir@/libxapian@LIBRARY_VERSION_SUFFIX@.la"
+		echo "@libdir@/libxapian@LIBRARY_VERSION_SUFFIX@.la"
 		continue
 	    fi
 
@@ -313,7 +304,7 @@ for arg in $actions ; do
 	fi
 
 	set_L_to_library_path
-	echo "$F$L-lxapian@LIBRARY_VERSION_SUFFIX@"
+	echo "$L-lxapian@LIBRARY_VERSION_SUFFIX@"
 	;;
     esac
 done

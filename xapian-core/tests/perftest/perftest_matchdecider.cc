@@ -1,6 +1,7 @@
-/* perftest_matchdecider.cc: performance tests for match decider
- *
- * Copyright 2008 Lemur Consulting Ltd
+/** @file
+ * @brief performance tests for match decider
+ */
+/* Copyright 2008 Lemur Consulting Ltd
  * Copyright 2009,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
@@ -14,9 +15,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -122,7 +122,6 @@ DEFINE_TESTCASE(valuesetmatchdecider1, writable && !remote && !inmemory) {
     }
 
     logger.testcase_end();
-    return true;
 }
 
 // Test the performance of an AllDocsIterator.
@@ -145,5 +144,4 @@ DEFINE_TESTCASE(alldocsiter1, writable && !remote && !inmemory) {
     logger.searching_end();
 
     logger.testcase_end();
-    return true;
 }

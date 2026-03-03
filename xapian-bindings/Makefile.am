@@ -8,12 +8,11 @@ endif
 
 EXTRA_DIST = xapian-head.i xapian-headers.i generic/except.i \
     generic/generate-generic-exceptions \
-    swig-depcomp \
-    xapian-bindings.spec shortstop.list skiptest \
+    shortstop.list skiptest \
     HACKING
 
 SUBDIRS = . @BINDINGS@
-DIST_SUBDIRS = python python3 php php7 java ruby tcl8 csharp perl lua
+DIST_SUBDIRS = python3 php java ruby tcl8 csharp perl lua
 
 if MAINTAINER_MODE
 BUILT_SOURCES = generic/except.i
@@ -29,12 +28,10 @@ endif
 endif
 
 DISTCHECK_CONFIGURE_FLAGS = XAPIAN_CONFIG="$(XAPIAN_CONFIG)" \
-	PYTHON2_LIB="`pwd`/../_inst/tmp_py2lib" \
-	PYTHON3_LIB="`pwd`/../_inst/tmp_py3lib" \
-	PHP_EXTENSION_DIR="`pwd`/../_inst/tmp_phpext" \
-	PHP7_EXTENSION_DIR="`pwd`/../_inst/tmp_php7ext" \
-	RUBY_LIB="`pwd`/../_inst/tmp_rubylib" \
-	RUBY_LIB_ARCH="`pwd`/../_inst/tmp_rubylibarch" \
-	TCL_LIB="`pwd`/../_inst/tmp_tcllib" \
-	PERL_LIB="`pwd`/../_inst/tmp_perllib" \
-	LUA_LIB="`pwd`/../_inst/tmp_lualib"
+	PYTHON3_LIB='$(abs_builddir)/../_inst/tmp_py3lib' \
+	PHP_EXTENSION_DIR='$(abs_builddir)/../_inst/tmp_phpext' \
+	RUBY_LIB='$(abs_builddir)/../_inst/tmp_rubylib' \
+	RUBY_LIB_ARCH='$(abs_builddir)/../_inst/tmp_rubylibarch' \
+	TCL_LIB='$(abs_builddir)/../_inst/tmp_tcllib' \
+	PERL_LIB='$(abs_builddir)/../_inst/tmp_perllib' \
+	LUA_LIB='$(abs_builddir)/../_inst/tmp_lualib'

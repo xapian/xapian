@@ -1,3 +1,3703 @@
+Xapian-core 1.5.0 (2026-02-24):
+
+This is a release candidate for 2.0.0, made available to encourage wider
+testing before a final release.  It is versioned as 1.5.0 in an attempt to
+reduce potential for misunderstandings.  If all goes well the final release
+will be the same as this but with the version number updated.  However please
+do not package this as incompatible changes are still possible.
+
+API:
+
+* General:
+
+  + Update to Unicode 17.0.0.
+
+  + Use std::string_view in API.  Fixes #785, reported by Germán M. Bravo.
+
+  + Mark API functions which take pointers which shouldn't be NULL with a
+    new XAPIAN_NONNULL macro which maps to compiler-specific attributes
+    where supported so that such API misuse can be reported at compile-time.
+
+  + Replace uses of useconds_t in the API by unsigned.  In 1.3.x we deprecated
+    Xapian::timeout (a typedef for unsigned) and started to use useconds_t
+    instead.  However, useconds_t is now obsolete and anyway was intended to
+    represent a time in microseconds (confusing when Xapian's timeouts are in
+    milliseconds) so it wasn't a good choice for a replacement.  The Linux
+    usleep man page even notes: "Programs will be more portable if they never
+    mention this type explicitly."
+
+* Remove deprecated API features:
+
+  + ErrorHandler: This is a no-op in 1.4.x, and there's currently no
+    replacement.
+
+  + ValueRangeProcessor: The replacement class is RangeProcessor, added in
+    1.3.6.
+
+  + Remove deprecated get_eset() overload taking k.  Use
+    Enquire::set_expansion_scheme() to specify a non-default value for k.
+
+  + Remove typedefs deprecated in 1.3.0: Xapian::percent, Xapian::timeout
+    and Xapian::weight.  Use int, unsigned and double instead.
+
+  + Remove deprecated ValuePostingSource member variables - use the
+    correspondings getter and setter methods instead.
+
+  + Remove deprecated compaction API - use the newer compaction API instead.
+
+  + QueryParser::set_max_wildcard_expansion():  Replaced by
+    set_max_expansion(), added in 1.3.3.
+
+  + WritableDatabase::flush(): Use commit() instead, added in 1.1.0.
+
+  + Remove deprecated namespaced DB factory functions.  Use the Database()
+    and WritableDatabase() constructors with a Xapian::DB_BACKEND_* constant
+    instead (added in 1.3.2).
+
+* Word tokenisation changes in QueryParser, TermGenerator and MSet::snippet():
+
+  + Optionally support finding word boundaries using ICU (International
+    Components for Unicode library: https://site.icu-project.org/).  Specify
+    flags FLAG_WORD_BREAKS and SNIPPET_WORD_BREAKS to enable this feature.
+    With these flags, ICU is only consulted for spans of text written using
+    scripts which we know ICU has word splitting dictionaries for.  The
+    current list of scripts covered is: Thai, Lana Tai, Pali, Lao, Myanmar
+    (Burmese), Hangul, Khmer, Han, Hiragana, Katakana, Bopomofo.  We require
+    at least ICU 54.1, but that was released 2014-10-01 so this doesn't seem
+    problematic, especially as the ICU dependency is optional - if xapian-core
+    is built without ICU then attempting to use these flags will throw
+    FeatureUnavailableError.  Patch from Robert Stepanek.
+
+  + FLAG_NGRAMS and SNIPPET_NGRAMS have been expanded to include additional CJK
+    codepoints and more scripts which are typically not written with explicit
+    word breaks (currently the same list used by FLAG_WORD_BREAKS and
+    SNIPPET_WORD_BREAKS).  Currently the same list of scripts is used for this
+    as for FLAG_WORD_BREAKS.  Patch from Robert Stepanek.
+
+  + Unicode character U+200B (ZERO WIDTH SPACE) is now treated as whitespace
+    rather than an ignored infix character.  It's used to mark word breaks in
+    languages without visible space between words so should result in a word
+    break.
+
+  + Unicode character U+00AD (SOFT HYPHEN) is now treated as an ignored infix
+    character so no longer results in a word break.  There are two common uses
+    of this character: one is to mark potential hyphenation points (which this
+    change means we now handle better), the other is to mark hyphens which have
+    been inserted into text that has been word-wrapped (where it will be
+    followed by the end of the line, so we'll handle such cases as we did
+    before).
+
+* Database:
+
+  + Database and WritableDatabase are now reference counted handles like most
+    other API classes and so are very cheap to copy and assign; previously they
+    were like vector<shard> which made copying and assignment O(#shards).  The
+    main observable difference is that if you add a shard to a copy of a
+    Database/WritableDatabase, it's now added to the original (which is
+    consistent with other API classes, e.g. adding a document to an RSet).
+
+  + Operations on a database with a single shard now have a bit less overhead.
+
+  + Add lock() and unlock() methods which provide a way to take and release the
+    write lock on an already open database.  You can also use lock() to
+    efficiently change the flags for an open WritableDatabase.
+
+  + Spelling correction on a sharded database should be faster.
+
+  + Cross-check the document length upper and lower bounds
+    with the document length.  Patch from Uppinder Chugh.
+
+  + Database::compact() now accepts DB_BACKEND_* in flags so you can create a
+    honey database by compacting a glass one.
+
+  + New methods get_unique_terms_lower_bound() and
+    get_unique_terms_upper_bound() to report bounds on what get_unique_terms()
+    can return.  Patch from Guruprasad Hegde.
+
+  + Database::close() is no longer virtual - we never override it, and it's not
+    useful for user code to override it.
+
+  + New reconstruct(): New method to reconstruct document text from positional
+    data.  Reading the required positional information is potentially quite I/O
+    intensive.  The reconstructed text will be missing punctuation and most
+    capitalisation.  The key reason for putting this in the API is that it
+    allows us to handle the reconstruction on the server for remote databases,
+    which is much more efficient than opening a remote position list for every
+    term in the document.
+
+  + WritableDatabase::remove_spelling() now works more sensibly with sharded
+    databases.  Previously it tried to reduce the frequency by freqdec in each
+    shard, but now it tries to remove the spelling from each shard in turn
+    until all of freqdec has been dealt with, and then returns any "unused"
+    freqdec.  To support this for the remote backend, the remote protocol major
+    version has been bumped (which is why we couldn't address this in 1.4.x).
+
+  + Adding a read-only shard to a WritableDatabase is now statically caught at
+    compile time in simple cases; in more complex cases InvalidOperationError
+    is now thrown when you attempt a WritableDatabase operation on that shard.
+    Previously such a shard acted as a black hole which quietly accepted and
+    ignored changes.
+
+* Document:
+
+  + Fetching terms from an existing document is now O(n) instead of
+    O(n*log(n)).
+
+  + The remove_posting() and remove_postings() methods will now remove the term
+    completely if the term is modified and has no positions and wdf=0 after the
+    changes.
+
+  + Term positions are now stored in a custom vector implementation which uses
+    no external storage when small ("Small Vector Optimisation") and eliminates
+    a lot of copying that was previously happening (thanks to a combination of
+    C++11 move semantics and copy-on-write).
+
+* Enquire:
+
+  + A default-constructed Database object now acts as an empty database in a
+    search, which can be helpful in some applications (previously it would
+    throw Xapian::InvalidArgumentError).
+
+  + Optimise get_eset().  We now use a custom heap implementation which
+    provides a replace() operation that's like push() followed by pop(), but
+    more efficient.  We've also reduced the number of virtual method calls and
+    string copies.
+
+* ESet: Use type Xapian::termcount to hold an index rather than
+  Xapian::doccount.  In a standard build both are the same underlying type, so
+  this won't usually matter, but it does if you configure with exactly one of
+  --enable-64bit-docid and --enable-64bit-termcount.
+
+* MSet:
+
+  + get_termfreq() and get_termweight() now just return 0 rather than throwing
+    exceptions when called on a default-constructed MSet, which is makes it
+    easier to use such an MSet as a placeholder for an empty search.
+    get_termweight() also now returns zero when called on a term which wasn't
+    in the query rather than throwing an exception - this seems logical as such
+    terms don't contribute weight to any documents in the MSet.
+
+  + Add methods replace_weights() and sort_by_relevance() which allow replacing
+    the weights of all the documents in a MSet and then sort the MSet on the
+    basis of these new weights.  These support implementing re-ranking
+    algorithms, such as xapian-letor.  Patch from Ayush Pandey.
+
+  + fetch() with remote shards now triggers a prefetch on the remote server.
+    Fixes #353.
+
+* PostingIterator: On a sharded database, a heap is now used to merge postings
+  from the shards more efficiently.
+
+* PostingSource: New reset() virtual method which is like init() but is passed
+  the shard index which can be useful if you have an external source of
+  postings corresponding to each shard.
+
+* Query:
+
+  + Add support for extended wildcard queries via new OP_WILDCARD flags
+    WILDCARD_PATTERN_MULTI (which supports `*` wildcards anywhere in the term,
+    not just at the end as previously), WILDCARD_PATTERN_SINGLE (which supports
+    `?` wildcards matching a single character), and WILDCARD_PATTERN_GLOB which
+    enables both of these.
+
+  + New operator OP_EDIT_DISTANCE to provide which expands similarly to
+    OP_WILDCARD but to terms that are within a specified edit distance of a
+    target word.
+
+  + New get_leaf_wqf() and get_leaf_pos() methods which allow introspecting on
+    details of terms in a query.  Patch from Nihal N.
+
+* QueryParser:
+
+  + Add new flags FLAG_WILDCARD_MULTI, FLAG_WILDCARD_SINGLE and
+    FLAG_WILDCARD_GLOB to support the new extended wildcards in parsed queries.
+
+  + New method set_min_wildcard_prefix() allows requiring a minimum length
+    constant prefix on wildcarded terms (this works for old-style trailing `*`
+    wildcards, new-style extended wildcards and also FLAG_PARTIAL implicit
+    wildcards).
+
+  + Add support for SYN operator which matches the same documents as OR but
+    weights its subqueries as synonyms.
+
+  + Support explicit multiword synonym syntax `~"multiple words"` and
+    `~foo:"multiple words"`.  See #414.
+
+  + Handle repeated add_prefix() or add_boolean_prefix() by just ignoring the
+    redundant calls rather than creating redundant terms in the parsed Query
+    object.
+
+  + New flag FLAG_FUZZY which enables parsing of foo~ foo~1 and foo~0.4 as
+    OP_EDIT_DISTANCE subqueries to provide a fuzzy matching feature.
+
+  + The heuristic that capitalised words are proper nouns which it is better
+    not to stem is now only enabled for some languages.  There's also a new
+    QueryParser flag (FLAG_NO_PROPER_NOUN_HEURISTIC) to turn it off completely.
+    Fixes #812.
+
+  + New method set_stopper_strategy() which improves parsing when documents are
+    indexed with stop_strategy STOP_ALL.  Fixes #750, reported by Matthieu
+    Gautier.
+
+* RSet: Improve get_description() output.
+
+* SimpleStopper: Use std::unordered_set instead of std::set to store the
+  stopwords internally, which improves scaling: inserting and checking
+  stopwords will now be O(1) instead of O(log(n)) in the number of stopwords.
+  Patch from Richhiey Thomas.
+
+* Stem:
+
+  + Update snowball compiler and runtime from a 6-year old version with a
+    number of Xapian-specific patches to something something very close to
+    current upstream.  This brings some speed and size improvements but the
+    number of dynamic runtime relocations has increased which will add to the
+    start-up time of programs dynamically linked to libxapian.  We hope to
+    address this in future Xapian 2 releases.
+
+  + Merge algorithm changes from Snowball.  There are optimisations to several
+    algorithms, and also the following functional changes:
+
+    - Stemmers added for Esperanto, Estonian, Greek, Hindi, Nepali, Polish,
+      Serbian and Yiddish.
+
+    - Arabic: Punctuation marks are no longer removed by the stemmer - in
+      Xapian such characters typically won't appear in the text passed to the
+      stemmer anyway.
+
+    - Danish: Adjust definition of "consonant" to be "letter but not vowel"
+      instead of just "not vowel" to avoid the stemmer mangling alphanumeric
+      codes which end with two or more digits.
+
+    - Dutch: Stemmer name "dutch" now selects the Kraaij-Pohlmann algorithm
+      instead of Martin Porter's Dutch stemmer as feedback from Dutch Snowball
+      users was strongly that it does a better job.  Martin Porter's Dutch
+      stemmer is now available as "dutch_porter".  Originally reported by
+      gboer.
+
+    - Dutch (Kraaij-Pohlmann):
+
+      = Fix differences between the Snowball implementation and the original C
+	implementation - this changes the stems for 220 words in a sample
+	vocabulary of 45670 words.
+
+      = Add a small number of exceptions to the Snowball implementation to
+	avoid unwanted conflations.  This addresses all cases so far identified
+	which Martin Porter's Dutch stemmer handled better.
+
+    - Dutch (Porter): The "at least 3 characters" part of the R1 definition was
+      actually implemented such that when working in UTF-8 it was "at least 3
+      bytes".  We strip accents normally found in Dutch except for `è` before
+      setting R1, and no Dutch words starting `è` seem to stem differently
+      depending on encoding, but proper nouns and other words of foreign origin
+      may contain other accented characters and it seems better for the stemmer
+      to handle such words the same way regardless of the encoding in use.
+
+    - Early English: The "earlyenglish" stemmer is now based on the "english"
+      stemmer instead of "porter".
+
+    - English: Improve stemming of:
+
+      = past/paste/pasted/pasting (reported by Sonny)
+
+      = universe/universal/university (reported by Clem Wong)
+
+      = lateral/later (reported by Steve Tolkin)
+
+      = emerge/emergency (reported by Frederick Ross)
+
+      = organ/organic/organize
+
+      = intern/internal/international/internment; interfere; interval
+
+      = -ogist/-ogy (reported by Marc Schipperheijn)
+
+      = evening/even (report by Ann B)
+
+      = adding/ad, egging/eg, offing/of, etc (reported by Ed Page)
+
+    - Finnish: Adjust definition of "consonant" to be "letter but not vowel"
+      instead of just "not vowel" to avoid the stemmer truncating numbers.
+      Fixes issue with truncating numbers reported by samiasmundi.
+
+    - French:
+
+      = Recognise suffixes which have a diaereses on the first letter.
+	Patch from David Corbett.
+
+      = Remove elisions as first step.  Fixes #609, reported by Paul Rudin and
+	kelson42.
+
+      = Remove -aise and -aises so for example, "française" and "françaises"
+	are now conflated with "français".  Reported by ririsoft and Fred Fung.
+
+      = Avoid incorrect conflation of `mauvais` (bad) with `mauve` (mauve,
+	mallow or seagull); avoid conflating `mal` with `malais`, `pal` with
+	`palais`, etc.
+
+      = Avoid conflating `ni` (neither/nor) with `niais` (inexperienced/silly)
+	and `nie`/`nié`/`nier`/`nierais`/`nierons` (to deny).
+
+      = -oux -> -ou.  Reported by merwok.
+
+    - German:
+
+      = Replace with the "german2" variant which normalises umlauts ("ä" to
+	"ae", "ö" to "oe", "ü" to "ue") which is presumably much less common in
+	newly created text than it once was as modern computer systems
+	generally don't have the limitations which motivated this, but there
+	will still be large amounts of legacy text which it seems helpful for
+	the stemmer to handle without having to know to select a variant.
+
+	On our sample German vocabulary which contains 35033 words, 77 words
+	give different stems.  A significant proportion of these are foreign
+	words, and some are proper nouns.  Some cases definitely seem improved,
+	and quite a few are just different but effectively just change the stem
+	for a word or group of words to a stem that isn't otherwise generated.
+	There don't seem any changes that are clearly worse, though there are
+	some changes that have both good and bad aspects to them.  Reported by
+	jrabensc.
+
+      = Don't remove -em if preceded by -syst to avoid overstemming words
+	ending -system.  This change means we now conflate e.g. "system" and
+	"systemen".  Reported by Olga Gusenikova.
+
+      = Remove -erin and -erinnen suffixes which conflates singular and plural
+	female versions of nouns with the male versions.  Reported by Olga
+	Gusenikova.
+
+      = Replace -ln and -lns with -l.  This improves 82 cases in the current
+	sample data without making anything worse.  Tests on a larger word list
+	look good too.  Reported by Olga Gusenikova.
+
+      = Remove -et suffix when we safely can.  Reported by Robert Frunzke.
+
+    - Italian: Address overstemming of "divano" (sofa) which previously stemmed
+      to "div", which is the stem for 'diva' (diva).  Now it is stemmed to
+      'divan', which is what its plural form 'divani' already stemmed to.
+      Reported by francesco.
+
+    - Lithuanian: Don't remove -er- before normal suffixes.  These aren't real
+      grammatic suffixes and seem to have been included mainly to try to
+      conflate ancient forms of the Lithuanian word for "sister" (e.g.
+      "sesers") with modern forms (e.g. "sesė").  We weren't even doing a
+      complete job there however as "seserimis" and "seseris" were not handled.
+      Removing these suffixes entirely means we no longer try to conflate the
+      ancient and modern forms here, but at least all the forms of the old word
+      get grouped, as do all forms of the new word.  The stemming for ~150
+      other words is also improved, without obvious downsides.  Patch from
+      Justas Sakalauskas.
+
+    - Norwegian:
+
+      = Improve stemming of words ending -ers.  Reported by Karianne Berg.
+
+      = Include more accented vowels - treating "ê", "ò", "ó" and "ô" as vowels
+        improves the stemming of a fairly small number of words, but there's
+        basically no cost to having extra vowels in the grouping, and some of
+        these words are commonly used.  Reported by András Jankovics.
+
+    - Portuguese: Replace Spanish suffixes by Portuguese suffixes.  Patch from
+      Helder.
+
+    - Romanian: Update to work better with modern Unicode text.  Previously
+      this stemmer only handled 'ş' and 'ţ' when encoded as their cedilla
+      "approximations", which were widely used for Romanian before full Unicode
+      support was available.  The stemmer now normalises the cedilla forms to
+      the proper Unicode characters.  Patch by Robert Muir.
+
+    - Russian: Normalise "ё" to "e" before stemming.  The Snowball
+      documentation for the Russian stemmer has long suggested that the caller
+      should perform this normalisation, but Xapian doesn't do that for you and
+      it's much more convenient for the algorithm to do it automatically.
+      Reported by Eugene Mirotin.
+
+    - Spanish: Handle -acion like -ación and -ucion like -ución.  It's
+      apparently common to miss off accents in Spanish, and there are examples
+      in our test vocabulary that these changes help.  Proposed by Damian
+      Janowski.
+
+    - Swedish:
+
+      = Replace suffix "öst" with "ös" when preceded by any of 'iklnprtuv'
+        rather than just 'l'.  The new rule only requires the "öst" to be in R1
+        whereas previously we required all of "löst" to be.  This second tweak
+        doesn't seem to affect any words ending "löst" but it conflates a few
+        extra cases when combined with the expanded list of preceding letters,
+        and seems more logical linguistically (since "ös" is akin to "ous" in
+        English).  Reported by znakeeye.
+
+      = Remove -et/-ets in cases where it helps.  Removing -et can't be done
+        unconditionally because many words end in -et where this isn't a
+        suffix.  However it's a very common suffix so it seems worth crafting a
+        more complex condition under which to remove.  Fixes #47.
+
+    - Turkish: Remove proper noun suffixes.  For example, `Türkiye'dir` ("it is
+      Turkey") is now conflated with `Türkiye` ("Turkey").  Fixes #188.
+
+* TermGenerator:
+
+  + New method set_termpos_limit() which allows setting a maximum termpos
+    value, exceeding which will trigger Xapian::RangeError.  The default
+    maximum is the largest value of the Xapian::termpos type - previously the
+    term position could quietly overflow to zero, but now this triggers an
+    exception.
+
+  + get_termfreq() now returns the exact term frequency in a sharded database
+    instead of approximating as it's not significantly more work.
+
+  + A TermIterator obtained from a Document now keeps a reference to the
+    document.
+
+* UnitValueRangeProcessor: New class which supports range searches such
+  as size:100K..1M on a value slot storing the size in bytes.  Patch from
+  Uppinder Chugh.
+
+* Utf8Iterator: Handle surrogate pair codepoints as invalid UTF-8 since RFC
+  3629 defined them as invalid.
+
+* ValueCountMatchSpy: Optimise top_values_begin() by using a custom heap
+  implementation which provides a replace() operation that's like push()
+  followed by pop(), but more efficient.
+
+* ValuePostingSource: Add a get_description() method rather than relying
+  on PostingSource::get_description() so that ValuePostingSource objects
+  report a more useful description than "Xapian::PostingSource subclass".
+
+* Weight:
+
+  + New wdfdocmax statistic passed to get_sumpart() and get_sumextra().  If you
+    have a custom subclass of Xapian::Weight you'll need to update it to add
+    the new parameters.  Patch from Dipanshu Garg and Nishad Dawkhar.
+
+  + Add create() and create_from_parameters() methods which support creating
+    Weight objects from human-readable string descriptions.  Patch from Vivek
+    Pal.
+
+  + Make unique terms bounds available to weighting schemes.
+
+  + Provide default implementations of Weight::get_sumextra() and
+    Weight::get_maxextra() which return 0 so that subclasses for weighting
+    schemes without a term-independent contribution (which is most weighting
+    schemes) don't need to implement these methods.  This also reduces the
+    number of load-time relocations for libxapian because we add two symbols,
+    but remove 26 - this will speed up library load time a little.
+
+  + DiceWeight: New weighting scheme (implementing
+    https://en.wikipedia.org/wiki/Dice-S%C3%B8rensen_coefficient).
+    Patch from Guruprasad Hegde.
+
+  + LMWeight: This was using incorrect formulae for all the smoothing schemes
+    so it has been removed and replaced with a new separate class for each
+    normalisation (except that Dirichlet and Dir+ are combined into one class):
+    LM2StageWeight, LMAbsDiscountWeight, LMDirichletWeight, LMJMWeight.  Fixes
+    #779 and https://github.com/xapian/xapian/pull/230, reported by Sourav
+    Saha.
+
+  + TfIdfWeight:
+
+    - Optimise to only calculating the normalised IDF once per term (its value
+      doesn't depend on the document).
+
+    - Support new normalisations.  Patches from Dipanshu Garg.  Support for
+      maxwdf statistic needed for some of these implemented by Nishad Dawkhar.
+
+      = WDF normalistions "max-norm", "aug-norm", "augmented log", "square
+        root" and "augmented average term frequency".
+
+      = IDF normalisations "incremented global frequency", "square root global
+        frequency", "global frequency" and "log global frequency".
+
+      = Support new "pivoted" WDF and IDF normalisations from Piv+.  Patch from
+        Vivek Pal.
+
+    - Support specifying TfIdf normalisations via enums.  Previously the
+      normalisations had to be specified in TfIdfWeight's constructor via a 3
+      character string.  There are character codes for the normalisations SMART
+      supported and some newer ones, but not all normalisations we want to
+      support have existing codes, and allocating them ourselves risks clashes.
+      These strings are also rather cryptic, whereas enum names can be more
+      self-explanatory.  Patch from Dipanshu Garg.
+
+  + TradWeight: Deprecated in favour of BM25Weight with k1=k, b=1 and other
+    parameters set to 0.  TradWeight is now implemented as a simple subclass of
+    BM25Weight (which means the weights are now scaled by (k+1) compared to
+    TradWeight in Xapian < 2.0.0).  Profiling shows negligible additional
+    overhead with current Xapian code and TradWeight is not a scheme people are
+    likely to want to actually use anyway except perhaps for experiments
+    comparing weighting schemes.
+
+testsuite:
+
+* Expand testing of operations on closed databases.  Patch from Guruprasad
+  Hegde.
+
+* Test handling of scenarios where a remote server dies.  Closes
+  https://github.com/xapian/xapian/pull/200 from Guruprasad Hegde, and
+  https://github.com/xapian/xapian/pull/294 from Alexander Slesarev.
+
+* The test harness now times each testcase and reports slow testcases
+  (currently those which take more than 10 seconds to run).  Implemented by
+  Tanmay Sachan.
+
+* apitest: The test harness now supports remoteprog shards in sharded
+  databases.  Implemented by Tanmay Sachan.
+
+* Add test coverage for collapsing with a percentage cutoff.
+
+* Test get_description() shows the correct classname.
+
+* The testharness now runs valgrind with `--error-limit=no` so that valgrind
+  errors are fully reported for all testcases even if more than 100 valgrind
+  errors are triggered.
+
+* The testharness now retries if a rename fails with EACCES and
+  _doserrno is ERROR_SHARING_VIOLATION, which works around mysterious failures
+  running under CI with appveyor.
+
+matcher:
+
+* The matcher has been replaced with a new implementation which is more
+  efficient in both memory and time in numerous ways.  A custom heap
+  implementation is now used, which provides a "replace" operation - this
+  should address slow collapsing as reported by Gareth Rees (ticket #682).
+
+* The matcher now uses docid ranges to optimise the query, and to report
+  tighter bounds on and a better estimate of the total number of matching
+  documents.  The bounds and estimate are now calculated lazily after the match
+  (if we find all matches we can skip the calculation entirely) and the
+  observed rate of accepting vs rejecting is now used to improve the estimates
+  for positional operators and value ranges.  Thanks to Robert Stepanek for
+  finding bugs in the initial implementation of this.
+
+* Shortcut handling of an empty Query object.  This always returns an empty
+  MSet so it's an easy case to handle without doing much work, and doing this
+  early on means the matcher can then assume the query isn't empty.
+
+* Document lengths and the number of unique terms in a candidate document are
+  now fetched from the database directly rather than recursively calling down
+  the postlist tree to a leaf, which then asks the database.  (The old design
+  dates back to when backends stored the document length in every postlist
+  entry, but that took significant extra space and made updating a document
+  harder.)
+
+* MatchDecider is now applied as part of the PostList tree, so there's
+  absolutely no overhead if there's no MatchDecider.
+
+* Wildcard/edit distance expansion with WILDCARD_LIMIT_MOST_FREQUENT
+  no longer registers the culled expansions for stats.
+
+* Internally we now use nullptr instead of an object for an empty posting list
+  or position list, which avoids the overhead of creating an object in such
+  cases.  For posting lists, this aids optimising the query.
+
+* Expanding a wildcard now gets the term frequency and collection frequency
+  from each PostList rather than asking the database.  This avoids an extra
+  postlist table access for each such term.
+
+* Devirtualise PostList::get_termfreq().  In most leaf subclasses this was just
+  returning a value stored in a subclass member variable, and in most branch
+  cases we had to store db_size in order to calculate it, so better to just
+  store the value in a base class member variable and have a non-virtual base
+  class get_termfreq() method which returns it.
+
+* Under certain conditions, we use an all-docs PostList for a term
+  which indexes all documents.  The check for such a term now always creates
+  the actual PostList first and gets the termfreq from that instead of asking
+  the database for the termfreq.  This reduces the work in the common case
+  where the term doesn't match all documents and is similar work in the case
+  where it does (for glass, there's the extra overhead of creating a cursor but
+  we still need to read and decode the same data).
+
+* Use document length bounds from the shard rather than the whole database
+  to calculate the upper bound on the possible weight contribution of each
+  term.  Testing show a very minor improvement, but it could be more
+  significant if some shards only have big documents and others only small.
+
+* The edit distance calculator (used by spelling correction and the new
+  Query::OP_EDIT_DISTANCE) has been optimised in numerous ways).
+
+* Optimise OP_NEAR and OP_OR by using a custom heap implementation which
+  provides a replace() operation that's like push() followed by pop(),
+  but more efficient.
+
+* We no longer automatically convert OP_NEAR/OP_PHRASE to OP_AND when a
+  database has no positional information.  It's a potentially surprising
+  edge case behaviour, and surprisingly complicated to handle internally.
+  The QueryParser::FLAG_NO_POSITIONS flag (added in 1.4.19) can be set to force
+  this conversion if you really want it, and allows doing so even when there
+  is positional data.  If you want the current behaviour, then you can apply
+  this flag if `!db.has_positions()`.
+
+* Special case handling for unweighted OP_OR (and "OR" operations which
+  can occur in other contexts), which notably speeds up wildcards which expand
+  to a lot of terms.
+
+* Improve sinking AND_NOT below positional checks.  We already handled this if
+  the AND_NOT wasn't at the top of the AND-like cluster, but now we should
+  handle it in all cases.
+
+* Optimise away subqueries with max weight 0 on the RHS of OP_AND_MAYBE.
+  Unless we're under OP_SYNONYM and using a weighting scheme which uses
+  wdf such subqueries can't make any difference to the result.  Based on patch
+  by Richard Boulton in #400.
+
+* Optimise away MatchAll when part of an and-like query.  `foo (NOT bar)` is
+  now turned into the same PostList tree as `foo NOT bar`, whereas previously
+  the former included an extra all-docs postlist.  To enable this to work
+  cleanly the QueryParser now scales MatchAll weights by 0 in a pure NOT, which
+  seems better in general anyway.
+
+* Posting lists used inside the matcher no longer have a reference count
+  (only needed for those used by Xapian::PostingIterator) which reduces memory
+  usage during the match a little.
+
+* The mechanism PostingSource objects used to tell the matcher that their
+  maxweight has changed is now simpler and more efficient.
+
+* Remote shards are now handled by merging MSet objects rather than feeding
+  them into the standard matcher via MSetPostList.
+
+* The matcher now waits for remote databases in parallel and handles
+  their results as they become available.
+
+* Simplify clamping of wdf to <= doclen for OP_SYNONYM.  We approximate
+  the wdf of the synonymm, but want to allow weighting schemes to assume
+  it doesn't exceed the document length.  We now only clamp when need_stat(WDF)
+  and need_stat(DOC_LENGTH) have both been called - when they both have we can
+  rely on having both stats, so the clamping is cheap, and otherwise the
+  weighting scheme can't reasonably rely on wdf <= doclen.  This completely
+  avoids the need to compute whether each wildcard or edit distance expansion
+  is wdf-disjoint.
+
+chert backend:
+
+* Remove the chert backend.  Use glass instead.  You can convert a chert
+  database to glass with 1.4.x using `copydatabase`:
+  https://getting-started-with-xapian.readthedocs.io/en/latest/advanced/admin_notes.html#converting-a-chert-database-to-a-glass-database
+
+glass backend:
+
+* Protect glass table file descriptors from stray writes.  Modern platforms
+  support the POSIX pwrite() function, and when available we only use this to
+  write to these tables.  After opening, we can set the file position to a
+  really high value so that if user code or another library (or errant code in
+  libxapian itself) writes to our file descriptor then it'll fail rather than
+  corrupting the database.  Microsoft Windows lacks pwrite(), so there we
+  achieve equivalent protection by using lower-level platform-specific
+  functions to open the file with "overlapped IO" enabled, which makes write()
+  fail with EINVAL.
+
+  A suitable value to set the file position to depends on the platform so we're
+  checking platforms before enabling it there.  Currently this protection is
+  enabled for AIX, Cygwin, DragonFlyBSD, Emscripten, FreeBSD, Linux, macOS,
+  Microsoft Windows, NetBSD, OpenBSD and Solaris.  If you'd like to see this
+  on another platform, please talk to us.
+
+  Partly addresses #651.
+
+* Simplify recovery from failed commit() by handling it like an explicit
+  cancel().
+
+* Reduce overheads of PostList positional data support.  Most PostList objects
+  aren't involved in phrases or OP_NEAR during the match, so avoid the overhead
+  of a position list object when we know we won't need it.
+
+* We now avoid copying interpolative coded positional data in order to iterate
+  it in most cases.
+
+honey backend:
+
+* New backend.  Currently honey doesn't support update - it must be created
+  from a glass database using xapian-compact.
+
+  Honey imposes a restriction on wdf values which previous backends haven't:
+  Each term in a honey database must either always have wdf=0 (i.e. a boolean
+  term) or never have wdf=0.  This seems a logical requirement which is likely
+  to be true anyway, but requiring it allows us to encode posting lists more
+  compactly in some cases.
+
+remote backend:
+
+* Support IPv6 for remote backend and replication.  Fixes #374.
+
+* Overhaul remote protocol (version 47.0).  Most notable changes:
+
+  + Integers and string lengths are now encoded in way a that's faster and
+    usually results in a smaller encoding.  Fixes #782, reported by Germán M.
+    Bravo.
+
+  + Use little endian IEEE-754 format for serialising doubles which is faster
+    for platforms which use this format natively (as almost all modern
+    platforms do).  Fixes #673.  Patch from Tanmay Sachan.
+
+  + The ordering of items in some messages and object serialisations has been
+    adjusted to simplify decoding.  Some items in messages which weren't
+    actually used by the recipient have been removed.
+
+  + Prefix-compress term names when serialising stats.  This particularly saves
+    lot of network traffic for OP_WILDCARD.  Fixes #638
+
+  + Replies containing data for PositionIterator, PostingIterator and
+    TermIterator used to be sent as a reply per entry, but are instead now sent
+    as a single message containing a blob of encoded data which is decoded
+    lazily upon iteration.
+
+  + Avoid updating the cached database stats in some cases where we don't
+    actually use them.
+
+  + Support remote use of synonyms.  Synonym expansion in the QueryParser is
+    currently handled locally with the synonym data sent across the link, which
+    may mean this doesn't scale well if you have a lot of synonyms.  Partly
+    addresses #178.  Patch from Gaurav Arora.
+
+  + Support remote use of KeyMaker objects.  Xapian::MultiValueKeyMaker now
+    supports this out of the box, and user Xapian::KeyMaker subclasses can too
+    by implementing name(), serialise() and unserialise() methods.  Fixes #413,
+    originally reported in #384 by Marek Mizier.
+
+  + Implement TermIterator::positionlist_count() for remote databases.
+
+* Eliminate a copy when reading remote document data.
+
+inmemory backend:
+
+* PostingIterator::get_description() on an iterator from an inmemory database
+  now includes the term name (like it does for other backends).
+
+build system:
+
+* We now require a C++17 compiler to build Xapian.  This means if you're using
+  GCC you'll need at least GCC 7.0.  Compilers which haven't been updated to
+  support C++17 are no longer supported (e.g. HP's aCC, IBM's xlC, and Sun's
+  C++ compiler).
+
+* If C++23 or C++20 support is detected it will be enabled.  This allows us
+  to opportunistically take advantage of newer language and library features in
+  cases where this can reduce overhead, for example
+  __cpp_lib_associative_heterogeneous_erasure from C++23.
+
+* Use AC_CONFIG_MACRO_DIRS, which replaces the need to specify the same
+  directory via both AC_CONFIG_MACRO_DIR and ACLOCAL_AMFLAGS.  It was added in
+  automake 1.13, so that's now the minimum required version (was 1.12.2).
+
+* New --disable-gpl-libxapian configure option.  This disables backends which
+  still use unrelicensable code - if any such library code still gets compiled,
+  the build should fail with a compile-time error.  The main thing such a
+  build currently lacks is a disk-based backend which supports updating
+  databases.
+
+documentation:
+
+* Move more documentation to "Getting Started with Xapian" or the Xapian
+  developer guide.  Partly done by a patch from James Aylett.
+
+* Use the doxygen @since command where appropriate in API docs.
+
+tools:
+
+* xapian-compact: Add --backend option to provide access to the new ability to
+  convert glass to honey via compaction.
+
+* xapian-quest: Promote the "quest" example to a tool, and rename to
+  xapian-quest.
+
+* xapian-quest: Support weighting scheme parameters in --weight option.
+
+portability:
+
+* Support building with emscripten.  Patch from Peter Salomonsen.
+
+* Eliminate all remaining uses of atoi(), strtol(), etc in the library.  Calls
+  to strtod() are also avoided if std::from_chars() is available with support
+  for double.  The replaced calls are potentially problematic in a
+  multithreaded application if setlocale() is called by another thread at the
+  same time.  See #665.
+
+* Add XAPIAN_VISIBILITY_INTERNAL for API class methods which aren't part of the
+  public API and only get called from within the library - e.g. a common
+  pattern is a constructor Foo(Foo::Internal*).  This means symbols for these
+  methods won't get exported from the shared library, reducing the number of
+  runtime relocations and speeding up dynamic library loading a little.
+
+* Dispatch remote message codes using a switch statement instead of an array of
+  function pointers which reduces the number of relocations needed to load the
+  dynamic library, reducing start up time.
+
+* Move some code only used by xapian-tcpsrv out of libxapian, which eliminates
+  some of the remaining "private API" symbols, reducing the number of
+  relocations needed to load the dynamic library and so reducing start up time.
+  (see #63).
+
+* Define ZLIB_CONST to get const-correct zstream API.  This makes the minimum
+  zlib requirement 1.2.5.2, but that was released 2011-12-17 so it's unlikely
+  to be a problem for anyone.
+
+* Microsoft Windows: Use QueryPerformanceCounter() for creating unique pipe
+  names for "prog" remotes.  We were using a static variable as a counter
+  but that could potentially result in non-unique pipe names in multi-threaded
+  use.
+
+* Microsoft Windows: Stop using the Microsoft-specific _set_errno() function
+  for setting errno, which we were using in just one place in the code - in
+  more than 30 other places in core we just assign to errno directly.  The
+  _set_errno() docs don't give any reason why it's necessary and a conforming
+  compiler implementation should support directly assigning to errno.
+
+* Microsoft Windows: Simplify listening socket handling.  We already assume at
+  least Vista, so we can just use SO_EXCLUSIVEADDRUSE and fail if we can't set
+  it.  This eliminates the hacky mutex we were using to try to prevent multiple
+  servers from listening on the same port.
+
+packaging:
+
+* We no longer provide RPM spec files.  In the early days of Xapian it was
+  perhaps useful to provide them so that people could build their own RPM
+  packages, but now all mainstream distros seem to provide packages, and
+  doubtless maintain their own packaging separately.
+
+debug code:
+
+* Update make targets for generating lcov code coverage reports.  It seems
+  --disable-shared is no longer required (even as far back as Debian stretch
+  for example) so remove it and instead provide a generic mechanism to allow
+  the user to specify extra configure options.
+
+* xapian-inspect-honey: New tool for honey databases, equivalent to the
+  xapian-inspect debug tool for glass databases.
+
+* Allow using UBSan's unsigned-overflow check.  C and C++ unsigned overflow
+  has defined behaviour (unlike signed overflow) but it's often not expected
+  to happen so may indicate a bug.  UBSan supports an unsigned-overflow check
+  (currently only in the clang version) so we've annotated the few places in
+  the code where we deliberately rely on unsigned overflow, eliminated a few
+  cases where we can easily not rely on it, and added this check to the
+  clang-sanitisers CI job.
+
+Xapian-core 1.4.31 (2026-02-23):
+
+API:
+
+* Database::get_spelling_suggestion(): Remove a flawed optimisation which was
+  rejecting candidate corrections based only on how many n-grams match.  This
+  can unfortunately reject the best (or indeed only) candidate within the
+  requested number of edits.
+
+  Profiling with an example dictionary of 244506 German words, searching for a
+  correction takes an extra ~2 milliseconds with this fix applied (21% more
+  time when timing opening the database and calling get_spelling_suggestion()).
+  Xapian 2.0.0 will include several optimisations to the edit distance
+  calculator which mean that Xapian 2.0.0 (which also includes this fix) is
+  actually slightly faster than Xapian 1.4.30 (without this fix).
+
+  Reported by Veloman Yunkan.
+
+* Database::compact(): FULLER compaction now does exactly the same as FULL.
+  Previously FULLER did the same as FULL but in addition it increased the
+  maximum size of the low-level items in the database tables.  The idea
+  was that this would reduce the overhead required because larger items
+  would not need to be split into as many pieces (or even split at all in
+  some cases).
+
+  A downside of this was that it violated the design of the Btree format
+  slightly and this resulted in corner-case bugs which are tricky to fix.
+  Also while FULLER did result in smaller compacted databases when it was
+  added for the quartz backend in 2005, testing with the glass backend in
+  2026 showed it actually gives **larger** output than FULL for typical
+  databases.
+
+  Fixes #842, reported by Veloman Yunkan.
+
+* Query: Attempting to construct a pairwise Query from an operator and two
+  `char*` or `const char*` term names failed to compile because pointers are
+  iterator types and matched the template which allows construction from a pair
+  of iterators which are meant to dereference to give a type convertible to
+  std::string or Xapian::Query or Xapian::Query*.  We've solved this by only
+  enabling this template for iterators where sizeof(value_type) is not 1.
+
+* QueryParser: Improve FLAG_PARTIAL handling for stopwords.  With FLAG_PARTIAL,
+  we expand a partial word at the end of the query as a wildcard, but also
+  include the term that the word would normally generate as an alternative.
+  This is now extended to considering if the term would normally be omitted as
+  a stopword - if so FLAG_PARTIAL now just expands it to be a wildcard.
+
+* RangeProcessor: Don't require prefix/suffix on empty bound when flag
+  RP_REPEATED is specified (so now `..$10` and `20kg..` work).  Case noted by
+  James Aylett in the "getting started" guide.
+
+* ValueRangeProcessor: Don't require prefix/suffix on empty bound.
+
+* Fix incorrect container and iterator traits for Xapian API classes.  Fixes
+  #850, reported by Daniel Colascione.
+
+testsuite:
+
+* Extend generated tests to cover newer Xapian::Weight subclasses and
+  Xapian::Utf8Iterator.
+
+glass backend:
+
+* Compacting a database with corrupt item sizes could try to copy an
+  item outside of the allocated block.  Now we throw DatabaseCorruptError
+  in this situation.  Not realistically exploitable (you would need to
+  run compact on a carefully crafted corrupt Xapian database made by an
+  attacker).  Patch from A. Jiang in https://github.com/xapian/xapian/pull/337.
+
+* Opening a database table now throws DatabaseCorruptError if the number of
+  levels is non-zero but the `fake_root` flag is set.  This flag should mean
+  that the table hasn't been used yet.
+
+build system:
+
+* Suppress a bogus `0` line which was appearing in configure output due to the
+  SONUMBER check which was added in 1.4.29.
+
+documentation:
+
+* The API documentation for Xapian::Stem has always listed `english_lovins` and
+  `english_porter`, but these haven't worked for over 18½ years (since 0.9.10).
+  Nobody has reported this before now and we only noticed while merging some
+  new stemming algorithms so we've aligned the docs with long-term reality.
+  These stemmers have always been available under the names `lovins` and
+  `porter` respectively.
+
+* Update API documentation wording about `dutch_porter`.
+
+* docs/stemming.rst: Update to include current locations of vocab and
+  stopwords.
+
+* docs/stemming.rst: Expand stemming example to include `-s` suffix as
+  conflating singular and plural noun forms is arguably the most important
+  thing an English stemmer does.
+
+* docs/stemming.rst: Replace out-dated list of supported stemming algorithms
+  with a link to the up-to-date list in the Xapian::Stem API docs.
+
+* Document how to use `XAPIAN_AT_LEAST()` if you still want to support Xapian
+  versions before it was added (1.4.2).  An obvious approach works with newer
+  Xapian but fails with < 1.4.2 so warn about this and recommend an approach.
+
+* Improve API documentation for `Database::size()` to note when it was added
+  and to point people who actually want the number of documents to
+  get_doccount().
+
+* queryparser.rst: Remove unwanted paragraph break.
+
+* remote.rst: Fix outdated information - writable remote DBs has been supported
+  since Xapian 0.9.7!
+
+* replication.rst: Minor improvements to the replication docs.
+
+* Improve DecreasingValueWeightPostingSource API documentation.  The
+  description of the required ordering of weights was inverted from what's
+  actually required, and we now suggest to achieve the required document
+  ordering by arranging the order documents are indexed in.
+
+* Document what FixedWeightPostingSource is useful for as this doesn't
+  seem obvious.
+
+* Improve DateRangeProcessor API documentation to cover the accepted date
+  formats and how ambiguous cases are resolved.
+
+* Update references to 1.5.0 - the upcoming new release series will commence
+  with 2.0.0.
+
+* Fix some typos in old NEWS entries and code comments.  Patch from Stefan
+  Weil.
+
+tools:
+
+* quest: Add --stem-strategy option.
+
+* quest: List stemming languages in --help.
+
+* quest: List valid flags/query ops if an invalid one is specified.
+
+portability:
+
+* Use close_range() to implement closefrom() on Android (available
+  since NDK r34) and Cygwin (>= 3.5.0); we fallback to looping over possible
+  fds if close_range() is not available at runtime.
+
+debug code:
+
+* Fix build with `--enable-assertions=partial`.  Patch from A. Jiang.
+
+* Move an assertion that a pointer is not NULL to before where we dereference
+  it.
+
+Xapian-core 1.4.30 (2025-11-20):
+
+API:
+
+* Stem: 1.4.28 changed the English stemmer code to remove an exception
+  for "skis" which we incorrectly thought wasn't needed.  This was not
+  intended to be a functional change, so we've restored the exception.
+
+* Stem: Fix a bug in Snowball's runtime code for decoding 4-byte UTF-8
+  sequences.  This affects grouping checks against Unicode codepoints U+40000
+  to U+7FFFF and U+80000 to U+FFFFF, and we would decode a higher codepoint
+  value.  The largest codepoint used in a grouping in any stemmer we ship is
+  U+0585 so this seems to be a latent bug.  Reported in Snowball by Stephane
+  Carrez.
+
+documentation:
+
+* The API docs still said DatabaseError was thrown for operations on a closed
+  database, but since 1.4.10 we throw its subclass DatabaseClosedError instead.
+
+* INSTALL: List the more commonly used variable-like configure options and
+  reorder the sections to present the information in a more logical order.
+
+portability:
+
+* Fix instance of undefined behaviour in Database::check() for glass databases.
+  We would end up deleting a pointer to a non-virtual class via a pointer to
+  the base class, so delete ended up called with the wrong size.  In practice
+  this probably doesn't cause problems (it was detected by checks added to
+  recent valgrind versions).
+
+* Fix probe for -Bsymbolic-function on AIX.  The AIX linker doesn't support
+  this flag, but it only emits a warning when it is used and that warning
+  didn't match any of the patterns we already check for so we were detecting it
+  as supported with the result that the build would use this option and AIX ld
+  would emit a warning about ignoring it as unsupported.
+
+* Fix compiler warnings in testsuite when building on AIX.
+
+Xapian-core 1.4.29 (2025-04-18):
+
+build system:
+
+* 1.4.28 had its library version information incorrectly set.  This resulted in
+  the shared library having an incorrect SONUMBER - e.g. on Linux,
+  libxapian.so.29 instead of libxapian.so.30.  This release has been made to
+  fix this problem.  We have added a check to configure that the SONUMBER has
+  the expected value to avoid repeats of this (it happened previously in 1.2.11
+  as well).  Thanks to Vitaly Chikunov and Sven Joachim for reporting this.
+
+Xapian-core 1.4.28 (2025-04-17):
+
+API:
+
+* Stem:
+
+  + Optimise stemming algorithms.  The biggest improvement is for Tamil where
+    there's a 47% reduction in the time taken to stem all the words in our test
+    vocabulary.  Less dramatic improvements for Arabic, Danish, Dutch, English,
+    French, Finnish, Irish, Kraaij-Pohlmann, Lithuanian, Norwegian, Swedish and
+    Turkish.
+
+  + Add dutch_porter as alias for current dutch stemmer for forward
+    compatibility with the next release series where we will have
+    kraaij_pohlmann as the default dutch stemmer.
+
+testsuite:
+
+* stemtest: Add support for gzipped vocabulary lists, which means we
+  no longer skip testcase stemdict for Arabic.
+
+glass backend:
+
+* Improve exception message when asked to store too large a tag.  Reported by
+  Jean-Francois Dockes on xapian-discuss.
+
+* Optimise reading tag.  A special case for handling the first chunk of an item
+  gives a measurable speed improvement.  Reported by uis.
+
+portability:
+
+* Work around autoconf 2.72 AC_SYS_LARGEFILE bug.  This configure probe always
+  fails when run with the C++ compiler, like we do, which leads to large file
+  support not being enabled when it isn't the default (e.g. on 32-bit Linux
+  platforms).  Reported by Adrian Bunk.
+
+* Fix C23 compatibility issues.  GCC 15 fails with compile errors due to C23
+  dropping support for old-style function declarations and function
+  definitions.
+
+* Avoid calling frexp() on infinity or NaN.  The specification for frexp() says
+  it returns an "unspecified" exponent for these cases.  Reported by awilfox.
+
+* Fix GCC warning with 32-bit off_t.  Reported by Adrian Bunk.
+
+* Fix compile error with newer emscripten.
+
+Xapian-core 1.4.27 (2024-12-06):
+
+testsuite:
+
+* Fix testcase unsupportedcheck1 for --disable-backend-remote.  Reported by
+  Matthieu Gautier in #832.
+
+* Merge testcases unsupportedcheck1 and stubdb9 which are essentially the same
+  testcase!
+
+build system:
+
+* Fix build with --disable-backend-chert.  Patch from Matthieu Gautier in #832.
+
+portability:
+
+* Add missing include of <cerrno> to fix build failure on macOS 15.
+
+Xapian-core 1.4.26 (2024-07-18):
+
+API:
+
+* Weight: Document that Weight statistics DOC_LENGTH_MIN, DOC_LENGTH_MAX and
+  WDF_MAX are for the shard rather than the whole database.  Usually this is
+  what we want as with a sharded database it gives tighter bounds and so better
+  match optimisation, but it does make them unsuitable for uses such as
+  calculating a suitable offset to add to every get_sumextra() to allow
+  implementing a weighting formula which can give a negative term independent
+  weight contribution.  This case will be addressed in the next release series
+  which also provides bounds such as DB_DOC_LENGTH_MIN which are for the whole
+  database.
+
+* LMWeight: This class was meant to implement the "Language Model" Weighting
+  scheme, but we've discovered the implementation was incorrect and fixing it
+  requires ABI-incompatible changes.  For 1.4.x we need to leave it in place so
+  as not to break existing code, but it's now deprecated and we recommend
+  avoiding using it.  It will be removed in the next release series and
+  replaced with new separate classes implementing Language Model weighting with
+  each smoothing.  Thanks to Sourav Saha for reporting this problem.
+
+* PL2PlusWeight: Fix bug in implementation of formula.  Our variable mean is
+  1/lambda_t from the PL2+ paper, so we need to check mean>1 for lambda_t<1 but
+  we were actually checking mean<1 instead.  The result of this is that PL2+
+  actually returned a zero weight unless the term occurred frequently enough in
+  the collection.
+
+* TradWeight::get_maxpart() no longer forces the wdf_max value to be at least
+  one.  We used to do this so that a non-existent term in the query would cause
+  it not to achieve 100%, but now we calculate percentages based on the number
+  of matching subqueries, and it is more natural for a non-existent term to get
+  zero weight (ditto for a term which always has wdf 0).  This was already
+  addressed for BM25Weight in 1.2.1 back in 2010.
+
+* Enquire::set_expansion_scheme(): Add "prob" as new preferred name for
+  probabilistic query expansion, with the previous "trad" still being accepted
+  for now.
+
+* QueryParser::set_prefix() and set_boolean_prefix(): Allow an optional
+  trailing `:` on the field name.  This makes the API here more consistent with
+  ranges, where you need to include the `:` if you want one.  See #720.
+
+testsuite:
+
+* Catch and report if a testcase causes signal SIGPIPE.
+
+* Suppress valgrind errors about calling memmove() with overlapping source and
+  destination (which is valid, valgrind is just confused when memcpy() and
+  memmove() share an implementation).
+
+* Add more testing of weighting schemes.
+
+* Mark checkstatsweight3 with a sharded database as XFAIL (expected to fail).
+  This testcase was previous not run for sharded databases, with a FIXME
+  comment noting this.  Investigating shows it's due to a bug where we use the
+  shard's termfreqs rather than those for the whole database for an expanded
+  wildcard, but this seems complex to fix.
+
+matcher:
+
+* Fix minor wildcard weighting bug spotted while reading the code.  We were
+  returning too high a value from the first call to get_maxpart() in some
+  cases.  Mostly this just means the matcher continue working when it could
+  have stopped, but it will also cause MSet::get_termweight() to return a
+  higher value than the actual known upper bound.
+
+glass backend:
+
+* Simplify file descriptor handling for lock files on Unix-like platforms
+  which don't support OFD locks.  This eliminates corner cases where we
+  could end up with file descriptors without close-on-exec set in the main
+  process.
+
+remote backend:
+
+* xapian-tcpsrv: Use _exit() instead of exit() to end child processes which
+  avoids the risk of duplicated output from stdio buffers getting copied by
+  fork() then flushed in both processes.
+
+* Simplify file descriptor handling when launching prog remote.
+
+inmemory backend:
+
+* Fix bug adding posting entries.
+
+build system:
+
+* Improve probe for -Bsymbolic-functions.  MSVC doesn't support this flag, but
+  it only emits a warning when it is used and that warning didn't match any of
+  the patterns we already check for so we were detecting it as supported.
+
+* Report result of probe to determine compiler support for -Werror or
+  equivalent.
+
+documentation:
+
+* Improve MSVC build instructions.  Thanks to Baran Demir for feedback.
+
+* Improve formatting of stat_flags API documentation.
+
+* sorting.rst: Replace custom weighting scheme documentation with a link to the
+  more complete equivalent in "Getting Started with Xapian".
+
+* remote.rst: Update to reflect that user metadata is fully supported (since
+  1.2.4).
+
+portability:
+
+* Fix to compile as C++20 and C++23.
+
+* Resolve SIGPIPE issues on NetBSD, which were causing testcase keepalive1 to
+  fail.  These seem to be due to SO_NOSIGPIPE not working correctly there so
+  we now use MSG_NOSIGNAL instead for NetBSD.
+
+* Include <errno.h> for sys_errlist.  We already do this for the configure
+  check but were failing to when actually using sys_errlist, which probably
+  affects at least NetBSD.
+
+* configure: Fix clang detection which wasn't working when configure determined
+  a -std=X option was needed to get C++11 support.  The obvious symptom was
+  that --enable-werror wouldn't add -Werror.
+
+* configure: NetBSD automatically pulls in library dependencies, so set
+  link_all_deplibs_CXX=no there.
+
+* Avoid using sprintf() if snprintf() is available, even in cases where the
+  output size is bounded, to avoid deprecation warnings on macOS.  For 1.4.x
+  we still fall back to sprintf() to avoid a point release breaking support
+  for any platform still lacking snprintf().
+
+* Stop linking with --enable-runtime-pseudo-reloc.  We were requiring this for
+  cygwin and mingw, but from the documentation it should only be needed for a
+  library which exports data symbols, which we don't do, and the build works
+  without it.
+
+* Use `override` for subclassing functors.  This is good practice as it gives a
+  clear compile error if we have to change the signature of an virtual method
+  on such a functor.  See #830.
+
+* Avoid redefining MSVC-specific macros if they are already defined.  This
+  avoids an MSVC warning and potential for the code to be ill-formed if the
+  user defines these macros with a value other than 1.  Patch from A. Jiang
+  (https://github.com/xapian/xapian/pull/334).
+
+Xapian-core 1.4.25 (2024-03-08):
+
+API:
+
+* MSet::get_eset(): Don't fetch the collection frequency for each term unless
+  we're using the Bo1EWeight expansion scheme which actually needs it.  In a
+  simple test this reduced the time taken to do a search and generate expand
+  terms by a third.  Partly addresses #264.
+
+* QueryParser::parse_query(): Fix parse error when using FLAG_CJK_NGRAM (aka
+  FLAG_NGRAMS) with a query string which has non-CJK followed by whitespace,
+  CJK, and more non-CJK.  Patch from Robert Stepanek
+  (https://github.com/xapian/xapian/pulls/331).
+
+testsuite:
+
+* unittest: Improve sparse file detection by using SEEK_HOLE, which is
+  specified by POSIX and seems to be widely supported.  On platforms without it
+  or on an FS with a > 128K block size we will skip the tests involving a 4GB
+  file, but that's acceptable.  On ZFS st_blocks reports the number of blocks
+  after compression and also lags behind when data has only been committed to
+  the journal, which means our previous check based on st_blocks couldn't be
+  made to work without potentially falsely detecting sparse file support.
+  Fixes #823, reported by someplaceguy.
+
+* apitest: Enable adddoc2 and adddoc5 testcases for sharded databases.  We
+  now just skip the TermIterator::get_termfreq() checks in this case.
+
+glass backend:
+
+* Check Btree level value from disk is in range, which avoids potential out of
+  range access on corrupt database.  Fixes #824, reported by group13.
+
+* Reject invalid blocksize read from corrupted version file.  Throw
+  DatabaseCorruptError if value is out of range or not a power of two.
+
+* Optimise allterms iteration.  Most terms don't contain any zero bytes, and
+  for such terms the key for the first chunk in the termlist table is just the
+  termname so no decoding is needed when advancing the iterator.  This
+  optimisation is 8.4% faster in a simple test of iterating allterms via
+  xapian-delve.
+
+* Compaction of an empty non-optional table now gives an empty output, whereas
+  previous it was one block in size (8K by default).  This isn't important in
+  general as the non-optional tables are not likely to be empty in a real
+  database, but it's helpful for making small test database and it seems weird
+  that compaction would make a database much larger in percentage terms in this
+  edge case.
+
+chert backend:
+
+* Check Btree level value from disk is in range, which avoids potential out of
+  range access on corrupt database.  Fixes #824, reported by group13.
+
+build system:
+
+* configure: DragonflyBSD automatically pulls in library dependencies, so set
+  link_all_deplibs_CXX=no there.
+
+documentation:
+
+* Document allterms_begin() and termlist_begin() iteration order.  Thanks to
+  Eric Wong for querying this.
+
+* Document TermIterator::get_termfreq() quirk.  In the case of a TermIterator
+  from termlist_begin() on a Document from a sharded database, you get term
+  frequencies from just the shard.  Fixes #423
+
+portability:
+
+* Support building on platforms without AI_NUMERICSERV (e.g. macOS 10.5).
+  Patch from Sergey Fedorov.
+
+Xapian-core 1.4.24 (2023-11-06):
+
+testsuite:
+
+* apitest: Add coverage that docids generated by replace_document() don't wrap
+  to nomoredocids1 testcase.
+
+* unittest: Improve block file functions unit test which were (unintentionally)
+  trying to test with a 4TB sparse file, which not all platforms support.  A
+  file just over 4GB is enough to test what we want, and if we trying to create
+  one fails with errno EFBIG, indicating the file size is too large, we now
+  skip the rest of the testcase.
+
+* unittest: Catch Xapian::Error exceptions and rethrow the std::string returned
+  by get_description() as the utestsuite harness doesn't know about
+  Xapian::Error so was confusingly reporting it as "UNKNOWN EXCEPTION".
+
+* The testsuite no longer reports NULL as the address associated with a
+  signal when running on a platform without both sigaction() and SA_SIGINFO.
+
+matcher:
+
+* Reorder fields in each MSet entry to avoid structure padding on x86-64 and
+  probably other 64-bit platforms.  This reduces the memory needed to hold an
+  MSet by 8 bytes per entry on such platforms.
+
+glass backend:
+
+* Eliminate unnecessary memory allocations.  When committing changes, we were
+  allocating blocks for all possible levels of the built-in cursor in each
+  writable table, even those levels that weren't in use.
+
+  The worst case is a really small database with all optional tables existing
+  which would have 54 unused allocations of blocksize + 8 bytes, which with the
+  default 8K block size is ~432KB per WritableDatabase; if you explicitly ask
+  for 64K block size it'll be ~3.4MB.
+
+  For a more typical WritableDatabase it's probably going to be more like half
+  these numbers.
+
+build system:
+
+* Add --enable-werror configure option.
+
+* configure: Only auto-enable -D_FORTIFY_SOURCE=2 if it works without
+  additional libraries and remove the hard-coded block against using it
+  on mingw.  Mingw-w64 v11.0.0 eliminated the requirement to link with -lssp
+  and with this change we now auto-enable -D_FORTIFY_SOURCE=2 for it.
+
+portability:
+
+* We now avoid triggering SIGPIPE in library code on most platforms.
+
+  On Unix-like platforms we want to avoid generating SIGPIPE when writing to a
+  socket when the other end has been closed since signals break the
+  encapsulation of what we're doing inside the library - either user code would
+  need to handle the SIGPIPE, or we set a signal handler for SIGPIPE but that
+  would handle *any* SIGPIPE in the process, not just those we might trigger,
+  and that could break user code which expects to trigger and handle SIGPIPE.
+
+  We don't need SIGPIPE since we can check errno==EPIPE instead (which is
+  actually simpler to do).
+
+  It seems all current Unix-like platforms now support SO_NOSIGPIPE or
+  MSG_NOSIGNAL, so currently we just fall back to setting SIGPIPE to SIG_IGN.
+  If there are actually current platforms which have SIGPIPE without
+  SO_NOSIGPIPE or MSG_NOSIGNAL then we can look at other ways to avoid
+  generating the signal.
+
+* Avoid MSVC warning C4312 which is a reasonable warning in general, but in
+  this case we checked that the value wasn't truncated when cast to an int.
+
+* Use TEST_EQUAL_DOUBLE in netstats1 testcase which fixes testcase failure on
+  FreeBSD.
+
+* Address GCC13 -Wredundant-move warnings.  In 1.4.10 we added std::move()
+  here to address clang warnings from -Wreturn-std-move (enabled by -Wall).
+  Just removing the std::move() reintroduces those warning with clang 8 and
+  clang 11 (but not clang 13 or later) but changing to apply a static_cast
+  to the returned type seems to make all versions of both compilers happy.
+
+* Fix build with UCRT64 variant of mingw-w64 by stopping defining
+  __MSVCRT_VERSION__ by default.  It looks like doing so hasn't been needed
+  since 2015.
+
+* Add workaround for testsuite failures under Wine where attempting to unlink a
+  stub file sometimes fails with errno == EACCES and _doserrno ==
+  ERROR_SHARING_VIOLATION.  This is what you'd get if the file was still open,
+  but we've already closed it.  Sleeping for a second and retrying makes it
+  work, so we now do that.  It'd be better to get to the bottom of what's going
+  on, but I've run out of ideas and this workaround is only in the testharness
+  at least.
+
+debug code:
+
+* xapian-inspect:
+
+  + `goto` and `until` now go to the entry *after* the specified key if there's
+    no exact match, which seems more natural.
+
+  + New `count` command.  This is actually just the same as `until` which
+    already reports a count of the number of entries advanced by, except that
+    `count` suppresses printing each entry.
+
+Xapian-core 1.4.23 (2023-07-07):
+
+API:
+
+* Add `FLAG_NGRAMS` as a preferred new alias for `FLAG_CJK_NGRAM` and
+  `SNIPPET_NGRAMS` as a preferred new alias for `SNIPPET_CJK_NGRAM`.
+  In the next release series these features have been expanded to cover many
+  more languages so the "CJK" in the name has become inaccurate as it stands
+  for "Chinese, Japanese and Korean").
+
+* Database::check(): Improve the exception message for an empty filename from
+  "Failed to rewind file descriptor -1 (Bad file descriptor)" to "Couldn't find
+  Xapian database or table to check (No such file or directory)".
+
+testsuite:
+
+* The test harness now supports generated databases for all backends and
+  all testcases which can use generated databases now do, which together
+  improve test coverage as we now run many testcases under more backends.
+  Generated databases can also be cached, which helps speed up the test
+  suite.
+
+* Remove some testcases which are now redundant with other testcases or
+  no longer useful for other reasons.
+
+* Add regression test for #781, reported by Germán M. Bravo.  This bug was
+  fixed 4 years in 1.4.12 but a clean regression test only became possible
+  thanks to changes in this release.
+
+* The test harness would attempt to throw a Xapian::Database (rather than
+  Xapian::DatabaseError) if it failed to rename a temporary database to its
+  final name.  This would fail because there wasn't a database called "rename
+  failed".  Reported by stark3y on #xapian.
+
+* apitest: Fix exceed32bitcombineddb1 testcase (which only runs with
+  --enable-64bit-docid).
+
+* apitest: Fix nomoredocids1 when configured with --enable-64bit-docid.
+
+* Add testcase for removal of positions for replaced doc (regression test for
+  bug in git master not present in 1.4.x).
+
+* unittest: Unit test block file functions
+
+* Stop using std::endl in tests since this seems to be C++ best practice
+  as it causes a flush of the stream, which is rarely actually wanted.  Also
+  often the replacement \n can be combined with a string literal.
+
+* Use Xapian::docid for document ids in testcases.  Using `int` or `size_t`
+  works, but is less correct and can trigger compiler warnings because not all
+  values are representable.
+
+matcher:
+
+* BM25PlusWeight: With some parameter combinations we were requesting stats we
+  didn't actually need.  Confirmed with Vivek Pal on IRC.
+
+glass backend:
+
+* Avoid unnecessary copying of data when adding an item to a B-tree table which
+  should speed up indexing a bit.
+
+* xapian-check: If the first chunk for a term is a continuation chunk, the
+  affected term was missing from the error message.
+
+* xapian-check: We now report the document id as context in many more error
+  messages.
+
+chert backend:
+
+* Fix wdf upper bounds used when search a modified chert-format
+  WritableDatabase object.  A bug introduced in 1.4.19 meant we were using the
+  wdf upper bounds from the last committed version of the database.  This bug
+  could cause assertion failures when configured with --enable-assertions.
+
+remote backend:
+
+* Fix thread-safety issue starting remote prog server.  Previously we did some
+  memory allocation in the child process after fork() but before we exec-ed the
+  specified program, but in a multi-threaded program (which libxapian might be
+  used in) it's only safe to call async-signal-safe functions in the child
+  process after fork() until exec, and malloc, etc aren't async-signal-safe.
+
+* If we failed to open /dev/null in the child process while starting a remote
+  prog server, we would try to throw an exception.  That's not going to work
+  well so now we just call `_exit(-1)`.
+
+inmemory backend:
+
+* Throw exception on docid overflow like we do in other backends.
+
+build system:
+
+* configure: When probing for socklen_t or equivalent include the same headers
+  as we do in the code to reduce the risk of configure deciding to use
+  socklen_t but it not getting defined in the code.
+
+* configure: When probing if a particular compiler or linker option is
+  supported, we were relying on the compiler exit status but some compilers
+  only warn about unknown options.  We now inspect the compiler's stderr
+  output to try to detect such cases.
+
+* configure: Avoid compiler warning during GCC version check when compiler
+  needs an option to enable C++11 support.
+
+* Avoid running pwd since the directories we need are available in automake
+  variables.
+
+documentation:
+
+* Suggest protocol buffers for structured document data.  Fixes #53.
+
+* Clarify documentation for release() methods.
+
+* Fix typo "shared database" to "sharded database" in API docs.
+
+* Document that transactions aren't atomic across shards.
+
+tools:
+
+* xapian-progsrv,xapian-tcpsrv: Support multiple DBs with --writable.
+
+* xapian-tcpsrv: Fix default timeouts in --help output which have been reported
+  as the name of the constant rather than its value since 1.3.3.
+
+* xapian-tcpsrv: When --one-shot is specified, don't do the usual test open of
+  the specified database(s) as it doesn't really seem useful in this case.  The
+  test harness uses --one-shot so this reduces overhead when running remote
+  tests.
+
+* Stop using std::endl in tools since this seems to be C++ best practice
+  as it causes a flush of the stream, which is rarely actually wanted.  Also
+  often the replacement \n can be combined with a string literal.
+
+portability:
+
+* Don't pass mode to open when it's unused as this triggers "missing O_CREAT or
+  O_TMPFILE?" warnings when compiling for Android.
+
+* Stop using INFINITY macro.  If the implementation supports floating point
+  infinities then HUGE_VAL gives us infinity as a double directly.  If not,
+  then it's the maximum finite value of a double.
+
+* Don't auto-enable _FORTIFY_SOURCE on mingw or mingw-w64.  Enabling
+  _FORTIFY_SOURCE on newer mingw-w64 requires linking with -lssp so we
+  attempted to stop automatically enabling it there in 1.4.19 but this fix
+  didn't actually work.  Trying to get this to work automatically has proved
+  difficult and I couldn't find evidence that _FORTIFY_SOURCE was actually
+  supported on mingw.  If it is, enabling manually will still work.
+
+* Fix mingw32 build with C++17 compiler, which ends up with std::byte
+  conflicting with byte typedefs in system headers, due to us having `using
+  namespace std;` in some of our internal headers.  Switch the ones which
+  are causing problems to more targetted `using std::string;`, etc instead.
+
+* Fix WIN32 build with --disable-backend-remote which was failing because we
+  were always trying to build common/socket_utils.cc which fails because
+  SOCKLEN_T hasn't been probed.  Fixes #821, reported by mgautier.
+
+* soaktest: Use C++11 <random> which is more portable than random().
+
+* In WIN32 builds, pass the program pathname separately to CreateProcess()
+  which is apparently more robust if the program pathname contains spaces.
+
+* Stop trying to set Microsoft-specific SO_EXCLUSIVEADDRUSE option on our
+  listening sockets.  It's not possible to set both SO_REUSEADDR and
+  SO_EXCLUSIVEADDRUSE so this call will always fail with WSAEINVAL, but we
+  were ignoring these errors because SO_EXCLUSIVEADDRUSE required admin
+  privileges in older OS versions.
+
+* Suppress MSVC deprecation warning for GetVersionEx since none of the
+  suggested replacements seems to actually provide the functionality we are
+  using from it.
+
+* Fix some warnings from MSVC in the fallback code for overflow-checked
+  arithmetic.
+
+* Support Enquire::set_time_limit() on GNU Hurd since Hurd now implements
+  timer_create().
+
+* Remove lingering traces of IRIX support as it's been dead for many years.
+
+debug code:
+
+* Fix build failure with --enable-assertions due to incorrect variable name in
+  assertion.  Patch from Alexei Kharchev in
+  https://github.com/xapian/xapian/pull/327.
+
+* Fix GCC warning with --enable-log.
+
+* Fix debug logging for 3 GlassDatabase methods to log their parameter.
+
+* Add a mechanism to support debug logging templated return types containing
+  commas.  This was added to fix a build failure on master with --enable-log
+  reported by ttyS3.
+
+Xapian-core 1.4.22 (2023-02-02):
+
+testsuite:
+
+* Expand canceltransaction1 to test value changes are rolled back.
+
+matcher:
+
+* Minor optimisations to DPHWeight and TfIdfWeight weighting formulae
+  calculations.
+
+* Optimise LatLongDistancePostingSource to avoid pow() call on each document
+  with default k2 setting.
+
+glass backend:
+
+* Fix bug in recovery from WritableDatabase::commit() failing.
+
+  If renaming to switch the new version file live fails (e.g. due to the disk
+  being full) we discard the changes, try to write and switch to a different
+  new version file with an increased revision (on failure of this too we close
+  the database), then throw DatabaseError.
+
+  Unfortunately the roll-back of state is not complete, and if we successfully
+  switch to the different new version file then that bad state persists on
+  disk.
+
+  In order for this bug to manifest, repeating essentially the same operation
+  which just failed needs to succeed which seems more likely to be a happen
+  when using a filing system which has more sophisticated freespace handling
+  (the reporter was using btrfs), though it's possible with any FS if another
+  process frees up disk space in the small window between the two operations.
+
+  Thanks to Uwe Kleine-König for reporting and especially for coming up with an
+  easy way to reproduce.
+
+build system:
+
+* configure: Enable -fno-math-errno if supported.  We don't make use of maths
+  function setting errno and if we tell the compiler that it can optimise them
+  better in some cases.
+
+documentation:
+
+* INSTALL: Document assumptions about platform features
+
+* INSTALL: Add section on clang version requirements.
+
+Xapian-core 1.4.21 (2022-09-22):
+
+glass backend:
+
+* Avoid throwing InvalidArgument when searching for overlong terms in some
+  cases.  Such terms can't match, but are valid to query for.  Patch from
+  Robert Stepanek in https://github.com/xapian/xapian/pull/313.
+
+chert backend:
+
+* Avoid throwing InvalidArgument when searching for overlong terms in some
+  cases.  Such terms can't match, but are valid to query for.
+
+build system:
+
+* Clean up cygwin and mingw configure checks.  When we check $host_os, always
+  anchor at the start (e.g. cygwin* not *cygwin*), and check for msys* as well
+  since that's a derivative of cygwin and behaves similarly for the things
+  we're checking here.
+
+* Update to use AX_CXX_COMPILE_STDCXX which is a replacement for
+  AX_CXX_COMPILE_STDCXX_11 (which we were using) which also supports newer C++
+  standards versions which will be useful.  For C++11 the only difference seems
+  to be that the macro now checks for attribute support - we use C++11
+  attributes so that seems a good thing.
+
+documentation:
+
+* INSTALL: Restructure MSVC section for clarity.
+
+* INSTALL: Mention -D_FORTIFY_SOURCE=3 too (fairly new - requires GCC 12).
+
+* Consistently say "macOS" not "Mac OS X", "OS X", etc.
+
+* admin_notes.rst:
+
+  + Update locking section to cover Open File Description locks
+
+  + Add some discussion of block sizes (fixes #819, reported by mgautier)
+
+  + Fix cut-and-paste error - we were suggesting that the docdata table only
+    exists if there's positional data.  Noted by Gaurav Arora.
+
+  + Improve markup
+
+examples:
+
+* Stop using std::endl in examples since this seems to be C++ best practice
+  as it causes a flush of the stream, which is rarely actually wanted.  Also
+  often the replacement \n can be combined with a string literal.
+
+portability:
+
+* Stop trying to check for incompatible C++ ABI between the compiler used to
+  build xapian-core and the compiler used to build code using xapian-core.
+
+  This check was helpful in the GCC 3 days, but ABI versions 2 and up are
+  compatible aside from obscure corner cases, and GCC now defaults to using the
+  latest ABI version it supports.  The result is that this check is no longer
+  useful enough to justify the noise.
+
+  We still check for incompatible _GLIBCXX_DEBUG between the library and
+  application builds, since that will cause things not to work, and the normal
+  error message doesn't make it clear what's wrong.
+
+  Reported by David Bremner.
+
+* Fix new warnings from GCC 12.
+
+* Avoid undefined value use when unpacking a key in a corrupted glass docdata
+  table.  We now skip further checks on the entry in this case.
+
+* Merge allocations in MSVC directory reading compatibility code so we can
+  allocate in a single malloc() call.
+
+* Add accept() wrapper which checks an assumption that Microsoft's SOCKET type
+  only actually holds 32 bit values even in 64 bit platforms and throws an
+  exception if violated.
+
+* Eliminate a use of sprintf.
+
+* Squash some unhelpful MSVC deprecation warnings.
+
+* Declare dummy invalid parameter handler noexcept to fix a warning from MSVC.
+
+* Include <stdlib.h> in configure check for sys_errlist as that's where it is
+  with mingw and MSVC.
+
+debug code:
+
+* Fix debug logging for Xapian::Internal::intrusive_ptr<const T>.
+
+  GCC 12.2 warned about infinite recursion in the old version, and this seems
+  to be the case.  This code has been there a long time, but is only used when
+  debug logging is enabled.  It does seem to be used, so presumably nobody's
+  tried to log something which triggered it.
+
+Xapian-core 1.4.20 (2022-07-04):
+
+API:
+
+* Throw DatabaseNotFoundError when the database directory doesn't exist or
+  when it doesn't contain a Xapian database.  Patch from Germán Méndez Bravo
+  in https://github.com/xapian/xapian/pull/258
+
+* Improve exception message for attempting to remove an empty term (the
+  exception type is still InvalidArgumentError).  Reported by David Bremner.
+
+testsuite:
+
+* Enable queryparser testcase for OR under NEAR, which has been supported since
+  1.4.3.
+
+* Expand some query-related testcases.
+
+matcher:
+
+* Optimise when a value range is a superset of the slot bounds but the value
+  slot frequency is not equal to the document count by replacing the lower
+  bound with an empty string to make the bounds check very cheap.
+
+* Avoid creating a PostList tree for an empty shard.  This avoids pointless
+  work in an uncommon case, but also by handling this up front the code in
+  PostList subclasses for query operators can assume the shard isn't empty
+  which simplifies the code in several places.
+
+* Remove lingering handling for database backends without slot bounds since
+  all backends have been required to support these since 1.4.11.
+
+* Fix collection frequency estimates for positional operators.  This affects
+  the weighting of positional operators in subqueries of OP_SYNONYM with
+  weighting schemes which use the collection frequency.
+
+glass backend:
+
+* xapian-check: Test decompress data in the spelling and synonym tables.
+  We don't have structure checking for these tables, but we can at least fetch
+  each entry and check for decompression problems.
+
+* Improve error if a block is detected as overwritten in WritableDatabase.
+  Drop "are there multiple writers?" as it's rarely a useful question to ask
+  since we started using fcntl() locking as it's now very hard to get multiple
+  concurrent writers on a database.  Instead suggest running xapian-check,
+  which is probably the best next step for a user who hits this problem.
+
+documentation:
+
+* Document precedence of NEAR and ADJ.
+
+* INSTALL: Note that MSVS 2022 works.
+
+tools:
+
+* quest: Add --freqs option to show term frequencies.
+
+* xapian-delve -v: Show value slot bounds and freq
+
+portability:
+
+* Fix to build with a C++20 compiler.
+
+* configure now probes for a declaration of strerror_r() before using it, since
+  a declaration is required in C++ code.
+
+* MSVC: Use intrinsics to implement addition with overflow check.
+
+Xapian-core 1.4.19 (2021-12-31):
+
+API:
+
+* New QueryParser::FLAG_NO_POSITIONS flag.  With this flag enabled, any query
+  operations which would use positional information are replaced by the nearest
+  equivalent which doesn't (so phrase searches, NEAR and ADJ will result in
+  OP_AND).  This is intended to replace the automatic conversion of OP_PHRASE,
+  etc to OP_AND when a database has no positional information, which will no
+  longer happen in the release series after 1.4.
+
+* Give a compile error for code which adds a Database to WritableDatabase.
+
+  Prior to 1.4.19, this compiled and effectively created a "black-hole" shard
+  which quietly discarded any changes made to it.
+
+  In 1.4.19 it's still possible to perform this operation by assigning the
+  WritableDatabase to a Database first, which is harder to fix.  This case
+  throws an exception on git master where it's easier to address.
+
+  Reported by David Bremner on #xapian.
+
+* Fix TermIterator::skip_to() with sharded databases which sometimes was
+  failing to advance all the way to the requested term.  Uncovered while
+  addressing warning from GCC's -Wduplicated-cond, reported by dcb in #816.
+
+* Clamp edit distance to one less than the length of the word we've been asked
+  to correct, which makes the algorithm we use more efficient.  We already
+  require any suggestion to have at least one character in common, so the only
+  change to suggestions is we'll no longer suggest corrections which are
+  twice as long or longer even if the edit distance would allow it, which
+  seems like an improvement in itself.
+
+* Minor optimisation expanding wildcards.
+
+* PostingIterator::get_description(): For an all-docs iterator on a glass
+  database, get_description() would call get_docid() which isn't valid to
+  do once the iterator has reached the end.
+
+testsuite:
+
+* Expand allterms test coverage.
+
+matcher:
+
+* Fetch wdf upper bound from postlist which avoids an extra postlist table
+  cursor seek per weighted query term, and also means we now use a per-shard
+  wdf upper bound for local shards which will in typically give a tighter
+  weight upper bound which will tend to make various other matcher
+  optimisations more effective.  Eric Wong reported this speeds up a
+  particularly slow case from ~2 minutes to ~3 seconds.
+
+  With this change, OP_ELITE_SET can now select a different subset of terms for
+  each shard regardless of shard type (previously this only happened for remote
+  shards).
+
+* Avoid triggering a pointless maximum weight recalculation if an unweighted
+  child of a MultiAndPostList prunes.
+
+* Only check if the database has positional information when the query
+  uses positional information.  This should help improve notmuch delete
+  performance.  Thanks to andreas on #notmuch for analysis of the problem.
+
+glass backend:
+
+* Optimise Glass::Inverter::has_positions().  Use const auto& instead of just
+  auto for the loop variables.  Reported to be faster by andreas on #notmuch.
+
+* Cache result of Glass::Inverter::has_positions() since calculating it is
+  potentially very expensive, while maintaining a cached answer is very cheap.
+
+remote backend:
+
+* Add missing closing parenthesis to reported remote prog context, which has
+  been missing since this code was first added over 20 years ago!  Spotted by
+  Gaurav Arora.
+
+build system:
+
+* Enable compiler option -fno-semantic-interposition if supported.
+
+  This GCC option allows the compiler to optimise essentially assuming
+  that functions/variables aren't replaced at dynamic link time.
+
+  Such replacement is not something that it's useful to do for Xapian
+  symbols, and we already turn on -Bsymbolic-functions by default which
+  prevents such replacement anyway by resolving references within the
+  library at build time.
+
+  Reduces the size of the stripped library on x86-64 Debian unstable by
+  ~1%, and likely makes it faster too.
+
+* Avoid bogus deprecation warning when compiling with GCC without optimisation.
+  In this situation, GCC emits a deprecation warning for code in the definition
+  of QueryParser::add_valuerangeprocessor() which is provided for backwards
+  API compatibility even if this method is never used anywhere.
+
+  This isn't helpful, especially if the user is using -Werror, so disable the
+  -Wdeprecated-deprecations warning for this code.
+
+  Reported by starmad on #xapian.
+
+* Fix GCC -Wmaybe-uninitialized warning.  The warning seems bogus as it's about
+  the this pointer being passed to a method which doesn't reference the object,
+  but we can just make the method static to avoid the warning, and that's
+  arguably cleaner for a method called from the object initialiser list.
+
+* Automatically enable GCC warnings -Wduplicated-cond and -Wduplicated-branches
+  if using a GCC version new enough to support them.  The usefulness of
+  -Wduplicated-cond was highlighted by dcb in #816.
+
+* Replace uses of obsolete autoconf macros, fixing warnings if configure is
+  regenerated with a recent release of autoconf.
+
+* Simplify configure probe for sigsetjmp and siglongjmp.  Just probe
+  individually with AC_CHECK_DECLS and then check that both exist with a
+  preprocessor check.
+
+* Update XO_LIB_XAPIAN to fix warning that AC_ERROR is obsolete with modern
+  autoconf.
+
+* Support linking against static libxapian with cmake. Patch from Anonymous
+  Maarten in https://github.com/xapian/xapian/pull/317
+
+* Clean up handling of libs we link libxapian with - previously any libraries
+  explicitly specified to configure by the user via LIBS=... as well as -lm
+  (if configure determined it was needed) could get added to XAPIAN_LIBS
+  multiple times, as well as also getting added to the libxapian link command
+  anyway by automake/libtool standard handling.
+
+  Specifying a library more than once on the link line is not a problem on
+  common platforms, but may be an issue somewhere (and it's on less common
+  platforms where the user is more likely to have to specify LIBS to configure
+  and/or where -lm may be needed).
+
+documentation:
+
+* configure: Add missing AC_ARG_VAR for all programs so that they are
+  documented in --help output, and so that autoconf knows they are "precious"
+  and preserves them if configure is rerun even when they're specified via an
+  environment variable.
+
+* Don't use x^2 to mean x squared in API docs.  This is potentially confusing
+  since in C/C++ (and some other languages), ^ means exclusive-or.  Write x²
+  instead, which should be clear to all readers.
+
+* Improve docs for Xapian::Stopper and SimpleStopper.
+
+* docs/intro_ir.rst: Fixed an incorrect term index.  Patch from Jaak Ristioja
+  in https://github.com/xapian/xapian/pull/321.
+
+* Update for the IRC channel move from freenode to libera.chat.
+
+examples:
+
+* quest: Don't enable spelling correction by default.  It was really only on by
+  default because the spelling correction support in quest was added before
+  --flags.  It seems more helpful for the default to match the
+  Xapian::QueryParser API, and also this fixes the weird situation that
+  `--flags default` isn't the default you get without any `--flags` option.
+
+* quest: Multiple `--flags` options now get combined - previously only the last
+  was used.
+
+portability:
+
+* Don't automatically use _FORTIFY_SOURCE on mingw-w64.  Recent mingw-w64
+  versions require -lssp to be linked when _FORTIFY_SOURCE is enabled, so just
+  skip the automatic enabling.  Users who want to enable it can specify it
+  explicitly.
+
+  Fixes #808, reported by xpbxf4.
+
+* Workaround NFS issue in test harness function for deleting test databases.
+  On NFS, rmdir() can fail with EEXIST or ENOTEMPTY (POSIX allows either)
+  due to .nfs* files which are used by NFS clients to implement the Unix
+  semantics of a deleted but open file continuing to exist.  We now sleep
+  and retry a few times in this situation to give the NFS client a chance
+  to process the closing of the open handle.  Problem mentioned in #631.
+
+* configure: Drop -lm special case for Sun C++ as this no longer seems to
+  be required.  Tested with Sun C++ 5.13, which is the oldest version we
+  now support due to us now requiring C++11.
+
+* Use strerrordesc_np() if available. This is a GNU-specific replacement for
+  sys_errlist and sys_nerr.  It was added in glibc 2.32 since which sys_errlist
+  and sys_nerr are no longer declared in the headers.
+
+* Update debug logging to use std::uncaught_exceptions() under C++17 and later
+  since this allows the debug logging to detect a function without RETURN()
+  annotation which exits normally while there's an uncaught exception
+  (previously the debug logging would think the stack was being unwound through
+  the function).  This also avoids deprecation warnings - the old
+  std::uncaught_exception() (note: singular) function was deprecated by
+  C++17 and removed in C++20.
+
+* Increase size of buffer passed to strerror_r() from 128 to 1024 bytes, which
+  is the size recommended by the man page on Linux.
+
+* Fix -Wdeprecated-copy warning from clang 13.
+
+Xapian-core 1.4.18 (2021-01-14):
+
+API:
+
+* QueryParser::FLAG_ACCUMULATE: New flag.  Previously the unstem and stoplist
+  data was always reset by a call to QueryParser::parse_query(), which makes
+  sense if you use the same QueryParser object to parse a series of independent
+  queries.  If you're using the same QueryParser object to parse several fields
+  on the same query form, you may want to have the unstem and stoplist data
+  combined for all of them, in which case you can use this flag to prevent this
+  data from being reset.
+
+* QueryParser::unstem_begin(): Eliminate unnecessary copying of the data.
+
+* Fix typo in Swedish stopword list, syncing change made to Snowball by Daniel
+  Gómez Villanueva.
+
+* Remove some French stop words with other meanings, syncing change made to
+  Snowball by PhilippeOuellet.
+
+testsuite:
+
+* Run testcase testlock4 using backend chert, not just using glass
+
+* Skip testcase testlock4 on platforms that don't allow us to implement
+  Database::locked() (which notably include GNU Hurd and Microsoft Windows).
+
+documentation:
+
+* List DB_NO_TERMLIST in the WritableDatabase constructor API documentation
+  where we already list the other DB_* constants.
+
+portability:
+
+* Eliminate single use of std::mem_fun() which was deprecated in C++11 and
+  removed in C++17.  Reported by Mateusz Pusz in #806.
+
+* Add missing includes for std::numeric_limits<>.  Reported by stac47 in #805.
+
+* Work around mingw.org header issue.  MSVC seems to implicitly include
+  <winerror.h> but mingw.org's headers don't, leading to ERROR_PIPE_CONNECTED
+  not being defined.  Fixes https://github.com/xapian/xapian/pull/318, reported
+  by Alex Sandro.
+
+* Suppress MSVC warnings about possible loss of data.  The values involved are
+  the number of set bits in a value of integer type, so these warnings are
+  bogus.
+
+* Include <sys/types.h> for size_t and off_t, which is the appropriate header,
+  and needed with Android's bionic libc.  Patch from Matthieu Gautier.
+
+* Use a temporary file for the Doxygen configuration to work around Doxygen
+  1.8.19 bug which truncates a config file read from stdin to 4096 bytes
+  (https://github.com/doxygen/doxygen/issues/7975).
+
+Xapian-core 1.4.17 (2020-08-21):
+
+API:
+
+* Database::get_average_length(): Add this as an alias for
+  Database::get_avlen().  In git master we've added this as a preferred new
+  name - adding it to 1.4.x too will make it easier for users to update to
+  using this.
+
+* Database::get_spelling_suggestion(): Optimise edit distance initialisation
+  loop to significantly reduce the cost of a typical edit distance calculation.
+
+* Fix query expansion on sharded databases.  The mechanism for passing in which
+  shard a TermList is from wasn't hooked up and as a result we'd always think
+  it's from the first shard, meaning the statistics would be wrong and that our
+  suggested terms may not have been as good as they should be in this
+  situation.
+
+* Enquire::get_eset(): Use string::compare() to avoid 1/3 of the string
+  compares on average.
+
+documentation:
+
+* Update doxygen HTML headers and footers to resolve issues with some
+  interactive features of the API docs not working.  Reported by Enrico Zini.
+
+* Stop specifying obsolete doxygen settings PERL_PATH and MSCGEN_PATH.
+
+* Clarify API docs for MSet::get_termfreq() to make it clear that this
+  considers all documents in the database, not only those that matched the
+  searched (it would sometimes be useful to be able to report the number of
+  occurrences of a term in the matched documents, but it's not something we
+  currently keep track of).  Reported by Tadeusz Sośnierz and Peter Salomonsen.
+
+Xapian-core 1.4.16 (2020-06-08):
+
+API:
+
+* MSet::snippet(): The snippet now includes trailing punctuation which carries
+  meaning or gives useful context.  See
+  https://github.com/xapian/xapian/pull/180, reported by Robert Stepanek.
+
+* MSet::snippet(): Fix segfault generating snippet from default-constructed
+  MSet.  This probably isn't something you'd typically do, but it shouldn't
+  crash.  Found during extended testing of #803 (which only affected git
+  master) which was reported by Robert Stepanek.
+
+* Remove trailing full stop from exception messages.  We conventionally don't
+  include one, but a few cases didn't follow that convention.
+
+testsuite:
+
+* Replace direct use of ftime() which gives deprecation warnings with recent
+  mingw.  Reported by srinivasyadav22.
+
+matcher:
+
+* Fix segfault in rare cases in the query optimiser.  We keep a pointer to the
+  most recent posting list to use as a hint for opening the next posting list,
+  but the existing mechanism to take ownership of this hint had a flaw.  We now
+  invalidate the hint in situations where it might be indirectly deleted which
+  is safe, but somewhat conservative.
+
+* Improve the optimisation of an always-matching OP_VALUE_GE to also take
+  effect when the value slot's lower bound is equal to the limit of the
+  OP_VALUE_GE.  Patch from boda sadalla.
+
+glass backend:
+
+* Report the correct errno value if commit() fails.  We were potentially
+  reporting ENOENT from an unlink() call cleaning up a temporary file prior to
+  throwing the exception instead.
+
+documentation:
+
+* Fix missing menus in API documentation.  Newer doxygen generates .js files
+  which we also need to distribute and install.  Reported by sec^nd on #xapian.
+
+* Note OP_FILTER ignored subquery bug fixed in 1.4.15 as present in 1.4.14 and
+  older.
+
+portability:
+
+* Use our own autoconf cache variable namespace (xo_cv_ prefix instead of
+  ac_cv_) to avoid colliding with standard autoconf macro use if config.site or
+  a shared config.cache is used.  The former case caused a build failure for
+  the OpenBSD port with 1.4.15, reported by Lucas R.
+
+* Use clock_gettime() and nanosleep() under modern mingw as these allow higher
+  precision than what we previously used.
+
+Xapian-core 1.4.15 (2020-02-24):
+
+API:
+
+* Database::check(): Fix checking of replication changesets.  This reverts a
+  change incorrectly made in 1.3.7.
+
+* Database::locked(): Return false instead of true for a closed inmemory DB.
+
+* Database::commit(): If commit() failed with an exception while trying to add
+  pending changes (e.g. InvalidArgumentError due to a long term containing zero
+  bytes) then a subsequent commit() on the same object would throw the same
+  exception.  Now we clear the pending changes in this situation (like we
+  already did for failure at other stages in the commit).  This bug remains
+  unfixed for the chert backend as it's harder to fix there and the effort to
+  fix it and extra risk of breakage don't seem justified for a backend we
+  recommend people migrate away from.
+
+* QueryParser::parse_query(): Optimise parsing of multi-word synonyms.
+
+testsuite:
+
+* Use 50-word synonym for qp_scale1 "large" case.  50 divides exactly into the
+  number of repetitions we do for the "small" case, which 60 (as used before)
+  doesn't.  This makes the two cases a little more comparable and should help
+  make this testcase less flaky (see #764).
+
+* Adjust testcase matches1 to work with remote shards where the matcher can
+  return slightly better bounds on the number of matches in some cases.
+  Resolves 2 XFAILs.
+
+* The testharness get_remote_database() method is now supported for sharded
+  databases.  This is needed for keepalive1 to run successfully under multi
+  test backends.  Resolves 2 XFAILs of keepalive1.
+
+* Improved test coverage:
+
+  + Test locked() on a closed WritableDatabase, which already returns false (as
+    expected) in 1.4.x (but was broken on master).
+
+  + Check multi databases in testsuite - this has been supported by
+    Database::check() since 1.4.12.
+
+  + Also test OP_SYNONYM and OP_MAX in emptydb1.
+
+  + Backport testcases boolorbug1, emptynot1, emptymaybe1 and
+    phraseweightcheckbug1 from git master - these are regression tests for
+    fixed bugs which only affected git master, but it's useful to confirm that
+    these bugs don't currently affect 1.4, and ensure they don't get
+    introduced.
+
+* perftest: Store memory sizes as long long since on Microsoft Windows long is
+  only 32 bits, which is less than common memory sizes.
+
+matcher:
+
+* Hoist positional check above OP_FILTER.
+
+* Handle OP_FILTER with more than two subqueries correctly.  Previously we'd
+  only check the first two subqueries in some situations.
+
+remote backend:
+
+* For a remote WritableDatabase, the client now keeps track of whether there
+  are pending changes, and if there aren't then we now do nothing for commit()
+  or cancel() calls.  In particular this saves a message exchange when the
+  WritableDatabase destructor is called when changes have already been
+  committed with an explicit call to commit() (which is what we recommend
+  doing, since with an explicit call to commit() you get to see any exception
+  which gets thrown).
+
+* When closing a remote prog WritableDatabase, previously an exception could
+  leave the remote connection open with the remote server running, and we'd
+  then wait for the specified timeout before closing the connection.  Now we
+  close the connection before letting the exception propagate.
+
+* Don't swallow exceptions from Database::close() on a remote database.  If
+  we aren't in a transaction and so try to commit() and that fails then
+  previously the caller would have no indication of the failure.
+
+* Fix handling the reported term weight when remote shards are searched.
+  Fixes 5 XFAILs in the testsuite.
+
+* Add missing space to mismatching protocol versions error message.
+
+build system:
+
+* Fix to build when configured with --disable-backend-remote, broken by changes
+  in 1.4.14.  Fixes #797, reported by Дилян Палаузов.
+
+* The clang and icc compilers both define __GNUC__, which led our ABI mismatch
+  message to report them as "g++" with a bogus version (the version of GCC that
+  these compilers advertise themselves as, which for clang is always 4.2.0) -
+  now we report clang++ or icc along with the actual version of that compiler.
+
+documentation:
+
+* AUTHORS: Apply missed update to the thankyou list for 1.4.14.
+
+* INSTALL: Note that MSVC 2019 works.
+
+* INSTALL: Note that Xapian can use the system uuid.h on AIX and OpenBSD.
+
+portability:
+
+* Simplify probes for snprintf.  The broken snprintf in libbsd in Linux libc4
+  is from ~25 years ago so way too ancient to matter now, and all callers
+  already handle the pre-ISO semantics of returning -1 for an undersize buffer
+  so we don't need to run a test program to probe for this at configure time,
+  which is more cross-compile friendly.
+
+* Don't quote messages in #error - the quotes aren't required and appear in the
+  compiler output (at least with GCC and clang) making it less readable.
+
+* Use a different approach for getting a 64-bit capable stat() for mingw32.
+  This means we now use the same stat variant for mingw32 and MSVC, which
+  seems a better plan.
+
+* Work around unhelpful config.status behaviour.  It comments out any #undef
+  lines in config.h, even those added via AH_TOP and AH_BOTTOM.  Splitting
+  these lines means they don't match the regex hammer config.status uses.
+
+* Avoid -Wdeprecated-copy warnings from clang 10.
+
+* Avoid deprecation warning on recent Linux.  We were including sys/sysctl.h if
+  it existed, which it does on Linux but we don't actually use it there.
+  Including it now warns that it is deprecated, so skip including it under
+  Linux.  Reported on IRC by kumaran.
+
+* Suppress GCC -Wduplicated-branches warning from our API headers in a
+  different way which avoids needing a compiler-specific #pragma.
+
+* Workaround closefrom1 failure on macOS.  It seems under macOS our fd tracking
+  can end up using fd 10 so start from 13 when testing closefrom() so we don't
+  close the fd which our fd tracking is using internally.
+
+debug code:
+
+* Log RemoteConnection::read_at_least() return value.
+
+Xapian-core 1.4.14 (2019-11-23):
+
+API:
+
+* Xapian::QueryParser: Handle "" inside a quoted phrase better.  In a quoted
+  boolean term, "" is treated as an escaped ", so handle it in a compatible way
+  for quoted phrases.  Previously we'd drop out of the phrase and start a new
+  phrase.  Fixes #630, reported by Austin Clements.
+
+* Xapian::Stem: The constructor which takes a stemmer name now takes an
+  optional second bool parameter - if this is true, then an unknown stemmer
+  name falls back to using the "none" stemmer instead of throwing an exception.
+  This allows simply constructing a stemmer from an ISO language code without
+  having to worry about whether there's a stemmer for that language, and
+  without having to handle an exception if there isn't.
+
+* Xapian::Stem: Fix a bug with handling 4-byte UTF-8 sequences which
+  potentially affects most of the stemmers.  None of the stemmers work in
+  languages where 4-byte UTF-8 sequences are part of the alphabet, but this
+  bug could result in invalid UTF-8 sequences in terms generated from text
+  containing high Unicode codepoints such as emoji, which can cause issues (for
+  example, in some language bindings).  Fix synced from Snowball git post
+  2.0.0.  Reported by Ilari Nieminen in
+  https://github.com/snowballstem/snowball/issues/89.
+
+* Xapian::Stem: Add a new is_none() method which tests if this is a "none"
+  stemmer.
+
+* Xapian::Weight: The total length of all documents is now made available to
+  Xapian::Weight subclasses, and this is now used by DLHWeight, DPHWeight and
+  LMWeight.  To maintain ABI compatibility, internally this still fetches the
+  average length and the number of documents, multiplies them, then rounds the
+  result, but in the next release series this will be handled directly.
+
+* Xapian::Database::locked() on an inmemory database used to always return
+  false, but an inmemory Database is always actually a WritableDatabase
+  underneath, so now we always report true in this case because it's really
+  always report being locked for writing.
+
+testsuite:
+
+* Fix failing multi_glass_remoteprog_glass tests on x86.  When the tests are
+  run under valgrind, remote servers should be run using the runsrv wrapper
+  script, but this wasn't happening for remote servers in multi-databases - now
+  it is.  Also, previously runsrv only used valgrind for the remote for an x86
+  build that didn't use SSE, but it seems there are x87 instructions in libc
+  that are affected by valgrind not providing excess precision, so do this for
+  x86 builds which use SSE too.  Together these changes fix failures of
+  topercent2, xor2, tradweight1 under backend multi_glass_remoteprog_glass on
+  x86.
+
+* Fix C++ One-Definition Rule (ODR) violation in testsuite code.  Two different
+  source files linked into apitest were each defining a different `struct
+  test`.  Wrap each in an anonymous namespace to localise it to the file it is
+  defined and used in.  This was probably harmless in practice, unless trying
+  to build with Link-Time Optimisation or similar (which is how it was
+  detected).
+
+* Test all language codes in stemlangs1.  The testsuite hardcodes a list of
+  supported language codes which hadn't been updated since 2008.
+
+* Improve DateRangeProcessor test coverage.
+
+matcher:
+
+* Handle pruning under a positional check.  This used to be impossible, but
+  since 1.4.13 it can happen as we now hoist AND_NOT to just below where we
+  hoist the positional checks.  The code on master already handles pruning here
+  so this bug is specific to the RELEASE/1.4 branch.  Fixes #796, reported by
+  Oliver Runge.
+
+* When searching with collapsing over multiple shards, at least some of which
+  are remote, uncollapsed_upper_bound could be too low and
+  uncollapsed_lower_bound too high.  This was causing assertion failures in
+  testcases msize1 and msize2 under test harness backends
+  multi_glass_remoteprog_glass and multi_remoteprog_glass.
+
+* Internally we no longer calculate a bogus total_term_count as the sum of
+  total_length * doc_count for all shards.  Instead we just use the sum of
+  total_length, which gives the total number of term occurrences.  This change
+  should improve the estimated collection_freq values for synonyms.
+
+* Several places where we might divide zero by zero in a database where wdf was
+  always zero have been fixed.
+
+build system:
+
+* configure: Stop using AC_FUNC_MEMCMP.  The autoconf manual marks it as
+  "obsolescent", and it seems clear that nobody's relying on it as we're
+  missing the "'AC_LIBOBJ' replacement for 'memcmp'" which it would try to
+  use if needed.
+
+documentation:
+
+* HACKING: Replace release docs with pointer to the developer guide where they
+  are now maintained.
+
+portability:
+
+* Eliminate 2 uses of atoi().  These are potentially problematic in a
+  multithreaded application if setlocale() is called by another thread at the
+  same time.  See #665.
+
+* Don't check __GNUC__ in visibility.h as the configure probe before defining
+  XAPIAN_ENABLE_VISIBILITY checks that the visibility attributes work.  This
+  probably makes no difference in practice, as all compilers we're aware of
+  which support symbol visibility also define __GNUC__.
+
+* Document Sun C++ requires --disable-shared.  Closes #631.
+
+Xapian-core 1.4.13 (2019-10-14):
+
+API:
+
+* Fix write one past end of std::vector on certain QueryParser parser errors.
+  This is undefined behaviour, but the write was always into reserved space, so
+  in practice we'd actually get away with it (it was noticed because it
+  triggers an error when running under ubsan and using libc++).  Reported by
+  Germán M. Bravo.
+
+* MSet::get_matches_estimated(): Improve rounding of result - a bug meant we
+  would almost always round down.
+
+* Optimise test for UTF-8 continuation character.  Performing a signed char
+  comparison shaves an instruction or two on most architectures.
+
+* Database::get_revision(): Return revision 0 for a Database with no shards
+  rather that throwing InvalidOperationError.
+
+* DPHWeight: Avoid dividing by 0 when searching a sharded database when one
+  shard is empty.  The result wasn't used in this case, but it's still
+  undefined behaviour.  Detected by UBSan.
+
+testsuite:
+
+* The "singlefile" test harness backend manager now creates databases by
+  compacting the corresponding underlying backend database (creating it first
+  if need be) rather than always creating a temporary database to compact.
+
+* Enable compaction testcases for multi and singlefile test harness backends.
+
+* Add generated database support for remoteprog and remotetcp test harness
+  backends.  Implemented by Tanmay Sachan.
+
+* Add test harness support for running testcases using a multi database
+  comprised of one local and one remote shard, or two remote shards.
+  Implemented by Tanmay Sachan.
+
+* Check if removing existing multi stub failed.  Previously if removing an
+  existing stub failed, the test harness would create a temporary new stub and
+  then try to rename it over the old one, which will always fail on Microsoft
+  Windows.
+
+* Wait for xapian-tcpsrv processes to finish before moving on to the next
+  testcase under __WIN32__ like we already do on POSIX platforms.
+
+matcher:
+
+* Optimise OP_AND_NOT better.  We now combine its left argument with other
+  connected and-like subqueries, and gather up and hoist the negated subqueries
+  and apply them together above the combined and-like subqueries, just below
+  any positional filters.
+
+* Optimise OP_AND_MAYBE better.  We now combine its left argument with other
+  connected and-like subqueries, and gather up and hoist the optional
+  subqueries and apply them together above the combined and-like subqueries and
+  any hoisted positional filters.
+
+* Treat all BoolWeight queries as scaled by 0 - we can optimise better if we
+  know the query is unweighted.
+
+glass backend:
+
+* Allow zlib compression to reduce size by one byte.  We were specifying an
+  output buffer size one byte smaller than the input, but it appears zlib won't
+  use the final byte in the buffer, so we actually need to pass the input size
+  as the output buffer size.
+
+* Only try to compress Btree item values > 18 bytes, which saves CPU time
+  without sacrificing any significant size savings.
+
+remote backend:
+
+* Fix match stats when searching with collapsing over multiple shards and at
+  least some shards are remote.  Bug discovered by Tanmay Sachan's test harness
+  improvements.
+
+* Ignore orphaned remote protocol replies which can happen when searching with
+  a remote shard if an exception is thrown by another shard.  Bug discovered
+  by Tanmay Sachan's test harness improvements.
+
+* Wait for xapian-progsrv child to exit when a remote Database or
+  WritableDatabase object is closed under __WIN32__ like we already do for
+  POSIX platforms.
+
+documentation:
+
+* Correct documentation of initial messages in replication protocol.
+
+tools:
+
+* quest: Report bounds and estimate of number of matches.
+
+* xapian-delve: Improve output when database revision information is not
+  available.  We now specially handle the cases of a DB with multiple shards
+  and a backend which doesn't support get_revision().
+
+portability:
+
+* Fix warning from GCC 9 with -Wdeprecated-copy (which is enabled by -Wextra)
+  if a reference to an Error object is thrown.
+
+* Suppress GCC warning in our API headers when compiling code using Xapian with
+  GCC and -Wduplicated-branches.
+
+* Mark some internal classes as final (following GCC -Wsuggest-final-types
+  suggestions to allow some method calls to be devirtualised).
+
+* Fix to build with --enable-maintainer-mode and Perl < 5.10, which doesn't
+  have the `//=` operator.  It's unlikely developers will have such an old
+  Perl, but the mingw environment on appveyor CI does.  The use of `//=` was
+  introduced by changes in 1.4.10.
+
+Xapian-core 1.4.12 (2019-07-23):
+
+API:
+
+* Xapian::PostingSource: When a PostingSource without a clone() method is used
+  with a Database containing multiple shards, the documented behaviour has
+  always been that Xapian::InvalidOperationError is thrown.  However, since at
+  least 1.4.0, this exception hasn't been thrown, but instead a single
+  PostingSource object would get used for all the shards, typically leading to
+  incorrect results.  The actual behaviour now matches what was documented.
+
+* Xapian::Database: Add size() method which reports the number of shards.
+
+* Xapian::Database::check(): You can now pass a stub database which will check
+  all the databases listed in it (or throw Xapian::UnimplementedError for
+  backends which don't support checking).
+
+* Xapian::Document: When updating a document use emplace_hint() to make the
+  bulk insertion O(n) instead of O(n·log(n)), and use std::move() to avoid
+  copying OmDocumentTerm objects.
+
+* Xapian::Query: Add missing get_unique_terms_end() method.
+
+* Xapian::iterator_valid(): Implement for Utf8Iterator
+
+testsuite:
+
+* Fix keepalive1 failures on some platforms.  On some platforms a timeout
+  gives NetworkTimeoutError and on others NetworkError - since 1.4.10 changed
+  to checking the exact exception type, keepalive1 has been failing on the
+  former set of platforms.  We now just check for NetworkError or a subclass
+  here (since NetworkTimeoutError is a subclass of NetworkError).
+
+* Run cursordelbug1 testcase with multi databases too.
+
+matcher:
+
+* Ownership of PostingSource objects during the match now makes use of the
+  optional reference-counting mechanism rather than a separate flag.
+
+remote backend:
+
+* Fix remote protocol design bug.  Previously some messages didn't send a reply
+  but could result in an exception being sent over the link.  That exception
+  would then get read as a response to the next message instead of its actual
+  response so we'd be out of step.  Fixes #783, reported by Germán M. Bravo.
+  This fix necessitated a minor version bump in the remote protocol (to 39.1).
+  If you are upgrading a live system which uses the remote backend, upgrade the
+  servers before the clients.
+
+* Fix socket leaks on errors during opening a database.  Fixes
+  https://github.com/xapian/xapian/pull/237 and #781, reported by Germán M.
+  Bravo.
+
+* Don't close remote DB socket on receiving EOF as the levels above won't
+  know it's been closed and may try to perform operations on it, which would be
+  problematic if that fd gets reused in the meantime.  Leaving it open means
+  any further operations will also get EOF.  Reported by Germán M. Bravo.
+
+* We add a wrapper around the libc socket() function which deals with the
+  corner case where SOCK_CLOEXEC is defined but socket() fails if it is
+  specified (which can happen with a newer libc and older kernel).
+  Unfortunately, this wrapper wasn't checking the returned value from socket()
+  correctly, so when SOCK_CLOEXEC was specified and non-zero it would create
+  the socket() with SOCK_CLOEXEC, then leak that one and create it again
+  without SOCK_CLOEXEC.  We now check the return value properly.
+
+* Fix potential infinite loop in ValueCountMatchSpy::merge_results() if passed
+  serialised results with extra data appended (which shouldn't happen in normal
+  use).
+
+build system:
+
+* Current versions of valgrind result in false positives on current versions of
+  macOS, so on this platform configure now only enables use of valgrind if it's
+  specified explicitly.  Fixes #713, reported by Germán M. Bravo.
+
+* Refactor macros to probe for compiler flags so they automatically cache
+  their results and consistently report success/failure.
+
+* Rename our custom TYPE_SOCKLEN_T macro to XAPIAN_TYPE_SOCKLEN_T.  The
+  AX_TYPE_SOCKLEN_T macro defines an alias of TYPE_SOCKLEN_T for itself which
+  means it can get used instead in some situations, but it isn't compatible
+  with our macro.  We can't just switch to AX_TYPE_SOCKLEN_T as it doesn't
+  handle cases we need, so just rename our macro to avoid potential problems.
+
+documentation:
+
+* Improve API documentation for Xapian::Query class.  Add missing doc
+  comments and improve some of the existing ones.  Problems highlighted by
+  Дилян Палаузов in #790.
+
+* Add Unicode consortium names and codes for categories from Chapter 4, Version
+  11 of the Unicode standard.  Patch from David Bremner.
+
+* Improve configure --help output - drop "[default=no]" for --enable-*
+  options which default off.  Fixes #791, reported by and patch from Дилян
+  Палаузов.
+
+* Fix API documentation typo - Query::op (the type) not op_ (a parameter name).
+
+* Note which version Document::remove_postings() was added in.
+
+* In the remote protocol documentation, MSG_REPLACEDOCUMENTTERM was documented
+  as not having a reply, but actually REPLY_ADDDOCUMENT is sent.
+
+* Update list of <xapian/iterator.h> users.
+
+tools:
+
+* copydatabase: A change in 1.4.6 which added support for \ as directory
+  separator on platforms where that's the norm broke the code in copydatabase
+  which removes a trailing slash from input databases.  Bug reported and
+  culprit commit identified by Eric Wong.
+
+portability:
+
+* Resolve crash on Windows when using clang-cl and MSVC.  Reported by Christian
+  Mollekopf in https://github.com/xapian/xapian/pull/256.
+
+* Add missing '#include <cstring>'.  Patch from Tanmay Sachan.
+
+* Fix str() helper function when converting the most negative value
+  of a signed integer type.
+
+* Avoid calling close() on fd we know must actually be a WIN32 SOCKET.
+
+* Include <ios> not <iomanip> for std::boolalpha.
+
+* Rework setenv() compatibility handling.  Now that Solaris 9 is dead we can
+  assume setenv() is provided by Unix-like platforms (POSIX requires it).  For
+  other platforms, provide a compatibility implementation of setenv() which
+  so the compatibility code is encapsulated in one place rather than replicated
+  at every use.
+
+* Fix maintainer-mode builds on Solaris where /bin/tr is not POSIX compliant.
+  We now use the simple workaround suggested by the autoconf manual.
+
+* Improve support for Sun C++ (see #631):
+
+  + Suppress unhelpful warning for lambda with multiple return statements.
+
+  + Enable reporting the tags corresponding to warnings, which we need
+    to know in order to suppress any new unhelpful warnings.
+
+  + Adjust our workaround for bug with this compiler's <cmath> header to avoid
+    a compiler warning.
+
+  + Use -xldscope=symbolic for Sun C++.  This flag is roughly equivalent to
+    -Bsymbolic-functions which we've probed for with GNU ld since Xapian 1.0.0.
+
+Xapian-core 1.4.11 (2019-03-02):
+
+API:
+
+* MSet::SNIPPET_CJK_NGRAM - new flag for use with MSet::snippet() to enable
+  support for selecting and highlighting snippets which works with the
+  QueryParser and TermGenerator FLAG_CJK_NGRAM flags.  This mode can also be
+  enabled by setting environment variable XAPIAN_CJK_NGRAM to a non-empty
+  value.  (There was nominally already support for XAPIAN_CJK_NGRAM in
+  MSet::snippet(), but it didn't work usefully - the highlighting added was all
+  empty start/end pairs at the end of the span of CJK characters containing the
+  CJK ngram terms, which to the user would typically look like it was selecting
+  the end of the text and not highlighting anything).
+
+* Deprecate XAPIAN_CJK_NGRAM environment variable.  There are now flags which
+  can be used instead in all cases, and there's sadly no portable thread-safe
+  way to read an environment variable so checking environment variables is
+  problematic in library code that may be used in multithreaded programs.
+
+* Query::OP_ELITE_SET currently incorrectly recursively flattens any OP_OR (or
+  OP_OR-like) subqueries into the list of subqueries it selects from - until
+  that's fixed, we now select from the full exploded list rather than the last
+  n (where n is the number of direct subqueries of the OP_ELITE_SET).
+
+testsuite:
+
+* Testcases which need a generated database now get run with a sharded
+  database.
+
+* Avoid using strerror() in the testsuite which removes an obstacle to running
+  tests in parallel in separate threads.
+
+matcher:
+
+* Extend detection of cases of OP_SYNONYM with disjoint subqueries (which means
+  we don't need document length) which was added in 1.4.8 - we now detect when
+  all subqueries are different terms, or when all subqueries are
+  non-overlapping wildcards.  The second case is what QueryParser produces for
+  a wildcard or partial query with a query prefix which maps to more than one
+  term prefix.
+
+glass backend:
+
+* Handle an empty value slot lower bound gracefully.  This shouldn't happen for
+  a non-empty slot, but has been reported by a notmuch user so it seems there
+  is (or perhaps was as the database was several years old) a way it can come
+  about.  We now check for this situation and set the smallest possible valid
+  lower bound instead, so other code assuming a valid lower bound will work
+  correctly.  Reported by jb55.
+
+chert backend:
+
+* Handle an empty value slot lower bound gracefully, equivalent to the change
+  made for glass.
+
+documentation:
+
+* HACKING: We no longer use auto_ptr<>.
+
+* NEWS: Correct factual error in old entry - the 0.4.1 release was Open Muscat
+  not OmSee (the OmSee name was only applied after that final release was made,
+  and only used internally to BrightStation).
+
+portability:
+
+* Suppress more clang -Wself-assign-overloaded warnings in testcases which are
+  deliberately testing handling of self-assignment.
+
+* Add missing includes of <cerrno>.  Fixes #776, reported by Matthieu Gautier.
+
+debug code:
+
+* When configured with --enable-log, the O_SYNC flag was always specified when
+  opening the logfile, with the intention that the most recent log entries
+  wouldn't get lost if there was a crash, but O_SYNC can incur a significant
+  performance overhead and most debugging is not of such crashes.  So we no
+  longer specify O_SYNC by default, but you can now request synchronous logging
+  by including %! anywhere in the filename specified with XAPIAN_DEBUG_LOG
+  (the %! is replaced with the empty string).  We also now use O_DSYNC if
+  available in preference to O_SYNC, since the mtime of the log file isn't
+  important.
+
+Xapian-core 1.4.10 (2019-02-12):
+
+API:
+
+* DatabaseClosedError: New exception class thrown instead of DatabaseError when
+  an operation is attempted which can't be completed because it involves a
+  database which close() was previously called on.  DatabaseClosedError is a
+  subclass of DatabaseError so existing code catching DatabaseError will still
+  work as before.  Fixes #772, reported by Germán M. Bravo.  Patch from
+  Vaibhav Kansagara.
+
+* DatabaseNotFoundError: New exception class thrown instead of
+  DatabaseOpeningError when the problem is the problem is "file not found" or
+  similar.  DatabaseNotFoundError is a subclass of DatabaseOpeningError so
+  existing code catching DatabaseOpeningError will still work as before.  Fixes
+  #773, reported by Germán M. Bravo.  Patch from Vaibhav Kansagara.
+
+* Query: Make &=, |= and ^= on Query objects opportunistically append to
+  an existing query with a matching query operator which has a reference
+  count of 1.  This provides an easy way to incrementally build flatter query
+  trees.
+
+* Query: Support `query &= ~query2` better - this now is handled exactly
+  equivalent to `query = query & ~query2` and gives `query AND_NOT query2`
+  instead of `query AND (<alldocuments> AND_NOT query2)`.
+
+* QueryParser: Now uses &=, |= and ^= to produce flatter query trees.  This
+  fixes problems with running out of stack space when handling Query object
+  trees built by abusing QueryParser to parse very large machine-generated
+  queries.
+
+* Stopper: Fix incorrect accents in Hungarian stopword list.  Patch from David
+  Corbett.
+
+testsuite:
+
+* Test MSet::snippet() with small and zero lengths.  Fixes #759.  Patch from
+  Vaibhav Kansagara.
+
+* Fix testcase stubdb4 annotations - this testcase doesn't need a backend.
+
+* Add PATH annotation for testcases needing get_database_path() to avoid having
+  to repeatedly list the backends where this is supported in testcase
+  annotations.
+
+* TEST_EXCEPTION helper macro now checks that the exact specified exception
+  type is thrown.  Previously it would allow a subclass of the specified
+  exception type, but in testcases we really want to be able to test for an
+  exact type.  Issue noted by Vaibhav Kansagara on IRC.
+
+matcher:
+
+* Map OP_VALUE_GE/OP_VALUE_LE on an empty slot to EmptyPostList.  We already do
+  this for OP_VALUE_RANGE, and it's a little more efficient than creating a
+  postlist object which checks the empty value slot.
+
+glass backend:
+
+* We no longer flush all pending positional changes when a postlist, termlist
+  or all-terms is opened on a modified WritableDatabase.  Doing so was
+  incurring a significant performance cost, and the first of these happens
+  internally when `replace_document(term, doc)` is used, which is the usual way
+  to support non-numeric unique ids.  We now only flush pending positional
+  changes when committing.  Reported and diagnosed by Germán M. Bravo.
+
+remote backend:
+
+* Use poll() where available instead of select().  poll() is specified by
+  POSIX.1-2001 so should be widely available by now, and it allows watching any
+  fd (select() is limited to watching fds < FD_SETSIZE).  For any platforms
+  which still lack poll() we now workaround this select() limitation when a
+  high numbered fd needs to be watched (for example, by trying a non-blocking
+  read or write and on EAGAIN sleeping for a bit before retrying).
+
+* Stop watching fds for "exceptional conditions" - none of these are relevant
+  to our usage.
+
+* Remove 0.1s timeout in ready_to_read().  The comment says this is to avoid a
+  busy loop, but that's out of date - the matcher first checks which remotes
+  are ready to read and then does a second pass to handle those which weren't
+  with a blocking read.
+
+build system:
+
+* Stop probing for header sys/errno.h which is no longer used - it was only
+  needed for Compaq C++, support for which was dropped in 1.4.8.
+
+documentation:
+
+* docs/valueranges.html: Update to document RangeProcessor instead of
+  ValueRangeProcessor - the latter is deprecated and will be gone in the next
+  release series.
+
+* Document RangeProcessor::operator()() returns OP_INVALID to signal it doesn't
+  recognise a range.
+
+* Update some URLs for pages which have moved.
+
+* Use https for URLs where available.
+
+* HACKING: Update "empty()" section for changes in C++11.
+
+portability:
+
+* Suppress clang warnings for self-assignment tests.  Some testcases trigger
+  this new-ish clang warning while testing that self-assignment works, which
+  seems a useful thing to be testing - at least one of these is a regression
+  test.
+
+* Add std::move to fix clang -Wreturn-std-move warning (which is enabled by
+  -Wall).
+
+* Add casts to fix ubsan warnings.  These cases aren't undefined behaviour, but
+  are reported by ubsan extra checks implicit-integer-truncation and/or
+  implicit-conversion which it is useful to be able to enable to catch
+  potential bugs.
+
+* Fix check for when to use _byteswap_ulong() - in practice this would only
+  have caused a problem if a platform provided _byteswap_ushort() but not
+  _byteswap_ulong(), but we're not aware of any which do.
+
+* Fix return values of do_bswap() helpers to match parameter types (previously
+  we always returned int and only supported swapping types up to 32 bits, so
+  this probably doesn't result in any behavioural changes).
+
+* Only include <intrin.h> if we'll use it instead of always including it when
+  it exists.  Including <intrin.h> can result in warnings about duplicate
+  declarations of builtin functions under mingw.
+
+* Remove call to close()/closesocket() when the argument is always -1 (since
+  the change to use getaddrinfo() in 1.3.3).
+
+Xapian-core 1.4.9 (2018-11-02):
+
+API:
+
+* Document::add_posting(): Fix bugs with the change in 1.4.8 to more
+  efficiently handle insertion of a batch of extra positions in ascending
+  order.  These could lead to missing positions and corrupted encoded
+  positional data.
+
+remote backend:
+
+* Avoid hang if remote connection shutdown fails by not waiting for the
+  connection to close in this situation.  Seems to fix occasional hangs seen on
+  macOS.  Patch from Germán M. Bravo.
+
+Xapian-core 1.4.8 (2018-10-25):
+
+API:
+
+* QueryParser,TermGenerator: Add new stemming mode STEM_SOME_FULL_POS.
+  This stores positional information for both stemmed and unstemmed terms,
+  allowing NEAR and ADJ to work with stemmed terms.  The extra positional
+  information is likely to take up a significant amount of extra disk space so
+  the default STEM_SOME is likely to be a better choice for most users.
+
+* Database::check(): Fetch and decompress the document data to catch problems
+  with the splitting of large data into multiple entries, corruption of the
+  compressed data, etc.  Also check that empty document data isn't explicitly
+  stored for glass.
+
+* Fix an incorrect type being used for term positions in the TermGenerator API.
+  These were Xapian::termcount but should be Xapian::termpos.  Both are
+  typedefs for the same 32-bit unsigned integer type by default (almost always
+  "unsigned int") so this change is entirely compatible, except that if you
+  were configuring 1.4.7 or earlier with --enable-64bit-termcount you need to
+  also use the new --enable-64bit-termpos configure option with 1.4.8 and up or
+  rebuild your applications.  This change was necessary to make
+  --enable-64bit-termpos actually useful.
+
+* Add Document::remove_postings() method which removes all postings in a
+  specified term position range much more efficiently than by calling
+  remove_posting() repeatedly.  It returns the number of postings removed.
+
+* Fix bugs with handling term positions >= 0x80000000.  Reported by Gaurav
+  Arora.
+
+* Document::add_posting(): More efficiently handle insertion of a batch of
+  extra positions in ascending order.
+
+* Query: Simplify OP_SYNONYM with single OP_WILDCARD subquery by converting to
+  OP_WILDCARD with combiner OP_SYNONYM, which means such cases can take
+  advantage of the new matcher optimisation in this release to avoid needing
+  document length for OP_WILDCARD with combiner OP_SYNONYM.
+
+testsuite:
+
+* Catch and report std::exception from the test harness itself.
+
+* apitest: Drop special case for not storing doc length in testcase postlist5 -
+  all backends have stored document lengths for a long time.
+
+* test_harness: Create directories in a race-free way.
+
+matcher:
+
+* Avoid needing document length for an OP_WILDCARD with combiner OP_SYNONYM.
+  We know that we can't get any duplicate terms in the expansion of a wildcard
+  so the sum of the wdf from them can't possibly exceed the document length.
+
+* OP_SYNONYM: No longer tries to initialise weights for its subquery, which
+  should reduce the time taken to set up a large wildcard query.
+
+* OP_SYNONYM: Fix frequency estimates when OP_SYNONYM is used with a
+  subquery containing OP_XOR or OP_MAX - in such cases the frequency
+  estimates for the first subquery of the OP_XOR/OP_MAX were used for
+  all its subqueries.  Also the estimated collection frequency is
+  now rounded to the nearest integer rather than always being rounded
+  down.
+
+glass backend:
+
+* Revert change made in 1.4.6:
+
+    Enable glass's "open_nearby_postlist" optimisation (which especially helps
+    large wildcard queries) for writable databases without any uncommitted
+    changes as well.
+
+  The amended check isn't conservative enough as there may be postlist changes
+  in the inverter while the table is unmodified.  This breaks testcase
+  T150-tagging.sh in notmuch's testsuite, reported by David Bremner.
+
+* When indexing a document without any terms we now avoid some unnecessary work
+  when storing its termlist.
+
+build system:
+
+* New --enable-64bit-termpos configure option which makes Xapian::termpos a
+  64-bit type and enables support for storing 64-bit termpos values in the
+  glass backend in an upwardly compatible way.  Few people will actually want
+  to index documents more than 4 billion words long, but the extra numbering
+  space can be helpful if you want to use term positions in "interesting" ways.
+
+* Hook up configure --disable-sse/--enable-sse=sse options for MSVC.
+
+* Fix configure probes for builtin functions for clang.  We need to specify the
+  argument types for each builtin since otherwise AC_CHECK_DECLS tries to
+  compile code which just tries to take a pointer to the builtin function
+  causing clang to give an error saying that's not allowed.  If the argument
+  types are specified then AC_CHECK_DECLS tries to compile a call to the
+  builtin function instead.
+
+documentation:
+
+* Fix documentation comment typo.
+
+tools:
+
+* xapian-delve: Test for all docs empty using get_total_length() which is
+  slightly simpler internally than get_avlength(), and avoids an exact floating
+  point equality check.
+
+examples:
+
+* quest: Support --weight=coord.
+
+* xapian-pos: New tool to show term position info to help debugging when using
+  positional information in more complex ways.
+
+portability:
+
+* Fix undefined behaviour from C++ ODR violation due to using the same name
+  two different non-static inline functions.  It seems that with current GCC
+  versions the desired function always ends up being used, but with current
+  clang the other function is sometimes used, resulting in database corruption
+  when using value slots in docid 16384 or higher with the default glass
+  backend.  Patch from Germán M. Bravo.
+
+* Suppress alignment cast warning on sparc Linux.  The pointer being cast is to
+  a record returned by getdirentries(), so it should be suitable aligned.
+
+* Drop special handling for Compaq C++.  We never actually achieved a working
+  build using it, and I can find no evidence that this compiler still exists,
+  let alone that it was updated for C++11 which we now require.
+
+* Create new database directories in race-free way.
+
+* Avoid throwing and handling an exception in replace_document() when
+  adding a document with a specified docid which is <= last_docid but currently
+  unused.
+
+* Use our portable code for handling UUIDs on all platforms, and only use
+  platform-specific code for generating a new UUID.  This fixes a bug with
+  converting UUIDs to and from string representation on FreeBSD, NetBSD and
+  OpenBSD on little-endian platforms which resulted in reversed byte order in
+  the first three components, so the same database would report a different
+  UUID on these platforms compared to other platforms.  With this fix, the
+  UUIDs of existing databases will appear to change on these platforms
+  (except in rare "palindronic" cases).  Reported by Germán M. Bravo.
+
+* Fix to build with a C++17 compiler.  Previously we used a "byte" type
+  internally which clashed with "std::byte" in source files which use
+  "using namespace std;".  Fixes #768, reported by Laurent Stacul.
+
+* Adjust apitest testcase stubdb2 to allow for NetBSD oddity: NetBSD's
+  getaddrinfo() in IPv4 mode seems to resolve ::1 to an IPv4 address on the
+  local network.
+
+* Avoid timer_create() on OpenBSD and NetBSD.  On OpenBSD it always fails with
+  ENOSYS (and there's no prototype in the libc headers), while on NetBSD it
+  seems to work, but the timer never seems to fire, so it's useless to us (see
+  #770).
+
+* Use SOCK_NONBLOCK if available to avoid a call to fcntl().  It's supported by
+  at least Linux, FreeBSD, NetBSD and OpenBSD.
+
+* Use O_NOINHERIT for O_CLOEXEC on Windows.  This flag has essentially the same
+  effect, and it's common in other codebases to do this.
+
+* On AIX O_CLOEXEC may be a 64-bit constant which won't fit in an int.  To
+  workaround this stupidity we now call the non-standard open64x() instead
+  of open() when the flags don't fit in an int.
+
+* Add functions to add/multiply with overflow check.  These are implemented
+  with compiler builtins or equivalent where possible, so the overflow check
+  will typically just require a check of the processor's overflow or carry
+  flag.
+
+Xapian-core 1.4.7 (2018-07-19):
+
+API:
+
+* Database::check(): Fix bogus error reports for documents with length zero
+  due to a new check added in 1.4.6 that the doclength was between the stored
+  upper and lower bounds, which failed to allow for the lower bound ignoring
+  documents with length zero (since documents indexed only by boolean terms
+  aren't involved in weighted searches).  Reported by David Bremner.
+
+* Query: Use of Query::MatchAll in multithreaded code causes problems because
+  the reference counting gets messed up by concurrent updates.  Document that
+  Query(string()) should be used instead of MatchAll in multithreaded code, and
+  avoid using it in library code.  Reported by Germán M. Bravo.
+
+* Stem:
+
+  + Stemming algorithms added for Irish, Lithuanian, Nepali and Tamil.
+
+  + Merge Snowball compiler changes which improve code generation.
+
+  + Merge optimisations to the Arabic and Turkish stemmers.
+
+testsuite:
+
+  + Fix duplicate test in apitest closedb10 testcase.  Patch from Guruprasad
+    Hegde.
+
+glass backend:
+
+* A long-lived cursor on a table in a WritableDatabase could get into
+  an invalid state, which typically resulted in a DatabaseCorruptError
+  being thrown with the message:
+
+      Db block overwritten - are there multiple writers?
+
+  But in fact the on-disk database is not corrupted - it's just that
+  the cursor in memory has got into an inconsistent state.  It looks
+  like we'll always detect the inconsistency before it can cause on-disk
+  corruption but it's hard to be completely certain.
+
+  The bug is in code to rebuild the cursor when the underlying table
+  changes in ways which require that, which is a fairly rare occurrence
+  to start with, and only triggers when a block in the cursor has been
+  released, reallocated, and we tried to load it in the cursor at the
+  same level - the cursor wrongly assumes it has the current version
+  of the block.
+
+  Reported with a reproducer by Sylvain Taverne.  Confirmed by David
+  Bremner as also fixing a problem in notmuch for which he hadn't managed
+  to find a reduced reproducer.
+
+documentation:
+
+* INSTALL: Document need to have MSVC command line tools on PATH.
+
+portability:
+
+* Cygwin: Work around oddity where unlink() sometimes seems to indicate failure
+  with errno set to ECHILD.
+
+Xapian-core 1.4.6 (2018-07-02):
+
+API:
+
+* API classes now support C++11 move semantics when using a compiler which
+  we are confident supports them (currently compilers which define
+  __cplusplus >= 201103 plus a special check for MSVC 2015 or later).
+  C++11 move semantics provide a clean and efficient way for threaded code to
+  hand-off Xapian objects to worker threads, but in this case it's very
+  unhelpful for availability of these semantics to vary by compiler as it
+  quietly leads to a build with non-threadsafe behaviour.  To address this,
+  user code can #define XAPIAN_MOVE_SEMANTICS before #include <xapian.h> to
+  force this on, and will then get a compilation failure if the compiler lacks
+  suitable support.
+
+* MSet::snippet():
+
+  + We were only escaping output for HTML/XML in some cases, which would
+    potentially allow HTML to be injected into output (this has been assigned
+    CVE-2018-0499).
+
+  + Include certain leading non-word characters in snippets.  Previously we
+    started the snippet at the start of the first actual word, but there are
+    various cases where including non-word characters in front of the actual
+    word adds useful context or otherwise aids comprehension.  Reported by
+    Robert Stepanek in https://github.com/xapian/xapian/pull/180
+
+* Add MSetIterator::get_sort_key() method.  The sort key has always been
+  available internally, but wasn't exposed via the public API before, which
+  seems like an oversight as the collapse key has long been available.
+  Reported by 张少华 on xapian-discuss.
+
+* Database::compact():
+
+  + Allow Compactor::resolve_duplicate_metadata() implementations to delete
+    entries.  Previously if an implementation returned an empty string this
+    would result in a user meta-data entry with an empty value, which isn't
+    normally achievable (empty meta-data values aren't stored), and so will
+    cause odd behaviour.  We now handle an empty returned value by interpreting
+    it in the natural way - it means that the merged result is to not set a
+    value for that key in the output database.
+
+  + Since 1.3.5 compacting a WritableDatabase with uncommitted changes throws
+    Xapian::InvalidOperationError when compacting to a single-file glass
+    database.  This release adds similar checks for chert and when compacting
+    to a multiple-file glass database.
+
+  + In the unlikely event that the total number of documents or the total
+    length of all documents overflow when trying to compact a multi-database,
+    we throw an exception.  This is now a DatabaseError exception instead of a
+    const char* exception (a hang-over from before this code was turned into a
+    public API in the library).
+
+* Document::remove_term(): Handle removing term at current TermIterator
+  position - previously the underlying iterator was invalidated, leading to
+  undefined behaviour (typically a segmentation fault).  Reported by Gaurav
+  Arora.
+
+* TermIterator::get_termfreq() now always returns an exact answer.  Previously
+  for multi-databases we approximated the result, which is probably either a
+  hang-over from when this method was used during Enquire::get_eset(), or else
+  due to a thinking that this method would be used in that situation (it
+  certainly is not now).  If the user creates a TermIterator object and asks it
+  for term frequencies then we really should give them the correct answer - it
+  isn't hugely costly and the documentation doesn't warn that it might be
+  approximated.
+
+* QueryParser::parse_query():
+
+  + Now adds a colon after the prefix when prefixing a boolean term which
+    starts with a colon.  This means the mapping is reversible, and matches
+    what omega actually does in this case when it tries to reverse the mapping.
+    Thanks to Andy Chilton for pointing out this corner case.
+
+  + The parser now makes use of newer features in the lemon parser generator to
+    make parsing faster and use less memory.
+
+* Enquire::get_mset(): Fix bug with get_mset(0, 0, X) when X > 0 which was
+  causing an attempt to access an element in an empty vector.  Reported by
+  sielicki in #xapian.
+
+* Stem:
+
+  + Add Indonesian stemming algorithm.
+
+  + Small optimisations to almost all stemming algorithms.
+
+* Stopper:
+
+  + Add Indonesian stopword list.
+
+  + The installed version of the Finnish stopword list now has one word per
+    line.  Previously it had several space-separated words on some lines, which
+    works with C++'s std::istream_iterator but may be inconvenient for use from
+    some other languages.
+
+  + The installed versions of stopword lists are now sorted in byte order
+    rather than whatever collation order is specified by LC_COLLATE or similar
+    at build time.  This makes the build more reproducible, and also may be
+    more efficient for loading into some data structures.
+
+* WritableDatabase::replace_document(term, doc): Check for last_docid wrapping
+  when used on a sharded database.
+
+* Database::locked(): Consistently throw FeatureUnavailableError on platforms
+  where we can't test for a database lock without trying to take it.
+  Previously GNU Hurd threw DatabaseLockError while platforms where we don't
+  use fcntl() locking at all threw UnimplementedError.
+
+* Database and WritableDatabase constructors: Fix handling of entries for
+  disabled backends in stub database files to throw FeatureUnavailableError
+  instead of DatabaseError.
+
+* Database::get_value_lower_bound() now works correctly for sharded databases.
+  Previously it returned the empty string if any shard had no values in the
+  specified slot.
+
+* PostingIterator was failing to keep an internal reference to the parent
+  Database object for sharded databases.
+
+* ValueIterator::skip_to() and check() had an off-by-one error in their docid
+  calculations in some cases with sharded databases.
+
+testsuite:
+
+* apitest:
+
+  + Enable testcases flagged metadata, synonym and/or writable to run on
+    sharded databases.
+
+  + Enable testcases flagged writable to run on sharded databases.  Writing to
+    a sharded WritableDatabase has been supported since 1.3.2, but the test
+    harness wasn't running many of the tests that could be with a sharded
+    WritableDatabase.  This uncovered three bugs which are fixed in this
+    release.
+
+  + Support "generated" testcases for the inmemory backend, which uncovered a
+    bug which is fixed in this release.
+
+  + Skip testcase testlock1 on platforms that don't allow us to implement
+    Database::locked() (which notably include GNU Hurd and Microsoft Windows).
+
+  + Disable testlock2 on sharded databases as it fails for platforms which
+    don't actually support testing the lock.
+
+  + Extend tests of behaviour after database close.  Patch from Guruprasad
+    Hegde.  Fixes https://trac.xapian.org/ticket/337
+
+  + Enable testcase closedb5 for remote backends.  This testcase failed for
+    remote backends when it was added and the cause wasn't clear, but it turns
+    out it was actually a bug in the disk based backends, which was fixed way
+    back in 2010.  Reported by Guruprasad Hegde.
+
+  + Check for select() failing in retrylock1 testcase.  Retry on EINTR or
+    EAGAIN, and report other errors rather than trying the read() anyway.
+    Previously the read() would likely fail for the same reason the select()
+    did, but at best this is liable to make what's going on less clear if the
+    testcase fails.
+
+* Report bool values as true/false not 1/0.
+
+* Assorted minor testcase improvements.
+
+* The test harness now supports testcases which are expected to fail (XFAIL).
+  Based on patch from Richard Boulton in https://trac.xapian.org/ticket/156.
+
+* Fix demangling of std::exception subclass names which wasn't happening due
+  to a typo in the preprocessor check for the required header.  This was broken
+  by changes in 1.4.2.
+
+* Make TEST_EQUAL() arguments side-effect free.  The TEST_EQUAL() macro
+  evaluates its arguments a second time if the test fails in order to report
+  their values.  This isn't ideal and really ought to be addressed, but for now
+  fix uses where the argument has side-effect (e.g. *i++) such that the
+  reported value should match the tested value.
+
+* runtest: Show usage if first option starts '-'.  Previously we ended up
+  passing such options to libtool, so putting -v on runtest instead of apitest
+  would run the tests but -v would effectively do nothing (it would make
+  libtool verbose, but that doesn't make any difference in this case):
+  ./runtest -v ./apitest
+
+* Suppress output from xcopy on MS Windows.
+
+* The test harness machinery for detecting file descriptor leaks should now
+  work on any platform which has /dev/fd.
+
+* Implement recursive delete of a database directory in the test harness
+  using nftw() if available (and not buggy like mingw64's seems to be), rather
+  than running "rm -rf" as an external command.  This avoids the overhead of
+  starting a new process each time we clean up a test database, which happens a
+  lot during a test run.
+
+* Speed up generated test databases a little by adding a stat() check to avoid
+  throwing and catching an exception when the database doesn't yet exist.
+
+* Skip timed tests when configured with --enable-log.  The logging can easily
+  turn O(1) operations into O(n), and that's hard to avoid.  Fixes
+  https://trac.xapian.org/ticket/757, reported by Guruprasad Hegde.
+
+matcher:
+
+* OP_VALUE_*: When a value slot's lower and upper bound are equal, we know
+  that exactly how many documents the subquery can match (either 0 or those
+  bounds).  This also avoids a division by zero which previously happened
+  when trying to calculate the estimate.
+
+* Speed up sorting by keys.  Use string::compare() to avoid having to call
+  operator< if operator> returns false.
+
+* Fix clamping of maxitems argument to get_mset() - it was being clamped
+  to db.get_doccount(), now it's clamped to db.get_doccount() - first.  In
+  practice this doesn't actually seem to cause any issues.
+
+* If a match time limit is in effect, when it expires we now clamp
+  check_at_least to first + maxitems instead of to maxitems.  In practice this
+  also doesn't seem to actually cause any issues (at least we've failed to
+  construct a testcase where it actually makes an observable difference).
+
+* Fix percentages when only some shards have positions.  If the final shard
+  didn't have positions this would lead to under-counting the total number leaf
+  of subqueries which would lead to incorrect positional calculations (and a
+  division by zero if the top level of the query was positional.  This bug was
+  introduced in 1.4.3.
+
+* OP_NEAR: Fix "phantom positions", where OP_NEAR would think a term without
+  positional information occurred at position 1 if it had the lowest term
+  frequency amongst the OP_NEAR's subqueries.
+
+* Fix termfreq used in weight calculations for a term occurring more than once
+  in the query.  Previously the termfreq for such terms was multiplied by the
+  number of different query positions they appeared at.
+
+* OP_SYNONYM: We use the doclength upper bound for the wdf upper bound of a
+  synonym - now we avoid fetching it twice when the doclength upper bound is
+  explicitly needed.
+
+* Short-cut init() when factor is 0 in most Weight subclasses.  This indicates
+  the object is for the term-independent weight contribution, which is always 0
+  for most schemes, so there's no point fetching any stats or doing any
+  calculations.  This fixes a divide by zero for TfIdfWeight, detected by
+  UBSan.
+
+* OP_OR: Fix bug which caused orcheck1 to fail once hooked up to run with the
+  inmemory backend.
+
+glass backend:
+
+* Fix glass freelist bug when changes to a new database which didn't modify the
+  termlist table were committed.  In this corner case, a block which had been
+  allocated to be the root block in the termlist table was leaked.  This was
+  largely harmless, except that it was detected by Database::check() and caused
+  it to report an error.  Reported by Antoine Beaupré and David Bremner.
+
+* Fix glass freelist bug with cancel_transaction().  The freelist wasn't
+  reset to how it was before the transaction, resulting in leaked blocks.
+  This was largely harmless, except that it was detected by Database::check()
+  and caused it to report an error.
+
+* Improve the per-term wdf upper bound.  Previously we used min(cf(term),
+  wdf_upper_bound(db)) which is tight for any terms which attain that
+  upper bound, and also for terms with termfreq == 1 (the latter are common
+  in the database (e.g. 66% for a database of wikipedia), but probably
+  much less common in searches).  When termfreq > 1 we now use
+  max(first_wdf(term), cf(term) - first_wdf(term)), which means terms with
+  termfreq == 2 will also attain their bound (another 11% for the same
+  database) while terms with higher termfreq but below the global bound will
+  get a tighter bound.
+
+* Fix Database::locked() on single-file glass db to just return false (such
+  databases can't be opened as a WritableDatabase so there can't be a write
+  lock).  Previously this failed with: "DatabaseLockError: Unable to get write
+  lock on /flintlock: Testing lock"
+
+* Fix compaction when both the input and output are specified as a file
+  descriptor.  Previously this threw an exception due to an overeager check
+  that destination != source.
+
+* Use O_TRUNC when compacting to single file.  If the output already exists but
+  is larger than our output we don't want to just overwrite the start of it.
+  This case also used to result in confusing compaction percentages.
+
+* Enable glass's "open_nearby_postlist" optimisation (which especially helps
+  large wildcard queries) for writable databases without any uncommitted
+  changes as well.
+
+* Make get_unique_terms() more efficient for glass.  We approximate
+  get_unique_terms() by the length of the termlist (which counts boolean terms
+  too) but clamp this to be no larger than the document length.  Since we need
+  to open the termlist to get its length, it makes more sense to get the
+  document length from that termlist for no extra cost rather than looking it
+  up in the postlist table.
+
+* Database::check() now checks document lengths against the stored document
+  length lower and upper bounds.  Patch from Uppinder Chugh.  Fixes
+  https://trac.xapian.org/ticket/617.
+
+* Fix bogus handling of most-recently-read value slot statistics.  It seems
+  that we get lucky and this can't actually cause a problem in practice due
+  to another layer of caching above, but if nothing else it's a bug waiting to
+  happen.
+
+* If we fail to create the directory for a new database because the path
+  already exists, the exception now reports EEXIST as the errno value rather
+  than whatever errno value happened to be set from an earlier library call.
+
+remote backend:
+
+* xapian-tcpsrv --one-shot no longer forks.  We need fork to handle multiple
+  concurrent connections, but when handling a single connection forking just
+  adds overhead and potentially complicates process management for our caller.
+  This aligns with the behaviour under __WIN32__ where we use threads instead
+  of forking, and service the connection from the main thread with --one-shot.
+
+* Fix repeat call to ValueIterator::check() on the same docid to not always
+  set valid to true for remote backend.
+
+inmemory backend:
+
+* Fix repeat call to ValueIterator::check() on the same docid to not always
+  set valid to true for inmemory backend.
+
+build system:
+
+* configure: Fix potentially confusing messages suggesting snprintf was added
+  in C90 - it was actually standardised in C99.
+
+* Eliminate configure probes related to off_t by using C++11 features.
+
+* The installed xapian-config script is now cleaned up by removing code to
+  handle use before installation.  This extra code contained build paths
+  which meant the build wasn't bit-for-bit reproducible unless the same
+  build directory name was used.  This change also eliminates use of
+  automake's $(transform) (which seems to be intended an internal mechanism)
+  and fixes "make uninstall" to remove xapian-config when a program-prefix or
+  -suffix is in use (e.g. there's a default -1.5 suffix for git master
+  currently).
+
+* Directory separator knowledge is now factored out into configure, based on
+  $host_os and __WIN32__ (it seems hard to probe for this in a way which works
+  when cross-compiling).
+
+* Fix build with --disable-backend-remote.
+
+* In an out-of-tree build configured with --enable-maintainer-mode
+  and --disable-dependency-tracking we would fail to create the
+  "tests/soaktest" and "unicode" directories in the build directory.
+  Patch from Gaurav Arora.
+
+* Improve handling of multitarget rule stamp files.  Clean them on "make
+  maintainer-clean" and ship them so that --enable-maintainer-mode when
+  building from a tarball doesn't needlessly rerun the multitarget rules.
+
+* Split out allsnowballheaders.h again to avoid include path issues with
+  unittest in out-of-tree maintainer-mode builds.
+
+* xapian-core.pc: Both the Name and Description were too long compared to
+  pkg-config norms, and the Description was trying to be multi-line which it
+  seems pkg-config doesn't support.  Fixes
+  https://github.com/xapian/xapian/pull/203, reported by orbea.
+
+documentation:
+
+* Stop describing Xapian as "Probabilistic" - we've also had non-probabilistic
+  weighting schemes since 1.3.2.
+
+* Improve API docs for MSet::snippet().
+
+* Correct some class names in doxygen file documentation comments.
+
+* Mark up shell command as `code-block:: sh`.
+
+tools:
+
+* xapian-delve:
+
+  + Document values can contain binary data, so escape them by default for
+    output.  Other options now supported are to decode as a packed integer
+    (like omindex uses for last modified), decode using
+    Xapian::sortable_unserialise(), and to show the raw form (which was the
+    previous behaviour).
+
+  + Report current database revision.
+
+* xapian-inspect:
+
+  + Report entry count when opening table
+
+  + Support inspecting single file DBs via a new --table option (which can also
+    be used with a non-single-file DB instead of specifying the path to the
+    table).
+
+  + Add "first" and "last" commands which jump to the first/last entry in the
+    current table respectively.
+
+  + "until" now counts and reports the number of entries advanced by.
+
+  + Document "until" with no arguments - this advances to the end of the table,
+    but wasn't mentioned in the help.
+
+  + Commands "goto" and "until" which take a key as an argument now expect the
+    key in the same escaped form that's used for display.  This makes it much
+    simpler to interact with tables with binary keys.
+
+  + Fix to expect .glass not .DB extension of glass tables.
+
+portability:
+
+* Sort out building using MSVC with the standard build system, and fix assorted
+  problems.  MSVC 2015 or later is required for decent C++11 support.  Both 32-
+  and 64-bit builds are now supported.
+
+* Remove code specific to old MSVC nmake build system.  The latter has been
+  removed already.
+
+* Don't use WIN32 API to parse/unparse UUIDs.  So much glue code is needed that
+  it's simpler to just do the parsing and unparsing ourselves, and we already
+  have an implementation which is used when generating UUIDs using /proc on
+  Linux.  We still use UuidCreate() to generate a new UUID.
+
+* Improve compiler visibility attribute detection to check that using the
+  attributes doesn't result in a warning - previously we'd enable them even on
+  platforms which don't support them, which would result in a compiler warning
+  for every file compiled.  We now probe for -fvisibility=hidden and
+  -fvisibility-inlines-hidden together as it seems all compilers implement both
+  or neither, and it's faster to do one probe instead of two.
+
+* Don't pass the same FDSET twice in same select() - this appears not to be
+  allowed by current POSIX, and causes warnings with GCC8.
+
+* Fix compacttofd testcases to specify O_BINARY so they pass on platforms
+  where O_BINARY matters.
+
+* configure: Probe for declaration of _putenv_s.  It seems that the symbol is
+  always present in the MSVCRT DLL, but older mingw may not provide a
+  declaration for it.
+
+* Fix "may be used uninitialised" warning with GCC 4.9.2 and -Os.
+
+* Suppress mingw32 deprecation warning for useconds_t.  We've already switched
+  away from useconds_t on git master, but it's not easy to do for 1.4.x without
+  ABI breakage.
+
+* Fix signed vs unsigned warnings with assertions on.
+
+* Use $(SED) instead of hard-coding "sed".  The rules concerned are all ones
+  that only maintainers currently need to run, but we're likely to enable
+  maintainer-mode by default at some point and then portability here will
+  matter more.
+
+* Add missing explicit <algorithm> for std::max()/std::min().
+
+* Check for EAGAIN as well as EINTR from select().  The Linux select(2) man
+  page says: "Portable programs may wish to check for EAGAIN and loop, just as
+  with EINTR" and that seems to be necessary for Cygwin at least.
+
+* Probe for exp10() declaration as Cygwin seems to have the symbol but lacks a
+  declaration in the headers.  Just ignoring it is simplest and we'll use GCC's
+  __builtin_exp10() instead.
+
+* Fix warnings when building Snowball compiler with recent GCC.
+
+* Fix Perl script used during maintainer builds to work with Perl < 5.10.  Such
+  old perl versions shouldn't really be relevant for maintainer builds at this
+  point, but appveyor's mingw install has such a Perl version.
+
+* Remove unused macro STATIC_ASSERT_TYPE_DOMINATES (unused, except by
+  internaltest unit test for it, since the flint backend was removed in 2011)
+  and replace uses of STATIC_ASSERT_UNSIGNED_TYPE with C++11 features
+  static_assert and std::is_unsigned instead.
+
+* Don't retry on (errno == EINTR) when read() or pread() indicates end-of-file.
+  This could potentially have put us into an infinite loop if we encountered
+  this situation and errno happened to be EINTR from a previous library call.
+
+* Make read-only data arrays consistently static and const.
+
+* Avoid casting invalid value to enum reply_type if an invalid reply code is
+  received from a remote server.  This is technically undefined behaviour,
+  though in practice probably not a problem.
+
+* Eliminate an array of function pointers and some char* array members in
+  library, reducing the number of relocations needed at shared library load
+  time, which reduces the total time to load the library.
+
+packaging:
+
+* Use https for tarball URLs in .spec files.  This provides protection against
+  MITM attacks on people building packages using these spec files, and is also
+  slightly more efficient as the http: URLs redirect to the https: versions
+  anyway.
+
+debug code:
+
+* Fix build when configured with --enable-log due to bugs in debug logging
+  annotations.  Patch from Uppinder Chugh.
+
+* Fix assertion for value range on empty slot.
+
+* Use AssertEq() rather than Assert with ==, the former reports the two
+  values if the assertion fails.
+
 Xapian-core 1.4.5 (2017-10-16):
 
 API:
@@ -858,7 +4558,7 @@ API:
 * Remove "experimental" marker from Database::check().  We've not had any
   negative feedback on the current API.
 
-* Databse::check() now checks that doccount <= last_docid.
+* Database::check() now checks that doccount <= last_docid.
 
 * Database::compact() on a WritableDatabase with uncommitted changes could
   produce a corrupted output.  We now throw Xapian::InvalidOperationError in
@@ -1583,7 +5283,8 @@ documentation:
 * HACKING: Drop note about needing git-svn if you're using git - bootstrap now
   only uses git-svn if your Xapian tree was checked out using git-svn.
 
-* HACKING: Need sphinx-doc to generate API docs for Python and Python 3 bindings.
+* HACKING: Need sphinx-doc to generate API docs for Python and Python 3
+  bindings.
 
 * HACKING: Note that MacTeX seems to be the best option if using homebrew.
 
@@ -2765,7 +6466,7 @@ documentation:
 tools:
 
 * xapian-chert-update: Fix -b to work rather than always segfaulting (reported
-  in http://bugs.debian.org/716484).
+  in https://bugs.debian.org/716484).
 
 * xapian-chert-update: The documented alias --blocksize for -b has never
   actually been supported, so just drop mentions of it from --help and the man
@@ -2788,7 +6489,7 @@ tools:
   + Fix database consistency checking to always open all the tables at the same
     revision - not doing this could lead to false errors being reported after a
     commit interrupted by the process being killed or the machine crashing.
-    Reported by Joey Hess in http://bugs.debian.org/724610
+    Reported by Joey Hess in https://bugs.debian.org/724610
 
 examples:
 
@@ -2833,7 +6534,8 @@ portability:
   rather than the now deprecated cygwin_conv_to_win32_path().  Reported by
   "Haroogan" on the xapian-devel mailing list.
 
-* common/safeuuid.h: Add missing '#include <cstdlib>' and qualify free with std.
+* common/safeuuid.h: Add missing '#include <cstdlib>' and qualify free with
+  std.
 
 * Fix 'unused label' warning when chert backend is disabled.
 
@@ -3053,8 +6755,8 @@ tools:
     In practice this is unlikely to actually have caused problems since
     stdin is typically still open and using fd 0.
 
-  + Simplify how we open the .DB file on the replication slave to just call
-    open() once with O_CREAT, rather than once without, than stat() if that
+  + Simplify how we open the .DB file on the replica to just call open()
+    once with O_CREAT, rather than once without, than stat() if that
     fails, and then again with O_CREAT|O_TRUNC if stat() doesn't show an
     ordinary file exists.
 
@@ -3208,8 +6910,6 @@ portability:
   around this (previously compilation would fail with a confusing error).
 
 Xapian-core 1.2.10 (2012-05-09):
-
-API:
 
 testsuite:
 
@@ -4117,8 +7817,8 @@ API:
   API we aren't happy with.  Replication is still supported via the
   command line programs.  (ticket#347)
 
-* Xapian::score_evenness(): Remove as it turns out not to be useful in practice.
-  (ticket#435)
+* Xapian::score_evenness(): Remove as it turns out not to be useful in
+  practice.  (ticket#435)
 
 * Xapian::ValueWeightPostingSource: A ValueWeightPostingSource with no entries
   would report -infinity as its upper bound, which could cause no results to be
@@ -7051,10 +10751,11 @@ API:
 
 * Xapian::Database:
 
-  + The Database(const std::string &) constructor has been marked as "explicit".
-    Hopefully this won't affect real code, but it's possible.  Instead of
-    passing a std::string where a Xapian::Database is expected, you'll now
-    have to explicitly write `Xapian::Database(path)' instead of `path'.
+  + The Database(const std::string &) constructor has been marked as
+    "explicit".  Hopefully this won't affect real code, but it's possible.
+    Instead of passing a std::string where a Xapian::Database is expected,
+    you'll now have to explicitly write `Xapian::Database(path)' instead of
+    `path'.
 
   + Fixed problem when calling skip_to() on an allterms iterator over multiple
     databases which could cause a debug assertion in debug builds, and possible
@@ -7068,8 +10769,8 @@ API:
 
   + Xapian::Error::get_type() now returns const char* rather than std::string.
     Generally existing code will just work (only one change was required in
-    Xapian itself) - the simplest change is to write `std::string(e.get_type())'
-    instead of `e.get_type()'.
+    Xapian itself) - the simplest change is to write
+    `std::string(e.get_type())' instead of `e.get_type()'.
 
   + Previously, the errno value was lost when an error was propagated from
     a remote server to the client, because errno values aren't portable
@@ -7454,8 +11155,8 @@ documentation:
   using doxygen to generated the API reference) have been improved, and some
   missing ones added.  Also, internal classes, members, and methods are now all
   marked as such so that none should appear in the generated documentation.  In
-  particular, the class inheritance graphs should be a lot clearer.  A few other
-  problems have also been addressed.
+  particular, the class inheritance graphs should be a lot clearer.  A few
+  other problems have also been addressed.
 
 * docs/internals.html: New separate index page for the "internal"
   documentation.
@@ -7806,7 +11507,8 @@ API:
 testsuite:
 
 * Add targets "check-flint", "check-quartz", and "check-remote" in tests and at
-  the top level which run the subset of tests which test the respective backend.
+  the top level which run the subset of tests which test the respective
+  backend.
 
 * apitest: Run tests on flint if flint is enabled, rather than if quartz is
   enabled!
@@ -10421,8 +14123,8 @@ portability fixes.
 
 Xapian 0.5.0 (2002-09-20):
 
-The last release of the software that is now known as Xapian was OmSee 0.4.1 on
-November 24th 2000, not far from 2 years ago.
+The last release of the software that is now known as Xapian was Open Muscat
+0.4.1 on November 24th 2000, not far from 2 years ago.
 
 There's been a significant amount of development in this time, so we've
 summarised the most notable changes and improvements:
@@ -10432,8 +14134,8 @@ summarised the most notable changes and improvements:
 
       + "om" is now "xapian-core"
       + "om-examples" is now "xapian-examples", and now contains small,
-	instructive examples which demonstrate how to use Xapian to implement
-	particularly features.
+        instructive examples which demonstrate how to use Xapian to implement
+        particularly features.
       + Added "xapian-applications" which contains larger sample applications
 
   * Much improved build system - should now build "out of the box" on many Unix
@@ -10477,13 +14179,13 @@ summarised the most notable changes and improvements:
 
       + Auto backend: can now be used to create a new database.
       + Auto backend: added support for "stub" databases - a text file
-	specifying the settings for the database to be opened (particularly
-	useful for allowing easy access to specific remote databases).
+        specifying the settings for the database to be opened (particularly
+        useful for allowing easy access to specific remote databases).
       + Quartz backend: many fixes and improvements, and the code has been
-	cleaned up a lot. Implemented deleting of items from postlists.
+        cleaned up a lot. Implemented deleting of items from postlists.
       + Remote backend: implemented term_exists() and get_termfreq();
       + Multi-backend: the document length is now fetched from the sub-postlist
-	rather than the database, which provides a huge speed-up in some cases.
+        rather than the database, which provides a huge speed-up in some cases.
       + Sleepycat backend: this experimental backend has been removed.
       + Muscat 3.6 backends: now disabled by default.
 
@@ -10491,30 +14193,30 @@ summarised the most notable changes and improvements:
 
       + Test cases added for most bug fixes and new features.
       + stemtest: rewritten in C++ rather than part C++, part perl. Now 15%
-	faster.
+        faster.
       + includetest: removed - it's no longer useful now the code has matured.
       + Removed problematic leak checking from testsuite. We plan to use
-	valgrind instead soon.
+        valgrind instead soon.
 
   * Matcher:
 
       + Fixed several matcher bugs which could cause incorrect results in some
-	situations.
+        situations.
       + Fix bug in expander due to nth_element being called on the wrong
-	element.
+        element.
       + Added sorting within relevance bands to the matcher.
       + Matcher now calculates percentages differently, such that 100%
-	relevance is actually achievable.
+        relevance is actually achievable.
       + Matcher now uses a min-heap rather than nth-element to maintain the
-	proto-mset. This is cleaner and more efficient.
+        proto-mset. This is cleaner and more efficient.
       + New operator OP_ELITE_SET replaces match_max_or_terms option.
       + Implemented multiple XOR queries.
       + Add a new query operator, OP_WEIGHT_CUTOFF, which returns only those
-	documents from a query which have a weight greater than a specified
-	cutoff value.
+        documents from a query which have a weight greater than a specified
+        cutoff value.
       + Removed OmBatchEnquire from system: it may return at a later date, but
-	for now it is simply out of date and a maintenance liability, and
-	gives no significant advantage.
+        for now it is simply out of date and a maintenance liability, and
+        gives no significant advantage.
       + Added experimental match bias functors.
 
   * The API has been cleaned up in various places:
@@ -10522,14 +14224,14 @@ summarised the most notable changes and improvements:
       + OmDocumentContents and OmIndexDoc merged to become OmDocument
       + OmQuery interface cleaned up
       + OmData and OmKey removed - methods which used them now just pass a
-	string instead
+        string instead
       + OmESetItem replaced by OmESetIterator; OmMSetItem by OmMSetIterator;
-	om_termname_list by OmTermIterator
+        om_termname_list by OmTermIterator
       + OmDocumentTerm and OmDocumentParams removed
       + OmMSet::mbound replaced by OmMSet::matches_
-	{lower_bound,estimated,upper_bound}, giving more information
+        {lower_bound,estimated,upper_bound}, giving more information
       + Xapian iterators now have default constructors
       + Most API classes now have reference counted internals, so assignment
-	and copying are cheap
+        and copying are cheap
       + OmStem now has copy constructor and assignment operator
       + and more...

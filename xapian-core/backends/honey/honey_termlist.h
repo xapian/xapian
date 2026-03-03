@@ -1,7 +1,7 @@
-/** @file honey_termlist.h
+/** @file
  * @brief A TermList in a honey database.
  */
-/* Copyright (C) 2007,2008,2009,2010,2011 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010,2011,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_HONEY_TERMLIST_H
@@ -41,10 +41,10 @@ namespace Xapian {
 /// A TermList in a honey database.
 class HoneyTermList : public TermList {
     /// Don't allow assignment.
-    void operator=(const HoneyTermList &);
+    void operator=(const HoneyTermList&);
 
     /// Don't allow copying.
-    HoneyTermList(const HoneyTermList &);
+    HoneyTermList(const HoneyTermList&);
 
     /// The database we're reading data from.
     Xapian::Internal::intrusive_ptr<const HoneyDatabase> db;
@@ -65,13 +65,10 @@ class HoneyTermList : public TermList {
      *
      *  If we've iterated to the end of the list, this gets set to NULL.
      */
-    const char *pos;
+    const char* pos;
 
     /// Pointer to the end of the encoded tag value.
-    const char *end;
-
-    /// The termname at the current position.
-    std::string current_term;
+    const char* end;
 
     /// The wdf for the term at the current position.
     Xapian::termcount current_wdf;
@@ -123,9 +120,6 @@ class HoneyTermList : public TermList {
     /// Collate weighting information for the current term.
     void accumulate_stats(Xapian::Internal::ExpandStats& stats) const;
 
-    /// Return the termname at the current position.
-    std::string get_termname() const;
-
     /// Return the wdf for the term at the current position.
     Xapian::termcount get_wdf() const;
 
@@ -148,10 +142,7 @@ class HoneyTermList : public TermList {
      */
     TermList* next();
 
-    TermList* skip_to(const std::string& term);
-
-    /// Return true if the current position is past the last term in this list.
-    bool at_end() const;
+    TermList* skip_to(std::string_view term);
 
     /// Return the length of the position list for the current position.
     Xapian::termcount positionlist_count() const;

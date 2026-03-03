@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg version="1.1" baseProfile="full"
+xmlns="http://www.w3.org/2000/svg"
+xmlns:xlink="http://www.w3.org/1999/xlink"
+xmlns:ev="http://www.w3.org/2001/xml-events"
+width="120.160mm" height="147.910mm"
+viewBox="0 0 120.160 147.910">
+<metadata><dc:title>Should be ignored</dc:title></metadata>
+<title>real title</title>
+<g transform="translate(5.000 142.910)">
+<g id="Lines" stroke="black" fill="none" stroke-width="0.4px">
+<path d="M50.000 -50.000L50.000 -60.000L51.740 -69.850"/>
+<path d="M51.740 -69.850L55.160 -79.250L60.160 -87.910"/>
+</g>
+<g id="Labels" font-size="0.6em">
+<text transform="translate(51 -48)">Start</text>
+</g>
+<g id="Nodes" stroke="black" fill="none" stroke-width="0.05px">
+<circle cx="50.00" cy="-50.00" r="1.0"/>
+<circle cx="50.00" cy="-60.00" r="1.0"/>
+<circle cx="51.74" cy="-69.85" r="1.0"/>
+<circle cx="51.74" cy="-69.85" r="1.0"/>
+<circle cx="55.16" cy="-79.25" r="1.0"/>
+<circle cx="60.16" cy="-87.91" r="1.0"/>
+</g>
+</g>
+</svg>

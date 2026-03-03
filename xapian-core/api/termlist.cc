@@ -1,4 +1,4 @@
-/** @file termlist.cc
+/** @file
  * @brief Abstract base class for termlists.
  */
 /* Copyright (C) 2007,2010,2013 Olly Betts
@@ -14,8 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>

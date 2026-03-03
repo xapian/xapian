@@ -1,7 +1,7 @@
-/** @file result.h
+/** @file
  * @brief A result in an MSet
  */
-/* Copyright 2017 Olly Betts
+/* Copyright 2017,2019 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -14,8 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_RESULT_H
@@ -39,17 +39,15 @@ class Result {
     std::string sort_key;
 
   public:
-    /// FIXME: Try to eliminate non-move assignment.
-    Result& operator=(const Result&) = default;
+    Result& operator=(const Result&) = delete;
 
-    /// FIXME: Try to eliminate copying.
-    Result(const Result&) = default;
+    Result(const Result&) = delete;
 
     /// Move constructor.
-    Result(Result&& o) = default;
+    Result(Result&&) = default;
 
     /// Move assignment.
-    Result& operator=(Result&& o) = default;
+    Result& operator=(Result&&) = default;
 
     /// Constructor.
     Result(double weight_, Xapian::docid did_)

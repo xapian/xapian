@@ -1,9 +1,10 @@
-/* omindex.cc: index static documents into the omega db
- *
- * Copyright 1999,2000,2001 BrightStation PLC
+/** @file
+ * @brief index static documents into the omega db
+ */
+/* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2005 James Aylett
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2017 Olly Betts
+ * Copyright 2002-2022 Olly Betts
  * Copyright 2009 Frank J Bruzzaniti
  * Copyright 2012 Mihai Bivol
  *
@@ -18,24 +19,29 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
 
 #include <algorithm>
+#include <fstream>
 #include <iostream>
 #include <string>
 #include <map>
 
 #include <sys/types.h>
 #include "safeunistd.h"
+#include <cerrno>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
 #include "safefcntl.h"
+
+#ifdef HAVE_FNMATCH
+# include <fnmatch.h>
+#endif
 
 #include <xapian.h>
 
@@ -44,10 +50,13 @@
 #include "hashterm.h"
 #include "index_file.h"
 #include "mime.h"
+#include "parseint.h"
+#include "pkglibbindir.h"
 #include "realtime.h"
 #include "str.h"
 #include "stringutils.h"
 #include "urlencode.h"
+#include "worker.h"
 
 #include "gnu_getopt.h"
 
@@ -69,7 +78,11 @@ static bool date_terms = false;
 static string root;
 static string url_start_path;
 
-inline static bool
+#ifdef HAVE_FNMATCH
+static vector<pair<const char*, const char*>> mime_patterns;
+#endif
+
+static inline bool
 p_notalnum(unsigned int c)
 {
     return !C_isalnum(c);
@@ -79,30 +92,58 @@ static void
 index_file(const string &file, const string &url, DirectoryIterator & d,
 	   map<string, string>& mime_map)
 {
-    string ext;
-    const char * dot_ptr = strrchr(d.leafname(), '.');
-    if (dot_ptr) {
-	ext.assign(dot_ptr + 1);
-	if (ext.size() > max_ext_len)
-	    ext.resize(0);
-    }
-
     string urlterm("U");
     urlterm += url;
 
     if (urlterm.length() > MAX_SAFE_TERM_LENGTH)
 	urlterm = hash_long_term(urlterm, MAX_SAFE_TERM_LENGTH);
 
-    string mimetype = mimetype_from_ext(mime_map, ext);
-    if (mimetype == "ignore") {
-	return;
-    } else if (mimetype == "skip") {
-	// Ignore mimetype, skipped mimetype should not be quietly ignored.
-	string m = "skipping extension '";
-	m += ext;
-	m += "'";
-	skip(urlterm, file.substr(root.size()), m, d.get_size(), d.get_mtime());
-	return;
+    const char* leafname = d.leafname();
+
+    string mimetype;
+#ifdef HAVE_FNMATCH
+    for (auto&& i : mime_patterns) {
+	if (fnmatch(i.first, leafname, 0) == 0) {
+	    if (strcmp(i.second, "ignore") == 0)
+		return;
+	    if (strcmp(i.second, "skip") == 0) {
+		string m = "Leafname '";
+		m += leafname;
+		m += "' matches pattern: ";
+		m += i.first;
+		skip(urlterm, file.substr(root.size()), m,
+		     d.get_size(), d.get_mtime());
+		return;
+	    }
+	    mimetype = i.second;
+	    break;
+	}
+    }
+#endif
+
+    string ext;
+    const char * dot_ptr = strrchr(leafname, '.');
+    if (dot_ptr) {
+	ext.assign(dot_ptr + 1);
+	if (ext.size() > max_ext_len)
+	    ext.resize(0);
+    }
+
+    if (mimetype.empty()) {
+	mimetype = mimetype_from_ext(mime_map, ext);
+	if (mimetype == "ignore") {
+	    // Remove any existing failed entry for this file.
+	    index_remove_failed_entry(urlterm);
+	    return;
+	} else if (mimetype == "skip") {
+	    // Ignore mimetype, skipped mimetype should not be quietly ignored.
+	    string m = "skipping extension '";
+	    m += ext;
+	    m += "'";
+	    skip(urlterm, file.substr(root.size()), m,
+		 d.get_size(), d.get_mtime());
+	    return;
+	}
     }
 
     // Check the file size.
@@ -121,41 +162,11 @@ index_file(const string &file, const string &url, DirectoryIterator & d,
 	return;
     }
 
-    // If we didn't get the mime type from the extension, call libmagic to get
-    // it.
-    if (mimetype.empty()) {
-	mimetype = d.get_magic_mimetype();
-	if (mimetype.empty()) {
-	    skip(urlterm, file.substr(root.size()), "Unknown extension and unrecognised format",
-		 d.get_size(), d.get_mtime(), SKIP_SHOW_FILENAME);
-	    return;
-	}
-    }
-
-    if (verbose)
-	cout << "Indexing \"" << file.substr(root.size()) << "\" as "
-	     << mimetype << " ... ";
-
-    Xapian::Document new_doc;
-
-    // Use `file` as the basis, as we don't want URL encoding in these terms,
-    // but need to switch over the initial part so we get `/~olly/foo/bar` not
-    // `/home/olly/public_html/foo/bar`.
     string path_term("P");
     path_term += url_start_path;
     path_term.append(file, root.size(), string::npos);
 
-    size_t i;
-    while ((i = path_term.rfind('/')) > 1 && i != string::npos) {
-	path_term.resize(i);
-	if (path_term.length() > MAX_SAFE_TERM_LENGTH) {
-	    new_doc.add_boolean_term(hash_long_term(path_term, MAX_SAFE_TERM_LENGTH));
-	} else {
-	    new_doc.add_boolean_term(path_term);
-	}
-    }
-
-    index_mimetype(file, urlterm, url, ext, mimetype, d, new_doc, string());
+    index_mimetype(file, urlterm, url, ext, mimetype, d, path_term, string());
 }
 
 static void
@@ -209,7 +220,7 @@ index_directory(const string &path, const string &url_, size_t depth_limit,
 		     d.get_size(), d.get_mtime(), SKIP_SHOW_FILENAME);
 	    }
 	}
-    } catch (FileNotFound) {
+    } catch (const FileNotFound&) {
 	if (verbose)
 	    cout << "Directory \"" << path.substr(root.size()) << "\" "
 		    "deleted during indexing" << endl;
@@ -248,6 +259,91 @@ parse_size(char* p)
     return -1;
 }
 
+static bool
+parse_filter_rule(const char* rule, map<string, string>& mime_map)
+{
+    const char* s = strchr(rule, ':');
+    if (s == NULL || s[1] == '\0') {
+	cerr << "Invalid filter mapping '" << rule << "'\n"
+		"Should be of the form TYPE:COMMAND or TYPE1,TYPE2:COMMAND or "
+		"TYPE,EXT:COMMAND\n"
+		"e.g. 'application/octet-stream:strings -n8'"
+	     << endl;
+	return false;
+    }
+
+    const char* c = static_cast<const char*>(memchr(rule, ',', s - rule));
+    string output_type, output_charset;
+    if (c) {
+	// Filter produces a specified content-type.
+	++c;
+	const char* c2 = static_cast<const char *>(memchr(c, ',', s - c));
+	if (c2) {
+	    output_type.assign(c, c2 - c);
+	    ++c2;
+	    output_charset.assign(c2, s - c2);
+	} else {
+	    output_type.assign(c, s - c);
+	}
+	--c;
+	if (output_type.find('/') == string::npos) {
+	    auto m = mime_map.find(output_type);
+	    if (m != mime_map.end()) {
+		output_type = m->second;
+	    } else {
+		const char* r = built_in_mime_map(output_type);
+		if (r) output_type = r;
+	    }
+	}
+	if (output_type != "text/html" &&
+	    output_type != "text/plain" &&
+	    output_type != "image/svg+xml") {
+	    cerr << "Currently only output types 'image/svg+xml', "
+		    "'text/html' and 'text/plain' are supported."
+		 << endl;
+	    return false;
+	}
+    } else {
+	c = s;
+    }
+
+    const char* cmd = s + 1;
+    unsigned flags = 0;
+    if (cmd[0] == '|') {
+	flags |= Filter::PIPE_IN;
+	++cmd;
+	// FIXME: Do we need a way to set PIPE_DEV_STDIN and SEEK_DEV_STDIN?
+	//
+	// PIPE_DEV_STDIN doesn't seem to offer much over |foo2txt /dev/stdin
+	// for user-specified filters (internally it provides a way to
+	// gracefully handle platforms without /dev/stdin).
+	//
+	// SEEK_DEV_STDIN isn't currently easily approximated though.
+    }
+    // Analyse the command string to decide if it needs a shell.
+    if (command_needs_shell(cmd))
+	flags |= Filter::USE_SHELL;
+    index_command(string(rule, c - rule),
+		  Filter(string(cmd), output_type, output_charset, flags));
+
+    return true;
+}
+
+static bool
+parse_worker_rule(const char* rule)
+{
+    const char* s = strchr(rule, ':');
+    if (s == NULL || s[1] == '\0') {
+	cerr << "Invalid worker mapping '" << rule << "'\n"
+		"Should be of the form TYPE:WORKER\n"
+		"e.g. 'application/msword:omindex_libreofficekit\n";
+	return false;
+    }
+
+    index_library(string(rule, s - rule), new Worker(string(s + 1)));
+    return true;
+}
+
 int
 main(int argc, char **argv)
 {
@@ -271,38 +367,53 @@ main(int argc, char **argv)
     string site_term, host_term;
     Xapian::Stem stemmer("english");
 
-    enum { OPT_OPENDIR_SLEEP = 256, OPT_SAMPLE, OPT_DATE_TERMS };
+    enum {
+	OPT_OPENDIR_SLEEP = 256,
+	OPT_SAMPLE,
+	OPT_DATE_TERMS,
+	OPT_NO_DATE_TERMS,
+	OPT_READ_FILTERS,
+	OPT_READ_WORKERS
+    };
+    constexpr auto NO_ARG = no_argument;
+    constexpr auto REQ_ARG = required_argument;
     static const struct option longopts[] = {
-	{ "help",	no_argument,		NULL, 'h' },
-	{ "version",	no_argument,		NULL, 'V' },
-	{ "overwrite",	no_argument,		NULL, 'o' },
-	{ "duplicates",	required_argument,	NULL, 'd' },
-	{ "no-delete",	no_argument,		NULL, 'p' },
-	{ "db",		required_argument,	NULL, 'D' },
-	{ "url",	required_argument,	NULL, 'U' },
-	{ "mime-type",	required_argument,	NULL, 'M' },
-	{ "filter",	required_argument,	NULL, 'F' },
-	{ "depth-limit",required_argument,	NULL, 'l' },
-	{ "follow",	no_argument,		NULL, 'f' },
-	{ "ignore-exclusions",	no_argument,	NULL, 'i' },
-	{ "stemmer",	required_argument,	NULL, 's' },
-	{ "spelling",	no_argument,		NULL, 'S' },
-	{ "verbose",	no_argument,		NULL, 'v' },
-	{ "empty-docs",	required_argument,	NULL, 'e' },
-	{ "max-size",	required_argument,	NULL, 'm' },
-	{ "sample",	required_argument,	NULL, OPT_SAMPLE },
-	{ "sample-size",required_argument,	NULL, 'E' },
-	{ "title-size",	required_argument,	NULL, 'T' },
-	{ "retry-failed",	no_argument,	NULL, 'R' },
-	{ "opendir-sleep",	required_argument,	NULL, OPT_OPENDIR_SLEEP },
-	{ "track-ctime",no_argument,		NULL, 'C' },
-	{ "date-terms",	no_argument,		NULL, OPT_DATE_TERMS },
+	{ "help",		NO_ARG,		NULL, 'h' },
+	{ "version",		NO_ARG,		NULL, 'V' },
+	{ "overwrite",		NO_ARG,		NULL, 'o' },
+	{ "duplicates",		REQ_ARG,	NULL, 'd' },
+	{ "no-delete",		NO_ARG,		NULL, 'p' },
+	{ "db",			REQ_ARG,	NULL, 'D' },
+	{ "url",		REQ_ARG,	NULL, 'U' },
+	{ "mime-type",		REQ_ARG,	NULL, 'M' },
+	{ "mime-type-match",	REQ_ARG,	NULL, 'G' },
+	{ "filter",		REQ_ARG,	NULL, 'F' },
+	{ "worker",		REQ_ARG,	NULL, 'W' },
+	{ "read-filters",	REQ_ARG,	NULL, OPT_READ_FILTERS },
+	{ "read-workers",	REQ_ARG,	NULL, OPT_READ_WORKERS },
+	{ "depth-limit",	REQ_ARG,	NULL, 'l' },
+	{ "follow",		NO_ARG,		NULL, 'f' },
+	{ "ignore-exclusions",	NO_ARG,		NULL, 'i' },
+	{ "stemmer",		REQ_ARG,	NULL, 's' },
+	{ "spelling",		NO_ARG,		NULL, 'S' },
+	{ "verbose",		NO_ARG,		NULL, 'v' },
+	{ "empty-docs",		REQ_ARG,	NULL, 'e' },
+	{ "max-size",		REQ_ARG,	NULL, 'm' },
+	{ "sample",		REQ_ARG,	NULL, OPT_SAMPLE },
+	{ "sample-size",	REQ_ARG,	NULL, 'E' },
+	{ "title-size",		REQ_ARG,	NULL, 'T' },
+	{ "retry-failed",	NO_ARG,		NULL, 'R' },
+	{ "opendir-sleep",	REQ_ARG,	NULL, OPT_OPENDIR_SLEEP },
+	{ "track-ctime",	NO_ARG,		NULL, 'C' },
+	{ "date-terms",		NO_ARG,		NULL, OPT_DATE_TERMS },
+	{ "no-date-terms",	NO_ARG,		NULL, OPT_NO_DATE_TERMS },
 	{ 0, 0, NULL, 0 }
     };
 
     map<string, string> mime_map;
 
     index_add_default_filters();
+    index_add_default_libraries();
 
     if (argc == 2 && strcmp(argv[1], "-v") == 0) {
 	// -v was the short option for --version in 1.2.3 and earlier, but
@@ -314,7 +425,8 @@ main(int argc, char **argv)
 
     string dbpath;
     int getopt_ret;
-    while ((getopt_ret = gnu_getopt_long(argc, argv, "hvd:D:U:M:F:l:s:pfRSVe:im:E:T:",
+    while ((getopt_ret = gnu_getopt_long(argc, argv,
+					 "hvd:D:U:M:G:F:W:l:s:pfRSVe:im:E:T:C",
 					 longopts, NULL)) != -1) {
 	switch (getopt_ret) {
 	case 'h': {
@@ -326,7 +438,8 @@ main(int argc, char **argv)
 "BASEDIR is the directory corresponding to URL (default: DIRECTORY).\n"
 "\n"
 "Options:\n"
-"  -d, --duplicates          set duplicate handling ('ignore' or 'replace')\n"
+"  -d, --duplicates=ARG      set duplicate handling: ARG can be 'ignore' or\n"
+"                            'replace' (default: replace)\n"
 "  -p, --no-delete           skip the deletion of documents corresponding to\n"
 "                            deleted files\n"
 "  -e, --empty-docs=ARG      how to handle documents we extract no text from:\n"
@@ -336,20 +449,40 @@ main(int argc, char **argv)
 "  -U, --url=URL             base url BASEDIR corresponds to (default: /)\n"
 "  -M, --mime-type=EXT:TYPE  assume any file with extension EXT has MIME\n"
 "                            Content-Type TYPE, instead of using libmagic\n"
-"                            (empty TYPE removes any existing mapping for EXT)\n"
+"                            (empty TYPE removes any existing mapping for EXT;\n"
+"                            other special TYPE values: 'ignore' and 'skip')\n"
+"  -G, --mime-type-match=GLOB:TYPE\n"
+"                            assume any file with leaf name matching shell\n"
+"                            wildcard pattern GLOB has MIME Content-Type TYPE\n"
+"                            (special TYPE values: 'ignore' and 'skip')\n"
 "  -F, --filter=M[,[T][,C]]:CMD\n"
 "                            process files with MIME Content-Type M using\n"
 "                            command CMD, which produces output (on stdout or\n"
 "                            in a temporary file) with format T (Content-Type\n"
-"                            or file extension; currently txt (default) or\n"
-"                            html) in character encoding C (default: UTF-8).\n"
-"                            E.g. -Fapplication/octet-stream:'strings -n8'\n"
+"                            or file extension; currently txt (default), html\n"
+"                            or svg) in character encoding C (default: UTF-8).\n"
+"                            E.g. -Fapplication/octet-stream:'|strings -n8'\n"
 "                            or -Ftext/x-foo,,utf-16:'foo2utf16 %f %t'\n"
+"  -W, --worker=TYPE:WORKER  process files with MIME Content-Type TYPE using\n"
+"                            worker sub-process WORKER.  WORKER is the name of\n"
+"                            the program to run to start the worker. If it has\n"
+"                            no path then it's looked for in pkglibbindir (which\n"
+"                            can be overridden by setting environment variable\n"
+"                            XAPIAN_OMEGA_PKGLIBBINDIR).  This invocation will\n"
+"                            look in: " << get_pkglibbindir() << "\n"
+"      --read-filters=FILE   bulk-load --filter arguments from FILE, which\n"
+"                            should contain one such argument per line (e.g.\n"
+"                            text/x-bar:bar2txt --utf8).  Lines starting with #\n"
+"                            are treated as comments and ignored.\n"
+"      --read-workers=FILE   bulk-load --worker arguments from FILE, which\n"
+"                            should contain one such argument per line (e.g.\n"
+"                            text/x-bar:omindex_libbar).  Lines starting with #\n"
+"                            are treated as comments and ignored.\n"
 "  -l, --depth-limit=LIMIT   set recursion limit (0 = unlimited)\n"
 "  -f, --follow              follow symbolic links\n"
 "  -i, --ignore-exclusions   ignore meta robots tags and similar exclusions\n"
 "  -S, --spelling            index data for spelling correction\n"
-"  -m, --max-size            maximum size of file to index (in bytes or with a\n"
+"  -m, --max-size=N[SUFFIX]  maximum size of file to index (in bytes or with a\n"
 "                            suffix of 'K'/'k', 'M'/'m', 'G'/'g')\n"
 "                            (default: unlimited)\n"
 "      --sample=SOURCE       what to use for the stored sample of text for\n"
@@ -369,6 +502,10 @@ main(int argc, char **argv)
 "                            on Microsoft DFS shares.\n"
 "  -C, --track-ctime         track each file's ctime so we can detect changes\n"
 "                            to ownership or permissions.\n"
+"      --date-terms          index D, M and Y prefixed terms to support date\n"
+"                            range filtering using terms (we now recommend\n"
+"                            using a value slot for this instead).\n"
+"      --no-date-terms       ignored for compatibility with Omega 1.4.x.\n"
 "  -v, --verbose             show more information about what is happening\n"
 "      --overwrite           create the database anew (the default is to update\n"
 "                            if the database already exists)" << endl;
@@ -406,7 +543,10 @@ main(int argc, char **argv)
 	    delete_removed_documents = false;
 	    break;
 	case 'l': { // Set recursion limit
-	    int arg = atoi(optarg);
+	    int arg;
+	    if (!parse_signed(optarg, arg)) {
+		throw "Recursion limit must be an integer";
+	    }
 	    if (arg < 0) arg = 0;
 	    depth_limit = size_t(arg);
 	    break;
@@ -415,72 +555,63 @@ main(int argc, char **argv)
 	    follow_symlinks = true;
 	    break;
 	case 'M': {
-	    const char * s = strchr(optarg, ':');
+	    const char * s = strrchr(optarg, ':');
 	    if (s == NULL) {
 		cerr << "Invalid MIME mapping '" << optarg << "'\n"
-			"Should be of the form ext:type, e.g. txt:text/plain\n"
+			"Should be of the form EXT:TYPE, e.g. txt:text/plain\n"
 			"(or txt: to delete a default mapping)" << endl;
 		return 1;
 	    }
 
 	    // -Mtxt: results in an empty string, which effectively removes the
 	    // default mapping for .txt files.
-	    mime_map[string(optarg, s - optarg)] = string(s + 1);
-	    max_ext_len = max(max_ext_len, strlen(s + 1));
+	    size_t ext_len = s - optarg;
+	    mime_map[string(optarg, ext_len)] = string(s + 1);
+	    max_ext_len = max(max_ext_len, ext_len);
 	    break;
 	}
-	case 'F': {
-	    const char * s = strchr(optarg, ':');
-	    if (s != NULL && s[1]) {
-		const char * c =
-		    static_cast<const char *>(memchr(optarg, ',', s - optarg));
-		string output_type, output_charset;
-		if (c) {
-		    // Filter produces a specified content-type.
-		    ++c;
-		    const char * c2 =
-			static_cast<const char *>(memchr(c, ',', s - c));
-		    if (c2) {
-			output_type.assign(c, c2 - c);
-			++c2;
-			output_charset.assign(c2, s - c2);
-		    } else {
-			output_type.assign(c, s - c);
-		    }
-		    --c;
-		    if (output_type.find('/') == string::npos) {
-			map<string, string>::const_iterator m;
-			m = mime_map.find(output_type);
-			if (m != mime_map.end()) {
-			    output_type = m->second;
-			} else {
-			    const char * r = built_in_mime_map(output_type);
-			    if (r) output_type = r;
-			}
-		    }
-		    if (output_type != "text/html" &&
-			output_type != "text/plain") {
-			cerr << "Currently only output types 'text/html' and 'text/plain' are supported."
-			     << endl;
-			return 1;
-		    }
-		} else {
-		    c = s;
-		}
-
-		const char * cmd = s + 1;
-		// Analyse the command string to decide if it needs a shell.
-		bool use_shell = command_needs_shell(cmd);
-		index_command(string(optarg, c - optarg),
-			      Filter(string(cmd), output_type,
-				     output_charset, use_shell));
-	    } else {
-		cerr << "Invalid filter mapping '" << optarg << "'\n"
-			"Should be of the form TYPE:COMMAND or TYPE1,TYPE2:COMMAND or TYPE,EXT:COMMAND\n"
-			"e.g. 'application/octet-stream:strings -n8'"
-		     << endl;
+	case 'F':
+	    if (!parse_filter_rule(optarg, mime_map))
+		return 1;
+	    break;
+	case 'W':
+	    if (!parse_worker_rule(optarg))
+		return 1;
+	    break;
+	case OPT_READ_FILTERS: {
+	    ifstream stream(optarg);
+	    if (!stream) {
+		cerr << "Unable to open filter file '" << optarg << "' "
+			"(" << strerror(errno) << ')' << endl;
 		return 1;
 	    }
+	    string rule;
+	    bool all_ok = true;
+	    while (getline(stream, rule)) {
+		if (startswith(rule, '#')) continue;
+		if (!parse_filter_rule(rule.c_str(), mime_map))
+		    all_ok = false;
+	    }
+	    if (!all_ok)
+		return 1;
+	    break;
+	}
+	case OPT_READ_WORKERS: {
+	    ifstream stream(optarg);
+	    if (!stream) {
+		cerr << "Unable to open worker file '" << optarg << "' "
+			"(" << strerror(errno) << ')' << endl;
+		return 1;
+	    }
+	    string rule;
+	    bool all_ok = true;
+	    while (getline(stream, rule)) {
+		if (startswith(rule, '#')) continue;
+		if (!parse_worker_rule(rule.c_str()))
+		    all_ok = false;
+	    }
+	    if (!all_ok)
+		return 1;
 	    break;
 	}
 	case 'D':
@@ -587,6 +718,45 @@ main(int argc, char **argv)
 	case OPT_DATE_TERMS:
 	    date_terms = true;
 	    break;
+	case OPT_NO_DATE_TERMS:
+	    // Ignored for compatibility with Omega 1.4.0.
+	    break;
+	case 'G': {
+	    char * s = strrchr(optarg, ':');
+	    if (s == NULL) {
+		cerr << "Invalid MIME mapping '" << optarg << "'\n"
+			"Should be of the form GLOB:TYPE, e.g. *~:ignore"
+		     << endl;
+		return 1;
+	    }
+#ifndef HAVE_FNMATCH
+	    cerr << "--mime-type-match isn't supported in this build because "
+		    "the fnmatch() function wasn't found at configure time."
+		 << endl;
+	    return 1;
+#else
+	    if (s == optarg) {
+		cerr << "--mime-type-match with an empty pattern can never "
+			"match." << endl;
+		return 1;
+	    }
+	    if (memchr(optarg, '/', s - optarg)) {
+		cerr << "--mime-type-match only matches against the leaf "
+			"filename so a pattern containing '/' can never match."
+		     << endl;
+		return 1;
+	    }
+	    const char* type = s + 1;
+	    if (*type == '\0') {
+		cerr << "--mime-type-match doesn't support an empty MIME type"
+		     << endl;
+		return 1;
+	    }
+	    *s = '\0';
+	    mime_patterns.emplace_back(optarg, type);
+	    break;
+#endif
+	}
 	case ':': // missing param
 	    return 1;
 	case '?': // unknown option: FIXME -> char
@@ -641,6 +811,10 @@ main(int argc, char **argv)
     }
 
     root = argv[optind];
+    if (root.empty()) {
+	cerr << PROG_NAME": start directory can not be empty string." << endl;
+	return 1;
+    }
     if (!endswith(root, '/')) {
 	root += '/';
     }

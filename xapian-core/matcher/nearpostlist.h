@@ -1,4 +1,4 @@
-/** @file nearpostlist.h
+/** @file
  * @brief Return docs containing terms within a specified window.
  *
  * Copyright (C) 2006,2015,2017 Olly Betts
@@ -15,8 +15,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_NEARPOSTLIST_H
@@ -25,6 +25,7 @@
 #include "selectpostlist.h"
 #include <vector>
 
+class EstimateOp;
 class PostListTree;
 
 /** Postlist which matches terms occurring within a specified window.
@@ -49,6 +50,7 @@ class NearPostList : public SelectPostList {
 
   public:
     NearPostList(PostList *source_,
+		 EstimateOp* estimate_op_,
 		 Xapian::termpos window_,
 		 const std::vector<PostList*>::const_iterator &terms_begin,
 		 const std::vector<PostList*>::const_iterator &terms_end,
@@ -57,11 +59,6 @@ class NearPostList : public SelectPostList {
     ~NearPostList();
 
     Xapian::termcount get_wdf() const;
-
-    Xapian::doccount get_termfreq_est() const;
-
-    TermFreqs get_termfreq_est_using_stats(
-	const Xapian::Weight::Internal & stats) const;
 
     std::string get_description() const;
 };

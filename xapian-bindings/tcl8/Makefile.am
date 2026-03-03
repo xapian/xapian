@@ -6,11 +6,14 @@ include ../generic/generic.mk
 TESTS = smoketest.tcl
 AM_TESTS_ENVIRONMENT = \
 	srcdir='$(srcdir)' ;\
-	LIBTOOL='$(LIBTOOL)' ;\
-	TCLSH='$(TCLSH)' ; \
+	TCLSH='$(TCLSH)' ;\
+	TCL_SHLIB_EXT='$(TCL_SHLIB_EXT)' ;\
+	_libs="$(_libs)" ;\
 	export srcdir ;\
-	export LIBTOOL ;\
-	export TCLSH ;
+	export TCLSH ;\
+	export TCL_SHLIB_EXT ;\
+	export _libs ;
+
 LOG_COMPILER = $(srcdir)/run-tcl-test
 
 installcheck-local:
@@ -39,12 +42,11 @@ install-data-hook:
 # Because we don't install the .la file, "make uninstall" doesn't work and
 # we need to remove the file ourselves.
 uninstall-local:
-	eval `grep '^dlname=' $(tcllib_LTLIBRARIES)` ; \
-	  rm -f $(DESTDIR)$(tcllibdir)/"$$dlname"
+	rm -f $(DESTDIR)$(tcllibdir)/xapian$(TCL_SHLIB_EXT)
 
 AM_CPPFLAGS = @TCL_CPPFLAGS@
 AM_CXXFLAGS = @SWIG_CXXFLAGS@ $(XAPIAN_CXXFLAGS)
-xapian_la_LDFLAGS = -avoid-version -module $(NO_UNDEFINED)
+xapian_la_LDFLAGS = -avoid-version -module -shrext '$(TCL_SHLIB_EXT)' $(NO_UNDEFINED)
 nodist_xapian_la_SOURCES = xapian_wrap.cc
 xapian_la_LIBADD = $(XAPIAN_LIBS) $(TCL_LIBS)
 
@@ -53,10 +55,10 @@ BUILT_SOURCES += except.i
 except.i: $(srcdir)/generate-tcl-exceptions ../../xapian-core/exception_data.pm
 	$(PERL) -w -I$(srcdir)/../../xapian-core $(srcdir)/generate-tcl-exceptions
 
-RUN_SWIG = $(PERL) '$(top_srcdir)'/swig-depcomp $(SWIG)
+SWIG_FLAGS += -MD -MP
 
 xapian_wrap.cc: except.i
-	$(RUN_SWIG) $(SWIG_WERROR) -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
+	$(SWIG) $(SWIG_WERROR) -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
 	    -tcl8 -namespace -pkgversion '@VERSION_NO_SNAPSHOT@' \
 	    -o xapian_wrap.cc '$(srcdir)/'tcl.i
 

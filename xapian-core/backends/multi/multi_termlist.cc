@@ -1,7 +1,7 @@
-/** @file multi_termslist.cc
+/** @file
  * @brief Adapter class for a TermList in a multidatabase
  */
-/* Copyright (C) 2007,2008,2009,2011,2017 Olly Betts
+/* Copyright (C) 2007,2008,2009,2011,2017,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -47,12 +47,6 @@ MultiTermList::get_approx_size() const
     return real_termlist->get_approx_size();
 }
 
-string
-MultiTermList::get_termname() const
-{
-    return real_termlist->get_termname();
-}
-
 Xapian::termcount
 MultiTermList::get_wdf() const
 {
@@ -70,19 +64,27 @@ MultiTermList::get_termfreq() const
 TermList *
 MultiTermList::next()
 {
-    return real_termlist->next();
+    TermList* res = real_termlist->next();
+    if (res) {
+	// No more entries (prune shouldn't happen).
+	Assert(res == real_termlist);
+	return this;
+    }
+    current_term = real_termlist->get_termname();
+    return NULL;
 }
 
-TermList *
-MultiTermList::skip_to(const std::string &term)
+TermList*
+MultiTermList::skip_to(std::string_view term)
 {
-    return real_termlist->skip_to(term);
-}
-
-bool
-MultiTermList::at_end() const
-{
-    return real_termlist->at_end();
+    TermList* res = real_termlist->skip_to(term);
+    if (res) {
+	// No more entries (prune shouldn't happen).
+	Assert(res == real_termlist);
+	return this;
+    }
+    current_term = real_termlist->get_termname();
+    return NULL;
 }
 
 Xapian::termcount

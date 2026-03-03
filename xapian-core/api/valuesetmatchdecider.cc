@@ -1,4 +1,4 @@
-/** @file valuesetmatchdecider.cc
+/** @file
  * @brief MatchDecider subclass for filtering results by value.
  */
 /* Copyright 2008 Lemur Consulting Ltd
@@ -15,9 +15,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -33,12 +32,7 @@ namespace Xapian {
 bool
 ValueSetMatchDecider::operator()(const Xapian::Document& doc) const
 {
-    string value = doc.get_value(valuenum);
-    set<string>::const_iterator it = testset.find(value);
-    if (inclusive)
-	return it != testset.end();
-    else
-	return it == testset.end();
+    return (testset.find(doc.get_value(valuenum)) == testset.end()) ^ inclusive;
 }
 
 }

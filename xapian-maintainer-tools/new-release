@@ -1,0 +1,97 @@
+#!/bin/sh
+set -e
+. ENV/bin/activate
+
+projenv=$HOME/$USER
+version=$1
+version_next=`perl -e '$v=shift @ARGV; $v =~ s/\d+$/$&+1/e; print $v' "$version"`
+# FIXME: date of release would be better
+date=`date -u +%Y-%m-%d`
+estimate=`date -u +'%B %Y' -d '2 months'`
+
+if trac-admin "$projenv" version add "$version" ; then
+    echo "Added new version $version"
+else
+    echo "New version $version seems to already exist:"
+    trac-admin "$projenv" version list
+fi
+
+if trac-admin "$projenv" milestone add "$version_next" ; then
+    echo "Added new milestone $version_next"
+else
+    echo "New milestone $version_next seems to already exist:"
+    trac-admin "$projenv" milestone list
+fi
+
+if trac-admin "$projenv" milestone completed "$version" now ; then
+    echo "Marked milestone $version as completed"
+else
+    echo "Failed to mark milestone $version as completed:"
+    trac-admin "$projenv" milestone list
+fi
+
+case $version in
+    *.*[02468].*) ;;
+    *.*[13579].*)
+        echo "Development snapshot - not adding release notes"
+	exit 0
+	;;
+    *)
+	echo "Unsure if this is a development snapshot or not, bailing out"
+	exit 1
+esac
+
+series=`echo "$version"|sed 's/[0-9][0-9]*$//'`
+trac-admin xapian-trac wiki export RoadMap|perl -e '($version,$series,$date,$estimate,$version_next) = @ARGV; $padversion = sprintf "%-10s", $version; while (<STDIN>) {s/^\Q$series\E\d+( is likely to be released in ).*?\./$version_next$1$estimate./;if (/^\|\|Version *\|\|\Q$series\E/) { s/[\r\n]/$padversion||$&/; $add_date = 1} elsif ($add_date) { s/[\r\n]/$date||$&/; $add_date = 0} print}' "$version" "$series" "$date" "$estimate" "$version_next"|trac-admin xapian-trac wiki import RoadMap
+echo "Release date added to RoadMap"
+
+trac-admin "$projenv" wiki import "ReleaseNotes/$version" <<END
+= Release Notes for $version =
+
+Please don't "report" new problems by adding them here as they may not be noticed.
+Instead use the [http://xapian.org/bugs bug tracker] or
+[http://xapian.org/lists mailing lists] to report problems.  You'll certainly
+get a much quicker response that way.
+
+Any patch files linked to below have been generated with the {{{diff}}} utility, and
+can be applied with the GNU {{{patch}}} utility to a source tree, which you'll then need
+to recompile and reinstall.  If you aren't already familiar with applying patches,
+[http://drupal.org/patch see these helpful instructions] (courtesy of the Drupal
+project, but very little is Drupal-specific).
+
+We've had a report that the merge tool supplied with TortoiseSVN gives an error if you try
+to apply a patch where the line numbers are offset (as they may be for a backported fix).
+If you hit this issue, please use GNU patch instead.
+
+== xapian-core ==
+
+No known issues.
+
+== omega ==
+
+No known issues.
+
+== xapian-bindings ==
+
+No known issues.
+END
+
+trac-admin "$projenv" wiki import "ReleaseOverview/$version" <<END
+= Release Overview for $version =
+
+This page contains a high level description of the most notable changes in this release.
+For full details of user-visible changes, see the NEWS files in each module:
+
+ - [http://xapian.org/docs/xapian-core-$version/NEWS xapian-core]
+ - [http://xapian.org/docs/xapian-omega-$version/NEWS omega]
+ - [http://xapian.org/docs/xapian-bindings-$version/NEWS xapian-bindings]
+
+See also the full list of [/query?status=closed&milestone=$version bug reports marked as fixed in this release].
+
+ * ''Summary to be filled in''
+END
+
+trac-admin xapian-trac wiki export ReleaseNotes|perl -e '($version,$series,$date) = @ARGV; while (<STDIN>) { s!(^Latest: *.*?/)\Q$series\E\d+!$1$version!; print}' "$version" "$series" "$date"|trac-admin xapian-trac wiki import ReleaseNotes
+echo "ReleaseNotes 'Latest' links updated"
+
+# - [http://xapian.org/docs/Search-Xapian-$version.0/Changes Search::Xapian]

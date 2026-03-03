@@ -1,7 +1,8 @@
-/* hashterm.cc: generate a URL term, truncating and hashing very long URLs.
- *
- * Copyright (C) 2003 Lemur Consulting Ltd.
- * Copyright (C) 2003,2004,2006,2011 Olly Betts
+/** @file
+ * @brief generate a URL term, truncating and hashing very long URLs.
+ */
+/* Copyright (C) 2003 Lemur Consulting Ltd.
+ * Copyright (C) 2003,2004,2006,2011,2023 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -14,9 +15,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -41,8 +41,8 @@ static string
 hash_string(const string &s)
 {
     unsigned long int h = 1;
-    for (string::const_iterator i = s.begin(); i != s.end(); ++i) {
-	h += (h << 5) + static_cast<unsigned char>(*i);
+    for (unsigned char ch : s) {
+	UNSIGNED_OVERFLOW_OK(h += (h << 5) + ch);
     }
     h &= 0xffffffff; // In case sizeof(unsigned long) > 4
     // FIXME: It's quirky that we make leading zeros ' ' here, but "embedded"

@@ -1,7 +1,7 @@
-/** @file compactor.cc
+/** @file
  * @brief Compact a database, or merge and compact several.
  */
-/* Copyright (C) 2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2015,2016,2017,2018 Olly Betts
+/* Copyright (C) 2003-2024 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -15,21 +15,20 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
 
 #include <xapian/compactor.h>
 
-#include "safeerrno.h"
-
 #include <algorithm>
 #include <fstream>
+#include <string_view>
 #include <vector>
 
+#include <cerrno>
 #include <cstring>
 #include <ctime>
 #include "safesysstat.h"
@@ -40,8 +39,8 @@
 
 #include "backends/backends.h"
 #include "backends/databaseinternal.h"
+#include "backends/postlist.h"
 #include "debuglog.h"
-#include "leafpostlist.h"
 #include "omassert.h"
 #include "filetests.h"
 #include "fileutils.h"
@@ -68,14 +67,14 @@
 using namespace std;
 
 class CmpByFirstUsed {
-    const vector<pair<Xapian::docid, Xapian::docid> > & used_ranges;
+    const vector<pair<Xapian::docid, Xapian::docid>>& used_ranges;
 
   public:
     explicit
-    CmpByFirstUsed(const vector<pair<Xapian::docid, Xapian::docid> > & ur)
+    CmpByFirstUsed(const vector<pair<Xapian::docid, Xapian::docid>>& ur)
 	: used_ranges(ur) { }
 
-    bool operator()(size_t a, size_t b) const {
+    bool operator()(Xapian::doccount a, Xapian::doccount b) const {
 	return used_ranges[a].first < used_ranges[b].first;
     }
 };
@@ -124,7 +123,7 @@ backend_mismatch(const Xapian::Database::Internal* db, int backend1,
 namespace Xapian {
 
 void
-Database::compact_(const string * output_ptr, int fd, unsigned flags,
+Database::compact_(const string_view* output_ptr, int fd, unsigned flags,
 		   int block_size,
 		   Xapian::Compactor * compactor) const
 {
@@ -156,7 +155,7 @@ Database::compact_(const string * output_ptr, int fd, unsigned flags,
     Xapian::docid last_docid = 0;
 
     vector<Xapian::docid> offset;
-    vector<pair<Xapian::docid, Xapian::docid> > used_ranges;
+    vector<pair<Xapian::docid, Xapian::docid>> used_ranges;
     vector<const Xapian::Database::Internal*> internals;
     offset.reserve(n_shards);
     used_ranges.reserve(n_shards);
@@ -214,11 +213,13 @@ Database::compact_(const string * output_ptr, int fd, unsigned flags,
 		//
 		// tot_off could wrap here, but it's unsigned, so that's
 		// OK.
-		tot_off -= (first - 1);
+		UNSIGNED_OVERFLOW_OK(tot_off -= (first - 1));
 	    }
 
 #ifdef XAPIAN_ASSERTIONS
-	    PostList* pl = shard->open_post_list(string());
+	    PostList* pl = shard->open_post_list({});
+	    // We don't do this for an empty shard.
+	    Assert(pl);
 	    pl->next();
 	    // This test should never fail, since shard->get_doccount() is
 	    // non-zero!
@@ -236,7 +237,7 @@ Database::compact_(const string * output_ptr, int fd, unsigned flags,
 
 	offset.push_back(tot_off);
 	if (renumber)
-	    tot_off += last;
+	    UNSIGNED_OVERFLOW_OK(tot_off += last);
 	else if (last_docid < shard->get_lastdocid())
 	    last_docid = shard->get_lastdocid();
 	used_ranges.push_back(make_pair(first, last));
@@ -249,9 +250,9 @@ Database::compact_(const string * output_ptr, int fd, unsigned flags,
 	// We want to process the sources in ascending order of first
 	// docid.  So we create a vector "order" with ascending integers
 	// and then sort so the indirected order is right.
-	vector<size_t> order;
+	vector<Xapian::doccount> order;
 	order.reserve(n_shards);
-	for (size_t i = 0; i < n_shards; ++i)
+	for (Xapian::doccount i = 0; i < n_shards; ++i)
 	    order.push_back(i);
 
 	sort(order.begin(), order.end(), CmpByFirstUsed(used_ranges));
@@ -260,12 +261,12 @@ Database::compact_(const string * output_ptr, int fd, unsigned flags,
 	// docid, and while we're at it check the ranges are disjoint.
 	vector<const Xapian::Database::Internal*> internals_;
 	internals_.reserve(n_shards);
-	vector<pair<Xapian::docid, Xapian::docid> > used_ranges_;
+	vector<pair<Xapian::docid, Xapian::docid>> used_ranges_;
 	used_ranges_.reserve(n_shards);
 
 	Xapian::docid last_start = 0, last_end = 0;
-	for (size_t j = 0; j != order.size(); ++j) {
-	    size_t n = order[j];
+	for (Xapian::doccount j = 0; j != order.size(); ++j) {
+	    Xapian::doccount n = order[j];
 
 	    internals_.push_back(internals[n]);
 	    used_ranges_.push_back(used_ranges[n]);
@@ -329,16 +330,11 @@ Database::compact_(const string * output_ptr, int fd, unsigned flags,
 	    // Check why mkdir failed.  It's ok if the directory already
 	    // exists, but we also get EEXIST if there's an existing file with
 	    // that name.
-	    if (errno == EEXIST) {
-		if (dir_exists(destdir))
-		    errno = 0;
-		else
-		    errno = EEXIST; // dir_exists() might have changed it
-	    }
-	    if (errno) {
+	    int mkdir_errno = errno;
+	    if (mkdir_errno != EEXIST || !dir_exists(destdir)) {
 		string msg = destdir;
 		msg += ": cannot create directory";
-		throw Xapian::DatabaseError(msg, errno);
+		throw Xapian::DatabaseError(msg, mkdir_errno);
 	    }
 	}
     }
@@ -376,18 +372,20 @@ Database::compact_(const string * output_ptr, int fd, unsigned flags,
 						      "at build time");
 #endif
 	    case Xapian::DB_BACKEND_HONEY:
+		// Honey isn't block based.
+		(void)block_size;
 #ifdef XAPIAN_HAS_HONEY_BACKEND
 		if (output_ptr) {
 		    HoneyDatabase::compact(compactor, destdir.c_str(), 0,
 					   Xapian::DB_BACKEND_GLASS,
 					   internals, offset,
-					   block_size, compaction, flags,
+					   compaction, flags,
 					   last_docid);
 		} else {
 		    HoneyDatabase::compact(compactor, NULL, fd,
 					   Xapian::DB_BACKEND_GLASS,
 					   internals, offset,
-					   block_size, compaction, flags,
+					   compaction, flags,
 					   last_docid);
 		}
 		break;
@@ -407,17 +405,19 @@ Database::compact_(const string * output_ptr, int fd, unsigned flags,
 	    case 0:
 	    case Xapian::DB_BACKEND_HONEY:
 #ifdef XAPIAN_HAS_HONEY_BACKEND
+		// Honey isn't block based.
+		(void)block_size;
 		if (output_ptr) {
 		    HoneyDatabase::compact(compactor, destdir.c_str(), 0,
 					   Xapian::DB_BACKEND_HONEY,
 					   internals, offset,
-					   block_size, compaction, flags,
+					   compaction, flags,
 					   last_docid);
 		} else {
 		    HoneyDatabase::compact(compactor, NULL, fd,
 					   Xapian::DB_BACKEND_HONEY,
 					   internals, offset,
-					   block_size, compaction, flags,
+					   compaction, flags,
 					   last_docid);
 		}
 		break;

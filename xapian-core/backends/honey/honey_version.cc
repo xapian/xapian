@@ -1,4 +1,4 @@
-/** @file honey_version.cc
+/** @file
  * @brief HoneyVersion class
  */
 /* Copyright (C) 2006,2007,2008,2009,2010,2013,2014,2015,2016,2017,2018 Olly Betts
@@ -15,8 +15,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -27,14 +27,15 @@
 #include "fd.h"
 #include "honey_defs.h"
 #include "io_utils.h"
+#include "min_non_zero.h"
 #include "omassert.h"
 #include "pack.h"
 #include "posixy_wrapper.h"
 #include "stringutils.h" // For STRINGIZE() and CONST_STRLEN().
 
+#include <cerrno>
 #include <cstring> // For memcmp().
 #include <string>
-#include "safeerrno.h"
 #include <sys/types.h>
 #include "safesysstat.h"
 #include "safefcntl.h"
@@ -42,7 +43,7 @@
 #include "str.h"
 #include "stringutils.h"
 
-#include "common/safeuuid.h"
+#include "backends/uuids.h"
 
 #include "xapian/constants.h"
 #include "xapian/error.h"
@@ -51,7 +52,7 @@ using namespace std;
 
 /// Honey format version (date of change):
 #define HONEY_FORMAT_VERSION DATE_TO_VERSION(2018,4,3)
-// 2018,4,3   1.5.0 outlaw mixed-wdf terms
+// 2018,4,3   2.0.0 outlaw mixed-wdf terms
 // 2018,3,28        don't special case first entry in SSTable
 // 2018,3,27        new key format for value stats, value chunks, doclen chunks
 // 2018,3,26        use known suffix from spelling B and T keys
@@ -91,14 +92,10 @@ static const char HONEY_VERSION_MAGIC[HONEY_VERSION_MAGIC_AND_VERSION_LEN] = {
 };
 
 HoneyVersion::HoneyVersion(int fd_)
-    : rev(0), fd(fd_), offset(0), db_dir(), changes(NULL),
-      doccount(0), total_doclen(0), last_docid(0),
-      doclen_lbound(0), doclen_ubound(0),
-      wdf_ubound(0), spelling_wordfreq_ubound(0),
-      oldest_changeset(0)
+    : fd(fd_), db_dir()
 {
     offset = lseek(fd, 0, SEEK_CUR);
-    if (rare(offset == off_t(-1))) {
+    if (rare(offset < 0)) {
 	string msg = "lseek failed on file descriptor ";
 	msg += str(fd);
 	throw Xapian::DatabaseOpeningError(msg, errno);
@@ -120,7 +117,7 @@ HoneyVersion::read()
     FD close_fd(-1);
     int fd_in;
     if (single_file()) {
-	if (rare(lseek(fd, offset, SEEK_SET) == off_t(-1))) {
+	if (rare(lseek(fd, offset, SEEK_SET) < 0)) {
 	    string msg = "Failed to rewind file descriptor ";
 	    msg += str(fd);
 	    throw Xapian::DatabaseOpeningError(msg, errno);
@@ -133,6 +130,9 @@ HoneyVersion::read()
 	if (rare(fd_in < 0)) {
 	    string msg = filename;
 	    msg += ": Failed to open honey revision file for reading";
+	    if (errno == ENOENT || errno == ENOTDIR) {
+		throw Xapian::DatabaseNotFoundError(msg, errno);
+	    }
 	    throw Xapian::DatabaseOpeningError(msg, errno);
 	}
 	close_fd = fd_in;
@@ -140,8 +140,8 @@ HoneyVersion::read()
 
     char buf[256];
 
-    const char * p = buf;
-    const char * end = p + io_read(fd_in, buf, sizeof(buf), 33);
+    const char* p = buf;
+    const char* end = p + io_read(fd_in, buf, sizeof(buf), 33);
 
     if (memcmp(buf, HONEY_VERSION_MAGIC, HONEY_VERSION_MAGIC_LEN) != 0)
 	throw Xapian::DatabaseCorruptError("Rev file magic incorrect");
@@ -168,8 +168,8 @@ HoneyVersion::read()
     }
 
     p += HONEY_VERSION_MAGIC_AND_VERSION_LEN;
-    memcpy(uuid, p, 16);
-    p += 16;
+    uuid.assign(p);
+    p += uuid.BINARY_SIZE;
 
     if (!unpack_uint(&p, end, &rev)) {
 	throw Xapian::DatabaseCorruptError("Rev file failed to decode "
@@ -206,13 +206,23 @@ HoneyVersion::serialise_stats()
     pack_uint(serialised_stats, oldest_changeset);
     pack_uint(serialised_stats, total_doclen);
     pack_uint(serialised_stats, spelling_wordfreq_ubound);
+    // If total_doclen == 0 then unique_terms is always zero (or there are no
+    // documents at all) so storing these just complicates things because
+    // uniq_terms_lbound could legitimately be zero.
+    if (total_doclen != 0) {
+	// We rely on uniq_terms_lbound being non-zero to detect if it's present
+	// for a single file DB.
+	Assert(uniq_terms_lbound != 0);
+	pack_uint(serialised_stats, uniq_terms_lbound);
+	pack_uint(serialised_stats, uniq_terms_ubound);
+    }
 }
 
 void
 HoneyVersion::unserialise_stats()
 {
-    const char * p = serialised_stats.data();
-    const char * end = p + serialised_stats.size();
+    const char* p = serialised_stats.data();
+    const char* end = p + serialised_stats.size();
     if (p == end) {
 	doccount = 0;
 	total_doclen = 0;
@@ -222,6 +232,8 @@ HoneyVersion::unserialise_stats()
 	wdf_ubound = 0;
 	oldest_changeset = 0;
 	spelling_wordfreq_ubound = 0;
+	uniq_terms_lbound = 0;
+	uniq_terms_ubound = 0;
 	return;
     }
 
@@ -233,16 +245,11 @@ HoneyVersion::unserialise_stats()
 	!unpack_uint(&p, end, &oldest_changeset) ||
 	!unpack_uint(&p, end, &total_doclen) ||
 	!unpack_uint(&p, end, &spelling_wordfreq_ubound)) {
-	const char * m = p ?
+	const char* m = p ?
 	    "Bad serialised DB stats (overflowed)" :
 	    "Bad serialised DB stats (out of data)";
 	throw Xapian::DatabaseCorruptError(m);
     }
-
-    // In the single-file DB case, there will be extra data in
-    // serialised_stats, so suppress this check.
-    if (p != end && !single_file())
-	throw Xapian::DatabaseCorruptError("Rev file has junk at end");
 
     // last_docid must always be >= doccount.
     last_docid += doccount;
@@ -250,22 +257,44 @@ HoneyVersion::unserialise_stats()
     // difference as it may encode smaller.  wdf_ubound is likely to
     // be larger than doclen_lbound.
     doclen_ubound += wdf_ubound;
+
+    // We don't check if there's undecoded data between p and end - in the
+    // single-file DB case there will be extra zero bytes in serialised_stats,
+    // and more generally it's useful to be able to add new stats when it is
+    // safe for old versions to just ignore them and there are sensible values
+    // to use when a new version reads an old database.
+
+    // Read bounds on unique_terms if stored.  This test relies on the first
+    // byte of pack_uint(x) being zero if and only if x is zero, and on
+    // uniq_terms_lbound being non-zero.
+    if (p == end || *p == '\0') {
+	// No bounds stored so use weak bounds based on other stats.
+	if (total_doclen == 0) {
+	    uniq_terms_lbound = uniq_terms_ubound = 0;
+	} else {
+	    Assert(doclen_lbound != 0);
+	    Assert(wdf_ubound != 0);
+	    uniq_terms_lbound = (doclen_lbound - 1) / wdf_ubound + 1;
+	    uniq_terms_ubound = doclen_ubound;
+	}
+    } else if (!unpack_uint(&p, end, &uniq_terms_lbound) ||
+	       !unpack_uint(&p, end, &uniq_terms_ubound)) {
+	const char* m = p ?
+	    "Bad serialised unique_terms bounds (overflowed)" :
+	    "Bad serialised unique_terms bounds (out of data)";
+	throw Xapian::DatabaseCorruptError(m);
+    }
 }
 
 void
-HoneyVersion::merge_stats(const HoneyVersion & o)
+HoneyVersion::merge_stats(const HoneyVersion& o)
 {
     doccount += o.get_doccount();
     if (doccount < o.get_doccount()) {
 	throw Xapian::DatabaseError("doccount overflowed!");
     }
 
-    Xapian::termcount o_doclen_lbound = o.get_doclength_lower_bound();
-    if (o_doclen_lbound > 0) {
-	if (doclen_lbound == 0 || o_doclen_lbound < doclen_lbound)
-	    doclen_lbound = o_doclen_lbound;
-    }
-
+    doclen_lbound = min_non_zero(doclen_lbound, o.get_doclength_lower_bound());
     doclen_ubound = max(doclen_ubound, o.get_doclength_upper_bound());
     wdf_ubound = max(wdf_ubound, o.get_wdf_upper_bound());
     total_doclen += o.get_total_doclen();
@@ -275,6 +304,11 @@ HoneyVersion::merge_stats(const HoneyVersion & o)
 
     // The upper bounds might be on the same word, so we must sum them.
     spelling_wordfreq_ubound += o.get_spelling_wordfreq_upper_bound();
+
+    uniq_terms_lbound = min_non_zero(uniq_terms_lbound,
+				     o.get_unique_terms_lower_bound());
+    uniq_terms_ubound = max(uniq_terms_ubound,
+			    o.get_unique_terms_upper_bound());
 }
 
 void
@@ -283,18 +317,16 @@ HoneyVersion::merge_stats(Xapian::doccount o_doccount,
 			  Xapian::termcount o_doclen_ubound,
 			  Xapian::termcount o_wdf_ubound,
 			  Xapian::totallength o_total_doclen,
-			  Xapian::termcount o_spelling_wordfreq_ubound)
+			  Xapian::termcount o_spelling_wordfreq_ubound,
+			  Xapian::termcount o_uniq_terms_lbound,
+			  Xapian::termcount o_uniq_terms_ubound)
 {
     doccount += o_doccount;
     if (doccount < o_doccount) {
 	throw Xapian::DatabaseError("doccount overflowed!");
     }
 
-    if (o_doclen_lbound > 0) {
-	if (doclen_lbound == 0 || o_doclen_lbound < doclen_lbound)
-	    doclen_lbound = o_doclen_lbound;
-    }
-
+    doclen_lbound = min_non_zero(doclen_lbound, o_doclen_lbound);
     doclen_ubound = max(doclen_ubound, o_doclen_ubound);
     wdf_ubound = max(wdf_ubound, o_wdf_ubound);
     total_doclen += o_total_doclen;
@@ -304,6 +336,9 @@ HoneyVersion::merge_stats(Xapian::doccount o_doccount,
 
     // The upper bounds might be on the same word, so we must sum them.
     spelling_wordfreq_ubound += o_spelling_wordfreq_ubound;
+
+    uniq_terms_lbound = min_non_zero(uniq_terms_lbound, o_uniq_terms_lbound);
+    uniq_terms_ubound = max(uniq_terms_ubound, o_uniq_terms_ubound);
 }
 
 void
@@ -322,7 +357,7 @@ HoneyVersion::write(honey_revision_number_t new_rev, int flags)
     LOGCALL(DB, const string, "HoneyVersion::write", new_rev|flags);
 
     string s(HONEY_VERSION_MAGIC, HONEY_VERSION_MAGIC_AND_VERSION_LEN);
-    s.append(reinterpret_cast<const char *>(uuid), 16);
+    s.append(uuid.data(), uuid.BINARY_SIZE);
 
     pack_uint(s, new_rev);
 
@@ -363,20 +398,11 @@ HoneyVersion::write(honey_revision_number_t new_rev, int flags)
 	throw;
     }
 
-    if (changes) {
-	string changes_buf;
-	changes_buf += '\xfe';
-	pack_uint(changes_buf, new_rev);
-	pack_uint(changes_buf, s.size());
-	changes->write_block(changes_buf);
-	changes->write_block(s);
-    }
-
     RETURN(tmpfile);
 }
 
 bool
-HoneyVersion::sync(const string & tmpfile,
+HoneyVersion::sync(const string& tmpfile,
 		   honey_revision_number_t new_rev, int flags)
 {
     Assert(new_rev > rev || rev == 0);
@@ -427,8 +453,14 @@ HoneyVersion::sync(const string & tmpfile,
     return true;
 }
 
-// Only try to compress tags longer than this many bytes.
-const size_t COMPRESS_MIN = 4;
+/* Only try to compress tags strictly longer than this many bytes.
+ *
+ * This can theoretically usefully be set as low as 4, but in practical terms
+ * zlib can't compress in very many cases for short inputs and even when it can
+ * the savings are small, so we default to a higher threshold to save CPU time
+ * for marginal size reductions.
+ */
+const size_t COMPRESS_MIN = 18;
 
 static const uint4 compress_min_tab[] = {
     0, // POSTLIST
@@ -440,69 +472,64 @@ static const uint4 compress_min_tab[] = {
 };
 
 void
-HoneyVersion::create(unsigned blocksize)
+HoneyVersion::create()
 {
-    AssertRel(blocksize,>=,HONEY_MIN_BLOCKSIZE);
-    uuid_generate(uuid);
+    uuid.generate();
     for (unsigned table_no = 0; table_no < Honey::MAX_; ++table_no) {
-	root[table_no].init(blocksize, compress_min_tab[table_no]);
+	root[table_no].init(compress_min_tab[table_no]);
     }
 }
 
 namespace Honey {
 
 void
-RootInfo::init(unsigned blocksize_, uint4 compress_min_)
+RootInfo::init(uint4 compress_min_)
 {
-    AssertRel(blocksize_,>=,HONEY_MIN_BLOCKSIZE);
     offset = 0;
     root = 0;
-    level = 0;
     num_entries = 0;
-    root_is_fake = true;
-    sequential = true;
-    blocksize = blocksize_;
     compress_min = compress_min_;
     fl_serialised.resize(0);
 }
 
 void
-RootInfo::serialise(string &s) const
+RootInfo::serialise(string& s) const
 {
     AssertRel(offset, >=, 0);
-    std::make_unsigned<off_t>::type uoffset = offset;
-    AssertRel(root, >=, uoffset);
+    std::make_unsigned_t<off_t> uoffset = offset;
+    AssertRel(root, >=, offset);
     pack_uint(s, uoffset);
     pack_uint(s, root - uoffset);
-    unsigned val = level << 2;
-    if (sequential) val |= 0x02;
-    if (root_is_fake) val |= 0x01;
-    pack_uint(s, val);
+    pack_uint(s, 0u);
     pack_uint(s, num_entries);
-    pack_uint(s, blocksize >> 11);
+    pack_uint(s, 2048u >> 11);
     pack_uint(s, compress_min);
     pack_string(s, fl_serialised);
 }
 
 bool
-RootInfo::unserialise(const char ** p, const char * end)
+RootInfo::unserialise(const char** p, const char* end)
 {
-    std::make_unsigned<off_t>::type uoffset;
-    unsigned val;
+    std::make_unsigned_t<off_t> uoffset, uroot;
+    unsigned dummy_val;
+    unsigned dummy_blocksize;
     if (!unpack_uint(p, end, &uoffset) ||
-	!unpack_uint(p, end, &root) ||
-	!unpack_uint(p, end, &val) ||
+	!unpack_uint(p, end, &uroot) ||
+	!unpack_uint(p, end, &dummy_val) ||
 	!unpack_uint(p, end, &num_entries) ||
-	!unpack_uint(p, end, &blocksize) ||
+	!unpack_uint(p, end, &dummy_blocksize) ||
 	!unpack_uint(p, end, &compress_min) ||
 	!unpack_string(p, end, fl_serialised)) return false;
     offset = uoffset;
-    root += uoffset;
-    level = val >> 2;
-    sequential = val & 0x02;
-    root_is_fake = val & 0x01;
-    blocksize <<= 11;
-    AssertRel(blocksize,>=,HONEY_MIN_BLOCKSIZE);
+    root = uoffset + uroot;
+    // Not meaningful, but still there so that existing honey databases
+    // continue to work.
+    (void)dummy_val;
+    (void)dummy_blocksize;
+    // Map old default to new default.
+    if (compress_min == 4) {
+	compress_min = COMPRESS_MIN;
+    }
     return true;
 }
 

@@ -1,6 +1,7 @@
-/* testutils.cc: Xapian-specific test helper functions.
- *
- * Copyright 1999,2000,2001 BrightStation PLC
+/** @file
+ * @brief Xapian-specific test helper functions.
+ */
+/* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2003,2004,2007,2008,2009,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
@@ -14,9 +15,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -46,15 +46,15 @@ mset_range_is_same(const Xapian::MSet &mset1, unsigned int first1,
 		   const Xapian::MSet &mset2, unsigned int first2,
 		   unsigned int count)
 {
-    TEST_AND_EXPLAIN(mset1.size() >= first1 + count - 1,
+    TEST_AND_EXPLAIN(mset1.size() >= first1 + count,
 		     "mset1 is too small: expected at least " <<
-		     (first1 + count - 1) << " items, got " <<
-		     mset1.size() << ".");
+		     (first1 + count) << " items, got " <<
+		     mset1.size());
 
-    TEST_AND_EXPLAIN(mset2.size() >= first2 + count - 1,
+    TEST_AND_EXPLAIN(mset2.size() >= first2 + count,
 		     "mset2 is too small: expected at least " <<
-		     (first2 + count - 1) << " items, got " <<
-		     mset2.size() << ".");
+		     (first2 + count) << " items, got " <<
+		     mset2.size());
 
     Xapian::MSetIterator i = mset1[first1];
     Xapian::MSetIterator j = mset2[first2];
@@ -73,6 +73,35 @@ mset_range_is_same(const Xapian::MSet &mset1, unsigned int first1,
 	}
 	++i;
 	++j;
+    }
+    return true;
+}
+
+bool
+mset_range_is_same(const Xapian::MSet& mset, unsigned int first,
+		   const pair<Xapian::docid, double> to_compare[],
+		   unsigned int count)
+{
+    TEST_AND_EXPLAIN(mset.size() >= first + count - 1,
+		     "mset is too small: expected at least " <<
+		     (first + count - 1) << " items, got " <<
+		     mset.size() << ".");
+
+    Xapian::MSetIterator i = mset[first];
+
+    for (unsigned int l = 0; l < count; ++l) {
+	if (*i != to_compare[l].first) {
+	    tout << "docids differ at item " << (l + 1) << " in range: "
+		    << *i << " != " << to_compare[l].first << "\n";
+	    return false;
+	}
+	// FIXME: don't use internal macro here...
+	if (!TEST_EQUAL_DOUBLE_(i.get_weight(), to_compare[l].second)) {
+	    tout << "weights differ at item " << (l + 1) << " in range: "
+		    << i.get_weight() << " != " << to_compare[l].second << "\n";
+	    return false;
+	}
+	++i;
     }
     return true;
 }
@@ -170,14 +199,14 @@ mset_expect_order_(const Xapian::MSet &A, bool beginning,
 	TEST_AND_EXPLAIN(A.size() >= expect.size(),
 			 "Mset is of wrong size (" << A.size()
 			 << " < " << expect.size() << "):\n"
-			 << "Full mset was: " << A << endl
-			 << "Expected order to start: {" << expect << "}");
+			    "Full mset was: " << A << "\n"
+			    "Expected order to start: {" << expect << "}");
     } else {
 	TEST_AND_EXPLAIN(A.size() == expect.size(),
 			 "Mset is of wrong size (" << A.size()
 			 << " != " << expect.size() << "):\n"
-			 << "Full mset was: " << A << endl
-			 << "Expected order: {" << expect << "}");
+			    "Full mset was: " << A << "\n"
+			    "Expected order: {" << expect << "}");
     }
 
     Xapian::MSetIterator j = A.begin();
@@ -185,9 +214,9 @@ mset_expect_order_(const Xapian::MSet &A, bool beginning,
 	TEST_AND_EXPLAIN(*j == expect[i],
 			 "Mset didn't contain expected result:\n"
 			 << "Item " << i << " was " << *j
-			 << ", expected " << expect[i] << endl
-			 << "Full mset was: " << A << endl
-			 << "Expected: {" << expect << "}");
+			 << ", expected " << expect[i] << "\n"
+			    "Full mset was: " << A << "\n"
+			    "Expected: {" << expect << "}");
     }
 }
 

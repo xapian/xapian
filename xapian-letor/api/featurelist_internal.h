@@ -1,8 +1,9 @@
-/** @file featurelist_internal.h
+/** @file
  * @brief Internals of Feature class
  */
 /* Copyright (C) 2012 Parth Gupta
  * Copyright (C) 2016 Ayush Tomar
+ * Copyright (C) 2019 Vaibhav Kansagara
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -15,15 +16,15 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
-#ifndef XAPIAN_LETOR_INCLUDED_FEATURELIST_INTERNAL_H
-#define XAPIAN_LETOR_INCLUDED_FEATURELIST_INTERNAL_H
+#ifndef XAPIAN_INCLUDED_FEATURELIST_INTERNAL_H
+#define XAPIAN_INCLUDED_FEATURELIST_INTERNAL_H
 
 #include "xapian-letor/featurelist.h"
+#include "api/feature_internal.h"
 
 #include <map>
 
@@ -47,6 +48,9 @@ class FeatureList::Internal : public Xapian::Internal::intrusive_base {
 	COLLECTION_TERM_FREQ = 16,
     } stat_flags;
 
+    /// A bitmask of the statistics this FeatureList needs.
+    stat_flags stats_needed;
+
     /// Xapian::Database using which features will be calculated.
     Database featurelist_db;
 
@@ -56,41 +60,23 @@ class FeatureList::Internal : public Xapian::Internal::intrusive_base {
     /// Xapian::Document using which features will be calculated.
     Document featurelist_doc;
 
-    /// Frequency of the Query Terms in the specified documents.
-    std::map<std::string, Xapian::termcount> termfreq;
-
-    /// Inverse Document Frequency of Query terms in the database.
-    std::map<std::string, double> inverse_doc_freq;
-
-    /** Length of the document as number of terms for different parts like
-     *  'title', 'body' and 'whole'.
-     */
-    std::map<std::string, Xapian::termcount> doc_length;
-
-    /** Length of the collection in number of terms for different parts like
-     * 'title', 'body' and 'whole'.
-     */
-    std::map<std::string, Xapian::termcount> collection_length;
-
-    /// Frequency of the Query Terms in the whole database
-    std::map<std::string, Xapian::termcount> collection_termfreq;
-
     /** This method finds the frequency of the query terms in the
      *  specified documents.
      *
      *  This method is a helper method and statistics gathered through
-     *  this method are used in feature value calculation. This information
-     *  is stored in termfreq.
+     *  this method are used in feature value calculation.
+     *
+     *  @return A map from query terms to their term frequencies.
      */
-    void compute_termfreq();
+    std::map<std::string, Xapian::termcount> compute_termfreq() const;
 
     /** This method calculates the inverse document frequency(idf) of query
      *  terms in the database.
      *
      *  This method is a helper method and statistics gathered through
-     *  this method are used in feature value calculation. This information
-     *  is stored in inverse_doc_freq.
+     *  this method are used in feature value calculation.
      *
+     *  @return A map from query terms to their inverse document frequencies.
      *  Note: idf of a term 't' is calculated as below:
      *
      *  idf(t) = log(N/df(t))
@@ -98,16 +84,16 @@ class FeatureList::Internal : public Xapian::Internal::intrusive_base {
      *  N = Total number of documents in database and
      *  df(t) = number of documents containing term 't'
      */
-    void compute_inverse_doc_freq();
+    std::map<std::string, double> compute_inverse_doc_freq() const;
 
     /** This method calculates the length of the documents as number of 'terms'.
      *  It calculates the length for three different parts:
      *  title, body and whole document.
      *
      *  This method is a helper method and statistics gathered through
-     *  this method are used in feature value calculation. This information
-     *  is stored in doc_length in the following format:
+     *  this method are used in feature value calculation.
      *
+     *  @return A map from query terms to their document lengths.
      *  @code
      *  map<string, long int> len;
      *  len["title"];
@@ -115,7 +101,7 @@ class FeatureList::Internal : public Xapian::Internal::intrusive_base {
      *  len["whole"];
      *  @endcode
      */
-    void compute_doc_length();
+    std::map<std::string, Xapian::termcount> compute_doc_length() const;
 
     /** This method calculates the length of the collection in number of terms
      *  for different parts like 'title', 'body' and 'whole'.
@@ -125,9 +111,9 @@ class FeatureList::Internal : public Xapian::Internal::intrusive_base {
      *  (this might take some time depending upon the size of the database).
      *
      *  This method is a helper method and statistics gathered through
-     *  this method are used in feature value calculation. This information
-     *  is stored in collection_length in the following format.
+     *  this method are used in feature value calculation.
      *
+     *  @return A map from query terms to their collection lengths.
      *  @code
      *  map<string, long int> len;
      *  len["title"];
@@ -136,34 +122,45 @@ class FeatureList::Internal : public Xapian::Internal::intrusive_base {
      *  @endcode
      *
      */
-    void compute_collection_length();
+    std::map<std::string, Xapian::termcount> compute_collection_length() const;
 
     /** This method calculates the frequency of query terms in
      *  the whole database.
      *
      *  This method is a helper method and statistics gathered through
-     *  this method are used in feature value calculation. This information
-     *  is stored in collection_termfreq.
+     *  this method are used in feature value calculation.
+     *
+     *  @return A map from query terms to their collection term frequencies.
      */
-    void compute_collection_termfreq();
+    std::map<std::string, Xapian::termcount> compute_collection_termfreq()
+								const;
 
     /** Specify the database to use for feature building.
      *
      *  This will be used by the Internal class.
      */
-    void set_database(const Xapian::Database & db);
+    void set_database(const Xapian::Database& db) {
+	featurelist_db = db;
+    }
 
     /** Specify the query to use for feature building.
      *
      *  This will be used by the Internal class.
      */
-    void set_query(const Xapian::Query & query);
+    void set_query(const Xapian::Query& query) {
+	featurelist_query = query;
+    }
 
     /** Specify the document to use for feature building.
      *
      *  This will be used by the Internal class.
      */
-    void set_doc(const Xapian::Document & doc);
+    void set_doc(const Xapian::Document& doc) {
+	featurelist_doc = doc;
+    }
+
+    /// Computes and populates the stats needed by a Feature.
+    void populate_feature_internal(Feature::Internal* internal_feature);
 
   public:
 
@@ -173,17 +170,11 @@ class FeatureList::Internal : public Xapian::Internal::intrusive_base {
     std::vector<Feature *> feature;
 
     /// This method sets all the data members required for computing stats.
-    void set_data(const Xapian::Query & query,
-			    const Xapian::Database & db,
-			    const Xapian::Document & doc);
-
-    /// Computes and populates the stats needed by a Feature.
-    void populate_feature(Feature *feature_);
-
-    /// Clears all the stats.
-    void clear_stats();
+    void set_data(const Xapian::Query& query,
+		  const Xapian::Database& db,
+		  const Xapian::Document& doc);
 };
 
 }
 
-#endif // XAPIAN_LETOR_INCLUDED_FEATURELIST_INTERNAL_H
+#endif // XAPIAN_INCLUDED_FEATURELIST_INTERNAL_H

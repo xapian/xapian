@@ -1,7 +1,7 @@
-/** @file document.h
+/** @file
  * @brief Class representing a document
  */
-/* Copyright (C) 2010,2015,2016,2017 Olly Betts
+/* Copyright (C) 2010,2015,2016,2017,2018,2019,2023,2024 Olly Betts
  * Copyright 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -15,19 +15,19 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_DOCUMENT_H
 #define XAPIAN_INCLUDED_DOCUMENT_H
 
 #if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
-# error "Never use <xapian/document.h> directly; include <xapian.h> instead."
+# error Never use <xapian/document.h> directly; include <xapian.h> instead.
 #endif
 
 #include <string>
+#include <string_view>
 
 #include <xapian/attributes.h>
 #include <xapian/intrusive_ptr.h>
@@ -84,6 +84,12 @@ class XAPIAN_VISIBILITY_DEFAULT Document {
      */
     Document& operator=(const Document& o);
 
+    /// Move constructor.
+    Document(Document&& o);
+
+    /// Move assignment operator.
+    Document& operator=(Document&& o);
+
     /** Default constructor.
      *
      *  Creates an empty Document.
@@ -107,11 +113,16 @@ class XAPIAN_VISIBILITY_DEFAULT Document {
     /// Get the document data.
     std::string get_data() const;
 
-    /// Set the document data.
-    void set_data(const std::string& data);
+    /** Set the document data.
+     *
+     *  This is an opaque blob as far as Xapian is concerned - it's up to you
+     *  to impose whatever structure you want on it.  If you want to store
+     *  structured data, consider using something like protocol buffers.
+     */
+    void set_data(std::string_view data);
 
     /// Add a term to this document.
-    void add_term(const std::string& term, Xapian::termcount wdf_inc = 1);
+    void add_term(std::string_view term, Xapian::termcount wdf_inc = 1);
 
     /** Add a boolean filter term to the document.
      *
@@ -126,24 +137,65 @@ class XAPIAN_VISIBILITY_DEFAULT Document {
      *  It is exactly the same as add_term(term, 0) and is provided as a
      *  way to make a common operation more explicit.
      *
-     *  This method was added in Xapian 1.0.18.
-     *
      *  @param term		The term to add.
+     *
+     *  @since This method was added in Xapian 1.0.18.
+     *
      */
-    void add_boolean_term(const std::string& term) { add_term(term, 0); }
+    void add_boolean_term(std::string_view term) { add_term(term, 0); }
 
     /// Remove a term from this document.
-    void remove_term(const std::string& term);
+    void remove_term(std::string_view term);
 
     /// Add a posting for a term.
-    void add_posting(const std::string& term,
+    void add_posting(std::string_view term,
 		     Xapian::termpos term_pos,
 		     Xapian::termcount wdf_inc = 1);
 
-    /// Remove posting for a term.
-    void remove_posting(const std::string& term,
+    /** Remove posting for a term.
+     *
+     *  The instance of the specified term at position term_pos will be
+     *  removed, and the @a wdf reduced by @a wdf_dec (the wdf will not
+     *  ever go below zero though - the resultant wdf is clamped to zero
+     *  if it would).
+     *
+     *  If the term doesn't occur at position term_pos then
+     *  Xapian::InvalidArgumentError is thrown.  If you want to remove a single
+     *  position which may not be present without triggering an exception you
+     *  can call <code>remove_postings(term, pos, pos)</code> instead.
+     *
+     *  Since 2.0.0, if the final position is removed and the wdf becomes zero
+     *  then the term will be removed from the document.
+     */
+    void remove_posting(std::string_view term,
 			Xapian::termpos term_pos,
 			Xapian::termcount wdf_dec = 1);
+
+    /** Remove a range of postings for a term.
+     *
+     *  Any instances of the term at positions >= @a term_pos_first and
+     *  <= @a term_pos_last will be removed, and the wdf reduced by
+     *  @a wdf_dec for each instance removed (the wdf will not ever go
+     *  below zero though - the resultant wdf is clamped to zero if it would).
+     *
+     *  If the term doesn't occur in the range of positions specified (including
+     *  if term_pos_first > term_pos_last) then this method does nothing (unlike
+     *  @a remove_posting() which throws an exception if the specified position
+     *  is not present).
+     *
+     *  Since 2.0.0, if all remaining positions are removed and the wdf becomes
+     *  zero then the term will be removed from the document.  Note that this
+     *  only happens if some positions are removed though - calling this method
+     *  on a term which has no positions and zero wdf won't remove that term.
+     *
+     *  @return The number of postings removed.
+     *
+     *  @since Added in Xapian 1.4.8.
+     */
+    Xapian::termpos remove_postings(std::string_view term,
+				    Xapian::termpos term_pos_first,
+				    Xapian::termpos term_pos_last,
+				    Xapian::termcount wdf_dec = 1);
 
     /// Clear all terms from the document.
     void clear_terms();
@@ -153,12 +205,18 @@ class XAPIAN_VISIBILITY_DEFAULT Document {
 
     /** Start iterating the terms in this document.
      *
-     *  The terms are returned ascending string order (by byte value).
+     *  The terms are returned in ascending string order (by byte value).
+     *
+     *  Note that if the Document object came from a sharded database then
+     *  the TermIterator returned by this method only knows about the shard
+     *  the document came from so calling get_termfreq() on it will give
+     *  you the term frequency in that shard rather than in the combined
+     *  database.
      */
     TermIterator termlist_begin() const;
 
     /// End iterator corresponding to @a termlist_begin().
-    TermIterator XAPIAN_NOTHROW(termlist_end() const) {
+    TermIterator termlist_end() const noexcept {
 	return TermIterator();
     }
 
@@ -175,14 +233,14 @@ class XAPIAN_VISIBILITY_DEFAULT Document {
      *  @param slot	The slot to set
      *  @param value	The new value
      */
-    void add_value(Xapian::valueno slot, const std::string& value);
+    void add_value(Xapian::valueno slot, std::string_view value);
 
     /** Remove any value from the specified slot.
      *
      *  @param slot	The slot to remove any value from.
      */
     void remove_value(Xapian::valueno slot) {
-	add_value(slot, std::string());
+	add_value(slot, {});
     }
 
     /// Clear all value slots in this document.
@@ -198,11 +256,14 @@ class XAPIAN_VISIBILITY_DEFAULT Document {
     ValueIterator values_begin() const;
 
     /// End iterator corresponding to @a values_begin().
-    ValueIterator XAPIAN_NOTHROW(values_end() const) {
+    ValueIterator values_end() const noexcept {
 	return ValueIterator();
     }
 
-    /** Efficiently swap this Document object with another. */
+    /** Efficiently swap this Document object with another.
+     *
+     *  @since Added in Xapian 2.0.0.
+     */
     void swap(Document& o) { internal.swap(o.internal); }
 
     /** Serialise document into a string.
@@ -214,7 +275,7 @@ class XAPIAN_VISIBILITY_DEFAULT Document {
     std::string serialise() const;
 
     /** Unserialise a document from a string produced by serialise(). */
-    static Document unserialise(const std::string& serialised);
+    static Document unserialise(std::string_view serialised);
 
     /// Return a string describing this object.
     std::string get_description() const;

@@ -1,4 +1,4 @@
-/** @file replicate_utils.h
+/** @file
  * @brief Utility functions for replication implementations
  */
 /* Copyright (C) 2010 Richard Boulton
@@ -14,8 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_REPLICATE_UTILS_H
@@ -46,7 +46,7 @@ create_changeset_file(const std::string & changeset_dir,
 
 /** Write some changes from a buffer, and then drop them from the buffer.
  *
- *  @param changes_fd The filedescriptor to write to (-1 to skip writing).
+ *  @param changes_fd The file descriptor to write to (-1 to skip writing).
  *  @param buf The buffer holding the changes.
  *  @param bytes The number of bytes to write and drop.
  */

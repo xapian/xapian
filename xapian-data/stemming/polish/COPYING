@@ -1,0 +1,12 @@
+The word list for Polish was downloaded from the Wortschatz Leipzig website:
+
+https://wortschatz.uni-leipzig.de/en/download/Polish
+
+I took the News 2024 100K archive as the basis and cleaned it up manually
+(mostly by removing words with non-Polish characters):
+
+https://downloads.wortschatz-leipzig.de/corpora/pol_news_2024_30K.tar.gz
+
+According to the following page, the corpora are licensed under CC BY 4.0:
+
+https://wortschatz-leipzig.de/en/usage

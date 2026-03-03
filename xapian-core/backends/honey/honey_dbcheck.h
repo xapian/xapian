@@ -1,7 +1,7 @@
-/** @file honey_dbcheck.h
+/** @file
  * @brief Check a honey table.
  */
-/* Copyright (C) 2008,2009,2012,2013,2014,2016 Olly Betts
+/* Copyright (C) 2008,2009,2012,2013,2014,2016,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -14,9 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_HONEY_DBCHECK_H
@@ -24,34 +23,35 @@
 
 #include "xapian/types.h"
 
-#include <cstring> // For size_t.
+#include <sys/types.h> // For size_t and off_t.
 #include <iosfwd>
 #include <string>
+#include <string_view>
 #include <vector>
 
 class HoneyVersion;
 
-size_t check_honey_table(const char * tablename, const std::string &db_dir,
+size_t check_honey_table(const char* tablename, std::string_view db_dir,
 			 int fd, off_t offset_,
-			 const HoneyVersion & version_file, int opts,
-			 std::vector<Xapian::termcount> & doclens,
-			 std::ostream * out);
+			 const HoneyVersion& version_file, int opts,
+			 std::vector<Xapian::termcount>& doclens,
+			 std::ostream* out);
 
 inline size_t
-check_honey_table(const char * tablename, const std::string &db_dir,
-		  const HoneyVersion & version_file, int opts,
-		  std::vector<Xapian::termcount> & doclens,
-		  std::ostream * out)
+check_honey_table(const char* tablename, std::string_view db_dir,
+		  const HoneyVersion& version_file, int opts,
+		  std::vector<Xapian::termcount>& doclens,
+		  std::ostream* out)
 {
     return check_honey_table(tablename, db_dir, -1, 0, version_file, opts,
 			     doclens, out);
 }
 
 inline size_t
-check_honey_table(const char * tablename, int fd, off_t offset_,
-		  const HoneyVersion & version_file, int opts,
-		  std::vector<Xapian::termcount> & doclens,
-		  std::ostream * out)
+check_honey_table(const char* tablename, int fd, off_t offset_,
+		  const HoneyVersion& version_file, int opts,
+		  std::vector<Xapian::termcount>& doclens,
+		  std::ostream* out)
 {
     return check_honey_table(tablename, std::string(), fd, offset_,
 			     version_file, opts,

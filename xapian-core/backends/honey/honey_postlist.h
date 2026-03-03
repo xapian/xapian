@@ -1,7 +1,7 @@
-/** @file honey_postlist.h
+/** @file
  * @brief PostList in a honey database.
  */
-/* Copyright (C) 2007,2009,2011,2013,2015,2016,2017,2018 Olly Betts
+/* Copyright (C) 2007,2009,2011,2013,2015,2016,2017,2018,2024 Olly Betts
  * Copyright (C) 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -15,18 +15,19 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_HONEY_POSTLIST_H
 #define XAPIAN_INCLUDED_HONEY_POSTLIST_H
 
-#include "api/leafpostlist.h"
+#include "backends/leafpostlist.h"
 #include "honey_positionlist.h"
 #include "pack.h"
 
 #include <string>
+#include <string_view>
 
 class HoneyCursor;
 class HoneyDatabase;
@@ -35,7 +36,7 @@ namespace Honey {
 
 /** Generate a key for a posting initial chunk. */
 inline std::string
-make_postingchunk_key(const std::string& term)
+make_postingchunk_key(std::string_view term)
 {
     std::string key;
     pack_string_preserving_sort(key, term, true);
@@ -44,7 +45,7 @@ make_postingchunk_key(const std::string& term)
 
 /** Generate a key for a posting continuation chunk. */
 inline std::string
-make_postingchunk_key(const std::string& term, Xapian::docid did)
+make_postingchunk_key(std::string_view term, Xapian::docid did)
 {
     std::string key;
     pack_string_preserving_sort(key, term);
@@ -59,8 +60,8 @@ docid_from_key(const std::string& term, const std::string& key)
 	// A key can't be shorter than the term it contains.
 	return false;
     }
-    const char * p = key.data();
-    const char * end = p + key.size();
+    const char* p = key.data();
+    const char* end = p + key.size();
     // Most terms don't contain zero bytes, so we could optimise this.
     std::string term_in_key;
     // FIXME: the next key might not be for a postlist chunk...
@@ -75,8 +76,8 @@ docid_from_key(const std::string& term, const std::string& key)
 }
 
 class PostingChunkReader {
-    const char *p;
-    const char *end;
+    const char* p = nullptr;
+    const char* end;
 
     Xapian::docid did;
 
@@ -112,7 +113,7 @@ class PostingChunkReader {
 
   public:
     /// Create an uninitialised PostingChunkReader.
-    PostingChunkReader() : p(NULL) { }
+    PostingChunkReader() { }
 
     /// Initialise already at_end().
     void init() {
@@ -127,15 +128,13 @@ class PostingChunkReader {
 	collfreq_info = cf_info;
     }
 
-    void assign(const char * p_, size_t len, Xapian::docid did);
+    void assign(const char* p_, size_t len, Xapian::docid did);
 
-    void assign(const char * p_, size_t len, Xapian::docid did_,
+    void assign(const char* p_, size_t len, Xapian::docid did_,
 		Xapian::docid last_did_in_chunk,
 		Xapian::termcount wdf_);
 
     bool at_end() const { return p == NULL; }
-
-    Xapian::doccount get_termfreq() const { return termfreq; }
 
     Xapian::docid get_docid() const { return did; }
 
@@ -169,6 +168,12 @@ class HoneyPostList : public LeafPostList {
     /// HoneyDatabase to get position table object from.
     const HoneyDatabase* db;
 
+    /** Maximum wdf for this postlist.
+     *
+     *  We store this for honey, so it's exact - not just an upper bound.
+     */
+    Xapian::termcount wdf_max;
+
     /** Needed so that first next() does nothing.
      *
      *  FIXME: Can we arrange not to need this?
@@ -181,15 +186,14 @@ class HoneyPostList : public LeafPostList {
   public:
     /// Create HoneyPostList from already positioned @a cursor_.
     HoneyPostList(const HoneyDatabase* db_,
-		  const std::string& term_,
+		  std::string_view term_,
 		  HoneyCursor* cursor_);
 
     ~HoneyPostList();
 
-    Xapian::doccount get_termfreq() const;
-
-    LeafPostList* open_nearby_postlist(const std::string& term_,
-				       bool need_pos) const;
+    bool open_nearby_postlist(std::string_view term_,
+			      bool need_read_pos,
+			      LeafPostList*& pl) const;
 
     Xapian::docid get_docid() const;
 
@@ -202,6 +206,10 @@ class HoneyPostList : public LeafPostList {
     PostList* next(double w_min);
 
     PostList* skip_to(Xapian::docid did, double w_min);
+
+    Xapian::termcount get_wdf_upper_bound() const;
+
+    void get_docid_range(Xapian::docid& first, Xapian::docid& last) const;
 
     std::string get_description() const;
 };
@@ -221,7 +229,7 @@ class HoneyPosPostList : public HoneyPostList {
 
   public:
     HoneyPosPostList(const HoneyDatabase* db_,
-		     const std::string& term_,
+		     std::string_view term_,
 		     HoneyCursor* cursor_);
 
     PositionList* read_position_list();

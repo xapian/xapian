@@ -1,4 +1,4 @@
-/** @file fd.h
+/** @file
  * @brief Wrapper class around a file descriptor to avoid leaks
  */
 /* Copyright (C) 2011,2012 Olly Betts
@@ -28,22 +28,22 @@
 #include "safeunistd.h"
 
 class FD {
-    int fd;
+    int fd = -1;
 
     /// Prevent copying.
-    FD(const FD &);
+    FD(const FD&) = delete;
 
     /// Prevent assignment between FD objects.
-    void operator=(const FD &);
+    FD& operator=(const FD&) = delete;
 
   public:
-    FD() : fd(-1) { }
+    FD() { }
 
     FD(int fd_) : fd(fd_) { }
 
     ~FD() { if (fd != -1) ::close(fd); }
 
-    FD & operator=(int fd_) {
+    FD& operator=(int fd_) {
 	if (fd != -1) ::close(fd);
 	fd = fd_;
 	return *this;
@@ -60,7 +60,7 @@ class FD {
     }
 };
 
-inline int close(FD & fd) {
+inline int close(FD& fd) {
     return fd.close();
 }
 

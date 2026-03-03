@@ -1,4 +1,4 @@
-/** @file glass_document.h
+/** @file
  * @brief A document read from a GlassDatabase.
  */
 /* Copyright (C) 2008,2009,2010,2011 Olly Betts
@@ -14,8 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_GLASS_DOCUMENT_H
@@ -54,7 +54,8 @@ class GlassDocument : public Xapian::Document::Internal {
   protected:
     /** Implementation of virtual methods @{ */
     string fetch_value(Xapian::valueno slot) const;
-    void fetch_all_values(map<Xapian::valueno, string> & values_) const;
+    void fetch_all_values(std::map<Xapian::valueno,
+				   std::string>& values_) const;
     string fetch_data() const;
     /** @} */
 };

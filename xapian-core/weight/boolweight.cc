@@ -1,4 +1,4 @@
-/** @file boolweight.cc
+/** @file
  * @brief Xapian::BoolWeight class - boolean weighting
  */
 /* Copyright (C) 2009,2011,2016 Olly Betts
@@ -8,14 +8,14 @@
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -43,12 +43,6 @@ BoolWeight::init(double)
 string
 BoolWeight::name() const
 {
-    return "Xapian::BoolWeight";
-}
-
-string
-BoolWeight::short_name() const
-{
     return "bool";
 }
 
@@ -69,25 +63,13 @@ BoolWeight::unserialise(const string& s) const
 
 double
 BoolWeight::get_sumpart(Xapian::termcount, Xapian::termcount,
-			Xapian::termcount) const
+			Xapian::termcount, Xapian::termcount) const
 {
     return 0;
 }
 
 double
 BoolWeight::get_maxpart() const
-{
-    return 0;
-}
-
-double
-BoolWeight::get_sumextra(Xapian::termcount, Xapian::termcount) const
-{
-    return 0;
-}
-
-double
-BoolWeight::get_maxextra() const
 {
     return 0;
 }

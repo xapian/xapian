@@ -1,4 +1,4 @@
-/** @file xapian-train.cc
+/** @file
  * @brief Command line tool to train and save the LTR model
  */
 /* Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2015 Olly Betts
@@ -16,9 +16,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -74,7 +73,7 @@ try {
 		show_usage();
 		exit(0);
 	    case OPT_VERSION:
-		cout << PROG_NAME " - " PACKAGE_STRING << endl;
+		cout << PROG_NAME " - " PACKAGE_STRING "\n";
 		exit(0);
 	    case ':': // missing parameter
 	    case '?': // unknown option
@@ -92,7 +91,7 @@ try {
     string model_metadata_key = argv[optind + 1];
 
     if (!have_database) {
-	cout << "No database specified so not running the query." << endl;
+	cout << "No database specified so not running the query.\n";
 	exit(0);
     }
 
@@ -111,6 +110,6 @@ try {
     cout << flush;
 
 } catch (const Xapian::Error & err) {
-    cout << err.get_description() << endl;
+    cout << err.get_description() << '\n';
     exit(1);
 }

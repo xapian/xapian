@@ -1,4 +1,4 @@
-/** @file feature.h
+/** @file
  * @brief Abstract base class for features in learning to rank
  */
 /* Copyright (C) 2016 Ayush Tomar
@@ -14,9 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_FEATURE_H
@@ -27,7 +26,7 @@
 #include <xapian/types.h>
 #include <xapian/visibility.h>
 
-#include "letor_error.h"
+#include <xapian-letor/letor_error.h>
 
 #include <string>
 #include <limits>
@@ -42,32 +41,6 @@ namespace Xapian {
 /// Abstract base class for features in learning to rank
 class XAPIAN_VISIBILITY_DEFAULT Feature {
   protected:
-    /// Xapian::Database using which features will be calculated.
-    Database feature_db;
-
-    /// Xapian::Query using which features will be calculated.
-    Query feature_query;
-
-    /// Xapian::Document using which features will be calculated.
-    Document feature_doc;
-
-    /// Frequency of the Query Terms in the specified documents.
-    std::map<std::string, Xapian::termcount> termfreq;
-
-    /// Inverse Document Frequency of Query terms in the database.
-    std::map<std::string, double> inverse_doc_freq;
-
-    /// Length of the document as number of "terms"
-    std::map<std::string, Xapian::termcount> doc_length;
-
-    /** Length of the collection in number of terms for different parts
-     *  like 'title', 'body' and 'whole'
-     */
-    std::map<std::string, Xapian::termcount> collection_length;
-
-    /// Frequency of the Query Terms in the whole database
-    std::map<std::string, Xapian::termcount> collection_termfreq;
-
     /// Stats which FeatureList can use.
     typedef enum {
 	/// Frequency of the Query Terms in the specified documents.
@@ -98,69 +71,32 @@ class XAPIAN_VISIBILITY_DEFAULT Feature {
     /// A bitmask of the statistics this Feature needs.
     stat_flags stats_needed;
 
+    /// Get termfreq
+    Xapian::termcount get_termfreq(const std::string& term) const;
+
+    /// Get inverse_doc_freq
+    double get_inverse_doc_freq(const std::string& term) const;
+
+    /// Get doc_length
+    Xapian::termcount get_doc_length(const std::string& term) const;
+
+    /// Get collection_length
+    Xapian::termcount get_collection_length(const std::string& term) const;
+
+    /// Get collection_termfreq
+    Xapian::termcount get_collection_termfreq(const std::string& term) const;
+
   public:
+    /// @internal Class representing the Feature internals.
+    class Internal;
+    /// @internal Reference counted internals.
+    Xapian::Internal::intrusive_ptr<Internal> internal;
+
     /// Default constructor
     Feature();
 
     /// Virtual destructor because we have virtual methods.
     virtual ~Feature();
-
-    /** Specify the database to use for feature building.
-     *
-     *  This will be used by FeatureList::Internal class.
-     */
-    void set_database(const Xapian::Database & db);
-
-    /** Specify the query to use for feature building.
-     *
-     *  This will be used by FeatureList::Internal class.
-     *
-     *  @param query  Xapian::Query which has to be queried
-     */
-    void set_query(const Xapian::Query & query);
-
-    /** Specify the document to use for feature building.
-     *
-     *  This will be used by FeatureList::Internal class.
-     */
-    void set_doc(const Xapian::Document & doc);
-
-    /** Sets the termfrequency that is going to be used for
-     *  Feature building.
-     *
-     *  This is used by FeatureList::Internal while populating Statistics.
-     */
-    void set_termfreq(const std::map<std::string, Xapian::termcount> &tf);
-
-    /** Sets the inverse_doc_freq that is going to be used for
-     *  Feature building.
-     *
-     *  This is used by FeatureList::Internal while populating Statistics.
-     */
-    void set_inverse_doc_freq(const std::map<std::string, double> & idf);
-
-    /** Sets the doc_length that is going to be used for Feature building.
-     *
-     *  This is used by FeatureList::Internal while populating Statistics.
-     */
-    void set_doc_length(const std::map<std::string,
-			Xapian::termcount> & doc_len);
-
-    /** Sets the collection_length that is going to be used for
-     *  Feature building.
-     *
-     *  This is used by FeatureList::Internal while populating Statistics.
-     */
-    void set_collection_length(const std::map<std::string,
-			       Xapian::termcount> & collection_len);
-
-    /** Sets the collection_termfreq that is going to be used
-     *  for Feature building.
-     *
-     *  This is used by FeatureList::Internal while populating Statistics.
-     */
-    void set_collection_termfreq(const std::map<std::string,
-				 Xapian::termcount> & collection_tf);
 
     /// Returns the stats needed by a subclass
     stat_flags get_stats() {

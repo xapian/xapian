@@ -1,7 +1,7 @@
-/** @file pretty.h
+/** @file
  * @brief Convert types to pretty representations
  */
-/* Copyright (C) 2010,2011,2012,2014,2016,2017 Olly Betts
+/* Copyright (C) 2010,2011,2012,2014,2016,2017,2019,2023,2024,2026 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_PRETTY_H
@@ -25,11 +25,11 @@
 #include <map>
 #include <ostream>
 #include <string>
+#include <string_view>
 #include <vector>
 
 #include "api/smallvector.h"
 
-#include "xapian/cluster.h"
 #include "xapian/intrusive_ptr.h"
 #include "xapian/types.h"
 
@@ -39,7 +39,7 @@ struct PrettyOStream {
     S & os;
 
     PrettyOStream(S & os_) : os(os_) { }
-    template <typename T> PrettyOStream & operator|(const T & t) {
+    template<typename T> PrettyOStream & operator|(const T & t) {
 	os << ", ";
 	return *this << t;
     }
@@ -142,8 +142,8 @@ inline PrettyOStream<S> &
 operator<<(PrettyOStream<S> &ps, const std::string & str)
 {
     ps.os << '"';
-    for (std::string::const_iterator i = str.begin(); i != str.end(); ++i) {
-	write_ch(ps.os, *i);
+    for (char ch : str) {
+	write_ch(ps.os, ch);
     }
     ps.os << '"';
     return ps;
@@ -162,6 +162,29 @@ inline PrettyOStream<S> &
 operator<<(PrettyOStream<S> &ps, std::string *)
 {
     ps.os << "std::string*";
+    return ps;
+}
+
+template<class S>
+inline PrettyOStream<S>&
+operator<<(PrettyOStream<S>& ps, std::string_view str)
+{
+    ps.os << '"';
+    for (char ch : str) {
+	write_ch(ps.os, ch);
+    }
+    ps.os << '"';
+    return ps;
+}
+
+template<class S>
+inline PrettyOStream<S>&
+operator<<(PrettyOStream<S>& ps, const std::string_view* p_str)
+{
+    if (p_str)
+	ps.os << *p_str;
+    else
+	ps.os << "NULL";
     return ps;
 }
 
@@ -278,17 +301,33 @@ operator<<(PrettyOStream<S> &ps, const Xapian::VecCOW<T>& v) {
     return ps;
 }
 
+template<class S, typename T, typename U>
+inline PrettyOStream<S> &
+operator<<(PrettyOStream<S> &ps, const std::pair<T, U>& v) {
+    ps.os << "std::pair(" << v.first << ", " << v.second << ')';
+    return ps;
+}
+
 namespace Xapian {
+    class Centroid;
+    class Cluster;
+    class ClusterSet;
     class ExpandDecider;
+    class FreqSource;
+    class KeyMaker;
     class LatLongMetric;
     class MatchDecider;
+    class Point;
+    class PointType;
     class Registry;
+    class TermListGroup;
     class Weight;
     namespace Internal {
 	class AndContext;
 	class ExpandStats;
 	class ExpandWeight;
 	class OrContext;
+	struct PostListAndEstimate;
     }
 }
 
@@ -315,6 +354,8 @@ XAPIAN_PRETTY_AS_CLASSNAME(Xapian::Centroid)
 XAPIAN_PRETTY_AS_CLASSNAME(Xapian::Cluster)
 XAPIAN_PRETTY_AS_CLASSNAME(Xapian::ClusterSet)
 XAPIAN_PRETTY_AS_CLASSNAME(Xapian::ExpandDecider)
+XAPIAN_PRETTY_AS_CLASSNAME(Xapian::FreqSource)
+XAPIAN_PRETTY_AS_CLASSNAME(Xapian::KeyMaker)
 XAPIAN_PRETTY_AS_CLASSNAME(Xapian::LatLongMetric)
 XAPIAN_PRETTY_AS_CLASSNAME(Xapian::MatchDecider)
 XAPIAN_PRETTY_AS_CLASSNAME(Xapian::Point)
@@ -326,6 +367,7 @@ XAPIAN_PRETTY_AS_CLASSNAME(Xapian::Internal::AndContext)
 XAPIAN_PRETTY_AS_CLASSNAME(Xapian::Internal::ExpandStats)
 XAPIAN_PRETTY_AS_CLASSNAME(Xapian::Internal::ExpandWeight)
 XAPIAN_PRETTY_AS_CLASSNAME(Xapian::Internal::OrContext)
+XAPIAN_PRETTY_AS_CLASSNAME(Xapian::Internal::PostListAndEstimate)
 XAPIAN_PRETTY_AS_CLASSNAME(Glass::RootInfo)
 XAPIAN_PRETTY_AS_CLASSNAME(GlassCursor)
 XAPIAN_PRETTY_AS_CLASSNAME(GlassFreeListChecker)
@@ -362,7 +404,7 @@ template<class S, class T>
 inline PrettyOStream<S> &
 operator<<(PrettyOStream<S> &ps, Xapian::Internal::intrusive_ptr<const T> t) {
     ps.os << "intrusive_ptr->";
-    return ps << t;
+    return ps << t.get();
 }
 
 #endif // XAPIAN_INCLUDED_PRETTY_H

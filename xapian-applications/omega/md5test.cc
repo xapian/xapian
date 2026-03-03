@@ -1,6 +1,7 @@
-/* md5test.cc: test cases for the MD5 code
- *
- * Copyright (C) 2006 Olly Betts
+/** @file
+ * @brief test cases for the MD5 code
+ */
+/* Copyright (C) 2006,2023 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -13,8 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -22,8 +23,6 @@
 #include <cstdlib>
 #include <iostream>
 #include <string>
-
-#include <cstdio>
 
 #include "md5wrap.h"
 
@@ -47,9 +46,9 @@ int main() {
 	string hexhash;
 	md5_string(t->string, md5);
 	for (size_t i = 0; i < md5.size(); ++i) {
-	    char buf[16];
-	    sprintf(buf, "%02x", static_cast<unsigned char>(md5[i]));
-	    hexhash += buf;
+	    unsigned char b = static_cast<unsigned char>(md5[i]);
+	    hexhash += "0123456789abcdef"[b >> 4];
+	    hexhash += "0123456789abcdef"[b & 0x0f];
 	}
 	if (hexhash != t->hash) {
 	    cerr << "md5 of \"" << t->string << "\" should be \"" << t->hash << "\" not \"" << hexhash << "\"" << endl;

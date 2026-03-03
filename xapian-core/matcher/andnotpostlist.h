@@ -1,4 +1,4 @@
-/** @file andnotpostlist.h
+/** @file
  * @brief PostList class implementing Query::OP_AND_NOT
  */
 /* Copyright 2017 Olly Betts
@@ -14,8 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_ANDNOTPOSTLIST_H
@@ -33,25 +33,23 @@ class AndNotPostList : public WrapperPostList {
     /// Current docid from r (or 0).
     Xapian::docid r_did = 0;
 
-    /// Total number of documents in the database.
-    Xapian::doccount db_size;
-
   public:
-    AndNotPostList(PostList* left, PostList* right,
-		   PostListTree* /*pltree*/, Xapian::doccount db_size_)
-	: WrapperPostList(left), r(right), db_size(db_size_)
-    {}
+    AndNotPostList(PostList* left, PostList* right, Xapian::doccount db_size)
+	: WrapperPostList(left), r(right)
+    {
+	// We shortcut an empty shard and avoid creating a postlist tree for
+	// it.
+	Assert(db_size);
+	// We calculate the estimate assuming independence.  With this
+	// assumption, the estimate is the product of the estimates for the
+	// sub-postlists (for the right side this is inverted by subtracting
+	// from db_size), divided by db_size.
+	double result = pl->get_termfreq();
+	result = (result * (db_size - r->get_termfreq())) / db_size;
+	termfreq = static_cast<Xapian::doccount>(result + 0.5);
+    }
 
     ~AndNotPostList() { delete r; }
-
-    Xapian::doccount get_termfreq_min() const;
-
-    Xapian::doccount get_termfreq_max() const;
-
-    Xapian::doccount get_termfreq_est() const;
-
-    TermFreqs get_termfreq_est_using_stats(
-	const Xapian::Weight::Internal & stats) const;
 
     PostList* next(double w_min);
 

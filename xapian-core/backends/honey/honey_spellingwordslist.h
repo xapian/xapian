@@ -1,7 +1,7 @@
-/** @file honey_spellingwordslist.h
+/** @file
  * @brief A termlist containing all words which are spelling targets.
  */
-/* Copyright (C) 2005,2008,2009,2010,2011,2017 Olly Betts
+/* Copyright (C) 2005,2008,2009,2010,2011,2017,2024 Olly Betts
  * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -15,8 +15,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_HONEY_SPELLINGWORDSLIST_H
@@ -30,10 +30,10 @@ class HoneyDatabase;
 
 class HoneySpellingWordsList : public AllTermsList {
     /// Copying is not allowed.
-    HoneySpellingWordsList(const HoneySpellingWordsList &);
+    HoneySpellingWordsList(const HoneySpellingWordsList&);
 
     /// Assignment is not allowed.
-    void operator=(const HoneySpellingWordsList &);
+    void operator=(const HoneySpellingWordsList&);
 
     /// Keep a reference to our database to stop it being deleted.
     Xapian::Internal::intrusive_ptr<const HoneyDatabase> database;
@@ -41,7 +41,7 @@ class HoneySpellingWordsList : public AllTermsList {
     /** A cursor which runs through the spelling table reading termnames from
      *  the keys.
      */
-    HoneyCursor * cursor;
+    HoneyCursor* cursor;
 
     /** The term frequency of the term at the current position.
      *
@@ -49,14 +49,15 @@ class HoneySpellingWordsList : public AllTermsList {
      *  collection frequency for the current term yet.  We need to call
      *  read_termfreq() to read these.
      */
-    mutable Xapian::termcount termfreq;
+    mutable Xapian::termcount termfreq = 0;
 
     /// Read and cache the term frequency.
     void read_termfreq() const;
 
   public:
     HoneySpellingWordsList(const HoneyDatabase* database_, HoneyCursor* cursor_)
-	    : database(database_), cursor(cursor_), termfreq(0) {
+	: database(database_), cursor(cursor_)
+    {
 	// Set the cursor to its end to signal we haven't started yet.  Then
 	// if the first action is next() we can move the cursor to the first
 	// word with:
@@ -70,13 +71,6 @@ class HoneySpellingWordsList : public AllTermsList {
 
     Xapian::termcount get_approx_size() const;
 
-    /** Returns the current termname.
-     *
-     *  Either next() or skip_to() must have been called before this
-     *  method can be called.
-     */
-    std::string get_termname() const;
-
     /** Returns the term frequency of the current term.
      *
      *  Either next() or skip_to() must have been called before this
@@ -84,21 +78,11 @@ class HoneySpellingWordsList : public AllTermsList {
      */
     Xapian::doccount get_termfreq() const;
 
-    /** Returns the collection frequency of the current term.
-     *
-     *  Either next() or skip_to() must have been called before this
-     *  method can be called.
-     */
-    Xapian::termcount get_collection_freq() const;
-
     /// Advance to the next term in the list.
-    TermList * next();
+    TermList* next();
 
     /// Advance to the first term which is >= term.
-    TermList * skip_to(const std::string& term);
-
-    /// True if we're off the end of the list
-    bool at_end() const;
+    TermList* skip_to(std::string_view term);
 };
 
 #endif /* XAPIAN_INCLUDED_HONEY_SPELLINGWORDSLIST_H */

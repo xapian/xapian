@@ -1,7 +1,7 @@
-/** @file honey_inverter.h
+/** @file
  * @brief HoneyInverter class which "inverts the file".
  */
-/* Copyright (C) 2009,2010,2013,2014 Olly Betts
+/* Copyright (C) 2009,2010,2013,2014,2023,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_HONEY_INVERTER_H
@@ -29,6 +29,7 @@
 #include <string>
 #include <vector>
 
+#include "negate_unsigned.h"
 #include "omassert.h"
 #include "str.h"
 #include "xapian/error.h"
@@ -51,11 +52,17 @@ class HoneyInverter {
     class PostingChanges {
 	friend class HoneyPostListTable;
 
-	/// Change in term frequency,
-	Xapian::termcount_diff tf_delta;
+	/** Change in term frequency.
+	 *
+	 *  Note: Stored as an unsigned quantity to add to current tf.
+	 */
+	Xapian::termcount tf_delta;
 
-	/// Change in collection frequency.
-	Xapian::termcount_diff cf_delta;
+	/** Change in collection frequency.
+	 *
+	 *  Note: Stored as an unsigned quantity to add to current cf.
+	 */
+	Xapian::termcount cf_delta;
 
 	/// Changes to this term's postlist.
 	std::map<Xapian::docid, Xapian::termcount> pl_changes;
@@ -63,14 +70,15 @@ class HoneyInverter {
       public:
 	/// Constructor for an added posting.
 	PostingChanges(Xapian::docid did, Xapian::termcount wdf)
-	    : tf_delta(1), cf_delta(Xapian::termcount_diff(wdf))
+	    : tf_delta(1), cf_delta(wdf)
 	{
 	    pl_changes.insert(std::make_pair(did, wdf));
 	}
 
 	/// Constructor for a removed posting.
 	PostingChanges(Xapian::docid did, Xapian::termcount wdf, bool)
-	    : tf_delta(-1), cf_delta(-Xapian::termcount_diff(wdf))
+	    : tf_delta(UNSIGNED_OVERFLOW_OK(-1)),
+	      cf_delta(negate_unsigned(wdf))
 	{
 	    pl_changes.insert(std::make_pair(did, DELETED_POSTING));
 	}
@@ -78,23 +86,26 @@ class HoneyInverter {
 	/// Constructor for an updated posting.
 	PostingChanges(Xapian::docid did, Xapian::termcount old_wdf,
 		       Xapian::termcount new_wdf)
-	    : tf_delta(0), cf_delta(Xapian::termcount_diff(new_wdf - old_wdf))
+	    : tf_delta(0),
+	      cf_delta(UNSIGNED_OVERFLOW_OK(new_wdf - old_wdf))
 	{
 	    pl_changes.insert(std::make_pair(did, new_wdf));
 	}
 
 	/// Add a posting.
 	void add_posting(Xapian::docid did, Xapian::termcount wdf) {
-	    ++tf_delta;
-	    cf_delta += wdf;
+	    // May overflow past 0.
+	    UNSIGNED_OVERFLOW_OK(++tf_delta);
+	    UNSIGNED_OVERFLOW_OK(cf_delta += wdf);
 	    // Add did to term's postlist
 	    pl_changes[did] = wdf;
 	}
 
 	/// Remove a posting.
 	void remove_posting(Xapian::docid did, Xapian::termcount wdf) {
-	    --tf_delta;
-	    cf_delta -= wdf;
+	    // May overflow past 0.
+	    UNSIGNED_OVERFLOW_OK(--tf_delta);
+	    UNSIGNED_OVERFLOW_OK(cf_delta -= wdf);
 	    // Remove did from term's postlist.
 	    pl_changes[did] = DELETED_POSTING;
 	}
@@ -102,42 +113,43 @@ class HoneyInverter {
 	/// Update a posting.
 	void update_posting(Xapian::docid did, Xapian::termcount old_wdf,
 			    Xapian::termcount new_wdf) {
-	    cf_delta += new_wdf - old_wdf;
+	    UNSIGNED_OVERFLOW_OK(cf_delta += new_wdf - old_wdf);
 	    pl_changes[did] = new_wdf;
 	}
 
 	/// Get the term frequency delta.
-	Xapian::termcount_diff get_tfdelta() const { return tf_delta; }
+	Xapian::termcount get_tfdelta() const { return tf_delta; }
 
 	/// Get the collection frequency delta.
-	Xapian::termcount_diff get_cfdelta() const { return cf_delta; }
+	Xapian::termcount get_cfdelta() const { return cf_delta; }
     };
 
     /// Buffered changes to postlists.
-    std::map<std::string, PostingChanges> postlist_changes;
+    std::map<std::string, PostingChanges, std::less<>> postlist_changes;
 
     /// Buffered changes to positional data.
-    std::map<std::string, std::map<Xapian::docid, std::string> > pos_changes;
+    std::map<std::string,
+	     std::map<Xapian::docid, std::string>,
+	     std::less<>> pos_changes;
 
-    void store_positions(const HoneyPositionTable & position_table,
+    void store_positions(const HoneyPositionTable& position_table,
 			 Xapian::docid did,
-			 const std::string & tname,
-			 const Xapian::VecCOW<Xapian::termpos> & posvec,
+			 const std::string& tname,
+			 const Xapian::VecCOW<Xapian::termpos>& posvec,
 			 bool modifying);
 
     void set_positionlist(Xapian::docid did,
-			  const std::string & term,
-			  const std::string & s);
+			  const std::string& term,
+			  const std::string& s);
 
   public:
     /// Buffered changes to document lengths.
     std::map<Xapian::docid, Xapian::termcount> doclen_changes;
 
   public:
-    void add_posting(Xapian::docid did, const std::string & term,
+    void add_posting(Xapian::docid did, const std::string& term,
 		     Xapian::doccount wdf) {
-	std::map<std::string, PostingChanges>::iterator i;
-	i = postlist_changes.find(term);
+	auto i = postlist_changes.find(term);
 	if (i == postlist_changes.end()) {
 	    postlist_changes.insert(
 		std::make_pair(term, PostingChanges(did, wdf)));
@@ -146,10 +158,9 @@ class HoneyInverter {
 	}
     }
 
-    void remove_posting(Xapian::docid did, const std::string & term,
+    void remove_posting(Xapian::docid did, const std::string& term,
 			Xapian::doccount wdf) {
-	std::map<std::string, PostingChanges>::iterator i;
-	i = postlist_changes.find(term);
+	auto i = postlist_changes.find(term);
 	if (i == postlist_changes.end()) {
 	    postlist_changes.insert(
 		std::make_pair(term, PostingChanges(did, wdf, false)));
@@ -158,11 +169,10 @@ class HoneyInverter {
 	}
     }
 
-    void update_posting(Xapian::docid did, const std::string & term,
+    void update_posting(Xapian::docid did, const std::string& term,
 			Xapian::termcount old_wdf,
 			Xapian::termcount new_wdf) {
-	std::map<std::string, PostingChanges>::iterator i;
-	i = postlist_changes.find(term);
+	auto i = postlist_changes.find(term);
 	if (i == postlist_changes.end()) {
 	    postlist_changes.insert(
 		std::make_pair(term, PostingChanges(did, old_wdf, new_wdf)));
@@ -171,20 +181,20 @@ class HoneyInverter {
 	}
     }
 
-    void set_positionlist(const HoneyPositionTable & position_table,
+    void set_positionlist(const HoneyPositionTable& position_table,
 			  Xapian::docid did,
-			  const std::string & tname,
-			  const Xapian::TermIterator & term,
+			  const std::string& tname,
+			  const Xapian::TermIterator& term,
 			  bool modifying = false);
 
     void delete_positionlist(Xapian::docid did,
-			     const std::string & term);
+			     const std::string& term);
 
     bool get_positionlist(Xapian::docid did,
-			  const std::string & term,
-			  std::string & s) const;
+			  const std::string& term,
+			  std::string& s) const;
 
-    bool has_positions(const HoneyPositionTable & position_table) const;
+    bool has_positions(const HoneyPositionTable& position_table) const;
 
     void clear() {
 	doclen_changes.clear();
@@ -206,9 +216,8 @@ class HoneyInverter {
 	doclen_changes[did] = DELETED_POSTING;
     }
 
-    bool get_doclength(Xapian::docid did, Xapian::termcount & doclen) const {
-	std::map<Xapian::docid, Xapian::termcount>::const_iterator i;
-	i = doclen_changes.find(did);
+    bool get_doclength(Xapian::docid did, Xapian::termcount& doclen) const {
+	auto i = doclen_changes.find(did);
 	if (i == doclen_changes.end())
 	    return false;
 	if (rare(i->second == DELETED_POSTING))
@@ -218,28 +227,27 @@ class HoneyInverter {
     }
 
     /// Flush document length changes.
-    void flush_doclengths(HoneyPostListTable & table);
+    void flush_doclengths(HoneyPostListTable& table);
 
     /// Flush postlist changes for @a term.
-    void flush_post_list(HoneyPostListTable & table, const std::string & term);
+    void flush_post_list(HoneyPostListTable& table, const std::string& term);
 
     /// Flush postlist changes for all terms.
-    void flush_all_post_lists(HoneyPostListTable & table);
+    void flush_all_post_lists(HoneyPostListTable& table);
 
     /// Flush postlist changes for all terms which start with @a pfx.
-    void flush_post_lists(HoneyPostListTable & table, const std::string & pfx);
+    void flush_post_lists(HoneyPostListTable& table, const std::string& pfx);
 
     /// Flush all postlist table changes.
-    void flush(HoneyPostListTable & table);
+    void flush(HoneyPostListTable& table);
 
     /// Flush position changes.
-    void flush_pos_lists(HoneyPositionTable & table);
+    void flush_pos_lists(HoneyPositionTable& table);
 
-    bool get_deltas(const std::string & term,
-		    Xapian::termcount_diff & tf_delta,
-		    Xapian::termcount_diff & cf_delta) const {
-	std::map<std::string, PostingChanges>::const_iterator i;
-	i = postlist_changes.find(term);
+    bool get_deltas(std::string_view term,
+		    Xapian::termcount& tf_delta,
+		    Xapian::termcount& cf_delta) const {
+	auto i = postlist_changes.find(term);
 	if (i == postlist_changes.end()) {
 	    return false;
 	}

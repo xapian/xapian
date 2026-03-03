@@ -32,8 +32,7 @@
 /sourcedoc.mk
 /xapian-config
 /libxapian.la
-/libxapian-1.5.la
 /libgetopt.la
 /xapian-core-*.tar.xz
-/xapian-core.spec
 /xapian-config.1
+/a.out*

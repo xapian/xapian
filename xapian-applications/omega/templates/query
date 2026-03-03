@@ -2,25 +2,6 @@ $httpheader{Content-Type,text/html; charset=utf-8}<!DOCTYPE html><html lang="en"
 $set{flag_spelling,$ne{$cgi{SPELL},0}}
 $set{thousand,$.}$set{decimal,.}
 $setmap{prefix,,$split{ S B F},title,S,author,A,topic,B}
-${
-$def{PREV,
-$if{$ne{$topdoc,0},<input type=image name="&lt;" alt="&lt;"
-src="/icons/omega/prev.png" height=30 width=30>,
-<img alt="" src="/icons/omega/prevoff.png" height=30 width=30>}
-}
-
-$def{NEXT,
-$if{$ne{$last,$msize},<input type=image name="&gt;" alt="&gt;"
-src="/icons/omega/next.png" height=30 width=30>,
-<img alt="" src="/icons/omega/nextoff.png" height=30 width=30>}
-}
-
-$def{P,<input type=image name="$1" value="$1" src="/icons/omega/page-$2.png" $opt{a} alt="$1">}
-$def{PAGE,$if{$gt{$1,9},$if{$gt{$1,99},$P{$1,$div{$1,100}}}$P{$1,$mod{$div{$1,10},10}}}$P{$1,$mod{$1,10}}}
-
-$def{S,<img src="/icons/omega/page-$2s.png" $opt{a} alt=$1>}
-$def{SPAGE,$if{$gt{$1,9},$if{$gt{$1,99},$S{$1,$div{$1,100}}}$S{$1,$mod{$div{$1,10},10}}}$S{$1,$mod{$1,10}}}
-}
 
 $def{PREV,$if{$ne{$topdoc,0},<input type=submit name="&lt;" value="Previous">}}
 
@@ -44,7 +25,7 @@ function write_date(time_t) {
 var d=new Date();d.setTime(time_t*1000);
 var D=d.getFullYear()+"-"+f2(d.getMonth()+1)+"-"+f2(d.getDate());
 var T=f2(d.getHours())+":"+f2(d.getMinutes())+":"+f2(d.getSeconds());
-document.write("<span title=\""+D+" "+T+"\">Modified:<br><b>"+D+"</b></span>");
+document.write("<time datetime=\"$html{$date{$field{modtime},%Y-%m-%d %H:%M:%S}}Z\" title=\""+D+" "+T+"\">Modified:<br><b>"+D+"</b></time>");
 }
 // -->
 </script>
@@ -61,13 +42,13 @@ if (!("autofocus" in document.createElement("input")))
 <input type=submit value="Search">
 <hr>
 $if{,$include{inc/anyalldropbox},$include{inc/anyallradio}}
-$if{$opt{topterms},
+$if{$opt{topterms},$if{$or{$query,$ne{$msize,0}},
  <div title="Suggested terms to add to your query"
  style="text-align:left;background:#cfc;border:1px solid green;padding:2px;font:11px verdana$. arial$. helvetica$. sans-serif;">
  $map{$topterms,<span style="white-space:nowrap"><input type=checkbox name=X value="$html{$prettyterm{$_}}" onClick="C(this)">$html{$prettyterm{$_}}</span> }
  <br><noscript><input type=hidden name=ADD value=1></noscript>
  </div>
-}
+}}
 <br>
 $if{$suggestion,Did you mean: <a href="$html{$or{$env{SCRIPT_NAME},omega}?DB=$url{$dbname}&P=$url{$suggestion}$if{$ne{$hitsperpage,10},&HITSPERPAGE=$hitsperpage}$if{$fmt,&FMT=$url{$fmt}}$if{$cgi{COLLAPSE},&COLLAPSE=$url{$cgi{COLLAPSE}}}$map{$relevants,&R=$_}$if{$cgi{THRESHOLD},&THRESHOLD=$url{$cgi{THRESHOLD}}}$map{$cgilist{B},&B=$url{$_}}&SPELL=0}">$html{$suggestion}</a><br>}
 $or{$html{$error},
@@ -83,14 +64,13 @@ $if{$not{$msizeexact},
 }
 <hr>
 </center>
-$list{$map{$queryterms,$list{$html{$uniq{$unstem{$_}}},<b>,</b>/<b>,</b>}:&nbsp;$nice{$freq{$_}}},Term frequencies: ,$. ,}
+$if{$map{$queryterms,$set{U,$unstem{$_}}$set{F_$opt{U},$add{$opt{F_$opt{U}},$freq{$_}}}},$list{$unique{$map{$queryterms,$set{U,$unstem{$_}}$list{$html{$unique{$opt{U}}},<b>,</b>/<b>,</b>}:&nbsp;$nice{$opt{F_$opt{U}}}}},Term frequencies: ,$. ,}}
 <br><small>Search took $time seconds</small>
 <table>
 $if{$opt{clicklog},$set{queryid,$hash{md5,$transform{s/^\s+|\s+$$//g,\1,$query}}}}
-$if{$opt{clicklog},$log{search.log,$opt{queryid}$.$csv{$query,1}$.$csv{$hitlist{$id$if{$ne{$hit,$sub{$last,1}},$.}},1}$.$topdoc}}
+$if{$opt{clicklog},$if{$log{search.log,$opt{queryid}$.$csv{$query,1}$.$csv{$hitlist{$id$if{$ne{$hit,$sub{$last,1}},$.}},1}$.$topdoc}}}
 $hitlist{<tr><td valign=top>
 $set{clickurl,$if{$opt{clicklog},$or{$env{SCRIPT_NAME},omega.cgi}?FMT=clicklog&DB=$url{$dbname}&QUERYID=$opt{queryid}&DOCID=$url{$id}&URL=$url{$field{url}},$field{url}}}
-${<img src="/icons/omega/score-$div{$percentage,10}.png" alt="$percentage%" height=16 width=32>}
 <div title="$percentage%" style='float:left;width:60px;height:10px;border:1px solid black;margin-top:4px;'>
 <div style='width:$div{$mul{$percentage,6},10}px; height:10px; background-color: red;'>
 </div></div>
@@ -98,8 +78,8 @@ ${<img src="/icons/omega/score-$div{$percentage,10}.png" alt="$percentage%" heig
 $if{$and{$field{modtime},$ne{$field{modtime},-1}},
 <script type="text/javascript">write_date($add{$field{modtime}});</script>
 <noscript>
-<span title="$html{$date{$field{modtime},%Y-%m-%d %H:%M:%S}}">
-Modified:<br><b>$html{$date{$field{modtime},%Y-%m-%d}}</b></span>
+<time datetime="$html{$date{$field{modtime},%Y-%m-%d %H:%M:%S}}Z" title="$html{$date{$field{modtime},%Y-%m-%d %H:%M:%S}}">
+Modified:<br><b>$html{$date{$field{modtime},%Y-%m-%d}}</b></time>
 </noscript><br>
 }
 $if{$field{language},Language: <b>$html{$field{language}}</b><br>}
@@ -155,4 +135,4 @@ $map{$cgilist{B},<input type=hidden name=B value="$html{$_}">}
 <hr><div align=right><i><small><a href="https://xapian.org/">$html{$version}</a></small></i></div>
 </body>
 </html>
-$log{query.log}
+$if{$log{query.log}}

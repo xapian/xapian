@@ -1,4 +1,4 @@
-/** @file api_cluster.cc
+/** @file
  *  @brief Cluster API tests
  */
 /* Copyright (C) 2016 Richhiey Thomas
@@ -14,9 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -42,7 +41,7 @@ make_stemmed_cluster_db(Xapian::WritableDatabase &db, const std::string &)
     Xapian::TermGenerator indexer;
     Xapian::Stem stemmer("english");
     indexer.set_stemmer(stemmer);
-    for (const std::string& document_data : test_strings) {
+    for (const std::string document_data : test_strings) {
 	Xapian::Document document;
 	document.set_data(document_data);
 	indexer.set_document(document);
@@ -72,9 +71,9 @@ class RoundRobin : public Xapian::Clusterer {
      *  @param mset    MSet object containing the documents that are to
      *                 be clustered
      */
-    Xapian::ClusterSet cluster(const Xapian::MSet &mset);
+    Xapian::ClusterSet cluster(const Xapian::MSet& mset) override;
 
-    std::string get_description() const {
+    std::string get_description() const override {
 	return "RoundRobin()";
     }
 };
@@ -108,7 +107,7 @@ RoundRobin::cluster(const Xapian::MSet &mset)
  *  Thus, if two vectors are equal, the distance between them will be zero
  *  and if two vectors are unequal, the distance will be 1 >= dist >= 0.
  */
-DEFINE_TESTCASE(cosine_distance1, generated)
+DEFINE_TESTCASE(cosine_distance1, backend)
 {
     Xapian::Database db = get_database("stemmed_cluster", make_stemmed_cluster_db);
     Xapian::Enquire enquire(db);
@@ -131,14 +130,12 @@ DEFINE_TESTCASE(cosine_distance1, generated)
     distance = d.similarity(x1, x2);
     TEST_REL(distance, >, 0);
     TEST_REL(distance, <=, 1);
-
-    return true;
 }
 
 /** Round Robin Test
  *  Test that none of the returned clusters are empty
  */
-DEFINE_TESTCASE(round_robin1, generated)
+DEFINE_TESTCASE(round_robin1, backend)
 {
     Xapian::Database db = get_database("stemmed_cluster", make_stemmed_cluster_db);
     Xapian::Enquire enq(db);
@@ -153,10 +150,9 @@ DEFINE_TESTCASE(round_robin1, generated)
 	Xapian::DocumentSet d = cset[i].get_documents();
 	TEST(d.size() != 0);
     }
-    return true;
 }
 
-DEFINE_TESTCASE(stem_stopper1, backend)
+DEFINE_TESTCASE(stem_stopper1, !backend)
 {
     Xapian::Stem stemmer("english");
     // By default, stemming strategy used is STEM_SOME
@@ -186,6 +182,4 @@ DEFINE_TESTCASE(stem_stopper1, backend)
     stopper_none.add(term);
     TEST(stopper_none(term));
     TEST(!stopper_none('Z' + stemmer(term)));
-
-    return true;
 }

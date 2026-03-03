@@ -1,6 +1,7 @@
-/* runfilter.h: run an external filter and capture its output in a std::string.
- *
- * Copyright (C) 2007,2013,2015 Olly Betts
+/** @file
+ * @brief run an external filter and capture its output in a std::string.
+ */
+/* Copyright (C) 2007,2013,2015,2019,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -13,8 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef OMEGA_INCLUDED_RUNFILTER_H
@@ -25,11 +26,16 @@
 
 /// Exception thrown if we encounter a read error.
 struct ReadError {
-    const char * msg;
+    const char* msg = NULL;
     int status;
     explicit ReadError(const char * m) : msg(m) { }
-    explicit ReadError(int s) : msg(NULL), status(s) { }
-    std::string str() const { if (msg) return msg; char buf[32]; std::sprintf(buf, "0x%08x", status); return buf; }
+    explicit ReadError(int s) : status(s) { }
+    std::string str() const {
+	if (msg) return msg;
+	char buf[32];
+	std::snprintf(buf, sizeof(buf), "0x%08x", status);
+	return buf;
+    }
 };
 
 /// Exception thrown if the filter program isn't found.
@@ -38,18 +44,46 @@ struct NoSuchFilter { };
 /** Analyse if a command needs the shell.
  *
  *  The return value of this function can be passed as the second argument of
- *  stdout_to_string().
+ *  run_filter()/stdout_to_string().
  */
 bool command_needs_shell(const char * p);
 
 /// Initialise the runfilter module.
 void runfilter_init();
 
-/** Run command @a cmd, capture its stdout, and return it as a std::string.
+/** Run command @a cmd, optionally capturing its stdout.
  *
- *  @param use_shell  If false, try to avoid using a shell to run the command.
+ *  @param fd_in	FD for piped input, or -1 for input from file.
+ *  @param cmd		The command to run as a NULL terminated argv array.
+ *  @param out		Pointer to std::string to put stdout in or NULL to
+ *			discard stdout.  (default: NULL)
  *  @param alt_status	Exit status to treat as success in addition to 0
  *			(default: Only treat exit status 0 as success).
+ *
+ *  If the command isn't installed (detected by exit status 127) then
+ *  NoSuchFilter is thrown.
+ *
+ *  If the command fails to completed successfully (detected by an exit status
+ *  other than 0 or alt_status) then ReadError is thrown.
+ */
+void run_filter(int fd_in,
+		const char* const cmd[],
+		std::string* out = nullptr,
+		int alt_status = 0);
+
+/** Run command @a cmd, optionally capturing its stdout.
+ *
+ *  @param fd_in	FD for piped input, or -1 for input from file.
+ *  @param cmd		The command to run.
+ *  @param use_shell	If false, try to avoid using a shell to run the command.
+ *  @param out		Pointer to std::string to put stdout in or NULL to
+ *			discard stdout.  (default: NULL)
+ *  @param alt_status	Exit status to treat as success in addition to 0
+ *			(default: Only treat exit status 0 as success).
+ *
+ *  This is like the overloaded version taking an argv array except that
+ *  it takes the command as a single string, plus a use_shell flag
+ *  indicating whether the command string can be run without a shell.
  *
  *  Note: use_shell=false mode makes some assumptions about the command:
  *
@@ -70,8 +104,58 @@ void runfilter_init();
  *  and socketpair().  Other systems will ignore use_shell and always use the
  *  same code path (which may or may not involve some analog of the Unix
  *  shell).
+ *
+ *  If the command isn't installed (detected by exit status 127) then
+ *  NoSuchFilter is thrown.
+ *
+ *  If the command fails to completed successfully (detected by an exit status
+ *  other than 0 or alt_status) then ReadError is thrown.
  */
-std::string stdout_to_string(const std::string &cmd, bool use_shell,
-			     int alt_status = 0);
+void run_filter(int fd_in,
+		const std::string& cmd,
+		bool use_shell,
+		std::string* out = nullptr,
+		int alt_status = 0);
+
+static inline void
+run_filter(const char* const cmd[],
+	   std::string* out = nullptr,
+	   int alt_status = 0)
+{
+    run_filter(-1, cmd, out, alt_status);
+}
+
+static inline void
+run_filter(const std::string& cmd,
+	   bool use_shell,
+	   std::string* out = nullptr,
+	   int alt_status = 0)
+{
+    run_filter(-1, cmd, use_shell, out, alt_status);
+}
+
+/** Run command @a cmd, capture its stdout, and return it as a std::string.
+ *
+ *  This is a simple wrapper around run_filter().
+ */
+static inline std::string
+stdout_to_string(const char* const cmd[], int alt_status = 0)
+{
+    std::string out;
+    run_filter(cmd, &out, alt_status);
+    return out;
+}
+
+/** Run command @a cmd, capture its stdout, and return it as a std::string.
+ *
+ *  This is a simple wrapper around run_filter().
+ */
+static inline std::string
+stdout_to_string(const std::string& cmd, bool use_shell, int alt_status = 0)
+{
+    std::string out;
+    run_filter(cmd, use_shell, &out, alt_status);
+    return out;
+}
 
 #endif // OMEGA_INCLUDED_RUNFILTER_H

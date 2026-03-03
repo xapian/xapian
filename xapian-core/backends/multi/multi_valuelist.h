@@ -1,4 +1,4 @@
-/** @file multi_valuelist.h
+/** @file
  * @brief Class for merging ValueList objects from subdatabases.
  */
 /* Copyright (C) 2007,2008,2009,2017 Olly Betts
@@ -14,8 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_MULTI_VALUELIST_H
@@ -39,7 +39,7 @@ struct SubValueList {
 	delete valuelist;
     }
 
-    void skip_to(Xapian::docid did, size_t n_shards) {
+    void skip_to(Xapian::docid did, Xapian::doccount n_shards) {
 	// Calculate the docid in this shard which is the same or later than
 	// did (which may be in a different shard).
 	Xapian::docid shard_did = shard_docid(did, n_shards);
@@ -77,7 +77,7 @@ class MultiValueList : public ValueList {
     Xapian::docid current_docid = 0;
 
     /// Number of SubValueList* entries in valuelists.
-    size_t count;
+    Xapian::doccount count;
 
     /// Array of sub-valuelists which we use as a heap.
     SubValueList** valuelists;
@@ -85,13 +85,19 @@ class MultiValueList : public ValueList {
     /// The value slot we're iterating over.
     Xapian::valueno slot;
 
-    size_t n_shards;
+    Xapian::doccount n_shards;
 
   public:
     /// Constructor.
-    MultiValueList(size_t n_shards_,
+    MultiValueList(Xapian::doccount n_shards_,
 		   SubValueList** valuelists_,
-		   Xapian::valueno slot_);
+		   Xapian::valueno slot_)
+	: count(n_shards_),
+	  valuelists(valuelists_),
+	  slot(slot_),
+	  n_shards(n_shards_)
+    {
+    }
 
     /// Destructor.
     ~MultiValueList();

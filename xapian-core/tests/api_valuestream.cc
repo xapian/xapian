@@ -1,4 +1,4 @@
-/** @file api_valuestream.cc
+/** @file
  * @brief Tests of valuestream functionality.
  */
 /* Copyright (C) 2008,2009,2010 Olly Betts
@@ -15,9 +15,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -33,12 +32,11 @@
 using namespace std;
 
 /// Feature test simple valuestream iteration.
-DEFINE_TESTCASE(valuestream1, backend && !multi) {
-    // FIXME: enable for multi once support is in place.
+DEFINE_TESTCASE(valuestream1, backend) {
     Xapian::Database db = get_database("apitest_simpledata");
 
     for (Xapian::valueno slot = 0; slot < 15; ++slot) {
-	tout << "testing valuestream iteration for slot " << slot << endl;
+	tout << "testing valuestream iteration for slot " << slot << '\n';
 	Xapian::ValueIterator it = db.valuestream_begin(slot);
 	while (it != db.valuestream_end(slot)) {
 	    TEST_EQUAL(it.get_valueno(), slot);
@@ -51,8 +49,6 @@ DEFINE_TESTCASE(valuestream1, backend && !multi) {
 	    ++it;
 	}
     }
-
-    return true;
 }
 
 /// Test skip_to() on a valuestream iterator.
@@ -64,7 +60,7 @@ DEFINE_TESTCASE(valuestream2, backend) {
 	while (interval < 1999) {
 	    tout.str(string());
 	    tout << "testing valuestream skip_to for slot " << slot
-		 << " with interval " << interval << endl;
+		 << " with interval " << interval << '\n';
 	    Xapian::docid did = 1;
 	    Xapian::ValueIterator it = db.valuestream_begin(slot);
 	    if (it == db.valuestream_end(slot)) break;
@@ -88,8 +84,6 @@ DEFINE_TESTCASE(valuestream2, backend) {
 	    interval = interval * 3 - 1;
 	}
     }
-
-    return true;
 }
 
 /// Test check() on a valuestream iterator.
@@ -106,7 +100,7 @@ DEFINE_TESTCASE(valuestream3, backend) {
 	unsigned interval = 1;
 	while (interval < 1999) {
 	    tout << "testing valuestream check for slot " << slot
-		 << " with interval " << interval << endl;
+		 << " with interval " << interval << '\n';
 	    Xapian::docid did = 1;
 	    Xapian::ValueIterator it = db.valuestream_begin(slot);
 	    if (it == db.valuestream_end(slot)) break;
@@ -150,30 +144,34 @@ DEFINE_TESTCASE(valuestream3, backend) {
 	    interval = interval * 3 - 1;
 	}
     }
+}
 
-    return true;
+static void
+gen_valueweightsource5_db(Xapian::WritableDatabase& db, const string&)
+{
+    Xapian::Document doc;
+    doc.add_value(1, Xapian::sortable_serialise(3.14));
+    db.replace_document(1, doc);
+    db.replace_document(0xffffffff, doc);
 }
 
 /** Check that valueweightsource handles last_docid of 0xffffffff.
  *
  *  The original implementation went into an infinite loop in this case.
  */
-DEFINE_TESTCASE(valueweightsource5, writable && valuestats) {
+DEFINE_TESTCASE(valueweightsource5, valuestats) {
     // inmemory's memory use is currently O(last_docid)!
     SKIP_TEST_FOR_BACKEND("inmemory");
     // remote's value slot iteration is very slow for this case currently
     // because it throws and catches DocNotFoundError across the link 2^32-3
     // times.
-    SKIP_TEST_FOR_BACKEND("remote");
-    Xapian::WritableDatabase db = get_writable_database();
-    Xapian::Document doc;
-    doc.add_value(1, Xapian::sortable_serialise(3.14));
-    db.replace_document(1, doc);
-    db.replace_document(0xffffffff, doc);
-    db.commit();
+    if (contains(get_dbtype(), "remote"))
+	SKIP_TEST("Testcase is too slow with remote shards");
 
+    Xapian::Database db = get_database("valueweightsource5",
+				       gen_valueweightsource5_db);
     Xapian::ValueWeightPostingSource src(1);
-    src.init(db);
+    src.reset(db, 0);
     src.next(0.0);
     TEST(!src.at_end());
     TEST_EQUAL(src.get_docid(), 1);
@@ -182,8 +180,6 @@ DEFINE_TESTCASE(valueweightsource5, writable && valuestats) {
     TEST_EQUAL(src.get_docid(), 0xffffffff);
     src.next(0.0);
     TEST(src.at_end());
-
-    return true;
 }
 
 // Check that ValueMapPostingSource works correctly.
@@ -238,8 +234,6 @@ DEFINE_TESTCASE(valuemapsource1, backend) {
 
     TEST(mset.size() == 5);
     mset_expect_order(mset, 5, 4, 6, 7, 8);
-
-    return true;
 }
 
 // Regression test for valuepostingsource subclasses: used to segfault if skip_to()
@@ -249,7 +243,7 @@ DEFINE_TESTCASE(valuemapsource2, backend && !multi) {
 
     {
 	Xapian::ValueMapPostingSource src(100);
-	src.init(db);
+	src.reset(db, 0);
 	TEST(src.at_end() == false);
 	src.next(0.0);
 	TEST(src.at_end() == true);
@@ -257,7 +251,7 @@ DEFINE_TESTCASE(valuemapsource2, backend && !multi) {
 
     {
 	Xapian::ValueMapPostingSource src(100);
-	src.init(db);
+	src.reset(db, 0);
 	TEST(src.at_end() == false);
 	src.skip_to(1, 0.0);
 	TEST(src.at_end() == true);
@@ -265,13 +259,11 @@ DEFINE_TESTCASE(valuemapsource2, backend && !multi) {
 
     {
 	Xapian::ValueMapPostingSource src(100);
-	src.init(db);
+	src.reset(db, 0);
 	TEST(src.at_end() == false);
 	src.check(1, 0.0);
 	TEST(src.at_end() == true);
     }
-
-    return true;
 }
 
 // Regression test for fixedweightpostingsource: used to segfault if skip_to()
@@ -281,7 +273,7 @@ DEFINE_TESTCASE(fixedweightsource2, !backend) {
 
     {
 	Xapian::FixedWeightPostingSource src(5.0);
-	src.init(db);
+	src.reset(db, 0);
 	TEST(src.at_end() == false);
 	src.next(0.0);
 	TEST(src.at_end() == true);
@@ -289,7 +281,7 @@ DEFINE_TESTCASE(fixedweightsource2, !backend) {
 
     {
 	Xapian::FixedWeightPostingSource src(5.0);
-	src.init(db);
+	src.reset(db, 0);
 	TEST(src.at_end() == false);
 	src.skip_to(1, 0.0);
 	TEST(src.at_end() == true);
@@ -298,8 +290,6 @@ DEFINE_TESTCASE(fixedweightsource2, !backend) {
     // No need to test behaviour of check() - check is only allowed to be
     // called with document IDs which exist, so can never be called for a
     // FixedWeightPostingSource with an empty database.
-
-    return true;
 }
 
 // Test DecreasingValueWeightPostingSource.
@@ -318,7 +308,7 @@ DEFINE_TESTCASE(decvalwtsource1, writable) {
     // Check basic function
     {
 	Xapian::DecreasingValueWeightPostingSource src(1);
-	src.init(db);
+	src.reset(db, 0);
 
 	src.next(0.0);
 	TEST(!src.at_end());
@@ -339,7 +329,7 @@ DEFINE_TESTCASE(decvalwtsource1, writable) {
     // Check skipping to end of list due to weight
     {
 	Xapian::DecreasingValueWeightPostingSource src(1);
-	src.init(db);
+	src.reset(db, 0);
 
 	src.next(1.5);
 	TEST(!src.at_end());
@@ -359,7 +349,7 @@ DEFINE_TESTCASE(decvalwtsource1, writable) {
 
     {
 	Xapian::DecreasingValueWeightPostingSource src(1, 1, 3);
-	src.init(db);
+	src.reset(db, 0);
 
 	src.next(1.5);
 	TEST(!src.at_end());
@@ -379,7 +369,7 @@ DEFINE_TESTCASE(decvalwtsource1, writable) {
 
     {
 	Xapian::DecreasingValueWeightPostingSource src(1, 1, 3);
-	src.init(db);
+	src.reset(db, 0);
 
 	src.next(1.5);
 	TEST(!src.at_end());
@@ -395,7 +385,7 @@ DEFINE_TESTCASE(decvalwtsource1, writable) {
 
     {
 	Xapian::DecreasingValueWeightPostingSource src(1, 1, 3);
-	src.init(db);
+	src.reset(db, 0);
 
 	src.next(1.5);
 	TEST(!src.at_end());
@@ -408,8 +398,6 @@ DEFINE_TESTCASE(decvalwtsource1, writable) {
 	src.next(1.5);
 	TEST(src.at_end());
     }
-
-    return true;
 }
 
 // Test DecreasingValueWeightPostingSource with out-of-order sections at
@@ -431,7 +419,7 @@ DEFINE_TESTCASE(decvalwtsource2, writable) {
     // Check basic function
     {
 	Xapian::DecreasingValueWeightPostingSource src(1);
-	src.init(db);
+	src.reset(db, 0);
 
 	src.next(0.0);
 	TEST(!src.at_end());
@@ -456,7 +444,7 @@ DEFINE_TESTCASE(decvalwtsource2, writable) {
     // Check skipping to end of list due to weight
     {
 	Xapian::DecreasingValueWeightPostingSource src(1, 2);
-	src.init(db);
+	src.reset(db, 0);
 
 	src.next(1.5);
 	TEST(!src.at_end());
@@ -480,7 +468,7 @@ DEFINE_TESTCASE(decvalwtsource2, writable) {
 
     {
 	Xapian::DecreasingValueWeightPostingSource src(1, 2, 4);
-	src.init(db);
+	src.reset(db, 0);
 
 	src.next(1.5);
 	TEST(!src.at_end());
@@ -504,7 +492,7 @@ DEFINE_TESTCASE(decvalwtsource2, writable) {
 
     {
 	Xapian::DecreasingValueWeightPostingSource src(1, 2, 4);
-	src.init(db);
+	src.reset(db, 0);
 
 	TEST(src.check(1, 1.5));
 	TEST(!src.at_end());
@@ -524,7 +512,7 @@ DEFINE_TESTCASE(decvalwtsource2, writable) {
 
     {
 	Xapian::DecreasingValueWeightPostingSource src(1, 2, 4);
-	src.init(db);
+	src.reset(db, 0);
 
 	TEST(src.check(1, 1.5));
 	TEST(!src.at_end());
@@ -541,14 +529,11 @@ DEFINE_TESTCASE(decvalwtsource2, writable) {
 	src.next(1.5);
 	TEST(src.at_end());
     }
-
-    return true;
 }
 
-// Test DecreasingValueWeightPostingSource with an actual query.
-DEFINE_TESTCASE(decvalwtsource3, writable) {
-    Xapian::WritableDatabase db = get_writable_database();
-
+static void
+gen_decvalwtsource3_db(Xapian::WritableDatabase& db, const string&)
+{
     Xapian::Document doc;
     doc.add_term("foo");
     doc.add_value(1, Xapian::sortable_serialise(1));
@@ -560,7 +545,12 @@ DEFINE_TESTCASE(decvalwtsource3, writable) {
     db.add_document(doc);
     doc.add_value(1, Xapian::sortable_serialise(1));
     db.add_document(doc);
-    db.commit();
+}
+
+// Test DecreasingValueWeightPostingSource with an actual query.
+DEFINE_TESTCASE(decvalwtsource3, backend) {
+    Xapian::Database db = get_database("decvalwtsource3",
+				       gen_decvalwtsource3_db);
 
     Xapian::DecreasingValueWeightPostingSource ps(1, 2, 5);
     Xapian::Query q(&ps);
@@ -580,12 +570,11 @@ DEFINE_TESTCASE(decvalwtsource3, writable) {
     TEST(mset_range_is_same(mset1, 0, mset2, 0, 1));
     TEST(mset_range_is_same(mset2, 0, mset3, 0, 2));
     TEST(mset_range_is_same(mset3, 0, mset4, 0, 3));
-
-    return true;
 }
 
 // Test DecreasingValueWeightPostingSource with an actual query on a fixed
-// dataset (so we can cover the remote backend too).
+// dataset (this was to cover the remote backend before we supported generated
+// databases for remote databases).
 DEFINE_TESTCASE(decvalwtsource4, backend && !multi) {
     Xapian::Database db = get_database("apitest_declen");
 
@@ -607,21 +596,23 @@ DEFINE_TESTCASE(decvalwtsource4, backend && !multi) {
     TEST(mset_range_is_same(mset1, 0, mset2, 0, 1));
     TEST(mset_range_is_same(mset2, 0, mset3, 0, 2));
     TEST(mset_range_is_same(mset3, 0, mset4, 0, 3));
-
-    return true;
 }
 
-// Regression test - used to get segfaults if
-// DecreasingValueWeightPostingSource was pointed at an empty slot.
-DEFINE_TESTCASE(decvalwtsource5, writable) {
-    Xapian::WritableDatabase db = get_writable_database();
-
+static void
+gen_decvalwtsource5_db(Xapian::WritableDatabase& db, const string&)
+{
     Xapian::Document doc;
     doc.add_value(1, Xapian::sortable_serialise(1));
     db.add_document(doc);
     doc.add_value(2, Xapian::sortable_serialise(1));
     db.add_document(doc);
-    db.commit();
+}
+
+// Regression test - used to get segfaults if
+// DecreasingValueWeightPostingSource was pointed at an empty slot.
+DEFINE_TESTCASE(decvalwtsource5, writable) {
+    Xapian::Database db = get_database("decvalwtsource5",
+				       gen_decvalwtsource5_db);
 
     {
 	Xapian::DecreasingValueWeightPostingSource ps(1);
@@ -647,6 +638,4 @@ DEFINE_TESTCASE(decvalwtsource5, writable) {
 	Xapian::MSet mset1(enq.get_mset(0, 3));
 	TEST_EQUAL(mset1.size(), 0);
     }
-
-    return true;
 }

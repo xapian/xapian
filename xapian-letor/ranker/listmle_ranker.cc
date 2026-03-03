@@ -1,4 +1,4 @@
-/** @file listmle_ranker.cc
+/** @file
  *  @brief Implementation of ListMLERanker
  *
  *  ListMLE is adapted from the paper:
@@ -21,9 +21,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -126,12 +125,12 @@ batch_learning(vector<FeatureVector> feature_vectors,
 }
 
 void
-ListMLERanker::train(const vector<FeatureVector>& training_data)
+ListMLERanker::train(const vector<vector<FeatureVector>>& training_data)
 {
     LOGCALL_VOID(API, "ListMLERanker::train", training_data);
-    if (training_data.empty())
+    if (training_data.empty() || training_data[0].empty())
 	throw InvalidArgumentError("Cannot train: no training data");
-    int feature_cnt = training_data[0].get_fcount();
+    int feature_cnt = training_data[0][0].get_fcount();
 
     // Initialize the parameters for neural network
     vector<double> new_parameters;
@@ -139,8 +138,21 @@ ListMLERanker::train(const vector<FeatureVector>& training_data)
 	new_parameters.push_back(0.0);
     }
 
-    for (int iter_num = 1; iter_num < iterations; ++iter_num) {
-	batch_learning(training_data, new_parameters, learning_rate);
+    for (auto& item1 : training_data) {
+	for (auto& item2 : item1) {
+	    if (item2.get_fcount() != feature_cnt) {
+		throw InvalidArgumentError("Cannot train: training data has "
+					   "uneven set of features. Make sure "
+					   "that you are using the same set "
+					   "of Features for all the queries");
+	    }
+	}
+    }
+
+    for (int iter_num = 1; iter_num <= iterations; ++iter_num) {
+	for (auto& item : training_data) {
+	    batch_learning(item, new_parameters, learning_rate);
+	}
     }
 
     swap(parameters, new_parameters);

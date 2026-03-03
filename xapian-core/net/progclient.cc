@@ -1,8 +1,7 @@
-/* progclient.cc: implementation of NetClient which spawns a program.
- *
- * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002 Ananova Ltd
- * Copyright 2003,2004,2005,2006,2007,2010,2011,2014 Olly Betts
+/** @file
+ *  @brief Implementation of RemoteDatabase using a spawned server.
+ */
+/* Copyright (C) 2007-2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -15,175 +14,164 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
 
-#include "safeerrno.h"
-#include "safefcntl.h"
-
 #include "progclient.h"
-#include <xapian/error.h>
-#include "closefrom.h"
-#include "debuglog.h"
 
+#include <xapian/error.h>
+
+#include <cerrno>
 #include <string>
+#include <string_view>
 #include <vector>
+
+#include "safefcntl.h"
 
 #include <sys/types.h>
 #ifndef __WIN32__
 # include "safesyssocket.h"
+# include "safeunistd.h"
 # include <sys/wait.h>
 #else
-# include <cstdio> // For sprintf().
+# include <cinttypes> // For PRIx64
+# include <cstdio> // For snprintf().
 # include <io.h>
 #endif
 
+#include "closefrom.h"
+#include "debuglog.h"
+
 using namespace std;
 
+pair<int, string>
+ProgClient::run_program(string_view progname, string_view args,
 #ifndef __WIN32__
-/** Split a string into a vector of strings, using a given separator
- *  character (default space)
- */
-static void
-split_words(const string &text, vector<string> &words, char ws = ' ')
-{
-    size_t i = 0;
-    if (i < text.length() && text[0] == ws) {
-	i = text.find_first_not_of(ws, i);
-    }
-    while (i < text.length()) {
-	size_t j = text.find_first_of(ws, i);
-	words.push_back(text.substr(i, j - i));
-	i = text.find_first_not_of(ws, j);
-    }
-}
-#endif
-
-ProgClient::ProgClient(const string &progname, const string &args,
-		       double timeout_, bool writable, int flags)
-	: RemoteDatabase(run_program(progname, args
-#ifndef __WIN32__
-						   , pid
-#endif
-	),
-			 timeout_, get_progcontext(progname, args), writable,
-			 flags)
-{
-    LOGCALL_CTOR(DB, "ProgClient", progname | args | timeout_ | writable | flags);
-}
-
-string
-ProgClient::get_progcontext(const string &progname, const string &args)
-{
-    LOGCALL_STATIC(DB, string, "ProgClient::get_progcontext", progname | args);
-    RETURN("remote:prog(" + progname + " " + args);
-}
-
-int
-ProgClient::run_program(const string &progname, const string &args
-#ifndef __WIN32__
-			, pid_t &pid
+			pid_t& child
+#else
+			HANDLE& child
 #endif
 			)
 {
+    LOGCALL_STATIC(DB, RETURN_TYPE(pair<int, string>), "ProgClient::run_program", progname | args | Literal("[&child]"));
+
+    string context{"remote:prog("};
+    context += progname;
+    context += ' ';
+    context += args;
+    context += ')';
+
 #if defined HAVE_SOCKETPAIR && defined HAVE_FORK
-    LOGCALL_STATIC(DB, int, "ProgClient::run_program", progname | args | Literal("[&pid]"));
-    /* socketpair() returns two sockets.  We keep sv[0] and give
-     * sv[1] to the child process.
-     */
-    int sv[2];
+    int fds[2];
 
-    if (socketpair(PF_UNIX, SOCK_STREAM|SOCK_CLOEXEC, 0, sv) < 0) {
-	throw Xapian::NetworkError(string("socketpair failed"), get_progcontext(progname, args), errno);
+    // Set the close-on-exec flag.  Our child will clear it after we fork() but
+    // before the child exec()s so that there's no window where another thread
+    // in the parent process could fork()+exec() and end up with these fds
+    // still open.
+    if (socketpair(PF_UNIX, SOCK_STREAM|SOCK_CLOEXEC, 0, fds) < 0) {
+	throw Xapian::NetworkError("socketpair failed", context, errno);
     }
 
-    pid = fork();
+    // We need the program name as a nul-terminated string.
+    string progname_string{progname};
 
-    if (pid < 0) {
-	throw Xapian::NetworkError(string("fork failed"), get_progcontext(progname, args), errno);
-    }
-
-    if (pid != 0) {
-	// parent
-	// close the child's end of the socket
-	::close(sv[1]);
-	RETURN(sv[0]);
-    }
-
-    /* child process:
-     *   set up file descriptors and exec program
-     */
-
-#if defined F_SETFD && defined FD_CLOEXEC
-    // Clear close-on-exec flag, if we set it when we called socketpair().
-    // Clearing it here means there's no window where another thread in the
-    // parent process could fork()+exec() and end up with this fd still
-    // open (assuming close-on-exec is supported).
+    // Make a copy of args - we replace spaces with zero bytes and build
+    // a char* array that points into this which we pass to execvp() as argv.
     //
-    // We can't use a preprocessor check on the *value* of SOCK_CLOEXEC as
-    // on Linux SOCK_CLOEXEC is an enum, with '#define SOCK_CLOEXEC
-    // SOCK_CLOEXEC' to allow '#ifdef SOCK_CLOEXEC' to work.
-    if (SOCK_CLOEXEC != 0)
-	(void)fcntl(sv[1], F_SETFD, 0);
-#endif
-
-    // replace stdin and stdout with the socket
-    // FIXME: check return values from dup2.
-    if (sv[1] != 0) {
-	dup2(sv[1], 0);
+    // We do this before we call fork() because we shouldn't do anything
+    // which calls malloc() in the child process.
+    string args_buf{args};
+    vector<char*> argv;
+    argv.push_back(&progname_string[0]);
+    if (!args_buf.empty()) {
+	// Split argument list on spaces.
+	argv.push_back(&args_buf[0]);
+	for (char& ch : args_buf) {
+	    if (ch == ' ') {
+		// Drop the previous element if it's empty (either due to leading
+		// spaces or multiple consecutive spaces).
+		if (&ch == argv.back()) argv.pop_back();
+		ch = '\0';
+		argv.push_back(&ch + 1);
+	    }
+	}
+	// Drop final element if it's empty (due to trailing space(s)).
+	if (&args_buf.back() == argv.back()) argv.pop_back();
     }
-    if (sv[1] != 1) {
-	dup2(sv[1], 1);
+    argv.push_back(nullptr);
+
+    child = fork();
+
+    if (child != 0) {
+	// Not the child process.
+
+	// Close the child's end of the pipe.
+	::close(fds[1]);
+	if (child < 0) {
+	    // Couldn't fork.
+	    ::close(fds[0]);
+	    throw Xapian::NetworkError("fork failed", context, errno);
+	}
+
+	// Parent process.
+	RETURN({fds[0], context});
     }
 
-    // close unnecessary file descriptors
+    // Child process.
+
+    // Close the parent's end of the pipe.
+    ::close(fds[0]);
+
+    // Connect pipe to stdin and stdout.  If we set the close-on-exec flag
+    // above, we want to ensure that both fds 0 and 1 are the result of a
+    // dup2() call so that their close-on-exec flags are cleared which we
+    // can do with a little care here.
+    int dup_to_first = 0;
+    if (SOCK_CLOEXEC != 0 && fds[1] == 0) {
+	dup_to_first = 1;
+    }
+
+    dup2(fds[1], dup_to_first);
+
+    // Make sure we don't hang on to open files which may get deleted but
+    // not have their disk space released until we exit.  Do this before
+    // the second dup2() to ensure there's a free file descriptor.
     closefrom(2);
 
+    dup2(dup_to_first, dup_to_first ^ 1);
+
     // Redirect stderr to /dev/null
-    int stderrfd = open("/dev/null", O_WRONLY);
-    if (stderrfd == -1) {
-	throw Xapian::NetworkError(string("Redirecting stderr to /dev/null failed"), get_progcontext(progname, args), errno);
+    int devnull = open("/dev/null", O_WRONLY);
+    if (devnull == -1) {
+	// We can't throw an exception here or usefully flag the failure.
+	// Best option seems to be to continue with stderr closed.
+    } else if (rare(devnull != 2)) {
+	// We expect to get fd 2 as that's the first free one, but handle
+	// if we don't for some reason.
+	dup2(devnull, 2);
+	::close(devnull);
     }
-    if (stderrfd != 2) {
-	// Not sure why it wouldn't be 2, but handle the situation anyway.
-	dup2(stderrfd, 2);
-	::close(stderrfd);
-    }
 
-    vector<string> argvec;
-    split_words(args, argvec);
+    execvp(progname_string.c_str(), argv.data());
 
-    // We never explicitly free this memory, but that's OK as we're about
-    // to either execvp() or _exit().
-    const char **new_argv = new const char *[argvec.size() + 2];
-
-    new_argv[0] = progname.c_str();
-    for (vector<string>::size_type i = 0; i < argvec.size(); ++i) {
-	new_argv[i + 1] = argvec[i].c_str();
-    }
-    new_argv[argvec.size() + 1] = 0;
-    execvp(progname.c_str(), const_cast<char *const *>(new_argv));
-
-    // if we get here, then execvp failed.
-    /* throwing an exception is a bad idea, since we're
-     * not the original process. */
+    // execvp() failed - all we can usefully do is exit.
     _exit(-1);
-#ifdef __xlC__
-    // Avoid "missing return statement" warning.
-    return 0;
-#endif
 #elif defined __WIN32__
-    LOGCALL_STATIC(DB, int, "ProgClient::run_program", progname | args);
-
-    static unsigned int pipecount = 0;
+    LARGE_INTEGER counter;
+    // QueryPerformanceCounter() will always succeed on XP and later
+    // and gives us a counter which increments each CPU clock cycle
+    // on modern hardware (Pentium or newer).
+    QueryPerformanceCounter(&counter);
     char pipename[256];
-    sprintf(pipename, "\\\\.\\pipe\\xapian-remote-%lx-%lx-%x",
-	    static_cast<unsigned long>(GetCurrentProcessId()),
-	    static_cast<unsigned long>(GetCurrentThreadId()), pipecount++);
+    snprintf(pipename, sizeof(pipename),
+	     "\\\\.\\pipe\\xapian-remote-%lx-%lx_%" PRIx64,
+	     static_cast<unsigned long>(GetCurrentProcessId()),
+	     static_cast<unsigned long>(GetCurrentThreadId()),
+	     static_cast<unsigned long long>(counter.QuadPart));
+    pipename[sizeof(pipename) - 1] = '\0';
     // Create a pipe so we can read stdout from the child process.
     HANDLE hPipe = CreateNamedPipe(pipename,
 				   PIPE_ACCESS_DUPLEX|FILE_FLAG_OVERLAPPED,
@@ -193,23 +181,25 @@ ProgClient::run_program(const string &progname, const string &args
 
     if (hPipe == INVALID_HANDLE_VALUE) {
 	throw Xapian::NetworkError("CreateNamedPipe failed",
-				   get_progcontext(progname, args),
+				   context,
 				   -int(GetLastError()));
     }
 
     HANDLE hClient = CreateFile(pipename,
-				GENERIC_READ|GENERIC_WRITE, 0, NULL, OPEN_EXISTING,
+				GENERIC_READ|GENERIC_WRITE, 0, NULL,
+				OPEN_EXISTING,
 				FILE_FLAG_OVERLAPPED, NULL);
 
     if (hClient == INVALID_HANDLE_VALUE) {
 	throw Xapian::NetworkError("CreateFile failed",
-				   get_progcontext(progname, args),
+				   context,
 				   -int(GetLastError()));
     }
 
-    if (!ConnectNamedPipe(hPipe, NULL) && GetLastError() != ERROR_PIPE_CONNECTED) {
+    if (!ConnectNamedPipe(hPipe, NULL) &&
+	GetLastError() != ERROR_PIPE_CONNECTED) {
 	throw Xapian::NetworkError("ConnectNamedPipe failed",
-				   get_progcontext(progname, args),
+				   context,
 				   -int(GetLastError()));
     }
 
@@ -228,32 +218,45 @@ ProgClient::run_program(const string &progname, const string &args
     startupinfo.hStdInput = hClient;
     startupinfo.dwFlags |= STARTF_USESTDHANDLES;
 
-    // For some reason Windows wants a modifiable copy!
-    BOOL ok;
-    char * cmdline = strdup((progname + ' ' + args).c_str());
-    ok = CreateProcess(0, cmdline, 0, 0, TRUE, 0, 0, 0, &startupinfo, &procinfo);
-    free(cmdline);
+    // We need the program name as a nul-terminated string.
+    string progname_string{progname};
+
+    string cmdline{progname};
+    cmdline += ' ';
+    cmdline += args;
+    // For some reason Windows wants a modifiable command line so we
+    // pass `&cmdline[0]` rather than `cmdline.c_str()`.
+    BOOL ok = CreateProcess(progname_string.c_str(), &cmdline[0],
+			    0, 0, TRUE, 0, 0, 0,
+			    &startupinfo, &procinfo);
     if (!ok) {
 	throw Xapian::NetworkError("CreateProcess failed",
-				   get_progcontext(progname, args),
+				   context,
 				   -int(GetLastError()));
     }
 
     CloseHandle(hClient);
     CloseHandle(procinfo.hThread);
-    RETURN(_open_osfhandle(intptr_t(hPipe), O_RDWR|O_BINARY));
+    child = procinfo.hProcess;
+    RETURN({_open_osfhandle(intptr_t(hPipe), O_RDWR|O_BINARY), context});
+#else
+// This should have been detected at configure time.
+# error ProgClient needs porting to this platform
 #endif
 }
 
 ProgClient::~ProgClient()
 {
-    // Close the socket and reap the child.
-    do_close();
+    // Close the pipe.
+    try {
+	do_close();
+    } catch (...) {
+    }
+
+    // Wait for the child process to exit.
 #ifndef __WIN32__
-    waitpid(pid, 0, 0);
+    waitpid(child, 0, 0);
+#else
+    WaitForSingleObject(child, INFINITE);
 #endif
 }
-
-#ifdef DISABLE_GPL_LIBXAPIAN
-# error GPL source we cannot relicense included in libxapian
-#endif

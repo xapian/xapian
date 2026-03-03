@@ -1,8 +1,8 @@
-/** @file registry.h
+/** @file
  * @brief Class for looking up user subclasses during unserialisation.
  */
 /* Copyright 2009 Lemur Consulting Ltd
- * Copyright 2009,2011,2013,2014 Olly Betts
+ * Copyright 2009,2011,2013,2014,2019,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -15,16 +15,15 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_REGISTRY_H
 #define XAPIAN_INCLUDED_REGISTRY_H
 
 #if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
-# error "Never use <xapian/registry.h> directly; include <xapian.h> instead."
+# error Never use <xapian/registry.h> directly; include <xapian.h> instead.
 #endif
 
 #include <xapian/intrusive_ptr.h>
@@ -34,6 +33,7 @@
 namespace Xapian {
 
 // Forward declarations.
+class KeyMaker;
 class LatLongMetric;
 class MatchSpy;
 class PostingSource;
@@ -70,6 +70,18 @@ class XAPIAN_VISIBILITY_DEFAULT Registry {
      */
     Registry & operator=(const Registry & other);
 
+    /** Move constructor.
+     *
+     * @param other	The object to move.
+     */
+    Registry(Registry && other);
+
+    /** Move assignment operator.
+     *
+     * @param other	The object to move.
+     */
+    Registry & operator=(Registry && other);
+
     /** Default constructor.
      *
      *  The registry will contain all standard subclasses of user-subclassable
@@ -93,8 +105,7 @@ class XAPIAN_VISIBILITY_DEFAULT Registry {
      *			object is owned by the registry and so must not be
      *			deleted by the caller.
      */
-    const Xapian::Weight *
-	    get_weighting_scheme(const std::string & name) const;
+    const Xapian::Weight* get_weighting_scheme(std::string_view name) const;
 
     /** Register a user-defined posting source class.
      *
@@ -110,8 +121,8 @@ class XAPIAN_VISIBILITY_DEFAULT Registry {
      *			object is owned by the registry and so must not be
      *			deleted by the caller.
      */
-    const Xapian::PostingSource *
-	    get_posting_source(const std::string & name) const;
+    const Xapian::PostingSource*
+	    get_posting_source(std::string_view name) const;
 
     /** Register a user-defined match spy class.
      *
@@ -127,8 +138,7 @@ class XAPIAN_VISIBILITY_DEFAULT Registry {
      *			object is owned by the registry and so must not be
      *			deleted by the caller.
      */
-    const Xapian::MatchSpy *
-	    get_match_spy(const std::string & name) const;
+    const Xapian::MatchSpy* get_match_spy(std::string_view name) const;
 
     /// Register a user-defined lat-long metric class.
     void register_lat_long_metric(const Xapian::LatLongMetric &metric);
@@ -139,9 +149,34 @@ class XAPIAN_VISIBILITY_DEFAULT Registry {
      *
      *  Returns NULL if the metric could not be found.
      */
-    const Xapian::LatLongMetric *
-	    get_lat_long_metric(const std::string & name) const;
+    const Xapian::LatLongMetric*
+	    get_lat_long_metric(std::string_view name) const;
 
+    /** Register a user-defined KeyMaker subclass.
+     *
+     *  @param keymaker	The KeyMaker subclass to register.  The clean up of
+     *		        this object is handled via Xapian's optional reference
+     *		        counting.  The simplest way to do so is to allocate it
+     *		        with <code>new</code> and call <code>release()</code>
+     *		        on it before passing it to this method to tell Xapian
+     *		        to manage its lifetime.  The alternative approach is
+     *		        for the caller to ensure the KeyMaker object remains
+     *		        valid for the lifetime of the Registry object.
+     *
+     *  @since Added in Xapian 2.0.0.
+     */
+    void register_key_maker(Xapian::KeyMaker* keymaker);
+
+    /** Get a KeyMaker given a name.
+     *
+     *  @param name	The name of the KeyMaker to find.
+     *  @return		An object with the requested name, or NULL if the
+     *			KeyMaker could not be found.  The returned
+     *			object must <b>not</b> be deleted by the caller.
+     *
+     *  @since Added in Xapian 2.0.0.
+     */
+    const Xapian::KeyMaker* get_key_maker(std::string_view name) const;
 };
 
 }

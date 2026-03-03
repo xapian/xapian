@@ -1,7 +1,7 @@
-/** @file multi_termlist.h
+/** @file
  * @brief Adapter class for a TermList in a multidatabase
  */
-/* Copyright (C) 2007,2010,2013,2017 Olly Betts
+/* Copyright (C) 2007,2010,2013,2017,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -14,8 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_MULTI_TERMLIST_H
@@ -55,9 +55,6 @@ class MultiTermList : public TermList {
     /// Return approximate size of this termlist.
     Xapian::termcount get_approx_size() const;
 
-    /// Return the termname at the current position.
-    std::string get_termname() const;
-
     /// Return the wdf for the term at the current position.
     Xapian::termcount get_wdf() const;
 
@@ -82,10 +79,7 @@ class MultiTermList : public TermList {
      *  If the specified term isn't in the list, position ourselves on the
      *  first term after tname (or at_end() if no terms after tname exist).
      */
-    Internal * skip_to(const std::string &term);
-
-    /// Return true if the current position is past the last term in this list.
-    bool at_end() const;
+    Internal* skip_to(std::string_view term);
 
     /// Return the length of the position list for the current position.
     Xapian::termcount positionlist_count() const;

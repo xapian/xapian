@@ -1,0 +1,439 @@
+/** @file
+ * @brief Command line search tool using Xapian::QueryParser.
+ */
+/* Copyright (C) 2004-2026 Olly Betts
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
+ */
+
+#include <config.h>
+
+#include <xapian.h>
+
+#include <cstdlib>
+#include <cstring>
+
+#include <algorithm>
+#include <iostream>
+
+#include "gnu_getopt.h"
+#include "stringutils.h"
+
+using namespace std;
+
+#define PROG_NAME "xapian-quest"
+#define PROG_DESC "Xapian command line search tool"
+
+// Stopwords:
+static const char * const sw[] = {
+    "a", "about", "an", "and", "are", "as", "at",
+    "be", "by",
+    "en",
+    "for", "from",
+    "how",
+    "i", "in", "is", "it",
+    "of", "on", "or",
+    "that", "the", "this", "to",
+    "was", "what", "when", "where", "which", "who", "why", "will", "with"
+};
+
+/** Common string to integer map entry for option decoding. */
+struct tab_entry {
+    const char* s;
+
+    unsigned f;
+
+    bool operator<(const char* s_) const {
+	return strcmp(s, s_) < 0;
+    }
+};
+
+/** Decode a string to an integer.
+ *
+ *  @param table  Array of tab_entry in ascending string order.
+ *  @param s      The string to decode.
+ */
+template<typename T, std::size_t N>
+static int
+decode(const T (&table)[N], const char* s)
+{
+    auto p = lower_bound(begin(table), end(table), s);
+    if (p == end(table) || strcmp(s, p->s) != 0)
+	return -1;
+    return p->f;
+}
+
+static const tab_entry flag_tab[] = {
+    { "accumulate", Xapian::QueryParser::FLAG_ACCUMULATE },
+    { "auto_multiword_synonyms", Xapian::QueryParser::FLAG_AUTO_MULTIWORD_SYNONYMS },
+    { "auto_synonyms", Xapian::QueryParser::FLAG_AUTO_SYNONYMS },
+    { "boolean", Xapian::QueryParser::FLAG_BOOLEAN },
+    { "boolean_any_case", Xapian::QueryParser::FLAG_BOOLEAN_ANY_CASE },
+    { "cjk_ngram", Xapian::QueryParser::FLAG_CJK_NGRAM },
+    { "default", Xapian::QueryParser::FLAG_DEFAULT },
+    { "fuzzy", Xapian::QueryParser::FLAG_FUZZY },
+    { "lovehate", Xapian::QueryParser::FLAG_LOVEHATE },
+    { "ngrams", Xapian::QueryParser::FLAG_NGRAMS },
+    { "no_positions", Xapian::QueryParser::FLAG_NO_POSITIONS },
+    { "no_proper_noun_heuristic", Xapian::QueryParser::FLAG_NO_PROPER_NOUN_HEURISTIC },
+    { "partial", Xapian::QueryParser::FLAG_PARTIAL },
+    { "phrase", Xapian::QueryParser::FLAG_PHRASE },
+    { "pure_not", Xapian::QueryParser::FLAG_PURE_NOT },
+    { "spelling_correction", Xapian::QueryParser::FLAG_SPELLING_CORRECTION },
+    { "synonym", Xapian::QueryParser::FLAG_SYNONYM },
+    { "wildcard", Xapian::QueryParser::FLAG_WILDCARD },
+    { "wildcard_glob", Xapian::QueryParser::FLAG_WILDCARD_GLOB },
+    { "wildcard_multi", Xapian::QueryParser::FLAG_WILDCARD_MULTI },
+    { "wildcard_single", Xapian::QueryParser::FLAG_WILDCARD_SINGLE },
+    { "word_breaks", Xapian::QueryParser::FLAG_WORD_BREAKS }
+};
+
+static const tab_entry default_op_tab[] = {
+    { "and", Xapian::Query::OP_AND },
+    { "elite_set", Xapian::Query::OP_ELITE_SET },
+    { "max", Xapian::Query::OP_MAX },
+    { "near", Xapian::Query::OP_NEAR },
+    { "or", Xapian::Query::OP_OR },
+    { "phrase", Xapian::Query::OP_PHRASE },
+    { "synonym", Xapian::Query::OP_SYNONYM }
+};
+
+static const tab_entry stem_strategy_tab[] = {
+    { "all", Xapian::QueryParser::STEM_ALL },
+    { "all_z", Xapian::QueryParser::STEM_ALL_Z },
+    { "none", Xapian::QueryParser::STEM_NONE },
+    { "some", Xapian::QueryParser::STEM_SOME },
+    { "some_full_pos", Xapian::QueryParser::STEM_SOME_FULL_POS }
+};
+
+/** The number of spaces to indent by in print_table.
+ *
+ *  This needs to match the indent in the help message in show_usage() below.
+ */
+#define INDENT \
+"                                    "
+
+/** Print strings from a string to integer mapping table.
+ *
+ *  @param table  Array of tab_entry in ascending string order.
+ */
+template<typename T>
+static char
+print_table(const T& table)
+{
+    size_t pos = 256;
+    for (auto& i : table) {
+	size_t len = strlen(i.s);
+	if (pos < 256) cout << ',';
+	if (pos + len >= 78) {
+	    cout << "\n" INDENT;
+	    pos = sizeof(INDENT) - 2;
+	} else {
+	    cout << ' ';
+	}
+	cout << i.s;
+	pos += len + 2;
+    }
+    return '\n';
+}
+
+/** Print available stemmers, line wrapped. */
+static char
+print_stemmers()
+{
+    size_t pos = 256;
+    const string langs = Xapian::Stem::get_available_languages();
+    size_t p = 0;
+    while (p != string::npos) {
+	size_t space = langs.find(' ', p);
+	size_t len = (space != string::npos) ? space - p : langs.size() - p;
+	if (pos < 256) cout << ',';
+	if (pos + len >= 78) {
+	    cout << "\n" INDENT;
+	    pos = sizeof(INDENT) - 2;
+	} else {
+	    cout << ' ';
+	}
+	cout << string_view(langs.data() + p, len);
+	pos += len + 2;
+	p = space;
+	if (p != string::npos) ++p;
+    }
+    return '\n';
+}
+
+/** List strings from a string to integer mapping table, one per line.
+ *
+ *  @param table  Array of tab_entry in ascending string order.
+ */
+template<typename T>
+static void
+list_table(const T& table)
+{
+    for (auto& i : table) {
+	cout << i.s << '\n';
+    }
+}
+
+static void show_usage() {
+    cout << "Usage: " PROG_NAME " [OPTIONS] 'QUERY'\n"
+"NB: QUERY should be quoted to protect it from the shell.\n\n"
+"Options:\n"
+"  -d, --db=DIRECTORY                database to search (multiple databases may\n"
+"                                    be specified)\n"
+"  -m, --msize=MSIZE                 maximum number of matches to return\n"
+"  -c, --check-at-least=HOWMANY      minimum number of matches to check\n"
+"  -s, --stemmer=LANG                set the stemming language, the default is\n"
+"                                    'english' (pass 'none' to disable stemming).\n"
+"                                    Valid stemmers:"
+<< print_stemmers() <<
+"  -S, --stem-strategy=STRATEGY      set the stemming strategy (default: some).\n"
+"                                    Valid strategies:"
+<< print_table(stem_strategy_tab) <<
+"  -p, --prefix=PFX:TERMPFX          add a prefix\n"
+"  -b, --boolean-prefix=PFX:TERMPFX  add a boolean prefix\n"
+"  -f, --flags=FLAG1[,FLAG2]...      specify QueryParser flags (default:\n"
+"                                    default).  Valid flags:"
+<< print_table(flag_tab) <<
+"  -o, --default-op=OP               specify QueryParser default operator\n"
+"                                    (default: or).  Valid operators:"
+<< print_table(default_op_tab) <<
+"  -w, --weight=SCHEME               specify weighting scheme to use, which\n"
+"                                    can include parameters, e.g.\n"
+"                                    --weight='bm25 1 0 0 1 0' (default: bm25).\n"
+// FIXME: It would be nice to report valid schemes like we used to when we had
+// a hard-coded list of scheme names here.
+"  -F, --freqs                       show query term frequencies\n"
+"  -h, --help                        display this help and exit\n"
+"  -v, --version                     output version information and exit\n";
+}
+
+int
+main(int argc, char **argv)
+try {
+    const char * opts = "d:m:c:s:S:p:b:f:o:w:Fhv";
+    static const struct option long_opts[] = {
+	{ "db",		required_argument, 0, 'd' },
+	{ "msize",	required_argument, 0, 'm' },
+	{ "check-at-least",	required_argument, 0, 'c' },
+	{ "stemmer",	required_argument, 0, 's' },
+	{ "stem-strategy",	required_argument, 0, 'S' },
+	{ "prefix",	required_argument, 0, 'p' },
+	{ "boolean-prefix",	required_argument, 0, 'b' },
+	{ "flags",	required_argument, 0, 'f' },
+	{ "default-op",	required_argument, 0, 'o' },
+	{ "weight",	required_argument, 0, 'w' },
+	{ "freqs",	no_argument, 0, 'F' },
+	{ "help",	no_argument, 0, 'h' },
+	{ "version",	no_argument, 0, 'v' },
+	{ NULL,		0, 0, 0}
+    };
+
+    Xapian::SimpleStopper mystopper(begin(sw), end(sw));
+    Xapian::Stem stemmer("english");
+    Xapian::doccount msize = 10;
+    Xapian::doccount check_at_least = 0;
+
+    bool have_database = false;
+
+    Xapian::Database db;
+    Xapian::QueryParser parser;
+    unsigned flags = 0;
+    bool flags_set = false;
+    bool show_termfreqs = false;
+    const char* weighting_scheme = "bm25";
+
+    int c;
+    while ((c = gnu_getopt_long(argc, argv, opts, long_opts, 0)) != -1) {
+	switch (c) {
+	    case 'm': {
+		char * p;
+		unsigned long v = strtoul(optarg, &p, 10);
+		msize = static_cast<Xapian::doccount>(v);
+		if (*p || v != msize) {
+		    cerr << PROG_NAME": Bad value '" << optarg
+			 << "' passed for msize\n";
+		    exit(1);
+		}
+		break;
+	    }
+	    case 'c': {
+		char * p;
+		unsigned long v = strtoul(optarg, &p, 10);
+		check_at_least = static_cast<Xapian::doccount>(v);
+		if (*p || v != check_at_least) {
+		    cerr << PROG_NAME": Bad value '" << optarg
+			 << "' passed for check_at_least\n";
+		    exit(1);
+		}
+		break;
+	    }
+	    case 'd':
+		db.add_database(Xapian::Database(optarg));
+		have_database = true;
+		break;
+	    case 's':
+		try {
+		    stemmer = Xapian::Stem(optarg);
+		} catch (const Xapian::InvalidArgumentError &) {
+		    cerr << "Unknown stemming language '" << optarg << "'.\n"
+			    "Available language names are: "
+			 << Xapian::Stem::get_available_languages() << '\n';
+		    exit(1);
+		}
+		break;
+	    case 'b': case 'p': {
+		const char * colon = strchr(optarg, ':');
+		if (colon == NULL) {
+		    cerr << argv[0] << ": need ':' when setting prefix\n";
+		    exit(1);
+		}
+		string prefix(optarg, colon - optarg);
+		string termprefix(colon + 1);
+		if (c == 'b') {
+		    parser.add_boolean_prefix(prefix, termprefix);
+		} else {
+		    parser.add_prefix(prefix, termprefix);
+		}
+		break;
+	    }
+	    case 'f':
+		flags_set = true;
+		do {
+		    char * comma = strchr(optarg, ',');
+		    if (comma)
+			*comma++ = '\0';
+		    int flag = decode(flag_tab, optarg);
+		    if (flag < 0) {
+			cerr << "Unknown flag '" << optarg << "'\n"
+				"Available flags are:\n";
+			list_table(flag_tab);
+			exit(1);
+		    }
+		    flags |= unsigned(flag);
+		    optarg = comma;
+		} while (optarg);
+		break;
+	    case 'o': {
+		int op = decode(default_op_tab, optarg);
+		if (op < 0) {
+		    cerr << "Unknown operator '" << optarg << "'\n"
+			    "Available operators are:\n";
+		    list_table(default_op_tab);
+		    exit(1);
+		}
+		parser.set_default_op(static_cast<Xapian::Query::op>(op));
+		break;
+	    }
+	    case 'S': {
+		int s = decode(stem_strategy_tab, optarg);
+		if (s < 0) {
+		    cerr << "Unknown stem strategy '" << optarg << "'\n"
+			    "Available stem strategies are:\n";
+		    list_table(stem_strategy_tab);
+		    exit(1);
+		}
+		auto strategy =
+		    static_cast<Xapian::QueryParser::stem_strategy>(s);
+		parser.set_stemming_strategy(strategy);
+		break;
+	    }
+	    case 'w':
+		weighting_scheme = optarg;
+		break;
+	    case 'F':
+		show_termfreqs = true;
+		break;
+	    case 'v':
+		cout << PROG_NAME " - " PACKAGE_STRING "\n";
+		exit(0);
+	    case 'h':
+		cout << PROG_NAME " - " PROG_DESC "\n\n";
+		show_usage();
+		exit(0);
+	    case ':': // missing parameter
+	    case '?': // unknown option
+		show_usage();
+		exit(1);
+	}
+    }
+
+    if (argc - optind != 1) {
+	show_usage();
+	exit(1);
+    }
+
+    parser.set_database(db);
+    parser.set_stemmer(stemmer);
+    parser.set_stopper(&mystopper);
+
+    if (!flags_set) {
+	flags = Xapian::QueryParser::FLAG_DEFAULT;
+    }
+    Xapian::Query query = parser.parse_query(argv[optind], flags);
+    const string & correction = parser.get_corrected_query_string();
+    if (!correction.empty())
+	cout << "Did you mean: " << correction << "\n\n";
+
+    cout << "Parsed Query: " << query.get_description() << '\n';
+
+    if (!have_database) {
+	cout << "No database specified so not running the query.\n";
+	exit(0);
+    }
+
+    Xapian::Enquire enquire(db);
+    enquire.set_query(query);
+    {
+	const Xapian::Weight* weight = Xapian::Weight::create(weighting_scheme);
+	enquire.set_weighting_scheme(*weight);
+	delete weight;
+    }
+
+    Xapian::MSet mset = enquire.get_mset(0, msize, check_at_least);
+
+    if (show_termfreqs) {
+	cout << "Query term frequencies:\n";
+	for (auto t = query.get_terms_begin();
+	     t != query.get_terms_end();
+	     ++t) {
+	    const string& term = *t;
+	    cout << "    " << mset.get_termfreq(term) << '\t' << term << '\n';
+	}
+    }
+    auto lower_bound = mset.get_matches_lower_bound();
+    auto estimate = mset.get_matches_estimated();
+    auto upper_bound = mset.get_matches_upper_bound();
+    if (lower_bound == upper_bound) {
+	cout << "Exactly " << estimate << " matches\n";
+    } else {
+	cout << "Between " << lower_bound << " and " << upper_bound
+	     << " matches, best estimate is " << estimate << '\n';
+    }
+
+    cout << "MSet:\n";
+    for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); ++i) {
+	Xapian::Document doc = i.get_document();
+	string data = doc.get_data();
+	cout << *i << ": [" << i.get_weight() << "]\n" << data << "\n";
+    }
+    cout << flush;
+} catch (const Xapian::QueryParserError & e) {
+    cout << "Couldn't parse query: " << e.get_msg() << '\n';
+    exit(1);
+} catch (const Xapian::Error & err) {
+    cout << err.get_description() << '\n';
+    exit(1);
+}

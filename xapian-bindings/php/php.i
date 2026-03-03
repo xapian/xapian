@@ -2,7 +2,7 @@
 %{
 /* php.i: SWIG interface file for the PHP bindings
  *
- * Copyright (C) 2004,2005,2006,2007,2008,2010,2011,2012,2014,2016 Olly Betts
+ * Copyright (C) 2004-2026 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -15,12 +15,24 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include "../xapian-version.h"
+%}
+
+// This works around a build failure on Illuminos:
+// https://trac.xapian.org/ticket/793
+%begin %{
+#include <string>
+%}
+
+%{
+extern "C" {
+// Needed for php_array_merge().
+#include <ext/standard/php_array.h>
+}
 %}
 
 // Use SWIG directors for PHP wrappers.
@@ -39,21 +51,21 @@
     php_info_print_table_end();\
 "
 
-%rename("is_empty") empty() const;
-%rename("clone_object") clone() const;
+%pragma(php) version=PACKAGE_VERSION
+
+// We used to rename `empty()` methods to `is_empty()` in PHP.  However while
+// `empty` is a PHP reserved keyword, it's still allowed as a method name so
+// we no longer rename it, but instead wrap as `empty()` and also provide
+// is_empty() methods for backwards compatibility.
+#define XAPIAN_SWIG_IS_EMPTY_COMPAT(CLASS) %extend Xapian::CLASS { bool is_empty() const { return $self->empty(); } }
+XAPIAN_SWIG_IS_EMPTY_COMPAT(ESet)
+XAPIAN_SWIG_IS_EMPTY_COMPAT(LatLongCoords)
+XAPIAN_SWIG_IS_EMPTY_COMPAT(MSet)
+XAPIAN_SWIG_IS_EMPTY_COMPAT(Query)
+XAPIAN_SWIG_IS_EMPTY_COMPAT(RSet)
 
 /* Handle op as an int rather than an enum. */
 %apply int { Xapian::Query::op };
-
-%typemap(typecheck, precedence=SWIG_TYPECHECK_POINTER) const SWIGTYPE & {
-    void *ptr;
-    $1 = (SWIG_ConvertPtr(*$input, (void **)&ptr, $1_descriptor, 0) == 0);
-}
-
-%typemap(typecheck, precedence=SWIG_TYPECHECK_POINTER) SWIGTYPE {
-    void *ptr;
-    $1 = (SWIG_ConvertPtr(*$input, (void **)&ptr, $&1_descriptor, 0) == 0);
-}
 
 /* STRING has a lower precedence that numbers, but the SWIG PHP check for
  * number (in 1.3.28 at least) includes IS_STRING which means that for a
@@ -62,49 +74,50 @@
  * precedences - i.e. SWIG_TYPECHECK_VOIDPTR instead of SWIG_TYPECHECK_STRING.
  */
 %typemap(typecheck, precedence=SWIG_TYPECHECK_VOIDPTR) const std::string & {
-    $1 = (Z_TYPE_PP($input) == IS_STRING);
+    $1 = (Z_TYPE($input) == IS_STRING);
 }
 
 /* The SWIG overloading doesn't handle this correctly by default. */
 %typemap(typecheck, precedence=SWIG_TYPECHECK_BOOL) bool {
-    $1 = (Z_TYPE_PP($input) == IS_BOOL || Z_TYPE_PP($input) == IS_LONG);
-}
-
-/* SWIG's default typemap accepts "Null" when an object is passed by
-   reference, and the C++ wrapper code then dereferences a NULL pointer
-   which causes a SEGV. */
-%typemap(in) SWIGTYPE & {
-    if (SWIG_ConvertPtr(*$input, (void**)&$1, $1_descriptor, 0) < 0 || $1 == NULL) {
-	SWIG_PHP_Error(E_ERROR, "Type error in argument $argnum of $symname. Expected $1_descriptor");
-    }
+    $1 = (Z_TYPE($input) == IS_TRUE || Z_TYPE($input) == IS_FALSE || Z_TYPE($input) == IS_LONG);
 }
 
 #define XAPIAN_MIXED_SUBQUERIES_BY_ITERATOR_TYPEMAP
 
 %typemap(typecheck, precedence=500) (XapianSWIGQueryItor qbegin, XapianSWIGQueryItor qend) {
-    $1 = (Z_TYPE_PP($input) == IS_ARRAY);
+    $1 = (Z_TYPE($input) == IS_ARRAY);
     /* FIXME: if we add more array typemaps, we'll need to check the elements
      * of the array here to disambiguate. */
 }
 
 %{
-class XapianSWIGQueryItor {
-    HashTable *ht;
-
-    HashPosition i;
-
-    zval ** item;
-
-#ifdef ZTS
-    void *** swig_zts_ctx;
-#endif
-
-    void get_current_data() {
-	if (zend_hash_get_current_data_ex(ht, (void **)&item, &i) != SUCCESS) {
-	    zend_hash_internal_pointer_end_ex(ht, &i);
-	    ht = NULL;
+/** Merge _ps properties.
+ *
+ *  We use these to keep references to XapianPostingSource objects used in
+ *  XapianQuery objects.
+ */
+static void merge_ps_references(zval* target_this, zval& input) {
+    zval* zvq = zend_read_property(Z_OBJCE(input), Z_OBJ(input), "_ps", strlen("_ps"), false, NULL);
+    if (zend_hash_num_elements(Z_ARR_P(zvq)) > 0) {
+	zval* zv = zend_read_property(Z_OBJCE_P(target_this), Z_OBJ_P(target_this), "_ps", strlen("_ps"), false, NULL);
+	if (zend_hash_num_elements(Z_ARR_P(zv)) == 0) {
+	    ZVAL_COPY(zv, zvq);
+	} else {
+	    SEPARATE_ARRAY(zv);
+	    php_array_merge(Z_ARR_P(zv), Z_ARR_P(zvq));
 	}
     }
+}
+
+class XapianSWIGQueryItor {
+#if PHP_MAJOR_VERSION == 8 && PHP_MINOR_VERSION < 2
+    Bucket* p;
+#else
+    zval* p;
+    size_t elt_size;
+#endif
+
+    zval* target_this;
 
   public:
     typedef std::random_access_iterator_tag iterator_category;
@@ -114,31 +127,53 @@ class XapianSWIGQueryItor {
     typedef Xapian::Query & reference;
 
     XapianSWIGQueryItor()
-	: ht(NULL) { }
+	: p(NULL) { }
 
-    void begin(zval ** input TSRMLS_DC) {
-	ht = Z_ARRVAL_PP(input);
-	TSRMLS_SET_CTX(swig_zts_ctx);
-	zend_hash_internal_pointer_reset_ex(ht, &i);
-	get_current_data();
+    void begin(zval* input, zval* target_this_) {
+	HashTable *ht = Z_ARRVAL_P(input);
+#if PHP_MAJOR_VERSION == 8 && PHP_MINOR_VERSION < 2
+	p = ht->arData;
+#else
+	elt_size = ZEND_HASH_ELEMENT_SIZE(ht);
+	p = ZEND_HASH_ELEMENT(ht, 0);
+#endif
+	target_this = target_this_;
+    }
+
+    void end(zval * input) {
+	HashTable *ht = Z_ARRVAL_P(input);
+#if PHP_MAJOR_VERSION == 8 && PHP_MINOR_VERSION < 2
+	p = ht->arData + ht->nNumUsed;
+#else
+	elt_size = ZEND_HASH_ELEMENT_SIZE(ht);
+	p = ZEND_HASH_ELEMENT(ht, ht->nNumUsed);
+#endif
     }
 
     XapianSWIGQueryItor & operator++() {
-	zend_hash_move_forward_ex(ht, &i);
-	get_current_data();
+#if PHP_MAJOR_VERSION == 8 && PHP_MINOR_VERSION < 2
+	++p;
+#else
+	p = ZEND_HASH_NEXT_ELEMENT(p, elt_size);
+#endif
 	return *this;
     }
 
     Xapian::Query operator*() const {
-	if ((*item)->type == IS_STRING) {
-	    size_t len = Z_STRLEN_PP(item);
-	    const char *p = Z_STRVAL_PP(item);
-	    return Xapian::Query(string(p, len));
+#if PHP_MAJOR_VERSION == 8 && PHP_MINOR_VERSION < 2
+	zval *item = &p->val;
+#else
+	zval *item = p;
+#endif
+
+	if (Z_TYPE_P(item) == IS_STRING) {
+	    size_t len = Z_STRLEN_P(item);
+	    const char *str = Z_STRVAL_P(item);
+	    return Xapian::Query(string(str, len));
 	}
 
-        TSRMLS_FETCH_FROM_CTX(swig_zts_ctx);
 	Xapian::Query *subq = 0;
-	if (SWIG_ConvertPtr(*item, (void **)&subq,
+	if (SWIG_ConvertPtr(item, (void **)&subq,
 			    SWIGTYPE_p_Xapian__Query, 0) < 0) {
 	    subq = 0;
 	}
@@ -147,11 +182,12 @@ class XapianSWIGQueryItor {
 fail: // Label which SWIG_PHP_Error needs.
 	    return Xapian::Query();
 	}
+	merge_ps_references(target_this, *item);
 	return *subq;
     }
 
     bool operator==(const XapianSWIGQueryItor & o) {
-	return ht == o.ht;
+	return p == o.p;
     }
 
     bool operator!=(const XapianSWIGQueryItor & o) {
@@ -159,54 +195,43 @@ fail: // Label which SWIG_PHP_Error needs.
     }
 
     difference_type operator-(const XapianSWIGQueryItor &o) const {
-	// This is a hack - the only time where this will actually get called
-	// is when "this" is "end" and "o" is "begin", in which case the
-        // answer is the number of elements in the HashTable, which will be in
-        // o.ht.
-	return zend_hash_num_elements(o.ht);
+#if PHP_MAJOR_VERSION == 8 && PHP_MINOR_VERSION < 2
+	return p - o.p;
+#else
+	auto d = reinterpret_cast<const char*>(p) -
+		 reinterpret_cast<const char*>(o.p);
+	return d / elt_size;
+#endif
     }
 };
 
 %}
 
-%typemap(in) (XapianSWIGQueryItor qbegin, XapianSWIGQueryItor qend) {
+%typemap(in, phptype="array") (XapianSWIGQueryItor qbegin, XapianSWIGQueryItor qend) {
     // $1 and $2 are default initialised where SWIG declares them.
-    if (Z_TYPE_PP($input) == IS_ARRAY) {
+    if (Z_TYPE($input) == IS_ARRAY) {
 	// The typecheck typemap should have ensured this is an array.
-	$1.begin($input TSRMLS_CC);
+	$1.begin(&$input, ZEND_THIS);
+	$2.end(&$input);
     }
 }
 
 #define XAPIAN_TERMITERATOR_PAIR_OUTPUT_TYPEMAP
-%typemap(out) std::pair<Xapian::TermIterator, Xapian::TermIterator> {
-    if (array_init($result) == FAILURE) {
-	SWIG_PHP_Error(E_ERROR, "array_init failed");
-    }
+%typemap(out, phptype="array") std::pair<Xapian::TermIterator, Xapian::TermIterator> {
+    array_init($result);
 
     for (Xapian::TermIterator i = $1.first; i != $1.second; ++i) {
-	/* We have to cast away const here because the PHP API is rather
-	 * poorly thought out - really there should be two API methods
-	 * one of which takes a const char * and copies the string and
-	 * the other which takes char * and takes ownership of the string.
-	 *
-	 * Passing 1 as the last parameter of add_next_index_stringl() tells
-	 * PHP to copy the string pointed to by p, so it won't be modified.
-	 */
-	const string & term = *i;
-	char *p = const_cast<char*>(term.data());
-	add_next_index_stringl($result, p, term.length(), 1);
+	const string& term = *i;
+	add_next_index_stringl($result, term.data(), term.length());
     }
 }
 
 %typemap(directorin) (size_t num_tags, const std::string tags[]) {
-    if (array_init($input) == FAILURE) {
-	SWIG_PHP_Error(E_ERROR, "array_init failed");
-    }
+    array_init_size($input, num_tags);
 
     for (size_t i = 0; i != num_tags; ++i) {
-	const string & term = tags[i];
-	char *p = const_cast<char*>(term.data());
-	add_next_index_stringl($input, p, term.length(), 1);
+	const string& term = tags[i];
+	add_next_index_stringl($input, term.data(), term.length());
     }
 }
 
@@ -233,4 +258,98 @@ PHP_ITERATOR(Xapian, ValueIterator, std::string, )
 
 %include except.i
 
+%define XAPIAN_FUNCTOR(CLASS, PARAM, CODE...)
+%typemap(in, phptype="SWIGTYPE") (CLASS PARAM) %{
+$typemap(in, CLASS)
+{ CODE }
+%}
+%enddef
+
+XAPIAN_FUNCTOR(Xapian::FieldProcessor*, proc,
+    zval* zv = zend_read_property(Z_OBJCE_P(ZEND_THIS), Z_OBJ_P(ZEND_THIS), "_procs", strlen("_procs"), false, NULL);
+    SEPARATE_ARRAY(zv);
+    Z_ADDREF($input);
+    add_next_index_zval(zv, &$input);
+    )
+
+XAPIAN_FUNCTOR(Xapian::RangeProcessor*, range_proc,
+    zval* zv = zend_read_property(Z_OBJCE_P(ZEND_THIS), Z_OBJ_P(ZEND_THIS), "_procs", strlen("_procs"), false, NULL);
+    SEPARATE_ARRAY(zv);
+    Z_ADDREF($input);
+    add_next_index_zval(zv, &$input);
+    )
+
+XAPIAN_FUNCTOR(Xapian::Stopper*, stop,
+    zend_update_property(Z_OBJCE_P(ZEND_THIS), Z_OBJ_P(ZEND_THIS), "_stopper", strlen("_stopper"), &$input);
+    )
+
+XAPIAN_FUNCTOR(Xapian::KeyMaker*, sorter,
+    zend_update_property(Z_OBJCE_P(ZEND_THIS), Z_OBJ_P(ZEND_THIS), "_sorter", strlen("_sorter"), &$input);
+    )
+
+// Unset _sorter on any set_sort_by_...() which sets sorting by a slot.
+%typemap(in, phptype="int") (Xapian::valueno sort_key) %{
+$typemap(in, Xapian::valueno)
+    zend_update_property_null(Z_OBJCE_P(ZEND_THIS), Z_OBJ_P(ZEND_THIS), "_sorter", strlen("_sorter"));
+%}
+
+%typemap(out, phptype="void") (void Xapian::Enquire::set_sort_by_relevance) %{
+    zend_update_property_null(Z_OBJCE_P(ZEND_THIS), Z_OBJ_P(ZEND_THIS), "_sorter", strlen("_sorter"));
+%}
+
+%typemap(out, phptype="void") (void Xapian::Enquire::clear_matchspies) %{
+    { zval z; ZVAL_EMPTY_ARRAY(&z); zend_update_property(Z_OBJCE_P(ZEND_THIS), Z_OBJ_P(ZEND_THIS), "_spies", strlen("_spies"), &z); }
+%}
+
+XAPIAN_FUNCTOR(Xapian::MatchSpy*, spy,
+    zval* zv = zend_read_property(Z_OBJCE_P(ZEND_THIS), Z_OBJ_P(ZEND_THIS), "_spies", strlen("_spies"), false, NULL);
+    SEPARATE_ARRAY(zv);
+    Z_ADDREF($input);
+    add_next_index_zval(zv, &$input);
+    )
+
+XAPIAN_FUNCTOR(Xapian::PostingSource*, source,
+    zval* zv = zend_read_property(Z_OBJCE_P(ZEND_THIS), Z_OBJ_P(ZEND_THIS), "_ps", strlen("_ps"), false, NULL);
+    SEPARATE_ARRAY(zv);
+    Z_ADDREF($input);
+    add_next_index_zval(zv, &$input);
+    )
+
+XAPIAN_FUNCTOR(const Xapian::Query&, a, merge_ps_references(ZEND_THIS, $input);)
+
+XAPIAN_FUNCTOR(const Xapian::Query&, b, merge_ps_references(ZEND_THIS, $input);)
+
+XAPIAN_FUNCTOR(const Xapian::Query&, subquery, merge_ps_references(ZEND_THIS, $input);)
+
+// Enquire::set_query() stores the PHP query object, which means we hold on to any
+// references to PHP XapianPostingSource objects it contains.
+XAPIAN_FUNCTOR(const Xapian::Query&, query,
+    zend_update_property(Z_OBJCE_P(ZEND_THIS), Z_OBJ_P(ZEND_THIS), "_query", strlen("_query"), &$input);
+    )
+
+// Then Enquire::get_query() returns the PHP query object if one is set, otherwise
+// it returns the result C++ gave us (which will be an empty XapianQuery object.
+// We could avoid calling C++ at all here, but I don't see an easy way to do so.
+// This isn't a widely used method, and the C++ call should be pretty cheap anyway.
+%typemap(out, phptype="SWIGTYPE") (const Xapian::Query& Xapian::Enquire::get_query) %{
+{
+    zval* zv = zend_read_property(Z_OBJCE_P(ZEND_THIS), Z_OBJ_P(ZEND_THIS), "_query", strlen("_query"), false, NULL);
+    if (Z_TYPE_P(zv) == IS_OBJECT) {
+	RETVAL_OBJ_COPY(Z_OBJ_P(zv));
+    } else {
+	$typemap(out, const Query&)
+    }
+}
+%}
+
 %include ../xapian-headers.i
+
+// Compatibility wrapping for Xapian::BAD_VALUENO (wrapped as a constant since
+// xapian-bindings 1.4.10).
+%inline %{
+namespace Xapian {
+static Xapian::valueno BAD_VALUENO_get() { return Xapian::BAD_VALUENO; }
+}
+%}
+// Can't throw an exception.
+%exception Xapian::BAD_VALUENO_get "$action"

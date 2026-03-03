@@ -1,7 +1,7 @@
-/** @file glass_termlisttable.cc
+/** @file
  * @brief Subclass of GlassTable which holds termlists.
  */
-/* Copyright (C) 2007,2008,2009,2010 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -42,24 +42,24 @@ GlassTermListTable::set_termlist(Xapian::docid did,
 {
     LOGCALL_VOID(DB, "GlassTermListTable::set_termlist", did | doc | doclen);
 
-    string tag;
-    pack_uint(tag, doclen);
-
     Xapian::doccount termlist_size = doc.termlist_count();
     if (termlist_size == 0) {
 	// doclen is sum(wdf) so should be zero if there are no terms.
 	Assert(doclen == 0);
 	Assert(doc.termlist_begin() == doc.termlist_end());
-	add(make_key(did), string());
+	add(make_key(did), {});
 	return;
     }
+
+    string tag;
+    pack_uint(tag, doclen);
 
     Xapian::TermIterator t = doc.termlist_begin();
     if (t != doc.termlist_end()) {
 	pack_uint(tag, termlist_size);
 	string prev_term = *t;
 
-	tag += prev_term.size();
+	tag += char(prev_term.size());
 	tag += prev_term;
 	pack_uint(tag, t.get_wdf());
 	--termlist_size;

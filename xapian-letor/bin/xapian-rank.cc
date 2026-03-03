@@ -1,9 +1,10 @@
-/** @file xapian-rank.cc
+/** @file
  * @brief Command line search tool using Xapian::QueryParser and Xapian::Letor
  */
 /* Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2015 Olly Betts
  * Copyright (C) 2011 Parth Gupta
  * Copyright (C) 2016 Ayush Tomar
+ * Copyright (C) 2019 Vaibhav Kansagara
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,15 +17,15 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
 
 #include <xapian.h>
 #include <xapian-letor.h>
+#include "parseint.h"
 
 #include <iostream>
 #include <sstream>
@@ -82,9 +83,9 @@ try {
 	{ NULL,			0, 0, 0}
     };
 
-    Xapian::SimpleStopper mystopper(sw, sw + sizeof(sw) / sizeof(sw[0]));
+    Xapian::SimpleStopper mystopper(sw, std::end(sw));
     Xapian::Stem stemmer("english");
-    int msize = 10;
+    Xapian::doccount msize = 10;
 
     bool have_database = false;
 
@@ -101,7 +102,10 @@ try {
 		have_database = true;
 		break;
 	    case 'm':
-		msize = atoi(optarg);
+		if (!parse_unsigned(optarg, msize)) {
+		    cerr << "Mset size must be >= 0\n";
+		    exit(1);
+		}
 		break;
 	    case 's':
 		try {
@@ -109,14 +113,14 @@ try {
 		} catch (const Xapian::InvalidArgumentError &) {
 		    cerr << "Unknown stemming language '" << optarg << "'.\n"
 			"Available language names are: "
-		     << Xapian::Stem::get_available_languages() << endl;
+		     << Xapian::Stem::get_available_languages() << '\n';
 		    exit(1);
 		}
 		break;
 	    case 'p': case 'b': {
 		const char * colon = strchr(optarg, ':');
 		if (colon == NULL) {
-		    cerr << argv[0] << ": need ':' when setting prefix" << endl;
+		    cerr << argv[0] << ": need ':' when setting prefix\n";
 		    exit(1);
 		}
 		string prefix(optarg, colon - optarg);
@@ -133,7 +137,7 @@ try {
 		show_usage();
 		exit(0);
 	    case OPT_VERSION:
-		cout << PROG_NAME " - " PACKAGE_STRING << endl;
+		cout << PROG_NAME " - " PACKAGE_STRING "\n";
 		exit(0);
 	    case ':': // missing parameter
 	    case '?': // unknown option
@@ -174,10 +178,10 @@ try {
     if (!correction.empty())
 	cout << "Did you mean: " << correction << "\n\n";
 
-    cout << "Parsed Query: " << query.get_description() << endl;
+    cout << "Parsed Query: " << query.get_description() << '\n';
 
     if (!have_database) {
-	cout << "No database specified so not running the query." << endl;
+	cout << "No database specified so not running the query.\n";
 	exit(0);
     }
 
@@ -187,11 +191,11 @@ try {
     Xapian::MSet mset = enquire.get_mset(0, msize);
 
     if (mset.empty()) {
-	cout << "Empty MSet. No documents could be retrieved with the given Query." << endl;
-	exit(1);
+	cout << "No documents found.\n";
+	exit(0);
     }
 
-    cout << "Docids before re-ranking by LTR model:" << endl;
+    cout << "Docids before re-ranking by LTR model:\n";
     for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); ++i) {
 	Xapian::Document doc = i.get_document();
 	string data = doc.get_data();
@@ -204,10 +208,10 @@ try {
     ranker->set_database_path(db_path);
     ranker->set_query(query);
 
-    // Get vector of re-ranked docids
+    // Re-rank the existing mset using the letor model.
     ranker->rank(mset, model_metadata_key);
 
-    cout << "Docids after re-ranking by LTR model:\n" << endl;
+    cout << "Docids after re-ranking by LTR model:\n\n";
 
     for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); ++i) {
 	Xapian::Document doc = i.get_document();
@@ -218,9 +222,9 @@ try {
 
     cout << flush;
 } catch (const Xapian::QueryParserError & e) {
-    cout << "Couldn't parse query: " << e.get_msg() << endl;
+    cout << "Couldn't parse query: " << e.get_msg() << '\n';
     exit(1);
 } catch (const Xapian::Error & err) {
-    cout << err.get_description() << endl;
+    cout << err.get_description() << '\n';
     exit(1);
 }

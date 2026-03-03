@@ -1,7 +1,7 @@
-/** @file remotetcpclient.cc
+/** @file
  *  @brief TCP/IP socket based RemoteDatabase implementation
  */
-/* Copyright (C) 2008,2010 Olly Betts
+/* Copyright (C) 2008,2010,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -14,8 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -29,34 +29,25 @@
 
 using namespace std;
 
-int
-RemoteTcpClient::open_socket(const string & hostname, int port,
+pair<int, string>
+RemoteTcpClient::open_socket(string_view hostname, int port,
 			     double timeout_connect)
 {
-    // If TcpClient::open_socket() throws, fill in the context.
-    try {
-	return TcpClient::open_socket(hostname, port, timeout_connect, true);
-    } catch (const Xapian::NetworkTimeoutError & e) {
-	throw Xapian::NetworkTimeoutError(e.get_msg(), get_tcpcontext(hostname, port),
-					  e.get_error_string());
-    } catch (const Xapian::NetworkError & e) {
-	throw Xapian::NetworkError(e.get_msg(), get_tcpcontext(hostname, port),
-				   e.get_error_string());
-    }
-}
-
-string
-RemoteTcpClient::get_tcpcontext(const string & hostname, int port)
-{
-    string result("remote:tcp(");
-    result += hostname;
-    result += ':';
-    result += str(port);
-    result += ')';
-    return result;
+    // Build a context string for use when constructing Xapian::NetworkError.
+    string context{"remote:tcp("};
+    context += hostname;
+    context += ':';
+    context += str(port);
+    context += ')';
+    return {TcpClient::open_socket(hostname, port, timeout_connect, true,
+				   context),
+	    context};
 }
 
 RemoteTcpClient::~RemoteTcpClient()
 {
-    do_close();
+    try {
+	do_close();
+    } catch (...) {
+    }
 }

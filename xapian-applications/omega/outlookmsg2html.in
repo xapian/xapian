@@ -1,9 +1,9 @@
 #!@PERL@
 # @configure_input@
-# @file outlookmsg2html
+# @file
 # @brief Extract text from an outlook .msg or .oft file.
 #
-# Copyright (C) 2010,2015 Olly Betts
+# Copyright (C) 2010,2015,2019,2023 Olly Betts
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -27,6 +27,8 @@ use strict;
 eval {
     require Email::Outlook::Message;
     require HTML::Entities;
+    # In core since Perl 5.9.5:
+    require Time::Piece;
 };
 if ($@) {
     print STDERR $@;
@@ -35,15 +37,42 @@ if ($@) {
     exit 127;
 }
 
-handle_mimepart(new Email::Outlook::Message($ARGV[0])->to_email_mime);
+my $mime = new Email::Outlook::Message($ARGV[0])->to_email_mime;
+print "<head>\n<title>";
+print do_header($mime, 'Subject');
+print "</title>\n<meta name=\"author\" content=\"";
+print do_header($mime, 'From');
+print "\">\n";
+
+my $date = do_header($mime, 'Date');
+chomp $date;
+eval {
+    eval {
+	$date = Time::Piece->strptime($date, '%a, %d %b %Y %T %z');
+    };
+    # The "%a, " part is optional in RFC822 and RFC2822.
+    $date = Time::Piece->strptime($date, '%d %b %Y %T %z') if $@;
+    my $iso8601_date = $date->datetime;
+    print "<meta name=\"created\" content=\"$iso8601_date\">\n";
+};
+
+print "</head>\n";
+
+handle_mimepart($mime);
+
+sub do_header {
+    my ($msg, $header) = @_;
+    my $s = $msg->header_str($header);
+    return HTML::Entities::encode_entities($s);
+}
 
 sub handle_mimepart {
     my $e = shift;
     my ($type, $sub) = ((lc $e->content_type) =~ m,^(.*?)/(.*?)(?:;.*)?$,);
     if ($type eq 'multipart') {
 	if ($sub eq 'alternative') {
-	    # Take the first mime part which we get text from.
-	    for my $s ($e->subparts) {
+	    # Take the last mime part which we get text from.
+	    for my $s (reverse $e->subparts) {
 		my $res = handle_mimepart($s);
 		return $res if $res;
 	    }
@@ -56,10 +85,10 @@ sub handle_mimepart {
 	}
     } elsif ($type eq 'text') {
 	if ($sub eq 'plain') {
-	    print "<pre>", HTML::Entities::encode_entities($e->body), "</pre>\n";
+	    print "<pre>", HTML::Entities::encode_entities($e->body_str), "</pre>\n";
 	    return 1;
 	} elsif ($sub eq 'html') {
-	    my $m = $e->body;
+	    my $m = $e->body_str;
 	    $m =~ s!</?body[^>]*>!\n!gi;
 	    print $m, "\n";
 	    return 1;

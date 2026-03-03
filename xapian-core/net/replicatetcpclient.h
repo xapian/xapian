@@ -1,4 +1,4 @@
-/** @file replicatetcpclient.h
+/** @file
  *  @brief TCP/IP replication client class.
  */
 /* Copyright (C) 2008,2010,2011,2015 Olly Betts
@@ -14,14 +14,15 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_REPLICATETCPCLIENT_H
 #define XAPIAN_INCLUDED_REPLICATETCPCLIENT_H
 
 #include "remoteconnection.h"
+#include "socket_utils.h"
 
 #include "xapian/visibility.h"
 #include "api/replication.h"
@@ -44,7 +45,7 @@ class XAPIAN_VISIBILITY_DEFAULT ReplicateTcpClient SOCKET_INITIALIZER_MIXIN {
     int socket;
 
     /// Write-only connection to the server.
-    RemoteConnection remconn;
+    OwnedRemoteConnection remconn;
 
     /** Attempt to open a TCP/IP socket connection to a replication server.
      *

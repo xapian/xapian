@@ -1,4 +1,4 @@
-/** @file replicate_utils.cc
+/** @file
  * @brief Utility functions for replication implementations
  */
 /* Copyright (C) 2010 Richard Boulton
@@ -15,8 +15,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -28,13 +28,13 @@
 #include "io_utils.h"
 #include "posixy_wrapper.h"
 
-#include "safeerrno.h"
 #include "safefcntl.h"
 #include "safesysstat.h"
 #include "safeunistd.h"
 
 #include <sys/types.h>
 
+#include <cerrno>
 #include <string>
 
 using namespace std;

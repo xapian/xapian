@@ -1,4 +1,4 @@
-/** @file testmacros.h
+/** @file
  * @brief Macros for testing conditions hold.
  */
 /* Copyright (C) 2009,2012 Olly Betts
@@ -14,9 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_TESTMACROS_H
@@ -24,7 +23,7 @@
 
 // FIXME: DEFINE_TESTCASE is used by apitest but is external and takes a flags
 // argument.
-#define DEFINE_TESTCASE_(T)	static bool test_##T()
+#define DEFINE_TESTCASE_(T)	static void test_##T()
 #define TESTCASE(T)		{ #T, test_##T }
 #define END_OF_TESTCASES	{ 0, 0 }
 

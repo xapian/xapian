@@ -14,9 +14,11 @@ AM_TESTS_ENVIRONMENT = \
 	LIBTOOL="$(LIBTOOL)" ;\
 	JAVA="$(JAVA) $(JAVA_CHECK_JNI_OPTION)" ;\
 	PATHSEP="$(JAVA_PATHSEP)" ;\
+	_libs="$(_libs)" ;\
 	export LIBTOOL ;\
 	export JAVA ;\
-	export PATHSEP ;
+	export PATHSEP ;\
+	export _libs ;
 LOG_COMPILER = $(srcdir)/run-java-test
 
 CLEANFILES = SmokeTest.class MyMatchDecider.class MyExpandDecider.class\
@@ -39,8 +41,8 @@ XAPIAN_SWIG_JAVA_SRCS=\
 	org/xapian/CoordWeight.java\
 	org/xapian/Database.java\
 	org/xapian/DateRangeProcessor.java\
-	org/xapian/DateValueRangeProcessor.java\
 	org/xapian/DecreasingValueWeightPostingSource.java\
+	org/xapian/DiceWeight.java\
 	org/xapian/DLHWeight.java\
 	org/xapian/DPHWeight.java\
 	org/xapian/Document.java\
@@ -57,7 +59,10 @@ XAPIAN_SWIG_JAVA_SRCS=\
 	org/xapian/IneB2Weight.java\
 	org/xapian/InL2Weight.java\
 	org/xapian/KeyMaker.java\
-	org/xapian/LMWeight.java \
+	org/xapian/LM2StageWeight.java\
+	org/xapian/LMAbsDiscountWeight.java\
+	org/xapian/LMDirichletWeight.java\
+	org/xapian/LMJMWeight.java\
 	org/xapian/LatLongCoord.java\
 	org/xapian/LatLongCoords.java\
 	org/xapian/LatLongCoordsIterator.java\
@@ -70,7 +75,6 @@ XAPIAN_SWIG_JAVA_SRCS=\
 	org/xapian/MSetIterator.java\
 	org/xapian/MultiValueKeyMaker.java\
 	org/xapian/NumberRangeProcessor.java\
-	org/xapian/NumberValueRangeProcessor.java\
 	org/xapian/PL2PlusWeight.java\
 	org/xapian/PL2Weight.java\
 	org/xapian/PositionIterator.java\
@@ -86,7 +90,6 @@ XAPIAN_SWIG_JAVA_SRCS=\
 	org/xapian/Stem.java\
 	org/xapian/StemImplementation.java\
 	org/xapian/Stopper.java\
-	org/xapian/StringValueRangeProcessor.java\
 	org/xapian/SWIGTYPE_p_std__string.java\
 	org/xapian/TermGenerator.java\
 	org/xapian/TermIterator.java\
@@ -97,7 +100,6 @@ XAPIAN_SWIG_JAVA_SRCS=\
 	org/xapian/ValueIterator.java\
 	org/xapian/ValueMapPostingSource.java\
 	org/xapian/ValuePostingSource.java\
-	org/xapian/ValueRangeProcessor.java\
 	org/xapian/ValueSetMatchDecider.java\
 	org/xapian/ValueWeightPostingSource.java\
 	org/xapian/Version.java\
@@ -133,7 +135,7 @@ built/xapian.jar: $(XAPIAN_SWIG_JAVA_CLASS)
 	$(JAR) -cf built/xapian.jar org/xapian/*.class
 ##$(XAPIAN_SWIG_JAVA_CLASS) $(XAPIAN_SWIG_JAVA_EXTRA_CLASSES)
 
-jnidir = `pwd`/built
+jnidir = $(abs_builddir)/built
 
 jni_LTLIBRARIES = libxapian_jni.la
 
@@ -172,7 +174,7 @@ EXTRA_DIST = java.i run-java-test SmokeTest.java docs/index.rst $(SWIG_GENERATED
 
 if MAINTAINER_MODE
 stamp = xapian_wrap.stamp
-RUN_SWIG = stamp='$(stamp)' $(PERL) '$(top_srcdir)'/swig-depcomp $(SWIG)
+SWIG_FLAGS += -MD -MP -MT $(stamp)
 
 xapian_wrap.cc xapian_wrap.h $(XAPIAN_SWIG_JAVA_SRCS): $(stamp)
 	$(make_many_locked)
@@ -182,7 +184,7 @@ $(stamp):
 	: # case where SWIG changes its mind as to which files it generates.
 	-rm -f org/xapian/*
 	$(MKDIR_P) org/xapian
-	$(RUN_SWIG) $(SWIG_WERROR) -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
+	$(SWIG) $(SWIG_WERROR) -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
 	    -java -module Xapian -package org.xapian -outdir org/xapian \
 	    -o xapian_wrap.cc '$(srcdir)/'java.i
 	: # Check that exactly the sources we expected were generated.

@@ -1,7 +1,7 @@
-/** @file termlist.h
+/** @file
  * @brief Abstract base class for termlists.
  */
-/* Copyright (C) 2007,2010,2013 Olly Betts
+/* Copyright (C) 2007,2010,2013,2020,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -14,8 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_TERMLIST_H
@@ -26,6 +26,7 @@
 #include "backends/positionlist.h"
 
 #include <string>
+#include <string_view>
 
 #include "xapian/intrusive_ptr.h"
 #include <xapian/types.h>
@@ -40,14 +41,17 @@ namespace Xapian {
 /// Abstract base class for termlists.
 class Xapian::TermIterator::Internal : public Xapian::Internal::intrusive_base {
     /// Don't allow assignment.
-    void operator=(const Internal &);
+    void operator=(const Internal &) = delete;
 
     /// Don't allow copying.
-    Internal(const Internal &);
+    Internal(const Internal &) = delete;
 
   protected:
     /// Only constructable as a base class for derived classes.
     Internal() { }
+
+    /// The current term.
+    std::string current_term;
 
   public:
     /** We have virtual methods and want to be able to delete derived classes
@@ -62,7 +66,9 @@ class Xapian::TermIterator::Internal : public Xapian::Internal::intrusive_base {
     virtual void accumulate_stats(Xapian::Internal::ExpandStats & stats) const;
 
     /// Return the termname at the current position.
-    virtual std::string get_termname() const = 0;
+    const std::string& get_termname() const {
+	return current_term;
+    }
 
     /// Return the wdf for the term at the current position.
     virtual Xapian::termcount get_wdf() const = 0;
@@ -76,22 +82,26 @@ class Xapian::TermIterator::Internal : public Xapian::Internal::intrusive_base {
      *  or check() must be called before any methods which need the context of
      *  the current position.
      *
-     *  @return	If a non-NULL pointer is returned, then the caller should
-     *		substitute the returned pointer for its pointer to us, and then
-     *		delete us.  This "pruning" can only happen for a non-leaf
-     *		subclass of this class.
+     *  @return Normally returns NULL to indicate success.  If the end has been
+     *		reached, returns this; if another non-NULL pointer is
+     *		returned then the caller should substitute the returned pointer
+     *		for its pointer to us, and then delete us.  This "pruning" can
+     *		only happen for a non-leaf subclass of this class.
      */
     virtual Internal * next() = 0;
 
     /** Skip forward to the specified term.
      *
      *  If the specified term isn't in the list, position ourselves on the
-     *  first term after tname (or at_end() if no terms after tname exist).
+     *  first term after term.
+     *
+     *  @return Normally returns NULL to indicate success.  If no terms after
+     *		term exist, returns this; if another non-NULL pointer is
+     *		returned then the caller should substitute the returned pointer
+     *		for its pointer to us, and then delete us.  This "pruning" can
+     *		only happen for a non-leaf subclass of this class.
      */
-    virtual Internal * skip_to(const std::string &term) = 0;
-
-    /// Return true if the current position is past the last term in this list.
-    virtual bool at_end() const = 0;
+    virtual Internal* skip_to(std::string_view term) = 0;
 
     /// Return the length of the position list for the current position.
     virtual Xapian::termcount positionlist_count() const = 0;
@@ -108,6 +118,12 @@ class Xapian::TermIterator::Internal : public Xapian::Internal::intrusive_base {
 
     /// Return PositionList for the current position.
     virtual PositionList* positionlist_begin() const = 0;
+
+    /** Which shard of a multidatabase this is from.
+     *
+     *  Used by Enquire::get_eset().
+     */
+    size_t shard_index = 0;
 };
 
 // In the external API headers, this class is Xapian::TermIterator::Internal,

@@ -2,7 +2,7 @@
 %{
 /* python.i: SWIG interface file for the Python bindings
  *
- * Copyright (C) 2011,2012,2013,2014,2015,2016,2018 Olly Betts
+ * Copyright (C) 2011-2023 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -15,18 +15,17 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 %}
 
 %pythonbegin %{
 """
 Xapian is a highly adaptable toolkit which allows developers to easily
-add advanced indexing and search facilities to their own
-applications. It supports the Probabilistic Information Retrieval
-model and also supports a rich set of boolean query operators.
+add advanced indexing and search facilities to their own applications.
+It has built-in support for several families of weighting models
+and also supports a rich set of boolean query operators.
 
 In addition to the doc strings provided by this python library, you
 may wish to look at the library's overall documentation, either
@@ -36,9 +35,6 @@ documentation, possibly installed with the library or with its
 development files, or again online at <https://xapian.org/docs/>.
 """
 %}
-
-/* These were deprecated before Python 3 support was released. */
-#define XAPIAN_BINDINGS_SKIP_DEPRECATED_DB_FACTORIES
 
 %begin %{
 #include <config.h>
@@ -58,17 +54,16 @@ development files, or again online at <https://xapian.org/docs/>.
 # pragma clang diagnostic pop
 #endif
 
-/* Override SWIG's standard GIL locking machinery - we want to avoid the
- * overhead of thread locking when the user's code isn't using threads,
- * and to handle the GIL in a way which also works in sub-interpreters.
+/* Override SWIG's standard GIL locking machinery - we want to handle the GIL
+ * in a way which also works in sub-interpreters.
+ *
+ * For Python < 3.7 we can also avoid the overhead of thread locking when the
+ * user's code isn't using threads (since 3.7, Python always initialises
+ * threads.)
  */
 #define SWIG_PYTHON_NO_USE_GIL
 
-#ifdef THREAD_LOCAL
-
-static THREAD_LOCAL PyThreadState * swig_pythreadstate = NULL;
-
-inline void swig_pythreadstate_ensure_init() { }
+static thread_local PyThreadState * swig_pythreadstate = NULL;
 
 inline PyThreadState * swig_pythreadstate_reset() {
     PyThreadState * v = swig_pythreadstate;
@@ -82,48 +77,20 @@ inline PyThreadState * swig_pythreadstate_set(PyThreadState * v) {
     return old;
 }
 
-#else
-
-#include <pthread.h>
-
-static pthread_key_t swig_pythreadstate_key;
-static pthread_once_t swig_pythreadstate_key_once = PTHREAD_ONCE_INIT;
-
-static void swig_pythreadstate_make_key()
-{
-    if (pthread_key_create(&swig_pythreadstate_key, NULL) != 0)
-	Py_FatalError("pthread_key_create failed");
-}
-
-inline void swig_pythreadstate_ensure_init() {
-    pthread_once(&swig_pythreadstate_key_once, swig_pythreadstate_make_key);
-}
-
-inline PyThreadState * swig_pythreadstate_reset() {
-    PyThreadState * v = (PyThreadState*)pthread_getspecific(swig_pythreadstate_key);
-    if (v) pthread_setspecific(swig_pythreadstate_key, NULL);
-    return v;
-}
-
-inline PyThreadState* swig_pythreadstate_set(PyThreadState * v) {
-    PyThreadState * old = (PyThreadState*)pthread_getspecific(swig_pythreadstate_key);
-    pthread_setspecific(swig_pythreadstate_key, (void*)v);
-    return old;
-}
-
-#endif
-
 class XapianSWIG_Python_Thread_Block {
     bool status;
   public:
     XapianSWIG_Python_Thread_Block() : status(false) {
-	if (PyEval_ThreadsInitialized()) {
-	    swig_pythreadstate_ensure_init();
-	    PyThreadState * ts = swig_pythreadstate_reset();
-	    if (ts) {
-		status = true;
-		PyEval_RestoreThread(ts);
-	    }
+#if PY_VERSION_HEX < 0x03070000
+	// Since 3.7, Python initialises the GIL in PyInitialize() so
+	// PyEval_ThreadsInitialized() is no longer useful and was
+	// deprecated in 3.9.
+	if (!PyEval_ThreadsInitialized()) return;
+#endif
+	PyThreadState* ts = swig_pythreadstate_reset();
+	if (ts) {
+	    status = true;
+	    PyEval_RestoreThread(ts);
 	}
     }
     void end() {
@@ -139,12 +106,18 @@ class XapianSWIG_Python_Thread_Block {
 class XapianSWIG_Python_Thread_Allow {
     bool status;
   public:
-    XapianSWIG_Python_Thread_Allow() : status(PyEval_ThreadsInitialized()) {
-	if (status) {
-	    swig_pythreadstate_ensure_init();
-	    if (swig_pythreadstate_set(PyEval_SaveThread()))
-		Py_FatalError("swig_pythreadstate set in XapianSWIG_Python_Thread_Allow ctor");
+    XapianSWIG_Python_Thread_Allow() : status(true) {
+#if PY_VERSION_HEX < 0x03070000
+	// Since 3.7, Python initialises the GIL in PyInitialize() so
+	// PyEval_ThreadsInitialized() is no longer useful and was
+	// deprecated in 3.9.
+	if (!PyEval_ThreadsInitialized()) {
+	    status = false;
+	    return;
 	}
+#endif
+	if (swig_pythreadstate_set(PyEval_SaveThread()))
+	    Py_FatalError("swig_pythreadstate set in XapianSWIG_Python_Thread_Allow ctor");
     }
     void end() {
 	if (status) {
@@ -190,6 +163,13 @@ class XapianSWIG_Python_Thread_Allow {
 %typemap(directorin) std::string, const std::string & %{
     $input = PyBytes_FromStringAndSize($1_name.data(), $1_name.size());
 %}
+// Similarly for std::string_view (`out` typemap not currently used).
+%typemap(out) std::string_view %{
+    $result = PyBytes_FromStringAndSize($1.data(), $1.size());
+%}
+%typemap(directorin) std::string_view %{
+    $input = PyBytes_FromStringAndSize($1_name.data(), $1_name.size());
+%}
 
 // And const char * too.
 %typemap(out) const char * %{
@@ -216,6 +196,18 @@ class XapianSWIG_Python_Thread_Allow {
     $1 = &bytes;
 }
 
+// Parameters where passing Unicode makes no sense.
+%typemap(typecheck) std::string_view serialised %{
+    $1 = PyBytes_Check($input) ? 1 : 0;
+%}
+%typemap(in) std::string_view serialised {
+    char * p;
+    Py_ssize_t len;
+    if (PyBytes_AsStringAndSize($input, &p, &len) < 0) SWIG_fail;
+    $1 = std::string_view(p, len);
+}
+%typemap(freearg) std::string_view serialised "";
+
 #define XAPIAN_MIXED_SUBQUERIES_BY_ITERATOR_TYPEMAP
 
 // Don't release the GIL for this method since we use Python C API calls to do
@@ -223,8 +215,11 @@ class XapianSWIG_Python_Thread_Allow {
 %nothreadallow Xapian::Query::Query(op op_, XapianSWIGQueryItor qbegin, XapianSWIGQueryItor qend, Xapian::termcount parameter = 0);
 
 %typemap(typecheck, precedence=500) (XapianSWIGQueryItor qbegin, XapianSWIGQueryItor qend) {
-    // Checking for a sequence is enough to disambiguate currently.
-    $1 = PySequence_Check($input);
+    // Checking for a sequence which isn't a string or bytes is enough to
+    // disambiguate currently.
+    $1 = (PySequence_Check($input) &&
+          !PyUnicode_Check($input) &&
+          !PyBytes_Check($input));
 }
 
 %{
@@ -272,9 +267,7 @@ class XapianSWIGQueryItor {
 
 	// Unicode object.
 	if (PyUnicode_Check(obj)) {
-	    PyObject *s = PyUnicode_EncodeUTF8(PyUnicode_AS_UNICODE(obj),
-					       PyUnicode_GET_SIZE(obj),
-					       "ignore");
+	    PyObject* s = PyUnicode_AsUTF8String(obj);
 	    if (!s) goto fail;
 	    Xapian::Query result = str_obj_to_query(s);
 	    Py_DECREF(s);
@@ -304,7 +297,7 @@ class XapianSWIGQueryItor {
     }
 
     difference_type operator-(const XapianSWIGQueryItor &o) const {
-        return i - o.i;
+	return i - o.i;
     }
 };
 

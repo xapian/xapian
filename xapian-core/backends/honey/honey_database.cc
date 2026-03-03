@@ -1,7 +1,7 @@
-/** @file honey_database.cc
+/** @file
  * @brief Honey backend database class
  */
-/* Copyright 2015,2017,2018 Olly Betts
+/* Copyright 2015,2017,2018,2022,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -14,8 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -29,9 +29,12 @@
 #include "honey_spellingwordslist.h"
 #include "honey_valuelist.h"
 
-#include "api/leafpostlist.h"
 #include "backends/backends.h"
+#include "backends/contiguousalldocspostlist.h"
+#include "backends/leafpostlist.h"
 #include "xapian/error.h"
+
+#include <string_view>
 
 using namespace std;
 
@@ -49,18 +52,18 @@ HoneyDatabase::throw_termlist_table_close_exception() const
 static_assert(Xapian::DB_READONLY_ & Xapian::DB_NO_TERMLIST,
 	"Xapian::DB_READONLY_ should imply Xapian::DB_NO_TERMLIST");
 
-HoneyDatabase::HoneyDatabase(const std::string& path_, int flags)
+HoneyDatabase::HoneyDatabase(std::string_view path_, int flags)
     : Xapian::Database::Internal(TRANSACTION_READONLY),
       path(path_),
       version_file(path_),
-      docdata_table(path_, true),
-      postlist_table(path_, true),
-      position_table(path_, true),
-      spelling_table(path_, true),
-      synonym_table(path_, true),
+      docdata_table(path, true),
+      postlist_table(path, true),
+      position_table(path, true),
+      spelling_table(path, true),
+      synonym_table(path, true),
       // Note: (Xapian::DB_READONLY_ & Xapian::DB_NO_TERMLIST) is true, so
       // opening to read we always allow the termlist to be missing.
-      termlist_table(path_, true, (flags & Xapian::DB_NO_TERMLIST)),
+      termlist_table(path, true, (flags & Xapian::DB_NO_TERMLIST)),
       value_manager(postlist_table, termlist_table)
 {
     version_file.read();
@@ -164,8 +167,21 @@ HoneyDatabase::get_unique_terms(Xapian::docid did) const
     return HoneyTermList(this, did).get_unique_terms();
 }
 
+Xapian::termcount
+HoneyDatabase::get_wdfdocmax(Xapian::docid did) const
+{
+    Assert(did != 0);
+    HoneyTermList termlist(this, did);
+    Xapian::termcount max_wdf = 0;
+    while (termlist.next() == NULL) {
+	Xapian::termcount current_wdf = termlist.get_wdf();
+	if (current_wdf > max_wdf) max_wdf = current_wdf;
+    }
+    return max_wdf;
+}
+
 void
-HoneyDatabase::get_freqs(const string& term,
+HoneyDatabase::get_freqs(string_view term,
 			 Xapian::doccount* termfreq_ptr,
 			 Xapian::termcount* collfreq_ptr) const
 {
@@ -203,7 +219,7 @@ HoneyDatabase::get_doclength_upper_bound() const
 }
 
 Xapian::termcount
-HoneyDatabase::get_wdf_upper_bound(const string& term) const
+HoneyDatabase::get_wdf_upper_bound(string_view term) const
 {
     Xapian::termcount wdf_bound = version_file.get_wdf_upper_bound();
     // It's unlikely wdf is always 0, but when it is there's no need to do any
@@ -219,8 +235,20 @@ HoneyDatabase::get_wdf_upper_bound(const string& term) const
     return wdf_bound;
 }
 
+Xapian::termcount
+HoneyDatabase::get_unique_terms_lower_bound() const
+{
+    return version_file.get_unique_terms_lower_bound();
+}
+
+Xapian::termcount
+HoneyDatabase::get_unique_terms_upper_bound() const
+{
+    return version_file.get_unique_terms_upper_bound();
+}
+
 bool
-HoneyDatabase::term_exists(const string& term) const
+HoneyDatabase::term_exists(string_view term) const
 {
     if (term.empty())
 	return HoneyDatabase::get_doccount() != 0;
@@ -234,20 +262,28 @@ HoneyDatabase::has_positions() const
 }
 
 PostList*
-HoneyDatabase::open_post_list(const string& term) const
+HoneyDatabase::open_post_list(string_view term) const
 {
     return HoneyDatabase::open_leaf_post_list(term, false);
 }
 
 LeafPostList*
-HoneyDatabase::open_leaf_post_list(const string& term, bool need_pos) const
+HoneyDatabase::open_leaf_post_list(string_view term, bool need_read_pos) const
 {
     if (term.empty()) {
-	Assert(!need_pos);
-	return new HoneyAllDocsPostList(this, get_doccount());
+	Assert(!need_read_pos);
+	Xapian::doccount doccount = get_doccount();
+	if (rare(doccount == 0)) {
+	    return nullptr;
+	}
+	if (doccount == get_lastdocid()) {
+	    // The used docid range is exactly 1 to doccount inclusive.
+	    return new ContiguousAllDocsPostList(doccount);
+	}
+	return new HoneyAllDocsPostList(this, doccount);
     }
 
-    return postlist_table.open_post_list(this, term, need_pos);
+    return postlist_table.open_post_list(this, term, need_read_pos);
 }
 
 ValueList*
@@ -288,15 +324,15 @@ HoneyDatabase::open_term_list_direct(Xapian::docid did) const
 }
 
 TermList*
-HoneyDatabase::open_allterms(const string& prefix) const
+HoneyDatabase::open_allterms(string_view prefix) const
 {
     return new HoneyAllTermsList(this, prefix);
 }
 
 PositionList*
-HoneyDatabase::open_position_list(Xapian::docid did, const string& term) const
+HoneyDatabase::open_position_list(Xapian::docid did, string_view term) const
 {
-    return new HoneyPositionList(position_table, did, term);
+    return position_table.open_position_list(did, term);
 }
 
 Xapian::Document::Internal*
@@ -311,7 +347,7 @@ HoneyDatabase::open_document(Xapian::docid did, bool lazy) const
 }
 
 TermList*
-HoneyDatabase::open_spelling_termlist(const string& word) const
+HoneyDatabase::open_spelling_termlist(string_view word) const
 {
     return spelling_table.open_termlist(word);
 }
@@ -328,13 +364,13 @@ HoneyDatabase::open_spelling_wordlist() const
 }
 
 Xapian::doccount
-HoneyDatabase::get_spelling_frequency(const string& word) const
+HoneyDatabase::get_spelling_frequency(string_view word) const
 {
     return spelling_table.get_word_frequency(word);
 }
 
 void
-HoneyDatabase::add_spelling(const string& word, Xapian::termcount freqinc) const
+HoneyDatabase::add_spelling(string_view word, Xapian::termcount freqinc) const
 {
     (void)word;
     (void)freqinc;
@@ -342,7 +378,7 @@ HoneyDatabase::add_spelling(const string& word, Xapian::termcount freqinc) const
 }
 
 Xapian::termcount
-HoneyDatabase::remove_spelling(const string& word,
+HoneyDatabase::remove_spelling(string_view word,
 			       Xapian::termcount freqdec) const
 {
     (void)word;
@@ -351,13 +387,13 @@ HoneyDatabase::remove_spelling(const string& word,
 }
 
 TermList*
-HoneyDatabase::open_synonym_termlist(const string& term) const
+HoneyDatabase::open_synonym_termlist(string_view term) const
 {
     return synonym_table.open_termlist(term);
 }
 
 TermList*
-HoneyDatabase::open_synonym_keylist(const string& prefix) const
+HoneyDatabase::open_synonym_keylist(string_view prefix) const
 {
     auto cursor = synonym_table.cursor_get();
     if (rare(cursor == NULL)) {
@@ -368,7 +404,7 @@ HoneyDatabase::open_synonym_keylist(const string& prefix) const
 }
 
 void
-HoneyDatabase::add_synonym(const string& term, const string& synonym) const
+HoneyDatabase::add_synonym(string_view term, string_view synonym) const
 {
     (void)term;
     (void)synonym;
@@ -376,7 +412,7 @@ HoneyDatabase::add_synonym(const string& term, const string& synonym) const
 }
 
 void
-HoneyDatabase::remove_synonym(const string& term, const string& synonym) const
+HoneyDatabase::remove_synonym(string_view term, string_view synonym) const
 {
     (void)term;
     (void)synonym;
@@ -384,20 +420,20 @@ HoneyDatabase::remove_synonym(const string& term, const string& synonym) const
 }
 
 void
-HoneyDatabase::clear_synonyms(const string& term) const
+HoneyDatabase::clear_synonyms(string_view term) const
 {
     (void)term;
     throw Xapian::UnimplementedError("Honey backend doesn't support update");
 }
 
 string
-HoneyDatabase::get_metadata(const string& key) const
+HoneyDatabase::get_metadata(string_view key) const
 {
     return postlist_table.get_metadata(key);
 }
 
 TermList*
-HoneyDatabase::open_metadata_keylist(const string& prefix) const
+HoneyDatabase::open_metadata_keylist(string_view prefix) const
 {
     auto cursor = postlist_table.cursor_get();
     Assert(cursor != NULL);
@@ -405,7 +441,7 @@ HoneyDatabase::open_metadata_keylist(const string& prefix) const
 }
 
 void
-HoneyDatabase::set_metadata(const string& key, const string& value)
+HoneyDatabase::set_metadata(string_view key, string_view value)
 {
     (void)key;
     (void)value;

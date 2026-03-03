@@ -83,6 +83,11 @@ pptx		application/vnd.openxmlformats-officedocument.presentationml.presentation
 ppsx		application/vnd.openxmlformats-officedocument.presentationml.slideshow
 # PowerPoint 2007 template
 potx		application/vnd.openxmlformats-officedocument.presentationml.template
+vsdx		application/vnd.ms-visio.drawing
+vssx		application/vnd.ms-visio.stencil
+vstx		application/vnd.ms-visio.template
+# OpenXPS and MS-specific older XPS format
+oxps		application/oxps
 xps		application/vnd.ms-xpsdocument
 
 # Macro-enabled variants - these appear to be the same formats as the
@@ -102,6 +107,10 @@ pptm		application/vnd.openxmlformats-officedocument.presentationml.presentation
 ppsm		application/vnd.openxmlformats-officedocument.presentationml.slideshow
 # MS say: application/vnd.ms-powerpoint.presentation.macroEnabled.12
 potm		application/vnd.openxmlformats-officedocument.presentationml.template
+# MS say: application/vnd.ms-visio.drawing.macroEnabled etc
+vsdm		application/vnd.ms-visio.drawing
+vssm		application/vnd.ms-visio.stencil
+vstm		application/vnd.ms-visio.template
 
 # Some other word processor formats:
 # Word template
@@ -110,14 +119,42 @@ wpd		application/vnd.wordperfect
 wps		application/vnd.ms-works
 # Works template
 wpt		application/vnd.ms-works
-# AbiWord
+# AbiWord document
 abw		application/x-abiword
-# AbiWord compressed
+# AbiWord template
+awt		application/x-abiword
+# AbiWord compressed document
 zabw		application/x-abiword-compressed
+# Gnumeric document
+gnumeric	application/x-gnumeric
+# RTF -- application/rtf is also registered with IANA and understood by
+# omindex >= 1.4.18), but libmagic seems to always report text/rtf, so
+# we map to that.
 rtf		text/rtf
 # Leave .doc files to libmagic, as they may actually be RTF (AbiWord
 # actually saves RTF when asked to save as .doc, and Microsoft Word
 # quietly loads RTF files with a .doc extension), or plain-text.
+
+# Apple iWork:
+key		application/vnd.apple.keynote
+kth		application/vnd.apple.keynote
+apxl		application/vnd.apple.keynote
+pages		application/vnd.apple.pages
+numbers		application/vnd.apple.numbers
+
+# Apple Works / Claris Works:
+cwk		application/clarisworks
+
+# Apple PICT
+pict		image/x-pict
+pct		image/x-pict
+pic		image/x-pict
+
+# Visio:
+vsd		application/vnd.visio
+vss		application/vnd.visio
+vst		application/vnd.visio
+vsw		application/vnd.visio
 
 # Other MS formats:
 xls		application/vnd.ms-excel
@@ -158,6 +195,7 @@ djvu		image/vnd.djvu
 
 # SVG:
 svg		image/svg+xml
+svgz		image/svg+xml-compressed
 
 # vCard files:
 vcf		text/vcard
@@ -172,6 +210,50 @@ rpm		application/x-redhat-package-manager
 
 # Atom feeds:
 atom		application/atom+xml
+
+# Ebooks:
+epub		application/epub+zip
+fb2		application/x-fictionbook+xml
+lrf		application/x-sony-bbeb
+tcr		application/x-tcr-ebook
+pdb		application/vnd.palm
+
+# Image files:
+gif		image/gif
+jfif		image/jpeg
+jpe		image/jpeg
+jpeg		image/jpeg
+jpg		image/jpeg
+pbm		image/x-portable-bitmap
+pgm		image/x-portable-graymap
+png		image/png
+pnm		image/x-portable-anymap
+ppm		image/x-portable-pixmap
+tif		image/tiff
+tiff		image/tiff
+webp		image/webp
+
+# Corel DRAW files:
+cdr		image/x-coreldraw
+
+# Audio files:
+flac		audio/flac
+mp3		audio/mpeg
+wav		audio/x-wav
+it		audio/x-mod
+xm		audio/x-mod
+s3m		audio/x-s3m
+oga		audio/ogg
+spx		audio/ogg
+
+# Video files:
+mpg		video/mpeg
+flv		video/x-flv
+avi		video/x-msvideo
+asf		video/x-ms-asf
+qt		video/quicktime
+mov		video/quicktime
+ogv		video/ogg
 
 # Extensions to quietly ignore:
 a		ignore

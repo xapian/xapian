@@ -1,7 +1,7 @@
-/** @file database.cc
+/** @file
  * @brief Database API class
  */
-/* Copyright 2006,2007,2008,2009,2010,2011,2013,2014,2015,2016,2017 Olly Betts
+/* Copyright 2006-2024 Olly Betts
  * Copyright 2007,2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -15,8 +15,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -70,17 +70,15 @@ Database::Database(Database::Internal* internal_)
 {
 }
 
-Database::Database(const Database& o)
-    : internal(o.internal)
-{
-}
+Database::Database(const Database&) = default;
 
 Database&
-Database::operator=(const Database& o)
-{
-    internal = o.internal;
-    return *this;
-}
+Database::operator=(const Database&) = default;
+
+Database::Database(Database&&) = default;
+
+Database&
+Database::operator=(Database&&) = default;
 
 Database::Database()
     : internal(new EmptyDatabase)
@@ -103,6 +101,12 @@ Database::close()
     internal->close();
 }
 
+size_t
+Database::size() const
+{
+    return internal->size();
+}
+
 void
 Database::add_database_(const Database& o, bool read_only)
 {
@@ -121,14 +125,14 @@ Database::add_database_(const Database& o, bool read_only)
     }
 
     auto my_size = internal->size();
-    if (my_size == 0) {
+    if (my_size == 0 && o_size == 1) {
 	// Just copy.
 	internal = o.internal;
 	return;
     }
 
 #if 0
-    // This doesn't work - for example:
+    // The check below doesn't work - for example:
     //
     // Database db;
     // db.add_database(WritableDatabase("one.db"));
@@ -144,7 +148,7 @@ Database::add_database_(const Database& o, bool read_only)
     // WritableDatabase db;
     // db.add_database(Database("one.db"));
     //
-    // The case we don't catch is:
+    // The case we don't catch at compile time is:
     //
     // WritableDatabase db;
     // Database ro_db = db;
@@ -161,9 +165,9 @@ Database::add_database_(const Database& o, bool read_only)
     // Make sure internal is a MultiDatabase with enough space reserved.
     auto new_size = my_size + o_size;
     MultiDatabase* multi_db;
-    if (my_size == 1) {
+    if (my_size <= 1) {
 	multi_db = new MultiDatabase(new_size, read_only);
-	multi_db->push_back(internal.get());
+	if (my_size) multi_db->push_back(internal.get());
 	internal = multi_db;
     } else {
 	// Must already be a MultiDatabase as everything else reports 1 for
@@ -185,7 +189,7 @@ Database::add_database_(const Database& o, bool read_only)
 }
 
 PostingIterator
-Database::postlist_begin(const string& term) const
+Database::postlist_begin(string_view term) const
 {
     PostList* pl = internal->open_post_list(term);
     if (!pl) return PostingIterator();
@@ -202,7 +206,7 @@ Database::termlist_begin(Xapian::docid did) const
 }
 
 TermIterator
-Database::allterms_begin(const string& prefix) const
+Database::allterms_begin(string_view prefix) const
 {
     return TermIterator(internal->open_allterms(prefix));
 }
@@ -214,7 +218,7 @@ Database::has_positions() const
 }
 
 PositionIterator
-Database::positionlist_begin(Xapian::docid did, const string& term) const
+Database::positionlist_begin(Xapian::docid did, string_view term) const
 {
     if (did == 0)
 	docid_zero_invalid();
@@ -255,7 +259,7 @@ Database::get_total_length() const
 }
 
 Xapian::doccount
-Database::get_termfreq(const string& term) const
+Database::get_termfreq(string_view term) const
 {
     if (term.empty())
 	return get_doccount();
@@ -266,7 +270,7 @@ Database::get_termfreq(const string& term) const
 }
 
 Xapian::termcount
-Database::get_collection_freq(const string& term) const
+Database::get_collection_freq(string_view term) const
 {
     if (term.empty())
 	return get_doccount();
@@ -307,12 +311,24 @@ Database::get_doclength_upper_bound() const
 }
 
 Xapian::termcount
-Database::get_wdf_upper_bound(const string& term) const
+Database::get_wdf_upper_bound(string_view term) const
 {
     if (term.empty())
 	return 0;
 
     return internal->get_wdf_upper_bound(term);
+}
+
+Xapian::termcount
+Database::get_unique_terms_lower_bound() const
+{
+    return internal->get_unique_terms_lower_bound();
+}
+
+Xapian::termcount
+Database::get_unique_terms_upper_bound() const
+{
+    return internal->get_unique_terms_upper_bound();
 }
 
 ValueIterator
@@ -339,6 +355,15 @@ Database::get_unique_terms(Xapian::docid did) const
     return internal->get_unique_terms(did);
 }
 
+Xapian::termcount
+Database::get_wdfdocmax(Xapian::docid did) const
+{
+    if (did == 0)
+	docid_zero_invalid();
+
+    return internal->get_wdfdocmax(did);
+}
+
 Document
 Database::get_document(Xapian::docid did, unsigned flags) const
 {
@@ -350,7 +375,7 @@ Database::get_document(Xapian::docid did, unsigned flags) const
 }
 
 bool
-Database::term_exists(const string& term) const
+Database::term_exists(string_view term) const
 {
     // NB Internal::term_exists() handles term.empty().
     return internal->term_exists(term);
@@ -371,98 +396,70 @@ Database::get_description() const
     return desc;
 }
 
-// Word must have a trigram score at least this close to the best score seen
-// so far.
-#define TRIGRAM_SCORE_THRESHOLD 2
-
 string
-Database::get_spelling_suggestion(const string& word,
+Database::get_spelling_suggestion(string_view word,
 				  unsigned max_edit_distance) const
 {
-    if (word.size() <= 1)
+    if (word.size() <= 1 || max_edit_distance == 0)
 	return string();
+
+    max_edit_distance = min(max_edit_distance, unsigned(word.size() - 1));
 
     unique_ptr<TermList> merger(internal->open_spelling_termlist(word));
-    if (!merger.get())
+    if (!merger)
 	return string();
 
-    // Convert word to UTF-32.
-    vector<unsigned> utf32_word{Utf8Iterator(word), Utf8Iterator()};
-
-    vector<unsigned> utf32_term;
-
-    Xapian::termcount best = 1;
+    EditDistanceCalculator edcalc(word);
     string result;
     int edist_best = max_edit_distance;
     Xapian::doccount freq_best = 0;
     Xapian::doccount freq_exact = 0;
     while (true) {
 	TermList* ret = merger->next();
-	if (ret) merger.reset(ret);
+	if (rare(ret == merger.get())) {
+	    // Out of entries.
+	    break;
+	}
+	if (rare(ret)) merger.reset(ret);
 
-	if (merger->at_end()) break;
-
-	string term = merger->get_termname();
-	Xapian::termcount score = merger->get_wdf();
-
+	const string& term = merger->get_termname();
 	LOGVALUE(SPELLING, term);
-	LOGVALUE(SPELLING, score);
-	if (score + TRIGRAM_SCORE_THRESHOLD >= best) {
-	    if (score > best) best = score;
 
-	    // There's no point considering a word where the difference
-	    // in length is greater than the smallest number of edits we've
-	    // found so far.
+	// We can get the number of matching n-grams from merger->get_wdf() but
+	// a long candidate can match all the n-grams yet be too many edits
+	// away, while a candidate within edit distance range can match fewer
+	// n-grams.  E.g. if looking for corrections for `kuarq` we consider
+	// entries with n-grams `^ku`, `kua`, `uar`, `arq` or `rq$`.
+	//
+	// * `kuazzzuarq` contains all 5 n-grams but is 5 edits away
+	// * `quark` matches a single n-gram but is 2 edits away
+	//
+	// A single edit can potentially eliminate 3 n-grams which possibly
+	// gives us a potential criteria for rejecting based on the n-gram
+	// count, but in practice it seems it rejects so few candidates that
+	// it's actually cheaper to not try it.
 
-	    // First check the length of the encoded UTF-8 version of term.
-	    // Each UTF-32 character is 1-4 bytes in UTF-8.
-	    if (abs(long(term.size()) - long(word.size())) > edist_best * 4) {
-		LOGLINE(SPELLING, "Lengths much too different");
+	int edist = edcalc(term, edist_best);
+	LOGVALUE(SPELLING, edist);
+
+	if (edist <= edist_best) {
+	    Xapian::doccount freq = internal->get_spelling_frequency(term);
+
+	    LOGVALUE(SPELLING, freq);
+	    LOGVALUE(SPELLING, freq_best);
+	    // Even if we have an exact match, there may be a much more
+	    // frequent potential correction which will still be interesting.
+	    if (rare(edist == 0)) {
+		freq_exact = freq;
 		continue;
 	    }
 
-	    // Now convert to UTF-32, and compare the true lengths more
-	    // strictly.
-	    utf32_term.assign(Utf8Iterator(term), Utf8Iterator());
-
-	    // Check a very cheap length-based lower bound first.
-	    long lb = abs(long(utf32_term.size()) - long(utf32_word.size()));
-	    if (lb > edist_best) {
-		continue;
-	    }
-
-	    if (freq_edit_lower_bound(utf32_term, utf32_word) > edist_best) {
-		LOGLINE(SPELLING, "Rejected by character frequency test");
-		continue;
-	    }
-
-	    int edist = edit_distance_unsigned(&utf32_term[0],
-					       int(utf32_term.size()),
-					       &utf32_word[0],
-					       int(utf32_word.size()),
-					       edist_best);
-	    LOGVALUE(SPELLING, edist);
-
-	    if (edist <= edist_best) {
-		Xapian::doccount freq = internal->get_spelling_frequency(term);
-
-		LOGVALUE(SPELLING, freq);
-		LOGVALUE(SPELLING, freq_best);
-		// Even if we have an exact match, there may be a much more
-		// frequent potential correction which will still be
-		// interesting.
-		if (edist == 0) {
-		    freq_exact = freq;
-		    continue;
-		}
-
-		if (edist < edist_best || freq > freq_best) {
-		    LOGLINE(SPELLING, "Best so far: \"" << term <<
-				      "\" edist " << edist << " freq " << freq);
-		    result = term;
-		    edist_best = edist;
-		    freq_best = freq;
-		}
+	    if (edist < edist_best || freq > freq_best) {
+		LOGLINE(SPELLING, "Best so far: \"" << term <<
+				  "\" edist " << edist << " freq " << freq);
+		result = term;
+		edist_best = edist;
+		freq_best = freq;
 	    }
 	}
     }
@@ -478,19 +475,19 @@ Database::spellings_begin() const
 }
 
 TermIterator
-Database::synonyms_begin(const string& term) const
+Database::synonyms_begin(string_view term) const
 {
     return TermIterator(internal->open_synonym_termlist(term));
 }
 
 TermIterator
-Database::synonym_keys_begin(const string& prefix) const
+Database::synonym_keys_begin(string_view prefix) const
 {
     return TermIterator(internal->open_synonym_keylist(prefix));
 }
 
 string
-Database::get_metadata(const string& key) const
+Database::get_metadata(string_view key) const
 {
     if (rare(key.empty()))
 	empty_metadata_key();
@@ -499,7 +496,7 @@ Database::get_metadata(const string& key) const
 }
 
 Xapian::TermIterator
-Database::metadata_keys_begin(const string& prefix) const
+Database::metadata_keys_begin(string_view prefix) const
 {
     return TermIterator(internal->open_metadata_keylist(prefix));
 }
@@ -516,10 +513,30 @@ Database::locked() const
     return internal->locked();
 }
 
+Xapian::WritableDatabase
+Database::lock(int flags) {
+    return Xapian::WritableDatabase(internal->update_lock(flags));
+}
+
+Xapian::Database
+Database::unlock() {
+    return Xapian::Database(internal->update_lock(Xapian::DB_READONLY_));
+}
+
 Xapian::rev
 Database::get_revision() const
 {
     return internal->get_revision();
+}
+
+string
+Database::reconstruct_text(Xapian::docid did,
+			   size_t length,
+			   std::string_view prefix,
+			   Xapian::termpos start_pos,
+			   Xapian::termpos end_pos) const
+{
+    return internal->reconstruct_text(did, length, prefix, start_pos, end_pos);
 }
 
 void
@@ -553,7 +570,7 @@ WritableDatabase::delete_document(Xapian::docid did)
 }
 
 void
-WritableDatabase::delete_document(const string& term)
+WritableDatabase::delete_document(string_view term)
 {
     if (term.empty())
 	empty_term_invalid();
@@ -571,7 +588,7 @@ WritableDatabase::replace_document(Xapian::docid did, const Document& doc)
 }
 
 Xapian::docid
-WritableDatabase::replace_document(const string& term, const Document& doc)
+WritableDatabase::replace_document(string_view term, const Document& doc)
 {
     if (term.empty())
 	empty_term_invalid();
@@ -580,41 +597,41 @@ WritableDatabase::replace_document(const string& term, const Document& doc)
 }
 
 void
-WritableDatabase::add_spelling(const string& word,
+WritableDatabase::add_spelling(string_view word,
 			       Xapian::termcount freqinc) const
 {
     internal->add_spelling(word, freqinc);
 }
 
 Xapian::termcount
-WritableDatabase::remove_spelling(const string& word,
+WritableDatabase::remove_spelling(string_view word,
 				  Xapian::termcount freqdec) const
 {
     return internal->remove_spelling(word, freqdec);
 }
 
 void
-WritableDatabase::add_synonym(const string& term,
-			      const string& synonym) const
+WritableDatabase::add_synonym(string_view term,
+			      string_view synonym) const
 {
     internal->add_synonym(term, synonym);
 }
 
 void
-WritableDatabase::remove_synonym(const string& term,
-				 const string& synonym) const
+WritableDatabase::remove_synonym(string_view term,
+				 string_view synonym) const
 {
     internal->remove_synonym(term, synonym);
 }
 
 void
-WritableDatabase::clear_synonyms(const string& term) const
+WritableDatabase::clear_synonyms(string_view term) const
 {
     internal->clear_synonyms(term);
 }
 
 void
-WritableDatabase::set_metadata(const string& key, const string& value)
+WritableDatabase::set_metadata(string_view key, string_view value)
 {
     if (rare(key.empty()))
 	empty_metadata_key();

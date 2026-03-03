@@ -1,7 +1,7 @@
-/** @file multi_postlist.h
+/** @file
  * @brief Class for merging PostList objects from subdatabases.
  */
-/* Copyright (C) 2007,2008,2009,2011,2015,2017 Olly Betts
+/* Copyright (C) 2007,2008,2009,2011,2015,2017,2020 Olly Betts
  * Copyright (C) 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -15,8 +15,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_MULTI_POSTLIST_H
@@ -24,7 +24,7 @@
 
 #include <string>
 
-#include "api/postlist.h"
+#include "backends/postlist.h"
 #include "backends/positionlist.h"
 
 /// Class for merging PostList objects from subdatabases.
@@ -35,36 +35,42 @@ class MultiPostList : public PostList {
     /// Don't allow copying.
     MultiPostList(const MultiPostList &) = delete;
 
-    /// Current subdatabase.
-    Xapian::doccount current;
-
     /// Number of PostList* entries in @a postlists.
-    size_t n_shards;
+    Xapian::doccount n_shards;
 
     /// Sub-postlists which we use as a heap.
     PostList** postlists;
 
     /// Number of entries in docids;
-    size_t docids_size;
+    Xapian::doccount docids_size = 0;
 
     /// Heap of docids from the current positions of the postlists.
-    Xapian::docid* docids;
+    Xapian::docid* docids = nullptr;
 
   public:
     /// Constructor.
-    MultiPostList(size_t n_shards_, PostList** postlists_);
+    MultiPostList(Xapian::doccount n_shards_, PostList** postlists_)
+	: n_shards(n_shards_), postlists(postlists_)
+    {
+	try {
+	    docids = new Xapian::docid[n_shards];
+	} catch (...) {
+	    delete [] postlists;
+	    throw;
+	}
+	// MultiPostList is only used by PostingIterator which should never
+	// read the termfreq so leave it uninitialised so that ubsan or
+	// valgrind can at least pick up unintended uses.
+#if 0
+	termfreq = 0;
+	for (Xapian::doccount i = 0; i < n_shards_; ++i) {
+	    termfreq += postlists[i]->get_termfreq();
+	}
+#endif
+    }
 
     /// Destructor.
     ~MultiPostList();
-
-    /// Get a lower bound on the number of documents indexed by this term.
-    Xapian::doccount get_termfreq_min() const;
-
-    /// Get an upper bound on the number of documents indexed by this term.
-    Xapian::doccount get_termfreq_max() const;
-
-    /// Get an estimate of the number of documents indexed by this term.
-    Xapian::doccount get_termfreq_est() const;
 
     /// Return the current docid.
     Xapian::docid get_docid() const;
@@ -74,7 +80,8 @@ class MultiPostList : public PostList {
 
     /// Return the weight contribution for the current position.
     double get_weight(Xapian::termcount doclen,
-		      Xapian::termcount unique_terms) const;
+		      Xapian::termcount unique_terms,
+		      Xapian::termcount wdfdocmax) const;
 
     /// Return true if the current position is past the last entry in this list.
     bool at_end() const;

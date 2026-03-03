@@ -1,6 +1,7 @@
-/* index_utils.cc - utility functions for indexing testcase data
- *
- * Copyright (C) 2005,2007,2013 Olly Betts
+/** @file
+ * @brief utility functions for indexing testcase data
+ */
+/* Copyright (C) 2005,2007,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -13,21 +14,21 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
 
 #include "index_utils.h"
 
+#include "errno_to_string.h"
 #include "stringutils.h"
 
 #include <algorithm>
+#include <cerrno>
 #include <cstring>
 #include <fstream>
-
-#include "safeerrno.h"
 
 using namespace std;
 
@@ -95,7 +96,7 @@ FileIndexer::index_to(Xapian::WritableDatabase & db)
 	// Value 13 contains the first 3 letters of the paragraph
 	doc.add_value(13, para.substr(0, 3));
 
-	Xapian::termcount pos = 0;
+	Xapian::termpos pos = 0;
 	string::const_iterator word_end = para.begin();
 	// Need a const_iterator version of para.end() for find_if.
 	const string::const_iterator para_end = para.end();
@@ -141,7 +142,7 @@ munge_term(const string &term)
 			if (!C_isxdigit(b) || !C_isxdigit(c)) {
 			    i = j - 1;
 			} else {
-			    ch = (hex_digit(b) << 4) | hex_digit(c);
+			    ch = hex_decode(b, c);
 			}
 			break;
 		    }
@@ -189,7 +190,7 @@ FileIndexer::next_file()
 	string msg = "Can't read file '";
 	msg += filename;
 	msg += "' for indexing (";
-	msg += strerror(errno);
+	errno_to_string(errno, msg);
 	msg += ')';
 	throw msg;
     }

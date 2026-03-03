@@ -1,4 +1,4 @@
-/** @file collapser.h
+/** @file
  * @brief Collapse documents with the same collapse key during the match.
  */
 /* Copyright (C) 2009,2011,2017 Olly Betts
@@ -14,8 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_COLLAPSER_H
@@ -23,7 +23,7 @@
 
 #include "backends/documentinternal.h"
 #include "msetcmp.h"
-#include "api/postlist.h"
+#include "omassert.h"
 #include "api/result.h"
 
 #include <unordered_map>
@@ -55,16 +55,16 @@ class CollapseData {
     std::vector<std::pair<Xapian::doccount, Xapian::docid>> items;
 
     /// The highest weight of a document we've rejected.
-    double next_best_weight;
+    double next_best_weight = 0.0;
 
     /// The number of documents we've rejected.
-    Xapian::doccount collapse_count;
+    Xapian::doccount collapse_count = 0;
 
   public:
     /// Construct with the given item.
     CollapseData(Xapian::doccount item, Xapian::docid did)
-	: items(1, { item, did }), next_best_weight(0), collapse_count(0) {
-    }
+	: items(1, { item, did })
+    { }
 
     /** Check a new result with this collapse key value.
      *
@@ -104,6 +104,25 @@ class CollapseData {
 		  Xapian::doccount item,
 		  Xapian::doccount collapse_max,
 		  MSetCmp mcmp);
+
+    /** Process relocation of entry in results.
+     *
+     *  @param from	The old item (index into results).
+     *  @param to  	The new item (index into results).
+     */
+    void result_has_moved(Xapian::doccount from, Xapian::doccount to) {
+	// Yes, this *is* a linear search, but only through up to collapse_max
+	// items and we expect collapse_max to be very small (it's the maximum
+	// number of items to keep for each collapse key value).
+	for (auto&& item : items) {
+	    if (item.first == from) {
+		item.first = to;
+		return;
+	    }
+	}
+	// The entry ought to be present.
+	Assert(false);
+    }
 
     /// The highest weight of a document we've rejected.
     double get_next_best_weight() const { return next_best_weight; }
@@ -195,6 +214,27 @@ class Collapser {
      *  @param item	The new item (index into results).
      */
     void process(collapse_result action, Xapian::doccount item);
+
+    /** Process relocation of entry in results.
+     *
+     *  @param from		The old item (index into results).
+     *  @param to  		The new item (index into results).
+     */
+    void result_has_moved(Xapian::doccount from, Xapian::doccount to) {
+	const std::string& collapse_key = results[to].get_collapse_key();
+	if (collapse_key.empty()) {
+	    return;
+	}
+	auto it = table.find(collapse_key);
+	if (rare(it == table.end())) {
+	    // The entry ought to be present.
+	    Assert(false);
+	    return;
+	}
+
+	CollapseData& collapse_data = it->second;
+	collapse_data.result_has_moved(from, to);
+    }
 
     Xapian::doccount get_collapse_count(const std::string & collapse_key,
 					int percent_threshold,
@@ -299,7 +339,7 @@ class CollapserLite {
 	// information stored in table.
 	Xapian::doccount todo = entry_count;
 	for (Result& result : results) {
-	    const string& key = result.get_collapse_key();
+	    const std::string& key = result.get_collapse_key();
 	    if (key.empty())
 		continue;
 

@@ -1,7 +1,7 @@
-/** @file pack.h
+/** @file
  * @brief Pack types into strings and unpack them again.
  */
-/* Copyright (C) 2009,2015,2016,2017,2018 Olly Betts
+/* Copyright (C) 2009,2015,2016,2017,2018,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,15 +14,19 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_PACK_H
 #define XAPIAN_INCLUDED_PACK_H
 
-#include <cstring>
+#ifndef PACKAGE
+# error config.h must be included first in each C++ source file
+#endif
+
 #include <string>
+#include <string_view>
 #include <type_traits>
 
 #include "omassert.h"
@@ -44,13 +48,20 @@ const unsigned int SORTABLE_UINT_MAX_BYTES = 1 << SORTABLE_UINT_LOG2_MAX_BYTES;
 const unsigned int SORTABLE_UINT_1ST_BYTE_MASK =
 	(0xffu >> SORTABLE_UINT_LOG2_MAX_BYTES);
 
+/** Throw appropriate SerialisationError.
+ *
+ *  @param p If NULL, out of data; otherwise type overflow.
+ */
+[[noreturn]]
+void unpack_throw_serialisation_error(const char* p);
+
 /** Append an encoded bool to a string.
  *
  *  @param s		The string to append to.
  *  @param value	The bool to encode.
  */
 inline void
-pack_bool(std::string & s, bool value)
+pack_bool(std::string& s, bool value)
 {
     s += char('0' | static_cast<char>(value));
 }
@@ -62,10 +73,10 @@ pack_bool(std::string & s, bool value)
  *  @param result   Where to store the result.
  */
 inline bool
-unpack_bool(const char ** p, const char * end, bool * result)
+unpack_bool(const char** p, const char* end, bool* result)
 {
     Assert(result);
-    const char * & ptr = *p;
+    const char*& ptr = *p;
     Assert(ptr);
     char ch;
     if (rare(ptr == end || ((ch = *ptr++ - '0') &~ 1))) {
@@ -86,9 +97,9 @@ unpack_bool(const char ** p, const char * end, bool * result)
  */
 template<class U>
 inline void
-pack_uint_last(std::string & s, U value)
+pack_uint_last(std::string& s, U value)
 {
-    static_assert(std::is_unsigned<U>::value, "Unsigned type required");
+    static_assert(std::is_unsigned_v<U>, "Unsigned type required");
 
     while (value) {
 	s += char(value & 0xff);
@@ -104,12 +115,12 @@ pack_uint_last(std::string & s, U value)
  */
 template<class U>
 inline bool
-unpack_uint_last(const char ** p, const char * end, U * result)
+unpack_uint_last(const char** p, const char* end, U* result)
 {
-    static_assert(std::is_unsigned<U>::value, "Unsigned type required");
+    static_assert(std::is_unsigned_v<U>, "Unsigned type required");
     Assert(result);
 
-    const char * ptr = *p;
+    const char* ptr = *p;
     Assert(ptr);
     *p = end;
 
@@ -129,11 +140,30 @@ unpack_uint_last(const char ** p, const char * end, U * result)
 #if HAVE_DECL___BUILTIN_CLZ && \
     HAVE_DECL___BUILTIN_CLZL && \
     HAVE_DECL___BUILTIN_CLZLL
-inline int do_clz(unsigned value) { return __builtin_clz(value); }
+template<typename T>
+inline int
+do_clz(T value) {
+    extern int no_clz_builtin_for_this_type(T);
+    return no_clz_builtin_for_this_type(value);
+}
 
-inline int do_clz(unsigned long value) { return __builtin_clzl(value); }
+template<>
+inline int
+do_clz(unsigned value) {
+    return __builtin_clz(value);
+}
 
-inline int do_clz(unsigned long long value) { return __builtin_clzll(value); }
+template<>
+inline int
+do_clz(unsigned long value) {
+    return __builtin_clzl(value);
+}
+
+template<>
+inline int
+do_clz(unsigned long long value) {
+    return __builtin_clzll(value);
+}
 
 # define HAVE_DO_CLZ
 #endif
@@ -141,7 +171,26 @@ inline int do_clz(unsigned long long value) { return __builtin_clzll(value); }
 /** Append an encoded unsigned integer to a string, preserving the sort order.
  *
  *  The appended string data will sort in the same order as the unsigned
- *  integer being encoded.
+ *  integer being encoded.  The encoding used supports types up to 64-bit wide.
+ *
+ *  The most significant of the first byte are a series of 0-7 consecutive set
+ *  bits followed by a clear bit.  The number of set bits is 2 less than the
+ *  total number of bytes in the encoded form.  The value can be got by zeroing
+ *  these leading set bits and then interpreting the bytes as a big-endian
+ *  value (so except for the 9 byte encoded form, the lower order bits of the
+ *  first byte give the most significant set byte of the value).
+ *
+ *  Values are encoded in the shortest way possible:
+ *
+ *  [0x00000000,  0x00007fff] 0AAAAAAA BBBBBBBB
+ *  [0x00008000,  0x003fffff] 10AAAAAA BBBBBBBB CCCCCCCC
+ *  [0x00400000,  0x1fffffff] 110AAAAA BBBBBBBB CCCCCCCC DDDDDDDD
+ *  [0x20000000,0x0fffffffff] 1110AAAA BBBBBBBB CCCCCCCC DDDDDDDD EEEEEEEE
+ *
+ *  and so on with a full-64bit value encoding as 0b11111110 (0xfe) followed by
+ *  the 8-byte big-endian representation:
+ *
+ *  11111110 AAAAAAAA BBBBBBBB CCCCCCCC ... HHHHHHHH
  *
  *  Note that the first byte of the encoding will never be \xff, so it is
  *  safe to store the result of this function immediately after the result of
@@ -152,9 +201,9 @@ inline int do_clz(unsigned long long value) { return __builtin_clzll(value); }
  */
 template<class U>
 inline void
-pack_uint_preserving_sort(std::string & s, U value)
+pack_uint_preserving_sort(std::string& s, U value)
 {
-    static_assert(std::is_unsigned<U>::value, "Unsigned type required");
+    static_assert(std::is_unsigned_v<U>, "Unsigned type required");
     static_assert(sizeof(U) <= 8,
 		  "Template type U too wide for database format");
     // The clz() functions are undefined for 0, so handle the smallest band
@@ -171,7 +220,7 @@ pack_uint_preserving_sort(std::string & s, U value)
     size_t len = ((sizeof(U) * 8 + 5) - do_clz(value)) / 7;
 #else
     size_t len = 3;
-    for (U x = value >> 22; x; x >>= 7) ++len;
+    for (auto x = value >> 22; x; x >>= 7) ++len;
 #endif
     unsigned mask = 0xff << (10 - len);
 
@@ -188,7 +237,7 @@ pack_uint_preserving_sort(std::string & s, U value)
     AssertRel(len, <=, 9);
 }
 
-/** Decode an "sort preserved" unsigned integer from a string.
+/** Decode a "sort preserved" unsigned integer from a string.
  *
  *  The unsigned integer must have been encoded with
  *  pack_uint_preserving_sort().
@@ -199,14 +248,14 @@ pack_uint_preserving_sort(std::string & s, U value)
  */
 template<class U>
 inline bool
-unpack_uint_preserving_sort(const char ** p, const char * end, U * result)
+unpack_uint_preserving_sort(const char** p, const char* end, U* result)
 {
-    static_assert(std::is_unsigned<U>::value, "Unsigned type required");
+    static_assert(std::is_unsigned_v<U>, "Unsigned type required");
     static_assert(sizeof(U) <= 8,
 		  "Template type U too wide for database format");
     Assert(result);
 
-    const char * ptr = *p;
+    const char* ptr = *p;
     Assert(ptr);
 
     if (rare(ptr == end)) {
@@ -239,7 +288,7 @@ unpack_uint_preserving_sort(const char ** p, const char * end, U * result)
 
     // Check for overflow.
     if (rare(len > int(sizeof(U)))) return false;
-    if (sizeof(U) != 8) {
+    if constexpr(sizeof(U) != 8) {
 	// Need to check the top byte too.
 	if (rare(len == int(sizeof(U)) && len_byte != 0)) return false;
     }
@@ -263,9 +312,9 @@ unpack_uint_preserving_sort(const char ** p, const char * end, U * result)
  */
 template<class U>
 inline void
-pack_uint(std::string & s, U value)
+pack_uint(std::string& s, U value)
 {
-    static_assert(std::is_unsigned<U>::value, "Unsigned type required");
+    static_assert(std::is_unsigned_v<U>, "Unsigned type required");
 
     while (value >= 128) {
 	s += static_cast<char>(static_cast<unsigned char>(value) | 0x80);
@@ -281,7 +330,7 @@ pack_uint(std::string & s, U value)
  */
 template<>
 inline void
-pack_uint(std::string & s, bool value)
+pack_uint(std::string& s, bool value)
 {
     s += static_cast<char>(value);
 }
@@ -294,13 +343,13 @@ pack_uint(std::string & s, bool value)
  */
 template<class U>
 inline bool
-unpack_uint(const char ** p, const char * end, U * result)
+unpack_uint(const char** p, const char* end, U* result)
 {
-    static_assert(std::is_unsigned<U>::value, "Unsigned type required");
+    static_assert(std::is_unsigned_v<U>, "Unsigned type required");
 
-    const char * ptr = *p;
+    const char* ptr = *p;
     Assert(ptr);
-    const char * start = ptr;
+    const char* start = ptr;
 
     // Check the length of the encoded integer first.
     do {
@@ -360,11 +409,11 @@ unpack_uint(const char ** p, const char * end, U * result)
  */
 template<class U>
 inline bool
-unpack_uint_backwards(const char ** p, const char * start, U * result)
+unpack_uint_backwards(const char** p, const char* start, U* result)
 {
-    static_assert(std::is_unsigned<U>::value, "Unsigned type required");
+    static_assert(std::is_unsigned_v<U>, "Unsigned type required");
 
-    const char * ptr = *p;
+    const char* ptr = *p;
     Assert(ptr);
 
     // Check it's not empty and that the final byte is valid.
@@ -390,24 +439,23 @@ unpack_uint_backwards(const char ** p, const char * start, U * result)
  *  @param value	The std::string to encode.
  */
 inline void
-pack_string(std::string & s, const std::string & value)
+pack_string(std::string& s, std::string_view value)
 {
     pack_uint(s, value.size());
     s += value;
 }
 
-/** Append an encoded C-style string to a string.
+/** Append an empty encoded std::string to a string.
+ *
+ *  This is equivalent to pack_string(s, ""sv) but is probably a bit more
+ *  efficient.
  *
  *  @param s		The string to append to.
- *  @param ptr		The C-style string to encode.
  */
 inline void
-pack_string(std::string & s, const char * ptr)
+pack_string_empty(std::string& s)
 {
-    Assert(ptr);
-    size_t len = std::strlen(ptr);
-    pack_uint(s, len);
-    s.append(ptr, len);
+    s += '\0';
 }
 
 /** Decode a std::string from a string.
@@ -417,20 +465,45 @@ pack_string(std::string & s, const char * ptr)
  *  @param result   Where to store the result.
  */
 inline bool
-unpack_string(const char ** p, const char * end, std::string & result)
+unpack_string(const char** p, const char* end, std::string& result)
 {
     size_t len;
     if (rare(!unpack_uint(p, end, &len))) {
 	return false;
     }
 
-    const char * & ptr = *p;
+    const char*& ptr = *p;
     if (rare(len > size_t(end - ptr))) {
 	ptr = NULL;
 	return false;
     }
 
     result.assign(ptr, len);
+    ptr += len;
+    return true;
+}
+
+/** Decode a std::string from a string and append.
+ *
+ *  @param p	    Pointer to pointer to the current position in the string.
+ *  @param end	    Pointer to the end of the string.
+ *  @param result   Where to store the result.
+ */
+inline bool
+unpack_string_append(const char** p, const char* end, std::string& result)
+{
+    size_t len;
+    if (rare(!unpack_uint(p, end, &len))) {
+	return false;
+    }
+
+    const char*& ptr = *p;
+    if (rare(len > size_t(end - ptr))) {
+	ptr = NULL;
+	return false;
+    }
+
+    result.append(ptr, len);
     ptr += len;
     return true;
 }
@@ -452,7 +525,7 @@ unpack_string(const char ** p, const char * end, std::string & result)
  *  where nothing does and get a shorter encoding in those cases.
  */
 inline void
-pack_string_preserving_sort(std::string & s, const std::string & value,
+pack_string_preserving_sort(std::string& s, std::string_view value,
 			    bool last = false)
 {
     std::string::size_type b = 0, e;
@@ -475,12 +548,12 @@ pack_string_preserving_sort(std::string & s, const std::string & value,
  *  @param result   Where to store the result.
  */
 inline bool
-unpack_string_preserving_sort(const char ** p, const char * end,
-			      std::string & result)
+unpack_string_preserving_sort(const char** p, const char* end,
+			      std::string& result)
 {
     result.resize(0);
 
-    const char *ptr = *p;
+    const char* ptr = *p;
     Assert(ptr);
 
     while (ptr != end) {
@@ -498,7 +571,7 @@ unpack_string_preserving_sort(const char ** p, const char * end,
 }
 
 inline std::string
-pack_glass_postlist_key(const std::string &term)
+pack_glass_postlist_key(std::string_view term)
 {
     // Special case for doclen lists.
     if (term.empty())
@@ -510,7 +583,7 @@ pack_glass_postlist_key(const std::string &term)
 }
 
 inline std::string
-pack_glass_postlist_key(const std::string &term, Xapian::docid did)
+pack_glass_postlist_key(std::string_view term, Xapian::docid did)
 {
     // Special case for doclen lists.
     if (term.empty()) {
@@ -526,7 +599,7 @@ pack_glass_postlist_key(const std::string &term, Xapian::docid did)
 }
 
 inline std::string
-pack_honey_postlist_key(const std::string& term)
+pack_honey_postlist_key(std::string_view term)
 {
     Assert(!term.empty());
     std::string key;
@@ -535,7 +608,7 @@ pack_honey_postlist_key(const std::string& term)
 }
 
 inline std::string
-pack_honey_postlist_key(const std::string& term, Xapian::docid did)
+pack_honey_postlist_key(std::string_view term, Xapian::docid did)
 {
     Assert(!term.empty());
     std::string key;

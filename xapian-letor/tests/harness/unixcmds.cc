@@ -1,4 +1,4 @@
-/** @file unixcmds.cc
+/** @file
  *  @brief C++ function versions of useful Unix commands.
  */
 /* Copyright (C) 2003,2004,2007,2012,2014,2015,2018 Olly Betts
@@ -14,8 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -23,6 +23,7 @@
 #include "unixcmds.h"
 
 #include <string>
+#include <cerrno>
 #include <cstdlib>
 #include <sys/types.h>
 #include "safeunistd.h"
@@ -114,17 +115,30 @@ void rm_rf(const string &filename) {
 
 #if defined HAVE_NFTW && !defined __MINGW32__
     auto flags = FTW_DEPTH | FTW_PHYS;
-    int eno = nftw(filename.c_str(), rm_rf_nftw_helper, 10, flags);
-    if (eno != 0) {
+    int retries = 5;
+    while (true) {
+	int eno = nftw(filename.c_str(), rm_rf_nftw_helper, 10, flags);
+	if (eno == 0)
+	    return;
+
 	// nftw() either returns 0 for OK, -1 for error, or the non-zero return
 	// value of the helper (which in our case is an errno value).
 	if (eno < 0)
 	    eno = errno;
-	string msg = "recursive delete of \"";
-	msg += filename;
-	msg += "\") failed, errno = ";
-	errno_to_string(eno, msg);
-	throw msg;
+	if (!(eno == EEXIST || eno == ENOTEMPTY) || --retries == 0) {
+	    string msg = "recursive delete of \"";
+	    msg += filename;
+	    msg += "\") failed, errno = ";
+	    errno_to_string(eno, msg);
+	    throw msg;
+	}
+
+	// On NFS, rmdir() can fail with EEXIST or ENOTEMPTY (POSIX allows
+	// either) due to .nfs* files which are used by NFS clients to
+	// implement the Unix semantics of a deleted but open file continuing
+	// to exist.  We sleep and retry a few times in this situation to give
+	// the NFS client a chance to process the closing of the open handle.
+	sleep(5);
     }
 #else
 # ifdef __WIN32__

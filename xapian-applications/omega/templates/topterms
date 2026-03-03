@@ -1,1 +1,1 @@
-$set{topterms,$or{$query,$ne{$msize,0}}}$include{query}
+$set{topterms,1}$include{query}

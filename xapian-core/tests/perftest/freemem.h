@@ -1,7 +1,7 @@
-/** @file freemem.h
+/** @file
  * @brief determine how much free physical memory there is.
  */
-/* Copyright (C) 2007 Olly Betts
+/* Copyright (C) 2007,2019 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -15,8 +15,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_FREEMEM_H
@@ -27,12 +27,12 @@
  *  Returns the amount of free physical memory, in bytes, or -1 if this isn't
  *  known.
  */
-long get_free_physical_memory();
+long long get_free_physical_memory();
 
 /** Determine how much physical memory there is.
  *
  *  Returns the amount of physical memory, in bytes, or -1 if this isn't known.
  */
-long get_total_physical_memory();
+long long get_total_physical_memory();
 
 #endif // XAPIAN_INCLUDED_FREEMEM_H

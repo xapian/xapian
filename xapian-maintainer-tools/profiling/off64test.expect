@@ -1,0 +1,12 @@
+open(.unittest_ioutils1",,) = 4
+pwrite(4, "", 1024, 1024) = 1024
+pread(4, "", 1024, 1024) = 1024
+fdatasync(4) = 0
+pwrite(4, "", 1024, 12288) = 1024
+pread(4, "", 1024, 12288) = 1024
+fdatasync(4) = 0
+pwrite(4, "", 1024, 4398046510080) = 1024
+close(4) = 0
+open(.unittest_ioutils1",,) = 4
+pread(4, "", 1024, 4398046510080) = 1024
+close(4) = 0

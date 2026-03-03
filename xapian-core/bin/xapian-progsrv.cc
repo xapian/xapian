@@ -1,7 +1,7 @@
-/** @file xapian-progsrv.cc
+/** @file
  * @brief Remote server for use with ProgClient.
  */
-/* Copyright (C) 2002,2003,2006,2007,2008,2010,2011 Olly Betts
+/* Copyright (C) 2002,2003,2006,2007,2008,2010,2011,2023 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -23,6 +23,7 @@
 #include "net/remoteserver.h"
 
 #include "gnu_getopt.h"
+#include "parseint.h"
 
 #include <cstdlib>
 #include <iostream>
@@ -49,9 +50,9 @@ static void show_usage() {
     cout << "Usage: " PROG_NAME " [OPTIONS] DATABASE_DIRECTORY...\n\n"
 "Options:\n"
 "  --timeout MSECS         set timeout\n"
-"  --writable              allow updates (only one database directory allowed)\n"
+"  --writable              allow updates\n"
 "  --help                  display this help and exit\n"
-"  --version               output version information and exit" << endl;
+"  --version               output version information and exit\n";
 }
 
 int main(int argc, char **argv)
@@ -68,10 +69,16 @@ int main(int argc, char **argv)
 		show_usage();
 		exit(0);
 	    case OPT_VERSION:
-		cout << PROG_NAME " - " PACKAGE_STRING << endl;
+		cout << PROG_NAME " - " PACKAGE_STRING "\n";
 		exit(0);
 	    case 't':
-		timeout = atoi(optarg) * 1e-3;
+		unsigned int temp;
+		if (!parse_unsigned(optarg, temp)) {
+		    cout << "timeout must be a non-negative integer\n";
+		    show_usage();
+		    exit(1);
+		}
+		timeout = temp * 1e-3;
 		break;
 	    case 'w':
 		writable = true;
@@ -83,12 +90,6 @@ int main(int argc, char **argv)
 
     if (syntax_error || optind == argc) {
 	show_usage();
-	exit(1);
-    }
-
-    if (writable && (argc - optind) != 1) {
-	cerr << "Error: only one database directory allowed with '--writable'."
-	     << endl;
 	exit(1);
     }
 

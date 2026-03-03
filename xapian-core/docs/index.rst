@@ -4,9 +4,8 @@
 
 `website <https://xapian.org/>`_ \| `install <install.html>`_ \|
 `overview <overview.html>`_ \|
-`sysadmins <admin_notes.html>`_ \| `scalability <scalability.html>`_ \|
-`API <apidoc/html/annotated.html>`_ \| `deprecated <deprecation.html>`_
-\| `IR <intro_ir.html>`_ \| `wiki <https://trac.xapian.org/wiki>`_
+`API <apidoc/html/annotated.html>`_ \|
+`IR <intro_ir.html>`_ \| `wiki <https://trac.xapian.org/wiki>`_
 
 .. raw:: html
 
@@ -19,9 +18,9 @@ Xapian - the open source search engine
 Getting Started
 ---------------
 
-There's a new
-`Getting Started with Xapian <http://getting-started-with-xapian.readthedocs.org/>`_
-guide, which is the recommended place to start.
+`Getting Started with Xapian <https://getting-started-with-xapian.readthedocs.io/>`_
+is the recommended place to start, and contains updated versions of many of the
+documentation pages which used to be here.
 
 Documentation
 -------------
@@ -35,42 +34,32 @@ We suggest you start by reading the `Installation
 Guide <install.html>`_, which covers downloading the code, and
 unpacking, configuring, building and installing it.
 
-The `glossary <glossary.html>`_ provides definitions for specialized
-terminology you might encounter while using Xapian.
-
 The `Overview <overview.html>`_ explains the API which Xapian provides
 to programmers.  A full `API Reference <apidoc/html/index.html>`_ is
 automatically collated using doxygen from documentation comments in
-the source code.  There's also a list of `deprecated features
-<deprecation.html>`_ which lists features scheduled for removal, and
-also features already removed, along with suggestions for
-replacements.
+the source code.
 
-If you want to learn more about probabilistic information retrieval,
-there's a (reasonably mathematical) `introduction to the ideas behind
-Xapian <intro_ir.html>`_ which also suggests some books you might want
-to read.
+The `deprecated features section of the "Getting Started" guide
+<https://getting-started-with-xapian.readthedocs.io/en/latest/deprecation/>`_
+lists features scheduled for removal and already removed, along with
+suggestions for replacements.
+
+If you want to learn more about information retrieval, there's a (reasonably
+mathematical) `introduction to the ideas behind Xapian <intro_ir.html>`_ which
+also suggests some books you might want to read.
 
 There are a number of documents which cover particular features:
 
 -  `BM25 Weighting Scheme <bm25.html>`_
--  `Collapsing <collapsing.html>`_
--  `Database Replication <replication.html>`_
--  `Faceting <facets.html>`_
 -  `Indexing <termgenerator.html>`_
--  `PostingSource <postingsource.html>`_
 -  `Query Parser <queryparser.html>`_
 -  `Remote Backend <remote.html>`_
--  `Serialising Queries and Documents <serialisation.html>`_
--  `Sorting Results <sorting.html>`_
--  `Spelling Correction <spelling.html>`_
 -  `Stemming Algorithms <stemming.html>`_
--  `Synonym Support <synonyms.html>`_
 -  `Value Ranges <valueranges.html>`_
 
-For those wishing to do development work on the Xapian library itself,
-there is `documentation of Xapian's internals <internals.html>`_
-available.
+The `Xapian Developer Guide <https://xapian-developer-guide.readthedocs.org/>`_
+contains information for those wishing to do development work on the Xapian
+library itself.
 
 We also have a `wiki <https://trac.xapian.org/wiki>`_ for documentation
 and examples contributed by the Xapian community.

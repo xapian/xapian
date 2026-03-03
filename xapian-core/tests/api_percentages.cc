@@ -1,8 +1,8 @@
-/** @file api_percentages.cc
+/** @file
  * @brief Tests of percentage calculations.
  */
 /* Copyright (C) 2008,2009 Lemur Consulting Ltd
- * Copyright (C) 2008,2009,2010,2011,2012,2014 Olly Betts
+ * Copyright (C) 2008,2009,2010,2011,2012,2014,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,18 +15,18 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
 
 #include "api_percentages.h"
 
+#define XAPIAN_DEPRECATED(X) X
 #include <xapian.h>
 
 #include "apitest.h"
-#include "backendmanager_local.h"
 #include "str.h"
 #include "testutils.h"
 
@@ -47,7 +47,7 @@ DEFINE_TESTCASE(consistency3, backend) {
     TEST_EQUAL(bigmset.size(), lots);
     for (Xapian::doccount start = 0; start < lots; ++start) {
 	tout << *bigmset[start] << ":" << bigmset[start].get_weight() << ":"
-	     << bigmset[start].get_percent() << "%" << endl;
+	     << bigmset[start].get_percent() << "%\n";
 	for (Xapian::doccount size = 0; size < lots - start; ++size) {
 	    Xapian::MSet mset = enquire.get_mset(start, size);
 	    if (mset.size()) {
@@ -65,15 +65,14 @@ DEFINE_TESTCASE(consistency3, backend) {
 	    }
 	}
     }
-    return true;
 }
 
 class MyPostingSource : public Xapian::PostingSource {
-    vector<pair<Xapian::docid, double> > weights;
-    vector<pair<Xapian::docid, double> >::const_iterator i;
+    vector<pair<Xapian::docid, double>> weights;
+    vector<pair<Xapian::docid, double>>::const_iterator i;
     bool started;
 
-    MyPostingSource(const vector<pair<Xapian::docid, double> > &weights_,
+    MyPostingSource(const vector<pair<Xapian::docid, double>>& weights_,
 		    double max_wt)
 	: weights(weights_), started(false)
     {
@@ -83,8 +82,7 @@ class MyPostingSource : public Xapian::PostingSource {
   public:
     MyPostingSource() : started(false) { }
 
-    PostingSource * clone() const
-    {
+    PostingSource* clone() const override {
 	return new MyPostingSource(weights, get_maxweight());
     }
 
@@ -93,15 +91,23 @@ class MyPostingSource : public Xapian::PostingSource {
 	if (wt > get_maxweight()) set_maxweight(wt);
     }
 
-    void init(const Xapian::Database &) { started = false; }
+    void reset(const Xapian::Database&, Xapian::doccount) override {
+	started = false;
+    }
 
-    double get_weight() const { return i->second; }
+    double get_weight() const override { return i->second; }
 
-    Xapian::doccount get_termfreq_min() const { return weights.size(); }
-    Xapian::doccount get_termfreq_est() const { return weights.size(); }
-    Xapian::doccount get_termfreq_max() const { return weights.size(); }
+    Xapian::doccount get_termfreq_min() const override {
+	return weights.size();
+    }
+    Xapian::doccount get_termfreq_est() const override {
+	return weights.size();
+    }
+    Xapian::doccount get_termfreq_max() const override {
+	return weights.size();
+    }
 
-    void next(double /*wt*/) {
+    void next(double /*wt*/) override {
 	if (!started) {
 	    i = weights.begin();
 	    started = true;
@@ -110,17 +116,16 @@ class MyPostingSource : public Xapian::PostingSource {
 	}
     }
 
-    bool at_end() const {
+    bool at_end() const override {
 	return (i == weights.end());
     }
 
-    Xapian::docid get_docid() const { return i->first; }
+    Xapian::docid get_docid() const override { return i->first; }
 
-    string get_description() const {
+    string get_description() const override {
 	return "MyPostingSource";
     }
 };
-
 
 /// Test for rounding errors in percentage weight calculations and cutoffs.
 DEFINE_TESTCASE(pctcutoff4, backend && !remote && !multi) {
@@ -170,8 +175,6 @@ DEFINE_TESTCASE(pctcutoff4, backend && !remote && !multi) {
 	    percent = new_percent;
 	}
     }
-
-    return true;
 }
 
 /// Check we throw for a percentage cutoff while sorting primarily by value.
@@ -193,17 +196,11 @@ DEFINE_TESTCASE(pctcutoff5, backend) {
 
     enquire.set_sort_by_value_then_relevance(0, true);
     TEST_EXCEPTION(Xapian::UnimplementedError, mset = enquire.get_mset(0, 10));
-
-    return true;
 }
 
 // Regression test for bug fixed in 1.0.14.
-DEFINE_TESTCASE(topercent3, remote) {
-    BackendManagerLocal local_manager(test_driver::get_srcdir() + "/testdata/");
-    Xapian::Database db;
-    db.add_database(get_database("apitest_simpledata"));
-    db.add_database(local_manager.get_database("apitest_simpledata"));
-
+DEFINE_TESTCASE(topercent3, backend) {
+    Xapian::Database db = get_database("apitest_simpledata");
     Xapian::Enquire enquire(db);
     enquire.set_sort_by_value(1, false);
 
@@ -217,8 +214,6 @@ DEFINE_TESTCASE(topercent3, remote) {
 	// We should never achieve 100%.
 	TEST_REL(i.get_percent(),<,100);
     }
-
-    return true;
 }
 
 // Regression test for bug introduced temporarily by the "percent without
@@ -238,8 +233,6 @@ DEFINE_TESTCASE(topercent4, backend) {
     // We should get 50% not 33%.
     TEST(!mset.empty());
     TEST_EQUAL(mset[0].get_percent(), 50);
-
-    return true;
 }
 
 /// Test that a search with a non-existent term doesn't get 100%.
@@ -255,7 +248,13 @@ DEFINE_TESTCASE(topercent5, backend) {
     // the top hit got 4% in this testcase.  In 1.2.x it gets 50%, which is
     // better, but >50% would be more natural.
     TEST_REL(mset[0].get_percent(), >=, 50);
-    return true;
+
+    // Repeat tests with TradWeight.
+    enquire.set_weighting_scheme(Xapian::TradWeight());
+    mset = enquire.get_mset(0, 10);
+    TEST(!mset.empty());
+    TEST(mset[0].get_percent() < 100);
+    TEST_REL(mset[0].get_percent(), >=, 50);
 }
 
 /// Test that OP_FILTER doesn't affect percentages.
@@ -274,7 +273,6 @@ DEFINE_TESTCASE(topercent6, backend) {
     Xapian::MSet mset2 = enquire.get_mset(0, 10);
     TEST(!mset2.empty());
     TEST_EQUAL(mset[0].get_percent(), mset2[0].get_percent());
-    return true;
 }
 
 static void
@@ -294,7 +292,7 @@ make_topercent7_db(Xapian::WritableDatabase &db, const string &)
 /// Test that a term with wdf always = 0 gets counted.
 //  Regression test for bug introduced in 1.2.10 by the original fix for #590,
 //  and fixed in 1.2.13 (and in trunk before 1.3.1 was released).
-DEFINE_TESTCASE(topercent7, generated) {
+DEFINE_TESTCASE(topercent7, backend) {
     Xapian::Database db(get_database("topercent7", make_topercent7_db));
 
     Xapian::Query q;
@@ -306,7 +304,6 @@ DEFINE_TESTCASE(topercent7, generated) {
     Xapian::MSet m = enq.get_mset(0, 10);
     TEST(!m.empty());
     TEST_REL(m[0].get_percent(),>,60);
-    return true;
 }
 
 class ZWeight : public Xapian::Weight {
@@ -315,28 +312,30 @@ class ZWeight : public Xapian::Weight {
 	need_stat(DOC_LENGTH);
     }
 
-    void init(double) { }
+    void init(double) override { }
 
-    Weight * clone() const {
+    Weight* clone() const override {
 	return new ZWeight();
     }
 
     double get_sumpart(Xapian::termcount,
 		       Xapian::termcount,
-		       Xapian::termcount) const {
+		       Xapian::termcount,
+		       Xapian::termcount) const override {
 	return 0.0;
     }
 
-    double get_maxpart() const {
+    double get_maxpart() const override {
 	return 0.0;
     }
 
     double get_sumextra(Xapian::termcount doclen,
-			Xapian::termcount) const {
+			Xapian::termcount,
+			Xapian::termcount) const override {
 	return 1.0 / doclen;
     }
 
-    double get_maxextra() const {
+    double get_maxextra() const override {
 	return 1.0;
     }
 };
@@ -356,5 +355,4 @@ DEFINE_TESTCASE(checkzeromaxpartopt1, backend && !remote) {
     TEST(mset[0].get_percent() != 100);
     // Make sure the percentage score isn't 0 or 1 though.
     TEST_REL(mset[0].get_percent(), >, 1);
-    return true;
 }

@@ -1,7 +1,7 @@
-/** @file sortable-serialise.cc
- * @brief Serialise floating point values to string which sort the same way.
+/** @file
+ * @brief Serialise floating point values to strings which sort the same way.
  */
-/* Copyright (C) 2007,2009,2015,2016 Olly Betts
+/* Copyright (C) 2007,2009,2015,2016,2024,2025 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -30,11 +30,14 @@
 # define UNITTEST_ASSERT_NOTHROW(COND,RET)
 #endif
 
+#include "negate_unsigned.h"
+
 #include <cfloat>
 #include <cmath>
 #include <cstring>
 
 #include <string>
+#include <string_view>
 
 using namespace std;
 
@@ -42,21 +45,26 @@ using namespace std;
 # error Code currently assumes FLT_RADIX == 2
 #endif
 
-#ifdef _MSC_VER
-// Disable warning about negating an unsigned type, which we do deliberately.
-# pragma warning(disable:4146)
-#endif
-
 size_t
-Xapian::sortable_serialise_(double value, char * buf) XAPIAN_NOEXCEPT
+Xapian::sortable_serialise_(double value, char* buf) noexcept
 {
-    double mantissa;
+    /* Special case for infinities and NaN.  We check this first since frexp()
+     * on infinity or NaN returns an unspecified value for the exponent.
+     */
+    if (rare(!isfinite(value))) {
+handle_as_infinity:
+	if (value < 0) {
+	    // Negative infinity.
+	    return 0;
+	} else {
+	    // Positive infinity.
+	    memset(buf, '\xff', 9);
+	    return 9;
+	}
+    }
+
     int exponent;
-
-    // Negative infinity.
-    if (value < -DBL_MAX) return 0;
-
-    mantissa = frexp(value, &exponent);
+    double mantissa = frexp(value, &exponent);
 
     /* Deal with zero specially.
      *
@@ -66,25 +74,18 @@ Xapian::sortable_serialise_(double value, char * buf) XAPIAN_NOEXCEPT
      * -2039 - if smaller exponents are possible anywhere, we underflow such
      *  numbers to 0.
      */
-    if (mantissa == 0.0 || exponent < -2039) {
+    if (mantissa == 0.0 || rare(exponent < -2039)) {
 	*buf = '\x80';
 	return 1;
     }
 
+    if (rare(exponent > 2055)) {
+	// Extremely large non-IEEE representation.
+	goto handle_as_infinity;
+    }
+
     bool negative = (mantissa < 0);
     if (negative) mantissa = -mantissa;
-
-    // Infinity, or extremely large non-IEEE representation.
-    if (value > DBL_MAX || exponent > 2055) {
-	if (negative) {
-	    // This can only happen with a non-IEEE representation, because
-	    // we've already tested for value < -DBL_MAX
-	    return 0;
-	} else {
-	    memset(buf, '\xff', 9);
-	    return 9;
-	}
-    }
 
     // Encoding:
     //
@@ -128,7 +129,7 @@ Xapian::sortable_serialise_(double value, char * buf) XAPIAN_NOEXCEPT
 	buf[len++] = next;
 	// And the lower 6 bits of the exponent go into the upper 6 bits
 	// of the second byte:
-	next = static_cast<unsigned char>(exponent) << 2;
+	next = static_cast<unsigned char>(exponent << 2);
 	if (negative ^ exponent_negative) next ^= 0xfc;
     }
 
@@ -148,9 +149,9 @@ Xapian::sortable_serialise_(double value, char * buf) XAPIAN_NOEXCEPT
     if (negative) {
 	// We negate the mantissa for negative numbers, so that the sort order
 	// is reversed (since larger negative numbers should come first).
-	word1 = -word1;
+	word1 = negate_unsigned(word1);
 	if (word2 != 0) ++word1;
-	word2 = -word2;
+	word2 = negate_unsigned(word2);
     }
 
     word1 &= 0x03ffffff;
@@ -176,13 +177,13 @@ Xapian::sortable_serialise_(double value, char * buf) XAPIAN_NOEXCEPT
 /// Get a number from the character at a given position in a string, returning
 /// 0 if the string isn't long enough.
 static inline unsigned char
-numfromstr(const std::string & str, std::string::size_type pos)
+numfromstr(std::string_view str, std::string::size_type pos)
 {
     return (pos < str.size()) ? static_cast<unsigned char>(str[pos]) : '\0';
 }
 
 double
-Xapian::sortable_unserialise(const std::string & value) XAPIAN_NOEXCEPT
+Xapian::sortable_unserialise(std::string_view value) noexcept
 {
     // Zero.
     if (value.size() == 1 && value[0] == '\x80') return 0.0;
@@ -190,20 +191,14 @@ Xapian::sortable_unserialise(const std::string & value) XAPIAN_NOEXCEPT
     // Positive infinity.
     if (value.size() == 9 &&
 	memcmp(value.data(), "\xff\xff\xff\xff\xff\xff\xff\xff\xff", 9) == 0) {
-#ifdef INFINITY
-	// INFINITY is C99.  Oddly, it's of type "float" so sanity check in
-	// case it doesn't cast to double as infinity (apparently some
-	// implementations have this problem).
-	if (double(INFINITY) > HUGE_VAL) return INFINITY;
-#endif
+	// "On implementations that support floating-point infinities,
+	// [HUGE_VAL] always expand[s] to the positive infinit[y] of double"
+	// https://en.cppreference.com/w/cpp/numeric/math/HUGE_VAL
 	return HUGE_VAL;
     }
 
     // Negative infinity.
     if (value.empty()) {
-#ifdef INFINITY
-	if (double(INFINITY) > HUGE_VAL) return -INFINITY;
-#endif
 	return -HUGE_VAL;
     }
 
@@ -240,9 +235,9 @@ Xapian::sortable_unserialise(const std::string & value) XAPIAN_NOEXCEPT
     }
 
     if (negative) {
-	word1 = -word1;
+	word1 = negate_unsigned(word1);
 	if (word2 != 0) ++word1;
-	word2 = -word2;
+	word2 = negate_unsigned(word2);
 	UNITTEST_ASSERT_NOTHROW((word1 & 0xf0000000) != 0, 0);
 	word1 &= 0x03ffffff;
     }
@@ -260,6 +255,8 @@ Xapian::sortable_unserialise(const std::string & value) XAPIAN_NOEXCEPT
 
     // We use scalbn() since it's equivalent to ldexp() when FLT_RADIX == 2
     // (which we currently assume), except that ldexp() will set errno if the
-    // result overflows or underflows, which isn't really desirable here.
+    // result overflows or underflows.  We don't need or want errno set (indeed
+    // configure turns on -fno-math-errno if it detects the compiler supports
+    // it).
     return scalbn(mantissa, exponent);
 }

@@ -1,7 +1,7 @@
-/** @file multi_alltermslist.cc
+/** @file
  * @brief Class for merging AllTermsList objects from subdatabases.
  */
-/* Copyright (C) 2007,2008,2009,2011,2017 Olly Betts
+/* Copyright (C) 2007,2008,2009,2011,2017,2018,2020,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -25,9 +25,8 @@
 #include <xapian/database.h>
 
 #include "backends/databaseinternal.h"
+#include "heap.h"
 #include "omassert.h"
-
-#include <algorithm>
 
 using namespace std;
 
@@ -59,12 +58,6 @@ MultiAllTermsList::get_approx_size() const
     return 0;
 }
 
-string
-MultiAllTermsList::get_termname() const
-{
-    return current_term;
-}
-
 Xapian::doccount
 MultiAllTermsList::get_termfreq() const
 {
@@ -74,16 +67,16 @@ MultiAllTermsList::get_termfreq() const
 	    if (tl->get_termname() != current_term)
 		break;
 	    current_termfreq += tl->get_termfreq();
-	    pop_heap(termlists, termlists + count,
-		     CompareTermListsByTerm());
-	    tl->next();
-	    if (tl->at_end()) {
+	    if (tl->next()) {
+		// Out of entries.
+		Heap::pop(termlists, termlists + count,
+			  CompareTermListsByTerm());
 		delete tl;
 		if (--count == 0)
 		    break;
 	    } else {
-		push_heap(termlists, termlists + count,
-			  CompareTermListsByTerm());
+		Heap::replace(termlists, termlists + count,
+			      CompareTermListsByTerm());
 	    }
 	}
     }
@@ -98,9 +91,7 @@ MultiAllTermsList::next()
 	// earliest sorting term is at the top of the heap.
 	size_t j = 0;
 	for (size_t i = 0; i != count; ++i) {
-	    TermList* tl = termlists[i];
-	    tl->next();
-	    if (!tl->at_end()) {
+	    if (termlists[i]->next() == NULL) {
 		if (i != j)
 		    swap(termlists[i], termlists[j]);
 		++j;
@@ -108,22 +99,36 @@ MultiAllTermsList::next()
 	}
 	while (count > j)
 	    delete termlists[--count];
-	make_heap(termlists, termlists + count,
-		  CompareTermListsByTerm());
-    } else {
+	Heap::make(termlists, termlists + count,
+		   CompareTermListsByTerm());
+    } else if (current_termfreq == 0 && count != 0) {
 	// Skip over current_term if we haven't already.
-	if (current_termfreq == 0)
-	    (void)get_termfreq();
+	while (true) {
+	    TermList* tl = termlists[0];
+	    if (tl->get_termname() != current_term)
+		break;
+	    if (tl->next()) {
+		// Out of entries.
+		Heap::pop(termlists, termlists + count,
+			  CompareTermListsByTerm());
+		delete tl;
+		if (--count == 0)
+		    break;
+	    } else {
+		Heap::replace(termlists, termlists + count,
+			      CompareTermListsByTerm());
+	    }
+	}
     }
 
     current_termfreq = 0;
 
     if (count <= 1) {
 	if (count == 0) {
-	    current_term = std::string();
-	    return NULL;
+	    return this;
 	}
 	count = 0;
+	// Prune.
 	return termlists[0];
     }
 
@@ -131,17 +136,15 @@ MultiAllTermsList::next()
     return NULL;
 }
 
-TermList *
-MultiAllTermsList::skip_to(const std::string &term)
+TermList*
+MultiAllTermsList::skip_to(std::string_view term)
 {
     // Assume the skip is likely to be a long distance, and rebuild the heap
     // from scratch.  FIXME: It would be useful to profile this against an
     // approach more like that next() uses if this ever gets heavy use.
     size_t j = 0;
     for (size_t i = 0; i != count; ++i) {
-	TermList* tl = termlists[i];
-	tl->skip_to(term);
-	if (!tl->at_end()) {
+	if (termlists[i]->skip_to(term) == NULL) {
 	    if (i != j)
 		swap(termlists[i], termlists[j]);
 	    ++j;
@@ -154,21 +157,15 @@ MultiAllTermsList::skip_to(const std::string &term)
 
     if (count <= 1) {
 	if (count == 0) {
-	    current_term = std::string();
-	    return NULL;
+	    return this;
 	}
 	count = 0;
+	// Prune.
 	return termlists[0];
     }
 
-    make_heap(termlists, termlists + count, CompareTermListsByTerm());
+    Heap::make(termlists, termlists + count, CompareTermListsByTerm());
 
     current_term = termlists[0]->get_termname();
     return NULL;
-}
-
-bool
-MultiAllTermsList::at_end() const
-{
-    return count == 0 && current_term.empty();
 }

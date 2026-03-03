@@ -1,6 +1,6 @@
 #!@PERL@
 # @configure_input@
-# @file vcard2text
+# @file
 # @brief Extract text from a vCard file
 #
 # Copyright (C) 2016,2017 Olly Betts

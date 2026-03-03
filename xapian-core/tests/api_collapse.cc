@@ -1,4 +1,4 @@
-/** @file api_collapse.cc
+/** @file
  * @brief Test collapsing during the match.
  */
 /* Copyright (C) 2009 Olly Betts
@@ -14,8 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -45,7 +45,7 @@ DEFINE_TESTCASE(collapsekey5, backend) {
 	}
 
 	for (Xapian::doccount cmax = db.get_doccount() + 1; cmax > 0; --cmax) {
-	    tout << "Collapsing on slot " << slot << " max " << cmax << endl;
+	    tout << "Collapsing on slot " << slot << " max " << cmax << '\n';
 	    enquire.set_collapse_key(slot, cmax);
 	    Xapian::MSet mset = enquire.get_mset(0, full_mset.size());
 
@@ -78,6 +78,29 @@ DEFINE_TESTCASE(collapsekey5, backend) {
 	    }
 	}
     }
+}
 
-    return true;
+/// Test collapsing with a percentage cut-off.
+DEFINE_TESTCASE(collapsekey6, backend) {
+    Xapian::Database db(get_database("apitest_simpledata"));
+    Xapian::Enquire enquire(db);
+    // "this" matches all documents.
+    enquire.set_query(Xapian::Query("this"));
+
+    Xapian::MSet full_mset = enquire.get_mset(0, db.get_doccount());
+
+    for (Xapian::valueno slot = 0; slot < 10; ++slot) {
+	for (Xapian::doccount cmax = db.get_doccount() + 1; cmax > 0; --cmax) {
+	    for (int percent = 65; percent != 100; ++percent) {
+		tout << "Collapsing on slot " << slot << " max " << cmax
+		     << " cutoff " << percent << '\n';
+		enquire.set_collapse_key(slot, cmax);
+		enquire.set_cutoff(percent);
+		Xapian::MSet mset = enquire.get_mset(0, full_mset.size());
+		for (Xapian::MSetIterator j = mset.begin(); j != mset.end(); ++j) {
+		    TEST_REL(j.get_percent(), >=, percent);
+		}
+	    }
+	}
+    }
 }

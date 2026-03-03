@@ -1,8 +1,8 @@
-/** @file fileutils.h
+/** @file
  *  @brief File and path manipulation routines.
  */
 /* Copyright (C) 2008 Lemur Consulting Ltd
- * Copyright (C) 2008,2009,2010,2012 Olly Betts
+ * Copyright (C) 2008,2009,2010,2012,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -15,14 +15,15 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_FILEUTILS_H
 #define XAPIAN_INCLUDED_FILEUTILS_H
 
 #include <string>
+#include <string_view>
 
 /** Remove a directory, and its contents.
  *
@@ -38,6 +39,6 @@ void removedir(const std::string &dirname);
  *  Return @a path qualified to work as if you did "chdir(<directory which base
  *  is in>)" first.
  */
-void resolve_relative_path(std::string & path, const std::string & base);
+void resolve_relative_path(std::string& path, std::string_view base);
 
 #endif /* XAPIAN_INCLUDED_FILEUTILS_H */

@@ -1,6 +1,6 @@
-// Simple test that we can load the xapian module and run a simple test
+// Simple test that we can use xapian from csharp
 //
-// Copyright (C) 2004,2005,2006,2007,2008,2011,2016 Olly Betts
+// Copyright (C) 2004,2005,2006,2007,2008,2011,2016,2019,2023 Olly Betts
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -13,9 +13,8 @@
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software
-// Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
-// USA
+// along with this program; if not, see
+// <https://www.gnu.org/licenses/>.
 
 class TestMatchDecider : Xapian.MatchDecider {
     public override bool Apply(Xapian.Document doc) {
@@ -41,20 +40,39 @@ class SmokeTest {
 	    }
 
 	    Xapian.Stem stem = new Xapian.Stem("english");
+	    if (stem.GetDescription() != "Xapian::Stem(english)") {
+		System.Console.WriteLine("Unexpected stem.GetDescription()");
+		System.Environment.Exit(1);
+	    }
 	    Xapian.Document doc = new Xapian.Document();
 	    // Currently SWIG doesn't generate zero-byte clean code for
 	    // transferring strings between C# and C++.
-	    /*
 	    doc.SetData("a\0b");
-	    if (doc.GetData() == "a") {
-		System.Console.WriteLine("GetData+SetData truncates at a zero byte");
+	    if (doc.GetData() != "a") {
+		System.Console.WriteLine("XPASS: GetData+SetData truncates at a zero byte");
 		System.Environment.Exit(1);
 	    }
-	    if (doc.GetData() != "a\0b") {
-		System.Console.WriteLine("GetData+SetData doesn't transparently handle a zero byte");
+	    if (doc.GetData() == "a\0b") {
+		System.Console.WriteLine("XPASS: GetData+SetData doesn't transparently handle a zero byte");
 		System.Environment.Exit(1);
 	    }
-	    */
+	    if (doc.GetDescription() != "Document(docid=0, data=a)") {
+		System.Console.WriteLine("XPASS: UTF-8 encoding of zero byte fixed!");
+		System.Environment.Exit(1);
+	    }
+
+	    // Surrogate pair case:
+	    string falafel = "\U0001f9c6";
+	    doc.SetData(falafel);
+	    if (doc.GetData() != falafel) {
+		System.Console.WriteLine("getData+setData doesn't transparently handle a surrogate pair");
+		System.Environment.Exit(1);
+	    }
+	    if (doc.GetDescription() != "Document(docid=0, data=" + falafel + ")") {
+		System.Console.WriteLine("GetData+SetData doesn't transparently handle character >= U+10000");
+		System.Environment.Exit(1);
+	    }
+
 	    doc.SetData("is there anybody out there?");
 	    doc.AddTerm("XYzzy");
 	    doc.AddPosting(stem.Apply("is"), 1);
@@ -85,7 +103,7 @@ class SmokeTest {
 	    // Check exception handling for Xapian::DocNotFoundError.
 	    try {
 		Xapian.Document doc2 = db.GetDocument(2);
-		System.Console.WriteLine("Retrieved non-existent document: " + doc2.ToString());
+		System.Console.WriteLine("Retrieved non-existent document: " + doc2.GetDescription());
 		System.Environment.Exit(1);
 	    } catch (System.Exception e) {
 		// We expect DocNotFoundError
@@ -95,9 +113,10 @@ class SmokeTest {
 		}
 	    }
 
+	    Xapian.QueryParser qp = new Xapian.QueryParser();
+
 	    // Check QueryParser parsing error.
 	    try {
-		Xapian.QueryParser qp = new Xapian.QueryParser();
 		qp.ParseQuery("test AND");
 		System.Console.WriteLine("Successfully parsed bad query");
 		System.Environment.Exit(1);
@@ -108,20 +127,28 @@ class SmokeTest {
 		}
 	    }
 
-	    {
-		Xapian.QueryParser qp = new Xapian.QueryParser();
-		// FIXME: It would be better if the (uint) cast wasn't required
-		// here.
-		qp.ParseQuery("hello world", (uint)Xapian.QueryParser.feature_flag.FLAG_BOOLEAN);
-	    }
+	    // FIXME: It would be better if the (uint) cast wasn't required here.
+	    qp.ParseQuery("hello world", (uint)Xapian.QueryParser.feature_flag.FLAG_BOOLEAN);
+
+	    // Test wrapping of null-able grouping parameter.
+	    qp.AddBooleanPrefix("colour", "XC");
+	    qp.AddBooleanPrefix("color", "XC");
+	    qp.AddBooleanPrefix("foo", "XFOO", null);
+	    qp.AddBooleanPrefix("bar", "XBAR", "XBA*");
+	    qp.AddBooleanPrefix("baa", "XBAA", "XBA*");
+	    // FIXME: It would be better if the (uint) cast wasn't required here.
+	    Xapian.DateRangeProcessor rpdate = new Xapian.DateRangeProcessor(1, (uint)Xapian.Xapian.RP_DATE_PREFER_MDY, 1960);
+	    qp.AddRangeprocessor(rpdate);
+	    qp.AddRangeprocessor(rpdate, null);
+	    qp.AddRangeprocessor(rpdate, "foo");
 
             if (Xapian.Query.MatchAll.GetDescription() != "Query(<alldocuments>)") {
-		System.Console.WriteLine("Unexpected Query.MatchAll.toString()");
+		System.Console.WriteLine("Unexpected Query.MatchAll.GetDescription()");
 		System.Environment.Exit(1);
             }
 
             if (Xapian.Query.MatchNothing.GetDescription() != "Query()") {
-		System.Console.WriteLine("Unexpected Query.MatchNothing.toString()");
+		System.Console.WriteLine("Unexpected Query.MatchNothing.GetDescription()");
 		System.Environment.Exit(1);
             }
 
@@ -146,6 +173,10 @@ class SmokeTest {
 
 	    Xapian.Query query = new Xapian.Query(stem.Apply("out"));
 	    Xapian.Enquire enquire = new Xapian.Enquire(db);
+
+	    // Check Xapian::BAD_VALUENO is wrapped suitably.
+	    enquire.SetCollapseKey(Xapian.Xapian.BAD_VALUENO);
+
 	    enquire.SetQuery(query);
 	    Xapian.MSet mset = enquire.GetMSet(0, 10, null, new TestMatchDecider());
 	    if (mset.Size() != 1) {

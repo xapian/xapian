@@ -1,0 +1,271 @@
+// Alias: et
+
+/* Estonian stemmer
+
+Made by Linda Freienthal in January 2019.
+
+*/
+
+routines (
+    mark_regions
+    LONGV
+    special_noun_endings
+    case_ending
+    emphasis
+    plural_three_first_cases
+    undouble_kpt
+    i_plural
+    degrees
+    substantive
+    verb_exceptions
+    verb
+    nu
+)
+
+stringescapes {}
+
+stringdef a" '{U+00E4}' //a-umlaut ä
+stringdef o" '{U+00F6}' //o-umlaut ö
+stringdef o~ '{U+00F5}' //o with tilde õ
+stringdef u" '{U+00FC}' //u-umlaut ü
+stringdef sv '{U+0161}' //s-caron š
+stringdef zv '{U+017E}' //z-caron ž
+
+externals ( stem )
+integers ( p1 )
+groupings ( V1 RV KI GI)
+
+define V1 'aeiou{o~}{a"}{o"}{u"}'
+define RV 'aeiuo'
+define KI 'kptgbdshf{sv}z{zv}'
+define GI 'cjlmnqrvwxaeiou{o~}{a"}{o"}{u"}'
+
+define mark_regions as (
+
+    $p1 = limit
+
+    gopast V1  gopast non-V1  setmark p1
+)
+
+
+backwardmode (
+
+    define emphasis as (
+        setlimit tomark p1 for ([substring])
+        test hop 4 //kingi -> kingi
+        among(
+            'gi' ((GI and not LONGV) delete) //jookse-me-gi, bioloogi -> bioloogi
+            'ki' (KI delete) //kookki -> kook
+        )
+
+    )
+
+    // Signals t if a replacement was made; f otherwise.
+    define verb as (
+        setlimit tomark p1 for ([substring])
+        among(
+            'nuksin' 'nuksime' 'nuksid' 'nuksite' (delete) //seleta-nuksite
+            'ksin' 'ksid' 'ksime' 'ksite' (delete) //personal conditional: rõõmusta-ksin
+            'mata' (delete)
+            'takse' 'dakse' (delete) //impersonal: laul-dakse, luba-takse
+            'taks' 'daks' (delete)   //impersonal conditional: laul-daks, saade-taks
+            'akse' (<-'a')           //impersonal: tulla-kse, süüa-kse (-> söö), teha-kse (-> tegi), püüta-kse, leita-kse
+            'sime' (delete)          //pl1pst: saat-sime
+            'site' (delete)          //pl2pst: saat-site
+            'sin' (delete)           //sg1pst: laul-sin, saat-sin
+            'me' (V1 delete)         //pl1prs: laula-me, tule-me
+            'da' (V1 delete)         //da-infinitive: luba-da
+            'n' (V1 delete)          //sg1prs: kirjuta-n
+            'b' (V1 delete)          //sg3prs: laula-b
+        )
+    )
+
+    define LONGV as
+        among('aa' 'ee' 'ii' 'oo' 'uu' '{a"}{a"}' '{o"}{o"}' '{u"}{u"}' '{o~}{o~}')
+
+    define i_plural as (
+        setlimit tomark p1 for ([substring])
+        among(
+            'i' (RV) //raama-tu-i, lapsiku-i
+        )
+        delete
+    )
+
+    define special_noun_endings as (
+        setlimit tomark p1 for ([substring])
+        among(
+            'lasse' (<- 'lase') //teadlasse -> teadlase
+            'last' (<- 'lase') //teadlast -> teadlase
+            'lane' (<- 'lase') //teadlane -> teadlase
+            'lasi'(<- 'lase') //teadlasi -> teadlase
+            'misse' (<- 'mise') //tegemisse -> tegemise
+            'mist' (<- 'mise') //kasutamist -> kasutamise
+            'mine' (<- 'mise') //tegemine -> tegemise
+            'misi' (<- 'mise') //kasutamisi -> kasutamise
+            'lisse' (<- 'lise') //rohelisse -> rohelise
+            'list' (<- 'lise') //tavalist -> tavalise
+            'line' (<- 'lise') //roheline -> rohelise
+            'lisi' (<- 'lise') //tavalisi -> tavalise
+        )
+    )
+
+    define case_ending as (
+        setlimit tomark p1 for ([substring])
+        among(
+            'sse' (RV or LONGV) //illative: saapa-sse
+            'st' (RV or LONGV) //elative: saapa-st and kapsas-t
+            'le' (RV or LONGV) //allative: raama-tu-le
+            'lt' (RV or LONGV) //ablative: raama-tu-lt
+            'ga' (RV or LONGV) //komitatiive: õpetaja-ga
+            'ks' (RV or LONGV) //translative: õpetaja-ks
+            'ta' (RV or LONGV) //abessive and da-infinitive: õpetaja-ta and hüpa-ta
+            't'  (test hop 4)  //partitiiv, raamatu-t
+            's'  (RV or LONGV) //inessive and sg3pst: raama-tu-s and sõiti-s
+            'l'  (RV or LONGV) //adessive: raama-tu-l and kapsa-l.
+        )
+        delete
+    )
+
+
+    define plural_three_first_cases as (
+        setlimit tomark p1 for ([substring])
+        among(
+            'ikkude' (<-'iku') //plural genitive: õnnelikkude -> õnneliku
+            'ikke' (<-'iku') //plural partitive: rahulikke -> rahuliku
+            'ike' (<-'iku') //plural genitive: ohtlike -> ohtliku
+            'sid' (not LONGV delete) //plural partitive and sg2pst and pl3pst: auto-sid and laul-sid (exludes plural nominative with words like gaasid, roosid)
+            // plural genitive and pl2: ministri-te, oluliste -> olulise and saada-te, laula-te;
+            // also torte -> tort (if not in compound word) and kokkuvõtte -> kokkuvõte and roheliste -> rohelise, tegemiste -> tegemise, teadlaste -> teadlase
+            'te' (
+                (test hop 4
+                  among (
+                    'mis' 'las' 'lis' (<- 'e')
+                    't' ()
+                    '' (delete)
+                  )
+                ) or <- 't'
+            )
+            'de' ((RV or LONGV) delete) //plural genitive: lauda-de
+            'd' ((RV or LONGV) delete) //plural nominative: voodi-d, rattai-d (rata), lapsiku-i-d
+        )
+    )
+
+    define nu as (
+        setlimit tomark p1 for ([substring])
+        among(
+            'nu' //haka-nu(-te-ga)
+            'tu' //luba-tu(-d)
+            'du' //laul-du(-te-st)
+            'va' //laul-va(-te-le)
+        )
+        delete
+    )
+
+    define undouble_kpt as (
+        // undouble '-C1C1V' where C1 is k, p or t:
+        // mõtte(-le) -> mõte, hakka(-n) -> haka
+        //
+        // We only undouble if the vowel is in R1 to avoid modifying short
+        // non-words (mostly to avoid modifying acronyms/initialisms such
+        // as "PPE").
+        V1 $(p1 <= cursor)
+        [substring] among(
+            'kk' (<- 'k')
+            'pp' (<- 'p')
+            'tt' (<- 't')
+        )
+    )
+
+    define degrees as (
+        setlimit tomark p1 for ([substring])
+        among(
+            'mai' (RV delete) //heleda-mai(-le)
+            'ma' (delete)  //tuge-va-ma(-le) and ma-infinitive: sõit-ma
+            'm' (RV delete) //kauge-i-m, rõõmsa-m
+        )
+    )
+
+    define substantive as (
+        do special_noun_endings
+        do case_ending
+        do plural_three_first_cases
+        do degrees
+        do i_plural
+        do nu
+    )
+)
+
+
+define verb_exceptions as (
+    [substring] atlimit
+    among(
+        'joon' 'jood' 'joob' 'joote' 'joome' 'joovad' (<-'joo')
+        'j{o~}in' 'j{o~}id' 'j{o~}i' 'j{o~}ime' 'j{o~}ite'  (<-'joo')
+        'joomata' 'juuakse' 'joodakse' 'juua' 'jooma' (<- 'joo')
+        'saan' 'saad' 'saab' 'saate' 'saame' 'saavad' (<-'saa')
+        'saaksin' 'saaksid' 'saaks' 'saaksite' 'saaksime' (<-'saa')
+        'sain' 'said' 'sai' 'saite' 'saime' (<-'saa')
+        'saamata' 'saadakse' 'saadi' 'saama' 'saada' (<-'saa')
+        'viin' 'viid' 'viib' 'viite' 'viime' 'viivad' (<-'viima')
+        'viiksin' 'viiksid' 'viiks' 'viiksite' 'viiksime' (<-'viima')
+        'viisin' 'viisite' 'viisime' (<-'viima')
+        'viimata' 'viiakse' 'viidi' 'viima' 'viia' (<-'viima')
+        'keen' 'keeb' 'keed' 'kees' 'keeme' 'keete' 'keevad' (<-'keesi')
+        'keeksin' 'keeks' 'keeksid' 'keeksime' 'keeksite' (<-'keesi')
+        'keemata' 'keema' 'keeta' 'keedakse' (<-'keesi')
+        'l{o"}{o"}n' 'l{o"}{o"}d' 'l{o"}{o"}b' 'l{o"}{o"}me' 'l{o"}{o"}te' 'l{o"}{o"}vad'  (<-'l{o"}{o"}')
+        'l{o"}{o"}ksin' 'l{o"}{o"}ksid' 'l{o"}{o"}ks' 'l{o"}{o"}ksime' 'l{o"}{o"}ksite' (<-'l{o"}{o"}')
+        'l{o"}{o"}mata' 'l{u"}{u"}akse' 'l{o"}{o"}dakse' 'l{o"}{o"}di' 'l{o"}{o"}ma' 'l{u"}{u"}a' (<-'l{o"}{o"}')
+        // Both looma and lööma have these same past tense forms
+        'l{o~}in' 'l{o~}id' 'l{o~}i' 'l{o~}ime' 'l{o~}ite' (<-'l{o~}i')
+        'loon' 'lood' 'loob' 'loome' 'loote' 'loovad' (<-'loo')
+        'looksin' 'looksid' 'looks' 'looksime' 'looksite' (<-'loo')
+        'loomata' 'luuakse' 'loodi' 'luua' 'looma' (<-'loo')
+        'k{a"}in' 'k{a"}ib' 'k{a"}id' 'k{a"}is' 'k{a"}ime' 'k{a"}ite' 'k{a"}ivad' (<-'k{a"}isi')
+        'k{a"}iksin' 'k{a"}iks' 'k{a"}iksid' 'k{a"}iksime' 'k{a"}iksite' (<-'k{a"}isi')
+        'k{a"}imata' 'k{a"}iakse' 'k{a"}idi' 'k{a"}ia' 'k{a"}ima' (<-'k{a"}isi')
+        's{o"}{o"}n' 's{o"}{o"}b' 's{o"}{o"}d' 's{o"}{o"}me' 's{o"}{o"}te' 's{o"}{o"}vad' (<-'s{o"}{o"}')
+        's{o"}{o"}ksin' 's{o"}{o"}ks' 's{o"}{o"}ksid' 's{o"}{o"}ksime' 's{o"}{o"}ksite' (<-'s{o"}{o"}')
+        's{o~}in' 's{o~}i' 's{o~}id' 's{o~}ime' 's{o~}ite' (<-'s{o"}{o"}')
+        's{o"}{o"}mata' 's{u"}{u"}akse' 's{o"}{o"}dakse' 's{o"}{o"}di' 's{o"}{o"}ma' 's{u"}{u"}a' (<-'s{o"}{o"}')
+        'toon' 'tood' 'toob' 'toote' 'toome' 'toovad' (<-'too')
+        'tooksin' 'tooksid' 'tooks' 'tooksite' 'tooksime' (<-'too')
+        't{o~}in' 't{o~}id' 't{o~}i' 't{o~}ime' 't{o~}ite' (<-'too')
+        'toomata' 'tuuakse' 'toodi' 'tooma' 'tuua' (<-'too')
+        'v{o~}in' 'v{o~}id' 'v{o~}ib' 'v{o~}ime' 'v{o~}is' 'v{o~}ite' 'v{o~}ivad' (<-'v{o~}isi')
+        'v{o~}iksin' 'v{o~}iksid' 'v{o~}iks' 'v{o~}iksime' 'v{o~}iksite' (<-'v{o~}isi')
+        'v{o~}imata' 'v{o~}idakse' 'v{o~}idi' 'v{o~}ida' 'v{o~}ima' (<-'v{o~}isi')
+        'j{a"}{a"}n' 'j{a"}{a"}d' 'j{a"}{a"}b' 'j{a"}{a"}me' 'j{a"}{a"}te' 'j{a"}{a"}vad' (<-'j{a"}{a"}ma')
+        'j{a"}{a"}ksin' 'j{a"}{a"}ksid' 'j{a"}{a"}ks' 'j{a"}{a"}ksime' 'j{a"}{a"}ksite' (<-'j{a"}{a"}ma')
+        'j{a"}ime' 'j{a"}ite' 'j{a"}in' 'j{a"}id' 'j{a"}i' (<-'j{a"}{a"}ma')
+        'j{a"}{a"}mata' 'j{a"}{a"}dakse' 'j{a"}{a"}da' 'j{a"}{a"}ma' 'j{a"}{a"}di' (<-'j{a"}{a"}ma')
+        'm{u"}{u"}n' 'm{u"}{u"}d' 'm{u"}{u"}b' 'm{u"}{u"}s' 'm{u"}{u"}me' 'm{u"}{u"}te' 'm{u"}{u"}vad' (<-'m{u"}{u"}si')
+        'm{u"}{u"}ksin' 'm{u"}{u"}ksid' 'm{u"}{u"}ks' 'm{u"}{u"}ksime' 'm{u"}{u"}ksite' (<-'m{u"}{u"}si')
+        'm{u"}{u"}mata' 'm{u"}{u"}akse' 'm{u"}{u"}di' 'm{u"}{u"}a' 'm{u"}{u"}ma' (<-'m{u"}{u"}si')
+        'loeb' 'loen' 'loed' 'loeme' 'loete' 'loevad' (<- 'luge')
+        'loeks' 'loeksin' 'loeksid' 'loeksime' 'loeksite' (<- 'luge')
+        'p{o~}en' 'p{o~}eb' 'p{o~}ed' 'p{o~}eme' 'p{o~}ete' 'p{o~}evad' (<- 'p{o~}de')
+        'p{o~}eksin' 'p{o~}eks' 'p{o~}eksid' 'p{o~}eksime' 'p{o~}eksite' (<- 'p{o~}de')
+        'laon' 'laob' 'laod' 'laome' 'laote' 'laovad' (<- 'ladu')
+        'laoksin' 'laoks' 'laoksid' 'laoksime' 'laoksite' (<- 'ladu')
+        'teeksin' 'teeks' 'teeksid' 'teeksime' 'teeksite' (<- 'tegi')
+        'teen' 'teeb' 'teed' 'teeme' 'teete' 'teevad' (<- 'tegi')
+        'tegemata' 'tehakse' 'tehti' 'tegema' 'teha' (<-'tegi')
+        'n{a"}en' 'n{a"}eb' 'n{a"}ed' 'n{a"}eme' 'n{a"}ete' 'n{a"}evad' (<-'n{a"}gi')
+        'n{a"}eksin' 'n{a"}eks' 'n{a"}eksid' 'n{a"}eksime' 'n{a"}eksite' (<-'n{a"}gi')
+        'n{a"}gemata' 'n{a"}hakse' 'n{a"}hti' 'n{a"}ha' 'n{a"}gema' (<-'n{a"}gi')
+    )
+)
+
+
+define stem as (
+    not verb_exceptions
+    // p1 isn't used by verb_exceptions
+    do mark_regions
+    backwards (
+        do emphasis
+        do ( verb or substantive )
+        do undouble_kpt
+
+    )
+)

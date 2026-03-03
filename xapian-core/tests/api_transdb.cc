@@ -1,7 +1,7 @@
-/** @file api_transdb.cc
+/** @file
  * @brief tests requiring a database backend supporting transactions
  */
-/* Copyright (C) 2006,2009,2018 Olly Betts
+/* Copyright (C) 2006,2009,2018,2023 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -55,8 +55,6 @@ DEFINE_TESTCASE(badtransaction1, transactions) {
 
     db.begin_transaction();
     db.cancel_transaction();
-
-    return true;
 }
 
 /// Test committing a simple transaction.
@@ -75,8 +73,6 @@ DEFINE_TESTCASE(committransaction1, transactions) {
     db.commit_transaction();
     TEST_EQUAL(db.get_doccount(), docs + 1);
     TEST_EQUAL(db.get_termfreq("befuddlement"), 1);
-
-    return true;
 }
 
 /// Test cancelling a simple transaction.
@@ -88,15 +84,20 @@ DEFINE_TESTCASE(canceltransaction1, transactions) {
     Xapian::Document doc;
     doc.set_data("testing");
     doc.add_term("befuddlement");
+    doc.add_value(42, "answer");
     db.add_document(doc);
     TEST_EXCEPTION(Xapian::InvalidOperationError, db.begin_transaction());
     TEST_EQUAL(db.get_doccount(), docs + 1);
     TEST_EQUAL(db.get_termfreq("befuddlement"), 1);
+    TEST_EQUAL(db.get_value_freq(42), 1);
+    TEST_EQUAL(db.get_value_lower_bound(42), "answer");
+    TEST_EQUAL(db.get_value_upper_bound(42), "answer");
     db.cancel_transaction();
     TEST_EQUAL(db.get_doccount(), docs);
     TEST_EQUAL(db.get_termfreq("befuddlement"), 0);
-
-    return true;
+    TEST_EQUAL(db.get_value_freq(42), 0);
+    TEST_EQUAL(db.get_value_lower_bound(42), "");
+    TEST_EQUAL(db.get_value_upper_bound(42), "");
 }
 
 /// Test that begin_transaction() commits any changes pending before the
@@ -123,12 +124,10 @@ DEFINE_TESTCASE(canceltransaction2, transactions) {
     TEST(db.term_exists("pending_update"));
     Xapian::Document doc_out = db.get_document(docid);
     TEST_EQUAL(doc_out.get_data(), "pending");
-
-    return true;
 }
 
-/// Regression test for glass bug fixed in 1.4.6 and 1.5.0.
-DEFINE_TESTCASE(canceltransaction3, transactions && !remote) {
+/// Regression test for glass bug fixed in 1.4.6.
+DEFINE_TESTCASE(canceltransaction3, transactions && path) {
     {
 	Xapian::WritableDatabase db = get_named_writable_database("canceltransaction3");
 	db.begin_transaction();
@@ -144,6 +143,4 @@ DEFINE_TESTCASE(canceltransaction3, transactions && !remote) {
 	Xapian::Database::check(get_named_writable_database_path("canceltransaction3"),
 				Xapian::DBCHECK_SHOW_STATS, &tout);
     TEST_EQUAL(check_errors, 0);
-
-    return true;
 }

@@ -1,4 +1,4 @@
-/** @file esetinternal.h
+/** @file
  * @brief Xapian::ESet::Internal class
  */
 /* Copyright (C) 2008,2010,2011 Olly Betts
@@ -15,8 +15,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_ESETINTERNAL_H
@@ -86,7 +86,7 @@ class ESet::Internal : public Xapian::Internal::intrusive_base {
      *
      *  It will of course always be true that: ebound >= items.size()
      */
-    Xapian::termcount ebound;
+    Xapian::termcount ebound = 0;
 
     /// The ExpandTerm objects which represent the items in the ESet.
     std::vector<Xapian::Internal::ExpandTerm> items;
@@ -99,7 +99,7 @@ class ESet::Internal : public Xapian::Internal::intrusive_base {
 
   public:
     /// Construct an empty ESet::Internal.
-    Internal() : ebound(0) { }
+    Internal() { }
 
     /// Run the "expand" operation which fills the ESet.
     void expand(Xapian::termcount max_esize,

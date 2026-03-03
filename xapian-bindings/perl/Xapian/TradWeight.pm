@@ -9,6 +9,9 @@ Xapian::TradWeight - Traditional Probabilistic Weighting scheme.
 Traditional Probabilistic Weighting scheme, as described by the early papers
 on Probabilistic Retrieval.  BM25 generally gives better results.
 
+This class is deprecated - use C<BM25Weight(k, 0, 0, 1, 0)> instead (which it
+is equivalent to).
+
 =head1 METHODS
 
 =over 4

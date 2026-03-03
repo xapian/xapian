@@ -1,4 +1,4 @@
-/** @file fdtracker.cc
+/** @file
  * @brief Track leaked file descriptors.
  */
 /* Copyright (C) 2010,2014,2015,2018 Olly Betts
@@ -14,8 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -26,13 +26,13 @@
 
 #include "safeunistd.h"
 #include "safedirent.h"
-#include "safeerrno.h"
 
 #include <iostream>
+#include <cerrno>
 #include <cstdlib>
-#include <cstring> // For strerror().
-#include <set>
+#include <cstring> // For memcmp().
 
+#include "errno_to_string.h"
 #include "str.h"
 #include "stringutils.h"
 
@@ -90,7 +90,7 @@ FDTracker::init()
 	if (!entry) {
 	    if (errno == 0)
 		break;
-	    cout << "readdir failed: " << strerror(errno) << endl;
+	    cout << "readdir failed: " << errno_to_string(errno) << '\n';
 	    exit(1);
 	}
 
@@ -120,7 +120,7 @@ FDTracker::check()
 	if (!entry) {
 	    if (errno == 0)
 		break;
-	    cout << "readdir failed: " << strerror(errno) << endl;
+	    cout << "readdir failed: " << errno_to_string(errno) << '\n';
 	    exit(1);
 	}
 

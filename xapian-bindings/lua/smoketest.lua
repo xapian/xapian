@@ -4,7 +4,7 @@
 -- basic functionality successfully.
 --
 -- Copyright (C) 2011 Xiaona Han
--- Copyright (C) 2011,2012,2014,2016,2017 Olly Betts
+-- Copyright (C) 2011,2012,2014,2016,2017,2019,2020 Olly Betts
 --
 -- This program is free software; you can redistribute it and/or
 -- modify it under the terms of the GNU General Public License as
@@ -17,9 +17,8 @@
 -- GNU General Public License for more details.
 --
 -- You should have received a copy of the GNU General Public License
--- along with this program; if not, write to the Free Software
--- Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301
--- USA
+-- along with this program; if not, see
+-- <https://www.gnu.org/licenses/>.
 
 ---
 -- got: obtained value
@@ -62,6 +61,10 @@ function run_tests()
   db:add_document(doc)
   enq = xapian.Enquire(db)
 
+  -- Check Xapian::BAD_VALUENO is wrapped suitably.
+  expect(xapian.BAD_VALUENO > 0, true)
+  enq:set_collapse_key(xapian.BAD_VALUENO)
+
   it = db:positionlist_begin(1, "is")
   _end = db:positionlist_end(1, "is")
   while not it:equals(_end) do
@@ -80,6 +83,13 @@ function run_tests()
   expect(stem("going"), "go", 'stem noop "go" fails')
   expect(stem("wanted"), "want", 'stem(english) "wanted" -> "want" fails')
   expect(stem("reference"), "refer", 'stem(english) "reference" -> "refer" fails')
+
+  -- Test stemmer implemented in Lua
+  luastem = xapian.Stem(function (w) return string.sub(w, 1, 3) end)
+  expect(tostring(luastem), "Xapian::Stem(luaStemImplementation())")
+  expect(luastem("is"), "is")
+  expect(luastem("the"), "the")
+  expect(luastem("stem"), "ste")
 
   -- Test document
   expect(doc:termlist_count(), 5)
@@ -185,13 +195,6 @@ function run_tests()
   qp = xapian.QueryParser()
   rpdate = xapian.DateRangeProcessor(1, xapian.RP_DATE_PREFER_MDY, 1960)
   qp:add_rangeprocessor(rpdate)
-  query = qp:parse_query("12/03/99..12/04/01")
-  expect(tostring(query), "Query(VALUE_RANGE 1 19991203 20011204)")
-
-  -- Check DateValueRangeProcessor works
-  qp = xapian.QueryParser()
-  vrpdate = xapian.DateValueRangeProcessor(1, true, 1960)
-  qp:add_valuerangeprocessor(vrpdate)
   query = qp:parse_query("12/03/99..12/04/01")
   expect(tostring(query), "Query(VALUE_RANGE 1 19991203 20011204)")
 
@@ -340,7 +343,7 @@ function run_tests()
 
   mset:get_hit(0)
 
-  ---Test preservation of stopper set on query parser.
+  -- Test preservation of stopper set on query parser.
   function make_qp()
     queryparser = xapian.QueryParser()
     stopper = xapian.SimpleStopper()
@@ -356,6 +359,16 @@ function run_tests()
     table.insert(terms, term:get_term())
   end
   expect(terms, {"to"})
+
+  -- Test passing function for stopper.
+  queryparser = xapian.QueryParser()
+  queryparser:set_stopper(function (s) return string.len(s) < 3 end)
+  query = queryparser:parse_query('who to be')
+  terms = {}
+  for term in queryparser:stoplist() do
+    table.insert(terms, term:get_term())
+  end
+  expect(terms, {"to", "be"})
 
   -- Test preservation of stopper set on term generator.
   function make_tg()
@@ -453,6 +466,16 @@ function run_tests()
     table.insert(items, {item:get_term(), item:get_termfreq()})
   end
   expect(items, {{xapian.sortable_serialise(2), 2}, {xapian.sortable_serialise(1.5), 1}})
+
+  -- Test passing function as a matchspy.
+  spy_values = {}
+  enq:add_matchspy(
+    function (d)
+      table.insert(spy_values, xapian.sortable_unserialise(d:get_value(0)))
+    end)
+  enq:set_query(xapian.Query.MatchAll)
+  matches = enq:get_mset(1, 2)
+  expect(spy_values, {-1/0, -1/0, 2})
 
   -- Test exceptions
   ok,res = pcall(db.get_document, db, 0)

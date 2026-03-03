@@ -1,4 +1,4 @@
-/** @file perftest.h
+/** @file
  * @brief performance tests for Xapian.
  */
 /* Copyright 2008 Lemur Consulting Ltd
@@ -15,9 +15,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_PERFTEST_H
@@ -44,6 +43,9 @@ class PerfTestLogger {
 
     bool searching_started;
     double searching_timer;
+
+    bool diversifying_started;
+    double diversifying_timer;
 
     /** Write a log entry for the current indexing run.
      */
@@ -94,6 +96,24 @@ class PerfTestLogger {
     /** Log the end of a search run.
      */
     void searching_end();
+
+    /** Log the start of a diversification run.
+     */
+    void diversifying_start(const std::string & description);
+
+    /** Log the start of diversification.
+     */
+    void diversify_start();
+
+    /** Log the completion of diversification.
+     */
+    void diversify_end(Xapian::doccount k,
+		       Xapian::doccount r,
+		       const Xapian::MSet& dset);
+
+    /** Log the end of a diversification run.
+     */
+    void diversifying_end();
 
     /** Start a testcase.
      */

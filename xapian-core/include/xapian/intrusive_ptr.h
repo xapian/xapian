@@ -5,7 +5,7 @@
 //  Based on Boost's intrusive_ptr.hpp
 //
 //  Copyright (c) 2001, 2002 Peter Dimov
-//  Copyright (c) 2011,2013,2014,2015,2017 Olly Betts
+//  Copyright (c) 2011,2013,2014,2015,2017,2022 Olly Betts
 //
 // Distributed under the Boost Software License, Version 1.0.
 //
@@ -37,7 +37,7 @@
 //
 
 #if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
-# error "Never use <xapian/intrusive_ptr.h> directly; include <xapian.h> instead."
+# error Never use <xapian/intrusive_ptr.h> directly; include <xapian.h> instead.
 #endif
 
 #include <xapian/attributes.h>
@@ -173,6 +173,11 @@ public:
         rhs.px = tmp;
     }
 
+    explicit operator bool() const
+    {
+	return px != nullptr;
+    }
+
 private:
 
     T * px;
@@ -208,7 +213,13 @@ template<class T, class U> inline bool operator!=(T * a, intrusive_ptr<U> const 
     return a != b.get();
 }
 
-/// A smart pointer that uses intrusive reference counting and can't be NULL.
+/** A normally non-NULL smart pointer using intrusive reference counting.
+ *
+ *  The only case where it can be NULL is when it's been moved-from.  Once
+ *  moved from, the only valid operations are to destroy the smart pointer,
+ *  or to assign or move assign to it (after which all operations are valid
+ *  again).
+ */
 template<class T> class intrusive_ptr_nonnull
 {
 private:
@@ -236,12 +247,12 @@ public:
 
     ~intrusive_ptr_nonnull()
     {
-        if(--px->_refs == 0 ) delete px;
+        if( px && --px->_refs == 0 ) delete px;
     }
 
     intrusive_ptr_nonnull(intrusive_ptr_nonnull && rhs) : px( rhs.px )
     {
-        ++px->_refs;
+        rhs.px = 0;
     }
 
     intrusive_ptr_nonnull & operator=(intrusive_ptr_nonnull && rhs)
@@ -255,7 +266,7 @@ public:
     template<class U>
     intrusive_ptr_nonnull(intrusive_ptr_nonnull<U> && rhs) : px( rhs.px )
     {
-        ++px->_refs;
+        rhs.px = 0;
     }
 
     template<class U>
@@ -298,6 +309,11 @@ public:
         px = rhs.px;
         rhs.px = tmp;
     }
+
+    // No operator bool() here - the held pointer should only be NULL if this
+    // pointer has been moved from, and in that case it's not valid to use its
+    // value so it seems more helpful to error on attempts to check if the
+    // pointer is NULL.
 
 private:
 
@@ -495,6 +511,11 @@ public:
 	bool tmp2 = counting;
 	counting = rhs.counting;
 	rhs.counting = tmp2;
+    }
+
+    explicit operator bool() const
+    {
+	return px != nullptr;
     }
 
 private:

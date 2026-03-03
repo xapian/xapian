@@ -1,7 +1,7 @@
 # Simple test to ensure that we can load the xapian module and exercise basic
 # functionality successfully.
 #
-# Copyright (C) 2004,2005,2006,2007,2008,2010,2011,2012,2013,2014,2015,2016,2017 Olly Betts
+# Copyright (C) 2004-2023 Olly Betts
 # Copyright (C) 2007 Lemur Consulting Ltd
 #
 # This program is free software; you can redistribute it and/or
@@ -15,9 +15,8 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
-# USA
+# along with this program; if not, see
+# <https://www.gnu.org/licenses/>.
 
 import sys
 import re
@@ -105,20 +104,15 @@ def test_all():
 
     # Check database factory functions are wrapped as expected:
 
-    expect_exception(xapian.DatabaseOpeningError, None,
+    expect_exception(xapian.DatabaseNotFoundError, None,
             lambda : xapian.Database(b"nosuchdir/nosuchdb", xapian.DB_BACKEND_STUB))
-    expect_exception(xapian.DatabaseOpeningError, None,
+    expect_exception(xapian.DatabaseNotFoundError, None,
             lambda : xapian.WritableDatabase(b"nosuchdir/nosuchdb", xapian.DB_OPEN|xapian.DB_BACKEND_STUB))
 
-    expect_exception(xapian.DatabaseOpeningError, None,
+    expect_exception(xapian.DatabaseNotFoundError, None,
             lambda : xapian.Database(b"nosuchdir/nosuchdb", xapian.DB_BACKEND_GLASS))
     expect_exception(xapian.DatabaseCreateError, None,
             lambda : xapian.WritableDatabase(b"nosuchdir/nosuchdb", xapian.DB_CREATE|xapian.DB_BACKEND_GLASS))
-
-    expect_exception(xapian.FeatureUnavailableError, None,
-            lambda : xapian.Database(b"nosuchdir/nosuchdb", xapian.DB_BACKEND_CHERT))
-    expect_exception(xapian.FeatureUnavailableError, None,
-            lambda : xapian.WritableDatabase(b"nosuchdir/nosuchdb", xapian.DB_CREATE|xapian.DB_BACKEND_CHERT))
 
     expect_exception(xapian.NetworkError, None,
                      xapian.remote_open, b"/bin/false", b"")
@@ -135,6 +129,16 @@ def test_all():
     expect_query(xapian.Query.MatchAll, "<alldocuments>")
     expect_query(xapian.Query.MatchNothing, "")
 
+    # Regression test for constructing OP_WILDCARD queries.
+    expect_query(xapian.Query(xapian.Query.OP_WILDCARD, "wild"),
+                 "WILDCARD SYNONYM wild")
+    expect_query(xapian.Query(xapian.Query.OP_WILDCARD, b"wild"),
+                 "WILDCARD SYNONYM wild")
+    expect_query(xapian.Query(xapian.Query.OP_WILDCARD, "wild", 0),
+                 "WILDCARD SYNONYM wild")
+    expect_query(xapian.Query(xapian.Query.OP_WILDCARD, b"wild", 0),
+                 "WILDCARD SYNONYM wild")
+
     # Feature test for Query.__iter__
     term_count = 0
     for term in query2:
@@ -142,6 +146,10 @@ def test_all():
     expect(term_count, 4, "Unexpected number of terms in query2")
 
     enq = xapian.Enquire(db)
+
+    # Check Xapian::BAD_VALUENO is wrapped suitably.
+    enq.set_collapse_key(xapian.BAD_VALUENO)
+
     enq.set_query(xapian.Query(xapian.Query.OP_OR, b"there", b"is"))
     mset = enq.get_mset(0, 10)
     expect(mset.size(), 1, "Unexpected mset.size()")
@@ -283,7 +291,7 @@ def test_all():
     # Check QueryParser pure NOT option
     qp = xapian.QueryParser()
     expect_query(qp.parse_query(b"NOT test", qp.FLAG_BOOLEAN + qp.FLAG_PURE_NOT),
-                 "(<alldocuments> AND_NOT test@1)")
+                 "(0 * <alldocuments> AND_NOT test@1)")
 
     # Check QueryParser partial option
     qp = xapian.QueryParser()
@@ -291,11 +299,11 @@ def test_all():
     qp.set_default_op(xapian.Query.OP_AND)
     qp.set_stemming_strategy(qp.STEM_SOME)
     qp.set_stemmer(xapian.Stem(b'en'))
-    expect_query(qp.parse_query(b"foo o", qp.FLAG_PARTIAL),
-                 "(Zfoo@1 AND ((SYNONYM WILDCARD OR o) OR Zo@2))")
+    expect_query(qp.parse_query(b"foo ox", qp.FLAG_PARTIAL),
+                 "(Zfoo@1 AND (WILDCARD SYNONYM ox OR Zox@2))")
 
     expect_query(qp.parse_query(b"foo outside", qp.FLAG_PARTIAL),
-                 "(Zfoo@1 AND ((SYNONYM WILDCARD OR outside) OR Zoutsid@2))")
+                 "(Zfoo@1 AND (WILDCARD SYNONYM outside OR Zoutsid@2))")
 
     # Test supplying unicode strings
     expect_query(xapian.Query(xapian.Query.OP_OR, (b'foo', b'bar')),
@@ -308,7 +316,7 @@ def test_all():
                  '(foo OR bar)')
 
     expect_query(qp.parse_query(b"NOT t\xe9st", qp.FLAG_BOOLEAN + qp.FLAG_PURE_NOT),
-                 "(<alldocuments> AND_NOT Zt\u00e9st@1)")
+                 "(0 * <alldocuments> AND_NOT Zt\u00e9st@1)")
 
     doc = xapian.Document()
     doc.set_data(b"Unicode with an acc\xe9nt")
@@ -356,23 +364,13 @@ def test_all():
     expect([(item.term, item.wdf, [pos for pos in item.positer]) for item in doc.termlist()], [(b'bar', 1, [2]), (b'baz', 1, [3]), (b'foo', 2, [1, 4])])
 
 
-    # Check DateValueRangeProcessor works
-    context("checking that DateValueRangeProcessor works")
+    # Check DateRangeProcessor works
+    context("checking that DateRangeProcessor works")
     qp = xapian.QueryParser()
-    vrpdate = xapian.DateValueRangeProcessor(1, 1, 1960)
-    qp.add_valuerangeprocessor(vrpdate)
+    rpdate = xapian.DateRangeProcessor(1, xapian.RP_DATE_PREFER_MDY, 1960)
+    qp.add_rangeprocessor(rpdate)
     query = qp.parse_query(b'12/03/99..12/04/01')
     expect(str(query), 'Query(VALUE_RANGE 1 19991203 20011204)')
-
-    # Regression test for bug#193, fixed in 1.0.3.
-    context("running regression test for bug#193")
-    vrp = xapian.NumberValueRangeProcessor(0, b'$', True)
-    a = '$10'
-    b = '20'
-    slot, a, b = vrp(a, b.encode('utf-8'))
-    expect(slot, 0)
-    expect(xapian.sortable_unserialise(a), 10)
-    expect(xapian.sortable_unserialise(b), 20)
 
     # Feature test for xapian.FieldProcessor
     context("running feature test for xapian.FieldProcessor")

@@ -1,4 +1,4 @@
-/** @file flint_lock.cc
+/** @file
  * @brief Flint-compatible database locking.
  */
 /* Copyright (C) 2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017 Olly Betts
@@ -14,9 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -24,7 +23,7 @@
 #include "flint_lock.h"
 
 #ifndef __WIN32__
-#include "safeerrno.h"
+#include <cerrno>
 
 #include "safefcntl.h"
 #include <unistd.h>
@@ -108,8 +107,8 @@ FlintLock::test() const
 	    int e = errno;
 	    close(lockfd);
 	    if (e == ENOSYS) {
-		// F_GETLK isn't implemented by GNU Hurd, and always fails with
-		// ENOSYS: https://bugs.debian.org/190367
+		// F_GETLK always failed with ENOSYS on older GNU Hurd libc
+		// versions: https://bugs.debian.org/190367
 		throw_cannot_test_lock();
 	    }
 	    reason why = (e == ENOLCK ? UNSUPPORTED : UNKNOWN);
@@ -165,9 +164,14 @@ retry:
     // least on platforms where flock() isn't just a compatibility wrapper
     // around fcntl()).  We can't simply switch to this without breaking
     // locking compatibility with previous releases, though it might be useful
-    // for porting to platforms without fcntl() locking.  Also, flock()
-    // apparently doesn't work over NFS - perhaps that's OK, but we should at
-    // least check the failure mode.
+    // for porting to platforms without fcntl() locking.
+    //
+    // Also, flock() is problematic over NFS at least on Linux - it's been
+    // supported since Linux 2.6.12 but it's actually emulated by taking out an
+    // fcntl() byte-range lock on the entire file, which means that a process
+    // on the NFS server can get a (genuine) flock() lock on the same file a
+    // process on an NFS client has locked by flock() emulated as an fcntl()
+    // lock.
     Assert(fd == -1);
     int lockfd = open(filename.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC, 0666);
     if (lockfd < 0) {
@@ -198,11 +202,11 @@ retry:
     return SUCCESS;
 #else
     Assert(fd == -1);
-#if defined F_SETFD && defined FD_CLOEXEC
+    // Set the close-on-exec flag.  If we don't have OFD locks then our child
+    // will clear it after we fork() but before the child exec()s so that
+    // there's no window where another thread in the parent process could
+    // fork()+exec() and end up with these fds still open.
     int lockfd = open(filename.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC, 0666);
-#else
-    int lockfd = open(filename.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0666);
-#endif
     if (lockfd < 0) {
 	// Couldn't open lockfile.
 	explanation.assign("Couldn't open lockfile: ");
@@ -212,9 +216,9 @@ retry:
 
 #ifdef F_OFD_SETLK
     // F_OFD_SETLK has exactly the semantics we want, so use it if it's
-    // available.  Support was added in Linux 3.15, and there's work on
-    // getting it standardised via POSIX:
-    // http://austingroupbugs.net/view.php?id=768
+    // available.  Support was added in Linux 3.15 and was standardised in
+    // POSIX issue 8 so hopefully will be available for all POSIX platforms
+    // with time.  So far it seems they've also been implemented for macOS.
 
     // Use a static flag so we don't repeatedly try F_OFD_SETLK when
     // the kernel in use doesn't support it.  This should be safe in a
@@ -256,52 +260,6 @@ no_ofd_support:
     }
 #endif
 
-    // If stdin and/or stdout have been closed, it is possible that lockfd could
-    // be 0 or 1.  We need fds 0 and 1 to be available in the child process to
-    // be stdin and stdout, and we can't use dup() on lockfd after locking it,
-    // as the lock won't be transferred, so we handle this corner case here by
-    // using F_DUPFD or by calling dup() once or twice so that lockfd >= 2.
-    if (rare(lockfd < 2)) {
-	// Note this temporarily requires one or two spare fds to work, but
-	// then we need two spare for socketpair() to succeed below anyway.
-#ifdef F_DUPFD
-	// Where available, F_DUPFD allows us to directly get the first unused
-	// fd which is at least 2.
-	int lockfd_dup = fcntl(lockfd, F_DUPFD, 2);
-	int eno = errno;
-	close(lockfd);
-	if (lockfd_dup < 0) {
-	    return ((eno == EMFILE || eno == ENFILE) ? FDLIMIT : UNKNOWN);
-	}
-	lockfd = lockfd_dup;
-#else
-	// Otherwise we have to call dup() until we get one, though at least
-	// that's only at most twice.
-	int lockfd_dup = dup(lockfd);
-	if (rare(lockfd_dup < 2)) {
-	    int eno = 0;
-	    if (lockfd_dup < 0) {
-		eno = errno;
-		close(lockfd);
-	    } else {
-		int lockfd_dup2 = dup(lockfd);
-		if (lockfd_dup2 < 0) {
-		    eno = errno;
-		}
-		close(lockfd);
-		close(lockfd_dup);
-		lockfd = lockfd_dup2;
-	    }
-	    if (eno) {
-		return ((eno == EMFILE || eno == ENFILE) ? FDLIMIT : UNKNOWN);
-	    }
-	} else {
-	    close(lockfd);
-	    lockfd = lockfd_dup;
-	}
-#endif
-    }
-
     int fds[2];
     if (socketpair(AF_UNIX, SOCK_STREAM|SOCK_CLOEXEC, PF_UNSPEC, fds) < 0) {
 	// Couldn't create socketpair.
@@ -311,44 +269,84 @@ no_ofd_support:
 	(void)close(lockfd);
 	return why;
     }
+    // "The two sockets are indistinguishable" so we can just swap the fds
+    // if we want, and being able to assume fds[1] != 2 is useful in the child
+    // code below.
+    if (rare(fds[1] == 2)) swap(fds[0], fds[1]);
 
     pid_t child = fork();
 
     if (child == 0) {
 	// Child process.
+
+	// Close the other socket which ensures we have at least one free fd.
+	// That means that we don't expect failure due to not having a free
+	// file descriptor, but we still check for it as it might be possible
+	// e.g. if the process open fd limit was reduced by another thread
+	// between socketpair() and fork().
 	close(fds[0]);
+	int parentfd = fds[1];
 
-#if defined F_SETFD && defined FD_CLOEXEC
-	// Clear close-on-exec flag, if we set it when we called socketpair().
-	// Clearing it here means there's no window where another thread in the
-	// parent process could fork()+exec() and end up with this fd still
-	// open (assuming close-on-exec is supported).
+	// Closing *ANY* file descriptor open on the lock file will release the
+	// lock.  Therefore before we attempt to take the lock, any other fds
+	// which could be open on the lock file must have been closed.
 	//
-	// We can't use a preprocessor check on the *value* of SOCK_CLOEXEC as
-	// on Linux SOCK_CLOEXEC is an enum, with '#define SOCK_CLOEXEC
-	// SOCK_CLOEXEC' to allow '#ifdef SOCK_CLOEXEC' to work.
-	if (SOCK_CLOEXEC != 0)
-	    (void)fcntl(fds[1], F_SETFD, 0);
-	if (O_CLOEXEC != 0)
-	    (void)fcntl(lockfd, F_SETFD, 0);
-#endif
-	// Connect pipe to stdin and stdout.
-	dup2(fds[1], 0);
-	dup2(fds[1], 1);
+	// We also need to arrange that fds 0 and 1 are the socket back to our
+	// parent (so that exec-ing /bin/cat does what we want) and both need
+	// to have their close-on-exec flag cleared (we can achieve all this
+	// part with two dup2() calls with a little care).  This means that
+	// we need lockfd >= 2, but we actually arrange that lockfd == 2 since
+	// then we can call closefrom(3) to close any other open fds in a
+	// single call.
+	//
+	// If we need to use dup() to clear the close-on-exec flag on lockfd,
+	// that must also have been done (because otherwise we can't close
+	// the original, and since it has close-on-exec set, that means we
+	// can't call exec()).
 
-	// Make sure we don't hang on to open files which may get deleted but
-	// not have their disk space released until we exit.  Close these
-	// before we try to get the lock because if one of them is open on
-	// the lock file then closing it after obtaining the lock would release
-	// the lock, which would be really bad.
-	for (int i = 2; i < lockfd; ++i) {
-	    // Retry on EINTR; just ignore other errors (we'll get
-	    // EBADF if the fd isn't open so that's OK).
-	    while (close(i) < 0 && errno == EINTR) { }
+	bool lockfd_cloexec_cleared = false;
+	int dup_parent_to_first = parentfd == 0 ? 1 : 0;
+	if (rare(lockfd < 2)) {
+	    int oldlockfd = lockfd;
+	    // This dup2() will clear the close-on-exec flag for the new lockfd.
+	    // Note that we ensured above that parentfd != 2.
+	    lockfd = dup2(lockfd, 2);
+	    if (rare(lockfd < 0)) goto report_dup_failure;
+	    lockfd_cloexec_cleared = true;
+	    // Ensure we reuse an already open fd as we just used up our spare.
+	    dup_parent_to_first = oldlockfd;
 	}
-	closefrom(lockfd + 1);
 
-	reason why = SUCCESS;
+	// Connect our stdin and stdout to our parent via the socket.  With
+	// a little care here we ensure that both dup2() calls actually
+	// duplicate the fd and so the close-on-exec flag should be clear for
+	// both fds 0 and 1.
+	if (rare(dup2(parentfd, dup_parent_to_first) < 0)) {
+report_dup_failure:
+	    _exit((errno == EMFILE || errno == ENFILE) ? FDLIMIT : UNKNOWN);
+	}
+	close(parentfd);
+	if (rare(dup2(dup_parent_to_first, dup_parent_to_first ^ 1) < 0))
+	    goto report_dup_failure;
+
+	// Ensure lockfd is fd 2, and clear close-on-exec if necessary.
+	if (lockfd != 2) {
+	    // This dup2() will clear the close-on-exec flag for the new lockfd.
+	    lockfd = dup2(lockfd, 2);
+	    if (rare(lockfd < 0)) goto report_dup_failure;
+	} else if (!lockfd_cloexec_cleared && O_CLOEXEC != 0) {
+#if defined F_SETFD && defined FD_CLOEXEC
+	    (void)fcntl(lockfd, F_SETFD, 0);
+#else
+	    // We use dup2() twice to clear the close-on-exec flag but keep
+	    // lockfd == 2.
+	    if (rare(dup2(lockfd, 3) < 0 || dup2(3, lockfd) < 0))
+		goto report_dup_failure;
+#endif
+	}
+
+	closefrom(3);
+
 	{
 	    struct flock fl;
 	    fl.l_type = F_WRLCK;
@@ -360,11 +358,11 @@ no_ofd_support:
 		    // Lock failed - translate known errno values into a reason
 		    // code.
 		    if (errno == EACCES || errno == EAGAIN) {
-			why = INUSE;
+			_exit(INUSE);
 		    } else if (errno == ENOLCK) {
-			why = UNSUPPORTED;
+			_exit(UNSUPPORTED);
 		    } else {
-			_exit(0);
+			_exit(UNKNOWN);
 		    }
 		    break;
 		}
@@ -372,16 +370,15 @@ no_ofd_support:
 	}
 
 	{
-	    // Tell the parent if we got the lock, and if not, why not.
-	    char ch = static_cast<char>(why);
-	    while (write(1, &ch, 1) < 0) {
+	    // Tell the parent if we got the lock by writing a byte.
+	    while (write(1, "", 1) < 0) {
 		// EINTR means a signal interrupted us, so retry.
-		// Otherwise we're DOOMED!  The best we can do is just exit
-		// and the parent process should get EOF and know the lock
-		// failed.
-		if (errno != EINTR) _exit(1);
+		//
+		// Otherwise we can't tell our parent that we got the lock so
+		// we just exit and our parent will think that the locking
+		// attempt failed for "UNKNOWN" reasons.
+		if (errno != EINTR) _exit(UNKNOWN);
 	    }
-	    if (why != SUCCESS) _exit(0);
 	}
 
 	// Make sure we don't block unmount of partition holding the current
@@ -416,23 +413,19 @@ no_ofd_support:
 	return UNKNOWN;
     }
 
-    reason why = UNKNOWN;
-
     // Parent process.
     while (true) {
 	char ch;
 	ssize_t n = read(fds[0], &ch, 1);
 	if (n == 1) {
-	    why = static_cast<reason>(ch);
-	    if (why != SUCCESS) break;
 	    // Got the lock.
 	    fd = fds[0];
 	    pid = child;
 	    return SUCCESS;
 	}
 	if (n == 0) {
-	    // EOF means the lock failed.
-	    explanation.assign("Got EOF reading from child process");
+	    // EOF means the lock failed.  The child's exit status should be a
+	    // reason code.
 	    break;
 	}
 	if (errno != EINTR) {
@@ -447,7 +440,14 @@ no_ofd_support:
 
     int status;
     while (waitpid(child, &status, 0) < 0) {
-	if (errno != EINTR) break;
+	if (errno != EINTR) return UNKNOWN;
+    }
+
+    reason why = UNKNOWN;
+    if (WIFEXITED(status)) {
+	int exit_status = WEXITSTATUS(status);
+	if (usual(exit_status > 0 && exit_status <= UNKNOWN))
+	    why = static_cast<reason>(exit_status);
     }
 
     return why;

@@ -120,7 +120,6 @@ adag
 adag
 adag
 adagol
-adagol
 adagolás
 adagol
 adagoló
@@ -152,7 +151,6 @@ adat
 adat
 adat
 ad
-adat
 adat
 adat
 adat
@@ -354,7 +352,6 @@ adattár
 adattár
 adattár
 adattár
-adattár
 adattárház-megoldás
 adattárház-menedzser
 adattárház-menedzser
@@ -372,7 +369,6 @@ adattömeg
 adatvesztés
 adatvesztés
 adatvesztés
-adatvédel
 adatvédel
 adatvédel
 adatvédel
@@ -458,12 +454,10 @@ adományjegy
 ad
 ad
 ad
-ad
 adj
 adj
 ad
 adj
-ad
 ad
 adj
 adja
@@ -656,7 +650,6 @@ adótörvény
 adótörvény
 adóváltozat
 adózn
-adózot
 adózot
 adózó
 adózó
@@ -933,7 +926,6 @@ ajánde
 ajánde
 ajándékozn
 ajándékozot
-ajándékozot
 ajándékozt
 ajándékozt
 ajándékoz
@@ -969,7 +961,6 @@ ajánlat
 ajánlat
 ajánlat
 ajánlat
-ajánlat
 ajánl
 ajánlat
 ajánlat
@@ -987,7 +978,6 @@ ajánlatosabb
 ajánlattevő
 ajánlattevő
 ajánlattevő
-ajánlattevő
 ajánlattétel
 ajánlattétel
 ajánlattétel
@@ -998,7 +988,6 @@ ajánlhass
 ajánlh
 ajánlhat
 ajánlható
-ajánlás
 ajánlás
 ajánlás
 ajánlás
@@ -1111,7 +1100,6 @@ akar
 akarna
 akarn
 akarna
-akarna
 akarne
 akar
 akar
@@ -1197,7 +1185,6 @@ akkor
 akkorm
 akkormár
 akkora
-akkor
 akkor
 akkor
 akkreditál
@@ -1362,7 +1349,6 @@ alakuln
 alakul
 alakuln
 alakuln
-alakul
 alakul
 alakult
 alakult
@@ -1971,7 +1957,6 @@ alsz
 alsz
 alsz
 alsz
-alsz
 aludj
 aludje
 aludn
@@ -2042,7 +2027,6 @@ alább
 alábbfagyot
 alábbhagyot
 alább
-alábbi
 alábbi
 alábbi
 alábbi
@@ -2202,14 +2186,12 @@ amerikai
 ameri
 ameri
 ameri
-ameri
 amierikai
 amerikanizálódn
 amer
 amer
 amiat
 amidő
-am
 am
 am
 am
@@ -2265,7 +2247,6 @@ amputált
 amszterdam
 amulett
 amur
-amíg
 amíg
 amúgy
 amúr
@@ -2361,7 +2342,6 @@ antikommunist
 antikvárius
 antilop
 antirasszist
-antiszemit
 antiszemit
 antiszemitizmus
 antiszemitizmus-ellenes
@@ -3021,7 +3001,6 @@ ba
 ba
 ba
 ba
-ba
 baj
 baj
 baj
@@ -3300,7 +3279,6 @@ barát
 barát
 barát
 barát
-barát
 barátome
 barátome
 barátome
@@ -3321,7 +3299,6 @@ barát
 barát
 barát
 bar
-barát
 barát
 barát
 barát
@@ -3364,8 +3341,6 @@ barátkozás
 barátkozó
 barátkozós
 barátnéme
-barátnő
-barátnő
 barátnő
 barátnő
 barátnő
@@ -3615,7 +3590,6 @@ befejező
 befejeződ
 befejeződt
 befejeződöt
-befejeződöt
 befektetet
 befektetn
 befektett
@@ -3656,7 +3630,6 @@ befektető
 befektető
 befektető
 befektető
-befektető
 befel
 befel
 befizess
@@ -3671,7 +3644,6 @@ befizetn
 befizett
 befizett
 befizette
-befizetés
 befizetés
 befizetés
 befizetés
@@ -3878,7 +3850,6 @@ beiktatja
 bekapcsol
 bekapcsol
 bekapcsolja
-bekapcsol
 bekapcsoln
 bekapcsol
 bekapcsolt
@@ -3922,7 +3893,6 @@ bekerülés
 bekerülő
 bekever
 bekez
-bekezdés
 bekezdés
 bekezdés
 bekezdés
@@ -4301,7 +4271,6 @@ belső
 belső
 belsőépítész
 belsőépítészet
-beltag
 beltag
 beltag
 beltag
@@ -4715,9 +4684,7 @@ beteg
 beteg
 beteg
 beteg
-beteg
 beteges
-beteg
 beteg
 beteg
 beteg
@@ -5215,12 +5182,10 @@ beállít
 beállítot
 beállított
 beállított
-beállított
 beállította
 beállíts
 beállít
 beállítv
-beállítás
 beállítás
 beállítás
 beállítás
@@ -5508,7 +5473,6 @@ bizalmas
 bizalmas
 bizalmas
 bizalmas
-bizalmas
 bizalmasság
 bizalm
 bizalm
@@ -5648,8 +5612,6 @@ bizottság
 bizottság
 bizottság
 bizottság
-bizottság
-bizottság
 bizsergés
 biztass
 biztat
@@ -5670,7 +5632,6 @@ bizt
 biztonság
 biztonságis
 biztonságkockázat
-biztonság
 biztonság
 biztonság
 biztonság
@@ -6624,7 +6585,6 @@ bán
 bánn
 bánn
 bánn
-bánn
 bánna
 bán
 bán
@@ -6797,7 +6757,6 @@ bátorító
 bátorító
 bátrabb
 bátrabb
-báty
 báty
 báty
 báty
@@ -7101,8 +7060,6 @@ bízt
 bízt
 bízt
 bízt
-bízt
-bízt
 bízta
 bíz
 bízz
@@ -7365,7 +7322,6 @@ bűntárs
 bűntárs
 bűntény
 bűntény
-bűnös
 bűnös
 bűnös
 bűnös
@@ -7808,7 +7764,6 @@ jobb
 jobb
 job
 job
-job
 jobb
 jobb
 jobb
@@ -8021,7 +7976,6 @@ jöjj
 jön
 jönn
 jön
-jön
 jönn
 jönn
 jönne
@@ -8106,7 +8060,6 @@ jövőbel
 jövőbeli
 jövőbeli
 jövőben
-jövő
 jövő
 jövő
 jövő
@@ -8630,7 +8583,6 @@ kapcsolatmegosztás
 kapcsolatmegosztás
 kapcsolatmegosztás
 kapcsolatnélkül
-kapcsolat
 kapcsolat
 kapcsolat
 kapcsolat
@@ -9596,7 +9548,6 @@ kelle
 kelle
 kelle
 kelle
-kelle
 kellék
 kellék
 kellék
@@ -10084,7 +10035,6 @@ kert
 kert
 kert
 kert
-kert
 ker
 kert
 kertel
@@ -10176,7 +10126,6 @@ kerület
 kerület
 kerület
 kerületi
-kerít
 kerülgett
 kerülhess
 kerülhess
@@ -10382,7 +10331,6 @@ kezden
 kezden
 kezden
 kezdene
-kezdene
 kezden
 kez
 kezdet
@@ -10559,7 +10507,6 @@ kft.-ben
 kft.-ből
 kft.-k
 kft.-kel
-kft.-ben
 kft.-kre
 kft.-n
 kft.-nek
@@ -10631,7 +10578,6 @@ kiadásikiadás
 kiadás
 kiadás
 kiadásokat-bevétel
-kiadás
 kiadás
 kiadás
 kiadás
@@ -10892,7 +10838,6 @@ kics
 kics
 kics
 kics
-kics
 kicsikarn
 kicsikarás
 kics
@@ -10963,7 +10908,6 @@ kidolgozható
 kidolgozn
 kidolgozn
 kidolgozn
-kidolgozt
 kidolgozt
 kidolgozt
 kidolgozta
@@ -11755,7 +11699,6 @@ ki
 ki
 ki
 ki
-ki
 kinészt
 kinézet
 kinézet
@@ -11959,7 +11902,6 @@ király
 király
 királyn
 királyn
-királynő
 királynő
 királynő
 királynő
@@ -12873,7 +12815,6 @@ kiválasztás
 kiválasztás
 kiválasztás
 kiválasztás
-kiválasztás
 kiválasztó
 kiválasztódás
 kiválhatot
@@ -12893,7 +12834,6 @@ kiváltható
 kiváltot
 kiváltság
 kiváltság
-kiváltságos
 kiváltságos
 kiváltságos
 kiváltság
@@ -13413,7 +13353,6 @@ kocs
 kocs
 kocs
 kocs
-kocs
 kocsikázn
 kocsikázt
 kocsimúzeu
@@ -13744,7 +13683,6 @@ koncentráln
 koncentráln
 koncentrál
 koncentrált
-koncentrál
 koncentrál
 koncentráltabb
 koncentráltab
@@ -14456,7 +14394,6 @@ kor
 kor
 kor
 kor
-kor
 korombel
 koromszínű
 koromsöt
@@ -14564,7 +14501,6 @@ korábbi
 korábbi
 korábbi
 korábbi
-korább
 korább
 korább
 korább
@@ -14912,7 +14848,6 @@ kutatta
 kutatv
 kutatás-fejlesztés
 kutatás-fejlesztés
-kutatás
 kutatás
 kutatás
 kutatás
@@ -15878,7 +15813,6 @@ kérdés
 kérdés
 kérdés
 kérdés
-kérdés
 kérdéses
 kérdéses
 kérdéskör
@@ -15910,7 +15844,6 @@ kérel
 kérel
 kérel
 kérel
-kérel
 kérelm
 kérelm
 kérelm
@@ -15921,7 +15854,6 @@ kérel
 kérelmezhet
 kérelmezn
 kérelmezés
-kérelmező
 kérelmező
 kérelmező
 kérelmező
@@ -16125,7 +16057,6 @@ készítenét
 készített
 készített
 készített
-készített
 készítette
 készített
 készített
@@ -16251,7 +16182,6 @@ később
 később
 késő
 később
-későbbi
 későbbi
 későbbi
 későbbi
@@ -17140,7 +17070,6 @@ költő
 költő
 költő
 költő
-költő
 költőiség
 költ
 költö
@@ -17312,7 +17241,6 @@ könyvtár-automatizálás
 könyvtárablak
 könyvtár
 könyvt
-könyvtár
 könyvtár
 könyvtár
 könyvtár
@@ -17604,7 +17532,6 @@ környe
 környe
 környe
 környe
-környe
 környékezt
 környékező
 környe
@@ -17781,7 +17708,6 @@ köszönhet
 köszönhet
 köszönhett
 köszönhett
-köszönhett
 köszönhette
 köszönhet
 köszönhető
@@ -17815,7 +17741,6 @@ köt
 kötn
 kötn
 kötn
-kötött
 kötött
 kötött
 kötött
@@ -17869,7 +17794,6 @@ kötelezett
 kötelezett
 kötelezettség
 kötelezettség-vállalás
-kötelezettség
 kötelezettség
 kötelezettség
 kötelezettség
@@ -18257,7 +18181,6 @@ következő
 következő
 következő
 következő
-következő
 következőleg
 követn
 kövess
@@ -18575,7 +18498,6 @@ lec
 lec
 lec
 lecké
-lecke
 lecke
 lecke
 lecke
@@ -19331,8 +19253,6 @@ lehetséges
 lehetséges
 lehető
 lehetőleg
-lehető
-lehetőség
 lehetőség
 lehetőség
 lehetőség
@@ -19476,7 +19396,6 @@ lejárt
 lejárt
 lejárt
 lejáró
-lejátssz
 lejátssz
 lejátssza
 lejátszható
@@ -19917,7 +19836,6 @@ lenn
 lenn
 lenn
 lenn
-lenn
 lenne
 len
 lenn
@@ -20158,7 +20076,6 @@ leszállított
 leszállított
 leszállította
 leszállítot
-leszállítás
 leszállítás
 leszállítás
 leszállítás
@@ -20435,7 +20352,6 @@ level
 level
 level
 level
-level
 levél
 levél
 levél
@@ -20488,7 +20404,6 @@ lezuhanyozhatt
 lezuhanyoz
 lezuhanyozt
 lezuhanyozt
-lezuhanyozt
 lezuhanyz
 lezáratlan
 lezáratt
@@ -20503,7 +20418,6 @@ lezárt
 lezárt
 lezárta
 lezár
-lezárul
 lezárul
 lezárult
 lezáruló
@@ -20790,10 +20704,8 @@ listaárú
 list
 list
 list
-list
 lista
 lista
-listá
 listá
 listá
 listá
@@ -21352,7 +21264,6 @@ láthatna
 láthat
 láthat
 láthatot
-láthatt
 láthatt
 láthatt
 láthatt
@@ -21971,7 +21882,6 @@ lőter
 lő
 lő
 lő
-lő
 lőn
 lőne
 lőt
@@ -22098,11 +22008,7 @@ mag
 mag
 mag
 mag
-mag
 magam
-mag
-mag
-mag
 mag
 mag
 mag
@@ -22117,10 +22023,7 @@ mag
 maga
 mag
 magá
-magá
 mag
-mag
-magá
 magá
 magá
 magadfajt
@@ -22284,7 +22187,6 @@ magyartanár
 magyartanár
 magyarászt
 magyaráz
-magyarázat
 magyarázat
 magyarázat
 magyarázat
@@ -22620,7 +22522,6 @@ mappa
 mappa
 mappa
 mappa
-mapp
 mapp
 mapp
 mapp
@@ -24601,7 +24502,6 @@ meglátt
 meglátt
 meglátt
 meglátt
-meglátt
 meglátta
 meglátszódj
 meglátás
@@ -24683,7 +24583,6 @@ megmond
 megmondhass
 megmondhat
 megmondhatna
-megmondt
 megmondt
 megmondt
 megmondta
@@ -25044,7 +24943,6 @@ megosztás
 megosztás
 megosztás
 megosztás
-megosztás
 megosztásnév
 megosztó
 megpakol
@@ -25064,7 +24962,6 @@ megpihent
 megpillantan
 megpillant
 megpillant
-megpillantott
 megpillantott
 megpillantott
 megpillantott
@@ -26306,10 +26203,8 @@ megyei
 megy
 megy
 megy
-megy
 megye
 megye
-megy
 megy
 megye
 megy
@@ -26587,7 +26482,6 @@ megértés
 megértő
 megértőbb
 mező
-mezőkövesd
 mezőkövesd
 mezőny
 mezőny
@@ -26985,7 +26879,6 @@ minisztereln
 minisztereln
 minisztereln
 minisztereln
-minisztereln
 miniszterhelyettes
 miniszter
 minisztertanács
@@ -27167,7 +27060,6 @@ mie
 mie
 mie
 mie
-mi
 miért
 miót
 mm-es
@@ -27550,7 +27442,6 @@ munkacsoport
 munkacsoport
 munkacsoport
 munkacsoport
-munkacsoport
 munkacsopor
 munkacsoport
 munkacsoport
@@ -27740,7 +27631,6 @@ munkaválasztás
 munkavállalás
 munkavállaló-szerző
 munkavállaló-szerző
-munkavállaló
 munkavállaló
 munkavállaló
 munkavállaló
@@ -28741,8 +28631,6 @@ mód
 mód
 mód
 mód
-mód
-mód
 mó
 mó
 mód
@@ -29099,7 +28987,6 @@ működésbel
 működés
 működésképtel
 működésképtelen
-működés
 működés
 működés
 működés
@@ -29530,7 +29417,6 @@ nagyság
 nagyság
 nagyság
 nagyság
-nagyság
 nagyságú
 nagysármás
 nagytakarítás
@@ -29693,9 +29579,6 @@ nap
 nap
 nap
 nap
-nap
-nap
-nap
 napos
 napos
 napos
@@ -29779,7 +29662,6 @@ negyedszáz
 negyedszáz
 negy
 negy
-negyed
 negyed
 negyed
 negyed
@@ -29883,7 +29765,6 @@ objektum
 objektum
 objektum
 objektu
-objektum
 objektum
 objektum
 objektum

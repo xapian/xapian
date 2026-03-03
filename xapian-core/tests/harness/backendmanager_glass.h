@@ -1,4 +1,4 @@
-/** @file backendmanager_glass.h
+/** @file
  * @brief BackendManager subclass for glass databases.
  */
 /* Copyright (C) 2007,2008,2009,2018 Olly Betts
@@ -14,8 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_BACKENDMANAGER_GLASS_H
@@ -44,9 +44,6 @@ class BackendManagerGlass : public BackendManager {
 
   public:
     BackendManagerGlass(const std::string& datadir_);
-
-    /// Return a string representing the current database type.
-    std::string get_dbtype() const;
 
     /// Create a Glass Xapian::WritableDatabase object indexing a single file.
     Xapian::WritableDatabase get_writable_database(const std::string & name,

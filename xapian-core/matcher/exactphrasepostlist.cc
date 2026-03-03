@@ -1,7 +1,7 @@
-/** @file exactphrasepostlist.cc
+/** @file
  * @brief Return docs containing terms forming a particular exact phrase.
  */
-/* Copyright (C) 2006,2007,2009,2010,2011,2014,2015,2017 Olly Betts
+/* Copyright (C) 2006-2022 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -32,10 +32,12 @@
 using namespace std;
 
 ExactPhrasePostList::ExactPhrasePostList(PostList *source_,
+					 EstimateOp* estimate_op_,
 					 const vector<PostList*>::const_iterator &terms_begin,
 					 const vector<PostList*>::const_iterator &terms_end,
 					 PostListTree* pltree_)
-    : SelectPostList(source_, pltree_), terms(terms_begin, terms_end)
+    : SelectPostList(source_, estimate_op_, pltree_),
+      terms(terms_begin, terms_end)
 {
     size_t n = terms.size();
     Assert(n > 1);
@@ -47,6 +49,16 @@ ExactPhrasePostList::ExactPhrasePostList(PostList *source_,
 	throw;
     }
     for (size_t i = 0; i < n; ++i) order[i] = unsigned(i);
+
+    // It's hard to estimate how many times the exact phrase will occur as
+    // it depends a lot on the phrase, but usually the exact phrase will
+    // occur significantly less often than the individual terms.
+    //
+    // We divide by 4 here rather than by 2 as we do for NearPostList and
+    // PhrasePostList, as a very rough heuristic to represent the fact that the
+    // words must occur exactly in order, and phrases are therefore rarer than
+    // near matches and (non-exact) phrase matches.
+    termfreq = pl->get_termfreq() / 4;
 }
 
 ExactPhrasePostList::~ExactPhrasePostList()
@@ -88,16 +100,20 @@ ExactPhrasePostList::test_doc()
     // "ripe mango" when the only occurrence of 'mango' in the current document
     // is at position 0.
     start_position_list(0);
-    if (!poslists[0]->skip_to(order[0]))
+    if (!poslists[0]->skip_to(order[0])) {
+	++rejected;
 	RETURN(false);
+    }
 
     // If we get here, we'll need to read the positionlists for at least two
     // terms, so check the true positionlist length for the two terms with the
     // lowest wdf and if necessary swap them so the true shorter one is first.
     start_position_list(1);
     if (poslists[0]->get_approx_size() > poslists[1]->get_approx_size()) {
-	if (!poslists[1]->skip_to(order[1]))
+	if (!poslists[1]->skip_to(order[1])) {
+	    ++rejected;
 	    RETURN(false);
+	}
 	swap(poslists[0], poslists[1]);
 	swap(order[0], order[1]);
     }
@@ -117,17 +133,22 @@ ExactPhrasePostList::test_doc()
 	Xapian::termpos idx = order[i];
 	Xapian::termpos required = base + idx;
 	if (!poslists[i]->skip_to(required))
-	    RETURN(false);
+	    break;
 	Xapian::termpos got = poslists[i]->get_position();
 	if (got == required) {
-	    if (++i == terms.size()) RETURN(true);
+	    if (++i == terms.size()) {
+		++accepted;
+		RETURN(true);
+	    }
 	    continue;
 	}
 	if (!poslists[0]->skip_to(got - idx + idx0))
-	    RETURN(false);
+	    break;
 	base = poslists[0]->get_position() - idx0;
 	i = 1;
     }
+    ++rejected;
+    RETURN(false);
 }
 
 Xapian::termcount
@@ -143,33 +164,6 @@ ExactPhrasePostList::get_wdf() const
 	wdf = min(wdf, (*i)->get_wdf());
     }
     return wdf;
-}
-
-Xapian::doccount
-ExactPhrasePostList::get_termfreq_est() const
-{
-    // It's hard to estimate how many times the exact phrase will occur as
-    // it depends a lot on the phrase, but usually the exact phrase will
-    // occur significantly less often than the individual terms.
-    //
-    // We divide by 4 here rather than by 2 as we do for NearPostList and
-    // PhrasePostList, as a very rough heuristic to represent the fact that the
-    // words must occur exactly in order, and phrases are therefore rarer than
-    // near matches and (non-exact) phrase matches.
-    return pl->get_termfreq_est() / 4;
-}
-
-TermFreqs
-ExactPhrasePostList::get_termfreq_est_using_stats(
-	const Xapian::Weight::Internal & stats) const
-{
-    LOGCALL(MATCH, TermFreqs, "ExactPhrasePostList::get_termfreq_est_using_stats", stats);
-    // No idea how to estimate this - do the same as get_termfreq_est() for
-    // now.
-    TermFreqs result(pl->get_termfreq_est_using_stats(stats));
-    result.termfreq /= 4;
-    result.reltermfreq /= 4;
-    RETURN(result);
 }
 
 string

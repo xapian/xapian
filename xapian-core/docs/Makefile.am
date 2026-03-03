@@ -12,31 +12,16 @@ endif
 # which we don't have the tools to generate.
 
 RSTDOCS = \
-	admin_notes.rst \
 	bm25.rst \
-	collapsing.rst \
-	deprecation.rst \
-	facets.rst \
 	geospatial.rst \
-	glossary.rst \
 	index.rst \
 	install.rst \
-	internals.rst \
 	intro_ir.rst \
-	matcherdesign.rst \
 	overview.rst \
-	postingsource.rst \
 	queryparser.rst \
 	remote.rst \
-	replication.rst \
-	scalability.rst \
-	serialisation.rst \
-	sorting.rst \
-	spelling.rst \
 	stemming.rst \
-	synonyms.rst \
 	termgenerator.rst \
-	tests.rst \
 	valueranges.rst
 
 RSTHTML = $(RSTDOCS:.rst=.html)
@@ -50,18 +35,12 @@ EXTRA_DIST = doxygen_api.conf.in doxygen_source.conf.in \
 # Other files which should be distributed
 dist-hook: doxygen_api_docs
 	$(MKDIR_P) '$(distdir)/apidoc/html'
-	test "`echo $(srcdir)/apidoc/html/*.png`" = "$(srcdir)/apidoc/html/*.png" || \
-	  cp -p $(srcdir)/apidoc/html/*.png $(distdir)/apidoc/html
-	test "`echo apidoc/html/*.png`" = "apidoc/html/*.png" || \
-	  cp -p apidoc/html/*.png $(distdir)/apidoc/html
-	test "`echo $(srcdir)/apidoc/html/*.css`" = "$(srcdir)/apidoc/html/*.css" || \
-	  cp -p $(srcdir)/apidoc/html/*.css $(distdir)/apidoc/html
-	test "`echo apidoc/html/*.css`" = "apidoc/html/*.css" || \
-	  cp -p apidoc/html/*.css $(distdir)/apidoc/html
-	test "`echo $(srcdir)/apidoc/html/*.html`" = "$(srcdir)/apidoc/html/*.html" || \
-	  cp -p $(srcdir)/apidoc/html/*.html $(distdir)/apidoc/html
-	test "`echo apidoc/html/*.html`" = "apidoc/html/*.html" || \
-	  cp -p apidoc/html/*.html $(distdir)/apidoc/html
+	for e in png css html js ; do \
+	  test "`echo $(srcdir)/apidoc/html/*.$$e`" = "$(srcdir)/apidoc/html/*.$$e" || \
+	    cp -p $(srcdir)/apidoc/html/*.$$e $(distdir)/apidoc/html ;\
+	  test "`echo apidoc/html/*.$$e`" = "apidoc/html/*.$$e" || \
+	    cp -p apidoc/html/*.$$e $(distdir)/apidoc/html ;\
+	done
 
 # Disable these rules if configured with --enable-maintainer-mode and
 # --disable-documentation so that "make install" works in this case.
@@ -73,6 +52,7 @@ install-data-local: doxygen_api_docs
 	$(INSTALL_DATA) `test -f apidoc/html/index.html || echo $(srcdir)/`apidoc/html/*.png $(DESTDIR)$(docdir)/apidoc/html
 	$(INSTALL_DATA) `test -f apidoc/html/index.html || echo $(srcdir)/`apidoc/html/*.css $(DESTDIR)$(docdir)/apidoc/html
 	$(INSTALL_DATA) `test -f apidoc/html/index.html || echo $(srcdir)/`apidoc/html/*.html $(DESTDIR)$(docdir)/apidoc/html
+	$(INSTALL_DATA) `test -f apidoc/html/index.html || echo $(srcdir)/`apidoc/html/*.js $(DESTDIR)$(docdir)/apidoc/html
 endif
 
 ###############################
@@ -115,9 +95,12 @@ APIDOC_DEPS = $(APIDOC_SRC) doxygen_api.conf \
 		$(srcdir)/doxygen_api_footer.html_tmpl
 
 apidoc/html/index.html: $(APIDOC_DEPS)
-	rm -rf apidoc
-	sed 's/^\(GENERATE_HTML\)\>.*/\1 = YES/;s/^\(GENERATE_LATEX\)\>.*/\1 = NO/' doxygen_api.conf |\
-	    top_srcdir='$(top_srcdir)' top_builddir='$(top_builddir)' $(DOXYGEN) -
+	rm -rf apidoc doxygen_api_html.conf.tmp
+	## Use a temporary file to work around doxygen 1.8.19 bug which
+	## truncates a config file read from stdin to 4096 bytes.
+	sed 's/^\(GENERATE_HTML\)\>.*/\1 = YES/;s/^\(GENERATE_LATEX\)\>.*/\1 = NO/' doxygen_api.conf > doxygen_api_html.conf.tmp
+	top_srcdir='$(top_srcdir)' top_builddir='$(top_builddir)' $(DOXYGEN) doxygen_api_html.conf.tmp
+	rm -f doxygen_api_html.conf.tmp
 	## Regression test - 1.0.17 failed to generate docs from error.h in a
 	## VPATH build.
 	test -f apidoc/html/classXapian_1_1RuntimeError.html || \
@@ -133,8 +116,12 @@ apidoc/html/index.html: $(APIDOC_DEPS)
 # Not built by default, but available in case users want to build it for
 # themselves.
 apidoc.pdf: $(APIDOC_DEPS)
-	sed 's/^\(GENERATE_HTML\)\>.*/\1 = NO/;s/^\(GENERATE_LATEX\)\>.*/\1 = YES/' doxygen_api.conf |\
-	    top_srcdir='$(top_srcdir)' top_builddir='$(top_builddir)' $(DOXYGEN) -
+	rm -f doxygen_api_pdf.conf.tmp
+	## Use a temporary file to work around doxygen 1.8.19 bug which
+	## truncates a config file read from stdin to 4096 bytes.
+	sed 's/^\(GENERATE_HTML\)\>.*/\1 = NO/;s/^\(GENERATE_LATEX\)\>.*/\1 = YES/' doxygen_api.conf > doxygen_api_pdf.conf.tmp
+	top_srcdir='$(top_srcdir)' top_builddir='$(top_builddir)' $(DOXYGEN) doxygen_api_pdf.conf.tmp
+	rm -f doxygen_api_pdf.conf.tmp
 	cd apidoc/latex && (pool_size=750000 $(MAKE) refman.pdf||(cat refman.log;exit 1))
 	mv apidoc/latex/refman.pdf apidoc.pdf
 

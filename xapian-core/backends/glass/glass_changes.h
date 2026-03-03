@@ -1,4 +1,4 @@
-/** @file glass_changes.h
+/** @file
  * @brief Glass changesets
  */
 /* Copyright 2014 Olly Betts
@@ -14,9 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_GLASS_CHANGES_H
@@ -33,9 +32,9 @@ class GlassChanges {
 
     /** The maximum number of changesets to keep.
      *
-     *  If a slave is more than this number of changesets behind, it will need
-     *  to be sent a full copy of the database (which can be more efficient if
-     *  a lot has changed).
+     *  If a replica is more than this number of changesets behind, it will
+     *  need to be sent a full copy of the database (which can be more
+     *  efficient if a lot has changed).
      */
     glass_revision_number_t max_changesets;
 

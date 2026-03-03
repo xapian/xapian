@@ -1,4 +1,4 @@
-/** @file backendmanager_remotetcp.h
+/** @file
  * @brief BackendManager subclass for remotetcp databases.
  */
 /* Copyright (C) 2007,2009,2011 Olly Betts
@@ -15,8 +15,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_BACKENDMANAGER_REMOTETCP_H
@@ -43,12 +43,11 @@ class BackendManagerRemoteTcp : public BackendManagerRemote {
 
   public:
     explicit BackendManagerRemoteTcp(BackendManager* sub_manager_)
-	: BackendManagerRemote(sub_manager_) { }
+	: BackendManagerRemote(sub_manager_,
+			       "remotetcp_" + sub_manager_->get_dbtype())
+    { }
 
     ~BackendManagerRemoteTcp();
-
-    /// Return a string representing the current database type.
-    std::string get_dbtype() const;
 
     /// Create a RemoteTcp Xapian::WritableDatabase object indexing a single file.
     Xapian::WritableDatabase get_writable_database(const std::string & name,
@@ -56,13 +55,19 @@ class BackendManagerRemoteTcp : public BackendManagerRemote {
 
     /// Create a RemoteTcp Xapian::Database with the specified timeout.
     Xapian::Database get_remote_database(const std::vector<std::string> & files,
-					 unsigned int timeout);
+					 unsigned int timeout,
+					 int* port_ptr);
+
+    /// Get a RemoteTcp Xapian::Database instance of the database at path
+    Xapian::Database get_database_by_path(const std::string& path);
 
     /// Create a Database object for the last opened WritableDatabase.
     Xapian::Database get_writable_database_as_database();
 
     /// Create a WritableDatabase object for the last opened WritableDatabase.
     Xapian::WritableDatabase get_writable_database_again();
+
+    void kill_remote(const Xapian::Database& db);
 
     /// Called after each test, to perform any necessary cleanup.
     void clean_up();

@@ -1,4 +1,4 @@
-/** @file simplifieddbn.cc
+/** @file
  * @brief SimplifiedDBN class - the Simplified DBN click model.
  */
 /* Copyright (C) 2017 Vivek Pal
@@ -8,14 +8,14 @@
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -74,7 +74,8 @@ get_click_list(const string &str_clicks)
 
 	    // Get click count string.
 	    size_t delimiter_pos = clickstring.find(':');
-	    clickcount = clickstring.substr(delimiter_pos + 1);
+	    UNSIGNED_OVERFLOW_OK(++delimiter_pos);
+	    clickcount = clickstring.substr(delimiter_pos);
 
 	    // Convert click count string to an integer.
 	    stringstream ss(clickcount);
@@ -106,7 +107,6 @@ SimplifiedDBN::build_sessions(const string &logfile)
 
     // Start reading file from the second line.
     while (getline(file, line)) {
-
 	istringstream ss(line);
 
 	vector<string> row_data;

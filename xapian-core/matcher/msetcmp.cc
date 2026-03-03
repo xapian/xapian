@@ -1,4 +1,4 @@
-/** @file msetcmp.cc
+/** @file
  * @brief Result comparison functions.
  */
 /* Copyright (C) 2006,2009,2013,2017 Olly Betts
@@ -14,9 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -31,7 +30,8 @@
  */
 
 // Order by docid, inlined.  Used as the last fallback by the others.
-template<bool FORWARD_DID> inline bool
+template<bool FORWARD_DID>
+static inline bool
 msetcmp_by_docid_inline(const Result& a, const Result& b)
 {
     if (FORWARD_DID) {
@@ -42,14 +42,16 @@ msetcmp_by_docid_inline(const Result& a, const Result& b)
 }
 
 // Order by docid, used when relevance is always 0.
-template<bool FORWARD_DID> bool
+template<bool FORWARD_DID>
+static bool
 msetcmp_by_docid(const Result& a, const Result& b)
 {
     return msetcmp_by_docid_inline<FORWARD_DID>(a, b);
 }
 
 // Order by relevance, then docid.
-template<bool FORWARD_DID> bool
+template<bool FORWARD_DID>
+static bool
 msetcmp_by_relevance(const Result& a, const Result& b)
 {
     if (a.get_weight() > b.get_weight()) return true;
@@ -58,7 +60,8 @@ msetcmp_by_relevance(const Result& a, const Result& b)
 }
 
 // Order by value, then docid.
-template<bool FORWARD_VALUE, bool FORWARD_DID> bool
+template<bool FORWARD_VALUE, bool FORWARD_DID>
+static bool
 msetcmp_by_value(const Result& a, const Result& b)
 {
     int sort_cmp = a.get_sort_key().compare(b.get_sort_key());
@@ -68,7 +71,8 @@ msetcmp_by_value(const Result& a, const Result& b)
 }
 
 // Order by value, then relevance, then docid.
-template<bool FORWARD_VALUE, bool FORWARD_DID> bool
+template<bool FORWARD_VALUE, bool FORWARD_DID>
+static bool
 msetcmp_by_value_then_relevance(const Result& a, const Result& b)
 {
     int sort_cmp = a.get_sort_key().compare(b.get_sort_key());
@@ -80,7 +84,8 @@ msetcmp_by_value_then_relevance(const Result& a, const Result& b)
 }
 
 // Order by relevance, then value, then docid.
-template<bool FORWARD_VALUE, bool FORWARD_DID> bool
+template<bool FORWARD_VALUE, bool FORWARD_DID>
+static bool
 msetcmp_by_relevance_then_value(const Result& a, const Result& b)
 {
     if (a.get_weight() > b.get_weight()) return true;

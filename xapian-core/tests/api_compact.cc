@@ -1,7 +1,7 @@
-/** @file api_compact.cc
+/** @file
  * @brief Tests of Database::compact()
  */
-/* Copyright (C) 2009,2010,2011,2012,2013,2015,2016,2017,2018 Olly Betts
+/* Copyright (C) 2009,2010,2011,2012,2013,2015,2016,2017,2018,2019 Olly Betts
  * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -15,9 +15,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -34,6 +33,7 @@
 #include "testsuite.h"
 #include "testutils.h"
 
+#include <cerrno>
 #include <cstdlib>
 #include <fstream>
 
@@ -61,7 +61,7 @@ make_sparse_db(Xapian::WritableDatabase &db, const string & s)
 	    last = strtoul(p + 1, &p, 10);
 	}
 	if (*p && *p != ' ') {
-	    tout << p - s.c_str() << endl;
+	    tout << p - s.c_str() << '\n';
 	    FAIL_TEST("Bad sparse db spec (expected space): " << s);
 	}
 	if (first > last) {
@@ -100,7 +100,8 @@ check_sparse_uid_terms(const string & path)
     }
 }
 
-DEFINE_TESTCASE(compactnorenumber1, compact && generated) {
+// With multi the docids in the shards change the behaviour.
+DEFINE_TESTCASE(compactnorenumber1, compact && !multi) {
     string a = get_database_path("compactnorenumber1a", make_sparse_db,
 				 "5-7 24 76 987 1023-1027 9999 !9999");
     string a_uuid;
@@ -232,20 +233,15 @@ DEFINE_TESTCASE(compactnorenumber1, compact && generated) {
 	    db.compact(out, Xapian::DBCOMPACT_NO_RENUMBER)
 	);
     }
-
-    return true;
 }
 
 // Test use of compact to merge two databases.
 DEFINE_TESTCASE(compactmerge1, compact) {
-    // Honey->honey compaction is currently buggy.
-    SKIP_TEST_FOR_BACKEND("honey");
     string indbpath = get_database_path("apitest_simpledata");
     string outdbpath = get_compaction_output_path("compactmerge1out");
     rm_rf(outdbpath);
 
-    const string& dbtype = get_dbtype();
-    bool singlefile = startswith(dbtype, "singlefile_");
+    bool singlefile = startswith(get_dbtype(), "singlefile_");
     {
 	Xapian::Database db;
 	db.add_database(Xapian::Database(indbpath));
@@ -267,8 +263,9 @@ DEFINE_TESTCASE(compactmerge1, compact) {
 	// Check we actually got a single file out.
 	TEST(file_exists(outdbpath));
 	TEST_EQUAL(Xapian::Database::check(outdbpath, 0, &tout), 0);
-    } else if (startswith(dbtype, "multi_")) {
-	// Can't check a sharded DB.
+    } else if (indb.size() > 1) {
+	// Can't check tables for a sharded DB.
+	TEST_EQUAL(Xapian::Database::check(outdbpath, 0, &tout), 0);
     } else {
 	// Check we got a directory out, not a file.
 	TEST(dir_exists(outdbpath));
@@ -280,17 +277,15 @@ DEFINE_TESTCASE(compactmerge1, compact) {
 	    if (s) {
 		suffix = s;
 	    } else {
-		suffix = "/docdata." + dbtype;
+		suffix = "/docdata." + get_dbtype();
 	    }
 	    tout.str(string());
-	    tout << "Trying suffix '" << suffix << "'" << endl;
+	    tout << "Trying suffix '" << suffix << "'\n";
 	    string arg = outdbpath;
 	    arg += suffix;
 	    TEST_EQUAL(Xapian::Database::check(arg, 0, &tout), 0);
 	}
     }
-
-    return true;
 }
 
 static void
@@ -310,7 +305,7 @@ make_multichunk_db(Xapian::WritableDatabase &db, const string &)
 
 // Test use of compact on a database which has multiple chunks for a term.
 // This is a regression test for ticket #427
-DEFINE_TESTCASE(compactmultichunks1, compact && generated) {
+DEFINE_TESTCASE(compactmultichunks1, compact) {
     string indbpath = get_database_path("compactmultichunks1in",
 					make_multichunk_db, "");
     string outdbpath = get_compaction_output_path("compactmultichunks1out");
@@ -326,22 +321,18 @@ DEFINE_TESTCASE(compactmultichunks1, compact && generated) {
 
     TEST_EQUAL(indb.get_doccount(), outdb.get_doccount());
     dbcheck(outdb, outdb.get_doccount(), outdb.get_doccount());
-
-    return true;
 }
 
 // Test compacting from a stub database directory.
 DEFINE_TESTCASE(compactstub1, compact) {
-    // Honey->honey compaction is currently buggy.
-    SKIP_TEST_FOR_BACKEND("honey");
     const char * stubpath = ".stub/compactstub1";
     const char * stubpathfile = ".stub/compactstub1/XAPIANDB";
     mkdir(".stub", 0755);
     mkdir(stubpath, 0755);
     ofstream stub(stubpathfile);
     TEST(stub.is_open());
-    stub << "auto ../../" << get_database_path("apitest_simpledata") << endl;
-    stub << "auto ../../" << get_database_path("apitest_simpledata2") << endl;
+    stub << "auto ../../" << get_database_path("apitest_simpledata") << '\n';
+    stub << "auto ../../" << get_database_path("apitest_simpledata2") << '\n';
     stub.close();
 
     string outdbpath = get_compaction_output_path("compactstub1out");
@@ -357,20 +348,16 @@ DEFINE_TESTCASE(compactstub1, compact) {
 
     TEST_EQUAL(indb.get_doccount(), outdb.get_doccount());
     dbcheck(outdb, outdb.get_doccount(), outdb.get_doccount());
-
-    return true;
 }
 
 // Test compacting from a stub database file.
 DEFINE_TESTCASE(compactstub2, compact) {
-    // Honey->honey compaction is currently buggy.
-    SKIP_TEST_FOR_BACKEND("honey");
     const char * stubpath = ".stub/compactstub2";
     mkdir(".stub", 0755);
     ofstream stub(stubpath);
     TEST(stub.is_open());
-    stub << "auto ../" << get_database_path("apitest_simpledata") << endl;
-    stub << "auto ../" << get_database_path("apitest_simpledata2") << endl;
+    stub << "auto ../" << get_database_path("apitest_simpledata") << '\n';
+    stub << "auto ../" << get_database_path("apitest_simpledata2") << '\n';
     stub.close();
 
     string outdbpath = get_compaction_output_path("compactstub2out");
@@ -386,20 +373,16 @@ DEFINE_TESTCASE(compactstub2, compact) {
 
     TEST_EQUAL(indb.get_doccount(), outdb.get_doccount());
     dbcheck(outdb, outdb.get_doccount(), outdb.get_doccount());
-
-    return true;
 }
 
 // Test compacting a stub database file to itself.
 DEFINE_TESTCASE(compactstub3, compact) {
-    // Honey->honey compaction is currently buggy.
-    SKIP_TEST_FOR_BACKEND("honey");
     const char * stubpath = ".stub/compactstub3";
     mkdir(".stub", 0755);
     ofstream stub(stubpath);
     TEST(stub.is_open());
-    stub << "auto ../" << get_database_path("apitest_simpledata") << endl;
-    stub << "auto ../" << get_database_path("apitest_simpledata2") << endl;
+    stub << "auto ../" << get_database_path("apitest_simpledata") << '\n';
+    stub << "auto ../" << get_database_path("apitest_simpledata2") << '\n';
     stub.close();
 
     Xapian::doccount in_docs;
@@ -413,22 +396,18 @@ DEFINE_TESTCASE(compactstub3, compact) {
 
     TEST_EQUAL(in_docs, outdb.get_doccount());
     dbcheck(outdb, outdb.get_doccount(), outdb.get_doccount());
-
-    return true;
 }
 
 // Test compacting a stub database directory to itself.
 DEFINE_TESTCASE(compactstub4, compact) {
-    // Honey->honey compaction is currently buggy.
-    SKIP_TEST_FOR_BACKEND("honey");
     const char * stubpath = ".stub/compactstub4";
     const char * stubpathfile = ".stub/compactstub4/XAPIANDB";
     mkdir(".stub", 0755);
     mkdir(stubpath, 0755);
     ofstream stub(stubpathfile);
     TEST(stub.is_open());
-    stub << "auto ../../" << get_database_path("apitest_simpledata") << endl;
-    stub << "auto ../../" << get_database_path("apitest_simpledata2") << endl;
+    stub << "auto ../../" << get_database_path("apitest_simpledata") << '\n';
+    stub << "auto ../../" << get_database_path("apitest_simpledata2") << '\n';
     stub.close();
 
     Xapian::doccount in_docs;
@@ -442,8 +421,6 @@ DEFINE_TESTCASE(compactstub4, compact) {
 
     TEST_EQUAL(in_docs, outdb.get_doccount());
     dbcheck(outdb, outdb.get_doccount(), outdb.get_doccount());
-
-    return true;
 }
 
 static void
@@ -469,7 +446,7 @@ make_missing_tables(Xapian::WritableDatabase &db, const string &)
     db.commit();
 }
 
-DEFINE_TESTCASE(compactmissingtables1, compact && generated) {
+DEFINE_TESTCASE(compactmissingtables1, compact) {
     string a = get_database_path("compactmissingtables1a",
 				 make_all_tables);
     string b = get_database_path("compactmissingtables1b",
@@ -492,8 +469,6 @@ DEFINE_TESTCASE(compactmissingtables1, compact && generated) {
 	// FIXME: arrange for input b to not have a termlist table.
 //	TEST_EXCEPTION(Xapian::FeatureUnavailableError, db.termlist_begin(1));
     }
-
-    return true;
 }
 
 static void
@@ -511,7 +486,7 @@ make_all_tables2(Xapian::WritableDatabase &db, const string &)
 }
 
 /// Adds coverage for merging synonym table.
-DEFINE_TESTCASE(compactmergesynonym1, compact && generated) {
+DEFINE_TESTCASE(compactmergesynonym1, compact) {
     string a = get_database_path("compactmergesynonym1a",
 				 make_all_tables);
     string b = get_database_path("compactmergesynonym1b",
@@ -554,8 +529,6 @@ DEFINE_TESTCASE(compactmergesynonym1, compact && generated) {
 	++i;
 	TEST_EQUAL(i, db.synonym_keys_end());
     }
-
-    return true;
 }
 
 DEFINE_TESTCASE(compactempty1, compact) {
@@ -585,11 +558,9 @@ DEFINE_TESTCASE(compactempty1, compact) {
 	TEST_EQUAL(outdb.get_doccount(), 0);
 	dbcheck(outdb, 0, 0);
     }
-
-    return true;
 }
 
-DEFINE_TESTCASE(compactmultipass1, compact && generated) {
+DEFINE_TESTCASE(compactmultipass1, compact) {
     string outdbpath = get_compaction_output_path("compactmultipass1");
     rm_rf(outdbpath);
 
@@ -613,14 +584,10 @@ DEFINE_TESTCASE(compactmultipass1, compact && generated) {
 
     Xapian::Database outdb(outdbpath);
     dbcheck(outdb, 29, 1041);
-
-    return true;
 }
 
 // Test compacting to an fd.
 DEFINE_TESTCASE(compacttofd1, compact) {
-    // Honey->honey compaction is currently buggy.
-    SKIP_TEST_FOR_BACKEND("honey");
     Xapian::Database indb(get_database("apitest_simpledata"));
     string outdbpath = get_compaction_output_path("compacttofd1out");
     rm_rf(outdbpath);
@@ -643,14 +610,10 @@ DEFINE_TESTCASE(compacttofd1, compact) {
 
     TEST_EQUAL(indb.get_doccount(), outdb.get_doccount());
     dbcheck(outdb, outdb.get_doccount(), outdb.get_doccount());
-
-    return true;
 }
 
 // Test compacting to an fd at at offset.
 DEFINE_TESTCASE(compacttofd2, compact) {
-    // Honey->honey compaction is currently buggy.
-    SKIP_TEST_FOR_BACKEND("honey");
     Xapian::Database indb(get_database("apitest_simpledata"));
     string outdbpath = get_compaction_output_path("compacttofd2out");
     rm_rf(outdbpath);
@@ -670,7 +633,7 @@ DEFINE_TESTCASE(compacttofd2, compact) {
 	TEST_EQUAL(errno, EBADF);
     }
 
-    fd = open(outdbpath.c_str(), O_RDONLY|O_BINARY, 0666);
+    fd = open(outdbpath.c_str(), O_RDONLY|O_BINARY);
     TEST(fd != -1);
 
     // Test that the database wasn't just written to the start of the file.
@@ -690,8 +653,6 @@ DEFINE_TESTCASE(compacttofd2, compact) {
 
     TEST_EQUAL(indb.get_doccount(), outdb.get_doccount());
     dbcheck(outdb, outdb.get_doccount(), outdb.get_doccount());
-
-    return true;
 }
 
 // Regression test for bug fixed in 1.3.5.  If you compact a WritableDatabase
@@ -703,6 +664,14 @@ DEFINE_TESTCASE(compactsingle1, compact && writable) {
     doc.add_term("bar");
     doc.add_term("baz");
     db.add_document(doc);
+    // Include a zero-length document as a regression test for a
+    // Database::check() bug fixed in 1.4.7 (and introduced in 1.4.6).  Test it
+    // here so we also have test coverage for compaction for such a document.
+    Xapian::Document doc2;
+    doc2.add_boolean_term("Kfoo");
+    db.add_document(doc2);
+    // Also test a completely empty document.
+    db.add_document(Xapian::Document());
 
     string output = get_compaction_output_path("compactsingle1-out");
     // In 1.3.4, we would hang if the output file already existed, so check
@@ -721,7 +690,7 @@ DEFINE_TESTCASE(compactsingle1, compact && writable) {
 
     TEST_EQUAL(Xapian::Database::check(output, 0, &tout), 0);
 
-    return true;
+    TEST_EQUAL(Xapian::Database(output).get_doccount(), 3);
 }
 
 // Regression test for bug fixed in 1.4.6.  Same as above, except not with
@@ -733,6 +702,14 @@ DEFINE_TESTCASE(compact1, compact && writable) {
     doc.add_term("bar");
     doc.add_term("baz");
     db.add_document(doc);
+    // Include a zero-length document as a regression test for a
+    // Database::check() bug fixed in 1.4.7 (and introduced in 1.4.6).  Test it
+    // here so we also have test coverage for compaction for such a document.
+    Xapian::Document doc2;
+    doc2.add_boolean_term("Kfoo");
+    db.add_document(doc2);
+    // Also test a completely empty document.
+    db.add_document(Xapian::Document());
 
     string output = get_compaction_output_path("compact1-out");
     rm_rf(output);
@@ -746,5 +723,33 @@ DEFINE_TESTCASE(compact1, compact && writable) {
 
     TEST_EQUAL(Xapian::Database::check(output, 0, &tout), 0);
 
-    return true;
+    TEST_EQUAL(Xapian::Database(output).get_doccount(), 3);
+}
+
+// Regression test for compacting honey databases.
+DEFINE_TESTCASE(compact2, compact) {
+    Xapian::Database db = get_database("compact2",
+				       [](Xapian::WritableDatabase& wdb,
+					  const string&) {
+					   Xapian::Document doc;
+					   doc.add_term("test");
+					   wdb.add_document(doc);
+					   doc.add_term("test");
+					   for (int i = 1; i < 4000; ++i) {
+					       wdb.add_document(doc);
+					   }
+				       });
+
+    db.add_database(get_database("apitest_simpledata"));
+    auto db_size = db.get_doccount();
+
+    string output = get_compaction_output_path("compact2-out");
+    rm_rf(output);
+
+    db.compact(output);
+    db.close();
+
+    TEST_EQUAL(Xapian::Database::check(output, 0, &tout), 0);
+
+    TEST_EQUAL(Xapian::Database(output).get_doccount(), db_size);
 }

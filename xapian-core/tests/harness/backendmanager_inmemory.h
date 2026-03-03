@@ -1,4 +1,4 @@
-/** @file backendmanager_inmemory.h
+/** @file
  * @brief BackendManager subclass for inmemory databases.
  */
 /* Copyright (C) 2007,2009,2018 Olly Betts
@@ -14,8 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_BACKENDMANAGER_INMEMORY_H
@@ -43,10 +43,7 @@ class BackendManagerInMemory : public BackendManager {
   public:
     explicit
     BackendManagerInMemory(const std::string& datadir_)
-	: BackendManager(datadir_) {}
-
-    /// Return a string representing the current database type.
-    std::string get_dbtype() const;
+	: BackendManager(datadir_, "inmemory") {}
 
     /// Create a InMemory Xapian::WritableDatabase object indexing a single file.
     Xapian::WritableDatabase get_writable_database(const std::string & name, const std::string & file);

@@ -1,4 +1,4 @@
-/** @file replicatetcpserver.h
+/** @file
  * @brief TCP/IP replication server class.
  */
 /* Copyright (C) 2008,2011 Olly Betts
@@ -14,18 +14,16 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_REPLICATETCPSERVER_H
 #define XAPIAN_INCLUDED_REPLICATETCPSERVER_H
 
-#include "remoteconnection.h"
 #include "tcpserver.h"
 
 #include "xapian/visibility.h"
-#include "api/replication.h"
 
 class XAPIAN_VISIBILITY_DEFAULT ReplicateTcpServer : public TcpServer {
     /// The path to pass to DatabaseMaster.
@@ -41,9 +39,6 @@ class XAPIAN_VISIBILITY_DEFAULT ReplicateTcpServer : public TcpServer {
      */
     ReplicateTcpServer(const std::string & host, int port,
 		       const std::string & path_);
-
-    /// Destructor.
-    ~ReplicateTcpServer();
 
     /** Handle a single connection on an already connected socket.
      *

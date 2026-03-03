@@ -1,4 +1,4 @@
-/** @file backendmanager_glass.cc
+/** @file
  * @brief BackendManager subclass for glass databases.
  */
 /* Copyright (C) 2007,2008,2009,2013,2018 Olly Betts
@@ -14,8 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -33,16 +33,10 @@ using namespace std;
 #define BLOCK_SIZE 2048
 
 BackendManagerGlass::BackendManagerGlass(const string& datadir_)
-    : BackendManager(datadir_)
+    : BackendManager(datadir_, "glass")
 {
     // Ensure the directory we store cached test databases in exists.
     (void)create_dir_if_needed(CACHE_DIRECTORY);
-}
-
-std::string
-BackendManagerGlass::get_dbtype() const
-{
-    return "glass";
 }
 
 string
@@ -65,7 +59,7 @@ BackendManagerGlass::do_get_database_path(const vector<string> & files)
 	index_files_to_database(wdb, files);
 	wdb.close();
 	if (rename(tmp_path.c_str(), db_path.c_str()) < 0) {
-	    throw Xapian::Database("rename failed", errno);
+	    throw Xapian::DatabaseError("rename failed", errno);
 	}
     }
 

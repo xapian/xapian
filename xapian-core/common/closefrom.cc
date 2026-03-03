@@ -1,7 +1,7 @@
-/** @file closefrom.cc
+/** @file
  * @brief Implementation of closefrom() function.
  */
-/* Copyright (C) 2010,2011,2012,2016 Olly Betts
+/* Copyright (C) 2010,2011,2012,2016,2018,2019,2026 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -25,7 +25,7 @@
 
 #include "closefrom.h"
 
-#include "safeerrno.h"
+#include <cerrno>
 #include "safefcntl.h"
 #include "safeunistd.h"
 
@@ -35,15 +35,14 @@
 #endif
 
 #if defined __linux__
+# include "alignment_cast.h"
 # include "safedirent.h"
-# include <cstdlib>
+# include "parseint.h"
 #elif defined __APPLE__
 # include <sys/attr.h>
-# include <cstdlib>
 # include <cstring>
+# include "parseint.h"
 #endif
-
-using namespace std;
 
 static int
 get_maxfd() {
@@ -65,10 +64,14 @@ get_maxfd() {
 }
 
 // These platforms are known to provide closefrom():
-// FreeBSD >= 8.0, NetBSD >= 3.0, OpenBSD >= 3.5, Solaris >= 9
+// FreeBSD >= 8.0, NetBSD >= 3.0, OpenBSD >= 3.5, Solaris >= 9,
+// Linux >= 5.9 with glibc >= 2.34
 //
 // These platforms are known to support fcntl() with F_CLOSEM:
-// AIX, IRIX, NetBSD >= 2.0
+// AIX, NetBSD >= 2.0
+//
+// These platforms are known to provide close_range() but not closefrom():
+// Cygwin >= 3.5.0, Android NDK >= r34
 //
 // These platforms have getdirentries() and a "magic" directory with an entry
 // for each FD open in the current process:
@@ -76,12 +79,13 @@ get_maxfd() {
 //
 // These platforms have getdirentriesattr() and a "magic" directory with an
 // entry for each FD open in the current process:
-// OS X
+// macOS
 //
 // Other platforms just use a loop up to a limit obtained from
 // fcntl(0, F_MAXFD), getrlimit(RLIMIT_NOFILE, ...), or sysconf(_SC_OPEN_MAX)
 // - known examples:
-// Android (bionic libc doesn't provide getdirentries())
+// Android < NDK r34 (bionic libc doesn't provide getdirentries())
+// Cygwin < 3.5.0
 
 void
 Xapian::Internal::closefrom(int fd)
@@ -90,8 +94,11 @@ Xapian::Internal::closefrom(int fd)
 #ifdef F_CLOSEM
     if (fcntl(fd, F_CLOSEM, 0) >= 0)
 	return;
+#elif defined HAVE_CLOSE_RANGE
+    if (close_range(fd, ~0U, 0) >= 0)
+	return;
 #elif defined HAVE_GETDIRENTRIES && defined __linux__
-    const char * path = "/proc/self/fd";
+    const char* path = "/proc/self/fd";
     int dir = open(path, O_RDONLY|O_DIRECTORY);
     if (dir >= 0) {
 	off_t base = 0;
@@ -110,15 +117,15 @@ Xapian::Internal::closefrom(int fd)
 		// Fallback if getdirentries() fails.
 		break;
 	    }
-	    struct dirent *d;
+	    struct dirent* d;
 	    for (ssize_t pos = 0; pos < c; pos += d->d_reclen) {
-		d = reinterpret_cast<struct dirent*>(buf + pos);
-		const char * leaf = d->d_name;
-		if (leaf[0] < '0' || leaf[0] > '9') {
+		d = alignment_cast<struct dirent*>(buf + pos);
+		const char* leaf = d->d_name;
+		int n;
+		if (!parse_signed(leaf, n)) {
 		    // Skip '.' and '..'.
 		    continue;
 		}
-		int n = atoi(leaf);
 		if (n < fd) {
 		    // FD below threshold.
 		    continue;
@@ -151,8 +158,8 @@ Xapian::Internal::closefrom(int fd)
 	}
 	close(dir);
     }
-#elif defined __APPLE__ // Mac OS X
-    const char * path = "/dev/fd";
+#elif defined __APPLE__ // macOS
+    const char* path = "/dev/fd";
 #ifdef __LP64__
     typedef unsigned int gdea_type;
 #else
@@ -162,7 +169,7 @@ Xapian::Internal::closefrom(int fd)
     if (dir >= 0) {
 	gdea_type base = 0;
 	struct attrlist alist;
-	memset(&alist, 0, sizeof(alist));
+	std::memset(&alist, 0, sizeof(alist));
 	alist.bitmapcount = ATTR_BIT_MAP_COUNT;
 	alist.commonattr = ATTR_CMN_NAME;
 	while (true) {
@@ -182,16 +189,16 @@ Xapian::Internal::closefrom(int fd)
 		// Fallback if getdirentriesattr() fails.
 		break;
 	    }
-	    char * p = buf;
+	    char* p = buf;
 	    while (count-- > 0) {
-		const char * leaf = p + sizeof(u_int32_t);
+		const char* leaf = p + sizeof(u_int32_t);
 		p += *static_cast<u_int32_t*>(static_cast<void*>(p));
 
-		if (leaf[0] < '0' || leaf[0] > '9') {
+		int n;
+		if (!parse_signed(leaf, n)) {
 		    // Skip '.' and '..'.
 		    continue;
 		}
-		int n = atoi(leaf);
 		if (n < fd) {
 		    // FD below threshold.
 		    continue;
@@ -218,7 +225,8 @@ Xapian::Internal::closefrom(int fd)
     // getdirentries() then this code can be used.  AIX is an example of
     // a platform of the former, but apparently has F_CLOSEM.
     char path[6 + sizeof(pid_t) * 3 + 4];
-    sprintf(path, "/proc/%ld/fd", long(getpid()));
+    snprintf(path, sizeof(path), "/proc/%ld/fd", long(getpid()));
+    path[sizeof(path) - 1] = '\0';
 #endif
     if (maxfd < 0)
 	maxfd = get_maxfd();

@@ -1,8 +1,9 @@
-/* glass_check.cc: Btree checking
- *
- * Copyright 1999,2000,2001 BrightStation PLC
+/** @file
+ * @brief Btree checking
+ */
+/* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2004,2005,2008,2009,2011,2012,2013,2014,2016 Olly Betts
+ * Copyright 2002,2004,2005,2008,2009,2011,2012,2013,2014,2016,2024 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -16,9 +17,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -32,6 +32,7 @@
 #include <cstring>
 #include <memory>
 #include <ostream>
+#include <string_view>
 
 using namespace Glass;
 using namespace std;
@@ -41,12 +42,12 @@ void GlassTableCheck::print_spaces(int n) const
     while (n--) out->put(' ');
 }
 
-void GlassTableCheck::print_bytes(int n, const byte * p) const
+void GlassTableCheck::print_bytes(int n, const uint8_t * p) const
 {
     out->write(reinterpret_cast<const char *>(p), n);
 }
 
-void GlassTableCheck::print_key(const byte * p, int c, int j) const
+void GlassTableCheck::print_key(const uint8_t * p, int c, int j) const
 {
     if (j == 0) {
 	LeafItem item(p, c);
@@ -72,7 +73,7 @@ void GlassTableCheck::print_key(const byte * p, int c, int j) const
     }
 }
 
-void GlassTableCheck::print_tag(const byte * p, int c, int j) const
+void GlassTableCheck::print_tag(const uint8_t * p, int c, int j) const
 {
     if (j == 0) {
 	LeafItem item(p, c);
@@ -87,7 +88,7 @@ void GlassTableCheck::print_tag(const byte * p, int c, int j) const
     }
 }
 
-void GlassTableCheck::report_block_full(int m, int n, const byte * p) const
+void GlassTableCheck::report_block_full(int m, int n, const uint8_t * p) const
 {
     int j = GET_LEVEL(p);
     int dir_end = DIR_END(p);
@@ -105,7 +106,7 @@ void GlassTableCheck::report_block_full(int m, int n, const byte * p) const
     }
 }
 
-int GlassTableCheck::block_usage(const byte * p) const
+int GlassTableCheck::block_usage(const uint8_t * p) const
 {
     int space = block_size - DIR_END(p);
     int free = TOTAL_FREE(p);
@@ -115,7 +116,7 @@ int GlassTableCheck::block_usage(const byte * p) const
 /** GlassTableCheck::report_block(m, n, p) prints the block at p, block number n,
  *  indented by m spaces.
  */
-void GlassTableCheck::report_block(int m, int n, const byte * p) const
+void GlassTableCheck::report_block(int m, int n, const uint8_t * p) const
 {
     int j = GET_LEVEL(p);
     int dir_end = DIR_END(p);
@@ -148,14 +149,14 @@ failure(const char *msg, uint4 n, int c = 0)
     }
     e += ": ";
     e += msg;
-    throw Xapian::DatabaseError(e);
+    throw Xapian::DatabaseCorruptError(e);
 }
 
 void
 GlassTableCheck::block_check(Glass::Cursor * C_, int j, int opts,
 			     GlassFreeListChecker & flcheck)
 {
-    const byte * p = C_[j].get_p();
+    const uint8_t * p = C_[j].get_p();
     uint4 n = C_[j].get_n();
     int c;
     int significant_c = j == 0 ? DIR_START : DIR_START + D2;
@@ -175,10 +176,10 @@ GlassTableCheck::block_check(Glass::Cursor * C_, int j, int opts,
 	failure("directory end pointer invalid", n);
 
     if (opts & Xapian::DBCHECK_SHORT_TREE)
-	report_block(3*(level - j), n, p);
+	report_block(3 * (level - j), n, p);
 
     if (opts & Xapian::DBCHECK_FULL_TREE)
-	report_block_full(3*(level - j), n, p);
+	report_block_full(3 * (level - j), n, p);
 
     if (j == 0) {
 	for (c = DIR_START; c < dir_end; c += D2) {
@@ -225,7 +226,7 @@ GlassTableCheck::block_check(Glass::Cursor * C_, int j, int opts,
 
 	block_check(C_, j - 1, opts, flcheck);
 
-	const byte * q = C_[j - 1].get_p();
+	const uint8_t * q = C_[j - 1].get_p();
 	/* if j == 1, and c > DIR_START, the first key of level j - 1 must be
 	 * >= the key of p, c: */
 
@@ -258,11 +259,11 @@ GlassTableCheck::block_check(Glass::Cursor * C_, int j, int opts,
     }
 }
 
-GlassTableCheck *
-GlassTableCheck::check(const char * tablename, const string & path, int fd,
+GlassTableCheck*
+GlassTableCheck::check(const char* tablename, string_view path, int fd,
 		       off_t offset_,
-		       const GlassVersion & version_file, int opts,
-		       ostream *out)
+		       const GlassVersion& version_file, int opts,
+		       ostream* out)
 {
     string filename(path);
     filename += '/';

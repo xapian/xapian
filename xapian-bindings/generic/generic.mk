@@ -9,7 +9,7 @@ export ACLOCAL AUTOCONF AUTOHEADER AUTOM4TE AUTOMAKE
 endif
 
 if NEED_INTREE_DYLD
-# This is a hack for Mac OS X to work around "System Integrity Protection"
+# This is a hack for macOS to work around "System Integrity Protection"
 # which strips DYLD_* variables from the environment when running binaries
 # in system bin directories.  This totally breaks running in-tree tests
 # against system interpreters (e.g. /usr/bin/python), but even for an
@@ -17,12 +17,7 @@ if NEED_INTREE_DYLD
 # /bin/sh is also affected.  The trick we use is to define a variable
 # which expands to the code needed to set DYLD_LIBRARY_PATH and inject
 # this right when we run the interpreter.
-export OSX_SIP_HACK_ENV=env DYLD_LIBRARY_PATH=$(INTREE_DYLD_PATH)
-endif
-
-if OVERRIDE_MACOSX_DEPLOYMENT_TARGET
-# This requires GNU make, but apparently that's the default on OS X.
-export MACOSX_DEPLOYMENT_TARGET=@OVERRIDE_MACOSX_DEPLOYMENT_TARGET@
+export MACOS_SIP_HACK_ENV=env DYLD_LIBRARY_PATH=$(INTREE_DYLD_PATH)
 endif
 
 # Define separately to allow overriding easily with: make SWIG_WERROR=

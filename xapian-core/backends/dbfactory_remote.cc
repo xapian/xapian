@@ -1,6 +1,7 @@
-/* dbfactory_remote.cc: Database factories for remote databases.
- *
- * Copyright (C) 2006,2007,2008,2010,2011,2014 Olly Betts
+/** @file
+ * @brief Database factories for remote databases.
+ */
+/* Copyright (C) 2006,2007,2008,2010,2011,2014,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -13,8 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -25,14 +26,14 @@
 #include "net/progclient.h"
 #include "net/remotetcpclient.h"
 
-#include <string>
+#include <string_view>
 
 using namespace std;
 
 namespace Xapian {
 
 Database
-Remote::open(const string &host, unsigned int port, unsigned timeout_,
+Remote::open(string_view host, unsigned int port, unsigned timeout_,
 	     unsigned connect_timeout)
 {
     LOGCALL_STATIC(API, Database, "Remote::open", host | port | timeout_ | connect_timeout);
@@ -41,7 +42,7 @@ Remote::open(const string &host, unsigned int port, unsigned timeout_,
 }
 
 WritableDatabase
-Remote::open_writable(const string &host, unsigned int port,
+Remote::open_writable(string_view host, unsigned int port,
 		      unsigned timeout_, unsigned connect_timeout,
 		      int flags)
 {
@@ -52,7 +53,7 @@ Remote::open_writable(const string &host, unsigned int port,
 }
 
 Database
-Remote::open(const string &program, const string &args,
+Remote::open(string_view program, string_view args,
 	     unsigned timeout_)
 {
     LOGCALL_STATIC(API, Database, "Remote::open", program | args | timeout_);
@@ -60,7 +61,7 @@ Remote::open(const string &program, const string &args,
 }
 
 WritableDatabase
-Remote::open_writable(const string &program, const string &args,
+Remote::open_writable(string_view program, string_view args,
 		      unsigned timeout_, int flags)
 {
     LOGCALL_STATIC(API, WritableDatabase, "Remote::open_writable", program | args | timeout_ | flags);

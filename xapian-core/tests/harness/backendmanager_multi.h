@@ -1,7 +1,7 @@
-/** @file backendmanager_multi.h
+/** @file
  * @brief BackendManager subclass for multi databases.
  */
-/* Copyright (C) 2007,2009,2017,2018 Olly Betts
+/* Copyright (C) 2007,2009,2017,2018,2019,2020 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -15,8 +15,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_BACKENDMANAGER_MULTI_H
@@ -25,6 +25,7 @@
 #include "backendmanager.h"
 
 #include <string>
+#include <vector>
 
 #include <xapian/database.h>
 
@@ -39,7 +40,8 @@ class BackendManagerMulti : public BackendManager {
     /// The path of the last writable database used.
     std::string last_wdb_path;
 
-    BackendManager* sub_manager;
+    // vector of sub_managers.
+    std::vector<BackendManager*> sub_managers;
 
     std::string cachedir;
 
@@ -52,10 +54,11 @@ class BackendManagerMulti : public BackendManager {
 
   public:
     BackendManagerMulti(const std::string& datadir_,
-			BackendManager* sub_manager_);
+			const std::vector<BackendManager*>& sub_manager_);
 
-    /// Return a string representing the current database type.
-    std::string get_dbtype() const;
+    Xapian::Database get_remote_database(const std::vector<std::string>& files,
+					 unsigned int timeout,
+					 int* port_ptr);
 
     /// Create a Multi Xapian::WritableDatabase object indexing a single file.
     Xapian::WritableDatabase get_writable_database(const std::string & name, const std::string & file);
@@ -64,6 +67,8 @@ class BackendManagerMulti : public BackendManager {
     std::string get_writable_database_path(const std::string & name);
 
     std::string get_compaction_output_path(const std::string& name);
+
+    std::string get_generated_database_path(const std::string& name);
 
     /// Create a WritableDatabase object for the last opened WritableDatabase.
     Xapian::WritableDatabase get_writable_database_again();

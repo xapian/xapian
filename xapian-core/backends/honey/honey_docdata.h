@@ -1,4 +1,4 @@
-/** @file honey_docdata.h
+/** @file
  * @brief Subclass of HoneyTable which holds document data.
  */
 /* Copyright (C) 2007,2008,2009,2010,2014,2016 Olly Betts
@@ -14,8 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_HONEY_DOCDATA_H
@@ -44,7 +44,7 @@ class HoneyDocDataTable : public HoneyLazyTable {
      *  @param dbdir	    The directory the honey database is stored in.
      *  @param readonly     true if we're opening read-only, else false.
      */
-    HoneyDocDataTable(const std::string & dbdir, bool readonly)
+    HoneyDocDataTable(const std::string& dbdir, bool readonly)
 	: HoneyLazyTable("docdata", dbdir + "/docdata.", readonly) { }
 
     HoneyDocDataTable(int fd, off_t offset_, bool readonly)
@@ -71,7 +71,7 @@ class HoneyDocDataTable : public HoneyLazyTable {
      *  @param did	The docid to set the document data for.
      *  @param data	The document data to set.
      */
-    void add_document_data(Xapian::docid did, const std::string & data) {
+    void add_document_data(Xapian::docid did, const std::string& data) {
 	// We don't store the document data if it is empty.
 	if (!data.empty())
 	    add(make_key(did), data);
@@ -84,7 +84,7 @@ class HoneyDocDataTable : public HoneyLazyTable {
      *  @param did	The docid to replace the document data for.
      *  @param data	The document data to set.
      */
-    void replace_document_data(Xapian::docid did, const std::string & data) {
+    void replace_document_data(Xapian::docid did, const std::string& data) {
 	if (data.empty()) {
 	    // We don't store the document data if it is empty.
 	    delete_document_data(did);

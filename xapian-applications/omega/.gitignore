@@ -3,6 +3,7 @@
 /Makefile
 /Makefile.in
 /aclocal.m4
+/ar-lib
 /compile
 /configure
 /config.cache
@@ -23,7 +24,6 @@
 /test-suite.log
 /.common.git
 /.deps
-/portability/.deps/
 /.libs
 /autom4te*.cache
 /depcomp
@@ -32,18 +32,20 @@
 /omindex
 /omindex-list
 /scriptindex
-/atomparsetest
+/atomparsertest
 /csvesctest
-/htmlparsetest
+/htmlparsertest
 /jsonesctest
 /md5test
+/omindexcheck
+/timecheck
 /urlenctest
 /utf8converttest
 /*test.log
 /*test.trs
 /libtransform.la
+/libutf8convert.la
 /xapian-omega-*.tar.xz
-/xapian-omega.spec
 /makemanpage
 /mhtml2html
 /outlookmsg2html
@@ -52,7 +54,7 @@
 /mimemap.h
 /mimemap.stamp
 /namedents.h
-/my-html-tok.h
+/html-tok.h
 /*.1
 /clickmodel/.deps
 /clickmodel/.dirstamp
@@ -60,3 +62,4 @@
 /clickmodel/tests/.dirstamp
 /generate-qrel-file
 /sdbntest
+/omindex_*

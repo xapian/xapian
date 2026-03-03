@@ -1,7 +1,7 @@
 %{
 /* xapian-headers.i: Getting SWIG to parse Xapian's C++ headers.
  *
- * Copyright 2004,2006,2011,2012,2013,2014,2015,2016,2017 Olly Betts
+ * Copyright 2004-2024 Olly Betts
  * Copyright 2014 Assem Chelli
  *
  * This program is free software; you can redistribute it and/or
@@ -15,9 +15,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 %}
 
@@ -54,6 +53,7 @@
     %ignore NS::CLASS::CLASS(Internal*);
     %ignore NS::CLASS::CLASS(Internal&);
     %ignore NS::CLASS::operator=;
+    %ignore NS::CLASS::CLASS(CLASS &&);
 %enddef
 #else
 %define STANDARD_IGNORES(NS, CLASS)
@@ -62,6 +62,7 @@
     %ignore NS::CLASS::CLASS(Internal&);
     %ignore NS::CLASS::operator=;
     %ignore NS::CLASS::CLASS(const CLASS &);
+    %ignore NS::CLASS::CLASS(CLASS &&);
 %enddef
 #endif
 
@@ -74,6 +75,19 @@
 #else
 /* Otherwise, next and prev return void. */
 #define INC_OR_DEC(METHOD, OP, NS, CLASS, RET_TYPE) void METHOD() { OP(*self); }
+#endif
+
+#ifdef SWIGPERL
+/* In Perl, use inc() and dec() instead of next() and prev(). */
+#define NEXT_METHOD inc
+#define PREV_METHOD dec
+#define OPERATOR_EQ(NS, CLASS) bool equal(const NS::CLASS & o) const { return *self == o; }
+#define OPERATOR_NE(NS, CLASS) bool nequal(const NS::CLASS & o) const { return *self != o; }
+#else
+#define NEXT_METHOD next
+#define PREV_METHOD prev
+#define OPERATOR_EQ(NS, CLASS) bool equals(const NS::CLASS & o) const { return *self == o; }
+#define OPERATOR_NE(NS, CLASS)
 #endif
 
 /* For other languages, SWIG already renames operator() suitably. */
@@ -92,9 +106,10 @@
     %ignore NS::CLASS::operator++;
     %ignore NS::CLASS::operator*;
     %extend NS::CLASS {
-	bool equals(const NS::CLASS & o) const { return *self == o; }
+	OPERATOR_EQ(NS, CLASS)
+	OPERATOR_NE(NS, CLASS)
 	RET_TYPE DEREF_METHOD() const { return **self; }
-	INC_OR_DEC(next, ++, NS, CLASS, RET_TYPE)
+	INC_OR_DEC(NEXT_METHOD, ++, NS, CLASS, RET_TYPE)
     }
 %enddef
 
@@ -106,7 +121,7 @@
     %ignore NS::CLASS::operator+;
     %ignore NS::CLASS::operator-;
     %extend NS::CLASS {
-	INC_OR_DEC(prev, --, NS, CLASS, RET_TYPE)
+	INC_OR_DEC(PREV_METHOD, --, NS, CLASS, RET_TYPE)
     }
 %enddef
 
@@ -153,6 +168,8 @@
  */
 /* %include <xapian/version.h> */
 
+CONSTANT(Xapian::valueno, Xapian, BAD_VALUENO);
+
 /* Types are needed by most of the other headers. */
 %include <xapian/types.h>
 
@@ -164,7 +181,6 @@ CONSTANT(int, Xapian, DB_NO_SYNC);
 CONSTANT(int, Xapian, DB_FULL_SYNC);
 CONSTANT(int, Xapian, DB_DANGEROUS);
 CONSTANT(int, Xapian, DB_NO_TERMLIST);
-CONSTANT(int, Xapian, DB_BACKEND_CHERT);
 CONSTANT(int, Xapian, DB_BACKEND_GLASS);
 CONSTANT(int, Xapian, DB_BACKEND_HONEY);
 CONSTANT(int, Xapian, DB_BACKEND_INMEMORY);
@@ -210,17 +226,16 @@ STANDARD_IGNORES(Xapian, Query)
 %ignore *::operator&(const Xapian::Query &, const Xapian::InvertedQuery_ &);
 %ignore *::operator~;
 %ignore *::operator&=;
+%ignore ::operator&=;
 %ignore *::operator|=;
 %ignore *::operator^=;
 %ignore *::operator*=;
 %ignore *::operator/=;
-#if defined SWIGCSHARP || defined SWIGJAVA || defined SWIGLUA || defined SWIGPHP
 %ignore *::operator&;
 %ignore *::operator|;
 %ignore *::operator^;
 %ignore *::operator*;
 %ignore *::operator/;
-#endif
 %ignore Xapian::Query::LEAF_TERM;
 %ignore Xapian::Query::LEAF_POSTING_SOURCE;
 %ignore Xapian::Query::LEAF_MATCH_ALL;
@@ -236,8 +251,15 @@ STANDARD_IGNORES(Xapian, Query)
 #endif
 #ifndef XAPIAN_MIXED_SUBQUERIES_BY_ITERATOR_TYPEMAP
 %ignore Query(op op_, XapianSWIGQueryItor qbegin, XapianSWIGQueryItor qend,
-              Xapian::termcount parameter = 0);
+	      Xapian::termcount parameter = 0);
 #endif
+%ignore Xapian::Query::Query(const std::string&, Xapian::termcount = 1, Xapian::termpos = 0);
+%ignore Xapian::Query::Query(const char*, Xapian::termcount = 1, Xapian::termpos = 0);
+%extend Xapian::Query {
+    Query(op op_, std::string_view a, std::string_view b) {
+	return new Xapian::Query(op_, a, b);
+    }
+}
 %include <xapian/query.h>
 
 // Suppress warning that Xapian::Internal::intrusive_base is unknown.
@@ -253,12 +275,12 @@ STANDARD_IGNORES(Xapian, Stem)
 STANDARD_IGNORES(Xapian, TermGenerator)
 %ignore Xapian::TermGenerator::operator=;
 /* Ignore forms which use Utf8Iterator, as we don't wrap that class. */
-%ignore Xapian::TermGenerator::index_text(const Xapian::Utf8Iterator &);
-%ignore Xapian::TermGenerator::index_text(const Xapian::Utf8Iterator &, Xapian::termcount);
-%ignore Xapian::TermGenerator::index_text(const Xapian::Utf8Iterator &, Xapian::termcount, const std::string &);
-%ignore Xapian::TermGenerator::index_text_without_positions(const Xapian::Utf8Iterator &);
-%ignore Xapian::TermGenerator::index_text_without_positions(const Xapian::Utf8Iterator &, Xapian::termcount);
-%ignore Xapian::TermGenerator::index_text_without_positions(const Xapian::Utf8Iterator &, Xapian::termcount, const std::string &);
+%ignore Xapian::TermGenerator::index_text(const Xapian::Utf8Iterator&);
+%ignore Xapian::TermGenerator::index_text(const Xapian::Utf8Iterator&, Xapian::termcount);
+%ignore Xapian::TermGenerator::index_text(const Xapian::Utf8Iterator&, Xapian::termcount, std::string_view);
+%ignore Xapian::TermGenerator::index_text_without_positions(const Xapian::Utf8Iterator&);
+%ignore Xapian::TermGenerator::index_text_without_positions(const Xapian::Utf8Iterator&, Xapian::termcount);
+%ignore Xapian::TermGenerator::index_text_without_positions(const Xapian::Utf8Iterator&, Xapian::termcount, std::string_view);
 %ignore Xapian::TermGenerator::TermGenerator(const TermGenerator &);
 %include <xapian/termgenerator.h>
 
@@ -360,10 +382,8 @@ SUBCLASSABLE(Xapian, FieldProcessor)
 %warnfilter(SWIGWARN_TYPE_UNDEFINED_CLASS) Xapian::Stopper;
 SUBCLASSABLE(Xapian, RangeProcessor)
 SUBCLASSABLE(Xapian, Stopper)
-SUBCLASSABLE(Xapian, ValueRangeProcessor)
 // Suppress warning that Xapian::Internal::opt_intrusive_base is unknown.
 %warnfilter(SWIGWARN_TYPE_UNDEFINED_CLASS) Xapian::RangeProcessor;
-%warnfilter(SWIGWARN_TYPE_UNDEFINED_CLASS) Xapian::ValueRangeProcessor;
 %warnfilter(SWIGWARN_TYPE_UNDEFINED_CLASS) Xapian::FieldProcessor;
 STANDARD_IGNORES(Xapian, QueryParser)
 %ignore Xapian::QueryParser::QueryParser(const QueryParser &);
@@ -418,11 +438,11 @@ INPUT_ITERATOR_METHODS(Xapian, LatLongCoordsIterator, LatLongCoord, get_coord)
 STANDARD_IGNORES(Xapian, Database)
 STANDARD_IGNORES(Xapian, WritableDatabase)
 %ignore Xapian::WritableDatabase::WritableDatabase(Database::Internal *);
-%ignore Xapian::Database::check(const std::string &, int, std::ostream *);
-%ignore Xapian::Database::check(int fd, int, std::ostream *);
+%ignore Xapian::Database::check(std::string_view, int, std::ostream*);
+%ignore Xapian::Database::check(int fd, int, std::ostream*);
 %include <xapian/database.h>
 %extend Xapian::Database {
-    static size_t check(const std::string &path, int opts = 0) {
+    static size_t check(std::string_view path, int opts = 0) {
 	return Xapian::Database::check(path, opts, opts ? &std::cout : NULL);
     }
 }

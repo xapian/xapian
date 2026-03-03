@@ -1,8 +1,8 @@
-/** @file net_postlist.h
+/** @file
  *  @brief Postlists for remote databases
  */
 /* Copyright (C) 2007,2009 Lemur Consulting Ltd
- * Copyright (C) 2007,2008,2009,2011 Olly Betts
+ * Copyright (C) 2007,2008,2009,2011,2019,2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -15,9 +15,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_NET_POSTLIST_H
@@ -25,11 +24,11 @@
 
 #include <string>
 
-#include "api/leafpostlist.h"
+#include "backends/leafpostlist.h"
 #include "omassert.h"
 #include "remote-database.h"
 
-using namespace std;
+#include <string_view>
 
 /** A postlist in a remote database.
  */
@@ -38,47 +37,31 @@ class NetworkPostList : public LeafPostList {
 
     Xapian::Internal::intrusive_ptr<const RemoteDatabase> db;
 
-    string postings;
-    bool started;
-    const char * pos;
-    const char * pos_end;
+    std::string postings;
+    bool started = false;
+    const char* pos = NULL;
+    const char* pos_end = NULL;
 
-    Xapian::docid lastdocid;
-    Xapian::termcount lastwdf;
-    Xapian::Internal::intrusive_ptr<PositionList> lastposlist;
-
-    Xapian::doccount termfreq;
-
-    /// Append a posting to the end of the postlist.
-    void append_posting(const string & serialised) {
-	Assert(pos == NULL);
-	Assert(!started);
-	postings.append(serialised);
-    }
+    Xapian::docid lastdocid = 0;
+    Xapian::termcount lastwdf = 0;
 
   public:
     /// Constructor.
     NetworkPostList(Xapian::Internal::intrusive_ptr<const RemoteDatabase> db_,
-		    const string & term_)
-	: LeafPostList(term_),
-	  db(db_), started(false), pos(NULL), pos_end(NULL),
-	  lastdocid(0), lastwdf(0), termfreq(0)
-    {
-	termfreq = db->read_post_list(term, *this);
+		    std::string_view term_,
+		    Xapian::doccount termfreq_,
+		    std::string&& postings_)
+	: LeafPostList(term_), db(db_), postings(std::move(postings_)) {
+	termfreq = termfreq_;
+	// collfreq is only used during the match and remote shards are handled
+	// by running the match on the remote.
     }
-
-    /// Get number of documents indexed by this term.
-    Xapian::doccount get_termfreq() const;
 
     /// Get the current document ID.
     Xapian::docid get_docid() const;
 
     /// Get the Within Document Frequency of the term in the current document.
     Xapian::termcount get_wdf() const;
-
-    /// Read the position list for the term in the current document and
-    /// return a pointer to it (owned by the PostList).
-    PositionList * read_position_list();
 
     /// Read the position list for the term in the current document and
     /// return a pointer to it (not owned by the PostList).
@@ -95,8 +78,10 @@ class NetworkPostList : public LeafPostList {
     /// Return true if and only if we've moved off the end of the list.
     bool at_end() const;
 
+    Xapian::termcount get_wdf_upper_bound() const;
+
     /// Get a description of the postlist.
-    string get_description() const;
+    std::string get_description() const;
 };
 
 #endif /* XAPIAN_INCLUDED_NET_POSTLIST_H */

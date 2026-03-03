@@ -1,4 +1,4 @@
-/** @file api_scalability.cc
+/** @file
  * @brief Tests of scalability.
  */
 /* Copyright (C) 2008,2009,2011,2013,2015 Olly Betts
@@ -14,9 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -55,7 +54,6 @@ bigoaddvalue1_helper(unsigned num_values)
 DEFINE_TESTCASE(bigoaddvalue1, writable) {
     // O(n*n) is bad, but O(n*log(n)) is acceptable.
     test_scalability(bigoaddvalue1_helper, 5000, O_N_LOG_N);
-    return true;
 }
 
 static double
@@ -74,5 +72,4 @@ querypairwise1_helper(unsigned num_subqs)
 // Check that composing queries pairwise is O(n).
 DEFINE_TESTCASE(querypairwise1, !backend) {
     test_scalability(querypairwise1_helper, 50, O_N);
-    return true;
 }

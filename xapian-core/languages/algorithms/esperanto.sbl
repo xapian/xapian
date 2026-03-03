@@ -1,0 +1,158 @@
+// Alias: eo
+
+booleans ( foreign )
+
+routines (
+    canonical_form
+    correlative
+    final_apostrophe
+    initial_apostrophe
+    long_word
+    merged_numeral
+    pronoun
+    standard_suffix
+    ujn_suffix
+    uninflected
+)
+
+externals ( stem )
+
+groupings ( vowel aou digit )
+
+define vowel 'aeiou'
+define aou 'aou'
+define digit '0123456789'
+
+stringescapes {}
+
+stringdef c^ '{U+0109}'
+stringdef g^ '{U+011D}'
+stringdef h^ '{U+0125}'
+stringdef j^ '{U+0135}'
+stringdef s^ '{U+015D}'
+stringdef u+ '{U+016D}'
+
+stringdef a' '{U+00E1}'
+stringdef e' '{U+00E9}'
+stringdef i' '{U+00ED}'
+stringdef o' '{U+00F3}'
+stringdef u' '{U+00FA}'
+
+define canonical_form as (
+    unset foreign
+    repeat (
+        [substring]
+        among(
+            'cx' (<- '{c^}')
+            'gx' (<- '{g^}')
+            'hx' (<- '{h^}')
+            'jx' (<- '{j^}')
+            'sx' (<- '{s^}')
+            'ux' (<- '{u+}')
+            '{a'}' (<- 'a' set foreign)
+            '{e'}' (<- 'e' set foreign)
+            '{i'}' (<- 'i' set foreign)
+            '{o'}' (<- 'o' set foreign)
+            '{u'}' (<- 'u' set foreign)
+            'q' 'w' 'x' 'y' (set foreign)
+            '-' (unset foreign)
+            '' (next)
+        )
+    )
+    not foreign
+)
+
+define initial_apostrophe as (
+    ['{'}'] 'st' among('as' 'i' 'is' 'os' 'u' 'us') atlimit <- 'e'
+)
+
+backwardmode (
+    define pronoun as (
+        [try 'n']
+        among(
+            'ci' 'gi' '{g^}i' 'hi' 'ili' 'i{s^}i' 'ivi' 'li' 'mal{s^}i' 'mi' 'ni'
+            'oni' 'ri' 'si' '{s^}i' '{s^}li' 'vi'
+        )
+        (atlimit or '-') delete
+    )
+
+    define final_apostrophe as (
+        ['{'}']
+        ('l' atlimit <- 'a') or
+        ('un' atlimit <- 'u') or
+        (
+            among(
+                'adi' 'almen' 'amb' 'ank' 'ankor' 'anstat' 'anta{u+}hier' 'apen'
+                'bald' '{c^}irk' 'hier' 'hodi' 'kontr' 'kvaz' 'malbald' 'malgr'
+                'morg' 'postmorg' 'presk' 'tut{c^}irk'
+            ) (atlimit or '-') <- 'a{u+}'
+        ) or
+        (<- 'o')
+    )
+
+    define ujn_suffix as (
+        [try 'n' try 'j'] among('aliu' 'unu') (atlimit or '-') delete
+    )
+
+    define uninflected as (
+        among(
+            'aha' 'amen' 'dirlididi' 'disde' 'ehe' 'ekde' 'elde' 'haha'
+            'haleluja' 'hola' 'hosana' 'hura' '{h^}a{h^}a' 'mal{c^}i' 'malkaj'
+            'malpli' 'maltra' 'maltre' 'maltro' 'minus' 'muu' 'oho' 'tamen'
+            'uhu'
+        )
+        (atlimit or '-')
+    )
+
+    define merged_numeral as (
+        among('du' 'tri' 'unu')
+        among('cent' 'dek')
+    )
+
+    define correlative as (
+        []
+        // Ignore -al, -am, etc. since they can't be confused with suffixes.
+        test (
+            ((try 'n'] 'e') or (try 'n' try 'j'] aou))
+            'i'
+            try among('{c^}' 'k' 'kelk' 'mult' 'nen' 'samt' 't')
+            (atlimit or '-')
+        )
+        delete
+    )
+
+    define long_word as (
+        loop 2 gopast vowel or (gopast '-' next) or gopast digit
+    )
+
+    define standard_suffix as (
+        [
+        among(
+            'a' 'aj' 'ajn' 'an'
+            'e' 'en'
+            'i' 'as' 'is' 'os' 'u' 'us'
+            'o' 'oj' 'ojn' 'on'
+                ()
+            'j' 'jn' 'n'
+                (test ('-' or digit))
+        )
+        try '-'
+        ]
+        delete
+    )
+)
+
+define stem as (
+    test canonical_form
+    do initial_apostrophe
+    backwards (
+        not pronoun
+        do final_apostrophe
+        not correlative
+        not uninflected
+        not merged_numeral
+        not ujn_suffix
+        test long_word
+        standard_suffix
+    )
+)

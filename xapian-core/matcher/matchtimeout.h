@@ -1,4 +1,4 @@
-/** @file matchtimeout.h
+/** @file
  * @brief Time limits for the matcher
  */
 /* Copyright (C) 2013,2014,2015,2016,2017 Olly Betts
@@ -14,13 +14,16 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_MATCHTIMEOUT_H
 #define XAPIAN_INCLUDED_MATCHTIMEOUT_H
+
+#ifndef PACKAGE
+# error config.h must be included first in each C++ source file
+#endif
 
 #ifdef HAVE_TIMER_CREATE
 #include "realtime.h"
@@ -52,7 +55,7 @@ const clockid_t TIMEOUT_CLOCK = CLOCK_REALTIME;
 // Solaris defines _POSIX_MONOTONIC_CLOCK so we need to special case.
 const clockid_t TIMEOUT_CLOCK = CLOCK_REALTIME;
 #elif defined __CYGWIN__
-// https://cygwin.com/cygwin-api/std-notes.html currently (2016-05-13) says:
+// https://cygwin.com/cygwin-api/std-notes.html currently (2023-04-18) says:
 //
 //     clock_nanosleep currently supports only CLOCK_REALTIME and
 //     CLOCK_MONOTONIC.  clock_setres, clock_settime, and timer_create
@@ -67,14 +70,14 @@ const clockid_t TIMEOUT_CLOCK = CLOCK_MONOTONIC;
 class TimeOut {
     struct sigevent sev;
     timer_t timerid;
-    volatile bool expired;
+    volatile bool expired = false;
 
     TimeOut(const TimeOut&) = delete;
 
     TimeOut& operator=(const TimeOut&) = delete;
 
   public:
-    explicit TimeOut(double limit) : expired(false) {
+    explicit TimeOut(double limit) {
 	if (limit > 0) {
 	    sev.sigev_notify = SIGEV_THREAD;
 	    sev.sigev_notify_function = set_timeout_flag;

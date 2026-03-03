@@ -5,7 +5,6 @@
 /.deps
 /.libs
 /except.i
-/util.i
 /xapian_wrap.cc
 /xapian_wrap.h
 /xapian_wrap.d

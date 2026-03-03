@@ -1,7 +1,7 @@
-/** @file safesyssocket.h
+/** @file
  * @brief #include <sys/socket.h> with portability workarounds.
  */
-/* Copyright (C) 2012,2013,2014,2018 Olly Betts
+/* Copyright (C) 2012,2013,2014,2018,2019,2023 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -14,16 +14,17 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_SAFESYSSOCKET_H
 #define XAPIAN_INCLUDED_SAFESYSSOCKET_H
 
+// Some older BSDs require sys/types.h to be included first.  Also seems to
+// be needed for some mingw versions.
+#include <sys/types.h>
 #ifndef __WIN32__
-// Some older BSDs require sys/types.h to be included first.
-# include <sys/types.h>
 # include <sys/socket.h>
 #else
 # include "safewinsock2.h"
@@ -31,32 +32,44 @@
 
 #ifdef __WIN32__
 # include <type_traits>
-# include "xapian/error.h"
 # if defined SOCK_CLOEXEC
 static_assert(!SOCK_CLOEXEC, "__WIN32__ doesn't support SOCK_CLOEXEC");
 # endif
 # define SOCK_CLOEXEC 0
 
-static_assert(std::is_unsigned<SOCKET>::value, "SOCKET is unsigned");
+static_assert(std::is_unsigned_v<SOCKET>, "SOCKET is unsigned");
 
-inline int socket_(int domain, int type, int protocol) {
-    // Winsock2's socket() returns the unsigned type SOCKET, which is a 32-bit
-    // type for WIN32 and a 64-bit type for WIN64.
+inline int xapian_convert_socket_to_int_(SOCKET sock) {
+    // Winsock2 function socket() and accept() return the unsigned type SOCKET,
+    // which is a 32-bit type for WIN32 and a 64-bit type for WIN64.
     //
-    // It seems we can always safely assign SOCKET to an int: failure is indicated
-    // by INVALID_SOCKET which will cast to -1 as an int, and it seems in
-    // practice that valid values all fit in 31-bits (and that we're not the
-    // only code to assume this since it makes it much easier to write code
-    // that deals with BSD sockets and winsock2's bastardised version of them)
-    // so Microsoft are unlikely to arbitrarily change that).
+    // https://learn.microsoft.com/en-us/windows/win32/winprog64/interprocess-communication
+    // says that only the lower 32 bits are significant and one can
+    // truncate to 32 bits or sign-extend to 64 bits.
     //
-    // But we should check and throw an exception rather than quietly mangling
-    // the value.
-    SOCKET sock = socket(domain, type, protocol);
+    // We make a slight additional assumption that valid socket values fit
+    // in 31 bits (with INVALID_SOCKET being all bits set), which seems to
+    // be true in practice.  This means we can cast SOCKET to int and treat
+    // the result like a file descriptor (and INVALID_SOCKET casts to -1
+    // which matches file descriptor semantics).
+    //
+    // Ours is not the only code to assume this since it makes it much easier
+    // to write code that deals with BSD sockets and winsock2's bastardised
+    // version of them) so hopefully Microsoft are unlikely to arbitrarily
+    // change this.
+    //
+    // We check this assumption rather than quietly mangling the value.
     if (rare(sock > SOCKET(0x7fffffff) && sock != INVALID_SOCKET)) {
-	throw Xapian::NetworkError("socket() returned value > INT_MAX");
+	closesocket(sock);
+	sock = INVALID_SOCKET;
+	// "Too many open sockets" seems the most appropriate error to fake.
+	WSASetLastError(WSAEMFILE);
     }
     return int(sock);
+}
+
+inline int socket_(int domain, int type, int protocol) {
+    return xapian_convert_socket_to_int_(socket(domain, type, protocol));
 }
 
 # ifdef socket
@@ -64,13 +77,36 @@ inline int socket_(int domain, int type, int protocol) {
 # endif
 # define socket(D,T,P) socket_(D,T,P)
 
+inline int accept_(int sockfd, struct sockaddr* addr, SOCKLEN_T* addrlen) {
+    return xapian_convert_socket_to_int_(accept(sockfd, addr, addrlen));
+}
+
+# ifdef accept
+#  undef accept
+# endif
+# define accept(S,A,L) accept_(S,A,L)
+
+// Winsock2 effectively uses `int` instead of `socklen_t` everywhere except for
+// in `struct addrinfo` where it uses `size_t`.  This results in an integer
+// truncation warning when calling `bind()` or `connect()` on an address looked
+// up with `getaddrinfo()`.  To solve this we add overloads which take `size_t`
+// for `addrlen` and cast it to `SOCKLEN_T`.
+
+inline int bind(SOCKET s, const struct sockaddr* addr, size_t addrlen) {
+    return bind(s, addr, SOCKLEN_T(addrlen));
+}
+
+inline int connect(SOCKET s, const struct sockaddr* addr, size_t addrlen) {
+    return connect(s, addr, SOCKLEN_T(addrlen));
+}
+
 #elif !defined SOCK_CLOEXEC
 # define SOCK_CLOEXEC 0
 #else
 // On Linux at least, sometimes SOCK_CLOEXEC is defined but the kernel doesn't
 // handle it in socket() or socketpair():
 
-# include "safeerrno.h"
+# include <cerrno>
 
 inline int socket_(int domain, int type, int protocol) {
     // Usually type is passed a constant, so we'll collapse to one branch or
@@ -78,7 +114,7 @@ inline int socket_(int domain, int type, int protocol) {
     if (type & SOCK_CLOEXEC) {
 	int save_errno = errno;
 	int r = socket(domain, type, protocol);
-	if (r != 0 && errno == EINVAL) {
+	if (r < 0 && errno == EINVAL) {
 	    errno = save_errno;
 	    r = socket(domain, type &~ SOCK_CLOEXEC, protocol);
 	}

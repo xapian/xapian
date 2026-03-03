@@ -22,7 +22,12 @@ SKIP: {
 # as a reason to skip to avoid test failures in such cases.
 system("make 2>&1") == 0 or skip "Failed to build symbol-test module", 3;
 
-use lib ("blib/arch/auto/SymbolTest", "blib/arch/auto/SymbolTest/.libs", "blib/lib");
+use lib (
+    "blib/arch/auto/SymbolTest",
+    "blib/arch/auto/SymbolTest/.libs",
+    "blib/arch/auto/SymbolTest/_libs",
+    "blib/lib"
+);
 
 use_ok("SymbolTest");
 eval { SymbolTest::throw_from_libxapian() };

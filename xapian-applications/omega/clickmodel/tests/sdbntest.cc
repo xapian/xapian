@@ -1,4 +1,4 @@
-/** @file sdbntest.cc
+/** @file
  * @brief tests for the Simplified DBN clickmodel class.
  */
 /* Copyright (C) 2017 Vivek Pal
@@ -8,14 +8,14 @@
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software Foundation,
- * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -60,9 +60,9 @@ almost_equal(double x, double y, double epsilon = 0.001) {
 int main() {
     string srcdir = get_srcdir();
 
-    string sample_log1 = srcdir + "/clickmodel/testdata/test1.log";
-    string sample_log2 = srcdir + "/clickmodel/testdata/test2.log";
-    string sample_log3 = srcdir + "/clickmodel/testdata/test3.log";
+    string sample_log1 = srcdir + "/clickmodel/testdata/clicklog1";
+    string sample_log2 = srcdir + "/clickmodel/testdata/clicklog2";
+    string sample_log3 = srcdir + "/clickmodel/testdata/clicklog3";
 
     sessions_testcase sessions_tests[] = {
 	{sample_log1, {"821f03288846297c2cf43c34766a38f7",
@@ -92,7 +92,7 @@ int main() {
 	    if (x.get_qid() != sessions_tests[i].sessions.qid) {
 		cerr << "ERROR: Query ID mismatch occurred. " << endl
 		     << "Expected: " << sessions_tests[i].sessions.qid
-		     << " Received: "<< x.get_qid() << endl;
+		     << " Received: " << x.get_qid() << endl;
 		++failure_count;
 	    }
 	    if (x.get_docids() != sessions_tests[i].sessions.docids) {

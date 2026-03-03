@@ -1,4 +1,4 @@
-/** @file constants.h
+/** @file
  * @brief Constants in the Xapian namespace
  */
 /* Copyright (C) 2012,2013,2014,2015,2016,2017,2018 Olly Betts
@@ -14,16 +14,15 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_CONSTANTS_H
 #define XAPIAN_INCLUDED_CONSTANTS_H
 
 #if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
-# error "Never use <xapian/constants.h> directly; include <xapian.h> instead."
+# error Never use <xapian/constants.h> directly; include <xapian.h> instead.
 #endif
 
 namespace Xapian {
@@ -77,7 +76,7 @@ const int DB_NO_SYNC		 = 0x04;
  *  that committing changes takes longer, and other I/O to the same disk may be
  *  delayed too.
  *
- *  Currently only Mac OS X is supported, and only on some filing system types
+ *  Currently only macOS is supported, and only on some filing system types
  *  - if not supported, Xapian will use fsync() or similar instead.
  */
 const int DB_FULL_SYNC		 = 0x08;
@@ -157,12 +156,6 @@ const int DB_RETRY_LOCK		 = 0x40;
  */
 const int DB_BACKEND_GLASS	 = 0x100;
 
-/** Use the chert backend.
- *
- *  No longer supported as of Xapian 1.5.0.
- */
-const int DB_BACKEND_CHERT	 = 0x200;
-
 /** Open a stub database file.
  *
  *  When opening a Database, this flag means to only open it if it's a stub
@@ -198,6 +191,8 @@ const int DB_BACKEND_INMEMORY	 = 0x400;
  *  database.  There's rarely a good reason to do this - it's mostly provided
  *  as equivalent functionality to that provided by the namespaced open()
  *  functions in Xapian 1.2.
+ *
+ *  @since Added in Xapian 2.0.0.
  */
 const int DB_BACKEND_HONEY	 = 0x500;
 
@@ -238,14 +233,7 @@ const int DBCHECK_SHOW_STATS = 8;
  *
  *  For use with Xapian::Database::check().
  *
- *  Currently this is supported for chert, and will:
- *
- *  @li regenerate the "iamchert" file if it isn't valid (so if it is lost, you
- *      can just create it empty and then "fix problems").
- *
- *  @li regenerate base files (currently the algorithm for finding the root
- *      block may not work if there was a change partly written but not
- *      committed).
+ *  No fixes are currently implemented for glass or honey.
  */
 const int DBCHECK_FIX = 16;
 

@@ -30,7 +30,7 @@ Basic instructions
 
 3. Test omega from the command line::
 
-    $ /usr/lib/omega/bin/omega 'P=my search terms' HITSPERPAGE=10
+    $ /usr/lib/xapian-omega/bin/omega 'P=my search terms' HITSPERPAGE=10
 
   (The path to omega may be different in your installation.)
 

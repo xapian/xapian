@@ -1,7 +1,7 @@
-/** @file honey_version.h
+/** @file
  * @brief HoneyVersion class
  */
-/* Copyright (C) 2006,2007,2008,2009,2010,2013,2014,2015,2016,2018 Olly Betts
+/* Copyright (C) 2006-2024 Olly Betts
  * Copyright (C) 2011 Dan Colish
  *
  * This program is free software; you can redistribute it and/or modify
@@ -15,72 +15,53 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_HONEY_VERSION_H
 #define XAPIAN_INCLUDED_HONEY_VERSION_H
 
-#include "honey_changes.h"
 #include "honey_defs.h"
 
 #include "omassert.h"
 
-#include <cstring>
+#include <algorithm>
 #include <string>
+#include <string_view>
 
-#include "common/safeuuid.h"
+#include "backends/uuids.h"
 #include "internaltypes.h"
+#include "min_non_zero.h"
 #include "xapian/types.h"
 
 namespace Honey {
 
 class RootInfo {
     off_t offset;
-    honey_block_t root;
-    unsigned level;
+    off_t root;
     honey_tablesize_t num_entries;
-    bool root_is_fake;
-    bool sequential;
-    unsigned blocksize;
     /// Should be >= 4 or 0 for no compression.
     uint4 compress_min;
     std::string fl_serialised;
 
   public:
-    void init(unsigned blocksize_, uint4 compress_min_);
+    void init(uint4 compress_min_);
 
-    void serialise(std::string &s) const;
+    void serialise(std::string& s) const;
 
-    bool unserialise(const char ** p, const char * end);
+    bool unserialise(const char** p, const char* end);
 
     off_t get_offset() const { return offset; }
-    honey_block_t get_root() const { return root; }
-    int get_level() const { return int(level); }
+    off_t get_root() const { return root; }
     honey_tablesize_t get_num_entries() const { return num_entries; }
-    bool get_root_is_fake() const { return root_is_fake; }
-    bool get_sequential() const { return sequential; }
-    unsigned get_blocksize() const {
-	AssertRel(blocksize,>=,HONEY_MIN_BLOCKSIZE);
-	AssertRel(blocksize,<=,HONEY_MAX_BLOCKSIZE);
-	return blocksize;
-    }
     uint4 get_compress_min() const { return compress_min; }
-    const std::string & get_free_list() const { return fl_serialised; }
+    const std::string& get_free_list() const { return fl_serialised; }
 
-    void set_level(int level_) { level = unsigned(level_); }
     void set_num_entries(honey_tablesize_t n) { num_entries = n; }
-    void set_root_is_fake(bool f) { root_is_fake = f; }
-    void set_sequential(bool f) { sequential = f; }
     void set_offset(off_t offset_) { offset = offset_; }
-    void set_root(honey_block_t root_) { root = root_; }
-    void set_blocksize(unsigned b) {
-	AssertRel(b,>=,HONEY_MIN_BLOCKSIZE);
-	AssertRel(b,<=,HONEY_MAX_BLOCKSIZE);
-	blocksize = b;
-    }
-    void set_free_list(const std::string & s) { fl_serialised = s; }
+    void set_root(off_t root_) { root = root_; }
+    void set_free_list(const std::string& s) { fl_serialised = s; }
 };
 
 }
@@ -96,16 +77,13 @@ class RootInfo {
  *  each table.
  */
 class HoneyVersion {
-    honey_revision_number_t rev;
+    honey_revision_number_t rev = 0;
 
     Honey::RootInfo root[Honey::MAX_];
     Honey::RootInfo old_root[Honey::MAX_];
 
-    /** The UUID of this database.
-     *
-     *  This is mutable for older uuid libraries which take non-const uuid_t.
-     */
-    mutable uuid_t uuid;
+    /// The UUID of this database.
+    Uuid uuid;
 
     /** File descriptor.
      *
@@ -121,36 +99,44 @@ class HoneyVersion {
      *
      *  Will be 0, except for an embedded multi-file database.
      */
-    off_t offset;
+    off_t offset = 0;
 
     /// The database directory.
     std::string db_dir;
 
-    HoneyChanges * changes;
-
     /// The number of documents in the database.
-    Xapian::doccount doccount;
+    Xapian::doccount doccount = 0;
 
     /// The total of the lengths of all documents in the database.
-    Xapian::totallength total_doclen;
+    Xapian::totallength total_doclen = 0;
 
     /// Greatest document id ever used in this database.
-    Xapian::docid last_docid;
+    Xapian::docid last_docid = 0;
 
     /// A lower bound on the smallest document length in this database.
-    Xapian::termcount doclen_lbound;
+    Xapian::termcount doclen_lbound = 0;
 
     /// An upper bound on the greatest document length in this database.
-    Xapian::termcount doclen_ubound;
+    Xapian::termcount doclen_ubound = 0;
 
     /// An upper bound on the greatest wdf in this database.
-    Xapian::termcount wdf_ubound;
+    Xapian::termcount wdf_ubound = 0;
 
     /// An upper bound on the spelling wordfreq in this database.
-    Xapian::termcount spelling_wordfreq_ubound;
+    Xapian::termcount spelling_wordfreq_ubound = 0;
 
     /// Oldest changeset removed when max_changesets is set
-    mutable honey_revision_number_t oldest_changeset;
+    mutable honey_revision_number_t oldest_changeset = 0;
+
+    /** A lower bound on the number of unique terms in a document in this
+     *  database.
+     */
+    Xapian::termcount uniq_terms_lbound = 0;
+
+    /** An upper bound on the number of unique terms in a document in this
+     *  database.
+     */
+    Xapian::termcount uniq_terms_ubound = 0;
 
     /// The serialised database stats.
     std::string serialised_stats;
@@ -162,21 +148,15 @@ class HoneyVersion {
     void unserialise_stats();
 
   public:
-    explicit HoneyVersion(const std::string & db_dir_ = std::string())
-	: rev(0), fd(-1), offset(0), db_dir(db_dir_), changes(NULL),
-	  doccount(0), total_doclen(0), last_docid(0),
-	  doclen_lbound(0), doclen_ubound(0),
-	  wdf_ubound(0), spelling_wordfreq_ubound(0),
-	  oldest_changeset(0) { }
+    explicit HoneyVersion(std::string_view db_dir_)
+	: fd(-1), db_dir(db_dir_) { }
 
     explicit HoneyVersion(int fd_);
 
     ~HoneyVersion();
 
     /** Create the version file. */
-    void create(unsigned blocksize);
-
-    void set_changes(HoneyChanges * changes_) { changes = changes_; }
+    void create();
 
     /** Read the version file and check it's a version we understand.
      *
@@ -188,7 +168,7 @@ class HoneyVersion {
 
     const std::string write(honey_revision_number_t new_rev, int flags);
 
-    bool sync(const std::string & tmpfile,
+    bool sync(const std::string& tmpfile,
 	      honey_revision_number_t new_rev, int flags);
 
     honey_revision_number_t get_revision() const { return rev; }
@@ -202,32 +182,14 @@ class HoneyVersion {
     }
 
     /// Return pointer to 16 byte UUID.
-    const char * get_uuid() const {
-	// uuid is unsigned char[].
-	return reinterpret_cast<const char *>(uuid);
+    const char* get_uuid() const {
+	return uuid.data();
     }
 
     /// Return UUID in the standard 36 character string format.
     std::string get_uuid_string() const {
-	char buf[37];
-	uuid_unparse_lower(uuid, buf);
-	return std::string(buf, 36);
+	return uuid.to_string();
     }
-
-#if 0 // Unused currently.
-    /// Set the UUID from 16 byte binary value @a data.
-    void set_uuid(const void * data) {
-	std::memcpy(uuid, data, 16);
-    }
-
-    /** Set the UUID from the standard 36 character string format.
-     *
-     *  @return true if @a s was successfully parsed; false otherwise.
-     */
-    bool set_uuid_string(const std::string & s) {
-	return uuid_parse(s.c_str(), uuid);
-    }
-#endif
 
     Xapian::doccount get_doccount() const { return doccount; }
 
@@ -253,6 +215,14 @@ class HoneyVersion {
 	return oldest_changeset;
     }
 
+    Xapian::termcount get_unique_terms_lower_bound() const {
+	return uniq_terms_lbound;
+    }
+
+    Xapian::termcount get_unique_terms_upper_bound() const {
+	return uniq_terms_ubound;
+    }
+
     void set_last_docid(Xapian::docid did) { last_docid = did; }
 
     void set_oldest_changeset(honey_revision_number_t changeset) const {
@@ -263,12 +233,18 @@ class HoneyVersion {
 	spelling_wordfreq_ubound = ub;
     }
 
+    void set_unique_terms_lower_bound(Xapian::termcount ub) {
+	uniq_terms_lbound = ub;
+    }
+
+    void set_unique_terms_upper_bound(Xapian::termcount ub) {
+	uniq_terms_ubound = ub;
+    }
+
     void add_document(Xapian::termcount doclen) {
 	++doccount;
-	if (total_doclen == 0 || (doclen && doclen < doclen_lbound))
-	    doclen_lbound = doclen;
-	if (doclen > doclen_ubound)
-	    doclen_ubound = doclen;
+	doclen_lbound = min_non_zero(doclen_lbound, doclen);
+	doclen_ubound = std::max(doclen_ubound, doclen);
 	total_doclen += doclen;
     }
 
@@ -294,14 +270,16 @@ class HoneyVersion {
      *
      *  Used by compaction.
      */
-    void merge_stats(const HoneyVersion & o);
+    void merge_stats(const HoneyVersion& o);
 
     void merge_stats(Xapian::doccount o_doccount,
 		     Xapian::termcount o_doclen_lbound,
 		     Xapian::termcount o_doclen_ubound,
 		     Xapian::termcount o_wdf_ubound,
 		     Xapian::totallength o_total_doclen,
-		     Xapian::termcount o_spelling_wordfreq_ubound);
+		     Xapian::termcount o_spelling_wordfreq_ubound,
+		     Xapian::termcount o_uniq_terms_lbound,
+		     Xapian::termcount o_uniq_terms_ubound);
 
     bool single_file() const { return db_dir.empty(); }
 

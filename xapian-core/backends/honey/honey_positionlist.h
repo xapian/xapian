@@ -1,7 +1,7 @@
-/** @file honey_positionlist.h
+/** @file
  * @brief A position list in a honey database.
  */
-/* Copyright (C) 2005,2006,2008,2009,2010,2011,2013,2016,2017 Olly Betts
+/* Copyright (C) 2005-2024 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -14,9 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_HONEY_POSITIONLIST_H
@@ -31,54 +30,7 @@
 #include "pack.h"
 
 #include <string>
-
-using namespace std;
-
-class HoneyPositionTable : public HoneyLazyTable {
-  public:
-    static string make_key(Xapian::docid did, const string & term) {
-	string key;
-	pack_string_preserving_sort(key, term);
-	pack_uint_preserving_sort(key, did);
-	return key;
-    }
-
-    /** Create a new HoneyPositionTable object.
-     *
-     *  This method does not create or open the table on disk - you
-     *  must call the create() or open() methods respectively!
-     *
-     *  @param dbdir		The directory the honey database is stored in.
-     *  @param readonly		true if we're opening read-only, else false.
-     */
-    HoneyPositionTable(const string & dbdir, bool readonly)
-	: HoneyLazyTable("position", dbdir + "/position.", readonly) { }
-
-    HoneyPositionTable(int fd, off_t offset_, bool readonly_)
-	: HoneyLazyTable("position", fd, offset_, readonly_) { }
-
-    /** Pack a position list into a string.
-     *
-     *  @param s The string to append the position list data to.
-     */
-    void pack(string & s, const Xapian::VecCOW<Xapian::termpos> & vec) const;
-
-    /** Set the position list for term tname in document did.
-     */
-    void set_positionlist(Xapian::docid did, const string & tname,
-			  const string & s) {
-	add(make_key(did, tname), s);
-    }
-
-    /// Delete the position list for term tname in document did.
-    void delete_positionlist(Xapian::docid did, const string & tname) {
-	del(make_key(did, tname));
-    }
-
-    /// Return the number of entries in specified position list.
-    Xapian::termcount positionlist_count(Xapian::docid did,
-					 const string & term) const;
-};
+#include <string_view>
 
 /** Base-class for a position list in a honey database. */
 class HoneyBasePositionList : public PositionList {
@@ -104,12 +56,21 @@ class HoneyBasePositionList : public PositionList {
     /// Have we started iterating yet?
     bool have_started;
 
+    /** Set positional data and start to decode it.
+     *
+     *  @param data	The positional data.  Must stay valid
+     *			while this object is using it.
+     */
+    void set_data(const std::string& data);
+
   public:
     /// Default constructor.
     HoneyBasePositionList() {}
 
     /// Returns size of position list.
     Xapian::termcount get_approx_size() const;
+
+    Xapian::termpos back() const;
 
     /** Returns current position.
      *
@@ -139,12 +100,7 @@ class HoneyPositionList : public HoneyBasePositionList {
   public:
     /// Construct and initialise with data.
     explicit
-    HoneyPositionList(const string& data);
-
-    /// Construct and initialise with data.
-    HoneyPositionList(const HoneyTable& table,
-		      Xapian::docid did,
-		      const string& term);
+    HoneyPositionList(std::string&& data);
 };
 
 /** A reusable position list in a honey database. */
@@ -165,7 +121,65 @@ class HoneyRePositionList : public HoneyBasePositionList {
 	: cursor(&table) {}
 
     /** Fill list with data, and move the position to the start. */
-    void read_data(Xapian::docid did, const string& term);
+    void assign_data(std::string&& data);
+
+    /** Fill list with data, and move the position to the start. */
+    void read_data(Xapian::docid did, const std::string& term);
+};
+
+class HoneyPositionTable : public HoneyLazyTable {
+  public:
+    static std::string make_key(Xapian::docid did, std::string_view term) {
+	std::string key;
+	pack_string_preserving_sort(key, term);
+	pack_uint_preserving_sort(key, did);
+	return key;
+    }
+
+    /** Create a new HoneyPositionTable object.
+     *
+     *  This method does not create or open the table on disk - you
+     *  must call the create() or open() methods respectively!
+     *
+     *  @param dbdir		The directory the honey database is stored in.
+     *  @param readonly		true if we're opening read-only, else false.
+     */
+    HoneyPositionTable(const std::string& dbdir, bool readonly)
+	: HoneyLazyTable("position", dbdir + "/position.", readonly) { }
+
+    HoneyPositionTable(int fd, off_t offset_, bool readonly_)
+	: HoneyLazyTable("position", fd, offset_, readonly_) { }
+
+    HoneyPositionList* open_position_list(Xapian::docid did,
+					  std::string_view term) const {
+	std::string pos_data;
+	if (!get_exact_entry(make_key(did, term), pos_data))
+	    return nullptr;
+
+	return new HoneyPositionList(std::move(pos_data));
+    }
+
+    /** Pack a position list into a string.
+     *
+     *  @param s The string to append the position list data to.
+     */
+    void pack(std::string& s, const Xapian::VecCOW<Xapian::termpos>& vec) const;
+
+    /** Set the position list for term tname in document did.
+     */
+    void set_positionlist(Xapian::docid did, std::string_view tname,
+			  std::string_view s) {
+	add(make_key(did, tname), s);
+    }
+
+    /// Delete the position list for term tname in document did.
+    void delete_positionlist(Xapian::docid did, std::string_view tname) {
+	del(make_key(did, tname));
+    }
+
+    /// Return the number of entries in specified position list.
+    Xapian::termcount positionlist_count(Xapian::docid did,
+					 std::string_view term) const;
 };
 
 #endif /* XAPIAN_INCLUDED_HONEY_POSITIONLIST_H */

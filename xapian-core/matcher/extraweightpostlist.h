@@ -1,4 +1,4 @@
-/** @file extraweightpostlist.h
+/** @file
  * @brief PostList which adds on a term-independent weight contribution
  */
 /* Copyright 2017 Olly Betts
@@ -14,8 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_EXTRAWEIGHTPOSTLIST_H
@@ -57,7 +57,8 @@ class ExtraWeightPostList : public WrapperPostList {
     }
 
     double get_weight(Xapian::termcount doclen,
-		      Xapian::termcount unique_terms) const;
+		      Xapian::termcount unique_terms,
+		      Xapian::termcount wdfdocmax) const;
 
     double recalc_maxweight();
 

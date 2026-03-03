@@ -1,9 +1,10 @@
-/** @file xapian-prepare-trainingfile.cc
+/** @file
  * @brief Command line tool to prepare Letor training file
  */
 /* Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2015 Olly Betts
  * Copyright (C) 2011 Parth Gupta
  * Copyright (C) 2016 Ayush Tomar
+ * Copyright (C) 2019 Vaibhav Kansagara
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,15 +17,15 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
 
 #include <xapian.h>
 #include <xapian-letor.h>
+#include "parseint.h"
 
 #include <iostream>
 #include <string>
@@ -60,7 +61,7 @@ try {
 	{ NULL,		0, 0, 0}
     };
 
-    int msize = 10;
+    Xapian::doccount msize = 10;
 
     bool have_database = false;
 
@@ -74,14 +75,17 @@ try {
 		have_database = true;
 		break;
 	    case 'm':
-		msize = atoi(optarg);
+		if (!parse_unsigned(optarg, msize)) {
+		    cerr << "Mset size must be >= 0\n";
+		    exit(1);
+		}
 		break;
 	    case OPT_HELP:
 		cout << PROG_NAME " - " PROG_DESC "\n\n";
 		show_usage();
 		exit(0);
 	    case OPT_VERSION:
-		cout << PROG_NAME " - " PACKAGE_STRING << endl;
+		cout << PROG_NAME " - " PACKAGE_STRING "\n";
 		exit(0);
 	    case ':': // missing parameter
 	    case '?': // unknown option
@@ -100,7 +104,7 @@ try {
     string trainingfile = argv[optind + 2];
 
     if (!have_database) {
-	cout << "No database specified so not running the query." << endl;
+	cout << "No database specified so not running the query.\n";
 	exit(0);
     }
 
@@ -110,6 +114,6 @@ try {
     cout << flush;
 
 } catch (const Xapian::Error & err) {
-    cout << err.get_description() << endl;
+    cout << err.get_description() << '\n';
     exit(1);
 }

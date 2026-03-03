@@ -1,7 +1,7 @@
-/* queryparser.cc: The non-lemon-generated parts of the QueryParser
- * class.
- *
- * Copyright (C) 2005,2006,2007,2008,2010,2011,2012,2013,2015,2016 Olly Betts
+/** @file
+ * @brief The non-lemon-generated parts of the QueryParser class.
+ */
+/* Copyright (C) 2005-2026 Olly Betts
  * Copyright (C) 2010 Adam Sjøgren
  *
  * This program is free software; you can redistribute it and/or
@@ -15,9 +15,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -28,7 +27,6 @@
 #include <xapian/termiterator.h>
 
 #include "api/vectortermlist.h"
-#include "omassert.h"
 #include "queryparser_internal.h"
 
 #include <cstring>
@@ -48,8 +46,7 @@ string
 SimpleStopper::get_description() const
 {
     string desc("Xapian::SimpleStopper(");
-    unordered_set<string>::const_iterator i;
-    for (i = stop_words.begin(); i != stop_words.end(); ++i) {
+    for (auto i = stop_words.begin(); i != stop_words.end(); ++i) {
 	if (i != stop_words.begin()) desc += ' ';
 	desc += *i;
     }
@@ -59,18 +56,17 @@ SimpleStopper::get_description() const
 
 RangeProcessor::~RangeProcessor() { }
 
-ValueRangeProcessor::~ValueRangeProcessor() { }
-
 FieldProcessor::~FieldProcessor() { }
 
-QueryParser::QueryParser(const QueryParser & o) : internal(o.internal) { }
+QueryParser::QueryParser(const QueryParser &) = default;
 
 QueryParser &
-QueryParser::operator=(const QueryParser & o)
-{
-    internal = o.internal;
-    return *this;
-}
+QueryParser::operator=(const QueryParser &) = default;
+
+QueryParser::QueryParser(QueryParser &&) = default;
+
+QueryParser &
+QueryParser::operator=(QueryParser &&) = default;
 
 QueryParser::QueryParser() : internal(new QueryParser::Internal) { }
 
@@ -92,6 +88,12 @@ void
 QueryParser::set_stopper(const Stopper * stopper)
 {
     internal->stopper = stopper;
+}
+
+void
+QueryParser::set_stopper_strategy(stop_strategy strategy)
+{
+    internal->stop_mode = strategy;
 }
 
 void
@@ -151,21 +153,43 @@ QueryParser::set_max_expansion(Xapian::termcount max_expansion,
 	internal->max_partial_expansion = max_expansion;
 	internal->max_partial_type = max_type;
     }
+    if (flags & FLAG_FUZZY) {
+	internal->max_fuzzy_expansion = max_expansion;
+	internal->max_fuzzy_type = max_type;
+    }
+}
+
+void
+QueryParser::set_min_wildcard_prefix(unsigned min_prefix_len,
+				     unsigned flags)
+{
+    if (flags & FLAG_WILDCARD) {
+	internal->min_wildcard_prefix_len = min_prefix_len;
+    }
+    if (flags & FLAG_PARTIAL) {
+	internal->min_partial_prefix_len = min_prefix_len;
+    }
 }
 
 Query
-QueryParser::parse_query(const string &query_string, unsigned flags,
-			 const string &default_prefix)
+QueryParser::parse_query(string_view query_string, unsigned flags,
+			 string_view default_prefix)
 {
-    internal->stoplist.clear();
-    internal->unstem.clear();
+    if (!(flags & FLAG_ACCUMULATE)) {
+	internal->stoplist.clear();
+	internal->unstem.clear();
+    }
     internal->errmsg = NULL;
 
     if (query_string.empty()) return Query();
 
     Query result = internal->parse_query(query_string, flags, default_prefix);
     if (internal->errmsg && strcmp(internal->errmsg, "parse error") == 0) {
-	flags &= FLAG_CJK_NGRAM;
+	flags &=
+	    FLAG_NGRAMS |
+	    FLAG_WORD_BREAKS |
+	    FLAG_NO_POSITIONS |
+	    FLAG_NO_PROPER_NOUN_HEURISTIC;
 	result = internal->parse_query(query_string, flags, default_prefix);
     }
 
@@ -189,33 +213,29 @@ QueryParser::parse_math_query(const std::string & query_string,
 }
 
 void
-QueryParser::add_prefix(const string &field, const string &prefix)
+QueryParser::add_prefix(string_view field, string_view prefix)
 {
-    Assert(internal.get());
     internal->add_prefix(field, prefix);
 }
 
 void
-QueryParser::add_prefix(const string &field, Xapian::FieldProcessor * proc)
+QueryParser::add_prefix(string_view field, Xapian::FieldProcessor* proc)
 {
-    Assert(internal.get());
     internal->add_prefix(field, proc);
 }
 
 void
-QueryParser::add_boolean_prefix(const string &field, const string &prefix,
+QueryParser::add_boolean_prefix(string_view field, string_view prefix,
 				const string* grouping)
 {
-    Assert(internal.get());
     internal->add_boolean_prefix(field, prefix, grouping);
 }
 
 void
-QueryParser::add_boolean_prefix(const string &field,
+QueryParser::add_boolean_prefix(string_view field,
 				Xapian::FieldProcessor * proc,
 				const string* grouping)
 {
-    Assert(internal.get());
     internal->add_boolean_prefix(field, proc, grouping);
 }
 
@@ -227,25 +247,22 @@ QueryParser::stoplist_begin() const
 }
 
 TermIterator
-QueryParser::unstem_begin(const string &term) const
+QueryParser::unstem_begin(string_view term) const
 {
-    pair<multimap<string, string>::iterator,
-	 multimap<string, string>::iterator> range;
-    range = internal->unstem.equal_range(term);
-    list<string> l;
-    multimap<string, string>::iterator & i = range.first;
-    while (i != range.second) {
-	l.push_back(i->second);
-	++i;
-    }
-    return TermIterator(new VectorTermList(l.begin(), l.end()));
+    using unstem_type = multimap<string, string, std::less<>>;
+    struct range_adaptor : public unstem_type::iterator {
+	range_adaptor(unstem_type::iterator i) : unstem_type::iterator(i) {}
+	const string & operator*() const { return (*this)->second; }
+    };
+    auto range = internal->unstem.equal_range(term);
+    return TermIterator(new VectorTermList(range_adaptor(range.first),
+					   range_adaptor(range.second)));
 }
 
 void
 QueryParser::add_rangeprocessor(Xapian::RangeProcessor * range_proc,
 				const std::string* grouping)
 {
-    Assert(internal.get());
     internal->rangeprocs.push_back(RangeProc(range_proc, grouping));
 }
 

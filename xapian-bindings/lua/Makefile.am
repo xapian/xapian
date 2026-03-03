@@ -5,9 +5,9 @@ include ../generic/generic.mk
 ## Test programs to be run
 TESTS = smoketest.lua
 AM_TESTS_ENVIRONMENT = \
-	LUA_CPATH='.libs/?$(LUA_SO)' ;\
+	LUA_CPATH='$(_libs)/?$(LUA_SO)' ;\
 	export LUA_CPATH ;
-LOG_COMPILER = $(OSX_SIP_HACK_ENV) $(LUA)
+LOG_COMPILER = $(MACOS_SIP_HACK_ENV) $(LUA)
 
 installcheck-local:
 	$(MAKE) check AM_TESTS_ENVIRONMENT=
@@ -15,6 +15,7 @@ installcheck-local:
 EXTRA_DIST = lua.i util.i except.i \
 	generate-lua-exceptions \
 	docs/index.rst \
+	unpick-cpath.lua \
 	$(TESTS) $(SWIG_GENERATED)
 
 lualibdir = @LUA_LIB@
@@ -32,11 +33,10 @@ install-data-hook:
 uninstall-local:
 	rm -f $(DESTDIR)$(lualibdir)/xapian$(LUA_SO)
 
-AM_CPPFLAGS = @LUA_CPPFLAGS@
-AM_CXXFLAGS = @SWIG_CXXFLAGS@ $(XAPIAN_CXXFLAGS)
+AM_CXXFLAGS = @SWIG_CXXFLAGS@ $(XAPIAN_CXXFLAGS) $(LUA_CFLAGS)
 xapian_la_LDFLAGS = -avoid-version -module -shrext "$(LUA_SO)" $(NO_UNDEFINED)
 nodist_xapian_la_SOURCES = xapian_wrap.cc
-xapian_la_LIBADD = $(XAPIAN_LIBS)
+xapian_la_LIBADD = $(XAPIAN_LIBS) $(LUA_LIBS)
 
 SWIG_GENERATED = xapian_wrap.cc
 
@@ -47,10 +47,10 @@ BUILT_SOURCES += except.i
 except.i: $(srcdir)/generate-lua-exceptions ../../xapian-core/exception_data.pm
 	$(PERL) -w -I$(srcdir)/../../xapian-core $(srcdir)/generate-lua-exceptions
 
-RUN_SWIG = $(PERL) '$(top_srcdir)'/swig-depcomp $(SWIG)
+SWIG_FLAGS += -MD -MP
 
 xapian_wrap.cc: except.i
-	$(RUN_SWIG) $(SWIG_WERROR) -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
+	$(SWIG) $(SWIG_WERROR) -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
 	    -lua \
 	    -o xapian_wrap.cc '$(srcdir)/'lua.i
 

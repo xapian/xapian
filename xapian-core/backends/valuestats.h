@@ -1,4 +1,4 @@
-/** @file valuestats.h
+/** @file
  * @brief Statistics about values.
  */
 /* Copyright 2008 Lemur Consulting Ltd
@@ -14,9 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_VALUESTATS_H
@@ -30,7 +29,7 @@ struct ValueStats {
     /** The number of documents which have a (non-empty) value stored in the
      *  slot.
      */
-    Xapian::doccount freq;
+    Xapian::doccount freq = 0;
 
     /** A lower bound on the values stored in the given value slot.
      */
@@ -41,7 +40,7 @@ struct ValueStats {
     std::string upper_bound;
 
     /// Construct an empty ValueStats object.
-    ValueStats() : freq(0), lower_bound(), upper_bound() {}
+    ValueStats() { }
 
     /** Clear the statistics.
      */

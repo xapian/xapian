@@ -1,4 +1,4 @@
-/** @file  eset.h
+/** @file
  *  @brief Class representing a list of query expansion terms
  */
 /* Copyright (C) 2015,2016,2017 Olly Betts
@@ -14,16 +14,15 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_ESET_H
 #define XAPIAN_INCLUDED_ESET_H
 
 #if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
-# error "Never use <xapian/eset.h> directly; include <xapian.h> instead."
+# error Never use <xapian/eset.h> directly; include <xapian.h> instead.
 #endif
 
 #include <iterator>
@@ -61,6 +60,12 @@ class XAPIAN_VISIBILITY_DEFAULT ESet {
      */
     ESet & operator=(const ESet & o);
 
+    /// Move constructor.
+    ESet(ESet && o);
+
+    /// Move assignment operator.
+    ESet & operator=(ESet && o);
+
     /** Default constructor.
      *
      *  Creates an empty ESet, mostly useful as a placeholder.
@@ -71,7 +76,7 @@ class XAPIAN_VISIBILITY_DEFAULT ESet {
     ~ESet();
 
     /** Return number of items in this ESet object. */
-    Xapian::doccount size() const;
+    Xapian::termcount size() const;
 
     /** Return true if this ESet object is empty. */
     bool empty() const { return size() == 0; }
@@ -93,7 +98,7 @@ class XAPIAN_VISIBILITY_DEFAULT ESet {
     ESetIterator end() const;
 
     /** Return iterator pointing to the i-th object in this ESet. */
-    ESetIterator operator[](Xapian::doccount i) const;
+    ESetIterator operator[](Xapian::termcount i) const;
 
     /** Return iterator pointing to the last object in this ESet. */
     ESetIterator back() const;
@@ -128,9 +133,9 @@ class XAPIAN_VISIBILITY_DEFAULT ESet {
     /// @private
     typedef const value_type * const_pointer;
     /// @private
-    typedef value_type & reference;
+    typedef value_type reference;
     /// @private
-    typedef const value_type & const_reference;
+    typedef const value_type const_reference;
     // @}
     //
     /** @private @internal ESet is what the C++ STL calls a container.
@@ -144,7 +149,7 @@ class XAPIAN_VISIBILITY_DEFAULT ESet {
      */
     // @{
     // The size is fixed once created.
-    Xapian::doccount max_size() const { return size(); }
+    Xapian::termcount max_size() const { return size(); }
     // @}
 };
 
@@ -152,7 +157,7 @@ class XAPIAN_VISIBILITY_DEFAULT ESet {
 class XAPIAN_VISIBILITY_DEFAULT ESetIterator {
     friend class ESet;
 
-    ESetIterator(const Xapian::ESet & eset_, Xapian::doccount off_from_end_)
+    ESetIterator(const Xapian::ESet & eset_, Xapian::termcount off_from_end_)
 	: eset(eset_), off_from_end(off_from_end_) { }
 
   public:
@@ -216,9 +221,9 @@ class XAPIAN_VISIBILITY_DEFAULT ESetIterator {
     /// @private
     typedef Xapian::termcount_diff difference_type;
     /// @private
-    typedef std::string * pointer;
+    typedef value_type* pointer;
     /// @private
-    typedef std::string & reference;
+    typedef value_type reference;
     // @}
 
     /// Move the iterator forwards by n positions.
@@ -261,62 +266,44 @@ class XAPIAN_VISIBILITY_DEFAULT ESetIterator {
     std::string get_description() const;
 };
 
-bool
-XAPIAN_NOTHROW(operator==(const ESetIterator &a, const ESetIterator &b));
-
 /// Equality test for ESetIterator objects.
 inline bool
-operator==(const ESetIterator &a, const ESetIterator &b) XAPIAN_NOEXCEPT
+operator==(const ESetIterator& a, const ESetIterator& b) noexcept
 {
     return a.off_from_end == b.off_from_end;
 }
 
-inline bool
-XAPIAN_NOTHROW(operator!=(const ESetIterator &a, const ESetIterator &b));
-
 /// Inequality test for ESetIterator objects.
 inline bool
-operator!=(const ESetIterator &a, const ESetIterator &b) XAPIAN_NOEXCEPT
+operator!=(const ESetIterator& a, const ESetIterator& b) noexcept
 {
     return !(a == b);
 }
 
-bool
-XAPIAN_NOTHROW(operator<(const ESetIterator &a, const ESetIterator &b));
-
 /// Inequality test for ESetIterator objects.
 inline bool
-operator<(const ESetIterator &a, const ESetIterator &b) XAPIAN_NOEXCEPT
+operator<(const ESetIterator& a, const ESetIterator& b) noexcept
 {
     return a.off_from_end > b.off_from_end;
 }
 
-inline bool
-XAPIAN_NOTHROW(operator>(const ESetIterator &a, const ESetIterator &b));
-
 /// Inequality test for ESetIterator objects.
 inline bool
-operator>(const ESetIterator &a, const ESetIterator &b) XAPIAN_NOEXCEPT
+operator>(const ESetIterator& a, const ESetIterator& b) noexcept
 {
     return b < a;
 }
 
-inline bool
-XAPIAN_NOTHROW(operator>=(const ESetIterator &a, const ESetIterator &b));
-
 /// Inequality test for ESetIterator objects.
 inline bool
-operator>=(const ESetIterator &a, const ESetIterator &b) XAPIAN_NOEXCEPT
+operator>=(const ESetIterator& a, const ESetIterator& b) noexcept
 {
     return !(a < b);
 }
 
-inline bool
-XAPIAN_NOTHROW(operator<=(const ESetIterator &a, const ESetIterator &b));
-
 /// Inequality test for ESetIterator objects.
 inline bool
-operator<=(const ESetIterator &a, const ESetIterator &b) XAPIAN_NOEXCEPT
+operator<=(const ESetIterator& a, const ESetIterator& b) noexcept
 {
     return !(b < a);
 }
@@ -346,7 +333,7 @@ ESet::end() const {
 }
 
 inline ESetIterator
-ESet::operator[](Xapian::doccount i) const {
+ESet::operator[](Xapian::termcount i) const {
     return ESetIterator(*this, size() - i);
 }
 

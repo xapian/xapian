@@ -1,7 +1,7 @@
-/** @file stringutils.h
- * @brief Various handy helpers which std::string really should provide.
+/** @file
+ * @brief Various handy string-related helpers
  */
-/* Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2015 Olly Betts
+/* Copyright (C) 2004-2023 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,17 +14,22 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #ifndef XAPIAN_INCLUDED_STRINGUTILS_H
 #define XAPIAN_INCLUDED_STRINGUTILS_H
 
+// Hack to allow inclusion from xapian-omega.
+// FIXME: Move C_isalpha(), etc to the public API?
+#define XAPIAN_IN_XAPIAN_H
 #include <xapian/constinfo.h>
+#undef XAPIAN_IN_XAPIAN_H
 
 #include <algorithm>
 #include <string>
+#include <string_view>
 #include <cstring>
 
 /** Helper macro for STRINGIZE - the nested call is required because of how
@@ -42,58 +47,101 @@
  */
 #define CONST_STRLEN(S) (sizeof(S"") - 1)
 
+/* C++20 added starts_with(), ends_with() and contains() methods to std::string
+ * and std::string_view which provide this functionality, but we don't yet
+ * require C++20.
+ */
+
 inline bool
-startswith(const std::string & s, char pfx)
+startswith(std::string_view s, char pfx)
 {
     return !s.empty() && s[0] == pfx;
 }
 
 inline bool
-startswith(const std::string & s, const char * pfx, size_t len)
+startswith(std::string_view s, const char* pfx, size_t len)
 {
     return s.size() >= len && (std::memcmp(s.data(), pfx, len) == 0);
 }
 
 inline bool
-startswith(const std::string & s, const char * pfx)
+startswith(std::string_view s, const char* pfx)
 {
     return startswith(s, pfx, std::strlen(pfx));
 }
 
 inline bool
-startswith(const std::string & s, const std::string & pfx)
+startswith(std::string_view s, std::string_view pfx)
 {
     return startswith(s, pfx.data(), pfx.size());
 }
 
 inline bool
-endswith(const std::string & s, char sfx)
+endswith(std::string_view s, char sfx)
 {
     return !s.empty() && s[s.size() - 1] == sfx;
 }
 
 inline bool
-endswith(const std::string & s, const char * sfx, size_t len)
+endswith(std::string_view s, const char* sfx, size_t len)
 {
     return s.size() >= len && (std::memcmp(s.data() + s.size() - len, sfx, len) == 0);
 }
 
 inline bool
-endswith(const std::string & s, const char * sfx)
+endswith(std::string_view s, const char* sfx)
 {
     return endswith(s, sfx, std::strlen(sfx));
 }
 
 inline bool
-endswith(const std::string & s, const std::string & sfx)
+endswith(std::string_view s, std::string_view sfx)
 {
     return endswith(s, sfx.data(), sfx.size());
 }
 
+inline bool
+contains(std::string_view s, char substring)
+{
+    return s.find(substring) != s.npos;
+}
+
+inline bool
+contains(std::string_view s, const char* substring, size_t len)
+{
+    return s.find(substring, 0, len) != s.npos;
+}
+
+inline bool
+contains(std::string_view s, const char* substring)
+{
+    return s.find(substring) != s.npos;
+}
+
+inline bool
+contains(std::string_view s, std::string_view substring)
+{
+    return s.find(substring) != s.npos;
+}
+
 inline std::string::size_type
-common_prefix_length(const std::string &a, const std::string &b)
+common_prefix_length(std::string_view a, std::string_view b)
 {
     std::string::size_type minlen = std::min(a.size(), b.size());
+    std::string::size_type common;
+    for (common = 0; common < minlen; ++common) {
+	if (a[common] != b[common]) break;
+    }
+    return common;
+}
+
+inline std::string::size_type
+common_prefix_length(std::string_view a, std::string_view b,
+		     std::string::size_type max_prefix_len)
+{
+    std::string::size_type minlen = std::min({a.size(),
+					      b.size(),
+					      max_prefix_len});
     std::string::size_type common;
     for (common = 0; common < minlen; ++common) {
 	if (a[common] != b[common]) break;
@@ -188,6 +236,17 @@ inline char C_toupper(char ch) {
 inline int hex_digit(char ch) {
     using namespace Xapian::Internal;
     return C_tab_(ch) & HEX_MASK;
+}
+
+/** Decode a pair of ASCII hex digits.
+ *
+ *  E.g. hex_decode('4', 'A') gives 'J'.
+ *
+ *  If C_isxdigit(ch1) isn't true then ch1 is treated as '0', and similarly for
+ *  ch2.
+ */
+inline char hex_decode(char ch1, char ch2) {
+    return char(hex_digit(ch1) << 4 | hex_digit(ch2));
 }
 
 #endif // XAPIAN_INCLUDED_STRINGUTILS_H

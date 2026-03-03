@@ -1,7 +1,7 @@
-/** @file xapian-compact.cc
+/** @file
  * @brief Compact a database, or merge and compact several.
  */
-/* Copyright (C) 2003,2004,2005,2006,2007,2008,2009,2010,2015,2018 Olly Betts
+/* Copyright (C) 2003-2026 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -15,9 +15,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -51,8 +50,7 @@ static void show_usage() {
 "                     present only glass to honey conversion is implemented -\n"
 "                     otherwise the backend must be the same.\n"
 "  -n, --no-full      Disable full compaction\n"
-"  -F, --fuller       Enable fuller compaction (not recommended if you plan to\n"
-"                     update the compacted database)\n"
+"  -F, --fuller       No effect for glass since Xapian 1.4.31\n"
 "  -m, --multipass    If merging more than 3 databases, merge the postlists in\n"
 "                     multiple passes (which is generally faster but requires\n"
 "                     more disk space for temporary files)\n"
@@ -63,7 +61,7 @@ static void show_usage() {
 "                     have disjoint ranges of used document ids\n"
 "  -s, --single-file  Produce a single file database\n"
 "  --help             display this help and exit\n"
-"  --version          output version information and exit" << endl;
+"  --version          output version information and exit\n";
 }
 
 class MyCompactor : public Xapian::Compactor {
@@ -74,12 +72,12 @@ class MyCompactor : public Xapian::Compactor {
 
     void set_quiet(bool quiet_) { quiet = quiet_; }
 
-    void set_status(const string & table, const string & status);
+    void set_status(const string& table, const string& status) override;
 
     string
     resolve_duplicate_metadata(const string & key,
 			       size_t n,
-			       const string tags[]);
+			       const string tags[]) override;
 };
 
 void
@@ -88,7 +86,7 @@ MyCompactor::set_status(const string & table, const string & status)
     if (quiet)
 	return;
     if (!status.empty())
-	cout << '\r' << table << ": " << status << endl;
+	cout << '\r' << table << ": " << status << '\n';
     else
 	cout << table << " ..." << flush;
 }
@@ -101,7 +99,9 @@ MyCompactor::resolve_duplicate_metadata(const string & key,
     (void)key;
     while (--n) {
 	if (tags[0] != tags[n]) {
-	    cerr << "Warning: duplicate user metadata key with different tag value - picking value from first source database with a non-empty value" << endl;
+	    cerr << "Warning: duplicate user metadata key with different tag "
+		    "value - picking value from first source database with a "
+		    "non-empty value\n";
 	    break;
 	}
     }
@@ -130,30 +130,30 @@ main(int argc, char **argv)
     Xapian::Compactor::compaction_level level = Xapian::Compactor::FULL;
     unsigned backend = 0;
     unsigned flags = 0;
-    size_t block_size = 0;
+    unsigned block_size = 0;
 
     int c;
     while ((c = gnu_getopt_long(argc, argv, opts, long_opts, 0)) != -1) {
 	switch (c) {
 	    case 'b': {
 		char *p;
-		block_size = strtoul(optarg, &p, 10);
-		if (block_size <= GLASS_MAX_BLOCKSIZE / 1024 &&
+		unsigned long value = strtoul(optarg, &p, 10);
+		if (value <= GLASS_MAX_BLOCKSIZE / 1024 &&
 		    (*p == 'K' || *p == 'k')) {
 		    ++p;
-		    block_size *= 1024;
+		    value *= 1024;
 		}
 		if (*p ||
-		    block_size < GLASS_MIN_BLOCKSIZE ||
-		    block_size > GLASS_MAX_BLOCKSIZE ||
-		    (block_size & (block_size - 1)) != 0) {
+		    value < GLASS_MIN_BLOCKSIZE ||
+		    value > GLASS_MAX_BLOCKSIZE ||
+		    (value & (value - 1)) != 0) {
 		    cerr << PROG_NAME": Bad value '" << optarg << "' passed "
 			    "for blocksize, must be a power of 2 between "
 			 << (GLASS_MIN_BLOCKSIZE / 1024) << "K and "
-			 << (GLASS_MAX_BLOCKSIZE / 1024) << "K"
-			 << endl;
+			 << (GLASS_MAX_BLOCKSIZE / 1024) << "K\n";
 		    exit(1);
 		}
+		block_size = unsigned(value);
 		break;
 	    }
 	    case 'B':
@@ -163,8 +163,8 @@ main(int argc, char **argv)
 		    backend = Xapian::DB_BACKEND_GLASS;
 		} else {
 		    cerr << PROG_NAME": Bad value '" << optarg
-			 << "' passed for backend - must be 'glass' or 'honey'"
-			 << endl;
+			 << "' passed for backend - must be 'glass' or "
+			    "'honey'\n";
 		    exit(1);
 		}
 		break;
@@ -191,7 +191,7 @@ main(int argc, char **argv)
 		show_usage();
 		exit(0);
 	    case OPT_VERSION:
-		cout << PROG_NAME " - " PACKAGE_STRING << endl;
+		cout << PROG_NAME " - " PACKAGE_STRING "\n";
 		exit(0);
 	    default:
 		show_usage();
@@ -216,10 +216,10 @@ main(int argc, char **argv)
 	}
 	src.compact(destdir, flags, block_size, compactor);
     } catch (const Xapian::Error &error) {
-	cerr << argv[0] << ": " << error.get_description() << endl;
+	cerr << argv[0] << ": " << error.get_description() << '\n';
 	exit(1);
     } catch (const char * msg) {
-	cerr << argv[0] << ": " << msg << endl;
+	cerr << argv[0] << ": " << msg << '\n';
 	exit(1);
     }
 }

@@ -1,8 +1,8 @@
-/** @file api_matchspy.cc
+/** @file
  * @brief tests of MatchSpy usage
  */
 /* Copyright 2007,2009 Lemur Consulting Ltd
- * Copyright 2009,2011,2012,2015 Olly Betts
+ * Copyright 2009,2011,2012,2015,2019 Olly Betts
  * Copyright 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -16,9 +16,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  */
 
 #include <config.h>
@@ -27,8 +26,6 @@
 
 #include <xapian.h>
 
-#include <cmath>
-#include <map>
 #include <vector>
 
 #include "backendmanager.h"
@@ -47,7 +44,7 @@ class SimpleMatchSpy : public Xapian::MatchSpy {
     // Vector which will be filled with all the document contents seen.
     std::vector<std::string> seen;
 
-    void operator()(const Xapian::Document &doc, double) {
+    void operator()(const Xapian::Document& doc, double) override {
 	// Note that this is not recommended usage of get_data() - you
 	// generally shouldn't call get_data() from inside a MatchSpy, because
 	// it is (likely to be) a slow operation resulting in considerable IO.
@@ -94,8 +91,6 @@ DEFINE_TESTCASE(matchspy1, backend && !remote) {
     for (; j != myspy.seen.end(); ++j, ++j2) {
 	TEST_EQUAL(*j, *j2);
     }
-
-    return true;
 }
 
 static string values_to_repr(const Xapian::ValueCountMatchSpy & spy) {
@@ -139,7 +134,7 @@ make_matchspy2_db(Xapian::WritableDatabase &db, const string &)
     }
 }
 
-DEFINE_TESTCASE(matchspy2, generated)
+DEFINE_TESTCASE(matchspy2, backend)
 {
     Xapian::Database db = get_database("matchspy2", make_matchspy2_db);
 
@@ -150,6 +145,11 @@ DEFINE_TESTCASE(matchspy2, generated)
     Xapian::Enquire enq(db);
 
     enq.set_query(Xapian::Query("all"));
+    if (db.size() > 1) {
+	// Without this, we short-cut on the second shard because we don't get
+	// the documents in ascending weight order.
+	enq.set_weighting_scheme(Xapian::CoordWeight());
+    }
 
     enq.add_matchspy(&spy0);
     enq.add_matchspy(&spy1);
@@ -168,11 +168,9 @@ DEFINE_TESTCASE(matchspy2, generated)
     TEST_STRINGS_EQUAL(values_to_repr(spy0), results[0]);
     TEST_STRINGS_EQUAL(values_to_repr(spy1), results[1]);
     TEST_STRINGS_EQUAL(values_to_repr(spy3), results[2]);
-
-    return true;
 }
 
-DEFINE_TESTCASE(matchspy4, generated)
+DEFINE_TESTCASE(matchspy4, backend)
 {
     Xapian::Database db = get_database("matchspy2", make_matchspy2_db);
 
@@ -190,6 +188,11 @@ DEFINE_TESTCASE(matchspy4, generated)
     Xapian::Enquire enqb(db);
 
     enqa.set_query(Xapian::Query("all"));
+    if (db.size() > 1) {
+	// Without this, we short-cut on the second shard because we don't get
+	// the documents in ascending weight order.
+	enqa.set_weighting_scheme(Xapian::CoordWeight());
+    }
     enqb.set_query(Xapian::Query("all"));
 
     enqa.add_matchspy(&spya0);
@@ -231,7 +234,7 @@ DEFINE_TESTCASE(matchspy4, generated)
     spies.push_back(NULL);
     spies.push_back(&spyb3);
     for (Xapian::valueno v = 0; results[v]; ++v) {
-	tout << "value " << v << endl;
+	tout << "value " << v << '\n';
 	Xapian::ValueCountMatchSpy * spy = spies[v];
 	string allvals_str("|");
 	if (spy != NULL) {
@@ -244,25 +247,23 @@ DEFINE_TESTCASE(matchspy4, generated)
 		allvals_str += str(i.get_termfreq());
 		allvals_str += '|';
 	    }
-	    tout << allvals_str << endl;
+	    tout << allvals_str << '\n';
 	    TEST_STRINGS_EQUAL(allvals_str, results[v]);
 
 	    for (size_t count = 0; count < allvals_size; ++count) {
-		tout << "count " << count << endl;
+		tout << "count " << count << '\n';
 		for (Xapian::TermIterator i = spy->top_values_begin(100),
 		     j = spy->top_values_begin(count);
 		     i != spy->top_values_end(100) &&
 		     j != spy->top_values_end(count);
 		     ++i, ++j) {
-		    tout << "j " << j << endl;
+		    tout << "j " << j << '\n';
 		    TEST_EQUAL(*i, *j);
 		    TEST_EQUAL(i.get_termfreq(), j.get_termfreq());
 		}
 	    }
 	}
     }
-
-    return true;
 }
 
 // Test builtin match spies
@@ -301,12 +302,10 @@ DEFINE_TESTCASE(matchspy5, backend)
     TEST_EQUAL(i.get_termfreq(), 1);
     ++i;
     TEST(i == myspy2.values_end());
-
-    return true;
 }
 
 class MySpy : public Xapian::MatchSpy {
-    void operator()(const Xapian::Document &, double) {
+    void operator()(const Xapian::Document&, double) override {
     }
 };
 
@@ -324,6 +323,16 @@ DEFINE_TESTCASE(matchspy6, !backend)
     TEST_EXCEPTION(Xapian::UnimplementedError,
 		   spy.merge_results(std::string()));
     TEST_EQUAL(spy.get_description(), "Xapian::MatchSpy()");
+}
 
-    return true;
+/// Regression test for bug fixed in 1.4.12.
+DEFINE_TESTCASE(matchspy7, !backend)
+{
+    Xapian::ValueCountMatchSpy myspy(1);
+    string s = myspy.serialise_results();
+    // Append a string which overflows a 64-bit type when decoded with
+    // pack_uint().
+    s += "xxxxxxxxx";
+    // This merge_results() call used to enter an infinite loop.
+    TEST_EXCEPTION(Xapian::SerialisationError, myspy.merge_results(s));
 }
