@@ -183,7 +183,7 @@ API:
     algorithms, such as xapian-letor.  Patch from Ayush Pandey.
 
   + fetch() with remote shards now triggers a prefetch on the remote server.
-    Fixes #353.
+    Fixes #353, reported by Richard Boulton.
 
 * PostingIterator: On a sharded database, a heap is now used to merge postings
   from the shards more efficiently.
@@ -326,7 +326,7 @@ API:
 	Patch from David Corbett.
 
       = Remove elisions as first step.  Fixes #609, reported by Paul Rudin and
-	kelson42.
+	Emmanuel Engelhart.
 
       = Remove -aise and -aises so for example, "française" and "françaises"
 	are now conflated with "français".  Reported by ririsoft and Fred Fung.
@@ -430,10 +430,11 @@ API:
       = Remove -et/-ets in cases where it helps.  Removing -et can't be done
         unconditionally because many words end in -et where this isn't a
         suffix.  However it's a very common suffix so it seems worth crafting a
-        more complex condition under which to remove.  Fixes #47.
+        more complex condition under which to remove.  Reported by Johan
+        Benjaminsson.
 
     - Turkish: Remove proper noun suffixes.  For example, `Türkiye'dir` ("it is
-      Turkey") is now conflated with `Türkiye` ("Turkey").  Fixes #188.
+      Turkey") is now conflated with `Türkiye` ("Turkey").
 
 * TermGenerator:
 

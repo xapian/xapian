@@ -129,7 +129,7 @@ omega:
 
 * New $random and $srandom OmegaScript commands. Patch from Tanmay Sachan.
 
-* New $hash{} OmegaScript command which calculates a hash for an input string.
+* New $hash{} OmegaScript command which calculates a hash for a string.
 
 * The weighting scheme specified by the `weighting` CGI parameter is now parsed
   using the new C++ `Xapian::Weight::create()` API.
@@ -147,8 +147,8 @@ omega:
 
 * Remove deprecated $set{spelling,true}.
 
-* Note $set{weighting,trad} as deprecated in omega docs.  The replacement is
-  $set{weighting,prob} which is supported since 1.4.26.
+* Note $set{expansion,trad} as deprecated in omega docs.  The replacement is
+  $set{expansion,prob} which is supported since 1.4.26.
 
 * Add $set{intra_query_op,OR} to allow combining multiple parsed query strings
   with OR instead of AND.
@@ -162,7 +162,7 @@ omega:
   1.4.x would have given, but it's no longer checked against $filters output
   from 1.2.x.  This means really old links to later pages of search results
   will likely show the first page of results, but the final 1.2.x release was
-  in 2016 so this shouldn't be a problem.  Fixes #737.
+  in 2016 so this seems acceptable.  Fixes #737.
 
 * Add error handling for CGI parameters.  Patch from Vaibhav Kansagara.
 
