@@ -229,8 +229,6 @@ DEFINE_TESTCASE(mathtermgen1, !backend) {
 	vector<string> labels = termgen.get_labels_list();
 	TEST(labels == t->expected_mrow_labels);
     }
-
-    return true;
 }
 
 DEFINE_TESTCASE(mathparsefail1, !backend) {
@@ -243,6 +241,4 @@ DEFINE_TESTCASE(mathparsefail1, !backend) {
 
     termgen.index_math(invalid_formula);
     TEST_EQUAL(termgen.parse_error(), true);
-
-    return true;
 }

@@ -3413,6 +3413,4 @@ DEFINE_TESTCASE(mathqueryparse1, !backend) {
     TEST_EQUAL(qp.get_default_op(), Xapian::Query::OP_OR);
     TEST_STRINGS_EQUAL(q.get_description(),
 			"Query((V!aO+N OR V!aV!bNN OR O+V!bN))");
-
-    return true;
 }
