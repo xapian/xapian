@@ -1,10 +1,42 @@
-Xapian-core 1.5.0 (2026-02-24):
+Xapian-core 1.5.1 (2026-03-04):
 
 This is a release candidate for 2.0.0, made available to encourage wider
-testing before a final release.  It is versioned as 1.5.0 in an attempt to
+testing before a final release.  It is versioned as 1.5.x in an attempt to
 reduce potential for misunderstandings.  If all goes well the final release
-will be the same as this but with the version number updated.  However please
-do not package this as incompatible changes are still possible.
+will be the same as this but with the version number updated.  Incompatible
+changes are still possible, so please do not package this release candidate
+unless the packaging system has way to have a parallel version clearly marked
+as "experimental" or similar which users will have to opt-in to get.
+
+Changes since previous release candidate (1.5.0):
+
+* Rename new class DiceCoeffWeight to DiceWeight.
+
+* configure: Search for xapian-config not xapian-config-1.5 by default.
+
+* Eliminate old FSF postal address from GPL/LGPL licence files and boilerplate.
+
+* Remove unwanted execute bits from some files.
+
+* Remove DB_BACKEND_CHERT - it's not useful with the chert backend removed.
+
+* INSTALL: Note C++17 required for code using Xapian.
+
+* Update DBCHECK_FIX doc comment for chert removal.
+
+* NEWS: Improve description of English stemmer change (the change is actually
+  that, for example, `adding` now stems to `add` rather than `ad`).
+
+* Update Database::get_revision() doc comment.  This method has returned 0 for
+  a Database with no shards since 1.4.13.
+
+* Mark WILDCARD_LIMIT_MASK_ as internal.
+
+* Improve wording of some API documentation comments.
+
+* Add missing @since annotations for some API features added in 2.0.0.
+
+* AUTHORS: Update with 2.0.0 contributors.
 
 API:
 

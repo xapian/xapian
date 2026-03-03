@@ -1,10 +1,22 @@
-Omega 1.5.0 (2026-02-24):
+Omega 1.5.1 (2026-03-04):
 
 This is a release candidate for 2.0.0, made available to encourage wider
-testing before a final release.  It is versioned as 1.5.0 in an attempt to
+testing before a final release.  It is versioned as 1.5.x in an attempt to
 reduce potential for misunderstandings.  If all goes well the final release
-will be the same as this but with the version number updated.  However please
-do not package this as incompatible changes are still possible.
+will be the same as this but with the version number updated.  Incompatible
+changes are still possible, so please do not package this release candidate
+unless the packaging system has way to have a parallel version clearly marked
+as "experimental" or similar which users will have to opt-in to get.
+
+Changes since previous release candidate (1.5.0):
+
+* Update for rename of new class DiceCoeffWeight to DiceWeight.
+
+* configure: Search for xapian-config not xapian-config-1.5 by default.
+
+* Eliminate old FSF postal address from GPL/LGPL licence files and boilerplate.
+
+* NEWS: Improve wording of a few 2.0.0 entries
 
 general:
 
@@ -46,7 +58,7 @@ indexers:
 * Convert HTML checkboxes to Unicode checkbox characters in the sample.
 
 * Use C++17 std::string_view to eliminate some copying of data during indexing.
-  See #785.
+  See #785, reported Germán M. Bravo.
 
 * omindex:
 
