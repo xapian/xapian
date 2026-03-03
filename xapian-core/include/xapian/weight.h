@@ -2197,8 +2197,10 @@ class XAPIAN_VISIBILITY_DEFAULT CoordWeight : public Weight {
  *  polyhedra with numbered sides which are rolled to generate random
  *  numbers in games.)
  *
- *  Jaccard coefficient and Cosine coefficient are other similarity
- *  coefficients.
+ *  Ranking by the Dice Coefficient is the same ranking by the Jaccard
+ *  coefficient since you can calculate Jaccard coefficient J from
+ *  Dice coefficient D using equation J = D / (2 - D) which is a monotonic
+ *  for the range [0,1] (the range of possible Dice coefficient values).
  *
  *  @since 2.0.0
  */
