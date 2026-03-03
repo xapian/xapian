@@ -34,8 +34,6 @@
 
 using namespace std;
 
-const string invisible_times = "O\342\201\242";
-
 struct test {
     const char* expr;
     vector<string> expected_mrow_labels;
