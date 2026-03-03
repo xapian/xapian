@@ -95,7 +95,7 @@ class MathTermGenerator::Internal : public Xapian::Internal::intrusive_base {
 
     std::vector<std::string> get_symbol_pair_list(const std::string& text);
 
-    void set_unification(const bool unify);
+    void set_unification(bool unify);
 
     bool parse_error() {
 	return mlp.parse_error();

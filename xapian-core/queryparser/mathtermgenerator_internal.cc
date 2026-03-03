@@ -454,7 +454,7 @@ MathTermGenerator::Internal::generate_symbol_pair_list()
 }
 
 void
-MathTermGenerator::Internal::set_unification(const bool unify)
+MathTermGenerator::Internal::set_unification(bool unify)
 {
     unification = unify;
 }

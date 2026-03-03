@@ -82,7 +82,7 @@ MathTermGenerator::get_labels_list()
 }
 
 void
-MathTermGenerator::set_unification_op(const bool unify)
+MathTermGenerator::set_unification_op(bool unify)
 {
     internal->set_unification(unify);
 }

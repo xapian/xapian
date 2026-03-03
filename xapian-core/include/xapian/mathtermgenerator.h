@@ -127,7 +127,7 @@ class XAPIAN_VISIBILITY_DEFAULT MathTermGenerator {
     /** Set the condition to generate unified terms during symbol pair
      * generation.
      */
-    void set_unification_op(const bool unify);
+    void set_unification_op(bool unify);
 
     /** Returns true if formula encountered is invalid.
      *
