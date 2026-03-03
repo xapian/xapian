@@ -30,7 +30,8 @@ dnl    then set AGE to 0.
 dnl
 dnl LIBRARY_VERSION_INFO for libxapianletor:
 dnl 0:0:0 1.3.1 First release with xapian-letor split out from xapian-core
-LIBRARY_VERSION_INFO=0:0:0
+dnl 1:0:0 2.0.0 New release series
+LIBRARY_VERSION_INFO=1:0:0
 AC_SUBST(LIBRARY_VERSION_INFO)
 
 dnl Where xapian-letor.h, etc go.  In development release append "/xapian-1.3".
