@@ -1,4 +1,4 @@
-/** @file api_mathtermgen.cc
+/** @file
  * @brief Tests of Xapian::MathTermGenerator
  */
 /* Copyright (C) 2018 Guruprasad Hegde

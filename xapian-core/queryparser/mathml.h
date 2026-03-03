@@ -1,4 +1,4 @@
-/** @file mathml.h
+/** @file
  * @brief Declaration of Presentation MathML related tags.
  */
 /* Copyright (C) 2018 Guruprasad Hegde

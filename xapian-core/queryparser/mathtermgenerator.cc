@@ -1,4 +1,4 @@
-/** @file mathtermgenerator.cc
+/** @file
  * @brief MathTermGenerator class implementation
  */
 /* Copyright (C) 2018 Guruprasad Hegde

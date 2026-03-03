@@ -1,4 +1,4 @@
-/** @file mathtermgenerator.h
+/** @file
  * @brief parse math expression and generate terms
  */
 /* Copyright (C) 2018 Guruprasad Hegde
