@@ -1529,7 +1529,7 @@ DEFINE_TESTCASE(mathquery1, writable) {
 
     TEST_EQUAL(db.get_doccount(), 12);
 
-    const char * query_string = {
+    const char* query_string = {
 	"<math> <mi> b </mi> <mo> + </mo> <mi> c </mi> </math>"
     };
     // Symbol pairs: (b, +), (b, c), (+, c)
@@ -1551,7 +1551,7 @@ DEFINE_TESTCASE(mathquery1, writable) {
 
     // Formula a = b - c will be indexed. symbols b and c match structurally,
     // hence should appear in mset.
-    const char * formula_n = {
+    const char* formula_n = {
 	"<math> <mi> a </mi> <mo> = </mo> <mi> b </mi> <mo> - </mo>"
 	"<mi> c </mi> </math>" };
     Xapian::Document doc;
@@ -1566,7 +1566,7 @@ DEFINE_TESTCASE(mathquery1, writable) {
     mset_expect_order(enq.get_mset(0, 10), 1, 2, 4, 13);
 
     // Test unification feature.
-    const char * query_string1 = {
+    const char* query_string1 = {
 	"<math> <mi> p </mi> <mo> = </mo> <mfrac> <mi> q </mi>"
 	"<mi> s </mi> </mfrac> </math>"
     };

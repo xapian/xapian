@@ -31,20 +31,20 @@
 using namespace std;
 using namespace Xapian;
 
-MathTermGenerator::MathTermGenerator(const MathTermGenerator & o)
+MathTermGenerator::MathTermGenerator(const MathTermGenerator& o)
     : internal(o.internal) { }
 
-MathTermGenerator &
-MathTermGenerator::operator=(const MathTermGenerator & o)
+MathTermGenerator&
+MathTermGenerator::operator=(const MathTermGenerator& o)
 {
     internal = o.internal;
     return *this;
 }
 
-MathTermGenerator::MathTermGenerator(MathTermGenerator &&) = default;
+MathTermGenerator::MathTermGenerator(MathTermGenerator&&) = default;
 
-MathTermGenerator &
-MathTermGenerator::operator=(MathTermGenerator &&) = default;
+MathTermGenerator&
+MathTermGenerator::operator=(MathTermGenerator&&) = default;
 
 MathTermGenerator::MathTermGenerator()
     : internal(new MathTermGenerator::Internal) { }
@@ -52,25 +52,25 @@ MathTermGenerator::MathTermGenerator()
 MathTermGenerator::~MathTermGenerator() { }
 
 void
-MathTermGenerator::set_document(const Xapian::Document & doc)
+MathTermGenerator::set_document(const Xapian::Document& doc)
 {
     internal->doc = doc;
 }
 
-const Xapian::Document &
+const Xapian::Document&
 MathTermGenerator::get_document() const
 {
     return internal->doc;
 }
 
 void
-MathTermGenerator::index_math(const string & expr, const string & prefix)
+MathTermGenerator::index_math(const string& expr, const string& prefix)
 {
     internal->index_math(expr, prefix);
 }
 
 vector<string>
-MathTermGenerator::get_symbol_pair_list(const string & expr)
+MathTermGenerator::get_symbol_pair_list(const string& expr)
 {
     return internal->get_symbol_pair_list(expr);
 }

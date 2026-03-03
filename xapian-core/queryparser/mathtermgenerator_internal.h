@@ -73,9 +73,9 @@ class MathMLParser {
     std::string get_element_value();
     void skip_xml_prefix();
     bool skip_close_tag();
-    void parse_expression(std::vector<Symbol> & mrow, char relation = NEXT);
+    void parse_expression(std::vector<Symbol>& mrow, char relation = NEXT);
   public:
-    std::vector<Symbol> parse(const std::string & text);
+    std::vector<Symbol> parse(const std::string& text);
     bool parse_error() {
 	return error;
     }
@@ -91,9 +91,9 @@ class MathTermGenerator::Internal : public Xapian::Internal::intrusive_base {
   public:
     Internal() : mrow(EST_SYMBOLS_COUNT) { }
 
-    void index_math(const std::string & text, const std::string & prefix);
+    void index_math(const std::string& text, const std::string& prefix);
 
-    std::vector<std::string> get_symbol_pair_list(const std::string & text);
+    std::vector<std::string> get_symbol_pair_list(const std::string& text);
 
     void set_unification(const bool unify);
 
@@ -104,7 +104,7 @@ class MathTermGenerator::Internal : public Xapian::Internal::intrusive_base {
     // For debugging purpose.
     std::vector<std::string> get_labels_list() {
 	std::vector<std::string> labels;
-	for (const auto & sym : mrow)
+	for (const auto& sym : mrow)
 	    labels.push_back(sym.label);
 	return labels;
     }

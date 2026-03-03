@@ -166,7 +166,7 @@ MathMLParser::get_open_tag()
 }
 
 void
-MathMLParser::parse_expression(vector<Symbol> & crow, char relation)
+MathMLParser::parse_expression(vector<Symbol>& crow, char relation)
 {
     if (!get_open_tag())
 	return;
@@ -282,7 +282,7 @@ MathMLParser::parse_expression(vector<Symbol> & crow, char relation)
 }
 
 vector<Symbol>
-MathMLParser::parse(const string & text) {
+MathMLParser::parse(const string& text) {
     it = text.begin();
     end = text.end();
     vector<Symbol> mrow;
@@ -315,8 +315,8 @@ MathMLParser::parse(const string & text) {
 }
 
 void
-MathTermGenerator::Internal::index_math(const std::string & text,
-					const string & prefix)
+MathTermGenerator::Internal::index_math(const std::string& text,
+					const string& prefix)
 {
     mrow = mlp.parse(text);
 
@@ -324,17 +324,17 @@ MathTermGenerator::Internal::index_math(const std::string & text,
     // Debug prints
     cout << "\n===============\n";
     cout << "Main line:";
-    for (auto & sym : mrow) {
+    for (auto& sym : mrow) {
 	cout << ">>>>>" << "(" << sym.label << ", " << sym.edge << ")";
 	if (!sym.trow.empty()) {
 	    cout << "\nTop line for " << sym.label << ':';
-	    for (auto & tsym : sym.trow)
+	    for (auto& tsym : sym.trow)
 		cout << "--->" << '(' << tsym.label << ", " << tsym.edge << ')';
 	    cout << '\n';
 	}
 	if (!sym.brow.empty()) {
 	    cout << "\nBottom line for " << sym.label << ':';
-	    for (auto & bsym : sym.brow)
+	    for (auto& bsym : sym.brow)
 		cout << "--->" << '(' << bsym.label << ", " << bsym.edge << ')';
 	    cout << '\n';
 	}
@@ -343,7 +343,7 @@ MathTermGenerator::Internal::index_math(const std::string & text,
     auto symbol_pairs = generate_symbol_pair_list();
 
     // Index symbol-pair string in db.
-    for (const auto & sp : symbol_pairs)
+    for (const auto& sp : symbol_pairs)
 	doc.add_term(prefix + sp);
 }
 
@@ -387,7 +387,7 @@ MathTermGenerator::Internal::generate_symbol_pair_list()
 	    // Get subpath along trow.
 	    if (!mrow[j].trow.empty()) {
 		unsigned offset = 0;
-		auto & subrow = mrow[j].trow;
+		auto& subrow = mrow[j].trow;
 		string subpath(path);
 		while (offset < subrow.size() && path.size() <= MAX_PATH_LEN) {
 		    subpath.push_back(subrow[offset].edge);
@@ -412,7 +412,7 @@ MathTermGenerator::Internal::generate_symbol_pair_list()
 	    // Get subpath along brow.
 	    if (!mrow[j].brow.empty()) {
 		unsigned offset = 0;
-		auto & subrow = mrow[j].brow;
+		auto& subrow = mrow[j].brow;
 		auto subpath(path);
 		while (offset < subrow.size() && path.size() <= MAX_PATH_LEN) {
 		    subpath.push_back(subrow[offset].edge);
@@ -444,7 +444,7 @@ MathTermGenerator::Internal::generate_symbol_pair_list()
 #ifdef DEBUGGING
     // Debug prints
     cout << "\n===Symbol pairs========\n";
-    for (auto & p : symbol_pairs)
+    for (auto& p : symbol_pairs)
 	cout << p << '\n';
     cout << "#symbols on main line : " << mrow.size() << '\n';
     cout << "total pairs = " << symbol_pairs.size();
@@ -460,7 +460,7 @@ MathTermGenerator::Internal::set_unification(const bool unify)
 }
 
 vector<string>
-MathTermGenerator::Internal::get_symbol_pair_list(const std::string & text)
+MathTermGenerator::Internal::get_symbol_pair_list(const std::string& text)
 {
     mrow = mlp.parse(text);
     return generate_symbol_pair_list();

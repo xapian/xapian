@@ -198,7 +198,7 @@ QueryParser::parse_query(string_view query_string, unsigned flags,
 }
 
 Query
-QueryParser::parse_math_query(const std::string & query_string,
+QueryParser::parse_math_query(const std::string& query_string,
 			      const bool unify)
 {
     if (query_string.empty()) return Query();

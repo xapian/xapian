@@ -52,16 +52,16 @@ class XAPIAN_VISIBILITY_DEFAULT MathTermGenerator {
     Xapian::Internal::intrusive_ptr_nonnull<Internal> internal;
 
     /// Copy constructor.
-    MathTermGenerator(const MathTermGenerator & o);
+    MathTermGenerator(const MathTermGenerator& o);
 
     /// Assignment.
-    MathTermGenerator & operator=(const MathTermGenerator & o);
+    MathTermGenerator& operator=(const MathTermGenerator& o);
 
     /// Move constructor.
-    MathTermGenerator(MathTermGenerator && o);
+    MathTermGenerator(MathTermGenerator&& o);
 
     /// Move assignment operator.
-    MathTermGenerator & operator=(MathTermGenerator && o);
+    MathTermGenerator& operator=(MathTermGenerator&& o);
 
     /// Default constructor.
     MathTermGenerator();
@@ -70,10 +70,10 @@ class XAPIAN_VISIBILITY_DEFAULT MathTermGenerator {
     ~MathTermGenerator();
 
     /// Set the current document.
-    void set_document(const Xapian::Document & doc);
+    void set_document(const Xapian::Document& doc);
 
     /// Get the current document.
-    const Xapian::Document & get_document() const;
+    const Xapian::Document& get_document() const;
 
     /** Index math expression in std::string.
      *
@@ -83,8 +83,8 @@ class XAPIAN_VISIBILITY_DEFAULT MathTermGenerator {
      * @param expr	The expression to index.
      * @param prefix	The term prefix to use (default is no prefix).
      */
-    void index_math(const std::string & expr,
-		    const std::string & prefix = std::string());
+    void index_math(const std::string& expr,
+		    const std::string& prefix = std::string());
 
     /** Generate and return symbol pair list from math expression in string.
      *
@@ -105,7 +105,7 @@ class XAPIAN_VISIBILITY_DEFAULT MathTermGenerator {
      * @param expr	The expression to generate symbol pair. The expression
      * 			must be in presentation mathml format.
      */
-    std::vector<std::string> get_symbol_pair_list(const std::string & expr);
+    std::vector<std::string> get_symbol_pair_list(const std::string& expr);
 
     /** Get the math symbols list in a given symbol layout tree.
      *

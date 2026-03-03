@@ -3402,7 +3402,7 @@ DEFINE_TESTCASE(qp_stop_all, !backend) {
 }
 
 DEFINE_TESTCASE(mathqueryparse1, !backend) {
-    const char * query_string = {
+    const char* query_string = {
 	"<math> <mi> a </mi> <mo> + </mo> <mi> b </mi> </math>"
     };
     // Symbol pairs: (a, +), (a, b), (+, b)

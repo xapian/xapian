@@ -1002,8 +1002,8 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      * @param query_string	Math expression as std::string.
      * @param unify		Condition to perform unification.
      */
-    Query parse_math_query(const std::string & query_string,
-			    bool unify = false);
+    Query parse_math_query(const std::string& query_string,
+			   bool unify = false);
 
     /** Add a free-text field term prefix.
      *

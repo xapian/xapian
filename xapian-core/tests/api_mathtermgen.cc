@@ -37,7 +37,7 @@ using namespace std;
 const string invisible_times = "O\342\201\242";
 
 struct test {
-    const char * expr;
+    const char* expr;
     vector<string> expected_mrow_labels;
 };
 
@@ -223,7 +223,7 @@ static const test test_parse[] = {
 DEFINE_TESTCASE(mathtermgen1, !backend) {
     Xapian::MathTermGenerator termgen;
 
-    for (const test * t = test_parse; t->expr; ++t) {
+    for (const test* t = test_parse; t->expr; ++t) {
 	termgen.index_math(t->expr);
 	vector<string> labels = termgen.get_labels_list();
 	TEST(labels == t->expected_mrow_labels);
@@ -234,7 +234,7 @@ DEFINE_TESTCASE(mathparsefail1, !backend) {
     Xapian::MathTermGenerator termgen;
 
     // Expression doesn't contain close tag </mo>.
-    const char * invalid_formula = {
+    const char* invalid_formula = {
 	"<math> <mi> a  <mo> + </mo> <mi> b </mi> </math>"
     };
 
