@@ -2,6 +2,9 @@
 Log Data Postprocessing
 =======================
 
+.. note:: You need to run configure with ``--enable-clickstream`` to get the
+   scripts and programs used here installed.
+
 Log data includes
 
     - data logged from the search results page rendered by Omega query template and,

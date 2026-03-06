@@ -163,8 +163,15 @@ AM_CXXFLAGS += $(XAPIAN_CXXFLAGS) $(MAGIC_CFLAGS)
 pkglibbindir = $(pkglibdir)/bin
 pkglibbin_PROGRAMS = omega $(OMINDEX_MODULES)
 dist_pkglibbin_SCRIPTS = mhtml2html outlookmsg2html rfc822tohtml vcard2text
-bin_PROGRAMS = omindex scriptindex omindex-list generate-qrel-file
-dist_bin_SCRIPTS = dbi2omega mbox2omega postprocess
+EXTRA_PROGRAMS += generate-qrel-file
+EXTRA_DIST += postprocess
+bin_PROGRAMS = omindex scriptindex omindex-list
+dist_bin_SCRIPTS = dbi2omega mbox2omega
+
+if CLICKSTREAM
+bin_PROGRAMS += generate-qrel-file
+dist_bin_SCRIPTS += postprocess
+endif
 
 check_PROGRAMS = atomparsertest csvesctest htmlparsertest jsonesctest md5test sdbntest urlenctest utf8converttest omindexcheck timecheck
 dist_check_SCRIPTS = omegatest.pl sourcetest omindextest

@@ -134,6 +134,15 @@ case $host_os in
     ;;
 esac
 
+AC_ARG_ENABLE([clickstream],
+  [AS_HELP_STRING([--enable-clickstream],
+		  [install programs and scripts to postprocess click log data for use in training xapian-letor])],
+  [case ${enableval} in
+    yes|no) ;;
+    *) AC_MSG_ERROR([bad value ${enableval} for --enable-clickstream]) ;;
+  esac])
+AM_CONDITIONAL([CLICKSTREAM], test x"$enable_clickstream" = xyes)
+
 AC_ARG_ENABLE(documentation,
   [AS_HELP_STRING([--enable-documentation], [enable make rules to rebuild documentation [default=maintainer-mode]])],
   [case ${enableval} in

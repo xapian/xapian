@@ -21,7 +21,8 @@ Changes since previous release candidate (1.5.0):
 general:
 
 * Add support for result click logging and analysis to generate training data
-  for the xapian-letor module.  Patch from Vivek Pal.
+  for the xapian-letor module.  Configure with `--enable-clickstream` to get
+  the extra programs and scripts installed.  Patch from Vivek Pal.
 
 * Remove htdig2omega scripts.  The last htdig release was in 2004 so these
   scripts no longer seem at all useful.  (Note that omindex still supports
