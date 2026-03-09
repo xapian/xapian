@@ -1,7 +1,7 @@
 /** @file
  *  @brief Class representing a list of search results
  */
-/* Copyright (C) 2015,2016,2017,2019,2023,2024 Olly Betts
+/* Copyright (C) 2015,2016,2017,2019,2023,2024,2026 Olly Betts
  * Copyright (C) 2018 Uppinder Chugh
  *
  * This program is free software; you can redistribute it and/or
@@ -197,27 +197,53 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
 
     /** Convert a weight to a percentage.
      *
-     *  The matching document with the highest weight will get 100% if it
-     *  matches all the weighted query terms, and proportionally less if it
-     *  only matches some, and other weights are scaled by the same factor.
+     *  If the weighting scheme gives everything zero weight (like
+     *  Xapian::BoolWeight does) then all results will score 100%.
      *
-     *  Documents with a non-zero score will always score at least 1%.
+     *  Otherwise the percentage is calculated as a linear scaling of the
+     *  relevance weight, with the scale factor determined by the matching
+     *  document with the highest weight.  This result scores 100% if it
+     *  matches all the weighted query terms, and proportionally less if it
+     *  only matches some.
+     *
+     *  The returned percentage is an integer.  If the calculated percentage
+     *  before rounding is non-zero but less than 1% it is rounded up to 1%
+     *  so that a result scoring 0% means it has zero weight.
+     *
+     *  Similarly, percentages over 99% but less than 100% are always rounded
+     *  down, so a result scoring 100% means it matches all weighted query
+     *  terms.
      *
      *  Note that these generally aren't percentages of anything meaningful
-     *  (unless you use a custom weighting formula where they are!)
+     *  (unless you use a custom weighting formula where they are!) but like
+     *  the weights they are based on, higher values should indicate
+     *  more relevant results.
      */
     int convert_to_percent(double weight) const;
 
     /** Convert the weight of the current iterator position to a percentage.
      *
-     *  The matching document with the highest weight will get 100% if it
-     *  matches all the weighted query terms, and proportionally less if it
-     *  only matches some, and other weights are scaled by the same factor.
+     *  If the weighting scheme gives everything zero weight (like
+     *  Xapian::BoolWeight does) then all results will score 100%.
      *
-     *  Documents with a non-zero score will always score at least 1%.
+     *  Otherwise the percentage is calculated as a linear scaling of the
+     *  relevance weight, with the scale factor determined by the matching
+     *  document with the highest weight.  This result scores 100% if it
+     *  matches all the weighted query terms, and proportionally less if it
+     *  only matches some.
+     *
+     *  The returned percentage is an integer.  If the calculated percentage
+     *  before rounding is non-zero but less than 1% it is rounded up to 1%
+     *  so that a result scoring 0% means it has zero weight.
+     *
+     *  Similarly, percentages over 99% but less than 100% are always rounded
+     *  down, so a result scoring 100% means it matches all weighted query
+     *  terms.
      *
      *  Note that these generally aren't percentages of anything meaningful
-     *  (unless you use a custom weighting formula where they are!)
+     *  (unless you use a custom weighting formula where they are!) but like
+     *  the weights they are based on, higher values should indicate
+     *  more relevant results.
      */
     int convert_to_percent(const MSetIterator & it) const;
 
@@ -660,14 +686,27 @@ class XAPIAN_VISIBILITY_DEFAULT MSetIterator {
 
     /** Convert the weight of the current iterator position to a percentage.
      *
-     *  The matching document with the highest weight will get 100% if it
-     *  matches all the weighted query terms, and proportionally less if it
-     *  only matches some, and other weights are scaled by the same factor.
+     *  If the weighting scheme gives everything zero weight (like
+     *  Xapian::BoolWeight does) then all results will score 100%.
      *
-     *  Documents with a non-zero score will always score at least 1%.
+     *  Otherwise the percentage is calculated as a linear scaling of the
+     *  relevance weight, with the scale factor determined by the matching
+     *  document with the highest weight.  This result scores 100% if it
+     *  matches all the weighted query terms, and proportionally less if it
+     *  only matches some.
+     *
+     *  The returned percentage is an integer.  If the calculated percentage
+     *  before rounding is non-zero but less than 1% it is rounded up to 1%
+     *  so that a result scoring 0% means it has zero weight.
+     *
+     *  Similarly, percentages over 99% but less than 100% are always rounded
+     *  down, so a result scoring 100% means it matches all weighted query
+     *  terms.
      *
      *  Note that these generally aren't percentages of anything meaningful
-     *  (unless you use a custom weighting formula where they are!)
+     *  (unless you use a custom weighting formula where they are!) but like
+     *  the weights they are based on, higher values should indicate
+     *  more relevant results.
      */
     int get_percent() const {
 	return mset.convert_to_percent(get_weight());
