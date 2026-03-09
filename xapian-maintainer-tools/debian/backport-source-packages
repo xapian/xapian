@@ -293,6 +293,8 @@ trap "echo \"backport-source-packages failed\"" EXIT
 # backports.org-compatible package versions - e.g. we append "~bpo12+1" for
 # Debian 12 (bookworm) (and a suffix starting "~" sorts as less than no suffix).
 case $CODENAME in
+trixie)
+  BACKPORT_SUFFIX="~bpo13+$BUILD_INT" ;;
 bookworm)
   BACKPORT_SUFFIX="~bpo12+$BUILD_INT" ;;
 bullseye)
