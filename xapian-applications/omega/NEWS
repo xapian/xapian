@@ -1,4 +1,6 @@
-Omega 1.5.1 (2026-03-04):
+up to: f002da27589f25cb1afcc358eaa16f97db37211e
+
+Omega 1.5.2 (2026-03-1?):
 
 This is a release candidate for 2.0.0, made available to encourage wider
 testing before a final release.  It is versioned as 1.5.x in an attempt to
@@ -8,15 +10,30 @@ changes are still possible, so please do not package this release candidate
 unless the packaging system has way to have a parallel version clearly marked
 as "experimental" or similar which users will have to opt-in to get.
 
-Changes since previous release candidate (1.5.0):
+Changes since previous release candidate (1.5.1):
 
-* Update for rename of new class DiceCoeffWeight to DiceWeight.
+* docs/overview.rst: Clarify handling of .doc files.  Highlighted by
+  Karel Pičman.
 
-* configure: Search for xapian-config not xapian-config-1.5 by default.
+* Adjust worker protocol so the worker can return an error message for
+  initialisation errors, which the parent process the reports.
 
-* Eliminate old FSF postal address from GPL/LGPL licence files and boilerplate.
+* Report worker comms errors more precisely.
 
-* NEWS: Improve wording of a few 2.0.0 entries
+* The Tesseract worker now calls TessBaseAPI::Init() on startup as well
+  as before each file so if it fails it should now be reported sooner.
+
+* The Tesseract worker now sets parameters later so they are actually
+  used.
+
+* Improve runtime error if LibreOffice is too old.
+
+* Remove block on trying to build with LibreOfficeKit on macOS since
+  LibreOfficeKit 26.2.2 (due for release in early April 2026) should
+  add support for macOS.
+
+* Put installation of script and program for processing click data behind
+  a new --enable-clickstream configure option.
 
 general:
 
@@ -28,6 +45,11 @@ general:
   scripts no longer seem at all useful.  (Note that omindex still supports
   htdig's <!--htdig_noindex-->...<!--/htdig_noindex--> markup of sections
   of pages not to index.)
+
+documentation:
+
+* docs/overview.rst: Clarify handling of .doc files.  Highlighted by
+  Karel Pičman.
 
 indexers:
 

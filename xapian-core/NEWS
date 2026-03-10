@@ -1,4 +1,6 @@
-Xapian-core 1.5.1 (2026-03-04):
+up to: f002da27589f25cb1afcc358eaa16f97db37211e
+
+Xapian-core 1.5.2 (2026-03-1?):
 
 This is a release candidate for 2.0.0, made available to encourage wider
 testing before a final release.  It is versioned as 1.5.x in an attempt to
@@ -10,33 +12,9 @@ as "experimental" or similar which users will have to opt-in to get.
 
 Changes since previous release candidate (1.5.0):
 
-* Rename new class DiceCoeffWeight to DiceWeight.
+* Improve MSet API documentation regarding percentages.
 
-* configure: Search for xapian-config not xapian-config-1.5 by default.
-
-* Eliminate old FSF postal address from GPL/LGPL licence files and boilerplate.
-
-* Remove unwanted execute bits from some files.
-
-* Remove DB_BACKEND_CHERT - it's not useful with the chert backend removed.
-
-* INSTALL: Note C++17 required for code using Xapian.
-
-* Update DBCHECK_FIX doc comment for chert removal.
-
-* NEWS: Improve description of English stemmer change (the change is actually
-  that, for example, `adding` now stems to `add` rather than `ad`).
-
-* Update Database::get_revision() doc comment.  This method has returned 0 for
-  a Database with no shards since 1.4.13.
-
-* Mark WILDCARD_LIMIT_MASK_ as internal.
-
-* Improve wording of some API documentation comments.
-
-* Add missing @since annotations for some API features added in 2.0.0.
-
-* AUTHORS: Update with 2.0.0 contributors.
+* NEWS: Minor wording improvements and typo fixes.
 
 API:
 
@@ -73,7 +51,7 @@ API:
     and Xapian::weight.  Use int, unsigned and double instead.
 
   + Remove deprecated ValuePostingSource member variables - use the
-    correspondings getter and setter methods instead.
+    corresponding getter and setter methods instead.
 
   + Remove deprecated compaction API - use the newer compaction API instead.
 
@@ -535,7 +513,7 @@ API:
     - Support new normalisations.  Patches from Dipanshu Garg.  Support for
       maxwdf statistic needed for some of these implemented by Nishad Dawkhar.
 
-      = WDF normalistions "max-norm", "aug-norm", "augmented log", "square
+      = WDF normalisations "max-norm", "aug-norm", "augmented log", "square
         root" and "augmented average term frequency".
 
       = IDF normalisations "incremented global frequency", "square root global
@@ -578,7 +556,7 @@ testsuite:
 
 * Add test coverage for collapsing with a percentage cutoff.
 
-* Test get_description() shows the correct classname.
+* Test get_description() reports the correct class name for API classes.
 
 * The testharness now runs valgrind with `--error-limit=no` so that valgrind
   errors are fully reported for all testcases even if more than 100 valgrind
@@ -695,7 +673,7 @@ matcher:
   their results as they become available.
 
 * Simplify clamping of wdf to <= doclen for OP_SYNONYM.  We approximate
-  the wdf of the synonymm, but want to allow weighting schemes to assume
+  the wdf of the synonym, but want to allow weighting schemes to assume
   it doesn't exceed the document length.  We now only clamp when need_stat(WDF)
   and need_stat(DOC_LENGTH) have both been called - when they both have we can
   rely on having both stats, so the clamping is cheap, and otherwise the
@@ -824,6 +802,8 @@ documentation:
 
 * Move more documentation to "Getting Started with Xapian" or the Xapian
   developer guide.  Partly done by a patch from James Aylett.
+
+* Various improvements to the API documentation.
 
 * Use the doxygen @since command where appropriate in API docs.
 
