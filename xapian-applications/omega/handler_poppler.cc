@@ -58,7 +58,7 @@ send_glib_field(Field field, gchar* data)
 }
 
 bool
-initialise()
+initialise(string&)
 {
     return true;
 }

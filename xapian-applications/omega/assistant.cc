@@ -1,7 +1,7 @@
 /** @file
  * @brief Worker module for putting text extraction into a separate process.
  */
-/* Copyright (C) 2011,2022,2023 Olly Betts
+/* Copyright (C) 2011,2022,2023,2026 Olly Betts
  * Copyright (C) 2019 Bruno Baruffaldi
  *
  * This program is free software; you can redistribute it and/or
@@ -28,6 +28,7 @@
 #include <cerrno>
 #include <csignal>
 #include <iostream>
+#include <string>
 
 #include "safesysexits.h"
 
@@ -116,15 +117,23 @@ int main()
     sockt = fdopen(FD, "r+");
 
     try {
-	if (!initialise())
+	string error;
+	if (!initialise(error)) {
+	    if (!error.empty()) send_field(FIELD_ERROR, error);
 	    _Exit(EX_UNAVAILABLE);
+	}
     } catch (const std::exception& e) {
-	cerr << "Initialisation failed with exception: " << e.what() << '\n';
+	string error = "C++ exception: ";
+	error += e.what();
+	send_field(FIELD_ERROR, error);
 	_Exit(EX_UNAVAILABLE);
     } catch (...) {
+	send_field(FIELD_ERROR, "Unknown C++ exception");
 	_Exit(EX_UNAVAILABLE);
     }
 
+    // Signal we've successfully initialised.
+    send_field_end();
     while (true) {
 	// Read filename.
 	errno = 0;
@@ -134,8 +143,12 @@ int main()
 	set_timeout();
 	try {
 	    extract(filename, mimetype);
+	} catch (const std::exception& e) {
+	    string error = "C++ exception: ";
+	    error += e.what();
+	    send_field(FIELD_ERROR, error);
 	} catch (...) {
-	    send_field(FIELD_ERROR, "Caught C++ exception");
+	    send_field(FIELD_ERROR, "Unknown C++ exception");
 	}
 	stop_timeout();
 	send_field_end();

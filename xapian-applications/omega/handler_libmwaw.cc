@@ -218,7 +218,7 @@ extract_drawing(RVNGFileStream* input)
 }
 
 bool
-initialise()
+initialise(string&)
 {
     return true;
 }

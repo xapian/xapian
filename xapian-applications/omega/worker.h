@@ -1,7 +1,7 @@
 /** @file
  * @brief Class representing worker process.
  */
-/* Copyright (C) 2011,2019,2022,2023 Olly Betts
+/* Copyright (C) 2011,2019,2022,2023,2026 Olly Betts
  * Copyright (C) 2019 Bruno Baruffaldi
  *
  * This program is free software; you can redistribute it and/or
@@ -71,6 +71,13 @@ class Worker {
      *  the extract() method's return value.
      */
     int start_worker_subprocess();
+
+    /** Deal with a communication error.
+     *
+     *  Return a non-zero integer with the same semantics as the extract()
+     *  method's return value.
+     */
+    int handle_comms_error();
 
     /// In case of failure, an error message will be write in it
     std::string error;

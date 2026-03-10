@@ -194,7 +194,7 @@ extract_pages(RVNGInputStream* input)
 }
 
 bool
-initialise()
+initialise(string&)
 {
     return true;
 }

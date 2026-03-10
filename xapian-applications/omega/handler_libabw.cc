@@ -132,7 +132,7 @@ parse_metadata(const char* data, size_t len)
 }
 
 bool
-initialise()
+initialise(string&)
 {
     return true;
 }

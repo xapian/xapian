@@ -426,7 +426,7 @@ extract_message(GMimeMessage* message)
 }
 
 bool
-initialise()
+initialise(string&)
 {
 #if GMIME_MAJOR_VERSION >= 3
     g_mime_init();

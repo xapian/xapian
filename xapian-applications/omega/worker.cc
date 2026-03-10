@@ -1,7 +1,7 @@
 /** @file
  * @brief Class representing worker process.
  */
-/* Copyright (C) 2005-2023 Olly Betts
+/* Copyright (C) 2005-2026 Olly Betts
  * Copyright (C) 2019 Bruno Baruffaldi
  *
  * This program is free software; you can redistribute it and/or
@@ -151,8 +151,6 @@ Worker::start_worker_subprocess()
 	ignoring_sigpipe = true;
 	signal(SIGPIPE, SIG_IGN);
     }
-
-    return 0;
 #elif defined __WIN32__
     LARGE_INTEGER counter;
     // QueryPerformanceCounter() will always succeed on XP and later
@@ -233,11 +231,29 @@ Worker::start_worker_subprocess()
     child = procinfo.hProcess;
 
     sockt = _fdopen(_open_osfhandle(intptr_t(hPipe), O_RDWR|O_BINARY), "r+");
-
-    return 0;
 #else
 # error Omega needs porting to this platform
 #endif
+
+    int field_code = GETC(sockt);
+    if (field_code != FIELD_END) {
+	error = error_prefix;
+	if (field_code != FIELD_ERROR) {
+	    error += "Unexpected first response from worker module";
+	    return -1;
+	}
+
+	if (!read_string(sockt, error)) goto comms_error;
+	if (error.empty())
+	    error += "Initialisation failed";
+	return -1;
+    }
+    return 0;
+
+comms_error:
+    error = error_prefix;
+    error += "(init) ";
+    return handle_comms_error();
 }
 
 int
@@ -370,6 +386,12 @@ Worker::extract(const std::string& filename,
 
 comms_error:
     error = error_prefix;
+    return handle_comms_error();
+}
+
+int
+Worker::handle_comms_error()
+{
     // Check if the worker process already died, so we can report if it
     // was killed by a segmentation fault, etc.
 #ifdef HAVE_WAITPID

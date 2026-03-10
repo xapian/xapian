@@ -1,7 +1,7 @@
 /** @file
  * @brief Extract text and metadata using an external library.
  */
-/* Copyright (C) 2011,2022,2023 Olly Betts
+/* Copyright (C) 2011,2022,2023,2026 Olly Betts
  * Copyright (C) 2019 Bruno Baruffaldi
  *
  * This program is free software; you can redistribute it and/or
@@ -30,10 +30,11 @@
  *  This will be called before any calls to extract().
  *
  *  Should return true if initialisation succeeds, false (or throw a C++
- *  exception) if it fails.
+ *  exception) if it fails.  If returning false, set error to an error
+ *  message if the reason is known.
  */
 bool
-initialise();
+initialise(std::string& error);
 
 /** Extract information from the @a filename and store it in the
  *  corresponding variable.

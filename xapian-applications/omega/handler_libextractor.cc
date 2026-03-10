@@ -114,11 +114,15 @@ process_metadata(void*,
 static struct EXTRACTOR_PluginList* plugins;
 
 bool
-initialise()
+initialise(string& error)
 {
     // Add all default plugins.
     plugins = EXTRACTOR_plugin_add_defaults(EXTRACTOR_OPTION_DEFAULT_POLICY);
-    return plugins != nullptr;
+    if (plugins == nullptr) {
+	error = "Failed to find any libextractor plugins";
+	return false;
+    }
+    return true;
 }
 
 void

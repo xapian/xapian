@@ -26,17 +26,24 @@
 #include <tesseract/baseapi.h>
 #include <leptonica/allheaders.h>
 
-#include "safesysexits.h"
-
 using namespace std;
 using namespace tesseract;
 
 static TessBaseAPI* ocr;
 
+// FIXME: We ought to provide a way to specify the language to use.
+static const char* OCR_LANGUAGE = "eng";
+
 bool
-initialise()
+initialise(string& error)
 {
     ocr = new TessBaseAPI();
+    // We also call Init() before each document but call it here too so we can
+    // report failure early.
+    if (ocr->Init(nullptr, OCR_LANGUAGE)) {
+	error = "TessBaseAPI::Init() failed";
+	return false;
+    }
     return true;
 }
 
@@ -50,11 +57,10 @@ extract(const string& filename, const string&)
     // Tesseract documents that passing nullptr for the second parameter
     // here is the same as "eng", but that fails to work on macos (tested
     // with the homebrew tesseract v5.1.0).
-    //
-    // FIXME: We ought to provide a way to allow the language to use here
-    // to be specified.
-    if (ocr->Init(nullptr, "eng"))
-	_Exit(EX_UNAVAILABLE);
+    if (ocr->Init(nullptr, OCR_LANGUAGE)) {
+	send_field(FIELD_ERROR, "TessBaseAPI::Init() failed");
+	return;
+    }
 
     // We need to set this each time as it gets reset by Init().
     ocr->SetPageSegMode(PSM_AUTO_OSD);

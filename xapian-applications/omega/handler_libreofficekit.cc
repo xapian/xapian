@@ -1,7 +1,7 @@
 /** @file
  * @brief Extract text and metadata using LibreOfficeKit
  */
-/* Copyright (C) 2014-2023 Olly Betts
+/* Copyright (C) 2014-2026 Olly Betts
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -29,7 +29,6 @@ using namespace std;
 #include <sys/stat.h>
 #include <dirent.h>
 #include <unistd.h>
-#include "safesysexits.h"
 
 #define LOK_USE_UNSTABLE_API // So we can use lok::Document::getParts().
 #include <LibreOfficeKit/LibreOfficeKit.hxx>
@@ -115,12 +114,7 @@ get_lo_path()
 	    return best_rc.c_str();
 	}
     }
-
-    cerr << "LibreOffice install not found\n"
-	"Set LO_PATH in the environment to the 'program' directory - e.g.:\n"
-	"LO_PATH=/opt/libreoffice/program\n"
-	"export LO_PATH\n";
-    _Exit(EX_UNAVAILABLE);
+    return nullptr;
 }
 
 static string output_file;
@@ -129,19 +123,25 @@ static string output_url;
 static Office* llo;
 
 bool
-initialise()
+initialise(string& error)
 {
     output_file = get_tmpfile("tmp.html");
     if (output_file.empty()) {
-	cerr << "Couldn't create temporary directory\n";
+	error = "Couldn't create temporary directory";
 	return false;
     }
     url_encode_path(output_url, output_file);
 
     const char* lo_path = get_lo_path();
+    if (!lo_path) {
+	error = "LibreOffice install not found. "
+	    "Set LO_PATH to the 'program' directory, "
+	    "e.g.: export LO_PATH=/opt/libreoffice/program";
+	return false;
+    }
     llo = lok_cpp_init(lo_path);
     if (!llo) {
-	cerr << "Failed to initialise LibreOfficeKit\n";
+	error = "Failed to initialise LibreOfficeKit";
 	return false;
     }
     return true;

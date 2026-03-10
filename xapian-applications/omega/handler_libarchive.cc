@@ -278,7 +278,7 @@ extract_xps(struct archive* archive_obj)
 }
 
 bool
-initialise()
+initialise(string&)
 {
     return true;
 }

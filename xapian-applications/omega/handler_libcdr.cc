@@ -29,7 +29,7 @@ using namespace librevenge;
 using namespace std;
 
 bool
-initialise()
+initialise(string&)
 {
     return true;
 }
