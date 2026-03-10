@@ -271,10 +271,13 @@ other filters too - see below):
 * OpenDocument format documents (.odt, .ods, .odp, .odg, .odc, .odf, .odb,
   .odi, .odm, .ott, .ots, .otp, .otg, .otc, .otf, .oti, .oth) if unzip is
   available
-* MS Word documents (.dot) if antiword is available (.doc files are left to
-  libmagic, as they may actually be RTF (AbiWord saves RTF when asked to save
-  as .doc, and Microsoft Word quietly loads RTF files with a .doc extension),
-  or plain-text).
+* MS Word documents (.dot, application/msword) if antiword is available.  We
+  don't assume a .doc file is MS Word, since it's relatively common to
+  encounter .doc files which are other actually other formats - e.g. RTF
+  (AbiWord writes RTF when asked to save as .doc, and Microsoft Word quietly
+  loads RTF files with a .doc extension), DOCX, plain text (e.g. `README.DOC`),
+  and even PDF or HTML.  Instead we let libmagic example the contents to
+  determine its mimetype and index based on that.
 * MS Excel documents (.xls, .xlb, .xlt, .xlr, .xla) if xls2csv is available
   (comes with catdoc)
 * MS Powerpoint documents (.ppt, .pps) if catppt is available (comes with
