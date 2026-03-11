@@ -960,7 +960,11 @@ QUOTELOOP:  while (1) {
 		$this_indent = count_columns($1);
 	    }
 	    my $extra = $this_indent - $indent;
-	    if ($extra) {
+	    # We have two styles for switch statements with case and the block
+	    # indented by either 2 or 4 each.  We should pick a style and make
+	    # the other instance match but for now don't complain about this
+	    # case.
+	    if ($extra && $extra != 2) {
 		my $which = 'over';
 		if ($extra < 0) {
 		    $extra = -$extra;
