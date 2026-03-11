@@ -14,6 +14,7 @@
 
 #include "htmlparser.h"
 #include "loadfile.h"
+#include "stringutils.h"
 #include "tmpdir.h"
 #include "urlencode.h"
 
@@ -36,6 +37,10 @@ using namespace std;
 using namespace std;
 using namespace lok;
 
+// We require at least LibreOffice 4.3.
+#define MIN_LIBREOFFICE_VERSIOM_MAJOR 4
+#define MIN_LIBREOFFICE_VERSIOM_MINOR 3
+
 // Install location for Debian packages (also Fedora on 32-bit architectures):
 #define LO_PATH_DEBIAN "/usr/lib/libreoffice/program"
 
@@ -54,7 +59,8 @@ get_lo_path()
     if (lo_path) return lo_path;
 
     struct stat sb;
-#define CHECK_DIR(P) if (stat(P"/versionrc", &sb) == 0 && S_ISREG(sb.st_mode)) return P
+#define CHECK_DIR(P) \
+    if (stat(P"/versionrc", &sb) == 0 && S_ISREG(sb.st_mode)) return P
 #ifdef __APPLE__
     CHECK_DIR(LO_PATH_MACOS);
 #else
@@ -68,9 +74,15 @@ get_lo_path()
     // e.g. /opt/libreoffice6.3/program
     DIR* opt = opendir("/opt");
     if (opt) {
-	// We require at least LibreOffice 4.3.
-	unsigned long best_major = 4;
-	unsigned long best_minor = 2;
+	unsigned long best_major = MIN_LIBREOFFICE_VERSIOM_MAJOR;
+	unsigned long best_minor = MIN_LIBREOFFICE_VERSIOM_MINOR;
+	// Set the best version seen to one before the minimum we support.
+#if MIN_LIBREOFFICE_VERSIOM_MINOR == 0
+	--best_major;
+	best_minor = ULONG_MAX;
+#else
+	--best_minor;
+#endif
 	static string best_rc;
 	struct dirent* d;
 	while ((d = readdir(opt))) {
@@ -125,26 +137,34 @@ static Office* llo;
 bool
 initialise(string& error)
 {
-    output_file = get_tmpfile("tmp.html");
-    if (output_file.empty()) {
-	error = "Couldn't create temporary directory";
-	return false;
-    }
-    url_encode_path(output_url, output_file);
+    try {
+	output_file = get_tmpfile("tmp.html");
+	if (output_file.empty()) {
+	    error = "Couldn't create temporary directory";
+	    return false;
+	}
+	url_encode_path(output_url, output_file);
 
-    const char* lo_path = get_lo_path();
-    if (!lo_path) {
-	error = "LibreOffice install not found. "
-	    "Set LO_PATH to the 'program' directory, "
-	    "e.g.: export LO_PATH=/opt/libreoffice/program";
+	const char* lo_path = get_lo_path();
+	if (!lo_path) {
+	    error = "LibreOffice >= "
+		STRINGIZE(MIN_LIBREOFFICE_VERSIOM_MAJOR) "."
+		STRINGIZE(MIN_LIBREOFFICE_VERSIOM_MINOR) " install not found. "
+		"Set LO_PATH to the 'program' directory, "
+		"e.g.: export LO_PATH=/opt/libreoffice/program";
+	    return false;
+	}
+	llo = lok_cpp_init(lo_path);
+	if (!llo) {
+	    error = "Failed to initialise LibreOfficeKit";
+	    return false;
+	}
+	return true;
+    } catch (const exception& e) {
+	error = "LibreOfficeKit threw exception: ";
+	error += e.what();
 	return false;
     }
-    llo = lok_cpp_init(lo_path);
-    if (!llo) {
-	error = "Failed to initialise LibreOfficeKit";
-	return false;
-    }
-    return true;
 }
 
 void
