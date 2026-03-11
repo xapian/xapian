@@ -300,6 +300,7 @@ Worker::extract(const std::string& filename,
 	if (r != 0) return r;
     }
 
+    error = error_prefix;
     string attachment_filename;
     // Send a filename and wait for the reply.
     if (write_string(sockt, filename) && write_string(sockt, mimetype)) {
@@ -310,6 +311,7 @@ Worker::extract(const std::string& filename,
 	      case FIELD_PAGE_COUNT: {
 		unsigned u_pages;
 		if (!read_unsigned(sockt, u_pages)) {
+		    error += " read_unsigned after FIELD_PAGE_COUNT";
 		    goto comms_error;
 		}
 		pages = int(u_pages);
@@ -318,6 +320,7 @@ Worker::extract(const std::string& filename,
 	      case FIELD_CREATED_DATE: {
 		unsigned u_created;
 		if (!read_unsigned(sockt, u_created)) {
+		    error += " read_unsigned after FIELD_CREATED_DATE";
 		    goto comms_error;
 		}
 		created = time_t(long(u_created));
@@ -348,7 +351,10 @@ Worker::extract(const std::string& filename,
 		value = &message_id;
 		break;
 	      case FIELD_ERROR:
-		if (!read_string(sockt, error)) goto comms_error;
+		if (!read_string(sockt, error)) {
+		    error += " read_unsigned after FIELD_ERROR";
+		    goto comms_error;
+		}
 		// Fields shouldn't be empty but the protocol allows them to be.
 		if (error.empty())
 		    error = error_prefix + "Couldn't extract text";
@@ -358,6 +364,7 @@ Worker::extract(const std::string& filename,
 	      case FIELD_END:
 		return 0;
 	      case EOF:
+		error += " read_unsigned after EOF";
 		goto comms_error;
 	      case FIELD_ATTACHMENT:
 		value = &attachment_filename;
