@@ -47,8 +47,7 @@ using namespace lok;
 // Install location for Fedora packages on 64-bit architectures:
 #define LO_PATH_FEDORA64 "/usr/lib64/libreoffice/program"
 
-// Install location on macOS.  May not actually work there currently though,
-// see: https://gitlab.com/ojwb/lloconv/-/issues/11
+// Install location on macOS.  LibreOffice 26.2.2 required.
 #define LO_PATH_MACOS "/Applications/LibreOffice.app/Contents/Frameworks"
 
 // Find a LibreOffice installation to use.
