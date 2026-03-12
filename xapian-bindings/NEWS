@@ -1,6 +1,4 @@
-up to: f002da27589f25cb1afcc358eaa16f97db37211e
-
-Xapian-bindings 1.5.2 (2026-03-1?):
+Xapian-bindings 1.5.2 (2026-03-12):
 
 This is a release candidate for 2.0.0, made available to encourage wider
 testing before a final release.  It is versioned as 1.5.x in an attempt to
