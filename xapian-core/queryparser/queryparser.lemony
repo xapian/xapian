@@ -1480,7 +1480,7 @@ leading_wildcard:
 			}
 		    }
 
-		    if (is_wordchar(ch)) {
+		    if (is_wordchar(ch) || is_extended_wildcard(ch, flags)) {
 			// Prefixed term.
 			it = p;
 		    } else {

@@ -1103,7 +1103,7 @@ DEFINE_TESTCASE(qp_flag_wildcard1, backend) {
     TEST_STRINGS_EQUAL(qobj.get_description(), "Query((abc@1 AND WILDCARD SYNONYM muscl AND main@3))");
 }
 
-// Test right truncation with prefixes.
+// Test wildcards with prefixes.
 DEFINE_TESTCASE(qp_flag_wildcard2, backend) {
     Xapian::Database db = get_database("qp_flag_wildcard2",
 				       [](Xapian::WritableDatabase& wdb,
@@ -1118,10 +1118,45 @@ DEFINE_TESTCASE(qp_flag_wildcard2, backend) {
     qp.set_database(db);
     qp.add_prefix("author", "A");
     Xapian::Query qobj;
+    // Test right truncation with prefixes.
     qobj = qp.parse_query("author:h*", Xapian::QueryParser::FLAG_WILDCARD);
     TEST_STRINGS_EQUAL(qobj.get_description(), "Query(WILDCARD SYNONYM Ah)");
     qobj = qp.parse_query("author:h* test", Xapian::QueryParser::FLAG_WILDCARD);
     TEST_STRINGS_EQUAL(qobj.get_description(), "Query((WILDCARD SYNONYM Ah OR test@2))");
+    // Test extended wildcards with prefixes.
+    qobj = qp.parse_query("author:h*", Xapian::QueryParser::FLAG_WILDCARD_GLOB);
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(WILDCARD SYNONYM Ah*)");
+    qobj = qp.parse_query("author:h*", Xapian::QueryParser::FLAG_WILDCARD_MULTI);
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(WILDCARD SYNONYM Ah*)");
+    qobj = qp.parse_query("author:h* test", Xapian::QueryParser::FLAG_WILDCARD_GLOB);
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query((WILDCARD SYNONYM Ah* OR test@2))");
+    qobj = qp.parse_query("author:h* test", Xapian::QueryParser::FLAG_WILDCARD_MULTI);
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query((WILDCARD SYNONYM Ah* OR test@2))");
+    qobj = qp.parse_query("author:h*y", Xapian::QueryParser::FLAG_WILDCARD_GLOB);
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(WILDCARD SYNONYM Ah*y)");
+    qobj = qp.parse_query("author:h*y", Xapian::QueryParser::FLAG_WILDCARD_MULTI);
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(WILDCARD SYNONYM Ah*y)");
+    qobj = qp.parse_query("author:h*y test", Xapian::QueryParser::FLAG_WILDCARD_GLOB);
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query((WILDCARD SYNONYM Ah*y OR test@2))");
+    qobj = qp.parse_query("author:h*y test", Xapian::QueryParser::FLAG_WILDCARD_MULTI);
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query((WILDCARD SYNONYM Ah*y OR test@2))");
+    qobj = qp.parse_query("author:h?xley", Xapian::QueryParser::FLAG_WILDCARD_GLOB);
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(WILDCARD SYNONYM Ah?xley)");
+    qobj = qp.parse_query("author:h?xley", Xapian::QueryParser::FLAG_WILDCARD_SINGLE);
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(WILDCARD SYNONYM Ah?xley)");
+    qobj = qp.parse_query("author:h?xley test", Xapian::QueryParser::FLAG_WILDCARD_GLOB);
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query((WILDCARD SYNONYM Ah?xley OR test@2))");
+    qobj = qp.parse_query("author:h?xley test", Xapian::QueryParser::FLAG_WILDCARD_SINGLE);
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query((WILDCARD SYNONYM Ah?xley OR test@2))");
+    // Regression tests for bug found just before 2.0.0 release:
+    qobj = qp.parse_query("author:*ley", Xapian::QueryParser::FLAG_WILDCARD_GLOB);
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(WILDCARD SYNONYM A*ley)");
+    qobj = qp.parse_query("author:*ley", Xapian::QueryParser::FLAG_WILDCARD_MULTI);
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(WILDCARD SYNONYM A*ley)");
+    qobj = qp.parse_query("author:?ley", Xapian::QueryParser::FLAG_WILDCARD_GLOB);
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(WILDCARD SYNONYM A?ley)");
+    qobj = qp.parse_query("author:?ley", Xapian::QueryParser::FLAG_WILDCARD_SINGLE);
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(WILDCARD SYNONYM A?ley)");
 }
 
 static void
