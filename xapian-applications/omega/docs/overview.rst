@@ -430,33 +430,51 @@ Output from the command can be handled in the following ways:
 * If you don't use ``%t`` in the command, then omindex will expect output on
   ``stdout`` (prior to 1.3.3, output had to be on ``stdout``).
 
-For example, if you'd prefer to use Abiword to extract text from word documents
-(by default, omindex uses antiword), then you can pass the option
-``--filter=application/msword:'abiword --to=txt --to-name=fd://1'`` to
-omindex.
+Here are some examples to illustrate these features:
 
-Another example - if you wanted to handle files of MIME type
-``application/octet-stream`` by piping them into ``strings -n8``, you can
-pass the option ``--filter=application/octet-stream:'|strings -n8'`` (since
-``strings`` reads from ``stdin`` if no filename is specified, at least in
-the GNU binutils implementation).
+* ``--filter=application/msword:'catdoc -dutf-8 -w`` tells
+  ``omindex`` to use catdoc to extract text from MS Word documents (by
+  default, antiword is used).  There's no ``%f`` so the filename is appended
+  to the command string, and no ``%t`` so output will be read from ``stdout``.
 
-A more complex example: to process ``.foo`` files with the (fictional)
-``foo2utf16`` utility which produces UTF-16 text but doesn't support writing
-output to stdout, run omindex with ``-Mfoo:text/x-foo
--Ftext/x-foo,,utf-16:'foo2utf16 %f %t'``.
+* ``--filter=application/msword:'abiword --to=txt --to-name=fd://1'`` tells
+  ``omindex`` to use Abiword to extract text from MS Word documents (by
+  default, antiword is used).  There's no ``%f`` so the filename is appended
+  to the command string, and no ``%t`` so output will be read from ``stdout``.
 
-A less contrived example of the use of ``--filter`` makes use of LibreOffice,
-via the unoconv script, to extract text from various formats.  First you
-need to start a listening instance (if you don't, unoconv will start up
-LibreOffice for every file, which is rather inefficient) - the ``&`` tells
-the shell to run it in the background::
+* ``--filter=application/msword,html:'unoconv --stdout -f html'`` tells
+  ``omindex`` to use the unoconv script to convert MS Word documents to
+  HTML (an advantage of using HTML is that we can get metadata as well as
+  the document body text).  The unoconv script uses LibreOffice to do the
+  conversion - before indexing you should start a listening instance (if you
+  don't, unoconv will start up LibreOffice for every file, which is rather
+  inefficient):
 
-  unoconv --listener &
+  ::
 
-Then run omindex with options such as
-``--filter=application/msword,html:'unoconv --stdout -f html'`` (you'll want
-to repeat this for each format which you want to use LibreOffice on).
+      unoconv --listener &
+
+  The ``&`` tells the shell to run it in the background.
+
+  This should work for any format LibreOffice can convert - you'll need to
+  repeat the option above for each content-type you want to use unoconv on.
+
+  Omega 2.0.0 added support for worker modules, including one which can
+  extract text using LibreOffice using LibreOfficeKit.  This is probably
+  a better approach than using unoconv - we've mostly left this example as
+  it demonstrates handling HTML output.
+
+* ``--filter=application/octet-stream:'|strings -n8'`` tells ``omindex`` to
+  handle files of MIME type ``application/octet-stream`` by piping them into
+  ``strings -n8`` (which reads from ``stdin`` if no filename is specified, at
+  least in the GNU binutils implementation).  There's no ``%t`` so output will
+  be read from ``stdout``.
+
+* ``-Mfoo:text/x-foo -Ftext/x-foo,,utf-16:'foo2utf16 %f %t'`` tells ``omindex``
+  to handle ``.foo`` files with the (fictional) ``foo2utf16`` utility which
+  produces UTF-16 text but doesn't support writing output to stdout.  We map
+  the ``.foo`` extension to a made-up MIME content type, then map this MIME
+  content type to the command we want to run.
 
 If you specify ``false`` as the command in ``--filter``, omindex will skip
 files with the specified MIME type.  (As of 1.2.20 and 1.3.3 ``false`` is
