@@ -1,7 +1,7 @@
 #!/usr/bin/env tclsh
 # Tcl script to index each paragraph of a text file as a Xapian document.
 #
-# Copyright (C) 2004,2006,2007,2009 Olly Betts
+# Copyright (C) 2004,2006,2007,2009,2026 Olly Betts
 # Copyright (C) 2004 Michael Schlenker
 #
 # This program is free software; you can redistribute it and/or modify
@@ -18,8 +18,12 @@
 # along with this program; if not, see
 # <https://www.gnu.org/licenses/>.
 
-# We need at least Xapian 1.0.0 for TermGenerator.
-package require xapian 1.0.0
+# This example works with both Xapian 1.* and 2.*.
+if [catch {
+    package require xapian 2.0.0
+}] {
+    package require xapian 1.0.0
+}
 
 if {[llength $argv] != 1} {
     puts "Usage: $argv0 PATH_TO_DATABASE"
