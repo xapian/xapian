@@ -16,7 +16,7 @@
 # along with this program; if not, see
 # <https://www.gnu.org/licenses/>.
 
-package require xapian 1.0.0
+package require xapian 2.0.0
 
 # Test the version number reporting functions give plausible results.
 set v [format {%d.%d.%d} [xapian::major_version] \
