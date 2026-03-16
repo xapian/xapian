@@ -1,7 +1,7 @@
 #!/usr/bin/env tclsh
 # Simple command-line search Tcl script.
 #
-# Copyright (C) 2004,2006,2007 Olly Betts
+# Copyright (C) 2004,2006,2007,2026 Olly Betts
 # Copyright (C) 2004 Michael Schlenker
 #
 # This program is free software; you can redistribute it and/or modify
@@ -18,9 +18,12 @@
 # along with this program; if not, see
 # <https://www.gnu.org/licenses/>.
 
-# We need only actually need Xapian 0.9.3 (for the query from list constructor
-# wrapper), but "package require" doesn't accept differing major versions.
-package require xapian 1.0.0
+# This example works with both Xapian 1.* and 2.*.
+if [catch {
+    package require xapian 2.0.0
+}] {
+    package require xapian 1.0.0
+}
 
 if {[llength $argv] < 2} {
     puts "Usage: $argv0 PATH_TO_DATABASE QUERY"
