@@ -1,18 +1,4 @@
-Xapian-core 1.5.2 (2026-03-12):
-
-This is a release candidate for 2.0.0, made available to encourage wider
-testing before a final release.  It is versioned as 1.5.x in an attempt to
-reduce potential for misunderstandings.  If all goes well the final release
-will be the same as this but with the version number updated.  Incompatible
-changes are still possible, so please do not package this release candidate
-unless the packaging system has way to have a parallel version clearly marked
-as "experimental" or similar which users will have to opt-in to get.
-
-Changes since previous release candidate (1.5.0):
-
-* Improve MSet API documentation regarding percentages.
-
-* NEWS: Minor wording improvements and typo fixes.
+Xapian-core 2.0.0 (2026-03-16):
 
 API:
 

@@ -1,37 +1,4 @@
-Omega 1.5.2 (2026-03-12):
-
-This is a release candidate for 2.0.0, made available to encourage wider
-testing before a final release.  It is versioned as 1.5.x in an attempt to
-reduce potential for misunderstandings.  If all goes well the final release
-will be the same as this but with the version number updated.  Incompatible
-changes are still possible, so please do not package this release candidate
-unless the packaging system has way to have a parallel version clearly marked
-as "experimental" or similar which users will have to opt-in to get.
-
-Changes since previous release candidate (1.5.1):
-
-* docs/overview.rst: Clarify handling of .doc files.  Highlighted by
-  Karel Pičman.
-
-* Adjust worker protocol so the worker can return an error message for
-  initialisation errors, which the parent process the reports.
-
-* Report worker comms errors more precisely.
-
-* The Tesseract worker now calls TessBaseAPI::Init() on startup as well
-  as before each file so if it fails it should now be reported sooner.
-
-* The Tesseract worker now sets parameters later so they are actually
-  used.
-
-* Improve runtime error if LibreOffice is too old.
-
-* Remove block on trying to build with LibreOfficeKit on macOS since
-  LibreOfficeKit 26.2.2 (due for release in early April 2026) should
-  add support for macOS.
-
-* Put installation of script and program for processing click data behind
-  a new --enable-clickstream configure option.
+Omega 2.0.0 (2026-03-16):
 
 general:
 
@@ -175,10 +142,11 @@ omega:
   possible to report logging errors, and one can wrap the `$log{...}` in `$if{`
   and `}` to ignore errors which also works with older versions.
 
-* $filesize{} with an empty input previously gave ``0`` but now gives an
-  empty result.
+* $filesize{} with an empty input previously gave `0` but now gives an empty
+  result.
 
-* Remove deprecated $set{spelling,true}.
+* Remove deprecated `$set{spelling,true}`.  Use
+  `$set{flag_spelling_suggestion,true}` instead, which was added in 1.2.5.
 
 * Note $set{expansion,trad} as deprecated in omega docs.  The replacement is
   $set{expansion,prob} which is supported since 1.4.26.

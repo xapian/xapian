@@ -4,7 +4,7 @@ dnl See xapian-core's HACKING document for details of the reasons for required
 dnl versions.
 AC_PREREQ([2.63])
 
-AC_INIT([xapian-bindings], [1.5.2], [https://xapian.org/bugs])
+AC_INIT([xapian-bindings], [2.0.0], [https://xapian.org/bugs])
 
 dnl See xapian-core's HACKING document for details of the reasons for required
 dnl versions.
@@ -64,7 +64,7 @@ AX_CXX_COMPILE_STDCXX([17])
 
 dnl Check for xapian-core.
 XO_LIB_XAPIAN([], [], [xapian-config])
-XO_REQUIRE([1.5.0])
+XO_REQUIRE([2.0.0])
 
 NEED_JNILIB_EXT=no
 NEED_INTREE_DYLD=no

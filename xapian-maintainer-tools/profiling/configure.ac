@@ -1,6 +1,6 @@
 dnl Process this file with autoconf to produce a configure script.
 
-AC_INIT([xapian-profiler], [1.5.2], [https://xapian.org/bugs])
+AC_INIT([xapian-profiler], [2.0.0], [https://xapian.org/bugs])
 AC_CONFIG_MACRO_DIRS([m4])
 AM_INIT_AUTOMAKE([foreign -Wall -Wportability -Werror])
 dnl We don't want to build static libraries, but without this we get a
