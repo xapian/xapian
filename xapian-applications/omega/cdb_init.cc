@@ -1,21 +1,41 @@
-/* $Id: cdb_init.c,v 1.9 2003/11/03 21:42:20 mjt Exp $
- * cdb_init, cdb_free and cdb_read routines
+/* cdb_init.c: cdb_init, cdb_free and cdb_read routines
  *
- * This file is a part of tinycdb package by Michael Tokarev, mjt@corpit.ru.
- * Public domain.
+ * This file is a part of tinycdb package.
+ * Copyright (C) 2001-2023 Michael Tokarev <mjt+cdb@corpit.ru>
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included
+ * in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
+ * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ * DEALINGS IN THE SOFTWARE.
  */
 
 #include <config.h>
 
 #include <sys/types.h>
+#ifdef _WIN32
+# include "safewindows.h"
+#endif
 #ifdef HAVE_MMAP
 # include <sys/mman.h>
+# ifndef MAP_FAILED
+#  define MAP_FAILED ((void*)-1)
+# endif
 #else
 # include "safeunistd.h"
 # include <cstdlib>
-#endif
-#ifdef __WIN32__
-# include "safewindows.h"
 #endif
 #include "safesysstat.h"
 #include "cdb_int.h"
@@ -32,9 +52,6 @@ cdb_init(struct cdb *cdbp, int fd)
 #ifndef HAVE_MMAP
 #ifdef _WIN32
   HANDLE hFile, hMapping;
-#else
-  size_t size;
-  unsigned char *p;
 #endif
 #endif
 
@@ -44,14 +61,16 @@ cdb_init(struct cdb *cdbp, int fd)
   /* trivial sanity check: at least toc should be here */
   if (st.st_size < 2048)
     return errno = EPROTO, -1;
-  fsize = unsigned(st.st_size & 0xffffffffu);
+  fsize = st.st_size < 0xffffffffu ? st.st_size : 0xffffffffu;
   /* memory-map file */
 #ifndef HAVE_MMAP
 #ifdef _WIN32
   hFile = (HANDLE) _get_osfhandle(fd);
-  if(hFile == (HANDLE) -1) return -1;
+  if (hFile == (HANDLE) -1)
+    return -1;
   hMapping = CreateFileMapping(hFile, NULL, PAGE_READONLY, 0, 0, NULL);
-  if (!hMapping) return -1;
+  if (!hMapping)
+    return -1;
   LPVOID ret = MapViewOfFile(hMapping, FILE_MAP_READ, 0, 0, 0);
   if (!ret) return -1;
   mem = static_cast<unsigned char *>(ret);
@@ -59,8 +78,8 @@ cdb_init(struct cdb *cdbp, int fd)
   // No mmap, so take the very crude approach of malloc and read the whole file in!
   if ((mem = static_cast<unsigned char *>(malloc(fsize))) == NULL)
     return -1;
-  size = fsize;
-  p = mem;
+  size_t size = fsize;
+  unsigned char *p = mem;
   while (size > 0) {
     ssize_t n = read(fd, (void*)p, size);
     if (n == -1)
@@ -71,7 +90,7 @@ cdb_init(struct cdb *cdbp, int fd)
 #endif
 #else
   void * ret = mmap(NULL, fsize, PROT_READ, MAP_SHARED, fd, 0);
-  if (ret == reinterpret_cast<void *>(-1))
+  if (ret == MAP_FAILED)
     return -1;
   mem = static_cast<unsigned char *>(ret);
 #endif /* _WIN32 */
@@ -129,10 +148,7 @@ cdb_free(struct cdb *cdbp)
     void * p = (void*)cdbp->cdb_mem;
 #endif
 #ifdef _WIN32
-    hFile = (HANDLE) _get_osfhandle(cdbp->cdb_fd);
-    hMapping = CreateFileMapping(hFile, NULL, PAGE_READONLY, 0, 0, NULL);
     UnmapViewOfFile(p);
-    CloseHandle(hMapping);
 #else
     free(p);
 #endif

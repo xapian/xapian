@@ -233,7 +233,8 @@ noinst_HEADERS +=\
 	common/safewinsock2.h\
 	common/setenv.h\
 	common/str.h\
-	common/stringutils.h
+	common/stringutils.h\
+	common/wordaccess.h
 
 AM_LDFLAGS = $(NO_UNDEFINED)
 
@@ -253,7 +254,7 @@ libutf8convert_la_CPPFLAGS = $(AM_CPPFLAGS) $(INCICONV)
 libutf8convert_la_LIBADD = $(XAPIAN_LIBS) $(LTLIBICONV)
 
 omega_SOURCES = omega.cc query.cc cgiparam.cc utils.cc configfile.cc date.cc\
- cdb_init.cc cdb_find.cc cdb_hash.cc cdb_unpack.cc jsonescape.cc loadfile.cc\
+ cdb_init.cc cdb_find.cc cdb_hash.cc jsonescape.cc loadfile.cc\
  datevalue.cc common/str.cc sample.cc sort.cc urlencode.cc weight.cc expand.cc\
  csvescape.cc timegm.cc md5.cc md5wrap.cc
 # Not currently used, and we ought to handle non-Unix perms too: unixperm.cc
