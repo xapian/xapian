@@ -3,7 +3,7 @@
 # you'd get from unpacking the results of "make dist"
 #
 copyright='
-# Copyright (C) 2002-2024 Olly Betts
+# Copyright (C) 2002-2026 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -32,6 +32,10 @@ fi
 
 trap 'echo "Bootstrap failed"' EXIT
 set -e
+
+# Avoid literal tab characters in this script as they're prone to being
+# mangled by editors.
+tab=`printf '\t'`
 
 # The variables which specify the autotools to use.
 autotools="AUTORECONF AUTOCONF AUTOHEADER AUTOM4TE AUTOMAKE ACLOCAL LIBTOOLIZE"
@@ -326,7 +330,7 @@ END
     fi
     if [ -s "$series" ] ; then
       echo "Applying patches from $package/series"
-      sed -n 's/[	 ]*\(#.*\)\?$//;/./p' "$series" | \
+      sed -n 's/['"$tab"' ]*\(#.*\)\?$//;/./p' "$series" | \
 	  while read p ; do
 	echo "Applying patch $package/$p"
 	patch -p1 < "../../patches/$package/$p" || exit $?
@@ -993,28 +997,30 @@ for target in $targets ; do
       ;;
     swig,dist|swig,check|swig,distcheck|swig,all)
       # Need to ensure swig is built before "make dist", "make check", etc.
-      echo "	cd $d && \$(MAKE)" ;;
+      printf '\tcd %s && $(MAKE)\n' "$d" ;;
     swig,mostlyclean)
-      echo "	cd $d && \$(MAKE) clean" ;;
+      printf '\tcd %s && $(MAKE) clean\n' "$d" ;;
     xapian-bindings,distcheck)
       # FIXME: distcheck doesn't currently work for xapian-bindings because
       # xapian-core isn't installed.
-      echo "	cd $d && \$(MAKE) check && \$(MAKE) dist" ;;
+      printf '\tcd %s && $(MAKE) check && $(MAKE) dist\n' "$d" ;;
     *)
-      echo "	cd $d && \$(MAKE) $target" ;;
+      printf '\tcd %s && $(MAKE) %s\n' "$d" "$target" ;;
     esac
   done
   case $target in
-    distclean|maintainer-clean) echo "	rm -f Makefile config.cache" ;;
+    distclean|maintainer-clean)
+      printf '\trm -f Makefile config.cache\n' ;;
   esac
 done >> Makefile.tmp
+tab=`printf '\t'`
 cat <<EOF >> Makefile.tmp
 
 recheck:
-	\$(CONFIGURE_COMMAND)
+$tab\$(CONFIGURE_COMMAND)
 
 Makefile: $srcdir/configure
-	\$(CONFIGURE_COMMAND)
+$tab\$(CONFIGURE_COMMAND)
 
 $srcdir/configure: \\
 END_OF_CONFIGURE
@@ -1030,7 +1036,7 @@ for d in patches/* ; do
   cat << END
     $series\\\\
 END
-  sed -n 's/[	 ]*\(#.*\)\?$//;/./p' "$series" |\
+  sed -n 's/['"$tab"' ]*\(#.*\)\?$//;/./p' "$series" |\
       while read p ; do
     patch=$d/$p
     cat << END
@@ -1045,7 +1051,7 @@ done >> configure.tmp
 cat <<'END_OF_CONFIGURE' >> configure.tmp
     $srcdir/bootstrap
 END_OF_CONFIGURE
-echo "	\$srcdir/bootstrap$bootstrap_sticky_opts" >> configure.tmp
+printf '\t$srcdir/bootstrap%s\n' "$bootstrap_sticky_opts" >> configure.tmp
 cat <<'END_OF_CONFIGURE' >> configure.tmp
 
 .PHONY: $targets recheck
