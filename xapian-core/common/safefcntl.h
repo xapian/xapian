@@ -44,7 +44,7 @@ inline int open(const char *filename, int64_t flags, ...) {
     return open64x(f, flags, mode, 0);
 }
 
-#elif defined __cplusplus && defined open
+#elif defined open
 
 // On some versions of Solaris, fcntl.h pollutes the namespace by #define-ing
 // "open" to "open64" when largefile support is enabled.  This causes problems
