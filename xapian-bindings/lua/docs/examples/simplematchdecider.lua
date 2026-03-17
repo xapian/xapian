@@ -25,13 +25,13 @@ require("xapian")
 -- the string passed as the second command line argument.
 
 if #arg < 3 then
-	io.stderr:write("Usage:" .. arg[0] .. " PATH_TO_DATABASE AVOID_ID QUERY\n")
-	os.exit()
+  io.stderr:write("Usage:" .. arg[0] .. " PATH_TO_DATABASE AVOID_ID QUERY\n")
+  os.exit()
 end
 
 -- My own matchdecider
 function mymatchdecider(doc)
-	return doc:get_docid() ~= avoid_id
+  return doc:get_docid() ~= avoid_id
 end
 
 -- Open the database for searching.
@@ -65,5 +65,5 @@ print(string.format("Results 1-%i:", matches:size()))
 
 -- Display the results
 for m in matches:items() do
-	print(m:get_rank() + 1, m:get_percent() .. "%", m:get_docid(), m:get_document():get_data())
+  print(m:get_rank() + 1, m:get_percent() .. "%", m:get_docid(), m:get_document():get_data())
 end

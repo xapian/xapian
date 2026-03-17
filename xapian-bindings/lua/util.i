@@ -397,24 +397,24 @@ SUB_CLASS_TYPEMAPS_PERSISTENT(Xapian, MatchSpy)
 
 %luacode {
 function xapian.Iterator(begin, _end)
-	local iter = begin;
-	local isFirst = 1
-	return function()
-		if iter:equals(_end) then
-			return nil
-		else
-			if isFirst == 1 then
-				isFirst = 0;
-				return iter
-			else
-				iter:next()
-				if iter:equals(_end) then
-					return nil
-				end
-				return iter
-			end
-		end
-	end
+  local iter = begin;
+  local isFirst = 1
+  return function()
+  if iter:equals(_end) then
+    return nil
+  else
+    if isFirst == 1 then
+      isFirst = 0;
+  return iter
+    else
+      iter:next()
+        if iter:equals(_end) then
+          return nil
+        end
+        return iter
+      end
+    end
+  end
 end
 }
 

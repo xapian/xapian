@@ -27,13 +27,12 @@ end
 
 -- Require one command line argument to mean the database directory
 if #arg ~= 1 then
-	io.stderr:write("Usage: " .. arg[0] .. " PATH_TO_DATABASE\n")
-	os.exit()
+  io.stderr:write("Usage: " .. arg[0] .. " PATH_TO_DATABASE\n")
+  os.exit()
 end
 
 -- Open the database for update, creating a new database if necessary.
 database = xapian.WritableDatabase(arg[1], xapian.DB_CREATE_OR_OPEN)
-
 
 indexer = xapian.TermGenerator()
 stemmer = xapian.Stem("english")
@@ -43,29 +42,28 @@ indexer:set_stemmer(stemmer)
 -- An empty line means the end of a doc and the start of another doc
 local para = ''
 for line in io.lines() do
-	if line == nil then
-		break
-	end
+  if line == nil then
+    break
+  end
 
-	line = trim(line)
-	if line == '' then
-		if para ~= '' then
+  line = trim(line)
+  if line == '' then
+    if para ~= '' then
+      -- We've reached the end of a paragraph, so index it.
+      doc = xapian.Document()
+      doc:set_data(para)
 
-			-- We've reached the end of a paragraph, so index it.
-			doc = xapian.Document()
-			doc:set_data(para)
+      indexer:set_document(doc)
+      indexer:index_text(para)
 
-			indexer:set_document(doc)
-			indexer:index_text(para)
-
-			-- Add the document to the database.
-			database:add_document(doc)
-			para = ''
-		end
-	else
-		if para ~= '' then
-			para = para .. ' '
-		end
-		para = para .. line
-	end
+      -- Add the document to the database.
+      database:add_document(doc)
+      para = ''
+    end
+  else
+    if para ~= '' then
+      para = para .. ' '
+    end
+    para = para .. line
+  end
 end
