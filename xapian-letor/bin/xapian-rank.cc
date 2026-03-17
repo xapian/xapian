@@ -28,7 +28,6 @@
 #include "parseint.h"
 
 #include <iostream>
-#include <sstream>
 #include <string>
 
 #include "gnu_getopt.h"

@@ -21,9 +21,7 @@
 #include <config.h>
 
 #include <cmath>
-#include <fstream>
 #include <iostream>
-#include <sstream>
 #include <string>
 #include <vector>
 

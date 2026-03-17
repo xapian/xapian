@@ -25,7 +25,6 @@
 
 #include "testsuite.h"
 
-#include <fstream>
 #include <vector>
 
 using namespace std;
