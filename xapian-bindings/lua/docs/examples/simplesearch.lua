@@ -22,8 +22,8 @@ require("xapian")
 
 -- Require at least two command line arguments.
 if #arg < 2 then
-	io.stderr:write("Usage:" .. arg[0] .. " PATH_TO_DATABASE QUERY\n")
-	os.exit()
+  io.stderr:write("Usage:" .. arg[0] .. " PATH_TO_DATABASE QUERY\n")
+  os.exit()
 end
 
 -- Open the database for searching.
@@ -55,5 +55,5 @@ print(string.format("Results 1-%i:", matches:size()))
 
 -- Display the results
 for m in matches:items() do
-	print(m:get_rank() + 1, m:get_percent() .. "%", m:get_docid(), m:get_document():get_data())
+  print(m:get_rank() + 1, m:get_percent() .. "%", m:get_docid(), m:get_document():get_data())
 end

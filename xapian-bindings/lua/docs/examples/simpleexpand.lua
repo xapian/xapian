@@ -22,8 +22,8 @@ require("xapian")
 
 -- Require at least two command line arguments.
 if #arg < 2 then
-	io.stderr:write("Usage:" .. arg[0] .. " PATH_TO_DATABASE QUERY [-- [DOCID...]]\n")
-	os.exit()
+  io.stderr:write("Usage:" .. arg[0] .. " PATH_TO_DATABASE QUERY [-- [DOCID...]]\n")
+  os.exit()
 end
 
 -- Open the database for searching.
@@ -37,12 +37,12 @@ enquire = xapian.Enquire(database)
 query_string = arg[2]
 local index = 3
 while index <= #arg do
-	local para = arg[index]
-	index = index + 1;
-	if para == '--' then
-		break
-	end
-	query_string = query_string .. ' ' .. para
+  local para = arg[index]
+  index = index + 1;
+  if para == '--' then
+    break
+  end
+  query_string = query_string .. ' ' .. para
 end
 
 -- Create an RSet with the listed docids in.
@@ -50,8 +50,8 @@ reldocs = xapian.RSet()
 
 --for index in range(index, #arg) do
 for i = index, #arg do
-	reldocs:add_document(tonumber(arg[index]))
-	index = index + 1
+  reldocs:add_document(tonumber(arg[index]))
+  index = index + 1
 end
 
 -- Parse the query string to produce a Xapian::Query object.
@@ -63,39 +63,39 @@ qp:set_stemming_strategy(xapian.QueryParser_STEM_SOME)
 query = qp:parse_query(query_string)
 
 if not query:empty() then
-	print("Parsed query is: " .. tostring(query))
+  print("Parsed query is: " .. tostring(query))
 
-	-- Find the top 10 results for the query.
-	enquire:set_query(query)
-	matches = enquire:get_mset(0, 10)
+  -- Find the top 10 results for the query.
+  enquire:set_query(query)
+  matches = enquire:get_mset(0, 10)
 
-	-- Display the size of the results.
-	print(string.format("%i results found.", matches:get_matches_estimated()))
-	print(string.format("Results 1-%i:", matches:size()))
+  -- Display the size of the results.
+  print(string.format("%i results found.", matches:get_matches_estimated()))
+  print(string.format("Results 1-%i:", matches:size()))
 
-	-- Display the results
-	for m in matches:items() do
-		print(m:get_rank() + 1, m:get_percent() .. "%", m:get_docid(), m:get_document():get_data())
-	end
+  -- Display the results
+  for m in matches:items() do
+    print(m:get_rank() + 1, m:get_percent() .. "%", m:get_docid(), m:get_document():get_data())
+  end
 
-	-- Put the top 5 (at most) docs into the rset if rset is empty
-	if reldocs:empty() then
-		local c = 5
-		for m in matches:items() do
-			reldocs:add_document(m:get_docid())
-			print (c)
-			c = c - 1
-			if c == 0 then
-				break
-			end
-		end
-	end
+  -- Put the top 5 (at most) docs into the rset if rset is empty
+  if reldocs:empty() then
+    local c = 5
+    for m in matches:items() do
+      reldocs:add_document(m:get_docid())
+      print (c)
+      c = c - 1
+      if c == 0 then
+        break
+      end
+    end
+  end
 
-	-- Get the suggested expand terms
-	eterms = enquire:get_eset(10, reldocs)
-	print (string.format("%i suggested additional terms", eterms:size()))
-	for m in eterms:terms() do
-		print(string.format("%s: %f", m:get_term(), m:get_weight()))
-	end
+  -- Get the suggested expand terms
+  eterms = enquire:get_eset(10, reldocs)
+  print (string.format("%i suggested additional terms", eterms:size()))
+  for m in eterms:terms() do
+    print(string.format("%s: %f", m:get_term(), m:get_weight()))
+  end
 
 end
