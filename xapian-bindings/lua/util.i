@@ -1,7 +1,7 @@
 /* lua/util.i: custom lua typemaps for xapian-bindings
  *
  * Copyright (C) 2011 Xiaona Han
- * Copyright (C) 2011,2012,2017,2019,2020 Olly Betts
+ * Copyright (C) 2011,2012,2017,2019,2020,2026 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -36,14 +36,13 @@
 %apply double { Xapian::valueno };
 
 %{
-#if LUA_VERSION_NUM-0 >= 502
-// luaL_typerror was removed in Lua 5.2.
-int luaL_typerror (lua_State *L, int narg, const char *tname) {
-  const char *msg = lua_pushfstring(L, "%s expected, got %s",
-                                    tname, luaL_typename(L, narg));
-  return luaL_argerror(L, narg, msg);
+static void
+expected_function_error(lua_State* L, int arg_num = -1)
+{
+    const char* msg = lua_pushfstring(L, "function expected, got %s",
+                                      luaL_typename(L, arg_num));
+    luaL_argerror(L, arg_num, msg);
 }
-#endif
 %}
 
 %define SUB_CLASS(NS, CLASS)
@@ -56,7 +55,7 @@ class lua##CLASS : public NS::CLASS {
     lua##CLASS(lua_State* S) {
         L = S;
         if (!lua_isfunction(L, -1)) {
-            luaL_typerror(L, -1, "function");
+            expected_function_error(L);
         }
         r = luaL_ref(L, LUA_REGISTRYINDEX);
     }
@@ -68,7 +67,7 @@ class lua##CLASS : public NS::CLASS {
     bool operator()(const std::string& term) const override {
         lua_rawgeti(L, LUA_REGISTRYINDEX, r);
         if (!lua_isfunction(L, -1)) {
-            luaL_typerror(L, -1, "function");
+            expected_function_error(L);
         }
 
         lua_pushlstring(L, term.data(), term.length());
@@ -99,7 +98,7 @@ class luaMatchDecider : public Xapian::MatchDecider {
     luaMatchDecider(lua_State* S) {
         L = S;
         if (!lua_isfunction(L, -1)) {
-            luaL_typerror(L, -1, "function");
+            expected_function_error(L);
         }
         r = luaL_ref(L, LUA_REGISTRYINDEX);
     }
@@ -111,7 +110,7 @@ class luaMatchDecider : public Xapian::MatchDecider {
     bool operator()(const Xapian::Document& doc) const override {
         lua_rawgeti(L, LUA_REGISTRYINDEX, r);
         if (!lua_isfunction(L, -1)) {
-            luaL_typerror(L, -1, "function");
+            expected_function_error(L);
         }
 
         SWIG_NewPointerObj(L, &doc, SWIGTYPE_p_Xapian__Document, 0);
@@ -137,7 +136,7 @@ class luaStemImplementation : public Xapian::StemImplementation {
     luaStemImplementation(lua_State* S) {
         L = S;
         if (!lua_isfunction(L, -1)) {
-            luaL_typerror(L, -1, "function");
+            expected_function_error(L);
         }
         r = luaL_ref(L, LUA_REGISTRYINDEX);
     }
@@ -149,7 +148,7 @@ class luaStemImplementation : public Xapian::StemImplementation {
     std::string operator()(const std::string& word) override {
         lua_rawgeti(L, LUA_REGISTRYINDEX, r);
         if (!lua_isfunction(L, -1)) {
-            luaL_typerror(L, -1, "function");
+            expected_function_error(L);
         }
 
         lua_pushlstring(L, word.data(), word.length());
@@ -181,7 +180,7 @@ class luaKeyMaker : public Xapian::KeyMaker {
     luaKeyMaker(lua_State* S) {
         L = S;
         if (!lua_isfunction(L, -1)) {
-            luaL_typerror(L, -1, "function");
+            expected_function_error(L);
         }
         r = luaL_ref(L, LUA_REGISTRYINDEX);
     }
@@ -193,7 +192,7 @@ class luaKeyMaker : public Xapian::KeyMaker {
     std::string operator()(const Xapian::Document& doc) const override {
         lua_rawgeti(L, LUA_REGISTRYINDEX, r);
         if (!lua_isfunction(L, -1)) {
-            luaL_typerror(L, -1, "function");
+            expected_function_error(L);
         }
 
         SWIG_NewPointerObj(L, &doc, SWIGTYPE_p_Xapian__Document, 0);
@@ -221,7 +220,7 @@ class luaRangeProcessor : public Xapian::RangeProcessor {
     luaRangeProcessor(lua_State* S) {
         L = S;
         if (!lua_isfunction(L, -1)) {
-            luaL_typerror(L, -1, "function");
+            expected_function_error(L);
         }
         r = luaL_ref(L, LUA_REGISTRYINDEX);
     }
@@ -234,7 +233,7 @@ class luaRangeProcessor : public Xapian::RangeProcessor {
                              const std::string& end) override {
         lua_rawgeti(L, LUA_REGISTRYINDEX, r);
         if (!lua_isfunction(L, -1)) {
-            luaL_typerror(L, -1, "function");
+            expected_function_error(L);
         }
 
         lua_pushlstring(L, begin.data(), begin.length());
@@ -276,7 +275,7 @@ class luaFieldProcessor : public Xapian::FieldProcessor {
     luaFieldProcessor(lua_State* S) {
         L = S;
         if (!lua_isfunction(L, -1)) {
-            luaL_typerror(L, -1, "function");
+            expected_function_error(L);
         }
         r = luaL_ref(L, LUA_REGISTRYINDEX);
     }
@@ -288,7 +287,7 @@ class luaFieldProcessor : public Xapian::FieldProcessor {
     Xapian::Query operator()(const std::string& str) override {
         lua_rawgeti(L, LUA_REGISTRYINDEX, r);
         if (!lua_isfunction(L, -1)) {
-            luaL_typerror(L, -1, "function");
+            expected_function_error(L);
         }
 
         lua_pushlstring(L, str.data(), str.length());
@@ -329,7 +328,7 @@ class luaMatchSpy : public Xapian::MatchSpy {
     luaMatchSpy(lua_State* S) {
         L = S;
         if (!lua_isfunction(L, -1)) {
-            luaL_typerror(L, -1, "function");
+            expected_function_error(L);
         }
         r = luaL_ref(L, LUA_REGISTRYINDEX);
     }
@@ -341,7 +340,7 @@ class luaMatchSpy : public Xapian::MatchSpy {
     void operator()(const Xapian::Document& doc, double wt) override {
         lua_rawgeti(L, LUA_REGISTRYINDEX, r);
         if (!lua_isfunction(L, -1)) {
-            luaL_typerror(L, -1, "function");
+            expected_function_error(L);
         }
 
         SWIG_NewPointerObj(L, &doc, SWIGTYPE_p_Xapian__Document, 0);
@@ -524,7 +523,7 @@ class XapianSWIGQueryItor {
     lua_remove(L, -2);
 
     if (!lua_isfunction(L, -1)) {
-        luaL_typerror(L, -1, "function");
+        expected_function_error(L);
     }
 
     NS::ITERATOR_CLASS * begin = new NS::ITERATOR_CLASS((const NS::ITERATOR_CLASS &)$1.first);
@@ -582,7 +581,7 @@ OUTPUT_ITERATOR_METHODS(Xapian, Database, TermIterator, metadata_keys_begin, met
     lua_remove(L, -2);
 
     if (!lua_isfunction(L, -1)) {
-        luaL_typerror(L, -1, "function");
+        expected_function_error(L);
     }
 
     Xapian::PositionIterator * begin = new Xapian::PositionIterator((const Xapian::PositionIterator &)$1.first);
