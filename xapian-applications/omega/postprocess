@@ -23,8 +23,6 @@ Generates the final clickstream log file and query file for Xapian Letor
 module from that log file.
 """
 
-from __future__ import print_function
-
 import argparse
 import collections
 import csv
