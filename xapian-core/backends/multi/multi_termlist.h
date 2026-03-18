@@ -77,7 +77,7 @@ class MultiTermList : public TermList {
     /** Skip forward to the specified term.
      *
      *  If the specified term isn't in the list, position ourselves on the
-     *  first term after tname (or at_end() if no terms after tname exist).
+     *  first term after term (or at_end() if no terms after term exist).
      */
     Internal* skip_to(std::string_view term);
 

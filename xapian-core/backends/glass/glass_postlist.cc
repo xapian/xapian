@@ -52,36 +52,36 @@ static void report_read_error(const char * position)
 }
 
 static inline bool
-get_tname_from_key(const char **src, const char *end, string &tname)
+get_term_from_key(const char** src, const char* end, string& term)
 {
-    return unpack_string_preserving_sort(src, end, tname);
+    return unpack_string_preserving_sort(src, end, term);
 }
 
 static inline bool
-check_tname_in_key_lite(const char** keypos,
-                        const char* keyend,
-                        string_view tname)
+check_term_in_key_lite(const char** keypos,
+                       const char* keyend,
+                       string_view term)
 {
-    string tname_in_key;
+    string term_in_key;
 
     if (keyend - *keypos >= 2 && (*keypos)[0] == '\0' && (*keypos)[1] == '\xe0') {
         *keypos += 2;
     } else {
         // Read the termname.
-        if (!get_tname_from_key(keypos, keyend, tname_in_key))
+        if (!get_term_from_key(keypos, keyend, term_in_key))
             report_read_error(*keypos);
     }
 
     // This should only fail if the postlist doesn't exist at all.
-    return tname_in_key == tname;
+    return term_in_key == term;
 }
 
 static inline bool
-check_tname_in_key(const char** keypos, const char* keyend, string_view tname)
+check_term_in_key(const char** keypos, const char* keyend, string_view term)
 {
     if (*keypos == keyend) return false;
 
-    return check_tname_in_key_lite(keypos, keyend, tname);
+    return check_term_in_key_lite(keypos, keyend, term);
 }
 
 /// Read the start of the first chunk in the posting list.
@@ -234,7 +234,7 @@ class Glass::PostlistChunkWriter {
   public:
     PostlistChunkWriter(string_view orig_key_,
                         bool is_first_chunk_,
-                        string_view tname_,
+                        string_view term_,
                         bool is_last_chunk_);
 
     /// Append an entry to this chunk.
@@ -261,7 +261,7 @@ class Glass::PostlistChunkWriter {
 
   private:
     string orig_key;
-    string tname;
+    string term;
     bool is_first_chunk;
     bool is_last_chunk;
     bool started;
@@ -332,14 +332,14 @@ PostlistChunkReader::next()
 
 PostlistChunkWriter::PostlistChunkWriter(string_view orig_key_,
                                          bool is_first_chunk_,
-                                         string_view tname_,
+                                         string_view term_,
                                          bool is_last_chunk_)
         : orig_key(orig_key_),
-          tname(tname_), is_first_chunk(is_first_chunk_),
+          term(term_), is_first_chunk(is_first_chunk_),
           is_last_chunk(is_last_chunk_),
           started(false)
 {
-    LOGCALL_CTOR(DB, "PostlistChunkWriter", orig_key_ | is_first_chunk_ | tname_ | is_last_chunk_);
+    LOGCALL_CTOR(DB, "PostlistChunkWriter", orig_key_ | is_first_chunk_ | term_ | is_last_chunk_);
 }
 
 void
@@ -360,7 +360,7 @@ PostlistChunkWriter::append(GlassTable * table, Xapian::docid did,
             is_first_chunk = false;
             first_did = did;
             chunk.resize(0);
-            orig_key = GlassPostListTable::make_key(tname, first_did);
+            orig_key = GlassPostListTable::make_key(term, first_did);
         } else {
             pack_uint(chunk, did - current_did - 1);
         }
@@ -484,7 +484,7 @@ PostlistChunkWriter::flush(GlassTable *table)
             }
             const char *kpos = cursor->current_key.data();
             const char *kend = kpos + cursor->current_key.size();
-            if (!check_tname_in_key(&kpos, kend, tname)) {
+            if (!check_term_in_key(&kpos, kend, term)) {
                 throw Xapian::DatabaseCorruptError("Expected another key with the same term name but found a different one");
             }
 
@@ -539,7 +539,7 @@ PostlistChunkWriter::flush(GlassTable *table)
             // Make sure this is a chunk with the right term attached.
             const char * keypos = cursor->current_key.data();
             const char * keyend = keypos + cursor->current_key.size();
-            if (!check_tname_in_key(&keypos, keyend, tname)) {
+            if (!check_term_in_key(&keypos, keyend, term)) {
                 throw Xapian::DatabaseCorruptError("Couldn't find chunk before delete chunk");
             }
 
@@ -595,7 +595,7 @@ PostlistChunkWriter::flush(GlassTable *table)
              * and we just have to write this one back to disk.
              */
             LOGLINE(DB, "PostlistChunkWriter::flush(): rewriting the first chunk, which still has items in it");
-            string key = GlassPostListTable::make_key(tname);
+            string key = GlassPostListTable::make_key(term);
             bool ok = table->get_exact_entry(key, tag);
             (void)ok;
             Assert(ok);
@@ -632,7 +632,7 @@ PostlistChunkWriter::flush(GlassTable *table)
         // First find out the initial docid
         const char *keypos = orig_key.data();
         const char *keyend = keypos + orig_key.size();
-        if (!check_tname_in_key(&keypos, keyend, tname)) {
+        if (!check_term_in_key(&keypos, keyend, term)) {
             throw Xapian::DatabaseCorruptError("Have invalid key writing to postlist");
         }
         Xapian::docid initial_did;
@@ -645,7 +645,7 @@ PostlistChunkWriter::flush(GlassTable *table)
              * Create a new tag with the correct key, and replace
              * the old one.
              */
-            new_key = GlassPostListTable::make_key(tname, first_did);
+            new_key = GlassPostListTable::make_key(term, first_did);
             table->del(orig_key);
         } else {
             new_key = orig_key;
@@ -813,7 +813,7 @@ GlassPostList::next_chunk()
     const char * keypos = cursor->current_key.data();
     const char * keyend = keypos + cursor->current_key.size();
     // Check we're still in same postlist
-    if (!check_tname_in_key_lite(&keypos, keyend, term)) {
+    if (!check_term_in_key_lite(&keypos, keyend, term)) {
         is_at_end = true;
         throw Xapian::DatabaseCorruptError("Unexpected end of posting list for '" +
                                      term + "'");
@@ -905,7 +905,7 @@ GlassPostList::move_to_chunk_containing(Xapian::docid desired_did)
     const char * keypos = cursor->current_key.data();
     const char * keyend = keypos + cursor->current_key.size();
     // Check we're still in same postlist
-    if (!check_tname_in_key_lite(&keypos, keyend, term)) {
+    if (!check_term_in_key_lite(&keypos, keyend, term)) {
         // This should only happen if the postlist doesn't exist at all.
         is_at_end = true;
         is_last_chunk = true;
@@ -1058,14 +1058,14 @@ GlassPostList::get_description() const
 
 // Returns the last did to allow in this chunk.
 Xapian::docid
-GlassPostListTable::get_chunk(string_view tname,
+GlassPostListTable::get_chunk(string_view term,
                               Xapian::docid did, bool adding,
                               PostlistChunkReader ** from,
                               PostlistChunkWriter **to)
 {
-    LOGCALL(DB, Xapian::docid, "GlassPostListTable::get_chunk", tname | did | adding | from | to);
+    LOGCALL(DB, Xapian::docid, "GlassPostListTable::get_chunk", term | did | adding | from | to);
     // Get chunk containing entry
-    string key = make_key(tname, did);
+    string key = make_key(term, did);
 
     // Find the right chunk
     unique_ptr<GlassCursor> cursor(cursor_get());
@@ -1076,7 +1076,7 @@ GlassPostListTable::get_chunk(string_view tname,
     const char * keypos = cursor->current_key.data();
     const char * keyend = keypos + cursor->current_key.size();
 
-    if (!check_tname_in_key(&keypos, keyend, tname)) {
+    if (!check_term_in_key(&keypos, keyend, term)) {
         // Postlist for this termname doesn't exist.
         //
         // NB "adding" will only be true if we are adding, but it may sometimes
@@ -1085,10 +1085,10 @@ GlassPostListTable::get_chunk(string_view tname,
             throw Xapian::DatabaseCorruptError("Attempted to delete or modify "
                                                "an entry in a non-existent "
                                                "posting list "
-                                               "for "s.append(tname));
+                                               "for "s.append(term));
 
         *from = NULL;
-        *to = new PostlistChunkWriter({}, true, tname, true);
+        *to = new PostlistChunkWriter({}, true, term, true);
         RETURN(Xapian::docid(-1));
     }
 
@@ -1112,7 +1112,7 @@ GlassPostListTable::get_chunk(string_view tname,
     bool is_last_chunk;
     Xapian::docid last_did_in_chunk;
     last_did_in_chunk = read_start_of_chunk(&pos, end, first_did_in_chunk, &is_last_chunk);
-    *to = new PostlistChunkWriter(cursor->current_key, is_first_chunk, tname,
+    *to = new PostlistChunkWriter(cursor->current_key, is_first_chunk, term,
                                   is_last_chunk);
     if (did > last_did_in_chunk) {
         // This is the shortcut.  Not very pretty, but I'll leave refactoring
@@ -1132,7 +1132,7 @@ GlassPostListTable::get_chunk(string_view tname,
     }
     const char *kpos = cursor->current_key.data();
     const char *kend = kpos + cursor->current_key.size();
-    if (!check_tname_in_key(&kpos, kend, tname)) {
+    if (!check_term_in_key(&kpos, kend, term)) {
         throw Xapian::DatabaseCorruptError("Expected another key with the same term name but found a different one");
     }
 
@@ -1258,7 +1258,7 @@ GlassPostListTable::merge_changes(string_view term,
             while (cursor.del()) {
                 const char *kpos = cursor.current_key.data();
                 const char *kend = kpos + cursor.current_key.size();
-                if (!check_tname_in_key_lite(&kpos, kend, term)) break;
+                if (!check_term_in_key_lite(&kpos, kend, term)) break;
             }
             return;
         }
@@ -1348,7 +1348,7 @@ GlassPostListTable::get_used_docid_range(Xapian::docid & first,
     const char * keypos = cur->current_key.data();
     const char * keyend = keypos + cur->current_key.size();
     // Check we're still in same postlist
-    if (!check_tname_in_key_lite(&keypos, keyend, {})) {
+    if (!check_term_in_key_lite(&keypos, keyend, {})) {
         // Shouldn't happen - we already handled the empty database case above.
         Assert(false);
         first = last = 0;

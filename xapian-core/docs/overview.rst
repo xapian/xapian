@@ -299,8 +299,8 @@ A search query is represented by a
 `Xapian::Query <apidoc/html/classXapian_1_1Query.html>`_ object. The
 simplest useful query is one which searches for a single term (and
 several of these can be combined to form more complex queries). A single
-term query can be created as follows (where ``term`` is a
-``std::string`` holding the term to be searched for)::
+term query can be created as follows (where ``term`` is a string
+holding the term to be searched for)::
 
     Xapian::Query query(term);
 
@@ -313,9 +313,9 @@ This constructor actually takes a couple of extra parameters, which may
 be used to specify positional and frequency information for terms in the
 query::
 
-    Xapian::Query(const string & tname_,
-            Xapian::termcount wqf_ = 1,
-            Xapian::termpos term_pos_ = 0)
+    Xapian::Query(std::string_view term,
+                  Xapian::termcount wqf = 1,
+                  Xapian::termpos pos = 0)
 
 The ``wqf`` (Within Query Frequency) is a measure of how common a term is
 in the query. This isn't useful for a single term query unless it is going
@@ -339,8 +339,8 @@ Note that it may not make much sense to specify a wqf other than 1 when
 supplying a term position (unless you are trying to affect the
 weighting, as previously described).
 
-Note also that the results of ``Xapian::Query(tname, 2)`` and
-``Xapian::Query(Xapian::Query::OP_OR, Xapian::Query(tname), Xapian::Query(tname))``
+Note also that the results of ``Xapian::Query(term, 2)`` and
+``Xapian::Query(Xapian::Query::OP_OR, Xapian::Query(term), Xapian::Query(term))``
 are exactly equivalent.
 
 Compound queries
@@ -352,8 +352,8 @@ single term query or a compound query. You can combine pair-wise using
 the following constructor::
 
     Xapian::Query(Xapian::Query::op op_,
-            const Xapian::Query & left,
-            const Xapian::Query & right)
+                  const Xapian::Query& a,
+                  const Xapian::Query& b)
 
 The two most commonly used operators are ``Xapian::Query::OP_AND`` and
 ``Xapian::Query::OP_OR``, which enable us to construct boolean queries

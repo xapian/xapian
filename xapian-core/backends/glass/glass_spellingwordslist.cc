@@ -80,14 +80,14 @@ GlassSpellingWordsList::next()
 }
 
 TermList*
-GlassSpellingWordsList::skip_to(string_view tname)
+GlassSpellingWordsList::skip_to(string_view term)
 {
-    LOGCALL(DB, TermList *, "GlassSpellingWordsList::skip_to", tname);
+    LOGCALL(DB, TermList*, "GlassSpellingWordsList::skip_to", term);
     Assert(!cursor->after_end());
 
-    if (cursor->find_entry_ge("W"s.append(tname))) {
+    if (cursor->find_entry_ge("W"s.append(term))) {
         // Exact match.
-        current_term = tname;
+        current_term = term;
     } else {
         // The exact term we asked for isn't there, so check if the next term
         // after it also has a W prefix.

@@ -91,10 +91,10 @@ TermListGroup::get_doccount() const
 }
 
 doccount
-TermListGroup::get_termfreq(const string& tname) const
+TermListGroup::get_termfreq(const string& term) const
 {
-    LOGCALL(API, doccount, "TermListGroup::get_termfreq", tname);
-    auto it = termfreq.find(tname);
+    LOGCALL(API, doccount, "TermListGroup::get_termfreq", term);
+    auto it = termfreq.find(term);
     if (it != termfreq.end())
         return it->second;
     else

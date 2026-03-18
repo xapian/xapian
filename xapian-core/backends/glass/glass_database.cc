@@ -1175,19 +1175,19 @@ GlassWritableDatabase::add_document_(Xapian::docid did,
 
         Xapian::termcount new_doclen = 0;
         {
-            Xapian::TermIterator term = document.termlist_begin();
-            for ( ; term != document.termlist_end(); ++term) {
-                termcount wdf = term.get_wdf();
+            Xapian::TermIterator t = document.termlist_begin();
+            for ( ; t != document.termlist_end(); ++t) {
+                termcount wdf = t.get_wdf();
                 // Calculate the new document length
                 new_doclen += wdf;
                 version_file.check_wdf(wdf);
 
-                string tname = *term;
-                if (tname.size() > MAX_SAFE_TERM_LENGTH)
-                    throw Xapian::InvalidArgumentError("Term too long (> " STRINGIZE(MAX_SAFE_TERM_LENGTH) "): " + tname);
+                string term = *t;
+                if (term.size() > MAX_SAFE_TERM_LENGTH)
+                    throw Xapian::InvalidArgumentError("Term too long (> " STRINGIZE(MAX_SAFE_TERM_LENGTH) "): " + term);
 
-                inverter.add_posting(did, tname, wdf);
-                inverter.set_positionlist(position_table, did, tname, term);
+                inverter.add_posting(did, term, wdf);
+                inverter.set_positionlist(position_table, did, term, t);
             }
         }
         LOGLINE(DB, "Calculated doclen for new document " << did << " as " << new_doclen);
@@ -1250,10 +1250,10 @@ GlassWritableDatabase::delete_document(Xapian::docid did)
         version_file.delete_document(termlist.get_doclength());
 
         while (termlist.next() == NULL) {
-            string tname = termlist.get_termname();
-            inverter.delete_positionlist(did, tname);
+            string term = termlist.get_termname();
+            inverter.delete_positionlist(did, term);
 
-            inverter.remove_posting(did, tname, termlist.get_wdf());
+            inverter.remove_posting(did, term, termlist.get_wdf());
         }
 
         // Remove the termlist.
@@ -1337,53 +1337,54 @@ GlassWritableDatabase::replace_document(Xapian::docid did,
                 return;
             }
 
-            Xapian::TermIterator term = document.termlist_begin();
+            Xapian::TermIterator t = document.termlist_begin();
             Xapian::termcount old_doclen = termlist.get_doclength();
             version_file.delete_document(old_doclen);
             Xapian::termcount new_doclen = old_doclen;
 
-            string old_tname, new_tname;
+            string old_term, new_term;
 
             bool termlist_at_end = (termlist.next() != NULL);
-            while (!termlist_at_end || term != document.termlist_end()) {
+            while (!termlist_at_end || t != document.termlist_end()) {
                 int cmp;
                 if (termlist_at_end) {
                     cmp = 1;
-                    new_tname = *term;
+                    new_term = *t;
                 } else {
-                    old_tname = termlist.get_termname();
-                    if (term != document.termlist_end()) {
-                        new_tname = *term;
-                        cmp = old_tname.compare(new_tname);
+                    old_term = termlist.get_termname();
+                    if (t != document.termlist_end()) {
+                        new_term = *t;
+                        cmp = old_term.compare(new_term);
                     } else {
                         cmp = -1;
                     }
                 }
 
                 if (cmp < 0) {
-                    // Term old_tname has been deleted.
+                    // Term old_term has been deleted.
                     termcount old_wdf = termlist.get_wdf();
                     new_doclen -= old_wdf;
-                    inverter.remove_posting(did, old_tname, old_wdf);
+                    inverter.remove_posting(did, old_term, old_wdf);
                     if (pos_modified)
-                        inverter.delete_positionlist(did, old_tname);
+                        inverter.delete_positionlist(did, old_term);
                     termlist_at_end = (termlist.next() != NULL);
                 } else if (cmp > 0) {
-                    // Term new_tname as been added.
-                    termcount new_wdf = term.get_wdf();
+                    // Term new_term as been added.
+                    termcount new_wdf = t.get_wdf();
                     new_doclen += new_wdf;
                     version_file.check_wdf(new_wdf);
-                    if (new_tname.size() > MAX_SAFE_TERM_LENGTH)
-                        throw Xapian::InvalidArgumentError("Term too long (> " STRINGIZE(MAX_SAFE_TERM_LENGTH) "): " + new_tname);
-                    inverter.add_posting(did, new_tname, new_wdf);
+                    if (new_term.size() > MAX_SAFE_TERM_LENGTH)
+                        throw Xapian::InvalidArgumentError("Term too long (> " STRINGIZE(MAX_SAFE_TERM_LENGTH) "): " + new_term);
+                    inverter.add_posting(did, new_term, new_wdf);
                     if (pos_modified) {
-                        inverter.set_positionlist(position_table, did, new_tname, term);
+                        inverter.set_positionlist(position_table, did,
+                                                  new_term, t);
                     }
-                    ++term;
+                    ++t;
                 } else if (cmp == 0) {
                     // Term already exists: look for wdf and positionlist changes.
                     termcount old_wdf = termlist.get_wdf();
-                    termcount new_wdf = term.get_wdf();
+                    termcount new_wdf = t.get_wdf();
 
                     // Check the stats even if wdf hasn't changed, because if
                     // this is the only document, the stats will have been
@@ -1392,14 +1393,16 @@ GlassWritableDatabase::replace_document(Xapian::docid did,
 
                     if (old_wdf != new_wdf) {
                         new_doclen = new_doclen - old_wdf + new_wdf;
-                        inverter.update_posting(did, new_tname, old_wdf, new_wdf);
+                        inverter.update_posting(did, new_term,
+                                                old_wdf, new_wdf);
                     }
 
                     if (pos_modified) {
-                        inverter.set_positionlist(position_table, did, new_tname, term, true);
+                        inverter.set_positionlist(position_table, did,
+                                                  new_term, t, true);
                     }
 
-                    ++term;
+                    ++t;
                     termlist_at_end = (termlist.next() != NULL);
                 }
             }

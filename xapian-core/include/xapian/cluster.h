@@ -147,11 +147,11 @@ class XAPIAN_VISIBILITY_DEFAULT FreqSource
     /// Destructor
     virtual ~FreqSource();
 
-    /** Return the term frequency of a particular term 'tname'
+    /** Return the term frequency of a particular term 'term'
      *
-     *  @param tname	The term for which to return the term frequency
+     *  @param term	The term for which to return the term frequency
      */
-    virtual doccount get_termfreq(const std::string &tname) const = 0;
+    virtual doccount get_termfreq(const std::string& term) const = 0;
 
     /// Return the number of documents within the MSet
     virtual doccount get_doccount() const = 0;
@@ -210,11 +210,11 @@ class XAPIAN_VISIBILITY_DEFAULT TermListGroup : public FreqSource {
      */
     explicit TermListGroup(const MSet &docs, const Stopper *stopper = NULL);
 
-    /** Return the number of documents that the term 'tname' exists in
+    /** Return the number of documents that the term 'term' exists in
      *
-     *  @param tname	The term for which to return the term frequency
+     *  @param term	The term for which to return the term frequency
      */
-    doccount get_termfreq(const std::string& tname) const override;
+    doccount get_termfreq(const std::string& term) const override;
 
     doccount get_doccount() const override;
 };

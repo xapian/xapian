@@ -166,8 +166,8 @@ class GlassSynonymTermList : public AllTermsList {
     /// Advance to the next term in the list.
     TermList * next();
 
-    /// Advance to the first term which is >= tname.
-    TermList* skip_to(std::string_view tname);
+    /// Advance to the first term which is >= @a term.
+    TermList* skip_to(std::string_view term);
 };
 
 #endif // XAPIAN_INCLUDED_GLASS_SYNONYM_H

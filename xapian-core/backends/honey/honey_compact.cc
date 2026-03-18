@@ -492,12 +492,12 @@ start_value_chunk:
         }
 
         // Adjust key if this is *NOT* an initial chunk.
-        // key is: pack_string_preserving_sort(key, tname)
+        // key is: pack_string_preserving_sort(key, term)
         // plus optionally: pack_uint_preserving_sort(key, did)
         const char* d = key.data();
         const char* e = d + key.size();
-        string tname;
-        if (!unpack_string_preserving_sort(&d, e, tname))
+        string term;
+        if (!unpack_string_preserving_sort(&d, e, term))
             throw Xapian::DatabaseCorruptError("Bad postlist key");
 
         if (d == e) {

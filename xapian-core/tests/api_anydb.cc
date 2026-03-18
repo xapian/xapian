@@ -543,13 +543,13 @@ DEFINE_TESTCASE(topercent2, backend) {
 
 class EvenParityExpandFunctor : public Xapian::ExpandDecider {
   public:
-    bool operator()(const string& tname) const override {
+    bool operator()(const string& term) const override {
         unsigned long sum = 0;
-        for (unsigned ch : tname) {
+        for (unsigned ch : term) {
             sum += ch;
         }
 //	if (verbose) {
-//	    tout << tname << "==> " << sum << "\n";
+//	    tout << term << "==> " << sum << "\n";
 //	}
         return (sum % 2) == 0;
     }

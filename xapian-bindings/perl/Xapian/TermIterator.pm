@@ -29,9 +29,9 @@ Constructor. Defaults to a uninitialized iterator.
 
 Advance the iterator by one. (Called implicitly by C<++> overloading)
 
-=item skip_to <tname>
+=item skip_to <term>
 
-Skip the iterator to term tname, or the first term after tname if tname
+Skip the iterator to term <term>, or the first term after <term> if <term>
 isn't in the list of terms being iterated.
 
 =item get_termname

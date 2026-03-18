@@ -202,14 +202,14 @@ GlassSynonymTermList::next()
 }
 
 TermList*
-GlassSynonymTermList::skip_to(string_view tname)
+GlassSynonymTermList::skip_to(string_view term)
 {
-    LOGCALL(DB, TermList *, "GlassSynonymTermList::skip_to", tname);
+    LOGCALL(DB, TermList*, "GlassSynonymTermList::skip_to", term);
     Assert(!cursor->after_end());
 
-    if (cursor->find_entry_ge(tname)) {
+    if (cursor->find_entry_ge(term)) {
         // Exact match.
-        current_term = tname;
+        current_term = term;
     } else {
         // The exact term we asked for isn't there, so check if the next
         // term after it also has the right prefix.

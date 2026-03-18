@@ -249,7 +249,7 @@ class GlassPostListTable : public GlassTable {
     void merge_doclen_changes(const std::map<Xapian::docid,
                                         Xapian::termcount>& doclens);
 
-    Xapian::docid get_chunk(std::string_view tname,
+    Xapian::docid get_chunk(std::string_view term,
                             Xapian::docid did, bool adding,
                             Glass::PostlistChunkReader** from,
                             Glass::PostlistChunkWriter** to);

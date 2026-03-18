@@ -46,19 +46,19 @@ InMemoryAllTermsList::get_termfreq() const
 }
 
 TermList*
-InMemoryAllTermsList::skip_to(string_view tname_)
+InMemoryAllTermsList::skip_to(string_view term_)
 {
     if (database->is_closed()) InMemoryDatabase::throw_database_closed();
-    string tname(tname_);
+    string term(term_);
     Assert(it != tmap->end());
     if (!it->first.empty()) {
         // Don't skip backwards.
-        if (tname <= it->first) return NULL;
+        if (term <= it->first) return NULL;
     } else {
         // Don't skip to before where we're supposed to start.
-        if (tname < prefix) {
-            tname = prefix;
-        } else if (tname.empty()) {
+        if (term < prefix) {
+            term = prefix;
+        } else if (term.empty()) {
             ++it;
             while (it != tmap->end() && it->second.term_freq == 0) ++it;
             if (it == tmap->end())
@@ -67,7 +67,7 @@ InMemoryAllTermsList::skip_to(string_view tname_)
             return NULL;
         }
     }
-    it = tmap->lower_bound(tname);
+    it = tmap->lower_bound(term);
     while (it != tmap->end() && it->second.term_freq == 0) ++it;
     if (it == tmap->end() || !startswith(it->first, prefix)) {
         return this;

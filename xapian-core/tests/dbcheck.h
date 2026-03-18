@@ -41,7 +41,7 @@ positions_to_string(Xapian::PositionIterator & it,
  *  This will include positional information when such information is present.
  */
 std::string
-postlist_to_string(const Xapian::Database & db, const std::string & tname);
+postlist_to_string(const Xapian::Database& db, const std::string& term);
 
 /** Convert the list of terms in a document to a string.
  *

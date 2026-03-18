@@ -35,7 +35,7 @@ using namespace std;
 void
 Inverter::store_positions(const GlassPositionListTable & position_table,
                           Xapian::docid did,
-                          string_view tname,
+                          string_view term,
                           const Xapian::VecCOW<Xapian::termpos> & posvec,
                           bool modifying)
 {
@@ -46,7 +46,7 @@ Inverter::store_positions(const GlassPositionListTable & position_table,
         // positions we don't know if we then have them or not.
         has_positions_cache = s.empty() ? -1 : 1;
 
-        auto i = pos_changes.find(tname);
+        auto i = pos_changes.find(term);
         if (i != pos_changes.end()) {
             map<Xapian::docid, string> & m = i->second;
             auto j = m.find(did);
@@ -56,7 +56,7 @@ Inverter::store_positions(const GlassPositionListTable & position_table,
                 return;
             }
         }
-        const string & key = position_table.make_key(did, tname);
+        const string& key = position_table.make_key(did, term);
         string old_tag;
         if (position_table.get_exact_entry(key, old_tag) && s == old_tag) {
             // Identical to existing entry on disk.
@@ -66,38 +66,38 @@ Inverter::store_positions(const GlassPositionListTable & position_table,
         // If we add positions, we must then have positions.
         if (!s.empty()) has_positions_cache = 1;
     }
-    set_positionlist(did, tname, s);
+    set_positionlist(did, term, s);
 }
 
 void
 Inverter::set_positionlist(const GlassPositionListTable & position_table,
                            Xapian::docid did,
-                           string_view tname,
-                           const Xapian::TermIterator & term,
+                           string_view term,
+                           const Xapian::TermIterator& t,
                            bool modifying)
 {
-    auto ptr = term.internal->get_vec_termpos();
+    auto ptr = t.internal->get_vec_termpos();
     if (ptr) {
         if (!ptr->empty()) {
-            store_positions(position_table, did, tname, *ptr, modifying);
+            store_positions(position_table, did, term, *ptr, modifying);
             return;
         }
     } else {
-        Xapian::PositionIterator pos = term.positionlist_begin();
-        if (pos != term.positionlist_end()) {
+        Xapian::PositionIterator pos = t.positionlist_begin();
+        if (pos != t.positionlist_end()) {
             Xapian::VecCOW<Xapian::termpos> posvec;
-            posvec.reserve(term.positionlist_count());
-            while (pos != term.positionlist_end()) {
+            posvec.reserve(t.positionlist_count());
+            while (pos != t.positionlist_end()) {
                 posvec.push_back(*pos);
                 ++pos;
             }
-            store_positions(position_table, did, tname, posvec, modifying);
+            store_positions(position_table, did, term, posvec, modifying);
             return;
         }
     }
     // If we get here, the new position list was empty.
     if (modifying)
-        delete_positionlist(did, tname);
+        delete_positionlist(did, term);
 }
 
 void

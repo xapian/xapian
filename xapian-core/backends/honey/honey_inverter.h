@@ -134,7 +134,7 @@ class HoneyInverter {
 
     void store_positions(const HoneyPositionTable& position_table,
                          Xapian::docid did,
-                         const std::string& tname,
+                         const std::string& term,
                          const Xapian::VecCOW<Xapian::termpos>& posvec,
                          bool modifying);
 
@@ -183,8 +183,8 @@ class HoneyInverter {
 
     void set_positionlist(const HoneyPositionTable& position_table,
                           Xapian::docid did,
-                          const std::string& tname,
-                          const Xapian::TermIterator& term,
+                          const std::string& term,
+                          const Xapian::TermIterator& t,
                           bool modifying = false);
 
     void delete_positionlist(Xapian::docid did,

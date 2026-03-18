@@ -261,7 +261,7 @@ class GlassDatabase : public Xapian::Database::Internal {
     bool term_exists(std::string_view term) const;
     bool has_positions() const;
 
-    PostList* open_post_list(std::string_view tname) const;
+    PostList* open_post_list(std::string_view term) const;
     LeafPostList* open_leaf_post_list(std::string_view term,
                                       bool need_read_pos) const;
     ValueList * open_value_list(Xapian::valueno slot) const;

@@ -83,13 +83,13 @@ InMemoryTerm::add_posting(Xapian::docid did,
 }
 
 inline void
-InMemoryDoc::add_posting(const string& tname,
+InMemoryDoc::add_posting(const string& term,
                          Xapian::termcount wdf,
                          Xapian::termpos position,
                          bool use_position)
 {
     InMemoryTermEntry termentry;
-    termentry.tname = tname;
+    termentry.term = term;
 
     // Find the right place in the sorted list.
     vector<InMemoryTermEntry>::iterator p;
@@ -247,7 +247,7 @@ InMemoryTermList::InMemoryTermList(intrusive_ptr<const InMemoryDatabase> db_,
           started(false), db(db_), did(did_), document_length(len)
 {
     LOGLINE(DB, "InMemoryTermList::InMemoryTermList(): " <<
-                terms << " terms starting from " << pos->tname);
+                terms << " terms starting from " << pos->term);
 }
 
 Xapian::termcount
@@ -267,7 +267,7 @@ InMemoryTermList::get_termfreq() const
     Assert(pos != end);
 
     Xapian::doccount tf;
-    db->get_freqs((*pos).tname, &tf, NULL);
+    db->get_freqs((*pos).term, &tf, NULL);
     return tf;
 }
 
@@ -302,7 +302,7 @@ InMemoryTermList::next()
     }
     if (pos == end)
         return this;
-    current_term = pos->tname;
+    current_term = pos->term;
     return NULL;
 }
 
@@ -312,14 +312,14 @@ InMemoryTermList::skip_to(string_view term)
     if (rare(db->is_closed()))
         InMemoryDatabase::throw_database_closed();
 
-    while (pos != end && pos->tname < term) {
+    while (pos != end && pos->term < term) {
         ++pos;
     }
 
     started = true;
     if (pos == end)
         return this;
-    current_term = pos->tname;
+    current_term = pos->term;
     return NULL;
 }
 
@@ -327,14 +327,14 @@ Xapian::termcount
 InMemoryTermList::positionlist_count() const
 {
     if (db->is_closed()) InMemoryDatabase::throw_database_closed();
-    return db->positionlist_count(did, (*pos).tname);
+    return db->positionlist_count(did, (*pos).term);
 }
 
 PositionList*
 InMemoryTermList::positionlist_begin() const
 {
     if (db->is_closed()) InMemoryDatabase::throw_database_closed();
-    return db->open_position_list(did, (*pos).tname);
+    return db->open_position_list(did, (*pos).term);
 }
 
 /////////////////////////////
@@ -703,7 +703,7 @@ InMemoryDatabase::set_metadata(std::string_view key,
 
 Xapian::termcount
 InMemoryDatabase::positionlist_count(Xapian::docid did,
-                                     string_view tname) const
+                                     string_view term) const
 {
     if (closed) InMemoryDatabase::throw_database_closed();
     if (!doc_exists(did)) {
@@ -712,10 +712,10 @@ InMemoryDatabase::positionlist_count(Xapian::docid did,
     const InMemoryDoc &doc = termlists[did - 1];
 
     InMemoryTermEntry temp;
-    temp.tname = tname;
+    temp.term = term;
     auto t = lower_bound(doc.terms.begin(), doc.terms.end(),
                          temp, InMemoryTermEntryLessThan());
-    if (t != doc.terms.end() && t->tname == tname) {
+    if (t != doc.terms.end() && t->term == term) {
         return t->positions.size();
     }
     return 0;
@@ -723,17 +723,17 @@ InMemoryDatabase::positionlist_count(Xapian::docid did,
 
 PositionList*
 InMemoryDatabase::open_position_list(Xapian::docid did,
-                                     string_view tname) const
+                                     string_view term) const
 {
     if (closed) InMemoryDatabase::throw_database_closed();
     if (usual(doc_exists(did))) {
         const InMemoryDoc &doc = termlists[did - 1];
 
         InMemoryTermEntry temp;
-        temp.tname = tname;
+        temp.term = term;
         auto t = lower_bound(doc.terms.begin(), doc.terms.end(),
                              temp, InMemoryTermEntryLessThan());
-        if (t != doc.terms.end() && t->tname == tname) {
+        if (t != doc.terms.end() && t->term == term) {
             return new InMemoryPositionList(t->positions);
         }
     }
@@ -811,7 +811,7 @@ InMemoryDatabase::delete_document(Xapian::docid did)
     if (totdocs == 0) positions_present = false;
 
     for (auto&& i : termlists[did - 1].terms) {
-        auto t = postlists.find(i.tname);
+        auto t = postlists.find(i.term);
         Assert(t != postlists.end());
         t->second.collection_freq -= i.wdf;
         --t->second.term_freq;
@@ -860,7 +860,7 @@ InMemoryDatabase::replace_document(Xapian::docid did,
     }
 
     for (auto&& i : termlists[did - 1].terms) {
-        auto t = postlists.find(i.tname);
+        auto t = postlists.find(i.term);
         Assert(t != postlists.end());
         t->second.collection_freq -= i.wdf;
         --t->second.term_freq;
@@ -939,9 +939,9 @@ InMemoryDatabase::finish_add_doc(Xapian::docid did, const Xapian::Document &docu
 }
 
 void
-InMemoryDatabase::make_term(const string & tname)
+InMemoryDatabase::make_term(const string& term)
 {
-    postlists[tname];  // Initialise, if not already there.
+    postlists[term];  // Initialise, if not already there.
 }
 
 Xapian::docid
@@ -961,20 +961,20 @@ InMemoryDatabase::make_doc(const string & docdata)
 }
 
 void InMemoryDatabase::make_posting(InMemoryDoc * doc,
-                                    const string & tname,
+                                    const string& term,
                                     Xapian::docid did,
                                     Xapian::termpos position,
                                     Xapian::termcount wdf,
                                     bool use_position)
 {
     Assert(doc);
-    Assert(postlists.find(tname) != postlists.end());
+    Assert(postlists.find(term) != postlists.end());
     Assert(did > 0 && did <= termlists.size());
     Assert(did > 0 && did <= doclengths.size());
     Assert(doc_exists(did));
 
-    postlists[tname].add_posting(did, wdf, position, use_position);
-    doc->add_posting(tname, wdf, position, use_position);
+    postlists[term].add_posting(did, wdf, position, use_position);
+    doc->add_posting(term, wdf, position, use_position);
 }
 
 bool

@@ -62,7 +62,7 @@ class InMemoryAllTermsList : public AllTermsList
     // Get num of docs indexed by term
     Xapian::doccount get_termfreq() const;
 
-    TermList* skip_to(std::string_view tname);
+    TermList* skip_to(std::string_view term);
 
     /** next() causes the AllTermsList to move to the next term in the list.
      */

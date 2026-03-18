@@ -165,16 +165,16 @@ class HoneyPositionTable : public HoneyLazyTable {
      */
     void pack(std::string& s, const Xapian::VecCOW<Xapian::termpos>& vec) const;
 
-    /** Set the position list for term tname in document did.
+    /** Set the position list for term @a term in document @a did.
      */
-    void set_positionlist(Xapian::docid did, std::string_view tname,
+    void set_positionlist(Xapian::docid did, std::string_view term,
                           std::string_view s) {
-        add(make_key(did, tname), s);
+        add(make_key(did, term), s);
     }
 
-    /// Delete the position list for term tname in document did.
-    void delete_positionlist(Xapian::docid did, std::string_view tname) {
-        del(make_key(did, tname));
+    /// Delete the position list for term @a term in document @a did.
+    void delete_positionlist(Xapian::docid did, std::string_view term) {
+        del(make_key(did, term));
     }
 
     /// Return the number of entries in specified position list.

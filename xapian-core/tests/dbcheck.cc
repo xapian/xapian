@@ -51,13 +51,13 @@ positions_to_string(Xapian::PositionIterator & it,
 }
 
 string
-postlist_to_string(const Xapian::Database & db, const string & tname)
+postlist_to_string(const Xapian::Database& db, const string& term)
 {
     string result;
     bool need_comma = false;
 
-    for (Xapian::PostingIterator p = db.postlist_begin(tname);
-         p != db.postlist_end(tname);
+    for (Xapian::PostingIterator p = db.postlist_begin(term);
+         p != db.postlist_end(term);
          ++p) {
         if (need_comma)
             result += ", ";

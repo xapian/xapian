@@ -794,27 +794,27 @@ check_glass_table(const char* tablename, string_view db_dir, int fd,
             }
 
             Xapian::termcount actual_doclen = 0, actual_termlist_size = 0;
-            string current_tname;
+            string current_term;
 
             bool bad = false;
             while (pos != end) {
                 Xapian::doccount current_wdf = 0;
                 bool got_wdf = false;
                 // If there was a previous term, how much to reuse.
-                if (!current_tname.empty()) {
+                if (!current_term.empty()) {
                     string::size_type len = static_cast<unsigned char>(*pos++);
-                    if (len > current_tname.length()) {
+                    if (len > current_term.length()) {
                         // The wdf was squeezed into the same byte.
-                        current_wdf = len / (current_tname.length() + 1) - 1;
-                        len %= (current_tname.length() + 1);
+                        current_wdf = len / (current_term.length() + 1) - 1;
+                        len %= (current_term.length() + 1);
                         got_wdf = true;
                     }
-                    current_tname.resize(len);
+                    current_term.resize(len);
                 }
                 // What to append (note len must be positive, since just truncating
                 // always takes us backwards in the sort order)
                 string::size_type len = static_cast<unsigned char>(*pos++);
-                current_tname.append(pos, len);
+                current_term.append(pos, len);
                 pos += len;
 
                 if (!got_wdf) {

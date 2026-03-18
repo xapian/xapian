@@ -250,7 +250,7 @@ class RemoteDatabase : public Xapian::Database::Internal {
     Xapian::doccount read_post_list(const std::string& term, NetworkPostList & pl) const;
 
     PositionList* open_position_list(Xapian::docid did,
-                                     std::string_view tname) const;
+                                     std::string_view term) const;
 
     /// Get a remote document.
     Xapian::Document::Internal * open_document(Xapian::docid did, bool lazy) const;

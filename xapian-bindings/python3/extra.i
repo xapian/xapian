@@ -581,19 +581,19 @@ def _queryparser_gen_stoplist_iter(self):
 QueryParser.stoplist = _queryparser_gen_stoplist_iter
 
 # Modify QueryParser to add an "unstemlist()" method.
-def _queryparser_gen_unstemlist_iter(self, tname):
+def _queryparser_gen_unstemlist_iter(self, term):
     """Get an iterator over all the unstemmed forms of a stemmed term.
 
     This returns an iterator which returns all the unstemmed words which were
-    stemmed to the stemmed form specified by `tname` when parsing the previous
-    query.  Each instance of a word which stems to `tname` is returned by the
+    stemmed to the stemmed form specified by `term` when parsing the previous
+    query.  Each instance of a word which stems to `term` is returned by the
     iterator in the order in which the words appeared in the query - an
     individual unstemmed word may thus occur multiple times.
 
     The iterator will return string objects.
 
     """
-    return TermIter(self._unstem_begin(tname), self._unstem_end(tname),
+    return TermIter(self._unstem_begin(term), self._unstem_end(term),
                     return_strings=True)
 QueryParser.unstemlist = _queryparser_gen_unstemlist_iter
 
@@ -895,19 +895,19 @@ class PostingIter(object):
         self._moved = False
         return PostingItem(self)
 
-def _database_gen_postlist_iter(self, tname):
+def _database_gen_postlist_iter(self, term):
     """Get an iterator over the postings which are indexed by a given term.
 
-    If `tname` is empty, an iterator over all the documents will be returned
+    If `term` is empty, an iterator over all the documents will be returned
     (this will contain one entry for each document, will always return a wdf of
     1, and will not allow access to a position iterator).
 
     """
-    if len(tname) != 0:
-        return PostingIter(self._postlist_begin(tname), self._postlist_end(tname),
+    if len(term) != 0:
+        return PostingIter(self._postlist_begin(term), self._postlist_end(term),
                            has_positions=True)
     else:
-        return PostingIter(self._postlist_begin(tname), self._postlist_end(tname))
+        return PostingIter(self._postlist_begin(term), self._postlist_end(term))
 Database.postlist = _database_gen_postlist_iter
 
 
@@ -937,13 +937,13 @@ class PositionIter(object):
             return r
 
 # Modify Database to add a "positionlist()" method.
-def _database_gen_positionlist_iter(self, docid, tname):
+def _database_gen_positionlist_iter(self, docid, term):
     """Get an iterator over all the positions in a given document of a term.
 
     The iterator will return integers, in ascending order.
 
     """
-    return PositionIter(self._positionlist_begin(docid, tname), self._positionlist_end(docid, tname))
+    return PositionIter(self._positionlist_begin(docid, term), self._positionlist_end(docid, term))
 Database.positionlist = _database_gen_positionlist_iter
 
 ########################################

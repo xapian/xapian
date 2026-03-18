@@ -58,7 +58,7 @@ class InMemoryPosting {
 
 class InMemoryTermEntry {
   public:
-    std::string tname;
+    std::string term;
     Xapian::VecCOW<Xapian::termpos> positions; // Sorted vector of positions
     Xapian::termcount wdf;
 
@@ -86,7 +86,7 @@ class InMemoryTermEntryLessThan {
     int operator() (const InMemoryTermEntry&p1,
                     const InMemoryTermEntry&p2) const
     {
-        return p1.tname < p2.tname;
+        return p1.term < p2.term;
     }
 };
 
@@ -121,7 +121,7 @@ class InMemoryDoc {
     // Initialise specifying validity.
     explicit InMemoryDoc(bool is_valid_) : is_valid(is_valid_) {}
 
-    void add_posting(const std::string& tname,
+    void add_posting(const std::string& term,
                      Xapian::termcount wdf,
                      Xapian::termpos position,
                      bool use_position);
@@ -274,7 +274,7 @@ class InMemoryDatabase : public Xapian::Database::Internal {
     InMemoryDatabase& operator=(const InMemoryDatabase &);
     InMemoryDatabase(const InMemoryDatabase &);
 
-    void make_term(const std::string& tname);
+    void make_term(const std::string& term);
 
     bool doc_exists(Xapian::docid did) const;
     Xapian::docid make_doc(const std::string& docdata);
@@ -285,7 +285,7 @@ class InMemoryDatabase : public Xapian::Database::Internal {
                     const std::map<Xapian::valueno, std::string>& values_);
 
     void make_posting(InMemoryDoc* doc,
-                      const std::string& tname,
+                      const std::string& term,
                       Xapian::docid did,
                       Xapian::termpos position,
                       Xapian::termcount wdf,
@@ -343,7 +343,7 @@ class InMemoryDatabase : public Xapian::Database::Internal {
     bool term_exists(std::string_view term) const;
     bool has_positions() const;
 
-    PostList* open_post_list(std::string_view tname) const;
+    PostList* open_post_list(std::string_view term) const;
     LeafPostList* open_leaf_post_list(std::string_view term,
                                       bool need_read_pos) const;
     TermList * open_term_list(Xapian::docid did) const;
@@ -356,9 +356,9 @@ class InMemoryDatabase : public Xapian::Database::Internal {
     void set_metadata(std::string_view key, std::string_view value);
 
     Xapian::termcount positionlist_count(Xapian::docid did,
-                                         std::string_view tname) const;
+                                         std::string_view term) const;
     PositionList* open_position_list(Xapian::docid did,
-                                     std::string_view tname) const;
+                                     std::string_view term) const;
     TermList* open_allterms(std::string_view prefix) const;
 
     [[noreturn]]
