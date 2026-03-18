@@ -127,6 +127,14 @@ class HoneyInverter {
     /// Buffered changes to postlists.
     std::map<std::string, PostingChanges, std::less<>> postlist_changes;
 
+    /** Cached answer to Inverter::has_positions().
+     *
+     *  -1: needs calculating
+     *   0: false
+     *   1: true
+     */
+    mutable int has_positions_cache = -1;
+
     /// Buffered changes to positional data.
     std::map<std::string,
              std::map<Xapian::docid, std::string>,
@@ -134,13 +142,13 @@ class HoneyInverter {
 
     void store_positions(const HoneyPositionTable& position_table,
                          Xapian::docid did,
-                         const std::string& term,
+                         std::string_view term,
                          const Xapian::VecCOW<Xapian::termpos>& posvec,
                          bool modifying);
 
     void set_positionlist(Xapian::docid did,
-                          const std::string& term,
-                          const std::string& s);
+                          std::string_view term,
+                          std::string_view s);
 
   public:
     /// Buffered changes to document lengths.
@@ -183,15 +191,15 @@ class HoneyInverter {
 
     void set_positionlist(const HoneyPositionTable& position_table,
                           Xapian::docid did,
-                          const std::string& term,
+                          std::string_view term,
                           const Xapian::TermIterator& t,
                           bool modifying = false);
 
     void delete_positionlist(Xapian::docid did,
-                             const std::string& term);
+                             std::string_view term);
 
     bool get_positionlist(Xapian::docid did,
-                          const std::string& term,
+                          std::string_view term,
                           std::string& s) const;
 
     bool has_positions(const HoneyPositionTable& position_table) const;
@@ -200,6 +208,7 @@ class HoneyInverter {
         doclen_changes.clear();
         postlist_changes.clear();
         pos_changes.clear();
+        has_positions_cache = -1;
     }
 
     void set_doclength(Xapian::docid did, Xapian::termcount doclen, bool add) {
@@ -230,13 +239,13 @@ class HoneyInverter {
     void flush_doclengths(HoneyPostListTable& table);
 
     /// Flush postlist changes for @a term.
-    void flush_post_list(HoneyPostListTable& table, const std::string& term);
+    void flush_post_list(HoneyPostListTable& table, std::string_view term);
 
     /// Flush postlist changes for all terms.
     void flush_all_post_lists(HoneyPostListTable& table);
 
     /// Flush postlist changes for all terms which start with @a pfx.
-    void flush_post_lists(HoneyPostListTable& table, const std::string& pfx);
+    void flush_post_lists(HoneyPostListTable& table, std::string_view pfx);
 
     /// Flush all postlist table changes.
     void flush(HoneyPostListTable& table);

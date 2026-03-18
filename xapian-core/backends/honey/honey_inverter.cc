@@ -1,7 +1,7 @@
 /** @file
  * @brief HoneyInverter class which "inverts the file".
  */
-/* Copyright (C) 2009,2013 Olly Betts
+/* Copyright (C) 2009,2013,2024,2026 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,13 +36,17 @@ using namespace std;
 void
 HoneyInverter::store_positions(const HoneyPositionTable& position_table,
                                Xapian::docid did,
-                               const string& term,
+                               string_view term,
                                const Xapian::VecCOW<Xapian::termpos>& posvec,
                                bool modifying)
 {
     string s;
     position_table.pack(s, posvec);
-    if (modifying) {
+    if (modifying && has_positions_cache != 0) {
+        // If we add positions we must then have positions, but if we remove
+        // positions we don't know if we then have them or not.
+        has_positions_cache = s.empty() ? -1 : 1;
+
         auto i = pos_changes.find(term);
         if (i != pos_changes.end()) {
             map<Xapian::docid, string>& m = i->second;
@@ -59,6 +63,9 @@ HoneyInverter::store_positions(const HoneyPositionTable& position_table,
             // Identical to existing entry on disk.
             return;
         }
+    } else {
+        // If we add positions, we must then have positions.
+        if (!s.empty()) has_positions_cache = 1;
     }
     set_positionlist(did, term, s);
 }
@@ -66,7 +73,7 @@ HoneyInverter::store_positions(const HoneyPositionTable& position_table,
 void
 HoneyInverter::set_positionlist(const HoneyPositionTable& position_table,
                                 Xapian::docid did,
-                                const string& term,
+                                string_view term,
                                 const Xapian::TermIterator& term_it,
                                 bool modifying)
 {
@@ -96,23 +103,24 @@ HoneyInverter::set_positionlist(const HoneyPositionTable& position_table,
 
 void
 HoneyInverter::set_positionlist(Xapian::docid did,
-                                const string& term,
-                                const string& s)
+                                string_view term,
+                                string_view s)
 {
+    has_positions_cache = s.empty() ? -1 : 1;
     pos_changes.insert(make_pair(term, map<Xapian::docid, string>()))
         .first->second[did] = s;
 }
 
 void
 HoneyInverter::delete_positionlist(Xapian::docid did,
-                                   const string& term)
+                                   string_view term)
 {
-    set_positionlist(did, term, string());
+    set_positionlist(did, term, {});
 }
 
 bool
 HoneyInverter::get_positionlist(Xapian::docid did,
-                                const string& term,
+                                string_view term,
                                 string& s) const
 {
     auto i = pos_changes.find(term);
@@ -129,24 +137,24 @@ HoneyInverter::get_positionlist(Xapian::docid did,
 bool
 HoneyInverter::has_positions(const HoneyPositionTable& position_table) const
 {
-    if (pos_changes.empty())
-        return !position_table.empty();
-
-    // FIXME: Can we cheaply keep track of some things to make this more
-    // efficient?  E.g. how many sets and deletes we had in total perhaps.
-    honey_tablesize_t changes = 0;
-    for (auto i : pos_changes) {
-        const map<Xapian::docid, string>& m = i.second;
-        for (auto j : m) {
-            const string& s = j.second;
-            if (!s.empty())
-                return true;
-            ++changes;
+    if (has_positions_cache < 0) {
+        // FIXME: Can we cheaply keep track of some things to make this more
+        // efficient?  E.g. how many sets and deletes we had in total perhaps.
+        honey_tablesize_t changes = 0;
+        for (const auto& i : pos_changes) {
+            const map<Xapian::docid, string>& m = i.second;
+            for (const auto& j : m) {
+                const string& s = j.second;
+                if (!s.empty())
+                    return true;
+                ++changes;
+            }
         }
-    }
 
-    // We have positions unless all the existing entries are removed.
-    return changes != position_table.get_entry_count();
+        // We have positions unless all the existing entries are removed.
+        has_positions_cache = (changes != position_table.get_entry_count());
+    }
+    return has_positions_cache;
 }
 
 void
@@ -157,7 +165,7 @@ HoneyInverter::flush_doclengths(HoneyPostListTable& table)
 }
 
 void
-HoneyInverter::flush_post_list(HoneyPostListTable& table, const string& term)
+HoneyInverter::flush_post_list(HoneyPostListTable& table, string_view term)
 {
     auto i = postlist_changes.find(term);
     if (i == postlist_changes.end()) return;
@@ -177,14 +185,14 @@ HoneyInverter::flush_all_post_lists(HoneyPostListTable& table)
 }
 
 void
-HoneyInverter::flush_post_lists(HoneyPostListTable& table, const string& pfx)
+HoneyInverter::flush_post_lists(HoneyPostListTable& table, string_view pfx)
 {
     if (pfx.empty())
         return flush_all_post_lists(table);
 
     auto begin = postlist_changes.lower_bound(pfx);
     decltype(begin) end;
-    string pfxinc = pfx;
+    string pfxinc{pfx};
     while (true) {
         if (pfxinc.back() != '\xff') {
             ++pfxinc.back();
@@ -230,4 +238,5 @@ HoneyInverter::flush_pos_lists(HoneyPositionTable& table)
         }
     }
     pos_changes.clear();
+    has_positions_cache = -1;
 }

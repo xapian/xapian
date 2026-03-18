@@ -82,7 +82,7 @@ class HoneyPostListTable : public HoneyTable {
         (void)changes;
     }
 
-    void merge_changes(const std::string& term,
+    void merge_changes(std::string_view term,
                        const HoneyInverter::PostingChanges& changes) {
         // Honey doesn't support update currently.
         (void)term;

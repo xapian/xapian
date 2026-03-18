@@ -141,10 +141,10 @@ class Inverter {
              std::map<Xapian::docid, std::string>,
              std::less<>> pos_changes;
 
-    void store_positions(const GlassPositionListTable & position_table,
+    void store_positions(const GlassPositionListTable& position_table,
                          Xapian::docid did,
                          std::string_view term,
-                         const Xapian::VecCOW<Xapian::termpos> & posvec,
+                         const Xapian::VecCOW<Xapian::termpos>& posvec,
                          bool modifying);
 
     void set_positionlist(Xapian::docid did,
@@ -156,7 +156,7 @@ class Inverter {
     std::map<Xapian::docid, Xapian::termcount> doclen_changes;
 
   public:
-    void add_posting(Xapian::docid did, const std::string & term,
+    void add_posting(Xapian::docid did, const std::string& term,
                      Xapian::doccount wdf) {
         auto i = postlist_changes.find(term);
         if (i == postlist_changes.end()) {
@@ -167,7 +167,7 @@ class Inverter {
         }
     }
 
-    void remove_posting(Xapian::docid did, const std::string & term,
+    void remove_posting(Xapian::docid did, const std::string& term,
                         Xapian::doccount wdf) {
         auto i = postlist_changes.find(term);
         if (i == postlist_changes.end()) {
@@ -178,7 +178,7 @@ class Inverter {
         }
     }
 
-    void update_posting(Xapian::docid did, const std::string & term,
+    void update_posting(Xapian::docid did, const std::string& term,
                         Xapian::termcount old_wdf,
                         Xapian::termcount new_wdf) {
         auto i = postlist_changes.find(term);
@@ -190,7 +190,7 @@ class Inverter {
         }
     }
 
-    void set_positionlist(const GlassPositionListTable & position_table,
+    void set_positionlist(const GlassPositionListTable& position_table,
                           Xapian::docid did,
                           std::string_view term,
                           const Xapian::TermIterator& t,
@@ -203,7 +203,7 @@ class Inverter {
                           std::string_view term,
                           std::string & s) const;
 
-    bool has_positions(const GlassPositionListTable & position_table) const;
+    bool has_positions(const GlassPositionListTable& position_table) const;
 
     void clear() {
         doclen_changes.clear();
@@ -214,17 +214,19 @@ class Inverter {
 
     void set_doclength(Xapian::docid did, Xapian::termcount doclen, bool add) {
         if (add) {
-            Assert(doclen_changes.find(did) == doclen_changes.end() || doclen_changes[did] == DELETED_POSTING);
+            Assert(doclen_changes.find(did) == doclen_changes.end() ||
+                   doclen_changes[did] == DELETED_POSTING);
         }
         doclen_changes[did] = doclen;
     }
 
     void delete_doclength(Xapian::docid did) {
-        Assert(doclen_changes.find(did) == doclen_changes.end() || doclen_changes[did] != DELETED_POSTING);
+        Assert(doclen_changes.find(did) == doclen_changes.end() ||
+               doclen_changes[did] != DELETED_POSTING);
         doclen_changes[did] = DELETED_POSTING;
     }
 
-    bool get_doclength(Xapian::docid did, Xapian::termcount & doclen) const {
+    bool get_doclength(Xapian::docid did, Xapian::termcount& doclen) const {
         auto i = doclen_changes.find(did);
         if (i == doclen_changes.end())
             return false;
@@ -235,22 +237,22 @@ class Inverter {
     }
 
     /// Flush document length changes.
-    void flush_doclengths(GlassPostListTable & table);
+    void flush_doclengths(GlassPostListTable& table);
 
     /// Flush postlist changes for @a term.
     void flush_post_list(GlassPostListTable& table, std::string_view term);
 
     /// Flush postlist changes for all terms.
-    void flush_all_post_lists(GlassPostListTable & table);
+    void flush_all_post_lists(GlassPostListTable& table);
 
     /// Flush postlist changes for all terms which start with @a pfx.
     void flush_post_lists(GlassPostListTable& table, std::string_view pfx);
 
     /// Flush all postlist table changes.
-    void flush(GlassPostListTable & table);
+    void flush(GlassPostListTable& table);
 
     /// Flush position changes.
-    void flush_pos_lists(GlassPositionListTable & table);
+    void flush_pos_lists(GlassPositionListTable& table);
 
     bool get_deltas(std::string_view term,
                     Xapian::termcount& tf_delta,
