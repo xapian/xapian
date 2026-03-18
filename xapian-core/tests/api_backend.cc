@@ -59,17 +59,17 @@ DEFINE_TESTCASE(lockfileumask1, glass) {
 #if !defined __WIN32__ && !defined __CYGWIN__ && !defined __OS2__
     mode_t old_umask = umask(022);
     try {
-	Xapian::WritableDatabase db = get_named_writable_database("lockfileumask1");
+        Xapian::WritableDatabase db = get_named_writable_database("lockfileumask1");
 
-	string path = get_named_writable_database_path("lockfileumask1");
-	path += "/flintlock";
+        string path = get_named_writable_database_path("lockfileumask1");
+        path += "/flintlock";
 
-	struct stat statbuf;
-	TEST(stat(path.c_str(), &statbuf) == 0);
-	TEST_EQUAL(statbuf.st_mode & 0777, 0644);
+        struct stat statbuf;
+        TEST(stat(path.c_str(), &statbuf) == 0);
+        TEST_EQUAL(statbuf.st_mode & 0777, 0644);
     } catch (...) {
-	umask(old_umask);
-	throw;
+        umask(old_umask);
+        throw;
     }
 
     umask(old_umask);
@@ -91,9 +91,9 @@ DEFINE_TESTCASE(totaldoclen1, writable) {
     TEST_EQUAL(db.get_avlength(), 2000000000);
     TEST_EQUAL(db.get_total_length(), 4000000000ull);
     for (int i = 0; i != 20; ++i) {
-	Xapian::Document doc3;
-	doc3.add_posting("count" + str(i), 1, 2000000000);
-	db.add_document(doc3);
+        Xapian::Document doc3;
+        doc3.add_posting("count" + str(i), 1, 2000000000);
+        db.add_document(doc3);
     }
     TEST_EQUAL(db.get_avlength(), 2000000000);
     TEST_EQUAL(db.get_total_length(), 44000000000ull);
@@ -101,10 +101,10 @@ DEFINE_TESTCASE(totaldoclen1, writable) {
     TEST_EQUAL(db.get_avlength(), 2000000000);
     TEST_EQUAL(db.get_total_length(), 44000000000ull);
     if (get_dbtype() != "inmemory") {
-	// InMemory doesn't support get_writable_database_as_database().
-	Xapian::Database dbr = get_writable_database_as_database();
-	TEST_EQUAL(dbr.get_avlength(), 2000000000);
-	TEST_EQUAL(dbr.get_total_length(), 44000000000ull);
+        // InMemory doesn't support get_writable_database_as_database().
+        Xapian::Database dbr = get_writable_database_as_database();
+        TEST_EQUAL(dbr.get_avlength(), 2000000000);
+        TEST_EQUAL(dbr.get_total_length(), 44000000000ull);
     }
 }
 
@@ -115,42 +115,42 @@ DEFINE_TESTCASE(exceed32bitcombineddb1, writable) {
     // FIXME: Though we should check that the overflow is handled gracefully
     // for 32-bit...
     if constexpr(sizeof(Xapian::docid) == 4) {
-	SKIP_TEST("Not supported with 32-bit docid currently");
+        SKIP_TEST("Not supported with 32-bit docid currently");
     } else {
-	// The InMemory backend uses a vector for the documents, so trying to
-	// add a document with the maximum docid is likely to fail because we
-	// can't allocate enough memory!
-	SKIP_TEST_FOR_BACKEND("inmemory");
+        // The InMemory backend uses a vector for the documents, so trying to
+        // add a document with the maximum docid is likely to fail because we
+        // can't allocate enough memory!
+        SKIP_TEST_FOR_BACKEND("inmemory");
 
-	Xapian::WritableDatabase db1 = get_writable_database();
-	Xapian::Document doc;
-	doc.set_data("prose");
-	doc.add_term("word");
-	Xapian::docid max_32bit_id = 0xffffffff;
-	db1.replace_document(max_32bit_id, doc);
-	db1.commit();
+        Xapian::WritableDatabase db1 = get_writable_database();
+        Xapian::Document doc;
+        doc.set_data("prose");
+        doc.add_term("word");
+        Xapian::docid max_32bit_id = 0xffffffff;
+        db1.replace_document(max_32bit_id, doc);
+        db1.commit();
 
-	Xapian::Database db2 = get_writable_database_as_database();
+        Xapian::Database db2 = get_writable_database_as_database();
 
-	Xapian::Database db;
-	db.add_database(db1);
-	db.add_database(db2);
+        Xapian::Database db;
+        db.add_database(db1);
+        db.add_database(db2);
 
-	Xapian::Enquire enquire(db);
-	enquire.set_query(Xapian::Query::MatchAll);
-	Xapian::MSet mymset = enquire.get_mset(0, 10);
+        Xapian::Enquire enquire(db);
+        enquire.set_query(Xapian::Query::MatchAll);
+        Xapian::MSet mymset = enquire.get_mset(0, 10);
 
-	TEST_EQUAL(2, mymset.size());
+        TEST_EQUAL(2, mymset.size());
 
-	// We can't usefully check the shard docid if the testharness backend
-	// is multi.
-	bool multi = (db1.size() > 1);
-	for (Xapian::MSetIterator i = mymset.begin(); i != mymset.end(); ++i) {
-	    doc = i.get_document();
-	    if (!multi)
-		TEST_EQUAL(doc.get_docid(), max_32bit_id);
-	    TEST_EQUAL(doc.get_data(), "prose");
-	}
+        // We can't usefully check the shard docid if the testharness backend
+        // is multi.
+        bool multi = (db1.size() > 1);
+        for (Xapian::MSetIterator i = mymset.begin(); i != mymset.end(); ++i) {
+            doc = i.get_document();
+            if (!multi)
+                TEST_EQUAL(doc.get_docid(), max_32bit_id);
+            TEST_EQUAL(doc.get_data(), "prose");
+        }
     }
 }
 
@@ -164,23 +164,23 @@ DEFINE_TESTCASE(dbstats1, backend) {
     const Xapian::termcount max_wdf = 22;
 
     if (get_dbtype() != "inmemory") {
-	// Should be exact as no deletions have happened.
-	TEST_EQUAL(db.get_doclength_upper_bound(), max_len);
-	TEST_EQUAL(db.get_doclength_lower_bound(), min_len);
+        // Should be exact as no deletions have happened.
+        TEST_EQUAL(db.get_doclength_upper_bound(), max_len);
+        TEST_EQUAL(db.get_doclength_lower_bound(), min_len);
     } else {
-	// For inmemory, we usually give rather loose bounds.
-	TEST_REL(db.get_doclength_upper_bound(),>=,max_len);
-	TEST_REL(db.get_doclength_lower_bound(),<=,min_len);
+        // For inmemory, we usually give rather loose bounds.
+        TEST_REL(db.get_doclength_upper_bound(),>=,max_len);
+        TEST_REL(db.get_doclength_lower_bound(),<=,min_len);
     }
 
     if (get_dbtype() != "inmemory" &&
-	get_dbtype().find("remote") == string::npos) {
-	TEST_EQUAL(db.get_wdf_upper_bound("the"), max_wdf);
+        get_dbtype().find("remote") == string::npos) {
+        TEST_EQUAL(db.get_wdf_upper_bound("the"), max_wdf);
     } else {
-	// For inmemory and remote backends, we usually give rather loose
-	// bounds (remote matches use tighter bounds, but querying the
-	// wdf bound gives a looser one).
-	TEST_REL(db.get_wdf_upper_bound("the"),>=,max_wdf);
+        // For inmemory and remote backends, we usually give rather loose
+        // bounds (remote matches use tighter bounds, but querying the
+        // wdf bound gives a looser one).
+        TEST_REL(db.get_wdf_upper_bound("the"),>=,max_wdf);
     }
 
     // This failed with an assertion during development between 1.3.1 and
@@ -188,10 +188,10 @@ DEFINE_TESTCASE(dbstats1, backend) {
     TEST_EQUAL(db.get_wdf_upper_bound(""), 0);
 
     if (get_dbtype() == "honey") {
-	const Xapian::termcount min_unique_len = 2;
-	const Xapian::termcount max_unique_len = 272;
-	TEST_EQUAL(db.get_unique_terms_lower_bound(), min_unique_len);
-	TEST_EQUAL(db.get_unique_terms_upper_bound(), max_unique_len);
+        const Xapian::termcount min_unique_len = 2;
+        const Xapian::termcount max_unique_len = 272;
+        TEST_EQUAL(db.get_unique_terms_lower_bound(), min_unique_len);
+        TEST_EQUAL(db.get_unique_terms_upper_bound(), max_unique_len);
     }
 }
 
@@ -207,32 +207,32 @@ DEFINE_TESTCASE(dbstats2, backend) {
     const Xapian::termcount max_wdf = 7;
 
     if (get_dbtype() != "inmemory") {
-	// Should be exact as no deletions have happened.
-	TEST_EQUAL(db.get_doclength_upper_bound(), max_len);
-	TEST_EQUAL(db.get_doclength_lower_bound(), min_len);
+        // Should be exact as no deletions have happened.
+        TEST_EQUAL(db.get_doclength_upper_bound(), max_len);
+        TEST_EQUAL(db.get_doclength_lower_bound(), min_len);
     } else {
-	// For inmemory, we usually give rather loose bounds.
-	TEST_REL(db.get_doclength_upper_bound(),>=,max_len);
-	TEST_REL(db.get_doclength_lower_bound(),<=,min_len);
+        // For inmemory, we usually give rather loose bounds.
+        TEST_REL(db.get_doclength_upper_bound(),>=,max_len);
+        TEST_REL(db.get_doclength_lower_bound(),<=,min_len);
     }
 
     if (get_dbtype() != "inmemory" &&
-	get_dbtype().find("remote") == string::npos) {
-	TEST_EQUAL(db.get_wdf_upper_bound("word"), max_wdf);
+        get_dbtype().find("remote") == string::npos) {
+        TEST_EQUAL(db.get_wdf_upper_bound("word"), max_wdf);
     } else {
-	// For inmemory and remote backends, we usually give rather loose
-	// bounds (remote matches use tighter bounds, but querying the
-	// wdf bound gives a looser one).
-	TEST_REL(db.get_wdf_upper_bound("word"),>=,max_wdf);
+        // For inmemory and remote backends, we usually give rather loose
+        // bounds (remote matches use tighter bounds, but querying the
+        // wdf bound gives a looser one).
+        TEST_REL(db.get_wdf_upper_bound("word"),>=,max_wdf);
     }
 
     TEST_EQUAL(db.get_wdf_upper_bound(""), 0);
 
     if (get_dbtype() == "honey") {
-	const Xapian::termcount min_unique_len = 9;
-	const Xapian::termcount max_unique_len = 9;
-	TEST_EQUAL(db.get_unique_terms_lower_bound(), min_unique_len);
-	TEST_EQUAL(db.get_unique_terms_upper_bound(), max_unique_len);
+        const Xapian::termcount min_unique_len = 9;
+        const Xapian::termcount max_unique_len = 9;
+        TEST_EQUAL(db.get_unique_terms_lower_bound(), min_unique_len);
+        TEST_EQUAL(db.get_unique_terms_upper_bound(), max_unique_len);
     }
 }
 
@@ -295,33 +295,33 @@ DEFINE_TESTCASE(lockfilefd0or1, glass) {
     int old_stdin = dup(0);
     int old_stdout = dup(1);
     try {
-	// With fd 0 available.
-	close(0);
-	{
-	    Xapian::WritableDatabase db = get_writable_database();
-	    TEST_EXCEPTION(Xapian::DatabaseLockError,
-			   (void)get_writable_database_again());
-	}
-	// With fd 0 and fd 1 available.
-	close(1);
-	{
-	    Xapian::WritableDatabase db = get_writable_database();
-	    TEST_EXCEPTION(Xapian::DatabaseLockError,
-			   (void)get_writable_database_again());
-	}
-	// With fd 1 available.
-	dup2(old_stdin, 0);
-	{
-	    Xapian::WritableDatabase db = get_writable_database();
-	    TEST_EXCEPTION(Xapian::DatabaseLockError,
-			   (void)get_writable_database_again());
-	}
+        // With fd 0 available.
+        close(0);
+        {
+            Xapian::WritableDatabase db = get_writable_database();
+            TEST_EXCEPTION(Xapian::DatabaseLockError,
+                           (void)get_writable_database_again());
+        }
+        // With fd 0 and fd 1 available.
+        close(1);
+        {
+            Xapian::WritableDatabase db = get_writable_database();
+            TEST_EXCEPTION(Xapian::DatabaseLockError,
+                           (void)get_writable_database_again());
+        }
+        // With fd 1 available.
+        dup2(old_stdin, 0);
+        {
+            Xapian::WritableDatabase db = get_writable_database();
+            TEST_EXCEPTION(Xapian::DatabaseLockError,
+                           (void)get_writable_database_again());
+        }
     } catch (...) {
-	dup2(old_stdin, 0);
-	dup2(old_stdout, 1);
-	close(old_stdin);
-	close(old_stdout);
-	throw;
+        dup2(old_stdin, 0);
+        dup2(old_stdout, 1);
+        close(old_stdin);
+        close(old_stdout);
+        throw;
     }
 
     dup2(old_stdout, 1);
@@ -338,13 +338,13 @@ DEFINE_TESTCASE(lockfilealreadyopen1, glass) {
     int fd = ::open((path + "/flintlock").c_str(), O_RDONLY);
     TEST(fd != -1);
     try {
-	Xapian::WritableDatabase db(path, Xapian::DB_CREATE_OR_OPEN);
-	TEST_EXCEPTION(Xapian::DatabaseLockError,
-	    Xapian::WritableDatabase db2(path, Xapian::DB_CREATE_OR_OPEN)
-	);
+        Xapian::WritableDatabase db(path, Xapian::DB_CREATE_OR_OPEN);
+        TEST_EXCEPTION(Xapian::DatabaseLockError,
+            Xapian::WritableDatabase db2(path, Xapian::DB_CREATE_OR_OPEN)
+        );
     } catch (...) {
-	close(fd);
-	throw;
+        close(fd);
+        throw;
     }
     close(fd);
 }
@@ -354,38 +354,38 @@ DEFINE_TESTCASE(testlock1, glass) {
     Xapian::Database rdb;
     TEST(!rdb.locked());
     {
-	Xapian::WritableDatabase db = get_named_writable_database("testlock1");
-	TEST(db.locked());
-	Xapian::Database db_as_database = db;
-	TEST(db_as_database.locked());
-	TEST(!rdb.locked());
-	rdb = get_writable_database_as_database();
-	TEST(db.locked());
-	TEST(db_as_database.locked());
-	try {
-	    TEST(rdb.locked());
-	} catch (const Xapian::FeatureUnavailableError&) {
-	    SKIP_TEST("Database::locked() not supported on this platform");
-	}
-	db_as_database = rdb;
-	TEST(db.locked());
-	TEST(db_as_database.locked());
-	TEST(rdb.locked());
-	db_as_database.close();
-	TEST(db.locked());
-	TEST(rdb.locked());
-	// After close(), locked() should either work as if close() hadn't been
-	// called or throw Xapian::DatabaseClosedError.
-	try {
-	    TEST(db_as_database.locked());
-	} catch (const Xapian::DatabaseClosedError&) {
-	}
-	db.close();
-	TEST(!rdb.locked());
-	try {
-	    TEST(!db_as_database.locked());
-	} catch (const Xapian::DatabaseClosedError&) {
-	}
+        Xapian::WritableDatabase db = get_named_writable_database("testlock1");
+        TEST(db.locked());
+        Xapian::Database db_as_database = db;
+        TEST(db_as_database.locked());
+        TEST(!rdb.locked());
+        rdb = get_writable_database_as_database();
+        TEST(db.locked());
+        TEST(db_as_database.locked());
+        try {
+            TEST(rdb.locked());
+        } catch (const Xapian::FeatureUnavailableError&) {
+            SKIP_TEST("Database::locked() not supported on this platform");
+        }
+        db_as_database = rdb;
+        TEST(db.locked());
+        TEST(db_as_database.locked());
+        TEST(rdb.locked());
+        db_as_database.close();
+        TEST(db.locked());
+        TEST(rdb.locked());
+        // After close(), locked() should either work as if close() hadn't been
+        // called or throw Xapian::DatabaseClosedError.
+        try {
+            TEST(db_as_database.locked());
+        } catch (const Xapian::DatabaseClosedError&) {
+        }
+        db.close();
+        TEST(!rdb.locked());
+        try {
+            TEST(!db_as_database.locked());
+        } catch (const Xapian::DatabaseClosedError&) {
+        }
     }
     TEST(!rdb.locked());
 }
@@ -426,60 +426,60 @@ DEFINE_TESTCASE(testlock4, glass) {
     TEST(!rdb.locked());
 
     {
-	Xapian::WritableDatabase db = get_named_writable_database("testlock4");
-	TEST(db.locked());
-	Xapian::Database db_as_database = db;
-	TEST(db_as_database.locked());
-	TEST(!rdb.locked());
+        Xapian::WritableDatabase db = get_named_writable_database("testlock4");
+        TEST(db.locked());
+        Xapian::Database db_as_database = db;
+        TEST(db_as_database.locked());
+        TEST(!rdb.locked());
 
-	{
-	    rdb = get_writable_database_as_database();
-	    // Test lock() fails (already open to write as db).
-	    TEST_EXCEPTION(Xapian::DatabaseLockError,
-			   auto wdb = rdb.lock());
-	}
+        {
+            rdb = get_writable_database_as_database();
+            // Test lock() fails (already open to write as db).
+            TEST_EXCEPTION(Xapian::DatabaseLockError,
+                           auto wdb = rdb.lock());
+        }
 
-	rdb = db.unlock();
-	try {
-	    TEST(!rdb.locked());
-	    // unlock() should have closed the underlying WritableDatabase so
-	    // locked() should either report that it isn't locked, or throw
-	    // Xapian::DatabaseClosedError.
-	    try {
-		TEST(!db.locked());
-	    } catch (const Xapian::DatabaseClosedError&) {
-	    }
-	    try {
-		TEST(!db_as_database.locked());
-	    } catch (const Xapian::DatabaseClosedError&) {
-	    }
-	} catch (const Xapian::FeatureUnavailableError&) {
-	    SKIP_TEST("Database::locked() not supported on this platform");
-	}
+        rdb = db.unlock();
+        try {
+            TEST(!rdb.locked());
+            // unlock() should have closed the underlying WritableDatabase so
+            // locked() should either report that it isn't locked, or throw
+            // Xapian::DatabaseClosedError.
+            try {
+                TEST(!db.locked());
+            } catch (const Xapian::DatabaseClosedError&) {
+            }
+            try {
+                TEST(!db_as_database.locked());
+            } catch (const Xapian::DatabaseClosedError&) {
+            }
+        } catch (const Xapian::FeatureUnavailableError&) {
+            SKIP_TEST("Database::locked() not supported on this platform");
+        }
 
-	db.close();
-	TEST(!db.locked());
-	TEST(!db_as_database.locked());
-	TEST(!rdb.locked());
-	TEST_EXCEPTION(Xapian::DatabaseClosedError,
-		       db.lock());
-	TEST_EXCEPTION(Xapian::DatabaseClosedError,
-		       db.unlock());
-	TEST_EXCEPTION(Xapian::DatabaseClosedError,
-		       db_as_database.lock());
-	TEST_EXCEPTION(Xapian::DatabaseClosedError,
-		       db_as_database.unlock());
+        db.close();
+        TEST(!db.locked());
+        TEST(!db_as_database.locked());
+        TEST(!rdb.locked());
+        TEST_EXCEPTION(Xapian::DatabaseClosedError,
+                       db.lock());
+        TEST_EXCEPTION(Xapian::DatabaseClosedError,
+                       db.unlock());
+        TEST_EXCEPTION(Xapian::DatabaseClosedError,
+                       db_as_database.lock());
+        TEST_EXCEPTION(Xapian::DatabaseClosedError,
+                       db_as_database.unlock());
 
-	{
-	    auto wdb = rdb.lock();
-	    TEST(rdb.locked());
-	}
+        {
+            auto wdb = rdb.lock();
+            TEST(rdb.locked());
+        }
 
-	rdb.close();
-	TEST_EXCEPTION(Xapian::DatabaseClosedError,
-		       rdb.lock());
-	TEST_EXCEPTION(Xapian::DatabaseClosedError,
-		       rdb.unlock());
+        rdb.close();
+        TEST_EXCEPTION(Xapian::DatabaseClosedError,
+                       rdb.lock());
+        TEST_EXCEPTION(Xapian::DatabaseClosedError,
+                       rdb.unlock());
     }
 }
 
@@ -490,8 +490,8 @@ class CheckMatchDecider : public Xapian::MatchDecider {
     CheckMatchDecider() : called(false) { }
 
     bool operator()(const Xapian::Document &) const override {
-	called = true;
-	return true;
+        called = true;
+        return true;
     }
 
     bool was_called() const { return called; }
@@ -507,7 +507,7 @@ DEFINE_TESTCASE(matchdecider4, remote) {
     Xapian::MSet mset;
 
     TEST_EXCEPTION(Xapian::UnimplementedError,
-	mset = enquire.get_mset(0, 10, NULL, &mdecider));
+        mset = enquire.get_mset(0, 10, NULL, &mdecider));
     TEST(!mdecider.was_called());
 }
 
@@ -538,8 +538,8 @@ DEFINE_TESTCASE(replacedoc7, writable && !inmemory && !remote) {
     db.add_document(doc);
 
     for (int i = 0; i < 10000; ++i) {
-	doc = db.get_document(1);
-	db.replace_document(1, doc);
+        doc = db.get_document(1);
+        db.replace_document(1, doc);
     }
 
     Xapian::Database rodb(get_writable_database_as_database());
@@ -558,17 +558,17 @@ DEFINE_TESTCASE(replacedoc7, writable && !inmemory && !remote) {
 DEFINE_TESTCASE(replacedoc8, writable) {
     Xapian::WritableDatabase db(get_writable_database());
     {
-	Xapian::Document doc;
-	doc.set_data("fish");
-	doc.add_term("takeaway");
-	db.add_document(doc);
+        Xapian::Document doc;
+        doc.set_data("fish");
+        doc.add_term("takeaway");
+        db.add_document(doc);
     }
     db.delete_document(1);
     {
-	Xapian::Document doc;
-	doc.set_data("chips");
-	doc.add_term("takeaway", 2);
-	db.replace_document(1, doc);
+        Xapian::Document doc;
+        doc.set_data("chips");
+        doc.add_term("takeaway", 2);
+        db.replace_document(1, doc);
     }
     db.commit();
     TEST_EQUAL(db.get_collection_freq("takeaway"), 2);
@@ -584,10 +584,10 @@ DEFINE_TESTCASE(replacedoc8, writable) {
 DEFINE_TESTCASE(replacedoc9, writable) {
     Xapian::WritableDatabase db(get_named_writable_database("replacedoc9"));
     {
-	Xapian::Document doc;
-	doc.set_data("food");
-	doc.add_posting("falafel", 1);
-	db.add_document(doc);
+        Xapian::Document doc;
+        doc.set_data("food");
+        doc.add_posting("falafel", 1);
+        db.add_document(doc);
     }
     db.commit();
     Xapian::Document doc = db.get_document(1);
@@ -598,7 +598,7 @@ DEFINE_TESTCASE(replacedoc9, writable) {
 
     // The positions should have been removed, but the bug meant they weren't.
     TEST_EQUAL(db.positionlist_begin(1, "falafel"),
-	       db.positionlist_end(1, "falafel"));
+               db.positionlist_end(1, "falafel"));
 }
 
 /// Test coverage for DatabaseModifiedError.
@@ -614,7 +614,7 @@ DEFINE_TESTCASE(databasemodified1, writable && !inmemory && !multi) {
     doc.add_term("ghi");
     const int N = 500;
     for (int i = 0; i < N; ++i) {
-	db.add_document(doc);
+        db.add_document(doc);
     }
     db.commit();
 
@@ -627,16 +627,16 @@ DEFINE_TESTCASE(databasemodified1, writable && !inmemory && !multi) {
 
     db.add_document(doc);
     try {
-	TEST_EQUAL(*rodb.termlist_begin(N - 1), "abc");
-	FAIL_TEST("Expected DatabaseModifiedError wasn't thrown");
+        TEST_EQUAL(*rodb.termlist_begin(N - 1), "abc");
+        FAIL_TEST("Expected DatabaseModifiedError wasn't thrown");
     } catch (const Xapian::DatabaseModifiedError &) {
     }
 
     try {
-	Xapian::Enquire enq(rodb);
-	enq.set_query(Xapian::Query("abc"));
-	Xapian::MSet mset = enq.get_mset(0, 10);
-	FAIL_TEST("Expected DatabaseModifiedError wasn't thrown");
+        Xapian::Enquire enq(rodb);
+        enq.set_query(Xapian::Query("abc"));
+        Xapian::MSet mset = enq.get_mset(0, 10);
+        FAIL_TEST("Expected DatabaseModifiedError wasn't thrown");
     } catch (const Xapian::DatabaseModifiedError &) {
     }
 }
@@ -649,11 +649,11 @@ DEFINE_TESTCASE(qpmemoryleak1, writable && !inmemory) {
 
     doc.add_term("foo");
     for (int i = 100; i < 120; ++i) {
-	doc.add_term(str(i));
+        doc.add_term(str(i));
     }
 
     for (int j = 0; j < 50; ++j) {
-	wdb.add_document(doc);
+        wdb.add_document(doc);
     }
     wdb.commit();
 
@@ -661,12 +661,12 @@ DEFINE_TESTCASE(qpmemoryleak1, writable && !inmemory) {
     Xapian::QueryParser queryparser;
     queryparser.set_database(database);
     TEST_EXCEPTION3(Xapian::DatabaseModifiedError,
-	for (int k = 0; k < 1000; ++k) {
-	    wdb.add_document(doc);
-	    wdb.commit();
-	    (void)queryparser.parse_query("1", queryparser.FLAG_PARTIAL);
-	},
-	SKIP_TEST("didn't manage to trigger DatabaseModifiedError");
+        for (int k = 0; k < 1000; ++k) {
+            wdb.add_document(doc);
+            wdb.commit();
+            (void)queryparser.parse_query("1", queryparser.FLAG_PARTIAL);
+        },
+        SKIP_TEST("didn't manage to trigger DatabaseModifiedError");
     );
 }
 
@@ -674,17 +674,17 @@ static void
 make_msize1_db(Xapian::WritableDatabase &db, const string &)
 {
     const char * value0 =
-	"ABBCDEFGHIJKLMMNOPQQRSTTUUVVWXYZZaabcdefghhijjkllmnopqrsttuvwxyz";
+        "ABBCDEFGHIJKLMMNOPQQRSTTUUVVWXYZZaabcdefghhijjkllmnopqrsttuvwxyz";
     const char * value1 =
-	"EMLEMMMMMMMNMMLMELEDNLEDMLMLDMLMLMLMEDGFHPOPBAHJIQJNGRKCGF";
+        "EMLEMMMMMMMNMMLMELEDNLEDMLMLDMLMLMLMEDGFHPOPBAHJIQJNGRKCGF";
     while (*value0) {
-	Xapian::Document doc;
-	doc.add_value(0, string(1, *value0++));
-	if (*value1) {
-	    doc.add_value(1, string(1, *value1++));
-	    doc.add_term("K1");
-	}
-	db.add_document(doc);
+        Xapian::Document doc;
+        doc.add_value(0, string(1, *value0++));
+        if (*value1) {
+            doc.add_value(1, string(1, *value1++));
+            doc.add_term("K1");
+        }
+        db.add_document(doc);
     }
 }
 
@@ -726,13 +726,13 @@ make_msize2_db(Xapian::WritableDatabase &db, const string &)
     const char * value0 = "AAABCDEEFGHIIJJKLLMNNOOPPQQRSTTUVWXYZ";
     const char * value1 = "MLEMNMLMLMEDEDEMLEMLMLMLPOAHGF";
     while (*value0) {
-	Xapian::Document doc;
-	doc.add_value(0, string(1, *value0++));
-	if (*value1) {
-	    doc.add_value(1, string(1, *value1++));
-	    doc.add_term("K1");
-	}
-	db.add_document(doc);
+        Xapian::Document doc;
+        doc.add_value(0, string(1, *value0++));
+        if (*value1) {
+            doc.add_value(1, string(1, *value1++));
+            doc.add_term("K1");
+        }
+        db.add_document(doc);
     }
 }
 
@@ -772,12 +772,12 @@ static void
 make_xordecay1_db(Xapian::WritableDatabase &db, const string &)
 {
     for (int n = 1; n != 50; ++n) {
-	Xapian::Document doc;
-	for (int i = 1; i != 50; ++i) {
-	    if (n % i == 0)
-		doc.add_term("N" + str(i));
-	}
-	db.add_document(doc);
+        Xapian::Document doc;
+        for (int i = 1; i != 50; ++i) {
+            if (n % i == 0)
+                doc.add_term("N" + str(i));
+        }
+        db.add_document(doc);
     }
 }
 
@@ -786,10 +786,10 @@ DEFINE_TESTCASE(xordecay1, backend) {
     Xapian::Database db = get_database("xordecay1", make_xordecay1_db);
     Xapian::Enquire enq(db);
     enq.set_query(Xapian::Query(Xapian::Query::OP_XOR,
-				Xapian::Query("N10"),
-				Xapian::Query(Xapian::Query::OP_OR,
-					      Xapian::Query("N2"),
-					      Xapian::Query("N3"))));
+                                Xapian::Query("N10"),
+                                Xapian::Query(Xapian::Query::OP_OR,
+                                              Xapian::Query("N2"),
+                                              Xapian::Query("N3"))));
     Xapian::MSet mset1 = enq.get_mset(0, 1);
     Xapian::MSet msetall = enq.get_mset(0, db.get_doccount());
 
@@ -801,15 +801,15 @@ make_ordecay_db(Xapian::WritableDatabase &db, const string &)
 {
     const char * p = "VJ=QC]LUNTaARLI;715RR^];A4O=P4ZG<2CS4EM^^VS[A6QENR";
     for (int d = 0; p[d]; ++d) {
-	int l = int(p[d] - '0');
-	Xapian::Document doc;
-	for (int n = 1; n < l; ++n) {
-	    doc.add_term("N" + str(n));
-	    if (n % (d + 1) == 0) {
-		doc.add_term("M" + str(n));
-	    }
-	}
-	db.add_document(doc);
+        int l = int(p[d] - '0');
+        Xapian::Document doc;
+        for (int n = 1; n < l; ++n) {
+            doc.add_term("N" + str(n));
+            if (n % (d + 1) == 0) {
+                doc.add_term("M" + str(n));
+            }
+        }
+        db.add_document(doc);
     }
 }
 
@@ -818,13 +818,13 @@ DEFINE_TESTCASE(ordecay1, backend) {
     Xapian::Database db = get_database("ordecay", make_ordecay_db);
     Xapian::Enquire enq(db);
     enq.set_query(Xapian::Query(Xapian::Query::OP_OR,
-				Xapian::Query("N20"),
-				Xapian::Query("N21")));
+                                Xapian::Query("N20"),
+                                Xapian::Query("N21")));
 
     Xapian::MSet msetall = enq.get_mset(0, db.get_doccount());
     for (unsigned int i = 1; i < msetall.size(); ++i) {
-	Xapian::MSet submset = enq.get_mset(0, i);
-	TEST(mset_range_is_same(submset, 0, msetall, 0, submset.size()));
+        Xapian::MSet submset = enq.get_mset(0, i);
+        TEST(mset_range_is_same(submset, 0, msetall, 0, submset.size()));
     }
 }
 
@@ -839,15 +839,15 @@ DEFINE_TESTCASE(ordecay2, backend) {
     q.push_back(Xapian::Query("N21"));
     q.push_back(Xapian::Query("N22"));
     enq.set_query(Xapian::Query(Xapian::Query::OP_OR,
-				Xapian::Query("N25"),
-				Xapian::Query(Xapian::Query::OP_AND,
-					      q.begin(),
-					      q.end())));
+                                Xapian::Query("N25"),
+                                Xapian::Query(Xapian::Query::OP_AND,
+                                              q.begin(),
+                                              q.end())));
 
     Xapian::MSet msetall = enq.get_mset(0, db.get_doccount());
     for (unsigned int i = 1; i < msetall.size(); ++i) {
-	Xapian::MSet submset = enq.get_mset(0, i);
-	TEST(mset_range_is_same(submset, 0, msetall, 0, submset.size()));
+        Xapian::MSet submset = enq.get_mset(0, i);
+        TEST(mset_range_is_same(submset, 0, msetall, 0, submset.size()));
     }
 }
 
@@ -859,31 +859,31 @@ make_orcheck_db(Xapian::WritableDatabase &db, const string &)
     static const unsigned t3[] = {3, 7, 8, 11, 12, 13, 14, 15, 16, 17};
 
     for (unsigned i = 1; i <= 17; ++i) {
-	Xapian::Document doc;
-	db.replace_document(i, doc);
+        Xapian::Document doc;
+        db.replace_document(i, doc);
     }
     for (unsigned i : t1) {
-	Xapian::Document doc(db.get_document(i));
-	doc.add_term("T1");
-	db.replace_document(i, doc);
+        Xapian::Document doc(db.get_document(i));
+        doc.add_term("T1");
+        db.replace_document(i, doc);
     }
     for (unsigned i : t2) {
-	Xapian::Document doc(db.get_document(i));
-	doc.add_term("T2");
-	if (i < 17) {
-	    doc.add_term("T2_lowfreq");
-	}
-	doc.add_value(2, "1");
-	db.replace_document(i, doc);
+        Xapian::Document doc(db.get_document(i));
+        doc.add_term("T2");
+        if (i < 17) {
+            doc.add_term("T2_lowfreq");
+        }
+        doc.add_value(2, "1");
+        db.replace_document(i, doc);
     }
     for (unsigned i : t3) {
-	Xapian::Document doc(db.get_document(i));
-	doc.add_term("T3");
-	if (i < 17) {
-	    doc.add_term("T3_lowfreq");
-	}
-	doc.add_value(3, "1");
-	db.replace_document(i, doc);
+        Xapian::Document doc(db.get_document(i));
+        doc.add_term("T3");
+        if (i < 17) {
+            doc.add_term("T3_lowfreq");
+        }
+        doc.add_value(3, "1");
+        db.replace_document(i, doc);
     }
 }
 
@@ -903,27 +903,27 @@ DEFINE_TESTCASE(orcheck1, backend) {
 
     tout << "Checking q2 OR q3\n";
     enq.set_query(Xapian::Query(Xapian::Query::OP_AND, q1,
-				Xapian::Query(Xapian::Query::OP_OR, q2, q3)));
+                                Xapian::Query(Xapian::Query::OP_OR, q2, q3)));
     mset_expect_order(enq.get_mset(0, db.get_doccount()), 8, 6);
 
     tout << "Checking q2l OR q3\n";
     enq.set_query(Xapian::Query(Xapian::Query::OP_AND, q1,
-				Xapian::Query(Xapian::Query::OP_OR, q2l, q3)));
+                                Xapian::Query(Xapian::Query::OP_OR, q2l, q3)));
     mset_expect_order(enq.get_mset(0, db.get_doccount()), 8, 6);
 
     tout << "Checking q2 OR q3l\n";
     enq.set_query(Xapian::Query(Xapian::Query::OP_AND, q1,
-				Xapian::Query(Xapian::Query::OP_OR, q2, q3l)));
+                                Xapian::Query(Xapian::Query::OP_OR, q2, q3l)));
     mset_expect_order(enq.get_mset(0, db.get_doccount()), 8, 6);
 
     tout << "Checking v2 OR q3\n";
     enq.set_query(Xapian::Query(Xapian::Query::OP_AND, q1,
-				Xapian::Query(Xapian::Query::OP_OR, v2, q3)));
+                                Xapian::Query(Xapian::Query::OP_OR, v2, q3)));
     mset_expect_order(enq.get_mset(0, db.get_doccount()), 8, 6);
 
     tout << "Checking q2 OR v3\n";
     enq.set_query(Xapian::Query(Xapian::Query::OP_AND, q1,
-				Xapian::Query(Xapian::Query::OP_OR, q2, v3)));
+                                Xapian::Query(Xapian::Query::OP_OR, q2, v3)));
     // Order of results in this one is different, because v3 gives no weight,
     // both documents are in q2, and document 8 has a higher length.
     mset_expect_order(enq.get_mset(0, db.get_doccount()), 6, 8);
@@ -1007,27 +1007,27 @@ DEFINE_TESTCASE(msetfirst2, backend) {
 DEFINE_TESTCASE(emptydb1, backend) {
     Xapian::Database db(get_database(string()));
     static const Xapian::Query::op ops[] = {
-	Xapian::Query::OP_AND,
-	Xapian::Query::OP_OR,
-	Xapian::Query::OP_AND_NOT,
-	Xapian::Query::OP_XOR,
-	Xapian::Query::OP_AND_MAYBE,
-	Xapian::Query::OP_FILTER,
-	Xapian::Query::OP_NEAR,
-	Xapian::Query::OP_PHRASE,
-	Xapian::Query::OP_ELITE_SET,
-	Xapian::Query::OP_SYNONYM,
-	Xapian::Query::OP_MAX
+        Xapian::Query::OP_AND,
+        Xapian::Query::OP_OR,
+        Xapian::Query::OP_AND_NOT,
+        Xapian::Query::OP_XOR,
+        Xapian::Query::OP_AND_MAYBE,
+        Xapian::Query::OP_FILTER,
+        Xapian::Query::OP_NEAR,
+        Xapian::Query::OP_PHRASE,
+        Xapian::Query::OP_ELITE_SET,
+        Xapian::Query::OP_SYNONYM,
+        Xapian::Query::OP_MAX
     };
     for (Xapian::Query::op op : ops) {
-	tout << op << '\n';
-	Xapian::Enquire enquire(db);
-	Xapian::Query query(op, Xapian::Query("a"), Xapian::Query("b"));
-	enquire.set_query(query);
-	Xapian::MSet mset = enquire.get_mset(0, 10);
-	TEST_EQUAL(mset.get_matches_estimated(), 0);
-	TEST_EQUAL(mset.get_matches_upper_bound(), 0);
-	TEST_EQUAL(mset.get_matches_lower_bound(), 0);
+        tout << op << '\n';
+        Xapian::Enquire enquire(db);
+        Xapian::Query query(op, Xapian::Query("a"), Xapian::Query("b"));
+        enquire.set_query(query);
+        Xapian::MSet mset = enquire.get_mset(0, 10);
+        TEST_EQUAL(mset.get_matches_estimated(), 0);
+        TEST_EQUAL(mset.get_matches_upper_bound(), 0);
+        TEST_EQUAL(mset.get_matches_lower_bound(), 0);
     }
 }
 
@@ -1040,30 +1040,30 @@ DEFINE_TESTCASE(emptydb1, backend) {
 DEFINE_TESTCASE(multiargop1, backend) {
     Xapian::Database db(get_database("apitest_simpledata"));
     static const struct { unsigned hits; Xapian::Query::op op; } tests[] = {
-	{ 0, Xapian::Query::OP_AND },
-	{ 6, Xapian::Query::OP_OR },
-	{ 0, Xapian::Query::OP_AND_NOT },
-	{ 5, Xapian::Query::OP_XOR },
-	{ 2, Xapian::Query::OP_AND_MAYBE },
-	{ 0, Xapian::Query::OP_FILTER },
-	{ 0, Xapian::Query::OP_NEAR },
-	{ 0, Xapian::Query::OP_PHRASE },
-	{ 6, Xapian::Query::OP_ELITE_SET },
-	{ 6, Xapian::Query::OP_SYNONYM },
-	{ 6, Xapian::Query::OP_MAX }
+        { 0, Xapian::Query::OP_AND },
+        { 6, Xapian::Query::OP_OR },
+        { 0, Xapian::Query::OP_AND_NOT },
+        { 5, Xapian::Query::OP_XOR },
+        { 2, Xapian::Query::OP_AND_MAYBE },
+        { 0, Xapian::Query::OP_FILTER },
+        { 0, Xapian::Query::OP_NEAR },
+        { 0, Xapian::Query::OP_PHRASE },
+        { 6, Xapian::Query::OP_ELITE_SET },
+        { 6, Xapian::Query::OP_SYNONYM },
+        { 6, Xapian::Query::OP_MAX }
     };
     static const char* terms[] = {"two", "all", "paragraph", "banana"};
     Xapian::Enquire enquire(db);
     for (auto& test : tests) {
-	Xapian::Query::op op = test.op;
-	Xapian::doccount hits = test.hits;
-	tout << op << " should give " << hits << " hits\n";
-	Xapian::Query query(op, terms, terms + 4);
-	enquire.set_query(query);
-	Xapian::MSet mset = enquire.get_mset(0, 10);
-	TEST_EQUAL(mset.get_matches_estimated(), hits);
-	TEST_EQUAL(mset.get_matches_upper_bound(), hits);
-	TEST_EQUAL(mset.get_matches_lower_bound(), hits);
+        Xapian::Query::op op = test.op;
+        Xapian::doccount hits = test.hits;
+        tout << op << " should give " << hits << " hits\n";
+        Xapian::Query query(op, terms, terms + 4);
+        enquire.set_query(query);
+        Xapian::MSet mset = enquire.get_mset(0, 10);
+        TEST_EQUAL(mset.get_matches_estimated(), hits);
+        TEST_EQUAL(mset.get_matches_upper_bound(), hits);
+        TEST_EQUAL(mset.get_matches_lower_bound(), hits);
     }
 }
 
@@ -1071,10 +1071,10 @@ DEFINE_TESTCASE(multiargop1, backend) {
 // Regression test for bug fixed in 1.3.1 and 1.2.11.
 DEFINE_TESTCASE(stubdb7, !backend) {
     TEST_EXCEPTION(Xapian::DatabaseNotFoundError,
-	    Xapian::Database("nosuchdirectory", Xapian::DB_BACKEND_STUB));
+            Xapian::Database("nosuchdirectory", Xapian::DB_BACKEND_STUB));
     TEST_EXCEPTION(Xapian::DatabaseNotFoundError,
-	    Xapian::WritableDatabase("nosuchdirectory",
-		Xapian::DB_OPEN|Xapian::DB_BACKEND_STUB));
+            Xapian::WritableDatabase("nosuchdirectory",
+                Xapian::DB_OPEN|Xapian::DB_BACKEND_STUB));
 }
 
 /// Test which checks the weights are as expected.
@@ -1084,24 +1084,24 @@ DEFINE_TESTCASE(msetweights1, backend) {
     Xapian::Database db = get_database("apitest_simpledata");
     Xapian::Enquire enq(db);
     Xapian::Query q(Xapian::Query::OP_OR,
-		    Xapian::Query("paragraph"),
-		    Xapian::Query("word"));
+                    Xapian::Query("paragraph"),
+                    Xapian::Query("word"));
     enq.set_query(q);
     // 5 documents match, and the 4th and 5th have the same weight, so ask for
     // 4 as that's a good test that we get the right one in this case.
     Xapian::MSet mset = enq.get_mset(0, 4);
 
     static const struct { Xapian::docid did; double wt; } expected[] = {
-	{ 2, 1.2058248004573934864 },
-	{ 4, 0.81127876655507624726 },
-	{ 1, 0.17309550762546158098 },
-	{ 3, 0.14609528172558261527 }
+        { 2, 1.2058248004573934864 },
+        { 4, 0.81127876655507624726 },
+        { 1, 0.17309550762546158098 },
+        { 3, 0.14609528172558261527 }
     };
 
     TEST_EQUAL(mset.size(), sizeof(expected) / sizeof(expected[0]));
     for (Xapian::doccount i = 0; i < mset.size(); ++i) {
-	TEST_EQUAL(*mset[i], expected[i].did);
-	TEST_EQUAL_DOUBLE(mset[i].get_weight(), expected[i].wt);
+        TEST_EQUAL(*mset[i], expected[i].did);
+        TEST_EQUAL_DOUBLE(mset[i].get_weight(), expected[i].wt);
     }
 
     // Now test a query which matches only even docids, so in the multi case
@@ -1110,14 +1110,14 @@ DEFINE_TESTCASE(msetweights1, backend) {
     mset = enq.get_mset(0, 3);
 
     static const struct { Xapian::docid did; double wt; } expected2[] = {
-	{ 6, 0.73354729848273669823 },
-	{ 2, 0.45626501034348893038 }
+        { 6, 0.73354729848273669823 },
+        { 2, 0.45626501034348893038 }
     };
 
     TEST_EQUAL(mset.size(), sizeof(expected2) / sizeof(expected2[0]));
     for (Xapian::doccount i = 0; i < mset.size(); ++i) {
-	TEST_EQUAL(*mset[i], expected2[i].did);
-	TEST_EQUAL_DOUBLE(mset[i].get_weight(), expected2[i].wt);
+        TEST_EQUAL(*mset[i], expected2[i].did);
+        TEST_EQUAL_DOUBLE(mset[i].get_weight(), expected2[i].wt);
     }
 }
 
@@ -1160,21 +1160,21 @@ DEFINE_TESTCASE(blocksize1, glass) {
     db_dir += "/db__blocksize1";
     int flags;
     if (get_dbtype() == "glass") {
-	flags = Xapian::DB_CREATE|Xapian::DB_BACKEND_GLASS;
+        flags = Xapian::DB_CREATE|Xapian::DB_BACKEND_GLASS;
     } else {
-	FAIL_TEST("Unhandled backend type");
+        FAIL_TEST("Unhandled backend type");
     }
     static const int bad_sizes[] = {
-	65537, 8000, 2000, 1024, 16, 7, 3, 1, 0
+        65537, 8000, 2000, 1024, 16, 7, 3, 1, 0
     };
     for (int block_size : bad_sizes) {
-	rm_rf(db_dir);
-	Xapian::WritableDatabase db(db_dir, flags, block_size);
-	Xapian::Document doc;
-	doc.add_term("XYZ");
-	doc.set_data("foo");
-	db.add_document(doc);
-	db.commit();
+        rm_rf(db_dir);
+        Xapian::WritableDatabase db(db_dir, flags, block_size);
+        Xapian::Document doc;
+        doc.add_term("XYZ");
+        doc.set_data("foo");
+        db.add_document(doc);
+        db.commit();
     }
 }
 
@@ -1185,7 +1185,7 @@ DEFINE_TESTCASE(notermlist1, glass) {
     db_dir += "/db__notermlist1";
     int flags = Xapian::DB_CREATE|Xapian::DB_NO_TERMLIST;
     if (get_dbtype() == "glass") {
-	flags |= Xapian::DB_BACKEND_GLASS;
+        flags |= Xapian::DB_BACKEND_GLASS;
     }
     rm_rf(db_dir);
     Xapian::WritableDatabase db(db_dir, flags);
@@ -1203,18 +1203,18 @@ DEFINE_TESTCASE(newfreelistblock1, writable) {
     Xapian::Document doc;
     doc.add_term("foo");
     for (int i = 100; i < 120; ++i) {
-	doc.add_term(str(i));
+        doc.add_term(str(i));
     }
 
     Xapian::WritableDatabase wdb(get_writable_database());
     for (int j = 0; j < 50; ++j) {
-	wdb.add_document(doc);
+        wdb.add_document(doc);
     }
     wdb.commit();
 
     for (int k = 0; k < 1000; ++k) {
-	wdb.add_document(doc);
-	wdb.commit();
+        wdb.add_document(doc);
+        wdb.commit();
     }
 }
 
@@ -1233,16 +1233,16 @@ DEFINE_TESTCASE(readonlyparentdir1, glass) {
     Xapian::WritableDatabase db = get_named_writable_database("readonlyparentdir1/sub");
     TEST(chmod(path.c_str(), 0500) == 0);
     try {
-	Xapian::Document doc;
-	doc.add_term("hello");
-	doc.set_data("some text");
-	db.add_document(doc);
-	db.commit();
+        Xapian::Document doc;
+        doc.add_term("hello");
+        doc.set_data("some text");
+        db.add_document(doc);
+        db.commit();
     } catch (...) {
-	// Attempt to fix the permissions, otherwise things like "rm -rf" on
-	// the source tree will fail.
-	(void)chmod(path.c_str(), 0700);
-	throw;
+        // Attempt to fix the permissions, otherwise things like "rm -rf" on
+        // the source tree will fail.
+        (void)chmod(path.c_str(), 0700);
+        throw;
     }
     TEST(chmod(path.c_str(), 0700) == 0);
 #endif
@@ -1283,109 +1283,109 @@ DEFINE_TESTCASE(retrylock1, writable && path) {
 #if defined HAVE_FORK && defined HAVE_SOCKETPAIR
     int fds[2];
     if (socketpair(AF_UNIX, SOCK_STREAM|SOCK_CLOEXEC, PF_UNSPEC, fds) < 0) {
-	FAIL_TEST("socketpair() failed");
+        FAIL_TEST("socketpair() failed");
     }
     if (fds[1] >= FD_SETSIZE)
-	SKIP_TEST("socketpair() gave fd >= FD_SETSIZE");
+        SKIP_TEST("socketpair() gave fd >= FD_SETSIZE");
     if (fcntl(fds[1], F_SETFL, O_NONBLOCK) < 0)
-	FAIL_TEST("fcntl() failed to set O_NONBLOCK");
+        FAIL_TEST("fcntl() failed to set O_NONBLOCK");
     pid_t child = fork();
     if (child == -1)
-	FAIL_TEST("fork() failed");
+        FAIL_TEST("fork() failed");
     if (child == 0) {
-	// Wait for signal that parent has opened the database.
-	char ch;
-	while (read(fds[0], &ch, 1) < 0) { }
+        // Wait for signal that parent has opened the database.
+        char ch;
+        while (read(fds[0], &ch, 1) < 0) { }
 
-	try {
-	    Xapian::WritableDatabase db2(get_named_writable_database_path("retrylock1"),
-					 Xapian::DB_OPEN|Xapian::DB_RETRY_LOCK);
-	    if (write(fds[0], "y", 1)) { }
-	} catch (const Xapian::DatabaseLockError &) {
-	    if (write(fds[0], "l", 1)) { }
-	} catch (const Xapian::Error &e) {
-	    const string & m = e.get_description();
-	    if (write(fds[0], m.data(), m.size())) { }
-	} catch (...) {
-	    if (write(fds[0], "o", 1)) { }
-	}
-	_exit(0);
+        try {
+            Xapian::WritableDatabase db2(get_named_writable_database_path("retrylock1"),
+                                         Xapian::DB_OPEN|Xapian::DB_RETRY_LOCK);
+            if (write(fds[0], "y", 1)) { }
+        } catch (const Xapian::DatabaseLockError &) {
+            if (write(fds[0], "l", 1)) { }
+        } catch (const Xapian::Error &e) {
+            const string & m = e.get_description();
+            if (write(fds[0], m.data(), m.size())) { }
+        } catch (...) {
+            if (write(fds[0], "o", 1)) { }
+        }
+        _exit(0);
     }
 
     close(fds[0]);
 
     Xapian::WritableDatabase db = get_named_writable_database("retrylock1");
     if (write(fds[1], "", 1) != 1)
-	FAIL_TEST("Failed to signal to child process");
+        FAIL_TEST("Failed to signal to child process");
 
     char result[256];
     int r = read(fds[1], result, sizeof(result));
     if (r == -1) {
-	if (errno == EAGAIN) {
-	    // Good.
-	    result[0] = 'y';
-	} else {
-	    // Error.
-	    tout << "errno=" << errno << ": " << errno_to_string(errno) << '\n';
-	    result[0] = 'e';
-	}
-	r = 1;
+        if (errno == EAGAIN) {
+            // Good.
+            result[0] = 'y';
+        } else {
+            // Error.
+            tout << "errno=" << errno << ": " << errno_to_string(errno) << '\n';
+            result[0] = 'e';
+        }
+        r = 1;
     } else if (r >= 1) {
-	if (result[0] == 'y') {
-	    // Child process managed to also get write lock!
-	    result[0] = '!';
-	}
+        if (result[0] == 'y') {
+            // Child process managed to also get write lock!
+            result[0] = '!';
+        }
     } else {
-	// EOF.
-	result[0] = 'z';
-	r = 1;
+        // EOF.
+        result[0] = 'z';
+        r = 1;
     }
 
     try {
-	db.close();
+        db.close();
     } catch (...) {
-	kill(child, SIGKILL);
-	int status;
-	while (waitpid(child, &status, 0) < 0) {
-	    if (errno != EINTR) break;
-	}
-	throw;
+        kill(child, SIGKILL);
+        int status;
+        while (waitpid(child, &status, 0) < 0) {
+            if (errno != EINTR) break;
+        }
+        throw;
     }
 
     if (result[0] == 'y') {
 retry:
-	struct timeval tv;
-	tv.tv_sec = 3;
-	tv.tv_usec = 0;
-	fd_set fdset;
-	FD_ZERO(&fdset);
-	FD_SET(fds[1], &fdset);
-	int sr = select(fds[1] + 1, &fdset, NULL, NULL, &tv);
-	if (sr == 0) {
-	    // Timed out.
-	    result[0] = 'T';
-	    r = 1;
-	} else if (sr == -1) {
-	    if (errno == EINTR || errno == EAGAIN)
-		goto retry;
-	    tout << "select() failed with errno=" << errno << ": "
-		 << errno_to_string(errno) << '\n';
-	    result[0] = 'S';
-	    r = 1;
-	} else {
-	    r = read(fds[1], result, sizeof(result));
-	    if (r == -1) {
-		// Error.
-		tout << "read() failed with errno=" << errno << ": "
-		     << errno_to_string(errno) << '\n';
-		result[0] = 'R';
-		r = 1;
-	    } else if (r == 0) {
-		// EOF.
-		result[0] = 'Z';
-		r = 1;
-	    }
-	}
+        struct timeval tv;
+        tv.tv_sec = 3;
+        tv.tv_usec = 0;
+        fd_set fdset;
+        FD_ZERO(&fdset);
+        FD_SET(fds[1], &fdset);
+        int sr = select(fds[1] + 1, &fdset, NULL, NULL, &tv);
+        if (sr == 0) {
+            // Timed out.
+            result[0] = 'T';
+            r = 1;
+        } else if (sr == -1) {
+            if (errno == EINTR || errno == EAGAIN)
+                goto retry;
+            tout << "select() failed with errno=" << errno << ": "
+                 << errno_to_string(errno) << '\n';
+            result[0] = 'S';
+            r = 1;
+        } else {
+            r = read(fds[1], result, sizeof(result));
+            if (r == -1) {
+                // Error.
+                tout << "read() failed with errno=" << errno << ": "
+                     << errno_to_string(errno) << '\n';
+                result[0] = 'R';
+                r = 1;
+            } else if (r == 0) {
+                // EOF.
+                result[0] = 'Z';
+                r = 1;
+            }
+        }
     }
 
     close(fds[1]);
@@ -1393,7 +1393,7 @@ retry:
     kill(child, SIGKILL);
     int status;
     while (waitpid(child, &status, 0) < 0) {
-	if (errno != EINTR) break;
+        if (errno != EINTR) break;
     }
 
     tout << string(result, r) << '\n';
@@ -1406,52 +1406,52 @@ DEFINE_TESTCASE(dbfilefd012, writable && !remote) {
 #if !defined __WIN32__ && !defined __CYGWIN__ && !defined __OS2__
     int oldfds[3];
     for (int i = 0; i < 3; ++i) {
-	oldfds[i] = dup(i);
+        oldfds[i] = dup(i);
     }
     try {
-	for (int j = 0; j < 3; ++j) {
-	    close(j);
-	    TEST_REL(lseek(j, 0, SEEK_CUR), <, 0);
-	    TEST_EQUAL(errno, EBADF);
-	}
+        for (int j = 0; j < 3; ++j) {
+            close(j);
+            TEST_REL(lseek(j, 0, SEEK_CUR), <, 0);
+            TEST_EQUAL(errno, EBADF);
+        }
 
-	Xapian::WritableDatabase db = get_writable_database();
+        Xapian::WritableDatabase db = get_writable_database();
 
-	// Check we didn't use any of those low fds for tables, as that risks
-	// data corruption if some other code in the same process tries to
-	// write to them (see #651).
-	for (int fd = 0; fd < 3; ++fd) {
-	    // Check that the fd is still closed, or isn't open O_RDWR (the
-	    // lock file gets opened O_WRONLY), or it's a pipe (if we're using
-	    // a child process to hold a non-OFD fcntl lock).
-	    int flags = fcntl(fd, F_GETFL);
-	    if (flags == -1) {
-		TEST_EQUAL(errno, EBADF);
-	    } else if ((flags & O_ACCMODE) != O_RDWR) {
-		// OK.
-	    } else {
-		struct stat sb;
-		TEST_NOT_EQUAL(fstat(fd, &sb), -1);
+        // Check we didn't use any of those low fds for tables, as that risks
+        // data corruption if some other code in the same process tries to
+        // write to them (see #651).
+        for (int fd = 0; fd < 3; ++fd) {
+            // Check that the fd is still closed, or isn't open O_RDWR (the
+            // lock file gets opened O_WRONLY), or it's a pipe (if we're using
+            // a child process to hold a non-OFD fcntl lock).
+            int flags = fcntl(fd, F_GETFL);
+            if (flags == -1) {
+                TEST_EQUAL(errno, EBADF);
+            } else if ((flags & O_ACCMODE) != O_RDWR) {
+                // OK.
+            } else {
+                struct stat sb;
+                TEST_NOT_EQUAL(fstat(fd, &sb), -1);
 #ifdef S_ISSOCK
-		TEST(S_ISSOCK(sb.st_mode));
+                TEST(S_ISSOCK(sb.st_mode));
 #else
-		// If we can't check it is a socket, at least check it is not a
-		// regular file.
-		TEST(!S_ISREG(sb.st_mode));
+                // If we can't check it is a socket, at least check it is not a
+                // regular file.
+                TEST(!S_ISREG(sb.st_mode));
 #endif
-	    }
-	}
+            }
+        }
     } catch (...) {
-	for (int j = 0; j < 3; ++j) {
-	    dup2(oldfds[j], j);
-	    close(oldfds[j]);
-	}
-	throw;
+        for (int j = 0; j < 3; ++j) {
+            dup2(oldfds[j], j);
+            close(oldfds[j]);
+        }
+        throw;
     }
 
     for (int j = 0; j < 3; ++j) {
-	dup2(oldfds[j], j);
-	close(oldfds[j]);
+        dup2(oldfds[j], j);
+        close(oldfds[j]);
     }
 #endif
 }
@@ -1465,34 +1465,34 @@ DEFINE_TESTCASE(cursorbug1, writable && path) {
     Xapian::MSet mset;
     // The original problem triggered for chert and glass on repeat==7.
     for (int repeat = 0; repeat < 10; ++repeat) {
-	tout.str(string());
-	tout << "iteration #" << repeat << '\n';
+        tout.str(string());
+        tout << "iteration #" << repeat << '\n';
 
-	const int ITEMS = 10;
-	int free_id = db.get_doccount();
-	int offset = max(free_id, ITEMS * 2) - (ITEMS * 2);
-	int limit = offset + (ITEMS * 2);
+        const int ITEMS = 10;
+        int free_id = db.get_doccount();
+        int offset = max(free_id, ITEMS * 2) - (ITEMS * 2);
+        int limit = offset + (ITEMS * 2);
 
-	mset = enq.get_mset(offset, limit);
-	for (Xapian::MSetIterator m1 = mset.begin(); m1 != mset.end(); ++m1) {
-	    (void)m1.get_document().get_value(0);
-	}
+        mset = enq.get_mset(offset, limit);
+        for (Xapian::MSetIterator m1 = mset.begin(); m1 != mset.end(); ++m1) {
+            (void)m1.get_document().get_value(0);
+        }
 
-	for (int i = free_id; i <= free_id + ITEMS; ++i) {
-	    Xapian::Document doc;
-	    const string & id = str(i);
-	    string qterm = "Q" + id;
-	    doc.add_value(0, id);
-	    doc.add_boolean_term(qterm);
-	    wdb.replace_document(qterm, doc);
-	}
-	wdb.commit();
+        for (int i = free_id; i <= free_id + ITEMS; ++i) {
+            Xapian::Document doc;
+            const string & id = str(i);
+            string qterm = "Q" + id;
+            doc.add_value(0, id);
+            doc.add_boolean_term(qterm);
+            wdb.replace_document(qterm, doc);
+        }
+        wdb.commit();
 
-	db.reopen();
-	mset = enq.get_mset(offset, limit);
-	for (Xapian::MSetIterator m2 = mset.begin(); m2 != mset.end(); ++m2) {
-	    (void)m2.get_document().get_value(0);
-	}
+        db.reopen();
+        mset = enq.get_mset(offset, limit);
+        for (Xapian::MSetIterator m2 = mset.begin(); m2 != mset.end(); ++m2) {
+            (void)m2.get_document().get_value(0);
+        }
     }
 }
 
@@ -1509,9 +1509,9 @@ DEFINE_TESTCASE(sortvalue2, backend) {
     // by docid instead with multiple remote databases.
     string old_key;
     for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); ++i) {
-	string key = db.get_document(*i).get_value(0);
-	TEST(old_key <= key);
-	swap(old_key, key);
+        string key = db.get_document(*i).get_value(0);
+        TEST(old_key <= key);
+        swap(old_key, key);
     }
 }
 
@@ -1536,18 +1536,18 @@ DEFINE_TESTCASE(embedded1, singlefile) {
     out.close();
 
     {
-	int fd = open(tmp_path.c_str(), O_RDONLY|O_BINARY);
-	lseek(fd, offset, SEEK_SET);
-	Xapian::Database db_embedded(fd);
-	TEST_EQUAL(db.get_doccount(), db_embedded.get_doccount());
+        int fd = open(tmp_path.c_str(), O_RDONLY|O_BINARY);
+        lseek(fd, offset, SEEK_SET);
+        Xapian::Database db_embedded(fd);
+        TEST_EQUAL(db.get_doccount(), db_embedded.get_doccount());
     }
 
     {
-	int fd = open(tmp_path.c_str(), O_RDONLY|O_BINARY);
-	lseek(fd, offset, SEEK_SET);
-	size_t check_errors =
-	    Xapian::Database::check(fd, Xapian::DBCHECK_SHOW_STATS, &tout);
-	TEST_EQUAL(check_errors, 0);
+        int fd = open(tmp_path.c_str(), O_RDONLY|O_BINARY);
+        lseek(fd, offset, SEEK_SET);
+        size_t check_errors =
+            Xapian::Database::check(fd, Xapian::DBCHECK_SHOW_STATS, &tout);
+        TEST_EQUAL(check_errors, 0);
     }
 }
 
@@ -1557,7 +1557,7 @@ DEFINE_TESTCASE(exactxor1, backend) {
     Xapian::Enquire enq(db);
 
     static const char * const words[4] = {
-	"blank", "test", "paragraph", "banana"
+        "blank", "test", "paragraph", "banana"
     };
     Xapian::Query q(Xapian::Query::OP_XOR, words, words + 4);
     enq.set_query(q);
@@ -1569,7 +1569,7 @@ DEFINE_TESTCASE(exactxor1, backend) {
     TEST_EQUAL(mset.get_matches_lower_bound(), 2);
 
     static const char * const words2[4] = {
-	"queri", "test", "paragraph", "word"
+        "queri", "test", "paragraph", "word"
     };
     Xapian::Query q2(Xapian::Query::OP_XOR, words2, words2 + 4);
     enq.set_query(q2);
@@ -1622,14 +1622,14 @@ DEFINE_TESTCASE(getdocumentlazy2, backend) {
     Xapian::Database db = get_database("apitest_simpledata");
     Xapian::Document doc;
     try {
-	doc = db.get_document(db.get_lastdocid() + 1, Xapian::DOC_ASSUME_VALID);
+        doc = db.get_document(db.get_lastdocid() + 1, Xapian::DOC_ASSUME_VALID);
     } catch (const Xapian::DocNotFoundError&) {
-	// DOC_ASSUME_VALID is really just a hint, so ignoring is OK (the
-	// remote backend currently does).
+        // DOC_ASSUME_VALID is really just a hint, so ignoring is OK (the
+        // remote backend currently does).
     }
     TEST(doc.get_data().empty());
     TEST_EXCEPTION(Xapian::DocNotFoundError,
-	doc = db.get_document(db.get_lastdocid() + 1);
+        doc = db.get_document(db.get_lastdocid() + 1);
     );
 }
 
@@ -1650,7 +1650,7 @@ gen_uniqterms_gt_doclen_db(Xapian::WritableDatabase& db, const string&)
 
 DEFINE_TESTCASE(getuniqueterms1, backend) {
     Xapian::Database db =
-	get_database("uniqterms_gt_doclen", gen_uniqterms_gt_doclen_db);
+        get_database("uniqterms_gt_doclen", gen_uniqterms_gt_doclen_db);
 
     auto unique1 = db.get_unique_terms(1);
     TEST_REL(unique1, <=, db.get_doclength(1));
@@ -1675,7 +1675,7 @@ DEFINE_TESTCASE(getuniqueterms1, backend) {
  */
 DEFINE_TESTCASE(nopositionbug1, backend) {
     Xapian::Database db =
-	get_database("uniqterms_gt_doclen", gen_uniqterms_gt_doclen_db);
+        get_database("uniqterms_gt_doclen", gen_uniqterms_gt_doclen_db);
 
     // Test both orders.
     static const char* const terms1[] = { "foo", "baz" };
@@ -1683,28 +1683,28 @@ DEFINE_TESTCASE(nopositionbug1, backend) {
 
     Xapian::Enquire enq(db);
     enq.set_query(Xapian::Query(Xapian::Query::OP_NEAR,
-				begin(terms1), end(terms1), 10));
+                                begin(terms1), end(terms1), 10));
     TEST_EQUAL(enq.get_mset(0, 5).size(), 0);
 
     enq.set_query(Xapian::Query(Xapian::Query::OP_NEAR,
-				begin(terms2), end(terms2), 10));
+                                begin(terms2), end(terms2), 10));
     TEST_EQUAL(enq.get_mset(0, 5).size(), 0);
 
     enq.set_query(Xapian::Query(Xapian::Query::OP_PHRASE,
-				begin(terms1), end(terms1), 10));
+                                begin(terms1), end(terms1), 10));
     TEST_EQUAL(enq.get_mset(0, 5).size(), 0);
 
     enq.set_query(Xapian::Query(Xapian::Query::OP_PHRASE,
-				begin(terms2), end(terms2), 10));
+                                begin(terms2), end(terms2), 10));
     TEST_EQUAL(enq.get_mset(0, 5).size(), 0);
 
     // Exercise exact phrase case too.
     enq.set_query(Xapian::Query(Xapian::Query::OP_PHRASE,
-				begin(terms1), end(terms1), 2));
+                                begin(terms1), end(terms1), 2));
     TEST_EQUAL(enq.get_mset(0, 5).size(), 0);
 
     enq.set_query(Xapian::Query(Xapian::Query::OP_PHRASE,
-				begin(terms2), end(terms2), 2));
+                                begin(terms2), end(terms2), 2));
     TEST_EQUAL(enq.get_mset(0, 5).size(), 0);
 }
 
@@ -1745,17 +1745,17 @@ DEFINE_TESTCASE(checkatleast4, backend) {
 /// Regression test for glass freelist leak fixed in 1.4.6.
 DEFINE_TESTCASE(freelistleak1, check) {
     auto path = get_database_path("freelistleak1",
-				  [](Xapian::WritableDatabase& wdb,
-				     const string&)
-				  {
-				      wdb.set_metadata("foo", "bar");
-				      wdb.commit();
-				      Xapian::Document doc;
-				      doc.add_term("baz");
-				      wdb.add_document(doc);
-				  });
+                                  [](Xapian::WritableDatabase& wdb,
+                                     const string&)
+                                  {
+                                      wdb.set_metadata("foo", "bar");
+                                      wdb.commit();
+                                      Xapian::Document doc;
+                                      doc.add_term("baz");
+                                      wdb.add_document(doc);
+                                  });
     size_t check_errors =
-	Xapian::Database::check(path, Xapian::DBCHECK_SHOW_STATS, &tout);
+        Xapian::Database::check(path, Xapian::DBCHECK_SHOW_STATS, &tout);
     TEST_EQUAL(check_errors, 0);
 }
 
@@ -1765,10 +1765,10 @@ DEFINE_TESTCASE(splitpostings1, writable) {
     Xapian::Document doc;
     // Add postings to create a split internally.
     for (Xapian::termpos pos = 0; pos <= 100; pos += 10) {
-	doc.add_posting("foo", pos);
+        doc.add_posting("foo", pos);
     }
     for (Xapian::termpos pos = 5; pos <= 100; pos += 20) {
-	doc.add_posting("foo", pos);
+        doc.add_posting("foo", pos);
     }
     db.add_document(doc);
     db.commit();
@@ -1776,12 +1776,12 @@ DEFINE_TESTCASE(splitpostings1, writable) {
     Xapian::termpos expect = 0;
     Xapian::termpos pos = 0;
     for (auto p = db.positionlist_begin(1, "foo");
-	 p != db.positionlist_end(1, "foo"); ++p) {
-	TEST_REL(expect, <=, 100);
-	pos = *p;
-	TEST_EQUAL(pos, expect);
-	expect += 5;
-	if (expect % 20 == 15) expect += 5;
+         p != db.positionlist_end(1, "foo"); ++p) {
+        TEST_REL(expect, <=, 100);
+        pos = *p;
+        TEST_EQUAL(pos, expect);
+        expect += 5;
+        if (expect % 20 == 15) expect += 5;
     }
     TEST_EQUAL(pos, 100);
 }
@@ -1818,8 +1818,8 @@ DEFINE_TESTCASE(matchall3, backend) {
 DEFINE_TESTCASE(reconstruct1, backend) {
     Xapian::Database db = get_database("apitest_simpledata");
     TEST_STRINGS_EQUAL(db.reconstruct_text(6),
-		       "and yet anoth this one doe mention banana split "
-		       "though so cant be that bad");
+                       "and yet anoth this one doe mention banana split "
+                       "though so cant be that bad");
     TEST_STRINGS_EQUAL(db.reconstruct_text(1, 14), "this is a test");
     TEST_STRINGS_EQUAL(db.reconstruct_text(1, 10, "S"), "");
     TEST_STRINGS_EQUAL(db.reconstruct_text(6, 0, "", 1, 3), "and yet anoth");
@@ -1827,14 +1827,14 @@ DEFINE_TESTCASE(reconstruct1, backend) {
 
 DEFINE_TESTCASE(reconstruct2, writable) {
     Xapian::Database db = get_database("reconstruct2",
-				       [](Xapian::WritableDatabase& wdb,
-					  const string&)
-				       {
-					   Xapian::Document doc;
-					   doc.add_posting("XMBABxyz", 100);
-					   doc.add_posting("XMBABabc", 101);
-					   wdb.add_document(doc);
-				       });
+                                       [](Xapian::WritableDatabase& wdb,
+                                          const string&)
+                                       {
+                                           Xapian::Document doc;
+                                           doc.add_posting("XMBABxyz", 100);
+                                           doc.add_posting("XMBABabc", 101);
+                                           wdb.add_document(doc);
+                                       });
     TEST_STRINGS_EQUAL(db.reconstruct_text(1), "");
 }
 
@@ -1847,31 +1847,31 @@ DEFINE_TESTCASE(reconstruct2, writable) {
 DEFINE_TESTCASE(positfrompostit1, positional) {
     Xapian::Database db = get_database("apitest_simpledata");
     {
-	// Wrong results - this was giving (4) instead of (5, 18).
-	auto postit = db.postlist_begin("paragraph");
-	TEST_NOT_EQUAL(postit, db.postlist_end("paragraph"));
-	postit.skip_to(4);
-	TEST_NOT_EQUAL(postit, db.postlist_end("paragraph"));
-	auto p = postit.positionlist_begin();
-	TEST_NOT_EQUAL(p, postit.positionlist_end());
-	TEST_EQUAL(*p, 5);
-	++p;
-	TEST_NOT_EQUAL(p, postit.positionlist_end());
-	TEST_EQUAL(*p, 18);
-	++p;
-	TEST_EQUAL(p, postit.positionlist_end());
+        // Wrong results - this was giving (4) instead of (5, 18).
+        auto postit = db.postlist_begin("paragraph");
+        TEST_NOT_EQUAL(postit, db.postlist_end("paragraph"));
+        postit.skip_to(4);
+        TEST_NOT_EQUAL(postit, db.postlist_end("paragraph"));
+        auto p = postit.positionlist_begin();
+        TEST_NOT_EQUAL(p, postit.positionlist_end());
+        TEST_EQUAL(*p, 5);
+        ++p;
+        TEST_NOT_EQUAL(p, postit.positionlist_end());
+        TEST_EQUAL(*p, 18);
+        ++p;
+        TEST_EQUAL(p, postit.positionlist_end());
     }
     {
-	// This was giving a segmentation fault.
-	auto postit = db.postlist_begin("split");
-	TEST_NOT_EQUAL(postit, db.postlist_end("split"));
-	postit.skip_to(6);
-	TEST_NOT_EQUAL(postit, db.postlist_end("split"));
-	auto p = postit.positionlist_begin();
-	TEST_NOT_EQUAL(p, postit.positionlist_end());
-	TEST_EQUAL(*p, 9);
-	++p;
-	TEST_EQUAL(p, postit.positionlist_end());
+        // This was giving a segmentation fault.
+        auto postit = db.postlist_begin("split");
+        TEST_NOT_EQUAL(postit, db.postlist_end("split"));
+        postit.skip_to(6);
+        TEST_NOT_EQUAL(postit, db.postlist_end("split"));
+        auto p = postit.positionlist_begin();
+        TEST_NOT_EQUAL(p, postit.positionlist_end());
+        TEST_EQUAL(*p, 9);
+        ++p;
+        TEST_EQUAL(p, postit.positionlist_end());
     }
 }
 
@@ -1888,9 +1888,9 @@ DEFINE_TESTCASE(nosuchterm, backend) {
     string term;
     term.reserve(MAX_LEN);
     while (term.size() < MAX_LEN) {
-	term += 'x';
-	enquire.set_query(Xapian::Query(term));
-	TEST_EQUAL(enquire.get_mset(0, 10).size(), 0);
+        term += 'x';
+        enquire.set_query(Xapian::Query(term));
+        TEST_EQUAL(enquire.get_mset(0, 10).size(), 0);
     }
 }
 
@@ -1898,9 +1898,9 @@ DEFINE_TESTCASE(nosuchterm, backend) {
 DEFINE_TESTCASE(allterms7, backend) {
     Xapian::Database db = get_database("etext");
     for (auto i = db.allterms_begin(); i != db.allterms_end(); ++i) {
-	string term = *i;
-	TEST(db.get_termfreq(term) > 0);
-	TEST(db.postlist_begin(term) != db.postlist_end(term));
+        string term = *i;
+        TEST(db.get_termfreq(term) > 0);
+        TEST(db.postlist_begin(term) != db.postlist_end(term));
     }
 }
 
@@ -1922,8 +1922,8 @@ DEFINE_TESTCASE(allterms7, backend) {
 DEFINE_TESTCASE(remoteportreuse1, remotetcp) {
     int port;
     Xapian::Database db = get_remote_database("apitest_simpledata",
-					      300000,
-					      &port);
+                                              300000,
+                                              &port);
 
     // We test with (up to) 3 different socket options combinations:
     //
@@ -1936,77 +1936,77 @@ DEFINE_TESTCASE(remoteportreuse1, remotetcp) {
     // WSAEINVAL).
     for (int reuse_options : { 0, 1,
 #ifdef SO_EXCLUSIVEADDRUSE
-			       2
+                               2
 #endif
-			     }) {
-	tout << "reuse_options = " << reuse_options << '\n';
-	int socketfd = -1;
-	int bind_errno = 0;
-	for (auto&& r : Resolver("127.0.0.1", port, AI_PASSIVE)) {
-	    int socktype = r.ai_socktype | SOCK_CLOEXEC;
-	    int fd = socket(r.ai_family, socktype, r.ai_protocol);
-	    if (fd == -1)
-		continue;
+                             }) {
+        tout << "reuse_options = " << reuse_options << '\n';
+        int socketfd = -1;
+        int bind_errno = 0;
+        for (auto&& r : Resolver("127.0.0.1", port, AI_PASSIVE)) {
+            int socktype = r.ai_socktype | SOCK_CLOEXEC;
+            int fd = socket(r.ai_family, socktype, r.ai_protocol);
+            if (fd == -1)
+                continue;
 
-	    if (reuse_options == 1) {
-		int on = 1;
-		// 4th argument might need to be void* or char* - cast it to
-		// char* since C++ allows implicit conversion to void* but not
-		// from void*.
-		int retval = setsockopt(fd, SOL_SOCKET, SO_REUSEADDR,
-					reinterpret_cast<char*>(&on),
-					sizeof(on));
+            if (reuse_options == 1) {
+                int on = 1;
+                // 4th argument might need to be void* or char* - cast it to
+                // char* since C++ allows implicit conversion to void* but not
+                // from void*.
+                int retval = setsockopt(fd, SOL_SOCKET, SO_REUSEADDR,
+                                        reinterpret_cast<char*>(&on),
+                                        sizeof(on));
 
-		if (retval < 0) {
-		    int setsockopt_errno = socket_errno();
-		    CLOSESOCKET(fd);
-		    FAIL_TEST("setsockopt SO_REUSEADDR failed " +
-			      errno_to_string(setsockopt_errno));
-		}
+                if (retval < 0) {
+                    int setsockopt_errno = socket_errno();
+                    CLOSESOCKET(fd);
+                    FAIL_TEST("setsockopt SO_REUSEADDR failed " +
+                              errno_to_string(setsockopt_errno));
+                }
 #ifdef SO_EXCLUSIVEADDRUSE
-	    } else if (reuse_options == 2) {
-		int on = 1;
-		int retval = setsockopt(fd, SOL_SOCKET, SO_EXCLUSIVEADDRUSE,
-					reinterpret_cast<char*>(&on),
-					sizeof(on));
+            } else if (reuse_options == 2) {
+                int on = 1;
+                int retval = setsockopt(fd, SOL_SOCKET, SO_EXCLUSIVEADDRUSE,
+                                        reinterpret_cast<char*>(&on),
+                                        sizeof(on));
 
-		if (retval < 0) {
-		    int setsockopt_errno = socket_errno();
-		    CLOSESOCKET(fd);
-		    FAIL_TEST("setsockopt SO_EXCLUSIVEADDRUSE failed " +
-			      errno_to_string(setsockopt_errno));
-		}
+                if (retval < 0) {
+                    int setsockopt_errno = socket_errno();
+                    CLOSESOCKET(fd);
+                    FAIL_TEST("setsockopt SO_EXCLUSIVEADDRUSE failed " +
+                              errno_to_string(setsockopt_errno));
+                }
 #endif
-	    }
+            }
 
-	    if (::bind(fd, r.ai_addr, r.ai_addrlen) == 0) {
-		socketfd = fd;
-		break;
-	    }
+            if (::bind(fd, r.ai_addr, r.ai_addrlen) == 0) {
+                socketfd = fd;
+                break;
+            }
 
-	    // Note down the error code for the first address we try, which
-	    // seems likely to be more helpful than the last in the case where
-	    // they differ.
-	    if (bind_errno == 0)
-		bind_errno = socket_errno();
+            // Note down the error code for the first address we try, which
+            // seems likely to be more helpful than the last in the case where
+            // they differ.
+            if (bind_errno == 0)
+                bind_errno = socket_errno();
 
-	    CLOSESOCKET(fd);
-	}
+            CLOSESOCKET(fd);
+        }
 
-	if (socketfd >= 0) {
-	    CLOSESOCKET(socketfd);
-	    FAIL_TEST("Managed to bind to TCP port used by xapian-tcpsrv");
-	}
+        if (socketfd >= 0) {
+            CLOSESOCKET(socketfd);
+            FAIL_TEST("Managed to bind to TCP port used by xapian-tcpsrv");
+        }
 
 #ifdef __WIN32__
-	// Gives WSAEACCES instead in some cases involving SO_EXCLUSIVEADDRUSE.
-	if (bind_errno == WSAEACCES) bind_errno = EADDRINUSE;
+        // Gives WSAEACCES instead in some cases involving SO_EXCLUSIVEADDRUSE.
+        if (bind_errno == WSAEACCES) bind_errno = EADDRINUSE;
 #endif
 
-	if (bind_errno != EADDRINUSE) {
-	    FAIL_TEST("bind() failed with unexpected error: " +
-		      errno_to_string(bind_errno));
-	}
+        if (bind_errno != EADDRINUSE) {
+            FAIL_TEST("bind() failed with unexpected error: " +
+                      errno_to_string(bind_errno));
+        }
     }
 }
 
@@ -2017,17 +2017,17 @@ DEFINE_TESTCASE(unsupportedcheck1, path) {
     ofstream out(stubpath);
     TEST(out.is_open());
     out << "remote :" << BackendManager::get_xapian_progsrv_command()
-	<< ' ' << get_database_path("apitest_simpledata") << '\n';
+        << ' ' << get_database_path("apitest_simpledata") << '\n';
     out.close();
 
     try {
-	Xapian::Database::check(stubpath);
-	FAIL_TEST("Managed to check remote stub");
+        Xapian::Database::check(stubpath);
+        FAIL_TEST("Managed to check remote stub");
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
     } catch (const Xapian::UnimplementedError& e) {
-	// Check the message is appropriate.
-	TEST_STRINGS_EQUAL(e.get_msg(),
-			   "Remote database checking not implemented");
+        // Check the message is appropriate.
+        TEST_STRINGS_EQUAL(e.get_msg(),
+                           "Remote database checking not implemented");
 #else
     } catch (const Xapian::FeatureUnavailableError& e) {
 #endif
@@ -2044,7 +2044,7 @@ DEFINE_TESTCASE(unsupportedcheck2, inmemory) {
     out.close();
 
     TEST_EXCEPTION(Xapian::UnimplementedError,
-		   Xapian::Database::check(stubpath));
+                   Xapian::Database::check(stubpath));
 }
 
 // Test exception for passing empty filename to check().
@@ -2052,10 +2052,10 @@ DEFINE_TESTCASE(unsupportedcheck3, !backend) {
     // Regression test, exception was DatabaseOpeningError with description:
     // Failed to rewind file descriptor -1 (Bad file descriptor)
     try {
-	Xapian::Database::check(""s);
+        Xapian::Database::check(""s);
     } catch (const Xapian::DatabaseOpeningError& e) {
-	string enoent_msg = errno_to_string(ENOENT);
-	TEST_EQUAL(e.get_error_string(), enoent_msg);
+        string enoent_msg = errno_to_string(ENOENT);
+        TEST_EQUAL(e.get_error_string(), enoent_msg);
     }
 }
 
@@ -2063,14 +2063,14 @@ DEFINE_TESTCASE(unsupportedcheck3, !backend) {
 // Regression test for #824, fixed in 1.4.25.
 DEFINE_TESTCASE(corruptglass1, glass) {
     string db_path =
-	test_driver::get_srcdir() + "/testdata/glass_corrupt_dbX";
+        test_driver::get_srcdir() + "/testdata/glass_corrupt_dbX";
 
     for (int n = '1'; n <= '4'; ++n) {
-	db_path.back() = n;
-	TEST_EXCEPTION(Xapian::DatabaseCorruptError,
-		       Xapian::Database db(db_path));
+        db_path.back() = n;
+        TEST_EXCEPTION(Xapian::DatabaseCorruptError,
+                       Xapian::Database db(db_path));
 
-	TEST_EXCEPTION(Xapian::DatabaseCorruptError,
-		       Xapian::Database::check(db_path));
+        TEST_EXCEPTION(Xapian::DatabaseCorruptError,
+                       Xapian::Database::check(db_path));
     }
 }

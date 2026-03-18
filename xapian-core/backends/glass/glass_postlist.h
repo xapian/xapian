@@ -145,23 +145,23 @@ class GlassPostList : public LeafPostList {
     bool move_forward_in_chunk_to_at_least(Xapian::docid desired_did);
 
     GlassPostList(Xapian::Internal::intrusive_ptr<const GlassDatabase> this_db_,
-		  std::string_view term,
-		  GlassCursor * cursor_);
+                  std::string_view term,
+                  GlassCursor * cursor_);
 
     void init();
 
   public:
     /// Default constructor.
     GlassPostList(Xapian::Internal::intrusive_ptr<const GlassDatabase> this_db_,
-		  std::string_view term,
-		  bool keep_reference);
+                  std::string_view term,
+                  bool keep_reference);
 
     /// Destructor.
     ~GlassPostList();
 
     bool open_nearby_postlist(std::string_view term_,
-			      bool need_read_pos,
-			      LeafPostList*& pl) const;
+                              bool need_read_pos,
+                              LeafPostList*& pl) const;
 
     /** Used for looking up doclens.
      *
@@ -203,9 +203,9 @@ class GlassPostList : public LeafPostList {
 
     /// Read the term frequency and collection frequency.
     static void read_freqs(const char** posptr,
-			   const char* end,
-			   Xapian::doccount* number_of_entries_ptr,
-			   Xapian::termcount* collection_freq_ptr);
+                           const char* end,
+                           Xapian::doccount* number_of_entries_ptr,
+                           Xapian::termcount* collection_freq_ptr);
 };
 
 class GlassPostListTable : public GlassTable {
@@ -226,46 +226,46 @@ class GlassPostListTable : public GlassTable {
      *                          access.
      */
     GlassPostListTable(const std::string& path_, bool readonly_)
-	: GlassTable("postlist", path_ + "/postlist.", readonly_),
-	  doclen_pl()
+        : GlassTable("postlist", path_ + "/postlist.", readonly_),
+          doclen_pl()
     { }
 
     GlassPostListTable(int fd, off_t offset_, bool readonly_)
-	: GlassTable("postlist", fd, offset_, readonly_),
-	  doclen_pl()
+        : GlassTable("postlist", fd, offset_, readonly_),
+          doclen_pl()
     { }
 
     void open(int flags_, const RootInfo & root_info,
-	      glass_revision_number_t rev) {
-	doclen_pl.reset(0);
-	GlassTable::open(flags_, root_info, rev);
+              glass_revision_number_t rev) {
+        doclen_pl.reset(0);
+        GlassTable::open(flags_, root_info, rev);
     }
 
     /// Merge changes for a term.
     void merge_changes(std::string_view term,
-		       const Inverter::PostingChanges& changes);
+                       const Inverter::PostingChanges& changes);
 
     /// Merge document length changes.
     void merge_doclen_changes(const std::map<Xapian::docid,
-					Xapian::termcount>& doclens);
+                                        Xapian::termcount>& doclens);
 
     Xapian::docid get_chunk(std::string_view tname,
-			    Xapian::docid did, bool adding,
-			    Glass::PostlistChunkReader** from,
-			    Glass::PostlistChunkWriter** to);
+                            Xapian::docid did, bool adding,
+                            Glass::PostlistChunkReader** from,
+                            Glass::PostlistChunkWriter** to);
 
     /// Compose a key from a termname and docid.
     static std::string make_key(std::string_view term, Xapian::docid did) {
-	return pack_glass_postlist_key(term, did);
+        return pack_glass_postlist_key(term, did);
     }
 
     /// Compose a key from a termname.
     static std::string make_key(std::string_view term) {
-	return pack_glass_postlist_key(term);
+        return pack_glass_postlist_key(term);
     }
 
     bool term_exists(std::string_view term) const {
-	return key_exists(make_key(term));
+        return key_exists(make_key(term));
     }
 
     /** Returns frequencies for a term.
@@ -280,20 +280,20 @@ class GlassPostListTable : public GlassTable {
      *			return)
      */
     void get_freqs(std::string_view term,
-		   Xapian::doccount* termfreq_ptr,
-		   Xapian::termcount* collfreq_ptr,
-		   Xapian::termcount* wdfub_ptr = NULL) const;
+                   Xapian::doccount* termfreq_ptr,
+                   Xapian::termcount* collfreq_ptr,
+                   Xapian::termcount* wdfub_ptr = NULL) const;
 
     /** Returns the length of document @a did. */
     Xapian::termcount get_doclength(Xapian::docid did,
-				    Xapian::Internal::intrusive_ptr<const GlassDatabase> db) const;
+                                    Xapian::Internal::intrusive_ptr<const GlassDatabase> db) const;
 
     /** Check if document @a did exists. */
     bool document_exists(Xapian::docid did,
-			 Xapian::Internal::intrusive_ptr<const GlassDatabase> db) const;
+                         Xapian::Internal::intrusive_ptr<const GlassDatabase> db) const;
 
     void get_used_docid_range(Xapian::docid & first,
-			      Xapian::docid & last) const;
+                              Xapian::docid & last) const;
 };
 #ifdef DISABLE_GPL_LIBXAPIAN
 # error GPL source we cannot relicense included in libxapian

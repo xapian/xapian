@@ -31,17 +31,17 @@ void
 AtomParser::process_content(const string& content)
 {
     if (!target)
-	return;
+        return;
 
     if (!target->empty())
-	*target += ' ';
+        *target += ' ';
 
     if (html_content) {
-	HtmlParser p;
-	p.parse(content, charset, true);
-	*target += p.dump;
+        HtmlParser p;
+        p.parse(content, charset, true);
+        *target += p.dump;
     } else {
-	*target += content;
+        *target += content;
     }
 }
 
@@ -49,41 +49,41 @@ bool
 AtomParser::opening_tag(const string& tag)
 {
     if (state == INACTIVE) {
-	if (tag == "title") {
-	    if (in_entry) {
-		// Treat <title> inside <entry> as more keywords.
-		target = &keywords;
-	    } else {
-		target = &title;
-	    }
-	    goto check_type_attribute;
-	} else if (tag == "summary" || tag == "subtitle" || tag == "content") {
-	    target = &dump;
+        if (tag == "title") {
+            if (in_entry) {
+                // Treat <title> inside <entry> as more keywords.
+                target = &keywords;
+            } else {
+                target = &title;
+            }
+            goto check_type_attribute;
+        } else if (tag == "summary" || tag == "subtitle" || tag == "content") {
+            target = &dump;
 check_type_attribute:
-	    string type;
-	    html_content = (get_attribute("type", type) &&
-			    (type == "html" || type == "xhtml"));
-	    state = OTHER;
-	} else if (tag == "author") {
-	    target = &author;
-	    html_content = false;
-	    state = AUTHOR;
-	} else if (tag == "entry") {
-	    in_entry = true;
-	} else if (tag == "category") {
-	    // Handle category term separately.
-	    string new_keyword;
-	    get_attribute("term", new_keyword);
-	    if (!keywords.empty())
-		keywords += ' ';
-	    keywords += new_keyword;
-	}
-	if (state != INACTIVE) {
-	    active_tag = tag;
-	}
+            string type;
+            html_content = (get_attribute("type", type) &&
+                            (type == "html" || type == "xhtml"));
+            state = OTHER;
+        } else if (tag == "author") {
+            target = &author;
+            html_content = false;
+            state = AUTHOR;
+        } else if (tag == "entry") {
+            in_entry = true;
+        } else if (tag == "category") {
+            // Handle category term separately.
+            string new_keyword;
+            get_attribute("term", new_keyword);
+            if (!keywords.empty())
+                keywords += ' ';
+            keywords += new_keyword;
+        }
+        if (state != INACTIVE) {
+            active_tag = tag;
+        }
     } else if (state == AUTHOR) {
-	if (tag == "uri")
-	    target = NULL;
+        if (tag == "uri")
+            target = NULL;
     }
 
     return true;
@@ -93,13 +93,13 @@ bool
 AtomParser::closing_tag(const string& tag)
 {
     if (state != INACTIVE && tag == active_tag) {
-	active_tag = string();
-	state = INACTIVE;
-	target = NULL;
+        active_tag = string();
+        state = INACTIVE;
+        target = NULL;
     } else if (in_entry && tag == "entry") {
-	in_entry = false;
+        in_entry = false;
     } else if (state == AUTHOR && tag == "uri") {
-	target = &author;
+        target = &author;
     }
     return true;
 }

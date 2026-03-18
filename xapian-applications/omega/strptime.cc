@@ -30,8 +30,8 @@
 
 char*
 strptime_using_std_get_time(const char* date_string,
-			    const char* format,
-			    struct std::tm* tm)
+                            const char* format,
+                            struct std::tm* tm)
 {
     std::istringstream s(date_string);
     s >> std::get_time(tm, format);

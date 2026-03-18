@@ -34,8 +34,8 @@ static void
 send_glib_field(Field field, gchar* data)
 {
     if (data) {
-	send_field(field, data);
-	g_free(data);
+        send_field(field, data);
+        g_free(data);
     }
 }
 
@@ -51,10 +51,10 @@ extract(const string& filename, const string&)
     GError* e = nullptr;
     GepubDoc* doc = gepub_doc_new(filename.c_str(), &e);
     if (!doc) {
-	send_field(FIELD_ERROR, "gepub_doc_new() failed: ");
-	send_field(FIELD_ERROR, e->message);
-	g_error_free(e);
-	return;
+        send_field(FIELD_ERROR, "gepub_doc_new() failed: ");
+        send_field(FIELD_ERROR, e->message);
+        g_error_free(e);
+        return;
     }
 
     int chapters = gepub_doc_get_n_chapters(doc);
@@ -62,27 +62,27 @@ extract(const string& filename, const string&)
     // so (at least for now) we report the number of chapters.
     send_field_page_count(chapters);
     for (int i = 0; i < chapters; ++i) {
-	gepub_doc_set_chapter(doc, i);
-	GBytes* html = gepub_doc_get_current(doc);
-	gsize size;
-	auto data = static_cast<const char*>(g_bytes_get_data(html, &size));
-	HtmlParser parser;
-	try {
-	    parser.parse(string_view(data, size), "utf-8", false);
-	} catch (const string& newcharset) {
-	    parser.parse(string_view(data, size), newcharset, true);
-	}
-	send_field(FIELD_BODY, parser.dump);
-	g_bytes_unref(html);
+        gepub_doc_set_chapter(doc, i);
+        GBytes* html = gepub_doc_get_current(doc);
+        gsize size;
+        auto data = static_cast<const char*>(g_bytes_get_data(html, &size));
+        HtmlParser parser;
+        try {
+            parser.parse(string_view(data, size), "utf-8", false);
+        } catch (const string& newcharset) {
+            parser.parse(string_view(data, size), newcharset, true);
+        }
+        send_field(FIELD_BODY, parser.dump);
+        g_bytes_unref(html);
     }
 
     // Extract metadata.
     send_glib_field(FIELD_AUTHOR,
-		    gepub_doc_get_metadata(doc, GEPUB_META_AUTHOR));
+                    gepub_doc_get_metadata(doc, GEPUB_META_AUTHOR));
     send_glib_field(FIELD_KEYWORDS,
-		    gepub_doc_get_metadata(doc, GEPUB_META_DESC));
+                    gepub_doc_get_metadata(doc, GEPUB_META_DESC));
     send_glib_field(FIELD_TITLE,
-		    gepub_doc_get_metadata(doc, GEPUB_META_TITLE));
+                    gepub_doc_get_metadata(doc, GEPUB_META_TITLE));
 
     g_object_unref(doc);
 }

@@ -106,16 +106,16 @@ TermGenerator::set_max_word_length(unsigned max_word_length)
 
 void
 TermGenerator::index_text(const Xapian::Utf8Iterator & itor,
-			  Xapian::termcount weight,
-			  string_view prefix)
+                          Xapian::termcount weight,
+                          string_view prefix)
 {
     internal->index_text(itor, weight, prefix, true);
 }
 
 void
 TermGenerator::index_text_without_positions(const Xapian::Utf8Iterator & itor,
-					    Xapian::termcount weight,
-					    string_view prefix)
+                                            Xapian::termcount weight,
+                                            string_view prefix)
 {
     internal->index_text(itor, weight, prefix, false);
 }
@@ -150,7 +150,7 @@ TermGenerator::get_description() const
     string s("Xapian::TermGenerator(stem=");
     s += internal->stemmer.get_description();
     if (internal->stopper) {
-	s += ", stopper set";
+        s += ", stopper set";
     }
     s += ", doc=";
     s += internal->doc.get_description();

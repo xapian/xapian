@@ -148,9 +148,9 @@ struct XAPIAN_VISIBILITY_DEFAULT LatLongCoord {
      *  - the ordering isn't particularly meaningful.
      */
     bool operator<(const LatLongCoord& other) const noexcept {
-	if (latitude < other.latitude) return true;
-	if (latitude > other.latitude) return false;
-	return (longitude < other.longitude);
+        if (latitude < other.latitude) return true;
+        if (latitude > other.latitude) return false;
+        return (longitude < other.longitude);
     }
 
     /// Return a string describing this object.
@@ -170,7 +170,7 @@ class XAPIAN_VISIBILITY_DEFAULT LatLongCoordsIterator {
 
     /// Constructor used by LatLongCoords.
     LatLongCoordsIterator(std::vector<LatLongCoord>::const_iterator iter_)
-	    : iter(iter_) {}
+            : iter(iter_) {}
 
   public:
     /// Default constructor.  Produces an uninitialised iterator.
@@ -178,26 +178,26 @@ class XAPIAN_VISIBILITY_DEFAULT LatLongCoordsIterator {
 
     /** Get the LatLongCoord for the current position. */
     const LatLongCoord & operator*() const {
-	return *iter;
+        return *iter;
     }
 
     /// Advance the iterator to the next position.
     LatLongCoordsIterator & operator++() {
-	++iter;
-	return *this;
+        ++iter;
+        return *this;
     }
 
     /// Advance the iterator to the next position (postfix version).
     DerefWrapper_<LatLongCoord> operator++(int) {
-	const LatLongCoord & tmp = **this;
-	++iter;
-	return DerefWrapper_<LatLongCoord>(tmp);
+        const LatLongCoord & tmp = **this;
+        ++iter;
+        return DerefWrapper_<LatLongCoord>(tmp);
     }
 
     /// Equality test for LatLongCoordsIterator objects.
     bool operator==(const LatLongCoordsIterator &other) const
     {
-	return iter == other.iter;
+        return iter == other.iter;
     }
 
     /** @private @internal LatLongCoordsIterator is what the C++ STL calls an
@@ -235,30 +235,30 @@ class XAPIAN_VISIBILITY_DEFAULT LatLongCoords {
   public:
     /// Get a begin iterator for the coordinates.
     LatLongCoordsIterator begin() const {
-	return LatLongCoordsIterator(coords.begin());
+        return LatLongCoordsIterator(coords.begin());
     }
 
     /// Get an end iterator for the coordinates.
     LatLongCoordsIterator end() const {
-	return LatLongCoordsIterator(coords.end());
+        return LatLongCoordsIterator(coords.end());
     }
 
     /// Get the number of coordinates in the container.
     size_t size() const
     {
-	return coords.size();
+        return coords.size();
     }
 
     /// Return true if and only if there are no coordinates in the container.
     bool empty() const
     {
-	return coords.empty();
+        return coords.empty();
     }
 
     /// Append a coordinate to the end of the sequence.
     void append(const LatLongCoord & coord)
     {
-	coords.push_back(coord);
+        coords.push_back(coord);
     }
 
     /// Construct an empty container.
@@ -267,7 +267,7 @@ class XAPIAN_VISIBILITY_DEFAULT LatLongCoords {
     /// Construct a container holding one coordinate.
     LatLongCoords(const LatLongCoord & coord) : coords()
     {
-	coords.push_back(coord);
+        coords.push_back(coord);
     }
 
     /** Unserialise a string and set this object to the coordinates in it.
@@ -307,7 +307,7 @@ class XAPIAN_VISIBILITY_DEFAULT LatLongMetric {
     /** Return the distance between two coordinates, in metres.
      */
     virtual double pointwise_distance(const LatLongCoord & a,
-				      const LatLongCoord & b) const = 0;
+                                      const LatLongCoord & b) const = 0;
 
     /** Return the distance between two coordinate lists, in metres.
      *
@@ -335,7 +335,7 @@ class XAPIAN_VISIBILITY_DEFAULT LatLongMetric {
      */
     double operator()(const LatLongCoords& a, std::string_view b) const
     {
-	return (*this)(a, b.data(), b.size());
+        return (*this)(a, b.data(), b.size());
     }
 
     /** Return the distance between two coordinate lists, in metres.
@@ -354,7 +354,7 @@ class XAPIAN_VISIBILITY_DEFAULT LatLongMetric {
      *               list.
      */
     double operator()(const LatLongCoords & a,
-		      const char * b_ptr, size_t b_len) const;
+                      const char * b_ptr, size_t b_len) const;
 
     /** Clone the metric. */
     virtual LatLongMetric * clone() const = 0;
@@ -420,7 +420,7 @@ class XAPIAN_VISIBILITY_DEFAULT GreatCircleMetric : public LatLongMetric {
     /** Return the great-circle distance between points on the sphere.
      */
     double pointwise_distance(const LatLongCoord & a,
-			      const LatLongCoord &b) const;
+                              const LatLongCoord &b) const;
 
     LatLongMetric * clone() const;
     std::string name() const;
@@ -475,11 +475,11 @@ class XAPIAN_VISIBILITY_DEFAULT LatLongDistancePostingSource : public ValuePosti
 
     /// Internal constructor; used by clone() and serialise().
     LatLongDistancePostingSource(Xapian::valueno slot_,
-				 const LatLongCoords & centre_,
-				 const LatLongMetric * metric_,
-				 double max_range_,
-				 double k1_,
-				 double k2_);
+                                 const LatLongCoords & centre_,
+                                 const LatLongMetric * metric_,
+                                 double max_range_,
+                                 double k1_,
+                                 double k2_);
 
   public:
     /** Construct a new posting source which returns only documents within
@@ -493,11 +493,11 @@ class XAPIAN_VISIBILITY_DEFAULT LatLongDistancePostingSource : public ValuePosti
      *  @param k2_ The k2 constant to use in the weighting function.
      */
     LatLongDistancePostingSource(Xapian::valueno slot_,
-				 const LatLongCoords & centre_,
-				 const LatLongMetric & metric_,
-				 double max_range_ = 0.0,
-				 double k1_ = 1000.0,
-				 double k2_ = 1.0);
+                                 const LatLongCoords & centre_,
+                                 const LatLongMetric & metric_,
+                                 double max_range_ = 0.0,
+                                 double k1_ = 1000.0,
+                                 double k2_ = 1.0);
 
     /** Construct a new posting source which returns only documents within
      *  range of one of the central coordinates.
@@ -511,10 +511,10 @@ class XAPIAN_VISIBILITY_DEFAULT LatLongDistancePostingSource : public ValuePosti
      *  Xapian::GreatCircleMetric is used as the metric.
      */
     LatLongDistancePostingSource(Xapian::valueno slot_,
-				 const LatLongCoords & centre_,
-				 double max_range_ = 0.0,
-				 double k1_ = 1000.0,
-				 double k2_ = 1.0);
+                                 const LatLongCoords & centre_,
+                                 double max_range_ = 0.0,
+                                 double k1_ = 1000.0,
+                                 double k2_ = 1.0);
     ~LatLongDistancePostingSource();
 
     void next(double min_wt);
@@ -526,8 +526,8 @@ class XAPIAN_VISIBILITY_DEFAULT LatLongDistancePostingSource : public ValuePosti
     std::string name() const;
     std::string serialise() const;
     LatLongDistancePostingSource *
-	    unserialise_with_registry(const std::string &serialised,
-				      const Registry & registry) const;
+            unserialise_with_registry(const std::string &serialised,
+                                      const Registry & registry) const;
     void reset(const Database& db_, Xapian::doccount shard_index);
 
     std::string get_description() const;
@@ -571,13 +571,13 @@ class XAPIAN_VISIBILITY_DEFAULT LatLongDistanceKeyMaker : public KeyMaker {
      *  @param defdistance	Distance to use for docs with no value set.
      */
     LatLongDistanceKeyMaker(Xapian::valueno slot_,
-			    const LatLongCoords & centre_,
-			    const LatLongMetric & metric_,
-			    double defdistance)
-	    : slot(slot_),
-	      centre(centre_),
-	      metric(metric_.clone()),
-	      defkey(sortable_serialise(defdistance))
+                            const LatLongCoords & centre_,
+                            const LatLongMetric & metric_,
+                            double defdistance)
+            : slot(slot_),
+              centre(centre_),
+              metric(metric_.clone()),
+              defkey(sortable_serialise(defdistance))
     {}
 
     /** Construct a LatLongDistanceKeyMaker.
@@ -591,12 +591,12 @@ class XAPIAN_VISIBILITY_DEFAULT LatLongDistanceKeyMaker : public KeyMaker {
      *  away.
      */
     LatLongDistanceKeyMaker(Xapian::valueno slot_,
-			    const LatLongCoords & centre_,
-			    const LatLongMetric & metric_)
-	    : slot(slot_),
-	      centre(centre_),
-	      metric(metric_.clone()),
-	      defkey(9, '\xff')
+                            const LatLongCoords & centre_,
+                            const LatLongMetric & metric_)
+            : slot(slot_),
+              centre(centre_),
+              metric(metric_.clone()),
+              defkey(9, '\xff')
     {}
 
     /** Construct a LatLongDistanceKeyMaker.
@@ -611,11 +611,11 @@ class XAPIAN_VISIBILITY_DEFAULT LatLongDistanceKeyMaker : public KeyMaker {
      *  away.
      */
     LatLongDistanceKeyMaker(Xapian::valueno slot_,
-			    const LatLongCoords & centre_)
-	    : slot(slot_),
-	      centre(centre_),
-	      metric(new Xapian::GreatCircleMetric()),
-	      defkey(9, '\xff')
+                            const LatLongCoords & centre_)
+            : slot(slot_),
+              centre(centre_),
+              metric(new Xapian::GreatCircleMetric()),
+              defkey(9, '\xff')
     {}
 
     /** Construct a LatLongDistanceKeyMaker.
@@ -626,15 +626,15 @@ class XAPIAN_VISIBILITY_DEFAULT LatLongDistanceKeyMaker : public KeyMaker {
      *  @param defdistance	Distance to use for docs with no value set.
      */
     LatLongDistanceKeyMaker(Xapian::valueno slot_,
-			    const LatLongCoord & centre_,
-			    const LatLongMetric & metric_,
-			    double defdistance)
-	    : slot(slot_),
-	      centre(),
-	      metric(metric_.clone()),
-	      defkey(sortable_serialise(defdistance))
+                            const LatLongCoord & centre_,
+                            const LatLongMetric & metric_,
+                            double defdistance)
+            : slot(slot_),
+              centre(),
+              metric(metric_.clone()),
+              defkey(sortable_serialise(defdistance))
     {
-	centre.append(centre_);
+        centre.append(centre_);
     }
 
     /** Construct a LatLongDistanceKeyMaker.
@@ -647,14 +647,14 @@ class XAPIAN_VISIBILITY_DEFAULT LatLongDistanceKeyMaker : public KeyMaker {
      *  away.
      */
     LatLongDistanceKeyMaker(Xapian::valueno slot_,
-			    const LatLongCoord & centre_,
-			    const LatLongMetric & metric_)
-	    : slot(slot_),
-	      centre(),
-	      metric(metric_.clone()),
-	      defkey(9, '\xff')
+                            const LatLongCoord & centre_,
+                            const LatLongMetric & metric_)
+            : slot(slot_),
+              centre(),
+              metric(metric_.clone()),
+              defkey(9, '\xff')
     {
-	centre.append(centre_);
+        centre.append(centre_);
     }
 
     /** Construct a LatLongDistanceKeyMaker.
@@ -668,13 +668,13 @@ class XAPIAN_VISIBILITY_DEFAULT LatLongDistanceKeyMaker : public KeyMaker {
      *  away.
      */
     LatLongDistanceKeyMaker(Xapian::valueno slot_,
-			    const LatLongCoord & centre_)
-	    : slot(slot_),
-	      centre(),
-	      metric(new Xapian::GreatCircleMetric()),
-	      defkey(9, '\xff')
+                            const LatLongCoord & centre_)
+            : slot(slot_),
+              centre(),
+              metric(new Xapian::GreatCircleMetric()),
+              defkey(9, '\xff')
     {
-	centre.append(centre_);
+        centre.append(centre_);
     }
 
     ~LatLongDistanceKeyMaker();

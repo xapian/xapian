@@ -57,8 +57,8 @@ sleep(unsigned int seconds)
     // seconds left to sleep for.  The common case of sleep(CONSTANT) should
     // optimise to just xapian_sleep_milliseconds(CONSTANT).
     if (seconds > 4294967u) {
-	xapian_sleep_milliseconds(4294967000u);
-	return seconds - 4294967u;
+        xapian_sleep_milliseconds(4294967000u);
+        return seconds - 4294967u;
     }
     xapian_sleep_milliseconds(seconds * 1000u);
     return 0;

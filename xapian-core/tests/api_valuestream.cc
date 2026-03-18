@@ -36,18 +36,18 @@ DEFINE_TESTCASE(valuestream1, backend) {
     Xapian::Database db = get_database("apitest_simpledata");
 
     for (Xapian::valueno slot = 0; slot < 15; ++slot) {
-	tout << "testing valuestream iteration for slot " << slot << '\n';
-	Xapian::ValueIterator it = db.valuestream_begin(slot);
-	while (it != db.valuestream_end(slot)) {
-	    TEST_EQUAL(it.get_valueno(), slot);
-	    string value = *it;
-	    Xapian::docid did = it.get_docid();
+        tout << "testing valuestream iteration for slot " << slot << '\n';
+        Xapian::ValueIterator it = db.valuestream_begin(slot);
+        while (it != db.valuestream_end(slot)) {
+            TEST_EQUAL(it.get_valueno(), slot);
+            string value = *it;
+            Xapian::docid did = it.get_docid();
 
-	    Xapian::Document doc = db.get_document(did);
-	    TEST_EQUAL(doc.get_value(slot), value);
+            Xapian::Document doc = db.get_document(did);
+            TEST_EQUAL(doc.get_value(slot), value);
 
-	    ++it;
-	}
+            ++it;
+        }
     }
 }
 
@@ -56,33 +56,33 @@ DEFINE_TESTCASE(valuestream2, backend) {
     Xapian::Database db = get_database("etext");
 
     for (Xapian::valueno slot = 0; slot < 15; ++slot) {
-	unsigned interval = 1;
-	while (interval < 1999) {
-	    tout.str(string());
-	    tout << "testing valuestream skip_to for slot " << slot
-		 << " with interval " << interval << '\n';
-	    Xapian::docid did = 1;
-	    Xapian::ValueIterator it = db.valuestream_begin(slot);
-	    if (it == db.valuestream_end(slot)) break;
-	    while (it.skip_to(did), it != db.valuestream_end(slot)) {
-		TEST_EQUAL(it.get_valueno(), slot);
-		string value = *it;
+        unsigned interval = 1;
+        while (interval < 1999) {
+            tout.str(string());
+            tout << "testing valuestream skip_to for slot " << slot
+                 << " with interval " << interval << '\n';
+            Xapian::docid did = 1;
+            Xapian::ValueIterator it = db.valuestream_begin(slot);
+            if (it == db.valuestream_end(slot)) break;
+            while (it.skip_to(did), it != db.valuestream_end(slot)) {
+                TEST_EQUAL(it.get_valueno(), slot);
+                string value = *it;
 
-		// Check that the skipped documents had no values.
-		Xapian::docid actual_did = it.get_docid();
-		TEST_REL(actual_did,>=,did);
-		while (did < actual_did) {
-		    Xapian::Document doc = db.get_document(did);
-		    TEST(doc.get_value(slot).empty());
-		    ++did;
-		}
+                // Check that the skipped documents had no values.
+                Xapian::docid actual_did = it.get_docid();
+                TEST_REL(actual_did,>=,did);
+                while (did < actual_did) {
+                    Xapian::Document doc = db.get_document(did);
+                    TEST(doc.get_value(slot).empty());
+                    ++did;
+                }
 
-		Xapian::Document doc = db.get_document(actual_did);
-		TEST_EQUAL(doc.get_value(slot), value);
-		did += interval;
-	    }
-	    interval = interval * 3 - 1;
-	}
+                Xapian::Document doc = db.get_document(actual_did);
+                TEST_EQUAL(doc.get_value(slot), value);
+                did += interval;
+            }
+            interval = interval * 3 - 1;
+        }
     }
 }
 
@@ -92,57 +92,57 @@ DEFINE_TESTCASE(valuestream3, backend) {
 
     // Check combinations of check with other operations.
     typedef enum {
-	CHECK, CHECK_AND_NEXT, CHECK2, SKIP_TO, CHECK_AND_LOOP
+        CHECK, CHECK_AND_NEXT, CHECK2, SKIP_TO, CHECK_AND_LOOP
     } test_op;
     test_op operation = CHECK;
 
     for (Xapian::valueno slot = 0; slot < 15; ++slot) {
-	unsigned interval = 1;
-	while (interval < 1999) {
-	    tout << "testing valuestream check for slot " << slot
-		 << " with interval " << interval << '\n';
-	    Xapian::docid did = 1;
-	    Xapian::ValueIterator it = db.valuestream_begin(slot);
-	    if (it == db.valuestream_end(slot)) break;
-	    while (true) {
-		bool positioned = true;
-		switch (operation) {
-		    case CHECK_AND_LOOP:
-			operation = CHECK;
-			// FALLTHRU.
-		    case CHECK: case CHECK2:
-			positioned = it.check(did);
-			break;
-		    case CHECK_AND_NEXT: {
-			bool was_skip_to = it.check(did);
-			if (!was_skip_to) ++it;
-			break;
-		    }
-		    case SKIP_TO:
-			it.skip_to(did);
-			break;
-		}
-		operation = test_op(operation + 1);
-		if (positioned) {
-		    if (it == db.valuestream_end(slot)) break;
-		    TEST_EQUAL(it.get_valueno(), slot);
-		    string value = *it;
+        unsigned interval = 1;
+        while (interval < 1999) {
+            tout << "testing valuestream check for slot " << slot
+                 << " with interval " << interval << '\n';
+            Xapian::docid did = 1;
+            Xapian::ValueIterator it = db.valuestream_begin(slot);
+            if (it == db.valuestream_end(slot)) break;
+            while (true) {
+                bool positioned = true;
+                switch (operation) {
+                    case CHECK_AND_LOOP:
+                        operation = CHECK;
+                        // FALLTHRU.
+                    case CHECK: case CHECK2:
+                        positioned = it.check(did);
+                        break;
+                    case CHECK_AND_NEXT: {
+                        bool was_skip_to = it.check(did);
+                        if (!was_skip_to) ++it;
+                        break;
+                    }
+                    case SKIP_TO:
+                        it.skip_to(did);
+                        break;
+                }
+                operation = test_op(operation + 1);
+                if (positioned) {
+                    if (it == db.valuestream_end(slot)) break;
+                    TEST_EQUAL(it.get_valueno(), slot);
+                    string value = *it;
 
-		    // Check that the skipped documents had no values.
-		    Xapian::docid actual_did = it.get_docid();
-		    while (did < actual_did) {
-			Xapian::Document doc = db.get_document(did);
-			TEST(doc.get_value(slot).empty());
-			++did;
-		    }
+                    // Check that the skipped documents had no values.
+                    Xapian::docid actual_did = it.get_docid();
+                    while (did < actual_did) {
+                        Xapian::Document doc = db.get_document(did);
+                        TEST(doc.get_value(slot).empty());
+                        ++did;
+                    }
 
-		    Xapian::Document doc = db.get_document(actual_did);
-		    TEST_EQUAL(doc.get_value(slot), value);
-		}
-		did += interval;
-	    }
-	    interval = interval * 3 - 1;
-	}
+                    Xapian::Document doc = db.get_document(actual_did);
+                    TEST_EQUAL(doc.get_value(slot), value);
+                }
+                did += interval;
+            }
+            interval = interval * 3 - 1;
+        }
     }
 }
 
@@ -166,10 +166,10 @@ DEFINE_TESTCASE(valueweightsource5, valuestats) {
     // because it throws and catches DocNotFoundError across the link 2^32-3
     // times.
     if (contains(get_dbtype(), "remote"))
-	SKIP_TEST("Testcase is too slow with remote shards");
+        SKIP_TEST("Testcase is too slow with remote shards");
 
     Xapian::Database db = get_database("valueweightsource5",
-				       gen_valueweightsource5_db);
+                                       gen_valueweightsource5_db);
     Xapian::ValueWeightPostingSource src(1);
     src.reset(db, 0);
     src.next(0.0);
@@ -242,27 +242,27 @@ DEFINE_TESTCASE(valuemapsource2, backend && !multi) {
     Xapian::Database db(get_database("apitest_phrase"));
 
     {
-	Xapian::ValueMapPostingSource src(100);
-	src.reset(db, 0);
-	TEST(src.at_end() == false);
-	src.next(0.0);
-	TEST(src.at_end() == true);
+        Xapian::ValueMapPostingSource src(100);
+        src.reset(db, 0);
+        TEST(src.at_end() == false);
+        src.next(0.0);
+        TEST(src.at_end() == true);
     }
 
     {
-	Xapian::ValueMapPostingSource src(100);
-	src.reset(db, 0);
-	TEST(src.at_end() == false);
-	src.skip_to(1, 0.0);
-	TEST(src.at_end() == true);
+        Xapian::ValueMapPostingSource src(100);
+        src.reset(db, 0);
+        TEST(src.at_end() == false);
+        src.skip_to(1, 0.0);
+        TEST(src.at_end() == true);
     }
 
     {
-	Xapian::ValueMapPostingSource src(100);
-	src.reset(db, 0);
-	TEST(src.at_end() == false);
-	src.check(1, 0.0);
-	TEST(src.at_end() == true);
+        Xapian::ValueMapPostingSource src(100);
+        src.reset(db, 0);
+        TEST(src.at_end() == false);
+        src.check(1, 0.0);
+        TEST(src.at_end() == true);
     }
 }
 
@@ -272,19 +272,19 @@ DEFINE_TESTCASE(fixedweightsource2, !backend) {
     Xapian::Database db;
 
     {
-	Xapian::FixedWeightPostingSource src(5.0);
-	src.reset(db, 0);
-	TEST(src.at_end() == false);
-	src.next(0.0);
-	TEST(src.at_end() == true);
+        Xapian::FixedWeightPostingSource src(5.0);
+        src.reset(db, 0);
+        TEST(src.at_end() == false);
+        src.next(0.0);
+        TEST(src.at_end() == true);
     }
 
     {
-	Xapian::FixedWeightPostingSource src(5.0);
-	src.reset(db, 0);
-	TEST(src.at_end() == false);
-	src.skip_to(1, 0.0);
-	TEST(src.at_end() == true);
+        Xapian::FixedWeightPostingSource src(5.0);
+        src.reset(db, 0);
+        TEST(src.at_end() == false);
+        src.skip_to(1, 0.0);
+        TEST(src.at_end() == true);
     }
 
     // No need to test behaviour of check() - check is only allowed to be
@@ -307,40 +307,40 @@ DEFINE_TESTCASE(decvalwtsource1, writable) {
 
     // Check basic function
     {
-	Xapian::DecreasingValueWeightPostingSource src(1);
-	src.reset(db, 0);
+        Xapian::DecreasingValueWeightPostingSource src(1);
+        src.reset(db, 0);
 
-	src.next(0.0);
-	TEST(!src.at_end());
-	TEST_EQUAL(src.get_docid(), 1);
+        src.next(0.0);
+        TEST(!src.at_end());
+        TEST_EQUAL(src.get_docid(), 1);
 
-	src.next(0.0);
-	TEST(!src.at_end());
-	TEST_EQUAL(src.get_docid(), 2);
+        src.next(0.0);
+        TEST(!src.at_end());
+        TEST_EQUAL(src.get_docid(), 2);
 
-	src.next(0.0);
-	TEST(!src.at_end());
-	TEST_EQUAL(src.get_docid(), 3);
+        src.next(0.0);
+        TEST(!src.at_end());
+        TEST_EQUAL(src.get_docid(), 3);
 
-	src.next(0.0);
-	TEST(src.at_end());
+        src.next(0.0);
+        TEST(src.at_end());
     }
 
     // Check skipping to end of list due to weight
     {
-	Xapian::DecreasingValueWeightPostingSource src(1);
-	src.reset(db, 0);
+        Xapian::DecreasingValueWeightPostingSource src(1);
+        src.reset(db, 0);
 
-	src.next(1.5);
-	TEST(!src.at_end());
-	TEST_EQUAL(src.get_docid(), 1);
+        src.next(1.5);
+        TEST(!src.at_end());
+        TEST_EQUAL(src.get_docid(), 1);
 
-	src.next(1.5);
-	TEST(!src.at_end());
-	TEST_EQUAL(src.get_docid(), 2);
+        src.next(1.5);
+        TEST(!src.at_end());
+        TEST_EQUAL(src.get_docid(), 2);
 
-	src.next(1.5);
-	TEST(src.at_end());
+        src.next(1.5);
+        TEST(src.at_end());
     }
 
     // Check behaviour with a restricted range
@@ -348,55 +348,55 @@ DEFINE_TESTCASE(decvalwtsource1, writable) {
     db.add_document(doc);
 
     {
-	Xapian::DecreasingValueWeightPostingSource src(1, 1, 3);
-	src.reset(db, 0);
+        Xapian::DecreasingValueWeightPostingSource src(1, 1, 3);
+        src.reset(db, 0);
 
-	src.next(1.5);
-	TEST(!src.at_end());
-	TEST_EQUAL(src.get_docid(), 1);
+        src.next(1.5);
+        TEST(!src.at_end());
+        TEST_EQUAL(src.get_docid(), 1);
 
-	src.next(1.5);
-	TEST(!src.at_end());
-	TEST_EQUAL(src.get_docid(), 2);
+        src.next(1.5);
+        TEST(!src.at_end());
+        TEST_EQUAL(src.get_docid(), 2);
 
-	src.next(1.5);
-	TEST(!src.at_end());
-	TEST_EQUAL(src.get_docid(), 4);
+        src.next(1.5);
+        TEST(!src.at_end());
+        TEST_EQUAL(src.get_docid(), 4);
 
-	src.next(1.5);
-	TEST(src.at_end());
+        src.next(1.5);
+        TEST(src.at_end());
     }
 
     {
-	Xapian::DecreasingValueWeightPostingSource src(1, 1, 3);
-	src.reset(db, 0);
+        Xapian::DecreasingValueWeightPostingSource src(1, 1, 3);
+        src.reset(db, 0);
 
-	src.next(1.5);
-	TEST(!src.at_end());
-	TEST_EQUAL(src.get_docid(), 1);
+        src.next(1.5);
+        TEST(!src.at_end());
+        TEST_EQUAL(src.get_docid(), 1);
 
-	src.skip_to(3, 1.5);
-	TEST(!src.at_end());
-	TEST_EQUAL(src.get_docid(), 4);
+        src.skip_to(3, 1.5);
+        TEST(!src.at_end());
+        TEST_EQUAL(src.get_docid(), 4);
 
-	src.next(1.5);
-	TEST(src.at_end());
+        src.next(1.5);
+        TEST(src.at_end());
     }
 
     {
-	Xapian::DecreasingValueWeightPostingSource src(1, 1, 3);
-	src.reset(db, 0);
+        Xapian::DecreasingValueWeightPostingSource src(1, 1, 3);
+        src.reset(db, 0);
 
-	src.next(1.5);
-	TEST(!src.at_end());
-	TEST_EQUAL(src.get_docid(), 1);
+        src.next(1.5);
+        TEST(!src.at_end());
+        TEST_EQUAL(src.get_docid(), 1);
 
-	TEST(src.check(3, 1.5));
-	TEST(!src.at_end());
-	TEST_EQUAL(src.get_docid(), 4);
+        TEST(src.check(3, 1.5));
+        TEST(!src.at_end());
+        TEST_EQUAL(src.get_docid(), 4);
 
-	src.next(1.5);
-	TEST(src.at_end());
+        src.next(1.5);
+        TEST(src.at_end());
     }
 }
 
@@ -418,48 +418,48 @@ DEFINE_TESTCASE(decvalwtsource2, writable) {
 
     // Check basic function
     {
-	Xapian::DecreasingValueWeightPostingSource src(1);
-	src.reset(db, 0);
+        Xapian::DecreasingValueWeightPostingSource src(1);
+        src.reset(db, 0);
 
-	src.next(0.0);
-	TEST(!src.at_end());
-	TEST_EQUAL(src.get_docid(), 1);
+        src.next(0.0);
+        TEST(!src.at_end());
+        TEST_EQUAL(src.get_docid(), 1);
 
-	src.next(0.0);
-	TEST(!src.at_end());
-	TEST_EQUAL(src.get_docid(), 2);
+        src.next(0.0);
+        TEST(!src.at_end());
+        TEST_EQUAL(src.get_docid(), 2);
 
-	src.next(0.0);
-	TEST(!src.at_end());
-	TEST_EQUAL(src.get_docid(), 3);
+        src.next(0.0);
+        TEST(!src.at_end());
+        TEST_EQUAL(src.get_docid(), 3);
 
-	src.next(0.0);
-	TEST(!src.at_end());
-	TEST_EQUAL(src.get_docid(), 4);
+        src.next(0.0);
+        TEST(!src.at_end());
+        TEST_EQUAL(src.get_docid(), 4);
 
-	src.next(0.0);
-	TEST(src.at_end());
+        src.next(0.0);
+        TEST(src.at_end());
     }
 
     // Check skipping to end of list due to weight
     {
-	Xapian::DecreasingValueWeightPostingSource src(1, 2);
-	src.reset(db, 0);
+        Xapian::DecreasingValueWeightPostingSource src(1, 2);
+        src.reset(db, 0);
 
-	src.next(1.5);
-	TEST(!src.at_end());
-	TEST_EQUAL(src.get_docid(), 1);
+        src.next(1.5);
+        TEST(!src.at_end());
+        TEST_EQUAL(src.get_docid(), 1);
 
-	src.next(1.5);
-	TEST(!src.at_end());
-	TEST_EQUAL(src.get_docid(), 2);
+        src.next(1.5);
+        TEST(!src.at_end());
+        TEST_EQUAL(src.get_docid(), 2);
 
-	src.next(1.5);
-	TEST(!src.at_end());
-	TEST_EQUAL(src.get_docid(), 3);
+        src.next(1.5);
+        TEST(!src.at_end());
+        TEST_EQUAL(src.get_docid(), 3);
 
-	src.next(1.5);
-	TEST(src.at_end());
+        src.next(1.5);
+        TEST(src.at_end());
     }
 
     // Check behaviour with a restricted range
@@ -467,67 +467,67 @@ DEFINE_TESTCASE(decvalwtsource2, writable) {
     db.add_document(doc);
 
     {
-	Xapian::DecreasingValueWeightPostingSource src(1, 2, 4);
-	src.reset(db, 0);
+        Xapian::DecreasingValueWeightPostingSource src(1, 2, 4);
+        src.reset(db, 0);
 
-	src.next(1.5);
-	TEST(!src.at_end());
-	TEST_EQUAL(src.get_docid(), 1);
+        src.next(1.5);
+        TEST(!src.at_end());
+        TEST_EQUAL(src.get_docid(), 1);
 
-	src.next(1.5);
-	TEST(!src.at_end());
-	TEST_EQUAL(src.get_docid(), 2);
+        src.next(1.5);
+        TEST(!src.at_end());
+        TEST_EQUAL(src.get_docid(), 2);
 
-	src.next(1.5);
-	TEST(!src.at_end());
-	TEST_EQUAL(src.get_docid(), 3);
+        src.next(1.5);
+        TEST(!src.at_end());
+        TEST_EQUAL(src.get_docid(), 3);
 
-	src.next(1.5);
-	TEST(!src.at_end());
-	TEST_EQUAL(src.get_docid(), 5);
+        src.next(1.5);
+        TEST(!src.at_end());
+        TEST_EQUAL(src.get_docid(), 5);
 
-	src.next(1.5);
-	TEST(src.at_end());
+        src.next(1.5);
+        TEST(src.at_end());
     }
 
     {
-	Xapian::DecreasingValueWeightPostingSource src(1, 2, 4);
-	src.reset(db, 0);
+        Xapian::DecreasingValueWeightPostingSource src(1, 2, 4);
+        src.reset(db, 0);
 
-	TEST(src.check(1, 1.5));
-	TEST(!src.at_end());
-	TEST_EQUAL(src.get_docid(), 1);
+        TEST(src.check(1, 1.5));
+        TEST(!src.at_end());
+        TEST_EQUAL(src.get_docid(), 1);
 
-	src.next(1.5);
-	TEST(!src.at_end());
-	TEST_EQUAL(src.get_docid(), 2);
+        src.next(1.5);
+        TEST(!src.at_end());
+        TEST_EQUAL(src.get_docid(), 2);
 
-	src.skip_to(4, 1.5);
-	TEST(!src.at_end());
-	TEST_EQUAL(src.get_docid(), 5);
+        src.skip_to(4, 1.5);
+        TEST(!src.at_end());
+        TEST_EQUAL(src.get_docid(), 5);
 
-	src.next(1.5);
-	TEST(src.at_end());
+        src.next(1.5);
+        TEST(src.at_end());
     }
 
     {
-	Xapian::DecreasingValueWeightPostingSource src(1, 2, 4);
-	src.reset(db, 0);
+        Xapian::DecreasingValueWeightPostingSource src(1, 2, 4);
+        src.reset(db, 0);
 
-	TEST(src.check(1, 1.5));
-	TEST(!src.at_end());
-	TEST_EQUAL(src.get_docid(), 1);
+        TEST(src.check(1, 1.5));
+        TEST(!src.at_end());
+        TEST_EQUAL(src.get_docid(), 1);
 
-	src.next(1.5);
-	TEST(!src.at_end());
-	TEST_EQUAL(src.get_docid(), 2);
+        src.next(1.5);
+        TEST(!src.at_end());
+        TEST_EQUAL(src.get_docid(), 2);
 
-	TEST(src.check(4, 1.5));
-	TEST(!src.at_end());
-	TEST_EQUAL(src.get_docid(), 5);
+        TEST(src.check(4, 1.5));
+        TEST(!src.at_end());
+        TEST_EQUAL(src.get_docid(), 5);
 
-	src.next(1.5);
-	TEST(src.at_end());
+        src.next(1.5);
+        TEST(src.at_end());
     }
 }
 
@@ -550,7 +550,7 @@ gen_decvalwtsource3_db(Xapian::WritableDatabase& db, const string&)
 // Test DecreasingValueWeightPostingSource with an actual query.
 DEFINE_TESTCASE(decvalwtsource3, backend) {
     Xapian::Database db = get_database("decvalwtsource3",
-				       gen_decvalwtsource3_db);
+                                       gen_decvalwtsource3_db);
 
     Xapian::DecreasingValueWeightPostingSource ps(1, 2, 5);
     Xapian::Query q(&ps);
@@ -612,30 +612,30 @@ gen_decvalwtsource5_db(Xapian::WritableDatabase& db, const string&)
 // DecreasingValueWeightPostingSource was pointed at an empty slot.
 DEFINE_TESTCASE(decvalwtsource5, writable) {
     Xapian::Database db = get_database("decvalwtsource5",
-				       gen_decvalwtsource5_db);
+                                       gen_decvalwtsource5_db);
 
     {
-	Xapian::DecreasingValueWeightPostingSource ps(1);
-	Xapian::Query q(&ps);
-	Xapian::Enquire enq(db);
-	enq.set_query(q);
-	Xapian::MSet mset1(enq.get_mset(0, 3));
-	TEST_EQUAL(mset1.size(), 2);
+        Xapian::DecreasingValueWeightPostingSource ps(1);
+        Xapian::Query q(&ps);
+        Xapian::Enquire enq(db);
+        enq.set_query(q);
+        Xapian::MSet mset1(enq.get_mset(0, 3));
+        TEST_EQUAL(mset1.size(), 2);
     }
     {
-	Xapian::DecreasingValueWeightPostingSource ps(2);
-	Xapian::Query q(&ps);
-	Xapian::Enquire enq(db);
-	enq.set_query(q);
-	Xapian::MSet mset1(enq.get_mset(0, 3));
-	TEST_EQUAL(mset1.size(), 1);
+        Xapian::DecreasingValueWeightPostingSource ps(2);
+        Xapian::Query q(&ps);
+        Xapian::Enquire enq(db);
+        enq.set_query(q);
+        Xapian::MSet mset1(enq.get_mset(0, 3));
+        TEST_EQUAL(mset1.size(), 1);
     }
     {
-	Xapian::DecreasingValueWeightPostingSource ps(3);
-	Xapian::Query q(&ps);
-	Xapian::Enquire enq(db);
-	enq.set_query(q);
-	Xapian::MSet mset1(enq.get_mset(0, 3));
-	TEST_EQUAL(mset1.size(), 0);
+        Xapian::DecreasingValueWeightPostingSource ps(3);
+        Xapian::Query q(&ps);
+        Xapian::Enquire enq(db);
+        enq.set_query(q);
+        Xapian::MSet mset1(enq.get_mset(0, 3));
+        TEST_EQUAL(mset1.size(), 0);
     }
 }

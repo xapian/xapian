@@ -37,7 +37,7 @@ namespace Xapian {
 
 IneB2Weight::IneB2Weight(double c) : param_c(c) {
     if (param_c <= 0)
-	throw Xapian::InvalidArgumentError("Parameter c is invalid");
+        throw Xapian::InvalidArgumentError("Parameter c is invalid");
     need_stat(AVERAGE_LENGTH);
     need_stat(DOC_LENGTH);
     need_stat(DOC_LENGTH_MIN);
@@ -59,19 +59,19 @@ void
 IneB2Weight::init(double factor)
 {
     if (factor == 0.0) {
-	// This object is for the term-independent contribution, and that's
-	// always zero for this scheme.
-	return;
+        // This object is for the term-independent contribution, and that's
+        // always zero for this scheme.
+        return;
     }
 
     double wdfn_upper = get_wdf_upper_bound();
     if (wdfn_upper == 0) {
-	upper_bound = 0.0;
-	return;
+        upper_bound = 0.0;
+        return;
     }
 
     wdfn_upper *= log2(1 + (param_c * get_average_length()) /
-		    get_doclength_lower_bound());
+                    get_doclength_lower_bound());
 
     double N = get_collection_size();
     double F = get_collection_freq();
@@ -112,13 +112,13 @@ IneB2Weight::unserialise(const string & s) const
     const char *end = ptr + s.size();
     double c = unserialise_double(&ptr, end);
     if (rare(ptr != end))
-	throw Xapian::SerialisationError("Extra data in IneB2Weight::unserialise()");
+        throw Xapian::SerialisationError("Extra data in IneB2Weight::unserialise()");
     return new IneB2Weight(c);
 }
 
 double
 IneB2Weight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len,
-			 Xapian::termcount, Xapian::termcount) const
+                         Xapian::termcount, Xapian::termcount) const
 {
     if (wdf == 0) return 0.0;
     double wdfn = wdf;
@@ -148,12 +148,12 @@ IneB2Weight::create_from_parameters(const char* params) const
 {
     const char* p = params;
     if (*p == '\0')
-	return new Xapian::IneB2Weight();
+        return new Xapian::IneB2Weight();
     double c = 1.0;
     if (!Xapian::Weight::Internal::double_param(&p, &c))
-	parameter_error("Parameter is invalid", params);
+        parameter_error("Parameter is invalid", params);
     if (*p)
-	parameter_error("Extra data after parameter", params);
+        parameter_error("Extra data after parameter", params);
     return new Xapian::IneB2Weight(c);
 }
 

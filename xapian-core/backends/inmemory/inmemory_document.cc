@@ -35,11 +35,11 @@ InMemoryDocument::fetch_value(Xapian::valueno slot) const
     const InMemoryDatabase * db;
     db = static_cast<const InMemoryDatabase*>(database.get());
     if (rare(did > db->valuelists.size()))
-	RETURN(string());
+        RETURN(string());
     const auto& values_ = db->valuelists[did - 1];
     auto i = values_.find(slot);
     if (i == values_.end())
-	RETURN(string());
+        RETURN(string());
     RETURN(i->second);
 }
 
@@ -51,8 +51,8 @@ InMemoryDocument::fetch_all_values(map<Xapian::valueno, string> &values_) const
     db = static_cast<const InMemoryDatabase*>(database.get());
     if (db->closed) InMemoryDatabase::throw_database_closed();
     if (rare(did > db->valuelists.size())) {
-	values_.clear();
-	return;
+        values_.clear();
+        return;
     }
     values_ = db->valuelists[did - 1];
 }
@@ -65,6 +65,6 @@ InMemoryDocument::fetch_data() const
     db = static_cast<const InMemoryDatabase*>(database.get());
     if (db->closed) InMemoryDatabase::throw_database_closed();
     if (rare(did > db->valuelists.size()))
-	RETURN(string());
+        RETURN(string());
     RETURN(db->doclists[did - 1]);
 }

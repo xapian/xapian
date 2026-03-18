@@ -53,16 +53,16 @@ trim(string & s)
     string::size_type first_nonspace;
     first_nonspace = s.find_first_not_of(" \t\r\n\v");
     if (first_nonspace == string::npos) {
-	// String is all whitespace.
-	s.resize(0);
+        // String is all whitespace.
+        s.resize(0);
     } else {
-	// Remove any trailing whitespace.
-	string::size_type len = s.find_last_not_of(" \t\r\n\v");
-	assert(len != string::npos);
-	if (len < s.size() - 1)
-	    s.resize(len + 1);
-	// Remove any leading whitespace.
-	if (first_nonspace > 0)
-	    s.erase(0, first_nonspace);
+        // Remove any trailing whitespace.
+        string::size_type len = s.find_last_not_of(" \t\r\n\v");
+        assert(len != string::npos);
+        if (len < s.size() - 1)
+            s.resize(len + 1);
+        // Remove any leading whitespace.
+        if (first_nonspace > 0)
+            s.erase(0, first_nonspace);
     }
 }

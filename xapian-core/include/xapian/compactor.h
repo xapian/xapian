@@ -40,16 +40,16 @@ class XAPIAN_VISIBILITY_DEFAULT Compactor {
   public:
     /** Compaction level. */
     typedef enum {
-	/** Don't split items unnecessarily. */
-	STANDARD = 0,
-	/** Split items whenever it saves space (the default). */
-	FULL = 1,
-	/** Allow oversize items to save more space (not recommended if you
-	 *  ever plan to update the compacted database).
-	 *
-	 *  @since 1.4.31 Has the same effect as FULL.
-	 */
-	FULLER = 2
+        /** Don't split items unnecessarily. */
+        STANDARD = 0,
+        /** Split items whenever it saves space (the default). */
+        FULL = 1,
+        /** Allow oversize items to save more space (not recommended if you
+         *  ever plan to update the compacted database).
+         *
+         *  @since 1.4.31 Has the same effect as FULL.
+         */
+        FULLER = 2
     } compaction_level;
 
     Compactor() {}
@@ -94,7 +94,7 @@ class XAPIAN_VISIBILITY_DEFAULT Compactor {
      */
     virtual std::string
     resolve_duplicate_metadata(const std::string & key,
-			       size_t num_tags, const std::string tags[]);
+                               size_t num_tags, const std::string tags[]);
 };
 
 }

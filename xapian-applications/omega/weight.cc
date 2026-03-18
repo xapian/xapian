@@ -30,14 +30,14 @@ using namespace std;
 
 void
 set_weighting_scheme(Xapian::Enquire & enq, const string & scheme,
-		     bool force_boolean)
+                     bool force_boolean)
 {
     if (!force_boolean) {
-	if (scheme.empty()) return;
+        if (scheme.empty()) return;
 
-	const Xapian::Weight * wt = Xapian::Weight::create(scheme);
-	enq.set_weighting_scheme(*wt);
+        const Xapian::Weight * wt = Xapian::Weight::create(scheme);
+        enq.set_weighting_scheme(*wt);
 
-	delete wt;
+        delete wt;
     }
 }

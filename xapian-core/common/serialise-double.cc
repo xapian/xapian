@@ -48,7 +48,7 @@ string serialise_double(double v)
 # ifdef WORDS_BIGENDIAN
     uint64_t temp;
     static_assert(sizeof(temp) == sizeof(v),
-		  "Check if size of double and 64 bit int is same");
+                  "Check if size of double and 64 bit int is same");
     memcpy(&temp, &v, sizeof(double));
     temp = do_bswap(temp);
     return string(reinterpret_cast<const char *>(&temp), sizeof(double));
@@ -60,14 +60,14 @@ string serialise_double(double v)
 double unserialise_double(const char ** p, const char * end)
 {
     if (end - *p < 8) {
-	throw Xapian::SerialisationError(
-	    "Bad encoded double: insufficient data");
+        throw Xapian::SerialisationError(
+            "Bad encoded double: insufficient data");
     }
     double result;
 # ifdef WORDS_BIGENDIAN
     uint64_t temp;
     static_assert(sizeof(temp) == sizeof(double),
-		  "Check if size of double and 64 bit int is same");
+                  "Check if size of double and 64 bit int is same");
     memcpy(&temp, *p, sizeof(double));
     temp = do_bswap(temp);
     memcpy(&result, &temp, sizeof(double));
@@ -98,41 +98,41 @@ string serialise_double(double v)
      */
 
     static_assert(uint64_t(1) << 52 < numeric_limits<double>::max(),
-		  "Check if 2^52 can be represented by a double");
+                  "Check if 2^52 can be represented by a double");
 
     uint64_t result = 0;
 
     if (v == 0.0) {
-	result = 0;
-	return string(reinterpret_cast<const char *>(&result),
-		      sizeof(uint64_t));
+        result = 0;
+        return string(reinterpret_cast<const char *>(&result),
+                      sizeof(uint64_t));
     }
 
     if (rare(!isfinite(v))) {
-	// frexp() returns an unspecified exponent for infinities and NaN so
-	// we need to special case these.
-	const static char pos_inf[] = {
-	    '\x7f', '\xf0', '\x00', '\x00', '\x00', '\x00', '\x00', '\x00'
-	};
-	const static char neg_inf[] = {
-	    '\xff', '\xf0', '\x00', '\x00', '\x00', '\x00', '\x00', '\x00'
-	};
-	const static char pos_nan[] = {
-	    '\x7f', '\xf8', '\x00', '\x00', '\x00', '\x00', '\x00', '\x00'
-	};
-	const static char neg_nan[] = {
-	    '\xff', '\xf8', '\x00', '\x00', '\x00', '\x00', '\x00', '\x00'
-	};
-	if (isinf(v)) {
-	    return string(v > 0 ? pos_inf : neg_inf, 8);
-	}
-	return string(v > 0 ? pos_nan : neg_nan, 8);
+        // frexp() returns an unspecified exponent for infinities and NaN so
+        // we need to special case these.
+        const static char pos_inf[] = {
+            '\x7f', '\xf0', '\x00', '\x00', '\x00', '\x00', '\x00', '\x00'
+        };
+        const static char neg_inf[] = {
+            '\xff', '\xf0', '\x00', '\x00', '\x00', '\x00', '\x00', '\x00'
+        };
+        const static char pos_nan[] = {
+            '\x7f', '\xf8', '\x00', '\x00', '\x00', '\x00', '\x00', '\x00'
+        };
+        const static char neg_nan[] = {
+            '\xff', '\xf8', '\x00', '\x00', '\x00', '\x00', '\x00', '\x00'
+        };
+        if (isinf(v)) {
+            return string(v > 0 ? pos_inf : neg_inf, 8);
+        }
+        return string(v > 0 ? pos_nan : neg_nan, 8);
     }
 
     bool negative = (v < 0.0);
     if (negative) {
-	v = -v;
-	result |= uint64_t(1) << 63;
+        v = -v;
+        result |= uint64_t(1) << 63;
     }
 
     int exp;
@@ -161,8 +161,8 @@ string serialise_double(double v)
 
 double unserialise_double(const char ** p, const char * end) {
     if (end - *p < 8) {
-	throw Xapian::SerialisationError(
-	    "Bad encoded double: insufficient data");
+        throw Xapian::SerialisationError(
+            "Bad encoded double: insufficient data");
     }
     unsigned char first = *(*p + 7); // little-endian stored
     unsigned char second = *(*p + 6);
@@ -184,15 +184,15 @@ double unserialise_double(const char ** p, const char * end) {
     if (exp + 1023 == 0 && mantissa_bp == 0) return 0.0;
 
     if (rare(exp == 1024)) {
-	// Infinity or NaN.  The mantissa is non-zero for NaN.
-	if (mantissa_bp != 0) {
-	    // If NaNs are not supported, nan() returns zero which seems as
-	    // good a value as any to use.
-	    return negative ? -nan("") : nan("");
-	}
-	// HUGE_VAL is infinity is the implementation support infinity,
-	// and otherwise is a very large value which is our best fallback.
-	return negative ? -HUGE_VAL : HUGE_VAL;
+        // Infinity or NaN.  The mantissa is non-zero for NaN.
+        if (mantissa_bp != 0) {
+            // If NaNs are not supported, nan() returns zero which seems as
+            // good a value as any to use.
+            return negative ? -nan("") : nan("");
+        }
+        // HUGE_VAL is infinity is the implementation support infinity,
+        // and otherwise is a very large value which is our best fallback.
+        return negative ? -HUGE_VAL : HUGE_VAL;
     }
 
 # if FLT_RADIX == 2

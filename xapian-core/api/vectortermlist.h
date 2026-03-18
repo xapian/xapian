@@ -49,26 +49,26 @@ class VectorTermList : public TermList {
     template<typename I>
     VectorTermList(I begin, I end) : num_terms(0)
     {
-	// First calculate how much space we'll need so we can reserve it.
-	size_t total_size = 0;
-	for (I i = begin; i != end; ++i) {
-	    ++num_terms;
-	    const std::string & s = *i;
-	    total_size += s.size() + 1;
-	    if (s.size() >= 128) {
-		// Not a common case, so just assume the worst case rather than
-		// trying to carefully calculate the exact size.
-		total_size += 5;
-	    }
-	}
-	data.reserve(total_size);
+        // First calculate how much space we'll need so we can reserve it.
+        size_t total_size = 0;
+        for (I i = begin; i != end; ++i) {
+            ++num_terms;
+            const std::string & s = *i;
+            total_size += s.size() + 1;
+            if (s.size() >= 128) {
+                // Not a common case, so just assume the worst case rather than
+                // trying to carefully calculate the exact size.
+                total_size += 5;
+            }
+        }
+        data.reserve(total_size);
 
-	// Now encode all the terms into data.
-	for (I i = begin; i != end; ++i) {
-	    pack_string(data, *i);
-	}
+        // Now encode all the terms into data.
+        for (I i = begin; i != end; ++i) {
+            pack_string(data, *i);
+        }
 
-	p = data.data();
+        p = data.data();
     }
 
     Xapian::termcount get_approx_size() const;

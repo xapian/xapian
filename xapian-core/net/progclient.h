@@ -65,13 +65,13 @@ class ProgClient : public RemoteDatabase {
      *  has been deliberately made "static".
      */
     static std::pair<int, std::string> run_program(std::string_view progname,
-						   std::string_view args,
+                                                   std::string_view args,
 #ifndef __WIN32__
-						   pid_t& child
+                                                   pid_t& child
 #else
-						   HANDLE& child
+                                                   HANDLE& child
 #endif
-						   );
+                                                   );
 
   public:
     /** Constructor.
@@ -83,14 +83,14 @@ class ProgClient : public RemoteDatabase {
      *  @param flags	Xapian::DB_RETRY_LOCK or 0.
      */
     ProgClient(std::string_view progname,
-	       std::string_view args,
-	       double timeout_,
-	       bool writable,
-	       int flags)
-	: RemoteDatabase(run_program(progname, args, child),
-			 timeout_,
-			 writable,
-			 flags)
+               std::string_view args,
+               double timeout_,
+               bool writable,
+               int flags)
+        : RemoteDatabase(run_program(progname, args, child),
+                         timeout_,
+                         writable,
+                         flags)
     {}
 
     /** Destructor. */

@@ -40,15 +40,15 @@ static bool
 decode_xxy(const string & s, int & x1, int &x2, int &y)
 {
     if (s.size() == 0) {
-	x1 = x2 = y = -1;
-	return true;
+        x1 = x2 = y = -1;
+        return true;
     }
     if (s.size() < 5 || s.size() > 10) return false;
     const char* p = s.c_str();
     if (!C_isdigit(*p)) return false;
     x1 = *p++ - '0';
     if (C_isdigit(*p)) {
-	x1 = x1 * 10 + (*p++ - '0');
+        x1 = x1 * 10 + (*p++ - '0');
     }
     if (x1 < 1 || x1 > 31) return false;
     char sep = *p++;
@@ -56,14 +56,14 @@ decode_xxy(const string & s, int & x1, int &x2, int &y)
     if (!C_isdigit(*p)) return false;
     x2 = *p++ - '0';
     if (C_isdigit(*p)) {
-	x2 = x2 * 10 + (*p++ - '0');
+        x2 = x2 * 10 + (*p++ - '0');
     }
     if (x2 < 1 || x2 > 31) return false;
     if (*p++ != sep) return false;
     if (s.size() - (p - s.c_str()) > 4) return false;
     y = *p++ - '0';
     while (C_isdigit(*p)) {
-	y = y * 10 + (*p++ - '0');
+        y = y * 10 + (*p++ - '0');
     }
     return size_t(p - s.c_str()) == s.size();
 }
@@ -90,10 +90,10 @@ static bool
 is_yyyy_mm_dd(const string &s)
 {
     return (s.find_first_not_of("0123456789") == 4 &&
-	    s.find_first_not_of("0123456789", 5) == 7 &&
-	    s.find_first_not_of("0123456789", 8) == string::npos &&
-	    s[4] == s[7] &&
-	    (s[4] == '-' || s[4] == '.' || s[4] == '/'));
+            s.find_first_not_of("0123456789", 5) == 7 &&
+            s.find_first_not_of("0123456789", 8) == string::npos &&
+            s[4] == s[7] &&
+            (s[4] == '-' || s[4] == '.' || s[4] == '/'));
 }
 
 // Write exactly w chars to buffer p representing integer v.
@@ -106,8 +106,8 @@ static void
 format_int_fixed_width(char * p, int v, int w)
 {
     while (--w >= 0) {
-	p[w] = '0' + (v % 10);
-	v /= 10;
+        p[w] = '0' + (v % 10);
+        v /= 10;
     }
 }
 
@@ -123,7 +123,7 @@ Xapian::Query
 RangeProcessor::check_range(const string& b, const string& e)
 {
     if (str.empty())
-	return operator()(b, e);
+        return operator()(b, e);
 
     size_t off_b = 0, len_b = string::npos;
     size_t off_e = 0, len_e = string::npos;
@@ -132,39 +132,39 @@ RangeProcessor::check_range(const string& b, const string& e)
     bool repeated = (flags & Xapian::RP_REPEATED);
 
     if (repeated && prefix && b.empty()) {
-	// Handle empty start and prefix on end, e.g.: ..$20
-	if (!startswith(e, str)) {
-	    goto not_our_range;
-	}
-	off_e = str.size();
+        // Handle empty start and prefix on end, e.g.: ..$20
+        if (!startswith(e, str)) {
+            goto not_our_range;
+        }
+        off_e = str.size();
     } else if (repeated && !prefix && e.empty()) {
-	// Handle empty end and suffix on start, e.g.: 20kg..
-	if (!endswith(b, str)) {
-	    goto not_our_range;
-	}
-	len_b = b.size() - str.size();
+        // Handle empty end and suffix on start, e.g.: 20kg..
+        if (!endswith(b, str)) {
+            goto not_our_range;
+        }
+        len_b = b.size() - str.size();
     } else if (prefix) {
-	// If there's a prefix, require it on the start of the range.
-	if (!startswith(b, str)) {
-	    // Prefix not given.
-	    goto not_our_range;
-	}
-	off_b = str.size();
-	// Optionally allow it on the end of the range, e.g. $10..50
-	if (repeated && startswith(e, str)) {
-	    off_e = off_b;
-	}
+        // If there's a prefix, require it on the start of the range.
+        if (!startswith(b, str)) {
+            // Prefix not given.
+            goto not_our_range;
+        }
+        off_b = str.size();
+        // Optionally allow it on the end of the range, e.g. $10..50
+        if (repeated && startswith(e, str)) {
+            off_e = off_b;
+        }
     } else {
-	// If there's a suffix, require it on the end of the range.
-	if (!endswith(e, str)) {
-	    // Suffix not given.
-	    goto not_our_range;
-	}
-	len_e = e.size() - str.size();
-	// Optionally allow it on the start of the range, e.g. 10..50kg
-	if (repeated && endswith(b, str)) {
-	    len_b = b.size() - str.size();
-	}
+        // If there's a suffix, require it on the end of the range.
+        if (!endswith(e, str)) {
+            // Suffix not given.
+            goto not_our_range;
+        }
+        len_e = e.size() - str.size();
+        // Optionally allow it on the start of the range, e.g. 10..50kg
+        if (repeated && endswith(b, str)) {
+            len_b = b.size() - str.size();
+        }
     }
 
     return operator()(string(b, off_b, len_b), string(e, off_e, len_e));
@@ -177,7 +177,7 @@ Xapian::Query
 RangeProcessor::operator()(const string& b, const string& e)
 {
     if (e.empty())
-	return Xapian::Query(Xapian::Query::OP_VALUE_GE, slot, b);
+        return Xapian::Query(Xapian::Query::OP_VALUE_GE, slot, b);
     return Xapian::Query(Xapian::Query::OP_VALUE_RANGE, slot, b, e);
 }
 
@@ -185,73 +185,73 @@ Xapian::Query
 DateRangeProcessor::operator()(const string& b, const string& e)
 {
     if ((b.size() == 8 || b.size() == 0) &&
-	(e.size() == 8 || e.size() == 0) &&
-	b.find_first_not_of("0123456789") == string::npos &&
-	e.find_first_not_of("0123456789") == string::npos) {
-	// YYYYMMDD
-	return RangeProcessor::operator()(b, e);
+        (e.size() == 8 || e.size() == 0) &&
+        b.find_first_not_of("0123456789") == string::npos &&
+        e.find_first_not_of("0123456789") == string::npos) {
+        // YYYYMMDD
+        return RangeProcessor::operator()(b, e);
     }
     if ((b.size() == 10 || b.size() == 0) &&
-	(e.size() == 10 || e.size() == 0)) {
-	if ((b.empty() || is_yyyy_mm_dd(b)) &&
-	    (e.empty() || is_yyyy_mm_dd(e))) {
-	    string begin = b, end = e;
-	    // YYYY-MM-DD
-	    if (!begin.empty()) {
-		begin.erase(7, 1);
-		begin.erase(4, 1);
-	    }
-	    if (!end.empty()) {
-		end.erase(7, 1);
-		end.erase(4, 1);
-	    }
-	    return RangeProcessor::operator()(begin, end);
-	}
+        (e.size() == 10 || e.size() == 0)) {
+        if ((b.empty() || is_yyyy_mm_dd(b)) &&
+            (e.empty() || is_yyyy_mm_dd(e))) {
+            string begin = b, end = e;
+            // YYYY-MM-DD
+            if (!begin.empty()) {
+                begin.erase(7, 1);
+                begin.erase(4, 1);
+            }
+            if (!end.empty()) {
+                end.erase(7, 1);
+                end.erase(4, 1);
+            }
+            return RangeProcessor::operator()(begin, end);
+        }
     }
 
     bool prefer_mdy = (flags & Xapian::RP_DATE_PREFER_MDY);
     int b_d, b_m, b_y;
     int e_d, e_m, e_y;
     if (!decode_xxy(b, b_d, b_m, b_y) || !decode_xxy(e, e_d, e_m, e_y))
-	goto not_our_range;
+        goto not_our_range;
 
     // Check that the month and day are within range.  Also assume "start" <=
     // "e" to help decide ambiguous cases.
     if (!prefer_mdy && vet_dm(b_d, b_m) && vet_dm(e_d, e_m) &&
-	(b_y != e_y || b_m < e_m || (b_m == e_m && b_d <= e_d))) {
-	// OK.
+        (b_y != e_y || b_m < e_m || (b_m == e_m && b_d <= e_d))) {
+        // OK.
     } else if (vet_dm(b_m, b_d) && vet_dm(e_m, e_d) &&
-	(b_y != e_y || b_d < e_d || (b_d == e_d && b_m <= e_m))) {
-	swap(b_m, b_d);
-	swap(e_m, e_d);
+        (b_y != e_y || b_d < e_d || (b_d == e_d && b_m <= e_m))) {
+        swap(b_m, b_d);
+        swap(e_m, e_d);
     } else if (prefer_mdy && vet_dm(b_d, b_m) && vet_dm(e_d, e_m) &&
-	       (b_y != e_y || b_m < e_m || (b_m == e_m && b_d <= e_d))) {
-	// OK.
+               (b_y != e_y || b_m < e_m || (b_m == e_m && b_d <= e_d))) {
+        // OK.
     } else {
-	goto not_our_range;
+        goto not_our_range;
     }
 
     {
-	char buf_b[8], buf_e[8];
-	size_t len_b = 0, len_e = 0;
-	if (!b.empty()) {
-	    if (b_y < 100) {
-		b_y += 1900;
-		if (b_y < epoch_year) b_y += 100;
-	    }
-	    format_yyyymmdd(buf_b, b_y, b_m, b_d);
-	    len_b = 8;
-	}
-	if (!e.empty()) {
-	    if (e_y < 100) {
-		e_y += 1900;
-		if (e_y < epoch_year) e_y += 100;
-	    }
-	    format_yyyymmdd(buf_e, e_y, e_m, e_d);
-	    len_e = 8;
-	}
-	return RangeProcessor::operator()(string(buf_b, len_b),
-					  string(buf_e, len_e));
+        char buf_b[8], buf_e[8];
+        size_t len_b = 0, len_e = 0;
+        if (!b.empty()) {
+            if (b_y < 100) {
+                b_y += 1900;
+                if (b_y < epoch_year) b_y += 100;
+            }
+            format_yyyymmdd(buf_b, b_y, b_m, b_d);
+            len_b = 8;
+        }
+        if (!e.empty()) {
+            if (e_y < 100) {
+                e_y += 1900;
+                if (e_y < epoch_year) e_y += 100;
+            }
+            format_yyyymmdd(buf_e, e_y, e_m, e_d);
+            len_e = 8;
+        }
+        return RangeProcessor::operator()(string(buf_b, len_b),
+                                          string(buf_e, len_e));
     }
 
 not_our_range:
@@ -266,55 +266,55 @@ NumberRangeProcessor::operator()(const string& b, const string& e)
 
     if (!b.empty()) {
 #ifdef HAVE_STD_FROM_CHARS_DOUBLE
-	const char* startptr = b.data();
-	const char* endptr = startptr + b.size();
-	const auto& r = from_chars(startptr, endptr, num_b);
-	if (r.ec != std::errc() || r.ptr != endptr) {
-	    // Invalid characters in string || overflow or underflow.
-	    goto not_our_range;
-	}
+        const char* startptr = b.data();
+        const char* endptr = startptr + b.size();
+        const auto& r = from_chars(startptr, endptr, num_b);
+        if (r.ec != std::errc() || r.ptr != endptr) {
+            // Invalid characters in string || overflow or underflow.
+            goto not_our_range;
+        }
 #else
-	errno = 0;
-	const char * startptr = b.c_str();
-	char * endptr;
-	num_b = strtod(startptr, &endptr);
-	if (endptr != startptr + b.size() || errno) {
-	    // Invalid characters in string || overflow or underflow.
-	    goto not_our_range;
-	}
+        errno = 0;
+        const char * startptr = b.c_str();
+        char * endptr;
+        num_b = strtod(startptr, &endptr);
+        if (endptr != startptr + b.size() || errno) {
+            // Invalid characters in string || overflow or underflow.
+            goto not_our_range;
+        }
 #endif
     } else {
-	// Silence GCC warning.
-	num_b = 0.0;
+        // Silence GCC warning.
+        num_b = 0.0;
     }
 
     if (!e.empty()) {
 #ifdef HAVE_STD_FROM_CHARS_DOUBLE
-	const char* startptr = e.data();
-	const char* endptr = startptr + e.size();
-	const auto& r = from_chars(startptr, endptr, num_e);
-	if (r.ec != std::errc() || r.ptr != endptr) {
-	    // Invalid characters in string || overflow or underflow.
-	    goto not_our_range;
-	}
+        const char* startptr = e.data();
+        const char* endptr = startptr + e.size();
+        const auto& r = from_chars(startptr, endptr, num_e);
+        if (r.ec != std::errc() || r.ptr != endptr) {
+            // Invalid characters in string || overflow or underflow.
+            goto not_our_range;
+        }
 #else
-	errno = 0;
-	const char * startptr = e.c_str();
-	char * endptr;
-	num_e = strtod(startptr, &endptr);
-	if (endptr != startptr + e.size() || errno) {
-	    // Invalid characters in string || overflow or underflow.
-	    goto not_our_range;
-	}
+        errno = 0;
+        const char * startptr = e.c_str();
+        char * endptr;
+        num_e = strtod(startptr, &endptr);
+        if (endptr != startptr + e.size() || errno) {
+            // Invalid characters in string || overflow or underflow.
+            goto not_our_range;
+        }
 #endif
     } else {
-	// Silence GCC warning.
-	num_e = 0.0;
+        // Silence GCC warning.
+        num_e = 0.0;
     }
 
     return RangeProcessor::operator()(
-	    b.empty() ? b : Xapian::sortable_serialise(num_b),
-	    e.empty() ? e : Xapian::sortable_serialise(num_e));
+            b.empty() ? b : Xapian::sortable_serialise(num_b),
+            e.empty() ? e : Xapian::sortable_serialise(num_e));
 
 not_our_range:
     return Xapian::Query(Xapian::Query::OP_INVALID);
@@ -331,10 +331,10 @@ static double
 check_byte_unit(const string &s) {
     double factor = 1;
     for (int i = 0; i < 4; ++i) {
-	if (endswith(s, byte_units[i])) {
-	    return factor;
-	}
-	factor *= 1024;
+        if (endswith(s, byte_units[i])) {
+            return factor;
+        }
+        factor *= 1024;
     }
 
     return -1;
@@ -351,95 +351,95 @@ UnitRangeProcessor::operator()(const string& b, const string& e)
 
     if (!b.empty()) {
 #ifdef HAVE_STD_FROM_CHARS_DOUBLE
-	const char* startptr = b.data();
-	const char* endptr = startptr + b.size();
-	const auto& r = from_chars(startptr, endptr, num_b);
-	if (r.ec != std::errc()) {
-	    // Invalid characters in string || overflow or underflow.
-	    goto not_our_range;
-	}
-	endptr = r.ptr;
+        const char* startptr = b.data();
+        const char* endptr = startptr + b.size();
+        const auto& r = from_chars(startptr, endptr, num_b);
+        if (r.ec != std::errc()) {
+            // Invalid characters in string || overflow or underflow.
+            goto not_our_range;
+        }
+        endptr = r.ptr;
 #else
-	errno = 0;
-	const char * startptr = b.c_str();
-	char * endptr;
-	num_b = strtod(startptr, &endptr);
+        errno = 0;
+        const char * startptr = b.c_str();
+        char * endptr;
+        num_b = strtod(startptr, &endptr);
 
-	if (errno) {
-	    // overflow or underflow
-	    goto not_our_range;
-	}
+        if (errno) {
+            // overflow or underflow
+            goto not_our_range;
+        }
 #endif
 
-	// For lower range having a unit, e.g. 100K..
-	if (endptr == startptr + b.size() - 1) {
-	    double factor_b = check_byte_unit(b);
-	    if (factor_b == -1) {
-		// Not a valid byte unit
-		goto not_our_range;
-	    }
-	    b_has_unit = true;
-	    num_b *= factor_b;
-	}
+        // For lower range having a unit, e.g. 100K..
+        if (endptr == startptr + b.size() - 1) {
+            double factor_b = check_byte_unit(b);
+            if (factor_b == -1) {
+                // Not a valid byte unit
+                goto not_our_range;
+            }
+            b_has_unit = true;
+            num_b *= factor_b;
+        }
     } else {
-	// Silence GCC warning.
-	num_b = 0.0;
+        // Silence GCC warning.
+        num_b = 0.0;
     }
 
     if (!e.empty()) {
 #ifdef HAVE_STD_FROM_CHARS_DOUBLE
-	const char* startptr = e.data();
-	const char* endptr = startptr + e.size();
-	const auto& r = from_chars(startptr, endptr, num_e);
-	if (r.ec != std::errc()) {
-	    // Invalid characters in string || overflow or underflow.
-	    goto not_our_range;
-	}
-	endptr = r.ptr;
+        const char* startptr = e.data();
+        const char* endptr = startptr + e.size();
+        const auto& r = from_chars(startptr, endptr, num_e);
+        if (r.ec != std::errc()) {
+            // Invalid characters in string || overflow or underflow.
+            goto not_our_range;
+        }
+        endptr = r.ptr;
 #else
-	errno = 0;
-	const char * startptr = e.c_str();
-	char * endptr;
-	num_e = strtod(startptr, &endptr);
+        errno = 0;
+        const char * startptr = e.c_str();
+        char * endptr;
+        num_e = strtod(startptr, &endptr);
 
-	if (errno) {
-	    // overflow or underflow
-	    goto not_our_range;
-	}
+        if (errno) {
+            // overflow or underflow
+            goto not_our_range;
+        }
 #endif
 
-	// For upper range having a unit, e.g. ..100K
-	if (endptr == startptr + e.size() - 1) {
-	    double factor_e = check_byte_unit(e);
-	    if (factor_e == -1) {
-		// Not a valid byte unit
-		goto not_our_range;
-	    }
-	    num_e *= factor_e;
+        // For upper range having a unit, e.g. ..100K
+        if (endptr == startptr + e.size() - 1) {
+            double factor_e = check_byte_unit(e);
+            if (factor_e == -1) {
+                // Not a valid byte unit
+                goto not_our_range;
+            }
+            num_e *= factor_e;
 
-	    // When lower range is not empty and
-	    // only upper range unit, e.g. 20..100K
-	    if (!b.empty() && !b_has_unit) {
-		num_b *= factor_e;
-	    }
-	} else {
-	    // When lower range has no unit
-	    goto not_our_range;
-	}
+            // When lower range is not empty and
+            // only upper range unit, e.g. 20..100K
+            if (!b.empty() && !b_has_unit) {
+                num_b *= factor_e;
+            }
+        } else {
+            // When lower range has no unit
+            goto not_our_range;
+        }
     } else {
-	// Silence GCC warning.
-	num_e = 0.0;
+        // Silence GCC warning.
+        num_e = 0.0;
 
-	// Fail case when lower range
-	// has no unit, e.g. 200..
-	if (!b.empty() && !b_has_unit) {
-	    goto not_our_range;
-	}
+        // Fail case when lower range
+        // has no unit, e.g. 200..
+        if (!b.empty() && !b_has_unit) {
+            goto not_our_range;
+        }
     }
 
     return RangeProcessor::operator()(
-	    b.empty() ? b : Xapian::sortable_serialise(num_b),
-	    e.empty() ? e : Xapian::sortable_serialise(num_e));
+            b.empty() ? b : Xapian::sortable_serialise(num_b),
+            e.empty() ? e : Xapian::sortable_serialise(num_e));
 
 not_our_range:
     return Xapian::Query(Xapian::Query::OP_INVALID);

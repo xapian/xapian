@@ -34,7 +34,7 @@ using namespace std;
 struct CompareTermListsByTerm {
     /// Order by ascending term name.
     bool operator()(const TermList *a, const TermList *b) const {
-	return a->get_termname() > b->get_termname();
+        return a->get_termname() > b->get_termname();
     }
 };
 
@@ -46,7 +46,7 @@ MultiAllTermsList::MultiAllTermsList(size_t count_, TermList** termlists_)
 MultiAllTermsList::~MultiAllTermsList()
 {
     while (count)
-	delete termlists[--count];
+        delete termlists[--count];
     delete [] termlists;
 }
 
@@ -62,23 +62,23 @@ Xapian::doccount
 MultiAllTermsList::get_termfreq() const
 {
     if (current_termfreq == 0 && count != 0) {
-	while (true) {
-	    TermList * tl = termlists[0];
-	    if (tl->get_termname() != current_term)
-		break;
-	    current_termfreq += tl->get_termfreq();
-	    if (tl->next()) {
-		// Out of entries.
-		Heap::pop(termlists, termlists + count,
-			  CompareTermListsByTerm());
-		delete tl;
-		if (--count == 0)
-		    break;
-	    } else {
-		Heap::replace(termlists, termlists + count,
-			      CompareTermListsByTerm());
-	    }
-	}
+        while (true) {
+            TermList * tl = termlists[0];
+            if (tl->get_termname() != current_term)
+                break;
+            current_termfreq += tl->get_termfreq();
+            if (tl->next()) {
+                // Out of entries.
+                Heap::pop(termlists, termlists + count,
+                          CompareTermListsByTerm());
+                delete tl;
+                if (--count == 0)
+                    break;
+            } else {
+                Heap::replace(termlists, termlists + count,
+                              CompareTermListsByTerm());
+            }
+        }
     }
     return current_termfreq;
 }
@@ -87,49 +87,49 @@ TermList *
 MultiAllTermsList::next()
 {
     if (current_term.empty()) {
-	// Make termlists into a heap so that the one (or one of the ones) with
-	// earliest sorting term is at the top of the heap.
-	size_t j = 0;
-	for (size_t i = 0; i != count; ++i) {
-	    if (termlists[i]->next() == NULL) {
-		if (i != j)
-		    swap(termlists[i], termlists[j]);
-		++j;
-	    }
-	}
-	while (count > j)
-	    delete termlists[--count];
-	Heap::make(termlists, termlists + count,
-		   CompareTermListsByTerm());
+        // Make termlists into a heap so that the one (or one of the ones) with
+        // earliest sorting term is at the top of the heap.
+        size_t j = 0;
+        for (size_t i = 0; i != count; ++i) {
+            if (termlists[i]->next() == NULL) {
+                if (i != j)
+                    swap(termlists[i], termlists[j]);
+                ++j;
+            }
+        }
+        while (count > j)
+            delete termlists[--count];
+        Heap::make(termlists, termlists + count,
+                   CompareTermListsByTerm());
     } else if (current_termfreq == 0 && count != 0) {
-	// Skip over current_term if we haven't already.
-	while (true) {
-	    TermList* tl = termlists[0];
-	    if (tl->get_termname() != current_term)
-		break;
-	    if (tl->next()) {
-		// Out of entries.
-		Heap::pop(termlists, termlists + count,
-			  CompareTermListsByTerm());
-		delete tl;
-		if (--count == 0)
-		    break;
-	    } else {
-		Heap::replace(termlists, termlists + count,
-			      CompareTermListsByTerm());
-	    }
-	}
+        // Skip over current_term if we haven't already.
+        while (true) {
+            TermList* tl = termlists[0];
+            if (tl->get_termname() != current_term)
+                break;
+            if (tl->next()) {
+                // Out of entries.
+                Heap::pop(termlists, termlists + count,
+                          CompareTermListsByTerm());
+                delete tl;
+                if (--count == 0)
+                    break;
+            } else {
+                Heap::replace(termlists, termlists + count,
+                              CompareTermListsByTerm());
+            }
+        }
     }
 
     current_termfreq = 0;
 
     if (count <= 1) {
-	if (count == 0) {
-	    return this;
-	}
-	count = 0;
-	// Prune.
-	return termlists[0];
+        if (count == 0) {
+            return this;
+        }
+        count = 0;
+        // Prune.
+        return termlists[0];
     }
 
     current_term = termlists[0]->get_termname();
@@ -144,24 +144,24 @@ MultiAllTermsList::skip_to(std::string_view term)
     // approach more like that next() uses if this ever gets heavy use.
     size_t j = 0;
     for (size_t i = 0; i != count; ++i) {
-	if (termlists[i]->skip_to(term) == NULL) {
-	    if (i != j)
-		swap(termlists[i], termlists[j]);
-	    ++j;
-	}
+        if (termlists[i]->skip_to(term) == NULL) {
+            if (i != j)
+                swap(termlists[i], termlists[j]);
+            ++j;
+        }
     }
     while (count > j)
-	delete termlists[--count];
+        delete termlists[--count];
 
     current_termfreq = 0;
 
     if (count <= 1) {
-	if (count == 0) {
-	    return this;
-	}
-	count = 0;
-	// Prune.
-	return termlists[0];
+        if (count == 0) {
+            return this;
+        }
+        count = 0;
+        // Prune.
+        return termlists[0];
     }
 
     Heap::make(termlists, termlists + count, CompareTermListsByTerm());

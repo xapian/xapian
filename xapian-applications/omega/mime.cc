@@ -49,7 +49,7 @@ mimetype_from_ext(const map<string, string> & mime_map, string ext)
 {
     map<string, string>::const_iterator mt = mime_map.find(ext);
     if (mt != mime_map.end())
-	return mt->second;
+        return mt->second;
 
     const char * r = built_in_mime_map(ext);
     if (r) return r;
@@ -59,19 +59,19 @@ mimetype_from_ext(const map<string, string> & mime_map, string ext)
     bool changed = false;
     string::iterator i;
     for (i = ext.begin(); i != ext.end(); ++i) {
-	if (*i >= 'A' && *i <= 'Z') {
-	    *i = C_tolower(*i);
-	    changed = true;
-	}
+        if (*i >= 'A' && *i <= 'Z') {
+            *i = C_tolower(*i);
+            changed = true;
+        }
     }
 
     if (changed) {
-	mt = mime_map.find(ext);
-	if (mt != mime_map.end())
-	    return mt->second;
+        mt = mime_map.find(ext);
+        if (mt != mime_map.end())
+            return mt->second;
 
-	r = built_in_mime_map(ext);
-	if (r) return r;
+        r = built_in_mime_map(ext);
+        if (r) return r;
     }
 
     return string();

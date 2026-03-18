@@ -52,14 +52,14 @@ CPUTimer::get_current_cputime()
 #else
     static bool skip = (getenv("AUTOMATED_TESTING") != NULL);
     if (skip) {
-	SKIP_TEST("Skipping timed test because $AUTOMATED_TESTING is set");
+        SKIP_TEST("Skipping timed test because $AUTOMATED_TESTING is set");
     }
 
     double t = 0;
 #ifdef HAVE_GETRUSAGE
     struct rusage r;
     if (getrusage(RUSAGE_SELF, &r) == -1) {
-	FAIL_TEST("Couldn't measure CPU for self: " << errno_to_string(errno));
+        FAIL_TEST("Couldn't measure CPU for self: " << errno_to_string(errno));
     }
 
     t = r.ru_utime.tv_sec + r.ru_stime.tv_sec;
@@ -67,7 +67,7 @@ CPUTimer::get_current_cputime()
 #elif defined HAVE_TIMES
     struct tms b;
     if (times(&b) == clock_t(-1)) {
-	FAIL_TEST("Couldn't measure CPU: " << errno_to_string(errno));
+        FAIL_TEST("Couldn't measure CPU: " << errno_to_string(errno));
     }
     t = (double)(b.tms_utime + b.tms_stime);
 # ifdef HAVE_SYSCONF

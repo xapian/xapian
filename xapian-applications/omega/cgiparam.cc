@@ -44,35 +44,35 @@ add_param(string name, string val)
 {
     size_t i = name.length();
     if (i > 2 && name[i - 2] == '.') {
-	// An image button called B gives B.x and B.y parameters with the
-	// coordinates of the click.  We throw away the ".y" one and trim
-	// ".x" from the other.
-	if (name[i - 1] == 'y') return;
-	if (name[i - 1] == 'x') {
-	    name.resize(i - 2);
-	    // For an image button, the value of the CGI parameter is the
-	    // coordinate of the click within the image - this is meaningless
-	    // to us, so instead we turn "[ 2 ].x=NNN" into "[ 2 ]=2 ]", then
-	    // below that gets turned into "[=2 ]".  The trailing non-numeric
-	    // characters are ignored by atoi().
-	    i = name.find_first_of(" \t");
-	    if (i != string::npos)
-		val.assign(name, i + 1, string::npos);
-	    else {
-		i = name.find_first_not_of("0123456789");
-		if (i == string::npos) {
-		    // For image buttons with entirely numeric names, make the
-		    // value the name, and the name "#" - e.g. "2.x=NNN" becomes
-		    // "#=2".
-		    val = name;
-		    name = '#';
-		} else {
-		    // Otherwise we just copy the name into the value, so
-		    // ">.x=NNN" becomes ">=>".
-		    val = name;
-		}
-	    }
-	}
+        // An image button called B gives B.x and B.y parameters with the
+        // coordinates of the click.  We throw away the ".y" one and trim
+        // ".x" from the other.
+        if (name[i - 1] == 'y') return;
+        if (name[i - 1] == 'x') {
+            name.resize(i - 2);
+            // For an image button, the value of the CGI parameter is the
+            // coordinate of the click within the image - this is meaningless
+            // to us, so instead we turn "[ 2 ].x=NNN" into "[ 2 ]=2 ]", then
+            // below that gets turned into "[=2 ]".  The trailing non-numeric
+            // characters are ignored by atoi().
+            i = name.find_first_of(" \t");
+            if (i != string::npos)
+                val.assign(name, i + 1, string::npos);
+            else {
+                i = name.find_first_not_of("0123456789");
+                if (i == string::npos) {
+                    // For image buttons with entirely numeric names, make the
+                    // value the name, and the name "#" - e.g. "2.x=NNN" becomes
+                    // "#=2".
+                    val = name;
+                    name = '#';
+                } else {
+                    // Otherwise we just copy the name into the value, so
+                    // ">.x=NNN" becomes ">=>".
+                    val = name;
+                }
+            }
+        }
     }
     // Truncate at first space or tab - convert '[ page two ]=2'
     // into '[=2'
@@ -92,13 +92,13 @@ decode_argv(char **argv)
 {
     cgi_params.clear();
     while (*argv) {
-	char *p = strchr(*argv, '=');
-	if (p) {
-	    add_param(string(*argv, p), p + 1);
-	} else {
-	    add_param(*argv, "");
-	}
-	++argv;
+        char *p = strchr(*argv, '=');
+        if (p) {
+            add_param(string(*argv, p), p + 1);
+        } else {
+            add_param(*argv, "");
+        }
+        ++argv;
     }
 }
 
@@ -107,23 +107,23 @@ decode_test()
 {
     cgi_params.clear();
     while (!feof(stdin)) {
-	string name, val;
-	bool had_equals = false;
-	while (1) {
-	    int ch = getchar();
-	    if (ch == EOF || ch == '\n') {
-		if (name.empty()) return; // end on blank line
-		add_param(name, val);
-		break;
-	    }
-	    if (had_equals) {
-		val += char(ch);
-	    } else if (ch == '=') {
-		had_equals = true;
-	    } else {
-		name += char(ch);
-	    }
-	}
+        string name, val;
+        bool had_equals = false;
+        while (1) {
+            int ch = getchar();
+            if (ch == EOF || ch == '\n') {
+                if (name.empty()) return; // end on blank line
+                add_param(name, val);
+                break;
+            }
+            if (had_equals) {
+                val += char(ch);
+            } else if (ch == '=') {
+                had_equals = true;
+            } else {
+                name += char(ch);
+            }
+        }
     }
 }
 
@@ -148,5 +148,5 @@ decode_get()
     const char *q_str = getenv("QUERY_STRING");
     // If QUERY_STRING isn't set, that's pretty broken, but don't segfault.
     if (q_str)
-	url_decode(CGIParameterHandler(), CStringItor(q_str), CStringItor());
+        url_decode(CGIParameterHandler(), CStringItor(q_str), CStringItor());
 }

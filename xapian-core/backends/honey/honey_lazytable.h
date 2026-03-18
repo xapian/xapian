@@ -32,10 +32,10 @@ class HoneyLazyTable : public HoneyTable {
      *  @param readonly		true if the table is read-only, else false.
      */
     HoneyLazyTable(const char* name_, const std::string& path_, bool readonly)
-	: HoneyTable(name_, path_, readonly, true) { }
+        : HoneyTable(name_, path_, readonly, true) { }
 
     HoneyLazyTable(const char* name_, int fd, off_t offset_, bool readonly)
-	: HoneyTable(name_, fd, offset_, readonly, true) { }
+        : HoneyTable(name_, fd, offset_, readonly, true) { }
 };
 
 #endif // XAPIAN_INCLUDED_HONEY_LAZYTABLE_H

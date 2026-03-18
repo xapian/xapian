@@ -92,30 +92,30 @@ throw_no_db_to_check()
 #if defined XAPIAN_HAS_GLASS_BACKEND
 static void
 reserve_doclens(vector<Xapian::termcount>& doclens, Xapian::docid last_docid,
-		ostream * out)
+                ostream * out)
 {
     if (last_docid >= 0x40000000ul / sizeof(Xapian::termcount)) {
-	// The memory block needed by the vector would be >= 1GB.
-	if (out)
-	    *out << "Cross-checking document lengths between the postlist and "
-		    "termlist tables would use more than 1GB of memory, so "
-		    "skipping that check" << endl;
-	return;
+        // The memory block needed by the vector would be >= 1GB.
+        if (out)
+            *out << "Cross-checking document lengths between the postlist and "
+                    "termlist tables would use more than 1GB of memory, so "
+                    "skipping that check" << endl;
+        return;
     }
     try {
-	doclens.reserve(last_docid + 1);
+        doclens.reserve(last_docid + 1);
     } catch (const std::bad_alloc &) {
-	// Failed to allocate the required memory.
-	if (out)
-	    *out << "Couldn't allocate enough memory for cross-checking document "
-		    "lengths between the postlist and termlist tables, so "
-		    "skipping that check" << endl;
+        // Failed to allocate the required memory.
+        if (out)
+            *out << "Couldn't allocate enough memory for cross-checking document "
+                    "lengths between the postlist and termlist tables, so "
+                    "skipping that check" << endl;
     } catch (const std::length_error &) {
-	// There are too many elements for the vector to handle!
-	if (out)
-	    *out << "Couldn't allocate enough elements for cross-checking document "
-		    "lengths between the postlist and termlist tables, so "
-		    "skipping that check" << endl;
+        // There are too many elements for the vector to handle!
+        if (out)
+            *out << "Couldn't allocate enough elements for cross-checking document "
+                    "lengths between the postlist and termlist tables, so "
+                    "skipping that check" << endl;
     }
 }
 #endif
@@ -128,52 +128,52 @@ check_db_dir(string_view path, int opts, std::ostream *out)
     filename += "/iamglass";
     if (stat(filename.c_str(), &sb) == 0) {
 #ifndef XAPIAN_HAS_GLASS_BACKEND
-	(void)opts;
-	(void)out;
-	throw Xapian::FeatureUnavailableError("Glass database support isn't enabled");
+        (void)opts;
+        (void)out;
+        throw Xapian::FeatureUnavailableError("Glass database support isn't enabled");
 #else
-	// Check a whole glass database directory.
-	vector<Xapian::termcount> doclens;
-	size_t errors = 0;
+        // Check a whole glass database directory.
+        vector<Xapian::termcount> doclens;
+        size_t errors = 0;
 
-	try {
-	    // Check if the database can actually be opened.
-	    Xapian::Database db(path);
-	} catch (const Xapian::Error& e) {
-	    // Continue - we can still usefully look at how it is broken.
-	    if (out)
-		*out << "Database couldn't be opened for reading: "
-		     << e.get_description()
-		     << "\nContinuing check anyway" << endl;
-	    ++errors;
-	}
+        try {
+            // Check if the database can actually be opened.
+            Xapian::Database db(path);
+        } catch (const Xapian::Error& e) {
+            // Continue - we can still usefully look at how it is broken.
+            if (out)
+                *out << "Database couldn't be opened for reading: "
+                     << e.get_description()
+                     << "\nContinuing check anyway" << endl;
+            ++errors;
+        }
 
-	GlassVersion version_file(path);
-	version_file.read();
-	for (auto r = version_file.get_revision(); r != 0; --r) {
-	    filename.resize(path.size());
-	    filename += "/changes";
-	    filename += str(r);
-	    if (file_exists(filename))
-		GlassChanges::check(filename);
-	}
+        GlassVersion version_file(path);
+        version_file.read();
+        for (auto r = version_file.get_revision(); r != 0; --r) {
+            filename.resize(path.size());
+            filename += "/changes";
+            filename += str(r);
+            if (file_exists(filename))
+                GlassChanges::check(filename);
+        }
 
-	Xapian::docid doccount = version_file.get_doccount();
-	Xapian::docid db_last_docid = version_file.get_last_docid();
-	if (db_last_docid < doccount) {
-	    if (out)
-		*out << "last_docid = " << db_last_docid << " < doccount = "
-		     << doccount << endl;
-	    ++errors;
-	}
-	reserve_doclens(doclens, db_last_docid, out);
+        Xapian::docid doccount = version_file.get_doccount();
+        Xapian::docid db_last_docid = version_file.get_last_docid();
+        if (db_last_docid < doccount) {
+            if (out)
+                *out << "last_docid = " << db_last_docid << " < doccount = "
+                     << doccount << endl;
+            ++errors;
+        }
+        reserve_doclens(doclens, db_last_docid, out);
 
-	// Check all the tables.
-	for (auto t : glass_tables) {
-	    errors += check_glass_table(t.name, path, version_file, opts,
-					doclens, out);
-	}
-	return errors;
+        // Check all the tables.
+        for (auto t : glass_tables) {
+            errors += check_glass_table(t.name, path, version_file, opts,
+                                        doclens, out);
+        }
+        return errors;
 #endif
     }
 
@@ -181,88 +181,88 @@ check_db_dir(string_view path, int opts, std::ostream *out)
     filename += "/iamhoney";
     if (stat(filename.c_str(), &sb) == 0) {
 #ifndef XAPIAN_HAS_HONEY_BACKEND
-	(void)opts;
-	(void)out;
-	auto msg = "Honey database support isn't enabled";
-	throw Xapian::FeatureUnavailableError(msg);
+        (void)opts;
+        (void)out;
+        auto msg = "Honey database support isn't enabled";
+        throw Xapian::FeatureUnavailableError(msg);
 #else
-	// Check a whole honey database directory.
-	vector<Xapian::termcount> doclens;
-	size_t errors = 0;
+        // Check a whole honey database directory.
+        vector<Xapian::termcount> doclens;
+        size_t errors = 0;
 
-	try {
-	    // Check if the database can actually be opened.
-	    Xapian::Database db(path);
-	} catch (const Xapian::Error& e) {
-	    // Continue - we can still usefully look at how it is broken.
-	    if (out)
-		*out << "Database couldn't be opened for reading: "
-		     << e.get_description()
-		     << "\nContinuing check anyway" << endl;
-	    ++errors;
-	}
+        try {
+            // Check if the database can actually be opened.
+            Xapian::Database db(path);
+        } catch (const Xapian::Error& e) {
+            // Continue - we can still usefully look at how it is broken.
+            if (out)
+                *out << "Database couldn't be opened for reading: "
+                     << e.get_description()
+                     << "\nContinuing check anyway" << endl;
+            ++errors;
+        }
 
-	HoneyVersion version_file(path);
-	version_file.read();
+        HoneyVersion version_file(path);
+        version_file.read();
 #if 0 // FIXME: Honey replication not yet implemented.
-	for (auto r = version_file.get_revision(); r != 0; --r) {
-	    string changes_file = path;
-	    changes_file += "/changes";
-	    changes_file += str(r);
-	    if (file_exists(changes_file))
-		HoneyChanges::check(changes_file);
-	}
+        for (auto r = version_file.get_revision(); r != 0; --r) {
+            string changes_file = path;
+            changes_file += "/changes";
+            changes_file += str(r);
+            if (file_exists(changes_file))
+                HoneyChanges::check(changes_file);
+        }
 #endif
 
-	Xapian::docid doccount = version_file.get_doccount();
-	Xapian::docid db_last_docid = version_file.get_last_docid();
-	if (db_last_docid < doccount) {
-	    if (out)
-		*out << "last_docid = " << db_last_docid << " < doccount = "
-		     << doccount << endl;
-	    ++errors;
-	}
-	reserve_doclens(doclens, db_last_docid, out);
+        Xapian::docid doccount = version_file.get_doccount();
+        Xapian::docid db_last_docid = version_file.get_last_docid();
+        if (db_last_docid < doccount) {
+            if (out)
+                *out << "last_docid = " << db_last_docid << " < doccount = "
+                     << doccount << endl;
+            ++errors;
+        }
+        reserve_doclens(doclens, db_last_docid, out);
 
-	// Check all the tables.
-	for (auto t : honey_tables) {
-	    errors += check_honey_table(t.name, path, version_file, opts,
-					doclens, out);
-	}
-	return errors;
+        // Check all the tables.
+        for (auto t : honey_tables) {
+            errors += check_honey_table(t.name, path, version_file, opts,
+                                        doclens, out);
+        }
+        return errors;
 #endif
     }
 
     filename.resize(path.size());
     filename += "/iamchert";
     if (stat(filename.c_str(), &sb) == 0) {
-	// Chert is no longer supported as of Xapian 2.0.0.
-	throw Xapian::FeatureUnavailableError("Chert database support was removed in Xapian 2.0.0");
+        // Chert is no longer supported as of Xapian 2.0.0.
+        throw Xapian::FeatureUnavailableError("Chert database support was removed in Xapian 2.0.0");
     }
 
     filename.resize(path.size());
     filename += "/iamflint";
     if (stat(filename.c_str(), &sb) == 0) {
-	// Flint is no longer supported as of Xapian 1.3.0.
-	throw Xapian::FeatureUnavailableError("Flint database support was removed in Xapian 1.3.0");
+        // Flint is no longer supported as of Xapian 1.3.0.
+        throw Xapian::FeatureUnavailableError("Flint database support was removed in Xapian 1.3.0");
     }
 
     filename.resize(path.size());
     filename += "/iambrass";
     if (stat(filename.c_str(), &sb) == 0) {
-	// Brass was renamed to glass as of Xapian 1.3.2.
-	throw Xapian::FeatureUnavailableError("Brass database support was removed in Xapian 1.3.2");
+        // Brass was renamed to glass as of Xapian 1.3.2.
+        throw Xapian::FeatureUnavailableError("Brass database support was removed in Xapian 1.3.2");
     }
 
     filename.resize(path.size());
     filename += "/record_DB";
     if (stat(filename.c_str(), &sb) == 0) {
-	// Quartz is no longer supported as of Xapian 1.1.0.
-	throw Xapian::FeatureUnavailableError("Quartz database support was removed in Xapian 1.1.0");
+        // Quartz is no longer supported as of Xapian 1.1.0.
+        throw Xapian::FeatureUnavailableError("Quartz database support was removed in Xapian 1.1.0");
     }
 
     throw Xapian::DatabaseOpeningError(
-	    "Directory does not contain a Xapian database");
+            "Directory does not contain a Xapian database");
 }
 
 /** Check a database table.
@@ -285,9 +285,9 @@ check_db_table(string_view filename, int opts, std::ostream* out, int backend)
 
     string tablename;
     while (p != filename.size()) {
-	char ch = filename[p++];
-	if (ch == '.') break;
-	tablename += C_tolower(ch);
+        char ch = filename[p++];
+        if (ch == '.') break;
+        tablename += C_tolower(ch);
     }
 
 #if defined XAPIAN_HAS_GLASS_BACKEND
@@ -300,50 +300,50 @@ check_db_table(string_view filename, int opts, std::ostream* out, int backend)
     switch (backend) {
       case BACKEND_GLASS: {
 #ifndef XAPIAN_HAS_GLASS_BACKEND
-	auto msg = "Glass database support isn't enabled";
-	throw Xapian::FeatureUnavailableError(msg);
+        auto msg = "Glass database support isn't enabled";
+        throw Xapian::FeatureUnavailableError(msg);
 #else
-	GlassVersion version_file(dir);
-	version_file.read();
-	return check_glass_table(tablename.c_str(), dir, version_file, opts,
-				 doclens, out);
+        GlassVersion version_file(dir);
+        version_file.read();
+        return check_glass_table(tablename.c_str(), dir, version_file, opts,
+                                 doclens, out);
 #endif
       }
 
       case BACKEND_HONEY: {
 #ifndef XAPIAN_HAS_HONEY_BACKEND
-	auto msg = "Honey database support isn't enabled";
-	throw Xapian::FeatureUnavailableError(msg);
+        auto msg = "Honey database support isn't enabled";
+        throw Xapian::FeatureUnavailableError(msg);
 #else
-	HoneyVersion version_file(dir);
-	version_file.read();
-	return check_honey_table(tablename.c_str(), dir, version_file, opts,
-				 doclens, out);
+        HoneyVersion version_file(dir);
+        version_file.read();
+        return check_honey_table(tablename.c_str(), dir, version_file, opts,
+                                 doclens, out);
 #endif
       }
 
       case BACKEND_OLD:
-	break;
+        break;
 
       default:
-	Assert(false);
-	break;
+        Assert(false);
+        break;
     }
 
     // Chert, flint and brass all used the extension ".DB", so check which
     // to give an appropriate error.
     struct stat sb;
     if (stat((dir + "/iamchert").c_str(), &sb) == 0) {
-	// Chert is no longer supported as of Xapian 2.0.0.
-	throw Xapian::FeatureUnavailableError("Chert database support was removed in Xapian 2.0.0");
+        // Chert is no longer supported as of Xapian 2.0.0.
+        throw Xapian::FeatureUnavailableError("Chert database support was removed in Xapian 2.0.0");
     }
     if (stat((dir + "/iamflint").c_str(), &sb) == 0) {
-	// Flint is no longer supported as of Xapian 1.3.0.
-	throw Xapian::FeatureUnavailableError("Flint database support was removed in Xapian 1.3.0");
+        // Flint is no longer supported as of Xapian 1.3.0.
+        throw Xapian::FeatureUnavailableError("Flint database support was removed in Xapian 1.3.0");
     }
     if (stat((dir + "/iambrass").c_str(), &sb) == 0) {
-	// Brass was renamed to glass as of Xapian 1.3.2.
-	throw Xapian::FeatureUnavailableError("Brass database support was removed in Xapian 1.3.2");
+        // Brass was renamed to glass as of Xapian 1.3.2.
+        throw Xapian::FeatureUnavailableError("Brass database support was removed in Xapian 1.3.2");
     }
     // Unaccompanied .DB file.
     throw Xapian::FeatureUnavailableError("Flint, chert and brass database support have all been removed");
@@ -357,58 +357,58 @@ static size_t
 check_db_fd(int fd, int opts, std::ostream* out, int backend)
 {
     if (backend == BACKEND_UNKNOWN) {
-	// FIXME: Actually probe.
-	backend = BACKEND_GLASS;
+        // FIXME: Actually probe.
+        backend = BACKEND_GLASS;
     }
 
     size_t errors = 0;
     switch (backend) {
       case BACKEND_GLASS: {
-	// Check a single-file glass database.
+        // Check a single-file glass database.
 #ifdef XAPIAN_HAS_GLASS_BACKEND
-	// GlassVersion's destructor will close fd.
-	GlassVersion version_file(fd);
-	version_file.read();
+        // GlassVersion's destructor will close fd.
+        GlassVersion version_file(fd);
+        version_file.read();
 
-	Xapian::docid doccount = version_file.get_doccount();
-	Xapian::docid db_last_docid = version_file.get_last_docid();
-	if (db_last_docid < doccount) {
-	    if (out)
-		*out << "last_docid = " << db_last_docid << " < doccount = "
-		     << doccount << endl;
-	    ++errors;
-	}
-	vector<Xapian::termcount> doclens;
-	reserve_doclens(doclens, db_last_docid, out);
+        Xapian::docid doccount = version_file.get_doccount();
+        Xapian::docid db_last_docid = version_file.get_last_docid();
+        if (db_last_docid < doccount) {
+            if (out)
+                *out << "last_docid = " << db_last_docid << " < doccount = "
+                     << doccount << endl;
+            ++errors;
+        }
+        vector<Xapian::termcount> doclens;
+        reserve_doclens(doclens, db_last_docid, out);
 
-	// Check all the tables.
-	for (auto t : glass_tables) {
-	    errors += check_glass_table(t.name, fd, version_file.get_offset(),
-					version_file, opts, doclens,
-					out);
-	}
-	break;
+        // Check all the tables.
+        for (auto t : glass_tables) {
+            errors += check_glass_table(t.name, fd, version_file.get_offset(),
+                                        version_file, opts, doclens,
+                                        out);
+        }
+        break;
 #else
-	(void)opts;
-	(void)out;
-	::close(fd);
-	throw Xapian::FeatureUnavailableError("Glass database support isn't enabled");
+        (void)opts;
+        (void)out;
+        ::close(fd);
+        throw Xapian::FeatureUnavailableError("Glass database support isn't enabled");
 #endif
       }
       case BACKEND_HONEY:
 #ifdef XAPIAN_HAS_HONEY_BACKEND
-	(void)opts;
-	(void)out;
-	::close(fd);
-	throw Xapian::UnimplementedError("Honey database checking not implemented");
+        (void)opts;
+        (void)out;
+        ::close(fd);
+        throw Xapian::UnimplementedError("Honey database checking not implemented");
 #else
-	(void)opts;
-	(void)out;
-	::close(fd);
-	throw Xapian::FeatureUnavailableError("Honey database support isn't enabled");
+        (void)opts;
+        (void)out;
+        ::close(fd);
+        throw Xapian::FeatureUnavailableError("Honey database support isn't enabled");
 #endif
       default:
-	Assert(false);
+        Assert(false);
     }
     return errors;
 }
@@ -420,80 +420,80 @@ check_stub(const string& stub_path, int opts, std::ostream* out)
 {
     size_t errors = 0;
     read_stub_file(stub_path,
-		   [&errors, opts, out](string_view path) {
-		       errors += Database::check(path, opts, out);
-		   },
-		   [&errors, opts, out](string_view path) {
-		       // FIXME: Doesn't check the database type is glass.
-		       errors += Database::check(path, opts, out);
-		   },
-		   [&errors, opts, out](string_view path) {
-		       // FIXME: Doesn't check the database type is honey.
-		       errors += Database::check(path, opts, out);
-		   },
-		   [](string_view, string_view) {
-		       auto msg = "Remote database checking not implemented";
-		       throw Xapian::UnimplementedError(msg);
-		   },
-		   [](string_view, unsigned) {
-		       auto msg = "Remote database checking not implemented";
-		       throw Xapian::UnimplementedError(msg);
-		   },
-		   []() {
-		       auto msg = "InMemory database checking not implemented";
-		       throw Xapian::UnimplementedError(msg);
-		   });
+                   [&errors, opts, out](string_view path) {
+                       errors += Database::check(path, opts, out);
+                   },
+                   [&errors, opts, out](string_view path) {
+                       // FIXME: Doesn't check the database type is glass.
+                       errors += Database::check(path, opts, out);
+                   },
+                   [&errors, opts, out](string_view path) {
+                       // FIXME: Doesn't check the database type is honey.
+                       errors += Database::check(path, opts, out);
+                   },
+                   [](string_view, string_view) {
+                       auto msg = "Remote database checking not implemented";
+                       throw Xapian::UnimplementedError(msg);
+                   },
+                   [](string_view, unsigned) {
+                       auto msg = "Remote database checking not implemented";
+                       throw Xapian::UnimplementedError(msg);
+                   },
+                   []() {
+                       auto msg = "InMemory database checking not implemented";
+                       throw Xapian::UnimplementedError(msg);
+                   });
     return errors;
 }
 
 size_t
 Database::check_(const string_view* path_ptr,
-		 int fd,
-		 int opts,
-		 std::ostream *out)
+                 int fd,
+                 int opts,
+                 std::ostream *out)
 {
     if (!out) {
-	// If we have nowhere to write output, then disable all the options
-	// which only affect what we output.
-	opts &= Xapian::DBCHECK_FIX;
+        // If we have nowhere to write output, then disable all the options
+        // which only affect what we output.
+        opts &= Xapian::DBCHECK_FIX;
     }
 
     if (path_ptr == NULL) {
-	return check_db_fd(fd, opts, out, BACKEND_UNKNOWN);
+        return check_db_fd(fd, opts, out, BACKEND_UNKNOWN);
     }
 
     if (path_ptr->empty()) {
-	throw_no_db_to_check();
+        throw_no_db_to_check();
     }
 
     string filename{*path_ptr};
     struct stat sb;
     if (stat(filename.c_str(), &sb) == 0) {
-	if (S_ISDIR(sb.st_mode)) {
-	    return check_db_dir(filename, opts, out);
-	}
+        if (S_ISDIR(sb.st_mode)) {
+            return check_db_dir(filename, opts, out);
+        }
 
-	if (S_ISREG(sb.st_mode)) {
-	    int backend = test_if_single_file_db(sb, filename, &fd);
-	    if (backend != BACKEND_UNKNOWN) {
-		return check_db_fd(fd, opts, out, backend);
-	    }
-	    // Could be a single table or a stub database file.  Look at the
-	    // extension to determine the type.
-	    if (endswith(filename, ".DB")) {
-		backend = BACKEND_OLD;
-	    } else if (endswith(filename, "." GLASS_TABLE_EXTENSION)) {
-		backend = BACKEND_GLASS;
-	    } else if (endswith(filename, "." HONEY_TABLE_EXTENSION)) {
-		backend = BACKEND_HONEY;
-	    } else {
-		return check_stub(filename, opts, out);
-	    }
+        if (S_ISREG(sb.st_mode)) {
+            int backend = test_if_single_file_db(sb, filename, &fd);
+            if (backend != BACKEND_UNKNOWN) {
+                return check_db_fd(fd, opts, out, backend);
+            }
+            // Could be a single table or a stub database file.  Look at the
+            // extension to determine the type.
+            if (endswith(filename, ".DB")) {
+                backend = BACKEND_OLD;
+            } else if (endswith(filename, "." GLASS_TABLE_EXTENSION)) {
+                backend = BACKEND_GLASS;
+            } else if (endswith(filename, "." HONEY_TABLE_EXTENSION)) {
+                backend = BACKEND_HONEY;
+            } else {
+                return check_stub(filename, opts, out);
+            }
 
-	    return check_db_table(filename, opts, out, backend);
-	}
+            return check_db_table(filename, opts, out, backend);
+        }
 
-	throw Xapian::DatabaseOpeningError("Not a regular file or directory");
+        throw Xapian::DatabaseOpeningError("Not a regular file or directory");
     }
 
     // The filename passed doesn't exist - see if it's the basename of the
@@ -501,19 +501,19 @@ Database::check_(const string_view* path_ptr,
     // "foo/termlist" or "foo/termlist." (which you would get from filename
     // completion with older backends).
     if (endswith(filename, '.')) {
-	filename.resize(filename.size() - 1);
+        filename.resize(filename.size() - 1);
     }
 
     int backend = BACKEND_UNKNOWN;
     if (stat((filename + ".DB").c_str(), &sb) == 0) {
-	// Could be chert, flint or brass - we check which below.
-	backend = BACKEND_OLD;
+        // Could be chert, flint or brass - we check which below.
+        backend = BACKEND_OLD;
     } else if (stat((filename + "." GLASS_TABLE_EXTENSION).c_str(), &sb) == 0) {
-	backend = BACKEND_GLASS;
+        backend = BACKEND_GLASS;
     } else if (stat((filename + "." HONEY_TABLE_EXTENSION).c_str(), &sb) == 0) {
-	backend = BACKEND_HONEY;
+        backend = BACKEND_HONEY;
     } else {
-	throw_no_db_to_check();
+        throw_no_db_to_check();
     }
 
     return check_db_table(*path_ptr, opts, out, backend);

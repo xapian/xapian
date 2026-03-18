@@ -30,35 +30,35 @@ PostList*
 AndNotPostList::next(double w_min)
 {
     while (true) {
-	PostList* result = pl->next(w_min);
-	if (result) {
-	    delete pl;
-	    pl = result;
-	}
-	if (pl->at_end()) {
-	    result = pl;
-	    pl = NULL;
-	    return result;
-	}
-	Xapian::docid l_did = pl->get_docid();
-	if (l_did > r_did) {
-	    bool r_valid;
-	    result = r->check(l_did, 0, r_valid);
-	    if (result) {
-		delete r;
-		r = result;
-	    }
-	    if (!r_valid)
-		return NULL;
-	    if (r->at_end()) {
-		result = pl;
-		pl = NULL;
-		return result;
-	    }
-	    r_did = r->get_docid();
-	}
-	if (l_did < r_did)
-	    break;
+        PostList* result = pl->next(w_min);
+        if (result) {
+            delete pl;
+            pl = result;
+        }
+        if (pl->at_end()) {
+            result = pl;
+            pl = NULL;
+            return result;
+        }
+        Xapian::docid l_did = pl->get_docid();
+        if (l_did > r_did) {
+            bool r_valid;
+            result = r->check(l_did, 0, r_valid);
+            if (result) {
+                delete r;
+                r = result;
+            }
+            if (!r_valid)
+                return NULL;
+            if (r->at_end()) {
+                result = pl;
+                pl = NULL;
+                return result;
+            }
+            r_did = r->get_docid();
+        }
+        if (l_did < r_did)
+            break;
     }
     return NULL;
 }
@@ -67,37 +67,37 @@ PostList*
 AndNotPostList::skip_to(Xapian::docid did, double w_min)
 {
     if (did > pl->get_docid()) {
-	PostList* result = pl->skip_to(did, w_min);
-	if (result) {
-	    delete pl;
-	    pl = result;
-	}
-	if (pl->at_end()) {
-	    result = pl;
-	    pl = NULL;
-	    return result;
-	}
-	Xapian::docid l_did = pl->get_docid();
-	if (l_did > r_did) {
-	    bool r_valid;
-	    result = r->check(l_did, 0, r_valid);
-	    if (result) {
-		delete r;
-		r = result;
-	    }
-	    if (!r_valid)
-		return NULL;
-	    if (r->at_end()) {
-		result = pl;
-		pl = NULL;
-		return result;
-	    }
-	    r_did = r->get_docid();
-	}
-	if (l_did == r_did) {
-	    // Advance to the next match.
-	    return AndNotPostList::next(w_min);
-	}
+        PostList* result = pl->skip_to(did, w_min);
+        if (result) {
+            delete pl;
+            pl = result;
+        }
+        if (pl->at_end()) {
+            result = pl;
+            pl = NULL;
+            return result;
+        }
+        Xapian::docid l_did = pl->get_docid();
+        if (l_did > r_did) {
+            bool r_valid;
+            result = r->check(l_did, 0, r_valid);
+            if (result) {
+                delete r;
+                r = result;
+            }
+            if (!r_valid)
+                return NULL;
+            if (r->at_end()) {
+                result = pl;
+                pl = NULL;
+                return result;
+            }
+            r_did = r->get_docid();
+        }
+        if (l_did == r_did) {
+            // Advance to the next match.
+            return AndNotPostList::next(w_min);
+        }
     }
     return NULL;
 }
@@ -107,36 +107,36 @@ AndNotPostList::check(Xapian::docid did, double w_min, bool& valid)
 {
     PostList* result = pl->check(did, w_min, valid);
     if (result) {
-	delete pl;
-	pl = result;
+        delete pl;
+        pl = result;
     }
     if (valid) {
-	if (pl->at_end()) {
-	    result = pl;
-	    pl = NULL;
-	    return result;
-	}
-	Xapian::docid l_did = pl->get_docid();
-	if (l_did > r_did) {
-	    bool r_valid;
-	    result = r->check(l_did, 0, r_valid);
-	    if (result) {
-		delete r;
-		r = result;
-	    }
-	    if (!r_valid)
-		return NULL;
-	    if (r->at_end()) {
-		result = pl;
-		pl = NULL;
-		return result;
-	    }
-	    r_did = r->get_docid();
-	}
-	if (l_did == r_did) {
-	    // For check() we can simply indicate !valid.
-	    valid = false;
-	}
+        if (pl->at_end()) {
+            result = pl;
+            pl = NULL;
+            return result;
+        }
+        Xapian::docid l_did = pl->get_docid();
+        if (l_did > r_did) {
+            bool r_valid;
+            result = r->check(l_did, 0, r_valid);
+            if (result) {
+                delete r;
+                r = result;
+            }
+            if (!r_valid)
+                return NULL;
+            if (r->at_end()) {
+                result = pl;
+                pl = NULL;
+                return result;
+            }
+            r_did = r->get_docid();
+        }
+        if (l_did == r_did) {
+            // For check() we can simply indicate !valid.
+            valid = false;
+        }
     }
     return NULL;
 }

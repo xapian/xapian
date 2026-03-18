@@ -42,25 +42,25 @@ try {
     $para = '';
     $lines = file("php://stdin");
     foreach ($lines as $line) {
-	$line = rtrim($line);
-	if ($line == "" && $para != "") {
-	    // We've reached the end of a paragraph, so index it.
-	    $doc = new XapianDocument();
-	    $doc->set_data($para);
+        $line = rtrim($line);
+        if ($line == "" && $para != "") {
+            // We've reached the end of a paragraph, so index it.
+            $doc = new XapianDocument();
+            $doc->set_data($para);
 
-	    $indexer->set_document($doc);
-	    $indexer->index_text($para);
+            $indexer->set_document($doc);
+            $indexer->index_text($para);
 
-	    // Add the document to the database.
-	    $database->add_document($doc);
+            // Add the document to the database.
+            $database->add_document($doc);
 
-	    $para = "";
-	} else {
-	    if ($para != "") {
-		$para .= " ";
-	    }
-	    $para .= $line;
-	}
+            $para = "";
+        } else {
+            if ($para != "") {
+                $para .= " ";
+            }
+            $para .= $line;
+        }
     }
 
     // Set the database handle to Null to ensure that it gets closed

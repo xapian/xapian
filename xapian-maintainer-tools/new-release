@@ -34,11 +34,11 @@ case $version in
     *.*[02468].*) ;;
     *.*[13579].*)
         echo "Development snapshot - not adding release notes"
-	exit 0
-	;;
+        exit 0
+        ;;
     *)
-	echo "Unsure if this is a development snapshot or not, bailing out"
-	exit 1
+        echo "Unsure if this is a development snapshot or not, bailing out"
+        exit 1
 esac
 
 series=`echo "$version"|sed 's/[0-9][0-9]*$//'`

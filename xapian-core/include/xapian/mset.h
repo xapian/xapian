@@ -68,9 +68,9 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
 #if 0 // FIXME: Need work before release.
     /// Helper for diversify() method.
     void diversify_(Xapian::doccount k,
-		    Xapian::doccount r,
-		    double factor1,
-		    double factor2);
+                    Xapian::doccount r,
+                    double factor1,
+                    double factor2);
 #endif
 
   public:
@@ -129,23 +129,23 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
     template<typename Iterator>
     void replace_weights(Iterator first, Iterator last)
     {
-	auto distance = last - first;
-	// Take care to compare signed and unsigned types both safely and
-	// without triggering compiler warnings.
-	if (distance < 0 ||
-	    (sizeof(distance) <= sizeof(Xapian::doccount) ?
-		Xapian::doccount(distance) != size() :
-		distance != static_cast<decltype(distance)>(size()))) {
-	    throw Xapian::InvalidArgumentError("Number of weights assigned "
-					       "doesn't match the number of "
-					       "items");
-	}
-	Xapian::doccount i = 0;
-	while (first != last) {
-	    set_item_weight(i, *first);
-	    ++i;
-	    ++first;
-	}
+        auto distance = last - first;
+        // Take care to compare signed and unsigned types both safely and
+        // without triggering compiler warnings.
+        if (distance < 0 ||
+            (sizeof(distance) <= sizeof(Xapian::doccount) ?
+                Xapian::doccount(distance) != size() :
+                distance != static_cast<decltype(distance)>(size()))) {
+            throw Xapian::InvalidArgumentError("Number of weights assigned "
+                                               "doesn't match the number of "
+                                               "items");
+        }
+        Xapian::doccount i = 0;
+        while (first != last) {
+            set_item_weight(i, *first);
+            ++i;
+            ++first;
+        }
     }
 
     /** Sorts the list of documents in MSet according to their weights.
@@ -179,19 +179,19 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
      *	  			[1e-6,1]
      */
     void diversify(Xapian::doccount k,
-		   Xapian::doccount r,
-		   double lambda = 0.5,
-		   double b = 5.0,
-		   double sigma_sqr = 1e-3) {
-	// Inline the argument value checks and the calculation of the scale
-	// factor for score_2 so the compiler can optimise in the case where
-	// some or all parameter values are compile-time constants.
-	if (r == 0)
-	    throw InvalidArgumentError("r must be > 0");
-	if (lambda < 0.0 || lambda > 1.0)
-	    throw InvalidArgumentError("lambda must be between 0 and 1");
-	if (k > 1)
-	    diversify_(k, r, lambda, (1.0 - lambda) * b * sigma_sqr * 2.0);
+                   Xapian::doccount r,
+                   double lambda = 0.5,
+                   double b = 5.0,
+                   double sigma_sqr = 1e-3) {
+        // Inline the argument value checks and the calculation of the scale
+        // factor for score_2 so the compiler can optimise in the case where
+        // some or all parameter values are compile-time constants.
+        if (r == 0)
+            throw InvalidArgumentError("r must be > 0");
+        if (lambda < 0.0 || lambda > 1.0)
+            throw InvalidArgumentError("lambda must be between 0 and 1");
+        if (k > 1)
+            diversify_(k, r, lambda, (1.0 - lambda) * b * sigma_sqr * 2.0);
     }
 #endif
 
@@ -315,42 +315,42 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
     double get_max_possible() const;
 
     enum {
-	/** Model the relevancy of non-query terms in MSet::snippet().
-	 *
-	 *  Non-query terms will be assigned a small weight, and the snippet
-	 *  will tend to prefer snippets which contain a more interesting
-	 *  background (where the query term content is equivalent).
-	 */
-	SNIPPET_BACKGROUND_MODEL = 1,
-	/** Exhaustively evaluate candidate snippets in MSet::snippet().
-	 *
-	 *  Without this flag, snippet generation will stop once it thinks
-	 *  it has found a "good enough" snippet, which will generally reduce
-	 *  the time taken to generate a snippet.
-	 */
-	SNIPPET_EXHAUSTIVE = 2,
-	/** Return the empty string if no term got matched.
-	 *
-	 *  If enabled, snippet() returns an empty string if not a single match
-	 *  was found in text. If not enabled, snippet() returns a (sub)string
-	 *  of text without any highlighted terms.
-	 */
-	SNIPPET_EMPTY_WITHOUT_MATCH = 4,
+        /** Model the relevancy of non-query terms in MSet::snippet().
+         *
+         *  Non-query terms will be assigned a small weight, and the snippet
+         *  will tend to prefer snippets which contain a more interesting
+         *  background (where the query term content is equivalent).
+         */
+        SNIPPET_BACKGROUND_MODEL = 1,
+        /** Exhaustively evaluate candidate snippets in MSet::snippet().
+         *
+         *  Without this flag, snippet generation will stop once it thinks
+         *  it has found a "good enough" snippet, which will generally reduce
+         *  the time taken to generate a snippet.
+         */
+        SNIPPET_EXHAUSTIVE = 2,
+        /** Return the empty string if no term got matched.
+         *
+         *  If enabled, snippet() returns an empty string if not a single match
+         *  was found in text. If not enabled, snippet() returns a (sub)string
+         *  of text without any highlighted terms.
+         */
+        SNIPPET_EMPTY_WITHOUT_MATCH = 4,
 
-	/** Generate n-grams for scripts without explicit word breaks.
-	 *
+        /** Generate n-grams for scripts without explicit word breaks.
+         *
          *  Text in other scripts is split into words as normal.
          *
-	 *  Enable this option to highlight search results for queries parsed
+         *  Enable this option to highlight search results for queries parsed
          *  with the QueryParser::FLAG_NGRAMS flag.
-	 *
-	 *  The TermGenerator::FLAG_NGRAMS flag needs to have been used at
-	 *  index time.
-	 *
-	 *  This mode can also be enabled by setting environment variable
-	 *  XAPIAN_CJK_NGRAM to a non-empty value (but doing so was deprecated
-	 *  in 1.4.11).
-	 *
+         *
+         *  The TermGenerator::FLAG_NGRAMS flag needs to have been used at
+         *  index time.
+         *
+         *  This mode can also be enabled by setting environment variable
+         *  XAPIAN_CJK_NGRAM to a non-empty value (but doing so was deprecated
+         *  in 1.4.11).
+         *
          *  In 1.4.x this feature was specific to CJK (Chinese, Japanese and
          *  Korean), but in 2.0.0 it's been extended to other languages.  To
          *  reflect this change the new and preferred name is SNIPPET_NGRAMS,
@@ -358,33 +358,33 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
          *  1.4.23.  Use SNIPPET_CJK_NGRAM instead if you aim to support Xapian
          *  &lt; 1.4.23.
          *
-	 *  @since Added in Xapian 1.4.23.
-	 */
-	SNIPPET_NGRAMS = 2048,
+         *  @since Added in Xapian 1.4.23.
+         */
+        SNIPPET_NGRAMS = 2048,
 
-	/** Generate n-grams for scripts without explicit word breaks.
-	 *
-	 *  Old name - use SNIPPET_NGRAMS instead unless you aim to support
-	 *  Xapian &lt; 1.4.23.
+        /** Generate n-grams for scripts without explicit word breaks.
          *
-	 *  @since Added in Xapian 1.4.11.
-	 */
-	SNIPPET_CJK_NGRAM = SNIPPET_NGRAMS,
+         *  Old name - use SNIPPET_NGRAMS instead unless you aim to support
+         *  Xapian &lt; 1.4.23.
+         *
+         *  @since Added in Xapian 1.4.11.
+         */
+        SNIPPET_CJK_NGRAM = SNIPPET_NGRAMS,
 
-	/** Find word breaks for text in scripts without explicit word breaks.
-	 *
-	 *  Enable this option to highlight search results for queries parsed
+        /** Find word breaks for text in scripts without explicit word breaks.
+         *
+         *  Enable this option to highlight search results for queries parsed
          *  with the QueryParser::FLAG_WORD_BREAKS flag.  Spans of text
          *  written in such scripts are split into words using ICU (which uses
          *  heuristics and/or dictionaries to do so).  Text in other scripts is
          *  split into words as normal.
-	 *
-	 *  The TermGenerator::FLAG_WORD_BREAKS flag needs to have been used at
-	 *  index time.
-	 *
-	 *  @since Added in Xapian 2.0.0.
-	 */
-	SNIPPET_WORD_BREAKS = 4096
+         *
+         *  The TermGenerator::FLAG_WORD_BREAKS flag needs to have been used at
+         *  index time.
+         *
+         *  @since Added in Xapian 2.0.0.
+         */
+        SNIPPET_WORD_BREAKS = 4096
     };
 
     /** Generate a snippet.
@@ -417,12 +417,12 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
      *  @since Added in 1.3.5.
      */
     std::string snippet(std::string_view text,
-			size_t length = 500,
-			const Xapian::Stem & stemmer = Xapian::Stem(),
-			unsigned flags = SNIPPET_BACKGROUND_MODEL|SNIPPET_EXHAUSTIVE,
-			std::string_view hi_start = "<b>",
-			std::string_view hi_end = "</b>",
-			std::string_view omit = "...") const;
+                        size_t length = 500,
+                        const Xapian::Stem & stemmer = Xapian::Stem(),
+                        unsigned flags = SNIPPET_BACKGROUND_MODEL|SNIPPET_EXHAUSTIVE,
+                        std::string_view hi_start = "<b>",
+                        std::string_view hi_end = "</b>",
+                        std::string_view omit = "...") const;
 
     /** Prefetch hint a range of items.
      *
@@ -536,7 +536,7 @@ class XAPIAN_VISIBILITY_DEFAULT MSetIterator {
     friend class MSet;
 
     MSetIterator(const Xapian::MSet & mset_, Xapian::doccount off_from_end_)
-	: mset(mset_), off_from_end(off_from_end_) { }
+        : mset(mset_), off_from_end(off_from_end_) { }
 
   public:
     /** @private @internal The MSet we are iterating over. */
@@ -557,28 +557,28 @@ class XAPIAN_VISIBILITY_DEFAULT MSetIterator {
 
     /// Advance the iterator to the next position.
     MSetIterator & operator++() {
-	--off_from_end;
-	return *this;
+        --off_from_end;
+        return *this;
     }
 
     /// Advance the iterator to the next position (postfix version).
     MSetIterator operator++(int) {
-	MSetIterator retval = *this;
-	--off_from_end;
-	return retval;
+        MSetIterator retval = *this;
+        --off_from_end;
+        return retval;
     }
 
     /// Move the iterator to the previous position.
     MSetIterator & operator--() {
-	++off_from_end;
-	return *this;
+        ++off_from_end;
+        return *this;
     }
 
     /// Move the iterator to the previous position (postfix version).
     MSetIterator operator--(int) {
-	MSetIterator retval = *this;
-	++off_from_end;
-	return retval;
+        MSetIterator retval = *this;
+        ++off_from_end;
+        return retval;
     }
 
     /** @private @internal MSetIterator is what the C++ STL calls an
@@ -606,14 +606,14 @@ class XAPIAN_VISIBILITY_DEFAULT MSetIterator {
 
     /// Move the iterator forwards by n positions.
     MSetIterator & operator+=(difference_type n) {
-	off_from_end -= n;
-	return *this;
+        off_from_end -= n;
+        return *this;
     }
 
     /// Move the iterator back by n positions.
     MSetIterator & operator-=(difference_type n) {
-	off_from_end += n;
-	return *this;
+        off_from_end += n;
+        return *this;
     }
 
     /** Return the iterator incremented by @a n positions.
@@ -621,7 +621,7 @@ class XAPIAN_VISIBILITY_DEFAULT MSetIterator {
      *  If @a n is negative, decrements by (-n) positions.
      */
     MSetIterator operator+(difference_type n) const {
-	return MSetIterator(mset, off_from_end - n);
+        return MSetIterator(mset, off_from_end - n);
     }
 
     /** Return the iterator decremented by @a n positions.
@@ -629,12 +629,12 @@ class XAPIAN_VISIBILITY_DEFAULT MSetIterator {
      *  If @a n is negative, increments by (-n) positions.
      */
     MSetIterator operator-(difference_type n) const {
-	return MSetIterator(mset, off_from_end + n);
+        return MSetIterator(mset, off_from_end + n);
     }
 
     /** Return the number of positions between @a o and this iterator. */
     difference_type operator-(const MSetIterator& o) const {
-	return difference_type(o.off_from_end) - difference_type(off_from_end);
+        return difference_type(o.off_from_end) - difference_type(off_from_end);
     }
 
     /** Return the MSet rank for the current position.
@@ -642,7 +642,7 @@ class XAPIAN_VISIBILITY_DEFAULT MSetIterator {
      *  The rank of mset[0] is mset.get_firstitem().
      */
     Xapian::doccount get_rank() const {
-	return mset.get_firstitem() + (mset.size() - off_from_end);
+        return mset.get_firstitem() + (mset.size() - off_from_end);
     }
 
     /** Get the Document object for the current position. */
@@ -709,7 +709,7 @@ class XAPIAN_VISIBILITY_DEFAULT MSetIterator {
      *  more relevant results.
      */
     int get_percent() const {
-	return mset.convert_to_percent(get_weight());
+        return mset.convert_to_percent(get_weight());
     }
 
     /// Return a string describing this object.

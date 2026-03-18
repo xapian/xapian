@@ -36,7 +36,7 @@ namespace Xapian {
     class ExpandDecider;
 
     namespace Internal {
-	class ExpandWeight;
+        class ExpandWeight;
 
 /// Class combining a term and its expand weight.
 class ExpandTerm {
@@ -51,19 +51,19 @@ class ExpandTerm {
   public:
     /// Constructor.
     ExpandTerm(double wt_, const std::string & term_)
-	: wt(wt_), term(term_) { }
+        : wt(wt_), term(term_) { }
 
     /// Implement custom swap for ESet sorting efficiency.
     void swap(ExpandTerm & o) {
-	std::swap(wt, o.wt);
-	std::swap(term, o.term);
+        std::swap(wt, o.wt);
+        std::swap(term, o.term);
     }
 
     /// Ordering relation for ESet contents.
     bool operator<(const ExpandTerm & o) const {
-	if (wt > o.wt) return true;
-	if (wt < o.wt) return false;
-	return term > o.term;
+        if (wt > o.wt) return true;
+        if (wt < o.wt) return false;
+        return term > o.term;
     }
 
     std::string get_term() const { return term; }
@@ -103,11 +103,11 @@ class ESet::Internal : public Xapian::Internal::intrusive_base {
 
     /// Run the "expand" operation which fills the ESet.
     void expand(Xapian::termcount max_esize,
-		const Xapian::Database & db,
-		const Xapian::RSet & rset,
-		const Xapian::ExpandDecider * edecider,
-		Xapian::Internal::ExpandWeight & eweight,
-		double min_wt);
+                const Xapian::Database & db,
+                const Xapian::RSet & rset,
+                const Xapian::ExpandDecider * edecider,
+                Xapian::Internal::ExpandWeight & eweight,
+                double min_wt);
 
     /// Return a string describing this object.
     std::string get_description() const;

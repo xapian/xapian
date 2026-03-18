@@ -120,45 +120,45 @@ int
 main()
 {
     for (size_t i = 0; tests[i].html; ++i) {
-	HtmlParser p;
-	const char* html_begin = tests[i].html;
-	size_t html_len = strlen(html_begin);
-	if (html_len == 0) {
-	    // Wide character test data is signalled by a single leading nul
-	    // and terminated by a double nul.
-	    ++html_begin;
-	    while (html_begin[html_len] || html_begin[html_len + 1]) {
-		html_len += 2;
-	    }
-	}
-	string_view html(html_begin, html_len);
-	try {
-	    p.parse(html, "iso-8859-1", false);
-	} catch (const string &newcharset) {
-	    p.reset();
-	    p.parse(html, newcharset, true);
-	}
-	if (!p.indexing_allowed) {
-	    cout << "indexing disallowed by meta tag - skipping\n";
-	    continue;
-	}
-	if (tests[i].dump != p.dump) {
-	    cout << "DUMP " << i << ": [" << p.dump << "] != [" << tests[i].dump << "]" << endl;
-	    exit(1);
-	}
-	if (tests[i].title != p.title) {
-	    cout << "TITLE " << i << ": [" << p.title << "] != [" << tests[i].title << "]" << endl;
-	    exit(1);
-	}
-	if (tests[i].keywords != p.keywords) {
-	    cout << "KEYWORDS " << i << ": [" << p.keywords << "] != [" << tests[i].keywords << "]" << endl;
-	    exit(1);
-	}
-	const char *sample = tests[i].sample;
-	if (sample == NULL) sample = tests[i].dump;
-	if (sample != p.sample) {
-	    cout << "SAMPLE " << i << ": [" << p.sample << "] != [" << sample << "]" << endl;
-	    exit(1);
-	}
+        HtmlParser p;
+        const char* html_begin = tests[i].html;
+        size_t html_len = strlen(html_begin);
+        if (html_len == 0) {
+            // Wide character test data is signalled by a single leading nul
+            // and terminated by a double nul.
+            ++html_begin;
+            while (html_begin[html_len] || html_begin[html_len + 1]) {
+                html_len += 2;
+            }
+        }
+        string_view html(html_begin, html_len);
+        try {
+            p.parse(html, "iso-8859-1", false);
+        } catch (const string &newcharset) {
+            p.reset();
+            p.parse(html, newcharset, true);
+        }
+        if (!p.indexing_allowed) {
+            cout << "indexing disallowed by meta tag - skipping\n";
+            continue;
+        }
+        if (tests[i].dump != p.dump) {
+            cout << "DUMP " << i << ": [" << p.dump << "] != [" << tests[i].dump << "]" << endl;
+            exit(1);
+        }
+        if (tests[i].title != p.title) {
+            cout << "TITLE " << i << ": [" << p.title << "] != [" << tests[i].title << "]" << endl;
+            exit(1);
+        }
+        if (tests[i].keywords != p.keywords) {
+            cout << "KEYWORDS " << i << ": [" << p.keywords << "] != [" << tests[i].keywords << "]" << endl;
+            exit(1);
+        }
+        const char *sample = tests[i].sample;
+        if (sample == NULL) sample = tests[i].dump;
+        if (sample != p.sample) {
+            cout << "SAMPLE " << i << ": [" << p.sample << "] != [" << sample << "]" << endl;
+            exit(1);
+        }
     }
 }

@@ -37,12 +37,12 @@ LeafPostList::~LeafPostList()
 
 double
 LeafPostList::get_weight(Xapian::termcount doclen,
-			 Xapian::termcount unique_terms,
-			 Xapian::termcount wdfdocmax) const
+                         Xapian::termcount unique_terms,
+                         Xapian::termcount wdfdocmax) const
 {
     if (!weight) return 0;
     double sumpart = weight->get_sumpart(get_wdf(), doclen,
-					 unique_terms, wdfdocmax);
+                                         unique_terms, wdfdocmax);
     AssertRel(sumpart, <=, weight->get_maxpart());
     return sumpart;
 }

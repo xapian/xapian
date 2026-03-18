@@ -53,9 +53,9 @@ void
 FDTracker::mark_fd(int fd)
 {
     if (fd >= 0) {
-	if (size_t(fd) >= fds.size())
-	    fds.resize((fd &~ 31) + 32);
-	fds[fd] = true;
+        if (size_t(fd) >= fds.size())
+            fds.resize((fd &~ 31) + 32);
+        fds[fd] = true;
     }
 }
 
@@ -68,8 +68,8 @@ FDTracker::check_fd(int fd) const
 FDTracker::~FDTracker()
 {
     if (dir_void) {
-	DIR * dir = static_cast<DIR*>(dir_void);
-	closedir(dir);
+        DIR * dir = static_cast<DIR*>(dir_void);
+        closedir(dir);
     }
 }
 
@@ -85,22 +85,22 @@ FDTracker::init()
     // we keep dir open while the testcase runs and use it to recheck the open
     // fds at the end.
     while (true) {
-	errno = 0;
-	struct dirent * entry = readdir(dir);
-	if (!entry) {
-	    if (errno == 0)
-		break;
-	    cout << "readdir failed: " << errno_to_string(errno) << '\n';
-	    exit(1);
-	}
+        errno = 0;
+        struct dirent * entry = readdir(dir);
+        if (!entry) {
+            if (errno == 0)
+                break;
+            cout << "readdir failed: " << errno_to_string(errno) << '\n';
+            exit(1);
+        }
 
-	const char * name = entry->d_name;
+        const char * name = entry->d_name;
 
-	// Ignore at least '.' and '..'.
-	if (name[0] < '0' || name[0] > '9')
-	    continue;
+        // Ignore at least '.' and '..'.
+        if (name[0] < '0' || name[0] > '9')
+            continue;
 
-	mark_fd(atoi(name));
+        mark_fd(atoi(name));
     }
 }
 
@@ -115,52 +115,52 @@ FDTracker::check()
     message.resize(0);
 
     while (true) {
-	errno = 0;
-	struct dirent * entry = readdir(dir);
-	if (!entry) {
-	    if (errno == 0)
-		break;
-	    cout << "readdir failed: " << errno_to_string(errno) << '\n';
-	    exit(1);
-	}
+        errno = 0;
+        struct dirent * entry = readdir(dir);
+        if (!entry) {
+            if (errno == 0)
+                break;
+            cout << "readdir failed: " << errno_to_string(errno) << '\n';
+            exit(1);
+        }
 
-	const char * name = entry->d_name;
+        const char * name = entry->d_name;
 
-	// Ignore at least '.' and '..'.
-	if (name[0] < '0' || name[0] > '9')
-	    continue;
+        // Ignore at least '.' and '..'.
+        if (name[0] < '0' || name[0] > '9')
+            continue;
 
-	int fd = atoi(name);
-	if (check_fd(fd)) {
-	    // This fd was already open before the testcase.
-	    continue;
-	}
+        int fd = atoi(name);
+        if (check_fd(fd)) {
+            // This fd was already open before the testcase.
+            continue;
+        }
 
-	string proc_symlink = FD_DIRECTORY "/";
-	proc_symlink += name;
+        string proc_symlink = FD_DIRECTORY "/";
+        proc_symlink += name;
 
-	char buf[1024];
-	// On some systems (Solaris, AIX) the entries aren't symlinks, so
-	// don't complain if readlink() fails.
-	int res = readlink(proc_symlink.c_str(), buf, sizeof(buf));
-	if (res == CONST_STRLEN("/dev/urandom") &&
-	    memcmp(buf, "/dev/urandom", CONST_STRLEN("/dev/urandom")) == 0) {
-	    // /dev/urandom isn't a real leak - something in the C library
-	    // opens it lazily (at least on Linux).
-	    mark_fd(fd);
-	    continue;
-	}
+        char buf[1024];
+        // On some systems (Solaris, AIX) the entries aren't symlinks, so
+        // don't complain if readlink() fails.
+        int res = readlink(proc_symlink.c_str(), buf, sizeof(buf));
+        if (res == CONST_STRLEN("/dev/urandom") &&
+            memcmp(buf, "/dev/urandom", CONST_STRLEN("/dev/urandom")) == 0) {
+            // /dev/urandom isn't a real leak - something in the C library
+            // opens it lazily (at least on Linux).
+            mark_fd(fd);
+            continue;
+        }
 
-	message += ' ';
-	message += str(fd);
-	if (res > 0) {
-	    message += " -> ";
-	    message.append(buf, res);
-	}
+        message += ' ';
+        message += str(fd);
+        if (res > 0) {
+            message += " -> ";
+            message.append(buf, res);
+        }
 
-	// Mark the leaked fd as used so we don't report it for future tests.
-	mark_fd(fd);
-	ok = false;
+        // Mark the leaked fd as used so we don't report it for future tests.
+        mark_fd(fd);
+        ok = false;
     }
     return ok;
 }

@@ -51,17 +51,17 @@ class Result {
 
     /// Constructor.
     Result(double weight_, Xapian::docid did_)
-	: weight(weight_), did(did_) {}
+        : weight(weight_), did(did_) {}
 
     /// Constructor used by MSet::Internal::unserialise().
     Result(double weight_, Xapian::docid did_,
-	   std::string&& collapse_key_,
-	   Xapian::doccount collapse_count_,
-	   std::string&& sort_key_)
-	: weight(weight_), did(did_),
-	  collapse_count(collapse_count_),
-	  collapse_key(std::move(collapse_key_)),
-	  sort_key(std::move(sort_key_)) {}
+           std::string&& collapse_key_,
+           Xapian::doccount collapse_count_,
+           std::string&& sort_key_)
+        : weight(weight_), did(did_),
+          collapse_count(collapse_count_),
+          collapse_key(std::move(collapse_key_)),
+          sort_key(std::move(sort_key_)) {}
 
     void swap(Result& o);
 
@@ -84,7 +84,7 @@ class Result {
     void set_sort_key(const std::string& k) { sort_key = k; }
 
     void unshard_docid(Xapian::doccount shard, Xapian::doccount n_shards) {
-	did = unshard(did, shard, n_shards);
+        did = unshard(did, shard, n_shards);
     }
 
     std::string get_description() const;

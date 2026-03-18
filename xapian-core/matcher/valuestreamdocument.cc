@@ -32,7 +32,7 @@ clear_valuelists(map<Xapian::valueno, ValueList *> & valuelists)
 {
     map<Xapian::valueno, ValueList *>::const_iterator i;
     for (i = valuelists.begin(); i != valuelists.end(); ++i) {
-	delete i->second;
+        delete i->second;
     }
     valuelists.clear();
 }
@@ -64,23 +64,23 @@ ValueStreamDocument::fetch_value(Xapian::valueno slot) const
     ret = valuelists.insert(make_pair(slot, static_cast<ValueList*>(NULL)));
     ValueList * vl;
     if (ret.second) {
-	// Entry didn't already exist, so open a value list for slot.
-	vl = database->open_value_list(slot);
-	ret.first->second = vl;
+        // Entry didn't already exist, so open a value list for slot.
+        vl = database->open_value_list(slot);
+        ret.first->second = vl;
     } else {
-	vl = ret.first->second;
-	if (!vl) {
-	    return string();
-	}
+        vl = ret.first->second;
+        if (!vl) {
+            return string();
+        }
     }
 
     if (vl->check(did)) {
-	if (vl->at_end()) {
-	    delete vl;
-	    ret.first->second = NULL;
-	} else if (vl->get_docid() == did) {
-	    return vl->get_value();
-	}
+        if (vl->at_end()) {
+            delete vl;
+            ret.first->second = NULL;
+        } else if (vl->get_docid() == did) {
+            return vl->get_value();
+        }
     }
 
     return string();
@@ -90,7 +90,7 @@ void
 ValueStreamDocument::fetch_all_values(map<Xapian::valueno, string> & v) const
 {
     if (!doc) {
-	doc = database->open_document(did, true);
+        doc = database->open_document(did, true);
     }
     doc->fetch_all_values(v);
 }
@@ -99,7 +99,7 @@ string
 ValueStreamDocument::fetch_data() const
 {
     if (!doc) {
-	doc = database->open_document(did, true);
+        doc = database->open_document(did, true);
     }
     return doc->fetch_data();
 }

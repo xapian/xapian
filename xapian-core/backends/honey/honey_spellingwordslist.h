@@ -56,14 +56,14 @@ class HoneySpellingWordsList : public AllTermsList {
 
   public:
     HoneySpellingWordsList(const HoneyDatabase* database_, HoneyCursor* cursor_)
-	: database(database_), cursor(cursor_)
+        : database(database_), cursor(cursor_)
     {
-	// Set the cursor to its end to signal we haven't started yet.  Then
-	// if the first action is next() we can move the cursor to the first
-	// word with:
-	//
-	// cursor.find_entry_ge(string(1, KEY_PREFIX_WORD));
-	cursor->to_end();
+        // Set the cursor to its end to signal we haven't started yet.  Then
+        // if the first action is next() we can move the cursor to the first
+        // word with:
+        //
+        // cursor.find_entry_ge(string(1, KEY_PREFIX_WORD));
+        cursor->to_end();
     }
 
     /// Destructor.

@@ -65,7 +65,7 @@ get_lo_path()
 #else
     CHECK_DIR(LO_PATH_DEBIAN);
     if constexpr(sizeof(void*) > 4) {
-	CHECK_DIR(LO_PATH_FEDORA64);
+        CHECK_DIR(LO_PATH_FEDORA64);
     }
 #endif
 
@@ -73,57 +73,57 @@ get_lo_path()
     // e.g. /opt/libreoffice6.3/program
     DIR* opt = opendir("/opt");
     if (opt) {
-	unsigned long best_major = MIN_LIBREOFFICE_VERSIOM_MAJOR;
-	unsigned long best_minor = MIN_LIBREOFFICE_VERSIOM_MINOR;
-	// Set the best version seen to one before the minimum we support.
+        unsigned long best_major = MIN_LIBREOFFICE_VERSIOM_MAJOR;
+        unsigned long best_minor = MIN_LIBREOFFICE_VERSIOM_MINOR;
+        // Set the best version seen to one before the minimum we support.
 #if MIN_LIBREOFFICE_VERSIOM_MINOR == 0
-	--best_major;
-	best_minor = ULONG_MAX;
+        --best_major;
+        best_minor = ULONG_MAX;
 #else
-	--best_minor;
+        --best_minor;
 #endif
-	static string best_rc;
-	struct dirent* d;
-	while ((d = readdir(opt))) {
+        static string best_rc;
+        struct dirent* d;
+        while ((d = readdir(opt))) {
 #ifdef DT_DIR
-	    // Opportunistically skip non-directories if we can spot them
-	    // just by looking at d_type.
-	    if (d->d_type != DT_DIR && d->d_type != DT_UNKNOWN) {
-		continue;
-	    }
+            // Opportunistically skip non-directories if we can spot them
+            // just by looking at d_type.
+            if (d->d_type != DT_DIR && d->d_type != DT_UNKNOWN) {
+                continue;
+            }
 #endif
-	    if (memcmp(d->d_name, "libreoffice", strlen("libreoffice")) != 0) {
-		continue;
-	    }
+            if (memcmp(d->d_name, "libreoffice", strlen("libreoffice")) != 0) {
+                continue;
+            }
 
-	    char* p = d->d_name + strlen("libreoffice");
-	    unsigned long major = strtoul(p, &p, 10);
-	    if (major == ULONG_MAX) continue;
-	    unsigned long minor = 0;
-	    if (*p == '.') {
-		minor = strtoul(p + 1, &p, 10);
-		if (minor == ULONG_MAX) continue;
+            char* p = d->d_name + strlen("libreoffice");
+            unsigned long major = strtoul(p, &p, 10);
+            if (major == ULONG_MAX) continue;
+            unsigned long minor = 0;
+            if (*p == '.') {
+                minor = strtoul(p + 1, &p, 10);
+                if (minor == ULONG_MAX) continue;
 
-		string rc = "/opt/";
-		rc += d->d_name;
-		rc += "/program";
-		if (stat((rc + "/versionrc").c_str(), &sb) != 0 ||
-		    !S_ISREG(sb.st_mode)) {
-		    continue;
-		}
+                string rc = "/opt/";
+                rc += d->d_name;
+                rc += "/program";
+                if (stat((rc + "/versionrc").c_str(), &sb) != 0 ||
+                    !S_ISREG(sb.st_mode)) {
+                    continue;
+                }
 
-		if (major > best_major ||
-		    (major == best_major && minor > best_minor)) {
-		    best_major = major;
-		    best_minor = minor;
-		    best_rc = std::move(rc);
-		}
-	    }
-	}
-	closedir(opt);
-	if (!best_rc.empty()) {
-	    return best_rc.c_str();
-	}
+                if (major > best_major ||
+                    (major == best_major && minor > best_minor)) {
+                    best_major = major;
+                    best_minor = minor;
+                    best_rc = std::move(rc);
+                }
+            }
+        }
+        closedir(opt);
+        if (!best_rc.empty()) {
+            return best_rc.c_str();
+        }
     }
     return nullptr;
 }
@@ -137,32 +137,32 @@ bool
 initialise(string& error)
 {
     try {
-	output_file = get_tmpfile("tmp.html");
-	if (output_file.empty()) {
-	    error = "Couldn't create temporary directory";
-	    return false;
-	}
-	url_encode_path(output_url, output_file);
+        output_file = get_tmpfile("tmp.html");
+        if (output_file.empty()) {
+            error = "Couldn't create temporary directory";
+            return false;
+        }
+        url_encode_path(output_url, output_file);
 
-	const char* lo_path = get_lo_path();
-	if (!lo_path) {
-	    error = "LibreOffice >= "
-		STRINGIZE(MIN_LIBREOFFICE_VERSIOM_MAJOR) "."
-		STRINGIZE(MIN_LIBREOFFICE_VERSIOM_MINOR) " install not found. "
-		"Set LO_PATH to the 'program' directory, "
-		"e.g.: export LO_PATH=/opt/libreoffice/program";
-	    return false;
-	}
-	llo = lok_cpp_init(lo_path);
-	if (!llo) {
-	    error = "Failed to initialise LibreOfficeKit";
-	    return false;
-	}
-	return true;
+        const char* lo_path = get_lo_path();
+        if (!lo_path) {
+            error = "LibreOffice >= "
+                STRINGIZE(MIN_LIBREOFFICE_VERSIOM_MAJOR) "."
+                STRINGIZE(MIN_LIBREOFFICE_VERSIOM_MINOR) " install not found. "
+                "Set LO_PATH to the 'program' directory, "
+                "e.g.: export LO_PATH=/opt/libreoffice/program";
+            return false;
+        }
+        llo = lok_cpp_init(lo_path);
+        if (!llo) {
+            error = "Failed to initialise LibreOfficeKit";
+            return false;
+        }
+        return true;
     } catch (const exception& e) {
-	error = "LibreOfficeKit threw exception: ";
-	error += e.what();
-	return false;
+        error = "LibreOfficeKit threw exception: ";
+        error += e.what();
+        return false;
     }
 }
 
@@ -175,22 +175,22 @@ try {
     url_encode_path(input_url, filename);
     unique_ptr<Document> lodoc(llo->documentLoad(input_url.c_str(), options));
     if (!lodoc.get()) {
-	const char* errmsg = llo->getError();
-	send_field(FIELD_ERROR, errmsg ? errmsg : "Failed to load document");
-	return;
+        const char* errmsg = llo->getError();
+        send_field(FIELD_ERROR, errmsg ? errmsg : "Failed to load document");
+        return;
     }
 
     if (!lodoc->saveAs(output_url.c_str(), format, options)) {
-	const char* errmsg = llo->getError();
-	send_field(FIELD_ERROR, errmsg ? errmsg : "Failed to load export");
-	return;
+        const char* errmsg = llo->getError();
+        send_field(FIELD_ERROR, errmsg ? errmsg : "Failed to load export");
+        return;
     }
 
     string html;
     if (!load_file(output_file, html)) {
-	unlink(output_file.c_str());
-	send_field(FIELD_ERROR, "Failed to load LibreOffice HTML output");
-	return;
+        unlink(output_file.c_str());
+        send_field(FIELD_ERROR, "Failed to load LibreOffice HTML output");
+        return;
     }
     HtmlParser p;
     p.ignore_metarobots();

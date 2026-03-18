@@ -40,9 +40,9 @@ using namespace std::string_literals;
 using Xapian::Internal::intrusive_ptr;
 
 HoneyMetadataTermList::HoneyMetadataTermList(
-	const Xapian::Database::Internal* database_,
-	HoneyCursor* cursor_,
-	string_view prefix_)
+        const Xapian::Database::Internal* database_,
+        HoneyCursor* cursor_,
+        string_view prefix_)
     : database(database_), cursor(cursor_), prefix("\0\0"s.append(prefix_))
 {
     LOGCALL_CTOR(DB, "HoneyMetadataTermList", database_ | cursor_ | prefix_);
@@ -69,7 +69,7 @@ Xapian::doccount
 HoneyMetadataTermList::get_termfreq() const
 {
     throw Xapian::InvalidOperationError("HoneyMetadataTermList::get_termfreq() "
-					"not meaningful");
+                                        "not meaningful");
 }
 
 TermList*
@@ -79,16 +79,16 @@ HoneyMetadataTermList::next()
     Assert(cursor != NULL);
 
     if (cursor->after_end()) {
-	// This is the first action on a new HoneyMetadataTermList.
-	if (cursor->find_entry_ge(prefix))
-	    RETURN(NULL);
+        // This is the first action on a new HoneyMetadataTermList.
+        if (cursor->find_entry_ge(prefix))
+            RETURN(NULL);
     } else {
-	cursor->next();
+        cursor->next();
     }
 
     if (cursor->after_end() || !startswith(cursor->current_key, prefix)) {
-	// We've reached the end of the prefixed terms.
-	RETURN(this);
+        // We've reached the end of the prefixed terms.
+        RETURN(this);
     }
     current_term.assign(cursor->current_key, 2);
     RETURN(NULL);
@@ -104,23 +104,23 @@ HoneyMetadataTermList::skip_to(string_view key)
     string k(2, '\0');
     k += key;
     if (cursor->after_end() && prefix > k) {
-	// This is the first action on a new HoneySynonymTermList and we were
-	// asked to skip to a key before the prefix - this ought to leave us
-	// on the first key with the specified prefix.
-	k = prefix;
+        // This is the first action on a new HoneySynonymTermList and we were
+        // asked to skip to a key before the prefix - this ought to leave us
+        // on the first key with the specified prefix.
+        k = prefix;
     }
 
     if (cursor->find_entry_ge(k)) {
-	// Exact match.
-	current_term = key;
+        // Exact match.
+        current_term = key;
     } else {
-	// The exact key we asked for isn't there, so check if the next
-	// key after it also has the right prefix.
-	if (cursor->after_end() || !startswith(cursor->current_key, prefix)) {
-	    // We've reached the end of the prefixed keys.
-	    RETURN(this);
-	}
-	current_term.assign(cursor->current_key, 2);
+        // The exact key we asked for isn't there, so check if the next
+        // key after it also has the right prefix.
+        if (cursor->after_end() || !startswith(cursor->current_key, prefix)) {
+            // We've reached the end of the prefixed keys.
+            RETURN(this);
+        }
+        current_term.assign(cursor->current_key, 2);
     }
     RETURN(NULL);
 }

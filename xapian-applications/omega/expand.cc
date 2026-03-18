@@ -63,32 +63,32 @@ set_expansion_scheme(Xapian::Enquire & enq, const map<string, string> & opt)
     if (scheme.empty()) return;
 
     if (startswith(scheme, "prob") || startswith(scheme, "trad")) {
-	const char *p = scheme.c_str() + 4;
-	if (*p == '\0') {
-	    enq.set_expansion_scheme("prob");
-	    return;
-	}
-	if (C_isspace(*p)) {
-	    // Initialise k just to silence compiler warning.
-	    double k = 0.0;
-	    if (!double_param(&p, &k))
-		parameter_error("Parameter k is invalid", scheme);
-	    if (*p)
-		parameter_error("Extra data after first parameter", scheme);
-	    enq.set_expansion_scheme("prob", k);
-	    return;
-	}
+        const char *p = scheme.c_str() + 4;
+        if (*p == '\0') {
+            enq.set_expansion_scheme("prob");
+            return;
+        }
+        if (C_isspace(*p)) {
+            // Initialise k just to silence compiler warning.
+            double k = 0.0;
+            if (!double_param(&p, &k))
+                parameter_error("Parameter k is invalid", scheme);
+            if (*p)
+                parameter_error("Extra data after first parameter", scheme);
+            enq.set_expansion_scheme("prob", k);
+            return;
+        }
     }
 
     if (startswith(scheme, "bo1")) {
-	const char *p = scheme.c_str() + 3;
-	if (*p == '\0') {
-	    enq.set_expansion_scheme("bo1");
-	    return;
-	}
-	if (C_isspace(*p)) {
-	    throw "No parameters are required for BO1";
-	}
+        const char *p = scheme.c_str() + 3;
+        if (*p == '\0') {
+            enq.set_expansion_scheme("bo1");
+            return;
+        }
+        if (C_isspace(*p)) {
+            throw "No parameters are required for BO1";
+        }
     }
 
     throw "Unknown $opt{expansion} setting: " + scheme;

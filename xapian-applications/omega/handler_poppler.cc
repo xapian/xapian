@@ -36,11 +36,11 @@ convert_to_uri(const string& filename, GError** e)
 #else
     gchar* abs_filename;
     if (g_path_is_absolute(filename.c_str())) {
-	abs_filename = g_strdup(filename.c_str());
+        abs_filename = g_strdup(filename.c_str());
     } else {
-	gchar* cwd = g_get_current_dir();
-	abs_filename = g_build_filename(cwd, filename.c_str(), NULL);
-	g_free(cwd);
+        gchar* cwd = g_get_current_dir();
+        abs_filename = g_build_filename(cwd, filename.c_str(), NULL);
+        g_free(cwd);
     }
 #endif
     gchar* uri = g_filename_to_uri(abs_filename, NULL, e);
@@ -52,8 +52,8 @@ static void
 send_glib_field(Field field, gchar* data)
 {
     if (data) {
-	send_field(field, data);
-	g_free(data);
+        send_field(field, data);
+        g_free(data);
     }
 }
 
@@ -69,33 +69,33 @@ extract(const string& filename, const string&)
     GError* e = nullptr;
     gchar* uri = convert_to_uri(filename, &e);
     if (!uri) {
-	send_field(FIELD_ERROR, "g_filename_to_uri() failed: ");
-	send_field(FIELD_ERROR, e->message);
-	g_error_free(e);
-	return;
+        send_field(FIELD_ERROR, "g_filename_to_uri() failed: ");
+        send_field(FIELD_ERROR, e->message);
+        g_error_free(e);
+        return;
     }
 
     PopplerDocument* doc = poppler_document_new_from_file(uri, NULL, &e);
     g_free(uri);
     if (!doc) {
-	send_field(FIELD_ERROR, "poppler_document_new_from_file() failed: ");
-	send_field(FIELD_ERROR, e->message);
-	g_error_free(e);
-	return;
+        send_field(FIELD_ERROR, "poppler_document_new_from_file() failed: ");
+        send_field(FIELD_ERROR, e->message);
+        g_error_free(e);
+        return;
     }
 
     int pages = poppler_document_get_n_pages(doc);
     send_field_page_count(pages);
     // Extracting text from PDF file
     for (int i = 0; i < pages; ++i) {
-	PopplerPage* page = poppler_document_get_page(doc, i);
-	if (!page) {
-	    g_object_unref(doc);
-	    send_field(FIELD_ERROR, "Failed to get page " + str(i));
-	    return;
-	}
-	send_field(FIELD_BODY, poppler_page_get_text(page));
-	g_object_unref(page);
+        PopplerPage* page = poppler_document_get_page(doc, i);
+        if (!page) {
+            g_object_unref(doc);
+            send_field(FIELD_ERROR, "Failed to get page " + str(i));
+            return;
+        }
+        send_field(FIELD_BODY, poppler_page_get_text(page));
+        g_object_unref(page);
     }
 
     // Extract PDF metadata.

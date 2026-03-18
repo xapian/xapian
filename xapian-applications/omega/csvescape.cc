@@ -37,8 +37,8 @@ csv_escape_(string &s, string::size_type i)
     s.insert(0, 1, '"');
     string::size_type j;
     while ((j = s.find_first_of('"', i + 1)) != std::string::npos) {
-	s.insert(j, 1, '"');
-	i = j + 1;
+        s.insert(j, 1, '"');
+        i = j + 1;
     }
     s.append(1, '"');
 }

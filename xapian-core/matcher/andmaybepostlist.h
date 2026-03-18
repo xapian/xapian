@@ -47,12 +47,12 @@ class AndMaybePostList : public WrapperPostList {
     bool maybe_matches() const { return pl_did == r_did; }
 
     PostList* decay_to_and(Xapian::docid did,
-			   double w_min,
-			   bool* valid_ptr = NULL);
+                           double w_min,
+                           bool* valid_ptr = NULL);
 
   public:
     AndMaybePostList(PostList* left, PostList* right, PostListTree* pltree_)
-	: WrapperPostList(left), r(right), pltree(pltree_)
+        : WrapperPostList(left), r(right), pltree(pltree_)
     {}
 
     /** Construct as decay product from OrPostList.
@@ -61,12 +61,12 @@ class AndMaybePostList : public WrapperPostList {
      *  skip_to().
      */
     AndMaybePostList(PostList* left,
-		     PostList* right,
-		     double lmax,
-		     double rmax,
-		     PostListTree* pltree_)
-	: WrapperPostList(left), r(right), pl_max(lmax), r_max(rmax),
-	  pltree(pltree_)
+                     PostList* right,
+                     double lmax,
+                     double rmax,
+                     PostListTree* pltree_)
+        : WrapperPostList(left), r(right), pl_max(lmax), r_max(rmax),
+          pltree(pltree_)
     { }
 
     ~AndMaybePostList() { delete r; }
@@ -74,8 +74,8 @@ class AndMaybePostList : public WrapperPostList {
     Xapian::docid get_docid() const;
 
     double get_weight(Xapian::termcount doclen,
-		      Xapian::termcount unique_terms,
-		      Xapian::termcount wdfdocmax) const;
+                      Xapian::termcount unique_terms,
+                      Xapian::termcount wdfdocmax) const;
 
     double recalc_maxweight();
 

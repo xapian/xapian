@@ -35,12 +35,12 @@ class MyMatchDecider extends XapianMatchDecider {
     private $avoid_value;
 
     function __construct($avoid_value) {
-	$this->avoid_value = $avoid_value;
-	XapianMatchDecider::__construct();
+        $this->avoid_value = $avoid_value;
+        XapianMatchDecider::__construct();
     }
 
     function apply($doc) {
-	return ($doc->get_value(0) !== $avoid_value);
+        return ($doc->get_value(0) !== $avoid_value);
     }
 }
 
@@ -75,9 +75,9 @@ try {
     print "{$matches->get_matches_estimated()} results found:\n";
 
     foreach ($matches->begin() as $i => $docid) {
-	$n = $i->get_rank() + 1;
-	$data = $i->get_document()->get_data();
-	print "$n: {$i->get_percent()}% docid=$docid [$data]\n\n";
+        $n = $i->get_rank() + 1;
+        $data = $i->get_document()->get_data();
+        print "$n: {$i->get_percent()}% docid=$docid [$data]\n\n";
     }
 } catch (Exception $e) {
     print $e->getMessage() . "\n";

@@ -272,12 +272,12 @@ API:
     - Dutch (Kraaij-Pohlmann):
 
       = Fix differences between the Snowball implementation and the original C
-	implementation - this changes the stems for 220 words in a sample
-	vocabulary of 45670 words.
+        implementation - this changes the stems for 220 words in a sample
+        vocabulary of 45670 words.
 
       = Add a small number of exceptions to the Snowball implementation to
-	avoid unwanted conflations.  This addresses all cases so far identified
-	which Martin Porter's Dutch stemmer handled better.
+        avoid unwanted conflations.  This addresses all cases so far identified
+        which Martin Porter's Dutch stemmer handled better.
 
     - Dutch (Porter): The "at least 3 characters" part of the R1 definition was
       actually implemented such that when working in UTF-8 it was "at least 3
@@ -317,52 +317,52 @@ API:
     - French:
 
       = Recognise suffixes which have a diaereses on the first letter.
-	Patch from David Corbett.
+        Patch from David Corbett.
 
       = Remove elisions as first step.  Fixes #609, reported by Paul Rudin and
-	Emmanuel Engelhart.
+        Emmanuel Engelhart.
 
       = Remove -aise and -aises so for example, "française" and "françaises"
-	are now conflated with "français".  Reported by ririsoft and Fred Fung.
+        are now conflated with "français".  Reported by ririsoft and Fred Fung.
 
       = Avoid incorrect conflation of `mauvais` (bad) with `mauve` (mauve,
-	mallow or seagull); avoid conflating `mal` with `malais`, `pal` with
-	`palais`, etc.
+        mallow or seagull); avoid conflating `mal` with `malais`, `pal` with
+        `palais`, etc.
 
       = Avoid conflating `ni` (neither/nor) with `niais` (inexperienced/silly)
-	and `nie`/`nié`/`nier`/`nierais`/`nierons` (to deny).
+        and `nie`/`nié`/`nier`/`nierais`/`nierons` (to deny).
 
       = -oux -> -ou.  Reported by merwok.
 
     - German:
 
       = Replace with the "german2" variant which normalises umlauts ("ä" to
-	"ae", "ö" to "oe", "ü" to "ue") which is presumably much less common in
-	newly created text than it once was as modern computer systems
-	generally don't have the limitations which motivated this, but there
-	will still be large amounts of legacy text which it seems helpful for
-	the stemmer to handle without having to know to select a variant.
+        "ae", "ö" to "oe", "ü" to "ue") which is presumably much less common in
+        newly created text than it once was as modern computer systems
+        generally don't have the limitations which motivated this, but there
+        will still be large amounts of legacy text which it seems helpful for
+        the stemmer to handle without having to know to select a variant.
 
-	On our sample German vocabulary which contains 35033 words, 77 words
-	give different stems.  A significant proportion of these are foreign
-	words, and some are proper nouns.  Some cases definitely seem improved,
-	and quite a few are just different but effectively just change the stem
-	for a word or group of words to a stem that isn't otherwise generated.
-	There don't seem any changes that are clearly worse, though there are
-	some changes that have both good and bad aspects to them.  Reported by
-	jrabensc.
+        On our sample German vocabulary which contains 35033 words, 77 words
+        give different stems.  A significant proportion of these are foreign
+        words, and some are proper nouns.  Some cases definitely seem improved,
+        and quite a few are just different but effectively just change the stem
+        for a word or group of words to a stem that isn't otherwise generated.
+        There don't seem any changes that are clearly worse, though there are
+        some changes that have both good and bad aspects to them.  Reported by
+        jrabensc.
 
       = Don't remove -em if preceded by -syst to avoid overstemming words
-	ending -system.  This change means we now conflate e.g. "system" and
-	"systemen".  Reported by Olga Gusenikova.
+        ending -system.  This change means we now conflate e.g. "system" and
+        "systemen".  Reported by Olga Gusenikova.
 
       = Remove -erin and -erinnen suffixes which conflates singular and plural
-	female versions of nouns with the male versions.  Reported by Olga
-	Gusenikova.
+        female versions of nouns with the male versions.  Reported by Olga
+        Gusenikova.
 
       = Replace -ln and -lns with -l.  This improves 82 cases in the current
-	sample data without making anything worse.  Tests on a larger word list
-	look good too.  Reported by Olga Gusenikova.
+        sample data without making anything worse.  Tests on a larger word list
+        look good too.  Reported by Olga Gusenikova.
 
       = Remove -et suffix when we safely can.  Reported by Robert Frunzke.
 

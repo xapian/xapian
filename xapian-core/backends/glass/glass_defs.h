@@ -51,13 +51,13 @@
 
 namespace Glass {
     enum table_type {
-	POSTLIST,
-	DOCDATA,
-	TERMLIST,
-	POSITION,
-	SPELLING,
-	SYNONYM,
-	MAX_
+        POSTLIST,
+        DOCDATA,
+        TERMLIST,
+        POSITION,
+        SPELLING,
+        SYNONYM,
+        MAX_
     };
 }
 

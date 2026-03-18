@@ -39,12 +39,12 @@ using namespace std::string_literals;
 using Xapian::Internal::intrusive_ptr;
 
 GlassMetadataTermList::GlassMetadataTermList(
-	intrusive_ptr<const Xapian::Database::Internal> database_,
-	GlassCursor * cursor_,
-	string_view prefix_)
-	: database(database_),
-	  cursor(cursor_),
-	  prefix("\x00\xc0"s.append(prefix_))
+        intrusive_ptr<const Xapian::Database::Internal> database_,
+        GlassCursor * cursor_,
+        string_view prefix_)
+        : database(database_),
+          cursor(cursor_),
+          prefix("\x00\xc0"s.append(prefix_))
 {
     LOGCALL_CTOR(DB, "GlassMetadataTermList", database_ | cursor_ | prefix_);
     Assert(cursor);
@@ -79,8 +79,8 @@ GlassMetadataTermList::next()
     Assert(!cursor->after_end());
 
     if (!cursor->next() || !startswith(cursor->current_key, prefix)) {
-	// We've reached the end of the prefixed terms.
-	RETURN(this);
+        // We've reached the end of the prefixed terms.
+        RETURN(this);
     }
     current_term.assign(cursor->current_key, 2);
     RETURN(NULL);
@@ -93,16 +93,16 @@ GlassMetadataTermList::skip_to(string_view key)
     Assert(!cursor->after_end());
 
     if (cursor->find_entry_ge(string("\x00\xc0", 2).append(key))) {
-	// Exact match.
-	current_term = key;
+        // Exact match.
+        current_term = key;
     } else {
-	// The exact term we asked for isn't there, so check if the next
-	// term after it also has the right prefix.
-	if (cursor->after_end() || !startswith(cursor->current_key, prefix)) {
-	    // We've reached the end of the prefixed terms.
-	    RETURN(this);
-	}
-	current_term.assign(cursor->current_key, 2);
+        // The exact term we asked for isn't there, so check if the next
+        // term after it also has the right prefix.
+        if (cursor->after_end() || !startswith(cursor->current_key, prefix)) {
+            // We've reached the end of the prefixed terms.
+            RETURN(this);
+        }
+        current_term.assign(cursor->current_key, 2);
     }
     RETURN(NULL);
 }

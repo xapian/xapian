@@ -83,11 +83,11 @@ namespace Xapian {
 XAPIAN_VISIBILITY_DEFAULT
 void
 prepare_training_file(const std::string & db_path,
-		      const std::string & query_file,
-		      const std::string & qrel_file,
-		      Xapian::doccount msetsize,
-		      const std::string & filename,
-		      const Xapian::FeatureList & flist = FeatureList());
+                      const std::string & query_file,
+                      const std::string & qrel_file,
+                      Xapian::doccount msetsize,
+                      const std::string & filename,
+                      const Xapian::FeatureList & flist = FeatureList());
 
 class XAPIAN_VISIBILITY_DEFAULT Ranker : public Xapian::Internal::intrusive_base {
     /// Path to Xapian::Database instance to be used.
@@ -135,7 +135,7 @@ class XAPIAN_VISIBILITY_DEFAULT Ranker : public Xapian::Internal::intrusive_base
      *		   supplied path
      */
     void train_model(const std::string & input_filename,
-		     const std::string & model_key = std::string());
+                     const std::string & model_key = std::string());
 
     /** Ranking function.
      *
@@ -155,8 +155,8 @@ class XAPIAN_VISIBILITY_DEFAULT Ranker : public Xapian::Internal::intrusive_base
      *			   training file.
      */
     void rank(Xapian::MSet & mset,
-	      const std::string & model_key = std::string(),
-	      const Xapian::FeatureList & flist = Xapian::FeatureList());
+              const std::string & model_key = std::string(),
+              const Xapian::FeatureList & flist = Xapian::FeatureList());
 
     /** Method to score the ranking.
      *
@@ -182,12 +182,12 @@ class XAPIAN_VISIBILITY_DEFAULT Ranker : public Xapian::Internal::intrusive_base
      *		   could not be parsed
      */
     void score(const std::string & query_file,
-	       const std::string & qrel_file,
-	       const std::string & model_key,
-	       const std::string & output_file,
-	       Xapian::doccount msetsize,
-	       const std::string & scorer_type = "NDCGScore",
-	       const Xapian::FeatureList & flist = Xapian::FeatureList());
+               const std::string & qrel_file,
+               const std::string & model_key,
+               const std::string & output_file,
+               Xapian::doccount msetsize,
+               const std::string & scorer_type = "NDCGScore",
+               const Xapian::FeatureList & flist = Xapian::FeatureList());
 
   protected:
     /// Method to train the model. Overridden in ranker subclass.
@@ -226,13 +226,13 @@ class XAPIAN_VISIBILITY_DEFAULT Ranker : public Xapian::Internal::intrusive_base
      *  by score values.
      */
     static bool scorecomparer(const FeatureVector & firstfv,
-			      const FeatureVector & secondfv);
+                              const FeatureVector & secondfv);
 
     /** Compare function used to sort std::vector<Xapian::FeatureVector>
      *  by label values.
      */
     static bool labelcomparer(const FeatureVector & firstfv,
-			      const FeatureVector & secondfv);
+                              const FeatureVector & secondfv);
 
   private:
     /// Don't allow assignment.
@@ -298,8 +298,8 @@ class XAPIAN_VISIBILITY_DEFAULT ListNETRanker: public Ranker {
      * @param num_iterations   Number of iterations
      */
     explicit ListNETRanker(double learn_rate = 0.001,
-			   int num_iterations = 15)
-	: learning_rate(learn_rate), iterations(num_iterations) { }
+                           int num_iterations = 15)
+        : learning_rate(learn_rate), iterations(num_iterations) { }
 
     /// Destructor
     ~ListNETRanker();
@@ -355,8 +355,8 @@ class XAPIAN_VISIBILITY_DEFAULT ListMLERanker : public Ranker {
      * @param num_iterations   Number of iterations (Default is 10)
      */
     explicit ListMLERanker(double learn_rate = 0.001,
-			   int num_iterations = 10)
-	: learning_rate(learn_rate), iterations(num_iterations) { }
+                           int num_iterations = 10)
+        : learning_rate(learn_rate), iterations(num_iterations) { }
 
     /// Destructor
     ~ListMLERanker();

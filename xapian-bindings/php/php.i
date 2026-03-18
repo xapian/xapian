@@ -45,9 +45,9 @@ extern "C" {
     php_info_print_table_start();\n\
     php_info_print_table_row(2, \"Xapian Support\", \"enabled\");\n\
     php_info_print_table_row(2, \"Xapian Compiled Version\",\n\
-			     XAPIAN_BINDINGS_VERSION);\n\
+                             XAPIAN_BINDINGS_VERSION);\n\
     php_info_print_table_row(2, \"Xapian Linked Version\",\n\
-			     Xapian::version_string());\n\
+                             Xapian::version_string());\n\
     php_info_print_table_end();\
 "
 
@@ -99,13 +99,13 @@ XAPIAN_SWIG_IS_EMPTY_COMPAT(RSet)
 static void merge_ps_references(zval* target_this, zval& input) {
     zval* zvq = zend_read_property(Z_OBJCE(input), Z_OBJ(input), "_ps", strlen("_ps"), false, NULL);
     if (zend_hash_num_elements(Z_ARR_P(zvq)) > 0) {
-	zval* zv = zend_read_property(Z_OBJCE_P(target_this), Z_OBJ_P(target_this), "_ps", strlen("_ps"), false, NULL);
-	if (zend_hash_num_elements(Z_ARR_P(zv)) == 0) {
-	    ZVAL_COPY(zv, zvq);
-	} else {
-	    SEPARATE_ARRAY(zv);
-	    php_array_merge(Z_ARR_P(zv), Z_ARR_P(zvq));
-	}
+        zval* zv = zend_read_property(Z_OBJCE_P(target_this), Z_OBJ_P(target_this), "_ps", strlen("_ps"), false, NULL);
+        if (zend_hash_num_elements(Z_ARR_P(zv)) == 0) {
+            ZVAL_COPY(zv, zvq);
+        } else {
+            SEPARATE_ARRAY(zv);
+            php_array_merge(Z_ARR_P(zv), Z_ARR_P(zvq));
+        }
     }
 }
 
@@ -127,80 +127,80 @@ class XapianSWIGQueryItor {
     typedef Xapian::Query & reference;
 
     XapianSWIGQueryItor()
-	: p(NULL) { }
+        : p(NULL) { }
 
     void begin(zval* input, zval* target_this_) {
-	HashTable *ht = Z_ARRVAL_P(input);
+        HashTable *ht = Z_ARRVAL_P(input);
 #if PHP_MAJOR_VERSION == 8 && PHP_MINOR_VERSION < 2
-	p = ht->arData;
+        p = ht->arData;
 #else
-	elt_size = ZEND_HASH_ELEMENT_SIZE(ht);
-	p = ZEND_HASH_ELEMENT(ht, 0);
+        elt_size = ZEND_HASH_ELEMENT_SIZE(ht);
+        p = ZEND_HASH_ELEMENT(ht, 0);
 #endif
-	target_this = target_this_;
+        target_this = target_this_;
     }
 
     void end(zval * input) {
-	HashTable *ht = Z_ARRVAL_P(input);
+        HashTable *ht = Z_ARRVAL_P(input);
 #if PHP_MAJOR_VERSION == 8 && PHP_MINOR_VERSION < 2
-	p = ht->arData + ht->nNumUsed;
+        p = ht->arData + ht->nNumUsed;
 #else
-	elt_size = ZEND_HASH_ELEMENT_SIZE(ht);
-	p = ZEND_HASH_ELEMENT(ht, ht->nNumUsed);
+        elt_size = ZEND_HASH_ELEMENT_SIZE(ht);
+        p = ZEND_HASH_ELEMENT(ht, ht->nNumUsed);
 #endif
     }
 
     XapianSWIGQueryItor & operator++() {
 #if PHP_MAJOR_VERSION == 8 && PHP_MINOR_VERSION < 2
-	++p;
+        ++p;
 #else
-	p = ZEND_HASH_NEXT_ELEMENT(p, elt_size);
+        p = ZEND_HASH_NEXT_ELEMENT(p, elt_size);
 #endif
-	return *this;
+        return *this;
     }
 
     Xapian::Query operator*() const {
 #if PHP_MAJOR_VERSION == 8 && PHP_MINOR_VERSION < 2
-	zval *item = &p->val;
+        zval *item = &p->val;
 #else
-	zval *item = p;
+        zval *item = p;
 #endif
 
-	if (Z_TYPE_P(item) == IS_STRING) {
-	    size_t len = Z_STRLEN_P(item);
-	    const char *str = Z_STRVAL_P(item);
-	    return Xapian::Query(string(str, len));
-	}
+        if (Z_TYPE_P(item) == IS_STRING) {
+            size_t len = Z_STRLEN_P(item);
+            const char *str = Z_STRVAL_P(item);
+            return Xapian::Query(string(str, len));
+        }
 
-	Xapian::Query *subq = 0;
-	if (SWIG_ConvertPtr(item, (void **)&subq,
-			    SWIGTYPE_p_Xapian__Query, 0) < 0) {
-	    subq = 0;
-	}
-	if (!subq) {
-	    SWIG_PHP_Error(E_ERROR, "Expected XapianQuery object or string");
+        Xapian::Query *subq = 0;
+        if (SWIG_ConvertPtr(item, (void **)&subq,
+                            SWIGTYPE_p_Xapian__Query, 0) < 0) {
+            subq = 0;
+        }
+        if (!subq) {
+            SWIG_PHP_Error(E_ERROR, "Expected XapianQuery object or string");
 fail: // Label which SWIG_PHP_Error needs.
-	    return Xapian::Query();
-	}
-	merge_ps_references(target_this, *item);
-	return *subq;
+            return Xapian::Query();
+        }
+        merge_ps_references(target_this, *item);
+        return *subq;
     }
 
     bool operator==(const XapianSWIGQueryItor & o) {
-	return p == o.p;
+        return p == o.p;
     }
 
     bool operator!=(const XapianSWIGQueryItor & o) {
-	return !(*this == o);
+        return !(*this == o);
     }
 
     difference_type operator-(const XapianSWIGQueryItor &o) const {
 #if PHP_MAJOR_VERSION == 8 && PHP_MINOR_VERSION < 2
-	return p - o.p;
+        return p - o.p;
 #else
-	auto d = reinterpret_cast<const char*>(p) -
-		 reinterpret_cast<const char*>(o.p);
-	return d / elt_size;
+        auto d = reinterpret_cast<const char*>(p) -
+                 reinterpret_cast<const char*>(o.p);
+        return d / elt_size;
 #endif
     }
 };
@@ -210,9 +210,9 @@ fail: // Label which SWIG_PHP_Error needs.
 %typemap(in, phptype="array") (XapianSWIGQueryItor qbegin, XapianSWIGQueryItor qend) {
     // $1 and $2 are default initialised where SWIG declares them.
     if (Z_TYPE($input) == IS_ARRAY) {
-	// The typecheck typemap should have ensured this is an array.
-	$1.begin(&$input, ZEND_THIS);
-	$2.end(&$input);
+        // The typecheck typemap should have ensured this is an array.
+        $1.begin(&$input, ZEND_THIS);
+        $2.end(&$input);
     }
 }
 
@@ -221,8 +221,8 @@ fail: // Label which SWIG_PHP_Error needs.
     array_init($result);
 
     for (Xapian::TermIterator i = $1.first; i != $1.second; ++i) {
-	const string& term = *i;
-	add_next_index_stringl($result, term.data(), term.length());
+        const string& term = *i;
+        add_next_index_stringl($result, term.data(), term.length());
     }
 }
 
@@ -230,8 +230,8 @@ fail: // Label which SWIG_PHP_Error needs.
     array_init_size($input, num_tags);
 
     for (size_t i = 0; i != num_tags; ++i) {
-	const string& term = tags[i];
-	add_next_index_stringl($input, term.data(), term.length());
+        const string& term = tags[i];
+        add_next_index_stringl($input, term.data(), term.length());
     }
 }
 
@@ -242,10 +242,10 @@ fail: // Label which SWIG_PHP_Error needs.
 %define PHP_ITERATOR(NS, CLASS, RET_TYPE, REWIND_ACTION)
     %typemap("phpinterfaces") NS::CLASS "Iterator";
     %extend NS::CLASS {
-	const NS::CLASS & key() { return *self; }
-	RET_TYPE current() { return **self; }
-	bool valid() { return Xapian::iterator_valid(*self); }
-	void rewind() { REWIND_ACTION }
+        const NS::CLASS & key() { return *self; }
+        RET_TYPE current() { return **self; }
+        bool valid() { return Xapian::iterator_valid(*self); }
+        void rewind() { REWIND_ACTION }
     }
 %enddef
 
@@ -335,9 +335,9 @@ XAPIAN_FUNCTOR(const Xapian::Query&, query,
 {
     zval* zv = zend_read_property(Z_OBJCE_P(ZEND_THIS), Z_OBJ_P(ZEND_THIS), "_query", strlen("_query"), false, NULL);
     if (Z_TYPE_P(zv) == IS_OBJECT) {
-	RETVAL_OBJ_COPY(Z_OBJ_P(zv));
+        RETVAL_OBJ_COPY(Z_OBJ_P(zv));
     } else {
-	$typemap(out, const Query&)
+        $typemap(out, const Query&)
     }
 }
 %}

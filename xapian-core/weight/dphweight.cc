@@ -42,9 +42,9 @@ void
 DPHWeight::init(double factor)
 {
     if (factor == 0.0) {
-	// This object is for the term-independent contribution, and that's
-	// always zero for this scheme.
-	return;
+        // This object is for the term-independent contribution, and that's
+        // always zero for this scheme.
+        return;
     }
 
     double F = get_collection_freq();
@@ -54,8 +54,8 @@ DPHWeight::init(double factor)
     double len_upper = get_doclength_upper_bound();
 
     if (wdf_upper == 0) {
-	upper_bound = 0.0;
-	return;
+        upper_bound = 0.0;
+        return;
     }
 
     double min_wdf_to_len = wdf_lower / len_upper;
@@ -80,7 +80,7 @@ DPHWeight::init(double factor)
 
     // Maximization of the product of wdf and normalized wdf.
     /* The expression is (wdf * (1.0 - wdf / len) * (1.0 - wdf / len)) /
-			 (wdf + 1.0). */
+                         (wdf + 1.0). */
     /* Now, assuming len to be len_upper for the purpose of maximization,
        (d)/(dx) (x * (1 - x / c) * (1 - x / c)) / (x+1) =
        ((c - x) * (c - x * (2 * x + 3))) / (c² * (x + 1)²)
@@ -94,9 +94,9 @@ DPHWeight::init(double factor)
 
     // If wdf_root outside valid range, use nearest value in range.
     if (wdf_root > wdf_upper) {
-	wdf_root = wdf_upper;
+        wdf_root = wdf_upper;
     } else if (wdf_root < wdf_lower) {
-	wdf_root = wdf_lower;
+        wdf_root = wdf_lower;
     }
 
     double x = 1 - wdf_root / len_upper;
@@ -104,7 +104,7 @@ DPHWeight::init(double factor)
     auto max_wdf_product_normalization = wdf_root / (wdf_root + 1) * x_squared;
 
     double max_weight = max_wdf_product_normalization *
-	(log_constant + (0.5 * log2(2 * M_PI * max_product)));
+        (log_constant + (0.5 * log2(2 * M_PI * max_product)));
 
     upper_bound = wqf_product_factor * max_weight;
     if (rare(upper_bound < 0.0)) upper_bound = 0.0;
@@ -126,13 +126,13 @@ DPHWeight *
 DPHWeight::unserialise(const string& s) const
 {
     if (rare(!s.empty()))
-	throw Xapian::SerialisationError("Extra data in DPHWeight::unserialise()");
+        throw Xapian::SerialisationError("Extra data in DPHWeight::unserialise()");
     return new DPHWeight();
 }
 
 double
 DPHWeight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len,
-		       Xapian::termcount, Xapian::termcount) const
+                       Xapian::termcount, Xapian::termcount) const
 {
     if (wdf == 0 || wdf == len) return 0.0;
 
@@ -142,8 +142,8 @@ DPHWeight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len,
     double normalization = x * x / (wdf + 1);
 
     double wt = normalization *
-	(wdf * (log2(wdf_to_len) + log_constant) +
-	 (0.5 * log2(2 * M_PI * wdf * (1 - wdf_to_len))));
+        (wdf * (log2(wdf_to_len) + log_constant) +
+         (0.5 * log2(2 * M_PI * wdf * (1 - wdf_to_len))));
     if (rare(wt <= 0.0)) return 0.0;
 
     return wqf_product_factor * wt;
@@ -159,7 +159,7 @@ DPHWeight *
 DPHWeight::create_from_parameters(const char * p) const
 {
     if (*p != '\0')
-	throw InvalidArgumentError("No parameters are required for DPHWeight");
+        throw InvalidArgumentError("No parameters are required for DPHWeight");
     return new Xapian::DPHWeight();
 }
 

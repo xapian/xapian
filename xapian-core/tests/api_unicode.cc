@@ -97,22 +97,22 @@ static const testcase testcases[] = {
 DEFINE_TESTCASE(utf8iterator1, !backend) {
     const testcase* p;
     for (p = testcases; p->a; ++p) {
-	tout.str(string());
-	tout << '"' << p->a << "\" and \"" << p->b << "\"\n";
-	// Exercise construction from pointer and length.
-	Xapian::Utf8Iterator a(p->a, strlen(p->a));
-	// Exercise construction from std::string_view.
-	Xapian::Utf8Iterator b(string_view(p->b));
+        tout.str(string());
+        tout << '"' << p->a << "\" and \"" << p->b << "\"\n";
+        // Exercise construction from pointer and length.
+        Xapian::Utf8Iterator a(p->a, strlen(p->a));
+        // Exercise construction from std::string_view.
+        Xapian::Utf8Iterator b(string_view(p->b));
 
-	while (a != Xapian::Utf8Iterator() && b != Xapian::Utf8Iterator()) {
-	    TEST_EQUAL(*a, *b);
-	    ++a;
-	    ++b;
-	}
+        while (a != Xapian::Utf8Iterator() && b != Xapian::Utf8Iterator()) {
+            TEST_EQUAL(*a, *b);
+            ++a;
+            ++b;
+        }
 
-	// Test that we don't reach the end of one before the other.
-	TEST(a == Xapian::Utf8Iterator());
-	TEST(b == Xapian::Utf8Iterator());
+        // Test that we don't reach the end of one before the other.
+        TEST(a == Xapian::Utf8Iterator());
+        TEST(b == Xapian::Utf8Iterator());
     }
 }
 
@@ -139,11 +139,11 @@ static const testcase2 testcases2[] = {
 DEFINE_TESTCASE(utf8iterator2, !backend) {
     const testcase2* p;
     for (p = testcases2; p->a; ++p) {
-	Xapian::Utf8Iterator a(p->a);
+        Xapian::Utf8Iterator a(p->a);
 
-	TEST(a != Xapian::Utf8Iterator());
-	TEST_EQUAL(*a, p->n);
-	TEST(++a == Xapian::Utf8Iterator());
+        TEST(a != Xapian::Utf8Iterator());
+        TEST_EQUAL(*a, p->n);
+        TEST(++a == Xapian::Utf8Iterator());
     }
 }
 
@@ -393,8 +393,8 @@ DEFINE_TESTCASE(unicode1, !backend) {
 DEFINE_TESTCASE(caseconvert1, !backend) {
     using namespace Xapian;
     for (unsigned ch = 0; ch < 128; ++ch) {
-	TEST_EQUAL(Unicode::tolower(ch), unsigned(tolower(ch)));
-	TEST_EQUAL(Unicode::toupper(ch), unsigned(toupper(ch)));
+        TEST_EQUAL(Unicode::tolower(ch), unsigned(tolower(ch)));
+        TEST_EQUAL(Unicode::toupper(ch), unsigned(toupper(ch)));
     }
 
     // U+0242 was added in Unicode 5.0.0 as a lowercase form of U+0241.
@@ -474,10 +474,10 @@ DEFINE_TESTCASE(caseconvert2, !backend) {
 
     unsigned u;
     for (u = 0x514; u < 0x524; u += 2) {
-	TEST_EQUAL(Unicode::get_category(u), Unicode::UPPERCASE_LETTER);
-	TEST_EQUAL(Unicode::get_category(u + 1), Unicode::LOWERCASE_LETTER);
-	TEST_EQUAL(Unicode::tolower(u), u + 1);
-	TEST_EQUAL(Unicode::toupper(u + 1), u);
+        TEST_EQUAL(Unicode::get_category(u), Unicode::UPPERCASE_LETTER);
+        TEST_EQUAL(Unicode::get_category(u + 1), Unicode::LOWERCASE_LETTER);
+        TEST_EQUAL(Unicode::tolower(u), u + 1);
+        TEST_EQUAL(Unicode::toupper(u + 1), u);
     }
 
     // U+A7B1 was added in Unicode 8.0.0 as an uppercase form of U+0287.
@@ -551,155 +551,155 @@ DEFINE_TESTCASE(utf8convert1, !backend) {
     Xapian::Unicode::append_utf8(s, 0xFFFFFFFF);
     Xapian::Unicode::append_utf8(s, 'z');
     TEST_STRINGS_EQUAL(s, "a"
-			  "\xc2\x80"
-			  "\xc2\xa0"
-			  "\xef\xbf\xbf"
-			  "\xf0\xa8\xa8\x8f"
-			  "\xf0\x90\x8d\x85"
-			  "\xf4\x8f\xbf\xbd"
-			  ""
-			  "z"
-			  );
+                          "\xc2\x80"
+                          "\xc2\xa0"
+                          "\xef\xbf\xbf"
+                          "\xf0\xa8\xa8\x8f"
+                          "\xf0\x90\x8d\x85"
+                          "\xf4\x8f\xbf\xbd"
+                          ""
+                          "z"
+                          );
 }
 
 DEFINE_TESTCASE(unicodepredicates1, !backend) {
     static const unsigned wordchars[] = {
-	// DECIMAL_DIGIT_NUMBER
-	'0', '7', '9',
-	0x10D30, // (added in Unicode 11.0.0)
-	0x11D51, // (added in Unicode 10.0.0)
-	0x11DA9, // (added in Unicode 11.0.0)
-	0x11F50, // (added in Unicode 15.0.0)
-	0x16AC9, // (added in Unicode 14.0.0)
-	// OTHER_NUMBER
-	0x1ECB3, // (added in Unicode 11.0.0)
-	0x1D2D3, // (added in Unicode 15.0.0)
-	// LOWERCASE_LETTER
-	'a', 'z', 0x250, 0x251, 0x271, 0x3d7,
-	0x242, // (added in Unicode 5.0.0)
-	// LOWERCASE_LETTER (added in Unicode 5.1.0)
-	0x371, 0x373, 0x377, 0x514, 0x516, 0x518, 0x51a, 0x51c, 0x51e,
-	0x520, 0x522,
-	0x1C8A, // (added in Unicode 16.0.0)
-	0xA7C1, // (added in Unicode 14.0.0)
-	0x16E78, // (added in Unicode 11.0.0)
-	0x1DF2A, // (added in Unicode 15.0.0)
-	// UPPERCASE_LETTER
-	'A', 'Z', 0x241,
-	// UPPERCASE_LETTER (added in Unicode 5.1.0)
-	0x370, 0x372, 0x376, 0x3cf, 0x515, 0x517, 0x519, 0x51b, 0x51d, 0x51f,
-	0x521, 0x523, 0x2c6d, 0x2c6e, 0x2c6f,
-	0xA7C0, // (added in Unicode 14.0.0)
-	0xA7CB, // (added in Unicode 16.0.0)
-	0x16E45, // (added in Unicode 11.0.0)
-	// OTHER_LETTER
-	0x870, // (added in Unicode 14.0.0)
-	0x8bb, // Added in Unicode 9.0.0
-	0x8c7, // Added in Unicode 13.0.0
-	0xc80, // Added in Unicode 9.0.0
-	0xe86, // Added in Unicode 12.0.0
-	0x312e, // Added in Unicode 10.0.0
-	0x10345,
-	0x18CFF, // Added in Unicode 16.0.0
-	0x1e4d0, // Added in Unicode 15.0.0
-	0x2ee2e, // Added in Unicode 15.1.0
-	// MODIFIER_LETTER
-	0x2ec, // Added in Unicode 5.1.0
-	0x374, // Added in Unicode 5.1.0
-	0x8c9, // Added in Unicode 14.0.0
-	0x10D6F, // Added in Unicode 16.0.0
-	0x16fe1, // Added in Unicode 10.0.0
-	0x16fe3, // Added in Unicode 12.0.0
-	0x1e4eb, // Added in Unicode 15.0.0
-	// NON_SPACING_MARK (added to is_wordchar() in 1.1.0)
-	0x651,
-	0x487, // Added in Unicode 5.1.0
-	0x897, // Added in Unicode 16.0.0
-	0x899, // Added in Unicode 14.0.0
-	0x8d3, // Added in Unicode 11.0.0
-	0x8db, // Added in Unicode 9.0.0
-	0xeba, // Added in Unicode 12.0.0
-	0x11d47, // Added in Unicode 10.0.0
-	0x16fe4, // Added in Unicode 13.0.0
-	0x1e4ee, // Added in Unicode 15.0.0
-	0
+        // DECIMAL_DIGIT_NUMBER
+        '0', '7', '9',
+        0x10D30, // (added in Unicode 11.0.0)
+        0x11D51, // (added in Unicode 10.0.0)
+        0x11DA9, // (added in Unicode 11.0.0)
+        0x11F50, // (added in Unicode 15.0.0)
+        0x16AC9, // (added in Unicode 14.0.0)
+        // OTHER_NUMBER
+        0x1ECB3, // (added in Unicode 11.0.0)
+        0x1D2D3, // (added in Unicode 15.0.0)
+        // LOWERCASE_LETTER
+        'a', 'z', 0x250, 0x251, 0x271, 0x3d7,
+        0x242, // (added in Unicode 5.0.0)
+        // LOWERCASE_LETTER (added in Unicode 5.1.0)
+        0x371, 0x373, 0x377, 0x514, 0x516, 0x518, 0x51a, 0x51c, 0x51e,
+        0x520, 0x522,
+        0x1C8A, // (added in Unicode 16.0.0)
+        0xA7C1, // (added in Unicode 14.0.0)
+        0x16E78, // (added in Unicode 11.0.0)
+        0x1DF2A, // (added in Unicode 15.0.0)
+        // UPPERCASE_LETTER
+        'A', 'Z', 0x241,
+        // UPPERCASE_LETTER (added in Unicode 5.1.0)
+        0x370, 0x372, 0x376, 0x3cf, 0x515, 0x517, 0x519, 0x51b, 0x51d, 0x51f,
+        0x521, 0x523, 0x2c6d, 0x2c6e, 0x2c6f,
+        0xA7C0, // (added in Unicode 14.0.0)
+        0xA7CB, // (added in Unicode 16.0.0)
+        0x16E45, // (added in Unicode 11.0.0)
+        // OTHER_LETTER
+        0x870, // (added in Unicode 14.0.0)
+        0x8bb, // Added in Unicode 9.0.0
+        0x8c7, // Added in Unicode 13.0.0
+        0xc80, // Added in Unicode 9.0.0
+        0xe86, // Added in Unicode 12.0.0
+        0x312e, // Added in Unicode 10.0.0
+        0x10345,
+        0x18CFF, // Added in Unicode 16.0.0
+        0x1e4d0, // Added in Unicode 15.0.0
+        0x2ee2e, // Added in Unicode 15.1.0
+        // MODIFIER_LETTER
+        0x2ec, // Added in Unicode 5.1.0
+        0x374, // Added in Unicode 5.1.0
+        0x8c9, // Added in Unicode 14.0.0
+        0x10D6F, // Added in Unicode 16.0.0
+        0x16fe1, // Added in Unicode 10.0.0
+        0x16fe3, // Added in Unicode 12.0.0
+        0x1e4eb, // Added in Unicode 15.0.0
+        // NON_SPACING_MARK (added to is_wordchar() in 1.1.0)
+        0x651,
+        0x487, // Added in Unicode 5.1.0
+        0x897, // Added in Unicode 16.0.0
+        0x899, // Added in Unicode 14.0.0
+        0x8d3, // Added in Unicode 11.0.0
+        0x8db, // Added in Unicode 9.0.0
+        0xeba, // Added in Unicode 12.0.0
+        0x11d47, // Added in Unicode 10.0.0
+        0x16fe4, // Added in Unicode 13.0.0
+        0x1e4ee, // Added in Unicode 15.0.0
+        0
     };
     static const unsigned currency[] = {
-	// CURRENCY_SYMBOL
-	'$', 0xa3,
-	// CURRENCY_SYMBOL (added in Unicode 6.2.0)
-	0x20ba,
-	// CURRENCY_SYMBOL (added in Unicode 8.0.0)
-	0x20be,
-	// CURRENCY_SYMBOL (added in Unicode 10.0.0)
-	0x20bf,
-	// CURRENCY_SYMBOL (added in Unicode 11.0.0)
-	0x7fe,
-	// CURRENCY_SYMBOL (added in Unicode 12.0.0)
-	0x1e2ff,
-	// CURRENCY_SYMBOL (added in Unicode 14.0.0)
-	0x20c0,
-	// CURRENCY_SYMBOL (added in Unicode 17.0.0)
-	0x20c1,
-	0
+        // CURRENCY_SYMBOL
+        '$', 0xa3,
+        // CURRENCY_SYMBOL (added in Unicode 6.2.0)
+        0x20ba,
+        // CURRENCY_SYMBOL (added in Unicode 8.0.0)
+        0x20be,
+        // CURRENCY_SYMBOL (added in Unicode 10.0.0)
+        0x20bf,
+        // CURRENCY_SYMBOL (added in Unicode 11.0.0)
+        0x7fe,
+        // CURRENCY_SYMBOL (added in Unicode 12.0.0)
+        0x1e2ff,
+        // CURRENCY_SYMBOL (added in Unicode 14.0.0)
+        0x20c0,
+        // CURRENCY_SYMBOL (added in Unicode 17.0.0)
+        0x20c1,
+        0
     };
     static const unsigned whitespace[] = {
-	// CONTROL
-	'\t', '\n', '\f', '\r',
-	// SPACE_SEPARATOR
-	' ',
-	0
+        // CONTROL
+        '\t', '\n', '\f', '\r',
+        // SPACE_SEPARATOR
+        ' ',
+        0
     };
     static const unsigned other[] = {
-	// DASH_PUNCTUATION
-	0x5be, // Added in Unicode 5.1.0
-	0x2e5d, // Added in Unicode 14.0.0
-	0x10D6E, // Added in Unicode 16.0.0
-	// OTHER_SYMBOL
-	0xd4f, // Added in Unicode 9.0.0
-	0x2b97, // Added in Unicode 13.0.0
-	0x2ffc, // Added in Unicode 15.1.0
-	0x31ef, // Added in Unicode 15.1.0
-	0x32ff, // Added in Unicode 12.1.0; UNASSIGNED before
-	0xfdcF, // Added in Unicode 14.0.0
-	0x1f093, // Added in Unicode 5.1.0
-	0x1f263, // Added in Unicode 10.0.0
-	0x1fa62, // Added in Unicode 11.0.0
-	0x1f6dc, // Added in Unicode 15.0.0
-	0x1FADC, // Added in Unicode 16.0.0
-	// FORMAT
-	0x61c, // Added in Unicode 6.3.0
-	0x891, // Added in Unicode 14.0.0
-	0x8e2, // Added in Unicode 9.0.0
-	0x1343e, // Added in Unicode 15.0.0
-	// UNASSIGNED
-	0xffff, 0x10ffff, 0x110000, 0xFFFFFFFF,
-	// PRIVATE_USE
-	0x10fffd,
-	0
+        // DASH_PUNCTUATION
+        0x5be, // Added in Unicode 5.1.0
+        0x2e5d, // Added in Unicode 14.0.0
+        0x10D6E, // Added in Unicode 16.0.0
+        // OTHER_SYMBOL
+        0xd4f, // Added in Unicode 9.0.0
+        0x2b97, // Added in Unicode 13.0.0
+        0x2ffc, // Added in Unicode 15.1.0
+        0x31ef, // Added in Unicode 15.1.0
+        0x32ff, // Added in Unicode 12.1.0; UNASSIGNED before
+        0xfdcF, // Added in Unicode 14.0.0
+        0x1f093, // Added in Unicode 5.1.0
+        0x1f263, // Added in Unicode 10.0.0
+        0x1fa62, // Added in Unicode 11.0.0
+        0x1f6dc, // Added in Unicode 15.0.0
+        0x1FADC, // Added in Unicode 16.0.0
+        // FORMAT
+        0x61c, // Added in Unicode 6.3.0
+        0x891, // Added in Unicode 14.0.0
+        0x8e2, // Added in Unicode 9.0.0
+        0x1343e, // Added in Unicode 15.0.0
+        // UNASSIGNED
+        0xffff, 0x10ffff, 0x110000, 0xFFFFFFFF,
+        // PRIVATE_USE
+        0x10fffd,
+        0
     };
 
     for (const unsigned* p = wordchars; *p; ++p) {
-	TEST(Xapian::Unicode::is_wordchar(*p));
-	TEST(!Xapian::Unicode::is_currency(*p));
-	TEST(!Xapian::Unicode::is_whitespace(*p));
+        TEST(Xapian::Unicode::is_wordchar(*p));
+        TEST(!Xapian::Unicode::is_currency(*p));
+        TEST(!Xapian::Unicode::is_whitespace(*p));
     }
 
     for (const unsigned* p = currency; *p; ++p) {
-	TEST(!Xapian::Unicode::is_wordchar(*p));
-	TEST(Xapian::Unicode::is_currency(*p));
-	TEST(!Xapian::Unicode::is_whitespace(*p));
+        TEST(!Xapian::Unicode::is_wordchar(*p));
+        TEST(Xapian::Unicode::is_currency(*p));
+        TEST(!Xapian::Unicode::is_whitespace(*p));
     }
 
     for (const unsigned* p = whitespace; *p; ++p) {
-	TEST(!Xapian::Unicode::is_wordchar(*p));
-	TEST(!Xapian::Unicode::is_currency(*p));
-	TEST(Xapian::Unicode::is_whitespace(*p));
+        TEST(!Xapian::Unicode::is_wordchar(*p));
+        TEST(!Xapian::Unicode::is_currency(*p));
+        TEST(Xapian::Unicode::is_whitespace(*p));
     }
 
     for (const unsigned* p = other; *p; ++p) {
-	TEST(!Xapian::Unicode::is_wordchar(*p));
-	TEST(!Xapian::Unicode::is_currency(*p));
-	TEST(!Xapian::Unicode::is_whitespace(*p));
+        TEST(!Xapian::Unicode::is_wordchar(*p));
+        TEST(!Xapian::Unicode::is_currency(*p));
+        TEST(!Xapian::Unicode::is_whitespace(*p));
     }
 }

@@ -33,7 +33,7 @@ ostream &
 operator<<(ostream &os, const vector<Xapian::docid> &ints)
 {
     copy(ints.begin(), ints.end(),
-	 ostream_iterator<Xapian::docid>(os, ", "));
+         ostream_iterator<Xapian::docid>(os, ", "));
     return os;
 }
 
@@ -42,96 +42,96 @@ operator<<(ostream &os, const vector<Xapian::docid> &ints)
 
 bool
 mset_range_is_same(const Xapian::MSet &mset1, unsigned int first1,
-		   const Xapian::MSet &mset2, unsigned int first2,
-		   unsigned int count)
+                   const Xapian::MSet &mset2, unsigned int first2,
+                   unsigned int count)
 {
     TEST_AND_EXPLAIN(mset1.size() >= first1 + count,
-		     "mset1 is too small: expected at least " <<
-		     (first1 + count) << " items, got " <<
-		     mset1.size());
+                     "mset1 is too small: expected at least " <<
+                     (first1 + count) << " items, got " <<
+                     mset1.size());
 
     TEST_AND_EXPLAIN(mset2.size() >= first2 + count,
-		     "mset2 is too small: expected at least " <<
-		     (first2 + count) << " items, got " <<
-		     mset2.size());
+                     "mset2 is too small: expected at least " <<
+                     (first2 + count) << " items, got " <<
+                     mset2.size());
 
     Xapian::MSetIterator i = mset1[first1];
     Xapian::MSetIterator j = mset2[first2];
 
     for (unsigned int l = 0; l < count; ++l) {
-	if (*i != *j) {
-	    tout << "docids differ at item " << (l + 1) << " in range: "
-		    << *i << " != " << *j << "\n";
-	    return false;
-	}
-	// FIXME: don't use internal macro here...
-	if (!TEST_EQUAL_DOUBLE_(i.get_weight(), j.get_weight())) {
-	    tout << "weights differ at item " << (l + 1) << " in range: "
-		    << i.get_weight() << " != " << j.get_weight() << "\n";
-	    return false;
-	}
-	++i;
-	++j;
+        if (*i != *j) {
+            tout << "docids differ at item " << (l + 1) << " in range: "
+                    << *i << " != " << *j << "\n";
+            return false;
+        }
+        // FIXME: don't use internal macro here...
+        if (!TEST_EQUAL_DOUBLE_(i.get_weight(), j.get_weight())) {
+            tout << "weights differ at item " << (l + 1) << " in range: "
+                    << i.get_weight() << " != " << j.get_weight() << "\n";
+            return false;
+        }
+        ++i;
+        ++j;
     }
     return true;
 }
 
 bool
 mset_range_is_same(const Xapian::MSet& mset, unsigned int first,
-		   const pair<Xapian::docid, double> to_compare[],
-		   unsigned int count)
+                   const pair<Xapian::docid, double> to_compare[],
+                   unsigned int count)
 {
     TEST_AND_EXPLAIN(mset.size() >= first + count - 1,
-		     "mset is too small: expected at least " <<
-		     (first + count - 1) << " items, got " <<
-		     mset.size() << ".");
+                     "mset is too small: expected at least " <<
+                     (first + count - 1) << " items, got " <<
+                     mset.size() << ".");
 
     Xapian::MSetIterator i = mset[first];
 
     for (unsigned int l = 0; l < count; ++l) {
-	if (*i != to_compare[l].first) {
-	    tout << "docids differ at item " << (l + 1) << " in range: "
-		    << *i << " != " << to_compare[l].first << "\n";
-	    return false;
-	}
-	// FIXME: don't use internal macro here...
-	if (!TEST_EQUAL_DOUBLE_(i.get_weight(), to_compare[l].second)) {
-	    tout << "weights differ at item " << (l + 1) << " in range: "
-		    << i.get_weight() << " != " << to_compare[l].second << "\n";
-	    return false;
-	}
-	++i;
+        if (*i != to_compare[l].first) {
+            tout << "docids differ at item " << (l + 1) << " in range: "
+                    << *i << " != " << to_compare[l].first << "\n";
+            return false;
+        }
+        // FIXME: don't use internal macro here...
+        if (!TEST_EQUAL_DOUBLE_(i.get_weight(), to_compare[l].second)) {
+            tout << "weights differ at item " << (l + 1) << " in range: "
+                    << i.get_weight() << " != " << to_compare[l].second << "\n";
+            return false;
+        }
+        ++i;
     }
     return true;
 }
 
 bool
 mset_range_is_same_weights(const Xapian::MSet &mset1, unsigned int first1,
-			   const Xapian::MSet &mset2, unsigned int first2,
-			   unsigned int count)
+                           const Xapian::MSet &mset2, unsigned int first2,
+                           unsigned int count)
 {
     TEST_AND_EXPLAIN(mset1.size() >= first1 + count - 1,
-		     "mset1 is too small: expected at least " <<
-		     (first1 + count - 1) << " items, got " <<
-		     mset1.size() << ".");
+                     "mset1 is too small: expected at least " <<
+                     (first1 + count - 1) << " items, got " <<
+                     mset1.size() << ".");
 
     TEST_AND_EXPLAIN(mset2.size() >= first2 + count - 1,
-		     "mset2 is too small: expected at least " <<
-		     (first2 + count - 1) << " items, got " <<
-		     mset2.size() << ".");
+                     "mset2 is too small: expected at least " <<
+                     (first2 + count - 1) << " items, got " <<
+                     mset2.size() << ".");
 
     Xapian::MSetIterator i = mset1[first1];
     Xapian::MSetIterator j = mset2[first2];
 
     for (unsigned int l = 0; l < count; ++l) {
-	// FIXME: don't use internal macro here...
-	if (!TEST_EQUAL_DOUBLE_(i.get_weight(), j.get_weight())) {
-	    tout << "weights differ at item " << (l + 1) << " in range: "
-		    << i.get_weight() << " != " << j.get_weight() << "\n";
-	    return false;
-	}
-	++i;
-	++j;
+        // FIXME: don't use internal macro here...
+        if (!TEST_EQUAL_DOUBLE_(i.get_weight(), j.get_weight())) {
+            tout << "weights differ at item " << (l + 1) << " in range: "
+                    << i.get_weight() << " != " << j.get_weight() << "\n";
+            return false;
+        }
+        ++i;
+        ++j;
     }
     return true;
 }
@@ -139,11 +139,11 @@ mset_range_is_same_weights(const Xapian::MSet &mset1, unsigned int first1,
 bool operator==(const Xapian::MSet &first, const Xapian::MSet &second)
 {
     if ((first.get_matches_lower_bound() != second.get_matches_lower_bound()) ||
-	(first.get_matches_upper_bound() != second.get_matches_upper_bound()) ||
-	(first.get_matches_estimated() != second.get_matches_estimated()) ||
-	(first.get_max_possible() != second.get_max_possible()) ||
-	(first.size() != second.size())) {
-	return false;
+        (first.get_matches_upper_bound() != second.get_matches_upper_bound()) ||
+        (first.get_matches_estimated() != second.get_matches_estimated()) ||
+        (first.get_max_possible() != second.get_max_possible()) ||
+        (first.size() != second.size())) {
+        return false;
     }
     if (first.empty()) return true;
     return mset_range_is_same(first, 0, second, 0, first.size());
@@ -151,79 +151,79 @@ bool operator==(const Xapian::MSet &first, const Xapian::MSet &second)
 
 static void
 mset_expect_order_(const Xapian::MSet &A, bool beginning,
-		   Xapian::docid d1, Xapian::docid d2, Xapian::docid d3, Xapian::docid d4,
-		   Xapian::docid d5, Xapian::docid d6, Xapian::docid d7, Xapian::docid d8,
-		   Xapian::docid d9, Xapian::docid d10, Xapian::docid d11, Xapian::docid d12)
+                   Xapian::docid d1, Xapian::docid d2, Xapian::docid d3, Xapian::docid d4,
+                   Xapian::docid d5, Xapian::docid d6, Xapian::docid d7, Xapian::docid d8,
+                   Xapian::docid d9, Xapian::docid d10, Xapian::docid d11, Xapian::docid d12)
 {
     vector<Xapian::docid> expect;
     if (d1) {
-	expect.push_back(d1);
-	if (d2) {
-	    expect.push_back(d2);
-	    if (d3) {
-		expect.push_back(d3);
-		if (d4) {
-		    expect.push_back(d4);
-		    if (d5) {
-			expect.push_back(d5);
-			if (d6) {
-			    expect.push_back(d6);
-			    if (d7) {
-				expect.push_back(d7);
-				if (d8) {
-				    expect.push_back(d8);
-				    if (d9) {
-					expect.push_back(d9);
-					if (d10) {
-					    expect.push_back(d10);
-					    if (d11) {
-						expect.push_back(d11);
-						if (d12) {
-						    expect.push_back(d12);
-						}
-					    }
-					}
-				    }
-				}
-			    }
-			}
-		    }
-		}
-	    }
-	}
+        expect.push_back(d1);
+        if (d2) {
+            expect.push_back(d2);
+            if (d3) {
+                expect.push_back(d3);
+                if (d4) {
+                    expect.push_back(d4);
+                    if (d5) {
+                        expect.push_back(d5);
+                        if (d6) {
+                            expect.push_back(d6);
+                            if (d7) {
+                                expect.push_back(d7);
+                                if (d8) {
+                                    expect.push_back(d8);
+                                    if (d9) {
+                                        expect.push_back(d9);
+                                        if (d10) {
+                                            expect.push_back(d10);
+                                            if (d11) {
+                                                expect.push_back(d11);
+                                                if (d12) {
+                                                    expect.push_back(d12);
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
     // Wheeee!
 
     if (beginning) {
-	TEST_AND_EXPLAIN(A.size() >= expect.size(),
-			 "Mset is of wrong size (" << A.size()
-			 << " < " << expect.size() << "):\n"
-			    "Full mset was: " << A << "\n"
-			    "Expected order to start: {" << expect << "}");
+        TEST_AND_EXPLAIN(A.size() >= expect.size(),
+                         "Mset is of wrong size (" << A.size()
+                         << " < " << expect.size() << "):\n"
+                            "Full mset was: " << A << "\n"
+                            "Expected order to start: {" << expect << "}");
     } else {
-	TEST_AND_EXPLAIN(A.size() == expect.size(),
-			 "Mset is of wrong size (" << A.size()
-			 << " != " << expect.size() << "):\n"
-			    "Full mset was: " << A << "\n"
-			    "Expected order: {" << expect << "}");
+        TEST_AND_EXPLAIN(A.size() == expect.size(),
+                         "Mset is of wrong size (" << A.size()
+                         << " != " << expect.size() << "):\n"
+                            "Full mset was: " << A << "\n"
+                            "Expected order: {" << expect << "}");
     }
 
     Xapian::MSetIterator j = A.begin();
     for (size_t i = 0; i < expect.size(); ++i, ++j) {
-	TEST_AND_EXPLAIN(*j == expect[i],
-			 "Mset didn't contain expected result:\n"
-			 << "Item " << i << " was " << *j
-			 << ", expected " << expect[i] << "\n"
-			    "Full mset was: " << A << "\n"
-			    "Expected: {" << expect << "}");
+        TEST_AND_EXPLAIN(*j == expect[i],
+                         "Mset didn't contain expected result:\n"
+                         << "Item " << i << " was " << *j
+                         << ", expected " << expect[i] << "\n"
+                            "Full mset was: " << A << "\n"
+                            "Expected: {" << expect << "}");
     }
 }
 
 void
 mset_expect_order(const Xapian::MSet &A,
-		  Xapian::docid d1, Xapian::docid d2, Xapian::docid d3, Xapian::docid d4,
-		  Xapian::docid d5, Xapian::docid d6, Xapian::docid d7, Xapian::docid d8,
-		  Xapian::docid d9, Xapian::docid d10, Xapian::docid d11, Xapian::docid d12)
+                  Xapian::docid d1, Xapian::docid d2, Xapian::docid d3, Xapian::docid d4,
+                  Xapian::docid d5, Xapian::docid d6, Xapian::docid d7, Xapian::docid d8,
+                  Xapian::docid d9, Xapian::docid d10, Xapian::docid d11, Xapian::docid d12)
 {
     mset_expect_order_(A, false, d1, d2, d3, d4, d5, d6, d7, d8, d9, d10, d11, d12);
 }
@@ -232,13 +232,13 @@ void
 test_mset_order_equal(const Xapian::MSet &mset1, const Xapian::MSet &mset2)
 {
     TEST_AND_EXPLAIN(mset1.size() == mset2.size(),
-		     "Msets not the same size - "
-		     << mset1.size() << " != " << mset2.size());
+                     "Msets not the same size - "
+                     << mset1.size() << " != " << mset2.size());
     Xapian::MSetIterator i = mset1.begin();
     Xapian::MSetIterator j = mset2.begin();
     for (; i != mset1.end(); ++i, ++j) {
-	TEST_AND_EXPLAIN(*i == *j,
-			 "Msets have different contents -\n" <<
-			 mset1 << "\n !=\n" << mset2);
+        TEST_AND_EXPLAIN(*i == *j,
+                         "Msets have different contents -\n" <<
+                         mset1 << "\n !=\n" << mset2);
     }
 }

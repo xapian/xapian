@@ -59,8 +59,8 @@ bad=0
 escaped_version=`echo "$version"|sed 's/\([^0-9]\)/\\\\\\1/g'`
 for d in xapian-core xapian-bindings xapian-applications/omega ; do
     grep '^\(AC_INIT(\|m4_define(\[project_version\],\).*\<'"$escaped_version"'\>' "$d/configure.ac" >/dev/null || {
-	echo "$d/configure.ac not version $version" 1>&2
-	bad=1
+        echo "$d/configure.ac not version $version" 1>&2
+        bad=1
     }
 done
 [ "$bad" = "0" ] || exit 1
@@ -134,7 +134,7 @@ To: xapian-discuss@lists.xapian.org
 Subject: Xapian $version released
 Reply-To: xapian-discuss@lists.xapian.org
 Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="=-=-=-=-=-=-=--"
+        protocol="application/pgp-signature"; boundary="=-=-=-=-=-=-=--"
 Content-Disposition: inline
 
 --=-=-=-=-=-=-=--

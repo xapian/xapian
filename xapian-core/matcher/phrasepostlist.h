@@ -53,11 +53,11 @@ class PhrasePostList : public SelectPostList {
 
   public:
     PhrasePostList(PostList *source_,
-		   EstimateOp* estimate_op_,
-		   Xapian::termpos window_,
-		   const std::vector<PostList*>::const_iterator &terms_begin,
-		   const std::vector<PostList*>::const_iterator &terms_end,
-		   PostListTree* pltree_);
+                   EstimateOp* estimate_op_,
+                   Xapian::termpos window_,
+                   const std::vector<PostList*>::const_iterator &terms_begin,
+                   const std::vector<PostList*>::const_iterator &terms_end,
+                   PostListTree* pltree_);
 
     ~PhrasePostList();
 

@@ -41,8 +41,8 @@
  */
 int
 create_changeset_file(const std::string & changeset_dir,
-		      const std::string & filename,
-		      std::string & changes_name);
+                      const std::string & filename,
+                      std::string & changes_name);
 
 /** Write some changes from a buffer, and then drop them from the buffer.
  *

@@ -50,25 +50,25 @@ struct FieldInfo {
 
     explicit
     FieldInfo(filter_type type_)
-	: type(type_)
+        : type(type_)
     {
     }
 
     FieldInfo(filter_type type_, std::string_view grouping_)
-	: type(type_), grouping(grouping_)
+        : type(type_), grouping(grouping_)
     {
     }
 
     FieldInfo(filter_type type_, Xapian::FieldProcessor* proc_,
-	      std::string_view grouping_ = {})
-	: type(type_), grouping(grouping_), proc(proc_)
+              std::string_view grouping_ = {})
+        : type(type_), grouping(grouping_), proc(proc_)
     {
     }
 
     FieldInfo& append(std::string_view prefix)
     {
-	prefixes.emplace_back(prefix);
-	return *this;
+        prefixes.emplace_back(prefix);
+        return *this;
     }
 };
 
@@ -82,9 +82,9 @@ struct RangeProc {
     bool default_grouping;
 
     RangeProc(RangeProcessor * range_proc, const std::string* grouping_)
-	: proc(range_proc),
-	  grouping(grouping_ ? *grouping_ : std::string()),
-	  default_grouping(grouping_ == NULL) { }
+        : proc(range_proc),
+          grouping(grouping_ ? *grouping_ : std::string()),
+          default_grouping(grouping_ == NULL) { }
 };
 
 class QueryParser::Internal : public Xapian::Internal::intrusive_base {
@@ -129,26 +129,26 @@ class QueryParser::Internal : public Xapian::Internal::intrusive_base {
     void add_prefix(std::string_view field, Xapian::FieldProcessor* proc);
 
     void add_boolean_prefix(std::string_view field,
-			    std::string_view prefix,
-			    const std::string* grouping);
+                            std::string_view prefix,
+                            const std::string* grouping);
 
     void add_boolean_prefix(std::string_view field,
-			    Xapian::FieldProcessor* proc,
-			    const std::string* grouping);
+                            Xapian::FieldProcessor* proc,
+                            const std::string* grouping);
 
     std::string parse_term(Utf8Iterator& it, const Utf8Iterator& end,
-			   bool try_word_break, unsigned flags,
-			   bool& needs_word_break, bool& was_acronym,
-			   size_t& first_wildcard,
-			   size_t& char_count,
-			   unsigned& edit_distance);
+                           bool try_word_break, unsigned flags,
+                           bool& needs_word_break, bool& was_acronym,
+                           size_t& first_wildcard,
+                           size_t& char_count,
+                           unsigned& edit_distance);
 
   public:
     Internal() { }
 
     Query parse_query(std::string_view query_string,
-		      unsigned int flags,
-		      std::string_view default_prefix);
+                      unsigned int flags,
+                      std::string_view default_prefix);
 };
 
 }

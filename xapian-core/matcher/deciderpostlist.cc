@@ -38,9 +38,9 @@ DeciderPostList::test_doc()
 
     bool decision = (*decider)(doc);
     if (decision) {
-	++accepted;
+        ++accepted;
     } else {
-	++rejected;
+        ++rejected;
     }
     return decision;
 }

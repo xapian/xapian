@@ -39,9 +39,9 @@
 static const char * unittest_assertion_failed = NULL;
 #define UNITTEST_CHECK_EXCEPTION \
     if (unittest_assertion_failed) { \
-	const char * unittest_assertion_failed_ = unittest_assertion_failed;\
-	unittest_assertion_failed = NULL;\
-	throw unittest_assertion_failed_;\
+        const char * unittest_assertion_failed_ = unittest_assertion_failed;\
+        unittest_assertion_failed = NULL;\
+        throw unittest_assertion_failed_;\
     }
 
 #include "testsuite.h"
@@ -51,10 +51,10 @@ static const char * unittest_assertion_failed = NULL;
 #define UNITTEST_ASSERT_LOCATION(MSG) UNITTEST_ASSERT_LOCATION_(__LINE__,MSG)
 #define UNITTEST_ASSERT_NOTHROW(COND, RET) \
     do {\
-	if (rare(!(COND))) {\
-	    unittest_assertion_failed = UNITTEST_ASSERT_LOCATION(COND);\
-	    return RET;\
-	}\
+        if (rare(!(COND))) {\
+            unittest_assertion_failed = UNITTEST_ASSERT_LOCATION(COND);\
+            return RET;\
+        }\
     } while (false)
 
 // Utility code we use:
@@ -64,12 +64,12 @@ static const char * unittest_assertion_failed = NULL;
 // Simpler version of TEST_EXCEPTION macro.
 #define TEST_EXCEPTION(TYPE, CODE) \
     do { \
-	try { \
-	    CODE; \
-	    UNITTEST_CHECK_EXCEPTION \
-	    FAIL_TEST("Expected exception "#TYPE" not thrown"); \
-	} catch (const TYPE &) { \
-	} \
+        try { \
+            CODE; \
+            UNITTEST_CHECK_EXCEPTION \
+            FAIL_TEST("Expected exception "#TYPE" not thrown"); \
+        } catch (const TYPE &) { \
+        } \
     } while (0)
 
 // Code we're unit testing:
@@ -109,9 +109,9 @@ description_append(std::string& desc, std::string_view s)
 
 DEFINE_TESTCASE(simple_exceptions_work1) {
     try {
-	throw 42;
+        throw 42;
     } catch (int val) {
-	TEST_EQUAL(val, 42);
+        TEST_EQUAL(val, 42);
     }
 }
 
@@ -119,7 +119,7 @@ class TestException { };
 
 DEFINE_TESTCASE(class_exceptions_work1) {
     try {
-	throw TestException();
+        throw TestException();
     } catch (const TestException &) {
     }
 }
@@ -223,9 +223,9 @@ check_double_serialisation(double u)
     const char * end = ptr[1] + encoded.size();
     double v = unserialise_double(&(ptr[1]), end);
     if (ptr[1] != end || u != v) {
-	cout << u << " -> " << v << ", difference = " << v - u << '\n';
-	cout << "FLT_RADIX = " << FLT_RADIX << '\n';
-	cout << "DBL_MAX_EXP = " << DBL_MAX_EXP << '\n';
+        cout << u << " -> " << v << ", difference = " << v - u << '\n';
+        cout << "FLT_RADIX = " << FLT_RADIX << '\n';
+        cout << "DBL_MAX_EXP = " << DBL_MAX_EXP << '\n';
     }
     TEST_EQUAL(static_cast<const void*>(ptr[1]), static_cast<const void*>(end));
 }
@@ -233,14 +233,14 @@ check_double_serialisation(double u)
 // Check serialisation of doubles.
 DEFINE_TESTCASE(serialisedouble1) {
     static const double test_values[] = {
-	3.14159265,
-	1e57,
-	123.1,
-	257.12,
-	1234.567e123,
-	255.5,
-	256.125,
-	257.03125,
+        3.14159265,
+        1e57,
+        123.1,
+        257.12,
+        1234.567e123,
+        255.5,
+        256.125,
+        257.03125,
     };
 
     check_double_serialisation(0.0);
@@ -252,10 +252,10 @@ DEFINE_TESTCASE(serialisedouble1) {
     check_double_serialisation(-DBL_MIN);
 
     for (double val : test_values) {
-	check_double_serialisation(val);
-	check_double_serialisation(-val);
-	check_double_serialisation(1.0 / val);
-	check_double_serialisation(-1.0 / val);
+        check_double_serialisation(val);
+        check_double_serialisation(-val);
+        check_double_serialisation(1.0 / val);
+        check_double_serialisation(-1.0 / val);
     }
 }
 
@@ -264,20 +264,20 @@ static void test_packuint1()
 {
     size_t n = 0;
     while (n < 0xff000000) {
-	string s;
-	pack_uint(s, n);
-	const char* p = s.data();
-	const char* p_end = p + s.size();
-	size_t decoded_n;
-	TEST(unpack_uint(&p, p_end, &decoded_n));
-	if (n != decoded_n || p != p_end) tout << "[" << s << "]\n";
-	TEST_EQUAL(n, decoded_n);
-	TEST_EQUAL(p_end - p, 0);
-	if (n < 5000) {
-	    ++n;
-	} else {
-	    n += 53643;
-	}
+        string s;
+        pack_uint(s, n);
+        const char* p = s.data();
+        const char* p_end = p + s.size();
+        size_t decoded_n;
+        TEST(unpack_uint(&p, p_end, &decoded_n));
+        if (n != decoded_n || p != p_end) tout << "[" << s << "]\n";
+        TEST_EQUAL(n, decoded_n);
+        TEST_EQUAL(p_end - p, 0);
+        if (n < 5000) {
+            ++n;
+        } else {
+            n += 53643;
+        }
     }
 }
 
@@ -287,35 +287,35 @@ packstring1_helper(size_t len)
     string s;
     pack_string(s, string(len, 'x'));
     {
-	const char* p = s.data();
-	const char* p_end = p + s.size();
-	// unpack_string() should overwrite any existing value.
-	string r = "dummy";
-	TEST(unpack_string(&p, p_end, r));
-	TEST_EQUAL(r.size(), len);
-	TEST_EQUAL(r.find_first_not_of('x'), r.npos);
-	TEST(p == p_end);
+        const char* p = s.data();
+        const char* p_end = p + s.size();
+        // unpack_string() should overwrite any existing value.
+        string r = "dummy";
+        TEST(unpack_string(&p, p_end, r));
+        TEST_EQUAL(r.size(), len);
+        TEST_EQUAL(r.find_first_not_of('x'), r.npos);
+        TEST(p == p_end);
     }
     s += 'x';
     {
-	const char* p = s.data();
-	const char* p_end = p + s.size();
-	// unpack_string() should overwrite any existing value.
-	string r = "dummy";
-	TEST(unpack_string(&p, p_end, r));
-	TEST_EQUAL(r.size(), len);
-	TEST_EQUAL(r.find_first_not_of('x'), r.npos);
-	TEST_EQUAL(p_end - p, 1);
+        const char* p = s.data();
+        const char* p_end = p + s.size();
+        // unpack_string() should overwrite any existing value.
+        string r = "dummy";
+        TEST(unpack_string(&p, p_end, r));
+        TEST_EQUAL(r.size(), len);
+        TEST_EQUAL(r.find_first_not_of('x'), r.npos);
+        TEST_EQUAL(p_end - p, 1);
     }
     // Test truncated encodings fail to unpack.
     size_t trunc_len = s.size() - 2;
     do {
-	const char* p = s.data();
-	const char* p_end = p + trunc_len;
-	string r;
-	TEST(!unpack_string(&p, p_end, r));
-	TEST(!p);
-	trunc_len >>= 1;
+        const char* p = s.data();
+        const char* p_end = p + trunc_len;
+        string r;
+        TEST(!unpack_string(&p, p_end, r));
+        TEST(!p);
+        trunc_len >>= 1;
     } while (trunc_len);
 }
 
@@ -326,7 +326,7 @@ static void test_packstring1()
     packstring1_helper(1);
     // Nothing magic here, just test a range of odd and even values.
     for (size_t n = 2; n < 1000; n = (n + 1) * 2 + (n >> 1)) {
-	packstring1_helper(n);
+        packstring1_helper(n);
     }
 }
 
@@ -359,11 +359,11 @@ static void test_serialiseerror1()
     // unserialise_error() as "noreturn".
     bool threw = false;
     try {
-	// unserialise_error throws an exception.
-	unserialise_error(serialisation, "", "");
+        // unserialise_error throws an exception.
+        unserialise_error(serialisation, "", "");
     } catch (const Xapian::Error & ecaught) {
-	TEST_STRINGS_EQUAL(ecaught.get_error_string(), enoent_msg);
-	threw = true;
+        TEST_STRINGS_EQUAL(ecaught.get_error_string(), enoent_msg);
+        threw = true;
     }
     TEST(threw);
 
@@ -432,35 +432,35 @@ static void test_sortableserialise1()
     string prevstr;
     bool started = false;
     for (const double *p = test_sortableserialise_numbers; *p != 64; ++p) {
-	double num = *p;
-	tout << "Number: " << num << '\n';
-	string str = Xapian::sortable_serialise(num);
-	tout << "String: " << str << '\n';
-	TEST_EQUAL(Xapian::sortable_unserialise(str), num);
+        double num = *p;
+        tout << "Number: " << num << '\n';
+        string str = Xapian::sortable_serialise(num);
+        tout << "String: " << str << '\n';
+        TEST_EQUAL(Xapian::sortable_unserialise(str), num);
 
-	if (started) {
-	    int num_cmp = 0;
-	    if (prevnum < num) {
-		num_cmp = -1;
-	    } else if (prevnum > num) {
-		num_cmp = 1;
-	    }
-	    int str_cmp = 0;
-	    if (prevstr < str) {
-		str_cmp = -1;
-	    } else if (prevstr > str) {
-		str_cmp = 1;
-	    }
+        if (started) {
+            int num_cmp = 0;
+            if (prevnum < num) {
+                num_cmp = -1;
+            } else if (prevnum > num) {
+                num_cmp = 1;
+            }
+            int str_cmp = 0;
+            if (prevstr < str) {
+                str_cmp = -1;
+            } else if (prevstr > str) {
+                str_cmp = 1;
+            }
 
-	    TEST_AND_EXPLAIN(num_cmp == str_cmp,
-			     "Numbers " << prevnum << " and " << num <<
-			     " don't sort the same way as their string "
-			     "counterparts");
-	}
+            TEST_AND_EXPLAIN(num_cmp == str_cmp,
+                             "Numbers " << prevnum << " and " << num <<
+                             " don't sort the same way as their string "
+                             "counterparts");
+        }
 
-	prevnum = num;
-	prevstr = str;
-	started = true;
+        prevnum = num;
+        prevstr = str;
+        started = true;
     }
 }
 
@@ -555,22 +555,22 @@ static void test_closefrom1()
 static void test_shard1()
 {
     for (Xapian::docid did = 1; did != 10; ++did) {
-	for (Xapian::doccount n = 1; n != 10; ++n) {
-	    Xapian::docid s_did = shard_docid(did, n);
-	    Xapian::doccount shard = shard_number(did, n);
-	    TEST_EQUAL(s_did, (did - 1) / n + 1);
-	    TEST_EQUAL(shard, (did - 1) % n);
-	    if (n == 1)
-		TEST_EQUAL(did, s_did);
-	    if (did == 1)
-		TEST_EQUAL(s_did, 1);
-	    if (s_did == 1)
-		TEST(did <= n);
-	    TEST(s_did != 0);
-	    TEST(s_did <= did);
-	    TEST(shard < n);
-	    TEST_EQUAL(did, unshard(s_did, shard, n));
-	}
+        for (Xapian::doccount n = 1; n != 10; ++n) {
+            Xapian::docid s_did = shard_docid(did, n);
+            Xapian::doccount shard = shard_number(did, n);
+            TEST_EQUAL(s_did, (did - 1) / n + 1);
+            TEST_EQUAL(shard, (did - 1) % n);
+            if (n == 1)
+                TEST_EQUAL(did, s_did);
+            if (did == 1)
+                TEST_EQUAL(s_did, 1);
+            if (s_did == 1)
+                TEST(did <= n);
+            TEST(s_did != 0);
+            TEST(s_did <= did);
+            TEST(shard < n);
+            TEST_EQUAL(did, unshard(s_did, shard, n));
+        }
     }
 }
 
@@ -586,33 +586,33 @@ static void test_uuid1()
     TEST_NOT_EQUAL(str, "00000000-0000-0000-0000-000000000000");
     // Check UUID pattern is correct and that upper case is not used.
     for (int i = 0; i != 8; ++i) {
-	unsigned char ch = str[i];
-	TEST(isxdigit(ch));
-	TEST(!isupper(ch));
+        unsigned char ch = str[i];
+        TEST(isxdigit(ch));
+        TEST(!isupper(ch));
     }
     TEST_EQUAL(str[8], '-');
     for (int i = 9; i != 13; ++i) {
-	unsigned char ch = str[i];
-	TEST(isxdigit(ch));
-	TEST(!isupper(ch));
+        unsigned char ch = str[i];
+        TEST(isxdigit(ch));
+        TEST(!isupper(ch));
     }
     TEST_EQUAL(str[13], '-');
     for (int i = 14; i != 18; ++i) {
-	unsigned char ch = str[i];
-	TEST(isxdigit(ch));
-	TEST(!isupper(ch));
+        unsigned char ch = str[i];
+        TEST(isxdigit(ch));
+        TEST(!isupper(ch));
     }
     TEST_EQUAL(str[18], '-');
     for (int i = 19; i != 23; ++i) {
-	unsigned char ch = str[i];
-	TEST(isxdigit(ch));
-	TEST(!isupper(ch));
+        unsigned char ch = str[i];
+        TEST(isxdigit(ch));
+        TEST(!isupper(ch));
     }
     TEST_EQUAL(str[23], '-');
     for (int i = 24; i != 36; ++i) {
-	unsigned char ch = str[i];
-	TEST(isxdigit(ch));
-	TEST(!isupper(ch));
+        unsigned char ch = str[i];
+        TEST(isxdigit(ch));
+        TEST(!isupper(ch));
     }
 
     uuid2.parse(str);
@@ -653,7 +653,7 @@ class A : public Xapian::Internal::intrusive_base {
     explicit A(int x_) : x(x_) {}
 
     int get_x() const {
-	return x;
+        return x;
     }
 };
 
@@ -662,84 +662,84 @@ class B : public Xapian::Internal::opt_intrusive_base {
     bool & alive;
   public:
     B(int x_, bool & alive_) : x(x_), alive(alive_) {
-	alive = true;
+        alive = true;
     }
 
     ~B() {
-	alive = false;
+        alive = false;
     }
 
     int get_x() const {
-	return x;
+        return x;
     }
 
     B * release() {
-	opt_intrusive_base::release();
-	return this;
+        opt_intrusive_base::release();
+        return this;
     }
 };
 
 static void test_movesupport1()
 {
     {
-	// Test move semantics support for intrusive_ptr class
-	Xapian::Internal::intrusive_ptr<A> p1(new A{5});
-	Xapian::Internal::intrusive_ptr<A> p3;
+        // Test move semantics support for intrusive_ptr class
+        Xapian::Internal::intrusive_ptr<A> p1(new A{5});
+        Xapian::Internal::intrusive_ptr<A> p3;
 
-	// Test move constructor
-	Xapian::Internal::intrusive_ptr<A> p2(std::move(p1));
-	TEST(p2);
-	TEST_EQUAL(p2->get_x(), 5);
-	TEST_EQUAL(p1.get(), 0);
-	TEST(!p1);
+        // Test move constructor
+        Xapian::Internal::intrusive_ptr<A> p2(std::move(p1));
+        TEST(p2);
+        TEST_EQUAL(p2->get_x(), 5);
+        TEST_EQUAL(p1.get(), 0);
+        TEST(!p1);
 
-	// Test move assignment
-	p3 = std::move(p2);
-	TEST(p3);
-	TEST_EQUAL(p3->get_x(), 5);
-	TEST_EQUAL(p2.get(), 0);
-	TEST(!p2);
+        // Test move assignment
+        p3 = std::move(p2);
+        TEST(p3);
+        TEST_EQUAL(p3->get_x(), 5);
+        TEST_EQUAL(p2.get(), 0);
+        TEST(!p2);
     }
 
     {
-	// Same test for intrusive_ptr_nonnull class
-	Xapian::Internal::intrusive_ptr_nonnull<A> p1(new A{5});
-	Xapian::Internal::intrusive_ptr_nonnull<A> p3(new A{6});
+        // Same test for intrusive_ptr_nonnull class
+        Xapian::Internal::intrusive_ptr_nonnull<A> p1(new A{5});
+        Xapian::Internal::intrusive_ptr_nonnull<A> p3(new A{6});
 
-	// Test move constructor
-	Xapian::Internal::intrusive_ptr_nonnull<A> p2(std::move(p1));
-	TEST(p2.get());
-	TEST_EQUAL(p2->get_x(), 5);
+        // Test move constructor
+        Xapian::Internal::intrusive_ptr_nonnull<A> p2(std::move(p1));
+        TEST(p2.get());
+        TEST_EQUAL(p2->get_x(), 5);
 
-	// Test move assignment
-	p3 = std::move(p2);
-	TEST(p3.get());
-	TEST_EQUAL(p3->get_x(), 5);
+        // Test move assignment
+        p3 = std::move(p2);
+        TEST(p3.get());
+        TEST_EQUAL(p3->get_x(), 5);
     }
 
     bool alive = false;
     {
-	// Same test for opt_intrusive_ptr class
-	B * b1 = new B{5, alive};
-	b1->release();
-	Xapian::Internal::opt_intrusive_ptr<B> p1(b1);
-	Xapian::Internal::opt_intrusive_ptr<B> p3;
+        // Same test for opt_intrusive_ptr class
+        B * b1 = new B{5, alive};
+        b1->release();
+        Xapian::Internal::opt_intrusive_ptr<B> p1(b1);
+        Xapian::Internal::opt_intrusive_ptr<B> p3;
 
-	// Test move constructor
-	Xapian::Internal::opt_intrusive_ptr<B> p2(std::move(p1));
-	TEST(p2);
-	TEST_EQUAL(p2->get_x(), 5);
-	TEST_EQUAL(p1.get(), 0);
-	TEST(!p1);
-	TEST_EQUAL(alive, true);
+        // Test move constructor
+        Xapian::Internal::opt_intrusive_ptr<B> p2(std::move(p1));
+        TEST(p2);
+        TEST_EQUAL(p2->get_x(), 5);
+        TEST_EQUAL(p1.get(), 0);
+        TEST(!p1);
+        TEST_EQUAL(alive, true);
 
-	// Test move assignment
-	p3 = std::move(p2);
-	TEST(p3);
-	TEST_EQUAL(p3->get_x(), 5);
-	TEST_EQUAL(p2.get(), 0);
-	TEST(!p2);
-	TEST_EQUAL(alive, true);
+        // Test move assignment
+        p3 = std::move(p2);
+        TEST(p3);
+        TEST_EQUAL(p3->get_x(), 5);
+        TEST_EQUAL(p2.get(), 0);
+        TEST(!p2);
+        TEST_EQUAL(alive, true);
     }
     // Test that object b1 has been deleted.
     TEST_EQUAL(alive, false);
@@ -858,7 +858,7 @@ inline static void parseunsigned_helper() {
     TEST(!parse_unsigned("0a", val));
     // Only test if we can construct a value one larger easily.
     if constexpr(max_val + 1ull != 0)
-	TEST(!parse_unsigned(str(max_val + 1ull).c_str(), val));
+        TEST(!parse_unsigned(str(max_val + 1ull).c_str(), val));
 }
 
 static void test_parseunsigned1()
@@ -904,7 +904,7 @@ inline static void parsesigned_helper() {
     // checks provide a way to check that, so keeping the testsuite clean
     // of such warnings is useful.
     unsigned long long one_too_small_negated =
-	static_cast<unsigned long long>(-(min_val + 1)) + 2ull;
+        static_cast<unsigned long long>(-(min_val + 1)) + 2ull;
     TEST(!parse_signed(("-" + str(one_too_small_negated)).c_str(), val));
 }
 
@@ -923,91 +923,91 @@ try {
     const char* tmp_file = ".unittest_ioutils1";
     int fd = -1;
     try {
-	constexpr int BLOCK_SIZE = 1024;
+        constexpr int BLOCK_SIZE = 1024;
 
-	fd = io_open_block_wr(tmp_file, true);
-	TEST_REL(fd, >=, 0);
+        fd = io_open_block_wr(tmp_file, true);
+        TEST_REL(fd, >=, 0);
 
-	string buf(BLOCK_SIZE, 'x');
-	string out;
+        string buf(BLOCK_SIZE, 'x');
+        string out;
 
-	// ZFS default blocksize is 128K so we need to write at least that far
-	// into the file to be able to successfully detect support for sparse
-	// files below.  We won't detect sparse file support if the blocksize
-	// is larger, but that's not a problem.
-	io_write_block(fd, buf.data(), BLOCK_SIZE, 128);
-	out.resize(BLOCK_SIZE);
-	io_read_block(fd, &out[0], BLOCK_SIZE, 128);
-	TEST(buf == out);
+        // ZFS default blocksize is 128K so we need to write at least that far
+        // into the file to be able to successfully detect support for sparse
+        // files below.  We won't detect sparse file support if the blocksize
+        // is larger, but that's not a problem.
+        io_write_block(fd, buf.data(), BLOCK_SIZE, 128);
+        out.resize(BLOCK_SIZE);
+        io_read_block(fd, &out[0], BLOCK_SIZE, 128);
+        TEST(buf == out);
 
-	// Call io_sync() and check it claims to work.  Checking it actually has
-	// any effect is much harder to do.
-	TEST(io_sync(fd));
+        // Call io_sync() and check it claims to work.  Checking it actually has
+        // any effect is much harder to do.
+        TEST(io_sync(fd));
 
-	io_write_block(fd, buf.data(), BLOCK_SIZE, 129);
-	out.resize(BLOCK_SIZE);
-	io_read_block(fd, &out[0], BLOCK_SIZE, 129);
-	TEST(buf == out);
+        io_write_block(fd, buf.data(), BLOCK_SIZE, 129);
+        out.resize(BLOCK_SIZE);
+        io_read_block(fd, &out[0], BLOCK_SIZE, 129);
+        TEST(buf == out);
 
-	// Call io_full_sync() and check it claims to work.  Checking it actually
-	// has any effect is much harder to do.
-	TEST(io_full_sync(fd));
+        // Call io_full_sync() and check it claims to work.  Checking it actually
+        // has any effect is much harder to do.
+        TEST(io_full_sync(fd));
 
-	if constexpr(sizeof(off_t) <= 4) {
-	    SKIP_TEST("Skipping rest of testcase - no Large File Support");
-	}
+        if constexpr(sizeof(off_t) <= 4) {
+            SKIP_TEST("Skipping rest of testcase - no Large File Support");
+        }
 
 #ifdef SEEK_HOLE
-	struct stat statbuf;
-	TEST(fstat(fd, &statbuf) == 0);
+        struct stat statbuf;
+        TEST(fstat(fd, &statbuf) == 0);
 
-	off_t hole = lseek(fd, 0, SEEK_HOLE);
-	if (hole < 0) {
-	    SKIP_TEST("Skipping rest of testcase - SEEK_HOLE failed");
-	}
-	if (hole >= statbuf.st_size) {
-	    SKIP_TEST("Skipping rest of testcase - sparse file support not "
-		      "detected");
-	}
+        off_t hole = lseek(fd, 0, SEEK_HOLE);
+        if (hole < 0) {
+            SKIP_TEST("Skipping rest of testcase - SEEK_HOLE failed");
+        }
+        if (hole >= statbuf.st_size) {
+            SKIP_TEST("Skipping rest of testcase - sparse file support not "
+                      "detected");
+        }
 
-	// Write a block at an offset a little above 4GB and check that we wrote
-	// the specified block by checking the filesize.  This should catch bugs
-	// which truncate the offset used.
-	constexpr off_t high_offset = off_t(0x100000000 + BLOCK_SIZE);
-	constexpr off_t high_block = high_offset / BLOCK_SIZE;
-	try {
-	    io_write_block(fd, buf.data(), BLOCK_SIZE, high_block);
-	} catch (const Xapian::DatabaseError& e) {
-	    if (e.get_error_string() == errno_to_string(EFBIG))
-		SKIP_TEST("Skipping rest of testcase - FS doesn't allow a > 4GB "
-			  "file");
-	    throw;
-	}
-	TEST(fstat(fd, &statbuf) == 0);
-	TEST_EQUAL(statbuf.st_size, high_offset + BLOCK_SIZE);
+        // Write a block at an offset a little above 4GB and check that we wrote
+        // the specified block by checking the filesize.  This should catch bugs
+        // which truncate the offset used.
+        constexpr off_t high_offset = off_t(0x100000000 + BLOCK_SIZE);
+        constexpr off_t high_block = high_offset / BLOCK_SIZE;
+        try {
+            io_write_block(fd, buf.data(), BLOCK_SIZE, high_block);
+        } catch (const Xapian::DatabaseError& e) {
+            if (e.get_error_string() == errno_to_string(EFBIG))
+                SKIP_TEST("Skipping rest of testcase - FS doesn't allow a > 4GB "
+                          "file");
+            throw;
+        }
+        TEST(fstat(fd, &statbuf) == 0);
+        TEST_EQUAL(statbuf.st_size, high_offset + BLOCK_SIZE);
 
-	close(fd);
+        close(fd);
 
-	fd = io_open_block_rd(tmp_file);
+        fd = io_open_block_rd(tmp_file);
 
-	// We can't easily test that io_readahead_block() actually does anything if
-	// it returns true, but we can at least call it to check it doesn't crash.
-	(void)io_readahead_block(fd, BLOCK_SIZE, high_block);
+        // We can't easily test that io_readahead_block() actually does anything if
+        // it returns true, but we can at least call it to check it doesn't crash.
+        (void)io_readahead_block(fd, BLOCK_SIZE, high_block);
 
-	// Check we can read back the same data we wrote.
-	io_read_block(fd, &out[0], BLOCK_SIZE, high_block);
-	TEST(buf == out);
+        // Check we can read back the same data we wrote.
+        io_read_block(fd, &out[0], BLOCK_SIZE, high_block);
+        TEST(buf == out);
 
-	close(fd);
-	fd = -1;
-	io_unlink(tmp_file);
+        close(fd);
+        fd = -1;
+        io_unlink(tmp_file);
 #else
-	SKIP_TEST("Skipping rest of testcase - SEEK_HOLE not supported");
+        SKIP_TEST("Skipping rest of testcase - SEEK_HOLE not supported");
 #endif
     } catch (...) {
-	close(fd);
-	io_unlink(tmp_file);
-	throw;
+        close(fd);
+        io_unlink(tmp_file);
+        throw;
     }
 } catch (const Xapian::Error& e) {
     // Translate Xapian::Error exceptions to std::string exceptions which
@@ -1021,10 +1021,10 @@ DEFINE_TESTCASE(vec1) {
     Xapian::Vec<char> v_char;
     Xapian::Vec<const char*> v_cstring;
     for (int i = 0; i < 100; ++i) {
-	v_int.push_back(i);
-	v_double.push_back(double(i));
-	v_char.push_back(char(i & 0xff));
-	v_cstring.push_back("string");
+        v_int.push_back(i);
+        v_double.push_back(double(i));
+        v_char.push_back(char(i & 0xff));
+        v_cstring.push_back("string");
     }
 }
 
@@ -1033,8 +1033,8 @@ DEFINE_TESTCASE(vecdeleter1) {
     struct U { int x; };
     Xapian::VecUniquePtr<U> v_unique_u;
     for (int i = 0; i < 100; ++i) {
-	v_unique_int.push_back(new int(42));
-	v_unique_u.push_back(new U());
+        v_unique_int.push_back(new int(42));
+        v_unique_u.push_back(new U());
     }
 }
 

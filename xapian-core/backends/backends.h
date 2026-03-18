@@ -34,11 +34,11 @@ enum {
 inline const char * backend_name(int code) {
     if (code < 0 || code > BACKEND_MAX_) code = BACKEND_MAX_;
     const char * p =
-	"remote\0\0\0"
-	"inmemory\0"
-	"glass\0\0\0\0"
-	"honey\0\0\0\0"
-	"?";
+        "remote\0\0\0"
+        "inmemory\0"
+        "glass\0\0\0\0"
+        "honey\0\0\0\0"
+        "?";
     return p + code * 9;
 }
 

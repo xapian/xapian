@@ -64,7 +64,7 @@ class DatabaseReplicator {
      *  @param target The target revision.
      */
     virtual bool check_revision_at_least(const std::string & rev,
-					 const std::string & target) const = 0;
+                                         const std::string & target) const = 0;
 
     /** Read and apply the next changeset.
      *
@@ -77,8 +77,8 @@ class DatabaseReplicator {
      *  are performed.
      */
     virtual std::string apply_changeset_from_conn(RemoteConnection & conn,
-						  double end_time,
-						  bool db_valid) const = 0;
+                                                  double end_time,
+                                                  bool db_valid) const = 0;
 
     /** Get a UUID for the replica.
      *

@@ -46,65 +46,65 @@ void
 HoneySpellingTable::merge_changes()
 {
     for (auto i : termlist_deltas) {
-	const string& key = i.first;
-	const set<string>& changes = i.second;
+        const string& key = i.first;
+        const set<string>& changes = i.second;
 
-	auto d = changes.begin();
-	if (d == changes.end()) continue;
+        auto d = changes.begin();
+        if (d == changes.end()) continue;
 
-	string updated;
-	string current;
-	PrefixCompressedStringWriter out(updated);
-	if (get_exact_entry(key, current)) {
-	    PrefixCompressedStringItor in(current, key);
-	    updated.reserve(current.size()); // FIXME plus some?
-	    while (!in.at_end() && d != changes.end()) {
-		const string& word = *in;
-		Assert(d != changes.end());
-		int cmp = word.compare(*d);
-		if (cmp < 0) {
-		    out.append(word);
-		    ++in;
-		} else if (cmp > 0) {
-		    out.append(*d);
-		    ++d;
-		} else {
-		    // If an existing entry is in the changes list, that means
-		    // we should remove it.
-		    ++in;
-		    ++d;
-		}
-	    }
-	    if (!in.at_end()) {
-		// FIXME : easy to optimise this to a fix-up and substring copy.
-		while (!in.at_end()) {
-		    out.append(*in++);
-		}
-	    }
-	}
-	while (d != changes.end()) {
-	    out.append(*d++);
-	}
-	if (!updated.empty()) {
-	    add(key, updated);
-	} else {
-	    del(key);
-	}
+        string updated;
+        string current;
+        PrefixCompressedStringWriter out(updated);
+        if (get_exact_entry(key, current)) {
+            PrefixCompressedStringItor in(current, key);
+            updated.reserve(current.size()); // FIXME plus some?
+            while (!in.at_end() && d != changes.end()) {
+                const string& word = *in;
+                Assert(d != changes.end());
+                int cmp = word.compare(*d);
+                if (cmp < 0) {
+                    out.append(word);
+                    ++in;
+                } else if (cmp > 0) {
+                    out.append(*d);
+                    ++d;
+                } else {
+                    // If an existing entry is in the changes list, that means
+                    // we should remove it.
+                    ++in;
+                    ++d;
+                }
+            }
+            if (!in.at_end()) {
+                // FIXME : easy to optimise this to a fix-up and substring copy.
+                while (!in.at_end()) {
+                    out.append(*in++);
+                }
+            }
+        }
+        while (d != changes.end()) {
+            out.append(*d++);
+        }
+        if (!updated.empty()) {
+            add(key, updated);
+        } else {
+            del(key);
+        }
     }
     termlist_deltas.clear();
 
     for (auto j = wordfreq_changes.begin(); j != wordfreq_changes.end(); ++j) {
-	const string& key = make_spelling_wordlist_key(j->first);
-	Xapian::termcount wordfreq = j->second;
-	if (wordfreq) {
-	    string tag;
-	    pack_uint_last(tag, wordfreq);
-	    add(key, tag);
-	    if (wordfreq > wordfreq_upper_bound)
-		wordfreq_upper_bound = wordfreq;
-	} else {
-	    del(key);
-	}
+        const string& key = make_spelling_wordlist_key(j->first);
+        Xapian::termcount wordfreq = j->second;
+        if (wordfreq) {
+            string tag;
+            pack_uint_last(tag, wordfreq);
+            add(key, tag);
+            if (wordfreq > wordfreq_upper_bound)
+                wordfreq_upper_bound = wordfreq;
+        } else {
+            del(key);
+        }
     }
     wordfreq_changes.clear();
 }
@@ -114,14 +114,14 @@ HoneySpellingTable::toggle_fragment(fragment frag, const string& word)
 {
     auto i = termlist_deltas.find(frag);
     if (i == termlist_deltas.end()) {
-	i = termlist_deltas.insert(make_pair(frag, set<string>())).first;
+        i = termlist_deltas.insert(make_pair(frag, set<string>())).first;
     }
     // The commonest case is that we're adding lots of words, so try insert
     // first and if that reports that the word already exists, remove it.
     auto res = i->second.insert(word);
     if (!res.second) {
-	// word is already in the set, so remove it.
-	i->second.erase(res.first);
+        // word is already in the set, so remove it.
+        i->second.erase(res.first);
     }
 }
 
@@ -132,27 +132,27 @@ HoneySpellingTable::add_word(const string& word, Xapian::termcount freqinc)
 
     auto i = wordfreq_changes.find(word);
     if (i != wordfreq_changes.end()) {
-	// Word "word" already exists and has been modified.
-	if (i->second) {
-	    i->second += freqinc;
-	    return;
-	}
-	// If "word" is currently modified such that it no longer exists, so
-	// we need to execute the code below to re-add trigrams for it.
-	i->second = freqinc;
+        // Word "word" already exists and has been modified.
+        if (i->second) {
+            i->second += freqinc;
+            return;
+        }
+        // If "word" is currently modified such that it no longer exists, so
+        // we need to execute the code below to re-add trigrams for it.
+        i->second = freqinc;
     } else {
-	string data;
-	if (get_exact_entry(make_spelling_wordlist_key(word), data)) {
-	    // Word "word" already exists, so increment its count.
-	    Xapian::termcount freq;
-	    const char* p = data.data();
-	    if (!unpack_uint_last(&p, p + data.size(), &freq) || freq == 0) {
-		throw Xapian::DatabaseCorruptError("Bad spelling word freq");
-	    }
-	    wordfreq_changes[word] = freq + freqinc;
-	    return;
-	}
-	wordfreq_changes[word] = freqinc;
+        string data;
+        if (get_exact_entry(make_spelling_wordlist_key(word), data)) {
+            // Word "word" already exists, so increment its count.
+            Xapian::termcount freq;
+            const char* p = data.data();
+            if (!unpack_uint_last(&p, p + data.size(), &freq) || freq == 0) {
+                throw Xapian::DatabaseCorruptError("Bad spelling word freq");
+            }
+            wordfreq_changes[word] = freq + freqinc;
+            return;
+        }
+        wordfreq_changes[word] = freqinc;
     }
 
     // Add trigrams for word.
@@ -166,39 +166,39 @@ HoneySpellingTable::remove_word(const string& word, Xapian::termcount freqdec)
 
     auto i = wordfreq_changes.find(word);
     if (i != wordfreq_changes.end()) {
-	if (i->second == 0) {
-	    // Word has already been deleted.
-	    return freqdec;
-	}
-	// Word "word" exists and has been modified.
-	if (freqdec < i->second) {
-	    i->second -= freqdec;
-	    return 0;
-	}
-	freqdec -= i->second;
+        if (i->second == 0) {
+            // Word has already been deleted.
+            return freqdec;
+        }
+        // Word "word" exists and has been modified.
+        if (freqdec < i->second) {
+            i->second -= freqdec;
+            return 0;
+        }
+        freqdec -= i->second;
 
-	// Mark word as deleted.
-	i->second = 0;
+        // Mark word as deleted.
+        i->second = 0;
     } else {
-	string data;
-	if (!get_exact_entry(make_spelling_wordlist_key(word), data)) {
-	    // This word doesn't exist.
-	    return freqdec;
-	}
+        string data;
+        if (!get_exact_entry(make_spelling_wordlist_key(word), data)) {
+            // This word doesn't exist.
+            return freqdec;
+        }
 
-	Xapian::termcount freq;
-	const char* p = data.data();
-	if (!unpack_uint_last(&p, p + data.size(), &freq)) {
-	    throw Xapian::DatabaseCorruptError("Bad spelling word freq");
-	}
-	if (freqdec < freq) {
-	    wordfreq_changes[word] = freq - freqdec;
-	    return 0;
-	}
-	freqdec -= freq;
+        Xapian::termcount freq;
+        const char* p = data.data();
+        if (!unpack_uint_last(&p, p + data.size(), &freq)) {
+            throw Xapian::DatabaseCorruptError("Bad spelling word freq");
+        }
+        if (freqdec < freq) {
+            wordfreq_changes[word] = freq - freqdec;
+            return 0;
+        }
+        freqdec -= freq;
 
-	// Mark word as deleted.
-	wordfreq_changes[word] = 0;
+        // Mark word as deleted.
+        wordfreq_changes[word] = 0;
     }
 
     // Remove trigrams for word.
@@ -213,16 +213,16 @@ HoneySpellingTable::toggle_word(const string& word)
     fragment buf(0);
 
     if (word.size() <= 4) {
-	// We also generate 'bookends' for two, three, and four character
-	// terms so we can handle transposition of the middle two characters
-	// of a four character word, substitution or deletion of the middle
-	// character of a three character word, or insertion in the middle of a
-	// two character word.
-	// 'Bookends':
-	buf[0] = KEY_PREFIX_BOOKEND;
-	buf[1] = word[0];
-	buf[2] = word[word.size() - 1];
-	toggle_fragment(buf, word);
+        // We also generate 'bookends' for two, three, and four character
+        // terms so we can handle transposition of the middle two characters
+        // of a four character word, substitution or deletion of the middle
+        // character of a three character word, or insertion in the middle of a
+        // two character word.
+        // 'Bookends':
+        buf[0] = KEY_PREFIX_BOOKEND;
+        buf[1] = word[0];
+        buf[2] = word[word.size() - 1];
+        toggle_fragment(buf, word);
     }
 
     // Head:
@@ -238,22 +238,22 @@ HoneySpellingTable::toggle_word(const string& word)
     toggle_fragment(buf, word);
 
     if (word.size() > 2) {
-	set<fragment> done;
-	// Middles:
-	buf[0] = KEY_PREFIX_MIDDLE;
-	for (size_t start = 0; start <= word.size() - 3; ++start) {
-	    memcpy(buf.data + 1, word.data() + start, 3);
-	    // Don't toggle the same fragment twice or it will cancel out.
-	    // Bug fixed in 1.2.6.
-	    if (done.insert(buf).second)
-		toggle_fragment(buf, word);
-	}
+        set<fragment> done;
+        // Middles:
+        buf[0] = KEY_PREFIX_MIDDLE;
+        for (size_t start = 0; start <= word.size() - 3; ++start) {
+            memcpy(buf.data + 1, word.data() + start, 3);
+            // Don't toggle the same fragment twice or it will cancel out.
+            // Bug fixed in 1.2.6.
+            if (done.insert(buf).second)
+                toggle_fragment(buf, word);
+        }
     }
 }
 
 struct TermListGreaterApproxSize {
     bool operator()(const TermList* a, const TermList* b) const {
-	return a->get_approx_size() > b->get_approx_size();
+        return a->get_approx_size() > b->get_approx_size();
     }
 };
 
@@ -269,85 +269,85 @@ HoneySpellingTable::open_termlist(string_view word)
 
     vector<TermList*> termlists;
     try {
-	string data;
-	fragment buf(0);
+        string data;
+        fragment buf(0);
 
-	if (word.size() <= 4) {
-	    // We also generate 'bookends' for two, three, and four character
-	    // terms so we can handle transposition of the middle two
-	    // characters of a four character word, substitution or deletion of
-	    // the middle character of a three character word, or insertion in
-	    // the middle of a two character word.
-	    buf[0] = KEY_PREFIX_BOOKEND;
-	    buf[1] = word[0];
-	    buf[2] = word[word.size() - 1];
-	    if (get_exact_entry(string(buf), data))
-		termlists.push_back(new HoneySpellingTermList(data, buf.data));
-	}
+        if (word.size() <= 4) {
+            // We also generate 'bookends' for two, three, and four character
+            // terms so we can handle transposition of the middle two
+            // characters of a four character word, substitution or deletion of
+            // the middle character of a three character word, or insertion in
+            // the middle of a two character word.
+            buf[0] = KEY_PREFIX_BOOKEND;
+            buf[1] = word[0];
+            buf[2] = word[word.size() - 1];
+            if (get_exact_entry(string(buf), data))
+                termlists.push_back(new HoneySpellingTermList(data, buf.data));
+        }
 
-	// Head:
-	buf[0] = KEY_PREFIX_HEAD;
-	buf[1] = word[0];
-	buf[2] = word[1];
-	if (get_exact_entry(string(buf), data))
-	    termlists.push_back(new HoneySpellingTermList(data, buf.data));
+        // Head:
+        buf[0] = KEY_PREFIX_HEAD;
+        buf[1] = word[0];
+        buf[2] = word[1];
+        if (get_exact_entry(string(buf), data))
+            termlists.push_back(new HoneySpellingTermList(data, buf.data));
 
-	if (word.size() == 2) {
-	    // For two letter words, we generate H and T terms for the
-	    // transposed form so that we can produce good spelling
-	    // suggestions.
-	    // AB -> BA
-	    buf[1] = word[1];
-	    buf[2] = word[0];
-	    if (get_exact_entry(string(buf), data))
-		termlists.push_back(new HoneySpellingTermList(data, buf.data));
-	    buf[0] = KEY_PREFIX_TAIL;
-	    if (get_exact_entry(string(buf), data))
-		termlists.push_back(new HoneySpellingTermList(data, buf.data));
-	}
+        if (word.size() == 2) {
+            // For two letter words, we generate H and T terms for the
+            // transposed form so that we can produce good spelling
+            // suggestions.
+            // AB -> BA
+            buf[1] = word[1];
+            buf[2] = word[0];
+            if (get_exact_entry(string(buf), data))
+                termlists.push_back(new HoneySpellingTermList(data, buf.data));
+            buf[0] = KEY_PREFIX_TAIL;
+            if (get_exact_entry(string(buf), data))
+                termlists.push_back(new HoneySpellingTermList(data, buf.data));
+        }
 
-	// Tail:
-	buf[0] = KEY_PREFIX_TAIL;
-	buf[1] = word[word.size() - 2];
-	buf[2] = word[word.size() - 1];
-	if (get_exact_entry(string(buf), data))
-	    termlists.push_back(new HoneySpellingTermList(data, buf.data));
+        // Tail:
+        buf[0] = KEY_PREFIX_TAIL;
+        buf[1] = word[word.size() - 2];
+        buf[2] = word[word.size() - 1];
+        if (get_exact_entry(string(buf), data))
+            termlists.push_back(new HoneySpellingTermList(data, buf.data));
 
-	if (word.size() > 2) {
-	    // Middles:
-	    buf[0] = KEY_PREFIX_MIDDLE;
-	    for (size_t start = 0; start <= word.size() - 3; ++start) {
-		memcpy(buf.data + 1, word.data() + start, 3);
-		if (get_exact_entry(string(buf), data))
-		    termlists.push_back(new HoneySpellingTermList(data));
-	    }
+        if (word.size() > 2) {
+            // Middles:
+            buf[0] = KEY_PREFIX_MIDDLE;
+            for (size_t start = 0; start <= word.size() - 3; ++start) {
+                memcpy(buf.data + 1, word.data() + start, 3);
+                if (get_exact_entry(string(buf), data))
+                    termlists.push_back(new HoneySpellingTermList(data));
+            }
 
-	    if (word.size() == 3) {
-		// For three letter words, we generate the two "single
-		// transposition" forms too, so that we can produce good
-		// spelling suggestions.
-		// ABC -> BAC
-		buf[1] = word[1];
-		buf[2] = word[0];
-		if (get_exact_entry(string(buf), data))
-		    termlists.push_back(new HoneySpellingTermList(data));
-		// ABC -> ACB
-		buf[1] = word[0];
-		buf[2] = word[2];
-		buf[3] = word[1];
-		if (get_exact_entry(string(buf), data))
-		    termlists.push_back(new HoneySpellingTermList(data));
-	    }
-	}
+            if (word.size() == 3) {
+                // For three letter words, we generate the two "single
+                // transposition" forms too, so that we can produce good
+                // spelling suggestions.
+                // ABC -> BAC
+                buf[1] = word[1];
+                buf[2] = word[0];
+                if (get_exact_entry(string(buf), data))
+                    termlists.push_back(new HoneySpellingTermList(data));
+                // ABC -> ACB
+                buf[1] = word[0];
+                buf[2] = word[2];
+                buf[3] = word[1];
+                if (get_exact_entry(string(buf), data))
+                    termlists.push_back(new HoneySpellingTermList(data));
+            }
+        }
 
-	return make_termlist_merger(termlists);
+        return make_termlist_merger(termlists);
     } catch (...) {
-	// Make sure we delete all the TermList objects to avoid leaking
-	// memory.
-	for (auto& t : termlists) {
-	    delete t;
-	}
-	throw;
+        // Make sure we delete all the TermList objects to avoid leaking
+        // memory.
+        for (auto& t : termlists) {
+            delete t;
+        }
+        throw;
     }
 }
 
@@ -356,19 +356,19 @@ HoneySpellingTable::get_word_frequency(string_view word) const
 {
     auto i = wordfreq_changes.find(word);
     if (i != wordfreq_changes.end()) {
-	// Modified frequency for word:
-	return i->second;
+        // Modified frequency for word:
+        return i->second;
     }
 
     string data;
     if (get_exact_entry(make_spelling_wordlist_key(word), data)) {
-	// Word "word" already exists.
-	Xapian::termcount freq;
-	const char* p = data.data();
-	if (!unpack_uint_last(&p, p + data.size(), &freq)) {
-	    throw Xapian::DatabaseCorruptError("Bad spelling word freq");
-	}
-	return freq;
+        // Word "word" already exists.
+        Xapian::termcount freq;
+        const char* p = data.data();
+        if (!unpack_uint_last(&p, p + data.size(), &freq)) {
+            throw Xapian::DatabaseCorruptError("Bad spelling word freq");
+        }
+        return freq;
     }
 
     return 0;
@@ -400,31 +400,31 @@ TermList*
 HoneySpellingTermList::next()
 {
     if (p == data.size()) {
-	return this;
+        return this;
     }
 
     size_t keep = 0;
     if (rare(tail < 0)) {
-	tail += 2;
-	keep = current_term.size() - tail;
+        tail += 2;
+        keep = current_term.size() - tail;
     } else if (usual(!current_term.empty())) {
-	keep = data[p++] ^ MAGIC_XOR_VALUE;
+        keep = data[p++] ^ MAGIC_XOR_VALUE;
     }
     size_t add;
     if (p == data.size() ||
-	(add = data[p] ^ MAGIC_XOR_VALUE) >= data.size() - p) {
-	throw Xapian::DatabaseCorruptError("Bad spelling data (too little "
-					   "left)");
+        (add = data[p] ^ MAGIC_XOR_VALUE) >= data.size() - p) {
+        throw Xapian::DatabaseCorruptError("Bad spelling data (too little "
+                                           "left)");
     }
     if (rare(keep + tail > current_term.size())) {
-	// The initial part to keep overlaps with the tail part which is an
-	// unusual case requiring special handling.
-	string tail_string(current_term, current_term.size() - tail);
-	current_term.replace(keep, string::npos, data.data() + p + 1, add);
-	current_term += tail_string;
+        // The initial part to keep overlaps with the tail part which is an
+        // unusual case requiring special handling.
+        string tail_string(current_term, current_term.size() - tail);
+        current_term.replace(keep, string::npos, data.data() + p + 1, add);
+        current_term += tail_string;
     } else {
-	current_term.replace(keep, current_term.size() - tail - keep,
-			     data.data() + p + 1, add);
+        current_term.replace(keep, current_term.size() - tail - keep,
+                             data.data() + p + 1, add);
     }
     p += add + 1;
 
@@ -435,8 +435,8 @@ TermList*
 HoneySpellingTermList::skip_to(string_view term)
 {
     while (current_term < term) {
-	if (HoneySpellingTermList::next())
-	    return this;
+        if (HoneySpellingTermList::next())
+            return this;
     }
     return NULL;
 }
@@ -445,16 +445,16 @@ Xapian::termcount
 HoneySpellingTermList::positionlist_count() const
 {
     throw
-	Xapian::UnimplementedError("HoneySpellingTermList::"
-				   "positionlist_count() "
-				   "not implemented");
+        Xapian::UnimplementedError("HoneySpellingTermList::"
+                                   "positionlist_count() "
+                                   "not implemented");
 }
 
 PositionList*
 HoneySpellingTermList::positionlist_begin() const
 {
     throw
-	Xapian::UnimplementedError("HoneySpellingTermList::"
-				   "positionlist_begin() "
-				   "not implemented");
+        Xapian::UnimplementedError("HoneySpellingTermList::"
+                                   "positionlist_begin() "
+                                   "not implemented");
 }

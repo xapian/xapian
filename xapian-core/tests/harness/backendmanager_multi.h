@@ -46,7 +46,7 @@ class BackendManagerMulti : public BackendManager {
     std::string cachedir;
 
     std::string createdb_multi(const std::string& name,
-			       const std::vector<std::string>& files);
+                               const std::vector<std::string>& files);
 
   protected:
     /// Get the path of the Xapian::Database instance.
@@ -54,11 +54,11 @@ class BackendManagerMulti : public BackendManager {
 
   public:
     BackendManagerMulti(const std::string& datadir_,
-			const std::vector<BackendManager*>& sub_manager_);
+                        const std::vector<BackendManager*>& sub_manager_);
 
     Xapian::Database get_remote_database(const std::vector<std::string>& files,
-					 unsigned int timeout,
-					 int* port_ptr);
+                                         unsigned int timeout,
+                                         int* port_ptr);
 
     /// Create a Multi Xapian::WritableDatabase object indexing a single file.
     Xapian::WritableDatabase get_writable_database(const std::string & name, const std::string & file);

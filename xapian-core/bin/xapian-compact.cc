@@ -76,34 +76,34 @@ class MyCompactor : public Xapian::Compactor {
 
     string
     resolve_duplicate_metadata(const string & key,
-			       size_t n,
-			       const string tags[]) override;
+                               size_t n,
+                               const string tags[]) override;
 };
 
 void
 MyCompactor::set_status(const string & table, const string & status)
 {
     if (quiet)
-	return;
+        return;
     if (!status.empty())
-	cout << '\r' << table << ": " << status << '\n';
+        cout << '\r' << table << ": " << status << '\n';
     else
-	cout << table << " ..." << flush;
+        cout << table << " ..." << flush;
 }
 
 string
 MyCompactor::resolve_duplicate_metadata(const string & key,
-					size_t n,
-					const string tags[])
+                                        size_t n,
+                                        const string tags[])
 {
     (void)key;
     while (--n) {
-	if (tags[0] != tags[n]) {
-	    cerr << "Warning: duplicate user metadata key with different tag "
-		    "value - picking value from first source database with a "
-		    "non-empty value\n";
-	    break;
-	}
+        if (tags[0] != tags[n]) {
+            cerr << "Warning: duplicate user metadata key with different tag "
+                    "value - picking value from first source database with a "
+                    "non-empty value\n";
+            break;
+        }
     }
     return tags[0];
 }
@@ -113,17 +113,17 @@ main(int argc, char **argv)
 {
     const char * opts = "b:B:nFmqs";
     static const struct option long_opts[] = {
-	{"fuller",	no_argument, 0, 'F'},
-	{"no-full",	no_argument, 0, 'n'},
-	{"multipass",	no_argument, 0, 'm'},
-	{"blocksize",	required_argument, 0, 'b'},
-	{"backend",	required_argument, 0, 'B'},
-	{"no-renumber", no_argument, 0, OPT_NO_RENUMBER},
-	{"single-file", no_argument, 0, 's'},
-	{"quiet",	no_argument, 0, 'q'},
-	{"help",	no_argument, 0, OPT_HELP},
-	{"version",	no_argument, 0, OPT_VERSION},
-	{NULL,		0, 0, 0}
+        {"fuller",	no_argument, 0, 'F'},
+        {"no-full",	no_argument, 0, 'n'},
+        {"multipass",	no_argument, 0, 'm'},
+        {"blocksize",	required_argument, 0, 'b'},
+        {"backend",	required_argument, 0, 'B'},
+        {"no-renumber", no_argument, 0, OPT_NO_RENUMBER},
+        {"single-file", no_argument, 0, 's'},
+        {"quiet",	no_argument, 0, 'q'},
+        {"help",	no_argument, 0, OPT_HELP},
+        {"version",	no_argument, 0, OPT_VERSION},
+        {NULL,		0, 0, 0}
     };
 
     MyCompactor compactor;
@@ -134,74 +134,74 @@ main(int argc, char **argv)
 
     int c;
     while ((c = gnu_getopt_long(argc, argv, opts, long_opts, 0)) != -1) {
-	switch (c) {
-	    case 'b': {
-		char *p;
-		unsigned long value = strtoul(optarg, &p, 10);
-		if (value <= GLASS_MAX_BLOCKSIZE / 1024 &&
-		    (*p == 'K' || *p == 'k')) {
-		    ++p;
-		    value *= 1024;
-		}
-		if (*p ||
-		    value < GLASS_MIN_BLOCKSIZE ||
-		    value > GLASS_MAX_BLOCKSIZE ||
-		    (value & (value - 1)) != 0) {
-		    cerr << PROG_NAME": Bad value '" << optarg << "' passed "
-			    "for blocksize, must be a power of 2 between "
-			 << (GLASS_MIN_BLOCKSIZE / 1024) << "K and "
-			 << (GLASS_MAX_BLOCKSIZE / 1024) << "K\n";
-		    exit(1);
-		}
-		block_size = unsigned(value);
-		break;
-	    }
-	    case 'B':
-		if (strcmp(optarg, "honey") == 0) {
-		    backend = Xapian::DB_BACKEND_HONEY;
-		} else if (strcmp(optarg, "glass") == 0) {
-		    backend = Xapian::DB_BACKEND_GLASS;
-		} else {
-		    cerr << PROG_NAME": Bad value '" << optarg
-			 << "' passed for backend - must be 'glass' or "
-			    "'honey'\n";
-		    exit(1);
-		}
-		break;
-	    case 'n':
-		level = compactor.STANDARD;
-		break;
-	    case 'F':
-		level = compactor.FULLER;
-		break;
-	    case 'm':
-		flags |= Xapian::DBCOMPACT_MULTIPASS;
-		break;
-	    case OPT_NO_RENUMBER:
-		flags |= Xapian::DBCOMPACT_NO_RENUMBER;
-		break;
-	    case 's':
-		flags |= Xapian::DBCOMPACT_SINGLE_FILE;
-		break;
-	    case 'q':
-		compactor.set_quiet(true);
-		break;
-	    case OPT_HELP:
-		cout << PROG_NAME " - " PROG_DESC "\n\n";
-		show_usage();
-		exit(0);
-	    case OPT_VERSION:
-		cout << PROG_NAME " - " PACKAGE_STRING "\n";
-		exit(0);
-	    default:
-		show_usage();
-		exit(1);
-	}
+        switch (c) {
+            case 'b': {
+                char *p;
+                unsigned long value = strtoul(optarg, &p, 10);
+                if (value <= GLASS_MAX_BLOCKSIZE / 1024 &&
+                    (*p == 'K' || *p == 'k')) {
+                    ++p;
+                    value *= 1024;
+                }
+                if (*p ||
+                    value < GLASS_MIN_BLOCKSIZE ||
+                    value > GLASS_MAX_BLOCKSIZE ||
+                    (value & (value - 1)) != 0) {
+                    cerr << PROG_NAME": Bad value '" << optarg << "' passed "
+                            "for blocksize, must be a power of 2 between "
+                         << (GLASS_MIN_BLOCKSIZE / 1024) << "K and "
+                         << (GLASS_MAX_BLOCKSIZE / 1024) << "K\n";
+                    exit(1);
+                }
+                block_size = unsigned(value);
+                break;
+            }
+            case 'B':
+                if (strcmp(optarg, "honey") == 0) {
+                    backend = Xapian::DB_BACKEND_HONEY;
+                } else if (strcmp(optarg, "glass") == 0) {
+                    backend = Xapian::DB_BACKEND_GLASS;
+                } else {
+                    cerr << PROG_NAME": Bad value '" << optarg
+                         << "' passed for backend - must be 'glass' or "
+                            "'honey'\n";
+                    exit(1);
+                }
+                break;
+            case 'n':
+                level = compactor.STANDARD;
+                break;
+            case 'F':
+                level = compactor.FULLER;
+                break;
+            case 'm':
+                flags |= Xapian::DBCOMPACT_MULTIPASS;
+                break;
+            case OPT_NO_RENUMBER:
+                flags |= Xapian::DBCOMPACT_NO_RENUMBER;
+                break;
+            case 's':
+                flags |= Xapian::DBCOMPACT_SINGLE_FILE;
+                break;
+            case 'q':
+                compactor.set_quiet(true);
+                break;
+            case OPT_HELP:
+                cout << PROG_NAME " - " PROG_DESC "\n\n";
+                show_usage();
+                exit(0);
+            case OPT_VERSION:
+                cout << PROG_NAME " - " PACKAGE_STRING "\n";
+                exit(0);
+            default:
+                show_usage();
+                exit(1);
+        }
     }
 
     if (argc - optind < 2) {
-	show_usage();
-	exit(1);
+        show_usage();
+        exit(1);
     }
 
     // Path to the database to create.
@@ -210,16 +210,16 @@ main(int argc, char **argv)
     flags |= backend | level;
 
     try {
-	Xapian::Database src;
-	for (int i = optind; i < argc - 1; ++i) {
-	    src.add_database(Xapian::Database(argv[i]));
-	}
-	src.compact(destdir, flags, block_size, compactor);
+        Xapian::Database src;
+        for (int i = optind; i < argc - 1; ++i) {
+            src.add_database(Xapian::Database(argv[i]));
+        }
+        src.compact(destdir, flags, block_size, compactor);
     } catch (const Xapian::Error &error) {
-	cerr << argv[0] << ": " << error.get_description() << '\n';
-	exit(1);
+        cerr << argv[0] << ": " << error.get_description() << '\n';
+        exit(1);
     } catch (const char * msg) {
-	cerr << argv[0] << ": " << msg << '\n';
-	exit(1);
+        cerr << argv[0] << ": " << msg << '\n';
+        exit(1);
     }
 }

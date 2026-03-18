@@ -40,27 +40,27 @@ eval {
 
     my $para = '';
     while (my $line = <STDIN>) {
-	$line =~ s/\s+$//;
-	$line =~ s/^\s+//;
-	if ($line eq '') {
-	    if ($para ne '') {
-		# We've reached the end of a paragraph, so index it.
-		my $doc = Xapian::Document->new();
-		$doc->set_data($para);
+        $line =~ s/\s+$//;
+        $line =~ s/^\s+//;
+        if ($line eq '') {
+            if ($para ne '') {
+                # We've reached the end of a paragraph, so index it.
+                my $doc = Xapian::Document->new();
+                $doc->set_data($para);
 
-		$indexer->set_document($doc);
-		$indexer->index_text($para);
+                $indexer->set_document($doc);
+                $indexer->index_text($para);
 
-		# Add the document to the database.
-		$database->add_document($doc);
-		$para = '';
-	    }
-	} else {
-	    if ($para ne '') {
-		$para .= ' ';
-	    }
-	    $para .= $line;
-	}
+                # Add the document to the database.
+                $database->add_document($doc);
+                $para = '';
+            }
+        } else {
+            if ($para ne '') {
+                $para .= ' ';
+            }
+            $para .= $line;
+        }
     }
 };
 if ($@) {

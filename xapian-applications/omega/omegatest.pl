@@ -88,8 +88,8 @@ my $have_32bit_time_t = 0;
   while (<$fh>) {
     if (/^#define SIZEOF_TIME_T\s*(\d+)/) {
       if ($1 eq 4) {
-	$have_32bit_time_t = 1;
-	print "Skipping testcases which need > 32-bit time_t\n";
+        $have_32bit_time_t = 1;
+        print "Skipping testcases which need > 32-bit time_t\n";
       }
       last;
     }

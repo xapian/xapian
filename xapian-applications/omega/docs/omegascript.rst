@@ -58,7 +58,7 @@ In the following descriptions, a LIST is a string of tab-separated
 values.
 
 ${...}
-	commented-out code
+        commented-out code
 
 $addfilter{TERM[,TYPE]}
         add filter term ``TERM`` as if it had been passed as a ``B`` CGI
@@ -89,7 +89,7 @@ $cgi{CGI}
         if you want all the values.
 
 $cgilist{CGI}
-	return a list of all values of a CGI parameter
+        return a list of all values of a CGI parameter
 
 $cgiparams
         return a list of all the unique CGI parameter names, sorted in
@@ -146,18 +146,18 @@ $csv{STRING[,ALWAYS_ESCAPE]}
         Added in Omega 1.3.4.
 
 $date{TIME_T[,FMT]}
-	convert a time_t to strftime ``FMT`` (default: ``YYYY-MM-DD``).  The
-	conversion is done in timezone UTC.
+        convert a time_t to strftime ``FMT`` (default: ``YYYY-MM-DD``).  The
+        conversion is done in timezone UTC.
 
 $dbname
-	database name (multiple names are returned separated by "/").
+        database name (multiple names are returned separated by "/").
 
 $dbsize
-	number of documents in the database (if multiple databases are being
-	searched, this gives the total number).
+        number of documents in the database (if multiple databases are being
+        searched, this gives the total number).
 
 $def{MACRONAME,VALUE}
-	define a macro which can take 0 to 9 arguments.  You can call it with
+        define a macro which can take 0 to 9 arguments.  You can call it with
         ``$MACRONAME`` (if it take 0 arguments) or
         ``$MACRONAME{ARG1,ARG2,ARG3}`` is it takes arguments.  In value,
         arguments are available as ``$1``, ``$2``, ...  ``$9``.  In the current
@@ -166,26 +166,26 @@ $def{MACRONAME,VALUE}
         macros to avoid collision with future OmegaScript commands.
 
 $defaultop
-	"and" or "or" (set from CGI variable DEFAULTOP).
+        "and" or "or" (set from CGI variable DEFAULTOP).
 
 $emptydocs[{TERM}]
-	returns a list of docids of any documents with document length zero
-	(such documents probably only contain scanned images, rather than
-	machine readable text, or suggest the input filter isn't working well).
-	If TERM is specified, only consider documents matching TERM, otherwise
-	all documents are considered (so Tapplication/pdf reports all PDF files
-	for which no text was found).
+        returns a list of docids of any documents with document length zero
+        (such documents probably only contain scanned images, rather than
+        machine readable text, or suggest the input filter isn't working well).
+        If TERM is specified, only consider documents matching TERM, otherwise
+        all documents are considered (so Tapplication/pdf reports all PDF files
+        for which no text was found).
 
-	If you're using omindex, note that it skips files with zero size, so
-	these won't get reported here as they aren't present in the database.
+        If you're using omindex, note that it skips files with zero size, so
+        these won't get reported here as they aren't present in the database.
 
 $env{VAR}
-	lookup variable ``VAR`` in the environment.
+        lookup variable ``VAR`` in the environment.
 
 $error
-	error message (e.g. if a database wouldn't open, or the query couldn't
+        error message (e.g. if a database wouldn't open, or the query couldn't
         be parsed, or a Xapian exception has been thrown) or empty if there
-	wasn't an error.  You can set the error message yourself by using
+        wasn't an error.  You can set the error message yourself by using
         ``$seterror``.
 
 $field{NAME[,DOCID]}
@@ -201,7 +201,7 @@ $field{NAME[,DOCID]}
             $foreach{$field{keywords},<b>$html{$_}</b><br>}
 
 $filesize{SIZE}
-	pretty printed filesize (e.g. ``1 byte``, ``100 bytes``, ``2.1K``,
+        pretty printed filesize (e.g. ``1 byte``, ``100 bytes``, ``2.1K``,
         ``4.0M``, ``1.3G``).  If ``SIZE`` is empty or a negative integer,
         expands to nothing.  Omega 1.4.x and earlier instead gave ``0 bytes``
         for empty ``SIZE``.
@@ -228,7 +228,7 @@ $filters[{WANTOLDFORMAT}]
 $filterterms{PREFIX}
         list of all terms in the database with prefix ``PREFIX``, intended to
         be used to allow drop-down lists and sets of radio buttons to be
-	dynamically generated, e.g.::
+        dynamically generated, e.g.::
 
              Hostname:
              <SELECT NAME="B">
@@ -246,7 +246,7 @@ $find{LIST,STRING}
         ``STRING`` (starting from 0) or the empty string if no entry matches.
 
 $fmt
-	name of current format (as set by CGI parameter ``FMT``, or the default)
+        name of current format (as set by CGI parameter ``FMT``, or the default)
 
 $foreach{LIST,STUFF)
         evaluated argument ``STUFF`` for each entry in list ``LIST``. If
@@ -260,7 +260,7 @@ $foreach{LIST,STUFF)
         Added in Omega 1.4.18.
 
 $freq{term}
-	frequency of a term
+        frequency of a term
 
 $hash{TEXT,HASH}
         unique ID for ``TEXT`` string using the hashing algorithm specified by
@@ -269,20 +269,20 @@ $hash{TEXT,HASH}
         hexadecimal characters.
 
 $highlight{TEXT,LIST[,OPEN[,CLOSE]]}
-	html escape string (<>&, etc) and highlight any terms from ``LIST``
+        html escape string (<>&, etc) and highlight any terms from ``LIST``
         that appear in ``TEXT`` by enclosing them in ``OPEN`` and ``CLOSE``.
         If ``OPEN`` is specified, but close is omitted, ``CLOSE`` defaults to
         the appropriate closing tag for ``OPEN`` (i.e. with a "/" in front and
         any parameters removed).  If both are omitted, then ``OPEN`` is set to:
-	``<b style="color:XXXXX;background-color:#YYYYYY">`` (where ``YYYYYY``
+        ``<b style="color:XXXXX;background-color:#YYYYYY">`` (where ``YYYYYY``
         cycles through ``ffff66`` ``99ff99`` ``99ffff`` ``ff66ff`` ``ff9999``
         ``990000`` ``009900`` ``996600`` ``006699`` ``990099`` and ``XXXXX``
         is ``black`` if ``YYYYYY`` contains an ``f``, and otherwise ``white``)
         and ``CLOSE`` is set to ``</b>``.
 
 $hit
-	MSet index of current doc (first document in MSet is 0, so if
-	you want to number the hits 1, 2, 3, ... use ``$add{$hit,1}``).
+        MSet index of current doc (first document in MSet is 0, so if
+        you want to number the hits 1, 2, 3, ... use ``$add{$hit,1}``).
 
 $hitlist{STUFF}
         evaluate ``STUFF`` once for each match in the result list.  During
@@ -290,30 +290,30 @@ $hitlist{STUFF}
         ``$terms``, ``$weight``, etc will report values for the current hit.
 
 $hitsperpage
-	hits per page (as set by ``HITSPERPAGE``, or the default)
+        hits per page (as set by ``HITSPERPAGE``, or the default)
 
 $hostname{URL}
-	return the hostname from url ``URL``
+        return the hostname from url ``URL``
 
 $html{TEXT}
-	html escape string (``<>&"`` are escaped to ``&lt;``, etc).
+        html escape string (``<>&"`` are escaped to ``&lt;``, etc).
 
 $htmlstrip{TEXT}
-	html strip tags from string (``<...>``, etc).
+        html strip tags from string (``<...>``, etc).
 
 $httpheader{NAME,VALUE}
-	specify an additional HTTP header to be generated by Omega.
-	For example::
+        specify an additional HTTP header to be generated by Omega.
+        For example::
 
-	 $httpheader{Cache-Control,max-age=0$.private}
+         $httpheader{Cache-Control,max-age=0$.private}
 
-	If ``Content-Type`` is not specified by the template, it defaults
-	to ``text/html``.  Headers must be specified before any other
-	output from the OmegaScript template - any ``$httpheader{}``
-	commands found later in the template will be silently ignored.
+        If ``Content-Type`` is not specified by the template, it defaults
+        to ``text/html``.  Headers must be specified before any other
+        output from the OmegaScript template - any ``$httpheader{}``
+        commands found later in the template will be silently ignored.
 
 $id
-	document id of current document
+        document id of current document
 
 $json{STRING}
         encode STRING as a JSON string (not including the enclosing quotes), e.g.
@@ -421,22 +421,22 @@ $last
         from ``0`` to ``$sub{$last,1}``).
 
 $lastpage
-	number of last page of hits (may be an underestimate unless
-	``$thispage`` == ``$lastpage``).
+        number of last page of hits (may be an underestimate unless
+        ``$thispage`` == ``$lastpage``).
 
 $length{LIST}
-	number of entries in ``LIST``.
+        number of entries in ``LIST``.
 
 $list{LIST,...}
-	pretty print list. If ``LIST`` contains 1, 2, 3, 4 then::
+        pretty print list. If ``LIST`` contains 1, 2, 3, 4 then::
 
-	 "$list{LIST,$. }" = "1, 2, 3, 4"
-	 "$list{LIST,$. , and }" = "1, 2, 3 and 4"
-	 "$list{LIST,List ,$. ,.}" = "List 1, 2, 3, 4."
-	 "$list{LIST,List ,$. , and ,.}" = "List 1, 2, 3 and 4."
+         "$list{LIST,$. }" = "1, 2, 3, 4"
+         "$list{LIST,$. , and }" = "1, 2, 3 and 4"
+         "$list{LIST,List ,$. ,.}" = "List 1, 2, 3, 4."
+         "$list{LIST,List ,$. , and ,.}" = "List 1, 2, 3 and 4."
 
-	NB ``$list`` returns an empty string for an empty list (so the
-	last two forms aren't redundant as it may at first appear).
+        NB ``$list`` returns an empty string for an empty list (so the
+        last two forms aren't redundant as it may at first appear).
 
 $log{LOGFILE[,ENTRY]}
         append to the log file ``LOGFILE``.  ``LOGFILE`` will be resolved as a
@@ -462,24 +462,24 @@ $lookup{CDBFILE,KEY}
         hashtables.  For more information and public domain software which can
         create CDB files, please visit: http://www.corpit.ru/mjt/tinycdb.html
 
-	An example of how this might be used is to map top-level domains to
-	country names.  Create a CDB file tld_en which maps "fr" to "France",
-	"de" to "Germany", etc and then you can translate a country code to
-	the English country name like so::
+        An example of how this might be used is to map top-level domains to
+        country names.  Create a CDB file tld_en which maps "fr" to "France",
+        "de" to "Germany", etc and then you can translate a country code to
+        the English country name like so::
 
-	 "$or{$lookup{tld_en,$field{tld}},.$field{tld}}"
+         "$or{$lookup{tld_en,$field{tld}},.$field{tld}}"
 
-	If a tld isn't in the CDB (e.g. "com"), this will expand to ".com".
+        If a tld isn't in the CDB (e.g. "com"), this will expand to ".com".
 
-	You can take this further and prepare a set of CDBs mapping tld codes
-	to names in other languages - tld_fr for French, tld_de for German.
+        You can take this further and prepare a set of CDBs mapping tld codes
+        to names in other languages - tld_fr for French, tld_de for German.
         Then if you have the ISO language code in ``$opt{lang}`` you can
         replace ``tld_en`` with ``tld_$or{$opt{lang},en}`` and automatically
         translate into the currently set language, or English if no language is
         set.
 
 $lower{TEXT}
-	return UTF-8 text ``TEXT`` converted to lower case.
+        return UTF-8 text ``TEXT`` converted to lower case.
 
 $map{LIST,STUFF)
         map a list into the evaluated argument. If ``LIST`` contains ``1``,
@@ -493,20 +493,20 @@ $map{LIST,STUFF)
         list.
 
 $match{REGEX,STRING[,OPTIONS]}
-	perform a regex match using Perl-compatible regular expressions. Returns
-	true if a match is found, else it returns an empty string.
+        perform a regex match using Perl-compatible regular expressions. Returns
+        true if a match is found, else it returns an empty string.
 
-	The optional OPTIONS argument can contain zero or more of the letters
-	``imsx``, which have the same meanings as the corresponding Perl regexp
-	modifiers:
+        The optional OPTIONS argument can contain zero or more of the letters
+        ``imsx``, which have the same meanings as the corresponding Perl regexp
+        modifiers:
 
-	* ``i`` - make the pattern matching case-insensitive
-	* ``m`` - make ``^``/``$`` match after/before embedded newlines
-	* ``s`` - allows ``.`` in the pattern to match a linefeed
-	* ``x`` - allow whitespace and ``#``-comments in the pattern
+        * ``i`` - make the pattern matching case-insensitive
+        * ``m`` - make ``^``/``$`` match after/before embedded newlines
+        * ``s`` - allows ``.`` in the pattern to match a linefeed
+        * ``x`` - allow whitespace and ``#``-comments in the pattern
 
 $msize
-	estimated number of matches.
+        estimated number of matches.
 
 $msizeexact
         return ``true`` if ``$msize`` is exact (or "" if it is estimated).
@@ -519,18 +519,18 @@ $msizeupper
         upper bound on number of matches.
 
 $nice{number}
-	pretty print integer (with thousands separator).
+        pretty print integer (with thousands separator).
 
 $now
-	number of seconds since the epoch (suitable for feeding to ``$date``).
-	Whether ``$now`` returns the same value for repeated calls in the same
-	Omega search session is unspecified.
+        number of seconds since the epoch (suitable for feeding to ``$date``).
+        Whether ``$now`` returns the same value for repeated calls in the same
+        Omega search session is unspecified.
 
 $opt{OPT}
-	lookup an option value (as set by ``$set``).
+        lookup an option value (as set by ``$set``).
 
 $opt{MAP,OPT}
-	lookup an option within a map (as set by ``$setmap``).
+        lookup an option within a map (as set by ``$setmap``).
 
 $ord{STRING}
         return codepoint for first character of UTF-8 string.  If the argument
@@ -543,82 +543,82 @@ $ord{STRING}
         Added in Omega 1.3.4.
 
 $pack{NUMBER}
-	converts a number to a 4 byte big-endian binary string
+        converts a number to a 4 byte big-endian binary string
 
 $percentage
-	percentage score of current hit (in range 1-100).
+        percentage score of current hit (in range 1-100).
 
-	You probably don't want to show these percentage scores to end
-	users in new applications - they're not really a percentage of
-	anything meaningful, and research seems to suggest that users
-	don't find numeric scores in search results useful.
+        You probably don't want to show these percentage scores to end
+        users in new applications - they're not really a percentage of
+        anything meaningful, and research seems to suggest that users
+        don't find numeric scores in search results useful.
 
 $prettyterm{TERM}
-	convert a term to "user form", as it might be entered in a query.  If
-	a matching term was entered in the query, just use that (the first
-	occurrence if a term was generated multiple times from a query).
-	Otherwise term prefixes are converted back to user forms as specified
-	by ``$setmap{prefix,...}`` and ``$setmap{boolprefix,...}``.
+        convert a term to "user form", as it might be entered in a query.  If
+        a matching term was entered in the query, just use that (the first
+        occurrence if a term was generated multiple times from a query).
+        Otherwise term prefixes are converted back to user forms as specified
+        by ``$setmap{prefix,...}`` and ``$setmap{boolprefix,...}``.
 
 $prettyurl{URL}
-	Prettify URL.  This command undoes RFC3986 URL escaping which doesn't
-	affect semantics in practice, in order to make a prettier version of a
-	URL for displaying to the user (rather than in links), but which should
-	still work if copied and pasted.
+        Prettify URL.  This command undoes RFC3986 URL escaping which doesn't
+        affect semantics in practice, in order to make a prettier version of a
+        URL for displaying to the user (rather than in links), but which should
+        still work if copied and pasted.
 
 $query[{PREFIX}]
-	list of query strings for prefix PREFIX.  Any tab characters in the
-	query strings are converted to spaces before adding them to the list
-	(since an OmegaScript list is a string with tabs in).
+        list of query strings for prefix PREFIX.  Any tab characters in the
+        query strings are converted to spaces before adding them to the list
+        (since an OmegaScript list is a string with tabs in).
 
-	If PREFIX is omitted or empty, this is built from CGI ``P`` variable(s)
-	plus possible added terms from ``ADD`` and ``X``.
+        If PREFIX is omitted or empty, this is built from CGI ``P`` variable(s)
+        plus possible added terms from ``ADD`` and ``X``.
 
-	If PREFIX is non-empty, this is built from CGI ``P.PREFIX`` variables.
+        If PREFIX is non-empty, this is built from CGI ``P.PREFIX`` variables.
 
-	Note: In Omega < 1.3.3, $query simply joins together the query strings
-	with spaces rather than returning a list.
+        Note: In Omega < 1.3.3, $query simply joins together the query strings
+        with spaces rather than returning a list.
 
 $querydescription
         a human readable description of the ``Xapian::Query`` object which
         omega builds.  Mostly useful for debugging omega itself.
 
 $queryterms
-	list of parsed query terms.
+        list of parsed query terms.
 
 $range{START,END}
-	return list of values between ``START`` and ``END``.
+        return list of values between ``START`` and ``END``.
 
 $random{HIGH}
-	return a random value in the range [0, ``HIGH``].
+        return a random value in the range [0, ``HIGH``].
 
 $record[{ID}]
-	raw record contents of document ``ID``.
+        raw record contents of document ``ID``.
 
 $relevant[{ID}]
-	document id ``ID`` if document is relevant, "" otherwise
-	(side-effect: removes id from list of relevant documents
-	returned by ``$relevants``).
+        document id ``ID`` if document is relevant, "" otherwise
+        (side-effect: removes id from list of relevant documents
+        returned by ``$relevants``).
 
 $relevants
-	return list of relevant documents
+        return list of relevant documents
 
 $score
-	score (0-10) of current hit (equivalent to ``$div{$percentage,10}``).
+        score (0-10) of current hit (equivalent to ``$div{$percentage,10}``).
 
 $set{OPT,VALUE}
-	set option value which may be looked up using ``$opt``.  You can use
-	options as variables (for example, to store values you want to reuse
-	without recomputing).  There are also several which Omega looks at
-	and which you can set or use:
+        set option value which may be looked up using ``$opt``.  You can use
+        options as variables (for example, to store values you want to reuse
+        without recomputing).  There are also several which Omega looks at
+        and which you can set or use:
 
-	* decimal - the decimal separator ("." by default - localised query
-	  templates may want to set this to ",").
-	* thousand - the thousands separator ("," by default - localised query
-	  templates may want to set this to ".", " ", or "").
-	* stemmer - which stemming language to use ("english" by default, other
-	  values are as understood by ``Xapian::Stem``, so "none" means no
-	  stemming).
+        * decimal - the decimal separator ("." by default - localised query
+          templates may want to set this to ",").
+        * thousand - the thousands separator ("," by default - localised query
+          templates may want to set this to ".", " ", or "").
+        * stemmer - which stemming language to use ("english" by default, other
+          values are as understood by ``Xapian::Stem``, so "none" means no
+          stemming).
         * stem_strategy - tell the query parser how to apply the stemmer - can
           be one of:
 
@@ -630,18 +630,18 @@ $set{OPT,VALUE}
             been stored for stemmed terms too.
 
           Unknown values are ignored.  Added in Omega 1.4.8.
-	* stem_all - if "true", then tell the query parser to stem all words.
+        * stem_all - if "true", then tell the query parser to stem all words.
           Now deprecated in favour of setting ``stem_strategy`` to ``all``, and
           ignored if ``stem_strategy`` is also set.
-	* fieldnames - if set to a non-empty value then the document data is
-	  parsed with each line being the value of a field, and the names
-	  are taken from entries in the list in fieldnames.  So
+        * fieldnames - if set to a non-empty value then the document data is
+          parsed with each line being the value of a field, and the names
+          are taken from entries in the list in fieldnames.  So
           ``$set{fieldnames,$split{title sample url}}`` will take the first
           line as the "title" field, the second as the "sample" field and the
-	  third as the "url" field.  Any lines without a corresponding field
-	  name will be ignored.  If unset or empty then the document data is
-	  parsed as one field per line in the format NAME=VALUE (where NAME is
-	  assumed not to contain '=').
+          third as the "url" field.  Any lines without a corresponding field
+          name will be ignored.  If unset or empty then the document data is
+          parsed as one field per line in the format NAME=VALUE (where NAME is
+          assumed not to contain '=').
         * weighting - set the weighting scheme to use, and (optionally) the
           parameters to use if the weighting scheme supports them.  The syntax
           is a string consisting of the scheme name followed by any parameters,
@@ -693,24 +693,24 @@ $set{OPT,VALUE}
         flag.  Omega sets ``flag_default`` to ``true`` by default - you can set
         it to an empty value to turn it off (``$set{flag_default,}``):
 
-	* flag_auto_multiword_synonyms
-	* flag_auto_synonyms
-	* flag_boolean
-	* flag_boolean_any_case
-	* flag_cjk_ngram (new in 1.2.22 and 1.3.4)
-	* flag_ngrams (new in 1.4.23)
-	* flag_default
-	* flag_fuzzy (new in 2.0.0)
-	* flag_lovehate
-	* flag_no_positions (new in 1.4.19)
-	* flag_no_proper_noun_heuristic (new in 2.0.0)
-	* flag_partial
-	* flag_phrase
-	* flag_pure_not
-	* flag_spelling_correction (see ``$suggestion`` for suggested
-	  correction)
-	* flag_synonym
-	* flag_wildcard
+        * flag_auto_multiword_synonyms
+        * flag_auto_synonyms
+        * flag_boolean
+        * flag_boolean_any_case
+        * flag_cjk_ngram (new in 1.2.22 and 1.3.4)
+        * flag_ngrams (new in 1.4.23)
+        * flag_default
+        * flag_fuzzy (new in 2.0.0)
+        * flag_lovehate
+        * flag_no_positions (new in 1.4.19)
+        * flag_no_proper_noun_heuristic (new in 2.0.0)
+        * flag_partial
+        * flag_phrase
+        * flag_pure_not
+        * flag_spelling_correction (see ``$suggestion`` for suggested
+          correction)
+        * flag_synonym
+        * flag_wildcard
         * flag_wildcard_glob (new in 2.0.0)
         * flag_wildcard_multi (new in 2.0.0)
         * flag_wildcard_single (new in 2.0.0)
@@ -720,19 +720,19 @@ $set{OPT,VALUE}
         enabled by Omega because it's needed for ``$stoplist`` and ``$unstem``
         to work correctly, and is deliberately not included in the above list.
 
-	Omega 1.2.7 added support for parsing different query fields with
-	different prefixes and you can specify different QueryParser flags for
-	each prefix - for example, for the ``XFOO`` prefix use
-	``XFOO:flag_pure_not``, etc.  The unprefixed constants provide a
-	default value for these.  If a flag is set in the default, the prefix
-	specific flag can unset it if it is set to the empty value (e.g.
-	``$set{flag_pure_not,1}$set{XFOO:flag_pure_not,}``).
+        Omega 1.2.7 added support for parsing different query fields with
+        different prefixes and you can specify different QueryParser flags for
+        each prefix - for example, for the ``XFOO`` prefix use
+        ``XFOO:flag_pure_not``, etc.  The unprefixed constants provide a
+        default value for these.  If a flag is set in the default, the prefix
+        specific flag can unset it if it is set to the empty value (e.g.
+        ``$set{flag_pure_not,1}$set{XFOO:flag_pure_not,}``).
 
-	You can use ``:flag_partial``, etc to set or unset a flag just for
-	unprefixed fields.
+        You can use ``:flag_partial``, etc to set or unset a flag just for
+        unprefixed fields.
 
-	Similarly, ``XFOO:stemmer`` specifies the stemmer to use for field
-	``XFOO``, with ``stemmer`` providing a default.
+        Similarly, ``XFOO:stemmer`` specifies the stemmer to use for field
+        ``XFOO``, with ``stemmer`` providing a default.
 
         Omega 2.0.0 added support for specifying the operator to use to
         combine multiple parsed query strings.  By default this is ``AND``,
@@ -740,83 +740,83 @@ $set{OPT,VALUE}
         (``or`` also works).  Currently other operators aren't supported.
 
 $seterror{ERROR_MESSAGE}
-	set error message for the current execution, which can also be looked
-	up using ``$error``.
+        set error message for the current execution, which can also be looked
+        up using ``$error``.
 
-	Using ``$seterror`` error early in template prevents running the query.
+        Using ``$seterror`` error early in template prevents running the query.
 
-	For example, ``$seterror`` can be used when the user enters a wrong
-	parameter in the search.
+        For example, ``$seterror`` can be used when the user enters a wrong
+        parameter in the search.
 
 $setrelevant{docids}
-	add documents into the RSet
+        add documents into the RSet
 
 $setmap{MAP,NAME1,VALUE1,...}
-	set a map of option values which may be looked up against using
-	``$opt{MAP,NAME}`` (maps with the same name are merged rather than
-	the old map being completely replaced).
+        set a map of option values which may be looked up against using
+        ``$opt{MAP,NAME}`` (maps with the same name are merged rather than
+        the old map being completely replaced).
 
-	You can create and use of maps in your own templates, but Omega also
-	has several standard maps used to control building the query:
+        You can create and use of maps in your own templates, but Omega also
+        has several standard maps used to control building the query:
 
-	Omega uses the "prefix" map to set the prefixes understood by the query
-	parser.  So if you wish to translate a prefix of "author:" to A and
-	"title:" to "S" you would use::
+        Omega uses the "prefix" map to set the prefixes understood by the query
+        parser.  So if you wish to translate a prefix of "author:" to A and
+        "title:" to "S" you would use::
 
-	 $setmap{prefix,author,A,title,S}
+         $setmap{prefix,author,A,title,S}
 
-	In Omega 1.3.0 and later, you can map a prefix in the query string to
-	more than one term prefix by specifying an OmegaScript list, for
-	example to search unprefixed and S prefix by default use this
-	(this also shows how you can map from an empty query string prefix, and
-	also that you can map to an empty term prefix - these don't require
-	Omega 1.3.0, but become much more useful in combination with this new
-	feature)::
+        In Omega 1.3.0 and later, you can map a prefix in the query string to
+        more than one term prefix by specifying an OmegaScript list, for
+        example to search unprefixed and S prefix by default use this
+        (this also shows how you can map from an empty query string prefix, and
+        also that you can map to an empty term prefix - these don't require
+        Omega 1.3.0, but become much more useful in combination with this new
+        feature)::
 
-	 $setmap{prefix,,$split{ S}}
+         $setmap{prefix,,$split{ S}}
 
-	Similarly, if you want to be able to restrict a search with a
-	boolean filter from the text query (e.g. "group:" to "G") you
-	would use::
+        Similarly, if you want to be able to restrict a search with a
+        boolean filter from the text query (e.g. "group:" to "G") you
+        would use::
 
-	 $setmap{boolprefix,group,G}
+         $setmap{boolprefix,group,G}
 
-	Don't be tempted to add whitespace around the commas, unless you want
-	it to be included in the names and values!
+        Don't be tempted to add whitespace around the commas, unless you want
+        it to be included in the names and values!
 
-	Another map (added in Omega 1.3.4) allows specifying any boolean
-	prefixes which are non-exclusive, i.e. multiple filters of that
-	type should be combined with ``OP_AND`` rather than ``OP_OR``.
-	For example, if you have have a boolean filter on "material" using
-	the ``XM`` prefix, and the items being searched are made of multiple
-	materials, you likely want multiple material filters to restrict to
-	items matching all the materials (the default it to restrict to any
-	of the materials).  To specify this use
-	``$setmap{nonexclusiveprefix,XM,true}`` (any non-empty value can
-	be used in place of ``true``) - this feature affect both filters
-	from ``B`` CGI parameters (e.g. ``B=XMglass&B=XMwood`` and those
-	from parsing the query (e.g. ``material:glass material:wood`` if
-	``$setmap{boolprefix,material,XM}`` is also in effect).
+        Another map (added in Omega 1.3.4) allows specifying any boolean
+        prefixes which are non-exclusive, i.e. multiple filters of that
+        type should be combined with ``OP_AND`` rather than ``OP_OR``.
+        For example, if you have have a boolean filter on "material" using
+        the ``XM`` prefix, and the items being searched are made of multiple
+        materials, you likely want multiple material filters to restrict to
+        items matching all the materials (the default it to restrict to any
+        of the materials).  To specify this use
+        ``$setmap{nonexclusiveprefix,XM,true}`` (any non-empty value can
+        be used in place of ``true``) - this feature affect both filters
+        from ``B`` CGI parameters (e.g. ``B=XMglass&B=XMwood`` and those
+        from parsing the query (e.g. ``material:glass material:wood`` if
+        ``$setmap{boolprefix,material,XM}`` is also in effect).
 
-	Note: you must set the prefix-related maps before the query is parsed.
-	This is done as late as possible - the following commands require the
-	query to be parsed: $prettyterm, $query, $querydescription, $queryterms,
-	$relevant, $relevants, $setrelevant, $unstem, and also these commands
-	require the match to be run which requires the query to be parsed:
-	$freqs, $hitlist, $last, $lastpage, $msize, $msizeexact, $terms,
-	$thispage, $time, $topdoc, $topterms.
+        Note: you must set the prefix-related maps before the query is parsed.
+        This is done as late as possible - the following commands require the
+        query to be parsed: $prettyterm, $query, $querydescription, $queryterms,
+        $relevant, $relevants, $setrelevant, $unstem, and also these commands
+        require the match to be run which requires the query to be parsed:
+        $freqs, $hitlist, $last, $lastpage, $msize, $msizeexact, $terms,
+        $thispage, $time, $topdoc, $topterms.
 
 $slice{LIST,POSITIONS}
-	returns the elements from ``LIST`` at the positions listed in the
-	second list ``POSITIONS``.  The first item is at position 0.
-	Any positions which are out of range will be ignored.
+        returns the elements from ``LIST`` at the positions listed in the
+        second list ``POSITIONS``.  The first item is at position 0.
+        Any positions which are out of range will be ignored.
 
-	For example, if ``LIST`` contains a, b, c, d then::
+        For example, if ``LIST`` contains a, b, c, d then::
 
-	 "$slice{LIST,2}" = "c"
-	 "$slice{LIST,1	3}" = "b	d"
-	 "$slice{LIST,$range{1,3}}" = "b	c	d"
-	 "$slice{LIST,$range{-10,10}}" = "a	b	c	d"
+         "$slice{LIST,2}" = "c"
+         "$slice{LIST,1	3}" = "b	d"
+         "$slice{LIST,$range{1,3}}" = "b	c	d"
+         "$slice{LIST,$range{-10,10}}" = "a	b	c	d"
 
 $snippet{TEXT[,LENGTH[,FLAGS[,BRA[,KET[,GAP]]]]]}
         Generate a context-sensitive snippet from ``TEXT`` using the C++ API
@@ -870,21 +870,21 @@ $sortableunserialise{STRING}
 $split{STRING}
 
 $split{SPLIT,STRING}
-	returns a list by splitting the string ``STRING`` into elements at each
+        returns a list by splitting the string ``STRING`` into elements at each
         occurrence of the substring ``SPLIT``.  If ``SPLIT`` isn't specified,
         it defaults to a single space.  If ``SPLIT`` is empty, ``STRING`` is
         split into individual bytes.
 
-	For example::
+        For example::
 
-	 "$split{one two three}" = "one	two	three"
+         "$split{one two three}" = "one	two	three"
 
 $srandom{SEED}
-	``SEED`` specifies a seed for random number generation.
+        ``SEED`` specifies a seed for random number generation.
 
 $stoplist
-	returns a list of any terms in the query which were ignored as
-	stopwords.  Since Omega 1.4.18 ``$stoplist`` reports such terms for
+        returns a list of any terms in the query which were ignored as
+        stopwords.  Since Omega 1.4.18 ``$stoplist`` reports such terms for
         all query strings parsed as part of the current query - in previous
         versions only this only reported stopwords for the query string
         which was parsed last (which would be the one with the prefix sorting
@@ -924,13 +924,13 @@ $substr{STRING,START[,LENGTH]}
         ``START``+``LENGTH`` bytes long).  If ``LENGTH`` is omitted, the
         substring from ``START`` to the end of ``STRING`` is returned.
 
-	If ``START`` is negative, it counts back from the end of ``STRING`` (so
-	``$substr{hello,-1}`` is ``o``).
+        If ``START`` is negative, it counts back from the end of ``STRING`` (so
+        ``$substr{hello,-1}`` is ``o``).
 
-	If LENGTH is negative, it instead specifies the number of bytes
-	to omit from the end of STRING (so "$substr{example,2,-2}" is "amp").
-	Note that this means that "$substr{STRING,0,N}$substr{STRING,N}" is
-	"STRING" whether N is positive, negative or zero.
+        If LENGTH is negative, it instead specifies the number of bytes
+        to omit from the end of STRING (so "$substr{example,2,-2}" is "amp").
+        Note that this means that "$substr{STRING,0,N}$substr{STRING,N}" is
+        "STRING" whether N is positive, negative or zero.
 
 $suggestion
         if ``$set{flag_spelling_correction,true}`` was done before the query
@@ -950,21 +950,21 @@ $terms[{PREFIX}]
         terms.
 
 $thispage
-	page number of current page.
+        page number of current page.
 
 $time
-	how long the match took (in seconds) e.g. ``0.078534``.  If no timing
-	information was available, returns an empty value.
+        how long the match took (in seconds) e.g. ``0.078534``.  If no timing
+        information was available, returns an empty value.
 
 $topdoc
-	first document on current page of hit list (counting from 0)
+        first document on current page of hit list (counting from 0)
 
 $topterms[{N}]
-	list of up to ``N`` top relevance feedback terms (default 16)
+        list of up to ``N`` top relevance feedback terms (default 16)
 
 $transform{REGEXP,SUBST,STRING[,OPTIONS]}
-	transform string using Perl-compatible regular expressions.  This
-	command is sort of like the Perl code::
+        transform string using Perl-compatible regular expressions.  This
+        command is sort of like the Perl code::
 
          my $string = STRING;
          $string =~ s/REGEXP/SUBST/;
@@ -985,13 +985,13 @@ $transform{REGEXP,SUBST,STRING[,OPTIONS]}
          * ``x`` - allow whitespace and ``#``-comments in the pattern
 
 $truncate{STRING,LEN[,IND[,IND2]]}
-	truncate STRING to LEN bytes, but try to break after a word (unless
-	that would mean truncating to much less than LEN).  If we have to
-	split a word, then IND is appended (if specified).  If we have to
-	truncate (but don't split a word) then IND2 is appended (if specified).
-	For example::
+        truncate STRING to LEN bytes, but try to break after a word (unless
+        that would mean truncating to much less than LEN).  If we have to
+        split a word, then IND is appended (if specified).  If we have to
+        truncate (but don't split a word) then IND2 is appended (if specified).
+        For example::
 
-	 $truncate{$field{text},500,..., ...}
+         $truncate{$field{text},500,..., ...}
 
 $uniq{LIST}
         remove adjacent duplicates, for example from an already sorted list
@@ -1004,7 +1004,7 @@ $unique{LIST}
         more efficient.
 
 $unpack{BINARYSTRING}
-	converts a 4 byte big-endian binary string to a number, for example::
+        converts a 4 byte big-endian binary string to a number, for example::
 
          $date{$unpack{$value{0}}}
 
@@ -1012,8 +1012,8 @@ $unprefix{TERM}
         remove the prefix (if any) from a term.  Added in Omega 1.4.6.
 
 $unstem{TERM}
-	maps a stemmed term to a list of the unstemmed forms of it used in
-	the query.  Since Omega 1.4.18 ``$unstem`` reports unstemmed forms in
+        maps a stemmed term to a list of the unstemmed forms of it used in
+        the query.  Since Omega 1.4.18 ``$unstem`` reports unstemmed forms in
         all query strings parsed as part of the current query - in previous
         versions only this only reported unstemmed forms from the query string
         which was parsed last (which would be the one with the prefix sorting
@@ -1021,10 +1021,10 @@ $unstem{TERM}
         then the one specified last).
 
 $upper{TEXT}
-	return UTF-8 text ``TEXT`` converted to upper case.
+        return UTF-8 text ``TEXT`` converted to upper case.
 
 $url{TEXT}
-	url encode argument
+        url encode argument
 
 $value{SLOT[,DOCID]}
         returns value from slot ``SLOT`` for document ``DOCID``.  If ``DOCID``
@@ -1046,11 +1046,11 @@ $valueupperbound{SLOT}
         Added in Omega 1.4.22.
 
 $version
-	omega version string - e.g. "xapian-omega 1.2.6"
+        omega version string - e.g. "xapian-omega 1.2.6"
 
 $weight
-	raw document weight of the current hit, as a floating point value
-	(mostly useful for debugging purposes).
+        raw document weight of the current hit, as a floating point value
+        (mostly useful for debugging purposes).
 
 Numeric Operators:
 ==================
@@ -1066,29 +1066,29 @@ is quoted in a text document or email, punctuation after it may get included
 in the URL when it's turned into a link or cut and pasted.
 
 $add{...}
-	add arguments together (if called with one argument, this will convert
-	it to an integer and back, which ensures it is an integer).
+        add arguments together (if called with one argument, this will convert
+        it to an integer and back, which ensures it is an integer).
 
 $div{A,B}
-	returns int(A / B) (or the text "divide by 0" if B is zero)
+        returns int(A / B) (or the text "divide by 0" if B is zero)
 
 $mod{A,B}
-	returns int(A % B) (or the text "divide by 0" if B is zero)
+        returns int(A % B) (or the text "divide by 0" if B is zero)
 
 $max{A,...}
-	maximum of the arguments
+        maximum of the arguments
 
 $min{A,...}
-	minimum of the arguments
+        minimum of the arguments
 
 $mul{A,B,...}
-	multiply arguments together
+        multiply arguments together
 
 $muldiv{A,B,C}
-	returns int((A * B) / C) (or the text "divide by 0" if C is zero)
+        returns int((A * B) / C) (or the text "divide by 0" if C is zero)
 
 $sub{A,B}
-	returns (A - B)
+        returns (A - B)
 
 Logical Operators:
 ==================
@@ -1097,16 +1097,16 @@ OmegaScript logical operators treat an empty string as a false logical value
 and any non-empty string as true.
 
 $and{...}
-	logical short-cutting "and" of its arguments - evaluates
-	arguments until it finds an empty one (and returns "") or
-	has evaluated them all (returns "true")
+        logical short-cutting "and" of its arguments - evaluates
+        arguments until it finds an empty one (and returns "") or
+        has evaluated them all (returns "true")
 
 $not{A}
-	returns "true" for the empty string, "" otherwise.
+        returns "true" for the empty string, "" otherwise.
 
 $or{...}
-	logical short-cutting "or" of its arguments - returns first
-	non-empty argument
+        logical short-cutting "or" of its arguments - returns first
+        non-empty argument
 
 Comparison Operators:
 =====================
@@ -1114,28 +1114,28 @@ Comparison Operators:
 These return a value suitable for use in ``$if``, ``$and``, ``$or``, etc.
 
 $eq{A,B}
-	returns "true" if A and B are the same string, "" otherwise.
+        returns "true" if A and B are the same string, "" otherwise.
 
 $ge{A,B}
-	returns "true" if A is numerically >= B, "" otherwise.
+        returns "true" if A is numerically >= B, "" otherwise.
 
 $gt{A,B}
-	returns "true" if A is numerically > B, "" otherwise.
+        returns "true" if A is numerically > B, "" otherwise.
 
 $le{A,B}
-	returns "true" if A is numerically <= B, "" otherwise.
+        returns "true" if A is numerically <= B, "" otherwise.
 
 $lt{A,B}
-	returns "true" if A is numerically < B, "" otherwise.
+        returns "true" if A is numerically < B, "" otherwise.
 
 $ne{A,B}
-	returns "true" if A and B are not the same string, "" if they are.
+        returns "true" if A and B are not the same string, "" if they are.
 
 Control:
 ========
 
 $cond{COND1,THEN1[,COND2,THEN2]...[,ELSE]}
-	evaluates ``COND1``, ``COND2``, ... in turn until a non-empty value is
+        evaluates ``COND1``, ``COND2``, ... in turn until a non-empty value is
         obtained, and then evaluates and returns the corresponding ``THEN``.
         If all ``COND`` values expand to empty values, then evaluates and
         returns ``ELSE`` (if present, otherwise returns nothing).

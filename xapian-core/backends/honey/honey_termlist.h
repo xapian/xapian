@@ -30,7 +30,7 @@
 
 namespace Xapian {
     namespace Internal {
-	class ExpandStats;
+        class ExpandStats;
     }
 }
 
@@ -89,7 +89,7 @@ class HoneyTermList : public TermList {
      *  This is a non-virtual method, used by HoneyDatabase.
      */
     Xapian::termcount get_doclength() const {
-	return doclen;
+        return doclen;
     }
 
     /** Return the number of entries in this termlist.
@@ -97,7 +97,7 @@ class HoneyTermList : public TermList {
      *  This is a non-virtual method, used by HoneyDatabase.
      */
     Xapian::termcount size() const {
-	return termlist_size;
+        return termlist_size;
     }
 
     /** Return the number of unique terms.
@@ -105,10 +105,10 @@ class HoneyTermList : public TermList {
      *  This is a non-virtual method, used by HoneyDatabase.
      */
     Xapian::termcount get_unique_terms() const {
-	// We approximate get_unique_terms() by the length of the termlist
-	// (which counts boolean terms too) but clamp the result to be no
-	// larger than the document length.
-	return std::min(termlist_size, doclen);
+        // We approximate get_unique_terms() by the length of the termlist
+        // (which counts boolean terms too) but clamp the result to be no
+        // larger than the document length.
+        return std::min(termlist_size, doclen);
     }
 
     /** Return approximate size of this termlist.

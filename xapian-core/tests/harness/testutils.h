@@ -29,7 +29,7 @@
 // Useful display operators
 
 std::ostream &operator<<(std::ostream &os,
-			 const std::vector<Xapian::docid> &ints);
+                         const std::vector<Xapian::docid> &ints);
 
 // ######################################################################
 // Useful comparison operators
@@ -37,20 +37,20 @@ std::ostream &operator<<(std::ostream &os,
 // Test that the weights and docids in two mset ranges are the same.
 bool
 mset_range_is_same(const Xapian::MSet &mset1, unsigned int first1,
-		   const Xapian::MSet &mset2, unsigned int first2,
-		   unsigned int count);
+                   const Xapian::MSet &mset2, unsigned int first2,
+                   unsigned int count);
 
 // Test that the weights and docids in the mset and an array are the same.
 bool
 mset_range_is_same(const Xapian::MSet& mset, unsigned int first,
-		   const std::pair<Xapian::docid, double> to_compare[],
-		   unsigned int count);
+                   const std::pair<Xapian::docid, double> to_compare[],
+                   unsigned int count);
 
 // Test that the weights in two mset ranges are the same, ignoring docids.
 bool
 mset_range_is_same_weights(const Xapian::MSet &mset1, unsigned int first1,
-			   const Xapian::MSet &mset2, unsigned int first2,
-			   unsigned int count);
+                           const Xapian::MSet &mset2, unsigned int first2,
+                           unsigned int count);
 
 bool operator==(const Xapian::MSet &first, const Xapian::MSet &second);
 
@@ -60,45 +60,45 @@ inline bool operator!=(const Xapian::MSet &first, const Xapian::MSet &second)
 }
 
 void mset_expect_order(const Xapian::MSet &A,
-		       Xapian::docid d1 = 0, Xapian::docid d2 = 0,
-		       Xapian::docid d3 = 0, Xapian::docid d4 = 0,
-		       Xapian::docid d5 = 0, Xapian::docid d6 = 0,
-		       Xapian::docid d7 = 0, Xapian::docid d8 = 0,
-		       Xapian::docid d9 = 0, Xapian::docid d10 = 0,
-		       Xapian::docid d11 = 0, Xapian::docid d12 = 0);
+                       Xapian::docid d1 = 0, Xapian::docid d2 = 0,
+                       Xapian::docid d3 = 0, Xapian::docid d4 = 0,
+                       Xapian::docid d5 = 0, Xapian::docid d6 = 0,
+                       Xapian::docid d7 = 0, Xapian::docid d8 = 0,
+                       Xapian::docid d9 = 0, Xapian::docid d10 = 0,
+                       Xapian::docid d11 = 0, Xapian::docid d12 = 0);
 
 void test_mset_order_equal(const Xapian::MSet &mset1,
-			   const Xapian::MSet &mset2);
+                           const Xapian::MSet &mset2);
 
 // ######################################################################
 // Useful test macros
 
 /// Check MSet M has size S.
 #define TEST_MSET_SIZE(M, S) TEST_AND_EXPLAIN(((M).size() == (S)), \
-	"MSet '" STRINGIZE(M) "' is not of expected size: was '" << \
-	(M).size() << "' expected '" << (S) << "':\n" << \
-	"Full mset was:\n" << (M))
+        "MSet '" STRINGIZE(M) "' is not of expected size: was '" << \
+        (M).size() << "' expected '" << (S) << "':\n" << \
+        "Full mset was:\n" << (M))
 
 /// Helper macro.
 #define TEST_EXCEPTION_(TYPE, CODE, EXACT, FAIL_TO_THROW_ACTION) \
     do { \
-	expected_exception = STRINGIZE(TYPE); \
-	if (strncmp(expected_exception, "Xapian::", \
-		    CONST_STRLEN("Xapian::")) == 0) { \
-	    expected_exception += CONST_STRLEN("Xapian::"); \
-	} \
-	try { \
-	    CODE; \
-	    FAIL_TO_THROW_ACTION; \
-	} catch (const TYPE& xap_ex_obj_) { \
-	    if (EXACT) { \
-		if (strcmp(expected_exception, xap_ex_obj_.get_type()) != 0) { \
-		    FAIL_TEST("Caught subclass " << xap_ex_obj_.get_type() << \
-			      " of expected " << expected_exception); \
-		} \
-	    } \
-	} \
-	expected_exception = NULL;\
+        expected_exception = STRINGIZE(TYPE); \
+        if (strncmp(expected_exception, "Xapian::", \
+                    CONST_STRLEN("Xapian::")) == 0) { \
+            expected_exception += CONST_STRLEN("Xapian::"); \
+        } \
+        try { \
+            CODE; \
+            FAIL_TO_THROW_ACTION; \
+        } catch (const TYPE& xap_ex_obj_) { \
+            if (EXACT) { \
+                if (strcmp(expected_exception, xap_ex_obj_.get_type()) != 0) { \
+                    FAIL_TEST("Caught subclass " << xap_ex_obj_.get_type() << \
+                              " of expected " << expected_exception); \
+                } \
+            } \
+        } \
+        expected_exception = NULL;\
     } while (0)
 
 #define DEFAULT_FAIL_TO_THROW_ACTION_ \

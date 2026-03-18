@@ -45,7 +45,7 @@ class OrTermList : public TermList {
 
   public:
     OrTermList(TermList * left_, TermList * right_)
-	: left(left_), right(right_) { }
+        : left(left_), right(right_) { }
 
     ~OrTermList();
 
@@ -75,7 +75,7 @@ class OrTermList : public TermList {
 class FreqAdderOrTermList : public OrTermList {
   public:
     FreqAdderOrTermList(TermList * left_, TermList * right_)
-	    : OrTermList(left_, right_)
+            : OrTermList(left_, right_)
     { }
 
     Xapian::doccount get_termfreq() const;

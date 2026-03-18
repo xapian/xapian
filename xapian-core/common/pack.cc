@@ -30,9 +30,9 @@ unpack_throw_serialisation_error(const char* p)
 {
     const char* m;
     if (p == NULL) {
-	m = "Insufficient serialised data";
+        m = "Insufficient serialised data";
     } else {
-	m = "Serialised data overflowed type";
+        m = "Serialised data overflowed type";
     }
     throw Xapian::SerialisationError(m);
 }

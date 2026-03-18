@@ -35,18 +35,18 @@ class AndNotPostList : public WrapperPostList {
 
   public:
     AndNotPostList(PostList* left, PostList* right, Xapian::doccount db_size)
-	: WrapperPostList(left), r(right)
+        : WrapperPostList(left), r(right)
     {
-	// We shortcut an empty shard and avoid creating a postlist tree for
-	// it.
-	Assert(db_size);
-	// We calculate the estimate assuming independence.  With this
-	// assumption, the estimate is the product of the estimates for the
-	// sub-postlists (for the right side this is inverted by subtracting
-	// from db_size), divided by db_size.
-	double result = pl->get_termfreq();
-	result = (result * (db_size - r->get_termfreq())) / db_size;
-	termfreq = static_cast<Xapian::doccount>(result + 0.5);
+        // We shortcut an empty shard and avoid creating a postlist tree for
+        // it.
+        Assert(db_size);
+        // We calculate the estimate assuming independence.  With this
+        // assumption, the estimate is the product of the estimates for the
+        // sub-postlists (for the right side this is inverted by subtracting
+        // from db_size), divided by db_size.
+        double result = pl->get_termfreq();
+        result = (result * (db_size - r->get_termfreq())) / db_size;
+        termfreq = static_cast<Xapian::doccount>(result + 0.5);
     }
 
     ~AndNotPostList() { delete r; }

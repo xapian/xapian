@@ -57,7 +57,7 @@ my $date = do_header($head, 'Date');
 chomp $date;
 eval {
     eval {
-	$date = Time::Piece->strptime($date, '%a, %d %b %Y %T %z');
+        $date = Time::Piece->strptime($date, '%a, %d %b %Y %T %z');
     };
     # The "%a, " part is optional in RFC822 and RFC2822.
     $date = Time::Piece->strptime($date, '%d %b %Y %T %z') if $@;
@@ -82,30 +82,30 @@ sub handle_mimepart {
     my $e = shift;
     my ($type, $sub) = ((lc $e->mime_type) =~ m,^(.*?)/(.*?)(?:;.*)?$,);
     if ($type eq 'multipart') {
-	if ($sub eq 'alternative') {
-	    # Take the last mime part which we get text from.
-	    for my $s (reverse $e->parts) {
-		my $res = handle_mimepart($s);
-		return $res if $res;
-	    }
-	} else {
-	    my $res = 0;
-	    for my $s ($e->parts) {
-		$res += handle_mimepart($s);
-	    }
-	    return $res;
-	}
+        if ($sub eq 'alternative') {
+            # Take the last mime part which we get text from.
+            for my $s (reverse $e->parts) {
+                my $res = handle_mimepart($s);
+                return $res if $res;
+            }
+        } else {
+            my $res = 0;
+            for my $s ($e->parts) {
+                $res += handle_mimepart($s);
+            }
+            return $res;
+        }
     } elsif ($type eq 'text') {
-	if ($sub eq 'plain') {
-	    my $m = $e->bodyhandle->as_string;
-	    print "<pre>", HTML::Entities::encode_entities($m), "</pre>\n";
-	    return 1;
-	} elsif ($sub eq 'html') {
-	    my $m = $e->bodyhandle->as_string;
-	    $m =~ s!</?body[^>]*>!\n!gi;
-	    print $m, "\n";
-	    return 1;
-	}
+        if ($sub eq 'plain') {
+            my $m = $e->bodyhandle->as_string;
+            print "<pre>", HTML::Entities::encode_entities($m), "</pre>\n";
+            return 1;
+        } elsif ($sub eq 'html') {
+            my $m = $e->bodyhandle->as_string;
+            $m =~ s!</?body[^>]*>!\n!gi;
+            print $m, "\n";
+            return 1;
+        }
     }
     return 0;
 }

@@ -52,14 +52,14 @@ test_weight_class_no_params(const char* classname, const char* name)
     // Check that unserialise() throws suitable error for bad serialisation.
     // The easy case to test is extra junk after the serialised weight.
     try {
-	unique_ptr<Xapian::Weight> bad(W().unserialise(obj_serialised + "X"));
-	FAIL_TEST(classname << " did not throw for unserialise with junk "
-		  "appended");
+        unique_ptr<Xapian::Weight> bad(W().unserialise(obj_serialised + "X"));
+        FAIL_TEST(classname << " did not throw for unserialise with junk "
+                  "appended");
     } catch (const Xapian::SerialisationError& e) {
-	// Check the exception message contains the weighting scheme name
-	// (regression test for TradWeight's exception saying "BM25").
-	string target = classname + CONST_STRLEN("Xapian::");
-	TEST(e.get_msg().find(target) != string::npos);
+        // Check the exception message contains the weighting scheme name
+        // (regression test for TradWeight's exception saying "BM25").
+        string target = classname + CONST_STRLEN("Xapian::");
+        TEST(e.get_msg().find(target) != string::npos);
     }
 }
 
@@ -68,7 +68,7 @@ test_weight_class_no_params(const char* classname, const char* name)
 template<class W>
 static inline void
 test_weight_class(const char* classname, const char* name,
-		  const W& obj_default, const W& obj_other)
+                  const W& obj_default, const W& obj_other)
 {
     tout << classname << '\n';
     W obj;
@@ -92,17 +92,17 @@ test_weight_class(const char* classname, const char* name,
     // Check that unserialise() throws suitable error for bad serialisation.
     // The easy case to test is extra junk after the serialised weight.
     try {
-	unique_ptr<Xapian::Weight> bad(W().unserialise(obj_serialised + "X"));
-	FAIL_TEST(classname << " did not throw for unserialise with junk "
-		  "appended");
+        unique_ptr<Xapian::Weight> bad(W().unserialise(obj_serialised + "X"));
+        FAIL_TEST(classname << " did not throw for unserialise with junk "
+                  "appended");
     } catch (const Xapian::SerialisationError& e) {
-	// Check the exception message contains the correct weighting scheme
-	// name (originally a regression test for TradWeight's exception saying
-	// "BM25", but not TradWeight is just a thin subclass of BM25Weight so
-	// it's expected it reports as BM25Weight now!)
-	string target = classname + CONST_STRLEN("Xapian::");
-	if (target == "TradWeight") target = "BM25Weight";
-	TEST(e.get_msg().find(target) != string::npos);
+        // Check the exception message contains the correct weighting scheme
+        // name (originally a regression test for TradWeight's exception saying
+        // "BM25", but not TradWeight is just a thin subclass of BM25Weight so
+        // it's expected it reports as BM25Weight now!)
+        string target = classname + CONST_STRLEN("Xapian::");
+        if (target == "TradWeight") target = "BM25Weight";
+        TEST(e.get_msg().find(target) != string::npos);
     }
 }
 
@@ -128,11 +128,11 @@ DEFINE_TESTCASE(weightserialisation1, !backend) {
     // Parameterised weighting schemes.
     TEST_WEIGHT_CLASS(Xapian::TradWeight, "bm25", (1.0), (2.0));
     TEST_WEIGHT_CLASS(Xapian::BM25Weight, "bm25",
-		      (1, 0, 1, 0.5, 0.5),
-		      (1, 0.5, 1, 0.5, 0.5));
+                      (1, 0, 1, 0.5, 0.5),
+                      (1, 0.5, 1, 0.5, 0.5));
     TEST_WEIGHT_CLASS(Xapian::BM25PlusWeight, "bm25+",
-		      (1, 0, 1, 0.5, 0.5, 1.0),
-		      (1, 0, 1, 0.5, 0.5, 2.0));
+                      (1, 0, 1, 0.5, 0.5, 1.0),
+                      (1, 0, 1, 0.5, 0.5, 2.0));
     TEST_WEIGHT_CLASS(Xapian::TfIdfWeight, "tfidf", ("ntn"), ("bpn"));
     TEST_WEIGHT_CLASS(Xapian::InL2Weight, "inl2", (1.0), (2.0));
     TEST_WEIGHT_CLASS(Xapian::IfB2Weight, "ifb2", (1.0), (2.0));
@@ -140,17 +140,17 @@ DEFINE_TESTCASE(weightserialisation1, !backend) {
     TEST_WEIGHT_CLASS(Xapian::BB2Weight, "bb2", (1.0), (2.0));
     TEST_WEIGHT_CLASS(Xapian::PL2Weight, "pl2", (1.0), (2.0));
     TEST_WEIGHT_CLASS(Xapian::PL2PlusWeight, "pl2+",
-		      (1.0, 0.8),
-		      (2.0, 0.9));
+                      (1.0, 0.8),
+                      (2.0, 0.9));
     TEST_WEIGHT_CLASS(Xapian::LM2StageWeight, "lm2stage",
-		      (0.7, 2000.0),
-		      (0.5, 2000.0));
+                      (0.7, 2000.0),
+                      (0.5, 2000.0));
     TEST_WEIGHT_CLASS(Xapian::LMAbsDiscountWeight, "lmabsdiscount",
-		      (0.7),
-		      (0.75));
+                      (0.7),
+                      (0.75));
     TEST_WEIGHT_CLASS(Xapian::LMDirichletWeight, "lmdirichlet",
-		      (2000.0, 0.05),
-		      (2034.0, 0.0));
+                      (2000.0, 0.05),
+                      (2034.0, 0.0));
     TEST_WEIGHT_CLASS(Xapian::LMJMWeight, "lmjm", (0.0), (0.5));
 }
 
@@ -165,57 +165,57 @@ DEFINE_TESTCASE(weight1, backend) {
     enquire_scaled.set_query(q * 15.0);
     auto expected_matches = db.get_termfreq(term);
     auto helper = [&](const Xapian::Weight& weight,
-		      string_view name,
-		      string_view params) {
-	tout << name << '(' << params << ")\n";
-	enquire.set_weighting_scheme(weight);
-	enquire_scaled.set_weighting_scheme(weight);
-	Xapian::MSet mset = enquire.get_mset(0, expected_matches + 1);
-	TEST_EQUAL(mset.size(), expected_matches);
-	if (name == "Xapian::BoolWeight") {
-	    /* All weights should be zero. */
-	    TEST_EQUAL(mset[0].get_weight(), 0.0);
-	    TEST_EQUAL(mset.back().get_weight(), 0.0);
-	} else if (name == "Xapian::CoordWeight") {
-	    /* All weights should be 1 for a single term query. */
-	    TEST_EQUAL(mset[0].get_weight(), 1.0);
-	    TEST_EQUAL(mset.back().get_weight(), 1.0);
-	} else if (!params.empty()) {
-	    /* All weights should be equal with these particular parameters. */
-	    TEST_NOT_EQUAL(mset[0].get_weight(), 0.0);
-	    TEST_EQUAL(mset[0].get_weight(), mset.back().get_weight());
-	} else {
-	    TEST_NOT_EQUAL(mset[0].get_weight(), 0.0);
-	    TEST_NOT_EQUAL(mset[0].get_weight(), mset.back().get_weight());
-	}
-	Xapian::MSet mset_scaled = enquire_scaled.get_mset(0, expected_matches);
-	TEST_EQUAL(mset_scaled.size(), expected_matches);
-	auto lm = name.find("::LM");
-	// All the LM* schemes have sumextra except LMJMWeight.
-	//
-	// BM25 and BM25+ have sumextra, but by default k2 is 0 which means
-	// sumextra is zero too.
-	bool has_sumextra = lm != string::npos && name[lm + 4] != 'J';
-	for (Xapian::doccount i = 0; i < expected_matches; ++i) {
-	    double w = mset[i].get_weight();
-	    double ws = mset_scaled[i].get_weight();
-	    if (has_sumextra) {
-		// sumextra is not scaled, so we can't test for (near)
-		// equality, but we can test that the weight is affected by the
-		// scaling, and that it's between the unscaled weight and the
-		// fully scaled weight.
-		TEST_NOT_EQUAL_DOUBLE(ws, w);
-		TEST_REL(ws, <=, w * 15.0);
-		TEST_REL(ws, >=, w);
-	    } else {
-		TEST_EQUAL_DOUBLE(ws, w * 15.0);
-	    }
-	}
+                      string_view name,
+                      string_view params) {
+        tout << name << '(' << params << ")\n";
+        enquire.set_weighting_scheme(weight);
+        enquire_scaled.set_weighting_scheme(weight);
+        Xapian::MSet mset = enquire.get_mset(0, expected_matches + 1);
+        TEST_EQUAL(mset.size(), expected_matches);
+        if (name == "Xapian::BoolWeight") {
+            /* All weights should be zero. */
+            TEST_EQUAL(mset[0].get_weight(), 0.0);
+            TEST_EQUAL(mset.back().get_weight(), 0.0);
+        } else if (name == "Xapian::CoordWeight") {
+            /* All weights should be 1 for a single term query. */
+            TEST_EQUAL(mset[0].get_weight(), 1.0);
+            TEST_EQUAL(mset.back().get_weight(), 1.0);
+        } else if (!params.empty()) {
+            /* All weights should be equal with these particular parameters. */
+            TEST_NOT_EQUAL(mset[0].get_weight(), 0.0);
+            TEST_EQUAL(mset[0].get_weight(), mset.back().get_weight());
+        } else {
+            TEST_NOT_EQUAL(mset[0].get_weight(), 0.0);
+            TEST_NOT_EQUAL(mset[0].get_weight(), mset.back().get_weight());
+        }
+        Xapian::MSet mset_scaled = enquire_scaled.get_mset(0, expected_matches);
+        TEST_EQUAL(mset_scaled.size(), expected_matches);
+        auto lm = name.find("::LM");
+        // All the LM* schemes have sumextra except LMJMWeight.
+        //
+        // BM25 and BM25+ have sumextra, but by default k2 is 0 which means
+        // sumextra is zero too.
+        bool has_sumextra = lm != string::npos && name[lm + 4] != 'J';
+        for (Xapian::doccount i = 0; i < expected_matches; ++i) {
+            double w = mset[i].get_weight();
+            double ws = mset_scaled[i].get_weight();
+            if (has_sumextra) {
+                // sumextra is not scaled, so we can't test for (near)
+                // equality, but we can test that the weight is affected by the
+                // scaling, and that it's between the unscaled weight and the
+                // fully scaled weight.
+                TEST_NOT_EQUAL_DOUBLE(ws, w);
+                TEST_REL(ws, <=, w * 15.0);
+                TEST_REL(ws, >=, w);
+            } else {
+                TEST_EQUAL_DOUBLE(ws, w * 15.0);
+            }
+        }
     };
 
     // MSVC gives nothing for #__VA_ARGS__ when there are no varargs.
 #define TEST_WEIGHTING_SCHEME(W, ...) \
-	helper(W(__VA_ARGS__), #W, "" #__VA_ARGS__)
+        helper(W(__VA_ARGS__), #W, "" #__VA_ARGS__)
 
     TEST_WEIGHTING_SCHEME(Xapian::BoolWeight);
     TEST_WEIGHTING_SCHEME(Xapian::CoordWeight);
@@ -249,11 +249,11 @@ DEFINE_TESTCASE(weight1, backend) {
 /// Feature tests for Weight::create().
 DEFINE_TESTCASE(weightcreate1, !backend) {
     TEST_EXCEPTION(Xapian::InvalidArgumentError,
-	delete Xapian::Weight::create(""));
+        delete Xapian::Weight::create(""));
     TEST_EXCEPTION(Xapian::InvalidArgumentError,
-	delete Xapian::Weight::create("invalid"));
+        delete Xapian::Weight::create("invalid"));
     TEST_EXCEPTION(Xapian::InvalidArgumentError,
-	delete Xapian::Weight::create("invalid 1.0"));
+        delete Xapian::Weight::create("invalid 1.0"));
 }
 
 /** Regression test for bug fixed in 1.0.5.
@@ -271,17 +271,17 @@ DEFINE_TESTCASE(bm25weight1, backend) {
 /// Test Weight::create() for BM25Weight.
 DEFINE_TESTCASE(bm25weight2, !backend) {
     {
-	auto wt_ptr = Xapian::Weight::create("bm25");
-	auto wt = Xapian::BM25Weight();
-	TEST_EQUAL(wt_ptr->serialise(), wt.serialise());
-	delete wt_ptr;
+        auto wt_ptr = Xapian::Weight::create("bm25");
+        auto wt = Xapian::BM25Weight();
+        TEST_EQUAL(wt_ptr->serialise(), wt.serialise());
+        delete wt_ptr;
     }
 
     {
-	auto wt_ptr = Xapian::Weight::create("bm25 1 0 1 0.5 0.5");
-	auto wt = Xapian::BM25Weight(1, 0, 1, 0.5, 0.5);
-	TEST_EQUAL(wt_ptr->serialise(), wt.serialise());
-	delete wt_ptr;
+        auto wt_ptr = Xapian::Weight::create("bm25 1 0 1 0.5 0.5");
+        auto wt = Xapian::BM25Weight(1, 0, 1, 0.5, 0.5);
+        TEST_EQUAL(wt_ptr->serialise(), wt.serialise());
+        delete wt_ptr;
     }
 }
 
@@ -374,10 +374,10 @@ DEFINE_TESTCASE(bm25plusweight3, backend) {
 DEFINE_TESTCASE(inl2weight2, !backend) {
     // InvalidArgumentError should be thrown if the parameter c is invalid.
     TEST_EXCEPTION(Xapian::InvalidArgumentError,
-	Xapian::InL2Weight wt(-2.0));
+        Xapian::InL2Weight wt(-2.0));
 
     TEST_EXCEPTION(Xapian::InvalidArgumentError,
-	Xapian::InL2Weight wt2(0.0));
+        Xapian::InL2Weight wt2(0.0));
 }
 
 // Feature tests for Inl2Weight
@@ -403,10 +403,10 @@ DEFINE_TESTCASE(inl2weight3, backend) {
 DEFINE_TESTCASE(ifb2weight2, !backend) {
     // InvalidArgumentError should be thrown if the parameter c is invalid.
     TEST_EXCEPTION(Xapian::InvalidArgumentError,
-	Xapian::IfB2Weight wt(-2.0));
+        Xapian::IfB2Weight wt(-2.0));
 
     TEST_EXCEPTION(Xapian::InvalidArgumentError,
-	Xapian::IfB2Weight wt2(0.0));
+        Xapian::IfB2Weight wt2(0.0));
 }
 
 // Feature test
@@ -431,10 +431,10 @@ DEFINE_TESTCASE(ifb2weight3, backend) {
 DEFINE_TESTCASE(ineb2weight2, !backend) {
     // InvalidArgumentError should be thrown if parameter c is invalid.
     TEST_EXCEPTION(Xapian::InvalidArgumentError,
-	Xapian::IneB2Weight wt(-2.0));
+        Xapian::IneB2Weight wt(-2.0));
 
     TEST_EXCEPTION(Xapian::InvalidArgumentError,
-	Xapian::IneB2Weight wt2(0.0));
+        Xapian::IneB2Weight wt2(0.0));
 }
 
 // Feature test.
@@ -459,10 +459,10 @@ DEFINE_TESTCASE(ineb2weight3, backend) {
 DEFINE_TESTCASE(bb2weight2, !backend) {
     // InvalidArgumentError should be thrown if the parameter c is invalid.
     TEST_EXCEPTION(Xapian::InvalidArgumentError,
-	Xapian::BB2Weight wt(-2.0));
+        Xapian::BB2Weight wt(-2.0));
 
     TEST_EXCEPTION(Xapian::InvalidArgumentError,
-	Xapian::BB2Weight wt2(0.0));
+        Xapian::BB2Weight wt2(0.0));
 }
 
 // Feature test
@@ -492,7 +492,7 @@ DEFINE_TESTCASE(bb2weight3, backend) {
     TEST_EQUAL(mset3.size(), 5);
 
     for (int i = 0; i < 5; ++i) {
-	TEST_EQUAL_DOUBLE(mset1[i].get_weight(), mset3[i].get_weight() * 1024);
+        TEST_EQUAL_DOUBLE(mset1[i].get_weight(), mset3[i].get_weight() * 1024);
     }
 }
 
@@ -559,7 +559,7 @@ DEFINE_TESTCASE(dlhweight3, backend) {
 DEFINE_TESTCASE(pl2weight2, !backend) {
     // InvalidArgumentError should be thrown if parameter c is invalid.
     TEST_EXCEPTION(Xapian::InvalidArgumentError,
-	Xapian::PL2Weight wt(-2.0));
+        Xapian::PL2Weight wt(-2.0));
 }
 
 // Feature Test.
@@ -576,18 +576,18 @@ DEFINE_TESTCASE(pl2weight3, backend) {
     // Expected weight difference calculated in extended precision using stats
     // from the test database.
     TEST_EQUAL_DOUBLE(mset[2].get_weight(),
-		      mset[3].get_weight() + 0.0086861771701328694);
+                      mset[3].get_weight() + 0.0086861771701328694);
 }
 
 // Test for invalid values of parameters, c and delta.
 DEFINE_TESTCASE(pl2plusweight2, !backend) {
     // InvalidArgumentError should be thrown if parameter c is invalid.
     TEST_EXCEPTION(Xapian::InvalidArgumentError,
-	Xapian::PL2PlusWeight wt(-2.0, 0.9));
+        Xapian::PL2PlusWeight wt(-2.0, 0.9));
 
     // InvalidArgumentError should be thrown if parameter delta is invalid.
     TEST_EXCEPTION(Xapian::InvalidArgumentError,
-	Xapian::PL2PlusWeight wt(1.0, -1.9));
+        Xapian::PL2PlusWeight wt(1.0, -1.9));
 }
 
 // Feature Test 1 for PL2PlusWeight.
@@ -603,7 +603,7 @@ DEFINE_TESTCASE(pl2plusweight4, backend) {
     // Expected weight difference calculated in Python using stats from the
     // test database.
     TEST_EQUAL_DOUBLE(mset[1].get_weight(),
-		      mset[2].get_weight() + 0.016760925252262027);
+                      mset[2].get_weight() + 0.016760925252262027);
 }
 
 // Feature Test 2 for PL2PlusWeight
@@ -660,25 +660,25 @@ DEFINE_TESTCASE(dphweight3, backend) {
 DEFINE_TESTCASE(tfidfweight1, !backend) {
     // InvalidArgumentError should be thrown if normalization string is invalid
     TEST_EXCEPTION(Xapian::InvalidArgumentError,
-	Xapian::TfIdfWeight b("JOHN_LENNON"));
+        Xapian::TfIdfWeight b("JOHN_LENNON"));
 
     TEST_EXCEPTION(Xapian::InvalidArgumentError,
-	Xapian::TfIdfWeight b("LOL"));
+        Xapian::TfIdfWeight b("LOL"));
 
     TEST_EXCEPTION(Xapian::InvalidArgumentError,
-	Xapian::Weight::create("tfidf FUN NONE NONE"));
+        Xapian::Weight::create("tfidf FUN NONE NONE"));
 
     TEST_EXCEPTION(Xapian::InvalidArgumentError,
-	Xapian::Weight::create("tfidf NONE FUN NONE"));
+        Xapian::Weight::create("tfidf NONE FUN NONE"));
 
     TEST_EXCEPTION(Xapian::InvalidArgumentError,
-	Xapian::Weight::create("tfidf NONE NONE FUN"));
+        Xapian::Weight::create("tfidf NONE NONE FUN"));
 
     TEST_EXCEPTION(Xapian::InvalidArgumentError,
-	Xapian::Weight::create("tfidf NONE"));
+        Xapian::Weight::create("tfidf NONE"));
 
     TEST_EXCEPTION(Xapian::InvalidArgumentError,
-	Xapian::Weight::create("tfidf NONE NONE"));
+        Xapian::Weight::create("tfidf NONE NONE"));
 }
 
 // Feature tests for various normalization functions.
@@ -757,7 +757,7 @@ DEFINE_TESTCASE(tfidfweight3, backend) {
     TEST_EQUAL(mset.size(), 6);
     mset_expect_order(mset, 1, 2, 3, 4, 5, 6);
     for (int i = 0; i < 6; ++i) {
-	TEST_EQUAL_DOUBLE(mset[i].get_weight(), 0.0);
+        TEST_EQUAL_DOUBLE(mset[i].get_weight(), 0.0);
     }
 
     // Check for "npn" and for both branches of 'p'
@@ -767,7 +767,7 @@ DEFINE_TESTCASE(tfidfweight3, backend) {
     TEST_EQUAL(mset.size(), 6);
     mset_expect_order(mset, 1, 2, 3, 4, 5, 6);
     for (int i = 0; i < 6; ++i) {
-	TEST_EQUAL_DOUBLE(mset[i].get_weight(), 0.0);
+        TEST_EQUAL_DOUBLE(mset[i].get_weight(), 0.0);
     }
 
     // Check for "Lnn".
@@ -808,10 +808,10 @@ DEFINE_TESTCASE(tfidfweight3, backend) {
     // Check for NONE, TFIDF, NONE when termfreq != N
     enquire.set_query(query);
     enquire.set_weighting_scheme(
-	Xapian::TfIdfWeight(
-	    Xapian::TfIdfWeight::wdf_norm::NONE,
-	    Xapian::TfIdfWeight::idf_norm::TFIDF,
-	    Xapian::TfIdfWeight::wt_norm::NONE));
+        Xapian::TfIdfWeight(
+            Xapian::TfIdfWeight::wdf_norm::NONE,
+            Xapian::TfIdfWeight::idf_norm::TFIDF,
+            Xapian::TfIdfWeight::wt_norm::NONE));
     mset = enquire.get_mset(0, 10);
     TEST_EQUAL(mset.size(), 2);
     // doc 2 should have higher weight than 4 as only tf(wdf) will dominate.
@@ -831,10 +831,10 @@ DEFINE_TESTCASE(tfidfweight3, backend) {
     // check for NONE, FREQ, NONE when termfreq != N
     enquire.set_query(query);
     enquire.set_weighting_scheme(
-	Xapian::TfIdfWeight(
-	    Xapian::TfIdfWeight::wdf_norm::NONE,
-	    Xapian::TfIdfWeight::idf_norm::FREQ,
-	    Xapian::TfIdfWeight::wt_norm::NONE));
+        Xapian::TfIdfWeight(
+            Xapian::TfIdfWeight::wdf_norm::NONE,
+            Xapian::TfIdfWeight::idf_norm::FREQ,
+            Xapian::TfIdfWeight::wt_norm::NONE));
     mset = enquire.get_mset(0, 10);
     TEST_EQUAL(mset.size(), 2);
     mset_expect_order(mset, 2, 4);
@@ -843,10 +843,10 @@ DEFINE_TESTCASE(tfidfweight3, backend) {
     // check for NONE, SQUARE, NONE when termfreq != N
     enquire.set_query(query);
     enquire.set_weighting_scheme(
-	Xapian::TfIdfWeight(
-	    Xapian::TfIdfWeight::wdf_norm::NONE,
-	    Xapian::TfIdfWeight::idf_norm::SQUARE,
-	    Xapian::TfIdfWeight::wt_norm::NONE));
+        Xapian::TfIdfWeight(
+            Xapian::TfIdfWeight::wdf_norm::NONE,
+            Xapian::TfIdfWeight::idf_norm::SQUARE,
+            Xapian::TfIdfWeight::wt_norm::NONE));
     mset = enquire.get_mset(0, 10);
     TEST_EQUAL(mset.size(), 2);
     mset_expect_order(mset, 2, 4);
@@ -855,10 +855,10 @@ DEFINE_TESTCASE(tfidfweight3, backend) {
     // Check for BOOLEAN, NONE, NONE and for both branches of BOOLEAN.
     enquire.set_query(Xapian::Query("test"));
     enquire.set_weighting_scheme(
-	Xapian::TfIdfWeight(
-	    Xapian::TfIdfWeight::wdf_norm::BOOLEAN,
-	    Xapian::TfIdfWeight::idf_norm::NONE,
-	    Xapian::TfIdfWeight::wt_norm::NONE));
+        Xapian::TfIdfWeight(
+            Xapian::TfIdfWeight::wdf_norm::BOOLEAN,
+            Xapian::TfIdfWeight::idf_norm::NONE,
+            Xapian::TfIdfWeight::wt_norm::NONE));
     mset = enquire.get_mset(0, 10);
     TEST_EQUAL(mset.size(), 1);
     mset_expect_order(mset, 1);
@@ -867,10 +867,10 @@ DEFINE_TESTCASE(tfidfweight3, backend) {
     // Check for LOG, NONE, NONE and for both branches of LOG.
     enquire.set_query(Xapian::Query("word"));
     enquire.set_weighting_scheme(
-	Xapian::TfIdfWeight(
-	    Xapian::TfIdfWeight::wdf_norm::LOG,
-	    Xapian::TfIdfWeight::idf_norm::NONE,
-	    Xapian::TfIdfWeight::wt_norm::NONE));
+        Xapian::TfIdfWeight(
+            Xapian::TfIdfWeight::wdf_norm::LOG,
+            Xapian::TfIdfWeight::idf_norm::NONE,
+            Xapian::TfIdfWeight::wt_norm::NONE));
     mset = enquire.get_mset(0, 10);
     TEST_EQUAL(mset.size(), 2);
     mset_expect_order(mset, 2, 4);
@@ -880,10 +880,10 @@ DEFINE_TESTCASE(tfidfweight3, backend) {
     // Check for SQUARE, NONE, NONE.
     enquire.set_query(Xapian::Query("paragraph"));
     enquire.set_weighting_scheme(
-	Xapian::TfIdfWeight(
-	    Xapian::TfIdfWeight::wdf_norm::SQUARE,
-	    Xapian::TfIdfWeight::idf_norm::NONE,
-	    Xapian::TfIdfWeight::wt_norm::NONE)); // idf=1 and tfn=tf*tf
+        Xapian::TfIdfWeight(
+            Xapian::TfIdfWeight::wdf_norm::SQUARE,
+            Xapian::TfIdfWeight::idf_norm::NONE,
+            Xapian::TfIdfWeight::wt_norm::NONE)); // idf=1 and tfn=tf*tf
     mset = enquire.get_mset(0, 10);
     TEST_EQUAL(mset.size(), 5);
     mset_expect_order(mset, 2, 1, 4, 3, 5);
@@ -894,38 +894,38 @@ DEFINE_TESTCASE(tfidfweight3, backend) {
     enquire.set_query(Xapian::Query("this"));
     // N=termfreq and so idfn=0 for TFIDF
     enquire.set_weighting_scheme(
-	Xapian::TfIdfWeight(
-	    Xapian::TfIdfWeight::wdf_norm::NONE,
-	    Xapian::TfIdfWeight::idf_norm::TFIDF,
-	    Xapian::TfIdfWeight::wt_norm::NONE));
+        Xapian::TfIdfWeight(
+            Xapian::TfIdfWeight::wdf_norm::NONE,
+            Xapian::TfIdfWeight::idf_norm::TFIDF,
+            Xapian::TfIdfWeight::wt_norm::NONE));
     mset = enquire.get_mset(0, 10);
     TEST_EQUAL(mset.size(), 6);
     mset_expect_order(mset, 1, 2, 3, 4, 5, 6);
     for (int i = 0; i < 6; ++i) {
-	TEST_EQUAL_DOUBLE(mset[i].get_weight(), 0.0);
+        TEST_EQUAL_DOUBLE(mset[i].get_weight(), 0.0);
     }
 
     // Check for NONE, PROB, NONE and for both branches of PROB
     enquire.set_query(Xapian::Query("this"));
     // N=termfreq and so idfn=0 for PROB
     enquire.set_weighting_scheme(
-	Xapian::TfIdfWeight(
-	    Xapian::TfIdfWeight::wdf_norm::NONE,
-	    Xapian::TfIdfWeight::idf_norm::PROB,
-	    Xapian::TfIdfWeight::wt_norm::NONE));
+        Xapian::TfIdfWeight(
+            Xapian::TfIdfWeight::wdf_norm::NONE,
+            Xapian::TfIdfWeight::idf_norm::PROB,
+            Xapian::TfIdfWeight::wt_norm::NONE));
     mset = enquire.get_mset(0, 10);
     TEST_EQUAL(mset.size(), 6);
     mset_expect_order(mset, 1, 2, 3, 4, 5, 6);
     for (int i = 0; i < 6; ++i) {
-	TEST_EQUAL_DOUBLE(mset[i].get_weight(), 0.0);
+        TEST_EQUAL_DOUBLE(mset[i].get_weight(), 0.0);
     }
 
     enquire.set_query(Xapian::Query("word"));
     enquire.set_weighting_scheme(
-	Xapian::TfIdfWeight(
-	    Xapian::TfIdfWeight::wdf_norm::NONE,
-	    Xapian::TfIdfWeight::idf_norm::PROB,
-	    Xapian::TfIdfWeight::wt_norm::NONE));
+        Xapian::TfIdfWeight(
+            Xapian::TfIdfWeight::wdf_norm::NONE,
+            Xapian::TfIdfWeight::idf_norm::PROB,
+            Xapian::TfIdfWeight::wt_norm::NONE));
     mset = enquire.get_mset(0, 10);
     TEST_EQUAL(mset.size(), 2);
     mset_expect_order(mset, 2, 4);
@@ -935,24 +935,24 @@ DEFINE_TESTCASE(tfidfweight3, backend) {
     // Check for LOG_AVERAGE, NONE, NONE.
     enquire.set_query(Xapian::Query("word"));
     enquire.set_weighting_scheme(
-	Xapian::TfIdfWeight(
-	    Xapian::TfIdfWeight::wdf_norm::LOG_AVERAGE,
-	    Xapian::TfIdfWeight::idf_norm::NONE,
-	    Xapian::TfIdfWeight::wt_norm::NONE));
+        Xapian::TfIdfWeight(
+            Xapian::TfIdfWeight::wdf_norm::LOG_AVERAGE,
+            Xapian::TfIdfWeight::idf_norm::NONE,
+            Xapian::TfIdfWeight::wt_norm::NONE));
     mset = enquire.get_mset(0, 10);
     TEST_EQUAL(mset.size(), 2);
     mset_expect_order(mset, 2, 4);
     TEST_EQUAL_DOUBLE(mset[0].get_weight(),
-		      (1 + log(8.0)) / (1 + log(81.0 / 56.0)));
+                      (1 + log(8.0)) / (1 + log(81.0 / 56.0)));
     TEST_EQUAL_DOUBLE(mset[1].get_weight(),
-		      (1 + log(1.0)) / (1 + log(31.0 / 26.0)));
+                      (1 + log(1.0)) / (1 + log(31.0 / 26.0)));
 
     // Check for AUG_LOG, NONE, NONE.
     enquire.set_weighting_scheme(
-	Xapian::TfIdfWeight(
-	    Xapian::TfIdfWeight::wdf_norm::AUG_LOG,
-	    Xapian::TfIdfWeight::idf_norm::NONE,
-	    Xapian::TfIdfWeight::wt_norm::NONE));
+        Xapian::TfIdfWeight(
+            Xapian::TfIdfWeight::wdf_norm::AUG_LOG,
+            Xapian::TfIdfWeight::idf_norm::NONE,
+            Xapian::TfIdfWeight::wt_norm::NONE));
     mset = enquire.get_mset(0, 10);
     TEST_EQUAL(mset.size(), 2);
     mset_expect_order(mset, 2, 4);
@@ -961,10 +961,10 @@ DEFINE_TESTCASE(tfidfweight3, backend) {
 
     // Check for NONE, GLOBAL_FREQ, NONE.
     enquire.set_weighting_scheme(
-	Xapian::TfIdfWeight(
-	    Xapian::TfIdfWeight::wdf_norm::NONE,
-	    Xapian::TfIdfWeight::idf_norm::GLOBAL_FREQ,
-	    Xapian::TfIdfWeight::wt_norm::NONE));
+        Xapian::TfIdfWeight(
+            Xapian::TfIdfWeight::wdf_norm::NONE,
+            Xapian::TfIdfWeight::idf_norm::GLOBAL_FREQ,
+            Xapian::TfIdfWeight::wt_norm::NONE));
     mset = enquire.get_mset(0, 10);
     TEST_EQUAL(mset.size(), 2);
     mset_expect_order(mset, 2, 4);
@@ -973,10 +973,10 @@ DEFINE_TESTCASE(tfidfweight3, backend) {
 
     // Check for SQRT, NONE, NONE.
     enquire.set_weighting_scheme(
-	Xapian::TfIdfWeight(
-	    Xapian::TfIdfWeight::wdf_norm::SQRT,
-	    Xapian::TfIdfWeight::idf_norm::NONE,
-	    Xapian::TfIdfWeight::wt_norm::NONE));
+        Xapian::TfIdfWeight(
+            Xapian::TfIdfWeight::wdf_norm::SQRT,
+            Xapian::TfIdfWeight::idf_norm::NONE,
+            Xapian::TfIdfWeight::wt_norm::NONE));
     mset = enquire.get_mset(0, 10);
     TEST_EQUAL(mset.size(), 2);
     mset_expect_order(mset, 2, 4);
@@ -985,10 +985,10 @@ DEFINE_TESTCASE(tfidfweight3, backend) {
 
     // Check for NONE, LOG_GLOBAL_FREQ, NONE.
     enquire.set_weighting_scheme(
-	Xapian::TfIdfWeight(
-	    Xapian::TfIdfWeight::wdf_norm::NONE,
-	    Xapian::TfIdfWeight::idf_norm::LOG_GLOBAL_FREQ,
-	    Xapian::TfIdfWeight::wt_norm::NONE));
+        Xapian::TfIdfWeight(
+            Xapian::TfIdfWeight::wdf_norm::NONE,
+            Xapian::TfIdfWeight::idf_norm::LOG_GLOBAL_FREQ,
+            Xapian::TfIdfWeight::wt_norm::NONE));
     mset = enquire.get_mset(0, 10);
     TEST_EQUAL(mset.size(), 2);
     mset_expect_order(mset, 2, 4);
@@ -997,10 +997,10 @@ DEFINE_TESTCASE(tfidfweight3, backend) {
 
     // Check for NONE, INCREMENTED_GLOBAL_FREQ, NONE.
     enquire.set_weighting_scheme(
-	Xapian::TfIdfWeight(
-	    Xapian::TfIdfWeight::wdf_norm::NONE,
-	    Xapian::TfIdfWeight::idf_norm::INCREMENTED_GLOBAL_FREQ,
-	    Xapian::TfIdfWeight::wt_norm::NONE));
+        Xapian::TfIdfWeight(
+            Xapian::TfIdfWeight::wdf_norm::NONE,
+            Xapian::TfIdfWeight::idf_norm::INCREMENTED_GLOBAL_FREQ,
+            Xapian::TfIdfWeight::wt_norm::NONE));
     mset = enquire.get_mset(0, 10);
     TEST_EQUAL(mset.size(), 2);
     mset_expect_order(mset, 2, 4);
@@ -1009,10 +1009,10 @@ DEFINE_TESTCASE(tfidfweight3, backend) {
 
     // Check for NONE, SQRT_GLOBAL_FREQ, NONE.
     enquire.set_weighting_scheme(
-	Xapian::TfIdfWeight(
-	    Xapian::TfIdfWeight::wdf_norm::NONE,
-	    Xapian::TfIdfWeight::idf_norm::SQRT_GLOBAL_FREQ,
-	    Xapian::TfIdfWeight::wt_norm::NONE));
+        Xapian::TfIdfWeight(
+            Xapian::TfIdfWeight::wdf_norm::NONE,
+            Xapian::TfIdfWeight::idf_norm::SQRT_GLOBAL_FREQ,
+            Xapian::TfIdfWeight::wt_norm::NONE));
     mset = enquire.get_mset(0, 10);
     TEST_EQUAL(mset.size(), 2);
     mset_expect_order(mset, 2, 4);
@@ -1021,10 +1021,10 @@ DEFINE_TESTCASE(tfidfweight3, backend) {
 
     // Check for AUG_AVERAGE, NONE, NONE.
     enquire.set_weighting_scheme(
-	Xapian::TfIdfWeight(
-	    Xapian::TfIdfWeight::wdf_norm::AUG_AVERAGE,
-	    Xapian::TfIdfWeight::idf_norm::NONE,
-	    Xapian::TfIdfWeight::wt_norm::NONE));
+        Xapian::TfIdfWeight(
+            Xapian::TfIdfWeight::wdf_norm::AUG_AVERAGE,
+            Xapian::TfIdfWeight::idf_norm::NONE,
+            Xapian::TfIdfWeight::wt_norm::NONE));
     mset = enquire.get_mset(0, 10);
     TEST_EQUAL(mset.size(), 2);
     mset_expect_order(mset, 2, 4);
@@ -1033,10 +1033,10 @@ DEFINE_TESTCASE(tfidfweight3, backend) {
 
     // Check for MAX, NONE, NONE.
     enquire.set_weighting_scheme(
-	Xapian::TfIdfWeight(
-	    Xapian::TfIdfWeight::wdf_norm::MAX,
-	    Xapian::TfIdfWeight::idf_norm::NONE,
-	    Xapian::TfIdfWeight::wt_norm::NONE));
+        Xapian::TfIdfWeight(
+            Xapian::TfIdfWeight::wdf_norm::MAX,
+            Xapian::TfIdfWeight::idf_norm::NONE,
+            Xapian::TfIdfWeight::wt_norm::NONE));
     mset = enquire.get_mset(0, 10);
     TEST_EQUAL(mset.size(), 2);
     mset_expect_order(mset, 2, 4);
@@ -1045,10 +1045,10 @@ DEFINE_TESTCASE(tfidfweight3, backend) {
 
     // Check for AUG, NONE, NONE.
     enquire.set_weighting_scheme(
-	Xapian::TfIdfWeight(
-	    Xapian::TfIdfWeight::wdf_norm::AUG,
-	    Xapian::TfIdfWeight::idf_norm::NONE,
-	    Xapian::TfIdfWeight::wt_norm::NONE));
+        Xapian::TfIdfWeight(
+            Xapian::TfIdfWeight::wdf_norm::AUG,
+            Xapian::TfIdfWeight::idf_norm::NONE,
+            Xapian::TfIdfWeight::wt_norm::NONE));
     mset = enquire.get_mset(0, 10);
     TEST_EQUAL(mset.size(), 2);
     mset_expect_order(mset, 2, 4);
@@ -1100,10 +1100,10 @@ DEFINE_TESTCASE(tfidfweight4, backend) {
     // Check for PIVOTED, PIVOTED, NONE normalization string.
     enquire.set_query(query);
     enquire.set_weighting_scheme(
-	Xapian::TfIdfWeight(
-	    Xapian::TfIdfWeight::wdf_norm::PIVOTED,
-	    Xapian::TfIdfWeight::idf_norm::PIVOTED,
-	    Xapian::TfIdfWeight::wt_norm::NONE));
+        Xapian::TfIdfWeight(
+            Xapian::TfIdfWeight::wdf_norm::PIVOTED,
+            Xapian::TfIdfWeight::idf_norm::PIVOTED,
+            Xapian::TfIdfWeight::wt_norm::NONE));
     mset = enquire.get_mset(0, 10);
     TEST_EQUAL(mset.size(), 5);
     // Shorter docs should ranker higher if wqf is equal among all the docs.
@@ -1121,10 +1121,10 @@ DEFINE_TESTCASE(tfidfweight4, backend) {
     // check for NONE, PIVOTED, NONE
     enquire.set_query(Xapian::Query("word"));
     enquire.set_weighting_scheme(
-	Xapian::TfIdfWeight(
-	    Xapian::TfIdfWeight::wdf_norm::NONE,
-	    Xapian::TfIdfWeight::idf_norm::PIVOTED,
-	    Xapian::TfIdfWeight::wt_norm::NONE));
+        Xapian::TfIdfWeight(
+            Xapian::TfIdfWeight::wdf_norm::NONE,
+            Xapian::TfIdfWeight::idf_norm::PIVOTED,
+            Xapian::TfIdfWeight::wt_norm::NONE));
     mset = enquire.get_mset(0, 10);
     TEST_EQUAL(mset.size(), 2);
     // Expect doc 2 with query "word" to have higher weight than doc 4.
@@ -1133,10 +1133,10 @@ DEFINE_TESTCASE(tfidfweight4, backend) {
     // check for PIVOTED, TFIDF, NONE
     enquire.set_query(Xapian::Query("word"));
     enquire.set_weighting_scheme(
-	Xapian::TfIdfWeight(
-	    Xapian::TfIdfWeight::wdf_norm::PIVOTED,
-	    Xapian::TfIdfWeight::idf_norm::TFIDF,
-	    Xapian::TfIdfWeight::wt_norm::NONE));
+        Xapian::TfIdfWeight(
+            Xapian::TfIdfWeight::wdf_norm::PIVOTED,
+            Xapian::TfIdfWeight::idf_norm::TFIDF,
+            Xapian::TfIdfWeight::wt_norm::NONE));
     mset = enquire.get_mset(0, 10);
     TEST_EQUAL(mset.size(), 2);
     // Expect doc 2 with query "word" to have higher weight than doc 4.
@@ -1147,15 +1147,15 @@ DEFINE_TESTCASE(tfidfweight4, backend) {
 DEFINE_TESTCASE(tfidfweight5, !backend) {
     auto wt_ptr = Xapian::Weight::create("tfidf NONE TFIDF NONE");
     auto wt = Xapian::TfIdfWeight(Xapian::TfIdfWeight::wdf_norm::NONE,
-				  Xapian::TfIdfWeight::idf_norm::TFIDF,
-				  Xapian::TfIdfWeight::wt_norm::NONE);
+                                  Xapian::TfIdfWeight::idf_norm::TFIDF,
+                                  Xapian::TfIdfWeight::wt_norm::NONE);
     TEST_EQUAL(wt_ptr->serialise(), wt.serialise());
     delete wt_ptr;
 
     auto wt_ptr2 = Xapian::Weight::create("tfidf SQRT PIVOTED NONE");
     auto wt2 = Xapian::TfIdfWeight(Xapian::TfIdfWeight::wdf_norm::SQRT,
-				   Xapian::TfIdfWeight::idf_norm::PIVOTED,
-				   Xapian::TfIdfWeight::wt_norm::NONE);
+                                   Xapian::TfIdfWeight::idf_norm::PIVOTED,
+                                   Xapian::TfIdfWeight::wt_norm::NONE);
     TEST_EQUAL(wt_ptr2->serialise(), wt2.serialise());
     delete wt_ptr2;
 }
@@ -1167,33 +1167,33 @@ class CheckInitWeight : public Xapian::Weight {
     unsigned & zero_inits, & non_zero_inits;
 
     CheckInitWeight(unsigned &z, unsigned &n)
-	: factor(-1.0), zero_inits(z), non_zero_inits(n) {
-	need_stat(DOC_LENGTH);
+        : factor(-1.0), zero_inits(z), non_zero_inits(n) {
+        need_stat(DOC_LENGTH);
     }
 
     void init(double factor_) override {
-	factor = factor_;
-	if (factor == 0.0)
-	    ++zero_inits;
-	else
-	    ++non_zero_inits;
+        factor = factor_;
+        if (factor == 0.0)
+            ++zero_inits;
+        else
+            ++non_zero_inits;
     }
 
     Weight* clone() const override {
-	return new CheckInitWeight(zero_inits, non_zero_inits);
+        return new CheckInitWeight(zero_inits, non_zero_inits);
     }
 
     double get_sumpart(Xapian::termcount, Xapian::termcount,
-		       Xapian::termcount, Xapian::termcount) const override {
-	return 1.0;
+                       Xapian::termcount, Xapian::termcount) const override {
+        return 1.0;
     }
 
     double get_maxpart() const override { return 1.0; }
 
     double get_sumextra(Xapian::termcount doclen,
-			Xapian::termcount,
-			Xapian::termcount) const override {
-	return 1.0 / doclen;
+                        Xapian::termcount,
+                        Xapian::termcount) const override {
+        return 1.0 / doclen;
     }
 
     double get_maxextra() const override { return 1.0; }
@@ -1204,7 +1204,7 @@ DEFINE_TESTCASE(checkinitweight1, backend && !multi && !remote) {
     Xapian::Database db = get_database("apitest_simpledata");
     Xapian::Enquire enquire(db);
     Xapian::Query q(Xapian::Query::OP_AND,
-		    Xapian::Query("this"), Xapian::Query("paragraph"));
+                    Xapian::Query("this"), Xapian::Query("paragraph"));
     enquire.set_query(q);
     unsigned zero_inits = 0, non_zero_inits = 0;
     CheckInitWeight wt(zero_inits, non_zero_inits);
@@ -1238,178 +1238,178 @@ class CheckStatsWeight : public Xapian::Weight {
     mutable Xapian::termcount wdf_upper = 0;
 
     CheckStatsWeight(const Xapian::Database & db_,
-		     const string & term1_,
-		     const string & term2_,
-		     Xapian::termcount & sum_,
-		     Xapian::termcount & sum_squares_)
-	: db(db_), term1(term1_), term2(term2_),
-	  sum(sum_), sum_squares(sum_squares_)
+                     const string & term1_,
+                     const string & term2_,
+                     Xapian::termcount & sum_,
+                     Xapian::termcount & sum_squares_)
+        : db(db_), term1(term1_), term2(term2_),
+          sum(sum_), sum_squares(sum_squares_)
     {
-	need_stat(COLLECTION_SIZE);
-	need_stat(RSET_SIZE);
-	need_stat(AVERAGE_LENGTH);
-	need_stat(TERMFREQ);
-	need_stat(RELTERMFREQ);
-	need_stat(QUERY_LENGTH);
-	need_stat(WQF);
-	need_stat(WDF);
-	need_stat(DOC_LENGTH);
-	need_stat(DOC_LENGTH_MIN);
-	need_stat(DOC_LENGTH_MAX);
-	need_stat(DB_DOC_LENGTH_MIN);
-	need_stat(DB_DOC_LENGTH_MAX);
-	need_stat(WDF_MAX);
-	need_stat(COLLECTION_FREQ);
-	need_stat(UNIQUE_TERMS);
-	need_stat(UNIQUE_TERMS_MIN);
-	need_stat(UNIQUE_TERMS_MAX);
-	need_stat(DB_UNIQUE_TERMS_MIN);
-	need_stat(DB_UNIQUE_TERMS_MAX);
-	need_stat(TOTAL_LENGTH);
-	need_stat(WDF_DOC_MAX);
+        need_stat(COLLECTION_SIZE);
+        need_stat(RSET_SIZE);
+        need_stat(AVERAGE_LENGTH);
+        need_stat(TERMFREQ);
+        need_stat(RELTERMFREQ);
+        need_stat(QUERY_LENGTH);
+        need_stat(WQF);
+        need_stat(WDF);
+        need_stat(DOC_LENGTH);
+        need_stat(DOC_LENGTH_MIN);
+        need_stat(DOC_LENGTH_MAX);
+        need_stat(DB_DOC_LENGTH_MIN);
+        need_stat(DB_DOC_LENGTH_MAX);
+        need_stat(WDF_MAX);
+        need_stat(COLLECTION_FREQ);
+        need_stat(UNIQUE_TERMS);
+        need_stat(UNIQUE_TERMS_MIN);
+        need_stat(UNIQUE_TERMS_MAX);
+        need_stat(DB_UNIQUE_TERMS_MIN);
+        need_stat(DB_UNIQUE_TERMS_MAX);
+        need_stat(TOTAL_LENGTH);
+        need_stat(WDF_DOC_MAX);
     }
 
     CheckStatsWeight(const Xapian::Database & db_,
-		     const string & term_,
-		     Xapian::termcount & sum_,
-		     Xapian::termcount & sum_squares_)
-	: CheckStatsWeight(db_, term_, string(), sum_, sum_squares_) { }
+                     const string & term_,
+                     Xapian::termcount & sum_,
+                     Xapian::termcount & sum_squares_)
+        : CheckStatsWeight(db_, term_, string(), sum_, sum_squares_) { }
 
     void init(double factor_) override {
-	factor = factor_;
+        factor = factor_;
     }
 
     Weight* clone() const override {
-	auto res = new CheckStatsWeight(db, term1, term2, sum, sum_squares);
-	if (term2 == "=") {
-	    // The object passed to Enquire::set_weighting_scheme() is cloned
-	    // right away, and then cloned again for each term, and then
-	    // potentially once more for the term-independent weight
-	    // contribution.  In the repeated case, we want to handle the first
-	    // actual term specially, so we arrange for that to have "=" for
-	    // term2, and subsequent clones to have "_", so that we accumulate
-	    // sum and sum_squares on the first occurrence only.
-	    term2 = "_";
-	}
-	return res;
+        auto res = new CheckStatsWeight(db, term1, term2, sum, sum_squares);
+        if (term2 == "=") {
+            // The object passed to Enquire::set_weighting_scheme() is cloned
+            // right away, and then cloned again for each term, and then
+            // potentially once more for the term-independent weight
+            // contribution.  In the repeated case, we want to handle the first
+            // actual term specially, so we arrange for that to have "=" for
+            // term2, and subsequent clones to have "_", so that we accumulate
+            // sum and sum_squares on the first occurrence only.
+            term2 = "_";
+        }
+        return res;
     }
 
     double get_sumpart(Xapian::termcount wdf,
-		       Xapian::termcount doclen,
-		       Xapian::termcount uniqueterms,
-		       Xapian::termcount wdfdocmax) const override {
-	Xapian::doccount num_docs = db.get_doccount();
-	TEST_EQUAL(get_collection_size(), num_docs);
-	TEST_EQUAL(get_rset_size(), 0);
-	TEST_EQUAL(get_average_length(), db.get_avlength());
-	Xapian::totallength totlen = get_total_length();
-	TEST_EQUAL(totlen, db.get_total_length());
-	double total_term_occurences = get_average_length() * num_docs;
-	TEST_EQUAL(Xapian::totallength(total_term_occurences + 0.5), totlen);
-	if (term2.empty() || term2 == "=" || term2 == "_") {
-	    TEST_EQUAL(get_termfreq(), db.get_termfreq(term1));
-	    TEST_EQUAL(get_collection_freq(), db.get_collection_freq(term1));
-	    if (term2.empty()) {
-		TEST_EQUAL(get_query_length(), 1);
-	    } else {
-		TEST_EQUAL(get_query_length(), 2);
-	    }
-	} else {
-	    Xapian::doccount tfmax = 0, tfsum = 0;
-	    Xapian::termcount cfmax = 0, cfsum = 0;
-	    if (term2 == "*") {
-		// OP_WILDCARD case.
-		for (auto&& t = db.allterms_begin(term1);
-		     t != db.allterms_end(term1); ++t) {
-		    Xapian::doccount tf = t.get_termfreq();
-		    tout << "->" << *t << " " << tf << '\n';
-		    tfsum += tf;
-		    tfmax = max(tfmax, tf);
-		    Xapian::termcount cf = db.get_collection_freq(*t);
-		    cfsum += cf;
-		    cfmax = max(cfmax, cf);
-		}
-		TEST_EQUAL(get_query_length(), 1);
-	    } else {
-		// OP_SYNONYM case.
-		Xapian::doccount tf1 = db.get_termfreq(term1);
-		Xapian::doccount tf2 = db.get_termfreq(term2);
-		tfsum = tf1 + tf2;
-		tfmax = max(tf1, tf2);
-		Xapian::termcount cf1 = db.get_collection_freq(term1);
-		Xapian::termcount cf2 = db.get_collection_freq(term2);
-		cfsum = cf1 + cf2;
-		cfmax = max(cf1, cf2);
-		TEST_EQUAL(get_query_length(), 2);
-	    }
-	    // Synonym occurs at least as many times as any term.
-	    TEST_REL(get_termfreq(), >=, tfmax);
-	    TEST_REL(get_collection_freq(), >=, cfmax);
-	    // Synonym can't occur more times than the terms do.
-	    TEST_REL(get_termfreq(), <=, tfsum);
-	    TEST_REL(get_collection_freq(), <=, cfsum);
-	    // Synonym can't occur more times than there are documents/terms.
-	    TEST_REL(get_termfreq(), <=, num_docs);
-	    TEST_REL(get_collection_freq(), <=, totlen);
-	}
-	TEST_EQUAL(get_reltermfreq(), 0);
-	TEST_EQUAL(get_wqf(), 1);
-	TEST_REL(doclen,>=,len_lower);
-	TEST_REL(doclen,<=,len_upper);
-	if (doclen > 0) {
-	    TEST_REL(uniqueterms,>=,1);
-	    TEST_REL(uniqueterms_lower,>=,1);
-	    TEST_REL(wdfdocmax,>=,1);
-	}
-	TEST_REL(uniqueterms,>=,uniqueterms_lower);
-	TEST_REL(uniqueterms,<=,uniqueterms_upper);
-	TEST_REL(uniqueterms,<=,doclen);
-	TEST_REL(uniqueterms_upper,<=,len_upper);
-	TEST_REL(wdf,<=,wdf_upper);
-	TEST_REL(wdfdocmax,<=,doclen);
-	TEST_REL(wdfdocmax,>=,wdf);
+                       Xapian::termcount doclen,
+                       Xapian::termcount uniqueterms,
+                       Xapian::termcount wdfdocmax) const override {
+        Xapian::doccount num_docs = db.get_doccount();
+        TEST_EQUAL(get_collection_size(), num_docs);
+        TEST_EQUAL(get_rset_size(), 0);
+        TEST_EQUAL(get_average_length(), db.get_avlength());
+        Xapian::totallength totlen = get_total_length();
+        TEST_EQUAL(totlen, db.get_total_length());
+        double total_term_occurences = get_average_length() * num_docs;
+        TEST_EQUAL(Xapian::totallength(total_term_occurences + 0.5), totlen);
+        if (term2.empty() || term2 == "=" || term2 == "_") {
+            TEST_EQUAL(get_termfreq(), db.get_termfreq(term1));
+            TEST_EQUAL(get_collection_freq(), db.get_collection_freq(term1));
+            if (term2.empty()) {
+                TEST_EQUAL(get_query_length(), 1);
+            } else {
+                TEST_EQUAL(get_query_length(), 2);
+            }
+        } else {
+            Xapian::doccount tfmax = 0, tfsum = 0;
+            Xapian::termcount cfmax = 0, cfsum = 0;
+            if (term2 == "*") {
+                // OP_WILDCARD case.
+                for (auto&& t = db.allterms_begin(term1);
+                     t != db.allterms_end(term1); ++t) {
+                    Xapian::doccount tf = t.get_termfreq();
+                    tout << "->" << *t << " " << tf << '\n';
+                    tfsum += tf;
+                    tfmax = max(tfmax, tf);
+                    Xapian::termcount cf = db.get_collection_freq(*t);
+                    cfsum += cf;
+                    cfmax = max(cfmax, cf);
+                }
+                TEST_EQUAL(get_query_length(), 1);
+            } else {
+                // OP_SYNONYM case.
+                Xapian::doccount tf1 = db.get_termfreq(term1);
+                Xapian::doccount tf2 = db.get_termfreq(term2);
+                tfsum = tf1 + tf2;
+                tfmax = max(tf1, tf2);
+                Xapian::termcount cf1 = db.get_collection_freq(term1);
+                Xapian::termcount cf2 = db.get_collection_freq(term2);
+                cfsum = cf1 + cf2;
+                cfmax = max(cf1, cf2);
+                TEST_EQUAL(get_query_length(), 2);
+            }
+            // Synonym occurs at least as many times as any term.
+            TEST_REL(get_termfreq(), >=, tfmax);
+            TEST_REL(get_collection_freq(), >=, cfmax);
+            // Synonym can't occur more times than the terms do.
+            TEST_REL(get_termfreq(), <=, tfsum);
+            TEST_REL(get_collection_freq(), <=, cfsum);
+            // Synonym can't occur more times than there are documents/terms.
+            TEST_REL(get_termfreq(), <=, num_docs);
+            TEST_REL(get_collection_freq(), <=, totlen);
+        }
+        TEST_EQUAL(get_reltermfreq(), 0);
+        TEST_EQUAL(get_wqf(), 1);
+        TEST_REL(doclen,>=,len_lower);
+        TEST_REL(doclen,<=,len_upper);
+        if (doclen > 0) {
+            TEST_REL(uniqueterms,>=,1);
+            TEST_REL(uniqueterms_lower,>=,1);
+            TEST_REL(wdfdocmax,>=,1);
+        }
+        TEST_REL(uniqueterms,>=,uniqueterms_lower);
+        TEST_REL(uniqueterms,<=,uniqueterms_upper);
+        TEST_REL(uniqueterms,<=,doclen);
+        TEST_REL(uniqueterms_upper,<=,len_upper);
+        TEST_REL(wdf,<=,wdf_upper);
+        TEST_REL(wdfdocmax,<=,doclen);
+        TEST_REL(wdfdocmax,>=,wdf);
 
-	auto db_len_lower = db.get_doclength_lower_bound();
-	auto db_len_upper = db.get_doclength_upper_bound();
-	auto db_uniqueterms_lower = db.get_unique_terms_lower_bound();
-	auto db_uniqueterms_upper = db.get_unique_terms_upper_bound();
-	TEST_EQUAL(get_db_doclength_lower_bound(), db_len_lower);
-	TEST_EQUAL(get_db_doclength_upper_bound(), db_len_upper);
-	TEST_EQUAL(get_db_unique_terms_lower_bound(), db_uniqueterms_lower);
-	TEST_EQUAL(get_db_unique_terms_upper_bound(), db_uniqueterms_upper);
-	if (db.size() == 1) {
-	    TEST_EQUAL(len_lower, db_len_lower);
-	    TEST_EQUAL(len_upper, db_len_upper);
-	    TEST_EQUAL(uniqueterms_lower, db_uniqueterms_lower);
-	    TEST_EQUAL(uniqueterms_upper, db_uniqueterms_upper);
-	} else {
-	    TEST_REL(len_lower,>=,db_len_lower);
-	    TEST_REL(len_upper,<=,db_len_upper);
-	    TEST_REL(uniqueterms_lower,>=,db_uniqueterms_lower);
-	    TEST_REL(uniqueterms_upper,<=,db_uniqueterms_upper);
-	}
-	if (term2 != "_") {
-	    sum += wdf;
-	    sum_squares += wdf * wdf;
-	}
-	return 1.0;
+        auto db_len_lower = db.get_doclength_lower_bound();
+        auto db_len_upper = db.get_doclength_upper_bound();
+        auto db_uniqueterms_lower = db.get_unique_terms_lower_bound();
+        auto db_uniqueterms_upper = db.get_unique_terms_upper_bound();
+        TEST_EQUAL(get_db_doclength_lower_bound(), db_len_lower);
+        TEST_EQUAL(get_db_doclength_upper_bound(), db_len_upper);
+        TEST_EQUAL(get_db_unique_terms_lower_bound(), db_uniqueterms_lower);
+        TEST_EQUAL(get_db_unique_terms_upper_bound(), db_uniqueterms_upper);
+        if (db.size() == 1) {
+            TEST_EQUAL(len_lower, db_len_lower);
+            TEST_EQUAL(len_upper, db_len_upper);
+            TEST_EQUAL(uniqueterms_lower, db_uniqueterms_lower);
+            TEST_EQUAL(uniqueterms_upper, db_uniqueterms_upper);
+        } else {
+            TEST_REL(len_lower,>=,db_len_lower);
+            TEST_REL(len_upper,<=,db_len_upper);
+            TEST_REL(uniqueterms_lower,>=,db_uniqueterms_lower);
+            TEST_REL(uniqueterms_upper,<=,db_uniqueterms_upper);
+        }
+        if (term2 != "_") {
+            sum += wdf;
+            sum_squares += wdf * wdf;
+        }
+        return 1.0;
     }
 
     double get_maxpart() const override {
-	if (len_upper == 0) {
-	    len_lower = get_doclength_lower_bound();
-	    len_upper = get_doclength_upper_bound();
-	    uniqueterms_lower = get_unique_terms_lower_bound();
-	    uniqueterms_upper = get_unique_terms_upper_bound();
-	    wdf_upper = get_wdf_upper_bound();
-	}
-	return 1.0;
+        if (len_upper == 0) {
+            len_lower = get_doclength_lower_bound();
+            len_upper = get_doclength_upper_bound();
+            uniqueterms_lower = get_unique_terms_lower_bound();
+            uniqueterms_upper = get_unique_terms_upper_bound();
+            wdf_upper = get_wdf_upper_bound();
+        }
+        return 1.0;
     }
 
     double get_sumextra(Xapian::termcount doclen,
-			Xapian::termcount,
-			Xapian::termcount) const override {
-	return 1.0 / doclen;
+                        Xapian::termcount,
+                        Xapian::termcount) const override {
+        return 1.0 / doclen;
     }
 
     double get_maxextra() const override { return 1.0; }
@@ -1421,30 +1421,30 @@ DEFINE_TESTCASE(checkstatsweight1, backend && !remote) {
     Xapian::Enquire enquire(db);
     Xapian::TermIterator a;
     for (a = db.allterms_begin(); a != db.allterms_end(); ++a) {
-	const string & term = *a;
-	enquire.set_query(Xapian::Query(term));
-	Xapian::termcount sum = 0;
-	Xapian::termcount sum_squares = 0;
-	CheckStatsWeight wt(db, term, sum, sum_squares);
-	enquire.set_weighting_scheme(wt);
-	Xapian::MSet mset = enquire.get_mset(0, db.get_doccount());
+        const string & term = *a;
+        enquire.set_query(Xapian::Query(term));
+        Xapian::termcount sum = 0;
+        Xapian::termcount sum_squares = 0;
+        CheckStatsWeight wt(db, term, sum, sum_squares);
+        enquire.set_weighting_scheme(wt);
+        Xapian::MSet mset = enquire.get_mset(0, db.get_doccount());
 
-	// The document order in the multi-db case isn't the same as the
-	// postlist order on the combined DB, so it's hard to compare the
-	// wdf for each document in the Weight objects, but we can sum
-	// the wdfs and the squares of the wdfs which provides a decent
-	// check that we're not getting the wrong wdf values (it ensures
-	// they have the right mean and standard deviation).
-	Xapian::termcount expected_sum = 0;
-	Xapian::termcount expected_sum_squares = 0;
-	Xapian::PostingIterator i;
-	for (i = db.postlist_begin(term); i != db.postlist_end(term); ++i) {
-	    Xapian::termcount wdf = i.get_wdf();
-	    expected_sum += wdf;
-	    expected_sum_squares += wdf * wdf;
-	}
-	TEST_EQUAL(sum, expected_sum);
-	TEST_EQUAL(sum_squares, expected_sum_squares);
+        // The document order in the multi-db case isn't the same as the
+        // postlist order on the combined DB, so it's hard to compare the
+        // wdf for each document in the Weight objects, but we can sum
+        // the wdfs and the squares of the wdfs which provides a decent
+        // check that we're not getting the wrong wdf values (it ensures
+        // they have the right mean and standard deviation).
+        Xapian::termcount expected_sum = 0;
+        Xapian::termcount expected_sum_squares = 0;
+        Xapian::PostingIterator i;
+        for (i = db.postlist_begin(term); i != db.postlist_end(term); ++i) {
+            Xapian::termcount wdf = i.get_wdf();
+            expected_sum += wdf;
+            expected_sum_squares += wdf * wdf;
+        }
+        TEST_EQUAL(sum, expected_sum);
+        TEST_EQUAL(sum_squares, expected_sum_squares);
     }
 }
 
@@ -1455,68 +1455,68 @@ DEFINE_TESTCASE(checkstatsweight2, backend && !remote) {
     Xapian::Enquire enquire(db);
     Xapian::TermIterator a;
     for (a = db.allterms_begin(); a != db.allterms_end(); ++a) {
-	const string & term1 = *a;
-	if (++a == db.allterms_end()) break;
-	const string & term2 = *a;
-	Xapian::Query q(Xapian::Query::OP_SYNONYM,
-			Xapian::Query(term1), Xapian::Query(term2));
-	tout << q.get_description() << '\n';
-	enquire.set_query(q);
-	Xapian::termcount sum = 0;
-	Xapian::termcount sum_squares = 0;
-	CheckStatsWeight wt(db, term1, term2, sum, sum_squares);
-	enquire.set_weighting_scheme(wt);
-	Xapian::MSet mset = enquire.get_mset(0, db.get_doccount());
+        const string & term1 = *a;
+        if (++a == db.allterms_end()) break;
+        const string & term2 = *a;
+        Xapian::Query q(Xapian::Query::OP_SYNONYM,
+                        Xapian::Query(term1), Xapian::Query(term2));
+        tout << q.get_description() << '\n';
+        enquire.set_query(q);
+        Xapian::termcount sum = 0;
+        Xapian::termcount sum_squares = 0;
+        CheckStatsWeight wt(db, term1, term2, sum, sum_squares);
+        enquire.set_weighting_scheme(wt);
+        Xapian::MSet mset = enquire.get_mset(0, db.get_doccount());
 
-	// The document order in the multi-db case isn't the same as the
-	// postlist order on the combined DB, so it's hard to compare the
-	// wdf for each document in the Weight objects, but we can sum
-	// the wdfs and the squares of the wdfs which provides a decent
-	// check that we're not getting the wrong wdf values (it ensures
-	// they have the right mean and standard deviation).
-	Xapian::termcount expected_sum = 0;
-	Xapian::termcount expected_sum_squares = 0;
-	Xapian::PostingIterator i = db.postlist_begin(term1);
-	Xapian::PostingIterator j = db.postlist_begin(term2);
-	Xapian::docid did1 = *i, did2 = *j;
-	while (true) {
-	    // To calculate expected_sum_squares correctly we need to square
-	    // the sum per document.
-	    Xapian::termcount wdf;
-	    if (did1 == did2) {
-		wdf = i.get_wdf() + j.get_wdf();
-		did1 = did2 = 0;
-	    } else if (did1 < did2) {
-		wdf = i.get_wdf();
-		did1 = 0;
-	    } else {
-		wdf = j.get_wdf();
-		did2 = 0;
-	    }
-	    expected_sum += wdf;
-	    expected_sum_squares += wdf * wdf;
+        // The document order in the multi-db case isn't the same as the
+        // postlist order on the combined DB, so it's hard to compare the
+        // wdf for each document in the Weight objects, but we can sum
+        // the wdfs and the squares of the wdfs which provides a decent
+        // check that we're not getting the wrong wdf values (it ensures
+        // they have the right mean and standard deviation).
+        Xapian::termcount expected_sum = 0;
+        Xapian::termcount expected_sum_squares = 0;
+        Xapian::PostingIterator i = db.postlist_begin(term1);
+        Xapian::PostingIterator j = db.postlist_begin(term2);
+        Xapian::docid did1 = *i, did2 = *j;
+        while (true) {
+            // To calculate expected_sum_squares correctly we need to square
+            // the sum per document.
+            Xapian::termcount wdf;
+            if (did1 == did2) {
+                wdf = i.get_wdf() + j.get_wdf();
+                did1 = did2 = 0;
+            } else if (did1 < did2) {
+                wdf = i.get_wdf();
+                did1 = 0;
+            } else {
+                wdf = j.get_wdf();
+                did2 = 0;
+            }
+            expected_sum += wdf;
+            expected_sum_squares += wdf * wdf;
 
-	    if (did1 == 0) {
-		if (++i != db.postlist_end(term1)) {
-		    did1 = *i;
-		} else {
-		    if (did2 == Xapian::docid(-1)) break;
-		    did1 = Xapian::docid(-1);
-		}
-	    }
-	    if (did2 == 0) {
-		if (++j != db.postlist_end(term2)) {
-		    did2 = *j;
-		} else {
-		    if (did1 == Xapian::docid(-1)) break;
-		    did2 = Xapian::docid(-1);
-		}
-	    }
-	}
-	// The OP_SYNONYM's wdf should be equal to the sum of the wdfs of
-	// the individual terms.
-	TEST_EQUAL(sum, expected_sum);
-	TEST_EQUAL(sum_squares, expected_sum_squares);
+            if (did1 == 0) {
+                if (++i != db.postlist_end(term1)) {
+                    did1 = *i;
+                } else {
+                    if (did2 == Xapian::docid(-1)) break;
+                    did1 = Xapian::docid(-1);
+                }
+            }
+            if (did2 == 0) {
+                if (++j != db.postlist_end(term2)) {
+                    did2 = *j;
+                } else {
+                    if (did1 == Xapian::docid(-1)) break;
+                    did2 = Xapian::docid(-1);
+                }
+            }
+        }
+        // The OP_SYNONYM's wdf should be equal to the sum of the wdfs of
+        // the individual terms.
+        TEST_EQUAL(sum, expected_sum);
+        TEST_EQUAL(sum_squares, expected_sum_squares);
     }
 }
 
@@ -1524,14 +1524,14 @@ DEFINE_TESTCASE(checkstatsweight2, backend && !remote) {
 // Test the case where we need to clamp wdf to <= doclen.
 DEFINE_TESTCASE(checkstatsweight6, backend && !remote) {
     Xapian::Database db = get_database("checkstatsweight6",
-				       [](Xapian::WritableDatabase& wdb,
-					  const string&) {
-					   Xapian::Document doc;
-					   doc.add_term("book");
-					   doc.add_term("radio", 4);
-					   doc.add_term("tv");
-					   wdb.add_document(doc);
-				       });
+                                       [](Xapian::WritableDatabase& wdb,
+                                          const string&) {
+                                           Xapian::Document doc;
+                                           doc.add_term("book");
+                                           doc.add_term("radio", 4);
+                                           doc.add_term("tv");
+                                           wdb.add_document(doc);
+                                       });
     Xapian::Enquire enquire(db);
     Xapian::TermIterator a;
     // Check the case where a term is repeated in the synonym.
@@ -1554,11 +1554,11 @@ DEFINE_TESTCASE(checkstatsweight6, backend && !remote) {
     Xapian::termcount expected_sum = 0;
     Xapian::termcount expected_sum_squares = 0;
     for (auto i = db.postlist_begin(term);
-	 i != db.postlist_end(term);
-	++i) {
-	auto wdf = std::min(i.get_wdf() * 2, db.get_doclength(*i));
-	expected_sum += wdf;
-	expected_sum_squares += wdf * wdf;
+         i != db.postlist_end(term);
+        ++i) {
+        auto wdf = std::min(i.get_wdf() * 2, db.get_doclength(*i));
+        expected_sum += wdf;
+        expected_sum_squares += wdf * wdf;
     }
     TEST_EQUAL(sum, expected_sum);
     TEST_EQUAL(sum_squares, expected_sum_squares);
@@ -1573,71 +1573,71 @@ DEFINE_TESTCASE(checkstatsweight3, backend && !remote) {
     XFAIL_FOR_BACKEND("multi", "OP_WILDCARD+OP_SYNONYM use shard termfreqs");
 
     struct PlCmp {
-	bool operator()(const Xapian::PostingIterator& a,
-			const Xapian::PostingIterator& b) {
-	    return *a < *b;
-	}
+        bool operator()(const Xapian::PostingIterator& a,
+                        const Xapian::PostingIterator& b) {
+            return *a < *b;
+        }
     };
 
     Xapian::Database db = get_database("apitest_simpledata");
     Xapian::Enquire enquire(db);
     Xapian::TermIterator a;
     static const char * const testcases[] = {
-	"a", // a* matches all documents, but no term matches all.
-	"pa", // Expands to only "paragraph", matching 5.
-	"zulu", // No matches.
-	"th", // Term "this" matches all documents.
+        "a", // a* matches all documents, but no term matches all.
+        "pa", // Expands to only "paragraph", matching 5.
+        "zulu", // No matches.
+        "th", // Term "this" matches all documents.
     };
     for (auto pattern : testcases) {
-	Xapian::Query q(Xapian::Query::OP_WILDCARD, pattern);
-	tout.str(string{});
-	tout << q.get_description() << '\n';
-	enquire.set_query(q);
-	Xapian::termcount sum = 0;
-	Xapian::termcount sum_squares = 0;
-	CheckStatsWeight wt(db, pattern, "*", sum, sum_squares);
-	enquire.set_weighting_scheme(wt);
-	Xapian::MSet mset = enquire.get_mset(0, db.get_doccount());
+        Xapian::Query q(Xapian::Query::OP_WILDCARD, pattern);
+        tout.str(string{});
+        tout << q.get_description() << '\n';
+        enquire.set_query(q);
+        Xapian::termcount sum = 0;
+        Xapian::termcount sum_squares = 0;
+        CheckStatsWeight wt(db, pattern, "*", sum, sum_squares);
+        enquire.set_weighting_scheme(wt);
+        Xapian::MSet mset = enquire.get_mset(0, db.get_doccount());
 
-	// The document order in the multi-db case isn't the same as the
-	// postlist order on the combined DB, so it's hard to compare the
-	// wdf for each document in the Weight objects, but we can sum
-	// the wdfs and the squares of the wdfs which provides a decent
-	// check that we're not getting the wrong wdf values (it ensures
-	// they have the right mean and standard deviation).
-	Xapian::termcount expected_sum = 0;
-	Xapian::termcount expected_sum_squares = 0;
-	vector<Xapian::PostingIterator> postlists;
-	for (auto&& t = db.allterms_begin(pattern);
-	     t != db.allterms_end(pattern); ++t) {
-	    postlists.emplace_back(db.postlist_begin(*t));
-	}
-	Heap::make(postlists.begin(), postlists.end(), PlCmp());
-	Xapian::docid did = 0;
-	Xapian::termcount wdf = 0;
-	while (!postlists.empty()) {
-	    Xapian::docid did_new = *postlists.front();
-	    Xapian::termcount wdf_new = postlists.front().get_wdf();
-	    if (++(postlists.front()) == Xapian::PostingIterator()) {
-		Heap::pop(postlists.begin(), postlists.end(), PlCmp());
-		postlists.pop_back();
-	    } else {
-		Heap::replace(postlists.begin(), postlists.end(), PlCmp());
-	    }
-	    if (did_new != did) {
-		expected_sum += wdf;
-		expected_sum_squares += wdf * wdf;
-		wdf = 0;
-		did = did_new;
-	    }
-	    wdf += wdf_new;
-	}
-	expected_sum += wdf;
-	expected_sum_squares += wdf * wdf;
-	// The OP_SYNONYM's wdf should be equal to the sum of the wdfs of
-	// the individual terms.
-	TEST_EQUAL(sum, expected_sum);
-	TEST_REL(sum_squares, >=, expected_sum_squares);
+        // The document order in the multi-db case isn't the same as the
+        // postlist order on the combined DB, so it's hard to compare the
+        // wdf for each document in the Weight objects, but we can sum
+        // the wdfs and the squares of the wdfs which provides a decent
+        // check that we're not getting the wrong wdf values (it ensures
+        // they have the right mean and standard deviation).
+        Xapian::termcount expected_sum = 0;
+        Xapian::termcount expected_sum_squares = 0;
+        vector<Xapian::PostingIterator> postlists;
+        for (auto&& t = db.allterms_begin(pattern);
+             t != db.allterms_end(pattern); ++t) {
+            postlists.emplace_back(db.postlist_begin(*t));
+        }
+        Heap::make(postlists.begin(), postlists.end(), PlCmp());
+        Xapian::docid did = 0;
+        Xapian::termcount wdf = 0;
+        while (!postlists.empty()) {
+            Xapian::docid did_new = *postlists.front();
+            Xapian::termcount wdf_new = postlists.front().get_wdf();
+            if (++(postlists.front()) == Xapian::PostingIterator()) {
+                Heap::pop(postlists.begin(), postlists.end(), PlCmp());
+                postlists.pop_back();
+            } else {
+                Heap::replace(postlists.begin(), postlists.end(), PlCmp());
+            }
+            if (did_new != did) {
+                expected_sum += wdf;
+                expected_sum_squares += wdf * wdf;
+                wdf = 0;
+                did = did_new;
+            }
+            wdf += wdf_new;
+        }
+        expected_sum += wdf;
+        expected_sum_squares += wdf * wdf;
+        // The OP_SYNONYM's wdf should be equal to the sum of the wdfs of
+        // the individual terms.
+        TEST_EQUAL(sum, expected_sum);
+        TEST_REL(sum_squares, >=, expected_sum_squares);
     }
 }
 
@@ -1649,31 +1649,31 @@ DEFINE_TESTCASE(checkstatsweight4, backend && !remote && !multi) {
     Xapian::Enquire enquire(db);
     Xapian::TermIterator a;
     for (a = db.allterms_begin(); a != db.allterms_end(); ++a) {
-	const string & term = *a;
-	enquire.set_query(Xapian::Query(term, 1, 1) |
-			  Xapian::Query(term, 1, 2));
-	Xapian::termcount sum = 0;
-	Xapian::termcount sum_squares = 0;
-	CheckStatsWeight wt(db, term, "=", sum, sum_squares);
-	enquire.set_weighting_scheme(wt);
-	Xapian::MSet mset = enquire.get_mset(0, db.get_doccount());
+        const string & term = *a;
+        enquire.set_query(Xapian::Query(term, 1, 1) |
+                          Xapian::Query(term, 1, 2));
+        Xapian::termcount sum = 0;
+        Xapian::termcount sum_squares = 0;
+        CheckStatsWeight wt(db, term, "=", sum, sum_squares);
+        enquire.set_weighting_scheme(wt);
+        Xapian::MSet mset = enquire.get_mset(0, db.get_doccount());
 
-	// The document order in the multi-db case isn't the same as the
-	// postlist order on the combined DB, so it's hard to compare the
-	// wdf for each document in the Weight objects, but we can sum
-	// the wdfs and the squares of the wdfs which provides a decent
-	// check that we're not getting the wrong wdf values (it ensures
-	// they have the right mean and standard deviation).
-	Xapian::termcount expected_sum = 0;
-	Xapian::termcount expected_sum_squares = 0;
-	Xapian::PostingIterator i;
-	for (i = db.postlist_begin(term); i != db.postlist_end(term); ++i) {
-	    Xapian::termcount wdf = i.get_wdf();
-	    expected_sum += wdf;
-	    expected_sum_squares += wdf * wdf;
-	}
-	TEST_EQUAL(sum, expected_sum);
-	TEST_EQUAL(sum_squares, expected_sum_squares);
+        // The document order in the multi-db case isn't the same as the
+        // postlist order on the combined DB, so it's hard to compare the
+        // wdf for each document in the Weight objects, but we can sum
+        // the wdfs and the squares of the wdfs which provides a decent
+        // check that we're not getting the wrong wdf values (it ensures
+        // they have the right mean and standard deviation).
+        Xapian::termcount expected_sum = 0;
+        Xapian::termcount expected_sum_squares = 0;
+        Xapian::PostingIterator i;
+        for (i = db.postlist_begin(term); i != db.postlist_end(term); ++i) {
+            Xapian::termcount wdf = i.get_wdf();
+            expected_sum += wdf;
+            expected_sum_squares += wdf * wdf;
+        }
+        TEST_EQUAL(sum, expected_sum);
+        TEST_EQUAL(sum_squares, expected_sum_squares);
     }
 }
 
@@ -1689,39 +1689,39 @@ class CheckStatsWeight5 : public Xapian::Weight {
 
     explicit
     CheckStatsWeight5(const Xapian::Database& db_, char stat_code_ = '\0')
-	: factor(-1.0), db(db_), stat_code(stat_code_)
+        : factor(-1.0), db(db_), stat_code(stat_code_)
     {
-	switch (stat_code) {
-	    case 'w':
-		need_stat(WDF);
-		break;
-	    case 'd':
-		need_stat(DOC_LENGTH);
-		break;
-	}
-	need_stat(WDF_DOC_MAX);
+        switch (stat_code) {
+            case 'w':
+                need_stat(WDF);
+                break;
+            case 'd':
+                need_stat(DOC_LENGTH);
+                break;
+        }
+        need_stat(WDF_DOC_MAX);
     }
 
     void init(double factor_) override {
-	factor = factor_;
+        factor = factor_;
     }
 
     Weight* clone() const override {
-	return new CheckStatsWeight5(db, stat_code);
+        return new CheckStatsWeight5(db, stat_code);
     }
 
     double get_sumpart(Xapian::termcount,
-		       Xapian::termcount,
-		       Xapian::termcount,
-		       Xapian::termcount wdfdocmax) const override {
-	// The query is a synonym of all terms, so should match all documents.
-	++did;
-	TEST_REL(wdfdocmax,==,db.get_doclength(did));
-	return 1.0 / wdfdocmax;
+                       Xapian::termcount,
+                       Xapian::termcount,
+                       Xapian::termcount wdfdocmax) const override {
+        // The query is a synonym of all terms, so should match all documents.
+        ++did;
+        TEST_REL(wdfdocmax,==,db.get_doclength(did));
+        return 1.0 / wdfdocmax;
     }
 
     double get_maxpart() const override {
-	return 1.0;
+        return 1.0;
     }
 };
 
@@ -1730,8 +1730,8 @@ DEFINE_TESTCASE(checkstatsweight5, backend && !multi && !remote) {
     Xapian::Database db = get_database("apitest_simpledata");
     Xapian::Enquire enquire(db);
     Xapian::Query q{Xapian::Query::OP_SYNONYM,
-		    db.allterms_begin(),
-		    db.allterms_end()};
+                    db.allterms_begin(),
+                    db.allterms_end()};
     enquire.set_query(q);
     enquire.set_weighting_scheme(CheckStatsWeight5(db));
     Xapian::MSet mset1 = enquire.get_mset(0, db.get_doccount());
@@ -1775,7 +1775,7 @@ DEFINE_TESTCASE(coordweight1, backend) {
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
     enquire.set_weighting_scheme(Xapian::CoordWeight());
     static const char * const terms[] = {
-	"this", "line", "paragraph", "rubbish"
+        "this", "line", "paragraph", "rubbish"
     };
     Xapian::Query query(Xapian::Query::OP_OR, terms, std::end(terms));
     enquire.set_query(query);
@@ -1783,13 +1783,13 @@ DEFINE_TESTCASE(coordweight1, backend) {
     // CoordWeight scores 1 for each matching term, so the weight should equal
     // the number of matching terms.
     for (Xapian::MSetIterator i = mymset1.begin(); i != mymset1.end(); ++i) {
-	Xapian::termcount matching_terms = 0;
-	Xapian::TermIterator t = enquire.get_matching_terms_begin(i);
-	while (t != enquire.get_matching_terms_end(i)) {
-	    ++matching_terms;
-	    ++t;
-	}
-	TEST_EQUAL(i.get_weight(), matching_terms);
+        Xapian::termcount matching_terms = 0;
+        Xapian::TermIterator t = enquire.get_matching_terms_begin(i);
+        while (t != enquire.get_matching_terms_end(i)) {
+            ++matching_terms;
+            ++t;
+        }
+        TEST_EQUAL(i.get_weight(), matching_terms);
     }
 }
 
@@ -1798,7 +1798,7 @@ DEFINE_TESTCASE(diceweight2, backend) {
     Xapian::Database db = get_database("apitest_simpledata3");
     Xapian::Enquire enquire(db);
     static const char * const terms[] = {
-	"one", "three"
+        "one", "three"
     };
     Xapian::Query query(Xapian::Query::OP_OR, terms, std::end(terms));
     enquire.set_query(query);
@@ -1819,25 +1819,25 @@ DEFINE_TESTCASE(diceweight2, backend) {
 // Test handling of a term with zero wdf.
 DEFINE_TESTCASE(diceweight3, backend) {
     Xapian::Database db = get_database("diceweight3",
-				       [](Xapian::WritableDatabase& wdb,
-					  const string&) {
-					   Xapian::Document doc;
-					   doc.add_term("radio", 2);
-					   doc.add_term("seahorse");
-					   doc.add_term("zebra");
-					   doc.add_boolean_term("false");
-					   doc.add_boolean_term("true");
-					   wdb.add_document(doc);
-				       });
+                                       [](Xapian::WritableDatabase& wdb,
+                                          const string&) {
+                                           Xapian::Document doc;
+                                           doc.add_term("radio", 2);
+                                           doc.add_term("seahorse");
+                                           doc.add_term("zebra");
+                                           doc.add_boolean_term("false");
+                                           doc.add_boolean_term("true");
+                                           wdb.add_document(doc);
+                                       });
     Xapian::Enquire enquire(db);
     enquire.set_weighting_scheme(Xapian::DiceWeight());
 
     // OP_SYNONYM gives wdf zero is need_stat(WDF) isn't specified (and
     // it isn't by DiceWeight).
     Xapian::Query q(Xapian::Query::OP_SYNONYM,
-		    Xapian::Query("false"), Xapian::Query("true"));
+                    Xapian::Query("false"), Xapian::Query("true"));
     enquire.set_query(Xapian::Query(Xapian::Query::OP_SCALE_WEIGHT,
-				    q, 6.0), 2);
+                                    q, 6.0), 2);
     Xapian::MSet mset = enquire.get_mset(0, 10);
     TEST_EQUAL(mset.size(), 1);
 

@@ -18,9 +18,9 @@ ok(1); # If we made it this far, we're ok.
 #########################
 
 my $query = Xapian::Query->new(
-	OP_AND,
-	Xapian::Query->new( "foo" ),
-	"bar"
+        OP_AND,
+        Xapian::Query->new( "foo" ),
+        "bar"
 );
 ok(defined $query, "AND query created");
 is($query->get_description, 'Query((foo AND bar))', "AND query contains foo part");

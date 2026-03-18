@@ -113,19 +113,19 @@ class EditDistanceCalculator {
      */
     explicit
     EditDistanceCalculator(std::string_view target_)
-	: target_bytes(target_.size()) {
-	using Xapian::Utf8Iterator;
-	for (Utf8Iterator it(target_); it != Utf8Iterator(); ++it) {
-	    unsigned ch = *it;
-	    target.push_back(ch);
-	    auto bit = freqs_bitmap(1) << (ch & FREQS_MASK);
-	    target_freqs2 |= (target_freqs & bit);
-	    target_freqs |= bit;
-	}
+        : target_bytes(target_.size()) {
+        using Xapian::Utf8Iterator;
+        for (Utf8Iterator it(target_); it != Utf8Iterator(); ++it) {
+            unsigned ch = *it;
+            target.push_back(ch);
+            auto bit = freqs_bitmap(1) << (ch & FREQS_MASK);
+            target_freqs2 |= (target_freqs & bit);
+            target_freqs |= bit;
+        }
     }
 
     ~EditDistanceCalculator() {
-	delete [] array;
+        delete [] array;
     }
 
     /** Calculate edit distance for a sequence.
@@ -143,47 +143,47 @@ class EditDistanceCalculator {
      *  @return The edit distance between candidate and the target.
      */
     int operator()(const std::string& candidate, int max_distance) const {
-	// We have the UTF-32 target in target.
-	size_t target_utf32_len = target.size();
+        // We have the UTF-32 target in target.
+        size_t target_utf32_len = target.size();
 
-	// We can quickly rule out some candidates just by comparing
-	// lengths since each edit can change the number of UTF-32 characters
-	// by at most 1.  But first we check the encoded UTF-8 length of the
-	// candidate since we can do that without having to convert it to
-	// UTF-32.
+        // We can quickly rule out some candidates just by comparing
+        // lengths since each edit can change the number of UTF-32 characters
+        // by at most 1.  But first we check the encoded UTF-8 length of the
+        // candidate since we can do that without having to convert it to
+        // UTF-32.
 
-	// Each Unicode codepoint is 1-4 bytes in UTF-8 and one word in UTF-32,
-	// so the number of UTF-32 characters in candidate must be <= the number
-	// of bytes of UTF-8.
-	if (target_utf32_len > candidate.size() + max_distance) {
-	    // Candidate too short.
-	    return INT_MAX;
-	}
+        // Each Unicode codepoint is 1-4 bytes in UTF-8 and one word in UTF-32,
+        // so the number of UTF-32 characters in candidate must be <= the number
+        // of bytes of UTF-8.
+        if (target_utf32_len > candidate.size() + max_distance) {
+            // Candidate too short.
+            return INT_MAX;
+        }
 
-	// Each edit can change the number of UTF-8 bytes by up to 4 (addition
-	// or deletion of any character which needs 4 bytes in UTF-8), which
-	// gives us an alternative lower bound (which is sometimes tighter and
-	// sometimes not) and the tightest upper bound.
-	if (target_bytes > candidate.size() + 4 * max_distance) {
-	    // Candidate too short.
-	    return INT_MAX;
-	}
-	if (target_bytes + 4 * max_distance < candidate.size()) {
-	    // Candidate too long.
-	    return INT_MAX;
-	}
+        // Each edit can change the number of UTF-8 bytes by up to 4 (addition
+        // or deletion of any character which needs 4 bytes in UTF-8), which
+        // gives us an alternative lower bound (which is sometimes tighter and
+        // sometimes not) and the tightest upper bound.
+        if (target_bytes > candidate.size() + 4 * max_distance) {
+            // Candidate too short.
+            return INT_MAX;
+        }
+        if (target_bytes + 4 * max_distance < candidate.size()) {
+            // Candidate too long.
+            return INT_MAX;
+        }
 
-	// Now convert to UTF-32.
-	utf32.assign(Xapian::Utf8Iterator(candidate), Xapian::Utf8Iterator());
+        // Now convert to UTF-32.
+        utf32.assign(Xapian::Utf8Iterator(candidate), Xapian::Utf8Iterator());
 
-	// Check a cheap length-based lower bound based on UTF-32 lengths.
-	int lb = std::abs(int(utf32.size()) - int(target_utf32_len));
-	if (lb > max_distance) {
-	    return lb;
-	}
+        // Check a cheap length-based lower bound based on UTF-32 lengths.
+        int lb = std::abs(int(utf32.size()) - int(target_utf32_len));
+        if (lb > max_distance) {
+            return lb;
+        }
 
-	// Actually calculate the edit distance.
-	return calc(&utf32[0], utf32.size(), max_distance);
+        // Actually calculate the edit distance.
+        return calc(&utf32[0], utf32.size(), max_distance);
     }
 };
 

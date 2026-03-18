@@ -49,46 +49,46 @@ my @fd = qw(STDIN STDOUT STDERR);
 while (<>) {
     my $systime;
     if (s/ <([0-9.]+)>$//) {
-	# -T was used.
-	$systime = 0 + $1;
+        # -T was used.
+        $systime = 0 + $1;
     }
     my $time_t;
     if (s/^\s*([0-9.]+) //) {
-	my $t = 0 + $1;
-	if ($t < 1e9) {
-	    # -r was used - relative time since start of previous syscall.
-	} else {
-	    # -ttt was used - seconds since epoch.
-	    $time_t = $t;
-	}
+        my $t = 0 + $1;
+        if ($t < 1e9) {
+            # -r was used - relative time since start of previous syscall.
+        } else {
+            # -ttt was used - seconds since epoch.
+            $time_t = $t;
+        }
     } elsif (s/^[0-9][0-9]:[0-9][0-9]:[0-9][0-9](?:\.[0-9]*)? //) {
-	# -t or -tt was used.
+        # -t or -tt was used.
     }
     my $addr;
     if (s/^\[([0-9a-f]+)\] //) {
-	# -i was used: instruction pointer.
-	$addr = $1;
+        # -i was used: instruction pointer.
+        $addr = $1;
     }
     if (/^pread(?:64)?\((\d+)(?:<(.*?)>)?, .*, (\d+), (\d+)\)/) {
         my ($fd, $path, $blocksize, $off) = ($1, $2, $3, $4);
         my $block = $off / $blocksize;
-	$path //= $fd[$fd];
+        $path //= $fd[$fd];
         print "read $block from $path\n";
     } elsif (/^pwrite(?:64)?\((\d+)(?:<(.*?)>)?, .*, (\d+), (\d+)\)/) {
-	my ($fd, $path, $blocksize, $off) = ($1, $2, $3, $4);
+        my ($fd, $path, $blocksize, $off) = ($1, $2, $3, $4);
         my $block = $off / $blocksize;
-	$path //= $fd[$fd];
+        $path //= $fd[$fd];
         print "write $block to $path\n";
     } elsif (/^open\("(.*)".* = (\d+)$/) {
-	$fd[$2] = $1;
+        $fd[$2] = $1;
     } elsif (/^openat\(AT_FDCWD, "(.*)".* = (\d+)$/) {
-	$fd[$2] = $1;
+        $fd[$2] = $1;
     } elsif (/^close\((\d+)\)/) {
         $fd[$1] = undef;
     } elsif (/^dup[23]?\((\d+)[^<].* = (\d+)/) {
         $fd[$2] = $fd[$1];
     } elsif (/^f(?:data)?sync\((\d+)(?:<(.*?)>)?\)/) {
-	my $path = $2 // $fd[$1];
+        my $path = $2 // $fd[$1];
         print "sync $path\n";
     }
 }

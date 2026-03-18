@@ -68,18 +68,18 @@ namespace Xapian {
 %ignore Error::get_description;
 %extend Error {
     std::string __str__() const {
-	std::string desc($self->get_msg());
-	if (!$self->get_context().empty()) {
-	    desc += " (context: ";
-	    desc += $self->get_context();
-	    desc += ')';
-	}
-	if ($self->get_error_string()) {
-	    desc += " (";
-	    desc += $self->get_error_string();
-	    desc += ')';
-	}
-	return desc;
+        std::string desc($self->get_msg());
+        if (!$self->get_context().empty()) {
+            desc += " (context: ";
+            desc += $self->get_context();
+            desc += ')';
+        }
+        if ($self->get_error_string()) {
+            desc += " (";
+            desc += $self->get_error_string();
+            desc += ')';
+        }
+        return desc;
     }
 }
 EOF
@@ -98,36 +98,36 @@ print FD <<'EOF';
 namespace Xapian {
 SWIGEXPORT void SetPythonException() {
     try {
-	throw;
+        throw;
     } catch (Swig::DirectorException &) {
-	/* This happens if a director raised an exception.  The standard SWIG
-	 * director exception handling code sets the Python error state if
-	 * necessary, so we don't need to do anything. */
+        /* This happens if a director raised an exception.  The standard SWIG
+         * director exception handling code sets the Python error state if
+         * necessary, so we don't need to do anything. */
 EOF
 
 for (reverse @allclasses) {
     my ($class) = @{$_};
     print FD <<"EOF";
     } catch (const Xapian::$class &e) {
-	SWIG_Python_Raise(SWIG_NewPointerObj((new Xapian::$class(e)),
-					     SWIGTYPE_p_Xapian__$class,
-					     SWIG_POINTER_OWN),
-			  "Xapian::$class",
-			  SWIGTYPE_p_Xapian__$class);
+        SWIG_Python_Raise(SWIG_NewPointerObj((new Xapian::$class(e)),
+                                             SWIGTYPE_p_Xapian__$class,
+                                             SWIG_POINTER_OWN),
+                          "Xapian::$class",
+                          SWIGTYPE_p_Xapian__$class);
 EOF
 }
 
 print FD <<'EOF';
     } catch (const Xapian::Error &e) {
-	SWIG_Python_Raise(SWIG_NewPointerObj((new Xapian::Error(e)),
-					     SWIGTYPE_p_Xapian__Error,
-					     SWIG_POINTER_OWN),
-			  "Xapian::Error",
-			  SWIGTYPE_p_Xapian__Error);
+        SWIG_Python_Raise(SWIG_NewPointerObj((new Xapian::Error(e)),
+                                             SWIGTYPE_p_Xapian__Error,
+                                             SWIG_POINTER_OWN),
+                          "Xapian::Error",
+                          SWIGTYPE_p_Xapian__Error);
     } catch (const std::exception& e) {
-	SWIG_Error(SWIG_RuntimeError, e.what());
+        SWIG_Error(SWIG_RuntimeError, e.what());
     } catch (...) {
-	SWIG_Error(SWIG_UnknownError, "unknown error in Xapian");
+        SWIG_Error(SWIG_UnknownError, "unknown error in Xapian");
     }
 }
 }
@@ -143,10 +143,10 @@ print FD <<'EOF';
 
 %exception {
     try {
-	$action
+        $action
     } catch (...) {
-	Xapian::SetPythonException();
-	SWIG_fail;
+        Xapian::SetPythonException();
+        SWIG_fail;
     }
 }
 
@@ -155,7 +155,7 @@ print FD <<'EOF';
  */
 %feature("director:except") {
     if ($error != NULL) {
-	throw Swig::DirectorMethodException();
+        throw Swig::DirectorMethodException();
     }
 }
 

@@ -175,7 +175,7 @@ public:
 
     explicit operator bool() const
     {
-	return px != nullptr;
+        return px != nullptr;
     }
 
 private:
@@ -356,8 +356,8 @@ class XAPIAN_VISIBILITY_DEFAULT opt_intrusive_base {
     opt_intrusive_base(const opt_intrusive_base&) : _refs(0) { }
 
     opt_intrusive_base& operator=(const opt_intrusive_base&) {
-	// Don't touch _refs.
-	return *this;
+        // Don't touch _refs.
+        return *this;
     }
 
     /** Construct object which is initially not reference counted.
@@ -372,15 +372,15 @@ class XAPIAN_VISIBILITY_DEFAULT opt_intrusive_base {
     virtual ~opt_intrusive_base() { }
 
     void ref() const {
-	if (_refs == 0)
-	    _refs = 2;
-	else
-	    ++_refs;
+        if (_refs == 0)
+            _refs = 2;
+        else
+            ++_refs;
     }
 
     void unref() const {
-	if (--_refs == 1)
-	    delete this;
+        if (--_refs == 1)
+            delete this;
     }
 
     /** Reference count.
@@ -401,8 +401,8 @@ class XAPIAN_VISIBILITY_DEFAULT opt_intrusive_base {
      *  decremented to 1, the object is deleted.
      */
     void release() const {
-	if (_refs == 0)
-	    _refs = 1;
+        if (_refs == 0)
+            _refs = 1;
     }
 };
 
@@ -425,32 +425,32 @@ public:
 
     opt_intrusive_ptr( T * p): px( p ), counting( px != 0 && px->_refs )
     {
-	if( counting ) ++px->_refs;
+        if( counting ) ++px->_refs;
     }
 
     template<class U>
     opt_intrusive_ptr( opt_intrusive_ptr<U> const & rhs )
     : px( rhs.get() ), counting( rhs.counting )
     {
-	if( counting ) ++px->_refs;
+        if( counting ) ++px->_refs;
     }
 
     opt_intrusive_ptr(opt_intrusive_ptr const & rhs)
     : px( rhs.px ), counting( rhs.counting )
     {
-	if( counting ) ++px->_refs;
+        if( counting ) ++px->_refs;
     }
 
     ~opt_intrusive_ptr()
     {
-	if( counting && --px->_refs == 1 ) delete px;
+        if( counting && --px->_refs == 1 ) delete px;
     }
 
     opt_intrusive_ptr(opt_intrusive_ptr && rhs)
     : px( rhs.px ), counting( rhs.counting )
     {
         rhs.px = 0;
-	rhs.counting = 0;
+        rhs.counting = 0;
     }
 
     opt_intrusive_ptr & operator=(opt_intrusive_ptr && rhs)
@@ -466,7 +466,7 @@ public:
     : px( rhs.px ), counting( rhs.counting )
     {
         rhs.px = 0;
-	rhs.counting = 0;
+        rhs.counting = 0;
     }
 
     template<class U>
@@ -478,44 +478,44 @@ public:
 
     opt_intrusive_ptr & operator=(opt_intrusive_ptr const & rhs)
     {
-	this_type(rhs).swap(*this);
-	return *this;
+        this_type(rhs).swap(*this);
+        return *this;
     }
 
     opt_intrusive_ptr & operator=(T * rhs)
     {
-	this_type(rhs).swap(*this);
-	return *this;
+        this_type(rhs).swap(*this);
+        return *this;
     }
 
     T * get() const
     {
-	return px;
+        return px;
     }
 
     T & operator*() const
     {
-	return *px;
+        return *px;
     }
 
     T * operator->() const
     {
-	return px;
+        return px;
     }
 
     void swap(opt_intrusive_ptr & rhs)
     {
-	T * tmp = px;
-	px = rhs.px;
-	rhs.px = tmp;
-	bool tmp2 = counting;
-	counting = rhs.counting;
-	rhs.counting = tmp2;
+        T * tmp = px;
+        px = rhs.px;
+        rhs.px = tmp;
+        bool tmp2 = counting;
+        counting = rhs.counting;
+        rhs.counting = tmp2;
     }
 
     explicit operator bool() const
     {
-	return px != nullptr;
+        return px != nullptr;
     }
 
 private:

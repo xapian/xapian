@@ -129,18 +129,18 @@ DEFINE_TESTCASE(canceltransaction2, transactions) {
 /// Regression test for glass bug fixed in 1.4.6.
 DEFINE_TESTCASE(canceltransaction3, transactions && path) {
     {
-	Xapian::WritableDatabase db = get_named_writable_database("canceltransaction3");
-	db.begin_transaction();
-	Xapian::Document doc;
-	doc.add_term("baz");
-	db.add_document(doc);
-	db.cancel_transaction();
-	db.add_document(doc);
-	db.commit();
+        Xapian::WritableDatabase db = get_named_writable_database("canceltransaction3");
+        db.begin_transaction();
+        Xapian::Document doc;
+        doc.add_term("baz");
+        db.add_document(doc);
+        db.cancel_transaction();
+        db.add_document(doc);
+        db.commit();
     }
 
     size_t check_errors =
-	Xapian::Database::check(get_named_writable_database_path("canceltransaction3"),
-				Xapian::DBCHECK_SHOW_STATS, &tout);
+        Xapian::Database::check(get_named_writable_database_path("canceltransaction3"),
+                                Xapian::DBCHECK_SHOW_STATS, &tout);
     TEST_EQUAL(check_errors, 0);
 }

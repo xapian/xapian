@@ -39,34 +39,34 @@ EOT
 my $hdr = 1;
 line: while (<>) {
     if ($hdr) {
-	chomp;
-	while (1) {
-	    if (/^$/) {
-		print "body=\n";
-		$hdr = 0;
-		next line;
-	    }
-	    # Handle continuation lines
-	    my $line = $_;
-	    while (<>) {
-		chomp;
-		last unless /^[ \t]/;
-		$line .= $_;
-	    }
-	    if ($line =~ s/^Message-ID:\s*<?(.*?)>?\s*$/$1/i) {
-		print "id=$line\n" if length $line;
-	    } elsif ($line =~ s/^Subject:\s*(.*?)\s*$/$1/i) {
-		print "title=$line\n" if length $line;
-	    }
-	}
+        chomp;
+        while (1) {
+            if (/^$/) {
+                print "body=\n";
+                $hdr = 0;
+                next line;
+            }
+            # Handle continuation lines
+            my $line = $_;
+            while (<>) {
+                chomp;
+                last unless /^[ \t]/;
+                $line .= $_;
+            }
+            if ($line =~ s/^Message-ID:\s*<?(.*?)>?\s*$/$1/i) {
+                print "id=$line\n" if length $line;
+            } elsif ($line =~ s/^Subject:\s*(.*?)\s*$/$1/i) {
+                print "title=$line\n" if length $line;
+            }
+        }
     }
 
     if (/^From /) {
-	print "\n";
-	$hdr = 1;
-	next;
+        print "\n";
+        $hdr = 1;
+        next;
     }
     if ($_ !~ /^\s+$/) {
-	print "=$_";
+        print "=$_";
     }
 }

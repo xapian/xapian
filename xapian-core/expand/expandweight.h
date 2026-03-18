@@ -66,30 +66,30 @@ class ExpandStats {
      *  @param expand_k_    Parameter k used by ProbEWeight (default: 0)
      */
     ExpandStats(Xapian::doclength avlen_, double expand_k_ = 0.0)
-	: avlen(avlen_), expand_k(expand_k_) { }
+        : avlen(avlen_), expand_k(expand_k_) { }
 
     void accumulate(size_t shard_index,
-		    Xapian::termcount wdf, Xapian::termcount doclen,
-		    Xapian::doccount subtf, Xapian::doccount subdbsize)
+                    Xapian::termcount wdf, Xapian::termcount doclen,
+                    Xapian::doccount subtf, Xapian::doccount subdbsize)
     {
-	// Boolean terms may have wdf == 0, but treat that as 1 so such terms
-	// get a non-zero weight.
-	if (wdf == 0) wdf = 1;
-	++rtermfreq;
-	rcollection_freq += wdf;
+        // Boolean terms may have wdf == 0, but treat that as 1 so such terms
+        // get a non-zero weight.
+        if (wdf == 0) wdf = 1;
+        ++rtermfreq;
+        rcollection_freq += wdf;
 
-	multiplier += (expand_k + 1) * wdf / (expand_k * doclen / avlen + wdf);
+        multiplier += (expand_k + 1) * wdf / (expand_k * doclen / avlen + wdf);
 
-	// If we've not seen this sub-database before, then update dbsize and
-	// termfreq and note that we have seen it.
-	if (shard_index >= dbs_seen.size() || !dbs_seen[shard_index]) {
-	    if (shard_index >= dbs_seen.size()) {
-		dbs_seen.resize(shard_index + 1);
-	    }
-	    dbs_seen[shard_index] = true;
-	    dbsize += subdbsize;
-	    termfreq += subtf;
-	}
+        // If we've not seen this sub-database before, then update dbsize and
+        // termfreq and note that we have seen it.
+        if (shard_index >= dbs_seen.size() || !dbs_seen[shard_index]) {
+            if (shard_index >= dbs_seen.size()) {
+                dbs_seen.resize(shard_index + 1);
+            }
+            dbs_seen[shard_index] = true;
+            dbsize += subdbsize;
+            termfreq += subtf;
+        }
     }
 
     /// Return the average document length in the database.
@@ -97,12 +97,12 @@ class ExpandStats {
 
     /// Reset for the next term.
     void clear_stats() {
-	dbs_seen.clear();
-	dbsize = 0;
-	termfreq = 0;
-	rcollection_freq = 0;
-	rtermfreq = 0;
-	multiplier = 0;
+        dbs_seen.clear();
+        dbsize = 0;
+        termfreq = 0;
+        rcollection_freq = 0;
+        rtermfreq = 0;
+        multiplier = 0;
     }
 };
 
@@ -152,16 +152,16 @@ class ExpandWeight {
      *  @param expand_k_	    Parameter for ProbEWeight (default: 0)
      */
     ExpandWeight(const Xapian::Database& db_,
-		 Xapian::doccount rsize_,
-		 bool use_exact_termfreq_,
-		 bool want_collection_freq_,
-		 double expand_k_ = 0.0)
-	: db(db_), dbsize(db.get_doccount()),
-	  rsize(rsize_),
-	  collection_len(db.get_total_length()),
-	  use_exact_termfreq(use_exact_termfreq_),
-	  want_collection_freq(want_collection_freq_),
-	  stats(db.get_average_length(), expand_k_) {}
+                 Xapian::doccount rsize_,
+                 bool use_exact_termfreq_,
+                 bool want_collection_freq_,
+                 double expand_k_ = 0.0)
+        : db(db_), dbsize(db.get_doccount()),
+          rsize(rsize_),
+          collection_len(db.get_total_length()),
+          use_exact_termfreq(use_exact_termfreq_),
+          want_collection_freq(want_collection_freq_),
+          stats(db.get_average_length(), expand_k_) {}
 
     /** Get the term statistics.
      *
@@ -211,10 +211,10 @@ class ProbEWeight : public ExpandWeight {
      *  All the parameters are passed to the parent ExpandWeight object.
      */
     ProbEWeight(const Xapian::Database& db_,
-		Xapian::doccount rsize_,
-		bool use_exact_termfreq_,
-		double expand_k_)
-	: ExpandWeight(db_, rsize_, use_exact_termfreq_, false, expand_k_) { }
+                Xapian::doccount rsize_,
+                bool use_exact_termfreq_,
+                double expand_k_)
+        : ExpandWeight(db_, rsize_, use_exact_termfreq_, false, expand_k_) { }
 
     double get_weight() const;
 };
@@ -243,9 +243,9 @@ class Bo1EWeight : public ExpandWeight {
      *  All the parameters are passed to the parent ExpandWeight object.
      */
     Bo1EWeight(const Xapian::Database& db_,
-	       Xapian::doccount rsize_,
-	       bool use_exact_termfreq_)
-	: ExpandWeight(db_, rsize_, use_exact_termfreq_, true) {}
+               Xapian::doccount rsize_,
+               bool use_exact_termfreq_)
+        : ExpandWeight(db_, rsize_, use_exact_termfreq_, true) {}
 
     double get_weight() const;
 };

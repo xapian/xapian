@@ -36,12 +36,12 @@ class ByteLengthPrefixedStringItor {
     size_t left;
 
     ByteLengthPrefixedStringItor(const unsigned char * p_, size_t left_)
-	: p(p_), left(left_) { }
+        : p(p_), left(left_) { }
 
   public:
     explicit ByteLengthPrefixedStringItor(const std::string & s)
-	: p(reinterpret_cast<const unsigned char *>(s.data())),
-	  left(s.size()) { }
+        : p(reinterpret_cast<const unsigned char *>(s.data())),
+          left(s.size()) { }
 
     /** Get the current entry.
      *
@@ -49,40 +49,40 @@ class ByteLengthPrefixedStringItor {
      *	        to the constructor does.
      */
     std::string_view operator*() const {
-	size_t len = *p ^ MAGIC_XOR_VALUE;
-	return std::string_view(reinterpret_cast<const char *>(p + 1), len);
+        size_t len = *p ^ MAGIC_XOR_VALUE;
+        return std::string_view(reinterpret_cast<const char *>(p + 1), len);
     }
 
     ByteLengthPrefixedStringItor operator++(int) {
-	const unsigned char * old_p = p;
-	size_t old_left = left;
-	operator++();
-	return ByteLengthPrefixedStringItor(old_p, old_left);
+        const unsigned char * old_p = p;
+        size_t old_left = left;
+        operator++();
+        return ByteLengthPrefixedStringItor(old_p, old_left);
     }
 
     ByteLengthPrefixedStringItor & operator++() {
-	if (!left) {
-	    throw Xapian::DatabaseCorruptError("Bad synonym data (none left)");
-	}
-	size_t add = (*p ^ MAGIC_XOR_VALUE) + 1;
-	if (left < add) {
-	    throw Xapian::DatabaseCorruptError("Bad synonym data (too little left)");
-	}
-	p += add;
-	left -= add;
-	return *this;
+        if (!left) {
+            throw Xapian::DatabaseCorruptError("Bad synonym data (none left)");
+        }
+        size_t add = (*p ^ MAGIC_XOR_VALUE) + 1;
+        if (left < add) {
+            throw Xapian::DatabaseCorruptError("Bad synonym data (too little left)");
+        }
+        p += add;
+        left -= add;
+        return *this;
     }
 
     bool at_end() const {
-	return left == 0;
+        return left == 0;
     }
 };
 
 struct ByteLengthPrefixedStringItorGt {
     /// Return true if and only if a's string is strictly greater than b's.
     bool operator()(const ByteLengthPrefixedStringItor *a,
-		    const ByteLengthPrefixedStringItor *b) const {
-	return (**a > **b);
+                    const ByteLengthPrefixedStringItor *b) const {
+        return (**a > **b);
     }
 };
 

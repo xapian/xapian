@@ -181,7 +181,7 @@ class GlassDatabase : public Xapian::Database::Internal {
      *  raised when the modifications failed.
      */
     void modifications_failed(glass_revision_number_t new_revision,
-			      const std::string & msg);
+                              const std::string & msg);
 
     /** Apply any outstanding changes to the tables.
      *
@@ -204,8 +204,8 @@ class GlassDatabase : public Xapian::Database::Internal {
     /** Get the revision stored in a changeset.
      */
     void get_changeset_revisions(const string & path,
-				 glass_revision_number_t * startrev,
-				 glass_revision_number_t * endrev) const;
+                                 glass_revision_number_t * startrev,
+                                 glass_revision_number_t * endrev) const;
 
   public:
     /** Create and open a glass database.
@@ -228,8 +228,8 @@ class GlassDatabase : public Xapian::Database::Internal {
      *                    created.
      */
     explicit GlassDatabase(std::string_view db_dir_,
-			   int flags = Xapian::DB_READONLY_,
-			   unsigned int block_size = 0u);
+                           int flags = Xapian::DB_READONLY_,
+                           unsigned int block_size = 0u);
 
     explicit GlassDatabase(int fd);
 
@@ -237,7 +237,7 @@ class GlassDatabase : public Xapian::Database::Internal {
 
     /// Get a postlist table cursor (used by GlassValueList).
     GlassCursor * get_postlist_cursor() const {
-	return postlist_table.cursor_get();
+        return postlist_table.cursor_get();
     }
 
     /** Virtual methods of Database::Internal. */
@@ -249,8 +249,8 @@ class GlassDatabase : public Xapian::Database::Internal {
     Xapian::termcount get_unique_terms(Xapian::docid did) const;
     Xapian::termcount get_wdfdocmax(Xapian::docid did) const;
     void get_freqs(std::string_view term,
-		   Xapian::doccount* termfreq_ptr,
-		   Xapian::termcount* collfreq_ptr) const;
+                   Xapian::doccount* termfreq_ptr,
+                   Xapian::termcount* collfreq_ptr) const;
     Xapian::doccount get_value_freq(Xapian::valueno slot) const;
     std::string get_value_lower_bound(Xapian::valueno slot) const;
     std::string get_value_upper_bound(Xapian::valueno slot) const;
@@ -263,18 +263,18 @@ class GlassDatabase : public Xapian::Database::Internal {
 
     PostList* open_post_list(std::string_view tname) const;
     LeafPostList* open_leaf_post_list(std::string_view term,
-				      bool need_read_pos) const;
+                                      bool need_read_pos) const;
     ValueList * open_value_list(Xapian::valueno slot) const;
     Xapian::Document::Internal* open_document(Xapian::docid did,
-					      bool lazy) const;
+                                              bool lazy) const;
 
     virtual void read_position_list(GlassRePositionList* pos_list,
-				    Xapian::docid did,
-				    std::string_view term) const;
+                                    Xapian::docid did,
+                                    std::string_view term) const;
     virtual Xapian::termcount positionlist_count(Xapian::docid did,
-						 std::string_view term) const;
+                                                 std::string_view term) const;
     PositionList* open_position_list(Xapian::docid did,
-				     std::string_view term) const;
+                                     std::string_view term) const;
     TermList * open_term_list(Xapian::docid did) const;
     TermList * open_term_list_direct(Xapian::docid did) const;
     TermList* open_allterms(std::string_view prefix) const;
@@ -289,9 +289,9 @@ class GlassDatabase : public Xapian::Database::Internal {
     string get_metadata(std::string_view key) const;
     TermList* open_metadata_keylist(std::string_view prefix) const;
     void write_changesets_to_fd(int fd,
-				std::string_view start_revision,
-				bool need_whole_db,
-				Xapian::ReplicationInfo * info);
+                                std::string_view start_revision,
+                                bool need_whole_db,
+                                Xapian::ReplicationInfo * info);
     /** Get the revision number which the tables are opened at.
      *
      *  @return the current revision number.
@@ -307,14 +307,14 @@ class GlassDatabase : public Xapian::Database::Internal {
     void throw_termlist_table_close_exception() const;
 
     int get_backend_info(string * path) const {
-	if (path) *path = db_dir;
-	return BACKEND_GLASS;
+        if (path) *path = db_dir;
+        return BACKEND_GLASS;
     }
 
     bool single_file() const { return version_file.single_file(); }
 
     void get_used_docid_range(Xapian::docid & first,
-			      Xapian::docid & last) const;
+                              Xapian::docid & last) const;
 
     /** Return true if there are uncommitted changes. */
     virtual bool has_uncommitted_changes() const;
@@ -324,14 +324,14 @@ class GlassDatabase : public Xapian::Database::Internal {
     Xapian::Database::Internal* update_lock(int flags);
 
     static void compact(Xapian::Compactor * compactor,
-			const char * destdir,
-			int fd,
-			const std::vector<const Xapian::Database::Internal*>& sources,
-			const std::vector<Xapian::docid> & offset,
-			unsigned block_size,
-			Xapian::Compactor::compaction_level compaction,
-			unsigned flags,
-			Xapian::docid last_docid);
+                        const char * destdir,
+                        int fd,
+                        const std::vector<const Xapian::Database::Internal*>& sources,
+                        const std::vector<Xapian::docid> & offset,
+                        unsigned block_size,
+                        Xapian::Compactor::compaction_level compaction,
+                        unsigned flags,
+                        Xapian::docid last_docid);
 
     std::string get_description() const;
 };
@@ -389,7 +389,7 @@ class GlassWritableDatabase : public GlassDatabase {
 
     Xapian::docid add_document(const Xapian::Document& document);
     Xapian::docid add_document_(Xapian::docid did,
-				const Xapian::Document& document);
+                                const Xapian::Document& document);
     // Stop the default implementation of delete_document(term) and
     // replace_document(term) from being hidden.  This isn't really
     // a problem as we only try to call them through the base class
@@ -401,7 +401,7 @@ class GlassWritableDatabase : public GlassDatabase {
     void replace_document(Xapian::docid did, const Xapian::Document & document);
 
     Xapian::Document::Internal * open_document(Xapian::docid did,
-					       bool lazy) const;
+                                               bool lazy) const;
 
     //@}
 
@@ -426,8 +426,8 @@ class GlassWritableDatabase : public GlassDatabase {
     Xapian::termcount get_doclength(Xapian::docid did) const;
     Xapian::termcount get_unique_terms(Xapian::docid did) const;
     void get_freqs(std::string_view term,
-		   Xapian::doccount* termfreq_ptr,
-		   Xapian::termcount* collfreq_ptr) const;
+                   Xapian::doccount* termfreq_ptr,
+                   Xapian::termcount* collfreq_ptr) const;
     Xapian::doccount get_value_freq(Xapian::valueno slot) const;
     std::string get_value_lower_bound(Xapian::valueno slot) const;
     std::string get_value_upper_bound(Xapian::valueno slot) const;
@@ -436,21 +436,21 @@ class GlassWritableDatabase : public GlassDatabase {
 
     PostList* open_post_list(std::string_view term) const;
     LeafPostList* open_leaf_post_list(std::string_view term,
-				      bool need_read_pos) const;
+                                      bool need_read_pos) const;
     ValueList * open_value_list(Xapian::valueno slot) const;
 
     void read_position_list(GlassRePositionList* pos_list,
-			    Xapian::docid did,
-			    std::string_view term) const;
+                            Xapian::docid did,
+                            std::string_view term) const;
     Xapian::termcount positionlist_count(Xapian::docid did,
-					 std::string_view term) const;
+                                         std::string_view term) const;
     PositionList* open_position_list(Xapian::docid did,
-				     std::string_view term) const;
+                                     std::string_view term) const;
     TermList* open_allterms(std::string_view prefix) const;
 
     void add_spelling(std::string_view word, Xapian::termcount freqinc) const;
     Xapian::termcount remove_spelling(std::string_view word,
-				      Xapian::termcount freqdec) const;
+                                      Xapian::termcount freqdec) const;
     TermList * open_spelling_wordlist() const;
 
     TermList* open_synonym_keylist(std::string_view prefix) const;

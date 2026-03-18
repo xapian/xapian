@@ -30,30 +30,30 @@ SvgParser::process_content(const string& content)
 {
     string * target = NULL;
     switch (state) {
-	case TEXT:
-	    target = &dump;
-	    break;
-	case TITLE:
-	    target = &title;
-	    title.resize(0);
-	    break;
-	case DC_TITLE:
-	    // Prefer <title> to <dc:title>.
-	    if (!title.empty()) return;
-	    target = &title;
-	    break;
-	case KEYWORDS:
-	    target = &keywords;
-	    break;
-	case AUTHOR:
-	    target = &author;
-	    break;
-	case METADATA: case OTHER:
-	    // Ignore context in other places.
-	    return;
+        case TEXT:
+            target = &dump;
+            break;
+        case TITLE:
+            target = &title;
+            title.resize(0);
+            break;
+        case DC_TITLE:
+            // Prefer <title> to <dc:title>.
+            if (!title.empty()) return;
+            target = &title;
+            break;
+        case KEYWORDS:
+            target = &keywords;
+            break;
+        case AUTHOR:
+            target = &author;
+            break;
+        case METADATA: case OTHER:
+            // Ignore context in other places.
+            return;
     }
     if (!target->empty())
-	*target += ' ';
+        *target += ' ';
     *target += content;
 }
 
@@ -61,30 +61,30 @@ bool
 SvgParser::opening_tag(const string& tag)
 {
     switch (state) {
-	case OTHER:
-	    if (tag == "text" || tag == "svg:text")
-		state = TEXT;
-	    else if (tag == "metadata" || tag == "svg:metadata")
-		state = METADATA;
-	    else if (tag == "title")
-		state = TITLE;
-	    break;
-	case METADATA:
-	    // Ignore nested "dc:" tags - for example dc:title is also used to
-	    // specify the creator's name inside dc:creator.
-	    if (dc_tag.empty() && startswith(tag, "dc:")) {
-		dc_tag = tag;
-		if (tag == "dc:title")
-		    state = DC_TITLE;
-		else if (tag == "dc:subject")
-		    state = KEYWORDS;
-		else if (tag == "dc:creator")
-		    state = AUTHOR;
-	    }
-	    break;
-	case DC_TITLE: case KEYWORDS: case TEXT: case TITLE: case AUTHOR:
-	    // Avoid compiler warnings.
-	    break;
+        case OTHER:
+            if (tag == "text" || tag == "svg:text")
+                state = TEXT;
+            else if (tag == "metadata" || tag == "svg:metadata")
+                state = METADATA;
+            else if (tag == "title")
+                state = TITLE;
+            break;
+        case METADATA:
+            // Ignore nested "dc:" tags - for example dc:title is also used to
+            // specify the creator's name inside dc:creator.
+            if (dc_tag.empty() && startswith(tag, "dc:")) {
+                dc_tag = tag;
+                if (tag == "dc:title")
+                    state = DC_TITLE;
+                else if (tag == "dc:subject")
+                    state = KEYWORDS;
+                else if (tag == "dc:creator")
+                    state = AUTHOR;
+            }
+            break;
+        case DC_TITLE: case KEYWORDS: case TEXT: case TITLE: case AUTHOR:
+            // Avoid compiler warnings.
+            break;
     }
     return true;
 }
@@ -93,12 +93,12 @@ bool
 SvgParser::closing_tag(const string& tag)
 {
     if (tag == "text" || tag == "svg:text" ||
-	tag == "title" ||
-	tag == "metadata" || tag == "svg:metadata") {
-	state = OTHER;
+        tag == "title" ||
+        tag == "metadata" || tag == "svg:metadata") {
+        state = OTHER;
     } else if (tag == dc_tag) {
-	dc_tag.resize(0);
-	state = METADATA;
+        dc_tag.resize(0);
+        state = METADATA;
     }
     return true;
 }

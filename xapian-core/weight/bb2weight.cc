@@ -43,7 +43,7 @@ static double stirling_value(double difference, double y, double stirling_consta
 BB2Weight::BB2Weight(double c) : param_c(c)
 {
     if (param_c <= 0)
-	throw Xapian::InvalidArgumentError("Parameter c is invalid");
+        throw Xapian::InvalidArgumentError("Parameter c is invalid");
     need_stat(AVERAGE_LENGTH);
     need_stat(DOC_LENGTH);
     need_stat(DOC_LENGTH_MIN);
@@ -66,16 +66,16 @@ void
 BB2Weight::init(double factor)
 {
     if (factor == 0.0) {
-	// This object is for the term-independent contribution, and that's
-	// always zero for this scheme.
-	return;
+        // This object is for the term-independent contribution, and that's
+        // always zero for this scheme.
+        return;
     }
 
     double wdfn_upper = get_wdf_upper_bound();
 
     if (wdfn_upper == 0) {
-	upper_bound = 0.0;
-	return;
+        upper_bound = 0.0;
+        return;
     }
 
     c_product_avlen = param_c * get_average_length();
@@ -88,9 +88,9 @@ BB2Weight::init(double factor)
     // Clamp wdfn to at most (F - 1) to avoid ill-defined log calculations in
     // stirling_value().
     if (rare(wdfn_lower >= F - 1))
-	wdfn_upper = F - 1;
+        wdfn_upper = F - 1;
     if (rare(wdfn_upper >= F - 1))
-	wdfn_upper = F - 1;
+        wdfn_upper = F - 1;
 
     B_constant = get_wqf() * factor * (F + 1.0) / get_termfreq();
 
@@ -109,14 +109,14 @@ BB2Weight::init(double factor)
     double y_max = N + F - wdfn_lower - 2.0;
 
     double stirling_max = stirling_value(wdfn_upper + 1.0, y_max,
-					 stirling_constant_1) -
-			  stirling_value(wdfn_lower, y_min,
-					 stirling_constant_2);
+                                         stirling_constant_1) -
+                          stirling_value(wdfn_lower, y_min,
+                                         stirling_constant_2);
 
     double B_max = B_constant / (wdfn_lower + 1.0);
     upper_bound = B_max * (wt + stirling_max);
     if (rare(upper_bound < 0.0))
-	upper_bound = 0.0;
+        upper_bound = 0.0;
 }
 
 string
@@ -138,13 +138,13 @@ BB2Weight::unserialise(const string & s) const
     const char *end = ptr + s.size();
     double c = unserialise_double(&ptr, end);
     if (rare(ptr != end))
-	throw Xapian::SerialisationError("Extra data in BB2Weight::unserialise()");
+        throw Xapian::SerialisationError("Extra data in BB2Weight::unserialise()");
     return new BB2Weight(c);
 }
 
 double
 BB2Weight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len,
-		       Xapian::termcount, Xapian::termcount) const
+                       Xapian::termcount, Xapian::termcount) const
 {
     if (wdf == 0) return 0.0;
 
@@ -155,7 +155,7 @@ BB2Weight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len,
     // Clamp wdfn to at most (F - 1) to avoid ill-defined log calculations in
     // stirling_value().
     if (rare(wdfn >= F - 1))
-	wdfn = F - 1;
+        wdfn = F - 1;
 
     // Clamp N to at least 2 to avoid ill-defined log calculations in
     // stirling_value().
@@ -165,12 +165,12 @@ BB2Weight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len,
     double y2 = F - wdfn;
     double y1 = N_less_2 + y2;
     double stirling = stirling_value(wdfn + 1.0, y1, stirling_constant_1) -
-		      stirling_value(wdfn, y2, stirling_constant_2);
+                      stirling_value(wdfn, y2, stirling_constant_2);
 
     double B = B_constant / (wdfn + 1.0);
     double final_weight = B * (wt + stirling);
     if (rare(final_weight < 0.0))
-	final_weight = 0.0;
+        final_weight = 0.0;
     return final_weight;
 }
 
@@ -192,12 +192,12 @@ BB2Weight::create_from_parameters(const char* params) const
 {
     const char* p = params;
     if (*p == '\0')
-	return new Xapian::BB2Weight();
+        return new Xapian::BB2Weight();
     double c = 1.0;
     if (!Xapian::Weight::Internal::double_param(&p, &c))
-	parameter_error("Parameter is invalid", params);
+        parameter_error("Parameter is invalid", params);
     if (*p)
-	parameter_error("Extra data after parameter", params);
+        parameter_error("Extra data after parameter", params);
     return new Xapian::BB2Weight(c);
 }
 

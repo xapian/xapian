@@ -57,7 +57,7 @@ using namespace std;
 
 /// Convert date <-> version number.  Dates up to 2141-12-31 fit in 2 bytes.
 #define DATE_TO_VERSION(Y,M,D) \
-	((unsigned(Y) - 2014) << 9 | unsigned(M) << 5 | unsigned(D))
+        ((unsigned(Y) - 2014) << 9 | unsigned(M) << 5 | unsigned(D))
 #define VERSION_TO_YEAR(V) ((unsigned(V) >> 9) + 2014)
 #define VERSION_TO_MONTH(V) ((unsigned(V) >> 5) & 0x0f)
 #define VERSION_TO_DAY(V) (unsigned(V) & 0x1f)
@@ -79,9 +79,9 @@ GlassVersion::GlassVersion(int fd_)
 {
     offset = lseek(fd, 0, SEEK_CUR);
     if (rare(offset < 0)) {
-	string msg = "lseek failed on file descriptor ";
-	msg += str(fd);
-	throw Xapian::DatabaseOpeningError(msg, errno);
+        string msg = "lseek failed on file descriptor ";
+        msg += str(fd);
+        throw Xapian::DatabaseOpeningError(msg, errno);
     }
 }
 
@@ -90,7 +90,7 @@ GlassVersion::~GlassVersion()
     // Either this is a single-file database, or this fd is from opening a new
     // version file in write(), but sync() was never called.
     if (fd != -1)
-	(void)::close(fd);
+        (void)::close(fd);
 }
 
 void
@@ -100,25 +100,25 @@ GlassVersion::read()
     FD close_fd(-1);
     int fd_in;
     if (single_file()) {
-	if (rare(lseek(fd, offset, SEEK_SET) < 0)) {
-	    string msg = "Failed to rewind file descriptor ";
-	    msg += str(fd);
-	    throw Xapian::DatabaseOpeningError(msg, errno);
-	}
-	fd_in = fd;
+        if (rare(lseek(fd, offset, SEEK_SET) < 0)) {
+            string msg = "Failed to rewind file descriptor ";
+            msg += str(fd);
+            throw Xapian::DatabaseOpeningError(msg, errno);
+        }
+        fd_in = fd;
     } else {
-	string filename = db_dir;
-	filename += "/iamglass";
-	fd_in = posixy_open(filename.c_str(), O_RDONLY|O_BINARY);
-	if (rare(fd_in < 0)) {
-	    string msg = filename;
-	    msg += ": Failed to open glass revision file for reading";
-	    if (errno == ENOENT || errno == ENOTDIR) {
-		throw Xapian::DatabaseNotFoundError(msg, errno);
-	    }
-	    throw Xapian::DatabaseOpeningError(msg, errno);
-	}
-	close_fd = fd_in;
+        string filename = db_dir;
+        filename += "/iamglass";
+        fd_in = posixy_open(filename.c_str(), O_RDONLY|O_BINARY);
+        if (rare(fd_in < 0)) {
+            string msg = filename;
+            msg += ": Failed to open glass revision file for reading";
+            if (errno == ENOENT || errno == ENOTDIR) {
+                throw Xapian::DatabaseNotFoundError(msg, errno);
+            }
+            throw Xapian::DatabaseOpeningError(msg, errno);
+        }
+        close_fd = fd_in;
     }
 
     char buf[256];
@@ -127,27 +127,27 @@ GlassVersion::read()
     const char * end = p + io_read(fd_in, buf, sizeof(buf), 33);
 
     if (memcmp(buf, GLASS_VERSION_MAGIC, GLASS_VERSION_MAGIC_LEN) != 0)
-	throw Xapian::DatabaseCorruptError("Rev file magic incorrect");
+        throw Xapian::DatabaseCorruptError("Rev file magic incorrect");
 
     unsigned version;
     version = static_cast<unsigned char>(buf[GLASS_VERSION_MAGIC_LEN]);
     version <<= 8;
     version |= static_cast<unsigned char>(buf[GLASS_VERSION_MAGIC_LEN + 1]);
     if (version != GLASS_FORMAT_VERSION) {
-	string msg;
-	if (!single_file()) {
-	    msg = db_dir;
-	    msg += ": ";
-	}
-	msg += "Database is format version ";
-	msg += str(VERSION_TO_YEAR(version) * 10000 +
-		   VERSION_TO_MONTH(version) * 100 +
-		   VERSION_TO_DAY(version));
-	msg += " but I only understand ";
-	msg += str(VERSION_TO_YEAR(GLASS_FORMAT_VERSION) * 10000 +
-		   VERSION_TO_MONTH(GLASS_FORMAT_VERSION) * 100 +
-		   VERSION_TO_DAY(GLASS_FORMAT_VERSION));
-	throw Xapian::DatabaseVersionError(msg);
+        string msg;
+        if (!single_file()) {
+            msg = db_dir;
+            msg += ": ";
+        }
+        msg += "Database is format version ";
+        msg += str(VERSION_TO_YEAR(version) * 10000 +
+                   VERSION_TO_MONTH(version) * 100 +
+                   VERSION_TO_DAY(version));
+        msg += " but I only understand ";
+        msg += str(VERSION_TO_YEAR(GLASS_FORMAT_VERSION) * 10000 +
+                   VERSION_TO_MONTH(GLASS_FORMAT_VERSION) * 100 +
+                   VERSION_TO_DAY(GLASS_FORMAT_VERSION));
+        throw Xapian::DatabaseVersionError(msg);
     }
 
     p += GLASS_VERSION_MAGIC_AND_VERSION_LEN;
@@ -155,13 +155,13 @@ GlassVersion::read()
     p += uuid.BINARY_SIZE;
 
     if (!unpack_uint(&p, end, &rev))
-	throw Xapian::DatabaseCorruptError("Rev file failed to decode revision");
+        throw Xapian::DatabaseCorruptError("Rev file failed to decode revision");
 
     for (unsigned table_no = 0; table_no < Glass::MAX_; ++table_no) {
-	if (!root[table_no].unserialise(&p, end)) {
-	    throw Xapian::DatabaseCorruptError("Rev file root_info missing");
-	}
-	old_root[table_no] = root[table_no];
+        if (!root[table_no].unserialise(&p, end)) {
+            throw Xapian::DatabaseCorruptError("Rev file root_info missing");
+        }
+        old_root[table_no] = root[table_no];
     }
 
     // For a single-file database, this will assign extra data.  We read
@@ -195,35 +195,35 @@ GlassVersion::unserialise_stats()
     const char * p = serialised_stats.data();
     const char * end = p + serialised_stats.size();
     if (p == end) {
-	doccount = 0;
-	total_doclen = 0;
-	last_docid = 0;
-	doclen_lbound = 0;
-	doclen_ubound = 0;
-	wdf_ubound = 0;
-	oldest_changeset = 0;
-	spelling_wordfreq_ubound = 0;
-	return;
+        doccount = 0;
+        total_doclen = 0;
+        last_docid = 0;
+        doclen_lbound = 0;
+        doclen_ubound = 0;
+        wdf_ubound = 0;
+        oldest_changeset = 0;
+        spelling_wordfreq_ubound = 0;
+        return;
     }
 
     if (!unpack_uint(&p, end, &doccount) ||
-	!unpack_uint(&p, end, &last_docid) ||
-	!unpack_uint(&p, end, &doclen_lbound) ||
-	!unpack_uint(&p, end, &wdf_ubound) ||
-	!unpack_uint(&p, end, &doclen_ubound) ||
-	!unpack_uint(&p, end, &oldest_changeset) ||
-	!unpack_uint(&p, end, &total_doclen) ||
-	!unpack_uint(&p, end, &spelling_wordfreq_ubound)) {
-	const char * m = p ?
-	    "Bad serialised DB stats (overflowed)" :
-	    "Bad serialised DB stats (out of data)";
-	throw Xapian::DatabaseCorruptError(m);
+        !unpack_uint(&p, end, &last_docid) ||
+        !unpack_uint(&p, end, &doclen_lbound) ||
+        !unpack_uint(&p, end, &wdf_ubound) ||
+        !unpack_uint(&p, end, &doclen_ubound) ||
+        !unpack_uint(&p, end, &oldest_changeset) ||
+        !unpack_uint(&p, end, &total_doclen) ||
+        !unpack_uint(&p, end, &spelling_wordfreq_ubound)) {
+        const char * m = p ?
+            "Bad serialised DB stats (overflowed)" :
+            "Bad serialised DB stats (out of data)";
+        throw Xapian::DatabaseCorruptError(m);
     }
 
     // In the single-file DB case, there will be extra data in
     // serialised_stats, so suppress this check.
     if (p != end && !single_file())
-	throw Xapian::DatabaseCorruptError("Rev file has junk at end");
+        throw Xapian::DatabaseCorruptError("Rev file has junk at end");
 
     // last_docid must always be >= doccount.
     last_docid += doccount;
@@ -238,20 +238,20 @@ GlassVersion::merge_stats(const GlassVersion & o)
 {
     doccount += o.get_doccount();
     if (doccount < o.get_doccount()) {
-	throw Xapian::DatabaseError("doccount overflowed!");
+        throw Xapian::DatabaseError("doccount overflowed!");
     }
 
     Xapian::termcount o_doclen_lbound = o.get_doclength_lower_bound();
     if (o_doclen_lbound > 0) {
-	if (doclen_lbound == 0 || o_doclen_lbound < doclen_lbound)
-	    doclen_lbound = o_doclen_lbound;
+        if (doclen_lbound == 0 || o_doclen_lbound < doclen_lbound)
+            doclen_lbound = o_doclen_lbound;
     }
 
     doclen_ubound = max(doclen_ubound, o.get_doclength_upper_bound());
     wdf_ubound = max(wdf_ubound, o.get_wdf_upper_bound());
     total_doclen += o.get_total_doclen();
     if (total_doclen < o.get_total_doclen()) {
-	throw Xapian::DatabaseError("Total document length overflowed!");
+        throw Xapian::DatabaseError("Total document length overflowed!");
     }
 
     // The upper bounds might be on the same word, so we must sum them.
@@ -263,7 +263,7 @@ GlassVersion::cancel()
 {
     LOGCALL_VOID(DB, "GlassVersion::cancel", NO_ARGS);
     for (unsigned table_no = 0; table_no < Glass::MAX_; ++table_no) {
-	root[table_no] = old_root[table_no];
+        root[table_no] = old_root[table_no];
     }
     unserialise_stats();
 }
@@ -279,7 +279,7 @@ GlassVersion::write(glass_revision_number_t new_rev, int flags)
     pack_uint(s, new_rev);
 
     for (unsigned table_no = 0; table_no < Glass::MAX_; ++table_no) {
-	root[table_no].serialise(s);
+        root[table_no].serialise(s);
     }
 
     // Serialise database statistics.
@@ -288,56 +288,56 @@ GlassVersion::write(glass_revision_number_t new_rev, int flags)
 
     string tmpfile;
     if (!single_file()) {
-	tmpfile = db_dir;
-	// In dangerous mode, just write the new version file in place.
-	if (flags & Xapian::DB_DANGEROUS)
-	    tmpfile += "/iamglass";
-	else
-	    tmpfile += "/v.tmp";
+        tmpfile = db_dir;
+        // In dangerous mode, just write the new version file in place.
+        if (flags & Xapian::DB_DANGEROUS)
+            tmpfile += "/iamglass";
+        else
+            tmpfile += "/v.tmp";
 
 #ifdef __EMSCRIPTEN__
-	// Emscripten < 1.39.10 fails to create a file if O_TRUNC is specified
-	// and the filename is the previous name of a renamed file (which it
-	// will be the second time we write out the version file for a DB):
-	//
-	// https://github.com/emscripten-core/emscripten/issues/8187
-	//
-	// We avoid triggering this bug by not using O_TRUNC and instead
-	// truncating once the file is opened.
-	fd = posixy_open(tmpfile.c_str(),
-			 O_CREAT|O_WRONLY|O_BINARY,
-			 0666);
-	if (fd >= 0)
-	    ftruncate(fd, 0);
+        // Emscripten < 1.39.10 fails to create a file if O_TRUNC is specified
+        // and the filename is the previous name of a renamed file (which it
+        // will be the second time we write out the version file for a DB):
+        //
+        // https://github.com/emscripten-core/emscripten/issues/8187
+        //
+        // We avoid triggering this bug by not using O_TRUNC and instead
+        // truncating once the file is opened.
+        fd = posixy_open(tmpfile.c_str(),
+                         O_CREAT|O_WRONLY|O_BINARY,
+                         0666);
+        if (fd >= 0)
+            ftruncate(fd, 0);
 #else
-	fd = posixy_open(tmpfile.c_str(),
-			 O_CREAT|O_TRUNC|O_WRONLY|O_BINARY,
-			 0666);
+        fd = posixy_open(tmpfile.c_str(),
+                         O_CREAT|O_TRUNC|O_WRONLY|O_BINARY,
+                         0666);
 #endif
 
-	if (rare(fd < 0))
-	    throw Xapian::DatabaseOpeningError("Couldn't write new rev file: " + tmpfile,
-					       errno);
+        if (rare(fd < 0))
+            throw Xapian::DatabaseOpeningError("Couldn't write new rev file: " + tmpfile,
+                                               errno);
 
-	if (flags & Xapian::DB_DANGEROUS)
-	    tmpfile = string();
+        if (flags & Xapian::DB_DANGEROUS)
+            tmpfile = string();
     }
 
     try {
-	io_write(fd, s.data(), s.size());
+        io_write(fd, s.data(), s.size());
     } catch (...) {
-	if (!single_file())
-	    (void)close(fd);
-	throw;
+        if (!single_file())
+            (void)close(fd);
+        throw;
     }
 
     if (changes) {
-	string changes_buf;
-	changes_buf += '\xfe';
-	pack_uint(changes_buf, new_rev);
-	pack_uint(changes_buf, s.size());
-	changes->write_block(changes_buf);
-	changes->write_block(s);
+        string changes_buf;
+        changes_buf += '\xfe';
+        pack_uint(changes_buf, new_rev);
+        pack_uint(changes_buf, s.size());
+        changes->write_block(changes_buf);
+        changes->write_block(s);
     }
 
     RETURN(tmpfile);
@@ -345,50 +345,50 @@ GlassVersion::write(glass_revision_number_t new_rev, int flags)
 
 bool
 GlassVersion::sync(const string & tmpfile,
-		   glass_revision_number_t new_rev, int flags)
+                   glass_revision_number_t new_rev, int flags)
 {
     Assert(new_rev > rev || rev == 0);
 
     if (single_file()) {
-	if ((flags & Xapian::DB_NO_SYNC) == 0 &&
-	    ((flags & Xapian::DB_FULL_SYNC) ?
-	      !io_full_sync(fd) :
-	      !io_sync(fd))) {
-	    // FIXME what to do?
-	}
+        if ((flags & Xapian::DB_NO_SYNC) == 0 &&
+            ((flags & Xapian::DB_FULL_SYNC) ?
+              !io_full_sync(fd) :
+              !io_sync(fd))) {
+            // FIXME what to do?
+        }
     } else {
-	int fd_to_close = fd;
-	fd = -1;
-	if ((flags & Xapian::DB_NO_SYNC) == 0 &&
-	    ((flags & Xapian::DB_FULL_SYNC) ?
-	      !io_full_sync(fd_to_close) :
-	      !io_sync(fd_to_close))) {
-	    int save_errno = errno;
-	    (void)close(fd_to_close);
-	    if (!tmpfile.empty())
-		(void)unlink(tmpfile.c_str());
-	    errno = save_errno;
-	    return false;
-	}
+        int fd_to_close = fd;
+        fd = -1;
+        if ((flags & Xapian::DB_NO_SYNC) == 0 &&
+            ((flags & Xapian::DB_FULL_SYNC) ?
+              !io_full_sync(fd_to_close) :
+              !io_sync(fd_to_close))) {
+            int save_errno = errno;
+            (void)close(fd_to_close);
+            if (!tmpfile.empty())
+                (void)unlink(tmpfile.c_str());
+            errno = save_errno;
+            return false;
+        }
 
-	if (close(fd_to_close) != 0) {
-	    if (!tmpfile.empty()) {
-		int save_errno = errno;
-		(void)unlink(tmpfile.c_str());
-		errno = save_errno;
-	    }
-	    return false;
-	}
+        if (close(fd_to_close) != 0) {
+            if (!tmpfile.empty()) {
+                int save_errno = errno;
+                (void)unlink(tmpfile.c_str());
+                errno = save_errno;
+            }
+            return false;
+        }
 
-	if (!tmpfile.empty()) {
-	    if (!io_tmp_rename(tmpfile, db_dir + "/iamglass")) {
-		return false;
-	    }
-	}
+        if (!tmpfile.empty()) {
+            if (!io_tmp_rename(tmpfile, db_dir + "/iamglass")) {
+                return false;
+            }
+        }
     }
 
     for (unsigned table_no = 0; table_no < Glass::MAX_; ++table_no) {
-	old_root[table_no] = root[table_no];
+        old_root[table_no] = root[table_no];
     }
 
     rev = new_rev;
@@ -419,7 +419,7 @@ GlassVersion::create(unsigned blocksize)
     AssertRel(blocksize,>=,GLASS_MIN_BLOCKSIZE);
     uuid.generate();
     for (unsigned table_no = 0; table_no < Glass::MAX_; ++table_no) {
-	root[table_no].init(blocksize, compress_min_tab[table_no]);
+        root[table_no].init(blocksize, compress_min_tab[table_no]);
     }
 }
 
@@ -458,33 +458,33 @@ RootInfo::unserialise(const char ** p, const char * end)
 {
     unsigned val, b;
     if (!unpack_uint(p, end, &root) ||
-	!unpack_uint(p, end, &val) ||
-	!unpack_uint(p, end, &num_entries) ||
-	!unpack_uint(p, end, &b) ||
-	!unpack_uint(p, end, &compress_min) ||
-	!unpack_string(p, end, fl_serialised)) return false;
+        !unpack_uint(p, end, &val) ||
+        !unpack_uint(p, end, &num_entries) ||
+        !unpack_uint(p, end, &b) ||
+        !unpack_uint(p, end, &compress_min) ||
+        !unpack_string(p, end, fl_serialised)) return false;
     auto level_ = val >> 2;
     if (rare(level_ >= GLASS_BTREE_CURSOR_LEVELS))
-	throw Xapian::DatabaseCorruptError("Impossibly deep Btree");
+        throw Xapian::DatabaseCorruptError("Impossibly deep Btree");
     level = level_;
     sequential = val & 0x02;
     root_is_fake = val & 0x01;
 
     if (root_is_fake && level > 0) {
-	throw Xapian::DatabaseCorruptError("Fake root but level > 0");
+        throw Xapian::DatabaseCorruptError("Fake root but level > 0");
     }
 
     b <<= 11;
     if (rare(b < GLASS_MIN_BLOCKSIZE ||
-	     b > GLASS_MAX_BLOCKSIZE ||
-	     (b & (b - 1)) != 0)) {
-	throw Xapian::DatabaseCorruptError("Invalid block size");
+             b > GLASS_MAX_BLOCKSIZE ||
+             (b & (b - 1)) != 0)) {
+        throw Xapian::DatabaseCorruptError("Invalid block size");
     }
     blocksize = b;
 
     // Map old default to new default.
     if (compress_min == 4) {
-	compress_min = COMPRESS_MIN;
+        compress_min = COMPRESS_MIN;
     }
 
     return true;

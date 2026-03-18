@@ -72,13 +72,13 @@ print FD <<'EOF';
 
 %exception {
     try {
-	$function
+        $function
     } catch (const Xapian::Error &e) {
-	return XapianTclHandleError(interp, e);
+        return XapianTclHandleError(interp, e);
     } catch (const std::exception &e) {
-	return XapianTclHandleError(interp, e);
+        return XapianTclHandleError(interp, e);
     } catch (...) {
-	return XapianTclHandleError(interp);
+        return XapianTclHandleError(interp);
     }
 }
 EOF

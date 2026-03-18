@@ -35,9 +35,9 @@ static inline bool
 msetcmp_by_docid_inline(const Result& a, const Result& b)
 {
     if (FORWARD_DID) {
-	return (a.get_docid() < b.get_docid());
+        return (a.get_docid() < b.get_docid());
     } else {
-	return (a.get_docid() > b.get_docid());
+        return (a.get_docid() > b.get_docid());
     }
 }
 
@@ -98,64 +98,64 @@ msetcmp_by_relevance_then_value(const Result& a, const Result& b)
 
 MSetCmp
 get_msetcmp_function(Xapian::Enquire::Internal::sort_setting sort_by,
-		     bool sort_forward,
-		     bool sort_val_reverse)
+                     bool sort_forward,
+                     bool sort_val_reverse)
 {
     switch (sort_by) {
-	case Xapian::Enquire::Internal::DOCID:
-	    if (sort_forward)
-		return msetcmp_by_docid<true>;
-	    else
-		return msetcmp_by_docid<false>;
-	case Xapian::Enquire::Internal::REL:
-	    if (sort_forward)
-		return msetcmp_by_relevance<true>;
-	    else
-		return msetcmp_by_relevance<false>;
-	case Xapian::Enquire::Internal::VAL:
-	    if (sort_forward) {
-		if (sort_val_reverse) {
-		    return msetcmp_by_value<true, true>;
-		} else {
-		    return msetcmp_by_value<false, true>;
-		}
-	    } else {
-		if (sort_val_reverse) {
-		    return msetcmp_by_value<true, false>;
-		} else {
-		    return msetcmp_by_value<false, false>;
-		}
-	    }
-	case Xapian::Enquire::Internal::VAL_REL:
-	    if (sort_forward) {
-		if (sort_val_reverse) {
-		    return msetcmp_by_value_then_relevance<true, true>;
-		} else {
-		    return msetcmp_by_value_then_relevance<false, true>;
-		}
-	    } else {
-		if (sort_val_reverse) {
-		    return msetcmp_by_value_then_relevance<true, false>;
-		} else {
-		    return msetcmp_by_value_then_relevance<false, false>;
-		}
-	    }
-	default:
-	    // Must be REL_VAL, but handle with "default" to avoid warnings
-	    // about falling off the end of the function.
-	    AssertEq(sort_by, Xapian::Enquire::Internal::REL_VAL);
-	    if (sort_forward) {
-		if (sort_val_reverse) {
-		    return msetcmp_by_relevance_then_value<true, true>;
-		} else {
-		    return msetcmp_by_relevance_then_value<false, true>;
-		}
-	    } else {
-		if (sort_val_reverse) {
-		    return msetcmp_by_relevance_then_value<true, false>;
-		} else {
-		    return msetcmp_by_relevance_then_value<false, false>;
-		}
-	    }
+        case Xapian::Enquire::Internal::DOCID:
+            if (sort_forward)
+                return msetcmp_by_docid<true>;
+            else
+                return msetcmp_by_docid<false>;
+        case Xapian::Enquire::Internal::REL:
+            if (sort_forward)
+                return msetcmp_by_relevance<true>;
+            else
+                return msetcmp_by_relevance<false>;
+        case Xapian::Enquire::Internal::VAL:
+            if (sort_forward) {
+                if (sort_val_reverse) {
+                    return msetcmp_by_value<true, true>;
+                } else {
+                    return msetcmp_by_value<false, true>;
+                }
+            } else {
+                if (sort_val_reverse) {
+                    return msetcmp_by_value<true, false>;
+                } else {
+                    return msetcmp_by_value<false, false>;
+                }
+            }
+        case Xapian::Enquire::Internal::VAL_REL:
+            if (sort_forward) {
+                if (sort_val_reverse) {
+                    return msetcmp_by_value_then_relevance<true, true>;
+                } else {
+                    return msetcmp_by_value_then_relevance<false, true>;
+                }
+            } else {
+                if (sort_val_reverse) {
+                    return msetcmp_by_value_then_relevance<true, false>;
+                } else {
+                    return msetcmp_by_value_then_relevance<false, false>;
+                }
+            }
+        default:
+            // Must be REL_VAL, but handle with "default" to avoid warnings
+            // about falling off the end of the function.
+            AssertEq(sort_by, Xapian::Enquire::Internal::REL_VAL);
+            if (sort_forward) {
+                if (sort_val_reverse) {
+                    return msetcmp_by_relevance_then_value<true, true>;
+                } else {
+                    return msetcmp_by_relevance_then_value<false, true>;
+                }
+            } else {
+                if (sort_val_reverse) {
+                    return msetcmp_by_relevance_then_value<true, false>;
+                } else {
+                    return msetcmp_by_relevance_then_value<false, false>;
+                }
+            }
     }
 }

@@ -36,9 +36,9 @@ class Document;
 class HoneyTermListTable : public HoneyTable {
   public:
     static std::string make_key(Xapian::docid did) {
-	std::string key;
-	pack_uint_preserving_sort(key, did);
-	return key;
+        std::string key;
+        pack_uint_preserving_sort(key, did);
+        return key;
     }
 
     /** Create a new HoneyTermListTable object.
@@ -51,10 +51,10 @@ class HoneyTermListTable : public HoneyTable {
      *  @param lazy_	    Don't create a termlist if there isn't one.
      */
     HoneyTermListTable(const std::string& dbdir, bool readonly, bool lazy_)
-	: HoneyTable("termlist", dbdir + "/termlist.", readonly, lazy_) { }
+        : HoneyTable("termlist", dbdir + "/termlist.", readonly, lazy_) { }
 
     HoneyTermListTable(int fd, off_t offset_, bool readonly, bool lazy_)
-	: HoneyTable("termlist", fd, offset_, readonly, lazy_) { }
+        : HoneyTable("termlist", fd, offset_, readonly, lazy_) { }
 
     /** Set the termlist data for document @a did.
      *
@@ -65,7 +65,7 @@ class HoneyTermListTable : public HoneyTable {
      *  @param doclen	The document length.
      */
     void set_termlist(Xapian::docid did, const Xapian::Document& doc,
-		      Xapian::termcount doclen);
+                      Xapian::termcount doclen);
 
     /** Delete the termlist data for document @a did.
      *

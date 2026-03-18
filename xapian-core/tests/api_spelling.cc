@@ -178,17 +178,17 @@ DEFINE_TESTCASE(spell2, spelling && writable) {
 // Test spelling correction with multi databases
 DEFINE_TESTCASE(spell3, spelling) {
     Xapian::Database db1 = get_database("spell3a",
-					[](Xapian::WritableDatabase& wdb,
-					   const string&) {
-					    wdb.add_spelling("hello");
-					    wdb.add_spelling("cell", 2);
-					});
+                                        [](Xapian::WritableDatabase& wdb,
+                                           const string&) {
+                                            wdb.add_spelling("hello");
+                                            wdb.add_spelling("cell", 2);
+                                        });
     Xapian::Database db2 = get_database("spell3b",
-					[](Xapian::WritableDatabase& wdb,
-					   const string&) {
-					    wdb.add_spelling("hello", 2);
-					    wdb.add_spelling("helo");
-					});
+                                        [](Xapian::WritableDatabase& wdb,
+                                           const string&) {
+                                            wdb.add_spelling("hello", 2);
+                                            wdb.add_spelling("helo");
+                                        });
 
     Xapian::Database db;
     db.add_database(db1);
@@ -243,13 +243,13 @@ DEFINE_TESTCASE(spell3, spelling) {
 // Regression test - check that appending works correctly.
 DEFINE_TESTCASE(spell4, spelling) {
     Xapian::Database db = get_database("spell4",
-				       [](Xapian::WritableDatabase& wdb,
-					  const string&) {
-					   wdb.add_spelling("check");
-					   wdb.add_spelling("pecks", 2);
-					   wdb.commit();
-					   wdb.add_spelling("becky");
-				       });
+                                       [](Xapian::WritableDatabase& wdb,
+                                          const string&) {
+                                           wdb.add_spelling("check");
+                                           wdb.add_spelling("pecks", 2);
+                                           wdb.commit();
+                                           wdb.add_spelling("becky");
+                                       });
 
     TEST_EQUAL(db.get_spelling_suggestion("jeck", 2), "pecks");
 }
@@ -261,10 +261,10 @@ DEFINE_TESTCASE(spell5, spelling) {
     // can't be passed as a function pointer.
 #define TARGET "\xe4\xb8\x80\xe4\xba\x9b"
     Xapian::Database db = get_database("spell5",
-				       [](Xapian::WritableDatabase& wdb,
-					  const string&) {
-					   wdb.add_spelling(TARGET);
-				       });
+                                       [](Xapian::WritableDatabase& wdb,
+                                          const string&) {
+                                           wdb.add_spelling(TARGET);
+                                       });
 
     string s = db.get_spelling_suggestion("\xe4\xb8\x8d", 3);
     TEST_EQUAL(s, TARGET);
@@ -288,14 +288,14 @@ DEFINE_TESTCASE(spell6, spelling && writable) {
 // Test suggestions when there's an exact match.
 DEFINE_TESTCASE(spell7, spelling) {
     Xapian::Database db = get_database("spell7",
-				       [](Xapian::WritableDatabase& wdb,
-					  const string&) {
-					   wdb.add_spelling("word", 57);
-					   wdb.add_spelling("wrod", 3);
-					   wdb.add_spelling("sword", 56);
-					   wdb.add_spelling("words", 57);
-					   wdb.add_spelling("ward", 58);
-				       });
+                                       [](Xapian::WritableDatabase& wdb,
+                                          const string&) {
+                                           wdb.add_spelling("word", 57);
+                                           wdb.add_spelling("wrod", 3);
+                                           wdb.add_spelling("sword", 56);
+                                           wdb.add_spelling("words", 57);
+                                           wdb.add_spelling("ward", 58);
+                                       });
 
     // Check that the more frequent term is chosen.
     TEST_EQUAL(db.get_spelling_suggestion("ward"), "");
@@ -307,11 +307,11 @@ DEFINE_TESTCASE(spell7, spelling) {
 /// Regression test - repeated trigrams cancelled in 1.2.5 and earlier.
 DEFINE_TESTCASE(spell8, spelling) {
     Xapian::Database db = get_database("spell8",
-				       [](Xapian::WritableDatabase& wdb,
-					  const string&) {
-					   wdb.add_spelling("skinking", 2);
-					   wdb.add_spelling("stinking", 1);
-				       });
+                                       [](Xapian::WritableDatabase& wdb,
+                                          const string&) {
+                                           wdb.add_spelling("skinking", 2);
+                                           wdb.add_spelling("stinking", 1);
+                                       });
 
     // kin and kin used to cancel out in "skinking".
     TEST_EQUAL(db.get_spelling_suggestion("scimkin", 3), "skinking");
@@ -320,11 +320,11 @@ DEFINE_TESTCASE(spell8, spelling) {
 /// Regression test for honey spelling encoding bug affecting "tail" entries.
 DEFINE_TESTCASE(spell9, spelling) {
     Xapian::Database db = get_database("spell9",
-				       [](Xapian::WritableDatabase& wdb,
-					  const string&) {
-					   wdb.add_spelling("ruru", 1);
-					   wdb.add_spelling("eel", 1);
-				       });
+                                       [](Xapian::WritableDatabase& wdb,
+                                          const string&) {
+                                           wdb.add_spelling("ruru", 1);
+                                           wdb.add_spelling("eel", 1);
+                                       });
     TEST_EQUAL(db.get_spelling_suggestion("gel", 1), "eel");
     TEST_EQUAL(db.get_spelling_suggestion("thru", 2), "ruru");
 }
@@ -332,10 +332,10 @@ DEFINE_TESTCASE(spell9, spelling) {
 /// Regression test for bug due to rejecting based on matching n-gram count.
 DEFINE_TESTCASE(spell10, spelling) {
     Xapian::Database db = get_database("spell10",
-				       [](Xapian::WritableDatabase& wdb,
-					  const string&) {
-					   wdb.add_spelling("Schiedsrichterstuhl", 1);
-					   wdb.add_spelling("Stuhl", 1);
-				       });
+                                       [](Xapian::WritableDatabase& wdb,
+                                          const string&) {
+                                           wdb.add_spelling("Schiedsrichterstuhl", 1);
+                                           wdb.add_spelling("Stuhl", 1);
+                                       });
     TEST_EQUAL(db.get_spelling_suggestion("Schtuhl", 3), "Stuhl");
 }

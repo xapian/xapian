@@ -51,21 +51,21 @@ PostList *
 NetworkPostList::next(double)
 {
     if (!started) {
-	started = true;
-	pos = postings.data();
-	pos_end = pos + postings.size();
-	lastdocid = 0;
+        started = true;
+        pos = postings.data();
+        pos_end = pos + postings.size();
+        lastdocid = 0;
     }
 
     if (pos == pos_end) {
-	pos = NULL;
+        pos = NULL;
     } else {
-	Xapian::docid inc;
-	if (!unpack_uint(&pos, pos_end, &inc) ||
-	    !unpack_uint(&pos, pos_end, &lastwdf)) {
-	    unpack_throw_serialisation_error(pos);
-	}
-	lastdocid += inc + 1;
+        Xapian::docid inc;
+        if (!unpack_uint(&pos, pos_end, &inc) ||
+            !unpack_uint(&pos, pos_end, &lastwdf)) {
+            unpack_throw_serialisation_error(pos);
+        }
+        lastdocid += inc + 1;
     }
 
     return NULL;
@@ -75,9 +75,9 @@ PostList *
 NetworkPostList::skip_to(Xapian::docid did, double min_weight)
 {
     if (!started)
-	next(min_weight);
+        next(min_weight);
     while (pos && lastdocid < did)
-	next(min_weight);
+        next(min_weight);
     return NULL;
 }
 

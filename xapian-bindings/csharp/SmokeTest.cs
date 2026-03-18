@@ -18,208 +18,208 @@
 
 class TestMatchDecider : Xapian.MatchDecider {
     public override bool Apply(Xapian.Document doc) {
-	return (doc.GetValue(0) == "yes");
+        return (doc.GetValue(0) == "yes");
     }
 }
 
 class SmokeTest {
     public static void Main() {
-	try {
-	    // Test the version number reporting functions give plausible
-	    // results.
-	    string v = "";
-	    v += Xapian.Version.Major();
-	    v += ".";
-	    v += Xapian.Version.Minor();
-	    v += ".";
-	    v += Xapian.Version.Revision();
-	    string v2 = Xapian.Version.String();
-	    if (v != v2) {
-		System.Console.WriteLine("Unexpected version output (" + v + " != " + v2 + ")");
-		System.Environment.Exit(1);
-	    }
+        try {
+            // Test the version number reporting functions give plausible
+            // results.
+            string v = "";
+            v += Xapian.Version.Major();
+            v += ".";
+            v += Xapian.Version.Minor();
+            v += ".";
+            v += Xapian.Version.Revision();
+            string v2 = Xapian.Version.String();
+            if (v != v2) {
+                System.Console.WriteLine("Unexpected version output (" + v + " != " + v2 + ")");
+                System.Environment.Exit(1);
+            }
 
-	    Xapian.Stem stem = new Xapian.Stem("english");
-	    if (stem.GetDescription() != "Xapian::Stem(english)") {
-		System.Console.WriteLine("Unexpected stem.GetDescription()");
-		System.Environment.Exit(1);
-	    }
-	    Xapian.Document doc = new Xapian.Document();
-	    // Currently SWIG doesn't generate zero-byte clean code for
-	    // transferring strings between C# and C++.
-	    doc.SetData("a\0b");
-	    if (doc.GetData() != "a") {
-		System.Console.WriteLine("XPASS: GetData+SetData truncates at a zero byte");
-		System.Environment.Exit(1);
-	    }
-	    if (doc.GetData() == "a\0b") {
-		System.Console.WriteLine("XPASS: GetData+SetData doesn't transparently handle a zero byte");
-		System.Environment.Exit(1);
-	    }
-	    if (doc.GetDescription() != "Document(docid=0, data=a)") {
-		System.Console.WriteLine("XPASS: UTF-8 encoding of zero byte fixed!");
-		System.Environment.Exit(1);
-	    }
+            Xapian.Stem stem = new Xapian.Stem("english");
+            if (stem.GetDescription() != "Xapian::Stem(english)") {
+                System.Console.WriteLine("Unexpected stem.GetDescription()");
+                System.Environment.Exit(1);
+            }
+            Xapian.Document doc = new Xapian.Document();
+            // Currently SWIG doesn't generate zero-byte clean code for
+            // transferring strings between C# and C++.
+            doc.SetData("a\0b");
+            if (doc.GetData() != "a") {
+                System.Console.WriteLine("XPASS: GetData+SetData truncates at a zero byte");
+                System.Environment.Exit(1);
+            }
+            if (doc.GetData() == "a\0b") {
+                System.Console.WriteLine("XPASS: GetData+SetData doesn't transparently handle a zero byte");
+                System.Environment.Exit(1);
+            }
+            if (doc.GetDescription() != "Document(docid=0, data=a)") {
+                System.Console.WriteLine("XPASS: UTF-8 encoding of zero byte fixed!");
+                System.Environment.Exit(1);
+            }
 
-	    // Surrogate pair case:
-	    string falafel = "\U0001f9c6";
-	    doc.SetData(falafel);
-	    if (doc.GetData() != falafel) {
-		System.Console.WriteLine("getData+setData doesn't transparently handle a surrogate pair");
-		System.Environment.Exit(1);
-	    }
-	    if (doc.GetDescription() != "Document(docid=0, data=" + falafel + ")") {
-		System.Console.WriteLine("GetData+SetData doesn't transparently handle character >= U+10000");
-		System.Environment.Exit(1);
-	    }
+            // Surrogate pair case:
+            string falafel = "\U0001f9c6";
+            doc.SetData(falafel);
+            if (doc.GetData() != falafel) {
+                System.Console.WriteLine("getData+setData doesn't transparently handle a surrogate pair");
+                System.Environment.Exit(1);
+            }
+            if (doc.GetDescription() != "Document(docid=0, data=" + falafel + ")") {
+                System.Console.WriteLine("GetData+SetData doesn't transparently handle character >= U+10000");
+                System.Environment.Exit(1);
+            }
 
-	    doc.SetData("is there anybody out there?");
-	    doc.AddTerm("XYzzy");
-	    doc.AddPosting(stem.Apply("is"), 1);
-	    doc.AddPosting(stem.Apply("there"), 2);
-	    doc.AddPosting(stem.Apply("anybody"), 3);
-	    doc.AddPosting(stem.Apply("out"), 4);
-	    doc.AddPosting(stem.Apply("there"), 5);
+            doc.SetData("is there anybody out there?");
+            doc.AddTerm("XYzzy");
+            doc.AddPosting(stem.Apply("is"), 1);
+            doc.AddPosting(stem.Apply("there"), 2);
+            doc.AddPosting(stem.Apply("anybody"), 3);
+            doc.AddPosting(stem.Apply("out"), 4);
+            doc.AddPosting(stem.Apply("there"), 5);
 
-	    Xapian.WritableDatabase db = new Xapian.WritableDatabase("", Xapian.Xapian.DB_BACKEND_INMEMORY);
-	    db.AddDocument(doc);
-	    if (db.GetDocCount() != 1) {
-		System.Environment.Exit(1);
-	    }
+            Xapian.WritableDatabase db = new Xapian.WritableDatabase("", Xapian.Xapian.DB_BACKEND_INMEMORY);
+            db.AddDocument(doc);
+            if (db.GetDocCount() != 1) {
+                System.Environment.Exit(1);
+            }
 
-	    if (doc.TermListCount() != 5) {
-		System.Environment.Exit(1);
-	    }
-	    int count = 0;
-	    Xapian.TermIterator i = doc.TermListBegin();
-	    while (i != doc.TermListEnd()) {
-		++count;
-		++i;
-	    }
-	    if (count != 5) {
-		System.Environment.Exit(1);
-	    }
+            if (doc.TermListCount() != 5) {
+                System.Environment.Exit(1);
+            }
+            int count = 0;
+            Xapian.TermIterator i = doc.TermListBegin();
+            while (i != doc.TermListEnd()) {
+                ++count;
+                ++i;
+            }
+            if (count != 5) {
+                System.Environment.Exit(1);
+            }
 
-	    // Check exception handling for Xapian::DocNotFoundError.
-	    try {
-		Xapian.Document doc2 = db.GetDocument(2);
-		System.Console.WriteLine("Retrieved non-existent document: " + doc2.GetDescription());
-		System.Environment.Exit(1);
-	    } catch (System.Exception e) {
-		// We expect DocNotFoundError
-		if (e.Message.Substring(0, 16) != "DocNotFoundError") {
-		    System.Console.WriteLine("Unexpected exception from accessing non-existent document: " + e.Message);
-		    System.Environment.Exit(1);
-		}
-	    }
+            // Check exception handling for Xapian::DocNotFoundError.
+            try {
+                Xapian.Document doc2 = db.GetDocument(2);
+                System.Console.WriteLine("Retrieved non-existent document: " + doc2.GetDescription());
+                System.Environment.Exit(1);
+            } catch (System.Exception e) {
+                // We expect DocNotFoundError
+                if (e.Message.Substring(0, 16) != "DocNotFoundError") {
+                    System.Console.WriteLine("Unexpected exception from accessing non-existent document: " + e.Message);
+                    System.Environment.Exit(1);
+                }
+            }
 
-	    Xapian.QueryParser qp = new Xapian.QueryParser();
+            Xapian.QueryParser qp = new Xapian.QueryParser();
 
-	    // Check QueryParser parsing error.
-	    try {
-		qp.ParseQuery("test AND");
-		System.Console.WriteLine("Successfully parsed bad query");
-		System.Environment.Exit(1);
-	    } catch (System.Exception e) {
-		if (e.Message != "QueryParserError: Syntax: <expression> AND <expression>") {
-		    System.Console.WriteLine("Exception string not as expected, got: '" + e.Message + "'");
-		    System.Environment.Exit(1);
-		}
-	    }
+            // Check QueryParser parsing error.
+            try {
+                qp.ParseQuery("test AND");
+                System.Console.WriteLine("Successfully parsed bad query");
+                System.Environment.Exit(1);
+            } catch (System.Exception e) {
+                if (e.Message != "QueryParserError: Syntax: <expression> AND <expression>") {
+                    System.Console.WriteLine("Exception string not as expected, got: '" + e.Message + "'");
+                    System.Environment.Exit(1);
+                }
+            }
 
-	    // FIXME: It would be better if the (uint) cast wasn't required here.
-	    qp.ParseQuery("hello world", (uint)Xapian.QueryParser.feature_flag.FLAG_BOOLEAN);
+            // FIXME: It would be better if the (uint) cast wasn't required here.
+            qp.ParseQuery("hello world", (uint)Xapian.QueryParser.feature_flag.FLAG_BOOLEAN);
 
-	    // Test wrapping of null-able grouping parameter.
-	    qp.AddBooleanPrefix("colour", "XC");
-	    qp.AddBooleanPrefix("color", "XC");
-	    qp.AddBooleanPrefix("foo", "XFOO", null);
-	    qp.AddBooleanPrefix("bar", "XBAR", "XBA*");
-	    qp.AddBooleanPrefix("baa", "XBAA", "XBA*");
-	    // FIXME: It would be better if the (uint) cast wasn't required here.
-	    Xapian.DateRangeProcessor rpdate = new Xapian.DateRangeProcessor(1, (uint)Xapian.Xapian.RP_DATE_PREFER_MDY, 1960);
-	    qp.AddRangeprocessor(rpdate);
-	    qp.AddRangeprocessor(rpdate, null);
-	    qp.AddRangeprocessor(rpdate, "foo");
+            // Test wrapping of null-able grouping parameter.
+            qp.AddBooleanPrefix("colour", "XC");
+            qp.AddBooleanPrefix("color", "XC");
+            qp.AddBooleanPrefix("foo", "XFOO", null);
+            qp.AddBooleanPrefix("bar", "XBAR", "XBA*");
+            qp.AddBooleanPrefix("baa", "XBAA", "XBA*");
+            // FIXME: It would be better if the (uint) cast wasn't required here.
+            Xapian.DateRangeProcessor rpdate = new Xapian.DateRangeProcessor(1, (uint)Xapian.Xapian.RP_DATE_PREFER_MDY, 1960);
+            qp.AddRangeprocessor(rpdate);
+            qp.AddRangeprocessor(rpdate, null);
+            qp.AddRangeprocessor(rpdate, "foo");
 
             if (Xapian.Query.MatchAll.GetDescription() != "Query(<alldocuments>)") {
-		System.Console.WriteLine("Unexpected Query.MatchAll.GetDescription()");
-		System.Environment.Exit(1);
+                System.Console.WriteLine("Unexpected Query.MatchAll.GetDescription()");
+                System.Environment.Exit(1);
             }
 
             if (Xapian.Query.MatchNothing.GetDescription() != "Query()") {
-		System.Console.WriteLine("Unexpected Query.MatchNothing.GetDescription()");
-		System.Environment.Exit(1);
+                System.Console.WriteLine("Unexpected Query.MatchNothing.GetDescription()");
+                System.Environment.Exit(1);
             }
 
-	    // Check that OP_ELITE_SET works (in 0.9.6 and earlier it had the
-	    // wrong value in C#).
-	    try {
-		Xapian.Query foo = new Xapian.Query(Xapian.Query.op.OP_OR, "hello", "world");
-		Xapian.Query foo2 = new Xapian.Query(Xapian.Query.op.OP_ELITE_SET, foo, foo);
-		foo = foo2; // Avoid "unused variable" warning.
-	    } catch (System.Exception e) {
-		System.Console.WriteLine("Using OP_ELITE_SET cause exception '" + e.Message + "'");
-		System.Environment.Exit(1);
-	    }
+            // Check that OP_ELITE_SET works (in 0.9.6 and earlier it had the
+            // wrong value in C#).
+            try {
+                Xapian.Query foo = new Xapian.Query(Xapian.Query.op.OP_OR, "hello", "world");
+                Xapian.Query foo2 = new Xapian.Query(Xapian.Query.op.OP_ELITE_SET, foo, foo);
+                foo = foo2; // Avoid "unused variable" warning.
+            } catch (System.Exception e) {
+                System.Console.WriteLine("Using OP_ELITE_SET cause exception '" + e.Message + "'");
+                System.Environment.Exit(1);
+            }
 
-	    // Feature test for MatchDecider.
-	    doc = new Xapian.Document();
-	    doc.SetData("Two");
-	    doc.AddPosting(stem.Apply("out"), 1);
-	    doc.AddPosting(stem.Apply("source"), 2);
-	    doc.AddValue(0, "yes");
-	    db.AddDocument(doc);
+            // Feature test for MatchDecider.
+            doc = new Xapian.Document();
+            doc.SetData("Two");
+            doc.AddPosting(stem.Apply("out"), 1);
+            doc.AddPosting(stem.Apply("source"), 2);
+            doc.AddValue(0, "yes");
+            db.AddDocument(doc);
 
-	    Xapian.Query query = new Xapian.Query(stem.Apply("out"));
-	    Xapian.Enquire enquire = new Xapian.Enquire(db);
+            Xapian.Query query = new Xapian.Query(stem.Apply("out"));
+            Xapian.Enquire enquire = new Xapian.Enquire(db);
 
-	    // Check Xapian::BAD_VALUENO is wrapped suitably.
-	    enquire.SetCollapseKey(Xapian.Xapian.BAD_VALUENO);
+            // Check Xapian::BAD_VALUENO is wrapped suitably.
+            enquire.SetCollapseKey(Xapian.Xapian.BAD_VALUENO);
 
-	    enquire.SetQuery(query);
-	    Xapian.MSet mset = enquire.GetMSet(0, 10, null, new TestMatchDecider());
-	    if (mset.Size() != 1) {
-		System.Console.WriteLine("MatchDecider found " + mset.Size().ToString() + " documents, expected 1");
-		System.Environment.Exit(1);
-	    }
-	    if (mset.GetDocId(0) != 2) {
-		System.Console.WriteLine("MatchDecider mset has wrong docid in");
-		System.Environment.Exit(1);
-	    }
+            enquire.SetQuery(query);
+            Xapian.MSet mset = enquire.GetMSet(0, 10, null, new TestMatchDecider());
+            if (mset.Size() != 1) {
+                System.Console.WriteLine("MatchDecider found " + mset.Size().ToString() + " documents, expected 1");
+                System.Environment.Exit(1);
+            }
+            if (mset.GetDocId(0) != 2) {
+                System.Console.WriteLine("MatchDecider mset has wrong docid in");
+                System.Environment.Exit(1);
+            }
 
-	    mset = enquire.GetMSet(0, 10);
-	    for (Xapian.MSetIterator m = mset.Begin(); m != mset.End(); m++) {
-		// In Xapian 1.2.6 and earlier, the iterator would become
-		// eligible for garbage collection after being advanced.
-		// It didn't actually get garbage collected often, but when
-		// it did, it caused a crash.  Here we force a GC run to make
-		// this issue manifest if it is present.
-		System.GC.Collect();
-		System.GC.WaitForPendingFinalizers();
-	    }
+            mset = enquire.GetMSet(0, 10);
+            for (Xapian.MSetIterator m = mset.Begin(); m != mset.End(); m++) {
+                // In Xapian 1.2.6 and earlier, the iterator would become
+                // eligible for garbage collection after being advanced.
+                // It didn't actually get garbage collected often, but when
+                // it did, it caused a crash.  Here we force a GC run to make
+                // this issue manifest if it is present.
+                System.GC.Collect();
+                System.GC.WaitForPendingFinalizers();
+            }
 
             // Test setting and getting metadata
             if (db.GetMetadata("Foo") !=  "") {
-		System.Console.WriteLine("db.GetMetadata(\"Foo\") returned wrong value \"" + db.GetMetadata("Foo") + "\" - expected \"\"");
-		System.Environment.Exit(1);
+                System.Console.WriteLine("db.GetMetadata(\"Foo\") returned wrong value \"" + db.GetMetadata("Foo") + "\" - expected \"\"");
+                System.Environment.Exit(1);
             }
             db.SetMetadata("Foo", "Foo");
             if (db.GetMetadata("Foo") !=  "Foo") {
-		System.Console.WriteLine("db.GetMetadata(\"Foo\") returned wrong value \"" + db.GetMetadata("Foo") + "\" - expected \"Foo\"");
-		System.Environment.Exit(1);
+                System.Console.WriteLine("db.GetMetadata(\"Foo\") returned wrong value \"" + db.GetMetadata("Foo") + "\" - expected \"Foo\"");
+                System.Environment.Exit(1);
             }
 
-	    // Test OP_SCALE_WEIGHT and corresponding constructor
-	    Xapian.Query query4 = new Xapian.Query(Xapian.Query.op.OP_SCALE_WEIGHT, new Xapian.Query("foo"), 5.0);
-	    if (query4.GetDescription() != "Query(5 * foo)") {
-		System.Console.WriteLine("Unexpected query4.GetDescription()");
-		System.Environment.Exit(1);
-	    }
+            // Test OP_SCALE_WEIGHT and corresponding constructor
+            Xapian.Query query4 = new Xapian.Query(Xapian.Query.op.OP_SCALE_WEIGHT, new Xapian.Query("foo"), 5.0);
+            if (query4.GetDescription() != "Query(5 * foo)") {
+                System.Console.WriteLine("Unexpected query4.GetDescription()");
+                System.Environment.Exit(1);
+            }
 
-	} catch (System.Exception e) {
-	    System.Console.WriteLine("Exception: " + e.ToString());
-	    System.Environment.Exit(1);
-	}
+        } catch (System.Exception e) {
+            System.Console.WriteLine("Exception: " + e.ToString());
+            System.Environment.Exit(1);
+        }
     }
 }

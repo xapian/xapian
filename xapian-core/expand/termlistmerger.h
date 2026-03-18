@@ -29,7 +29,7 @@
 
 struct CompareTermListSizeAscending {
     bool operator()(const TermList* a, const TermList* b) const {
-	return a->get_approx_size() > b->get_approx_size();
+        return a->get_approx_size() > b->get_approx_size();
     }
 };
 
@@ -38,13 +38,13 @@ inline TermList*
 make_termlist_merger(std::vector<TermList*>& termlists)
 {
     if (termlists.size() <= 1) {
-	return termlists.size() == 1 ? termlists[0] : NULL;
+        return termlists.size() == 1 ? termlists[0] : NULL;
     }
 
     // Make termlists into a heap so that the longest termlist is at the
     // top of the heap.
     Heap::make(termlists.begin(), termlists.end(),
-	       CompareTermListSizeAscending());
+               CompareTermListSizeAscending());
 
     // Now build a tree of binary TermList objects.  The algorithm used to
     // build the tree is like that used to build an optimal Huffman coding
@@ -53,27 +53,27 @@ make_termlist_merger(std::vector<TermList*>& termlists)
     // that, but this arrangement is still likely to be a good one, and it
     // does minimise the work in the worst case.
     while (true) {
-	AssertRel(termlists.size(), >=, 2);
-	// We build the tree such that at each branch:
-	//
-	//   l.get_approx_size() >= r.get_approx_size()
-	//
-	// We do this so that the OrTermList class can be optimised
-	// assuming that this is the case.
-	TermList* r = termlists.front();
-	Heap::pop(termlists.begin(), termlists.end(),
-		  CompareTermListSizeAscending());
-	termlists.pop_back();
-	TermList* l = termlists.front();
+        AssertRel(termlists.size(), >=, 2);
+        // We build the tree such that at each branch:
+        //
+        //   l.get_approx_size() >= r.get_approx_size()
+        //
+        // We do this so that the OrTermList class can be optimised
+        // assuming that this is the case.
+        TermList* r = termlists.front();
+        Heap::pop(termlists.begin(), termlists.end(),
+                  CompareTermListSizeAscending());
+        termlists.pop_back();
+        TermList* l = termlists.front();
 
-	TermList* tl = new ORTERMLIST(l, r);
+        TermList* tl = new ORTERMLIST(l, r);
 
-	if (termlists.size() == 1)
-	    return tl;
+        if (termlists.size() == 1)
+            return tl;
 
-	termlists.front() = tl;
-	Heap::replace(termlists.begin(), termlists.end(),
-		      CompareTermListSizeAscending());
+        termlists.front() = tl;
+        Heap::replace(termlists.begin(), termlists.end(),
+                      CompareTermListSizeAscending());
     }
 }
 

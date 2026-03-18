@@ -77,7 +77,7 @@ follows:
 +==================+======================+
 | PositionIterator |     ``GetTermPos()`` |
 +------------------+----------------------+
-| PostingIterator  |     ``GetDocId()``	  |
+| PostingIterator  |     ``GetDocId()``   |
 +------------------+----------------------+
 | TermIterator     |     ``GetTerm()``    |
 +------------------+----------------------+
@@ -174,10 +174,10 @@ and ``new xapian.Query()`` instead of
 ..       -------
 ..       Enquire
 ..       -------
-..		 There is an additional method `GetMatchingTerms()` which takes
-..		 an MSetIterator and returns a list of terms in the current query which
-..		 match the document given by that iterator.  You may find this
-..		 more convenient than using the TermIterator directly.
+..               There is an additional method `GetMatchingTerms()` which takes
+..               an MSetIterator and returns a list of terms in the current query which
+..               match the document given by that iterator.  You may find this
+..               more convenient than using the TermIterator directly.
 
 
 MatchDecider
@@ -190,8 +190,8 @@ useful) would be as follows:
 
 ::
 
-	class MyMatchDecider : Xapian.MatchDecider {
-	    public override bool Apply(Xapian.Document doc) {
-		return true;
-	    }
-	}
+        class MyMatchDecider : Xapian.MatchDecider {
+            public override bool Apply(Xapian.Document doc) {
+                return true;
+            }
+        }

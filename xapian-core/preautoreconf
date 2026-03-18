@@ -40,9 +40,9 @@ for (sort keys %s) {
     my $src = $built_sources{$_} ? '$(top_builddir)' : '$T';
     $src .= "/$_";
     if (m!^include/!) {
-	push @apidoc_src, $src;
+        push @apidoc_src, $src;
     } else {
-	push @sourcedoc_src, $src;
+        push @sourcedoc_src, $src;
     }
 }
 
@@ -74,58 +74,58 @@ sub parse_makefile_am {
     push @makefile_am, $makefile_am;
     while (<M>) {
 pending:
-	chomp;
-	while (s/\\$/ /) {
-	    if (@pending) {
-		$_ .= shift @pending;
-	    } else {
-		$_ .= <M>;
-	    }
-	    chomp;
-	}
-	if (/^\s*(\w+)\s*[+:]?=\s*(.*?)\s*(?:#.*)?$/) {
-	    my $var = $1;
-	    if (exists $v{$var}) {
-		$v{$var} .= " $2";
-	    } else {
-		$v{$var} = $2;
-		if ($var =~ /_(?:SOURCE|HEADER)S$/) {
-		    push @l, $var;
-		}
-	    }
-	} elsif (/^\s*include\s+(\S+)/ && $1 ne 'docsource.mk') {
-	    # automake looks for a nested included file starting from the
-	    # directory which the original file was in, so the behaviour
-	    # here is correct.
-	    my $inc = $dir . $1;
-	    open INC, "<$inc" or die "$inc: $!\n";
-	    push @makefile_am, $inc;
-	    unshift @pending, <INC>;
-	    close INC;
-	}
-	if (@pending) {
-	    $_ = shift @pending;
-	    goto pending;
-	}
+        chomp;
+        while (s/\\$/ /) {
+            if (@pending) {
+                $_ .= shift @pending;
+            } else {
+                $_ .= <M>;
+            }
+            chomp;
+        }
+        if (/^\s*(\w+)\s*[+:]?=\s*(.*?)\s*(?:#.*)?$/) {
+            my $var = $1;
+            if (exists $v{$var}) {
+                $v{$var} .= " $2";
+            } else {
+                $v{$var} = $2;
+                if ($var =~ /_(?:SOURCE|HEADER)S$/) {
+                    push @l, $var;
+                }
+            }
+        } elsif (/^\s*include\s+(\S+)/ && $1 ne 'docsource.mk') {
+            # automake looks for a nested included file starting from the
+            # directory which the original file was in, so the behaviour
+            # here is correct.
+            my $inc = $dir . $1;
+            open INC, "<$inc" or die "$inc: $!\n";
+            push @makefile_am, $inc;
+            unshift @pending, <INC>;
+            close INC;
+        }
+        if (@pending) {
+            $_ = shift @pending;
+            goto pending;
+        }
     }
     close M;
 
     if (exists $v{BUILT_SOURCES}) {
-	for (map {/^$/ ? () : $dir.$_} split /\s+/,
-		expand('BUILT_SOURCES', \%v)) {
-	    $built_sources{$_}++;
-	}
+        for (map {/^$/ ? () : $dir.$_} split /\s+/,
+                expand('BUILT_SOURCES', \%v)) {
+            $built_sources{$_}++;
+        }
     }
 
     my @src;
     for (@l) {
-	push @src, map {/^$/ ? () : $dir.$_} split /\s+/, expand($_, \%v);
+        push @src, map {/^$/ ? () : $dir.$_} split /\s+/, expand($_, \%v);
     }
 
     my $subdirs = $v{DIST_SUBDIRS} || $v{SUBDIRS} || '';
     for (split /\s+/, $subdirs) {
-	next if $_ eq ".";
-	push @src, parse_makefile_am("$dir$_/");
+        next if $_ eq ".";
+        push @src, parse_makefile_am("$dir$_/");
     }
     return @src;
 }

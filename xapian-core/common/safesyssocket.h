@@ -60,10 +60,10 @@ inline int xapian_convert_socket_to_int_(SOCKET sock) {
     //
     // We check this assumption rather than quietly mangling the value.
     if (rare(sock > SOCKET(0x7fffffff) && sock != INVALID_SOCKET)) {
-	closesocket(sock);
-	sock = INVALID_SOCKET;
-	// "Too many open sockets" seems the most appropriate error to fake.
-	WSASetLastError(WSAEMFILE);
+        closesocket(sock);
+        sock = INVALID_SOCKET;
+        // "Too many open sockets" seems the most appropriate error to fake.
+        WSASetLastError(WSAEMFILE);
     }
     return int(sock);
 }
@@ -112,15 +112,15 @@ inline int socket_(int domain, int type, int protocol) {
     // Usually type is passed a constant, so we'll collapse to one branch or
     // the other here.  The case where SOCK_CLOEXEC == 0 is handled suitably.
     if (type & SOCK_CLOEXEC) {
-	int save_errno = errno;
-	int r = socket(domain, type, protocol);
-	if (r < 0 && errno == EINVAL) {
-	    errno = save_errno;
-	    r = socket(domain, type &~ SOCK_CLOEXEC, protocol);
-	}
-	return r;
+        int save_errno = errno;
+        int r = socket(domain, type, protocol);
+        if (r < 0 && errno == EINVAL) {
+            errno = save_errno;
+            r = socket(domain, type &~ SOCK_CLOEXEC, protocol);
+        }
+        return r;
     } else {
-	return socket(domain, type, protocol);
+        return socket(domain, type, protocol);
     }
 }
 
@@ -128,15 +128,15 @@ inline int socketpair_(int domain, int type, int protocol, int *sv) {
     // Usually type is passed a constant, so we'll collapse to one branch or
     // the other here.  The case where SOCK_CLOEXEC == 0 is handled suitably.
     if (type & SOCK_CLOEXEC) {
-	int save_errno = errno;
-	int r = socketpair(domain, type, protocol, sv);
-	if (r != 0 && errno == EINVAL) {
-	    errno = save_errno;
-	    r = socketpair(domain, type &~ SOCK_CLOEXEC, protocol, sv);
-	}
-	return r;
+        int save_errno = errno;
+        int r = socketpair(domain, type, protocol, sv);
+        if (r != 0 && errno == EINVAL) {
+            errno = save_errno;
+            r = socketpair(domain, type &~ SOCK_CLOEXEC, protocol, sv);
+        }
+        return r;
     } else {
-	return socketpair(domain, type, protocol, sv);
+        return socketpair(domain, type, protocol, sv);
     }
 }
 

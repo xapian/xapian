@@ -48,7 +48,7 @@ static inline void
 lowercase_string(string &str)
 {
     for (string::iterator i = str.begin(); i != str.end(); ++i) {
-	*i = C_tolower(*i);
+        *i = C_tolower(*i);
     }
 }
 
@@ -80,58 +80,58 @@ XmlParser::get_attribute(const string& name, string& value) const
     const char* p = attribute_data;
     const char* end = p + attribute_len;
     while (p != end) {
-	const char* start = p;
-	p = find_if(p, end, p_whitespaceeqgt);
+        const char* start = p;
+        p = find_if(p, end, p_whitespaceeqgt);
 
-	size_t len = p - start;
-	bool found = (name.size() == len);
-	if (found) {
-	    if (state <= XHTML) {
-		// XML attribute names are case sensitive.
-		found = memcmp(start, name.data(), len) == 0;
-	    } else {
-		// Compare with lower-cased version of attribute name from tag.
-		for (size_t i = 0; i != len; ++i) {
-		    if (C_tolower(start[i]) != name[i]) {
-			found = false;
-			break;
-		    }
-		}
-	    }
-	}
+        size_t len = p - start;
+        bool found = (name.size() == len);
+        if (found) {
+            if (state <= XHTML) {
+                // XML attribute names are case sensitive.
+                found = memcmp(start, name.data(), len) == 0;
+            } else {
+                // Compare with lower-cased version of attribute name from tag.
+                for (size_t i = 0; i != len; ++i) {
+                    if (C_tolower(start[i]) != name[i]) {
+                        found = false;
+                        break;
+                    }
+                }
+            }
+        }
 
-	p = find_if(p, end, [](char ch) { return !C_isspace(ch); });
+        p = find_if(p, end, [](char ch) { return !C_isspace(ch); });
 
-	if (p == end || *p != '=') {
-	    // Boolean attribute - e.g. <input type=checkbox checked>
-	    if (found) {
-		value.clear();
-		return true;
-	    }
-	    continue;
-	}
+        if (p == end || *p != '=') {
+            // Boolean attribute - e.g. <input type=checkbox checked>
+            if (found) {
+                value.clear();
+                return true;
+            }
+            continue;
+        }
 
-	p = find_if(p + 1, end, [](char ch) { return !C_isspace(ch); });
-	if (p == end) break;
+        p = find_if(p + 1, end, [](char ch) { return !C_isspace(ch); });
+        if (p == end) break;
 
-	start = p;
-	char quote = *p;
-	if (quote == '"' || quote == '\'') {
-	    p = find(++start, end, quote);
-	} else {
-	    quote = 0;
-	    p = find_if(start, end, [](char ch) { return C_isspace(ch); });
-	}
+        start = p;
+        char quote = *p;
+        if (quote == '"' || quote == '\'') {
+            p = find(++start, end, quote);
+        } else {
+            quote = 0;
+            p = find_if(start, end, [](char ch) { return C_isspace(ch); });
+        }
 
-	if (found) {
-	    value.assign(start, p);
-	    return true;
-	}
+        if (found) {
+            value.assign(start, p);
+            return true;
+        }
 
-	if (p == end) break;
+        if (p == end) break;
 
-	if (quote) ++p;
-	p = find_if(p, end, [](char ch) { return !C_isspace(ch); });
+        if (quote) ++p;
+        p = find_if(p, end, [](char ch) { return !C_isspace(ch); });
     }
     return false;
 }
@@ -157,51 +157,51 @@ XmlParser::decode_entities(string& s)
     string::iterator in = out;
     string::iterator amp = in;
     while ((amp = find(amp, s.end(), '&')) != s.end()) {
-	unsigned int val = 0;
-	string::iterator end, p = amp + 1;
-	if (p != s.end() && *p == '#') {
-	    ++p;
-	    if (p != s.end() && (*p == 'x' || *p == 'X')) {
-		// hex
-		while (++p != s.end() && C_isxdigit(*p)) {
-		    val = (val << 4) | hex_digit(*p);
-		}
-		end = p;
-	    } else {
-		// number
-		while (p != s.end() && C_isdigit(*p)) {
-		    val = val * 10 + (*p - '0');
-		    ++p;
-		}
-		end = p;
-	    }
-	} else {
-	    end = find_if(p, s.end(), C_isnotalnum);
-	    int k = keyword2(tab, s.data() + (p - s.begin()), end - p);
-	    if (k >= 0) val = named_ent_codepoint[k];
-	}
-	if (end != s.end() && *end == ';') ++end;
-	if (val) {
-	    if (in != out) {
-		out = copy(in, amp, out);
-	    } else {
-		out = amp;
-	    }
-	    in = end;
-	    if (val < 0x80) {
-		*out++ = char(val);
-	    } else {
-		// Convert Unicode value val to UTF-8.
-		char seq[4];
-		unsigned len = Xapian::Unicode::nonascii_to_utf8(val, seq);
-		out = copy(seq, seq + len, out);
-	    }
-	}
-	amp = end;
+        unsigned int val = 0;
+        string::iterator end, p = amp + 1;
+        if (p != s.end() && *p == '#') {
+            ++p;
+            if (p != s.end() && (*p == 'x' || *p == 'X')) {
+                // hex
+                while (++p != s.end() && C_isxdigit(*p)) {
+                    val = (val << 4) | hex_digit(*p);
+                }
+                end = p;
+            } else {
+                // number
+                while (p != s.end() && C_isdigit(*p)) {
+                    val = val * 10 + (*p - '0');
+                    ++p;
+                }
+                end = p;
+            }
+        } else {
+            end = find_if(p, s.end(), C_isnotalnum);
+            int k = keyword2(tab, s.data() + (p - s.begin()), end - p);
+            if (k >= 0) val = named_ent_codepoint[k];
+        }
+        if (end != s.end() && *end == ';') ++end;
+        if (val) {
+            if (in != out) {
+                out = copy(in, amp, out);
+            } else {
+                out = amp;
+            }
+            in = end;
+            if (val < 0x80) {
+                *out++ = char(val);
+            } else {
+                // Convert Unicode value val to UTF-8.
+                char seq[4];
+                unsigned len = Xapian::Unicode::nonascii_to_utf8(val, seq);
+                out = copy(seq, seq + len, out);
+            }
+        }
+        amp = end;
     }
 
     if (in != out) {
-	s.erase(out, in);
+        s.erase(out, in);
     }
 }
 
@@ -210,28 +210,28 @@ XmlParser::parse(string_view text)
 {
     // Check for BOM.
     if (text.size() >= 3) {
-	switch (text[0]) {
-	  case '\xef':
-	    if (text[1] == '\xbb' && text[2] == '\xbf') {
-		charset = "utf-8";
-		text.remove_prefix(3);
-	    }
-	    break;
-	  case '\xfe':
-	  case '\xff':
-	    // Match either \xfe\xff or \xff\xfe.
-	    if ((text[1] ^ text[0]) == 1) {
-		// Convert from "utf-16" which will select the appropriate BE
-		// or LE variant based on the BOM and also remove the BOM for
-		// us.
-		string utf8_text;
-		convert_to_utf8(text, "utf-16", utf8_text);
-		charset = "utf-8";
-		parse(utf8_text);
-		return;
-	    }
-	    break;
-	}
+        switch (text[0]) {
+          case '\xef':
+            if (text[1] == '\xbb' && text[2] == '\xbf') {
+                charset = "utf-8";
+                text.remove_prefix(3);
+            }
+            break;
+          case '\xfe':
+          case '\xff':
+            // Match either \xfe\xff or \xff\xfe.
+            if ((text[1] ^ text[0]) == 1) {
+                // Convert from "utf-16" which will select the appropriate BE
+                // or LE variant based on the BOM and also remove the BOM for
+                // us.
+                string utf8_text;
+                convert_to_utf8(text, "utf-16", utf8_text);
+                charset = "utf-8";
+                parse(utf8_text);
+                return;
+            }
+            break;
+        }
     }
 
     attribute_len = 0;
@@ -239,322 +239,322 @@ XmlParser::parse(string_view text)
     auto start = text.begin();
 
     while (true) {
-	// Skip through until we find a tag, a comment, or the end of document.
-	// Ignore isolated occurrences of '<' which don't start a tag or
-	// comment.
-	auto p = start;
-	while (true) {
-	    p = find(p, text.end(), '<');
-	    if (p == text.end()) break;
-	    unsigned char ch = *(p + 1);
+        // Skip through until we find a tag, a comment, or the end of document.
+        // Ignore isolated occurrences of '<' which don't start a tag or
+        // comment.
+        auto p = start;
+        while (true) {
+            p = find(p, text.end(), '<');
+            if (p == text.end()) break;
+            unsigned char ch = *(p + 1);
 
-	    // Opening tag, closing tag, or comment/SGML declaration.
-	    if ((state != HTML_IN_SCRIPT && C_isalpha(ch)) || ch == '/' || ch == '!')
-		break;
+            // Opening tag, closing tag, or comment/SGML declaration.
+            if ((state != HTML_IN_SCRIPT && C_isalpha(ch)) || ch == '/' || ch == '!')
+                break;
 
-	    if (ch == '?') {
-		// PHP code or XML declaration.
-		// XML declaration is only valid at the start of the first line.
-		if (p != text.begin() || text.size() < 20) break;
+            if (ch == '?') {
+                // PHP code or XML declaration.
+                // XML declaration is only valid at the start of the first line.
+                if (p != text.begin() || text.size() < 20) break;
 
-		// XML declaration looks something like this:
-		// <?xml version="1.0" encoding="UTF-8"?>
-		if (p[2] != 'x' || p[3] != 'm' || p[4] != 'l') break;
-		if (strchr(" \t\r\n", p[5]) == NULL) break;
+                // XML declaration looks something like this:
+                // <?xml version="1.0" encoding="UTF-8"?>
+                if (p[2] != 'x' || p[3] != 'm' || p[4] != 'l') break;
+                if (strchr(" \t\r\n", p[5]) == NULL) break;
 
-		// If parsing HTML switch to XHTML mode.
-		if (state >= HTML) state = XHTML;
+                // If parsing HTML switch to XHTML mode.
+                if (state >= HTML) state = XHTML;
 
-		auto decl_end = find(p + 6, text.end(), '?');
-		if (decl_end == text.end()) break;
+                auto decl_end = find(p + 6, text.end(), '?');
+                if (decl_end == text.end()) break;
 
-		// Default charset for XML is UTF-8.
-		charset = "utf-8";
+                // Default charset for XML is UTF-8.
+                charset = "utf-8";
 
-		string_view decl(p + 6, decl_end - (p + 6));
-		size_t enc = decl.find("encoding");
-		if (enc == decl.npos) break;
+                string_view decl(p + 6, decl_end - (p + 6));
+                size_t enc = decl.find("encoding");
+                if (enc == decl.npos) break;
 
-		enc = decl.find_first_not_of(" \t\r\n", enc + 8);
-		if (enc == decl.npos) break;
+                enc = decl.find_first_not_of(" \t\r\n", enc + 8);
+                if (enc == decl.npos) break;
 
-		if (decl[enc] != '=') break;
+                if (decl[enc] != '=') break;
 
-		enc = decl.find_first_not_of(" \t\r\n", enc + 1);
-		if (enc == decl.npos) break;
+                enc = decl.find_first_not_of(" \t\r\n", enc + 1);
+                if (enc == decl.npos) break;
 
-		if (decl[enc] != '"' && decl[enc] != '\'') break;
+                if (decl[enc] != '"' && decl[enc] != '\'') break;
 
-		char quote = decl[enc++];
-		size_t enc_end = decl.find(quote, enc);
+                char quote = decl[enc++];
+                size_t enc_end = decl.find(quote, enc);
 
-		if (enc_end != decl.npos)
-		    charset.assign(decl, enc, enc_end - enc);
+                if (enc_end != decl.npos)
+                    charset.assign(decl, enc, enc_end - enc);
 
-		break;
-	    }
-	    ++p;
-	}
+                break;
+            }
+            ++p;
+        }
 
-	// Process content up to start of tag.
-	if (p > start) {
-	    string content;
-	    convert_to_utf8(string_view(text.data() + (start - text.begin()),
-					p - start),
-			    charset, content);
-	    decode_entities(content);
-	    process_content(content);
-	}
+        // Process content up to start of tag.
+        if (p > start) {
+            string content;
+            convert_to_utf8(string_view(text.data() + (start - text.begin()),
+                                        p - start),
+                            charset, content);
+            decode_entities(content);
+            process_content(content);
+        }
 
-	if (p == text.end()) break;
+        if (p == text.end()) break;
 
-	start = p + 1;
+        start = p + 1;
 
-	if (start == text.end()) break;
+        if (start == text.end()) break;
 
-	if (*start == '!') {
-	    if (++start == text.end()) break;
+        if (*start == '!') {
+            if (++start == text.end()) break;
 
-	    // Comment, SGML declaration, or HTML5 DTD.
-	    char first_ch = *start;
-	    if (++start == text.end()) break;
-	    if (first_ch == '-' && *start == '-') {
-		++start;
-		auto close = find(start, text.end(), '>');
-		// An unterminated comment swallows rest of document
-		// (like Netscape, but unlike MSIE IIRC)
-		if (close == text.end()) break;
+            // Comment, SGML declaration, or HTML5 DTD.
+            char first_ch = *start;
+            if (++start == text.end()) break;
+            if (first_ch == '-' && *start == '-') {
+                ++start;
+                auto close = find(start, text.end(), '>');
+                // An unterminated comment swallows rest of document
+                // (like Netscape, but unlike MSIE IIRC)
+                if (close == text.end()) break;
 
-		p = close;
-		// look for -->
-		while (p != text.end() && (*(p - 1) != '-' || *(p - 2) != '-'))
-		    p = find(p + 1, text.end(), '>');
+                p = close;
+                // look for -->
+                while (p != text.end() && (*(p - 1) != '-' || *(p - 2) != '-'))
+                    p = find(p + 1, text.end(), '>');
 
-		if (p != text.end()) {
-		    if (state != XML) {
-			// Check for htdig's "ignore this bit" comments.
-			if (p - start == CONST_STRLEN("htdig_noindex") + 2 &&
-			    memcmp(&*start, "htdig_noindex",
-				   CONST_STRLEN("htdig_noindex")) == 0) {
-			    auto i = text.find("<!--/htdig_noindex-->",
-					       p + 1 - text.begin());
-			    if (i == text.npos) break;
-			    start = text.begin() + i +
-				CONST_STRLEN("<!--/htdig_noindex-->");
-			    continue;
-			}
-			// Check for udmcomment (similar to htdig's)
-			if (p - start == CONST_STRLEN("UdmComment") + 2 &&
-			    memcmp(&*start, "UdmComment",
-				   CONST_STRLEN("UdmComment")) == 0) {
-			    auto i = text.find("<!--/UdmComment-->",
-					       p + 1 - text.begin());
-			    if (i == text.npos) break;
-			    start = text.begin() + i +
-				CONST_STRLEN("<!--/UdmComment-->");
-			    continue;
-			}
-		    }
-		    // If we found --> skip to there.
-		    start = p;
-		} else {
-		    // Otherwise skip to the first > we found (as Netscape does).
-		    start = close;
-		}
-	    } else if (first_ch == '[' &&
-		       text.size() - (start - text.begin()) > 6 &&
-		       memcmp(&*start, "CDATA[", CONST_STRLEN("CDATA[")) == 0) {
-		start += 6;
-		string_view::size_type b = start - text.begin();
-		string_view::size_type i = text.find("]]>", b);
-		string_view::size_type e = (i == text.npos) ? text.size() : i;
-		string content;
-		convert_to_utf8(string_view(text.data() + b, e - b),
-				charset, content);
-		process_content(content);
-		if (i == text.npos) break;
-		start = text.begin() + i + 2;
-	    } else if (C_tolower(first_ch) == 'd' &&
-		       text.end() - start > 6 &&
-		       C_tolower(start[0]) == 'o' &&
-		       C_tolower(start[1]) == 'c' &&
-		       C_tolower(start[2]) == 't' &&
-		       C_tolower(start[3]) == 'y' &&
-		       C_tolower(start[4]) == 'p' &&
-		       C_tolower(start[5]) == 'e' &&
-		       C_isspace(start[6])) {
-		// DOCTYPE declaration.
-		start += 7;
-		while (start != text.end() && C_isspace(*start)) {
-		    ++start;
-		}
-		if (start == text.end()) break;
-		if (text.end() - start >= 5 &&
-		    C_tolower(start[0]) == 'h' &&
-		    C_tolower(start[1]) == 't' &&
-		    C_tolower(start[2]) == 'm' &&
-		    C_tolower(start[3]) == 'l' &&
-		    (start[4] == '>' || C_isspace(start[4]))) {
-		    start += 4;
+                if (p != text.end()) {
+                    if (state != XML) {
+                        // Check for htdig's "ignore this bit" comments.
+                        if (p - start == CONST_STRLEN("htdig_noindex") + 2 &&
+                            memcmp(&*start, "htdig_noindex",
+                                   CONST_STRLEN("htdig_noindex")) == 0) {
+                            auto i = text.find("<!--/htdig_noindex-->",
+                                               p + 1 - text.begin());
+                            if (i == text.npos) break;
+                            start = text.begin() + i +
+                                CONST_STRLEN("<!--/htdig_noindex-->");
+                            continue;
+                        }
+                        // Check for udmcomment (similar to htdig's)
+                        if (p - start == CONST_STRLEN("UdmComment") + 2 &&
+                            memcmp(&*start, "UdmComment",
+                                   CONST_STRLEN("UdmComment")) == 0) {
+                            auto i = text.find("<!--/UdmComment-->",
+                                               p + 1 - text.begin());
+                            if (i == text.npos) break;
+                            start = text.begin() + i +
+                                CONST_STRLEN("<!--/UdmComment-->");
+                            continue;
+                        }
+                    }
+                    // If we found --> skip to there.
+                    start = p;
+                } else {
+                    // Otherwise skip to the first > we found (as Netscape does).
+                    start = close;
+                }
+            } else if (first_ch == '[' &&
+                       text.size() - (start - text.begin()) > 6 &&
+                       memcmp(&*start, "CDATA[", CONST_STRLEN("CDATA[")) == 0) {
+                start += 6;
+                string_view::size_type b = start - text.begin();
+                string_view::size_type i = text.find("]]>", b);
+                string_view::size_type e = (i == text.npos) ? text.size() : i;
+                string content;
+                convert_to_utf8(string_view(text.data() + b, e - b),
+                                charset, content);
+                process_content(content);
+                if (i == text.npos) break;
+                start = text.begin() + i + 2;
+            } else if (C_tolower(first_ch) == 'd' &&
+                       text.end() - start > 6 &&
+                       C_tolower(start[0]) == 'o' &&
+                       C_tolower(start[1]) == 'c' &&
+                       C_tolower(start[2]) == 't' &&
+                       C_tolower(start[3]) == 'y' &&
+                       C_tolower(start[4]) == 'p' &&
+                       C_tolower(start[5]) == 'e' &&
+                       C_isspace(start[6])) {
+                // DOCTYPE declaration.
+                start += 7;
+                while (start != text.end() && C_isspace(*start)) {
+                    ++start;
+                }
+                if (start == text.end()) break;
+                if (text.end() - start >= 5 &&
+                    C_tolower(start[0]) == 'h' &&
+                    C_tolower(start[1]) == 't' &&
+                    C_tolower(start[2]) == 'm' &&
+                    C_tolower(start[3]) == 'l' &&
+                    (start[4] == '>' || C_isspace(start[4]))) {
+                    start += 4;
 
-		    // HTML doctype.
-		    while (start != text.end() && C_isspace(*start)) {
-			++start;
-		    }
-		    if (start == text.end()) break;
+                    // HTML doctype.
+                    while (start != text.end() && C_isspace(*start)) {
+                        ++start;
+                    }
+                    if (start == text.end()) break;
 
-		    if (*start == '>') {
-			// <!DOCTYPE html>
-			// Default charset for HTML5 is UTF-8.
-			charset = "utf-8";
-		    }
-		} else if (text.end() - start >= 29 &&
-			   C_tolower(start[0]) == 's' &&
-			   C_tolower(start[1]) == 'y' &&
-			   C_tolower(start[2]) == 's' &&
-			   C_tolower(start[3]) == 't' &&
-			   C_tolower(start[4]) == 'e' &&
-			   C_tolower(start[5]) == 'm' &&
-			   C_isspace(start[6])) {
-		    start += 7;
-		    while (start != text.end() && C_isspace(*start)) {
-			++start;
-		    }
-		    size_t left = text.end() - start;
-		    if (left >= HTML5_LEGACY_COMPAT_LEN + 3 &&
-			(*start == '\'' || *start == '"') &&
-			start[HTML5_LEGACY_COMPAT_LEN + 1] == *start &&
-			text.compare(start - text.begin() + 1,
-				     HTML5_LEGACY_COMPAT_LEN,
-				     HTML5_LEGACY_COMPAT,
-				     HTML5_LEGACY_COMPAT_LEN) == 0) {
-			// HTML5 legacy compatibility doctype:
-			// <!DOCTYPE html SYSTEM "about:legacy-compat">
-			start += HTML5_LEGACY_COMPAT_LEN + 2;
-			// Default charset for HTML5 is UTF-8.
-			charset = "utf-8";
-		    }
-		}
-		start = find(start - 1, text.end(), '>');
-		if (start == text.end()) break;
-	    } else {
-		// Some other SGML declaration - ignore it.
-		start = find(start - 1, text.end(), '>');
-		if (start == text.end()) break;
-	    }
-	    ++start;
-	} else if (*start == '?') {
-	    if (++start == text.end()) break;
-	    // PHP - swallow until ?> or EOF
-	    start = find(start + 1, text.end(), '>');
+                    if (*start == '>') {
+                        // <!DOCTYPE html>
+                        // Default charset for HTML5 is UTF-8.
+                        charset = "utf-8";
+                    }
+                } else if (text.end() - start >= 29 &&
+                           C_tolower(start[0]) == 's' &&
+                           C_tolower(start[1]) == 'y' &&
+                           C_tolower(start[2]) == 's' &&
+                           C_tolower(start[3]) == 't' &&
+                           C_tolower(start[4]) == 'e' &&
+                           C_tolower(start[5]) == 'm' &&
+                           C_isspace(start[6])) {
+                    start += 7;
+                    while (start != text.end() && C_isspace(*start)) {
+                        ++start;
+                    }
+                    size_t left = text.end() - start;
+                    if (left >= HTML5_LEGACY_COMPAT_LEN + 3 &&
+                        (*start == '\'' || *start == '"') &&
+                        start[HTML5_LEGACY_COMPAT_LEN + 1] == *start &&
+                        text.compare(start - text.begin() + 1,
+                                     HTML5_LEGACY_COMPAT_LEN,
+                                     HTML5_LEGACY_COMPAT,
+                                     HTML5_LEGACY_COMPAT_LEN) == 0) {
+                        // HTML5 legacy compatibility doctype:
+                        // <!DOCTYPE html SYSTEM "about:legacy-compat">
+                        start += HTML5_LEGACY_COMPAT_LEN + 2;
+                        // Default charset for HTML5 is UTF-8.
+                        charset = "utf-8";
+                    }
+                }
+                start = find(start - 1, text.end(), '>');
+                if (start == text.end()) break;
+            } else {
+                // Some other SGML declaration - ignore it.
+                start = find(start - 1, text.end(), '>');
+                if (start == text.end()) break;
+            }
+            ++start;
+        } else if (*start == '?') {
+            if (++start == text.end()) break;
+            // PHP - swallow until ?> or EOF
+            start = find(start + 1, text.end(), '>');
 
-	    // look for ?>
-	    while (start != text.end() && *(start - 1) != '?')
-		start = find(start + 1, text.end(), '>');
+            // look for ?>
+            while (start != text.end() && *(start - 1) != '?')
+                start = find(start + 1, text.end(), '>');
 
-	    if (start == text.end()) {
-		// The closing ?> at the end of a file is optional so ignore
-		// the rest of the document if there isn't one:
-		// https://www.php.net/basic-syntax.instruction-separation
-	    } else {
-		// PHP ignores an immediately trailing newline after the
-		// closing tag:
-		// https://www.php.net/basic-syntax.instruction-separation
-		// Testing shows \n, \r and \r\n are skipped.
-		++start;
-		if (*start == '\r') ++start;
-		if (*start == '\n') ++start;
-	    }
-	} else {
-	    // Opening or closing tag.
-	    bool closing = false;
+            if (start == text.end()) {
+                // The closing ?> at the end of a file is optional so ignore
+                // the rest of the document if there isn't one:
+                // https://www.php.net/basic-syntax.instruction-separation
+            } else {
+                // PHP ignores an immediately trailing newline after the
+                // closing tag:
+                // https://www.php.net/basic-syntax.instruction-separation
+                // Testing shows \n, \r and \r\n are skipped.
+                ++start;
+                if (*start == '\r') ++start;
+                if (*start == '\n') ++start;
+            }
+        } else {
+            // Opening or closing tag.
+            bool closing = false;
 
-	    if (*start == '/') {
-		closing = true;
-		start = find_if(start + 1, text.end(), C_isnotspace);
-	    }
+            if (*start == '/') {
+                closing = true;
+                start = find_if(start + 1, text.end(), C_isnotspace);
+            }
 
-	    p = find_if(start, text.end(), p_nottag);
-	    string tag(start, p);
-	    if (state >= HTML) {
-		// Convert tagname to lowercase.
-		lowercase_string(tag);
-	    }
+            p = find_if(start, text.end(), p_nottag);
+            string tag(start, p);
+            if (state >= HTML) {
+                // Convert tagname to lowercase.
+                lowercase_string(tag);
+            }
 
-	    if (closing) {
-		if (!closing_tag(tag))
-		    return;
-		if (state == HTML_IN_SCRIPT && tag == "script")
-		    state = HTML;
-	    }
+            if (closing) {
+                if (!closing_tag(tag))
+                    return;
+                if (state == HTML_IN_SCRIPT && tag == "script")
+                    state = HTML;
+            }
 
-	    start = p;
-	    if (p < text.end() && *p != '>') {
-		// We often aren't asked for the attributes, so parse them
-		// lazily - for now we just need to skip balanced single and
-		// double quotes.
-		//
-		// Ignore attributes on closing tags (they're bogus) but still
-		// skip balanced quotes, since that's what browsers do.
-		while (true) {
-		    p = find_if(p, text.end(),
-				[](char ch) {
-				    return ch == '"' || ch == '\'' || ch == '>';
-				});
-		    if (p == text.end() || *p == '>') {
-			break;
-		    }
-		    if (*p == '"') {
-			p = find_if(p, text.end(),
-				    [](char ch) {
-					return ch == '\'' || ch == '>';
-				    });
-		    } else {
-			p = find_if(p, text.end(),
-				    [](char ch) {
-					return ch == '"' || ch == '>';
-				    });
-		    }
-		}
-	    }
+            start = p;
+            if (p < text.end() && *p != '>') {
+                // We often aren't asked for the attributes, so parse them
+                // lazily - for now we just need to skip balanced single and
+                // double quotes.
+                //
+                // Ignore attributes on closing tags (they're bogus) but still
+                // skip balanced quotes, since that's what browsers do.
+                while (true) {
+                    p = find_if(p, text.end(),
+                                [](char ch) {
+                                    return ch == '"' || ch == '\'' || ch == '>';
+                                });
+                    if (p == text.end() || *p == '>') {
+                        break;
+                    }
+                    if (*p == '"') {
+                        p = find_if(p, text.end(),
+                                    [](char ch) {
+                                        return ch == '\'' || ch == '>';
+                                    });
+                    } else {
+                        p = find_if(p, text.end(),
+                                    [](char ch) {
+                                        return ch == '"' || ch == '>';
+                                    });
+                    }
+                }
+            }
 
-	    if (!closing) {
-		attribute_len = p - start;
-		bool empty_element = false;
-		if (attribute_len > 0) {
-		    // Check for empty element (e.g. <br/>).
-		    attribute_data = &*start;
-		    if (p[-1] == '/') {
-			// <a href=foo/> isn't an empty element though
-			if (attribute_len == 1 ||
-			    C_isspace(p[-2]) ||
-			    p[-2] == '"' ||
-			    p[-2] == '\'') {
-			    empty_element = true;
-			    --attribute_len;
-			}
-		    }
-		}
-		if (!opening_tag(tag))
-		    return;
-		attribute_len = 0;
+            if (!closing) {
+                attribute_len = p - start;
+                bool empty_element = false;
+                if (attribute_len > 0) {
+                    // Check for empty element (e.g. <br/>).
+                    attribute_data = &*start;
+                    if (p[-1] == '/') {
+                        // <a href=foo/> isn't an empty element though
+                        if (attribute_len == 1 ||
+                            C_isspace(p[-2]) ||
+                            p[-2] == '"' ||
+                            p[-2] == '\'') {
+                            empty_element = true;
+                            --attribute_len;
+                        }
+                    }
+                }
+                if (!opening_tag(tag))
+                    return;
+                attribute_len = 0;
 
-		if (empty_element) {
-		    if (!closing_tag(tag))
-			return;
-		}
+                if (empty_element) {
+                    if (!closing_tag(tag))
+                        return;
+                }
 
-		if (state == HTML && tag == "script") {
-		    // In HTML <script> tags we ignore opening tags to avoid
-		    // problems with "a<b".
-		    state = HTML_IN_SCRIPT;
-		}
+                if (state == HTML && tag == "script") {
+                    // In HTML <script> tags we ignore opening tags to avoid
+                    // problems with "a<b".
+                    state = HTML_IN_SCRIPT;
+                }
 
-		if (start != text.end() && *start == '>') ++start;
-	    }
+                if (start != text.end() && *start == '>') ++start;
+            }
 
-	    if (p == text.end()) break;
-	    start = p + 1;
-	}
+            if (p == text.end()) break;
+            start = p + 1;
+        }
     }
 }

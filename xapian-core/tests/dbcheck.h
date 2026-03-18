@@ -33,8 +33,8 @@
  */
 std::string
 positions_to_string(Xapian::PositionIterator & it,
-		    const Xapian::PositionIterator & end,
-		    Xapian::termcount * count = NULL);
+                    const Xapian::PositionIterator & end,
+                    Xapian::termcount * count = NULL);
 
 /** Convert the list of postings in a postlist to a string.
  *
@@ -64,7 +64,7 @@ termstats_to_string(const Xapian::Database & db, const std::string & term);
  */
 void
 dbcheck(const Xapian::Database & db,
-	Xapian::doccount expected_doccount,
-	Xapian::docid expected_lastdocid);
+        Xapian::doccount expected_doccount,
+        Xapian::docid expected_lastdocid);
 
 #endif /* XAPIAN_INCLUDED_DBCHECK_H */

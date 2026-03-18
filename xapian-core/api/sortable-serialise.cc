@@ -53,14 +53,14 @@ Xapian::sortable_serialise_(double value, char* buf) noexcept
      */
     if (rare(!isfinite(value))) {
 handle_as_infinity:
-	if (value < 0) {
-	    // Negative infinity.
-	    return 0;
-	} else {
-	    // Positive infinity.
-	    memset(buf, '\xff', 9);
-	    return 9;
-	}
+        if (value < 0) {
+            // Negative infinity.
+            return 0;
+        } else {
+            // Positive infinity.
+            memset(buf, '\xff', 9);
+            return 9;
+        }
     }
 
     int exponent;
@@ -75,13 +75,13 @@ handle_as_infinity:
      *  numbers to 0.
      */
     if (mantissa == 0.0 || rare(exponent < -2039)) {
-	*buf = '\x80';
-	return 1;
+        *buf = '\x80';
+        return 1;
     }
 
     if (rare(exponent > 2055)) {
-	// Extremely large non-IEEE representation.
-	goto handle_as_infinity;
+        // Extremely large non-IEEE representation.
+        goto handle_as_infinity;
     }
 
     bool negative = (mantissa < 0);
@@ -101,8 +101,8 @@ handle_as_infinity:
     exponent -= 8;
     bool exponent_negative = (exponent < 0);
     if (exponent_negative) {
-	exponent = -exponent;
-	next ^= 0x60;
+        exponent = -exponent;
+        next ^= 0x60;
     }
 
     size_t len = 0;
@@ -117,20 +117,20 @@ handle_as_infinity:
      */
     UNITTEST_ASSERT_NOTHROW(exponent >= 0, 0);
     if (exponent < 8) {
-	next ^= 0x20;
-	next |= static_cast<unsigned char>(exponent << 2);
-	if (negative ^ exponent_negative) next ^= 0x1c;
+        next ^= 0x20;
+        next |= static_cast<unsigned char>(exponent << 2);
+        if (negative ^ exponent_negative) next ^= 0x1c;
     } else {
-	UNITTEST_ASSERT_NOTHROW((exponent >> 11) == 0, 0);
-	// Put the top 5 bits of the exponent into the lower 5 bits of the
-	// first byte:
-	next |= static_cast<unsigned char>(exponent >> 6);
-	if (negative ^ exponent_negative) next ^= 0x1f;
-	buf[len++] = next;
-	// And the lower 6 bits of the exponent go into the upper 6 bits
-	// of the second byte:
-	next = static_cast<unsigned char>(exponent << 2);
-	if (negative ^ exponent_negative) next ^= 0xfc;
+        UNITTEST_ASSERT_NOTHROW((exponent >> 11) == 0, 0);
+        // Put the top 5 bits of the exponent into the lower 5 bits of the
+        // first byte:
+        next |= static_cast<unsigned char>(exponent >> 6);
+        if (negative ^ exponent_negative) next ^= 0x1f;
+        buf[len++] = next;
+        // And the lower 6 bits of the exponent go into the upper 6 bits
+        // of the second byte:
+        next = static_cast<unsigned char>(exponent << 2);
+        if (negative ^ exponent_negative) next ^= 0xfc;
     }
 
     // Convert the 52 (or 53) bits of the mantissa into two 32-bit words.
@@ -147,11 +147,11 @@ handle_as_infinity:
     // cases.
     UNITTEST_ASSERT_NOTHROW(negative || (word1 & (1<<26)), 0);
     if (negative) {
-	// We negate the mantissa for negative numbers, so that the sort order
-	// is reversed (since larger negative numbers should come first).
-	word1 = negate_unsigned(word1);
-	if (word2 != 0) ++word1;
-	word2 = negate_unsigned(word2);
+        // We negate the mantissa for negative numbers, so that the sort order
+        // is reversed (since larger negative numbers should come first).
+        word1 = negate_unsigned(word1);
+        if (word2 != 0) ++word1;
+        word2 = negate_unsigned(word2);
     }
 
     word1 &= 0x03ffffff;
@@ -168,7 +168,7 @@ handle_as_infinity:
 
     // Finally, we can chop off any trailing zero bytes.
     while (len > 0 && buf[len - 1] == '\0') {
-	--len;
+        --len;
     }
 
     return len;
@@ -190,16 +190,16 @@ Xapian::sortable_unserialise(std::string_view value) noexcept
 
     // Positive infinity.
     if (value.size() == 9 &&
-	memcmp(value.data(), "\xff\xff\xff\xff\xff\xff\xff\xff\xff", 9) == 0) {
-	// "On implementations that support floating-point infinities,
-	// [HUGE_VAL] always expand[s] to the positive infinit[y] of double"
-	// https://en.cppreference.com/w/cpp/numeric/math/HUGE_VAL
-	return HUGE_VAL;
+        memcmp(value.data(), "\xff\xff\xff\xff\xff\xff\xff\xff\xff", 9) == 0) {
+        // "On implementations that support floating-point infinities,
+        // [HUGE_VAL] always expand[s] to the positive infinit[y] of double"
+        // https://en.cppreference.com/w/cpp/numeric/math/HUGE_VAL
+        return HUGE_VAL;
     }
 
     // Negative infinity.
     if (value.empty()) {
-	return -HUGE_VAL;
+        return -HUGE_VAL;
     }
 
     unsigned char first = numfromstr(value, 0);
@@ -211,13 +211,13 @@ Xapian::sortable_unserialise(std::string_view value) noexcept
     bool explen = !(first & 0x20);
     int exponent = first & 0x1f;
     if (!explen) {
-	exponent >>= 2;
-	if (negative ^ exponent_negative) exponent ^= 0x07;
+        exponent >>= 2;
+        if (negative ^ exponent_negative) exponent ^= 0x07;
     } else {
-	first = numfromstr(value, ++i);
-	exponent <<= 6;
-	exponent |= (first >> 2);
-	if (negative ^ exponent_negative) exponent ^= 0x07ff;
+        first = numfromstr(value, ++i);
+        exponent <<= 6;
+        exponent |= (first >> 2);
+        if (negative ^ exponent_negative) exponent ^= 0x07ff;
     }
 
     unsigned word1;
@@ -228,18 +228,18 @@ Xapian::sortable_unserialise(std::string_view value) noexcept
 
     unsigned word2 = 0;
     if (i < value.size()) {
-	word2 = numfromstr(value, ++i) << 24;
-	word2 |= numfromstr(value, ++i) << 16;
-	word2 |= numfromstr(value, ++i) << 8;
-	word2 |= numfromstr(value, ++i);
+        word2 = numfromstr(value, ++i) << 24;
+        word2 |= numfromstr(value, ++i) << 16;
+        word2 |= numfromstr(value, ++i) << 8;
+        word2 |= numfromstr(value, ++i);
     }
 
     if (negative) {
-	word1 = negate_unsigned(word1);
-	if (word2 != 0) ++word1;
-	word2 = negate_unsigned(word2);
-	UNITTEST_ASSERT_NOTHROW((word1 & 0xf0000000) != 0, 0);
-	word1 &= 0x03ffffff;
+        word1 = negate_unsigned(word1);
+        if (word2 != 0) ++word1;
+        word2 = negate_unsigned(word2);
+        UNITTEST_ASSERT_NOTHROW((word1 & 0xf0000000) != 0, 0);
+        word1 &= 0x03ffffff;
     }
     if (!negative) word1 |= 1<<26;
 

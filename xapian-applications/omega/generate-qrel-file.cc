@@ -52,30 +52,30 @@ main(int argc, char **argv)
 {
     const char * opts = "";
     static const struct option long_opts[] = {
-	{ "help",	no_argument, 0, OPT_HELP },
-	{ "version",	no_argument, 0, OPT_VERSION },
-	{ NULL,		0, 0, 0}
+        { "help",	no_argument, 0, OPT_HELP },
+        { "version",	no_argument, 0, OPT_VERSION },
+        { NULL,		0, 0, 0}
     };
 
     int c;
     while ((c = gnu_getopt_long(argc, argv, opts, long_opts, 0)) != -1) {
-	switch (c) {
-	    case OPT_HELP:
-		cout << PROG_NAME " - " PROG_DESC "\n\n";
-		show_usage();
-		exit(0);
-	    case OPT_VERSION:
-		cout << PROG_NAME " - " PACKAGE_STRING << endl;
-		exit(0);
-	    default:
-		show_usage();
-		exit(1);
-	}
+        switch (c) {
+            case OPT_HELP:
+                cout << PROG_NAME " - " PROG_DESC "\n\n";
+                show_usage();
+                exit(0);
+            case OPT_VERSION:
+                cout << PROG_NAME " - " PACKAGE_STRING << endl;
+                exit(0);
+            default:
+                show_usage();
+                exit(1);
+        }
     }
 
     if (argc - optind != 2) {
-	show_usage();
-	exit(1);
+        show_usage();
+        exit(1);
     }
 
     string final_log_file = argv[optind];
@@ -85,10 +85,10 @@ main(int argc, char **argv)
 
     vector<Session> sessions;
     try {
-	sessions = sdbn.build_sessions(final_log_file);
+        sessions = sdbn.build_sessions(final_log_file);
     } catch (std::exception &ex) {
-	cerr << ex.what() << endl;
-	exit(1);
+        cerr << ex.what() << endl;
+        exit(1);
     }
 
     ofstream file_q;
@@ -99,14 +99,14 @@ main(int argc, char **argv)
     // Extract doc relevances and doc ids from each session and write
     // to the qrel file in the required format.
     for (auto&& session : sessions) {
-	vector<pair<string, double>> docid_relevances =
-	    sdbn.get_predicted_relevances(session);
+        vector<pair<string, double>> docid_relevances =
+            sdbn.get_predicted_relevances(session);
 
-	auto reliter = docid_relevances.begin();
+        auto reliter = docid_relevances.begin();
 
-	for (; reliter != docid_relevances.end(); ++reliter)
-	    file_q << session.get_qid() << " Q0 " << (*reliter).first << ' '
-		   << (*reliter).second << endl;
+        for (; reliter != docid_relevances.end(); ++reliter)
+            file_q << session.get_qid() << " Q0 " << (*reliter).first << ' '
+                   << (*reliter).second << endl;
     }
 
     file_q.close();

@@ -31,8 +31,8 @@ namespace TcpClient {
      *  Give up trying to connect after @a timeout_connect seconds.
      */
     int open_socket(std::string_view hostname, int port,
-		    double timeout_connect, bool tcp_nodelay,
-		    const std::string& context);
+                    double timeout_connect, bool tcp_nodelay,
+                    const std::string& context);
 }
 
 #endif  // XAPIAN_INCLUDED_TCPCLIENT_H

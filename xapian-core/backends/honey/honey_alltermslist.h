@@ -71,8 +71,8 @@ class HoneyAllTermsList : public AllTermsList {
 
   public:
     HoneyAllTermsList(const HoneyDatabase* database_,
-		      std::string_view prefix_)
-	: database(database_), prefix(prefix_) {}
+                      std::string_view prefix_)
+        : database(database_), prefix(prefix_) {}
 
     /// Destructor.
     ~HoneyAllTermsList();

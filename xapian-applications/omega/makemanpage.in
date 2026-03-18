@@ -31,8 +31,8 @@ my $desc;
 open SRC, "<$src" or die "$src: $!\n";
 while (<SRC>) {
     if (/^(?:PROG_DESC=|\s*#\s*define\s+PROG_DESC\s+)"(.*?)"/) {
-	$desc = $1;
-	last;
+        $desc = $1;
+        last;
     }
 }
 close SRC;
@@ -41,7 +41,7 @@ unless (defined $desc) {
 }
 
 my $r = system("@HELP2MAN@", "-o", $manpage."T", "--no-info",
-	       "-S", "@PACKAGE_STRING@", "-n", $desc, $binary);
+               "-S", "@PACKAGE_STRING@", "-n", $desc, $binary);
 if ($r) {
     unlink $manpage."T";
     die "@HELP2MAN@: $!\n";

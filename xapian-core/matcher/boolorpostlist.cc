@@ -33,10 +33,10 @@ using namespace std;
 BoolOrPostList::~BoolOrPostList()
 {
     if (plist) {
-	for (size_t i = 0; i < n_kids; ++i) {
-	    delete plist[i].pl;
-	}
-	delete [] plist;
+        for (size_t i = 0; i < n_kids; ++i) {
+            delete plist[i].pl;
+        }
+        delete [] plist;
     }
 }
 
@@ -49,8 +49,8 @@ BoolOrPostList::get_docid() const
 
 double
 BoolOrPostList::get_weight(Xapian::termcount,
-			   Xapian::termcount,
-			   Xapian::termcount) const
+                           Xapian::termcount,
+                           Xapian::termcount) const
 {
     return 0;
 }
@@ -65,30 +65,30 @@ PostList*
 BoolOrPostList::next(double)
 {
     while (plist[0].did == did) {
-	PostList* res = plist[0].pl->next(0);
-	if (res) {
-	    delete plist[0].pl;
-	    plist[0].pl = res;
-	}
+        PostList* res = plist[0].pl->next(0);
+        if (res) {
+            delete plist[0].pl;
+            plist[0].pl = res;
+        }
 
-	if (plist[0].pl->at_end()) {
-	    if (n_kids == 1) {
-		// We've reached the end of all posting lists - prune
-		// returning an at_end postlist.
-		n_kids = 0;
-		return plist[0].pl;
-	    }
-	    Heap::pop(plist, plist + n_kids, std::greater<PostListAndDocID>());
-	    delete plist[--n_kids].pl;
-	    continue;
-	}
-	plist[0].did = plist[0].pl->get_docid();
-	Heap::replace(plist, plist + n_kids, std::greater<PostListAndDocID>());
+        if (plist[0].pl->at_end()) {
+            if (n_kids == 1) {
+                // We've reached the end of all posting lists - prune
+                // returning an at_end postlist.
+                n_kids = 0;
+                return plist[0].pl;
+            }
+            Heap::pop(plist, plist + n_kids, std::greater<PostListAndDocID>());
+            delete plist[--n_kids].pl;
+            continue;
+        }
+        plist[0].did = plist[0].pl->get_docid();
+        Heap::replace(plist, plist + n_kids, std::greater<PostListAndDocID>());
     }
 
     if (n_kids == 1) {
-	n_kids = 0;
-	return plist[0].pl;
+        n_kids = 0;
+        return plist[0].pl;
     }
 
     did = plist[0].did;
@@ -103,40 +103,40 @@ BoolOrPostList::skip_to(Xapian::docid did_min, double)
     did = Xapian::docid(-1);
     size_t j = 0;
     for (size_t i = 0; i < n_kids; ++i) {
-	if (plist[i].did < did_min) {
-	    PostList * res = plist[i].pl->skip_to(did_min, 0);
-	    if (res) {
-		delete plist[i].pl;
-		plist[j].pl = res;
-	    } else {
-		plist[j].pl = plist[i].pl;
-	    }
+        if (plist[i].did < did_min) {
+            PostList * res = plist[i].pl->skip_to(did_min, 0);
+            if (res) {
+                delete plist[i].pl;
+                plist[j].pl = res;
+            } else {
+                plist[j].pl = plist[i].pl;
+            }
 
-	    if (plist[j].pl->at_end()) {
-		if (j == 0 && i == n_kids - 1) {
-		    // We've reached the end of all posting lists - prune
-		    // returning an at_end postlist.
-		    n_kids = 0;
-		    return plist[j].pl;
-		}
-		delete plist[j].pl;
-		continue;
-	    }
-	    plist[j].did = plist[j].pl->get_docid();
-	} else if (j != i) {
-	    plist[j] = plist[i];
-	}
+            if (plist[j].pl->at_end()) {
+                if (j == 0 && i == n_kids - 1) {
+                    // We've reached the end of all posting lists - prune
+                    // returning an at_end postlist.
+                    n_kids = 0;
+                    return plist[j].pl;
+                }
+                delete plist[j].pl;
+                continue;
+            }
+            plist[j].did = plist[j].pl->get_docid();
+        } else if (j != i) {
+            plist[j] = plist[i];
+        }
 
-	did = min(did, plist[j].did);
+        did = min(did, plist[j].did);
 
-	++j;
+        ++j;
     }
 
     Assert(j != 0);
     n_kids = j;
     if (n_kids == 1) {
-	n_kids = 0;
-	return plist[0].pl;
+        n_kids = 0;
+        return plist[0].pl;
     }
 
     // Restore the heap invariant.
@@ -160,10 +160,10 @@ BoolOrPostList::get_docid_range(Xapian::docid& first, Xapian::docid& last) const
 {
     plist[0].pl->get_docid_range(first, last);
     for (size_t i = 1; i != n_kids; ++i) {
-	Xapian::docid f = 1, l = Xapian::docid(-1);
-	plist[i].pl->get_docid_range(f, l);
-	first = min(first, f);
-	last = max(last, l);
+        Xapian::docid f = 1, l = Xapian::docid(-1);
+        plist[i].pl->get_docid_range(f, l);
+        first = min(first, f);
+        last = max(last, l);
     }
 }
 
@@ -173,8 +173,8 @@ BoolOrPostList::get_description() const
     string desc = "BoolOrPostList(";
     desc += plist[0].pl->get_description();
     for (size_t i = 1; i < n_kids; ++i) {
-	desc += ", ";
-	desc += plist[i].pl->get_description();
+        desc += ", ";
+        desc += plist[i].pl->get_description();
     }
     desc += ')';
     return desc;
@@ -184,23 +184,23 @@ Xapian::termcount
 BoolOrPostList::get_wdf() const
 {
     return for_all_matches([](PostList* pl) {
-			       return pl->get_wdf();
-			   });
+                               return pl->get_wdf();
+                           });
 }
 
 Xapian::termcount
 BoolOrPostList::count_matching_subqs() const
 {
     return for_all_matches([](PostList* pl) {
-			       return pl->count_matching_subqs();
-			   });
+                               return pl->count_matching_subqs();
+                           });
 }
 
 void
 BoolOrPostList::gather_position_lists(OrPositionList* orposlist)
 {
     for_all_matches([&orposlist](PostList* pl) {
-			pl->gather_position_lists(orposlist);
-			return 0;
-		    });
+                        pl->gather_position_lists(orposlist);
+                        return 0;
+                    });
 }

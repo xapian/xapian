@@ -63,13 +63,13 @@ HoneyFreeList::read_block(const HoneyTable* B, uint4 n, uint8_t* ptr)
 #else
     B->read_block(n, ptr);
     if (rare(GET_LEVEL(ptr) != LEVEL_FREELIST))
-	throw Xapian::DatabaseCorruptError("Freelist corrupt");
+        throw Xapian::DatabaseCorruptError("Freelist corrupt");
 #endif
 }
 
 void
 HoneyFreeList::write_block(const HoneyTable* B, uint4 n, uint8_t* ptr,
-			   uint4 rev)
+                           uint4 rev)
 {
 #ifdef SST_SEARCH
     (void)B; (void)n; (void)ptr; (void)rev;
@@ -83,19 +83,19 @@ HoneyFreeList::write_block(const HoneyTable* B, uint4 n, uint8_t* ptr,
 
 uint4
 HoneyFreeList::get_block(const HoneyTable* B, uint4 block_size,
-			 uint4 * blk_to_free)
+                         uint4 * blk_to_free)
 {
     if (fl == fl_end) {
-	return first_unused_block++;
+        return first_unused_block++;
     }
 
     if (p == 0) {
-	if (fl.n == UNUSED) {
-	    throw Xapian::DatabaseCorruptError("Freelist pointer invalid");
-	}
-	// Actually read the current freelist block.
-	p = new uint8_t[block_size];
-	read_block(B, fl.n, p);
+        if (fl.n == UNUSED) {
+            throw Xapian::DatabaseCorruptError("Freelist pointer invalid");
+        }
+        // Actually read the current freelist block.
+        p = new uint8_t[block_size];
+        read_block(B, fl.n, p);
     }
 
     // Either the freelist end is in this block, or this freelist block has a
@@ -103,14 +103,14 @@ HoneyFreeList::get_block(const HoneyTable* B, uint4 block_size,
     Assert(fl.n == fl_end.n || aligned_read4(p + FREELIST_END - 4) != UNUSED);
 
     if (fl.c != FREELIST_END - 4) {
-	uint4 blk = aligned_read4(p + fl.c);
-	if (blk == UNUSED) {
-	    throw Xapian::DatabaseCorruptError("Ran off end of freelist (" +
-					       str(fl.n) + ", " + str(fl.c) +
-					       ")");
-	}
-	fl.c += 4;
-	return blk;
+        uint4 blk = aligned_read4(p + fl.c);
+        if (blk == UNUSED) {
+            throw Xapian::DatabaseCorruptError("Ran off end of freelist (" +
+                                               str(fl.n) + ", " + str(fl.c) +
+                                               ")");
+        }
+        fl.c += 4;
+        return blk;
     }
 
     // Delay handling marking old block as unused until after we've
@@ -119,7 +119,7 @@ HoneyFreeList::get_block(const HoneyTable* B, uint4 block_size,
 
     fl.n = aligned_read4(p + fl.c);
     if (fl.n == UNUSED) {
-	throw Xapian::DatabaseCorruptError("Freelist next pointer invalid");
+        throw Xapian::DatabaseCorruptError("Freelist next pointer invalid");
     }
     // Allow for mini-header at start of freelist block.
     fl.c = C_BASE;
@@ -130,10 +130,10 @@ HoneyFreeList::get_block(const HoneyTable* B, uint4 block_size,
     Assert(fl.n == fl_end.n || aligned_read4(p + FREELIST_END - 4) != UNUSED);
 
     if (blk_to_free) {
-	Assert(*blk_to_free == BLK_UNUSED);
-	*blk_to_free = old_fl_blk;
+        Assert(*blk_to_free == BLK_UNUSED);
+        *blk_to_free = old_fl_blk;
     } else {
-	mark_block_unused(B, block_size, old_fl_blk);
+        mark_block_unused(B, block_size, old_fl_blk);
     }
 
     return get_block(B, block_size);
@@ -143,21 +143,21 @@ uint4
 HoneyFreeList::walk(const HoneyTable* B, uint4 block_size, bool inclusive)
 {
     if (fl == fl_end) {
-	// It's expected that the caller checks !empty() first.
-	return UNUSED;
+        // It's expected that the caller checks !empty() first.
+        return UNUSED;
     }
 
     if (p == 0) {
-	if (fl.n == UNUSED) {
-	    throw Xapian::DatabaseCorruptError("Freelist pointer invalid");
-	}
-	p = new uint8_t[block_size];
-	read_block(B, fl.n, p);
-	if (inclusive) {
-	    Assert(fl.n == fl_end.n ||
-		   aligned_read4(p + FREELIST_END - 4) != UNUSED);
-	    return fl.n;
-	}
+        if (fl.n == UNUSED) {
+            throw Xapian::DatabaseCorruptError("Freelist pointer invalid");
+        }
+        p = new uint8_t[block_size];
+        read_block(B, fl.n, p);
+        if (inclusive) {
+            Assert(fl.n == fl_end.n ||
+                   aligned_read4(p + FREELIST_END - 4) != UNUSED);
+            return fl.n;
+        }
     }
 
     // Either the freelist end is in this block, or this freelist block has
@@ -165,14 +165,14 @@ HoneyFreeList::walk(const HoneyTable* B, uint4 block_size, bool inclusive)
     Assert(fl.n == fl_end.n || aligned_read4(p + FREELIST_END - 4) != UNUSED);
 
     if (fl.c != FREELIST_END - 4) {
-	uint4 blk = aligned_read4(p + fl.c);
-	fl.c += 4;
-	return blk;
+        uint4 blk = aligned_read4(p + fl.c);
+        fl.c += 4;
+        return blk;
     }
 
     fl.n = aligned_read4(p + fl.c);
     if (fl.n == UNUSED) {
-	throw Xapian::DatabaseCorruptError("Freelist next pointer invalid");
+        throw Xapian::DatabaseCorruptError("Freelist next pointer invalid");
     }
     // Allow for mini-header at start of freelist block.
     fl.c = C_BASE;
@@ -183,14 +183,14 @@ HoneyFreeList::walk(const HoneyTable* B, uint4 block_size, bool inclusive)
     Assert(fl.n == fl_end.n || aligned_read4(p + FREELIST_END - 4) != UNUSED);
 
     if (inclusive)
-	return fl.n;
+        return fl.n;
     return walk(B, block_size, inclusive);
 }
 
 void
 HoneyFreeList::mark_block_unused(const HoneyTable* B,
-				 uint4 block_size,
-				 uint4 blk)
+                                 uint4 block_size,
+                                 uint4 blk)
 {
     // If the current flw block is full, we need to call get_block(), and if
     // the returned block is the last entry in its freelist block, that block
@@ -200,70 +200,70 @@ HoneyFreeList::mark_block_unused(const HoneyTable* B,
     uint4 blk_to_free = BLK_UNUSED;
 
     if (!pw) {
-	pw = new uint8_t[block_size];
-	if (flw.c != 0) {
-	    read_block(B, flw.n, pw);
-	    flw_appending = true;
-	}
+        pw = new uint8_t[block_size];
+        if (flw.c != 0) {
+            read_block(B, flw.n, pw);
+            flw_appending = true;
+        }
     }
     if (flw.c == 0) {
-	uint4 n = get_block(B, block_size, &blk_to_free);
-	flw.n = n;
-	flw.c = C_BASE;
-	if (fl.c == 0) {
-	    fl = fl_end = flw;
-	}
-	flw_appending = (n == first_unused_block - 1);
-	aligned_write4(pw + FREELIST_END - 4, UNUSED);
+        uint4 n = get_block(B, block_size, &blk_to_free);
+        flw.n = n;
+        flw.c = C_BASE;
+        if (fl.c == 0) {
+            fl = fl_end = flw;
+        }
+        flw_appending = (n == first_unused_block - 1);
+        aligned_write4(pw + FREELIST_END - 4, UNUSED);
     } else if (flw.c == FREELIST_END - 4) {
-	// blk is free *after* the current revision gets released, so we can't
-	// just use blk as the next block in the freelist chain.
-	uint4 n = get_block(B, block_size, &blk_to_free);
-	aligned_write4(pw + flw.c, n);
+        // blk is free *after* the current revision gets released, so we can't
+        // just use blk as the next block in the freelist chain.
+        uint4 n = get_block(B, block_size, &blk_to_free);
+        aligned_write4(pw + flw.c, n);
 #ifdef HONEY_FREELIST_SIZE
-	if (block_size != FREELIST_END) {
-	    memset(pw + FREELIST_END, 0, block_size - FREELIST_END);
-	}
+        if (block_size != FREELIST_END) {
+            memset(pw + FREELIST_END, 0, block_size - FREELIST_END);
+        }
 #endif
-	write_block(B, flw.n, pw, revision + 1);
-	if (p && flw.n == fl.n) {
-	    // FIXME: share and refcount?
-	    memcpy(p, pw, block_size);
-	    Assert(fl.n == fl_end.n ||
-		   aligned_read4(p + FREELIST_END - 4) != UNUSED);
-	}
-	flw.n = n;
-	flw.c = C_BASE;
-	flw_appending = (n == first_unused_block - 1);
-	aligned_write4(pw + FREELIST_END - 4, UNUSED);
+        write_block(B, flw.n, pw, revision + 1);
+        if (p && flw.n == fl.n) {
+            // FIXME: share and refcount?
+            memcpy(p, pw, block_size);
+            Assert(fl.n == fl_end.n ||
+                   aligned_read4(p + FREELIST_END - 4) != UNUSED);
+        }
+        flw.n = n;
+        flw.c = C_BASE;
+        flw_appending = (n == first_unused_block - 1);
+        aligned_write4(pw + FREELIST_END - 4, UNUSED);
     }
 
     aligned_write4(pw + flw.c, blk);
     flw.c += 4;
 
     if (blk_to_free != BLK_UNUSED)
-	mark_block_unused(B, block_size, blk_to_free);
+        mark_block_unused(B, block_size, blk_to_free);
 }
 
 void
 HoneyFreeList::commit(const HoneyTable* B, uint4 block_size)
 {
     if (pw && flw.c != 0) {
-	memset(pw + flw.c, 255, FREELIST_END - flw.c - 4);
+        memset(pw + flw.c, 255, FREELIST_END - flw.c - 4);
 #ifdef HONEY_FREELIST_SIZE
-	if (block_size != FREELIST_END) {
-	    memset(pw + FREELIST_END, 0xaa, block_size - FREELIST_END);
-	}
+        if (block_size != FREELIST_END) {
+            memset(pw + FREELIST_END, 0xaa, block_size - FREELIST_END);
+        }
 #endif
-	write_block(B, flw.n, pw, revision);
-	if (p && flw.n == fl.n) {
-	    // FIXME: share and refcount?
-	    memcpy(p, pw, block_size);
-	    Assert(fl.n == fl_end.n ||
-		   aligned_read4(p + FREELIST_END - 4) != UNUSED);
-	}
-	flw_appending = true;
-	fl_end = flw;
+        write_block(B, flw.n, pw, revision);
+        if (p && flw.n == fl.n) {
+            // FIXME: share and refcount?
+            memcpy(p, pw, block_size);
+            Assert(fl.n == fl_end.n ||
+                   aligned_read4(p + FREELIST_END - 4) != UNUSED);
+        }
+        flw_appending = true;
+        fl_end = flw;
     }
 }
 
@@ -279,9 +279,9 @@ HoneyFreeListChecker::HoneyFreeListChecker(const HoneyFreeList& fl)
     // blocks < first_unused.
     uint4 remainder = first_unused & (BITS_PER_ELT - 1);
     if (remainder)
-	bitmap[bitmap_size - 1] = (static_cast<elt_type>(1) << remainder) - 1;
+        bitmap[bitmap_size - 1] = (static_cast<elt_type>(1) << remainder) - 1;
     else
-	bitmap[bitmap_size - 1] = ALL_BITS;
+        bitmap[bitmap_size - 1] = ALL_BITS;
 }
 
 uint4
@@ -290,35 +290,35 @@ HoneyFreeListChecker::count_set_bits(uint4 * p_first_bad_blk) const
     const unsigned BITS_PER_ELT = sizeof(elt_type) * 8;
     uint4 c = 0;
     for (uint4 i = 0; i < bitmap_size; ++i) {
-	elt_type elt = bitmap[i];
-	if (usual(elt == 0))
-	    continue;
-	if (p_first_bad_blk) {
-	    uint4 first_bad_blk = i * BITS_PER_ELT;
-	    if (false) {
+        elt_type elt = bitmap[i];
+        if (usual(elt == 0))
+            continue;
+        if (p_first_bad_blk) {
+            uint4 first_bad_blk = i * BITS_PER_ELT;
+            if (false) {
 #if HAVE_DECL___BUILTIN_CTZ
-	    } else if constexpr(sizeof(elt_type) == sizeof(unsigned)) {
-		first_bad_blk += __builtin_ctz(elt);
+            } else if constexpr(sizeof(elt_type) == sizeof(unsigned)) {
+                first_bad_blk += __builtin_ctz(elt);
 #endif
 #if HAVE_DECL___BUILTIN_CTZL
-	    } else if constexpr(sizeof(elt_type) == sizeof(unsigned long)) {
-		first_bad_blk += __builtin_ctzl(elt);
+            } else if constexpr(sizeof(elt_type) == sizeof(unsigned long)) {
+                first_bad_blk += __builtin_ctzl(elt);
 #endif
 #if HAVE_DECL___BUILTIN_CTZLL
-	    } else if constexpr(sizeof(elt_type) == sizeof(unsigned long long)) {
-		first_bad_blk += __builtin_ctzll(elt);
+            } else if constexpr(sizeof(elt_type) == sizeof(unsigned long long)) {
+                first_bad_blk += __builtin_ctzll(elt);
 #endif
-	    } else {
-		for (elt_type mask = 1; (elt & mask) == 0; mask <<= 1) {
-		    ++first_bad_blk;
-		}
-	    }
-	    *p_first_bad_blk = first_bad_blk;
-	    p_first_bad_blk = nullptr;
-	}
+            } else {
+                for (elt_type mask = 1; (elt & mask) == 0; mask <<= 1) {
+                    ++first_bad_blk;
+                }
+            }
+            *p_first_bad_blk = first_bad_blk;
+            p_first_bad_blk = nullptr;
+        }
 
-	// Count set bits in elt.
-	add_popcount(c, elt);
+        // Count set bits in elt.
+        add_popcount(c, elt);
     }
     return c;
 }

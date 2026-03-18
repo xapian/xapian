@@ -44,10 +44,10 @@ tostring_unsigned(T value)
     char buf[(sizeof(T) * 5 + 1) / 2];
     char * p = buf + sizeof(buf);
     do {
-	AssertRel(p,>,buf);
-	char ch = static_cast<char>(value % 10);
-	value /= 10;
-	*(--p) = ch + '0';
+        AssertRel(p,>,buf);
+        char ch = static_cast<char>(value % 10);
+        value /= 10;
+        *(--p) = ch + '0';
     } while (value);
     return string(p, buf + sizeof(buf) - p);
 }
@@ -65,21 +65,21 @@ tostring(T value)
     typedef typename std::make_unsigned_t<T> unsigned_type;
     unsigned_type val(value);
     if (negative) {
-	val = negate_unsigned(val);
+        val = negate_unsigned(val);
     }
 
     char buf[(sizeof(unsigned_type) * 5 + 1) / 2 + 1];
     char * p = buf + sizeof(buf);
     do {
-	AssertRel(p,>,buf);
-	char ch = static_cast<char>(val % 10);
-	val /= 10;
-	*(--p) = ch + '0';
+        AssertRel(p,>,buf);
+        char ch = static_cast<char>(val % 10);
+        val /= 10;
+        *(--p) = ch + '0';
     } while (val);
 
     if (negative) {
-	AssertRel(p,>,buf);
-	*--p = '-';
+        AssertRel(p,>,buf);
+        *--p = '-';
     }
     return string(p, buf + sizeof(buf) - p);
 }

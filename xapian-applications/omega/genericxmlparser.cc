@@ -30,17 +30,17 @@ void
 GenericXmlParser::process_content(const string& content)
 {
     auto first_non_space = find_if_not(content.begin(), content.end(),
-				       C_isspace);
+                                       C_isspace);
     if (first_non_space == content.end()) {
-	// Ignore content which is empty or all whitespace - we'll add a space
-	// before we append any further content anyway.
-	return;
+        // Ignore content which is empty or all whitespace - we'll add a space
+        // before we append any further content anyway.
+        return;
     }
     if (!dump.empty())
-	dump += ' ';
+        dump += ' ';
     auto first = first_non_space - content.begin();
     auto last_non_space = find_if_not(content.rbegin(), content.rend(),
-				      C_isspace);
+                                      C_isspace);
     auto last = content.size() - (last_non_space - content.rbegin());
     dump.append(content, first, last - first);
 }

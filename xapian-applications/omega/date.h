@@ -25,7 +25,7 @@
 #include <string>
 
 Xapian::Query date_range_filter(const std::string& date_start,
-				const std::string& date_end,
-				const std::string& date_span);
+                                const std::string& date_end,
+                                const std::string& date_span);
 
 #endif // OMEGA_INCLUDED_DATE_H

@@ -156,19 +156,19 @@ class Document::Internal : public Xapian::Internal::intrusive_base {
 
     /// Constructor used by subclasses.
     Internal(Xapian::Internal::intrusive_ptr<const Xapian::Database::Internal> database_,
-	     Xapian::docid did_)
-	: index(), positions_modified_(false), database(database_), did(did_) {}
+             Xapian::docid did_)
+        : index(), positions_modified_(false), database(database_), did(did_) {}
 
     /// Constructor used by RemoteDocument subclass.
     Internal(const Xapian::Database::Internal* database_,
-	     Xapian::docid did_,
-	     std::string&& data_,
-	     std::map<Xapian::valueno, std::string>&& values_)
-	: data(new std::string(std::move(data_))),
-	  index(), positions_modified_(false),
-	  values(new std::map<Xapian::valueno, std::string>(std::move(values_))),
-	  database(database_),
-	  did(did_) {}
+             Xapian::docid did_,
+             std::string&& data_,
+             std::map<Xapian::valueno, std::string>&& values_)
+        : data(new std::string(std::move(data_))),
+          index(), positions_modified_(false),
+          values(new std::map<Xapian::valueno, std::string>(std::move(values_))),
+          database(database_),
+          did(did_) {}
 
     /** Fetch the document data from the database.
      *
@@ -183,7 +183,7 @@ class Document::Internal : public Xapian::Internal::intrusive_base {
      *  clears @a values_.
      */
     virtual void fetch_all_values(std::map<Xapian::valueno,
-				  std::string>& values_) const;
+                                  std::string>& values_) const;
 
     /** Fetch a single value from the database.
      *
@@ -232,7 +232,7 @@ class Document::Internal : public Xapian::Internal::intrusive_base {
      *  compared to an empty database.
      */
     bool modified() const {
-	return data_modified() || terms_modified() || values_modified();
+        return data_modified() || terms_modified() || values_modified();
     }
 
     /** Return true if the document's term positions might have been modified.
@@ -260,63 +260,63 @@ class Document::Internal : public Xapian::Internal::intrusive_base {
 
     /// Get the document data.
     std::string get_data() const {
-	if (data)
-	    return *data;
-	return fetch_data();
+        if (data)
+            return *data;
+        return fetch_data();
     }
 
     /// Set the document data.
     void set_data(std::string_view data_) {
-	data.reset(new std::string(data_));
+        data.reset(new std::string(data_));
     }
 
     /// Add a term to this document.
     void add_term(std::string_view term, Xapian::termcount wdf_inc) {
-	ensure_terms_fetched();
+        ensure_terms_fetched();
 
-	auto i = terms->find(term);
-	if (i == terms->end()) {
-	    ++termlist_size;
-	    terms->emplace(term, TermInfo(wdf_inc));
-	} else {
-	    if (i->second.increase_wdf(wdf_inc))
-		++termlist_size;
-	}
+        auto i = terms->find(term);
+        if (i == terms->end()) {
+            ++termlist_size;
+            terms->emplace(term, TermInfo(wdf_inc));
+        } else {
+            if (i->second.increase_wdf(wdf_inc))
+                ++termlist_size;
+        }
     }
 
     /// Remove a term from this document.
     bool remove_term(std::string_view term) {
-	ensure_terms_fetched();
+        ensure_terms_fetched();
 
-	auto i = terms->find(term);
-	if (i == terms->end()) {
-	    return false;
-	}
-	if (i->second.has_positions()) {
-	    positions_modified_ = true;
-	}
-	if (!i->second.remove()) {
-	    return false;
-	}
-	--termlist_size;
-	return true;
+        auto i = terms->find(term);
+        if (i == terms->end()) {
+            return false;
+        }
+        if (i->second.has_positions()) {
+            positions_modified_ = true;
+        }
+        if (!i->second.remove()) {
+            return false;
+        }
+        --termlist_size;
+        return true;
     }
 
     /// Add a posting for a term.
     void add_posting(std::string_view term,
-		     Xapian::termpos term_pos,
-		     Xapian::termcount wdf_inc) {
-	ensure_terms_fetched();
-	positions_modified_ = true;
+                     Xapian::termpos term_pos,
+                     Xapian::termcount wdf_inc) {
+        ensure_terms_fetched();
+        positions_modified_ = true;
 
-	auto i = terms->find(term);
-	if (i == terms->end()) {
-	    ++termlist_size;
-	    terms->emplace(term, TermInfo(wdf_inc, term_pos));
-	    return;
-	}
-	if (i->second.add_position(wdf_inc, term_pos))
-	    ++termlist_size;
+        auto i = terms->find(term);
+        if (i == terms->end()) {
+            ++termlist_size;
+            terms->emplace(term, TermInfo(wdf_inc, term_pos));
+            return;
+        }
+        if (i->second.add_position(wdf_inc, term_pos))
+            ++termlist_size;
     }
 
     enum remove_posting_result { OK, NO_TERM, NO_POS };
@@ -324,21 +324,21 @@ class Document::Internal : public Xapian::Internal::intrusive_base {
     /// Remove a posting for a term.
     remove_posting_result
     remove_posting(std::string_view term,
-		   Xapian::termpos term_pos,
-		   Xapian::termcount wdf_dec) {
-	ensure_terms_fetched();
+                   Xapian::termpos term_pos,
+                   Xapian::termcount wdf_dec) {
+        ensure_terms_fetched();
 
-	auto i = terms->find(term);
-	if (i == terms->end() || i->second.is_deleted()) {
-	    return remove_posting_result::NO_TERM;
-	}
-	if (!i->second.remove_position(term_pos)) {
-	    return remove_posting_result::NO_POS;
-	}
-	if (i->second.decrease_wdf(wdf_dec))
-	    --termlist_size;
-	positions_modified_ = true;
-	return remove_posting_result::OK;
+        auto i = terms->find(term);
+        if (i == terms->end() || i->second.is_deleted()) {
+            return remove_posting_result::NO_TERM;
+        }
+        if (!i->second.remove_position(term_pos)) {
+            return remove_posting_result::NO_POS;
+        }
+        if (i->second.decrease_wdf(wdf_dec))
+            --termlist_size;
+        positions_modified_ = true;
+        return remove_posting_result::OK;
     }
 
     /** Remove a range of postings for a term.
@@ -347,59 +347,59 @@ class Document::Internal : public Xapian::Internal::intrusive_base {
      */
     remove_posting_result
     remove_postings(std::string_view term,
-		    Xapian::termpos term_pos_first,
-		    Xapian::termpos term_pos_last,
-		    Xapian::termcount wdf_dec,
-		    Xapian::termpos& n_removed) {
-	ensure_terms_fetched();
+                    Xapian::termpos term_pos_first,
+                    Xapian::termpos term_pos_last,
+                    Xapian::termcount wdf_dec,
+                    Xapian::termpos& n_removed) {
+        ensure_terms_fetched();
 
-	auto i = terms->find(term);
-	if (i == terms->end() || i->second.is_deleted()) {
-	    return remove_posting_result::NO_TERM;
-	}
-	n_removed = i->second.remove_positions(term_pos_first,
-					       term_pos_last);
-	if (n_removed) {
-	    positions_modified_ = true;
-	    Xapian::termcount wdf_delta;
-	    if (mul_overflows(n_removed, wdf_dec, wdf_delta)) {
-		// Decreasing by the maximum value will zero the wdf.
-		wdf_delta = std::numeric_limits<Xapian::termcount>::max();
-	    }
-	    if (i->second.decrease_wdf(wdf_delta))
-		--termlist_size;
-	}
-	return remove_posting_result::OK;
+        auto i = terms->find(term);
+        if (i == terms->end() || i->second.is_deleted()) {
+            return remove_posting_result::NO_TERM;
+        }
+        n_removed = i->second.remove_positions(term_pos_first,
+                                               term_pos_last);
+        if (n_removed) {
+            positions_modified_ = true;
+            Xapian::termcount wdf_delta;
+            if (mul_overflows(n_removed, wdf_dec, wdf_delta)) {
+                // Decreasing by the maximum value will zero the wdf.
+                wdf_delta = std::numeric_limits<Xapian::termcount>::max();
+            }
+            if (i->second.decrease_wdf(wdf_delta))
+                --termlist_size;
+        }
+        return remove_posting_result::OK;
     }
 
     /// Clear all terms from the document.
     void clear_terms() {
-	if (!terms) {
-	    if (!database) {
-		// We didn't come from a database, so there are no unfetched
-		// terms to clear.
-		return;
-	    }
-	    terms.reset(new std::map<std::string, TermInfo, std::less<>>());
-	} else {
-	    terms->clear();
-	}
-	termlist_size = 0;
-	// Assume there was positional data if there's any in the database.
-	positions_modified_ = database && database->has_positions();
+        if (!terms) {
+            if (!database) {
+                // We didn't come from a database, so there are no unfetched
+                // terms to clear.
+                return;
+            }
+            terms.reset(new std::map<std::string, TermInfo, std::less<>>());
+        } else {
+            terms->clear();
+        }
+        termlist_size = 0;
+        // Assume there was positional data if there's any in the database.
+        positions_modified_ = database && database->has_positions();
     }
 
     /// Return the number of distinct terms in this document.
     Xapian::termcount termlist_count() const {
-	if (terms)
-	    return termlist_size;
+        if (terms)
+            return termlist_size;
 
-	if (!database)
-	    return 0;
+        if (!database)
+            return 0;
 
-	std::unique_ptr<TermList> tl(database->open_term_list(did));
-	// get_approx_size() is exact for TermList from a database.
-	return tl->get_approx_size();
+        std::unique_ptr<TermList> tl(database->open_term_list(did));
+        // get_approx_size() is exact for TermList from a database.
+        return tl->get_approx_size();
     }
 
     /** Start iterating the terms in this document.
@@ -414,47 +414,47 @@ class Document::Internal : public Xapian::Internal::intrusive_base {
      *  @return The value in slot @a slot, or an empty string if not set.
      */
     std::string get_value(Xapian::valueno slot) const {
-	if (values) {
-	    auto i = values->find(slot);
-	    if (i != values->end())
-		return i->second;
-	    return std::string();
-	}
+        if (values) {
+            auto i = values->find(slot);
+            if (i != values->end())
+                return i->second;
+            return std::string();
+        }
 
-	return fetch_value(slot);
+        return fetch_value(slot);
     }
 
     /// Add a value to a slot in this document.
     void add_value(Xapian::valueno slot, std::string_view value) {
-	ensure_values_fetched();
+        ensure_values_fetched();
 
-	if (!value.empty()) {
-	    (*values)[slot] = value;
-	} else {
-	    // Empty values aren't stored, but replace any existing value by
-	    // removing it.
-	    values->erase(slot);
-	}
+        if (!value.empty()) {
+            (*values)[slot] = value;
+        } else {
+            // Empty values aren't stored, but replace any existing value by
+            // removing it.
+            values->erase(slot);
+        }
     }
 
     /// Clear all value slots in this document.
     void clear_values() {
-	if (!values) {
-	    if (database) {
-		values.reset(new std::map<Xapian::valueno, std::string>());
-	    } else {
-		// We didn't come from a database, so there are no unfetched
-		// values to clear.
-	    }
-	} else {
-	    values->clear();
-	}
+        if (!values) {
+            if (database) {
+                values.reset(new std::map<Xapian::valueno, std::string>());
+            } else {
+                // We didn't come from a database, so there are no unfetched
+                // values to clear.
+            }
+        } else {
+            values->clear();
+        }
     }
 
     /// Count the value slots used in this document.
     Xapian::valueno values_count() const {
-	ensure_values_fetched();
-	return values->size();
+        ensure_values_fetched();
+        return values->size();
     }
 
     Xapian::ValueIterator values_begin() const;

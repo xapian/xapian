@@ -8,11 +8,11 @@
     History: Created March 1997. Updated June 2003.
     Fixes since importing into Xapian:
     2008-03-04 Fixed readdir() not to set errno to ENOENT when the
-	       end of the directory is reached.
+               end of the directory is reached.
     2018-04-01 Fix handle to be intptr_t not long to avoid truncation
-	       with WIN64 (where long is still 32 bits).
+               with WIN64 (where long is still 32 bits).
     2019-12-16 Make dir->name a one element array member and over-allocate
-	       the struct so there's enough room for its actual size.
+               the struct so there's enough room for its actual size.
 
     Copyright Kevlin Henney, 1997, 2003. All rights reserved.
 
@@ -122,22 +122,22 @@ struct dirent *readdir(DIR *dir)
 
     if(dir && dir->handle != -1)
     {
-	if(!dir->result.d_name) {
-	    result = &dir->result;
-	    result->d_name = dir->info.name;
-	} else {
-	    int orig_errno = errno;
-	    if (_findnext(dir->handle, &dir->info) != -1) {
-		result = &dir->result;
-		result->d_name = dir->info.name;
-	    } else if (errno == ENOENT) {
-		// _findnext sets errno to ENOENT when the end of the directory
-		// is reached.  However, according to POSIX, the value of errno
-		// should not be changed by this condition.  Therefore, we have
-		// to set it back to the original value.
-		errno = orig_errno;
-	    }
-	}
+        if(!dir->result.d_name) {
+            result = &dir->result;
+            result->d_name = dir->info.name;
+        } else {
+            int orig_errno = errno;
+            if (_findnext(dir->handle, &dir->info) != -1) {
+                result = &dir->result;
+                result->d_name = dir->info.name;
+            } else if (errno == ENOENT) {
+                // _findnext sets errno to ENOENT when the end of the directory
+                // is reached.  However, according to POSIX, the value of errno
+                // should not be changed by this condition.  Therefore, we have
+                // to set it back to the original value.
+                errno = orig_errno;
+            }
+        }
     }
     else
     {

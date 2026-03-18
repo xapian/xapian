@@ -39,18 +39,18 @@ main(int argc, char **argv)
 try {
     // We require at least two command line arguments.
     if (argc < 3) {
-	int rc = 1;
-	if (argv[1]) {
-	    if (strcmp(argv[1], "--version") == 0) {
-		cout << "simplesearch\n";
-		exit(0);
-	    }
-	    if (strcmp(argv[1], "--help") == 0) {
-		rc = 0;
-	    }
-	}
-	cout << "Usage: " << argv[0] << " PATH_TO_DATABASE QUERY\n";
-	exit(rc);
+        int rc = 1;
+        if (argv[1]) {
+            if (strcmp(argv[1], "--version") == 0) {
+                cout << "simplesearch\n";
+                exit(0);
+            }
+            if (strcmp(argv[1], "--help") == 0) {
+                rc = 0;
+            }
+        }
+        cout << "Usage: " << argv[0] << " PATH_TO_DATABASE QUERY\n";
+        exit(rc);
     }
 
     // Open the database for searching.
@@ -65,8 +65,8 @@ try {
     string query_string(argv[2]);
     argv += 3;
     while (*argv) {
-	query_string += ' ';
-	query_string += *argv++;
+        query_string += ' ';
+        query_string += *argv++;
     }
 
     // Parse the query string to produce a Xapian::Query object.
@@ -87,8 +87,8 @@ try {
     cout << "Matches 1-" << matches.size() << ":\n\n";
 
     for (Xapian::MSetIterator i = matches.begin(); i != matches.end(); ++i) {
-	cout << i.get_rank() + 1 << ": " << i.get_weight() << " docid=" << *i
-	     << " [" << i.get_document().get_data() << "]\n\n";
+        cout << i.get_rank() + 1 << ": " << i.get_weight() << " docid=" << *i
+             << " [" << i.get_document().get_data() << "]\n\n";
     }
 } catch (const Xapian::Error &e) {
     cout << e.get_description() << '\n';

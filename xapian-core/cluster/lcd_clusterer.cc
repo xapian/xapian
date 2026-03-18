@@ -39,8 +39,8 @@ typedef multimap<double, Point, std::greater<double>> PSet;
 
 struct dcompare {
     bool operator()(const pair<PSet::iterator, double>& a,
-		    const pair<PSet::iterator, double>& b) const {
-	return a.second < b.second;
+                    const pair<PSet::iterator, double>& b) const {
+        return a.second < b.second;
     }
 };
 
@@ -49,8 +49,8 @@ LCDClusterer::LCDClusterer(unsigned int k_)
 {
     LOGCALL_CTOR(API, "LCDClusterer", k_);
     if (k_ == 0)
-	throw InvalidArgumentError("Number of required clusters should be "
-				   "greater than zero");
+        throw InvalidArgumentError("Number of required clusters should be "
+                                   "greater than zero");
 }
 
 string
@@ -67,7 +67,7 @@ LCDClusterer::cluster(const MSet& mset)
     doccount size = mset.size();
     unsigned int k_ = k;
     if (k_ >= size)
-	k_ = size;
+        k_ = size;
 
     // Store each document and its rel score from given mset
     PSet points;
@@ -75,7 +75,7 @@ LCDClusterer::cluster(const MSet& mset)
     // Initialise points
     TermListGroup tlg(mset);
     for (MSetIterator it = mset.begin(); it != mset.end(); ++it)
-	points.emplace(it.get_weight(), Point(tlg, it.get_document()));
+        points.emplace(it.get_weight(), Point(tlg, it.get_document()));
 
     // Container for holding the clusters
     ClusterSet cset;
@@ -100,53 +100,53 @@ LCDClusterer::cluster(const MSet& mset)
 
     unsigned cnum = 1;
     while (true) {
-	// Container for new cluster
-	Cluster new_cluster;
+        // Container for new cluster
+        Cluster new_cluster;
 
-	// Select (num_points - 1) nearest points to cluster_center from
-	// 'points' and form a new cluster
-	unsigned int num_points = cnum <= n ? x - 1 : x;
+        // Select (num_points - 1) nearest points to cluster_center from
+        // 'points' and form a new cluster
+        unsigned int num_points = cnum <= n ? x - 1 : x;
 
-	// Store distances of each point from current cluster center
-	// Iterator of each point is stored for fast deletion from 'points'
-	vector<pair<PSet::iterator, double>> dist_vector;
-	for (auto it = points.begin(); it != points.end(); ++it) {
-	    if (it == cluster_center)
-		continue;
+        // Store distances of each point from current cluster center
+        // Iterator of each point is stored for fast deletion from 'points'
+        vector<pair<PSet::iterator, double>> dist_vector;
+        for (auto it = points.begin(); it != points.end(); ++it) {
+            if (it == cluster_center)
+                continue;
 
-	    double dist = distance.similarity(cluster_center->second,
-					      it->second);
-	    dist_vector.push_back(make_pair(it, dist));
-	}
+            double dist = distance.similarity(cluster_center->second,
+                                              it->second);
+            dist_vector.push_back(make_pair(it, dist));
+        }
 
-	// Sort dist_vector in ascending order of distance
-	sort(dist_vector.begin(), dist_vector.end(), dcompare());
+        // Sort dist_vector in ascending order of distance
+        sort(dist_vector.begin(), dist_vector.end(), dcompare());
 
-	// Add first num_points-1 to cluster
-	for (unsigned int i = 0; i < num_points - 1; ++i) {
-	    auto piterator = dist_vector[i].first;
-	    // Add to cluster
-	    new_cluster.add_point(piterator->second);
-	    // Remove from 'points'
-	    points.erase(piterator);
-	}
+        // Add first num_points-1 to cluster
+        for (unsigned int i = 0; i < num_points - 1; ++i) {
+            auto piterator = dist_vector[i].first;
+            // Add to cluster
+            new_cluster.add_point(piterator->second);
+            // Remove from 'points'
+            points.erase(piterator);
+        }
 
-	// Add cluster_center to current cluster
-	new_cluster.add_point(cluster_center->second);
+        // Add cluster_center to current cluster
+        new_cluster.add_point(cluster_center->second);
 
-	// Add cluster to cset
-	cset.add_cluster(new_cluster);
+        // Add cluster to cset
+        cset.add_cluster(new_cluster);
 
-	if (cnum == k_) break;
+        if (cnum == k_) break;
 
-	// Remove current cluster_center from points
-	points.erase(cluster_center);
+        // Remove current cluster_center from points
+        points.erase(cluster_center);
 
-	// Select a new cluster center which is the point that is farthest away
-	// from the current cluster center
-	cluster_center = dist_vector.back().first;
+        // Select a new cluster center which is the point that is farthest away
+        // from the current cluster center
+        cluster_center = dist_vector.back().first;
 
-	++cnum;
+        ++cnum;
     }
 
     return cset;

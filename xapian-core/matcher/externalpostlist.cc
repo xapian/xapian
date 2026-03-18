@@ -32,33 +32,33 @@
 using namespace std;
 
 ExternalPostList::ExternalPostList(const Xapian::Database& db,
-				   Xapian::PostingSource* source_,
-				   EstimateOp* estimate_op,
-				   double factor_,
-				   bool* max_weight_cached_flag_ptr,
-				   Xapian::doccount shard_index)
+                                   Xapian::PostingSource* source_,
+                                   EstimateOp* estimate_op,
+                                   double factor_,
+                                   bool* max_weight_cached_flag_ptr,
+                                   Xapian::doccount shard_index)
     : factor(factor_)
 {
     Assert(source_);
     Xapian::PostingSource* newsource = source_->clone();
     if (newsource != NULL) {
-	source = newsource->release();
+        source = newsource->release();
     } else if (shard_index == 0) {
-	// Allow use of a non-clone-able PostingSource with a non-sharded
-	// Database.
-	source = source_;
+        // Allow use of a non-clone-able PostingSource with a non-sharded
+        // Database.
+        source = source_;
     } else {
-	throw Xapian::InvalidOperationError("PostingSource subclass must "
-					    "implement clone() to support use "
-					    "with a sharded database");
+        throw Xapian::InvalidOperationError("PostingSource subclass must "
+                                            "implement clone() to support use "
+                                            "with a sharded database");
     }
     source->set_max_weight_cached_flag_ptr_(max_weight_cached_flag_ptr);
     source->reset(db, shard_index);
     termfreq = source->get_termfreq_est();
     if (estimate_op) {
-	estimate_op->report_termfreqs(source->get_termfreq_min(),
-				      termfreq,
-				      source->get_termfreq_max());
+        estimate_op->report_termfreqs(source->get_termfreq_min(),
+                                      termfreq,
+                                      source->get_termfreq_max());
     }
 }
 
@@ -72,8 +72,8 @@ ExternalPostList::get_docid() const
 
 double
 ExternalPostList::get_weight(Xapian::termcount,
-			     Xapian::termcount,
-			     Xapian::termcount) const
+                             Xapian::termcount,
+                             Xapian::termcount) const
 {
     LOGCALL(MATCH, double, "ExternalPostList::get_weight", NO_ARGS);
     Assert(source);
@@ -102,10 +102,10 @@ ExternalPostList::update_after_advance() {
     LOGCALL(MATCH, PostList *, "ExternalPostList::update_after_advance", NO_ARGS);
     Assert(source);
     if (source->at_end()) {
-	LOGLINE(MATCH, "ExternalPostList now at end");
-	source = NULL;
+        LOGLINE(MATCH, "ExternalPostList now at end");
+        source = NULL;
     } else {
-	current = source->get_docid();
+        current = source->get_docid();
     }
     RETURN(NULL);
 }
@@ -135,15 +135,15 @@ ExternalPostList::check(Xapian::docid did, double w_min, bool &valid)
     LOGCALL(MATCH, PostList *, "ExternalPostList::check", did | w_min | valid);
     Assert(source);
     if (did <= current) {
-	valid = true;
-	RETURN(NULL);
+        valid = true;
+        RETURN(NULL);
     }
     valid = source->check(did, w_min);
     if (source->at_end()) {
-	LOGLINE(MATCH, "ExternalPostList now at end");
-	source = NULL;
+        LOGLINE(MATCH, "ExternalPostList now at end");
+        source = NULL;
     } else {
-	current = valid ? source->get_docid() : current;
+        current = valid ? source->get_docid() : current;
     }
     RETURN(NULL);
 }

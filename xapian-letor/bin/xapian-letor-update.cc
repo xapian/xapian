@@ -48,10 +48,10 @@ main(int argc, char **argv)
 try {
     const char * opts = "d:hv";
     static const struct option long_opts[] = {
-	{ "db",		required_argument, 0, 'd' },
-	{ "help",	no_argument, 0, 'h' },
-	{ "version",	no_argument, 0, 'v' },
-	{ NULL,		0, 0, 0}
+        { "db",		required_argument, 0, 'd' },
+        { "help",	no_argument, 0, 'h' },
+        { "version",	no_argument, 0, 'v' },
+        { NULL,		0, 0, 0}
     };
 
     Xapian::WritableDatabase db;
@@ -59,28 +59,28 @@ try {
 
     int c;
     while ((c = gnu_getopt_long(argc, argv, opts, long_opts, 0)) != -1) {
-	switch (c) {
-	    case 'd':
-		db = Xapian::WritableDatabase(optarg, Xapian::DB_OPEN);
-		have_db = true;
-		break;
-	    case 'v':
-		cout << PROG_NAME " - " PACKAGE_STRING "\n";
-		exit(0);
-	    case 'h':
-		cout << PROG_NAME " - " PROG_DESC "\n\n";
-		show_usage();
-		exit(0);
-	    case ':': // missing parameter
-	    case '?': // unknown option
-		show_usage();
-		exit(1);
-	}
+        switch (c) {
+            case 'd':
+                db = Xapian::WritableDatabase(optarg, Xapian::DB_OPEN);
+                have_db = true;
+                break;
+            case 'v':
+                cout << PROG_NAME " - " PACKAGE_STRING "\n";
+                exit(0);
+            case 'h':
+                cout << PROG_NAME " - " PROG_DESC "\n\n";
+                show_usage();
+                exit(0);
+            case ':': // missing parameter
+            case '?': // unknown option
+                show_usage();
+                exit(1);
+        }
     }
 
     if (!have_db || argc - optind != 0) {
-	show_usage();
-	exit(1);
+        show_usage();
+        exit(1);
     }
 
     // Calculate some extra collection statistics used to calculate features
@@ -89,7 +89,7 @@ try {
     Xapian::termcount total_title_len = 0;
     Xapian::TermIterator t;
     for (t = db.allterms_begin("S"); t != db.allterms_end("S"); ++t) {
-	total_title_len += db.get_collection_freq(*t);
+        total_title_len += db.get_collection_freq(*t);
     }
 
     Xapian::totallength total_len = db.get_total_length();

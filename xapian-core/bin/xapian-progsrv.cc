@@ -63,34 +63,34 @@ int main(int argc, char **argv)
 
     int c;
     while ((c = gnu_getopt_long(argc, argv, opts, long_opts, NULL)) != -1) {
-	switch (c) {
-	    case OPT_HELP:
-		cout << PROG_NAME " - " PROG_DESC "\n\n";
-		show_usage();
-		exit(0);
-	    case OPT_VERSION:
-		cout << PROG_NAME " - " PACKAGE_STRING "\n";
-		exit(0);
-	    case 't':
-		unsigned int temp;
-		if (!parse_unsigned(optarg, temp)) {
-		    cout << "timeout must be a non-negative integer\n";
-		    show_usage();
-		    exit(1);
-		}
-		timeout = temp * 1e-3;
-		break;
-	    case 'w':
-		writable = true;
-		break;
-	    default:
-		syntax_error = true;
-	}
+        switch (c) {
+            case OPT_HELP:
+                cout << PROG_NAME " - " PROG_DESC "\n\n";
+                show_usage();
+                exit(0);
+            case OPT_VERSION:
+                cout << PROG_NAME " - " PACKAGE_STRING "\n";
+                exit(0);
+            case 't':
+                unsigned int temp;
+                if (!parse_unsigned(optarg, temp)) {
+                    cout << "timeout must be a non-negative integer\n";
+                    show_usage();
+                    exit(1);
+                }
+                timeout = temp * 1e-3;
+                break;
+            case 'w':
+                writable = true;
+                break;
+            default:
+                syntax_error = true;
+        }
     }
 
     if (syntax_error || optind == argc) {
-	show_usage();
-	exit(1);
+        show_usage();
+        exit(1);
     }
 
     /* Unlike xapian-tcpsrv, xapian-progsrv only has a single 'connection'
@@ -101,23 +101,23 @@ int main(int argc, char **argv)
     vector<string> dbnames(argv + optind, argv + argc);
 
     try {
-	// We communicate with the client via stdin (fd 0) and stdout (fd 1).
-	// Note that RemoteServer closes these fds.
-	RemoteServer server(dbnames, 0, 1, timeout, timeout, writable);
+        // We communicate with the client via stdin (fd 0) and stdout (fd 1).
+        // Note that RemoteServer closes these fds.
+        RemoteServer server(dbnames, 0, 1, timeout, timeout, writable);
 
-	// If you have defined your own weighting scheme, register it here
-	// like so:
-	// server.register_weighting_scheme(FooWeight());
+        // If you have defined your own weighting scheme, register it here
+        // like so:
+        // server.register_weighting_scheme(FooWeight());
 
-	server.run();
+        server.run();
     } catch (...) {
-	/* Catch and ignore any exceptions thrown by RemoteServer, since the
-	 * RemoteServer will have passed the error to the client to be rethrown
-	 * there.
-	 *
-	 * Our stdout is the (now closed) communication channel to the client,
-	 * and our stderr is probably a closed fd so we don't have anywhere to
-	 * send error messages to anyway!
-	 */
+        /* Catch and ignore any exceptions thrown by RemoteServer, since the
+         * RemoteServer will have passed the error to the client to be rethrown
+         * there.
+         *
+         * Our stdout is the (now closed) communication channel to the client,
+         * and our stderr is probably a closed fd so we don't have anywhere to
+         * send error messages to anyway!
+         */
     }
 }

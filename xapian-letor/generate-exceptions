@@ -66,9 +66,9 @@ for (@classes) {
     my ($class, $parent, $synopsis, $description) = @{$_};
     $description //= '';
     if ($description ne '') {
-	$description =~ s!^! *  !mg;
-	$description =~ s! +$!!mg;
-	$description = " *\n" . $description;
+        $description =~ s!^! *  !mg;
+        $description =~ s! +$!!mg;
+        $description = " *\n" . $description;
     }
     my $code = sprintf('\%03o', $classcode{$class});
 
@@ -83,39 +83,39 @@ class XAPIAN_VISIBILITY_DEFAULT $class : public $parent {
     /** \@private \@internal
      *  \@brief Private constructor for use by remote backend.
      *
-     *  \@param error_string_	Optional string describing error.  May be NULL.
+     *  \@param error_string_   Optional string describing error.  May be NULL.
      */
     $class(const std::string \&msg_, const std::string \&context_, const char * error_string_)
-	: $parent(msg_, context_, "$code$class", error_string_) {}
+        : $parent(msg_, context_, "$code$class", error_string_) {}
     /** General purpose constructor.
      *
-     *  \@param msg_		Message giving details of the error, intended
-     *				for human consumption.
-     *  \@param context_	Optional context information for this error.
-     *  \@param errno_		Optional errno value associated with this error.
+     *  \@param msg_            Message giving details of the error, intended
+     *                          for human consumption.
+     *  \@param context_        Optional context information for this error.
+     *  \@param errno_          Optional errno value associated with this error.
      */
     explicit $class(const std::string \&msg_, const std::string \&context_ = std::string(), int errno_ = 0)
-	: $parent(msg_, context_, "$code$class", errno_) {}
+        : $parent(msg_, context_, "$code$class", errno_) {}
     /** Construct from message and errno value.
      *
-     *  \@param msg_		Message giving details of the error, intended
-     *				for human consumption.
-     *  \@param errno_		Optional errno value associated with this error.
+     *  \@param msg_            Message giving details of the error, intended
+     *                          for human consumption.
+     *  \@param errno_          Optional errno value associated with this error.
      */
     $class(const std::string \&msg_, int errno_)
-	: $parent(msg_, std::string(), "$code$class", errno_) {}
+        : $parent(msg_, std::string(), "$code$class", errno_) {}
   protected:
     /** \@private \@internal
      *  \@brief Constructor for use by constructors of derived classes.
      */
     $class(const std::string \&msg_, const std::string \&context_, const char * type_, const char * error_string_)
-	: $parent(msg_, context_, type_, error_string_) {}
+        : $parent(msg_, context_, type_, error_string_) {}
 
     /** \@private \@internal
      *  \@brief Constructor for use by constructors of derived classes.
      */
     $class(const std::string \&msg_, const std::string \&context_, const char * type_, int errno_)
-	: $parent(msg_, context_, type_, errno_) {}
+        : $parent(msg_, context_, type_, errno_) {}
 };
 EOF
 }

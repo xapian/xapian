@@ -12,7 +12,7 @@ Main query parameters
 ---------------------
 
 DB
-	database name.  If the DB parameter is specified more than once, each
+        database name.  If the DB parameter is specified more than once, each
         value is used to allow searching over multiple databases.  Also, the
         value of each DB parameter may be a list of database names separated by
         "/".  If no DB parameters are specified, then the database name
@@ -22,47 +22,47 @@ DB
         details of the format.
 
 xDB
-	database(s) used for last query (separated by / if appropriate).
-	If the database(s) used change then relevance judgements are
-	discarded and the first page of matches is shown.  If xDB is not set,
-	the database is assumed not to have changed, which means if you only
-	deal with one database you don't have to pass a useless extra parameter
-	around.
+        database(s) used for last query (separated by / if appropriate).
+        If the database(s) used change then relevance judgements are
+        discarded and the first page of matches is shown.  If xDB is not set,
+        the database is assumed not to have changed, which means if you only
+        deal with one database you don't have to pass a useless extra parameter
+        around.
 
 DEFAULTOP
-	default operator - values recognised ``AND``, ``and``, ``OR``, ``or``.
-	As of version 1.3.0, the default is ``AND`` (previously it was ``OR``).
-	If you want to implement "match any words", set ``DEFAULTOP=or``.
+        default operator - values recognised ``AND``, ``and``, ``OR``, ``or``.
+        As of version 1.3.0, the default is ``AND`` (previously it was ``OR``).
+        If you want to implement "match any words", set ``DEFAULTOP=or``.
 
 P
-	query string to parse (may occur multiple times - if so, each will be
-	parsed and the results combined with ``OP_AND``).
+        query string to parse (may occur multiple times - if so, each will be
+        parsed and the results combined with ``OP_AND``).
 
 P.\ *PREFIX*
-	like ``P``, but parsed with the default prefix set to *PREFIX*.  For
-	example, ``P.A`` will search the author by default.
+        like ``P``, but parsed with the default prefix set to *PREFIX*.  For
+        example, ``P.A`` will search the author by default.
 
 xP
-	terms from the previous parsed query - used to decide if
-	this is a fresh query (in which case relevance judgements are
-	discarded and the first page of matches is shown), an extended query
-	(in which case the first page of matches is shown), or an unchanged
-	query.
+        terms from the previous parsed query - used to decide if
+        this is a fresh query (in which case relevance judgements are
+        discarded and the first page of matches is shown), an extended query
+        (in which case the first page of matches is shown), or an unchanged
+        query.
 
 ADD
-	if present, any ``X`` parameters are appended to the value of the first
-	non-empty ``P`` parameter, or used to build a query if there are no
-	non-empty ``P`` parameters (used for topterms support when JavaScript
-	isn't supported or is disabled).
+        if present, any ``X`` parameters are appended to the value of the first
+        non-empty ``P`` parameter, or used to build a query if there are no
+        non-empty ``P`` parameters (used for topterms support when JavaScript
+        isn't supported or is disabled).
 
 X
-	topterms to add to query (each term in a separate ``X`` parameter).  If
-	``ADD`` is set, these will be appended to the value of the first
-	non-empty ``P`` parameter, or used to build a query if there are no
-	non-empty ``P`` parameters.
+        topterms to add to query (each term in a separate ``X`` parameter).  If
+        ``ADD`` is set, these will be appended to the value of the first
+        non-empty ``P`` parameter, or used to build a query if there are no
+        non-empty ``P`` parameters.
 
 R
-	relevant document(s) (multiple values separated by ".")
+        relevant document(s) (multiple values separated by ".")
 
 MORELIKE
         value is a numeric Xapian document id to return similar pages to, or a
@@ -79,20 +79,20 @@ MORELIKE
         versions, only one of the values would be used in this case.
 
 RAWSEARCH
-	when set to non-zero value, this prevents TOPDOC being snapped to a
-	multiple of HITSPERPAGE.  Normally we snap TOPDOC like this so that
-	things work nicely if HITSPERPAGE is in a picker or on radio buttons.
-	If we're postprocessing the output of omega and want variable sized
-	pages, this is unhelpful.
+        when set to non-zero value, this prevents TOPDOC being snapped to a
+        multiple of HITSPERPAGE.  Normally we snap TOPDOC like this so that
+        things work nicely if HITSPERPAGE is in a picker or on radio buttons.
+        If we're postprocessing the output of omega and want variable sized
+        pages, this is unhelpful.
 
 MINHITS
-	can be set to look for more matches than would otherwise be looked for
-	to you can be sure how many more consecutive pages will definitely be
-	needed to show results.  By default omega asks for one hit more than
-	the last one displayed on this page (so we know for sure if there is a
-	next page or not).  If MINHITS is set, we ask for at least MINHITS
-	matches from the start of the current page - you can think of MINHITS
-	as defaulting to (HITSPERPAGE + 1).
+        can be set to look for more matches than would otherwise be looked for
+        to you can be sure how many more consecutive pages will definitely be
+        needed to show results.  By default omega asks for one hit more than
+        the last one displayed on this page (so we know for sure if there is a
+        next page or not).  If MINHITS is set, we ask for at least MINHITS
+        matches from the start of the current page - you can think of MINHITS
+        as defaulting to (HITSPERPAGE + 1).
 
 Filtering parameters
 --------------------
@@ -111,10 +111,10 @@ N
         multiple `B` and `N` parameters are handled.
 
 COLLAPSE
-	value slot number to use for removing duplicate documents.
-	Additional documents in the MSet with the same value will be
-	removed from the MSet. $value{$cgi{COLLAPSE}} can be used to
-	access the actual value for each hit.
+        value slot number to use for removing duplicate documents.
+        Additional documents in the MSet with the same value will be
+        removed from the MSet. $value{$cgi{COLLAPSE}} can be used to
+        access the actual value for each hit.
 
 
 START.\ *SLOT* END.\ *SLOT* SPAN.\ *SLOT*
@@ -199,65 +199,65 @@ xFILTERS
         probably should be.
 
 THRESHOLD
-	apply a percentage cut-off at the value given by this parameter
-	(clipped to the range 0-100).
+        apply a percentage cut-off at the value given by this parameter
+        (clipped to the range 0-100).
 
 Reordering parameters
 ---------------------
 
 SORT
-	specifies one or more value slot numbers to order results by.  The
-	comparison used is a string compare of the unsigned byte values.
+        specifies one or more value slot numbers to order results by.  The
+        comparison used is a string compare of the unsigned byte values.
 
-	The format of this parameter's value is a `+` or `-` specifying the
-	direction of the sort followed by an unsigned integer value slot
-	number.  Normally `+` means an ascending sort (so the first result has
-	the lowest value of the sort key) and `-` means a descending sort -
-	however `SORTREVERSE` can change this (see below).
+        The format of this parameter's value is a `+` or `-` specifying the
+        direction of the sort followed by an unsigned integer value slot
+        number.  Normally `+` means an ascending sort (so the first result has
+        the lowest value of the sort key) and `-` means a descending sort -
+        however `SORTREVERSE` can change this (see below).
 
-	The sort direction character was added in 1.3.5 - earlier versions
-	defaulted to a descending sort (and for compatibility this is still
-	the behaviour if you omit the `+` or `-`).
+        The sort direction character was added in 1.3.5 - earlier versions
+        defaulted to a descending sort (and for compatibility this is still
+        the behaviour if you omit the `+` or `-`).
 
-	Earlier versions also parsed the value as a signed integer and then
-	cast it to unsigned, so beware of using updated templates with older
-	versions.
+        Earlier versions also parsed the value as a signed integer and then
+        cast it to unsigned, so beware of using updated templates with older
+        versions.
 
-	The ability to specify more than one value slot number was added
-	in 1.4.1.  Multiple slot specifiers are separated by zero or more
-	whitespace and/or commas - e.g. `SORT=+1-0+4`, `SORT=+1, -2`, etc.
+        The ability to specify more than one value slot number was added
+        in 1.4.1.  Multiple slot specifiers are separated by zero or more
+        whitespace and/or commas - e.g. `SORT=+1-0+4`, `SORT=+1, -2`, etc.
 
 SORTREVERSE
-	if non-zero, reverses the sort order specified by `SORT`.  This
-	parameter has no effect unless `SORT` is also specified.
+        if non-zero, reverses the sort order specified by `SORT`.  This
+        parameter has no effect unless `SORT` is also specified.
 
 SORTAFTER
-	if non-zero, order results by relevance, only sorting by value to
-	order values with the same relevance score.  This parameter has no
-	effect unless SORT is also specified.
+        if non-zero, order results by relevance, only sorting by value to
+        order values with the same relevance score.  This parameter has no
+        effect unless SORT is also specified.
 
 DOCIDORDER
-	set the ordering used when a comparison ends up being by docid (i.e.
-	two documents with equal relevance and/or values).  By default (if
-	DOCIDORDER isn't set or is empty) this puts them in ASCENDING order
-	(the lowest document id ranks highest).  If DOCIDORDER is specified
-	and non-empty it can begin with "D" for DESCENDING order, "A" for
-	ASCENDING order or any other character ("X" by convention) for
-	DONT_CARE (the Xapian database backend will use whichever order is most
-	efficient).  Any characters after the first are ignored.
+        set the ordering used when a comparison ends up being by docid (i.e.
+        two documents with equal relevance and/or values).  By default (if
+        DOCIDORDER isn't set or is empty) this puts them in ASCENDING order
+        (the lowest document id ranks highest).  If DOCIDORDER is specified
+        and non-empty it can begin with "D" for DESCENDING order, "A" for
+        ASCENDING order or any other character ("X" by convention) for
+        DONT_CARE (the Xapian database backend will use whichever order is most
+        efficient).  Any characters after the first are ignored.
 
 Display parameters and navigation
 ---------------------------------
 
 FMT
-	name of page format to use (may not contain ``..``).
+        name of page format to use (may not contain ``..``).
 
 HITSPERPAGE
-	hits per page (integer) - clipped to range 10-1000.
+        hits per page (integer) - clipped to range 10-1000.
 
 TOPDOC
-	first document to display (snapped to multiple of HITSPERPAGE
-	if RAWSEARCH is not set)
+        first document to display (snapped to multiple of HITSPERPAGE
+        if RAWSEARCH is not set)
 
 If a parameter named '<' or '>' exists, Omega will go to the previous
 or next results page (based on the value of TOPDOC), respectively. If

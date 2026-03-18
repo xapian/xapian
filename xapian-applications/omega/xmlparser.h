@@ -60,8 +60,8 @@ class XmlParser {
      *  Return false to stop parsing of the rest of the document.
      */
     virtual bool opening_tag(const std::string& tag) {
-	(void)tag;
-	return true;
+        (void)tag;
+        return true;
     }
 
     /** Process a closing tag.
@@ -69,13 +69,13 @@ class XmlParser {
      *  Return false to stop parsing of the rest of the document.
      */
     virtual bool closing_tag(const std::string& tag) {
-	(void)tag;
-	return true;
+        (void)tag;
+        return true;
     }
 
     /// Process text between tags.
     virtual void process_content(const std::string& content) {
-	(void)content;
+        (void)content;
     }
 
   public:

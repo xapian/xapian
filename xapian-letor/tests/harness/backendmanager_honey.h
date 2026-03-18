@@ -48,13 +48,13 @@ class BackendManagerHoney : public BackendManager {
 
   public:
     BackendManagerHoney(const std::string& datadir_)
-	: BackendManager(datadir_, "honey"),
-	  generated_sub_manager(NULL) { }
+        : BackendManager(datadir_, "honey"),
+          generated_sub_manager(NULL) { }
 
     BackendManagerHoney(const std::string& datadir_,
-			BackendManager* generated_sub_manager_)
-	: BackendManager(datadir_, "honey"),
-	  generated_sub_manager(generated_sub_manager_) { }
+                        BackendManager* generated_sub_manager_)
+        : BackendManager(datadir_, "honey"),
+          generated_sub_manager(generated_sub_manager_) { }
 
     /// Get generated database for honey
     Xapian::WritableDatabase get_generated_database(const std::string& name);
@@ -64,7 +64,7 @@ class BackendManagerHoney : public BackendManager {
 
     /// Create a Xapian::WritableDatabase object.
     Xapian::WritableDatabase get_writable_database(const std::string& name,
-						   const std::string& file);
+                                                   const std::string& file);
 
     std::string get_generated_database_path(const std::string& name);
 

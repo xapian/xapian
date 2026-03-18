@@ -56,18 +56,18 @@ class GlassSynonymTable : public GlassLazyTable {
      *  @param readonly		true if we're opening read-only, else false.
      */
     GlassSynonymTable(const std::string & dbdir, bool readonly)
-	: GlassLazyTable("synonym", dbdir + "/synonym.", readonly) { }
+        : GlassLazyTable("synonym", dbdir + "/synonym.", readonly) { }
 
     GlassSynonymTable(int fd, off_t offset_, bool readonly)
-	: GlassLazyTable("synonym", fd, offset_, readonly) { }
+        : GlassLazyTable("synonym", fd, offset_, readonly) { }
 
     // Merge in batched-up changes.
     void merge_changes();
 
     // Discard batched-up changes.
     void discard_changes() {
-	last_term.resize(0);
-	last_synonyms.clear();
+        last_term.resize(0);
+        last_synonyms.clear();
     }
 
     /** Add a synonym for @a term.
@@ -102,17 +102,17 @@ class GlassSynonymTable : public GlassLazyTable {
      */
 
     bool is_modified() const {
-	return !last_term.empty() || GlassTable::is_modified();
+        return !last_term.empty() || GlassTable::is_modified();
     }
 
     void flush_db() {
-	merge_changes();
-	GlassTable::flush_db();
+        merge_changes();
+        GlassTable::flush_db();
     }
 
     void cancel(const RootInfo & root_info, glass_revision_number_t rev) {
-	discard_changes();
-	GlassTable::cancel(root_info, rev);
+        discard_changes();
+        GlassTable::cancel(root_info, rev);
     }
 
     // @}
@@ -140,19 +140,19 @@ class GlassSynonymTermList : public AllTermsList {
 
   public:
     GlassSynonymTermList(Xapian::Internal::intrusive_ptr<const GlassDatabase> database_,
-			 GlassCursor * cursor_,
-			 std::string_view prefix_)
-	    : database(database_), cursor(cursor_), prefix(prefix_)
+                         GlassCursor * cursor_,
+                         std::string_view prefix_)
+            : database(database_), cursor(cursor_), prefix(prefix_)
     {
-	// Position the cursor on the highest key before the first key we want,
-	// so that the first call to next() will put us on the first key we
-	// want.
-	if (prefix.empty()) {
-	    cursor->rewind();
-	} else {
-	    // Seek to the first key before one with the desired prefix.
-	    cursor->find_entry_lt(prefix);
-	}
+        // Position the cursor on the highest key before the first key we want,
+        // so that the first call to next() will put us on the first key we
+        // want.
+        if (prefix.empty()) {
+            cursor->rewind();
+        } else {
+            // Seek to the first key before one with the desired prefix.
+            cursor->find_entry_lt(prefix);
+        }
     }
 
     /// Destructor.

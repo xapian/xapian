@@ -36,26 +36,26 @@ class RSet::Internal : public Xapian::Internal::intrusive_base {
     std::set<Xapian::docid> docs;
 
     void shard(Xapian::doccount n_shards, std::vector<Xapian::RSet>& rsets) {
-	if (n_shards == 1 || docs.empty()) {
-	    // Either there's a single database (in which case we just need
-	    // to return ourself as the sharded RSet), or there are no relevance
-	    // judgements (in which case we can use ourself as the internals for
-	    // all the empty sharded RSets).
-	    rsets.resize(n_shards, RSet(this));
-	    return;
-	}
+        if (n_shards == 1 || docs.empty()) {
+            // Either there's a single database (in which case we just need
+            // to return ourself as the sharded RSet), or there are no relevance
+            // judgements (in which case we can use ourself as the internals for
+            // all the empty sharded RSets).
+            rsets.resize(n_shards, RSet(this));
+            return;
+        }
 
-	// Using resize() here would result in all the entries having the same
-	// internals.
-	rsets.reserve(n_shards);
-	for (Xapian::doccount i = 0; i < n_shards; ++i) {
-	    rsets.emplace_back(RSet());
-	}
+        // Using resize() here would result in all the entries having the same
+        // internals.
+        rsets.reserve(n_shards);
+        for (Xapian::doccount i = 0; i < n_shards; ++i) {
+            rsets.emplace_back(RSet());
+        }
 
-	for (auto&& did : docs) {
-	    Xapian::docid shard_did = shard_docid(did, n_shards);
-	    rsets[shard_number(did, n_shards)].add_document(shard_did);
-	}
+        for (auto&& did : docs) {
+            Xapian::docid shard_did = shard_docid(did, n_shards);
+            rsets[shard_number(did, n_shards)].add_document(shard_did);
+        }
     }
 };
 

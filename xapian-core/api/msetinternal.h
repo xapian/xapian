@@ -88,32 +88,32 @@ class MSet::Internal : public Xapian::Internal::intrusive_base {
     Internal() {}
 
     Internal(Xapian::doccount first_,
-	     Xapian::doccount matches_upper_bound_,
-	     Xapian::doccount matches_lower_bound_,
-	     Xapian::doccount matches_estimated_,
-	     Xapian::doccount uncollapsed_upper_bound_,
-	     Xapian::doccount uncollapsed_lower_bound_,
-	     Xapian::doccount uncollapsed_estimated_,
-	     double max_possible_,
-	     double max_attained_,
-	     std::vector<Result>&& items_,
-	     double percent_scale_factor_)
-	: items(std::move(items_)),
-	  matches_lower_bound(matches_lower_bound_),
-	  matches_estimated(matches_estimated_),
-	  matches_upper_bound(matches_upper_bound_),
-	  uncollapsed_lower_bound(uncollapsed_lower_bound_),
-	  uncollapsed_estimated(uncollapsed_estimated_),
-	  uncollapsed_upper_bound(uncollapsed_upper_bound_),
-	  first(first_),
-	  max_possible(max_possible_),
-	  max_attained(max_attained_),
-	  percent_scale_factor(percent_scale_factor_) {}
+             Xapian::doccount matches_upper_bound_,
+             Xapian::doccount matches_lower_bound_,
+             Xapian::doccount matches_estimated_,
+             Xapian::doccount uncollapsed_upper_bound_,
+             Xapian::doccount uncollapsed_lower_bound_,
+             Xapian::doccount uncollapsed_estimated_,
+             double max_possible_,
+             double max_attained_,
+             std::vector<Result>&& items_,
+             double percent_scale_factor_)
+        : items(std::move(items_)),
+          matches_lower_bound(matches_lower_bound_),
+          matches_estimated(matches_estimated_),
+          matches_upper_bound(matches_upper_bound_),
+          uncollapsed_lower_bound(uncollapsed_lower_bound_),
+          uncollapsed_estimated(uncollapsed_estimated_),
+          uncollapsed_upper_bound(uncollapsed_upper_bound_),
+          first(first_),
+          max_possible(max_possible_),
+          max_attained(max_attained_),
+          percent_scale_factor(percent_scale_factor_) {}
 
     void set_first(Xapian::doccount first_) { first = first_; }
 
     void set_enquire(const Xapian::Enquire::Internal* enquire_) {
-	enquire = enquire_;
+        enquire = enquire_;
     }
 
     Xapian::Weight::Internal* get_stats() const { return stats.get(); }
@@ -135,12 +135,12 @@ class MSet::Internal : public Xapian::Internal::intrusive_base {
     void merge_stats(const Internal* o, bool collapsing);
 
     std::string snippet(std::string_view text,
-			size_t length,
-			const Xapian::Stem & stemmer,
-			unsigned flags,
-			std::string_view hi_start,
-			std::string_view hi_end,
-			std::string_view omit) const;
+                        size_t length,
+                        const Xapian::Stem & stemmer,
+                        unsigned flags,
+                        std::string_view hi_start,
+                        std::string_view hi_end,
+                        std::string_view omit) const;
 
     /** Serialise this object.
      *

@@ -53,14 +53,14 @@ class SoakTestRunner : public TestRunner
     string seed_str;
   public:
     SoakTestRunner() : seed_str("42") {
-	test_driver::add_command_line_option("seed", 's', &seed_str);
+        test_driver::add_command_line_option("seed", 's', &seed_str);
     }
 
     int run() const {
-	int result = 0;
-	g_random_seed = atoi(seed_str.c_str());
+        int result = 0;
+        g_random_seed = atoi(seed_str.c_str());
 #include "soaktest/soaktest_collated.h"
-	return result;
+        return result;
     }
 };
 

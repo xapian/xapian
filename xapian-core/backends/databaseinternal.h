@@ -70,11 +70,11 @@ class Database::Internal : public Xapian::Internal::intrusive_base {
   protected:
     /// Transaction state enum.
     enum transaction_state {
-	TRANSACTION_READONLY = -2, // Not a writable database shard.
-	TRANSACTION_UNIMPLEMENTED = -1, // Used by InMemory.
-	TRANSACTION_NONE = 0,
-	TRANSACTION_UNFLUSHED = 1,
-	TRANSACTION_FLUSHED = 2
+        TRANSACTION_READONLY = -2, // Not a writable database shard.
+        TRANSACTION_UNIMPLEMENTED = -1, // Used by InMemory.
+        TRANSACTION_NONE = 0,
+        TRANSACTION_UNFLUSHED = 1,
+        TRANSACTION_FLUSHED = 2
     };
 
     /** Only constructable as a base class for derived classes.
@@ -85,14 +85,14 @@ class Database::Internal : public Xapian::Internal::intrusive_base {
      *	* TRANSACTION_NONE - writable with transaction support
      */
     Internal(transaction_state transaction_support)
-	: state(transaction_support) {}
+        : state(transaction_support) {}
 
     /// Current transaction state.
     transaction_state state;
 
     /// Test if this shard is read-only.
     bool is_read_only() const {
-	return state == TRANSACTION_READONLY;
+        return state == TRANSACTION_READONLY;
     }
 
     /// Test if a transaction is currently active.
@@ -112,9 +112,9 @@ class Database::Internal : public Xapian::Internal::intrusive_base {
      *  exceptions.
      */
     void dtor_called() {
-	// Inline the check to exclude no-op cases (read-only and unimplemented).
-	if (state >= 0)
-	    dtor_called_();
+        // Inline the check to exclude no-op cases (read-only and unimplemented).
+        if (state >= 0)
+            dtor_called_();
     }
 
   public:
@@ -162,8 +162,8 @@ class Database::Internal : public Xapian::Internal::intrusive_base {
      *				term in the database (or NULL not to return)
      */
     virtual void get_freqs(std::string_view term,
-			   doccount* termfreq_ptr,
-			   termcount* collfreq_ptr) const = 0;
+                           doccount* termfreq_ptr,
+                           termcount* collfreq_ptr) const = 0;
 
     /** Return the frequency of a given value slot.
      *
@@ -229,7 +229,7 @@ class Database::Internal : public Xapian::Internal::intrusive_base {
      *				if need_read_pos is false.
      */
     virtual LeafPostList* open_leaf_post_list(std::string_view term,
-					      bool need_read_pos) const = 0;
+                                              bool need_read_pos) const = 0;
 
     /** Open a value stream.
      *
@@ -254,7 +254,7 @@ class Database::Internal : public Xapian::Internal::intrusive_base {
     virtual TermList* open_allterms(std::string_view prefix) const = 0;
 
     virtual PositionList* open_position_list(docid did,
-					     std::string_view term) const = 0;
+                                             std::string_view term) const = 0;
 
     /** Open a handle on a document.
      *
@@ -298,7 +298,7 @@ class Database::Internal : public Xapian::Internal::intrusive_base {
      *  @param freqinc	How much to increase its frequency by.
      */
     virtual void add_spelling(std::string_view word,
-			      termcount freqinc) const;
+                              termcount freqinc) const;
 
     /** Remove a word from the spelling dictionary.
      *
@@ -311,7 +311,7 @@ class Database::Internal : public Xapian::Internal::intrusive_base {
      *  @return Any freqdec not "used up".
      */
     virtual termcount remove_spelling(std::string_view word,
-				      termcount freqdec) const;
+                                      termcount freqdec) const;
 
     /** Open a termlist returning synonyms for a term.
      *
@@ -332,14 +332,14 @@ class Database::Internal : public Xapian::Internal::intrusive_base {
      *  taken.
      */
     virtual void add_synonym(std::string_view term,
-			     std::string_view synonym) const;
+                             std::string_view synonym) const;
 
     /** Remove a synonym for a term.
      *
      *  If @a synonym isn't a synonym for @a term, then no action is taken.
      */
     virtual void remove_synonym(std::string_view term,
-				std::string_view synonym) const;
+                                std::string_view synonym) const;
 
     /** Clear all synonyms for a term.
      *
@@ -402,11 +402,11 @@ class Database::Internal : public Xapian::Internal::intrusive_base {
     virtual void delete_document(std::string_view unique_term);
 
     virtual void replace_document(docid did,
-				  const Document& document);
+                                  const Document& document);
 
     /** Replace any documents matching a term. */
     virtual docid replace_document(std::string_view unique_term,
-				   const Document& document);
+                                   const Document& document);
 
     /** Request a document.
      *
@@ -431,9 +431,9 @@ class Database::Internal : public Xapian::Internal::intrusive_base {
      *  recent version of the database.
      */
     virtual void write_changesets_to_fd(int fd,
-					std::string_view start_revision,
-					bool need_whole_db,
-					ReplicationInfo* info);
+                                        std::string_view start_revision,
+                                        bool need_whole_db,
+                                        ReplicationInfo* info);
 
     /// Get revision number of database (if meaningful).
     virtual Xapian::rev get_revision() const;
@@ -482,7 +482,7 @@ class Database::Internal : public Xapian::Internal::intrusive_base {
      *  on the remote).
      */
     virtual void get_used_docid_range(docid& first,
-				      docid& last) const;
+                                      docid& last) const;
 
     /** Return true if the database is open for writing.
      *
@@ -512,10 +512,10 @@ class Database::Internal : public Xapian::Internal::intrusive_base {
     virtual Internal* update_lock(int flags);
 
     virtual std::string reconstruct_text(Xapian::docid did,
-					 size_t length,
-					 std::string_view prefix,
-					 Xapian::termpos start_pos,
-					 Xapian::termpos end_pos) const;
+                                         size_t length,
+                                         std::string_view prefix,
+                                         Xapian::termpos start_pos,
+                                         Xapian::termpos end_pos) const;
 
     /// Return a string describing this object.
     virtual std::string get_description() const = 0;

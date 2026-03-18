@@ -40,74 +40,74 @@ LatLongMetric::~LatLongMetric()
 
 double
 LatLongMetric::operator()(const LatLongCoords& a,
-			  const LatLongCoords& b) const
+                          const LatLongCoords& b) const
 {
     if (a.empty() || b.empty()) {
-	throw InvalidArgumentError("Empty coordinate list supplied to LatLongMetric::operator()()");
+        throw InvalidArgumentError("Empty coordinate list supplied to LatLongMetric::operator()()");
     }
     double min_dist = 0.0;
     bool have_min = false;
     for (LatLongCoordsIterator a_iter = a.begin();
-	 a_iter != a.end();
-	 ++a_iter)
+         a_iter != a.end();
+         ++a_iter)
     {
-	for (LatLongCoordsIterator b_iter = b.begin();
-	     b_iter != b.end();
-	     ++b_iter)
-	{
-	    double dist = pointwise_distance(*a_iter, *b_iter);
-	    if (!have_min) {
-		min_dist = dist;
-		have_min = true;
-	    } else if (dist < min_dist) {
-		min_dist = dist;
-	    }
-	}
+        for (LatLongCoordsIterator b_iter = b.begin();
+             b_iter != b.end();
+             ++b_iter)
+        {
+            double dist = pointwise_distance(*a_iter, *b_iter);
+            if (!have_min) {
+                min_dist = dist;
+                have_min = true;
+            } else if (dist < min_dist) {
+                min_dist = dist;
+            }
+        }
     }
     return min_dist;
 }
 
 double
 LatLongMetric::operator()(const LatLongCoords& a,
-			  const char* b_ptr, size_t b_len) const
+                          const char* b_ptr, size_t b_len) const
 {
     if (a.empty() || b_len == 0) {
-	throw InvalidArgumentError("Empty coordinate list supplied to LatLongMetric::operator()()");
+        throw InvalidArgumentError("Empty coordinate list supplied to LatLongMetric::operator()()");
     }
     double min_dist = 0.0;
     bool have_min = false;
     LatLongCoord b;
     const char * b_end = b_ptr + b_len;
     while (b_ptr != b_end) {
-	b.unserialise(&b_ptr, b_end);
-	for (LatLongCoordsIterator a_iter = a.begin();
-	     a_iter != a.end();
-	     ++a_iter)
-	{
-	    double dist = pointwise_distance(*a_iter, b);
-	    if (!have_min) {
-		min_dist = dist;
-		have_min = true;
-	    } else if (dist < min_dist) {
-		min_dist = dist;
-	    }
-	}
+        b.unserialise(&b_ptr, b_end);
+        for (LatLongCoordsIterator a_iter = a.begin();
+             a_iter != a.end();
+             ++a_iter)
+        {
+            double dist = pointwise_distance(*a_iter, b);
+            if (!have_min) {
+                min_dist = dist;
+                have_min = true;
+            } else if (dist < min_dist) {
+                min_dist = dist;
+            }
+        }
     }
     return min_dist;
 }
 
 
 GreatCircleMetric::GreatCircleMetric()
-	: radius(QUAD_EARTH_RADIUS_METRES)
+        : radius(QUAD_EARTH_RADIUS_METRES)
 {}
 
 GreatCircleMetric::GreatCircleMetric(double radius_)
-	: radius(radius_)
+        : radius(radius_)
 {}
 
 double
 GreatCircleMetric::pointwise_distance(const LatLongCoord& a,
-				      const LatLongCoord& b) const
+                                      const LatLongCoord& b) const
 {
     double lata = a.latitude * (M_PI / 180.0);
     double latb = b.latitude * (M_PI / 180.0);
@@ -118,10 +118,10 @@ GreatCircleMetric::pointwise_distance(const LatLongCoord& a,
     double sin_half_lat = sin(latdiff / 2);
     double sin_half_long = sin(longdiff / 2);
     double h = sin_half_lat * sin_half_lat +
-	    sin_half_long * sin_half_long * cos(lata) * cos(latb);
+            sin_half_long * sin_half_long * cos(lata) * cos(latb);
     if (rare(h > 1.0)) {
-	// Clamp to 1.0, asin(1.0) = M_PI / 2.0.
-	return radius * M_PI;
+        // Clamp to 1.0, asin(1.0) = M_PI / 2.0.
+        return radius * M_PI;
     }
     return 2 * radius * asin(sqrt(h));
 }
@@ -152,7 +152,7 @@ GreatCircleMetric::unserialise(const string& s) const
 
     double new_radius = unserialise_double(&p, end);
     if (p != end) {
-	throw Xapian::NetworkError("Bad serialised GreatCircleMetric - junk at end");
+        throw Xapian::NetworkError("Bad serialised GreatCircleMetric - junk at end");
     }
 
     return new GreatCircleMetric(new_radius);

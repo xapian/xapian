@@ -36,8 +36,8 @@ class AbiwordParser : public XmlParser {
     bool closing_tag(const std::string& tag);
 
     void parse(std::string_view text) {
-	charset = "utf-8";
-	XmlParser::parse(text);
+        charset = "utf-8";
+        XmlParser::parse(text);
     }
 };
 

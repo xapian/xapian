@@ -37,18 +37,18 @@ main(int argc, char **argv)
 try {
     // We require at least two command line arguments.
     if (argc < 3) {
-	int rc = 1;
-	if (argv[1]) {
-	    if (strcmp(argv[1], "--version") == 0) {
-		cout << "simpleexpand\n";
-		exit(0);
-	    }
-	    if (strcmp(argv[1], "--help") == 0) {
-		rc = 0;
-	    }
-	}
-	cout << "Usage: " << argv[0] << " PATH_TO_DATABASE QUERY [-- [DOCID...]]\n";
-	exit(rc);
+        int rc = 1;
+        if (argv[1]) {
+            if (strcmp(argv[1], "--version") == 0) {
+                cout << "simpleexpand\n";
+                exit(0);
+            }
+            if (strcmp(argv[1], "--help") == 0) {
+                rc = 0;
+            }
+        }
+        cout << "Usage: " << argv[0] << " PATH_TO_DATABASE QUERY [-- [DOCID...]]\n";
+        exit(rc);
     }
 
     // Open the database for searching.
@@ -63,16 +63,16 @@ try {
     string query_string(argv[2]);
     argv += 3;
     while (*argv && strcmp(*argv, "--") != 0) {
-	query_string += ' ';
-	query_string += *argv++;
+        query_string += ' ';
+        query_string += *argv++;
     }
 
     // Create an RSet with the listed docids in.
     Xapian::RSet rset;
     if (*argv) {
-	while (*++argv) {
-	    rset.add_document(atoi(*argv));
-	}
+        while (*++argv) {
+            rset.add_document(atoi(*argv));
+        }
     }
 
     // Parse the query string to produce a Xapian::Query object.
@@ -92,19 +92,19 @@ try {
     cout << matches.get_matches_estimated() << " results found:\n";
 
     for (Xapian::MSetIterator i = matches.begin(); i != matches.end(); ++i) {
-	cout << i.get_rank() + 1 << ": " << i.get_weight() << " docid=" << *i
-	     << " [" << i.get_document().get_data() << "]\n\n";
+        cout << i.get_rank() + 1 << ": " << i.get_weight() << " docid=" << *i
+             << " [" << i.get_document().get_data() << "]\n\n";
     }
 
     // If no relevant docids were given, invent an RSet containing the top 5
     // matches (or all the matches if there are less than 5).
     if (rset.empty()) {
-	int c = 5;
-	Xapian::MSetIterator i = matches.begin();
-	while (c-- && i != matches.end()) {
-	    rset.add_document(*i);
-	    ++i;
-	}
+        int c = 5;
+        Xapian::MSetIterator i = matches.begin();
+        while (c-- && i != matches.end()) {
+            rset.add_document(*i);
+            ++i;
+        }
     }
 
     // Generate an ESet containing terms that the user might want to add to
@@ -114,7 +114,7 @@ try {
     // List the terms.
     Xapian::ESetIterator t;
     for (t = eset.begin(); t != eset.end(); ++t) {
-	cout << *t << ": weight = " << t.get_weight() << '\n';
+        cout << *t << ": weight = " << t.get_weight() << '\n';
     }
 } catch (const Xapian::Error &e) {
     cout << e.get_description() << '\n';

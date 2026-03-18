@@ -25,7 +25,7 @@
 
 class SvgParser : public XmlParser {
     enum {
-	OTHER, TEXT, METADATA, DC_TITLE, TITLE, KEYWORDS, AUTHOR
+        OTHER, TEXT, METADATA, DC_TITLE, TITLE, KEYWORDS, AUTHOR
     } state = OTHER;
     std::string dc_tag;
 

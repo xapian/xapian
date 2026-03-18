@@ -57,8 +57,8 @@ inline Xapian::docid
 docid_from_key(const std::string& term, const std::string& key)
 {
     if (key.size() < term.size()) {
-	// A key can't be shorter than the term it contains.
-	return false;
+        // A key can't be shorter than the term it contains.
+        return false;
     }
     const char* p = key.data();
     const char* end = p + key.size();
@@ -66,12 +66,12 @@ docid_from_key(const std::string& term, const std::string& key)
     std::string term_in_key;
     // FIXME: the next key might not be for a postlist chunk...
     if (!unpack_string_preserving_sort(&p, end, term_in_key))
-	throw Xapian::DatabaseCorruptError("bad postlist key");
+        throw Xapian::DatabaseCorruptError("bad postlist key");
     if (term_in_key != term)
-	return false;
+        return false;
     Xapian::docid did;
     if (!unpack_uint_preserving_sort(&p, end, &did))
-	throw Xapian::DatabaseCorruptError("bad postlist key");
+        throw Xapian::DatabaseCorruptError("bad postlist key");
     return did;
 }
 
@@ -117,22 +117,22 @@ class PostingChunkReader {
 
     /// Initialise already at_end().
     void init() {
-	p = NULL;
-	termfreq = 0;
+        p = NULL;
+        termfreq = 0;
     }
 
     /// Initialise.
     void init(Xapian::doccount tf, Xapian::termcount cf_info) {
-	p = NULL;
-	termfreq = tf;
-	collfreq_info = cf_info;
+        p = NULL;
+        termfreq = tf;
+        collfreq_info = cf_info;
     }
 
     void assign(const char* p_, size_t len, Xapian::docid did);
 
     void assign(const char* p_, size_t len, Xapian::docid did_,
-		Xapian::docid last_did_in_chunk,
-		Xapian::termcount wdf_);
+                Xapian::docid last_did_in_chunk,
+                Xapian::termcount wdf_);
 
     bool at_end() const { return p == NULL; }
 
@@ -186,14 +186,14 @@ class HoneyPostList : public LeafPostList {
   public:
     /// Create HoneyPostList from already positioned @a cursor_.
     HoneyPostList(const HoneyDatabase* db_,
-		  std::string_view term_,
-		  HoneyCursor* cursor_);
+                  std::string_view term_,
+                  HoneyCursor* cursor_);
 
     ~HoneyPostList();
 
     bool open_nearby_postlist(std::string_view term_,
-			      bool need_read_pos,
-			      LeafPostList*& pl) const;
+                              bool need_read_pos,
+                              LeafPostList*& pl) const;
 
     Xapian::docid get_docid() const;
 
@@ -229,8 +229,8 @@ class HoneyPosPostList : public HoneyPostList {
 
   public:
     HoneyPosPostList(const HoneyDatabase* db_,
-		     std::string_view term_,
-		     HoneyCursor* cursor_);
+                     std::string_view term_,
+                     HoneyCursor* cursor_);
 
     PositionList* read_position_list();
 

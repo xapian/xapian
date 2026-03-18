@@ -46,13 +46,13 @@ class BackendManagerRemoteProg : public BackendManagerRemote {
 
   public:
     explicit BackendManagerRemoteProg(BackendManager* sub_manager_)
-	: BackendManagerRemote(sub_manager_,
-			       "remoteprog_" + sub_manager_->get_dbtype())
+        : BackendManagerRemote(sub_manager_,
+                               "remoteprog_" + sub_manager_->get_dbtype())
     { }
 
     /// Create a RemoteProg Xapian::WritableDatabase object indexing a single file.
     Xapian::WritableDatabase get_writable_database(const std::string & name,
-						   const std::string & file);
+                                                   const std::string & file);
 
     /// Create a RemoteProg Xapian::WritableDatabase object with specified args.
     Xapian::WritableDatabase
@@ -60,8 +60,8 @@ class BackendManagerRemoteProg : public BackendManagerRemote {
 
     /// Create a RemoteProg Xapian::Database with the specified timeout.
     Xapian::Database get_remote_database(const std::vector<std::string> & files,
-					 unsigned int timeout,
-					 int* port_ptr);
+                                         unsigned int timeout,
+                                         int* port_ptr);
 
     /// Get RemoteProg Xapian::Database instance of database at path
     Xapian::Database get_database_by_path(const std::string& path);

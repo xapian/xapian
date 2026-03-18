@@ -47,11 +47,11 @@ builddb_queries1(Xapian::WritableDatabase &db, const string &arg)
     unsigned int doccount = 1000;
     unsigned int maxtermsperfield = atoi(arg.c_str());
     for (unsigned int i = 0; i < doccount; ++i) {
-	Xapian::Document doc;
-	for (unsigned int j = randint(maxtermsperfield) + 1; j != 0; --j) {
-	    doc.add_term("N" + str(j));
-	}
-	db.add_document(doc);
+        Xapian::Document doc;
+        for (unsigned int j = randint(maxtermsperfield) + 1; j != 0; --j) {
+            doc.add_term("N" + str(j));
+        }
+        db.add_document(doc);
     }
     db.commit();
 }
@@ -65,24 +65,24 @@ struct QueryBuilderEnv {
     unsigned int maxchildren;
 
     QueryBuilderEnv(unsigned int maxtermsperfield_,
-		    unsigned int maxchildren_)
-	    : maxtermsperfield(maxtermsperfield_),
-	      maxchildren(maxchildren_)
+                    unsigned int maxchildren_)
+            : maxtermsperfield(maxtermsperfield_),
+              maxchildren(maxchildren_)
     {}
 
     /// Pop a query from the front of the list of pieces, and return it.
     Xapian::Query pop() {
-	if (pieces.empty()) return Xapian::Query();
-	Xapian::Query result = pieces.front();
-	pieces.pop_front();
-	return result;
+        if (pieces.empty()) return Xapian::Query();
+        Xapian::Query result = pieces.front();
+        pieces.pop_front();
+        return result;
     }
 
     /// Get an iterator pointing to the "num"th element in pieces.
     list<Xapian::Query>::iterator pick(unsigned int num) {
-	list<Xapian::Query>::iterator i = pieces.begin();
-	for (unsigned int c = 0; c != num && i != pieces.end(); ++c, ++i) {}
-	return i;
+        list<Xapian::Query>::iterator i = pieces.begin();
+        for (unsigned int c = 0; c != num && i != pieces.end(); ++c, ++i) {}
+        return i;
     }
 };
 
@@ -92,7 +92,7 @@ typedef void (*QueryStep)(QueryBuilderEnv &);
 static void push_leaf_N(QueryBuilderEnv & env)
 {
     env.pieces.push_back(Xapian::Query(
-	"N" + str(randint(env.maxtermsperfield) + 1)));
+        "N" + str(randint(env.maxtermsperfield) + 1)));
 }
 
 /** Combine some queries with OR.
@@ -161,21 +161,21 @@ class QueryBuilder {
 
   public:
     QueryBuilder(unsigned int maxtermsperfield_,
-		 unsigned int maxchildren_,
-		 unsigned int maxsteps_)
-	    : env(maxtermsperfield_, maxchildren_),
-	      maxsteps(maxsteps_)
+                 unsigned int maxchildren_,
+                 unsigned int maxsteps_)
+            : env(maxtermsperfield_, maxchildren_),
+              maxsteps(maxsteps_)
     {
-	// Build up the set of options.
-	// Some options are added multiple times to make them more likely.
-	options.push_back(push_leaf_N);
-	options.push_back(push_leaf_N);
-	options.push_back(push_leaf_N);
-	options.push_back(push_leaf_N);
-	options.push_back(combine_OR);
-	options.push_back(combine_AND);
-	options.push_back(combine_XOR);
-	options.push_back(combine_NOT);
+        // Build up the set of options.
+        // Some options are added multiple times to make them more likely.
+        options.push_back(push_leaf_N);
+        options.push_back(push_leaf_N);
+        options.push_back(push_leaf_N);
+        options.push_back(push_leaf_N);
+        options.push_back(combine_OR);
+        options.push_back(combine_AND);
+        options.push_back(combine_XOR);
+        options.push_back(combine_NOT);
     }
 
     /** Build a random query.
@@ -187,12 +187,12 @@ class QueryBuilder {
      *  QueryBuilderEnv is popped and returned.
      */
     Xapian::Query make_query() {
-	unsigned int steps = randint(maxsteps) + 1;
-	while (steps-- != 0) {
-	    QueryStep & step = options[randint(options.size())];
-	    step(env);
-	}
-	return env.pop();
+        unsigned int steps = randint(maxsteps) + 1;
+        while (steps-- != 0) {
+            QueryStep & step = options[randint(options.size())];
+            step(env);
+        }
+        return env.pop();
     }
 };
 
@@ -209,7 +209,7 @@ DEFINE_TESTCASE(queries1, writable && !remote && !inmemory) {
     Xapian::Database db;
     string arg(str(maxtermsperfield));
     db = backendmanager->get_database("queries1_" + str(seed) + "_" + arg,
-				      builddb_queries1, arg);
+                                      builddb_queries1, arg);
 
     // Reset the random seed, to make results repeatable whether database was
     // created or not.
@@ -219,23 +219,23 @@ DEFINE_TESTCASE(queries1, writable && !remote && !inmemory) {
 
     unsigned int count = 0;
     while (++count != repetitions) {
-	Xapian::Query query(builder.make_query());
-	tout.str(string());
-	tout << "query " << count << ": " << query << "\n";
+        Xapian::Query query(builder.make_query());
+        tout.str(string());
+        tout << "query " << count << ": " << query << "\n";
 
-	enquire.set_query(query);
-	Xapian::MSet mset1 = enquire.get_mset(0, 1);
-	Xapian::MSet mset10 = enquire.get_mset(0, 10);
-	Xapian::MSet msetall = enquire.get_mset(0, db.get_doccount());
-	tout << mset1 << "\n";
-	tout << mset10 << "\n";
-	tout << msetall << "\n";
-	if (mset1.empty()) {
-	    TEST(mset10.empty());
-	    TEST(msetall.empty());
-	    continue;
-	}
-	TEST(mset_range_is_same(mset1, 0, msetall, 0, mset1.size()));
-	TEST(mset_range_is_same(mset10, 0, msetall, 0, mset10.size()));
+        enquire.set_query(query);
+        Xapian::MSet mset1 = enquire.get_mset(0, 1);
+        Xapian::MSet mset10 = enquire.get_mset(0, 10);
+        Xapian::MSet msetall = enquire.get_mset(0, db.get_doccount());
+        tout << mset1 << "\n";
+        tout << mset10 << "\n";
+        tout << msetall << "\n";
+        if (mset1.empty()) {
+            TEST(mset10.empty());
+            TEST(msetall.empty());
+            continue;
+        }
+        TEST(mset_range_is_same(mset1, 0, msetall, 0, mset1.size()));
+        TEST(mset_range_is_same(mset10, 0, msetall, 0, mset10.size()));
     }
 }

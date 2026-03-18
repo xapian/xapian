@@ -69,7 +69,7 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource
      */
     XAPIAN_VISIBILITY_INTERNAL
     void set_max_weight_cached_flag_ptr_(bool* flag_ptr) {
-	max_weight_cached_flag_ptr = flag_ptr;
+        max_weight_cached_flag_ptr = flag_ptr;
     }
 
     // Destructor.
@@ -123,10 +123,10 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource
      *  @param max_weight	The upper bound to set.
      */
     void set_maxweight(double max_weight) {
-	max_weight_ = max_weight;
-	if (max_weight_cached_flag_ptr) {
-	    *max_weight_cached_flag_ptr = false;
-	}
+        max_weight_ = max_weight;
+        if (max_weight_cached_flag_ptr) {
+            *max_weight_cached_flag_ptr = false;
+        }
     }
 
     /// Return the currently set upper bound on what get_weight() can return.
@@ -332,7 +332,7 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource
      *  @param registry   The Xapian::Registry object to use.
      */
     virtual PostingSource * unserialise_with_registry(const std::string &serialised,
-				      const Registry & registry) const;
+                                      const Registry & registry) const;
 
     /** Set this PostingSource to the start of the list of postings.
      *
@@ -397,8 +397,8 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource
      *  longer required.
      */
     PostingSource * release() {
-	opt_intrusive_base::release();
-	return this;
+        opt_intrusive_base::release();
+        return this;
     }
 
     /** Start reference counting this object.
@@ -409,8 +409,8 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource
      *  longer required.
      */
     const PostingSource * release() const {
-	opt_intrusive_base::release();
-	return this;
+        opt_intrusive_base::release();
+        return this;
     }
 };
 
@@ -446,7 +446,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValuePostingSource : public PostingSource {
      *  @param slot_ The value slot to read values from.
      */
     explicit ValuePostingSource(Xapian::valueno slot_) noexcept
-	: slot(slot_) {}
+        : slot(slot_) {}
 
     Xapian::doccount get_termfreq_min() const;
     Xapian::doccount get_termfreq_est() const;
@@ -487,8 +487,8 @@ class XAPIAN_VISIBILITY_DEFAULT ValuePostingSource : public PostingSource {
      *  @since Added in 1.2.23 and 1.3.5.
      */
     void done() {
-	value_it = db.valuestream_end(slot);
-	started = true;
+        value_it = db.valuestream_end(slot);
+        started = true;
     }
 
     /** Flag indicating if we've started (true if we have).
@@ -505,7 +505,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValuePostingSource : public PostingSource {
      *  @since Added in 1.2.23 and 1.3.5.
      */
     void set_termfreq_min(Xapian::doccount termfreq_min_) {
-	termfreq_min = termfreq_min_;
+        termfreq_min = termfreq_min_;
     }
 
     /** An estimate of the term frequency.
@@ -516,7 +516,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValuePostingSource : public PostingSource {
      *  @since Added in 1.2.23 and 1.3.5.
      */
     void set_termfreq_est(Xapian::doccount termfreq_est_) {
-	termfreq_est = termfreq_est_;
+        termfreq_est = termfreq_est_;
     }
 
     /** An upper bound on the term frequency.
@@ -527,7 +527,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValuePostingSource : public PostingSource {
      *  @since Added in 1.2.23 and 1.3.5.
      */
     void set_termfreq_max(Xapian::doccount termfreq_max_) {
-	termfreq_max = termfreq_max_;
+        termfreq_max = termfreq_max_;
     }
 
     std::string get_description() const;
@@ -553,7 +553,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValuePostingSource : public PostingSource {
  *  the slot contains values which unserialise to negative values is undefined.
  */
 class XAPIAN_VISIBILITY_DEFAULT ValueWeightPostingSource
-	: public ValuePostingSource {
+        : public ValuePostingSource {
   public:
     /** Construct a ValueWeightPostingSource.
      *
@@ -591,7 +591,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueWeightPostingSource
  *  controlling the order that documents are indexed in.
  */
 class XAPIAN_VISIBILITY_DEFAULT DecreasingValueWeightPostingSource
-	: public Xapian::ValueWeightPostingSource {
+        : public Xapian::ValueWeightPostingSource {
   protected:
     /** Start of range of docids for which weights are known to be decreasing.
      *
@@ -624,15 +624,15 @@ class XAPIAN_VISIBILITY_DEFAULT DecreasingValueWeightPostingSource
      *			known to be decreasing (default: last docid)
      */
     DecreasingValueWeightPostingSource(Xapian::valueno slot_,
-				       Xapian::docid range_start_ = 0,
-				       Xapian::docid range_end_ = 0);
+                                       Xapian::docid range_start_ = 0,
+                                       Xapian::docid range_end_ = 0);
 
     double get_weight() const override;
     DecreasingValueWeightPostingSource* clone() const override;
     std::string name() const override;
     std::string serialise() const override;
     DecreasingValueWeightPostingSource*
-	unserialise(const std::string& serialised) const override;
+        unserialise(const std::string& serialised) const override;
     void reset(const Database& db_, Xapian::doccount shard_index) override;
 
     void next(double min_wt) override;
@@ -652,7 +652,7 @@ class XAPIAN_VISIBILITY_DEFAULT DecreasingValueWeightPostingSource
  *  defaults to 0.0).
  */
 class XAPIAN_VISIBILITY_DEFAULT ValueMapPostingSource
-	: public ValuePostingSource {
+        : public ValuePostingSource {
     /// The default weight
     double default_weight;
 
@@ -690,7 +690,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueMapPostingSource
     std::string name() const override;
     std::string serialise() const override;
     ValueMapPostingSource*
-	unserialise(const std::string& serialised) const override;
+        unserialise(const std::string& serialised) const override;
     void reset(const Database& db_, Xapian::doccount shard_index) override;
 
     std::string get_description() const override;
@@ -747,7 +747,7 @@ class XAPIAN_VISIBILITY_DEFAULT FixedWeightPostingSource : public PostingSource 
     std::string name() const override;
     std::string serialise() const override;
     FixedWeightPostingSource*
-	unserialise(const std::string& serialised) const override;
+        unserialise(const std::string& serialised) const override;
     void reset(const Database& db_, Xapian::doccount shard_index) override;
 
     std::string get_description() const override;

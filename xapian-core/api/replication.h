@@ -46,9 +46,9 @@ struct ReplicationInfo {
     ReplicationInfo() { }
 
     void clear() {
-	changeset_count = 0;
-	fullcopy_count = 0;
-	changed = false;
+        changeset_count = 0;
+        fullcopy_count = 0;
+        changed = false;
     }
 };
 
@@ -94,8 +94,8 @@ class XAPIAN_VISIBILITY_DEFAULT DatabaseMaster {
      *                  descriptor.
      */
     void write_changesets_to_fd(int fd,
-				const std::string & start_revision,
-				ReplicationInfo * info) const;
+                                const std::string & start_revision,
+                                ReplicationInfo * info) const;
 
     /// Return a string describing this object.
     std::string get_description() const;
@@ -186,7 +186,7 @@ class XAPIAN_VISIBILITY_DEFAULT DatabaseReplica {
      *  descriptor, false otherwise.
      */
     bool apply_next_changeset(ReplicationInfo * info,
-			      double reader_close_time);
+                              double reader_close_time);
 
     /// Return a string describing this object.
     std::string get_description() const;

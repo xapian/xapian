@@ -35,7 +35,7 @@ PositionIterator::decref()
 {
     Assert(internal);
     if (--internal->_refs == 0)
-	delete internal;
+        delete internal;
 }
 
 PositionIterator::PositionIterator(Internal *internal_) : internal(internal_)
@@ -44,15 +44,15 @@ PositionIterator::PositionIterator(Internal *internal_) : internal(internal_)
     if (!internal) return;
     ++internal->_refs;
     try {
-	if (!internal->next()) {
-	    decref();
-	    internal = NULL;
-	}
+        if (!internal->next()) {
+            decref();
+            internal = NULL;
+        }
     } catch (...) {
-	// The destructor only runs if the constructor completes, so we have to
-	// take care of cleaning up for ourselves here.
-	decref();
-	throw;
+        // The destructor only runs if the constructor completes, so we have to
+        // take care of cleaning up for ourselves here.
+        decref();
+        throw;
     }
 }
 
@@ -61,7 +61,7 @@ PositionIterator::PositionIterator(const PositionIterator & o)
 {
     LOGCALL_CTOR(API, "PositionIterator", o);
     if (internal)
-	++internal->_refs;
+        ++internal->_refs;
 }
 
 PositionIterator &
@@ -69,9 +69,9 @@ PositionIterator::operator=(const PositionIterator & o)
 {
     LOGCALL(API, PositionIterator &, "PositionIterator::operator=", o);
     if (o.internal)
-	++o.internal->_refs;
+        ++o.internal->_refs;
     if (internal)
-	decref();
+        decref();
     internal = o.internal;
     RETURN(*this);
 }
@@ -90,8 +90,8 @@ PositionIterator::operator++()
     LOGCALL(API, PositionIterator &, "PositionIterator::operator++", NO_ARGS);
     Assert(internal);
     if (!internal->next()) {
-	decref();
-	internal = NULL;
+        decref();
+        internal = NULL;
     }
     RETURN(*this);
 }
@@ -101,10 +101,10 @@ PositionIterator::skip_to(Xapian::termpos pos)
 {
     LOGCALL_VOID(API, "PositionIterator::skip_to", pos);
     if (internal) {
-	if (!internal->skip_to(pos)) {
-	    decref();
-	    internal = NULL;
-	}
+        if (!internal->skip_to(pos)) {
+            decref();
+            internal = NULL;
+        }
     }
 }
 
@@ -114,7 +114,7 @@ PositionIterator::get_description() const
 #if 0 // FIXME: Add PositionIterator::Internal::get_description() method.
     string desc = "PositionIterator(";
     if (internal)
-	desc += internal->get_description();
+        desc += internal->get_description();
     desc += ')';
     return desc;
 #else

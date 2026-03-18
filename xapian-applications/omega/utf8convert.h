@@ -26,7 +26,7 @@
 
 // Internal helper.
 bool convert_to_utf8_(std::string_view text, const std::string& charset,
-		      std::string& output);
+                      std::string& output);
 
 // Convert in-place (avoids copy if already UTF-8).
 inline void convert_to_utf8(std::string& text, const std::string& charset)
@@ -35,10 +35,10 @@ inline void convert_to_utf8(std::string& text, const std::string& charset)
 }
 
 inline void convert_to_utf8(std::string_view text, const std::string& charset,
-			    std::string& output)
+                            std::string& output)
 {
     if (!convert_to_utf8_(text, charset, output))
-	output = text;
+        output = text;
 }
 
 #endif // OMEGA_INCLUDED_UTF8CONVERT_H

@@ -30,9 +30,9 @@ DecreasingValueWeightPostingSource::DecreasingValueWeightPostingSource(
     Xapian::valueno slot_,
     Xapian::docid range_start_,
     Xapian::docid range_end_)
-	: Xapian::ValueWeightPostingSource(slot_),
-	  range_start(range_start_),
-	  range_end(range_end_)
+        : Xapian::ValueWeightPostingSource(slot_),
+          range_start(range_start_),
+          range_end(range_end_)
 {
 }
 
@@ -44,7 +44,7 @@ DecreasingValueWeightPostingSource::get_weight() const {
 Xapian::DecreasingValueWeightPostingSource *
 DecreasingValueWeightPostingSource::clone() const {
     return new DecreasingValueWeightPostingSource(get_slot(), range_start,
-						  range_end);
+                                                  range_end);
 }
 
 std::string
@@ -68,23 +68,23 @@ DecreasingValueWeightPostingSource::unserialise(const std::string &s) const {
     Xapian::valueno new_slot;
     Xapian::docid new_range_start, new_range_end;
     if (!unpack_uint(&pos, end, &new_slot) ||
-	!unpack_uint(&pos, end, &new_range_start) ||
-	!unpack_uint_last(&pos, end, &new_range_end)) {
-	unpack_throw_serialisation_error(pos);
+        !unpack_uint(&pos, end, &new_range_start) ||
+        !unpack_uint_last(&pos, end, &new_range_end)) {
+        unpack_throw_serialisation_error(pos);
     }
     return new DecreasingValueWeightPostingSource(new_slot, new_range_start,
-						  new_range_end);
+                                                  new_range_end);
 }
 
 void
 DecreasingValueWeightPostingSource::reset(const Xapian::Database& db_,
-					  Xapian::doccount shard_index)
+                                          Xapian::doccount shard_index)
 {
     Xapian::ValueWeightPostingSource::reset(db_, shard_index);
     if (range_end == 0 || get_database().get_doccount() <= range_end)
-	items_at_end = false;
+        items_at_end = false;
     else
-	items_at_end = true;
+        items_at_end = true;
 }
 
 void
@@ -94,30 +94,30 @@ DecreasingValueWeightPostingSource::skip_if_in_range(double min_wt)
     curr_weight = Xapian::ValueWeightPostingSource::get_weight();
     Xapian::docid docid = Xapian::ValueWeightPostingSource::get_docid();
     if (docid >= range_start && (range_end == 0 || docid <= range_end)) {
-	if (items_at_end) {
-	    if (curr_weight < min_wt) {
-		// skip to end of range.
-		ValueWeightPostingSource::skip_to(range_end + 1, min_wt);
-		if (!ValueWeightPostingSource::at_end())
-		    curr_weight = Xapian::ValueWeightPostingSource::get_weight();
-	    }
-	} else {
-	    if (curr_weight < min_wt) {
-		// terminate early.
-		done();
-	    } else {
-		// Update max_weight.
-		set_maxweight(curr_weight);
-	    }
-	}
+        if (items_at_end) {
+            if (curr_weight < min_wt) {
+                // skip to end of range.
+                ValueWeightPostingSource::skip_to(range_end + 1, min_wt);
+                if (!ValueWeightPostingSource::at_end())
+                    curr_weight = Xapian::ValueWeightPostingSource::get_weight();
+            }
+        } else {
+            if (curr_weight < min_wt) {
+                // terminate early.
+                done();
+            } else {
+                // Update max_weight.
+                set_maxweight(curr_weight);
+            }
+        }
     }
 }
 
 void
 DecreasingValueWeightPostingSource::next(double min_wt) {
     if (get_maxweight() < min_wt) {
-	done();
-	return;
+        done();
+        return;
     }
     Xapian::ValueWeightPostingSource::next(min_wt);
     skip_if_in_range(min_wt);
@@ -125,10 +125,10 @@ DecreasingValueWeightPostingSource::next(double min_wt) {
 
 void
 DecreasingValueWeightPostingSource::skip_to(Xapian::docid min_docid,
-					    double min_wt) {
+                                            double min_wt) {
     if (get_maxweight() < min_wt) {
-	done();
-	return;
+        done();
+        return;
     }
     Xapian::ValueWeightPostingSource::skip_to(min_docid, min_wt);
     skip_if_in_range(min_wt);
@@ -136,14 +136,14 @@ DecreasingValueWeightPostingSource::skip_to(Xapian::docid min_docid,
 
 bool
 DecreasingValueWeightPostingSource::check(Xapian::docid min_docid,
-					  double min_wt) {
+                                          double min_wt) {
     if (get_maxweight() < min_wt) {
-	done();
-	return true;
+        done();
+        return true;
     }
     bool valid = Xapian::ValueWeightPostingSource::check(min_docid, min_wt);
     if (valid) {
-	skip_if_in_range(min_wt);
+        skip_if_in_range(min_wt);
     }
     return valid;
 }

@@ -43,22 +43,22 @@ class Uuid {
 
     // Not currently used outside unittest.cc.
     void clear() {
-	std::memset(uuid_data, 0, BINARY_SIZE);
+        std::memset(uuid_data, 0, BINARY_SIZE);
     }
 
     // Not currently used outside unittest.cc.
     bool is_null() const {
-	for (auto ch : uuid_data) {
-	    if (ch)
-		return false;
-	}
-	return true;
+        for (auto ch : uuid_data) {
+            if (ch)
+                return false;
+        }
+        return true;
     }
 
     std::string to_string() const;
 
     const char* data() const {
-	return reinterpret_cast<const char*>(uuid_data);
+        return reinterpret_cast<const char*>(uuid_data);
     }
 
     void assign(const char* p) { std::memcpy(uuid_data, p, BINARY_SIZE); }

@@ -46,24 +46,24 @@ DEFINE_TESTCASE(consistency3, backend) {
     Xapian::MSet bigmset = enquire.get_mset(0, lots);
     TEST_EQUAL(bigmset.size(), lots);
     for (Xapian::doccount start = 0; start < lots; ++start) {
-	tout << *bigmset[start] << ":" << bigmset[start].get_weight() << ":"
-	     << bigmset[start].get_percent() << "%\n";
-	for (Xapian::doccount size = 0; size < lots - start; ++size) {
-	    Xapian::MSet mset = enquire.get_mset(start, size);
-	    if (mset.size()) {
-		TEST_EQUAL(start + mset.size(),
-			   min(start + size, bigmset.size()));
-	    } else if (size) {
-		TEST(start >= bigmset.size());
-	    }
-	    for (Xapian::doccount i = 0; i < mset.size(); ++i) {
-		TEST_EQUAL(*mset[i], *bigmset[start + i]);
-		TEST_EQUAL_DOUBLE(mset[i].get_weight(),
-				  bigmset[start + i].get_weight());
-		TEST_EQUAL_DOUBLE(mset[i].get_percent(),
-				  bigmset[start + i].get_percent());
-	    }
-	}
+        tout << *bigmset[start] << ":" << bigmset[start].get_weight() << ":"
+             << bigmset[start].get_percent() << "%\n";
+        for (Xapian::doccount size = 0; size < lots - start; ++size) {
+            Xapian::MSet mset = enquire.get_mset(start, size);
+            if (mset.size()) {
+                TEST_EQUAL(start + mset.size(),
+                           min(start + size, bigmset.size()));
+            } else if (size) {
+                TEST(start >= bigmset.size());
+            }
+            for (Xapian::doccount i = 0; i < mset.size(); ++i) {
+                TEST_EQUAL(*mset[i], *bigmset[start + i]);
+                TEST_EQUAL_DOUBLE(mset[i].get_weight(),
+                                  bigmset[start + i].get_weight());
+                TEST_EQUAL_DOUBLE(mset[i].get_percent(),
+                                  bigmset[start + i].get_percent());
+            }
+        }
     }
 }
 
@@ -73,57 +73,57 @@ class MyPostingSource : public Xapian::PostingSource {
     bool started;
 
     MyPostingSource(const vector<pair<Xapian::docid, double>>& weights_,
-		    double max_wt)
-	: weights(weights_), started(false)
+                    double max_wt)
+        : weights(weights_), started(false)
     {
-	set_maxweight(max_wt);
+        set_maxweight(max_wt);
     }
 
   public:
     MyPostingSource() : started(false) { }
 
     PostingSource* clone() const override {
-	return new MyPostingSource(weights, get_maxweight());
+        return new MyPostingSource(weights, get_maxweight());
     }
 
     void append_docweight(Xapian::docid did, double wt) {
-	weights.push_back(make_pair(did, wt));
-	if (wt > get_maxweight()) set_maxweight(wt);
+        weights.push_back(make_pair(did, wt));
+        if (wt > get_maxweight()) set_maxweight(wt);
     }
 
     void reset(const Xapian::Database&, Xapian::doccount) override {
-	started = false;
+        started = false;
     }
 
     double get_weight() const override { return i->second; }
 
     Xapian::doccount get_termfreq_min() const override {
-	return weights.size();
+        return weights.size();
     }
     Xapian::doccount get_termfreq_est() const override {
-	return weights.size();
+        return weights.size();
     }
     Xapian::doccount get_termfreq_max() const override {
-	return weights.size();
+        return weights.size();
     }
 
     void next(double /*wt*/) override {
-	if (!started) {
-	    i = weights.begin();
-	    started = true;
-	} else {
-	    ++i;
-	}
+        if (!started) {
+            i = weights.begin();
+            started = true;
+        } else {
+            ++i;
+        }
     }
 
     bool at_end() const override {
-	return (i == weights.end());
+        return (i == weights.end());
     }
 
     Xapian::docid get_docid() const override { return i->first; }
 
     string get_description() const override {
-	return "MyPostingSource";
+        return "MyPostingSource";
     }
 };
 
@@ -135,14 +135,14 @@ DEFINE_TESTCASE(pctcutoff4, backend && !remote && !multi) {
     Xapian::Database db(get_database("apitest_simpledata"));
     Xapian::Enquire enquire(db);
     while (true) {
-	MyPostingSource source;
-	source.append_docweight(1, 100);
-	source.append_docweight(2, 50 - epsilons * DBL_EPSILON);
-	enquire.set_query(Xapian::Query(&source));
-	Xapian::MSet mset = enquire.get_mset(0, 10);
-	TEST_EQUAL(mset.size(), 2);
-	if (mset[1].get_percent() != 50) break;
-	++epsilons;
+        MyPostingSource source;
+        source.append_docweight(1, 100);
+        source.append_docweight(2, 50 - epsilons * DBL_EPSILON);
+        enquire.set_query(Xapian::Query(&source));
+        Xapian::MSet mset = enquire.get_mset(0, 10);
+        TEST_EQUAL(mset.size(), 2);
+        if (mset[1].get_percent() != 50) break;
+        ++epsilons;
     }
 
     // Make a set of document weights including ones on either side of the
@@ -164,16 +164,16 @@ DEFINE_TESTCASE(pctcutoff4, backend && !remote && !multi) {
     // returned are as expected.
     int percent = 100;
     for (Xapian::MSetIterator i = mset1.begin(); i != mset1.end(); ++i) {
-	int new_percent = mset1.convert_to_percent(i);
-	tout << "mset1 item = " << i.get_percent() << "%\n";
-	if (new_percent != percent) {
-	    enquire.set_cutoff(percent);
-	    Xapian::MSet mset2 = enquire.get_mset(0, 10);
-	    tout << "cutoff = " << percent << "%, "
-		    "mset size = " << mset2.size() << "\n";
-	    TEST_EQUAL(mset2.size(), i.get_rank());
-	    percent = new_percent;
-	}
+        int new_percent = mset1.convert_to_percent(i);
+        tout << "mset1 item = " << i.get_percent() << "%\n";
+        if (new_percent != percent) {
+            enquire.set_cutoff(percent);
+            Xapian::MSet mset2 = enquire.get_mset(0, 10);
+            tout << "cutoff = " << percent << "%, "
+                    "mset size = " << mset2.size() << "\n";
+            TEST_EQUAL(mset2.size(), i.get_rank());
+            percent = new_percent;
+        }
     }
 }
 
@@ -211,8 +211,8 @@ DEFINE_TESTCASE(topercent3, backend) {
 
     Xapian::MSetIterator i;
     for (i = mset.begin(); i != mset.end(); ++i) {
-	// We should never achieve 100%.
-	TEST_REL(i.get_percent(),<,100);
+        // We should never achieve 100%.
+        TEST_REL(i.get_percent(),<,100);
     }
 }
 
@@ -222,10 +222,10 @@ DEFINE_TESTCASE(topercent4, backend) {
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
 
     Xapian::Query query(Xapian::Query::OP_FILTER,
-			Xapian::Query("paragraph"),
-			Xapian::Query("queri"));
+                        Xapian::Query("paragraph"),
+                        Xapian::Query("queri"));
     query = Xapian::Query(Xapian::Query::OP_XOR,
-			  query, Xapian::Query("rubbish"));
+                          query, Xapian::Query("rubbish"));
 
     enquire.set_query(query);
     Xapian::MSet mset = enquire.get_mset(0, 10);
@@ -239,7 +239,7 @@ DEFINE_TESTCASE(topercent4, backend) {
 DEFINE_TESTCASE(topercent5, backend) {
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
     Xapian::Query q(Xapian::Query::OP_OR,
-		    Xapian::Query("paragraph"), Xapian::Query("xyzzy"));
+                    Xapian::Query("paragraph"), Xapian::Query("xyzzy"));
     enquire.set_query(q);
     Xapian::MSet mset = enquire.get_mset(0, 10);
     TEST(!mset.empty());
@@ -262,7 +262,7 @@ DEFINE_TESTCASE(topercent5, backend) {
 DEFINE_TESTCASE(topercent6, backend) {
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
     Xapian::Query q(Xapian::Query::OP_OR,
-		    Xapian::Query("rubbish"), Xapian::Query("letter"));
+                    Xapian::Query("rubbish"), Xapian::Query("letter"));
     enquire.set_query(q);
     Xapian::MSet mset = enquire.get_mset(0, 10);
     TEST(!mset.empty());
@@ -279,12 +279,12 @@ static void
 make_topercent7_db(Xapian::WritableDatabase &db, const string &)
 {
     for (int i = 1; i <= 6; ++i) {
-	Xapian::Document d;
-	d.set_data(str(i));
-	d.add_term("boom", 2 + (i - 4)*(i - 2));
-	if (i != 5)
-	    d.add_boolean_term("XCAT122");
-	db.add_document(d);
+        Xapian::Document d;
+        d.set_data(str(i));
+        d.add_term("boom", 2 + (i - 4)*(i - 2));
+        if (i != 5)
+            d.add_boolean_term("XCAT122");
+        db.add_document(d);
     }
     db.commit();
 }
@@ -309,34 +309,34 @@ DEFINE_TESTCASE(topercent7, backend) {
 class ZWeight : public Xapian::Weight {
   public:
     ZWeight() {
-	need_stat(DOC_LENGTH);
+        need_stat(DOC_LENGTH);
     }
 
     void init(double) override { }
 
     Weight* clone() const override {
-	return new ZWeight();
+        return new ZWeight();
     }
 
     double get_sumpart(Xapian::termcount,
-		       Xapian::termcount,
-		       Xapian::termcount,
-		       Xapian::termcount) const override {
-	return 0.0;
+                       Xapian::termcount,
+                       Xapian::termcount,
+                       Xapian::termcount) const override {
+        return 0.0;
     }
 
     double get_maxpart() const override {
-	return 0.0;
+        return 0.0;
     }
 
     double get_sumextra(Xapian::termcount doclen,
-			Xapian::termcount,
-			Xapian::termcount) const override {
-	return 1.0 / doclen;
+                        Xapian::termcount,
+                        Xapian::termcount) const override {
+        return 1.0 / doclen;
     }
 
     double get_maxextra() const override {
-	return 1.0;
+        return 1.0;
     }
 };
 

@@ -57,18 +57,18 @@ class XAPIAN_VISIBILITY_DEFAULT ValueIterator {
 
     /// Move constructor.
     ValueIterator(ValueIterator && o)
-	: internal(o.internal) {
-	o.internal = nullptr;
+        : internal(o.internal) {
+        o.internal = nullptr;
     }
 
     /// Move assignment operator.
     ValueIterator & operator=(ValueIterator && o) {
-	if (this != &o) {
-	    if (internal) decref();
-	    internal = o.internal;
-	    o.internal = nullptr;
-	}
-	return *this;
+        if (this != &o) {
+            if (internal) decref();
+            internal = o.internal;
+            o.internal = nullptr;
+        }
+        return *this;
     }
 
     /** Default constructor.
@@ -77,11 +77,11 @@ class XAPIAN_VISIBILITY_DEFAULT ValueIterator {
      *  assigned to, but is sometimes syntactically convenient.
      */
     ValueIterator() noexcept
-	: internal() { }
+        : internal() { }
 
     /// Destructor.
     ~ValueIterator() {
-	if (internal) decref();
+        if (internal) decref();
     }
 
     /// Return the value at the current position.
@@ -92,9 +92,9 @@ class XAPIAN_VISIBILITY_DEFAULT ValueIterator {
 
     /// Advance the iterator to the next position (postfix version).
     DerefWrapper_<std::string> operator++(int) {
-	const std::string & value(**this);
-	operator++();
-	return DerefWrapper_<std::string>(value);
+        const std::string & value(**this);
+        operator++();
+        return DerefWrapper_<std::string>(value);
     }
 
     /** Return the docid at the current position.

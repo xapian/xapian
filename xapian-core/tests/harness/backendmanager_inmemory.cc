@@ -38,7 +38,7 @@ BackendManagerInMemory::do_get_database(const vector<string>& files)
 
 Xapian::WritableDatabase
 BackendManagerInMemory::get_writable_database(const string&,
-					      const string& file)
+                                              const string& file)
 {
     Xapian::WritableDatabase wdb(string(), Xapian::DB_BACKEND_INMEMORY);
     index_files_to_database(wdb, vector<string>(1, file));

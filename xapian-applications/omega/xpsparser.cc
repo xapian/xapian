@@ -28,9 +28,9 @@ bool
 XpsParser::opening_tag(const string& tag)
 {
     if (tag == "Glyphs") {
-	string unicodestring;
-	if (get_attribute("UnicodeString", unicodestring))
-	    dump += unicodestring;
+        string unicodestring;
+        if (get_attribute("UnicodeString", unicodestring))
+            dump += unicodestring;
     }
     return true;
 }

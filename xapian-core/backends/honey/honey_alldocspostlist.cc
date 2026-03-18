@@ -35,13 +35,13 @@ using namespace Honey;
 using namespace std;
 
 HoneyAllDocsPostList::HoneyAllDocsPostList(const HoneyDatabase* db,
-					   Xapian::doccount doccount)
+                                           Xapian::doccount doccount)
     : LeafPostList({}),
       cursor(db->get_postlist_cursor())
 {
     LOGCALL_CTOR(DB, "HoneyAllDocsPostList", db | doccount);
     static const char doclen_key_prefix[2] = {
-	0, char(Honey::KEY_DOCLEN_CHUNK)
+        0, char(Honey::KEY_DOCLEN_CHUNK)
     };
     cursor->find_entry_ge(string(doclen_key_prefix, 2));
     /* For an all documents postlist the term frequency is the number of
@@ -81,14 +81,14 @@ HoneyAllDocsPostList::next(double)
 {
     Assert(cursor);
     if (!reader.at_end()) {
-	if (reader.next()) return NULL;
-	cursor->next();
+        if (reader.next()) return NULL;
+        cursor->next();
     }
 
     if (!cursor->after_end()) {
-	if (reader.update(cursor)) {
-	    if (!reader.at_end()) return NULL;
-	}
+        if (reader.update(cursor)) {
+            if (!reader.at_end()) return NULL;
+        }
     }
 
     // We've reached the end.
@@ -101,35 +101,35 @@ PostList*
 HoneyAllDocsPostList::skip_to(Xapian::docid did, double)
 {
     if (rare(!cursor)) {
-	// No-op if already at_end.
-	return NULL;
+        // No-op if already at_end.
+        return NULL;
     }
 
     if (reader.at_end()) {
-	// This happens if the first operation is a skip_to().
-	reader.update(cursor);
-	Assert(!reader.at_end());
+        // This happens if the first operation is a skip_to().
+        reader.update(cursor);
+        Assert(!reader.at_end());
     }
 
     if (reader.skip_to(did))
-	return NULL;
+        return NULL;
 
     if (cursor->find_entry_ge(make_doclenchunk_key(did))) {
-	// Exact match.
-	if (rare(!reader.update(cursor))) {
-	    // Shouldn't be possible.
-	    Assert(false);
-	}
-	if (reader.skip_to(did)) return NULL;
-	// The chunk's last docid is did, so skip_to() should always succeed.
-	Assert(false);
+        // Exact match.
+        if (rare(!reader.update(cursor))) {
+            // Shouldn't be possible.
+            Assert(false);
+        }
+        if (reader.skip_to(did)) return NULL;
+        // The chunk's last docid is did, so skip_to() should always succeed.
+        Assert(false);
     } else if (!cursor->after_end()) {
-	if (reader.update(cursor)) {
-	    if (reader.skip_to(did)) return NULL;
-	    // The chunk's last docid is >= did, so skip_to() should always
-	    // succeed.
-	    Assert(false);
-	}
+        if (reader.update(cursor)) {
+            if (reader.skip_to(did)) return NULL;
+            // The chunk's last docid is >= did, so skip_to() should always
+            // succeed.
+            Assert(false);
+        }
     }
 
     // We've reached the end.
@@ -142,38 +142,38 @@ PostList*
 HoneyAllDocsPostList::check(Xapian::docid did, double, bool& valid)
 {
     if (rare(!cursor)) {
-	// Already at_end.
-	valid = true;
-	return NULL;
+        // Already at_end.
+        valid = true;
+        return NULL;
     }
 
     if (!reader.at_end()) {
-	// Check for the requested docid in the current block.
-	if (reader.skip_to(did)) {
-	    valid = true;
-	    return NULL;
-	}
+        // Check for the requested docid in the current block.
+        if (reader.skip_to(did)) {
+            valid = true;
+            return NULL;
+        }
     }
 
     // Try moving to the appropriate chunk.
     if (!cursor->find_entry_ge(make_doclenchunk_key(did))) {
-	// We're in a chunk which might contain the docid.
-	if (reader.update(cursor)) {
-	    if (reader.skip_to(did)) {
-		valid = true;
-		return NULL;
-	    }
-	}
-	valid = false;
-	return NULL;
+        // We're in a chunk which might contain the docid.
+        if (reader.update(cursor)) {
+            if (reader.skip_to(did)) {
+                valid = true;
+                return NULL;
+            }
+        }
+        valid = false;
+        return NULL;
     }
 
     // We had an exact match for a chunk starting with specified docid.
     Assert(!cursor->after_end());
     if (!reader.update(cursor)) {
-	// We found the exact key we built so it must be a doclen chunk.
-	// Therefore reader.update() "can't possibly fail".
-	Assert(false);
+        // We found the exact key we built so it must be a doclen chunk.
+        // Therefore reader.update() "can't possibly fail".
+        Assert(false);
     }
 
     valid = true;
@@ -202,22 +202,22 @@ bool
 DocLenChunkReader::read_doclen(const unsigned char* q)
 {
     switch (width) {
-	case 1:
-	    doclen = *q;
-	    return doclen != 0xff;
-	case 2:
-	    doclen = unaligned_read2(q);
-	    return doclen != 0xffff;
-	case 3:
-	    // q - 1 is always a valid byte - either the leading byte holding
-	    // the data width, or else the last byte of the previous value.
-	    // unaligned_read4() uses bigendian order, so we just need to mask
-	    // off the most significant byte.
-	    doclen = unaligned_read4(q - 1) & 0xffffff;
-	    return doclen != 0xffffff;
-	default:
-	    doclen = unaligned_read4(q);
-	    return doclen != 0xffffffff;
+        case 1:
+            doclen = *q;
+            return doclen != 0xff;
+        case 2:
+            doclen = unaligned_read2(q);
+            return doclen != 0xffff;
+        case 3:
+            // q - 1 is always a valid byte - either the leading byte holding
+            // the data width, or else the last byte of the previous value.
+            // unaligned_read4() uses bigendian order, so we just need to mask
+            // off the most significant byte.
+            doclen = unaligned_read4(q - 1) & 0xffffff;
+            return doclen != 0xffffff;
+        default:
+            doclen = unaligned_read4(q);
+            return doclen != 0xffffffff;
     }
 }
 
@@ -231,24 +231,24 @@ DocLenChunkReader::update(HoneyCursor* cursor)
 
     size_t len = cursor->current_tag.size();
     if (rare(len == 0))
-	throw Xapian::DatabaseCorruptError("Doclen data chunk is empty");
+        throw Xapian::DatabaseCorruptError("Doclen data chunk is empty");
 
     p = reinterpret_cast<const unsigned char*>(cursor->current_tag.data());
     end = p + len;
     width = *p++;
     if (((width - 8) &~ 0x18) != 0) {
-	throw Xapian::DatabaseCorruptError("Invalid doclen width - currently "
-					   "8, 16, 24 and 32 are supported");
+        throw Xapian::DatabaseCorruptError("Invalid doclen width - currently "
+                                           "8, 16, 24 and 32 are supported");
     }
     width /= 8;
     if ((len - 1) % width != 0)
-	throw Xapian::DatabaseCorruptError("Doclen data chunk has junk at end");
+        throw Xapian::DatabaseCorruptError("Doclen data chunk has junk at end");
     Xapian::docid first_did = last_did - (len - 1) / width + 1;
 
     did = first_did;
     if (!read_doclen(p)) {
-	// The first doclen value shouldn't be missing.
-	throw Xapian::DatabaseCorruptError("Invalid first doclen value");
+        // The first doclen value shouldn't be missing.
+        throw Xapian::DatabaseCorruptError("Invalid first doclen value");
     }
     return true;
 }
@@ -257,13 +257,13 @@ bool
 DocLenChunkReader::next()
 {
     do {
-	p += width;
-	if (p == end) {
-	    p = NULL;
-	    return false;
-	}
+        p += width;
+        if (p == end) {
+            p = NULL;
+            return false;
+        }
 
-	++did;
+        ++did;
     } while (!read_doclen(p));
     return true;
 }
@@ -272,15 +272,15 @@ bool
 DocLenChunkReader::skip_to(Xapian::docid target)
 {
     if (p == NULL)
-	return false;
+        return false;
 
     if (target <= did)
-	return true;
+        return true;
 
     Xapian::docid delta = target - did;
     if (delta >= Xapian::docid(end - p) / width) {
-	p = NULL;
-	return false;
+        p = NULL;
+        return false;
     }
 
     did = target;
@@ -296,12 +296,12 @@ bool
 DocLenChunkReader::find_doclength(Xapian::docid target)
 {
     if (target < did)
-	return false;
+        return false;
 
     Xapian::docid delta = target - did;
     Assert(width > 0);
     if (delta >= Xapian::docid(end - p) / width) {
-	return false;
+        return false;
     }
 
     return read_doclen(p + delta * width);

@@ -88,17 +88,17 @@ static const test test_simple[] = {
     // A basic test with a hyphen
     { "", "simple-example", "example[2] simple[1]" },
     { "cont,weight=2",
-	  "simple-example", "example:3[2,104] simple:3[1,103]" },
+          "simple-example", "example:3[2,104] simple:3[1,103]" },
 
     // Test handling of soft hyphen (added in Xapian 2.0.0).
 #define SHY "\xc2\xad"
     { "", "pro" SHY "duced in" SHY "de" SHY "pen" SHY "dently",
-	  "independently[2] produced[1]" },
+          "independently[2] produced[1]" },
 
     // Test handling of zero-width space (changed in Xapian 2.0.0).
 #define ZWSP "\xe2\x80\x8b"
     { "", "lorem" ZWSP "ipsum" ZWSP "dolor",
-	  "dolor[3] ipsum[2] lorem[1]" },
+          "dolor[3] ipsum[2] lorem[1]" },
 
     // Test parsing of initials
     { "", "I.B.M.", "ibm[1]" },
@@ -109,7 +109,7 @@ static const test test_simple[] = {
 
     // Test parsing initials with a stemmer.
     { "stem=en",
-	  "I.B.M.", "Zibm:1 ibm[1]" },
+          "I.B.M.", "Zibm:1 ibm[1]" },
     { "", "I.B.M", "Zibm:1 ibm[1]" },
     { "", "I.B.", "Zib:1 ib[1]" },
     { "", "I.B", "Zib:1 ib[1]" },
@@ -208,13 +208,13 @@ static const test test_simple[] = {
 
     // Test set_stemming_strategy():
     { "stem=en,none,!word_breaks",
-	  "Unstemmed words!", "unstemmed[1] words[2]" },
+          "Unstemmed words!", "unstemmed[1] words[2]" },
 
     { "all",
-	  "Only stemmed words!", "onli[1] stem[2] word[3]" },
+          "Only stemmed words!", "onli[1] stem[2] word[3]" },
 
     { "all_z",
-	  "Only stemmed words!", "Zonli[1] Zstem[2] Zword[3]" },
+          "Only stemmed words!", "Zonli[1] Zstem[2] Zword[3]" },
 
     // Test set_stopper_strategy():
     { "stop=en,none,stop_none",
@@ -249,7 +249,7 @@ static const test test_simple[] = {
 
     // Test number like things
     { "stem=en,some",
-	  "11:59", "11[1] 59[2]" },
+          "11:59", "11[1] 59[2]" },
     { "", "11:59am", "11[1] 59am[2]" },
 
     // Regression test for ngram bug with stemming enabled.  Was only
@@ -757,28 +757,28 @@ format_doc_termlist(const Xapian::Document & doc)
     string output;
     Xapian::TermIterator it;
     for (it = doc.termlist_begin(); it != doc.termlist_end(); ++it) {
-	if (!output.empty()) output += ' ';
-	output += *it;
-	if (it.positionlist_count() != 0) {
-	    // If we've got a position list, only display the wdf if it's not
-	    // the length of the positionlist.
-	    if (it.get_wdf() != it.positionlist_count()) {
-		output += ':';
-		output += str(it.get_wdf());
-	    }
-	    char ch = '[';
-	    Xapian::PositionIterator posit;
-	    for (posit = it.positionlist_begin(); posit != it.positionlist_end(); ++posit) {
-		output += ch;
-		ch = ',';
-		output += str(*posit);
-	    }
-	    output += ']';
-	} else if (it.get_wdf() != 0) {
-	    // If no position list, display any non-zero wdfs.
-	    output += ':';
-	    output += str(it.get_wdf());
-	}
+        if (!output.empty()) output += ' ';
+        output += *it;
+        if (it.positionlist_count() != 0) {
+            // If we've got a position list, only display the wdf if it's not
+            // the length of the positionlist.
+            if (it.get_wdf() != it.positionlist_count()) {
+                output += ':';
+                output += str(it.get_wdf());
+            }
+            char ch = '[';
+            Xapian::PositionIterator posit;
+            for (posit = it.positionlist_begin(); posit != it.positionlist_end(); ++posit) {
+                output += ch;
+                ch = ',';
+                output += str(*posit);
+            }
+            output += ']';
+        } else if (it.get_wdf() != 0) {
+            // If no position list, display any non-zero wdfs.
+            output += ':';
+            output += str(it.get_wdf());
+        }
     }
     return output;
 }
@@ -790,120 +790,120 @@ DEFINE_TESTCASE(termgen1, !backend) {
     string prefix;
 
     for (const test *p = test_simple; p->text; ++p) {
-	int weight = 1;
-	bool new_doc = true;
-	bool nopos = false;
+        int weight = 1;
+        bool new_doc = true;
+        bool nopos = false;
 
-	const char * o = p->options;
-	while (*o != '\0') {
-	    if (*o == ',') ++o;
-	    if (strncmp(o, "cont", 4) == 0) {
-		o += 4;
-		new_doc = false;
-	    } else if (strncmp(o, "nopos", 5) == 0) {
-		o += 5;
-		nopos = true;
-	    } else if (strncmp(o, "weight=", 7) == 0) {
-		o += 7;
-		weight = atoi(o);
-		while (*o >= '0' && *o <= '9')
-		    ++o;
-	    } else if (strncmp(o, "stem=", 5) == 0) {
-		o += 5;
-		string stemmer;
-		while (*o != '\0' && *o != ',') {
-		    stemmer += *o;
-		    ++o;
-		}
-		termgen.set_stemmer(Xapian::Stem(stemmer));
-		tout << "Setting stemmer to: " << stemmer << '\n';
-	    } else if (strncmp(o, "all_z", 5) == 0) {
-		o += 5;
-		termgen.set_stemming_strategy(termgen.STEM_ALL_Z);
-	    } else if (strncmp(o, "all", 3) == 0) {
-		o += 3;
-		termgen.set_stemming_strategy(termgen.STEM_ALL);
-	    } else if (strncmp(o, "none", 4) == 0) {
-		o += 4;
-		termgen.set_stemming_strategy(termgen.STEM_NONE);
-	    } else if (strncmp(o, "some_full_pos", 13) == 0) {
-		o += 13;
-		termgen.set_stemming_strategy(termgen.STEM_SOME_FULL_POS);
-	    } else if (strncmp(o, "some", 4) == 0) {
-		o += 4;
-		termgen.set_stemming_strategy(termgen.STEM_SOME);
-	    } else if (strncmp(o, "stop=en", 7) == 0) {
-		o += 7;
-		array<const char *, 3> x = {{"the", "a", "an"}};
-		Xapian::SimpleStopper *stopper = new Xapian::SimpleStopper(x.begin(), x.end());
-		termgen.set_stopper(stopper->release());
-	    } else if (strncmp(o, "stop_none", 9) == 0) {
-		o += 9;
-		termgen.set_stopper_strategy(termgen.STOP_NONE);
-	    } else if (strncmp(o, "stop_all", 8) == 0) {
-		o += 8;
-		termgen.set_stopper_strategy(termgen.STOP_ALL);
-	    } else if (strncmp(o, "stop_stemmed", 12) == 0) {
-		o += 12;
-		termgen.set_stopper_strategy(termgen.STOP_STEMMED);
-	    } else if (strncmp(o, "prefix=", 7) == 0) {
-		o += 7;
-		prefix.resize(0);
-		while (*o != '\0' && *o != ',') {
-		    prefix += *o;
-		    ++o;
-		}
-	    } else if (strncmp(o, "ngrams", 6) == 0) {
-		o += 6;
-		termgen.set_flags(termgen.FLAG_NGRAMS,
-				  ~termgen.FLAG_NGRAMS);
-	    } else if (strncmp(o, "!ngrams", 7) == 0) {
-		o += 7;
-		termgen.set_flags(0, ~termgen.FLAG_NGRAMS);
-	    } else if (strncmp(o, "word_breaks", 11) == 0) {
-		o += 11;
-		termgen.set_flags(termgen.FLAG_WORD_BREAKS,
-				  ~termgen.FLAG_WORD_BREAKS);
-	    } else if (strncmp(o, "!word_breaks", 12) == 0) {
-		o += 12;
-		termgen.set_flags(0, ~termgen.FLAG_WORD_BREAKS);
-	    } else {
-		FAIL_TEST("Invalid options string: " << p->options);
-	    }
-	}
+        const char * o = p->options;
+        while (*o != '\0') {
+            if (*o == ',') ++o;
+            if (strncmp(o, "cont", 4) == 0) {
+                o += 4;
+                new_doc = false;
+            } else if (strncmp(o, "nopos", 5) == 0) {
+                o += 5;
+                nopos = true;
+            } else if (strncmp(o, "weight=", 7) == 0) {
+                o += 7;
+                weight = atoi(o);
+                while (*o >= '0' && *o <= '9')
+                    ++o;
+            } else if (strncmp(o, "stem=", 5) == 0) {
+                o += 5;
+                string stemmer;
+                while (*o != '\0' && *o != ',') {
+                    stemmer += *o;
+                    ++o;
+                }
+                termgen.set_stemmer(Xapian::Stem(stemmer));
+                tout << "Setting stemmer to: " << stemmer << '\n';
+            } else if (strncmp(o, "all_z", 5) == 0) {
+                o += 5;
+                termgen.set_stemming_strategy(termgen.STEM_ALL_Z);
+            } else if (strncmp(o, "all", 3) == 0) {
+                o += 3;
+                termgen.set_stemming_strategy(termgen.STEM_ALL);
+            } else if (strncmp(o, "none", 4) == 0) {
+                o += 4;
+                termgen.set_stemming_strategy(termgen.STEM_NONE);
+            } else if (strncmp(o, "some_full_pos", 13) == 0) {
+                o += 13;
+                termgen.set_stemming_strategy(termgen.STEM_SOME_FULL_POS);
+            } else if (strncmp(o, "some", 4) == 0) {
+                o += 4;
+                termgen.set_stemming_strategy(termgen.STEM_SOME);
+            } else if (strncmp(o, "stop=en", 7) == 0) {
+                o += 7;
+                array<const char *, 3> x = {{"the", "a", "an"}};
+                Xapian::SimpleStopper *stopper = new Xapian::SimpleStopper(x.begin(), x.end());
+                termgen.set_stopper(stopper->release());
+            } else if (strncmp(o, "stop_none", 9) == 0) {
+                o += 9;
+                termgen.set_stopper_strategy(termgen.STOP_NONE);
+            } else if (strncmp(o, "stop_all", 8) == 0) {
+                o += 8;
+                termgen.set_stopper_strategy(termgen.STOP_ALL);
+            } else if (strncmp(o, "stop_stemmed", 12) == 0) {
+                o += 12;
+                termgen.set_stopper_strategy(termgen.STOP_STEMMED);
+            } else if (strncmp(o, "prefix=", 7) == 0) {
+                o += 7;
+                prefix.resize(0);
+                while (*o != '\0' && *o != ',') {
+                    prefix += *o;
+                    ++o;
+                }
+            } else if (strncmp(o, "ngrams", 6) == 0) {
+                o += 6;
+                termgen.set_flags(termgen.FLAG_NGRAMS,
+                                  ~termgen.FLAG_NGRAMS);
+            } else if (strncmp(o, "!ngrams", 7) == 0) {
+                o += 7;
+                termgen.set_flags(0, ~termgen.FLAG_NGRAMS);
+            } else if (strncmp(o, "word_breaks", 11) == 0) {
+                o += 11;
+                termgen.set_flags(termgen.FLAG_WORD_BREAKS,
+                                  ~termgen.FLAG_WORD_BREAKS);
+            } else if (strncmp(o, "!word_breaks", 12) == 0) {
+                o += 12;
+                termgen.set_flags(0, ~termgen.FLAG_WORD_BREAKS);
+            } else {
+                FAIL_TEST("Invalid options string: " << p->options);
+            }
+        }
 
-	if (new_doc) {
-	    doc = Xapian::Document();
-	    termgen.set_document(doc);
-	} else {
-	    termgen.increase_termpos();
-	}
+        if (new_doc) {
+            doc = Xapian::Document();
+            termgen.set_document(doc);
+        } else {
+            termgen.increase_termpos();
+        }
 
-	string expect, output;
-	expect = p->expect;
-	try {
-	    if (nopos) {
-		termgen.index_text_without_positions(p->text, weight, prefix);
-	    } else {
-		termgen.index_text(p->text, weight, prefix);
-	    }
-	    output = format_doc_termlist(doc);
-	} catch (const Xapian::Error &e) {
-	    output = e.get_description();
-	} catch (...) {
-	    output = "Unknown exception!";
-	}
+        string expect, output;
+        expect = p->expect;
+        try {
+            if (nopos) {
+                termgen.index_text_without_positions(p->text, weight, prefix);
+            } else {
+                termgen.index_text(p->text, weight, prefix);
+            }
+            output = format_doc_termlist(doc);
+        } catch (const Xapian::Error &e) {
+            output = e.get_description();
+        } catch (...) {
+            output = "Unknown exception!";
+        }
 #ifndef USE_ICU
-	if (termgen.set_flags(0, ~0u) & termgen.FLAG_WORD_BREAKS) {
-	    expect = "FeatureUnavailableError: FLAG_WORD_BREAKS requires "
-		     "building Xapian to use ICU";
-	}
+        if (termgen.set_flags(0, ~0u) & termgen.FLAG_WORD_BREAKS) {
+            expect = "FeatureUnavailableError: FLAG_WORD_BREAKS requires "
+                     "building Xapian to use ICU";
+        }
 #endif
-	if (prefix.empty())
-	    tout << "Text: " << p->text << '\n';
-	else
-	    tout << "Prefix: " << prefix << " Text: " << p->text << '\n';
-	TEST_STRINGS_EQUAL(output, expect);
+        if (prefix.empty())
+            tout << "Text: " << p->text << '\n';
+        else
+            tout << "Prefix: " << prefix << " Text: " << p->text << '\n';
+        TEST_STRINGS_EQUAL(output, expect);
     }
 }
 
@@ -952,7 +952,7 @@ DEFINE_TESTCASE(tg_max_word_length1, !backend) {
     termgen.index_text("cups bowls mugs");
 
     TEST_STRINGS_EQUAL(format_doc_termlist(doc),
-		       "Zcup:1 Zmug:1 cups[1] mugs[2]");
+                       "Zcup:1 Zmug:1 cups[1] mugs[2]");
 }
 
 /// Feature tests for TermGenerator termpos methods.
@@ -968,7 +968,7 @@ DEFINE_TESTCASE(tg_termpos1, !backend) {
     termgen.index_text("up");
     TEST_EQUAL(termgen.get_termpos(), Xapian::termpos(-1));
     TEST_EXCEPTION(Xapian::RangeError,
-		   termgen.index_text("up"));
+                   termgen.index_text("up"));
     TEST_EQUAL(termgen.get_termpos(), Xapian::termpos(-1));
     termgen.set_termpos(0);
 
@@ -986,10 +986,10 @@ DEFINE_TESTCASE(tg_termpos1, !backend) {
     TEST_EQUAL(termgen.get_termpos(), 99);
     termgen.set_termpos_limit(102);
     TEST_EXCEPTION(Xapian::RangeError,
-		   termgen.index_text("we shall over flow"));
+                   termgen.index_text("we shall over flow"));
 
     string expect = "a[1] beginning[2] over[102] shall[101] up[" +
-		    str(Xapian::termpos(-1)) + "] we[100] z[120]";
+                    str(Xapian::termpos(-1)) + "] we[100] z[120]";
     TEST_STRINGS_EQUAL(format_doc_termlist(doc), expect);
 
     TEST_EQUAL(termgen.get_termpos(), 102);

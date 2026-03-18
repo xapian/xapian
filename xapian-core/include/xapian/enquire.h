@@ -128,12 +128,12 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
      *  Parameter to Enquire::set_docid_order().
      */
     typedef enum {
-	/** docids sort in ascending order (default) */
-	ASCENDING = 1,
-	/** docids sort in descending order. */
-	DESCENDING = 0,
-	/** docids sort in whatever order is most efficient for the backend. */
-	DONT_CARE = 2
+        /** docids sort in ascending order (default) */
+        ASCENDING = 1,
+        /** docids sort in descending order. */
+        DESCENDING = 0,
+        /** docids sort in whatever order is most efficient for the backend. */
+        DONT_CARE = 2
     } docid_order;
 
     /** Set sort order for document IDs.
@@ -190,7 +190,7 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
      * @param reverse   If true, reverses the sort order.
      */
     void set_sort_by_key(KeyMaker* sorter,
-			 bool reverse) XAPIAN_NONNULL();
+                         bool reverse) XAPIAN_NONNULL();
 
     /** Set the sorting to be by value, then by relevance for documents
      *  with the same value.
@@ -216,7 +216,7 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
      * @param reverse   If true, reverses the sort order.
      */
     void set_sort_by_key_then_relevance(KeyMaker* sorter,
-					bool reverse) XAPIAN_NONNULL();
+                                        bool reverse) XAPIAN_NONNULL();
 
     /** Set the sorting to be by relevance then value.
      *
@@ -267,7 +267,7 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
      *			matters to your application.
      */
     void set_sort_by_relevance_then_key(KeyMaker* sorter,
-					bool reverse) XAPIAN_NONNULL();
+                                        bool reverse) XAPIAN_NONNULL();
 
     /** Control collapsing of results.
      *
@@ -381,10 +381,10 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
      *				(default: no Xapian::MatchDecider)
      */
     MSet get_mset(doccount first,
-		  doccount maxitems,
-		  doccount checkatleast = 0,
-		  const RSet* rset = NULL,
-		  const MatchDecider* mdecider = NULL) const;
+                  doccount maxitems,
+                  doccount checkatleast = 0,
+                  const RSet* rset = NULL,
+                  const MatchDecider* mdecider = NULL) const;
 
     /** Run the query.
      *
@@ -402,10 +402,10 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
      *				(default: no Xapian::MatchDecider)
      */
     MSet get_mset(doccount first,
-		  doccount maxitems,
-		  const RSet* rset,
-		  const MatchDecider* mdecider = NULL) const {
-	return get_mset(first, maxitems, 0, rset, mdecider);
+                  doccount maxitems,
+                  const RSet* rset,
+                  const MatchDecider* mdecider = NULL) const {
+        return get_mset(first, maxitems, 0, rset, mdecider);
     }
 
     /** Iterate query terms matching a document.
@@ -428,17 +428,17 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
      *  @param it	MSetIterator to return matching terms for
      */
     TermIterator get_matching_terms_begin(const MSetIterator& it) const {
-	return get_matching_terms_begin(*it);
+        return get_matching_terms_begin(*it);
     }
 
     /// End iterator corresponding to @a get_matching_terms_begin().
     TermIterator get_matching_terms_end(docid) const noexcept {
-	return TermIterator();
+        return TermIterator();
     }
 
     /// End iterator corresponding to @a get_matching_terms_begin().
     TermIterator get_matching_terms_end(const MSetIterator&) const noexcept {
-	return TermIterator();
+        return TermIterator();
     }
 
     /** Set the weighting scheme to use for expansion.
@@ -458,7 +458,7 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
      *                   A default value of 1.0 is used if none is specified.
      */
     void set_expansion_scheme(std::string_view eweightname,
-			      double expand_k = 1.0) const;
+                              double expand_k = 1.0) const;
 
     /** Flag telling get_eset() to allow query terms in Xapian::ESet.
      *
@@ -499,10 +499,10 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
      *	@return	Xapian::ESet object containing a list of terms with weights.
      */
     ESet get_eset(termcount maxitems,
-		  const RSet& rset,
-		  int flags = 0,
-		  const ExpandDecider* edecider = NULL,
-		  double min_weight = 0.0) const;
+                  const RSet& rset,
+                  int flags = 0,
+                  const ExpandDecider* edecider = NULL,
+                  double min_weight = 0.0) const;
 
     /** Perform query expansion.
      *
@@ -519,9 +519,9 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
      *	@return	Xapian::ESet object containing a list of terms with weights.
      */
     ESet get_eset(termcount maxitems,
-		  const RSet& rset,
-		  const ExpandDecider* edecider) const {
-	return get_eset(maxitems, rset, 0, edecider);
+                  const RSet& rset,
+                  const ExpandDecider* edecider) const {
+        return get_eset(maxitems, rset, 0, edecider);
     }
 
     /// Return a string describing this object.

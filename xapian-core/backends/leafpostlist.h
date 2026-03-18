@@ -58,7 +58,7 @@ class LeafPostList : public PostList {
 
     /// Only constructable as a base class for derived classes.
     explicit LeafPostList(std::string_view term_)
-	: term(term_) { }
+        : term(term_) { }
 
   public:
     ~LeafPostList();
@@ -79,35 +79,35 @@ class LeafPostList : public PostList {
      *  @param weight_	The weighting object to use.  Must not be NULL.
      */
     void set_termweight(const Xapian::Weight * weight_) {
-	// This method shouldn't be called more than once on the same object.
-	Assert(!weight);
-	weight = weight_;
+        // This method shouldn't be called more than once on the same object.
+        Assert(!weight);
+        weight = weight_;
     }
 
     double resolve_lazy_termweight(Xapian::Weight * weight_,
-				   Xapian::Weight::Internal * stats,
-				   Xapian::termcount qlen,
-				   Xapian::termcount wqf,
-				   double factor,
-				   const Xapian::Database::Internal* shard)
+                                   Xapian::Weight::Internal * stats,
+                                   Xapian::termcount qlen,
+                                   Xapian::termcount wqf,
+                                   double factor,
+                                   const Xapian::Database::Internal* shard)
     {
-	weight_->init_(*stats, qlen, term, wqf, factor, shard, this);
-	// There should be an existing LazyWeight set already.
-	Assert(weight);
-	const Xapian::Weight * const_weight_ = weight_;
-	std::swap(weight, const_weight_);
-	delete const_weight_;
-	// We get such terms from the database so they should exist.
-	Assert(get_termfreq() > 0);
-	double result = weight->get_maxpart();
-	double& max_part = stats->termfreqs[term].max_part;
-	max_part = std::max(max_part, result);
-	return result;
+        weight_->init_(*stats, qlen, term, wqf, factor, shard, this);
+        // There should be an existing LazyWeight set already.
+        Assert(weight);
+        const Xapian::Weight * const_weight_ = weight_;
+        std::swap(weight, const_weight_);
+        delete const_weight_;
+        // We get such terms from the database so they should exist.
+        Assert(get_termfreq() > 0);
+        double result = weight->get_maxpart();
+        double& max_part = stats->termfreqs[term].max_part;
+        max_part = std::max(max_part, result);
+        return result;
     }
 
     double get_weight(Xapian::termcount doclen,
-		      Xapian::termcount unique_terms,
-		      Xapian::termcount wdfdocmax) const;
+                      Xapian::termcount unique_terms,
+                      Xapian::termcount wdfdocmax) const;
 
     double recalc_maxweight();
 
@@ -139,8 +139,8 @@ class LeafPostList : public PostList {
      *			postlist via the database instead).
      */
     virtual bool open_nearby_postlist(std::string_view term_,
-				      bool need_read_pos,
-				      LeafPostList*& pl) const;
+                                      bool need_read_pos,
+                                      LeafPostList*& pl) const;
 
     virtual Xapian::termcount get_wdf_upper_bound() const = 0;
 

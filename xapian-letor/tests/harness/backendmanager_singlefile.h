@@ -46,7 +46,7 @@ class BackendManagerSingleFile : public BackendManager {
 
   public:
     BackendManagerSingleFile(const std::string& datadir_,
-			     BackendManager* sub_manager_);
+                             BackendManager* sub_manager_);
 
     /// Get generated database.
     Xapian::WritableDatabase get_generated_database(const std::string& name);

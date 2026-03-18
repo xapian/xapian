@@ -115,7 +115,7 @@ the section below for more details) and the ``key()`` method returns the
 iterator object, which you can call other methods on, for example::
 
     foreach ($db->allterms_begin() as $k => $term) {
-	print "{$k->get_termfreq()}\t$term\n";
+        print "{$k->get_termfreq()}\t$term\n";
     }
 
 As well as the standard PHP iterator methods, MSetIterator and ESetIterator

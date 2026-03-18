@@ -27,29 +27,29 @@
 /// Append filename argument arg to command cmd with suitable escaping.
 static bool
 append_filename_argument(std::string& cmd,
-			 const std::string& arg,
-			 bool leading_space = true) {
+                         const std::string& arg,
+                         bool leading_space = true) {
 #ifdef __WIN32__
     cmd.reserve(cmd.size() + arg.size() + 5);
     // Prevent a leading "-" on the filename being interpreted as a command
     // line option.
     const char* prefix = (arg[0] == '-') ? " \".\\" : " \"";
     if (!leading_space)
-	++prefix;
+        ++prefix;
     cmd += prefix;
 
     for (char ch : arg) {
-	if (ch == '/') {
-	    // Convert Unix path separators to backslashes.  C library
-	    // functions understand "/" in paths, but we are going to
-	    // call commands like "xcopy" or "rd" which don't.
-	    cmd += '\\';
-	} else if (ch < 32 || std::strchr("<>\"|*?", ch)) {
-	    // Check for illegal characters in filename.
-	    return false;
-	} else {
-	    cmd += ch;
-	}
+        if (ch == '/') {
+            // Convert Unix path separators to backslashes.  C library
+            // functions understand "/" in paths, but we are going to
+            // call commands like "xcopy" or "rd" which don't.
+            cmd += '\\';
+        } else if (ch < 32 || std::strchr("<>\"|*?", ch)) {
+            // Check for illegal characters in filename.
+            return false;
+        } else {
+            cmd += ch;
+        }
     }
     cmd += '"';
 #else
@@ -62,19 +62,19 @@ append_filename_argument(std::string& cmd,
     // line option.
     const char* prefix = (arg[0] == '-') ? " './" : " '";
     if (!leading_space)
-	++prefix;
+        ++prefix;
     cmd += prefix;
 
     for (char ch : arg) {
-	if (ch == '\'') {
-	    // Wrapping the whole argument in single quotes works for
-	    // everything except a single quote - for that we drop out of
-	    // single quotes, then use a backslash-escaped single quote, then
-	    // re-enter single quotes.
-	    cmd += "'\\''";
-	    continue;
-	}
-	cmd += ch;
+        if (ch == '\'') {
+            // Wrapping the whole argument in single quotes works for
+            // everything except a single quote - for that we drop out of
+            // single quotes, then use a backslash-escaped single quote, then
+            // re-enter single quotes.
+            cmd += "'\\''";
+            continue;
+        }
+        cmd += ch;
     }
     cmd += '\'';
 #endif

@@ -52,19 +52,19 @@ extract(const string& filename, const string&)
 
     // check if cdr file supported
     if (!libcdr::CDRDocument::isSupported(&input)) {
-	send_field(FIELD_ERROR, "Format not supported");
-	return;
+        send_field(FIELD_ERROR, "Format not supported");
+        return;
     }
 
     if (!libcdr::CDRDocument::parse(&input, &content)) {
-	send_field(FIELD_ERROR, "Failed to parse file");
-	return;
+        send_field(FIELD_ERROR, "Failed to parse file");
+        return;
     }
 
     int page_count = pages.size();
     send_field_page_count(page_count);
     for (auto i = 0; i < page_count; ++i) {
-	const RVNGString& page = pages[i];
-	send_field(FIELD_BODY, page.cstr(), page.size());
+        const RVNGString& page = pages[i];
+        send_field(FIELD_BODY, page.cstr(), page.size());
     }
 }

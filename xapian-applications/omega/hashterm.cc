@@ -42,7 +42,7 @@ hash_string(const string &s)
 {
     unsigned long int h = 1;
     for (unsigned char ch : s) {
-	UNSIGNED_OVERFLOW_OK(h += (h << 5) + ch);
+        UNSIGNED_OVERFLOW_OK(h += (h << 5) + ch);
     }
     h &= 0xffffffff; // In case sizeof(unsigned long) > 4
     // FIXME: It's quirky that we make leading zeros ' ' here, but "embedded"
@@ -52,9 +52,9 @@ hash_string(const string &s)
     string result(HASH_LEN, ' ');
     size_t j = 0;
     while (h != 0) {
-	char ch = char((h & 63) + 33);
-	result[j++] = ch;
-	h = h >> 6;
+        char ch = char((h & 63) + 33);
+        result[j++] = ch;
+        h = h >> 6;
     }
     return result;
 }
@@ -67,6 +67,6 @@ hash_long_term(const string &term, unsigned int max_length)
     string result(term);
     max_length -= HASH_LEN;
     result.replace(max_length, string::npos,
-		   hash_string(result.substr(max_length)));
+                   hash_string(result.substr(max_length)));
     return result;
 }

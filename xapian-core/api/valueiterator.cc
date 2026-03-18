@@ -35,26 +35,26 @@ ValueIterator::decref()
 {
     Assert(internal);
     if (--internal->_refs == 0)
-	delete internal;
+        delete internal;
 }
 
 ValueIterator::ValueIterator(Internal *internal_) : internal(internal_)
 {
     LOGCALL_CTOR(API, "ValueIterator", internal_);
     if (!internal)
-	return;
+        return;
     ++internal->_refs;
     try {
-	internal->next();
+        internal->next();
     } catch (...) {
-	// The destructor only runs if the constructor completes, so we have to
-	// take care of cleaning up for ourselves here.
-	decref();
-	throw;
+        // The destructor only runs if the constructor completes, so we have to
+        // take care of cleaning up for ourselves here.
+        decref();
+        throw;
     }
     if (internal->at_end()) {
-	decref();
-	internal = NULL;
+        decref();
+        internal = NULL;
     }
 }
 
@@ -63,7 +63,7 @@ ValueIterator::ValueIterator(const ValueIterator & o)
 {
     LOGCALL_CTOR(API, "ValueIterator", o);
     if (internal)
-	++internal->_refs;
+        ++internal->_refs;
 }
 
 ValueIterator &
@@ -71,9 +71,9 @@ ValueIterator::operator=(const ValueIterator & o)
 {
     LOGCALL(API, ValueIterator &, "ValueIterator::operator=", o);
     if (o.internal)
-	++o.internal->_refs;
+        ++o.internal->_refs;
     if (internal)
-	decref();
+        decref();
     internal = o.internal;
     RETURN(*this);
 }
@@ -93,8 +93,8 @@ ValueIterator::operator++()
     Assert(internal);
     internal->next();
     if (internal->at_end()) {
-	decref();
-	internal = NULL;
+        decref();
+        internal = NULL;
     }
     RETURN(*this);
 }
@@ -120,11 +120,11 @@ ValueIterator::skip_to(Xapian::docid docid_or_slot)
 {
     LOGCALL_VOID(API, "ValueIterator::skip_to", docid_or_slot);
     if (internal) {
-	internal->skip_to(docid_or_slot);
-	if (internal->at_end()) {
-	    decref();
-	    internal = NULL;
-	}
+        internal->skip_to(docid_or_slot);
+        if (internal->at_end()) {
+            decref();
+            internal = NULL;
+        }
     }
 }
 
@@ -133,11 +133,11 @@ ValueIterator::check(Xapian::docid did)
 {
     LOGCALL(API, bool, "ValueIterator::check", did);
     if (internal) {
-	if (!internal->check(did)) RETURN(false);
-	if (internal->at_end()) {
-	    decref();
-	    internal = NULL;
-	}
+        if (!internal->check(did)) RETURN(false);
+        if (internal->at_end()) {
+            decref();
+            internal = NULL;
+        }
     }
     RETURN(true);
 }
@@ -147,7 +147,7 @@ ValueIterator::get_description() const
 {
     string desc = "ValueIterator(";
     if (internal)
-	desc += internal->get_description();
+        desc += internal->get_description();
     desc += ')';
     return desc;
 }

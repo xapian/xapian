@@ -59,8 +59,8 @@ DEFINE_TESTCASE(lcdclusterer1, backend)
     Xapian::ClusterSet cset = lcd.cluster(matches);
     int size = cset.size();
     for (int i = 0; i < size; ++i) {
-	Xapian::DocumentSet d = cset[i].get_documents();
-	TEST(d.size() != 0);
+        Xapian::DocumentSet d = cset[i].get_documents();
+        TEST(d.size() != 0);
     }
 }
 
@@ -81,7 +81,7 @@ DEFINE_TESTCASE(lcdclusterer2, backend)
     Xapian::ClusterSet cset = lcd.cluster(matches);
     int size = cset.size();
     for (int i = 0; i < size; ++i) {
-	Xapian::DocumentSet d = cset[i].get_documents();
-	TEST(d.size() != 0);
+        Xapian::DocumentSet d = cset[i].get_documents();
+        TEST(d.size() != 0);
     }
 }

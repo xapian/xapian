@@ -62,9 +62,9 @@ namespace Remote {
  */
 XAPIAN_VISIBILITY_DEFAULT
 Database open(std::string_view host,
-	      unsigned int port,
-	      unsigned timeout = 10000,
-	      unsigned connect_timeout = 10000);
+              unsigned int port,
+              unsigned timeout = 10000,
+              unsigned connect_timeout = 10000);
 
 /** Construct a WritableDatabase object for update access to a remote database
  *  accessed via a TCP connection.
@@ -87,10 +87,10 @@ Database open(std::string_view host,
  */
 XAPIAN_VISIBILITY_DEFAULT
 WritableDatabase open_writable(std::string_view host,
-			       unsigned int port,
-			       unsigned timeout = 0,
-			       unsigned connect_timeout = 10000,
-			       int flags = 0);
+                               unsigned int port,
+                               unsigned timeout = 0,
+                               unsigned connect_timeout = 10000,
+                               int flags = 0);
 
 /** Construct a Database object for read-only access to a remote database
  *  accessed via a program.
@@ -108,8 +108,8 @@ WritableDatabase open_writable(std::string_view host,
  */
 XAPIAN_VISIBILITY_DEFAULT
 Database open(std::string_view program,
-	      std::string_view args,
-	      unsigned timeout = 10000);
+              std::string_view args,
+              unsigned timeout = 10000);
 
 /** Construct a WritableDatabase object for update access to a remote database
  *  accessed via a program.
@@ -127,9 +127,9 @@ Database open(std::string_view program,
  */
 XAPIAN_VISIBILITY_DEFAULT
 WritableDatabase open_writable(std::string_view program,
-			       std::string_view args,
-			       unsigned timeout = 0,
-			       int flags = 0);
+                               std::string_view args,
+                               unsigned timeout = 0,
+                               int flags = 0);
 
 }
 #endif

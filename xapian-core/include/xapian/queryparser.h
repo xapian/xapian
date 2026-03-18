@@ -78,8 +78,8 @@ class XAPIAN_VISIBILITY_DEFAULT Stopper
      *  longer required.
      */
     Stopper * release() {
-	opt_intrusive_base::release();
-	return this;
+        opt_intrusive_base::release();
+        return this;
     }
 
     /** Start reference counting this object.
@@ -90,8 +90,8 @@ class XAPIAN_VISIBILITY_DEFAULT Stopper
      *  longer required.
      */
     const Stopper * release() const {
-	opt_intrusive_base::release();
-	return this;
+        opt_intrusive_base::release();
+        return this;
     }
 };
 
@@ -123,7 +123,7 @@ class XAPIAN_VISIBILITY_DEFAULT SimpleStopper : public Stopper {
     void add(const std::string & word) { stop_words.insert(word); }
 
     virtual bool operator()(const std::string & term) const {
-	return stop_words.find(term) != stop_words.end();
+        return stop_words.find(term) != stop_words.end();
     }
 
     virtual std::string get_description() const;
@@ -190,9 +190,9 @@ class XAPIAN_VISIBILITY_DEFAULT RangeProcessor
      *			   (e.g. `2..12kg` or `2..kg`).
      */
     explicit RangeProcessor(Xapian::valueno slot_,
-			    std::string_view str_ = {},
-			    unsigned flags_ = 0)
-	: slot(slot_), str(str_), flags(flags_) { }
+                            std::string_view str_ = {},
+                            unsigned flags_ = 0)
+        : slot(slot_), str(str_), flags(flags_) { }
 
     /// Destructor.
     virtual ~RangeProcessor();
@@ -220,7 +220,7 @@ class XAPIAN_VISIBILITY_DEFAULT RangeProcessor
      *			returned.
      */
     virtual Xapian::Query
-	operator()(const std::string &begin, const std::string &end);
+        operator()(const std::string &begin, const std::string &end);
 
     /** Start reference counting this object.
      *
@@ -230,8 +230,8 @@ class XAPIAN_VISIBILITY_DEFAULT RangeProcessor
      *  longer required.
      */
     RangeProcessor * release() {
-	opt_intrusive_base::release();
-	return this;
+        opt_intrusive_base::release();
+        return this;
     }
 
     /** Start reference counting this object.
@@ -242,8 +242,8 @@ class XAPIAN_VISIBILITY_DEFAULT RangeProcessor
      *  longer required.
      */
     const RangeProcessor * release() const {
-	opt_intrusive_base::release();
-	return this;
+        opt_intrusive_base::release();
+        return this;
     }
 };
 
@@ -269,10 +269,10 @@ class XAPIAN_VISIBILITY_DEFAULT DateRangeProcessor : public RangeProcessor {
      *			    1/1/70 is 1970).
      */
     explicit DateRangeProcessor(Xapian::valueno slot_,
-				unsigned flags_ = 0,
-				int epoch_year_ = 1970)
-	: RangeProcessor(slot_, {}, flags_),
-	  epoch_year(epoch_year_) { }
+                                unsigned flags_ = 0,
+                                int epoch_year_ = 1970)
+        : RangeProcessor(slot_, {}, flags_),
+          epoch_year(epoch_year_) { }
 
     /** Constructor.
      *
@@ -310,9 +310,9 @@ class XAPIAN_VISIBILITY_DEFAULT DateRangeProcessor : public RangeProcessor {
      *  which looks like a date range will be processed.
      */
     DateRangeProcessor(Xapian::valueno slot_, std::string_view str_,
-		       unsigned flags_ = 0, int epoch_year_ = 1970)
-	: RangeProcessor(slot_, str_, flags_),
-	  epoch_year(epoch_year_) { }
+                       unsigned flags_ = 0, int epoch_year_ = 1970)
+        : RangeProcessor(slot_, str_, flags_),
+          epoch_year(epoch_year_) { }
 
     /** Check for a valid date range.
      *
@@ -399,9 +399,9 @@ class XAPIAN_VISIBILITY_DEFAULT NumberRangeProcessor : public RangeProcessor {
      *  valid ranges.
      */
     NumberRangeProcessor(Xapian::valueno slot_,
-			 std::string_view str_ = {},
-			 unsigned flags_ = 0)
-	: RangeProcessor(slot_, str_, flags_) { }
+                         std::string_view str_ = {},
+                         unsigned flags_ = 0)
+        : RangeProcessor(slot_, str_, flags_) { }
 
     /** Check for a valid numeric range.
      *
@@ -444,8 +444,8 @@ class XAPIAN_VISIBILITY_DEFAULT UnitRangeProcessor : public RangeProcessor {
      *  accept "size:3K..10K" as a valid range.
      */
     UnitRangeProcessor(Xapian::valueno slot_,
-		       std::string_view str_ = {})
-	: RangeProcessor(slot_, str_) { }
+                       std::string_view str_ = {})
+        : RangeProcessor(slot_, str_) { }
 
     /** Check for a valid byte value range.
      *
@@ -495,8 +495,8 @@ class XAPIAN_VISIBILITY_DEFAULT FieldProcessor
      *  longer required.
      */
     FieldProcessor * release() {
-	opt_intrusive_base::release();
-	return this;
+        opt_intrusive_base::release();
+        return this;
     }
 
     /** Start reference counting this object.
@@ -507,8 +507,8 @@ class XAPIAN_VISIBILITY_DEFAULT FieldProcessor
      *  longer required.
      */
     const FieldProcessor * release() const {
-	opt_intrusive_base::release();
-	return this;
+        opt_intrusive_base::release();
+        return this;
     }
 };
 
@@ -522,271 +522,271 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
 
     /// Enum of feature flags.
     typedef enum {
-	/// Support AND, OR, etc and bracketed subexpressions.
-	FLAG_BOOLEAN = 1,
-	/// Support quoted phrases.
-	FLAG_PHRASE = 2,
-	/// Support + and -.
-	FLAG_LOVEHATE = 4,
-	/// Support AND, OR, etc even if they aren't in ALLCAPS.
-	FLAG_BOOLEAN_ANY_CASE = 8,
-	/** Support wildcards.
-	 *
-	 *  This flag only enables support for right truncation (e.g. Xap*) -
-	 *  see FLAG_WILDCARD_MULTI, FLAG_WILDCARD_SINGLE and FLAG_WILDCARD_GLOB
-	 *  for extended wildcard support.
-	 *
-	 *  Currently you can't use wildcards with boolean filter prefixes,
-	 *  or in a phrase (either an explicitly quoted one, or one implicitly
-	 *  generated by hyphens or other punctuation).
-	 *
-	 *  In Xapian 1.2.x, you needed to tell the QueryParser object which
-	 *  database to expand wildcards from by calling set_database().  In
-	 *  Xapian 1.3.3, OP_WILDCARD was added and wildcards are now
-	 *  expanded when Enquire::get_mset() is called, with the expansion
-	 *  using the database being searched.
-	 */
-	FLAG_WILDCARD = 16,
-	/** Allow queries such as 'NOT apples'.
-	 *
-	 *  These require the use of a list of all documents in the database
-	 *  which is potentially expensive, so this feature isn't enabled by
-	 *  default.
-	 */
-	FLAG_PURE_NOT = 32,
-	/** Enable partial matching.
-	 *
-	 *  Partial matching causes the parser to treat the query as a
-	 *  "partially entered" search.  This will automatically treat the
-	 *  final word as a wildcarded match, unless it is followed by
-	 *  whitespace, to produce more stable results from interactive
-	 *  searches.
-	 *
-	 *  Currently FLAG_PARTIAL doesn't do anything if the final word
-	 *  in the query has a boolean filter prefix, or if it is in a phrase
-	 *  (either an explicitly quoted one, or one implicitly generated by
-	 *  hyphens or other punctuation).  It also doesn't do anything if
-	 *  if the final word is part of a value range.
-	 *
-	 *  In Xapian 1.2.x, you needed to tell the QueryParser object which
-	 *  database to expand wildcards from by calling set_database().  In
-	 *  Xapian 1.3.3, OP_WILDCARD was added and wildcards are now
-	 *  expanded when Enquire::get_mset() is called, with the expansion
-	 *  using the database being searched.
-	 */
-	FLAG_PARTIAL = 64,
+        /// Support AND, OR, etc and bracketed subexpressions.
+        FLAG_BOOLEAN = 1,
+        /// Support quoted phrases.
+        FLAG_PHRASE = 2,
+        /// Support + and -.
+        FLAG_LOVEHATE = 4,
+        /// Support AND, OR, etc even if they aren't in ALLCAPS.
+        FLAG_BOOLEAN_ANY_CASE = 8,
+        /** Support wildcards.
+         *
+         *  This flag only enables support for right truncation (e.g. Xap*) -
+         *  see FLAG_WILDCARD_MULTI, FLAG_WILDCARD_SINGLE and FLAG_WILDCARD_GLOB
+         *  for extended wildcard support.
+         *
+         *  Currently you can't use wildcards with boolean filter prefixes,
+         *  or in a phrase (either an explicitly quoted one, or one implicitly
+         *  generated by hyphens or other punctuation).
+         *
+         *  In Xapian 1.2.x, you needed to tell the QueryParser object which
+         *  database to expand wildcards from by calling set_database().  In
+         *  Xapian 1.3.3, OP_WILDCARD was added and wildcards are now
+         *  expanded when Enquire::get_mset() is called, with the expansion
+         *  using the database being searched.
+         */
+        FLAG_WILDCARD = 16,
+        /** Allow queries such as 'NOT apples'.
+         *
+         *  These require the use of a list of all documents in the database
+         *  which is potentially expensive, so this feature isn't enabled by
+         *  default.
+         */
+        FLAG_PURE_NOT = 32,
+        /** Enable partial matching.
+         *
+         *  Partial matching causes the parser to treat the query as a
+         *  "partially entered" search.  This will automatically treat the
+         *  final word as a wildcarded match, unless it is followed by
+         *  whitespace, to produce more stable results from interactive
+         *  searches.
+         *
+         *  Currently FLAG_PARTIAL doesn't do anything if the final word
+         *  in the query has a boolean filter prefix, or if it is in a phrase
+         *  (either an explicitly quoted one, or one implicitly generated by
+         *  hyphens or other punctuation).  It also doesn't do anything if
+         *  if the final word is part of a value range.
+         *
+         *  In Xapian 1.2.x, you needed to tell the QueryParser object which
+         *  database to expand wildcards from by calling set_database().  In
+         *  Xapian 1.3.3, OP_WILDCARD was added and wildcards are now
+         *  expanded when Enquire::get_mset() is called, with the expansion
+         *  using the database being searched.
+         */
+        FLAG_PARTIAL = 64,
 
-	/** Enable spelling correction.
-	 *
-	 *  For each word in the query which doesn't exist as a term in the
-	 *  database, Database::get_spelling_suggestion() will be called and if
-	 *  a suggestion is returned, a corrected version of the query string
-	 *  will be built up which can be read using
-	 *  QueryParser::get_corrected_query_string().  The query returned is
-	 *  based on the uncorrected query string however - if you want a
-	 *  parsed query based on the corrected query string, you must call
-	 *  QueryParser::parse_query() again.
-	 *
-	 *  NB: You must also call set_database() for this to work.
-	 */
-	FLAG_SPELLING_CORRECTION = 128,
+        /** Enable spelling correction.
+         *
+         *  For each word in the query which doesn't exist as a term in the
+         *  database, Database::get_spelling_suggestion() will be called and if
+         *  a suggestion is returned, a corrected version of the query string
+         *  will be built up which can be read using
+         *  QueryParser::get_corrected_query_string().  The query returned is
+         *  based on the uncorrected query string however - if you want a
+         *  parsed query based on the corrected query string, you must call
+         *  QueryParser::parse_query() again.
+         *
+         *  NB: You must also call set_database() for this to work.
+         */
+        FLAG_SPELLING_CORRECTION = 128,
 
-	/** Enable synonym operator '~'.
-	 *
-	 *  NB: You must also call set_database() for this to work.
-	 */
-	FLAG_SYNONYM = 256,
+        /** Enable synonym operator '~'.
+         *
+         *  NB: You must also call set_database() for this to work.
+         */
+        FLAG_SYNONYM = 256,
 
-	/** Enable automatic use of synonyms for single terms.
-	 *
-	 *  NB: You must also call set_database() for this to work.
-	 */
-	FLAG_AUTO_SYNONYMS = 512,
+        /** Enable automatic use of synonyms for single terms.
+         *
+         *  NB: You must also call set_database() for this to work.
+         */
+        FLAG_AUTO_SYNONYMS = 512,
 
-	/** Enable automatic use of synonyms for single terms and groups of
-	 *  terms.
-	 *
-	 *  NB: You must also call set_database() for this to work.
-	 */
-	FLAG_AUTO_MULTIWORD_SYNONYMS = 1024,
+        /** Enable automatic use of synonyms for single terms and groups of
+         *  terms.
+         *
+         *  NB: You must also call set_database() for this to work.
+         */
+        FLAG_AUTO_MULTIWORD_SYNONYMS = 1024,
 
-	/** Generate n-grams for scripts without explicit word breaks.
-	 *
-	 *  Spans of characters in such scripts are split into unigrams
-	 *  and bigrams, with the unigrams carrying positional information.
-	 *  Text in other scripts is split into words as normal.
-	 *
-	 *  The TermGenerator::FLAG_NGRAMS flag needs to have been used at
-	 *  index time.
-	 *
-	 *  This mode can also be enabled in 1.2.8 and later by setting
-	 *  environment variable XAPIAN_CJK_NGRAM to a non-empty value (but
-	 *  doing so was deprecated in 1.4.11).
-	 *
-	 *  In 1.4.x this feature was specific to CJK (Chinese, Japanese and
-	 *  Korean), but in 2.0.0 it's been extended to other languages.  To
-	 *  reflect this change the new and preferred name is FLAG_NGRAMS,
-	 *  which was added as an alias for forward compatibility in Xapian
-	 *  1.4.23.  Use FLAG_CJK_NGRAM instead if you aim to support Xapian
-	 *  &lt; 1.4.23.
-	 *
-	 *  @since Added in Xapian 1.4.23.
-	 */
-	FLAG_NGRAMS = 2048,
+        /** Generate n-grams for scripts without explicit word breaks.
+         *
+         *  Spans of characters in such scripts are split into unigrams
+         *  and bigrams, with the unigrams carrying positional information.
+         *  Text in other scripts is split into words as normal.
+         *
+         *  The TermGenerator::FLAG_NGRAMS flag needs to have been used at
+         *  index time.
+         *
+         *  This mode can also be enabled in 1.2.8 and later by setting
+         *  environment variable XAPIAN_CJK_NGRAM to a non-empty value (but
+         *  doing so was deprecated in 1.4.11).
+         *
+         *  In 1.4.x this feature was specific to CJK (Chinese, Japanese and
+         *  Korean), but in 2.0.0 it's been extended to other languages.  To
+         *  reflect this change the new and preferred name is FLAG_NGRAMS,
+         *  which was added as an alias for forward compatibility in Xapian
+         *  1.4.23.  Use FLAG_CJK_NGRAM instead if you aim to support Xapian
+         *  &lt; 1.4.23.
+         *
+         *  @since Added in Xapian 1.4.23.
+         */
+        FLAG_NGRAMS = 2048,
 
-	/** Generate n-grams for scripts without explicit word breaks.
-	 *
-	 *  Old name - use FLAG_NGRAMS instead unless you aim to support Xapian
-	 *  &lt; 1.4.23.
-	 *
-	 *  @since Added in Xapian 1.3.4 and 1.2.22.
-	 */
-	FLAG_CJK_NGRAM = FLAG_NGRAMS,
+        /** Generate n-grams for scripts without explicit word breaks.
+         *
+         *  Old name - use FLAG_NGRAMS instead unless you aim to support Xapian
+         *  &lt; 1.4.23.
+         *
+         *  @since Added in Xapian 1.3.4 and 1.2.22.
+         */
+        FLAG_CJK_NGRAM = FLAG_NGRAMS,
 
-	/** Find word breaks for text in scripts without explicit word breaks.
-	 *
-	 *  With this option enabled, spans of text written in such scripts are
-	 *  split into words using ICU (which uses heuristics and/or
-	 *  dictionaries to do so).  Text in other scripts is split into words
-	 *  as normal.
-	 *
-	 *  The TermGenerator::FLAG_WORD_BREAKS flag needs to have been used at
-	 *  index time.
-	 *
-	 *  @since Added in Xapian 2.0.0.
-	 */
-	FLAG_WORD_BREAKS = 4096,
+        /** Find word breaks for text in scripts without explicit word breaks.
+         *
+         *  With this option enabled, spans of text written in such scripts are
+         *  split into words using ICU (which uses heuristics and/or
+         *  dictionaries to do so).  Text in other scripts is split into words
+         *  as normal.
+         *
+         *  The TermGenerator::FLAG_WORD_BREAKS flag needs to have been used at
+         *  index time.
+         *
+         *  @since Added in Xapian 2.0.0.
+         */
+        FLAG_WORD_BREAKS = 4096,
 
-	/** Support extended wildcard '*'.
-	 *
-	 *  This flag enables support for wildcard '*' matching zero
-	 *  or more characters, which may be used anywhere in a word.
-	 *
-	 *  Such wildcards can be relatively expensive to expand and to match
-	 *  so benchmark your system carefully if you have a lot of documents
-	 *  and/or a high search load.
-	 *
-	 *  FLAG_WILDCARD is ignored if this flag is specified.
-	 *
-	 *  @since Added in Xapian 2.0.0.
-	 */
-	FLAG_WILDCARD_MULTI = 8192,
+        /** Support extended wildcard '*'.
+         *
+         *  This flag enables support for wildcard '*' matching zero
+         *  or more characters, which may be used anywhere in a word.
+         *
+         *  Such wildcards can be relatively expensive to expand and to match
+         *  so benchmark your system carefully if you have a lot of documents
+         *  and/or a high search load.
+         *
+         *  FLAG_WILDCARD is ignored if this flag is specified.
+         *
+         *  @since Added in Xapian 2.0.0.
+         */
+        FLAG_WILDCARD_MULTI = 8192,
 
-	/** Support extended wildcard '?'.
-	 *
-	 *  This flag enables support for wildcard '?' matching exactly one
-	 *  character, which may be use anywhere in a word.
-	 *
-	 *  Such wildcards can be relatively expensive to expand and to match
-	 *  so benchmark your system carefully if you have a lot of documents
-	 *  and/or a high search load.
-	 *
-	 *  FLAG_WILDCARD is ignored if this flag is specified.
-	 *
-	 *  @since Added in Xapian 2.0.0.
-	 */
-	FLAG_WILDCARD_SINGLE = 16384,
+        /** Support extended wildcard '?'.
+         *
+         *  This flag enables support for wildcard '?' matching exactly one
+         *  character, which may be use anywhere in a word.
+         *
+         *  Such wildcards can be relatively expensive to expand and to match
+         *  so benchmark your system carefully if you have a lot of documents
+         *  and/or a high search load.
+         *
+         *  FLAG_WILDCARD is ignored if this flag is specified.
+         *
+         *  @since Added in Xapian 2.0.0.
+         */
+        FLAG_WILDCARD_SINGLE = 16384,
 
-	/** Enable glob-style wildcarding.
-	 *
-	 *  This enables all supported glob-style wildcard pattern flags
-	 *  - currently that's FLAG_WILDCARD_MULTI and FLAG_WILDCARD_SINGLE.
-	 *
-	 *  FLAG_WILDCARD is ignored if this flag is specified.
-	 *
-	 *  @since Added in Xapian 2.0.0.
-	 */
-	FLAG_WILDCARD_GLOB = FLAG_WILDCARD_MULTI | FLAG_WILDCARD_SINGLE,
+        /** Enable glob-style wildcarding.
+         *
+         *  This enables all supported glob-style wildcard pattern flags
+         *  - currently that's FLAG_WILDCARD_MULTI and FLAG_WILDCARD_SINGLE.
+         *
+         *  FLAG_WILDCARD is ignored if this flag is specified.
+         *
+         *  @since Added in Xapian 2.0.0.
+         */
+        FLAG_WILDCARD_GLOB = FLAG_WILDCARD_MULTI | FLAG_WILDCARD_SINGLE,
 
-	/** Support fuzzy matching.
-	 *
-	 *  E.g. "unserten~3" would expand to "uncertain" (and likely other
-	 *  terms).
-	 *
-	 *  foo~ uses edit distance of 2
-	 *  since~0.2 uses edit distance of length("since") * 0.2 = 5 * 0.2 = 1
-	 *
-	 *  @since Added in Xapian 2.0.0.
-	 */
-	FLAG_FUZZY = 32768,
+        /** Support fuzzy matching.
+         *
+         *  E.g. "unserten~3" would expand to "uncertain" (and likely other
+         *  terms).
+         *
+         *  foo~ uses edit distance of 2
+         *  since~0.2 uses edit distance of length("since") * 0.2 = 5 * 0.2 = 1
+         *
+         *  @since Added in Xapian 2.0.0.
+         */
+        FLAG_FUZZY = 32768,
 
-	/** Accumulate unstem and stoplist results.
-	 *
-	 *  By default, the unstem and stoplist data is reset by a call to
-	 *  parse_query(), which makes sense if you use the same QueryParser
-	 *  object to parse a series of independent queries.
-	 *
-	 *  If you're using the same QueryParser object to parse several
-	 *  fields on the same query form, you may want to have the unstem
-	 *  and stoplist data combined for all of them, in which case you
-	 *  can use this flag to prevent this data from being reset.
-	 *
-	 *  @since Added in Xapian 1.4.18.
-	 */
-	FLAG_ACCUMULATE = 65536,
+        /** Accumulate unstem and stoplist results.
+         *
+         *  By default, the unstem and stoplist data is reset by a call to
+         *  parse_query(), which makes sense if you use the same QueryParser
+         *  object to parse a series of independent queries.
+         *
+         *  If you're using the same QueryParser object to parse several
+         *  fields on the same query form, you may want to have the unstem
+         *  and stoplist data combined for all of them, in which case you
+         *  can use this flag to prevent this data from being reset.
+         *
+         *  @since Added in Xapian 1.4.18.
+         */
+        FLAG_ACCUMULATE = 65536,
 
-	/** Produce a query which doesn't use positional information.
-	 *
-	 *  With this flag enabled, no positional information will be used
-	 *  and any query operations which would use it are replaced by
-	 *  the nearest equivalent which doesn't (so phrase searches, NEAR
-	 *  and ADJ will result in OP_AND).
-	 *
-	 *  @since Added in Xapian 1.4.19.
-	 */
-	FLAG_NO_POSITIONS = 0x20000,
+        /** Produce a query which doesn't use positional information.
+         *
+         *  With this flag enabled, no positional information will be used
+         *  and any query operations which would use it are replaced by
+         *  the nearest equivalent which doesn't (so phrase searches, NEAR
+         *  and ADJ will result in OP_AND).
+         *
+         *  @since Added in Xapian 1.4.19.
+         */
+        FLAG_NO_POSITIONS = 0x20000,
 
-	/** Turn off special handling of capitalised words.
-	 *
-	 *  By default capitalising a word prevents it from being considered
-	 *  for stemming.  This only has any effect when both stemmed and
-	 *  non-stemmed terms are available (i.e. when stem_strategy is the
-	 *  default STEM_SOME or STEM_SOME_FULL_POS), and since Xapian 2.0.0 it
-	 *  is only done for languages where it is helpful.
-	 *
-	 *  This attempts to limit problems which stemming can cause with
-	 *  proper names.  For example, the English stemmer conflates `Tony`
-	 *  with `Toni` and `Keats` with `Keating`, which can lead to unwanted
-	 *  matches with irrelevant documents.
-	 *
-	 *  One downside is it prevents stemming of words that aren't proper
-	 *  nouns but are capitalised for other reasons (e.g. in a title or
-	 *  at the start of a sentence).
-	 *
-	 *  Another is that proper nouns can be inflected in some languages.
-	 *  In English some can be pluralised ("How many Tonys do you know?"),
-	 *  and in some languages proper nouns can take an -s suffix to
-	 *  indicate the genitive case (e.g. "Köpenhamns" in Swedish is
-	 *  like "Copenhagen's" in English).
-	 *
-	 *  If inflection is limited to plurals and genitive-s, the benefits
-	 *  of this special handling still seem to outweigh the downsides.
-	 *  However for languages with more extensive inflection of proper
-	 *  nouns it seems too problematic so (since Xapian 2.0.0) we don't
-	 *  enable it for such languages.  It's also off for German where all
-	 *  nouns are capitalised (not just proper nouns).
-	 *
-	 *  This special handling is also only useful in languages where proper
-	 *  nouns are capitalised (so for example, it's not useful for
-	 *  languages written in alphabets without upper case).
-	 *
-	 *  @since FLAG_NO_PROPER_NOUN_HEURISTIC was added in Xapian 2.0.0.
-	 */
-	FLAG_NO_PROPER_NOUN_HEURISTIC = 0x40000,
+        /** Turn off special handling of capitalised words.
+         *
+         *  By default capitalising a word prevents it from being considered
+         *  for stemming.  This only has any effect when both stemmed and
+         *  non-stemmed terms are available (i.e. when stem_strategy is the
+         *  default STEM_SOME or STEM_SOME_FULL_POS), and since Xapian 2.0.0 it
+         *  is only done for languages where it is helpful.
+         *
+         *  This attempts to limit problems which stemming can cause with
+         *  proper names.  For example, the English stemmer conflates `Tony`
+         *  with `Toni` and `Keats` with `Keating`, which can lead to unwanted
+         *  matches with irrelevant documents.
+         *
+         *  One downside is it prevents stemming of words that aren't proper
+         *  nouns but are capitalised for other reasons (e.g. in a title or
+         *  at the start of a sentence).
+         *
+         *  Another is that proper nouns can be inflected in some languages.
+         *  In English some can be pluralised ("How many Tonys do you know?"),
+         *  and in some languages proper nouns can take an -s suffix to
+         *  indicate the genitive case (e.g. "Köpenhamns" in Swedish is
+         *  like "Copenhagen's" in English).
+         *
+         *  If inflection is limited to plurals and genitive-s, the benefits
+         *  of this special handling still seem to outweigh the downsides.
+         *  However for languages with more extensive inflection of proper
+         *  nouns it seems too problematic so (since Xapian 2.0.0) we don't
+         *  enable it for such languages.  It's also off for German where all
+         *  nouns are capitalised (not just proper nouns).
+         *
+         *  This special handling is also only useful in languages where proper
+         *  nouns are capitalised (so for example, it's not useful for
+         *  languages written in alphabets without upper case).
+         *
+         *  @since FLAG_NO_PROPER_NOUN_HEURISTIC was added in Xapian 2.0.0.
+         */
+        FLAG_NO_PROPER_NOUN_HEURISTIC = 0x40000,
 
-	/** The default flags.
-	 *
-	 *  Used if you don't explicitly pass any to @a parse_query().
-	 *  The default flags are FLAG_PHRASE|FLAG_BOOLEAN|FLAG_LOVEHATE.
-	 *
-	 *  @since Added in Xapian 1.0.11.
-	 */
-	FLAG_DEFAULT = FLAG_PHRASE|FLAG_BOOLEAN|FLAG_LOVEHATE
+        /** The default flags.
+         *
+         *  Used if you don't explicitly pass any to @a parse_query().
+         *  The default flags are FLAG_PHRASE|FLAG_BOOLEAN|FLAG_LOVEHATE.
+         *
+         *  @since Added in Xapian 1.0.11.
+         */
+        FLAG_DEFAULT = FLAG_PHRASE|FLAG_BOOLEAN|FLAG_LOVEHATE
     } feature_flag;
 
     /// Stemming strategies, for use with set_stemming_strategy().
     typedef enum {
-	STEM_NONE, STEM_SOME, STEM_ALL, STEM_ALL_Z, STEM_SOME_FULL_POS
+        STEM_NONE, STEM_SOME, STEM_ALL, STEM_ALL_Z, STEM_SOME_FULL_POS
     } stem_strategy;
 
     /** Stopper strategies, for use with set_stopper_strategy().
@@ -939,10 +939,10 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      *  @since 1.3.3
      */
     void set_max_expansion(Xapian::termcount max_expansion,
-			   int max_type = Xapian::Query::WILDCARD_LIMIT_ERROR,
-			   unsigned flags = FLAG_WILDCARD |
-					    FLAG_PARTIAL |
-					    FLAG_FUZZY);
+                           int max_type = Xapian::Query::WILDCARD_LIMIT_ERROR,
+                           unsigned flags = FLAG_WILDCARD |
+                                            FLAG_PARTIAL |
+                                            FLAG_FUZZY);
 
     /** Specify minimum length for fixed initial portion in wildcard patterns.
      *
@@ -968,7 +968,7 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      *  @since Added in Xapian 2.0.0.
      */
     void set_min_wildcard_prefix(unsigned min_prefix_len,
-				 unsigned flags = FLAG_WILDCARD|FLAG_PARTIAL);
+                                 unsigned flags = FLAG_WILDCARD|FLAG_PARTIAL);
 
     /** Parse a query.
      *
@@ -994,8 +994,8 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      *		   @li Syntax: &lt;expression&gt; XOR &lt;expression&gt;
      */
     Query parse_query(std::string_view query_string,
-		      unsigned flags = FLAG_DEFAULT,
-		      std::string_view default_prefix = {});
+                      unsigned flags = FLAG_DEFAULT,
+                      std::string_view default_prefix = {});
 
     /** Add a free-text field term prefix.
      *
@@ -1107,7 +1107,7 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      *			[default: NULL]
      */
     void add_boolean_prefix(std::string_view field, std::string_view prefix,
-			    const std::string* grouping = NULL);
+                            const std::string* grouping = NULL);
 
     /** Add a boolean term prefix allowing the user to restrict a
      *  search with a boolean filter specified in the free text query.
@@ -1132,20 +1132,20 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      *			document can have multiple terms with this prefix).
      */
     void add_boolean_prefix(std::string_view field, std::string_view prefix,
-			    bool exclusive) {
-	if (exclusive) {
-	    add_boolean_prefix(field, prefix);
-	} else {
-	    std::string empty_grouping;
-	    add_boolean_prefix(field, prefix, &empty_grouping);
-	}
+                            bool exclusive) {
+        if (exclusive) {
+            add_boolean_prefix(field, prefix);
+        } else {
+            std::string empty_grouping;
+            add_boolean_prefix(field, prefix, &empty_grouping);
+        }
     }
 
     /** Register a FieldProcessor for a boolean prefix.
      */
     void add_boolean_prefix(std::string_view field,
-			    Xapian::FieldProcessor* proc,
-			    const std::string* grouping = NULL);
+                            Xapian::FieldProcessor* proc,
+                            const std::string* grouping = NULL);
 
     /** Register a FieldProcessor for a boolean prefix.
      *
@@ -1153,14 +1153,14 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      *  the `grouping` parameter in preference to this one.
      */
     void add_boolean_prefix(std::string_view field,
-			    Xapian::FieldProcessor* proc,
-			    bool exclusive) {
-	if (exclusive) {
-	    add_boolean_prefix(field, proc);
-	} else {
-	    std::string empty_grouping;
-	    add_boolean_prefix(field, proc, &empty_grouping);
-	}
+                            Xapian::FieldProcessor* proc,
+                            bool exclusive) {
+        if (exclusive) {
+            add_boolean_prefix(field, proc);
+        } else {
+            std::string empty_grouping;
+            add_boolean_prefix(field, proc, &empty_grouping);
+        }
     }
 
     /// Begin iterator over terms omitted from the query as stopwords.
@@ -1168,7 +1168,7 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
 
     /// End iterator over terms omitted from the query as stopwords.
     TermIterator stoplist_end() const noexcept {
-	return TermIterator();
+        return TermIterator();
     }
 
     /// Begin iterator over unstemmed forms of the given stemmed query term.
@@ -1176,12 +1176,12 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
 
     /// End iterator over unstemmed forms of the given stemmed query term.
     TermIterator unstem_end(std::string_view) const noexcept {
-	return TermIterator();
+        return TermIterator();
     }
 
     /// Register a RangeProcessor.
     void add_rangeprocessor(Xapian::RangeProcessor * range_proc,
-			    const std::string* grouping = NULL);
+                            const std::string* grouping = NULL);
 
     /** Get the spelling-corrected query string.
      *

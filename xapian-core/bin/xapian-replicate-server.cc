@@ -53,12 +53,12 @@ main(int argc, char **argv)
 {
     const char * opts = "I:p:o";
     static const struct option long_opts[] = {
-	{"interface",	required_argument,	0, 'I'},
-	{"port",	required_argument,	0, 'p'},
-	{"one-shot",	no_argument,		0, 'o'},
-	{"help",	no_argument, 0, OPT_HELP},
-	{"version",	no_argument, 0, OPT_VERSION},
-	{NULL,		0, 0, 0}
+        {"interface",	required_argument,	0, 'I'},
+        {"port",	required_argument,	0, 'p'},
+        {"one-shot",	no_argument,		0, 'o'},
+        {"help",	no_argument, 0, OPT_HELP},
+        {"version",	no_argument, 0, OPT_VERSION},
+        {NULL,		0, 0, 0}
     };
 
     string host;
@@ -68,51 +68,51 @@ main(int argc, char **argv)
 
     int c;
     while ((c = gnu_getopt_long(argc, argv, opts, long_opts, 0)) != -1) {
-	switch (c) {
-	    case 'I':
-		host.assign(optarg);
-		break;
-	    case 'p':
-		if (!parse_signed(optarg, port) ||
-		    (port < 1 || port > 65535)) {
-		    cerr << "Error: must specify a valid port number "
-			    "(between 1 and 65535). \n";
-		    exit(1);
-		}
-		break;
-	    case 'o':
-		one_shot = true;
-		break;
-	    case OPT_HELP:
-		cout << PROG_NAME " - " PROG_DESC "\n\n";
-		show_usage();
-		exit(0);
-	    case OPT_VERSION:
-		cout << PROG_NAME " - " PACKAGE_STRING "\n";
-		exit(0);
-	    default:
-		show_usage();
-		exit(1);
-	}
+        switch (c) {
+            case 'I':
+                host.assign(optarg);
+                break;
+            case 'p':
+                if (!parse_signed(optarg, port) ||
+                    (port < 1 || port > 65535)) {
+                    cerr << "Error: must specify a valid port number "
+                            "(between 1 and 65535). \n";
+                    exit(1);
+                }
+                break;
+            case 'o':
+                one_shot = true;
+                break;
+            case OPT_HELP:
+                cout << PROG_NAME " - " PROG_DESC "\n\n";
+                show_usage();
+                exit(0);
+            case OPT_VERSION:
+                cout << PROG_NAME " - " PACKAGE_STRING "\n";
+                exit(0);
+            default:
+                show_usage();
+                exit(1);
+        }
     }
 
     if (argc - optind != 1) {
-	show_usage();
-	exit(1);
+        show_usage();
+        exit(1);
     }
 
     // Path to the database to create/update.
     string dbpath(argv[optind]);
 
     try {
-	ReplicateTcpServer server(host, port, dbpath);
-	if (one_shot) {
-	    server.run_once();
-	} else {
-	    server.run();
-	}
+        ReplicateTcpServer server(host, port, dbpath);
+        if (one_shot) {
+            server.run_once();
+        } else {
+            server.run();
+        }
     } catch (const Xapian::Error &error) {
-	cerr << argv[0] << ": " << error.get_description() << '\n';
-	exit(1);
+        cerr << argv[0] << ": " << error.get_description() << '\n';
+        exit(1);
     }
 }

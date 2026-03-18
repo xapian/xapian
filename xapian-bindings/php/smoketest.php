@@ -25,9 +25,9 @@
 # Die on any error, warning, notice, etc.
 function die_on_error($errno, $errstr, $file, $line) {
     if ($file !== Null) {
-	print $file;
-	if ($line !== Null) print ":$line";
-	print ": ";
+        print $file;
+        if ($line !== Null) print ":$line";
+        print ": ";
     }
     print "$errstr\n";
     exit(1);
@@ -52,8 +52,8 @@ try {
     exit(1);
 } catch (Exception $e) {
     if ($e->getMessage() !== "DocNotFoundError: Docid 2 not found") {
-	print "DocNotFoundError Exception string not as expected, got: '{$e->getMessage()}'\n";
-	exit(1);
+        print "DocNotFoundError Exception string not as expected, got: '{$e->getMessage()}'\n";
+        exit(1);
     }
 }
 
@@ -66,8 +66,8 @@ try {
     exit(1);
 } catch (Exception $e) {
     if ($e->getMessage() !== "QueryParserError: Syntax: <expression> AND <expression>") {
-	print "QueryParserError Exception string not as expected, got: '$e->getMessage()'\n";
-	exit(1);
+        print "QueryParserError Exception string not as expected, got: '$e->getMessage()'\n";
+        exit(1);
     }
 }
 
@@ -78,21 +78,21 @@ try {
     exit(1);
 } catch (Exception $e) {
     if ($e->getMessage() !== "DatabaseNotFoundError: Couldn't open stub database file: nosuchdir/nosuchdb (No such file or directory)") {
-	print "DatabaseNotFoundError Exception string not as expected, got: '{$e->getMessage()}'\n";
-	exit(1);
+        print "DatabaseNotFoundError Exception string not as expected, got: '{$e->getMessage()}'\n";
+        exit(1);
     }
 }
 
 # Check that DB_BACKEND_STUB works as expected.
 try {
     $db = new XapianWritableDatabase("nosuchdir/nosuchdb",
-				     Xapian::DB_OPEN|Xapian::DB_BACKEND_STUB);
+                                     Xapian::DB_OPEN|Xapian::DB_BACKEND_STUB);
     print "Opened non-existent stub database\n";
     exit(1);
 } catch (Exception $e) {
     if ($e->getMessage() !== "DatabaseNotFoundError: Couldn't open stub database file: nosuchdir/nosuchdb (No such file or directory)") {
-	print "DatabaseNotFoundError Exception string not as expected, got: '{$e->getMessage()}'\n";
-	exit(1);
+        print "DatabaseNotFoundError Exception string not as expected, got: '{$e->getMessage()}'\n";
+        exit(1);
     }
 }
 
@@ -189,7 +189,7 @@ $db->add_document($doc);
 
 class testmatchdecider extends XapianMatchDecider {
     function apply($doc) {
-	return ($doc->get_value(0) == "yes");
+        return ($doc->get_value(0) == "yes");
     }
 }
 
@@ -209,7 +209,7 @@ if ($mset->get_docid(0) != 2) {
 
 class testexpanddecider extends XapianExpandDecider {
     function apply($term) {
-	return ($term[0] !== 'a');
+        return ($term[0] !== 'a');
     }
 }
 
@@ -219,8 +219,8 @@ $rset->add_document(1);
 $eset = $enquire->get_eset(10, $rset, XapianEnquire::USE_EXACT_TERMFREQ, new testexpanddecider());
 foreach ($eset->begin() as $t) {
     if ($t[0] === 'a') {
-	print "XapianExpandDecider was not used\n";
-	exit(1);
+        print "XapianExpandDecider was not used\n";
+        exit(1);
     }
 }
 
@@ -286,8 +286,8 @@ class testfieldprocessor extends XapianFieldProcessor {
     }
 
     function apply($str) {
-	if ($str === 'spam') throw new Exception('already spam');
-	return new XapianQuery("spam");
+        if ($str === 'spam') throw new Exception('already spam');
+        return new XapianQuery("spam");
     }
 }
 
@@ -328,8 +328,8 @@ try {
     exit(1);
 } catch (Exception $e) {
     if ($e->getMessage() !== 'already spam') {
-	print "Exception has wrong message\n";
-	exit(1);
+        print "Exception has wrong message\n";
+        exit(1);
     }
 }
 
@@ -437,15 +437,15 @@ $enquire->set_query(new XapianQuery("foo"));
     $doc = new XapianDocument();
     $doc->add_value(0, "ABCD");
     if ($md->apply($doc)) {
-	print "Unexpected result from ValueSetMatchDecider->apply(); expected false\n";
-	exit(1);
+        print "Unexpected result from ValueSetMatchDecider->apply(); expected false\n";
+        exit(1);
     }
 
     $doc = new XapianDocument();
     $doc->add_value(0, "ABC");
     if (!$md->apply($doc)) {
-	print "Unexpected result from ValueSetMatchDecider->apply(); expected true\n";
-	exit(1);
+        print "Unexpected result from ValueSetMatchDecider->apply(); expected true\n";
+        exit(1);
     }
 
     $mset = $enquire->get_mset(0, 10, 0, null, $md);
@@ -459,15 +459,15 @@ $enquire->set_query(new XapianQuery("foo"));
 
 function mset_expect_order($mset, $a) {
     if ($mset->size() != sizeof($a)) {
-	print "MSet has ".$mset->size()." entries, expected ".sizeof($a)."\n";
-	exit(1);
+        print "MSet has ".$mset->size()." entries, expected ".sizeof($a)."\n";
+        exit(1);
     }
     for ($j = 0; $j < sizeof($a); ++$j) {
-	$docid = $mset->get_hit($j)->get_docid();
-	if ($docid != $a[$j]) {
-	    print "Expected MSet[$j] to be $a[$j], got $docid\n";
-	    exit(1);
-	}
+        $docid = $mset->get_hit($j)->get_docid();
+        if ($docid != $a[$j]) {
+            print "Expected MSet[$j] to be $a[$j], got $docid\n";
+            exit(1);
+        }
     }
 }
 
@@ -507,21 +507,21 @@ if ($query->get_description() != 'Query()') {
     $enquire->get_mset(0, 10);
     $values = array();
     foreach ($matchspy->values_begin() as $k => $term) {
-	$values[$term] = $k->get_termfreq();
+        $values[$term] = $k->get_termfreq();
     }
     $expected = array(
         "ABB" => 1,
-	"ABC" => 1,
-	"ABC\0" => 1,
-	"ABCD" => 1,
-	"ABC\xff" => 1,
+        "ABC" => 1,
+        "ABC\0" => 1,
+        "ABCD" => 1,
+        "ABC\xff" => 1,
     );
     if ($values != $expected) {
         print "Unexpected matchspy values():\n";
-	var_dump($values);
-	var_dump($expected);
-	print "\n";
-	exit(1);
+        var_dump($values);
+        var_dump($expected);
+        print "\n";
+        exit(1);
     }
 }
 
@@ -538,11 +538,11 @@ if ($query->get_description() != 'Query()') {
             --self::$count;
         }
 
-	public $matchspy_count = 0;
+        public $matchspy_count = 0;
 
-	function apply($doc, $wt) {
-	    if (substr($doc->get_value(0), 0, 3) == "ABC") ++$this->matchspy_count;
-	}
+        function apply($doc, $wt) {
+            if (substr($doc->get_value(0), 0, 3) == "ABC") ++$this->matchspy_count;
+        }
     }
 
     $matchspy = new testspy();
@@ -554,8 +554,8 @@ if ($query->get_description() != 'Query()') {
     $enquire->add_matchspy($matchspy);
     $enquire->get_mset(0, 10);
     if ($matchspy->matchspy_count != 4) {
-	print "Unexpected matchspy count of {$matchspy->matchspy_count}\n";
-	exit(1);
+        print "Unexpected matchspy count of {$matchspy->matchspy_count}\n";
+        exit(1);
     }
     unset($matchspy);
     if (testspy::$count === 0) {

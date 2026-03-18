@@ -43,7 +43,7 @@ OrPositionList::back() const
     LOGCALL(EXPAND, Xapian::termpos, "OrPositionList::back", NO_ARGS);
     Xapian::termpos result = 0;
     for (auto pl : pls) {
-	result = max(result, pl->back());
+        result = max(result, pl->back());
     }
     RETURN(result);
 }
@@ -70,19 +70,19 @@ OrPositionList::next()
     current_pos = Xapian::termpos(-1);
     size_t j = 0;
     for (size_t i = 0; i != pls.size(); ++i) {
-	PositionList* pl = pls[i];
-	Xapian::termpos pos;
-	if (first || current[i] <= old_pos) {
-	    if (!pl->next())
-		continue;
-	    pos = pl->get_position();
-	} else {
-	    pos = current[i];
-	}
-	current_pos = min(current_pos, pos);
-	current[j] = pos;
-	if (i != j) pls[j] = pls[i];
-	++j;
+        PositionList* pl = pls[i];
+        Xapian::termpos pos;
+        if (first || current[i] <= old_pos) {
+            if (!pl->next())
+                continue;
+            pos = pl->get_position();
+        } else {
+            pos = current[i];
+        }
+        current_pos = min(current_pos, pos);
+        current[j] = pos;
+        if (i != j) pls[j] = pls[i];
+        ++j;
     }
     pls.resize(j);
     RETURN(j != 0);
@@ -98,24 +98,24 @@ OrPositionList::skip_to(Xapian::termpos termpos)
     LOGCALL(EXPAND, bool, "OrPositionList::skip_to", termpos);
     bool first = current.empty();
     if (!first && termpos <= current_pos)
-	RETURN(true);
+        RETURN(true);
     if (first) current.resize(pls.size());
     current_pos = Xapian::termpos(-1);
     size_t j = 0;
     for (size_t i = 0; i != pls.size(); ++i) {
-	PositionList* pl = pls[i];
-	Xapian::termpos pos;
-	if (first || termpos > current[i]) {
-	    if (!pl->skip_to(termpos))
-		continue;
-	    pos = pl->get_position();
-	} else {
-	    pos = current[i];
-	}
-	current_pos = min(current_pos, pos);
-	current[j] = pos;
-	if (i != j) pls[j] = pls[i];
-	++j;
+        PositionList* pl = pls[i];
+        Xapian::termpos pos;
+        if (first || termpos > current[i]) {
+            if (!pl->skip_to(termpos))
+                continue;
+            pos = pl->get_position();
+        } else {
+            pos = current[i];
+        }
+        current_pos = min(current_pos, pos);
+        current[j] = pos;
+        if (i != j) pls[j] = pls[i];
+        ++j;
     }
     pls.resize(j);
     RETURN(j != 0);

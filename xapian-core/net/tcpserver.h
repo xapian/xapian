@@ -62,7 +62,7 @@ class XAPIAN_VISIBILITY_DEFAULT TcpServer SOCKET_INITIALIZER_MIXIN {
      *			made or lost?
      */
     TcpServer(const std::string& host, int port, bool tcp_nodelay,
-	      bool verbose_);
+              bool verbose_);
 
     /** Destructor.
      *

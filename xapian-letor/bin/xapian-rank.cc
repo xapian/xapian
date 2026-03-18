@@ -72,14 +72,14 @@ main(int argc, char **argv)
 try {
     const char * opts = "d:f:m:s:p:b:h:v";
     static const struct option long_opts[] = {
-	{ "db",			required_argument, 0, 'd' },
-	{ "msize",		required_argument, 0, 'm' },
-	{ "stemmer",		required_argument, 0, 's' },
-	{ "prefix",		required_argument, 0, 'p' },
-	{ "boolean-prefix",	required_argument, 0, 'b' },
-	{ "help",		no_argument, 0, OPT_HELP },
-	{ "version",		no_argument, 0, OPT_VERSION },
-	{ NULL,			0, 0, 0}
+        { "db",			required_argument, 0, 'd' },
+        { "msize",		required_argument, 0, 'm' },
+        { "stemmer",		required_argument, 0, 's' },
+        { "prefix",		required_argument, 0, 'p' },
+        { "boolean-prefix",	required_argument, 0, 'b' },
+        { "help",		no_argument, 0, OPT_HELP },
+        { "version",		no_argument, 0, OPT_VERSION },
+        { NULL,			0, 0, 0}
     };
 
     Xapian::SimpleStopper mystopper(sw, std::end(sw));
@@ -95,59 +95,59 @@ try {
 
     int c;
     while ((c = gnu_getopt_long(argc, argv, opts, long_opts, 0)) != -1) {
-	switch (c) {
-	    case 'd':
-		db_path = optarg;
-		have_database = true;
-		break;
-	    case 'm':
-		if (!parse_unsigned(optarg, msize)) {
-		    cerr << "Mset size must be >= 0\n";
-		    exit(1);
-		}
-		break;
-	    case 's':
-		try {
-		    stemmer = Xapian::Stem(optarg);
-		} catch (const Xapian::InvalidArgumentError &) {
-		    cerr << "Unknown stemming language '" << optarg << "'.\n"
-			"Available language names are: "
-		     << Xapian::Stem::get_available_languages() << '\n';
-		    exit(1);
-		}
-		break;
-	    case 'p': case 'b': {
-		const char * colon = strchr(optarg, ':');
-		if (colon == NULL) {
-		    cerr << argv[0] << ": need ':' when setting prefix\n";
-		    exit(1);
-		}
-		string prefix(optarg, colon - optarg);
-		string termprefix(colon + 1);
-		if (c == 'b') {
-		    parser.add_boolean_prefix(prefix, termprefix);
-		} else {
-		    parser.add_prefix(prefix, termprefix);
-		}
-		break;
-	    }
-	    case OPT_HELP:
-		cout << PROG_NAME " - " PROG_DESC "\n\n";
-		show_usage();
-		exit(0);
-	    case OPT_VERSION:
-		cout << PROG_NAME " - " PACKAGE_STRING "\n";
-		exit(0);
-	    case ':': // missing parameter
-	    case '?': // unknown option
-		show_usage();
-		exit(1);
-	}
+        switch (c) {
+            case 'd':
+                db_path = optarg;
+                have_database = true;
+                break;
+            case 'm':
+                if (!parse_unsigned(optarg, msize)) {
+                    cerr << "Mset size must be >= 0\n";
+                    exit(1);
+                }
+                break;
+            case 's':
+                try {
+                    stemmer = Xapian::Stem(optarg);
+                } catch (const Xapian::InvalidArgumentError &) {
+                    cerr << "Unknown stemming language '" << optarg << "'.\n"
+                        "Available language names are: "
+                     << Xapian::Stem::get_available_languages() << '\n';
+                    exit(1);
+                }
+                break;
+            case 'p': case 'b': {
+                const char * colon = strchr(optarg, ':');
+                if (colon == NULL) {
+                    cerr << argv[0] << ": need ':' when setting prefix\n";
+                    exit(1);
+                }
+                string prefix(optarg, colon - optarg);
+                string termprefix(colon + 1);
+                if (c == 'b') {
+                    parser.add_boolean_prefix(prefix, termprefix);
+                } else {
+                    parser.add_prefix(prefix, termprefix);
+                }
+                break;
+            }
+            case OPT_HELP:
+                cout << PROG_NAME " - " PROG_DESC "\n\n";
+                show_usage();
+                exit(0);
+            case OPT_VERSION:
+                cout << PROG_NAME " - " PACKAGE_STRING "\n";
+                exit(0);
+            case ':': // missing parameter
+            case '?': // unknown option
+                show_usage();
+                exit(1);
+        }
     }
 
     if (argc - optind != 2) {
-	show_usage();
-	exit(1);
+        show_usage();
+        exit(1);
     }
 
     string model_metadata_key = argv[optind];
@@ -163,25 +163,25 @@ try {
     string qq = argv[optind + 1];
 
     Xapian::Query query_no_prefix = parser.parse_query(qq,
-				    parser.FLAG_DEFAULT|
-				    parser.FLAG_SPELLING_CORRECTION);
+                                    parser.FLAG_DEFAULT|
+                                    parser.FLAG_SPELLING_CORRECTION);
     // query with title as default prefix
     Xapian::Query query_default_prefix = parser.parse_query(qq,
-					 parser.FLAG_DEFAULT|
-					 parser.FLAG_SPELLING_CORRECTION,
-					 "S");
+                                         parser.FLAG_DEFAULT|
+                                         parser.FLAG_SPELLING_CORRECTION,
+                                         "S");
     // Combine queries
     Xapian::Query query = Xapian::Query(Xapian::Query::OP_OR, query_no_prefix, query_default_prefix);
 
     const string & correction = parser.get_corrected_query_string();
     if (!correction.empty())
-	cout << "Did you mean: " << correction << "\n\n";
+        cout << "Did you mean: " << correction << "\n\n";
 
     cout << "Parsed Query: " << query.get_description() << '\n';
 
     if (!have_database) {
-	cout << "No database specified so not running the query.\n";
-	exit(0);
+        cout << "No database specified so not running the query.\n";
+        exit(0);
     }
 
     Xapian::Enquire enquire(db);
@@ -190,15 +190,15 @@ try {
     Xapian::MSet mset = enquire.get_mset(0, msize);
 
     if (mset.empty()) {
-	cout << "No documents found.\n";
-	exit(0);
+        cout << "No documents found.\n";
+        exit(0);
     }
 
     cout << "Docids before re-ranking by LTR model:\n";
     for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); ++i) {
-	Xapian::Document doc = i.get_document();
-	string data = doc.get_data();
-	cout << *i << ": [" << i.get_weight() << "]\n" << data << "\n";
+        Xapian::Document doc = i.get_document();
+        string data = doc.get_data();
+        cout << *i << ": [" << i.get_weight() << "]\n" << data << "\n";
     }
 
     // Initialise Ranker object with ListNETRanker instance, db path and query.
@@ -213,9 +213,9 @@ try {
     cout << "Docids after re-ranking by LTR model:\n\n";
 
     for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); ++i) {
-	Xapian::Document doc = i.get_document();
-	string data = doc.get_data();
-	cout << *i << ": [" << i.get_weight() << "]\n" << data << "\n";
+        Xapian::Document doc = i.get_document();
+        string data = doc.get_data();
+        cout << *i << ": [" << i.get_weight() << "]\n" << data << "\n";
     }
     delete ranker;
 

@@ -48,13 +48,13 @@ class NetworkPostList : public LeafPostList {
   public:
     /// Constructor.
     NetworkPostList(Xapian::Internal::intrusive_ptr<const RemoteDatabase> db_,
-		    std::string_view term_,
-		    Xapian::doccount termfreq_,
-		    std::string&& postings_)
-	: LeafPostList(term_), db(db_), postings(std::move(postings_)) {
-	termfreq = termfreq_;
-	// collfreq is only used during the match and remote shards are handled
-	// by running the match on the remote.
+                    std::string_view term_,
+                    Xapian::doccount termfreq_,
+                    std::string&& postings_)
+        : LeafPostList(term_), db(db_), postings(std::move(postings_)) {
+        termfreq = termfreq_;
+        // collfreq is only used during the match and remote shards are handled
+        // by running the match on the remote.
     }
 
     /// Get the current document ID.

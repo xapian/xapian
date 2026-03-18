@@ -48,7 +48,7 @@ initialise(std::string& error);
  */
 void
 extract(const std::string& filename,
-	const std::string& mimetype);
+        const std::string& mimetype);
 
 enum Field {
     FIELD_BODY,

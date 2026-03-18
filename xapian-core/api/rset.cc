@@ -55,9 +55,9 @@ void
 RSet::add_document(Xapian::docid did)
 {
     if (rare(did == 0))
-	throw Xapian::InvalidArgumentError("Docid 0 not valid in an RSet");
+        throw Xapian::InvalidArgumentError("Docid 0 not valid in an RSet");
     if (!internal)
-	internal = new RSet::Internal;
+        internal = new RSet::Internal;
     internal->docs.insert(did);
 }
 
@@ -65,9 +65,9 @@ void
 RSet::remove_document(Xapian::docid did)
 {
     if (rare(did == 0))
-	throw Xapian::InvalidArgumentError("Docid 0 not valid in an RSet");
+        throw Xapian::InvalidArgumentError("Docid 0 not valid in an RSet");
     if (internal)
-	internal->docs.erase(did);
+        internal->docs.erase(did);
 }
 
 bool
@@ -81,13 +81,13 @@ RSet::get_description() const
 {
     string desc = "RSet(";
     if (!internal || internal->docs.empty()) {
-	desc += ')';
+        desc += ')';
     } else {
-	for (auto&& did : internal->docs) {
-	    desc += str(did);
-	    desc += ',';
-	}
-	desc.back() = ')';
+        for (auto&& did : internal->docs) {
+            desc += str(did);
+            desc += ',';
+        }
+        desc.back() = ')';
     }
     return desc;
 }

@@ -35,16 +35,16 @@ Result::get_description() const
     desc += ", ";
     desc += str(weight);
     if (!sort_key.empty()) {
-	desc += ", sort_key=";
-	description_append(desc, sort_key);
+        desc += ", sort_key=";
+        description_append(desc, sort_key);
     }
     if (!collapse_key.empty()) {
-	desc += ", collapse_key=";
-	description_append(desc, collapse_key);
+        desc += ", collapse_key=";
+        description_append(desc, collapse_key);
     }
     if (collapse_count) {
-	desc += ", collapse_count=";
-	desc += str(collapse_count);
+        desc += ", collapse_count=";
+        desc += str(collapse_count);
     }
     desc += ')';
     return desc;

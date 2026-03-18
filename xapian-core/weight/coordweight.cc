@@ -57,13 +57,13 @@ CoordWeight *
 CoordWeight::unserialise(const string& s) const
 {
     if (rare(!s.empty()))
-	throw Xapian::SerialisationError("Extra data in CoordWeight::unserialise()");
+        throw Xapian::SerialisationError("Extra data in CoordWeight::unserialise()");
     return new CoordWeight;
 }
 
 double
 CoordWeight::get_sumpart(Xapian::termcount, Xapian::termcount,
-			 Xapian::termcount, Xapian::termcount) const
+                         Xapian::termcount, Xapian::termcount) const
 {
     return factor;
 }
@@ -78,7 +78,7 @@ CoordWeight *
 CoordWeight::create_from_parameters(const char * p) const
 {
     if (*p != '\0')
-	throw InvalidArgumentError("No parameters are required for CoordWeight");
+        throw InvalidArgumentError("No parameters are required for CoordWeight");
     return new Xapian::CoordWeight();
 }
 

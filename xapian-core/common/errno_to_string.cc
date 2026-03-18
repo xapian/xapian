@@ -52,26 +52,26 @@ errno_to_string(int e, string& s)
     // 2.32.
     const char* desc = strerrordesc_np(e);
     if (desc) {
-	s += desc;
+        s += desc;
     } else {
-	s += "Unknown error ";
-	s += str(e);
+        s += "Unknown error ";
+        s += str(e);
     }
 #elif defined HAVE__SYS_ERRLIST_AND__SYS_NERR
     // Old-style Unix fixed array of strings.
     if (e >= 0 && e < _sys_nerr && _sys_errlist[e]) {
-	s += _sys_errlist[e];
+        s += _sys_errlist[e];
     } else {
-	s += "Unknown error ";
-	s += str(e);
+        s += "Unknown error ";
+        s += str(e);
     }
 #elif defined HAVE_SYS_ERRLIST_AND_SYS_NERR
     // Old-style Unix fixed array of strings.
     if (e >= 0 && e < sys_nerr && sys_errlist[e]) {
-	s += sys_errlist[e];
+        s += sys_errlist[e];
     } else {
-	s += "Unknown error ";
-	s += str(e);
+        s += "Unknown error ";
+        s += str(e);
     }
 #elif HAVE_DECL_STRERROR_R
     // POSIX specifies strerror_r() to provide a thread-safe way to translate
@@ -107,10 +107,10 @@ errno_to_string(int e, string& s)
     // errno.
     int r = strerror_r(e, buf, sizeof(buf));
     if (r == 0) {
-	s += buf;
+        s += buf;
     } else {
-	s += "Unknown error ";
-	s += str(e);
+        s += "Unknown error ";
+        s += str(e);
     }
 # endif
 #else

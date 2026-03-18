@@ -90,7 +90,7 @@ class Worker {
      *  The assistant will not be started until it is necessary.
      */
     Worker(const std::string& path)
-	: filter_module(path) { }
+        : filter_module(path) { }
 
     /** Extract information from a file through the assistant process.
      *
@@ -124,22 +124,22 @@ class Worker {
      *  to be an error.
      */
     int extract(const std::string& filename,
-		const std::string& mimetype,
-		std::string& dump,
-		std::string& title,
-		std::string& keywords,
-		std::string& author,
-		std::string& to,
-		std::string& cc,
-		std::string& bcc,
-		std::string& message_id,
-		int& pages,
-		time_t& created);
+                const std::string& mimetype,
+                std::string& dump,
+                std::string& title,
+                std::string& keywords,
+                std::string& author,
+                std::string& to,
+                std::string& cc,
+                std::string& bcc,
+                std::string& message_id,
+                int& pages,
+                time_t& created);
 
     /** Returns an error message if the extraction fails, or an empty string
      *  if everything is okay.
      */
     std::string get_error() const {
-	return error;
+        return error;
     }
 };

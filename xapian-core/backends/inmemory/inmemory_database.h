@@ -50,9 +50,9 @@ class InMemoryPosting {
 
     // Add new position entry preserving sorted order.
     void add_position(Xapian::termpos pos) {
-	auto p = std::lower_bound(positions.begin(), positions.end(), pos);
-	Assert(p == positions.end() || *p != pos);
-	positions.insert(p, pos);
+        auto p = std::lower_bound(positions.begin(), positions.end(), pos);
+        Assert(p == positions.end() || *p != pos);
+        positions.insert(p, pos);
     }
 };
 
@@ -64,9 +64,9 @@ class InMemoryTermEntry {
 
     // Add new position entry preserving sorted order.
     void add_position(Xapian::termpos pos) {
-	auto p = std::lower_bound(positions.begin(), positions.end(), pos);
-	Assert(p == positions.end() || *p != pos);
-	positions.insert(p, pos);
+        auto p = std::lower_bound(positions.begin(), positions.end(), pos);
+        Assert(p == positions.end() || *p != pos);
+        positions.insert(p, pos);
     }
 };
 
@@ -74,9 +74,9 @@ class InMemoryTermEntry {
 class InMemoryPostingLessThan {
   public:
     int operator() (const InMemoryPosting &p1,
-		    const InMemoryPosting &p2) const
+                    const InMemoryPosting &p2) const
     {
-	return p1.did < p2.did;
+        return p1.did < p2.did;
     }
 };
 
@@ -84,9 +84,9 @@ class InMemoryPostingLessThan {
 class InMemoryTermEntryLessThan {
   public:
     int operator() (const InMemoryTermEntry&p1,
-		    const InMemoryTermEntry&p2) const
+                    const InMemoryTermEntry&p2) const
     {
-	return p1.tname < p2.tname;
+        return p1.tname < p2.tname;
     }
 };
 
@@ -102,9 +102,9 @@ class InMemoryTerm {
     InMemoryTerm() : term_freq(0), collection_freq(0) {}
 
     void add_posting(Xapian::docid did,
-		     Xapian::termcount wdf,
-		     Xapian::termpos position,
-		     bool use_position);
+                     Xapian::termcount wdf,
+                     Xapian::termpos position,
+                     bool use_position);
 };
 
 /// Class representing a document and the terms indexing it.
@@ -122,9 +122,9 @@ class InMemoryDoc {
     explicit InMemoryDoc(bool is_valid_) : is_valid(is_valid_) {}
 
     void add_posting(const std::string& tname,
-		     Xapian::termcount wdf,
-		     Xapian::termpos position,
-		     bool use_position);
+                     Xapian::termcount wdf,
+                     Xapian::termpos position,
+                     bool use_position);
 };
 
 class InMemoryDatabase;
@@ -149,7 +149,7 @@ class InMemoryPostList : public LeafPostList {
     Xapian::termcount wdf_upper_bound;
 
     InMemoryPostList(const InMemoryDatabase* db,
-		     const InMemoryTerm& imterm, std::string_view term_);
+                     const InMemoryTerm& imterm, std::string_view term_);
   public:
     Xapian::docid get_docid() const;     // Gets current docid
     Xapian::termcount get_wdf() const;	   // Within Document Frequency
@@ -222,9 +222,9 @@ class InMemoryTermList : public TermList {
     Xapian::termcount document_length;
 
     InMemoryTermList(Xapian::Internal::intrusive_ptr<const InMemoryDatabase> db,
-		     Xapian::docid did,
-		     const InMemoryDoc & doc,
-		     Xapian::termcount len);
+                     Xapian::docid did,
+                     const InMemoryDoc & doc,
+                     Xapian::termcount len);
 
   public:
     Xapian::termcount get_approx_size() const;
@@ -282,14 +282,14 @@ class InMemoryDatabase : public Xapian::Database::Internal {
     /* The common parts of add_doc and replace_doc */
     void finish_add_doc(Xapian::docid did, const Xapian::Document& document);
     void add_values(Xapian::docid did,
-		    const std::map<Xapian::valueno, std::string>& values_);
+                    const std::map<Xapian::valueno, std::string>& values_);
 
     void make_posting(InMemoryDoc* doc,
-		      const std::string& tname,
-		      Xapian::docid did,
-		      Xapian::termpos position,
-		      Xapian::termcount wdf,
-		      bool use_position = true);
+                      const std::string& tname,
+                      Xapian::docid did,
+                      Xapian::termpos position,
+                      Xapian::termcount wdf,
+                      bool use_position = true);
 
     //@{
     /** Implementation of virtual methods: see Database for details.
@@ -332,8 +332,8 @@ class InMemoryDatabase : public Xapian::Database::Internal {
     Xapian::termcount get_wdfdocmax(Xapian::docid did) const;
 
     void get_freqs(std::string_view term,
-		   Xapian::doccount* termfreq_ptr,
-		   Xapian::termcount* collfreq_ptr) const;
+                   Xapian::doccount* termfreq_ptr,
+                   Xapian::termcount* collfreq_ptr) const;
     Xapian::doccount get_value_freq(Xapian::valueno slot) const;
     std::string get_value_lower_bound(Xapian::valueno slot) const;
     std::string get_value_upper_bound(Xapian::valueno slot) const;
@@ -345,28 +345,28 @@ class InMemoryDatabase : public Xapian::Database::Internal {
 
     PostList* open_post_list(std::string_view tname) const;
     LeafPostList* open_leaf_post_list(std::string_view term,
-				      bool need_read_pos) const;
+                                      bool need_read_pos) const;
     TermList * open_term_list(Xapian::docid did) const;
     TermList * open_term_list_direct(Xapian::docid did) const;
     Xapian::Document::Internal* open_document(Xapian::docid did,
-					      bool lazy) const;
+                                              bool lazy) const;
 
     std::string get_metadata(std::string_view key) const;
     TermList* open_metadata_keylist(std::string_view prefix) const;
     void set_metadata(std::string_view key, std::string_view value);
 
     Xapian::termcount positionlist_count(Xapian::docid did,
-					 std::string_view tname) const;
+                                         std::string_view tname) const;
     PositionList* open_position_list(Xapian::docid did,
-				     std::string_view tname) const;
+                                     std::string_view tname) const;
     TermList* open_allterms(std::string_view prefix) const;
 
     [[noreturn]]
     static void throw_database_closed();
 
     int get_backend_info(std::string* path) const {
-	if (path) *path = std::string();
-	return BACKEND_INMEMORY;
+        if (path) *path = std::string();
+        return BACKEND_INMEMORY;
     }
 
     void get_used_docid_range(Xapian::docid& first, Xapian::docid& last) const;

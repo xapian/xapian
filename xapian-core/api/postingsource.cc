@@ -56,7 +56,7 @@ void
 PostingSource::skip_to(Xapian::docid did, double min_wt)
 {
     while (!at_end() && get_docid() < did) {
-	next(min_wt);
+        next(min_wt);
     }
 }
 
@@ -93,7 +93,7 @@ PostingSource::unserialise(const string &) const
 
 PostingSource *
 PostingSource::unserialise_with_registry(const std::string &s,
-					 const Registry &) const
+                                         const Registry &) const
 {
     return unserialise(s);
 }
@@ -108,7 +108,7 @@ void
 PostingSource::init(const Database&)
 {
     const char* msg = "Either PostingSource::reset() or PostingSource::init() "
-		      "must be overridden";
+                      "must be overridden";
     throw Xapian::InvalidOperationError(msg);
 }
 
@@ -140,17 +140,17 @@ void
 ValuePostingSource::next(double min_wt)
 {
     if (!started) {
-	started = true;
-	value_it = db.valuestream_begin(slot);
+        started = true;
+        value_it = db.valuestream_begin(slot);
     } else {
-	++value_it;
+        ++value_it;
     }
 
     if (value_it == db.valuestream_end(slot)) return;
 
     if (min_wt > get_maxweight()) {
-	value_it = db.valuestream_end(slot);
-	return;
+        value_it = db.valuestream_end(slot);
+        return;
     }
 }
 
@@ -158,15 +158,15 @@ void
 ValuePostingSource::skip_to(Xapian::docid min_docid, double min_wt)
 {
     if (!started) {
-	started = true;
-	value_it = db.valuestream_begin(slot);
+        started = true;
+        value_it = db.valuestream_begin(slot);
 
-	if (value_it == db.valuestream_end(slot)) return;
+        if (value_it == db.valuestream_end(slot)) return;
     }
 
     if (min_wt > get_maxweight()) {
-	value_it = db.valuestream_end(slot);
-	return;
+        value_it = db.valuestream_end(slot);
+        return;
     }
     value_it.skip_to(min_docid);
 }
@@ -175,15 +175,15 @@ bool
 ValuePostingSource::check(Xapian::docid min_docid, double min_wt)
 {
     if (!started) {
-	started = true;
-	value_it = db.valuestream_begin(slot);
+        started = true;
+        value_it = db.valuestream_begin(slot);
 
-	if (value_it == db.valuestream_end(slot)) return true;
+        if (value_it == db.valuestream_end(slot)) return true;
     }
 
     if (min_wt > get_maxweight()) {
-	value_it = db.valuestream_end(slot);
-	return true;
+        value_it = db.valuestream_end(slot);
+        return true;
     }
     return value_it.check(min_docid);
 }
@@ -222,7 +222,7 @@ ValuePostingSource::get_description() const
 
 
 ValueWeightPostingSource::ValueWeightPostingSource(Xapian::valueno slot_)
-	: ValuePostingSource(slot_)
+        : ValuePostingSource(slot_)
 {
 }
 
@@ -262,7 +262,7 @@ ValueWeightPostingSource::unserialise(const string &s) const
 
     Xapian::valueno new_slot;
     if (!unpack_uint_last(&p, end, &new_slot)) {
-	unpack_throw_serialisation_error(p);
+        unpack_throw_serialisation_error(p);
     }
 
     return new ValueWeightPostingSource(new_slot);
@@ -270,17 +270,17 @@ ValueWeightPostingSource::unserialise(const string &s) const
 
 void
 ValueWeightPostingSource::reset(const Database& db_,
-				Xapian::doccount shard_index)
+                                Xapian::doccount shard_index)
 {
     ValuePostingSource::reset(db_, shard_index);
 
     string upper_bound = get_database().get_value_upper_bound(get_slot());
     if (upper_bound.empty()) {
-	// This should only happen if there are no entries, in which case the
-	// maxweight is 0.
-	set_maxweight(0.0);
+        // This should only happen if there are no entries, in which case the
+        // maxweight is 0.
+        set_maxweight(0.0);
     } else {
-	set_maxweight(sortable_unserialise(upper_bound));
+        set_maxweight(sortable_unserialise(upper_bound));
     }
 }
 
@@ -295,9 +295,9 @@ ValueWeightPostingSource::get_description() const
 
 
 ValueMapPostingSource::ValueMapPostingSource(Xapian::valueno slot_)
-	: ValuePostingSource(slot_),
-	  default_weight(0.0),
-	  max_weight_in_map(0.0)
+        : ValuePostingSource(slot_),
+          default_weight(0.0),
+          max_weight_in_map(0.0)
 {
 }
 
@@ -326,7 +326,7 @@ ValueMapPostingSource::get_weight() const
 {
     map<string, double>::const_iterator wit = weight_map.find(get_value());
     if (wit == weight_map.end()) {
-	return default_weight;
+        return default_weight;
     }
     return wit->second;
 }
@@ -335,10 +335,10 @@ ValueMapPostingSource *
 ValueMapPostingSource::clone() const
 {
     unique_ptr<ValueMapPostingSource> res(
-	    new ValueMapPostingSource(get_slot()));
+            new ValueMapPostingSource(get_slot()));
     map<string, double>::const_iterator i;
     for (i = weight_map.begin(); i != weight_map.end(); ++i) {
-	res->add_mapping(i->first, i->second);
+        res->add_mapping(i->first, i->second);
     }
     res->set_default_weight(default_weight);
     return res.release();
@@ -359,8 +359,8 @@ ValueMapPostingSource::serialise() const
 
     map<string, double>::const_iterator i;
     for (i = weight_map.begin(); i != weight_map.end(); ++i) {
-	pack_string(result, i->first);
-	result.append(serialise_double(i->second));
+        pack_string(result, i->first);
+        result.append(serialise_double(i->second));
     }
 
     return result;
@@ -374,16 +374,16 @@ ValueMapPostingSource::unserialise(const string &s) const
 
     Xapian::valueno new_slot;
     if (!unpack_uint(&p, end, &new_slot)) {
-	unpack_throw_serialisation_error(p);
+        unpack_throw_serialisation_error(p);
     }
     unique_ptr<ValueMapPostingSource> res(new ValueMapPostingSource(new_slot));
     res->set_default_weight(unserialise_double(&p, end));
     while (p != end) {
-	string key;
-	if (!unpack_string(&p, end, key)) {
-	    unpack_throw_serialisation_error(p);
-	}
-	res->add_mapping(key, unserialise_double(&p, end));
+        string key;
+        if (!unpack_string(&p, end, key)) {
+            unpack_throw_serialisation_error(p);
+        }
+        res->add_mapping(key, unserialise_double(&p, end));
     }
     return res.release();
 }
@@ -440,21 +440,21 @@ void
 FixedWeightPostingSource::next(double min_wt)
 {
     if (!started) {
-	started = true;
-	it = db.postlist_begin(string_view());
+        started = true;
+        it = db.postlist_begin(string_view());
     } else {
-	++it;
+        ++it;
     }
 
     if (it == db.postlist_end(string_view())) return;
 
     if (check_docid) {
-	it.skip_to(check_docid + 1);
-	check_docid = 0;
+        it.skip_to(check_docid + 1);
+        check_docid = 0;
     }
 
     if (min_wt > get_maxweight()) {
-	it = db.postlist_end(string_view());
+        it = db.postlist_end(string_view());
     }
 }
 
@@ -462,21 +462,21 @@ void
 FixedWeightPostingSource::skip_to(Xapian::docid min_docid, double min_wt)
 {
     if (!started) {
-	started = true;
-	it = db.postlist_begin(string_view());
+        started = true;
+        it = db.postlist_begin(string_view());
 
-	if (it == db.postlist_end(string_view())) return;
+        if (it == db.postlist_end(string_view())) return;
     }
 
     if (check_docid) {
-	if (min_docid < check_docid)
-	    min_docid = check_docid + 1;
-	check_docid = 0;
+        if (min_docid < check_docid)
+            min_docid = check_docid + 1;
+        check_docid = 0;
     }
 
     if (min_wt > get_maxweight()) {
-	it = db.postlist_end(string_view());
-	return;
+        it = db.postlist_end(string_view());
+        return;
     }
     it.skip_to(min_docid);
 }
@@ -529,7 +529,7 @@ FixedWeightPostingSource::unserialise(const string &s) const
     const char * s_end = p + s.size();
     double new_wt = unserialise_double(&p, s_end);
     if (p != s_end) {
-	throw Xapian::NetworkError("Bad serialised FixedWeightPostingSource - junk at end");
+        throw Xapian::NetworkError("Bad serialised FixedWeightPostingSource - junk at end");
     }
     return new FixedWeightPostingSource(new_wt);
 }

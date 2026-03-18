@@ -41,7 +41,7 @@ class WrapperPostList : public PostList {
 
   public:
     explicit WrapperPostList(PostList* pl_) : pl(pl_) {
-	termfreq = pl->get_termfreq();
+        termfreq = pl->get_termfreq();
     }
 
     ~WrapperPostList() { delete pl; }
@@ -49,8 +49,8 @@ class WrapperPostList : public PostList {
     Xapian::docid get_docid() const;
 
     double get_weight(Xapian::termcount doclen,
-		      Xapian::termcount unique_terms,
-		      Xapian::termcount wdfdocmax) const;
+                      Xapian::termcount unique_terms,
+                      Xapian::termcount wdfdocmax) const;
 
     bool at_end() const;
 

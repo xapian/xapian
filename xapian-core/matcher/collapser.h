@@ -63,7 +63,7 @@ class CollapseData {
   public:
     /// Construct with the given item.
     CollapseData(Xapian::doccount item, Xapian::docid did)
-	: items(1, { item, did })
+        : items(1, { item, did })
     { }
 
     /** Check a new result with this collapse key value.
@@ -82,10 +82,10 @@ class CollapseData {
      *  @return How to handle @a result: ADD, REJECT or REPLACE.
      */
     collapse_result check_item(const std::vector<Result>& results,
-			       const Result& result,
-			       Xapian::doccount collapse_max,
-			       MSetCmp mcmp,
-			       Xapian::doccount& old_item);
+                               const Result& result,
+                               Xapian::doccount collapse_max,
+                               MSetCmp mcmp,
+                               Xapian::doccount& old_item);
 
     /** Set item after constructing with a placeholder.
      *
@@ -101,9 +101,9 @@ class CollapseData {
      *  @param mcmp		Result comparison functor.
      */
     void add_item(const std::vector<Result>& results,
-		  Xapian::doccount item,
-		  Xapian::doccount collapse_max,
-		  MSetCmp mcmp);
+                  Xapian::doccount item,
+                  Xapian::doccount collapse_max,
+                  MSetCmp mcmp);
 
     /** Process relocation of entry in results.
      *
@@ -111,17 +111,17 @@ class CollapseData {
      *  @param to  	The new item (index into results).
      */
     void result_has_moved(Xapian::doccount from, Xapian::doccount to) {
-	// Yes, this *is* a linear search, but only through up to collapse_max
-	// items and we expect collapse_max to be very small (it's the maximum
-	// number of items to keep for each collapse key value).
-	for (auto&& item : items) {
-	    if (item.first == from) {
-		item.first = to;
-		return;
-	    }
-	}
-	// The entry ought to be present.
-	Assert(false);
+        // Yes, this *is* a linear search, but only through up to collapse_max
+        // items and we expect collapse_max to be very small (it's the maximum
+        // number of items to keep for each collapse key value).
+        for (auto&& item : items) {
+            if (item.first == from) {
+                item.first = to;
+                return;
+            }
+        }
+        // The entry ought to be present.
+        Assert(false);
     }
 
     /// The highest weight of a document we've rejected.
@@ -174,7 +174,7 @@ class Collapser {
 
     /// Adapt @a mcmp to be usable with min_heap.
     bool operator()(Xapian::doccount a, Xapian::doccount b) const {
-	return mcmp(results[a], results[b]);
+        return mcmp(results[a], results[b]);
     }
 
   public:
@@ -182,13 +182,13 @@ class Collapser {
     Xapian::doccount old_item = 0;
 
     Collapser(Xapian::valueno slot_,
-	      Xapian::doccount collapse_max_,
-	      std::vector<Result>& results_,
-	      MSetCmp mcmp_)
-	: slot(slot_),
-	  collapse_max(collapse_max_),
-	  results(results_),
-	  mcmp(mcmp_) { }
+              Xapian::doccount collapse_max_,
+              std::vector<Result>& results_,
+              MSetCmp mcmp_)
+        : slot(slot_),
+          collapse_max(collapse_max_),
+          results(results_),
+          mcmp(mcmp_) { }
 
     /// Return true if collapsing is active for this match.
     operator bool() const { return collapse_max != 0; }
@@ -206,7 +206,7 @@ class Collapser {
      *  @return How to handle @a result: EMPTY, NEW, ADD, REJECT or REPLACE.
      */
     collapse_result check(Result& result,
-			  Xapian::Document::Internal & vsdoc);
+                          Xapian::Document::Internal & vsdoc);
 
     /** Handle a new Result.
      *
@@ -221,24 +221,24 @@ class Collapser {
      *  @param to  		The new item (index into results).
      */
     void result_has_moved(Xapian::doccount from, Xapian::doccount to) {
-	const std::string& collapse_key = results[to].get_collapse_key();
-	if (collapse_key.empty()) {
-	    return;
-	}
-	auto it = table.find(collapse_key);
-	if (rare(it == table.end())) {
-	    // The entry ought to be present.
-	    Assert(false);
-	    return;
-	}
+        const std::string& collapse_key = results[to].get_collapse_key();
+        if (collapse_key.empty()) {
+            return;
+        }
+        auto it = table.find(collapse_key);
+        if (rare(it == table.end())) {
+            // The entry ought to be present.
+            Assert(false);
+            return;
+        }
 
-	CollapseData& collapse_data = it->second;
-	collapse_data.result_has_moved(from, to);
+        CollapseData& collapse_data = it->second;
+        collapse_data.result_has_moved(from, to);
     }
 
     Xapian::doccount get_collapse_count(const std::string & collapse_key,
-					int percent_threshold,
-					double min_weight) const;
+                                        int percent_threshold,
+                                        double min_weight) const;
 
     Xapian::doccount get_docs_considered() const { return docs_considered; }
 
@@ -289,7 +289,7 @@ class CollapserLite {
 
   public:
     CollapserLite(Xapian::doccount collapse_max_)
-	: collapse_max(collapse_max_) {}
+        : collapse_max(collapse_max_) {}
 
     /// Return true if collapsing is active for this match.
     operator bool() const { return collapse_max != 0; }
@@ -299,26 +299,26 @@ class CollapserLite {
      *  @return true if accepted; false if rejected.
      */
     bool add(const std::string& key) {
-	++docs_considered;
+        ++docs_considered;
 
-	if (key.empty()) {
-	    ++no_collapse_key;
-	    return true;
-	}
+        if (key.empty()) {
+            ++no_collapse_key;
+            return true;
+        }
 
-	auto r = table.emplace(key, 1);
-	if (r.second) {
-	    // New entry, set to 1.
-	} else if (r.first->second == collapse_max) {
-	    // Already seen collapse_max with this key so reject.
-	    ++dups_ignored;
-	    return false;
-	} else {
-	    // Increment count.
-	    ++r.first->second;
-	}
-	++entry_count;
-	return true;
+        auto r = table.emplace(key, 1);
+        if (r.second) {
+            // New entry, set to 1.
+        } else if (r.first->second == collapse_max) {
+            // Already seen collapse_max with this key so reject.
+            ++dups_ignored;
+            return false;
+        } else {
+            // Increment count.
+            ++r.first->second;
+        }
+        ++entry_count;
+        return true;
     }
 
     Xapian::doccount get_docs_considered() const { return docs_considered; }
@@ -328,35 +328,35 @@ class CollapserLite {
     Xapian::doccount get_entries() const { return entry_count; }
 
     Xapian::doccount get_matches_lower_bound() const {
-	return no_collapse_key + entry_count;
+        return no_collapse_key + entry_count;
     }
 
     void finalise(std::vector<Result>& results, int percent_threshold) {
-	if (table.empty() || results.empty())
-	    return;
+        if (table.empty() || results.empty())
+            return;
 
-	// We need to fill in collapse_count values in results using the
-	// information stored in table.
-	Xapian::doccount todo = entry_count;
-	for (Result& result : results) {
-	    const std::string& key = result.get_collapse_key();
-	    if (key.empty())
-		continue;
+        // We need to fill in collapse_count values in results using the
+        // information stored in table.
+        Xapian::doccount todo = entry_count;
+        for (Result& result : results) {
+            const std::string& key = result.get_collapse_key();
+            if (key.empty())
+                continue;
 
-	    // Adjust collapse_count.
-	    if (percent_threshold) {
-		// FIXME: We can probably do better here.
-		result.set_collapse_count(1);
-	    } else {
-		auto c = result.get_collapse_count() + table[key];
-		result.set_collapse_count(c);
-	    }
+            // Adjust collapse_count.
+            if (percent_threshold) {
+                // FIXME: We can probably do better here.
+                result.set_collapse_count(1);
+            } else {
+                auto c = result.get_collapse_count() + table[key];
+                result.set_collapse_count(c);
+            }
 
-	    if (--todo == 0) {
-		// Terminate early if we've handled all non-empty entries.
-		break;
-	    }
-	}
+            if (--todo == 0) {
+                // Terminate early if we've handled all non-empty entries.
+                break;
+            }
+        }
     }
 };
 

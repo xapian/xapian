@@ -55,37 +55,37 @@ class ValueStreamDocument : public Xapian::Document::Internal {
      *  this constructor so we can use n_shards_ to init our parent class.
      */
     ValueStreamDocument(const Xapian::Database& db_, Xapian::doccount n_shards_)
-	: Internal(n_shards_ == 1 ?
-		   db_.internal.get() :
-		   static_cast<MultiDatabase*>(db_.internal.get())->shards[0],
-		   0),
-	  db(db_),
-	  n_shards(n_shards_) {}
+        : Internal(n_shards_ == 1 ?
+                   db_.internal.get() :
+                   static_cast<MultiDatabase*>(db_.internal.get())->shards[0],
+                   0),
+          db(db_),
+          n_shards(n_shards_) {}
 
   public:
     explicit ValueStreamDocument(const Xapian::Database& db_)
-	: ValueStreamDocument(db_, db_.internal->size()) {}
+        : ValueStreamDocument(db_, db_.internal->size()) {}
 
     void new_shard(Xapian::doccount n);
 
     ~ValueStreamDocument();
 
     void set_shard_document(Xapian::docid shard_did) {
-	if (did != shard_did) {
-	    did = shard_did;
-	    delete doc;
-	    doc = NULL;
-	}
+        if (did != shard_did) {
+            did = shard_did;
+            delete doc;
+            doc = NULL;
+        }
     }
 
     void set_document(Xapian::docid did_) {
-	AssertEq(current, shard_number(did_, n_shards));
-	set_shard_document(shard_docid(did_, n_shards));
+        AssertEq(current, shard_number(did_, n_shards));
+        set_shard_document(shard_docid(did_, n_shards));
     }
 
     // Optimise away the virtual call when the matcher wants to know a value.
     std::string get_value(Xapian::valueno slot) const {
-	return ValueStreamDocument::fetch_value(slot);
+        return ValueStreamDocument::fetch_value(slot);
     }
 
   protected:

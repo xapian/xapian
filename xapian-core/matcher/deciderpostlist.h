@@ -46,13 +46,13 @@ class DeciderPostList : public SelectPostList {
 
   public:
     DeciderPostList(PostList* pl_,
-		    EstimateOp* estimate_op_,
-		    const Xapian::MatchDecider* decider_,
-		    ValueStreamDocument* vsdoc,
-		    PostListTree* pltree_)
-	: SelectPostList(pl_, estimate_op_, pltree_),
-	  decider(decider_),
-	  doc(vsdoc)
+                    EstimateOp* estimate_op_,
+                    const Xapian::MatchDecider* decider_,
+                    ValueStreamDocument* vsdoc,
+                    PostListTree* pltree_)
+        : SelectPostList(pl_, estimate_op_, pltree_),
+          decider(decider_),
+          doc(vsdoc)
     { }
 
     std::string get_description() const;

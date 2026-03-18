@@ -31,9 +31,9 @@
 class GlassDocDataTable : public GlassLazyTable {
   public:
     static std::string make_key(Xapian::docid did) {
-	std::string key;
-	pack_uint_preserving_sort(key, did);
-	return key;
+        std::string key;
+        pack_uint_preserving_sort(key, did);
+        return key;
     }
 
     /** Create a new GlassDocDataTable object.
@@ -45,10 +45,10 @@ class GlassDocDataTable : public GlassLazyTable {
      *  @param readonly     true if we're opening read-only, else false.
      */
     GlassDocDataTable(const std::string & dbdir, bool readonly)
-	: GlassLazyTable("docdata", dbdir + "/docdata.", readonly) { }
+        : GlassLazyTable("docdata", dbdir + "/docdata.", readonly) { }
 
     GlassDocDataTable(int fd, off_t offset_, bool readonly)
-	: GlassLazyTable("docdata", fd, offset_, readonly) { }
+        : GlassLazyTable("docdata", fd, offset_, readonly) { }
 
     /** Get the document data for document @a did.
      *
@@ -57,10 +57,10 @@ class GlassDocDataTable : public GlassLazyTable {
      *  @param did	The docid to set the document data for.
      */
     std::string get_document_data(Xapian::docid did) const {
-	// We don't store the document data if it is empty.
-	std::string data;
-	(void)get_exact_entry(make_key(did), data);
-	return data;
+        // We don't store the document data if it is empty.
+        std::string data;
+        (void)get_exact_entry(make_key(did), data);
+        return data;
     }
 
     /** Set the document data for document @a did.
@@ -72,9 +72,9 @@ class GlassDocDataTable : public GlassLazyTable {
      *  @param data	The document data to set.
      */
     void add_document_data(Xapian::docid did, const std::string & data) {
-	// We don't store the document data if it is empty.
-	if (!data.empty())
-	    add(make_key(did), data);
+        // We don't store the document data if it is empty.
+        if (!data.empty())
+            add(make_key(did), data);
     }
 
     /** Replace the document data for document @a did.
@@ -85,12 +85,12 @@ class GlassDocDataTable : public GlassLazyTable {
      *  @param data	The document data to set.
      */
     void replace_document_data(Xapian::docid did, const std::string & data) {
-	if (data.empty()) {
-	    // We don't store the document data if it is empty.
-	    delete_document_data(did);
-	    return;
-	}
-	add(make_key(did), data);
+        if (data.empty()) {
+            // We don't store the document data if it is empty.
+            delete_document_data(did);
+            return;
+        }
+        add(make_key(did), data);
     }
 
     /** Delete the document data for document @a did.
@@ -103,7 +103,7 @@ class GlassDocDataTable : public GlassLazyTable {
     bool delete_document_data(Xapian::docid did) { return del(make_key(did)); }
 
     void readahead_for_document(Xapian::docid did) const {
-	readahead_key(make_key(did));
+        readahead_key(make_key(did));
     }
 };
 

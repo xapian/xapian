@@ -15,15 +15,15 @@ AC_DEFUN([XAPIAN_TYPE_SOCKLEN_T],
   [
     for t in socklen_t int size_t unsigned long "unsigned long"; do
       AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
-	#include <sys/types.h>
-	#if defined __WIN32__ || defined _WIN32
-	# include <winsock2.h>
-	#else
+        #include <sys/types.h>
+        #if defined __WIN32__ || defined _WIN32
+        # include <winsock2.h>
+        #else
         # include <sys/socket.h>
-	#endif
+        #endif
       ]], [[
-	$t len;
-	getsockopt(0, 0, 0, 0, &len);
+        $t len;
+        getsockopt(0, 0, 0, 0, &len);
       ]])], [
         xo_cv_socklen_t_equiv="$t"
         break
@@ -36,5 +36,5 @@ AC_DEFUN([XAPIAN_TYPE_SOCKLEN_T],
   ])
   AC_MSG_RESULT([$xo_cv_socklen_t_equiv])
   AC_DEFINE_UNQUOTED(SOCKLEN_T, [$xo_cv_socklen_t_equiv],
-		     [type to use for 5th parameter to getsockopt])
+                     [type to use for 5th parameter to getsockopt])
 ])

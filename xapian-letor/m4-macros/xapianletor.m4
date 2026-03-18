@@ -7,10 +7,10 @@
 # -----------------------------------------------------------
 # If this macro is not defined by Autoconf, define it here.
 m4_ifdef([AC_PROVIDE_IFELSE],
-	 [],
-	 [m4_define([AC_PROVIDE_IFELSE],
-		 [m4_ifdef([AC_PROVIDE_$1],
-			   [$2], [$3])])])
+         [],
+         [m4_define([AC_PROVIDE_IFELSE],
+                 [m4_ifdef([AC_PROVIDE_$1],
+                           [$2], [$3])])])
 
 # XO_LIB_XAPIANLETOR([ACTION-IF-FOUND [, ACTION-IF-NOT-FOUND[ ,XAPIANLETOR-CONFIG]]])
 # --------------------------------------------------------
@@ -85,22 +85,22 @@ dnl AM_PROG_LIBTOOL to enable it if one of these is expanded later.
     [AC_PROVIDE_IFELSE([AC_PROG_LIBTOOL],
       [XAPIANLETOR_LIBS=`$XAPIANLETOR_CONFIG --ltlibs`],
       [AC_PROVIDE_IFELSE([AM_PROG_LIBTOOL],
-	[XAPIANLETOR_LIBS=`$XAPIANLETOR_CONFIG --ltlibs`],
-	dnl Pass magic option so xapianletor-config knows we called it (so it
-	dnl can choose a more appropriate error message if asked to link
-	dnl with an uninstalled libxapian).  Also pass ac_top_srcdir
-	dnl so the error message can correctly say "configure.ac" or
-	dnl "configure.in" according to which is in use.
-	[XAPIANLETOR_LIBS=`ac_top_srcdir="$ac_top_srcdir" $XAPIANLETOR_CONFIG --from-xo-lib-xapianletor --libs`
-	m4_ifdef([LT_INIT],
-	  [m4_define([LT_INIT], m4_defn([LT_INIT])
-	    [XAPIANLETOR_LIBS=`$XAPIANLETOR_CONFIG --ltlibs`])])
-	m4_ifdef([AC_PROG_LIBTOOL],
-	  [m4_define([AC_PROG_LIBTOOL], m4_defn([AC_PROG_LIBTOOL])
-	    [XAPIANLETOR_LIBS=`$XAPIANLETOR_CONFIG --ltlibs`])])
-	m4_ifdef([AM_PROG_LIBTOOL],
-	  [m4_define([AM_PROG_LIBTOOL], m4_defn([AM_PROG_LIBTOOL])
-	    [XAPIANLETOR_LIBS=`$XAPIANLETOR_CONFIG --ltlibs`])])])])])
+        [XAPIANLETOR_LIBS=`$XAPIANLETOR_CONFIG --ltlibs`],
+        dnl Pass magic option so xapianletor-config knows we called it (so it
+        dnl can choose a more appropriate error message if asked to link
+        dnl with an uninstalled libxapian).  Also pass ac_top_srcdir
+        dnl so the error message can correctly say "configure.ac" or
+        dnl "configure.in" according to which is in use.
+        [XAPIANLETOR_LIBS=`ac_top_srcdir="$ac_top_srcdir" $XAPIANLETOR_CONFIG --from-xo-lib-xapianletor --libs`
+        m4_ifdef([LT_INIT],
+          [m4_define([LT_INIT], m4_defn([LT_INIT])
+            [XAPIANLETOR_LIBS=`$XAPIANLETOR_CONFIG --ltlibs`])])
+        m4_ifdef([AC_PROG_LIBTOOL],
+          [m4_define([AC_PROG_LIBTOOL], m4_defn([AC_PROG_LIBTOOL])
+            [XAPIANLETOR_LIBS=`$XAPIANLETOR_CONFIG --ltlibs`])])
+        m4_ifdef([AM_PROG_LIBTOOL],
+          [m4_define([AM_PROG_LIBTOOL], m4_defn([AM_PROG_LIBTOOL])
+            [XAPIANLETOR_LIBS=`$XAPIANLETOR_CONFIG --ltlibs`])])])])])
   ifelse([$1], , :, [$1])
   AC_SUBST(XAPIANLETOR_CXXFLAGS)
   AC_SUBST(XAPIANLETOR_LIBS)

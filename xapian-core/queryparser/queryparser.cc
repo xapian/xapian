@@ -46,8 +46,8 @@ SimpleStopper::get_description() const
 {
     string desc("Xapian::SimpleStopper(");
     for (auto i = stop_words.begin(); i != stop_words.end(); ++i) {
-	if (i != stop_words.begin()) desc += ' ';
-	desc += *i;
+        if (i != stop_words.begin()) desc += ' ';
+        desc += *i;
     }
     desc += ')';
     return desc;
@@ -99,31 +99,31 @@ void
 QueryParser::set_default_op(Query::op default_op)
 {
     switch (default_op) {
-	case Query::OP_AND:
-	case Query::OP_OR:
-	case Query::OP_NEAR:
-	case Query::OP_PHRASE:
-	case Query::OP_ELITE_SET:
-	case Query::OP_SYNONYM:
-	case Query::OP_MAX:
-	    // These are OK.
-	    break;
-	default:
-	    throw Xapian::InvalidArgumentError(
-		    "QueryParser::set_default_op() only accepts "
-		    "OP_AND"
-		    ", "
-		    "OP_OR"
-		    ", "
-		    "OP_NEAR"
-		    ", "
-		    "OP_PHRASE"
-		    ", "
-		    "OP_ELITE_SET"
-		    ", "
-		    "OP_SYNONYM"
-		    " or "
-		    "OP_MAX");
+        case Query::OP_AND:
+        case Query::OP_OR:
+        case Query::OP_NEAR:
+        case Query::OP_PHRASE:
+        case Query::OP_ELITE_SET:
+        case Query::OP_SYNONYM:
+        case Query::OP_MAX:
+            // These are OK.
+            break;
+        default:
+            throw Xapian::InvalidArgumentError(
+                    "QueryParser::set_default_op() only accepts "
+                    "OP_AND"
+                    ", "
+                    "OP_OR"
+                    ", "
+                    "OP_NEAR"
+                    ", "
+                    "OP_PHRASE"
+                    ", "
+                    "OP_ELITE_SET"
+                    ", "
+                    "OP_SYNONYM"
+                    " or "
+                    "OP_MAX");
     }
     internal->default_op = default_op;
 }
@@ -141,42 +141,42 @@ QueryParser::set_database(const Database &db) {
 
 void
 QueryParser::set_max_expansion(Xapian::termcount max_expansion,
-			       int max_type,
-			       unsigned flags)
+                               int max_type,
+                               unsigned flags)
 {
     if (flags & FLAG_WILDCARD) {
-	internal->max_wildcard_expansion = max_expansion;
-	internal->max_wildcard_type = max_type;
+        internal->max_wildcard_expansion = max_expansion;
+        internal->max_wildcard_type = max_type;
     }
     if (flags & FLAG_PARTIAL) {
-	internal->max_partial_expansion = max_expansion;
-	internal->max_partial_type = max_type;
+        internal->max_partial_expansion = max_expansion;
+        internal->max_partial_type = max_type;
     }
     if (flags & FLAG_FUZZY) {
-	internal->max_fuzzy_expansion = max_expansion;
-	internal->max_fuzzy_type = max_type;
+        internal->max_fuzzy_expansion = max_expansion;
+        internal->max_fuzzy_type = max_type;
     }
 }
 
 void
 QueryParser::set_min_wildcard_prefix(unsigned min_prefix_len,
-				     unsigned flags)
+                                     unsigned flags)
 {
     if (flags & FLAG_WILDCARD) {
-	internal->min_wildcard_prefix_len = min_prefix_len;
+        internal->min_wildcard_prefix_len = min_prefix_len;
     }
     if (flags & FLAG_PARTIAL) {
-	internal->min_partial_prefix_len = min_prefix_len;
+        internal->min_partial_prefix_len = min_prefix_len;
     }
 }
 
 Query
 QueryParser::parse_query(string_view query_string, unsigned flags,
-			 string_view default_prefix)
+                         string_view default_prefix)
 {
     if (!(flags & FLAG_ACCUMULATE)) {
-	internal->stoplist.clear();
-	internal->unstem.clear();
+        internal->stoplist.clear();
+        internal->unstem.clear();
     }
     internal->errmsg = NULL;
 
@@ -184,12 +184,12 @@ QueryParser::parse_query(string_view query_string, unsigned flags,
 
     Query result = internal->parse_query(query_string, flags, default_prefix);
     if (internal->errmsg && strcmp(internal->errmsg, "parse error") == 0) {
-	flags &=
-	    FLAG_NGRAMS |
-	    FLAG_WORD_BREAKS |
-	    FLAG_NO_POSITIONS |
-	    FLAG_NO_PROPER_NOUN_HEURISTIC;
-	result = internal->parse_query(query_string, flags, default_prefix);
+        flags &=
+            FLAG_NGRAMS |
+            FLAG_WORD_BREAKS |
+            FLAG_NO_POSITIONS |
+            FLAG_NO_PROPER_NOUN_HEURISTIC;
+        result = internal->parse_query(query_string, flags, default_prefix);
     }
 
     if (internal->errmsg) throw Xapian::QueryParserError(internal->errmsg);
@@ -210,15 +210,15 @@ QueryParser::add_prefix(string_view field, Xapian::FieldProcessor* proc)
 
 void
 QueryParser::add_boolean_prefix(string_view field, string_view prefix,
-				const string* grouping)
+                                const string* grouping)
 {
     internal->add_boolean_prefix(field, prefix, grouping);
 }
 
 void
 QueryParser::add_boolean_prefix(string_view field,
-				Xapian::FieldProcessor * proc,
-				const string* grouping)
+                                Xapian::FieldProcessor * proc,
+                                const string* grouping)
 {
     internal->add_boolean_prefix(field, proc, grouping);
 }
@@ -235,17 +235,17 @@ QueryParser::unstem_begin(string_view term) const
 {
     using unstem_type = multimap<string, string, std::less<>>;
     struct range_adaptor : public unstem_type::iterator {
-	range_adaptor(unstem_type::iterator i) : unstem_type::iterator(i) {}
-	const string & operator*() const { return (*this)->second; }
+        range_adaptor(unstem_type::iterator i) : unstem_type::iterator(i) {}
+        const string & operator*() const { return (*this)->second; }
     };
     auto range = internal->unstem.equal_range(term);
     return TermIterator(new VectorTermList(range_adaptor(range.first),
-					   range_adaptor(range.second)));
+                                           range_adaptor(range.second)));
 }
 
 void
 QueryParser::add_rangeprocessor(Xapian::RangeProcessor * range_proc,
-				const std::string* grouping)
+                                const std::string* grouping)
 {
     internal->rangeprocs.push_back(RangeProc(range_proc, grouping));
 }

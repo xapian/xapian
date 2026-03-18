@@ -88,12 +88,12 @@ const int X2 = 2;
 
    Recall that a leaf item has this form:
 
-	   i k     x
-	   | |     |
-	   I K key X tag
-	       ←K→
-	   <---SIZE---->
-	       <---I--->
+           i k     x
+           | |     |
+           I K key X tag
+               ←K→
+           <---SIZE---->
+               <---I--->
 
    Except that X is omitted for the first component of a tag (there is a flag
    bit in the upper bits of I which indicates these).
@@ -146,14 +146,14 @@ class Key {
     const uint8_t * get_address() const { return p; }
     const uint8_t * data() const { return p + K1; }
     void read(std::string * key) const {
-	key->assign(reinterpret_cast<const char *>(p + K1), length());
+        key->assign(reinterpret_cast<const char *>(p + K1), length());
     }
     int length() const {
-	return p[0];
+        return p[0];
     }
     char operator[](size_t i) const {
-	AssertRel(i,<,size_t(length()));
-	return p[i + K1];
+        AssertRel(i,<,size_t(length()));
+        return p[i + K1];
     }
 };
 
@@ -164,10 +164,10 @@ template<class T> class LeafItem_base {
     T p;
     int get_key_len() const { return p[I2]; }
     static int getD(const uint8_t * q, int c) {
-	AssertRel(c, >=, DIR_START);
-	AssertRel(c, <, 65535);
-	Assert((c & 1) == 1);
-	return unaligned_read2(q + c);
+        AssertRel(c, >=, DIR_START);
+        AssertRel(c, <, 65535);
+        Assert((c & 1) == 1);
+        return unaligned_read2(q + c);
     }
     int getI() const { return unaligned_read2(p); }
     static int getX(const uint8_t * q, int c) { return unaligned_read2(q + c); }
@@ -182,33 +182,33 @@ template<class T> class LeafItem_base {
     T get_address() const { return p; }
     /** SIZE in diagram above. */
     int size() const {
-	return (getI() & ITEM_SIZE_MASK) + 3;
+        return (getI() & ITEM_SIZE_MASK) + 3;
     }
     bool get_compressed() const { return *p & I_COMPRESSED_BIT; }
     bool first_component() const { return *p & I_FIRST_BIT; }
     bool last_component() const { return *p & I_LAST_BIT; }
     int component_of() const {
-	if (first_component()) return 1;
-	return getX(p, get_key_len() + I2 + K1);
+        if (first_component()) return 1;
+        return getX(p, get_key_len() + I2 + K1);
     }
     Key key() const { return Key(p + I2); }
     void append_chunk(std::string * tag) const {
-	// Offset to the start of the tag data.
-	int cd = get_key_len() + I2 + K1;
-	if (!first_component()) cd += X2;
-	// Number of bytes to extract from current component.
-	int l = size() - cd;
-	const char * chunk = reinterpret_cast<const char *>(p + cd);
-	tag->append(chunk, l);
+        // Offset to the start of the tag data.
+        int cd = get_key_len() + I2 + K1;
+        if (!first_component()) cd += X2;
+        // Number of bytes to extract from current component.
+        int l = size() - cd;
+        const char * chunk = reinterpret_cast<const char *>(p + cd);
+        tag->append(chunk, l);
     }
     bool decompress_chunk(CompressionStream& comp_stream, string& tag) const {
-	// Offset to the start of the tag data.
-	int cd = get_key_len() + I2 + K1;
-	if (!first_component()) cd += X2;
-	// Number of bytes to extract from current component.
-	int l = size() - cd;
-	const char * chunk = reinterpret_cast<const char *>(p + cd);
-	return comp_stream.decompress_chunk(chunk, l, tag);
+        // Offset to the start of the tag data.
+        int cd = get_key_len() + I2 + K1;
+        if (!first_component()) cd += X2;
+        // Number of bytes to extract from current component.
+        int l = size() - cd;
+        const char * chunk = reinterpret_cast<const char *>(p + cd);
+        return comp_stream.decompress_chunk(chunk, l, tag);
     }
 };
 
@@ -216,16 +216,16 @@ class LeafItem : public LeafItem_base<const uint8_t *> {
   public:
     /* LeafItem from block address and offset to item pointer */
     LeafItem(const uint8_t * p_, int c)
-	: LeafItem_base<const uint8_t *>(p_, c) { }
+        : LeafItem_base<const uint8_t *>(p_, c) { }
     explicit LeafItem(const uint8_t * p_)
-	: LeafItem_base<const uint8_t *>(p_) { }
+        : LeafItem_base<const uint8_t *>(p_) { }
 };
 
 class LeafItem_wr : public LeafItem_base<uint8_t *> {
     void set_key_len(int x) {
-	AssertRel(x, >=, 0);
-	AssertRel(x, <=, GLASS_BTREE_MAX_KEY_LEN);
-	p[I2] = uint8_t(x);
+        AssertRel(x, >=, 0);
+        AssertRel(x, <=, GLASS_BTREE_MAX_KEY_LEN);
+        p[I2] = uint8_t(x);
     }
     void setI(int x) { unaligned_write2(p, x); }
     static void setX(uint8_t * q, int c, int x) { unaligned_write2(q + c, x); }
@@ -234,71 +234,71 @@ class LeafItem_wr : public LeafItem_base<uint8_t *> {
     LeafItem_wr(uint8_t * p_, int c) : LeafItem_base<uint8_t *>(p_, c) { }
     explicit LeafItem_wr(uint8_t * p_) : LeafItem_base<uint8_t *>(p_) { }
     void set_component_of(int i) {
-	AssertRel(i,>,1);
-	*p &=~ I_FIRST_BIT;
-	setX(p, get_key_len() + I2 + K1, i);
+        AssertRel(i,>,1);
+        *p &=~ I_FIRST_BIT;
+        setX(p, get_key_len() + I2 + K1, i);
     }
     void set_size(int new_size) {
-	AssertRel(new_size,>=,3);
-	int I = new_size - 3;
-	// We should never be able to pass too large a size here, but don't
-	// corrupt the database if this somehow happens.
-	if (rare(I &~ ITEM_SIZE_MASK)) throw Xapian::DatabaseError("item too large!");
-	setI(I);
+        AssertRel(new_size,>=,3);
+        int I = new_size - 3;
+        // We should never be able to pass too large a size here, but don't
+        // corrupt the database if this somehow happens.
+        if (rare(I &~ ITEM_SIZE_MASK)) throw Xapian::DatabaseError("item too large!");
+        setI(I);
     }
     void form_key(std::string_view key_) {
-	auto key_len = key_.length();
-	if (key_len > GLASS_BTREE_MAX_KEY_LEN) {
-	    // We check term length when a term is added to a document but
-	    // glass doubles zero bytes, so this can still happen for terms
-	    // which contain one or more zero bytes.
-	    std::string msg("Key too long: length was ");
-	    msg += str(key_len);
-	    msg += " bytes, maximum length of a key is "
-		   STRINGIZE(GLASS_BTREE_MAX_KEY_LEN) " bytes";
-	    throw Xapian::InvalidArgumentError(msg);
-	}
+        auto key_len = key_.length();
+        if (key_len > GLASS_BTREE_MAX_KEY_LEN) {
+            // We check term length when a term is added to a document but
+            // glass doubles zero bytes, so this can still happen for terms
+            // which contain one or more zero bytes.
+            std::string msg("Key too long: length was ");
+            msg += str(key_len);
+            msg += " bytes, maximum length of a key is "
+                   STRINGIZE(GLASS_BTREE_MAX_KEY_LEN) " bytes";
+            throw Xapian::InvalidArgumentError(msg);
+        }
 
-	set_key_len(key_len);
-	*p |= I_FIRST_BIT;
-	if (key_len)
-	    std::memmove(p + I2 + K1, key_.data(), key_len);
+        set_key_len(key_len);
+        *p |= I_FIRST_BIT;
+        if (key_len)
+            std::memmove(p + I2 + K1, key_.data(), key_len);
     }
     // FIXME passing cd here is icky
     void set_tag(int cd, const char *start, int len, bool compressed, int i, int m) {
-	if (len) std::memmove(p + cd, start, len);
-	set_size(cd + len);
-	if (compressed) *p |= I_COMPRESSED_BIT;
-	if (i == m) *p |= I_LAST_BIT;
-	if (i == 1) {
-	    *p |= I_FIRST_BIT;
-	} else {
-	    set_component_of(i);
-	}
+        if (len) std::memmove(p + cd, start, len);
+        set_size(cd + len);
+        if (compressed) *p |= I_COMPRESSED_BIT;
+        if (i == m) *p |= I_LAST_BIT;
+        if (i == 1) {
+            *p |= I_FIRST_BIT;
+        } else {
+            set_component_of(i);
+        }
     }
     void fake_root_item() {
-	set_key_len(0);   // null key length
-	set_size(I2 + K1);   // length of the item
-	*p |= I_FIRST_BIT|I_LAST_BIT;
+        set_key_len(0);   // null key length
+        set_size(I2 + K1);   // length of the item
+        *p |= I_FIRST_BIT|I_LAST_BIT;
     }
     operator const LeafItem() const { return LeafItem(p); }
     static void setD(uint8_t * q, int c, int x) {
-	AssertRel(c, >=, DIR_START);
-	AssertRel(c, <, 65535);
-	Assert((c & 1) == 1);
-	unaligned_write2(q + c, x);
+        AssertRel(c, >=, DIR_START);
+        AssertRel(c, <, 65535);
+        Assert((c & 1) == 1);
+        unaligned_write2(q + c, x);
     }
 };
 
 /* A branch item has this form:
 
-		 k     x
-		 |     |
-	     tag K key X
-	     ←B→   ←K→
-	     <--SIZE--->
+                 k     x
+                 |     |
+             tag K key X
+             ←B→   ←K→
+             <--SIZE--->
 
-	     B = BYTES_PER_BLOCK_NUMBER
+             B = BYTES_PER_BLOCK_NUMBER
 
    We can't omit X here, as we've nowhere to store the first and last bit
    flags which we have in leaf items.
@@ -311,10 +311,10 @@ template<class T> class BItem_base {
     T p;
     int get_key_len() const { return p[BYTES_PER_BLOCK_NUMBER]; }
     static int getD(const uint8_t * q, int c) {
-	AssertRel(c, >=, DIR_START);
-	AssertRel(c, <, 65535);
-	Assert((c & 1) == 1);
-	return unaligned_read2(q + c);
+        AssertRel(c, >=, DIR_START);
+        AssertRel(c, <, 65535);
+        Assert((c & 1) == 1);
+        return unaligned_read2(q + c);
     }
     static int getX(const uint8_t * q, int c) { return unaligned_read2(q + c); }
   public:
@@ -324,17 +324,17 @@ template<class T> class BItem_base {
     T get_address() const { return p; }
     /** SIZE in diagram above. */
     int size() const {
-	return get_key_len() + K1 + X2 + BYTES_PER_BLOCK_NUMBER;
+        return get_key_len() + K1 + X2 + BYTES_PER_BLOCK_NUMBER;
     }
     Key key() const { return Key(p + BYTES_PER_BLOCK_NUMBER); }
     /** Get this item's tag as a block number (this block should not be at
      *  level 0).
      */
     uint4 block_given_by() const {
-	return unaligned_read4(p);
+        return unaligned_read4(p);
     }
     int component_of() const {
-	return getX(p, get_key_len() + BYTES_PER_BLOCK_NUMBER + K1);
+        return getX(p, get_key_len() + BYTES_PER_BLOCK_NUMBER + K1);
     }
 };
 
@@ -347,9 +347,9 @@ class BItem : public BItem_base<const uint8_t *> {
 
 class BItem_wr : public BItem_base<uint8_t *> {
     void set_key_len(int x) {
-	AssertRel(x, >=, 0);
-	AssertRel(x, <, GLASS_BTREE_MAX_KEY_LEN);
-	p[BYTES_PER_BLOCK_NUMBER] = uint8_t(x);
+        AssertRel(x, >=, 0);
+        AssertRel(x, <, GLASS_BTREE_MAX_KEY_LEN);
+        p[BYTES_PER_BLOCK_NUMBER] = uint8_t(x);
     }
     static void setX(uint8_t * q, int c, int x) { unaligned_write2(q + c, x); }
   public:
@@ -357,49 +357,49 @@ class BItem_wr : public BItem_base<uint8_t *> {
     BItem_wr(uint8_t * p_, int c) : BItem_base<uint8_t *>(p_, c) { }
     explicit BItem_wr(uint8_t * p_) : BItem_base<uint8_t *>(p_) { }
     void set_component_of(int i) {
-	setX(p, get_key_len() + BYTES_PER_BLOCK_NUMBER + K1, i);
+        setX(p, get_key_len() + BYTES_PER_BLOCK_NUMBER + K1, i);
     }
     void set_key_and_block(Key newkey, uint4 n) {
-	int len = newkey.length() + K1 + X2;
-	// Copy the key size, main part of the key and the count part.
-	std::memcpy(p + BYTES_PER_BLOCK_NUMBER, newkey.get_address(), len);
-	// Set tag contents to block number
-	set_block_given_by(n);
+        int len = newkey.length() + K1 + X2;
+        // Copy the key size, main part of the key and the count part.
+        std::memcpy(p + BYTES_PER_BLOCK_NUMBER, newkey.get_address(), len);
+        // Set tag contents to block number
+        set_block_given_by(n);
     }
     // Takes size as we may be truncating newkey.
     void set_truncated_key_and_block(Key newkey, int new_comp,
-				     int truncate_size, uint4 n) {
-	int i = truncate_size;
-	AssertRel(i,<=,newkey.length());
-	// Key size
-	set_key_len(i);
-	// Copy the main part of the key, possibly truncating.
-	std::memcpy(p + BYTES_PER_BLOCK_NUMBER + K1, newkey.get_address() + K1, i);
-	// Set the component count.
-	setX(p, BYTES_PER_BLOCK_NUMBER + K1 + i, new_comp);
-	// Set tag contents to block number
-	set_block_given_by(n);
+                                     int truncate_size, uint4 n) {
+        int i = truncate_size;
+        AssertRel(i,<=,newkey.length());
+        // Key size
+        set_key_len(i);
+        // Copy the main part of the key, possibly truncating.
+        std::memcpy(p + BYTES_PER_BLOCK_NUMBER + K1, newkey.get_address() + K1, i);
+        // Set the component count.
+        setX(p, BYTES_PER_BLOCK_NUMBER + K1 + i, new_comp);
+        // Set tag contents to block number
+        set_block_given_by(n);
     }
 
     /** Set this item's tag to point to block n (this block should not be at
      *  level 0).
      */
     void set_block_given_by(uint4 n) {
-	unaligned_write4(p, n);
+        unaligned_write4(p, n);
     }
     /** Form an item with a null key and with block number n in the tag.
      */
     void form_null_key(uint4 n) {
-	set_block_given_by(n);
-	set_key_len(0);        /* null key */
-	set_component_of(0);
+        set_block_given_by(n);
+        set_key_len(0);        /* null key */
+        set_component_of(0);
     }
     operator const BItem() const { return BItem(p); }
     static void setD(uint8_t * q, int c, int x) {
-	AssertRel(c, >=, DIR_START);
-	AssertRel(c, <, 65535);
-	Assert((c & 1) == 1);
-	unaligned_write2(q + c, x);
+        AssertRel(c, >=, DIR_START);
+        AssertRel(c, <, 65535);
+        Assert((c & 1) == 1);
+        unaligned_write2(q + c, x);
     }
 };
 
@@ -441,15 +441,15 @@ class GlassTable {
     GlassTable & operator=(const GlassTable &);
 
     void basic_open(const RootInfo * root_info,
-		    glass_revision_number_t rev);
+                    glass_revision_number_t rev);
 
     /** Perform the opening operation to read. */
     void do_open_to_read(const RootInfo * root_info,
-			 glass_revision_number_t rev);
+                         glass_revision_number_t rev);
 
     /** Perform the opening operation to write. */
     void do_open_to_write(const RootInfo * root_info,
-			  glass_revision_number_t rev = 0);
+                          glass_revision_number_t rev = 0);
 
   public:
     /** Create a new Btree object.
@@ -467,10 +467,10 @@ class GlassTable {
      *			needed.
      */
     GlassTable(const char* tablename_, std::string_view path_,
-	       bool readonly_, bool lazy = false);
+               bool readonly_, bool lazy = false);
 
     GlassTable(const char * tablename_, int fd, off_t offset_,
-	       bool readonly_, bool lazy = false);
+               bool readonly_, bool lazy = false);
 
     /** Close the Btree.
      *
@@ -504,7 +504,7 @@ class GlassTable {
      *	not present, etc).
      */
     void open(int flags_, const RootInfo & root_info,
-	      glass_revision_number_t rev);
+              glass_revision_number_t rev);
 
     /** Return true if this table is open.
      *
@@ -540,9 +540,9 @@ class GlassTable {
     void commit(glass_revision_number_t revision, RootInfo * root_info);
 
     bool sync() {
-	return (flags & Xapian::DB_NO_SYNC) ||
-	       handle < 0 ||
-	       io_sync(handle);
+        return (flags & Xapian::DB_NO_SYNC) ||
+               handle < 0 ||
+               io_sync(handle);
     }
 
     /** Cancel any outstanding changes.
@@ -590,8 +590,8 @@ class GlassTable {
      *		false if keep_compressed was false).
      */
     bool read_tag(Glass::Cursor* C_,
-		  std::string* tag,
-		  bool keep_compressed) const;
+                  std::string* tag,
+                  bool keep_compressed) const;
 
     /** Add a key/tag pair to the table, replacing any existing pair with
      *  the same key.
@@ -610,8 +610,8 @@ class GlassTable {
      *		(default: false).
      */
     void add(std::string_view key,
-	     std::string_view tag,
-	     bool already_compressed = false);
+             std::string_view tag,
+             bool already_compressed = false);
 
     /** Delete an entry from the table.
      *
@@ -670,7 +670,7 @@ class GlassTable {
      *  @return the current revision number.
      */
     glass_revision_number_t get_open_revision_number() const {
-	return revision_number;
+        return revision_number;
     }
 
     /** Return a count of the number of entries in the table.
@@ -683,12 +683,12 @@ class GlassTable {
      *  @return The number of entries in the table.
      */
     glass_tablesize_t get_entry_count() const {
-	return item_count;
+        return item_count;
     }
 
     /// Return true if there are no entries in the table.
     bool empty() const {
-	return (item_count == 0);
+        return (item_count == 0);
     }
 
     /** Get a cursor for reading from the table.
@@ -711,15 +711,15 @@ class GlassTable {
      *  The default is BLOCK_CAPACITY (which is currently 4).
      */
     void set_max_item_size(size_t block_capacity) {
-	if (block_capacity > Glass::BLOCK_CAPACITY)
-	    block_capacity = Glass::BLOCK_CAPACITY;
-	using Glass::DIR_START;
-	using Glass::D2;
-	max_item_size =
-	    (block_size - DIR_START - block_capacity * D2) / block_capacity;
-	// Make sure we don't exceed the limit imposed by the format.
-	if (max_item_size > Glass::MAX_ITEM_SIZE)
-	    max_item_size = Glass::MAX_ITEM_SIZE;
+        if (block_capacity > Glass::BLOCK_CAPACITY)
+            block_capacity = Glass::BLOCK_CAPACITY;
+        using Glass::DIR_START;
+        using Glass::D2;
+        max_item_size =
+            (block_size - DIR_START - block_capacity * D2) / block_capacity;
+        // Make sure we don't exceed the limit imposed by the format.
+        if (max_item_size > Glass::MAX_ITEM_SIZE)
+            max_item_size = Glass::MAX_ITEM_SIZE;
     }
 
     /** Set the GlassChanges object to write changed blocks to.
@@ -728,7 +728,7 @@ class GlassTable {
      *  must not delete it.
      */
     void set_changes(GlassChanges * changes) {
-	changes_obj = changes;
+        changes_obj = changes;
     }
 
     /// Throw an exception indicating that the database is closed.
@@ -736,7 +736,7 @@ class GlassTable {
     static void throw_database_closed();
 
     string get_path() const {
-	return name + GLASS_TABLE_EXTENSION;
+        return name + GLASS_TABLE_EXTENSION;
     }
 
   protected:
@@ -744,14 +744,14 @@ class GlassTable {
     int delete_kt();
     void read_block(uint4 n, uint8_t *p) const;
     void write_block(uint4 n, const uint8_t *p,
-		     bool appending = false) const;
+                     bool appending = false) const;
     [[noreturn]]
     void throw_overwritten() const;
     void block_to_cursor(Glass::Cursor *C_, int j, uint4 n) const;
     void alter();
     void compact(uint8_t *p);
     void enter_key_above_leaf(Glass::LeafItem previtem,
-			      Glass::LeafItem newitem);
+                              Glass::LeafItem newitem);
     void enter_key_above_branch(int j, Glass::BItem newitem);
     int mid_point(uint8_t *p) const;
     void add_item_to_leaf(uint8_t *p, Glass::LeafItem kt, int c);
@@ -858,19 +858,19 @@ class GlassTable {
     GlassChanges * changes_obj;
 
     bool single_file() const {
-	return name.empty();
+        return name.empty();
     }
 
     /* B-tree navigation functions */
     bool prev(Glass::Cursor *C_, int j) const {
-	if (sequential && !single_file())
-	    return prev_for_sequential(C_, j);
-	return prev_default(C_, j);
+        if (sequential && !single_file())
+            return prev_for_sequential(C_, j);
+        return prev_default(C_, j);
     }
 
     bool next(Glass::Cursor *C_, int j) const {
-	if (sequential) return next_for_sequential(C_, j);
-	return next_default(C_, j);
+        if (sequential) return next_for_sequential(C_, j);
+        return next_default(C_, j);
     }
 
     /* Default implementations. */
@@ -882,9 +882,9 @@ class GlassTable {
     bool next_for_sequential(Glass::Cursor *C_, int dummy) const;
 
     static int find_in_leaf(const uint8_t * p,
-			    Glass::LeafItem item, int c, bool& exact);
+                            Glass::LeafItem item, int c, bool& exact);
     static int find_in_branch(const uint8_t * p,
-			      Glass::LeafItem item, int c);
+                              Glass::LeafItem item, int c);
     static int find_in_branch(const uint8_t * p, Glass::BItem item, int c);
 
     /** block_given_by(p, c) finds the item at block address p, directory
@@ -951,12 +951,12 @@ int compare(ITEM1 a, ITEM2 b)
     // Compare the common part of the keys.
     int diff = std::memcmp(p1, p2, k_smaller);
     if (diff == 0) {
-	// If the common part matches, compare the lengths.
-	diff = key1_len - key2_len;
-	if (diff == 0) {
-	    // If the strings match, compare component_of().
-	    diff = a.component_of() - b.component_of();
-	}
+        // If the common part matches, compare the lengths.
+        diff = key1_len - key2_len;
+        if (diff == 0) {
+            // If the strings match, compare component_of().
+            diff = a.component_of() - b.component_of();
+        }
     }
     return diff;
 }
@@ -976,10 +976,10 @@ compare(BItem a, BItem b)
     int key1_len = key1.length();
     int key2_len = key2.length();
     if (key1_len == key2_len) {
-	// The keys are the same length, so we can compare the counts in the
-	// same operation since they're stored as 2 byte bigendian numbers.
-	int len = key1_len + X2;
-	return std::memcmp(p1, p2, len);
+        // The keys are the same length, so we can compare the counts in the
+        // same operation since they're stored as 2 byte bigendian numbers.
+        int len = key1_len + X2;
+        return std::memcmp(p1, p2, len);
     }
 
     int k_smaller = (key2_len < key1_len ? key2_len : key1_len);
@@ -987,10 +987,10 @@ compare(BItem a, BItem b)
     // Compare the common part of the keys.
     int diff = std::memcmp(p1, p2, k_smaller);
     if (diff == 0) {
-	// If the common part matches, compare the lengths.
-	diff = key1_len - key2_len;
-	// We dealt with the "same length" case above so we never need to check
-	// component_of here.
+        // If the common part matches, compare the lengths.
+        diff = key1_len - key2_len;
+        // We dealt with the "same length" case above so we never need to check
+        // component_of here.
     }
     return diff;
 }

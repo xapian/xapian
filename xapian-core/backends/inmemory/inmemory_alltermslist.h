@@ -36,8 +36,8 @@ class InMemoryAllTermsList : public AllTermsList
     void operator=(const InMemoryAllTermsList &);
 
     const std::map<std::string,
-		   InMemoryTerm,
-		   std::less<>>* tmap;
+                   InMemoryTerm,
+                   std::less<>>* tmap;
 
     std::map<std::string, InMemoryTerm, std::less<>>::const_iterator it;
 
@@ -48,12 +48,12 @@ class InMemoryAllTermsList : public AllTermsList
   public:
     /// Constructor.
     InMemoryAllTermsList(const std::map<std::string,
-					InMemoryTerm,
-					std::less<>>* tmap_,
-			 Xapian::Internal::intrusive_ptr<const InMemoryDatabase> database_,
-			 std::string_view prefix_)
-	: tmap(tmap_), it(tmap->begin()), database(database_),
-	  prefix(prefix_)
+                                        InMemoryTerm,
+                                        std::less<>>* tmap_,
+                         Xapian::Internal::intrusive_ptr<const InMemoryDatabase> database_,
+                         std::string_view prefix_)
+        : tmap(tmap_), it(tmap->begin()), database(database_),
+          prefix(prefix_)
     {
     }
 

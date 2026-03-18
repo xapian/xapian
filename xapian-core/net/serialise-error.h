@@ -51,7 +51,7 @@ std::string serialise_error(const Xapian::Error &e);
  */
 [[noreturn]]
 void unserialise_error(const std::string &error_string,
-		       const std::string &prefix,
-		       const std::string &new_context);
+                       const std::string &prefix,
+                       const std::string &new_context);
 
 #endif

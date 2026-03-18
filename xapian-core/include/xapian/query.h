@@ -76,270 +76,270 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 
     /** Query operators. */
     enum op {
-	/** Match only documents which all subqueries match.
-	 *
-	 *  When used in a weighted context, the weight is the sum of the
-	 *  weights for all the subqueries.
-	 */
-	OP_AND = 0,
+        /** Match only documents which all subqueries match.
+         *
+         *  When used in a weighted context, the weight is the sum of the
+         *  weights for all the subqueries.
+         */
+        OP_AND = 0,
 
-	/** Match documents which at least one subquery matches.
-	 *
-	 *  When used in a weighted context, the weight is the sum of the
-	 *  weights for matching subqueries (so additional matching subqueries
-	 *  will mean a higher weight).
-	 */
-	OP_OR = 1,
+        /** Match documents which at least one subquery matches.
+         *
+         *  When used in a weighted context, the weight is the sum of the
+         *  weights for matching subqueries (so additional matching subqueries
+         *  will mean a higher weight).
+         */
+        OP_OR = 1,
 
-	/** Match documents which the first subquery matches but no others do.
-	 *
-	 *  When used in a weighted context, the weight is just the weight of
-	 *  the first subquery.
-	 */
-	OP_AND_NOT = 2,
+        /** Match documents which the first subquery matches but no others do.
+         *
+         *  When used in a weighted context, the weight is just the weight of
+         *  the first subquery.
+         */
+        OP_AND_NOT = 2,
 
-	/** Match documents which an odd number of subqueries match.
-	 *
-	 *  When used in a weighted context, the weight is the sum of the
-	 *  weights for matching subqueries (so additional matching subqueries
-	 *  will mean a higher weight).
-	 */
-	OP_XOR = 3,
+        /** Match documents which an odd number of subqueries match.
+         *
+         *  When used in a weighted context, the weight is the sum of the
+         *  weights for matching subqueries (so additional matching subqueries
+         *  will mean a higher weight).
+         */
+        OP_XOR = 3,
 
-	/** Match the first subquery taking extra weight from other subqueries.
-	 *
-	 *  When used in a weighted context, the weight is the sum of the
-	 *  weights for matching subqueries (so additional matching subqueries
-	 *  will mean a higher weight).
-	 *
-	 *  Because only the first subquery determines which documents are
-	 *  matched, in a non-weighted context only the first subquery matters.
-	 */
-	OP_AND_MAYBE = 4,
+        /** Match the first subquery taking extra weight from other subqueries.
+         *
+         *  When used in a weighted context, the weight is the sum of the
+         *  weights for matching subqueries (so additional matching subqueries
+         *  will mean a higher weight).
+         *
+         *  Because only the first subquery determines which documents are
+         *  matched, in a non-weighted context only the first subquery matters.
+         */
+        OP_AND_MAYBE = 4,
 
-	/** Match like OP_AND but only taking weight from the first subquery.
-	 *
-	 *  When used in a non-weighted context, OP_FILTER and OP_AND are
-	 *  equivalent.
-	 *
-	 *  In older 1.4.x, the third and subsequent subqueries were ignored
-	 *  in some situations.  This was fixed in 1.4.15.
-	 */
-	OP_FILTER = 5,
+        /** Match like OP_AND but only taking weight from the first subquery.
+         *
+         *  When used in a non-weighted context, OP_FILTER and OP_AND are
+         *  equivalent.
+         *
+         *  In older 1.4.x, the third and subsequent subqueries were ignored
+         *  in some situations.  This was fixed in 1.4.15.
+         */
+        OP_FILTER = 5,
 
-	/** Match only documents where all subqueries match near each other.
-	 *
-	 *  The subqueries must match at term positions within the specified
-	 *  window size, in any order.
-	 *
-	 *  Currently subqueries must be terms or terms composed with OP_OR.
-	 *
-	 *  When used in a weighted context, the weight is the sum of the
-	 *  weights for all the subqueries.
-	 */
-	OP_NEAR = 6,
+        /** Match only documents where all subqueries match near each other.
+         *
+         *  The subqueries must match at term positions within the specified
+         *  window size, in any order.
+         *
+         *  Currently subqueries must be terms or terms composed with OP_OR.
+         *
+         *  When used in a weighted context, the weight is the sum of the
+         *  weights for all the subqueries.
+         */
+        OP_NEAR = 6,
 
-	/** Match only documents where all subqueries match near and in order.
-	 *
-	 *  The subqueries must match at term positions within the specified
-	 *  window size, in the same term position order as subquery order.
-	 *
-	 *  Currently subqueries must be terms or terms composed with OP_OR.
-	 *
-	 *  When used in a weighted context, the weight is the sum of the
-	 *  weights for all the subqueries.
-	 */
-	OP_PHRASE = 7,
+        /** Match only documents where all subqueries match near and in order.
+         *
+         *  The subqueries must match at term positions within the specified
+         *  window size, in the same term position order as subquery order.
+         *
+         *  Currently subqueries must be terms or terms composed with OP_OR.
+         *
+         *  When used in a weighted context, the weight is the sum of the
+         *  weights for all the subqueries.
+         */
+        OP_PHRASE = 7,
 
-	/** Match only documents where a value slot is within a given range.
-	 *
-	 *  This operator never contributes weight.
-	 */
-	OP_VALUE_RANGE = 8,
+        /** Match only documents where a value slot is within a given range.
+         *
+         *  This operator never contributes weight.
+         */
+        OP_VALUE_RANGE = 8,
 
-	/** Scale the weight contributed by a subquery.
-	 *
-	 *  The weight is the weight of the subquery multiplied by the
-	 *  specified non-negative scale factor (so if the scale factor is
-	 *  zero then the subquery contributes no weight).
-	 */
-	OP_SCALE_WEIGHT = 9,
+        /** Scale the weight contributed by a subquery.
+         *
+         *  The weight is the weight of the subquery multiplied by the
+         *  specified non-negative scale factor (so if the scale factor is
+         *  zero then the subquery contributes no weight).
+         */
+        OP_SCALE_WEIGHT = 9,
 
-	/** Pick the best N subqueries and combine with OP_OR.
-	 *
-	 *  If you want to implement a feature which finds documents similar to
-	 *  a piece of text, an obvious approach is to build an "OR" query from
-	 *  all the terms in the text, and run this query against a database
-	 *  containing the documents.  However such a query can contain a lots
-	 *  of terms and be quite slow to perform, yet many of these terms
-	 *  don't contribute usefully to the results.
-	 *
-	 *  The OP_ELITE_SET operator can be used instead of OP_OR in this
-	 *  situation.  OP_ELITE_SET selects the most important ''N'' terms and
-	 *  then acts as an OP_OR query with just these, ignoring any other
-	 *  terms.  This will usually return results just as good as the full
-	 *  OP_OR query, but much faster.
-	 *
-	 *  In general, the OP_ELITE_SET operator can be used when you have a
-	 *  large OR query, but it doesn't matter if the search completely
-	 *  ignores some of the less important terms in the query.
-	 *
-	 *  The subqueries don't have to be terms.  If they aren't then
-	 *  OP_ELITE_SET could potentially pick a subset which doesn't
-	 *  actually match any documents even if the full OR would match some
-	 *  (because OP_ELITE_SET currently selects those subqueries which can
-	 *  return the highest weights).  This is probably rare in practice
-	 *  though.
-	 *
-	 *  You can specify a parameter to the query constructor which controls
-	 *  the number of subqueries which OP_ELITE_SET will pick.  If not
-	 *  specified, this defaults to 10 (Xapian used to default to
-	 *  <code>ceil(sqrt(number_of_subqueries))</code> if there are more
-	 *  than 100 subqueries, but this rather arbitrary special case was
-	 *  dropped in 1.3.0).  For example, this will pick the best 7 terms:
-	 *
-	 *  <pre>
-	 *  Xapian::Query query(Xapian::Query::OP_ELITE_SET, subqs.begin(), subqs.end(), 7);
-	 *  </pre>
-	 *
-	 *  If the number of subqueries is less than this threshold,
-	 *  OP_ELITE_SET behaves identically to OP_OR.
-	 *
-	 *  When used with a sharded database, OP_ELITE_SET currently picks
-	 *  the subqueries to use separately for each shard based on the
-	 *  maximum weight they can return in that shard.  This means it
-	 *  probably won't select exactly the same terms, and so the results
-	 *  of the search may not be exactly the same as for a single database
-	 *  with equivalent contents.
-	 */
-	OP_ELITE_SET = 10,
+        /** Pick the best N subqueries and combine with OP_OR.
+         *
+         *  If you want to implement a feature which finds documents similar to
+         *  a piece of text, an obvious approach is to build an "OR" query from
+         *  all the terms in the text, and run this query against a database
+         *  containing the documents.  However such a query can contain a lots
+         *  of terms and be quite slow to perform, yet many of these terms
+         *  don't contribute usefully to the results.
+         *
+         *  The OP_ELITE_SET operator can be used instead of OP_OR in this
+         *  situation.  OP_ELITE_SET selects the most important ''N'' terms and
+         *  then acts as an OP_OR query with just these, ignoring any other
+         *  terms.  This will usually return results just as good as the full
+         *  OP_OR query, but much faster.
+         *
+         *  In general, the OP_ELITE_SET operator can be used when you have a
+         *  large OR query, but it doesn't matter if the search completely
+         *  ignores some of the less important terms in the query.
+         *
+         *  The subqueries don't have to be terms.  If they aren't then
+         *  OP_ELITE_SET could potentially pick a subset which doesn't
+         *  actually match any documents even if the full OR would match some
+         *  (because OP_ELITE_SET currently selects those subqueries which can
+         *  return the highest weights).  This is probably rare in practice
+         *  though.
+         *
+         *  You can specify a parameter to the query constructor which controls
+         *  the number of subqueries which OP_ELITE_SET will pick.  If not
+         *  specified, this defaults to 10 (Xapian used to default to
+         *  <code>ceil(sqrt(number_of_subqueries))</code> if there are more
+         *  than 100 subqueries, but this rather arbitrary special case was
+         *  dropped in 1.3.0).  For example, this will pick the best 7 terms:
+         *
+         *  <pre>
+         *  Xapian::Query query(Xapian::Query::OP_ELITE_SET, subqs.begin(), subqs.end(), 7);
+         *  </pre>
+         *
+         *  If the number of subqueries is less than this threshold,
+         *  OP_ELITE_SET behaves identically to OP_OR.
+         *
+         *  When used with a sharded database, OP_ELITE_SET currently picks
+         *  the subqueries to use separately for each shard based on the
+         *  maximum weight they can return in that shard.  This means it
+         *  probably won't select exactly the same terms, and so the results
+         *  of the search may not be exactly the same as for a single database
+         *  with equivalent contents.
+         */
+        OP_ELITE_SET = 10,
 
-	/** Match only documents where a value slot is >= a given value.
-	 *
-	 *  Similar to @a OP_VALUE_RANGE, but open-ended.
-	 *
-	 *  This operator never contributes weight.
-	 */
-	OP_VALUE_GE = 11,
+        /** Match only documents where a value slot is >= a given value.
+         *
+         *  Similar to @a OP_VALUE_RANGE, but open-ended.
+         *
+         *  This operator never contributes weight.
+         */
+        OP_VALUE_GE = 11,
 
-	/** Match only documents where a value slot is <= a given value.
-	 *
-	 *  Similar to @a OP_VALUE_RANGE, but open-ended.
-	 *
-	 *  This operator never contributes weight.
-	 */
-	OP_VALUE_LE = 12,
+        /** Match only documents where a value slot is <= a given value.
+         *
+         *  Similar to @a OP_VALUE_RANGE, but open-ended.
+         *
+         *  This operator never contributes weight.
+         */
+        OP_VALUE_LE = 12,
 
-	/** Match like OP_OR but weighting as if a single term.
-	 *
-	 *  The weight is calculated combining the statistics for the
-	 *  subqueries to approximate the weight of a single term occurring
-	 *  with those statistics.
-	 */
-	OP_SYNONYM = 13,
+        /** Match like OP_OR but weighting as if a single term.
+         *
+         *  The weight is calculated combining the statistics for the
+         *  subqueries to approximate the weight of a single term occurring
+         *  with those statistics.
+         */
+        OP_SYNONYM = 13,
 
-	/** Pick the maximum weight of any subquery.
-	 *
-	 *  Matches the same documents as @a OP_OR, but the weight contributed
-	 *  is the maximum weight from any matching subquery (for OP_OR, it's
-	 *  the sum of the weights from the matching subqueries).
-	 *
-	 *  @since Added in Xapian 1.3.2.
-	 */
-	OP_MAX = 14,
+        /** Pick the maximum weight of any subquery.
+         *
+         *  Matches the same documents as @a OP_OR, but the weight contributed
+         *  is the maximum weight from any matching subquery (for OP_OR, it's
+         *  the sum of the weights from the matching subqueries).
+         *
+         *  @since Added in Xapian 1.3.2.
+         */
+        OP_MAX = 14,
 
-	/** Wildcard expansion.
-	 *
-	 *  @since Added in Xapian 1.3.3.
-	 */
-	OP_WILDCARD = 15,
+        /** Wildcard expansion.
+         *
+         *  @since Added in Xapian 1.3.3.
+         */
+        OP_WILDCARD = 15,
 
-	/** Edit distance expansion.
-	 *
-	 *  Expand to terms within a specified edit distance of a target.
-	 *
-	 *  This works in a fairly similar way to OP_WILDCARD - the difference
-	 *  is that instead of expanding to terms matching a wildcard pattern,
-	 *  it expands to terms within a specified number of edits (insertion,
-	 *  deletion or substitution of a character, or transposition of two
-	 *  adjacent characters) of a specified target.
-	 *
-	 *  @since Added in Xapian 2.0.0.
-	 */
-	OP_EDIT_DISTANCE = 16,
+        /** Edit distance expansion.
+         *
+         *  Expand to terms within a specified edit distance of a target.
+         *
+         *  This works in a fairly similar way to OP_WILDCARD - the difference
+         *  is that instead of expanding to terms matching a wildcard pattern,
+         *  it expands to terms within a specified number of edits (insertion,
+         *  deletion or substitution of a character, or transposition of two
+         *  adjacent characters) of a specified target.
+         *
+         *  @since Added in Xapian 2.0.0.
+         */
+        OP_EDIT_DISTANCE = 16,
 
-	/** Construct an invalid query.
-	 *
-	 *  This can be useful as a placeholder - for example @a RangeProcessor
-	 *  uses it as a return value to indicate that a range hasn't been
-	 *  recognised.
-	 */
-	OP_INVALID = 99,
+        /** Construct an invalid query.
+         *
+         *  This can be useful as a placeholder - for example @a RangeProcessor
+         *  uses it as a return value to indicate that a range hasn't been
+         *  recognised.
+         */
+        OP_INVALID = 99,
 
-	/** Value returned by get_type() for a term. */
-	LEAF_TERM = 100,
+        /** Value returned by get_type() for a term. */
+        LEAF_TERM = 100,
 
-	/** Value returned by get_type() for a PostingSource. */
-	LEAF_POSTING_SOURCE,
+        /** Value returned by get_type() for a PostingSource. */
+        LEAF_POSTING_SOURCE,
 
-	/** Value returned by get_type() for MatchAll or equivalent.
-	 *
-	 *  This is returned for any
-	 *  <code>Xapian::Query(std::string_view())</code> object.
-	 */
-	LEAF_MATCH_ALL,
+        /** Value returned by get_type() for MatchAll or equivalent.
+         *
+         *  This is returned for any
+         *  <code>Xapian::Query(std::string_view())</code> object.
+         */
+        LEAF_MATCH_ALL,
 
-	/** Value returned by get_type() for MatchNothing or equivalent.
-	 *
-	 *  This is returned for any <code>Xapian::Query()</code> object.
-	 */
-	LEAF_MATCH_NOTHING
+        /** Value returned by get_type() for MatchNothing or equivalent.
+         *
+         *  This is returned for any <code>Xapian::Query()</code> object.
+         */
+        LEAF_MATCH_NOTHING
     };
 
     enum {
-	/** Throw an error if OP_WILDCARD exceeds its expansion limit.
-	 *
-	 *  Xapian::WildcardError will be thrown when the query is actually
-	 *  run.
-	 */
-	WILDCARD_LIMIT_ERROR = 0x00,
-	/** Stop expanding when OP_WILDCARD reaches its expansion limit.
-	 *
-	 *  This makes the wildcard expand to only the first N terms (sorted
-	 *  by byte order).
-	 */
-	WILDCARD_LIMIT_FIRST = 0x01,
-	/** Limit OP_WILDCARD expansion to the most frequent terms.
-	 *
-	 *  If OP_WILDCARD would expand to more than its expansion limit, the
-	 *  most frequent terms are taken.  This approach works well for cases
-	 *  such as expanding a partial term at the end of a query string which
-	 *  the user hasn't finished typing yet - as well as being less expense
-	 *  to evaluate than the full expansion, using only the most frequent
-	 *  terms tends to give better results too.
-	 */
-	WILDCARD_LIMIT_MOST_FREQUENT = 0x02,
+        /** Throw an error if OP_WILDCARD exceeds its expansion limit.
+         *
+         *  Xapian::WildcardError will be thrown when the query is actually
+         *  run.
+         */
+        WILDCARD_LIMIT_ERROR = 0x00,
+        /** Stop expanding when OP_WILDCARD reaches its expansion limit.
+         *
+         *  This makes the wildcard expand to only the first N terms (sorted
+         *  by byte order).
+         */
+        WILDCARD_LIMIT_FIRST = 0x01,
+        /** Limit OP_WILDCARD expansion to the most frequent terms.
+         *
+         *  If OP_WILDCARD would expand to more than its expansion limit, the
+         *  most frequent terms are taken.  This approach works well for cases
+         *  such as expanding a partial term at the end of a query string which
+         *  the user hasn't finished typing yet - as well as being less expense
+         *  to evaluate than the full expansion, using only the most frequent
+         *  terms tends to give better results too.
+         */
+        WILDCARD_LIMIT_MOST_FREQUENT = 0x02,
 
-	/** @private @internal */
-	WILDCARD_LIMIT_MASK_ = 0x03,
+        /** @private @internal */
+        WILDCARD_LIMIT_MASK_ = 0x03,
 
-	/** Support * which matches 0 or more characters.
-	 *
-	 *  @since Added in Xapian 2.0.0
-	 */
-	WILDCARD_PATTERN_MULTI = 0x10,
+        /** Support * which matches 0 or more characters.
+         *
+         *  @since Added in Xapian 2.0.0
+         */
+        WILDCARD_PATTERN_MULTI = 0x10,
 
-	/** Support ? which matches a single character.
-	 *
-	 *  @since Added in Xapian 2.0.0.
-	 */
-	WILDCARD_PATTERN_SINGLE = 0x20,
+        /** Support ? which matches a single character.
+         *
+         *  @since Added in Xapian 2.0.0.
+         */
+        WILDCARD_PATTERN_SINGLE = 0x20,
 
-	/** Enable all supported glob-like features.
-	 *
-	 *  @since Added in Xapian 2.0.0.
-	 */
-	WILDCARD_PATTERN_GLOB = WILDCARD_PATTERN_MULTI|WILDCARD_PATTERN_SINGLE
+        /** Enable all supported glob-like features.
+         *
+         *  @since Added in Xapian 2.0.0.
+         */
+        WILDCARD_PATTERN_GLOB = WILDCARD_PATTERN_MULTI|WILDCARD_PATTERN_SINGLE
     };
 
     /** Construct a query matching no documents.
@@ -384,9 +384,9 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
      *		    get_terms_begin(). (default: 0)
      */
     Query(const std::string& term,
-	  Xapian::termcount wqf = 1,
-	  Xapian::termpos pos = 0)
-	: Query(std::string_view(term), wqf, pos)
+          Xapian::termcount wqf = 1,
+          Xapian::termpos pos = 0)
+        : Query(std::string_view(term), wqf, pos)
     { }
 
     /** Construct a Query object for a term.
@@ -399,9 +399,9 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
      *		    get_terms_begin(). (default: 0)
      */
     Query(const char* term,
-	  Xapian::termcount wqf = 1,
-	  Xapian::termpos pos = 0)
-	: Query(std::string_view(term), wqf, pos)
+          Xapian::termcount wqf = 1,
+          Xapian::termpos pos = 0)
+        : Query(std::string_view(term), wqf, pos)
     { }
 
     /** Construct a Query object for a term.
@@ -414,8 +414,8 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
      *		    get_terms_begin(). (default: 0)
      */
     Query(std::string_view term,
-	  Xapian::termcount wqf = 1,
-	  Xapian::termpos pos = 0);
+          Xapian::termcount wqf = 1,
+          Xapian::termpos pos = 0);
 
     /** Construct a Query object for a PostingSource. */
     explicit Query(Xapian::PostingSource * source);
@@ -446,11 +446,11 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
      */
     Query(op op_, const Xapian::Query & a, const Xapian::Query & b)
     {
-	init(op_, 2);
-	bool positional = (op_ == OP_NEAR || op_ == OP_PHRASE);
-	add_subquery(positional, a);
-	add_subquery(positional, b);
-	done();
+        init(op_, 2);
+        bool positional = (op_ == OP_NEAR || op_ == OP_PHRASE);
+        add_subquery(positional, a);
+        add_subquery(positional, b);
+        done();
     }
 
     /** Construct a Query object by combining two terms.
@@ -460,16 +460,16 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
      *  @param b	Second term.
      */
     template<typename S1, typename S2,
-	typename
-	std::enable_if<std::is_constructible<std::string_view, S1>::value &&
-		       std::is_constructible<std::string_view, S2>::value,
-		       bool>::type = true>
+        typename
+        std::enable_if<std::is_constructible<std::string_view, S1>::value &&
+                       std::is_constructible<std::string_view, S2>::value,
+                       bool>::type = true>
     Query(op op_, S1 a, S2 b)
     {
-	init(op_, 2);
-	add_subquery(false, std::string_view(a));
-	add_subquery(false, std::string_view(b));
-	done();
+        init(op_, 2);
+        add_subquery(false, std::string_view(a));
+        add_subquery(false, std::string_view(b));
+        done();
     }
 
     /** Construct a Query object for a single-ended value range.
@@ -488,7 +488,7 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
      *  @param range_upper	Upper end of the range.
      */
     Query(op op_, Xapian::valueno slot,
-	  std::string_view range_lower, std::string_view range_upper);
+          std::string_view range_lower, std::string_view range_upper);
 
     /** Query constructor for OP_EDIT_DISTANCE and OP_WILDCARD queries.
      *
@@ -529,10 +529,10 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
      *	ASCII capital letter, as this is assumed to be part of a term prefix.
      */
     Query(op op_,
-	  std::string_view pattern,
-	  Xapian::termcount max_expansion = 0,
-	  int flags = WILDCARD_LIMIT_ERROR,
-	  op combiner = OP_SYNONYM);
+          std::string_view pattern,
+          Xapian::termcount max_expansion = 0,
+          int flags = WILDCARD_LIMIT_ERROR,
+          op combiner = OP_SYNONYM);
 
     /** Query constructor for OP_EDIT_DISTANCE queries.
      *
@@ -569,12 +569,12 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
      *  @since Added in Xapian 2.0.0.
      */
     Query(op op_,
-	  std::string_view pattern,
-	  Xapian::termcount max_expansion,
-	  int flags,
-	  op combiner,
-	  unsigned edit_distance,
-	  size_t min_prefix_len = 0);
+          std::string_view pattern,
+          Xapian::termcount max_expansion,
+          int flags,
+          op combiner,
+          unsigned edit_distance,
+          size_t min_prefix_len = 0);
 
     /** Construct a Query object from a begin/end iterator pair.
      *
@@ -592,37 +592,37 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
      *			number of subqueries as the window size (default: 0).
      */
     template<typename I,
-	typename std::enable_if<
-	    std::is_convertible<typename std::iterator_traits<I>::value_type,
-				Xapian::Query>::value ||
-	    std::is_convertible<typename std::iterator_traits<I>::value_type,
-				Xapian::Query*>::value ||
-	    std::is_convertible<typename std::iterator_traits<I>::value_type,
-				std::string_view>::value,
-	    bool>::type = true,
-	typename iterator_category =
-	    typename std::iterator_traits<I>::iterator_category>
+        typename std::enable_if<
+            std::is_convertible<typename std::iterator_traits<I>::value_type,
+                                Xapian::Query>::value ||
+            std::is_convertible<typename std::iterator_traits<I>::value_type,
+                                Xapian::Query*>::value ||
+            std::is_convertible<typename std::iterator_traits<I>::value_type,
+                                std::string_view>::value,
+            bool>::type = true,
+        typename iterator_category =
+            typename std::iterator_traits<I>::iterator_category>
     Query(op op_, I begin, I end, Xapian::termcount window = 0)
     {
-	if (begin != end) {
-	    init(op_, window, begin, end, iterator_category());
-	    bool positional = (op_ == OP_NEAR || op_ == OP_PHRASE);
-	    for (I i = begin; i != end; ++i) {
-		add_subquery(positional, *i);
-	    }
-	    done();
-	}
+        if (begin != end) {
+            init(op_, window, begin, end, iterator_category());
+            bool positional = (op_ == OP_NEAR || op_ == OP_PHRASE);
+            for (I i = begin; i != end; ++i) {
+                add_subquery(positional, *i);
+            }
+            done();
+        }
     }
 
 #ifdef SWIG
     // SWIG's %template doesn't seem to handle a templated ctor so we
     // provide this fake specialised form of the above prototype.
     Query(op op_, XapianSWIGQueryItor qbegin, XapianSWIGQueryItor qend,
-	  Xapian::termcount parameter = 0);
+          Xapian::termcount parameter = 0);
 
 # ifdef SWIGJAVA
     Query(op op_, XapianSWIGStrItor qbegin, XapianSWIGStrItor qend,
-	  Xapian::termcount parameter = 0);
+          Xapian::termcount parameter = 0);
 # endif
 #endif
 
@@ -637,7 +637,7 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 
     /// End iterator for terms in the query object.
     const TermIterator get_terms_end() const noexcept {
-	return TermIterator();
+        return TermIterator();
     }
 
     /** Begin iterator for unique terms in the query object.
@@ -651,7 +651,7 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 
     /// End iterator for unique terms in the query object.
     const TermIterator get_unique_terms_end() const noexcept {
-	return TermIterator();
+        return TermIterator();
     }
 
     /** Return the length of this query object. */
@@ -659,7 +659,7 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 
     /** Check if this query is Xapian::Query::MatchNothing. */
     bool empty() const noexcept {
-	return !internal;
+        return !internal;
     }
 
     /** Serialise this object into a string. */
@@ -673,7 +673,7 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
      *				(default: standard registry).
      */
     static const Query unserialise(std::string_view serialised,
-				   const Registry & reg = Registry());
+                                   const Registry & reg = Registry());
 
     /** Get the type of the top level of the query. */
     op get_type() const noexcept XAPIAN_PURE_FUNCTION;
@@ -735,7 +735,7 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
      *  @param factor Non-negative real number to multiply weights by.
      */
     const Query operator*=(double factor) {
-	return (*this = Query(factor, *this));
+        return (*this = Query(factor, *this));
     }
 
     /** Inverse scale using OP_SCALE_WEIGHT.
@@ -743,7 +743,7 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
      *  @param factor Positive real number to divide weights by.
      */
     const Query operator/=(double factor) {
-	return (*this = Query(1.0 / factor, *this));
+        return (*this = Query(1.0 / factor, *this));
     }
 
     /// @private @internal Wrap an existing Internal.
@@ -754,8 +754,8 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
      *  @param op_ The operator to use - currently only OP_INVALID is useful.
      */
     explicit Query(Query::op op_) {
-	init(op_, 0);
-	if (op_ != Query::OP_INVALID) done();
+        init(op_, 0);
+        if (op_ != Query::OP_INVALID) done();
     }
 
   private:
@@ -763,35 +763,35 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 
     template<typename I>
     void init(Query::op op_, Xapian::termcount window,
-	      const I & begin, const I & end, std::random_access_iterator_tag)
+              const I & begin, const I & end, std::random_access_iterator_tag)
     {
-	init(op_, end - begin, window);
+        init(op_, end - begin, window);
     }
 
     template<typename I>
     void init(Query::op op_, Xapian::termcount window,
-	      const I &, const I &, std::input_iterator_tag)
+              const I &, const I &, std::input_iterator_tag)
     {
-	init(op_, 0, window);
+        init(op_, 0, window);
     }
 
     void add_subquery(bool positional, const Xapian::Query & subquery);
 
     void add_subquery(bool, const std::string& subquery) {
-	add_subquery(false, Xapian::Query(subquery));
+        add_subquery(false, Xapian::Query(subquery));
     }
 
     void add_subquery(bool, const char* subquery) {
-	add_subquery(false, Xapian::Query(subquery));
+        add_subquery(false, Xapian::Query(subquery));
     }
 
     void add_subquery(bool, std::string_view subquery) {
-	add_subquery(false, Xapian::Query(subquery));
+        add_subquery(false, Xapian::Query(subquery));
     }
 
     void add_subquery(bool positional, const Xapian::Query * subquery) {
-	// FIXME: subquery NULL?
-	add_subquery(positional, *subquery);
+        // FIXME: subquery NULL?
+        add_subquery(positional, *subquery);
     }
 
     void done();
@@ -864,7 +864,7 @@ class InvertedQuery_ {
     InvertedQuery_(const InvertedQuery_ & o) : query(o.query) { }
 
     operator Query() const {
-	return Query(Query::OP_AND_NOT, Query(std::string_view{}), query);
+        return Query(Query::OP_AND_NOT, Query(std::string_view{}), query);
     }
 
     friend const InvertedQuery_ operator~(const Query &q);
@@ -923,36 +923,36 @@ class Query::Internal : public Xapian::Internal::intrusive_base {
     XAPIAN_VISIBILITY_INTERNAL
     virtual Xapian::Internal::PostListAndEstimate
     postlist(Xapian::Internal::QueryOptimiser* qopt,
-	     double factor,
-	     Xapian::Internal::TermFreqs* termfreqs) const = 0;
+             double factor,
+             Xapian::Internal::TermFreqs* termfreqs) const = 0;
 
     XAPIAN_VISIBILITY_INTERNAL
     virtual bool
     postlist_sub_and_like(Xapian::Internal::AndContext& ctx,
-			  Xapian::Internal::QueryOptimiser* qopt,
-			  double factor,
-			  Xapian::Internal::TermFreqs* termfreqs) const;
+                          Xapian::Internal::QueryOptimiser* qopt,
+                          double factor,
+                          Xapian::Internal::TermFreqs* termfreqs) const;
 
     XAPIAN_VISIBILITY_INTERNAL
     virtual void
     postlist_sub_bool_or_like(Xapian::Internal::OrContext& ctx,
-			      Xapian::Internal::QueryOptimiser* qopt,
-			      Xapian::Internal::TermFreqs* termfreqs) const;
+                              Xapian::Internal::QueryOptimiser* qopt,
+                              Xapian::Internal::TermFreqs* termfreqs) const;
 
     XAPIAN_VISIBILITY_INTERNAL
     virtual void
     postlist_sub_or_like(Xapian::Internal::OrContext& ctx,
-			 Xapian::Internal::QueryOptimiser* qopt,
-			 double factor,
-			 Xapian::Internal::TermFreqs* termfreqs,
-			 bool keep_zero_weight = true) const;
+                         Xapian::Internal::QueryOptimiser* qopt,
+                         double factor,
+                         Xapian::Internal::TermFreqs* termfreqs,
+                         bool keep_zero_weight = true) const;
 
     XAPIAN_VISIBILITY_INTERNAL
     virtual void
     postlist_sub_xor(Xapian::Internal::XorContext& ctx,
-		     Xapian::Internal::QueryOptimiser* qopt,
-		     double factor,
-		     Xapian::Internal::TermFreqs* termfreqs) const;
+                     Xapian::Internal::QueryOptimiser* qopt,
+                     double factor,
+                     Xapian::Internal::TermFreqs* termfreqs) const;
 
     XAPIAN_VISIBILITY_INTERNAL
     virtual termcount get_length() const noexcept XAPIAN_PURE_FUNCTION;
@@ -962,7 +962,7 @@ class Query::Internal : public Xapian::Internal::intrusive_base {
 
     XAPIAN_VISIBILITY_INTERNAL
     static Query::Internal* unserialise(const char** p, const char* end,
-					const Registry& reg);
+                                        const Registry& reg);
 
     XAPIAN_VISIBILITY_INTERNAL
     virtual Query::op get_type() const noexcept XAPIAN_PURE_FUNCTION = 0;
@@ -987,16 +987,16 @@ inline const Query
 Query::operator&=(const Query & o)
 {
     if (o.empty()) {
-	// q &= empty_query sets q to empty_query.
-	*this = o;
+        // q &= empty_query sets q to empty_query.
+        *this = o;
     } else if (this != &o &&
-	       internal &&
-	       internal->_refs == 1 &&
-	       get_type() == OP_AND) {
-	// Appending a subquery to an existing AND.
-	add_subquery(false, o);
+               internal &&
+               internal->_refs == 1 &&
+               get_type() == OP_AND) {
+        // Appending a subquery to an existing AND.
+        add_subquery(false, o);
     } else {
-	*this = Query(OP_AND, *this, o);
+        *this = Query(OP_AND, *this, o);
     }
     return *this;
 }
@@ -1005,15 +1005,15 @@ inline const Query
 Query::operator|=(const Query & o)
 {
     if (o.empty()) {
-	// q |= empty_query is a no-op.
+        // q |= empty_query is a no-op.
     } else if (this != &o &&
-	       internal &&
-	       internal->_refs == 1 &&
-	       get_type() == OP_OR) {
-	// Appending a subquery to an existing OR.
-	add_subquery(false, o);
+               internal &&
+               internal->_refs == 1 &&
+               get_type() == OP_OR) {
+        // Appending a subquery to an existing OR.
+        add_subquery(false, o);
     } else {
-	*this = Query(OP_OR, *this, o);
+        *this = Query(OP_OR, *this, o);
     }
     return *this;
 }
@@ -1022,17 +1022,17 @@ inline const Query
 Query::operator^=(const Query & o)
 {
     if (o.empty()) {
-	// q ^= empty_query is a no-op.
+        // q ^= empty_query is a no-op.
     } else if (internal.get() == o.internal.get()) {
-	// q ^= q gives MatchNothing.
-	internal = NULL;
+        // q ^= q gives MatchNothing.
+        internal = NULL;
     } else if (internal &&
-	       internal->_refs == 1 &&
-	       get_type() == OP_XOR) {
-	// Appending a subquery to an existing XOR.
-	add_subquery(false, o);
+               internal->_refs == 1 &&
+               get_type() == OP_XOR) {
+        // Appending a subquery to an existing XOR.
+        add_subquery(false, o);
     } else {
-	*this = Query(OP_XOR, *this, o);
+        *this = Query(OP_XOR, *this, o);
     }
     return *this;
 }

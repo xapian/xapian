@@ -36,50 +36,50 @@ using namespace std;
 using Xapian::Internal::intrusive_ptr;
 
 GlassTermList::GlassTermList(intrusive_ptr<const GlassDatabase> db_,
-			     Xapian::docid did_,
-			     bool throw_if_not_present)
-	: db(db_), did(did_), current_wdf(0), current_termfreq(0)
+                             Xapian::docid did_,
+                             bool throw_if_not_present)
+        : db(db_), did(did_), current_wdf(0), current_termfreq(0)
 {
     LOGCALL_CTOR(DB, "GlassTermList", db_ | did_ | throw_if_not_present);
 
     if (!db->termlist_table.get_exact_entry(GlassTermListTable::make_key(did),
-					    data)) {
-	if (!throw_if_not_present) {
-	    pos = NULL;
-	    return;
-	}
-	throw Xapian::DocNotFoundError("No termlist for document " + str(did));
+                                            data)) {
+        if (!throw_if_not_present) {
+            pos = NULL;
+            return;
+        }
+        throw Xapian::DocNotFoundError("No termlist for document " + str(did));
     }
 
     pos = data.data();
     end = pos + data.size();
 
     if (pos == end) {
-	doclen = 0;
-	termlist_size = 0;
-	return;
+        doclen = 0;
+        termlist_size = 0;
+        return;
     }
 
     // Read doclen
     if (!unpack_uint(&pos, end, &doclen)) {
-	const char *msg;
-	if (pos == 0) {
-	    msg = "Too little data for doclen in termlist";
-	} else {
-	    msg = "Overflowed value for doclen in termlist";
-	}
-	throw Xapian::DatabaseCorruptError(msg);
+        const char *msg;
+        if (pos == 0) {
+            msg = "Too little data for doclen in termlist";
+        } else {
+            msg = "Overflowed value for doclen in termlist";
+        }
+        throw Xapian::DatabaseCorruptError(msg);
     }
 
     // Read termlist_size
     if (!unpack_uint(&pos, end, &termlist_size)) {
-	const char *msg;
-	if (pos == 0) {
-	    msg = "Too little data for list size in termlist";
-	} else {
-	    msg = "Overflowed value for list size in termlist";
-	}
-	throw Xapian::DatabaseCorruptError(msg);
+        const char *msg;
+        if (pos == 0) {
+            msg = "Too little data for list size in termlist";
+        } else {
+            msg = "Overflowed value for list size in termlist";
+        }
+        throw Xapian::DatabaseCorruptError(msg);
     }
 }
 
@@ -113,7 +113,7 @@ GlassTermList::accumulate_stats(Xapian::Internal::ExpandStats & stats) const
     LOGCALL_VOID(DB, "GlassTermList::accumulate_stats", stats);
     Assert(pos != NULL);
     stats.accumulate(shard_index,
-		     current_wdf, doclen, get_termfreq(), db->get_doccount());
+                     current_wdf, doclen, get_termfreq(), db->get_doccount());
 }
 
 Xapian::termcount
@@ -128,7 +128,7 @@ GlassTermList::get_termfreq() const
 {
     LOGCALL(DB, Xapian::doccount, "GlassTermList::get_termfreq", NO_ARGS);
     if (current_termfreq == 0)
-	db->get_freqs(current_term, &current_termfreq, NULL);
+        db->get_freqs(current_term, &current_termfreq, NULL);
     RETURN(current_termfreq);
 }
 
@@ -138,7 +138,7 @@ GlassTermList::next()
     LOGCALL(DB, TermList *, "GlassTermList::next", NO_ARGS);
     Assert(pos != NULL);
     if (pos == end) {
-	RETURN(this);
+        RETURN(this);
     }
 
     // Reset to 0 to indicate that the termfreq needs to be read.
@@ -146,16 +146,16 @@ GlassTermList::next()
 
     bool wdf_in_reuse = false;
     if (!current_term.empty()) {
-	// Find out how much of the previous term to reuse.
-	size_t len = static_cast<unsigned char>(*pos++);
-	if (len > current_term.size()) {
-	    // The wdf is also stored in the "reuse" byte.
-	    wdf_in_reuse = true;
-	    size_t divisor = current_term.size() + 1;
-	    current_wdf = len / divisor - 1;
-	    len %= divisor;
-	}
-	current_term.resize(len);
+        // Find out how much of the previous term to reuse.
+        size_t len = static_cast<unsigned char>(*pos++);
+        if (len > current_term.size()) {
+            // The wdf is also stored in the "reuse" byte.
+            wdf_in_reuse = true;
+            size_t divisor = current_term.size() + 1;
+            current_wdf = len / divisor - 1;
+            len %= divisor;
+        }
+        current_term.resize(len);
     }
 
     // Append the new tail to form the next term.
@@ -165,13 +165,13 @@ GlassTermList::next()
 
     // Read the wdf if it wasn't packed into the reuse byte.
     if (!wdf_in_reuse && !unpack_uint(&pos, end, &current_wdf)) {
-	const char *msg;
-	if (pos == 0) {
-	    msg = "Too little data for wdf in termlist";
-	} else {
-	    msg = "Overflowed value for wdf in termlist";
-	}
-	throw Xapian::DatabaseCorruptError(msg);
+        const char *msg;
+        if (pos == 0) {
+            msg = "Too little data for wdf in termlist";
+        } else {
+            msg = "Overflowed value for wdf in termlist";
+        }
+        throw Xapian::DatabaseCorruptError(msg);
     }
 
     RETURN(NULL);
@@ -182,8 +182,8 @@ GlassTermList::skip_to(string_view term)
 {
     LOGCALL(API, TermList *, "GlassTermList::skip_to", term);
     while (current_term < term) {
-	if (GlassTermList::next())
-	    RETURN(this);
+        if (GlassTermList::next())
+            RETURN(this);
     }
     RETURN(NULL);
 }

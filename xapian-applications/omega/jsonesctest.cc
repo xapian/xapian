@@ -74,12 +74,12 @@ static testcase json_testcases[] = {
 
 int main() {
     for (testcase * e = json_testcases; e->input; ++e) {
-	string result = e->input;
-	json_escape(result);
-	if (result != e->result) {
-	    cerr << "json_escape of " << e->input << " should be " << e->result
-		 << "\", got \"" << result << "\"" << endl;
-	    exit(1);
-	}
+        string result = e->input;
+        json_escape(result);
+        if (result != e->result) {
+            cerr << "json_escape of " << e->input << " should be " << e->result
+                 << "\", got \"" << result << "\"" << endl;
+            exit(1);
+        }
     }
 }

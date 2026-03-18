@@ -59,13 +59,13 @@ inline double now() {
     // back to _ftime64().
     struct timespec ts;
     if (usual(clock_gettime(CLOCK_REALTIME, &ts) == 0))
-	return ts.tv_sec + (ts.tv_nsec * 1e-9);
+        return ts.tv_sec + (ts.tv_nsec * 1e-9);
     return double(std::time(NULL));
 #elif !defined __WIN32__
 # if defined HAVE_GETTIMEOFDAY
     struct timeval tv;
     if (usual(gettimeofday(&tv, NULL) == 0))
-	return tv.tv_sec + (tv.tv_usec * 1e-6);
+        return tv.tv_sec + (tv.tv_usec * 1e-6);
     return double(std::time(NULL));
 # elif defined HAVE_FTIME
     struct timeb tp;
@@ -73,7 +73,7 @@ inline double now() {
     ftime(&tp);
 #  else
     if (rare(ftime(&tp) != 0))
-	return double(std::time(NULL));
+        return double(std::time(NULL));
 #  endif
     return tp.time + (tp.millitm * 1e-3);
 # else
@@ -129,7 +129,7 @@ inline void sleep(double t) {
     // Available on modern POSIX systems and under modern mingw.
     double delta = t - RealTime::now();
     if (delta <= 0.0)
-	return;
+        return;
     struct timespec ts;
     to_timespec(delta, &ts);
     while (nanosleep(&ts, &ts) < 0 && errno == EINTR) { }
@@ -137,19 +137,19 @@ inline void sleep(double t) {
     double delta;
     struct timeval tv;
     do {
-	delta = t - RealTime::now();
-	if (delta <= 0.0)
-	    return;
-	to_timeval(delta, &tv);
+        delta = t - RealTime::now();
+        if (delta <= 0.0)
+            return;
+        to_timeval(delta, &tv);
     } while (select(0, NULL, NULL, NULL, &tv) < 0 &&
-	     (errno == EINTR || errno == EAGAIN));
+             (errno == EINTR || errno == EAGAIN));
 #else
     double delta = t - RealTime::now();
     if (delta <= 0.0)
-	return;
+        return;
     while (rare(delta > 4294967.0)) {
-	xapian_sleep_milliseconds(4294967000u);
-	delta -= 4294967.0;
+        xapian_sleep_milliseconds(4294967000u);
+        delta -= 4294967.0;
     }
     xapian_sleep_milliseconds(unsigned(delta * 1000.0));
 #endif

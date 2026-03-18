@@ -31,7 +31,7 @@ using namespace std;
 
 pair<int, string>
 RemoteTcpClient::open_socket(string_view hostname, int port,
-			     double timeout_connect)
+                             double timeout_connect)
 {
     // Build a context string for use when constructing Xapian::NetworkError.
     string context{"remote:tcp("};
@@ -40,14 +40,14 @@ RemoteTcpClient::open_socket(string_view hostname, int port,
     context += str(port);
     context += ')';
     return {TcpClient::open_socket(hostname, port, timeout_connect, true,
-				   context),
-	    context};
+                                   context),
+            context};
 }
 
 RemoteTcpClient::~RemoteTcpClient()
 {
     try {
-	do_close();
+        do_close();
     } catch (...) {
     }
 }

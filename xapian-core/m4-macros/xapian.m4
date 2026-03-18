@@ -7,10 +7,10 @@
 # -----------------------------------------------------------
 # If this macro is not defined by Autoconf, define it here.
 m4_ifdef([AC_PROVIDE_IFELSE],
-	 [],
-	 [m4_define([AC_PROVIDE_IFELSE],
-		 [m4_ifdef([AC_PROVIDE_$1],
-			   [$2], [$3])])])
+         [],
+         [m4_define([AC_PROVIDE_IFELSE],
+                 [m4_ifdef([AC_PROVIDE_$1],
+                           [$2], [$3])])])
 
 # XO_LIB_XAPIAN([ACTION-IF-FOUND [, ACTION-IF-NOT-FOUND[ ,XAPIAN-CONFIG]]])
 # --------------------------------------------------------
@@ -56,22 +56,22 @@ AC_DEFUN([XO_LIB_XAPIAN],
   if test -z "$XAPIAN_CONFIG"; then
     ifelse([$2], ,
       [ifelse([$1], , [
-	dnl Simple check to see if the problem is likely to
-	dnl be that we're using a "packaged" xapian-core but
-	dnl only have the runtime package installed.
-	for sfx in '' 32 64 ; do
-	  set /usr/lib$sfx/libxapian.so.*
-	  if test "/usr/lib$sfx/libxapian.so.*" != "$1" ; then
-	    if test -r /etc/debian_version ; then
-	      pkg="libxapian-dev"
-	    else
-	      pkg="xapian-core-devel"
-	    fi
-	    AC_MSG_ERROR([Can't find xapian-config, although the xapian-core runtime library seems to be installed.  If you've installed xapian-core from a package, you probably need to install an extra package called something like $pkg in order to be able to build code using the Xapian library.])
-	  fi
-	done
-	AC_MSG_ERROR([Can't find xapian-config.  If you have installed the Xapian library, you need to add XAPIAN_CONFIG=/path/to/xapian-config to your configure command.])],
-	:)],
+        dnl Simple check to see if the problem is likely to
+        dnl be that we're using a "packaged" xapian-core but
+        dnl only have the runtime package installed.
+        for sfx in '' 32 64 ; do
+          set /usr/lib$sfx/libxapian.so.*
+          if test "/usr/lib$sfx/libxapian.so.*" != "$1" ; then
+            if test -r /etc/debian_version ; then
+              pkg="libxapian-dev"
+            else
+              pkg="xapian-core-devel"
+            fi
+            AC_MSG_ERROR([Can't find xapian-config, although the xapian-core runtime library seems to be installed.  If you've installed xapian-core from a package, you probably need to install an extra package called something like $pkg in order to be able to build code using the Xapian library.])
+          fi
+        done
+        AC_MSG_ERROR([Can't find xapian-config.  If you have installed the Xapian library, you need to add XAPIAN_CONFIG=/path/to/xapian-config to your configure command.])],
+        :)],
       [$2])
   else
     AC_MSG_CHECKING([$XAPIAN_CONFIG works])
@@ -84,14 +84,14 @@ AC_DEFUN([XO_LIB_XAPIAN],
     else
       case $? in
       127)
-	AC_MSG_ERROR(['$XAPIAN_CONFIG' not found, aborting])
-	;;
+        AC_MSG_ERROR(['$XAPIAN_CONFIG' not found, aborting])
+        ;;
       126)
-	if test -d "$XAPIAN_CONFIG" ; then
-	  AC_MSG_ERROR(['$XAPIAN_CONFIG' is a directory; it should be the filename of the xapian-config script])
-	fi
-	AC_MSG_ERROR(['$XAPIAN_CONFIG' not executable, aborting])
-	;;
+        if test -d "$XAPIAN_CONFIG" ; then
+          AC_MSG_ERROR(['$XAPIAN_CONFIG' is a directory; it should be the filename of the xapian-config script])
+        fi
+        AC_MSG_ERROR(['$XAPIAN_CONFIG' not executable, aborting])
+        ;;
       esac
       AC_MSG_ERROR(['$XAPIAN_CONFIG --ltlibs --cxxflags' doesn't work, aborting])
     fi
@@ -105,24 +105,24 @@ dnl AM_PROG_LIBTOOL to enable it if one of these is expanded later.
     AC_PROVIDE_IFELSE([LT_INIT],
       [XAPIAN_LIBS=`$XAPIAN_CONFIG --ltlibs`],
       [AC_PROVIDE_IFELSE([AC_PROG_LIBTOOL],
-	[XAPIAN_LIBS=`$XAPIAN_CONFIG --ltlibs`],
-	[AC_PROVIDE_IFELSE([AM_PROG_LIBTOOL],
-	  [XAPIAN_LIBS=`$XAPIAN_CONFIG --ltlibs`],
-	  dnl Pass magic option so xapian-config knows we called it (so it
-	  dnl can choose a more appropriate error message if asked to link
-	  dnl with an uninstalled libxapian).  Also pass ac_top_srcdir
-	  dnl so the error message can correctly say "configure.ac" or
-	  dnl "configure.in" according to which is in use.
-	  [XAPIAN_LIBS=`ac_top_srcdir="$ac_top_srcdir" $XAPIAN_CONFIG --from-xo-lib-xapian --libs`
-	  m4_ifdef([LT_INIT],
-	    [m4_define([LT_INIT], m4_defn([LT_INIT])
-		   [XAPIAN_LIBS=`$XAPIAN_CONFIG --ltlibs`])])
-	  m4_ifdef([AC_PROG_LIBTOOL],
-	    [m4_define([AC_PROG_LIBTOOL], m4_defn([AC_PROG_LIBTOOL])
-		 [XAPIAN_LIBS=`$XAPIAN_CONFIG --ltlibs`])])
-	  m4_ifdef([AM_PROG_LIBTOOL],
-	    [m4_define([AM_PROG_LIBTOOL], m4_defn([AM_PROG_LIBTOOL])
-		 [XAPIAN_LIBS=`$XAPIAN_CONFIG --ltlibs`])])])])])
+        [XAPIAN_LIBS=`$XAPIAN_CONFIG --ltlibs`],
+        [AC_PROVIDE_IFELSE([AM_PROG_LIBTOOL],
+          [XAPIAN_LIBS=`$XAPIAN_CONFIG --ltlibs`],
+          dnl Pass magic option so xapian-config knows we called it (so it
+          dnl can choose a more appropriate error message if asked to link
+          dnl with an uninstalled libxapian).  Also pass ac_top_srcdir
+          dnl so the error message can correctly say "configure.ac" or
+          dnl "configure.in" according to which is in use.
+          [XAPIAN_LIBS=`ac_top_srcdir="$ac_top_srcdir" $XAPIAN_CONFIG --from-xo-lib-xapian --libs`
+          m4_ifdef([LT_INIT],
+            [m4_define([LT_INIT], m4_defn([LT_INIT])
+                   [XAPIAN_LIBS=`$XAPIAN_CONFIG --ltlibs`])])
+          m4_ifdef([AC_PROG_LIBTOOL],
+            [m4_define([AC_PROG_LIBTOOL], m4_defn([AC_PROG_LIBTOOL])
+                 [XAPIAN_LIBS=`$XAPIAN_CONFIG --ltlibs`])])
+          m4_ifdef([AM_PROG_LIBTOOL],
+            [m4_define([AM_PROG_LIBTOOL], m4_defn([AM_PROG_LIBTOOL])
+                 [XAPIAN_LIBS=`$XAPIAN_CONFIG --ltlibs`])])])])])
     ifelse([$1], , :, [$1])
   fi
   AC_SUBST(XAPIAN_CXXFLAGS)

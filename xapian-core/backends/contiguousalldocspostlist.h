@@ -44,12 +44,12 @@ class ContiguousAllDocsPostList : public LeafPostList {
     /// Constructor.
     explicit
     ContiguousAllDocsPostList(Xapian::doccount doccount)
-	: LeafPostList({}) {
-	/* For an all documents postlist the term frequency is the number of
-	 * documents in the database.
-	 */
-	termfreq = doccount;
-	collfreq = doccount;
+        : LeafPostList({}) {
+        /* For an all documents postlist the term frequency is the number of
+         * documents in the database.
+         */
+        termfreq = doccount;
+        collfreq = doccount;
     }
 
     /// Return the current docid.

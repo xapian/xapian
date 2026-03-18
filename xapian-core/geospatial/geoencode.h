@@ -151,7 +151,7 @@ class DecoderWithBoundingBox {
      *  values, due to aborting decoding of the coordinate part-way through.
      */
     bool decode(const std::string & value,
-		double & lat_ref, double & lon_ref) const;
+                double & lat_ref, double & lon_ref) const;
 };
 
 }

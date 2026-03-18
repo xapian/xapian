@@ -58,9 +58,9 @@ OrTermList::accumulate_stats(Xapian::Internal::ExpandStats & stats) const
     LOGCALL_VOID(EXPAND, "OrTermList::accumulate_stats", stats);
     check_started();
     if (cmp <= 0)
-	left->accumulate_stats(stats);
+        left->accumulate_stats(stats);
     if (cmp >= 0)
-	right->accumulate_stats(stats);
+        right->accumulate_stats(stats);
 }
 
 Xapian::termcount
@@ -79,7 +79,7 @@ OrTermList::get_termfreq() const
     LOGCALL(EXPAND, Xapian::doccount, "OrTermList::get_termfreq", NO_ARGS);
     check_started();
     if (cmp < 0)
-	RETURN(left->get_termfreq());
+        RETURN(left->get_termfreq());
     Assert(cmp > 0 || left->get_termfreq() == right->get_termfreq());
     RETURN(right->get_termfreq());
 }
@@ -91,56 +91,56 @@ OrTermList::next()
     // If we've not started yet, cmp will be zero so we'll take the third case
     // below which is what we want to do to get started.
     if (cmp < 0) {
-	TermList* lret = left->next();
-	if (lret == left) {
-	    TermList *ret = right;
-	    right = NULL;
-	    // Prune.
-	    RETURN(ret);
-	}
-	if (lret) {
-	    delete left;
-	    left = lret;
-	}
+        TermList* lret = left->next();
+        if (lret == left) {
+            TermList *ret = right;
+            right = NULL;
+            // Prune.
+            RETURN(ret);
+        }
+        if (lret) {
+            delete left;
+            left = lret;
+        }
     } else if (cmp > 0) {
-	TermList* rret = right->next();
-	if (rret == right) {
-	    TermList *ret = left;
-	    left = NULL;
-	    // Prune.
-	    RETURN(ret);
-	}
-	if (rret) {
-	    delete right;
-	    right = rret;
-	}
+        TermList* rret = right->next();
+        if (rret == right) {
+            TermList *ret = left;
+            left = NULL;
+            // Prune.
+            RETURN(ret);
+        }
+        if (rret) {
+            delete right;
+            right = rret;
+        }
     } else {
-	TermList* lret = left->next();
-	if (lret && lret != left) {
-	    delete left;
-	    left = lret;
-	    lret = NULL;
-	}
-	TermList* rret = right->next();
-	if (rret && rret != right) {
-	    delete right;
-	    right = rret;
-	    rret = NULL;
-	}
-	if (lret) {
-	    if (rret)
-		return this;
-	    TermList *ret = right;
-	    right = NULL;
-	    // Prune.
-	    RETURN(ret);
-	}
-	if (rret) {
-	    TermList *ret = left;
-	    left = NULL;
-	    // Prune.
-	    RETURN(ret);
-	}
+        TermList* lret = left->next();
+        if (lret && lret != left) {
+            delete left;
+            left = lret;
+            lret = NULL;
+        }
+        TermList* rret = right->next();
+        if (rret && rret != right) {
+            delete right;
+            right = rret;
+            rret = NULL;
+        }
+        if (lret) {
+            if (rret)
+                return this;
+            TermList *ret = right;
+            right = NULL;
+            // Prune.
+            RETURN(ret);
+        }
+        if (rret) {
+            TermList *ret = left;
+            left = NULL;
+            // Prune.
+            RETURN(ret);
+        }
     }
     cmp = left->get_termname().compare(right->get_termname());
     current_term = cmp < 0 ? left->get_termname() : right->get_termname();
@@ -153,33 +153,33 @@ OrTermList::skip_to(string_view term)
     LOGCALL(EXPAND, TermList *, "OrTermList::skip_to", term);
     TermList* lret = left->skip_to(term);
     if (lret && lret != left) {
-	delete left;
-	left = lret;
-	lret = NULL;
+        delete left;
+        left = lret;
+        lret = NULL;
     }
     TermList* rret = right->skip_to(term);
     if (rret && rret != right) {
-	delete right;
-	right = rret;
-	rret = NULL;
+        delete right;
+        right = rret;
+        rret = NULL;
     }
     if (lret) {
-	// Left at end.
-	if (rret) {
-	    // Both at end.
-	    RETURN(this);
-	}
-	TermList *ret = right;
-	right = NULL;
-	// Prune.
-	RETURN(ret);
+        // Left at end.
+        if (rret) {
+            // Both at end.
+            RETURN(this);
+        }
+        TermList *ret = right;
+        right = NULL;
+        // Prune.
+        RETURN(ret);
     }
     if (rret) {
-	// Right at end.
-	TermList *ret = left;
-	left = NULL;
-	// Prune.
-	RETURN(ret);
+        // Right at end.
+        TermList *ret = left;
+        left = NULL;
+        // Prune.
+        RETURN(ret);
     }
     cmp = left->get_termname().compare(right->get_termname());
     current_term = cmp < 0 ? left->get_termname() : right->get_termname();

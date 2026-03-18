@@ -92,9 +92,9 @@ MSetIterator::get_description() const
 {
     string desc = "MSetIterator(";
     if (off_from_end == 0) {
-	desc += "end";
+        desc += "end";
     } else {
-	desc += str(mset.internal->items.size() - off_from_end);
+        desc += str(mset.internal->items.size() - off_from_end);
     }
     desc += ')';
     return desc;

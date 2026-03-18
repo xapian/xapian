@@ -60,7 +60,7 @@ bool
 InMemoryPositionList::skip_to(Xapian::termpos termpos)
 {
     if (index == size_t(-1))
-	index = 0;
+        index = 0;
     auto begin = positions.begin();
     auto end = positions.end();
     auto it = lower_bound(begin + index, end, termpos);

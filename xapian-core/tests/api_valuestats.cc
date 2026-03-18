@@ -82,9 +82,9 @@ DEFINE_TESTCASE(valuestats1, writable && valuestats) {
     TEST_EQUAL(db_w.get_value_upper_bound(1), "cheese");
     TEST_EQUAL(db_w.get_value_freq(0), 1);
     if (db_w.size() > 1) {
-	TEST_EQUAL(db_w.get_value_lower_bound(0), "world");
+        TEST_EQUAL(db_w.get_value_lower_bound(0), "world");
     } else {
-	TEST_EQUAL(db_w.get_value_lower_bound(0), "hello");
+        TEST_EQUAL(db_w.get_value_lower_bound(0), "hello");
     }
     TEST_EQUAL(db_w.get_value_upper_bound(0), "world");
 
@@ -188,12 +188,12 @@ DEFINE_TESTCASE(valuestats2, transactions && valuestats) {
     TEST_EQUAL(db_w.get_value_upper_bound(1), "cheese");
     TEST_EQUAL(db_w.get_value_freq(0), 1);
     if (db_w.size() > 1) {
-	// With a sharded database, deleting document 1 leaves that shard empty
-	// and its value bounds should be reset so the lower bound comes only
-	// from the shard the other document is in, so it's actually exact.
-	TEST_EQUAL(db_w.get_value_lower_bound(0), "world");
+        // With a sharded database, deleting document 1 leaves that shard empty
+        // and its value bounds should be reset so the lower bound comes only
+        // from the shard the other document is in, so it's actually exact.
+        TEST_EQUAL(db_w.get_value_lower_bound(0), "world");
     } else {
-	TEST_EQUAL(db_w.get_value_lower_bound(0), "hello");
+        TEST_EQUAL(db_w.get_value_lower_bound(0), "hello");
     }
     TEST_EQUAL(db_w.get_value_upper_bound(0), "world");
 
@@ -271,36 +271,36 @@ DEFINE_TESTCASE(valuestats3, valuestats) {
 DEFINE_TESTCASE(valuestats4, transactions && valuestats) {
     size_t FLUSH_THRESHOLD = 10000;
     {
-	Xapian::WritableDatabase db_w = get_writable_database();
-	// The flush threshold applies per shard in a sharded database.
-	FLUSH_THRESHOLD *= db_w.size();
-	Xapian::Document doc;
-	doc.add_value(1, "test");
-	for (size_t i = 0; i < FLUSH_THRESHOLD; ++i) {
-	    db_w.add_document(doc);
-	}
+        Xapian::WritableDatabase db_w = get_writable_database();
+        // The flush threshold applies per shard in a sharded database.
+        FLUSH_THRESHOLD *= db_w.size();
+        Xapian::Document doc;
+        doc.add_value(1, "test");
+        for (size_t i = 0; i < FLUSH_THRESHOLD; ++i) {
+            db_w.add_document(doc);
+        }
 
-	Xapian::Database db = get_writable_database_as_database();
-	// Check that we had an automatic-commit.
-	TEST_EQUAL(db.get_doccount(), FLUSH_THRESHOLD);
-	// Check that the value stats are there.
-	TEST_EQUAL(db.get_value_freq(1), FLUSH_THRESHOLD);
-	TEST_EQUAL(db.get_value_lower_bound(1), "test");
-	TEST_EQUAL(db.get_value_upper_bound(1), "test");
+        Xapian::Database db = get_writable_database_as_database();
+        // Check that we had an automatic-commit.
+        TEST_EQUAL(db.get_doccount(), FLUSH_THRESHOLD);
+        // Check that the value stats are there.
+        TEST_EQUAL(db.get_value_freq(1), FLUSH_THRESHOLD);
+        TEST_EQUAL(db.get_value_lower_bound(1), "test");
+        TEST_EQUAL(db.get_value_upper_bound(1), "test");
 
-	db_w.begin_transaction();
-	doc.add_value(1, "umbrella");
-	db_w.cancel_transaction();
+        db_w.begin_transaction();
+        doc.add_value(1, "umbrella");
+        db_w.cancel_transaction();
     }
 
     {
-	Xapian::Database db = get_writable_database_as_database();
-	// Check that we had an automatic-commit.
-	TEST_EQUAL(db.get_doccount(), FLUSH_THRESHOLD);
-	// Check that the value stats are there.
-	TEST_EQUAL(db.get_value_freq(1), FLUSH_THRESHOLD);
-	TEST_EQUAL(db.get_value_lower_bound(1), "test");
-	TEST_EQUAL(db.get_value_upper_bound(1), "test");
+        Xapian::Database db = get_writable_database_as_database();
+        // Check that we had an automatic-commit.
+        TEST_EQUAL(db.get_doccount(), FLUSH_THRESHOLD);
+        // Check that the value stats are there.
+        TEST_EQUAL(db.get_value_freq(1), FLUSH_THRESHOLD);
+        TEST_EQUAL(db.get_value_lower_bound(1), "test");
+        TEST_EQUAL(db.get_value_upper_bound(1), "test");
     }
 }
 
@@ -320,9 +320,9 @@ DEFINE_TESTCASE(valuestats5, !backend) {
     size_t c = 0;
     Xapian::ValueIterator v = doc.values_begin();
     while (v != doc.values_end()) {
-	TEST(!(*v).empty());
-	++c;
-	++v;
+        TEST(!(*v).empty());
+        ++c;
+        ++v;
     }
     TEST_EQUAL(c, 3); // 0, 2, 5
 }
@@ -335,8 +335,8 @@ gen_valuestats6_db(Xapian::WritableDatabase& wdb, const string&)
     // currently loops over each number from 0 to the highest used slot
     // number.
     for (int i = 0; i < 24; ++i) {
-	Xapian::valueno slot = Xapian::valueno{1} << i;
-	doc.add_value(slot, str(slot));
+        Xapian::valueno slot = Xapian::valueno{1} << i;
+        doc.add_value(slot, str(slot));
     }
     wdb.add_document(doc);
 }
@@ -347,11 +347,11 @@ DEFINE_TESTCASE(valuestats6, backend) {
     Xapian::Document doc = db.get_document(1);
     Xapian::ValueIterator v = doc.values_begin();
     for (int i = 0; i < 24; ++i) {
-	TEST(v != doc.values_end());
-	Xapian::valueno slot = Xapian::valueno{1} << i;
-	TEST_EQUAL(v.get_valueno(), slot);
-	slot *= 2;
-	++v;
+        TEST(v != doc.values_end());
+        Xapian::valueno slot = Xapian::valueno{1} << i;
+        TEST_EQUAL(v.get_valueno(), slot);
+        slot *= 2;
+        ++v;
     }
     TEST(v == doc.values_end());
 }

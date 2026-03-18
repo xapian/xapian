@@ -92,11 +92,11 @@ AC_DEFUN([XAPIAN_TEST_CXXFLAGS],
   XTC_save_CXXFLAGS=$CXXFLAGS
   CXXFLAGS="$CXXFLAGS $1"
   AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[]])],
-		    [CXXFLAGS=$XTC_save_CXXFLAGS
-		     $2="${$2} $1"
-		     $3],
-		    [CXXFLAGS=$XTC_save_CXXFLAGS
-		     $4])
+                    [CXXFLAGS=$XTC_save_CXXFLAGS
+                     $2="${$2} $1"
+                     $3],
+                    [CXXFLAGS=$XTC_save_CXXFLAGS
+                     $4])
   ])
 
 dnl Check for xapian-core.
@@ -110,20 +110,20 @@ CXXFLAGS="$CXXFLAGS $XAPIAN_CXXFLAGS"
 dnl We need to specify the argument types for builtin functions, or else
 dnl AC_CHECK_DECLS fails to detect them when the compiler is clang.
 AC_CHECK_DECLS([__builtin_add_overflow(int, int, int*),
-		__builtin_sub_overflow(int, int, int*),
-		__builtin_mul_overflow(int, int, int*)], [], [], [ ])
+                __builtin_sub_overflow(int, int, int*),
+                __builtin_mul_overflow(int, int, int*)], [], [], [ ])
 AC_CHECK_DECLS([__builtin_bswap16(uint16_t),
-		__builtin_bswap32(uint32_t),
-		__builtin_bswap64(uint64_t)], [], [],
-	       [#include <stdint.h>])
+                __builtin_bswap32(uint32_t),
+                __builtin_bswap64(uint64_t)], [], [],
+               [#include <stdint.h>])
 AC_CHECK_DECLS([_byteswap_ushort, _byteswap_ulong, _byteswap_uint64], [], [],
-	       [#include <stdlib.h>])
+               [#include <stdlib.h>])
 AC_CHECK_DECLS([__builtin_expect(long, long)], [], [], [ ])
 AC_CHECK_DECLS([_addcarry_u32(unsigned char, unsigned, unsigned, unsigned*),
-		_addcarry_u64(unsigned char, unsigned __int64, unsigned __int64, unsigned __int64*),
-		_subborrow_u32(unsigned char, unsigned, unsigned, unsigned*),
-		_subborrow_u64(unsigned char, unsigned __int64, unsigned __int64, unsigned __int64*)],
-	       [], [], [#include <intrin.h>])
+                _addcarry_u64(unsigned char, unsigned __int64, unsigned __int64, unsigned __int64*),
+                _subborrow_u32(unsigned char, unsigned, unsigned, unsigned*),
+                _subborrow_u64(unsigned char, unsigned __int64, unsigned __int64, unsigned __int64*)],
+               [], [], [#include <intrin.h>])
 
 dnl Check for time functions.
 AC_FUNC_STRFTIME
@@ -138,7 +138,7 @@ esac
 
 AC_ARG_ENABLE([clickstream],
   [AS_HELP_STRING([--enable-clickstream],
-		  [install programs and scripts to postprocess click log data for use in training xapian-letor])],
+                  [install programs and scripts to postprocess click log data for use in training xapian-letor])],
   [case ${enableval} in
     yes|no) ;;
     *) AC_MSG_ERROR([bad value ${enableval} for --enable-clickstream]) ;;
@@ -164,9 +164,9 @@ AM_CONDITIONAL([VPATH_BUILD], [test yes = "$vpath_build"])
 dnl Check for headers.
 AC_CHECK_HEADERS([strings.h sys/select.h], [], [], [ ])
 AC_CHECK_HEADERS([sysexits.h sys/time.h]dnl
-		 [sys/resource.h sys/socket.h sys/sysctl.h vm/vm_param.h]dnl
-		 [sys/vmmeter.h sys/sysmp.h sys/sysinfo.h sys/pstat.h],
-		 [], [], [#include <sys/types.h>])
+                 [sys/resource.h sys/socket.h sys/sysctl.h vm/vm_param.h]dnl
+                 [sys/vmmeter.h sys/sysmp.h sys/sysinfo.h sys/pstat.h],
+                 [], [], [#include <sys/types.h>])
 
 dnl Check for zlib.h.
 AC_CHECK_HEADERS([zlib.h], [], [
@@ -211,7 +211,7 @@ if test $ac_cv_func_ftime = yes ; then
   AC_MSG_CHECKING([return type of ftime])
   AC_COMPILE_IFELSE(
     [AC_LANG_PROGRAM([[#include <sys/timeb.h>]],
-		     [[struct timeb tp; int i = ftime(&tp);]])],
+                     [[struct timeb tp; int i = ftime(&tp);]])],
     [AC_MSG_RESULT([int])],
     [AC_MSG_RESULT([void])
     AC_DEFINE([FTIME_RETURNS_VOID], [1], [Define if ftime returns void])])
@@ -237,7 +237,7 @@ if test $ac_cv_func_getgrouplist = yes ; then
   AC_COMPILE_IFELSE(
     [AC_LANG_PROGRAM([[#include <grp.h>
 #include <unistd.h>]],
-		     [[int g[10]; int n = 10; return getgrouplist("root", 1, g, &n) == -1;]])],
+                     [[int g[10]; int n = 10; return getgrouplist("root", 1, g, &n) == -1;]])],
     [AC_DEFINE([GETGROUPLIST_TAKES_INT_P], 1, [Define if getgrouplist takes int *])],
     [])
 fi
@@ -290,8 +290,8 @@ PKG_CHECK_MODULES([LIBGEPUB], [libgepub-0.7], [
     AC_DEFINE(HAVE_LIBGEPUB, 1, [Define HAVE_LIBGEPUB if the library is available])
     OMINDEX_MODULES="$OMINDEX_MODULES omindex_libgepub"],
     [PKG_CHECK_MODULES([LIBGEPUB], [libgepub-0.6], [
-	AC_DEFINE(HAVE_LIBGEPUB, 1, [Define HAVE_LIBGEPUB if the library is available])
-	OMINDEX_MODULES="$OMINDEX_MODULES omindex_libgepub"],[ ])])
+        AC_DEFINE(HAVE_LIBGEPUB, 1, [Define HAVE_LIBGEPUB if the library is available])
+        OMINDEX_MODULES="$OMINDEX_MODULES omindex_libgepub"],[ ])])
 
 dnl check if libtesseract is available.
 PKG_CHECK_MODULES([TESSERACT], [tesseract, lept], [
@@ -303,8 +303,8 @@ PKG_CHECK_MODULES([GMIME], [gmime-3.0, glib-2.0], [
     AC_DEFINE(HAVE_GMIME, 1, [Define HAVE_GMIME if the library is available])
     OMINDEX_MODULES="$OMINDEX_MODULES omindex_gmime"],
     [PKG_CHECK_MODULES([GMIME], [gmime-2.6, glib-2.0], [
-	AC_DEFINE(HAVE_GMIME, 1, [Define HAVE_GMIME if the library is available])
-	OMINDEX_MODULES="$OMINDEX_MODULES omindex_gmime"],[ ])])
+        AC_DEFINE(HAVE_GMIME, 1, [Define HAVE_GMIME if the library is available])
+        OMINDEX_MODULES="$OMINDEX_MODULES omindex_gmime"],[ ])])
 
 dnl check if libarchive is available.
 PKG_CHECK_MODULES([LIBARCHIVE], [libarchive], [
@@ -435,9 +435,9 @@ pcre_runtime_installed() {
     set /usr/lib$sfx/libpcre2-*.so.*
     if test "/usr/lib$sfx/libpcre2-*.so.*" != "$1" ; then
       if test -r /etc/debian_version ; then
-	pkg="libpcre2-dev"
+        pkg="libpcre2-dev"
       else
-	pkg="pcre2-devel"
+        pkg="pcre2-devel"
       fi
       AS_SET_STATUS([0])
     fi
@@ -455,9 +455,9 @@ if test -z "$PCRE2_CONFIG" ; then
       PCRE2_LIBS_FLAG=--libs
     else
       if pcre_runtime_installed ; then
-	AC_MSG_ERROR(['$pcre_try' failed, but the PCRE2 runtime library seems to be installed.  If you've installed PCRE2 from a package, you probably need to install an extra package called something like $pkg in order to be able to build $PACKAGE_NAME.])
+        AC_MSG_ERROR(['$pcre_try' failed, but the PCRE2 runtime library seems to be installed.  If you've installed PCRE2 from a package, you probably need to install an extra package called something like $pkg in order to be able to build $PACKAGE_NAME.])
       else
-	AC_MSG_ERROR(['$pcre_try' failed.  If the PCRE2 library is installed, you need to add PCRE2_CONFIG=/path/to/pcre2-config to your configure command.])
+        AC_MSG_ERROR(['$pcre_try' failed.  If the PCRE2 library is installed, you need to add PCRE2_CONFIG=/path/to/pcre2-config to your configure command.])
       fi
     fi
   else
@@ -467,9 +467,9 @@ if test -z "$PCRE2_CONFIG" ; then
     AC_PATH_TOOL(PCRE2_CONFIG, [pcre2-config])
     if test -z $PCRE2_CONFIG ; then
       if pcre_runtime_installed ; then
-	AC_MSG_ERROR([Can't find pcre2-config, although the PCRE2 runtime library seems to be installed.  If you've installed PCRE2 from a package, you probably need to install an extra package called something like $pkg in order to be able to build $PACKAGE_NAME.])
+        AC_MSG_ERROR([Can't find pcre2-config, although the PCRE2 runtime library seems to be installed.  If you've installed PCRE2 from a package, you probably need to install an extra package called something like $pkg in order to be able to build $PACKAGE_NAME.])
       else
-	AC_MSG_ERROR([Can't find pcre2-config.  If the PCRE2 library is installed, you need to add PCRE2_CONFIG=/path/to/pcre2-config to your configure command.])
+        AC_MSG_ERROR([Can't find pcre2-config.  If the PCRE2 library is installed, you need to add PCRE2_CONFIG=/path/to/pcre2-config to your configure command.])
       fi
     fi
   fi
@@ -547,8 +547,8 @@ if test yes = "$GXX"; then
 
       case $gxx_version in
       [[0-6]].*)
-	AC_MSG_ERROR([Xapian requires GCC 7.0 or later])
-	;;
+        AC_MSG_ERROR([Xapian requires GCC 7.0 or later])
+        ;;
       esac
 
       dnl FIXME:
@@ -674,7 +674,7 @@ AH_BOTTOM(
 #ifdef __clang__
 #define UNSIGNED_OVERFLOW_OK(X) \
     ([&]() __attribute__((no_sanitize("unsigned-integer-overflow"))) {\
-	return (X);\
+        return (X);\
     }())
 #else
 # define UNSIGNED_OVERFLOW_OK(X) (X)

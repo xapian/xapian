@@ -43,35 +43,35 @@ DEFINE_TESTCASE(queryterms1, !backend) {
     Xapian::QueryParser qp;
     Xapian::Query q = qp.parse_query("\"the the the\"");
     {
-	auto t = q.get_terms_begin();
-	size_t count = 0;
-	while (t != q.get_terms_end()) {
-	    TEST_EQUAL(*t, "the");
-	    ++count;
-	    ++t;
-	}
-	TEST_EQUAL(count, 3);
+        auto t = q.get_terms_begin();
+        size_t count = 0;
+        while (t != q.get_terms_end()) {
+            TEST_EQUAL(*t, "the");
+            ++count;
+            ++t;
+        }
+        TEST_EQUAL(count, 3);
     }
     {
-	auto t = q.get_unique_terms_begin();
-	size_t count = 0;
-	while (t != q.get_unique_terms_end()) {
-	    TEST_EQUAL(*t, "the");
-	    ++count;
-	    ++t;
-	}
-	TEST_EQUAL(count, 1);
+        auto t = q.get_unique_terms_begin();
+        size_t count = 0;
+        while (t != q.get_unique_terms_end()) {
+            TEST_EQUAL(*t, "the");
+            ++count;
+            ++t;
+        }
+        TEST_EQUAL(count, 1);
     }
 }
 
 DEFINE_TESTCASE(matchall2, !backend) {
     TEST_STRINGS_EQUAL(Xapian::Query::MatchAll.get_description(),
-		       "Query(<alldocuments>)");
+                       "Query(<alldocuments>)");
 }
 
 DEFINE_TESTCASE(matchnothing1, !backend) {
     TEST_STRINGS_EQUAL(Xapian::Query::MatchNothing.get_description(),
-		       "Query()");
+                       "Query()");
     vector<Xapian::Query> subqs;
     subqs.push_back(Xapian::Query("foo"));
     subqs.push_back(Xapian::Query::MatchNothing);
@@ -79,27 +79,27 @@ DEFINE_TESTCASE(matchnothing1, !backend) {
     TEST_STRINGS_EQUAL(q.get_description(), "Query()");
 
     Xapian::Query q2(Xapian::Query::OP_AND,
-		     Xapian::Query("foo"), Xapian::Query::MatchNothing);
+                     Xapian::Query("foo"), Xapian::Query::MatchNothing);
     TEST_STRINGS_EQUAL(q2.get_description(), "Query()");
 
     Xapian::Query q3(Xapian::Query::OP_AND,
-		     Xapian::Query::MatchNothing, Xapian::Query("foo"));
+                     Xapian::Query::MatchNothing, Xapian::Query("foo"));
     TEST_STRINGS_EQUAL(q2.get_description(), "Query()");
 
     Xapian::Query q4(Xapian::Query::OP_AND_MAYBE,
-		     Xapian::Query("foo"), Xapian::Query::MatchNothing);
+                     Xapian::Query("foo"), Xapian::Query::MatchNothing);
     TEST_STRINGS_EQUAL(q4.get_description(), "Query(foo)");
 
     Xapian::Query q5(Xapian::Query::OP_AND_MAYBE,
-		     Xapian::Query::MatchNothing, Xapian::Query("foo"));
+                     Xapian::Query::MatchNothing, Xapian::Query("foo"));
     TEST_STRINGS_EQUAL(q5.get_description(), "Query()");
 
     Xapian::Query q6(Xapian::Query::OP_AND_NOT,
-		     Xapian::Query("foo"), Xapian::Query::MatchNothing);
+                     Xapian::Query("foo"), Xapian::Query::MatchNothing);
     TEST_STRINGS_EQUAL(q6.get_description(), "Query(foo)");
 
     Xapian::Query q7(Xapian::Query::OP_AND_NOT,
-		     Xapian::Query::MatchNothing, Xapian::Query("foo"));
+                     Xapian::Query::MatchNothing, Xapian::Query("foo"));
     TEST_STRINGS_EQUAL(q7.get_description(), "Query()");
 }
 
@@ -129,13 +129,13 @@ DEFINE_TESTCASE(overload1, !backend) {
 #endif
     TEST_STRINGS_EQUAL(q.get_description(), "Query(((foo AND bar) AND (foo AND bar)))");
     {
-	// Also not if the query has a refcount > 1.
-	q = Xapian::Query("foo") & Xapian::Query("bar");
-	Xapian::Query qcopy = q;
-	qcopy &= Xapian::Query("baz");
-	TEST_STRINGS_EQUAL(qcopy.get_description(), "Query(((foo AND bar) AND baz))");
-	// And q shouldn't change.
-	TEST_STRINGS_EQUAL(q.get_description(), "Query((foo AND bar))");
+        // Also not if the query has a refcount > 1.
+        q = Xapian::Query("foo") & Xapian::Query("bar");
+        Xapian::Query qcopy = q;
+        qcopy &= Xapian::Query("baz");
+        TEST_STRINGS_EQUAL(qcopy.get_description(), "Query(((foo AND bar) AND baz))");
+        // And q shouldn't change.
+        TEST_STRINGS_EQUAL(q.get_description(), "Query((foo AND bar))");
     }
     // Check that MatchNothing still results in MatchNothing:
     q = Xapian::Query("foo") & Xapian::Query("bar");
@@ -168,13 +168,13 @@ DEFINE_TESTCASE(overload1, !backend) {
 #endif
     TEST_STRINGS_EQUAL(q.get_description(), "Query(((foo OR bar) OR (foo OR bar)))");
     {
-	// Also not if the query has a refcount > 1.
-	q = Xapian::Query("foo") | Xapian::Query("bar");
-	Xapian::Query qcopy = q;
-	qcopy |= Xapian::Query("baz");
-	TEST_STRINGS_EQUAL(qcopy.get_description(), "Query(((foo OR bar) OR baz))");
-	// And q shouldn't change.
-	TEST_STRINGS_EQUAL(q.get_description(), "Query((foo OR bar))");
+        // Also not if the query has a refcount > 1.
+        q = Xapian::Query("foo") | Xapian::Query("bar");
+        Xapian::Query qcopy = q;
+        qcopy |= Xapian::Query("baz");
+        TEST_STRINGS_EQUAL(qcopy.get_description(), "Query(((foo OR bar) OR baz))");
+        // And q shouldn't change.
+        TEST_STRINGS_EQUAL(q.get_description(), "Query((foo OR bar))");
     }
     // Check that MatchNothing still results in no change:
     q = Xapian::Query("foo") | Xapian::Query("bar");
@@ -207,20 +207,20 @@ DEFINE_TESTCASE(overload1, !backend) {
 #endif
     TEST_STRINGS_EQUAL(q.get_description(), "Query()");
     {
-	// Even if the reference count > 1.
-	q = Xapian::Query("foo") ^ Xapian::Query("bar");
-	Xapian::Query qcopy = q;
-	q ^= qcopy;
-	TEST_STRINGS_EQUAL(q.get_description(), "Query()");
+        // Even if the reference count > 1.
+        q = Xapian::Query("foo") ^ Xapian::Query("bar");
+        Xapian::Query qcopy = q;
+        q ^= qcopy;
+        TEST_STRINGS_EQUAL(q.get_description(), "Query()");
     }
     {
-	// Also not if the query has a refcount > 1.
-	q = Xapian::Query("foo") ^ Xapian::Query("bar");
-	Xapian::Query qcopy = q;
-	qcopy ^= Xapian::Query("baz");
-	TEST_STRINGS_EQUAL(qcopy.get_description(), "Query(((foo XOR bar) XOR baz))");
-	// And q shouldn't change.
-	TEST_STRINGS_EQUAL(q.get_description(), "Query((foo XOR bar))");
+        // Also not if the query has a refcount > 1.
+        q = Xapian::Query("foo") ^ Xapian::Query("bar");
+        Xapian::Query qcopy = q;
+        qcopy ^= Xapian::Query("baz");
+        TEST_STRINGS_EQUAL(qcopy.get_description(), "Query(((foo XOR bar) XOR baz))");
+        // And q shouldn't change.
+        TEST_STRINGS_EQUAL(q.get_description(), "Query((foo XOR bar))");
     }
     // Check that MatchNothing still results in no change:
     q = Xapian::Query("foo") ^ Xapian::Query("bar");
@@ -266,37 +266,37 @@ DEFINE_TESTCASE(overload1, !backend) {
  */
 DEFINE_TESTCASE(possubqueries1, backend) {
     Xapian::Database db = get_database("possubqueries1",
-				       [](Xapian::WritableDatabase& wdb,
-					  const string&)
-				       {
-					   Xapian::Document doc;
-					   doc.add_posting("a", 1);
-					   doc.add_posting("b", 2);
-					   doc.add_posting("c", 3);
-					   wdb.add_document(doc);
-				       });
+                                       [](Xapian::WritableDatabase& wdb,
+                                          const string&)
+                                       {
+                                           Xapian::Document doc;
+                                           doc.add_posting("a", 1);
+                                           doc.add_posting("b", 2);
+                                           doc.add_posting("c", 3);
+                                           wdb.add_document(doc);
+                                       });
 
     Xapian::Query a_or_b(Xapian::Query::OP_OR,
-			 Xapian::Query("a"),
-			 Xapian::Query("b"));
+                         Xapian::Query("a"),
+                         Xapian::Query("b"));
     Xapian::Query near(Xapian::Query::OP_NEAR, a_or_b, a_or_b);
     // As of 1.3.0, we no longer rearrange queries at this point, so check
     // that we don't.
     TEST_STRINGS_EQUAL(near.get_description(),
-		       "Query(((a OR b) NEAR 2 (a OR b)))");
+                       "Query(((a OR b) NEAR 2 (a OR b)))");
     Xapian::Query phrase(Xapian::Query::OP_PHRASE, a_or_b, a_or_b);
     TEST_STRINGS_EQUAL(phrase.get_description(),
-		       "Query(((a OR b) PHRASE 2 (a OR b)))");
+                       "Query(((a OR b) PHRASE 2 (a OR b)))");
 
     Xapian::Query a_and_b(Xapian::Query::OP_AND,
-			  Xapian::Query("a"),
-			  Xapian::Query("b"));
+                          Xapian::Query("a"),
+                          Xapian::Query("b"));
     Xapian::Query a_near_b(Xapian::Query::OP_NEAR,
-			   Xapian::Query("a"),
-			   Xapian::Query("b"));
+                           Xapian::Query("a"),
+                           Xapian::Query("b"));
     Xapian::Query a_phrs_b(Xapian::Query::OP_PHRASE,
-			   Xapian::Query("a"),
-			   Xapian::Query("b"));
+                           Xapian::Query("a"),
+                           Xapian::Query("b"));
     Xapian::Query c("c");
 
     // FIXME: The plan is to actually try to support the cases below, but
@@ -304,34 +304,34 @@ DEFINE_TESTCASE(possubqueries1, backend) {
     Xapian::Enquire enq(db);
 
     TEST_EXCEPTION(Xapian::UnimplementedError,
-	Xapian::Query q(Xapian::Query::OP_NEAR, a_and_b, c);
-	enq.set_query(q);
-	(void)enq.get_mset(0, 10));
+        Xapian::Query q(Xapian::Query::OP_NEAR, a_and_b, c);
+        enq.set_query(q);
+        (void)enq.get_mset(0, 10));
 
     TEST_EXCEPTION(Xapian::UnimplementedError,
-	Xapian::Query q(Xapian::Query::OP_NEAR, a_near_b, c);
-	enq.set_query(q);
-	(void)enq.get_mset(0, 10));
+        Xapian::Query q(Xapian::Query::OP_NEAR, a_near_b, c);
+        enq.set_query(q);
+        (void)enq.get_mset(0, 10));
 
     TEST_EXCEPTION(Xapian::UnimplementedError,
-	Xapian::Query q(Xapian::Query::OP_NEAR, a_phrs_b, c);
-	enq.set_query(q);
-	(void)enq.get_mset(0, 10));
+        Xapian::Query q(Xapian::Query::OP_NEAR, a_phrs_b, c);
+        enq.set_query(q);
+        (void)enq.get_mset(0, 10));
 
     TEST_EXCEPTION(Xapian::UnimplementedError,
-	Xapian::Query q(Xapian::Query::OP_PHRASE, a_and_b, c);
-	enq.set_query(q);
-	(void)enq.get_mset(0, 10));
+        Xapian::Query q(Xapian::Query::OP_PHRASE, a_and_b, c);
+        enq.set_query(q);
+        (void)enq.get_mset(0, 10));
 
     TEST_EXCEPTION(Xapian::UnimplementedError,
-	Xapian::Query q(Xapian::Query::OP_PHRASE, a_near_b, c);
-	enq.set_query(q);
-	(void)enq.get_mset(0, 10));
+        Xapian::Query q(Xapian::Query::OP_PHRASE, a_near_b, c);
+        enq.set_query(q);
+        (void)enq.get_mset(0, 10));
 
     TEST_EXCEPTION(Xapian::UnimplementedError,
-	Xapian::Query q(Xapian::Query::OP_PHRASE, a_phrs_b, c);
-	enq.set_query(q);
-	(void)enq.get_mset(0, 10));
+        Xapian::Query q(Xapian::Query::OP_PHRASE, a_phrs_b, c);
+        enq.set_query(q);
+        (void)enq.get_mset(0, 10));
 }
 
 /// Test that XOR handles all remaining subqueries running out at the same
@@ -340,7 +340,7 @@ DEFINE_TESTCASE(xor3, backend) {
     Xapian::Database db = get_database("apitest_simpledata");
 
     static const char * const subqs[] = {
-	"this", "hack", "which", "paragraph", "is", "return", "this", "this"
+        "this", "hack", "which", "paragraph", "is", "return", "this", "this"
     };
     // Document where the subqueries run out *does* match XOR:
     Xapian::Query q(Xapian::Query::OP_XOR, subqs + 1, subqs + 6);
@@ -394,15 +394,15 @@ DEFINE_TESTCASE(xor3, backend) {
 /// Check encoding of non-UTF8 terms in query descriptions.
 DEFINE_TESTCASE(nonutf8termdesc1, !backend) {
     TEST_EQUAL(Xapian::Query("\xc0\x80\xf5\x80\x80\x80\xfe\xff").get_description(),
-	       "Query(\\xc0\\x80\\xf5\\x80\\x80\\x80\\xfe\\xff)");
+               "Query(\\xc0\\x80\\xf5\\x80\\x80\\x80\\xfe\\xff)");
     TEST_EQUAL(Xapian::Query(string("\x00\x1f", 2)).get_description(),
-	       "Query(\\x00\\x1f)");
+               "Query(\\x00\\x1f)");
     // Check that backslashes are encoded so output isn't ambiguous.
     TEST_EQUAL(Xapian::Query("back\\slash").get_description(),
-	       "Query(back\\x5cslash)");
+               "Query(back\\x5cslash)");
     // Check that \x7f is escaped.
     TEST_EQUAL(Xapian::Query("D\x7f_\x7f~").get_description(),
-	       "Query(D\\x7f_\\x7f~)");
+               "Query(D\\x7f_\\x7f~)");
 }
 
 /// Test introspection on Query objects.
@@ -474,8 +474,8 @@ DEFINE_TESTCASE(phrasealldocs1, backend) {
     Xapian::Query q;
     static const char * const phrase[] = { "this", "is", "the" };
     q = Xapian::Query(q.OP_AND_NOT,
-	    Xapian::Query("paragraph"),
-	    Xapian::Query(q.OP_PHRASE, phrase, phrase + 3));
+            Xapian::Query("paragraph"),
+            Xapian::Query(q.OP_PHRASE, phrase, phrase + 3));
     Xapian::Enquire enq(db);
     enq.set_query(q);
     Xapian::MSet mset = enq.get_mset(0, 10);
@@ -511,42 +511,42 @@ DEFINE_TESTCASE(wildcard1, backend) {
     const Xapian::Query::op o = Xapian::Query::OP_WILDCARD;
 
     for (auto&& test : wildcard1_testcases) {
-	tout << test.pattern << '\n';
-	auto tend = test.terms + 4;
-	while (tend[-1] == NULL) --tend;
-	bool expect_exception = (tend - test.terms == 4 && tend[-1][0] == '\0');
-	Xapian::Query q;
-	if (test.max_type) {
-	    int max_type;
-	    switch (test.max_type) {
-		case 'E':
-		    max_type = Xapian::Query::WILDCARD_LIMIT_ERROR;
-		    break;
-		case 'F':
-		    max_type = Xapian::Query::WILDCARD_LIMIT_FIRST;
-		    break;
-		case 'M':
-		    max_type = Xapian::Query::WILDCARD_LIMIT_MOST_FREQUENT;
-		    break;
-		default:
-		    FAIL_TEST("Unexpected max_type value");
-	    }
-	    q = Xapian::Query(o, test.pattern, test.max_expansion, max_type);
-	} else {
-	    q = Xapian::Query(o, test.pattern, test.max_expansion);
-	}
-	enq.set_query(q);
-	try {
-	    Xapian::MSet mset = enq.get_mset(0, 10);
-	    TEST(!expect_exception);
-	    q = Xapian::Query(q.OP_SYNONYM, test.terms, tend);
-	    enq.set_query(q);
-	    Xapian::MSet mset2 = enq.get_mset(0, 10);
-	    TEST_EQUAL(mset.size(), mset2.size());
-	    TEST(mset_range_is_same(mset, 0, mset2, 0, mset.size()));
-	} catch (const Xapian::WildcardError &) {
-	    TEST(expect_exception);
-	}
+        tout << test.pattern << '\n';
+        auto tend = test.terms + 4;
+        while (tend[-1] == NULL) --tend;
+        bool expect_exception = (tend - test.terms == 4 && tend[-1][0] == '\0');
+        Xapian::Query q;
+        if (test.max_type) {
+            int max_type;
+            switch (test.max_type) {
+                case 'E':
+                    max_type = Xapian::Query::WILDCARD_LIMIT_ERROR;
+                    break;
+                case 'F':
+                    max_type = Xapian::Query::WILDCARD_LIMIT_FIRST;
+                    break;
+                case 'M':
+                    max_type = Xapian::Query::WILDCARD_LIMIT_MOST_FREQUENT;
+                    break;
+                default:
+                    FAIL_TEST("Unexpected max_type value");
+            }
+            q = Xapian::Query(o, test.pattern, test.max_expansion, max_type);
+        } else {
+            q = Xapian::Query(o, test.pattern, test.max_expansion);
+        }
+        enq.set_query(q);
+        try {
+            Xapian::MSet mset = enq.get_mset(0, 10);
+            TEST(!expect_exception);
+            q = Xapian::Query(q.OP_SYNONYM, test.terms, tend);
+            enq.set_query(q);
+            Xapian::MSet mset2 = enq.get_mset(0, 10);
+            TEST_EQUAL(mset.size(), mset2.size());
+            TEST(mset_range_is_same(mset, 0, mset2, 0, mset.size()));
+        } catch (const Xapian::WildcardError &) {
+            TEST(expect_exception);
+        }
     }
 }
 
@@ -580,20 +580,20 @@ DEFINE_TESTCASE(wildcard2, backend) {
  */
 DEFINE_TESTCASE(wildcard3, backend) {
     Xapian::Database db = get_database("wildcard3",
-				       [](Xapian::WritableDatabase& wdb,
-					  const string&)
-				       {
-					   Xapian::Document doc;
-					   doc.add_term("Zfoo");
-					   doc.add_term("a");
-					   wdb.add_document(doc);
-					   doc.add_term("abc");
-					   wdb.add_document(doc);
-				       });
+                                       [](Xapian::WritableDatabase& wdb,
+                                          const string&)
+                                       {
+                                           Xapian::Document doc;
+                                           doc.add_term("Zfoo");
+                                           doc.add_term("a");
+                                           wdb.add_document(doc);
+                                           doc.add_term("abc");
+                                           wdb.add_document(doc);
+                                       });
 
     Xapian::Enquire enq(db);
     Xapian::Query q(Xapian::Query::OP_WILDCARD, "?", 0,
-		    Xapian::Query::WILDCARD_PATTERN_GLOB);
+                    Xapian::Query::WILDCARD_PATTERN_GLOB);
     enq.set_query(q);
     Xapian::MSet mset = enq.get_mset(0, 10);
     TEST_EQUAL(mset.size(), 2);
@@ -607,8 +607,8 @@ DEFINE_TESTCASE(wildcard4, backend) {
     Xapian::Database db = get_database("apitest_simpledata");
     Xapian::Enquire enq(db);
     Xapian::Query q(Xapian::Query::OP_WILDCARD, "u", 0,
-		    Xapian::Query::WILDCARD_LIMIT_ERROR,
-		    Xapian::Query::OP_OR);
+                    Xapian::Query::WILDCARD_LIMIT_ERROR,
+                    Xapian::Query::OP_OR);
     q |= Xapian::Query("xyzzy");
     q |= Xapian::Query("use");
     enq.set_query(q);
@@ -625,10 +625,10 @@ DEFINE_TESTCASE(wildcard4, backend) {
     // happens be in a wildcard expansion.
     string terms;
     for (auto t = enq.get_matching_terms_begin(*mset[1]);
-	 t != enq.get_matching_terms_end(*mset[1]);
-	 ++t) {
-	if (!terms.empty()) terms += ' ';
-	terms += *t;
+         t != enq.get_matching_terms_end(*mset[1]);
+         ++t) {
+        if (!terms.empty()) terms += ' ';
+        terms += *t;
     }
     TEST_EQUAL(terms, "use");
 }
@@ -636,8 +636,8 @@ DEFINE_TESTCASE(wildcard4, backend) {
 DEFINE_TESTCASE(dualprefixwildcard1, backend) {
     Xapian::Database db = get_database("apitest_simpledata");
     Xapian::Query q(Xapian::Query::OP_SYNONYM,
-		    Xapian::Query(Xapian::Query::OP_WILDCARD, "fo"),
-		    Xapian::Query(Xapian::Query::OP_WILDCARD, "Sfo"));
+                    Xapian::Query(Xapian::Query::OP_WILDCARD, "fo"),
+                    Xapian::Query(Xapian::Query::OP_WILDCARD, "Sfo"));
     tout << q.get_description() << '\n';
     Xapian::Enquire enq(db);
     enq.set_query(q);
@@ -665,41 +665,41 @@ static void
 gen_singlecharwildcard1_db(Xapian::WritableDatabase& db, const string&)
 {
     {
-	Xapian::Document doc;
-	doc.add_term("test");
-	db.add_document(doc);
+        Xapian::Document doc;
+        doc.add_term("test");
+        db.add_document(doc);
     }
     {
-	Xapian::Document doc;
-	doc.add_term("t\xc3\xaast");
-	db.add_document(doc);
+        Xapian::Document doc;
+        doc.add_term("t\xc3\xaast");
+        db.add_document(doc);
     }
     {
-	Xapian::Document doc;
-	doc.add_term("t\xe1\x80\x80st");
-	db.add_document(doc);
+        Xapian::Document doc;
+        doc.add_term("t\xe1\x80\x80st");
+        db.add_document(doc);
     }
     {
-	Xapian::Document doc;
-	doc.add_term("t\xf3\x80\x80\x80st");
-	db.add_document(doc);
+        Xapian::Document doc;
+        doc.add_term("t\xf3\x80\x80\x80st");
+        db.add_document(doc);
     }
     {
-	Xapian::Document doc;
-	doc.add_term("toast");
-	db.add_document(doc);
+        Xapian::Document doc;
+        doc.add_term("toast");
+        db.add_document(doc);
     }
     {
-	Xapian::Document doc;
-	doc.add_term("t*t");
-	db.add_document(doc);
+        Xapian::Document doc;
+        doc.add_term("t*t");
+        db.add_document(doc);
     }
 }
 
 /// Test `?` extended wildcard.
 DEFINE_TESTCASE(singlecharwildcard1, backend) {
     Xapian::Database db = get_database("singlecharwildcard1",
-				       gen_singlecharwildcard1_db);
+                                       gen_singlecharwildcard1_db);
     Xapian::Enquire enq(db);
     enq.set_weighting_scheme(Xapian::BoolWeight());
 
@@ -707,24 +707,24 @@ DEFINE_TESTCASE(singlecharwildcard1, backend) {
     const auto f = Xapian::Query::WILDCARD_PATTERN_SINGLE;
 
     {
-	// Check that `?` matches one Unicode character.
-	enq.set_query(Xapian::Query(o, "t?st", 0, f));
-	Xapian::MSet mset = enq.get_mset(0, 100);
-	mset_expect_order(mset, 1, 2, 3, 4);
+        // Check that `?` matches one Unicode character.
+        enq.set_query(Xapian::Query(o, "t?st", 0, f));
+        Xapian::MSet mset = enq.get_mset(0, 100);
+        mset_expect_order(mset, 1, 2, 3, 4);
     }
 
     {
-	// Check that `??` doesn't match a single two-byte UTF-8 character.
-	enq.set_query(Xapian::Query(o, "t??st", 0, f));
-	Xapian::MSet mset = enq.get_mset(0, 100);
-	mset_expect_order(mset, 5);
+        // Check that `??` doesn't match a single two-byte UTF-8 character.
+        enq.set_query(Xapian::Query(o, "t??st", 0, f));
+        Xapian::MSet mset = enq.get_mset(0, 100);
+        mset_expect_order(mset, 5);
     }
 
     {
-	// Check that `*` is handled as a literal character not a wildcard.
-	enq.set_query(Xapian::Query(o, "t*t", 0, f));
-	Xapian::MSet mset = enq.get_mset(0, 100);
-	mset_expect_order(mset, 6);
+        // Check that `*` is handled as a literal character not a wildcard.
+        enq.set_query(Xapian::Query(o, "t*t", 0, f));
+        Xapian::MSet mset = enq.get_mset(0, 100);
+        mset_expect_order(mset, 6);
     }
 }
 
@@ -732,36 +732,36 @@ static void
 gen_multicharwildcard1_db(Xapian::WritableDatabase& db, const string&)
 {
     {
-	Xapian::Document doc;
-	doc.add_term("ananas");
-	db.add_document(doc);
+        Xapian::Document doc;
+        doc.add_term("ananas");
+        db.add_document(doc);
     }
     {
-	Xapian::Document doc;
-	doc.add_term("annas");
-	db.add_document(doc);
+        Xapian::Document doc;
+        doc.add_term("annas");
+        db.add_document(doc);
     }
     {
-	Xapian::Document doc;
-	doc.add_term("bananas");
-	db.add_document(doc);
+        Xapian::Document doc;
+        doc.add_term("bananas");
+        db.add_document(doc);
     }
     {
-	Xapian::Document doc;
-	doc.add_term("banannas");
-	db.add_document(doc);
+        Xapian::Document doc;
+        doc.add_term("banannas");
+        db.add_document(doc);
     }
     {
-	Xapian::Document doc;
-	doc.add_term("b?nanas");
-	db.add_document(doc);
+        Xapian::Document doc;
+        doc.add_term("b?nanas");
+        db.add_document(doc);
     }
 }
 
 /// Test `*` extended wildcard.
 DEFINE_TESTCASE(multicharwildcard1, backend) {
     Xapian::Database db = get_database("multicharwildcard1",
-				       gen_multicharwildcard1_db);
+                                       gen_multicharwildcard1_db);
     Xapian::Enquire enq(db);
     enq.set_weighting_scheme(Xapian::BoolWeight());
 
@@ -769,31 +769,31 @@ DEFINE_TESTCASE(multicharwildcard1, backend) {
     const auto f = Xapian::Query::WILDCARD_PATTERN_MULTI;
 
     {
-	// Check `*` can handle partial matches before and after.
-	enq.set_query(Xapian::Query(o, "b*anas", 0, f));
-	Xapian::MSet mset = enq.get_mset(0, 100);
-	mset_expect_order(mset, 3, 5);
+        // Check `*` can handle partial matches before and after.
+        enq.set_query(Xapian::Query(o, "b*anas", 0, f));
+        Xapian::MSet mset = enq.get_mset(0, 100);
+        mset_expect_order(mset, 3, 5);
     }
 
     {
-	// Check leading `*` works.
-	enq.set_query(Xapian::Query(o, "*anas", 0, f));
-	Xapian::MSet mset = enq.get_mset(0, 100);
-	mset_expect_order(mset, 1, 3, 5);
+        // Check leading `*` works.
+        enq.set_query(Xapian::Query(o, "*anas", 0, f));
+        Xapian::MSet mset = enq.get_mset(0, 100);
+        mset_expect_order(mset, 1, 3, 5);
     }
 
     {
-	// Check more than one `*` works.
-	enq.set_query(Xapian::Query(o, "*ann*", 0, f));
-	Xapian::MSet mset = enq.get_mset(0, 100);
-	mset_expect_order(mset, 2, 4);
+        // Check more than one `*` works.
+        enq.set_query(Xapian::Query(o, "*ann*", 0, f));
+        Xapian::MSet mset = enq.get_mset(0, 100);
+        mset_expect_order(mset, 2, 4);
     }
 
     {
-	// Check that `?` is handled as a literal character not a wildcard.
-	enq.set_query(Xapian::Query(o, "b?n*", 0, f));
-	Xapian::MSet mset = enq.get_mset(0, 100);
-	mset_expect_order(mset, 5);
+        // Check that `?` is handled as a literal character not a wildcard.
+        enq.set_query(Xapian::Query(o, "b?n*", 0, f));
+        Xapian::MSet mset = enq.get_mset(0, 100);
+        mset_expect_order(mset, 5);
     }
 }
 
@@ -828,40 +828,40 @@ DEFINE_TESTCASE(editdist1, backend) {
     const Xapian::Query::op o = Xapian::Query::OP_EDIT_DISTANCE;
 
     for (auto&& test : editdist1_testcases) {
-	tout << test.target << '\n';
-	auto tend = test.terms + 4;
-	while (tend > test.terms && tend[-1] == NULL) --tend;
-	bool expect_exception = (tend - test.terms == 4 && tend[-1][0] == '\0');
-	Xapian::Query q;
-	int max_type;
-	switch (test.max_type) {
-	    case 'E':
-		max_type = Xapian::Query::WILDCARD_LIMIT_ERROR;
-		break;
-	    case 'F':
-		max_type = Xapian::Query::WILDCARD_LIMIT_FIRST;
-		break;
-	    case 'M':
-		max_type = Xapian::Query::WILDCARD_LIMIT_MOST_FREQUENT;
-		break;
-	    default:
-		FAIL_TEST("Unexpected max_type value");
-	}
-	q = Xapian::Query(o, test.target, test.max_expansion, max_type,
-			  q.OP_SYNONYM, test.edit_distance);
-	enq.set_query(q);
-	tout << q.get_description() << '\n';
-	try {
-	    Xapian::MSet mset = enq.get_mset(0, 10);
-	    TEST(!expect_exception);
-	    q = Xapian::Query(q.OP_SYNONYM, test.terms, tend);
-	    enq.set_query(q);
-	    Xapian::MSet mset2 = enq.get_mset(0, 10);
-	    TEST_EQUAL(mset.size(), mset2.size());
-	    TEST(mset_range_is_same(mset, 0, mset2, 0, mset.size()));
-	} catch (const Xapian::WildcardError&) {
-	    TEST(expect_exception);
-	}
+        tout << test.target << '\n';
+        auto tend = test.terms + 4;
+        while (tend > test.terms && tend[-1] == NULL) --tend;
+        bool expect_exception = (tend - test.terms == 4 && tend[-1][0] == '\0');
+        Xapian::Query q;
+        int max_type;
+        switch (test.max_type) {
+            case 'E':
+                max_type = Xapian::Query::WILDCARD_LIMIT_ERROR;
+                break;
+            case 'F':
+                max_type = Xapian::Query::WILDCARD_LIMIT_FIRST;
+                break;
+            case 'M':
+                max_type = Xapian::Query::WILDCARD_LIMIT_MOST_FREQUENT;
+                break;
+            default:
+                FAIL_TEST("Unexpected max_type value");
+        }
+        q = Xapian::Query(o, test.target, test.max_expansion, max_type,
+                          q.OP_SYNONYM, test.edit_distance);
+        enq.set_query(q);
+        tout << q.get_description() << '\n';
+        try {
+            Xapian::MSet mset = enq.get_mset(0, 10);
+            TEST(!expect_exception);
+            q = Xapian::Query(q.OP_SYNONYM, test.terms, tend);
+            enq.set_query(q);
+            Xapian::MSet mset2 = enq.get_mset(0, 10);
+            TEST_EQUAL(mset.size(), mset2.size());
+            TEST(mset_range_is_same(mset, 0, mset2, 0, mset.size()));
+        } catch (const Xapian::WildcardError&) {
+            TEST(expect_exception);
+        }
     }
 }
 
@@ -876,67 +876,67 @@ editdist_testcase editdist2_testcases[] = {
 /// Test Unicode edit distance calculations.
 DEFINE_TESTCASE(editdist2, backend) {
     Xapian::Database db = get_database("editdist2",
-				       [](Xapian::WritableDatabase& wdb,
-					  const string&)
-				       {
-					   Xapian::Document doc;
-					   doc.add_term(UTF8("a\U00010000"));
-					   wdb.add_document(doc);
-				       });
+                                       [](Xapian::WritableDatabase& wdb,
+                                          const string&)
+                                       {
+                                           Xapian::Document doc;
+                                           doc.add_term(UTF8("a\U00010000"));
+                                           wdb.add_document(doc);
+                                       });
     Xapian::Enquire enq(db);
     const Xapian::Query::op o = Xapian::Query::OP_EDIT_DISTANCE;
 
     for (auto&& test : editdist2_testcases) {
-	tout << test.target << '\n';
-	auto tend = test.terms + 4;
-	while (tend > test.terms && tend[-1] == NULL) --tend;
-	bool expect_exception = (tend - test.terms == 4 && tend[-1][0] == '\0');
-	Xapian::Query q;
-	int max_type;
-	switch (test.max_type) {
-	    case 'E':
-		max_type = Xapian::Query::WILDCARD_LIMIT_ERROR;
-		break;
-	    case 'F':
-		max_type = Xapian::Query::WILDCARD_LIMIT_FIRST;
-		break;
-	    case 'M':
-		max_type = Xapian::Query::WILDCARD_LIMIT_MOST_FREQUENT;
-		break;
-	    default:
-		FAIL_TEST("Unexpected max_type value");
-	}
-	q = Xapian::Query(o, test.target, test.max_expansion, max_type,
-			  q.OP_SYNONYM, test.edit_distance);
-	enq.set_query(q);
-	tout << q.get_description() << '\n';
-	try {
-	    Xapian::MSet mset = enq.get_mset(0, 10);
-	    TEST(!expect_exception);
-	    q = Xapian::Query(q.OP_SYNONYM, test.terms, tend);
-	    enq.set_query(q);
-	    Xapian::MSet mset2 = enq.get_mset(0, 10);
-	    TEST_EQUAL(mset.size(), mset2.size());
-	    TEST(mset_range_is_same(mset, 0, mset2, 0, mset.size()));
-	} catch (const Xapian::WildcardError&) {
-	    TEST(expect_exception);
-	}
+        tout << test.target << '\n';
+        auto tend = test.terms + 4;
+        while (tend > test.terms && tend[-1] == NULL) --tend;
+        bool expect_exception = (tend - test.terms == 4 && tend[-1][0] == '\0');
+        Xapian::Query q;
+        int max_type;
+        switch (test.max_type) {
+            case 'E':
+                max_type = Xapian::Query::WILDCARD_LIMIT_ERROR;
+                break;
+            case 'F':
+                max_type = Xapian::Query::WILDCARD_LIMIT_FIRST;
+                break;
+            case 'M':
+                max_type = Xapian::Query::WILDCARD_LIMIT_MOST_FREQUENT;
+                break;
+            default:
+                FAIL_TEST("Unexpected max_type value");
+        }
+        q = Xapian::Query(o, test.target, test.max_expansion, max_type,
+                          q.OP_SYNONYM, test.edit_distance);
+        enq.set_query(q);
+        tout << q.get_description() << '\n';
+        try {
+            Xapian::MSet mset = enq.get_mset(0, 10);
+            TEST(!expect_exception);
+            q = Xapian::Query(q.OP_SYNONYM, test.terms, tend);
+            enq.set_query(q);
+            Xapian::MSet mset2 = enq.get_mset(0, 10);
+            TEST_EQUAL(mset.size(), mset2.size());
+            TEST(mset_range_is_same(mset, 0, mset2, 0, mset.size()));
+        } catch (const Xapian::WildcardError&) {
+            TEST(expect_exception);
+        }
     }
 }
 
 DEFINE_TESTCASE(dualprefixeditdist1, backend) {
     Xapian::Database db = get_database("dualprefixeditdist1",
-				       [](Xapian::WritableDatabase& wdb,
-					  const string&)
-				       {
-					   Xapian::Document doc;
-					   doc.add_term("opossum");
-					   doc.add_term("possum");
-					   wdb.add_document(doc);
-					   doc.clear_terms();
-					   doc.add_term("Spossums");
-					   wdb.add_document(doc);
-				       });
+                                       [](Xapian::WritableDatabase& wdb,
+                                          const string&)
+                                       {
+                                           Xapian::Document doc;
+                                           doc.add_term("opossum");
+                                           doc.add_term("possum");
+                                           wdb.add_document(doc);
+                                           doc.clear_terms();
+                                           doc.add_term("Spossums");
+                                           wdb.add_document(doc);
+                                       });
 
     auto OP_EDIT_DISTANCE = Xapian::Query::OP_EDIT_DISTANCE;
     auto OP_SYNONYM = Xapian::Query::OP_SYNONYM;
@@ -980,18 +980,18 @@ DEFINE_TESTCASE(loosephrase1, backend) {
     Xapian::Enquire enq(db);
 
     for (auto&& test : loosephrase1_testcases) {
-	auto tend = test.terms + 4;
-	while (tend[-1] == NULL) --tend;
-	auto OP_PHRASE = Xapian::Query::OP_PHRASE;
-	Xapian::Query q(OP_PHRASE, test.terms, tend, test.window);
-	enq.set_query(q);
-	Xapian::MSet mset = enq.get_mset(0, 10);
-	if (test.result == 0) {
-	    TEST(mset.empty());
-	} else {
-	    TEST_EQUAL(mset.size(), 1);
-	    TEST_EQUAL(*mset[0], test.result);
-	}
+        auto tend = test.terms + 4;
+        while (tend[-1] == NULL) --tend;
+        auto OP_PHRASE = Xapian::Query::OP_PHRASE;
+        Xapian::Query q(OP_PHRASE, test.terms, tend, test.window);
+        enq.set_query(q);
+        Xapian::MSet mset = enq.get_mset(0, 10);
+        if (test.result == 0) {
+            TEST(mset.empty());
+        } else {
+            TEST_EQUAL(mset.size(), 1);
+            TEST_EQUAL(*mset[0], test.result);
+        }
     }
 }
 
@@ -1013,17 +1013,17 @@ DEFINE_TESTCASE(loosenear1, backend) {
     Xapian::Enquire enq(db);
 
     for (auto&& test : loosenear1_testcases) {
-	auto tend = test.terms + 4;
-	while (tend[-1] == NULL) --tend;
-	Xapian::Query q(Xapian::Query::OP_NEAR, test.terms, tend, test.window);
-	enq.set_query(q);
-	Xapian::MSet mset = enq.get_mset(0, 10);
-	if (test.result == 0) {
-	    TEST(mset.empty());
-	} else {
-	    TEST_EQUAL(mset.size(), 1);
-	    TEST_EQUAL(*mset[0], test.result);
-	}
+        auto tend = test.terms + 4;
+        while (tend[-1] == NULL) --tend;
+        Xapian::Query q(Xapian::Query::OP_NEAR, test.terms, tend, test.window);
+        enq.set_query(q);
+        Xapian::MSet mset = enq.get_mset(0, 10);
+        if (test.result == 0) {
+            TEST(mset.empty());
+        } else {
+            TEST_EQUAL(mset.size(), 1);
+            TEST_EQUAL(*mset[0], test.result);
+        }
     }
 }
 
@@ -1032,13 +1032,13 @@ DEFINE_TESTCASE(complexphrase1, backend) {
     Xapian::Database db = get_database("apitest_simpledata");
     Xapian::Enquire enq(db);
     Xapian::Query query(Xapian::Query::OP_PHRASE,
-	    Xapian::Query("a") | Xapian::Query("b"),
-	    Xapian::Query("i"));
+            Xapian::Query("a") | Xapian::Query("b"),
+            Xapian::Query("i"));
     enq.set_query(query);
     TEST(enq.get_mset(0, 10).empty());
     Xapian::Query query2(Xapian::Query::OP_PHRASE,
-	    Xapian::Query("a") | Xapian::Query("b"),
-	    Xapian::Query("c"));
+            Xapian::Query("a") | Xapian::Query("b"),
+            Xapian::Query("c"));
     enq.set_query(query2);
     TEST(enq.get_mset(0, 10).empty());
 }
@@ -1048,13 +1048,13 @@ DEFINE_TESTCASE(complexnear1, backend) {
     Xapian::Database db = get_database("apitest_simpledata");
     Xapian::Enquire enq(db);
     Xapian::Query query(Xapian::Query::OP_NEAR,
-	    Xapian::Query("a") | Xapian::Query("b"),
-	    Xapian::Query("i"));
+            Xapian::Query("a") | Xapian::Query("b"),
+            Xapian::Query("i"));
     enq.set_query(query);
     TEST(enq.get_mset(0, 10).empty());
     Xapian::Query query2(Xapian::Query::OP_NEAR,
-	    Xapian::Query("a") | Xapian::Query("b"),
-	    Xapian::Query("c"));
+            Xapian::Query("a") | Xapian::Query("b"),
+            Xapian::Query("c"));
     enq.set_query(query2);
     TEST(enq.get_mset(0, 10).empty());
 }
@@ -1065,15 +1065,15 @@ DEFINE_TESTCASE(complexphrase2, backend) {
     Xapian::Enquire enq(db);
     Xapian::ValueWeightPostingSource ps(0);
     Xapian::Query subqs[3] = {
-	Xapian::Query(Xapian::Query::OP_PHRASE,
-	    Xapian::Query("a"),
-	    Xapian::Query(&ps)),
-	Xapian::Query(Xapian::Query::OP_PHRASE,
-	    Xapian::Query("and"),
-	    Xapian::Query::MatchAll),
-	Xapian::Query(Xapian::Query::OP_PHRASE,
-	    Xapian::Query("at"),
-	    Xapian::Query::MatchNothing)
+        Xapian::Query(Xapian::Query::OP_PHRASE,
+            Xapian::Query("a"),
+            Xapian::Query(&ps)),
+        Xapian::Query(Xapian::Query::OP_PHRASE,
+            Xapian::Query("and"),
+            Xapian::Query::MatchAll),
+        Xapian::Query(Xapian::Query::OP_PHRASE,
+            Xapian::Query("at"),
+            Xapian::Query::MatchNothing)
     };
     Xapian::Query query(Xapian::Query::OP_OR, subqs, subqs + 3);
     enq.set_query(query);
@@ -1086,15 +1086,15 @@ DEFINE_TESTCASE(complexnear2, backend) {
     Xapian::Enquire enq(db);
     Xapian::ValueWeightPostingSource ps(0);
     Xapian::Query subqs[3] = {
-	Xapian::Query(Xapian::Query::OP_NEAR,
-	    Xapian::Query("a"),
-	    Xapian::Query(&ps)),
-	Xapian::Query(Xapian::Query::OP_NEAR,
-	    Xapian::Query("and"),
-	    Xapian::Query::MatchAll),
-	Xapian::Query(Xapian::Query::OP_NEAR,
-	    Xapian::Query("at"),
-	    Xapian::Query::MatchNothing)
+        Xapian::Query(Xapian::Query::OP_NEAR,
+            Xapian::Query("a"),
+            Xapian::Query(&ps)),
+        Xapian::Query(Xapian::Query::OP_NEAR,
+            Xapian::Query("and"),
+            Xapian::Query::MatchAll),
+        Xapian::Query(Xapian::Query::OP_NEAR,
+            Xapian::Query("at"),
+            Xapian::Query::MatchNothing)
     };
     Xapian::Query query(Xapian::Query::OP_OR, subqs, subqs + 3);
     enq.set_query(query);
@@ -1105,8 +1105,8 @@ DEFINE_TESTCASE(complexnear2, backend) {
 DEFINE_TESTCASE(zeroestimate1, backend) {
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
     Xapian::Query phrase(Xapian::Query::OP_PHRASE,
-			 Xapian::Query("absolute"),
-			 Xapian::Query("rubbish"));
+                         Xapian::Query("absolute"),
+                         Xapian::Query("rubbish"));
     enquire.set_query(phrase &~ Xapian::Query("queri"));
     Xapian::MSet mset = enquire.get_mset(0, 0);
     TEST_EQUAL(mset.get_matches_estimated(), 0);
@@ -1117,23 +1117,23 @@ DEFINE_TESTCASE(complexphrase3, backend) {
     Xapian::Database db = get_database("apitest_simpledata");
     Xapian::Enquire enq(db);
     Xapian::Query query(Xapian::Query::OP_PHRASE,
-	    Xapian::Query("is") | Xapian::Query("as") | Xapian::Query("be"),
-	    Xapian::Query("a"));
+            Xapian::Query("is") | Xapian::Query("as") | Xapian::Query("be"),
+            Xapian::Query("a"));
     enq.set_query(query);
     mset_expect_order(enq.get_mset(0, 10), 1);
     Xapian::Query query2(Xapian::Query::OP_PHRASE,
-	    Xapian::Query("a"),
-	    Xapian::Query("is") | Xapian::Query("as") | Xapian::Query("be"));
+            Xapian::Query("a"),
+            Xapian::Query("is") | Xapian::Query("as") | Xapian::Query("be"));
     enq.set_query(query2);
     mset_expect_order(enq.get_mset(0, 10));
     Xapian::Query query3(Xapian::Query::OP_PHRASE,
-	    Xapian::Query("one") | Xapian::Query("with"),
-	    Xapian::Query("the") | Xapian::Query("of") | Xapian::Query("line"));
+            Xapian::Query("one") | Xapian::Query("with"),
+            Xapian::Query("the") | Xapian::Query("of") | Xapian::Query("line"));
     enq.set_query(query3);
     mset_expect_order(enq.get_mset(0, 10), 1, 4, 5);
     Xapian::Query query4(Xapian::Query::OP_PHRASE,
-	    Xapian::Query("the") | Xapian::Query("of") | Xapian::Query("line"),
-	    Xapian::Query("one") | Xapian::Query("with"));
+            Xapian::Query("the") | Xapian::Query("of") | Xapian::Query("line"),
+            Xapian::Query("one") | Xapian::Query("with"));
     enq.set_query(query4);
     mset_expect_order(enq.get_mset(0, 10));
 }
@@ -1143,23 +1143,23 @@ DEFINE_TESTCASE(complexnear3, backend) {
     Xapian::Database db = get_database("apitest_simpledata");
     Xapian::Enquire enq(db);
     Xapian::Query query(Xapian::Query::OP_NEAR,
-	    Xapian::Query("is") | Xapian::Query("as") | Xapian::Query("be"),
-	    Xapian::Query("a"));
+            Xapian::Query("is") | Xapian::Query("as") | Xapian::Query("be"),
+            Xapian::Query("a"));
     enq.set_query(query);
     mset_expect_order(enq.get_mset(0, 10), 1);
     Xapian::Query query2(Xapian::Query::OP_NEAR,
-	    Xapian::Query("a"),
-	    Xapian::Query("is") | Xapian::Query("as") | Xapian::Query("be"));
+            Xapian::Query("a"),
+            Xapian::Query("is") | Xapian::Query("as") | Xapian::Query("be"));
     enq.set_query(query2);
     mset_expect_order(enq.get_mset(0, 10), 1);
     Xapian::Query query3(Xapian::Query::OP_NEAR,
-	    Xapian::Query("one") | Xapian::Query("with"),
-	    Xapian::Query("the") | Xapian::Query("of") | Xapian::Query("line"));
+            Xapian::Query("one") | Xapian::Query("with"),
+            Xapian::Query("the") | Xapian::Query("of") | Xapian::Query("line"));
     enq.set_query(query3);
     mset_expect_order(enq.get_mset(0, 10), 1, 4, 5);
     Xapian::Query query4(Xapian::Query::OP_NEAR,
-	    Xapian::Query("the") | Xapian::Query("of") | Xapian::Query("line"),
-	    Xapian::Query("one") | Xapian::Query("with"));
+            Xapian::Query("the") | Xapian::Query("of") | Xapian::Query("line"),
+            Xapian::Query("one") | Xapian::Query("with"));
     enq.set_query(query4);
     mset_expect_order(enq.get_mset(0, 10), 1, 4, 5);
 }
@@ -1179,12 +1179,12 @@ DEFINE_TESTCASE(subdbwithoutpos1, backend) {
     TEST(db.has_positions());
 
     Xapian::Query q_near(Xapian::Query::OP_NEAR,
-			 Xapian::Query("this"),
-			 Xapian::Query("paragraph"));
+                         Xapian::Query("this"),
+                         Xapian::Query("paragraph"));
 
     Xapian::Query q_phrase(Xapian::Query::OP_PHRASE,
-			   Xapian::Query("this"),
-			   Xapian::Query("paragraph"));
+                           Xapian::Query("this"),
+                           Xapian::Query("paragraph"));
 
     Xapian::Enquire enq1(db);
     enq1.set_query(q_near);
@@ -1196,7 +1196,7 @@ DEFINE_TESTCASE(subdbwithoutpos1, backend) {
     TEST_EQUAL(mset1.size(), 3);
 
     Xapian::Database db2 =
-	get_database("subdbwithoutpos1", gen_subdbwithoutpos1_db);
+        get_database("subdbwithoutpos1", gen_subdbwithoutpos1_db);
     TEST(!db2.has_positions());
 
     // If a database has no positional info, we used to map OP_PHRASE and
@@ -1243,7 +1243,7 @@ DEFINE_TESTCASE(notandor1, backend) {
     Xapian::Database db(get_database("etext"));
     using Xapian::Query;
     Query q = Query("the") &~ (Query("friedrich") &
-			       (Query("day") | Query("night")));
+                               (Query("day") | Query("night")));
     Xapian::Enquire enq(db);
     enq.set_query(q);
 
@@ -1289,8 +1289,8 @@ DEFINE_TESTCASE(emptynot1, backend) {
     // This range won't match anything, so collapses to MatchNothing as we
     // optimise the query.
     query = Xapian::Query(query.OP_AND_NOT,
-			  query,
-			  Xapian::Query(Xapian::Query::OP_VALUE_GE, 1234, "x"));
+                          query,
+                          Xapian::Query(Xapian::Query::OP_VALUE_GE, 1234, "x"));
     enq.set_query(query);
     Xapian::MSet mset = enq.get_mset(0, 10);
     TEST_EQUAL(mset.size(), 1);
@@ -1298,8 +1298,8 @@ DEFINE_TESTCASE(emptynot1, backend) {
     // on the right side.
     query = Xapian::Query("document") & Xapian::Query("api");
     query = Xapian::Query(query.OP_AND_NOT,
-			  query,
-			  Xapian::Query("nosuchterm"));
+                          query,
+                          Xapian::Query("nosuchterm"));
     enq.set_query(query);
     mset = enq.get_mset(0, 10);
     TEST_EQUAL(mset.size(), 1);
@@ -1307,8 +1307,8 @@ DEFINE_TESTCASE(emptynot1, backend) {
     // anything on right side.
     query = Xapian::Query("document") & Xapian::Query("api");
     query = Xapian::Query(query.OP_AND_NOT,
-			  query,
-			  Xapian::Query(query.OP_WILDCARD, "nosuchwildcard"));
+                          query,
+                          Xapian::Query(query.OP_WILDCARD, "nosuchwildcard"));
     enq.set_query(query);
     mset = enq.get_mset(0, 10);
     TEST_EQUAL(mset.size(), 1);
@@ -1324,8 +1324,8 @@ DEFINE_TESTCASE(emptymaybe1, backend) {
     // This range won't match anything, so collapses to MatchNothing as we
     // optimise the query.
     query = Xapian::Query(query.OP_AND_MAYBE,
-			  query,
-			  Xapian::Query(Xapian::Query::OP_VALUE_GE, 1234, "x"));
+                          query,
+                          Xapian::Query(Xapian::Query::OP_VALUE_GE, 1234, "x"));
     enq.set_query(query);
     Xapian::MSet mset = enq.get_mset(0, 10);
     TEST_EQUAL(mset.size(), 1);
@@ -1333,8 +1333,8 @@ DEFINE_TESTCASE(emptymaybe1, backend) {
     // on the right side.
     query = Xapian::Query("document") & Xapian::Query("api");
     query = Xapian::Query(query.OP_AND_MAYBE,
-			  query,
-			  Xapian::Query("nosuchterm"));
+                          query,
+                          Xapian::Query("nosuchterm"));
     enq.set_query(query);
     mset = enq.get_mset(0, 10);
     TEST_EQUAL(mset.size(), 1);
@@ -1342,8 +1342,8 @@ DEFINE_TESTCASE(emptymaybe1, backend) {
     // anything on right side.
     query = Xapian::Query("document") & Xapian::Query("api");
     query = Xapian::Query(query.OP_AND_MAYBE,
-			  query,
-			  Xapian::Query(query.OP_WILDCARD, "nosuchwildcard"));
+                          query,
+                          Xapian::Query(query.OP_WILDCARD, "nosuchwildcard"));
     enq.set_query(query);
     mset = enq.get_mset(0, 10);
     TEST_EQUAL(mset.size(), 1);
@@ -1360,14 +1360,14 @@ DEFINE_TESTCASE(allnot1, backend) {
     // was handled like MatchAll by this optimisation (which it might be in
     // future).
     query = Xapian::Query{query.OP_AND_NOT,
-			  Xapian::Query("this"),
-			  Xapian::Query("the")};
+                          Xapian::Query("this"),
+                          Xapian::Query("the")};
     enq.set_query(0 * query);
     Xapian::MSet mset = enq.get_mset(0, 10);
     TEST_EQUAL(mset.size(), 2);
     query = Xapian::Query{query.OP_AND_NOT,
-			  query.MatchAll,
-			  Xapian::Query("the")};
+                          query.MatchAll,
+                          Xapian::Query("the")};
     enq.set_query(0 * query);
     mset = enq.get_mset(0, 10);
     TEST_EQUAL(mset.size(), 2);
@@ -1382,8 +1382,8 @@ DEFINE_TESTCASE(emptymayberhs1, backend) {
     // The RHS doesn't match anything, which now gives a NULL PostList*, and
     // we were trying to dereference that in this case.
     Xapian::Query query(Xapian::Query::OP_AND_MAYBE,
-			Xapian::Query("document"),
-			Xapian::Query("xyzzy"));
+                        Xapian::Query("document"),
+                        Xapian::Query("xyzzy"));
     enq.set_query(query);
     Xapian::MSet mset = enq.get_mset(0, 10);
     TEST_EQUAL(mset.size(), 2);
@@ -1406,7 +1406,7 @@ DEFINE_TESTCASE(orphanedhint1, backend) {
     Xapian::Enquire enq(db);
     auto OP_WILDCARD = Xapian::Query::OP_WILDCARD;
     Xapian::Query query = Xapian::Query(OP_WILDCARD, "doc") &
-			  Xapian::Query(OP_WILDCARD, "xyzzy");
+                          Xapian::Query(OP_WILDCARD, "xyzzy");
     query |= Xapian::Query("test");
     tout << query.get_description() << '\n';
     enq.set_query(query);
@@ -1422,15 +1422,15 @@ DEFINE_TESTCASE(docidrangebugs1, backend) {
 
     // This triggered a bug in BoolOrPostList::get_docid_range().
     Xapian::Query query(Xapian::Query::OP_FILTER,
-			Xapian::Query("typo"),
-			Xapian::Query("rubbish") | Xapian::Query("this"));
+                        Xapian::Query("typo"),
+                        Xapian::Query("rubbish") | Xapian::Query("this"));
     enq.set_query(query);
     Xapian::MSet mset = enq.get_mset(0, 1);
     TEST_EQUAL(mset.size(), 1);
 
     Xapian::Query query2(Xapian::Query::OP_FILTER,
-			 Xapian::Query("typo"),
-			 Xapian::Query("this") | Xapian::Query("rubbish"));
+                         Xapian::Query("typo"),
+                         Xapian::Query("this") | Xapian::Query("rubbish"));
     enq.set_query(query2);
     mset = enq.get_mset(0, 1);
     TEST_EQUAL(mset.size(), 1);
@@ -1438,15 +1438,15 @@ DEFINE_TESTCASE(docidrangebugs1, backend) {
     // Alternative reproducer where the first term doesn't match any
     // documents.
     Xapian::Query query3(Xapian::Query::OP_FILTER,
-			 Xapian::Query("typo"),
-			 Xapian::Query("nosuchterm") | Xapian::Query("this"));
+                         Xapian::Query("typo"),
+                         Xapian::Query("nosuchterm") | Xapian::Query("this"));
     enq.set_query(query3);
     mset = enq.get_mset(0, 1);
     TEST_EQUAL(mset.size(), 1);
 
     Xapian::Query query4(Xapian::Query::OP_FILTER,
-			 Xapian::Query("typo"),
-			 Xapian::Query("this") | Xapian::Query("nosuchterm"));
+                         Xapian::Query("typo"),
+                         Xapian::Query("this") | Xapian::Query("nosuchterm"));
     enq.set_query(query4);
     mset = enq.get_mset(0, 1);
     TEST_EQUAL(mset.size(), 1);
@@ -1454,21 +1454,21 @@ DEFINE_TESTCASE(docidrangebugs1, backend) {
 
 DEFINE_TESTCASE(estimateopbug1, backend) {
     Xapian::Database db = get_database("estimateopbug1",
-				       [](Xapian::WritableDatabase& wdb,
-					  const string&)
-				       {
-					   Xapian::Document doc;
-					   doc.add_posting("XFgroups", 7);
-					   doc.add_posting("XSchange", 216);
-					   doc.add_posting("XSmember", 214);
-					   wdb.add_document(doc);
-					   Xapian::Document doc2;
-					   doc2.add_boolean_term("XEP");
-					   wdb.add_document(doc2);
-				       });
+                                       [](Xapian::WritableDatabase& wdb,
+                                          const string&)
+                                       {
+                                           Xapian::Document doc;
+                                           doc.add_posting("XFgroups", 7);
+                                           doc.add_posting("XSchange", 216);
+                                           doc.add_posting("XSmember", 214);
+                                           wdb.add_document(doc);
+                                           Xapian::Document doc2;
+                                           doc2.add_boolean_term("XEP");
+                                           wdb.add_document(doc2);
+                                       });
     Xapian::Query q{Xapian::Query::OP_PHRASE,
-		    Xapian::Query{"XSmember"},
-		    Xapian::Query{"XSchange"}};
+                    Xapian::Query{"XSmember"},
+                    Xapian::Query{"XSchange"}};
     q = Xapian::Query{"XFgroups"} & (q | Xapian::Query{"XSmember"});
     q &= ~Xapian::Query{"XEP"};
     Xapian::Enquire enquire(db);
@@ -1479,7 +1479,7 @@ DEFINE_TESTCASE(estimateopbug1, backend) {
 struct Exception_estimateop2 {};
 class MDecider_estimateop2 : public Xapian::MatchDecider {
     bool operator()(const Xapian::Document&) const override {
-	throw Exception_estimateop2();
+        throw Exception_estimateop2();
     }
 };
 
@@ -1490,8 +1490,8 @@ DEFINE_TESTCASE(estimateopbug2, backend && !remote) {
     enq.set_query(query);
     MDecider_estimateop2 mdecider;
     try {
-	auto mset = enq.get_mset(0, 10, nullptr, &mdecider);
-	FAIL_TEST("Expected exception Exception_estimateop2 not thrown");
+        auto mset = enq.get_mset(0, 10, nullptr, &mdecider);
+        FAIL_TEST("Expected exception Exception_estimateop2 not thrown");
     } catch (const Exception_estimateop2&) {
     }
 }

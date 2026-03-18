@@ -85,19 +85,19 @@ int
 main()
 {
     for (size_t i = 0; tests[i].charset; ++i) {
-	size_t len = tests[i].len;
-	string dump;
-	if (len) {
-	    dump.assign(tests[i].dump, len);
-	} else {
-	    dump.assign(tests[i].dump);
-	}
-	convert_to_utf8(dump, tests[i].charset);
-	if (tests[i].utf8 != dump) {
-	    cout << "Converting from " << tests[i].charset << "\n"
-		    "Expected [" << tests[i].utf8 << "]\n"
-		    "Got      [" << dump << "]" << endl;
-	    exit(1);
-	}
+        size_t len = tests[i].len;
+        string dump;
+        if (len) {
+            dump.assign(tests[i].dump, len);
+        } else {
+            dump.assign(tests[i].dump);
+        }
+        convert_to_utf8(dump, tests[i].charset);
+        if (tests[i].utf8 != dump) {
+            cout << "Converting from " << tests[i].charset << "\n"
+                    "Expected [" << tests[i].utf8 << "]\n"
+                    "Got      [" << dump << "]" << endl;
+            exit(1);
+        }
     }
 }

@@ -29,7 +29,7 @@
 
 namespace Xapian {
     namespace Internal {
-	class ExpandStats;
+        class ExpandStats;
     }
 }
 
@@ -91,7 +91,7 @@ class GlassTermList : public TermList {
      *				     on a freshly constructed TermList).
      */
     GlassTermList(Xapian::Internal::intrusive_ptr<const GlassDatabase> db_,
-		  Xapian::docid did_, bool throw_if_not_present = true);
+                  Xapian::docid did_, bool throw_if_not_present = true);
 
     /** Check if the term isn't present.
      *

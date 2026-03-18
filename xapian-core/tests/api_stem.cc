@@ -32,13 +32,13 @@ using namespace std;
 
 class MyStemImpl : public Xapian::StemImplementation {
     string operator()(const string& word) override {
-	if (word == "vanish")
-	    return string();
-	return word.substr(0, 3);
+        if (word == "vanish")
+            return string();
+        return word.substr(0, 3);
     }
 
     string get_description() const override {
-	return "MyStem()";
+        return "MyStem()";
     }
 };
 
@@ -56,15 +56,15 @@ DEFINE_TESTCASE(stem1, !backend) {
 DEFINE_TESTCASE(stem2, !backend) {
     Xapian::Stem st_norwegian("norwegian");
     TEST_EQUAL(st_norwegian.get_description(),
-	       Xapian::Stem("nb").get_description());
+               Xapian::Stem("nb").get_description());
     TEST_EQUAL(st_norwegian.get_description(),
-	       Xapian::Stem("nn").get_description());
+               Xapian::Stem("nn").get_description());
     TEST_EQUAL(st_norwegian.get_description(),
-	       Xapian::Stem("no").get_description());
+               Xapian::Stem("no").get_description());
     TEST_NOT_EQUAL(st_norwegian.get_description(),
-		   Xapian::Stem("en").get_description());
+                   Xapian::Stem("en").get_description());
     TEST_NOT_EQUAL(st_norwegian.get_description(),
-		   Xapian::Stem("none").get_description());
+                   Xapian::Stem("none").get_description());
 }
 
 /// Test add a stemmer test
@@ -112,8 +112,8 @@ DEFINE_TESTCASE(stemempty1, !backend) {
 DEFINE_TESTCASE(stemlangs2, !backend) {
     string lang("xdummy");
     for (unsigned ch = 0; ch <= 255; ++ch) {
-	lang[0] = char(ch);
-	TEST_EXCEPTION(Xapian::InvalidArgumentError, Xapian::Stem stem(lang));
+        lang[0] = char(ch);
+        TEST_EXCEPTION(Xapian::InvalidArgumentError, Xapian::Stem stem(lang));
     }
 
     // Test fallback=false throws too.

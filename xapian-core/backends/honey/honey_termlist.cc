@@ -32,9 +32,9 @@ throw_database_corrupt(const char* item, const char* pos)
 {
     string message;
     if (pos != NULL) {
-	message = "Value overflow unpacking termlist: ";
+        message = "Value overflow unpacking termlist: ";
     } else {
-	message = "Out of data unpacking termlist: ";
+        message = "Out of data unpacking termlist: ";
     }
     message += item;
     throw Xapian::DatabaseCorruptError(message);
@@ -44,49 +44,49 @@ HoneyTermList::HoneyTermList(const HoneyDatabase* db_, Xapian::docid did_)
     : db(db_), did(did_)
 {
     if (!db->termlist_table.get_exact_entry(HoneyTermListTable::make_key(did),
-					    data)) {
-	// Document with no terms or values, or one which doesn't exist.
-	termlist_size = 0;
-	doclen = 0;
-	pos = end = data.data();
-	return;
+                                            data)) {
+        // Document with no terms or values, or one which doesn't exist.
+        termlist_size = 0;
+        doclen = 0;
+        pos = end = data.data();
+        return;
     }
 
     pos = data.data();
     end = pos + data.size();
 
     if (pos == end)
-	throw_database_corrupt("No termlist data", pos);
+        throw_database_corrupt("No termlist data", pos);
 
     size_t slot_enc_size = *pos++;
 
     // If the top bit is clear we have a 7-bit bitmap of slots used.
     if (slot_enc_size & 0x80) {
-	slot_enc_size &= 0x7f;
-	if (slot_enc_size == 0) {
-	    if (!unpack_uint(&pos, end, &slot_enc_size)) {
-		throw Xapian::DatabaseCorruptError("Termlist encoding corrupt");
-	    }
-	}
+        slot_enc_size &= 0x7f;
+        if (slot_enc_size == 0) {
+            if (!unpack_uint(&pos, end, &slot_enc_size)) {
+                throw Xapian::DatabaseCorruptError("Termlist encoding corrupt");
+            }
+        }
 
-	// Skip encoded slot data.
-	pos += slot_enc_size;
+        // Skip encoded slot data.
+        pos += slot_enc_size;
     }
 
     if (pos == end) {
-	// Document with values but no terms.
-	termlist_size = 0;
-	doclen = 0;
-	return;
+        // Document with values but no terms.
+        termlist_size = 0;
+        doclen = 0;
+        return;
     }
 
     if (!unpack_uint(&pos, end, &termlist_size)) {
-	throw_database_corrupt("termlist length", pos);
+        throw_database_corrupt("termlist length", pos);
     }
     ++termlist_size;
 
     if (!unpack_uint(&pos, end, &doclen)) {
-	throw_database_corrupt("doclen", pos);
+        throw_database_corrupt("doclen", pos);
     }
 }
 
@@ -101,10 +101,10 @@ HoneyTermList::accumulate_stats(Xapian::Internal::ExpandStats& stats) const
 {
     Assert(pos != NULL);
     stats.accumulate(shard_index,
-		     current_wdf,
-		     doclen,
-		     get_termfreq(),
-		     db->get_doccount());
+                     current_wdf,
+                     doclen,
+                     get_termfreq(),
+                     db->get_doccount());
 }
 
 Xapian::termcount
@@ -119,7 +119,7 @@ HoneyTermList::get_termfreq() const
 {
     Assert(pos != NULL);
     if (current_termfreq == 0)
-	db->get_freqs(current_term, &current_termfreq, NULL);
+        db->get_freqs(current_term, &current_termfreq, NULL);
     return current_termfreq;
 }
 
@@ -129,34 +129,34 @@ HoneyTermList::next()
     Assert(pos != NULL);
 
     if (pos == end) {
-	return this;
+        return this;
     }
 
     current_wdf = 0;
 
     if (!current_term.empty()) {
-	size_t reuse = static_cast<unsigned char>(*pos++);
-	if (reuse > current_term.size()) {
-	    current_wdf = reuse / (current_term.size() + 1);
-	    reuse = reuse % (current_term.size() + 1);
-	}
-	current_term.resize(reuse);
+        size_t reuse = static_cast<unsigned char>(*pos++);
+        if (reuse > current_term.size()) {
+            current_wdf = reuse / (current_term.size() + 1);
+            reuse = reuse % (current_term.size() + 1);
+        }
+        current_term.resize(reuse);
     }
 
     if (current_wdf) {
-	--current_wdf;
+        --current_wdf;
     } else {
-	if (!unpack_uint(&pos, end, &current_wdf)) {
-	    throw_database_corrupt("wdf", pos);
-	}
+        if (!unpack_uint(&pos, end, &current_wdf)) {
+            throw_database_corrupt("wdf", pos);
+        }
     }
 
     if (pos == end)
-	throw_database_corrupt("term", NULL);
+        throw_database_corrupt("term", NULL);
 
     size_t append = static_cast<unsigned char>(*pos++);
     if (size_t(end - pos) < append)
-	throw_database_corrupt("term", NULL);
+        throw_database_corrupt("term", NULL);
 
     current_term.append(pos, append);
     pos += append;
@@ -171,8 +171,8 @@ TermList*
 HoneyTermList::skip_to(std::string_view term)
 {
     while (current_term < term) {
-	if (HoneyTermList::next())
-	    return this;
+        if (HoneyTermList::next())
+            return this;
     }
     return NULL;
 }

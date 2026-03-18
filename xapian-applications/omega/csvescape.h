@@ -40,7 +40,7 @@ inline void csv_escape(std::string &s) {
     // Check if the string needs any escaping or quoting first.
     std::string::size_type i = s.find_first_of(",\"\r\n");
     if (i != std::string::npos) {
-	csv_escape_(s, i);
+        csv_escape_(s, i);
     }
 }
 

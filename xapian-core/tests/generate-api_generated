@@ -152,21 +152,21 @@ END
 for my $class (sort keys %uncopyableclasses) {
     my $params = $uncopyableclasses{$class};
     if ($params ne '') {
-	$params = "($params)";
+        $params = "($params)";
     }
     my $get_description = ! exists $no_get_description{$class};
     my $object = lc $class;
     my $full_class = "Xapian::$class";
     print "    $full_class $object$params;\n";
     if ($get_description) {
-	print "    {\n";
-	print "\tconst string& desc = $object.get_description();\n";
-	print "\ttout.clear();\n";
-	print "\ttout << desc << '\\n';\n";
-	print "\tTEST(startswith(desc, \"$class(\") ||\n";
-	print "\t     startswith(desc, \"$full_class(\"));\n";
-	print "\tTEST(desc.back() == ')');\n";
-	print "    }\n";
+        print "    {\n";
+        print "\tconst string& desc = $object.get_description();\n";
+        print "\ttout.clear();\n";
+        print "\ttout << desc << '\\n';\n";
+        print "\tTEST(startswith(desc, \"$class(\") ||\n";
+        print "\t     startswith(desc, \"$full_class(\"));\n";
+        print "\tTEST(desc.back() == ')');\n";
+        print "    }\n";
     }
 }
 
@@ -180,10 +180,10 @@ END
 for my $class (sort keys %copyableclasses) {
     my $params = $copyableclasses{$class};
     if ($params =~ /INMEMORY/) {
-	print "#ifdef XAPIAN_HAS_INMEMORY_BACKEND\n";
+        print "#ifdef XAPIAN_HAS_INMEMORY_BACKEND\n";
     }
     if ($params ne '') {
-	$params = "($params)";
+        $params = "($params)";
     }
     my $get_description = ! exists $no_get_description{$class};
     my $object = lc $class;
@@ -199,7 +199,7 @@ for my $class (sort keys %copyableclasses) {
     print "    copy_$object = std::move(move_$object);\n";
     print "    TEST(!copy_$object.get_description().empty());\n" if $get_description;
     if ($params =~ /INMEMORY/) {
-	print "#endif\n";
+        print "#endif\n";
     }
     print "\n";
 }
@@ -215,17 +215,17 @@ for my $class (sort keys %copyableclasses) {
     next unless $class =~ /Iterator$/;
     print <<"END";
     {
-	using traits = iterator_traits<Xapian::$class>;
-	using pointer_base = std::remove_pointer<traits::pointer>::type;
-	using reference_base = std::remove_reference<traits::reference>::type;
-	static_assert(is_same<decltype(*std::declval<Xapian::$class>()),
-			      pointer_base>::value,
-		      "iterator_traits<$class>::pointer inconsistent with "
-		      "type from dereferencing $class");
-	static_assert(is_same<decltype(*std::declval<Xapian::$class>()),
-			      reference_base>::value,
-		      "iterator_traits<$class>::reference inconsistent with "
-		      "type from dereferencing $class");
+        using traits = iterator_traits<Xapian::$class>;
+        using pointer_base = std::remove_pointer<traits::pointer>::type;
+        using reference_base = std::remove_reference<traits::reference>::type;
+        static_assert(is_same<decltype(*std::declval<Xapian::$class>()),
+                              pointer_base>::value,
+                      "iterator_traits<$class>::pointer inconsistent with "
+                      "type from dereferencing $class");
+        static_assert(is_same<decltype(*std::declval<Xapian::$class>()),
+                              reference_base>::value,
+                      "iterator_traits<$class>::reference inconsistent with "
+                      "type from dereferencing $class");
     }
 END
 }
@@ -240,17 +240,17 @@ END
 for my $class (sort keys %container_classes) {
     print <<"END";
     {
-	using pointer_base =
-	    std::remove_pointer<Xapian::${class}::pointer>::type;
-	using reference_base =
-	    std::remove_reference<Xapian::${class}::reference>::type;
-	using value_type = Xapian::${class}::value_type;
-	static_assert(is_same<value_type, pointer_base>::value,
-		      "Xapian::${class}::pointer inconsistent with "
-		      "Xapian::${class}::value_type");
-	static_assert(is_same<value_type, reference_base>::value,
-		      "Xapian::${class}::reference inconsistent with "
-		      "Xapian::${class}::value_type");
+        using pointer_base =
+            std::remove_pointer<Xapian::${class}::pointer>::type;
+        using reference_base =
+            std::remove_reference<Xapian::${class}::reference>::type;
+        using value_type = Xapian::${class}::value_type;
+        static_assert(is_same<value_type, pointer_base>::value,
+                      "Xapian::${class}::pointer inconsistent with "
+                      "Xapian::${class}::value_type");
+        static_assert(is_same<value_type, reference_base>::value,
+                      "Xapian::${class}::reference inconsistent with "
+                      "Xapian::${class}::value_type");
     }
 END
 }

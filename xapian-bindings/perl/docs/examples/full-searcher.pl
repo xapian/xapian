@@ -50,30 +50,30 @@ eval {
     # Open the database(s) for searching.
     my $database = Xapian::Database->new(shift @ARGV);
     while (scalar @ARGV && $ARGV[0] ne '--') {
-	# Xapian can transparently search several databases together.
-	my $extra_db = Xapian::Database->new(shift @ARGV);
-	$database->add_database($extra_db);
+        # Xapian can transparently search several databases together.
+        my $extra_db = Xapian::Database->new(shift @ARGV);
+        $database->add_database($extra_db);
     }
     shift @ARGV;
 
     # Default is sort by relevance.
     my $sort_by;
     if (scalar @ARGV && $ARGV[0] =~ /^-s(\w+)$/) {
-	if ($1 eq 'date') {
-	    $sort_by = 0;
-	} elsif ($1 eq 'id') {
-	    $sort_by = 1;
-	} elsif ($1 eq 'type') {
-	    $sort_by = 2;
-	} elsif ($1 eq 'author') {
-	    $sort_by = 3;
-	} elsif ($1 eq 'title') {
-	    $sort_by = 4;
-	} else {
-	    print STDERR "Bad option '-s$1'.\n";
-	    exit 1;
-	}
-	shift @ARGV;
+        if ($1 eq 'date') {
+            $sort_by = 0;
+        } elsif ($1 eq 'id') {
+            $sort_by = 1;
+        } elsif ($1 eq 'type') {
+            $sort_by = 2;
+        } elsif ($1 eq 'author') {
+            $sort_by = 3;
+        } elsif ($1 eq 'title') {
+            $sort_by = 4;
+        } else {
+            print STDERR "Bad option '-s$1'.\n";
+            exit 1;
+        }
+        shift @ARGV;
     }
 
     # Start an enquire session.
@@ -105,15 +105,15 @@ eval {
 
     # Parse the query string and return a Xapian::Query object.
     my $query = $qp->parse_query(
-	    $query_string,
-	    FLAG_PHRASE|FLAG_BOOLEAN|FLAG_LOVEHATE|FLAG_WILDCARD
-	    );
+            $query_string,
+            FLAG_PHRASE|FLAG_BOOLEAN|FLAG_LOVEHATE|FLAG_WILDCARD
+            );
 
     print "Internal view of parsed query is:\n$query\n\n";
 
     $enquire->set_query($query);
     if (defined $sort_by) {
-	$enquire->set_sort_by_value($sort_by, 0);
+        $enquire->set_sort_by_value($sort_by, 0);
     }
 
     # Return the top 10 results for the query.
@@ -121,23 +121,23 @@ eval {
 
     my $msize = $mset->size();
     if ($msize == 0) {
-	print "No matching documents found.\n";
-	exit 0;
+        print "No matching documents found.\n";
+        exit 0;
     }
 
     # Display the results.
     if ($mset->get_matches_lower_bound() != $mset->get_matches_upper_bound()) {
-	print "About ";
+        print "About ";
     }
     printf "%u matching documents were found.\n",
-	   $mset->get_matches_estimated();
+           $mset->get_matches_estimated();
     print "Results 1-$msize:\n";
 
     foreach my $m ($mset->items()) {
-	printf "#%u: Score %u%%: %s\n",
-	      $m->get_rank() + 1,
-	      $m->get_percent(),
-	      $m->get_document()->get_data();
+        printf "#%u: Score %u%%: %s\n",
+              $m->get_rank() + 1,
+              $m->get_percent(),
+              $m->get_document()->get_data();
     }
 };
 if ($@) {

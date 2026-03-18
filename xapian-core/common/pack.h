@@ -46,7 +46,7 @@ const unsigned int SORTABLE_UINT_MAX_BYTES = 1 << SORTABLE_UINT_LOG2_MAX_BYTES;
 
 /// Calculated value used below.
 const unsigned int SORTABLE_UINT_1ST_BYTE_MASK =
-	(0xffu >> SORTABLE_UINT_LOG2_MAX_BYTES);
+        (0xffu >> SORTABLE_UINT_LOG2_MAX_BYTES);
 
 /** Throw appropriate SerialisationError.
  *
@@ -80,8 +80,8 @@ unpack_bool(const char** p, const char* end, bool* result)
     Assert(ptr);
     char ch;
     if (rare(ptr == end || ((ch = *ptr++ - '0') &~ 1))) {
-	ptr = NULL;
-	return false;
+        ptr = NULL;
+        return false;
     }
     *result = static_cast<bool>(ch);
     return true;
@@ -102,8 +102,8 @@ pack_uint_last(std::string& s, U value)
     static_assert(std::is_unsigned_v<U>, "Unsigned type required");
 
     while (value) {
-	s += char(value & 0xff);
-	value >>= 8;
+        s += char(value & 0xff);
+        value >>= 8;
     }
 }
 
@@ -126,12 +126,12 @@ unpack_uint_last(const char** p, const char* end, U* result)
 
     // Check for overflow.
     if (rare(end - ptr > int(sizeof(U)))) {
-	return false;
+        return false;
     }
 
     *result = 0;
     while (end != ptr) {
-	*result = (*result << 8) | U(static_cast<unsigned char>(*--end));
+        *result = (*result << 8) | U(static_cast<unsigned char>(*--end));
     }
 
     return true;
@@ -205,15 +205,15 @@ pack_uint_preserving_sort(std::string& s, U value)
 {
     static_assert(std::is_unsigned_v<U>, "Unsigned type required");
     static_assert(sizeof(U) <= 8,
-		  "Template type U too wide for database format");
+                  "Template type U too wide for database format");
     // The clz() functions are undefined for 0, so handle the smallest band
     // as a special case.
     if (value < 0x8000) {
-	s.resize(s.size() + 2);
-	s[s.size() - 2] = static_cast<unsigned char>(value >> 8);
-	Assert(s[s.size() - 2] != '\xff');
-	s[s.size() - 1] = static_cast<unsigned char>(value);
-	return;
+        s.resize(s.size() + 2);
+        s[s.size() - 2] = static_cast<unsigned char>(value >> 8);
+        Assert(s[s.size() - 2] != '\xff');
+        s[s.size() - 1] = static_cast<unsigned char>(value);
+        return;
     }
 
 #ifdef HAVE_DO_CLZ
@@ -226,8 +226,8 @@ pack_uint_preserving_sort(std::string& s, U value)
 
     s.resize(s.size() + len);
     for (size_t i = 1; i != len; ++i) {
-	s[s.size() - i] = static_cast<unsigned char>(value);
-	value >>= 8;
+        s[s.size() - i] = static_cast<unsigned char>(value);
+        value >>= 8;
     }
 
     s[s.size() - len] = static_cast<unsigned char>(value | mask);
@@ -252,25 +252,25 @@ unpack_uint_preserving_sort(const char** p, const char* end, U* result)
 {
     static_assert(std::is_unsigned_v<U>, "Unsigned type required");
     static_assert(sizeof(U) <= 8,
-		  "Template type U too wide for database format");
+                  "Template type U too wide for database format");
     Assert(result);
 
     const char* ptr = *p;
     Assert(ptr);
 
     if (rare(ptr == end)) {
-	return false;
+        return false;
     }
 
     unsigned char len_byte = static_cast<unsigned char>(*ptr++);
     if (len_byte < 0x80) {
-	*result = (U(len_byte) << 8) | static_cast<unsigned char>(*ptr++);
-	*p = ptr;
-	return true;
+        *result = (U(len_byte) << 8) | static_cast<unsigned char>(*ptr++);
+        *p = ptr;
+        return true;
     }
 
     if (len_byte == 0xff) {
-	return false;
+        return false;
     }
 
     // len is how many bytes there are after the length byte.
@@ -281,7 +281,7 @@ unpack_uint_preserving_sort(const char** p, const char* end, U* result)
     for (unsigned char m = 0x40; len_byte & m; m >>= 1) ++len;
 #endif
     if (rare(size_t(end - ptr) < len)) {
-	return false;
+        return false;
     }
     unsigned mask = 0xff << (9 - len);
     len_byte &= ~mask;
@@ -289,8 +289,8 @@ unpack_uint_preserving_sort(const char** p, const char* end, U* result)
     // Check for overflow.
     if (rare(len > int(sizeof(U)))) return false;
     if constexpr(sizeof(U) != 8) {
-	// Need to check the top byte too.
-	if (rare(len == int(sizeof(U)) && len_byte != 0)) return false;
+        // Need to check the top byte too.
+        if (rare(len == int(sizeof(U)) && len_byte != 0)) return false;
     }
 
     end = ptr + len;
@@ -298,7 +298,7 @@ unpack_uint_preserving_sort(const char** p, const char* end, U* result)
 
     U r = len_byte;
     while (ptr != end) {
-	r = (r << 8) | U(static_cast<unsigned char>(*ptr++));
+        r = (r << 8) | U(static_cast<unsigned char>(*ptr++));
     }
     *result = r;
 
@@ -317,8 +317,8 @@ pack_uint(std::string& s, U value)
     static_assert(std::is_unsigned_v<U>, "Unsigned type required");
 
     while (value >= 128) {
-	s += static_cast<char>(static_cast<unsigned char>(value) | 0x80);
-	value >>= 7;
+        s += static_cast<char>(static_cast<unsigned char>(value) | 0x80);
+        value >>= 7;
     }
     s += static_cast<char>(value);
 }
@@ -353,11 +353,11 @@ unpack_uint(const char** p, const char* end, U* result)
 
     // Check the length of the encoded integer first.
     do {
-	if (rare(ptr == end)) {
-	    // Out of data.
-	    *p = NULL;
-	    return false;
-	}
+        if (rare(ptr == end)) {
+            // Out of data.
+            *p = NULL;
+            return false;
+        }
     } while (static_cast<unsigned char>(*ptr++) >= 128);
 
     *p = ptr;
@@ -366,36 +366,36 @@ unpack_uint(const char** p, const char* end, U* result)
 
     *result = U(*--ptr);
     if (ptr == start) {
-	// Special case for small values.
-	return true;
+        // Special case for small values.
+        return true;
     }
 
     size_t maxbits = size_t(ptr - start) * 7;
     if (maxbits <= sizeof(U) * 8) {
-	// No possibility of overflow.
-	do {
-	    unsigned char chunk = static_cast<unsigned char>(*--ptr) & 0x7f;
-	    *result = (*result << 7) | U(chunk);
-	} while (ptr != start);
-	return true;
+        // No possibility of overflow.
+        do {
+            unsigned char chunk = static_cast<unsigned char>(*--ptr) & 0x7f;
+            *result = (*result << 7) | U(chunk);
+        } while (ptr != start);
+        return true;
     }
 
     size_t minbits = maxbits - 6;
     if (rare(minbits > sizeof(U) * 8)) {
-	// Overflow.
-	return false;
+        // Overflow.
+        return false;
     }
 
     while (--ptr != start) {
-	unsigned char chunk = static_cast<unsigned char>(*--ptr) & 0x7f;
-	*result = (*result << 7) | U(chunk);
+        unsigned char chunk = static_cast<unsigned char>(*--ptr) & 0x7f;
+        *result = (*result << 7) | U(chunk);
     }
 
     U tmp = *result;
     *result <<= 7;
     if (rare(*result < tmp)) {
-	// Overflow.
-	return false;
+        // Overflow.
+        return false;
     }
     *result |= U(static_cast<unsigned char>(*ptr) & 0x7f);
     return true;
@@ -418,14 +418,14 @@ unpack_uint_backwards(const char** p, const char* start, U* result)
 
     // Check it's not empty and that the final byte is valid.
     if (rare(ptr == start || static_cast<unsigned char>(ptr[-1]) >= 128)) {
-	// Out of data.
-	*p = NULL;
-	return false;
+        // Out of data.
+        *p = NULL;
+        return false;
     }
 
     do {
-	if (rare(--ptr == start))
-	    break;
+        if (rare(--ptr == start))
+            break;
     } while (static_cast<unsigned char>(ptr[-1]) >= 128);
 
     const char* end = *p;
@@ -469,13 +469,13 @@ unpack_string(const char** p, const char* end, std::string& result)
 {
     size_t len;
     if (rare(!unpack_uint(p, end, &len))) {
-	return false;
+        return false;
     }
 
     const char*& ptr = *p;
     if (rare(len > size_t(end - ptr))) {
-	ptr = NULL;
-	return false;
+        ptr = NULL;
+        return false;
     }
 
     result.assign(ptr, len);
@@ -494,13 +494,13 @@ unpack_string_append(const char** p, const char* end, std::string& result)
 {
     size_t len;
     if (rare(!unpack_uint(p, end, &len))) {
-	return false;
+        return false;
     }
 
     const char*& ptr = *p;
     if (rare(len > size_t(end - ptr))) {
-	ptr = NULL;
-	return false;
+        ptr = NULL;
+        return false;
     }
 
     result.append(ptr, len);
@@ -526,14 +526,14 @@ unpack_string_append(const char** p, const char* end, std::string& result)
  */
 inline void
 pack_string_preserving_sort(std::string& s, std::string_view value,
-			    bool last = false)
+                            bool last = false)
 {
     std::string::size_type b = 0, e;
     while ((e = value.find('\0', b)) != std::string::npos) {
-	++e;
-	s.append(value, b, e - b);
-	s += '\xff';
-	b = e;
+        ++e;
+        s.append(value, b, e - b);
+        s += '\xff';
+        b = e;
     }
     s.append(value, b, std::string::npos);
     if (!last) s += '\0';
@@ -549,7 +549,7 @@ pack_string_preserving_sort(std::string& s, std::string_view value,
  */
 inline bool
 unpack_string_preserving_sort(const char** p, const char* end,
-			      std::string& result)
+                              std::string& result)
 {
     result.resize(0);
 
@@ -557,14 +557,14 @@ unpack_string_preserving_sort(const char** p, const char* end,
     Assert(ptr);
 
     while (ptr != end) {
-	char ch = *ptr++;
-	if (rare(ch == '\0')) {
-	    if (usual(ptr == end || *ptr != '\xff')) {
-		break;
-	    }
-	    ++ptr;
-	}
-	result += ch;
+        char ch = *ptr++;
+        if (rare(ch == '\0')) {
+            if (usual(ptr == end || *ptr != '\xff')) {
+                break;
+            }
+            ++ptr;
+        }
+        result += ch;
     }
     *p = ptr;
     return true;
@@ -575,7 +575,7 @@ pack_glass_postlist_key(std::string_view term)
 {
     // Special case for doclen lists.
     if (term.empty())
-	return std::string("\x00\xe0", 2);
+        return std::string("\x00\xe0", 2);
 
     std::string key;
     pack_string_preserving_sort(key, term, true);
@@ -587,9 +587,9 @@ pack_glass_postlist_key(std::string_view term, Xapian::docid did)
 {
     // Special case for doclen lists.
     if (term.empty()) {
-	std::string key("\x00\xe0", 2);
-	pack_uint_preserving_sort(key, did);
-	return key;
+        std::string key("\x00\xe0", 2);
+        pack_uint_preserving_sort(key, did);
+        return key;
     }
 
     std::string key;

@@ -65,10 +65,10 @@ static inline bool
 should_stem(const std::string & term)
 {
     const unsigned int SHOULD_STEM_MASK =
-	(1 << Unicode::LOWERCASE_LETTER) |
-	(1 << Unicode::TITLECASE_LETTER) |
-	(1 << Unicode::MODIFIER_LETTER) |
-	(1 << Unicode::OTHER_LETTER);
+        (1 << Unicode::LOWERCASE_LETTER) |
+        (1 << Unicode::TITLECASE_LETTER) |
+        (1 << Unicode::MODIFIER_LETTER) |
+        (1 << Unicode::OTHER_LETTER);
     Utf8Iterator u(term);
     return ((SHOULD_STEM_MASK >> Unicode::get_category(*u)) & 1);
 }
@@ -82,11 +82,11 @@ static inline unsigned
 check_infix(unsigned ch)
 {
     if (ch == '\'' || ch == '&' || ch == 0xb7 || ch == 0x5f4 || ch == 0x2027) {
-	// Unicode includes all these except '&' in its word boundary rules,
-	// as well as 0x2019 (which we handle below) and ':' (for Swedish
-	// apparently, but we ignore this for now as it's problematic in
-	// real world cases).
-	return ch;
+        // Unicode includes all these except '&' in its word boundary rules,
+        // as well as 0x2019 (which we handle below) and ':' (for Swedish
+        // apparently, but we ignore this for now as it's problematic in
+        // real world cases).
+        return ch;
     }
     // 0x2019 is Unicode apostrophe and single closing quote.
     // 0x201b is Unicode single opening quote with the tail rising.
@@ -94,10 +94,10 @@ check_infix(unsigned ch)
     // 0x200c and 0x200d are zero width non-joiner and joiner respectively.
     // 0x2060 and 0xfeff are word joiners (0xfeff deprecated since Unicode 3.2).
     if (ch >= 0x200c && (ch <= 0x200d || ch == 0x2060 || ch == 0xfeff))
-	return UNICODE_IGNORE;
+        return UNICODE_IGNORE;
     // 0xad is SOFT HYPHEN which marks a potential hyphenation point in a word.
     if (ch == 0xad)
-	return UNICODE_IGNORE;
+        return UNICODE_IGNORE;
     return 0;
 }
 
@@ -106,21 +106,21 @@ check_infix_digit(unsigned ch)
 {
     // This list of characters comes from Unicode's word identifying algorithm.
     switch (ch) {
-	case ',':
-	case '.':
-	case ';':
-	case 0x037e: // GREEK QUESTION MARK
-	case 0x0589: // ARMENIAN FULL STOP
-	case 0x060D: // ARABIC DATE SEPARATOR
-	case 0x07F8: // NKO COMMA
-	case 0x2044: // FRACTION SLASH
-	case 0xFE10: // PRESENTATION FORM FOR VERTICAL COMMA
-	case 0xFE13: // PRESENTATION FORM FOR VERTICAL COLON
-	case 0xFE14: // PRESENTATION FORM FOR VERTICAL SEMICOLON
-	    return ch;
+        case ',':
+        case '.':
+        case ';':
+        case 0x037e: // GREEK QUESTION MARK
+        case 0x0589: // ARMENIAN FULL STOP
+        case 0x060D: // ARABIC DATE SEPARATOR
+        case 0x07F8: // NKO COMMA
+        case 0x2044: // FRACTION SLASH
+        case 0xFE10: // PRESENTATION FORM FOR VERTICAL COMMA
+        case 0xFE13: // PRESENTATION FORM FOR VERTICAL COLON
+        case 0xFE14: // PRESENTATION FORM FOR VERTICAL SEMICOLON
+            return ch;
     }
     if (ch >= 0x200b && (ch <= 0x200d || ch == 0x2060 || ch == 0xfeff))
-	return UNICODE_IGNORE;
+        return UNICODE_IGNORE;
     return 0;
 }
 
@@ -138,27 +138,27 @@ check_suffix(unsigned ch)
 }
 
 static_assert(int(MSet::SNIPPET_WORD_BREAKS) == TermGenerator::FLAG_WORD_BREAKS,
-	      "WORD_BREAKS flags have same value");
+              "WORD_BREAKS flags have same value");
 
 template<typename ACTION>
 static bool
 break_words(Utf8Iterator& itor, unsigned break_flags, bool with_positions,
-	    ACTION action)
+            ACTION action)
 {
 #ifdef USE_ICU
     if (break_flags & MSet::SNIPPET_WORD_BREAKS) {
-	const char* start = itor.raw();
-	// get_unbroken() returns the number of codepoints, which we aren't
-	// interested in here.
-	(void)get_unbroken(itor);
-	size_t left = itor.raw() - start;
-	for (WordIterator tk(start, left); tk != WordIterator(); ++tk) {
-	    const string& token = *tk;
-	    left -= token.length();
-	    if (!action(token, with_positions, itor.left() + left))
-		return false;
-	}
-	return true;
+        const char* start = itor.raw();
+        // get_unbroken() returns the number of codepoints, which we aren't
+        // interested in here.
+        (void)get_unbroken(itor);
+        size_t left = itor.raw() - start;
+        for (WordIterator tk(start, left); tk != WordIterator(); ++tk) {
+            const string& token = *tk;
+            left -= token.length();
+            if (!action(token, with_positions, itor.left() + left))
+                return false;
+        }
+        return true;
     }
 #else
     (void)break_flags;
@@ -166,12 +166,12 @@ break_words(Utf8Iterator& itor, unsigned break_flags, bool with_positions,
 
     NgramIterator tk(itor);
     while (tk != NgramIterator()) {
-	const string& token = *tk;
-	// FLAG_NGRAMS only sets positions for tokens of length 1.
-	bool with_pos = with_positions && tk.unigram();
-	if (!action(token, with_pos, tk.get_utf8iterator().left()))
-	    return false;
-	++tk;
+        const string& token = *tk;
+        // FLAG_NGRAMS only sets positions for tokens of length 1.
+        bool with_pos = with_positions && tk.unigram();
+        if (!action(token, with_pos, tk.get_utf8iterator().left()))
+            return false;
+        ++tk;
     }
     // Update itor to point the end of the span of text in an unbroken script.
     itor = tk.get_utf8iterator();
@@ -187,123 +187,123 @@ break_words(Utf8Iterator& itor, unsigned break_flags, bool with_positions,
 template<typename ACTION>
 static void
 parse_terms(Utf8Iterator itor, unsigned break_flags, bool with_positions,
-	    ACTION action)
+            ACTION action)
 {
     while (true) {
-	// Advance to the start of the next term.
-	unsigned ch;
-	while (true) {
-	    if (itor == Utf8Iterator()) return;
-	    ch = check_wordchar(*itor);
-	    if (ch) break;
-	    ++itor;
-	}
+        // Advance to the start of the next term.
+        unsigned ch;
+        while (true) {
+            if (itor == Utf8Iterator()) return;
+            ch = check_wordchar(*itor);
+            if (ch) break;
+            ++itor;
+        }
 
-	string term;
-	// Look for initials separated by '.' (e.g. P.T.O., U.N.C.L.E).
-	// Don't worry if there's a trailing '.' or not.
-	if (U_isupper(*itor)) {
-	    const Utf8Iterator end;
-	    Utf8Iterator p = itor;
-	    do {
-		Unicode::append_utf8(term, Unicode::tolower(*p++));
-	    } while (p != end && *p == '.' && ++p != end && U_isupper(*p));
-	    // One letter does not make an acronym!  If we handled a single
-	    // uppercase letter here, we wouldn't catch M&S below.
-	    if (term.size() > 1) {
-		// Check there's not a (lower case) letter or digit
-		// immediately after it.
-		if (p == end || !Unicode::is_wordchar(*p)) {
-		    itor = p;
-		    goto endofterm;
-		}
-	    }
-	    term.resize(0);
-	}
+        string term;
+        // Look for initials separated by '.' (e.g. P.T.O., U.N.C.L.E).
+        // Don't worry if there's a trailing '.' or not.
+        if (U_isupper(*itor)) {
+            const Utf8Iterator end;
+            Utf8Iterator p = itor;
+            do {
+                Unicode::append_utf8(term, Unicode::tolower(*p++));
+            } while (p != end && *p == '.' && ++p != end && U_isupper(*p));
+            // One letter does not make an acronym!  If we handled a single
+            // uppercase letter here, we wouldn't catch M&S below.
+            if (term.size() > 1) {
+                // Check there's not a (lower case) letter or digit
+                // immediately after it.
+                if (p == end || !Unicode::is_wordchar(*p)) {
+                    itor = p;
+                    goto endofterm;
+                }
+            }
+            term.resize(0);
+        }
 
-	while (true) {
-	    if (break_flags && is_unbroken_wordchar(*itor)) {
-		if (!break_words(itor, break_flags, with_positions, action))
-		    return;
-		while (true) {
-		    if (itor == Utf8Iterator()) return;
-		    ch = check_wordchar(*itor);
-		    if (ch) break;
-		    ++itor;
-		}
-		continue;
-	    }
-	    unsigned prevch;
-	    do {
-		Unicode::append_utf8(term, ch);
-		prevch = ch;
-		if (++itor == Utf8Iterator() ||
-		    (break_flags && is_unbroken_script(*itor)))
-		    goto endofterm;
-		ch = check_wordchar(*itor);
-	    } while (ch);
+        while (true) {
+            if (break_flags && is_unbroken_wordchar(*itor)) {
+                if (!break_words(itor, break_flags, with_positions, action))
+                    return;
+                while (true) {
+                    if (itor == Utf8Iterator()) return;
+                    ch = check_wordchar(*itor);
+                    if (ch) break;
+                    ++itor;
+                }
+                continue;
+            }
+            unsigned prevch;
+            do {
+                Unicode::append_utf8(term, ch);
+                prevch = ch;
+                if (++itor == Utf8Iterator() ||
+                    (break_flags && is_unbroken_script(*itor)))
+                    goto endofterm;
+                ch = check_wordchar(*itor);
+            } while (ch);
 
-	    Utf8Iterator next(itor);
-	    ++next;
-	    if (next == Utf8Iterator()) break;
-	    unsigned nextch = check_wordchar(*next);
-	    if (!nextch) break;
-	    unsigned infix_ch = *itor;
-	    if (is_digit(prevch) && is_digit(*next)) {
-		infix_ch = check_infix_digit(infix_ch);
-	    } else {
-		// Handle things like '&' in AT&T, apostrophes, etc.
-		infix_ch = check_infix(infix_ch);
-	    }
-	    if (!infix_ch) break;
-	    if (infix_ch != UNICODE_IGNORE)
-		Unicode::append_utf8(term, infix_ch);
-	    ch = nextch;
-	    itor = next;
-	}
+            Utf8Iterator next(itor);
+            ++next;
+            if (next == Utf8Iterator()) break;
+            unsigned nextch = check_wordchar(*next);
+            if (!nextch) break;
+            unsigned infix_ch = *itor;
+            if (is_digit(prevch) && is_digit(*next)) {
+                infix_ch = check_infix_digit(infix_ch);
+            } else {
+                // Handle things like '&' in AT&T, apostrophes, etc.
+                infix_ch = check_infix(infix_ch);
+            }
+            if (!infix_ch) break;
+            if (infix_ch != UNICODE_IGNORE)
+                Unicode::append_utf8(term, infix_ch);
+            ch = nextch;
+            itor = next;
+        }
 
-	{
-	    size_t len = term.size();
-	    unsigned count = 0;
-	    while ((ch = check_suffix(*itor))) {
-		if (++count > 3) {
-		    term.resize(len);
-		    break;
-		}
-		Unicode::append_utf8(term, ch);
-		if (++itor == Utf8Iterator()) goto endofterm;
-	    }
-	    // Don't index fish+chips as fish+ chips.
-	    if (Unicode::is_wordchar(*itor))
-		term.resize(len);
-	}
+        {
+            size_t len = term.size();
+            unsigned count = 0;
+            while ((ch = check_suffix(*itor))) {
+                if (++count > 3) {
+                    term.resize(len);
+                    break;
+                }
+                Unicode::append_utf8(term, ch);
+                if (++itor == Utf8Iterator()) goto endofterm;
+            }
+            // Don't index fish+chips as fish+ chips.
+            if (Unicode::is_wordchar(*itor))
+                term.resize(len);
+        }
 
 endofterm:
-	if (!action(term, with_positions, itor.left()))
-	    return;
+        if (!action(term, with_positions, itor.left()))
+            return;
     }
 }
 
 void
 TermGenerator::Internal::index_text(Utf8Iterator itor, termcount wdf_inc,
-				    string_view prefix, bool with_positions)
+                                    string_view prefix, bool with_positions)
 {
 #ifndef USE_ICU
     if (flags & FLAG_WORD_BREAKS) {
-	throw Xapian::FeatureUnavailableError("FLAG_WORD_BREAKS requires "
-					      "building Xapian to use ICU");
+        throw Xapian::FeatureUnavailableError("FLAG_WORD_BREAKS requires "
+                                              "building Xapian to use ICU");
     }
 #endif
     unsigned break_flags = flags & (FLAG_NGRAMS | FLAG_WORD_BREAKS);
     if (break_flags == 0 && is_ngram_enabled()) {
-	break_flags = FLAG_NGRAMS;
+        break_flags = FLAG_NGRAMS;
     }
 
     stop_strategy current_stop_mode;
     if (!stopper) {
-	current_stop_mode = TermGenerator::STOP_NONE;
+        current_stop_mode = TermGenerator::STOP_NONE;
     } else {
-	current_stop_mode = stop_mode;
+        current_stop_mode = stop_mode;
     }
 
     // Create two std::string objects which we effectively use as buffers to
@@ -323,71 +323,71 @@ TermGenerator::Internal::index_text(Utf8Iterator itor, termcount wdf_inc,
     auto prefixed_stemmed_size = prefixed_stemmed_term.size();
 
     parse_terms(itor, break_flags, with_positions,
-	[=, &prefixed_term, &prefixed_stemmed_term
+        [=, &prefixed_term, &prefixed_stemmed_term
 #if __cplusplus >= 201907L
 // C++20 no longer supports implicit `this` in lambdas but older C++ versions
 // don't allow `this` here.
-	, this
+        , this
 #endif
-	](const string & term, bool positional, size_t) {
-	    if (term.size() > max_word_length) return true;
+        ](const string & term, bool positional, size_t) {
+            if (term.size() > max_word_length) return true;
 
-	    if (current_stop_mode == TermGenerator::STOP_ALL &&
-		(*stopper)(term)) {
-		return true;
-	    }
+            if (current_stop_mode == TermGenerator::STOP_ALL &&
+                (*stopper)(term)) {
+                return true;
+            }
 
-	    if (strategy == TermGenerator::STEM_SOME ||
-		strategy == TermGenerator::STEM_NONE ||
-		strategy == TermGenerator::STEM_SOME_FULL_POS) {
-		prefixed_term.append(term);
-		if (positional) {
-		    if (rare(cur_pos >= pos_limit))
-			throw Xapian::RangeError("termpos limit exceeded");
-		    doc.add_posting(prefixed_term, ++cur_pos, wdf_inc);
-		} else {
-		    doc.add_term(prefixed_term, wdf_inc);
-		}
-		prefixed_term.resize(prefix_size);
-	    }
+            if (strategy == TermGenerator::STEM_SOME ||
+                strategy == TermGenerator::STEM_NONE ||
+                strategy == TermGenerator::STEM_SOME_FULL_POS) {
+                prefixed_term.append(term);
+                if (positional) {
+                    if (rare(cur_pos >= pos_limit))
+                        throw Xapian::RangeError("termpos limit exceeded");
+                    doc.add_posting(prefixed_term, ++cur_pos, wdf_inc);
+                } else {
+                    doc.add_term(prefixed_term, wdf_inc);
+                }
+                prefixed_term.resize(prefix_size);
+            }
 
-	    // MSVC seems to need "this->" on member variables in this
-	    // situation.
-	    if ((this->flags & FLAG_SPELLING) && prefix_size == 0)
-		db.add_spelling(term);
+            // MSVC seems to need "this->" on member variables in this
+            // situation.
+            if ((this->flags & FLAG_SPELLING) && prefix_size == 0)
+                db.add_spelling(term);
 
-	    if (strategy == TermGenerator::STEM_NONE || stemmer.is_none())
-		return true;
+            if (strategy == TermGenerator::STEM_NONE || stemmer.is_none())
+                return true;
 
-	    if (strategy == TermGenerator::STEM_SOME ||
-		strategy == TermGenerator::STEM_SOME_FULL_POS) {
-		if (current_stop_mode == TermGenerator::STOP_STEMMED &&
-		    (*stopper)(term))
-		    return true;
+            if (strategy == TermGenerator::STEM_SOME ||
+                strategy == TermGenerator::STEM_SOME_FULL_POS) {
+                if (current_stop_mode == TermGenerator::STOP_STEMMED &&
+                    (*stopper)(term))
+                    return true;
 
-		// Note, this uses the lowercased term, but that's OK as we
-		// only want to avoid stemming terms starting with a digit.
-		if (!should_stem(term)) return true;
-	    }
+                // Note, this uses the lowercased term, but that's OK as we
+                // only want to avoid stemming terms starting with a digit.
+                if (!should_stem(term)) return true;
+            }
 
-	    // Add stemmed form without positional information.
-	    const string& stem = stemmer(term);
-	    if (rare(stem.empty())) return true;
-	    prefixed_stemmed_term.append(stem);
-	    if (strategy != TermGenerator::STEM_SOME && positional) {
-		if (strategy != TermGenerator::STEM_SOME_FULL_POS) {
-		    if (rare(cur_pos >= pos_limit))
-			throw Xapian::RangeError("termpos limit exceeded");
-		    ++cur_pos;
-		}
-		doc.add_posting(prefixed_stemmed_term, cur_pos, wdf_inc);
-	    } else {
-		doc.add_term(prefixed_stemmed_term, wdf_inc);
-	    }
-	    prefixed_stemmed_term.resize(prefixed_stemmed_size);
+            // Add stemmed form without positional information.
+            const string& stem = stemmer(term);
+            if (rare(stem.empty())) return true;
+            prefixed_stemmed_term.append(stem);
+            if (strategy != TermGenerator::STEM_SOME && positional) {
+                if (strategy != TermGenerator::STEM_SOME_FULL_POS) {
+                    if (rare(cur_pos >= pos_limit))
+                        throw Xapian::RangeError("termpos limit exceeded");
+                    ++cur_pos;
+                }
+                doc.add_posting(prefixed_stemmed_term, cur_pos, wdf_inc);
+            } else {
+                doc.add_term(prefixed_stemmed_term, wdf_inc);
+            }
+            prefixed_stemmed_term.resize(prefixed_stemmed_size);
 
-	    return true;
-	});
+            return true;
+        });
 }
 
 struct Sniplet {
@@ -398,7 +398,7 @@ struct Sniplet {
     size_t highlight;
 
     Sniplet(double* r, size_t t, size_t h)
-	: relevance(r), term_end(t), highlight(h) { }
+        : relevance(r), term_end(t), highlight(h) { }
 };
 
 class SnipPipe {
@@ -432,10 +432,10 @@ class SnipPipe {
     void done();
 
     bool drain(string_view input,
-	       string_view hi_start,
-	       string_view hi_end,
-	       string_view omit,
-	       string& output);
+               string_view hi_start,
+               string_view hi_end,
+               string_view omit,
+               string& output);
 };
 
 #define DECAY 2.0
@@ -444,69 +444,69 @@ inline bool
 SnipPipe::pump(double* r, size_t t, size_t h, unsigned flags)
 {
     if (h > 1) {
-	if (pipe.size() >= h - 1) {
-	    // The final term of a phrase is entering the window.  Peg the
-	    // phrase's relevance onto the first term of the phrase, so it'll
-	    // be removed from `sum` when the phrase starts to leave the
-	    // window.
-	    auto & phrase_start = pipe[pipe.size() - (h - 1)];
-	    if (phrase_start.relevance) {
-		*phrase_start.relevance *= DECAY;
-		sum -= *phrase_start.relevance;
-	    }
-	    sum += *r;
-	    phrase_start.relevance = r;
-	    phrase_start.highlight = h;
-	    *r /= DECAY;
-	}
-	r = NULL;
-	h = 0;
+        if (pipe.size() >= h - 1) {
+            // The final term of a phrase is entering the window.  Peg the
+            // phrase's relevance onto the first term of the phrase, so it'll
+            // be removed from `sum` when the phrase starts to leave the
+            // window.
+            auto & phrase_start = pipe[pipe.size() - (h - 1)];
+            if (phrase_start.relevance) {
+                *phrase_start.relevance *= DECAY;
+                sum -= *phrase_start.relevance;
+            }
+            sum += *r;
+            phrase_start.relevance = r;
+            phrase_start.highlight = h;
+            *r /= DECAY;
+        }
+        r = NULL;
+        h = 0;
     }
     pipe.emplace_back(r, t, h);
     if (r) {
-	sum += *r;
-	*r /= DECAY;
+        sum += *r;
+        *r /= DECAY;
     }
 
     // If necessary, discard words from the start of the pipe until it has the
     // desired length.
     // FIXME: Also shrink the window past words with relevance < 0?
     while (t - begin > length /* || pipe.front().relevance < 0.0 */) {
-	const Sniplet& word = pipe.front();
-	if (word.relevance) {
-	    *word.relevance *= DECAY;
-	    sum -= *word.relevance;
-	}
-	begin = word.term_end;
-	if (best_end >= begin)
-	    best_pipe.push_back(word);
-	pipe.pop_front();
-	// E.g. can happen if the current term is longer than the requested
-	// length!
-	if (rare(pipe.empty())) break;
+        const Sniplet& word = pipe.front();
+        if (word.relevance) {
+            *word.relevance *= DECAY;
+            sum -= *word.relevance;
+        }
+        begin = word.term_end;
+        if (best_end >= begin)
+            best_pipe.push_back(word);
+        pipe.pop_front();
+        // E.g. can happen if the current term is longer than the requested
+        // length!
+        if (rare(pipe.empty())) break;
     }
 
     // Using > here doesn't work well, as we don't extend a snippet over terms
     // with 0 weight.
     if (sum >= best_sum) {
-	// Discard any part of `best_pipe` which is before `begin`.
-	if (begin >= best_end) {
-	    best_pipe.clear();
-	} else {
-	    while (!best_pipe.empty() &&
-		   best_pipe.front().term_end <= begin) {
-		best_pipe.pop_front();
-	    }
-	}
-	best_sum = sum;
-	best_begin = begin;
-	best_end = t;
+        // Discard any part of `best_pipe` which is before `begin`.
+        if (begin >= best_end) {
+            best_pipe.clear();
+        } else {
+            while (!best_pipe.empty() &&
+                   best_pipe.front().term_end <= begin) {
+                best_pipe.pop_front();
+            }
+        }
+        best_sum = sum;
+        best_begin = begin;
+        best_end = t;
     } else if ((flags & Xapian::MSet::SNIPPET_EXHAUSTIVE) == 0) {
-	if (best_sum > 0 && best_end < begin) {
-	    // We found something, and we aren't still looking near it.
-	    // FIXME: Benchmark this and adjust if necessary.
-	    return false;
-	}
+        if (best_sum > 0 && best_end < begin) {
+            // We found something, and we aren't still looking near it.
+            // FIXME: Benchmark this and adjust if necessary.
+            return false;
+        }
     }
     return true;
 }
@@ -516,14 +516,14 @@ SnipPipe::done()
 {
     // Discard any part of `pipe` which is after `best_end`.
     if (begin >= best_end) {
-	pipe.clear();
+        pipe.clear();
     } else {
-	// We should never empty the pipe (as that case should be handled
-	// above).
-	while (rare(!pipe.empty()) &&
-	       pipe.back().term_end > best_end) {
-	    pipe.pop_back();
-	}
+        // We should never empty the pipe (as that case should be handled
+        // above).
+        while (rare(!pipe.empty()) &&
+               pipe.back().term_end > best_end) {
+            pipe.pop_back();
+        }
     }
 }
 
@@ -533,28 +533,28 @@ SnipPipe::done()
 static inline bool
 snippet_check_leading_nonwordchar(unsigned ch) {
     if (Unicode::is_currency(ch) ||
-	Unicode::get_category(ch) == Unicode::OPEN_PUNCTUATION ||
-	Unicode::get_category(ch) == Unicode::INITIAL_QUOTE_PUNCTUATION) {
-	return true;
+        Unicode::get_category(ch) == Unicode::OPEN_PUNCTUATION ||
+        Unicode::get_category(ch) == Unicode::INITIAL_QUOTE_PUNCTUATION) {
+        return true;
     }
     switch (ch) {
-	case '"':
-	case '#':
-	case '%':
-	case '&':
-	case '\'':
-	case '+':
-	case '-':
-	case '/':
-	case '<':
-	case '@':
-	case '\\':
-	case '`':
-	case '~':
-	case 0x00A1: // INVERTED EXCLAMATION MARK
-	case 0x00A7: // SECTION SIGN
-	case 0x00BF: // INVERTED QUESTION MARK
-	    return true;
+        case '"':
+        case '#':
+        case '%':
+        case '&':
+        case '\'':
+        case '+':
+        case '-':
+        case '/':
+        case '<':
+        case '@':
+        case '\\':
+        case '`':
+        case '~':
+        case 0x00A1: // INVERTED EXCLAMATION MARK
+        case 0x00A7: // SECTION SIGN
+        case 0x00BF: // INVERTED QUESTION MARK
+            return true;
     }
     return false;
 }
@@ -565,23 +565,23 @@ snippet_check_leading_nonwordchar(unsigned ch) {
 static inline bool
 snippet_check_trailing_nonwordchar(unsigned ch) {
     if (Unicode::is_currency(ch) ||
-	Unicode::get_category(ch) == Unicode::CLOSE_PUNCTUATION ||
-	Unicode::get_category(ch) == Unicode::FINAL_QUOTE_PUNCTUATION) {
-	return true;
+        Unicode::get_category(ch) == Unicode::CLOSE_PUNCTUATION ||
+        Unicode::get_category(ch) == Unicode::FINAL_QUOTE_PUNCTUATION) {
+        return true;
     }
     switch (ch) {
-	case '"':
-	case '%':
-	case '\'':
-	case '+':
-	case '-':
-	case '/':
-	case '>':
-	case '@':
-	case '\\':
-	case '`':
-	case '~':
-	    return true;
+        case '"':
+        case '%':
+        case '\'':
+        case '+':
+        case '-':
+        case '/':
+        case '>':
+        case '@':
+        case '\\':
+        case '`':
+        case '~':
+            return true;
     }
     return false;
 }
@@ -590,151 +590,151 @@ static inline void
 append_escaping_xml(const char* p, const char* end, string& output)
 {
     while (p != end) {
-	char ch = *p++;
-	switch (ch) {
-	    case '&':
-		output += "&amp;";
-		break;
-	    case '<':
-		output += "&lt;";
-		break;
-	    case '>':
-		output += "&gt;";
-		break;
-	    default:
-		output += ch;
-	}
+        char ch = *p++;
+        switch (ch) {
+            case '&':
+                output += "&amp;";
+                break;
+            case '<':
+                output += "&lt;";
+                break;
+            case '>':
+                output += "&gt;";
+                break;
+            default:
+                output += ch;
+        }
     }
 }
 
 inline bool
 SnipPipe::drain(string_view input,
-		string_view hi_start,
-		string_view hi_end,
-		string_view omit,
-		string& output)
+                string_view hi_start,
+                string_view hi_end,
+                string_view omit,
+                string& output)
 {
     if (best_pipe.empty() && !pipe.empty()) {
-	swap(best_pipe, pipe);
+        swap(best_pipe, pipe);
     }
 
     if (best_pipe.empty()) {
-	size_t tail_len = input.size() - best_end;
-	if (tail_len == 0) return false;
+        size_t tail_len = input.size() - best_end;
+        if (tail_len == 0) return false;
 
-	// See if this is the end of a sentence.
-	// FIXME: This is quite simplistic - look at the Unicode rules:
-	// https://unicode.org/reports/tr29/#Sentence_Boundaries
-	bool sentence_end = false;
-	Utf8Iterator i(input.data() + best_end, tail_len);
-	while (i != Utf8Iterator()) {
-	    unsigned ch = *i;
-	    if (sentence_end && Unicode::is_whitespace(ch)) break;
+        // See if this is the end of a sentence.
+        // FIXME: This is quite simplistic - look at the Unicode rules:
+        // https://unicode.org/reports/tr29/#Sentence_Boundaries
+        bool sentence_end = false;
+        Utf8Iterator i(input.data() + best_end, tail_len);
+        while (i != Utf8Iterator()) {
+            unsigned ch = *i;
+            if (sentence_end && Unicode::is_whitespace(ch)) break;
 
-	    // Allow "...", "!!", "!?!", etc...
-	    sentence_end = (ch == '.' || ch == '?' || ch == '!');
+            // Allow "...", "!!", "!?!", etc...
+            sentence_end = (ch == '.' || ch == '?' || ch == '!');
 
-	    if (Unicode::is_wordchar(ch)) break;
-	    ++i;
-	}
+            if (Unicode::is_wordchar(ch)) break;
+            ++i;
+        }
 
-	if (sentence_end) {
-	    // Include end of sentence punctuation.
-	    append_escaping_xml(input.data() + best_end, i.raw(), output);
-	    return false;
-	}
+        if (sentence_end) {
+            // Include end of sentence punctuation.
+            append_escaping_xml(input.data() + best_end, i.raw(), output);
+            return false;
+        }
 
-	// Include trailing punctuation which includes meaning or context.
-	i.assign(input.data() + best_end, tail_len);
-	int trailing_punc = 0;
-	while (i != Utf8Iterator() && snippet_check_trailing_nonwordchar(*i)) {
-	    // But limit how much trailing punctuation we include.
-	    if (++trailing_punc > 4) {
-		trailing_punc = 0;
-		break;
-	    }
-	    ++i;
-	}
-	if (trailing_punc) {
-	    append_escaping_xml(input.data() + best_end, i.raw(), output);
-	    if (i == Utf8Iterator()) return false;
-	}
+        // Include trailing punctuation which includes meaning or context.
+        i.assign(input.data() + best_end, tail_len);
+        int trailing_punc = 0;
+        while (i != Utf8Iterator() && snippet_check_trailing_nonwordchar(*i)) {
+            // But limit how much trailing punctuation we include.
+            if (++trailing_punc > 4) {
+                trailing_punc = 0;
+                break;
+            }
+            ++i;
+        }
+        if (trailing_punc) {
+            append_escaping_xml(input.data() + best_end, i.raw(), output);
+            if (i == Utf8Iterator()) return false;
+        }
 
-	// Append "..." or equivalent as this doesn't seem to be the start
-	// of a sentence.
-	output += omit;
+        // Append "..." or equivalent as this doesn't seem to be the start
+        // of a sentence.
+        output += omit;
 
-	return false;
+        return false;
     }
 
     const Sniplet & word = best_pipe.front();
 
     if (output.empty()) {
-	// Start of the snippet.
-	enum { NO, PUNC, YES } sentence_boundary = (best_begin == 0) ? YES : NO;
+        // Start of the snippet.
+        enum { NO, PUNC, YES } sentence_boundary = (best_begin == 0) ? YES : NO;
 
-	Utf8Iterator i(input.data() + best_begin, word.term_end - best_begin);
-	while (i != Utf8Iterator()) {
-	    unsigned ch = *i;
-	    switch (sentence_boundary) {
-		case NO:
-		    if (ch == '.' || ch == '?' || ch == '!') {
-			sentence_boundary = PUNC;
-		    }
-		    break;
-		case PUNC:
-		    if (Unicode::is_whitespace(ch)) {
-			sentence_boundary = YES;
-		    } else if (ch == '.' || ch == '?' || ch == '!') {
-			// Allow "...", "!!", "!?!", etc...
-		    } else {
-			sentence_boundary = NO;
-		    }
-		    break;
-		case YES:
-		    break;
-	    }
+        Utf8Iterator i(input.data() + best_begin, word.term_end - best_begin);
+        while (i != Utf8Iterator()) {
+            unsigned ch = *i;
+            switch (sentence_boundary) {
+                case NO:
+                    if (ch == '.' || ch == '?' || ch == '!') {
+                        sentence_boundary = PUNC;
+                    }
+                    break;
+                case PUNC:
+                    if (Unicode::is_whitespace(ch)) {
+                        sentence_boundary = YES;
+                    } else if (ch == '.' || ch == '?' || ch == '!') {
+                        // Allow "...", "!!", "!?!", etc...
+                    } else {
+                        sentence_boundary = NO;
+                    }
+                    break;
+                case YES:
+                    break;
+            }
 
-	    // Start the snippet at the start of the first word, but include
-	    // certain punctuation too.
-	    if (Unicode::is_wordchar(ch)) {
-		// But limit how much leading punctuation we include.
-		size_t word_begin = i.raw() - input.data();
-		if (word_begin - best_begin > 4) {
-		    best_begin = word_begin;
-		}
-		break;
-	    }
-	    ++i;
-	    if (!snippet_check_leading_nonwordchar(ch)) {
-		best_begin = i.raw() - input.data();
-	    }
-	}
+            // Start the snippet at the start of the first word, but include
+            // certain punctuation too.
+            if (Unicode::is_wordchar(ch)) {
+                // But limit how much leading punctuation we include.
+                size_t word_begin = i.raw() - input.data();
+                if (word_begin - best_begin > 4) {
+                    best_begin = word_begin;
+                }
+                break;
+            }
+            ++i;
+            if (!snippet_check_leading_nonwordchar(ch)) {
+                best_begin = i.raw() - input.data();
+            }
+        }
 
-	// Add "..." or equivalent if this doesn't seem to be the start of a
-	// sentence.
-	if (sentence_boundary != YES) {
-	    output += omit;
-	}
+        // Add "..." or equivalent if this doesn't seem to be the start of a
+        // sentence.
+        if (sentence_boundary != YES) {
+            output += omit;
+        }
     }
 
     if (word.highlight) {
-	// Don't include inter-word characters in the highlight.
-	Utf8Iterator i(input.data() + best_begin, input.size() - best_begin);
-	while (i != Utf8Iterator()) {
-	    unsigned ch = *i;
-	    if (Unicode::is_wordchar(ch)) {
-		append_escaping_xml(input.data() + best_begin, i.raw(), output);
-		best_begin = i.raw() - input.data();
-		break;
-	    }
-	    ++i;
-	}
+        // Don't include inter-word characters in the highlight.
+        Utf8Iterator i(input.data() + best_begin, input.size() - best_begin);
+        while (i != Utf8Iterator()) {
+            unsigned ch = *i;
+            if (Unicode::is_wordchar(ch)) {
+                append_escaping_xml(input.data() + best_begin, i.raw(), output);
+                best_begin = i.raw() - input.data();
+                break;
+            }
+            ++i;
+        }
     }
 
     if (!phrase_len) {
-	phrase_len = word.highlight;
-	if (phrase_len) output += hi_start;
+        phrase_len = word.highlight;
+        if (phrase_len) output += hi_start;
     }
 
     const char* p = input.data();
@@ -749,123 +749,123 @@ SnipPipe::drain(string_view input,
 
 static void
 check_query(const Xapian::Query & query,
-	    list<vector<string>> & exact_phrases,
-	    unordered_map<string, double> & loose_terms,
-	    list<const Xapian::Internal::QueryWildcard*> & wildcards,
-	    list<const Xapian::Internal::QueryEditDistance*> & fuzzies,
-	    size_t & longest_phrase)
+            list<vector<string>> & exact_phrases,
+            unordered_map<string, double> & loose_terms,
+            list<const Xapian::Internal::QueryWildcard*> & wildcards,
+            list<const Xapian::Internal::QueryEditDistance*> & fuzzies,
+            size_t & longest_phrase)
 {
     // FIXME: OP_NEAR, non-tight OP_PHRASE, OP_PHRASE with non-term subqueries
     size_t n_subqs = query.get_num_subqueries();
     Xapian::Query::op op = query.get_type();
     if (op == query.LEAF_TERM) {
-	const Xapian::Internal::QueryTerm & qt =
-	    *static_cast<const Xapian::Internal::QueryTerm *>(query.internal.get());
-	loose_terms.insert(make_pair(qt.get_term(), 0));
+        const Xapian::Internal::QueryTerm & qt =
+            *static_cast<const Xapian::Internal::QueryTerm *>(query.internal.get());
+        loose_terms.insert(make_pair(qt.get_term(), 0));
     } else if (op == query.OP_WILDCARD) {
-	using Xapian::Internal::QueryWildcard;
-	const QueryWildcard* qw =
-	    static_cast<const QueryWildcard*>(query.internal.get());
-	wildcards.push_back(qw);
+        using Xapian::Internal::QueryWildcard;
+        const QueryWildcard* qw =
+            static_cast<const QueryWildcard*>(query.internal.get());
+        wildcards.push_back(qw);
     } else if (op == query.OP_EDIT_DISTANCE) {
-	using Xapian::Internal::QueryEditDistance;
-	const QueryEditDistance* qed =
-	    static_cast<const QueryEditDistance*>(query.internal.get());
-	fuzzies.push_back(qed);
+        using Xapian::Internal::QueryEditDistance;
+        const QueryEditDistance* qed =
+            static_cast<const QueryEditDistance*>(query.internal.get());
+        fuzzies.push_back(qed);
     } else if (op == query.OP_PHRASE) {
-	const Xapian::Internal::QueryPhrase & phrase =
-	    *static_cast<const Xapian::Internal::QueryPhrase *>(query.internal.get());
-	if (phrase.get_window() == n_subqs) {
-	    // Tight phrase.
-	    for (size_t i = 0; i != n_subqs; ++i) {
-		if (query.get_subquery(i).get_type() != query.LEAF_TERM)
-		    goto non_term_subquery;
-	    }
+        const Xapian::Internal::QueryPhrase & phrase =
+            *static_cast<const Xapian::Internal::QueryPhrase *>(query.internal.get());
+        if (phrase.get_window() == n_subqs) {
+            // Tight phrase.
+            for (size_t i = 0; i != n_subqs; ++i) {
+                if (query.get_subquery(i).get_type() != query.LEAF_TERM)
+                    goto non_term_subquery;
+            }
 
-	    // Tight phrase of terms.
-	    exact_phrases.push_back(vector<string>());
-	    vector<string> & terms = exact_phrases.back();
-	    terms.reserve(n_subqs);
-	    for (size_t i = 0; i != n_subqs; ++i) {
-		Xapian::Query q = query.get_subquery(i);
-		const Xapian::Internal::QueryTerm & qt =
-		    *static_cast<const Xapian::Internal::QueryTerm *>(q.internal.get());
-		terms.push_back(qt.get_term());
-	    }
-	    if (n_subqs > longest_phrase) longest_phrase = n_subqs;
-	    return;
-	}
+            // Tight phrase of terms.
+            exact_phrases.push_back(vector<string>());
+            vector<string> & terms = exact_phrases.back();
+            terms.reserve(n_subqs);
+            for (size_t i = 0; i != n_subqs; ++i) {
+                Xapian::Query q = query.get_subquery(i);
+                const Xapian::Internal::QueryTerm & qt =
+                    *static_cast<const Xapian::Internal::QueryTerm *>(q.internal.get());
+                terms.push_back(qt.get_term());
+            }
+            if (n_subqs > longest_phrase) longest_phrase = n_subqs;
+            return;
+        }
     }
 non_term_subquery:
     for (size_t i = 0; i != n_subqs; ++i)
-	check_query(query.get_subquery(i), exact_phrases, loose_terms,
-		    wildcards, fuzzies, longest_phrase);
+        check_query(query.get_subquery(i), exact_phrases, loose_terms,
+                    wildcards, fuzzies, longest_phrase);
 }
 
 static double*
 check_term(unordered_map<string, double> & loose_terms,
-	   const Xapian::Weight::Internal * stats,
-	   const string & term,
-	   double max_tw)
+           const Xapian::Weight::Internal * stats,
+           const string & term,
+           double max_tw)
 {
     auto it = loose_terms.find(term);
     if (it == loose_terms.end()) return NULL;
 
     if (it->second == 0.0) {
-	double relevance;
-	if (!stats->get_termweight(term, relevance)) {
-	    // FIXME: Assert?
-	    loose_terms.erase(it);
-	    return NULL;
-	}
+        double relevance;
+        if (!stats->get_termweight(term, relevance)) {
+            // FIXME: Assert?
+            loose_terms.erase(it);
+            return NULL;
+        }
 
-	it->second = relevance + max_tw;
+        it->second = relevance + max_tw;
     }
     return &it->second;
 }
 
 string
 MSet::Internal::snippet(string_view text,
-			size_t length,
-			const Xapian::Stem & stemmer,
-			unsigned flags,
-			string_view hi_start,
-			string_view hi_end,
-			string_view omit) const
+                        size_t length,
+                        const Xapian::Stem & stemmer,
+                        unsigned flags,
+                        string_view hi_start,
+                        string_view hi_end,
+                        string_view omit) const
 {
     if (hi_start.empty() && hi_end.empty() && text.size() <= length) {
-	// Too easy!
-	return string{text};
+        // Too easy!
+        return string{text};
     }
 
 #ifndef USE_ICU
     if (flags & MSet::SNIPPET_WORD_BREAKS) {
-	throw Xapian::FeatureUnavailableError("SNIPPET_WORD_BREAKS requires "
-					      "building Xapian to use ICU");
+        throw Xapian::FeatureUnavailableError("SNIPPET_WORD_BREAKS requires "
+                                              "building Xapian to use ICU");
     }
 #endif
     auto SNIPPET_BREAK_MASK = MSet::SNIPPET_NGRAMS | MSet::SNIPPET_WORD_BREAKS;
     unsigned break_flags = flags & SNIPPET_BREAK_MASK;
     if (break_flags == 0 && is_ngram_enabled()) {
-	break_flags = MSet::SNIPPET_NGRAMS;
+        break_flags = MSet::SNIPPET_NGRAMS;
     }
 
     size_t term_start = 0;
     double min_tw = 0, max_tw = 0;
     if (stats) stats->get_max_termweight(min_tw, max_tw);
     if (max_tw == 0.0) {
-	max_tw = 1.0;
+        max_tw = 1.0;
     } else {
-	// Scale up by (1 + 1/64) so that highlighting works better for terms
-	// with termweight 0 (which happens for terms not in the database, and
-	// also with some weighting schemes for terms which occur in almost all
-	// documents.
-	max_tw *= 1.015625;
+        // Scale up by (1 + 1/64) so that highlighting works better for terms
+        // with termweight 0 (which happens for terms not in the database, and
+        // also with some weighting schemes for terms which occur in almost all
+        // documents.
+        max_tw *= 1.015625;
     }
 
     Xapian::Query query;
     if (enquire) {
-	query = enquire->query;
+        query = enquire->query;
     }
     SnipPipe snip(length);
 
@@ -875,29 +875,29 @@ MSet::Internal::snippet(string_view text,
     list<const Xapian::Internal::QueryEditDistance*> fuzzies;
     size_t longest_phrase = 0;
     check_query(query, exact_phrases, loose_terms,
-		wildcards, fuzzies, longest_phrase);
+                wildcards, fuzzies, longest_phrase);
 
     vector<double> exact_phrases_relevance;
     exact_phrases_relevance.reserve(exact_phrases.size());
     for (auto&& terms : exact_phrases) {
-	// FIXME: What relevance to use?
-	exact_phrases_relevance.push_back(max_tw * terms.size());
+        // FIXME: What relevance to use?
+        exact_phrases_relevance.push_back(max_tw * terms.size());
     }
 
     vector<double> wildcards_relevance;
     wildcards_relevance.reserve(wildcards.size());
     for (auto&& pattern : wildcards) {
-	// FIXME: What relevance to use?
-	(void)pattern;
-	wildcards_relevance.push_back(max_tw + min_tw);
+        // FIXME: What relevance to use?
+        (void)pattern;
+        wildcards_relevance.push_back(max_tw + min_tw);
     }
 
     vector<double> fuzzies_relevance;
     fuzzies_relevance.reserve(fuzzies.size());
     for (auto&& pattern : fuzzies) {
-	// FIXME: What relevance to use?
-	(void)pattern;
-	fuzzies_relevance.push_back(max_tw + min_tw);
+        // FIXME: What relevance to use?
+        (void)pattern;
+        fuzzies_relevance.push_back(max_tw + min_tw);
     }
 
     // Background relevance is the same for a given MSet, so cache it
@@ -909,179 +909,179 @@ MSet::Internal::snippet(string_view text,
     size_t phrase_next = 0;
     bool matchfound = false;
     parse_terms(Utf8Iterator(text), break_flags, true,
-	[&](const string & term, bool positional, size_t left) {
-	    // FIXME: Don't hardcode this here.
-	    const size_t max_word_length = 64;
+        [&](const string & term, bool positional, size_t left) {
+            // FIXME: Don't hardcode this here.
+            const size_t max_word_length = 64;
 
-	    if (!positional) return true;
-	    if (term.size() > max_word_length) return true;
+            if (!positional) return true;
+            if (term.size() > max_word_length) return true;
 
-	    // We get segments with any "inter-word" characters in front of
-	    // each word, e.g.:
-	    // [The][ cat][ sat][ on][ the][ mat]
-	    size_t term_end = text.size() - left;
+            // We get segments with any "inter-word" characters in front of
+            // each word, e.g.:
+            // [The][ cat][ sat][ on][ the][ mat]
+            size_t term_end = text.size() - left;
 
-	    double* relevance = 0;
-	    size_t highlight = 0;
-	    if (stats) {
-		size_t i = 0;
-		for (auto&& terms : exact_phrases) {
-		    if (term == terms.back()) {
-			size_t n = terms.size() - 1;
-			bool match = true;
-			while (UNSIGNED_OVERFLOW_OK(n--)) {
-			    if (terms[n] != phrase[(n + phrase_next) % (longest_phrase - 1)]) {
-				match = false;
-				break;
-			    }
-			}
-			if (match) {
-			    // FIXME: Sort phrases, highest score first!
-			    relevance = &exact_phrases_relevance[i];
-			    highlight = terms.size();
-			    goto relevance_done;
-			}
-		    }
-		    ++i;
-		}
+            double* relevance = 0;
+            size_t highlight = 0;
+            if (stats) {
+                size_t i = 0;
+                for (auto&& terms : exact_phrases) {
+                    if (term == terms.back()) {
+                        size_t n = terms.size() - 1;
+                        bool match = true;
+                        while (UNSIGNED_OVERFLOW_OK(n--)) {
+                            if (terms[n] != phrase[(n + phrase_next) % (longest_phrase - 1)]) {
+                                match = false;
+                                break;
+                            }
+                        }
+                        if (match) {
+                            // FIXME: Sort phrases, highest score first!
+                            relevance = &exact_phrases_relevance[i];
+                            highlight = terms.size();
+                            goto relevance_done;
+                        }
+                    }
+                    ++i;
+                }
 
-		relevance = check_term(loose_terms, stats.get(), term, max_tw);
-		if (relevance) {
-		    // Matched unstemmed term.
-		    highlight = 1;
-		    goto relevance_done;
-		}
+                relevance = check_term(loose_terms, stats.get(), term, max_tw);
+                if (relevance) {
+                    // Matched unstemmed term.
+                    highlight = 1;
+                    goto relevance_done;
+                }
 
-		string stem = "Z";
-		stem += stemmer(term);
-		relevance = check_term(loose_terms, stats.get(), stem, max_tw);
-		if (relevance) {
-		    // Matched stemmed term.
-		    highlight = 1;
-		    goto relevance_done;
-		}
+                string stem = "Z";
+                stem += stemmer(term);
+                relevance = check_term(loose_terms, stats.get(), stem, max_tw);
+                if (relevance) {
+                    // Matched stemmed term.
+                    highlight = 1;
+                    goto relevance_done;
+                }
 
-		// Check wildcards.
-		// FIXME: Sort wildcards, cheapest to check first or something?
-		i = 0;
-		for (auto&& qw : wildcards) {
-		    if (qw->test(term)) {
-			relevance = &wildcards_relevance[i];
-			highlight = 1;
-			goto relevance_done;
-		    }
-		    ++i;
-		}
+                // Check wildcards.
+                // FIXME: Sort wildcards, cheapest to check first or something?
+                i = 0;
+                for (auto&& qw : wildcards) {
+                    if (qw->test(term)) {
+                        relevance = &wildcards_relevance[i];
+                        highlight = 1;
+                        goto relevance_done;
+                    }
+                    ++i;
+                }
 
-		// Check fuzzies.
-		// FIXME: Sort fuzzies, cheapest to check first or something?
-		i = 0;
-		for (auto&& qed : fuzzies) {
-		    // test() returns 0 for no match, or edit_distance + 1.
-		    int ed_result = qed->test(term);
-		    if (ed_result) {
-			// FIXME: Reduce relevance the more edits there are?
-			// We can't just divide by ed_result here as this
-			// relevance is used by any term matching this
-			// subquery.
-			relevance = &fuzzies_relevance[i];
-			highlight = 1;
-			goto relevance_done;
-		    }
-		    ++i;
-		}
+                // Check fuzzies.
+                // FIXME: Sort fuzzies, cheapest to check first or something?
+                i = 0;
+                for (auto&& qed : fuzzies) {
+                    // test() returns 0 for no match, or edit_distance + 1.
+                    int ed_result = qed->test(term);
+                    if (ed_result) {
+                        // FIXME: Reduce relevance the more edits there are?
+                        // We can't just divide by ed_result here as this
+                        // relevance is used by any term matching this
+                        // subquery.
+                        relevance = &fuzzies_relevance[i];
+                        highlight = 1;
+                        goto relevance_done;
+                    }
+                    ++i;
+                }
 
-		if (flags & Xapian::MSet::SNIPPET_BACKGROUND_MODEL) {
-		    // Background document model.
-		    auto bgit = background.find(term);
-		    if (bgit == background.end()) bgit = background.find(stem);
-		    if (bgit == background.end()) {
-			Xapian::doccount tf = enquire->db.get_termfreq(term);
-			if (!tf) {
-			    tf = enquire->db.get_termfreq(stem);
-			} else {
-			    stem = term;
-			}
-			double r = 0.0;
-			if (tf) {
-			    // Add one to avoid log(0) when a term indexes all
-			    // documents.
-			    Xapian::doccount num_docs = stats->collection_size + 1;
-			    r = max_tw * log((num_docs - tf) / double(tf));
-			    r /= (length + 1) * log(double(num_docs));
+                if (flags & Xapian::MSet::SNIPPET_BACKGROUND_MODEL) {
+                    // Background document model.
+                    auto bgit = background.find(term);
+                    if (bgit == background.end()) bgit = background.find(stem);
+                    if (bgit == background.end()) {
+                        Xapian::doccount tf = enquire->db.get_termfreq(term);
+                        if (!tf) {
+                            tf = enquire->db.get_termfreq(stem);
+                        } else {
+                            stem = term;
+                        }
+                        double r = 0.0;
+                        if (tf) {
+                            // Add one to avoid log(0) when a term indexes all
+                            // documents.
+                            Xapian::doccount num_docs = stats->collection_size + 1;
+                            r = max_tw * log((num_docs - tf) / double(tf));
+                            r /= (length + 1) * log(double(num_docs));
 #if 0
-			    if (r <= 0) {
-				Utf8Iterator i(text.data() + term_start, text.data() + term_end);
-				while (i != Utf8Iterator()) {
-				    if (Unicode::get_category(*i++) == Unicode::UPPERCASE_LETTER) {
-					r = max_tw * 0.05;
-				    }
-				}
-			    }
+                            if (r <= 0) {
+                                Utf8Iterator i(text.data() + term_start, text.data() + term_end);
+                                while (i != Utf8Iterator()) {
+                                    if (Unicode::get_category(*i++) == Unicode::UPPERCASE_LETTER) {
+                                        r = max_tw * 0.05;
+                                    }
+                                }
+                            }
 #endif
-			}
-			bgit = background.emplace(make_pair(stem, r)).first;
-		    }
-		    relevance = &bgit->second;
-		}
-	    } else {
+                        }
+                        bgit = background.emplace(make_pair(stem, r)).first;
+                    }
+                    relevance = &bgit->second;
+                }
+            } else {
 #if 0
-		// In the absence of weight information, assume longer terms
-		// are more relevant, and that unstemmed matches are a bit more
-		// relevant than stemmed matches.
-		if (queryterms.find(term) != queryterms.end()) {
-		    relevance = term.size() * 3;
-		} else {
-		    string stem = "Z";
-		    stem += stemmer(term);
-		    if (queryterms.find(stem) != queryterms.end()) {
-			relevance = term.size() * 2;
-		    }
-		}
+                // In the absence of weight information, assume longer terms
+                // are more relevant, and that unstemmed matches are a bit more
+                // relevant than stemmed matches.
+                if (queryterms.find(term) != queryterms.end()) {
+                    relevance = term.size() * 3;
+                } else {
+                    string stem = "Z";
+                    stem += stemmer(term);
+                    if (queryterms.find(stem) != queryterms.end()) {
+                        relevance = term.size() * 2;
+                    }
+                }
 #endif
-	    }
+            }
 
-	    // FIXME: Allow Enquire without a DB set or an empty MSet() to be
-	    // used if you don't want the collection model?
+            // FIXME: Allow Enquire without a DB set or an empty MSet() to be
+            // used if you don't want the collection model?
 
 #if 0
-	    // FIXME: Punctuation should somehow be included in the model, but this
-	    // approach is problematic - we don't want the first word of a sentence
-	    // to be favoured when it's at the end of the window.
+            // FIXME: Punctuation should somehow be included in the model, but this
+            // approach is problematic - we don't want the first word of a sentence
+            // to be favoured when it's at the end of the window.
 
-	    // Give first word in each sentence a relevance boost.
-	    if (term_start == 0) {
-		relevance += 10;
-	    } else {
-		for (size_t i = term_start; i + term.size() < term_end; ++i) {
-		    if (text[i] == '.' && Unicode::is_whitespace(text[i + 1])) {
-			relevance += 10;
-			break;
-		    }
-		}
-	    }
+            // Give first word in each sentence a relevance boost.
+            if (term_start == 0) {
+                relevance += 10;
+            } else {
+                for (size_t i = term_start; i + term.size() < term_end; ++i) {
+                    if (text[i] == '.' && Unicode::is_whitespace(text[i + 1])) {
+                        relevance += 10;
+                        break;
+                    }
+                }
+            }
 #endif
 
 relevance_done:
-	    if (longest_phrase) {
-		phrase[phrase_next] = term;
-		phrase_next = (phrase_next + 1) % (longest_phrase - 1);
-	    }
+            if (longest_phrase) {
+                phrase[phrase_next] = term;
+                phrase_next = (phrase_next + 1) % (longest_phrase - 1);
+            }
 
-	    if (highlight) matchfound = true;
+            if (highlight) matchfound = true;
 
-	    if (!snip.pump(relevance, term_end, highlight, flags)) return false;
+            if (!snip.pump(relevance, term_end, highlight, flags)) return false;
 
-	    term_start = term_end;
-	    return true;
-	});
+            term_start = term_end;
+            return true;
+        });
 
     snip.done();
 
     // Put together the snippet.
     string result;
     if (matchfound || (flags & SNIPPET_EMPTY_WITHOUT_MATCH) == 0) {
-	while (snip.drain(text, hi_start, hi_end, omit, result)) { }
+        while (snip.drain(text, hi_start, hi_end, omit, result)) { }
     }
 
     return result;

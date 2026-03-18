@@ -49,11 +49,11 @@ struct fragment {
     const char & operator[] (unsigned i) const { return data[i]; }
 
     operator std::string() const {
-	return std::string(data, data[0] == 'M' ? 4 : 3);
+        return std::string(data, data[0] == 'M' ? 4 : 3);
     }
 
     bool operator<(const fragment &b) const {
-	return std::memcmp(data, b.data, 4) < 0;
+        return std::memcmp(data, b.data, 4) < 0;
     }
 };
 
@@ -90,10 +90,10 @@ class GlassSpellingTable : public GlassLazyTable {
      *  @param readonly		true if we're opening read-only, else false.
      */
     GlassSpellingTable(const std::string & dbdir, bool readonly)
-	: GlassLazyTable("spelling", dbdir + "/spelling.", readonly) { }
+        : GlassLazyTable("spelling", dbdir + "/spelling.", readonly) { }
 
     GlassSpellingTable(int fd, off_t offset_, bool readonly)
-	: GlassLazyTable("spelling", fd, offset_, readonly) { }
+        : GlassLazyTable("spelling", fd, offset_, readonly) { }
 
     /** Merge in batched-up changes.
      *
@@ -103,14 +103,14 @@ class GlassSpellingTable : public GlassLazyTable {
 
     void add_word(std::string_view word, Xapian::termcount freqinc);
     Xapian::termcount remove_word(std::string_view word,
-				  Xapian::termcount freqdec);
+                                  Xapian::termcount freqdec);
 
     TermList* open_termlist(std::string_view word);
 
     Xapian::doccount get_word_frequency(std::string_view word) const;
 
     void set_wordfreq_upper_bound(Xapian::termcount ub) {
-	wordfreq_upper_bound = ub;
+        wordfreq_upper_bound = ub;
     }
 
     /** Override methods of GlassTable.
@@ -121,22 +121,22 @@ class GlassSpellingTable : public GlassLazyTable {
      */
 
     bool is_modified() const {
-	return !wordfreq_changes.empty() || GlassTable::is_modified();
+        return !wordfreq_changes.empty() || GlassTable::is_modified();
     }
 
     /** Returns updated wordfreq upper bound. */
     Xapian::termcount flush_db() {
-	merge_changes();
-	GlassTable::flush_db();
-	return wordfreq_upper_bound;
+        merge_changes();
+        GlassTable::flush_db();
+        return wordfreq_upper_bound;
     }
 
     void cancel(const RootInfo & root_info, glass_revision_number_t rev) {
-	// Discard batched-up changes.
-	wordfreq_changes.clear();
-	termlist_deltas.clear();
+        // Discard batched-up changes.
+        wordfreq_changes.clear();
+        termlist_deltas.clear();
 
-	GlassTable::cancel(root_info, rev);
+        GlassTable::cancel(root_info, rev);
     }
 
     // @}
@@ -159,7 +159,7 @@ class GlassSpellingTermList : public TermList {
   public:
     /// Constructor.
     explicit GlassSpellingTermList(const std::string & data_)
-	: data(data_), p(0) { }
+        : data(data_), p(0) { }
 
     Xapian::termcount get_approx_size() const;
 

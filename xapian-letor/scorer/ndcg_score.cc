@@ -48,7 +48,7 @@ get_dcg(const std::vector<double> &labels)
     LOGCALL_STATIC(API, double, "get_dcg", labels);
     double dcg = 0;
     for (int i = 0; i < int(labels.size()); ++i) {
-	dcg += (exp2(labels[i]) - 1) / log2(i + 2);
+        dcg += (exp2(labels[i]) - 1) / log2(i + 2);
     }
     return dcg;
 }
@@ -58,13 +58,13 @@ NDCGScore::score(const std::vector<FeatureVector> & fvv) const {
     LOGCALL(API, double, "NDCGScore::score", fvv);
     std::vector<double> labels;
     for (auto&& v : fvv) {
-	labels.push_back(v.get_label());
+        labels.push_back(v.get_label());
     }
     // DCG score of original ranking
     double dcg = get_dcg(labels);
     if (rare(dcg == 0.0)) {
-	// Avoid dividing by 0.
-	return dcg;
+        // Avoid dividing by 0.
+        return dcg;
     }
     // DCG score of ideal ranking
     sort(labels.begin(), labels.end(), std::greater<double>());

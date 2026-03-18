@@ -46,10 +46,10 @@ class RemoteSubMatch {
   public:
     /// Constructor.
     RemoteSubMatch(const RemoteDatabase* db_, Xapian::doccount shard_)
-	: db(db_), shard(shard_) {}
+        : db(db_), shard(shard_) {}
 
     int get_read_fd() const {
-	return db->get_read_fd();
+        return db->get_read_fd();
     }
 
     /** Fetch and collate statistics.
@@ -61,7 +61,7 @@ class RemoteSubMatch {
      *			added.
      */
     void prepare_match(Xapian::Weight::Internal& total_stats) {
-	db->accumulate_remote_stats(total_stats);
+        db->accumulate_remote_stats(total_stats);
     }
 
     /** Start the match.
@@ -73,12 +73,12 @@ class RemoteSubMatch {
      *  @param total_stats    The total statistics for the collection.
      */
     void start_match(Xapian::doccount first,
-		     Xapian::doccount maxitems,
-		     Xapian::doccount check_at_least,
-		     const Xapian::KeyMaker* sorter,
-		     const Xapian::Weight::Internal& total_stats) {
-	db->send_global_stats(first, maxitems, check_at_least, sorter,
-			      total_stats);
+                     Xapian::doccount maxitems,
+                     Xapian::doccount check_at_least,
+                     const Xapian::KeyMaker* sorter,
+                     const Xapian::Weight::Internal& total_stats) {
+        db->send_global_stats(first, maxitems, check_at_least, sorter,
+                              total_stats);
     }
 
     typedef Xapian::Internal::opt_intrusive_ptr<Xapian::MatchSpy> opt_ptr_spy;
@@ -88,7 +88,7 @@ class RemoteSubMatch {
      *  @param matchspies   The matchspies to use.
      */
     Xapian::MSet get_mset(const std::vector<opt_ptr_spy>& matchspies) {
-	return db->get_mset(matchspies);
+        return db->get_mset(matchspies);
     }
 
     /// Return the index of the corresponding Database shard.

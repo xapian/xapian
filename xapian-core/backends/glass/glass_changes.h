@@ -47,28 +47,28 @@ class GlassChanges {
 
   public:
     explicit GlassChanges(const std::string & db_dir)
-	: changes_fd(-1),
-	  changes_stem(db_dir + "/changes"),
-	  oldest_changeset(0) { }
+        : changes_fd(-1),
+          changes_stem(db_dir + "/changes"),
+          oldest_changeset(0) { }
 
     ~GlassChanges();
 
     GlassChanges * start(glass_revision_number_t old_rev,
-			 glass_revision_number_t rev,
-			 int flags);
+                         glass_revision_number_t rev,
+                         int flags);
 
     void write_block(const char * p, size_t len);
 
     void write_block(const std::string & s) {
-	write_block(s.data(), s.size());
+        write_block(s.data(), s.size());
     }
 
     void set_oldest_changeset(glass_revision_number_t rev) {
-	oldest_changeset = rev;
+        oldest_changeset = rev;
     }
 
     glass_revision_number_t get_oldest_changeset() const {
-	return oldest_changeset;
+        return oldest_changeset;
     }
 
     void commit(glass_revision_number_t new_rev, int flags);

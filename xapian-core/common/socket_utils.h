@@ -54,18 +54,18 @@ extern void close_fd_or_socket(int fd);
  */
 struct WinsockInitializer {
     WinsockInitializer() {
-	WSADATA wsadata;
-	int wsaerror = WSAStartup(MAKEWORD(2, 2), &wsadata);
-	// FIXME - should we check the returned information in wsadata to check
-	// that we have a version of winsock which is recent enough for us?
+        WSADATA wsadata;
+        int wsaerror = WSAStartup(MAKEWORD(2, 2), &wsadata);
+        // FIXME - should we check the returned information in wsadata to check
+        // that we have a version of winsock which is recent enough for us?
 
-	if (wsaerror != 0) {
-	    throw Xapian::NetworkError("Failed to initialize winsock", wsaerror);
-	}
+        if (wsaerror != 0) {
+            throw Xapian::NetworkError("Failed to initialize winsock", wsaerror);
+        }
     }
 
     ~WinsockInitializer() {
-	WSACleanup();
+        WSACleanup();
     }
 };
 
@@ -81,15 +81,15 @@ inline int socket_errno() {
     int wsa_err = WSAGetLastError();
     switch (wsa_err) {
 # ifdef EADDRINUSE
-	case WSAEADDRINUSE: return EADDRINUSE;
+        case WSAEADDRINUSE: return EADDRINUSE;
 # endif
 # ifdef ETIMEDOUT
-	case WSAETIMEDOUT: return ETIMEDOUT;
+        case WSAETIMEDOUT: return ETIMEDOUT;
 # endif
 # ifdef EINPROGRESS
-	case WSAEINPROGRESS: return EINPROGRESS;
+        case WSAEINPROGRESS: return EINPROGRESS;
 # endif
-	default: return wsa_err;
+        default: return wsa_err;
     }
 }
 

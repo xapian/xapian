@@ -74,19 +74,19 @@ main(int argc, char **argv)
 {
     const char * opts = "h:p:m:i:r:t:ofqv";
     static const struct option long_opts[] = {
-	{"host",	required_argument,	0, 'h'},
-	{"port",	required_argument,	0, 'p'},
-	{"master",	required_argument,	0, 'm'},
-	{"interval",	required_argument,	0, 'i'},
-	{"reader-time",	required_argument,	0, 'r'},
-	{"timeout",	required_argument,	0, 't'},
-	{"one-shot",	no_argument,		0, 'o'},
-	{"force-copy",	no_argument,		0, 'f'},
-	{"quiet",	no_argument,		0, 'q'},
-	{"verbose",	no_argument,		0, 'v'},
-	{"help",	no_argument, 0, OPT_HELP},
-	{"version",	no_argument, 0, OPT_VERSION},
-	{NULL,		0, 0, 0}
+        {"host",	required_argument,	0, 'h'},
+        {"port",	required_argument,	0, 'p'},
+        {"master",	required_argument,	0, 'm'},
+        {"interval",	required_argument,	0, 'i'},
+        {"reader-time",	required_argument,	0, 'r'},
+        {"timeout",	required_argument,	0, 't'},
+        {"one-shot",	no_argument,		0, 'o'},
+        {"force-copy",	no_argument,		0, 'f'},
+        {"quiet",	no_argument,		0, 'q'},
+        {"verbose",	no_argument,		0, 'v'},
+        {"help",	no_argument, 0, OPT_HELP},
+        {"version",	no_argument, 0, OPT_VERSION},
+        {NULL,		0, 0, 0}
     };
 
     string host;
@@ -101,151 +101,151 @@ main(int argc, char **argv)
 
     int c;
     while ((c = gnu_getopt_long(argc, argv, opts, long_opts, 0)) != -1) {
-	switch (c) {
-	    case 'h':
-		host.assign(optarg);
-		break;
-	    case 'p':
-		if (!parse_signed(optarg, port) ||
-		    (port < 1 || port > 65535)) {
-		    cerr << "Error: must specify a valid port number "
-			    "(between 1 and 65535). \n";
-		    exit(1);
-		}
-		break;
-	    case 'm':
-		masterdb.assign(optarg);
-		break;
-	    case 'i': {
-		unsigned int i_val;
-		if (!parse_unsigned(optarg, i_val)) {
-		    cout << "Interval must be a non-negative integer\n";
-		    show_usage();
-		    exit(1);
-		}
-		interval = i_val;
-		break;
-	    }
-	    case 'r': {
-		unsigned int reader_time;
-		if (!parse_unsigned(optarg, reader_time)) {
-		    cout << "reader close time must be a "
-			    "non-negative integer\n";
-		    show_usage();
-		    exit(1);
-		}
-		reader_close_time = reader_time;
-		break;
-	    }
-	    case 't':
-		unsigned int socket_timeout;
-		if (!parse_unsigned(optarg, socket_timeout)) {
-		    cout << "timeout must be a non-negative integer\n";
-		    show_usage();
-		    exit(1);
-		}
-		timeout = socket_timeout;
-		break;
-	    case 'f':
-		force_copy = true;
-		break;
-	    case 'o':
-		one_shot = true;
-		break;
-	    case 'q':
-		verbosity = QUIET;
-		break;
-	    case 'v':
-		verbosity = VERBOSE;
-		break;
-	    case OPT_HELP:
-		cout << PROG_NAME " - " PROG_DESC "\n\n";
-		show_usage();
-		exit(0);
-	    case OPT_VERSION:
-		cout << PROG_NAME " - " PACKAGE_STRING "\n";
-		exit(0);
-	    default:
-		show_usage();
-		exit(1);
-	}
+        switch (c) {
+            case 'h':
+                host.assign(optarg);
+                break;
+            case 'p':
+                if (!parse_signed(optarg, port) ||
+                    (port < 1 || port > 65535)) {
+                    cerr << "Error: must specify a valid port number "
+                            "(between 1 and 65535). \n";
+                    exit(1);
+                }
+                break;
+            case 'm':
+                masterdb.assign(optarg);
+                break;
+            case 'i': {
+                unsigned int i_val;
+                if (!parse_unsigned(optarg, i_val)) {
+                    cout << "Interval must be a non-negative integer\n";
+                    show_usage();
+                    exit(1);
+                }
+                interval = i_val;
+                break;
+            }
+            case 'r': {
+                unsigned int reader_time;
+                if (!parse_unsigned(optarg, reader_time)) {
+                    cout << "reader close time must be a "
+                            "non-negative integer\n";
+                    show_usage();
+                    exit(1);
+                }
+                reader_close_time = reader_time;
+                break;
+            }
+            case 't':
+                unsigned int socket_timeout;
+                if (!parse_unsigned(optarg, socket_timeout)) {
+                    cout << "timeout must be a non-negative integer\n";
+                    show_usage();
+                    exit(1);
+                }
+                timeout = socket_timeout;
+                break;
+            case 'f':
+                force_copy = true;
+                break;
+            case 'o':
+                one_shot = true;
+                break;
+            case 'q':
+                verbosity = QUIET;
+                break;
+            case 'v':
+                verbosity = VERBOSE;
+                break;
+            case OPT_HELP:
+                cout << PROG_NAME " - " PROG_DESC "\n\n";
+                show_usage();
+                exit(0);
+            case OPT_VERSION:
+                cout << PROG_NAME " - " PACKAGE_STRING "\n";
+                exit(0);
+            default:
+                show_usage();
+                exit(1);
+        }
     }
 
     if (argc - optind != 1) {
-	show_usage();
-	exit(1);
+        show_usage();
+        exit(1);
     }
 
     if (host.empty()) {
-	cout << "Host required - specify with --host=HOST\n\n";
-	show_usage();
-	exit(1);
+        cout << "Host required - specify with --host=HOST\n\n";
+        show_usage();
+        exit(1);
     }
 
     if (port == 0) {
-	cout << "Port required - specify with --port=PORT\n\n";
-	show_usage();
-	exit(1);
+        cout << "Port required - specify with --port=PORT\n\n";
+        show_usage();
+        exit(1);
     }
 
     // Path to the database to create/update.
     string dbpath(argv[optind]);
 
     if (masterdb.empty())
-	masterdb = dbpath;
+        masterdb = dbpath;
 
     while (true) {
-	try {
-	    if (verbosity == VERBOSE) {
-		cout << "Connecting to " << host << ":" << port << '\n';
-	    }
-	    ReplicateTcpClient client(host, port, 10.0, timeout);
-	    if (verbosity == VERBOSE) {
-		cout << "Getting update for " << dbpath << " from "
-		     << masterdb << '\n';
-	    }
-	    Xapian::ReplicationInfo info;
-	    client.update_from_master(dbpath, masterdb, info,
-				      reader_close_time, force_copy);
-	    if (verbosity == VERBOSE) {
-		cout << "Update complete: "
-		     << info.fullcopy_count << " copies, "
-		     << info.changeset_count << " changesets, "
-		     << (info.changed ? "new live database"
-				      : "no changes to live database")
-		     <<	'\n';
-	    }
-	    if (verbosity != QUIET) {
-		if (info.fullcopy_count > 0 && !info.changed) {
-		    cout <<
+        try {
+            if (verbosity == VERBOSE) {
+                cout << "Connecting to " << host << ":" << port << '\n';
+            }
+            ReplicateTcpClient client(host, port, 10.0, timeout);
+            if (verbosity == VERBOSE) {
+                cout << "Getting update for " << dbpath << " from "
+                     << masterdb << '\n';
+            }
+            Xapian::ReplicationInfo info;
+            client.update_from_master(dbpath, masterdb, info,
+                                      reader_close_time, force_copy);
+            if (verbosity == VERBOSE) {
+                cout << "Update complete: "
+                     << info.fullcopy_count << " copies, "
+                     << info.changeset_count << " changesets, "
+                     << (info.changed ? "new live database"
+                                      : "no changes to live database")
+                     <<	'\n';
+            }
+            if (verbosity != QUIET) {
+                if (info.fullcopy_count > 0 && !info.changed) {
+                    cout <<
 "Replication using a full copy failed.  This usually means that the master\n"
 "database is changing too frequently.  Ensure that sufficient changesets are\n"
 "present by setting XAPIAN_MAX_CHANGESETS on the master.\n";
-		}
-	    }
-	    force_copy = false;
-	} catch (const Xapian::NetworkError &error) {
-	    // Don't stop running if there's a network error - just log to
-	    // stderr and retry at next timeout.  This should make the client
-	    // robust against temporary network failures.
-	    cerr << argv[0] << ": " << error.get_description() << '\n';
+                }
+            }
+            force_copy = false;
+        } catch (const Xapian::NetworkError &error) {
+            // Don't stop running if there's a network error - just log to
+            // stderr and retry at next timeout.  This should make the client
+            // robust against temporary network failures.
+            cerr << argv[0] << ": " << error.get_description() << '\n';
 
-	    // If we were running as a one-shot client though, we're going to
-	    // exit anyway, so let's make the return value reflect that there
-	    // was a failure.
-	    if (one_shot)
-		exit(1);
-	} catch (const Xapian::Error &error) {
-	    cerr << argv[0] << ": " << error.get_description() << '\n';
-	    exit(1);
-	} catch (const exception &e) {
-	    cerr << "Caught standard exception: " << e.what() << '\n';
-	    exit(1);
-	} catch (...) {
-	    cerr << "Caught unknown exception\n";
-	    exit(1);
-	}
-	if (one_shot) break;
-	sleep(interval);
+            // If we were running as a one-shot client though, we're going to
+            // exit anyway, so let's make the return value reflect that there
+            // was a failure.
+            if (one_shot)
+                exit(1);
+        } catch (const Xapian::Error &error) {
+            cerr << argv[0] << ": " << error.get_description() << '\n';
+            exit(1);
+        } catch (const exception &e) {
+            cerr << "Caught standard exception: " << e.what() << '\n';
+            exit(1);
+        } catch (...) {
+            cerr << "Caught unknown exception\n";
+            exit(1);
+        }
+        if (one_shot) break;
+        sleep(interval);
     }
 }

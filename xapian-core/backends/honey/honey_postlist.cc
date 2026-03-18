@@ -51,18 +51,18 @@ HoneyPostList::update_reader()
 #define TOP_BIT_SET(T) ((static_cast<T>(-1) >> 1) + 1)
 
 HoneyPostList::HoneyPostList(const HoneyDatabase* db_,
-			     string_view term_,
-			     HoneyCursor* cursor_)
+                             string_view term_,
+                             HoneyCursor* cursor_)
     : LeafPostList(term_), cursor(cursor_), db(db_)
 {
     if (!cursor) {
-	// Term not present in db.
-	reader.init();
-	last_did = 0;
-	wdf_max = 0;
-	termfreq = 0;
-	collfreq = 0;
-	return;
+        // Term not present in db.
+        reader.init();
+        last_did = 0;
+        wdf_max = 0;
+        termfreq = 0;
+        collfreq = 0;
+        return;
     }
 
     cursor->read_tag();
@@ -78,34 +78,34 @@ HoneyPostList::HoneyPostList(const HoneyDatabase* db_,
     Xapian::termcount first_wdf;
     Xapian::docid chunk_last;
     if (!decode_initial_chunk_header(&p, pend, tf, cf,
-				     first_did, last_did,
-				     chunk_last, first_wdf, wdf_max))
-	throw Xapian::DatabaseCorruptError("Postlist initial chunk header");
+                                     first_did, last_did,
+                                     chunk_last, first_wdf, wdf_max))
+        throw Xapian::DatabaseCorruptError("Postlist initial chunk header");
 
     Xapian::termcount cf_info = cf;
     if (cf == 0) {
-	// wdf must always be zero.
+        // wdf must always be zero.
     } else if (tf <= 2) {
-	// No further postlist data stored.
+        // No further postlist data stored.
     } else if (cf == tf - 1 + first_wdf) {
-	// wdf must be 1 for second and subsequent entries.
-	cf_info = 1 | TOP_BIT_SET(decltype(cf_info));
+        // wdf must be 1 for second and subsequent entries.
+        cf_info = 1 | TOP_BIT_SET(decltype(cf_info));
     } else {
-	cf_info = 1;
-	// wdf_max can only be zero if cf == 0 (and
-	// decode_initial_chunk_header() should ensure this).
-	Assert(wdf_max != 0);
-	Xapian::termcount remaining_cf_for_flat_wdf;
-	if (!mul_overflows(tf - 1, wdf_max, remaining_cf_for_flat_wdf) &&
-	    cf - first_wdf == remaining_cf_for_flat_wdf) {
-	    // Set cl_info to the flat wdf value with the top bit set to
-	    // signify that this is a flat wdf value.
-	    cf_info = wdf_max;
-	    // It shouldn't be possible for the top bit to already be set since
-	    // tf > 2 so cf must be at least 2 * remaining_cf_for_flat_wdf.
-	    Assert((cf_info & TOP_BIT_SET(decltype(cf_info))) == 0);
-	    cf_info |= TOP_BIT_SET(decltype(cf_info));
-	}
+        cf_info = 1;
+        // wdf_max can only be zero if cf == 0 (and
+        // decode_initial_chunk_header() should ensure this).
+        Assert(wdf_max != 0);
+        Xapian::termcount remaining_cf_for_flat_wdf;
+        if (!mul_overflows(tf - 1, wdf_max, remaining_cf_for_flat_wdf) &&
+            cf - first_wdf == remaining_cf_for_flat_wdf) {
+            // Set cl_info to the flat wdf value with the top bit set to
+            // signify that this is a flat wdf value.
+            cf_info = wdf_max;
+            // It shouldn't be possible for the top bit to already be set since
+            // tf > 2 so cf must be at least 2 * remaining_cf_for_flat_wdf.
+            Assert((cf_info & TOP_BIT_SET(decltype(cf_info))) == 0);
+            cf_info |= TOP_BIT_SET(decltype(cf_info));
+        }
     }
 
     termfreq = tf;
@@ -121,8 +121,8 @@ HoneyPostList::~HoneyPostList()
 
 bool
 HoneyPostList::open_nearby_postlist(std::string_view term_,
-				    bool need_read_pos,
-				    LeafPostList*& pl) const
+                                    bool need_read_pos,
+                                    LeafPostList*& pl) const
 {
     Assert(!term_.empty());
     if (!cursor) return false;
@@ -131,14 +131,14 @@ HoneyPostList::open_nearby_postlist(std::string_view term_,
 
     unique_ptr<HoneyCursor> new_cursor(new HoneyCursor(*cursor));
     if (!new_cursor->find_exact(Honey::make_postingchunk_key(term_))) {
-	pl = nullptr;
-	return true;
+        pl = nullptr;
+        return true;
     }
 
     if (need_read_pos)
-	pl = new HoneyPosPostList(db, term_, new_cursor.release());
+        pl = new HoneyPosPostList(db, term_, new_cursor.release());
     else
-	pl = new HoneyPostList(db, term_, new_cursor.release());
+        pl = new HoneyPostList(db, term_, new_cursor.release());
     return true;
 }
 
@@ -170,28 +170,28 @@ PostList*
 HoneyPostList::next(double)
 {
     if (!started) {
-	started = true;
-	return NULL;
+        started = true;
+        return NULL;
     }
 
     Assert(!reader.at_end());
 
     if (reader.next())
-	return NULL;
+        return NULL;
 
     if (reader.get_docid() >= last_did) {
-	// We've reached the end.
-	delete cursor;
-	cursor = NULL;
-	return NULL;
+        // We've reached the end.
+        delete cursor;
+        cursor = NULL;
+        return NULL;
     }
 
     if (rare(!cursor->next()))
-	throw Xapian::DatabaseCorruptError("Hit end of table looking for "
-					   "postlist chunk");
+        throw Xapian::DatabaseCorruptError("Hit end of table looking for "
+                                           "postlist chunk");
 
     if (rare(!update_reader()))
-	throw Xapian::DatabaseCorruptError("Missing postlist chunk");
+        throw Xapian::DatabaseCorruptError("Missing postlist chunk");
 
     return NULL;
 }
@@ -200,24 +200,24 @@ PostList*
 HoneyPostList::skip_to(Xapian::docid did, double)
 {
     if (!started) {
-	started = true;
+        started = true;
     }
 
     if (rare(!cursor)) {
-	// No-op if already at_end.
-	return NULL;
+        // No-op if already at_end.
+        return NULL;
     }
 
     Assert(!reader.at_end());
 
     if (reader.skip_to(did))
-	return NULL;
+        return NULL;
 
     if (did > last_did) {
-	// We've reached the end.
-	delete cursor;
-	cursor = NULL;
-	return NULL;
+        // We've reached the end.
+        delete cursor;
+        cursor = NULL;
+        return NULL;
     }
 
     // At this point we know that skip_to() must succeed since last_did
@@ -228,15 +228,15 @@ HoneyPostList::skip_to(Xapian::docid did, double)
     (void)cursor->find_entry_ge(make_postingchunk_key(term, did));
 
     if (rare(cursor->after_end()))
-	throw Xapian::DatabaseCorruptError("Hit end of table looking for "
-					   "postlist chunk");
+        throw Xapian::DatabaseCorruptError("Hit end of table looking for "
+                                           "postlist chunk");
 
     if (rare(!update_reader()))
-	throw Xapian::DatabaseCorruptError("Missing postlist chunk");
+        throw Xapian::DatabaseCorruptError("Missing postlist chunk");
 
     if (rare(!reader.skip_to(did)))
-	throw Xapian::DatabaseCorruptError("Postlist chunk doesn't contain "
-					   "its last entry");
+        throw Xapian::DatabaseCorruptError("Postlist chunk doesn't contain "
+                                           "its last entry");
 
     return NULL;
 }
@@ -252,11 +252,11 @@ HoneyPostList::get_docid_range(Xapian::docid& first, Xapian::docid& last) const
 {
     Assert(!started);
     if (termfreq) {
-	first = reader.get_docid();
-	last = last_did;
-	AssertRel(first,<=,last);
+        first = reader.get_docid();
+        last = last_did;
+        AssertRel(first,<=,last);
     } else {
-	last = 0;
+        last = 0;
     }
 }
 
@@ -270,8 +270,8 @@ HoneyPostList::get_description() const
 }
 
 HoneyPosPostList::HoneyPosPostList(const HoneyDatabase* db_,
-				   std::string_view term_,
-				   HoneyCursor* cursor_)
+                                   std::string_view term_,
+                                   HoneyCursor* cursor_)
     : HoneyPostList(db_, term_, cursor_),
       position_list(db_->position_table) {}
 
@@ -298,13 +298,13 @@ namespace Honey {
 
 void
 PostingChunkReader::assign(const char* p_, size_t len,
-			   Xapian::docid chunk_last)
+                           Xapian::docid chunk_last)
 {
     const char* pend = p_ + len;
     if (collfreq_info ?
-	!decode_delta_chunk_header(&p_, pend, chunk_last, did, wdf) :
-	!decode_delta_chunk_header_no_wdf(&p_, pend, chunk_last, did)) {
-	throw Xapian::DatabaseCorruptError("Postlist delta chunk header");
+        !decode_delta_chunk_header(&p_, pend, chunk_last, did, wdf) :
+        !decode_delta_chunk_header_no_wdf(&p_, pend, chunk_last, did)) {
+        throw Xapian::DatabaseCorruptError("Postlist delta chunk header");
     }
     p = p_;
     end = pend;
@@ -313,8 +313,8 @@ PostingChunkReader::assign(const char* p_, size_t len,
 
 void
 PostingChunkReader::assign(const char* p_, size_t len, Xapian::docid did_,
-			   Xapian::docid last_did_in_chunk,
-			   Xapian::termcount wdf_)
+                           Xapian::docid last_did_in_chunk,
+                           Xapian::termcount wdf_)
 {
     p = p_;
     end = p_ + len;
@@ -327,30 +327,30 @@ bool
 PostingChunkReader::next()
 {
     if (p == end) {
-	if (termfreq == 2 && did != last_did) {
-	    did = last_did;
-	    wdf = collfreq_info - wdf;
-	    return true;
-	}
-	p = NULL;
-	return false;
+        if (termfreq == 2 && did != last_did) {
+            did = last_did;
+            wdf = collfreq_info - wdf;
+            return true;
+        }
+        p = NULL;
+        return false;
     }
 
     // The "constant wdf apart from maybe the first entry" case.
     if (collfreq_info & TOP_BIT_SET(decltype(collfreq_info))) {
-	wdf = collfreq_info &~ TOP_BIT_SET(decltype(collfreq_info));
-	collfreq_info = 0;
+        wdf = collfreq_info &~ TOP_BIT_SET(decltype(collfreq_info));
+        collfreq_info = 0;
     }
 
     Xapian::docid delta;
     if (!unpack_uint(&p, end, &delta)) {
-	throw Xapian::DatabaseCorruptError("postlist docid delta");
+        throw Xapian::DatabaseCorruptError("postlist docid delta");
     }
     did += delta + 1;
     if (collfreq_info) {
-	if (!unpack_uint(&p, end, &wdf)) {
-	    throw Xapian::DatabaseCorruptError("postlist wdf");
-	}
+        if (!unpack_uint(&p, end, &wdf)) {
+            throw Xapian::DatabaseCorruptError("postlist wdf");
+        }
     }
 
     return true;
@@ -360,59 +360,59 @@ bool
 PostingChunkReader::skip_to(Xapian::docid target)
 {
     if (p == NULL)
-	return false;
+        return false;
 
     if (target <= did)
-	return true;
+        return true;
 
     if (target > last_did) {
-	p = NULL;
-	return false;
+        p = NULL;
+        return false;
     }
 
     if (p == end) {
-	// Given the checks above, this must be the termfreq == 2 case with the
-	// current position being on the first entry, and so skip_to() must
-	// move to last_did.
-	AssertEq(termfreq, 2);
-	did = last_did;
-	wdf = collfreq_info - wdf;
-	return true;
+        // Given the checks above, this must be the termfreq == 2 case with the
+        // current position being on the first entry, and so skip_to() must
+        // move to last_did.
+        AssertEq(termfreq, 2);
+        did = last_did;
+        wdf = collfreq_info - wdf;
+        return true;
     }
 
     // The "constant wdf apart from maybe the first entry" case.
     if (collfreq_info & TOP_BIT_SET(decltype(collfreq_info))) {
-	wdf = collfreq_info &~ TOP_BIT_SET(decltype(collfreq_info));
-	collfreq_info = 0;
+        wdf = collfreq_info &~ TOP_BIT_SET(decltype(collfreq_info));
+        collfreq_info = 0;
     }
 
     if (target == last_did) {
-	if (collfreq_info) {
-	    if (!unpack_uint_backwards(&end, p, &wdf))
-		throw Xapian::DatabaseCorruptError("postlist final wdf");
-	}
-	did = last_did;
-	p = end;
-	return true;
+        if (collfreq_info) {
+            if (!unpack_uint_backwards(&end, p, &wdf))
+                throw Xapian::DatabaseCorruptError("postlist final wdf");
+        }
+        did = last_did;
+        p = end;
+        return true;
     }
 
     do {
-	if (rare(p == end)) {
-	    // FIXME: Shouldn't happen unless last_did was wrong.
-	    p = NULL;
-	    return false;
-	}
+        if (rare(p == end)) {
+            // FIXME: Shouldn't happen unless last_did was wrong.
+            p = NULL;
+            return false;
+        }
 
-	Xapian::docid delta;
-	if (!unpack_uint(&p, end, &delta)) {
-	    throw Xapian::DatabaseCorruptError("postlist docid delta");
-	}
-	did += delta + 1;
-	if (collfreq_info) {
-	    if (!unpack_uint(&p, end, &wdf)) {
-		throw Xapian::DatabaseCorruptError("postlist wdf");
-	    }
-	}
+        Xapian::docid delta;
+        if (!unpack_uint(&p, end, &delta)) {
+            throw Xapian::DatabaseCorruptError("postlist docid delta");
+        }
+        did += delta + 1;
+        if (collfreq_info) {
+            if (!unpack_uint(&p, end, &wdf)) {
+                throw Xapian::DatabaseCorruptError("postlist wdf");
+            }
+        }
     } while (target > did);
 
     return true;

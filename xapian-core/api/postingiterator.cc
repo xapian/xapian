@@ -35,7 +35,7 @@ PostingIterator::decref()
 {
     Assert(internal);
     if (--internal->_refs == 0)
-	delete internal;
+        delete internal;
 }
 
 PostingIterator::PostingIterator(Internal *internal_) : internal(internal_)
@@ -43,16 +43,16 @@ PostingIterator::PostingIterator(Internal *internal_) : internal(internal_)
     LOGCALL_CTOR(API, "PostingIterator", internal_);
     if (!internal) return;
     try {
-	++internal->_refs;
-	if (!internal->next()) {
-	    decref();
-	    internal = NULL;
-	}
+        ++internal->_refs;
+        if (!internal->next()) {
+            decref();
+            internal = NULL;
+        }
     } catch (...) {
-	// The destructor only runs if the constructor completes, so we have to
-	// take care of cleaning up for ourselves here.
-	decref();
-	throw;
+        // The destructor only runs if the constructor completes, so we have to
+        // take care of cleaning up for ourselves here.
+        decref();
+        throw;
     }
 }
 
@@ -61,7 +61,7 @@ PostingIterator::PostingIterator(const PostingIterator & o)
 {
     LOGCALL_CTOR(API, "PostingIterator", o);
     if (internal)
-	++internal->_refs;
+        ++internal->_refs;
 }
 
 PostingIterator &
@@ -69,9 +69,9 @@ PostingIterator::operator=(const PostingIterator & o)
 {
     LOGCALL(API, PostingIterator &, "PostingIterator::operator=", o);
     if (o.internal)
-	++o.internal->_refs;
+        ++o.internal->_refs;
     if (internal)
-	decref();
+        decref();
     internal = o.internal;
     RETURN(*this);
 }
@@ -90,8 +90,8 @@ PostingIterator::operator++()
     LOGCALL(API, PostingIterator &, "PostingIterator::operator++", NO_ARGS);
     Assert(internal);
     if (!internal->next()) {
-	decref();
-	internal = NULL;
+        decref();
+        internal = NULL;
     }
     RETURN(*this);
 }
@@ -151,10 +151,10 @@ PostingIterator::skip_to(Xapian::docid did)
 {
     LOGCALL_VOID(API, "PostingIterator::skip_to", did);
     if (internal) {
-	if (!internal->skip_to(did)) {
-	    decref();
-	    internal = NULL;
-	}
+        if (!internal->skip_to(did)) {
+            decref();
+            internal = NULL;
+        }
     }
 }
 
@@ -163,7 +163,7 @@ PostingIterator::get_description() const
 {
     string desc = "PostingIterator(";
     if (internal)
-	desc += internal->get_description();
+        desc += internal->get_description();
     desc += ')';
     return desc;
 }

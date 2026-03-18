@@ -128,8 +128,8 @@ DEFINE_TESTCASE(adddoc2, writable) {
     TEST_EQUAL(iter1.get_wdf(), 1);
     TEST_EQUAL(iter2.get_wdf(), 1);
     if (!sharded) {
-	// TEST_EQUAL(iter1.get_termfreq(), 0);
-	TEST_EQUAL(iter2.get_termfreq(), 1);
+        // TEST_EQUAL(iter1.get_termfreq(), 0);
+        TEST_EQUAL(iter2.get_termfreq(), 1);
     }
 
     iter1++;
@@ -141,8 +141,8 @@ DEFINE_TESTCASE(adddoc2, writable) {
     TEST_EQUAL(iter1.get_wdf(), 4);
     TEST_EQUAL(iter2.get_wdf(), 4);
     if (!sharded) {
-	// TEST_EQUAL(iter1.get_termfreq(), 0);
-	TEST_EQUAL(iter2.get_termfreq(), 1);
+        // TEST_EQUAL(iter1.get_termfreq(), 0);
+        TEST_EQUAL(iter2.get_termfreq(), 1);
     }
 
     iter1++;
@@ -154,8 +154,8 @@ DEFINE_TESTCASE(adddoc2, writable) {
     TEST_EQUAL(iter1.get_wdf(), 1);
     TEST_EQUAL(iter2.get_wdf(), 1);
     if (!sharded) {
-	// assertion fails in debug build! TEST_EQUAL(iter1.get_termfreq(), 0);
-	TEST_EQUAL(iter2.get_termfreq(), 1);
+        // assertion fails in debug build! TEST_EQUAL(iter1.get_termfreq(), 0);
+        TEST_EQUAL(iter2.get_termfreq(), 1);
     }
 
     iter1++;
@@ -167,8 +167,8 @@ DEFINE_TESTCASE(adddoc2, writable) {
     TEST_EQUAL(iter1.get_wdf(), 1);
     TEST_EQUAL(iter2.get_wdf(), 1);
     if (!sharded) {
-	// assertion fails in debug build! TEST_EQUAL(iter1.get_termfreq(), 0);
-	TEST_EQUAL(iter2.get_termfreq(), 1);
+        // assertion fails in debug build! TEST_EQUAL(iter1.get_termfreq(), 0);
+        TEST_EQUAL(iter2.get_termfreq(), 1);
     }
 
     iter1++;
@@ -217,8 +217,8 @@ DEFINE_TESTCASE(adddoc2, writable) {
     TEST_EQUAL(iter1.get_wdf(), 0);
     TEST_EQUAL(iter2.get_wdf(), 0);
     if (!sharded) {
-	TEST_EQUAL(iter1.get_termfreq(), 1);
-	// TEST_EQUAL(iter2.get_termfreq(), 0);
+        TEST_EQUAL(iter1.get_termfreq(), 1);
+        // TEST_EQUAL(iter2.get_termfreq(), 0);
     }
     TEST(iter1.positionlist_begin() == iter1.positionlist_end());
     TEST(iter2.positionlist_begin() == iter2.positionlist_end());
@@ -232,8 +232,8 @@ DEFINE_TESTCASE(adddoc2, writable) {
     TEST_EQUAL(iter1.get_wdf(), 9);
     TEST_EQUAL(iter2.get_wdf(), 9);
     if (!sharded) {
-	TEST_EQUAL(iter1.get_termfreq(), 2);
-	// TEST_EQUAL(iter2.get_termfreq(), 0);
+        TEST_EQUAL(iter1.get_termfreq(), 2);
+        // TEST_EQUAL(iter2.get_termfreq(), 0);
     }
 
     Xapian::PositionIterator pi1;
@@ -253,8 +253,8 @@ DEFINE_TESTCASE(adddoc2, writable) {
     TEST_EQUAL(iter1.get_wdf(), 0);
     TEST_EQUAL(iter2.get_wdf(), 0);
     if (!sharded) {
-	TEST_EQUAL(iter1.get_termfreq(), 1);
-	// TEST_EQUAL(iter2.get_termfreq(), 0);
+        TEST_EQUAL(iter1.get_termfreq(), 1);
+        // TEST_EQUAL(iter2.get_termfreq(), 0);
     }
     TEST(iter1.positionlist_begin() == iter1.positionlist_end());
     TEST(iter2.positionlist_begin() == iter2.positionlist_end());
@@ -268,8 +268,8 @@ DEFINE_TESTCASE(adddoc2, writable) {
     TEST_EQUAL(iter1.get_wdf(), 0);
     TEST_EQUAL(iter2.get_wdf(), 0);
     if (!sharded) {
-	TEST_EQUAL(iter1.get_termfreq(), 2);
-	// TEST_EQUAL(iter2.get_termfreq(), 0);
+        TEST_EQUAL(iter1.get_termfreq(), 2);
+        // TEST_EQUAL(iter2.get_termfreq(), 0);
     }
 
     Xapian::PositionIterator temp1 = iter1.positionlist_begin();
@@ -293,13 +293,13 @@ DEFINE_TESTCASE(adddoc3, writable) {
     Xapian::WritableDatabase db = get_writable_database();
 
     for (Xapian::doccount i = 0; i < 2100; ++i) {
-	Xapian::Document doc;
-	for (Xapian::termcount t = 0; t < 100; ++t) {
-	    string term("foo");
-	    term += char(t ^ 70 ^ i);
-	    doc.add_posting(term, t);
-	}
-	db.add_document(doc);
+        Xapian::Document doc;
+        for (Xapian::termcount t = 0; t < 100; ++t) {
+            string term("foo");
+            term += char(t ^ 70 ^ i);
+            doc.add_posting(term, t);
+        }
+        db.add_document(doc);
     }
 }
 
@@ -311,21 +311,21 @@ DEFINE_TESTCASE(adddoc4, writable) {
     Xapian::WritableDatabase db = get_writable_database();
 
     for (Xapian::doccount i = 1; i <= 240; ++i) {
-	Xapian::Document doc;
-	string term(i, 'X');
-	doc.add_term(term);
-	db.add_document(doc);
+        Xapian::Document doc;
+        string term(i, 'X');
+        doc.add_term(term);
+        db.add_document(doc);
     }
     db.add_document(Xapian::Document());
     db.commit();
 
     for (Xapian::doccount i = 1; i <= 240; ++i) {
-	Xapian::Document doc = db.get_document(i);
-	Xapian::TermIterator t = doc.termlist_begin();
-	TEST(t != doc.termlist_end());
-	TEST_EQUAL((*t).size(), i);
-	++t;
-	TEST(t == doc.termlist_end());
+        Xapian::Document doc = db.get_document(i);
+        Xapian::TermIterator t = doc.termlist_begin();
+        TEST(t != doc.termlist_end());
+        TEST_EQUAL((*t).size(), i);
+        ++t;
+        TEST(t == doc.termlist_end());
     }
 
     // And test a document with no terms.
@@ -356,121 +356,121 @@ DEFINE_TESTCASE(adddoc5, writable) {
     document_in2.add_posting("foobar", 1);
     document_in2.add_posting("falling", 2);
     {
-	Xapian::WritableDatabase database(get_writable_database());
+        Xapian::WritableDatabase database(get_writable_database());
 
-	TEST_EQUAL(database.get_doccount(), 0);
-	TEST_EQUAL(database.get_avlength(), 0);
+        TEST_EQUAL(database.get_doccount(), 0);
+        TEST_EQUAL(database.get_avlength(), 0);
 
-	did = database.add_document(document_in);
-	TEST_EQUAL(database.get_doccount(), 1);
-	TEST_EQUAL(database.get_avlength(), 3);
+        did = database.add_document(document_in);
+        TEST_EQUAL(database.get_doccount(), 1);
+        TEST_EQUAL(database.get_avlength(), 3);
 
-	TEST_EQUAL(database.get_termfreq("foobar"), 1);
-	TEST_EQUAL(database.get_collection_freq("foobar"), 2);
-	TEST_EQUAL(database.get_termfreq("rising"), 1);
-	TEST_EQUAL(database.get_collection_freq("rising"), 1);
-	TEST_EQUAL(database.get_termfreq("falling"), 0);
-	TEST_EQUAL(database.get_collection_freq("falling"), 0);
+        TEST_EQUAL(database.get_termfreq("foobar"), 1);
+        TEST_EQUAL(database.get_collection_freq("foobar"), 2);
+        TEST_EQUAL(database.get_termfreq("rising"), 1);
+        TEST_EQUAL(database.get_collection_freq("rising"), 1);
+        TEST_EQUAL(database.get_termfreq("falling"), 0);
+        TEST_EQUAL(database.get_collection_freq("falling"), 0);
 
-	Xapian::docid did2 = database.add_document(document_in2);
-	TEST_EQUAL(database.get_doccount(), 2);
-	TEST_NOT_EQUAL(did, did2);
-	TEST_EQUAL(database.get_avlength(), 5.0 / 2.0);
+        Xapian::docid did2 = database.add_document(document_in2);
+        TEST_EQUAL(database.get_doccount(), 2);
+        TEST_NOT_EQUAL(did, did2);
+        TEST_EQUAL(database.get_avlength(), 5.0 / 2.0);
 
-	TEST_EQUAL(database.get_termfreq("foobar"), 2);
-	TEST_EQUAL(database.get_collection_freq("foobar"), 3);
-	TEST_EQUAL(database.get_termfreq("rising"), 1);
-	TEST_EQUAL(database.get_collection_freq("rising"), 1);
-	TEST_EQUAL(database.get_termfreq("falling"), 1);
-	TEST_EQUAL(database.get_collection_freq("falling"), 1);
+        TEST_EQUAL(database.get_termfreq("foobar"), 2);
+        TEST_EQUAL(database.get_collection_freq("foobar"), 3);
+        TEST_EQUAL(database.get_termfreq("rising"), 1);
+        TEST_EQUAL(database.get_collection_freq("rising"), 1);
+        TEST_EQUAL(database.get_termfreq("falling"), 1);
+        TEST_EQUAL(database.get_collection_freq("falling"), 1);
 
-	database.delete_document(did);
-	TEST_EQUAL(database.get_doccount(), 1);
-	TEST_EQUAL(database.get_avlength(), 2);
+        database.delete_document(did);
+        TEST_EQUAL(database.get_doccount(), 1);
+        TEST_EQUAL(database.get_avlength(), 2);
 
-	TEST_EQUAL(database.get_termfreq("foobar"), 1);
-	TEST_EQUAL(database.get_collection_freq("foobar"), 1);
-	TEST_EQUAL(database.get_termfreq("rising"), 0);
-	TEST_EQUAL(database.get_collection_freq("rising"), 0);
-	TEST_EQUAL(database.get_termfreq("falling"), 1);
-	TEST_EQUAL(database.get_collection_freq("falling"), 1);
+        TEST_EQUAL(database.get_termfreq("foobar"), 1);
+        TEST_EQUAL(database.get_collection_freq("foobar"), 1);
+        TEST_EQUAL(database.get_termfreq("rising"), 0);
+        TEST_EQUAL(database.get_collection_freq("rising"), 0);
+        TEST_EQUAL(database.get_termfreq("falling"), 1);
+        TEST_EQUAL(database.get_collection_freq("falling"), 1);
 
-	did = database.add_document(document_in);
-	TEST_EQUAL(database.get_doccount(), 2);
-	TEST_EQUAL(database.get_avlength(), 5.0 / 2.0);
+        did = database.add_document(document_in);
+        TEST_EQUAL(database.get_doccount(), 2);
+        TEST_EQUAL(database.get_avlength(), 5.0 / 2.0);
 
-	TEST_EQUAL(database.get_termfreq("foobar"), 2);
-	TEST_EQUAL(database.get_collection_freq("foobar"), 3);
-	TEST_EQUAL(database.get_termfreq("rising"), 1);
-	TEST_EQUAL(database.get_collection_freq("rising"), 1);
-	TEST_EQUAL(database.get_termfreq("falling"), 1);
-	TEST_EQUAL(database.get_collection_freq("falling"), 1);
+        TEST_EQUAL(database.get_termfreq("foobar"), 2);
+        TEST_EQUAL(database.get_collection_freq("foobar"), 3);
+        TEST_EQUAL(database.get_termfreq("rising"), 1);
+        TEST_EQUAL(database.get_collection_freq("rising"), 1);
+        TEST_EQUAL(database.get_termfreq("falling"), 1);
+        TEST_EQUAL(database.get_collection_freq("falling"), 1);
     }
 
     {
-	Xapian::Database database(get_writable_database_as_database());
-	Xapian::Document document_out = database.get_document(did);
+        Xapian::Database database(get_writable_database_as_database());
+        Xapian::Document document_out = database.get_document(did);
 
-	// get_termfreq() on a TermIterator from a Document returns the
-	// termfreq for just the shard the doc is in.
-	bool sharded = (database.size() > 1);
+        // get_termfreq() on a TermIterator from a Document returns the
+        // termfreq for just the shard the doc is in.
+        bool sharded = (database.size() > 1);
 
-	TEST_EQUAL(document_in.get_data(), document_out.get_data());
+        TEST_EQUAL(document_in.get_data(), document_out.get_data());
 
-	{
-	    Xapian::ValueIterator i(document_in.values_begin());
-	    Xapian::ValueIterator j(document_out.values_begin());
-	    for (; i != document_in.values_end(); i++, j++) {
-		TEST_NOT_EQUAL(j, document_out.values_end());
-		TEST_EQUAL(*i, *j);
-		TEST_EQUAL(i.get_valueno(), j.get_valueno());
-	    }
-	    TEST_EQUAL(j, document_out.values_end());
-	}
+        {
+            Xapian::ValueIterator i(document_in.values_begin());
+            Xapian::ValueIterator j(document_out.values_begin());
+            for (; i != document_in.values_end(); i++, j++) {
+                TEST_NOT_EQUAL(j, document_out.values_end());
+                TEST_EQUAL(*i, *j);
+                TEST_EQUAL(i.get_valueno(), j.get_valueno());
+            }
+            TEST_EQUAL(j, document_out.values_end());
+        }
 
-	{
-	    // Regression test for bug fixed in 1.0.5 - values_begin() didn't
-	    // ensure that values had been read.  However, values_end() did
-	    // (and so did values_count()) so this wasn't generally an issue
-	    // but it shouldn't happen anyway.
-	    Xapian::Document doc_tmp = database.get_document(did);
-	    Xapian::ValueIterator i = document_in.values_begin();
-	    Xapian::ValueIterator j = doc_tmp.values_begin();
-	    TEST_EQUAL(*i, *j);
-	}
+        {
+            // Regression test for bug fixed in 1.0.5 - values_begin() didn't
+            // ensure that values had been read.  However, values_end() did
+            // (and so did values_count()) so this wasn't generally an issue
+            // but it shouldn't happen anyway.
+            Xapian::Document doc_tmp = database.get_document(did);
+            Xapian::ValueIterator i = document_in.values_begin();
+            Xapian::ValueIterator j = doc_tmp.values_begin();
+            TEST_EQUAL(*i, *j);
+        }
 
-	{
-	    Xapian::TermIterator i(document_in.termlist_begin());
-	    Xapian::TermIterator j(document_out.termlist_begin());
-	    for (; i != document_in.termlist_end(); i++, j++) {
-		TEST_NOT_EQUAL(j, document_out.termlist_end());
-		TEST_EQUAL(*i, *j);
-		TEST_EQUAL(i.get_wdf(), j.get_wdf());
-		if (!sharded) {
-		    // Actually use termfreq to stop compiler optimising away the
-		    // call to get_termfreq().
-		    TEST_EXCEPTION(Xapian::InvalidOperationError,
-				   if (i.get_termfreq()) FAIL_TEST("?"));
-		    TEST_NOT_EQUAL(0, j.get_termfreq());
-		    if (*i == "foobar") {
-			// termfreq of foobar is 2
-			TEST_EQUAL(2, j.get_termfreq());
-		    } else {
-			// termfreq of rising is 1
-			TEST_EQUAL(*i, "rising");
-			TEST_EQUAL(1, j.get_termfreq());
-		    }
-		}
-		Xapian::PositionIterator k(i.positionlist_begin());
-		Xapian::PositionIterator l(j.positionlist_begin());
-		for (; k != i.positionlist_end(); k++, l++) {
-		    TEST_NOT_EQUAL(l, j.positionlist_end());
-		    TEST_EQUAL(*k, *l);
-		}
-		TEST_EQUAL(l, j.positionlist_end());
-	    }
-	    TEST_EQUAL(j, document_out.termlist_end());
-	}
+        {
+            Xapian::TermIterator i(document_in.termlist_begin());
+            Xapian::TermIterator j(document_out.termlist_begin());
+            for (; i != document_in.termlist_end(); i++, j++) {
+                TEST_NOT_EQUAL(j, document_out.termlist_end());
+                TEST_EQUAL(*i, *j);
+                TEST_EQUAL(i.get_wdf(), j.get_wdf());
+                if (!sharded) {
+                    // Actually use termfreq to stop compiler optimising away the
+                    // call to get_termfreq().
+                    TEST_EXCEPTION(Xapian::InvalidOperationError,
+                                   if (i.get_termfreq()) FAIL_TEST("?"));
+                    TEST_NOT_EQUAL(0, j.get_termfreq());
+                    if (*i == "foobar") {
+                        // termfreq of foobar is 2
+                        TEST_EQUAL(2, j.get_termfreq());
+                    } else {
+                        // termfreq of rising is 1
+                        TEST_EQUAL(*i, "rising");
+                        TEST_EQUAL(1, j.get_termfreq());
+                    }
+                }
+                Xapian::PositionIterator k(i.positionlist_begin());
+                Xapian::PositionIterator l(j.positionlist_begin());
+                for (; k != i.positionlist_end(); k++, l++) {
+                    TEST_NOT_EQUAL(l, j.positionlist_end());
+                    TEST_EQUAL(*k, *l);
+                }
+                TEST_EQUAL(l, j.positionlist_end());
+            }
+            TEST_EQUAL(j, document_out.termlist_end());
+        }
     }
 }
 
@@ -489,32 +489,32 @@ DEFINE_TESTCASE(adddoc6, writable) {
     document_in.add_posting("bar", 2);
 
     {
-	Xapian::WritableDatabase database(get_writable_database());
+        Xapian::WritableDatabase database(get_writable_database());
 
-	did = database.add_document(document_in);
-	TEST_EQUAL(did, 1);
-	TEST_EQUAL(database.get_doccount(), 1);
-	TEST_EQUAL(database.get_avlength(), 2);
+        did = database.add_document(document_in);
+        TEST_EQUAL(did, 1);
+        TEST_EQUAL(database.get_doccount(), 1);
+        TEST_EQUAL(database.get_avlength(), 2);
     }
 
     {
-	Xapian::WritableDatabase database(get_writable_database_again());
+        Xapian::WritableDatabase database(get_writable_database_again());
 
-	document_in.remove_term("foo");
-	document_in.add_posting("baz", 1);
+        document_in.remove_term("foo");
+        document_in.add_posting("baz", 1);
 
-	database.replace_document(1, document_in);
+        database.replace_document(1, document_in);
 
-	database.delete_document(1);
+        database.delete_document(1);
 
-	TEST_EQUAL(database.get_doccount(), 0);
-	TEST_EQUAL(database.get_avlength(), 0);
-	TEST_EQUAL(database.get_termfreq("foo"), 0);
-	TEST_EQUAL(database.get_collection_freq("foo"), 0);
-	TEST_EQUAL(database.get_termfreq("bar"), 0);
-	TEST_EQUAL(database.get_collection_freq("bar"), 0);
-	TEST_EQUAL(database.get_termfreq("baz"), 0);
-	TEST_EQUAL(database.get_collection_freq("baz"), 0);
+        TEST_EQUAL(database.get_doccount(), 0);
+        TEST_EQUAL(database.get_avlength(), 0);
+        TEST_EQUAL(database.get_termfreq("foo"), 0);
+        TEST_EQUAL(database.get_collection_freq("foo"), 0);
+        TEST_EQUAL(database.get_termfreq("bar"), 0);
+        TEST_EQUAL(database.get_collection_freq("bar"), 0);
+        TEST_EQUAL(database.get_termfreq("baz"), 0);
+        TEST_EQUAL(database.get_collection_freq("baz"), 0);
     }
 }
 
@@ -756,19 +756,19 @@ DEFINE_TESTCASE(deldoc4, writable) {
     const Xapian::docid maxdoc = 1000 * 3;
     Xapian::docid did;
     for (Xapian::docid i = 0; i < maxdoc / 3; ++i) {
-	did = db.add_document(doc1);
-	TEST_EQUAL(did, i * 3 + 1);
-	did = db.add_document(doc2);
-	TEST_EQUAL(did, i * 3 + 2);
-	did = db.add_document(doc3);
-	TEST_EQUAL(did, i * 3 + 3);
+        did = db.add_document(doc1);
+        TEST_EQUAL(did, i * 3 + 1);
+        did = db.add_document(doc2);
+        TEST_EQUAL(did, i * 3 + 2);
+        did = db.add_document(doc3);
+        TEST_EQUAL(did, i * 3 + 3);
 
-	bool is_power_of_two = ((i & negate_unsigned(i)) == 0);
-	if (is_power_of_two) {
-	    db.commit();
-	    // reopen() on a writable database shouldn't do anything.
-	    TEST(!db.reopen());
-	}
+        bool is_power_of_two = ((i & negate_unsigned(i)) == 0);
+        if (is_power_of_two) {
+            db.commit();
+            // reopen() on a writable database shouldn't do anything.
+            TEST(!db.reopen());
+        }
     }
     db.commit();
     // reopen() on a writable database shouldn't do anything.
@@ -776,9 +776,9 @@ DEFINE_TESTCASE(deldoc4, writable) {
 
     /* delete the documents in a peculiar order */
     for (Xapian::docid i = 0; i < maxdoc / 3; ++i) {
-	db.delete_document(maxdoc - i);
-	db.delete_document(maxdoc / 3 + i + 1);
-	db.delete_document(i + 1);
+        db.delete_document(maxdoc - i);
+        db.delete_document(maxdoc / 3 + i + 1);
+        db.delete_document(i + 1);
     }
 
     db.commit();
@@ -790,16 +790,16 @@ DEFINE_TESTCASE(deldoc4, writable) {
     TEST_EQUAL(db.postlist_begin("three"), db.postlist_end("three"));
 
     for (Xapian::docid i = 1; i <= maxdoc; ++i) {
-	// TEST_EXCEPTION writes to tout each time if the test is run
-	// in verbose mode and some string stream implementations get
-	// very inefficient with large strings, so clear tout on each pass of
-	// the loop to speed up the test since the older information isn't
-	// interesting anyway.
-	tout.str(string());
-	TEST_EXCEPTION(Xapian::DocNotFoundError, db.termlist_begin(i));
-	TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_doclength(i));
-	TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_unique_terms(i));
-	TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_document(i));
+        // TEST_EXCEPTION writes to tout each time if the test is run
+        // in verbose mode and some string stream implementations get
+        // very inefficient with large strings, so clear tout on each pass of
+        // the loop to speed up the test since the older information isn't
+        // interesting anyway.
+        tout.str(string());
+        TEST_EXCEPTION(Xapian::DocNotFoundError, db.termlist_begin(i));
+        TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_doclength(i));
+        TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_unique_terms(i));
+        TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_document(i));
     }
 
     // test positionlist_{begin,end}?
@@ -1132,26 +1132,26 @@ DEFINE_TESTCASE(replacedoc5, writable) {
     Xapian::WritableDatabase db = get_writable_database();
 
     {
-	Xapian::Document doc;
-	doc.add_posting("hello", 1);
-	doc.add_posting("world", 2);
+        Xapian::Document doc;
+        doc.add_posting("hello", 1);
+        doc.add_posting("world", 2);
 
-	Xapian::docid did = db.add_document(doc);
-	TEST_EQUAL(did, 1);
-	db.commit();
+        Xapian::docid did = db.add_document(doc);
+        TEST_EQUAL(did, 1);
+        db.commit();
     }
 
     {
-	Xapian::Document doc = db.get_document(1);
-	TEST(db.has_positions());
-	TEST(db.positionlist_begin(1, "hello") != db.positionlist_end(1, "hello"));
-	TEST(db.positionlist_begin(1, "world") != db.positionlist_end(1, "world"));
-	db.replace_document(1, doc);
-	db.commit();
+        Xapian::Document doc = db.get_document(1);
+        TEST(db.has_positions());
+        TEST(db.positionlist_begin(1, "hello") != db.positionlist_end(1, "hello"));
+        TEST(db.positionlist_begin(1, "world") != db.positionlist_end(1, "world"));
+        db.replace_document(1, doc);
+        db.commit();
 
-	TEST(db.has_positions());
-	TEST(db.positionlist_begin(1, "hello") != db.positionlist_end(1, "hello"));
-	TEST(db.positionlist_begin(1, "world") != db.positionlist_end(1, "world"));
+        TEST(db.has_positions());
+        TEST(db.positionlist_begin(1, "hello") != db.positionlist_end(1, "hello"));
+        TEST(db.positionlist_begin(1, "world") != db.positionlist_end(1, "world"));
     }
 
     // The backends now spot simple cases of replacing the same document and
@@ -1159,24 +1159,24 @@ DEFINE_TESTCASE(replacedoc5, writable) {
     // make sure that case works.
 
     {
-	Xapian::Document doc;
-	doc.add_term("Q2");
-	db.add_document(doc);
-	db.commit();
+        Xapian::Document doc;
+        doc.add_term("Q2");
+        db.add_document(doc);
+        db.commit();
     }
 
     {
-	Xapian::Document doc = db.get_document(1);
-	TEST(db.has_positions());
-	TEST(db.positionlist_begin(1, "hello") != db.positionlist_end(1, "hello"));
-	TEST(db.positionlist_begin(1, "world") != db.positionlist_end(1, "world"));
-	(void)db.get_document(2);
-	db.replace_document(1, doc);
-	db.commit();
+        Xapian::Document doc = db.get_document(1);
+        TEST(db.has_positions());
+        TEST(db.positionlist_begin(1, "hello") != db.positionlist_end(1, "hello"));
+        TEST(db.positionlist_begin(1, "world") != db.positionlist_end(1, "world"));
+        (void)db.get_document(2);
+        db.replace_document(1, doc);
+        db.commit();
 
-	TEST(db.has_positions());
-	TEST(db.positionlist_begin(1, "hello") != db.positionlist_end(1, "hello"));
-	TEST(db.positionlist_begin(1, "world") != db.positionlist_end(1, "world"));
+        TEST(db.has_positions());
+        TEST(db.positionlist_begin(1, "hello") != db.positionlist_end(1, "hello"));
+        TEST(db.positionlist_begin(1, "world") != db.positionlist_end(1, "world"));
     }
 }
 
@@ -1224,39 +1224,39 @@ DEFINE_TESTCASE(uniqueterm1, writable) {
     Xapian::WritableDatabase db = get_writable_database();
 
     for (int n = 1; n <= 20; ++n) {
-	Xapian::Document doc;
-	string uterm = "U" + str(n % 16);
-	doc.add_term(uterm);
-	doc.add_term(str(n));
-	doc.add_term(str(n ^ 9));
-	doc.add_term("all");
-	doc.set_data("pass1");
-	db.add_document(doc);
+        Xapian::Document doc;
+        string uterm = "U" + str(n % 16);
+        doc.add_term(uterm);
+        doc.add_term(str(n));
+        doc.add_term(str(n ^ 9));
+        doc.add_term("all");
+        doc.set_data("pass1");
+        db.add_document(doc);
     }
 
     TEST_EQUAL(db.get_doccount(), 20);
 
     static const Xapian::doccount sizes[20] = {
-	19, 17, 16, 15,
-	15, 15, 15, 15,
-	15, 15, 15, 15,
-	15, 15, 15, 15,
-	15, 15, 15, 15
+        19, 17, 16, 15,
+        15, 15, 15, 15,
+        15, 15, 15, 15,
+        15, 15, 15, 15,
+        15, 15, 15, 15
     };
     for (int n = 1; n <= 20; ++n) {
-	string uterm = "U" + str(n % 16);
-	if (uterm == "U2") {
-	    db.delete_document(uterm);
-	} else {
-	    Xapian::Document doc;
-	    doc.add_term(uterm);
-	    doc.add_term(str(n));
-	    doc.add_term(str(n ^ 9));
-	    doc.add_term("all");
-	    doc.set_data("pass2");
-	    db.replace_document(uterm, doc);
-	}
-	TEST_EQUAL(db.get_doccount(), sizes[n - 1]);
+        string uterm = "U" + str(n % 16);
+        if (uterm == "U2") {
+            db.delete_document(uterm);
+        } else {
+            Xapian::Document doc;
+            doc.add_term(uterm);
+            doc.add_term(str(n));
+            doc.add_term(str(n ^ 9));
+            doc.add_term("all");
+            doc.set_data("pass2");
+            db.replace_document(uterm, doc);
+        }
+        TEST_EQUAL(db.get_doccount(), sizes[n - 1]);
     }
 
     string uterm = "U571";
@@ -1278,9 +1278,9 @@ DEFINE_TESTCASE(allpostlist2, writable) {
     Xapian::PostingIterator i = db.postlist_begin("");
     unsigned int j = 1;
     while (i != db.postlist_end("")) {
-	TEST_EQUAL(*i, j);
-	i++;
-	j++;
+        TEST_EQUAL(*i, j);
+        i++;
+        j++;
     }
     TEST_EQUAL(j, 513);
 
@@ -1291,24 +1291,24 @@ DEFINE_TESTCASE(allpostlist2, writable) {
     i = db.postlist_begin("");
     j = 2;
     while (i != db.postlist_end("")) {
-	TEST_EQUAL(*i, j);
-	i++;
-	j++;
-	if (j == 50) j++;
+        TEST_EQUAL(*i, j);
+        i++;
+        j++;
+        if (j == 50) j++;
     }
     TEST_EQUAL(j, 512);
 
     i = db.postlist_begin("");
     j = 2;
     while (i != db.postlist_end("")) {
-	TEST_EQUAL(*i, j);
-	i++;
-	j++;
-	if (j == 40) {
-	    j += 10;
-	    i.skip_to(j);
-	    j++;
-	}
+        TEST_EQUAL(*i, j);
+        i++;
+        j++;
+        if (j == 40) {
+            j += 10;
+            i.skip_to(j);
+            j++;
+        }
     }
     TEST_EQUAL(j, 512);
 }
@@ -1326,33 +1326,33 @@ static void test_emptyterm2_helper(Xapian::WritableDatabase & db)
 // equivalent of emptyterm1 for a writable database
 DEFINE_TESTCASE(emptyterm2, writable) {
     {
-	Xapian::WritableDatabase db(get_writable_database("apitest_manydocs"));
-	TEST_EQUAL(db.get_doccount(), 512);
-	test_emptyterm2_helper(db);
-	db.delete_document(1);
-	TEST_EQUAL(db.get_doccount(), 511);
-	test_emptyterm2_helper(db);
-	db.delete_document(50);
-	TEST_EQUAL(db.get_doccount(), 510);
-	test_emptyterm2_helper(db);
-	db.delete_document(512);
-	TEST_EQUAL(db.get_doccount(), 509);
-	test_emptyterm2_helper(db);
+        Xapian::WritableDatabase db(get_writable_database("apitest_manydocs"));
+        TEST_EQUAL(db.get_doccount(), 512);
+        test_emptyterm2_helper(db);
+        db.delete_document(1);
+        TEST_EQUAL(db.get_doccount(), 511);
+        test_emptyterm2_helper(db);
+        db.delete_document(50);
+        TEST_EQUAL(db.get_doccount(), 510);
+        test_emptyterm2_helper(db);
+        db.delete_document(512);
+        TEST_EQUAL(db.get_doccount(), 509);
+        test_emptyterm2_helper(db);
     }
 
     {
-	Xapian::WritableDatabase db(get_writable_database("apitest_onedoc"));
-	TEST_EQUAL(db.get_doccount(), 1);
-	test_emptyterm2_helper(db);
-	db.delete_document(1);
-	TEST_EQUAL(db.get_doccount(), 0);
-	test_emptyterm2_helper(db);
+        Xapian::WritableDatabase db(get_writable_database("apitest_onedoc"));
+        TEST_EQUAL(db.get_doccount(), 1);
+        test_emptyterm2_helper(db);
+        db.delete_document(1);
+        TEST_EQUAL(db.get_doccount(), 0);
+        test_emptyterm2_helper(db);
     }
 
     {
-	Xapian::WritableDatabase db(get_writable_database());
-	TEST_EQUAL(db.get_doccount(), 0);
-	test_emptyterm2_helper(db);
+        Xapian::WritableDatabase db(get_writable_database());
+        TEST_EQUAL(db.get_doccount(), 0);
+        test_emptyterm2_helper(db);
     }
 }
 
@@ -1361,16 +1361,16 @@ gen_longpositionlist1_db(Xapian::WritableDatabase& db, const string&)
 {
     Xapian::Document doc;
     for (Xapian::termpos n = 1; n <= 2000; ++n) {
-	doc.add_posting("fork", n * 3);
-	doc.add_posting("knife", n * unsigned(log(double(n + 2))));
-	doc.add_posting("spoon", n * n);
-	// Exercise positions up to 4 billion.
-	Xapian::termpos half_cube = n * n / 2 * n;
-	doc.add_posting("chopsticks", half_cube);
-	if constexpr(sizeof(Xapian::termpos) >= 8) {
-	    // Exercise 64-bit positions.
-	    doc.add_posting("spork", half_cube * half_cube);
-	}
+        doc.add_posting("fork", n * 3);
+        doc.add_posting("knife", n * unsigned(log(double(n + 2))));
+        doc.add_posting("spoon", n * n);
+        // Exercise positions up to 4 billion.
+        Xapian::termpos half_cube = n * n / 2 * n;
+        doc.add_posting("chopsticks", half_cube);
+        if constexpr(sizeof(Xapian::termpos) >= 8) {
+            // Exercise 64-bit positions.
+            doc.add_posting("spork", half_cube * half_cube);
+        }
     }
     doc.set_data("cutlery");
     db.add_document(doc);
@@ -1380,7 +1380,7 @@ gen_longpositionlist1_db(Xapian::WritableDatabase& db, const string&)
 // works - regression test for flint.
 DEFINE_TESTCASE(longpositionlist1, backend) {
     Xapian::Database db = get_database("longpositionlist1",
-				       gen_longpositionlist1_db);
+                                       gen_longpositionlist1_db);
 
     Xapian::Document doc = db.get_document(1);
 
@@ -1395,10 +1395,10 @@ DEFINE_TESTCASE(longpositionlist1, backend) {
     p = t.positionlist_begin();
     pend = t.positionlist_end();
     for (Xapian::termpos n = 1; n <= 2000; ++n) {
-	TEST(p != pend);
-	Xapian::termpos half_cube = n * n / 2 * n;
-	TEST_EQUAL(*p, half_cube);
-	++p;
+        TEST(p != pend);
+        Xapian::termpos half_cube = n * n / 2 * n;
+        TEST_EQUAL(*p, half_cube);
+        ++p;
     }
     TEST(p == pend);
 
@@ -1408,9 +1408,9 @@ DEFINE_TESTCASE(longpositionlist1, backend) {
     p = t.positionlist_begin();
     pend = t.positionlist_end();
     for (Xapian::termpos n = 1; n <= 2000; ++n) {
-	TEST(p != pend);
-	TEST_EQUAL(*p, n * 3);
-	++p;
+        TEST(p != pend);
+        TEST_EQUAL(*p, n * 3);
+        ++p;
     }
     TEST(p == pend);
 
@@ -1420,9 +1420,9 @@ DEFINE_TESTCASE(longpositionlist1, backend) {
     p = t.positionlist_begin();
     pend = t.positionlist_end();
     for (Xapian::termpos n = 1; n <= 2000; ++n) {
-	TEST(p != pend);
-	TEST_EQUAL(*p, n * unsigned(log(double(n + 2))));
-	++p;
+        TEST(p != pend);
+        TEST_EQUAL(*p, n * unsigned(log(double(n + 2))));
+        ++p;
     }
     TEST(p == pend);
 
@@ -1432,25 +1432,25 @@ DEFINE_TESTCASE(longpositionlist1, backend) {
     p = t.positionlist_begin();
     pend = t.positionlist_end();
     for (Xapian::termpos n = 1; n <= 2000; ++n) {
-	TEST(p != pend);
-	TEST_EQUAL(*p, n * n);
-	++p;
+        TEST(p != pend);
+        TEST_EQUAL(*p, n * n);
+        ++p;
     }
     TEST(p == pend);
 
     if constexpr(sizeof(Xapian::termpos) >= 8) {
-	++t;
-	TEST(t != tend);
-	TEST_EQUAL(*t, "spork");
-	p = t.positionlist_begin();
-	pend = t.positionlist_end();
-	for (Xapian::termpos n = 1; n <= 2000; ++n) {
-	    TEST(p != pend);
-	    Xapian::termpos half_cube = n * n / 2 * n;
-	    TEST_EQUAL(*p, half_cube * half_cube);
-	    ++p;
-	}
-	TEST(p == pend);
+        ++t;
+        TEST(t != tend);
+        TEST_EQUAL(*t, "spork");
+        p = t.positionlist_begin();
+        pend = t.positionlist_end();
+        for (Xapian::termpos n = 1; n <= 2000; ++n) {
+            TEST(p != pend);
+            Xapian::termpos half_cube = n * n / 2 * n;
+            TEST_EQUAL(*p, half_cube * half_cube);
+            ++p;
+        }
+        TEST(p == pend);
     }
 
     ++t;
@@ -1464,20 +1464,20 @@ gen_consistency2_db(Xapian::WritableDatabase& db, const string&)
 
     // Add 5 documents indexed by "test" with wdf 1.
     for (int i = 0; i < 5; ++i) {
-	Xapian::Document doc;
-	*buf = '0' + i;
-	doc.add_value(0, buf);
-	doc.add_term("test");
-	db.add_document(doc);
+        Xapian::Document doc;
+        *buf = '0' + i;
+        doc.add_value(0, buf);
+        doc.add_term("test");
+        db.add_document(doc);
     }
 
     // Add 5 documents indexed by "test" with wdf 2.
     for (int i = 0; i < 5; ++i) {
-	Xapian::Document doc;
-	*buf = '0' + i;
-	doc.add_value(0, buf);
-	doc.add_term("test", 2);
-	db.add_document(doc);
+        Xapian::Document doc;
+        *buf = '0' + i;
+        doc.add_value(0, buf);
+        doc.add_term("test", 2);
+        db.add_document(doc);
     }
 }
 
@@ -1506,7 +1506,7 @@ DEFINE_TESTCASE(consistency2, backend) {
     TEST_EQUAL(*mset1[0], *mset2a[0]);
     TEST_EQUAL(*mset1[1], *mset2b[0]);
     for (Xapian::doccount i = 0; i < 8; ++i) {
-	TEST_EQUAL(*mset1[i + 2], *mset2c[i]);
+        TEST_EQUAL(*mset1[i + 2], *mset2c[i]);
     }
 }
 
@@ -1557,17 +1557,17 @@ gen_synonym_merge1b_db(Xapian::WritableDatabase& db, const string&)
 DEFINE_TESTCASE(synonym_merge1, synonyms) {
     Xapian::Database db_multi;
     db_multi.add_database(get_database("synonym_merge1a",
-				       gen_synonym_merge1a_db));
+                                       gen_synonym_merge1a_db));
     db_multi.add_database(get_database("synonym_merge1b",
-				       gen_synonym_merge1b_db));
+                                       gen_synonym_merge1b_db));
 
     Xapian::TermIterator t;
     string s, e;
     s = "|";
     t = db_multi.synonyms_begin("abc");
     while (t != db_multi.synonyms_end("abc")) {
-	s += *t++;
-	s += '|';
+        s += *t++;
+        s += '|';
     }
     e = "|asd|asd1|asd10|asd2|asd3|asd4|asd5|asd6|";
     TEST_STRINGS_EQUAL(s, e);
@@ -1594,36 +1594,36 @@ DEFINE_TESTCASE(synonymitor1, writable && synonyms) {
 
     // Try these tests twice - once before committing and once after.
     for (int times = 1; times <= 2; ++times) {
-	// Test iterators for terms which aren't there.
-	TEST(db.synonyms_begin("abc") == db.synonyms_end("abc"));
-	TEST(db.synonyms_begin("ghi") == db.synonyms_end("ghi"));
-	TEST(db.synonyms_begin("zzzzz") == db.synonyms_end("zzzzz"));
+        // Test iterators for terms which aren't there.
+        TEST(db.synonyms_begin("abc") == db.synonyms_end("abc"));
+        TEST(db.synonyms_begin("ghi") == db.synonyms_end("ghi"));
+        TEST(db.synonyms_begin("zzzzz") == db.synonyms_end("zzzzz"));
 
-	s = "|";
-	t = db.synonyms_begin("hello");
-	while (t != db.synonyms_end("hello")) {
-	    s += *t++;
-	    s += '|';
-	}
-	TEST_STRINGS_EQUAL(s, "|hi|howdy|");
+        s = "|";
+        t = db.synonyms_begin("hello");
+        while (t != db.synonyms_end("hello")) {
+            s += *t++;
+            s += '|';
+        }
+        TEST_STRINGS_EQUAL(s, "|hi|howdy|");
 
-	s = "|";
-	t = db.synonyms_begin("goodbye");
-	while (t != db.synonyms_end("goodbye")) {
-	    s += *t++;
-	    s += '|';
-	}
-	TEST_STRINGS_EQUAL(s, "|bye|farewell|");
+        s = "|";
+        t = db.synonyms_begin("goodbye");
+        while (t != db.synonyms_end("goodbye")) {
+            s += *t++;
+            s += '|';
+        }
+        TEST_STRINGS_EQUAL(s, "|bye|farewell|");
 
-	s = "|";
-	t = db.synonym_keys_begin();
-	while (t != db.synonym_keys_end()) {
-	    s += *t++;
-	    s += '|';
-	}
-	TEST_STRINGS_EQUAL(s, "|goodbye|hello|");
+        s = "|";
+        t = db.synonym_keys_begin();
+        while (t != db.synonym_keys_end()) {
+            s += *t++;
+            s += '|';
+        }
+        TEST_STRINGS_EQUAL(s, "|goodbye|hello|");
 
-	db.commit();
+        db.commit();
     }
 
     // Delete a synonym for "hello" and all synonyms for "goodbye".
@@ -1632,30 +1632,30 @@ DEFINE_TESTCASE(synonymitor1, writable && synonyms) {
 
     // Try these tests twice - once before committing and once after.
     for (int times = 1; times <= 2; ++times) {
-	// Test iterators for terms which aren't there.
-	TEST(db.synonyms_begin("abc") == db.synonyms_end("abc"));
-	TEST(db.synonyms_begin("ghi") == db.synonyms_end("ghi"));
-	TEST(db.synonyms_begin("zzzzz") == db.synonyms_end("zzzzz"));
+        // Test iterators for terms which aren't there.
+        TEST(db.synonyms_begin("abc") == db.synonyms_end("abc"));
+        TEST(db.synonyms_begin("ghi") == db.synonyms_end("ghi"));
+        TEST(db.synonyms_begin("zzzzz") == db.synonyms_end("zzzzz"));
 
-	s = "|";
-	t = db.synonyms_begin("hello");
-	while (t != db.synonyms_end("hello")) {
-	    s += *t++;
-	    s += '|';
-	}
-	TEST_STRINGS_EQUAL(s, "|howdy|");
+        s = "|";
+        t = db.synonyms_begin("hello");
+        while (t != db.synonyms_end("hello")) {
+            s += *t++;
+            s += '|';
+        }
+        TEST_STRINGS_EQUAL(s, "|howdy|");
 
-	TEST(db.synonyms_begin("goodbye") == db.synonyms_end("goodbye"));
+        TEST(db.synonyms_begin("goodbye") == db.synonyms_end("goodbye"));
 
-	s = "|";
-	t = db.synonym_keys_begin();
-	while (t != db.synonym_keys_end()) {
-	    s += *t++;
-	    s += '|';
-	}
-	TEST_STRINGS_EQUAL(s, "|hello|");
+        s = "|";
+        t = db.synonym_keys_begin();
+        while (t != db.synonym_keys_end()) {
+            s += *t++;
+            s += '|';
+        }
+        TEST_STRINGS_EQUAL(s, "|hello|");
 
-	db.commit();
+        db.commit();
     }
 
     Xapian::Database db_multi;
@@ -1670,8 +1670,8 @@ DEFINE_TESTCASE(synonymitor1, writable && synonyms) {
     s = "|";
     t = db_multi.synonyms_begin("hello");
     while (t != db_multi.synonyms_end("hello")) {
-	s += *t++;
-	s += '|';
+        s += *t++;
+        s += '|';
     }
     TEST_STRINGS_EQUAL(s, "|howdy|");
 
@@ -1680,8 +1680,8 @@ DEFINE_TESTCASE(synonymitor1, writable && synonyms) {
     s = "|";
     t = db_multi.synonym_keys_begin();
     while (t != db_multi.synonym_keys_end()) {
-	s += *t++;
-	s += '|';
+        s += *t++;
+        s += '|';
     }
     TEST_STRINGS_EQUAL(s, "|hello|");
 }
@@ -1695,54 +1695,54 @@ DEFINE_TESTCASE(termtoolong1, writable) {
     Xapian::WritableDatabase db = get_writable_database();
 
     for (size_t i = 246; i <= 290; ++i) {
-	tout.str(string());
-	tout << "Term length " << i << '\n';
-	Xapian::Document doc;
-	string term(i, 'X');
-	doc.add_term(term);
-	try {
-	    db.add_document(doc);
-	    TEST_AND_EXPLAIN(false, "Expecting exception InvalidArgumentError");
-	} catch (const Xapian::InvalidArgumentError &e) {
-	    // Check that the max length is correctly expressed in the
-	    // exception message - we've got this wrong in two different ways
-	    // in the past!
-	    tout << e.get_msg() << '\n';
-	    TEST(e.get_msg().find("Term too long (> 245)") != string::npos);
-	}
+        tout.str(string());
+        tout << "Term length " << i << '\n';
+        Xapian::Document doc;
+        string term(i, 'X');
+        doc.add_term(term);
+        try {
+            db.add_document(doc);
+            TEST_AND_EXPLAIN(false, "Expecting exception InvalidArgumentError");
+        } catch (const Xapian::InvalidArgumentError &e) {
+            // Check that the max length is correctly expressed in the
+            // exception message - we've got this wrong in two different ways
+            // in the past!
+            tout << e.get_msg() << '\n';
+            TEST(e.get_msg().find("Term too long (> 245)") != string::npos);
+        }
     }
 
     for (size_t j = 240; j <= 245; ++j) {
-	tout.str(string());
-	tout << "Term length " << j << '\n';
-	Xapian::Document doc;
-	string term(j, 'X');
-	doc.add_term(term);
-	db.add_document(doc);
+        tout.str(string());
+        tout << "Term length " << j << '\n';
+        Xapian::Document doc;
+        string term(j, 'X');
+        doc.add_term(term);
+        db.add_document(doc);
     }
 
     db.commit();
 
     size_t limit = 255;
     {
-	// Currently glass escapes zero bytes from terms in keys for
-	// some tables, so a term with 128 zero bytes won't work for glass.
-	Xapian::Document doc;
-	doc.add_term(string(limit / 2 + 1, '\0'));
-	db.add_document(doc);
-	try {
-	    db.commit();
-	    TEST_AND_EXPLAIN(false, "Expecting exception InvalidArgumentError");
-	} catch (const Xapian::InvalidArgumentError &e) {
-	    // Check that the max length is correctly expressed in the
-	    // exception message - we've got this wrong in two different ways
-	    // in the past!
-	    tout << e.get_msg() << '\n';
-	    string target = " is ";
-	    target += str(limit);
-	    target += " bytes";
-	    TEST(e.get_msg().find(target) != string::npos);
-	}
+        // Currently glass escapes zero bytes from terms in keys for
+        // some tables, so a term with 128 zero bytes won't work for glass.
+        Xapian::Document doc;
+        doc.add_term(string(limit / 2 + 1, '\0'));
+        db.add_document(doc);
+        try {
+            db.commit();
+            TEST_AND_EXPLAIN(false, "Expecting exception InvalidArgumentError");
+        } catch (const Xapian::InvalidArgumentError &e) {
+            // Check that the max length is correctly expressed in the
+            // exception message - we've got this wrong in two different ways
+            // in the past!
+            tout << e.get_msg() << '\n';
+            string target = " is ";
+            target += str(limit);
+            target += " bytes";
+            TEST(e.get_msg().find(target) != string::npos);
+        }
     }
 
     // Try adding a document.  Regression test for a bug fixed in 1.4.15 - in
@@ -1760,10 +1760,10 @@ DEFINE_TESTCASE(postlist7, writable) {
     Xapian::WritableDatabase db_w = get_writable_database();
 
     {
-	Xapian::Document doc;
-	doc.add_term("foo", 3);
-	doc.add_term("zz", 4);
-	db_w.replace_document(5, doc);
+        Xapian::Document doc;
+        doc.add_term("foo", 3);
+        doc.add_term("zz", 4);
+        db_w.replace_document(5, doc);
     }
 
     Xapian::PostingIterator p;
@@ -1777,10 +1777,10 @@ DEFINE_TESTCASE(postlist7, writable) {
     TEST(p == db_w.postlist_end("foo"));
 
     {
-	Xapian::Document doc;
-	doc.add_term("foo", 1);
-	doc.add_term("zz", 1);
-	db_w.replace_document(6, doc);
+        Xapian::Document doc;
+        doc.add_term("foo", 1);
+        doc.add_term("zz", 1);
+        db_w.replace_document(6, doc);
     }
 
     p = db_w.postlist_begin("foo");
@@ -1810,15 +1810,15 @@ gen_lazytablebug1_db(Xapian::WritableDatabase& db, const string&)
     string synonym(255, 'x');
     char buf[] = " iamafish!!!!!!!!!!";
     for (int i = 33; i < 120; ++i) {
-	db.add_synonym(buf, synonym);
-	++buf[0];
+        db.add_synonym(buf, synonym);
+        ++buf[0];
     }
 }
 
 DEFINE_TESTCASE(lazytablebug1, synonyms) {
     Xapian::Database db = get_database("lazytablebug1", gen_lazytablebug1_db);
     for (Xapian::TermIterator t = db.synonym_keys_begin(); t != db.synonym_keys_end(); ++t) {
-	tout << *t << '\n';
+        tout << *t << '\n';
     }
 }
 
@@ -1831,20 +1831,20 @@ DEFINE_TESTCASE(cursordelbug1, writable && path) {
     db = get_named_writable_database("cursordelbug1", string());
 
     for (size_t i = 0; i < sizeof(terms) / sizeof(terms[0]); ++i) {
-	Xapian::Document doc;
-	doc.add_term("XC" + str(terms[i]));
-	doc.add_term("XTabc");
-	doc.add_term("XAdef");
-	doc.add_term("XRghi");
-	doc.add_term("XYabc");
-	for (size_t c = copies[i]; c; --c)
-	    db.add_document(doc);
+        Xapian::Document doc;
+        doc.add_term("XC" + str(terms[i]));
+        doc.add_term("XTabc");
+        doc.add_term("XAdef");
+        doc.add_term("XRghi");
+        doc.add_term("XYabc");
+        for (size_t c = copies[i]; c; --c)
+            db.add_document(doc);
     }
 
     db.commit();
 
     for (size_t i = 0; i < sizeof(terms) / sizeof(terms[0]); ++i) {
-	db.delete_document("XC" + str(terms[i]));
+        db.delete_document("XC" + str(terms[i]));
     }
 
     db.commit();
@@ -1864,23 +1864,23 @@ check_vals(const Xapian::Database & db, const map<Xapian::docid, string> & vals)
     TEST_REL(vals.rbegin()->first,<=,db.get_lastdocid());
     map<Xapian::docid, string>::const_iterator i;
     for (i = vals.begin(); i != vals.end(); ++i) {
-	tout.str(string());
-	tout << "Checking value in doc " << i->first << " - should be '" << i->second << "'\n";
-	Xapian::Document doc = db.get_document(i->first);
-	string dbval = doc.get_value(1);
-	TEST_EQUAL(dbval, i->second);
-	if (dbval.empty()) {
-	    TEST_EQUAL(0, doc.values_count());
-	    TEST_EQUAL(doc.values_begin(), doc.values_end());
-	} else {
-	    TEST_EQUAL(1, doc.values_count());
-	    Xapian::ValueIterator valit = doc.values_begin();
-	    TEST_NOT_EQUAL(valit, doc.values_end());
-	    TEST_EQUAL(dbval, *valit);
-	    TEST_EQUAL(1, valit.get_valueno());
-	    ++valit;
-	    TEST_EQUAL(valit, doc.values_end());
-	}
+        tout.str(string());
+        tout << "Checking value in doc " << i->first << " - should be '" << i->second << "'\n";
+        Xapian::Document doc = db.get_document(i->first);
+        string dbval = doc.get_value(1);
+        TEST_EQUAL(dbval, i->second);
+        if (dbval.empty()) {
+            TEST_EQUAL(0, doc.values_count());
+            TEST_EQUAL(doc.values_begin(), doc.values_end());
+        } else {
+            TEST_EQUAL(1, doc.values_count());
+            Xapian::ValueIterator valit = doc.values_begin();
+            TEST_NOT_EQUAL(valit, doc.values_end());
+            TEST_EQUAL(dbval, *valit);
+            TEST_EQUAL(1, valit.get_valueno());
+            ++valit;
+            TEST_EQUAL(valit, doc.values_end());
+        }
     }
 }
 
@@ -1897,13 +1897,13 @@ DEFINE_TESTCASE(modifyvalues1, writable) {
     map<Xapian::docid, string> vals;
 
     for (Xapian::doccount num = 1; num <= doccount; ++num) {
-	tout.str(string());
-	Xapian::Document doc;
-	string val = "val" + str(num);
-	tout << "Setting val '" << val << "' in doc " << num << "\n";
-	doc.add_value(1, val);
-	db.add_document(doc);
-	vals[num] = val;
+        tout.str(string());
+        Xapian::Document doc;
+        string val = "val" + str(num);
+        tout << "Setting val '" << val << "' in doc " << num << "\n";
+        doc.add_value(1, val);
+        db.add_document(doc);
+        vals[num] = val;
     }
     check_vals(db, vals);
     db.commit();
@@ -1912,25 +1912,25 @@ DEFINE_TESTCASE(modifyvalues1, writable) {
     // Modify one of the values (this is a regression test which failed with
     // the initial implementation of streaming values).
     {
-	Xapian::Document doc;
-	string val = "newval0";
-	tout << "Setting val '" << val << "' in doc 2\n";
-	doc.add_value(1, val);
-	db.replace_document(2, doc);
-	vals[2] = val;
-	check_vals(db, vals);
-	db.commit();
-	check_vals(db, vals);
+        Xapian::Document doc;
+        string val = "newval0";
+        tout << "Setting val '" << val << "' in doc 2\n";
+        doc.add_value(1, val);
+        db.replace_document(2, doc);
+        vals[2] = val;
+        check_vals(db, vals);
+        db.commit();
+        check_vals(db, vals);
     }
 
     // Check that value doesn't get lost when replacing a document with itself.
     {
-	tout << "Replacing document 1 with itself\n";
-	Xapian::Document doc = db.get_document(1);
-	db.replace_document(1, doc);
-	check_vals(db, vals);
-	db.commit();
-	check_vals(db, vals);
+        tout << "Replacing document 1 with itself\n";
+        Xapian::Document doc = db.get_document(1);
+        db.replace_document(1, doc);
+        check_vals(db, vals);
+        db.commit();
+        check_vals(db, vals);
     }
 
     // Check that value doesn't get lost when replacing a document with itself,
@@ -1938,13 +1938,13 @@ DEFINE_TESTCASE(modifyvalues1, writable) {
     // for a bug in the code which implements lazy updates - this used to
     // forget the values in the document in this situation.
     {
-	tout << "Replacing document 1 with itself, after reading doc 2.\n";
-	Xapian::Document doc = db.get_document(1);
-	db.get_document(2);
-	db.replace_document(1, doc);
-	check_vals(db, vals);
-	db.commit();
-	check_vals(db, vals);
+        tout << "Replacing document 1 with itself, after reading doc 2.\n";
+        Xapian::Document doc = db.get_document(1);
+        db.get_document(2);
+        db.replace_document(1, doc);
+        check_vals(db, vals);
+        db.commit();
+        check_vals(db, vals);
     }
 
     // Do some random modifications: seed random generator, for repeatable
@@ -1952,20 +1952,20 @@ DEFINE_TESTCASE(modifyvalues1, writable) {
     tout << "Setting seed to " << seed << "\n";
     srand(seed);
     for (Xapian::doccount num = 1; num <= doccount * 2; ++num) {
-	tout.str(string());
-	Xapian::docid did = ((rand() >> 8) % doccount) + 1;
-	Xapian::Document doc;
-	string val;
+        tout.str(string());
+        Xapian::docid did = ((rand() >> 8) % doccount) + 1;
+        Xapian::Document doc;
+        string val;
 
-	if (num % 5 != 0) {
-	    val = "newval" + str(num);
-	    tout << "Setting val '" << val << "' in doc " << did << "\n";
-	    doc.add_value(1, val);
-	} else {
-	    tout << "Adding/replacing empty document " << did << "\n";
-	}
-	db.replace_document(did, doc);
-	vals[did] = val;
+        if (num % 5 != 0) {
+            val = "newval" + str(num);
+            tout << "Setting val '" << val << "' in doc " << did << "\n";
+            doc.add_value(1, val);
+        } else {
+            tout << "Adding/replacing empty document " << did << "\n";
+        }
+        db.replace_document(did, doc);
+        vals[did] = val;
     }
     check_vals(db, vals);
     db.commit();
@@ -1974,12 +1974,12 @@ DEFINE_TESTCASE(modifyvalues1, writable) {
     // Delete all the remaining values, in a slightly shuffled order.
     // This is where it's important that doccount is coprime with 13.
     for (Xapian::doccount num = 0; num < doccount * 13; num += 13) {
-	tout.str(string());
-	Xapian::docid did = (num % doccount) + 1;
-	tout << "Clearing val in doc " << did << "\n";
-	Xapian::Document doc;
-	db.replace_document(did, doc);
-	vals[did] = string();
+        tout.str(string());
+        Xapian::docid did = (num % doccount) + 1;
+        tout << "Clearing val in doc " << did << "\n";
+        Xapian::Document doc;
+        db.replace_document(did, doc);
+        vals[did] = string();
     }
     check_vals(db, vals);
     db.commit();
@@ -2005,34 +2005,34 @@ DEFINE_TESTCASE(protocolbug1, remote && writable) {
     doc.add_term(string(300, 'x'));
 
     TEST_EXCEPTION(Xapian::InvalidArgumentError,
-		   db.replace_document(1, doc));
+                   db.replace_document(1, doc));
     db.commit();
 }
 
 DEFINE_TESTCASE(remotefdleak1, remote && writable) {
     Xapian::WritableDatabase wdb = get_writable_database("");
     TEST_EXCEPTION(Xapian::DatabaseLockError,
-		   auto wdb2 = get_writable_database_again());
+                   auto wdb2 = get_writable_database_again());
 }
 
 // Test handling of corrupted item sizes.
 DEFINE_TESTCASE(corruptglass2, glass) {
     string src_db_path =
-	test_driver::get_srcdir() + "/testdata/glass_corrupt_item_too_bigX";
+        test_driver::get_srcdir() + "/testdata/glass_corrupt_item_too_bigX";
 
     string db_path = get_named_writable_database_path("corruptglass2");
 
     for (int n = '1'; n <= '2'; ++n) {
-	src_db_path.back() = n;
-	rm_rf(db_path);
-	cp_R(src_db_path, db_path);
-	TEST_EXCEPTION(Xapian::DatabaseCorruptError,
-		       Xapian::Database::check(db_path));
+        src_db_path.back() = n;
+        rm_rf(db_path);
+        cp_R(src_db_path, db_path);
+        TEST_EXCEPTION(Xapian::DatabaseCorruptError,
+                       Xapian::Database::check(db_path));
 
-	Xapian::WritableDatabase wdb(db_path);
-	Xapian::Document doc;
-	doc.set_data("hello world");
-	TEST_EXCEPTION(Xapian::DatabaseCorruptError,
-		       wdb.add_document(doc));
+        Xapian::WritableDatabase wdb(db_path);
+        Xapian::Document doc;
+        doc.set_data("hello world");
+        TEST_EXCEPTION(Xapian::DatabaseCorruptError,
+                       wdb.add_document(doc));
     }
 }

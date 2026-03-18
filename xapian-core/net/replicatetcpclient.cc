@@ -30,8 +30,8 @@
 using namespace std;
 
 ReplicateTcpClient::ReplicateTcpClient(const string & hostname, int port,
-				       double timeout_connect,
-				       double socket_timeout)
+                                       double timeout_connect,
+                                       double socket_timeout)
     : socket{open_socket(hostname, port, timeout_connect)},
       remconn(-1, socket)
 {
@@ -40,34 +40,34 @@ ReplicateTcpClient::ReplicateTcpClient(const string & hostname, int port,
 
 int
 ReplicateTcpClient::open_socket(const string & hostname, int port,
-				double timeout_connect)
+                                double timeout_connect)
 {
     return TcpClient::open_socket(hostname, port, timeout_connect, false,
-				  string());
+                                  string());
 }
 
 void
 ReplicateTcpClient::update_from_master(const std::string & path,
-				       const std::string & masterdb,
-				       Xapian::ReplicationInfo & info,
-				       double reader_close_time,
-				       bool force_copy)
+                                       const std::string & masterdb,
+                                       Xapian::ReplicationInfo & info,
+                                       double reader_close_time,
+                                       bool force_copy)
 {
     Xapian::DatabaseReplica replica(path);
     remconn.send_message('R',
-			 force_copy ? string() : replica.get_revision_info(),
-			 0.0);
+                         force_copy ? string() : replica.get_revision_info(),
+                         0.0);
     remconn.send_message('D', masterdb, 0.0);
     replica.set_read_fd(socket);
     info.clear();
     bool more;
     do {
-	Xapian::ReplicationInfo subinfo;
-	more = replica.apply_next_changeset(&subinfo, reader_close_time);
-	info.changeset_count += subinfo.changeset_count;
-	info.fullcopy_count += subinfo.fullcopy_count;
-	if (subinfo.changed)
-	    info.changed = true;
+        Xapian::ReplicationInfo subinfo;
+        more = replica.apply_next_changeset(&subinfo, reader_close_time);
+        info.changeset_count += subinfo.changeset_count;
+        info.fullcopy_count += subinfo.fullcopy_count;
+        if (subinfo.changed)
+            info.changed = true;
     } while (more);
 }
 

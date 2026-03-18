@@ -27,9 +27,9 @@ if (-d '.svn') {
 } else {
     $vcs = 'gitlog';
     if (open CL, '<', 'ChangeLog') {
-	my $cl_head = <CL>;
-	close CL;
-	$vcs = 'git' if $cl_head =~ /^(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun) /;
+        my $cl_head = <CL>;
+        close CL;
+        $vcs = 'git' if $cl_head =~ /^(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun) /;
     }
 }
 my $new_version;
@@ -40,9 +40,9 @@ my $rev1;
 if ($news =~ /^(?:up *to:?) *([[:xdigit:]]{7,}|\d+)\b/i) {
     # Partly updated already.
     if ($vcs eq 'svn') {
-	$rev1 = $1 + 1;
+        $rev1 = $1 + 1;
     } else {
-	$rev1 = $1;
+        $rev1 = $1;
     }
     # Discard that line...
     $news = undef;
@@ -52,40 +52,40 @@ if ($news =~ /^(?:up *to:?) *([[:xdigit:]]{7,}|\d+)\b/i) {
     $new_version = $1.($2+1);
     print "Finding changes since release '$last_release'.\n";
     if (-d '.svn') {
-	open SVNINFO, "svn info|" or die $!;
-	my $svnroot;
-	while (<SVNINFO>) {
-	    if (s/^Repository Root: //) {
-		chomp;
-		$svnroot = $_;
-		last;
-	    }
-	}
-	if (!defined $svnroot) {
-	    die "svn info didn't tell us the repo root!\n";
-	}
-	close SVNINFO;
-	open SVNLOG, "svn log --limit=1 \Q$svnroot\E/tags/\Q$last_release\E|" or die $!;
-	my $line = <SVNLOG>;
-	if (!defined $line || $line !~ /^-+$/) {
-	    $last_release =~ y/./_/;
-	    open SVNLOG, "svn log --limit=1 \Q$svnroot\E/tags/v\Q$last_release\E|" or die $!;
-	    $line = <SVNLOG>;
-	    if (!defined $line || $line !~ /^-+$/) {
-		die "Unexpected output from svn log.\n";
-	    }
-	}
-	$line = <SVNLOG>;
-	if ($line !~ /^r(\d+) \|/) {
-	    die "Unexpected output from svn log.\n";
-	}
-	$rev1 = $1;
+        open SVNINFO, "svn info|" or die $!;
+        my $svnroot;
+        while (<SVNINFO>) {
+            if (s/^Repository Root: //) {
+                chomp;
+                $svnroot = $_;
+                last;
+            }
+        }
+        if (!defined $svnroot) {
+            die "svn info didn't tell us the repo root!\n";
+        }
+        close SVNINFO;
+        open SVNLOG, "svn log --limit=1 \Q$svnroot\E/tags/\Q$last_release\E|" or die $!;
+        my $line = <SVNLOG>;
+        if (!defined $line || $line !~ /^-+$/) {
+            $last_release =~ y/./_/;
+            open SVNLOG, "svn log --limit=1 \Q$svnroot\E/tags/v\Q$last_release\E|" or die $!;
+            $line = <SVNLOG>;
+            if (!defined $line || $line !~ /^-+$/) {
+                die "Unexpected output from svn log.\n";
+            }
+        }
+        $line = <SVNLOG>;
+        if ($line !~ /^r(\d+) \|/) {
+            die "Unexpected output from svn log.\n";
+        }
+        $rev1 = $1;
     } else {
-	# git
-	$rev1 = "v$last_release";
-	if (`git tag -l \Q$rev1\E` eq '' && `git tag -l \Q$last_release\E` ne '') {
-	    $rev1 = $last_release;
-	}
+        # git
+        $rev1 = "v$last_release";
+        if (`git tag -l \Q$rev1\E` eq '' && `git tag -l \Q$last_release\E` ne '') {
+            $rev1 = $last_release;
+        }
     }
 } else {
     die "Can't find revision in NEWS\n";
@@ -105,52 +105,52 @@ my $lines = 0;
 my $prefix = "";
 while (<BLAME>) {
     if ($lines == 0) {
-	if ($vcs eq 'svn') {
-	    print NEWSTMP;
-	} elsif ($vcs eq 'git') {
-	    print NEWSTMP;
-	} else {
-	    if (/ ([0-9a-f]+)/) {
-		print NEWSTMP "up to: $1\n\n";
-	    }
-	}
+        if ($vcs eq 'svn') {
+            print NEWSTMP;
+        } elsif ($vcs eq 'git') {
+            print NEWSTMP;
+        } else {
+            if (/ ([0-9a-f]+)/) {
+                print NEWSTMP "up to: $1\n\n";
+            }
+        }
     }
     if ($vcs eq 'svn') {
-	if (!s/^( *(\d+) +(\S+) )//) {
-	    last if (/^ *-/);
-	} else {
-	    if ($1 ne $prefix) {
-		$prefix = $1;
-		$_ = $prefix . $_;
-		print NEWSTMP "\n";
-	    } else {
-		next if $_ eq "\n";
-	    }
-	}
+        if (!s/^( *(\d+) +(\S+) )//) {
+            last if (/^ *-/);
+        } else {
+            if ($1 ne $prefix) {
+                $prefix = $1;
+                $_ = $prefix . $_;
+                print NEWSTMP "\n";
+            } else {
+                next if $_ eq "\n";
+            }
+        }
     } elsif ($vcs eq 'git') {
-	next if /^\^/;
-	if (s/^([[:xdigit:]]+.*?) +\d+\) //) {
-	    my $p = $1 . ")\n";
-	    if ($p ne $prefix) {
-		$prefix = $p;
-		$_ = $prefix . $_;
-		print NEWSTMP "\n";
-	    } else {
-		next if $_ eq "\n";
-	    }
-	}
+        next if /^\^/;
+        if (s/^([[:xdigit:]]+.*?) +\d+\) //) {
+            my $p = $1 . ")\n";
+            if ($p ne $prefix) {
+                $prefix = $p;
+                $_ = $prefix . $_;
+                print NEWSTMP "\n";
+            } else {
+                next if $_ eq "\n";
+            }
+        }
     } else {
-#	next if /^\^/;
-#	if (s/^([[:xdigit:]]+.*?) +\d+\) //) {
-#	    my $p = $1 . ")\n";
-#	    if ($p ne $prefix) {
-#		$prefix = $p;
-#		$_ = $prefix . $_;
-#		print NEWSTMP "\n";
-#	    } else {
-#		next if $_ eq "\n";
-#	    }
-#	}
+#        next if /^\^/;
+#        if (s/^([[:xdigit:]]+.*?) +\d+\) //) {
+#            my $p = $1 . ")\n";
+#            if ($p ne $prefix) {
+#                $prefix = $p;
+#                $_ = $prefix . $_;
+#                print NEWSTMP "\n";
+#            } else {
+#                next if $_ eq "\n";
+#            }
+#        }
     }
     s/[ \t]+$//;
     print NEWSTMP;
@@ -167,27 +167,27 @@ if ($lines == 0) {
 print NEWSTMP "\n";
 if (defined $new_version) {
     if (open NEWSSKEL, '<', 'NEWS.SKELETON') {
-	while (<NEWSSKEL>) {
-	    s/\@VERSION\@/$new_version/g;
-	    s/\@DATE\@/$date/g;
-	    print NEWSTMP;
-	}
-	close NEWSSKEL;
+        while (<NEWSSKEL>) {
+            s/\@VERSION\@/$new_version/g;
+            s/\@DATE\@/$date/g;
+            print NEWSTMP;
+        }
+        close NEWSSKEL;
     }
 }
 print NEWSTMP $news if defined $news;
 while (<NEWS>) {
     if (!defined $new_version) {
-	# Handle placeholder date like ????-??-??.
-	if (/^([A-Za-z][-\w]* (\d+(?:\.\d+)+) \()(....-..-..)(\):)$/) {
-	    my $pre = $1;
-	    $new_version = $2;
-	    my $old_date = $3;
-	    my $post = $4;
-	    if ($old_date =~ /^\d{4}-\d\d-\d\d$/) {
-		$_ = "$pre$date$post";
-	    }
-	}
+        # Handle placeholder date like ????-??-??.
+        if (/^([A-Za-z][-\w]* (\d+(?:\.\d+)+) \()(....-..-..)(\):)$/) {
+            my $pre = $1;
+            $new_version = $2;
+            my $old_date = $3;
+            my $post = $4;
+            if ($old_date =~ /^\d{4}-\d\d-\d\d$/) {
+                $_ = "$pre$date$post";
+            }
+        }
     }
     print NEWSTMP;
 }

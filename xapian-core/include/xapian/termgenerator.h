@@ -98,60 +98,60 @@ class XAPIAN_VISIBILITY_DEFAULT TermGenerator {
 
     /// Flags to OR together and pass to TermGenerator::set_flags().
     enum {
-	/// Index data required for spelling correction.
-	FLAG_SPELLING = 128, // Value matches QueryParser flag.
+        /// Index data required for spelling correction.
+        FLAG_SPELLING = 128, // Value matches QueryParser flag.
 
-	/** Generate n-grams for scripts without explicit word breaks.
-	 *
-	 *  Spans of characters in such scripts are split into unigrams
-	 *  and bigrams, with the unigrams carrying positional information.
-	 *  Text in other scripts is split into words as normal.
-	 *
-	 *  The QueryParser::FLAG_NGRAMS flag needs to be passed to
-	 *  QueryParser.
-	 *
-	 *  This mode can also be enabled in 1.2.8 and later by setting
-	 *  environment variable XAPIAN_CJK_NGRAM to a non-empty value (but
-	 *  doing so was deprecated in 1.4.11).
-	 *
-	 *  In 1.4.x this feature was specific to CJK (Chinese, Japanese and
-	 *  Korean), but in 2.0.0 it's been extended to other languages.  To
-	 *  reflect this change the new and preferred name is FLAG_NGRAMS,
-	 *  which was added as an alias for forward compatibility in Xapian
-	 *  1.4.23.  Use FLAG_CJK_NGRAM instead if you aim to support Xapian
-	 *  &lt; 1.4.23.
-	 *
-	 *  @since Added in Xapian 1.4.23.
-	 */
-	FLAG_NGRAMS = 2048, // Value matches QueryParser flag.
+        /** Generate n-grams for scripts without explicit word breaks.
+         *
+         *  Spans of characters in such scripts are split into unigrams
+         *  and bigrams, with the unigrams carrying positional information.
+         *  Text in other scripts is split into words as normal.
+         *
+         *  The QueryParser::FLAG_NGRAMS flag needs to be passed to
+         *  QueryParser.
+         *
+         *  This mode can also be enabled in 1.2.8 and later by setting
+         *  environment variable XAPIAN_CJK_NGRAM to a non-empty value (but
+         *  doing so was deprecated in 1.4.11).
+         *
+         *  In 1.4.x this feature was specific to CJK (Chinese, Japanese and
+         *  Korean), but in 2.0.0 it's been extended to other languages.  To
+         *  reflect this change the new and preferred name is FLAG_NGRAMS,
+         *  which was added as an alias for forward compatibility in Xapian
+         *  1.4.23.  Use FLAG_CJK_NGRAM instead if you aim to support Xapian
+         *  &lt; 1.4.23.
+         *
+         *  @since Added in Xapian 1.4.23.
+         */
+        FLAG_NGRAMS = 2048, // Value matches QueryParser flag.
 
-	/** Generate n-grams for scripts without explicit word breaks.
-	 *
-	 *  Old name - use FLAG_NGRAMS instead unless you aim to support Xapian
-	 *  &lt; 1.4.23.
-	 *
-	 *  @since Added in Xapian 1.3.4 and 1.2.22.
-	 */
-	FLAG_CJK_NGRAM = FLAG_NGRAMS, // Value matches QueryParser flag.
+        /** Generate n-grams for scripts without explicit word breaks.
+         *
+         *  Old name - use FLAG_NGRAMS instead unless you aim to support Xapian
+         *  &lt; 1.4.23.
+         *
+         *  @since Added in Xapian 1.3.4 and 1.2.22.
+         */
+        FLAG_CJK_NGRAM = FLAG_NGRAMS, // Value matches QueryParser flag.
 
-	/** Find word breaks for text in scripts without explicit word breaks.
-	 *
-	 *  With this option enabled, spans of text written in such scripts are
-	 *  split into words using ICU (which uses heuristics and/or
-	 *  dictionaries to do so).  Text in other scripts is split into words
-	 *  as normal.
-	 *
-	 *  The QueryParser::FLAG_WORD_BREAKS flag needs to be passed to
-	 *  QueryParser.
-	 *
-	 *  @since Added in Xapian 2.0.0.
-	 */
-	FLAG_WORD_BREAKS = 4096 // Value matches QueryParser flag
+        /** Find word breaks for text in scripts without explicit word breaks.
+         *
+         *  With this option enabled, spans of text written in such scripts are
+         *  split into words using ICU (which uses heuristics and/or
+         *  dictionaries to do so).  Text in other scripts is split into words
+         *  as normal.
+         *
+         *  The QueryParser::FLAG_WORD_BREAKS flag needs to be passed to
+         *  QueryParser.
+         *
+         *  @since Added in Xapian 2.0.0.
+         */
+        FLAG_WORD_BREAKS = 4096 // Value matches QueryParser flag
     };
 
     /// Stemming strategies, for use with set_stemming_strategy().
     typedef enum {
-	STEM_NONE, STEM_SOME, STEM_ALL, STEM_ALL_Z, STEM_SOME_FULL_POS
+        STEM_NONE, STEM_SOME, STEM_ALL, STEM_ALL_Z, STEM_SOME_FULL_POS
     } stem_strategy;
 
     /// Stopper strategies, for use with set_stopper_strategy().
@@ -237,8 +237,8 @@ class XAPIAN_VISIBILITY_DEFAULT TermGenerator {
      * @param prefix	The term prefix to use (default is no prefix).
      */
     void index_text(const Xapian::Utf8Iterator & itor,
-		    Xapian::termcount wdf_inc = 1,
-		    std::string_view prefix = {});
+                    Xapian::termcount wdf_inc = 1,
+                    std::string_view prefix = {});
 
     /** Index some text.
      *
@@ -247,9 +247,9 @@ class XAPIAN_VISIBILITY_DEFAULT TermGenerator {
      * @param prefix	The term prefix to use (default is no prefix).
      */
     void index_text(std::string_view text,
-		    Xapian::termcount wdf_inc = 1,
-		    std::string_view prefix = {}) {
-	index_text(Utf8Iterator(text), wdf_inc, prefix);
+                    Xapian::termcount wdf_inc = 1,
+                    std::string_view prefix = {}) {
+        index_text(Utf8Iterator(text), wdf_inc, prefix);
     }
 
     /** Index some text without positional information.
@@ -263,8 +263,8 @@ class XAPIAN_VISIBILITY_DEFAULT TermGenerator {
      * @param prefix	The term prefix to use (default is no prefix).
      */
     void index_text_without_positions(const Xapian::Utf8Iterator & itor,
-				      Xapian::termcount wdf_inc = 1,
-				      std::string_view prefix = {});
+                                      Xapian::termcount wdf_inc = 1,
+                                      std::string_view prefix = {});
 
     /** Index some text without positional information.
      *
@@ -277,9 +277,9 @@ class XAPIAN_VISIBILITY_DEFAULT TermGenerator {
      * @param prefix	The term prefix to use (default is no prefix).
      */
     void index_text_without_positions(std::string_view text,
-				      Xapian::termcount wdf_inc = 1,
-				      std::string_view prefix = {}) {
-	index_text_without_positions(Utf8Iterator(text), wdf_inc, prefix);
+                                      Xapian::termcount wdf_inc = 1,
+                                      std::string_view prefix = {}) {
+        index_text_without_positions(Utf8Iterator(text), wdf_inc, prefix);
     }
 
     /** Increase the term position used by index_text.

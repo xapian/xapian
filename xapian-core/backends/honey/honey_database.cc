@@ -44,13 +44,13 @@ HoneyDatabase::throw_termlist_table_close_exception() const
     // Either the database has been closed, or else there's no termlist table.
     // Check if the postlist table is open to determine which is the case.
     if (!postlist_table.is_open())
-	HoneyTable::throw_database_closed();
+        HoneyTable::throw_database_closed();
     throw Xapian::FeatureUnavailableError("Database has no termlist");
 }
 
 // Relied on below - opening to read should allow the termlist to be missing.
 static_assert(Xapian::DB_READONLY_ & Xapian::DB_NO_TERMLIST,
-	"Xapian::DB_READONLY_ should imply Xapian::DB_NO_TERMLIST");
+        "Xapian::DB_READONLY_ should imply Xapian::DB_NO_TERMLIST");
 
 HoneyDatabase::HoneyDatabase(std::string_view path_, int flags)
     : Xapian::Database::Internal(TRANSACTION_READONLY),
@@ -87,7 +87,7 @@ HoneyDatabase::HoneyDatabase(int fd, int flags)
       // Note: (Xapian::DB_READONLY_ & Xapian::DB_NO_TERMLIST) is true, so
       // opening to read we always allow the termlist to be missing.
       termlist_table(fd, version_file.get_offset(), true,
-		     (flags & Xapian::DB_NO_TERMLIST)),
+                     (flags & Xapian::DB_NO_TERMLIST)),
       value_manager(postlist_table, termlist_table)
 {
     version_file.read();
@@ -135,24 +135,24 @@ HoneyDatabase::get_doclength(Xapian::docid did) const
 {
     Assert(did != 0);
     if (usual(did <= version_file.get_last_docid())) {
-	if (doclen_cursor == NULL) {
-	    doclen_cursor = get_postlist_cursor();
-	} else {
-	    if (doclen_chunk_reader.find_doclength(did)) {
-		return doclen_chunk_reader.get_doclength();
-	    }
-	}
+        if (doclen_cursor == NULL) {
+            doclen_cursor = get_postlist_cursor();
+        } else {
+            if (doclen_chunk_reader.find_doclength(did)) {
+                return doclen_chunk_reader.get_doclength();
+            }
+        }
 
-	// If exact is true, the desired docid is the last in this chunk.
-	bool exact =
-	    doclen_cursor->find_entry_ge(Honey::make_doclenchunk_key(did));
-	if (doclen_chunk_reader.update(doclen_cursor)) {
-	    if (exact)
-		return doclen_chunk_reader.back();
-	    if (doclen_chunk_reader.find_doclength(did)) {
-		return doclen_chunk_reader.get_doclength();
-	    }
-	}
+        // If exact is true, the desired docid is the last in this chunk.
+        bool exact =
+            doclen_cursor->find_entry_ge(Honey::make_doclenchunk_key(did));
+        if (doclen_chunk_reader.update(doclen_cursor)) {
+            if (exact)
+                return doclen_chunk_reader.back();
+            if (doclen_chunk_reader.find_doclength(did)) {
+                return doclen_chunk_reader.get_doclength();
+            }
+        }
     }
 
     string message = "Document ID not in use: ";
@@ -174,16 +174,16 @@ HoneyDatabase::get_wdfdocmax(Xapian::docid did) const
     HoneyTermList termlist(this, did);
     Xapian::termcount max_wdf = 0;
     while (termlist.next() == NULL) {
-	Xapian::termcount current_wdf = termlist.get_wdf();
-	if (current_wdf > max_wdf) max_wdf = current_wdf;
+        Xapian::termcount current_wdf = termlist.get_wdf();
+        if (current_wdf > max_wdf) max_wdf = current_wdf;
     }
     return max_wdf;
 }
 
 void
 HoneyDatabase::get_freqs(string_view term,
-			 Xapian::doccount* termfreq_ptr,
-			 Xapian::termcount* collfreq_ptr) const
+                         Xapian::doccount* termfreq_ptr,
+                         Xapian::termcount* collfreq_ptr) const
 {
     postlist_table.get_freqs(term, termfreq_ptr, collfreq_ptr);
 }
@@ -225,12 +225,12 @@ HoneyDatabase::get_wdf_upper_bound(string_view term) const
     // It's unlikely wdf is always 0, but when it is there's no need to do any
     // further work.
     if (usual(wdf_bound != 0)) {
-	// We don't store per-term wdf upper bounds currently, but
-	// HoneyPostListTable can provide an upper bound based on termfreq,
-	// coll_freq, and the first wdf value, which more often than not is
-	// actually the exact bound (in 77% of cases in an example database of
-	// wikipedia data).
-	wdf_bound = min(wdf_bound, postlist_table.get_wdf_upper_bound(term));
+        // We don't store per-term wdf upper bounds currently, but
+        // HoneyPostListTable can provide an upper bound based on termfreq,
+        // coll_freq, and the first wdf value, which more often than not is
+        // actually the exact bound (in 77% of cases in an example database of
+        // wikipedia data).
+        wdf_bound = min(wdf_bound, postlist_table.get_wdf_upper_bound(term));
     }
     return wdf_bound;
 }
@@ -251,7 +251,7 @@ bool
 HoneyDatabase::term_exists(string_view term) const
 {
     if (term.empty())
-	return HoneyDatabase::get_doccount() != 0;
+        return HoneyDatabase::get_doccount() != 0;
     return postlist_table.term_exists(term);
 }
 
@@ -271,16 +271,16 @@ LeafPostList*
 HoneyDatabase::open_leaf_post_list(string_view term, bool need_read_pos) const
 {
     if (term.empty()) {
-	Assert(!need_read_pos);
-	Xapian::doccount doccount = get_doccount();
-	if (rare(doccount == 0)) {
-	    return nullptr;
-	}
-	if (doccount == get_lastdocid()) {
-	    // The used docid range is exactly 1 to doccount inclusive.
-	    return new ContiguousAllDocsPostList(doccount);
-	}
-	return new HoneyAllDocsPostList(this, doccount);
+        Assert(!need_read_pos);
+        Xapian::doccount doccount = get_doccount();
+        if (rare(doccount == 0)) {
+            return nullptr;
+        }
+        if (doccount == get_lastdocid()) {
+            // The used docid range is exactly 1 to doccount inclusive.
+            return new ContiguousAllDocsPostList(doccount);
+        }
+        return new HoneyAllDocsPostList(this, doccount);
     }
 
     return postlist_table.open_post_list(this, term, need_read_pos);
@@ -297,21 +297,21 @@ HoneyDatabase::open_term_list(Xapian::docid did) const
 {
     Assert(did != 0);
     if (!termlist_table.is_open())
-	throw_termlist_table_close_exception();
+        throw_termlist_table_close_exception();
     HoneyTermList* tl = new HoneyTermList(this, did);
     if (tl->size() == 0) {
-	// It could be the document has no terms, but maybe it doesn't exist -
-	// in the latter case we ought to throw DocNotFoundError.  FIXME: If
-	// the document has no terms, but does have values, we should be able
-	// to avoid this check.
+        // It could be the document has no terms, but maybe it doesn't exist -
+        // in the latter case we ought to throw DocNotFoundError.  FIXME: If
+        // the document has no terms, but does have values, we should be able
+        // to avoid this check.
 
-	// Put the pointer in a unique_ptr so it gets released if an exception
-	// is thrown.
-	unique_ptr<TermList> tl_ptr(tl);
+        // Put the pointer in a unique_ptr so it gets released if an exception
+        // is thrown.
+        unique_ptr<TermList> tl_ptr(tl);
 
-	// This will throw DocNotFoundError if did isn't in use.
-	(void)HoneyDatabase::get_doclength(did);
-	tl_ptr.release();
+        // This will throw DocNotFoundError if did isn't in use.
+        (void)HoneyDatabase::get_doclength(did);
+        tl_ptr.release();
     }
     return tl;
 }
@@ -340,8 +340,8 @@ HoneyDatabase::open_document(Xapian::docid did, bool lazy) const
 {
     Assert(did != 0);
     if (!lazy) {
-	// This will throw DocNotFoundError if did isn't in use.
-	(void)HoneyDatabase::get_doclength(did);
+        // This will throw DocNotFoundError if did isn't in use.
+        (void)HoneyDatabase::get_doclength(did);
     }
     return new HoneyDocument(this, did, &value_manager, &docdata_table);
 }
@@ -357,8 +357,8 @@ HoneyDatabase::open_spelling_wordlist() const
 {
     auto cursor = spelling_table.cursor_get();
     if (rare(cursor == NULL)) {
-	// No spelling table.
-	return NULL;
+        // No spelling table.
+        return NULL;
     }
     return new HoneySpellingWordsList(this, cursor);
 }
@@ -379,7 +379,7 @@ HoneyDatabase::add_spelling(string_view word, Xapian::termcount freqinc) const
 
 Xapian::termcount
 HoneyDatabase::remove_spelling(string_view word,
-			       Xapian::termcount freqdec) const
+                               Xapian::termcount freqdec) const
 {
     (void)word;
     (void)freqdec;
@@ -397,8 +397,8 @@ HoneyDatabase::open_synonym_keylist(string_view prefix) const
 {
     auto cursor = synonym_table.cursor_get();
     if (rare(cursor == NULL)) {
-	// No synonym table.
-	return NULL;
+        // No synonym table.
+        return NULL;
     }
     return new HoneySynonymTermList(this, cursor, prefix);
 }
@@ -452,7 +452,7 @@ bool
 HoneyDatabase::reopen()
 {
     if (!postlist_table.is_open())
-	HoneyTable::throw_database_closed();
+        HoneyTable::throw_database_closed();
     return false;
 }
 
@@ -490,26 +490,26 @@ int
 HoneyDatabase::get_backend_info(string* path_ptr) const
 {
     if (path_ptr)
-	*path_ptr = path;
+        *path_ptr = path;
     return BACKEND_HONEY;
 }
 
 void
 HoneyDatabase::get_used_docid_range(Xapian::docid& first,
-				    Xapian::docid& last) const
+                                    Xapian::docid& last) const
 {
     auto doccount = version_file.get_doccount();
     if (doccount == 0) {
-	// Empty database.
-	first = last = 0;
-	return;
+        // Empty database.
+        first = last = 0;
+        return;
     }
     auto last_docid = version_file.get_last_docid();
     if (last_docid == doccount) {
-	// Contiguous range starting at 1.
-	first = 1;
-	last = last_docid;
-	return;
+        // Contiguous range starting at 1.
+        first = 1;
+        last = last_docid;
+        return;
     }
     postlist_table.get_used_docid_range(doccount, first, last);
 }

@@ -42,24 +42,24 @@ class BitWriter {
 
     /// Construct with the contents of seed already in the stream.
     explicit BitWriter(const std::string& seed)
-	: buf(seed) { }
+        : buf(seed) { }
 
     /// Encode value, known to be less than outof.
     void encode(Xapian::termpos value, Xapian::termpos outof);
 
     /// Finish encoding and return the encoded data as a std::string.
     std::string& freeze() {
-	if (n_bits) {
-	    buf += char(acc);
-	    n_bits = 0;
-	    acc = 0;
-	}
-	return buf;
+        if (n_bits) {
+            buf += char(acc);
+            n_bits = 0;
+            acc = 0;
+        }
+        return buf;
     }
 
     /// Perform interpolative encoding of pos elements between j and k.
     void encode_interpolative(const Xapian::VecCOW<Xapian::termpos>& pos,
-			      int j, int k);
+                              int j, int k);
 };
 
 /// Read a stream created by BitWriter.
@@ -75,44 +75,44 @@ class BitReader {
     Xapian::termpos read_bits(int count);
 
     struct DIStack {
-	int j, k;
-	Xapian::termpos pos_k;
+        int j, k;
+        Xapian::termpos pos_k;
     };
 
     struct DIState : public DIStack {
-	Xapian::termpos pos_j;
+        Xapian::termpos pos_j;
 
-	void set_j(int j_, Xapian::termpos pos_j_) {
-	    j = j_;
-	    pos_j = pos_j_;
-	}
-	void set_k(int k_, Xapian::termpos pos_k_) {
-	    k = k_;
-	    pos_k = pos_k_;
-	}
-	void uninit() {
-	    j = 1;
-	    k = 0;
-	}
-	DIState() { uninit(); }
-	DIState(int j_, int k_,
-		Xapian::termpos pos_j_, Xapian::termpos pos_k_) {
-	    set_j(j_, pos_j_);
-	    set_k(k_, pos_k_);
-	}
-	void operator=(const DIStack& o) {
-	    j = o.j;
-	    set_k(o.k, o.pos_k);
-	}
-	bool is_next() const { return j + 1 < k; }
-	bool is_initialized() const {
-	    return j <= k;
-	}
-	// Given pos[j] = pos_j and pos[k] = pos_k, how many possible position
-	// values are there for the value midway between?
-	Xapian::termpos outof() const {
-	    return pos_k - pos_j - Xapian::termpos(k - j) + 1;
-	}
+        void set_j(int j_, Xapian::termpos pos_j_) {
+            j = j_;
+            pos_j = pos_j_;
+        }
+        void set_k(int k_, Xapian::termpos pos_k_) {
+            k = k_;
+            pos_k = pos_k_;
+        }
+        void uninit() {
+            j = 1;
+            k = 0;
+        }
+        DIState() { uninit(); }
+        DIState(int j_, int k_,
+                Xapian::termpos pos_j_, Xapian::termpos pos_k_) {
+            set_j(j_, pos_j_);
+            set_k(k_, pos_k_);
+        }
+        void operator=(const DIStack& o) {
+            j = o.j;
+            set_k(o.k, o.pos_k);
+        }
+        bool is_next() const { return j + 1 < k; }
+        bool is_initialized() const {
+            return j <= k;
+        }
+        // Given pos[j] = pos_j and pos[k] = pos_k, how many possible position
+        // values are there for the value midway between?
+        Xapian::termpos outof() const {
+            return pos_k - pos_j - Xapian::termpos(k - j) + 1;
+        }
     };
 
     std::vector<DIStack> di_stack;
@@ -124,16 +124,16 @@ class BitReader {
 
     // Construct and set data.
     BitReader(const char* p_, const char* end_)
-	: p(p_), end(end_), n_bits(0), acc(0) { }
+        : p(p_), end(end_), n_bits(0), acc(0) { }
 
     // Initialise with fresh data.
     void init(const char* p_, const char* end_) {
-	p = p_;
-	end = end_;
-	n_bits = 0;
-	acc = 0;
-	di_stack.clear();
-	di_current.uninit();
+        p = p_;
+        end = end_;
+        n_bits = 0;
+        acc = 0;
+        di_stack.clear();
+        di_current.uninit();
     }
 
     // Decode value, known to be less than outof.
@@ -144,12 +144,12 @@ class BitReader {
     // there's less than a byte left and that all remaining bits are
     // zero.
     bool check_all_gone() const {
-	return (p == end && n_bits <= 7 && acc == 0);
+        return (p == end && n_bits <= 7 && acc == 0);
     }
 
     /// Perform interpolative decoding between elements between j and k.
     void decode_interpolative(int j, int k,
-			      Xapian::termpos pos_j, Xapian::termpos pos_k);
+                              Xapian::termpos pos_j, Xapian::termpos pos_k);
 
     /// Perform on-demand interpolative decoding.
     Xapian::termpos decode_interpolative_next();

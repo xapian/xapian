@@ -72,13 +72,13 @@ static FILE* sockt;
 
 void
 send_field(Field field,
-	   const char* data,
-	   size_t len)
+           const char* data,
+           size_t len)
 {
     if (len == 0) return;
     PUTC(static_cast<unsigned char>(field), sockt);
     if (!write_string(sockt, data, len)) {
-	_Exit(OMEGA_EX_SOCKET_WRITE_ERROR);
+        _Exit(OMEGA_EX_SOCKET_WRITE_ERROR);
     }
 }
 
@@ -94,7 +94,7 @@ send_field_page_count(int value)
     if (value < 0) return;
     PUTC(static_cast<unsigned char>(FIELD_PAGE_COUNT), sockt);
     if (!write_unsigned(sockt, unsigned(value))) {
-	_Exit(OMEGA_EX_SOCKET_WRITE_ERROR);
+        _Exit(OMEGA_EX_SOCKET_WRITE_ERROR);
     }
 }
 
@@ -105,7 +105,7 @@ send_field_created_date(time_t value)
     PUTC(static_cast<unsigned char>(FIELD_CREATED_DATE), sockt);
     auto u_value = static_cast<unsigned long>(value);
     if (!write_unsigned(sockt, u_value)) {
-	_Exit(OMEGA_EX_SOCKET_WRITE_ERROR);
+        _Exit(OMEGA_EX_SOCKET_WRITE_ERROR);
     }
 }
 
@@ -117,41 +117,41 @@ int main()
     sockt = fdopen(FD, "r+");
 
     try {
-	string error;
-	if (!initialise(error)) {
-	    if (!error.empty()) send_field(FIELD_ERROR, error);
-	    _Exit(EX_UNAVAILABLE);
-	}
+        string error;
+        if (!initialise(error)) {
+            if (!error.empty()) send_field(FIELD_ERROR, error);
+            _Exit(EX_UNAVAILABLE);
+        }
     } catch (const std::exception& e) {
-	string error = "C++ exception: ";
-	error += e.what();
-	send_field(FIELD_ERROR, error);
-	_Exit(EX_UNAVAILABLE);
+        string error = "C++ exception: ";
+        error += e.what();
+        send_field(FIELD_ERROR, error);
+        _Exit(EX_UNAVAILABLE);
     } catch (...) {
-	send_field(FIELD_ERROR, "Unknown C++ exception");
-	_Exit(EX_UNAVAILABLE);
+        send_field(FIELD_ERROR, "Unknown C++ exception");
+        _Exit(EX_UNAVAILABLE);
     }
 
     // Signal we've successfully initialised.
     send_field_end();
     while (true) {
-	// Read filename.
-	errno = 0;
-	if (!read_string(sockt, filename)) break;
-	if (!read_string(sockt, mimetype)) break;
-	// Setting a timeout for avoid infinity loops
-	set_timeout();
-	try {
-	    extract(filename, mimetype);
-	} catch (const std::exception& e) {
-	    string error = "C++ exception: ";
-	    error += e.what();
-	    send_field(FIELD_ERROR, error);
-	} catch (...) {
-	    send_field(FIELD_ERROR, "Unknown C++ exception");
-	}
-	stop_timeout();
-	send_field_end();
+        // Read filename.
+        errno = 0;
+        if (!read_string(sockt, filename)) break;
+        if (!read_string(sockt, mimetype)) break;
+        // Setting a timeout for avoid infinity loops
+        set_timeout();
+        try {
+            extract(filename, mimetype);
+        } catch (const std::exception& e) {
+            string error = "C++ exception: ";
+            error += e.what();
+            send_field(FIELD_ERROR, error);
+        } catch (...) {
+            send_field(FIELD_ERROR, "Unknown C++ exception");
+        }
+        stop_timeout();
+        send_field_end();
     }
 
     _Exit(errno ? OMEGA_EX_SOCKET_READ_ERROR : EX_OK);

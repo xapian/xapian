@@ -33,10 +33,10 @@ class AndPostList : public PostList {
     /** Comparison functor which orders PostList* by ascending
      *  get_termfreq(). */
     struct ComparePostListTermFreqAscending {
-	/// Order by ascending get_termfreq().
-	bool operator()(const PostList *a, const PostList *b) const {
-	    return a->get_termfreq() < b->get_termfreq();
-	}
+        /// Order by ascending get_termfreq().
+        bool operator()(const PostList *a, const PostList *b) const {
+            return a->get_termfreq() < b->get_termfreq();
+        }
     };
 
     /// Don't allow assignment.
@@ -65,41 +65,41 @@ class AndPostList : public PostList {
 
     /// Calculate the new minimum weight for sub-postlist n.
     double new_min(double w_min, size_t n) {
-	return w_min - (max_total - max_wt[n]);
+        return w_min - (max_total - max_wt[n]);
     }
 
     /// Call next on a sub-postlist n, and handle any pruning.
     void next_helper(size_t n, double w_min) {
-	PostList * res = plist[n]->next(new_min(w_min, n));
-	if (res) {
-	    delete plist[n];
-	    plist[n] = res;
-	    if (max_wt[n] > 0)
-		matcher->force_recalc();
-	}
+        PostList * res = plist[n]->next(new_min(w_min, n));
+        if (res) {
+            delete plist[n];
+            plist[n] = res;
+            if (max_wt[n] > 0)
+                matcher->force_recalc();
+        }
     }
 
     /// Call skip_to on a sub-postlist n, and handle any pruning.
     void skip_to_helper(size_t n, Xapian::docid did_min, double w_min) {
-	PostList * res = plist[n]->skip_to(did_min, new_min(w_min, n));
-	if (res) {
-	    delete plist[n];
-	    plist[n] = res;
-	    if (max_wt[n] > 0)
-		matcher->force_recalc();
-	}
+        PostList * res = plist[n]->skip_to(did_min, new_min(w_min, n));
+        if (res) {
+            delete plist[n];
+            plist[n] = res;
+            if (max_wt[n] > 0)
+                matcher->force_recalc();
+        }
     }
 
     /// Call check on a sub-postlist n, and handle any pruning.
     void check_helper(size_t n, Xapian::docid did_min, double w_min,
-		      bool &valid) {
-	PostList * res = plist[n]->check(did_min, new_min(w_min, n), valid);
-	if (res) {
-	    delete plist[n];
-	    plist[n] = res;
-	    if (max_wt[n] > 0)
-		matcher->force_recalc();
-	}
+                      bool &valid) {
+        PostList * res = plist[n]->check(did_min, new_min(w_min, n), valid);
+        if (res) {
+            delete plist[n];
+            plist[n] = res;
+            if (max_wt[n] > 0)
+                matcher->force_recalc();
+        }
     }
 
     /** Allocate plist and max_wt arrays of @a n_kids each.
@@ -117,61 +117,61 @@ class AndPostList : public PostList {
      */
     template<class RandomItor>
     AndPostList(RandomItor pl_begin, RandomItor pl_end, PostListTree* matcher_)
-	: n_kids(pl_end - pl_begin), matcher(matcher_)
+        : n_kids(pl_end - pl_begin), matcher(matcher_)
     {
-	allocate_plist_and_max_wt();
+        allocate_plist_and_max_wt();
 
-	// Copy the postlists in ascending termfreq order, since it will
-	// be more efficient to look at the shorter lists first, and skip
-	// the longer lists based on those.
-	std::partial_sort_copy(pl_begin, pl_end, plist, plist + n_kids,
-			       ComparePostListTermFreqAscending());
+        // Copy the postlists in ascending termfreq order, since it will
+        // be more efficient to look at the shorter lists first, and skip
+        // the longer lists based on those.
+        std::partial_sort_copy(pl_begin, pl_end, plist, plist + n_kids,
+                               ComparePostListTermFreqAscending());
 
-	Xapian::docid first = 1, last = Xapian::docid(-1);
-	AndPostList::get_docid_range(first, last);
-	if (rare(last < first)) {
-	    // This probably always gets handled at a higher level.
-	    termfreq = 0;
-	    return;
-	}
+        Xapian::docid first = 1, last = Xapian::docid(-1);
+        AndPostList::get_docid_range(first, last);
+        if (rare(last < first)) {
+            // This probably always gets handled at a higher level.
+            termfreq = 0;
+            return;
+        }
 
-	// We calculate the estimate assuming independence.
-	double r = (last - first + 1);
-	for (size_t i = 0; i < n_kids; ++i) {
-	    auto est = plist[i]->get_termfreq();
-	    first = 1;
-	    last = Xapian::docid(-1);
-	    plist[i]->get_docid_range(first, last);
-	    // If this wasn't true then AndPostList::get_docid_range() should
-	    // have returned last < first which is handled above.
-	    Assert(last >= first);
-	    r *= double(est) / (last - first + 1);
-	}
-	termfreq = static_cast<Xapian::doccount>(r + 0.5);
+        // We calculate the estimate assuming independence.
+        double r = (last - first + 1);
+        for (size_t i = 0; i < n_kids; ++i) {
+            auto est = plist[i]->get_termfreq();
+            first = 1;
+            last = Xapian::docid(-1);
+            plist[i]->get_docid_range(first, last);
+            // If this wasn't true then AndPostList::get_docid_range() should
+            // have returned last < first which is handled above.
+            Assert(last >= first);
+            r *= double(est) / (last - first + 1);
+        }
+        termfreq = static_cast<Xapian::doccount>(r + 0.5);
     }
 
     /** Construct as the decay product of an OrPostList or AndMaybePostList. */
     AndPostList(PostList* l, PostList* r,
-		double lmax, double rmax,
-		PostListTree* matcher_, Xapian::doccount termfreq_)
-	: n_kids(2), max_total(lmax + rmax), matcher(matcher_)
+                double lmax, double rmax,
+                PostListTree* matcher_, Xapian::doccount termfreq_)
+        : n_kids(2), max_total(lmax + rmax), matcher(matcher_)
     {
-	// Just copy the estimate from the PostList which decayed.
-	termfreq = termfreq_;
+        // Just copy the estimate from the PostList which decayed.
+        termfreq = termfreq_;
 
-	// Even if we're the decay product of an OrPostList, we may want to
-	// swap here, as the subqueries may also have decayed and so their
-	// estimated termfreqs may have changed.
-	if (l->get_termfreq() < r->get_termfreq()) {
-	    std::swap(l, r);
-	    std::swap(lmax, rmax);
-	}
-	allocate_plist_and_max_wt();
-	// Put the least frequent postlist first.
-	plist[0] = r;
-	plist[1] = l;
-	max_wt[0] = rmax;
-	max_wt[1] = lmax;
+        // Even if we're the decay product of an OrPostList, we may want to
+        // swap here, as the subqueries may also have decayed and so their
+        // estimated termfreqs may have changed.
+        if (l->get_termfreq() < r->get_termfreq()) {
+            std::swap(l, r);
+            std::swap(lmax, rmax);
+        }
+        allocate_plist_and_max_wt();
+        // Put the least frequent postlist first.
+        plist[0] = r;
+        plist[1] = l;
+        max_wt[0] = rmax;
+        max_wt[1] = lmax;
     }
 
     ~AndPostList();
@@ -179,8 +179,8 @@ class AndPostList : public PostList {
     Xapian::docid get_docid() const;
 
     double get_weight(Xapian::termcount doclen,
-		      Xapian::termcount unique_terms,
-		      Xapian::termcount wdfdocmax) const;
+                      Xapian::termcount unique_terms,
+                      Xapian::termcount wdfdocmax) const;
 
     bool at_end() const;
 

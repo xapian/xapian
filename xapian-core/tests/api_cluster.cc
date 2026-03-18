@@ -32,21 +32,21 @@ static void
 make_stemmed_cluster_db(Xapian::WritableDatabase &db, const std::string &)
 {
     static const char* const test_strings[] = {
-	"This line is about a cluster. Cluster is important and is everywhere",
-	"We need to search for special cluster. Cluster cluster cluster",
-	"Computer cluster is a special example of a cluster. Used to search fast",
-	"Another example of cluster is a star cluster. Star cluster has a lot of stars"
+        "This line is about a cluster. Cluster is important and is everywhere",
+        "We need to search for special cluster. Cluster cluster cluster",
+        "Computer cluster is a special example of a cluster. Used to search fast",
+        "Another example of cluster is a star cluster. Star cluster has a lot of stars"
     };
 
     Xapian::TermGenerator indexer;
     Xapian::Stem stemmer("english");
     indexer.set_stemmer(stemmer);
     for (const std::string document_data : test_strings) {
-	Xapian::Document document;
-	document.set_data(document_data);
-	indexer.set_document(document);
-	indexer.index_text(document_data);
-	db.add_document(document);
+        Xapian::Document document;
+        document.set_data(document_data);
+        indexer.set_document(document);
+        indexer.index_text(document_data);
+        db.add_document(document);
     }
 }
 
@@ -74,7 +74,7 @@ class RoundRobin : public Xapian::Clusterer {
     Xapian::ClusterSet cluster(const Xapian::MSet& mset) override;
 
     std::string get_description() const override {
-	return "RoundRobin()";
+        return "RoundRobin()";
     }
 };
 
@@ -86,18 +86,18 @@ RoundRobin::cluster(const Xapian::MSet &mset)
     std::vector<Xapian::Point> points;
 
     for (Xapian::MSetIterator it = mset.begin(); it != mset.end(); ++it)
-	points.push_back(Xapian::Point(tlg, it.get_document()));
+        points.push_back(Xapian::Point(tlg, it.get_document()));
 
     unsigned int i = 0;
     while (i < num_of_clusters) {
-	Xapian::Cluster cluster_rr;
-	cset.add_cluster(cluster_rr);
-	i++;
+        Xapian::Cluster cluster_rr;
+        cset.add_cluster(cluster_rr);
+        i++;
     }
 
     unsigned int size = points.size();
     for (i = 0; i < size; ++i)
-	cset.add_to_cluster(points[i], i % num_of_clusters);
+        cset.add_to_cluster(points[i], i % num_of_clusters);
 
     return cset;
 }
@@ -147,8 +147,8 @@ DEFINE_TESTCASE(round_robin1, backend)
     Xapian::ClusterSet cset = rr.cluster(matches);
     int size = cset.size();
     for (int i = 0; i < size; ++i) {
-	Xapian::DocumentSet d = cset[i].get_documents();
-	TEST(d.size() != 0);
+        Xapian::DocumentSet d = cset[i].get_documents();
+        TEST(d.size() != 0);
     }
 }
 

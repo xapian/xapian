@@ -59,8 +59,8 @@ class RemoteTcpClient : SOCKET_INITIALIZER_MIXIN public RemoteDatabase {
      *  methods which do, this method has been deliberately made "static".
      */
     static std::pair<int, std::string> open_socket(std::string_view hostname,
-						   int port,
-						   double timeout_connect);
+                                                   int port,
+                                                   double timeout_connect);
 
   public:
     /** Constructor.
@@ -75,10 +75,10 @@ class RemoteTcpClient : SOCKET_INITIALIZER_MIXIN public RemoteDatabase {
      *	@param flags		Xapian::DB_RETRY_LOCK or 0.
      */
     RemoteTcpClient(std::string_view hostname, int port,
-		    double timeout_, double timeout_connect, bool writable,
-		    int flags)
-	: RemoteDatabase(open_socket(hostname, port, timeout_connect),
-			 timeout_, writable, flags) { }
+                    double timeout_, double timeout_connect, bool writable,
+                    int flags)
+        : RemoteDatabase(open_socket(hostname, port, timeout_connect),
+                         timeout_, writable, flags) { }
 
     /** Destructor. */
     ~RemoteTcpClient();

@@ -63,8 +63,8 @@ class XAPIAN_VISIBILITY_DEFAULT ExpandDecider
      *  longer required.
      */
     ExpandDecider * release() {
-	opt_intrusive_base::release();
-	return this;
+        opt_intrusive_base::release();
+        return this;
     }
 
     /** Start reference counting this object.
@@ -75,8 +75,8 @@ class XAPIAN_VISIBILITY_DEFAULT ExpandDecider
      *  longer required.
      */
     const ExpandDecider * release() const {
-	opt_intrusive_base::release();
-	return this;
+        opt_intrusive_base::release();
+        return this;
     }
 };
 
@@ -96,8 +96,8 @@ class XAPIAN_VISIBILITY_DEFAULT ExpandDeciderAnd : public ExpandDecider {
      *  @param second_	ExpandDecider object to test with if first_ accepts.
      */
     ExpandDeciderAnd(const ExpandDecider &first_,
-		     const ExpandDecider &second_)
-	: first(&first_), second(&second_) { }
+                     const ExpandDecider &second_)
+        : first(&first_), second(&second_) { }
 
     /** Compatibility method.
      *
@@ -105,8 +105,8 @@ class XAPIAN_VISIBILITY_DEFAULT ExpandDeciderAnd : public ExpandDecider {
      *  @param second_	ExpandDecider object to test with if first_ accepts.
      */
     ExpandDeciderAnd(const ExpandDecider *first_,
-		     const ExpandDecider *second_)
-	: first(first_), second(second_) { }
+                     const ExpandDecider *second_)
+        : first(first_), second(second_) { }
 
     virtual bool operator()(const std::string &term) const;
 };
@@ -130,7 +130,7 @@ class XAPIAN_VISIBILITY_DEFAULT ExpandDeciderFilterTerms : public ExpandDecider 
      */
     template<class Iterator>
     ExpandDeciderFilterTerms(Iterator reject_begin, Iterator reject_end)
-	: rejects(reject_begin, reject_end) { }
+        : rejects(reject_begin, reject_end) { }
 
     virtual bool operator()(const std::string &term) const;
 };
@@ -148,7 +148,7 @@ class XAPIAN_VISIBILITY_DEFAULT ExpandDeciderFilterPrefix : public ExpandDecider
      *  @param prefix_   restrict terms to the particular prefix_
      */
     explicit ExpandDeciderFilterPrefix(const std::string &prefix_)
-	: prefix(prefix_) { }
+        : prefix(prefix_) { }
 
     virtual bool operator() (const std::string &term) const;
 };

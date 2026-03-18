@@ -46,7 +46,7 @@ class DocumentValueList final : public ValueList {
 
   public:
     explicit DocumentValueList(const Xapian::Document::Internal* doc_)
-	: doc(doc_), it(doc->values->end()) { }
+        : doc(doc_), it(doc->values->end()) { }
 
     Xapian::docid get_docid() const;
 

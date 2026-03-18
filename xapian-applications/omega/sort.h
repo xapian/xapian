@@ -25,6 +25,6 @@
 #include <vector>
 
 void omegascript_sort(const std::vector<std::string>& args,
-		      std::string& value);
+                      std::string& value);
 
 #endif // OMEGA_INCLUDED_SORT_H

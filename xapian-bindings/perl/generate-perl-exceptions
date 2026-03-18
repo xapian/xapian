@@ -59,33 +59,33 @@ print FD <<'EOF';
 namespace Xapian {
 void handle_exception() {
     try {
-	throw;
+        throw;
 EOF
 
 for (reverse @allclasses) {
     my ($class) = @{$_};
     print FD <<"EOF";
     } catch (const Xapian::$class &e) {
-	void * p = (void *) new Xapian::$class(e);
+        void * p = (void *) new Xapian::$class(e);
 #ifdef croak_sv
-	SV * sv = sv_newmortal();
-	sv_setref_pv(sv, "Xapian::$class", p);
-	croak_sv(sv);
+        SV * sv = sv_newmortal();
+        sv_setref_pv(sv, "Xapian::$class", p);
+        croak_sv(sv);
 #elif defined ERRSV
-	sv_setref_pv(ERRSV, "Xapian::$class", p);
-	croak(Nullch);
+        sv_setref_pv(ERRSV, "Xapian::$class", p);
+        croak(Nullch);
 #else
-	sv_setref_pv(get_sv("@", TRUE), "Xapian::$class", p);
-	croak(Nullch);
+        sv_setref_pv(get_sv("@", TRUE), "Xapian::$class", p);
+        croak(Nullch);
 #endif
 EOF
 }
 
 print FD <<'EOF';
     } catch (const std::exception& e) {
-	croak("std::exception: %s", e.what());
+        croak("std::exception: %s", e.what());
     } catch (...) {
-	croak("something terrible happened");
+        croak("something terrible happened");
     }
 }
 }
@@ -101,10 +101,10 @@ print FD <<'EOF';
 
 %exception {
     try {
-	$action
+        $action
     } catch (...) {
-	Xapian::handle_exception();
-	SWIG_fail;
+        Xapian::handle_exception();
+        SWIG_fail;
     }
 }
 EOF

@@ -52,23 +52,23 @@ class InMemoryPositionList : public PositionList {
     /// Move construct with positional data.
     explicit
     InMemoryPositionList(Xapian::VecCOW<Xapian::termpos>&& positions_)
-	: positions(std::move(positions_)) {}
+        : positions(std::move(positions_)) {}
 
     /// Construct with copied positional data.
     explicit
     InMemoryPositionList(const Xapian::VecCOW<Xapian::termpos>& positions_)
-	: positions(positions_.copy()) {}
+        : positions(positions_.copy()) {}
 
     /// Move assign positional data.
     void assign(Xapian::VecCOW<Xapian::termpos>&& positions_) {
-	positions = std::move(positions_);
-	index = size_t(-1);
+        positions = std::move(positions_);
+        index = size_t(-1);
     }
 
     /// Assign copied positional data.
     void assign(const Xapian::VecCOW<Xapian::termpos>& positions_) {
-	positions = positions_.copy();
-	index = size_t(-1);
+        positions = positions_.copy();
+        index = size_t(-1);
     }
 
     Xapian::termcount get_approx_size() const;

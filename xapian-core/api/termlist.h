@@ -34,7 +34,7 @@
 
 namespace Xapian {
     namespace Internal {
-	class ExpandStats;
+        class ExpandStats;
     }
 }
 
@@ -67,7 +67,7 @@ class Xapian::TermIterator::Internal : public Xapian::Internal::intrusive_base {
 
     /// Return the termname at the current position.
     const std::string& get_termname() const {
-	return current_term;
+        return current_term;
     }
 
     /// Return the wdf for the term at the current position.

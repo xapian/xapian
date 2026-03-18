@@ -30,8 +30,8 @@ WrapperPostList::get_docid() const
 
 double
 WrapperPostList::get_weight(Xapian::termcount doclen,
-			    Xapian::termcount unique_terms,
-			    Xapian::termcount wdfdocmax) const
+                            Xapian::termcount unique_terms,
+                            Xapian::termcount wdfdocmax) const
 {
     return pl->get_weight(doclen, unique_terms, wdfdocmax);
 }
@@ -59,8 +59,8 @@ WrapperPostList::next(double w_min)
 {
     PostList* result = pl->next(w_min);
     if (result) {
-	delete pl;
-	pl = result;
+        delete pl;
+        pl = result;
     }
     return NULL;
 }
@@ -70,8 +70,8 @@ WrapperPostList::skip_to(Xapian::docid did, double w_min)
 {
     PostList* result = pl->skip_to(did, w_min);
     if (result) {
-	delete pl;
-	pl = result;
+        delete pl;
+        pl = result;
     }
     return NULL;
 }

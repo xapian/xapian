@@ -94,55 +94,55 @@ DEFINE_TESTCASE(document2, !backend) {
 /// Feature tests for Document::clear_terms().
 DEFINE_TESTCASE(documentclearterms1, !backend) {
     {
-	Xapian::Document doc;
-	doc.add_boolean_term("Hlocalhost");
-	doc.add_term("hello");
-	doc.add_term("there", 2);
-	doc.add_posting("positional", 1);
-	doc.add_posting("information", 2, 3);
-	TEST_EQUAL(doc.termlist_count(), 5);
-	TEST(doc.termlist_begin() != doc.termlist_end());
-	doc.clear_terms();
-	TEST_EQUAL(doc.termlist_count(), 0);
-	TEST(doc.termlist_begin() == doc.termlist_end());
-	// Test clear_terms() when there are no terms.
-	doc.clear_terms();
-	TEST_EQUAL(doc.termlist_count(), 0);
-	TEST(doc.termlist_begin() == doc.termlist_end());
+        Xapian::Document doc;
+        doc.add_boolean_term("Hlocalhost");
+        doc.add_term("hello");
+        doc.add_term("there", 2);
+        doc.add_posting("positional", 1);
+        doc.add_posting("information", 2, 3);
+        TEST_EQUAL(doc.termlist_count(), 5);
+        TEST(doc.termlist_begin() != doc.termlist_end());
+        doc.clear_terms();
+        TEST_EQUAL(doc.termlist_count(), 0);
+        TEST(doc.termlist_begin() == doc.termlist_end());
+        // Test clear_terms() when there are no terms.
+        doc.clear_terms();
+        TEST_EQUAL(doc.termlist_count(), 0);
+        TEST(doc.termlist_begin() == doc.termlist_end());
     }
 
     {
-	// Test clear_terms() when there have never been any terms.
-	Xapian::Document doc;
-	doc.clear_terms();
-	TEST_EQUAL(doc.termlist_count(), 0);
-	TEST(doc.termlist_begin() == doc.termlist_end());
+        // Test clear_terms() when there have never been any terms.
+        Xapian::Document doc;
+        doc.clear_terms();
+        TEST_EQUAL(doc.termlist_count(), 0);
+        TEST(doc.termlist_begin() == doc.termlist_end());
     }
 }
 
 /// Feature tests for Document::clear_values().
 DEFINE_TESTCASE(documentclearvalues1, !backend) {
     {
-	Xapian::Document doc;
-	doc.add_value(37, "hello");
-	doc.add_value(42, "world");
-	TEST_EQUAL(doc.values_count(), 2);
-	TEST(doc.values_begin() != doc.values_end());
-	doc.clear_values();
-	TEST_EQUAL(doc.values_count(), 0);
-	TEST(doc.values_begin() == doc.values_end());
-	// Test clear_values() when there are no values.
-	doc.clear_values();
-	TEST_EQUAL(doc.values_count(), 0);
-	TEST(doc.values_begin() == doc.values_end());
+        Xapian::Document doc;
+        doc.add_value(37, "hello");
+        doc.add_value(42, "world");
+        TEST_EQUAL(doc.values_count(), 2);
+        TEST(doc.values_begin() != doc.values_end());
+        doc.clear_values();
+        TEST_EQUAL(doc.values_count(), 0);
+        TEST(doc.values_begin() == doc.values_end());
+        // Test clear_values() when there are no values.
+        doc.clear_values();
+        TEST_EQUAL(doc.values_count(), 0);
+        TEST(doc.values_begin() == doc.values_end());
     }
 
     {
-	// Test clear_values() when there have never been any values.
-	Xapian::Document doc;
-	doc.clear_values();
-	TEST_EQUAL(doc.values_count(), 0);
-	TEST(doc.termlist_begin() == doc.termlist_end());
+        // Test clear_values() when there have never been any values.
+        Xapian::Document doc;
+        doc.clear_values();
+        TEST_EQUAL(doc.values_count(), 0);
+        TEST(doc.termlist_begin() == doc.termlist_end());
     }
 }
 
@@ -150,23 +150,23 @@ DEFINE_TESTCASE(documentclearvalues1, !backend) {
 DEFINE_TESTCASE(documentemptyterm1, !backend) {
     Xapian::Document doc;
     TEST_EXCEPTION(Xapian::InvalidArgumentError,
-	    doc.add_boolean_term(string()));
+            doc.add_boolean_term(string()));
     TEST_EXCEPTION(Xapian::InvalidArgumentError,
-	    doc.add_term(string()));
+            doc.add_term(string()));
     TEST_EXCEPTION(Xapian::InvalidArgumentError,
-	    doc.add_posting(string(), 1));
+            doc.add_posting(string(), 1));
     TEST_EXCEPTION(Xapian::InvalidArgumentError,
-	    doc.add_posting(string(), 2, 3));
+            doc.add_posting(string(), 2, 3));
     TEST_EXCEPTION(Xapian::InvalidArgumentError,
-	    doc.remove_term(string()));
+            doc.remove_term(string()));
     TEST_EXCEPTION(Xapian::InvalidArgumentError,
-	    doc.remove_posting(string(), 1));
+            doc.remove_posting(string(), 1));
     TEST_EXCEPTION(Xapian::InvalidArgumentError,
-	    doc.remove_posting(string(), 2, 3));
+            doc.remove_posting(string(), 2, 3));
     TEST_EXCEPTION(Xapian::InvalidArgumentError,
-	    doc.remove_postings(string(), 2, 3));
+            doc.remove_postings(string(), 2, 3));
     TEST_EXCEPTION(Xapian::InvalidArgumentError,
-	    doc.remove_postings(string(), 2, 3, 4));
+            doc.remove_postings(string(), 2, 3, 4));
 }
 
 DEFINE_TESTCASE(emptyquery4, !backend) {
@@ -191,7 +191,7 @@ DEFINE_TESTCASE(singlesubquery1, !backend) {
     // ops to just that subquery.
 #define singlesubquery1_(OP) \
     TEST_STRINGS_EQUAL(Xapian::Query(q->OP, q, q + 1).get_description(),\
-	"Query(test)")
+        "Query(test)")
     Xapian::Query q[1] = { Xapian::Query("test") };
     singlesubquery1_(OP_AND);
     singlesubquery1_(OP_OR);
@@ -210,7 +210,7 @@ DEFINE_TESTCASE(singlesubquery2, !backend) {
     // Like the previous test, but using MatchNothing as the subquery.
 #define singlesubquery2_(OP) \
     TEST_STRINGS_EQUAL(Xapian::Query(q->OP, q, q + 1).get_description(),\
-	"Query()")
+        "Query()")
     Xapian::Query q[1] = { Xapian::Query::MatchNothing };
     singlesubquery2_(OP_AND);
     singlesubquery2_(OP_OR);
@@ -229,7 +229,7 @@ DEFINE_TESTCASE(singlesubquery3, !backend) {
     // Like the previous test, but using MatchAll as the subquery.
 #define singlesubquery3_(OP) \
     TEST_STRINGS_EQUAL(Xapian::Query(q->OP, q, q + 1).get_description(),\
-	"Query(<alldocuments>)")
+        "Query(<alldocuments>)")
     Xapian::Query q[1] = { Xapian::Query::MatchAll };
     singlesubquery3_(OP_AND);
     singlesubquery3_(OP_OR);
@@ -258,13 +258,13 @@ DEFINE_TESTCASE(pairwisequery1, !backend) {
     Xapian::Query qb(ab);
 
 #define pairwisequery1_(OP) do {\
-	auto expect = Xapian::Query(qa.OP, lit_a, lit_b).get_description(); \
-	TEST_STRINGS_EQUAL(expect, \
-			   Xapian::Query(qa.OP, aa, ab).get_description()); \
-	TEST_STRINGS_EQUAL(expect, \
-			   Xapian::Query(qa.OP, ca, cb).get_description()); \
-	TEST_STRINGS_EQUAL(expect, \
-			   Xapian::Query(qa.OP, qa, qb).get_description()); \
+        auto expect = Xapian::Query(qa.OP, lit_a, lit_b).get_description(); \
+        TEST_STRINGS_EQUAL(expect, \
+                           Xapian::Query(qa.OP, aa, ab).get_description()); \
+        TEST_STRINGS_EQUAL(expect, \
+                           Xapian::Query(qa.OP, ca, cb).get_description()); \
+        TEST_STRINGS_EQUAL(expect, \
+                           Xapian::Query(qa.OP, qa, qb).get_description()); \
     } while (false)
 
     pairwisequery1_(OP_AND);
@@ -283,8 +283,8 @@ DEFINE_TESTCASE(pairwisequery1, !backend) {
 /// Check we no longer combine wqf for same term at the same position.
 DEFINE_TESTCASE(combinewqfnomore1, !backend) {
     Xapian::Query q(Xapian::Query::OP_OR,
-		    Xapian::Query("beer", 1, 1),
-		    Xapian::Query("beer", 1, 1));
+                    Xapian::Query("beer", 1, 1),
+                    Xapian::Query("beer", 1, 1));
     // Prior to 1.3.0, we would have given beer@2, but we decided that wasn't
     // really useful or helpful.
     TEST_EQUAL(q.get_description(), "Query((beer@1 OR beer@1))");
@@ -295,11 +295,11 @@ class DestroyedFlag {
 
   public:
     DestroyedFlag(bool & destroyed_) : destroyed(destroyed_) {
-	destroyed = false;
+        destroyed = false;
     }
 
     ~DestroyedFlag() {
-	destroyed = true;
+        destroyed = true;
     }
 };
 
@@ -308,10 +308,10 @@ class TestRangeProcessor : public Xapian::RangeProcessor {
 
   public:
     TestRangeProcessor(bool & destroyed_)
-	: Xapian::RangeProcessor(0), destroyed(destroyed_) { }
+        : Xapian::RangeProcessor(0), destroyed(destroyed_) { }
 
     Xapian::Query operator()(const std::string&, const std::string&) override {
-	return Xapian::Query::MatchAll;
+        return Xapian::Query::MatchAll;
     }
 };
 
@@ -328,49 +328,49 @@ DEFINE_TESTCASE(subclassablerefcount1, !backend) {
 
     // Simple test of release().
     {
-	Xapian::RangeProcessor * rp = new TestRangeProcessor(gone);
-	TEST(!gone);
-	Xapian::QueryParser qp;
-	qp.add_rangeprocessor(rp->release());
-	TEST(!gone);
+        Xapian::RangeProcessor * rp = new TestRangeProcessor(gone);
+        TEST(!gone);
+        Xapian::QueryParser qp;
+        qp.add_rangeprocessor(rp->release());
+        TEST(!gone);
     }
     TEST(gone);
 
     // Check a second call to release() has no effect.
     {
-	Xapian::RangeProcessor * rp = new TestRangeProcessor(gone);
-	TEST(!gone);
-	Xapian::QueryParser qp;
-	qp.add_rangeprocessor(rp->release());
-	rp->release();
-	TEST(!gone);
+        Xapian::RangeProcessor * rp = new TestRangeProcessor(gone);
+        TEST(!gone);
+        Xapian::QueryParser qp;
+        qp.add_rangeprocessor(rp->release());
+        rp->release();
+        TEST(!gone);
     }
     TEST(gone);
 
     // Test reference counting works, and that a RangeProcessor with automatic
     // storage works OK.
     {
-	TestRangeProcessor rp_auto(gone_auto);
-	TEST(!gone_auto);
-	{
-	    Xapian::QueryParser qp1;
-	    {
-		Xapian::QueryParser qp2;
-		Xapian::RangeProcessor * rp;
-		rp = new TestRangeProcessor(gone);
-		TEST(!gone);
-		qp1.add_rangeprocessor(rp->release());
-		TEST(!gone);
-		qp2.add_rangeprocessor(rp);
-		TEST(!gone);
-		qp2.add_rangeprocessor(&rp_auto);
-		TEST(!gone);
-		TEST(!gone_auto);
-	    }
-	    TEST(!gone);
-	}
-	TEST(gone);
-	TEST(!gone_auto);
+        TestRangeProcessor rp_auto(gone_auto);
+        TEST(!gone_auto);
+        {
+            Xapian::QueryParser qp1;
+            {
+                Xapian::QueryParser qp2;
+                Xapian::RangeProcessor * rp;
+                rp = new TestRangeProcessor(gone);
+                TEST(!gone);
+                qp1.add_rangeprocessor(rp->release());
+                TEST(!gone);
+                qp2.add_rangeprocessor(rp);
+                TEST(!gone);
+                qp2.add_rangeprocessor(&rp_auto);
+                TEST(!gone);
+                TEST(!gone_auto);
+            }
+            TEST(!gone);
+        }
+        TEST(gone);
+        TEST(!gone_auto);
     }
     TEST(gone_auto);
 
@@ -378,17 +378,17 @@ DEFINE_TESTCASE(subclassablerefcount1, !backend) {
     // checked the reference of the object, which may have already been deleted
     // if it wasn't been reference counted.
     {
-	Xapian::QueryParser qp;
-	{
-	    Xapian::RangeProcessor * rp = new TestRangeProcessor(gone);
-	    TEST(!gone);
-	    qp.add_rangeprocessor(rp);
-	    delete rp;
-	    TEST(gone);
-	}
-	// At the end of this block, qp is destroyed, but mustn't dereference
-	// the pointer it has to rp.  If it does, that should get caught
-	// when tests are run under valgrind.
+        Xapian::QueryParser qp;
+        {
+            Xapian::RangeProcessor * rp = new TestRangeProcessor(gone);
+            TEST(!gone);
+            qp.add_rangeprocessor(rp);
+            delete rp;
+            TEST(gone);
+        }
+        // At the end of this block, qp is destroyed, but mustn't dereference
+        // the pointer it has to rp.  If it does, that should get caught
+        // when tests are run under valgrind.
     }
 }
 
@@ -399,7 +399,7 @@ class TestFieldProcessor : public Xapian::FieldProcessor {
     TestFieldProcessor(bool & destroyed_) : destroyed(destroyed_) { }
 
     Xapian::Query operator()(const string& str) override {
-	return Xapian::Query(str);
+        return Xapian::Query(str);
     }
 };
 
@@ -416,49 +416,49 @@ DEFINE_TESTCASE(subclassablerefcount2, !backend) {
 
     // Simple test of release().
     {
-	Xapian::FieldProcessor * proc = new TestFieldProcessor(gone);
-	TEST(!gone);
-	Xapian::QueryParser qp;
-	qp.add_prefix("foo", proc->release());
-	TEST(!gone);
+        Xapian::FieldProcessor * proc = new TestFieldProcessor(gone);
+        TEST(!gone);
+        Xapian::QueryParser qp;
+        qp.add_prefix("foo", proc->release());
+        TEST(!gone);
     }
     TEST(gone);
 
     // Check a second call to release() has no effect.
     {
-	Xapian::FieldProcessor * proc = new TestFieldProcessor(gone);
-	TEST(!gone);
-	Xapian::QueryParser qp;
-	qp.add_prefix("foo", proc->release());
-	proc->release();
-	TEST(!gone);
+        Xapian::FieldProcessor * proc = new TestFieldProcessor(gone);
+        TEST(!gone);
+        Xapian::QueryParser qp;
+        qp.add_prefix("foo", proc->release());
+        proc->release();
+        TEST(!gone);
     }
     TEST(gone);
 
     // Test reference counting works, and that a FieldProcessor with automatic
     // storage works OK.
     {
-	TestFieldProcessor proc_auto(gone_auto);
-	TEST(!gone_auto);
-	{
-	    Xapian::QueryParser qp1;
-	    {
-		Xapian::QueryParser qp2;
-		Xapian::FieldProcessor * proc;
-		proc = new TestFieldProcessor(gone);
-		TEST(!gone);
-		qp1.add_prefix("foo", proc->release());
-		TEST(!gone);
-		qp2.add_prefix("foo", proc);
-		TEST(!gone);
-		qp2.add_prefix("bar", &proc_auto);
-		TEST(!gone);
-		TEST(!gone_auto);
-	    }
-	    TEST(!gone);
-	}
-	TEST(gone);
-	TEST(!gone_auto);
+        TestFieldProcessor proc_auto(gone_auto);
+        TEST(!gone_auto);
+        {
+            Xapian::QueryParser qp1;
+            {
+                Xapian::QueryParser qp2;
+                Xapian::FieldProcessor * proc;
+                proc = new TestFieldProcessor(gone);
+                TEST(!gone);
+                qp1.add_prefix("foo", proc->release());
+                TEST(!gone);
+                qp2.add_prefix("foo", proc);
+                TEST(!gone);
+                qp2.add_prefix("bar", &proc_auto);
+                TEST(!gone);
+                TEST(!gone_auto);
+            }
+            TEST(!gone);
+        }
+        TEST(gone);
+        TEST(!gone_auto);
     }
     TEST(gone_auto);
 }
@@ -487,49 +487,49 @@ DEFINE_TESTCASE(subclassablerefcount3, backend) {
 
     // Simple test of release().
     {
-	Xapian::MatchSpy * spy = new TestMatchSpy(gone);
-	TEST(!gone);
-	Xapian::Enquire enquire(db);
-	enquire.add_matchspy(spy->release());
-	TEST(!gone);
+        Xapian::MatchSpy * spy = new TestMatchSpy(gone);
+        TEST(!gone);
+        Xapian::Enquire enquire(db);
+        enquire.add_matchspy(spy->release());
+        TEST(!gone);
     }
     TEST(gone);
 
     // Check a second call to release() has no effect.
     {
-	Xapian::MatchSpy * spy = new TestMatchSpy(gone);
-	TEST(!gone);
-	Xapian::Enquire enquire(db);
-	enquire.add_matchspy(spy->release());
-	spy->release();
-	TEST(!gone);
+        Xapian::MatchSpy * spy = new TestMatchSpy(gone);
+        TEST(!gone);
+        Xapian::Enquire enquire(db);
+        enquire.add_matchspy(spy->release());
+        spy->release();
+        TEST(!gone);
     }
     TEST(gone);
 
     // Test reference counting works, and that a MatchSpy with automatic
     // storage works OK.
     {
-	TestMatchSpy spy_auto(gone_auto);
-	TEST(!gone_auto);
-	{
-	    Xapian::Enquire enq1(db);
-	    {
-		Xapian::Enquire enq2(db);
-		Xapian::MatchSpy * spy;
-		spy = new TestMatchSpy(gone);
-		TEST(!gone);
-		enq1.add_matchspy(spy->release());
-		TEST(!gone);
-		enq2.add_matchspy(spy);
-		TEST(!gone);
-		enq2.add_matchspy(&spy_auto);
-		TEST(!gone);
-		TEST(!gone_auto);
-	    }
-	    TEST(!gone);
-	}
-	TEST(gone);
-	TEST(!gone_auto);
+        TestMatchSpy spy_auto(gone_auto);
+        TEST(!gone_auto);
+        {
+            Xapian::Enquire enq1(db);
+            {
+                Xapian::Enquire enq2(db);
+                Xapian::MatchSpy * spy;
+                spy = new TestMatchSpy(gone);
+                TEST(!gone);
+                enq1.add_matchspy(spy->release());
+                TEST(!gone);
+                enq2.add_matchspy(spy);
+                TEST(!gone);
+                enq2.add_matchspy(&spy_auto);
+                TEST(!gone);
+                TEST(!gone_auto);
+            }
+            TEST(!gone);
+        }
+        TEST(gone);
+        TEST(!gone_auto);
     }
     TEST(gone_auto);
 }
@@ -556,66 +556,66 @@ DEFINE_TESTCASE(subclassablerefcount4, !backend) {
 
     // Simple test of release().
     {
-	Xapian::Stopper * stopper = new TestStopper(gone);
-	TEST(!gone);
-	Xapian::QueryParser qp;
-	qp.set_stopper(stopper->release());
-	TEST(!gone);
+        Xapian::Stopper * stopper = new TestStopper(gone);
+        TEST(!gone);
+        Xapian::QueryParser qp;
+        qp.set_stopper(stopper->release());
+        TEST(!gone);
     }
     TEST(gone);
 
     // Test that setting a new stopper causes the previous one to be released.
     {
-	bool gone0;
-	Xapian::Stopper * stopper0 = new TestStopper(gone0);
-	TEST(!gone0);
-	Xapian::QueryParser qp;
-	qp.set_stopper(stopper0->release());
-	TEST(!gone0);
+        bool gone0;
+        Xapian::Stopper * stopper0 = new TestStopper(gone0);
+        TEST(!gone0);
+        Xapian::QueryParser qp;
+        qp.set_stopper(stopper0->release());
+        TEST(!gone0);
 
-	Xapian::Stopper * stopper = new TestStopper(gone);
-	TEST(!gone);
-	qp.set_stopper(stopper->release());
-	TEST(gone0);
-	TEST(!gone);
+        Xapian::Stopper * stopper = new TestStopper(gone);
+        TEST(!gone);
+        qp.set_stopper(stopper->release());
+        TEST(gone0);
+        TEST(!gone);
     }
     TEST(gone);
 
     // Check a second call to release() has no effect.
     {
-	Xapian::Stopper * stopper = new TestStopper(gone);
-	TEST(!gone);
-	Xapian::QueryParser qp;
-	qp.set_stopper(stopper->release());
-	stopper->release();
-	TEST(!gone);
+        Xapian::Stopper * stopper = new TestStopper(gone);
+        TEST(!gone);
+        Xapian::QueryParser qp;
+        qp.set_stopper(stopper->release());
+        stopper->release();
+        TEST(!gone);
     }
     TEST(gone);
 
     // Test reference counting works, and that a Stopper with automatic
     // storage works OK.
     {
-	TestStopper stopper_auto(gone_auto);
-	TEST(!gone_auto);
-	{
-	    Xapian::QueryParser qp1;
-	    {
-		Xapian::QueryParser qp2;
-		Xapian::Stopper * stopper;
-		stopper = new TestStopper(gone);
-		TEST(!gone);
-		qp1.set_stopper(stopper->release());
-		TEST(!gone);
-		qp2.set_stopper(stopper);
-		TEST(!gone);
-		qp2.set_stopper(&stopper_auto);
-		TEST(!gone);
-		TEST(!gone_auto);
-	    }
-	    TEST(!gone);
-	}
-	TEST(gone);
-	TEST(!gone_auto);
+        TestStopper stopper_auto(gone_auto);
+        TEST(!gone_auto);
+        {
+            Xapian::QueryParser qp1;
+            {
+                Xapian::QueryParser qp2;
+                Xapian::Stopper * stopper;
+                stopper = new TestStopper(gone);
+                TEST(!gone);
+                qp1.set_stopper(stopper->release());
+                TEST(!gone);
+                qp2.set_stopper(stopper);
+                TEST(!gone);
+                qp2.set_stopper(&stopper_auto);
+                TEST(!gone);
+                TEST(!gone_auto);
+            }
+            TEST(!gone);
+        }
+        TEST(gone);
+        TEST(!gone_auto);
     }
     TEST(gone_auto);
 }
@@ -633,66 +633,66 @@ DEFINE_TESTCASE(subclassablerefcount5, !backend) {
 
     // Simple test of release().
     {
-	Xapian::Stopper * stopper = new TestStopper(gone);
-	TEST(!gone);
-	Xapian::TermGenerator indexer;
-	indexer.set_stopper(stopper->release());
-	TEST(!gone);
+        Xapian::Stopper * stopper = new TestStopper(gone);
+        TEST(!gone);
+        Xapian::TermGenerator indexer;
+        indexer.set_stopper(stopper->release());
+        TEST(!gone);
     }
     TEST(gone);
 
     // Test that setting a new stopper causes the previous one to be released.
     {
-	bool gone0;
-	Xapian::Stopper * stopper0 = new TestStopper(gone0);
-	TEST(!gone0);
-	Xapian::TermGenerator indexer;
-	indexer.set_stopper(stopper0->release());
-	TEST(!gone0);
+        bool gone0;
+        Xapian::Stopper * stopper0 = new TestStopper(gone0);
+        TEST(!gone0);
+        Xapian::TermGenerator indexer;
+        indexer.set_stopper(stopper0->release());
+        TEST(!gone0);
 
-	Xapian::Stopper * stopper = new TestStopper(gone);
-	TEST(!gone);
-	indexer.set_stopper(stopper->release());
-	TEST(gone0);
-	TEST(!gone);
+        Xapian::Stopper * stopper = new TestStopper(gone);
+        TEST(!gone);
+        indexer.set_stopper(stopper->release());
+        TEST(gone0);
+        TEST(!gone);
     }
     TEST(gone);
 
     // Check a second call to release() has no effect.
     {
-	Xapian::Stopper * stopper = new TestStopper(gone);
-	TEST(!gone);
-	Xapian::TermGenerator indexer;
-	indexer.set_stopper(stopper->release());
-	stopper->release();
-	TEST(!gone);
+        Xapian::Stopper * stopper = new TestStopper(gone);
+        TEST(!gone);
+        Xapian::TermGenerator indexer;
+        indexer.set_stopper(stopper->release());
+        stopper->release();
+        TEST(!gone);
     }
     TEST(gone);
 
     // Test reference counting works, and that a Stopper with automatic
     // storage works OK.
     {
-	TestStopper stopper_auto(gone_auto);
-	TEST(!gone_auto);
-	{
-	    Xapian::TermGenerator indexer1;
-	    {
-		Xapian::TermGenerator indexer2;
-		Xapian::Stopper * stopper;
-		stopper = new TestStopper(gone);
-		TEST(!gone);
-		indexer1.set_stopper(stopper->release());
-		TEST(!gone);
-		indexer2.set_stopper(stopper);
-		TEST(!gone);
-		indexer2.set_stopper(&stopper_auto);
-		TEST(!gone);
-		TEST(!gone_auto);
-	    }
-	    TEST(!gone);
-	}
-	TEST(gone);
-	TEST(!gone_auto);
+        TestStopper stopper_auto(gone_auto);
+        TEST(!gone_auto);
+        {
+            Xapian::TermGenerator indexer1;
+            {
+                Xapian::TermGenerator indexer2;
+                Xapian::Stopper * stopper;
+                stopper = new TestStopper(gone);
+                TEST(!gone);
+                indexer1.set_stopper(stopper->release());
+                TEST(!gone);
+                indexer2.set_stopper(stopper);
+                TEST(!gone);
+                indexer2.set_stopper(&stopper_auto);
+                TEST(!gone);
+                TEST(!gone_auto);
+            }
+            TEST(!gone);
+        }
+        TEST(gone);
+        TEST(!gone_auto);
     }
     TEST(gone_auto);
 }
@@ -704,7 +704,7 @@ class TestKeyMaker : public Xapian::KeyMaker {
     TestKeyMaker(bool & destroyed_) : destroyed(destroyed_) { }
 
     string operator()(const Xapian::Document&) const override {
-	return string();
+        return string();
     }
 };
 
@@ -723,66 +723,66 @@ DEFINE_TESTCASE(subclassablerefcount6, backend) {
 
     // Simple test of release().
     {
-	Xapian::KeyMaker * keymaker = new TestKeyMaker(gone);
-	TEST(!gone);
-	Xapian::Enquire enq(db);
-	enq.set_sort_by_key(keymaker->release(), false);
-	TEST(!gone);
+        Xapian::KeyMaker * keymaker = new TestKeyMaker(gone);
+        TEST(!gone);
+        Xapian::Enquire enq(db);
+        enq.set_sort_by_key(keymaker->release(), false);
+        TEST(!gone);
     }
     TEST(gone);
 
     // Test that setting a new keymaker causes the previous one to be released.
     {
-	bool gone0;
-	Xapian::KeyMaker * keymaker0 = new TestKeyMaker(gone0);
-	TEST(!gone0);
-	Xapian::Enquire enq(db);
-	enq.set_sort_by_key(keymaker0->release(), false);
-	TEST(!gone0);
+        bool gone0;
+        Xapian::KeyMaker * keymaker0 = new TestKeyMaker(gone0);
+        TEST(!gone0);
+        Xapian::Enquire enq(db);
+        enq.set_sort_by_key(keymaker0->release(), false);
+        TEST(!gone0);
 
-	Xapian::KeyMaker * keymaker = new TestKeyMaker(gone);
-	TEST(!gone);
-	enq.set_sort_by_key_then_relevance(keymaker->release(), false);
-	TEST(gone0);
-	TEST(!gone);
+        Xapian::KeyMaker * keymaker = new TestKeyMaker(gone);
+        TEST(!gone);
+        enq.set_sort_by_key_then_relevance(keymaker->release(), false);
+        TEST(gone0);
+        TEST(!gone);
     }
     TEST(gone);
 
     // Check a second call to release() has no effect.
     {
-	Xapian::KeyMaker * keymaker = new TestKeyMaker(gone);
-	TEST(!gone);
-	Xapian::Enquire enq(db);
-	enq.set_sort_by_key(keymaker->release(), false);
-	keymaker->release();
-	TEST(!gone);
+        Xapian::KeyMaker * keymaker = new TestKeyMaker(gone);
+        TEST(!gone);
+        Xapian::Enquire enq(db);
+        enq.set_sort_by_key(keymaker->release(), false);
+        keymaker->release();
+        TEST(!gone);
     }
     TEST(gone);
 
     // Test reference counting works, and that a KeyMaker with automatic
     // storage works OK.
     {
-	TestKeyMaker keymaker_auto(gone_auto);
-	TEST(!gone_auto);
-	{
-	    Xapian::Enquire enq1(db);
-	    {
-		Xapian::Enquire enq2(db);
-		Xapian::KeyMaker * keymaker;
-		keymaker = new TestKeyMaker(gone);
-		TEST(!gone);
-		enq1.set_sort_by_key(keymaker->release(), false);
-		TEST(!gone);
-		enq2.set_sort_by_relevance_then_key(keymaker, false);
-		TEST(!gone);
-		enq2.set_sort_by_key_then_relevance(&keymaker_auto, false);
-		TEST(!gone);
-		TEST(!gone_auto);
-	    }
-	    TEST(!gone);
-	}
-	TEST(gone);
-	TEST(!gone_auto);
+        TestKeyMaker keymaker_auto(gone_auto);
+        TEST(!gone_auto);
+        {
+            Xapian::Enquire enq1(db);
+            {
+                Xapian::Enquire enq2(db);
+                Xapian::KeyMaker * keymaker;
+                keymaker = new TestKeyMaker(gone);
+                TEST(!gone);
+                enq1.set_sort_by_key(keymaker->release(), false);
+                TEST(!gone);
+                enq2.set_sort_by_relevance_then_key(keymaker, false);
+                TEST(!gone);
+                enq2.set_sort_by_key_then_relevance(&keymaker_auto, false);
+                TEST(!gone);
+                TEST(!gone_auto);
+            }
+            TEST(!gone);
+        }
+        TEST(gone);
+        TEST(!gone_auto);
     }
     TEST(gone_auto);
 }
@@ -813,71 +813,71 @@ DEFINE_TESTCASE(subclassablerefcount7, backend) {
 #endif
 
     for (int flags = 0;
-	 flags <= Xapian::Enquire::INCLUDE_QUERY_TERMS;
-	 flags += Xapian::Enquire::INCLUDE_QUERY_TERMS) {
-	// Test of auto lifetime ExpandDecider.
-	{
-	    TestExpandDecider edecider_auto(gone_auto);
-	    TEST(!gone_auto);
-	    (void)enq.get_eset(5, rset, 0, &edecider_auto);
-	    TEST(!gone_auto);
-	}
-	TEST(gone_auto);
+         flags <= Xapian::Enquire::INCLUDE_QUERY_TERMS;
+         flags += Xapian::Enquire::INCLUDE_QUERY_TERMS) {
+        // Test of auto lifetime ExpandDecider.
+        {
+            TestExpandDecider edecider_auto(gone_auto);
+            TEST(!gone_auto);
+            (void)enq.get_eset(5, rset, 0, &edecider_auto);
+            TEST(!gone_auto);
+        }
+        TEST(gone_auto);
 
-	// Simple test of release().
-	{
-	    Xapian::ExpandDecider * edecider = new TestExpandDecider(gone);
-	    TEST(!gone);
-	    (void)enq.get_eset(5, rset, 0, edecider);
-	    TEST(!gone);
-	    delete edecider;
-	    TEST(gone);
-	}
+        // Simple test of release().
+        {
+            Xapian::ExpandDecider * edecider = new TestExpandDecider(gone);
+            TEST(!gone);
+            (void)enq.get_eset(5, rset, 0, edecider);
+            TEST(!gone);
+            delete edecider;
+            TEST(gone);
+        }
 
-	// Test that a released ExpandDecider gets cleaned up by get_eset().
-	{
-	    Xapian::ExpandDecider * edecider = new TestExpandDecider(gone);
-	    TEST(!gone);
-	    (void)enq.get_eset(5, rset, 0, edecider->release());
-	    TEST(gone);
-	}
+        // Test that a released ExpandDecider gets cleaned up by get_eset().
+        {
+            Xapian::ExpandDecider * edecider = new TestExpandDecider(gone);
+            TEST(!gone);
+            (void)enq.get_eset(5, rset, 0, edecider->release());
+            TEST(gone);
+        }
 
-	// Check a second call to release() has no effect.
-	{
-	    Xapian::ExpandDecider * edecider = new TestExpandDecider(gone);
-	    TEST(!gone);
-	    edecider->release();
-	    TEST(!gone);
-	    (void)enq.get_eset(5, rset, 0, edecider->release());
-	    TEST(gone);
-	}
+        // Check a second call to release() has no effect.
+        {
+            Xapian::ExpandDecider * edecider = new TestExpandDecider(gone);
+            TEST(!gone);
+            edecider->release();
+            TEST(!gone);
+            (void)enq.get_eset(5, rset, 0, edecider->release());
+            TEST(gone);
+        }
     }
 
     // Test combinations of released/non-released with ExpandDeciderAnd.
     {
-	TestExpandDecider edecider_auto(gone_auto);
-	TEST(!gone_auto);
-	Xapian::ExpandDecider * edecider = new TestExpandDecider(gone);
-	TEST(!gone);
-	(void)enq.get_eset(5, rset, 0,
-		(new Xapian::ExpandDeciderAnd(
-		    &edecider_auto,
-		    edecider->release()))->release());
-	TEST(!gone_auto);
-	TEST(gone);
+        TestExpandDecider edecider_auto(gone_auto);
+        TEST(!gone_auto);
+        Xapian::ExpandDecider * edecider = new TestExpandDecider(gone);
+        TEST(!gone);
+        (void)enq.get_eset(5, rset, 0,
+                (new Xapian::ExpandDeciderAnd(
+                    &edecider_auto,
+                    edecider->release()))->release());
+        TEST(!gone_auto);
+        TEST(gone);
     }
     TEST(gone_auto);
     {
-	TestExpandDecider edecider_auto(gone_auto);
-	TEST(!gone_auto);
-	Xapian::ExpandDecider * edecider = new TestExpandDecider(gone);
-	TEST(!gone);
-	(void)enq.get_eset(5, rset, 0,
-		(new Xapian::ExpandDeciderAnd(
-		    edecider->release(),
-		    &edecider_auto))->release());
-	TEST(!gone_auto);
-	TEST(gone);
+        TestExpandDecider edecider_auto(gone_auto);
+        TEST(!gone_auto);
+        Xapian::ExpandDecider * edecider = new TestExpandDecider(gone);
+        TEST(!gone);
+        (void)enq.get_eset(5, rset, 0,
+                (new Xapian::ExpandDeciderAnd(
+                    edecider->release(),
+                    &edecider_auto))->release());
+        TEST(!gone_auto);
+        TEST(gone);
     }
     TEST(gone_auto);
 }
@@ -887,22 +887,22 @@ DEFINE_TESTCASE(nonutf8docdesc1, !backend) {
     Xapian::Document doc;
     doc.set_data("\xc0\x80\xf5\x80\x80\x80\xfe\xff");
     TEST_EQUAL(doc.get_description(),
-	      "Document(docid=0, data=\\xc0\\x80\\xf5\\x80\\x80\\x80\\xfe\\xff)");
+              "Document(docid=0, data=\\xc0\\x80\\xf5\\x80\\x80\\x80\\xfe\\xff)");
     doc.set_data(string("\x00\x1f", 2));
     TEST_EQUAL(doc.get_description(),
-	      "Document(docid=0, data=\\x00\\x1f)");
+              "Document(docid=0, data=\\x00\\x1f)");
     // Check that backslashes are encoded so output isn't ambiguous.
     doc.set_data("back\\slash");
     TEST_EQUAL(doc.get_description(),
-	      "Document(docid=0, data=back\\x5cslash)");
+              "Document(docid=0, data=back\\x5cslash)");
 }
 
 DEFINE_TESTCASE(orphaneddoctermitor1, !backend) {
     Xapian::TermIterator t;
     {
-	Xapian::Document doc;
-	doc.add_term("foo");
-	t = doc.termlist_begin();
+        Xapian::Document doc;
+        doc.add_term("foo");
+        t = doc.termlist_begin();
     }
     TEST_EQUAL(*t, "foo");
 }
@@ -915,23 +915,23 @@ DEFINE_TESTCASE(orphaneddoctermitor1, !backend) {
  */
 DEFINE_TESTCASE(deletewhileiterating1, !backend) {
     for (bool preinc : { false, true }) {
-	Xapian::Document doc;
-	Xapian::TermGenerator indexer;
-	indexer.set_document(doc);
-	indexer.index_text("Pull the rug out from under ourselves", 1, "S");
-	Xapian::TermIterator term_iterator = doc.termlist_begin();
-	term_iterator.skip_to("S");
-	while (term_iterator != doc.termlist_end()) {
-	    const string& term = *term_iterator;
-	    if (!startswith(term, "S")) {
-		break;
-	    }
-	    if (preinc) ++term_iterator;
-	    doc.remove_term(term);
-	    if (!preinc) ++term_iterator;
-	}
-	TEST_EQUAL(doc.termlist_count(), 0);
-	TEST(doc.termlist_begin() == doc.termlist_end());
+        Xapian::Document doc;
+        Xapian::TermGenerator indexer;
+        indexer.set_document(doc);
+        indexer.index_text("Pull the rug out from under ourselves", 1, "S");
+        Xapian::TermIterator term_iterator = doc.termlist_begin();
+        term_iterator.skip_to("S");
+        while (term_iterator != doc.termlist_end()) {
+            const string& term = *term_iterator;
+            if (!startswith(term, "S")) {
+                break;
+            }
+            if (preinc) ++term_iterator;
+            doc.remove_term(term);
+            if (!preinc) ++term_iterator;
+        }
+        TEST_EQUAL(doc.termlist_count(), 0);
+        TEST(doc.termlist_begin() == doc.termlist_end());
     }
 }
 
@@ -942,10 +942,10 @@ DEFINE_TESTCASE(removepostings, !backend) {
     Xapian::termpos prev_pos = 1;
     Xapian::termpos pos = 1;
     while (pos < 1000) {
-	doc.add_posting("foo", pos);
-	auto new_pos = prev_pos + pos;
-	prev_pos = pos;
-	pos = new_pos;
+        doc.add_posting("foo", pos);
+        auto new_pos = prev_pos + pos;
+        prev_pos = pos;
+        pos = new_pos;
     }
 
     // Check we added exactly one term.
@@ -1004,8 +1004,8 @@ DEFINE_TESTCASE(removepostings, !backend) {
     static const Xapian::termpos expected[] = { 5, 8, 13, 21, 377, 610, 9999 };
     const Xapian::termpos* expect = expected;
     for (auto p = t.positionlist_begin(); p != t.positionlist_end(); ++p) {
-	TEST_EQUAL(*p, *expect);
-	++expect;
+        TEST_EQUAL(*p, *expect);
+        ++expect;
     }
     TEST_EQUAL(*expect, 9999);
     TEST_EQUAL(t.get_wdf(), 6);
@@ -1061,9 +1061,9 @@ errorcopyctor_helper(Xapian::Error& error)
 DEFINE_TESTCASE(errorcopyctor, !backend) {
     Xapian::RangeError e("test");
     try {
-	errorcopyctor_helper(e);
+        errorcopyctor_helper(e);
     } catch (Xapian::Error&) {
-	return;
+        return;
     }
     FAIL_TEST("Expected exception to be thrown");
 }
@@ -1099,11 +1099,11 @@ DEFINE_TESTCASE(stlpositioniterator, !backend) {
     Xapian::Database db;
     vector<Xapian::termpos> v;
     if (db.get_doccount() > 0) {
-	// In Xapian <= 1.4.30 this gave a compile error with stdc++ and
-	// -DGLIBCXX_DEBUG:
-	v.insert(v.begin(),
-		 db.positionlist_begin(1, ""),
-		 db.positionlist_end(1, ""));
+        // In Xapian <= 1.4.30 this gave a compile error with stdc++ and
+        // -DGLIBCXX_DEBUG:
+        v.insert(v.begin(),
+                 db.positionlist_begin(1, ""),
+                 db.positionlist_end(1, ""));
     }
 }
 

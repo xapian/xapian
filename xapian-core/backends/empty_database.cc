@@ -107,16 +107,16 @@ EmptyDatabase::get_total_length() const
 
 void
 EmptyDatabase::get_freqs(string_view term,
-			 Xapian::doccount* tf_ptr,
-			 Xapian::termcount* cf_ptr) const
+                         Xapian::doccount* tf_ptr,
+                         Xapian::termcount* cf_ptr) const
 {
     Assert(!term.empty());
     (void)term;
 
     if (tf_ptr)
-	*tf_ptr = 0;
+        *tf_ptr = 0;
     if (cf_ptr)
-	*cf_ptr = 0;
+        *cf_ptr = 0;
 }
 
 Xapian::doccount
@@ -245,12 +245,12 @@ EmptyDatabase::open_metadata_keylist(string_view) const
 
 void
 EmptyDatabase::write_changesets_to_fd(int,
-				      std::string_view,
-				      bool,
-				      Xapian::ReplicationInfo*)
+                                      std::string_view,
+                                      bool,
+                                      Xapian::ReplicationInfo*)
 {
     throw Xapian::InvalidOperationError("write_changesets_to_fd() with "
-					"no subdatabases");
+                                        "no subdatabases");
 }
 
 Xapian::rev

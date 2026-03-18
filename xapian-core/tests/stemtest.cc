@@ -50,7 +50,7 @@ static void
 test_stemrandom()
 {
     static const char wordchars[] =
-	"abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz0123456789^\0";
+        "abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz0123456789^\0";
 
     tout << "Stemming random text... (seed " << seed << ")\n";
     srand(seed);
@@ -58,25 +58,25 @@ test_stemrandom()
     string word;
     int stemmed_size = 0;
     for (int c = JUNKSIZE; c; --c) {
-	char ch = wordchars[(rand() >> 8) % sizeof wordchars];
-	if (ch) {
-	    word += ch;
-	    continue;
-	}
-	stemmed_size += stemmer(word).length();
-	word.resize(0);
+        char ch = wordchars[(rand() >> 8) % sizeof wordchars];
+        if (ch) {
+            word += ch;
+            continue;
+        }
+        stemmed_size += stemmer(word).length();
+        word.resize(0);
     }
     stemmed_size += stemmer(word).length();
     tout << "Input size " << JUNKSIZE << ", stemmed size " << stemmed_size
-	 << '\n';
+         << '\n';
 
     if (stemmed_size > JUNKSIZE * 101 / 100) {
-	FAIL_TEST("Stemmed data is significantly bigger than input: "
-		  << stemmed_size << " vs. " << JUNKSIZE);
+        FAIL_TEST("Stemmed data is significantly bigger than input: "
+                  << stemmed_size << " vs. " << JUNKSIZE);
     }
     if (stemmed_size < JUNKSIZE / 2) {
-	FAIL_TEST("Stemmed data is significantly smaller than input: "
-		  << stemmed_size << " vs. " << JUNKSIZE);
+        FAIL_TEST("Stemmed data is significantly smaller than input: "
+                  << stemmed_size << " vs. " << JUNKSIZE);
     }
 }
 
@@ -90,25 +90,25 @@ test_stemjunk()
     string word;
     int stemmed_size = 0;
     for (int c = JUNKSIZE; c; --c) {
-	char ch = char(rand() >> 8);
-	if (ch) {
-	    word += ch;
-	    continue;
-	}
-	stemmed_size += stemmer(word).length();
-	word.resize(0);
+        char ch = char(rand() >> 8);
+        if (ch) {
+            word += ch;
+            continue;
+        }
+        stemmed_size += stemmer(word).length();
+        word.resize(0);
     }
     stemmed_size += stemmer(word).length();
     tout << "Input size " << JUNKSIZE << ", stemmed size " << stemmed_size
-	 << '\n';
+         << '\n';
 
     if (stemmed_size > JUNKSIZE * 101 / 100) {
-	FAIL_TEST("Stemmed data is significantly bigger than input: "
-		  << stemmed_size << " vs. " << JUNKSIZE);
+        FAIL_TEST("Stemmed data is significantly bigger than input: "
+                  << stemmed_size << " vs. " << JUNKSIZE);
     }
     if (stemmed_size < JUNKSIZE * 2 / 5) {
-	FAIL_TEST("Stemmed data is significantly smaller than input: "
-		  << stemmed_size << " vs. " << JUNKSIZE);
+        FAIL_TEST("Stemmed data is significantly smaller than input: "
+                  << stemmed_size << " vs. " << JUNKSIZE);
     }
 }
 
@@ -119,19 +119,19 @@ test_stemdict()
 
     gzFile voc = gzopen((dir + language + "/voc.txt").c_str(), "rb");
     if (!voc) {
-	voc = gzopen((dir + language + "/voc.txt.gz").c_str(), "rb");
-	if (!voc) {
-	    SKIP_TEST(language << "/voc.txt not found");
-	}
+        voc = gzopen((dir + language + "/voc.txt.gz").c_str(), "rb");
+        if (!voc) {
+            SKIP_TEST(language << "/voc.txt not found");
+        }
     }
 
     gzFile st = gzopen((dir + language + "/output.txt").c_str(), "rb");
     if (!st) {
-	st = gzopen((dir + language + "/output.txt.gz").c_str(), "rb");
-	if (!st) {
-	    gzclose(voc);
-	    FAIL_TEST(language << "/output.txt not found");
-	}
+        st = gzopen((dir + language + "/output.txt.gz").c_str(), "rb");
+        if (!st) {
+            gzclose(voc);
+            FAIL_TEST(language << "/output.txt not found");
+        }
     }
 
     tout << "Testing " << language << " with Snowball dictionary...\n";
@@ -139,40 +139,40 @@ test_stemdict()
     int pass = 1;
     string word, expect;
     while (true) {
-	while (!gzeof(voc) && !gzeof(st)) {
-	    word.clear();
-	    while (true) {
-		int ch = gzgetc(voc);
-		if (ch == EOF || ch == '\n') break;
-		word += ch;
-	    }
+        while (!gzeof(voc) && !gzeof(st)) {
+            word.clear();
+            while (true) {
+                int ch = gzgetc(voc);
+                if (ch == EOF || ch == '\n') break;
+                word += ch;
+            }
 
-	    expect.clear();
-	    while (true) {
-		int ch = gzgetc(st);
-		if (ch == EOF || ch == '\n') break;
-		expect += ch;
-	    }
+            expect.clear();
+            while (true) {
+                int ch = gzgetc(st);
+                if (ch == EOF || ch == '\n') break;
+                expect += ch;
+            }
 
-	    string stem = stemmer(word);
+            string stem = stemmer(word);
 
-	    TEST_EQUAL(stem, expect);
-	}
-	gzclose(voc);
-	gzclose(st);
+            TEST_EQUAL(stem, expect);
+        }
+        gzclose(voc);
+        gzclose(st);
 
-	if (pass == 2) break;
+        if (pass == 2) break;
 
-	voc = gzopen((dir + language + "/voc2.txt").c_str(), "rb");
-	if (!voc) break;
+        voc = gzopen((dir + language + "/voc2.txt").c_str(), "rb");
+        if (!voc) break;
 
-	st = gzopen((dir + language + "/output2.txt").c_str(), "rb");
-	if (!st) {
-	    gzclose(voc);
-	    FAIL_TEST(language << "/output2.txt not found");
-	}
-	tout << "Testing " << language << " with supplemental dictionary...\n";
-	++pass;
+        st = gzopen((dir + language + "/output2.txt").c_str(), "rb");
+        if (!st) {
+            gzclose(voc);
+            FAIL_TEST(language << "/output2.txt not found");
+        }
+        tout << "Testing " << language << " with supplemental dictionary...\n";
+        ++pass;
     }
 }
 
@@ -202,22 +202,22 @@ try {
     int result = 0;
 
     if (!seed_str.empty()) {
-	if (!parse_signed(seed_str.c_str(), seed)) {
-	    throw "seed must be an integer";
-	}
+        if (!parse_signed(seed_str.c_str(), seed)) {
+            throw "seed must be an integer";
+        }
     }
     cout << "The random seed is " << seed << '\n';
     cout << "Please report the seed when reporting a test failure.\n";
 
     string::size_type b = 0;
     while (b != langs.size()) {
-	string::size_type a = b;
-	while (b < langs.size() && langs[b] != ' ') ++b;
-	language.assign(langs, a, b - a);
-	while (b < langs.size() && langs[b] == ' ') ++b;
-	cout << "Running tests with " << language << " stemmer...\n";
-	stemmer = Xapian::Stem(language);
-	result = max(result, test_driver::run(tests));
+        string::size_type a = b;
+        while (b < langs.size() && langs[b] != ' ') ++b;
+        language.assign(langs, a, b - a);
+        while (b < langs.size() && langs[b] == ' ') ++b;
+        cout << "Running tests with " << language << " stemmer...\n";
+        stemmer = Xapian::Stem(language);
+        result = max(result, test_driver::run(tests));
     }
     return result;
 } catch (const char * e) {

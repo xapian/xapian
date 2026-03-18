@@ -44,7 +44,7 @@ inline std::string
 make_spelling_wordlist_key(std::string_view word)
 {
     if (rare(static_cast<unsigned char>(word[0]) <= KEY_PREFIX_WORD))
-	return std::string(1, KEY_PREFIX_WORD).append(word);
+        return std::string(1, KEY_PREFIX_WORD).append(word);
     return std::string(word);
 }
 
@@ -64,11 +64,11 @@ struct fragment {
     const char& operator[](unsigned i) const { return data[i]; }
 
     operator std::string() const {
-	return std::string(data, data[0] == KEY_PREFIX_MIDDLE ? 4 : 3);
+        return std::string(data, data[0] == KEY_PREFIX_MIDDLE ? 4 : 3);
     }
 
     bool operator<(const fragment& b) const {
-	return std::memcmp(data, b.data, 4) < 0;
+        return std::memcmp(data, b.data, 4) < 0;
     }
 };
 
@@ -79,8 +79,8 @@ class HoneySpellingTable : public HoneyLazyTable {
     void toggle_fragment(Honey::fragment frag, const std::string& word);
 
     mutable std::map<std::string,
-		     Xapian::termcount,
-		     std::less<>> wordfreq_changes;
+                     Xapian::termcount,
+                     std::less<>> wordfreq_changes;
 
     /** Changes to make to the termlists.
      *
@@ -105,24 +105,24 @@ class HoneySpellingTable : public HoneyLazyTable {
      *  @param readonly		true if we're opening read-only, else false.
      */
     HoneySpellingTable(const std::string& dbdir, bool readonly)
-	: HoneyLazyTable("spelling", dbdir + "/spelling.", readonly) { }
+        : HoneyLazyTable("spelling", dbdir + "/spelling.", readonly) { }
 
     HoneySpellingTable(int fd, off_t offset_, bool readonly)
-	: HoneyLazyTable("spelling", fd, offset_, readonly) { }
+        : HoneyLazyTable("spelling", fd, offset_, readonly) { }
 
     /** Merge in batched-up changes. */
     void merge_changes();
 
     void add_word(const std::string& word, Xapian::termcount freqinc);
     Xapian::termcount remove_word(const std::string& word,
-				  Xapian::termcount freqdec);
+                                  Xapian::termcount freqdec);
 
     TermList* open_termlist(std::string_view word);
 
     Xapian::doccount get_word_frequency(std::string_view word) const;
 
     void set_wordfreq_upper_bound(Xapian::termcount ub) {
-	wordfreq_upper_bound = ub;
+        wordfreq_upper_bound = ub;
     }
 
     /** Override methods of HoneyTable.
@@ -133,23 +133,23 @@ class HoneySpellingTable : public HoneyLazyTable {
      */
 
     bool is_modified() const {
-	return !wordfreq_changes.empty() || HoneyTable::is_modified();
+        return !wordfreq_changes.empty() || HoneyTable::is_modified();
     }
 
     /** Returns updated wordfreq upper bound. */
     Xapian::termcount flush_db() {
-	merge_changes();
-	HoneyTable::flush_db();
-	return wordfreq_upper_bound;
+        merge_changes();
+        HoneyTable::flush_db();
+        return wordfreq_upper_bound;
     }
 
     void cancel(const Honey::RootInfo& root_info,
-		honey_revision_number_t rev) {
-	// Discard batched-up changes.
-	wordfreq_changes.clear();
-	termlist_deltas.clear();
+                honey_revision_number_t rev) {
+        // Discard batched-up changes.
+        wordfreq_changes.clear();
+        termlist_deltas.clear();
 
-	HoneyTable::cancel(root_info, rev);
+        HoneyTable::cancel(root_info, rev);
     }
 
     // @}
@@ -180,27 +180,27 @@ class HoneySpellingTermList : public TermList {
   public:
     /// Constructor.
     explicit HoneySpellingTermList(const std::string& data_)
-	: data(data_) { }
+        : data(data_) { }
 
     /// Constructor for head/bookend/tail terms.
     HoneySpellingTermList(const std::string& data_,
-			  const char* key)
-	: data(data_) {
-	unsigned char first_ch = key[0];
-	AssertRel(first_ch, <, Honey::KEY_PREFIX_WORD);
-	switch (first_ch) {
-	    case Honey::KEY_PREFIX_BOOKEND:
-		tail = -1;
-		break;
-	    case Honey::KEY_PREFIX_HEAD:
-		tail = -2;
-		break;
-	    case Honey::KEY_PREFIX_TAIL:
-		tail = 2;
-		break;
-	}
-	if (tail != 0)
-	    current_term.assign(key + 1, 2);
+                          const char* key)
+        : data(data_) {
+        unsigned char first_ch = key[0];
+        AssertRel(first_ch, <, Honey::KEY_PREFIX_WORD);
+        switch (first_ch) {
+            case Honey::KEY_PREFIX_BOOKEND:
+                tail = -1;
+                break;
+            case Honey::KEY_PREFIX_HEAD:
+                tail = -2;
+                break;
+            case Honey::KEY_PREFIX_TAIL:
+                tail = 2;
+                break;
+        }
+        if (tail != 0)
+            current_term.assign(key + 1, 2);
     }
 
     Xapian::termcount get_approx_size() const;

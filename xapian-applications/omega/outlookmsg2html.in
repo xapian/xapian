@@ -48,7 +48,7 @@ my $date = do_header($mime, 'Date');
 chomp $date;
 eval {
     eval {
-	$date = Time::Piece->strptime($date, '%a, %d %b %Y %T %z');
+        $date = Time::Piece->strptime($date, '%a, %d %b %Y %T %z');
     };
     # The "%a, " part is optional in RFC822 and RFC2822.
     $date = Time::Piece->strptime($date, '%d %b %Y %T %z') if $@;
@@ -70,31 +70,31 @@ sub handle_mimepart {
     my $e = shift;
     my ($type, $sub) = ((lc $e->content_type) =~ m,^(.*?)/(.*?)(?:;.*)?$,);
     if ($type eq 'multipart') {
-	if ($sub eq 'alternative') {
-	    # Take the last mime part which we get text from.
-	    for my $s (reverse $e->subparts) {
-		my $res = handle_mimepart($s);
-		return $res if $res;
-	    }
-	} else {
-	    my $res = 0;
-	    for my $s ($e->subparts) {
-		$res += handle_mimepart($s);
-	    }
-	    return $res;
-	}
+        if ($sub eq 'alternative') {
+            # Take the last mime part which we get text from.
+            for my $s (reverse $e->subparts) {
+                my $res = handle_mimepart($s);
+                return $res if $res;
+            }
+        } else {
+            my $res = 0;
+            for my $s ($e->subparts) {
+                $res += handle_mimepart($s);
+            }
+            return $res;
+        }
     } elsif ($type eq 'text') {
-	if ($sub eq 'plain') {
-	    print "<pre>", HTML::Entities::encode_entities($e->body_str), "</pre>\n";
-	    return 1;
-	} elsif ($sub eq 'html') {
-	    my $m = $e->body_str;
-	    $m =~ s!</?body[^>]*>!\n!gi;
-	    print $m, "\n";
-	    return 1;
-	}
+        if ($sub eq 'plain') {
+            print "<pre>", HTML::Entities::encode_entities($e->body_str), "</pre>\n";
+            return 1;
+        } elsif ($sub eq 'html') {
+            my $m = $e->body_str;
+            $m =~ s!</?body[^>]*>!\n!gi;
+            print $m, "\n";
+            return 1;
+        }
     } elsif ($type eq 'message' && $sub eq 'rfc822') {
-	return handle_mimepart(Email::MIME->new($e->body));
+        return handle_mimepart(Email::MIME->new($e->body));
     }
     return 0;
 }

@@ -49,160 +49,160 @@ using namespace std;
 
 int
 TcpClient::open_socket(std::string_view hostname, int port,
-		       double timeout_connect, bool tcp_nodelay,
-		       const string& context)
+                       double timeout_connect, bool tcp_nodelay,
+                       const string& context)
 {
     int socketfd = -1;
     int connect_errno = 0;
     for (auto&& r : Resolver(hostname, port)) {
-	int socktype = r.ai_socktype | SOCK_CLOEXEC;
+        int socktype = r.ai_socktype | SOCK_CLOEXEC;
 #ifdef SOCK_NONBLOCK
-	// Set the socket as non-blocking so we can implement a timeout on
-	// the connection attempt by using select() or poll().  If
-	// SOCK_NONBLOCK is available we can get socket() to do this, but
-	// if not we call fcntl()/ioctlsocket() below to set it.
-	socktype |= SOCK_NONBLOCK;
+        // Set the socket as non-blocking so we can implement a timeout on
+        // the connection attempt by using select() or poll().  If
+        // SOCK_NONBLOCK is available we can get socket() to do this, but
+        // if not we call fcntl()/ioctlsocket() below to set it.
+        socktype |= SOCK_NONBLOCK;
 #endif
-	int fd = socket(r.ai_family, socktype, r.ai_protocol);
-	if (fd < 0)
-	    continue;
+        int fd = socket(r.ai_family, socktype, r.ai_protocol);
+        if (fd < 0)
+            continue;
 
 #if !defined __WIN32__ && defined F_SETFD && defined FD_CLOEXEC
-	// We can't use a preprocessor check on the *value* of SOCK_CLOEXEC as
-	// on Linux SOCK_CLOEXEC is an enum, with '#define SOCK_CLOEXEC
-	// SOCK_CLOEXEC' to allow '#ifdef SOCK_CLOEXEC' to work.
-	if (SOCK_CLOEXEC == 0)
-	    (void)fcntl(fd, F_SETFD, FD_CLOEXEC);
+        // We can't use a preprocessor check on the *value* of SOCK_CLOEXEC as
+        // on Linux SOCK_CLOEXEC is an enum, with '#define SOCK_CLOEXEC
+        // SOCK_CLOEXEC' to allow '#ifdef SOCK_CLOEXEC' to work.
+        if (SOCK_CLOEXEC == 0)
+            (void)fcntl(fd, F_SETFD, FD_CLOEXEC);
 #endif
 
 #ifndef SOCK_NONBLOCK
 #ifdef __WIN32__
-	int rc = [&]() {
-	    ULONG on = 1;
-	    return ioctlsocket(fd, FIONBIO, &on);
-	}();
+        int rc = [&]() {
+            ULONG on = 1;
+            return ioctlsocket(fd, FIONBIO, &on);
+        }();
 #define FLAG_NAME "FIONBIO"
 #elif defined O_NONBLOCK
-	int rc = fcntl(fd, F_SETFL, O_NONBLOCK);
+        int rc = fcntl(fd, F_SETFL, O_NONBLOCK);
 #define FLAG_NAME "O_NONBLOCK"
 #else
-	int rc = fcntl(fd, F_SETFL, O_NDELAY);
+        int rc = fcntl(fd, F_SETFL, O_NDELAY);
 #define FLAG_NAME "O_NDELAY"
 #endif
-	if (rc < 0) {
-	    int saved_errno = socket_errno();
-	    CLOSESOCKET(fd);
-	    throw Xapian::NetworkError("Couldn't set " FLAG_NAME,
-				       context,
-				       saved_errno);
+        if (rc < 0) {
+            int saved_errno = socket_errno();
+            CLOSESOCKET(fd);
+            throw Xapian::NetworkError("Couldn't set " FLAG_NAME,
+                                       context,
+                                       saved_errno);
 #undef FLAG_NAME
-	}
+        }
 #endif
 
-	if (tcp_nodelay) {
-	    int on = 1;
-	    // 4th argument might need to be void* or char* - cast it to char*
-	    // since C++ allows implicit conversion to void* but not from
-	    // void*.
-	    if (setsockopt(fd, IPPROTO_TCP, TCP_NODELAY,
-			   reinterpret_cast<char*>(&on),
-			   sizeof(on)) < 0) {
-		int setsockopt_errno = socket_errno();
-		CLOSESOCKET(fd);
-		throw Xapian::NetworkError("Couldn't set TCP_NODELAY",
-					   context,
-					   setsockopt_errno);
-	    }
-	}
+        if (tcp_nodelay) {
+            int on = 1;
+            // 4th argument might need to be void* or char* - cast it to char*
+            // since C++ allows implicit conversion to void* but not from
+            // void*.
+            if (setsockopt(fd, IPPROTO_TCP, TCP_NODELAY,
+                           reinterpret_cast<char*>(&on),
+                           sizeof(on)) < 0) {
+                int setsockopt_errno = socket_errno();
+                CLOSESOCKET(fd);
+                throw Xapian::NetworkError("Couldn't set TCP_NODELAY",
+                                           context,
+                                           setsockopt_errno);
+            }
+        }
 
-	int retval = connect(fd, r.ai_addr, r.ai_addrlen);
-	if (retval == 0) {
-	    socketfd = fd;
-	    break;
-	}
+        int retval = connect(fd, r.ai_addr, r.ai_addrlen);
+        if (retval == 0) {
+            socketfd = fd;
+            break;
+        }
 
-	int err = socket_errno();
-	if (
+        int err = socket_errno();
+        if (
 #ifndef __WIN32__
-	    err == EINPROGRESS
+            err == EINPROGRESS
 #else
-	    err == WSAEWOULDBLOCK
+            err == WSAEWOULDBLOCK
 #endif
-	   ) {
-	    // Wait for the socket to be writable or give an error, with a
-	    // timeout.  FIXME: Reduce the timeout if we retry.
+           ) {
+            // Wait for the socket to be writable or give an error, with a
+            // timeout.  FIXME: Reduce the timeout if we retry.
 #ifdef HAVE_POLL
-	    struct pollfd fds;
-	    fds.fd = fd;
-	    fds.events = POLLOUT;
-	    do {
-		retval = poll(&fds, 1, int(timeout_connect * 1000));
-	    } while (retval < 0 && (errno == EINTR || errno == EAGAIN));
+            struct pollfd fds;
+            fds.fd = fd;
+            fds.events = POLLOUT;
+            do {
+                retval = poll(&fds, 1, int(timeout_connect * 1000));
+            } while (retval < 0 && (errno == EINTR || errno == EAGAIN));
 # define FUNC_NAME "poll()"
 #else
-	    fd_set fdset;
-	    FD_ZERO(&fdset);
-	    do {
-		FD_SET(fd, &fdset);
-		struct timeval tv;
-		RealTime::to_timeval(timeout_connect, &tv);
-		retval = select(fd + 1, 0, &fdset, 0, &tv);
-	    } while (retval < 0 && (errno == EINTR || errno == EAGAIN));
+            fd_set fdset;
+            FD_ZERO(&fdset);
+            do {
+                FD_SET(fd, &fdset);
+                struct timeval tv;
+                RealTime::to_timeval(timeout_connect, &tv);
+                retval = select(fd + 1, 0, &fdset, 0, &tv);
+            } while (retval < 0 && (errno == EINTR || errno == EAGAIN));
 # define FUNC_NAME "select()"
 #endif
 
-	    if (retval <= 0) {
-		int saved_errno = errno;
-		CLOSESOCKET(fd);
-		if (retval < 0) {
-		    throw Xapian::NetworkError("Couldn't connect ("
-					       FUNC_NAME " on socket failed)",
-					       context,
-					       saved_errno);
+            if (retval <= 0) {
+                int saved_errno = errno;
+                CLOSESOCKET(fd);
+                if (retval < 0) {
+                    throw Xapian::NetworkError("Couldn't connect ("
+                                               FUNC_NAME " on socket failed)",
+                                               context,
+                                               saved_errno);
 #undef FUNC_NAME
-		}
-		throw Xapian::NetworkTimeoutError("Timed out waiting to "
-						  "connect",
-						  context,
-						  ETIMEDOUT);
-	    }
+                }
+                throw Xapian::NetworkTimeoutError("Timed out waiting to "
+                                                  "connect",
+                                                  context,
+                                                  ETIMEDOUT);
+            }
 
-	    err = 0;
-	    SOCKLEN_T len = sizeof(err);
+            err = 0;
+            SOCKLEN_T len = sizeof(err);
 
-	    // 4th argument might need to be void* or char* - cast it to char*
-	    // since C++ allows implicit conversion to void* but not from void*.
-	    retval = getsockopt(fd, SOL_SOCKET, SO_ERROR,
-				reinterpret_cast<char*>(&err), &len);
+            // 4th argument might need to be void* or char* - cast it to char*
+            // since C++ allows implicit conversion to void* but not from void*.
+            retval = getsockopt(fd, SOL_SOCKET, SO_ERROR,
+                                reinterpret_cast<char*>(&err), &len);
 
-	    if (retval < 0) {
-		int getsockopt_errno = socket_errno();
-		CLOSESOCKET(fd);
-		throw Xapian::NetworkError("getsockopt failed",
-					   context,
-					   getsockopt_errno);
-	    }
-	    if (err == 0) {
-		// Connected successfully.
-		socketfd = fd;
-		break;
-	    }
-	}
+            if (retval < 0) {
+                int getsockopt_errno = socket_errno();
+                CLOSESOCKET(fd);
+                throw Xapian::NetworkError("getsockopt failed",
+                                           context,
+                                           getsockopt_errno);
+            }
+            if (err == 0) {
+                // Connected successfully.
+                socketfd = fd;
+                break;
+            }
+        }
 
-	// Note down the error code for the first address we try, which seems
-	// likely to be more helpful than the last in the case where they
-	// differ.
-	if (connect_errno == 0)
-	    connect_errno = err;
+        // Note down the error code for the first address we try, which seems
+        // likely to be more helpful than the last in the case where they
+        // differ.
+        if (connect_errno == 0)
+            connect_errno = err;
 
-	// Failed to connect.
-	CLOSESOCKET(fd);
+        // Failed to connect.
+        CLOSESOCKET(fd);
     }
 
     if (socketfd < 0) {
-	throw Xapian::NetworkError("connect failed",
-				   context,
-				   connect_errno);
+        throw Xapian::NetworkError("connect failed",
+                                   context,
+                                   connect_errno);
     }
 
     // Set the socket to be blocking.

@@ -39,46 +39,46 @@ class Failed {
     Failed() { }
 
     void init(Xapian::WritableDatabase & db_) {
-	db = db_;
+        db = db_;
     }
 
     /** When we fail on a file, we add or replace its entry. */
     void add(const std::string & key, time_t last_mod, off_t size) {
-	std::string value = str(last_mod);
-	value += ',';
-	value += str(size);
-	db.set_metadata(key, value);
+        std::string value = str(last_mod);
+        value += ',';
+        value += str(size);
+        db.set_metadata(key, value);
     }
 
     bool contains(const std::string & key, time_t& last_mod, off_t& size) {
-	const std::string value = db.get_metadata(key);
-	if (value.empty()) return false;
-	const char * p = value.c_str();
-	char * end;
-	long long v = strtoll(p, &end, 10);
-	if (*end != ',') return false;
-	// FIXME: check conversions.
-	last_mod = v;
-	p = end + 1;
-	v = strtoll(p, &end, 10);
-	size = v;
-	return true;
+        const std::string value = db.get_metadata(key);
+        if (value.empty()) return false;
+        const char * p = value.c_str();
+        char * end;
+        long long v = strtoll(p, &end, 10);
+        if (*end != ',') return false;
+        // FIXME: check conversions.
+        last_mod = v;
+        p = end + 1;
+        v = strtoll(p, &end, 10);
+        size = v;
+        return true;
     }
 
     void del(const std::string & key) {
-	db.set_metadata(key, std::string());
+        db.set_metadata(key, std::string());
     }
 
     void clear() {
-	for (auto i = db.metadata_keys_begin("U");
-	     i != db.metadata_keys_end("U");
-	     ++i) {
-	    db.set_metadata(*i, std::string());
-	}
+        for (auto i = db.metadata_keys_begin("U");
+             i != db.metadata_keys_end("U");
+             ++i) {
+            db.set_metadata(*i, std::string());
+        }
     }
 
     bool empty() const {
-	return db.metadata_keys_begin("U") == db.metadata_keys_end("U");
+        return db.metadata_keys_begin("U") == db.metadata_keys_end("U");
     }
 };
 

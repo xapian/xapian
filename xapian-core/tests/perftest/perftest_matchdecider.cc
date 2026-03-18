@@ -45,19 +45,19 @@ builddb_valuestest1(Xapian::WritableDatabase &db, const string & dbname)
     params["runsize"] = str(runsize);
     logger.indexing_begin(dbname, params);
     for (unsigned int i = 0; i < runsize; ++i) {
-	unsigned int v = i % 100;
-	Xapian::Document doc;
-	doc.set_data("test document " + str(i));
-	doc.add_term("foo");
-	string vs = str(v);
-	if (vs.size() == 1) vs = "0" + vs;
-	doc.add_value(0, vs);
-	doc.add_term("F" + vs);
-	doc.add_term("Q" + str(i));
-	for (int j = 0; j != 100; ++j)
-	    doc.add_term("J" + str(j));
-	db.replace_document(i + 10, doc);
-	logger.indexing_add();
+        unsigned int v = i % 100;
+        Xapian::Document doc;
+        doc.set_data("test document " + str(i));
+        doc.add_term("foo");
+        string vs = str(v);
+        if (vs.size() == 1) vs = "0" + vs;
+        doc.add_value(0, vs);
+        doc.add_term("F" + vs);
+        doc.add_term("Q" + str(i));
+        for (int j = 0; j != 100; ++j)
+            doc.add_term("J" + str(j));
+        db.replace_document(i + 10, doc);
+        logger.indexing_add();
     }
     db.commit();
     logger.indexing_end();
@@ -68,7 +68,7 @@ builddb_valuestest1(Xapian::WritableDatabase &db, const string & dbname)
 DEFINE_TESTCASE(valuesetmatchdecider1, writable && !remote && !inmemory) {
     Xapian::Database db;
     db = backendmanager->get_database("valuestest1", builddb_valuestest1,
-				      "valuestest1");
+                                      "valuestest1");
 
     logger.testcase_begin("valuesetmatchdecider1");
     Xapian::Enquire enquire(db);
@@ -94,31 +94,31 @@ DEFINE_TESTCASE(valuesetmatchdecider1, writable && !remote && !inmemory) {
     Xapian::ValueSetMatchDecider md(0, true);
 
     for (unsigned int i = 0; i < 100; ++i) {
-	string vs = str(i);
-	if (vs.size() == 1) vs = "0" + vs;
-	md.add_value(vs);
+        string vs = str(i);
+        if (vs.size() == 1) vs = "0" + vs;
+        md.add_value(vs);
 
-	logger.searching_start("Match decider accepting " + str(i + 1) + "%");
-	logger.search_start();
-	enquire.set_query(query);
-	mset = enquire.get_mset(0, 10, 0, NULL, &md);
-	logger.search_end(query, mset);
-	TEST_EQUAL(mset.size(), 10);
-	TEST_REL(mset.get_matches_lower_bound(),<=,runsize * (i + 1) / 100);
-	logger.searching_end();
+        logger.searching_start("Match decider accepting " + str(i + 1) + "%");
+        logger.search_start();
+        enquire.set_query(query);
+        mset = enquire.get_mset(0, 10, 0, NULL, &md);
+        logger.search_end(query, mset);
+        TEST_EQUAL(mset.size(), 10);
+        TEST_REL(mset.get_matches_lower_bound(),<=,runsize * (i + 1) / 100);
+        logger.searching_end();
 
-	Xapian::Query query2(Xapian::Query::OP_FILTER, query,
-			     Xapian::Query(Xapian::Query::OP_VALUE_LE, 0, vs));
-	logger.searching_start("Value range LE accepting " + str(i + 1) + "%");
-	Xapian::MSet mset2;
-	logger.search_start();
-	enquire.set_query(query2);
-	mset2 = enquire.get_mset(0, 10);
-	logger.search_end(query2, mset2);
-	TEST_EQUAL(mset2.size(), 10);
-	TEST_REL(mset2.get_matches_lower_bound(),<=,runsize * (i + 1) / 100);
-	test_mset_order_equal(mset, mset2);
-	logger.searching_end();
+        Xapian::Query query2(Xapian::Query::OP_FILTER, query,
+                             Xapian::Query(Xapian::Query::OP_VALUE_LE, 0, vs));
+        logger.searching_start("Value range LE accepting " + str(i + 1) + "%");
+        Xapian::MSet mset2;
+        logger.search_start();
+        enquire.set_query(query2);
+        mset2 = enquire.get_mset(0, 10);
+        logger.search_end(query2, mset2);
+        TEST_EQUAL(mset2.size(), 10);
+        TEST_REL(mset2.get_matches_lower_bound(),<=,runsize * (i + 1) / 100);
+        test_mset_order_equal(mset, mset2);
+        logger.searching_end();
     }
 
     logger.testcase_end();
@@ -128,7 +128,7 @@ DEFINE_TESTCASE(valuesetmatchdecider1, writable && !remote && !inmemory) {
 DEFINE_TESTCASE(alldocsiter1, writable && !remote && !inmemory) {
     Xapian::Database db;
     db = backendmanager->get_database("valuestest1", builddb_valuestest1,
-				      "valuestest1");
+                                      "valuestest1");
 
     logger.testcase_begin("alldocsiter1");
 
@@ -137,7 +137,7 @@ DEFINE_TESTCASE(alldocsiter1, writable && !remote && !inmemory) {
     Xapian::PostingIterator begin(db.postlist_begin(""));
     Xapian::PostingIterator end(db.postlist_end(""));
     while (begin != end) {
-	++begin;
+        ++begin;
     }
     logger.search_end(Xapian::Query(), Xapian::MSet());
 

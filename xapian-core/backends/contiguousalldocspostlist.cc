@@ -61,9 +61,9 @@ ContiguousAllDocsPostList::next(double)
 {
     // Docids are contiguous from 1 so termfreq gives the highest docid.
     if (did == termfreq) {
-	did = 0;
+        did = 0;
     } else {
-	++did;
+        ++did;
     }
     return NULL;
 }
@@ -72,12 +72,12 @@ PostList *
 ContiguousAllDocsPostList::skip_to(Xapian::docid target, double)
 {
     if (target > did) {
-	// Docids are contiguous from 1 so termfreq gives the highest docid.
-	if (target > termfreq) {
-	    did = 0;
-	} else {
-	    did = target;
-	}
+        // Docids are contiguous from 1 so termfreq gives the highest docid.
+        if (target > termfreq) {
+            did = 0;
+        } else {
+            did = target;
+        }
     }
     return NULL;
 }

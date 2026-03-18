@@ -42,24 +42,24 @@ stdout_to_string(const string &cmd)
     FILE * fh = popen(cmd.c_str(), "r");
     if (fh == NULL) throw ReadError();
     while (!feof(fh)) {
-	char buf[4096];
-	size_t len = fread(buf, 1, 4096, fh);
-	if (ferror(fh)) {
-	    (void)pclose(fh);
-	    throw ReadError();
-	}
-	out.append(buf, len);
+        char buf[4096];
+        size_t len = fread(buf, 1, 4096, fh);
+        if (ferror(fh)) {
+            (void)pclose(fh);
+            throw ReadError();
+        }
+        out.append(buf, len);
     }
     int status = pclose(fh);
 
     if (status != 0) {
-	if (WIFEXITED(status) && WEXITSTATUS(status) == 127) {
-	    throw NoSuchProgram();
-	}
-	throw ReadError();
+        if (WIFEXITED(status) && WEXITSTATUS(status) == 127) {
+            throw NoSuchProgram();
+        }
+        throw ReadError();
     }
     while (out.size() > 0 && C_isspace(out[out.size() - 1])) {
-	out.resize(out.size() - 1);
+        out.resize(out.size() - 1);
     }
     return out;
 }

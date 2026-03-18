@@ -26,9 +26,9 @@
 #include <string>
 
 Xapian::Query date_value_range(bool as_time_t,
-			       Xapian::valueno slot,
-			       const std::string & start,
-			       const std::string & end,
-			       const std::string & span);
+                               Xapian::valueno slot,
+                               const std::string & start,
+                               const std::string & end,
+                               const std::string & span);
 
 #endif

@@ -158,7 +158,7 @@ class XAPIAN_VISIBILITY_DEFAULT ESetIterator {
     friend class ESet;
 
     ESetIterator(const Xapian::ESet & eset_, Xapian::termcount off_from_end_)
-	: eset(eset_), off_from_end(off_from_end_) { }
+        : eset(eset_), off_from_end(off_from_end_) { }
 
   public:
     /** @private @internal The ESet we are iterating over. */
@@ -179,28 +179,28 @@ class XAPIAN_VISIBILITY_DEFAULT ESetIterator {
 
     /// Advance the iterator to the next position.
     ESetIterator & operator++() {
-	--off_from_end;
-	return *this;
+        --off_from_end;
+        return *this;
     }
 
     /// Advance the iterator to the next position (postfix version).
     ESetIterator operator++(int) {
-	ESetIterator retval = *this;
-	--off_from_end;
-	return retval;
+        ESetIterator retval = *this;
+        --off_from_end;
+        return retval;
     }
 
     /// Move the iterator to the previous position.
     ESetIterator & operator--() {
-	++off_from_end;
-	return *this;
+        ++off_from_end;
+        return *this;
     }
 
     /// Move the iterator to the previous position (postfix version).
     ESetIterator operator--(int) {
-	ESetIterator retval = *this;
-	++off_from_end;
-	return retval;
+        ESetIterator retval = *this;
+        ++off_from_end;
+        return retval;
     }
 
     /** @private @internal ESetIterator is what the C++ STL calls an
@@ -228,14 +228,14 @@ class XAPIAN_VISIBILITY_DEFAULT ESetIterator {
 
     /// Move the iterator forwards by n positions.
     ESetIterator & operator+=(difference_type n) {
-	off_from_end -= n;
-	return *this;
+        off_from_end -= n;
+        return *this;
     }
 
     /// Move the iterator back by n positions.
     ESetIterator & operator-=(difference_type n) {
-	off_from_end += n;
-	return *this;
+        off_from_end += n;
+        return *this;
     }
 
     /** Return the iterator incremented by @a n positions.
@@ -243,7 +243,7 @@ class XAPIAN_VISIBILITY_DEFAULT ESetIterator {
      *  If @a n is negative, decrements by (-n) positions.
      */
     ESetIterator operator+(difference_type n) const {
-	return ESetIterator(eset, off_from_end - n);
+        return ESetIterator(eset, off_from_end - n);
     }
 
     /** Return the iterator decremented by @a n positions.
@@ -251,12 +251,12 @@ class XAPIAN_VISIBILITY_DEFAULT ESetIterator {
      *  If @a n is negative, increments by (-n) positions.
      */
     ESetIterator operator-(difference_type n) const {
-	return ESetIterator(eset, off_from_end + n);
+        return ESetIterator(eset, off_from_end + n);
     }
 
     /** Return the number of positions between @a o and this iterator. */
     difference_type operator-(const ESetIterator& o) const {
-	return difference_type(o.off_from_end) - difference_type(off_from_end);
+        return difference_type(o.off_from_end) - difference_type(off_from_end);
     }
 
     /** Get the weight for the current position. */

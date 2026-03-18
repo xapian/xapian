@@ -65,7 +65,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueSetMatchDecider : public MatchDecider {
      *  specified slot.
      */
     ValueSetMatchDecider(Xapian::valueno slot, bool inclusive_)
-	: valuenum(slot), inclusive(inclusive_) { }
+        : valuenum(slot), inclusive(inclusive_) { }
 
     /** Add a value to the test set.
      *
@@ -73,7 +73,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueSetMatchDecider : public MatchDecider {
      */
     void add_value(const std::string& value)
     {
-	testset.insert(value);
+        testset.insert(value);
     }
 
     /** Remove a value from the test set.
@@ -82,7 +82,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueSetMatchDecider : public MatchDecider {
      */
     void remove_value(const std::string& value)
     {
-	testset.erase(value);
+        testset.erase(value);
     }
 
     /** Decide whether we want a particular document to be in the MSet.

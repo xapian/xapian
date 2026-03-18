@@ -77,19 +77,19 @@ void
 HoneyValueList::next()
 {
     if (!cursor) {
-	cursor = db->get_postlist_cursor();
-	if (!cursor) return;
-	cursor->find_entry_ge(make_valuechunk_key(slot, 1));
+        cursor = db->get_postlist_cursor();
+        if (!cursor) return;
+        cursor->find_entry_ge(make_valuechunk_key(slot, 1));
     } else if (!reader.at_end()) {
-	reader.next();
-	if (!reader.at_end()) return;
-	cursor->next();
+        reader.next();
+        if (!reader.at_end()) return;
+        cursor->next();
     }
 
     if (!cursor->after_end()) {
-	if (update_reader()) {
-	    if (!reader.at_end()) return;
-	}
+        if (update_reader()) {
+            if (!reader.at_end()) return;
+        }
     }
 
     // We've reached the end.
@@ -101,31 +101,31 @@ void
 HoneyValueList::skip_to(Xapian::docid did)
 {
     if (!cursor) {
-	cursor = db->get_postlist_cursor();
-	if (!cursor) return;
+        cursor = db->get_postlist_cursor();
+        if (!cursor) return;
     } else if (!reader.at_end()) {
-	reader.skip_to(did);
-	if (!reader.at_end()) return;
+        reader.skip_to(did);
+        if (!reader.at_end()) return;
     }
 
     if (cursor->find_entry_ge(make_valuechunk_key(slot, did))) {
-	// Exact match.
-	if (rare(!update_reader())) {
-	    // Shouldn't be possible.
-	    Assert(false);
-	}
-	reader.skip_to(did);
-	if (!at_end()) return;
-	// The chunk's last docid is did, so skip_to() should always succeed.
-	Assert(false);
+        // Exact match.
+        if (rare(!update_reader())) {
+            // Shouldn't be possible.
+            Assert(false);
+        }
+        reader.skip_to(did);
+        if (!at_end()) return;
+        // The chunk's last docid is did, so skip_to() should always succeed.
+        Assert(false);
     } else if (!cursor->after_end()) {
-	if (update_reader()) {
-	    reader.skip_to(did);
-	    if (!reader.at_end()) return;
-	    // The chunk's last docid is >= did, so skip_to() shouldn't reach
-	    // the end.
-	    Assert(false);
-	}
+        if (update_reader()) {
+            reader.skip_to(did);
+            if (!reader.at_end()) return;
+            // The chunk's last docid is >= did, so skip_to() shouldn't reach
+            // the end.
+            Assert(false);
+        }
     }
 
     // We've reached the end.

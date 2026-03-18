@@ -39,7 +39,7 @@ using namespace std;
 [[noreturn]]
 static inline void
 parameter_error(const char* message, const std::string& scheme,
-		const char* params)
+                const char* params)
 {
     Xapian::Weight::Internal::parameter_error(message, scheme, params);
 }
@@ -69,23 +69,23 @@ LMJMWeight::init(double factor_)
 
     auto collection_freq = get_collection_freq();
     if (rare(collection_freq == 0)) {
-	// Avoid dividing by zero in the corner case where the term has zero
-	// collection frequency.
-	factor = 0;
-	multiplier = 0;
-	return;
+        // Avoid dividing by zero in the corner case where the term has zero
+        // collection frequency.
+        factor = 0;
+        multiplier = 0;
+        return;
     }
 
     double lambda = param_lambda;
     if (lambda <= 0.0 || lambda >= 1.0) {
-	auto query_len = get_query_length();
-	if (query_len <= 2) {
-	    lambda = 0.1;
-	} else if (query_len < 8) {
-	    lambda = (query_len - 1) * 0.1;
-	} else {
-	    lambda = 0.7;
-	}
+        auto query_len = get_query_length();
+        if (query_len <= 2) {
+            lambda = 0.1;
+        } else if (query_len < 8) {
+            lambda = (query_len - 1) * 0.1;
+        } else {
+            lambda = 0.7;
+        }
     }
 
     // Pre-calculate multiplier.
@@ -95,7 +95,7 @@ LMJMWeight::init(double factor_)
 
 double
 LMJMWeight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len,
-		        Xapian::termcount, Xapian::termcount) const
+                        Xapian::termcount, Xapian::termcount) const
 {
     double w = multiplier * wdf / len;
     return factor * log(1.0 + w);
@@ -108,9 +108,9 @@ LMJMWeight::get_maxpart() const
     Xapian::termcount len_min = get_doclength_lower_bound();
     double w = multiplier;
     if (wdf_max < len_min) {
-	// Clearly wdf / len <= wdf_max / len_min, but we also know that
-	// wdf <= len so wdf / len <= 1 so we use whichever bound is tighter.
-	w *= double(wdf_max) / len_min;
+        // Clearly wdf / len <= wdf_max / len_min, but we also know that
+        // wdf <= len so wdf / len <= 1 so we use whichever bound is tighter.
+        w *= double(wdf_max) / len_min;
     }
     return factor * log(1.0 + w);
 }
@@ -139,8 +139,8 @@ LMJMWeight::unserialise(const string& s) const
     const char *end = ptr + s.size();
     double lambda = unserialise_double(&ptr, end);
     if (rare(ptr != end))
-	throw Xapian::SerialisationError("Extra data in "
-					 "LMJMWeight::unserialise()");
+        throw Xapian::SerialisationError("Extra data in "
+                                         "LMJMWeight::unserialise()");
     return new LMJMWeight(lambda);
 }
 
@@ -151,9 +151,9 @@ LMJMWeight::create_from_parameters(const char* params) const
     const char* p = params;
     double lambda = 0.0;
     if (*p && !Xapian::Weight::Internal::double_param(&p, &lambda))
-	parameter_error("Parameter lambda is invalid", "lmjm", params);
+        parameter_error("Parameter lambda is invalid", "lmjm", params);
     if (*p)
-	parameter_error("Extra data after parameter", "lmjm", params);
+        parameter_error("Extra data after parameter", "lmjm", params);
     return new Xapian::LMJMWeight(lambda);
 }
 
@@ -167,17 +167,17 @@ LMDirichletWeight::init(double factor_)
     auto doclen_max = get_doclength_upper_bound();
     extra_offset = get_query_length() * log(doclen_max + mu);
     if (factor == 0.0) {
-	// This object is for the term-independent contribution.
-	return;
+        // This object is for the term-independent contribution.
+        return;
     }
 
     auto collection_freq = get_collection_freq();
     if (rare(collection_freq == 0)) {
-	// Avoid dividing by zero in the corner case where the term has zero
-	// collection frequency.
-	factor = 0;
-	multiplier = 0;
-	return;
+        // Avoid dividing by zero in the corner case where the term has zero
+        // collection frequency.
+        factor = 0;
+        multiplier = 0;
+        return;
     }
 
     // Pre-calculate the factor to multiply by.
@@ -185,14 +185,14 @@ LMDirichletWeight::init(double factor_)
 
     double delta = param_delta;
     if (delta != 0.0) {
-	// Include the query-independent Dir+ extra contribution in factor.
-	factor *= log(1.0 + delta * multiplier);
+        // Include the query-independent Dir+ extra contribution in factor.
+        factor *= log(1.0 + delta * multiplier);
     }
 }
 
 double
 LMDirichletWeight::get_sumpart(Xapian::termcount wdf, Xapian::termcount,
-			       Xapian::termcount, Xapian::termcount) const
+                               Xapian::termcount, Xapian::termcount) const
 {
     return factor * log(1.0 + wdf * multiplier);
 }
@@ -206,8 +206,8 @@ LMDirichletWeight::get_maxpart() const
 
 double
 LMDirichletWeight::get_sumextra(Xapian::termcount doclen,
-				Xapian::termcount,
-				Xapian::termcount) const
+                                Xapian::termcount,
+                                Xapian::termcount) const
 {
     // Formula (6) in Zhai and Lafferty 2004 includes "a document-dependent
     // constant" which is:
@@ -267,8 +267,8 @@ LMDirichletWeight::unserialise(const string& s) const
     double mu = unserialise_double(&ptr, end);
     double delta = unserialise_double(&ptr, end);
     if (rare(ptr != end))
-	throw Xapian::SerialisationError("Extra data in "
-					 "LMDirichletWeight::unserialise()");
+        throw Xapian::SerialisationError("Extra data in "
+                                         "LMDirichletWeight::unserialise()");
     return new LMDirichletWeight(mu, delta);
 }
 
@@ -280,11 +280,11 @@ LMDirichletWeight::create_from_parameters(const char* params) const
     double mu = 2000.0;
     double delta = 0.05;
     if (*p && !Xapian::Weight::Internal::double_param(&p, &mu))
-	parameter_error("Parameter mu is invalid", "lmdirichlet", params);
+        parameter_error("Parameter mu is invalid", "lmdirichlet", params);
     if (*p && !Xapian::Weight::Internal::double_param(&p, &delta))
-	parameter_error("Parameter delta is invalid", "lmdirichlet", params);
+        parameter_error("Parameter delta is invalid", "lmdirichlet", params);
     if (*p)
-	parameter_error("Extra data after parameters", "lmdirichlet", params);
+        parameter_error("Extra data after parameters", "lmdirichlet", params);
     return new Xapian::LMDirichletWeight(mu, delta);
 }
 
@@ -298,11 +298,11 @@ LMAbsDiscountWeight::init(double factor_)
 
     auto collection_freq = get_collection_freq();
     if (rare(collection_freq == 0)) {
-	// Avoid dividing by zero in the corner case where the database has no
-	// collection frequency.
-	factor = 0;
-	multiplier = 0;
-	return;
+        // Avoid dividing by zero in the corner case where the database has no
+        // collection frequency.
+        factor = 0;
+        multiplier = 0;
+        return;
     }
 
     // Pre-calculate the factor to multiply by.
@@ -312,9 +312,9 @@ LMAbsDiscountWeight::init(double factor_)
 
 double
 LMAbsDiscountWeight::get_sumpart(Xapian::termcount wdf,
-				 Xapian::termcount,
-				 Xapian::termcount uniqterms,
-				 Xapian::termcount) const
+                                 Xapian::termcount,
+                                 Xapian::termcount uniqterms,
+                                 Xapian::termcount) const
 {
     return factor * log(1.0 + (wdf - param_delta) / uniqterms * multiplier);
 }
@@ -331,14 +331,14 @@ LMAbsDiscountWeight::get_maxpart() const
     //
     // We also know uniqterms >= 1 (since documents without terms won't match).
     if (doclen_min > wdf_max)
-	x *= (doclen_min - 1) / wdf_max + 1;
+        x *= (doclen_min - 1) / wdf_max + 1;
     return factor * log(1.0 + x);
 }
 
 double
 LMAbsDiscountWeight::get_sumextra(Xapian::termcount doclen,
-				  Xapian::termcount uniqterms,
-				  Xapian::termcount) const
+                                  Xapian::termcount uniqterms,
+                                  Xapian::termcount) const
 {
     // Formula (6) in Zhai and Lafferty 2004 includes "a document-dependent
     // constant" which is:
@@ -395,8 +395,8 @@ LMAbsDiscountWeight::unserialise(const string& s) const
     const char *end = ptr + s.size();
     double delta = unserialise_double(&ptr, end);
     if (rare(ptr != end))
-	throw Xapian::SerialisationError("Extra data in "
-					 "LMAbsDiscountWeight::unserialise()");
+        throw Xapian::SerialisationError("Extra data in "
+                                         "LMAbsDiscountWeight::unserialise()");
     return new LMAbsDiscountWeight(delta);
 }
 
@@ -407,9 +407,9 @@ LMAbsDiscountWeight::create_from_parameters(const char* params) const
     const char* p = params;
     double delta = 0.7;
     if (*p && !Xapian::Weight::Internal::double_param(&p, &delta))
-	parameter_error("Parameter delta is invalid", "lmabsdiscount", params);
+        parameter_error("Parameter delta is invalid", "lmabsdiscount", params);
     if (*p)
-	parameter_error("Extra data after parameter", "lmabsdiscount", params);
+        parameter_error("Extra data after parameter", "lmabsdiscount", params);
     return new Xapian::LMAbsDiscountWeight(delta);
 }
 
@@ -427,11 +427,11 @@ LM2StageWeight::init(double factor_)
 
     auto collection_freq = get_collection_freq();
     if (rare(collection_freq == 0)) {
-	// Avoid dividing by zero in the corner case where the database has no
-	// collection_freq.
-	factor = 0;
-	multiplier = 0;
-	return;
+        // Avoid dividing by zero in the corner case where the database has no
+        // collection_freq.
+        factor = 0;
+        multiplier = 0;
+        return;
     }
 
     // Pre-calculate the factor to multiply by.
@@ -440,9 +440,9 @@ LM2StageWeight::init(double factor_)
 
 double
 LM2StageWeight::get_sumpart(Xapian::termcount wdf,
-			    Xapian::termcount doclen,
-			    Xapian::termcount,
-			    Xapian::termcount) const
+                            Xapian::termcount doclen,
+                            Xapian::termcount,
+                            Xapian::termcount) const
 {
     // Termweight formula is: log{ 1 + (1-λ) c(w;d) / ( (λ|d|+μ) p(w|C) ) }
     double lambda = param_lambda;
@@ -467,8 +467,8 @@ LM2StageWeight::get_maxpart() const
 
 double
 LM2StageWeight::get_sumextra(Xapian::termcount doclen,
-			     Xapian::termcount,
-			     Xapian::termcount) const
+                             Xapian::termcount,
+                             Xapian::termcount) const
 {
     // Formula (6) in Zhai and Lafferty 2004 includes "a document-dependent
     // constant" which is:
@@ -488,7 +488,7 @@ LM2StageWeight::get_sumextra(Xapian::termcount doclen,
     double lambda = param_lambda;
     double mu = param_mu;
     return extra_offset +
-	   get_query_length() * log((lambda * doclen + mu) / (doclen + mu));
+           get_query_length() * log((lambda * doclen + mu) / (doclen + mu));
 }
 
 double
@@ -512,7 +512,7 @@ LM2StageWeight::get_maxextra() const
     double mu = param_mu;
     auto doclen = get_doclength_lower_bound();
     return extra_offset +
-	   get_query_length() * log((lambda * doclen + mu) / (doclen + mu));
+           get_query_length() * log((lambda * doclen + mu) / (doclen + mu));
 }
 
 LM2StageWeight*
@@ -542,8 +542,8 @@ LM2StageWeight::unserialise(const string & s) const
     double lambda = unserialise_double(&ptr, end);
     double mu = unserialise_double(&ptr, end);
     if (rare(ptr != end))
-	throw Xapian::SerialisationError("Extra data in "
-					 "LM2StageWeight::unserialise()");
+        throw Xapian::SerialisationError("Extra data in "
+                                         "LM2StageWeight::unserialise()");
     return new LM2StageWeight(lambda, mu);
 }
 
@@ -554,11 +554,11 @@ LM2StageWeight::create_from_parameters(const char* params) const
     double lambda = 0.7;
     double mu = 2000.0;
     if (*p && !Xapian::Weight::Internal::double_param(&p, &lambda))
-	parameter_error("Parameter lambda is invalid", "lm2stage", params);
+        parameter_error("Parameter lambda is invalid", "lm2stage", params);
     if (*p && !Xapian::Weight::Internal::double_param(&p, &mu))
-	parameter_error("Parameter mu is invalid", "lm2stage", params);
+        parameter_error("Parameter mu is invalid", "lm2stage", params);
     if (*p)
-	parameter_error("Extra data after parameters", "lm2stage", params);
+        parameter_error("Extra data after parameters", "lm2stage", params);
     return new Xapian::LM2StageWeight(lambda, mu);
 }
 

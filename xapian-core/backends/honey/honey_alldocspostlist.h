@@ -49,7 +49,7 @@ make_doclenchunk_key(Xapian::docid last_did)
 #else
     int width = 0;
     for (auto v = last_did; v; v >>= 8) {
-	++width;
+        ++width;
     }
 #endif
     key += char(Honey::KEY_DOCLEN_CHUNK + width - 1);
@@ -67,13 +67,13 @@ docid_from_key(const std::string& key)
     const char* p = key.data();
     const char* end = p + key.length();
     if (end - p < 3 || *p++ != '\0') {
-	// Not a doclen chunk key.
-	return 0;
+        // Not a doclen chunk key.
+        return 0;
     }
     unsigned char code = *p++;
     if (code < Honey::KEY_DOCLEN_CHUNK || code > Honey::KEY_DOCLEN_CHUNK_HI) {
-	// Also not a doclen chunk key.
-	return 0;
+        // Also not a doclen chunk key.
+        return 0;
     }
 
     size_t width = (code - Honey::KEY_DOCLEN_CHUNK) + 1;
@@ -127,8 +127,8 @@ class DocLenChunkReader {
 
     /// Return the last document length in this chunk.
     Xapian::termcount back() {
-	(void)read_doclen(end - width);
-	return doclen;
+        (void)read_doclen(end - width);
+        return doclen;
     }
 };
 

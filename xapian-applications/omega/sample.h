@@ -28,6 +28,6 @@
  * mid word, and then append ind2 (or ind if we have to truncate a word).
  */
 std::string generate_sample(const std::string & input, size_t maxlen,
-			    const std::string & ind, const std::string & ind2);
+                            const std::string & ind, const std::string & ind2);
 
 #endif // OMEGA_INCLUDED_SAMPLE_H

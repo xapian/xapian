@@ -61,36 +61,36 @@ SynonymPostList::skip_to(Xapian::docid did, double w_min)
 
 double
 SynonymPostList::get_weight(Xapian::termcount doclen,
-			    Xapian::termcount unique_terms,
-			    Xapian::termcount wdfdocmax) const
+                            Xapian::termcount unique_terms,
+                            Xapian::termcount wdfdocmax) const
 {
     LOGCALL(MATCH, double, "SynonymPostList::get_weight", doclen | unique_terms);
     Xapian::termcount wdf = 0;
     if (want_wdf) {
-	wdf = WrapperPostList::get_wdf();
-	if (needs_doclen) {
-	    // The wdf for a synonym is approximated and in some cases it could
-	    // exceed the document length.  For example, this can currently
-	    // occur if the query below OP_SYNONYM contains a term more than
-	    // once as the wdf of each occurrence is summed.
-	    //
-	    // This is unhelpful since it's reasonable for weighting algorithms
-	    // to optimise by assuming that get_wdf() will never return more
-	    // than doclen, since doclen is the sum of the wdfs.
-	    //
-	    // If the weighting scheme doesn't request the document length then
-	    // it can't be making this assumption, so we simply clamp the wdf
-	    // value to doclen if both are requested, since the clamping is
-	    // cheap in this case as we already have both values.
-	    if (wdf > doclen) wdf = doclen;
-	}
+        wdf = WrapperPostList::get_wdf();
+        if (needs_doclen) {
+            // The wdf for a synonym is approximated and in some cases it could
+            // exceed the document length.  For example, this can currently
+            // occur if the query below OP_SYNONYM contains a term more than
+            // once as the wdf of each occurrence is summed.
+            //
+            // This is unhelpful since it's reasonable for weighting algorithms
+            // to optimise by assuming that get_wdf() will never return more
+            // than doclen, since doclen is the sum of the wdfs.
+            //
+            // If the weighting scheme doesn't request the document length then
+            // it can't be making this assumption, so we simply clamp the wdf
+            // value to doclen if both are requested, since the clamping is
+            // cheap in this case as we already have both values.
+            if (wdf > doclen) wdf = doclen;
+        }
     }
     if (want_wdfdocmax) {
-	// FIXME: Can we avoid this?
-	if (doclen == 0) {
-	    doclen = pltree->get_doclength(pl->get_docid());
-	}
-	wdfdocmax = doclen;
+        // FIXME: Can we avoid this?
+        if (doclen == 0) {
+            doclen = pltree->get_doclength(pl->get_docid());
+        }
+        wdfdocmax = doclen;
     }
     RETURN(wt->get_sumpart(wdf, doclen, unique_terms, wdfdocmax));
 }

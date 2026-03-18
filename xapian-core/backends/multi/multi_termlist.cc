@@ -31,7 +31,7 @@
 using namespace std;
 
 MultiTermList::MultiTermList(const Xapian::Database::Internal* db_,
-			     TermList* real_termlist_)
+                             TermList* real_termlist_)
     : real_termlist(real_termlist_), db(db_)
 {
 }
@@ -66,9 +66,9 @@ MultiTermList::next()
 {
     TermList* res = real_termlist->next();
     if (res) {
-	// No more entries (prune shouldn't happen).
-	Assert(res == real_termlist);
-	return this;
+        // No more entries (prune shouldn't happen).
+        Assert(res == real_termlist);
+        return this;
     }
     current_term = real_termlist->get_termname();
     return NULL;
@@ -79,9 +79,9 @@ MultiTermList::skip_to(std::string_view term)
 {
     TermList* res = real_termlist->skip_to(term);
     if (res) {
-	// No more entries (prune shouldn't happen).
-	Assert(res == real_termlist);
-	return this;
+        // No more entries (prune shouldn't happen).
+        Assert(res == real_termlist);
+        return this;
     }
     current_term = real_termlist->get_termname();
     return NULL;

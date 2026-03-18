@@ -81,8 +81,8 @@ static void report_cursor(int N, Btree * B, Glass::Cursor * C)
     int i;
     printf("%d)\n", N);
     for (i = 0; i <= B->level; i++)
-	printf("p=%d, c=%d, n=[%d], rewrite=%d\n",
-		C[i].p, C[i].c, C[i].n, C[i].rewrite);
+        printf("p=%d, c=%d, n=[%d], rewrite=%d\n",
+                C[i].p, C[i].c, C[i].n, C[i].rewrite);
 }
 */
 
@@ -114,16 +114,16 @@ static inline uint8_t *zeroed_new(size_t size)
    And then,
 
    R = REVISION(b)  is the revision number the B-tree had when the block was
-		    written into the DB file.
+                    written into the DB file.
    L = GET_LEVEL(b) is the level of the block, which is the number of levels
-		    towards the root of the B-tree structure. So leaf blocks
-		    have level 0 and the one root block has the highest level
-		    equal to the number of levels in the B-tree.  For blocks
-		    storing the freelist, the level is set to 254.
+                    towards the root of the B-tree structure. So leaf blocks
+                    have level 0 and the one root block has the highest level
+                    equal to the number of levels in the B-tree.  For blocks
+                    storing the freelist, the level is set to 254.
    M = MAX_FREE(b)  is the size of the gap between the end of the directory and
-		    the first item of data. (It is not necessarily the maximum
-		    size among the bits of space that are free, but I can't
-		    think of a better name.)
+                    the first item of data. (It is not necessarily the maximum
+                    size among the bits of space that are free, but I can't
+                    think of a better name.)
    T = TOTAL_FREE(b)is the total amount of free space left in b.
    D = DIR_END(b)   gives the offset to the end of the directory.
 
@@ -133,9 +133,9 @@ static inline uint8_t *zeroed_new(size_t size)
 
    An item has this form:
 
-	   I K key X tag
-	       ←K→
-	   <------I---->
+           I K key X tag
+               ←K→
+           <------I---->
 
    A long tag presented through the API is split up into C pieces small enough
    to be accommodated in the blocks of the B-tree. The key is extended to
@@ -169,18 +169,18 @@ GlassTable::read_block(uint4 n, uint8_t * p) const
     // Log the value of p, not the contents of the block it points to...
     LOGCALL_VOID(DB, "GlassTable::read_block", n | (void*)p);
     if (rare(handle == -2))
-	GlassTable::throw_database_closed();
+        GlassTable::throw_database_closed();
     AssertRel(n,<,free_list.get_first_unused_block());
 
     io_read_block(handle, reinterpret_cast<char *>(p), block_size, n, offset);
 
     if (GET_LEVEL(p) != LEVEL_FREELIST) {
-	int dir_end = DIR_END(p);
-	if (rare(dir_end < DIR_START || unsigned(dir_end) > block_size)) {
-	    string msg("dir_end invalid in block ");
-	    msg += str(n);
-	    throw Xapian::DatabaseCorruptError(msg);
-	}
+        int dir_end = DIR_END(p);
+        if (rare(dir_end < DIR_START || unsigned(dir_end) > block_size)) {
+            string msg("dir_end invalid in block ");
+            msg += str(n);
+            throw Xapian::DatabaseCorruptError(msg);
+        }
     }
 }
 
@@ -210,18 +210,18 @@ GlassTable::write_block(uint4 n, const uint8_t * p, bool appending) const
     AssertEqParanoid(REVISION(p), revision_number + 1);
 
     if (appending) {
-	// In the case of the freelist, new entries can safely be written into
-	// the space at the end of the latest freelist block, as that's unused
-	// by previous revisions.  It is also safe to write into a block which
-	// wasn't used in the previous revision.
-	//
-	// It's only when we start a new freelist block that we need to worry
-	// about invalidating old revisions.
+        // In the case of the freelist, new entries can safely be written into
+        // the space at the end of the latest freelist block, as that's unused
+        // by previous revisions.  It is also safe to write into a block which
+        // wasn't used in the previous revision.
+        //
+        // It's only when we start a new freelist block that we need to worry
+        // about invalidating old revisions.
     } else if (flags & Xapian::DB_DANGEROUS) {
-	// FIXME: We should somehow flag this to prevent readers opening the
-	// database.  Removing "iamglass" or setting a flag in it doesn't deal
-	// with any existing readers though.  Perhaps we want to have readers
-	// read lock and try to take an exclusive lock here?
+        // FIXME: We should somehow flag this to prevent readers opening the
+        // database.  Removing "iamglass" or setting a flag in it doesn't deal
+        // with any existing readers though.  Perhaps we want to have readers
+        // read lock and try to take an exclusive lock here?
     }
 
     const char * p_char = reinterpret_cast<const char *>(p);
@@ -232,35 +232,35 @@ GlassTable::write_block(uint4 n, const uint8_t * p, bool appending) const
     unsigned char v;
     // FIXME: track table_type in this class?
     if (strcmp(tablename, "position") == 0) {
-	v = int(Glass::POSITION);
+        v = int(Glass::POSITION);
     } else if (strcmp(tablename, "postlist") == 0) {
-	v = int(Glass::POSTLIST);
+        v = int(Glass::POSTLIST);
     } else if (strcmp(tablename, "docdata") == 0) {
-	v = int(Glass::DOCDATA);
+        v = int(Glass::DOCDATA);
     } else if (strcmp(tablename, "spelling") == 0) {
-	v = int(Glass::SPELLING);
+        v = int(Glass::SPELLING);
     } else if (strcmp(tablename, "synonym") == 0) {
-	v = int(Glass::SYNONYM);
+        v = int(Glass::SYNONYM);
     } else if (strcmp(tablename, "termlist") == 0) {
-	v = int(Glass::TERMLIST);
+        v = int(Glass::TERMLIST);
     } else {
-	return; // FIXME
+        return; // FIXME
     }
 
     if (block_size == 2048) {
-	v |= 0 << 3;
+        v |= 0 << 3;
     } else if (block_size == 4096) {
-	v |= 1 << 3;
+        v |= 1 << 3;
     } else if (block_size == 8192) {
-	v |= 2 << 3;
+        v |= 2 << 3;
     } else if (block_size == 16384) {
-	v |= 3 << 3;
+        v |= 3 << 3;
     } else if (block_size == 32768) {
-	v |= 4 << 3;
+        v |= 4 << 3;
     } else if (block_size == 65536) {
-	v |= 5 << 3;
+        v |= 5 << 3;
     } else {
-	return; // FIXME
+        return; // FIXME
     }
 
     string buf;
@@ -299,7 +299,7 @@ GlassTable::throw_overwritten() const
     // If we're writable, there shouldn't be another writer who could cause
     // overwritten to be flagged, so that's a DatabaseCorruptError.
     if (writable)
-	throw Xapian::DatabaseCorruptError("Block overwritten - run xapian-check on this database");
+        throw Xapian::DatabaseCorruptError("Block overwritten - run xapian-check on this database");
     throw Xapian::DatabaseModifiedError("The revision being read has been discarded - you should call Xapian::Database::reopen() and retry the operation");
 }
 
@@ -320,38 +320,38 @@ GlassTable::block_to_cursor(Glass::Cursor * C_, int j, uint4 n) const
     if (n == C_[j].get_n()) return;
 
     if (writable && C_[j].rewrite) {
-	Assert(C == C_);
-	write_block(C_[j].get_n(), C_[j].get_p());
-	C_[j].rewrite = false;
+        Assert(C == C_);
+        write_block(C_[j].get_n(), C_[j].get_p());
+        C_[j].rewrite = false;
     }
 
     // Check if the block is in the built-in cursor (potentially in
     // modified form).
     const uint8_t * p;
     if (n == C[j].get_n()) {
-	p = C_[j].clone(C[j]);
+        p = C_[j].clone(C[j]);
     } else {
-	uint8_t * q = C_[j].init(block_size);
-	read_block(n, q);
-	p = q;
-	C_[j].set_n(n);
+        uint8_t * q = C_[j].init(block_size);
+        read_block(n, q);
+        p = q;
+        C_[j].set_n(n);
     }
 
     if (j < level) {
-	/* unsigned comparison */
-	if (rare(REVISION(p) > REVISION(C_[j + 1].get_p()))) {
-	    throw_overwritten();
-	}
+        /* unsigned comparison */
+        if (rare(REVISION(p) > REVISION(C_[j + 1].get_p()))) {
+            throw_overwritten();
+        }
     }
 
     if (rare(j != GET_LEVEL(p))) {
-	string msg = "Expected block ";
-	msg += str(n);
-	msg += " to be level ";
-	msg += str(j);
-	msg += ", not ";
-	msg += str(GET_LEVEL(p));
-	throw Xapian::DatabaseCorruptError(msg);
+        string msg = "Expected block ";
+        msg += str(n);
+        msg += " to be level ";
+        msg += str(j);
+        msg += ", not ";
+        msg += str(GET_LEVEL(p));
+        throw Xapian::DatabaseCorruptError(msg);
     }
 }
 
@@ -382,28 +382,28 @@ GlassTable::alter()
     LOGCALL_VOID(DB, "GlassTable::alter", NO_ARGS);
     Assert(writable);
     if (flags & Xapian::DB_DANGEROUS) {
-	C[0].rewrite = true;
-	return;
+        C[0].rewrite = true;
+        return;
     }
     int j = 0;
     while (true) {
-	if (C[j].rewrite) return; /* all new, so return */
-	C[j].rewrite = true;
+        if (C[j].rewrite) return; /* all new, so return */
+        C[j].rewrite = true;
 
-	glass_revision_number_t rev = REVISION(C[j].get_p());
-	if (rev == revision_number + 1) {
-	    return;
-	}
-	Assert(rev < revision_number + 1);
-	uint4 n = C[j].get_n();
-	free_list.mark_block_unused(this, block_size, n);
-	SET_REVISION(C[j].get_modifiable_p(block_size), revision_number + 1);
-	n = free_list.get_block(this, block_size);
-	C[j].set_n(n);
+        glass_revision_number_t rev = REVISION(C[j].get_p());
+        if (rev == revision_number + 1) {
+            return;
+        }
+        Assert(rev < revision_number + 1);
+        uint4 n = C[j].get_n();
+        free_list.mark_block_unused(this, block_size, n);
+        SET_REVISION(C[j].get_modifiable_p(block_size), revision_number + 1);
+        n = free_list.get_block(this, block_size);
+        C[j].set_n(n);
 
-	if (j == level) return;
-	j++;
-	BItem_wr(C[j].get_modifiable_p(block_size), C[j].c).set_block_given_by(n);
+        if (j == level) return;
+        j++;
+        BItem_wr(C[j].get_modifiable_p(block_size), C[j].c).set_block_given_by(n);
     }
 }
 
@@ -429,42 +429,42 @@ GlassTable::find_in_leaf(const uint8_t * p, LeafItem item, int c, bool& exact)
     int i = DIR_START;
     i -= D2;
     if (c != -1) {
-	AssertRel(i,<=,c);
+        AssertRel(i,<=,c);
     }
     int j = DIR_END(p);
 
     if (c != -1) {
-	if (c < j && i < c) {
-	    int r = compare(LeafItem(p, c), item);
-	    if (r == 0) {
-		exact = true;
-		return c;
-	    }
-	    if (r < 0) i = c;
-	}
-	c += D2;
-	if (c < j && i < c) {
-	    int r = compare(item, LeafItem(p, c));
-	    if (r == 0) {
-		exact = true;
-		return c;
-	    }
-	    if (r < 0) j = c;
-	}
+        if (c < j && i < c) {
+            int r = compare(LeafItem(p, c), item);
+            if (r == 0) {
+                exact = true;
+                return c;
+            }
+            if (r < 0) i = c;
+        }
+        c += D2;
+        if (c < j && i < c) {
+            int r = compare(item, LeafItem(p, c));
+            if (r == 0) {
+                exact = true;
+                return c;
+            }
+            if (r < 0) j = c;
+        }
     }
 
     while (j - i > D2) {
-	int k = i + ((j - i) / (D2 * 2)) * D2; /* mid way */
-	int r = compare(item, LeafItem(p, k));
-	if (r < 0) {
-	    j = k;
-	} else {
-	    i = k;
-	    if (r == 0) {
-		exact = true;
-		break;
-	    }
-	}
+        int k = i + ((j - i) / (D2 * 2)) * D2; /* mid way */
+        int r = compare(item, LeafItem(p, k));
+        if (r < 0) {
+            j = k;
+        } else {
+            i = k;
+            if (r == 0) {
+                exact = true;
+                break;
+            }
+        }
     }
     AssertRel(DIR_START - D2,<=,i);
     AssertRel(i,<,DIR_END(p));
@@ -478,33 +478,33 @@ find_in_branch_(const uint8_t * p, ITEM item, int c)
     Assert((c & 1) == 1);
     int i = DIR_START;
     if (c != -1) {
-	AssertRel(i,<=,c);
+        AssertRel(i,<=,c);
     }
     int j = DIR_END(p);
 
     if (c != -1) {
-	if (c < j && i < c) {
-	    int r = compare(BItem(p, c), item);
-	    if (r == 0) return c;
-	    if (r < 0) i = c;
-	}
-	c += D2;
-	if (c < j && i < c) {
-	    int r = compare(item, BItem(p, c));
-	    if (r == 0) return c;
-	    if (r < 0) j = c;
-	}
+        if (c < j && i < c) {
+            int r = compare(BItem(p, c), item);
+            if (r == 0) return c;
+            if (r < 0) i = c;
+        }
+        c += D2;
+        if (c < j && i < c) {
+            int r = compare(item, BItem(p, c));
+            if (r == 0) return c;
+            if (r < 0) j = c;
+        }
     }
 
     while (j - i > D2) {
-	int k = i + ((j - i) / (D2 * 2)) * D2; /* mid way */
-	int r = compare(item, BItem(p, k));
-	if (r < 0) {
-	    j = k;
-	} else {
-	    i = k;
-	    if (r == 0) break;
-	}
+        int k = i + ((j - i) / (D2 * 2)) * D2; /* mid way */
+        int r = compare(item, BItem(p, k));
+        if (r < 0) {
+            j = k;
+        } else {
+            i = k;
+            if (r == 0) break;
+        }
     }
     AssertRel(DIR_START,<=,i);
     AssertRel(i,<,DIR_END(p));
@@ -540,14 +540,14 @@ GlassTable::find(Glass::Cursor * C_) const
     const uint8_t * p;
     int c;
     for (int j = level; j > 0; --j) {
-	p = C_[j].get_p();
-	c = find_in_branch(p, kt, C_[j].c);
+        p = C_[j].get_p();
+        c = find_in_branch(p, kt, C_[j].c);
 #ifdef BTREE_DEBUG_FULL
-	printf("Block in GlassTable:find - code position 1");
-	report_block_full(j, C_[j].get_n(), p);
+        printf("Block in GlassTable:find - code position 1");
+        report_block_full(j, C_[j].get_n(), p);
 #endif /* BTREE_DEBUG_FULL */
-	C_[j].c = c;
-	block_to_cursor(C_, j - 1, BItem(p, c).block_given_by());
+        C_[j].c = c;
+        block_to_cursor(C_, j - 1, BItem(p, c).block_given_by());
     }
     p = C_[0].get_p();
     bool exact = false;
@@ -575,25 +575,25 @@ GlassTable::compact(uint8_t * p)
     uint8_t * b = buffer;
     int dir_end = DIR_END(p);
     if (GET_LEVEL(p) == 0) {
-	// Leaf.
-	for (int c = DIR_START; c < dir_end; c += D2) {
-	    LeafItem item(p, c);
-	    int l = item.size();
-	    e -= l;
-	    if (e < 0) throw_corrupt("Leaf item size extends outside block");
-	    memcpy(b + e, item.get_address(), l);
-	    LeafItem_wr::setD(p, c, e);  /* reform in b */
-	}
+        // Leaf.
+        for (int c = DIR_START; c < dir_end; c += D2) {
+            LeafItem item(p, c);
+            int l = item.size();
+            e -= l;
+            if (e < 0) throw_corrupt("Leaf item size extends outside block");
+            memcpy(b + e, item.get_address(), l);
+            LeafItem_wr::setD(p, c, e);  /* reform in b */
+        }
     } else {
-	// Branch.
-	for (int c = DIR_START; c < dir_end; c += D2) {
-	    BItem item(p, c);
-	    int l = item.size();
-	    e -= l;
-	    if (e < 0) throw_corrupt("Branch item size extends outside block");
-	    memcpy(b + e, item.get_address(), l);
-	    BItem_wr::setD(p, c, e);  /* reform in b */
-	}
+        // Branch.
+        for (int c = DIR_START; c < dir_end; c += D2) {
+            BItem item(p, c);
+            int l = item.size();
+            e -= l;
+            if (e < 0) throw_corrupt("Branch item size extends outside block");
+            memcpy(b + e, item.get_address(), l);
+            BItem_wr::setD(p, c, e);  /* reform in b */
+        }
     }
     memcpy(p + e, b + e, block_size - e);  /* copy back */
     e -= dir_end;
@@ -615,9 +615,9 @@ GlassTable::split_root(uint4 split_n)
     /* check level overflow - this isn't something that should ever happen
      * but deserves more than an Assert()... */
     if (level == GLASS_BTREE_CURSOR_LEVELS) {
-	throw Xapian::DatabaseCorruptError("Btree has grown impossibly large ("
-					   STRINGIZE(GLASS_BTREE_CURSOR_LEVELS)
-					   " levels)");
+        throw Xapian::DatabaseCorruptError("Btree has grown impossibly large ("
+                                           STRINGIZE(GLASS_BTREE_CURSOR_LEVELS)
+                                           " levels)");
     }
 
     uint8_t * q = C[level].init(block_size);
@@ -675,7 +675,7 @@ GlassTable::enter_key_above_leaf(LeafItem previtem, LeafItem newitem)
     int i = 0;
     const int min_len = min(newkey_len, prevkey.length());
     while (i < min_len && prevkey[i] == newkey[i]) {
-	i++;
+        i++;
     }
 
     // Want one byte of difference.
@@ -747,17 +747,17 @@ GlassTable::mid_point(uint8_t * p) const
     int dir_end = DIR_END(p);
     int size = block_size - TOTAL_FREE(p) - dir_end;
     for (int c = DIR_START; c < dir_end; c += D2) {
-	int l;
-	if (GET_LEVEL(p) == 0) {
-	    l = LeafItem(p, c).size();
-	} else {
-	    l = BItem(p, c).size();
-	}
-	n += 2 * l;
-	if (n >= size) {
-	    if (l < n - size) RETURN(c);
-	    RETURN(c + D2);
-	}
+        int l;
+        if (GET_LEVEL(p) == 0) {
+            l = LeafItem(p, c).size();
+        } else {
+            l = BItem(p, c).size();
+        }
+        n += 2 * l;
+        if (n >= size) {
+            if (l < n - size) RETURN(c);
+            RETURN(c + D2);
+        }
     }
 
     /* This shouldn't happen, as the sum of the item sizes should be the same
@@ -863,79 +863,79 @@ GlassTable::add_leaf_item(LeafItem kt_)
 
     int needed = kt_.size() + D2;
     if (TOTAL_FREE(p) < needed) {
-	int m;
-	// Prepare to split p. After splitting, the block is in two halves, the
-	// lower half is split_p, the upper half p again. add_to_upper_half
-	// becomes true when the item gets added to p, false when it gets added
-	// to split_p.
+        int m;
+        // Prepare to split p. After splitting, the block is in two halves, the
+        // lower half is split_p, the upper half p again. add_to_upper_half
+        // becomes true when the item gets added to p, false when it gets added
+        // to split_p.
 
-	if (seq_count < 0) {
-	    // If we're not in sequential mode, we split at the mid point
-	    // of the node.
-	    m = mid_point(p);
-	} else {
-	    // During sequential addition, split at the insert point
-	    AssertRel(c,>=,DIR_START);
-	    m = c;
-	}
+        if (seq_count < 0) {
+            // If we're not in sequential mode, we split at the mid point
+            // of the node.
+            m = mid_point(p);
+        } else {
+            // During sequential addition, split at the insert point
+            AssertRel(c,>=,DIR_START);
+            m = c;
+        }
 
-	uint4 split_n = C[0].get_n();
-	C[0].set_n(free_list.get_block(this, block_size));
+        uint4 split_n = C[0].get_n();
+        C[0].set_n(free_list.get_block(this, block_size));
 
-	memcpy(split_p, p, block_size);  // replicate the whole block in split_p
-	SET_DIR_END(split_p, m);
-	compact(split_p);      /* to reset TOTAL_FREE, MAX_FREE */
+        memcpy(split_p, p, block_size);  // replicate the whole block in split_p
+        SET_DIR_END(split_p, m);
+        compact(split_p);      /* to reset TOTAL_FREE, MAX_FREE */
 
-	{
-	    int residue = DIR_END(p) - m;
-	    int new_dir_end = DIR_START + residue;
-	    memmove(p + DIR_START, p + m, residue);
-	    SET_DIR_END(p, new_dir_end);
-	}
+        {
+            int residue = DIR_END(p) - m;
+            int new_dir_end = DIR_START + residue;
+            memmove(p + DIR_START, p + m, residue);
+            SET_DIR_END(p, new_dir_end);
+        }
 
-	compact(p);      /* to reset TOTAL_FREE, MAX_FREE */
+        compact(p);      /* to reset TOTAL_FREE, MAX_FREE */
 
-	bool add_to_upper_half;
-	if (seq_count < 0) {
-	    add_to_upper_half = (c >= m);
-	} else {
-	    // And add item to lower half if split_p has room, otherwise upper
-	    // half
-	    add_to_upper_half = (TOTAL_FREE(split_p) < needed);
-	}
+        bool add_to_upper_half;
+        if (seq_count < 0) {
+            add_to_upper_half = (c >= m);
+        } else {
+            // And add item to lower half if split_p has room, otherwise upper
+            // half
+            add_to_upper_half = (TOTAL_FREE(split_p) < needed);
+        }
 
-	if (add_to_upper_half) {
-	    c -= (m - DIR_START);
-	    Assert(seq_count < 0 || c <= DIR_START + D2);
-	    Assert(c >= DIR_START);
-	    Assert(c <= DIR_END(p));
-	    add_item_to_leaf(p, kt_, c);
-	    n = C[0].get_n();
-	} else {
-	    Assert(c >= DIR_START);
-	    Assert(c <= DIR_END(split_p));
-	    add_item_to_leaf(split_p, kt_, c);
-	    n = split_n;
-	}
-	write_block(split_n, split_p);
+        if (add_to_upper_half) {
+            c -= (m - DIR_START);
+            Assert(seq_count < 0 || c <= DIR_START + D2);
+            Assert(c >= DIR_START);
+            Assert(c <= DIR_END(p));
+            add_item_to_leaf(p, kt_, c);
+            n = C[0].get_n();
+        } else {
+            Assert(c >= DIR_START);
+            Assert(c <= DIR_END(split_p));
+            add_item_to_leaf(split_p, kt_, c);
+            n = split_n;
+        }
+        write_block(split_n, split_p);
 
-	// Check if we're splitting the root block.
-	if (0 == level) split_root(split_n);
+        // Check if we're splitting the root block.
+        if (0 == level) split_root(split_n);
 
-	/* Enter a separating key at level 1 between */
-	/* the last key of block split_p, and the first key of block p */
-	enter_key_above_leaf(LeafItem(split_p, DIR_END(split_p) - D2),
-			     LeafItem(p, DIR_START));
+        /* Enter a separating key at level 1 between */
+        /* the last key of block split_p, and the first key of block p */
+        enter_key_above_leaf(LeafItem(split_p, DIR_END(split_p) - D2),
+                             LeafItem(p, DIR_START));
     } else {
-	AssertRel(TOTAL_FREE(p),>=,needed);
+        AssertRel(TOTAL_FREE(p),>=,needed);
 
-	if (MAX_FREE(p) < needed) {
-	    compact(p);
-	    AssertRel(MAX_FREE(p),>=,needed);
-	}
+        if (MAX_FREE(p) < needed) {
+            compact(p);
+            AssertRel(MAX_FREE(p),>=,needed);
+        }
 
-	add_item_to_leaf(p, kt_, c);
-	n = C[0].get_n();
+        add_item_to_leaf(p, kt_, c);
+        n = C[0].get_n();
     }
 
     changed_n = n;
@@ -957,83 +957,83 @@ GlassTable::add_branch_item(BItem kt_, int j)
 
     int needed = kt_.size() + D2;
     if (TOTAL_FREE(p) < needed) {
-	int m;
-	// Prepare to split p. After splitting, the block is in two halves, the
-	// lower half is split_p, the upper half p again. add_to_upper_half
-	// becomes true when the item gets added to p, false when it gets added
-	// to split_p.
+        int m;
+        // Prepare to split p. After splitting, the block is in two halves, the
+        // lower half is split_p, the upper half p again. add_to_upper_half
+        // becomes true when the item gets added to p, false when it gets added
+        // to split_p.
 
-	if (seq_count < 0) {
-	    // If we're not in sequential mode, we split at the mid point
-	    // of the node.
-	    m = mid_point(p);
-	} else {
-	    // During sequential addition, split at the insert point
-	    AssertRel(c,>=,DIR_START);
-	    m = c;
-	}
+        if (seq_count < 0) {
+            // If we're not in sequential mode, we split at the mid point
+            // of the node.
+            m = mid_point(p);
+        } else {
+            // During sequential addition, split at the insert point
+            AssertRel(c,>=,DIR_START);
+            m = c;
+        }
 
-	uint4 split_n = C[j].get_n();
-	C[j].set_n(free_list.get_block(this, block_size));
+        uint4 split_n = C[j].get_n();
+        C[j].set_n(free_list.get_block(this, block_size));
 
-	memcpy(split_p, p, block_size);  // replicate the whole block in split_p
-	SET_DIR_END(split_p, m);
-	compact(split_p);      /* to reset TOTAL_FREE, MAX_FREE */
+        memcpy(split_p, p, block_size);  // replicate the whole block in split_p
+        SET_DIR_END(split_p, m);
+        compact(split_p);      /* to reset TOTAL_FREE, MAX_FREE */
 
-	{
-	    int residue = DIR_END(p) - m;
-	    int new_dir_end = DIR_START + residue;
-	    memmove(p + DIR_START, p + m, residue);
-	    SET_DIR_END(p, new_dir_end);
-	}
+        {
+            int residue = DIR_END(p) - m;
+            int new_dir_end = DIR_START + residue;
+            memmove(p + DIR_START, p + m, residue);
+            SET_DIR_END(p, new_dir_end);
+        }
 
-	compact(p);      /* to reset TOTAL_FREE, MAX_FREE */
+        compact(p);      /* to reset TOTAL_FREE, MAX_FREE */
 
-	bool add_to_upper_half;
-	if (seq_count < 0) {
-	    add_to_upper_half = (c >= m);
-	} else {
-	    // And add item to lower half if split_p has room, otherwise upper
-	    // half
-	    add_to_upper_half = (TOTAL_FREE(split_p) < needed);
-	}
+        bool add_to_upper_half;
+        if (seq_count < 0) {
+            add_to_upper_half = (c >= m);
+        } else {
+            // And add item to lower half if split_p has room, otherwise upper
+            // half
+            add_to_upper_half = (TOTAL_FREE(split_p) < needed);
+        }
 
-	if (add_to_upper_half) {
-	    c -= (m - DIR_START);
-	    Assert(seq_count < 0 || c <= DIR_START + D2);
-	    Assert(c >= DIR_START);
-	    Assert(c <= DIR_END(p));
-	    add_item_to_branch(p, kt_, c);
-	} else {
-	    Assert(c >= DIR_START);
-	    Assert(c <= DIR_END(split_p));
-	    add_item_to_branch(split_p, kt_, c);
-	}
-	write_block(split_n, split_p);
+        if (add_to_upper_half) {
+            c -= (m - DIR_START);
+            Assert(seq_count < 0 || c <= DIR_START + D2);
+            Assert(c >= DIR_START);
+            Assert(c <= DIR_END(p));
+            add_item_to_branch(p, kt_, c);
+        } else {
+            Assert(c >= DIR_START);
+            Assert(c <= DIR_END(split_p));
+            add_item_to_branch(split_p, kt_, c);
+        }
+        write_block(split_n, split_p);
 
-	// Check if we're splitting the root block.
-	if (j == level) split_root(split_n);
+        // Check if we're splitting the root block.
+        if (j == level) split_root(split_n);
 
-	/* Enter a separating key at level j + 1 between */
-	/* the last key of block split_p, and the first key of block p */
-	enter_key_above_branch(j + 1, BItem(p, DIR_START));
+        /* Enter a separating key at level j + 1 between */
+        /* the last key of block split_p, and the first key of block p */
+        enter_key_above_branch(j + 1, BItem(p, DIR_START));
 
-	// In branch levels, we can make the first key of block p null and
-	// save a bit of disk space.  Other redundant keys will still creep
-	// in though.
-	BItem_wr item(p, DIR_START);
-	int new_total_free = TOTAL_FREE(p) + item.key().length();
-	item.form_null_key(item.block_given_by());
-	SET_TOTAL_FREE(p, new_total_free);
+        // In branch levels, we can make the first key of block p null and
+        // save a bit of disk space.  Other redundant keys will still creep
+        // in though.
+        BItem_wr item(p, DIR_START);
+        int new_total_free = TOTAL_FREE(p) + item.key().length();
+        item.form_null_key(item.block_given_by());
+        SET_TOTAL_FREE(p, new_total_free);
     } else {
-	AssertRel(TOTAL_FREE(p),>=,needed);
+        AssertRel(TOTAL_FREE(p),>=,needed);
 
-	if (MAX_FREE(p) < needed) {
-	    compact(p);
-	    AssertRel(MAX_FREE(p),>=,needed);
-	}
+        if (MAX_FREE(p) < needed) {
+            compact(p);
+            AssertRel(MAX_FREE(p),>=,needed);
+        }
 
-	add_item_to_branch(p, kt_, c);
+        add_item_to_branch(p, kt_, c);
     }
 }
 
@@ -1063,13 +1063,13 @@ GlassTable::delete_leaf_item(bool repeatedly)
 
     if (!repeatedly) return;
     if (0 < level) {
-	if (dir_end == DIR_START) {
-	    free_list.mark_block_unused(this, block_size, C[0].get_n());
-	    C[0].rewrite = false;
-	    C[0].set_n(BLK_UNUSED);
-	    C[1].rewrite = true;  /* *is* necessary */
-	    delete_branch_item(1);
-	}
+        if (dir_end == DIR_START) {
+            free_list.mark_block_unused(this, block_size, C[0].get_n());
+            C[0].rewrite = false;
+            C[0].set_n(BLK_UNUSED);
+            C[1].rewrite = true;  /* *is* necessary */
+            delete_branch_item(1);
+        }
     }
 }
 
@@ -1097,26 +1097,26 @@ GlassTable::delete_branch_item(int j)
     SET_TOTAL_FREE(p, TOTAL_FREE(p) + kt_len + D2);
 
     if (j < level) {
-	if (dir_end == DIR_START) {
-	    free_list.mark_block_unused(this, block_size, C[j].get_n());
-	    C[j].rewrite = false;
-	    C[j].set_n(BLK_UNUSED);
-	    C[j + 1].rewrite = true;  /* *is* necessary */
-	    delete_branch_item(j + 1);
-	}
+        if (dir_end == DIR_START) {
+            free_list.mark_block_unused(this, block_size, C[j].get_n());
+            C[j].rewrite = false;
+            C[j].set_n(BLK_UNUSED);
+            C[j + 1].rewrite = true;  /* *is* necessary */
+            delete_branch_item(j + 1);
+        }
     } else {
-	Assert(j == level);
-	while (dir_end == DIR_START + D2 && level > 0) {
-	    /* single item in the root block, so lose a level */
-	    uint4 new_root = BItem(C[level].get_p(), DIR_START).block_given_by();
-	    free_list.mark_block_unused(this, block_size, C[level].get_n());
-	    C[level].destroy();
-	    level--;
+        Assert(j == level);
+        while (dir_end == DIR_START + D2 && level > 0) {
+            /* single item in the root block, so lose a level */
+            uint4 new_root = BItem(C[level].get_p(), DIR_START).block_given_by();
+            free_list.mark_block_unused(this, block_size, C[level].get_n());
+            C[level].destroy();
+            level--;
 
-	    block_to_cursor(C, level, new_root);
+            block_to_cursor(C, level, new_root);
 
-	    dir_end = DIR_END(C[level].get_p()); /* prepare for the loop */
-	}
+            dir_end = DIR_END(C[level].get_p()); /* prepare for the loop */
+        }
     }
 }
 
@@ -1149,9 +1149,9 @@ static addcount = 0;
      kt is added in with add_item.
 
      Returns:
-	 0 : added kt
-	 1 : replaced kt
-	 2 : replaced kt and it was the final one
+         0 : added kt
+         1 : replaced kt
+         2 : replaced kt and it was the final one
 */
 
 int
@@ -1162,57 +1162,57 @@ GlassTable::add_kt(bool found)
 
     /*
     {
-	printf("%d) %s ", addcount++, (found ? "replacing" : "adding"));
-	print_bytes(kt[I2], kt + I2 + K1); putchar('\n');
+        printf("%d) %s ", addcount++, (found ? "replacing" : "adding"));
+        print_bytes(kt[I2], kt + I2 + K1); putchar('\n');
     }
     */
     alter();
 
     int result = 0;
     if (found) { /* replacement */
-	seq_count = SEQ_START_POINT;
-	sequential = false;
+        seq_count = SEQ_START_POINT;
+        sequential = false;
 
-	uint8_t * p = C[0].get_modifiable_p(block_size);
-	int c = C[0].c;
-	AssertRel(DIR_START,<=,c);
-	AssertRel(c,<,DIR_END(p));
-	LeafItem item(p, c);
-	int kt_size = kt.size();
-	int needed = kt_size - item.size();
+        uint8_t * p = C[0].get_modifiable_p(block_size);
+        int c = C[0].c;
+        AssertRel(DIR_START,<=,c);
+        AssertRel(c,<,DIR_END(p));
+        LeafItem item(p, c);
+        int kt_size = kt.size();
+        int needed = kt_size - item.size();
 
-	result = item.last_component() ? 2 : 1;
+        result = item.last_component() ? 2 : 1;
 
-	if (needed <= 0) {
-	    /* simple replacement */
-	    memmove(const_cast<uint8_t *>(item.get_address()),
-		    kt.get_address(), kt_size);
-	    SET_TOTAL_FREE(p, TOTAL_FREE(p) - needed);
-	} else {
-	    /* new item into the block's freespace */
-	    int new_max = MAX_FREE(p) - kt_size;
-	    if (new_max >= 0) {
-		int o = DIR_END(p) + new_max;
-		memmove(p + o, kt.get_address(), kt_size);
-		LeafItem_wr::setD(p, c, o);
-		SET_MAX_FREE(p, new_max);
-		SET_TOTAL_FREE(p, TOTAL_FREE(p) - needed);
-	    } else {
-		/* do it the long way */
-		delete_leaf_item(false);
-		add_leaf_item(kt);
-	    }
-	}
+        if (needed <= 0) {
+            /* simple replacement */
+            memmove(const_cast<uint8_t *>(item.get_address()),
+                    kt.get_address(), kt_size);
+            SET_TOTAL_FREE(p, TOTAL_FREE(p) - needed);
+        } else {
+            /* new item into the block's freespace */
+            int new_max = MAX_FREE(p) - kt_size;
+            if (new_max >= 0) {
+                int o = DIR_END(p) + new_max;
+                memmove(p + o, kt.get_address(), kt_size);
+                LeafItem_wr::setD(p, c, o);
+                SET_MAX_FREE(p, new_max);
+                SET_TOTAL_FREE(p, TOTAL_FREE(p) - needed);
+            } else {
+                /* do it the long way */
+                delete_leaf_item(false);
+                add_leaf_item(kt);
+            }
+        }
     } else {
-	/* addition */
-	if (changed_n == C[0].get_n() && changed_c == C[0].c) {
-	    if (seq_count < 0) seq_count++;
-	} else {
-	    seq_count = SEQ_START_POINT;
-	    sequential = false;
-	}
-	C[0].c += D2;
-	add_leaf_item(kt);
+        /* addition */
+        if (changed_n == C[0].get_n() && changed_c == C[0].c) {
+            if (seq_count < 0) seq_count++;
+        } else {
+            seq_count = SEQ_START_POINT;
+            sequential = false;
+        }
+        C[0].c += D2;
+        add_leaf_item(kt);
     }
     RETURN(result);
 }
@@ -1222,9 +1222,9 @@ GlassTable::add_kt(bool found)
    found the corresponding item is deleted with delete_leaf_item.
 
      Returns:
-	 0 : nothing to delete
-	 1 : deleted kt
-	 2 : deleted kt and it was the final one
+         0 : nothing to delete
+         1 : deleted kt
+         2 : deleted kt and it was the final one
 */
 
 int
@@ -1237,7 +1237,7 @@ GlassTable::delete_kt()
     sequential = false;
 
     if (!find(C))
-	return 0;
+        return 0;
 
     int result = LeafItem(C[0].get_p(), C[0].c).last_component() ? 2 : 1;
     alter();
@@ -1249,7 +1249,7 @@ GlassTable::delete_kt()
 /* GlassTable::form_key(key) treats address kt as an item holder and fills in
 the key part:
 
-	   (I) K key c (C tag)
+           (I) K key c (C tag)
 
 The bracketed parts are left blank. The key is filled in with key_len bytes and
 K set accordingly. c is set to 1.
@@ -1291,12 +1291,12 @@ GlassTable::add(string_view key, string_view tag, bool already_compressed)
     Assert(writable);
 
     if (handle < 0) {
-	if (handle == -2) {
-	    GlassTable::throw_database_closed();
-	}
-	RootInfo root_info;
-	root_info.init(block_size, compress_min);
-	do_open_to_write(&root_info);
+        if (handle == -2) {
+            GlassTable::throw_database_closed();
+        }
+        RootInfo root_info;
+        root_info.init(block_size, compress_min);
+        do_open_to_write(&root_info);
     }
 
     form_key(key);
@@ -1306,13 +1306,13 @@ GlassTable::add(string_view key, string_view tag, bool already_compressed)
 
     bool compressed = false;
     if (already_compressed) {
-	compressed = true;
+        compressed = true;
     } else if (compress_min > 0 && tag_size > compress_min) {
-	const char * res = comp_stream.compress(tag_data, &tag_size);
-	if (res) {
-	    compressed = true;
-	    tag_data = res;
-	}
+        const char * res = comp_stream.compress(tag_data, &tag_size);
+        if (res) {
+            compressed = true;
+            tag_data = res;
+        }
     }
 
     // sort of matching kt.append_chunk(), but setting the chunk
@@ -1321,33 +1321,33 @@ GlassTable::add(string_view key, string_view tag, bool already_compressed)
     size_t first_L = L + X2;             // - amount for tag1 (we don't store X there)
     bool found = find(C);
     if (tag_size <= first_L) {
-	// The whole tag clearly fits in one item, so no need to make this
-	// complicated.
-	first_L = tag_size;
+        // The whole tag clearly fits in one item, so no need to make this
+        // complicated.
+        first_L = tag_size;
     } else if (!found) {
-	const uint8_t * p = C[0].get_p();
-	size_t n = TOTAL_FREE(p) % (max_item_size + D2);
-	if (n > D2 + cd) {
-	    n -= (D2 + cd);
-	    // if n >= last then fully filling this block won't produce
-	    // an extra item, so we might as well do this even if
-	    // full_compaction isn't active.
-	    //
-	    // In the full_compaction case, it turns out we shouldn't always
-	    // try to fill every last byte.  Doing so can actually increase the
-	    // total space required (I believe this effect is due to longer
-	    // dividing keys being required in the index blocks).  Empirically,
-	    // n >= key.size() + K appears a good criterion for K ~= 34.  This
-	    // seems to save about 0.2% in total database size over always
-	    // splitting the tag.  It'll also give be slightly faster retrieval
-	    // as we can avoid reading an extra block occasionally.
-	    size_t last = (tag_size - X2) % L;
-	    if (n >= last || (full_compaction && n >= key.size() + 34)) {
-		// first_L < max_item_size + D2 - D2 - cd
-		// Total size of first item = cd + first_L < max_item_size
-		first_L = n + X2;
-	    }
-	}
+        const uint8_t * p = C[0].get_p();
+        size_t n = TOTAL_FREE(p) % (max_item_size + D2);
+        if (n > D2 + cd) {
+            n -= (D2 + cd);
+            // if n >= last then fully filling this block won't produce
+            // an extra item, so we might as well do this even if
+            // full_compaction isn't active.
+            //
+            // In the full_compaction case, it turns out we shouldn't always
+            // try to fill every last byte.  Doing so can actually increase the
+            // total space required (I believe this effect is due to longer
+            // dividing keys being required in the index blocks).  Empirically,
+            // n >= key.size() + K appears a good criterion for K ~= 34.  This
+            // seems to save about 0.2% in total database size over always
+            // splitting the tag.  It'll also give be slightly faster retrieval
+            // as we can avoid reading an extra block occasionally.
+            size_t last = (tag_size - X2) % L;
+            if (n >= last || (full_compaction && n >= key.size() + 34)) {
+                // first_L < max_item_size + D2 - D2 - cd
+                // Total size of first item = cd + first_L < max_item_size
+                first_L = n + X2;
+            }
+        }
     }
 
     // There are m items to add.
@@ -1356,11 +1356,11 @@ GlassTable::add(string_view key, string_view tag, bool already_compressed)
      * an assert.
      */
     if (m >= BYTE_PAIR_RANGE) {
-	string message = "Btree tag entry of size ";
-	message += str(tag_size);
-	message += " is too large to store - "
-	     "increase the block size to raise this limit";
-	throw Xapian::UnimplementedError(message);
+        string message = "Btree tag entry of size ";
+        message += str(tag_size);
+        message += " is too large to store - "
+             "increase the block size to raise this limit";
+        throw Xapian::UnimplementedError(message);
     }
 
     size_t o = 0;                     // Offset into the tag
@@ -1369,32 +1369,32 @@ GlassTable::add(string_view key, string_view tag, bool already_compressed)
     bool components_to_del = false;   // Are there components to delete?
     int i;
     for (i = 1; i <= m; ++i) {
-	size_t l = (i == m ? residue : (i == 1 ? first_L : L));
-	size_t this_cd = (i == 1 ? cd - X2 : cd);
-	Assert(this_cd + l <= block_size);
-	Assert(o + l <= tag_size);
-	kt.set_tag(this_cd, tag_data + o, l, compressed, i, m);
+        size_t l = (i == m ? residue : (i == 1 ? first_L : L));
+        size_t this_cd = (i == 1 ? cd - X2 : cd);
+        Assert(this_cd + l <= block_size);
+        Assert(o + l <= tag_size);
+        kt.set_tag(this_cd, tag_data + o, l, compressed, i, m);
 
-	o += l;
-	residue -= l;
+        o += l;
+        residue -= l;
 
-	if (i > 1) found = find(C);
-	int result = add_kt(found);
-	if (result) replacement = true;
-	components_to_del = (result == 1);
+        if (i > 1) found = find(C);
+        int result = add_kt(found);
+        if (result) replacement = true;
+        components_to_del = (result == 1);
     }
     AssertEq(o, tag_size);
     if (components_to_del) {
-	i = m;
-	do {
-	    kt.set_component_of(++i);
-	} while (delete_kt() == 1);
+        i = m;
+        do {
+            kt.set_component_of(++i);
+        } while (delete_kt() == 1);
     }
     if (!replacement) ++item_count;
     Btree_modified = true;
     if (cursor_created_since_last_modification) {
-	cursor_created_since_last_modification = false;
-	++cursor_version;
+        cursor_created_since_last_modification = false;
+        ++cursor_version;
     }
 }
 
@@ -1411,10 +1411,10 @@ GlassTable::del(string_view key)
     Assert(writable);
 
     if (handle < 0) {
-	if (handle == -2) {
-	    GlassTable::throw_database_closed();
-	}
-	RETURN(false);
+        if (handle == -2) {
+            GlassTable::throw_database_closed();
+        }
+        RETURN(false);
     }
 
     // We can't delete a key which we is too long for us to store.
@@ -1427,15 +1427,15 @@ GlassTable::del(string_view key)
     if (r == 0) RETURN(false);
     int i = 1;
     while (r == 1) {
-	kt.set_component_of(++i);
-	r = delete_kt();
+        kt.set_component_of(++i);
+        r = delete_kt();
     }
 
     item_count--;
     Btree_modified = true;
     if (cursor_created_since_last_modification) {
-	cursor_created_since_last_modification = false;
-	++cursor_version;
+        cursor_created_since_last_modification = false;
+        ++cursor_version;
     }
     RETURN(true);
 }
@@ -1456,15 +1456,15 @@ GlassTable::readahead_key(string_view key) const
     // handle <= -3:  Lazy table in a single-file database which isn't yet
     // open.
     if (handle < 0)
-	RETURN(false);
+        RETURN(false);
 
     // If the table only has one level, there are no branch blocks to preread.
     if (level == 0)
-	RETURN(false);
+        RETURN(false);
 
     // An overlong key cannot be found.
     if (key.size() > GLASS_BTREE_MAX_KEY_LEN)
-	RETURN(true);
+        RETURN(true);
 
     form_key(key);
 
@@ -1476,9 +1476,9 @@ GlassTable::readahead_key(string_view key) const
     // Don't preread if it's the block we last preread or already in the
     // cursor.
     if (n != last_readahead && n != C[level - 1].get_n()) {
-	last_readahead = n;
-	if (!io_readahead_block(handle, block_size, n, offset))
-	    RETURN(false);
+        last_readahead = n;
+        if (!io_readahead_block(handle, block_size, n, offset))
+            RETURN(false);
     }
     RETURN(true);
 }
@@ -1490,10 +1490,10 @@ GlassTable::get_exact_entry(string_view key, string& tag) const
     Assert(!key.empty());
 
     if (handle < 0) {
-	if (handle == -2) {
-	    GlassTable::throw_database_closed();
-	}
-	RETURN(false);
+        if (handle == -2) {
+            GlassTable::throw_database_closed();
+        }
+        RETURN(false);
     }
 
     // An oversized key can't exist, so attempting to search for it should fail.
@@ -1530,29 +1530,29 @@ GlassTable::read_tag(Glass::Cursor * C_, string *tag, bool keep_compressed) cons
     bool compressed = item.get_compressed();
     bool decompress = false;
     if (compressed && !keep_compressed) {
-	comp_stream.decompress_start();
-	decompress = true;
+        comp_stream.decompress_start();
+        decompress = true;
     }
 
     while (true) {
-	bool last = item.last_component();
-	if (decompress) {
-	    // Decompress each chunk as we read it so we don't need both the
-	    // full compressed and uncompressed tags in memory at once.
-	    bool done = item.decompress_chunk(comp_stream, *tag);
-	    if (done != last) {
-		throw Xapian::DatabaseCorruptError(done ?
-		    "Too many chunks of compressed data" :
-		    "Too few chunks of compressed data");
-	    }
-	} else {
-	    item.append_chunk(tag);
-	}
-	if (last) break;
-	if (!next(C_, 0)) {
-	    throw Xapian::DatabaseCorruptError("Unexpected end of table when reading continuation of tag");
-	}
-	item.init(C_[0].get_p(), C_[0].c);
+        bool last = item.last_component();
+        if (decompress) {
+            // Decompress each chunk as we read it so we don't need both the
+            // full compressed and uncompressed tags in memory at once.
+            bool done = item.decompress_chunk(comp_stream, *tag);
+            if (done != last) {
+                throw Xapian::DatabaseCorruptError(done ?
+                    "Too many chunks of compressed data" :
+                    "Too few chunks of compressed data");
+            }
+        } else {
+            item.append_chunk(tag);
+        }
+        if (last) break;
+        if (!next(C_, 0)) {
+            throw Xapian::DatabaseCorruptError("Unexpected end of table when reading continuation of tag");
+        }
+        item.init(C_[0].get_p(), C_[0].c);
     }
     // At this point the cursor is on the last item - calling next will move
     // it to the next key (GlassCursor::read_tag() relies on this).
@@ -1573,10 +1573,10 @@ GlassTable::set_full_compaction(bool parity)
 GlassCursor * GlassTable::cursor_get() const {
     LOGCALL(DB, GlassCursor *, "GlassTable::cursor_get", NO_ARGS);
     if (handle < 0) {
-	if (handle == -2) {
-	    GlassTable::throw_database_closed();
-	}
-	RETURN(NULL);
+        if (handle == -2) {
+            GlassTable::throw_database_closed();
+        }
+        RETURN(NULL);
     }
     // FIXME Ick - casting away const is nasty
     RETURN(new GlassCursor(const_cast<GlassTable *>(this)));
@@ -1596,10 +1596,10 @@ GlassTable::basic_open(const RootInfo * root_info, glass_revision_number_t rev)
     sequential =	   root_info->get_sequential();
     const string & fl_serialised = root_info->get_free_list();
     if (!fl_serialised.empty()) {
-	if (!free_list.unpack(fl_serialised))
-	    throw Xapian::DatabaseCorruptError("Bad freelist metadata");
+        if (!free_list.unpack(fl_serialised))
+            throw Xapian::DatabaseCorruptError("Bad freelist metadata");
     } else {
-	free_list.reset();
+        free_list.reset();
     }
 
     compress_min = root_info->get_compress_min();
@@ -1610,14 +1610,14 @@ GlassTable::basic_open(const RootInfo * root_info, glass_revision_number_t rev)
     set_max_item_size(BLOCK_CAPACITY);
 
     for (int j = 0; j <= level; ++j) {
-	C[j].init(block_size);
+        C[j].init(block_size);
     }
 
     read_root();
 
     if (cursor_created_since_last_modification) {
-	cursor_created_since_last_modification = false;
-	++cursor_version;
+        cursor_created_since_last_modification = false;
+        ++cursor_version;
     }
 }
 
@@ -1626,72 +1626,72 @@ GlassTable::read_root()
 {
     LOGCALL_VOID(DB, "GlassTable::read_root", NO_ARGS);
     if (faked_root_block) {
-	/* root block for an unmodified database. */
-	uint8_t * p = C[0].init(block_size);
-	Assert(p);
+        /* root block for an unmodified database. */
+        uint8_t * p = C[0].init(block_size);
+        Assert(p);
 
-	/* clear block - shouldn't be necessary, but is a bit nicer,
-	 * and means that the same operations should always produce
-	 * the same database. */
-	memset(p, 0, block_size);
+        /* clear block - shouldn't be necessary, but is a bit nicer,
+         * and means that the same operations should always produce
+         * the same database. */
+        memset(p, 0, block_size);
 
-	int o = block_size - I2 - K1;
-	LeafItem_wr(p + o).fake_root_item();
+        int o = block_size - I2 - K1;
+        LeafItem_wr(p + o).fake_root_item();
 
-	LeafItem_wr::setD(p, DIR_START, o);         // its directory entry
-	SET_DIR_END(p, DIR_START + D2);// the directory size
+        LeafItem_wr::setD(p, DIR_START, o);         // its directory entry
+        SET_DIR_END(p, DIR_START + D2);// the directory size
 
-	o -= (DIR_START + D2);
-	SET_MAX_FREE(p, o);
-	SET_TOTAL_FREE(p, o);
-	SET_LEVEL(p, 0);
+        o -= (DIR_START + D2);
+        SET_MAX_FREE(p, o);
+        SET_TOTAL_FREE(p, o);
+        SET_LEVEL(p, 0);
 
-	if (!writable) {
-	    /* reading - revision number doesn't matter as long as
-	     * it's not greater than the current one. */
-	    SET_REVISION(p, 0);
-	    C[0].set_n(0);
-	} else {
-	    /* writing - */
-	    SET_REVISION(p, revision_number + 1);
-	    C[0].set_n(free_list.get_block(this, block_size));
-	    C[0].rewrite = true;
-	}
+        if (!writable) {
+            /* reading - revision number doesn't matter as long as
+             * it's not greater than the current one. */
+            SET_REVISION(p, 0);
+            C[0].set_n(0);
+        } else {
+            /* writing - */
+            SET_REVISION(p, revision_number + 1);
+            C[0].set_n(free_list.get_block(this, block_size));
+            C[0].rewrite = true;
+        }
     } else {
-	/* using a root block stored on disk */
-	block_to_cursor(C, level, root);
+        /* using a root block stored on disk */
+        block_to_cursor(C, level, root);
 
-	if (REVISION(C[level].get_p()) > revision_number) throw_overwritten();
-	/* although this is unlikely */
+        if (REVISION(C[level].get_p()) > revision_number) throw_overwritten();
+        /* although this is unlikely */
     }
 }
 
 void
 GlassTable::do_open_to_write(const RootInfo * root_info,
-			     glass_revision_number_t rev)
+                             glass_revision_number_t rev)
 {
     LOGCALL_VOID(DB, "GlassTable::do_open_to_write", root_info|rev);
     if (handle == -2) {
-	GlassTable::throw_database_closed();
+        GlassTable::throw_database_closed();
     }
     if (handle <= -2) {
-	// Single file database.
-	handle = -3 - handle;
+        // Single file database.
+        handle = -3 - handle;
     } else {
-	handle = io_open_block_wr(name + GLASS_TABLE_EXTENSION, (rev == 0));
-	if (handle < 0) {
-	    // lazy doesn't make a lot of sense when we're creating a DB (which
-	    // is the case when rev==0), but ENOENT with O_CREAT means a parent
-	    // directory doesn't exist.
-	    if (lazy && rev && errno == ENOENT) {
-		revision_number = rev;
-		return;
-	    }
-	    string message((rev == 0) ? "Couldn't create " : "Couldn't open ");
-	    message += name;
-	    message += GLASS_TABLE_EXTENSION" read/write";
-	    throw Xapian::DatabaseOpeningError(message, errno);
-	}
+        handle = io_open_block_wr(name + GLASS_TABLE_EXTENSION, (rev == 0));
+        if (handle < 0) {
+            // lazy doesn't make a lot of sense when we're creating a DB (which
+            // is the case when rev==0), but ENOENT with O_CREAT means a parent
+            // directory doesn't exist.
+            if (lazy && rev && errno == ENOENT) {
+                revision_number = rev;
+                return;
+            }
+            string message((rev == 0) ? "Couldn't create " : "Couldn't open ");
+            message += name;
+            message += GLASS_TABLE_EXTENSION" read/write";
+            throw Xapian::DatabaseOpeningError(message, errno);
+        }
     }
 
     writable = true;
@@ -1707,71 +1707,71 @@ GlassTable::do_open_to_write(const RootInfo * root_info,
 }
 
 GlassTable::GlassTable(const char* tablename_, string_view path_,
-		       bool readonly_, bool lazy_)
-	: tablename(tablename_),
-	  revision_number(0),
-	  item_count(0),
-	  block_size(0),
-	  faked_root_block(true),
-	  sequential(true),
-	  handle(-1),
-	  level(0),
-	  root(0),
-	  kt(0),
-	  buffer(0),
-	  free_list(),
-	  name(path_),
-	  seq_count(0),
-	  changed_n(0),
-	  changed_c(0),
-	  max_item_size(0),
-	  Btree_modified(false),
-	  full_compaction(false),
-	  writable(!readonly_),
-	  cursor_created_since_last_modification(false),
-	  cursor_version(0),
-	  changes_obj(NULL),
-	  split_p(0),
-	  compress_min(0),
-	  comp_stream(Z_DEFAULT_STRATEGY),
-	  lazy(lazy_),
-	  last_readahead(BLK_UNUSED),
-	  offset(0)
+                       bool readonly_, bool lazy_)
+        : tablename(tablename_),
+          revision_number(0),
+          item_count(0),
+          block_size(0),
+          faked_root_block(true),
+          sequential(true),
+          handle(-1),
+          level(0),
+          root(0),
+          kt(0),
+          buffer(0),
+          free_list(),
+          name(path_),
+          seq_count(0),
+          changed_n(0),
+          changed_c(0),
+          max_item_size(0),
+          Btree_modified(false),
+          full_compaction(false),
+          writable(!readonly_),
+          cursor_created_since_last_modification(false),
+          cursor_version(0),
+          changes_obj(NULL),
+          split_p(0),
+          compress_min(0),
+          comp_stream(Z_DEFAULT_STRATEGY),
+          lazy(lazy_),
+          last_readahead(BLK_UNUSED),
+          offset(0)
 {
     LOGCALL_CTOR(DB, "GlassTable", tablename_ | path_ | readonly_ | lazy_);
 }
 
 GlassTable::GlassTable(const char * tablename_, int fd, off_t offset_,
-		       bool readonly_, bool lazy_)
-	: tablename(tablename_),
-	  revision_number(0),
-	  item_count(0),
-	  block_size(0),
-	  faked_root_block(true),
-	  sequential(true),
-	  handle(-3 - fd),
-	  level(0),
-	  root(0),
-	  kt(0),
-	  buffer(0),
-	  free_list(),
-	  name(),
-	  seq_count(0),
-	  changed_n(0),
-	  changed_c(0),
-	  max_item_size(0),
-	  Btree_modified(false),
-	  full_compaction(false),
-	  writable(!readonly_),
-	  cursor_created_since_last_modification(false),
-	  cursor_version(0),
-	  changes_obj(NULL),
-	  split_p(0),
-	  compress_min(0),
-	  comp_stream(Z_DEFAULT_STRATEGY),
-	  lazy(lazy_),
-	  last_readahead(BLK_UNUSED),
-	  offset(offset_)
+                       bool readonly_, bool lazy_)
+        : tablename(tablename_),
+          revision_number(0),
+          item_count(0),
+          block_size(0),
+          faked_root_block(true),
+          sequential(true),
+          handle(-3 - fd),
+          level(0),
+          root(0),
+          kt(0),
+          buffer(0),
+          free_list(),
+          name(),
+          seq_count(0),
+          changed_n(0),
+          changed_c(0),
+          max_item_size(0),
+          Btree_modified(false),
+          full_compaction(false),
+          writable(!readonly_),
+          cursor_created_since_last_modification(false),
+          cursor_version(0),
+          changes_obj(NULL),
+          split_p(0),
+          compress_min(0),
+          comp_stream(Z_DEFAULT_STRATEGY),
+          lazy(lazy_),
+          last_readahead(BLK_UNUSED),
+          offset(offset_)
 {
     LOGCALL_CTOR(DB, "GlassTable", tablename_ | fd | offset_ | readonly_ | lazy_);
 }
@@ -1788,7 +1788,7 @@ GlassTable::create_and_open(int flags_, const RootInfo & root_info)
 {
     LOGCALL_VOID(DB, "GlassTable::create_and_open", flags_|root_info);
     if (handle == -2) {
-	GlassTable::throw_database_closed();
+        GlassTable::throw_database_closed();
     }
     Assert(writable);
     close();
@@ -1803,15 +1803,15 @@ GlassTable::create_and_open(int flags_, const RootInfo & root_info)
     block_size = block_size_;
 
     if (lazy) {
-	close();
-	(void)io_unlink(name + GLASS_TABLE_EXTENSION);
-	compress_min = root_info.get_compress_min();
+        close();
+        (void)io_unlink(name + GLASS_TABLE_EXTENSION);
+        compress_min = root_info.get_compress_min();
     } else {
-	// FIXME: it would be good to arrange that this works such that there's
-	// always a valid table in place if you run create_and_open() on an
-	// existing table.
+        // FIXME: it would be good to arrange that this works such that there's
+        // always a valid table in place if you run create_and_open() on an
+        // existing table.
 
-	do_open_to_write(&root_info);
+        do_open_to_write(&root_info);
     }
 }
 
@@ -1824,24 +1824,24 @@ void GlassTable::close(bool permanent) {
     LOGCALL_VOID(DB, "GlassTable::close", permanent);
 
     if (handle >= 0) {
-	if (single_file()) {
-	    handle = -3 - handle;
-	} else {
-	    // If an error occurs here, we just ignore it, since we're just
-	    // trying to free everything.
-	    (void)::close(handle);
-	    handle = -1;
-	}
+        if (single_file()) {
+            handle = -3 - handle;
+        } else {
+            // If an error occurs here, we just ignore it, since we're just
+            // trying to free everything.
+            (void)::close(handle);
+            handle = -1;
+        }
     }
 
     if (permanent) {
-	handle = -2;
-	// Don't delete the resources in the table, since they may
-	// still be used to look up cached content.
-	return;
+        handle = -2;
+        // Don't delete the resources in the table, since they may
+        // still be used to look up cached content.
+        return;
     }
     for (int j = level; j >= 0; --j) {
-	C[j].destroy();
+        C[j].destroy();
     }
     delete [] split_p;
     split_p = 0;
@@ -1858,16 +1858,16 @@ GlassTable::flush_db()
     LOGCALL_VOID(DB, "GlassTable::flush_db", NO_ARGS);
     Assert(writable);
     if (handle < 0) {
-	if (handle == -2) {
-	    GlassTable::throw_database_closed();
-	}
-	return;
+        if (handle == -2) {
+            GlassTable::throw_database_closed();
+        }
+        return;
     }
 
     for (int j = level; j >= 0; --j) {
-	if (C[j].rewrite) {
-	    write_block(C[j].get_n(), C[j].get_p());
-	}
+        if (C[j].rewrite) {
+            write_block(C[j].get_n(), C[j].get_p());
+        }
     }
 
     faked_root_block = false;
@@ -1880,57 +1880,57 @@ GlassTable::commit(glass_revision_number_t revision, RootInfo * root_info)
     Assert(writable);
 
     if (revision <= revision_number) {
-	throw Xapian::DatabaseError("New revision too low");
+        throw Xapian::DatabaseError("New revision too low");
     }
 
     if (handle < 0) {
-	if (handle == -2) {
-	    GlassTable::throw_database_closed();
-	}
-	revision_number = revision;
-	root_info->set_blocksize(block_size);
-	root_info->set_level(0);
-	root_info->set_num_entries(0);
-	root_info->set_root_is_fake(true);
-	root_info->set_sequential(true);
-	root_info->set_root(0);
-	return;
+        if (handle == -2) {
+            GlassTable::throw_database_closed();
+        }
+        revision_number = revision;
+        root_info->set_blocksize(block_size);
+        root_info->set_level(0);
+        root_info->set_num_entries(0);
+        root_info->set_root_is_fake(true);
+        root_info->set_sequential(true);
+        root_info->set_root(0);
+        return;
     }
 
     try {
-	root = C[level].get_n();
+        root = C[level].get_n();
 
-	root_info->set_blocksize(block_size);
-	root_info->set_level(level);
-	root_info->set_num_entries(item_count);
-	root_info->set_root_is_fake(faked_root_block);
-	root_info->set_sequential(sequential);
-	root_info->set_root(root);
+        root_info->set_blocksize(block_size);
+        root_info->set_level(level);
+        root_info->set_num_entries(item_count);
+        root_info->set_root_is_fake(faked_root_block);
+        root_info->set_sequential(sequential);
+        root_info->set_root(root);
 
-	Btree_modified = false;
+        Btree_modified = false;
 
-	for (int i = 0; i <= level; ++i) {
-	    C[i].init(block_size);
-	}
+        for (int i = 0; i <= level; ++i) {
+            C[i].init(block_size);
+        }
 
-	free_list.set_revision(revision);
-	free_list.commit(this, block_size);
+        free_list.set_revision(revision);
+        free_list.commit(this, block_size);
 
-	// Save the freelist details into the root_info.
-	string serialised;
-	free_list.pack(serialised);
-	root_info->set_free_list(serialised);
+        // Save the freelist details into the root_info.
+        string serialised;
+        free_list.pack(serialised);
+        root_info->set_free_list(serialised);
 
-	revision_number = revision;
+        revision_number = revision;
 
-	read_root();
+        read_root();
 
-	changed_n = 0;
-	changed_c = DIR_START;
-	seq_count = SEQ_START_POINT;
+        changed_n = 0;
+        changed_c = DIR_START;
+        seq_count = SEQ_START_POINT;
     } catch (...) {
-	GlassTable::close();
-	throw;
+        GlassTable::close();
+        throw;
     }
 }
 
@@ -1941,16 +1941,16 @@ GlassTable::cancel(const RootInfo & root_info, glass_revision_number_t rev)
     Assert(writable);
 
     if (handle < 0) {
-	if (handle == -2) {
-	    GlassTable::throw_database_closed();
-	}
-	return;
+        if (handle == -2) {
+            GlassTable::throw_database_closed();
+        }
+        return;
     }
 
     // This causes problems: if (!Btree_modified) return;
 
     if (flags & Xapian::DB_DANGEROUS)
-	throw Xapian::InvalidOperationError("cancel() not supported under Xapian::DB_DANGEROUS");
+        throw Xapian::InvalidOperationError("cancel() not supported under Xapian::DB_DANGEROUS");
 
     revision_number = rev;
     block_size =       root_info.get_blocksize();
@@ -1961,17 +1961,17 @@ GlassTable::cancel(const RootInfo & root_info, glass_revision_number_t rev)
     sequential =       root_info.get_sequential();
     const string & fl_serialised = root_info.get_free_list();
     if (!fl_serialised.empty()) {
-	if (!free_list.unpack(fl_serialised))
-	    throw Xapian::DatabaseCorruptError("Bad freelist metadata");
+        if (!free_list.unpack(fl_serialised))
+            throw Xapian::DatabaseCorruptError("Bad freelist metadata");
     } else {
-	free_list.reset();
+        free_list.reset();
     }
 
     Btree_modified = false;
 
     for (int j = 0; j <= level; ++j) {
-	C[j].init(block_size);
-	C[j].rewrite = false;
+        C[j].init(block_size);
+        C[j].rewrite = false;
     }
     read_root();
 
@@ -1980,8 +1980,8 @@ GlassTable::cancel(const RootInfo & root_info, glass_revision_number_t rev)
     seq_count = SEQ_START_POINT;
 
     if (cursor_created_since_last_modification) {
-	cursor_created_since_last_modification = false;
-	++cursor_version;
+        cursor_created_since_last_modification = false;
+        ++cursor_version;
     }
 }
 
@@ -1989,27 +1989,27 @@ GlassTable::cancel(const RootInfo & root_info, glass_revision_number_t rev)
 
 void
 GlassTable::do_open_to_read(const RootInfo * root_info,
-			    glass_revision_number_t rev)
+                            glass_revision_number_t rev)
 {
     LOGCALL(DB, bool, "GlassTable::do_open_to_read", root_info|rev);
     if (handle == -2) {
-	GlassTable::throw_database_closed();
+        GlassTable::throw_database_closed();
     }
     if (single_file()) {
-	handle = -3 - handle;
+        handle = -3 - handle;
     } else {
-	handle = io_open_block_rd(name + GLASS_TABLE_EXTENSION);
-	if (handle < 0) {
-	    if (lazy) {
-		// This table is optional when reading!
-		revision_number = rev;
-		return;
-	    }
-	    string message("Couldn't open ");
-	    message += name;
-	    message += GLASS_TABLE_EXTENSION" to read";
-	    throw Xapian::DatabaseOpeningError(message, errno);
-	}
+        handle = io_open_block_rd(name + GLASS_TABLE_EXTENSION);
+        if (handle < 0) {
+            if (lazy) {
+                // This table is optional when reading!
+                revision_number = rev;
+                return;
+            }
+            string message("Couldn't open ");
+            message += name;
+            message += GLASS_TABLE_EXTENSION" to read";
+            throw Xapian::DatabaseOpeningError(message, errno);
+        }
     }
 
     basic_open(root_info, rev);
@@ -2019,7 +2019,7 @@ GlassTable::do_open_to_read(const RootInfo * root_info,
 
 void
 GlassTable::open(int flags_, const RootInfo & root_info,
-		 glass_revision_number_t rev)
+                 glass_revision_number_t rev)
 {
     LOGCALL_VOID(DB, "GlassTable::open", flags_|root_info|rev);
     close();
@@ -2029,8 +2029,8 @@ GlassTable::open(int flags_, const RootInfo & root_info,
     root = root_info.get_root();
 
     if (!writable) {
-	do_open_to_read(&root_info, rev);
-	return;
+        do_open_to_read(&root_info, rev);
+        return;
     }
 
     do_open_to_write(&root_info, rev);
@@ -2044,44 +2044,44 @@ GlassTable::prev_for_sequential(Glass::Cursor * C_, int /*dummy*/) const
     AssertRel(DIR_START,<=,c);
     AssertRel(c,<,DIR_END(C_[0].get_p()));
     if (c == DIR_START) {
-	uint4 n = C_[0].get_n();
-	const uint8_t * p;
-	while (true) {
-	    if (n == 0) RETURN(false);
-	    n--;
-	    if (n == C[0].get_n()) {
-		// Block is a leaf block in the built-in cursor (potentially in
-		// modified form if the table is writable).
-		p = C_[0].clone(C[0]);
-	    } else {
-		if (writable) {
-		    // Blocks in the built-in cursor may not have been written
-		    // to disk yet, so we have to check that the block number
-		    // isn't in the built-in cursor or we'll read an
-		    // uninitialised block (for which GET_LEVEL(p) will
-		    // probably return 0).
-		    int j;
-		    for (j = 1; j <= level; ++j) {
-			if (n == C[j].get_n()) break;
-		    }
-		    if (j <= level) continue;
-		}
+        uint4 n = C_[0].get_n();
+        const uint8_t * p;
+        while (true) {
+            if (n == 0) RETURN(false);
+            n--;
+            if (n == C[0].get_n()) {
+                // Block is a leaf block in the built-in cursor (potentially in
+                // modified form if the table is writable).
+                p = C_[0].clone(C[0]);
+            } else {
+                if (writable) {
+                    // Blocks in the built-in cursor may not have been written
+                    // to disk yet, so we have to check that the block number
+                    // isn't in the built-in cursor or we'll read an
+                    // uninitialised block (for which GET_LEVEL(p) will
+                    // probably return 0).
+                    int j;
+                    for (j = 1; j <= level; ++j) {
+                        if (n == C[j].get_n()) break;
+                    }
+                    if (j <= level) continue;
+                }
 
-		// Block isn't in the built-in cursor, so the form on disk
-		// is valid, so read it to check if it's the next level 0
-		// block.
-		uint8_t * q = C_[0].init(block_size);
-		read_block(n, q);
-		p = q;
-		C_[0].set_n(n);
-	    }
-	    if (REVISION(p) > revision_number + writable) {
-		throw_overwritten();
-	    }
-	    if (GET_LEVEL(p) == 0) break;
-	}
-	c = DIR_END(p);
-	AssertRel(DIR_START,<,c);
+                // Block isn't in the built-in cursor, so the form on disk
+                // is valid, so read it to check if it's the next level 0
+                // block.
+                uint8_t * q = C_[0].init(block_size);
+                read_block(n, q);
+                p = q;
+                C_[0].set_n(n);
+            }
+            if (REVISION(p) > revision_number + writable) {
+                throw_overwritten();
+            }
+            if (GET_LEVEL(p) == 0) break;
+        }
+        c = DIR_END(p);
+        AssertRel(DIR_START,<,c);
     }
     c -= D2;
     C_[0].c = c;
@@ -2099,46 +2099,46 @@ GlassTable::next_for_sequential(Glass::Cursor * C_, int /*dummy*/) const
     c += D2;
     Assert(unsigned(c) < block_size);
     if (c == DIR_END(p)) {
-	uint4 n = C_[0].get_n();
-	while (true) {
-	    n++;
-	    if (n >= free_list.get_first_unused_block()) RETURN(false);
-	    if (writable) {
-		if (n == C[0].get_n()) {
-		    // Block is a leaf block in the built-in cursor
-		    // (potentially in modified form).
-		    p = C_[0].clone(C[0]);
-		} else {
-		    // Blocks in the built-in cursor may not have been written
-		    // to disk yet, so we have to check that the block number
-		    // isn't in the built-in cursor or we'll read an
-		    // uninitialised block (for which GET_LEVEL(p) will
-		    // probably return 0).
-		    int j;
-		    for (j = 1; j <= level; ++j) {
-			if (n == C[j].get_n()) break;
-		    }
-		    if (j <= level) continue;
+        uint4 n = C_[0].get_n();
+        while (true) {
+            n++;
+            if (n >= free_list.get_first_unused_block()) RETURN(false);
+            if (writable) {
+                if (n == C[0].get_n()) {
+                    // Block is a leaf block in the built-in cursor
+                    // (potentially in modified form).
+                    p = C_[0].clone(C[0]);
+                } else {
+                    // Blocks in the built-in cursor may not have been written
+                    // to disk yet, so we have to check that the block number
+                    // isn't in the built-in cursor or we'll read an
+                    // uninitialised block (for which GET_LEVEL(p) will
+                    // probably return 0).
+                    int j;
+                    for (j = 1; j <= level; ++j) {
+                        if (n == C[j].get_n()) break;
+                    }
+                    if (j <= level) continue;
 
-		    // Block isn't in the built-in cursor, so the form on disk
-		    // is valid, so read it to check if it's the next level 0
-		    // block.
-		    uint8_t * q = C_[0].init(block_size);
-		    read_block(n, q);
-		    p = q;
-		}
-	    } else {
-		uint8_t * q = C_[0].init(block_size);
-		read_block(n, q);
-		p = q;
-	    }
-	    if (REVISION(p) > revision_number + writable) {
-		throw_overwritten();
-	    }
-	    if (GET_LEVEL(p) == 0) break;
-	}
-	c = DIR_START;
-	C_[0].set_n(n);
+                    // Block isn't in the built-in cursor, so the form on disk
+                    // is valid, so read it to check if it's the next level 0
+                    // block.
+                    uint8_t * q = C_[0].init(block_size);
+                    read_block(n, q);
+                    p = q;
+                }
+            } else {
+                uint8_t * q = C_[0].init(block_size);
+                read_block(n, q);
+                p = q;
+            }
+            if (REVISION(p) > revision_number + writable) {
+                throw_overwritten();
+            }
+            if (GET_LEVEL(p) == 0) break;
+        }
+        c = DIR_START;
+        C_[0].set_n(n);
     }
     C_[0].c = c;
     RETURN(true);
@@ -2154,16 +2154,16 @@ GlassTable::prev_default(Glass::Cursor * C_, int j) const
     AssertRel(c,<,DIR_END(p));
     AssertRel(unsigned(DIR_END(p)),<=,block_size);
     if (c == DIR_START) {
-	if (j == level) RETURN(false);
-	if (!prev_default(C_, j + 1)) RETURN(false);
-	p = C_[j].get_p();
-	c = DIR_END(p);
-	AssertRel(DIR_START,<,c);
+        if (j == level) RETURN(false);
+        if (!prev_default(C_, j + 1)) RETURN(false);
+        p = C_[j].get_p();
+        c = DIR_END(p);
+        AssertRel(DIR_START,<,c);
     }
     c -= D2;
     C_[j].c = c;
     if (j > 0) {
-	block_to_cursor(C_, j - 1, BItem(p, c).block_given_by());
+        block_to_cursor(C_, j - 1, BItem(p, c).block_given_by());
     }
     RETURN(true);
 }
@@ -2178,23 +2178,23 @@ GlassTable::next_default(Glass::Cursor * C_, int j) const
     AssertRel(unsigned(DIR_END(p)),<=,block_size);
     c += D2;
     if (j > 0) {
-	AssertRel(DIR_START,<,c);
+        AssertRel(DIR_START,<,c);
     } else {
-	AssertRel(DIR_START,<=,c);
+        AssertRel(DIR_START,<=,c);
     }
     // Sometimes c can be DIR_END(p) + 2 here it appears...
     if (c >= DIR_END(p)) {
-	if (j == level) RETURN(false);
-	if (!next_default(C_, j + 1)) RETURN(false);
-	p = C_[j].get_p();
-	c = DIR_START;
+        if (j == level) RETURN(false);
+        if (!next_default(C_, j + 1)) RETURN(false);
+        p = C_[j].get_p();
+        c = DIR_START;
     }
     C_[j].c = c;
     if (j > 0) {
-	block_to_cursor(C_, j - 1, BItem(p, c).block_given_by());
+        block_to_cursor(C_, j - 1, BItem(p, c).block_given_by());
 #ifdef BTREE_DEBUG_FULL
-	printf("Block in GlassTable:next_default");
-	report_block_full(j - 1, C_[j - 1].get_n(), C_[j - 1].get_p());
+        printf("Block in GlassTable:next_default");
+        report_block_full(j - 1, C_[j - 1].get_n(), C_[j - 1].get_p());
 #endif /* BTREE_DEBUG_FULL */
     }
     RETURN(true);

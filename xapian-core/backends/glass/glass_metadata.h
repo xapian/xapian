@@ -54,7 +54,7 @@ class GlassMetadataTermList : public AllTermsList {
 
   public:
     GlassMetadataTermList(Xapian::Internal::intrusive_ptr<const Xapian::Database::Internal> database_,
-			  GlassCursor* cursor_, std::string_view prefix_);
+                          GlassCursor* cursor_, std::string_view prefix_);
 
     ~GlassMetadataTermList();
 

@@ -47,34 +47,34 @@ json_escape(string &s)
 {
     string r;
     for (Xapian::Utf8Iterator i(s); i != Xapian::Utf8Iterator(); ++i) {
-	unsigned int ch = *i;
-	if (ch >= 128) {
-	    Xapian::Unicode::append_utf8(r, ch);
-	    continue;
-	}
-	if (ch > '"') {
-	    if (ch != '\\') {
-		r += ch;
-		continue;
-	    }
-	} else {
-	    unsigned char t = json_tab[ch];
-	    if (t == CLR) {
-		// Can be sent "in the clear".
-		r += ch;
-		continue;
-	    }
-	    if (t == UNI) {
-		// Encode as Unicode escape sequence.  We know ch <= 0x1f.
-		r.append("\\u0000", 6);
-		if (ch >= 16) r[r.size() - 2] = '1';
-		r.back() = "0123456789abcdef"[ch & 0x0f];
-		continue;
-	    }
-	    ch = t;
-	}
-	char buf[2] = {'\\', char(ch)};
-	r.append(buf, 2);
+        unsigned int ch = *i;
+        if (ch >= 128) {
+            Xapian::Unicode::append_utf8(r, ch);
+            continue;
+        }
+        if (ch > '"') {
+            if (ch != '\\') {
+                r += ch;
+                continue;
+            }
+        } else {
+            unsigned char t = json_tab[ch];
+            if (t == CLR) {
+                // Can be sent "in the clear".
+                r += ch;
+                continue;
+            }
+            if (t == UNI) {
+                // Encode as Unicode escape sequence.  We know ch <= 0x1f.
+                r.append("\\u0000", 6);
+                if (ch >= 16) r[r.size() - 2] = '1';
+                r.back() = "0123456789abcdef"[ch & 0x0f];
+                continue;
+            }
+            ch = t;
+        }
+        char buf[2] = {'\\', char(ch)};
+        r.append(buf, 2);
     }
     swap(s, r);
 }

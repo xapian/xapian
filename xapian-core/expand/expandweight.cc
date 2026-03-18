@@ -43,7 +43,7 @@ ExpandWeight::collect_stats(TermList * merger, const std::string & term)
     merger->accumulate_stats(stats);
 
     if (want_collection_freq)
-	collection_freq = db.get_collection_freq(term);
+        collection_freq = db.get_collection_freq(term);
 
     LOGVALUE(EXPAND, rsize);
     LOGVALUE(EXPAND, stats.rtermfreq);
@@ -51,43 +51,43 @@ ExpandWeight::collect_stats(TermList * merger, const std::string & term)
     LOGVALUE(EXPAND, dbsize);
     LOGVALUE(EXPAND, stats.dbsize);
     if (stats.dbsize == dbsize) {
-	// Either we're expanding from just one database, or we got stats from
-	// all the sub-databases (because at least one relevant document from
-	// each sub-database contained this term), so termfreq should already
-	// be exact.
-	AssertEqParanoid(stats.termfreq, db.get_termfreq(term));
+        // Either we're expanding from just one database, or we got stats from
+        // all the sub-databases (because at least one relevant document from
+        // each sub-database contained this term), so termfreq should already
+        // be exact.
+        AssertEqParanoid(stats.termfreq, db.get_termfreq(term));
     } else {
-	AssertRel(stats.dbsize,<,dbsize);
-	// We're expanding from more than one database and the stats we've got
-	// only cover some of the sub-databases, so termfreq only includes
-	// those sub-databases.
-	if (use_exact_termfreq) {
-	    LOGLINE(EXPAND, "Had to request exact termfreq");
-	    stats.termfreq = db.get_termfreq(term);
-	} else {
-	    // Approximate the termfreq by scaling it up from the databases we
-	    // do have information from.
-	    double tf = double(stats.termfreq) * dbsize / stats.dbsize;
-	    LOGLINE(EXPAND, "termfreq is approx " << stats.termfreq << " * " <<
-			    dbsize << " / " << stats.dbsize << " = " <<
-			    tf);
+        AssertRel(stats.dbsize,<,dbsize);
+        // We're expanding from more than one database and the stats we've got
+        // only cover some of the sub-databases, so termfreq only includes
+        // those sub-databases.
+        if (use_exact_termfreq) {
+            LOGLINE(EXPAND, "Had to request exact termfreq");
+            stats.termfreq = db.get_termfreq(term);
+        } else {
+            // Approximate the termfreq by scaling it up from the databases we
+            // do have information from.
+            double tf = double(stats.termfreq) * dbsize / stats.dbsize;
+            LOGLINE(EXPAND, "termfreq is approx " << stats.termfreq << " * " <<
+                            dbsize << " / " << stats.dbsize << " = " <<
+                            tf);
 
-	    stats.termfreq = static_cast<Xapian::doccount>(tf + 0.5);
+            stats.termfreq = static_cast<Xapian::doccount>(tf + 0.5);
 
-	    // termfreq can't be more than (dbsize - rsize + rtermfreq)
-	    // since the number of relevant documents not indexed by this
-	    // term can't be more than the number of documents not indexed
-	    // by this term, so:
-	    //
-	    //     rsize - rtermfreq <= dbsize - termfreq
-	    // <=> termfreq <= dbsize - (rsize - rtermfreq)
-	    auto termfreq_upper_bound = dbsize - (rsize - stats.rtermfreq);
-	    if (stats.termfreq > termfreq_upper_bound) {
-		LOGLINE(EXPAND, "termfreq can't be more than "
-				"dbsize - (rsize + rtermfreq)");
-		stats.termfreq = termfreq_upper_bound;
-	    }
-	}
+            // termfreq can't be more than (dbsize - rsize + rtermfreq)
+            // since the number of relevant documents not indexed by this
+            // term can't be more than the number of documents not indexed
+            // by this term, so:
+            //
+            //     rsize - rtermfreq <= dbsize - termfreq
+            // <=> termfreq <= dbsize - (rsize - rtermfreq)
+            auto termfreq_upper_bound = dbsize - (rsize - stats.rtermfreq);
+            if (stats.termfreq > termfreq_upper_bound) {
+                LOGLINE(EXPAND, "termfreq can't be more than "
+                                "dbsize - (rsize + rtermfreq)");
+                stats.termfreq = termfreq_upper_bound;
+            }
+        }
     }
     LOGVALUE(EXPAND, stats.termfreq);
 }

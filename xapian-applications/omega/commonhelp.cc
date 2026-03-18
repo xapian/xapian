@@ -40,19 +40,19 @@ void print_stemmer_help(const char * spaces) {
     wrap += " (pass 'none' to disable stemming)";
     const size_t WRAP_AT = 79 - 22 - strlen(spaces);
     while (wrap.size() > WRAP_AT) {
-	size_t i;
-	for (i = WRAP_AT; i > 0 && wrap[i] != ' '; --i) { }
-	if (i == 0) break;
-	cout << string(22, ' ') << spaces << wrap.substr(0, i) << "\n";
-	wrap.erase(0, i + 1);
+        size_t i;
+        for (i = WRAP_AT; i > 0 && wrap[i] != ' '; --i) { }
+        if (i == 0) break;
+        cout << string(22, ' ') << spaces << wrap.substr(0, i) << "\n";
+        wrap.erase(0, i + 1);
     }
     cout << string(22, ' ') << spaces << wrap << endl;
 }
 
 void print_help_and_version_help(const char * spaces) {
     cout << "  -h, --help          " << spaces << "display this help and exit\n"
-	    "  -V, --version       " << spaces << "output version information and exit\n"
-	    "\n"
-	    "Please report bugs at:\n"
-	    PACKAGE_BUGREPORT << endl;
+            "  -V, --version       " << spaces << "output version information and exit\n"
+            "\n"
+            "Please report bugs at:\n"
+            PACKAGE_BUGREPORT << endl;
 }

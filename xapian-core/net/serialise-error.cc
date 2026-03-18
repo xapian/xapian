@@ -44,34 +44,34 @@ serialise_error(const Xapian::Error &e)
 
 void
 unserialise_error(const string &serialised_error, const string &prefix,
-		  const string &new_context)
+                  const string &new_context)
 {
     // Use c_str() so last string is nul-terminated.
     const char * p = serialised_error.c_str();
     const char * end = p + serialised_error.size();
     if (p != end) {
-	char type = *p++;
+        char type = *p++;
 
-	string context;
-	string msg(prefix);
-	if (!unpack_string(&p, end, context) ||
-	    !unpack_string_append(&p, end, msg)) {
-	    unpack_throw_serialisation_error(p);
-	}
+        string context;
+        string msg(prefix);
+        if (!unpack_string(&p, end, context) ||
+            !unpack_string_append(&p, end, msg)) {
+            unpack_throw_serialisation_error(p);
+        }
 
-	const char * error_string = (p == end) ? NULL : p;
+        const char * error_string = (p == end) ? NULL : p;
 
-	if (!new_context.empty()) {
-	    if (!context.empty()) {
-		msg += "; context was: ";
-		msg += context;
-	    }
-	    context = new_context;
-	}
+        if (!new_context.empty()) {
+            if (!context.empty()) {
+                msg += "; context was: ";
+                msg += context;
+            }
+            context = new_context;
+        }
 
-	switch (type) {
+        switch (type) {
 #include "xapian/errordispatch.h"
-	}
+        }
     }
 
     throw Xapian::InternalError("Unknown remote exception type", new_context);

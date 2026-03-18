@@ -39,19 +39,19 @@ using namespace std;
 // this case.
 static void
 handle_field(const char* start,
-	     const char* end,
-	     const char* field,
-	     size_t len,
-	     const char*& out,
-	     size_t& out_len)
+             const char* end,
+             const char* field,
+             size_t len,
+             const char*& out,
+             size_t& out_len)
 {
     if (size_t(end - start) > len && memcmp(start, field, len) == 0) {
-	start += len;
-	while (start != end && isspace(*start)) start++;
-	if (start != end && (end[-1] != '\r' || --end != start)) {
-	    out = start;
-	    out_len = end - start;
-	}
+        start += len;
+        while (start != end && isspace(*start)) start++;
+        if (start != end && (end[-1] != '\r' || --end != start)) {
+            out = start;
+            out_len = end - start;
+        }
     }
 }
 
@@ -59,17 +59,17 @@ handle_field(const char* start,
 // occurrence as we see it.
 static void
 handle_field(const char* start,
-	     const char* end,
-	     const char* field,
-	     size_t len,
-	     Field code)
+             const char* end,
+             const char* field,
+             size_t len,
+             Field code)
 {
     if (size_t(end - start) > len && memcmp(start, field, len) == 0) {
-	start += len;
-	while (start != end && isspace(*start)) start++;
-	if (start != end && (end[-1] != '\r' || --end != start)) {
-	    send_field(code, start, end - start);
-	}
+        start += len;
+        while (start != end && isspace(*start)) start++;
+        if (start != end && (end[-1] != '\r' || --end != start)) {
+            send_field(code, start, end - start);
+        }
     }
 }
 
@@ -83,53 +83,53 @@ parse_metadata(const char* data, size_t len)
     const char* end = p + len;
 
     while (p != end) {
-	const char* start = p;
-	p = static_cast<const char*>(memchr(p, '\n', end - start));
-	const char* eol;
-	if (p)
-	    eol = p++;
-	else
-	    p = eol = end;
-	if ((end - start) > 5 && memcmp(start, "meta:", 5) == 0) {
-	    start += 5;
-	    switch (*start) {
-		case 'i': {
-		    // Use dc:creator in preference to meta:initial-creator.
-		    if (!author_len)
-			HANDLE_FIELD(start, eol, "initial-creator",
-				     author, author_len);
-		    break;
-		}
-		case 'k': {
-		    HANDLE_FIELD(start, eol, "keyword", FIELD_KEYWORDS);
-		    break;
-		}
-	    }
-	} else if ((end - start) > 3 && memcmp(start, "dc:", 3) == 0) {
-	    start += 3;
-	    switch (*start) {
-		case 'c': {
-		    // Use dc:creator in preference to meta:initial-creator.
-		    HANDLE_FIELD(start, eol, "creator", author, author_len);
-		    break;
-		}
-		case 's': {
-		    HANDLE_FIELD(start, eol, "subject", FIELD_KEYWORDS);
-		    break;
-		}
-		case 't': {
-		    HANDLE_FIELD(start, eol, "title", FIELD_TITLE);
-		    break;
-		}
-	    }
-	} else if ((end - start) > 8 && memcmp(start, "dcterms:", 8) == 0) {
-	    start += 8;
-	    HANDLE_FIELD(start, eol, "available", FIELD_KEYWORDS);
-	}
+        const char* start = p;
+        p = static_cast<const char*>(memchr(p, '\n', end - start));
+        const char* eol;
+        if (p)
+            eol = p++;
+        else
+            p = eol = end;
+        if ((end - start) > 5 && memcmp(start, "meta:", 5) == 0) {
+            start += 5;
+            switch (*start) {
+                case 'i': {
+                    // Use dc:creator in preference to meta:initial-creator.
+                    if (!author_len)
+                        HANDLE_FIELD(start, eol, "initial-creator",
+                                     author, author_len);
+                    break;
+                }
+                case 'k': {
+                    HANDLE_FIELD(start, eol, "keyword", FIELD_KEYWORDS);
+                    break;
+                }
+            }
+        } else if ((end - start) > 3 && memcmp(start, "dc:", 3) == 0) {
+            start += 3;
+            switch (*start) {
+                case 'c': {
+                    // Use dc:creator in preference to meta:initial-creator.
+                    HANDLE_FIELD(start, eol, "creator", author, author_len);
+                    break;
+                }
+                case 's': {
+                    HANDLE_FIELD(start, eol, "subject", FIELD_KEYWORDS);
+                    break;
+                }
+                case 't': {
+                    HANDLE_FIELD(start, eol, "title", FIELD_TITLE);
+                    break;
+                }
+            }
+        } else if ((end - start) > 8 && memcmp(start, "dcterms:", 8) == 0) {
+            start += 8;
+            HANDLE_FIELD(start, eol, "available", FIELD_KEYWORDS);
+        }
     }
 
     if (author_len) {
-	send_field(FIELD_AUTHOR, author, author_len);
+        send_field(FIELD_AUTHOR, author, author_len);
     }
 }
 
@@ -139,8 +139,8 @@ parse_content(const RVNGStringVector& pages)
     auto page_count = pages.size();
     send_field_page_count(page_count);
     for (unsigned i = 0; i < page_count; ++i) {
-	const RVNGString& page = pages[i];
-	send_field(FIELD_BODY, page.cstr(), page.size());
+        const RVNGString& page = pages[i];
+        send_field(FIELD_BODY, page.cstr(), page.size());
     }
 }
 
@@ -150,16 +150,16 @@ extract_text(RVNGFileStream* input)
     RVNGString dump;
     RVNGTextTextGenerator content_gen(dump, false);
     if (MWAWDocument::parse(input, &content_gen) != MWAWDocument::MWAW_R_OK) {
-	send_field(FIELD_ERROR, "Failed to extract text");
-	return;
+        send_field(FIELD_ERROR, "Failed to extract text");
+        return;
     }
     send_field(FIELD_BODY, dump.cstr(), dump.size());
 
     RVNGString metadata;
     RVNGTextTextGenerator metadata_gen(metadata, true);
     if (MWAWDocument::parse(input, &metadata_gen) != MWAWDocument::MWAW_R_OK) {
-	send_field(FIELD_ERROR, "Failed to extract metadata");
-	return;
+        send_field(FIELD_ERROR, "Failed to extract metadata");
+        return;
     }
 
     parse_metadata(metadata.cstr(), metadata.size());
@@ -172,21 +172,21 @@ extract_spreadsheet(RVNGFileStream* input)
     RVNGTextSpreadsheetGenerator metadata(pages_metadata, true);
     MWAWDocument::Result result = MWAWDocument::parse(input, &metadata);
     if (result != MWAWDocument::MWAW_R_OK) {
-	send_field(FIELD_ERROR, "Failed to extract metadata");
-	return;
+        send_field(FIELD_ERROR, "Failed to extract metadata");
+        return;
     }
 
     for (unsigned i = 0; i < pages_metadata.size(); ++i) {
-	const RVNGString& page = pages_metadata[i];
-	parse_metadata(page.cstr(), page.size());
+        const RVNGString& page = pages_metadata[i];
+        parse_metadata(page.cstr(), page.size());
     }
 
     RVNGStringVector pages;
     RVNGTextSpreadsheetGenerator content(pages, false);
     result = MWAWDocument::parse(input, &content);
     if (result != MWAWDocument::MWAW_R_OK) {
-	send_field(FIELD_ERROR, "Failed to extract text");
-	return;
+        send_field(FIELD_ERROR, "Failed to extract text");
+        return;
     }
     parse_content(pages);
 }
@@ -198,8 +198,8 @@ extract_presentation(RVNGFileStream* input)
     RVNGTextPresentationGenerator content(pages);
     MWAWDocument::Result result = MWAWDocument::parse(input, &content);
     if (result != MWAWDocument::MWAW_R_OK) {
-	send_field(FIELD_ERROR, "Failed to extract text");
-	return;
+        send_field(FIELD_ERROR, "Failed to extract text");
+        return;
     }
     parse_content(pages);
 }
@@ -211,8 +211,8 @@ extract_drawing(RVNGFileStream* input)
     RVNGTextDrawingGenerator content(pages);
     MWAWDocument::Result result = MWAWDocument::parse(input, &content);
     if (result != MWAWDocument::MWAW_R_OK) {
-	send_field(FIELD_ERROR, "Failed to extract text");
-	return;
+        send_field(FIELD_ERROR, "Failed to extract text");
+        return;
     }
     parse_content(pages);
 }
@@ -234,23 +234,23 @@ extract(const string& filename, const string&)
 
     confidence = MWAWDocument::isFileFormatSupported(&input, type, kind);
     if (confidence != MWAWDocument::MWAW_C_EXCELLENT) {
-	send_field(FIELD_ERROR, "File format not supported");
-	return;
+        send_field(FIELD_ERROR, "File format not supported");
+        return;
     }
 
     switch (kind) {
-	case MWAWDocument::MWAW_K_TEXT:
-	    extract_text(&input);
-	    break;
-	case MWAWDocument::MWAW_K_SPREADSHEET:
-	case MWAWDocument::MWAW_K_DATABASE:
-	    extract_spreadsheet(&input);
-	    break;
-	case MWAWDocument::MWAW_K_PRESENTATION:
-	    extract_presentation(&input);
-	    break;
-	default:
-	    extract_drawing(&input);
-	    break;
+        case MWAWDocument::MWAW_K_TEXT:
+            extract_text(&input);
+            break;
+        case MWAWDocument::MWAW_K_SPREADSHEET:
+        case MWAWDocument::MWAW_K_DATABASE:
+            extract_spreadsheet(&input);
+            break;
+        case MWAWDocument::MWAW_K_PRESENTATION:
+            extract_presentation(&input);
+            break;
+        default:
+            extract_drawing(&input);
+            break;
     }
 }

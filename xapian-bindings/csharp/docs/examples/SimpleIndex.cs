@@ -21,50 +21,50 @@ using System;
 
 class SimpleIndex {
     public static void Main(string[] argv) {
-	if (argv.Length != 1) {
-	    Console.Error.WriteLine("Usage: SimpleIndex PATH_TO_DATABASE");
-	    Environment.Exit(1);
-	}
+        if (argv.Length != 1) {
+            Console.Error.WriteLine("Usage: SimpleIndex PATH_TO_DATABASE");
+            Environment.Exit(1);
+        }
 
-	try {
-	    // Open the database for update, creating a new database if
-	    // necessary.
-	    Xapian.WritableDatabase database;
-	    database = new Xapian.WritableDatabase(argv[0], Xapian.Xapian.DB_CREATE_OR_OPEN);
+        try {
+            // Open the database for update, creating a new database if
+            // necessary.
+            Xapian.WritableDatabase database;
+            database = new Xapian.WritableDatabase(argv[0], Xapian.Xapian.DB_CREATE_OR_OPEN);
 
-	    Xapian.TermGenerator indexer = new Xapian.TermGenerator();
-	    Xapian.Stem stemmer = new Xapian.Stem("english");
-	    indexer.SetStemmer(stemmer);
+            Xapian.TermGenerator indexer = new Xapian.TermGenerator();
+            Xapian.Stem stemmer = new Xapian.Stem("english");
+            indexer.SetStemmer(stemmer);
 
-	    string para = "";
-	    while (true) {
-		string line = Console.In.ReadLine();
-		if (line == null) {
-		    if (para == "") break;
-		    line = "";
-		}
-		line = line.Trim();
-		if (line == "") {
-		    if (para != "") {
-			// We've reached the end of a paragraph, so index it.
-			Xapian.Document doc = new Xapian.Document();
-			doc.SetData(para);
+            string para = "";
+            while (true) {
+                string line = Console.In.ReadLine();
+                if (line == null) {
+                    if (para == "") break;
+                    line = "";
+                }
+                line = line.Trim();
+                if (line == "") {
+                    if (para != "") {
+                        // We've reached the end of a paragraph, so index it.
+                        Xapian.Document doc = new Xapian.Document();
+                        doc.SetData(para);
 
-			indexer.SetDocument(doc);
-			indexer.IndexText(para);
+                        indexer.SetDocument(doc);
+                        indexer.IndexText(para);
 
-			// Add the document to the database.
-			database.AddDocument(doc);
-			para = "";
-		    }
-		} else {
-		    if (para != "") para += " ";
-		    para += line;
-		}
-	    }
-	} catch (Exception e) {
-	    Console.Error.WriteLine("Exception: " + e.ToString());
-	    Environment.Exit(1);
-	}
+                        // Add the document to the database.
+                        database.AddDocument(doc);
+                        para = "";
+                    }
+                } else {
+                    if (para != "") para += " ";
+                    para += line;
+                }
+            }
+        } catch (Exception e) {
+            Console.Error.WriteLine("Exception: " + e.ToString());
+            Environment.Exit(1);
+        }
     }
 }

@@ -37,44 +37,44 @@ class MyDontUsePostingSource : public Xapian::PostingSource {
   public:
     MyDontUsePostingSource() : Xapian::PostingSource() {}
     PostingSource* clone() const override {
-	return new MyDontUsePostingSource();
+        return new MyDontUsePostingSource();
     }
 
     void reset(const Xapian::Database&, Xapian::doccount) override { }
 
     double get_weight() const override {
-	FAIL_TEST("MyDontUsePostingSource::get_weight() called");
+        FAIL_TEST("MyDontUsePostingSource::get_weight() called");
     }
 
     // These bounds could be better, but that's not important here.
     Xapian::doccount get_termfreq_min() const override {
-	FAIL_TEST("MyDontUsePostingSource::get_termfreq_min() called");
+        FAIL_TEST("MyDontUsePostingSource::get_termfreq_min() called");
     }
     Xapian::doccount get_termfreq_est() const override {
-	FAIL_TEST("MyDontUsePostingSource::get_termfreq_est() called");
+        FAIL_TEST("MyDontUsePostingSource::get_termfreq_est() called");
     }
     Xapian::doccount get_termfreq_max() const override {
-	FAIL_TEST("MyDontUsePostingSource::get_termfreq_max() called");
+        FAIL_TEST("MyDontUsePostingSource::get_termfreq_max() called");
     }
 
     void next(double) override {
-	FAIL_TEST("MyDontUsePostingSource::next() called");
+        FAIL_TEST("MyDontUsePostingSource::next() called");
     }
 
     void skip_to(Xapian::docid, double) override {
-	FAIL_TEST("MyDontUsePostingSource::skip_to() called");
+        FAIL_TEST("MyDontUsePostingSource::skip_to() called");
     }
 
     bool at_end() const override {
-	FAIL_TEST("MyDontUsePostingSource::at_end() called");
+        FAIL_TEST("MyDontUsePostingSource::at_end() called");
     }
 
     Xapian::docid get_docid() const override {
-	FAIL_TEST("MyDontUsePostingSource::get_docid() called");
+        FAIL_TEST("MyDontUsePostingSource::get_docid() called");
     }
 
     string get_description() const override {
-	return "MyDontUsePostingSource";
+        return "MyDontUsePostingSource";
     }
 };
 
@@ -84,8 +84,8 @@ DEFINE_TESTCASE(boolandmaybe1, backend && !remote) {
 
     MyDontUsePostingSource src;
     Xapian::Query query(Xapian::Query::OP_AND_MAYBE,
-			Xapian::Query::MatchAll,
-			Xapian::Query(&src));
+                        Xapian::Query::MatchAll,
+                        Xapian::Query(&src));
 
     enquire.set_query(0.0 * query);
     enquire.get_mset(0, 10);
@@ -100,7 +100,7 @@ DEFINE_TESTCASE(boolandmaybe1, backend && !remote) {
  */
 DEFINE_TESTCASE(boolandmaybe2, backend) {
     Xapian::Query query(Xapian::Query::OP_AND_MAYBE,
-			Xapian::Query("last"), Xapian::Query("day"));
+                        Xapian::Query("last"), Xapian::Query("day"));
     Xapian::MSet mset1, mset2, mset3;
     Xapian::Database db(get_database("etext"));
     Xapian::Enquire enquire1(db), enquire2(db), enquire3(db);
@@ -120,31 +120,31 @@ DEFINE_TESTCASE(boolandmaybe2, backend) {
 
     vector<Xapian::docid> docids;
     for (Xapian::doccount i = 0; i != mset3.size(); ++i) {
-	docids.push_back(*mset3[i]);
+        docids.push_back(*mset3[i]);
     }
     sort(docids.begin(), docids.end());
 
     for (Xapian::doccount i = 0; i != mset1.size(); ++i) {
-	TEST_EQUAL(*mset1[i], *mset2[i]);
-	TEST_EQUAL(*mset1[i], docids[i]);
+        TEST_EQUAL(*mset1[i], *mset2[i]);
+        TEST_EQUAL(*mset1[i], docids[i]);
     }
 
     for (Xapian::docid did : docids) {
-	Xapian::TermIterator ti1(enquire1.get_matching_terms_begin(did));
-	Xapian::TermIterator ti2(enquire2.get_matching_terms_begin(did));
-	Xapian::TermIterator ti3(enquire3.get_matching_terms_begin(did));
+        Xapian::TermIterator ti1(enquire1.get_matching_terms_begin(did));
+        Xapian::TermIterator ti2(enquire2.get_matching_terms_begin(did));
+        Xapian::TermIterator ti3(enquire3.get_matching_terms_begin(did));
 
-	while (ti1 != enquire1.get_matching_terms_end(did)) {
-	    TEST(ti2 != enquire2.get_matching_terms_end(did));
-	    TEST(ti3 != enquire3.get_matching_terms_end(did));
-	    TEST_EQUAL(*ti1, *ti2);
-	    TEST_EQUAL(*ti2, *ti3);
+        while (ti1 != enquire1.get_matching_terms_end(did)) {
+            TEST(ti2 != enquire2.get_matching_terms_end(did));
+            TEST(ti3 != enquire3.get_matching_terms_end(did));
+            TEST_EQUAL(*ti1, *ti2);
+            TEST_EQUAL(*ti2, *ti3);
 
-	    ++ti1;
-	    ++ti2;
-	    ++ti3;
-	}
-	TEST(ti2 == enquire2.get_matching_terms_end(did));
-	TEST(ti3 == enquire3.get_matching_terms_end(did));
+            ++ti1;
+            ++ti2;
+            ++ti3;
+        }
+        TEST(ti2 == enquire2.get_matching_terms_end(did));
+        TEST(ti3 == enquire3.get_matching_terms_end(did));
     }
 }

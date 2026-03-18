@@ -47,17 +47,17 @@ HoneySynonymTable::merge_changes()
     if (last_term.empty()) return;
 
     if (last_synonyms.empty()) {
-	del(last_term);
+        del(last_term);
     } else {
-	string tag;
+        string tag;
 
-	for (auto&& synonym : last_synonyms) {
-	    tag += uint8_t(synonym.size() ^ MAGIC_XOR_VALUE);
-	    tag += synonym;
-	}
+        for (auto&& synonym : last_synonyms) {
+            tag += uint8_t(synonym.size() ^ MAGIC_XOR_VALUE);
+            tag += synonym;
+        }
 
-	add(last_term, tag);
-	last_synonyms.clear();
+        add(last_term, tag);
+        last_synonyms.clear();
     }
     last_term.resize(0);
 }
@@ -66,23 +66,23 @@ void
 HoneySynonymTable::add_synonym(string_view term, string_view synonym)
 {
     if (last_term != term) {
-	merge_changes();
-	last_term = term;
+        merge_changes();
+        last_term = term;
 
-	string tag;
-	if (get_exact_entry(term, tag)) {
-	    const char* p = tag.data();
-	    const char* end = p + tag.size();
-	    while (p != end) {
-		size_t len;
-		if (p == end ||
-		    (len = uint8_t(*p) ^ MAGIC_XOR_VALUE) >= size_t(end - p))
-		    throw Xapian::DatabaseCorruptError("Bad synonym data");
-		++p;
-		last_synonyms.insert(string(p, len));
-		p += len;
-	    }
-	}
+        string tag;
+        if (get_exact_entry(term, tag)) {
+            const char* p = tag.data();
+            const char* end = p + tag.size();
+            while (p != end) {
+                size_t len;
+                if (p == end ||
+                    (len = uint8_t(*p) ^ MAGIC_XOR_VALUE) >= size_t(end - p))
+                    throw Xapian::DatabaseCorruptError("Bad synonym data");
+                ++p;
+                last_synonyms.insert(string(p, len));
+                p += len;
+            }
+        }
     }
 
     last_synonyms.emplace(synonym);
@@ -92,23 +92,23 @@ void
 HoneySynonymTable::remove_synonym(string_view term, string_view synonym)
 {
     if (last_term != term) {
-	merge_changes();
-	last_term = term;
+        merge_changes();
+        last_term = term;
 
-	string tag;
-	if (get_exact_entry(term, tag)) {
-	    const char* p = tag.data();
-	    const char* end = p + tag.size();
-	    while (p != end) {
-		size_t len;
-		if (p == end ||
-		    (len = uint8_t(*p) ^ MAGIC_XOR_VALUE) >= size_t(end - p))
-		    throw Xapian::DatabaseCorruptError("Bad synonym data");
-		++p;
-		last_synonyms.emplace(p, len);
-		p += len;
-	    }
-	}
+        string tag;
+        if (get_exact_entry(term, tag)) {
+            const char* p = tag.data();
+            const char* end = p + tag.size();
+            while (p != end) {
+                size_t len;
+                if (p == end ||
+                    (len = uint8_t(*p) ^ MAGIC_XOR_VALUE) >= size_t(end - p))
+                    throw Xapian::DatabaseCorruptError("Bad synonym data");
+                ++p;
+                last_synonyms.emplace(p, len);
+                p += len;
+            }
+        }
     }
 
 #ifdef __cpp_lib_associative_heterogeneous_erasure // C++23
@@ -127,10 +127,10 @@ HoneySynonymTable::clear_synonyms(string_view term)
     // synonyms for a term, then clear those for another, then modify those for
     // the first term again) seems much less likely.
     if (last_term == term) {
-	last_synonyms.clear();
+        last_synonyms.clear();
     } else {
-	merge_changes();
-	last_term = term;
+        merge_changes();
+        last_term = term;
     }
 }
 
@@ -140,27 +140,27 @@ HoneySynonymTable::open_termlist(string_view term) const
     vector<string> synonyms;
 
     if (last_term == term) {
-	if (last_synonyms.empty()) return NULL;
+        if (last_synonyms.empty()) return NULL;
 
-	synonyms.reserve(last_synonyms.size());
-	for (auto&& i : last_synonyms) {
-	    synonyms.push_back(i);
-	}
+        synonyms.reserve(last_synonyms.size());
+        for (auto&& i : last_synonyms) {
+            synonyms.push_back(i);
+        }
     } else {
-	string tag;
-	if (!get_exact_entry(term, tag)) return NULL;
+        string tag;
+        if (!get_exact_entry(term, tag)) return NULL;
 
-	const char* p = tag.data();
-	const char* end = p + tag.size();
-	while (p != end) {
-	    size_t len;
-	    if (p == end ||
-		(len = uint8_t(*p) ^ MAGIC_XOR_VALUE) >= size_t(end - p))
-		throw Xapian::DatabaseCorruptError("Bad synonym data");
-	    ++p;
-	    synonyms.push_back(string(p, len));
-	    p += len;
-	}
+        const char* p = tag.data();
+        const char* end = p + tag.size();
+        while (p != end) {
+            size_t len;
+            if (p == end ||
+                (len = uint8_t(*p) ^ MAGIC_XOR_VALUE) >= size_t(end - p))
+                throw Xapian::DatabaseCorruptError("Bad synonym data");
+            ++p;
+            synonyms.push_back(string(p, len));
+            p += len;
+        }
     }
 
     return new VectorTermList(synonyms.begin(), synonyms.end());
@@ -186,7 +186,7 @@ Xapian::doccount
 HoneySynonymTermList::get_termfreq() const
 {
     throw Xapian::InvalidOperationError("HoneySynonymTermList::get_termfreq() "
-					"not meaningful");
+                                        "not meaningful");
 }
 
 TermList*
@@ -194,15 +194,15 @@ HoneySynonymTermList::next()
 {
     LOGCALL(DB, TermList*, "HoneySynonymTermList::next", NO_ARGS);
     if (cursor->after_end()) {
-	// This is the first action on a new HoneySynonymTermList.
-	if (cursor->find_entry_ge(prefix))
-	    RETURN(NULL);
+        // This is the first action on a new HoneySynonymTermList.
+        if (cursor->find_entry_ge(prefix))
+            RETURN(NULL);
     } else {
-	cursor->next();
+        cursor->next();
     }
     if (cursor->after_end() || !startswith(cursor->current_key, prefix)) {
-	// We've reached the end of the prefixed terms.
-	RETURN(this);
+        // We've reached the end of the prefixed terms.
+        RETURN(this);
     }
     current_term = cursor->current_key;
 
@@ -214,23 +214,23 @@ HoneySynonymTermList::skip_to(string_view term)
 {
     LOGCALL(DB, TermList*, "HoneySynonymTermList::skip_to", term);
     if (cursor->after_end() && prefix > term) {
-	// This is the first action on a new HoneySynonymTermList and we were
-	// asked to skip to a term before the prefix - this ought to leave us
-	// on the first term with the specified prefix.
-	RETURN(skip_to(prefix));
+        // This is the first action on a new HoneySynonymTermList and we were
+        // asked to skip to a term before the prefix - this ought to leave us
+        // on the first term with the specified prefix.
+        RETURN(skip_to(prefix));
     }
 
     if (cursor->find_entry_ge(term)) {
-	// Exact match.
-	current_term = term;
+        // Exact match.
+        current_term = term;
     } else {
-	// The exact term we asked for isn't there, so check if the next
-	// term after it also has the right prefix.
-	if (cursor->after_end() || !startswith(cursor->current_key, prefix)) {
-	    // We've reached the end of the prefixed terms.
-	    RETURN(this);
-	}
-	current_term = cursor->current_key;
+        // The exact term we asked for isn't there, so check if the next
+        // term after it also has the right prefix.
+        if (cursor->after_end() || !startswith(cursor->current_key, prefix)) {
+            // We've reached the end of the prefixed terms.
+            RETURN(this);
+        }
+        current_term = cursor->current_key;
     }
     RETURN(NULL);
 }

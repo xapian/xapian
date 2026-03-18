@@ -77,9 +77,9 @@ class RemoteTcpServer : public TcpServer {
      *				made or lost?
      */
     RemoteTcpServer(const std::vector<std::string> &dbpaths_,
-		    const std::string &host, int port,
-		    double active_timeout, double idle_timeout,
-		    bool writable, bool verbose);
+                    const std::string &host, int port,
+                    double active_timeout, double idle_timeout,
+                    bool writable, bool verbose);
 
     /// Set the registry used for (un)serialisation.
     void set_registry(const Xapian::Registry & reg_) { reg = reg_; }

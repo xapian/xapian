@@ -53,8 +53,8 @@
  */
 template<typename T1, typename T2, typename R>
 typename std::enable_if_t<std::is_unsigned_v<T1> &&
-			  std::is_unsigned_v<T2> &&
-			  std::is_unsigned_v<R>, bool>
+                          std::is_unsigned_v<T2> &&
+                          std::is_unsigned_v<R>, bool>
 add_overflows(T1 a, T2 b, R& res) {
 #if HAVE_DECL___BUILTIN_ADD_OVERFLOW
     return __builtin_add_overflow(a, b, &res);
@@ -72,7 +72,7 @@ add_overflows(T1 a, T2 b, R& res) {
     // then an input.
     typedef decltype(r) r_type;
     return (sizeof(R) <= sizeof(T1) || sizeof(R) <= sizeof(T2)) &&
-	   (r_type(res) != r || r < r_type(b));
+           (r_type(res) != r || r < r_type(b));
 #endif
 }
 
@@ -84,10 +84,10 @@ add_overflows(T1 a, T2 b, R& res) {
 template<>
 inline bool
 add_overflows<unsigned,
-	      unsigned,
-	      unsigned>(unsigned a,
-			unsigned b,
-			unsigned& res) {
+              unsigned,
+              unsigned>(unsigned a,
+                        unsigned b,
+                        unsigned& res) {
     return _addcarry_u32(0, a, b, &res) != 0;
 }
 # endif
@@ -96,10 +96,10 @@ add_overflows<unsigned,
 template<>
 inline bool
 add_overflows<unsigned __int64,
-	      unsigned __int64,
-	      unsigned __int64>(unsigned __int64 a,
-				unsigned __int64 b,
-				unsigned __int64& res) {
+              unsigned __int64,
+              unsigned __int64>(unsigned __int64 a,
+                                unsigned __int64 b,
+                                unsigned __int64& res) {
     return _addcarry_u64(0, a, b, &res) != 0;
 }
 # endif
@@ -120,8 +120,8 @@ add_overflows<unsigned __int64,
  */
 template<typename T1, typename T2, typename R>
 typename std::enable_if_t<std::is_unsigned_v<T1> &&
-			  std::is_unsigned_v<T2> &&
-			  std::is_unsigned_v<R>, bool>
+                          std::is_unsigned_v<T2> &&
+                          std::is_unsigned_v<R>, bool>
 sub_overflows(T1 a, T2 b, R& res) {
 #if HAVE_DECL___BUILTIN_ADD_OVERFLOW
     return __builtin_sub_overflow(a, b, &res);
@@ -147,10 +147,10 @@ sub_overflows(T1 a, T2 b, R& res) {
 template<>
 inline bool
 sub_overflows<unsigned,
-	      unsigned,
-	      unsigned>(unsigned a,
-			unsigned b,
-			unsigned& res) {
+              unsigned,
+              unsigned>(unsigned a,
+                        unsigned b,
+                        unsigned& res) {
     return _subborrow_u32(0, a, b, &res) != 0;
 }
 # endif
@@ -159,10 +159,10 @@ sub_overflows<unsigned,
 template<>
 inline bool
 sub_overflows<unsigned __int64,
-	      unsigned __int64,
-	      unsigned __int64>(unsigned __int64 a,
-				unsigned __int64 b,
-				unsigned __int64& res) {
+              unsigned __int64,
+              unsigned __int64>(unsigned __int64 a,
+                                unsigned __int64 b,
+                                unsigned __int64& res) {
     return _subborrow_u64(0, a, b, &res) != 0;
 }
 # endif
@@ -183,8 +183,8 @@ sub_overflows<unsigned __int64,
  */
 template<typename T1, typename T2, typename R>
 typename std::enable_if_t<std::is_unsigned_v<T1> &&
-			  std::is_unsigned_v<T2> &&
-			  std::is_unsigned_v<R>, bool>
+                          std::is_unsigned_v<T2> &&
+                          std::is_unsigned_v<R>, bool>
 mul_overflows(T1 a, T2 b, R& res) {
 #if HAVE_DECL___BUILTIN_MUL_OVERFLOW
     return __builtin_mul_overflow(a, b, &res);

@@ -26,13 +26,13 @@ using namespace std;
 
 size_t
 check_honey_table(const char* tablename,
-		  string_view db_dir,
-		  int fd,
-		  off_t offset_,
-		  const HoneyVersion& version_file,
-		  int opts,
-		  vector<Xapian::termcount>& doclens,
-		  ostream* out)
+                  string_view db_dir,
+                  int fd,
+                  off_t offset_,
+                  const HoneyVersion& version_file,
+                  int opts,
+                  vector<Xapian::termcount>& doclens,
+                  ostream* out)
 {
     (void)tablename;
     (void)db_dir;

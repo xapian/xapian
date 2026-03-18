@@ -76,32 +76,32 @@ get_free_physical_memory()
     /* HP-UX: */
     struct pst_dynamic info;
     if (pstat_getdynamic(&info, sizeof(info), 1, 0) == 1) {
-	pagesize = getpagesize();
-	pages = info.psd_free;
+        pagesize = getpagesize();
+        pages = info.psd_free;
     }
 #elif defined CTL_VM && (defined VM_TOTAL || defined VM_METER)
     /* FreeBSD: */
     struct vmtotal vm_info;
     int mib[2] = {
-	CTL_VM,
+        CTL_VM,
 #ifdef VM_TOTAL
-	VM_TOTAL
+        VM_TOTAL
 #else
-	VM_METER
+        VM_METER
 #endif
     };
     size_t len = sizeof(vm_info);
     if (sysctl(mib, 2, &vm_info, &len, NULL, 0) == 0) {
-	pagesize = getpagesize();
-	pages = vm_info.t_free;
+        pagesize = getpagesize();
+        pages = vm_info.t_free;
     }
 #endif
     if (pagesize > 0 && pages > 0) {
-	long mem = LONG_MAX;
-	if (pages < LONG_MAX / pagesize) {
-	    mem = pages * pagesize;
-	}
-	return mem;
+        long mem = LONG_MAX;
+        if (pages < LONG_MAX / pagesize) {
+            mem = pages * pagesize;
+        }
+        return mem;
     }
     return -1;
 #else

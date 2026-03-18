@@ -40,8 +40,8 @@ class RemoteKeyList : public AllTermsList {
   public:
     /// Construct.
     RemoteKeyList(std::string_view prefix, std::string&& data_)
-	: data(data_) {
-	current_term = prefix;
+        : data(data_) {
+        current_term = prefix;
     }
 
     /// Return approximate size of this termlist.

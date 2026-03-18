@@ -34,6 +34,6 @@
 /// Test a relation holds,e.g. TEST_REL(a,>,b);
 #define TEST_REL(A,REL,B) \
     TEST_AND_EXPLAIN((A) REL (B), \
-	"Evaluates to: " << (A) << " "#REL" " << (B))
+        "Evaluates to: " << (A) << " "#REL" " << (B))
 
 #endif // XAPIAN_INCLUDED_TESTMACROS_H

@@ -71,8 +71,8 @@ gen_word(unsigned int length, unsigned int char_range)
     string result;
     result.reserve(length);
     for (unsigned int i = 0; i != length; ++i) {
-	char ch = char('a' + rand_int(char_range));
-	result.append(1, ch);
+        char ch = char('a' + rand_int(char_range));
+        result.append(1, ch);
     }
     return result;
 }
@@ -117,27 +117,27 @@ DEFINE_TESTCASE(randomidx1, writable && !inmemory) {
 
     unsigned int i;
     for (i = 0; i < runsize; ++i) {
-	Xapian::Document doc;
-	doc.set_data("random document " + str(i));
+        Xapian::Document doc;
+        doc.set_data("random document " + str(i));
 
-	unsigned int terms = rand_int(minterms, maxterms);
-	for (unsigned int j = 0; j < terms; ++j) {
-	    unsigned int termlen = rand_int(mintermlen, maxtermlen);
-	    doc.add_term(gen_word(termlen, termcharrange));
-	}
+        unsigned int terms = rand_int(minterms, maxterms);
+        for (unsigned int j = 0; j < terms; ++j) {
+            unsigned int termlen = rand_int(mintermlen, maxtermlen);
+            doc.add_term(gen_word(termlen, termcharrange));
+        }
 
-	// Add values to slots - all values are between 1 and 6 characters, but
-	// later slots have a greater range of characters, so more unique
-	// values.
-	for (unsigned int slot = 0; slot < slots_used; ++slot) {
-	    if (rand_01() < slot_probability) {
-		unsigned int len = rand_int(slotval_minlen, slotval_maxlen);
-		doc.add_value(slot, gen_word(len, slot + 2));
-	    }
-	}
+        // Add values to slots - all values are between 1 and 6 characters, but
+        // later slots have a greater range of characters, so more unique
+        // values.
+        for (unsigned int slot = 0; slot < slots_used; ++slot) {
+            if (rand_01() < slot_probability) {
+                unsigned int len = rand_int(slotval_minlen, slotval_maxlen);
+                doc.add_value(slot, gen_word(len, slot + 2));
+            }
+        }
 
-	dbw.add_document(doc);
-	logger.indexing_add();
+        dbw.add_document(doc);
+        logger.indexing_add();
     }
     dbw.commit();
     logger.indexing_end();

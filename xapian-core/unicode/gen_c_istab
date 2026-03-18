@@ -30,25 +30,25 @@ print OUT "{\n";
 for my $ch (0 .. 255) {
     $_ = chr($ch);
     if (/[ -~]/) {
-	print OUT "    /* '$_'  */ ";
+        print OUT "    /* '$_'  */ ";
     } else {
-	printf OUT "    /* 0x%02x */ ", $ch;
+        printf OUT "    /* 0x%02x */ ", $ch;
     }
     my @a;
     if (/[0-9a-fA-F]/) {
-	push @a, sprintf "0x%02x", hex($_);
+        push @a, sprintf "0x%02x", hex($_);
     }
     if (/[A-Za-z]/) {
-	push @a, 'Xapian::Internal::IS_ALPHA';
+        push @a, 'Xapian::Internal::IS_ALPHA';
     }
     if (/[A-Z]/) {
-	push @a, 'Xapian::Internal::IS_UPPER';
+        push @a, 'Xapian::Internal::IS_UPPER';
     }
     if (/[0-9]/) {
-	push @a, 'Xapian::Internal::IS_DIGIT';
+        push @a, 'Xapian::Internal::IS_DIGIT';
     }
     if (/[\t\n\f\r ]/) {
-	push @a, 'Xapian::Internal::IS_SPACE';
+        push @a, 'Xapian::Internal::IS_SPACE';
     }
     @a > 0 or @a = (0);
     print OUT join ' | ', @a;

@@ -39,13 +39,13 @@ load_file_from_fd(int fd, string& output)
     output.resize(0);
     char blk[4096];
     while (true) {
-	ssize_t c = read(fd, blk, sizeof(blk));
-	if (c <= 0) {
-	    if (c == 0) break;
-	    if (errno == EINTR) continue;
-	    return false;
-	}
-	output.append(blk, c);
+        ssize_t c = read(fd, blk, sizeof(blk));
+        if (c <= 0) {
+            if (c == 0) break;
+            if (errno == EINTR) continue;
+            return false;
+        }
+        output.append(blk, c);
     }
 
     return true;
@@ -53,7 +53,7 @@ load_file_from_fd(int fd, string& output)
 
 bool
 load_file(const string& file_name, size_t max_to_read, int flags,
-	  string& output, bool* truncated)
+          string& output, bool* truncated)
 {
     mode_t mode = O_BINARY | O_RDONLY;
 #if defined O_NOATIME && O_NOATIME != 0
@@ -63,8 +63,8 @@ load_file(const string& file_name, size_t max_to_read, int flags,
     int fd = open(file_name.c_str(), mode);
 #if defined O_NOATIME && O_NOATIME != 0
     if (fd < 0 && (mode & O_NOATIME)) {
-	mode &= ~O_NOATIME;
-	fd = open(file_name.c_str(), mode);
+        mode &= ~O_NOATIME;
+        fd = open(file_name.c_str(), mode);
     }
 #endif
     if (fd < 0) return false;
@@ -79,56 +79,56 @@ load_file(const string& file_name, size_t max_to_read, int flags,
     // a no-op.  We can revise this conditional if it gets usefully
     // implemented.
     if (flags & NOCACHE)
-	posix_fadvise(fd, 0, 0, POSIX_FADV_NOREUSE);
+        posix_fadvise(fd, 0, 0, POSIX_FADV_NOREUSE);
 # endif
 #endif
 
     struct stat st;
     if (fstat(fd, &st) < 0) {
-	int errno_save = errno;
-	close(fd);
-	errno = errno_save;
-	return false;
+        int errno_save = errno;
+        close(fd);
+        errno = errno_save;
+        return false;
     }
 
     if (!S_ISREG(st.st_mode)) {
-	close(fd);
-	errno = EINVAL;
-	return false;
+        close(fd);
+        errno = EINVAL;
+        return false;
     }
 
     size_t n = st.st_size;
     if (max_to_read && max_to_read < n) {
-	n = max_to_read;
-	if (truncated) *truncated = true;
+        n = max_to_read;
+        if (truncated) *truncated = true;
     } else {
-	if (truncated) *truncated = false;
+        if (truncated) *truncated = false;
     }
 
     output.resize(0);
     output.reserve(n);
     while (n) {
-	char blk[4096];
-	int c = read(fd, blk, min(n, sizeof(blk)));
-	if (c <= 0) {
-	    if (c == 0) break;
-	    if (errno == EINTR) continue;
-	    return false;
-	}
-	output.append(blk, c);
-	n -= c;
+        char blk[4096];
+        int c = read(fd, blk, min(n, sizeof(blk)));
+        if (c <= 0) {
+            if (c == 0) break;
+            if (errno == EINTR) continue;
+            return false;
+        }
+        output.append(blk, c);
+        n -= c;
     }
 
     if (flags & NOCACHE) {
 #ifdef HAVE_POSIX_FADVISE
 # ifdef __linux__
-	// Linux doesn't implement POSIX_FADV_NOREUSE so instead we use
-	// POSIX_FADV_DONTNEED just before closing the fd.  This is a bit more
-	// aggressive than we ideally want - really we just want to stop our
-	// reads from pushing other pages out of the OS cache, but if the
-	// pages we read are already cached it would probably be better to
-	// leave them cached after the read.
-	posix_fadvise(fd, 0, 0, POSIX_FADV_DONTNEED);
+        // Linux doesn't implement POSIX_FADV_NOREUSE so instead we use
+        // POSIX_FADV_DONTNEED just before closing the fd.  This is a bit more
+        // aggressive than we ideally want - really we just want to stop our
+        // reads from pushing other pages out of the OS cache, but if the
+        // pages we read are already cached it would probably be better to
+        // leave them cached after the read.
+        posix_fadvise(fd, 0, 0, POSIX_FADV_DONTNEED);
 # endif
 #endif
     }

@@ -111,7 +111,7 @@ class XAPIAN_VISIBILITY_DEFAULT KeyMaker
      *			implemented.
      */
     virtual KeyMaker* unserialise(const std::string& serialised,
-				  const Registry& context) const;
+                                  const Registry& context) const;
 
     /** Start reference counting this object.
      *
@@ -121,8 +121,8 @@ class XAPIAN_VISIBILITY_DEFAULT KeyMaker
      *  longer required.
      */
     KeyMaker * release() {
-	opt_intrusive_base::release();
-	return this;
+        opt_intrusive_base::release();
+        return this;
     }
 
     /** Start reference counting this object.
@@ -133,8 +133,8 @@ class XAPIAN_VISIBILITY_DEFAULT KeyMaker
      *  longer required.
      */
     const KeyMaker * release() const {
-	opt_intrusive_base::release();
-	return this;
+        opt_intrusive_base::release();
+        return this;
     }
 };
 
@@ -155,13 +155,13 @@ class XAPIAN_VISIBILITY_DEFAULT KeyMaker
  */
 class XAPIAN_VISIBILITY_DEFAULT MultiValueKeyMaker : public KeyMaker {
     struct KeySpec {
-	Xapian::valueno slot;
-	bool reverse;
-	std::string defvalue;
-	KeySpec(Xapian::valueno slot_, bool reverse_,
-		std::string_view defvalue_)
-		: slot(slot_), reverse(reverse_), defvalue(defvalue_)
-	{}
+        Xapian::valueno slot;
+        bool reverse;
+        std::string defvalue;
+        KeySpec(Xapian::valueno slot_, bool reverse_,
+                std::string_view defvalue_)
+                : slot(slot_), reverse(reverse_), defvalue(defvalue_)
+        {}
     };
     std::vector<KeySpec> slots;
 
@@ -175,7 +175,7 @@ class XAPIAN_VISIBILITY_DEFAULT MultiValueKeyMaker : public KeyMaker {
      */
     template<class Iterator>
     MultiValueKeyMaker(Iterator begin, Iterator end) {
-	while (begin != end) add_value(*begin++);
+        while (begin != end) add_value(*begin++);
     }
 
     virtual std::string operator()(const Xapian::Document & doc) const;
@@ -193,8 +193,8 @@ class XAPIAN_VISIBILITY_DEFAULT MultiValueKeyMaker : public KeyMaker {
      *			this slot.
      */
     void add_value(Xapian::valueno slot, bool reverse = false,
-		   std::string_view defvalue = {}) {
-	slots.push_back(KeySpec(slot, reverse, defvalue));
+                   std::string_view defvalue = {}) {
+        slots.push_back(KeySpec(slot, reverse, defvalue));
     }
 
     std::string name() const;
@@ -202,7 +202,7 @@ class XAPIAN_VISIBILITY_DEFAULT MultiValueKeyMaker : public KeyMaker {
     std::string serialise() const;
 
     KeyMaker* unserialise(const std::string& serialised,
-			  const Registry& context) const;
+                          const Registry& context) const;
 };
 
 }

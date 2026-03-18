@@ -35,8 +35,8 @@ MSXmlParser::closing_tag(const string& tag)
 {
     // For .docx and .pptx respectively.
     if (tag == "w:t" || tag == "a:t") {
-	if (!dump.empty())
-	    dump += ' ';
+        if (!dump.empty())
+            dump += ' ';
     }
     return true;
 }

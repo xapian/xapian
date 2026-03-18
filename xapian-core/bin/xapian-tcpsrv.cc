@@ -101,122 +101,122 @@ int main(int argc, char **argv) {
 
     int c;
     while ((c = gnu_getopt_long(argc, argv, opts, long_opts, NULL)) != -1) {
-	switch (c) {
-	    case OPT_HELP:
-		cout << PROG_NAME " - " PROG_DESC "\n\n";
-		show_usage();
-		exit(0);
-	    case OPT_VERSION:
-		cout << PROG_NAME " - " PACKAGE_STRING "\n";
-		exit(0);
-	    case 'I':
-		host.assign(optarg);
-		break;
-	    case 'p':
-		if (!parse_signed(optarg, port) ||
-		    (port < 1 || port > 65535)) {
-		    cerr << "Error: must specify a valid port number "
-			    "(between 1 and 65535).\n";
-		    exit(1);
-		}
-		break;
-	    case 'a': {
-		unsigned int active;
-		if (!parse_unsigned(optarg, active)) {
-		    cerr << "Active timeout must be >= 0\n";
-		    exit(1);
-		}
-		active_timeout = active * 1e-3;
-		break;
-	    }
-	    case 'i': {
-		unsigned int idle;
-		if (!parse_unsigned(optarg, idle)) {
-		    cerr << "Idle timeout must be >= 0\n";
-		    exit(1);
-		}
-		idle_timeout = idle * 1e-3;
-		break;
-	    }
-	    case 't': {
-		unsigned int timeout;
-		if (!parse_unsigned(optarg, timeout)) {
-		    cerr << "timeout must be >= 0\n";
-		    exit(1);
-		}
-		active_timeout = idle_timeout = timeout * 1e-3;
-		break;
-	    }
-	    case 'o':
-		one_shot = true;
-		break;
-	    case 'q':
-		verbose = false;
-		break;
-	    case 'w':
-		writable = true;
-		break;
-	    default:
-		syntax_error = true;
-	}
+        switch (c) {
+            case OPT_HELP:
+                cout << PROG_NAME " - " PROG_DESC "\n\n";
+                show_usage();
+                exit(0);
+            case OPT_VERSION:
+                cout << PROG_NAME " - " PACKAGE_STRING "\n";
+                exit(0);
+            case 'I':
+                host.assign(optarg);
+                break;
+            case 'p':
+                if (!parse_signed(optarg, port) ||
+                    (port < 1 || port > 65535)) {
+                    cerr << "Error: must specify a valid port number "
+                            "(between 1 and 65535).\n";
+                    exit(1);
+                }
+                break;
+            case 'a': {
+                unsigned int active;
+                if (!parse_unsigned(optarg, active)) {
+                    cerr << "Active timeout must be >= 0\n";
+                    exit(1);
+                }
+                active_timeout = active * 1e-3;
+                break;
+            }
+            case 'i': {
+                unsigned int idle;
+                if (!parse_unsigned(optarg, idle)) {
+                    cerr << "Idle timeout must be >= 0\n";
+                    exit(1);
+                }
+                idle_timeout = idle * 1e-3;
+                break;
+            }
+            case 't': {
+                unsigned int timeout;
+                if (!parse_unsigned(optarg, timeout)) {
+                    cerr << "timeout must be >= 0\n";
+                    exit(1);
+                }
+                active_timeout = idle_timeout = timeout * 1e-3;
+                break;
+            }
+            case 'o':
+                one_shot = true;
+                break;
+            case 'q':
+                verbose = false;
+                break;
+            case 'w':
+                writable = true;
+                break;
+            default:
+                syntax_error = true;
+        }
     }
 
     if (syntax_error || argv[optind] == NULL) {
-	show_usage();
-	exit(1);
+        show_usage();
+        exit(1);
     }
 
     if (port == 0) {
-	cerr << "Error: You must specify a port with --port\n";
-	exit(1);
+        cerr << "Error: You must specify a port with --port\n";
+        exit(1);
     }
 
     vector<string> dbnames(argv + optind, argv + argc);
     try {
-	if (!one_shot) {
-	    // Try to open the database(s) so we report problems now instead of
-	    // waiting for the first connection.
-	    for (auto& dbname : dbnames) {
-		if (writable) {
-		    Xapian::WritableDatabase db(dbname,
-						Xapian::DB_CREATE_OR_OPEN);
-		} else {
-		    Xapian::Database db(dbname);
-		}
-	    }
-	}
+        if (!one_shot) {
+            // Try to open the database(s) so we report problems now instead of
+            // waiting for the first connection.
+            for (auto& dbname : dbnames) {
+                if (writable) {
+                    Xapian::WritableDatabase db(dbname,
+                                                Xapian::DB_CREATE_OR_OPEN);
+                } else {
+                    Xapian::Database db(dbname);
+                }
+            }
+        }
 
-	if (verbose) {
-	    cout << "Starting";
-	    if (writable)
-		cout << " writable";
-	    cout << " server on";
-	    if (!host.empty())
-		cout << " host " << host << ",";
-	    cout << " port " << port << '\n';
-	}
+        if (verbose) {
+            cout << "Starting";
+            if (writable)
+                cout << " writable";
+            cout << " server on";
+            if (!host.empty())
+                cout << " host " << host << ",";
+            cout << " port " << port << '\n';
+        }
 
-	RemoteTcpServer server(dbnames, host, port, active_timeout,
-			       idle_timeout, writable, verbose);
+        RemoteTcpServer server(dbnames, host, port, active_timeout,
+                               idle_timeout, writable, verbose);
 
-	if (verbose)
-	    cout << "Listening...\n" << flush;
+        if (verbose)
+            cout << "Listening...\n" << flush;
 
-	register_user_weighting_schemes(server);
+        register_user_weighting_schemes(server);
 
-	if (one_shot) {
-	    server.run_once();
-	} else {
-	    server.run();
-	}
+        if (one_shot) {
+            server.run_once();
+        } else {
+            server.run();
+        }
     } catch (const Xapian::Error &e) {
-	cerr << e.get_description() << '\n';
-	exit(1);
+        cerr << e.get_description() << '\n';
+        exit(1);
     } catch (const exception &e) {
-	cerr << "Caught standard exception: " << e.what() << '\n';
-	exit(1);
+        cerr << "Caught standard exception: " << e.what() << '\n';
+        exit(1);
     } catch (...) {
-	cerr << "Caught unknown exception\n";
-	exit(1);
+        cerr << "Caught unknown exception\n";
+        exit(1);
     }
 }

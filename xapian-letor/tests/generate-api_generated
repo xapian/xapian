@@ -80,7 +80,7 @@ END
 for my $class (sort keys %uncopyableclasses) {
     my $params = $uncopyableclasses{$class};
     if ($params ne '') {
-	$params = "($params)";
+        $params = "($params)";
     }
     my $get_description = ! exists $no_get_description{$class};
     my $object = lc $class;
@@ -99,10 +99,10 @@ END
 for my $class (sort keys %copyableclasses) {
     my $params = $copyableclasses{$class};
     if ($params =~ /INMEMORY/) {
-	print "#ifdef XAPIAN_HAS_INMEMORY_BACKEND\n";
+        print "#ifdef XAPIAN_HAS_INMEMORY_BACKEND\n";
     }
     if ($params ne '') {
-	$params = "($params)";
+        $params = "($params)";
     }
     my $get_description = ! exists $no_get_description{$class};
     my $object = lc $class;
@@ -112,7 +112,7 @@ for my $class (sort keys %copyableclasses) {
     print "    $class copy_$object($object);\n";
     print "    $object = copy_$object;\n";
     if ($params =~ /INMEMORY/) {
-	print "#endif\n";
+        print "#endif\n";
     }
     print "\n";
 }

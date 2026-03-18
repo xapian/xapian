@@ -32,7 +32,7 @@
 using namespace std;
 
 BackendManagerSingleFile::BackendManagerSingleFile(const string& datadir_,
-						   BackendManager* sub_manager_)
+                                                   BackendManager* sub_manager_)
     : BackendManager(datadir_, "singlefile_" + sub_manager_->get_dbtype()),
       sub_manager(sub_manager_),
       cachedir(".singlefile" + sub_manager_->get_dbtype())
@@ -46,20 +46,20 @@ BackendManagerSingleFile::do_get_database_path(const vector<string> & files)
 {
     string db_path = cachedir + "/db";
     for (const string& file : files) {
-	db_path += "__";
-	db_path += file;
+        db_path += "__";
+        db_path += file;
     }
 
     if (!file_exists(db_path)) {
-	// No cached DB exists.  Create at a temporary path and rename
-	// so we don't leave a partial DB in place upon failure.
-	string tmp_path = db_path + ".tmp";
-	sub_manager->get_database(files).compact(tmp_path,
-						 Xapian::DBCOMPACT_SINGLE_FILE |
-						 Xapian::DBCOMPACT_NO_RENUMBER);
-	if (rename(tmp_path.c_str(), db_path.c_str()) < 0) {
-	    throw Xapian::DatabaseError("rename failed", errno);
-	}
+        // No cached DB exists.  Create at a temporary path and rename
+        // so we don't leave a partial DB in place upon failure.
+        string tmp_path = db_path + ".tmp";
+        sub_manager->get_database(files).compact(tmp_path,
+                                                 Xapian::DBCOMPACT_SINGLE_FILE |
+                                                 Xapian::DBCOMPACT_NO_RENUMBER);
+        if (rename(tmp_path.c_str(), db_path.c_str()) < 0) {
+            throw Xapian::DatabaseError("rename failed", errno);
+        }
     }
 
     return db_path;
@@ -88,14 +88,14 @@ BackendManagerSingleFile::finalise_generated_database(const string& name)
 
     // Convert to singlefile db.
     {
-	Xapian::Database db(generated_db_path);
-	db.compact(tmpfile,
-		   Xapian::DBCOMPACT_SINGLE_FILE |
-		   Xapian::DBCOMPACT_NO_RENUMBER);
+        Xapian::Database db(generated_db_path);
+        db.compact(tmpfile,
+                   Xapian::DBCOMPACT_SINGLE_FILE |
+                   Xapian::DBCOMPACT_NO_RENUMBER);
     }
 
     if (rename(tmpfile.c_str(), path.c_str()) < 0) {
-	throw Xapian::DatabaseError("rename failed", errno);
+        throw Xapian::DatabaseError("rename failed", errno);
     }
 }
 

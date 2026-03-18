@@ -56,15 +56,15 @@ class ValueRangePostList : public PostList {
 
   public:
     ValueRangePostList(const Xapian::Database::Internal *db_,
-		       EstimateOp* estimate_op_,
-		       Xapian::doccount termfreq_,
-		       Xapian::valueno slot_,
-		       const std::string &begin_, const std::string &end_)
-	: db(db_), slot(slot_), begin(begin_), end(end_),
-	  estimate_op(estimate_op_)
+                       EstimateOp* estimate_op_,
+                       Xapian::doccount termfreq_,
+                       Xapian::valueno slot_,
+                       const std::string &begin_, const std::string &end_)
+        : db(db_), slot(slot_), begin(begin_), end(end_),
+          estimate_op(estimate_op_)
     {
-	// Static estimate of termfreq based on the slot bounds and range ends.
-	termfreq = termfreq_;
+        // Static estimate of termfreq based on the slot bounds and range ends.
+        termfreq = termfreq_;
     }
 
     ~ValueRangePostList();
@@ -72,8 +72,8 @@ class ValueRangePostList : public PostList {
     Xapian::docid get_docid() const;
 
     double get_weight(Xapian::termcount doclen,
-		      Xapian::termcount unique_terms,
-		      Xapian::termcount wdfdocmax) const;
+                      Xapian::termcount unique_terms,
+                      Xapian::termcount wdfdocmax) const;
 
     Xapian::termcount get_wdfdocmax() const;
 

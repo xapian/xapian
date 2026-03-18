@@ -44,17 +44,17 @@ CosineDistance::similarity(const PointType& a, const PointType& b) const
     double inner_product = 0;
 
     if (denom_a == 0 || denom_b == 0)
-	return 0.0;
+        return 0.0;
 
     for (TermIterator it = a.termlist_begin(); it != a.termlist_end(); ++it) {
-	const string& term = *it;
-	double a_weight = a.get_weight(term);
-	if (a_weight == 0)
-	    continue;
-	double b_weight = b.get_weight(term);
-	if (b_weight == 0)
-	    continue;
-	inner_product += a_weight * b_weight;
+        const string& term = *it;
+        double a_weight = a.get_weight(term);
+        if (a_weight == 0)
+            continue;
+        double b_weight = b.get_weight(term);
+        if (b_weight == 0)
+            continue;
+        inner_product += a_weight * b_weight;
     }
 
     return 1 - (inner_product / (sqrt(denom_a * denom_b)));

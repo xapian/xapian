@@ -40,13 +40,13 @@ md5_fd(int fd, string& md5)
     unsigned char blk[4096];
 
     while (true) {
-	int c = read(fd, blk, sizeof(blk));
-	if (c == 0) break;
-	if (c < 0) {
-	    if (errno == EINTR) continue;
-	    return false;
-	}
-	MD5Update(&md5_ctx, blk, c);
+        int c = read(fd, blk, sizeof(blk));
+        if (c == 0) break;
+        if (c < 0) {
+            if (errno == EINTR) continue;
+            return false;
+        }
+        MD5Update(&md5_ctx, blk, c);
     }
 
     MD5Final(blk, &md5_ctx);

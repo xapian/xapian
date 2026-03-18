@@ -34,24 +34,24 @@ class GlassVersion;
 class GlassTableCheck : public GlassTable {
   public:
     static GlassTableCheck* check(const char* tablename,
-				  std::string_view path,
-				  int fd,
-				  off_t offset_,
-				  const GlassVersion& version_file,
-				  int opts,
-				  std::ostream* out);
+                                  std::string_view path,
+                                  int fd,
+                                  off_t offset_,
+                                  const GlassVersion& version_file,
+                                  int opts,
+                                  std::ostream* out);
 
   private:
     GlassTableCheck(const char* tablename_, std::string_view path_,
-		    bool readonly_, std::ostream *out_)
-	: GlassTable(tablename_, path_, readonly_), out(out_) { }
+                    bool readonly_, std::ostream *out_)
+        : GlassTable(tablename_, path_, readonly_), out(out_) { }
 
     GlassTableCheck(const char * tablename_, int fd, off_t offset_,
-		    bool readonly_, std::ostream *out_)
-	: GlassTable(tablename_, fd, offset_, readonly_), out(out_) { }
+                    bool readonly_, std::ostream *out_)
+        : GlassTable(tablename_, fd, offset_, readonly_), out(out_) { }
 
     void block_check(Glass::Cursor * C_, int j, int opts,
-		     GlassFreeListChecker &flcheck);
+                     GlassFreeListChecker &flcheck);
     int block_usage(const uint8_t * p) const;
     void report_block(int m, int n, const uint8_t * p) const;
     void report_block_full(int m, int n, const uint8_t * p) const;

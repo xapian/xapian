@@ -70,7 +70,7 @@ class PerfTestLogger {
     /** Log the start of an indexing run.
      */
     void indexing_begin(const std::string & dbname,
-			const std::map<std::string, std::string> & params);
+                        const std::map<std::string, std::string> & params);
 
     /** Log the addition of a document in an indexing run.
      */
@@ -91,7 +91,7 @@ class PerfTestLogger {
     /** Log the completion of a search.
      */
     void search_end(const Xapian::Query & query,
-		    const Xapian::MSet & mset);
+                    const Xapian::MSet & mset);
 
     /** Log the end of a search run.
      */
@@ -108,8 +108,8 @@ class PerfTestLogger {
     /** Log the completion of diversification.
      */
     void diversify_end(Xapian::doccount k,
-		       Xapian::doccount r,
-		       const Xapian::MSet& dset);
+                       Xapian::doccount r,
+                       const Xapian::MSet& dset);
 
     /** Log the end of a diversification run.
      */

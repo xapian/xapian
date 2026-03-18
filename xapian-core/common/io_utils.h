@@ -133,7 +133,7 @@ inline bool io_full_sync(int fd)
      * therefore it's best to fallback to fdatasync()/fsync().
      */
     if (fcntl(fd, F_FULLFSYNC, 0) == 0)
-	return true;
+        return true;
 #endif
     return io_sync(fd);
 }

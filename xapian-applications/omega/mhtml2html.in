@@ -45,9 +45,9 @@ my $mhtml = $parser->parse(\*IN) or die "Failed to parse '$in' as MHTML\n";
 for my $sub ($mhtml->parts) {
     my $head = $sub->head;
     if ($head->mime_type eq 'text/html') {
-	# FIXME: Ideally we use the charset specified, though in practice it's
-	# likely to just be whatever the page specifies.
-	# my $charset = $head->mime_attr('content-type.charset');
-	print $sub->bodyhandle()->as_string;
+        # FIXME: Ideally we use the charset specified, though in practice it's
+        # likely to just be whatever the page specifies.
+        # my $charset = $head->mime_attr('content-type.charset');
+        print $sub->bodyhandle()->as_string;
     }
 }

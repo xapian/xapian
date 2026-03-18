@@ -125,8 +125,8 @@ class HoneyDatabase : public Xapian::Database::Internal {
      *				term in the database (or NULL not to return)
      */
     void get_freqs(std::string_view term,
-		   Xapian::doccount* termfreq_ptr,
-		   Xapian::termcount* collfreq_ptr) const;
+                   Xapian::doccount* termfreq_ptr,
+                   Xapian::termcount* collfreq_ptr) const;
 
     /** Return the frequency of a given value slot.
      *
@@ -181,7 +181,7 @@ class HoneyDatabase : public Xapian::Database::Internal {
     PostList* open_post_list(std::string_view term) const;
 
     LeafPostList* open_leaf_post_list(std::string_view term,
-				      bool need_read_pos) const;
+                                      bool need_read_pos) const;
 
     /** Open a value stream.
      *
@@ -206,7 +206,7 @@ class HoneyDatabase : public Xapian::Database::Internal {
     TermList* open_allterms(std::string_view prefix) const;
 
     PositionList* open_position_list(Xapian::docid did,
-				     std::string_view term) const;
+                                     std::string_view term) const;
 
     /** Open a handle on a document.
      *
@@ -223,7 +223,7 @@ class HoneyDatabase : public Xapian::Database::Internal {
      *  @return		A new document object, owned by the caller.
      */
     Xapian::Document::Internal* open_document(Xapian::docid did,
-					      bool lazy) const;
+                                              bool lazy) const;
 
     /** Create a termlist tree from trigrams of @a word.
      *
@@ -251,7 +251,7 @@ class HoneyDatabase : public Xapian::Database::Internal {
      *  @param freqinc	How much to increase its frequency by.
      */
     void add_spelling(std::string_view word,
-		      Xapian::termcount freqinc) const;
+                      Xapian::termcount freqinc) const;
 
     /** Remove a word from the spelling dictionary.
      *
@@ -264,7 +264,7 @@ class HoneyDatabase : public Xapian::Database::Internal {
      *  @return Any freqdec not "used up".
      */
     Xapian::termcount remove_spelling(std::string_view word,
-				      Xapian::termcount freqdec) const;
+                                      Xapian::termcount freqdec) const;
 
     /** Open a termlist returning synonyms for a term.
      *
@@ -285,14 +285,14 @@ class HoneyDatabase : public Xapian::Database::Internal {
      *  taken.
      */
     void add_synonym(std::string_view term,
-		     std::string_view synonym) const;
+                     std::string_view synonym) const;
 
     /** Remove a synonym for a term.
      *
      *  If @a synonym isn't a synonym for @a term, then no action is taken.
      */
     void remove_synonym(std::string_view term,
-			std::string_view synonym) const;
+                        std::string_view synonym) const;
 
     /** Clear all synonyms for a term.
      *
@@ -383,25 +383,25 @@ class HoneyDatabase : public Xapian::Database::Internal {
 
     static
     void compact(Xapian::Compactor* compactor,
-		 const char* destdir,
-		 int fd,
-		 int source_backend,
-		 const std::vector<const Xapian::Database::Internal*>& sources,
-		 const std::vector<Xapian::docid>& offset,
-		 Xapian::Compactor::compaction_level compaction,
-		 unsigned flags,
-		 Xapian::docid last_docid);
+                 const char* destdir,
+                 int fd,
+                 int source_backend,
+                 const std::vector<const Xapian::Database::Internal*>& sources,
+                 const std::vector<Xapian::docid>& offset,
+                 Xapian::Compactor::compaction_level compaction,
+                 unsigned flags,
+                 Xapian::docid last_docid);
 
     bool has_uncommitted_changes() const {
-	return false;
+        return false;
     }
 
     bool single_file() const {
-	return false;
+        return false;
     }
 
     HoneyCursor* get_postlist_cursor() const {
-	return postlist_table.cursor_get();
+        return postlist_table.cursor_get();
     }
 
     /// Return a string describing this object.

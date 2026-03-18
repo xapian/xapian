@@ -60,12 +60,12 @@ TfDoclenCollTfCollLenFeature::get_values() const
 
     Xapian::Query feature_query = internal->get_query();
     for (TermIterator qt = feature_query.get_unique_terms_begin();
-	 qt != feature_query.get_terms_end(); ++qt) {
-	if (is_title_term((*qt))) {
-	    double tf = internal->get_termfreq(*qt);
-	    double coll_tf = internal->get_collection_termfreq(*qt);
-	    value += log10(1 + ((tf * coll_len) / (1 + (doc_len * coll_tf))));
-	}
+         qt != feature_query.get_terms_end(); ++qt) {
+        if (is_title_term((*qt))) {
+            double tf = internal->get_termfreq(*qt);
+            double coll_tf = internal->get_collection_termfreq(*qt);
+            value += log10(1 + ((tf * coll_len) / (1 + (doc_len * coll_tf))));
+        }
     }
     values.push_back(value);
     value = 0;
@@ -73,12 +73,12 @@ TfDoclenCollTfCollLenFeature::get_values() const
     doc_len = internal->get_doc_length("body");
 
     for (Xapian::TermIterator qt = feature_query.get_unique_terms_begin();
-	 qt != feature_query.get_terms_end(); ++qt) {
-	if (!is_title_term((*qt))) {
-	    double tf = internal->get_termfreq(*qt);
-	    double coll_tf = internal->get_collection_termfreq(*qt);
-	    value += log10(1 + ((tf * coll_len) / (1 + (doc_len * coll_tf))));
-	}
+         qt != feature_query.get_terms_end(); ++qt) {
+        if (!is_title_term((*qt))) {
+            double tf = internal->get_termfreq(*qt);
+            double coll_tf = internal->get_collection_termfreq(*qt);
+            value += log10(1 + ((tf * coll_len) / (1 + (doc_len * coll_tf))));
+        }
     }
     values.push_back(value);
     value = 0;
@@ -86,10 +86,10 @@ TfDoclenCollTfCollLenFeature::get_values() const
     doc_len = internal->get_doc_length("whole");
 
     for (Xapian::TermIterator qt = feature_query.get_unique_terms_begin();
-	 qt != feature_query.get_terms_end(); ++qt) {
-	double tf = internal->get_termfreq(*qt);
-	double coll_tf = internal->get_collection_termfreq(*qt);
-	value += log10(1 + ((tf * coll_len) / (1 + (doc_len * coll_tf))));
+         qt != feature_query.get_terms_end(); ++qt) {
+        double tf = internal->get_termfreq(*qt);
+        double coll_tf = internal->get_collection_termfreq(*qt);
+        value += log10(1 + ((tf * coll_len) / (1 + (doc_len * coll_tf))));
     }
     values.push_back(value);
 

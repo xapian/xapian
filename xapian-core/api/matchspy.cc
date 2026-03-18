@@ -97,42 +97,42 @@ class ValueCountTermList final : public TermList {
   public:
 
     explicit ValueCountTermList(ValueCountMatchSpy::Internal * spy_)
-	: spy(spy_)
+        : spy(spy_)
     {
-	it = spy->values.begin();
-	started = false;
+        it = spy->values.begin();
+        started = false;
     }
 
     Xapian::doccount get_termfreq() const {
-	Assert(started);
-	Assert(it != spy->values.end());
-	return it->second;
+        Assert(started);
+        Assert(it != spy->values.end());
+        return it->second;
     }
 
     TermList * next() {
-	if (!started) {
-	    started = true;
-	} else {
-	    Assert(it != spy->values.end());
-	    ++it;
-	}
-	if (it == spy->values.end()) {
-	    return this;
-	}
-	current_term = it->first;
-	return NULL;
+        if (!started) {
+            started = true;
+        } else {
+            Assert(it != spy->values.end());
+            ++it;
+        }
+        if (it == spy->values.end()) {
+            return this;
+        }
+        current_term = it->first;
+        return NULL;
     }
 
     TermList* skip_to(string_view term) {
-	while (it != spy->values.end() && it->first < term) {
-	    ++it;
-	}
-	started = true;
-	if (it == spy->values.end()) {
-	    return this;
-	}
-	current_term = it->first;
-	return NULL;
+        while (it != spy->values.end() && it->first < term) {
+            ++it;
+        }
+        started = true;
+        if (it == spy->values.end()) {
+            return this;
+        }
+        current_term = it->first;
+        return NULL;
     }
 
     Xapian::termcount get_approx_size() const { unsupported_method(); }
@@ -149,7 +149,7 @@ class StringAndFrequency {
   public:
     /// Construct a StringAndFrequency object.
     StringAndFrequency(const std::string & str_, Xapian::doccount frequency_)
-	    : str(str_), frequency(frequency_) {}
+            : str(str_), frequency(frequency_) {}
 
     /// Return the string.
     std::string get_string() const { return str; }
@@ -171,10 +171,10 @@ class StringAndFreqCmpByFreq {
     /// Return true if a has a higher frequency than b.
     /// If equal, compare by the str, to provide a stable sort order.
     bool operator()(const StringAndFrequency &a,
-		    const StringAndFrequency &b) const {
-	if (a.get_frequency() > b.get_frequency()) return true;
-	if (a.get_frequency() < b.get_frequency()) return false;
-	return a.get_string() < b.get_string();
+                    const StringAndFrequency &b) const {
+        if (a.get_frequency() > b.get_frequency()) return true;
+        if (a.get_frequency() < b.get_frequency()) return false;
+        return a.get_string() < b.get_string();
     }
 };
 
@@ -190,39 +190,39 @@ class StringAndFreqTermList final : public TermList {
      *  iteration begins.
      */
     void init() {
-	it = values.begin();
-	started = false;
+        it = values.begin();
+        started = false;
     }
 
     Xapian::doccount get_termfreq() const {
-	Assert(started);
-	Assert(it != values.end());
-	return it->get_frequency();
+        Assert(started);
+        Assert(it != values.end());
+        return it->get_frequency();
     }
 
     TermList * next() {
-	if (!started) {
-	    started = true;
-	} else {
-	    Assert(it != values.end());
-	    ++it;
-	}
-	if (it == values.end()) {
-	    return this;
-	}
-	current_term = it->get_string();
-	return NULL;
+        if (!started) {
+            started = true;
+        } else {
+            Assert(it != values.end());
+            ++it;
+        }
+        if (it == values.end()) {
+            return this;
+        }
+        current_term = it->get_string();
+        return NULL;
     }
 
     TermList* skip_to(string_view term) {
-	while (it != values.end() && it->get_string() < term) {
-	    ++it;
-	}
-	started = true;
-	if (it != values.end()) {
-	    current_term = it->get_string();
-	}
-	return NULL;
+        while (it != values.end() && it->get_string() < term) {
+            ++it;
+        }
+        started = true;
+        if (it != values.end()) {
+            current_term = it->get_string();
+        }
+        return NULL;
     }
 
     Xapian::termcount get_approx_size() const { unsupported_method(); }
@@ -248,8 +248,8 @@ class StringAndFreqTermList final : public TermList {
  */
 static void
 get_most_frequent_items(vector<StringAndFrequency> & result,
-			const map<string, doccount> & items,
-			size_t maxitems)
+                        const map<string, doccount> & items,
+                        size_t maxitems)
 {
     Assert(maxitems != 0);
     result.clear();
@@ -258,34 +258,34 @@ get_most_frequent_items(vector<StringAndFrequency> & result,
     bool is_heap = false;
 
     for (map<string, doccount>::const_iterator i = items.begin();
-	 i != items.end(); ++i) {
-	if (result.size() < maxitems) {
-	    result.emplace_back(i->first, i->second);
-	    continue;
-	}
+         i != items.end(); ++i) {
+        if (result.size() < maxitems) {
+            result.emplace_back(i->first, i->second);
+            continue;
+        }
 
-	// We have the desired number of items, so it's one-in one-out from
-	// now on.
-	Assert(result.size() == maxitems);
-	if (!is_heap) {
-	    Heap::make(result.begin(), result.end(), cmpfn);
-	    is_heap = true;
-	}
+        // We have the desired number of items, so it's one-in one-out from
+        // now on.
+        Assert(result.size() == maxitems);
+        if (!is_heap) {
+            Heap::make(result.begin(), result.end(), cmpfn);
+            is_heap = true;
+        }
 
-	StringAndFrequency new_item(i->first, i->second);
-	if (!cmpfn(new_item, result[0])) {
-	    // The candidate is worse than the worst of the current top N.
-	    continue;
-	}
+        StringAndFrequency new_item(i->first, i->second);
+        if (!cmpfn(new_item, result[0])) {
+            // The candidate is worse than the worst of the current top N.
+            continue;
+        }
 
-	result[0] = std::move(new_item);
-	Heap::replace(result.begin(), result.end(), cmpfn);
+        result[0] = std::move(new_item);
+        Heap::replace(result.begin(), result.end(), cmpfn);
     }
 
     if (is_heap) {
-	Heap::sort(result.begin(), result.end(), cmpfn);
+        Heap::sort(result.begin(), result.end(), cmpfn);
     } else {
-	sort(result.begin(), result.end(), cmpfn);
+        sort(result.begin(), result.end(), cmpfn);
     }
 }
 
@@ -310,9 +310,9 @@ ValueCountMatchSpy::top_values_begin(size_t maxvalues) const
     Assert(internal);
     unique_ptr<StringAndFreqTermList> termlist;
     if (usual(maxvalues > 0)) {
-	termlist.reset(new StringAndFreqTermList);
-	get_most_frequent_items(termlist->values, internal->values, maxvalues);
-	termlist->init();
+        termlist.reset(new StringAndFreqTermList);
+        get_most_frequent_items(termlist->values, internal->values, maxvalues);
+        termlist->init();
     }
     return Xapian::TermIterator(termlist.release());
 }
@@ -344,7 +344,7 @@ ValueCountMatchSpy::unserialise(const string & s, const Registry &) const
 
     valueno new_slot;
     if (!unpack_uint_last(&p, end, &new_slot)) {
-	unpack_throw_serialisation_error(p);
+        unpack_throw_serialisation_error(p);
     }
 
     return new ValueCountMatchSpy(new_slot);
@@ -357,8 +357,8 @@ ValueCountMatchSpy::serialise_results() const {
     string result;
     pack_uint(result, internal->total);
     for (auto&& item : internal->values) {
-	pack_string(result, item.first);
-	pack_uint(result, item.second);
+        pack_string(result, item.first);
+        pack_uint(result, item.second);
     }
     RETURN(result);
 }
@@ -372,18 +372,18 @@ ValueCountMatchSpy::merge_results(const string & s) {
 
     Xapian::doccount n;
     if (!unpack_uint(&p, end, &n)) {
-	unpack_throw_serialisation_error(p);
+        unpack_throw_serialisation_error(p);
     }
     internal->total += n;
 
     string val;
     while (p != end) {
-	doccount freq;
-	if (!unpack_string(&p, end, val) ||
-	    !unpack_uint(&p, end, &freq)) {
-	    unpack_throw_serialisation_error(p);
-	}
-	internal->values[val] += freq;
+        doccount freq;
+        if (!unpack_string(&p, end, val) ||
+            !unpack_uint(&p, end, &freq)) {
+            unpack_throw_serialisation_error(p);
+        }
+        internal->values[val] += freq;
     }
 }
 
@@ -391,12 +391,12 @@ string
 ValueCountMatchSpy::get_description() const {
     string d = "ValueCountMatchSpy(";
     if (internal) {
-	d += str(internal->total);
-	d += " docs seen, looking in ";
-	d += str(internal->values.size());
-	d += " slots)";
+        d += str(internal->total);
+        d += " docs seen, looking in ";
+        d += str(internal->values.size());
+        d += " slots)";
     } else {
-	d += ")";
+        d += ")";
     }
     return d;
 }

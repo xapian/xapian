@@ -42,9 +42,9 @@ class RemoteAllTermsList : public AllTermsList {
   public:
     /// Construct.
     RemoteAllTermsList(std::string_view prefix,
-		       std::string&& data_)
-	: data(data_) {
-	current_term = prefix;
+                       std::string&& data_)
+        : data(data_) {
+        current_term = prefix;
     }
 
     /// Return approximate size of this termlist.

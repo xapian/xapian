@@ -40,8 +40,8 @@ struct PrettyOStream {
 
     PrettyOStream(S & os_) : os(os_) { }
     template<typename T> PrettyOStream & operator|(const T & t) {
-	os << ", ";
-	return *this << t;
+        os << ", ";
+        return *this << t;
     }
 };
 
@@ -80,8 +80,8 @@ inline PrettyOStream<S> &
 operator<<(PrettyOStream<S> &ps, const T * t)
 {
     if (!t) {
-	ps.os << "NULL";
-	return ps;
+        ps.os << "NULL";
+        return ps;
     }
     ps.os << '&';
     return ps << *t;
@@ -108,20 +108,20 @@ operator<<(PrettyOStream<S> &ps, const void * t)
 inline void write_ch(std::ostream & os, unsigned char ch)
 {
     if (ch < 32 || ch >= 127) {
-	os << '\\';
-	if (ch >= 7 && ch <= 13) {
-	    os << "abtnvfr"[ch - 7];
-	} else {
-	    os << char('0' | (ch >> 6));
-	    os << char('0' | ((ch >> 3) & 7));
-	    os << char('0' | (ch & 7));
-	}
+        os << '\\';
+        if (ch >= 7 && ch <= 13) {
+            os << "abtnvfr"[ch - 7];
+        } else {
+            os << char('0' | (ch >> 6));
+            os << char('0' | ((ch >> 3) & 7));
+            os << char('0' | (ch & 7));
+        }
     } else if (ch == '\\') {
-	os << "\\\\";
+        os << "\\\\";
     } else if (ch == '"') {
-	os << "\\\"";
+        os << "\\\"";
     } else {
-	os << ch;
+        os << ch;
     }
 }
 
@@ -131,7 +131,7 @@ operator<<(PrettyOStream<S> &ps, const char * str)
 {
     ps.os << '"';
     while (*str) {
-	write_ch(ps.os, *str++);
+        write_ch(ps.os, *str++);
     }
     ps.os << '"';
     return ps;
@@ -143,7 +143,7 @@ operator<<(PrettyOStream<S> &ps, const std::string & str)
 {
     ps.os << '"';
     for (char ch : str) {
-	write_ch(ps.os, ch);
+        write_ch(ps.os, ch);
     }
     ps.os << '"';
     return ps;
@@ -171,7 +171,7 @@ operator<<(PrettyOStream<S>& ps, std::string_view str)
 {
     ps.os << '"';
     for (char ch : str) {
-	write_ch(ps.os, ch);
+        write_ch(ps.os, ch);
     }
     ps.os << '"';
     return ps;
@@ -182,9 +182,9 @@ inline PrettyOStream<S>&
 operator<<(PrettyOStream<S>& ps, const std::string_view* p_str)
 {
     if (p_str)
-	ps.os << *p_str;
+        ps.os << *p_str;
     else
-	ps.os << "NULL";
+        ps.os << "NULL";
     return ps;
 }
 
@@ -194,21 +194,21 @@ operator<<(PrettyOStream<S> &ps, unsigned char ch)
 {
     ps.os << '\'';
     if (ch < 32 || ch >= 127) {
-	ps.os << '\\';
-	if (ch >= 7 && ch <= 13) {
-	    ps.os << "abtnvfr"[ch - 7];
-	} else if (ch == '\0') {
-	    ps.os << "\\0";
-	} else {
-	    ps.os << "0123456789abcdef"[ch >> 4];
-	    ps.os << "0123456789abcdef"[ch & 0x0f];
-	}
+        ps.os << '\\';
+        if (ch >= 7 && ch <= 13) {
+            ps.os << "abtnvfr"[ch - 7];
+        } else if (ch == '\0') {
+            ps.os << "\\0";
+        } else {
+            ps.os << "0123456789abcdef"[ch >> 4];
+            ps.os << "0123456789abcdef"[ch & 0x0f];
+        }
     } else if (ch == '\\') {
-	ps.os << "\\\\";
+        ps.os << "\\\\";
     } else if (ch == '\'') {
-	ps.os << "\\'";
+        ps.os << "\\'";
     } else {
-	ps.os << ch;
+        ps.os << ch;
     }
     ps.os << '\'';
     return ps;
@@ -323,11 +323,11 @@ namespace Xapian {
     class TermListGroup;
     class Weight;
     namespace Internal {
-	class AndContext;
-	class ExpandStats;
-	class ExpandWeight;
-	class OrContext;
-	struct PostListAndEstimate;
+        class AndContext;
+        class ExpandStats;
+        class ExpandWeight;
+        class OrContext;
+        struct PostListAndEstimate;
     }
 }
 

@@ -46,15 +46,15 @@ TermList*
 RemoteKeyList::next()
 {
     if (!p) {
-	p = data.data();
+        p = data.data();
     }
     const char* p_end = data.data() + data.size();
     if (p == p_end) {
-	return this;
+        return this;
     }
     current_term.resize(size_t(static_cast<unsigned char>(*p++)));
     if (!unpack_string_append(&p, p_end, current_term)) {
-	unpack_throw_serialisation_error(p);
+        unpack_throw_serialisation_error(p);
     }
     return NULL;
 }
@@ -63,12 +63,12 @@ TermList*
 RemoteKeyList::skip_to(std::string_view term)
 {
     if (!p) {
-	if (RemoteKeyList::next())
-	    return this;
+        if (RemoteKeyList::next())
+            return this;
     }
     while (current_term < term) {
-	if (RemoteKeyList::next())
-	    return this;
+        if (RemoteKeyList::next())
+            return this;
     }
     return NULL;
 }

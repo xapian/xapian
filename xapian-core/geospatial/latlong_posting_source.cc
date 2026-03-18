@@ -42,7 +42,7 @@ weight_from_distance(double dist, double k1, double k2)
     // k2 defaults to 1.0, so handle that case with a fast path which avoids
     // calling pow().
     if (k2 == 1.0)
-	return k1 / (dist + k1);
+        return k1 / (dist + k1);
     return k1 * pow(dist + k1, -k2);
 }
 
@@ -56,67 +56,67 @@ LatLongDistancePostingSource::calc_distance()
 static void
 validate_postingsource_params(double k1, double k2) {
     if (k1 <= 0) {
-	string msg("k1 parameter to LatLongDistancePostingSource must be "
-		   "greater than 0; was ");
-	msg += str(k1);
-	throw InvalidArgumentError(msg);
+        string msg("k1 parameter to LatLongDistancePostingSource must be "
+                   "greater than 0; was ");
+        msg += str(k1);
+        throw InvalidArgumentError(msg);
     }
     if (k2 <= 0) {
-	string msg("k2 parameter to LatLongDistancePostingSource must be "
-		   "greater than 0; was ");
-	msg += str(k2);
-	throw InvalidArgumentError(msg);
+        string msg("k2 parameter to LatLongDistancePostingSource must be "
+                   "greater than 0; was ");
+        msg += str(k2);
+        throw InvalidArgumentError(msg);
     }
 }
 
 LatLongDistancePostingSource::LatLongDistancePostingSource(
-	valueno slot_,
-	const LatLongCoords & centre_,
-	const LatLongMetric * metric_,
-	double max_range_,
-	double k1_,
-	double k2_)
-	: ValuePostingSource(slot_),
-	  centre(centre_),
-	  metric(metric_),
-	  max_range(max_range_),
-	  k1(k1_),
-	  k2(k2_)
+        valueno slot_,
+        const LatLongCoords & centre_,
+        const LatLongMetric * metric_,
+        double max_range_,
+        double k1_,
+        double k2_)
+        : ValuePostingSource(slot_),
+          centre(centre_),
+          metric(metric_),
+          max_range(max_range_),
+          k1(k1_),
+          k2(k2_)
 {
     validate_postingsource_params(k1, k2);
     set_maxweight(weight_from_distance(0, k1, k2));
 }
 
 LatLongDistancePostingSource::LatLongDistancePostingSource(
-	valueno slot_,
-	const LatLongCoords & centre_,
-	const LatLongMetric & metric_,
-	double max_range_,
-	double k1_,
-	double k2_)
-	: ValuePostingSource(slot_),
-	  centre(centre_),
-	  metric(metric_.clone()),
-	  max_range(max_range_),
-	  k1(k1_),
-	  k2(k2_)
+        valueno slot_,
+        const LatLongCoords & centre_,
+        const LatLongMetric & metric_,
+        double max_range_,
+        double k1_,
+        double k2_)
+        : ValuePostingSource(slot_),
+          centre(centre_),
+          metric(metric_.clone()),
+          max_range(max_range_),
+          k1(k1_),
+          k2(k2_)
 {
     validate_postingsource_params(k1, k2);
     set_maxweight(weight_from_distance(0, k1, k2));
 }
 
 LatLongDistancePostingSource::LatLongDistancePostingSource(
-	valueno slot_,
-	const LatLongCoords & centre_,
-	double max_range_,
-	double k1_,
-	double k2_)
-	: ValuePostingSource(slot_),
-	  centre(centre_),
-	  metric(new Xapian::GreatCircleMetric()),
-	  max_range(max_range_),
-	  k1(k1_),
-	  k2(k2_)
+        valueno slot_,
+        const LatLongCoords & centre_,
+        double max_range_,
+        double k1_,
+        double k2_)
+        : ValuePostingSource(slot_),
+          centre(centre_),
+          metric(new Xapian::GreatCircleMetric()),
+          max_range(max_range_),
+          k1(k1_),
+          k2(k2_)
 {
     validate_postingsource_params(k1, k2);
     set_maxweight(weight_from_distance(0, k1, k2));
@@ -133,43 +133,43 @@ LatLongDistancePostingSource::next(double min_wt)
     ValuePostingSource::next(min_wt);
 
     while (!ValuePostingSource::at_end()) {
-	calc_distance();
-	if (max_range == 0 || dist <= max_range)
-	    break;
-	ValuePostingSource::next(min_wt);
+        calc_distance();
+        if (max_range == 0 || dist <= max_range)
+            break;
+        ValuePostingSource::next(min_wt);
     }
 }
 
 void
 LatLongDistancePostingSource::skip_to(docid min_docid,
-				      double min_wt)
+                                      double min_wt)
 {
     ValuePostingSource::skip_to(min_docid, min_wt);
 
     while (!ValuePostingSource::at_end()) {
-	calc_distance();
-	if (max_range == 0 || dist <= max_range)
-	    break;
-	ValuePostingSource::next(min_wt);
+        calc_distance();
+        if (max_range == 0 || dist <= max_range)
+            break;
+        ValuePostingSource::next(min_wt);
     }
 }
 
 bool
 LatLongDistancePostingSource::check(docid min_docid,
-				    double min_wt)
+                                    double min_wt)
 {
     if (!ValuePostingSource::check(min_docid, min_wt)) {
-	// check returned false, so we know the document is not in the source.
-	return false;
+        // check returned false, so we know the document is not in the source.
+        return false;
     }
     if (ValuePostingSource::at_end()) {
-	// return true, since we're definitely at the end of the list.
-	return true;
+        // return true, since we're definitely at the end of the list.
+        return true;
     }
 
     calc_distance();
     if (max_range > 0 && dist > max_range) {
-	return false;
+        return false;
     }
     return true;
 }
@@ -184,8 +184,8 @@ LatLongDistancePostingSource *
 LatLongDistancePostingSource::clone() const
 {
     return new LatLongDistancePostingSource(get_slot(), centre,
-					    metric->clone(),
-					    max_range, k1, k2);
+                                            metric->clone(),
+                                            max_range, k1, k2);
 }
 
 string
@@ -210,7 +210,7 @@ LatLongDistancePostingSource::serialise() const
 
 LatLongDistancePostingSource *
 LatLongDistancePostingSource::unserialise_with_registry(const string &s,
-					     const Registry & registry) const
+                                             const Registry & registry) const
 {
     const char * p = s.data();
     const char * end = p + s.size();
@@ -223,9 +223,9 @@ LatLongDistancePostingSource::unserialise_with_registry(const string &s,
     string new_serialised_centre;
     string new_metric_name;
     if (!unpack_uint(&p, end, &new_slot) ||
-	!unpack_string(&p, end, new_serialised_centre) ||
-	!unpack_string(&p, end, new_metric_name)) {
-	throw SerialisationError("Bad serialised LatLongDistancePostingSource");
+        !unpack_string(&p, end, new_serialised_centre) ||
+        !unpack_string(&p, end, new_metric_name)) {
+        throw SerialisationError("Bad serialised LatLongDistancePostingSource");
     }
 
     string new_serialised_metric(p, end - p);
@@ -234,32 +234,32 @@ LatLongDistancePostingSource::unserialise_with_registry(const string &s,
     new_centre.unserialise(new_serialised_centre);
 
     const Xapian::LatLongMetric * metric_type =
-	    registry.get_lat_long_metric(new_metric_name);
+            registry.get_lat_long_metric(new_metric_name);
     if (metric_type == NULL) {
-	string msg("LatLongMetric ");
-	msg += new_metric_name;
-	msg += " not registered";
-	throw InvalidArgumentError(msg);
+        string msg("LatLongMetric ");
+        msg += new_metric_name;
+        msg += " not registered";
+        throw InvalidArgumentError(msg);
     }
     LatLongMetric * new_metric =
-	    metric_type->unserialise(new_serialised_metric);
+            metric_type->unserialise(new_serialised_metric);
 
     return new LatLongDistancePostingSource(new_slot, new_centre,
-					    new_metric,
-					    new_max_range, new_k1, new_k2);
+                                            new_metric,
+                                            new_max_range, new_k1, new_k2);
 }
 
 void
 LatLongDistancePostingSource::reset(const Database& db_,
-				    Xapian::doccount shard_index)
+                                    Xapian::doccount shard_index)
 {
     ValuePostingSource::reset(db_, shard_index);
     if (max_range > 0.0) {
-	// Possible that no documents are in range.
-	set_termfreq_min(0);
-	// Note - would be good to improve termfreq_est here, too, but
-	// I can't think of anything we can do with the information
-	// available.
+        // Possible that no documents are in range.
+        set_termfreq_min(0);
+        // Note - would be good to improve termfreq_est here, too, but
+        // I can't think of anything we can do with the information
+        // available.
     }
 }
 

@@ -45,9 +45,9 @@ struct ValueStats {
     /** Clear the statistics.
      */
     void clear() {
-	freq = 0;
-	lower_bound.resize(0);
-	upper_bound.resize(0);
+        freq = 0;
+        lower_bound.resize(0);
+        upper_bound.resize(0);
     }
 };
 

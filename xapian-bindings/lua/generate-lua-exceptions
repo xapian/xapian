@@ -45,22 +45,22 @@ $copyright */
 namespace Xapian {
 void handle_exception(lua_State* L) {
     try {
-	throw;
+        throw;
 EOF
 
 for (reverse @allclasses) {
     my ($class) = @{$_};
     print FD <<"EOF";
     } catch (const Xapian::$class &e) {
-	SWIG_NewPointerObj(L, (void *)new $class(e), SWIGTYPE_p_Xapian__$class, 1);
+        SWIG_NewPointerObj(L, (void *)new $class(e), SWIGTYPE_p_Xapian__$class, 1);
 EOF
 }
 
 print FD <<'EOF';
     } catch (const std::exception& e) {
-	lua_pushfstring(L, "std::exception: %s", e.what());
+        lua_pushfstring(L, "std::exception: %s", e.what());
     } catch (...) {
-	lua_pushstring(L, "Unknown exception");
+        lua_pushstring(L, "Unknown exception");
     }
 }
 }
@@ -76,10 +76,10 @@ print FD <<'EOF';
 
 %exception {
     try {
-	$action
+        $action
     } catch (...) {
-	Xapian::handle_exception(L);
-	SWIG_fail;
+        Xapian::handle_exception(L);
+        SWIG_fail;
     }
 }
 EOF

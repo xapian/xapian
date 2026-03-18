@@ -34,18 +34,18 @@ class SpyMaster {
 
   public:
     explicit SpyMaster(const std::vector<opt_ptr_spy>* spies_)
-	: spies(spies_->empty() ? NULL : spies_)
+        : spies(spies_->empty() ? NULL : spies_)
     {}
 
     operator bool() const { return spies != NULL; }
 
     void operator()(const Xapian::Document& doc,
-		    double weight) {
-	if (spies != NULL) {
-	    for (auto spy : *spies) {
-		(*spy)(doc, weight);
-	    }
-	}
+                    double weight) {
+        if (spies != NULL) {
+            for (auto spy : *spies) {
+                (*spy)(doc, weight);
+            }
+        }
     }
 };
 

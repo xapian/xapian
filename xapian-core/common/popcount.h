@@ -41,29 +41,29 @@ add_popcount(A& accumulator, V value)
     if (false) {
 #if HAVE_DECL___BUILTIN_POPCOUNT
     } else if constexpr(sizeof(V) == sizeof(unsigned)) {
-	accumulator += __builtin_popcount(value);
+        accumulator += __builtin_popcount(value);
 #elif HAVE_DECL___POPCNT
     } else if constexpr(sizeof(V) == sizeof(unsigned)) {
-	accumulator += static_cast<A>(__popcnt(value));
+        accumulator += static_cast<A>(__popcnt(value));
 #endif
 #if HAVE_DECL___BUILTIN_POPCOUNTL
     } else if constexpr(sizeof(V) == sizeof(unsigned long)) {
-	accumulator += __builtin_popcountl(value);
+        accumulator += __builtin_popcountl(value);
 #endif
 #if HAVE_DECL___BUILTIN_POPCOUNTLL
     } else if constexpr(sizeof(V) == sizeof(unsigned long long)) {
-	accumulator += __builtin_popcountll(value);
+        accumulator += __builtin_popcountll(value);
 #elif HAVE_DECL___POPCNT64
     } else if constexpr(sizeof(V) == sizeof(unsigned long long)) {
-	accumulator += static_cast<A>(__popcnt64(value));
+        accumulator += static_cast<A>(__popcnt64(value));
 #endif
     } else {
-	auto u = static_cast<std::make_unsigned_t<V>>(value);
-	while (u) {
-	    ++accumulator;
-	    // Bit twiddling trick to unset the lowest set bit of u.
-	    u &= u - 1;
-	}
+        auto u = static_cast<std::make_unsigned_t<V>>(value);
+        while (u) {
+            ++accumulator;
+            // Bit twiddling trick to unset the lowest set bit of u.
+            u &= u - 1;
+        }
     }
 }
 

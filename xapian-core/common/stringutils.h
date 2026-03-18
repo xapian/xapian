@@ -130,21 +130,21 @@ common_prefix_length(std::string_view a, std::string_view b)
     std::string::size_type minlen = std::min(a.size(), b.size());
     std::string::size_type common;
     for (common = 0; common < minlen; ++common) {
-	if (a[common] != b[common]) break;
+        if (a[common] != b[common]) break;
     }
     return common;
 }
 
 inline std::string::size_type
 common_prefix_length(std::string_view a, std::string_view b,
-		     std::string::size_type max_prefix_len)
+                     std::string::size_type max_prefix_len)
 {
     std::string::size_type minlen = std::min({a.size(),
-					      b.size(),
-					      max_prefix_len});
+                                              b.size(),
+                                              max_prefix_len});
     std::string::size_type common;
     for (common = 0; common < minlen; ++common) {
-	if (a[common] != b[common]) break;
+        if (a[common] != b[common]) break;
     }
     return common;
 }
@@ -157,11 +157,11 @@ common_prefix_length(std::string_view a, std::string_view b,
 
 namespace Xapian {
     namespace Internal {
-	const unsigned char HEX_MASK = 0x0f;
-	const unsigned char IS_UPPER = 0x10;
-	const unsigned char IS_ALPHA = 0x20; // NB Same as ASCII "case bit".
-	const unsigned char IS_DIGIT = 0x40;
-	const unsigned char IS_SPACE = 0x80;
+        const unsigned char HEX_MASK = 0x0f;
+        const unsigned char IS_UPPER = 0x10;
+        const unsigned char IS_ALPHA = 0x20; // NB Same as ASCII "case bit".
+        const unsigned char IS_DIGIT = 0x40;
+        const unsigned char IS_SPACE = 0x80;
     }
 }
 

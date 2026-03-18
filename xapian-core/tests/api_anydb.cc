@@ -45,7 +45,7 @@ print_mset_weights(const Xapian::MSet &mset)
 {
     Xapian::MSetIterator i = mset.begin();
     for ( ; i != mset.end(); ++i) {
-	tout << " " << i.get_weight();
+        tout << " " << i.get_weight();
     }
 }
 
@@ -54,7 +54,7 @@ print_mset_percentages(const Xapian::MSet &mset)
 {
     Xapian::MSetIterator i = mset.begin();
     for ( ; i != mset.end(); ++i) {
-	tout << " " << mset.convert_to_percent(i);
+        tout << " " << mset.convert_to_percent(i);
     }
 }
 
@@ -133,7 +133,7 @@ DEFINE_TESTCASE(zerodocid1, backend) {
     TEST_MSET_SIZE(mymset, 1);
 
     TEST_AND_EXPLAIN(*(mymset.begin()) != 0,
-		     "A query on a database returned a zero docid");
+                     "A query on a database returned a zero docid");
 }
 
 // tests that an empty query returns no matches
@@ -389,7 +389,7 @@ DEFINE_TESTCASE(expandweights7, backend) {
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
 
     TEST_EXCEPTION(Xapian::InvalidArgumentError,
-		   enquire.set_expansion_scheme("no_such_scheme"));
+                   enquire.set_expansion_scheme("no_such_scheme"));
 }
 
 // test that "expand_k" can be passed as a parameter to get_eset
@@ -453,7 +453,7 @@ DEFINE_TESTCASE(boolquery1, backend) {
     TEST_NOT_EQUAL(mymset.size(), 0);
     TEST_EQUAL(mymset.get_max_possible(), 0);
     for (Xapian::MSetIterator i = mymset.begin(); i != mymset.end(); ++i) {
-	TEST_EQUAL(i.get_weight(), 0);
+        TEST_EQUAL(i.get_weight(), 0);
     }
 }
 
@@ -468,7 +468,7 @@ DEFINE_TESTCASE(msetfirst1, backend) {
     // Regression test - we weren't adjusting the index into items[] by
     // firstitem in api/omenquire.cc.
     TEST_EQUAL(mymset1[5].get_document().get_data(),
-	       mymset2[2].get_document().get_data());
+               mymset2[2].get_document().get_data());
 }
 
 // tests the converting-to-percent functions
@@ -480,15 +480,15 @@ DEFINE_TESTCASE(topercent1, backend) {
     int last_pct = 100;
     Xapian::MSetIterator i = mymset.begin();
     for ( ; i != mymset.end(); ++i) {
-	int pct = mymset.convert_to_percent(i);
-	TEST_AND_EXPLAIN(pct == i.get_percent(),
-			 "convert_to_%(msetitor) != convert_to_%(wt)");
-	TEST_AND_EXPLAIN(pct == mymset.convert_to_percent(i.get_weight()),
-			 "convert_to_%(msetitor) != convert_to_%(wt)");
-	TEST_AND_EXPLAIN(pct >= 0 && pct <= 100,
-			 "percentage out of range: " << pct);
-	TEST_AND_EXPLAIN(pct <= last_pct, "percentage increased down mset");
-	last_pct = pct;
+        int pct = mymset.convert_to_percent(i);
+        TEST_AND_EXPLAIN(pct == i.get_percent(),
+                         "convert_to_%(msetitor) != convert_to_%(wt)");
+        TEST_AND_EXPLAIN(pct == mymset.convert_to_percent(i.get_weight()),
+                         "convert_to_%(msetitor) != convert_to_%(wt)");
+        TEST_AND_EXPLAIN(pct >= 0 && pct <= 100,
+                         "percentage out of range: " << pct);
+        TEST_AND_EXPLAIN(pct <= last_pct, "percentage increased down mset");
+        last_pct = pct;
     }
 }
 
@@ -516,7 +516,7 @@ DEFINE_TESTCASE(topercent2, backend) {
 
     // A search in which the top document doesn't have 100%
     Xapian::Query q = query(Xapian::Query::OP_OR,
-			    "this", "line", "paragraph", "rubbish");
+                            "this", "line", "paragraph", "rubbish");
     enquire.set_query(q);
     mymset = enquire.get_mset(0, 20);
 
@@ -544,14 +544,14 @@ DEFINE_TESTCASE(topercent2, backend) {
 class EvenParityExpandFunctor : public Xapian::ExpandDecider {
   public:
     bool operator()(const string& tname) const override {
-	unsigned long sum = 0;
-	for (unsigned ch : tname) {
-	    sum += ch;
-	}
+        unsigned long sum = 0;
+        for (unsigned ch : tname) {
+            sum += ch;
+        }
 //	if (verbose) {
 //	    tout << tname << "==> " << sum << "\n";
 //	}
-	return (sum % 2) == 0;
+        return (sum % 2) == 0;
     }
 };
 
@@ -574,45 +574,45 @@ DEFINE_TESTCASE(expandfunctor1, backend) {
     unsigned int neweset_size = 0;
     Xapian::ESetIterator j = myeset_orig.begin();
     for ( ; j != myeset_orig.end(); ++j) {
-	if (myfunctor(*j)) neweset_size++;
+        if (myfunctor(*j)) neweset_size++;
     }
     Xapian::ESet myeset = enquire.get_eset(neweset_size, myrset, &myfunctor);
 
 #if 0
     // Compare myeset with the hand-filtered version of myeset_orig.
     if (verbose) {
-	tout << "orig_eset: ";
-	copy(myeset_orig.begin(), myeset_orig.end(),
-	     ostream_iterator<Xapian::ESetItem>(tout, " "));
-	tout << "\n";
+        tout << "orig_eset: ";
+        copy(myeset_orig.begin(), myeset_orig.end(),
+             ostream_iterator<Xapian::ESetItem>(tout, " "));
+        tout << "\n";
 
-	tout << "new_eset: ";
-	copy(myeset.begin(), myeset.end(),
-	     ostream_iterator<Xapian::ESetItem>(tout, " "));
-	tout << "\n";
+        tout << "new_eset: ";
+        copy(myeset.begin(), myeset.end(),
+             ostream_iterator<Xapian::ESetItem>(tout, " "));
+        tout << "\n";
     }
 #endif
     Xapian::ESetIterator orig = myeset_orig.begin();
     Xapian::ESetIterator filt = myeset.begin();
     for (; orig != myeset_orig.end() && filt != myeset.end(); ++orig, ++filt) {
-	// skip over items that shouldn't be in myeset
-	while (orig != myeset_orig.end() && !myfunctor(*orig)) {
-	    ++orig;
-	}
+        // skip over items that shouldn't be in myeset
+        while (orig != myeset_orig.end() && !myfunctor(*orig)) {
+            ++orig;
+        }
 
-	TEST_AND_EXPLAIN(*orig == *filt &&
-			 orig.get_weight() == filt.get_weight(),
-			 "Mismatch in items " << *orig << " vs. " << *filt
-			 << " after filtering");
+        TEST_AND_EXPLAIN(*orig == *filt &&
+                         orig.get_weight() == filt.get_weight(),
+                         "Mismatch in items " << *orig << " vs. " << *filt
+                         << " after filtering");
     }
 
     while (orig != myeset_orig.end() && !myfunctor(*orig)) {
-	++orig;
+        ++orig;
     }
 
     TEST_EQUAL(orig, myeset_orig.end());
     TEST_AND_EXPLAIN(filt == myeset.end(),
-		     "Extra items in the filtered eset.");
+                     "Extra items in the filtered eset.");
 }
 
 DEFINE_TESTCASE(expanddeciderfilterprefix2, backend) {
@@ -637,44 +637,44 @@ DEFINE_TESTCASE(expanddeciderfilterprefix2, backend) {
     Xapian::ExpandDeciderFilterPrefix myfunctor(prefix);
 
     for ( ; j != myeset_orig.end(); ++j) {
-	if (myfunctor(*j)) neweset_size++;
+        if (myfunctor(*j)) neweset_size++;
     }
     Xapian::ESet myeset = enquire.get_eset(neweset_size, myrset, &myfunctor);
 
     Xapian::ESetIterator orig = myeset_orig.begin();
     Xapian::ESetIterator filt = myeset.begin();
     for (; orig != myeset_orig.end() && filt != myeset.end(); ++orig, ++filt) {
-	// skip over items that shouldn't be in myeset
-	while (orig != myeset_orig.end() && !myfunctor(*orig)) {
-	    ++orig;
-	}
+        // skip over items that shouldn't be in myeset
+        while (orig != myeset_orig.end() && !myfunctor(*orig)) {
+            ++orig;
+        }
 
-	TEST_AND_EXPLAIN(*orig == *filt &&
-	    orig.get_weight() == filt.get_weight(),
-	    "Mismatch in items " << *orig << " vs. " << *filt
-	    << " after filtering");
+        TEST_AND_EXPLAIN(*orig == *filt &&
+            orig.get_weight() == filt.get_weight(),
+            "Mismatch in items " << *orig << " vs. " << *filt
+            << " after filtering");
     }
 
     while (orig != myeset_orig.end() && !myfunctor(*orig)) {
-	++orig;
+        ++orig;
     }
 
     TEST_EQUAL(orig, myeset_orig.end());
     TEST_AND_EXPLAIN(filt == myeset.end(),
-		     "Extra items in the filtered eset.");
+                     "Extra items in the filtered eset.");
 }
 
 // tests the percent cutoff option
 DEFINE_TESTCASE(pctcutoff1, backend) {
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
     enquire.set_query(query(Xapian::Query::OP_OR,
-			    "this", "line", "paragraph", "rubbish"));
+                            "this", "line", "paragraph", "rubbish"));
     Xapian::MSet mymset1 = enquire.get_mset(0, 100);
 
     if (verbose) {
-	tout << "Original mset pcts:";
-	print_mset_percentages(mymset1);
-	tout << "\n";
+        tout << "Original mset pcts:";
+        print_mset_percentages(mymset1);
+        tout << "\n";
     }
 
     unsigned int num_items = 0;
@@ -683,36 +683,36 @@ DEFINE_TESTCASE(pctcutoff1, backend) {
     Xapian::MSetIterator i = mymset1.begin();
     int c = 0;
     for ( ; i != mymset1.end(); ++i, ++c) {
-	int new_pct = mymset1.convert_to_percent(i);
-	if (new_pct != my_pct) {
-	    changes++;
-	    if (changes > 3) break;
-	    num_items = c;
-	    my_pct = new_pct;
-	}
+        int new_pct = mymset1.convert_to_percent(i);
+        if (new_pct != my_pct) {
+            changes++;
+            if (changes > 3) break;
+            num_items = c;
+            my_pct = new_pct;
+        }
     }
 
     TEST_AND_EXPLAIN(changes > 3, "MSet not varied enough to test");
     if (verbose) {
-	tout << "Cutoff percent: " << my_pct << "\n";
+        tout << "Cutoff percent: " << my_pct << "\n";
     }
 
     enquire.set_cutoff(my_pct);
     Xapian::MSet mymset2 = enquire.get_mset(0, 100);
 
     if (verbose) {
-	tout << "Percentages after cutoff:";
-	print_mset_percentages(mymset2);
-	tout << "\n";
+        tout << "Percentages after cutoff:";
+        print_mset_percentages(mymset2);
+        tout << "\n";
     }
 
     TEST_AND_EXPLAIN(mymset2.size() >= num_items,
-		     "Match with % cutoff lost too many items");
+                     "Match with % cutoff lost too many items");
 
     TEST_AND_EXPLAIN(mymset2.size() == num_items ||
-		     (mymset2.convert_to_percent(mymset2[num_items]) == my_pct &&
-		      mymset2.convert_to_percent(mymset2.back()) == my_pct),
-		     "Match with % cutoff returned too many items");
+                     (mymset2.convert_to_percent(mymset2[num_items]) == my_pct &&
+                      mymset2.convert_to_percent(mymset2.back()) == my_pct),
+                     "Match with % cutoff returned too many items");
 }
 
 // Tests the percent cutoff option combined with collapsing
@@ -722,9 +722,9 @@ DEFINE_TESTCASE(pctcutoff2, backend) {
     Xapian::MSet mset = enquire.get_mset(0, 100);
 
     if (verbose) {
-	tout << "Original mset pcts:";
-	print_mset_percentages(mset);
-	tout << "\n";
+        tout << "Original mset pcts:";
+        print_mset_percentages(mset);
+        tout << "\n";
     }
 
     TEST(mset.size() >= 2);
@@ -740,7 +740,7 @@ DEFINE_TESTCASE(pctcutoff2, backend) {
     TEST_EQUAL(mset2.size(), 1);
     TEST_REL(mset2.get_matches_lower_bound(),>=,1);
     TEST_REL(mset2.get_uncollapsed_matches_lower_bound(),>=,
-	     mset2.get_matches_lower_bound());
+             mset2.get_matches_lower_bound());
     TEST_REL(mset2.get_uncollapsed_matches_lower_bound(),<=,mset.size());
     TEST_REL(mset2.get_uncollapsed_matches_upper_bound(),>=,mset.size());
     TEST_REL(mset2.get_uncollapsed_matches_lower_bound(),<=,mset2.get_uncollapsed_matches_estimated());
@@ -754,23 +754,23 @@ DEFINE_TESTCASE(pctcutoff3, backend) {
     Xapian::MSet mset1 = enquire.get_mset(0, 10);
 
     if (verbose) {
-	tout << "Original mset pcts:";
-	print_mset_percentages(mset1);
-	tout << "\n";
+        tout << "Original mset pcts:";
+        print_mset_percentages(mset1);
+        tout << "\n";
     }
 
     int percent = 100;
     for (Xapian::MSetIterator i = mset1.begin(); i != mset1.end(); ++i) {
-	int new_percent = mset1.convert_to_percent(i);
-	if (new_percent != percent) {
-	    tout.str(string());
-	    tout << "Testing " << percent << "% cutoff\n";
-	    enquire.set_cutoff(percent);
-	    Xapian::MSet mset2 = enquire.get_mset(0, 10);
-	    TEST_EQUAL(mset2.back().get_percent(), percent);
-	    TEST_EQUAL(mset2.size(), i.get_rank());
-	    percent = new_percent;
-	}
+        int new_percent = mset1.convert_to_percent(i);
+        if (new_percent != percent) {
+            tout.str(string());
+            tout << "Testing " << percent << "% cutoff\n";
+            enquire.set_cutoff(percent);
+            Xapian::MSet mset2 = enquire.get_mset(0, 10);
+            TEST_EQUAL(mset2.back().get_percent(), percent);
+            TEST_EQUAL(mset2.size(), i.get_rank());
+            percent = new_percent;
+        }
     }
 }
 
@@ -778,13 +778,13 @@ DEFINE_TESTCASE(pctcutoff3, backend) {
 DEFINE_TESTCASE(cutoff1, backend) {
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
     enquire.set_query(query(Xapian::Query::OP_OR,
-			    "this", "line", "paragraph", "rubbish"));
+                            "this", "line", "paragraph", "rubbish"));
     Xapian::MSet mymset1 = enquire.get_mset(0, 100);
 
     if (verbose) {
-	tout << "Original mset weights:";
-	print_mset_weights(mymset1);
-	tout << "\n";
+        tout << "Original mset weights:";
+        print_mset_weights(mymset1);
+        tout << "\n";
     }
 
     unsigned int num_items = 0;
@@ -793,36 +793,36 @@ DEFINE_TESTCASE(cutoff1, backend) {
     Xapian::MSetIterator i = mymset1.begin();
     int c = 0;
     for ( ; i != mymset1.end(); ++i, ++c) {
-	double new_wt = i.get_weight();
-	if (new_wt != my_wt) {
-	    changes++;
-	    if (changes > 3) break;
-	    num_items = c;
-	    my_wt = new_wt;
-	}
+        double new_wt = i.get_weight();
+        if (new_wt != my_wt) {
+            changes++;
+            if (changes > 3) break;
+            num_items = c;
+            my_wt = new_wt;
+        }
     }
 
     TEST_AND_EXPLAIN(changes > 3, "MSet not varied enough to test");
     if (verbose) {
-	tout << "Cutoff weight: " << my_wt << "\n";
+        tout << "Cutoff weight: " << my_wt << "\n";
     }
 
     enquire.set_cutoff(0, my_wt);
     Xapian::MSet mymset2 = enquire.get_mset(0, 100);
 
     if (verbose) {
-	tout << "Weights after cutoff:";
-	print_mset_weights(mymset2);
-	tout << "\n";
+        tout << "Weights after cutoff:";
+        print_mset_weights(mymset2);
+        tout << "\n";
     }
 
     TEST_AND_EXPLAIN(mymset2.size() >= num_items,
-		     "Match with cutoff lost too many items");
+                     "Match with cutoff lost too many items");
 
     TEST_AND_EXPLAIN(mymset2.size() == num_items ||
-		     (mymset2[num_items].get_weight() == my_wt &&
-		      mymset2.back().get_weight() == my_wt),
-		     "Match with cutoff returned too many items");
+                     (mymset2[num_items].get_weight() == my_wt &&
+                      mymset2.back().get_weight() == my_wt),
+                     "Match with cutoff returned too many items");
 }
 
 // tests the allow query terms expand option
@@ -842,13 +842,13 @@ DEFINE_TESTCASE(allowqterms1, backend) {
     Xapian::ESet myeset = enquire.get_eset(1000, myrset);
     Xapian::ESetIterator j = myeset.begin();
     for ( ; j != myeset.end(); ++j) {
-	TEST_NOT_EQUAL(*j, term);
+        TEST_NOT_EQUAL(*j, term);
     }
 
     Xapian::ESet myeset2 = enquire.get_eset(1000, myrset, Xapian::Enquire::INCLUDE_QUERY_TERMS);
     j = myeset2.begin();
     for ( ; j != myeset2.end(); ++j) {
-	if (*j == term) break;
+        if (*j == term) break;
     }
     TEST(j != myeset2.end());
 }
@@ -862,7 +862,7 @@ DEFINE_TESTCASE(maxattain1, backend) {
     double mymax = 0;
     Xapian::MSetIterator i = mymset.begin();
     for ( ; i != mymset.end(); ++i) {
-	if (i.get_weight() > mymax) mymax = i.get_weight();
+        if (i.get_weight() > mymax) mymax = i.get_weight();
     }
     TEST_EQUAL(mymax, mymset.get_max_attained());
 }
@@ -875,7 +875,7 @@ DEFINE_TESTCASE(reversebool1, backend) {
 
     Xapian::MSet mymset1 = enquire.get_mset(0, 100);
     TEST_AND_EXPLAIN(mymset1.size() > 1,
-		     "Mset was too small to test properly");
+                     "Mset was too small to test properly");
 
     enquire.set_docid_order(Xapian::Enquire::ASCENDING);
     Xapian::MSet mymset2 = enquire.get_mset(0, 100);
@@ -886,29 +886,29 @@ DEFINE_TESTCASE(reversebool1, backend) {
     TEST_EQUAL(mymset1.size(), mymset2.size());
 
     {
-	Xapian::MSetIterator i = mymset1.begin();
-	Xapian::MSetIterator j = mymset2.begin();
-	for ( ; i != mymset1.end(); ++i, j++) {
-	    TEST(j != mymset2.end());
-	    // if this fails, then setting match_sort_forward=true was not
-	    // the same as the default.
-	    TEST_EQUAL(*i, *j);
-	}
-	TEST(j == mymset2.end());
+        Xapian::MSetIterator i = mymset1.begin();
+        Xapian::MSetIterator j = mymset2.begin();
+        for ( ; i != mymset1.end(); ++i, j++) {
+            TEST(j != mymset2.end());
+            // if this fails, then setting match_sort_forward=true was not
+            // the same as the default.
+            TEST_EQUAL(*i, *j);
+        }
+        TEST(j == mymset2.end());
     }
 
     // mymset1 and mymset3 should be same but reversed
     TEST_EQUAL(mymset1.size(), mymset3.size());
 
     {
-	Xapian::MSetIterator i = mymset1.begin();
-	Xapian::MSetIterator j = mymset3.end();
-	for ( ; i != mymset1.end(); ++i) {
-	    --j;
-	    // if this fails, then setting match_sort_forward=false didn't
-	    // reverse the results.
-	    TEST_EQUAL(*i, *j);
-	}
+        Xapian::MSetIterator i = mymset1.begin();
+        Xapian::MSetIterator j = mymset3.end();
+        for ( ; i != mymset1.end(); ++i) {
+            --j;
+            // if this fails, then setting match_sort_forward=false didn't
+            // reverse the results.
+            TEST_EQUAL(*i, *j);
+        }
     }
 }
 
@@ -921,7 +921,7 @@ DEFINE_TESTCASE(reversebool2, backend) {
     Xapian::MSet mymset1 = enquire.get_mset(0, 100);
 
     TEST_AND_EXPLAIN(mymset1.size() > 1,
-		     "Mset was too small to test properly");
+                     "Mset was too small to test properly");
 
     enquire.set_docid_order(Xapian::Enquire::ASCENDING);
     Xapian::doccount msize = mymset1.size() / 2;
@@ -932,29 +932,29 @@ DEFINE_TESTCASE(reversebool2, backend) {
     // mymset2 should be first msize items of mymset1
     TEST_EQUAL(msize, mymset2.size());
     {
-	Xapian::MSetIterator i = mymset1.begin();
-	Xapian::MSetIterator j = mymset2.begin();
-	for ( ; j != mymset2.end(); ++i, ++j) {
-	    TEST(i != mymset1.end());
-	    // if this fails, then setting match_sort_forward=true was not
-	    // the same as the default.
-	    TEST_EQUAL(*i, *j);
-	}
-	// mymset1 should be larger.
-	TEST(i != mymset1.end());
+        Xapian::MSetIterator i = mymset1.begin();
+        Xapian::MSetIterator j = mymset2.begin();
+        for ( ; j != mymset2.end(); ++i, ++j) {
+            TEST(i != mymset1.end());
+            // if this fails, then setting match_sort_forward=true was not
+            // the same as the default.
+            TEST_EQUAL(*i, *j);
+        }
+        // mymset1 should be larger.
+        TEST(i != mymset1.end());
     }
 
     // mymset3 should be last msize items of mymset1, in reverse order
     TEST_EQUAL(msize, mymset3.size());
     {
-	Xapian::MSetIterator i = mymset1.end();
-	Xapian::MSetIterator j;
-	for (j = mymset3.begin(); j != mymset3.end(); ++j) {
-	    // if this fails, then setting match_sort_forward=false didn't
-	    // reverse the results.
-	    --i;
-	    TEST_EQUAL(*i, *j);
-	}
+        Xapian::MSetIterator i = mymset1.end();
+        Xapian::MSetIterator j;
+        for (j = mymset3.begin(); j != mymset3.end(); ++j) {
+            // if this fails, then setting match_sort_forward=false didn't
+            // reverse the results.
+            --i;
+            TEST_EQUAL(*i, *j);
+        }
     }
 }
 
@@ -970,12 +970,12 @@ DEFINE_TESTCASE(getmterms1, backend) {
     Xapian::Enquire enquire(mydb);
 
     Xapian::Query myquery(Xapian::Query::OP_OR,
-	    Xapian::Query(Xapian::Query::OP_AND,
-		    Xapian::Query("one", 1, 1),
-		    Xapian::Query("three", 1, 3)),
-	    Xapian::Query(Xapian::Query::OP_OR,
-		    Xapian::Query("four", 1, 4),
-		    Xapian::Query("two", 1, 2)));
+            Xapian::Query(Xapian::Query::OP_AND,
+                    Xapian::Query("one", 1, 1),
+                    Xapian::Query("three", 1, 3)),
+            Xapian::Query(Xapian::Query::OP_OR,
+                    Xapian::Query("four", 1, 4),
+                    Xapian::Query("two", 1, 2)));
 
     enquire.set_query(myquery);
 
@@ -983,7 +983,7 @@ DEFINE_TESTCASE(getmterms1, backend) {
 
     TEST_MSET_SIZE(mymset, 1);
     list<string> list(enquire.get_matching_terms_begin(mymset.begin()),
-			  enquire.get_matching_terms_end(mymset.begin()));
+                          enquire.get_matching_terms_end(mymset.begin()));
     TEST(list == answers_list);
 }
 
@@ -998,12 +998,12 @@ DEFINE_TESTCASE(getmterms2, backend) {
     Xapian::Enquire enquire(mydb);
 
     Xapian::Query myquery(Xapian::Query::OP_OR,
-	    Xapian::Query(Xapian::Query::OP_AND,
-		    Xapian::Query("one", 1, 1),
-		    Xapian::Query("three", 1, 3)),
-	    Xapian::Query(Xapian::Query::OP_OR,
-		    Xapian::Query("one", 1, 4),
-		    Xapian::Query("two", 1, 2)));
+            Xapian::Query(Xapian::Query::OP_AND,
+                    Xapian::Query("one", 1, 1),
+                    Xapian::Query("three", 1, 3)),
+            Xapian::Query(Xapian::Query::OP_OR,
+                    Xapian::Query("one", 1, 4),
+                    Xapian::Query("two", 1, 2)));
 
     enquire.set_query(myquery);
 
@@ -1011,7 +1011,7 @@ DEFINE_TESTCASE(getmterms2, backend) {
 
     TEST_MSET_SIZE(mymset, 1);
     list<string> list(enquire.get_matching_terms_begin(mymset.begin()),
-			  enquire.get_matching_terms_end(mymset.begin()));
+                          enquire.get_matching_terms_end(mymset.begin()));
     TEST(list == answers_list);
 }
 
@@ -1046,12 +1046,12 @@ DEFINE_TESTCASE(fetchdocs1, backend) {
     Xapian::MSetIterator it2 = mymset2.begin();
 
     while (it1 != mymset1.end() && it2 != mymset2.end()) {
-	TEST_EQUAL(it1.get_document().get_data(),
-		   it2.get_document().get_data());
-	TEST_NOT_EQUAL(it1.get_document().get_data(), "");
-	TEST_NOT_EQUAL(it2.get_document().get_data(), "");
-	it1++;
-	it2++;
+        TEST_EQUAL(it1.get_document().get_data(),
+                   it2.get_document().get_data());
+        TEST_NOT_EQUAL(it1.get_document().get_data(), "");
+        TEST_NOT_EQUAL(it2.get_document().get_data(), "");
+        it1++;
+        it2++;
     }
     TEST_EQUAL(it1, mymset1.end());
     TEST_EQUAL(it1, mymset2.end());
@@ -1109,19 +1109,19 @@ DEFINE_TESTCASE(rset2, backend) {
 
     // Test with the default BM25Weight, then with TradWeight.
     for (int i = 0; i < 2; ++i) {
-	Xapian::MSet mymset1 = enquire.get_mset(0, 10);
+        Xapian::MSet mymset1 = enquire.get_mset(0, 10);
 
-	Xapian::RSet myrset;
-	myrset.add_document(2);
+        Xapian::RSet myrset;
+        myrset.add_document(2);
 
-	Xapian::MSet mymset2 = enquire.get_mset(0, 10, &myrset);
+        Xapian::MSet mymset2 = enquire.get_mset(0, 10, &myrset);
 
-	mset_expect_order(mymset1, 1, 2);
-	// Document 2 should have higher weight than document 1 despite the wdf
-	// of "people" being 1 because "people" indexes a document in the RSet
-	// whereas "cuddly" (wdf=2) does not.
-	mset_expect_order(mymset2, 2, 1);
-	enquire.set_weighting_scheme(Xapian::TradWeight());
+        mset_expect_order(mymset1, 1, 2);
+        // Document 2 should have higher weight than document 1 despite the wdf
+        // of "people" being 1 because "people" indexes a document in the RSet
+        // whereas "cuddly" (wdf=2) does not.
+        mset_expect_order(mymset2, 2, 1);
+        enquire.set_weighting_scheme(Xapian::TradWeight());
     }
 }
 
@@ -1176,7 +1176,7 @@ DEFINE_TESTCASE(eliteset1, backend && !multi) {
     Xapian::Query myquery1 = query(Xapian::Query::OP_OR, "word");
 
     Xapian::Query myquery2 = query(Xapian::Query::OP_ELITE_SET, 1,
-				   "simple", "word");
+                                   "simple", "word");
 
     enquire.set_query(myquery1, 2); // So the query lengths are the same.
     Xapian::MSet mymset1 = enquire.get_mset(0, 10);
@@ -1193,7 +1193,7 @@ DEFINE_TESTCASE(elitesetmulti1, multi) {
     Xapian::Enquire enquire(mydb);
 
     Xapian::Query myquery2 = query(Xapian::Query::OP_ELITE_SET, 1,
-				   "simple", "word");
+                                   "simple", "word");
 
     enquire.set_query(myquery2);
     Xapian::MSet mymset2 = enquire.get_mset(0, 10);
@@ -1227,7 +1227,7 @@ DEFINE_TESTCASE(eliteset2, backend && !multi) {
     qs.push_back(query("this"));
     qs.push_back(query(Xapian::Query::OP_AND, "word", "search"));
     Xapian::Query myquery2(Xapian::Query::OP_ELITE_SET,
-			   qs.begin(), qs.end(), 1);
+                           qs.begin(), qs.end(), 1);
 
     enquire.set_query(myquery1);
     Xapian::MSet mymset1 = enquire.get_mset(0, 10);
@@ -1249,7 +1249,7 @@ DEFINE_TESTCASE(elitesetmulti2, multi) {
     qs.push_back(query("this"));
     qs.push_back(query(Xapian::Query::OP_AND, "word", "search"));
     Xapian::Query myquery2(Xapian::Query::OP_ELITE_SET,
-			   qs.begin(), qs.end(), 1);
+                           qs.begin(), qs.end(), 1);
 
     enquire.set_query(myquery2);
     Xapian::MSet mymset2 = enquire.get_mset(0, 10);
@@ -1307,17 +1307,17 @@ DEFINE_TESTCASE(eliteset3, backend) {
     TEST_EQUAL(mymset1, mymset2);
 
     TEST_EQUAL(mymset1.get_termfreq(term1),
-	       mymset2.get_termfreq(term1));
+               mymset2.get_termfreq(term1));
     TEST_EQUAL(mymset1.get_termweight(term1),
-	       mymset2.get_termweight(term1));
+               mymset2.get_termweight(term1));
     TEST_EQUAL(mymset1.get_termfreq(term2),
-	       mymset2.get_termfreq(term2));
+               mymset2.get_termfreq(term2));
     TEST_EQUAL(mymset1.get_termweight(term2),
-	       mymset2.get_termweight(term2));
+               mymset2.get_termweight(term2));
     TEST_EQUAL(mymset1.get_termfreq(term3),
-	       mymset2.get_termfreq(term3));
+               mymset2.get_termfreq(term3));
     TEST_EQUAL(mymset1.get_termweight(term3),
-	       mymset2.get_termweight(term3));
+               mymset2.get_termweight(term3));
 }
 
 /// Test that elite set doesn't pick terms with 0 frequency
@@ -1330,7 +1330,7 @@ DEFINE_TESTCASE(eliteset4, backend && !multi) {
 
     Xapian::Query myquery1 = query("rubbish");
     Xapian::Query myquery2 = query(Xapian::Query::OP_ELITE_SET, 1,
-				   "word", "rubbish", "fibble");
+                                   "word", "rubbish", "fibble");
     enquire1.set_query(myquery1);
     enquire2.set_query(myquery2);
 
@@ -1348,7 +1348,7 @@ DEFINE_TESTCASE(elitesetmulti4, multi) {
     Xapian::Enquire enquire2(mydb2);
 
     Xapian::Query myquery2 = query(Xapian::Query::OP_ELITE_SET, 1,
-				   "word", "rubbish", "fibble");
+                                   "word", "rubbish", "fibble");
     enquire2.set_query(myquery2);
 
     // retrieve the results
@@ -1378,28 +1378,28 @@ DEFINE_TESTCASE(eliteset5, backend) {
 
     vector<string> v;
     for (int i = 0; i != 3; ++i) {
-	v.push_back("simpl");
-	v.push_back("queri");
+        v.push_back("simpl");
+        v.push_back("queri");
 
-	v.push_back("rubbish");
-	v.push_back("rubbish");
-	v.push_back("rubbish");
-	v.push_back("word");
-	v.push_back("word");
-	v.push_back("word");
+        v.push_back("rubbish");
+        v.push_back("rubbish");
+        v.push_back("rubbish");
+        v.push_back("word");
+        v.push_back("word");
+        v.push_back("word");
     }
 
     for (Xapian::termcount n = 1; n != v.size(); ++n) {
-	Xapian::Query myquery1 = Xapian::Query(Xapian::Query::OP_ELITE_SET,
-					       v.begin(), v.end(), n);
-	myquery1 = Xapian::Query(Xapian::Query::OP_SCALE_WEIGHT,
-				 myquery1,
-				 0.004);
+        Xapian::Query myquery1 = Xapian::Query(Xapian::Query::OP_ELITE_SET,
+                                               v.begin(), v.end(), n);
+        myquery1 = Xapian::Query(Xapian::Query::OP_SCALE_WEIGHT,
+                                 myquery1,
+                                 0.004);
 
-	enquire1.set_query(myquery1);
-	// On architectures with excess precision (or, at least, on x86), the
-	// following call used to result in a segfault (at least when n=1).
-	enquire1.get_mset(0, 10);
+        enquire1.set_query(myquery1);
+        // On architectures with excess precision (or, at least, on x86), the
+        // following call used to result in a segfault (at least when n=1).
+        enquire1.get_mset(0, 10);
     }
 }
 
@@ -1422,22 +1422,22 @@ DEFINE_TESTCASE(termlisttermfreq1, backend) {
     double wt1 = 0;
     double wt2 = 0;
     {
-	Xapian::ESetIterator i = eset1.begin();
-	for ( ; i != eset1.end(); ++i) {
-	    if (*i == theterm) {
-		wt1 = i.get_weight();
-		break;
-	    }
-	}
+        Xapian::ESetIterator i = eset1.begin();
+        for ( ; i != eset1.end(); ++i) {
+            if (*i == theterm) {
+                wt1 = i.get_weight();
+                break;
+            }
+        }
     }
     {
-	Xapian::ESetIterator i = eset2.begin();
-	for ( ; i != eset2.end(); ++i) {
-	    if (*i == theterm) {
-		wt2 = i.get_weight();
-		break;
-	    }
-	}
+        Xapian::ESetIterator i = eset2.begin();
+        for ( ; i != eset2.end(); ++i) {
+            if (*i == theterm) {
+                wt2 = i.get_weight();
+                break;
+            }
+        }
     }
 
     TEST_NOT_EQUAL(wt1, 0);
@@ -1462,48 +1462,48 @@ DEFINE_TESTCASE(qterminfo1, backend) {
     string term3 = stemmer("flibble");
 
     Xapian::Query myquery(Xapian::Query::OP_OR,
-		    Xapian::Query(term1),
-		    Xapian::Query(Xapian::Query::OP_OR,
-			    Xapian::Query(term2),
-			    Xapian::Query(term3)));
+                    Xapian::Query(term1),
+                    Xapian::Query(Xapian::Query::OP_OR,
+                            Xapian::Query(term2),
+                            Xapian::Query(term3)));
     myquery = myquery &~ Xapian::Query("Boolean");
     enquire1.set_query(myquery);
     enquire2.set_query(myquery);
 
     for (int i = 1; i <= 2; ++i) {
-	// Retrieve the results.
-	Xapian::MSet mymset1a = enquire1.get_mset(0, 0);
-	Xapian::MSet mymset2a = enquire2.get_mset(0, 0);
+        // Retrieve the results.
+        Xapian::MSet mymset1a = enquire1.get_mset(0, 0);
+        Xapian::MSet mymset2a = enquire2.get_mset(0, 0);
 
-	TEST_EQUAL(mymset1a.get_termfreq(term1),
-		   mymset2a.get_termfreq(term1));
-	TEST_EQUAL(mymset1a.get_termfreq(term2),
-		   mymset2a.get_termfreq(term2));
-	TEST_EQUAL(mymset1a.get_termfreq(term3),
-		   mymset2a.get_termfreq(term3));
+        TEST_EQUAL(mymset1a.get_termfreq(term1),
+                   mymset2a.get_termfreq(term1));
+        TEST_EQUAL(mymset1a.get_termfreq(term2),
+                   mymset2a.get_termfreq(term2));
+        TEST_EQUAL(mymset1a.get_termfreq(term3),
+                   mymset2a.get_termfreq(term3));
 
-	TEST_EQUAL(mymset1a.get_termfreq(term1), 3);
-	TEST_EQUAL(mymset1a.get_termfreq(term2), 1);
-	TEST_EQUAL(mymset1a.get_termfreq(term3), 0);
+        TEST_EQUAL(mymset1a.get_termfreq(term1), 3);
+        TEST_EQUAL(mymset1a.get_termfreq(term2), 1);
+        TEST_EQUAL(mymset1a.get_termfreq(term3), 0);
 
-	TEST_NOT_EQUAL(mymset1a.get_termweight(term1), 0);
-	TEST_NOT_EQUAL(mymset1a.get_termweight(term2), 0);
-	// Non-existent terms should have zero weight.
-	TEST_EQUAL(mymset1a.get_termweight(term3), 0);
+        TEST_NOT_EQUAL(mymset1a.get_termweight(term1), 0);
+        TEST_NOT_EQUAL(mymset1a.get_termweight(term2), 0);
+        // Non-existent terms should have zero weight.
+        TEST_EQUAL(mymset1a.get_termweight(term3), 0);
 
-	TEST_EQUAL(mymset1a.get_termfreq(stemmer("banana")), 1);
-	TEST_EQUAL(mymset1a.get_termweight(stemmer("banana")), 0.0);
+        TEST_EQUAL(mymset1a.get_termfreq(stemmer("banana")), 1);
+        TEST_EQUAL(mymset1a.get_termweight(stemmer("banana")), 0.0);
 
-	TEST_EQUAL(mymset1a.get_termfreq("sponge"), 0);
-	TEST_EQUAL(mymset1a.get_termweight(stemmer("sponge")), 0.0);
+        TEST_EQUAL(mymset1a.get_termfreq("sponge"), 0);
+        TEST_EQUAL(mymset1a.get_termweight(stemmer("sponge")), 0.0);
 
-	TEST_EQUAL(mymset1a.get_termfreq("Boolean"), 0);
-	TEST_EQUAL(mymset1a.get_termweight("Boolean"), 0.0);
+        TEST_EQUAL(mymset1a.get_termfreq("Boolean"), 0);
+        TEST_EQUAL(mymset1a.get_termweight("Boolean"), 0.0);
 
-	// Repeat tests with TradWeight.  (Regression test to ensure
-	// non-existent terms get zero weight with TradWeight.)
-	enquire1.set_weighting_scheme(Xapian::TradWeight());
-	enquire2.set_weighting_scheme(Xapian::TradWeight());
+        // Repeat tests with TradWeight.  (Regression test to ensure
+        // non-existent terms get zero weight with TradWeight.)
+        enquire1.set_weighting_scheme(Xapian::TradWeight());
+        enquire2.set_weighting_scheme(Xapian::TradWeight());
     }
 }
 
@@ -1524,7 +1524,7 @@ DEFINE_TESTCASE(qterminfo2, backend) {
     TEST_NOT_EQUAL(mset0.get_termweight("paragraph"), 0);
 
     Xapian::Query query(Xapian::Query::OP_AND_NOT, term1,
-	    Xapian::Query(Xapian::Query::OP_AND, term1, term2));
+            Xapian::Query(Xapian::Query::OP_AND, term1, term2));
     enquire.set_query(query);
 
     // retrieve the results
@@ -1597,14 +1597,14 @@ DEFINE_TESTCASE(matches1, backend) {
     enquire.set_query(myquery);
     mymset = enquire.get_mset(0, 0);
     if (db.size() > 1) {
-	// We get a tighter lower bound because each shard is handled
-	// separately and that happens to give us the same tight range for
-	// both terms in one shard, and no matches for one term in the other.
-	TEST_EQUAL(mymset.get_matches_lower_bound(), 2);
+        // We get a tighter lower bound because each shard is handled
+        // separately and that happens to give us the same tight range for
+        // both terms in one shard, and no matches for one term in the other.
+        TEST_EQUAL(mymset.get_matches_lower_bound(), 2);
     } else {
-	// The matcher can tell at least 1 document must match by taking into
-	// account the ranges of matched docids.
-	TEST_EQUAL(mymset.get_matches_lower_bound(), 1);
+        // The matcher can tell at least 1 document must match by taking into
+        // account the ranges of matched docids.
+        TEST_EQUAL(mymset.get_matches_lower_bound(), 1);
     }
     TEST_EQUAL(mymset.get_matches_estimated(), 2);
     TEST_EQUAL(mymset.get_matches_upper_bound(), 2);
@@ -1695,14 +1695,14 @@ DEFINE_TESTCASE(qlen1, backend) {
 DEFINE_TESTCASE(termlist1, backend) {
     Xapian::Database db(get_database("apitest_onedoc"));
     TEST_EXCEPTION(Xapian::InvalidArgumentError,
-		   Xapian::TermIterator t = db.termlist_begin(0));
+                   Xapian::TermIterator t = db.termlist_begin(0));
     TEST_EXCEPTION(Xapian::DocNotFoundError,
-		   Xapian::TermIterator t = db.termlist_begin(2));
+                   Xapian::TermIterator t = db.termlist_begin(2));
     // Cause the database to be used properly, showing up problems
     // with the link being in a bad state.
     Xapian::TermIterator temp = db.termlist_begin(1);
     TEST_EXCEPTION(Xapian::DocNotFoundError,
-		   Xapian::TermIterator t = db.termlist_begin(999999999));
+                   Xapian::TermIterator t = db.termlist_begin(999999999));
 }
 
 // tests that a Xapian::TermIterator works as an STL iterator
@@ -1725,9 +1725,9 @@ DEFINE_TESTCASE(termlist2, backend) {
     tend = db.termlist_end(1);
     vector<string>::const_iterator i;
     for (i = v.begin(); i != v.end(); ++i) {
-	TEST_NOT_EQUAL(t, tend);
-	TEST_EQUAL(*i, *t);
-	t++;
+        TEST_NOT_EQUAL(t, tend);
+        TEST_EQUAL(*i, *t);
+        t++;
     }
     TEST_EQUAL(t, tend);
 }
@@ -1747,9 +1747,9 @@ DEFINE_TESTCASE(termlist3, backend) {
     Xapian::TermIterator tend = db.termlist_end(1);
 
     while (t != tend) {
-	TEST_EQUAL(*t, *u);
-	t++;
-	u++;
+        TEST_EQUAL(*t, *u);
+        t++;
+        u++;
     }
 }
 
@@ -1795,8 +1795,8 @@ DEFINE_TESTCASE(spaceterms1, backend) {
     TEST_EQUAL(count, 1);
 
     for (Xapian::valueno value_no = 1; value_no < 7; ++value_no) {
-	TEST_NOT_EQUAL(mymset.begin().get_document().get_data(), "");
-	TEST_NOT_EQUAL(mymset.begin().get_document().get_value(value_no), "");
+        TEST_NOT_EQUAL(mymset.begin().get_document().get_data(), "");
+        TEST_NOT_EQUAL(mymset.begin().get_document().get_value(value_no), "");
     }
 
     enquire.set_query(stemmer("tab\tby"));
@@ -1807,12 +1807,12 @@ DEFINE_TESTCASE(spaceterms1, backend) {
     TEST_EQUAL(count, 1);
 
     for (Xapian::valueno value_no = 0; value_no < 7; ++value_no) {
-	string value = mymset.begin().get_document().get_value(value_no);
-	TEST_NOT_EQUAL(value, "");
-	if (value_no == 0) {
-	    TEST(value.size() > 262);
-	    TEST_EQUAL(static_cast<unsigned char>(value[262]), 255);
-	}
+        string value = mymset.begin().get_document().get_value(value_no);
+        TEST_NOT_EQUAL(value, "");
+        if (value_no == 0) {
+            TEST(value.size() > 262);
+            TEST_EQUAL(static_cast<unsigned char>(value[262]), 255);
+        }
     }
 
     enquire.set_query(stemmer("back\\slash"));
@@ -1903,7 +1903,7 @@ DEFINE_TESTCASE(emptyop1, backend) {
     // query1.empty()) but elsewhere we treat an empty query as just not
     // matching any documents, so we now do the same here too.
     TEST_EQUAL(enquire.get_matching_terms_begin(1),
-	       enquire.get_matching_terms_end(1));
+               enquire.get_matching_terms_end(1));
 }
 
 // Regression test for check_at_least SEGV when there are no matches.
@@ -1939,58 +1939,58 @@ DEFINE_TESTCASE(checkatleast3, backend) {
     enquire.set_query(Xapian::Query("prussian")); // 60 matches.
 
     for (int order = 0; order < 3; ++order) {
-	switch (order) {
-	    case 0:
-		enquire.set_docid_order(Xapian::Enquire::ASCENDING);
-		break;
-	    case 1:
-		enquire.set_docid_order(Xapian::Enquire::DESCENDING);
-		break;
-	    case 2:
-		enquire.set_docid_order(Xapian::Enquire::DONT_CARE);
-		break;
-	}
+        switch (order) {
+            case 0:
+                enquire.set_docid_order(Xapian::Enquire::ASCENDING);
+                break;
+            case 1:
+                enquire.set_docid_order(Xapian::Enquire::DESCENDING);
+                break;
+            case 2:
+                enquire.set_docid_order(Xapian::Enquire::DONT_CARE);
+                break;
+        }
 
-	for (int sort = 0; sort < 7; ++sort) {
-	    bool reverse = (sort & 1);
-	    switch (sort) {
-		case 0:
-		    enquire.set_sort_by_relevance();
-		    break;
-		case 1: case 2:
-		    enquire.set_sort_by_value(0, reverse);
-		    break;
-		case 3: case 4:
-		    enquire.set_sort_by_value_then_relevance(0, reverse);
-		    break;
-		case 5: case 6:
-		    enquire.set_sort_by_relevance_then_value(0, reverse);
-		    break;
-	    }
+        for (int sort = 0; sort < 7; ++sort) {
+            bool reverse = (sort & 1);
+            switch (sort) {
+                case 0:
+                    enquire.set_sort_by_relevance();
+                    break;
+                case 1: case 2:
+                    enquire.set_sort_by_value(0, reverse);
+                    break;
+                case 3: case 4:
+                    enquire.set_sort_by_value_then_relevance(0, reverse);
+                    break;
+                case 5: case 6:
+                    enquire.set_sort_by_relevance_then_value(0, reverse);
+                    break;
+            }
 
-	    Xapian::MSet mset = enquire.get_mset(0, 100, 500);
-	    TEST_MSET_SIZE(mset, 60);
-	    TEST_EQUAL(mset.get_matches_lower_bound(), 60);
-	    TEST_EQUAL(mset.get_matches_estimated(), 60);
-	    TEST_EQUAL(mset.get_matches_upper_bound(), 60);
-	    TEST_EQUAL(mset.get_uncollapsed_matches_lower_bound(), 60);
-	    TEST_EQUAL(mset.get_uncollapsed_matches_estimated(), 60);
-	    TEST_EQUAL(mset.get_uncollapsed_matches_upper_bound(), 60);
+            Xapian::MSet mset = enquire.get_mset(0, 100, 500);
+            TEST_MSET_SIZE(mset, 60);
+            TEST_EQUAL(mset.get_matches_lower_bound(), 60);
+            TEST_EQUAL(mset.get_matches_estimated(), 60);
+            TEST_EQUAL(mset.get_matches_upper_bound(), 60);
+            TEST_EQUAL(mset.get_uncollapsed_matches_lower_bound(), 60);
+            TEST_EQUAL(mset.get_uncollapsed_matches_estimated(), 60);
+            TEST_EQUAL(mset.get_uncollapsed_matches_upper_bound(), 60);
 
-	    mset = enquire.get_mset(0, 50, 100);
-	    TEST_MSET_SIZE(mset, 50);
-	    TEST_EQUAL(mset.get_matches_lower_bound(), 60);
-	    TEST_EQUAL(mset.get_matches_estimated(), 60);
-	    TEST_EQUAL(mset.get_matches_upper_bound(), 60);
-	    TEST_EQUAL(mset.get_uncollapsed_matches_lower_bound(), 60);
-	    TEST_EQUAL(mset.get_uncollapsed_matches_estimated(), 60);
-	    TEST_EQUAL(mset.get_uncollapsed_matches_upper_bound(), 60);
+            mset = enquire.get_mset(0, 50, 100);
+            TEST_MSET_SIZE(mset, 50);
+            TEST_EQUAL(mset.get_matches_lower_bound(), 60);
+            TEST_EQUAL(mset.get_matches_estimated(), 60);
+            TEST_EQUAL(mset.get_matches_upper_bound(), 60);
+            TEST_EQUAL(mset.get_uncollapsed_matches_lower_bound(), 60);
+            TEST_EQUAL(mset.get_uncollapsed_matches_estimated(), 60);
+            TEST_EQUAL(mset.get_uncollapsed_matches_upper_bound(), 60);
 
-	    mset = enquire.get_mset(0, 10, 50);
-	    TEST_MSET_SIZE(mset, 10);
-	    TEST_REL(mset.get_matches_lower_bound(),>=,50);
-	    TEST_REL(mset.get_uncollapsed_matches_lower_bound(),>=,50);
-	}
+            mset = enquire.get_mset(0, 10, 50);
+            TEST_MSET_SIZE(mset, 10);
+            TEST_REL(mset.get_matches_lower_bound(),>=,50);
+            TEST_REL(mset.get_uncollapsed_matches_lower_bound(),>=,50);
+        }
     }
 }
 
@@ -2000,22 +2000,22 @@ DEFINE_TESTCASE(allpostlist1, backend) {
     Xapian::PostingIterator i = db.postlist_begin("");
     unsigned int j = 1;
     while (i != db.postlist_end("")) {
-	TEST_EQUAL(*i, j);
-	i++;
-	j++;
+        TEST_EQUAL(*i, j);
+        i++;
+        j++;
     }
     TEST_EQUAL(j, 513);
 
     i = db.postlist_begin("");
     j = 1;
     while (i != db.postlist_end("")) {
-	TEST_EQUAL(*i, j);
-	i++;
-	j++;
-	if (j == 50) {
-	    j += 10;
-	    i.skip_to(j);
-	}
+        TEST_EQUAL(*i, j);
+        i++;
+        j++;
+        if (j == 50) {
+            j += 10;
+            i.skip_to(j);
+        }
     }
     TEST_EQUAL(j, 513);
 }
@@ -2047,13 +2047,13 @@ DEFINE_TESTCASE(emptyterm1, backend) {
 // Test for alldocs postlist with a sparse database.
 DEFINE_TESTCASE(alldocspl1, backend) {
     Xapian::Database db = get_database("alldocspl1",
-				       [](Xapian::WritableDatabase& wdb,
-					  const string&) {
-					   Xapian::Document doc;
-					   doc.set_data("5");
-					   doc.add_value(0, "5");
-					   wdb.replace_document(5, doc);
-				       });
+                                       [](Xapian::WritableDatabase& wdb,
+                                          const string&) {
+                                           Xapian::Document doc;
+                                           doc.set_data("5");
+                                           doc.add_value(0, "5");
+                                           wdb.replace_document(5, doc);
+                                       });
     Xapian::PostingIterator i = db.postlist_begin("");
     TEST(i != db.postlist_end(""));
     TEST_EQUAL(*i, 5);
@@ -2068,78 +2068,78 @@ DEFINE_TESTCASE(alldocspl1, backend) {
 DEFINE_TESTCASE(alldocspl2, writable) {
     Xapian::PostingIterator i, end;
     {
-	Xapian::WritableDatabase db = get_writable_database();
-	Xapian::Document doc;
-	doc.set_data("5");
-	doc.add_value(0, "5");
-	db.replace_document(5, doc);
+        Xapian::WritableDatabase db = get_writable_database();
+        Xapian::Document doc;
+        doc.set_data("5");
+        doc.add_value(0, "5");
+        db.replace_document(5, doc);
 
-	// Test iterating before committing the changes.
-	i = db.postlist_begin("");
-	end = db.postlist_end("");
-	TEST(i != end);
-	TEST_EQUAL(*i, 5);
-	TEST_EQUAL(i.get_doclength(), 0);
-	TEST_EQUAL(i.get_unique_terms(), 0);
-	TEST_EQUAL(i.get_wdf(), 1);
-	++i;
-	TEST(i == end);
+        // Test iterating before committing the changes.
+        i = db.postlist_begin("");
+        end = db.postlist_end("");
+        TEST(i != end);
+        TEST_EQUAL(*i, 5);
+        TEST_EQUAL(i.get_doclength(), 0);
+        TEST_EQUAL(i.get_unique_terms(), 0);
+        TEST_EQUAL(i.get_wdf(), 1);
+        ++i;
+        TEST(i == end);
 
-	db.commit();
+        db.commit();
 
-	// Test iterating after committing the changes.
-	i = db.postlist_begin("");
-	end = db.postlist_end("");
-	TEST(i != end);
-	TEST_EQUAL(*i, 5);
-	TEST_EQUAL(i.get_doclength(), 0);
-	TEST_EQUAL(i.get_unique_terms(), 0);
-	TEST_EQUAL(i.get_wdf(), 1);
-	++i;
-	TEST(i == end);
+        // Test iterating after committing the changes.
+        i = db.postlist_begin("");
+        end = db.postlist_end("");
+        TEST(i != end);
+        TEST_EQUAL(*i, 5);
+        TEST_EQUAL(i.get_doclength(), 0);
+        TEST_EQUAL(i.get_unique_terms(), 0);
+        TEST_EQUAL(i.get_wdf(), 1);
+        ++i;
+        TEST(i == end);
 
-	// Add another document.
-	doc = Xapian::Document();
-	doc.set_data("5");
-	doc.add_value(0, "7");
-	db.replace_document(7, doc);
+        // Add another document.
+        doc = Xapian::Document();
+        doc.set_data("5");
+        doc.add_value(0, "7");
+        db.replace_document(7, doc);
 
-	// Test iterating through before committing the changes.
-	i = db.postlist_begin("");
-	end = db.postlist_end("");
-	TEST(i != end);
-	TEST_EQUAL(*i, 5);
-	TEST_EQUAL(i.get_doclength(), 0);
-	TEST_EQUAL(i.get_unique_terms(), 0);
-	TEST_EQUAL(i.get_wdf(), 1);
-	++i;
-	TEST(i != end);
-	TEST_EQUAL(*i, 7);
-	TEST_EQUAL(i.get_doclength(), 0);
-	TEST_EQUAL(i.get_unique_terms(), 0);
-	TEST_EQUAL(i.get_wdf(), 1);
-	++i;
-	TEST(i == end);
+        // Test iterating through before committing the changes.
+        i = db.postlist_begin("");
+        end = db.postlist_end("");
+        TEST(i != end);
+        TEST_EQUAL(*i, 5);
+        TEST_EQUAL(i.get_doclength(), 0);
+        TEST_EQUAL(i.get_unique_terms(), 0);
+        TEST_EQUAL(i.get_wdf(), 1);
+        ++i;
+        TEST(i != end);
+        TEST_EQUAL(*i, 7);
+        TEST_EQUAL(i.get_doclength(), 0);
+        TEST_EQUAL(i.get_unique_terms(), 0);
+        TEST_EQUAL(i.get_wdf(), 1);
+        ++i;
+        TEST(i == end);
 
-	// Delete the first document.
-	db.delete_document(5);
+        // Delete the first document.
+        db.delete_document(5);
 
-	// Test iterating through before committing the changes.
-	i = db.postlist_begin("");
-	end = db.postlist_end("");
-	TEST(i != end);
-	TEST_EQUAL(*i, 7);
-	TEST_EQUAL(i.get_doclength(), 0);
-	TEST_EQUAL(i.get_unique_terms(), 0);
-	TEST_EQUAL(i.get_wdf(), 1);
-	++i;
-	TEST(i == end);
+        // Test iterating through before committing the changes.
+        i = db.postlist_begin("");
+        end = db.postlist_end("");
+        TEST(i != end);
+        TEST_EQUAL(*i, 7);
+        TEST_EQUAL(i.get_doclength(), 0);
+        TEST_EQUAL(i.get_unique_terms(), 0);
+        TEST_EQUAL(i.get_wdf(), 1);
+        ++i;
+        TEST(i == end);
 
-	// Test iterating through after committing the changes, and dropping the
-	// reference to the main DB.
-	db.commit();
-	i = db.postlist_begin("");
-	end = db.postlist_end("");
+        // Test iterating through after committing the changes, and dropping the
+        // reference to the main DB.
+        db.commit();
+        i = db.postlist_begin("");
+        end = db.postlist_end("");
     }
 
     TEST(i != end);
@@ -2158,64 +2158,64 @@ DEFINE_TESTCASE(scaleweight1, backend) {
     Xapian::QueryParser qp;
 
     static const char * const queries[] = {
-	"pad",
-	"milk fridge",
-	"leave milk on fridge",
-	"ordered milk operator",
-	"ordered phrase operator",
-	"leave \"milk on fridge\"",
-	"notpresent",
-	"leave \"milk notpresent\"",
+        "pad",
+        "milk fridge",
+        "leave milk on fridge",
+        "ordered milk operator",
+        "ordered phrase operator",
+        "leave \"milk on fridge\"",
+        "notpresent",
+        "leave \"milk notpresent\"",
     };
     static const double multipliers[] = {
-	-1000000, -2.5, -1, -0.5, 0, 0.5, 1, 2.5, 1000000,
-	0, 0
+        -1000000, -2.5, -1, -0.5, 0, 0.5, 1, 2.5, 1000000,
+        0, 0
     };
 
     for (auto qstr : queries) {
-	tout.str(string());
-	Xapian::Query query1 = qp.parse_query(qstr);
-	tout << "query1: " << query1.get_description() << '\n';
-	for (const double *multp = multipliers; multp[0] != multp[1]; ++multp) {
-	    double mult = *multp;
-	    if (mult < 0) {
-		TEST_EXCEPTION(Xapian::InvalidArgumentError,
-			       Xapian::Query(Xapian::Query::OP_SCALE_WEIGHT,
-					     query1, mult));
-		continue;
-	    }
-	    Xapian::Query query2(Xapian::Query::OP_SCALE_WEIGHT, query1, mult);
-	    tout << "query2: " << query2.get_description() << '\n';
+        tout.str(string());
+        Xapian::Query query1 = qp.parse_query(qstr);
+        tout << "query1: " << query1.get_description() << '\n';
+        for (const double *multp = multipliers; multp[0] != multp[1]; ++multp) {
+            double mult = *multp;
+            if (mult < 0) {
+                TEST_EXCEPTION(Xapian::InvalidArgumentError,
+                               Xapian::Query(Xapian::Query::OP_SCALE_WEIGHT,
+                                             query1, mult));
+                continue;
+            }
+            Xapian::Query query2(Xapian::Query::OP_SCALE_WEIGHT, query1, mult);
+            tout << "query2: " << query2.get_description() << '\n';
 
-	    enq.set_query(query1);
-	    Xapian::MSet mset1 = enq.get_mset(0, 20);
-	    enq.set_query(query2);
-	    Xapian::MSet mset2 = enq.get_mset(0, 20);
+            enq.set_query(query1);
+            Xapian::MSet mset1 = enq.get_mset(0, 20);
+            enq.set_query(query2);
+            Xapian::MSet mset2 = enq.get_mset(0, 20);
 
-	    TEST_EQUAL(mset1.size(), mset2.size());
+            TEST_EQUAL(mset1.size(), mset2.size());
 
-	    Xapian::MSetIterator i1, i2;
-	    if (mult > 0) {
-		for (i1 = mset1.begin(), i2 = mset2.begin();
-		     i1 != mset1.end() && i2 != mset2.end(); ++i1, ++i2) {
-		    TEST_EQUAL_DOUBLE(i1.get_weight() * mult, i2.get_weight());
-		    TEST_EQUAL(*i1, *i2);
-		}
-	    } else {
-		// Weights in mset2 are 0; so it should be sorted by docid.
-		vector<Xapian::docid> ids1;
-		vector<Xapian::docid> ids2;
-		for (i1 = mset1.begin(), i2 = mset2.begin();
-		     i1 != mset1.end() && i2 != mset2.end(); ++i1, ++i2) {
-		    TEST_NOT_EQUAL_DOUBLE(i1.get_weight(), 0);
-		    TEST_EQUAL_DOUBLE(i2.get_weight(), 0);
-		    ids1.push_back(*i1);
-		    ids2.push_back(*i2);
-		}
-		sort(ids1.begin(), ids1.end());
-		TEST_EQUAL(ids1, ids2);
-	    }
-	}
+            Xapian::MSetIterator i1, i2;
+            if (mult > 0) {
+                for (i1 = mset1.begin(), i2 = mset2.begin();
+                     i1 != mset1.end() && i2 != mset2.end(); ++i1, ++i2) {
+                    TEST_EQUAL_DOUBLE(i1.get_weight() * mult, i2.get_weight());
+                    TEST_EQUAL(*i1, *i2);
+                }
+            } else {
+                // Weights in mset2 are 0; so it should be sorted by docid.
+                vector<Xapian::docid> ids1;
+                vector<Xapian::docid> ids2;
+                for (i1 = mset1.begin(), i2 = mset2.begin();
+                     i1 != mset1.end() && i2 != mset2.end(); ++i1, ++i2) {
+                    TEST_NOT_EQUAL_DOUBLE(i1.get_weight(), 0);
+                    TEST_EQUAL_DOUBLE(i2.get_weight(), 0);
+                    ids1.push_back(*i1);
+                    ids2.push_back(*i2);
+                }
+                sort(ids1.begin(), ids1.end());
+                TEST_EQUAL(ids1, ids2);
+            }
+        }
     }
 }
 
@@ -2249,14 +2249,14 @@ DEFINE_TESTCASE(scaleweight2, backend) {
     Xapian::MSet mset3 = enq.get_mset(0, 20);
     TEST_NOT_EQUAL(mset1.size(), 0);
     for (i = mset1.begin(); i != mset1.end(); ++i) {
-	ids1.push_back(*i);
-	idsin1.insert(*i);
+        ids1.push_back(*i);
+        idsin1.insert(*i);
     }
     TEST_NOT_EQUAL(mset3.size(), 0);
     for (i = mset3.begin(); i != mset3.end(); ++i) {
-	if (idsin1.find(*i) != idsin1.end())
-	    continue;
-	ids3.push_back(*i);
+        if (idsin1.find(*i) != idsin1.end())
+            continue;
+        ids3.push_back(*i);
     }
     sort(ids3.begin(), ids3.end());
     ids1.insert(ids1.end(), ids3.begin(), ids3.end());
@@ -2266,7 +2266,7 @@ DEFINE_TESTCASE(scaleweight2, backend) {
     enq.set_query(query5);
     Xapian::MSet mset5 = enq.get_mset(0, 20);
     for (i = mset5.begin(); i != mset5.end(); ++i) {
-	ids5.push_back(*i);
+        ids5.push_back(*i);
     }
 
     TEST_EQUAL(ids1, ids5);

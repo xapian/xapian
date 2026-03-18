@@ -44,8 +44,8 @@ round_estimate(T lb, T ub, T est)
     // multiple of 1000 isn't.
     T scale = min(ub - lb, est);
     if (scale <= 10) {
-	// Estimate is either too close to exact or too small to round.
-	return est;
+        // Estimate is either too close to exact or too small to round.
+        return est;
     }
 
     // Set r to the largest power of 10 <= scale.
@@ -54,20 +54,20 @@ round_estimate(T lb, T ub, T est)
     // Set result to est with less significant digits truncated.
     T result = est / r * r;
     if (result < lb) {
-	// We have to round up to be above the lower bound.
-	result += r;
+        // We have to round up to be above the lower bound.
+        result += r;
     } else if (result > ub - r) {
-	// We can't round up as it would exceed the upper bound.
+        // We can't round up as it would exceed the upper bound.
     } else {
-	// We can choose which way to round so consider whether we're before or
-	// after the mid-point of [result, result+r] and round to the nearer
-	// end of the range.  If we're exactly on the middle, pick the rounding
-	// direction which puts the rounded estimate closest to the mid-range
-	// of the bounds.
-	T d = 2 * (est - result);
-	if (d > r || (d == r && result - lb <= ub - r - result)) {
-	    result += r;
-	}
+        // We can choose which way to round so consider whether we're before or
+        // after the mid-point of [result, result+r] and round to the nearer
+        // end of the range.  If we're exactly on the middle, pick the rounding
+        // direction which puts the rounded estimate closest to the mid-range
+        // of the bounds.
+        T d = 2 * (est - result);
+        if (d > r || (d == r && result - lb <= ub - r - result)) {
+            result += r;
+        }
     }
 
     return result;

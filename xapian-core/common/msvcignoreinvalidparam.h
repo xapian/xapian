@@ -31,10 +31,10 @@
 
 /** A dummy invalid parameter handler which ignores the error. */
 static void dummy_handler(const wchar_t*,
-			  const wchar_t*,
-			  const wchar_t*,
-			  unsigned int,
-			  uintptr_t) noexcept
+                          const wchar_t*,
+                          const wchar_t*,
+                          unsigned int,
+                          uintptr_t) noexcept
 {
 }
 
@@ -49,16 +49,16 @@ class MSVCIgnoreInvalidParameter {
 
   public:
     MSVCIgnoreInvalidParameter() {
-	// Install a dummy handler to avoid the program dying.
-	old_handler = _set_invalid_parameter_handler(dummy_handler);
-	// Make sure that no dialog boxes appear.
-	old_report_mode = _CrtSetReportMode(_CRT_ASSERT, 0);
+        // Install a dummy handler to avoid the program dying.
+        old_handler = _set_invalid_parameter_handler(dummy_handler);
+        // Make sure that no dialog boxes appear.
+        old_report_mode = _CrtSetReportMode(_CRT_ASSERT, 0);
     }
 
     ~MSVCIgnoreInvalidParameter() {
-	// Restore the previous settings.
-	_set_invalid_parameter_handler(old_handler);
-	_CrtSetReportMode(_CRT_ASSERT, old_report_mode);
+        // Restore the previous settings.
+        _set_invalid_parameter_handler(old_handler);
+        _CrtSetReportMode(_CRT_ASSERT, old_report_mode);
     }
 };
 #else

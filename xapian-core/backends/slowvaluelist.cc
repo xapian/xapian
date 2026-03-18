@@ -63,21 +63,21 @@ SlowValueList::next()
     // representable value in which case current_did will wrap to zero before
     // exceeding it.
     while (current_did++ < last_docid) {
-	try {
-	    // Open document lazily so that we don't waste time checking for
-	    // its existence.
-	    void * d = db->open_document(current_did, true);
-	    if (!d)
-		continue;
-	    unique_ptr<Xapian::Document::Internal>
-		doc(static_cast<Xapian::Document::Internal*>(d));
-	    string value = doc->get_value(slot);
-	    if (!value.empty()) {
-		swap(current_value, value);
-		return;
-	    }
-	} catch (const Xapian::DocNotFoundError &) {
-	}
+        try {
+            // Open document lazily so that we don't waste time checking for
+            // its existence.
+            void * d = db->open_document(current_did, true);
+            if (!d)
+                continue;
+            unique_ptr<Xapian::Document::Internal>
+                doc(static_cast<Xapian::Document::Internal*>(d));
+            string value = doc->get_value(slot);
+            if (!value.empty()) {
+                swap(current_value, value);
+                return;
+            }
+        } catch (const Xapian::DocNotFoundError &) {
+        }
     }
 
     // Indicate that we're at_end().
@@ -96,24 +96,24 @@ bool
 SlowValueList::check(Xapian::docid did)
 {
     if (did <= current_did) {
-	return !current_value.empty();
+        return !current_value.empty();
     }
 
     if (did > last_docid) {
-	// Indicate that we're at_end().
-	last_docid = 0;
-	return true;
+        // Indicate that we're at_end().
+        last_docid = 0;
+        return true;
     }
 
     current_did = did;
     try {
-	void * d = db->open_document(current_did, true);
-	if (d) {
-	    unique_ptr<Xapian::Document::Internal>
-		doc(static_cast<Xapian::Document::Internal*>(d));
-	    current_value = doc->get_value(slot);
-	    if (!current_value.empty()) return true;
-	}
+        void * d = db->open_document(current_did, true);
+        if (d) {
+            unique_ptr<Xapian::Document::Internal>
+                doc(static_cast<Xapian::Document::Internal*>(d));
+            current_value = doc->get_value(slot);
+            if (!current_value.empty()) return true;
+        }
     } catch (const Xapian::DocNotFoundError &) {
     }
     current_value = string();
@@ -126,13 +126,13 @@ SlowValueList::get_description() const
     string desc = "SlowValueList(slot=";
     desc += str(slot);
     if (last_docid != 0) {
-	desc += ", docid=";
-	desc += str(current_did);
-	desc += ", value=\"";
-	description_append(desc, current_value);
-	desc += "\")";
+        desc += ", docid=";
+        desc += str(current_did);
+        desc += ", value=\"";
+        description_append(desc, current_value);
+        desc += "\")";
     } else {
-	desc += ", atend)";
+        desc += ", atend)";
     }
     return desc;
 }

@@ -55,11 +55,11 @@ checked_system(const string & cmd)
 {
     int res = system(cmd.c_str());
     if (res) {
-	string msg = "system(\"";
-	msg += cmd;
-	msg += "\") failed, returning ";
-	msg += str(res);
-	throw msg;
+        string msg = "system(\"";
+        msg += cmd;
+        msg += "\") failed, returning ";
+        msg += str(res);
+        throw msg;
     }
 }
 
@@ -94,9 +94,9 @@ void cp_R(const std::string &src, const std::string &dest) {
 extern "C" {
 static int
 rm_rf_nftw_helper(const char* path,
-		  const struct stat*,
-		  int type,
-		  struct FTW*)
+                  const struct stat*,
+                  int type,
+                  struct FTW*)
 {
     int r = (type == FTW_DP ? rmdir(path) : unlink(path));
     // Return the errno value if deletion fails as the nftw() function might
@@ -111,44 +111,44 @@ rm_rf_nftw_helper(const char* path,
 void rm_rf(const string &filename) {
     // Check filename exists and is actually a directory
     if (filename.empty() || !dir_exists(filename))
-	return;
+        return;
 
 #if defined HAVE_NFTW && !defined __MINGW32__
     auto flags = FTW_DEPTH | FTW_PHYS;
     int retries = 5;
     while (true) {
-	int eno = nftw(filename.c_str(), rm_rf_nftw_helper, 10, flags);
-	if (eno == 0)
-	    return;
+        int eno = nftw(filename.c_str(), rm_rf_nftw_helper, 10, flags);
+        if (eno == 0)
+            return;
 
-	// nftw() either returns 0 for OK, -1 for error, or the non-zero return
-	// value of the helper (which in our case is an errno value).
-	if (eno < 0) {
-	    eno = errno;
-	    retries = 0;
-	} else if (eno == EEXIST) {
-	    // On NFS, rmdir() can fail with EEXIST or ENOTEMPTY (POSIX allows
-	    // either) due to .nfs* files which are used by NFS clients to
-	    // implement the Unix semantics of a deleted but open file
-	    // continuing to exist.  We sleep and retry a few times in this
-	    // situation to give the NFS client a chance to process the closing
-	    // of the open handle.
-	    --retries;
-	} else if (EEXIST != ENOTEMPTY && eno == ENOTEMPTY) {
-	    // Alternative errno code.  On AIX, EEXIST == ENOTEMPTY so avoid
-	    // compiler warnings from redundant if tests.
-	    --retries;
-	} else {
-	    retries = 0;
-	}
-	if (retries == 0) {
-	    string msg = "recursive delete of \"";
-	    msg += filename;
-	    msg += "\") failed, errno = ";
-	    errno_to_string(eno, msg);
-	    throw msg;
-	}
-	sleep(5);
+        // nftw() either returns 0 for OK, -1 for error, or the non-zero return
+        // value of the helper (which in our case is an errno value).
+        if (eno < 0) {
+            eno = errno;
+            retries = 0;
+        } else if (eno == EEXIST) {
+            // On NFS, rmdir() can fail with EEXIST or ENOTEMPTY (POSIX allows
+            // either) due to .nfs* files which are used by NFS clients to
+            // implement the Unix semantics of a deleted but open file
+            // continuing to exist.  We sleep and retry a few times in this
+            // situation to give the NFS client a chance to process the closing
+            // of the open handle.
+            --retries;
+        } else if (EEXIST != ENOTEMPTY && eno == ENOTEMPTY) {
+            // Alternative errno code.  On AIX, EEXIST == ENOTEMPTY so avoid
+            // compiler warnings from redundant if tests.
+            --retries;
+        } else {
+            retries = 0;
+        }
+        if (retries == 0) {
+            string msg = "recursive delete of \"";
+            msg += filename;
+            msg += "\") failed, errno = ";
+            errno_to_string(eno, msg);
+            throw msg;
+        }
+        sleep(5);
     }
 
 #else

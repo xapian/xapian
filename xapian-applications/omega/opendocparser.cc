@@ -32,21 +32,21 @@ bool
 OpenDocParser::opening_tag(const string& tag)
 {
     if (startswith(tag, "text:")) {
-	const char* tail = tag.c_str() + 5;
-	if (strcmp(tail, "p") == 0 ||
-	    strcmp(tail, "h") == 0 ||
-	    strcmp(tail, "line-break") == 0 ||
-	    strcmp(tail, "tab") == 0) {
-	    pending_space = true;
-	}
+        const char* tail = tag.c_str() + 5;
+        if (strcmp(tail, "p") == 0 ||
+            strcmp(tail, "h") == 0 ||
+            strcmp(tail, "line-break") == 0 ||
+            strcmp(tail, "tab") == 0) {
+            pending_space = true;
+        }
     } else if (tag == "office:body") {
-	indexing = true;
+        indexing = true;
     } else if (tag == "style:style") {
-	(void)get_attribute("style:master-page-name", master_page_name);
+        (void)get_attribute("style:master-page-name", master_page_name);
     } else if (tag == "style:master-page") {
-	string n;
-	if (get_attribute("style:name", n) && n == master_page_name)
-	    indexing = true;
+        string n;
+        if (get_attribute("style:name", n) && n == master_page_name)
+            indexing = true;
     }
     return true;
 }
@@ -55,12 +55,12 @@ bool
 OpenDocParser::closing_tag(const string& tag)
 {
     if (!indexing)
-	return true;
+        return true;
 
     if (tag == "text:p" || tag == "text:h") {
-	pending_space = true;
+        pending_space = true;
     } else if (tag == "office:body" || tag == "style:style") {
-	indexing = false;
+        indexing = false;
     }
     return true;
 }
@@ -69,10 +69,10 @@ void
 OpenDocParser::process_content(const string& content)
 {
     if (indexing && !content.empty()) {
-	if (pending_space) {
-	    pending_space = false;
-	    if (!content.empty()) dump += ' ';
-	}
-	dump += content;
+        if (pending_space) {
+            pending_space = false;
+            if (!content.empty()) dump += ' ';
+        }
+        dump += content;
     }
 }

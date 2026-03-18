@@ -38,32 +38,32 @@ GnumericParser::opening_tag(const string& tag)
 
     if (tag.size() < 8) return true;
     if (tag == "gnm:Cell") {
-	string value;
-	if (!get_attribute("ValueType", value)) return true;
-	target = &dump;
+        string value;
+        if (!get_attribute("ValueType", value)) return true;
+        target = &dump;
     } else if (startswith(tag, "dc:")) {
-	if (tag == "dc:subject") {
-	    // dc:subject is "Subject and Keywords":
-	    // "Typically, Subject will be expressed as keywords, key phrases
-	    // or classification codes that describe a topic of the resource."
-	    // Gnumeric uses meta:keyword for keywords - dc:subject
-	    // comes from a text field labelled "Subject".  Let's just treat
-	    // it as more keywords.
-	    target = &keywords;
-	} else if (tag == "dc:title") {
-	    target = &title;
-	} else if (tag == "dc:description") {
-	    // Gnumeric's field is labelled "Comments".
-	    target = &sample;
-	} else if (tag == "dc:initial-creator") {
-	    target = &author;
-	}
+        if (tag == "dc:subject") {
+            // dc:subject is "Subject and Keywords":
+            // "Typically, Subject will be expressed as keywords, key phrases
+            // or classification codes that describe a topic of the resource."
+            // Gnumeric uses meta:keyword for keywords - dc:subject
+            // comes from a text field labelled "Subject".  Let's just treat
+            // it as more keywords.
+            target = &keywords;
+        } else if (tag == "dc:title") {
+            target = &title;
+        } else if (tag == "dc:description") {
+            // Gnumeric's field is labelled "Comments".
+            target = &sample;
+        } else if (tag == "dc:initial-creator") {
+            target = &author;
+        }
     } else if (tag == "gnm:SheetName") {
-	// Treat sheet names as keywords so they don't appear at the start
-	// of the sample.
-	target = &keywords;
+        // Treat sheet names as keywords so they don't appear at the start
+        // of the sample.
+        target = &keywords;
     } else if (tag == "meta:creation-date") {
-	target = &created_dummy_string;
+        target = &created_dummy_string;
     }
     return true;
 }
@@ -81,11 +81,11 @@ GnumericParser::process_content(const string& content)
     if (!target) return;
 
     if (target == &created_dummy_string) {
-	if (created != time_t(-1)) return;
+        if (created != time_t(-1)) return;
 
-	// E.g. 2025-03-31T18:40:06Z
-	created = parse_datetime(content);
-	return;
+        // E.g. 2025-03-31T18:40:06Z
+        created = parse_datetime(content);
+        return;
     }
 
     if (!target->empty()) *target += ' ';

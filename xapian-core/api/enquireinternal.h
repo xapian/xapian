@@ -88,30 +88,30 @@ class Enquire::Internal : public Xapian::Internal::intrusive_base {
     Internal(const Database& db_);
 
     MSet get_mset(doccount first,
-		  doccount maxitems,
-		  doccount checkatleast,
-		  const RSet* rset,
-		  const MatchDecider* mdecider) const;
+                  doccount maxitems,
+                  doccount checkatleast,
+                  const RSet* rset,
+                  const MatchDecider* mdecider) const;
 
     TermIterator get_matching_terms_begin(docid did) const;
 
     ESet get_eset(termcount maxitems,
-		  const RSet& rset,
-		  int flags,
-		  const ExpandDecider* edecider_,
-		  double min_weight) const;
+                  const RSet& rset,
+                  int flags,
+                  const ExpandDecider* edecider_,
+                  double min_weight) const;
 
     doccount get_termfreq(std::string_view term) const {
-	return db.get_termfreq(term);
+        return db.get_termfreq(term);
     }
 
     Document get_document(docid did) const {
-	// This is called by MSetIterator, so we know the document exists.
-	return db.get_document(did, Xapian::DOC_ASSUME_VALID);
+        // This is called by MSetIterator, so we know the document exists.
+        return db.get_document(did, Xapian::DOC_ASSUME_VALID);
     }
 
     void request_document(docid did) const {
-	db.internal->request_document(did);
+        db.internal->request_document(did);
     }
 };
 

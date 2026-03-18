@@ -54,17 +54,17 @@ class ExternalPostList : public PostList {
      *					    weight changes.
      */
     ExternalPostList(const Xapian::Database & db,
-		     Xapian::PostingSource *source_,
-		     EstimateOp* estimate_op,
-		     double factor_,
-		     bool* max_weight_cached_flag_ptr,
-		     Xapian::doccount shard_index);
+                     Xapian::PostingSource *source_,
+                     EstimateOp* estimate_op,
+                     double factor_,
+                     bool* max_weight_cached_flag_ptr,
+                     Xapian::doccount shard_index);
 
     Xapian::docid get_docid() const;
 
     double get_weight(Xapian::termcount doclen,
-		      Xapian::termcount unique_terms,
-		      Xapian::termcount wdfdocmax) const;
+                      Xapian::termcount unique_terms,
+                      Xapian::termcount wdfdocmax) const;
 
     double recalc_maxweight();
 

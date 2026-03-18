@@ -47,41 +47,41 @@ class XapianSWIGQueryItor {
     typedef Xapian::Query & reference;
 
     XapianSWIGQueryItor()
-	: n(0) { }
+        : n(0) { }
 
     XapianSWIGQueryItor(Tcl_Interp * interp_, Tcl_Obj **items_, int n_)
-	: interp(interp_), items(items_), n(n_) { }
+        : interp(interp_), items(items_), n(n_) { }
 
     XapianSWIGQueryItor & operator++() {
-	++items;
-	--n;
-	return *this;
+        ++items;
+        --n;
+        return *this;
     }
 
     Xapian::Query operator*() const {
-	Tcl_Obj* item = *items;
-	Xapian::Query* subq = 0;
-	if (SWIG_ConvertPtr(item, (void **)&subq,
-			    SWIGTYPE_p_Xapian__Query, 0) == TCL_OK) {
-	    return *subq;
-	}
+        Tcl_Obj* item = *items;
+        Xapian::Query* subq = 0;
+        if (SWIG_ConvertPtr(item, (void **)&subq,
+                            SWIGTYPE_p_Xapian__Query, 0) == TCL_OK) {
+            return *subq;
+        }
 
-	Tcl_Size len;
-	const char *p = Tcl_GetStringFromObj(item, &len);
-	return Xapian::Query(string(p, len));
+        Tcl_Size len;
+        const char *p = Tcl_GetStringFromObj(item, &len);
+        return Xapian::Query(string(p, len));
     }
 
     bool operator==(const XapianSWIGQueryItor & o) {
-	return n == o.n;
+        return n == o.n;
     }
 
     bool operator!=(const XapianSWIGQueryItor & o) {
-	return !(*this == o);
+        return !(*this == o);
     }
 
     difference_type operator-(const XapianSWIGQueryItor &o) const {
-	// Note: n counts *DOWN*, so reverse subtract.
-	return o.n - n;
+        // Note: n counts *DOWN*, so reverse subtract.
+        return o.n - n;
     }
 };
 
@@ -91,7 +91,7 @@ class XapianSWIGQueryItor {
     Tcl_Obj ** items;
     Tcl_Size numitems;
     if (Tcl_ListObjGetElements(interp, $input, &numitems, &items) != TCL_OK) {
-	return TCL_ERROR;
+        return TCL_ERROR;
     }
     $1 = XapianSWIGQueryItor(interp, items, numitems);
     // $2 is default initialised where SWIG declares it.
@@ -102,9 +102,9 @@ class XapianSWIGQueryItor {
     Tcl_Obj * list = Tcl_NewListObj(0, NULL);
 
     for (Xapian::TermIterator i = $1.first; i != $1.second; ++i) {
-	Tcl_Obj * str = Tcl_NewStringObj((*i).data(), (*i).length());
-	if (Tcl_ListObjAppendElement(interp, list, str) != TCL_OK)
-	    return TCL_ERROR;
+        Tcl_Obj * str = Tcl_NewStringObj((*i).data(), (*i).length());
+        if (Tcl_ListObjAppendElement(interp, list, str) != TCL_OK)
+            return TCL_ERROR;
     }
     Tcl_SetObjResult(interp, list);
 }
@@ -129,11 +129,11 @@ static int XapianTclHandleError(Tcl_Interp * interp) {
 
 %exception {
     try {
-	$function
+        $function
     } catch (const Xapian::Error &e) {
-	return XapianTclHandleError(interp, e);
+        return XapianTclHandleError(interp, e);
     } catch (...) {
-	return XapianTclHandleError(interp);
+        return XapianTclHandleError(interp);
     }
 }
 

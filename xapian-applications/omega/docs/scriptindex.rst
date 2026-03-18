@@ -44,11 +44,11 @@ Since 1.4.6 a deprecation warning is emitted for spaces before or after the
 The actions are:
 
 boolean[=PREFIX]
-	index the text as a single boolean term (with prefix PREFIX).  If
-	there's no text, no term is added.  Omega expects certain prefixes to
-	be used for certain purposes - those starting "X" are reserved for user
-	applications.  ``Q`` is conventionally used as the prefix for a unique
-	ID term.
+        index the text as a single boolean term (with prefix PREFIX).  If
+        there's no text, no term is added.  Omega expects certain prefixes to
+        be used for certain purposes - those starting "X" are reserved for user
+        applications.  ``Q`` is conventionally used as the prefix for a unique
+        ID term.
 
 date=FORMAT
         generate ``D``-, ``M``- and ``Y``-prefixed terms for date range
@@ -70,10 +70,10 @@ date=FORMAT
         a warning is emitted).
 
 field[=FIELDNAME]
-	add as a field to the Xapian record.  FIELDNAME defaults to the field
-	name in the dumpfile.  It is valid to have more than one instance of
-	a given field: all instances will be processed and stored in the
-	Xapian record.
+        add as a field to the Xapian record.  FIELDNAME defaults to the field
+        name in the dumpfile.  It is valid to have more than one instance of
+        a given field: all instances will be processed and stored in the
+        Xapian record.
 
 gap[=SIZE]
         leave a gap of SIZE term positions.  SIZE defaults to 100.  This
@@ -81,11 +81,11 @@ gap[=SIZE]
         across fields.
 
 hash[=LENGTH]
-	Xapian has a limit on the length of a term.  To handle arbitrarily
-	long URLs as terms, omindex implements a scheme where the end of
-	a long URL is hashed (short URLs are left as-is).  You can use this
-	same scheme in scriptindex.  LENGTH defaults to 239, which if you
-	index with prefix "U" produces url terms compatible with omindex.
+        Xapian has a limit on the length of a term.  To handle arbitrarily
+        long URLs as terms, omindex implements a scheme where the end of
+        a long URL is hashed (short URLs are left as-is).  You can use this
+        same scheme in scriptindex.  LENGTH defaults to 239, which if you
+        index with prefix "U" produces url terms compatible with omindex.
         If specified, LENGTH must be at least 6 (because the hash takes 6
         characters).
 
@@ -101,12 +101,12 @@ hextobin
         passed on unchanged.
 
 index[=PREFIX]
-	split text into words and index (with prefix PREFIX if specified).
+        split text into words and index (with prefix PREFIX if specified).
 
 indexnopos[=PREFIX]
-	split text into words and index (with prefix PREFIX if specified), but
-	don't include positional information in the database - this makes the
-	database smaller, but phrase searching won't work.
+        split text into words and index (with prefix PREFIX if specified), but
+        don't include positional information in the database - this makes the
+        database smaller, but phrase searching won't work.
 
 load
         reads the contents of the file using the current text as the filename
@@ -121,7 +121,7 @@ load
         know it only needs to load the start of a large file.
 
 lower
-	lowercase the text (useful for generating boolean terms)
+        lowercase the text (useful for generating boolean terms)
 
 ltrim[=CHARACTERSTOTRIM]
         remove leading characters from the text which are in
@@ -207,17 +207,17 @@ trim[=CHARACTERSTOTRIM]
         ``trim`` was added in Omega 1.4.19.
 
 truncate=LENGTH
-	truncate to at most LENGTH bytes, but avoid chopping off a word (useful
-	for sample and title fields)
+        truncate to at most LENGTH bytes, but avoid chopping off a word (useful
+        for sample and title fields)
 
 unhtml
-	strip out HTML tags
+        strip out HTML tags
 
 unique[=PREFIX[,missing=MISSINGACTION]]
-	use the value in this field for a unique ID.  If the value is empty,
-	a warning is issued but nothing else is done.  Only one record with
-	each value of the ID may be present in the index: adding a new record
-	with an ID which is already present will cause the old record to be
+        use the value in this field for a unique ID.  If the value is empty,
+        a warning is issued but nothing else is done.  Only one record with
+        each value of the ID may be present in the index: adding a new record
+        with an ID which is already present will cause the old record to be
         replaced or deleted.
 
         Deletion happens if the only input field present has the ``unique``
@@ -258,8 +258,8 @@ unxml
         ``unxml`` was added in Omega 2.0.0.
 
 value=VALUESLOT
-	add as a Xapian document value in slot VALUESLOT.  Values can be used
-	for collapsing equivalent documents, sorting the MSet, etc.  If you
+        add as a Xapian document value in slot VALUESLOT.  Values can be used
+        for collapsing equivalent documents, sorting the MSet, etc.  If you
         want to perform numeric sorting, use the valuenumeric action instead.
 
 valuenumeric=VALUESLOT

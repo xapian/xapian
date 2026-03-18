@@ -63,10 +63,10 @@ int main() {
     string sample_log3 = srcdir + "/clickmodel/testdata/clicklog3";
 
     sessions_testcase sessions_tests[] = {
-	{sample_log1, {"821f03288846297c2cf43c34766a38f7",
-		       "45,36,14,54,42",
-		       "45:0,36:0,14:0,54:2,42:0"}},
-	{sample_log2, {"","",""}}
+        {sample_log1, {"821f03288846297c2cf43c34766a38f7",
+                       "45,36,14,54,42",
+                       "45:0,36:0,14:0,54:2,42:0"}},
+        {sample_log2, {"","",""}}
     };
 
     SimplifiedDBN sdbn;
@@ -75,46 +75,46 @@ int main() {
 
     // Tests for SimplifiedDBN::build_sessions method.
     for (size_t i = 0; i < sizeof(sessions_tests) / sizeof(sessions_tests[0]);
-	++i) {
-	vector<Session> result;
-	try {
-	    result = sdbn.build_sessions(sessions_tests[i].logfile);
-	} catch (std::exception &ex) {
-	    cout << ex.what() << endl;
-	    ++failure_count;
-	    // Specified file doesn't exist. Skip subsequent tests.
-	    continue;
-	}
+        ++i) {
+        vector<Session> result;
+        try {
+            result = sdbn.build_sessions(sessions_tests[i].logfile);
+        } catch (std::exception &ex) {
+            cout << ex.what() << endl;
+            ++failure_count;
+            // Specified file doesn't exist. Skip subsequent tests.
+            continue;
+        }
 
-	for (auto&& x : result) {
-	    if (x.get_qid() != sessions_tests[i].sessions.qid) {
-		cerr << "ERROR: Query ID mismatch occurred. " << endl
-		     << "Expected: " << sessions_tests[i].sessions.qid
-		     << " Received: " << x.get_qid() << endl;
-		++failure_count;
-	    }
-	    if (x.get_docids() != sessions_tests[i].sessions.docids) {
-		cerr << "ERROR: Doc ID(s) mismatch occurred. " << endl
-		     << "Expected: " << sessions_tests[i].sessions.docids
-		     << " Received: " << x.get_docids() << endl;
-		++failure_count;
-	    }
-	    if (x.get_clicks() != sessions_tests[i].sessions.clicks) {
-		cerr << "ERROR: Clicks mismatch occurred. " << endl
-		     << "Expected: " << sessions_tests[i].sessions.clicks
-		     << " Received: " << x.get_clicks() << endl;
-		++failure_count;
-	    }
-	}
+        for (auto&& x : result) {
+            if (x.get_qid() != sessions_tests[i].sessions.qid) {
+                cerr << "ERROR: Query ID mismatch occurred. " << endl
+                     << "Expected: " << sessions_tests[i].sessions.qid
+                     << " Received: " << x.get_qid() << endl;
+                ++failure_count;
+            }
+            if (x.get_docids() != sessions_tests[i].sessions.docids) {
+                cerr << "ERROR: Doc ID(s) mismatch occurred. " << endl
+                     << "Expected: " << sessions_tests[i].sessions.docids
+                     << " Received: " << x.get_docids() << endl;
+                ++failure_count;
+            }
+            if (x.get_clicks() != sessions_tests[i].sessions.clicks) {
+                cerr << "ERROR: Clicks mismatch occurred. " << endl
+                     << "Expected: " << sessions_tests[i].sessions.clicks
+                     << " Received: " << x.get_clicks() << endl;
+                ++failure_count;
+            }
+        }
     }
 
     // Train Simplified DBN model on a dummy training file.
     vector<Session> training_sessions;
     try {
-	training_sessions = sdbn.build_sessions(sample_log3);
+        training_sessions = sdbn.build_sessions(sample_log3);
     } catch (std::exception &ex) {
-	cout << ex.what() << endl;
-	++failure_count;
+        cout << ex.what() << endl;
+        ++failure_count;
     }
 
     sdbn.train(training_sessions);
@@ -132,37 +132,37 @@ int main() {
     pair<string, double> relevance25("45", 0);
 
     vector<vector<pair<string, double>>> expected_relevances = {
-	{ relevance11, relevance12, relevance13, relevance14, relevance15 },
-	{ relevance21, relevance22, relevance23, relevance24, relevance25 }
+        { relevance11, relevance12, relevance13, relevance14, relevance15 },
+        { relevance21, relevance22, relevance23, relevance24, relevance25 }
     };
 
     int k = 0;
     // Tests for SimplifiedDBN::get_predicted_relevances.
     for (auto&& session : training_sessions) {
-	vector<pair<string, double>> predicted_relevances =
-	    sdbn.get_predicted_relevances(session);
+        vector<pair<string, double>> predicted_relevances =
+            sdbn.get_predicted_relevances(session);
 
-	if (predicted_relevances.size() != expected_relevances[k].size()) {
-	    cerr << "ERROR: Relevance lists sizes do not match." << endl;
-	    ++failure_count;
-	    // Skip subsequent tests.
-	    continue;
-	}
+        if (predicted_relevances.size() != expected_relevances[k].size()) {
+            cerr << "ERROR: Relevance lists sizes do not match." << endl;
+            ++failure_count;
+            // Skip subsequent tests.
+            continue;
+        }
 
-	for (size_t j = 0; j < expected_relevances[k].size(); ++j) {
-	    if (!almost_equal(predicted_relevances[j].second,
-			      expected_relevances[k][j].second)) {
-		cerr << "ERROR: Relevances do not match." << endl
-		     << "Expected: " << expected_relevances[k][j].second
-		     << " Received: " << predicted_relevances[j].second << endl;
-		++failure_count;
-	    }
-	}
-	++k;
+        for (size_t j = 0; j < expected_relevances[k].size(); ++j) {
+            if (!almost_equal(predicted_relevances[j].second,
+                              expected_relevances[k][j].second)) {
+                cerr << "ERROR: Relevances do not match." << endl
+                     << "Expected: " << expected_relevances[k][j].second
+                     << " Received: " << predicted_relevances[j].second << endl;
+                ++failure_count;
+            }
+        }
+        ++k;
     }
 
     if (failure_count != 0) {
-	cout << "Total failures occurred: " << failure_count << endl;
-	exit(1);
+        cout << "Total failures occurred: " << failure_count << endl;
+        exit(1);
     }
 }

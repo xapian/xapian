@@ -45,17 +45,17 @@ class HoneyDocument : public Xapian::Document::Internal {
 
     /// Private constructor - only called by HoneyDatabase::open_document().
     HoneyDocument(const Xapian::Database::Internal* db,
-		  Xapian::docid did_,
-		  const HoneyValueManager* value_manager_,
-		  const HoneyDocDataTable* docdata_table_)
-	: Xapian::Document::Internal(db, did_),
-	  value_manager(value_manager_), docdata_table(docdata_table_) { }
+                  Xapian::docid did_,
+                  const HoneyValueManager* value_manager_,
+                  const HoneyDocDataTable* docdata_table_)
+        : Xapian::Document::Internal(db, did_),
+          value_manager(value_manager_), docdata_table(docdata_table_) { }
 
   protected:
     /** Implementation of virtual methods @{ */
     std::string fetch_value(Xapian::valueno slot) const;
     void fetch_all_values(std::map<Xapian::valueno,
-				   std::string>& values_) const;
+                                   std::string>& values_) const;
     std::string fetch_data() const;
     /** @} */
 };

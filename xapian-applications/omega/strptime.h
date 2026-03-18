@@ -29,8 +29,8 @@
 
 #ifndef HAVE_STRPTIME
 char* strptime_using_std_get_time(const char* date_string,
-				  const char* format,
-				  struct std::tm* tm);
+                                  const char* format,
+                                  struct std::tm* tm);
 
 #define strptime(D, F, TM) strptime_using_std_get_time(D, F, TM)
 #endif

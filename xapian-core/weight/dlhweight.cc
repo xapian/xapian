@@ -42,15 +42,15 @@ void
 DLHWeight::init(double factor)
 {
     if (factor == 0.0) {
-	// This object is for the term-independent contribution, and that's
-	// always zero for this scheme.
-	return;
+        // This object is for the term-independent contribution, and that's
+        // always zero for this scheme.
+        return;
     }
 
     double wdf_upper = get_wdf_upper_bound();
     if (wdf_upper == 0) {
-	upper_bound = 0.0;
-	return;
+        upper_bound = 0.0;
+        return;
     }
 
     const double wdf_lower = 1.0;
@@ -92,35 +92,35 @@ DLHWeight::init(double factor)
     // If w=l is valid (i.e. len_lower > wdf_upper) then B = 0.
     double B = 0;
     if (len_lower > wdf_upper) {
-	// If not, then minimising l-w gives us a candidate (i.e. w=wdf_upper
-	// and l=len_lower).
-	//
-	// The function is also 0 at w = 0 (there must be a local mimina at
-	// some value of w between 0 and l), so the other candidate is at
-	// w=wdf_lower.
-	//
-	// We need to find the optimum value of l in this case, so
-	// differentiate the formula by l:
-	//
-	// d/dl: log2(1-w/l) + (l-w)*(1-w/l)/(l*log(2))
-	//     = (log(1-w/l) + (1-w/l)²)/log(2)
-	//     = (log(x) + x²)/log(2)     [x=1-w/l]
-	//
-	// which is 0 at approx x=0.65291864
-	//
-	// x=1-w/l <=> l*(1-x)=w <=> l=w/(1-x) <=> l ~= 0.34708136*w
-	//
-	// but l >= w so we can't attain that (and the log isn't valid there).
-	//
-	// Gradient at (without loss of generality) l=2*w is:
-	//       (log(0.5) + 0.25)/log(2)
-	// which is < 0 so want to minimise l, i.e. l=len_lower, so the other
-	// candidate is w=wdf_lower and l=len_lower.
-	//
-	// So evaluate both candidates and pick the larger:
-	double B1 = (len_lower - wdf_lower) * log2(1.0 - wdf_lower / len_lower);
-	double B2 = (len_lower - wdf_upper) * log2(1.0 - wdf_upper / len_lower);
-	B = max(B1, B2);
+        // If not, then minimising l-w gives us a candidate (i.e. w=wdf_upper
+        // and l=len_lower).
+        //
+        // The function is also 0 at w = 0 (there must be a local mimina at
+        // some value of w between 0 and l), so the other candidate is at
+        // w=wdf_lower.
+        //
+        // We need to find the optimum value of l in this case, so
+        // differentiate the formula by l:
+        //
+        // d/dl: log2(1-w/l) + (l-w)*(1-w/l)/(l*log(2))
+        //     = (log(1-w/l) + (1-w/l)²)/log(2)
+        //     = (log(x) + x²)/log(2)     [x=1-w/l]
+        //
+        // which is 0 at approx x=0.65291864
+        //
+        // x=1-w/l <=> l*(1-x)=w <=> l=w/(1-x) <=> l ~= 0.34708136*w
+        //
+        // but l >= w so we can't attain that (and the log isn't valid there).
+        //
+        // Gradient at (without loss of generality) l=2*w is:
+        //       (log(0.5) + 0.25)/log(2)
+        // which is < 0 so want to minimise l, i.e. l=len_lower, so the other
+        // candidate is w=wdf_lower and l=len_lower.
+        //
+        // So evaluate both candidates and pick the larger:
+        double B1 = (len_lower - wdf_lower) * log2(1.0 - wdf_lower / len_lower);
+        double B2 = (len_lower - wdf_upper) * log2(1.0 - wdf_upper / len_lower);
+        B = max(B1, B2);
     }
 
     /* An upper bound of the term used in the third log can be obtained by:
@@ -149,9 +149,9 @@ DLHWeight::init(double factor)
     upper_bound = A + B + C;
 
     if (rare(upper_bound < 0.0))
-	upper_bound = 0.0;
+        upper_bound = 0.0;
     else
-	upper_bound *= wqf_product_factor;
+        upper_bound *= wqf_product_factor;
 }
 
 string
@@ -170,13 +170,13 @@ DLHWeight *
 DLHWeight::unserialise(const string& s) const
 {
     if (rare(!s.empty()))
-	throw Xapian::SerialisationError("Extra data in DLHWeight::unserialise()");
+        throw Xapian::SerialisationError("Extra data in DLHWeight::unserialise()");
     return new DLHWeight();
 }
 
 double
 DLHWeight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len,
-		       Xapian::termcount, Xapian::termcount) const
+                       Xapian::termcount, Xapian::termcount) const
 {
     if (wdf == 0 || wdf == len) return 0.0;
 
@@ -184,8 +184,8 @@ DLHWeight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len,
     double one_minus_wdf_to_len = 1.0 - wdf_to_len;
 
     double wt = wdf * log2(wdf_to_len * log_constant) +
-		(len - wdf) * log2(one_minus_wdf_to_len) +
-		0.5 * log2(2.0 * M_PI * wdf * one_minus_wdf_to_len);
+                (len - wdf) * log2(one_minus_wdf_to_len) +
+                0.5 * log2(2.0 * M_PI * wdf * one_minus_wdf_to_len);
     if (rare(wt <= 0.0)) return 0.0;
 
     return wqf_product_factor * wt / (wdf + 0.5);
@@ -201,7 +201,7 @@ DLHWeight *
 DLHWeight::create_from_parameters(const char * p) const
 {
     if (*p != '\0')
-	throw InvalidArgumentError("No parameters are required for DLHWeight");
+        throw InvalidArgumentError("No parameters are required for DLHWeight");
     return new Xapian::DLHWeight();
 }
 

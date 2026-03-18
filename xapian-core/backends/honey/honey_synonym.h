@@ -56,18 +56,18 @@ class HoneySynonymTable : public HoneyLazyTable {
      *  @param readonly		true if we're opening read-only, else false.
      */
     HoneySynonymTable(const std::string& dbdir, bool readonly)
-	: HoneyLazyTable("synonym", dbdir + "/synonym.", readonly) { }
+        : HoneyLazyTable("synonym", dbdir + "/synonym.", readonly) { }
 
     HoneySynonymTable(int fd, off_t offset_, bool readonly)
-	: HoneyLazyTable("synonym", fd, offset_, readonly) { }
+        : HoneyLazyTable("synonym", fd, offset_, readonly) { }
 
     // Merge in batched-up changes.
     void merge_changes();
 
     // Discard batched-up changes.
     void discard_changes() {
-	last_term.resize(0);
-	last_synonyms.clear();
+        last_term.resize(0);
+        last_synonyms.clear();
     }
 
     /** Add a synonym for @a term.
@@ -102,18 +102,18 @@ class HoneySynonymTable : public HoneyLazyTable {
      */
 
     bool is_modified() const {
-	return !last_term.empty() || HoneyTable::is_modified();
+        return !last_term.empty() || HoneyTable::is_modified();
     }
 
     void flush_db() {
-	merge_changes();
-	HoneyTable::flush_db();
+        merge_changes();
+        HoneyTable::flush_db();
     }
 
     void cancel(const Honey::RootInfo& root_info,
-		honey_revision_number_t rev) {
-	discard_changes();
-	HoneyTable::cancel(root_info, rev);
+                honey_revision_number_t rev) {
+        discard_changes();
+        HoneyTable::cancel(root_info, rev);
     }
 
     // @}
@@ -141,12 +141,12 @@ class HoneySynonymTermList : public AllTermsList {
 
   public:
     HoneySynonymTermList(const HoneyDatabase* database_,
-			 HoneyCursor* cursor_,
-			 std::string_view prefix_)
-	: database(database_), cursor(cursor_), prefix(prefix_)
+                         HoneyCursor* cursor_,
+                         std::string_view prefix_)
+        : database(database_), cursor(cursor_), prefix(prefix_)
     {
-	// Set the cursor to its end to signal we haven't started yet.
-	cursor->to_end();
+        // Set the cursor to its end to signal we haven't started yet.
+        cursor->to_end();
     }
 
     /// Destructor.

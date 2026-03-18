@@ -98,7 +98,7 @@ if test -z "$VALGRIND" ; then
     export MALLOC_PERTURB_
 
     if test -n "$EATMYDATA" ; then
-	echo "Running test '$@' under eatmydata"
+        echo "Running test '$@' under eatmydata"
     fi
     exec $EATMYDATA "$@"
     exit 1

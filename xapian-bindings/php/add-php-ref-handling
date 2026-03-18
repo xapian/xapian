@@ -25,17 +25,17 @@ use strict;
 
 while (<>) {
     if (/\b(SWIG_Php_ce_Enquire) = /) {
-	$_ .= "{ zval z; ZVAL_EMPTY_ARRAY(&z); zend_declare_property($1, \"_ps\", 3, &z, ZEND_ACC_PRIVATE); }\n";
-	$_ .= "zend_declare_property_null($1, \"_sorter\", 7, ZEND_ACC_PRIVATE);\n";
-	$_ .= "{ zval z; ZVAL_EMPTY_ARRAY(&z); zend_declare_property($1, \"_spies\", 6, &z, ZEND_ACC_PRIVATE); }\n";
-	$_ .= "zend_declare_property_null($1, \"_query\", 7, ZEND_ACC_PRIVATE);\n";
+        $_ .= "{ zval z; ZVAL_EMPTY_ARRAY(&z); zend_declare_property($1, \"_ps\", 3, &z, ZEND_ACC_PRIVATE); }\n";
+        $_ .= "zend_declare_property_null($1, \"_sorter\", 7, ZEND_ACC_PRIVATE);\n";
+        $_ .= "{ zval z; ZVAL_EMPTY_ARRAY(&z); zend_declare_property($1, \"_spies\", 6, &z, ZEND_ACC_PRIVATE); }\n";
+        $_ .= "zend_declare_property_null($1, \"_query\", 7, ZEND_ACC_PRIVATE);\n";
     } elsif (/\b(SWIG_Php_ce_Query) = /) {
-	$_ .= "{ zval z; ZVAL_EMPTY_ARRAY(&z); zend_declare_property($1, \"_ps\", 3, &z, ZEND_ACC_PRIVATE); }\n";
+        $_ .= "{ zval z; ZVAL_EMPTY_ARRAY(&z); zend_declare_property($1, \"_ps\", 3, &z, ZEND_ACC_PRIVATE); }\n";
     } elsif (/\b(SWIG_Php_ce_QueryParser) = /) {
-	$_ .= "{ zval z; ZVAL_EMPTY_ARRAY(&z); zend_declare_property($1, \"_procs\", 6, &z, ZEND_ACC_PRIVATE); }\n";
-	$_ .= "zend_declare_property_null($1, \"_stopper\", 8, ZEND_ACC_PRIVATE);\n";
+        $_ .= "{ zval z; ZVAL_EMPTY_ARRAY(&z); zend_declare_property($1, \"_procs\", 6, &z, ZEND_ACC_PRIVATE); }\n";
+        $_ .= "zend_declare_property_null($1, \"_stopper\", 8, ZEND_ACC_PRIVATE);\n";
     } elsif (/\b(SWIG_Php_ce_TermGenerator) = /) {
-	$_ .= "zend_declare_property_null($1, \"_stopper\", 8, ZEND_ACC_PRIVATE);\n";
+        $_ .= "zend_declare_property_null($1, \"_stopper\", 8, ZEND_ACC_PRIVATE);\n";
     }
     print;
 }

@@ -46,11 +46,11 @@ bool
 TestRunner::use_backend(const string & backend_name)
 {
     if (user_backend.empty())
-	return true;
+        return true;
     if (backend_name == user_backend)
-	return true;
+        return true;
     if (startswith(backend_name, user_backend + "_"))
-	return true;
+        return true;
     return false;
 }
 
@@ -59,57 +59,57 @@ TestRunner::set_properties_for_backend(const string & backend_name)
 {
     /// A description of the properties which a particular backend supports.
     struct BackendProperties {
-	const char * name;
-	unsigned properties;
+        const char * name;
+        unsigned properties;
     };
 
     /// A list of the properties of each backend.
     static const BackendProperties backend_properties[] = {
-	{ "none", 0 },
-	{ "inmemory", INMEMORY|
-	    BACKEND|POSITIONAL|WRITABLE|METADATA|VALUESTATS },
-	{ "glass", GLASS|
-	    BACKEND|TRANSACTIONS|POSITIONAL|WRITABLE|SPELLING|METADATA|
-	    SYNONYMS|VALUESTATS|CHECK|COMPACT|PATH
+        { "none", 0 },
+        { "inmemory", INMEMORY|
+            BACKEND|POSITIONAL|WRITABLE|METADATA|VALUESTATS },
+        { "glass", GLASS|
+            BACKEND|TRANSACTIONS|POSITIONAL|WRITABLE|SPELLING|METADATA|
+            SYNONYMS|VALUESTATS|CHECK|COMPACT|PATH
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
-	    |REPLICAS
+            |REPLICAS
 #endif
-	},
-	{ "multi_glass", MULTI|
-	    BACKEND|TRANSACTIONS|POSITIONAL|WRITABLE|METADATA|VALUESTATS|
-	    SPELLING|SYNONYMS|CHECK|COMPACT|PATH },
-	{ "multi_glass_remoteprog_glass", MULTI|REMOTE|
-	    BACKEND|TRANSACTIONS|POSITIONAL|WRITABLE|METADATA|VALUESTATS|
-	    SYNONYMS
-	},
-	{ "multi_remoteprog_glass", MULTI|REMOTE|
-	    BACKEND|TRANSACTIONS|POSITIONAL|WRITABLE|METADATA|VALUESTATS|
-	    SYNONYMS
-	},
-	{ "remoteprog_glass", REMOTE|
-	    BACKEND|TRANSACTIONS|POSITIONAL|WRITABLE|METADATA|VALUESTATS|
-	    SYNONYMS
-	},
-	{ "remotetcp_glass", REMOTE|REMOTETCP|
-	    BACKEND|TRANSACTIONS|POSITIONAL|WRITABLE|METADATA|VALUESTATS|
-	    SYNONYMS
-	},
-	{ "singlefile_glass", SINGLEFILE|
-	    BACKEND|POSITIONAL|METADATA|SPELLING|SYNONYMS|VALUESTATS|
-	    CHECK|COMPACT|PATH
-	},
-	{ "honey", HONEY|
-	    BACKEND|POSITIONAL|METADATA|SPELLING|SYNONYMS|VALUESTATS|
-	    CHECK|COMPACT|PATH
-	},
-	{ NULL, 0 }
+        },
+        { "multi_glass", MULTI|
+            BACKEND|TRANSACTIONS|POSITIONAL|WRITABLE|METADATA|VALUESTATS|
+            SPELLING|SYNONYMS|CHECK|COMPACT|PATH },
+        { "multi_glass_remoteprog_glass", MULTI|REMOTE|
+            BACKEND|TRANSACTIONS|POSITIONAL|WRITABLE|METADATA|VALUESTATS|
+            SYNONYMS
+        },
+        { "multi_remoteprog_glass", MULTI|REMOTE|
+            BACKEND|TRANSACTIONS|POSITIONAL|WRITABLE|METADATA|VALUESTATS|
+            SYNONYMS
+        },
+        { "remoteprog_glass", REMOTE|
+            BACKEND|TRANSACTIONS|POSITIONAL|WRITABLE|METADATA|VALUESTATS|
+            SYNONYMS
+        },
+        { "remotetcp_glass", REMOTE|REMOTETCP|
+            BACKEND|TRANSACTIONS|POSITIONAL|WRITABLE|METADATA|VALUESTATS|
+            SYNONYMS
+        },
+        { "singlefile_glass", SINGLEFILE|
+            BACKEND|POSITIONAL|METADATA|SPELLING|SYNONYMS|VALUESTATS|
+            CHECK|COMPACT|PATH
+        },
+        { "honey", HONEY|
+            BACKEND|POSITIONAL|METADATA|SPELLING|SYNONYMS|VALUESTATS|
+            CHECK|COMPACT|PATH
+        },
+        { NULL, 0 }
     };
 
     for (const BackendProperties * i = backend_properties; i->name; ++i) {
-	if (backend_name == i->name) {
-	    properties = i->properties;
-	    return;
-	}
+        if (backend_name == i->name) {
+            properties = i->properties;
+            return;
+        }
     }
     throw Xapian::InvalidArgumentError("Unknown backend " + backend_name);
 }
@@ -119,11 +119,11 @@ TestRunner::do_tests_for_backend_(BackendManager* manager)
 {
     const string& backend_name = manager->get_dbtype();
     if (use_backend(backend_name)) {
-	set_properties_for_backend(backend_name);
-	cout << "Running tests with backend \"" << backend_name << "\"...\n";
-	backendmanager = manager;
-	result_so_far = max(result_so_far, run());
-	backendmanager = NULL;
+        set_properties_for_backend(backend_name);
+        cout << "Running tests with backend \"" << backend_name << "\"...\n";
+        backendmanager = manager;
+        result_so_far = max(result_so_far, run());
+        backendmanager = NULL;
     }
 }
 
@@ -132,69 +132,69 @@ TestRunner::run_tests(int argc, char ** argv)
 {
     result_so_far = 0;
     try {
-	test_driver::add_command_line_option("backend", 'b', &user_backend);
-	test_driver::parse_command_line(argc, argv);
-	srcdir = test_driver::get_srcdir();
-	string datadir = srcdir + "/testdata/";
+        test_driver::add_command_line_option("backend", 'b', &user_backend);
+        test_driver::parse_command_line(argc, argv);
+        srcdir = test_driver::get_srcdir();
+        string datadir = srcdir + "/testdata/";
 
 #ifdef XAPIAN_HAS_HONEY_BACKEND
 # ifdef XAPIAN_HAS_GLASS_BACKEND
-	{
-	    BackendManagerGlass glass_man(datadir);
-	    do_tests_for_backend(BackendManagerHoney(datadir, &glass_man));
-	}
+        {
+            BackendManagerGlass glass_man(datadir);
+            do_tests_for_backend(BackendManagerHoney(datadir, &glass_man));
+        }
 # else
-	do_tests_for_backend(BackendManagerHoney(datadir));
+        do_tests_for_backend(BackendManagerHoney(datadir));
 # endif
 #endif
 
-	do_tests_for_backend(BackendManager(string(), "none"));
+        do_tests_for_backend(BackendManager(string(), "none"));
 
 #ifdef XAPIAN_HAS_INMEMORY_BACKEND
-	do_tests_for_backend(BackendManagerInMemory(datadir));
+        do_tests_for_backend(BackendManagerInMemory(datadir));
 #endif
 
 #ifdef XAPIAN_HAS_GLASS_BACKEND
-	{
-	    BackendManagerGlass glass_man(datadir);
+        {
+            BackendManagerGlass glass_man(datadir);
 
-	    // Vector for multi backendmanagers.
-	    vector<BackendManager*> multi_mans;
-	    multi_mans = {&glass_man, &glass_man};
+            // Vector for multi backendmanagers.
+            vector<BackendManager*> multi_mans;
+            multi_mans = {&glass_man, &glass_man};
 
-	    do_tests_for_backend(glass_man);
-	    do_tests_for_backend(BackendManagerSingleFile(datadir, &glass_man));
-	    do_tests_for_backend(BackendManagerMulti(datadir, multi_mans));
+            do_tests_for_backend(glass_man);
+            do_tests_for_backend(BackendManagerSingleFile(datadir, &glass_man));
+            do_tests_for_backend(BackendManagerMulti(datadir, multi_mans));
 # ifdef XAPIAN_HAS_REMOTE_BACKEND
-	    BackendManagerGlass sub_glass_man(datadir);
-	    BackendManagerRemoteProg remoteprog_glass_man(&sub_glass_man);
+            BackendManagerGlass sub_glass_man(datadir);
+            BackendManagerRemoteProg remoteprog_glass_man(&sub_glass_man);
 
-	    multi_mans = {&glass_man, &remoteprog_glass_man};
+            multi_mans = {&glass_man, &remoteprog_glass_man};
 
-	    do_tests_for_backend(BackendManagerMulti(datadir, multi_mans));
+            do_tests_for_backend(BackendManagerMulti(datadir, multi_mans));
 
-	    multi_mans = {&remoteprog_glass_man, &remoteprog_glass_man};
+            multi_mans = {&remoteprog_glass_man, &remoteprog_glass_man};
 
-	    do_tests_for_backend(BackendManagerMulti(datadir, multi_mans));
+            do_tests_for_backend(BackendManagerMulti(datadir, multi_mans));
 
-	    do_tests_for_backend(BackendManagerRemoteProg(&glass_man));
-	    do_tests_for_backend(BackendManagerRemoteTcp(&glass_man));
+            do_tests_for_backend(BackendManagerRemoteProg(&glass_man));
+            do_tests_for_backend(BackendManagerRemoteTcp(&glass_man));
 # endif
-	}
+        }
 #endif
     } catch (const std::exception& e) {
-	cerr << "\nTest harness failed with std::exception: " << e.what()
-	     << '\n';
-	return 1;
+        cerr << "\nTest harness failed with std::exception: " << e.what()
+             << '\n';
+        return 1;
     } catch (const Xapian::Error &e) {
-	cerr << "\nTest harness failed with " << e.get_description() << '\n';
-	return 1;
+        cerr << "\nTest harness failed with " << e.get_description() << '\n';
+        return 1;
     } catch (const std::string &e) {
-	cerr << "\nTest harness failed with \"" << e << "\"\n";
-	return 1;
+        cerr << "\nTest harness failed with \"" << e << "\"\n";
+        return 1;
     } catch (const char * e) {
-	cout << e << '\n';
-	return 1;
+        cout << e << '\n';
+        return 1;
     }
     return result_so_far;
 }

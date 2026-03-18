@@ -60,37 +60,37 @@ class TestRunner {
     /** Run the tests with the specified backend.
      */
     void do_tests_for_backend(BackendManager&& manager) {
-	do_tests_for_backend_(&manager);
+        do_tests_for_backend_(&manager);
     }
 
     void do_tests_for_backend(BackendManager& manager) {
-	do_tests_for_backend_(&manager);
+        do_tests_for_backend_(&manager);
     }
 
   protected:
     enum {
-	BACKEND		= 0x00000001,
-	REMOTE		= 0x00000002,
-	TRANSACTIONS	= 0x00000004,
-	POSITIONAL	= 0x00000008,
-	WRITABLE	= 0x00000010,
-	SPELLING	= 0x00000020,
-	METADATA	= 0x00000040,
-	SYNONYMS	= 0x00000080,
-	REPLICAS	= 0x00000100,
-	VALUESTATS	= 0x00000200,
-	MULTI		= 0x00000400,
-	SINGLEFILE	= 0x00000800,
-	INMEMORY	= 0x00001000,
-	GLASS		= 0x00002000,
-	COMPACT		= 0x00004000,
-	HONEY		= 0x00008000,
-	/// Requires get_database_path() or similar.
-	PATH		= 0x00010000,
-	/// TCP variant of remote.
-	REMOTETCP	= 0x00020000,
-	/// Supports Xapian::Database::check().
-	CHECK		= 0x00040000,
+        BACKEND		= 0x00000001,
+        REMOTE		= 0x00000002,
+        TRANSACTIONS	= 0x00000004,
+        POSITIONAL	= 0x00000008,
+        WRITABLE	= 0x00000010,
+        SPELLING	= 0x00000020,
+        METADATA	= 0x00000040,
+        SYNONYMS	= 0x00000080,
+        REPLICAS	= 0x00000100,
+        VALUESTATS	= 0x00000200,
+        MULTI		= 0x00000400,
+        SINGLEFILE	= 0x00000800,
+        INMEMORY	= 0x00001000,
+        GLASS		= 0x00002000,
+        COMPACT		= 0x00004000,
+        HONEY		= 0x00008000,
+        /// Requires get_database_path() or similar.
+        PATH		= 0x00010000,
+        /// TCP variant of remote.
+        REMOTETCP	= 0x00020000,
+        /// Supports Xapian::Database::check().
+        CHECK		= 0x00040000,
     };
 
   public:

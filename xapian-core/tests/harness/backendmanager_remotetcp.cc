@@ -98,55 +98,55 @@ class ServerData {
   public:
 #ifndef __WIN32__
     void init(pid_type pid_) {
-	pid = pid_;
-	db_internal = nullptr;
+        pid = pid_;
+        db_internal = nullptr;
     }
 #else
     void init(pid_type pid_, HANDLE handle_) {
-	pid = pid_;
-	handle = handle_;
-	db_internal = nullptr;
+        pid = pid_;
+        handle = handle_;
+        db_internal = nullptr;
     }
 #endif
 
     void set_db_internal(const void* dbi) { db_internal = dbi; }
 
     void clean_up() {
-	if (pid == DEAD_PID) return;
+        if (pid == DEAD_PID) return;
 #ifdef HAVE_FORK
-	int status;
-	while (waitpid(pid, &status, 0) == -1 && errno == EINTR) { }
-	// Other possible error from waitpid is ECHILD, which it seems can
-	// only mean that the child has already exited and SIGCHLD was set
-	// to SIG_IGN.  If we did somehow see that, it seems reasonable to
-	// treat the child as successfully cleaned up.
+        int status;
+        while (waitpid(pid, &status, 0) == -1 && errno == EINTR) { }
+        // Other possible error from waitpid is ECHILD, which it seems can
+        // only mean that the child has already exited and SIGCHLD was set
+        // to SIG_IGN.  If we did somehow see that, it seems reasonable to
+        // treat the child as successfully cleaned up.
 #elif defined __WIN32__
-	WaitForSingleObject(handle, INFINITE);
-	CloseHandle(handle);
+        WaitForSingleObject(handle, INFINITE);
+        CloseHandle(handle);
 #endif
     }
 
     bool kill_remote(const void* dbi) {
-	if (pid == DEAD_PID || dbi != db_internal) return false;
+        if (pid == DEAD_PID || dbi != db_internal) return false;
 #ifdef HAVE_FORK
-	// Kill the process group that we put the server in so that we kill
-	// the server itself and not just the /bin/sh that launched it.
-	if (kill(-pid, SIGKILL) < 0) {
-	    throw Xapian::DatabaseError("Couldn't kill remote server",
-					errno);
-	}
+        // Kill the process group that we put the server in so that we kill
+        // the server itself and not just the /bin/sh that launched it.
+        if (kill(-pid, SIGKILL) < 0) {
+            throw Xapian::DatabaseError("Couldn't kill remote server",
+                                        errno);
+        }
 #elif defined __WIN32__
-	// We want to kill the whole process group so we need to use
-	// GenerateConsoleCtrlEvent() - TerminateProcess() can only
-	// terminate one process given its handle.
-	if (!GenerateConsoleCtrlEvent(CTRL_BREAK_EVENT, pid)) {
-	    throw Xapian::DatabaseError("Couldn't kill remote server",
-					-int(GetLastError()));
-	}
+        // We want to kill the whole process group so we need to use
+        // GenerateConsoleCtrlEvent() - TerminateProcess() can only
+        // terminate one process given its handle.
+        if (!GenerateConsoleCtrlEvent(CTRL_BREAK_EVENT, pid)) {
+            throw Xapian::DatabaseError("Couldn't kill remote server",
+                                        -int(GetLastError()));
+        }
 #endif
-	clean_up();
-	pid = DEAD_PID;
-	return true;
+        clean_up();
+        pid = DEAD_PID;
+        return true;
     }
 };
 
@@ -181,45 +181,45 @@ try_next_port:
 #endif
     int fds[2];
     if (socketpair(AF_UNIX, SOCK_STREAM|SOCK_CLOEXEC, PF_UNSPEC, fds) < 0) {
-	string msg("Couldn't create socketpair: ");
-	errno_to_string(errno, msg);
-	throw msg;
+        string msg("Couldn't create socketpair: ");
+        errno_to_string(errno, msg);
+        throw msg;
     }
 
     pid_t child = fork();
     if (child == 0) {
-	// Put this process into its own process group so that we can kill the
-	// server itself easily by killing the process group.  Just killing
-	// `child` only kills the /bin/sh and leaves the server running.
-	setpgid(0, 0);
-	// Child process.
-	close(fds[0]);
-	// Connect stdout and stderr to the socket.
-	//
-	// Make sure the socket isn't fd 1 or 2.  We need to ensure that
-	// FD_CLOEXEC isn't set for stdout or stderr (which creating them with
-	// dup2() achieves), and that we close fds[1].  The cleanest way to
-	// address this seems to be to turn the unusual situation into the
-	// usual one.
-	if (fds[1] == 1 || fds[1] == 2) {
-	    dup2(fds[1], 3);
-	    fds[1] = 3;
-	}
-	dup2(fds[1], 1);
-	dup2(fds[1], 2);
-	close(fds[1]);
-	execl("/bin/sh", "/bin/sh", "-c", cmd.c_str(), static_cast<void*>(0));
-	_exit(-1);
+        // Put this process into its own process group so that we can kill the
+        // server itself easily by killing the process group.  Just killing
+        // `child` only kills the /bin/sh and leaves the server running.
+        setpgid(0, 0);
+        // Child process.
+        close(fds[0]);
+        // Connect stdout and stderr to the socket.
+        //
+        // Make sure the socket isn't fd 1 or 2.  We need to ensure that
+        // FD_CLOEXEC isn't set for stdout or stderr (which creating them with
+        // dup2() achieves), and that we close fds[1].  The cleanest way to
+        // address this seems to be to turn the unusual situation into the
+        // usual one.
+        if (fds[1] == 1 || fds[1] == 2) {
+            dup2(fds[1], 3);
+            fds[1] = 3;
+        }
+        dup2(fds[1], 1);
+        dup2(fds[1], 2);
+        close(fds[1]);
+        execl("/bin/sh", "/bin/sh", "-c", cmd.c_str(), static_cast<void*>(0));
+        _exit(-1);
     }
 
     close(fds[1]);
     if (child == -1) {
-	// Couldn't fork.
-	int fork_errno = errno;
-	close(fds[0]);
-	string msg("Couldn't fork: ");
-	errno_to_string(fork_errno, msg);
-	throw msg;
+        // Couldn't fork.
+        int fork_errno = errno;
+        close(fds[0]);
+        string msg("Couldn't fork: ");
+        errno_to_string(fork_errno, msg);
+        throw msg;
     }
 
     // Parent process.
@@ -227,49 +227,49 @@ try_next_port:
     // Wrap the file descriptor in a FILE * so we can read lines using fgets().
     FILE * fh = fdopen(fds[0], "r");
     if (fh == NULL) {
-	string msg("Failed to run command '");
-	msg += cmd;
-	msg += "': ";
-	errno_to_string(errno, msg);
-	throw msg;
+        string msg("Failed to run command '");
+        msg += cmd;
+        msg += "': ";
+        errno_to_string(errno, msg);
+        throw msg;
     }
 
     string output;
     while (true) {
-	char buf[256];
-	if (fgets(buf, sizeof(buf), fh) == NULL) {
-	    fclose(fh);
-	    // Wait for the child to exit.
-	    int status;
-	    if (waitpid(child, &status, 0) == -1) {
-		string msg("waitpid failed: ");
-		errno_to_string(errno, msg);
-		throw msg;
-	    }
-	    if (++port < 65536 && status != 0) {
-		if (WIFEXITED(status) &&
-		    WEXITSTATUS(status) == EX_UNAVAILABLE) {
-		    // Exit code EX_UNAVAILABLE from xapian-tcpsrv means the
-		    // specified port was in use.
-		    goto try_next_port;
-		}
-	    }
-	    string msg("Failed to get 'Listening...' from command '");
-	    msg += cmd;
-	    msg += "' (output: ";
-	    msg += output;
-	    msg += ")";
-	    throw msg;
-	}
-	if (strcmp(buf, "Listening...\n") == 0) break;
-	output += buf;
+        char buf[256];
+        if (fgets(buf, sizeof(buf), fh) == NULL) {
+            fclose(fh);
+            // Wait for the child to exit.
+            int status;
+            if (waitpid(child, &status, 0) == -1) {
+                string msg("waitpid failed: ");
+                errno_to_string(errno, msg);
+                throw msg;
+            }
+            if (++port < 65536 && status != 0) {
+                if (WIFEXITED(status) &&
+                    WEXITSTATUS(status) == EX_UNAVAILABLE) {
+                    // Exit code EX_UNAVAILABLE from xapian-tcpsrv means the
+                    // specified port was in use.
+                    goto try_next_port;
+                }
+            }
+            string msg("Failed to get 'Listening...' from command '");
+            msg += cmd;
+            msg += "' (output: ";
+            msg += output;
+            msg += ")";
+            throw msg;
+        }
+        if (strcmp(buf, "Listening...\n") == 0) break;
+        output += buf;
     }
     fclose(fh);
 
     if (first_unused_server_data >= std::size(server_data)) {
-	// We used to quietly ignore not finding a slot, but it's helpful to
-	// know if we haven't allocated enough.
-	throw Xapian::DatabaseError("Not enough ServerData slots");
+        // We used to quietly ignore not finding a slot, but it's helpful to
+        // know if we haven't allocated enough.
+        throw Xapian::DatabaseError("Not enough ServerData slots");
     }
 
     auto& data = server_data[first_unused_server_data++];
@@ -286,16 +286,16 @@ static void win32_throw_error_string(const char * str)
     char * error = 0;
     DWORD len;
     len = FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_ALLOCATE_BUFFER,
-			0, GetLastError(), 0, (CHAR*)&error, 0, 0);
+                        0, GetLastError(), 0, (CHAR*)&error, 0, 0);
     if (error) {
-	// Remove any trailing \r\n from output of FormatMessage.
-	if (len >= 2 && error[len - 2] == '\r' && error[len - 1] == '\n')
-	    len -= 2;
-	if (len) {
-	    msg += ": ";
-	    msg.append(error, len);
-	}
-	LocalFree(error);
+        // Remove any trailing \r\n from output of FormatMessage.
+        if (len >= 2 && error[len - 2] == '\r' && error[len - 1] == '\n')
+            len -= 2;
+        if (len) {
+            msg += ": ";
+            msg.append(error, len);
+        }
+        LocalFree(error);
     }
     throw msg;
 }
@@ -316,7 +316,7 @@ try_next_port:
     // Create a pipe so we can read stdout/stderr from the child process.
     HANDLE hRead, hWrite;
     if (!CreatePipe(&hRead, &hWrite, 0, 0))
-	win32_throw_error_string("Couldn't create pipe");
+        win32_throw_error_string("Couldn't create pipe");
 
     // Set the write handle to be inherited by the child process.
     SetHandleInformation(hWrite, HANDLE_FLAG_INHERIT, 1);
@@ -336,9 +336,9 @@ try_next_port:
     // For some reason Windows wants a modifiable command line string
     // so pass a pointer to the first character rather than using c_str().
     if (!CreateProcess(XAPIAN_TCPSRV, &cmd[0], 0, 0, TRUE,
-		       CREATE_NEW_PROCESS_GROUP, 0, 0,
-		       &startupinfo, &procinfo)) {
-	win32_throw_error_string("Couldn't create child process");
+                       CREATE_NEW_PROCESS_GROUP, 0, 0,
+                       &startupinfo, &procinfo)) {
+        win32_throw_error_string("Couldn't create child process");
     }
 
     CloseHandle(hWrite);
@@ -347,37 +347,37 @@ try_next_port:
     string output;
     FILE *fh = fdopen(_open_osfhandle(intptr_t(hRead), O_RDONLY), "r");
     while (true) {
-	char buf[256];
-	if (fgets(buf, sizeof(buf), fh) == NULL) {
-	    fclose(fh);
-	    DWORD rc;
-	    // This doesn't seem to be necessary on the machine I tested on,
-	    // but I guess it could be on a slow machine...
-	    while (GetExitCodeProcess(procinfo.hProcess, &rc) && rc == STILL_ACTIVE) {
-		Sleep(100);
-	    }
-	    CloseHandle(procinfo.hProcess);
-	    if (++port < 65536 && rc == EX_UNAVAILABLE) {
-		// Exit code EX_UNAVAILABLE from xapian-tcpsrv means the
-		// specified port was in use.
-		goto try_next_port;
-	    }
-	    string msg("Failed to get 'Listening...' from command '");
-	    msg += cmd;
-	    msg += "' (output: ";
-	    msg += output;
-	    msg += ")";
-	    throw msg;
-	}
-	if (strcmp(buf, "Listening...\r\n") == 0) break;
-	output += buf;
+        char buf[256];
+        if (fgets(buf, sizeof(buf), fh) == NULL) {
+            fclose(fh);
+            DWORD rc;
+            // This doesn't seem to be necessary on the machine I tested on,
+            // but I guess it could be on a slow machine...
+            while (GetExitCodeProcess(procinfo.hProcess, &rc) && rc == STILL_ACTIVE) {
+                Sleep(100);
+            }
+            CloseHandle(procinfo.hProcess);
+            if (++port < 65536 && rc == EX_UNAVAILABLE) {
+                // Exit code EX_UNAVAILABLE from xapian-tcpsrv means the
+                // specified port was in use.
+                goto try_next_port;
+            }
+            string msg("Failed to get 'Listening...' from command '");
+            msg += cmd;
+            msg += "' (output: ";
+            msg += output;
+            msg += ")";
+            throw msg;
+        }
+        if (strcmp(buf, "Listening...\r\n") == 0) break;
+        output += buf;
     }
     fclose(fh);
 
     if (first_unused_server_data >= std::size(server_data)) {
-	// We used to quietly ignore not finding a slot, but it's helpful to
-	// know if we haven't allocated enough.
-	throw Xapian::DatabaseError("Not enough ServerData slots");
+        // We used to quietly ignore not finding a slot, but it's helpful to
+        // know if we haven't allocated enough.
+        throw Xapian::DatabaseError("Not enough ServerData slots");
     }
 
     auto& data = server_data[first_unused_server_data++];
@@ -418,20 +418,20 @@ BackendManagerRemoteTcp::do_get_database(const vector<string> & files)
     // Default to a long (5 minute) timeout so that tests won't fail just
     // because the host is slow or busy.
     return BackendManagerRemoteTcp::get_remote_database(files, 300000,
-							nullptr);
+                                                        nullptr);
 }
 
 Xapian::WritableDatabase
 BackendManagerRemoteTcp::get_writable_database(const string & name,
-					       const string & file)
+                                               const string & file)
 {
     return get_remotetcp_writable_db(get_writable_database_args(name, file));
 }
 
 Xapian::Database
 BackendManagerRemoteTcp::get_remote_database(const vector<string> & files,
-					     unsigned int timeout,
-					     int* port_ptr)
+                                             unsigned int timeout,
+                                             int* port_ptr)
 {
     return get_remotetcp_db(get_remote_database_args(files, timeout), port_ptr);
 }
@@ -459,8 +459,8 @@ BackendManagerRemoteTcp::kill_remote(const Xapian::Database& db)
 {
     const void* db_internal = db.internal.get();
     for (unsigned i = 0; i != first_unused_server_data; ++i) {
-	if (server_data[i].kill_remote(db_internal))
-	    return;
+        if (server_data[i].kill_remote(db_internal))
+            return;
     }
     throw Xapian::DatabaseError("No known server for remote DB");
 }
@@ -469,6 +469,6 @@ void
 BackendManagerRemoteTcp::clean_up()
 {
     while (first_unused_server_data) {
-	server_data[--first_unused_server_data].clean_up();
+        server_data[--first_unused_server_data].clean_up();
     }
 }

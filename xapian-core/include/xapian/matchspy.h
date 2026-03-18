@@ -74,7 +74,7 @@ class XAPIAN_VISIBILITY_DEFAULT MatchSpy
      *  @param wt The weight of the document.
      */
     virtual void operator()(const Xapian::Document &doc,
-			    double wt) = 0;
+                            double wt) = 0;
 
     /** Clone the match spy.
      *
@@ -141,7 +141,7 @@ class XAPIAN_VISIBILITY_DEFAULT MatchSpy
      *			implemented.
      */
     virtual MatchSpy * unserialise(const std::string & serialised,
-				   const Registry & context) const;
+                                   const Registry & context) const;
 
     /** Serialise the results of this match spy.
      *
@@ -182,8 +182,8 @@ class XAPIAN_VISIBILITY_DEFAULT MatchSpy
      *  longer required.
      */
     MatchSpy * release() {
-	opt_intrusive_base::release();
-	return this;
+        opt_intrusive_base::release();
+        return this;
     }
 
     /** Start reference counting this object.
@@ -194,8 +194,8 @@ class XAPIAN_VISIBILITY_DEFAULT MatchSpy
      *  longer required.
      */
     const MatchSpy * release() const {
-	opt_intrusive_base::release();
-	return this;
+        opt_intrusive_base::release();
+        return this;
     }
 };
 
@@ -209,19 +209,19 @@ class XAPIAN_VISIBILITY_DEFAULT ValueCountMatchSpy : public MatchSpy {
 #ifndef SWIG // SWIG doesn't need to know about the internal class
     /// @private @internal
     struct XAPIAN_VISIBILITY_DEFAULT Internal
-	    : public Xapian::Internal::intrusive_base
+            : public Xapian::Internal::intrusive_base
     {
-	/// The slot to count.
-	Xapian::valueno slot;
+        /// The slot to count.
+        Xapian::valueno slot;
 
-	/// Total number of documents seen by the match spy.
-	Xapian::doccount total = 0;
+        /// Total number of documents seen by the match spy.
+        Xapian::doccount total = 0;
 
-	/// The values seen so far, together with their frequency.
-	std::map<std::string, Xapian::doccount> values;
+        /// The values seen so far, together with their frequency.
+        std::map<std::string, Xapian::doccount> values;
 
-	Internal() : slot(Xapian::BAD_VALUENO) {}
-	explicit Internal(Xapian::valueno slot_) : slot(slot_) {}
+        Internal() : slot(Xapian::BAD_VALUENO) {}
+        explicit Internal(Xapian::valueno slot_) : slot(slot_) {}
     };
 #endif
 
@@ -235,11 +235,11 @@ class XAPIAN_VISIBILITY_DEFAULT ValueCountMatchSpy : public MatchSpy {
 
     /// Construct a MatchSpy which counts the values in a particular slot.
     explicit ValueCountMatchSpy(Xapian::valueno slot_)
-	    : internal(new Internal(slot_)) {}
+            : internal(new Internal(slot_)) {}
 
     /** Return the total number of documents tallied. */
     size_t get_total() const noexcept {
-	return internal ? internal->total : 0;
+        return internal ? internal->total : 0;
     }
 
     /** Get an iterator over the values seen in the slot.
@@ -253,7 +253,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueCountMatchSpy : public MatchSpy {
 
     /** End iterator corresponding to values_begin() */
     TermIterator values_end() const noexcept {
-	return TermIterator();
+        return TermIterator();
     }
 
     /** Get an iterator over the most frequent values seen in the slot.
@@ -270,7 +270,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueCountMatchSpy : public MatchSpy {
 
     /** End iterator corresponding to top_values_begin() */
     TermIterator top_values_end(size_t) const noexcept {
-	return TermIterator();
+        return TermIterator();
     }
 
     /** Implementation of virtual operator().
@@ -286,7 +286,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueCountMatchSpy : public MatchSpy {
     virtual std::string name() const;
     virtual std::string serialise() const;
     virtual MatchSpy * unserialise(const std::string & serialised,
-				   const Registry & context) const;
+                                   const Registry & context) const;
     virtual std::string serialise_results() const;
     virtual void merge_results(const std::string & serialised);
     virtual std::string get_description() const;

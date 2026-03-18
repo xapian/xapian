@@ -56,14 +56,14 @@ class SimplifiedDBN {
      * a list of documents in the search result and a list of count of clicks
      * made on each document in the search result.
      *
-     * @param logfile		Path to the final log file.
+     * @param logfile  Path to the final log file.
      */
     std::vector<Session> build_sessions(const std::string &logfile);
 
     /** Trains the model i.e. learning the values of attractiveness
      * and satisfactoriness parameters modelled by the click model.
      *
-     * @param sessions		List of all sessions.
+     * @param sessions  List of all sessions.
      */
     void train(const std::vector<Session> &sessions);
 
@@ -71,7 +71,7 @@ class SimplifiedDBN {
      * estimations of the relevance of each document in a given session based
      * on a trained model. Values ranging from 0.0 to 1.0.
      *
-     * @param sessions		Session class object representing a session.
+     * @param sessions  Session class object representing a session.
      */
     std::vector<std::pair<std::string, double>>
     get_predicted_relevances(const Session &session);

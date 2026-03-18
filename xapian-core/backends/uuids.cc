@@ -66,12 +66,12 @@ Uuid::generate()
     char buf[STRING_SIZE];
     int fd = open("/proc/sys/kernel/random/uuid", O_RDONLY);
     if (rare(fd == -1)) {
-	throw Xapian::DatabaseCreateError("Opening UUID generator failed", errno);
+        throw Xapian::DatabaseCreateError("Opening UUID generator failed", errno);
     }
     bool failed = (read(fd, buf, STRING_SIZE) != STRING_SIZE);
     close(fd);
     if (failed) {
-	throw Xapian::DatabaseCreateError("Generating UUID failed");
+        throw Xapian::DatabaseCreateError("Generating UUID failed");
     }
     parse(buf);
 #elif defined HAVE_UUID_UUID_H
@@ -83,8 +83,8 @@ Uuid::generate()
     uint32_t status;
     uuid_create(&uu, &status);
     if (status != uuid_s_ok) {
-	// Can only be uuid_s_no_memory it seems.
-	throw std::bad_alloc();
+        // Can only be uuid_s_no_memory it seems.
+        throw std::bad_alloc();
     }
     uu.time_low = htonl(uu.time_low);
     uu.time_mid = htons(uu.time_mid);
@@ -93,10 +93,10 @@ Uuid::generate()
 #elif defined USE_WIN32_UUID_API
     UUID uuid;
     if (rare(UuidCreate(&uuid) != RPC_S_OK)) {
-	// Throw a DatabaseCreateError, since we can't make a UUID.  The
-	// windows API documentation is a bit unclear about the situations in
-	// which this can happen.
-	throw Xapian::DatabaseCreateError("Cannot create UUID");
+        // Throw a DatabaseCreateError, since we can't make a UUID.  The
+        // windows API documentation is a bit unclear about the situations in
+        // which this can happen.
+        throw Xapian::DatabaseCreateError("Cannot create UUID");
     }
     uuid.Data1 = htonl(uuid.Data1);
     uuid.Data2 = htons(uuid.Data2);
@@ -111,8 +111,8 @@ void
 Uuid::parse(const char* in)
 {
     for (unsigned i = 0; i != BINARY_SIZE; ++i) {
-	uuid_data[i] = hex_decode(in[0], in[1]);
-	in += ((UUID_GAP_MASK >> i) & 1) | 2;
+        uuid_data[i] = hex_decode(in[0], in[1]);
+        in += ((UUID_GAP_MASK >> i) & 1) | 2;
     }
 }
 
@@ -122,11 +122,11 @@ Uuid::to_string() const
     string result;
     result.reserve(STRING_SIZE);
     for (unsigned i = 0; i != BINARY_SIZE; ++i) {
-	unsigned char ch = uuid_data[i];
-	result += "0123456789abcdef"[ch >> 4];
-	result += "0123456789abcdef"[ch & 0x0f];
-	if ((UUID_GAP_MASK >> i) & 1)
-	   result += '-';
+        unsigned char ch = uuid_data[i];
+        result += "0123456789abcdef"[ch >> 4];
+        result += "0123456789abcdef"[ch & 0x0f];
+        if ((UUID_GAP_MASK >> i) & 1)
+           result += '-';
     }
     return result;
 }

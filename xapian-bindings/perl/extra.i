@@ -42,68 +42,68 @@ sub dl_load_flags { 0x01 }
 # If you do not need this, moving things directly into @EXPORT or @EXPORT_OK
 # will save memory.
 our %EXPORT_TAGS = (
-		    'ops' => [ qw(
-				  OP_AND
-				  OP_OR
-				  OP_AND_NOT
-				  OP_XOR
-				  OP_AND_MAYBE
-				  OP_FILTER
-				  OP_NEAR
-				  OP_PHRASE
-				  OP_VALUE_RANGE
-				  OP_SCALE_WEIGHT
-				  OP_ELITE_SET
-				  OP_VALUE_GE
-				  OP_VALUE_LE
-				 ) ],
-		    'db' => [ qw(
-				 DB_OPEN
-				 DB_CREATE
-				 DB_CREATE_OR_OPEN
-				 DB_CREATE_OR_OVERWRITE
-				 ) ],
-		    'enq_order' => [ qw(
-				 ENQ_DESCENDING
-				 ENQ_ASCENDING
-				 ENQ_DONT_CARE
-				   ) ],
-		    'qpflags' => [ qw(
-				 FLAG_ACCUMULATE
-				 FLAG_BOOLEAN
-				 FLAG_FUZZY
-				 FLAG_NO_POSITIONS
-				 FLAG_PHRASE
-				 FLAG_LOVEHATE
-				 FLAG_BOOLEAN_ANY_CASE
-				 FLAG_WILDCARD
-				 FLAG_WILDCARD_GLOB
-				 FLAG_WILDCARD_MULTI
-				 FLAG_WILDCARD_SINGLE
-				 FLAG_PURE_NOT
-				 FLAG_PARTIAL
-				 FLAG_SPELLING_CORRECTION
-				 FLAG_SYNONYM
-				 FLAG_AUTO_SYNONYMS
-				 FLAG_AUTO_MULTIWORD_SYNONYMS
-				 FLAG_CJK_NGRAM
-				 FLAG_NGRAMS
-				 FLAG_WORD_BREAKS
-				 FLAG_NO_PROPER_NOUN_HEURISTIC
-				 FLAG_DEFAULT
-				 ) ],
-		    'qpstem' => [ qw(
-				 STEM_NONE
-				 STEM_SOME
-				 STEM_SOME_FULL_POS
-				 STEM_ALL
-				 STEM_ALL_Z
-				 ) ]
-		   );
+                    'ops' => [ qw(
+                                  OP_AND
+                                  OP_OR
+                                  OP_AND_NOT
+                                  OP_XOR
+                                  OP_AND_MAYBE
+                                  OP_FILTER
+                                  OP_NEAR
+                                  OP_PHRASE
+                                  OP_VALUE_RANGE
+                                  OP_SCALE_WEIGHT
+                                  OP_ELITE_SET
+                                  OP_VALUE_GE
+                                  OP_VALUE_LE
+                                 ) ],
+                    'db' => [ qw(
+                                 DB_OPEN
+                                 DB_CREATE
+                                 DB_CREATE_OR_OPEN
+                                 DB_CREATE_OR_OVERWRITE
+                                 ) ],
+                    'enq_order' => [ qw(
+                                 ENQ_DESCENDING
+                                 ENQ_ASCENDING
+                                 ENQ_DONT_CARE
+                                   ) ],
+                    'qpflags' => [ qw(
+                                 FLAG_ACCUMULATE
+                                 FLAG_BOOLEAN
+                                 FLAG_FUZZY
+                                 FLAG_NO_POSITIONS
+                                 FLAG_PHRASE
+                                 FLAG_LOVEHATE
+                                 FLAG_BOOLEAN_ANY_CASE
+                                 FLAG_WILDCARD
+                                 FLAG_WILDCARD_GLOB
+                                 FLAG_WILDCARD_MULTI
+                                 FLAG_WILDCARD_SINGLE
+                                 FLAG_PURE_NOT
+                                 FLAG_PARTIAL
+                                 FLAG_SPELLING_CORRECTION
+                                 FLAG_SYNONYM
+                                 FLAG_AUTO_SYNONYMS
+                                 FLAG_AUTO_MULTIWORD_SYNONYMS
+                                 FLAG_CJK_NGRAM
+                                 FLAG_NGRAMS
+                                 FLAG_WORD_BREAKS
+                                 FLAG_NO_PROPER_NOUN_HEURISTIC
+                                 FLAG_DEFAULT
+                                 ) ],
+                    'qpstem' => [ qw(
+                                 STEM_NONE
+                                 STEM_SOME
+                                 STEM_SOME_FULL_POS
+                                 STEM_ALL
+                                 STEM_ALL_Z
+                                 ) ]
+                   );
 $EXPORT_TAGS{standard} = [ @{ $EXPORT_TAGS{'ops'} },
-			   @{ $EXPORT_TAGS{'db'} },
-			   @{ $EXPORT_TAGS{'qpflags'} },
-			   @{ $EXPORT_TAGS{'qpstem'} } ];
+                           @{ $EXPORT_TAGS{'db'} },
+                           @{ $EXPORT_TAGS{'qpflags'} },
+                           @{ $EXPORT_TAGS{'qpstem'} } ];
 $EXPORT_TAGS{all} = [ @{ $EXPORT_TAGS{'standard'} }, @{ $EXPORT_TAGS{'enq_order'} } ];
 
 our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
@@ -179,13 +179,13 @@ sub items {
 }
 
 use overload '++' => sub { $_[0]->inc() },
-	     '--' => sub { $_[0]->dec() },
-	     '='  => sub { $_[0]->clone() },
-	     'eq' => sub { $_[0]->equal($_[1]) },
-	     'ne' => sub { $_[0]->nequal($_[1]) },
-	     '==' => sub { $_[0]->equal($_[1]) },
-	     '!=' => sub { $_[0]->nequal($_[1]) },
-	     'fallback' => 1;
+             '--' => sub { $_[0]->dec() },
+             '='  => sub { $_[0]->clone() },
+             'eq' => sub { $_[0]->equal($_[1]) },
+             'ne' => sub { $_[0]->nequal($_[1]) },
+             '==' => sub { $_[0]->equal($_[1]) },
+             '!=' => sub { $_[0]->nequal($_[1]) },
+             'fallback' => 1;
 
 sub clone() {
   my $self = shift;
@@ -208,13 +208,13 @@ sub FETCHSIZE {
 
 package Xapian::ESetIterator;
 use overload '++' => sub { $_[0]->inc() },
-	     '--' => sub { $_[0]->dec() },
-	     '='  => sub { $_[0]->clone() },
-	     'eq' => sub { $_[0]->equal($_[1]) },
-	     'ne' => sub { $_[0]->nequal($_[1]) },
-	     '==' => sub { $_[0]->equal($_[1]) },
-	     '!=' => sub { $_[0]->nequal($_[1]) },
-	     'fallback' => 1;
+             '--' => sub { $_[0]->dec() },
+             '='  => sub { $_[0]->clone() },
+             'eq' => sub { $_[0]->equal($_[1]) },
+             'ne' => sub { $_[0]->nequal($_[1]) },
+             '==' => sub { $_[0]->equal($_[1]) },
+             '!=' => sub { $_[0]->nequal($_[1]) },
+             'fallback' => 1;
 
 sub clone() {
   my $self = shift;
@@ -245,13 +245,13 @@ sub FETCHSIZE {
 
 package Xapian::MSetIterator;
 use overload '++' => sub { $_[0]->inc() },
-	     '--' => sub { $_[0]->dec() },
-	     '='  => sub { $_[0]->clone() },
-	     'eq' => sub { $_[0]->equal($_[1]) },
-	     'ne' => sub { $_[0]->nequal($_[1]) },
-	     '==' => sub { $_[0]->equal($_[1]) },
-	     '!=' => sub { $_[0]->nequal($_[1]) },
-	     'fallback' => 1;
+             '--' => sub { $_[0]->dec() },
+             '='  => sub { $_[0]->clone() },
+             'eq' => sub { $_[0]->equal($_[1]) },
+             'ne' => sub { $_[0]->nequal($_[1]) },
+             '==' => sub { $_[0]->equal($_[1]) },
+             '!=' => sub { $_[0]->nequal($_[1]) },
+             'fallback' => 1;
 
 sub clone() {
   my $self = shift;
@@ -265,12 +265,12 @@ our @ISA = qw(Xapian::MSet);
 
 package Xapian::PositionIterator;
 use overload '++' => sub { $_[0]->inc() },
-	     '='  => sub { $_[0]->clone() },
-	     'eq' => sub { $_[0]->equal($_[1]) },
-	     'ne' => sub { $_[0]->nequal($_[1]) },
-	     '==' => sub { $_[0]->equal($_[1]) },
-	     '!=' => sub { $_[0]->nequal($_[1]) },
-	     'fallback' => 1;
+             '='  => sub { $_[0]->clone() },
+             'eq' => sub { $_[0]->equal($_[1]) },
+             'ne' => sub { $_[0]->nequal($_[1]) },
+             '==' => sub { $_[0]->equal($_[1]) },
+             '!=' => sub { $_[0]->nequal($_[1]) },
+             'fallback' => 1;
 
 sub clone() {
   my $self = shift;
@@ -282,12 +282,12 @@ sub clone() {
 
 package Xapian::PostingIterator;
 use overload '++' => sub { $_[0]->inc() },
-	     '='  => sub { $_[0]->clone() },
-	     'eq' => sub { $_[0]->equal($_[1]) },
-	     'ne' => sub { $_[0]->nequal($_[1]) },
-	     '==' => sub { $_[0]->equal($_[1]) },
-	     '!=' => sub { $_[0]->nequal($_[1]) },
-	     'fallback' => 1;
+             '='  => sub { $_[0]->clone() },
+             'eq' => sub { $_[0]->equal($_[1]) },
+             'ne' => sub { $_[0]->nequal($_[1]) },
+             '==' => sub { $_[0]->equal($_[1]) },
+             '!=' => sub { $_[0]->nequal($_[1]) },
+             'fallback' => 1;
 
 sub clone() {
   my $self = shift;
@@ -306,12 +306,12 @@ sub set_stopper {
 
 package Xapian::TermIterator;
 use overload '++' => sub { $_[0]->inc() },
-	     '='  => sub { $_[0]->clone() },
-	     'eq' => sub { $_[0]->equal($_[1]) },
-	     'ne' => sub { $_[0]->nequal($_[1]) },
-	     '==' => sub { $_[0]->equal($_[1]) },
-	     '!=' => sub { $_[0]->nequal($_[1]) },
-	     'fallback' => 1;
+             '='  => sub { $_[0]->clone() },
+             'eq' => sub { $_[0]->equal($_[1]) },
+             'ne' => sub { $_[0]->nequal($_[1]) },
+             '==' => sub { $_[0]->equal($_[1]) },
+             '!=' => sub { $_[0]->nequal($_[1]) },
+             'fallback' => 1;
 
 sub clone() {
   my $self = shift;
@@ -323,12 +323,12 @@ sub clone() {
 
 package Xapian::ValueIterator;
 use overload '++' => sub { $_[0]->inc() },
-	     '='  => sub { $_[0]->clone() },
-	     'eq' => sub { $_[0]->equal($_[1]) },
-	     'ne' => sub { $_[0]->nequal($_[1]) },
-	     '==' => sub { $_[0]->equal($_[1]) },
-	     '!=' => sub { $_[0]->nequal($_[1]) },
-	     'fallback' => 1;
+             '='  => sub { $_[0]->clone() },
+             'eq' => sub { $_[0]->equal($_[1]) },
+             'ne' => sub { $_[0]->nequal($_[1]) },
+             '==' => sub { $_[0]->equal($_[1]) },
+             '!=' => sub { $_[0]->nequal($_[1]) },
+             'fallback' => 1;
 
 sub clone() {
   my $self = shift;

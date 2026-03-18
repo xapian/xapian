@@ -84,17 +84,17 @@ class NgramIterator {
 
   public:
     explicit NgramIterator(const std::string& s) : it(s) {
-	init();
+        init();
     }
 
     explicit NgramIterator(const Xapian::Utf8Iterator& it_) : it(it_) {
-	init();
+        init();
     }
 
     NgramIterator() { }
 
     const std::string& operator*() const {
-	return current_token;
+        return current_token;
     }
 
     NgramIterator& operator++();
@@ -105,13 +105,13 @@ class NgramIterator {
     const Xapian::Utf8Iterator& get_utf8iterator() const { return it; }
 
     bool operator==(const NgramIterator& other) const {
-	// We only really care about comparisons where one or other is an end
-	// iterator.
-	return current_token.empty() && other.current_token.empty();
+        // We only really care about comparisons where one or other is an end
+        // iterator.
+        return current_token.empty() && other.current_token.empty();
     }
 
     bool operator!=(const NgramIterator& other) const {
-	return !(*this == other);
+        return !(*this == other);
     }
 };
 
@@ -135,25 +135,25 @@ class WordIterator {
     WordIterator(const char* ptr, size_t len);
 
     explicit WordIterator(const std::string& s)
-	: WordIterator(s.data(), s.size()) { }
+        : WordIterator(s.data(), s.size()) { }
 
     WordIterator()
-	: p(done), brk(NULL) { }
+        : p(done), brk(NULL) { }
 
     ~WordIterator() { delete brk; }
 
     const std::string& operator*() const {
-	return current_token;
+        return current_token;
     }
 
     WordIterator& operator++();
 
     bool operator==(const WordIterator& other) const {
-	return p == other.p;
+        return p == other.p;
     }
 
     bool operator!=(const WordIterator& other) const {
-	return !(*this == other);
+        return !(*this == other);
     }
 };
 #endif

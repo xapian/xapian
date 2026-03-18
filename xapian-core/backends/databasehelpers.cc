@@ -49,25 +49,25 @@ test_if_single_file_db_(int fd, off_t pos)
     char magic_buf[14];
     // FIXME: Don't duplicate magic check here...
     if (io_read(fd, magic_buf, 14) == 14 &&
-	lseek(fd, pos, SEEK_SET) == pos &&
-	memcmp(magic_buf, "\x0f\x0dXapian ", 9) == 0) {
-	switch (magic_buf[9]) {
+        lseek(fd, pos, SEEK_SET) == pos &&
+        memcmp(magic_buf, "\x0f\x0dXapian ", 9) == 0) {
+        switch (magic_buf[9]) {
 #ifdef XAPIAN_HAS_GLASS_BACKEND
-	    case 'G':
-		if (memcmp(magic_buf + 10, "lass", 4) == 0) {
-		    return BACKEND_GLASS;
-		}
-		break;
+            case 'G':
+                if (memcmp(magic_buf + 10, "lass", 4) == 0) {
+                    return BACKEND_GLASS;
+                }
+                break;
 #endif
 #ifdef XAPIAN_HAS_HONEY_BACKEND
-	    case 'H':
-		if (memcmp(magic_buf + 10, "oney", 4) == 0) {
-		    return BACKEND_HONEY;
-		}
-		break;
+            case 'H':
+                if (memcmp(magic_buf + 10, "oney", 4) == 0) {
+                    return BACKEND_HONEY;
+                }
+                break;
 #endif
-	}
-	return BACKEND_UNKNOWN;
+        }
+        return BACKEND_UNKNOWN;
     }
 #else
     (void)fd;
@@ -80,15 +80,15 @@ test_if_single_file_db(int fd)
 {
     off_t pos = lseek(fd, 0, SEEK_CUR);
     if (pos < 0) {
-	return BACKEND_UNKNOWN;
+        return BACKEND_UNKNOWN;
     }
     return test_if_single_file_db_(fd, pos);
 }
 
 int
 test_if_single_file_db(const struct stat& sb,
-		       const string& path,
-		       int* fd_ptr)
+                       const string& path,
+                       int* fd_ptr)
 {
     Assert(fd_ptr);
 #if defined XAPIAN_HAS_GLASS_BACKEND || \
@@ -99,16 +99,16 @@ test_if_single_file_db(const struct stat& sb,
     // database.  For a larger file, we peek at the start of the file to
     // determine what it is.
     if (sb.st_size < min(GLASS_MIN_BLOCKSIZE, HONEY_MIN_DB_SIZE))
-	return BACKEND_UNKNOWN;
+        return BACKEND_UNKNOWN;
     int fd = posixy_open(path.c_str(), O_RDONLY|O_BINARY);
     if (fd != -1) {
-	int result = test_if_single_file_db_(fd, off_t{0});
-	if (result != BACKEND_UNKNOWN) {
-	    *fd_ptr = fd;
-	} else {
-	    ::close(fd);
-	}
-	return result;
+        int result = test_if_single_file_db_(fd, off_t{0});
+        if (result != BACKEND_UNKNOWN) {
+            *fd_ptr = fd;
+        } else {
+            ::close(fd);
+        }
+        return result;
     }
 #else
     (void)sb;

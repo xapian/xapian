@@ -57,13 +57,13 @@ BoolWeight *
 BoolWeight::unserialise(const string& s) const
 {
     if (rare(!s.empty()))
-	throw Xapian::SerialisationError("Extra data in BoolWeight::unserialise()");
+        throw Xapian::SerialisationError("Extra data in BoolWeight::unserialise()");
     return new BoolWeight;
 }
 
 double
 BoolWeight::get_sumpart(Xapian::termcount, Xapian::termcount,
-			Xapian::termcount, Xapian::termcount) const
+                        Xapian::termcount, Xapian::termcount) const
 {
     return 0;
 }
@@ -78,7 +78,7 @@ BoolWeight *
 BoolWeight::create_from_parameters(const char * p) const
 {
     if (*p != '\0')
-	throw InvalidArgumentError("No parameters are required for BoolWeight");
+        throw InvalidArgumentError("No parameters are required for BoolWeight");
     return new Xapian::BoolWeight();
 }
 

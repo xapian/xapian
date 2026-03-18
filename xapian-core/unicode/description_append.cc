@@ -33,13 +33,13 @@ description_append(std::string& desc, std::string_view s)
 {
     desc.reserve(desc.size() + s.size());
     for (Xapian::Utf8Iterator i(s); i != Xapian::Utf8Iterator(); ++i) {
-	unsigned ch = i.strict_deref();
-	if ((ch & 0x80000000) == 0 && ch >= ' ' && ch != '\\' && ch != 127) {
-	    Xapian::Unicode::append_utf8(desc, ch);
-	} else {
-	    desc.append("\\x", 2);
-	    desc += "0123456789abcdef"[(ch >> 4) & 0x0f];
-	    desc += "0123456789abcdef"[ch & 0x0f];
-	}
+        unsigned ch = i.strict_deref();
+        if ((ch & 0x80000000) == 0 && ch >= ' ' && ch != '\\' && ch != 127) {
+            Xapian::Unicode::append_utf8(desc, ch);
+        } else {
+            desc.append("\\x", 2);
+            desc += "0123456789abcdef"[(ch >> 4) & 0x0f];
+            desc += "0123456789abcdef"[ch & 0x0f];
+        }
     }
 }

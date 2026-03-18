@@ -59,7 +59,7 @@ class XAPIAN_VISIBILITY_DEFAULT ReplicateTcpClient SOCKET_INITIALIZER_MIXIN {
      */
     XAPIAN_VISIBILITY_INTERNAL
     static int open_socket(const std::string & hostname, int port,
-			   double timeout_connect);
+                           double timeout_connect);
 
   public:
     /** Constructor.
@@ -71,13 +71,13 @@ class XAPIAN_VISIBILITY_DEFAULT ReplicateTcpClient SOCKET_INITIALIZER_MIXIN {
      *  @param socket_timeout	 Socket timeout (in seconds); 0 for no timeout.
      */
     ReplicateTcpClient(const std::string & hostname, int port,
-		       double timeout_connect, double socket_timeout);
+                       double timeout_connect, double socket_timeout);
 
     void update_from_master(const std::string & path,
-			    const std::string & remotedb,
-			    Xapian::ReplicationInfo & info,
-			    double reader_close_time,
-			    bool force_copy);
+                            const std::string & remotedb,
+                            Xapian::ReplicationInfo & info,
+                            double reader_close_time,
+                            bool force_copy);
 
     /** Destructor. */
     ~ReplicateTcpClient();

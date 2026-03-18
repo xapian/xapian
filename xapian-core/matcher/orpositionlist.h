@@ -45,16 +45,16 @@ class OrPositionList : public PositionList {
     OrPositionList() { }
 
     PositionList* gather(PostList* pl) {
-	pls.clear();
-	current.clear();
-	pl->gather_position_lists(this);
-	if (pls.size() == 1)
-	    return pls[0];
-	return this;
+        pls.clear();
+        current.clear();
+        pl->gather_position_lists(this);
+        if (pls.size() == 1)
+            return pls[0];
+        return this;
     }
 
     void add_poslist(PositionList* poslist) {
-	pls.push_back(poslist);
+        pls.push_back(poslist);
     }
 
     Xapian::termcount get_approx_size() const;

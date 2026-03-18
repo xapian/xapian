@@ -57,18 +57,18 @@ class XAPIAN_VISIBILITY_DEFAULT PositionIterator {
 
     /// Move constructor.
     PositionIterator(PositionIterator && o)
-	: internal(o.internal) {
-	o.internal = nullptr;
+        : internal(o.internal) {
+        o.internal = nullptr;
     }
 
     /// Move assignment operator.
     PositionIterator & operator=(PositionIterator && o) {
-	if (this != &o) {
-	    if (internal) decref();
-	    internal = o.internal;
-	    o.internal = nullptr;
-	}
-	return *this;
+        if (this != &o) {
+            if (internal) decref();
+            internal = o.internal;
+            o.internal = nullptr;
+        }
+        return *this;
     }
 
     /** Default constructor.
@@ -77,11 +77,11 @@ class XAPIAN_VISIBILITY_DEFAULT PositionIterator {
      *  assigned to, but is sometimes syntactically convenient.
      */
     PositionIterator() noexcept
-	: internal() { }
+        : internal() { }
 
     /// Destructor.
     ~PositionIterator() {
-	if (internal) decref();
+        if (internal) decref();
     }
 
     /// Return the term position at the current iterator position.
@@ -92,9 +92,9 @@ class XAPIAN_VISIBILITY_DEFAULT PositionIterator {
 
     /// Advance the iterator to the next position (postfix version).
     DerefWrapper_<Xapian::termpos> operator++(int) {
-	Xapian::termpos pos(**this);
-	operator++();
-	return DerefWrapper_<Xapian::termpos>(pos);
+        Xapian::termpos pos(**this);
+        operator++();
+        return DerefWrapper_<Xapian::termpos>(pos);
     }
 
     /** Advance the iterator to term position @a termpos.

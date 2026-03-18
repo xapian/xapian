@@ -105,7 +105,7 @@ class RemoteDatabase : public Xapian::Database::Internal {
     mutable bool uncommitted_changes = false;
 
     bool update_stats(message_type msg_code = MSG_UPDATE,
-		      const std::string & body = std::string()) const;
+                      const std::string & body = std::string()) const;
 
   protected:
     /** Constructor.  The constructor is protected so that raw instances
@@ -127,23 +127,23 @@ class RemoteDatabase : public Xapian::Database::Internal {
      *	@param flags	Xapian::DB_RETRY_LOCK or 0.
      */
     RemoteDatabase(std::pair<int, std::string> fd_and_context,
-		   double timeout_,
-		   bool writable,
-		   int flags);
+                   double timeout_,
+                   bool writable,
+                   int flags);
 
     /// Receive a message from the server.
     reply_type get_message(std::string& message,
-			   reply_type required_type,
-			   reply_type required_type2) const;
+                           reply_type required_type,
+                           reply_type required_type2) const;
 
     void get_message(std::string& message,
-		     reply_type required_type) const {
-	(void)get_message(message, required_type, required_type);
+                     reply_type required_type) const {
+        (void)get_message(message, required_type, required_type);
     }
 
     bool get_message_or_done(std::string& message,
-			     reply_type required_type) const {
-	return get_message(message, required_type, REPLY_DONE) != REPLY_DONE;
+                             reply_type required_type) const {
+        return get_message(message, required_type, REPLY_DONE) != REPLY_DONE;
     }
 
     /// Send a message to the server.
@@ -163,7 +163,7 @@ class RemoteDatabase : public Xapian::Database::Internal {
      *  Extra method for RemoteDatabase.
      */
     Xapian::termcount positionlist_count(Xapian::docid did,
-					 std::string_view term) const;
+                                         std::string_view term) const;
 
     /// Send a keep-alive message.
     void keep_alive();
@@ -191,18 +191,18 @@ class RemoteDatabase : public Xapian::Database::Internal {
      * @param matchspies                The matchspies to use.
      */
     void set_query(const Xapian::Query& query,
-		   Xapian::termcount qlen,
-		   Xapian::valueno collapse_key,
-		   Xapian::doccount collapse_max,
-		   Xapian::Enquire::docid_order order,
-		   Xapian::valueno sort_key,
-		   Xapian::Enquire::Internal::sort_setting sort_by,
-		   bool sort_value_forward,
-		   double time_limit,
-		   int percent_threshold, double weight_threshold,
-		   const Xapian::Weight& wtscheme,
-		   const Xapian::RSet &omrset,
-		   const std::vector<opt_ptr_spy>& matchspies) const;
+                   Xapian::termcount qlen,
+                   Xapian::valueno collapse_key,
+                   Xapian::doccount collapse_max,
+                   Xapian::Enquire::docid_order order,
+                   Xapian::valueno sort_key,
+                   Xapian::Enquire::Internal::sort_setting sort_by,
+                   bool sort_value_forward,
+                   double time_limit,
+                   int percent_threshold, double weight_threshold,
+                   const Xapian::Weight& wtscheme,
+                   const Xapian::RSet &omrset,
+                   const std::vector<opt_ptr_spy>& matchspies) const;
 
     /** Get the underlying fd this remote connection reads from.
      *
@@ -210,7 +210,7 @@ class RemoteDatabase : public Xapian::Database::Internal {
      *  ready in parallel using poll() or select().
      */
     int get_read_fd() const {
-	return link.get_read_fd();
+        return link.get_read_fd();
     }
 
     /// Accumulate stats from the remote server.
@@ -218,10 +218,10 @@ class RemoteDatabase : public Xapian::Database::Internal {
 
     /// Send the global stats to the remote server.
     void send_global_stats(Xapian::doccount first,
-			   Xapian::doccount maxitems,
-			   Xapian::doccount check_at_least,
-			   const Xapian::KeyMaker* sorter,
-			   const Xapian::Weight::Internal &stats) const;
+                           Xapian::doccount maxitems,
+                           Xapian::doccount check_at_least,
+                           const Xapian::KeyMaker* sorter,
+                           const Xapian::Weight::Internal &stats) const;
 
     /// Get the MSet from the remote server.
     Xapian::MSet get_mset(const std::vector<opt_ptr_spy>& matchspies) const;
@@ -250,7 +250,7 @@ class RemoteDatabase : public Xapian::Database::Internal {
     Xapian::doccount read_post_list(const std::string& term, NetworkPostList & pl) const;
 
     PositionList* open_position_list(Xapian::docid did,
-				     std::string_view tname) const;
+                                     std::string_view tname) const;
 
     /// Get a remote document.
     Xapian::Document::Internal * open_document(Xapian::docid did, bool lazy) const;
@@ -271,8 +271,8 @@ class RemoteDatabase : public Xapian::Database::Internal {
     bool term_exists(std::string_view term) const;
 
     void get_freqs(std::string_view term,
-		   Xapian::doccount* termfreq_ptr,
-		   Xapian::termcount* collfreq_ptr) const;
+                   Xapian::doccount* termfreq_ptr,
+                   Xapian::termcount* collfreq_ptr) const;
 
     /// Read the value statistics for a value from a remote database.
     void read_value_stats(Xapian::valueno slot) const;
@@ -295,7 +295,7 @@ class RemoteDatabase : public Xapian::Database::Internal {
 
     void replace_document(Xapian::docid did, const Xapian::Document & doc);
     Xapian::docid replace_document(std::string_view unique_term,
-				   const Xapian::Document& document);
+                                   const Xapian::Document& document);
 
     std::string get_uuid() const;
 
@@ -314,25 +314,25 @@ class RemoteDatabase : public Xapian::Database::Internal {
     void add_synonym(std::string_view word, std::string_view synonym) const;
 
     void remove_synonym(std::string_view word,
-			std::string_view synonym) const;
+                        std::string_view synonym) const;
 
     void clear_synonyms(std::string_view word) const;
 
     Xapian::termcount remove_spelling(std::string_view word,
-				      Xapian::termcount freqdec) const;
+                                      Xapian::termcount freqdec) const;
 
     int get_backend_info(std::string* path) const {
-	if (path) *path = link.get_context();
-	return BACKEND_REMOTE;
+        if (path) *path = link.get_context();
+        return BACKEND_REMOTE;
     }
 
     bool locked() const;
 
     std::string reconstruct_text(Xapian::docid did,
-				 size_t length,
-				 std::string_view prefix,
-				 Xapian::termpos start_pos,
-				 Xapian::termpos end_pos) const;
+                                 size_t length,
+                                 std::string_view prefix,
+                                 Xapian::termpos start_pos,
+                                 Xapian::termpos end_pos) const;
 
     std::string get_description() const;
 };

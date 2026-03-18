@@ -60,50 +60,50 @@ try_read_config_file(const char * cfile)
 {
     ifstream in(cfile);
     if (!in) {
-	if (file_exists(cfile))
-	    throw string("Can't open configuration file '") + cfile + "'";
-	return false;
+        if (file_exists(cfile))
+            throw string("Can't open configuration file '") + cfile + "'";
+        return false;
     }
 
     while (in) {
-	char line[1024];
-	in.getline(line, sizeof(line));
+        char line[1024];
+        in.getline(line, sizeof(line));
 
-	char *p = line;
-	while (C_isspace(*p)) ++p;
-	if (!*p || *p == '#') continue; // Ignore blank line and comments
+        char *p = line;
+        while (C_isspace(*p)) ++p;
+        if (!*p || *p == '#') continue; // Ignore blank line and comments
 
-	char *q = p;
-	while (*q && !C_isspace(*q)) ++q;
-	string name(p, q - p);
+        char *q = p;
+        while (*q && !C_isspace(*q)) ++q;
+        string name(p, q - p);
 
-	p = q;
-	while (C_isspace(*p)) ++p;
-	q = p;
-	while (*q && !C_isspace(*q)) ++q;
-	string value(p, q - p);
+        p = q;
+        while (C_isspace(*p)) ++p;
+        q = p;
+        while (*q && !C_isspace(*q)) ++q;
+        string value(p, q - p);
 
-	while (*q && C_isspace(*q)) ++q;
-	if (value.empty() || *q) {
-	    throw string("Bad line in configuration file '") + cfile + "'";
-	}
+        while (*q && C_isspace(*q)) ++q;
+        if (value.empty() || *q) {
+            throw string("Bad line in configuration file '") + cfile + "'";
+        }
 
-	if (endswith(name, "_dir") && *value.rbegin() != '/')
-	    value += '/';
+        if (endswith(name, "_dir") && *value.rbegin() != '/')
+            value += '/';
 
-	if (name == "database_dir") {
-	    swap(database_dir, value);
-	} else if (name == "template_dir") {
-	    swap(template_dir, value);
-	} else if (name == "default_template") {
-	    swap(default_template, value);
-	} else if (name == "default_db") {
-	    swap(default_db, value);
-	} else if (name == "log_dir") {
-	    swap(log_dir, value);
-	} else if (name == "cdb_dir") {
-	    swap(cdb_dir, value);
-	}
+        if (name == "database_dir") {
+            swap(database_dir, value);
+        } else if (name == "template_dir") {
+            swap(template_dir, value);
+        } else if (name == "default_template") {
+            swap(default_template, value);
+        } else if (name == "default_db") {
+            swap(default_db, value);
+        } else if (name == "log_dir") {
+            swap(log_dir, value);
+        } else if (name == "cdb_dir") {
+            swap(cdb_dir, value);
+        }
     }
 
     return true;
@@ -120,7 +120,7 @@ read_config_file()
     // First check if a location is specified in the environment variable.
     const char * cfile = getenv(configfile_envvar);
     if (cfile != NULL && cfile[0] != '\0') {
-	if (try_read_config_file(cfile)) return;
+        if (try_read_config_file(cfile)) return;
     }
 
     // Next, try reading the local config file.

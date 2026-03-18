@@ -56,10 +56,10 @@ if {[catch {
     puts "[$matches get_matches_estimated] results found:"
 
     for {set i [$matches begin]} {![$i equals [$matches end]]} {$i next} {
-	xapian::Document document [$i get_document]
-	set rank [expr [$i get_rank] + 1]
-	puts [format {%s: %s%% docid=%s [%s]} \
-	    $rank [$i get_percent] [$i get_docid] [document get_data]]
+        xapian::Document document [$i get_document]
+        set rank [expr [$i get_rank] + 1]
+        puts [format {%s: %s%% docid=%s [%s]} \
+            $rank [$i get_percent] [$i get_docid] [document get_data]]
     }
 } exception]} {
     puts stderr "Exception: $errorCode $exception"

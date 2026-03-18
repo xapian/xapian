@@ -35,11 +35,11 @@
 using namespace std;
 
 NearPostList::NearPostList(PostList *source_,
-			   EstimateOp* estimate_op_,
-			   Xapian::termpos window_,
-			   const vector<PostList*>::const_iterator &terms_begin,
-			   const vector<PostList*>::const_iterator &terms_end,
-			   PostListTree* pltree_)
+                           EstimateOp* estimate_op_,
+                           Xapian::termpos window_,
+                           const vector<PostList*>::const_iterator &terms_begin,
+                           const vector<PostList*>::const_iterator &terms_end,
+                           PostListTree* pltree_)
     : SelectPostList(source_, estimate_op_, pltree_),
       window(window_),
       terms(terms_begin, terms_end)
@@ -61,13 +61,13 @@ NearPostList::~NearPostList()
 
 struct TermCmp {
     bool operator()(const PostList * a, const PostList * b) const {
-	return a->get_wdf() < b->get_wdf();
+        return a->get_wdf() < b->get_wdf();
     }
 };
 
 struct Cmp {
     bool operator()(const PositionList * a, const PositionList * b) const {
-	return a->get_position() > b->get_position();
+        return a->get_position() > b->get_position();
     }
 };
 
@@ -86,74 +86,74 @@ NearPostList::test_doc()
 
     poslists[0] = terms[0]->read_position_list();
     if (!poslists[0]->next()) {
-	++rejected;
-	RETURN(false);
+        ++rejected;
+        RETURN(false);
     }
 
     Xapian::termpos last = poslists[0]->get_position();
     PositionList ** end = poslists + 1;
 
     while (true) {
-	if (last - poslists[0]->get_position() < window) {
-	    if (size_t(end - poslists) != terms.size()) {
-		// We haven't started all the position lists yet, so start the
-		// next one.
-		PositionList * posl =
-		    terms[end - poslists]->read_position_list();
-		if (last < window) {
-		    if (!posl->next())
-			goto reject;
-		} else {
-		    if (!posl->skip_to(last - window + 1))
-			goto reject;
-		}
-		Xapian::termpos pos = posl->get_position();
-		if (pos > last) last = pos;
-		*end++ = posl;
-		Heap::push(poslists, end, Cmp());
-		continue;
-	    }
+        if (last - poslists[0]->get_position() < window) {
+            if (size_t(end - poslists) != terms.size()) {
+                // We haven't started all the position lists yet, so start the
+                // next one.
+                PositionList * posl =
+                    terms[end - poslists]->read_position_list();
+                if (last < window) {
+                    if (!posl->next())
+                        goto reject;
+                } else {
+                    if (!posl->skip_to(last - window + 1))
+                        goto reject;
+                }
+                Xapian::termpos pos = posl->get_position();
+                if (pos > last) last = pos;
+                *end++ = posl;
+                Heap::push(poslists, end, Cmp());
+                continue;
+            }
 
-	    // We have all the terms within the specified window, but some may
-	    // be at the same position (in particular if the same term is
-	    // listed twice).  So we work through the terms in ascending
-	    // position order, and each time we find one with a duplicate
-	    // position, we advance it - if that pushes us out of the window,
-	    // we return to the outer loop, otherwise we reinsert it into the
-	    // heap at its new position and continue to look for duplicates
-	    // we need to adjust.
-	    Xapian::termpos pos = poslists[0]->get_position();
-	    Heap::pop(poslists, end, Cmp());
-	    PositionList ** i = end - 1;
-	    while (true) {
-		if (poslists[0]->get_position() == pos) {
-		    if (!poslists[0]->next())
-			goto reject;
-		    Xapian::termpos newpos = poslists[0]->get_position();
-		    if (newpos - end[-1]->get_position() >= window) {
-			// No longer fits in the window.
-			last = newpos;
-			break;
-		    }
-		    Heap::replace(poslists, i, Cmp());
-		    continue;
-		}
-		pos = poslists[0]->get_position();
-		Heap::pop(poslists, i, Cmp());
-		if (--i == poslists) {
-		    Assert(pos - end[-1]->get_position() < window);
-		    ++accepted;
-		    RETURN(true);
-		}
-	    }
+            // We have all the terms within the specified window, but some may
+            // be at the same position (in particular if the same term is
+            // listed twice).  So we work through the terms in ascending
+            // position order, and each time we find one with a duplicate
+            // position, we advance it - if that pushes us out of the window,
+            // we return to the outer loop, otherwise we reinsert it into the
+            // heap at its new position and continue to look for duplicates
+            // we need to adjust.
+            Xapian::termpos pos = poslists[0]->get_position();
+            Heap::pop(poslists, end, Cmp());
+            PositionList ** i = end - 1;
+            while (true) {
+                if (poslists[0]->get_position() == pos) {
+                    if (!poslists[0]->next())
+                        goto reject;
+                    Xapian::termpos newpos = poslists[0]->get_position();
+                    if (newpos - end[-1]->get_position() >= window) {
+                        // No longer fits in the window.
+                        last = newpos;
+                        break;
+                    }
+                    Heap::replace(poslists, i, Cmp());
+                    continue;
+                }
+                pos = poslists[0]->get_position();
+                Heap::pop(poslists, i, Cmp());
+                if (--i == poslists) {
+                    Assert(pos - end[-1]->get_position() < window);
+                    ++accepted;
+                    RETURN(true);
+                }
+            }
 
-	    Heap::make(poslists, end, Cmp());
-	    continue;
-	}
-	if (!poslists[0]->skip_to(last - window + 1))
-	    break;
-	last = max(last, poslists[0]->get_position());
-	Heap::replace(poslists, end, Cmp());
+            Heap::make(poslists, end, Cmp());
+            continue;
+        }
+        if (!poslists[0]->skip_to(last - window + 1))
+            break;
+        last = max(last, poslists[0]->get_position());
+        Heap::replace(poslists, end, Cmp());
     }
 reject:
     ++rejected;
@@ -205,7 +205,7 @@ NearPostList::get_wdf() const
     vector<PostList *>::const_iterator i = terms.begin();
     Xapian::termcount wdf = (*i)->get_wdf();
     while (++i != terms.end()) {
-	wdf = min(wdf, (*i)->get_wdf());
+        wdf = min(wdf, (*i)->get_wdf());
     }
     return wdf;
 }

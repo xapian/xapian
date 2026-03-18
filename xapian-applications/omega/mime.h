@@ -35,6 +35,6 @@ built_in_mime_map(const std::string & ext);
 
 std::string
 mimetype_from_ext(const std::map<std::string, std::string> & mime_map,
-		  std::string ext);
+                  std::string ext);
 
 #endif // OMEGA_INCLUDED_MIME_H

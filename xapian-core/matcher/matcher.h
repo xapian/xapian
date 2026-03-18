@@ -92,22 +92,22 @@ class Matcher {
     Matcher& operator=(const Matcher&) = delete;
 
     Xapian::MSet get_local_mset(Xapian::doccount first,
-				Xapian::doccount maxitems,
-				Xapian::doccount check_at_least,
-				const Xapian::Weight& wtscheme,
-				const Xapian::MatchDecider* mdecider,
-				const Xapian::KeyMaker* sorter,
-				Xapian::valueno collapse_key,
-				Xapian::doccount collapse_max,
-				int percent_threshold,
-				double percent_threshold_factor,
-				double weight_threshold,
-				Xapian::Enquire::docid_order order,
-				Xapian::valueno sort_key,
-				Xapian::Enquire::Internal::sort_setting sort_by,
-				bool sort_val_reverse,
-				double time_limit,
-				const std::vector<opt_ptr_spy>& matchspies);
+                                Xapian::doccount maxitems,
+                                Xapian::doccount check_at_least,
+                                const Xapian::Weight& wtscheme,
+                                const Xapian::MatchDecider* mdecider,
+                                const Xapian::KeyMaker* sorter,
+                                Xapian::valueno collapse_key,
+                                Xapian::doccount collapse_max,
+                                int percent_threshold,
+                                double percent_threshold_factor,
+                                double weight_threshold,
+                                Xapian::Enquire::docid_order order,
+                                Xapian::valueno sort_key,
+                                Xapian::Enquire::Internal::sort_setting sort_by,
+                                bool sort_val_reverse,
+                                double time_limit,
+                                const std::vector<opt_ptr_spy>& matchspies);
 
     /// Perform action on remotes as they become ready using poll() or select().
     template<typename Action> void for_all_remotes(Action action);
@@ -137,22 +137,22 @@ class Matcher {
      *  @param matchspies	MatchSpy objects to use
      */
     Matcher(const Xapian::Database& db_,
-	    const Xapian::Query& query,
-	    Xapian::termcount query_length,
-	    const Xapian::RSet* rset,
-	    Xapian::Weight::Internal& stats,
-	    const Xapian::Weight& wtscheme,
-	    bool have_mdecider,
-	    Xapian::valueno collapse_key,
-	    Xapian::doccount collapse_max,
-	    int percent_threshold,
-	    double weight_threshold,
-	    Xapian::Enquire::docid_order order,
-	    Xapian::valueno sort_key,
-	    Xapian::Enquire::Internal::sort_setting sort_by,
-	    bool sort_val_reverse,
-	    double time_limit,
-	    const std::vector<opt_ptr_spy>& matchspies);
+            const Xapian::Query& query,
+            Xapian::termcount query_length,
+            const Xapian::RSet* rset,
+            Xapian::Weight::Internal& stats,
+            const Xapian::Weight& wtscheme,
+            bool have_mdecider,
+            Xapian::valueno collapse_key,
+            Xapian::doccount collapse_max,
+            int percent_threshold,
+            double weight_threshold,
+            Xapian::Enquire::docid_order order,
+            Xapian::valueno sort_key,
+            Xapian::Enquire::Internal::sort_setting sort_by,
+            bool sort_val_reverse,
+            double time_limit,
+            const std::vector<opt_ptr_spy>& matchspies);
 
     /** Run the match and produce an MSet object.
      *
@@ -191,22 +191,22 @@ class Matcher {
      *  @param matchspies	MatchSpy objects to use
      */
     Xapian::MSet get_mset(Xapian::doccount first,
-			  Xapian::doccount maxitems,
-			  Xapian::doccount check_at_least,
-			  Xapian::Weight::Internal& stats,
-			  const Xapian::Weight& wtscheme,
-			  const Xapian::MatchDecider* mdecider,
-			  const Xapian::KeyMaker* sorter,
-			  Xapian::valueno collapse_key,
-			  Xapian::doccount collapse_max,
-			  int percent_threshold,
-			  double weight_threshold,
-			  Xapian::Enquire::docid_order order,
-			  Xapian::valueno sort_key,
-			  Xapian::Enquire::Internal::sort_setting sort_by,
-			  bool sort_val_reverse,
-			  double time_limit,
-			  const std::vector<opt_ptr_spy>& matchspies);
+                          Xapian::doccount maxitems,
+                          Xapian::doccount check_at_least,
+                          Xapian::Weight::Internal& stats,
+                          const Xapian::Weight& wtscheme,
+                          const Xapian::MatchDecider* mdecider,
+                          const Xapian::KeyMaker* sorter,
+                          Xapian::valueno collapse_key,
+                          Xapian::doccount collapse_max,
+                          int percent_threshold,
+                          double weight_threshold,
+                          Xapian::Enquire::docid_order order,
+                          Xapian::valueno sort_key,
+                          Xapian::Enquire::Internal::sort_setting sort_by,
+                          bool sort_val_reverse,
+                          double time_limit,
+                          const std::vector<opt_ptr_spy>& matchspies);
 };
 
 #endif // XAPIAN_INCLUDED_MATCHER_H

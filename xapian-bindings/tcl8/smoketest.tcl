@@ -20,8 +20,8 @@ package require xapian 2.0.0
 
 # Test the version number reporting functions give plausible results.
 set v [format {%d.%d.%d} [xapian::major_version] \
-			 [xapian::minor_version] \
-			 [xapian::revision]]
+                         [xapian::minor_version] \
+                         [xapian::revision]]
 set v2 [xapian::version_string]
 if { $v != $v2 } {
     puts stderr "Unexpected version output ($v != $v2)"
@@ -128,16 +128,16 @@ if [catch {
 } e] {
     # We expect QueryParserError
     if { $errorCode != "XAPIAN QueryParserError" } {
-	puts stderr "Unexpected errorCode from parsing bad query"
-	puts stderr "errorCode: $errorCode"
-	puts stderr "message: $e"
-	exit 1
+        puts stderr "Unexpected errorCode from parsing bad query"
+        puts stderr "errorCode: $errorCode"
+        puts stderr "message: $e"
+        exit 1
     }
     if { $e != "Syntax: <expression> AND <expression>" } {
-	puts stderr "Unexpected exception message from parsing bad query"
-	puts stderr "errorCode: $errorCode"
-	puts stderr "message: $e"
-	exit 1
+        puts stderr "Unexpected exception message from parsing bad query"
+        puts stderr "errorCode: $errorCode"
+        puts stderr "message: $e"
+        exit 1
     }
 }
 
@@ -149,10 +149,10 @@ if [catch {
 } e] {
     # We expect DocNotFoundError
     if { $errorCode != "XAPIAN DocNotFoundError" } {
-	puts stderr "Unexpected exception from accessing non-existent document:"
-	puts stderr "errorCode: $errorCode"
-	puts stderr "message: $e"
-	exit 1
+        puts stderr "Unexpected exception from accessing non-existent document:"
+        puts stderr "errorCode: $errorCode"
+        puts stderr "message: $e"
+        exit 1
     }
 }
 

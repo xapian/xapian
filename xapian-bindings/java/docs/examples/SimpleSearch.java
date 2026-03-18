@@ -40,9 +40,9 @@ public class SimpleSearch {
         String dbpath = args[0];
 
         // turn the remaining command-line arguments into our query
-	Query query = new Query(args[1]);
+        Query query = new Query(args[1]);
         for (int x = 2; x < args.length; x++) {
-	    query = new Query(Query.OP_OR, query, new Query(args[x]));
+            query = new Query(Query.OP_OR, query, new Query(args[x]));
         }
 
         // open the specified database

@@ -56,7 +56,7 @@ foreach (sort @ARGV) {
     $l =~ s/^\W*Alias:\s*//i or die "No Alias: header in $srcdir/$_\n";
     $l =~ s/\s*$//;
     for (split /\s+/, $l) {
-	$hdr->add($_, $enum);
+        $hdr->add($_, $enum);
     }
 
     my $class = $lang;

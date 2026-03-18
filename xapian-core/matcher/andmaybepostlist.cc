@@ -28,20 +28,20 @@ using namespace std;
 
 PostList*
 AndMaybePostList::decay_to_and(Xapian::docid did,
-			       double w_min,
-			       bool* valid_ptr)
+                               double w_min,
+                               bool* valid_ptr)
 {
     pl = new AndPostList(pl, r, pl_max, r_max, pltree, termfreq);
     r = NULL;
     PostList* result;
     if (valid_ptr) {
-	result = pl->check(did, w_min, *valid_ptr);
+        result = pl->check(did, w_min, *valid_ptr);
     } else {
-	result = pl->skip_to(did, w_min);
+        result = pl->skip_to(did, w_min);
     }
     if (!result) {
-	result = pl;
-	pl = NULL;
+        result = pl;
+        pl = NULL;
     }
     pltree->force_recalc();
     return result;
@@ -55,12 +55,12 @@ AndMaybePostList::get_docid() const
 
 double
 AndMaybePostList::get_weight(Xapian::termcount doclen,
-			     Xapian::termcount unique_terms,
-			     Xapian::termcount wdfdocmax) const
+                             Xapian::termcount unique_terms,
+                             Xapian::termcount wdfdocmax) const
 {
     auto res = pl->get_weight(doclen, unique_terms, wdfdocmax);
     if (maybe_matches())
-	res += r->get_weight(doclen, unique_terms, wdfdocmax);
+        res += r->get_weight(doclen, unique_terms, wdfdocmax);
     return res;
 }
 
@@ -76,37 +76,37 @@ PostList*
 AndMaybePostList::next(double w_min)
 {
     if (w_min > pl_max)
-	return decay_to_and(max(pl_did, r_did) + 1, w_min);
+        return decay_to_and(max(pl_did, r_did) + 1, w_min);
 
     PostList* result = pl->next(w_min - r_max);
     if (result) {
-	delete pl;
-	pl = result;
+        delete pl;
+        pl = result;
     }
     if (pl->at_end()) {
-	result = pl;
-	pl = NULL;
-	pltree->force_recalc();
-	return result;
+        result = pl;
+        pl = NULL;
+        pltree->force_recalc();
+        return result;
     }
 
     pl_did = pl->get_docid();
     if (pl_did > r_did) {
-	bool r_valid;
-	result = r->check(pl_did, w_min - pl_max, r_valid);
-	if (result) {
-	    delete r;
-	    r = result;
-	}
-	if (!r_valid)
-	    return NULL;
-	if (r->at_end()) {
-	    result = pl;
-	    pl = NULL;
-	    pltree->force_recalc();
-	    return result;
-	}
-	r_did = r->get_docid();
+        bool r_valid;
+        result = r->check(pl_did, w_min - pl_max, r_valid);
+        if (result) {
+            delete r;
+            r = result;
+        }
+        if (!r_valid)
+            return NULL;
+        if (r->at_end()) {
+            result = pl;
+            pl = NULL;
+            pltree->force_recalc();
+            return result;
+        }
+        r_did = r->get_docid();
     }
     return NULL;
 }
@@ -116,41 +116,41 @@ AndMaybePostList::skip_to(Xapian::docid did, double w_min)
 {
     // skip_to(pl_did) happens after decay from OR
     if (did < pl_did)
-	return NULL;
+        return NULL;
 
     if (w_min > pl_max) {
-	// We dealt with did <= pl_did just above.
-	return decay_to_and(max(did, r_did), w_min);
+        // We dealt with did <= pl_did just above.
+        return decay_to_and(max(did, r_did), w_min);
     }
 
     PostList* result = pl->skip_to(did, w_min - r_max);
     if (result) {
-	delete pl;
-	pl = result;
+        delete pl;
+        pl = result;
     }
     if (pl->at_end()) {
-	result = pl;
-	pl = NULL;
-	pltree->force_recalc();
-	return result;
+        result = pl;
+        pl = NULL;
+        pltree->force_recalc();
+        return result;
     }
     pl_did = pl->get_docid();
     if (pl_did > r_did) {
-	bool r_valid;
-	result = r->check(pl_did, 0, r_valid);
-	if (result) {
-	    delete r;
-	    r = result;
-	}
-	if (!r_valid)
-	    return NULL;
-	if (r->at_end()) {
-	    result = pl;
-	    pl = NULL;
-	    pltree->force_recalc();
-	    return result;
-	}
-	r_did = r->get_docid();
+        bool r_valid;
+        result = r->check(pl_did, 0, r_valid);
+        if (result) {
+            delete r;
+            r = result;
+        }
+        if (!r_valid)
+            return NULL;
+        if (r->at_end()) {
+            result = pl;
+            pl = NULL;
+            pltree->force_recalc();
+            return result;
+        }
+        r_did = r->get_docid();
     }
     return NULL;
 }
@@ -159,38 +159,38 @@ PostList*
 AndMaybePostList::check(Xapian::docid did, double w_min, bool& valid)
 {
     if (w_min > pl_max)
-	return decay_to_and(max({did, pl_did, r_did}), w_min, &valid);
+        return decay_to_and(max({did, pl_did, r_did}), w_min, &valid);
 
     PostList* result = pl->check(did, w_min - r_max, valid);
     if (result) {
-	delete pl;
-	pl = result;
+        delete pl;
+        pl = result;
     }
     if (valid) {
-	if (pl->at_end()) {
-	    result = pl;
-	    pl = NULL;
-	    pltree->force_recalc();
-	    return result;
-	}
-	pl_did = pl->get_docid();
-	if (pl_did > r_did) {
-	    bool r_valid;
-	    result = r->check(pl_did, 0, r_valid);
-	    if (result) {
-		delete r;
-		r = result;
-	    }
-	    if (!r_valid)
-		return NULL;
-	    if (r->at_end()) {
-		result = pl;
-		pl = NULL;
-		pltree->force_recalc();
-		return result;
-	    }
-	    r_did = r->get_docid();
-	}
+        if (pl->at_end()) {
+            result = pl;
+            pl = NULL;
+            pltree->force_recalc();
+            return result;
+        }
+        pl_did = pl->get_docid();
+        if (pl_did > r_did) {
+            bool r_valid;
+            result = r->check(pl_did, 0, r_valid);
+            if (result) {
+                delete r;
+                r = result;
+            }
+            if (!r_valid)
+                return NULL;
+            if (r->at_end()) {
+                result = pl;
+                pl = NULL;
+                pltree->force_recalc();
+                return result;
+            }
+            r_did = r->get_docid();
+        }
     }
     return NULL;
 }
@@ -211,7 +211,7 @@ AndMaybePostList::get_wdf() const
 {
     auto res = pl->get_wdf();
     if (maybe_matches())
-	res += r->get_wdf();
+        res += r->get_wdf();
     return res;
 }
 
@@ -220,7 +220,7 @@ AndMaybePostList::count_matching_subqs() const
 {
     auto res = pl->count_matching_subqs();
     if (maybe_matches())
-	res += r->count_matching_subqs();
+        res += r->count_matching_subqs();
     return res;
 }
 
@@ -229,5 +229,5 @@ AndMaybePostList::gather_position_lists(OrPositionList* orposlist)
 {
     pl->gather_position_lists(orposlist);
     if (maybe_matches())
-	r->gather_position_lists(orposlist);
+        r->gather_position_lists(orposlist);
 }

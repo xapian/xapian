@@ -83,15 +83,15 @@ class Xapian::Registry::Internal : public Xapian::Internal::intrusive_base {
 template<class T>
 static inline void
 register_object(map<string, opt_intrusive_ptr<T>, std::less<>>& registry,
-		T* obj_)
+                T* obj_)
 {
     opt_intrusive_ptr<T> obj(obj_);
 
     string name = obj->name();
     if (rare(name.empty())) {
-	throw Xapian::InvalidOperationError("Unable to register object - "
-					    "name() method returned empty "
-					    "string");
+        throw Xapian::InvalidOperationError("Unable to register object - "
+                                            "name() method returned empty "
+                                            "string");
     }
 
     auto r = registry.insert(make_pair(name, static_cast<T*>(NULL)));
@@ -105,27 +105,27 @@ register_object(map<string, T*, std::less<>>& registry, const T& obj)
 {
     string name = obj.name();
     if (rare(name.empty())) {
-	throw Xapian::InvalidOperationError("Unable to register object - name() method returned empty string");
+        throw Xapian::InvalidOperationError("Unable to register object - name() method returned empty string");
     }
 
     auto r = registry.insert(make_pair(name, static_cast<T*>(NULL)));
     if (!r.second) {
-	// Existing element with this key, so replace the pointer with NULL
-	// and delete the existing pointer.
-	//
-	// If the delete throws, this will leave a NULL entry in the map, but
-	// that won't affect behaviour as we return NULL for "not found"
-	// anyway.  The memory used will be leaked if the dtor throws, but
-	// throwing exceptions from the dtor is bad form, so that's not a big
-	// problem.
-	T * p = NULL;
-	swap(p, r.first->second);
-	delete p;
+        // Existing element with this key, so replace the pointer with NULL
+        // and delete the existing pointer.
+        //
+        // If the delete throws, this will leave a NULL entry in the map, but
+        // that won't affect behaviour as we return NULL for "not found"
+        // anyway.  The memory used will be leaked if the dtor throws, but
+        // throwing exceptions from the dtor is bad form, so that's not a big
+        // problem.
+        T * p = NULL;
+        swap(p, r.first->second);
+        delete p;
     }
 
     T * clone = obj.clone();
     if (rare(!clone)) {
-	throw Xapian::InvalidOperationError("Unable to register object - clone() method returned NULL");
+        throw Xapian::InvalidOperationError("Unable to register object - clone() method returned NULL");
     }
 
     r.first->second = clone;
@@ -135,11 +135,11 @@ register_object(map<string, T*, std::less<>>& registry, const T& obj)
 template<class T>
 static inline const T*
 lookup_object(map<string, opt_intrusive_ptr<T>, std::less<>> registry,
-	      string_view name)
+              string_view name)
 {
     auto i = registry.find(name);
     if (i == registry.end()) {
-	return NULL;
+        return NULL;
     }
     return i->second.get();
 }
@@ -151,7 +151,7 @@ lookup_object(map<string, T*, std::less<>> registry, string_view name)
 {
     auto i = registry.find(name);
     if (i == registry.end()) {
-	return NULL;
+        return NULL;
     }
     return i->second;
 }
@@ -222,8 +222,8 @@ Registry::Internal::add_defaults()
     source = new Xapian::FixedWeightPostingSource(0.0);
     postingsources[source->name()] = source;
     source = new Xapian::LatLongDistancePostingSource(0,
-	Xapian::LatLongCoords(),
-	Xapian::GreatCircleMetric());
+        Xapian::LatLongCoords(),
+        Xapian::GreatCircleMetric());
     postingsources[source->name()] = source;
 
     Xapian::MatchSpy * spy;
@@ -243,7 +243,7 @@ void
 Registry::Internal::clear_weighting_schemes()
 {
     for (auto&& i : wtschemes) {
-	delete i.second;
+        delete i.second;
     }
 }
 
@@ -251,7 +251,7 @@ void
 Registry::Internal::clear_posting_sources()
 {
     for (auto&& i : postingsources) {
-	delete i.second;
+        delete i.second;
     }
 }
 
@@ -259,7 +259,7 @@ void
 Registry::Internal::clear_match_spies()
 {
     for (auto&& i : matchspies) {
-	delete i.second;
+        delete i.second;
     }
 }
 
@@ -267,12 +267,12 @@ void
 Registry::Internal::clear_lat_long_metrics()
 {
     for (auto&& i : lat_long_metrics) {
-	delete i.second;
+        delete i.second;
     }
 }
 
 Registry::Registry(const Registry & other)
-	: internal(other.internal)
+        : internal(other.internal)
 {
     LOGCALL_CTOR(API, "Registry", other);
 }
@@ -291,7 +291,7 @@ Registry &
 Registry::operator=(Registry &&) = default;
 
 Registry::Registry()
-	: internal(new Registry::Internal())
+        : internal(new Registry::Internal())
 {
     LOGCALL_CTOR(API, "Registry", NO_ARGS);
 }

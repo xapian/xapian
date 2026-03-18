@@ -37,15 +37,15 @@ class Session {
   public:
     /** Creates a new session with the given data elements.
      *
-     * @param qid		Query id.
-     * @param docids		Document ids in the search session.
-     * @param clicks		Click information corresponding to the docids.
+     * @param qid     Query id.
+     * @param docids  Document ids in the search session.
+     * @param clicks  Click information corresponding to the docids.
      */
     void create_session(std::string qid, std::string docids,
-			std::string clicks) {
-	session.push_back(qid);
-	session.push_back(docids);
-	session.push_back(clicks);
+                        std::string clicks) {
+        session.push_back(qid);
+        session.push_back(docids);
+        session.push_back(clicks);
     }
 
     /// Retrieve the query id of the session.

@@ -142,9 +142,9 @@ case $build_os in
   cygwin* | mingw* | msys* | pw32*)
     find /dirunlikelytoexist >/dev/null 2>&1
     if test $? = 2 ; then
-	dnl Unix find will return 1 if the directory didn't exist, or 0 if
-	dnl it did.
-	AC_MSG_ERROR([
+        dnl Unix find will return 1 if the directory didn't exist, or 0 if
+        dnl it did.
+        AC_MSG_ERROR([
 *** You appear to have an MSDOS-like FIND.EXE in your PATH ahead of any
 *** UNIX-like find.  This misconfiguration will confuse libtool - you'll need
 *** to make sure you have a UNIX-like find installed and fix your PATH, then
@@ -209,11 +209,11 @@ if test -n "$CXX" ; then
   AC_CACHE_VAL([xo_cv_cxx_works],
     [
     AC_RUN_IFELSE([AC_LANG_PROGRAM([[]], [[]])],
-		  [xo_cv_cxx_works=yes],
-		  [xo_cv_cxx_works=no],
-		  [AC_LINK_IFELSE([AC_LANG_PROGRAM([[]], [[]])],
-				  [xo_cv_cxx_works=yes],
-				  [xo_cv_cxx_works=no])])
+                  [xo_cv_cxx_works=yes],
+                  [xo_cv_cxx_works=no],
+                  [AC_LINK_IFELSE([AC_LANG_PROGRAM([[]], [[]])],
+                                  [xo_cv_cxx_works=yes],
+                                  [xo_cv_cxx_works=no])])
     ])
   AC_MSG_RESULT([$xo_cv_cxx_works])
 else
@@ -334,16 +334,16 @@ xo_fn_unknown_option_check() {
 AC_DEFUN([XAPIAN_TEST_FLAGS_],
   [
   m4_define([cachevar],
-	    [xo_cv_]m4_tolower(m4_bpatsubst([$1][_$3], [[^A-Za-z0-9]], [_])))
+            [xo_cv_]m4_tolower(m4_bpatsubst([$1][_$3], [[^A-Za-z0-9]], [_])))
   AC_CACHE_CHECK([for $CXX with $3 in $1], cachevar,
     [
     XTF_save_$1=${$1}
     $1="${$1} $3"
     $2([AC_LANG_PROGRAM([], [])],
       [if xo_fn_unknown_option_check ; then
-	 cachevar=no
+         cachevar=no
        else
-	 cachevar=yes
+         cachevar=yes
        fi],
       [cachevar=no])
     $1=$XTF_save_$1
@@ -374,9 +374,9 @@ dnl avoided by using SSE instructions instead.  This is also faster (~6% in
 dnl a CPU bound testcase).
 AC_ARG_ENABLE([sse],
 [AS_HELP_STRING([--disable-sse],
-		[disable use of SSE FP instructions on x86])]
+                [disable use of SSE FP instructions on x86])]
 [AS_HELP_STRING([[--enable-sse[=sse|sse2]]],
-		[set which SSE FP instructions to use on x86 (default: sse2)])],
+                [set which SSE FP instructions to use on x86 (default: sse2)])],
   [case ${enableval} in
     sse|sse2|yes|no) ;;
     *) AC_MSG_ERROR([bad value ${enableval} for --enable-sse or --disable-sse]) ;;
@@ -403,8 +403,8 @@ using namespace std;]], [[
 using namespace std;]], [[
   double a = log(ceil(time(NULL)/7.0));
   printf("%f %f %f\n", a, sqrt(a), exp(fabs(a - 12345.6)));]])],
-	[AC_MSG_RESULT([yes])],
-	[AC_MSG_ERROR([Failed to link a C++ program using <cmath>])
+        [AC_MSG_RESULT([yes])],
+        [AC_MSG_ERROR([Failed to link a C++ program using <cmath>])
     ])
 ])
 
@@ -448,13 +448,13 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[]])],
 AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
 #include <exception>
 #include <typeinfo>]],
-	[[
-	int f();
-	try {
-	    return f();
-	} catch (std::exception & e) {
-	    return typeid(e).name()[0];
-	}]])],
+        [[
+        int f();
+        try {
+            return f();
+        } catch (std::exception & e) {
+            return typeid(e).name()[0];
+        }]])],
     [AC_MSG_RESULT([yes])
     AC_DEFINE([USE_RTTI], [1], [Define if the testsuite can use RTTI])],
     [AC_MSG_RESULT([no])])
@@ -463,31 +463,31 @@ CXXFLAGS=$save_CXXFLAGS
 dnl We need to specify the argument types for builtin functions, or else
 dnl AC_CHECK_DECLS fails to detect them when the compiler is clang.
 AC_CHECK_DECLS([__builtin_add_overflow(int, int, int*),
-		__builtin_sub_overflow(int, int, int*),
-		__builtin_mul_overflow(int, int, int*)], [], [], [ ])
+                __builtin_sub_overflow(int, int, int*),
+                __builtin_mul_overflow(int, int, int*)], [], [], [ ])
 AC_CHECK_DECLS([__builtin_bswap16(uint16_t),
-		__builtin_bswap32(uint32_t),
-		__builtin_bswap64(uint64_t)], [], [],
-	       [#include <stdint.h>])
+                __builtin_bswap32(uint32_t),
+                __builtin_bswap64(uint64_t)], [], [],
+               [#include <stdint.h>])
 AC_CHECK_DECLS([_byteswap_ushort, _byteswap_ulong, _byteswap_uint64], [], [],
-	       [#include <stdlib.h>])
+               [#include <stdlib.h>])
 AC_CHECK_DECLS([__builtin_clz(unsigned),
-		__builtin_clzl(unsigned long),
-		__builtin_clzll(unsigned long long)], [], [], [ ])
+                __builtin_clzl(unsigned long),
+                __builtin_clzll(unsigned long long)], [], [], [ ])
 AC_CHECK_DECLS([__builtin_ctz(unsigned),
-		__builtin_ctzl(unsigned long),
-		__builtin_ctzll(unsigned long long)], [], [], [ ])
+                __builtin_ctzl(unsigned long),
+                __builtin_ctzll(unsigned long long)], [], [], [ ])
 AC_CHECK_DECLS([__builtin_expect(long, long)], [], [], [ ])
 AC_CHECK_DECLS([__builtin_ffs(int)], [], [], [ ])
 AC_CHECK_DECLS([__builtin_popcount(unsigned),
-		__builtin_popcountl(unsigned long),
-		__builtin_popcountll(unsigned long long)], [], [], [ ])
+                __builtin_popcountl(unsigned long),
+                __builtin_popcountll(unsigned long long)], [], [], [ ])
 AC_CHECK_DECLS([__popcnt, __popcnt64], [], [], [#include <intrin.h>])
 AC_CHECK_DECLS([_addcarry_u32(unsigned char, unsigned, unsigned, unsigned*),
-		_addcarry_u64(unsigned char, unsigned __int64, unsigned __int64, unsigned __int64*),
-		_subborrow_u32(unsigned char, unsigned, unsigned, unsigned*),
-		_subborrow_u64(unsigned char, unsigned __int64, unsigned __int64, unsigned __int64*)],
-	       [], [], [#include <intrin.h>])
+                _addcarry_u64(unsigned char, unsigned __int64, unsigned __int64, unsigned __int64*),
+                _subborrow_u32(unsigned char, unsigned, unsigned, unsigned*),
+                _subborrow_u64(unsigned char, unsigned __int64, unsigned __int64, unsigned __int64*)],
+               [], [], [#include <intrin.h>])
 
 dnl Check for poll().
 AC_CHECK_FUNCS([poll])
@@ -534,7 +534,7 @@ if test $ac_cv_func_ftime = yes ; then
   AC_MSG_CHECKING([return type of ftime])
   AC_COMPILE_IFELSE(
     [AC_LANG_PROGRAM([[#include <sys/timeb.h>]],
-		     [[struct timeb tp; int i = ftime(&tp);]])],
+                     [[struct timeb tp; int i = ftime(&tp);]])],
     [AC_MSG_RESULT([int])],
     [AC_MSG_RESULT([void])
     AC_DEFINE([FTIME_RETURNS_VOID], [1], [Define if ftime returns void])])
@@ -670,9 +670,9 @@ fi
 
 dnl Checks for header files.
 AC_CHECK_HEADERS([fcntl.h limits.h poll.h sys/select.h sys/uio.h sysexits.h],
-		 [], [], [ ])
+                 [], [], [ ])
 AC_CHECK_HEADERS([sys/resource.h],
-		 [], [], [#include <sys/types.h>])
+                 [], [], [#include <sys/types.h>])
 
 dnl cxxabi.h was added in GCC 3.1, but clang lies and defines __GNUC__ yet
 dnl doesn't seem to reliably provide this header, so probe for it.
@@ -707,15 +707,15 @@ if test -n "$use_valgrind_if_non_empty" ; then
     rm -f $vglogwild
     if $VALGRIND --log-file="$vglog" --child-silent-after-fork=yes -q true 2>&AS_MESSAGE_LOG_FD ; then
       for f in $vglogwild ; do
-	case $f in
-	$vglog*) VALGRIND= ;;
-	esac
+        case $f in
+        $vglog*) VALGRIND= ;;
+        esac
       done
       if test x"$VALGRIND" = x ; then
-	AC_MSG_RESULT([no])
+        AC_MSG_RESULT([no])
       else
-	AC_MSG_RESULT([yes])
-	AC_CHECK_HEADERS([valgrind/memcheck.h], [], [VALGRIND=], [ ])
+        AC_MSG_RESULT([yes])
+        AC_CHECK_HEADERS([valgrind/memcheck.h], [], [VALGRIND=], [ ])
       fi
     else
       dnl The valgrind detected doesn't seem to work!  Perhaps this is an
@@ -893,7 +893,7 @@ AC_CHECK_DECL([fdatasync(int)], [
 
 dnl We use timer_create() if available to implement a search time limit.
 AC_SEARCH_LIBS([timer_create], [rt],
-	       [
+               [
     AC_MSG_CHECKING([for timer_create() usability])
     dnl Several platforms have timer_create() but it's non-functional.
     dnl
@@ -909,10 +909,10 @@ AC_SEARCH_LIBS([timer_create], [rt],
 #elif defined __OpenBSD__
 #error timer_create always fails with ENOSYS on OpenBSD 7.3 (and no prototype)
 #endif]])],
-	[AC_MSG_RESULT([yes])
-	AC_DEFINE([HAVE_TIMER_CREATE], [1], [Define to 1 if you have the 'timer_create' function.])]
-	,
-	[AC_MSG_RESULT([no])
+        [AC_MSG_RESULT([yes])
+        AC_DEFINE([HAVE_TIMER_CREATE], [1], [Define to 1 if you have the 'timer_create' function.])]
+        ,
+        [AC_MSG_RESULT([no])
     ])
 ])
 
@@ -927,11 +927,11 @@ case $enable_backend_glass$enable_backend_honey in
   case $host_os-$win32 in
     *-yes | cygwin* | msys*) dnl Use built-in win32 API.
       AC_DEFINE([USE_WIN32_UUID_API], [1],
-		[Define to 1 to use UuidCreate(), etc])
+                [Define to 1 to use UuidCreate(), etc])
       if test $win32 = yes ; then
-	dnl We need -lws2_32 for htonl(), etc, but not for Cygwin which
-	dnl provides these functions in its libc.
-	win32_need_lws2_32=1
+        dnl We need -lws2_32 for htonl(), etc, but not for Cygwin which
+        dnl provides these functions in its libc.
+        win32_need_lws2_32=1
       fi
       LIBS="$LIBS -lrpcrt4"
       ;;
@@ -939,34 +939,34 @@ case $enable_backend_glass$enable_backend_honey in
       dnl Check for uuid/uuid.h (e2fsprogs/util-linux-ng) or uuid.h
       dnl (FreeBSD/NetBSD/OpenBSD/AIX).
       AC_CHECK_HEADERS([uuid/uuid.h], [
-	dnl util-linux-ng's uuid/uuid.h found - check for uuid_generate in
-	dnl -luuid.
-	AC_SEARCH_LIBS([uuid_generate], [uuid], [], [
-	  AC_MSG_ERROR([uuid_generate() not found in -luuid - required for glass and honey backends (you may need to install the uuid-dev, libuuid-devel or e2fsprogs-devel package)])
-	  ])
+        dnl util-linux-ng's uuid/uuid.h found - check for uuid_generate in
+        dnl -luuid.
+        AC_SEARCH_LIBS([uuid_generate], [uuid], [], [
+          AC_MSG_ERROR([uuid_generate() not found in -luuid - required for glass and honey backends (you may need to install the uuid-dev, libuuid-devel or e2fsprogs-devel package)])
+          ])
       ], [
-	dnl Try uuid.h as found on FreeBSD/NetBSD/OpenBSD/AIX, with associated
-	dnl code in libc.
-	AC_CHECK_HEADERS([uuid.h], [
-	  dnl Check for uuid_create with no extra libraries required.
-	  AC_CHECK_FUNC([uuid_create], [], [
-	    AC_MSG_ERROR([uuid.h found, but uuid_create() not found.  You probably wants to install libuuid from util-linux-ng or e2fsprogs (you may need to install the uuid-dev, libuuid-devel or e2fsprogs-devel package)])
-	  ])
-	], [
-	  dnl Especially useful for Android.
-	  AC_MSG_CHECKING([if host platform supports /proc/sys/kernel/random/uuid])
-	  case $host_os in
-	    linux*)
-	      AC_DEFINE([USE_PROC_FOR_UUID], [1],
-			[Define to 1 to read UUID from '/proc/sys/kernel/random/uuid'])
-	      AC_MSG_RESULT([yes])
-	      ;;
-	    *)
-	      AC_MSG_RESULT([no])
-	      AC_MSG_ERROR([Failed to find a way to generate UUIDs, required for glass and honey backends (you may need to install the uuid-dev, libuuid-devel or e2fsprogs-devel package)])
-	      ;;
-	  esac
-	], [ ])
+        dnl Try uuid.h as found on FreeBSD/NetBSD/OpenBSD/AIX, with associated
+        dnl code in libc.
+        AC_CHECK_HEADERS([uuid.h], [
+          dnl Check for uuid_create with no extra libraries required.
+          AC_CHECK_FUNC([uuid_create], [], [
+            AC_MSG_ERROR([uuid.h found, but uuid_create() not found.  You probably wants to install libuuid from util-linux-ng or e2fsprogs (you may need to install the uuid-dev, libuuid-devel or e2fsprogs-devel package)])
+          ])
+        ], [
+          dnl Especially useful for Android.
+          AC_MSG_CHECKING([if host platform supports /proc/sys/kernel/random/uuid])
+          case $host_os in
+            linux*)
+              AC_DEFINE([USE_PROC_FOR_UUID], [1],
+                        [Define to 1 to read UUID from '/proc/sys/kernel/random/uuid'])
+              AC_MSG_RESULT([yes])
+              ;;
+            *)
+              AC_MSG_RESULT([no])
+              AC_MSG_ERROR([Failed to find a way to generate UUIDs, required for glass and honey backends (you may need to install the uuid-dev, libuuid-devel or e2fsprogs-devel package)])
+              ;;
+          esac
+        ], [ ])
       ], [ ])
       ;;
   esac
@@ -993,9 +993,9 @@ if test "$enable_backend_remote" = yes ; then
       win32_need_lws2_32=1
       dnl Vista is needed for the AI_ADDRCONFIG flag to getaddrinfo().
       AC_DEFINE([WINVER], [0x600],
-		[Version of Windows to assume (0x600 => Vista).])
+                [Version of Windows to assume (0x600 => Vista).])
       AC_DEFINE([_WIN32_WINNT], [WINVER],
-		[Version of Windows to assume.])
+                [Version of Windows to assume.])
       ;;
     *djgpp* | *msdos* )
       dnl DJGPP has a dummy implementation of fork which always fails.  If
@@ -1007,15 +1007,15 @@ if test "$enable_backend_remote" = yes ; then
     *)
       dnl On Unix, we need fork and socketpair for the remotebackend.
       AC_CHECK_FUNCS([fork], [], [
-	AC_MSG_ERROR([fork() required for the remote backend - if an extra library is needed, pass LIBS=-lfoo to configure.  Or --disable-backend-remote to disable it.])
+        AC_MSG_ERROR([fork() required for the remote backend - if an extra library is needed, pass LIBS=-lfoo to configure.  Or --disable-backend-remote to disable it.])
       ])
       dnl Check if -lsocket is required for socketpair (Solaris needs it).
       dnl And on Haiku it's in -lnetwork.
       AC_SEARCH_LIBS([socketpair], [socket network], [], [
-	AC_MSG_ERROR([socketpair() required for the remote backend - if an extra library is needed, pass LIBS=-lfoo to configure.  Or --disable-backend-remote to disable it.])
+        AC_MSG_ERROR([socketpair() required for the remote backend - if an extra library is needed, pass LIBS=-lfoo to configure.  Or --disable-backend-remote to disable it.])
       ])
       AC_DEFINE([HAVE_SOCKETPAIR], [1],
-		[Define to 1 if you have the 'socketpair' function.])
+                [Define to 1 if you have the 'socketpair' function.])
       dnl Check if extra libraries are needed for getaddrinfo or inet_ntop()
       dnl (e.g. on Solaris).
       dnl
@@ -1024,10 +1024,10 @@ if test "$enable_backend_remote" = yes ; then
       dnl standard route for supporting IPv6, and that's pretty much essential
       dnl for platforms to support now.
       AC_SEARCH_LIBS([getaddrinfo], [nsl socket], [], [
-	AC_MSG_ERROR([getaddrinfo() required for the remote backend - if an extra library is needed, pass LIBS=-lfoo to configure.  Or --disable-backend-remote to disable it.])
+        AC_MSG_ERROR([getaddrinfo() required for the remote backend - if an extra library is needed, pass LIBS=-lfoo to configure.  Or --disable-backend-remote to disable it.])
       ])
       AC_SEARCH_LIBS([inet_ntop], [nsl socket], [], [
-	AC_MSG_ERROR([inet_ntop() required for the remote backend - if an extra library is needed, pass LIBS=-lfoo to configure.  Or --disable-backend-remote to disable it.])
+        AC_MSG_ERROR([inet_ntop() required for the remote backend - if an extra library is needed, pass LIBS=-lfoo to configure.  Or --disable-backend-remote to disable it.])
       ])
       ;;
   esac
@@ -1097,72 +1097,72 @@ case $host_os in
   *)
     AC_CHECK_FUNC([pread],
        [AC_DEFINE([HAVE_PREAD], [1],
-	    [Define if pread is available on this system])
-	AC_MSG_CHECKING([for any prototype needed for pread])
-	AC_CACHE_VAL([xo_cv_pread_prototype],
-	  [
-	    for p in ' ' \
-	      'extern "C" ssize_t pread(int, void *, size_t, off_t) throw ();' \
-	      'extern "C" ssize_t pread(int, void *, size_t, off_t);' ; do
-	      AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+            [Define if pread is available on this system])
+        AC_MSG_CHECKING([for any prototype needed for pread])
+        AC_CACHE_VAL([xo_cv_pread_prototype],
+          [
+            for p in ' ' \
+              'extern "C" ssize_t pread(int, void *, size_t, off_t) throw ();' \
+              'extern "C" ssize_t pread(int, void *, size_t, off_t);' ; do
+              AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
 #include <sys/types.h>
 #include <unistd.h>
 $p
-	      ]],[[
-		char b[256];
-		pread(1, b, 256, 20);
-	      ]])],[
-		xo_cv_pread_prototype="$p"
-		break
-	      ], [])
-	    done
-	    if test -z "$xo_cv_pread_prototype"; then
-	      AC_MSG_RESULT([not found])
-	      AC_MSG_ERROR([Failed to find working prototype for pread])
-	    fi
-	  ])
-	  if test " " = "$xo_cv_pread_prototype" ; then
-	    AC_MSG_RESULT([none required])
-	  else
-	    AC_MSG_RESULT([$xo_cv_pread_prototype])
-	    AC_DEFINE_UNQUOTED([PREAD_PROTOTYPE], [$xo_cv_pread_prototype],
-			       [explicit prototype needed for pread (if any)])
-	  fi
-	])
+              ]],[[
+                char b[256];
+                pread(1, b, 256, 20);
+              ]])],[
+                xo_cv_pread_prototype="$p"
+                break
+              ], [])
+            done
+            if test -z "$xo_cv_pread_prototype"; then
+              AC_MSG_RESULT([not found])
+              AC_MSG_ERROR([Failed to find working prototype for pread])
+            fi
+          ])
+          if test " " = "$xo_cv_pread_prototype" ; then
+            AC_MSG_RESULT([none required])
+          else
+            AC_MSG_RESULT([$xo_cv_pread_prototype])
+            AC_DEFINE_UNQUOTED([PREAD_PROTOTYPE], [$xo_cv_pread_prototype],
+                               [explicit prototype needed for pread (if any)])
+          fi
+        ])
     AC_CHECK_FUNC([pwrite],
        [AC_DEFINE([HAVE_PWRITE], [1],
-	    [Define if pwrite is available on this system])
-	AC_MSG_CHECKING([for any prototype needed for pwrite])
-	AC_CACHE_VAL([xo_cv_pwrite_prototype],
-	  [
-	    for p in ' ' \
-	      'extern "C" ssize_t pwrite(int, const void *, size_t, off_t) throw ();' \
-	      'extern "C" ssize_t pwrite(int, const void *, size_t, off_t);' ; do
-	      AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+            [Define if pwrite is available on this system])
+        AC_MSG_CHECKING([for any prototype needed for pwrite])
+        AC_CACHE_VAL([xo_cv_pwrite_prototype],
+          [
+            for p in ' ' \
+              'extern "C" ssize_t pwrite(int, const void *, size_t, off_t) throw ();' \
+              'extern "C" ssize_t pwrite(int, const void *, size_t, off_t);' ; do
+              AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
 #include <sys/types.h>
 #include <unistd.h>
 $p
-	      ]],[[
-		const char *p = "hello";
-		pwrite(1, p, 5, 20);
-	      ]])],[
-		xo_cv_pwrite_prototype="$p"
-		break
-	      ], [])
-	    done
-	    if test -z "$xo_cv_pwrite_prototype"; then
-	      AC_MSG_RESULT([not found])
-	      AC_MSG_ERROR([Failed to find working prototype for pwrite])
-	    fi
-	  ])
-	  if test " " = "$xo_cv_pwrite_prototype" ; then
-	    AC_MSG_RESULT([none required])
-	  else
-	    AC_MSG_RESULT([$xo_cv_pwrite_prototype])
-	    AC_DEFINE_UNQUOTED([PWRITE_PROTOTYPE], [$xo_cv_pwrite_prototype],
-			       [explicit prototype needed for pwrite (if any)])
-	  fi
-	])
+              ]],[[
+                const char *p = "hello";
+                pwrite(1, p, 5, 20);
+              ]])],[
+                xo_cv_pwrite_prototype="$p"
+                break
+              ], [])
+            done
+            if test -z "$xo_cv_pwrite_prototype"; then
+              AC_MSG_RESULT([not found])
+              AC_MSG_ERROR([Failed to find working prototype for pwrite])
+            fi
+          ])
+          if test " " = "$xo_cv_pwrite_prototype" ; then
+            AC_MSG_RESULT([none required])
+          else
+            AC_MSG_RESULT([$xo_cv_pwrite_prototype])
+            AC_DEFINE_UNQUOTED([PWRITE_PROTOTYPE], [$xo_cv_pwrite_prototype],
+                               [explicit prototype needed for pwrite (if any)])
+          fi
+        ])
     ;;
 esac
 
@@ -1301,8 +1301,8 @@ if test yes = "$GXX"; then
 
       case $gxx_version in
       [[0-6]].*)
-	AC_MSG_ERROR([Xapian requires GCC 7.0 or later])
-	;;
+        AC_MSG_ERROR([Xapian requires GCC 7.0 or later])
+        ;;
       esac
 
       dnl FIXME:
@@ -1373,25 +1373,25 @@ case $host_cpu in
     if test "$enable_sse" = no ; then
       AC_MSG_RESULT([no])
       if test yes = "$msvc"; then
-	dnl MSVC defaults to SSE2.
-	AM_CXXFLAGS="$AM_CXXFLAGS -arch:IA32"
+        dnl MSVC defaults to SSE2.
+        AM_CXXFLAGS="$AM_CXXFLAGS -arch:IA32"
       fi
     else
       dnl Default to sse2.
       test "$enable_sse" != yes || enable_sse=sse2
       if test yes = "$GXX"; then
-	AC_MSG_RESULT([yes (configure with --disable-sse to disable)])
-	dnl We can unconditionally use -mtune=generic as it was added in GCC
-	dnl 4.2, and supported at least as far back as clang 3.0.
-	AM_CXXFLAGS="$AM_CXXFLAGS -mfpmath=sse -m$enable_sse -mtune=generic"
+        AC_MSG_RESULT([yes (configure with --disable-sse to disable)])
+        dnl We can unconditionally use -mtune=generic as it was added in GCC
+        dnl 4.2, and supported at least as far back as clang 3.0.
+        AM_CXXFLAGS="$AM_CXXFLAGS -mfpmath=sse -m$enable_sse -mtune=generic"
       elif test yes = "$msvc"; then
-	AC_MSG_RESULT([yes (configure with --disable-sse to disable)])
-	if test sse = "$enable_sse"; then
-	  dnl MSVC defaults to SSE2.
-	  AM_CXXFLAGS="$AM_CXXFLAGS -arch:SSE"
-	fi
+        AC_MSG_RESULT([yes (configure with --disable-sse to disable)])
+        if test sse = "$enable_sse"; then
+          dnl MSVC defaults to SSE2.
+          AM_CXXFLAGS="$AM_CXXFLAGS -arch:SSE"
+        fi
       else
-	AC_MSG_RESULT([don't know how to for compiler $CXX])
+        AC_MSG_RESULT([don't know how to for compiler $CXX])
       fi
     fi
     ;;
@@ -1484,7 +1484,7 @@ AH_BOTTOM(
 # ifdef stat
 // Break #undef lines to stop config.status from commenting them out.
 #  undef \
-	stat
+        stat
 # endif
 
 // This hack is a problem is we ever want a method called "stat".
@@ -1510,7 +1510,7 @@ AH_BOTTOM(
 # ifdef fstat
 // Break #undef lines to stop config.status from commenting them out.
 #  undef \
-	fstat
+        fstat
 # endif
 
 # define fstat(FD, BUF) _fstat64(FD, BUF)
@@ -1518,13 +1518,13 @@ AH_BOTTOM(
 # ifdef lseek
 // Break #undef lines to stop config.status from commenting them out.
 #  undef \
-	lseek
+        lseek
 # endif
 
 # ifdef off_t
 // Break #undef lines to stop config.status from commenting them out.
 #  undef \
-	off_t
+        off_t
 # endif
 
 # define lseek(FD, OFF, WHENCE) _lseeki64(FD, OFF, WHENCE)
@@ -1586,7 +1586,7 @@ typedef long long off_t_redefinition_typedef;
 #ifdef __clang__
 #define UNSIGNED_OVERFLOW_OK(X) \
     ([&]() __attribute__((no_sanitize("unsigned-integer-overflow"))) {\
-	return (X);\
+        return (X);\
     }())
 #else
 # define UNSIGNED_OVERFLOW_OK(X) (X)
@@ -1742,14 +1742,14 @@ dnl it as "r" (Solaris sed) or maybe literal "\r" which won't match.
 dnl
 dnl Use @@ around $MAIN_VERSION so we get " in the final output.
 $CXXCPP $cxxcpp_flags\
-	-DSTRING_VERSION="\"@@$MAIN_VERSION@@\""\
-	-DMAJOR_VERSION="\"$MAJOR_VERSION\""\
-	-DMINOR_VERSION="\"$MINOR_VERSION\""\
-	-DREVISION="\"$REVISION\""\
-	$dash_d_visibility\
-	$srcdir/include/xapian/version_h.cc|\
-	${SED-sed} '0,/const char \* dummy/d;/"/!d;s/^ *//;/^#/d;s/ *$//;s/" *,//;s/"//g;s/@@/"/g;s/  */ /g;s/ *,\r$//;s/ *,$//;s/____/ /g;s/\\\\$/\\/'\
-	> include/xapian/version.h.tmp
+        -DSTRING_VERSION="\"@@$MAIN_VERSION@@\""\
+        -DMAJOR_VERSION="\"$MAJOR_VERSION\""\
+        -DMINOR_VERSION="\"$MINOR_VERSION\""\
+        -DREVISION="\"$REVISION\""\
+        $dash_d_visibility\
+        $srcdir/include/xapian/version_h.cc|\
+        ${SED-sed} '0,/const char \* dummy/d;/"/!d;s/^ *//;/^#/d;s/ *$//;s/" *,//;s/"//g;s/@@/"/g;s/  */ /g;s/ *,\r$//;s/ *,$//;s/____/ /g;s/\\\\$/\\/'\
+        > include/xapian/version.h.tmp
 dnl Only update the file if it has changed, so we don't alter the timestamp
 dnl and cause lots of rebuilding needlessly.  However, the build system
 dnl needs a timestamp to know when to regenerate version.h because version_h.cc

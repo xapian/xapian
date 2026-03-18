@@ -36,11 +36,11 @@ load_file_from_fd(int fd, size_t size_hint, std::string& output)
 }
 
 bool load_file(const std::string& file_name, size_t max_to_read, int flags,
-	       std::string& output, bool* truncated);
+               std::string& output, bool* truncated);
 
 inline bool
 load_file(const std::string& file_name, size_t max_to_read, int flags,
-	  std::string& output, bool& truncated)
+          std::string& output, bool& truncated)
 {
     return load_file(file_name, max_to_read, flags, output, &truncated);
 }

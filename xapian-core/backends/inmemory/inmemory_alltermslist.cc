@@ -52,25 +52,25 @@ InMemoryAllTermsList::skip_to(string_view tname_)
     string tname(tname_);
     Assert(it != tmap->end());
     if (!it->first.empty()) {
-	// Don't skip backwards.
-	if (tname <= it->first) return NULL;
+        // Don't skip backwards.
+        if (tname <= it->first) return NULL;
     } else {
-	// Don't skip to before where we're supposed to start.
-	if (tname < prefix) {
-	    tname = prefix;
-	} else if (tname.empty()) {
-	    ++it;
-	    while (it != tmap->end() && it->second.term_freq == 0) ++it;
-	    if (it == tmap->end())
-		return this;
-	    current_term = it->first;
-	    return NULL;
-	}
+        // Don't skip to before where we're supposed to start.
+        if (tname < prefix) {
+            tname = prefix;
+        } else if (tname.empty()) {
+            ++it;
+            while (it != tmap->end() && it->second.term_freq == 0) ++it;
+            if (it == tmap->end())
+                return this;
+            current_term = it->first;
+            return NULL;
+        }
     }
     it = tmap->lower_bound(tname);
     while (it != tmap->end() && it->second.term_freq == 0) ++it;
     if (it == tmap->end() || !startswith(it->first, prefix)) {
-	return this;
+        return this;
     }
     current_term = it->first;
     return NULL;
@@ -82,13 +82,13 @@ InMemoryAllTermsList::next()
     if (database->is_closed()) InMemoryDatabase::throw_database_closed();
     Assert(it != tmap->end());
     if (it->first.empty() && !prefix.empty()) {
-	it = tmap->lower_bound(prefix);
+        it = tmap->lower_bound(prefix);
     } else {
-	++it;
+        ++it;
     }
     while (it != tmap->end() && it->second.term_freq == 0) ++it;
     if (it == tmap->end() || !startswith(it->first, prefix)) {
-	return this;
+        return this;
     }
     current_term = it->first;
     return NULL;

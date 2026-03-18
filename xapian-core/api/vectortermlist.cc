@@ -57,10 +57,10 @@ VectorTermList::next()
 
     const char * end = data.data() + data.size();
     if (p == end) {
-	return this;
+        return this;
     }
     if (!unpack_string(&p, end, current_term)) {
-	unpack_throw_serialisation_error(p);
+        unpack_throw_serialisation_error(p);
     }
 
     return NULL;

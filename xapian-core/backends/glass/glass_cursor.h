@@ -53,46 +53,46 @@ class Cursor {
     ~Cursor() { destroy(); }
 
     uint8_t * init(unsigned block_size) {
-	if (data && refs() > 1) {
-	    --refs();
-	    data = NULL;
-	}
-	if (!data)
-	    data = new char[block_size + 8];
-	refs() = 1;
-	set_n(BLK_UNUSED);
-	rewrite = false;
-	c = -1;
-	return reinterpret_cast<uint8_t*>(data + 8);
+        if (data && refs() > 1) {
+            --refs();
+            data = NULL;
+        }
+        if (!data)
+            data = new char[block_size + 8];
+        refs() = 1;
+        set_n(BLK_UNUSED);
+        rewrite = false;
+        c = -1;
+        return reinterpret_cast<uint8_t*>(data + 8);
     }
 
     const uint8_t * clone(const Cursor & o) {
-	if (data != o.data) {
-	    destroy();
-	    data = o.data;
-	    ++refs();
-	}
-	return reinterpret_cast<uint8_t*>(data + 8);
+        if (data != o.data) {
+            destroy();
+            data = o.data;
+            ++refs();
+        }
+        return reinterpret_cast<uint8_t*>(data + 8);
     }
 
     void swap(Cursor & o) {
-	std::swap(data, o.data);
-	std::swap(c, o.c);
-	std::swap(rewrite, o.rewrite);
+        std::swap(data, o.data);
+        std::swap(c, o.c);
+        std::swap(rewrite, o.rewrite);
     }
 
     void destroy() {
-	if (data) {
-	    if (--refs() == 0)
-		delete [] data;
-	    data = NULL;
-	    rewrite = false;
-	}
+        if (data) {
+            if (--refs() == 0)
+                delete [] data;
+            data = NULL;
+            rewrite = false;
+        }
     }
 
     uint4 & refs() const {
-	Assert(data);
-	return *alignment_cast<uint4*>(data);
+        Assert(data);
+        return *alignment_cast<uint4*>(data);
     }
 
     /** Get the block number.
@@ -100,14 +100,14 @@ class Cursor {
      *  Returns BLK_UNUSED if no block is currently loaded.
      */
     uint4 get_n() const {
-	Assert(data);
-	return *alignment_cast<uint4*>(data + 4);
+        Assert(data);
+        return *alignment_cast<uint4*>(data + 4);
     }
 
     void set_n(uint4 n) {
-	Assert(data);
-	// Assert(refs() == 1);
-	*alignment_cast<uint4*>(data + 4) = n;
+        Assert(data);
+        // Assert(refs() == 1);
+        *alignment_cast<uint4*>(data + 4) = n;
     }
 
     /** Get pointer to block.
@@ -115,20 +115,20 @@ class Cursor {
      * Returns NULL if no block is currently loaded.
      */
     const uint8_t * get_p() const {
-	if (rare(!data)) return NULL;
-	return reinterpret_cast<uint8_t*>(data + 8);
+        if (rare(!data)) return NULL;
+        return reinterpret_cast<uint8_t*>(data + 8);
     }
 
     uint8_t * get_modifiable_p(unsigned block_size) {
-	if (rare(!data)) return NULL;
-	if (refs() > 1) {
-	    char * new_data = new char[block_size + 8];
-	    std::memcpy(new_data, data, block_size + 8);
-	    --refs();
-	    data = new_data;
-	    refs() = 1;
-	}
-	return reinterpret_cast<uint8_t*>(data + 8);
+        if (rare(!data)) return NULL;
+        if (refs() > 1) {
+            char * new_data = new char[block_size + 8];
+            std::memcpy(new_data, data, block_size + 8);
+            --refs();
+            data = new_data;
+            refs() = 1;
+        }
+        return reinterpret_cast<uint8_t*>(data + 8);
     }
 
     /// offset in the block's directory
@@ -220,7 +220,7 @@ class GlassCursor {
      *  after the Btree though, you just may not use the GlassCursor.
      */
     explicit GlassCursor(const GlassTable *B,
-			 const Glass::Cursor * C_ = NULL);
+                         const Glass::Cursor * C_ = NULL);
 
     /** Clone a cursor.
      *
@@ -228,7 +228,7 @@ class GlassCursor {
      *  The new cursor is initially *unpositioned*.
      */
     GlassCursor * clone() const {
-	return new GlassCursor(B, C);
+        return new GlassCursor(B, C);
     }
 
     /** Destroy the GlassCursor */
@@ -248,7 +248,7 @@ class GlassCursor {
      *  Calling next() after this moves the cursor to the first entry.
      */
     void rewind() {
-	(void)find_entry_ge({});
+        (void)find_entry_ge({});
     }
 
     /** Read the tag from the table and store it in current_tag.

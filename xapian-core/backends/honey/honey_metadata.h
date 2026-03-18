@@ -55,8 +55,8 @@ class HoneyMetadataTermList : public AllTermsList {
 
   public:
     HoneyMetadataTermList(const Xapian::Database::Internal* database_,
-			  HoneyCursor* cursor_,
-			  std::string_view prefix_);
+                          HoneyCursor* cursor_,
+                          std::string_view prefix_);
 
     ~HoneyMetadataTermList();
 

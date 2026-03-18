@@ -54,7 +54,7 @@ calculate_inner_product(const vector<double> &parameters, const vector<double> &
     LOGCALL_STATIC_VOID(API, "calculate_inner_product", parameters | fvals);
     double inner_product = 0.0;
     for (size_t i = 0; i < fvals.size(); ++i)
-	inner_product += parameters[i] * fvals[i];
+        inner_product += parameters[i] * fvals[i];
     return inner_product;
 }
 
@@ -70,12 +70,12 @@ init_probability(const vector<FeatureVector> &feature_vectors, const vector<doub
     double expsum_z = 0.0;
 
     for (auto&& v : feature_vectors) {
-	expsum_y += exp(v.get_label());
-	expsum_z += exp(calculate_inner_product(new_parameters, v.get_fvals()));
+        expsum_y += exp(v.get_label());
+        expsum_z += exp(calculate_inner_product(new_parameters, v.get_fvals()));
     }
     for (auto&& v : feature_vectors) {
-	prob_y.push_back(exp(v.get_label()) / expsum_y);
-	prob_z.push_back(exp(calculate_inner_product(new_parameters, v.get_fvals())) / expsum_z);
+        prob_y.push_back(exp(v.get_label()) / expsum_y);
+        prob_z.push_back(exp(calculate_inner_product(new_parameters, v.get_fvals())) / expsum_z);
     }
     vector<vector<double>> prob;
     prob.push_back(prob_y);
@@ -96,14 +96,14 @@ calculate_gradient(const vector<FeatureVector> &feature_vectors, const prob_dist
     const vector<double> prob_z(prob[1]);
 
     for (size_t i = 0; i < feature_vectors.size(); ++i) {
-	vector<double> fvals = feature_vectors[i].get_fvals();
-	for (size_t k = 0; k < fvals.size(); ++k) {
-	    double first_term = - prob_y[i] * fvals[k];
-	    gradient[k] += first_term;
+        vector<double> fvals = feature_vectors[i].get_fvals();
+        for (size_t k = 0; k < fvals.size(); ++k) {
+            double first_term = - prob_y[i] * fvals[k];
+            gradient[k] += first_term;
 
-	    double second_term = prob_z[i] * fvals[k];
-	    gradient[k] += second_term;
-	}
+            double second_term = prob_z[i] * fvals[k];
+            gradient[k] += second_term;
+        }
     }
     return gradient;
 }
@@ -112,14 +112,14 @@ static void
 update_parameters(vector<double> &new_parameters, const vector<double> &gradient, double learning_rate) {
     LOGCALL_STATIC_VOID(API, "update_parameters", new_parameters | gradient | learning_rate);
     for (size_t i = 0; i < new_parameters.size(); ++i) {
-	new_parameters[i] -= gradient[i] * learning_rate;
+        new_parameters[i] -= gradient[i] * learning_rate;
     }
 }
 
 static void
 normalize(vector<double>& gradient, size_t size) {
     for (auto& item : gradient) {
-	item /= size;
+        item /= size;
     }
 }
 
@@ -128,34 +128,34 @@ ListNETRanker::train(const vector<vector<Xapian::FeatureVector>>& training_data)
 {
     LOGCALL_VOID(API, "ListNETRanker::train", training_data);
     if (training_data.empty() || training_data[0].empty())
-	throw InvalidArgumentError("Cannot train: no training data");
+        throw InvalidArgumentError("Cannot train: no training data");
     int feature_cnt = training_data[0][0].get_fcount();
 
     // initialize the parameters for neural network
     vector<double> new_parameters(feature_cnt, 0.0);
 
     for (auto& item1 : training_data) {
-	for (auto& item2 : item1) {
-	    if (item2.get_fcount() != feature_cnt) {
-		throw InvalidArgumentError("Cannot train: training data has "
-					   "uneven set of features. Make sure "
-					   "that you are using the same set "
-					   "of Features for all the queries");
-	    }
-	}
+        for (auto& item2 : item1) {
+            if (item2.get_fcount() != feature_cnt) {
+                throw InvalidArgumentError("Cannot train: training data has "
+                                           "uneven set of features. Make sure "
+                                           "that you are using the same set "
+                                           "of Features for all the queries");
+            }
+        }
     }
     // iterations
     for (int iter_num = 1; iter_num <= iterations; ++iter_num) {
-	for (auto& item : training_data) {
-	    // Initialize probability distributions of y and z.
-	    prob_distrib_vector prob = init_probability(item, new_parameters);
-	    // Compute gradient
-	    vector<double> gradient = calculate_gradient(item, prob);
-	    // Normalize gradient
-	    normalize(gradient, item.size());
-	    // Update parameters: w = w - gradient * learningRate
-	    update_parameters(new_parameters, gradient, learning_rate);
-	}
+        for (auto& item : training_data) {
+            // Initialize probability distributions of y and z.
+            prob_distrib_vector prob = init_probability(item, new_parameters);
+            // Compute gradient
+            vector<double> gradient = calculate_gradient(item, prob);
+            // Normalize gradient
+            normalize(gradient, item.size());
+            // Update parameters: w = w - gradient * learningRate
+            update_parameters(new_parameters, gradient, learning_rate);
+        }
     }
     swap(parameters, new_parameters);
 }
@@ -166,11 +166,11 @@ ListNETRanker::save_model_to_metadata(const string & model_key) {
     Xapian::WritableDatabase letor_db(get_database_path());
     string key = model_key;
     if (key.empty()) {
-	key = "ListNET.model.default";
+        key = "ListNET.model.default";
     }
     string model_data;
     for (size_t i = 0; i < parameters.size(); ++i)
-	model_data += serialise_double(parameters[i]);
+        model_data += serialise_double(parameters[i]);
     letor_db.set_metadata(key, model_data);
 }
 
@@ -180,18 +180,18 @@ ListNETRanker::load_model_from_metadata(const string & model_key) {
     Xapian::Database letor_db(get_database_path());
     string key = model_key;
     if (key.empty()) {
-	key = "ListNET.model.default";
+        key = "ListNET.model.default";
     }
     string model_data = letor_db.get_metadata(key);
     // Throw exception if no model data associated with key
     if (model_data.empty()) {
-	throw Xapian::LetorInternalError("No model found. Check key.");
+        throw Xapian::LetorInternalError("No model found. Check key.");
     }
     vector<double> loaded_parameters;
     const char *ptr = model_data.data();
     const char *end = ptr + model_data.size();
     while (ptr != end) {
-	loaded_parameters.push_back(unserialise_double(&ptr, end));
+        loaded_parameters.push_back(unserialise_double(&ptr, end));
     }
     swap(parameters, loaded_parameters);
 }
@@ -201,14 +201,14 @@ ListNETRanker::rank_fvv(const std::vector<FeatureVector> & fvv) const {
     LOGCALL(API, std::vector<FeatureVector>, "ListNETRanker::rank_fvv", fvv);
     std::vector<FeatureVector> testfvv = fvv;
     for (size_t i = 0; i < testfvv.size(); ++i) {
-	double listnet_score = 0;
-	std::vector<double> fvals = testfvv[i].get_fvals();
-	if (fvals.size() != parameters.size())
-	    throw LetorInternalError("Model incompatible. Make sure that you are using "
-				     "the same set of Features using which the model was created.");
-	for (size_t j = 0; j < fvals.size(); ++j)
-	    listnet_score += fvals[j] * parameters[j];
-	testfvv[i].set_score(listnet_score);
+        double listnet_score = 0;
+        std::vector<double> fvals = testfvv[i].get_fvals();
+        if (fvals.size() != parameters.size())
+            throw LetorInternalError("Model incompatible. Make sure that you are using "
+                                     "the same set of Features using which the model was created.");
+        for (size_t j = 0; j < fvals.size(); ++j)
+            listnet_score += fvals[j] * parameters[j];
+        testfvv[i].set_score(listnet_score);
     }
     return testfvv;
 }

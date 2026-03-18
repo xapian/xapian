@@ -30,8 +30,8 @@ using namespace std;
 
 double
 ExtraWeightPostList::get_weight(Xapian::termcount doclen,
-				Xapian::termcount unique_terms,
-				Xapian ::termcount wdfdocmax) const
+                                Xapian::termcount unique_terms,
+                                Xapian ::termcount wdfdocmax) const
 {
     /* Weight::get_sumextra() takes three parameters (document length, number of
      * unique terms and the max wdf in the document) but currently only doclen
@@ -56,9 +56,9 @@ ExtraWeightPostList::next(double w_min)
 {
     PostList* res = pl->next(w_min - max_extra);
     if (res) {
-	delete pl;
-	pl = res;
-	pltree->force_recalc();
+        delete pl;
+        pl = res;
+        pltree->force_recalc();
     }
     return NULL;
 }

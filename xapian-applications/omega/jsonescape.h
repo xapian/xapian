@@ -37,22 +37,22 @@ to_json(const C& container, F1 func1, F2 func2)
     std::string result = "{\"";
     bool first = true;
     for (auto entry : container) {
-	if (first) {
-	    first = false;
-	} else {
-	    result += ",\"";
-	}
-	std::string key = func1(entry.first);
-	json_escape(key);
-	result += key;
-	result += "\":";
-	result += func2(entry.second);
+        if (first) {
+            first = false;
+        } else {
+            result += ",\"";
+        }
+        std::string key = func1(entry.first);
+        json_escape(key);
+        result += key;
+        result += "\":";
+        result += func2(entry.second);
     }
     if (first) {
-	// Special case for an empty object.
-	result = "{}";
+        // Special case for an empty object.
+        result = "{}";
     } else {
-	result += "}";
+        result += "}";
     }
     return result;
 }

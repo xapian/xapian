@@ -33,8 +33,8 @@ using namespace std;
 using Xapian::Internal::intrusive_ptr;
 
 GlassAllDocsPostList::GlassAllDocsPostList(intrusive_ptr<const GlassDatabase> db_,
-					   Xapian::doccount doccount)
-	: GlassPostList(db_, {}, true)
+                                           Xapian::doccount doccount)
+        : GlassPostList(db_, {}, true)
 {
     LOGCALL_CTOR(DB, "GlassAllDocsPostList", db_.get() | doccount);
     /* For an all documents postlist the term frequency is the number of

@@ -49,9 +49,9 @@ class TermGenerator::Internal : public Xapian::Internal::intrusive_base {
     Internal() { }
 
     void index_text(Utf8Iterator itor,
-		    termcount weight,
-		    std::string_view prefix,
-		    bool with_positions);
+                    termcount weight,
+                    std::string_view prefix,
+                    bool with_positions);
 };
 
 }

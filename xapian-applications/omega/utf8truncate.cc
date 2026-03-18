@@ -39,15 +39,15 @@ utf8_truncate(string& value, string::size_type maxlen)
 
     // If the first word is too long, truncate it.
     if (!len) {
-	len = maxlen;
-	// If the bytes of a UTF-8 character span the maxlen position we need
-	// to remove some extra bytes to avoid leaving a partial UTF-8
-	// character.
-	//
-	// We start at the byte after the cut point.  If it's a continuation
-	// byte we step back until we find the start of the character and
-	// truncate right before that.
-	while (len && (value[len] & 0xc0) == 0x80) --len;
+        len = maxlen;
+        // If the bytes of a UTF-8 character span the maxlen position we need
+        // to remove some extra bytes to avoid leaving a partial UTF-8
+        // character.
+        //
+        // We start at the byte after the cut point.  If it's a continuation
+        // byte we step back until we find the start of the character and
+        // truncate right before that.
+        while (len && (value[len] & 0xc0) == 0x80) --len;
     }
     value.resize(len);
 

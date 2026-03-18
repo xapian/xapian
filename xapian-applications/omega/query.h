@@ -43,14 +43,14 @@ class SubDB {
 
   public:
     SubDB(const std::string& name_,
-	  size_t index_,
-	  size_t out_of_)
-	: name(name_), index(index_), out_of(out_of_) { }
+          size_t index_,
+          size_t out_of_)
+        : name(name_), index(index_), out_of(out_of_) { }
 
     const std::string& get_name() const { return name; }
 
     Xapian::docid map_docid(Xapian::docid did) const {
-	return (did - 1) * out_of + index + 1;
+        return (did - 1) * out_of + index + 1;
     }
 };
 
@@ -61,9 +61,9 @@ void add_bterm(const std::string & term);
 void add_nterm(const std::string & term);
 
 void add_date_filter(const string& date_start,
-		     const string& date_end,
-		     const string& date_span,
-		     Xapian::valueno date_value_slot);
+                     const string& date_end,
+                     const string& date_span,
+                     Xapian::valueno date_value_slot);
 
 void add_query_string(const std::string& prefix, const std::string& s);
 
@@ -76,7 +76,7 @@ class OmegaExpandDecider : public Xapian::ExpandDecider {
     std::set<std::string> exclude_stems;
   public:
     OmegaExpandDecider(const Xapian::Database& db_,
-		       std::set<std::string>* querytermset = NULL);
+                       std::set<std::string>* querytermset = NULL);
     bool operator()(const std::string& term) const override;
 };
 

@@ -106,10 +106,10 @@
     %ignore NS::CLASS::operator++;
     %ignore NS::CLASS::operator*;
     %extend NS::CLASS {
-	OPERATOR_EQ(NS, CLASS)
-	OPERATOR_NE(NS, CLASS)
-	RET_TYPE DEREF_METHOD() const { return **self; }
-	INC_OR_DEC(NEXT_METHOD, ++, NS, CLASS, RET_TYPE)
+        OPERATOR_EQ(NS, CLASS)
+        OPERATOR_NE(NS, CLASS)
+        RET_TYPE DEREF_METHOD() const { return **self; }
+        INC_OR_DEC(NEXT_METHOD, ++, NS, CLASS, RET_TYPE)
     }
 %enddef
 
@@ -121,7 +121,7 @@
     %ignore NS::CLASS::operator+;
     %ignore NS::CLASS::operator-;
     %extend NS::CLASS {
-	INC_OR_DEC(PREV_METHOD, --, NS, CLASS, RET_TYPE)
+        INC_OR_DEC(PREV_METHOD, --, NS, CLASS, RET_TYPE)
     }
 %enddef
 
@@ -251,13 +251,13 @@ STANDARD_IGNORES(Xapian, Query)
 #endif
 #ifndef XAPIAN_MIXED_SUBQUERIES_BY_ITERATOR_TYPEMAP
 %ignore Query(op op_, XapianSWIGQueryItor qbegin, XapianSWIGQueryItor qend,
-	      Xapian::termcount parameter = 0);
+              Xapian::termcount parameter = 0);
 #endif
 %ignore Xapian::Query::Query(const std::string&, Xapian::termcount = 1, Xapian::termpos = 0);
 %ignore Xapian::Query::Query(const char*, Xapian::termcount = 1, Xapian::termpos = 0);
 %extend Xapian::Query {
     Query(op op_, std::string_view a, std::string_view b) {
-	return new Xapian::Query(op_, a, b);
+        return new Xapian::Query(op_, a, b);
     }
 }
 %include <xapian/query.h>
@@ -293,19 +293,19 @@ STANDARD_IGNORES(Xapian, MSet)
 #endif
 %extend Xapian::MSet {
     Xapian::docid get_docid(Xapian::doccount i) const {
-	return *(*self)[i];
+        return *(*self)[i];
     }
 
     Xapian::Document get_document(Xapian::doccount i) const {
-	return (*self)[i].get_document();
+        return (*self)[i].get_document();
     }
 
     Xapian::MSetIterator get_hit(Xapian::doccount i) const {
-	return (*self)[i];
+        return (*self)[i];
     }
 
     int get_document_percentage(Xapian::doccount i) const {
-	return self->convert_to_percent((*self)[i]);
+        return self->convert_to_percent((*self)[i]);
     }
 }
 
@@ -342,8 +342,8 @@ STANDARD_IGNORES(Xapian, Enquire)
      */
     std::pair<Xapian::TermIterator, Xapian::TermIterator>
     get_matching_terms(const Xapian::MSetIterator & item) const {
-	return std::make_pair($self->get_matching_terms_begin(item),
-			      $self->get_matching_terms_end(item));
+        return std::make_pair($self->get_matching_terms_begin(item),
+                              $self->get_matching_terms_end(item));
     }
 }
 #endif
@@ -368,12 +368,12 @@ SUBCLASSABLE(Xapian, KeyMaker)
 %extend Xapian::SimpleStopper {
     /** Load stop words from a text file (one word per line). */
     SimpleStopper(const std::string &file) {
-	ifstream in_file(file.c_str());
-	if (!in_file.is_open())
-	    throw Xapian::InvalidArgumentError("Stopword file not found: " + file);
-	istream_iterator<std::string> in_iter(in_file);
-	istream_iterator<std::string> eof;
-	return new Xapian::SimpleStopper(in_iter, eof);
+        ifstream in_file(file.c_str());
+        if (!in_file.is_open())
+            throw Xapian::InvalidArgumentError("Stopword file not found: " + file);
+        istream_iterator<std::string> in_iter(in_file);
+        istream_iterator<std::string> eof;
+        return new Xapian::SimpleStopper(in_iter, eof);
     }
 }
 
@@ -443,7 +443,7 @@ STANDARD_IGNORES(Xapian, WritableDatabase)
 %include <xapian/database.h>
 %extend Xapian::Database {
     static size_t check(std::string_view path, int opts = 0) {
-	return Xapian::Database::check(path, opts, opts ? &std::cout : NULL);
+        return Xapian::Database::check(path, opts, opts ? &std::cout : NULL);
     }
 }
 
@@ -464,24 +464,24 @@ class Remote {
     ~Remote();
   public:
     static Database open(const std::string &host,
-			 unsigned int port,
-			 unsigned timeout = 10000,
-			 unsigned connect_timeout = 10000);
+                         unsigned int port,
+                         unsigned timeout = 10000,
+                         unsigned connect_timeout = 10000);
 
     static WritableDatabase open_writable(const std::string &host,
-					  unsigned int port,
-					  unsigned timeout = 0,
-					  unsigned connect_timeout = 10000,
-					  int flags = 0);
+                                          unsigned int port,
+                                          unsigned timeout = 0,
+                                          unsigned connect_timeout = 10000,
+                                          int flags = 0);
 
     static Database open(const std::string &program,
-			 const std::string &args,
-			 unsigned timeout = 10000);
+                         const std::string &args,
+                         unsigned timeout = 10000);
 
     static WritableDatabase open_writable(const std::string &program,
-					  const std::string &args,
-					  unsigned timeout = 0,
-					  int flags = 0);
+                                          const std::string &args,
+                                          unsigned timeout = 0,
+                                          int flags = 0);
 };
 
 }

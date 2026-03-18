@@ -67,11 +67,11 @@ bool
 command_needs_shell(const char * p)
 {
     for ( ; *p; ++p) {
-	// Probably overly conservative, but suitable for
-	// real-world cases.
-	if (strchr("!\"#$&()*;<>?[\\]^`{|}~", *p) != NULL) {
-	    return true;
-	}
+        // Probably overly conservative, but suitable for
+        // real-world cases.
+        if (strchr("!\"#$&()*;<>?[\\]^`{|}~", *p) != NULL) {
+            return true;
+        }
     }
     return false;
 }
@@ -82,40 +82,40 @@ unquote(string & s, size_t & j)
     bool quoted = false;
     if (s[j] == '\'') {
 single_quoted:
-	quoted = true;
-	s.erase(j, 1);
-	while (true) {
-	    j = s.find('\'', j + 1);
-	    if (j == s.npos) {
-		// Unmatched ' in command string.
-		// dash exits 2 in this case, bash exits 1.
-		throw ReadError(2 << 8);
-	    }
-	    // Replace four character sequence '\'' with ' - this is
-	    // how a single quote inside single quotes gets escaped.
-	    if (s[j + 1] != '\\' ||
-		s[j + 2] != '\'' ||
-		s[j + 3] != '\'') {
-		break;
-	    }
-	    s.erase(j + 1, 3);
-	}
-	if (j + 1 != s.size()) {
-	    char ch = s[j + 1];
-	    if (ch != ' ' && ch != '\t' && ch != '\n') {
-		// Handle the expansion of e.g.: --input=%f,html
-		s.erase(j, 1);
-		goto out_of_quotes;
-	    }
-	}
+        quoted = true;
+        s.erase(j, 1);
+        while (true) {
+            j = s.find('\'', j + 1);
+            if (j == s.npos) {
+                // Unmatched ' in command string.
+                // dash exits 2 in this case, bash exits 1.
+                throw ReadError(2 << 8);
+            }
+            // Replace four character sequence '\'' with ' - this is
+            // how a single quote inside single quotes gets escaped.
+            if (s[j + 1] != '\\' ||
+                s[j + 2] != '\'' ||
+                s[j + 3] != '\'') {
+                break;
+            }
+            s.erase(j + 1, 3);
+        }
+        if (j + 1 != s.size()) {
+            char ch = s[j + 1];
+            if (ch != ' ' && ch != '\t' && ch != '\n') {
+                // Handle the expansion of e.g.: --input=%f,html
+                s.erase(j, 1);
+                goto out_of_quotes;
+            }
+        }
     } else {
 out_of_quotes:
-	j = s.find_first_of(" \t\n'", j + 1);
-	// Handle the expansion of e.g.: --input=%f
-	if (j != s.npos && s[j] == '\'') goto single_quoted;
+        j = s.find_first_of(" \t\n'", j + 1);
+        // Handle the expansion of e.g.: --input=%f
+        if (j != s.npos && s[j] == '\'') goto single_quoted;
     }
     if (j != s.npos) {
-	s[j++] = '\0';
+        s[j++] = '\0';
     }
     return quoted;
 }
@@ -134,24 +134,24 @@ static void
 handle_signal(int signum)
 {
     if (pid_to_kill_on_signal) {
-	kill(pid_to_kill_on_signal, SIGKILL);
-	pid_to_kill_on_signal = 0;
+        kill(pid_to_kill_on_signal, SIGKILL);
+        pid_to_kill_on_signal = 0;
     }
     switch (signum) {
-	case SIGHUP:
-	    sigaction(signum, &old_hup_handler, NULL);
-	    break;
-	case SIGINT:
-	    sigaction(signum, &old_int_handler, NULL);
-	    break;
-	case SIGQUIT:
-	    sigaction(signum, &old_quit_handler, NULL);
-	    break;
-	case SIGTERM:
-	    sigaction(signum, &old_term_handler, NULL);
-	    break;
-	default:
-	    return;
+        case SIGHUP:
+            sigaction(signum, &old_hup_handler, NULL);
+            break;
+        case SIGINT:
+            sigaction(signum, &old_int_handler, NULL);
+            break;
+        case SIGQUIT:
+            sigaction(signum, &old_quit_handler, NULL);
+            break;
+        case SIGTERM:
+            sigaction(signum, &old_term_handler, NULL);
+            break;
+        default:
+            return;
     }
     raise(signum);
 }
@@ -183,24 +183,24 @@ static void
 handle_signal(int signum)
 {
     if (pid_to_kill_on_signal) {
-	kill(pid_to_kill_on_signal, SIGKILL);
-	pid_to_kill_on_signal = 0;
+        kill(pid_to_kill_on_signal, SIGKILL);
+        pid_to_kill_on_signal = 0;
     }
     switch (signum) {
-	case SIGHUP:
-	    signal(signum, old_hup_handler);
-	    break;
-	case SIGINT:
-	    signal(signum, old_int_handler);
-	    break;
-	case SIGQUIT:
-	    signal(signum, old_quit_handler);
-	    break;
-	case SIGTERM:
-	    signal(signum, old_term_handler);
-	    break;
-	default:
-	    return;
+        case SIGHUP:
+            signal(signum, old_hup_handler);
+            break;
+        case SIGINT:
+            signal(signum, old_int_handler);
+            break;
+        case SIGQUIT:
+            signal(signum, old_quit_handler);
+            break;
+        case SIGTERM:
+            signal(signum, old_term_handler);
+            break;
+        default:
+            return;
     }
     raise(signum);
 }
@@ -238,15 +238,15 @@ runfilter_init()
 #ifndef __WIN32__
     devnull = open("/dev/null", O_WRONLY);
     if (devnull < 0) {
-	cerr << "Failed to open /dev/null: " << strerror(errno) << endl;
-	exit(1);
+        cerr << "Failed to open /dev/null: " << strerror(errno) << endl;
+        exit(1);
     }
     // Ensure that devnull isn't fd 0, 1 or 2 (stdin, stdout or stderr) and
     // that we have open fds for stdin, stdout and stderr.  This simplifies the
     // code after fork() because it doesn't need to worry about such corner
     // cases.
     while (devnull <= 2) {
-	devnull = dup(devnull);
+        devnull = dup(devnull);
     }
 #endif
 }
@@ -260,73 +260,73 @@ run_filter(int fd_in, const char* const cmd[], string* out, int alt_status)
 
     int fds[2];
     if (socketpair(AF_UNIX, SOCK_STREAM, PF_UNSPEC, fds) < 0)
-	throw ReadError("socketpair failed");
+        throw ReadError("socketpair failed");
     // Ensure fds[1] != 0 to simplify handling in child process.
     if (rare(fds[1] == 0)) swap(fds[0], fds[1]);
 
     pid_t child = fork();
     if (child == 0) {
-	// We're the child process.
+        // We're the child process.
 
 #ifdef HAVE_SETPGID
-	// Put the child process into its own process group, so that we can
-	// easily kill it and any children it in turn forks if we need to.
-	setpgid(0, 0);
+        // Put the child process into its own process group, so that we can
+        // easily kill it and any children it in turn forks if we need to.
+        setpgid(0, 0);
 #endif
 
-	// Close the parent's side of the socket pair.
-	close(fds[0]);
+        // Close the parent's side of the socket pair.
+        close(fds[0]);
 
-	if (fd_in > -1) {
-	    // Connect piped input to stdin if it's not already fd 0.
-	    if (fd_in != 0) {
-		dup2(fd_in, 0);
-		close(fd_in);
-	    }
-	}
+        if (fd_in > -1) {
+            // Connect piped input to stdin if it's not already fd 0.
+            if (fd_in != 0) {
+                dup2(fd_in, 0);
+                close(fd_in);
+            }
+        }
 
-	// Connect stdout to our side of the socket pair.
-	dup2(fds[1], 1);
+        // Connect stdout to our side of the socket pair.
+        dup2(fds[1], 1);
 
-	// Close extraneous file descriptors (but leave stderr alone).
-	closefrom(3);
+        // Close extraneous file descriptors (but leave stderr alone).
+        closefrom(3);
 
 #ifdef HAVE_SETRLIMIT
-	// Impose some pretty generous resource limits to prevent run-away
-	// filter programs from causing problems.
+        // Impose some pretty generous resource limits to prevent run-away
+        // filter programs from causing problems.
 
-	// Limit CPU time to 300 seconds (5 minutes).
-	struct rlimit cpu_limit = { 300, RLIM_INFINITY };
-	setrlimit(RLIMIT_CPU, &cpu_limit);
+        // Limit CPU time to 300 seconds (5 minutes).
+        struct rlimit cpu_limit = { 300, RLIM_INFINITY };
+        setrlimit(RLIMIT_CPU, &cpu_limit);
 
 #if defined RLIMIT_AS || defined RLIMIT_VMEM || defined RLIMIT_DATA
-	// Limit process data to free physical memory.
-	long mem = get_free_physical_memory();
-	if (mem > 0) {
-	    struct rlimit ram_limit = {
-		static_cast<rlim_t>(mem),
-		RLIM_INFINITY
-	    };
-	    // FIXME: setrlimit() is not listed in signal-safety(7) as safe to
-	    // call between fork() and exec...
+        // Limit process data to free physical memory.
+        long mem = get_free_physical_memory();
+        if (mem > 0) {
+            struct rlimit ram_limit = {
+                static_cast<rlim_t>(mem),
+                RLIM_INFINITY
+            };
+            // FIXME: setrlimit() is not listed in signal-safety(7) as safe to
+            // call between fork() and exec...
 #ifdef RLIMIT_AS
-	    setrlimit(RLIMIT_AS, &ram_limit);
+            setrlimit(RLIMIT_AS, &ram_limit);
 #elif defined RLIMIT_VMEM
-	    setrlimit(RLIMIT_VMEM, &ram_limit);
+            setrlimit(RLIMIT_VMEM, &ram_limit);
 #else
-	    // Only limits the data segment rather than the total address
-	    // space, but that's better than nothing.
-	    setrlimit(RLIMIT_DATA, &ram_limit);
+            // Only limits the data segment rather than the total address
+            // space, but that's better than nothing.
+            setrlimit(RLIMIT_DATA, &ram_limit);
 #endif
-	}
+        }
 #endif
 #endif
 
-	execvp(cmd[0], const_cast<char **>(cmd));
-	// Emulate shell behaviour and exit with status 127 if the command
-	// isn't found, and status 126 for other problems.  In particular, we
-	// rely on 127 below to throw NoSuchFilter.
-	_exit(errno == ENOENT ? 127 : 126);
+        execvp(cmd[0], const_cast<char **>(cmd));
+        // Emulate shell behaviour and exit with status 127 if the command
+        // isn't found, and status 126 for other problems.  In particular, we
+        // rely on 127 below to throw NoSuchFilter.
+        _exit(errno == ENOENT ? 127 : 126);
     }
 
     // We're the parent process.
@@ -339,9 +339,9 @@ run_filter(int fd_in, const char* const cmd[], string* out, int alt_status)
     // Close the child's side of the socket pair.
     close(fds[1]);
     if (child == -1) {
-	// fork() failed.
-	close(fds[0]);
-	throw ReadError("fork failed");
+        // fork() failed.
+        close(fds[0]);
+        throw ReadError("fork failed");
     }
 
     int fd = fds[0];
@@ -349,55 +349,55 @@ run_filter(int fd_in, const char* const cmd[], string* out, int alt_status)
     fd_set readfds;
     FD_ZERO(&readfds);
     while (true) {
-	// If we wait 300 seconds (5 minutes) without getting data from the
-	// filter, then give up to avoid waiting forever for a filter which
-	// has ended up blocked waiting for something which will never happen.
-	struct timeval tv;
-	tv.tv_sec = 300;
-	tv.tv_usec = 0;
-	FD_SET(fd, &readfds);
-	int r = select(fd + 1, &readfds, NULL, NULL, &tv);
-	if (r <= 0) {
-	    if (r < 0) {
-		if (errno == EINTR || errno == EAGAIN) {
-		    // select() interrupted by a signal, so retry.
-		    continue;
-		}
-		cerr << "Reading from filter failed (" << strerror(errno) << ")"
-		     << endl;
-	    } else {
-		cerr << "Filter inactive for too long" << endl;
-	    }
+        // If we wait 300 seconds (5 minutes) without getting data from the
+        // filter, then give up to avoid waiting forever for a filter which
+        // has ended up blocked waiting for something which will never happen.
+        struct timeval tv;
+        tv.tv_sec = 300;
+        tv.tv_usec = 0;
+        FD_SET(fd, &readfds);
+        int r = select(fd + 1, &readfds, NULL, NULL, &tv);
+        if (r <= 0) {
+            if (r < 0) {
+                if (errno == EINTR || errno == EAGAIN) {
+                    // select() interrupted by a signal, so retry.
+                    continue;
+                }
+                cerr << "Reading from filter failed (" << strerror(errno) << ")"
+                     << endl;
+            } else {
+                cerr << "Filter inactive for too long" << endl;
+            }
 #ifdef HAVE_SETPGID
-	    kill(-child, SIGKILL);
+            kill(-child, SIGKILL);
 #else
-	    kill(child, SIGKILL);
+            kill(child, SIGKILL);
 #endif
-	    close(fd);
-	    int status = 0;
-	    while (waitpid(child, &status, 0) < 0 && errno == EINTR) { }
-	    pid_to_kill_on_signal = 0;
-	    throw ReadError(status);
-	}
+            close(fd);
+            int status = 0;
+            while (waitpid(child, &status, 0) < 0 && errno == EINTR) { }
+            pid_to_kill_on_signal = 0;
+            throw ReadError(status);
+        }
 
-	char buf[4096];
-	ssize_t res = read(fd, buf, sizeof(buf));
-	if (res == 0) break;
-	if (res == -1) {
-	    if (errno == EINTR) {
-		// read() interrupted by a signal, so retry.
-		continue;
-	    }
-	    close(fd);
+        char buf[4096];
+        ssize_t res = read(fd, buf, sizeof(buf));
+        if (res == 0) break;
+        if (res == -1) {
+            if (errno == EINTR) {
+                // read() interrupted by a signal, so retry.
+                continue;
+            }
+            close(fd);
 #ifdef HAVE_SETPGID
-	    kill(-child, SIGKILL);
+            kill(-child, SIGKILL);
 #endif
-	    int status = 0;
-	    while (waitpid(child, &status, 0) < 0 && errno == EINTR) { }
-	    pid_to_kill_on_signal = 0;
-	    throw ReadError(status);
-	}
-	if (out) out->append(buf, res);
+            int status = 0;
+            while (waitpid(child, &status, 0) < 0 && errno == EINTR) { }
+            pid_to_kill_on_signal = 0;
+            throw ReadError(status);
+        }
+        if (out) out->append(buf, res);
     }
 
     close(fd);
@@ -406,21 +406,21 @@ run_filter(int fd_in, const char* const cmd[], string* out, int alt_status)
 #endif
     int status = 0;
     while (waitpid(child, &status, 0) < 0) {
-	if (errno != EINTR)
-	    throw ReadError("wait pid failed");
+        if (errno != EINTR)
+            throw ReadError("wait pid failed");
     }
     pid_to_kill_on_signal = 0;
 
     if (WIFEXITED(status)) {
-	int exit_status = WEXITSTATUS(status);
-	if (exit_status == 0 || exit_status == alt_status)
-	    return;
-	if (exit_status == 127)
-	    throw NoSuchFilter();
+        int exit_status = WEXITSTATUS(status);
+        if (exit_status == 0 || exit_status == alt_status)
+            return;
+        if (exit_status == 127)
+            throw NoSuchFilter();
     }
 # ifdef SIGXCPU
     if (WIFSIGNALED(status) && WTERMSIG(status) == SIGXCPU) {
-	cerr << "Filter process consumed too much CPU time" << endl;
+        cerr << "Filter process consumed too much CPU time" << endl;
     }
 # endif
 #else
@@ -431,34 +431,34 @@ run_filter(int fd_in, const char* const cmd[], string* out, int alt_status)
     QueryPerformanceCounter(&counter);
     char pipename[256];
     snprintf(pipename, sizeof(pipename),
-	     "\\\\.\\pipe\\xapian-omega-filter-%lx-%lx_%" PRIx64,
-	     static_cast<unsigned long>(GetCurrentProcessId()),
-	     static_cast<unsigned long>(GetCurrentThreadId()),
-	     static_cast<unsigned long long>(counter.QuadPart));
+             "\\\\.\\pipe\\xapian-omega-filter-%lx-%lx_%" PRIx64,
+             static_cast<unsigned long>(GetCurrentProcessId()),
+             static_cast<unsigned long>(GetCurrentThreadId()),
+             static_cast<unsigned long long>(counter.QuadPart));
     pipename[sizeof(pipename) - 1] = '\0';
     // Create a pipe so we can read stdout from the child process.
     HANDLE hPipe = CreateNamedPipe(pipename,
-				   PIPE_ACCESS_DUPLEX|FILE_FLAG_OVERLAPPED,
-				   0,
-				   1, 4096, 4096, NMPWAIT_USE_DEFAULT_WAIT,
-				   NULL);
+                                   PIPE_ACCESS_DUPLEX|FILE_FLAG_OVERLAPPED,
+                                   0,
+                                   1, 4096, 4096, NMPWAIT_USE_DEFAULT_WAIT,
+                                   NULL);
 
     if (hPipe == INVALID_HANDLE_VALUE) {
-	throw ReadError("CreateNamedPipe failed");
+        throw ReadError("CreateNamedPipe failed");
     }
 
     HANDLE hClient = CreateFile(pipename,
-				GENERIC_READ|GENERIC_WRITE, 0, NULL,
-				OPEN_EXISTING,
-				FILE_FLAG_OVERLAPPED, NULL);
+                                GENERIC_READ|GENERIC_WRITE, 0, NULL,
+                                OPEN_EXISTING,
+                                FILE_FLAG_OVERLAPPED, NULL);
 
     if (hClient == INVALID_HANDLE_VALUE) {
-	throw ReadError("CreateFile failed");
+        throw ReadError("CreateFile failed");
     }
 
     if (!ConnectNamedPipe(hPipe, NULL) &&
-	GetLastError() != ERROR_PIPE_CONNECTED) {
-	throw ReadError("ConnectNamedPipe failed");
+        GetLastError() != ERROR_PIPE_CONNECTED) {
+        throw ReadError("ConnectNamedPipe failed");
     }
 
     // Set the appropriate handles to be inherited by the child process.
@@ -481,16 +481,16 @@ run_filter(int fd_in, const char* const cmd[], string* out, int alt_status)
 
     string cmdline;
     for (auto i = cmd; *i; ++i) {
-	append_filename_argument(cmdline, *i, (i != cmd));
+        append_filename_argument(cmdline, *i, (i != cmd));
     }
     // For some reason Windows wants a modifiable command line so we
     // pass `&cmdline[0]` rather than `cmdline.c_str()`.
     if (!CreateProcess(NULL, &cmdline[0],
-		       0, 0, TRUE, 0, 0, 0,
-		       &startupinfo, &procinfo)) {
-	if (GetLastError() == ERROR_FILE_NOT_FOUND)
-	    throw NoSuchFilter();
-	throw ReadError("CreateProcess failed");
+                       0, 0, TRUE, 0, 0, 0,
+                       &startupinfo, &procinfo)) {
+        if (GetLastError() == ERROR_FILE_NOT_FOUND)
+            throw NoSuchFilter();
+        throw ReadError("CreateProcess failed");
     }
 
     CloseHandle(hClient);
@@ -498,26 +498,26 @@ run_filter(int fd_in, const char* const cmd[], string* out, int alt_status)
     HANDLE child = procinfo.hProcess;
 
     while (true) {
-	char buf[4096];
-	DWORD received;
-	if (!ReadFile(hPipe, buf, sizeof(buf), &received, NULL)) {
-	    throw ReadError("ReadFile failed");
-	}
-	if (received == 0) break;
+        char buf[4096];
+        DWORD received;
+        if (!ReadFile(hPipe, buf, sizeof(buf), &received, NULL)) {
+            throw ReadError("ReadFile failed");
+        }
+        if (received == 0) break;
 
-	if (out) out->append(buf, received);
+        if (out) out->append(buf, received);
     }
     CloseHandle(hPipe);
 
     WaitForSingleObject(child, INFINITE);
     DWORD rc;
     while (GetExitCodeProcess(child, &rc) && rc == STILL_ACTIVE) {
-	Sleep(100);
+        Sleep(100);
     }
     CloseHandle(child);
     int status = int(rc);
     if (status == 0 || status == alt_status)
-	return;
+        return;
 
 #endif
     throw ReadError(status);
@@ -525,7 +525,7 @@ run_filter(int fd_in, const char* const cmd[], string* out, int alt_status)
 
 void
 run_filter(int fd_in, const string& cmd, bool use_shell, string* out,
-	   int alt_status)
+           int alt_status)
 {
 #if defined HAVE_FORK && defined HAVE_SOCKETPAIR
     // We want to be able to get the exit status of the child process.
@@ -533,7 +533,7 @@ run_filter(int fd_in, const string& cmd, bool use_shell, string* out,
 
     int fds[2];
     if (socketpair(AF_UNIX, SOCK_STREAM, PF_UNSPEC, fds) < 0)
-	throw ReadError("socketpair failed");
+        throw ReadError("socketpair failed");
     // Ensure fds[1] != 0 to simplify handling in child process.
     if (rare(fds[1] == 0)) swap(fds[0], fds[1]);
 
@@ -542,142 +542,142 @@ run_filter(int fd_in, const string& cmd, bool use_shell, string* out,
     vector<pair<const char *, const char*>> env;
     vector<pair<int, int>> dups;
     if (!use_shell) {
-	// Parse the command line before we fork() it's not safe to call
-	// malloc() between fork() and exec and std::string and std::vector
-	// creation is likely to need to allocate memory.
-	//
-	// FIXME: Maybe we should do this once per command and cache the
-	// results.
-	s = cmd;
-	// Handle any environment variable assignments.
-	// Name must start with alpha or '_', contain only alphanumerics and
-	// '_', and there must be no quoting of either the name or the '='.
-	size_t j = 0;
-	while (true) {
-	    j = s.find_first_not_of(" \t\n", j);
-	    if (!(C_isalpha(s[j]) || s[j] == '_')) break;
-	    size_t i = j;
-	    do ++j; while (C_isalnum(s[j]) || s[j] == '_');
-	    if (s[j] != '=') {
-		j = i;
-		break;
-	    }
+        // Parse the command line before we fork() it's not safe to call
+        // malloc() between fork() and exec and std::string and std::vector
+        // creation is likely to need to allocate memory.
+        //
+        // FIXME: Maybe we should do this once per command and cache the
+        // results.
+        s = cmd;
+        // Handle any environment variable assignments.
+        // Name must start with alpha or '_', contain only alphanumerics and
+        // '_', and there must be no quoting of either the name or the '='.
+        size_t j = 0;
+        while (true) {
+            j = s.find_first_not_of(" \t\n", j);
+            if (!(C_isalpha(s[j]) || s[j] == '_')) break;
+            size_t i = j;
+            do ++j; while (C_isalnum(s[j]) || s[j] == '_');
+            if (s[j] != '=') {
+                j = i;
+                break;
+            }
 
-	    size_t eq = j;
-	    unquote(s, j);
-	    s[eq] = '\0';
-	    env.emplace_back(&s[i], &s[eq + 1]);
-	    j = s.find_first_not_of(" \t\n", j);
-	}
+            size_t eq = j;
+            unquote(s, j);
+            s[eq] = '\0';
+            env.emplace_back(&s[i], &s[eq + 1]);
+            j = s.find_first_not_of(" \t\n", j);
+        }
 
-	while (true) {
-	    size_t i = s.find_first_not_of(" \t\n", j);
-	    if (i == string::npos) break;
-	    bool quoted = unquote(s, j);
-	    const char * word = s.c_str() + i;
-	    if (!quoted) {
-		// Handle simple cases of redirection.
-		if (strcmp(word, ">/dev/null") == 0) {
-		    dups.emplace_back(devnull, 1);
-		    continue;
-		}
-		if (strcmp(word, "2>/dev/null") == 0) {
-		    dups.emplace_back(devnull, 2);
-		    continue;
-		}
-		if (strcmp(word, "2>&1") == 0) {
-		    dups.emplace_back(1, 2);
-		    continue;
-		}
-		if (strcmp(word, "1>&2") == 0) {
-		    dups.emplace_back(2, 1);
-		    continue;
-		}
-	    }
-	    argv.push_back(word);
-	}
-	if (argv.empty()) return; // Empty command!
-	argv.push_back(NULL);
+        while (true) {
+            size_t i = s.find_first_not_of(" \t\n", j);
+            if (i == string::npos) break;
+            bool quoted = unquote(s, j);
+            const char * word = s.c_str() + i;
+            if (!quoted) {
+                // Handle simple cases of redirection.
+                if (strcmp(word, ">/dev/null") == 0) {
+                    dups.emplace_back(devnull, 1);
+                    continue;
+                }
+                if (strcmp(word, "2>/dev/null") == 0) {
+                    dups.emplace_back(devnull, 2);
+                    continue;
+                }
+                if (strcmp(word, "2>&1") == 0) {
+                    dups.emplace_back(1, 2);
+                    continue;
+                }
+                if (strcmp(word, "1>&2") == 0) {
+                    dups.emplace_back(2, 1);
+                    continue;
+                }
+            }
+            argv.push_back(word);
+        }
+        if (argv.empty()) return; // Empty command!
+        argv.push_back(NULL);
     }
 
     pid_t child = fork();
     if (child == 0) {
-	// We're the child process.
+        // We're the child process.
 
 #ifdef HAVE_SETPGID
-	// Put the child process into its own process group, so that we can
-	// easily kill it and any children it in turn forks if we need to.
-	setpgid(0, 0);
+        // Put the child process into its own process group, so that we can
+        // easily kill it and any children it in turn forks if we need to.
+        setpgid(0, 0);
 #endif
 
-	// Close the parent's side of the socket pair.
-	close(fds[0]);
+        // Close the parent's side of the socket pair.
+        close(fds[0]);
 
-	if (fd_in > -1) {
-	    // Connect piped input to stdin if it's not already fd 0.
-	    if (fd_in != 0) {
-		dup2(fd_in, 0);
-		close(fd_in);
-	    }
-	}
+        if (fd_in > -1) {
+            // Connect piped input to stdin if it's not already fd 0.
+            if (fd_in != 0) {
+                dup2(fd_in, 0);
+                close(fd_in);
+            }
+        }
 
-	// Connect stdout to our side of the socket pair.
-	dup2(fds[1], 1);
+        // Connect stdout to our side of the socket pair.
+        dup2(fds[1], 1);
 
-	// Close extraneous file descriptors (but leave stderr alone).
-	closefrom(3);
+        // Close extraneous file descriptors (but leave stderr alone).
+        closefrom(3);
 
 #ifdef HAVE_SETRLIMIT
-	// Impose some pretty generous resource limits to prevent run-away
-	// filter programs from causing problems.
+        // Impose some pretty generous resource limits to prevent run-away
+        // filter programs from causing problems.
 
-	// Limit CPU time to 300 seconds (5 minutes).
-	struct rlimit cpu_limit = { 300, RLIM_INFINITY };
-	setrlimit(RLIMIT_CPU, &cpu_limit);
+        // Limit CPU time to 300 seconds (5 minutes).
+        struct rlimit cpu_limit = { 300, RLIM_INFINITY };
+        setrlimit(RLIMIT_CPU, &cpu_limit);
 
 #if defined RLIMIT_AS || defined RLIMIT_VMEM || defined RLIMIT_DATA
-	// Limit process data to free physical memory.
-	long mem = get_free_physical_memory();
-	if (mem > 0) {
-	    struct rlimit ram_limit = {
-		static_cast<rlim_t>(mem),
-		RLIM_INFINITY
-	    };
-	    // FIXME: setrlimit() is not listed in signal-safety(7) as safe to
-	    // call between fork() and exec...
+        // Limit process data to free physical memory.
+        long mem = get_free_physical_memory();
+        if (mem > 0) {
+            struct rlimit ram_limit = {
+                static_cast<rlim_t>(mem),
+                RLIM_INFINITY
+            };
+            // FIXME: setrlimit() is not listed in signal-safety(7) as safe to
+            // call between fork() and exec...
 #ifdef RLIMIT_AS
-	    setrlimit(RLIMIT_AS, &ram_limit);
+            setrlimit(RLIMIT_AS, &ram_limit);
 #elif defined RLIMIT_VMEM
-	    setrlimit(RLIMIT_VMEM, &ram_limit);
+            setrlimit(RLIMIT_VMEM, &ram_limit);
 #else
-	    // Only limits the data segment rather than the total address
-	    // space, but that's better than nothing.
-	    setrlimit(RLIMIT_DATA, &ram_limit);
+            // Only limits the data segment rather than the total address
+            // space, but that's better than nothing.
+            setrlimit(RLIMIT_DATA, &ram_limit);
 #endif
-	}
+        }
 #endif
 #endif
 
-	if (use_shell) {
-	    execl("/bin/sh", "/bin/sh", "-c", cmd.c_str(), (void*)NULL);
-	    _exit(-1);
-	}
+        if (use_shell) {
+            execl("/bin/sh", "/bin/sh", "-c", cmd.c_str(), (void*)NULL);
+            _exit(-1);
+        }
 
-	// Process any environment variable assignments.
-	for (auto& e : env) {
-	    setenv(e.first, e.second, 1);
-	}
+        // Process any environment variable assignments.
+        for (auto& e : env) {
+            setenv(e.first, e.second, 1);
+        }
 
-	// Process any redirections.
-	for (auto& d : dups) {
-	    dup2(d.first, d.second);
-	}
+        // Process any redirections.
+        for (auto& d : dups) {
+            dup2(d.first, d.second);
+        }
 
-	execvp(argv[0], const_cast<char **>(&argv[0]));
-	// Emulate shell behaviour and exit with status 127 if the command
-	// isn't found, and status 126 for other problems.  In particular, we
-	// rely on 127 below to throw NoSuchFilter.
-	_exit(errno == ENOENT ? 127 : 126);
+        execvp(argv[0], const_cast<char **>(&argv[0]));
+        // Emulate shell behaviour and exit with status 127 if the command
+        // isn't found, and status 126 for other problems.  In particular, we
+        // rely on 127 below to throw NoSuchFilter.
+        _exit(errno == ENOENT ? 127 : 126);
     }
 
     // We're the parent process.
@@ -690,9 +690,9 @@ run_filter(int fd_in, const string& cmd, bool use_shell, string* out,
     // Close the child's side of the socket pair.
     close(fds[1]);
     if (child == -1) {
-	// fork() failed.
-	close(fds[0]);
-	throw ReadError("fork failed");
+        // fork() failed.
+        close(fds[0]);
+        throw ReadError("fork failed");
     }
 
     int fd = fds[0];
@@ -700,55 +700,55 @@ run_filter(int fd_in, const string& cmd, bool use_shell, string* out,
     fd_set readfds;
     FD_ZERO(&readfds);
     while (true) {
-	// If we wait 300 seconds (5 minutes) without getting data from the
-	// filter, then give up to avoid waiting forever for a filter which
-	// has ended up blocked waiting for something which will never happen.
-	struct timeval tv;
-	tv.tv_sec = 300;
-	tv.tv_usec = 0;
-	FD_SET(fd, &readfds);
-	int r = select(fd + 1, &readfds, NULL, NULL, &tv);
-	if (r <= 0) {
-	    if (r < 0) {
-		if (errno == EINTR || errno == EAGAIN) {
-		    // select() interrupted by a signal, so retry.
-		    continue;
-		}
-		cerr << "Reading from filter failed (" << strerror(errno) << ")"
-		     << endl;
-	    } else {
-		cerr << "Filter inactive for too long" << endl;
-	    }
+        // If we wait 300 seconds (5 minutes) without getting data from the
+        // filter, then give up to avoid waiting forever for a filter which
+        // has ended up blocked waiting for something which will never happen.
+        struct timeval tv;
+        tv.tv_sec = 300;
+        tv.tv_usec = 0;
+        FD_SET(fd, &readfds);
+        int r = select(fd + 1, &readfds, NULL, NULL, &tv);
+        if (r <= 0) {
+            if (r < 0) {
+                if (errno == EINTR || errno == EAGAIN) {
+                    // select() interrupted by a signal, so retry.
+                    continue;
+                }
+                cerr << "Reading from filter failed (" << strerror(errno) << ")"
+                     << endl;
+            } else {
+                cerr << "Filter inactive for too long" << endl;
+            }
 #ifdef HAVE_SETPGID
-	    kill(-child, SIGKILL);
+            kill(-child, SIGKILL);
 #else
-	    kill(child, SIGKILL);
+            kill(child, SIGKILL);
 #endif
-	    close(fd);
-	    int status = 0;
-	    while (waitpid(child, &status, 0) < 0 && errno == EINTR) { }
-	    pid_to_kill_on_signal = 0;
-	    throw ReadError(status);
-	}
+            close(fd);
+            int status = 0;
+            while (waitpid(child, &status, 0) < 0 && errno == EINTR) { }
+            pid_to_kill_on_signal = 0;
+            throw ReadError(status);
+        }
 
-	char buf[4096];
-	ssize_t res = read(fd, buf, sizeof(buf));
-	if (res == 0) break;
-	if (res == -1) {
-	    if (errno == EINTR) {
-		// read() interrupted by a signal, so retry.
-		continue;
-	    }
-	    close(fd);
+        char buf[4096];
+        ssize_t res = read(fd, buf, sizeof(buf));
+        if (res == 0) break;
+        if (res == -1) {
+            if (errno == EINTR) {
+                // read() interrupted by a signal, so retry.
+                continue;
+            }
+            close(fd);
 #ifdef HAVE_SETPGID
-	    kill(-child, SIGKILL);
+            kill(-child, SIGKILL);
 #endif
-	    int status = 0;
-	    while (waitpid(child, &status, 0) < 0 && errno == EINTR) { }
-	    pid_to_kill_on_signal = 0;
-	    throw ReadError(status);
-	}
-	if (out) out->append(buf, res);
+            int status = 0;
+            while (waitpid(child, &status, 0) < 0 && errno == EINTR) { }
+            pid_to_kill_on_signal = 0;
+            throw ReadError(status);
+        }
+        if (out) out->append(buf, res);
     }
 
     close(fd);
@@ -757,21 +757,21 @@ run_filter(int fd_in, const string& cmd, bool use_shell, string* out,
 #endif
     int status = 0;
     while (waitpid(child, &status, 0) < 0) {
-	if (errno != EINTR)
-	    throw ReadError("wait pid failed");
+        if (errno != EINTR)
+            throw ReadError("wait pid failed");
     }
     pid_to_kill_on_signal = 0;
 
     if (WIFEXITED(status)) {
-	int exit_status = WEXITSTATUS(status);
-	if (exit_status == 0 || exit_status == alt_status)
-	    return;
-	if (exit_status == 127)
-	    throw NoSuchFilter();
+        int exit_status = WEXITSTATUS(status);
+        if (exit_status == 0 || exit_status == alt_status)
+            return;
+        if (exit_status == 127)
+            throw NoSuchFilter();
     }
 # ifdef SIGXCPU
     if (WIFSIGNALED(status) && WTERMSIG(status) == SIGXCPU) {
-	cerr << "Filter process consumed too much CPU time" << endl;
+        cerr << "Filter process consumed too much CPU time" << endl;
     }
 # endif
 #else
@@ -783,34 +783,34 @@ run_filter(int fd_in, const string& cmd, bool use_shell, string* out,
     QueryPerformanceCounter(&counter);
     char pipename[256];
     snprintf(pipename, sizeof(pipename),
-	     "\\\\.\\pipe\\xapian-omega-filter-%lx-%lx_%" PRIx64,
-	     static_cast<unsigned long>(GetCurrentProcessId()),
-	     static_cast<unsigned long>(GetCurrentThreadId()),
-	     static_cast<unsigned long long>(counter.QuadPart));
+             "\\\\.\\pipe\\xapian-omega-filter-%lx-%lx_%" PRIx64,
+             static_cast<unsigned long>(GetCurrentProcessId()),
+             static_cast<unsigned long>(GetCurrentThreadId()),
+             static_cast<unsigned long long>(counter.QuadPart));
     pipename[sizeof(pipename) - 1] = '\0';
     // Create a pipe so we can read stdout from the child process.
     HANDLE hPipe = CreateNamedPipe(pipename,
-				   PIPE_ACCESS_DUPLEX|FILE_FLAG_OVERLAPPED,
-				   0,
-				   1, 4096, 4096, NMPWAIT_USE_DEFAULT_WAIT,
-				   NULL);
+                                   PIPE_ACCESS_DUPLEX|FILE_FLAG_OVERLAPPED,
+                                   0,
+                                   1, 4096, 4096, NMPWAIT_USE_DEFAULT_WAIT,
+                                   NULL);
 
     if (hPipe == INVALID_HANDLE_VALUE) {
-	throw ReadError("CreateNamedPipe failed");
+        throw ReadError("CreateNamedPipe failed");
     }
 
     HANDLE hClient = CreateFile(pipename,
-				GENERIC_READ|GENERIC_WRITE, 0, NULL,
-				OPEN_EXISTING,
-				FILE_FLAG_OVERLAPPED, NULL);
+                                GENERIC_READ|GENERIC_WRITE, 0, NULL,
+                                OPEN_EXISTING,
+                                FILE_FLAG_OVERLAPPED, NULL);
 
     if (hClient == INVALID_HANDLE_VALUE) {
-	throw ReadError("CreateFile failed");
+        throw ReadError("CreateFile failed");
     }
 
     if (!ConnectNamedPipe(hPipe, NULL) &&
-	GetLastError() != ERROR_PIPE_CONNECTED) {
-	throw ReadError("ConnectNamedPipe failed");
+        GetLastError() != ERROR_PIPE_CONNECTED) {
+        throw ReadError("ConnectNamedPipe failed");
     }
 
     // Set the appropriate handles to be inherited by the child process.
@@ -835,11 +835,11 @@ run_filter(int fd_in, const string& cmd, bool use_shell, string* out,
     // For some reason Windows wants a modifiable command line so we
     // pass `&cmdline[0]` rather than `cmdline.c_str()`.
     if (!CreateProcess(NULL, &cmdline[0],
-		       0, 0, TRUE, 0, 0, 0,
-		       &startupinfo, &procinfo)) {
-	if (GetLastError() == ERROR_FILE_NOT_FOUND)
-	    throw NoSuchFilter();
-	throw ReadError("CreateProcess failed");
+                       0, 0, TRUE, 0, 0, 0,
+                       &startupinfo, &procinfo)) {
+        if (GetLastError() == ERROR_FILE_NOT_FOUND)
+            throw NoSuchFilter();
+        throw ReadError("CreateProcess failed");
     }
 
     CloseHandle(hClient);
@@ -847,26 +847,26 @@ run_filter(int fd_in, const string& cmd, bool use_shell, string* out,
     HANDLE child = procinfo.hProcess;
 
     while (true) {
-	char buf[4096];
-	DWORD received;
-	if (!ReadFile(hPipe, buf, sizeof(buf), &received, NULL)) {
-	    throw ReadError("ReadFile failed");
-	}
-	if (received == 0) break;
+        char buf[4096];
+        DWORD received;
+        if (!ReadFile(hPipe, buf, sizeof(buf), &received, NULL)) {
+            throw ReadError("ReadFile failed");
+        }
+        if (received == 0) break;
 
-	if (out) out->append(buf, received);
+        if (out) out->append(buf, received);
     }
     CloseHandle(hPipe);
 
     WaitForSingleObject(child, INFINITE);
     DWORD rc;
     while (GetExitCodeProcess(child, &rc) && rc == STILL_ACTIVE) {
-	Sleep(100);
+        Sleep(100);
     }
     CloseHandle(child);
     int status = int(rc);
     if (status == 0 || status == alt_status)
-	return;
+        return;
 
 #endif
     throw ReadError(status);

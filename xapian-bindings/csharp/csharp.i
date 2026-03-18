@@ -88,23 +88,23 @@ namespace Xapian {
 %define WRAP_RANDOM_ITERATOR(ITOR)
 %typemap(cscode) ITOR %{
     public static ITOR operator++(ITOR it) {
-	return it.Next();
+        return it.Next();
     }
     public static ITOR operator--(ITOR it) {
-	return it.Prev();
+        return it.Prev();
     }
     public override bool Equals(object o) {
-	return o is ITOR && Equals((ITOR)o);
+        return o is ITOR && Equals((ITOR)o);
     }
     public static bool operator==(ITOR a, ITOR b) {
-	if ((object)a == (object)b) return true;
-	if ((object)a == null || (object)b == null) return false;
-	return a.Equals(b);
+        if ((object)a == (object)b) return true;
+        if ((object)a == null || (object)b == null) return false;
+        return a.Equals(b);
     }
     public static bool operator!=(ITOR a, ITOR b) {
-	if ((object)a == (object)b) return false;
-	if ((object)a == null || (object)b == null) return true;
-	return !a.Equals(b);
+        if ((object)a == (object)b) return false;
+        if ((object)a == null || (object)b == null) return true;
+        return !a.Equals(b);
     }
     // Implementing GetHashCode() to always return 0 is rather lame, but
     // using iterators as keys in a hash table would be rather strange.
@@ -115,20 +115,20 @@ namespace Xapian {
 %define WRAP_INPUT_ITERATOR(ITOR)
 %typemap(cscode) ITOR %{
     public static ITOR operator++(ITOR it) {
-	return it.Next();
+        return it.Next();
     }
     public override bool Equals(object o) {
-	return o is ITOR && Equals((ITOR)o);
+        return o is ITOR && Equals((ITOR)o);
     }
     public static bool operator==(ITOR a, ITOR b) {
-	if ((object)a == (object)b) return true;
-	if ((object)a == null || (object)b == null) return false;
-	return a.Equals(b);
+        if ((object)a == (object)b) return true;
+        if ((object)a == null || (object)b == null) return false;
+        return a.Equals(b);
     }
     public static bool operator!=(ITOR a, ITOR b) {
-	if ((object)a == (object)b) return false;
-	if ((object)a == null || (object)b == null) return true;
-	return !a.Equals(b);
+        if ((object)a == (object)b) return false;
+        if ((object)a == null || (object)b == null) return true;
+        return !a.Equals(b);
     }
     // Implementing GetHashCode() to always return 0 is rather lame, but
     // using iterators as keys in a hash table would be rather strange.

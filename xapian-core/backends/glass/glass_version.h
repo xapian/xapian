@@ -62,9 +62,9 @@ class RootInfo {
     bool get_root_is_fake() const { return root_is_fake; }
     bool get_sequential() const { return sequential; }
     unsigned get_blocksize() const {
-	AssertRel(blocksize,>=,GLASS_MIN_BLOCKSIZE);
-	AssertRel(blocksize,<=,GLASS_MAX_BLOCKSIZE);
-	return blocksize;
+        AssertRel(blocksize,>=,GLASS_MIN_BLOCKSIZE);
+        AssertRel(blocksize,<=,GLASS_MAX_BLOCKSIZE);
+        return blocksize;
     }
     uint4 get_compress_min() const { return compress_min; }
     const std::string & get_free_list() const { return fl_serialised; }
@@ -75,9 +75,9 @@ class RootInfo {
     void set_sequential(bool f) { sequential = f; }
     void set_root(glass_block_t root_) { root = root_; }
     void set_blocksize(unsigned b) {
-	AssertRel(b,>=,GLASS_MIN_BLOCKSIZE);
-	AssertRel(b,<=,GLASS_MAX_BLOCKSIZE);
-	blocksize = b;
+        AssertRel(b,>=,GLASS_MIN_BLOCKSIZE);
+        AssertRel(b,<=,GLASS_MAX_BLOCKSIZE);
+        blocksize = b;
     }
     void set_free_list(const std::string & s) { fl_serialised = s; }
 };
@@ -158,11 +158,11 @@ class GlassVersion {
 
   public:
     explicit GlassVersion(std::string_view db_dir_)
-	: rev(0), fd(-1), offset(0), db_dir(db_dir_), changes(NULL),
-	  doccount(0), total_doclen(0), last_docid(0),
-	  doclen_lbound(0), doclen_ubound(0),
-	  wdf_ubound(0), spelling_wordfreq_ubound(0),
-	  oldest_changeset(0) { }
+        : rev(0), fd(-1), offset(0), db_dir(db_dir_), changes(NULL),
+          doccount(0), total_doclen(0), last_docid(0),
+          doclen_lbound(0), doclen_ubound(0),
+          wdf_ubound(0), spelling_wordfreq_ubound(0),
+          oldest_changeset(0) { }
 
     explicit GlassVersion(int fd_);
 
@@ -184,26 +184,26 @@ class GlassVersion {
     const std::string write(glass_revision_number_t new_rev, int flags);
 
     bool sync(const std::string & tmpfile,
-	      glass_revision_number_t new_rev, int flags);
+              glass_revision_number_t new_rev, int flags);
 
     glass_revision_number_t get_revision() const { return rev; }
 
     const RootInfo & get_root(Glass::table_type tbl) const {
-	return root[tbl];
+        return root[tbl];
     }
 
     RootInfo * root_to_set(Glass::table_type tbl) {
-	return &root[tbl];
+        return &root[tbl];
     }
 
     /// Return pointer to 16 byte UUID.
     const char * get_uuid() const {
-	return uuid.data();
+        return uuid.data();
     }
 
     /// Return UUID in the standard 36 character string format.
     std::string get_uuid_string() const {
-	return uuid.to_string();
+        return uuid.to_string();
     }
 
     Xapian::doccount get_doccount() const { return doccount; }
@@ -213,61 +213,61 @@ class GlassVersion {
     Xapian::docid get_last_docid() const { return last_docid; }
 
     Xapian::termcount get_doclength_lower_bound() const {
-	return doclen_lbound;
+        return doclen_lbound;
     }
 
     Xapian::termcount get_doclength_upper_bound() const {
-	return doclen_ubound;
+        return doclen_ubound;
     }
 
     Xapian::termcount get_wdf_upper_bound() const { return wdf_ubound; }
 
     Xapian::termcount get_spelling_wordfreq_upper_bound() const {
-	return spelling_wordfreq_ubound;
+        return spelling_wordfreq_ubound;
     }
 
     glass_revision_number_t get_oldest_changeset() const {
-	return oldest_changeset;
+        return oldest_changeset;
     }
 
     Xapian::termcount get_unique_terms_lower_bound() const {
-	if (total_doclen == 0) return 0;
-	Assert(doclen_lbound != 0);
-	Assert(wdf_ubound != 0);
-	return (doclen_lbound - 1) / wdf_ubound + 1;
+        if (total_doclen == 0) return 0;
+        Assert(doclen_lbound != 0);
+        Assert(wdf_ubound != 0);
+        return (doclen_lbound - 1) / wdf_ubound + 1;
     }
 
     void set_last_docid(Xapian::docid did) { last_docid = did; }
 
     void set_oldest_changeset(glass_revision_number_t changeset) const {
-	oldest_changeset = changeset;
+        oldest_changeset = changeset;
     }
 
     void set_spelling_wordfreq_upper_bound(Xapian::termcount ub) {
-	spelling_wordfreq_ubound = ub;
+        spelling_wordfreq_ubound = ub;
     }
 
     void add_document(Xapian::termcount doclen) {
-	++doccount;
-	doclen_lbound = min_non_zero(doclen_lbound, doclen);
-	doclen_ubound = std::max(doclen_ubound, doclen);
-	total_doclen += doclen;
+        ++doccount;
+        doclen_lbound = min_non_zero(doclen_lbound, doclen);
+        doclen_ubound = std::max(doclen_ubound, doclen);
+        total_doclen += doclen;
     }
 
     void delete_document(Xapian::termcount doclen) {
-	--doccount;
-	total_doclen -= doclen;
-	// If the database no longer contains any postings, we can reset
-	// doclen_lbound, doclen_ubound and wdf_ubound.
-	if (total_doclen == 0) {
-	    doclen_lbound = 0;
-	    doclen_ubound = 0;
-	    wdf_ubound = 0;
-	}
+        --doccount;
+        total_doclen -= doclen;
+        // If the database no longer contains any postings, we can reset
+        // doclen_lbound, doclen_ubound and wdf_ubound.
+        if (total_doclen == 0) {
+            doclen_lbound = 0;
+            doclen_ubound = 0;
+            wdf_ubound = 0;
+        }
     }
 
     void check_wdf(Xapian::termcount wdf) {
-	if (wdf > wdf_ubound) wdf_ubound = wdf;
+        if (wdf > wdf_ubound) wdf_ubound = wdf;
     }
 
     Xapian::docid get_next_docid() { return ++last_docid; }

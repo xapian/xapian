@@ -78,7 +78,7 @@ using namespace std;
 
 /// Convert date <-> version number.  Dates up to 2141-12-31 fit in 2 bytes.
 #define DATE_TO_VERSION(Y,M,D) \
-	((unsigned(Y) - 2014) << 9 | unsigned(M) << 5 | unsigned(D))
+        ((unsigned(Y) - 2014) << 9 | unsigned(M) << 5 | unsigned(D))
 #define VERSION_TO_YEAR(V) ((unsigned(V) >> 9) + 2014)
 #define VERSION_TO_MONTH(V) ((unsigned(V) >> 5) & 0x0f)
 #define VERSION_TO_DAY(V) (unsigned(V) & 0x1f)
@@ -96,9 +96,9 @@ HoneyVersion::HoneyVersion(int fd_)
 {
     offset = lseek(fd, 0, SEEK_CUR);
     if (rare(offset < 0)) {
-	string msg = "lseek failed on file descriptor ";
-	msg += str(fd);
-	throw Xapian::DatabaseOpeningError(msg, errno);
+        string msg = "lseek failed on file descriptor ";
+        msg += str(fd);
+        throw Xapian::DatabaseOpeningError(msg, errno);
     }
 }
 
@@ -107,7 +107,7 @@ HoneyVersion::~HoneyVersion()
     // Either this is a single-file database, or this fd is from opening a new
     // version file in write(), but sync() was never called.
     if (fd != -1)
-	(void)::close(fd);
+        (void)::close(fd);
 }
 
 void
@@ -117,25 +117,25 @@ HoneyVersion::read()
     FD close_fd(-1);
     int fd_in;
     if (single_file()) {
-	if (rare(lseek(fd, offset, SEEK_SET) < 0)) {
-	    string msg = "Failed to rewind file descriptor ";
-	    msg += str(fd);
-	    throw Xapian::DatabaseOpeningError(msg, errno);
-	}
-	fd_in = fd;
+        if (rare(lseek(fd, offset, SEEK_SET) < 0)) {
+            string msg = "Failed to rewind file descriptor ";
+            msg += str(fd);
+            throw Xapian::DatabaseOpeningError(msg, errno);
+        }
+        fd_in = fd;
     } else {
-	string filename = db_dir;
-	filename += "/iamhoney";
-	fd_in = posixy_open(filename.c_str(), O_RDONLY|O_BINARY);
-	if (rare(fd_in < 0)) {
-	    string msg = filename;
-	    msg += ": Failed to open honey revision file for reading";
-	    if (errno == ENOENT || errno == ENOTDIR) {
-		throw Xapian::DatabaseNotFoundError(msg, errno);
-	    }
-	    throw Xapian::DatabaseOpeningError(msg, errno);
-	}
-	close_fd = fd_in;
+        string filename = db_dir;
+        filename += "/iamhoney";
+        fd_in = posixy_open(filename.c_str(), O_RDONLY|O_BINARY);
+        if (rare(fd_in < 0)) {
+            string msg = filename;
+            msg += ": Failed to open honey revision file for reading";
+            if (errno == ENOENT || errno == ENOTDIR) {
+                throw Xapian::DatabaseNotFoundError(msg, errno);
+            }
+            throw Xapian::DatabaseOpeningError(msg, errno);
+        }
+        close_fd = fd_in;
     }
 
     char buf[256];
@@ -144,27 +144,27 @@ HoneyVersion::read()
     const char* end = p + io_read(fd_in, buf, sizeof(buf), 33);
 
     if (memcmp(buf, HONEY_VERSION_MAGIC, HONEY_VERSION_MAGIC_LEN) != 0)
-	throw Xapian::DatabaseCorruptError("Rev file magic incorrect");
+        throw Xapian::DatabaseCorruptError("Rev file magic incorrect");
 
     unsigned version;
     version = static_cast<unsigned char>(buf[HONEY_VERSION_MAGIC_LEN]);
     version <<= 8;
     version |= static_cast<unsigned char>(buf[HONEY_VERSION_MAGIC_LEN + 1]);
     if (version != HONEY_FORMAT_VERSION) {
-	string msg;
-	if (!single_file()) {
-	    msg = db_dir;
-	    msg += ": ";
-	}
-	msg += "Database is format version ";
-	msg += str(VERSION_TO_YEAR(version) * 10000 +
-		   VERSION_TO_MONTH(version) * 100 +
-		   VERSION_TO_DAY(version));
-	msg += " but I only understand ";
-	msg += str(VERSION_TO_YEAR(HONEY_FORMAT_VERSION) * 10000 +
-		   VERSION_TO_MONTH(HONEY_FORMAT_VERSION) * 100 +
-		   VERSION_TO_DAY(HONEY_FORMAT_VERSION));
-	throw Xapian::DatabaseVersionError(msg);
+        string msg;
+        if (!single_file()) {
+            msg = db_dir;
+            msg += ": ";
+        }
+        msg += "Database is format version ";
+        msg += str(VERSION_TO_YEAR(version) * 10000 +
+                   VERSION_TO_MONTH(version) * 100 +
+                   VERSION_TO_DAY(version));
+        msg += " but I only understand ";
+        msg += str(VERSION_TO_YEAR(HONEY_FORMAT_VERSION) * 10000 +
+                   VERSION_TO_MONTH(HONEY_FORMAT_VERSION) * 100 +
+                   VERSION_TO_DAY(HONEY_FORMAT_VERSION));
+        throw Xapian::DatabaseVersionError(msg);
     }
 
     p += HONEY_VERSION_MAGIC_AND_VERSION_LEN;
@@ -172,15 +172,15 @@ HoneyVersion::read()
     p += uuid.BINARY_SIZE;
 
     if (!unpack_uint(&p, end, &rev)) {
-	throw Xapian::DatabaseCorruptError("Rev file failed to decode "
-					   "revision");
+        throw Xapian::DatabaseCorruptError("Rev file failed to decode "
+                                           "revision");
     }
 
     for (unsigned table_no = 0; table_no < Honey::MAX_; ++table_no) {
-	if (!root[table_no].unserialise(&p, end)) {
-	    throw Xapian::DatabaseCorruptError("Rev file root_info missing");
-	}
-	old_root[table_no] = root[table_no];
+        if (!root[table_no].unserialise(&p, end)) {
+            throw Xapian::DatabaseCorruptError("Rev file root_info missing");
+        }
+        old_root[table_no] = root[table_no];
     }
 
     // For a single-file database, this will assign extra data.  We read
@@ -210,11 +210,11 @@ HoneyVersion::serialise_stats()
     // documents at all) so storing these just complicates things because
     // uniq_terms_lbound could legitimately be zero.
     if (total_doclen != 0) {
-	// We rely on uniq_terms_lbound being non-zero to detect if it's present
-	// for a single file DB.
-	Assert(uniq_terms_lbound != 0);
-	pack_uint(serialised_stats, uniq_terms_lbound);
-	pack_uint(serialised_stats, uniq_terms_ubound);
+        // We rely on uniq_terms_lbound being non-zero to detect if it's present
+        // for a single file DB.
+        Assert(uniq_terms_lbound != 0);
+        pack_uint(serialised_stats, uniq_terms_lbound);
+        pack_uint(serialised_stats, uniq_terms_ubound);
     }
 }
 
@@ -224,31 +224,31 @@ HoneyVersion::unserialise_stats()
     const char* p = serialised_stats.data();
     const char* end = p + serialised_stats.size();
     if (p == end) {
-	doccount = 0;
-	total_doclen = 0;
-	last_docid = 0;
-	doclen_lbound = 0;
-	doclen_ubound = 0;
-	wdf_ubound = 0;
-	oldest_changeset = 0;
-	spelling_wordfreq_ubound = 0;
-	uniq_terms_lbound = 0;
-	uniq_terms_ubound = 0;
-	return;
+        doccount = 0;
+        total_doclen = 0;
+        last_docid = 0;
+        doclen_lbound = 0;
+        doclen_ubound = 0;
+        wdf_ubound = 0;
+        oldest_changeset = 0;
+        spelling_wordfreq_ubound = 0;
+        uniq_terms_lbound = 0;
+        uniq_terms_ubound = 0;
+        return;
     }
 
     if (!unpack_uint(&p, end, &doccount) ||
-	!unpack_uint(&p, end, &last_docid) ||
-	!unpack_uint(&p, end, &doclen_lbound) ||
-	!unpack_uint(&p, end, &wdf_ubound) ||
-	!unpack_uint(&p, end, &doclen_ubound) ||
-	!unpack_uint(&p, end, &oldest_changeset) ||
-	!unpack_uint(&p, end, &total_doclen) ||
-	!unpack_uint(&p, end, &spelling_wordfreq_ubound)) {
-	const char* m = p ?
-	    "Bad serialised DB stats (overflowed)" :
-	    "Bad serialised DB stats (out of data)";
-	throw Xapian::DatabaseCorruptError(m);
+        !unpack_uint(&p, end, &last_docid) ||
+        !unpack_uint(&p, end, &doclen_lbound) ||
+        !unpack_uint(&p, end, &wdf_ubound) ||
+        !unpack_uint(&p, end, &doclen_ubound) ||
+        !unpack_uint(&p, end, &oldest_changeset) ||
+        !unpack_uint(&p, end, &total_doclen) ||
+        !unpack_uint(&p, end, &spelling_wordfreq_ubound)) {
+        const char* m = p ?
+            "Bad serialised DB stats (overflowed)" :
+            "Bad serialised DB stats (out of data)";
+        throw Xapian::DatabaseCorruptError(m);
     }
 
     // last_docid must always be >= doccount.
@@ -268,21 +268,21 @@ HoneyVersion::unserialise_stats()
     // byte of pack_uint(x) being zero if and only if x is zero, and on
     // uniq_terms_lbound being non-zero.
     if (p == end || *p == '\0') {
-	// No bounds stored so use weak bounds based on other stats.
-	if (total_doclen == 0) {
-	    uniq_terms_lbound = uniq_terms_ubound = 0;
-	} else {
-	    Assert(doclen_lbound != 0);
-	    Assert(wdf_ubound != 0);
-	    uniq_terms_lbound = (doclen_lbound - 1) / wdf_ubound + 1;
-	    uniq_terms_ubound = doclen_ubound;
-	}
+        // No bounds stored so use weak bounds based on other stats.
+        if (total_doclen == 0) {
+            uniq_terms_lbound = uniq_terms_ubound = 0;
+        } else {
+            Assert(doclen_lbound != 0);
+            Assert(wdf_ubound != 0);
+            uniq_terms_lbound = (doclen_lbound - 1) / wdf_ubound + 1;
+            uniq_terms_ubound = doclen_ubound;
+        }
     } else if (!unpack_uint(&p, end, &uniq_terms_lbound) ||
-	       !unpack_uint(&p, end, &uniq_terms_ubound)) {
-	const char* m = p ?
-	    "Bad serialised unique_terms bounds (overflowed)" :
-	    "Bad serialised unique_terms bounds (out of data)";
-	throw Xapian::DatabaseCorruptError(m);
+               !unpack_uint(&p, end, &uniq_terms_ubound)) {
+        const char* m = p ?
+            "Bad serialised unique_terms bounds (overflowed)" :
+            "Bad serialised unique_terms bounds (out of data)";
+        throw Xapian::DatabaseCorruptError(m);
     }
 }
 
@@ -291,7 +291,7 @@ HoneyVersion::merge_stats(const HoneyVersion& o)
 {
     doccount += o.get_doccount();
     if (doccount < o.get_doccount()) {
-	throw Xapian::DatabaseError("doccount overflowed!");
+        throw Xapian::DatabaseError("doccount overflowed!");
     }
 
     doclen_lbound = min_non_zero(doclen_lbound, o.get_doclength_lower_bound());
@@ -299,31 +299,31 @@ HoneyVersion::merge_stats(const HoneyVersion& o)
     wdf_ubound = max(wdf_ubound, o.get_wdf_upper_bound());
     total_doclen += o.get_total_doclen();
     if (total_doclen < o.get_total_doclen()) {
-	throw Xapian::DatabaseError("Total document length overflowed!");
+        throw Xapian::DatabaseError("Total document length overflowed!");
     }
 
     // The upper bounds might be on the same word, so we must sum them.
     spelling_wordfreq_ubound += o.get_spelling_wordfreq_upper_bound();
 
     uniq_terms_lbound = min_non_zero(uniq_terms_lbound,
-				     o.get_unique_terms_lower_bound());
+                                     o.get_unique_terms_lower_bound());
     uniq_terms_ubound = max(uniq_terms_ubound,
-			    o.get_unique_terms_upper_bound());
+                            o.get_unique_terms_upper_bound());
 }
 
 void
 HoneyVersion::merge_stats(Xapian::doccount o_doccount,
-			  Xapian::termcount o_doclen_lbound,
-			  Xapian::termcount o_doclen_ubound,
-			  Xapian::termcount o_wdf_ubound,
-			  Xapian::totallength o_total_doclen,
-			  Xapian::termcount o_spelling_wordfreq_ubound,
-			  Xapian::termcount o_uniq_terms_lbound,
-			  Xapian::termcount o_uniq_terms_ubound)
+                          Xapian::termcount o_doclen_lbound,
+                          Xapian::termcount o_doclen_ubound,
+                          Xapian::termcount o_wdf_ubound,
+                          Xapian::totallength o_total_doclen,
+                          Xapian::termcount o_spelling_wordfreq_ubound,
+                          Xapian::termcount o_uniq_terms_lbound,
+                          Xapian::termcount o_uniq_terms_ubound)
 {
     doccount += o_doccount;
     if (doccount < o_doccount) {
-	throw Xapian::DatabaseError("doccount overflowed!");
+        throw Xapian::DatabaseError("doccount overflowed!");
     }
 
     doclen_lbound = min_non_zero(doclen_lbound, o_doclen_lbound);
@@ -331,7 +331,7 @@ HoneyVersion::merge_stats(Xapian::doccount o_doccount,
     wdf_ubound = max(wdf_ubound, o_wdf_ubound);
     total_doclen += o_total_doclen;
     if (total_doclen < o_total_doclen) {
-	throw Xapian::DatabaseError("Total document length overflowed!");
+        throw Xapian::DatabaseError("Total document length overflowed!");
     }
 
     // The upper bounds might be on the same word, so we must sum them.
@@ -346,7 +346,7 @@ HoneyVersion::cancel()
 {
     LOGCALL_VOID(DB, "HoneyVersion::cancel", NO_ARGS);
     for (unsigned table_no = 0; table_no < Honey::MAX_; ++table_no) {
-	root[table_no] = old_root[table_no];
+        root[table_no] = old_root[table_no];
     }
     unserialise_stats();
 }
@@ -362,7 +362,7 @@ HoneyVersion::write(honey_revision_number_t new_rev, int flags)
     pack_uint(s, new_rev);
 
     for (unsigned table_no = 0; table_no < Honey::MAX_; ++table_no) {
-	root[table_no].serialise(s);
+        root[table_no].serialise(s);
     }
 
     // Serialise database statistics.
@@ -371,31 +371,31 @@ HoneyVersion::write(honey_revision_number_t new_rev, int flags)
 
     string tmpfile;
     if (!single_file()) {
-	tmpfile = db_dir;
-	// In dangerous mode, just write the new version file in place.
-	if (flags & Xapian::DB_DANGEROUS)
-	    tmpfile += "/iamhoney";
-	else
-	    tmpfile += "/v.tmp";
+        tmpfile = db_dir;
+        // In dangerous mode, just write the new version file in place.
+        if (flags & Xapian::DB_DANGEROUS)
+            tmpfile += "/iamhoney";
+        else
+            tmpfile += "/v.tmp";
 
-	int open_flags = O_CREAT|O_TRUNC|O_WRONLY|O_BINARY;
-	fd = posixy_open(tmpfile.c_str(), open_flags, 0666);
-	if (rare(fd < 0)) {
-	    string msg = "Couldn't write new rev file: ";
-	    msg += tmpfile;
-	    throw Xapian::DatabaseOpeningError(msg, errno);
-	}
+        int open_flags = O_CREAT|O_TRUNC|O_WRONLY|O_BINARY;
+        fd = posixy_open(tmpfile.c_str(), open_flags, 0666);
+        if (rare(fd < 0)) {
+            string msg = "Couldn't write new rev file: ";
+            msg += tmpfile;
+            throw Xapian::DatabaseOpeningError(msg, errno);
+        }
 
-	if (flags & Xapian::DB_DANGEROUS)
-	    tmpfile = string();
+        if (flags & Xapian::DB_DANGEROUS)
+            tmpfile = string();
     }
 
     try {
-	io_write(fd, s.data(), s.size());
+        io_write(fd, s.data(), s.size());
     } catch (...) {
-	if (!single_file())
-	    (void)close(fd);
-	throw;
+        if (!single_file())
+            (void)close(fd);
+        throw;
     }
 
     RETURN(tmpfile);
@@ -403,50 +403,50 @@ HoneyVersion::write(honey_revision_number_t new_rev, int flags)
 
 bool
 HoneyVersion::sync(const string& tmpfile,
-		   honey_revision_number_t new_rev, int flags)
+                   honey_revision_number_t new_rev, int flags)
 {
     Assert(new_rev > rev || rev == 0);
 
     if (single_file()) {
-	if ((flags & Xapian::DB_NO_SYNC) == 0 &&
-	    ((flags & Xapian::DB_FULL_SYNC) ?
-	      !io_full_sync(fd) :
-	      !io_sync(fd))) {
-	    // FIXME what to do?
-	}
+        if ((flags & Xapian::DB_NO_SYNC) == 0 &&
+            ((flags & Xapian::DB_FULL_SYNC) ?
+              !io_full_sync(fd) :
+              !io_sync(fd))) {
+            // FIXME what to do?
+        }
     } else {
-	int fd_to_close = fd;
-	fd = -1;
-	if ((flags & Xapian::DB_NO_SYNC) == 0 &&
-	    ((flags & Xapian::DB_FULL_SYNC) ?
-	      !io_full_sync(fd_to_close) :
-	      !io_sync(fd_to_close))) {
-	    int save_errno = errno;
-	    (void)close(fd_to_close);
-	    if (!tmpfile.empty())
-		(void)unlink(tmpfile.c_str());
-	    errno = save_errno;
-	    return false;
-	}
+        int fd_to_close = fd;
+        fd = -1;
+        if ((flags & Xapian::DB_NO_SYNC) == 0 &&
+            ((flags & Xapian::DB_FULL_SYNC) ?
+              !io_full_sync(fd_to_close) :
+              !io_sync(fd_to_close))) {
+            int save_errno = errno;
+            (void)close(fd_to_close);
+            if (!tmpfile.empty())
+                (void)unlink(tmpfile.c_str());
+            errno = save_errno;
+            return false;
+        }
 
-	if (close(fd_to_close) != 0) {
-	    if (!tmpfile.empty()) {
-		int save_errno = errno;
-		(void)unlink(tmpfile.c_str());
-		errno = save_errno;
-	    }
-	    return false;
-	}
+        if (close(fd_to_close) != 0) {
+            if (!tmpfile.empty()) {
+                int save_errno = errno;
+                (void)unlink(tmpfile.c_str());
+                errno = save_errno;
+            }
+            return false;
+        }
 
-	if (!tmpfile.empty()) {
-	    if (!io_tmp_rename(tmpfile, db_dir + "/iamhoney")) {
-		return false;
-	    }
-	}
+        if (!tmpfile.empty()) {
+            if (!io_tmp_rename(tmpfile, db_dir + "/iamhoney")) {
+                return false;
+            }
+        }
     }
 
     for (unsigned table_no = 0; table_no < Honey::MAX_; ++table_no) {
-	old_root[table_no] = root[table_no];
+        old_root[table_no] = root[table_no];
     }
 
     rev = new_rev;
@@ -476,7 +476,7 @@ HoneyVersion::create()
 {
     uuid.generate();
     for (unsigned table_no = 0; table_no < Honey::MAX_; ++table_no) {
-	root[table_no].init(compress_min_tab[table_no]);
+        root[table_no].init(compress_min_tab[table_no]);
     }
 }
 
@@ -514,12 +514,12 @@ RootInfo::unserialise(const char** p, const char* end)
     unsigned dummy_val;
     unsigned dummy_blocksize;
     if (!unpack_uint(p, end, &uoffset) ||
-	!unpack_uint(p, end, &uroot) ||
-	!unpack_uint(p, end, &dummy_val) ||
-	!unpack_uint(p, end, &num_entries) ||
-	!unpack_uint(p, end, &dummy_blocksize) ||
-	!unpack_uint(p, end, &compress_min) ||
-	!unpack_string(p, end, fl_serialised)) return false;
+        !unpack_uint(p, end, &uroot) ||
+        !unpack_uint(p, end, &dummy_val) ||
+        !unpack_uint(p, end, &num_entries) ||
+        !unpack_uint(p, end, &dummy_blocksize) ||
+        !unpack_uint(p, end, &compress_min) ||
+        !unpack_string(p, end, fl_serialised)) return false;
     offset = uoffset;
     root = uoffset + uroot;
     // Not meaningful, but still there so that existing honey databases
@@ -528,7 +528,7 @@ RootInfo::unserialise(const char** p, const char* end)
     (void)dummy_blocksize;
     // Map old default to new default.
     if (compress_min == 4) {
-	compress_min = COMPRESS_MIN;
+        compress_min = COMPRESS_MIN;
     }
     return true;
 }

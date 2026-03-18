@@ -20,32 +20,32 @@ ok(1); # If we made it this far, we're ok.
 # Test non-class functions.
 
 my $version = join(".", (
-	Xapian::major_version(),
-	Xapian::minor_version(),
-	Xapian::revision()
+        Xapian::major_version(),
+        Xapian::minor_version(),
+        Xapian::revision()
     ));
 
 ok($version eq Xapian::version_string());
 
 my $ldbl = (defined($Config{uselongdouble}) &&
-	    $Config{uselongdouble} eq "define" &&
-	    $Config{doublesize} != $Config{longdblsize});
+            $Config{uselongdouble} eq "define" &&
+            $Config{doublesize} != $Config{longdblsize});
 for my $val (-9e10, -1234.56, -1, -1e-10, 0, 1e-10, 1, 2, 4, 8, 9, 9e10) {
     my $enc_val = Xapian::sortable_serialise($val);
     if ($ldbl) {
-	# Perl is configured with -Duselongdouble and long double isn't the
-	# same as double, so we may have rounded the input value slightly
-	# passing it to Xapian.
-	my $de_enc_val = Xapian::sortable_unserialise($enc_val);
-	ok(abs($de_enc_val - $val) < 1e-12);
-	# But encoding and decoding the value we got back should give exactly
-	# the same value.
-	my $re_enc_val = Xapian::sortable_serialise($de_enc_val);
-	ok(Xapian::sortable_unserialise($re_enc_val) == $de_enc_val);
+        # Perl is configured with -Duselongdouble and long double isn't the
+        # same as double, so we may have rounded the input value slightly
+        # passing it to Xapian.
+        my $de_enc_val = Xapian::sortable_unserialise($enc_val);
+        ok(abs($de_enc_val - $val) < 1e-12);
+        # But encoding and decoding the value we got back should give exactly
+        # the same value.
+        my $re_enc_val = Xapian::sortable_serialise($de_enc_val);
+        ok(Xapian::sortable_unserialise($re_enc_val) == $de_enc_val);
     } else {
-	# We should get the exact same value back.
-	ok(Xapian::sortable_unserialise($enc_val) == $val);
-	ok(1);
+        # We should get the exact same value back.
+        ok(Xapian::sortable_unserialise($enc_val) == $val);
+        ok(1);
     }
 }
 

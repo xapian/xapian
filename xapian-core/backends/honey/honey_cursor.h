@@ -55,27 +55,27 @@ class HoneyCursor {
 
     // Forward to next constructor form.
     explicit HoneyCursor(const HoneyTable* table)
-	: store(table->store),
-	  comp_stream(Z_DEFAULT_STRATEGY),
-	  root(table->get_root()),
-	  offset(table->get_offset())
+        : store(table->store),
+          comp_stream(Z_DEFAULT_STRATEGY),
+          root(table->get_root()),
+          offset(table->get_offset())
     {
-	store.set_pos(offset); // FIXME root
+        store.set_pos(offset); // FIXME root
     }
 
     HoneyCursor(const HoneyCursor& o)
-	: store(o.store),
-	  current_key(o.current_key),
-	  current_tag(o.current_tag), // FIXME really copy?
-	  val_size(o.val_size),
-	  current_compressed(o.current_compressed),
-	  comp_stream(Z_DEFAULT_STRATEGY),
-	  is_at_end(o.is_at_end),
-	  last_key(o.last_key),
-	  root(o.root),
-	  offset(o.offset)
+        : store(o.store),
+          current_key(o.current_key),
+          current_tag(o.current_tag), // FIXME really copy?
+          val_size(o.val_size),
+          current_compressed(o.current_compressed),
+          comp_stream(Z_DEFAULT_STRATEGY),
+          is_at_end(o.is_at_end),
+          last_key(o.last_key),
+          root(o.root),
+          offset(o.offset)
     {
-	store.set_pos(o.store.get_pos());
+        store.set_pos(o.store.get_pos());
     }
 
     /** Position cursor on the dummy empty key.
@@ -83,10 +83,10 @@ class HoneyCursor {
      *  Calling next() after this moves the cursor to the first entry.
      */
     void rewind() {
-	store.set_pos(offset); // FIXME root
-	current_key = last_key = std::string();
-	is_at_end = false;
-	val_size = 0;
+        store.set_pos(offset); // FIXME root
+        current_key = last_key = std::string();
+        is_at_end = false;
+        val_size = 0;
     }
 
     void to_end() { is_at_end = true; }
@@ -94,21 +94,21 @@ class HoneyCursor {
     bool after_end() const { return is_at_end; }
 
     bool next() {
-	if (store.was_forced_closed()) {
-	    HoneyTable::throw_database_closed();
-	}
+        if (store.was_forced_closed()) {
+            HoneyTable::throw_database_closed();
+        }
 
-	return do_next();
+        return do_next();
     }
 
     bool read_tag(bool keep_compressed = false);
 
     bool find_exact(std::string_view key) {
-	return do_find(key, false);
+        return do_find(key, false);
     }
 
     bool find_entry_ge(std::string_view key) {
-	return do_find(key, true);
+        return do_find(key, true);
     }
 
     /** Move to the item before the current one.
@@ -128,16 +128,16 @@ class MutableHoneyCursor : public HoneyCursor {
 
   public:
     MutableHoneyCursor(HoneyTable* table_)
-	: HoneyCursor(table_),
-	  table(table_)
+        : HoneyCursor(table_),
+          table(table_)
     { }
 
     bool del() {
-	Assert(!is_at_end);
-	std::string key_to_del = current_key;
-	bool res = next();
-	table->del(key_to_del);
-	return res;
+        Assert(!is_at_end);
+        std::string key_to_del = current_key;
+        bool res = next();
+        table->del(key_to_del);
+        return res;
     }
 };
 

@@ -34,12 +34,12 @@ get_pkglibbindir()
 {
     static string result;
     if (result.empty()) {
-	const char * p = getenv("XAPIAN_OMEGA_PKGLIBBINDIR");
-	if (p && *p) {
-	    result = p;
-	} else {
-	    result = PKGLIBBINDIR;
-	}
+        const char * p = getenv("XAPIAN_OMEGA_PKGLIBBINDIR");
+        if (p && *p) {
+            result = p;
+        } else {
+            result = PKGLIBBINDIR;
+        }
     }
     return result;
 }

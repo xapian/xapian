@@ -40,7 +40,7 @@ BackendManagerRemote::get_generated_database(const std::string& name)
 
 std::string
 BackendManagerRemote::get_writable_database_args(const std::string & name,
-						 const std::string & file)
+                                                 const std::string & file)
 {
     // Default to a long (5 minute) timeout so that tests won't fail just
     // because the host is slow or busy.
@@ -54,7 +54,7 @@ BackendManagerRemote::get_writable_database_args(const std::string & name,
 
 std::string
 BackendManagerRemote::get_writable_database_args(const std::string& path,
-						 unsigned int timeout)
+                                                 unsigned int timeout)
 {
     std::string args = "-t";
     args += str(timeout);
@@ -65,7 +65,7 @@ BackendManagerRemote::get_writable_database_args(const std::string& path,
 
 std::string
 BackendManagerRemote::get_remote_database_args(const std::vector<std::string> & files,
-					       unsigned int timeout)
+                                               unsigned int timeout)
 {
     std::string args = "-t";
     args += str(timeout);
@@ -76,7 +76,7 @@ BackendManagerRemote::get_remote_database_args(const std::vector<std::string> & 
 
 std::string
 BackendManagerRemote::get_remote_database_args(const std::string& path,
-					       unsigned int timeout)
+                                               unsigned int timeout)
 {
     std::string args = "-t";
     args += str(timeout);

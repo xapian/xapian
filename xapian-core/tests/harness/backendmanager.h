@@ -48,7 +48,7 @@ class BackendManager {
   protected:
     /// Index data from zero or more text files into a database.
     void index_files_to_database(Xapian::WritableDatabase & database,
-				 const std::vector<std::string> & files);
+                                 const std::vector<std::string> & files);
 
     bool create_dir_if_needed(const std::string &dirname);
 
@@ -71,7 +71,7 @@ class BackendManager {
   public:
     /// Constructor.
     BackendManager(const std::string& datadir_, const std::string& dbtype_)
-	: datadir(datadir_), dbtype(dbtype_) {}
+        : datadir(datadir_), dbtype(dbtype_) {}
 
     /** We have virtual methods and want to be able to delete derived classes
      *  using a pointer to the base class, so we need a virtual destructor.
@@ -102,9 +102,9 @@ class BackendManager {
      *			it).
      */
     Xapian::Database get_database(const std::string &dbname,
-				  void (*gen)(Xapian::WritableDatabase&,
-					      const std::string &),
-				  const std::string &arg);
+                                  void (*gen)(Xapian::WritableDatabase&,
+                                              const std::string &),
+                                  const std::string &arg);
 
     /// Get a database instance by path
     virtual Xapian::Database get_database_by_path(const std::string& path);
@@ -117,9 +117,9 @@ class BackendManager {
 
     /// Get the path of a generated database instance.
     std::string get_database_path(const std::string &dbname,
-				  void (*gen)(Xapian::WritableDatabase&,
-					      const std::string &),
-				  const std::string &arg);
+                                  void (*gen)(Xapian::WritableDatabase&,
+                                              const std::string &),
+                                  const std::string &arg);
 
     /// Get a writable database instance.
     virtual Xapian::WritableDatabase get_writable_database(const std::string & name, const std::string & file);
@@ -144,14 +144,14 @@ class BackendManager {
     /// Get a remote database instance with the specified timeout.
     virtual Xapian::Database
     get_remote_database(const std::vector<std::string>& files,
-			unsigned int timeout,
-			int* port_ptr);
+                        unsigned int timeout,
+                        int* port_ptr);
 
     /** Get the args for opening a writable remote database with the
      *  specified timeout.
      */
     virtual std::string get_writable_database_args(const std::string& path,
-						   unsigned int timeout);
+                                                   unsigned int timeout);
 
     /// Create a Database object for the last opened WritableDatabase.
     virtual Xapian::Database get_writable_database_as_database();

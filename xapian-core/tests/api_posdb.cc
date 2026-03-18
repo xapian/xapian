@@ -185,23 +185,23 @@ DEFINE_TESTCASE(near2, positional) {
     vector<Xapian::Query> subqs;
     Xapian::Query q;
     subqs.push_back(Xapian::Query(Xapian::Query::OP_AND,
-			    Xapian::Query(stemmer("phrase")),
-			    Xapian::Query(stemmer("near"))));
+                            Xapian::Query(stemmer("phrase")),
+                            Xapian::Query(stemmer("near"))));
     subqs.push_back(Xapian::Query(stemmer("and")));
     TEST_EXCEPTION(Xapian::UnimplementedError,
-	q = Xapian::Query(q.OP_NEAR, subqs.begin(), subqs.end(), 2);
-	enquire.set_query(q);
+        q = Xapian::Query(q.OP_NEAR, subqs.begin(), subqs.end(), 2);
+        enquire.set_query(q);
 
-	// retrieve the top ten results
-	mymset = enquire.get_mset(0, 10)
+        // retrieve the top ten results
+        mymset = enquire.get_mset(0, 10)
     );
 #if 0 // Disable until we reimplement this.
     mset_expect_order(mymset, 1);
 
     subqs.clear();
     subqs.push_back(Xapian::Query(Xapian::Query::OP_AND,
-			    Xapian::Query(stemmer("phrase")),
-			    Xapian::Query(stemmer("near"))));
+                            Xapian::Query(stemmer("phrase")),
+                            Xapian::Query(stemmer("near"))));
     subqs.push_back(Xapian::Query(stemmer("operator")));
     q = Xapian::Query(Xapian::Query::OP_NEAR, subqs.begin(), subqs.end(), 2);
     enquire.set_query(q);
@@ -213,8 +213,8 @@ DEFINE_TESTCASE(near2, positional) {
     subqs.clear();
     subqs.push_back(Xapian::Query(stemmer("operator")));
     subqs.push_back(Xapian::Query(Xapian::Query::OP_AND,
-			    Xapian::Query(stemmer("phrase")),
-			    Xapian::Query(stemmer("near"))));
+                            Xapian::Query(stemmer("phrase")),
+                            Xapian::Query(stemmer("near"))));
     q = Xapian::Query(Xapian::Query::OP_NEAR, subqs.begin(), subqs.end(), 2);
     enquire.set_query(q);
 
@@ -422,23 +422,23 @@ DEFINE_TESTCASE(phrase2, positional) {
     vector<Xapian::Query> subqs;
     Xapian::Query q;
     subqs.push_back(Xapian::Query(Xapian::Query::OP_AND,
-			    Xapian::Query(stemmer("phrase")),
-			    Xapian::Query(stemmer("near"))));
+                            Xapian::Query(stemmer("phrase")),
+                            Xapian::Query(stemmer("near"))));
     subqs.push_back(Xapian::Query(stemmer("and")));
     TEST_EXCEPTION(Xapian::UnimplementedError,
-	q = Xapian::Query(q.OP_PHRASE, subqs.begin(), subqs.end(), 2);
-	enquire.set_query(q);
+        q = Xapian::Query(q.OP_PHRASE, subqs.begin(), subqs.end(), 2);
+        enquire.set_query(q);
 
-	// retrieve the top ten results
-	mymset = enquire.get_mset(0, 10)
+        // retrieve the top ten results
+        mymset = enquire.get_mset(0, 10)
     );
 #if 0 // Disable until we reimplement this.
     mset_expect_order(mymset);
 
     subqs.clear();
     subqs.push_back(Xapian::Query(Xapian::Query::OP_AND,
-			    Xapian::Query(stemmer("phrase")),
-			    Xapian::Query(stemmer("near"))));
+                            Xapian::Query(stemmer("phrase")),
+                            Xapian::Query(stemmer("near"))));
     subqs.push_back(Xapian::Query(stemmer("operator")));
     q = Xapian::Query(Xapian::Query::OP_PHRASE, subqs.begin(), subqs.end(), 2);
     enquire.set_query(q);
@@ -450,8 +450,8 @@ DEFINE_TESTCASE(phrase2, positional) {
     subqs.clear();
     subqs.push_back(Xapian::Query(stemmer("operator")));
     subqs.push_back(Xapian::Query(Xapian::Query::OP_AND,
-			    Xapian::Query(stemmer("phrase")),
-			    Xapian::Query(stemmer("near"))));
+                            Xapian::Query(stemmer("phrase")),
+                            Xapian::Query(stemmer("near"))));
     q = Xapian::Query(Xapian::Query::OP_PHRASE, subqs.begin(), subqs.end(), 2);
     enquire.set_query(q);
 
@@ -507,23 +507,23 @@ DEFINE_TESTCASE(poslist2, positional && writable) {
     // Check what happens when term doesn't exist - should give an empty list.
     // Threw RangeError in Xapian < 1.1.0.
     TEST_EQUAL(db.positionlist_begin(did, "nosuchterm"),
-	       db.positionlist_end(did, "nosuchterm"));
+               db.positionlist_end(did, "nosuchterm"));
 
     // Check what happens when the document doesn't even exist - should give
     // an empty list.  Threw DocNotFoundError in Xapian < 1.1.0.
     TEST_EQUAL(db.positionlist_begin(123, "nosuchterm"),
-	       db.positionlist_end(123, "nosuchterm"));
+               db.positionlist_end(123, "nosuchterm"));
 
     TEST_EQUAL(db.positionlist_begin(did, "nopos"),
-	       db.positionlist_end(did, "nopos"));
+               db.positionlist_end(did, "nopos"));
 
     Xapian::Document doc2 = db.get_document(did);
 
     Xapian::TermIterator term = doc2.termlist_begin();
 
     {
-	Xapian::PositionIterator i = term.positionlist_begin();
-	TEST_EQUAL(i, term.positionlist_end());
+        Xapian::PositionIterator i = term.positionlist_begin();
+        TEST_EQUAL(i, term.positionlist_end());
     }
 
     Xapian::Document doc3;
@@ -537,8 +537,8 @@ DEFINE_TESTCASE(poslist2, positional && writable) {
     // (since 2.0.0).
     TEST(!db.term_exists("hadpos"));
     {
-	Xapian::PositionIterator i = db.positionlist_begin(did2, "hadpos");
-	TEST_EQUAL(i, db.positionlist_end(did2, "hadpos"));
+        Xapian::PositionIterator i = db.positionlist_begin(did2, "hadpos");
+        TEST_EQUAL(i, db.positionlist_end(did2, "hadpos"));
     }
 
     doc4.add_posting("extrawdf", 12, 2);
@@ -547,14 +547,14 @@ DEFINE_TESTCASE(poslist2, positional && writable) {
     // Removing the last position should leave the term if the wdf is non-zero.
     TEST(db.term_exists("extrawdf"));
     {
-	Xapian::PositionIterator i = db.positionlist_begin(did2, "extrawdf");
-	TEST_EQUAL(i, db.positionlist_end(did2, "extrawdf"));
+        Xapian::PositionIterator i = db.positionlist_begin(did2, "extrawdf");
+        TEST_EQUAL(i, db.positionlist_end(did2, "extrawdf"));
     }
 
     db.delete_document(did);
     // Check what happens when the document doesn't exist (but once did).
     TEST_EQUAL(db.positionlist_begin(did, "nosuchterm"),
-	       db.positionlist_end(did, "nosuchterm"));
+               db.positionlist_end(did, "nosuchterm"));
 }
 
 /// Test playing with a positionlist, testing skip_to in particular.

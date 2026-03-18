@@ -30,12 +30,12 @@ bool parse_unsigned(const char* p, T& res)
 {
     res = 0;
     do {
-	unsigned char digit = *p - '0';
-	if (digit > 9 ||
-	    mul_overflows(res, unsigned(10), res) ||
-	    add_overflows(res, digit, res)) {
-	    return false;
-	}
+        unsigned char digit = *p - '0';
+        if (digit > 9 ||
+            mul_overflows(res, unsigned(10), res) ||
+            add_overflows(res, digit, res)) {
+            return false;
+        }
     } while (*++p);
     return true;
 }
@@ -46,14 +46,14 @@ bool parse_signed(const char* p, T& res)
     typedef typename std::make_unsigned_t<T> unsigned_type;
     unsigned_type temp = 0;
     if (*p == '-' && parse_unsigned(++p, temp) &&
-	// casting the min signed value to unsigned gives us its absolute value.
-	temp <= unsigned_type(std::numeric_limits<T>::min())) {
-	res = negate_unsigned(temp);
-	return true;
+        // casting the min signed value to unsigned gives us its absolute value.
+        temp <= unsigned_type(std::numeric_limits<T>::min())) {
+        res = negate_unsigned(temp);
+        return true;
     } else if (parse_unsigned(p, temp) &&
-	       temp <= unsigned_type(std::numeric_limits<T>::max())) {
-	res = temp;
-	return true;
+               temp <= unsigned_type(std::numeric_limits<T>::max())) {
+        res = temp;
+        return true;
     }
     return false;
 }

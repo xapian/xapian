@@ -32,72 +32,72 @@ bool
 XlsxParser::opening_tag(const string &tag)
 {
     if (tag == "c") {
-	// We need to distinguish <v> tags which are inside <c t="s">, as these
-	// are numeric references to shared strings.
-	string type;
-	if (get_attribute("t", type) && type == "s") {
-	    mode = MODE_C_STRING;
-	} else {
-	    mode = MODE_C_LITERAL;
-	    if (get_attribute("s", type)) {
-		unsigned long style_id = strtoul(type.c_str(), NULL, 10);
-		if (date_style.find(style_id) != date_style.end()) {
-		    mode = MODE_C_DATE;
-		}
-	    }
-	}
+        // We need to distinguish <v> tags which are inside <c t="s">, as these
+        // are numeric references to shared strings.
+        string type;
+        if (get_attribute("t", type) && type == "s") {
+            mode = MODE_C_STRING;
+        } else {
+            mode = MODE_C_LITERAL;
+            if (get_attribute("s", type)) {
+                unsigned long style_id = strtoul(type.c_str(), NULL, 10);
+                if (date_style.find(style_id) != date_style.end()) {
+                    mode = MODE_C_DATE;
+                }
+            }
+        }
     } else if (tag == "v") {
-	if (mode == MODE_C_LITERAL) {
-	    mode = MODE_V_LITERAL;
-	} else if (mode == MODE_C_STRING) {
-	    mode = MODE_V_STRING;
-	} else if (mode == MODE_C_DATE) {
-	    mode = MODE_V_DATE;
-	}
+        if (mode == MODE_C_LITERAL) {
+            mode = MODE_V_LITERAL;
+        } else if (mode == MODE_C_STRING) {
+            mode = MODE_V_STRING;
+        } else if (mode == MODE_C_DATE) {
+            mode = MODE_V_DATE;
+        }
     } else if (tag == "si") {
-	mode = MODE_SI;
+        mode = MODE_SI;
     } else if (tag == "sst") {
-	string unique_count;
-	if (get_attribute("uniqueCount", unique_count)) {
-	    unsigned long c = strtoul(unique_count.c_str(), NULL, 10);
-	    // This reserving is just a performance tweak, so don't go
-	    // reserving ludicrous amounts of space just because an XML
-	    // attribute told us to.
-	    sst.reserve(std::min(c, 1000000ul));
-	}
+        string unique_count;
+        if (get_attribute("uniqueCount", unique_count)) {
+            unsigned long c = strtoul(unique_count.c_str(), NULL, 10);
+            // This reserving is just a performance tweak, so don't go
+            // reserving ludicrous amounts of space just because an XML
+            // attribute told us to.
+            sst.reserve(std::min(c, 1000000ul));
+        }
     } else if (tag == "workbookPr") {
-	string v;
-	if (get_attribute("date1904", v)) {
-	    date1904 = (v == "true" || v == "1");
-	}
+        string v;
+        if (get_attribute("date1904", v)) {
+            date1904 = (v == "true" || v == "1");
+        }
     } else if (tag == "numFmt") {
-	string formatcode;
-	if (get_attribute("formatCode", formatcode)) {
-	    // Heuristic for "date format" (FIXME: implement properly)
-	    if (strchr(formatcode.c_str(), 'd') &&
-		strchr(formatcode.c_str(), 'm') &&
-		strchr(formatcode.c_str(), 'y')) {
-		string v;
-		if (get_attribute("numFmtId", v)) {
-		    unsigned long id = strtoul(v.c_str(), NULL, 10);
-		    date_format.insert(id);
-		}
-	    }
-	}
+        string formatcode;
+        if (get_attribute("formatCode", formatcode)) {
+            // Heuristic for "date format" (FIXME: implement properly)
+            if (strchr(formatcode.c_str(), 'd') &&
+                strchr(formatcode.c_str(), 'm') &&
+                strchr(formatcode.c_str(), 'y')) {
+                string v;
+                if (get_attribute("numFmtId", v)) {
+                    unsigned long id = strtoul(v.c_str(), NULL, 10);
+                    date_format.insert(id);
+                }
+            }
+        }
     } else if (tag == "cellXfs") {
-	mode = MODE_CELLXFS;
+        mode = MODE_CELLXFS;
     } else if (tag == "xf") {
-	if (mode == MODE_CELLXFS) {
-	    string v;
-	    if (get_attribute("numFmtId", v)) {
-		unsigned long id = strtoul(v.c_str(), NULL, 10);
-		if ((id >= 14 && id <= 17) ||
-		    date_format.find(id) != date_format.end()) {
-		    date_style.insert(style_index);
-		}
-	    }
-	    ++style_index;
-	}
+        if (mode == MODE_CELLXFS) {
+            string v;
+            if (get_attribute("numFmtId", v)) {
+                unsigned long id = strtoul(v.c_str(), NULL, 10);
+                if ((id >= 14 && id <= 17) ||
+                    date_format.find(id) != date_format.end()) {
+                    date_style.insert(style_index);
+                }
+            }
+            ++style_index;
+        }
     }
     return true;
 }
@@ -106,47 +106,47 @@ void
 XlsxParser::process_content(const string& content)
 {
     switch (mode) {
-	case MODE_V_DATE: {
-	    // Date field.
-	    unsigned long c = strtoul(content.c_str(), NULL, 10);
-	    if (date1904) {
-		c -= 24107;
-	    } else {
-		// The spec insists we treat 1900 as a leap year!
-		if (c > 60) --c;
-		c -= 25568;
-	    }
-	    time_t t = c * 86400 + 43200;
-	    struct tm * tm = gmtime(&t);
-	    if (tm) {
-		char buf[32];
-		size_t res = strftime(buf, sizeof(buf), "%Y-%m-%d", tm);
-		if (res)
-		    append_field(string(buf, res));
-	    }
-	    mode = MODE_NONE;
-	    return;
-	}
-	case MODE_V_STRING: {
-	    // Shared string use.
-	    unsigned long c = strtoul(content.c_str(), NULL, 10);
-	    if (c < sst.size()) {
-		append_field(sst[c]);
-	    }
-	    mode = MODE_NONE;
-	    return;
-	}
-	case MODE_V_LITERAL:
-	    // Literal (possibly calculated) field value.
-	    append_field(content);
-	    mode = MODE_NONE;
-	    return;
-	case MODE_SI:
-	    // Shared string definition.
-	    sst.push_back(content);
-	    mode = MODE_NONE;
-	    return;
-	default:
-	    return;
+        case MODE_V_DATE: {
+            // Date field.
+            unsigned long c = strtoul(content.c_str(), NULL, 10);
+            if (date1904) {
+                c -= 24107;
+            } else {
+                // The spec insists we treat 1900 as a leap year!
+                if (c > 60) --c;
+                c -= 25568;
+            }
+            time_t t = c * 86400 + 43200;
+            struct tm * tm = gmtime(&t);
+            if (tm) {
+                char buf[32];
+                size_t res = strftime(buf, sizeof(buf), "%Y-%m-%d", tm);
+                if (res)
+                    append_field(string(buf, res));
+            }
+            mode = MODE_NONE;
+            return;
+        }
+        case MODE_V_STRING: {
+            // Shared string use.
+            unsigned long c = strtoul(content.c_str(), NULL, 10);
+            if (c < sst.size()) {
+                append_field(sst[c]);
+            }
+            mode = MODE_NONE;
+            return;
+        }
+        case MODE_V_LITERAL:
+            // Literal (possibly calculated) field value.
+            append_field(content);
+            mode = MODE_NONE;
+            return;
+        case MODE_SI:
+            // Shared string definition.
+            sst.push_back(content);
+            mode = MODE_NONE;
+            return;
+        default:
+            return;
     }
 }

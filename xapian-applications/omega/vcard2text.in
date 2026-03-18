@@ -37,7 +37,7 @@ if ($@) {
 
 if (@ARGV > 0) {
     foreach my $file (@ARGV) {
-	dump_vcf($file);
+        dump_vcf($file);
     }
 } else {
     dump_vcf('/dev/stdin');
@@ -46,10 +46,10 @@ if (@ARGV > 0) {
 sub dump_vcf {
     my $file = $_[0];
     my $address_book = Text::vCard::Addressbook->new({
-	    'source_file' => $file
-	});
+            'source_file' => $file
+        });
     foreach my $vcard ($address_book->vcards()) {
-	dump_vcard($vcard);
+        dump_vcard($vcard);
     }
 }
 
@@ -61,35 +61,35 @@ sub dump_vcard {
     $sep = '\f';
     # Simple fields
     foreach my $field (qw(
-	FN BDAY MAILER TZ TITLE ROLE NOTE PRODID REV SORT-STRING UID URL CLASS
-	EMAIL TEL NICKNAME)) {
-	# Ignore PHOTO for now.
-	# LABEL is in the sample in the EDRM set, but isn't handled properly
-	# by the perl module.
-	foreach my $node ($vcard->get($field)) {
-	    defined $node or next;
-	    print $field;
-	    my @types = grep {defined $_} $node->types();
-	    if (@types > 0) {
-		print "(", join(", ", @types), ")";
-	    }
-	    print ": ", $node->value(), "\n";
-	}
+        FN BDAY MAILER TZ TITLE ROLE NOTE PRODID REV SORT-STRING UID URL CLASS
+        EMAIL TEL NICKNAME)) {
+        # Ignore PHOTO for now.
+        # LABEL is in the sample in the EDRM set, but isn't handled properly
+        # by the perl module.
+        foreach my $node ($vcard->get($field)) {
+            defined $node or next;
+            print $field;
+            my @types = grep {defined $_} $node->types();
+            if (@types > 0) {
+                print "(", join(", ", @types), ")";
+            }
+            print ": ", $node->value(), "\n";
+        }
     }
     # Non-simple fields
     foreach my $field (qw(ADR N GEO ORG)) {
-	foreach my $node ($vcard->get($field)) {
-	    defined $node or next;
-	    foreach my $method (@{ $Text::vCard::lookup{$field} }) {
-		my $res = $node->$method();
-		next unless defined $res;
-		if (ref($res) eq 'ARRAY') {
-		    my @a = grep {$_ ne ''} @$res;
-		    print "$field.$method: ", join("; ", @a) unless @a == 0;
-		} else {
-		    print "$field.$method: ", $res, "\n" unless $res eq '';
-		}
-	    }
-	}
+        foreach my $node ($vcard->get($field)) {
+            defined $node or next;
+            foreach my $method (@{ $Text::vCard::lookup{$field} }) {
+                my $res = $node->$method();
+                next unless defined $res;
+                if (ref($res) eq 'ARRAY') {
+                    my @a = grep {$_ ne ''} @$res;
+                    print "$field.$method: ", join("; ", @a) unless @a == 0;
+                } else {
+                    print "$field.$method: ", $res, "\n" unless $res eq '';
+                }
+            }
+        }
     }
 }

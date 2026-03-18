@@ -33,33 +33,33 @@ struct SubValueList {
     unsigned shard;
 
     SubValueList(ValueList * vl, unsigned shard_)
-	: valuelist(vl), shard(shard_) { }
+        : valuelist(vl), shard(shard_) { }
 
     ~SubValueList() {
-	delete valuelist;
+        delete valuelist;
     }
 
     void skip_to(Xapian::docid did, Xapian::doccount n_shards) {
-	// Calculate the docid in this shard which is the same or later than
-	// did (which may be in a different shard).
-	Xapian::docid shard_did = shard_docid(did, n_shards);
-	if (shard_number(did, n_shards) > shard)
-	    ++shard_did;
-	valuelist->skip_to(shard_did);
+        // Calculate the docid in this shard which is the same or later than
+        // did (which may be in a different shard).
+        Xapian::docid shard_did = shard_docid(did, n_shards);
+        if (shard_number(did, n_shards) > shard)
+            ++shard_did;
+        valuelist->skip_to(shard_did);
     }
 
     Xapian::docid get_docid() const {
-	return valuelist->get_docid();
+        return valuelist->get_docid();
     }
 
     Xapian::docid get_merged_docid(unsigned n_shards) const {
-	return unshard(valuelist->get_docid(), shard, n_shards);
+        return unshard(valuelist->get_docid(), shard, n_shards);
     }
 
     std::string get_value() const { return valuelist->get_value(); }
 
     void next() {
-	valuelist->next();
+        valuelist->next();
     }
 
     bool at_end() const { return valuelist->at_end(); }
@@ -90,12 +90,12 @@ class MultiValueList : public ValueList {
   public:
     /// Constructor.
     MultiValueList(Xapian::doccount n_shards_,
-		   SubValueList** valuelists_,
-		   Xapian::valueno slot_)
-	: count(n_shards_),
-	  valuelists(valuelists_),
-	  slot(slot_),
-	  n_shards(n_shards_)
+                   SubValueList** valuelists_,
+                   Xapian::valueno slot_)
+        : count(n_shards_),
+          valuelists(valuelists_),
+          slot(slot_),
+          n_shards(n_shards_)
     {
     }
 

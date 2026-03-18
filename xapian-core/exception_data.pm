@@ -48,15 +48,15 @@ sub errorclass {
 }
 
 errorbaseclass('LogicError', 'Error',
-	       'The base class for exceptions indicating errors in the program logic.',
-	       <<'DOC');
+               'The base class for exceptions indicating errors in the program logic.',
+               <<'DOC');
 A subclass of LogicError will be thrown if Xapian detects a violation
 of a class invariant or a logical precondition or postcondition, etc.
 DOC
 
 errorclass(0, 'AssertionError', 'LogicError',
-	   'AssertionError is thrown if a logical assertion inside Xapian fails.',
-	   <<'DOC');
+           'AssertionError is thrown if a logical assertion inside Xapian fails.',
+           <<'DOC');
 In a debug build of Xapian, a failed assertion in the core library code
 will cause AssertionError to be thrown.
 
@@ -65,22 +65,22 @@ has been violated, or the assertion is incorrect!)
 DOC
 
 errorclass(1, 'InvalidArgumentError', 'LogicError',
-	   'InvalidArgumentError indicates an invalid parameter value was passed to the API.',
-	   '');
+           'InvalidArgumentError indicates an invalid parameter value was passed to the API.',
+           '');
 
 errorclass(2, 'InvalidOperationError', 'LogicError',
-	   'InvalidOperationError indicates the API was used in an invalid way.',
-	   '');
+           'InvalidOperationError indicates the API was used in an invalid way.',
+           '');
 
 errorclass(3, 'UnimplementedError', 'LogicError',
-	   'UnimplementedError indicates an attempt to use an unimplemented feature.',
-	   '');
+           'UnimplementedError indicates an attempt to use an unimplemented feature.',
+           '');
 
 # RuntimeError and subclasses:
 
 errorbaseclass('RuntimeError', 'Error',
-	       'The base class for exceptions indicating errors only detectable at runtime.',
-	       <<'DOC');
+               'The base class for exceptions indicating errors only detectable at runtime.',
+               <<'DOC');
 A subclass of RuntimeError will be thrown if Xapian detects an error
 which is exception derived from RuntimeError is thrown when an
 error is caused by problems with the data or environment rather
@@ -88,36 +88,36 @@ than a programming mistake.
 DOC
 
 errorclass(4, 'DatabaseError', 'RuntimeError',
-	   'DatabaseError indicates some sort of database related error.',
-	   '');
+           'DatabaseError indicates some sort of database related error.',
+           '');
 
 errorclass(5, 'DatabaseCorruptError', 'DatabaseError',
-	   'DatabaseCorruptError indicates database corruption was detected.',
-	   '');
+           'DatabaseCorruptError indicates database corruption was detected.',
+           '');
 
 errorclass(6, 'DatabaseCreateError', 'DatabaseError',
-	   'DatabaseCreateError indicates a failure to create a database.',
-	   '');
+           'DatabaseCreateError indicates a failure to create a database.',
+           '');
 
 errorclass(7, 'DatabaseLockError', 'DatabaseError',
-	   'DatabaseLockError indicates failure to lock a database.',
-	   '');
+           'DatabaseLockError indicates failure to lock a database.',
+           '');
 
 errorclass(8, 'DatabaseModifiedError', 'DatabaseError',
-	   'DatabaseModifiedError indicates a database was modified.',
-	   <<'DOC');
+           'DatabaseModifiedError indicates a database was modified.',
+           <<'DOC');
 To recover after catching this error, you need to call
 Xapian::Database::reopen() on the Database and repeat the operation
 which failed.
 DOC
 
 errorclass(9, 'DatabaseOpeningError', 'DatabaseError',
-	   'DatabaseOpeningError indicates failure to open a database.',
-	   '');
+           'DatabaseOpeningError indicates failure to open a database.',
+           '');
 
 errorclass(10, 'DatabaseVersionError', 'DatabaseOpeningError',
-	   'DatabaseVersionError indicates that a database is in an unsupported format.',
-	   <<'DOC');
+           'DatabaseVersionError indicates that a database is in an unsupported format.',
+           <<'DOC');
 From time to time, new versions of Xapian will require the database format
 to be changed, to allow new information to be stored or new optimisations
 to be performed.  Backwards compatibility will sometimes be maintained, so
@@ -129,83 +129,83 @@ the current version of Xapian.
 DOC
 
 errorclass(11, 'DocNotFoundError', 'RuntimeError',
-	   'Indicates an attempt to access a document not present in the database.',
-	   '');
+           'Indicates an attempt to access a document not present in the database.',
+           '');
 
 errorclass(12, 'FeatureUnavailableError', 'RuntimeError',
-	   'Indicates an attempt to use a feature which is unavailable.',
-	   <<'DOC');
+           'Indicates an attempt to use a feature which is unavailable.',
+           <<'DOC');
 Typically a feature is unavailable because it wasn't compiled in, or
 because it requires other software or facilities which aren't available.
 DOC
 
 errorclass(13, 'InternalError', 'RuntimeError',
-	   'InternalError indicates a runtime problem of some sort.',
-	   '');
+           'InternalError indicates a runtime problem of some sort.',
+           '');
 
 errorclass(14, 'NetworkError', 'RuntimeError',
-	   'Indicates a problem communicating with a remote database.',
-	   '');
+           'Indicates a problem communicating with a remote database.',
+           '');
 
 errorclass(15, 'NetworkTimeoutError', 'NetworkError',
-	   'Indicates a timeout expired while communicating with a remote database.',
-	   '');
+           'Indicates a timeout expired while communicating with a remote database.',
+           '');
 
 errorclass(16, 'QueryParserError', 'RuntimeError',
-	   "Indicates a query string can't be parsed.",
-	   '');
+           "Indicates a query string can't be parsed.",
+           '');
 
 errorclass(17, 'SerialisationError', 'RuntimeError',
-	   'Indicates an error in the std::string serialisation of an object.',
-	   '');
+           'Indicates an error in the std::string serialisation of an object.',
+           '');
 
 errorclass(18, 'RangeError', 'RuntimeError',
-	   'RangeError indicates an attempt to access outside the bounds of a container.',
-	   '');
+           'RangeError indicates an attempt to access outside the bounds of a container.',
+           '');
 
 errorclass(19, 'WildcardError', 'RuntimeError',
-	   'WildcardError indicates an error expanding a wildcarded query.',
-	   '');
+           'WildcardError indicates an error expanding a wildcarded query.',
+           '');
 
 errorclass(20, 'DatabaseNotFoundError', 'DatabaseOpeningError',
-	   'Indicates an attempt to access a database not present.',
-	   '');
+           'Indicates an attempt to access a database not present.',
+           '');
 
 errorclass(21, 'DatabaseClosedError', 'DatabaseError',
-	   'Indicates an attempt to access a closed database.',
-	   '');
+           'Indicates an attempt to access a closed database.',
+           '');
 
 sub for_each_nothrow {
     my $func = shift @_;
     foreach my $header ('include/xapian.h', <include/xapian/*.h>) {
-	local $/ = undef;
-	open H, '<', $header or die $!;
-	my $header_text = <H>;
-	# Strip comments.
-	$header_text =~ s!/(?:/[^\n]*|\*.*?\*/)! !gs;
-	# Ignore the parts SWIG is told to ignore.
-	$header_text =~ s/^\s*#\s*if(?:ndef|\s+!\s*defined)\s+SWIG\b.*?^\s*#\s*endif\b.*?$//gsm;
-	my $class = '';
-	for (split /[;}{]\n/, $header_text) {
-	    s/\n\s*/ /g;
-	    if (/^\s*(?:class|struct)\s+XAPIAN_VISIBILITY_DEFAULT\s+(\w+)/) {
-		$class = "$1::";
-		&$func("Xapian::$class~$1");
-		next;
-	    }
-	    s/ : .*//;
-	    /\b((?:operator *\S+|[A-Za-z][A-Za-z0-9_]+)\(.*\))((?: \w+)*)/ or next;
-	    my $method = $1;
-	    my $attributes = $2;
-	    if ($attributes !~ /\bnoexcept\b/) {
-		next;
-	    }
-	    if ($attributes =~ /\bconst\b/) {
-		$method .= ' const';
-	    }
-	    &$func("Xapian::$class$method");
-	}
-	close H;
+        local $/ = undef;
+        open H, '<', $header or die $!;
+        my $header_text = <H>;
+        # Strip comments.
+        $header_text =~ s!/(?:/[^\n]*|\*.*?\*/)! !gs;
+        # Ignore the parts SWIG is told to ignore.
+        $header_text =~ s/^\s*#\s*if(?:ndef|\s+!\s*defined)\s+SWIG\b.*?^\s*#\s*endif\b.*?$//gsm;
+        my $class = '';
+        for (split /[;}{]\n/, $header_text) {
+            s/\n\s*/ /g;
+            if (/^\s*(?:class|struct)\s+XAPIAN_VISIBILITY_DEFAULT\s+(\w+)/) {
+                $class = "$1::";
+                &$func("Xapian::$class~$1");
+                next;
+            }
+            s/ : .*//;
+            /\b((?:operator *\S+|[A-Za-z][A-Za-z0-9_]+)\(.*\))((?: \w+)*)/ or next;
+            my $method = $1;
+            my $attributes = $2;
+            if ($attributes !~ /\bnoexcept\b/) {
+                next;
+            }
+            if ($attributes =~ /\bconst\b/) {
+                $method .= ' const';
+            }
+            &$func("Xapian::$class$method");
+        }
+        close H;
     }
 }
 

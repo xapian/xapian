@@ -57,9 +57,9 @@ inline uint32_t do_bswap(uint32_t value) {
     return _byteswap_ulong(value);
 # else
     return (value << 24) |
-	   ((value & 0xff00) << 8) |
-	   ((value >> 8) & 0xff00) |
-	   (value >> 24);
+           ((value & 0xff00) << 8) |
+           ((value >> 8) & 0xff00) |
+           (value >> 24);
 # endif
 }
 
@@ -70,13 +70,13 @@ inline uint64_t do_bswap(uint64_t value) {
     return _byteswap_uint64(value);
 # else
     return (value << 56) |
-	   ((value & 0xff00) << 40) |
-	   ((value & 0xff0000) << 24) |
-	   ((value & 0xff000000) << 8) |
-	   ((value >> 8) & 0xff000000) |
-	   ((value >> 24) & 0xff0000) |
-	   ((value >> 40) & 0xff00) |
-	   (value >> 56);
+           ((value & 0xff00) << 40) |
+           ((value & 0xff0000) << 24) |
+           ((value & 0xff000000) << 8) |
+           ((value >> 8) & 0xff000000) |
+           ((value >> 24) & 0xff0000) |
+           ((value >> 40) & 0xff00) |
+           (value >> 56);
 # endif
 }
 
@@ -96,10 +96,10 @@ inline void
 do_aligned_write(unsigned char * ptr, T value)
 {
     if (std::is_signed_v<T>) {
-	AssertRel(value, >=, 0);
+        AssertRel(value, >=, 0);
     }
     if constexpr(sizeof(T) > sizeof(UINT)) {
-	AssertEq(value, T(UINT(value)));
+        AssertEq(value, T(UINT(value)));
     }
     UINT v = UINT(value);
 #ifndef WORDS_BIGENDIAN
@@ -125,10 +125,10 @@ inline void
 do_unaligned_write(unsigned char * ptr, T value)
 {
     if (std::is_signed_v<T>) {
-	AssertRel(value, >=, 0);
+        AssertRel(value, >=, 0);
     }
     if constexpr(sizeof(T) > sizeof(UINT)) {
-	AssertEq(value, T(UINT(value)));
+        AssertEq(value, T(UINT(value)));
     }
     UINT v = UINT(value);
 #ifndef WORDS_BIGENDIAN

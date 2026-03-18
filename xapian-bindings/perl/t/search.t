@@ -49,7 +49,7 @@ is( $query->get_description, "Query(help)", "query parsed correctly" );
 # tests 15-41
 $subqueries[1] = Xapian::Query->new( 'help' );
 foreach my $op (OP_OR, OP_AND, OP_NEAR, OP_PHRASE,
-		OP_AND_NOT, OP_XOR, OP_AND_MAYBE, OP_FILTER, OP_ELITE_SET) {
+                OP_AND_NOT, OP_XOR, OP_AND_MAYBE, OP_FILTER, OP_ELITE_SET) {
   ok( $query = Xapian::Query->new( $op, @subqueries ), "$Xapian::OP_NAMES[$op] works with 2 objects" );
   ok( $query = Xapian::Query->new( $op, $subqueries[0], 'test'), "$Xapian::OP_NAMES[$op] works with an object and a term" );
   ok( $query = Xapian::Query->new( $op, 'test', 'help'), "$Xapian::OP_NAMES[$op] works with 2 terms" );
@@ -85,9 +85,9 @@ isnt( $match, $matches->begin(), "match set iterator increments correctly" );
 ok( $match->get_docid(), "document id returned ok" );
 ok( $match->get_percent(), "percent relevance returned ok" );
 is( $match->get_percent(), $matches->convert_to_percent($match->get_weight()),
-	"converting a weight to a percentage works" );
+        "converting a weight to a percentage works" );
 is( $match->get_percent(), $matches->convert_to_percent($match),
-	"converting an MSetIterator to a percentage works" );
+        "converting an MSetIterator to a percentage works" );
 
 my $doc;
 ok( $doc = $match->get_document(), "documents retrievable" );
@@ -121,15 +121,15 @@ is( $matches3->size, $matches->size, "rset and check_at_least don't change mset 
 my $d;
 # This was generating a warning converting "0" to an RSet object:
 ok( $matches3 = $enq->get_mset(0, 10,
-			sub { $d = scalar @_; return $_[0]->get_value(0) ne ""; }),
-	"get_mset with matchdecider" );
+                        sub { $d = scalar @_; return $_[0]->get_value(0) ne ""; }),
+        "get_mset with matchdecider" );
 ok( defined $d, "matchdecider was called" );
 ok( $d == 1, "matchdecider got an argument" );
 
 $d = undef;
 ok( $matches3 = $enq->get_mset(0, 10, 0, undef,
-			sub { $d = scalar @_; return $_[0]->get_value(0) ne ""; }),
-	"get_mset with matchdecider and full args list" );
+                        sub { $d = scalar @_; return $_[0]->get_value(0) ne ""; }),
+        "get_mset with matchdecider and full args list" );
 ok( defined $d, "matchdecider was called" );
 ok( $d == 1, "matchdecider got an argument" );
 
@@ -140,7 +140,7 @@ sub mdecider {
 
 $d = undef;
 ok( $matches3 = $enq->get_mset(0, 10, \&mdecider),
-	"get_mset with named matchdecider function" );
+        "get_mset with named matchdecider function" );
 ok( defined $d, "matchdecider was called" );
 ok( $d == 1, "matchdecider got an argument" );
 
@@ -182,7 +182,7 @@ ok( $match->get_collapse_count() == 0 );
 # Test passing a sub as a matchspy.
 my @spy_values = ();
 $enq->add_matchspy(
-	sub { my $doc = shift; push @spy_values, $doc->get_value(0)}
+        sub { my $doc = shift; push @spy_values, $doc->get_value(0)}
     );
 $enq->set_query(Xapian::Query::MatchAll);
 $matches = $enq->get_mset(1, 2);

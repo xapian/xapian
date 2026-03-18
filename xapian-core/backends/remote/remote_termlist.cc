@@ -44,7 +44,7 @@ RemoteTermList::accumulate_stats(Xapian::Internal::ExpandStats& stats) const
     // drop this?
     Assert(!data.empty());
     stats.accumulate(shard_index,
-		     current_wdf, doclen, current_termfreq, db_size);
+                     current_wdf, doclen, current_termfreq, db_size);
 }
 
 Xapian::termcount
@@ -65,17 +65,17 @@ TermList*
 RemoteTermList::next()
 {
     if (!p) {
-	p = data.data();
+        p = data.data();
     }
     const char* p_end = data.data() + data.size();
     if (p == p_end) {
-	return this;
+        return this;
     }
     current_term.resize(size_t(static_cast<unsigned char>(*p++)));
     if (!unpack_string_append(&p, p_end, current_term) ||
-	!unpack_uint(&p, p_end, &current_wdf) ||
-	!unpack_uint(&p, p_end, &current_termfreq)) {
-	unpack_throw_serialisation_error(p);
+        !unpack_uint(&p, p_end, &current_wdf) ||
+        !unpack_uint(&p, p_end, &current_termfreq)) {
+        unpack_throw_serialisation_error(p);
     }
     return NULL;
 }
@@ -84,12 +84,12 @@ TermList*
 RemoteTermList::skip_to(std::string_view term)
 {
     if (!p) {
-	if (RemoteTermList::next())
-	    return this;
+        if (RemoteTermList::next())
+            return this;
     }
     while (current_term < term) {
-	if (RemoteTermList::next())
-	    return this;
+        if (RemoteTermList::next())
+            return this;
     }
     return NULL;
 }

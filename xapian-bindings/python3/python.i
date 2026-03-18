@@ -82,23 +82,23 @@ class XapianSWIG_Python_Thread_Block {
   public:
     XapianSWIG_Python_Thread_Block() : status(false) {
 #if PY_VERSION_HEX < 0x03070000
-	// Since 3.7, Python initialises the GIL in PyInitialize() so
-	// PyEval_ThreadsInitialized() is no longer useful and was
-	// deprecated in 3.9.
-	if (!PyEval_ThreadsInitialized()) return;
+        // Since 3.7, Python initialises the GIL in PyInitialize() so
+        // PyEval_ThreadsInitialized() is no longer useful and was
+        // deprecated in 3.9.
+        if (!PyEval_ThreadsInitialized()) return;
 #endif
-	PyThreadState* ts = swig_pythreadstate_reset();
-	if (ts) {
-	    status = true;
-	    PyEval_RestoreThread(ts);
-	}
+        PyThreadState* ts = swig_pythreadstate_reset();
+        if (ts) {
+            status = true;
+            PyEval_RestoreThread(ts);
+        }
     }
     void end() {
-	if (status) {
-	    if (swig_pythreadstate_set(PyEval_SaveThread()))
-		Py_FatalError("swig_pythreadstate set in XapianSWIG_Python_Thread_Block::end()");
-	    status = false;
-	}
+        if (status) {
+            if (swig_pythreadstate_set(PyEval_SaveThread()))
+                Py_FatalError("swig_pythreadstate set in XapianSWIG_Python_Thread_Block::end()");
+            status = false;
+        }
     }
     ~XapianSWIG_Python_Thread_Block() { end(); }
 };
@@ -108,25 +108,25 @@ class XapianSWIG_Python_Thread_Allow {
   public:
     XapianSWIG_Python_Thread_Allow() : status(true) {
 #if PY_VERSION_HEX < 0x03070000
-	// Since 3.7, Python initialises the GIL in PyInitialize() so
-	// PyEval_ThreadsInitialized() is no longer useful and was
-	// deprecated in 3.9.
-	if (!PyEval_ThreadsInitialized()) {
-	    status = false;
-	    return;
-	}
+        // Since 3.7, Python initialises the GIL in PyInitialize() so
+        // PyEval_ThreadsInitialized() is no longer useful and was
+        // deprecated in 3.9.
+        if (!PyEval_ThreadsInitialized()) {
+            status = false;
+            return;
+        }
 #endif
-	if (swig_pythreadstate_set(PyEval_SaveThread()))
-	    Py_FatalError("swig_pythreadstate set in XapianSWIG_Python_Thread_Allow ctor");
+        if (swig_pythreadstate_set(PyEval_SaveThread()))
+            Py_FatalError("swig_pythreadstate set in XapianSWIG_Python_Thread_Allow ctor");
     }
     void end() {
-	if (status) {
-	    PyThreadState * ts = swig_pythreadstate_reset();
-	    if (!ts)
-		Py_FatalError("swig_pythreadstate unset in XapianSWIG_Python_Thread_Block::end()");
-	    PyEval_RestoreThread(ts);
-	    status = false;
-	}
+        if (status) {
+            PyThreadState * ts = swig_pythreadstate_reset();
+            if (!ts)
+                Py_FatalError("swig_pythreadstate unset in XapianSWIG_Python_Thread_Block::end()");
+            PyEval_RestoreThread(ts);
+            status = false;
+        }
     }
     ~XapianSWIG_Python_Thread_Allow() { end(); }
 };
@@ -230,10 +230,10 @@ class XapianSWIGQueryItor {
 
     /// str_obj must be a bytes object
     Xapian::Query str_obj_to_query(PyObject * str_obj) const {
-	char * p;
-	Py_ssize_t len;
-	(void)PyBytes_AsStringAndSize(str_obj, &p, &len);
-	return Xapian::Query(string(p, len));
+        char * p;
+        Py_ssize_t len;
+        (void)PyBytes_AsStringAndSize(str_obj, &p, &len);
+        return Xapian::Query(string(p, len));
     }
 
   public:
@@ -246,58 +246,58 @@ class XapianSWIGQueryItor {
     XapianSWIGQueryItor() : seq(NULL), i(0) { }
 
     void begin(PyObject * seq_) {
-	seq = seq_;
+        seq = seq_;
     }
 
     void end(PyObject * seq_) {
-	i = PySequence_Fast_GET_SIZE(seq_);
+        i = PySequence_Fast_GET_SIZE(seq_);
     }
 
     void free_seq() {
-	Py_CLEAR(seq);
+        Py_CLEAR(seq);
     }
 
     XapianSWIGQueryItor & operator++() {
-	++i;
-	return *this;
+        ++i;
+        return *this;
     }
 
     Xapian::Query operator*() const {
-	PyObject * obj = PySequence_Fast_GET_ITEM(seq, i);
+        PyObject * obj = PySequence_Fast_GET_ITEM(seq, i);
 
-	// Unicode object.
-	if (PyUnicode_Check(obj)) {
-	    PyObject* s = PyUnicode_AsUTF8String(obj);
-	    if (!s) goto fail;
-	    Xapian::Query result = str_obj_to_query(s);
-	    Py_DECREF(s);
-	    return result;
-	}
+        // Unicode object.
+        if (PyUnicode_Check(obj)) {
+            PyObject* s = PyUnicode_AsUTF8String(obj);
+            if (!s) goto fail;
+            Xapian::Query result = str_obj_to_query(s);
+            Py_DECREF(s);
+            return result;
+        }
 
-	// String.
-	if (PyBytes_Check(obj))
-	    return str_obj_to_query(obj);
+        // String.
+        if (PyBytes_Check(obj))
+            return str_obj_to_query(obj);
 
-	// xapian.Query object (or unexpected object type).
-	{
-	    Xapian::Query * result_ptr = Xapian::get_py_query(obj);
-	    if (result_ptr) return *result_ptr;
-	}
+        // xapian.Query object (or unexpected object type).
+        {
+            Xapian::Query * result_ptr = Xapian::get_py_query(obj);
+            if (result_ptr) return *result_ptr;
+        }
 
     fail:
-	throw Xapian::InvalidArgumentError("Expected Query object or string");
+        throw Xapian::InvalidArgumentError("Expected Query object or string");
     }
 
     bool operator==(const XapianSWIGQueryItor & o) {
-	return i == o.i;
+        return i == o.i;
     }
 
     bool operator!=(const XapianSWIGQueryItor & o) {
-	return !(*this == o);
+        return !(*this == o);
     }
 
     difference_type operator-(const XapianSWIGQueryItor &o) const {
-	return i - o.i;
+        return i - o.i;
     }
 };
 
@@ -306,7 +306,7 @@ class XapianSWIGQueryItor {
 %typemap(in) (XapianSWIGQueryItor qbegin, XapianSWIGQueryItor qend) {
     PyObject * seq;
     seq = PySequence_Fast($input,
-			  "expected sequence of Query objects and/or strings");
+                          "expected sequence of Query objects and/or strings");
     if (!seq) SWIG_fail;
     $1.begin(seq);
     $2.end(seq);

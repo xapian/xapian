@@ -32,7 +32,7 @@ class CPUTimer {
 
     /// Return elapsed CPU time since object creation in seconds.
     double get_time() const {
-	return get_current_cputime() - start;
+        return get_current_cputime() - start;
     }
 };
 

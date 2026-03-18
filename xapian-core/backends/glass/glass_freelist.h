@@ -37,28 +37,28 @@ class GlassFLCursor {
     GlassFLCursor() : n(0), c(0) { }
 
     bool operator==(const GlassFLCursor & o) const {
-	return n == o.n && c == o.c;
+        return n == o.n && c == o.c;
     }
 
     bool operator!=(const GlassFLCursor & o) const {
-	return !(*this == o);
+        return !(*this == o);
     }
 
     void swap(GlassFLCursor &o) {
-	std::swap(n, o.n);
-	std::swap(c, o.c);
+        std::swap(n, o.n);
+        std::swap(c, o.c);
     }
 
     void pack(std::string & buf) {
-	pack_uint(buf, n);
-	pack_uint(buf, c / 4);
+        pack_uint(buf, n);
+        pack_uint(buf, c / 4);
     }
 
     bool unpack(const char ** p, const char * end) {
-	bool r = unpack_uint(p, end, &n) && unpack_uint(p, end, &c);
-	if (usual(r))
-	    c *= 4;
-	return r;
+        bool r = unpack_uint(p, end, &n) && unpack_uint(p, end, &c);
+        if (usual(r))
+            c *= 4;
+        return r;
     }
 };
 
@@ -89,16 +89,16 @@ class GlassFreeList {
 
   public:
     GlassFreeList() {
-	revision = 0;
-	first_unused_block = 0;
-	flw_appending = false;
-	p = pw = NULL;
+        revision = 0;
+        first_unused_block = 0;
+        flw_appending = false;
+        p = pw = NULL;
     }
 
     void reset() {
-	revision = 0;
-	first_unused_block = 0;
-	flw_appending = false;
+        revision = 0;
+        first_unused_block = 0;
+        flw_appending = false;
     }
 
     ~GlassFreeList() { delete [] p; delete [] pw; }
@@ -106,7 +106,7 @@ class GlassFreeList {
     bool empty() const { return fl == fl_end; }
 
     uint4 get_block(const GlassTable * B, uint4 block_size,
-		    uint4 * blk_to_free = NULL);
+                    uint4 * blk_to_free = NULL);
 
     uint4 walk(const GlassTable *B, uint4 block_size, bool inclusive);
 
@@ -123,28 +123,28 @@ class GlassFreeList {
     void commit(const GlassTable * B, uint4 block_size);
 
     void pack(std::string & buf) {
-	pack_uint(buf, revision);
-	pack_uint(buf, first_unused_block);
-	fl.pack(buf);
-	flw.pack(buf);
+        pack_uint(buf, revision);
+        pack_uint(buf, first_unused_block);
+        fl.pack(buf);
+        flw.pack(buf);
     }
 
     bool unpack(const char ** pstart, const char * end) {
-	bool r = unpack_uint(pstart, end, &revision) &&
-		 unpack_uint(pstart, end, &first_unused_block) &&
-		 fl.unpack(pstart, end) &&
-		 flw.unpack(pstart, end);
-	if (r) {
-	    fl_end = flw;
-	    flw_appending = false;
-	}
-	return r;
+        bool r = unpack_uint(pstart, end, &revision) &&
+                 unpack_uint(pstart, end, &first_unused_block) &&
+                 fl.unpack(pstart, end) &&
+                 flw.unpack(pstart, end);
+        if (r) {
+            fl_end = flw;
+            flw_appending = false;
+        }
+        return r;
     }
 
     bool unpack(const std::string & s) {
-	const char * ptr = s.data();
-	const char * end = ptr + s.size();
-	return unpack(&ptr, end) && ptr == end;
+        const char * ptr = s.data();
+        const char * end = ptr + s.size();
+        return unpack(&ptr, end) && ptr == end;
     }
 };
 
@@ -164,17 +164,17 @@ class GlassFreeListChecker {
     explicit GlassFreeListChecker(const GlassFreeList & fl);
 
     ~GlassFreeListChecker() {
-	delete [] bitmap;
+        delete [] bitmap;
     }
 
     bool mark_used(uint4 n) {
-	const unsigned BITS_PER_ELT = sizeof(elt_type) * 8;
-	elt_type mask = static_cast<elt_type>(1) << (n & (BITS_PER_ELT - 1));
-	n /= BITS_PER_ELT;
-	if (rare(n >= bitmap_size)) return false;
-	if ((bitmap[n] & mask) == 0) return false;
-	bitmap[n] &= ~mask;
-	return true;
+        const unsigned BITS_PER_ELT = sizeof(elt_type) * 8;
+        elt_type mask = static_cast<elt_type>(1) << (n & (BITS_PER_ELT - 1));
+        n /= BITS_PER_ELT;
+        if (rare(n >= bitmap_size)) return false;
+        if ((bitmap[n] & mask) == 0) return false;
+        bitmap[n] &= ~mask;
+        return true;
     }
 
     /// Count how many bits are still set.

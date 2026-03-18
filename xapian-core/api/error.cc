@@ -39,7 +39,7 @@
 using namespace std;
 
 Xapian::Error::Error(std::string_view msg_, std::string_view context_,
-		     const char * type_, const char * error_string_)
+                     const char * type_, const char * error_string_)
     : msg(msg_), context(context_), error_string(), type(type_),
       my_errno(0)
 {
@@ -50,40 +50,40 @@ const char *
 Xapian::Error::get_error_string() const
 {
     if (error_string.empty()) {
-	if (my_errno == 0) return NULL;
+        if (my_errno == 0) return NULL;
 #ifdef __WIN32__
-	if (my_errno < 0 || my_errno >= WSABASEERR) {
-	    int e = abs(my_errno);
-	    DWORD len;
-	    char * error;
-	    len = FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM|
-				FORMAT_MESSAGE_ALLOCATE_BUFFER,
-				0, e, 0, (CHAR*)&error, 0, 0);
-	    if (error) {
-		// Remove any trailing \r\n from output of FormatMessage.
-		if (len >= 2 && memcmp(error + len - 2, "\r\n", 2) == 0)
-		    len -= 2;
-		error_string.assign(error, len);
-		LocalFree(error);
-	    } else {
-		error_string = "Unknown Error ";
-		error_string += str(e);
-	    }
-	} else {
-	    errno_to_string(my_errno, error_string);
-	}
+        if (my_errno < 0 || my_errno >= WSABASEERR) {
+            int e = abs(my_errno);
+            DWORD len;
+            char * error;
+            len = FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM|
+                                FORMAT_MESSAGE_ALLOCATE_BUFFER,
+                                0, e, 0, (CHAR*)&error, 0, 0);
+            if (error) {
+                // Remove any trailing \r\n from output of FormatMessage.
+                if (len >= 2 && memcmp(error + len - 2, "\r\n", 2) == 0)
+                    len -= 2;
+                error_string.assign(error, len);
+                LocalFree(error);
+            } else {
+                error_string = "Unknown Error ";
+                error_string += str(e);
+            }
+        } else {
+            errno_to_string(my_errno, error_string);
+        }
 #else
-	if (my_errno > 0) {
-	    errno_to_string(my_errno, error_string);
-	} else {
-	    // POSIX says only that EAI_* constants are "non-zero" - they're
-	    // negative on Linux, but we allow for them being positive.  We
-	    // check they all that the same sign in net/resolver.h.
-	    if (EAI_FAIL > 0)
-		error_string.assign(gai_strerror(-my_errno));
-	    else
-		error_string.assign(gai_strerror(my_errno));
-	}
+        if (my_errno > 0) {
+            errno_to_string(my_errno, error_string);
+        } else {
+            // POSIX says only that EAI_* constants are "non-zero" - they're
+            // negative on Linux, but we allow for them being positive.  We
+            // check they all that the same sign in net/resolver.h.
+            if (EAI_FAIL > 0)
+                error_string.assign(gai_strerror(-my_errno));
+            else
+                error_string.assign(gai_strerror(my_errno));
+        }
 #endif
     }
     return error_string.c_str();
@@ -96,15 +96,15 @@ Xapian::Error::get_description() const
     desc += ": ";
     desc += msg;
     if (!context.empty()) {
-	desc += " (context: ";
-	description_append(desc, context);
-	desc += ')';
+        desc += " (context: ";
+        description_append(desc, context);
+        desc += ')';
     }
     const char *e = get_error_string();
     if (e) {
-	desc += " (";
-	description_append(desc, e);
-	desc += ')';
+        desc += " (";
+        description_append(desc, e);
+        desc += ')';
     }
     return desc;
 }

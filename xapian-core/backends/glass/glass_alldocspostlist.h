@@ -35,7 +35,7 @@ class GlassAllDocsPostList : public GlassPostList {
 
   public:
     GlassAllDocsPostList(Xapian::Internal::intrusive_ptr<const GlassDatabase> db_,
-			 Xapian::doccount doccount);
+                         Xapian::doccount doccount);
 
     Xapian::termcount get_wdf() const;
 

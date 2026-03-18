@@ -39,10 +39,10 @@ class dircloser {
   public:
     dircloser(DIR * dir_) : dir(dir_) {}
     ~dircloser() {
-	if (dir != NULL) {
-	    closedir(dir);
-	    dir = NULL;
-	}
+        if (dir != NULL) {
+            closedir(dir);
+            dir = NULL;
+        }
     }
 };
 
@@ -53,30 +53,30 @@ removedir(const string &dirname)
 
     dir = opendir(dirname.c_str());
     if (dir == NULL) {
-	if (errno == ENOENT) return;
-	throw Xapian::DatabaseError("Cannot open directory '" + dirname + "'", errno);
+        if (errno == ENOENT) return;
+        throw Xapian::DatabaseError("Cannot open directory '" + dirname + "'", errno);
     }
 
     {
-	dircloser dc(dir);
-	while (true) {
-	    errno = 0;
-	    struct dirent * entry = readdir(dir);
-	    if (entry == NULL) {
-		if (errno == 0)
-		    break;
-		throw Xapian::DatabaseError("Cannot read entry from directory at '" + dirname + "'", errno);
-	    }
-	    string name(entry->d_name);
-	    if (name == "." || name == "..")
-		continue;
-	    if (unlink((dirname + "/" + name).c_str())) {
-		throw Xapian::DatabaseError("Cannot remove file '" + string(entry->d_name) + "'", errno);
-	    }
-	}
+        dircloser dc(dir);
+        while (true) {
+            errno = 0;
+            struct dirent * entry = readdir(dir);
+            if (entry == NULL) {
+                if (errno == 0)
+                    break;
+                throw Xapian::DatabaseError("Cannot read entry from directory at '" + dirname + "'", errno);
+            }
+            string name(entry->d_name);
+            if (name == "." || name == "..")
+                continue;
+            if (unlink((dirname + "/" + name).c_str())) {
+                throw Xapian::DatabaseError("Cannot remove file '" + string(entry->d_name) + "'", errno);
+            }
+        }
     }
     if (rmdir(dirname.c_str())) {
-	throw Xapian::DatabaseError("Cannot remove directory '" + dirname + "'", errno);
+        throw Xapian::DatabaseError("Cannot remove directory '" + dirname + "'", errno);
     }
 }
 
@@ -106,10 +106,10 @@ resolve_relative_path(string& path, string_view base)
 {
 #ifndef __WIN32__
     if (path.empty() || path[0] != '/') {
-	// path is relative.
-	string::size_type last_slash = base.rfind('/');
-	if (last_slash != string::npos)
-	    path.insert(0, base, 0, last_slash + 1);
+        // path is relative.
+        string::size_type last_slash = base.rfind('/');
+        if (last_slash != string::npos)
+            path.insert(0, base, 0, last_slash + 1);
     }
 #else
     // Microsoft Windows paths may begin with a drive letter but still be
@@ -119,69 +119,69 @@ resolve_relative_path(string& path, string_view base)
     bool absolute = (p != path.size() && slash(path[p]));
 
     if (absolute) {
-	// If path is absolute and has a drive specifier, just return it.
-	if (drive)
-	    return;
+        // If path is absolute and has a drive specifier, just return it.
+        if (drive)
+            return;
 
-	// If base has a drive specifier prepend that to path.
-	if (has_drive(base)) {
-	    path.insert(0, base, 0, 2);
-	    return;
-	}
+        // If base has a drive specifier prepend that to path.
+        if (has_drive(base)) {
+            path.insert(0, base, 0, 2);
+            return;
+        }
 
-	// If base has a UNC (\\SERVER\\VOLUME) or \\?\ prefix, prepend that
-	// to path.
-	if (uncw_path(base)) {
-	    string::size_type sl = 0;
-	    if (base.size() >= 7 && memcmp(base.data() + 5, ":\\", 2) == 0) {
-		// "\\?\X:\"
-		sl = 6;
-	    } else if (base.size() >= 8 &&
-		       memcmp(base.data() + 4, "UNC\\", 4) == 0) {
-		// "\\?\UNC\server\volume\"
-		sl = base.find('\\', 8);
-		if (sl != string::npos)
-		    sl = base.find('\\', sl + 1);
-	    }
-	    if (sl) {
-		// With the \\?\ prefix, '/' isn't recognised so change it
-		// to '\' in path.
-		for (auto& ch : path) {
-		    if (ch == '/')
-			ch = '\\';
-		}
-		path.insert(0, base, 0, sl);
-	    }
-	} else if (base.size() >= 5 && slash(base[0]) && slash(base[1])) {
-	    // Handle UNC base.
-	    string::size_type sl = base.find_first_of("/\\", 2);
-	    if (sl != string::npos) {
-		sl = base.find_first_of("/\\", sl + 1);
-		path.insert(0, base, 0, sl);
-	    }
-	}
-	return;
+        // If base has a UNC (\\SERVER\\VOLUME) or \\?\ prefix, prepend that
+        // to path.
+        if (uncw_path(base)) {
+            string::size_type sl = 0;
+            if (base.size() >= 7 && memcmp(base.data() + 5, ":\\", 2) == 0) {
+                // "\\?\X:\"
+                sl = 6;
+            } else if (base.size() >= 8 &&
+                       memcmp(base.data() + 4, "UNC\\", 4) == 0) {
+                // "\\?\UNC\server\volume\"
+                sl = base.find('\\', 8);
+                if (sl != string::npos)
+                    sl = base.find('\\', sl + 1);
+            }
+            if (sl) {
+                // With the \\?\ prefix, '/' isn't recognised so change it
+                // to '\' in path.
+                for (auto& ch : path) {
+                    if (ch == '/')
+                        ch = '\\';
+                }
+                path.insert(0, base, 0, sl);
+            }
+        } else if (base.size() >= 5 && slash(base[0]) && slash(base[1])) {
+            // Handle UNC base.
+            string::size_type sl = base.find_first_of("/\\", 2);
+            if (sl != string::npos) {
+                sl = base.find_first_of("/\\", sl + 1);
+                path.insert(0, base, 0, sl);
+            }
+        }
+        return;
     }
 
     // path is relative, so if it has no drive specifier or the same drive
     // specifier as base, then we want to qualify it using base.
     bool base_drive = has_drive(base);
     if (!drive || (base_drive && (path[0] | 32) == (base[0] | 32))) {
-	string::size_type last_slash = base.find_last_of("/\\");
-	if (last_slash == string::npos && !drive && base_drive)
-	    last_slash = 1;
-	if (last_slash != string::npos) {
-	    string::size_type b = (drive && base_drive ? 2 : 0);
-	    if (uncw_path(base)) {
-		// With the \\?\ prefix, '/' isn't recognised so change it
-		// to '\' in path.
-		for (auto& ch : path) {
-		    if (ch == '/')
-			ch = '\\';
-		}
-	    }
-	    path.insert(b, base, b, last_slash + 1 - b);
-	}
+        string::size_type last_slash = base.find_last_of("/\\");
+        if (last_slash == string::npos && !drive && base_drive)
+            last_slash = 1;
+        if (last_slash != string::npos) {
+            string::size_type b = (drive && base_drive ? 2 : 0);
+            if (uncw_path(base)) {
+                // With the \\?\ prefix, '/' isn't recognised so change it
+                // to '\' in path.
+                for (auto& ch : path) {
+                    if (ch == '/')
+                        ch = '\\';
+                }
+            }
+            path.insert(b, base, b, last_slash + 1 - b);
+        }
     }
 #endif
 }

@@ -49,7 +49,7 @@ class DocumentTermList final : public TermList {
   public:
     explicit
     DocumentTermList(const Xapian::Document::Internal* doc_)
-	: doc(doc_), it(doc->terms->end()) {}
+        : doc(doc_), it(doc->terms->end()) {}
 
     Xapian::termcount get_approx_size() const;
 

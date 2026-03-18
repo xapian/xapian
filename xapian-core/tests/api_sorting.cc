@@ -35,158 +35,158 @@ DEFINE_TESTCASE(sortfunctor1, backend) {
     enquire.set_query(Xapian::Query("woman"));
 
     {
-	static const int keys[] = { 3, 1 };
-	Xapian::MultiValueKeyMaker sorter(keys, keys + 2);
+        static const int keys[] = { 3, 1 };
+        Xapian::MultiValueKeyMaker sorter(keys, keys + 2);
 
-	enquire.set_sort_by_key(&sorter, true);
-	Xapian::MSet mset = enquire.get_mset(0, 10);
-	mset_expect_order(mset, 2, 6, 7, 1, 3, 4, 5, 8, 9);
+        enquire.set_sort_by_key(&sorter, true);
+        Xapian::MSet mset = enquire.get_mset(0, 10);
+        mset_expect_order(mset, 2, 6, 7, 1, 3, 4, 5, 8, 9);
 
-	for (auto m = mset.begin(); m != mset.end(); ++m) {
-	    const string& data = m.get_document().get_data();
-	    string exp;
-	    exp += data[3];
-	    exp += string(2, '\0');
-	    exp += data[1];
-	    TEST_EQUAL(m.get_sort_key(), exp);
-	}
+        for (auto m = mset.begin(); m != mset.end(); ++m) {
+            const string& data = m.get_document().get_data();
+            string exp;
+            exp += data[3];
+            exp += string(2, '\0');
+            exp += data[1];
+            TEST_EQUAL(m.get_sort_key(), exp);
+        }
     }
 
     {
-	Xapian::MultiValueKeyMaker sorter;
-	sorter.add_value(3);
-	sorter.add_value(1, true);
+        Xapian::MultiValueKeyMaker sorter;
+        sorter.add_value(3);
+        sorter.add_value(1, true);
 
-	enquire.set_sort_by_key(&sorter, true);
-	Xapian::MSet mset = enquire.get_mset(0, 10);
-	mset_expect_order(mset, 7, 6, 2, 8, 9, 4, 5, 1, 3);
+        enquire.set_sort_by_key(&sorter, true);
+        Xapian::MSet mset = enquire.get_mset(0, 10);
+        mset_expect_order(mset, 7, 6, 2, 8, 9, 4, 5, 1, 3);
 
-	for (auto m = mset.begin(); m != mset.end(); ++m) {
-	    const string& data = m.get_document().get_data();
-	    string exp;
-	    exp += data[3];
-	    exp += string(2, '\0');
-	    exp += char(0xff - data[1]);
-	    exp += string(2, '\xff');
-	    TEST_EQUAL(m.get_sort_key(), exp);
-	}
+        for (auto m = mset.begin(); m != mset.end(); ++m) {
+            const string& data = m.get_document().get_data();
+            string exp;
+            exp += data[3];
+            exp += string(2, '\0');
+            exp += char(0xff - data[1]);
+            exp += string(2, '\xff');
+            TEST_EQUAL(m.get_sort_key(), exp);
+        }
     }
 
     {
-	Xapian::MultiValueKeyMaker sorter;
-	sorter.add_value(100); // Value 100 isn't set.
-	sorter.add_value(3);
-	sorter.add_value(1, true);
+        Xapian::MultiValueKeyMaker sorter;
+        sorter.add_value(100); // Value 100 isn't set.
+        sorter.add_value(3);
+        sorter.add_value(1, true);
 
-	enquire.set_sort_by_key(&sorter, true);
-	Xapian::MSet mset = enquire.get_mset(0, 10);
-	mset_expect_order(mset, 7, 6, 2, 8, 9, 4, 5, 1, 3);
+        enquire.set_sort_by_key(&sorter, true);
+        Xapian::MSet mset = enquire.get_mset(0, 10);
+        mset_expect_order(mset, 7, 6, 2, 8, 9, 4, 5, 1, 3);
 
-	for (auto m = mset.begin(); m != mset.end(); ++m) {
-	    const string& data = m.get_document().get_data();
-	    string exp;
-	    exp += string(2, '\0');
-	    exp += data[3];
-	    exp += string(2, '\0');
-	    exp += char(0xff - data[1]);
-	    exp += string(2, '\xff');
-	    TEST_EQUAL(m.get_sort_key(), exp);
-	}
+        for (auto m = mset.begin(); m != mset.end(); ++m) {
+            const string& data = m.get_document().get_data();
+            string exp;
+            exp += string(2, '\0');
+            exp += data[3];
+            exp += string(2, '\0');
+            exp += char(0xff - data[1]);
+            exp += string(2, '\xff');
+            TEST_EQUAL(m.get_sort_key(), exp);
+        }
     }
 
     {
-	Xapian::MultiValueKeyMaker sorter;
-	sorter.add_value(10); // Value 10 isn't always set.
-	sorter.add_value(1, true);
+        Xapian::MultiValueKeyMaker sorter;
+        sorter.add_value(10); // Value 10 isn't always set.
+        sorter.add_value(1, true);
 
-	enquire.set_sort_by_key(&sorter, true);
-	Xapian::MSet mset = enquire.get_mset(0, 10);
-	mset_expect_order(mset, 8, 9, 4, 5, 1, 3, 7, 6, 2);
+        enquire.set_sort_by_key(&sorter, true);
+        Xapian::MSet mset = enquire.get_mset(0, 10);
+        mset_expect_order(mset, 8, 9, 4, 5, 1, 3, 7, 6, 2);
 
-	for (auto m = mset.begin(); m != mset.end(); ++m) {
-	    const string& data = m.get_document().get_data();
-	    string exp;
-	    if (data.size() > 10) exp += data[10];
-	    exp += string(2, '\0');
-	    exp += char(0xff - data[1]);
-	    exp += string(2, '\xff');
-	    TEST_EQUAL(m.get_sort_key(), exp);
-	}
+        for (auto m = mset.begin(); m != mset.end(); ++m) {
+            const string& data = m.get_document().get_data();
+            string exp;
+            if (data.size() > 10) exp += data[10];
+            exp += string(2, '\0');
+            exp += char(0xff - data[1]);
+            exp += string(2, '\xff');
+            TEST_EQUAL(m.get_sort_key(), exp);
+        }
     }
 }
 
 /// Test reverse sort functor.
 DEFINE_TESTCASE(sortfunctor2, backend) {
     Xapian::Database db = get_database("sortfunctor2",
-				       [](Xapian::WritableDatabase& wdb,
-					  const string&) {
-					   Xapian::Document doc;
-					   doc.add_term("foo");
-					   doc.add_value(0, "ABB");
-					   wdb.add_document(doc);
-					   doc.add_value(0, "ABC");
-					   wdb.add_document(doc);
-					   doc.add_value(0, string("ABC", 4));
-					   wdb.add_document(doc);
-					   doc.add_value(0, "ABCD");
-					   wdb.add_document(doc);
-					   doc.add_value(0, "ABC\xff");
-					   wdb.add_document(doc);
-				       });
+                                       [](Xapian::WritableDatabase& wdb,
+                                          const string&) {
+                                           Xapian::Document doc;
+                                           doc.add_term("foo");
+                                           doc.add_value(0, "ABB");
+                                           wdb.add_document(doc);
+                                           doc.add_value(0, "ABC");
+                                           wdb.add_document(doc);
+                                           doc.add_value(0, string("ABC", 4));
+                                           wdb.add_document(doc);
+                                           doc.add_value(0, "ABCD");
+                                           wdb.add_document(doc);
+                                           doc.add_value(0, "ABC\xff");
+                                           wdb.add_document(doc);
+                                       });
 
     Xapian::Enquire enquire(db);
     enquire.set_query(Xapian::Query("foo"));
 
     {
-	Xapian::MultiValueKeyMaker sorter;
-	sorter.add_value(0);
-	enquire.set_sort_by_key(&sorter, true);
-	Xapian::MSet mset = enquire.get_mset(0, 10);
-	mset_expect_order(mset, 5, 4, 3, 2, 1);
+        Xapian::MultiValueKeyMaker sorter;
+        sorter.add_value(0);
+        enquire.set_sort_by_key(&sorter, true);
+        Xapian::MSet mset = enquire.get_mset(0, 10);
+        mset_expect_order(mset, 5, 4, 3, 2, 1);
     }
 
     {
-	Xapian::MultiValueKeyMaker sorter;
-	sorter.add_value(0, true);
-	enquire.set_sort_by_key(&sorter, true);
-	Xapian::MSet mset = enquire.get_mset(0, 10);
-	mset_expect_order(mset, 1, 2, 3, 4, 5);
+        Xapian::MultiValueKeyMaker sorter;
+        sorter.add_value(0, true);
+        enquire.set_sort_by_key(&sorter, true);
+        Xapian::MSet mset = enquire.get_mset(0, 10);
+        mset_expect_order(mset, 1, 2, 3, 4, 5);
     }
 
     {
-	Xapian::MultiValueKeyMaker sorter;
-	sorter.add_value(0);
-	sorter.add_value(1);
-	enquire.set_sort_by_key(&sorter, true);
-	Xapian::MSet mset = enquire.get_mset(0, 10);
-	mset_expect_order(mset, 5, 4, 3, 2, 1);
+        Xapian::MultiValueKeyMaker sorter;
+        sorter.add_value(0);
+        sorter.add_value(1);
+        enquire.set_sort_by_key(&sorter, true);
+        Xapian::MSet mset = enquire.get_mset(0, 10);
+        mset_expect_order(mset, 5, 4, 3, 2, 1);
     }
 
     {
-	Xapian::MultiValueKeyMaker sorter;
-	sorter.add_value(0, true);
-	sorter.add_value(1);
-	enquire.set_sort_by_key(&sorter, true);
-	Xapian::MSet mset = enquire.get_mset(0, 10);
-	mset_expect_order(mset, 1, 2, 3, 4, 5);
+        Xapian::MultiValueKeyMaker sorter;
+        sorter.add_value(0, true);
+        sorter.add_value(1);
+        enquire.set_sort_by_key(&sorter, true);
+        Xapian::MSet mset = enquire.get_mset(0, 10);
+        mset_expect_order(mset, 1, 2, 3, 4, 5);
     }
 
     {
-	Xapian::MultiValueKeyMaker sorter;
-	sorter.add_value(0);
-	sorter.add_value(1, true);
-	enquire.set_sort_by_key(&sorter, true);
-	Xapian::MSet mset = enquire.get_mset(0, 10);
-	mset_expect_order(mset, 5, 4, 3, 2, 1);
+        Xapian::MultiValueKeyMaker sorter;
+        sorter.add_value(0);
+        sorter.add_value(1, true);
+        enquire.set_sort_by_key(&sorter, true);
+        Xapian::MSet mset = enquire.get_mset(0, 10);
+        mset_expect_order(mset, 5, 4, 3, 2, 1);
     }
 
     {
-	Xapian::MultiValueKeyMaker sorter;
-	sorter.add_value(0, true);
-	sorter.add_value(1, true);
-	enquire.set_sort_by_key(&sorter, true);
-	Xapian::MSet mset = enquire.get_mset(0, 10);
-	mset_expect_order(mset, 1, 2, 3, 4, 5);
+        Xapian::MultiValueKeyMaker sorter;
+        sorter.add_value(0, true);
+        sorter.add_value(1, true);
+        enquire.set_sort_by_key(&sorter, true);
+        Xapian::MSet mset = enquire.get_mset(0, 10);
+        mset_expect_order(mset, 1, 2, 3, 4, 5);
     }
 }
 
@@ -198,61 +198,61 @@ DEFINE_TESTCASE(sortfunctor3, valuestats) {
 
     // Value 10 is set to 'a' for 1, 3, 4, 5, 8, 9, and not set otherwise.
     {
-	// Test default sort order - missing values come first.
-	Xapian::MultiValueKeyMaker sorter;
-	sorter.add_value(10);
+        // Test default sort order - missing values come first.
+        Xapian::MultiValueKeyMaker sorter;
+        sorter.add_value(10);
 
-	enquire.set_sort_by_key(&sorter, false);
-	Xapian::MSet mset = enquire.get_mset(0, 10);
-	mset_expect_order(mset, 2, 6, 7, 1, 3, 4, 5, 8, 9);
+        enquire.set_sort_by_key(&sorter, false);
+        Xapian::MSet mset = enquire.get_mset(0, 10);
+        mset_expect_order(mset, 2, 6, 7, 1, 3, 4, 5, 8, 9);
     }
 
     {
-	// Use a default value to put the missing values to the end.
-	Xapian::MultiValueKeyMaker sorter;
-	sorter.add_value(10, false, db.get_value_upper_bound(10) + '\xff');
+        // Use a default value to put the missing values to the end.
+        Xapian::MultiValueKeyMaker sorter;
+        sorter.add_value(10, false, db.get_value_upper_bound(10) + '\xff');
 
-	enquire.set_sort_by_key(&sorter, false);
-	Xapian::MSet mset = enquire.get_mset(0, 10);
-	mset_expect_order(mset, 1, 3, 4, 5, 8, 9, 2, 6, 7);
+        enquire.set_sort_by_key(&sorter, false);
+        Xapian::MSet mset = enquire.get_mset(0, 10);
+        mset_expect_order(mset, 1, 3, 4, 5, 8, 9, 2, 6, 7);
     }
 
     {
-	// Test using a default value and sorting in reverse order
-	Xapian::MultiValueKeyMaker sorter;
-	sorter.add_value(10, false, db.get_value_upper_bound(10) + '\xff');
+        // Test using a default value and sorting in reverse order
+        Xapian::MultiValueKeyMaker sorter;
+        sorter.add_value(10, false, db.get_value_upper_bound(10) + '\xff');
 
-	enquire.set_sort_by_key(&sorter, true);
-	Xapian::MSet mset = enquire.get_mset(0, 10);
-	mset_expect_order(mset, 2, 6, 7, 1, 3, 4, 5, 8, 9);
+        enquire.set_sort_by_key(&sorter, true);
+        Xapian::MSet mset = enquire.get_mset(0, 10);
+        mset_expect_order(mset, 2, 6, 7, 1, 3, 4, 5, 8, 9);
     }
 
     {
-	// Test using a default value and generating reverse order keys
-	Xapian::MultiValueKeyMaker sorter;
-	sorter.add_value(10, true, db.get_value_upper_bound(10) + '\xff');
+        // Test using a default value and generating reverse order keys
+        Xapian::MultiValueKeyMaker sorter;
+        sorter.add_value(10, true, db.get_value_upper_bound(10) + '\xff');
 
-	enquire.set_sort_by_key(&sorter, false);
-	Xapian::MSet mset = enquire.get_mset(0, 10);
-	mset_expect_order(mset, 2, 6, 7, 1, 3, 4, 5, 8, 9);
+        enquire.set_sort_by_key(&sorter, false);
+        Xapian::MSet mset = enquire.get_mset(0, 10);
+        mset_expect_order(mset, 2, 6, 7, 1, 3, 4, 5, 8, 9);
     }
 
     {
-	// Test using a default value, generating reverse order keys, and
-	// sorting in reverse order
-	Xapian::MultiValueKeyMaker sorter;
-	sorter.add_value(10, true, db.get_value_upper_bound(10) + '\xff');
+        // Test using a default value, generating reverse order keys, and
+        // sorting in reverse order
+        Xapian::MultiValueKeyMaker sorter;
+        sorter.add_value(10, true, db.get_value_upper_bound(10) + '\xff');
 
-	enquire.set_sort_by_key(&sorter, true);
-	Xapian::MSet mset = enquire.get_mset(0, 10);
-	mset_expect_order(mset, 1, 3, 4, 5, 8, 9, 2, 6, 7);
+        enquire.set_sort_by_key(&sorter, true);
+        Xapian::MSet mset = enquire.get_mset(0, 10);
+        mset_expect_order(mset, 1, 3, 4, 5, 8, 9, 2, 6, 7);
     }
 }
 
 class NeverUseMeKeyMaker : public Xapian::KeyMaker {
   public:
     std::string operator() (const Xapian::Document&) const override {
-	FAIL_TEST("NeverUseMeKeyMaker was called");
+        FAIL_TEST("NeverUseMeKeyMaker was called");
     }
 };
 
@@ -285,8 +285,8 @@ DEFINE_TESTCASE(changesorter1, backend && !remote) {
     // Check that NeverUseMeKeyMaker::operator() would actually cause a test
     // failure if called.
     try {
-	sorter(Xapian::Document());
-	FAIL_TEST("NeverUseMeKeyMaker::operator() didn't throw TestFail");
+        sorter(Xapian::Document());
+        FAIL_TEST("NeverUseMeKeyMaker::operator() didn't throw TestFail");
     } catch (const TestFail &) {
     }
 }
@@ -297,12 +297,12 @@ DEFINE_TESTCASE(sortfunctorempty1, backend) {
     enquire.set_query(Xapian::Query("woman"));
 
     {
-	int i;
-	Xapian::MultiValueKeyMaker sorter(&i, &i);
+        int i;
+        Xapian::MultiValueKeyMaker sorter(&i, &i);
 
-	enquire.set_sort_by_key(&sorter, true);
-	Xapian::MSet mset = enquire.get_mset(0, 10);
-	mset_expect_order(mset, 1, 2, 3, 4, 5, 6, 7, 8, 9);
+        enquire.set_sort_by_key(&sorter, true);
+        Xapian::MSet mset = enquire.get_mset(0, 10);
+        mset_expect_order(mset, 1, 2, 3, 4, 5, 6, 7, 8, 9);
     }
 }
 
@@ -331,12 +331,12 @@ DEFINE_TESTCASE(multivaluekeymaker1, !backend) {
     // An empty slot at the end, with a default value
     sorter.add_value(0, false, "hi");
     TEST_EQUAL(sorter(doc), string("\0\0f\0\xffo\0\0\0\0xyz\0\0\xff\xff\0\0hi",
-				   21));
+                                   21));
 
     // An empty slot at the end, with a default value, in reverse sort order
     sorter.add_value(0, true, "hi");
     TEST_EQUAL(sorter(doc), string("\0\0f\0\xffo\0\0\0\0xyz\0\0\xff\xff\0\0hi"
-				   "\0\0\x97\x96\xff\xff", 27));
+                                   "\0\0\x97\x96\xff\xff", 27));
 }
 
 DEFINE_TESTCASE(sortfunctorremote1, remote) {
@@ -346,7 +346,7 @@ DEFINE_TESTCASE(sortfunctorremote1, remote) {
     enquire.set_sort_by_key(&sorter, true);
     // NeverUseMeKeyMaker doesn't implemented serialise(), etc so should fail.
     TEST_EXCEPTION(Xapian::UnimplementedError,
-	Xapian::MSet mset = enquire.get_mset(0, 10);
+        Xapian::MSet mset = enquire.get_mset(0, 10);
     );
 }
 
@@ -374,7 +374,7 @@ DEFINE_TESTCASE(replace_weights2, backend) {
     Xapian::MSet mymset = enquire.get_mset(0, 10);
     static const double weights[] = {1.0, 2.0};
     TEST_EXCEPTION(Xapian::InvalidArgumentError,
-		   mymset.replace_weights(begin(weights), end(weights)));
+                   mymset.replace_weights(begin(weights), end(weights)));
 }
 
 DEFINE_TESTCASE(sort_existing_mset_by_relevance, backend) {
@@ -390,9 +390,9 @@ DEFINE_TESTCASE(sort_existing_mset_by_relevance, backend) {
     // The order of documents should have been reversed.
     int k = 1;
     for (Xapian::MSetIterator m = mymset.begin(); m != mymset.end();
-	 ++m, --k) {
-	TEST_EQUAL(*m, docids[k]);
-	TEST_EQUAL_DOUBLE(m.get_weight(), weights[k]);
+         ++m, --k) {
+        TEST_EQUAL(*m, docids[k]);
+        TEST_EQUAL_DOUBLE(m.get_weight(), weights[k]);
     }
     // Test that setting larger weights is reflected in these methods.
     TEST_EQUAL_DOUBLE(mymset.get_max_attained(), weights[1]);

@@ -56,7 +56,7 @@ TermListGroup::TermListGroup(const MSet& docs, const Stopper* stopper)
 {
     LOGCALL_CTOR(API, "TermListGroup", docs | stopper);
     for (MSetIterator it = docs.begin(); it != docs.end(); ++it)
-	add_document(it.get_document(), stopper);
+        add_document(it.get_document(), stopper);
     num_of_documents = docs.size();
 }
 
@@ -68,18 +68,18 @@ TermListGroup::add_document(const Document& document, const Stopper* stopper)
     TermIterator titer(document.termlist_begin());
 
     for (; titer != document.termlist_end(); ++titer) {
-	const string& term = *titer;
+        const string& term = *titer;
 
-	// Remove stopwords by using the Xapian::Stopper object
-	if (stopper && (*stopper)(term))
-	    continue;
+        // Remove stopwords by using the Xapian::Stopper object
+        if (stopper && (*stopper)(term))
+            continue;
 
-	// Remove unstemmed terms since document vector should
-	// contain only stemmed terms
-	if (term[0] != 'Z')
-	    continue;
+        // Remove unstemmed terms since document vector should
+        // contain only stemmed terms
+        if (term[0] != 'Z')
+            continue;
 
-	++termfreq[term];
+        ++termfreq[term];
     }
 }
 
@@ -96,9 +96,9 @@ TermListGroup::get_termfreq(const string& tname) const
     LOGCALL(API, doccount, "TermListGroup::get_termfreq", tname);
     auto it = termfreq.find(tname);
     if (it != termfreq.end())
-	return it->second;
+        return it->second;
     else
-	return 0;
+        return 0;
 }
 
 DocumentSet::DocumentSet(const DocumentSet&) = default;
@@ -166,28 +166,28 @@ class PointTermIterator : public TermIterator::Internal {
     bool started;
   public:
     PointTermIterator(const unordered_map<string, double>& termlist)
-	: i(termlist.begin()), end(termlist.end()),
-	  size(termlist.size()), started(false)
+        : i(termlist.begin()), end(termlist.end()),
+          size(termlist.size()), started(false)
     {}
     termcount get_approx_size() const { return size; }
     termcount get_wdf() const {
-	throw UnimplementedError("PointIterator doesn't support get_wdf()");
+        throw UnimplementedError("PointIterator doesn't support get_wdf()");
     }
     doccount get_termfreq() const {
-	throw UnimplementedError("PointIterator doesn't support "
-				 "get_termfreq()");
+        throw UnimplementedError("PointIterator doesn't support "
+                                 "get_termfreq()");
     }
     Internal* next();
     termcount positionlist_count() const {
-	throw UnimplementedError("PointTermIterator doesn't support "
-				 "positionlist_count()");
+        throw UnimplementedError("PointTermIterator doesn't support "
+                                 "positionlist_count()");
     }
     PositionList* positionlist_begin() const {
-	throw UnimplementedError("PointTermIterator doesn't support "
-				 "positionlist_begin()");
+        throw UnimplementedError("PointTermIterator doesn't support "
+                                 "positionlist_begin()");
     }
     Internal* skip_to(string_view) {
-	throw UnimplementedError("PointTermIterator doesn't support skip_to()");
+        throw UnimplementedError("PointTermIterator doesn't support skip_to()");
     }
 };
 
@@ -195,13 +195,13 @@ TermIterator::Internal*
 PointTermIterator::next()
 {
     if (!started) {
-	started = true;
+        started = true;
     } else {
-	Assert(i != end);
-	++i;
+        Assert(i != end);
+        ++i;
     }
     if (i == end) {
-	return this;
+        return this;
     }
     current_term = i->first;
     return NULL;
@@ -220,26 +220,26 @@ Point::Point(const FreqSource& freqsource, const Document& document_)
     doccount size = freqsource.get_doccount();
     document = document_;
     for (TermIterator it = document.termlist_begin();
-	 it != document.termlist_end();
-	 ++it) {
-	doccount wdf = it.get_wdf();
-	// Ignore filter terms.
-	if (wdf == 0)
-	    continue;
-	string term = *it;
-	double termfreq = freqsource.get_termfreq(term);
+         it != document.termlist_end();
+         ++it) {
+        doccount wdf = it.get_wdf();
+        // Ignore filter terms.
+        if (wdf == 0)
+            continue;
+        string term = *it;
+        double termfreq = freqsource.get_termfreq(term);
 
-	// Ignore terms which index only one document in the MSet, or
-	// which index all documents in the MSet.
-	if (termfreq <= 1 || termfreq == size)
-	    continue;
+        // Ignore terms which index only one document in the MSet, or
+        // which index all documents in the MSet.
+        if (termfreq <= 1 || termfreq == size)
+            continue;
 
-	double tf = 1 + log(double(wdf));
-	double idf = log(size / termfreq);
-	double wt = tf * idf;
+        double tf = 1 + log(double(wdf));
+        double idf = log(size / termfreq);
+        double wt = tf * idf;
 
-	weights[term] = wt;
-	magnitude += wt * wt;
+        weights[term] = wt;
+        magnitude += wt * wt;
     }
 }
 
@@ -247,9 +247,9 @@ Centroid::Centroid(const Point& point)
 {
     LOGCALL_CTOR(API, "Centroid", point);
     for (TermIterator it = point.termlist_begin();
-	 it != point.termlist_end();
-	 ++it) {
-	weights[*it] = point.get_weight(*it);
+         it != point.termlist_end();
+         ++it) {
+        weights[*it] = point.get_weight(*it);
     }
     magnitude = point.get_magnitude();
 }
@@ -260,9 +260,9 @@ Centroid::divide(double cluster_size)
     LOGCALL_VOID(API, "Centroid::divide", cluster_size);
     magnitude = 0;
     for (auto&& it : weights) {
-	double new_weight = it.second / cluster_size;
-	it.second = new_weight;
-	magnitude += new_weight * new_weight;
+        double new_weight = it.second / cluster_size;
+        it.second = new_weight;
+        magnitude += new_weight * new_weight;
     }
 }
 
@@ -304,7 +304,7 @@ Cluster::Internal::get_documents() const
 {
     DocumentSet docs;
     for (auto&& point : cluster_docs)
-	docs.add_document(point.get_document());
+        docs.add_document(point.get_document());
     return docs;
 }
 
@@ -393,7 +393,7 @@ void
 ClusterSet::Internal::recalculate_centroids()
 {
     for (auto&& cluster : clusters)
-	cluster.recalculate();
+        cluster.recalculate();
 }
 
 void
@@ -414,7 +414,7 @@ void
 ClusterSet::Internal::clear_clusters()
 {
     for (auto&& cluster : clusters)
-	cluster.clear();
+        cluster.clear();
 }
 
 doccount
@@ -494,11 +494,11 @@ Cluster::Internal::recalculate()
 {
     centroid.clear();
     for (const Point& temp : cluster_docs) {
-	for (TermIterator titer = temp.termlist_begin();
-	     titer != temp.termlist_end();
-	     ++titer) {
-	    centroid.add_weight(*titer, temp.get_weight(*titer));
-	}
+        for (TermIterator titer = temp.termlist_begin();
+             titer != temp.termlist_end();
+             ++titer) {
+            centroid.add_weight(*titer, temp.get_weight(*titer));
+        }
     }
     centroid.divide(size());
 }
@@ -514,8 +514,8 @@ StemStopper::get_description() const
 {
     string desc("Xapian::StemStopper(");
     for (auto i = stop_words.begin(); i != stop_words.end(); ++i) {
-	if (i != stop_words.begin()) desc += ' ';
-	desc += *i;
+        if (i != stop_words.begin()) desc += ' ';
+        desc += *i;
     }
     desc += ')';
     return desc;
@@ -526,19 +526,19 @@ StemStopper::add(string_view term)
 {
     LOGCALL_VOID(API, "StemStopper::add", term);
     switch (stem_action) {
-	case STEM_NONE:
-	    stop_words.emplace(term);
-	    break;
-	case STEM_ALL_Z:
-	    stop_words.insert('Z' + stemmer(string(term)));
-	    break;
-	case STEM_ALL:
-	    stop_words.insert(stemmer(string(term)));
-	    break;
-	case STEM_SOME:
-	case STEM_SOME_FULL_POS:
-	    stop_words.emplace(term);
-	    stop_words.insert('Z' + stemmer(string(term)));
-	    break;
+        case STEM_NONE:
+            stop_words.emplace(term);
+            break;
+        case STEM_ALL_Z:
+            stop_words.insert('Z' + stemmer(string(term)));
+            break;
+        case STEM_ALL:
+            stop_words.insert(stemmer(string(term)));
+            break;
+        case STEM_SOME:
+        case STEM_SOME_FULL_POS:
+            stop_words.emplace(term);
+            stop_words.insert('Z' + stemmer(string(term)));
+            break;
     }
 }

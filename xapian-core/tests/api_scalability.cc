@@ -40,7 +40,7 @@ bigoaddvalue1_helper(unsigned num_values)
 
     Xapian::Document doc;
     for (unsigned i = 0; i < num_values; ++i) {
-	doc.add_value(i, "moo");
+        doc.add_value(i, "moo");
     }
 
     CPUTimer timer;
@@ -61,10 +61,10 @@ querypairwise1_helper(unsigned num_subqs)
 {
     CPUTimer timer;
     for (int c = 0; c < 100; ++c) {
-	Xapian::Query q("xxx");
-	for (unsigned i = 0; i < num_subqs; ++i) {
-	    q = Xapian::Query(q.OP_OR, q, Xapian::Query(str(i)));
-	}
+        Xapian::Query q("xxx");
+        for (unsigned i = 0; i < num_subqs; ++i) {
+            q = Xapian::Query(q.OP_OR, q, Xapian::Query(str(i)));
+        }
     }
     return timer.get_time();
 }

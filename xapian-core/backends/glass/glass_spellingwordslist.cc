@@ -60,7 +60,7 @@ GlassSpellingWordsList::get_termfreq() const
     Xapian::termcount freq;
     const char *p = cursor->current_tag.data();
     if (!unpack_uint_last(&p, p + cursor->current_tag.size(), &freq)) {
-	throw Xapian::DatabaseCorruptError("Bad spelling word freq");
+        throw Xapian::DatabaseCorruptError("Bad spelling word freq");
     }
     RETURN(freq);
 }
@@ -72,8 +72,8 @@ GlassSpellingWordsList::next()
     Assert(!cursor->after_end());
 
     if (!cursor->next() || cursor->current_key[0] != 'W') {
-	// We've reached the end of the prefixed terms.
-	RETURN(this);
+        // We've reached the end of the prefixed terms.
+        RETURN(this);
     }
     current_term.assign(cursor->current_key, 1);
     RETURN(NULL);
@@ -86,16 +86,16 @@ GlassSpellingWordsList::skip_to(string_view tname)
     Assert(!cursor->after_end());
 
     if (cursor->find_entry_ge("W"s.append(tname))) {
-	// Exact match.
-	current_term = tname;
+        // Exact match.
+        current_term = tname;
     } else {
-	// The exact term we asked for isn't there, so check if the next term
-	// after it also has a W prefix.
-	if (cursor->after_end() || cursor->current_key[0] != 'W') {
-	    // We've reached the end of the prefixed terms.
-	    RETURN(this);
-	}
-	current_term.assign(cursor->current_key, 1);
+        // The exact term we asked for isn't there, so check if the next term
+        // after it also has a W prefix.
+        if (cursor->after_end() || cursor->current_key[0] != 'W') {
+            // We've reached the end of the prefixed terms.
+            RETURN(this);
+        }
+        current_term.assign(cursor->current_key, 1);
     }
     RETURN(NULL);
 }

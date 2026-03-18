@@ -55,28 +55,28 @@ class OrPostList : public PostList {
     PostListTree* pltree;
 
     PostList* decay_to_and(Xapian::docid did,
-			   double w_min,
-			   bool* valid_ptr = NULL);
+                           double w_min,
+                           bool* valid_ptr = NULL);
 
     PostList* decay_to_andmaybe(PostList* left,
-				PostList* right,
-				Xapian::docid did,
-				double w_min,
-				bool* valid_ptr = NULL);
+                                PostList* right,
+                                Xapian::docid did,
+                                double w_min,
+                                bool* valid_ptr = NULL);
 
   public:
     OrPostList(PostList* left, PostList* right, PostListTree* pltree_);
 
     ~OrPostList() {
-	delete l;
-	delete r;
+        delete l;
+        delete r;
     }
 
     Xapian::docid get_docid() const;
 
     double get_weight(Xapian::termcount doclen,
-		      Xapian::termcount unique_terms,
-		      Xapian::termcount wdfdocmax) const;
+                      Xapian::termcount unique_terms,
+                      Xapian::termcount wdfdocmax) const;
 
     bool at_end() const;
 

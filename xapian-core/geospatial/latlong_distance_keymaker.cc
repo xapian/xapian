@@ -34,7 +34,7 @@ LatLongDistanceKeyMaker::operator()(const Document &doc) const
 {
     string val(doc.get_value(slot));
     if (val.empty()) {
-	return defkey;
+        return defkey;
     }
     LatLongCoords doccoords;
     doccoords.unserialise(val);

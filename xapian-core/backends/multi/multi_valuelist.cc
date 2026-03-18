@@ -36,18 +36,18 @@ using Xapian::Internal::intrusive_ptr;
 struct CompareSubValueListsByDocId {
     /// Order by ascending docid.
     bool operator()(const SubValueList *a, const SubValueList *b) const {
-	Xapian::docid did_a = a->get_docid();
-	Xapian::docid did_b = b->get_docid();
-	if (did_a > did_b) return true;
-	if (did_a < did_b) return false;
-	return a->shard > b->shard;
+        Xapian::docid did_a = a->get_docid();
+        Xapian::docid did_b = b->get_docid();
+        if (did_a > did_b) return true;
+        if (did_a < did_b) return false;
+        return a->shard > b->shard;
     }
 };
 
 MultiValueList::~MultiValueList()
 {
     while (count)
-	delete valuelists[--count];
+        delete valuelists[--count];
     delete [] valuelists;
 }
 
@@ -81,40 +81,40 @@ void
 MultiValueList::next()
 {
     if (current_docid == 0) {
-	// Make valuelists into a heap so that the one with the earliest
-	// sorting docid is at the top of the heap.
-	Xapian::doccount j = 0;
-	for (Xapian::doccount i = 0; i != count; ++i) {
-	    valuelists[i]->next();
-	    if (valuelists[i]->at_end()) {
-		delete valuelists[i];
-		valuelists[i] = 0;
-	    } else {
-		if (i != j)
-		    swap(valuelists[i], valuelists[j]);
-		++j;
-	    }
-	}
-	count = j;
-	if (rare(count == 0))
-	    return;
+        // Make valuelists into a heap so that the one with the earliest
+        // sorting docid is at the top of the heap.
+        Xapian::doccount j = 0;
+        for (Xapian::doccount i = 0; i != count; ++i) {
+            valuelists[i]->next();
+            if (valuelists[i]->at_end()) {
+                delete valuelists[i];
+                valuelists[i] = 0;
+            } else {
+                if (i != j)
+                    swap(valuelists[i], valuelists[j]);
+                ++j;
+            }
+        }
+        count = j;
+        if (rare(count == 0))
+            return;
 
-	Heap::make(valuelists, valuelists + count,
-		   CompareSubValueListsByDocId());
+        Heap::make(valuelists, valuelists + count,
+                   CompareSubValueListsByDocId());
     } else {
-	// Advance to the next docid.
-	SubValueList * vl = valuelists[0];
-	vl->next();
-	if (vl->at_end()) {
-	    Heap::pop(valuelists, valuelists + count,
-		      CompareSubValueListsByDocId());
-	    delete vl;
-	    if (--count == 0)
-		return;
-	} else {
-	    Heap::replace(valuelists, valuelists + count,
-			  CompareSubValueListsByDocId());
-	}
+        // Advance to the next docid.
+        SubValueList * vl = valuelists[0];
+        vl->next();
+        if (vl->at_end()) {
+            Heap::pop(valuelists, valuelists + count,
+                      CompareSubValueListsByDocId());
+            delete vl;
+            if (--count == 0)
+                return;
+        } else {
+            Heap::replace(valuelists, valuelists + count,
+                          CompareSubValueListsByDocId());
+        }
     }
 
     current_docid = valuelists[0]->get_merged_docid(n_shards);
@@ -128,19 +128,19 @@ MultiValueList::skip_to(Xapian::docid did)
     // approach more like that next() uses if this ever gets heavy use.
     Xapian::doccount j = 0;
     for (Xapian::doccount i = 0; i != count; ++i) {
-	valuelists[i]->skip_to(did, n_shards);
-	if (valuelists[i]->at_end()) {
-	    delete valuelists[i];
-	    valuelists[i] = 0;
-	} else {
-	    if (i != j)
-		swap(valuelists[i], valuelists[j]);
-	    ++j;
-	}
+        valuelists[i]->skip_to(did, n_shards);
+        if (valuelists[i]->at_end()) {
+            delete valuelists[i];
+            valuelists[i] = 0;
+        } else {
+            if (i != j)
+                swap(valuelists[i], valuelists[j]);
+            ++j;
+        }
     }
     count = j;
     if (rare(count == 0))
-	return;
+        return;
 
     Heap::make(valuelists, valuelists + count, CompareSubValueListsByDocId());
 

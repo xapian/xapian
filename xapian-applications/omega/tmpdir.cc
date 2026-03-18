@@ -41,19 +41,19 @@ const string &
 get_tmpdir()
 {
     if (tmpdir.empty()) {
-	const char * p = getenv("TMPDIR");
-	if (!p) p = "/tmp";
-	size_t plen = strlen(p);
-	size_t leaflen = CONST_STRLEN(TMPDIR_LEAF);
-	char * dir_template = new char[plen + leaflen + 1];
-	memcpy(dir_template, p, plen);
-	memcpy(dir_template + plen, TMPDIR_LEAF, leaflen + 1);
-	p = mkdtemp(dir_template);
-	if (p) {
-	    dir_template[plen + leaflen] = '/';
-	    tmpdir.assign(dir_template, plen + leaflen + 1);
-	}
-	delete [] dir_template;
+        const char * p = getenv("TMPDIR");
+        if (!p) p = "/tmp";
+        size_t plen = strlen(p);
+        size_t leaflen = CONST_STRLEN(TMPDIR_LEAF);
+        char * dir_template = new char[plen + leaflen + 1];
+        memcpy(dir_template, p, plen);
+        memcpy(dir_template + plen, TMPDIR_LEAF, leaflen + 1);
+        p = mkdtemp(dir_template);
+        if (p) {
+            dir_template[plen + leaflen] = '/';
+            tmpdir.assign(dir_template, plen + leaflen + 1);
+        }
+        delete [] dir_template;
     }
     return tmpdir;
 }
@@ -62,5 +62,5 @@ void
 remove_tmpdir()
 {
     if (!tmpdir.empty())
-	rmdir(tmpdir.c_str());
+        rmdir(tmpdir.c_str());
 }

@@ -43,17 +43,17 @@ class MyOddPostingSource : public Xapian::PostingSource {
     Xapian::docid did;
 
     MyOddPostingSource(Xapian::doccount num_docs_,
-		       Xapian::doccount last_docid_)
-	: num_docs(num_docs_), last_docid(last_docid_), did(0)
+                       Xapian::doccount last_docid_)
+        : num_docs(num_docs_), last_docid(last_docid_), did(0)
     { }
 
   public:
     MyOddPostingSource(const Xapian::Database &db)
-	: num_docs(db.get_doccount()), last_docid(db.get_lastdocid()), did(0)
+        : num_docs(db.get_doccount()), last_docid(db.get_lastdocid()), did(0)
     { }
 
     PostingSource* clone() const override {
-	return new MyOddPostingSource(num_docs, last_docid);
+        return new MyOddPostingSource(num_docs, last_docid);
     }
 
     void reset(const Xapian::Database&, Xapian::doccount) override { did = 0; }
@@ -66,20 +66,20 @@ class MyOddPostingSource : public Xapian::PostingSource {
     Xapian::doccount get_termfreq_max() const override { return num_docs; }
 
     void next(double wt) override {
-	(void)wt;
-	++did;
-	if (did % 2 == 0) ++did;
+        (void)wt;
+        ++did;
+        if (did % 2 == 0) ++did;
     }
 
     void skip_to(Xapian::docid to_did, double wt) override {
-	(void)wt;
-	did = to_did;
-	if (did % 2 == 0) ++did;
+        (void)wt;
+        did = to_did;
+        if (did % 2 == 0) ++did;
     }
 
     bool at_end() const override {
-	// Doesn't work if last_docid is 2^32 - 1.
-	return did > last_docid;
+        // Doesn't work if last_docid is 2^32 - 1.
+        return did > last_docid;
     }
 
     Xapian::docid get_docid() const override { return did; }
@@ -105,8 +105,8 @@ DEFINE_TESTCASE(externalsource1, backend && !remote && !multi) {
     mset_expect_order(mset, 1, 3, 5, 7, 9, 11, 13, 15, 17);
 
     Xapian::Query q(Xapian::Query::OP_FILTER,
-		    Xapian::Query("leav"),
-		    Xapian::Query(&src));
+                    Xapian::Query("leav"),
+                    Xapian::Query(&src));
     enq.set_query(q);
 
     mset = enq.get_mset(0, 10);
@@ -124,15 +124,15 @@ DEFINE_TESTCASE(externalsource2, remote) {
     enq.set_query(Xapian::Query(&src));
 
     TEST_EXCEPTION(Xapian::UnimplementedError,
-		   Xapian::MSet mset = enq.get_mset(0, 10));
+                   Xapian::MSet mset = enq.get_mset(0, 10));
 
     Xapian::Query q(Xapian::Query::OP_FILTER,
-		    Xapian::Query("leav"),
-		    Xapian::Query(&src));
+                    Xapian::Query("leav"),
+                    Xapian::Query(&src));
     enq.set_query(q);
 
     TEST_EXCEPTION(Xapian::UnimplementedError,
-		   Xapian::MSet mset = enq.get_mset(0, 10));
+                   Xapian::MSet mset = enq.get_mset(0, 10));
 }
 
 class MyOddWeightingPostingSource : public Xapian::PostingSource {
@@ -143,19 +143,19 @@ class MyOddWeightingPostingSource : public Xapian::PostingSource {
     Xapian::docid did;
 
     MyOddWeightingPostingSource(Xapian::doccount num_docs_,
-				Xapian::doccount last_docid_)
-	: num_docs(num_docs_), last_docid(last_docid_), did(0)
+                                Xapian::doccount last_docid_)
+        : num_docs(num_docs_), last_docid(last_docid_), did(0)
     {
-	set_maxweight(1000);
+        set_maxweight(1000);
     }
 
   public:
     MyOddWeightingPostingSource(const Xapian::Database &db)
-	: num_docs(db.get_doccount()), last_docid(db.get_lastdocid()), did(0)
+        : num_docs(db.get_doccount()), last_docid(db.get_lastdocid()), did(0)
     { }
 
     PostingSource* clone() const override {
-	return new MyOddWeightingPostingSource(num_docs, last_docid);
+        return new MyOddWeightingPostingSource(num_docs, last_docid);
     }
 
     // Deliberately override init() instead of reset() here to test that still
@@ -163,7 +163,7 @@ class MyOddWeightingPostingSource : public Xapian::PostingSource {
     void init(const Xapian::Database&) override { did = 0; }
 
     double get_weight() const override {
-	return (did % 2) ? 1000 : 0.001;
+        return (did % 2) ? 1000 : 0.001;
     }
 
     // These bounds could be better, but that's not important here.
@@ -174,24 +174,24 @@ class MyOddWeightingPostingSource : public Xapian::PostingSource {
     Xapian::doccount get_termfreq_max() const override { return num_docs; }
 
     void next(double wt) override {
-	(void)wt;
-	++did;
+        (void)wt;
+        ++did;
     }
 
     void skip_to(Xapian::docid to_did, double wt) override {
-	(void)wt;
-	did = to_did;
+        (void)wt;
+        did = to_did;
     }
 
     bool at_end() const override {
-	// Doesn't work if last_docid is 2^32 - 1.
-	return did > last_docid;
+        // Doesn't work if last_docid is 2^32 - 1.
+        return did > last_docid;
     }
 
     Xapian::docid get_docid() const override { return did; }
 
     string get_description() const override {
-	return "MyOddWeightingPostingSource";
+        return "MyOddWeightingPostingSource";
     }
 };
 
@@ -210,8 +210,8 @@ DEFINE_TESTCASE(externalsource3, backend && !remote && !multi) {
     mset_expect_order(mset, 1, 3, 5, 7, 9, 11, 13, 15, 17, 2);
 
     Xapian::Query q(Xapian::Query::OP_OR,
-		    Xapian::Query("leav"),
-		    Xapian::Query(&src));
+                    Xapian::Query("leav"),
+                    Xapian::Query(&src));
     enq.set_query(q);
 
     mset = enq.get_mset(0, 5);
@@ -248,25 +248,25 @@ class MyDontAskWeightPostingSource : public Xapian::PostingSource {
     Xapian::docid did;
 
     MyDontAskWeightPostingSource(Xapian::doccount num_docs_,
-				 Xapian::doccount last_docid_)
-	: num_docs(num_docs_), last_docid(last_docid_), did(0)
+                                 Xapian::doccount last_docid_)
+        : num_docs(num_docs_), last_docid(last_docid_), did(0)
     { }
 
   public:
     MyDontAskWeightPostingSource() : Xapian::PostingSource() {}
 
     PostingSource* clone() const override {
-	return new MyDontAskWeightPostingSource(num_docs, last_docid);
+        return new MyDontAskWeightPostingSource(num_docs, last_docid);
     }
 
     void reset(const Xapian::Database& db, Xapian::doccount) override {
-	num_docs = db.get_doccount();
-	last_docid = db.get_lastdocid();
-	did = 0;
+        num_docs = db.get_doccount();
+        last_docid = db.get_lastdocid();
+        did = 0;
     }
 
     double get_weight() const override {
-	FAIL_TEST("MyDontAskWeightPostingSource::get_weight() called");
+        FAIL_TEST("MyDontAskWeightPostingSource::get_weight() called");
     }
 
     // These bounds could be better, but that's not important here.
@@ -277,24 +277,24 @@ class MyDontAskWeightPostingSource : public Xapian::PostingSource {
     Xapian::doccount get_termfreq_max() const override { return num_docs; }
 
     void next(double wt) override {
-	(void)wt;
-	++did;
+        (void)wt;
+        ++did;
     }
 
     void skip_to(Xapian::docid to_did, double wt) override {
-	(void)wt;
-	did = to_did;
+        (void)wt;
+        did = to_did;
     }
 
     bool at_end() const override {
-	// Doesn't work if last_docid is 2^32 - 1.
-	return did > last_docid;
+        // Doesn't work if last_docid is 2^32 - 1.
+        return did > last_docid;
     }
 
     Xapian::docid get_docid() const override { return did; }
 
     string get_description() const override {
-	return "MyDontAskWeightPostingSource";
+        return "MyDontAskWeightPostingSource";
     }
 };
 
@@ -312,8 +312,8 @@ DEFINE_TESTCASE(externalsource4, backend && !remote) {
 
     tout << "OP_FILTER\n";
     Xapian::Query q(Xapian::Query::OP_FILTER,
-		    Xapian::Query("leav"),
-		    Xapian::Query(&src));
+                    Xapian::Query("leav"),
+                    Xapian::Query(&src));
     enq.set_query(q);
 
     mset = enq.get_mset(0, 5);
@@ -342,8 +342,8 @@ DEFINE_TESTCASE(valueweightsource1, backend) {
     // In relevance order
     tout << "OP_FILTER\n";
     Xapian::Query q(Xapian::Query::OP_FILTER,
-		    Xapian::Query("leav"),
-		    Xapian::Query(&src));
+                    Xapian::Query("leav"),
+                    Xapian::Query(&src));
     enq.set_query(q);
     mset = enq.get_mset(0, 5);
     mset_expect_order(mset, 8, 6, 4, 5, 7);
@@ -351,8 +351,8 @@ DEFINE_TESTCASE(valueweightsource1, backend) {
     // Should be in descending order of length
     tout << "OP_FILTER other way\n";
     q = Xapian::Query(Xapian::Query::OP_FILTER,
-		      Xapian::Query(&src),
-		      Xapian::Query("leav"));
+                      Xapian::Query(&src),
+                      Xapian::Query("leav"));
     enq.set_query(q);
     mset = enq.get_mset(0, 5);
     mset_expect_order(mset, 8, 14, 9, 13, 7);
@@ -391,61 +391,61 @@ DEFINE_TESTCASE(fixedweightsource1, backend) {
     double wt = 5.6;
 
     {
-	Xapian::FixedWeightPostingSource src(wt);
+        Xapian::FixedWeightPostingSource src(wt);
 
-	// Should be in increasing order of docid.
-	enq.set_query(Xapian::Query(&src));
-	Xapian::MSet mset = enq.get_mset(0, 5);
-	mset_expect_order(mset, 1, 2, 3, 4, 5);
+        // Should be in increasing order of docid.
+        enq.set_query(Xapian::Query(&src));
+        Xapian::MSet mset = enq.get_mset(0, 5);
+        mset_expect_order(mset, 1, 2, 3, 4, 5);
 
-	for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); ++i) {
-	    TEST_EQUAL(i.get_weight(), wt);
-	}
+        for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); ++i) {
+            TEST_EQUAL(i.get_weight(), wt);
+        }
     }
 
     // Do some direct tests, to check the skip_to() and check() methods work.
     {
-	// Check next and skip_to().
-	Xapian::FixedWeightPostingSource src(wt);
-	src.reset(db, 0);
+        // Check next and skip_to().
+        Xapian::FixedWeightPostingSource src(wt);
+        src.reset(db, 0);
 
-	src.next(1.0);
-	TEST(!src.at_end());
-	TEST_EQUAL(src.get_docid(), 1);
-	src.next(1.0);
-	TEST(!src.at_end());
-	TEST_EQUAL(src.get_docid(), 2);
-	src.skip_to(5, 1.0);
-	TEST(!src.at_end());
-	TEST_EQUAL(src.get_docid(), 5);
-	src.next(wt * 2);
-	TEST(src.at_end());
+        src.next(1.0);
+        TEST(!src.at_end());
+        TEST_EQUAL(src.get_docid(), 1);
+        src.next(1.0);
+        TEST(!src.at_end());
+        TEST_EQUAL(src.get_docid(), 2);
+        src.skip_to(5, 1.0);
+        TEST(!src.at_end());
+        TEST_EQUAL(src.get_docid(), 5);
+        src.next(wt * 2);
+        TEST(src.at_end());
     }
     {
-	// Check check() as the first operation, followed by next.
-	Xapian::FixedWeightPostingSource src(wt);
-	src.reset(db, 0);
+        // Check check() as the first operation, followed by next.
+        Xapian::FixedWeightPostingSource src(wt);
+        src.reset(db, 0);
 
-	TEST_EQUAL(src.check(5, 1.0), true);
-	TEST(!src.at_end());
-	TEST_EQUAL(src.get_docid(), 5);
-	src.next(1.0);
-	TEST(!src.at_end());
-	TEST_EQUAL(src.get_docid(), 6);
+        TEST_EQUAL(src.check(5, 1.0), true);
+        TEST(!src.at_end());
+        TEST_EQUAL(src.get_docid(), 5);
+        src.next(1.0);
+        TEST(!src.at_end());
+        TEST_EQUAL(src.get_docid(), 6);
     }
     {
-	// Check check() as the first operation, followed by skip_to().
-	Xapian::FixedWeightPostingSource src(wt);
-	src.reset(db, 0);
+        // Check check() as the first operation, followed by skip_to().
+        Xapian::FixedWeightPostingSource src(wt);
+        src.reset(db, 0);
 
-	TEST_EQUAL(src.check(5, 1.0), true);
-	TEST(!src.at_end());
-	TEST_EQUAL(src.get_docid(), 5);
-	src.skip_to(6, 1.0);
-	TEST(!src.at_end());
-	TEST_EQUAL(src.get_docid(), 6);
-	src.skip_to(7, wt * 2);
-	TEST(src.at_end());
+        TEST_EQUAL(src.check(5, 1.0), true);
+        TEST(!src.at_end());
+        TEST_EQUAL(src.get_docid(), 5);
+        src.skip_to(6, 1.0);
+        TEST(!src.at_end());
+        TEST_EQUAL(src.get_docid(), 6);
+        src.skip_to(7, wt * 2);
+        TEST(src.at_end());
     }
 }
 
@@ -458,17 +458,17 @@ class ChangeMaxweightPostingSource : public Xapian::PostingSource {
 
   public:
     ChangeMaxweightPostingSource(Xapian::docid maxid_accessed_)
-	    : did(0), maxid_accessed(maxid_accessed_) { }
+            : did(0), maxid_accessed(maxid_accessed_) { }
 
     void reset(const Xapian::Database&, Xapian::doccount) override { did = 0; }
 
     double get_weight() const override {
-	if (did > maxid_accessed) {
-	    FAIL_TEST("ChangeMaxweightPostingSource::get_weight() called "
-		      "for docid " + str(did) + ", max id accessed "
-		      "should be " + str(maxid_accessed));
-	}
-	return 5 - did;
+        if (did > maxid_accessed) {
+            FAIL_TEST("ChangeMaxweightPostingSource::get_weight() called "
+                      "for docid " + str(did) + ", max id accessed "
+                      "should be " + str(maxid_accessed));
+        }
+        return 5 - did;
     }
 
     Xapian::doccount get_termfreq_min() const override { return 4; }
@@ -476,19 +476,19 @@ class ChangeMaxweightPostingSource : public Xapian::PostingSource {
     Xapian::doccount get_termfreq_max() const override { return 4; }
 
     void next(double) override {
-	++did;
-	set_maxweight(5 - did);
+        ++did;
+        set_maxweight(5 - did);
     }
 
     void skip_to(Xapian::docid to_did, double) override {
-	did = to_did;
-	set_maxweight(5 - did);
+        did = to_did;
+        set_maxweight(5 - did);
     }
 
     bool at_end() const override { return did >= 5; }
     Xapian::docid get_docid() const override { return did; }
     string get_description() const override {
-	return "ChangeMaxweightPostingSource";
+        return "ChangeMaxweightPostingSource";
     }
 };
 
@@ -499,40 +499,40 @@ DEFINE_TESTCASE(changemaxweightsource1, backend && !remote && !multi) {
     Xapian::Enquire enq(db);
 
     {
-	ChangeMaxweightPostingSource src1(5);
-	Xapian::FixedWeightPostingSource src2(2.5);
+        ChangeMaxweightPostingSource src1(5);
+        Xapian::FixedWeightPostingSource src2(2.5);
 
-	Xapian::Query q(Xapian::Query::OP_AND,
-			Xapian::Query(&src1), Xapian::Query(&src2));
-	enq.set_query(q);
-	// Set descending docid order so that the matcher isn't able to
-	// terminate early after 4 documents just because weight == maxweight.
-	enq.set_docid_order(enq.DESCENDING);
+        Xapian::Query q(Xapian::Query::OP_AND,
+                        Xapian::Query(&src1), Xapian::Query(&src2));
+        enq.set_query(q);
+        // Set descending docid order so that the matcher isn't able to
+        // terminate early after 4 documents just because weight == maxweight.
+        enq.set_docid_order(enq.DESCENDING);
 
-	Xapian::MSet mset = enq.get_mset(0, 4);
-	TEST(src1.at_end());
-	mset_expect_order(mset, 1, 2, 3, 4);
-	for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); ++i) {
-	    TEST_EQUAL_DOUBLE(i.get_weight(), 7.5 - *i);
-	}
+        Xapian::MSet mset = enq.get_mset(0, 4);
+        TEST(src1.at_end());
+        mset_expect_order(mset, 1, 2, 3, 4);
+        for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); ++i) {
+            TEST_EQUAL_DOUBLE(i.get_weight(), 7.5 - *i);
+        }
     }
 
     {
-	ChangeMaxweightPostingSource src1(3);
-	Xapian::FixedWeightPostingSource src2(2.5);
+        ChangeMaxweightPostingSource src1(3);
+        Xapian::FixedWeightPostingSource src2(2.5);
 
-	Xapian::Query q(Xapian::Query::OP_AND,
-			Xapian::Query(&src1), Xapian::Query(&src2));
-	enq.set_query(q);
+        Xapian::Query q(Xapian::Query::OP_AND,
+                        Xapian::Query(&src1), Xapian::Query(&src2));
+        enq.set_query(q);
 
-	Xapian::MSet mset = enq.get_mset(0, 2);
-	TEST(!src1.at_end());
-	TEST_EQUAL(src1.get_docid(), 3);
-	TEST_EQUAL_DOUBLE(src1.get_maxweight(), 2.0);
-	mset_expect_order(mset, 1, 2);
-	for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); ++i) {
-	    TEST_EQUAL_DOUBLE(i.get_weight(), 7.5 - *i);
-	}
+        Xapian::MSet mset = enq.get_mset(0, 2);
+        TEST(!src1.at_end());
+        TEST_EQUAL(src1.get_docid(), 3);
+        TEST_EQUAL_DOUBLE(src1.get_maxweight(), 2.0);
+        mset_expect_order(mset, 1, 2);
+        for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); ++i) {
+            TEST_EQUAL_DOUBLE(i.get_weight(), 7.5 - *i);
+        }
     }
 }
 
@@ -551,44 +551,44 @@ DEFINE_TESTCASE(emptyvalwtsource1, backend && !remote && !multi) {
     // Perform search without ORring with the posting source.
     Xapian::doccount size1;
     {
-	enq.set_query(q1);
-	Xapian::MSet mset = enq.get_mset(0, 10);
-	TEST_REL(mset.get_max_possible(), >, 0.0);
-	size1 = mset.size();
-	TEST_REL(size1, >, 0);
+        enq.set_query(q1);
+        Xapian::MSet mset = enq.get_mset(0, 10);
+        TEST_REL(mset.get_max_possible(), >, 0.0);
+        size1 = mset.size();
+        TEST_REL(size1, >, 0);
     }
 
     // Perform a search with just the non-empty posting source, checking it
     // returns something.
     {
-	enq.set_query(q2);
-	Xapian::MSet mset = enq.get_mset(0, 10);
-	TEST_REL(mset.get_max_possible(), >, 0.0);
-	TEST_REL(mset.size(), >, 0);
+        enq.set_query(q2);
+        Xapian::MSet mset = enq.get_mset(0, 10);
+        TEST_REL(mset.get_max_possible(), >, 0.0);
+        TEST_REL(mset.size(), >, 0);
     }
 
     // Perform a search with just the empty posting source, checking it returns
     // nothing.
     {
-	enq.set_query(q3);
-	Xapian::MSet mset = enq.get_mset(0, 10);
+        enq.set_query(q3);
+        Xapian::MSet mset = enq.get_mset(0, 10);
 
-	// get_max_possible() returns 0 here for backends which track the upper
-	// bound on value slot entries, MAX_DBL for backends which don't.
-	// Either is valid.
-	TEST_REL(mset.get_max_possible(), >=, 0.0);
+        // get_max_possible() returns 0 here for backends which track the upper
+        // bound on value slot entries, MAX_DBL for backends which don't.
+        // Either is valid.
+        TEST_REL(mset.get_max_possible(), >=, 0.0);
 
-	TEST_EQUAL(mset.size(), 0);
+        TEST_EQUAL(mset.size(), 0);
     }
 
     // Perform a search with the posting source ORred with the normal query.
     // This is a regression test - it used to return nothing.
     {
-	enq.set_query(q);
-	Xapian::MSet mset = enq.get_mset(0, 10);
-	TEST_REL(mset.get_max_possible(), >, 0.0);
-	TEST_REL(mset.size(), >, 0.0);
-	TEST_EQUAL(mset.size(), size1);
+        enq.set_query(q);
+        Xapian::MSet mset = enq.get_mset(0, 10);
+        TEST_REL(mset.get_max_possible(), >, 0.0);
+        TEST_REL(mset.size(), >, 0.0);
+        TEST_EQUAL(mset.size(), size1);
     }
 }
 
@@ -599,16 +599,16 @@ class SlowDecreasingValueWeightPostingSource
     int & count;
 
     SlowDecreasingValueWeightPostingSource(int & count_)
-	: Xapian::DecreasingValueWeightPostingSource(0), count(count_) { }
+        : Xapian::DecreasingValueWeightPostingSource(0), count(count_) { }
 
     SlowDecreasingValueWeightPostingSource* clone() const override {
-	return new SlowDecreasingValueWeightPostingSource(count);
+        return new SlowDecreasingValueWeightPostingSource(count);
     }
 
     void next(double min_wt) override {
-	sleep(1);
-	++count;
-	return Xapian::DecreasingValueWeightPostingSource::next(min_wt);
+        sleep(1);
+        ++count;
+        return Xapian::DecreasingValueWeightPostingSource::next(min_wt);
     }
 };
 
@@ -616,9 +616,9 @@ static void
 make_matchtimelimit1_db(Xapian::WritableDatabase &db, const string &)
 {
     for (int wt = 20; wt > 0; --wt) {
-	Xapian::Document doc;
-	doc.add_value(0, Xapian::sortable_serialise(double(wt)));
-	db.add_document(doc);
+        Xapian::Document doc;
+        doc.add_value(0, Xapian::sortable_serialise(double(wt)));
+        db.add_document(doc);
     }
 }
 #endif
@@ -631,7 +631,7 @@ DEFINE_TESTCASE(matchtimelimit1, backend && !remote)
     SKIP_TEST("Enquire::set_time_limit() not implemented for this platform");
 #else
     Xapian::Database db = get_database("matchtimelimit1",
-				       make_matchtimelimit1_db);
+                                       make_matchtimelimit1_db);
 
     int count = 0;
     SlowDecreasingValueWeightPostingSource src(count);
@@ -655,21 +655,21 @@ class CheckBoundsPostingSource
     Xapian::doccount& doclen_ub;
 
     CheckBoundsPostingSource(Xapian::doccount& doclen_lb_,
-			     Xapian::doccount& doclen_ub_)
-	: Xapian::DecreasingValueWeightPostingSource(0),
-	  doclen_lb(doclen_lb_),
-	  doclen_ub(doclen_ub_) { }
+                             Xapian::doccount& doclen_ub_)
+        : Xapian::DecreasingValueWeightPostingSource(0),
+          doclen_lb(doclen_lb_),
+          doclen_ub(doclen_ub_) { }
 
     CheckBoundsPostingSource* clone() const override {
-	return new CheckBoundsPostingSource(doclen_lb, doclen_ub);
+        return new CheckBoundsPostingSource(doclen_lb, doclen_ub);
     }
 
     void reset(const Xapian::Database& database,
-	       Xapian::doccount shard_index) override {
-	doclen_lb = database.get_doclength_lower_bound();
-	doclen_ub = database.get_doclength_upper_bound();
-	Xapian::DecreasingValueWeightPostingSource::reset(database,
-							  shard_index);
+               Xapian::doccount shard_index) override {
+        doclen_lb = database.get_doclength_lower_bound();
+        doclen_ub = database.get_doclength_upper_bound();
+        Xapian::DecreasingValueWeightPostingSource::reset(database,
+                                                          shard_index);
     }
 };
 
@@ -698,12 +698,12 @@ class CloneTestPostingSource : public Xapian::PostingSource {
 
   public:
     CloneTestPostingSource(int& clone_count_)
-	: clone_count(clone_count_)
+        : clone_count(clone_count_)
     { }
 
     PostingSource* clone() const override {
-	++clone_count;
-	return new CloneTestPostingSource(clone_count);
+        ++clone_count;
+        return new CloneTestPostingSource(clone_count);
     }
 
     void reset(const Xapian::Database&, Xapian::doccount) override { }
@@ -719,7 +719,7 @@ class CloneTestPostingSource : public Xapian::PostingSource {
     void skip_to(Xapian::docid, double) override { }
 
     bool at_end() const override {
-	return true;
+        return true;
     }
 
     Xapian::docid get_docid() const override { return 0; }
@@ -732,21 +732,21 @@ DEFINE_TESTCASE(postingsourceclone1, !backend)
 {
     // This fails with 1.3.5-1.4.0 inclusive.
     {
-	int clones = 0;
-	CloneTestPostingSource ps(clones);
-	TEST_EQUAL(clones, 0);
-	Xapian::Query q(&ps);
-	TEST_EQUAL(clones, 1);
+        int clones = 0;
+        CloneTestPostingSource ps(clones);
+        TEST_EQUAL(clones, 0);
+        Xapian::Query q(&ps);
+        TEST_EQUAL(clones, 1);
     }
 
     // Check that clone() isn't needlessly called if reference counting has
     // been turned on for the PostingSource.
     {
-	int clones = 0;
-	CloneTestPostingSource* ps = new CloneTestPostingSource(clones);
-	TEST_EQUAL(clones, 0);
-	Xapian::Query q(ps->release());
-	TEST_EQUAL(clones, 0);
+        int clones = 0;
+        CloneTestPostingSource* ps = new CloneTestPostingSource(clones);
+        TEST_EQUAL(clones, 0);
+        Xapian::Query q(ps->release());
+        TEST_EQUAL(clones, 0);
     }
 }
 
@@ -762,47 +762,47 @@ class OnlyTheFirstPostingSource : public Xapian::PostingSource {
     OnlyTheFirstPostingSource(bool allow_clone_) : allow_clone(allow_clone_) {}
 
     PostingSource* clone() const override {
-	return allow_clone ? new OnlyTheFirstPostingSource(true) : nullptr;
+        return allow_clone ? new OnlyTheFirstPostingSource(true) : nullptr;
     }
 
     void reset(const Xapian::Database& db,
-	       Xapian::doccount shard_index) override {
-	did = 0;
-	if (shard_index == 0) {
-	    last_docid = db.get_lastdocid();
-	} else {
-	    last_docid = 0;
-	}
+               Xapian::doccount shard_index) override {
+        did = 0;
+        if (shard_index == 0) {
+            last_docid = db.get_lastdocid();
+        } else {
+            last_docid = 0;
+        }
     }
 
     Xapian::doccount get_termfreq_min() const override { return 0; }
 
     Xapian::doccount get_termfreq_est() const override {
-	return last_docid / 2;
+        return last_docid / 2;
     }
 
     Xapian::doccount get_termfreq_max() const override { return last_docid; }
 
     void next(double wt) override {
-	(void)wt;
-	++did;
-	if (did > last_docid) did = 0;
+        (void)wt;
+        ++did;
+        if (did > last_docid) did = 0;
     }
 
     void skip_to(Xapian::docid to_did, double wt) override {
-	(void)wt;
-	did = to_did;
-	if (did > last_docid) did = 0;
+        (void)wt;
+        did = to_did;
+        if (did > last_docid) did = 0;
     }
 
     bool at_end() const override {
-	return did == 0;
+        return did == 0;
     }
 
     Xapian::docid get_docid() const override { return did; }
 
     string get_description() const override {
-	return "OnlyTheFirstPostingSource";
+        return "OnlyTheFirstPostingSource";
     }
 };
 
@@ -811,23 +811,23 @@ DEFINE_TESTCASE(postingsourceshardindex1, multi && !remote) {
 
     Xapian::Enquire enquire(db);
     {
-	auto ps = new OnlyTheFirstPostingSource(true);
-	enquire.set_query(Xapian::Query(ps->release()));
+        auto ps = new OnlyTheFirstPostingSource(true);
+        enquire.set_query(Xapian::Query(ps->release()));
 
-	Xapian::MSet mset = enquire.get_mset(0, 10);
-	mset_expect_order(mset, 1, 3, 5);
+        Xapian::MSet mset = enquire.get_mset(0, 10);
+        mset_expect_order(mset, 1, 3, 5);
     }
 
     {
-	/* Regression test for bug fixed in 1.4.12 - we should get an exception
-	 * if we use a PostingSource that doesn't support clone() with a multi
-	 * DB.
-	 */
-	auto ps = new OnlyTheFirstPostingSource(false);
-	enquire.set_query(Xapian::Query(ps->release()));
+        /* Regression test for bug fixed in 1.4.12 - we should get an exception
+         * if we use a PostingSource that doesn't support clone() with a multi
+         * DB.
+         */
+        auto ps = new OnlyTheFirstPostingSource(false);
+        enquire.set_query(Xapian::Query(ps->release()));
 
-	TEST_EXCEPTION(Xapian::InvalidOperationError,
-		       auto m = enquire.get_mset(0, 10));
+        TEST_EXCEPTION(Xapian::InvalidOperationError,
+                       auto m = enquire.get_mset(0, 10));
     }
 }
 
@@ -837,13 +837,13 @@ class EstimatePS : public Xapian::PostingSource {
 
   public:
     EstimatePS(Xapian::doccount lb_,
-	       Xapian::doccount est_,
-	       Xapian::doccount ub_)
-	: lb(lb_), est(est_), ub(ub_)
+               Xapian::doccount est_,
+               Xapian::doccount ub_)
+        : lb(lb_), est(est_), ub(ub_)
     { }
 
     PostingSource* clone() const override {
-	return new EstimatePS(lb, est, ub);
+        return new EstimatePS(lb, est, ub);
     }
 
     void reset(const Xapian::Database&, Xapian::doccount) override { }
@@ -855,19 +855,19 @@ class EstimatePS : public Xapian::PostingSource {
     Xapian::doccount get_termfreq_max() const override { return ub; }
 
     void next(double) override {
-	FAIL_TEST("EstimatePS::next() shouldn't be called");
+        FAIL_TEST("EstimatePS::next() shouldn't be called");
     }
 
     void skip_to(Xapian::docid, double) override {
-	FAIL_TEST("EstimatePS::skip_to() shouldn't be called");
+        FAIL_TEST("EstimatePS::skip_to() shouldn't be called");
     }
 
     bool at_end() const override {
-	return false;
+        return false;
     }
 
     Xapian::docid get_docid() const override {
-	FAIL_TEST("EstimatePS::get_docid() shouldn't be called");
+        FAIL_TEST("EstimatePS::get_docid() shouldn't be called");
     }
 
     string get_description() const override { return "EstimatePS"; }
@@ -878,34 +878,34 @@ DEFINE_TESTCASE(estimaterounding1, backend && !multi && !remote) {
     Xapian::Database db = get_database("etext");
     Xapian::Enquire enquire(db);
     static const struct { Xapian::doccount lb, est, ub, exp; } testcases[] = {
-	// Test rounding down.
-	{411, 424, 439, 420},
-	{1, 312, 439, 300},
-	// Test rounding up.
-	{411, 426, 439, 430},
-	{123, 351, 439, 400},
-	// Rounding based on estimate size if smaller than range size.
-	{1, 12, 439, 10},
-	// Round "5" away from the nearer bound.
-	{1, 15, 439, 20},
-	{1, 350, 439, 300},
-	// Check we round up if rounding down would be out of range.
-	{411, 416, 439, 420},
-	{411, 412, 439, 420},
-	// Check we round down if rounding up would be out of range.
-	{111, 133, 138, 130},
-	{111, 137, 138, 130},
-	// Check we don't round if either way would be out of range.
-	{411, 415, 419, 415},
-	// Leave small estimates alone.
-	{1, 6, 439, 6},
+        // Test rounding down.
+        {411, 424, 439, 420},
+        {1, 312, 439, 300},
+        // Test rounding up.
+        {411, 426, 439, 430},
+        {123, 351, 439, 400},
+        // Rounding based on estimate size if smaller than range size.
+        {1, 12, 439, 10},
+        // Round "5" away from the nearer bound.
+        {1, 15, 439, 20},
+        {1, 350, 439, 300},
+        // Check we round up if rounding down would be out of range.
+        {411, 416, 439, 420},
+        {411, 412, 439, 420},
+        // Check we round down if rounding up would be out of range.
+        {111, 133, 138, 130},
+        {111, 137, 138, 130},
+        // Check we don't round if either way would be out of range.
+        {411, 415, 419, 415},
+        // Leave small estimates alone.
+        {1, 6, 439, 6},
     };
     for (auto& t : testcases) {
-	EstimatePS ps(t.lb, t.est, t.ub);
-	enquire.set_query(Xapian::Query(&ps));
-	Xapian::MSet mset = enquire.get_mset(0, 0);
-	// MSet::get_description() includes bounds and raw estimate.
-	tout << mset.get_description() << '\n';
-	TEST_EQUAL(mset.get_matches_estimated(), t.exp);
+        EstimatePS ps(t.lb, t.est, t.ub);
+        enquire.set_query(Xapian::Query(&ps));
+        Xapian::MSet mset = enquire.get_mset(0, 0);
+        // MSet::get_description() includes bounds and raw estimate.
+        tout << mset.get_description() << '\n';
+        TEST_EQUAL(mset.get_matches_estimated(), t.exp);
     }
 }

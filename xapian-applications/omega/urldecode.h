@@ -42,62 +42,62 @@ url_decode(const CGIParameterHandler & handle_parameter, I begin, I end)
     bool seen_equals = false;
     std::string var, val;
     while (begin != end) {
-	unsigned char ch = *begin;
-	++begin;
+        unsigned char ch = *begin;
+        ++begin;
 process_ch:
-	if (ch == '&') {
-	    if (!seen_equals)
-		swap(var, val);
-	    if (!var.empty())
-		handle_parameter(var, val);
-	    var.resize(0);
-	    val.resize(0);
-	    seen_equals = false;
-	    continue;
-	}
+        if (ch == '&') {
+            if (!seen_equals)
+                swap(var, val);
+            if (!var.empty())
+                handle_parameter(var, val);
+            var.resize(0);
+            val.resize(0);
+            seen_equals = false;
+            continue;
+        }
 
-	switch (ch) {
-	    case '%': {
-		if (begin == end)
-		    break;
-		unsigned char hex1 = *begin;
-		++begin;
-		if (begin == end || !C_isxdigit(hex1)) {
-		    val += ch;
-		    ch = hex1;
-		    if (begin == end)
-			break;
-		    goto process_ch;
-		}
-		unsigned char hex2 = *begin;
-		++begin;
-		if (!C_isxdigit(hex2)) {
-		    val += ch;
-		    val += hex1;
-		    ch = hex2;
-		    if (begin == end)
-			break;
-		    goto process_ch;
-		}
-		ch = hex_decode(hex1, hex2);
-		break;
-	    }
-	    case '+':
-		ch = ' ';
-		break;
-	    case '=':
-		if (seen_equals)
-		    break;
-		seen_equals = true;
-		swap(var, val);
-		continue;
-	}
-	val += ch;
+        switch (ch) {
+            case '%': {
+                if (begin == end)
+                    break;
+                unsigned char hex1 = *begin;
+                ++begin;
+                if (begin == end || !C_isxdigit(hex1)) {
+                    val += ch;
+                    ch = hex1;
+                    if (begin == end)
+                        break;
+                    goto process_ch;
+                }
+                unsigned char hex2 = *begin;
+                ++begin;
+                if (!C_isxdigit(hex2)) {
+                    val += ch;
+                    val += hex1;
+                    ch = hex2;
+                    if (begin == end)
+                        break;
+                    goto process_ch;
+                }
+                ch = hex_decode(hex1, hex2);
+                break;
+            }
+            case '+':
+                ch = ' ';
+                break;
+            case '=':
+                if (seen_equals)
+                    break;
+                seen_equals = true;
+                swap(var, val);
+                continue;
+        }
+        val += ch;
     }
     if (!seen_equals)
-	swap(var, val);
+        swap(var, val);
     if (!var.empty())
-	handle_parameter(var, val);
+        handle_parameter(var, val);
 }
 
 class CStringItor {
@@ -109,14 +109,14 @@ class CStringItor {
     CStringItor() { }
 
     explicit CStringItor(const char * p_) : p(p_) {
-	if (!*p) p = NULL;
+        if (!*p) p = NULL;
     }
 
     unsigned char operator*() const { return *p; }
 
     CStringItor & operator++() {
-	if (!*++p) p = NULL;
-	return *this;
+        if (!*++p) p = NULL;
+        return *this;
     }
 
     friend bool operator==(const CStringItor& a, const CStringItor& b);
@@ -148,17 +148,17 @@ class StdinItor {
     explicit StdinItor(size_t count_) : count(count_), current(256) { }
 
     unsigned char operator*() const {
-	if (current == 256)
-	    current = std::getchar();
-	return current;
+        if (current == 256)
+            current = std::getchar();
+        return current;
     }
 
     StdinItor & operator++() {
-	if (count--)
-	    current = std::getchar();
-	else
-	    current = EOF;
-	return *this;
+        if (count--)
+            current = std::getchar();
+        else
+            current = EOF;
+        return *this;
     }
 
     friend bool operator==(const StdinItor& a, const StdinItor& b);
@@ -282,8 +282,8 @@ inline bool
 encoded_ucont(const std::string & s, size_t i)
 {
     return s[i] == '%' &&
-	url_chars[static_cast<unsigned char>(s[i + 1])] == OK89AB &&
-	C_isxdigit(s[i + 2]);
+        url_chars[static_cast<unsigned char>(s[i + 1])] == OK89AB &&
+        C_isxdigit(s[i + 2]);
 }
 
 /** Prettify a URL.
@@ -298,16 +298,16 @@ url_prettify(std::string & url)
     size_t pcent = url.find('%');
     // Fast path for URLs without a '%' in.
     if (pcent == std::string::npos)
-	return;
+        return;
 
     if (url.size() < 3)
-	return;
+        return;
 
     // Don't try to decode the query or fragment, and don't try to decode if
     // there aren't 2 characters after the '%'.
     size_t pretty_limit = std::min(url.find_first_of("?#"), url.size() - 2);
     if (pcent >= pretty_limit)
-	return;
+        return;
 
     size_t slash = std::string::npos;
     size_t start = 0;
@@ -315,107 +315,107 @@ url_prettify(std::string & url)
     swap(in, url);
     url.reserve(in.size());
     while (true) {
-	// We've checked there are at least two bytes after the '%' already.
-	if (C_isxdigit(in[pcent + 1]) && C_isxdigit(in[pcent + 2])) {
-	    unsigned char ch = hex_decode(in[pcent + 1], in[pcent + 2]);
-	    bool safe = true;
-	    switch (url_chars[ch]) {
-		case UNSAFE:
-		    safe = false;
-		    break;
-		case SEQ2:
-		    if (in.size() - (pcent + 2) < 3 ||
-			!encoded_ucont(in, pcent + 3)) {
-			safe = false;
-			break;
-		    }
-		    url.append(in, start, pcent - start);
-		    url += char(ch);
-		    pcent += 3;
-		    ch = hex_decode(in[pcent + 1], in[pcent + 2]);
-		    start = pcent;
-		    break;
-		case SEQ3:
-		    if (in.size() - (pcent + 2) < 3 * 2 ||
-			!encoded_ucont(in, pcent + 3) ||
-			!encoded_ucont(in, pcent + 6) ||
-			(ch == 0xe0 && in[pcent + 4] <= '9')) {
-			safe = false;
-			break;
-		    }
-		    url.append(in, start, pcent - start);
-		    url += char(ch);
-		    pcent += 3;
-		    ch = hex_decode(in[pcent + 1], in[pcent + 2]);
-		    url += char(ch);
-		    pcent += 3;
-		    ch = hex_decode(in[pcent + 1], in[pcent + 2]);
-		    start = pcent;
-		    break;
-		case SEQ4:
-		    if (in.size() - (pcent + 2) < 3 * 3 ||
-			!encoded_ucont(in, pcent + 3) ||
-			!encoded_ucont(in, pcent + 6) ||
-			!encoded_ucont(in, pcent + 9) ||
-			(ch == 0xf0 && in[pcent + 4] == '8') ||
-			(ch == 0xf4 && in[pcent + 4] >= '9')) {
-			safe = false;
-			break;
-		    }
-		    url.append(in, start, pcent - start);
-		    url += char(ch);
-		    pcent += 3;
-		    ch = hex_decode(in[pcent + 1], in[pcent + 2]);
-		    url += char(ch);
-		    pcent += 3;
-		    ch = hex_decode(in[pcent + 1], in[pcent + 2]);
-		    url += char(ch);
-		    pcent += 3;
-		    ch = hex_decode(in[pcent + 1], in[pcent + 2]);
-		    start = pcent;
-		    break;
-		case INPATH:
-		    // ':' is safe to decode if there is a single '/' earlier in
-		    // the URL.
-		    if (slash == std::string::npos) {
-			// Lazily set slash to the position of the first single '/'.
-			const char * d = in.data();
-			slash = 0;
-			while (true) {
-			    const void* s = std::memchr(d + slash, '/',
-							pretty_limit - slash);
-			    if (s == NULL) {
-				slash = in.size();
-				break;
-			    }
-			    slash = reinterpret_cast<const char *>(s) - d;
-			    if (slash == in.size() - 1 || d[slash + 1] != '/')
-				break;
-			    ++slash;
-			    while (++slash < in.size() - 1 && d[slash] == '/') { }
-			}
-		    }
-		    safe = (pcent > slash);
-		    break;
-	    }
+        // We've checked there are at least two bytes after the '%' already.
+        if (C_isxdigit(in[pcent + 1]) && C_isxdigit(in[pcent + 2])) {
+            unsigned char ch = hex_decode(in[pcent + 1], in[pcent + 2]);
+            bool safe = true;
+            switch (url_chars[ch]) {
+                case UNSAFE:
+                    safe = false;
+                    break;
+                case SEQ2:
+                    if (in.size() - (pcent + 2) < 3 ||
+                        !encoded_ucont(in, pcent + 3)) {
+                        safe = false;
+                        break;
+                    }
+                    url.append(in, start, pcent - start);
+                    url += char(ch);
+                    pcent += 3;
+                    ch = hex_decode(in[pcent + 1], in[pcent + 2]);
+                    start = pcent;
+                    break;
+                case SEQ3:
+                    if (in.size() - (pcent + 2) < 3 * 2 ||
+                        !encoded_ucont(in, pcent + 3) ||
+                        !encoded_ucont(in, pcent + 6) ||
+                        (ch == 0xe0 && in[pcent + 4] <= '9')) {
+                        safe = false;
+                        break;
+                    }
+                    url.append(in, start, pcent - start);
+                    url += char(ch);
+                    pcent += 3;
+                    ch = hex_decode(in[pcent + 1], in[pcent + 2]);
+                    url += char(ch);
+                    pcent += 3;
+                    ch = hex_decode(in[pcent + 1], in[pcent + 2]);
+                    start = pcent;
+                    break;
+                case SEQ4:
+                    if (in.size() - (pcent + 2) < 3 * 3 ||
+                        !encoded_ucont(in, pcent + 3) ||
+                        !encoded_ucont(in, pcent + 6) ||
+                        !encoded_ucont(in, pcent + 9) ||
+                        (ch == 0xf0 && in[pcent + 4] == '8') ||
+                        (ch == 0xf4 && in[pcent + 4] >= '9')) {
+                        safe = false;
+                        break;
+                    }
+                    url.append(in, start, pcent - start);
+                    url += char(ch);
+                    pcent += 3;
+                    ch = hex_decode(in[pcent + 1], in[pcent + 2]);
+                    url += char(ch);
+                    pcent += 3;
+                    ch = hex_decode(in[pcent + 1], in[pcent + 2]);
+                    url += char(ch);
+                    pcent += 3;
+                    ch = hex_decode(in[pcent + 1], in[pcent + 2]);
+                    start = pcent;
+                    break;
+                case INPATH:
+                    // ':' is safe to decode if there is a single '/' earlier in
+                    // the URL.
+                    if (slash == std::string::npos) {
+                        // Lazily set slash to the position of the first single '/'.
+                        const char * d = in.data();
+                        slash = 0;
+                        while (true) {
+                            const void* s = std::memchr(d + slash, '/',
+                                                        pretty_limit - slash);
+                            if (s == NULL) {
+                                slash = in.size();
+                                break;
+                            }
+                            slash = reinterpret_cast<const char *>(s) - d;
+                            if (slash == in.size() - 1 || d[slash + 1] != '/')
+                                break;
+                            ++slash;
+                            while (++slash < in.size() - 1 && d[slash] == '/') { }
+                        }
+                    }
+                    safe = (pcent > slash);
+                    break;
+            }
 
-	    if (safe) {
-		url.append(in, start, pcent - start);
-		url += char(ch);
-		pcent += 3;
-		start = pcent;
-	    } else {
-		pcent += 3;
-	    }
-	} else {
-	    ++pcent;
-	}
-	pcent = in.find('%', pcent);
+            if (safe) {
+                url.append(in, start, pcent - start);
+                url += char(ch);
+                pcent += 3;
+                start = pcent;
+            } else {
+                pcent += 3;
+            }
+        } else {
+            ++pcent;
+        }
+        pcent = in.find('%', pcent);
 
-	if (pcent >= pretty_limit) {
-	    url.append(in, start, std::string::npos);
-	    return;
-	}
+        if (pcent >= pretty_limit) {
+            url.append(in, start, std::string::npos);
+            return;
+        }
     }
 }
 

@@ -94,7 +94,7 @@ class XAPIAN_VISIBILITY_DEFAULT RSet {
      *  If @a did is already marked as relevant, nothing happens.
      */
     void add_document(const Xapian::MSetIterator& it) {
-	add_document(*it);
+        add_document(*it);
     }
 
     /** Unmark a document as relevant.
@@ -108,7 +108,7 @@ class XAPIAN_VISIBILITY_DEFAULT RSet {
      *  If @a did is not marked as relevant, nothing happens.
      */
     void remove_document(const Xapian::MSetIterator& it) {
-	remove_document(*it);
+        remove_document(*it);
     }
 
     /// Check if a document is marked as relevant.
@@ -116,7 +116,7 @@ class XAPIAN_VISIBILITY_DEFAULT RSet {
 
     /// Check if a document is marked as relevant.
     bool contains(const Xapian::MSetIterator& it) const {
-	return contains(*it);
+        return contains(*it);
     }
 
     /// Return a string describing this object.

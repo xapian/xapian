@@ -35,93 +35,93 @@ using namespace std;
 
 void
 HoneyInverter::store_positions(const HoneyPositionTable& position_table,
-			       Xapian::docid did,
-			       const string& term,
-			       const Xapian::VecCOW<Xapian::termpos>& posvec,
-			       bool modifying)
+                               Xapian::docid did,
+                               const string& term,
+                               const Xapian::VecCOW<Xapian::termpos>& posvec,
+                               bool modifying)
 {
     string s;
     position_table.pack(s, posvec);
     if (modifying) {
-	auto i = pos_changes.find(term);
-	if (i != pos_changes.end()) {
-	    map<Xapian::docid, string>& m = i->second;
-	    auto j = m.find(did);
-	    if (j != m.end()) {
-		// Update existing entry.
-		swap(j->second, s);
-		return;
-	    }
-	}
-	const string& key = position_table.make_key(did, term);
-	string old_tag;
-	if (position_table.get_exact_entry(key, old_tag) && s == old_tag) {
-	    // Identical to existing entry on disk.
-	    return;
-	}
+        auto i = pos_changes.find(term);
+        if (i != pos_changes.end()) {
+            map<Xapian::docid, string>& m = i->second;
+            auto j = m.find(did);
+            if (j != m.end()) {
+                // Update existing entry.
+                swap(j->second, s);
+                return;
+            }
+        }
+        const string& key = position_table.make_key(did, term);
+        string old_tag;
+        if (position_table.get_exact_entry(key, old_tag) && s == old_tag) {
+            // Identical to existing entry on disk.
+            return;
+        }
     }
     set_positionlist(did, term, s);
 }
 
 void
 HoneyInverter::set_positionlist(const HoneyPositionTable& position_table,
-				Xapian::docid did,
-				const string& term,
-				const Xapian::TermIterator& term_it,
-				bool modifying)
+                                Xapian::docid did,
+                                const string& term,
+                                const Xapian::TermIterator& term_it,
+                                bool modifying)
 {
     auto ptr = term_it.internal->get_vec_termpos();
     if (ptr) {
-	if (!ptr->empty()) {
-	    store_positions(position_table, did, term, *ptr, modifying);
-	    return;
-	}
+        if (!ptr->empty()) {
+            store_positions(position_table, did, term, *ptr, modifying);
+            return;
+        }
     } else {
-	Xapian::PositionIterator pos = term_it.positionlist_begin();
-	if (pos != term_it.positionlist_end()) {
-	    Xapian::VecCOW<Xapian::termpos> posvec;
-	    posvec.reserve(term_it.positionlist_count());
-	    while (pos != term_it.positionlist_end()) {
-		posvec.push_back(*pos);
-		++pos;
-	    }
-	    store_positions(position_table, did, term, posvec, modifying);
-	    return;
-	}
+        Xapian::PositionIterator pos = term_it.positionlist_begin();
+        if (pos != term_it.positionlist_end()) {
+            Xapian::VecCOW<Xapian::termpos> posvec;
+            posvec.reserve(term_it.positionlist_count());
+            while (pos != term_it.positionlist_end()) {
+                posvec.push_back(*pos);
+                ++pos;
+            }
+            store_positions(position_table, did, term, posvec, modifying);
+            return;
+        }
     }
     // If we get here, the new position list was empty.
     if (modifying)
-	delete_positionlist(did, term);
+        delete_positionlist(did, term);
 }
 
 void
 HoneyInverter::set_positionlist(Xapian::docid did,
-				const string& term,
-				const string& s)
+                                const string& term,
+                                const string& s)
 {
     pos_changes.insert(make_pair(term, map<Xapian::docid, string>()))
-	.first->second[did] = s;
+        .first->second[did] = s;
 }
 
 void
 HoneyInverter::delete_positionlist(Xapian::docid did,
-				   const string& term)
+                                   const string& term)
 {
     set_positionlist(did, term, string());
 }
 
 bool
 HoneyInverter::get_positionlist(Xapian::docid did,
-				const string& term,
-				string& s) const
+                                const string& term,
+                                string& s) const
 {
     auto i = pos_changes.find(term);
     if (i == pos_changes.end())
-	return false;
+        return false;
     const map<Xapian::docid, string>& m = i->second;
     auto j = m.find(did);
     if (j == m.end())
-	return false;
+        return false;
     s = j->second;
     return true;
 }
@@ -130,19 +130,19 @@ bool
 HoneyInverter::has_positions(const HoneyPositionTable& position_table) const
 {
     if (pos_changes.empty())
-	return !position_table.empty();
+        return !position_table.empty();
 
     // FIXME: Can we cheaply keep track of some things to make this more
     // efficient?  E.g. how many sets and deletes we had in total perhaps.
     honey_tablesize_t changes = 0;
     for (auto i : pos_changes) {
-	const map<Xapian::docid, string>& m = i.second;
-	for (auto j : m) {
-	    const string& s = j.second;
-	    if (!s.empty())
-		return true;
-	    ++changes;
-	}
+        const map<Xapian::docid, string>& m = i.second;
+        for (auto j : m) {
+            const string& s = j.second;
+            if (!s.empty())
+                return true;
+            ++changes;
+        }
     }
 
     // We have positions unless all the existing entries are removed.
@@ -171,7 +171,7 @@ void
 HoneyInverter::flush_all_post_lists(HoneyPostListTable& table)
 {
     for (auto&& i : postlist_changes) {
-	table.merge_changes(i.first, i.second);
+        table.merge_changes(i.first, i.second);
     }
     postlist_changes.clear();
 }
@@ -180,26 +180,26 @@ void
 HoneyInverter::flush_post_lists(HoneyPostListTable& table, const string& pfx)
 {
     if (pfx.empty())
-	return flush_all_post_lists(table);
+        return flush_all_post_lists(table);
 
     auto begin = postlist_changes.lower_bound(pfx);
     decltype(begin) end;
     string pfxinc = pfx;
     while (true) {
-	if (pfxinc.back() != '\xff') {
-	    ++pfxinc.back();
-	    end = postlist_changes.lower_bound(pfxinc);
-	    break;
-	}
-	pfxinc.resize(pfxinc.size() - 1);
-	if (pfxinc.empty()) {
-	    end = postlist_changes.end();
-	    break;
-	}
+        if (pfxinc.back() != '\xff') {
+            ++pfxinc.back();
+            end = postlist_changes.lower_bound(pfxinc);
+            break;
+        }
+        pfxinc.resize(pfxinc.size() - 1);
+        if (pfxinc.empty()) {
+            end = postlist_changes.end();
+            break;
+        }
     }
 
     for (auto i = begin; i != end; ++i) {
-	table.merge_changes(i->first, i->second);
+        table.merge_changes(i->first, i->second);
     }
 
     // Erase all the entries in one go, as that's:
@@ -218,16 +218,16 @@ void
 HoneyInverter::flush_pos_lists(HoneyPositionTable& table)
 {
     for (auto i : pos_changes) {
-	const string& term = i.first;
-	const map<Xapian::docid, string>& m = i.second;
-	for (auto j : m) {
-	    Xapian::docid did = j.first;
-	    const string& s = j.second;
-	    if (!s.empty())
-		table.set_positionlist(did, term, s);
-	    else
-		table.delete_positionlist(did, term);
-	}
+        const string& term = i.first;
+        const map<Xapian::docid, string>& m = i.second;
+        for (auto j : m) {
+            Xapian::docid did = j.first;
+            const string& s = j.second;
+            if (!s.empty())
+                table.set_positionlist(did, term, s);
+            else
+                table.delete_positionlist(did, term);
+        }
     }
     pos_changes.clear();
 }

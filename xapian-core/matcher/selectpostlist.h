@@ -53,15 +53,15 @@ class SelectPostList : public WrapperPostList {
 
   public:
     SelectPostList(PostList* pl_,
-		   EstimateOp* estimate_op_,
-		   PostListTree* pltree_)
-	: WrapperPostList(pl_), pltree(pltree_), estimate_op(estimate_op_) {}
+                   EstimateOp* estimate_op_,
+                   PostListTree* pltree_)
+        : WrapperPostList(pl_), pltree(pltree_), estimate_op(estimate_op_) {}
 
     ~SelectPostList();
 
     double get_weight(Xapian::termcount doclen,
-		      Xapian::termcount unique_terms,
-		      Xapian::termcount wdfdocmax) const;
+                      Xapian::termcount unique_terms,
+                      Xapian::termcount wdfdocmax) const;
 
     bool at_end() const;
 

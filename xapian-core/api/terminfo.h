@@ -70,13 +70,13 @@ class TermInfo {
      *  @param termpos	Position to add
      */
     TermInfo(Xapian::termcount wdf_, Xapian::termpos termpos) : wdf(wdf_) {
-	positions.push_back(termpos);
+        positions.push_back(termpos);
     }
 
     /// Get a pointer to the positions.
     const Xapian::VecCOW<Xapian::termpos>* get_positions() const {
-	if (split) merge();
-	return &positions;
+        if (split) merge();
+        return &positions;
     }
 
     bool has_positions() const { return !positions.empty(); }
@@ -91,13 +91,13 @@ class TermInfo {
      *  @return true if the term was flagged as deleted before the operation.
      */
     bool increase_wdf(Xapian::termcount delta) {
-	if (rare(is_deleted())) {
-	    split = 0;
-	    wdf = delta;
-	    return true;
-	}
-	wdf += delta;
-	return false;
+        if (rare(is_deleted())) {
+            split = 0;
+            wdf = delta;
+            return true;
+        }
+        wdf += delta;
+        return false;
     }
 
     /** Decrease within-document frequency.
@@ -105,26 +105,26 @@ class TermInfo {
      *  @return true If the adjusted wdf is zero and there are no positions.
      */
     bool decrease_wdf(Xapian::termcount delta) {
-	// Saturating arithmetic - don't let the wdf go below zero.
-	if (wdf >= delta) {
-	    wdf -= delta;
-	} else {
-	    wdf = 0;
-	}
-	if (wdf == 0 && positions.empty()) {
-	    // Flag term as deleted if no wdf or positions.
-	    split = 1;
-	    return true;
-	}
-	return false;
+        // Saturating arithmetic - don't let the wdf go below zero.
+        if (wdf >= delta) {
+            wdf -= delta;
+        } else {
+            wdf = 0;
+        }
+        if (wdf == 0 && positions.empty()) {
+            // Flag term as deleted if no wdf or positions.
+            split = 1;
+            return true;
+        }
+        return false;
     }
 
     bool remove() {
-	if (is_deleted())
-	    return false;
-	positions.clear();
-	split = 1;
-	return true;
+        if (is_deleted())
+            return false;
+        positions.clear();
+        split = 1;
+        return true;
     }
 
     /** Add a position.
@@ -143,7 +143,7 @@ class TermInfo {
      *  The position must be >= the largest currently in the list.
      */
     void append_position(Xapian::termpos termpos) {
-	positions.push_back(termpos);
+        positions.push_back(termpos);
     }
 
     /** Remove a position.
@@ -164,7 +164,7 @@ class TermInfo {
      *  @return the number of positions removed.
      */
     Xapian::termpos remove_positions(Xapian::termpos termpos_first,
-				     Xapian::termpos termpos_last);
+                                     Xapian::termpos termpos_last);
 
     /** Has this term been deleted from this document?
      *

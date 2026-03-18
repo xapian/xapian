@@ -40,12 +40,12 @@ Stem::Stem(std::string_view language, bool fallback)
 {
     int l = keyword2(tab, language.data(), language.size());
     if (l >= 0) {
-	switch (static_cast<sbl_code>(l)) {
-	    SNOWBALL_DISPATCH
-	}
+        switch (static_cast<sbl_code>(l)) {
+            SNOWBALL_DISPATCH
+        }
     }
     if (fallback || language.empty())
-	return;
+        return;
 
     string m{"Language code "};
     m += language;
@@ -58,10 +58,10 @@ Stem::get_description() const
 {
     string desc = "Xapian::Stem(";
     if (internal) {
-	desc += internal->get_description();
-	desc += ')';
+        desc += internal->get_description();
+        desc += ')';
     } else {
-	desc += "none)";
+        desc += "none)";
     }
     return desc;
 }

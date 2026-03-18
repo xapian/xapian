@@ -36,15 +36,15 @@ static int (*real_deflate)(z_streamp, int) = NULL;
 
 int deflate(z_streamp strm, int flush) {
     if (!real_deflate) {
-	real_deflate = (int (*)(z_streamp, int))dlsym(RTLD_NEXT, "deflate");
-	if (!real_deflate) _exit(1);
+        real_deflate = (int (*)(z_streamp, int))dlsym(RTLD_NEXT, "deflate");
+        if (!real_deflate) _exit(1);
     }
     (void)VALGRIND_CHECK_MEM_IS_DEFINED(strm->next_in, strm->avail_in);
     const unsigned char * start = strm->next_out;
     int res = real_deflate(strm, flush);
     if (res == Z_OK || res == Z_STREAM_END) {
-	size_t len = strm->next_out - start;
-	(void)VALGRIND_MAKE_MEM_DEFINED_IF_ADDRESSABLE(start, len);
+        size_t len = strm->next_out - start;
+        (void)VALGRIND_MAKE_MEM_DEFINED_IF_ADDRESSABLE(start, len);
     }
     return res;
 }

@@ -45,17 +45,17 @@ class GlassDocument : public Xapian::Document::Internal {
 
     /// Private constructor - only called by GlassDatabase::open_document().
     GlassDocument(Xapian::Internal::intrusive_ptr<const Xapian::Database::Internal> db,
-		  Xapian::docid did_,
-		  const GlassValueManager *value_manager_,
-		  const GlassDocDataTable *docdata_table_)
-	: Xapian::Document::Internal(db, did_),
-	  value_manager(value_manager_), docdata_table(docdata_table_) { }
+                  Xapian::docid did_,
+                  const GlassValueManager *value_manager_,
+                  const GlassDocDataTable *docdata_table_)
+        : Xapian::Document::Internal(db, did_),
+          value_manager(value_manager_), docdata_table(docdata_table_) { }
 
   protected:
     /** Implementation of virtual methods @{ */
     string fetch_value(Xapian::valueno slot) const;
     void fetch_all_values(std::map<Xapian::valueno,
-				   std::string>& values_) const;
+                                   std::string>& values_) const;
     string fetch_data() const;
     /** @} */
 };

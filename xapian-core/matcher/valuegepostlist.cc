@@ -36,20 +36,20 @@ ValueGePostList::next(double)
 {
     Assert(db);
     if (!valuelist) {
-	valuelist = db->open_value_list(slot);
-	valuelist->next();
-	if (estimate_op) estimate_op->report_first(valuelist->get_docid());
+        valuelist = db->open_value_list(slot);
+        valuelist->next();
+        if (estimate_op) estimate_op->report_first(valuelist->get_docid());
     } else {
-	valuelist->next();
+        valuelist->next();
     }
     while (!valuelist->at_end()) {
-	const string & v = valuelist->get_value();
-	if (v >= begin) {
-	    ++accepted;
-	    return NULL;
-	}
-	++rejected;
-	valuelist->next();
+        const string & v = valuelist->get_value();
+        if (v >= begin) {
+            ++accepted;
+            return NULL;
+        }
+        ++rejected;
+        valuelist->next();
     }
     db = NULL;
     return NULL;
@@ -62,13 +62,13 @@ ValueGePostList::skip_to(Xapian::docid did, double)
     if (!valuelist) valuelist = db->open_value_list(slot);
     valuelist->skip_to(did);
     while (!valuelist->at_end()) {
-	const string & v = valuelist->get_value();
-	if (v >= begin) {
-	    ++accepted;
-	    return NULL;
-	}
-	++rejected;
-	valuelist->next();
+        const string & v = valuelist->get_value();
+        if (v >= begin) {
+            ++accepted;
+            return NULL;
+        }
+        ++rejected;
+        valuelist->next();
     }
     db = NULL;
     return NULL;
@@ -82,14 +82,14 @@ ValueGePostList::check(Xapian::docid did, double, bool &valid)
     if (!valuelist) valuelist = db->open_value_list(slot);
     valid = valuelist->check(did);
     if (!valid) {
-	return NULL;
+        return NULL;
     }
     const string & v = valuelist->get_value();
     valid = (v >= begin);
     if (valid)
-	++accepted;
+        ++accepted;
     else
-	++rejected;
+        ++rejected;
     return NULL;
 }
 

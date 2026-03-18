@@ -50,10 +50,10 @@ struct Filter {
     std::string output_type;
     std::string output_charset;
     enum {
-	USE_SHELL = 1,
-	PIPE_IN = 2,
-	PIPE_DEV_STDIN = 4,
-	SEEK_DEV_STDIN = 8
+        USE_SHELL = 1,
+        PIPE_IN = 2,
+        PIPE_DEV_STDIN = 4,
+        SEEK_DEV_STDIN = 8
     };
     unsigned flags = 0;
     /** Set if this is a mapping for a worker sub-process. */
@@ -61,29 +61,29 @@ struct Filter {
 
     Filter() { }
     explicit Filter(const std::string& cmd_, unsigned flags_ = 0)
-	: cmd(cmd_), output_type(), flags(flags_) { }
+        : cmd(cmd_), output_type(), flags(flags_) { }
     Filter(const std::string& cmd_, const std::string& output_type_,
-	   unsigned flags_ = 0)
-	: cmd(cmd_), output_type(output_type_), flags(flags_) { }
+           unsigned flags_ = 0)
+        : cmd(cmd_), output_type(output_type_), flags(flags_) { }
     Filter(const std::string& cmd_, const std::string& output_type_,
-	   const std::string& output_charset_,
-	   unsigned flags_ = 0)
-	: cmd(cmd_), output_type(output_type_),
-	  output_charset(output_charset_), flags(flags_) { }
+           const std::string& output_charset_,
+           unsigned flags_ = 0)
+        : cmd(cmd_), output_type(output_type_),
+          output_charset(output_charset_), flags(flags_) { }
     explicit Filter(Worker* worker_) : worker(worker_) { }
     bool use_shell() const { return flags & USE_SHELL; }
     bool input_on_stdin() const {
 #ifdef HAVE_DEV_STDIN
-	return flags & (PIPE_IN | PIPE_DEV_STDIN | SEEK_DEV_STDIN);
+        return flags & (PIPE_IN | PIPE_DEV_STDIN | SEEK_DEV_STDIN);
 #else
-	return flags & PIPE_IN;
+        return flags & PIPE_IN;
 #endif
     }
     bool dev_stdin() const {
 #ifdef HAVE_DEV_STDIN
-	return flags & (PIPE_DEV_STDIN | SEEK_DEV_STDIN);
+        return flags & (PIPE_DEV_STDIN | SEEK_DEV_STDIN);
 #else
-	return false;
+        return false;
 #endif
     }
 };
@@ -124,33 +124,33 @@ index_add_default_libraries();
 /// Initialise.
 void
 index_init(const std::string& dbpath, const Xapian::Stem& stemmer,
-	   const std::string& root_,
-	   const std::string& site_term_, const std::string& host_term_,
-	   empty_body_type empty_body_, dup_action_type dup_action_,
-	   size_t sample_size_, size_t title_size_,
-	   size_t max_ext_len_,
-	   bool overwrite, bool retry_failed_,
-	   bool delete_removed_documents, bool verbose_, bool use_ctime_,
-	   bool spelling, bool ignore_exclusions_, bool description_as_sample,
-	   bool date_terms);
+           const std::string& root_,
+           const std::string& site_term_, const std::string& host_term_,
+           empty_body_type empty_body_, dup_action_type dup_action_,
+           size_t sample_size_, size_t title_size_,
+           size_t max_ext_len_,
+           bool overwrite, bool retry_failed_,
+           bool delete_removed_documents, bool verbose_, bool use_ctime_,
+           bool spelling, bool ignore_exclusions_, bool description_as_sample,
+           bool date_terms);
 
 void
 index_remove_failed_entry(const std::string& urlterm);
 
 void
 index_add_document(const std::string& urlterm, time_t last_altered,
-		   Xapian::docid did, const Xapian::Document& doc);
+                   Xapian::docid did, const Xapian::Document& doc);
 
 /// Index a file into the database.
 void
 index_mimetype(const std::string& file,
-	       const std::string& urlterm,
-	       const std::string& url,
-	       const std::string& ext,
-	       std::string mimetype,
-	       DirectoryIterator& d,
-	       std::string pathterm,
-	       std::string record);
+               const std::string& urlterm,
+               const std::string& url,
+               const std::string& ext,
+               std::string mimetype,
+               DirectoryIterator& d,
+               std::string pathterm,
+               std::string record);
 
 /// Delete any previously indexed documents we haven't seen.
 void index_handle_deletion();

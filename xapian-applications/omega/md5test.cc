@@ -43,16 +43,16 @@ static testcase md5_testcases[] = {
 int main() {
     string md5;
     for (testcase * t = md5_testcases; t->string; ++t) {
-	string hexhash;
-	md5_string(t->string, md5);
-	for (size_t i = 0; i < md5.size(); ++i) {
-	    unsigned char b = static_cast<unsigned char>(md5[i]);
-	    hexhash += "0123456789abcdef"[b >> 4];
-	    hexhash += "0123456789abcdef"[b & 0x0f];
-	}
-	if (hexhash != t->hash) {
-	    cerr << "md5 of \"" << t->string << "\" should be \"" << t->hash << "\" not \"" << hexhash << "\"" << endl;
-	    exit(1);
-	}
+        string hexhash;
+        md5_string(t->string, md5);
+        for (size_t i = 0; i < md5.size(); ++i) {
+            unsigned char b = static_cast<unsigned char>(md5[i]);
+            hexhash += "0123456789abcdef"[b >> 4];
+            hexhash += "0123456789abcdef"[b & 0x0f];
+        }
+        if (hexhash != t->hash) {
+            cerr << "md5 of \"" << t->string << "\" should be \"" << t->hash << "\" not \"" << hexhash << "\"" << endl;
+            exit(1);
+        }
     }
 }

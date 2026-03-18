@@ -73,25 +73,25 @@ build_termlist_tree(const Xapian::Database &db, const RSet & rset)
     termlists.reserve(docids.size());
 
     try {
-	for (Xapian::docid did : docids) {
-	    termlists.push_back(db.internal->open_term_list_direct(did));
-	}
-	Assert(!termlists.empty());
-	return make_termlist_merger(termlists);
+        for (Xapian::docid did : docids) {
+            termlists.push_back(db.internal->open_term_list_direct(did));
+        }
+        Assert(!termlists.empty());
+        return make_termlist_merger(termlists);
     } catch (...) {
-	for_each(termlists.begin(), termlists.end(),
-		 [](TermList* p) { delete p; });
-	throw;
+        for_each(termlists.begin(), termlists.end(),
+                 [](TermList* p) { delete p; });
+        throw;
     }
 }
 
 void
 ESet::Internal::expand(Xapian::termcount max_esize,
-		       const Xapian::Database & db,
-		       const RSet & rset,
-		       const Xapian::ExpandDecider * edecider,
-		       Xapian::Internal::ExpandWeight & eweight,
-		       double min_wt)
+                       const Xapian::Database & db,
+                       const RSet & rset,
+                       const Xapian::ExpandDecider * edecider,
+                       Xapian::Internal::ExpandWeight & eweight,
+                       double min_wt)
 {
     LOGCALL_VOID(EXPAND, "ESet::Internal::expand", max_esize | db | rset | edecider | eweight);
     // These two cases are handled by our caller.
@@ -107,62 +107,62 @@ ESet::Internal::expand(Xapian::termcount max_esize,
 
     bool is_heap = false;
     while (true) {
-	// See if the root needs replacing.
-	TermList * new_root = tree->next();
-	if (new_root == tree.get()) {
-	    // No more entries.
-	    break;
-	}
-	if (new_root) {
-	    LOGLINE(EXPAND, "Replacing the root of the termlist tree");
-	    tree.reset(new_root);
-	}
+        // See if the root needs replacing.
+        TermList * new_root = tree->next();
+        if (new_root == tree.get()) {
+            // No more entries.
+            break;
+        }
+        if (new_root) {
+            LOGLINE(EXPAND, "Replacing the root of the termlist tree");
+            tree.reset(new_root);
+        }
 
-	string term = tree->get_termname();
+        string term = tree->get_termname();
 
-	// If there's an ExpandDecider, see if it accepts the term.
-	if (edecider && !(*edecider)(term)) continue;
+        // If there's an ExpandDecider, see if it accepts the term.
+        if (edecider && !(*edecider)(term)) continue;
 
-	++ebound;
+        ++ebound;
 
-	/* Set up the ExpandWeight by clearing the existing statistics and
-	   collecting statistics for the new term. */
-	eweight.collect_stats(tree.get(), term);
+        /* Set up the ExpandWeight by clearing the existing statistics and
+           collecting statistics for the new term. */
+        eweight.collect_stats(tree.get(), term);
 
-	double wt = eweight.get_weight();
+        double wt = eweight.get_weight();
 
-	// If the weights are equal, we prefer the lexically smaller term and
-	// since we process terms in ascending order we use "<=" not "<" here.
-	if (wt <= min_wt) continue;
+        // If the weights are equal, we prefer the lexically smaller term and
+        // since we process terms in ascending order we use "<=" not "<" here.
+        if (wt <= min_wt) continue;
 
-	if (items.size() < max_esize) {
-	    items.emplace_back(wt, term);
-	    continue;
-	}
+        if (items.size() < max_esize) {
+            items.emplace_back(wt, term);
+            continue;
+        }
 
-	// We have the desired number of items, so it's one-in one-out from
-	// now on.
-	Assert(items.size() == max_esize);
-	if (rare(!is_heap)) {
-	    Heap::make(items.begin(), items.end(),
-		       std::less<Xapian::Internal::ExpandTerm>());
-	    min_wt = items.front().wt;
-	    is_heap = true;
-	    if (wt <= min_wt) continue;
-	}
+        // We have the desired number of items, so it's one-in one-out from
+        // now on.
+        Assert(items.size() == max_esize);
+        if (rare(!is_heap)) {
+            Heap::make(items.begin(), items.end(),
+                       std::less<Xapian::Internal::ExpandTerm>());
+            min_wt = items.front().wt;
+            is_heap = true;
+            if (wt <= min_wt) continue;
+        }
 
-	items.front() = Xapian::Internal::ExpandTerm(wt, term);
-	Heap::replace(items.begin(), items.end(),
-		      std::less<Xapian::Internal::ExpandTerm>());
-	min_wt = items.front().wt;
+        items.front() = Xapian::Internal::ExpandTerm(wt, term);
+        Heap::replace(items.begin(), items.end(),
+                      std::less<Xapian::Internal::ExpandTerm>());
+        min_wt = items.front().wt;
     }
 
     // Now sort the contents of the new ESet.
     if (is_heap) {
-	Heap::sort(items.begin(), items.end(),
-		   std::less<Xapian::Internal::ExpandTerm>());
+        Heap::sort(items.begin(), items.end(),
+                   std::less<Xapian::Internal::ExpandTerm>());
     } else {
-	sort(items.begin(), items.end());
+        sort(items.begin(), items.end());
     }
 }
 
@@ -173,8 +173,8 @@ ESet::Internal::get_description() const
     desc += str(ebound);
 
     for (auto&& i : items) {
-	desc += ", ";
-	desc += i.get_description();
+        desc += ", ";
+        desc += i.get_description();
     }
     desc += ')';
 
@@ -237,9 +237,9 @@ ESetIterator::get_description() const
 {
     string desc = "ESetIterator(";
     if (off_from_end == 0) {
-	desc += "end";
+        desc += "end";
     } else {
-	desc += str(eset.internal->items.size() - off_from_end);
+        desc += str(eset.internal->items.size() - off_from_end);
     }
     desc += ')';
     return desc;

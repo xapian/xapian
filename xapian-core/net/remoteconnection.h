@@ -136,7 +136,7 @@ class RemoteConnection {
   public:
     /// Constructor.
     RemoteConnection(int fdin_, int fdout_,
-		     const std::string & context_ = std::string());
+                     const std::string & context_ = std::string());
 
 #ifdef __WIN32__
     /// Destructor
@@ -216,7 +216,7 @@ class RemoteConnection {
      *				< at_least bytes, but finished the message.
      */
     int get_message_chunk(std::string &result, size_t at_least,
-			  double end_time);
+                          double end_time);
 
     /** Save the contents of a message as a file.
      *
@@ -276,12 +276,12 @@ class OwnedRemoteConnection : public RemoteConnection {
   public:
     /// Constructor.
     OwnedRemoteConnection(int fdin_, int fdout_,
-			  const std::string& context_ = std::string())
-	: RemoteConnection(fdin_, fdout_, context_) { }
+                          const std::string& context_ = std::string())
+        : RemoteConnection(fdin_, fdout_, context_) { }
 
     /// Destructor.
     ~OwnedRemoteConnection() {
-	do_close();
+        do_close();
     }
 };
 

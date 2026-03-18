@@ -85,77 +85,77 @@ class PostlistCursor : private GlassCursor {
     Xapian::termcount tf, cf;
 
     PostlistCursor(const GlassTable *in, Xapian::docid offset_)
-	: GlassCursor(in), offset(offset_), firstdid(0)
+        : GlassCursor(in), offset(offset_), firstdid(0)
     {
-	rewind();
-	next();
+        rewind();
+        next();
     }
 
     bool next() {
-	if (!GlassCursor::next()) return false;
-	// We put all chunks into the non-initial chunk form here, then fix up
-	// the first chunk for each term in the merged database as we merge.
-	read_tag();
-	key = current_key;
-	tag = current_tag;
-	tf = cf = 0;
-	if (is_user_metadata_key(key)) return true;
-	if (is_valuestats_key(key)) return true;
-	if (is_valuechunk_key(key)) {
-	    const char * p = key.data();
-	    const char * end = p + key.length();
-	    p += 2;
-	    Xapian::valueno slot;
-	    if (!unpack_uint(&p, end, &slot))
-		throw Xapian::DatabaseCorruptError("bad value key");
-	    Xapian::docid did;
-	    if (!unpack_uint_preserving_sort(&p, end, &did))
-		throw Xapian::DatabaseCorruptError("bad value key");
-	    did += offset;
+        if (!GlassCursor::next()) return false;
+        // We put all chunks into the non-initial chunk form here, then fix up
+        // the first chunk for each term in the merged database as we merge.
+        read_tag();
+        key = current_key;
+        tag = current_tag;
+        tf = cf = 0;
+        if (is_user_metadata_key(key)) return true;
+        if (is_valuestats_key(key)) return true;
+        if (is_valuechunk_key(key)) {
+            const char * p = key.data();
+            const char * end = p + key.length();
+            p += 2;
+            Xapian::valueno slot;
+            if (!unpack_uint(&p, end, &slot))
+                throw Xapian::DatabaseCorruptError("bad value key");
+            Xapian::docid did;
+            if (!unpack_uint_preserving_sort(&p, end, &did))
+                throw Xapian::DatabaseCorruptError("bad value key");
+            did += offset;
 
-	    key.assign("\0\xd8", 2);
-	    pack_uint(key, slot);
-	    pack_uint_preserving_sort(key, did);
-	    return true;
-	}
+            key.assign("\0\xd8", 2);
+            pack_uint(key, slot);
+            pack_uint_preserving_sort(key, did);
+            return true;
+        }
 
-	// Adjust key if this is *NOT* an initial chunk.
-	// key is: pack_string_preserving_sort(key, tname)
-	// plus optionally: pack_uint_preserving_sort(key, did)
-	const char * d = key.data();
-	const char * e = d + key.size();
-	if (is_doclenchunk_key(key)) {
-	    d += 2;
-	} else {
-	    string tname;
-	    if (!unpack_string_preserving_sort(&d, e, tname))
-		throw Xapian::DatabaseCorruptError("Bad postlist key");
-	}
+        // Adjust key if this is *NOT* an initial chunk.
+        // key is: pack_string_preserving_sort(key, tname)
+        // plus optionally: pack_uint_preserving_sort(key, did)
+        const char * d = key.data();
+        const char * e = d + key.size();
+        if (is_doclenchunk_key(key)) {
+            d += 2;
+        } else {
+            string tname;
+            if (!unpack_string_preserving_sort(&d, e, tname))
+                throw Xapian::DatabaseCorruptError("Bad postlist key");
+        }
 
-	if (d == e) {
-	    // This is an initial chunk for a term, so adjust tag header.
-	    d = tag.data();
-	    e = d + tag.size();
-	    if (!unpack_uint(&d, e, &tf) ||
-		!unpack_uint(&d, e, &cf) ||
-		!unpack_uint(&d, e, &firstdid)) {
-		throw Xapian::DatabaseCorruptError("Bad postlist key");
-	    }
-	    ++firstdid;
-	    tag.erase(0, d - tag.data());
-	} else {
-	    // Not an initial chunk, so adjust key.
-	    size_t tmp = d - key.data();
-	    if (!unpack_uint_preserving_sort(&d, e, &firstdid) || d != e)
-		throw Xapian::DatabaseCorruptError("Bad postlist key");
-	    if (is_doclenchunk_key(key)) {
-		key.erase(tmp);
-	    } else {
-		key.erase(tmp - 1);
-	    }
-	}
-	UNSIGNED_OVERFLOW_OK(firstdid += offset);
-	return true;
+        if (d == e) {
+            // This is an initial chunk for a term, so adjust tag header.
+            d = tag.data();
+            e = d + tag.size();
+            if (!unpack_uint(&d, e, &tf) ||
+                !unpack_uint(&d, e, &cf) ||
+                !unpack_uint(&d, e, &firstdid)) {
+                throw Xapian::DatabaseCorruptError("Bad postlist key");
+            }
+            ++firstdid;
+            tag.erase(0, d - tag.data());
+        } else {
+            // Not an initial chunk, so adjust key.
+            size_t tmp = d - key.data();
+            if (!unpack_uint_preserving_sort(&d, e, &firstdid) || d != e)
+                throw Xapian::DatabaseCorruptError("Bad postlist key");
+            if (is_doclenchunk_key(key)) {
+                key.erase(tmp);
+            } else {
+                key.erase(tmp - 1);
+            }
+        }
+        UNSIGNED_OVERFLOW_OK(firstdid += offset);
+        return true;
     }
 };
 
@@ -164,15 +164,15 @@ class PostlistCursorGt {
     /** Return true if and only if a's key is strictly greater than b's key.
      */
     bool operator()(const PostlistCursor *a, const PostlistCursor *b) const {
-	if (a->key > b->key) return true;
-	if (a->key != b->key) return false;
-	return (a->firstdid > b->firstdid);
+        if (a->key > b->key) return true;
+        if (a->key != b->key) return false;
+        return (a->firstdid > b->firstdid);
     }
 };
 
 static string
 encode_valuestats(Xapian::doccount freq,
-		  const string & lbound, const string & ubound)
+                  const string & lbound, const string & ubound)
 {
     string value;
     pack_uint(value, freq);
@@ -186,472 +186,472 @@ encode_valuestats(Xapian::doccount freq,
 
 static void
 merge_postlists(Xapian::Compactor * compactor,
-		GlassTable * out, vector<Xapian::docid>::const_iterator offset,
-		vector<const GlassTable*>::const_iterator b,
-		vector<const GlassTable*>::const_iterator e)
+                GlassTable * out, vector<Xapian::docid>::const_iterator offset,
+                vector<const GlassTable*>::const_iterator b,
+                vector<const GlassTable*>::const_iterator e)
 {
     priority_queue<PostlistCursor *, vector<PostlistCursor *>, PostlistCursorGt> pq;
     for ( ; b != e; ++b, ++offset) {
-	const GlassTable *in = *b;
-	if (in->empty()) {
-	    // Skip empty tables.
-	    continue;
-	}
+        const GlassTable *in = *b;
+        if (in->empty()) {
+            // Skip empty tables.
+            continue;
+        }
 
-	pq.push(new PostlistCursor(in, *offset));
+        pq.push(new PostlistCursor(in, *offset));
     }
 
     string last_key;
     {
-	// Merge user metadata.
-	vector<string> tags;
-	while (!pq.empty()) {
-	    PostlistCursor * cur = pq.top();
-	    const string& key = cur->key;
-	    if (!is_user_metadata_key(key)) break;
+        // Merge user metadata.
+        vector<string> tags;
+        while (!pq.empty()) {
+            PostlistCursor * cur = pq.top();
+            const string& key = cur->key;
+            if (!is_user_metadata_key(key)) break;
 
-	    if (key != last_key) {
-		if (!tags.empty()) {
-		    if (tags.size() > 1 && compactor) {
-			Assert(!last_key.empty());
-			// FIXME: It would be better to merge all duplicates
-			// for a key in one call, but currently we don't in
-			// multipass mode.
-			const string & resolved_tag =
-			    compactor->resolve_duplicate_metadata(last_key,
-								  tags.size(),
-								  &tags[0]);
-			if (!resolved_tag.empty())
-			    out->add(last_key, resolved_tag);
-		    } else {
-			Assert(!last_key.empty());
-			out->add(last_key, tags[0]);
-		    }
-		    tags.resize(0);
-		}
-		last_key = key;
-	    }
-	    tags.push_back(cur->tag);
+            if (key != last_key) {
+                if (!tags.empty()) {
+                    if (tags.size() > 1 && compactor) {
+                        Assert(!last_key.empty());
+                        // FIXME: It would be better to merge all duplicates
+                        // for a key in one call, but currently we don't in
+                        // multipass mode.
+                        const string & resolved_tag =
+                            compactor->resolve_duplicate_metadata(last_key,
+                                                                  tags.size(),
+                                                                  &tags[0]);
+                        if (!resolved_tag.empty())
+                            out->add(last_key, resolved_tag);
+                    } else {
+                        Assert(!last_key.empty());
+                        out->add(last_key, tags[0]);
+                    }
+                    tags.resize(0);
+                }
+                last_key = key;
+            }
+            tags.push_back(cur->tag);
 
-	    pq.pop();
-	    if (cur->next()) {
-		pq.push(cur);
-	    } else {
-		delete cur;
-	    }
-	}
-	if (!tags.empty()) {
-	    if (tags.size() > 1 && compactor) {
-		Assert(!last_key.empty());
-		const string & resolved_tag =
-		    compactor->resolve_duplicate_metadata(last_key,
-							  tags.size(),
-							  &tags[0]);
-		if (!resolved_tag.empty())
-		    out->add(last_key, resolved_tag);
-	    } else {
-		Assert(!last_key.empty());
-		out->add(last_key, tags[0]);
-	    }
-	}
+            pq.pop();
+            if (cur->next()) {
+                pq.push(cur);
+            } else {
+                delete cur;
+            }
+        }
+        if (!tags.empty()) {
+            if (tags.size() > 1 && compactor) {
+                Assert(!last_key.empty());
+                const string & resolved_tag =
+                    compactor->resolve_duplicate_metadata(last_key,
+                                                          tags.size(),
+                                                          &tags[0]);
+                if (!resolved_tag.empty())
+                    out->add(last_key, resolved_tag);
+            } else {
+                Assert(!last_key.empty());
+                out->add(last_key, tags[0]);
+            }
+        }
     }
 
     {
-	// Merge valuestats.
-	Xapian::doccount freq = 0;
-	string lbound, ubound;
+        // Merge valuestats.
+        Xapian::doccount freq = 0;
+        string lbound, ubound;
 
-	while (!pq.empty()) {
-	    PostlistCursor * cur = pq.top();
-	    const string& key = cur->key;
-	    if (!is_valuestats_key(key)) break;
-	    if (key != last_key) {
-		// For the first valuestats key, last_key will be the previous
-		// key we wrote, which we don't want to overwrite.  This is the
-		// only time that freq will be 0, so check that.
-		if (freq) {
-		    out->add(last_key, encode_valuestats(freq, lbound, ubound));
-		    freq = 0;
-		}
-		last_key = key;
-	    }
+        while (!pq.empty()) {
+            PostlistCursor * cur = pq.top();
+            const string& key = cur->key;
+            if (!is_valuestats_key(key)) break;
+            if (key != last_key) {
+                // For the first valuestats key, last_key will be the previous
+                // key we wrote, which we don't want to overwrite.  This is the
+                // only time that freq will be 0, so check that.
+                if (freq) {
+                    out->add(last_key, encode_valuestats(freq, lbound, ubound));
+                    freq = 0;
+                }
+                last_key = key;
+            }
 
-	    const string & tag = cur->tag;
+            const string & tag = cur->tag;
 
-	    const char * pos = tag.data();
-	    const char * end = pos + tag.size();
+            const char * pos = tag.data();
+            const char * end = pos + tag.size();
 
-	    Xapian::doccount f;
-	    string l, u;
-	    if (!unpack_uint(&pos, end, &f)) {
-		if (*pos == 0) throw Xapian::DatabaseCorruptError("Incomplete stats item in value table");
-		throw Xapian::RangeError("Frequency statistic in value table is too large");
-	    }
-	    if (!unpack_string(&pos, end, l)) {
-		if (*pos == 0) throw Xapian::DatabaseCorruptError("Incomplete stats item in value table");
-		throw Xapian::RangeError("Lower bound in value table is too large");
-	    }
-	    size_t len = end - pos;
-	    if (len == 0) {
-		u = l;
-	    } else {
-		u.assign(pos, len);
-	    }
-	    if (freq == 0) {
-		freq = f;
-		lbound = l;
-		ubound = u;
-	    } else {
-		freq += f;
-		if (l < lbound) lbound = l;
-		if (u > ubound) ubound = u;
-	    }
+            Xapian::doccount f;
+            string l, u;
+            if (!unpack_uint(&pos, end, &f)) {
+                if (*pos == 0) throw Xapian::DatabaseCorruptError("Incomplete stats item in value table");
+                throw Xapian::RangeError("Frequency statistic in value table is too large");
+            }
+            if (!unpack_string(&pos, end, l)) {
+                if (*pos == 0) throw Xapian::DatabaseCorruptError("Incomplete stats item in value table");
+                throw Xapian::RangeError("Lower bound in value table is too large");
+            }
+            size_t len = end - pos;
+            if (len == 0) {
+                u = l;
+            } else {
+                u.assign(pos, len);
+            }
+            if (freq == 0) {
+                freq = f;
+                lbound = l;
+                ubound = u;
+            } else {
+                freq += f;
+                if (l < lbound) lbound = l;
+                if (u > ubound) ubound = u;
+            }
 
-	    pq.pop();
-	    if (cur->next()) {
-		pq.push(cur);
-	    } else {
-		delete cur;
-	    }
-	}
+            pq.pop();
+            if (cur->next()) {
+                pq.push(cur);
+            } else {
+                delete cur;
+            }
+        }
 
-	if (freq) {
-	    out->add(last_key, encode_valuestats(freq, lbound, ubound));
-	}
+        if (freq) {
+            out->add(last_key, encode_valuestats(freq, lbound, ubound));
+        }
     }
 
     // Merge valuestream chunks.
     while (!pq.empty()) {
-	PostlistCursor * cur = pq.top();
-	const string & key = cur->key;
-	if (!is_valuechunk_key(key)) break;
-	Assert(!is_user_metadata_key(key));
-	out->add(key, cur->tag);
-	pq.pop();
-	if (cur->next()) {
-	    pq.push(cur);
-	} else {
-	    delete cur;
-	}
+        PostlistCursor * cur = pq.top();
+        const string & key = cur->key;
+        if (!is_valuechunk_key(key)) break;
+        Assert(!is_user_metadata_key(key));
+        out->add(key, cur->tag);
+        pq.pop();
+        if (cur->next()) {
+            pq.push(cur);
+        } else {
+            delete cur;
+        }
     }
 
     Xapian::termcount tf = 0, cf = 0; // Initialise to avoid warnings.
     vector<pair<Xapian::docid, string>> tags;
     while (true) {
-	PostlistCursor * cur = NULL;
-	if (!pq.empty()) {
-	    cur = pq.top();
-	    pq.pop();
-	}
-	Assert(cur == NULL || !is_user_metadata_key(cur->key));
-	if (cur == NULL || cur->key != last_key) {
-	    if (!tags.empty()) {
-		string first_tag;
-		pack_uint(first_tag, tf);
-		pack_uint(first_tag, cf);
-		pack_uint(first_tag, tags[0].first - 1);
-		string tag = tags[0].second;
-		tag[0] = (tags.size() == 1) ? '1' : '0';
-		first_tag += tag;
-		out->add(last_key, first_tag);
+        PostlistCursor * cur = NULL;
+        if (!pq.empty()) {
+            cur = pq.top();
+            pq.pop();
+        }
+        Assert(cur == NULL || !is_user_metadata_key(cur->key));
+        if (cur == NULL || cur->key != last_key) {
+            if (!tags.empty()) {
+                string first_tag;
+                pack_uint(first_tag, tf);
+                pack_uint(first_tag, cf);
+                pack_uint(first_tag, tags[0].first - 1);
+                string tag = tags[0].second;
+                tag[0] = (tags.size() == 1) ? '1' : '0';
+                first_tag += tag;
+                out->add(last_key, first_tag);
 
-		string term;
-		if (!is_doclenchunk_key(last_key)) {
-		    const char * p = last_key.data();
-		    const char * end = p + last_key.size();
-		    if (!unpack_string_preserving_sort(&p, end, term) || p != end)
-			throw Xapian::DatabaseCorruptError("Bad postlist chunk key");
-		}
+                string term;
+                if (!is_doclenchunk_key(last_key)) {
+                    const char * p = last_key.data();
+                    const char * end = p + last_key.size();
+                    if (!unpack_string_preserving_sort(&p, end, term) || p != end)
+                        throw Xapian::DatabaseCorruptError("Bad postlist chunk key");
+                }
 
-		auto i = tags.begin();
-		while (++i != tags.end()) {
-		    tag = i->second;
-		    tag[0] = (i + 1 == tags.end()) ? '1' : '0';
-		    out->add(pack_glass_postlist_key(term, i->first), tag);
-		}
-	    }
-	    tags.clear();
-	    if (cur == NULL) break;
-	    tf = cf = 0;
-	    last_key = cur->key;
-	}
-	tf += cur->tf;
-	cf += cur->cf;
-	tags.push_back(make_pair(cur->firstdid, cur->tag));
-	if (cur->next()) {
-	    pq.push(cur);
-	} else {
-	    delete cur;
-	}
+                auto i = tags.begin();
+                while (++i != tags.end()) {
+                    tag = i->second;
+                    tag[0] = (i + 1 == tags.end()) ? '1' : '0';
+                    out->add(pack_glass_postlist_key(term, i->first), tag);
+                }
+            }
+            tags.clear();
+            if (cur == NULL) break;
+            tf = cf = 0;
+            last_key = cur->key;
+        }
+        tf += cur->tf;
+        cf += cur->cf;
+        tags.push_back(make_pair(cur->firstdid, cur->tag));
+        if (cur->next()) {
+            pq.push(cur);
+        } else {
+            delete cur;
+        }
     }
 }
 
 struct MergeCursor : public GlassCursor {
     explicit MergeCursor(const GlassTable *in) : GlassCursor(in) {
-	rewind();
-	next();
+        rewind();
+        next();
     }
 };
 
 struct CursorGt {
     /// Return true if and only if a's key is strictly greater than b's key.
     bool operator()(const GlassCursor *a, const GlassCursor *b) const {
-	if (b->after_end()) return false;
-	if (a->after_end()) return true;
-	return (a->current_key > b->current_key);
+        if (b->after_end()) return false;
+        if (a->after_end()) return true;
+        return (a->current_key > b->current_key);
     }
 };
 
 static void
 merge_spellings(GlassTable * out,
-		vector<const GlassTable*>::const_iterator b,
-		vector<const GlassTable*>::const_iterator e)
+                vector<const GlassTable*>::const_iterator b,
+                vector<const GlassTable*>::const_iterator e)
 {
     priority_queue<MergeCursor *, vector<MergeCursor *>, CursorGt> pq;
     for ( ; b != e; ++b) {
-	const GlassTable *in = *b;
-	if (!in->empty()) {
-	    pq.push(new MergeCursor(in));
-	}
+        const GlassTable *in = *b;
+        if (!in->empty()) {
+            pq.push(new MergeCursor(in));
+        }
     }
 
     while (!pq.empty()) {
-	MergeCursor * cur = pq.top();
-	pq.pop();
+        MergeCursor * cur = pq.top();
+        pq.pop();
 
-	string key = cur->current_key;
-	if (pq.empty() || pq.top()->current_key > key) {
-	    // No need to merge the tags, just copy the (possibly compressed)
-	    // tag value.
-	    bool compressed = cur->read_tag(true);
-	    out->add(key, cur->current_tag, compressed);
-	    if (cur->next()) {
-		pq.push(cur);
-	    } else {
-		delete cur;
-	    }
-	    continue;
-	}
+        string key = cur->current_key;
+        if (pq.empty() || pq.top()->current_key > key) {
+            // No need to merge the tags, just copy the (possibly compressed)
+            // tag value.
+            bool compressed = cur->read_tag(true);
+            out->add(key, cur->current_tag, compressed);
+            if (cur->next()) {
+                pq.push(cur);
+            } else {
+                delete cur;
+            }
+            continue;
+        }
 
-	// Merge tag values with the same key:
-	string tag;
-	if (key[0] != 'W') {
-	    // We just want the union of words, so copy over the first instance
-	    // and skip any identical ones.
-	    priority_queue<PrefixCompressedStringItor *,
-			   vector<PrefixCompressedStringItor *>,
-			   PrefixCompressedStringItorGt> pqtag;
-	    // Stick all the MergeCursor pointers in a vector because their
-	    // current_tag members must remain valid while we're merging their
-	    // tags, but we need to call next() on them all afterwards.
-	    vector<MergeCursor *> vec;
-	    vec.reserve(pq.size());
+        // Merge tag values with the same key:
+        string tag;
+        if (key[0] != 'W') {
+            // We just want the union of words, so copy over the first instance
+            // and skip any identical ones.
+            priority_queue<PrefixCompressedStringItor *,
+                           vector<PrefixCompressedStringItor *>,
+                           PrefixCompressedStringItorGt> pqtag;
+            // Stick all the MergeCursor pointers in a vector because their
+            // current_tag members must remain valid while we're merging their
+            // tags, but we need to call next() on them all afterwards.
+            vector<MergeCursor *> vec;
+            vec.reserve(pq.size());
 
-	    while (true) {
-		cur->read_tag();
-		pqtag.push(new PrefixCompressedStringItor(cur->current_tag));
-		vec.push_back(cur);
-		if (pq.empty() || pq.top()->current_key != key) break;
-		cur = pq.top();
-		pq.pop();
-	    }
+            while (true) {
+                cur->read_tag();
+                pqtag.push(new PrefixCompressedStringItor(cur->current_tag));
+                vec.push_back(cur);
+                if (pq.empty() || pq.top()->current_key != key) break;
+                cur = pq.top();
+                pq.pop();
+            }
 
-	    PrefixCompressedStringWriter wr(tag);
-	    string lastword;
-	    while (!pqtag.empty()) {
-		PrefixCompressedStringItor * it = pqtag.top();
-		pqtag.pop();
-		string word = **it;
-		if (word != lastword) {
-		    lastword = word;
-		    wr.append(lastword);
-		}
-		++*it;
-		if (!it->at_end()) {
-		    pqtag.push(it);
-		} else {
-		    delete it;
-		}
-	    }
+            PrefixCompressedStringWriter wr(tag);
+            string lastword;
+            while (!pqtag.empty()) {
+                PrefixCompressedStringItor * it = pqtag.top();
+                pqtag.pop();
+                string word = **it;
+                if (word != lastword) {
+                    lastword = word;
+                    wr.append(lastword);
+                }
+                ++*it;
+                if (!it->at_end()) {
+                    pqtag.push(it);
+                } else {
+                    delete it;
+                }
+            }
 
-	    vector<MergeCursor *>::const_iterator i;
-	    for (i = vec.begin(); i != vec.end(); ++i) {
-		cur = *i;
-		if (cur->next()) {
-		    pq.push(cur);
-		} else {
-		    delete cur;
-		}
-	    }
-	} else {
-	    // We want to sum the frequencies from tags for the same key.
-	    Xapian::termcount tot_freq = 0;
-	    while (true) {
-		cur->read_tag();
-		Xapian::termcount freq;
-		const char * p = cur->current_tag.data();
-		const char * end = p + cur->current_tag.size();
-		if (!unpack_uint_last(&p, end, &freq) || freq == 0) {
-		    throw Xapian::DatabaseCorruptError("Bad spelling word freq");
-		}
-		tot_freq += freq;
-		if (cur->next()) {
-		    pq.push(cur);
-		} else {
-		    delete cur;
-		}
-		if (pq.empty() || pq.top()->current_key != key) break;
-		cur = pq.top();
-		pq.pop();
-	    }
-	    tag.resize(0);
-	    pack_uint_last(tag, tot_freq);
-	}
-	out->add(key, tag);
+            vector<MergeCursor *>::const_iterator i;
+            for (i = vec.begin(); i != vec.end(); ++i) {
+                cur = *i;
+                if (cur->next()) {
+                    pq.push(cur);
+                } else {
+                    delete cur;
+                }
+            }
+        } else {
+            // We want to sum the frequencies from tags for the same key.
+            Xapian::termcount tot_freq = 0;
+            while (true) {
+                cur->read_tag();
+                Xapian::termcount freq;
+                const char * p = cur->current_tag.data();
+                const char * end = p + cur->current_tag.size();
+                if (!unpack_uint_last(&p, end, &freq) || freq == 0) {
+                    throw Xapian::DatabaseCorruptError("Bad spelling word freq");
+                }
+                tot_freq += freq;
+                if (cur->next()) {
+                    pq.push(cur);
+                } else {
+                    delete cur;
+                }
+                if (pq.empty() || pq.top()->current_key != key) break;
+                cur = pq.top();
+                pq.pop();
+            }
+            tag.resize(0);
+            pack_uint_last(tag, tot_freq);
+        }
+        out->add(key, tag);
     }
 }
 
 static void
 merge_synonyms(GlassTable * out,
-	       vector<const GlassTable*>::const_iterator b,
-	       vector<const GlassTable*>::const_iterator e)
+               vector<const GlassTable*>::const_iterator b,
+               vector<const GlassTable*>::const_iterator e)
 {
     priority_queue<MergeCursor *, vector<MergeCursor *>, CursorGt> pq;
     for ( ; b != e; ++b) {
-	const GlassTable *in = *b;
-	if (!in->empty()) {
-	    pq.push(new MergeCursor(in));
-	}
+        const GlassTable *in = *b;
+        if (!in->empty()) {
+            pq.push(new MergeCursor(in));
+        }
     }
 
     while (!pq.empty()) {
-	MergeCursor * cur = pq.top();
-	pq.pop();
+        MergeCursor * cur = pq.top();
+        pq.pop();
 
-	string key = cur->current_key;
-	if (pq.empty() || pq.top()->current_key > key) {
-	    // No need to merge the tags, just copy the (possibly compressed)
-	    // tag value.
-	    bool compressed = cur->read_tag(true);
-	    out->add(key, cur->current_tag, compressed);
-	    if (cur->next()) {
-		pq.push(cur);
-	    } else {
-		delete cur;
-	    }
-	    continue;
-	}
+        string key = cur->current_key;
+        if (pq.empty() || pq.top()->current_key > key) {
+            // No need to merge the tags, just copy the (possibly compressed)
+            // tag value.
+            bool compressed = cur->read_tag(true);
+            out->add(key, cur->current_tag, compressed);
+            if (cur->next()) {
+                pq.push(cur);
+            } else {
+                delete cur;
+            }
+            continue;
+        }
 
-	// Merge tag values with the same key:
-	string tag;
+        // Merge tag values with the same key:
+        string tag;
 
-	// We just want the union of words, so copy over the first instance
-	// and skip any identical ones.
-	priority_queue<ByteLengthPrefixedStringItor *,
-		       vector<ByteLengthPrefixedStringItor *>,
-		       ByteLengthPrefixedStringItorGt> pqtag;
-	vector<MergeCursor *> vec;
+        // We just want the union of words, so copy over the first instance
+        // and skip any identical ones.
+        priority_queue<ByteLengthPrefixedStringItor *,
+                       vector<ByteLengthPrefixedStringItor *>,
+                       ByteLengthPrefixedStringItorGt> pqtag;
+        vector<MergeCursor *> vec;
 
-	while (true) {
-	    cur->read_tag();
-	    pqtag.push(new ByteLengthPrefixedStringItor(cur->current_tag));
-	    vec.push_back(cur);
-	    if (pq.empty() || pq.top()->current_key != key) break;
-	    cur = pq.top();
-	    pq.pop();
-	}
+        while (true) {
+            cur->read_tag();
+            pqtag.push(new ByteLengthPrefixedStringItor(cur->current_tag));
+            vec.push_back(cur);
+            if (pq.empty() || pq.top()->current_key != key) break;
+            cur = pq.top();
+            pq.pop();
+        }
 
-	string_view lastword;
-	while (!pqtag.empty()) {
-	    ByteLengthPrefixedStringItor * it = pqtag.top();
-	    pqtag.pop();
-	    string_view word = **it;
-	    if (word != lastword) {
-		tag += uint8_t(word.size() ^ MAGIC_XOR_VALUE);
-		tag += word;
-		lastword = word;
-	    }
-	    ++*it;
-	    if (!it->at_end()) {
-		pqtag.push(it);
-	    } else {
-		delete it;
-	    }
-	}
+        string_view lastword;
+        while (!pqtag.empty()) {
+            ByteLengthPrefixedStringItor * it = pqtag.top();
+            pqtag.pop();
+            string_view word = **it;
+            if (word != lastword) {
+                tag += uint8_t(word.size() ^ MAGIC_XOR_VALUE);
+                tag += word;
+                lastword = word;
+            }
+            ++*it;
+            if (!it->at_end()) {
+                pqtag.push(it);
+            } else {
+                delete it;
+            }
+        }
 
-	vector<MergeCursor *>::const_iterator i;
-	for (i = vec.begin(); i != vec.end(); ++i) {
-	    cur = *i;
-	    if (cur->next()) {
-		pq.push(cur);
-	    } else {
-		delete cur;
-	    }
-	}
+        vector<MergeCursor *>::const_iterator i;
+        for (i = vec.begin(); i != vec.end(); ++i) {
+            cur = *i;
+            if (cur->next()) {
+                pq.push(cur);
+            } else {
+                delete cur;
+            }
+        }
 
-	out->add(key, tag);
+        out->add(key, tag);
     }
 }
 
 static void
 multimerge_postlists(Xapian::Compactor * compactor,
-		     GlassTable * out, const char * tmpdir,
-		     vector<const GlassTable *> tmp,
-		     vector<Xapian::docid> off)
+                     GlassTable * out, const char * tmpdir,
+                     vector<const GlassTable *> tmp,
+                     vector<Xapian::docid> off)
 {
     unsigned int c = 0;
     while (tmp.size() > 3) {
-	vector<const GlassTable *> tmpout;
-	tmpout.reserve(tmp.size() / 2);
-	vector<Xapian::docid> newoff;
-	newoff.resize(tmp.size() / 2);
-	for (unsigned int i = 0, j; i < tmp.size(); i = j) {
-	    j = i + 2;
-	    if (j == tmp.size() - 1) ++j;
+        vector<const GlassTable *> tmpout;
+        tmpout.reserve(tmp.size() / 2);
+        vector<Xapian::docid> newoff;
+        newoff.resize(tmp.size() / 2);
+        for (unsigned int i = 0, j; i < tmp.size(); i = j) {
+            j = i + 2;
+            if (j == tmp.size() - 1) ++j;
 
-	    string dest = tmpdir;
-	    dest += "/tmp";
-	    dest += str(c);
-	    dest += '_';
-	    dest += str(i / 2);
-	    dest += '.';
+            string dest = tmpdir;
+            dest += "/tmp";
+            dest += str(c);
+            dest += '_';
+            dest += str(i / 2);
+            dest += '.';
 
-	    GlassTable * tmptab = new GlassTable("postlist", dest, false);
+            GlassTable * tmptab = new GlassTable("postlist", dest, false);
 
-	    // Use maximum blocksize for temporary tables.  And don't compress
-	    // entries in temporary tables, even if the final table would do
-	    // so.  Any already compressed entries will get copied in
-	    // compressed form.
-	    RootInfo root_info;
-	    root_info.init(65536, 0);
-	    const int flags = Xapian::DB_DANGEROUS|Xapian::DB_NO_SYNC;
-	    tmptab->create_and_open(flags, root_info);
+            // Use maximum blocksize for temporary tables.  And don't compress
+            // entries in temporary tables, even if the final table would do
+            // so.  Any already compressed entries will get copied in
+            // compressed form.
+            RootInfo root_info;
+            root_info.init(65536, 0);
+            const int flags = Xapian::DB_DANGEROUS|Xapian::DB_NO_SYNC;
+            tmptab->create_and_open(flags, root_info);
 
-	    merge_postlists(compactor, tmptab, off.begin() + i,
-			    tmp.begin() + i, tmp.begin() + j);
-	    if (c > 0) {
-		for (unsigned int k = i; k < j; ++k) {
-		    unlink(tmp[k]->get_path().c_str());
-		    delete tmp[k];
-		    tmp[k] = NULL;
-		}
-	    }
-	    tmpout.push_back(tmptab);
-	    tmptab->flush_db();
-	    tmptab->commit(1, &root_info);
-	    AssertRel(root_info.get_blocksize(),==,65536);
-	}
-	swap(tmp, tmpout);
-	swap(off, newoff);
-	++c;
+            merge_postlists(compactor, tmptab, off.begin() + i,
+                            tmp.begin() + i, tmp.begin() + j);
+            if (c > 0) {
+                for (unsigned int k = i; k < j; ++k) {
+                    unlink(tmp[k]->get_path().c_str());
+                    delete tmp[k];
+                    tmp[k] = NULL;
+                }
+            }
+            tmpout.push_back(tmptab);
+            tmptab->flush_db();
+            tmptab->commit(1, &root_info);
+            AssertRel(root_info.get_blocksize(),==,65536);
+        }
+        swap(tmp, tmpout);
+        swap(off, newoff);
+        ++c;
     }
     merge_postlists(compactor, out, off.begin(), tmp.begin(), tmp.end());
     if (c > 0) {
-	for (size_t k = 0; k < tmp.size(); ++k) {
-	    unlink(tmp[k]->get_path().c_str());
-	    delete tmp[k];
-	    tmp[k] = NULL;
-	}
+        for (size_t k = 0; k < tmp.size(); ++k) {
+            unlink(tmp[k]->get_path().c_str());
+            delete tmp[k];
+            tmp[k] = NULL;
+        }
     }
 }
 
@@ -663,32 +663,32 @@ class PositionCursor : private GlassCursor {
     Xapian::docid firstdid;
 
     PositionCursor(const GlassTable *in, Xapian::docid offset_)
-	: GlassCursor(in), offset(offset_), firstdid(0) {
-	rewind();
-	next();
+        : GlassCursor(in), offset(offset_), firstdid(0) {
+        rewind();
+        next();
     }
 
     bool next() {
-	if (!GlassCursor::next()) return false;
-	read_tag();
-	const char * d = current_key.data();
-	const char * e = d + current_key.size();
-	string term;
-	Xapian::docid did;
-	if (!unpack_string_preserving_sort(&d, e, term) ||
-	    !unpack_uint_preserving_sort(&d, e, &did) ||
-	    d != e) {
-	    throw Xapian::DatabaseCorruptError("Bad position key");
-	}
+        if (!GlassCursor::next()) return false;
+        read_tag();
+        const char * d = current_key.data();
+        const char * e = d + current_key.size();
+        string term;
+        Xapian::docid did;
+        if (!unpack_string_preserving_sort(&d, e, term) ||
+            !unpack_uint_preserving_sort(&d, e, &did) ||
+            d != e) {
+            throw Xapian::DatabaseCorruptError("Bad position key");
+        }
 
-	key.resize(0);
-	pack_string_preserving_sort(key, term);
-	pack_uint_preserving_sort(key, did + offset);
-	return true;
+        key.resize(0);
+        pack_string_preserving_sort(key, term);
+        pack_uint_preserving_sort(key, did + offset);
+        return true;
     }
 
     const string & get_tag() const {
-	return current_tag;
+        return current_tag;
     }
 };
 
@@ -697,76 +697,76 @@ class PositionCursorGt {
     /** Return true if and only if a's key is strictly greater than b's key.
      */
     bool operator()(const PositionCursor *a, const PositionCursor *b) const {
-	return a->key > b->key;
+        return a->key > b->key;
     }
 };
 
 static void
 merge_positions(GlassTable *out, const vector<const GlassTable*> & inputs,
-		const vector<Xapian::docid> & offset)
+                const vector<Xapian::docid> & offset)
 {
     priority_queue<PositionCursor *, vector<PositionCursor *>, PositionCursorGt> pq;
     for (size_t i = 0; i < inputs.size(); ++i) {
-	const GlassTable *in = inputs[i];
-	if (in->empty()) {
-	    // Skip empty tables.
-	    continue;
-	}
+        const GlassTable *in = inputs[i];
+        if (in->empty()) {
+            // Skip empty tables.
+            continue;
+        }
 
-	pq.push(new PositionCursor(in, offset[i]));
+        pq.push(new PositionCursor(in, offset[i]));
     }
 
     while (!pq.empty()) {
-	PositionCursor * cur = pq.top();
-	pq.pop();
-	out->add(cur->key, cur->get_tag());
-	if (cur->next()) {
-	    pq.push(cur);
-	} else {
-	    delete cur;
-	}
+        PositionCursor * cur = pq.top();
+        pq.pop();
+        out->add(cur->key, cur->get_tag());
+        if (cur->next()) {
+            pq.push(cur);
+        } else {
+            delete cur;
+        }
     }
 }
 
 static void
 merge_docid_keyed(GlassTable *out, const vector<const GlassTable*> & inputs,
-		  const vector<Xapian::docid> & offset)
+                  const vector<Xapian::docid> & offset)
 {
     for (size_t i = 0; i < inputs.size(); ++i) {
-	Xapian::docid off = offset[i];
+        Xapian::docid off = offset[i];
 
-	const GlassTable * in = inputs[i];
-	if (in->empty()) continue;
+        const GlassTable * in = inputs[i];
+        if (in->empty()) continue;
 
-	GlassCursor cur(in);
-	cur.rewind();
+        GlassCursor cur(in);
+        cur.rewind();
 
-	string key;
-	while (cur.next()) {
-	    // Adjust the key if this isn't the first database.
-	    if (off) {
-		Xapian::docid did;
-		const char * d = cur.current_key.data();
-		const char * e = d + cur.current_key.size();
-		if (!unpack_uint_preserving_sort(&d, e, &did)) {
-		    string msg = "Bad key in ";
-		    msg += inputs[i]->get_path();
-		    throw Xapian::DatabaseCorruptError(msg);
-		}
-		UNSIGNED_OVERFLOW_OK(did += off);
-		key.resize(0);
-		pack_uint_preserving_sort(key, did);
-		if (d != e) {
-		    // Copy over anything extra in the key (e.g. the zero byte
-		    // at the end of "used value slots" in the termlist table).
-		    key.append(d, e - d);
-		}
-	    } else {
-		key = cur.current_key;
-	    }
-	    bool compressed = cur.read_tag(true);
-	    out->add(key, cur.current_tag, compressed);
-	}
+        string key;
+        while (cur.next()) {
+            // Adjust the key if this isn't the first database.
+            if (off) {
+                Xapian::docid did;
+                const char * d = cur.current_key.data();
+                const char * e = d + cur.current_key.size();
+                if (!unpack_uint_preserving_sort(&d, e, &did)) {
+                    string msg = "Bad key in ";
+                    msg += inputs[i]->get_path();
+                    throw Xapian::DatabaseCorruptError(msg);
+                }
+                UNSIGNED_OVERFLOW_OK(did += off);
+                key.resize(0);
+                pack_uint_preserving_sort(key, did);
+                if (d != e) {
+                    // Copy over anything extra in the key (e.g. the zero byte
+                    // at the end of "used value slots" in the termlist table).
+                    key.append(d, e - d);
+                }
+            } else {
+                key = cur.current_key;
+            }
+            bool compressed = cur.read_tag(true);
+            out->add(key, cur.current_tag, compressed);
+        }
     }
 }
 
@@ -776,32 +776,32 @@ using namespace GlassCompact;
 
 void
 GlassDatabase::compact(Xapian::Compactor * compactor,
-		       const char * destdir,
-		       int fd,
-		       const vector<const Xapian::Database::Internal*>& sources,
-		       const vector<Xapian::docid> & offset,
-		       unsigned block_size,
-		       Xapian::Compactor::compaction_level compaction,
-		       unsigned flags,
-		       Xapian::docid last_docid)
+                       const char * destdir,
+                       int fd,
+                       const vector<const Xapian::Database::Internal*>& sources,
+                       const vector<Xapian::docid> & offset,
+                       unsigned block_size,
+                       Xapian::Compactor::compaction_level compaction,
+                       unsigned flags,
+                       Xapian::docid last_docid)
 {
     struct table_list {
-	// The "base name" of the table.
-	char name[9];
-	// The type.
-	Glass::table_type type;
-	// Create tables after position lazily.
-	bool lazy;
+        // The "base name" of the table.
+        char name[9];
+        // The type.
+        Glass::table_type type;
+        // Create tables after position lazily.
+        bool lazy;
     };
 
     static const table_list tables[] = {
-	// name		type			lazy
-	{ "postlist",	Glass::POSTLIST,	false },
-	{ "docdata",	Glass::DOCDATA,		true },
-	{ "termlist",	Glass::TERMLIST,	false },
-	{ "position",	Glass::POSITION,	true },
-	{ "spelling",	Glass::SPELLING,	true },
-	{ "synonym",	Glass::SYNONYM,		true }
+        // name		type			lazy
+        { "postlist",	Glass::POSTLIST,	false },
+        { "docdata",	Glass::DOCDATA,		true },
+        { "termlist",	Glass::TERMLIST,	false },
+        { "position",	Glass::POSITION,	true },
+        { "spelling",	Glass::SPELLING,	true },
+        { "synonym",	Glass::SYNONYM,		true }
     };
     const table_list* tables_end = std::end(tables);
 
@@ -810,279 +810,279 @@ GlassDatabase::compact(Xapian::Compactor * compactor,
     bool single_file = (flags & Xapian::DBCOMPACT_SINGLE_FILE);
     bool multipass = (flags & Xapian::DBCOMPACT_MULTIPASS);
     if (single_file) {
-	// FIXME: Support this combination - we need to put temporary files
-	// somewhere.
-	multipass = false;
+        // FIXME: Support this combination - we need to put temporary files
+        // somewhere.
+        multipass = false;
     }
 
     for (size_t i = 0; i != sources.size(); ++i) {
-	auto db = static_cast<const GlassDatabase*>(sources[i]);
-	if (db->has_uncommitted_changes()) {
-	    const char * m =
-		"Can't compact from a WritableDatabase with uncommitted "
-		"changes - either call commit() first, or create a new "
-		"Database object from the filename on disk";
-	    throw Xapian::InvalidOperationError(m);
-	}
+        auto db = static_cast<const GlassDatabase*>(sources[i]);
+        if (db->has_uncommitted_changes()) {
+            const char * m =
+                "Can't compact from a WritableDatabase with uncommitted "
+                "changes - either call commit() first, or create a new "
+                "Database object from the filename on disk";
+            throw Xapian::InvalidOperationError(m);
+        }
     }
 
     if (block_size < GLASS_MIN_BLOCKSIZE ||
-	block_size > GLASS_MAX_BLOCKSIZE ||
-	(block_size & (block_size - 1)) != 0) {
-	block_size = GLASS_DEFAULT_BLOCKSIZE;
+        block_size > GLASS_MAX_BLOCKSIZE ||
+        (block_size & (block_size - 1)) != 0) {
+        block_size = GLASS_DEFAULT_BLOCKSIZE;
     }
 
     FlintLock lock(destdir ? destdir : "");
     if (!single_file) {
-	string explanation;
-	FlintLock::reason why = lock.lock(true, false, explanation);
-	if (why != FlintLock::SUCCESS) {
-	    lock.throw_databaselockerror(why, destdir, explanation);
-	}
+        string explanation;
+        FlintLock::reason why = lock.lock(true, false, explanation);
+        if (why != FlintLock::SUCCESS) {
+            lock.throw_databaselockerror(why, destdir, explanation);
+        }
     }
 
     unique_ptr<GlassVersion> version_file_out;
     if (single_file) {
-	if (destdir) {
-	    fd = open(destdir, O_RDWR|O_CREAT|O_TRUNC|O_BINARY|O_CLOEXEC, 0666);
-	    if (fd < 0) {
-		throw Xapian::DatabaseCreateError("open() failed", errno);
-	    }
-	}
-	version_file_out.reset(new GlassVersion(fd));
+        if (destdir) {
+            fd = open(destdir, O_RDWR|O_CREAT|O_TRUNC|O_BINARY|O_CLOEXEC, 0666);
+            if (fd < 0) {
+                throw Xapian::DatabaseCreateError("open() failed", errno);
+            }
+        }
+        version_file_out.reset(new GlassVersion(fd));
     } else {
-	fd = -1;
-	version_file_out.reset(new GlassVersion(destdir));
+        fd = -1;
+        version_file_out.reset(new GlassVersion(destdir));
     }
 
     version_file_out->create(block_size);
     for (size_t i = 0; i != sources.size(); ++i) {
-	auto db = static_cast<const GlassDatabase*>(sources[i]);
-	version_file_out->merge_stats(db->version_file);
+        auto db = static_cast<const GlassDatabase*>(sources[i]);
+        version_file_out->merge_stats(db->version_file);
     }
 
     string fl_serialised;
     if (single_file) {
-	GlassFreeList fl;
-	fl.set_first_unused_block(1); // FIXME: Assumption?
-	fl.pack(fl_serialised);
+        GlassFreeList fl;
+        fl.set_first_unused_block(1); // FIXME: Assumption?
+        fl.pack(fl_serialised);
     }
 
     vector<GlassTable *> tabs;
     tabs.reserve(tables_end - tables);
     file_size_type prev_size = block_size;
     for (const table_list * t = tables; t < tables_end; ++t) {
-	// The postlist table requires an N-way merge, adjusting the
-	// headers of various blocks.  The spelling and synonym tables also
-	// need special handling.  The other tables have keys sorted in
-	// docid order, so we can merge them by simply copying all the keys
-	// from each source table in turn.
-	if (compactor)
-	    compactor->set_status(t->name, string());
+        // The postlist table requires an N-way merge, adjusting the
+        // headers of various blocks.  The spelling and synonym tables also
+        // need special handling.  The other tables have keys sorted in
+        // docid order, so we can merge them by simply copying all the keys
+        // from each source table in turn.
+        if (compactor)
+            compactor->set_status(t->name, string());
 
-	string dest;
-	if (!single_file) {
-	    dest = destdir;
-	    dest += '/';
-	    dest += t->name;
-	    dest += '.';
-	}
+        string dest;
+        if (!single_file) {
+            dest = destdir;
+            dest += '/';
+            dest += t->name;
+            dest += '.';
+        }
 
-	bool output_will_exist = !t->lazy;
+        bool output_will_exist = !t->lazy;
 
-	// Sometimes stat can fail for benign reasons (e.g. >= 2GB file
-	// on certain systems).
-	bool bad_stat = false;
+        // Sometimes stat can fail for benign reasons (e.g. >= 2GB file
+        // on certain systems).
+        bool bad_stat = false;
 
-	// We can't currently report input sizes if there's a single file DB
-	// amongst the inputs.
-	bool single_file_in = false;
+        // We can't currently report input sizes if there's a single file DB
+        // amongst the inputs.
+        bool single_file_in = false;
 
-	file_size_type in_size = 0;
+        file_size_type in_size = 0;
 
-	vector<const GlassTable*> inputs;
-	inputs.reserve(sources.size());
-	size_t inputs_present = 0;
-	for (auto src : sources) {
-	    auto db = static_cast<const GlassDatabase*>(src);
-	    const GlassTable * table;
-	    switch (t->type) {
-		case Glass::POSTLIST:
-		    table = &(db->postlist_table);
-		    break;
-		case Glass::DOCDATA:
-		    table = &(db->docdata_table);
-		    break;
-		case Glass::TERMLIST:
-		    table = &(db->termlist_table);
-		    break;
-		case Glass::POSITION:
-		    table = &(db->position_table);
-		    break;
-		case Glass::SPELLING:
-		    table = &(db->spelling_table);
-		    break;
-		case Glass::SYNONYM:
-		    table = &(db->synonym_table);
-		    break;
-		default:
-		    Assert(false);
-		    return;
-	    }
+        vector<const GlassTable*> inputs;
+        inputs.reserve(sources.size());
+        size_t inputs_present = 0;
+        for (auto src : sources) {
+            auto db = static_cast<const GlassDatabase*>(src);
+            const GlassTable * table;
+            switch (t->type) {
+                case Glass::POSTLIST:
+                    table = &(db->postlist_table);
+                    break;
+                case Glass::DOCDATA:
+                    table = &(db->docdata_table);
+                    break;
+                case Glass::TERMLIST:
+                    table = &(db->termlist_table);
+                    break;
+                case Glass::POSITION:
+                    table = &(db->position_table);
+                    break;
+                case Glass::SPELLING:
+                    table = &(db->spelling_table);
+                    break;
+                case Glass::SYNONYM:
+                    table = &(db->synonym_table);
+                    break;
+                default:
+                    Assert(false);
+                    return;
+            }
 
-	    if (db->single_file()) {
-		if (t->lazy && table->empty()) {
-		    // Essentially doesn't exist.
-		} else {
-		    // FIXME: Find actual size somehow?
-		    // in_size += table->size() / 1024;
-		    single_file_in = true;
-		    output_will_exist = true;
-		    ++inputs_present;
-		}
-	    } else {
-		auto db_size = file_size(table->get_path());
-		if (errno == 0) {
-		    in_size += db_size / 1024;
-		    output_will_exist = true;
-		    ++inputs_present;
-		} else if (errno != ENOENT) {
-		    // We get ENOENT for an optional table.
-		    bad_stat = true;
-		    output_will_exist = true;
-		    ++inputs_present;
-		}
-	    }
-	    inputs.push_back(table);
-	}
+            if (db->single_file()) {
+                if (t->lazy && table->empty()) {
+                    // Essentially doesn't exist.
+                } else {
+                    // FIXME: Find actual size somehow?
+                    // in_size += table->size() / 1024;
+                    single_file_in = true;
+                    output_will_exist = true;
+                    ++inputs_present;
+                }
+            } else {
+                auto db_size = file_size(table->get_path());
+                if (errno == 0) {
+                    in_size += db_size / 1024;
+                    output_will_exist = true;
+                    ++inputs_present;
+                } else if (errno != ENOENT) {
+                    // We get ENOENT for an optional table.
+                    bad_stat = true;
+                    output_will_exist = true;
+                    ++inputs_present;
+                }
+            }
+            inputs.push_back(table);
+        }
 
-	// If any inputs lack a termlist table, suppress it in the output.
-	if (t->type == Glass::TERMLIST && inputs_present != sources.size()) {
-	    if (inputs_present != 0) {
-		if (compactor) {
-		    string m = str(inputs_present);
-		    m += " of ";
-		    m += str(sources.size());
-		    m += " inputs present, so suppressing output";
-		    compactor->set_status(t->name, m);
-		}
-		continue;
-	    }
-	    output_will_exist = false;
-	}
+        // If any inputs lack a termlist table, suppress it in the output.
+        if (t->type == Glass::TERMLIST && inputs_present != sources.size()) {
+            if (inputs_present != 0) {
+                if (compactor) {
+                    string m = str(inputs_present);
+                    m += " of ";
+                    m += str(sources.size());
+                    m += " inputs present, so suppressing output";
+                    compactor->set_status(t->name, m);
+                }
+                continue;
+            }
+            output_will_exist = false;
+        }
 
-	if (!output_will_exist) {
-	    if (compactor)
-		compactor->set_status(t->name, "doesn't exist");
-	    continue;
-	}
+        if (!output_will_exist) {
+            if (compactor)
+                compactor->set_status(t->name, "doesn't exist");
+            continue;
+        }
 
-	GlassTable * out;
-	if (single_file) {
-	    out = new GlassTable(t->name, fd, version_file_out->get_offset(),
-				 false, false);
-	} else {
-	    out = new GlassTable(t->name, dest, false, t->lazy);
-	}
-	tabs.push_back(out);
-	RootInfo * root_info = version_file_out->root_to_set(t->type);
-	if (single_file) {
-	    root_info->set_free_list(fl_serialised);
-	    out->open(FLAGS, version_file_out->get_root(t->type), version_file_out->get_revision());
-	} else {
-	    out->create_and_open(FLAGS, *root_info);
-	}
+        GlassTable * out;
+        if (single_file) {
+            out = new GlassTable(t->name, fd, version_file_out->get_offset(),
+                                 false, false);
+        } else {
+            out = new GlassTable(t->name, dest, false, t->lazy);
+        }
+        tabs.push_back(out);
+        RootInfo * root_info = version_file_out->root_to_set(t->type);
+        if (single_file) {
+            root_info->set_free_list(fl_serialised);
+            out->open(FLAGS, version_file_out->get_root(t->type), version_file_out->get_revision());
+        } else {
+            out->create_and_open(FLAGS, *root_info);
+        }
 
-	out->set_full_compaction(compaction != compactor->STANDARD);
+        out->set_full_compaction(compaction != compactor->STANDARD);
 
-	switch (t->type) {
-	    case Glass::POSTLIST: {
-		if (multipass && inputs.size() > 3) {
-		    multimerge_postlists(compactor, out, destdir,
-					 inputs, offset);
-		} else {
-		    merge_postlists(compactor, out, offset.begin(),
-				    inputs.begin(), inputs.end());
-		}
-		break;
-	    }
-	    case Glass::SPELLING:
-		merge_spellings(out, inputs.begin(), inputs.end());
-		break;
-	    case Glass::SYNONYM:
-		merge_synonyms(out, inputs.begin(), inputs.end());
-		break;
-	    case Glass::POSITION:
-		merge_positions(out, inputs, offset);
-		break;
-	    default:
-		// DocData, Termlist
-		merge_docid_keyed(out, inputs, offset);
-		break;
-	}
+        switch (t->type) {
+            case Glass::POSTLIST: {
+                if (multipass && inputs.size() > 3) {
+                    multimerge_postlists(compactor, out, destdir,
+                                         inputs, offset);
+                } else {
+                    merge_postlists(compactor, out, offset.begin(),
+                                    inputs.begin(), inputs.end());
+                }
+                break;
+            }
+            case Glass::SPELLING:
+                merge_spellings(out, inputs.begin(), inputs.end());
+                break;
+            case Glass::SYNONYM:
+                merge_synonyms(out, inputs.begin(), inputs.end());
+                break;
+            case Glass::POSITION:
+                merge_positions(out, inputs, offset);
+                break;
+            default:
+                // DocData, Termlist
+                merge_docid_keyed(out, inputs, offset);
+                break;
+        }
 
-	if (out->is_modified()) {
-	    // Commit as revision 1.
-	    out->flush_db();
-	    out->commit(1, root_info);
-	    out->sync();
-	}
-	if (single_file) fl_serialised = root_info->get_free_list();
+        if (out->is_modified()) {
+            // Commit as revision 1.
+            out->flush_db();
+            out->commit(1, root_info);
+            out->sync();
+        }
+        if (single_file) fl_serialised = root_info->get_free_list();
 
-	file_size_type out_size = 0;
-	if (!bad_stat && !single_file_in) {
-	    file_size_type db_size;
-	    if (single_file) {
-		db_size = file_size(fd);
-	    } else {
-		db_size = file_size(dest + GLASS_TABLE_EXTENSION);
-	    }
-	    if (errno == 0) {
-		if (single_file) {
-		    auto old_prev_size = max(prev_size,
-					     file_size_type(block_size));
-		    prev_size = db_size;
-		    db_size = max(db_size, file_size_type(block_size));
-		    db_size -= old_prev_size;
-		}
-		out_size = db_size / 1024;
-	    } else {
-		bad_stat = (errno != ENOENT);
-	    }
-	}
-	if (bad_stat) {
-	    if (compactor)
-		compactor->set_status(t->name, "Done (couldn't stat all the DB files)");
-	} else if (single_file_in) {
-	    if (compactor)
-		compactor->set_status(t->name, "Done (table sizes unknown for single file DB input)");
-	} else {
-	    string status;
-	    if (out_size == in_size) {
-		status = "Size unchanged (";
-	    } else {
-		off_t delta;
-		if (out_size < in_size) {
-		    delta = in_size - out_size;
-		    status = "Reduced by ";
-		} else {
-		    delta = out_size - in_size;
-		    status = "INCREASED by ";
-		}
-		if (in_size) {
-		    status += str(100 * delta / in_size);
-		    status += "% ";
-		}
-		status += str(delta);
-		status += "K (";
-		status += str(in_size);
-		status += "K -> ";
-	    }
-	    status += str(out_size);
-	    status += "K)";
-	    if (compactor)
-		compactor->set_status(t->name, status);
-	}
+        file_size_type out_size = 0;
+        if (!bad_stat && !single_file_in) {
+            file_size_type db_size;
+            if (single_file) {
+                db_size = file_size(fd);
+            } else {
+                db_size = file_size(dest + GLASS_TABLE_EXTENSION);
+            }
+            if (errno == 0) {
+                if (single_file) {
+                    auto old_prev_size = max(prev_size,
+                                             file_size_type(block_size));
+                    prev_size = db_size;
+                    db_size = max(db_size, file_size_type(block_size));
+                    db_size -= old_prev_size;
+                }
+                out_size = db_size / 1024;
+            } else {
+                bad_stat = (errno != ENOENT);
+            }
+        }
+        if (bad_stat) {
+            if (compactor)
+                compactor->set_status(t->name, "Done (couldn't stat all the DB files)");
+        } else if (single_file_in) {
+            if (compactor)
+                compactor->set_status(t->name, "Done (table sizes unknown for single file DB input)");
+        } else {
+            string status;
+            if (out_size == in_size) {
+                status = "Size unchanged (";
+            } else {
+                off_t delta;
+                if (out_size < in_size) {
+                    delta = in_size - out_size;
+                    status = "Reduced by ";
+                } else {
+                    delta = out_size - in_size;
+                    status = "INCREASED by ";
+                }
+                if (in_size) {
+                    status += str(100 * delta / in_size);
+                    status += "% ";
+                }
+                status += str(delta);
+                status += "K (";
+                status += str(in_size);
+                status += "K -> ";
+            }
+            status += str(out_size);
+            status += "K)";
+            if (compactor)
+                compactor->set_status(t->name, status);
+        }
     }
 
     // If compacting to a single file output and all the tables are empty, pad
@@ -1090,31 +1090,31 @@ GlassDatabase::compact(Xapian::Compactor * compactor,
     // open it.  For this it needs to be a multiple of 2KB in size.
     if (single_file && prev_size < block_size) {
 #ifdef HAVE_FTRUNCATE
-	if (ftruncate(fd, block_size) < 0) {
-	    throw Xapian::DatabaseError("Failed to set size of output database", errno);
-	}
+        if (ftruncate(fd, block_size) < 0) {
+            throw Xapian::DatabaseError("Failed to set size of output database", errno);
+        }
 #else
-	const off_t off = block_size - 1;
-	if (lseek(fd, off, SEEK_SET) != off || write(fd, "", 1) != 1) {
-	    throw Xapian::DatabaseError("Failed to set size of output database", errno);
-	}
+        const off_t off = block_size - 1;
+        if (lseek(fd, off, SEEK_SET) != off || write(fd, "", 1) != 1) {
+            throw Xapian::DatabaseError("Failed to set size of output database", errno);
+        }
 #endif
     }
 
     if (single_file) {
-	if (lseek(fd, version_file_out->get_offset(), SEEK_SET) < 0) {
-	    throw Xapian::DatabaseError("lseek() failed", errno);
-	}
+        if (lseek(fd, version_file_out->get_offset(), SEEK_SET) < 0) {
+            throw Xapian::DatabaseError("lseek() failed", errno);
+        }
     }
     version_file_out->set_last_docid(last_docid);
     string tmpfile = version_file_out->write(1, FLAGS);
     for (unsigned j = 0; j != tabs.size(); ++j) {
-	tabs[j]->sync();
+        tabs[j]->sync();
     }
     // Commit with revision 1.
     version_file_out->sync(tmpfile, 1, FLAGS);
     for (unsigned j = 0; j != tabs.size(); ++j) {
-	delete tabs[j];
+        delete tabs[j];
     }
 
     if (!single_file) lock.release();

@@ -54,17 +54,17 @@ class RemoteTermList : public TermList {
   public:
     /// Construct.
     RemoteTermList(Xapian::termcount num_entries_,
-		   Xapian::termcount doclen_,
-		   Xapian::doccount db_size_,
-		   const RemoteDatabase* db_,
-		   Xapian::docid did_,
-		   std::string&& data_)
-	: num_entries(num_entries_),
-	  doclen(doclen_),
-	  db_size(db_size_),
-	  db(db_),
-	  did(did_),
-	  data(data_) {}
+                   Xapian::termcount doclen_,
+                   Xapian::doccount db_size_,
+                   const RemoteDatabase* db_,
+                   Xapian::docid did_,
+                   std::string&& data_)
+        : num_entries(num_entries_),
+          doclen(doclen_),
+          db_size(db_size_),
+          db(db_),
+          did(did_),
+          data(data_) {}
 
     /// Return approximate size of this termlist.
     Xapian::termcount get_approx_size() const;

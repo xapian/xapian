@@ -44,19 +44,19 @@ class FD {
     ~FD() { if (fd != -1) ::close(fd); }
 
     FD& operator=(int fd_) {
-	if (fd != -1) ::close(fd);
-	fd = fd_;
-	return *this;
+        if (fd != -1) ::close(fd);
+        fd = fd_;
+        return *this;
     }
 
     operator int() const { return fd; }
 
     int close() {
-	// Don't check for -1 here, so that close(FD) sets errno as close(int)
-	// would.
-	int fd_to_close = fd;
-	fd = -1;
-	return ::close(fd_to_close);
+        // Don't check for -1 here, so that close(FD) sets errno as close(int)
+        // would.
+        int fd_to_close = fd;
+        fd = -1;
+        return ::close(fd_to_close);
     }
 };
 

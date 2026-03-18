@@ -72,7 +72,7 @@ class XAPIAN_VISIBILITY_DEFAULT RemoteServer : private RemoteConnection {
     /// Accept a message from the client.
     XAPIAN_VISIBILITY_INTERNAL
     message_type get_message(double timeout, std::string & result,
-			     message_type required_type = MSG_MAX);
+                             message_type required_type = MSG_MAX);
 
     /// Send a message to the client.
     XAPIAN_VISIBILITY_INTERNAL
@@ -81,9 +81,9 @@ class XAPIAN_VISIBILITY_DEFAULT RemoteServer : private RemoteConnection {
     /// Send a message to the client, with specific end_time.
     XAPIAN_VISIBILITY_INTERNAL
     void send_message(reply_type type, std::string_view message,
-		      double end_time) {
-	unsigned char type_as_char = static_cast<unsigned char>(type);
-	RemoteConnection::send_message(type_as_char, message, end_time);
+                      double end_time) {
+        unsigned char type_as_char = static_cast<unsigned char>(type);
+        RemoteConnection::send_message(type_as_char, message, end_time);
     }
 
     // all terms
@@ -252,10 +252,10 @@ class XAPIAN_VISIBILITY_DEFAULT RemoteServer : private RemoteConnection {
      *  @param writable Should the database be opened for writing?
      */
     RemoteServer(const std::vector<std::string> &dbpaths,
-		 int fdin, int fdout,
-		 double active_timeout_,
-		 double idle_timeout_,
-		 bool writable = false);
+                 int fdin, int fdout,
+                 double active_timeout_,
+                 double idle_timeout_,
+                 bool writable = false);
 
     /// Destructor.
     ~RemoteServer();

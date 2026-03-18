@@ -46,16 +46,16 @@ TermList*
 RemoteAllTermsList::next()
 {
     if (!p) {
-	p = data.data();
+        p = data.data();
     }
     const char* p_end = data.data() + data.size();
     if (p == p_end) {
-	return this;
+        return this;
     }
     current_term.resize(size_t(static_cast<unsigned char>(*p++)));
     if (!unpack_string_append(&p, p_end, current_term) ||
-	!unpack_uint(&p, p_end, &current_termfreq)) {
-	unpack_throw_serialisation_error(p);
+        !unpack_uint(&p, p_end, &current_termfreq)) {
+        unpack_throw_serialisation_error(p);
     }
     return NULL;
 }
@@ -64,12 +64,12 @@ TermList*
 RemoteAllTermsList::skip_to(std::string_view term)
 {
     if (!p) {
-	if (RemoteAllTermsList::next())
-	    return this;
+        if (RemoteAllTermsList::next())
+            return this;
     }
     while (current_term < term) {
-	if (RemoteAllTermsList::next())
-	    return this;
+        if (RemoteAllTermsList::next())
+            return this;
     }
     return NULL;
 }

@@ -39,9 +39,9 @@ which generates click log data in the required format in ``final.log`` file.
 
 A few example entries in ``final.log``:
 
-	QueryID,Query,Hits,Offset,Clicks
-	821f03288846297c2cf43c34766a38f7,book,"45,54",0,"45:0,54:2"
-	098f6bcd4621d373cade4e832627b4f6,test,"35,47",0,"35:1,47:0"
+        QueryID,Query,Hits,Offset,Clicks
+        821f03288846297c2cf43c34766a38f7,book,"45,54",0,"45:0,54:2"
+        098f6bcd4621d373cade4e832627b4f6,test,"35,47",0,"35:1,47:0"
 
 ``SimplifiedDBN`` class provides ``train`` function that takes a list of search
 sessions as its input.

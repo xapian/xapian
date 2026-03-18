@@ -46,14 +46,14 @@ class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
     unsigned get_char() const;
 
     Utf8Iterator(const unsigned char* p_,
-		 const unsigned char* end_,
-		 unsigned seqlen_)
-	: p(p_), end(end_), seqlen(seqlen_) { }
+                 const unsigned char* end_,
+                 unsigned seqlen_)
+        : p(p_), end(end_), seqlen(seqlen_) { }
 
   public:
     /** Return the raw const char* pointer for the current position. */
     const char* raw() const {
-	return reinterpret_cast<const char*>(p ? p : end);
+        return reinterpret_cast<const char*>(p ? p : end);
     }
 
     /** Return the number of bytes left in the iterator's buffer. */
@@ -71,13 +71,13 @@ class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
      *  @param len The length of the string to read.
      */
     void assign(const char* p_, size_t len) {
-	if (len) {
-	    p = reinterpret_cast<const unsigned char*>(p_);
-	    end = p + len;
-	    seqlen = 0;
-	} else {
-	    p = NULL;
-	}
+        if (len) {
+            p = reinterpret_cast<const unsigned char*>(p_);
+            end = p + len;
+            seqlen = 0;
+        } else {
+            p = NULL;
+        }
     }
 
     /** Assign a new string to the iterator.
@@ -127,7 +127,7 @@ class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
      *  has reached its end.
      */
     Utf8Iterator() noexcept
-	: p(NULL), end(0), seqlen(0) { }
+        : p(NULL), end(0), seqlen(0) { }
 
     /** Get the current Unicode character value pointed to by the iterator.
      *
@@ -167,14 +167,14 @@ class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
      *  @return An iterator pointing to the position before the move.
      */
     Utf8Iterator operator++(int) {
-	// If we've not calculated seqlen yet, do so.
-	if (seqlen == 0) calculate_sequence_length();
-	const unsigned char* old_p = p;
-	unsigned old_seqlen = seqlen;
-	p += seqlen;
-	if (p == end) p = NULL;
-	seqlen = 0;
-	return Utf8Iterator(old_p, end, old_seqlen);
+        // If we've not calculated seqlen yet, do so.
+        if (seqlen == 0) calculate_sequence_length();
+        const unsigned char* old_p = p;
+        unsigned old_seqlen = seqlen;
+        p += seqlen;
+        if (p == end) p = NULL;
+        seqlen = 0;
+        return Utf8Iterator(old_p, end, old_seqlen);
     }
 
     /** Move forward to the next Unicode character.
@@ -182,11 +182,11 @@ class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
      *  @return A reference to this object.
      */
     Utf8Iterator& operator++() {
-	if (seqlen == 0) calculate_sequence_length();
-	p += seqlen;
-	if (p == end) p = NULL;
-	seqlen = 0;
-	return *this;
+        if (seqlen == 0) calculate_sequence_length();
+        p += seqlen;
+        if (p == end) p = NULL;
+        seqlen = 0;
+        return *this;
     }
 
     /** Test two Utf8Iterators for equality.
@@ -195,7 +195,7 @@ class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
      *  @return true iff the iterators point to the same position.
      */
     bool operator==(const Utf8Iterator& other) const noexcept {
-	return p == other.p;
+        return p == other.p;
     }
 
     /** Test two Utf8Iterators for inequality.
@@ -204,7 +204,7 @@ class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
      *  @return true iff the iterators do not point to the same position.
      */
     bool operator!=(const Utf8Iterator& other) const noexcept {
-	return p != other.p;
+        return p != other.p;
     }
 
     /// We implement the semantics of an STL input_iterator.
@@ -281,31 +281,31 @@ namespace Internal {
      *  info.
      */
     inline category get_category(int info) {
-	return static_cast<category>(info & 0x1f);
+        return static_cast<category>(info & 0x1f);
     }
 
     /** @private @internal Extract the delta to use for case conversion of a
      *  character from its info.
      */
     inline int get_delta(int info) {
-	/* It's implementation defined if sign extension happens when right
-	 * shifting a signed int, although in practice sign extension is what
-	 * most compilers implement.
-	 *
-	 * Some compilers are smart enough to spot common idioms for sign
-	 * extension, but not all (e.g. GCC < 7 doesn't spot the one used
-	 * below), so check what the implementation-defined behaviour is with
-	 * a constant conditional which should get optimised away.
-	 *
-	 * We use the ternary operator here to avoid various compiler
-	 * warnings which writing this as an `if` results in.
-	 */
-	return ((-1 >> 1) == -1 ?
-		// Right shift sign-extends.
-		info >> 8 :
-		// Right shift shifts in zeros so bitwise-not before and after
-		// the shift for negative values.
-		(info >= 0) ? (info >> 8) : (~(~info >> 8)));
+        /* It's implementation defined if sign extension happens when right
+         * shifting a signed int, although in practice sign extension is what
+         * most compilers implement.
+         *
+         * Some compilers are smart enough to spot common idioms for sign
+         * extension, but not all (e.g. GCC < 7 doesn't spot the one used
+         * below), so check what the implementation-defined behaviour is with
+         * a constant conditional which should get optimised away.
+         *
+         * We use the ternary operator here to avoid various compiler
+         * warnings which writing this as an `if` results in.
+         */
+        return ((-1 >> 1) == -1 ?
+                // Right shift sign-extends.
+                info >> 8 :
+                // Right shift shifts in zeros so bitwise-not before and after
+                // the shift for negative values.
+                (info >= 0) ? (info >> 8) : (~(~info >> 8)));
     }
 }
 
@@ -332,8 +332,8 @@ unsigned nonascii_to_utf8(unsigned ch, char* buf);
  */
 inline unsigned to_utf8(unsigned ch, char* buf) {
     if (ch < 128) {
-	*buf = static_cast<unsigned char>(ch);
-	return 1;
+        *buf = static_cast<unsigned char>(ch);
+        return 1;
     }
     return Xapian::Unicode::nonascii_to_utf8(ch, buf);
 }
@@ -354,28 +354,28 @@ inline category get_category(unsigned ch) {
 /// Test if a given Unicode character is "word character".
 inline bool is_wordchar(unsigned ch) {
     const unsigned int WORDCHAR_MASK =
-	    (1 << Xapian::Unicode::UPPERCASE_LETTER) |
-	    (1 << Xapian::Unicode::LOWERCASE_LETTER) |
-	    (1 << Xapian::Unicode::TITLECASE_LETTER) |
-	    (1 << Xapian::Unicode::MODIFIER_LETTER) |
-	    (1 << Xapian::Unicode::OTHER_LETTER) |
-	    (1 << Xapian::Unicode::NON_SPACING_MARK) |
-	    (1 << Xapian::Unicode::ENCLOSING_MARK) |
-	    (1 << Xapian::Unicode::COMBINING_SPACING_MARK) |
-	    (1 << Xapian::Unicode::DECIMAL_DIGIT_NUMBER) |
-	    (1 << Xapian::Unicode::LETTER_NUMBER) |
-	    (1 << Xapian::Unicode::OTHER_NUMBER) |
-	    (1 << Xapian::Unicode::CONNECTOR_PUNCTUATION);
+            (1 << Xapian::Unicode::UPPERCASE_LETTER) |
+            (1 << Xapian::Unicode::LOWERCASE_LETTER) |
+            (1 << Xapian::Unicode::TITLECASE_LETTER) |
+            (1 << Xapian::Unicode::MODIFIER_LETTER) |
+            (1 << Xapian::Unicode::OTHER_LETTER) |
+            (1 << Xapian::Unicode::NON_SPACING_MARK) |
+            (1 << Xapian::Unicode::ENCLOSING_MARK) |
+            (1 << Xapian::Unicode::COMBINING_SPACING_MARK) |
+            (1 << Xapian::Unicode::DECIMAL_DIGIT_NUMBER) |
+            (1 << Xapian::Unicode::LETTER_NUMBER) |
+            (1 << Xapian::Unicode::OTHER_NUMBER) |
+            (1 << Xapian::Unicode::CONNECTOR_PUNCTUATION);
     return ((WORDCHAR_MASK >> get_category(ch)) & 1);
 }
 
 /// Test if a given Unicode character is a whitespace character.
 inline bool is_whitespace(unsigned ch) {
     const unsigned int WHITESPACE_MASK =
-	    (1 << Xapian::Unicode::CONTROL) | // For TAB, CR, LF, FF.
-	    (1 << Xapian::Unicode::SPACE_SEPARATOR) |
-	    (1 << Xapian::Unicode::LINE_SEPARATOR) |
-	    (1 << Xapian::Unicode::PARAGRAPH_SEPARATOR);
+            (1 << Xapian::Unicode::CONTROL) | // For TAB, CR, LF, FF.
+            (1 << Xapian::Unicode::SPACE_SEPARATOR) |
+            (1 << Xapian::Unicode::LINE_SEPARATOR) |
+            (1 << Xapian::Unicode::PARAGRAPH_SEPARATOR);
     return ((WHITESPACE_MASK >> get_category(ch)) & 1);
 }
 
@@ -388,7 +388,7 @@ inline bool is_currency(unsigned ch) {
 inline unsigned tolower(unsigned ch) {
     int info = Xapian::Unicode::Internal::get_character_info(ch);
     if (!(info & Internal::INFO_TOLOWER_MASK))
-	return ch;
+        return ch;
     return unsigned(int(ch) + Internal::get_delta(info));
 }
 
@@ -396,7 +396,7 @@ inline unsigned tolower(unsigned ch) {
 inline unsigned toupper(unsigned ch) {
     int info = Xapian::Unicode::Internal::get_character_info(ch);
     if (!(info & Internal::INFO_TOUPPER_MASK))
-	return ch;
+        return ch;
     return unsigned(int(ch) - Internal::get_delta(info));
 }
 
@@ -407,7 +407,7 @@ tolower(std::string_view term)
     std::string result;
     result.reserve(term.size());
     for (Utf8Iterator i(term); i != Utf8Iterator(); ++i) {
-	append_utf8(result, tolower(*i));
+        append_utf8(result, tolower(*i));
     }
     return result;
 }
@@ -419,7 +419,7 @@ toupper(std::string_view term)
     std::string result;
     result.reserve(term.size());
     for (Utf8Iterator i(term); i != Utf8Iterator(); ++i) {
-	append_utf8(result, toupper(*i));
+        append_utf8(result, toupper(*i));
     }
     return result;
 }

@@ -38,7 +38,7 @@ class XAPIAN_VISIBILITY_DEFAULT ReplicateTcpServer : public TcpServer {
      *  @param path_	The path to the parent directory of the databases.
      */
     ReplicateTcpServer(const std::string & host, int port,
-		       const std::string & path_);
+                       const std::string & path_);
 
     /** Handle a single connection on an already connected socket.
      *

@@ -36,7 +36,7 @@ inline int open(const char *filename, int64_t flags, ...) {
     va_start(ap, flags);
     mode_t mode = 0;
     if (flags & O_CREAT) {
-	mode = va_arg(ap, mode_t);
+        mode = va_arg(ap, mode_t);
     }
     va_end(ap);
     // open64x() takes a non-const path but is not documented as modifying it.

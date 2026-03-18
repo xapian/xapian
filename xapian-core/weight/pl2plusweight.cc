@@ -38,12 +38,12 @@ using namespace std;
 namespace Xapian {
 
 PL2PlusWeight::PL2PlusWeight(double c, double delta)
-	: param_c(c), param_delta(delta)
+        : param_c(c), param_delta(delta)
 {
     if (param_c <= 0)
-	throw Xapian::InvalidArgumentError("Parameter c is invalid");
+        throw Xapian::InvalidArgumentError("Parameter c is invalid");
     if (param_delta <= 0)
-	throw Xapian::InvalidArgumentError("Parameter delta is invalid");
+        throw Xapian::InvalidArgumentError("Parameter delta is invalid");
     need_stat(AVERAGE_LENGTH);
     need_stat(DOC_LENGTH);
     need_stat(DOC_LENGTH_MIN);
@@ -65,9 +65,9 @@ void
 PL2PlusWeight::init(double factor_)
 {
     if (factor_ == 0.0) {
-	// This object is for the term-independent contribution, and that's
-	// always zero for this scheme.
-	return;
+        // This object is for the term-independent contribution, and that's
+        // always zero for this scheme.
+        return;
     }
 
     factor = factor_ * get_wqf();
@@ -75,10 +75,10 @@ PL2PlusWeight::init(double factor_)
     auto wdf_upper_bound = get_wdf_upper_bound();
     mean = double(get_collection_freq()) / get_collection_size();
     if (rare(wdf_upper_bound == 0 || mean > 1)) {
-	// PL2+ is based on a modified PL2 which "essentially ignores
-	// non-discriminative query terms".
-	upper_bound = 0;
-	return;
+        // PL2+ is based on a modified PL2 which "essentially ignores
+        // non-discriminative query terms".
+        upper_bound = 0;
+        return;
     }
 
     double base_change(1.0 / log(2.0));
@@ -153,19 +153,19 @@ PL2PlusWeight::unserialise(const string & s) const
     double c = unserialise_double(&ptr, end);
     double delta = unserialise_double(&ptr, end);
     if (rare(ptr != end))
-	throw Xapian::SerialisationError("Extra data in PL2PlusWeight::unserialise()");
+        throw Xapian::SerialisationError("Extra data in PL2PlusWeight::unserialise()");
     return new PL2PlusWeight(c, delta);
 }
 
 double
 PL2PlusWeight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len,
-			   Xapian::termcount, Xapian::termcount) const
+                           Xapian::termcount, Xapian::termcount) const
 {
     // Note: lambda_t in the paper is 1/mean.
     if (wdf == 0 || mean > 1) {
-	// PL2+ is based on a modified PL2 which "essentially ignores
-	// non-discriminative query terms".
-	return 0.0;
+        // PL2+ is based on a modified PL2 which "essentially ignores
+        // non-discriminative query terms".
+        return 0.0;
     }
 
     double wdfn = wdf * log2(1 + cl / len);
@@ -198,15 +198,15 @@ PL2PlusWeight::create_from_parameters(const char* params) const
 {
     const char* p = params;
     if (*p == '\0')
-	return new Xapian::PL2PlusWeight();
+        return new Xapian::PL2PlusWeight();
     double c = 1.0;
     double delta = 0.8;
     if (!Xapian::Weight::Internal::double_param(&p, &c))
-	parameter_error("Parameter 1 (c) is invalid", params);
+        parameter_error("Parameter 1 (c) is invalid", params);
     if (!Xapian::Weight::Internal::double_param(&p, &delta))
-	parameter_error("Parameter 2 (delta) is invalid", params);
+        parameter_error("Parameter 2 (delta) is invalid", params);
     if (*p)
-	parameter_error("Extra data after parameter 2", params);
+        parameter_error("Extra data after parameter 2", params);
     return new Xapian::PL2PlusWeight(c, delta);
 }
 

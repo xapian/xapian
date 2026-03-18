@@ -149,7 +149,7 @@ class HoneyVersion {
 
   public:
     explicit HoneyVersion(std::string_view db_dir_)
-	: fd(-1), db_dir(db_dir_) { }
+        : fd(-1), db_dir(db_dir_) { }
 
     explicit HoneyVersion(int fd_);
 
@@ -169,26 +169,26 @@ class HoneyVersion {
     const std::string write(honey_revision_number_t new_rev, int flags);
 
     bool sync(const std::string& tmpfile,
-	      honey_revision_number_t new_rev, int flags);
+              honey_revision_number_t new_rev, int flags);
 
     honey_revision_number_t get_revision() const { return rev; }
 
     const Honey::RootInfo& get_root(Honey::table_type tbl) const {
-	return root[tbl];
+        return root[tbl];
     }
 
     Honey::RootInfo* root_to_set(Honey::table_type tbl) {
-	return &root[tbl];
+        return &root[tbl];
     }
 
     /// Return pointer to 16 byte UUID.
     const char* get_uuid() const {
-	return uuid.data();
+        return uuid.data();
     }
 
     /// Return UUID in the standard 36 character string format.
     std::string get_uuid_string() const {
-	return uuid.to_string();
+        return uuid.to_string();
     }
 
     Xapian::doccount get_doccount() const { return doccount; }
@@ -198,70 +198,70 @@ class HoneyVersion {
     Xapian::docid get_last_docid() const { return last_docid; }
 
     Xapian::termcount get_doclength_lower_bound() const {
-	return doclen_lbound;
+        return doclen_lbound;
     }
 
     Xapian::termcount get_doclength_upper_bound() const {
-	return doclen_ubound;
+        return doclen_ubound;
     }
 
     Xapian::termcount get_wdf_upper_bound() const { return wdf_ubound; }
 
     Xapian::termcount get_spelling_wordfreq_upper_bound() const {
-	return spelling_wordfreq_ubound;
+        return spelling_wordfreq_ubound;
     }
 
     honey_revision_number_t get_oldest_changeset() const {
-	return oldest_changeset;
+        return oldest_changeset;
     }
 
     Xapian::termcount get_unique_terms_lower_bound() const {
-	return uniq_terms_lbound;
+        return uniq_terms_lbound;
     }
 
     Xapian::termcount get_unique_terms_upper_bound() const {
-	return uniq_terms_ubound;
+        return uniq_terms_ubound;
     }
 
     void set_last_docid(Xapian::docid did) { last_docid = did; }
 
     void set_oldest_changeset(honey_revision_number_t changeset) const {
-	oldest_changeset = changeset;
+        oldest_changeset = changeset;
     }
 
     void set_spelling_wordfreq_upper_bound(Xapian::termcount ub) {
-	spelling_wordfreq_ubound = ub;
+        spelling_wordfreq_ubound = ub;
     }
 
     void set_unique_terms_lower_bound(Xapian::termcount ub) {
-	uniq_terms_lbound = ub;
+        uniq_terms_lbound = ub;
     }
 
     void set_unique_terms_upper_bound(Xapian::termcount ub) {
-	uniq_terms_ubound = ub;
+        uniq_terms_ubound = ub;
     }
 
     void add_document(Xapian::termcount doclen) {
-	++doccount;
-	doclen_lbound = min_non_zero(doclen_lbound, doclen);
-	doclen_ubound = std::max(doclen_ubound, doclen);
-	total_doclen += doclen;
+        ++doccount;
+        doclen_lbound = min_non_zero(doclen_lbound, doclen);
+        doclen_ubound = std::max(doclen_ubound, doclen);
+        total_doclen += doclen;
     }
 
     void delete_document(Xapian::termcount doclen) {
-	--doccount;
-	total_doclen -= doclen;
-	// If the database no longer contains any postings, we can reset
-	// doclen_lbound, doclen_ubound and wdf_ubound.
-	if (total_doclen == 0) {
-	    doclen_lbound = 0;
-	    doclen_ubound = 0;
-	    wdf_ubound = 0;
-	}
+        --doccount;
+        total_doclen -= doclen;
+        // If the database no longer contains any postings, we can reset
+        // doclen_lbound, doclen_ubound and wdf_ubound.
+        if (total_doclen == 0) {
+            doclen_lbound = 0;
+            doclen_ubound = 0;
+            wdf_ubound = 0;
+        }
     }
 
     void check_wdf(Xapian::termcount wdf) {
-	if (wdf > wdf_ubound) wdf_ubound = wdf;
+        if (wdf > wdf_ubound) wdf_ubound = wdf;
     }
 
     Xapian::docid get_next_docid() { return ++last_docid; }
@@ -273,13 +273,13 @@ class HoneyVersion {
     void merge_stats(const HoneyVersion& o);
 
     void merge_stats(Xapian::doccount o_doccount,
-		     Xapian::termcount o_doclen_lbound,
-		     Xapian::termcount o_doclen_ubound,
-		     Xapian::termcount o_wdf_ubound,
-		     Xapian::totallength o_total_doclen,
-		     Xapian::termcount o_spelling_wordfreq_ubound,
-		     Xapian::termcount o_uniq_terms_lbound,
-		     Xapian::termcount o_uniq_terms_ubound);
+                     Xapian::termcount o_doclen_lbound,
+                     Xapian::termcount o_doclen_ubound,
+                     Xapian::termcount o_wdf_ubound,
+                     Xapian::totallength o_total_doclen,
+                     Xapian::termcount o_spelling_wordfreq_ubound,
+                     Xapian::termcount o_uniq_terms_lbound,
+                     Xapian::termcount o_uniq_terms_ubound);
 
     bool single_file() const { return db_dir.empty(); }
 

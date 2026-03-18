@@ -39,7 +39,7 @@ namespace Xapian {
 PL2Weight::PL2Weight(double c) : param_c(c)
 {
     if (param_c <= 0)
-	throw Xapian::InvalidArgumentError("Parameter c is invalid");
+        throw Xapian::InvalidArgumentError("Parameter c is invalid");
     need_stat(AVERAGE_LENGTH);
     need_stat(DOC_LENGTH);
     need_stat(DOC_LENGTH_MIN);
@@ -61,20 +61,20 @@ void
 PL2Weight::init(double factor_)
 {
     if (factor_ == 0.0) {
-	// This object is for the term-independent contribution, and that's
-	// always zero for this scheme.
-	return;
+        // This object is for the term-independent contribution, and that's
+        // always zero for this scheme.
+        return;
     }
 
     factor = factor_;
 
     if (get_wdf_upper_bound() == 0) {
-	// The "extra" weight object is cloned, init() called and then
-	// get_maxextra() is called and we discover that we don't need it.
-	// So we need to handle that case (which will give us 0 from
-	// get_wdf_upper_bound() here).
-	upper_bound = 0;
-	return;
+        // The "extra" weight object is cloned, init() called and then
+        // get_maxextra() is called and we discover that we don't need it.
+        // So we need to handle that case (which will give us 0 from
+        // get_wdf_upper_bound() here).
+        upper_bound = 0;
+        return;
     }
 
     factor *= get_wqf();
@@ -146,13 +146,13 @@ PL2Weight::unserialise(const string & s) const
     const char *end = ptr + s.size();
     double c = unserialise_double(&ptr, end);
     if (rare(ptr != end))
-	throw Xapian::SerialisationError("Extra data in PL2Weight::unserialise()");
+        throw Xapian::SerialisationError("Extra data in PL2Weight::unserialise()");
     return new PL2Weight(c);
 }
 
 double
 PL2Weight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len,
-		       Xapian::termcount, Xapian::termcount) const
+                       Xapian::termcount, Xapian::termcount) const
 {
     if (wdf == 0) return 0.0;
 
@@ -182,12 +182,12 @@ PL2Weight::create_from_parameters(const char* params) const
 {
     const char* p = params;
     if (*p == '\0')
-	return new Xapian::PL2Weight();
+        return new Xapian::PL2Weight();
     double c = 1.0;
     if (!Xapian::Weight::Internal::double_param(&p, &c))
-	parameter_error("Parameter is invalid", params);
+        parameter_error("Parameter is invalid", params);
     if (*p)
-	parameter_error("Extra data after parameter", params);
+        parameter_error("Extra data after parameter", params);
     return new Xapian::PL2Weight(c);
 }
 

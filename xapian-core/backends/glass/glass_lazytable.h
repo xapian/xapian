@@ -32,10 +32,10 @@ class GlassLazyTable : public GlassTable {
      *  @param readonly		true if the table is read-only, else false.
      */
     GlassLazyTable(const char* name_, std::string_view path, bool readonly)
-	: GlassTable(name_, path, readonly, true) { }
+        : GlassTable(name_, path, readonly, true) { }
 
     GlassLazyTable(const char * name_, int fd, off_t offset_, bool readonly)
-	: GlassTable(name_, fd, offset_, readonly, true) { }
+        : GlassTable(name_, fd, offset_, readonly, true) { }
 };
 
 #endif // XAPIAN_INCLUDED_GLASS_LAZYTABLE_H

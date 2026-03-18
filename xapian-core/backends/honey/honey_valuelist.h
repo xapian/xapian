@@ -48,7 +48,7 @@ class HoneyValueList : public Xapian::ValueIterator::Internal {
 
   public:
     HoneyValueList(Xapian::valueno slot_, const HoneyDatabase* db_)
-	: slot(slot_), db(db_) { }
+        : slot(slot_), db(db_) { }
 
     ~HoneyValueList();
 

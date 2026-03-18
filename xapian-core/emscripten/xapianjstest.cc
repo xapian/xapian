@@ -10,9 +10,9 @@ using namespace std;
 int main() {
 #ifdef NODEFS
     EM_ASM({
-	    FS.mkdir("/work");
-	    FS.mount(NODEFS, {root: '.'},"/work");
-	    FS.chdir("/work");
+            FS.mkdir("/work");
+            FS.mount(NODEFS, {root: '.'},"/work");
+            FS.chdir("/work");
     });
 #endif
 
@@ -25,5 +25,5 @@ int main() {
     db.replace_document("Q1", doc);
 
     cout << "Created database with " << db.get_doccount()
-	 << " documents" << endl;
+         << " documents" << endl;
 }

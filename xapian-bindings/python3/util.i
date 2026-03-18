@@ -74,80 +74,80 @@
 %{
 namespace Xapian {
     Query *get_py_query(PyObject *obj) {
-	PyObject * mythis = PyObject_GetAttrString(obj, "this");
-	if (!mythis)
-	    return 0;
+        PyObject * mythis = PyObject_GetAttrString(obj, "this");
+        if (!mythis)
+            return 0;
 
-	Query * retval = 0;
-	int res = SWIG_ConvertPtr(mythis, (void **)&retval,
-				  SWIGTYPE_p_Xapian__Query, 0);
-	if (!SWIG_IsOK(res)) {
-	    retval = 0;
-	}
-	Py_DECREF(mythis);
-	return retval;
+        Query * retval = 0;
+        int res = SWIG_ConvertPtr(mythis, (void **)&retval,
+                                  SWIGTYPE_p_Xapian__Query, 0);
+        if (!SWIG_IsOK(res)) {
+            retval = 0;
+        }
+        Py_DECREF(mythis);
+        return retval;
     }
 }
 %}
 
 namespace Xapian {
     %extend TermIterator {
-	bool __eq__(const TermIterator &other) {
-	    return (*self)==other;
-	}
-	bool __ne__(const TermIterator &other) {
-	    return (*self)!=other;
-	}
+        bool __eq__(const TermIterator &other) {
+            return (*self)==other;
+        }
+        bool __ne__(const TermIterator &other) {
+            return (*self)!=other;
+        }
     }
     %rename(_TermIterator) TermIterator;
 
     %extend PositionIterator {
-	bool __eq__(const PositionIterator &other) {
-	    return (*self)==other;
-	}
-	bool __ne__(const PositionIterator &other) {
-	    return (*self)!=other;
-	}
+        bool __eq__(const PositionIterator &other) {
+            return (*self)==other;
+        }
+        bool __ne__(const PositionIterator &other) {
+            return (*self)!=other;
+        }
     }
     %rename(_PositionIterator) PositionIterator;
 
     %extend PostingIterator {
-	bool __eq__(const PostingIterator &other) {
-	    return (*self)==other;
-	}
-	bool __ne__(const PostingIterator &other) {
-	    return (*self)!=other;
-	}
+        bool __eq__(const PostingIterator &other) {
+            return (*self)==other;
+        }
+        bool __ne__(const PostingIterator &other) {
+            return (*self)!=other;
+        }
     }
     %rename(_PostingIterator) PostingIterator;
 
     %extend ValueIterator {
-	bool __eq__(const ValueIterator &other) {
-	    return (*self)==other;
-	}
-	bool __ne__(const ValueIterator &other) {
-	    return (*self)!=other;
-	}
+        bool __eq__(const ValueIterator &other) {
+            return (*self)==other;
+        }
+        bool __ne__(const ValueIterator &other) {
+            return (*self)!=other;
+        }
     }
     %rename(_ValueIterator) ValueIterator;
 
     %extend MSetIterator {
-	bool __eq__(const MSetIterator &other) {
-	    return (*self)==other;
-	}
-	bool __ne__(const MSetIterator &other) {
-	    return (*self)!=other;
-	}
+        bool __eq__(const MSetIterator &other) {
+            return (*self)==other;
+        }
+        bool __ne__(const MSetIterator &other) {
+            return (*self)!=other;
+        }
     }
     %rename(_MSetIterator) MSetIterator;
 
     %extend ESetIterator {
-	bool __eq__(const ESetIterator &other) {
-	    return (*self)==other;
-	}
-	bool __ne__(const ESetIterator &other) {
-	    return (*self)!=other;
-	}
+        bool __eq__(const ESetIterator &other) {
+            return (*self)==other;
+        }
+        bool __ne__(const ESetIterator &other) {
+            return (*self)!=other;
+        }
     }
     %rename(_ESetIterator) ESetIterator;
 }
@@ -159,22 +159,22 @@ static int
 XapianSWIG_anystring_as_ptr(PyObject * obj, std::string **val)
 {
     if (PyUnicode_Check(obj)) {
-	PyObject* strobj = PyUnicode_AsUTF8String(obj);
-	if (strobj == NULL) return INT_MIN;
-	char *p;
-	Py_ssize_t len;
-	PyBytes_AsStringAndSize(strobj, &p, &len);
-	if (val) *val = new std::string(p, len);
-	Py_DECREF(strobj);
-	return SWIG_NEWOBJ;
+        PyObject* strobj = PyUnicode_AsUTF8String(obj);
+        if (strobj == NULL) return INT_MIN;
+        char *p;
+        Py_ssize_t len;
+        PyBytes_AsStringAndSize(strobj, &p, &len);
+        if (val) *val = new std::string(p, len);
+        Py_DECREF(strobj);
+        return SWIG_NEWOBJ;
     } else if (PyBytes_Check(obj)) {
-	char *p;
-	Py_ssize_t len;
-	PyBytes_AsStringAndSize(obj, &p, &len);
-	if (val) *val = new std::string(p, len);
-	return SWIG_NEWOBJ;
+        char *p;
+        Py_ssize_t len;
+        PyBytes_AsStringAndSize(obj, &p, &len);
+        if (val) *val = new std::string(p, len);
+        return SWIG_NEWOBJ;
     } else {
-	return SWIG_AsPtr_std_string(obj, val);
+        return SWIG_AsPtr_std_string(obj, val);
     }
 }
 }
@@ -186,11 +186,11 @@ XapianSWIG_anystring_as_ptr(PyObject * obj, std::string **val)
     std::string *ptr = (std::string *)0;
     res = XapianSWIG_anystring_as_ptr($input, &ptr);
     if (!SWIG_IsOK(res)) {
-	if (res == INT_MIN) SWIG_fail;
-	%argument_fail(res, "$type", $symname, $argnum);
+        if (res == INT_MIN) SWIG_fail;
+        %argument_fail(res, "$type", $symname, $argnum);
     }
     if (!ptr) {
-	%argument_nullref("$type", $symname, $argnum);
+        %argument_nullref("$type", $symname, $argnum);
     }
     $1 = ptr;
 }
@@ -198,8 +198,8 @@ XapianSWIG_anystring_as_ptr(PyObject * obj, std::string **val)
     std::string *ptr = (std::string *)0;
     int res = XapianSWIG_anystring_as_ptr($input, &ptr);
     if (!SWIG_IsOK(res) || !ptr) {
-	if (res == INT_MIN) SWIG_fail;
-	%argument_fail((ptr ? res : SWIG_TypeError), "$type", $symname, $argnum);
+        if (res == INT_MIN) SWIG_fail;
+        %argument_fail((ptr ? res : SWIG_TypeError), "$type", $symname, $argnum);
     }
     $1 = *ptr;
     if (SWIG_IsNewObj(res)) delete ptr;
@@ -209,23 +209,23 @@ XapianSWIG_anystring_as_ptr(PyObject * obj, std::string **val)
 }
 %typemap(typecheck, noblock=1, precedence=900) const std::string & {
     if (PyUnicode_Check($input)) {
-	$1 = 1;
+        $1 = 1;
     } else if (PyBytes_Check($input)) {
-	$1 = 1;
+        $1 = 1;
     } else {
-	int res = SWIG_AsPtr_std_string($input, (std::string**)(0));
-	$1 = SWIG_CheckState(res);
+        int res = SWIG_AsPtr_std_string($input, (std::string**)(0));
+        $1 = SWIG_CheckState(res);
     }
 }
 
 %typemap(in, fragment="XapianSWIG_anystring_as_ptr") const std::string *(int res = SWIG_OLDOBJ) {
     std::string *ptr = (std::string *)0;
     if ($input != Py_None) {
-	res = XapianSWIG_anystring_as_ptr($input, &ptr);
-	if (!SWIG_IsOK(res)) {
-	    if (res == INT_MIN) SWIG_fail;
-	    %argument_fail(res, "$type", $symname, $argnum);
-	}
+        res = XapianSWIG_anystring_as_ptr($input, &ptr);
+        if (!SWIG_IsOK(res)) {
+            if (res == INT_MIN) SWIG_fail;
+            %argument_fail(res, "$type", $symname, $argnum);
+        }
     }
     $1 = ptr;
 }
@@ -234,14 +234,14 @@ XapianSWIG_anystring_as_ptr(PyObject * obj, std::string **val)
 }
 %typemap(typecheck, noblock=1, precedence=900) const std::string * {
     if ($input == Py_None) {
-	$1 = 1;
+        $1 = 1;
     } else if (PyUnicode_Check($input)) {
-	$1 = 1;
+        $1 = 1;
     } else if (PyBytes_Check($input)) {
-	$1 = 1;
+        $1 = 1;
     } else {
-	int res = SWIG_AsPtr_std_string($input, (std::string**)(0));
-	$1 = SWIG_CheckState(res);
+        int res = SWIG_AsPtr_std_string($input, (std::string**)(0));
+        $1 = SWIG_CheckState(res);
     }
 }
 
@@ -253,13 +253,13 @@ XapianSWIG_anystring_as_ptr(PyObject * obj, std::string **val)
     std::string *swig_optr = 0;
     int swig_ores;
     {
-	PyObject * tmp = $input;
-	Py_INCREF(tmp);
-	swig_ores = XapianSWIG_anystring_as_ptr(tmp, &swig_optr);
-	Py_DECREF(tmp);
+        PyObject * tmp = $input;
+        Py_INCREF(tmp);
+        swig_ores = XapianSWIG_anystring_as_ptr(tmp, &swig_optr);
+        Py_DECREF(tmp);
     }
     if (!SWIG_IsOK(swig_ores) || !swig_optr) {
-	%dirout_fail((swig_optr ? swig_ores : SWIG_TypeError), "$type");
+        %dirout_fail((swig_optr ? swig_ores : SWIG_TypeError), "$type");
     }
     $result = *swig_optr;
     if (SWIG_IsNewObj(swig_ores)) %delete(swig_optr);
@@ -268,17 +268,17 @@ XapianSWIG_anystring_as_ptr(PyObject * obj, std::string **val)
 %typemap(directorin) (size_t num_tags, const std::string tags[]) {
     PyObject * result = PyList_New(num_tags);
     if (result == 0) {
-	return NULL;
+        return NULL;
     }
 
     for (size_t i = 0; i != num_tags; ++i) {
-	PyObject * str = PyBytes_FromStringAndSize(tags[i].data(), tags[i].size());
-	if (str == 0) {
-	    Py_DECREF(result);
-	    return NULL;
-	}
+        PyObject * str = PyBytes_FromStringAndSize(tags[i].data(), tags[i].size());
+        if (str == 0) {
+            Py_DECREF(result);
+            return NULL;
+        }
 
-	PyList_SET_ITEM(result, i, str);
+        PyList_SET_ITEM(result, i, str);
     }
     $input = result;
 }

@@ -28,6 +28,6 @@
 #include <map>
 
 void set_expansion_scheme(Xapian::Enquire & enq,
-			  const std::map<std::string, std::string> & opt);
+                          const std::map<std::string, std::string> & opt);
 
 #endif // OMEGA_INCLUDED_EXPAND_H

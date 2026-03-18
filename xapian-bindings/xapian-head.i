@@ -38,21 +38,21 @@ namespace Xapian {
 
 #ifndef XAPIAN_HAS_REMOTE_BACKEND
     namespace Remote {
-	static Database open(const string &, unsigned int, unsigned = 0, unsigned = 0) {
-	    throw FeatureUnavailableError("Remote backend not supported");
-	}
+        static Database open(const string &, unsigned int, unsigned = 0, unsigned = 0) {
+            throw FeatureUnavailableError("Remote backend not supported");
+        }
 
-	static WritableDatabase open_writable(const string &, unsigned int, unsigned = 0, unsigned = 0, int = 0) {
-	    throw FeatureUnavailableError("Remote backend not supported");
-	}
+        static WritableDatabase open_writable(const string &, unsigned int, unsigned = 0, unsigned = 0, int = 0) {
+            throw FeatureUnavailableError("Remote backend not supported");
+        }
 
-	static Database open(const string &, const string &, unsigned = 0) {
-	    throw FeatureUnavailableError("Remote backend not supported");
-	}
+        static Database open(const string &, const string &, unsigned = 0) {
+            throw FeatureUnavailableError("Remote backend not supported");
+        }
 
-	static WritableDatabase open_writable(const string &, const string &, unsigned = 0, int = 0) {
-	    throw FeatureUnavailableError("Remote backend not supported");
-	}
+        static WritableDatabase open_writable(const string &, const string &, unsigned = 0, int = 0) {
+            throw FeatureUnavailableError("Remote backend not supported");
+        }
     }
 #endif
 

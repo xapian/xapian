@@ -56,8 +56,8 @@ get_maxfd() {
 #ifdef HAVE_GETRLIMIT
     struct rlimit rl;
     if (getrlimit(RLIMIT_NOFILE, &rl) == 0 &&
-	rl.rlim_max != RLIM_INFINITY) {
-	return static_cast<int>(rl.rlim_max) - 1;
+        rl.rlim_max != RLIM_INFINITY) {
+        return static_cast<int>(rl.rlim_max) - 1;
     }
 #endif
     return static_cast<int>(sysconf(_SC_OPEN_MAX)) - 1;
@@ -93,70 +93,70 @@ Xapian::Internal::closefrom(int fd)
     int maxfd = -1;
 #ifdef F_CLOSEM
     if (fcntl(fd, F_CLOSEM, 0) >= 0)
-	return;
+        return;
 #elif defined HAVE_CLOSE_RANGE
     if (close_range(fd, ~0U, 0) >= 0)
-	return;
+        return;
 #elif defined HAVE_GETDIRENTRIES && defined __linux__
     const char* path = "/proc/self/fd";
     int dir = open(path, O_RDONLY|O_DIRECTORY);
     if (dir >= 0) {
-	off_t base = 0;
-	while (true) {
-	    char buf[1024];
-	    errno = 0;
-	    // We use getdirentries() instead of opendir()/readdir() here
-	    // because the latter can call malloc(), which isn't safe to do
-	    // between fork() and exec() in a multi-threaded program.
-	    ssize_t c = getdirentries(dir, buf, sizeof(buf), &base);
-	    if (c == 0) {
-		close(dir);
-		return;
-	    }
-	    if (c < 0) {
-		// Fallback if getdirentries() fails.
-		break;
-	    }
-	    struct dirent* d;
-	    for (ssize_t pos = 0; pos < c; pos += d->d_reclen) {
-		d = alignment_cast<struct dirent*>(buf + pos);
-		const char* leaf = d->d_name;
-		int n;
-		if (!parse_signed(leaf, n)) {
-		    // Skip '.' and '..'.
-		    continue;
-		}
-		if (n < fd) {
-		    // FD below threshold.
-		    continue;
-		}
-		if (n == dir) {
-		    // Don't close the fd open on the directory.
-		    continue;
-		}
+        off_t base = 0;
+        while (true) {
+            char buf[1024];
+            errno = 0;
+            // We use getdirentries() instead of opendir()/readdir() here
+            // because the latter can call malloc(), which isn't safe to do
+            // between fork() and exec() in a multi-threaded program.
+            ssize_t c = getdirentries(dir, buf, sizeof(buf), &base);
+            if (c == 0) {
+                close(dir);
+                return;
+            }
+            if (c < 0) {
+                // Fallback if getdirentries() fails.
+                break;
+            }
+            struct dirent* d;
+            for (ssize_t pos = 0; pos < c; pos += d->d_reclen) {
+                d = alignment_cast<struct dirent*>(buf + pos);
+                const char* leaf = d->d_name;
+                int n;
+                if (!parse_signed(leaf, n)) {
+                    // Skip '.' and '..'.
+                    continue;
+                }
+                if (n < fd) {
+                    // FD below threshold.
+                    continue;
+                }
+                if (n == dir) {
+                    // Don't close the fd open on the directory.
+                    continue;
+                }
 
-		// Running under valgrind causes some entries above the
-		// reported RLIMIT_NOFILE value to appear in
-		// /proc/self/fd - see:
-		// https://bugs.kde.org/show_bug.cgi?id=191758
-		//
-		// If we try to close these, valgrind issues a warning about
-		// trying to close an invalid file descriptor.  These entries
-		// start at 1024, so we check that value first so we can
-		// usually avoid having to read the fd limit when we're not
-		// running under valgrind.
-		if (n >= 1024) {
-		    if (maxfd < 0)
-			maxfd = get_maxfd();
-		    if (n > maxfd)
-			continue;
-		}
+                // Running under valgrind causes some entries above the
+                // reported RLIMIT_NOFILE value to appear in
+                // /proc/self/fd - see:
+                // https://bugs.kde.org/show_bug.cgi?id=191758
+                //
+                // If we try to close these, valgrind issues a warning about
+                // trying to close an invalid file descriptor.  These entries
+                // start at 1024, so we check that value first so we can
+                // usually avoid having to read the fd limit when we're not
+                // running under valgrind.
+                if (n >= 1024) {
+                    if (maxfd < 0)
+                        maxfd = get_maxfd();
+                    if (n > maxfd)
+                        continue;
+                }
 
-		// Retry on EINTR.
-		while (close(n) < 0 && errno == EINTR) { }
-	    }
-	}
-	close(dir);
+                // Retry on EINTR.
+                while (close(n) < 0 && errno == EINTR) { }
+            }
+        }
+        close(dir);
     }
 #elif defined __APPLE__ // macOS
     const char* path = "/dev/fd";
@@ -167,57 +167,57 @@ Xapian::Internal::closefrom(int fd)
 #endif
     int dir = open(path, O_RDONLY|O_DIRECTORY);
     if (dir >= 0) {
-	gdea_type base = 0;
-	struct attrlist alist;
-	std::memset(&alist, 0, sizeof(alist));
-	alist.bitmapcount = ATTR_BIT_MAP_COUNT;
-	alist.commonattr = ATTR_CMN_NAME;
-	while (true) {
-	    char buf[1024];
-	    errno = 0;
-	    // We use getdirentriesattr() instead of opendir()/readdir() here
-	    // because the latter can call malloc(), which isn't safe to do
-	    // between fork() and exec() in a multi-threaded program.  We only
-	    // want filename, but can't use getdirentries() because it's not
-	    // available with 64-bit inode_t, which seems to be tied to LFS.
-	    gdea_type count = sizeof(buf);
-	    gdea_type new_state;
-	    int r = getdirentriesattr(dir, &alist, buf, sizeof(buf),
-				      &count, &base, &new_state, 0);
-	    (void)new_state;
-	    if (r < 0) {
-		// Fallback if getdirentriesattr() fails.
-		break;
-	    }
-	    char* p = buf;
-	    while (count-- > 0) {
-		const char* leaf = p + sizeof(u_int32_t);
-		p += *static_cast<u_int32_t*>(static_cast<void*>(p));
+        gdea_type base = 0;
+        struct attrlist alist;
+        std::memset(&alist, 0, sizeof(alist));
+        alist.bitmapcount = ATTR_BIT_MAP_COUNT;
+        alist.commonattr = ATTR_CMN_NAME;
+        while (true) {
+            char buf[1024];
+            errno = 0;
+            // We use getdirentriesattr() instead of opendir()/readdir() here
+            // because the latter can call malloc(), which isn't safe to do
+            // between fork() and exec() in a multi-threaded program.  We only
+            // want filename, but can't use getdirentries() because it's not
+            // available with 64-bit inode_t, which seems to be tied to LFS.
+            gdea_type count = sizeof(buf);
+            gdea_type new_state;
+            int r = getdirentriesattr(dir, &alist, buf, sizeof(buf),
+                                      &count, &base, &new_state, 0);
+            (void)new_state;
+            if (r < 0) {
+                // Fallback if getdirentriesattr() fails.
+                break;
+            }
+            char* p = buf;
+            while (count-- > 0) {
+                const char* leaf = p + sizeof(u_int32_t);
+                p += *static_cast<u_int32_t*>(static_cast<void*>(p));
 
-		int n;
-		if (!parse_signed(leaf, n)) {
-		    // Skip '.' and '..'.
-		    continue;
-		}
-		if (n < fd) {
-		    // FD below threshold.
-		    continue;
-		}
-		if (n == dir) {
-		    // Don't close the fd open on the directory.
-		    continue;
-		}
+                int n;
+                if (!parse_signed(leaf, n)) {
+                    // Skip '.' and '..'.
+                    continue;
+                }
+                if (n < fd) {
+                    // FD below threshold.
+                    continue;
+                }
+                if (n == dir) {
+                    // Don't close the fd open on the directory.
+                    continue;
+                }
 
-		// Retry on EINTR.
-		while (close(n) < 0 && errno == EINTR) { }
-	    }
-	    if (r == 1) {
-		// We've had the last entry.
-		close(dir);
-		return;
-	    }
-	}
-	close(dir);
+                // Retry on EINTR.
+                while (close(n) < 0 && errno == EINTR) { }
+            }
+            if (r == 1) {
+                // We've had the last entry.
+                close(dir);
+                return;
+            }
+        }
+        close(dir);
     }
 #elif 0
     // Some platforms have /proc/<pid>/fd but not /proc/self - if any such
@@ -229,12 +229,12 @@ Xapian::Internal::closefrom(int fd)
     path[sizeof(path) - 1] = '\0';
 #endif
     if (maxfd < 0)
-	maxfd = get_maxfd();
+        maxfd = get_maxfd();
     while (fd <= maxfd) {
-	// Retry on EINTR; just ignore other errors (we'll get EBADF if fd
-	// isn't open so that's OK).
-	while (close(fd) < 0 && errno == EINTR) { }
-	++fd;
+        // Retry on EINTR; just ignore other errors (we'll get EBADF if fd
+        // isn't open so that's OK).
+        while (close(fd) < 0 && errno == EINTR) { }
+        ++fd;
     }
 }
 

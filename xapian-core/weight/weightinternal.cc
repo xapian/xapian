@@ -63,25 +63,25 @@ Weight::Internal::operator+=(const Weight::Internal & inc)
     rset_size += inc.rset_size;
 
     db_doclength_lower_bound = min_non_zero(db_doclength_lower_bound,
-					    inc.db_doclength_lower_bound);
+                                            inc.db_doclength_lower_bound);
     db_doclength_upper_bound = std::max(db_doclength_upper_bound,
-					inc.db_doclength_upper_bound);
+                                        inc.db_doclength_upper_bound);
 
     db_unique_terms_lower_bound = min_non_zero(db_unique_terms_lower_bound,
-					       inc.db_unique_terms_lower_bound);
+                                               inc.db_unique_terms_lower_bound);
     db_unique_terms_upper_bound = std::max(db_unique_terms_upper_bound,
-					   inc.db_unique_terms_upper_bound);
+                                           inc.db_unique_terms_upper_bound);
 
     // Add termfreqs and reltermfreqs
     for (auto&& i : inc.termfreqs) {
-	termfreqs[i.first] += i.second;
+        termfreqs[i.first] += i.second;
     }
     return *this;
 }
 
 void
 Weight::Internal::accumulate_stats(const Xapian::Database::Internal &subdb,
-				   const Xapian::RSet &rset)
+                                   const Xapian::RSet &rset)
 {
 #ifdef XAPIAN_ASSERTIONS
     Assert(!finalised);
@@ -92,48 +92,48 @@ Weight::Internal::accumulate_stats(const Xapian::Database::Internal &subdb,
     rset_size += rset.size();
 
     db_doclength_lower_bound = min_non_zero(db_doclength_lower_bound,
-					    subdb.get_doclength_lower_bound());
+                                            subdb.get_doclength_lower_bound());
     db_doclength_upper_bound = std::max(db_doclength_upper_bound,
-					subdb.get_doclength_upper_bound());
+                                        subdb.get_doclength_upper_bound());
     db_unique_terms_lower_bound =
-	min_non_zero(db_unique_terms_lower_bound,
-		     subdb.get_unique_terms_lower_bound());
+        min_non_zero(db_unique_terms_lower_bound,
+                     subdb.get_unique_terms_lower_bound());
     db_unique_terms_upper_bound =
-	std::max(db_unique_terms_upper_bound,
-		 subdb.get_unique_terms_upper_bound());
+        std::max(db_unique_terms_upper_bound,
+                 subdb.get_unique_terms_upper_bound());
 
     Xapian::TermIterator t;
     for (t = query.get_unique_terms_begin(); t != Xapian::TermIterator(); ++t) {
-	const string & term = *t;
+        const string & term = *t;
 
-	Xapian::doccount sub_tf;
-	Xapian::termcount sub_cf;
-	subdb.get_freqs(term, &sub_tf, &sub_cf);
-	TermFreqs & tf = termfreqs[term];
-	tf.termfreq += sub_tf;
-	tf.collfreq += sub_cf;
+        Xapian::doccount sub_tf;
+        Xapian::termcount sub_cf;
+        subdb.get_freqs(term, &sub_tf, &sub_cf);
+        TermFreqs & tf = termfreqs[term];
+        tf.termfreq += sub_tf;
+        tf.collfreq += sub_cf;
     }
 
     if (!rset.internal)
-	return;
+        return;
 
     for (Xapian::docid did : rset.internal->docs) {
-	Assert(did);
-	// The query is likely to contain far fewer terms than the documents,
-	// and we can skip the document's termlist, so look for each query term
-	// in the document.
-	unique_ptr<TermList> tl(subdb.open_term_list(did));
-	for (auto&& i : termfreqs) {
-	    const string& term = i.first;
-	    TermList * ret = tl->skip_to(term);
-	    if (ret != NULL) {
-		// No more entries prune shouldn't happen).
-		Assert(ret == tl.get());
-		break;
-	    }
-	    if (term == tl->get_termname())
-		++i.second.reltermfreq;
-	}
+        Assert(did);
+        // The query is likely to contain far fewer terms than the documents,
+        // and we can skip the document's termlist, so look for each query term
+        // in the document.
+        unique_ptr<TermList> tl(subdb.open_term_list(did));
+        for (auto&& i : termfreqs) {
+            const string& term = i.first;
+            TermList * ret = tl->skip_to(term);
+            if (ret != NULL) {
+                // No more entries prune shouldn't happen).
+                Assert(ret == tl.get());
+                break;
+            }
+            if (term == tl->get_termname())
+                ++i.second.reltermfreq;
+        }
     }
 }
 
@@ -142,8 +142,8 @@ Weight::Internal::merge(const Weight::Internal& o)
 {
     if (!o.have_max_part) return;
     for (auto i : o.termfreqs) {
-	double& max_part = termfreqs[i.first].max_part;
-	max_part = max(max_part, i.second.max_part);
+        double& max_part = termfreqs[i.first].max_part;
+        max_part = max(max_part, i.second.max_part);
     }
 }
 
@@ -164,11 +164,11 @@ Weight::Internal::get_description() const
 #endif
     desc += ", termfreqs={";
     for (auto i = termfreqs.begin(); i != termfreqs.end(); ++i) {
-	if (i != termfreqs.begin())
-	    desc += ", ";
-	desc += i->first;
-	desc += " => ";
-	desc += i->second.get_description();
+        if (i != termfreqs.begin())
+            desc += ", ";
+        desc += i->first;
+        desc += " => ";
+        desc += i->second.get_description();
     }
     desc += "})";
     return desc;

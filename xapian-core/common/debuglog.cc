@@ -52,65 +52,65 @@ DebugLogger::initialise_categories_mask()
     const char* f = getenv("XAPIAN_DEBUG_LOG");
     int flags = 0;
     if (f && *f) {
-	if (f[0] == '-' && f[1] == '\0') {
-	    // Filename "-" means "log to stderr".
-	    fd = 2;
-	} else {
-	    string fnm, pid;
-	    while (*f) {
-		if (*f == '%') {
-		    if (f[1] == 'p') {
-			// Replace %p in the filename with the process id.
-			if (pid.empty()) pid = str(getpid());
-			fnm += pid;
-			f += 2;
-			continue;
-		    } else if (f[1] == '!') {
-			// %! in the filename means we should attempt to ensure
-			// that debug output is written to disk so that none is
-			// lost if we crash.
-			//
-			// We use O_DSYNC in preference if available - updating
-			// the log file's mtime isn't important.
+        if (f[0] == '-' && f[1] == '\0') {
+            // Filename "-" means "log to stderr".
+            fd = 2;
+        } else {
+            string fnm, pid;
+            while (*f) {
+                if (*f == '%') {
+                    if (f[1] == 'p') {
+                        // Replace %p in the filename with the process id.
+                        if (pid.empty()) pid = str(getpid());
+                        fnm += pid;
+                        f += 2;
+                        continue;
+                    } else if (f[1] == '!') {
+                        // %! in the filename means we should attempt to ensure
+                        // that debug output is written to disk so that none is
+                        // lost if we crash.
+                        //
+                        // We use O_DSYNC in preference if available - updating
+                        // the log file's mtime isn't important.
 #if O_DSYNC - 0 != 0
-			flags = O_DSYNC;
+                        flags = O_DSYNC;
 #elif O_SYNC - 0 != 0
-			flags = O_SYNC;
+                        flags = O_SYNC;
 #endif
-			f += 2;
-			continue;
-		    }
-		}
-		fnm += *f++;
-	    }
+                        f += 2;
+                        continue;
+                    }
+                }
+                fnm += *f++;
+            }
 
-	    flags |= O_CREAT|O_WRONLY|O_APPEND|O_CLOEXEC;
-	    fd = open(fnm.c_str(), flags, 0644);
-	    if (fd == -1) {
-		// If we failed to open the log file, report to stderr, but
-		// don't spew all the log output to stderr too or else the
-		// user will probably miss the message about the debug log
-		// failing to open!
-		fd = 2;
-		LOGLINE(ALWAYS, PACKAGE_STRING": Failed to open debug log '"
-			<< fnm << "' (" << errno_to_string(errno) << ')');
-		fd = -2;
-	    }
-	}
+            flags |= O_CREAT|O_WRONLY|O_APPEND|O_CLOEXEC;
+            fd = open(fnm.c_str(), flags, 0644);
+            if (fd == -1) {
+                // If we failed to open the log file, report to stderr, but
+                // don't spew all the log output to stderr too or else the
+                // user will probably miss the message about the debug log
+                // failing to open!
+                fd = 2;
+                LOGLINE(ALWAYS, PACKAGE_STRING": Failed to open debug log '"
+                        << fnm << "' (" << errno_to_string(errno) << ')');
+                fd = -2;
+            }
+        }
 
-	if (fd >= 0) {
-	    const char* v = getenv("XAPIAN_DEBUG_FLAGS");
-	    if (v) {
-		bool toggle = (*v == '-');
-		if (toggle) ++v;
-		categories_mask = 0;
-		while (*v) {
-		    int ch = *v++ - '@';
-		    if (ch > 0 && ch <= 26) categories_mask |= 1ul << ch;
-		}
-		if (toggle) categories_mask ^= 0xffffffff;
-	    }
-	}
+        if (fd >= 0) {
+            const char* v = getenv("XAPIAN_DEBUG_FLAGS");
+            if (v) {
+                bool toggle = (*v == '-');
+                if (toggle) ++v;
+                categories_mask = 0;
+                while (*v) {
+                    int ch = *v++ - '@';
+                    if (ch > 0 && ch <= 26) categories_mask |= 1ul << ch;
+                }
+                if (toggle) categories_mask ^= 0xffffffff;
+            }
+        }
     }
     LOGLINE(ALWAYS, PACKAGE_STRING": debug log started");
 }
@@ -136,22 +136,22 @@ DebugLogger::log_line(debuglog_categories category, const string& msg)
     const char* p = line.data();
     size_t to_do = line.size();
     while (to_do) {
-	ssize_t n = write(fd, p, to_do);
-	if (n < 0) {
-	    // Retry if interrupted by a signal.
-	    if (errno == EINTR) continue;
+        ssize_t n = write(fd, p, to_do);
+        if (n < 0) {
+            // Retry if interrupted by a signal.
+            if (errno == EINTR) continue;
 
-	    // Upon other errors, close the log file, moan to stderr, and stop
-	    // logging.
-	    (void)close(fd);
-	    fd = 2;
-	    LOGLINE(ALWAYS, PACKAGE_STRING": Failed to write log output ("
-		    << errno_to_string(errno) << ')');
-	    fd = -2;
-	    break;
-	}
-	p += n;
-	to_do -= n;
+            // Upon other errors, close the log file, moan to stderr, and stop
+            // logging.
+            (void)close(fd);
+            fd = 2;
+            LOGLINE(ALWAYS, PACKAGE_STRING": Failed to write log output ("
+                    << errno_to_string(errno) << ')');
+            fd = -2;
+            break;
+        }
+        p += n;
+        to_do -= n;
     }
 
     errno = saved_errno;

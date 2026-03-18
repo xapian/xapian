@@ -49,9 +49,9 @@ DatabaseReplicator::open(const string & path)
 #ifdef XAPIAN_HAS_GLASS_BACKEND
     if (file_exists(path + "/iamglass")) {
 # ifdef XAPIAN_HAS_REMOTE_BACKEND
-	return new GlassDatabaseReplicator(path);
+        return new GlassDatabaseReplicator(path);
 # else
-	throw FeatureUnavailableError("Replication disabled");
+        throw FeatureUnavailableError("Replication disabled");
 # endif
     }
 #endif
@@ -59,15 +59,15 @@ DatabaseReplicator::open(const string & path)
     // FIXME: Replication of honey databases.
 
     if (file_exists(path + "/iamchert")) {
-	throw FeatureUnavailableError("Chert backend no longer supported");
+        throw FeatureUnavailableError("Chert backend no longer supported");
     }
 
     if (file_exists(path + "/iamflint")) {
-	throw FeatureUnavailableError("Flint backend no longer supported");
+        throw FeatureUnavailableError("Flint backend no longer supported");
     }
 
     if (file_exists(path + "/iambrass")) {
-	throw FeatureUnavailableError("Brass backend no longer supported");
+        throw FeatureUnavailableError("Brass backend no longer supported");
     }
 
     throw DatabaseOpeningError("Couldn't detect type of database: " + path);

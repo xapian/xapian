@@ -52,10 +52,10 @@ class TestSkip { };
 /// Helper macro.
 #define THROW_TEST_(EXCEPTION, MSG) \
     do { \
-	if (verbose) { \
-	    tout << __FILE__ ":" STRINGIZE(__LINE__) ": " << MSG << '\n'; \
-	} \
-	throw EXCEPTION(); \
+        if (verbose) { \
+            tout << __FILE__ ":" STRINGIZE(__LINE__) ": " << MSG << '\n'; \
+        } \
+        throw EXCEPTION(); \
     } while (0)
 
 /** Fail the current testcase with message MSG.
@@ -111,43 +111,43 @@ class test_driver {
      *  and failed.
      */
     struct result {
-	/// The number of tests which succeeded.
-	unsigned int succeeded = 0;
+        /// The number of tests which succeeded.
+        unsigned int succeeded = 0;
 
-	/// The number of tests which failed.
-	unsigned int failed = 0;
+        /// The number of tests which failed.
+        unsigned int failed = 0;
 
-	/// The number of tests which were skipped.
-	unsigned int skipped = 0;
+        /// The number of tests which were skipped.
+        unsigned int skipped = 0;
 
-	/** Number of tests with result XFAIL.
-	 *
-	 *  I.e. tests which were expected to fail and did.
-	 */
-	unsigned int xfailed = 0;
+        /** Number of tests with result XFAIL.
+         *
+         *  I.e. tests which were expected to fail and did.
+         */
+        unsigned int xfailed = 0;
 
-	/** Number of tests with result XFAIL.
-	 *
-	 *  I.e. tests which were expected to fail but passed.
-	 */
-	unsigned int xpassed = 0;
+        /** Number of tests with result XFAIL.
+         *
+         *  I.e. tests which were expected to fail but passed.
+         */
+        unsigned int xpassed = 0;
 
-	result & operator+=(const result & o) {
-	    succeeded += o.succeeded;
-	    failed += o.failed;
-	    skipped += o.skipped;
-	    xfailed += o.xfailed;
-	    xpassed += o.xpassed;
-	    return *this;
-	}
+        result & operator+=(const result & o) {
+            succeeded += o.succeeded;
+            failed += o.failed;
+            skipped += o.skipped;
+            xfailed += o.xfailed;
+            xpassed += o.xpassed;
+            return *this;
+        }
 
-	void reset() {
-	    succeeded = 0;
-	    failed = 0;
-	    skipped = 0;
-	    xfailed = 0;
-	    xpassed = 0;
-	}
+        void reset() {
+            succeeded = 0;
+            failed = 0;
+            skipped = 0;
+            xfailed = 0;
+            xpassed = 0;
+        }
     };
 
     /** Add a test-specific command line option.
@@ -159,7 +159,7 @@ class test_driver {
      *  And any value set will be put into arg.
      */
     static void add_command_line_option(const std::string &l, char s,
-					std::string * arg);
+                                        std::string * arg);
 
     /** Parse the command line arguments.
      *
@@ -186,7 +186,7 @@ class test_driver {
     /** Run the tests in the list and return the results
      */
     result run_tests(std::vector<std::string>::const_iterator b,
-		     std::vector<std::string>::const_iterator e);
+                     std::vector<std::string>::const_iterator e);
 
     /** Read srcdir from environment and if not present, make a valiant
      *  attempt to guess a value
@@ -208,7 +208,7 @@ class test_driver {
     test_driver & operator=(const test_driver &);
 
     enum test_result {
-	XPASS = 3, XFAIL = 2, PASS = 1, FAIL = 0, SKIP = -1
+        XPASS = 3, XFAIL = 2, PASS = 1, FAIL = 0, SKIP = -1
     };
 
     static std::map<int, std::string *> short_opts;
@@ -233,7 +233,7 @@ class test_driver {
      *               If b == e, all tests will be run.
      */
     result do_run_tests(std::vector<std::string>::const_iterator b,
-			std::vector<std::string>::const_iterator e);
+                        std::vector<std::string>::const_iterator e);
 
     // abort tests at the first failure
     static bool abort_on_error;
@@ -263,10 +263,10 @@ class test_driver {
  *  NB: wrapped in do { ... } while (0) so a trailing ';' works correctly.
  */
 #define TEST_AND_EXPLAIN(a, b) do {\
-	bool test_and_explain_fail_ = !(a);\
-	UNITTEST_CHECK_EXCEPTION\
-	if (test_and_explain_fail_)\
-	    FAIL_TEST(STRINGIZE(a) << '\n' << b << '\n');\
+        bool test_and_explain_fail_ = !(a);\
+        UNITTEST_CHECK_EXCEPTION\
+        if (test_and_explain_fail_)\
+            FAIL_TEST(STRINGIZE(a) << '\n' << b << '\n');\
     } while (0)
 
 /// Test a condition, without an additional explanation for failure.
@@ -274,8 +274,8 @@ class test_driver {
 
 /// Test for equality of two things.
 #define TEST_EQUAL(a, b) TEST_AND_EXPLAIN(((a) == (b)), \
-	"Expected '" STRINGIZE(a) "' and '" STRINGIZE(b) "' to be equal:" \
-	" were " << (a) << " and " << (b))
+        "Expected '" STRINGIZE(a) "' and '" STRINGIZE(b) "' to be equal:" \
+        " were " << (a) << " and " << (b))
 
 /** Test for equality of two strings.
  *
@@ -283,26 +283,26 @@ class test_driver {
  *  be seen clearly.
  */
 #define TEST_STRINGS_EQUAL(a, b) TEST_AND_EXPLAIN(((a) == (b)), \
-	"Expected " STRINGIZE(a) " and " STRINGIZE(b) " to be equal, were:\n\"" \
-	<< (a) << "\"\n\"" << (b) << '"')
+        "Expected " STRINGIZE(a) " and " STRINGIZE(b) " to be equal, were:\n\"" \
+        << (a) << "\"\n\"" << (b) << '"')
 
 /// Helper function for TEST_EQUAL_DOUBLE macro.
 extern bool TEST_EQUAL_DOUBLE_(double a, double b);
 
 /// Test two doubles for near equality.
 #define TEST_EQUAL_DOUBLE(a, b) TEST_AND_EXPLAIN(TEST_EQUAL_DOUBLE_((a), (b)), \
-	"Expected '" STRINGIZE(a) "' and '" STRINGIZE(b) "' to be (nearly) equal:" \
-	" were " << setprecision(DBL_DIG) << (a) << " and " << (b) << ")" << setprecision(6))
+        "Expected '" STRINGIZE(a) "' and '" STRINGIZE(b) "' to be (nearly) equal:" \
+        " were " << setprecision(DBL_DIG) << (a) << " and " << (b) << ")" << setprecision(6))
 
 /// Test two doubles for non-near-equality.
 #define TEST_NOT_EQUAL_DOUBLE(a, b) TEST_AND_EXPLAIN(!TEST_EQUAL_DOUBLE_((a), (b)), \
-	"Expected '" STRINGIZE(a) "' and '" STRINGIZE(b) "' not to be (nearly) equal:" \
-	" were " << setprecision(DBL_DIG) << (a) << " and " << (b) << ")" << setprecision(6))
+        "Expected '" STRINGIZE(a) "' and '" STRINGIZE(b) "' not to be (nearly) equal:" \
+        " were " << setprecision(DBL_DIG) << (a) << " and " << (b) << ")" << setprecision(6))
 
 /// Test for non-equality of two things.
 #define TEST_NOT_EQUAL(a, b) TEST_AND_EXPLAIN(((a) != (b)), \
-	"Expected '" STRINGIZE(a) "' and '" STRINGIZE(b) "' not to be equal:" \
-	" were " << (a) << " and " << (b))
+        "Expected '" STRINGIZE(a) "' and '" STRINGIZE(b) "' not to be equal:" \
+        " were " << (a) << " and " << (b))
 
 // Newer test macros:
 #include "testmacros.h"

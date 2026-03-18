@@ -39,26 +39,26 @@ if {[catch {
 
     set para ""
     while {![eof stdin]} {
-	gets stdin line
-	set line [string trim $line]
-	if {[string equal $line ""] && [string compare $para ""]} {
-	    # We've reached the end of a paragraph, so index it.
-	    xapian::Document doc
-	    doc set_data $para
+        gets stdin line
+        set line [string trim $line]
+        if {[string equal $line ""] && [string compare $para ""]} {
+            # We've reached the end of a paragraph, so index it.
+            xapian::Document doc
+            doc set_data $para
 
-	    indexer set_document doc
-	    indexer index_text $para
+            indexer set_document doc
+            indexer index_text $para
 
-	    # Add the document to the database.
-	    database add_document doc
-	    set para ""
-	} else {
-	    if {[string equal $para ""]} {
-		set para $line
-	    } else {
-		set para "$para $line"
-	    }
-	}
+            # Add the document to the database.
+            database add_document doc
+            set para ""
+        } else {
+            if {[string equal $para ""]} {
+                set para $line
+            } else {
+                set para "$para $line"
+            }
+        }
     }
     # We *must* delete the database so that the destructor gets called so
     # pending changes are committed and the lock file is removed.

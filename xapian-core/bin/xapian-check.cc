@@ -52,57 +52,57 @@ int
 main(int argc, char **argv)
 {
     if (argc > 1 && argv[1][0] == '-') {
-	if (strcmp(argv[1], "--help") == 0) {
-	    cout << PROG_NAME " - " PROG_DESC "\n\n";
-	    show_usage();
-	    exit(0);
-	}
-	if (strcmp(argv[1], "--version") == 0) {
-	    cout << PROG_NAME " - " PACKAGE_STRING "\n";
-	    exit(0);
-	}
+        if (strcmp(argv[1], "--help") == 0) {
+            cout << PROG_NAME " - " PROG_DESC "\n\n";
+            show_usage();
+            exit(0);
+        }
+        if (strcmp(argv[1], "--version") == 0) {
+            cout << PROG_NAME " - " PACKAGE_STRING "\n";
+            exit(0);
+        }
     }
     if (argc < 2 || argc > 3) {
-	show_usage();
-	exit(1);
+        show_usage();
+        exit(1);
     }
 
     int opts = 0;
     const char * opt_string = argv[2];
     if (!opt_string) opt_string = "v";
     for (const char *p = opt_string; *p; ++p) {
-	switch (*p) {
-	    case 't': opts |= Xapian::DBCHECK_SHORT_TREE; break;
-	    case 'f': opts |= Xapian::DBCHECK_FULL_TREE; break;
-	    case 'b': opts |= Xapian::DBCHECK_SHOW_FREELIST; break;
-	    case 'v': opts |= Xapian::DBCHECK_SHOW_STATS; break;
-	    case '+':
-		opts |= Xapian::DBCHECK_SHORT_TREE;
-		opts |= Xapian::DBCHECK_SHOW_FREELIST;
-		opts |= Xapian::DBCHECK_SHOW_STATS;
-		break;
-	    case 'F':
-		opts |= Xapian::DBCHECK_FIX;
-		break;
-	    default:
-		cerr << "option " << opt_string << " unknown\n";
-		cerr << "use t,f,b,v and/or + in the option string\n";
-		exit(1);
-	}
+        switch (*p) {
+            case 't': opts |= Xapian::DBCHECK_SHORT_TREE; break;
+            case 'f': opts |= Xapian::DBCHECK_FULL_TREE; break;
+            case 'b': opts |= Xapian::DBCHECK_SHOW_FREELIST; break;
+            case 'v': opts |= Xapian::DBCHECK_SHOW_STATS; break;
+            case '+':
+                opts |= Xapian::DBCHECK_SHORT_TREE;
+                opts |= Xapian::DBCHECK_SHOW_FREELIST;
+                opts |= Xapian::DBCHECK_SHOW_STATS;
+                break;
+            case 'F':
+                opts |= Xapian::DBCHECK_FIX;
+                break;
+            default:
+                cerr << "option " << opt_string << " unknown\n";
+                cerr << "use t,f,b,v and/or + in the option string\n";
+                exit(1);
+        }
     }
 
     try {
-	size_t errors = Xapian::Database::check(argv[1], opts, &cout);
-	if (errors > 0) {
-	    cout << "Total errors found: " << errors << '\n';
-	    exit(1);
-	}
-	cout << "No errors found\n";
+        size_t errors = Xapian::Database::check(argv[1], opts, &cout);
+        if (errors > 0) {
+            cout << "Total errors found: " << errors << '\n';
+            exit(1);
+        }
+        cout << "No errors found\n";
     } catch (const Xapian::Error &error) {
-	cerr << argv[0] << ": " << error.get_description() << '\n';
-	exit(1);
+        cerr << argv[0] << ": " << error.get_description() << '\n';
+        exit(1);
     } catch (...) {
-	cerr << argv[0] << ": Unknown exception\n";
-	exit(1);
+        cerr << argv[0] << ": Unknown exception\n";
+        exit(1);
     }
 }

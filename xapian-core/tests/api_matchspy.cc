@@ -45,10 +45,10 @@ class SimpleMatchSpy : public Xapian::MatchSpy {
     std::vector<std::string> seen;
 
     void operator()(const Xapian::Document& doc, double) override {
-	// Note that this is not recommended usage of get_data() - you
-	// generally shouldn't call get_data() from inside a MatchSpy, because
-	// it is (likely to be) a slow operation resulting in considerable IO.
-	seen.push_back(doc.get_data());
+        // Note that this is not recommended usage of get_data() - you
+        // generally shouldn't call get_data() from inside a MatchSpy, because
+        // it is (likely to be) a slow operation resulting in considerable IO.
+        seen.push_back(doc.get_data());
     }
 };
 
@@ -80,8 +80,8 @@ DEFINE_TESTCASE(matchspy1, backend && !remote) {
 
     std::vector<std::string> seen2;
     for ( ; i != spymset.end(); ++i) {
-	const Xapian::Document doc(i.get_document());
-	seen2.push_back(doc.get_data());
+        const Xapian::Document doc(i.get_document());
+        seen2.push_back(doc.get_data());
     }
     std::sort(seen2.begin(), seen2.end());
 
@@ -89,19 +89,19 @@ DEFINE_TESTCASE(matchspy1, backend && !remote) {
     std::vector<std::string>::const_iterator j = myspy.seen.begin();
     std::vector<std::string>::const_iterator j2 = seen2.begin();
     for (; j != myspy.seen.end(); ++j, ++j2) {
-	TEST_EQUAL(*j, *j2);
+        TEST_EQUAL(*j, *j2);
     }
 }
 
 static string values_to_repr(const Xapian::ValueCountMatchSpy & spy) {
     string resultrepr("|");
     for (Xapian::TermIterator i = spy.values_begin();
-	 i != spy.values_end();
-	 ++i) {
-	resultrepr += *i;
-	resultrepr += ':';
-	resultrepr += str(i.get_termfreq());
-	resultrepr += '|';
+         i != spy.values_end();
+         ++i) {
+        resultrepr += *i;
+        resultrepr += ':';
+        resultrepr += str(i.get_termfreq());
+        resultrepr += '|';
     }
     return resultrepr;
 }
@@ -110,27 +110,27 @@ static void
 make_matchspy2_db(Xapian::WritableDatabase &db, const string &)
 {
     for (int c = 1; c <= 25; ++c) {
-	Xapian::Document doc;
-	doc.set_data("Document " + str(c));
-	int factors = 0;
-	for (int factor = 1; factor <= c; ++factor) {
-	    doc.add_term("all");
-	    if (c % factor == 0) {
-		doc.add_term("XFACT" + str(factor));
-		++factors;
-	    }
-	}
+        Xapian::Document doc;
+        doc.set_data("Document " + str(c));
+        int factors = 0;
+        for (int factor = 1; factor <= c; ++factor) {
+            doc.add_term("all");
+            if (c % factor == 0) {
+                doc.add_term("XFACT" + str(factor));
+                ++factors;
+            }
+        }
 
-	// Number of factors.
-	doc.add_value(0, str(factors));
-	// Units digits.
-	doc.add_value(1, str(c % 10));
-	// Constant.
-	doc.add_value(2, "fish");
-	// Number of digits.
-	doc.add_value(3, str(str(c).size()));
+        // Number of factors.
+        doc.add_value(0, str(factors));
+        // Units digits.
+        doc.add_value(1, str(c % 10));
+        // Constant.
+        doc.add_value(2, "fish");
+        // Number of digits.
+        doc.add_value(3, str(str(c).size()));
 
-	db.add_document(doc);
+        db.add_document(doc);
     }
 }
 
@@ -146,9 +146,9 @@ DEFINE_TESTCASE(matchspy2, backend)
 
     enq.set_query(Xapian::Query("all"));
     if (db.size() > 1) {
-	// Without this, we short-cut on the second shard because we don't get
-	// the documents in ascending weight order.
-	enq.set_weighting_scheme(Xapian::CoordWeight());
+        // Without this, we short-cut on the second shard because we don't get
+        // the documents in ascending weight order.
+        enq.set_weighting_scheme(Xapian::CoordWeight());
     }
 
     enq.add_matchspy(&spy0);
@@ -161,9 +161,9 @@ DEFINE_TESTCASE(matchspy2, backend)
     TEST_EQUAL(spy3.get_total(), 25);
 
     static const char * const results[] = {
-	"|1:1|2:9|3:3|4:7|5:1|6:3|8:1|",
-	"|0:2|1:3|2:3|3:3|4:3|5:3|6:2|7:2|8:2|9:2|",
-	"|1:9|2:16|",
+        "|1:1|2:9|3:3|4:7|5:1|6:3|8:1|",
+        "|0:2|1:3|2:3|3:3|4:3|5:3|6:2|7:2|8:2|9:2|",
+        "|1:9|2:16|",
     };
     TEST_STRINGS_EQUAL(values_to_repr(spy0), results[0]);
     TEST_STRINGS_EQUAL(values_to_repr(spy1), results[1]);
@@ -189,9 +189,9 @@ DEFINE_TESTCASE(matchspy4, backend)
 
     enqa.set_query(Xapian::Query("all"));
     if (db.size() > 1) {
-	// Without this, we short-cut on the second shard because we don't get
-	// the documents in ascending weight order.
-	enqa.set_weighting_scheme(Xapian::CoordWeight());
+        // Without this, we short-cut on the second shard because we don't get
+        // the documents in ascending weight order.
+        enqa.set_weighting_scheme(Xapian::CoordWeight());
     }
     enqb.set_query(Xapian::Query("all"));
 
@@ -214,15 +214,15 @@ DEFINE_TESTCASE(matchspy4, backend)
     TEST_EQUAL(spyb3.get_total(), 25);
 
     static const char * const results[] = {
-	"|2:9|4:7|3:3|6:3|1:1|5:1|8:1|",
-	"|1:3|2:3|3:3|4:3|5:3|0:2|6:2|7:2|8:2|9:2|",
-	"|",
-	"|2:16|1:9|",
-	"|2:9|4:7|3:3|6:3|1:1|5:1|8:1|",
-	"|1:3|2:3|3:3|4:3|5:3|0:2|6:2|7:2|8:2|9:2|",
-	"|",
-	"|2:16|1:9|",
-	NULL
+        "|2:9|4:7|3:3|6:3|1:1|5:1|8:1|",
+        "|1:3|2:3|3:3|4:3|5:3|0:2|6:2|7:2|8:2|9:2|",
+        "|",
+        "|2:16|1:9|",
+        "|2:9|4:7|3:3|6:3|1:1|5:1|8:1|",
+        "|1:3|2:3|3:3|4:3|5:3|0:2|6:2|7:2|8:2|9:2|",
+        "|",
+        "|2:16|1:9|",
+        NULL
     };
     std::vector<Xapian::ValueCountMatchSpy *> spies;
     spies.push_back(&spya0);
@@ -234,35 +234,35 @@ DEFINE_TESTCASE(matchspy4, backend)
     spies.push_back(NULL);
     spies.push_back(&spyb3);
     for (Xapian::valueno v = 0; results[v]; ++v) {
-	tout << "value " << v << '\n';
-	Xapian::ValueCountMatchSpy * spy = spies[v];
-	string allvals_str("|");
-	if (spy != NULL) {
-	    size_t allvals_size = 0;
-	    for (Xapian::TermIterator i = spy->top_values_begin(100);
-		 i != spy->top_values_end(100);
-		 ++i, ++allvals_size) {
-		allvals_str += *i;
-		allvals_str += ':';
-		allvals_str += str(i.get_termfreq());
-		allvals_str += '|';
-	    }
-	    tout << allvals_str << '\n';
-	    TEST_STRINGS_EQUAL(allvals_str, results[v]);
+        tout << "value " << v << '\n';
+        Xapian::ValueCountMatchSpy * spy = spies[v];
+        string allvals_str("|");
+        if (spy != NULL) {
+            size_t allvals_size = 0;
+            for (Xapian::TermIterator i = spy->top_values_begin(100);
+                 i != spy->top_values_end(100);
+                 ++i, ++allvals_size) {
+                allvals_str += *i;
+                allvals_str += ':';
+                allvals_str += str(i.get_termfreq());
+                allvals_str += '|';
+            }
+            tout << allvals_str << '\n';
+            TEST_STRINGS_EQUAL(allvals_str, results[v]);
 
-	    for (size_t count = 0; count < allvals_size; ++count) {
-		tout << "count " << count << '\n';
-		for (Xapian::TermIterator i = spy->top_values_begin(100),
-		     j = spy->top_values_begin(count);
-		     i != spy->top_values_end(100) &&
-		     j != spy->top_values_end(count);
-		     ++i, ++j) {
-		    tout << "j " << j << '\n';
-		    TEST_EQUAL(*i, *j);
-		    TEST_EQUAL(i.get_termfreq(), j.get_termfreq());
-		}
-	    }
-	}
+            for (size_t count = 0; count < allvals_size; ++count) {
+                tout << "count " << count << '\n';
+                for (Xapian::TermIterator i = spy->top_values_begin(100),
+                     j = spy->top_values_begin(count);
+                     i != spy->top_values_end(100) &&
+                     j != spy->top_values_end(count);
+                     ++i, ++j) {
+                    tout << "j " << j << '\n';
+                    TEST_EQUAL(*i, *j);
+                    TEST_EQUAL(i.get_termfreq(), j.get_termfreq());
+                }
+            }
+        }
     }
 }
 
@@ -318,10 +318,10 @@ DEFINE_TESTCASE(matchspy6, !backend)
     TEST_EXCEPTION(Xapian::UnimplementedError, spy.name());
     TEST_EXCEPTION(Xapian::UnimplementedError, spy.serialise());
     TEST_EXCEPTION(Xapian::UnimplementedError,
-		   spy.unserialise(std::string(), Xapian::Registry()));
+                   spy.unserialise(std::string(), Xapian::Registry()));
     TEST_EXCEPTION(Xapian::UnimplementedError, spy.serialise_results());
     TEST_EXCEPTION(Xapian::UnimplementedError,
-		   spy.merge_results(std::string()));
+                   spy.merge_results(std::string()));
     TEST_EQUAL(spy.get_description(), "Xapian::MatchSpy()");
 }
 

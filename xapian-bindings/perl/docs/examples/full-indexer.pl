@@ -43,8 +43,8 @@ my ($database, $indexer);
 eval {
     # Open the database for writing.  If it doesn't exist, create it.
     $database = Xapian::WritableDatabase->new(
-	    $ARGV[0],
-	    DB_CREATE_OR_OPEN);
+            $ARGV[0],
+            DB_CREATE_OR_OPEN);
 
     # Set up a TermGenerator to index text stemmed with the "english" stemmer.
     $indexer = Xapian::TermGenerator->new();
@@ -88,58 +88,58 @@ sub index_document {
     my ($doc_name, $author, $keywords, $doc_number, $date, $type) = @_;
 
     eval {
-	my $doc = Xapian::Document->new();
-	$indexer->set_document($doc);
+        my $doc = Xapian::Document->new();
+        $indexer->set_document($doc);
 
-	# Set the document data to the doc_name so we can show it for matches.
-	$doc->set_data($doc_name);
+        # Set the document data to the doc_name so we can show it for matches.
+        $doc->set_data($doc_name);
 
-	# Index the author to allow fielded free-text searching.
-	$indexer->index_text($author, 1, "A");
+        # Index the author to allow fielded free-text searching.
+        $indexer->index_text($author, 1, "A");
 
-	# Index the title to allow fielded free-text searching.
-	$indexer->index_text($doc_name, 1, "S");
+        # Index the title to allow fielded free-text searching.
+        $indexer->index_text($doc_name, 1, "S");
 
-	# Index the title without a prefix too.
-	$indexer->index_text($doc_name);
+        # Index the title without a prefix too.
+        $indexer->index_text($doc_name);
 
-	# Increase the term position so that phrases can't straddle the
-	# doc_name and keywords.
-	$indexer->increase_termpos();
+        # Increase the term position so that phrases can't straddle the
+        # doc_name and keywords.
+        $indexer->increase_termpos();
 
-	# Index the keywords as free-text.
-	$indexer->index_text($keywords);
+        # Index the keywords as free-text.
+        $indexer->index_text($keywords);
 
-	# Unique ID.
-	$doc->add_term("Q" . $doc_number);
+        # Unique ID.
+        $doc->add_term("Q" . $doc_number);
 
-	# To allow boolean filtering by type.
-	$doc->add_term("XTYPE" . lc $type);
+        # To allow boolean filtering by type.
+        $doc->add_term("XTYPE" . lc $type);
 
-	# To allow date range searching and sorting by date.
-	if ($date =~ /^(\d{4})-(\d\d)-(\d\d)$/) {
-	    # DateRangeProcessor wants values in the form "YYYYMMDD".
-	    $doc->add_value($SLOT_DATE, "$1$2$3");
-	}
+        # To allow date range searching and sorting by date.
+        if ($date =~ /^(\d{4})-(\d\d)-(\d\d)$/) {
+            # DateRangeProcessor wants values in the form "YYYYMMDD".
+            $doc->add_value($SLOT_DATE, "$1$2$3");
+        }
 
-	# To allow sorting by document number.
-	$doc->add_value($SLOT_DOCNUM, $doc_number);
+        # To allow sorting by document number.
+        $doc->add_value($SLOT_DOCNUM, $doc_number);
 
-	# To allow sorting by document type.
-	$doc->add_value($SLOT_TYPE, lc $type);
+        # To allow sorting by document type.
+        $doc->add_value($SLOT_TYPE, lc $type);
 
-	# To allow sorting by author.
-	$doc->add_value($SLOT_AUTHOR, $author);
+        # To allow sorting by author.
+        $doc->add_value($SLOT_AUTHOR, $author);
 
-	# To allow sorting by title..
-	$doc->add_value($SLOT_TITLE, $doc_name);
+        # To allow sorting by title..
+        $doc->add_value($SLOT_TITLE, $doc_name);
 
-	# Add the document to the database.
-	$database->add_document($doc);
+        # Add the document to the database.
+        $database->add_document($doc);
     };
     if ($@) {
-	# Report the exception which we've caught.
-	print STDERR "Exception: $@\n";
-	exit 1;
+        # Report the exception which we've caught.
+        print STDERR "Exception: $@\n";
+        exit 1;
     }
 }

@@ -54,11 +54,11 @@ main(int argc, char **argv)
 try {
     const char * opts = "d:m";
     static const struct option long_opts[] = {
-	{ "db",		required_argument, 0, 'd' },
-	{ "msize",	required_argument, 0, 'm' },
-	{ "help",	no_argument, 0, OPT_HELP },
-	{ "version",	no_argument, 0, OPT_VERSION },
-	{ NULL,		0, 0, 0}
+        { "db",		required_argument, 0, 'd' },
+        { "msize",	required_argument, 0, 'm' },
+        { "help",	no_argument, 0, OPT_HELP },
+        { "version",	no_argument, 0, OPT_VERSION },
+        { NULL,		0, 0, 0}
     };
 
     Xapian::doccount msize = 10;
@@ -69,34 +69,34 @@ try {
 
     int c;
     while ((c = gnu_getopt_long(argc, argv, opts, long_opts, 0)) != -1) {
-	switch (c) {
-	    case 'd':
-		db_path = optarg;
-		have_database = true;
-		break;
-	    case 'm':
-		if (!parse_unsigned(optarg, msize)) {
-		    cerr << "Mset size must be >= 0\n";
-		    exit(1);
-		}
-		break;
-	    case OPT_HELP:
-		cout << PROG_NAME " - " PROG_DESC "\n\n";
-		show_usage();
-		exit(0);
-	    case OPT_VERSION:
-		cout << PROG_NAME " - " PACKAGE_STRING "\n";
-		exit(0);
-	    case ':': // missing parameter
-	    case '?': // unknown option
-		show_usage();
-		exit(1);
-	}
+        switch (c) {
+            case 'd':
+                db_path = optarg;
+                have_database = true;
+                break;
+            case 'm':
+                if (!parse_unsigned(optarg, msize)) {
+                    cerr << "Mset size must be >= 0\n";
+                    exit(1);
+                }
+                break;
+            case OPT_HELP:
+                cout << PROG_NAME " - " PROG_DESC "\n\n";
+                show_usage();
+                exit(0);
+            case OPT_VERSION:
+                cout << PROG_NAME " - " PACKAGE_STRING "\n";
+                exit(0);
+            case ':': // missing parameter
+            case '?': // unknown option
+                show_usage();
+                exit(1);
+        }
     }
 
     if (argc - optind != 3) {
-	show_usage();
-	exit(1);
+        show_usage();
+        exit(1);
     }
 
     string queryfile = argv[optind];
@@ -104,8 +104,8 @@ try {
     string trainingfile = argv[optind + 2];
 
     if (!have_database) {
-	cout << "No database specified so not running the query.\n";
-	exit(0);
+        cout << "No database specified so not running the query.\n";
+        exit(0);
     }
 
     // Prepare the training file.

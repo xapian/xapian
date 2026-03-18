@@ -46,47 +46,47 @@ class HoneyPostListTable : public HoneyTable {
      *  @param readonly	    true if we're opening read-only, else false.
      */
     HoneyPostListTable(const std::string& dbdir, bool readonly)
-	: HoneyTable("postlist", dbdir + "/postlist.", readonly) { }
+        : HoneyTable("postlist", dbdir + "/postlist.", readonly) { }
 
     HoneyPostListTable(int fd, off_t offset_, bool readonly)
-	: HoneyTable("postlist", fd, offset_, readonly) { }
+        : HoneyTable("postlist", fd, offset_, readonly) { }
 
     bool term_exists(std::string_view term) const {
-	return key_exists(pack_honey_postlist_key(term));
+        return key_exists(pack_honey_postlist_key(term));
     }
 
     HoneyPostList* open_post_list(const HoneyDatabase* db,
-				  std::string_view term,
-				  bool need_read_pos) const;
+                                  std::string_view term,
+                                  bool need_read_pos) const;
 
     void get_freqs(std::string_view term,
-		   Xapian::doccount* termfreq_ptr,
-		   Xapian::termcount* collfreq_ptr) const;
+                   Xapian::doccount* termfreq_ptr,
+                   Xapian::termcount* collfreq_ptr) const;
 
     void get_used_docid_range(Xapian::doccount doccount,
-			      Xapian::docid& first,
-			      Xapian::docid& last) const;
+                              Xapian::docid& first,
+                              Xapian::docid& last) const;
 
     Xapian::termcount get_wdf_upper_bound(std::string_view term) const;
 
     std::string get_metadata(std::string_view key) const {
-	using namespace std::string_literals;
-	std::string value;
-	(void)get_exact_entry("\0\0"s.append(key), value);
-	return value;
+        using namespace std::string_literals;
+        std::string value;
+        (void)get_exact_entry("\0\0"s.append(key), value);
+        return value;
     }
 
     void merge_doclen_changes(const std::map<Xapian::docid,
-			      Xapian::termcount>& changes) {
-	// Honey doesn't support update currently.
-	(void)changes;
+                              Xapian::termcount>& changes) {
+        // Honey doesn't support update currently.
+        (void)changes;
     }
 
     void merge_changes(const std::string& term,
-		       const HoneyInverter::PostingChanges& changes) {
-	// Honey doesn't support update currently.
-	(void)term;
-	(void)changes;
+                       const HoneyInverter::PostingChanges& changes) {
+        // Honey doesn't support update currently.
+        (void)term;
+        (void)changes;
     }
 };
 

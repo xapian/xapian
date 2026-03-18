@@ -46,24 +46,24 @@ for my $cc_source (@ARGV) {
     my $ignore = 0;
     my @if_stack;
     while (<SRC>) {
-	if (!$ignore && /^DEFINE_TESTCASE\((.*?),\s*(.*)\)/) {
-	    my ($test_func, $cond) = ($1, $2);
-	    $cond =~ s/\s+//g;
-	    push @{$by_cond{$cond}}, $test_func;
-	    print HDR "extern void test_$test_func();\n";
-	}
+        if (!$ignore && /^DEFINE_TESTCASE\((.*?),\s*(.*)\)/) {
+            my ($test_func, $cond) = ($1, $2);
+            $cond =~ s/\s+//g;
+            push @{$by_cond{$cond}}, $test_func;
+            print HDR "extern void test_$test_func();\n";
+        }
         if (s/^#\s*//) {
-	    s!/\*.*?\*/! !g;
-	    s!//.*!!;
-	    if (/^if\s*0\s*$/) {
-		push @if_stack, $ignore;
-	        $ignore = 1;
-	    } elsif (/^if/) {
-		push @if_stack, $ignore;
-	    } elsif (/^endif/) {
-		$ignore = pop @if_stack;
-	    }
-	}
+            s!/\*.*?\*/! !g;
+            s!//.*!!;
+            if (/^if\s*0\s*$/) {
+                push @if_stack, $ignore;
+                $ignore = 1;
+            } elsif (/^if/) {
+                push @if_stack, $ignore;
+            } elsif (/^endif/) {
+                $ignore = pop @if_stack;
+            }
+        }
     }
     close SRC;
     close HDR or die $!;
@@ -71,27 +71,27 @@ for my $cc_source (@ARGV) {
 }
 
 foreach my $cond (sort keys %by_cond) {
-#	my $name = $cond;
-#	$name =~ s/\&\&/_and_/g;
-#	$name =~ s/\|\|/_or_/g;
-#	$name =~ s/\!/not_/g;
-#	$name =~ s/\(/bra_/g;
-#	$name =~ s/\)/_ket/g;
+#   my $name = $cond;
+#   $name =~ s/\&\&/_and_/g;
+#   $name =~ s/\|\|/_or_/g;
+#   $name =~ s/\!/not_/g;
+#   $name =~ s/\(/bra_/g;
+#   $name =~ s/\)/_ket/g;
     my $c_cond = $cond;
     $c_cond =~ s/\b([a-z]+)\b/(properties&\U$1\E)/g;
     print COLLATED_HDR <<END;
     if ($c_cond) {
-	static const test_desc tests[] = {
+        static const test_desc tests[] = {
 END
     for (@{$by_cond{$cond}}) {
-	print COLLATED_HDR <<END;
-	    { \"$_\", test_$_ },
+        print COLLATED_HDR <<END;
+            { \"$_\", test_$_ },
 END
     }
     print COLLATED_HDR <<END;
-	    { 0, 0 }
-	};
-	result = max(result, test_driver::run(tests));
+            { 0, 0 }
+        };
+        result = max(result, test_driver::run(tests));
     }
 END
 }
@@ -108,22 +108,22 @@ sub update_if_required {
     my $file = shift;
     my $current_size = -s $file;
     if (defined $current_size && $current_size == -s "$file.tmp") {
-	open OLD, "<$file" or die $!;
-	open NEW, "<$file.tmp" or die $!;
-	my $different = 0;
-	while (<OLD>) {
-	    my $new = <NEW>;
-	    if ($_ ne $new) {
-		$different = 1;
-		last;
-	    }
-	}
-	close OLD;
-	close NEW;
-	if (! $different) {
-	    unlink "$file.tmp";
-	    return;
-	}
+        open OLD, "<$file" or die $!;
+        open NEW, "<$file.tmp" or die $!;
+        my $different = 0;
+        while (<OLD>) {
+            my $new = <NEW>;
+            if ($_ ne $new) {
+                $different = 1;
+                last;
+            }
+        }
+        close OLD;
+        close NEW;
+        if (! $different) {
+            unlink "$file.tmp";
+            return;
+        }
     }
 different:
     unlink $file if $^O eq 'MSWin32' && defined $current_size;

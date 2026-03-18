@@ -37,7 +37,7 @@ class EmptyDatabase : public Xapian::Database::Internal {
     PostList* open_post_list(std::string_view term) const;
 
     LeafPostList* open_leaf_post_list(std::string_view term,
-				      bool need_read_pos) const;
+                                      bool need_read_pos) const;
 
     TermList* open_term_list(Xapian::docid did) const;
 
@@ -48,7 +48,7 @@ class EmptyDatabase : public Xapian::Database::Internal {
     bool has_positions() const;
 
     PositionList* open_position_list(Xapian::docid did,
-				     std::string_view term) const;
+                                     std::string_view term) const;
     Xapian::doccount get_doccount() const;
 
     Xapian::docid get_lastdocid() const;
@@ -56,8 +56,8 @@ class EmptyDatabase : public Xapian::Database::Internal {
     Xapian::totallength get_total_length() const;
 
     void get_freqs(std::string_view term,
-		   Xapian::doccount* tf_ptr,
-		   Xapian::termcount* cf_ptr) const;
+                   Xapian::doccount* tf_ptr,
+                   Xapian::termcount* cf_ptr) const;
 
     Xapian::doccount get_value_freq(Xapian::valueno slot) const;
 
@@ -80,7 +80,7 @@ class EmptyDatabase : public Xapian::Database::Internal {
     Xapian::termcount get_wdfdocmax(Xapian::docid did) const;
 
     Xapian::Document::Internal* open_document(Xapian::docid did,
-					      bool lazy) const;
+                                              bool lazy) const;
 
     bool term_exists(std::string_view term) const;
 
@@ -99,9 +99,9 @@ class EmptyDatabase : public Xapian::Database::Internal {
     TermList* open_metadata_keylist(std::string_view prefix) const;
 
     void write_changesets_to_fd(int fd,
-				std::string_view start_revision,
-				bool need_whole_db,
-				Xapian::ReplicationInfo* info);
+                                std::string_view start_revision,
+                                bool need_whole_db,
+                                Xapian::ReplicationInfo* info);
 
     void invalidate_doc_object(Xapian::Document::Internal* obj) const;
 
@@ -130,17 +130,17 @@ class EmptyDatabase : public Xapian::Database::Internal {
     void replace_document(Xapian::docid did, const Xapian::Document& doc);
 
     Xapian::docid replace_document(std::string_view term,
-				   const Xapian::Document& doc);
+                                   const Xapian::Document& doc);
 
     void add_spelling(std::string_view word, Xapian::termcount freqinc) const;
 
     Xapian::termcount remove_spelling(std::string_view word,
-				      Xapian::termcount freqdec) const;
+                                      Xapian::termcount freqdec) const;
 
     void add_synonym(std::string_view term, std::string_view synonym) const;
 
     void remove_synonym(std::string_view term,
-			std::string_view synonym) const;
+                        std::string_view synonym) const;
 
     void clear_synonyms(std::string_view term) const;
 

@@ -69,16 +69,16 @@ class QueryOptimiser {
     PostListTree * matcher;
 
     QueryOptimiser(const Xapian::Database::Internal & db_,
-		   LocalSubMatch & localsubmatch_,
-		   PostListTree * matcher_,
-		   Xapian::doccount shard_index_)
-	: localsubmatch(localsubmatch_),
-	  shard_index(shard_index_),
-	  db(db_), db_size(db.get_doccount()),
-	  matcher(matcher_) { }
+                   LocalSubMatch & localsubmatch_,
+                   PostListTree * matcher_,
+                   Xapian::doccount shard_index_)
+        : localsubmatch(localsubmatch_),
+          shard_index(shard_index_),
+          db(db_), db_size(db.get_doccount()),
+          matcher(matcher_) { }
 
     ~QueryOptimiser() {
-	if (hint_owned) delete hint;
+        if (hint_owned) delete hint;
     }
 
     void inc_total_subqs() { ++total_subqs; }
@@ -100,21 +100,21 @@ class QueryOptimiser {
      */
     PostListAndEstimate
     open_post_list(const std::string& term,
-		   Xapian::termcount wqf,
-		   double factor,
-		   TermFreqs* termfreqs) {
-	return localsubmatch.open_post_list(term, wqf, factor, need_positions,
-					    compound_weight, this, false,
-					    termfreqs);
+                   Xapian::termcount wqf,
+                   double factor,
+                   TermFreqs* termfreqs) {
+        return localsubmatch.open_post_list(term, wqf, factor, need_positions,
+                                            compound_weight, this, false,
+                                            termfreqs);
     }
 
     PostListAndEstimate
     open_lazy_post_list(const std::string& term,
-			Xapian::termcount wqf,
-			double factor) {
-	return localsubmatch.open_post_list(term, wqf, factor, need_positions,
-					    compound_weight, this, true,
-					    NULL);
+                        Xapian::termcount wqf,
+                        double factor) {
+        return localsubmatch.open_post_list(term, wqf, factor, need_positions,
+                                            compound_weight, this, true,
+                                            NULL);
     }
 
     /** Register a lazily-created LeafPostList for stats.
@@ -126,8 +126,8 @@ class QueryOptimiser {
      *		is used to estimate TermFreqs for an OP_SYNONYM.
      */
     void register_lazy_postlist_for_stats(LeafPostList* pl,
-					  TermFreqs* termfreqs) {
-	localsubmatch.register_lazy_postlist_for_stats(pl, termfreqs);
+                                          TermFreqs* termfreqs) {
+        localsubmatch.register_lazy_postlist_for_stats(pl, termfreqs);
     }
 
     /** Create a SynonymPostList object.
@@ -137,47 +137,47 @@ class QueryOptimiser {
      *  @param termfreqs    Estimated TermFreqs for @a or_pl.
      */
     PostListAndEstimate make_synonym_postlist(PostListAndEstimate or_pl,
-					      double factor,
-					      const TermFreqs& termfreqs) {
-	return localsubmatch.make_synonym_postlist(matcher, std::move(or_pl),
-						   factor, termfreqs);
+                                              double factor,
+                                              const TermFreqs& termfreqs) {
+        return localsubmatch.make_synonym_postlist(matcher, std::move(or_pl),
+                                                   factor, termfreqs);
     }
 
     const LeafPostList * get_hint_postlist() const { return hint; }
 
     void set_hint_postlist(LeafPostList * new_hint) {
-	if (hint_owned) {
-	    hint_owned = false;
-	    delete hint;
-	}
-	hint = new_hint;
+        if (hint_owned) {
+            hint_owned = false;
+            delete hint;
+        }
+        hint = new_hint;
     }
 
     void own_hint_postlist() { hint_owned = true; }
 
     void destroy_postlist(PostList* pl) {
-	if (!pl) return;
-	if (pl == static_cast<PostList*>(hint)) {
-	    hint_owned = true;
-	} else {
-	    if (!hint_owned) {
-		// The hint could be a subpostlist of pl, but we can't easily
-		// tell so we have to do the safe thing and reset it.
-		//
-		// This isn't ideal, but it's much better than use-after-free
-		// bugs.
-		hint = nullptr;
-	    }
-	    delete pl;
-	}
+        if (!pl) return;
+        if (pl == static_cast<PostList*>(hint)) {
+            hint_owned = true;
+        } else {
+            if (!hint_owned) {
+                // The hint could be a subpostlist of pl, but we can't easily
+                // tell so we have to do the safe thing and reset it.
+                //
+                // This isn't ideal, but it's much better than use-after-free
+                // bugs.
+                hint = nullptr;
+            }
+            delete pl;
+        }
     }
 
     bool need_wdf_for_compound_weight() const {
-	return compound_weight && !localsubmatch.weight_needs_wdf();
+        return compound_weight && !localsubmatch.weight_needs_wdf();
     }
 
     const Xapian::Weight::Internal* get_stats() const {
-	return localsubmatch.get_stats();
+        return localsubmatch.get_stats();
     }
 };
 

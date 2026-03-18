@@ -36,9 +36,9 @@ class Document;
 class GlassTermListTable : public GlassTable {
   public:
     static std::string make_key(Xapian::docid did) {
-	std::string key;
-	pack_uint_preserving_sort(key, did);
-	return key;
+        std::string key;
+        pack_uint_preserving_sort(key, did);
+        return key;
     }
 
     /** Create a new GlassTermListTable object.
@@ -51,10 +51,10 @@ class GlassTermListTable : public GlassTable {
      *  @param lazy_	    Don't create a termlist if there isn't one.
      */
     GlassTermListTable(const std::string & dbdir, bool readonly, bool lazy_)
-	: GlassTable("termlist", dbdir + "/termlist.", readonly, lazy_) { }
+        : GlassTable("termlist", dbdir + "/termlist.", readonly, lazy_) { }
 
     GlassTermListTable(int fd, off_t offset_, bool readonly, bool lazy_)
-	: GlassTable("termlist", fd, offset_, readonly, lazy_) { }
+        : GlassTable("termlist", fd, offset_, readonly, lazy_) { }
 
     /** Set the termlist data for document @a did.
      *
@@ -65,7 +65,7 @@ class GlassTermListTable : public GlassTable {
      *  @param doclen	The document length.
      */
     void set_termlist(Xapian::docid did, const Xapian::Document & doc,
-		      Xapian::termcount doclen);
+                      Xapian::termcount doclen);
 
     /** Delete the termlist data for document @a did.
      *

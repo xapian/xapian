@@ -56,10 +56,10 @@ bool
 io_unlink(const std::string & filename)
 {
     if (posixy_unlink(filename.c_str()) == 0) {
-	return true;
+        return true;
     }
     if (errno != ENOENT) {
-	throw Xapian::DatabaseError(filename + ": delete failed", errno);
+        throw Xapian::DatabaseError(filename + ": delete failed", errno);
     }
     return false;
 }
@@ -83,10 +83,10 @@ move_to_higher_fd_(int fd)
 #endif
 #ifdef F_DUPFD
     {
-	fd = fcntl(badfd, F_DUPFD, MIN_WRITE_FD);
+        fd = fcntl(badfd, F_DUPFD, MIN_WRITE_FD);
 # ifdef FD_CLOEXEC
-	if (fd >= 0)
-	    (void)fcntl(fd, F_SETFD, FD_CLOEXEC);
+        if (fd >= 0)
+            (void)fcntl(fd, F_SETFD, FD_CLOEXEC);
 # endif
     }
     int save_errno = errno;
@@ -94,24 +94,24 @@ move_to_higher_fd_(int fd)
     errno = save_errno;
 #else
     {
-	char toclose[MIN_WRITE_FD];
-	memset(toclose, 0, sizeof(toclose));
-	fd = badfd;
-	do {
-	    toclose[fd] = 1;
-	    fd = dup(fd);
-	} while (fd >= 0 && fd < MIN_WRITE_FD);
-	int save_errno = errno;
-	for (badfd = 0; badfd != MIN_WRITE_FD; ++badfd)
-	    if (toclose[badfd])
-		close(badfd);
-	if (fd < 0) {
-	    errno = save_errno;
-	} else {
+        char toclose[MIN_WRITE_FD];
+        memset(toclose, 0, sizeof(toclose));
+        fd = badfd;
+        do {
+            toclose[fd] = 1;
+            fd = dup(fd);
+        } while (fd >= 0 && fd < MIN_WRITE_FD);
+        int save_errno = errno;
+        for (badfd = 0; badfd != MIN_WRITE_FD; ++badfd)
+            if (toclose[badfd])
+                close(badfd);
+        if (fd < 0) {
+            errno = save_errno;
+        } else {
 # ifdef FD_CLOEXEC
-	    (void)fcntl(fd, F_SETFD, FD_CLOEXEC);
+            (void)fcntl(fd, F_SETFD, FD_CLOEXEC);
 # endif
-	}
+        }
     }
 #endif
     Assert(fd >= MIN_WRITE_FD || fd < 0);
@@ -141,19 +141,19 @@ protect_from_write(int fd)
 #elif defined __linux__
     // The maximum off_t value works for at least btrfs.
     if (lseek(fd, std::numeric_limits<off_t>::max(), SEEK_SET) < 0) {
-	if constexpr (sizeof(off_t) > 4) {
-	    // Try the actual maximum for ext4 (which matches the documented
-	    // maximum filesize) since ext4 is very widely used.
-	    (void)lseek(fd, off_t(0xffffffff000), SEEK_SET);
-	}
+        if constexpr (sizeof(off_t) > 4) {
+            // Try the actual maximum for ext4 (which matches the documented
+            // maximum filesize) since ext4 is very widely used.
+            (void)lseek(fd, off_t(0xffffffff000), SEEK_SET);
+        }
     }
 #elif defined _AIX
     // It seems prudent to try the maximum off_t value first.
     if (lseek(fd, std::numeric_limits<off_t>::max(), SEEK_SET) < 0) {
-	if constexpr (sizeof(off_t) > 4) {
-	    // Actual maximum seen in testing AIX 7.1 and 7.3 on JFS.
-	    (void)lseek(fd, off_t(0xffffffff000), SEEK_SET);
-	}
+        if constexpr (sizeof(off_t) > 4) {
+            // Actual maximum seen in testing AIX 7.1 and 7.3 on JFS.
+            (void)lseek(fd, off_t(0xffffffff000), SEEK_SET);
+        }
     }
 #elif defined __CYGWIN__ || \
       defined __DragonFly__ || \
@@ -173,9 +173,9 @@ protect_from_write(int fd)
     (void)lseek(fd, std::numeric_limits<off_t>::max(), SEEK_SET);
 #elif defined __EMSCRIPTEN__
     if constexpr (sizeof(off_t) > 4) {
-	// Anything larger fails with EOVERFLOW (tested with Emscripten SDK
-	// 4.0.19).
-	(void)lseek(fd, off_t(0x20000000000000), SEEK_SET);
+        // Anything larger fails with EOVERFLOW (tested with Emscripten SDK
+        // 4.0.19).
+        (void)lseek(fd, off_t(0x20000000000000), SEEK_SET);
     }
 #elif defined __WIN32__
     // For Microsoft Windows we open the file with CreateFile() and
@@ -204,25 +204,25 @@ io_open_block_wr(const char* filename, bool anew)
     // write() fails with EINVAL.  We implement an equivalent to pwrite() using
     // WriteFile().
     HANDLE handleWin =
-	CreateFile(filename,
-		   GENERIC_READ | GENERIC_WRITE,
-		   /* Subsequent operations may open this file to read, write
-		    * or delete it */
-		   FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
-		   NULL,
-		   anew ? CREATE_ALWAYS : OPEN_EXISTING,
-		   FILE_ATTRIBUTE_NORMAL | FILE_FLAG_OVERLAPPED,
-		   NULL);
+        CreateFile(filename,
+                   GENERIC_READ | GENERIC_WRITE,
+                   /* Subsequent operations may open this file to read, write
+                    * or delete it */
+                   FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+                   NULL,
+                   anew ? CREATE_ALWAYS : OPEN_EXISTING,
+                   FILE_ATTRIBUTE_NORMAL | FILE_FLAG_OVERLAPPED,
+                   NULL);
     if (handleWin == INVALID_HANDLE_VALUE) {
-	return posixy_set_errno_from_getlasterror();
+        return posixy_set_errno_from_getlasterror();
     }
 
     // Wrap in a standard file descriptor.
     int fd = _open_osfhandle((intptr_t)(handleWin), O_RDWR|O_BINARY);
 #endif
     if (fd >= 0) {
-	fd = move_to_higher_fd(fd);
-	protect_from_write(fd);
+        fd = move_to_higher_fd(fd);
+        protect_from_write(fd);
     }
     return fd;
 }
@@ -242,18 +242,18 @@ io_read(int fd, char * p, size_t n, size_t min)
 {
     size_t total = 0;
     while (n) {
-	ssize_t c = read(fd, p, n);
-	if (c <= 0) {
-	    if (c == 0) {
-		if (total >= min) break;
-		throw Xapian::DatabaseCorruptError("Couldn't read enough (EOF)");
-	    }
-	    if (errno == EINTR) continue;
-	    throw Xapian::DatabaseError("Error reading from file", errno);
-	}
-	p += c;
-	total += c;
-	n -= c;
+        ssize_t c = read(fd, p, n);
+        if (c <= 0) {
+            if (c == 0) {
+                if (total >= min) break;
+                throw Xapian::DatabaseCorruptError("Couldn't read enough (EOF)");
+            }
+            if (errno == EINTR) continue;
+            throw Xapian::DatabaseError("Error reading from file", errno);
+        }
+        p += c;
+        total += c;
+        n -= c;
     }
     return total;
 }
@@ -263,13 +263,13 @@ void
 io_write(int fd, const char * p, size_t n)
 {
     while (n) {
-	ssize_t c = write(fd, p, n);
-	if (c < 0) {
-	    if (errno == EINTR) continue;
-	    throw Xapian::DatabaseError("Error writing to file", errno);
-	}
-	p += c;
-	n -= c;
+        ssize_t c = write(fd, p, n);
+        if (c < 0) {
+            if (errno == EINTR) continue;
+            throw Xapian::DatabaseError("Error writing to file", errno);
+        }
+        p += c;
+        n -= c;
     }
 }
 
@@ -279,82 +279,82 @@ io_pread(int fd, char * p, size_t n, off_t o, size_t min)
 #ifdef HAVE_PREAD
     size_t total = 0;
     while (true) {
-	ssize_t c = pread(fd, p, n, o);
-	// We should get a full read most of the time, so streamline that case.
-	if (usual(c == ssize_t(n)))
-	    return total + n;
-	// -1 is error, 0 is EOF
-	if (c <= 0) {
-	    if (c == 0) {
-		if (min == 0)
-		    return total;
-		throw Xapian::DatabaseError("EOF reading database");
-	    }
-	    // We get EINTR if the syscall was interrupted by a signal.
-	    // In this case we should retry the read.
-	    if (errno == EINTR) continue;
-	    throw Xapian::DatabaseError("Error reading database", errno);
-	}
-	total += c;
-	if (total >= min)
-	    return total;
-	p += c;
-	n -= c;
-	o += c;
+        ssize_t c = pread(fd, p, n, o);
+        // We should get a full read most of the time, so streamline that case.
+        if (usual(c == ssize_t(n)))
+            return total + n;
+        // -1 is error, 0 is EOF
+        if (c <= 0) {
+            if (c == 0) {
+                if (min == 0)
+                    return total;
+                throw Xapian::DatabaseError("EOF reading database");
+            }
+            // We get EINTR if the syscall was interrupted by a signal.
+            // In this case we should retry the read.
+            if (errno == EINTR) continue;
+            throw Xapian::DatabaseError("Error reading database", errno);
+        }
+        total += c;
+        if (total >= min)
+            return total;
+        p += c;
+        n -= c;
+        o += c;
     }
 #elif defined __WIN32__
     HANDLE h = (HANDLE)_get_osfhandle(fd);
     if (h == INVALID_HANDLE_VALUE) {
-	// _get_osfhandle() sets errno to EBADF.
-	throw Xapian::DatabaseError("Error reading database", errno);
+        // _get_osfhandle() sets errno to EBADF.
+        throw Xapian::DatabaseError("Error reading database", errno);
     }
 
     OVERLAPPED overlapped;
     memset(&overlapped, 0, sizeof(overlapped));
     overlapped.Offset = (DWORD)o;
     if constexpr (sizeof(off_t) > 4) {
-	overlapped.OffsetHigh = o >> 32;
+        overlapped.OffsetHigh = o >> 32;
     }
     DWORD c;
     if (!ReadFile(h, p, n, &c, &overlapped)) {
-	if (GetLastError() != ERROR_IO_PENDING ||
-	    !GetOverlappedResult(h,
-				 &overlapped,
-				 &c,
-				 TRUE)) {
-	    throw Xapian::DatabaseError("Error reading database",
-					-GetLastError());
-	}
+        if (GetLastError() != ERROR_IO_PENDING ||
+            !GetOverlappedResult(h,
+                                 &overlapped,
+                                 &c,
+                                 TRUE)) {
+            throw Xapian::DatabaseError("Error reading database",
+                                        -GetLastError());
+        }
     }
     if (c < min) {
-	throw Xapian::DatabaseError("EOF reading database");
+        throw Xapian::DatabaseError("EOF reading database");
     }
     return c;
 #else
     size_t total = 0;
     if (rare(lseek(fd, o, SEEK_SET) < 0))
-	throw Xapian::DatabaseError("Error seeking database", errno);
+        throw Xapian::DatabaseError("Error seeking database", errno);
     while (true) {
-	ssize_t c = read(fd, p, n);
-	// We should get a full read most of the time, so streamline that case.
-	if (usual(c == ssize_t(n)))
-	    return total + n;
-	if (c <= 0) {
-	    if (c == 0) {
-		if (min == 0)
-		    return total;
-		throw Xapian::DatabaseError("EOF reading database");
-	    }
-	    // We get EINTR if the syscall was interrupted by a signal.
-	    // In this case we should retry the read.
-	    if (errno == EINTR) continue;
-	    throw Xapian::DatabaseError("Error reading database", errno);
-	}
-	total += c;
-	if (total >= min)
-	    return total;
-	p += c;
-	n -= c;
+        ssize_t c = read(fd, p, n);
+        // We should get a full read most of the time, so streamline that case.
+        if (usual(c == ssize_t(n)))
+            return total + n;
+        if (c <= 0) {
+            if (c == 0) {
+                if (min == 0)
+                    return total;
+                throw Xapian::DatabaseError("EOF reading database");
+            }
+            // We get EINTR if the syscall was interrupted by a signal.
+            // In this case we should retry the read.
+            if (errno == EINTR) continue;
+            throw Xapian::DatabaseError("Error reading database", errno);
+        }
+        total += c;
+        if (total >= min)
+            return total;
+        p += c;
+        n -= c;
     }
 #endif
 }
@@ -364,46 +364,46 @@ io_pwrite(int fd, const char * p, size_t n, off_t o)
 {
 #ifdef HAVE_PWRITE
     while (n) {
-	ssize_t c = pwrite(fd, p, n, o);
-	// We should get a full write most of the time, so streamline that
-	// case.
-	if (usual(c == ssize_t(n)))
-	    return;
-	if (c < 0) {
-	    if (errno == EINTR) continue;
-	    throw Xapian::DatabaseError("Error writing database", errno);
-	}
-	p += c;
-	n -= c;
-	o += c;
+        ssize_t c = pwrite(fd, p, n, o);
+        // We should get a full write most of the time, so streamline that
+        // case.
+        if (usual(c == ssize_t(n)))
+            return;
+        if (c < 0) {
+            if (errno == EINTR) continue;
+            throw Xapian::DatabaseError("Error writing database", errno);
+        }
+        p += c;
+        n -= c;
+        o += c;
     }
 #elif defined __WIN32__
     HANDLE h = (HANDLE)_get_osfhandle(fd);
     if (h == INVALID_HANDLE_VALUE) {
-	// _get_osfhandle() sets errno to EBADF.
-	throw Xapian::DatabaseError("Error writing database", errno);
+        // _get_osfhandle() sets errno to EBADF.
+        throw Xapian::DatabaseError("Error writing database", errno);
     }
 
     OVERLAPPED overlapped;
     memset(&overlapped, 0, sizeof(overlapped));
     overlapped.Offset = (DWORD)o;
     if constexpr (sizeof(off_t) > 4) {
-	overlapped.OffsetHigh = o >> 32;
+        overlapped.OffsetHigh = o >> 32;
     }
     DWORD c;
     if (!WriteFile(h, p, n, &c, &overlapped)) {
-	if (GetLastError() != ERROR_IO_PENDING ||
-	    !GetOverlappedResult(h,
-				 &overlapped,
-				 &c,
-				 TRUE)) {
-	    throw Xapian::DatabaseError("Error writing database",
-					-GetLastError());
-	}
+        if (GetLastError() != ERROR_IO_PENDING ||
+            !GetOverlappedResult(h,
+                                 &overlapped,
+                                 &c,
+                                 TRUE)) {
+            throw Xapian::DatabaseError("Error writing database",
+                                        -GetLastError());
+        }
     }
 #else
     if (rare(lseek(fd, o, SEEK_SET) < 0))
-	throw Xapian::DatabaseError("Error seeking database", errno);
+        throw Xapian::DatabaseError("Error seeking database", errno);
     io_write(fd, p, n);
 #endif
 }
@@ -437,68 +437,68 @@ io_read_block(int fd, char * p, size_t n, off_t b, off_t o)
     // per block read.
 #ifdef HAVE_PREAD
     while (true) {
-	ssize_t c = pread(fd, p, n, o);
-	// We should get a full read most of the time, so streamline that case.
-	if (usual(c == ssize_t(n)))
-	    return;
-	// -1 is error, 0 is EOF
-	if (c <= 0) {
-	    if (c == 0)
-		throw_block_error("EOF reading block ", b);
-	    // We get EINTR if the syscall was interrupted by a signal.
-	    // In this case we should retry the read.
-	    if (errno == EINTR) continue;
-	    throw_block_error("Error reading block ", b, errno);
-	}
-	p += c;
-	n -= c;
-	o += c;
+        ssize_t c = pread(fd, p, n, o);
+        // We should get a full read most of the time, so streamline that case.
+        if (usual(c == ssize_t(n)))
+            return;
+        // -1 is error, 0 is EOF
+        if (c <= 0) {
+            if (c == 0)
+                throw_block_error("EOF reading block ", b);
+            // We get EINTR if the syscall was interrupted by a signal.
+            // In this case we should retry the read.
+            if (errno == EINTR) continue;
+            throw_block_error("Error reading block ", b, errno);
+        }
+        p += c;
+        n -= c;
+        o += c;
     }
 #elif defined __WIN32__
     // Using ReadFile() seems to be faster than lseek() and read().
     HANDLE h = (HANDLE)_get_osfhandle(fd);
     if (h == INVALID_HANDLE_VALUE) {
-	// _get_osfhandle() sets errno to EBADF.
-	throw_block_error("Error reading block ", b, errno);
+        // _get_osfhandle() sets errno to EBADF.
+        throw_block_error("Error reading block ", b, errno);
     }
 
     OVERLAPPED overlapped;
     memset(&overlapped, 0, sizeof(overlapped));
     overlapped.Offset = (DWORD)o;
     if constexpr (sizeof(off_t) > 4) {
-	overlapped.OffsetHigh = o >> 32;
+        overlapped.OffsetHigh = o >> 32;
     }
     DWORD c;
     if (!ReadFile(h, p, n, &c, &overlapped)) {
-	if (GetLastError() != ERROR_IO_PENDING ||
-	    !GetOverlappedResult(h,
-				 &overlapped,
-				 &c,
-				 TRUE)) {
-	    throw_block_error("Error reading block ", b, -GetLastError());
-	}
+        if (GetLastError() != ERROR_IO_PENDING ||
+            !GetOverlappedResult(h,
+                                 &overlapped,
+                                 &c,
+                                 TRUE)) {
+            throw_block_error("Error reading block ", b, -GetLastError());
+        }
     }
     if (c != n) {
-	throw_block_error("EOF reading block ", b);
+        throw_block_error("EOF reading block ", b);
     }
 #else
     if (rare(lseek(fd, o, SEEK_SET) < 0))
-	throw_block_error("Error seeking to block ", b, errno);
+        throw_block_error("Error seeking to block ", b, errno);
     while (true) {
-	ssize_t c = read(fd, p, n);
-	// We should get a full read most of the time, so streamline that case.
-	if (usual(c == ssize_t(n)))
-	    return;
-	if (c <= 0) {
-	    if (c == 0)
-		throw_block_error("EOF reading block ", b);
-	    // We get EINTR if the syscall was interrupted by a signal.
-	    // In this case we should retry the read.
-	    if (errno == EINTR) continue;
-	    throw_block_error("Error reading block ", b, errno);
-	}
-	p += c;
-	n -= c;
+        ssize_t c = read(fd, p, n);
+        // We should get a full read most of the time, so streamline that case.
+        if (usual(c == ssize_t(n)))
+            return;
+        if (c <= 0) {
+            if (c == 0)
+                throw_block_error("EOF reading block ", b);
+            // We get EINTR if the syscall was interrupted by a signal.
+            // In this case we should retry the read.
+            if (errno == EINTR) continue;
+            throw_block_error("Error reading block ", b, errno);
+        }
+        p += c;
+        n -= c;
     }
 #endif
 }
@@ -512,59 +512,59 @@ io_write_block(int fd, const char * p, size_t n, off_t b, off_t o)
     // per block write.
 #ifdef HAVE_PWRITE
     while (true) {
-	ssize_t c = pwrite(fd, p, n, o);
-	// We should get a full write most of the time, so streamline that case.
-	if (usual(c == ssize_t(n)))
-	    return;
-	if (c < 0) {
-	    // We get EINTR if the syscall was interrupted by a signal.
-	    // In this case we should retry the write.
-	    if (errno == EINTR) continue;
-	    throw_block_error("Error writing block ", b, errno);
-	}
-	p += c;
-	n -= c;
-	o += c;
+        ssize_t c = pwrite(fd, p, n, o);
+        // We should get a full write most of the time, so streamline that case.
+        if (usual(c == ssize_t(n)))
+            return;
+        if (c < 0) {
+            // We get EINTR if the syscall was interrupted by a signal.
+            // In this case we should retry the write.
+            if (errno == EINTR) continue;
+            throw_block_error("Error writing block ", b, errno);
+        }
+        p += c;
+        n -= c;
+        o += c;
     }
 #elif defined __WIN32__
     HANDLE h = (HANDLE)_get_osfhandle(fd);
     if (h == INVALID_HANDLE_VALUE) {
-	// _get_osfhandle() sets errno to EBADF.
-	throw_block_error("Error writing block ", b, errno);
+        // _get_osfhandle() sets errno to EBADF.
+        throw_block_error("Error writing block ", b, errno);
     }
 
     OVERLAPPED overlapped;
     memset(&overlapped, 0, sizeof(overlapped));
     overlapped.Offset = (DWORD)o;
     if constexpr (sizeof(off_t) > 4) {
-	overlapped.OffsetHigh = o >> 32;
+        overlapped.OffsetHigh = o >> 32;
     }
     DWORD c;
     if (!WriteFile(h, p, n, &c, &overlapped)) {
-	if (GetLastError() != ERROR_IO_PENDING ||
-	    !GetOverlappedResult(h,
-				 &overlapped,
-				 &c,
-				 TRUE)) {
-	    throw_block_error("Error writing block ", b, -GetLastError());
-	}
+        if (GetLastError() != ERROR_IO_PENDING ||
+            !GetOverlappedResult(h,
+                                 &overlapped,
+                                 &c,
+                                 TRUE)) {
+            throw_block_error("Error writing block ", b, -GetLastError());
+        }
     }
 #else
     if (rare(lseek(fd, o, SEEK_SET) < 0))
-	throw_block_error("Error seeking to block ", b, errno);
+        throw_block_error("Error seeking to block ", b, errno);
     while (true) {
-	ssize_t c = write(fd, p, n);
-	// We should get a full write most of the time, so streamline that case.
-	if (usual(c == ssize_t(n)))
-	    return;
-	if (c < 0) {
-	    // We get EINTR if the syscall was interrupted by a signal.
-	    // In this case we should retry the write.
-	    if (errno == EINTR) continue;
-	    throw_block_error("Error writing block ", b, errno);
-	}
-	p += c;
-	n -= c;
+        ssize_t c = write(fd, p, n);
+        // We should get a full write most of the time, so streamline that case.
+        if (usual(c == ssize_t(n)))
+            return;
+        if (c < 0) {
+            // We get EINTR if the syscall was interrupted by a signal.
+            // In this case we should retry the write.
+            if (errno == EINTR) continue;
+            throw_block_error("Error writing block ", b, errno);
+        }
+        p += c;
+        n -= c;
     }
 #endif
 }
@@ -587,18 +587,18 @@ retry:
 #endif
     if (posixy_rename(tmp_file.c_str(), real_file.c_str()) < 0) {
 #ifdef EXDEV
-	if (errno == EXDEV && --retries > 0) goto retry;
+        if (errno == EXDEV && --retries > 0) goto retry;
 #endif
-	// With NFS, rename() failing may just mean that the server crashed
-	// after successfully renaming, but before reporting this, and then
-	// the retried operation fails.  So we need to check if the source
-	// file still exists, which we do by calling unlink(), since we want
-	// to remove the temporary file anyway.
-	int saved_errno = errno;
-	if (unlink(tmp_file.c_str()) == 0 || errno != ENOENT) {
-	    errno = saved_errno;
-	    return false;
-	}
+        // With NFS, rename() failing may just mean that the server crashed
+        // after successfully renaming, but before reporting this, and then
+        // the retried operation fails.  So we need to check if the source
+        // file still exists, which we do by calling unlink(), since we want
+        // to remove the temporary file anyway.
+        int saved_errno = errno;
+        if (unlink(tmp_file.c_str()) == 0 || errno != ENOENT) {
+            errno = saved_errno;
+            return false;
+        }
     }
     return true;
 }

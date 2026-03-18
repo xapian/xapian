@@ -180,16 +180,16 @@ xo_fn_unknown_option_check() {
 AC_DEFUN([XAPIAN_TEST_FLAGS_],
   [
   m4_define([cachevar],
-	    [xo_cv_]m4_tolower(m4_bpatsubst([$1][_$3], [[^A-Za-z0-9]], [_])))
+            [xo_cv_]m4_tolower(m4_bpatsubst([$1][_$3], [[^A-Za-z0-9]], [_])))
   AC_CACHE_CHECK([for $CXX with $3 in $1], cachevar,
     [
     XTF_save_$1=${$1}
     $1="${$1} $3"
     $2([AC_LANG_PROGRAM([], [])],
       [if xo_fn_unknown_option_check ; then
-	 cachevar=no
+         cachevar=no
        else
-	 cachevar=yes
+         cachevar=yes
        fi],
       [cachevar=no])
     $1=$XTF_save_$1
@@ -220,9 +220,9 @@ dnl avoided by using SSE instructions instead.  This is also faster (~6% in
 dnl a CPU bound testcase).
 AC_ARG_ENABLE([sse],
 [AS_HELP_STRING([--disable-sse],
-		[disable use of SSE FP instructions on x86])]
+                [disable use of SSE FP instructions on x86])]
 [AS_HELP_STRING([[--enable-sse[=sse|sse2]]],
-		[set which SSE FP instructions to use on x86 (default: sse2)])],
+                [set which SSE FP instructions to use on x86 (default: sse2)])],
   [case ${enableval} in
     sse|sse2|yes|no) ;;
     *) AC_MSG_ERROR([bad value ${enableval} for --enable-sse or --disable-sse]) ;;
@@ -235,20 +235,20 @@ CXXFLAGS="$CXXFLAGS $XAPIAN_CXXFLAGS"
 dnl We need to specify the argument types for builtin functions, or else
 dnl AC_CHECK_DECLS fails to detect them when the compiler is clang.
 AC_CHECK_DECLS([__builtin_add_overflow(int, int, int*),
-		__builtin_sub_overflow(int, int, int*),
-		__builtin_mul_overflow(int, int, int*)], [], [], [ ])
+                __builtin_sub_overflow(int, int, int*),
+                __builtin_mul_overflow(int, int, int*)], [], [], [ ])
 AC_CHECK_DECLS([__builtin_bswap16(uint16_t),
-		__builtin_bswap32(uint32_t),
-		__builtin_bswap64(uint64_t)], [], [],
-	       [#include <stdint.h>])
+                __builtin_bswap32(uint32_t),
+                __builtin_bswap64(uint64_t)], [], [],
+               [#include <stdint.h>])
 AC_CHECK_DECLS([_byteswap_ushort, _byteswap_ulong, _byteswap_uint64], [], [],
-	       [#include <stdlib.h>])
+               [#include <stdlib.h>])
 AC_CHECK_DECLS([__builtin_expect(long, long)], [], [], [ ])
 AC_CHECK_DECLS([_addcarry_u32(unsigned char, unsigned, unsigned, unsigned*),
-		_addcarry_u64(unsigned char, unsigned __int64, unsigned __int64, unsigned __int64*),
-		_subborrow_u32(unsigned char, unsigned, unsigned, unsigned*),
-		_subborrow_u64(unsigned char, unsigned __int64, unsigned __int64, unsigned __int64*)],
-	       [], [], [#include <intrin.h>])
+                _addcarry_u64(unsigned char, unsigned __int64, unsigned __int64, unsigned __int64*),
+                _subborrow_u32(unsigned char, unsigned, unsigned, unsigned*),
+                _subborrow_u64(unsigned char, unsigned __int64, unsigned __int64, unsigned __int64*)],
+               [], [], [#include <intrin.h>])
 
 dnl Check for time functions.
 AC_CHECK_FUNCS([clock_gettime sleep nanosleep gettimeofday ftime])
@@ -303,7 +303,7 @@ fi
 
 dnl Checks for header files.
 AC_CHECK_HEADERS([fcntl.h limits.h sys/select.h sysexits.h],
-		 [], [], [ ])
+                 [], [], [ ])
 
 dnl cxxabi.h was added in GCC 3.1, but clang lies and defines __GNUC__ yet
 dnl doesn't seem to reliably provide this header, so probe for it.
@@ -338,15 +338,15 @@ if test -n "$use_valgrind_if_non_empty" ; then
     rm -f $vglogwild
     if $VALGRIND --log-file="$vglog" --child-silent-after-fork=yes -q true 2>&AS_MESSAGE_LOG_FD ; then
       for f in $vglogwild ; do
-	case $f in
-	$vglog*) VALGRIND= ;;
-	esac
+        case $f in
+        $vglog*) VALGRIND= ;;
+        esac
       done
       if test x"$VALGRIND" = x ; then
-	AC_MSG_RESULT([no])
+        AC_MSG_RESULT([no])
       else
-	AC_MSG_RESULT([yes])
-	AC_CHECK_HEADERS([valgrind/memcheck.h], [], [VALGRIND=], [ ])
+        AC_MSG_RESULT([yes])
+        AC_CHECK_HEADERS([valgrind/memcheck.h], [], [VALGRIND=], [ ])
       fi
     else
       dnl The valgrind detected doesn't seem to work!  Perhaps this is an
@@ -424,15 +424,15 @@ if true ; then
       dnl On Unix, we need fork and socketpair for the remotebackend.
       SAVE_LIBS=$LIBS
       AC_CHECK_FUNCS([fork], [], [
-	AC_MSG_ERROR([fork() required for the remote backend - if an extra library is needed, pass LIBS=-lfoo to configure.  Or --disable-backend-remote to disable it.])
+        AC_MSG_ERROR([fork() required for the remote backend - if an extra library is needed, pass LIBS=-lfoo to configure.  Or --disable-backend-remote to disable it.])
       ])
       dnl Check if -lsocket is required for socketpair (Solaris needs it).
       dnl And on Haiku it's in -lnetwork.
       AC_SEARCH_LIBS([socketpair], [socket network], [], [
-	AC_MSG_ERROR([socketpair() required for the remote backend - if an extra library is needed, pass LIBS=-lfoo to configure.  Or --disable-backend-remote to disable it.])
+        AC_MSG_ERROR([socketpair() required for the remote backend - if an extra library is needed, pass LIBS=-lfoo to configure.  Or --disable-backend-remote to disable it.])
       ])
       AC_DEFINE([HAVE_SOCKETPAIR], [1],
-		[Define to 1 if you have the 'socketpair' function.])
+                [Define to 1 if you have the 'socketpair' function.])
       LIBS=$SAVE_LIBS
       ;;
   esac
@@ -528,8 +528,8 @@ if test yes = "$GXX"; then
 
       case $gxx_version in
       [[0-6]].*)
-	AC_MSG_ERROR([Xapian requires GCC 7.0 or later])
-	;;
+        AC_MSG_ERROR([Xapian requires GCC 7.0 or later])
+        ;;
       esac
 
       dnl FIXME:
@@ -599,25 +599,25 @@ case $host_cpu in
     if test "$enable_sse" = no ; then
       AC_MSG_RESULT([no])
       if test yes = "$msvc"; then
-	dnl MSVC defaults to SSE2.
-	AM_CXXFLAGS="$AM_CXXFLAGS -arch:IA32"
+        dnl MSVC defaults to SSE2.
+        AM_CXXFLAGS="$AM_CXXFLAGS -arch:IA32"
       fi
     else
       dnl Default to sse2.
       test "$enable_sse" != yes || enable_sse=sse2
       if test yes = "$GXX"; then
-	AC_MSG_RESULT([yes (configure with --disable-sse to disable)])
-	dnl We can unconditionally use -mtune=generic as it was added in GCC
-	dnl 4.2, and supported at least as far back as clang 3.0.
-	AM_CXXFLAGS="$AM_CXXFLAGS -mfpmath=sse -m$enable_sse -mtune=generic"
+        AC_MSG_RESULT([yes (configure with --disable-sse to disable)])
+        dnl We can unconditionally use -mtune=generic as it was added in GCC
+        dnl 4.2, and supported at least as far back as clang 3.0.
+        AM_CXXFLAGS="$AM_CXXFLAGS -mfpmath=sse -m$enable_sse -mtune=generic"
       elif test yes = "$msvc"; then
-	AC_MSG_RESULT([yes (configure with --disable-sse to disable)])
-	if test sse = "$enable_sse"; then
-	  dnl MSVC defaults to SSE2.
-	  AM_CXXFLAGS="$AM_CXXFLAGS -arch:SSE"
-	fi
+        AC_MSG_RESULT([yes (configure with --disable-sse to disable)])
+        if test sse = "$enable_sse"; then
+          dnl MSVC defaults to SSE2.
+          AM_CXXFLAGS="$AM_CXXFLAGS -arch:SSE"
+        fi
       else
-	AC_MSG_RESULT([don't know how to for compiler $CXX])
+        AC_MSG_RESULT([don't know how to for compiler $CXX])
       fi
     fi
     ;;

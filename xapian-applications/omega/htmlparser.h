@@ -48,28 +48,28 @@ class HtmlParser : public XmlParser {
     bool opening_tag(const std::string& tag);
     bool closing_tag(const std::string& tag);
     void parse(std::string_view text,
-	       const std::string& charset_,
-	       bool charset_from_meta_);
+               const std::string& charset_,
+               bool charset_from_meta_);
     void ignore_metarobots() { ignoring_metarobots = true; }
 
     HtmlParser() : XmlParser(false), target(&dump) { }
 
     void reset() {
-	pending_space = false;
-	in_script_tag = false;
-	in_style_tag = false;
-	indexing_allowed = true;
-	ignoring_metarobots = false;
-	charset_from_meta = false;
-	description_as_sample = false;
-	title.resize(0);
-	sample.resize(0);
-	keywords.resize(0);
-	dump.resize(0);
-	author.resize(0);
-	topic.resize(0);
-	created = time_t(-1);
-	target = &dump;
+        pending_space = false;
+        in_script_tag = false;
+        in_style_tag = false;
+        indexing_allowed = true;
+        ignoring_metarobots = false;
+        charset_from_meta = false;
+        description_as_sample = false;
+        title.resize(0);
+        sample.resize(0);
+        keywords.resize(0);
+        dump.resize(0);
+        author.resize(0);
+        topic.resize(0);
+        created = time_t(-1);
+        target = &dump;
     }
 };
 

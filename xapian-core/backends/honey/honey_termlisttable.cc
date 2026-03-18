@@ -37,8 +37,8 @@ using namespace std;
 
 void
 HoneyTermListTable::set_termlist(Xapian::docid did,
-				 const Xapian::Document& doc,
-				 Xapian::termcount doclen)
+                                 const Xapian::Document& doc,
+                                 Xapian::termcount doclen)
 {
     LOGCALL_VOID(DB, "HoneyTermListTable::set_termlist", did | doc | doclen);
 
@@ -50,56 +50,56 @@ HoneyTermListTable::set_termlist(Xapian::docid did,
     tag += '\0';
 
     if (usual(termlist_size != 0)) {
-	pack_uint(tag, termlist_size - 1);
-	pack_uint(tag, doclen);
-	Xapian::TermIterator t = doc.termlist_begin();
-	string prev_term = *t;
+        pack_uint(tag, termlist_size - 1);
+        pack_uint(tag, doclen);
+        Xapian::TermIterator t = doc.termlist_begin();
+        string prev_term = *t;
 
-	tag += prev_term.size();
-	pack_uint(tag, t.get_wdf());
-	tag += prev_term;
+        tag += prev_term.size();
+        pack_uint(tag, t.get_wdf());
+        tag += prev_term;
 
-	while (++t != doc.termlist_end()) {
-	    const string& term = *t;
-	    // If there's a shared prefix with the previous term, we don't
-	    // store it explicitly, but just store the length of the shared
-	    // prefix.  In general, this is a big win.
-	    size_t reuse = common_prefix_length(prev_term, term);
+        while (++t != doc.termlist_end()) {
+            const string& term = *t;
+            // If there's a shared prefix with the previous term, we don't
+            // store it explicitly, but just store the length of the shared
+            // prefix.  In general, this is a big win.
+            size_t reuse = common_prefix_length(prev_term, term);
 
-	    // reuse must be <= prev_term.size(), and we know that value while
-	    // decoding.  So if the wdf is small enough that we can multiply it
-	    // by (prev_term.size() + 1), add reuse and fit the result in a
-	    // byte, then we can pack reuse and the wdf into a single byte and
-	    // save ourselves a byte.  We actually need to add one to the wdf
-	    // before multiplying so that a wdf of 0 can be detected by the
-	    // decoder.
-	    Xapian::termcount wdf = t.get_wdf();
-	    // If wdf >= 127, then we aren't going to be able to pack it in so
-	    // don't even try to avoid any risk of the calculation overflowing
-	    // and making us think we can.
-	    size_t packed;
-	    if (wdf < 127 &&
-		(packed = (wdf + 1) * (prev_term.size() + 1) + reuse) < 256) {
-		// We can pack the wdf into the same byte.
-		tag += char(packed);
-	    } else {
-		tag += char(reuse);
-		pack_uint(tag, wdf);
-	    }
-	    tag += char(term.size() - reuse);
-	    tag.append(term.data() + reuse, term.size() - reuse);
+            // reuse must be <= prev_term.size(), and we know that value while
+            // decoding.  So if the wdf is small enough that we can multiply it
+            // by (prev_term.size() + 1), add reuse and fit the result in a
+            // byte, then we can pack reuse and the wdf into a single byte and
+            // save ourselves a byte.  We actually need to add one to the wdf
+            // before multiplying so that a wdf of 0 can be detected by the
+            // decoder.
+            Xapian::termcount wdf = t.get_wdf();
+            // If wdf >= 127, then we aren't going to be able to pack it in so
+            // don't even try to avoid any risk of the calculation overflowing
+            // and making us think we can.
+            size_t packed;
+            if (wdf < 127 &&
+                (packed = (wdf + 1) * (prev_term.size() + 1) + reuse) < 256) {
+                // We can pack the wdf into the same byte.
+                tag += char(packed);
+            } else {
+                tag += char(reuse);
+                pack_uint(tag, wdf);
+            }
+            tag += char(term.size() - reuse);
+            tag.append(term.data() + reuse, term.size() - reuse);
 
-	    prev_term = *t;
-	}
+            prev_term = *t;
+        }
     } else {
-	Assert(doclen == 0);
-	Assert(doc.termlist_begin() == doc.termlist_end());
+        Assert(doclen == 0);
+        Assert(doc.termlist_begin() == doc.termlist_end());
     }
 
     if (rare(tag.size() == 1 && tag[0] == '\0')) {
-	// No slots used or terms.
-	del(make_key(did));
+        // No slots used or terms.
+        del(make_key(did));
     } else {
-	add(make_key(did), tag);
+        add(make_key(did), tag);
     }
 }

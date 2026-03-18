@@ -45,19 +45,19 @@ static void
 XapianExceptionHandler()
 {
     try {
-	// Rethrow so we can look at the exception if it was a Xapian::Error.
-	throw;
+        // Rethrow so we can look at the exception if it was a Xapian::Error.
+        throw;
     } catch (const Xapian::Error &e) {
         // FIXME: It would be nicer to make the exceptions PHP classes
         // corresponding to the C++ Xapian::Error class hierarchy.
-	zend_throw_exception(NULL, e.get_description().c_str(),
-			     SWIG_UnknownError);
+        zend_throw_exception(NULL, e.get_description().c_str(),
+                             SWIG_UnknownError);
     } catch (const std::exception &e) {
-	zend_throw_exception_ex(NULL, SWIG_UnknownError,
-				"std::exception %s", e.what());
+        zend_throw_exception_ex(NULL, SWIG_UnknownError,
+                                "std::exception %s", e.what());
     } catch (...) {
-	zend_throw_exception(NULL, "unknown error in Xapian",
-			     SWIG_UnknownError);
+        zend_throw_exception(NULL, "unknown error in Xapian",
+                             SWIG_UnknownError);
     }
 }
 %}
@@ -72,10 +72,10 @@ print FD <<'EOF';
 
 %exception {
     try {
-	$function
+        $function
     } catch (...) {
-	XapianExceptionHandler();
-	return;
+        XapianExceptionHandler();
+        return;
     }
 }
 EOF

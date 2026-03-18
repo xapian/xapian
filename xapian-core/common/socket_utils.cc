@@ -57,9 +57,9 @@ extern HANDLE fd_to_handle(int fd) {
 extern void close_fd_or_socket(int fd) {
     MSVCIgnoreInvalidParameter invalid_fd_value_is_ok;
     if (close(fd) == -1 && errno == EBADF) {
-	// Bad file descriptor - probably because the fd is actually
-	// a socket.
-	closesocket(fd);
+        // Bad file descriptor - probably because the fd is actually
+        // a socket.
+        closesocket(fd);
     }
 }
 
@@ -73,23 +73,23 @@ set_socket_timeouts(int fd, double timeout)
 #if defined SO_SNDTIMEO || defined SO_RCVTIMEO
     {
 # ifndef __WIN32__
-	struct timeval t;
-	RealTime::to_timeval(timeout, &t);
+        struct timeval t;
+        RealTime::to_timeval(timeout, &t);
 # else
-	// Just to be different, it's a DWORD counting in milliseconds.
-	DWORD t;
-	if (usual(timeout < numeric_limits<DWORD>::max() / 1000))
-	    t = timeout * 1000;
-	else
-	    t = numeric_limits<DWORD>::max();
+        // Just to be different, it's a DWORD counting in milliseconds.
+        DWORD t;
+        if (usual(timeout < numeric_limits<DWORD>::max() / 1000))
+            t = timeout * 1000;
+        else
+            t = numeric_limits<DWORD>::max();
 # endif
 # ifdef SO_SNDTIMEO
-	(void)setsockopt(fd, SOL_SOCKET, SO_SNDTIMEO,
-			 reinterpret_cast<char*>(&t), sizeof(t));
+        (void)setsockopt(fd, SOL_SOCKET, SO_SNDTIMEO,
+                         reinterpret_cast<char*>(&t), sizeof(t));
 # endif
 # ifdef SO_RCVTIMEO
-	(void)setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO,
-			 reinterpret_cast<char*>(&t), sizeof(t));
+        (void)setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO,
+                         reinterpret_cast<char*>(&t), sizeof(t));
 # endif
     }
 #endif
@@ -99,12 +99,12 @@ set_socket_timeouts(int fd, double timeout)
     // time out eventually (though it may take ~2 hours).
     {
 # ifndef __WIN32__
-	int flag = 1;
+        int flag = 1;
 # else
-	DWORD flag = 1;
+        DWORD flag = 1;
 # endif
-	(void)setsockopt(fd, SOL_SOCKET, SO_KEEPALIVE,
-			 reinterpret_cast<char*>(&flag), sizeof(flag));
+        (void)setsockopt(fd, SOL_SOCKET, SO_KEEPALIVE,
+                         reinterpret_cast<char*>(&flag), sizeof(flag));
     }
 #endif
 }
@@ -119,25 +119,25 @@ pretty_ip6(const void* p, char* buf)
     const void* src;
 #endif
     if (af == AF_INET6) {
-	auto sa6 = reinterpret_cast<const sockaddr_in6*>(p);
-	port = sa6->sin6_port;
+        auto sa6 = reinterpret_cast<const sockaddr_in6*>(p);
+        port = sa6->sin6_port;
 #ifndef __WIN32__
-	src = &sa6->sin6_addr;
+        src = &sa6->sin6_addr;
 #endif
     } else if (af == AF_INET) {
-	auto sa4 = reinterpret_cast<const sockaddr_in*>(p);
-	port = sa4->sin_port;
+        auto sa4 = reinterpret_cast<const sockaddr_in*>(p);
+        port = sa4->sin_port;
 #ifndef __WIN32__
-	src = &sa4->sin_addr;
+        src = &sa4->sin_addr;
 #endif
     } else {
-	return -1;
+        return -1;
     }
 
 #ifndef __WIN32__
     const char* r = inet_ntop(af, src, buf, PRETTY_IP6_LEN);
     if (!r)
-	return -1;
+        return -1;
 #else
     // inet_ntop() isn't always available (at least with mingw) but
     // WSAAddressToString() supports both IPv4 and IPv6, so just use that.
@@ -145,24 +145,24 @@ pretty_ip6(const void* p, char* buf)
     // WSAAddressToString() has a non-const first parameter so we have to cast
     // away const.
     DWORD in_size = (af == AF_INET6 ?
-		     sizeof(struct sockaddr_in6) :
-		     sizeof(struct sockaddr_in));
+                     sizeof(struct sockaddr_in6) :
+                     sizeof(struct sockaddr_in));
     DWORD size = PRETTY_IP6_LEN;
     if (WSAAddressToString(const_cast<struct sockaddr*>(sa),
-			   in_size, NULL, buf, &size) != 0) {
-	return -1;
+                           in_size, NULL, buf, &size) != 0) {
+        return -1;
     }
     const char* r = buf;
 #endif
 
     if (startswith(r, "::ffff:") || startswith(r, "::FFFF:")) {
-	if (strchr(r + 7, '.')) {
-	    r += 7;
-	}
+        if (strchr(r + 7, '.')) {
+            r += 7;
+        }
     }
 
     if (r != buf)
-	memmove(buf, r, strlen(r) + 1);
+        memmove(buf, r, strlen(r) + 1);
 
     return port;
 }

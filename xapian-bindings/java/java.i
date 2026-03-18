@@ -117,14 +117,14 @@ namespace Xapian {
 // For compatibility with the original JNI wrappers.
 %extend PostingIterator {
     Xapian::docid next () {
-	Xapian::docid tmp;
-	if (Xapian::iterator_valid(*self)) {
-	    tmp = (**self);
-	    ++(*self);
-	} else {
-	    tmp = -1;
-	}
-	return tmp;
+        Xapian::docid tmp;
+        if (Xapian::iterator_valid(*self)) {
+            tmp = (**self);
+            ++(*self);
+        } else {
+            tmp = -1;
+        }
+        return tmp;
     }
 
     bool hasNext() const { return Xapian::iterator_valid(*self); }
@@ -132,12 +132,12 @@ namespace Xapian {
 
 %extend TermIterator {
     std::string next () {
-	std:string tmp;
-	if (Xapian::iterator_valid(*self)) {
-	    tmp = (**self);
-	    ++(*self);
-	}
-	return tmp;
+        std:string tmp;
+        if (Xapian::iterator_valid(*self)) {
+            tmp = (**self);
+            ++(*self);
+        }
+        return tmp;
     }
 
     bool hasNext() const { return Xapian::iterator_valid(*self); }
@@ -145,12 +145,12 @@ namespace Xapian {
 
 %extend ValueIterator {
     std::string next () {
-	std:string tmp;
-	if (Xapian::iterator_valid(*self)) {
-	    tmp = (**self);
-	    ++(*self);
-	}
-	return tmp;
+        std:string tmp;
+        if (Xapian::iterator_valid(*self)) {
+            tmp = (**self);
+            ++(*self);
+        }
+        return tmp;
     }
 
     bool hasNext() const { return Xapian::iterator_valid(*self); }
@@ -158,12 +158,12 @@ namespace Xapian {
 
 %extend ESetIterator {
     std::string next () {
-	std:string tmp;
-	if (Xapian::iterator_valid(*self)) {
-	    tmp = (**self);
-	    ++(*self);
-	}
-	return tmp;
+        std:string tmp;
+        if (Xapian::iterator_valid(*self)) {
+            tmp = (**self);
+            ++(*self);
+        }
+        return tmp;
     }
 
     bool hasNext() const { return Xapian::iterator_valid(*self); }
@@ -171,14 +171,14 @@ namespace Xapian {
 
 %extend MSetIterator {
     Xapian::docid next () {
-	Xapian::docid tmp;
-	if (Xapian::iterator_valid(*self)) {
-	    tmp = (**self);
-	    ++(*self);
-	} else {
-	    tmp = -1;
-	}
-	return tmp;
+        Xapian::docid tmp;
+        if (Xapian::iterator_valid(*self)) {
+            tmp = (**self);
+            ++(*self);
+        } else {
+            tmp = -1;
+        }
+        return tmp;
     }
 
     bool hasNext() const { return Xapian::iterator_valid(*self); }
@@ -206,39 +206,39 @@ class XapianSWIGStrItor {
     XapianSWIGStrItor() { }
 
     void begin(JNIEnv * jenv_, jobjectArray array_) {
-	jenv = jenv_;
-	array = array_;
-	i = 0;
+        jenv = jenv_;
+        array = array_;
+        i = 0;
     }
 
     void end(jsize len_) {
-	i = len_;
+        i = len_;
     }
 
     XapianSWIGStrItor & operator++() {
-	++i;
-	return *this;
+        ++i;
+        return *this;
     }
 
     Xapian::Query operator*() const {
-	jstring term = (jstring)jenv->GetObjectArrayElement(array, i);
-	const char *c_term = jenv->GetStringUTFChars(term, 0);
-	Xapian::Query subq(c_term);
-	jenv->ReleaseStringUTFChars(term, c_term);
-	jenv->DeleteLocalRef(term);
-	return subq;
+        jstring term = (jstring)jenv->GetObjectArrayElement(array, i);
+        const char *c_term = jenv->GetStringUTFChars(term, 0);
+        Xapian::Query subq(c_term);
+        jenv->ReleaseStringUTFChars(term, c_term);
+        jenv->DeleteLocalRef(term);
+        return subq;
     }
 
     bool operator==(const XapianSWIGStrItor & o) {
-	return i == o.i;
+        return i == o.i;
     }
 
     bool operator!=(const XapianSWIGStrItor & o) {
-	return !(*this == o);
+        return !(*this == o);
     }
 
     difference_type operator-(const XapianSWIGStrItor &o) const {
-	return i - o.i;
+        return i - o.i;
     }
 };
 
@@ -257,24 +257,24 @@ class XapianSWIGQueryItor {
     void set_p(jlong * p_) { p = p_; }
 
     XapianSWIGQueryItor & operator++() {
-	++p;
-	return *this;
+        ++p;
+        return *this;
     }
 
     const Xapian::Query & operator*() const {
-	return **(Xapian::Query **)p;
+        return **(Xapian::Query **)p;
     }
 
     bool operator==(const XapianSWIGQueryItor & o) {
-	return p == o.p;
+        return p == o.p;
     }
 
     bool operator!=(const XapianSWIGQueryItor & o) {
-	return !(*this == o);
+        return !(*this == o);
     }
 
     difference_type operator-(const XapianSWIGQueryItor &o) const {
-	return p - o.p;
+        return p - o.p;
     }
 };
 
@@ -296,7 +296,7 @@ class XapianSWIGQueryItor {
 
 %typemap(in) (XapianSWIGQueryItor qbegin, XapianSWIGQueryItor qend) %{
     if (!$input)
-	SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null array");
+        SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null array");
     jlong * jarr = jenv->GetLongArrayElements($input, NULL);
     if (!jarr) return $null;
     $1.set_p(jarr);
@@ -335,10 +335,10 @@ class XapianSWIGQueryItor {
     public final static Query MatchNothing = new Query();
 
     protected static long[] cArrayUnwrap(Query[] arrayWrapper) {
-	long[] cArray = new long[arrayWrapper.length];
-	for (int i=0; i<arrayWrapper.length; i++)
-	    cArray[i] = Query.getCPtr(arrayWrapper[i]);
-	return cArray;
+        long[] cArray = new long[arrayWrapper.length];
+        for (int i=0; i<arrayWrapper.length; i++)
+            cArray[i] = Query.getCPtr(arrayWrapper[i]);
+        return cArray;
     }
 %}
 
@@ -351,30 +351,30 @@ class XapianSWIGQueryItor {
     const jclass clazz = jenv->FindClass("java/lang/String");
     const jclass arrayClass = jenv->FindClass("java/util/ArrayList");
     if (arrayClass == NULL)
-	return NULL;
+        return NULL;
 
     const jmethodID mid_init = jenv->GetMethodID(arrayClass, "<init>", "()V");
     if (mid_init == NULL)
-	return NULL;
+        return NULL;
 
     jobject objArr = jenv->NewObject(arrayClass, mid_init);
     if (objArr == NULL)
-	return NULL;
+        return NULL;
 
     const jmethodID mid_add = jenv->GetMethodID(arrayClass, "add",
-						"(Ljava/lang/Object;)Z");
+                                                "(Ljava/lang/Object;)Z");
     if (mid_add == NULL)
-	return NULL;
+        return NULL;
 
     const jmethodID mid_toArray = jenv->GetMethodID(arrayClass, "toArray", "([Ljava/lang/Object;)[Ljava/lang/Object;");
     if (mid_toArray == NULL) return NULL;
 
     for (Xapian::TermIterator i = $1.first; i != $1.second; ++i) {
-	temp_string = jenv->NewStringUTF((*i).c_str());
-	jbool = jenv->CallBooleanMethod(objArr, mid_add, temp_string);
-	if (jbool == false) return NULL;
-	jenv->DeleteLocalRef(temp_string);
-	++n;
+        temp_string = jenv->NewStringUTF((*i).c_str());
+        jbool = jenv->CallBooleanMethod(objArr, mid_add, temp_string);
+        if (jbool == false) return NULL;
+        jenv->DeleteLocalRef(temp_string);
+        ++n;
     }
 
     c_result = jenv->NewObjectArray(n, clazz, NULL);
@@ -396,7 +396,7 @@ class XapianSWIGQueryItor {
 
 %typemap(in) const binary_std_string & (jbyte * jarr, std::string c_arg) %{
     if (!$input)
-	SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null array");
+        SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null array");
     jarr = jenv->GetByteArrayElements($input, NULL);
     if (!jarr) return $null;
     c_arg.assign(reinterpret_cast<char*>(jarr), jenv->GetArrayLength($input));
@@ -419,10 +419,10 @@ class XapianSWIGQueryItor {
     $input = jenv->NewByteArray($1_len);
     Swig::LocalRefGuard $1_refguard(jenv, $input);
     {
-	const jbyte* data = reinterpret_cast<const jbyte*>($1.data());
-	// Final parameter was not const in Java 6 and earlier.
-	jbyte* data_nc = const_cast<jbyte*>(data);
-	jenv->SetByteArrayRegion($input, 0, $1_len, data_nc);
+        const jbyte* data = reinterpret_cast<const jbyte*>($1.data());
+        // Final parameter was not const in Java 6 and earlier.
+        jbyte* data_nc = const_cast<jbyte*>(data);
+        jenv->SetByteArrayRegion($input, 0, $1_len, data_nc);
     }
 }
 
@@ -452,13 +452,13 @@ typedef std::string binary_std_string;
 
 %typemap(in) binary_std_string_view %{
     if (!$input) {
-	SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null array");
-	return $null;
+        SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null array");
+        return $null;
     }
     jbyte* $1_jarr = jenv->GetByteArrayElements($input, NULL);
     if (!$1_jarr) return $null;
     $1 = std::string_view(reinterpret_cast<char*>($1_jarr),
-			  jenv->GetArrayLength($input));
+                          jenv->GetArrayLength($input));
 %}
 
 %typemap(freearg) binary_std_string_view %{
@@ -470,10 +470,10 @@ typedef std::string binary_std_string;
     $input = jenv->NewByteArray($1_len);
     Swig::LocalRefGuard $1_refguard(jenv, $input);
     {
-	const jbyte* data = reinterpret_cast<const jbyte*>($1.data());
-	// Final parameter was not const in Java 6 and earlier.
-	jbyte* data_nc = const_cast<jbyte*>(data);
-	jenv->SetByteArrayRegion($input, 0, $1_len, data_nc);
+        const jbyte* data = reinterpret_cast<const jbyte*>($1.data());
+        // Final parameter was not const in Java 6 and earlier.
+        jbyte* data_nc = const_cast<jbyte*>(data);
+        jenv->SetByteArrayRegion($input, 0, $1_len, data_nc);
     }
 }
 

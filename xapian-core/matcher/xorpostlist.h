@@ -49,12 +49,12 @@ class XorPostList : public PostList {
 
     /// Erase a sub-postlist.
     void erase_sublist(size_t i) {
-	delete plist[i];
-	--n_kids;
-	for (size_t j = i; j < n_kids; ++j) {
-	    plist[j] = plist[j + 1];
-	}
-	matcher->force_recalc();
+        delete plist[i];
+        --n_kids;
+        for (size_t j = i; j < n_kids; ++j) {
+            plist[j] = plist[j + 1];
+        }
+        matcher->force_recalc();
     }
 
   public:
@@ -63,24 +63,24 @@ class XorPostList : public PostList {
      */
     template<class RandomItor>
     XorPostList(RandomItor pl_begin, RandomItor pl_end,
-		PostListTree* matcher_, Xapian::doccount db_size)
-	: n_kids(pl_end - pl_begin), matcher(matcher_)
+                PostListTree* matcher_, Xapian::doccount db_size)
+        : n_kids(pl_end - pl_begin), matcher(matcher_)
     {
-	plist = new PostList * [n_kids];
-	std::copy(pl_begin, pl_end, plist);
+        plist = new PostList * [n_kids];
+        std::copy(pl_begin, pl_end, plist);
 
-	// We shortcut an empty shard and avoid creating a postlist tree for it.
-	Assert(db_size);
-	// We calculate the estimate assuming independence.  The simplest
-	// way to calculate this seems to be a series of (n_kids - 1) pairwise
-	// calculations, which gives the same answer regardless of the order.
-	double scale = 1.0 / db_size;
-	double P_est = plist[0]->get_termfreq() * scale;
-	for (size_t i = 1; i < n_kids; ++i) {
-	    double P_i = plist[i]->get_termfreq() * scale;
-	    P_est += P_i - 2.0 * P_est * P_i;
-	}
-	termfreq = static_cast<Xapian::doccount>(P_est * db_size + 0.5);
+        // We shortcut an empty shard and avoid creating a postlist tree for it.
+        Assert(db_size);
+        // We calculate the estimate assuming independence.  The simplest
+        // way to calculate this seems to be a series of (n_kids - 1) pairwise
+        // calculations, which gives the same answer regardless of the order.
+        double scale = 1.0 / db_size;
+        double P_est = plist[0]->get_termfreq() * scale;
+        for (size_t i = 1; i < n_kids; ++i) {
+            double P_i = plist[i]->get_termfreq() * scale;
+            P_est += P_i - 2.0 * P_est * P_i;
+        }
+        termfreq = static_cast<Xapian::doccount>(P_est * db_size + 0.5);
     }
 
     ~XorPostList();
@@ -88,15 +88,15 @@ class XorPostList : public PostList {
     Xapian::docid get_docid() const;
 
     double get_weight(Xapian::termcount doclen,
-		      Xapian::termcount unique_terms,
-		      Xapian::termcount wdfdocmax) const;
+                      Xapian::termcount unique_terms,
+                      Xapian::termcount wdfdocmax) const;
 
     bool at_end() const;
 
     double recalc_maxweight();
 
     PositionList * read_position_list() {
-	return NULL;
+        return NULL;
     }
 
     PostList* next(double w_min);

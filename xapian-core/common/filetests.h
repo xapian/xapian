@@ -76,11 +76,11 @@ typedef std::make_unsigned_t<off_t> file_size_type;
 inline file_size_type file_size(const char* path) {
     struct stat st;
     if (stat(path, &st) == 0) {
-	if (S_ISREG(st.st_mode)) {
-	    errno = 0;
-	    return file_size_type(st.st_size);
-	}
-	errno = EINVAL;
+        if (S_ISREG(st.st_mode)) {
+            errno = 0;
+            return file_size_type(st.st_size);
+        }
+        errno = EINVAL;
     }
     return 0;
 }
@@ -126,11 +126,11 @@ inline file_size_type file_size(const std::string& path) {
 inline file_size_type file_size(int fd) {
     struct stat st;
     if (fstat(fd, &st) == 0) {
-	if (S_ISREG(st.st_mode)) {
-	    errno = 0;
-	    return file_size_type(st.st_size);
-	}
-	errno = EINVAL;
+        if (S_ISREG(st.st_mode)) {
+            errno = 0;
+            return file_size_type(st.st_size);
+        }
+        errno = EINVAL;
     }
     return 0;
 }

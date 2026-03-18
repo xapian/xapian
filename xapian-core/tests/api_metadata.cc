@@ -36,16 +36,16 @@ using namespace std;
 // Test metadata methods for non-writable databases.
 DEFINE_TESTCASE(metadata1, metadata) {
     Xapian::Database db = get_database("metadata1",
-				       [](Xapian::WritableDatabase& wdb,
-					  const string&)
-				       {
-					   wdb.set_metadata("empty", "");
-					   wdb.set_metadata("foo", "bar");
-					   wdb.set_metadata("\0"s, "\0"s);
-					   wdb.set_metadata("\0fo"s, "\0xx"s);
-					   wdb.set_metadata("f\0o"s, "x\0x"s);
-					   wdb.set_metadata("fo\0"s, "xx\0"s);
-				       });
+                                       [](Xapian::WritableDatabase& wdb,
+                                          const string&)
+                                       {
+                                           wdb.set_metadata("empty", "");
+                                           wdb.set_metadata("foo", "bar");
+                                           wdb.set_metadata("\0"s, "\0"s);
+                                           wdb.set_metadata("\0fo"s, "\0xx"s);
+                                           wdb.set_metadata("f\0o"s, "x\0x"s);
+                                           wdb.set_metadata("fo\0"s, "xx\0"s);
+                                       });
     TEST_EQUAL(db.get_doccount(), 0);
     TEST_EQUAL(db.get_metadata("empty"), "");
     TEST_EQUAL(db.get_metadata("unset"), "");
@@ -167,9 +167,9 @@ DEFINE_TESTCASE(metadata6, writable) {
     SKIP_TEST_FOR_BACKEND("inmemory");
 
     try {
-	db.set_metadata("foo", "val");
+        db.set_metadata("foo", "val");
     } catch (const Xapian::UnimplementedError &) {
-	SKIP_TEST("Metadata not supported by this backend");
+        SKIP_TEST("Metadata not supported by this backend");
     }
     db.commit();
 

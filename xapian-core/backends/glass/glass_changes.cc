@@ -44,46 +44,46 @@ using namespace std;
 GlassChanges::~GlassChanges()
 {
     if (changes_fd >= 0) {
-	::close(changes_fd);
-	string changes_tmp = changes_stem;
-	changes_tmp += "tmp";
-	io_unlink(changes_tmp);
+        ::close(changes_fd);
+        string changes_tmp = changes_stem;
+        changes_tmp += "tmp";
+        io_unlink(changes_tmp);
     }
 }
 
 GlassChanges *
 GlassChanges::start(glass_revision_number_t old_rev,
-		    glass_revision_number_t rev,
-		    int flags)
+                    glass_revision_number_t rev,
+                    int flags)
 {
     if (rev == 0) {
-	// Don't generate a changeset for the first revision.
-	return NULL;
+        // Don't generate a changeset for the first revision.
+        return NULL;
     }
 
     // Always check max_changesets for modification since last revision.
     const char *p = getenv("XAPIAN_MAX_CHANGESETS");
     if (p && *p) {
-	if (!parse_unsigned(p, max_changesets)) {
-	    throw Xapian::InvalidArgumentError("XAPIAN_MAX_CHANGESETS must be "
-					       "a non-negative integer");
-	}
+        if (!parse_unsigned(p, max_changesets)) {
+            throw Xapian::InvalidArgumentError("XAPIAN_MAX_CHANGESETS must be "
+                                               "a non-negative integer");
+        }
     } else {
-	max_changesets = 0;
+        max_changesets = 0;
     }
 
     if (max_changesets == 0)
-	return NULL;
+        return NULL;
 
     string changes_tmp = changes_stem;
     changes_tmp += "tmp";
     changes_fd = posixy_open(changes_tmp.c_str(),
-			     O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC, 0666);
+                             O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC, 0666);
     if (changes_fd < 0) {
-	string message = "Couldn't open changeset ";
-	message += changes_tmp;
-	message += " to write";
-	throw Xapian::DatabaseError(message, errno);
+        string message = "Couldn't open changeset ";
+        message += changes_tmp;
+        message += " to write";
+        throw Xapian::DatabaseError(message, errno);
     }
 
     // Write header for changeset file.
@@ -93,9 +93,9 @@ GlassChanges::start(glass_revision_number_t old_rev,
     pack_uint(header, rev);
 
     if (flags & Xapian::DB_DANGEROUS) {
-	header += '\x01'; // Changes can't be applied to a live database.
+        header += '\x01'; // Changes can't be applied to a live database.
     } else {
-	header += '\x00'; // Changes can be applied to a live database.
+        header += '\x00'; // Changes can be applied to a live database.
     }
 
     io_write(changes_fd, header.data(), header.size());
@@ -115,7 +115,7 @@ void
 GlassChanges::commit(glass_revision_number_t new_rev, int flags)
 {
     if (changes_fd < 0)
-	return;
+        return;
 
     io_write(changes_fd, "\xff", 1);
 
@@ -123,13 +123,13 @@ GlassChanges::commit(glass_revision_number_t new_rev, int flags)
     changes_tmp += "tmp";
 
     if (!(flags & Xapian::DB_NO_SYNC) && !io_sync(changes_fd)) {
-	int saved_errno = errno;
-	(void)::close(changes_fd);
-	changes_fd = -1;
-	(void)unlink(changes_tmp.c_str());
-	string m = changes_tmp;
-	m += ": Failed to sync";
-	throw Xapian::DatabaseError(m, saved_errno);
+        int saved_errno = errno;
+        (void)::close(changes_fd);
+        changes_fd = -1;
+        (void)unlink(changes_tmp.c_str());
+        string m = changes_tmp;
+        m += ": Failed to sync";
+        throw Xapian::DatabaseError(m, saved_errno);
     }
 
     (void)::close(changes_fd);
@@ -139,15 +139,15 @@ GlassChanges::commit(glass_revision_number_t new_rev, int flags)
     changes_file += str(new_rev - 1); // FIXME: ?
 
     if (!io_tmp_rename(changes_tmp, changes_file)) {
-	string m = changes_tmp;
-	m += ": Failed to rename to ";
-	m += changes_file;
-	throw Xapian::DatabaseError(m, errno);
+        string m = changes_tmp;
+        m += ": Failed to rename to ";
+        m += changes_file;
+        throw Xapian::DatabaseError(m, errno);
     }
 
     if (new_rev <= max_changesets) {
-	// We can't yet have max_changesets old changesets.
-	return;
+        // We can't yet have max_changesets old changesets.
+        return;
     }
 
     // Only remove old changesets if we successfully wrote a new changeset.
@@ -157,10 +157,10 @@ GlassChanges::commit(glass_revision_number_t new_rev, int flags)
     // deleted.
     glass_revision_number_t stop_changeset = new_rev - max_changesets;
     while (oldest_changeset < stop_changeset) {
-	changes_file.resize(changes_stem.size());
-	changes_file += str(oldest_changeset);
-	(void)io_unlink(changes_file);
-	++oldest_changeset;
+        changes_file.resize(changes_stem.size());
+        changes_file += str(oldest_changeset);
+        (void)io_unlink(changes_file);
+        ++oldest_changeset;
     }
 }
 
@@ -169,102 +169,102 @@ GlassChanges::check(const string & changes_file)
 {
     FD fd(posixy_open(changes_file.c_str(), O_RDONLY | O_CLOEXEC));
     if (fd < 0) {
-	string message = "Couldn't open changeset ";
-	message += changes_file;
-	throw Xapian::DatabaseError(message, errno);
+        string message = "Couldn't open changeset ";
+        message += changes_file;
+        throw Xapian::DatabaseError(message, errno);
     }
 
     char buf[10240];
 
     size_t n = io_read(fd, buf, sizeof(buf), CONST_STRLEN(CHANGES_MAGIC_STRING) + 4);
     if (memcmp(buf, CHANGES_MAGIC_STRING,
-	       CONST_STRLEN(CHANGES_MAGIC_STRING)) != 0) {
-	throw Xapian::DatabaseError("Changes file has wrong magic");
+               CONST_STRLEN(CHANGES_MAGIC_STRING)) != 0) {
+        throw Xapian::DatabaseError("Changes file has wrong magic");
     }
 
     const char * p = buf + CONST_STRLEN(CHANGES_MAGIC_STRING);
     if (*p++ != CHANGES_VERSION) {
-	throw Xapian::DatabaseError("Changes file has unknown version");
+        throw Xapian::DatabaseError("Changes file has unknown version");
     }
     const char * end = buf + n;
 
     glass_revision_number_t old_rev, rev;
     if (!unpack_uint(&p, end, &old_rev))
-	throw Xapian::DatabaseError("Changes file has bad old_rev");
+        throw Xapian::DatabaseError("Changes file has bad old_rev");
     if (!unpack_uint(&p, end, &rev))
-	throw Xapian::DatabaseError("Changes file has bad rev");
+        throw Xapian::DatabaseError("Changes file has bad rev");
     if (rev <= old_rev)
-	throw Xapian::DatabaseError("Changes file has rev <= old_rev");
+        throw Xapian::DatabaseError("Changes file has rev <= old_rev");
     if (p == end || (*p != 0 && *p != 1))
-	throw Xapian::DatabaseError("Changes file has bad dangerous flag");
+        throw Xapian::DatabaseError("Changes file has bad dangerous flag");
     ++p;
 
     while (true) {
-	n -= (p - buf);
-	memmove(buf, p, n);
-	n += io_read(fd, buf + n, sizeof(buf) - n);
+        n -= (p - buf);
+        memmove(buf, p, n);
+        n += io_read(fd, buf + n, sizeof(buf) - n);
 
-	if (n == 0)
-	    throw Xapian::DatabaseError("Changes file truncated");
+        if (n == 0)
+            throw Xapian::DatabaseError("Changes file truncated");
 
-	p = buf;
-	end = buf + n;
+        p = buf;
+        end = buf + n;
 
-	unsigned char v = *p++;
-	if (v == 0xff) {
-	    if (p != end)
-		throw Xapian::DatabaseError("Changes file - junk at end");
-	    break;
-	}
-	if (v == 0xfe) {
-	    // Version file.
-	    glass_revision_number_t version_rev;
-	    if (!unpack_uint(&p, end, &version_rev))
-		throw Xapian::DatabaseError("Changes file - bad version file revision");
-	    if (rev != version_rev)
-		throw Xapian::DatabaseError("Version file revision != changes file new revision");
-	    size_t len;
-	    if (!unpack_uint(&p, end, &len))
-		throw Xapian::DatabaseError("Changes file - bad version file length");
-	    if (len <= size_t(end - p)) {
-		p += len;
-	    } else {
-		if (lseek(fd, len - (end - p), SEEK_CUR) < 0)
-		    throw Xapian::DatabaseError("Changes file - version file data truncated");
-		p = end = buf;
-		n = 0;
-	    }
-	    continue;
-	}
-	unsigned table = (v & 0x7);
-	v >>= 3;
-	if (table > 5)
-	    throw Xapian::DatabaseError("Changes file - bad table code");
-	// Changed block.
-	if (v > 5)
-	    throw Xapian::DatabaseError("Changes file - bad block size");
-	unsigned block_size = GLASS_MIN_BLOCKSIZE << v;
-	uint4 block_number;
-	if (!unpack_uint(&p, end, &block_number))
-	    throw Xapian::DatabaseError("Changes file - bad block number");
+        unsigned char v = *p++;
+        if (v == 0xff) {
+            if (p != end)
+                throw Xapian::DatabaseError("Changes file - junk at end");
+            break;
+        }
+        if (v == 0xfe) {
+            // Version file.
+            glass_revision_number_t version_rev;
+            if (!unpack_uint(&p, end, &version_rev))
+                throw Xapian::DatabaseError("Changes file - bad version file revision");
+            if (rev != version_rev)
+                throw Xapian::DatabaseError("Version file revision != changes file new revision");
+            size_t len;
+            if (!unpack_uint(&p, end, &len))
+                throw Xapian::DatabaseError("Changes file - bad version file length");
+            if (len <= size_t(end - p)) {
+                p += len;
+            } else {
+                if (lseek(fd, len - (end - p), SEEK_CUR) < 0)
+                    throw Xapian::DatabaseError("Changes file - version file data truncated");
+                p = end = buf;
+                n = 0;
+            }
+            continue;
+        }
+        unsigned table = (v & 0x7);
+        v >>= 3;
+        if (table > 5)
+            throw Xapian::DatabaseError("Changes file - bad table code");
+        // Changed block.
+        if (v > 5)
+            throw Xapian::DatabaseError("Changes file - bad block size");
+        unsigned block_size = GLASS_MIN_BLOCKSIZE << v;
+        uint4 block_number;
+        if (!unpack_uint(&p, end, &block_number))
+            throw Xapian::DatabaseError("Changes file - bad block number");
 
-	// Parse information from the start of the block.
-	//
-	// Although the revision number is aligned within the block, the block
-	// data may not be aligned to a word boundary here.
-	uint4 block_rev = unaligned_read4(reinterpret_cast<const uint8_t*>(p));
-	(void)block_rev; // FIXME: Sanity check value.
-	unsigned level = static_cast<unsigned char>(p[4]);
-	(void)level; // FIXME: Sanity check value.
+        // Parse information from the start of the block.
+        //
+        // Although the revision number is aligned within the block, the block
+        // data may not be aligned to a word boundary here.
+        uint4 block_rev = unaligned_read4(reinterpret_cast<const uint8_t*>(p));
+        (void)block_rev; // FIXME: Sanity check value.
+        unsigned level = static_cast<unsigned char>(p[4]);
+        (void)level; // FIXME: Sanity check value.
 
-	// Skip over the block content.
-	if (block_size <= unsigned(end - p)) {
-	    p += block_size;
-	} else {
-	    if (lseek(fd, block_size - (end - p), SEEK_CUR) < 0)
-		throw Xapian::DatabaseError("Changes file - block data truncated");
-	    p = end = buf;
-	    n = 0;
-	}
+        // Skip over the block content.
+        if (block_size <= unsigned(end - p)) {
+            p += block_size;
+        } else {
+            if (lseek(fd, block_size - (end - p), SEEK_CUR) < 0)
+                throw Xapian::DatabaseError("Changes file - block data truncated");
+            p = end = buf;
+            n = 0;
+        }
     }
 }

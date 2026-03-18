@@ -33,15 +33,15 @@ class XlsxParser : public XmlParser {
     std::set<unsigned long> date_format;
 
     enum {
-	MODE_NONE,
-	MODE_SI,
-	MODE_C_STRING,
-	MODE_V_STRING,
-	MODE_C_LITERAL,
-	MODE_V_LITERAL,
-	MODE_C_DATE,
-	MODE_V_DATE,
-	MODE_CELLXFS
+        MODE_NONE,
+        MODE_SI,
+        MODE_C_STRING,
+        MODE_V_STRING,
+        MODE_C_LITERAL,
+        MODE_V_LITERAL,
+        MODE_C_DATE,
+        MODE_V_DATE,
+        MODE_CELLXFS
     } mode = MODE_NONE;
 
     bool date1904 = false;
@@ -49,10 +49,10 @@ class XlsxParser : public XmlParser {
     unsigned style_index = 0;
 
     void append_field(const std::string& text) {
-	if (!text.empty()) {
-	    if (!dump.empty()) dump += ' ';
-	    dump += text;
-	}
+        if (!text.empty()) {
+            if (!dump.empty()) dump += ' ';
+            dump += text;
+        }
     }
 
   public:

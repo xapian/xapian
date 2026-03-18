@@ -46,9 +46,9 @@ MultiDatabase::reopen()
 {
     bool result = false;
     for (auto&& shard : shards) {
-	if (shard->reopen()) {
-	    result = true;
-	}
+        if (shard->reopen()) {
+            result = true;
+        }
     }
     return result;
 }
@@ -57,7 +57,7 @@ void
 MultiDatabase::close()
 {
     for (auto&& shard : shards) {
-	shard->close();
+        shard->close();
     }
 }
 
@@ -67,16 +67,16 @@ MultiDatabase::open_post_list(string_view term) const
     PostList** postlists = new PostList*[shards.size()];
     size_t count = 0;
     try {
-	for (auto&& shard : shards) {
-	    postlists[count] = shard->open_post_list(term);
-	    ++count;
-	}
-	return new MultiPostList(count, postlists);
+        for (auto&& shard : shards) {
+            postlists[count] = shard->open_post_list(term);
+            ++count;
+        }
+        return new MultiPostList(count, postlists);
     } catch (...) {
-	while (count)
-	    delete postlists[--count];
-	delete [] postlists;
-	throw;
+        while (count)
+            delete postlists[--count];
+        delete [] postlists;
+        throw;
     }
 }
 
@@ -112,16 +112,16 @@ MultiDatabase::open_allterms(string_view prefix) const
     size_t count = 0;
     TermList** termlists = new TermList*[shards.size()];
     try {
-	for (auto&& shard : shards) {
-	    termlists[count] = shard->open_allterms(prefix);
-	    ++count;
-	}
-	return new MultiAllTermsList(count, termlists);
+        for (auto&& shard : shards) {
+            termlists[count] = shard->open_allterms(prefix);
+            ++count;
+        }
+        return new MultiAllTermsList(count, termlists);
     } catch (...) {
-	while (count)
-	    delete termlists[--count];
-	delete [] termlists;
-	throw;
+        while (count)
+            delete termlists[--count];
+        delete [] termlists;
+        throw;
     }
 }
 
@@ -129,9 +129,9 @@ bool
 MultiDatabase::has_positions() const
 {
     for (auto&& shard : shards) {
-	if (shard->has_positions()) {
-	    return true;
-	}
+        if (shard->has_positions()) {
+            return true;
+        }
     }
     return false;
 }
@@ -150,10 +150,10 @@ MultiDatabase::get_doccount() const
 {
     Xapian::doccount result = 0;
     for (auto&& shard : shards) {
-	auto old_result = result;
-	result += shard->get_doccount();
-	if (result < old_result)
-	    throw Xapian::DatabaseError("doccount overflowed!");
+        auto old_result = result;
+        result += shard->get_doccount();
+        if (result < old_result)
+            throw Xapian::DatabaseError("doccount overflowed!");
     }
     return result;
 }
@@ -164,13 +164,13 @@ MultiDatabase::get_lastdocid() const
     Xapian::docid result = 0;
     Xapian::doccount n_shards = shards.size();
     for (Xapian::doccount shard = 0; shard != n_shards; ++shard) {
-	Xapian::docid shard_lastdocid = shards[shard]->get_lastdocid();
-	if (shard_lastdocid == 0) {
-	    // This shard is empty, so doesn't influence lastdocid for the
-	    // combined database.
-	    continue;
-	}
-	result = max(result, unshard(shard_lastdocid, shard, n_shards));
+        Xapian::docid shard_lastdocid = shards[shard]->get_lastdocid();
+        if (shard_lastdocid == 0) {
+            // This shard is empty, so doesn't influence lastdocid for the
+            // combined database.
+            continue;
+        }
+        result = max(result, unshard(shard_lastdocid, shard, n_shards));
     }
     return result;
 }
@@ -180,18 +180,18 @@ MultiDatabase::get_total_length() const
 {
     Xapian::totallength result = 0;
     for (auto&& shard : shards) {
-	auto old_result = result;
-	result += shard->get_total_length();
-	if (result < old_result)
-	    throw Xapian::DatabaseError("Total document length overflowed!");
+        auto old_result = result;
+        result += shard->get_total_length();
+        if (result < old_result)
+            throw Xapian::DatabaseError("Total document length overflowed!");
     }
     return result;
 }
 
 void
 MultiDatabase::get_freqs(string_view term,
-			 Xapian::doccount* tf_ptr,
-			 Xapian::termcount* cf_ptr) const
+                         Xapian::doccount* tf_ptr,
+                         Xapian::termcount* cf_ptr) const
 {
     Assert(!term.empty());
 
@@ -204,25 +204,25 @@ MultiDatabase::get_freqs(string_view term,
     Xapian::termcount total_cf = 0;
 
     for (auto&& shard : shards) {
-	shard->get_freqs(term, shard_tf_ptr, shard_cf_ptr);
-	if (shard_tf_ptr) {
-	    auto old_tf = total_tf;
-	    total_tf += *shard_tf_ptr;
-	    if (total_tf < old_tf)
-		throw Xapian::DatabaseError("termfreq overflowed!");
-	}
-	if (shard_cf_ptr) {
-	    auto old_cf = total_cf;
-	    total_cf += *shard_cf_ptr;
-	    if (total_cf < old_cf)
-		throw Xapian::DatabaseError("Collection freq overflowed!");
-	}
+        shard->get_freqs(term, shard_tf_ptr, shard_cf_ptr);
+        if (shard_tf_ptr) {
+            auto old_tf = total_tf;
+            total_tf += *shard_tf_ptr;
+            if (total_tf < old_tf)
+                throw Xapian::DatabaseError("termfreq overflowed!");
+        }
+        if (shard_cf_ptr) {
+            auto old_cf = total_cf;
+            total_cf += *shard_cf_ptr;
+            if (total_cf < old_cf)
+                throw Xapian::DatabaseError("Collection freq overflowed!");
+        }
     }
     if (tf_ptr) {
-	*tf_ptr = total_tf;
+        *tf_ptr = total_tf;
     }
     if (cf_ptr) {
-	*cf_ptr = total_cf;
+        *cf_ptr = total_cf;
     }
 }
 
@@ -231,10 +231,10 @@ MultiDatabase::get_value_freq(Xapian::valueno slot) const
 {
     Xapian::termcount result = 0;
     for (auto&& shard : shards) {
-	auto old_result = result;
-	result += shard->get_value_freq(slot);
-	if (result < old_result)
-	    throw Xapian::DatabaseError("Value freq overflowed!");
+        auto old_result = result;
+        result += shard->get_value_freq(slot);
+        if (result < old_result)
+            throw Xapian::DatabaseError("Value freq overflowed!");
     }
     return result;
 }
@@ -244,11 +244,11 @@ MultiDatabase::get_value_lower_bound(Xapian::valueno slot) const
 {
     string result;
     for (auto&& shard : shards) {
-	string shard_result = shard->get_value_lower_bound(slot);
-	if (shard_result.empty())
-	    continue;
-	if (result.empty() || shard_result < result)
-	    result = std::move(shard_result);
+        string shard_result = shard->get_value_lower_bound(slot);
+        if (shard_result.empty())
+            continue;
+        if (result.empty() || shard_result < result)
+            result = std::move(shard_result);
     }
     return result;
 }
@@ -258,9 +258,9 @@ MultiDatabase::get_value_upper_bound(Xapian::valueno slot) const
 {
     string result;
     for (auto&& shard : shards) {
-	string shard_result = shard->get_value_upper_bound(slot);
-	if (shard_result > result)
-	    result = std::move(shard_result);
+        string shard_result = shard->get_value_upper_bound(slot);
+        if (shard_result > result)
+            result = std::move(shard_result);
     }
     return result;
 }
@@ -275,11 +275,11 @@ MultiDatabase::get_doclength_lower_bound() const
     // since Xapian::termcount is an unsigned type leaves 0 alone but flips the
     // order of all other values), then negate the answer again at the end.
     static_assert(std::is_unsigned_v<Xapian::termcount>,
-		  "Unsigned type required");
+                  "Unsigned type required");
     Xapian::termcount result = 0;
     for (auto&& shard : shards) {
-	Xapian::termcount shard_result = shard->get_doclength_lower_bound();
-	result = max(result, negate_unsigned(shard_result));
+        Xapian::termcount shard_result = shard->get_doclength_lower_bound();
+        result = max(result, negate_unsigned(shard_result));
     }
     return negate_unsigned(result);
 }
@@ -289,7 +289,7 @@ MultiDatabase::get_doclength_upper_bound() const
 {
     Xapian::termcount result = 0;
     for (auto&& shard : shards) {
-	result = max(result, shard->get_doclength_upper_bound());
+        result = max(result, shard->get_doclength_upper_bound());
     }
     return result;
 }
@@ -301,7 +301,7 @@ MultiDatabase::get_wdf_upper_bound(string_view term) const
 
     Xapian::termcount result = 0;
     for (auto&& shard : shards) {
-	result = max(result, shard->get_wdf_upper_bound(term));
+        result = max(result, shard->get_wdf_upper_bound(term));
     }
     return result;
 }
@@ -317,11 +317,11 @@ MultiDatabase::get_unique_terms_lower_bound() const
     // flips the order of all other values), then negate the answer again at
     // the end.
     static_assert(std::is_unsigned_v<Xapian::termcount>,
-		  "Unsigned type required");
+                  "Unsigned type required");
     Xapian::termcount result = 0;
     for (auto&& shard : shards) {
-	Xapian::termcount shard_result = shard->get_unique_terms_lower_bound();
-	result = max(result, negate_unsigned(shard_result));
+        Xapian::termcount shard_result = shard->get_unique_terms_lower_bound();
+        result = max(result, negate_unsigned(shard_result));
     }
     return negate_unsigned(result);
 }
@@ -331,7 +331,7 @@ MultiDatabase::get_unique_terms_upper_bound() const
 {
     Xapian::termcount result = 0;
     for (auto&& shard : shards) {
-	result = max(result, shard->get_unique_terms_upper_bound());
+        result = max(result, shard->get_unique_terms_upper_bound());
     }
     return result;
 }
@@ -342,17 +342,17 @@ MultiDatabase::open_value_list(Xapian::valueno slot) const
     SubValueList** valuelists = new SubValueList*[shards.size()];
     unsigned count = 0;
     try {
-	for (auto&& shard : shards) {
-	    ValueList* vl = shard->open_value_list(slot);
-	    valuelists[count] = new SubValueList(vl, count);
-	    ++count;
-	}
-	return new MultiValueList(count, valuelists, slot);
+        for (auto&& shard : shards) {
+            ValueList* vl = shard->open_value_list(slot);
+            valuelists[count] = new SubValueList(vl, count);
+            ++count;
+        }
+        return new MultiValueList(count, valuelists, slot);
     } catch (...) {
-	while (count)
-	    delete valuelists[--count];
-	delete [] valuelists;
-	throw;
+        while (count)
+            delete valuelists[--count];
+        delete [] valuelists;
+        throw;
     }
 }
 
@@ -404,8 +404,8 @@ bool
 MultiDatabase::term_exists(string_view term) const
 {
     for (auto&& shard : shards) {
-	if (shard->term_exists(term))
-	    return true;
+        if (shard->term_exists(term))
+            return true;
     }
     return false;
 }
@@ -414,7 +414,7 @@ void
 MultiDatabase::keep_alive()
 {
     for (auto&& shard : shards) {
-	shard->keep_alive();
+        shard->keep_alive();
     }
 }
 
@@ -425,18 +425,18 @@ MultiDatabase::open_spelling_termlist(string_view word) const
     termlists.reserve(shards.size());
 
     try {
-	for (auto&& shard : shards) {
-	    TermList* termlist = shard->open_spelling_termlist(word);
-	    if (!termlist)
-		continue;
-	    termlists.push_back(termlist);
-	}
+        for (auto&& shard : shards) {
+            TermList* termlist = shard->open_spelling_termlist(word);
+            if (!termlist)
+                continue;
+            termlists.push_back(termlist);
+        }
 
-	return make_termlist_merger(termlists);
+        return make_termlist_merger(termlists);
     } catch (...) {
-	for (auto&& termlist : termlists)
-	    delete termlist;
-	throw;
+        for (auto&& termlist : termlists)
+            delete termlist;
+        throw;
     }
 }
 
@@ -447,18 +447,18 @@ MultiDatabase::open_spelling_wordlist() const
     termlists.reserve(shards.size());
 
     try {
-	for (auto&& shard : shards) {
-	    TermList* termlist = shard->open_spelling_wordlist();
-	    if (!termlist)
-		continue;
-	    termlists.push_back(termlist);
-	}
+        for (auto&& shard : shards) {
+            TermList* termlist = shard->open_spelling_wordlist();
+            if (!termlist)
+                continue;
+            termlists.push_back(termlist);
+        }
 
-	return make_termlist_merger<FreqAdderOrTermList>(termlists);
+        return make_termlist_merger<FreqAdderOrTermList>(termlists);
     } catch (...) {
-	for (auto&& termlist : termlists)
-	    delete termlist;
-	throw;
+        for (auto&& termlist : termlists)
+            delete termlist;
+        throw;
     }
 }
 
@@ -467,10 +467,10 @@ MultiDatabase::get_spelling_frequency(string_view word) const
 {
     Xapian::doccount result = 0;
     for (auto&& shard : shards) {
-	auto old_result = result;
-	result += shard->get_spelling_frequency(word);
-	if (result < old_result)
-	    throw Xapian::DatabaseError("Spelling frequency overflowed!");
+        auto old_result = result;
+        result += shard->get_spelling_frequency(word);
+        if (result < old_result)
+            throw Xapian::DatabaseError("Spelling frequency overflowed!");
     }
     return result;
 }
@@ -482,18 +482,18 @@ MultiDatabase::open_synonym_termlist(string_view term) const
     termlists.reserve(shards.size());
 
     try {
-	for (auto&& shard : shards) {
-	    TermList* termlist = shard->open_synonym_termlist(term);
-	    if (!termlist)
-		continue;
-	    termlists.push_back(termlist);
-	}
+        for (auto&& shard : shards) {
+            TermList* termlist = shard->open_synonym_termlist(term);
+            if (!termlist)
+                continue;
+            termlists.push_back(termlist);
+        }
 
-	return make_termlist_merger(termlists);
+        return make_termlist_merger(termlists);
     } catch (...) {
-	for (auto&& termlist : termlists)
-	    delete termlist;
-	throw;
+        for (auto&& termlist : termlists)
+            delete termlist;
+        throw;
     }
 }
 
@@ -504,18 +504,18 @@ MultiDatabase::open_synonym_keylist(string_view prefix) const
     termlists.reserve(shards.size());
 
     try {
-	for (auto&& shard : shards) {
-	    TermList* termlist = shard->open_synonym_keylist(prefix);
-	    if (!termlist)
-		continue;
-	    termlists.push_back(termlist);
-	}
+        for (auto&& shard : shards) {
+            TermList* termlist = shard->open_synonym_keylist(prefix);
+            if (!termlist)
+                continue;
+            termlists.push_back(termlist);
+        }
 
-	return make_termlist_merger(termlists);
+        return make_termlist_merger(termlists);
     } catch (...) {
-	for (auto&& termlist : termlists)
-	    delete termlist;
-	throw;
+        for (auto&& termlist : termlists)
+            delete termlist;
+        throw;
     }
 }
 
@@ -536,14 +536,14 @@ MultiDatabase::get_uuid() const
 {
     string uuid;
     for (auto&& shard : shards) {
-	const string& sub_uuid = shard->get_uuid();
-	// If any of the sub-databases have no uuid, we can't make a uuid for
-	// the combined database.
-	if (sub_uuid.empty())
-	    return sub_uuid;
-	if (!uuid.empty())
-	    uuid += ':';
-	uuid += sub_uuid;
+        const string& sub_uuid = shard->get_uuid();
+        // If any of the sub-databases have no uuid, we can't make a uuid for
+        // the combined database.
+        if (sub_uuid.empty())
+            return sub_uuid;
+        if (!uuid.empty())
+            uuid += ':';
+        uuid += sub_uuid;
     }
     return uuid;
 }
@@ -552,28 +552,28 @@ bool
 MultiDatabase::locked() const
 {
     for (auto&& shard : shards) {
-	if (shard->locked()) {
-	    return true;
-	}
+        if (shard->locked()) {
+            return true;
+        }
     }
     return false;
 }
 
 void
 MultiDatabase::write_changesets_to_fd(int,
-				      std::string_view,
-				      bool,
-				      Xapian::ReplicationInfo*)
+                                      std::string_view,
+                                      bool,
+                                      Xapian::ReplicationInfo*)
 {
     throw Xapian::InvalidOperationError("write_changesets_to_fd() with "
-					"more than one subdatabase");
+                                        "more than one subdatabase");
 }
 
 Xapian::rev
 MultiDatabase::get_revision() const
 {
     throw Xapian::InvalidOperationError("Database::get_revision() with "
-					"more than one subdatabase");
+                                        "more than one subdatabase");
 }
 
 void
@@ -595,7 +595,7 @@ void
 MultiDatabase::commit()
 {
     for (auto&& shard : shards) {
-	shard->commit();
+        shard->commit();
     }
 }
 
@@ -603,7 +603,7 @@ void
 MultiDatabase::cancel()
 {
     for (auto&& shard : shards) {
-	shard->cancel();
+        shard->cancel();
     }
 }
 
@@ -611,7 +611,7 @@ void
 MultiDatabase::begin_transaction(bool flushed)
 {
     for (auto&& shard : shards) {
-	shard->begin_transaction(flushed);
+        shard->begin_transaction(flushed);
     }
 }
 
@@ -619,7 +619,7 @@ void
 MultiDatabase::end_transaction(bool do_commit)
 {
     for (auto&& shard : shards) {
-	shard->end_transaction(do_commit);
+        shard->end_transaction(do_commit);
     }
 }
 
@@ -630,9 +630,9 @@ MultiDatabase::add_document(const Xapian::Document& doc)
     // which seems a sensible invariant to preserve with multiple shards.
     Xapian::docid did = UNSIGNED_OVERFLOW_OK(get_lastdocid() + 1);
     if (rare(did == 0)) {
-	throw Xapian::DatabaseError("Run out of docids - you'll have to use "
-				    "copydatabase to eliminate any gaps "
-				    "before you can add more documents");
+        throw Xapian::DatabaseError("Run out of docids - you'll have to use "
+                                    "copydatabase to eliminate any gaps "
+                                    "before you can add more documents");
     }
 
     auto n_shards = shards.size();
@@ -653,7 +653,7 @@ void
 MultiDatabase::delete_document(string_view term)
 {
     for (auto&& shard : shards) {
-	shard->delete_document(term);
+        shard->delete_document(term);
     }
 }
 
@@ -671,17 +671,17 @@ MultiDatabase::replace_document(string_view term, const Xapian::Document& doc)
     auto n_shards = shards.size();
     unique_ptr<PostList> pl(open_post_list(term));
     if (!pl || (pl->next(), pl->at_end())) {
-	// unique_term not in the database, so this is just an add_document().
-	// Calculate which shard the next never used docid maps to.
-	Xapian::docid did = UNSIGNED_OVERFLOW_OK(get_lastdocid() + 1);
-	if (rare(did == 0)) {
-	    throw Xapian::DatabaseError("Run out of docids - you'll have to "
-					"use copydatabase to eliminate any "
-					"gaps before you can add more "
-					"documents");
-	}
-	auto shard = shards[shard_number(did, n_shards)];
-	return shard->add_document(doc);
+        // unique_term not in the database, so this is just an add_document().
+        // Calculate which shard the next never used docid maps to.
+        Xapian::docid did = UNSIGNED_OVERFLOW_OK(get_lastdocid() + 1);
+        if (rare(did == 0)) {
+            throw Xapian::DatabaseError("Run out of docids - you'll have to "
+                                        "use copydatabase to eliminate any "
+                                        "gaps before you can add more "
+                                        "documents");
+        }
+        auto shard = shards[shard_number(did, n_shards)];
+        return shard->add_document(doc);
     }
 
     Xapian::docid result = pl->get_docid();
@@ -690,9 +690,9 @@ MultiDatabase::replace_document(string_view term, const Xapian::Document& doc)
 
     // Delete any other occurrences of the unique term.
     while (pl->next(), !pl->at_end()) {
-	Xapian::docid did = pl->get_docid();
-	auto shard = shards[shard_number(did, n_shards)];
-	shard->delete_document(shard_docid(did, n_shards));
+        Xapian::docid did = pl->get_docid();
+        auto shard = shards[shard_number(did, n_shards)];
+        shard->delete_document(shard_docid(did, n_shards));
     }
 
     return result;
@@ -711,36 +711,36 @@ MultiDatabase::request_document(Xapian::docid did) const
 
 void
 MultiDatabase::add_spelling(string_view word,
-			    Xapian::termcount freqinc) const
+                            Xapian::termcount freqinc) const
 {
     shards[0]->add_spelling(word, freqinc);
 }
 
 Xapian::termcount
 MultiDatabase::remove_spelling(string_view word,
-			       Xapian::termcount freqdec) const
+                               Xapian::termcount freqdec) const
 {
     for (auto&& shard : shards) {
-	freqdec = shard->remove_spelling(word, freqdec);
-	if (freqdec == 0)
-	    break;
+        freqdec = shard->remove_spelling(word, freqdec);
+        if (freqdec == 0)
+            break;
     }
     return freqdec;
 }
 
 void
 MultiDatabase::add_synonym(string_view term,
-			   string_view synonym) const
+                           string_view synonym) const
 {
     shards[0]->add_synonym(term, synonym);
 }
 
 void
 MultiDatabase::remove_synonym(string_view term,
-			      string_view synonym) const
+                              string_view synonym) const
 {
     for (auto&& shard : shards) {
-	shard->remove_synonym(term, synonym);
+        shard->remove_synonym(term, synonym);
     }
 }
 
@@ -748,7 +748,7 @@ void
 MultiDatabase::clear_synonyms(string_view term) const
 {
     for (auto&& shard : shards) {
-	shard->clear_synonyms(term);
+        shard->clear_synonyms(term);
     }
 }
 
@@ -760,10 +760,10 @@ MultiDatabase::set_metadata(string_view key, string_view value)
 
 string
 MultiDatabase::reconstruct_text(Xapian::docid did,
-				size_t length,
-				string_view prefix,
-				Xapian::termpos start_pos,
-				Xapian::termpos end_pos) const
+                                size_t length,
+                                string_view prefix,
+                                Xapian::termpos start_pos,
+                                Xapian::termpos end_pos) const
 {
     Assert(did != 0);
 
@@ -771,7 +771,7 @@ MultiDatabase::reconstruct_text(Xapian::docid did,
     auto shard = shards[shard_number(did, n_shards)];
     auto shard_did = shard_docid(did, n_shards);
     return shard->reconstruct_text(shard_did, length, prefix,
-				   start_pos, end_pos);
+                                   start_pos, end_pos);
 }
 
 string
@@ -779,10 +779,10 @@ MultiDatabase::get_description() const
 {
     string desc;
     for (auto&& shard : shards) {
-	if (!desc.empty()) {
-	    desc += ", ";
-	}
-	desc += shard->get_description();
+        if (!desc.empty()) {
+            desc += ", ";
+        }
+        desc += shard->get_description();
     }
     desc += ')';
     return desc;

@@ -57,18 +57,18 @@ class XAPIAN_VISIBILITY_DEFAULT TermIterator {
 
     /// Move constructor.
     TermIterator(TermIterator && o)
-	: internal(o.internal) {
-	o.internal = nullptr;
+        : internal(o.internal) {
+        o.internal = nullptr;
     }
 
     /// Move assignment operator.
     TermIterator & operator=(TermIterator && o) {
-	if (this != &o) {
-	    if (internal) decref();
-	    internal = o.internal;
-	    o.internal = nullptr;
-	}
-	return *this;
+        if (this != &o) {
+            if (internal) decref();
+            internal = o.internal;
+            o.internal = nullptr;
+        }
+        return *this;
     }
 
     /** Default constructor.
@@ -77,11 +77,11 @@ class XAPIAN_VISIBILITY_DEFAULT TermIterator {
      *  assigned to, but is sometimes syntactically convenient.
      */
     TermIterator() noexcept
-	: internal() { }
+        : internal() { }
 
     /// Destructor.
     ~TermIterator() {
-	if (internal) decref();
+        if (internal) decref();
     }
 
     /// Return the term at the current position.
@@ -107,7 +107,7 @@ class XAPIAN_VISIBILITY_DEFAULT TermIterator {
 
     /// Return an end PositionIterator for the current term.
     PositionIterator positionlist_end() const noexcept {
-	return PositionIterator();
+        return PositionIterator();
     }
 
     /// Advance the iterator to the next position.
@@ -115,9 +115,9 @@ class XAPIAN_VISIBILITY_DEFAULT TermIterator {
 
     /// Advance the iterator to the next position (postfix version).
     DerefWrapper_<std::string> operator++(int) {
-	const std::string & term(**this);
-	operator++();
-	return DerefWrapper_<std::string>(term);
+        const std::string & term(**this);
+        operator++();
+        return DerefWrapper_<std::string>(term);
     }
 
     /** Advance the iterator to term @a term.

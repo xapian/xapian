@@ -44,11 +44,11 @@ while (<STDIN>) {
     $hdr->add($ext, $enum);
     $max_ext_len = length($ext) if length($ext) > $max_ext_len;
     if (!exists $mime_table{$mimetype}) {
-	$hdr->append("    \"$mimetype\",");
-	if (length($mimetype) > $max_mimetype_len) {
-	    $max_mimetype_len = length($mimetype) if length($mimetype);
-	}
-	$mime_table{$mimetype} = [];
+        $hdr->append("    \"$mimetype\",");
+        if (length($mimetype) > $max_mimetype_len) {
+            $max_mimetype_len = length($mimetype) if length($mimetype);
+        }
+        $mime_table{$mimetype} = [];
     }
     push @{$mime_table{$mimetype}}, $ext;
 }
@@ -61,7 +61,7 @@ $hdr->write();
 open IGNORED, '>', 'docs/inc/ignored.rst' or die $!;
 if (exists $mime_table{'ignore'}) {
     foreach my $ext (sort @{$mime_table{'ignore'}}) {
-	print IGNORED "   - $ext\n";
+        print IGNORED "   - $ext\n";
     }
 }
 close IGNORED or die $!;
@@ -88,21 +88,21 @@ print MIMETYPES $drule;
 my $first = 1;
 foreach my $mimetype (sort {mimetype_order($a, $b)} keys %mime_table) {
     if ($mimetype eq 'ignore') {
-	# Handled above.
-	next;
+        # Handled above.
+        next;
     } elsif ($mimetype eq 'skip') {
-	# FIXME: Currently nothing is mapped to this by default.
-	next;
+        # FIXME: Currently nothing is mapped to this by default.
+        next;
     }
     if ($first) {
-	$first = 0;
+        $first = 0;
     } else {
-	print MIMETYPES $srule;
+        print MIMETYPES $srule;
     }
     my @exts = @{$mime_table{$mimetype}};
     printf MIMETYPES $fmt, $mimetype, shift @exts;
     for (@exts) {
-	printf MIMETYPES $fmt, '', $_;
+        printf MIMETYPES $fmt, '', $_;
     }
 }
 print MIMETYPES $drule;

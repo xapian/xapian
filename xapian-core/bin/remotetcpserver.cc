@@ -34,9 +34,9 @@ using namespace std;
 
 /// The RemoteTcpServer constructor, taking a database and a listening port.
 RemoteTcpServer::RemoteTcpServer(const vector<std::string> &dbpaths_,
-				 const std::string & host, int port,
-				 double active_timeout_, double idle_timeout_,
-				 bool writable_, bool verbose_)
+                                 const std::string & host, int port,
+                                 double active_timeout_, double idle_timeout_,
+                                 bool writable_, bool verbose_)
     : TcpServer(host, port, true, verbose_),
       dbpaths(dbpaths_), writable(writable_),
       active_timeout(active_timeout_), idle_timeout(idle_timeout_)
@@ -47,16 +47,16 @@ void
 RemoteTcpServer::handle_one_connection(int socket)
 {
     try {
-	RemoteServer sserv(dbpaths, socket, socket,
-			   active_timeout, idle_timeout, writable);
-	sserv.set_registry(reg);
-	sserv.run();
+        RemoteServer sserv(dbpaths, socket, socket,
+                           active_timeout, idle_timeout, writable);
+        sserv.set_registry(reg);
+        sserv.run();
     } catch (const Xapian::NetworkTimeoutError &e) {
-	if (verbose)
-	    cerr << "Connection timed out: " << e.get_description() << '\n';
+        if (verbose)
+            cerr << "Connection timed out: " << e.get_description() << '\n';
     } catch (const Xapian::Error &e) {
-	cerr << "Got exception " << e.get_description() << '\n';
+        cerr << "Got exception " << e.get_description() << '\n';
     } catch (...) {
-	// ignore other exceptions
+        // ignore other exceptions
     }
 }

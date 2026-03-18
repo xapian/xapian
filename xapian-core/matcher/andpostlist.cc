@@ -33,21 +33,21 @@ AndPostList::allocate_plist_and_max_wt()
 {
     plist = new PostList * [n_kids];
     try {
-	max_wt = new double [n_kids]();
+        max_wt = new double [n_kids]();
     } catch (...) {
-	delete [] plist;
-	plist = NULL;
-	throw;
+        delete [] plist;
+        plist = NULL;
+        throw;
     }
 }
 
 AndPostList::~AndPostList()
 {
     if (plist) {
-	for (size_t i = 0; i < n_kids; ++i) {
-	    delete plist[i];
-	}
-	delete [] plist;
+        for (size_t i = 0; i < n_kids; ++i) {
+            delete plist[i];
+        }
+        delete [] plist;
     }
     delete [] max_wt;
 }
@@ -60,13 +60,13 @@ AndPostList::get_docid() const
 
 double
 AndPostList::get_weight(Xapian::termcount doclen,
-			Xapian::termcount unique_terms,
-			Xapian::termcount wdfdocmax) const
+                        Xapian::termcount unique_terms,
+                        Xapian::termcount wdfdocmax) const
 {
     Assert(did);
     double result = 0;
     for (size_t i = 0; i < n_kids; ++i) {
-	result += plist[i]->get_weight(doclen, unique_terms, wdfdocmax);
+        result += plist[i]->get_weight(doclen, unique_terms, wdfdocmax);
     }
     return result;
 }
@@ -82,9 +82,9 @@ AndPostList::recalc_maxweight()
 {
     max_total = 0.0;
     for (size_t i = 0; i < n_kids; ++i) {
-	double new_max = plist[i]->recalc_maxweight();
-	max_wt[i] = new_max;
-	max_total += new_max;
+        double new_max = plist[i]->recalc_maxweight();
+        max_wt[i] = new_max;
+        max_total += new_max;
     }
     return max_total;
 }
@@ -94,26 +94,26 @@ AndPostList::find_next_match(double w_min)
 {
 advanced_plist0:
     if (plist[0]->at_end()) {
-	did = 0;
-	return NULL;
+        did = 0;
+        return NULL;
     }
     did = plist[0]->get_docid();
     for (size_t i = 1; i < n_kids; ++i) {
-	bool valid;
-	check_helper(i, did, w_min, valid);
-	if (!valid) {
-	    next_helper(0, w_min);
-	    goto advanced_plist0;
-	}
-	if (plist[i]->at_end()) {
-	    did = 0;
-	    return NULL;
-	}
-	Xapian::docid new_did = plist[i]->get_docid();
-	if (new_did != did) {
-	    skip_to_helper(0, new_did, w_min);
-	    goto advanced_plist0;
-	}
+        bool valid;
+        check_helper(i, did, w_min, valid);
+        if (!valid) {
+            next_helper(0, w_min);
+            goto advanced_plist0;
+        }
+        if (plist[i]->at_end()) {
+            did = 0;
+            return NULL;
+        }
+        Xapian::docid new_did = plist[i]->get_docid();
+        if (new_did != did) {
+            skip_to_helper(0, new_did, w_min);
+            goto advanced_plist0;
+        }
     }
     return NULL;
 }
@@ -137,11 +137,11 @@ AndPostList::get_docid_range(Xapian::docid& first, Xapian::docid& last) const
 {
     plist[0]->get_docid_range(first, last);
     for (size_t i = 1; i != n_kids; ++i) {
-	Xapian::docid f = first, l = last;
-	plist[i]->get_docid_range(f, l);
-	first = max(first, f);
-	last = min(last, l);
-	if (last < first) break;
+        Xapian::docid f = first, l = last;
+        plist[i]->get_docid_range(f, l);
+        first = max(first, f);
+        last = min(last, l);
+        if (last < first) break;
     }
 }
 
@@ -151,8 +151,8 @@ AndPostList::get_description() const
     string desc("(");
     desc += plist[0]->get_description();
     for (size_t i = 1; i < n_kids; ++i) {
-	desc += " AND ";
-	desc += plist[i]->get_description();
+        desc += " AND ";
+        desc += plist[i]->get_description();
     }
     desc += ')';
     return desc;
@@ -163,7 +163,7 @@ AndPostList::get_wdf() const
 {
     Xapian::termcount totwdf = 0;
     for (size_t i = 0; i < n_kids; ++i) {
-	totwdf += plist[i]->get_wdf();
+        totwdf += plist[i]->get_wdf();
     }
     return totwdf;
 }
@@ -173,7 +173,7 @@ AndPostList::count_matching_subqs() const
 {
     Xapian::termcount total = 0;
     for (size_t i = 0; i < n_kids; ++i) {
-	total += plist[i]->count_matching_subqs();
+        total += plist[i]->count_matching_subqs();
     }
     return total;
 }
@@ -182,6 +182,6 @@ void
 AndPostList::gather_position_lists(OrPositionList* orposlist)
 {
     for (size_t i = 0; i < n_kids; ++i) {
-	plist[i]->gather_position_lists(orposlist);
+        plist[i]->gather_position_lists(orposlist);
     }
 }

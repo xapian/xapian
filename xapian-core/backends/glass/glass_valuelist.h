@@ -48,8 +48,8 @@ class GlassValueList : public Xapian::ValueIterator::Internal {
 
   public:
     GlassValueList(Xapian::valueno slot_,
-		   Xapian::Internal::intrusive_ptr<const GlassDatabase> db_)
-	: cursor(NULL), slot(slot_), db(db_) { }
+                   Xapian::Internal::intrusive_ptr<const GlassDatabase> db_)
+        : cursor(NULL), slot(slot_), db(db_) { }
 
     ~GlassValueList();
 

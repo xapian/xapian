@@ -149,8 +149,8 @@ class XAPIAN_VISIBILITY_DEFAULT Document {
 
     /// Add a posting for a term.
     void add_posting(std::string_view term,
-		     Xapian::termpos term_pos,
-		     Xapian::termcount wdf_inc = 1);
+                     Xapian::termpos term_pos,
+                     Xapian::termcount wdf_inc = 1);
 
     /** Remove posting for a term.
      *
@@ -168,8 +168,8 @@ class XAPIAN_VISIBILITY_DEFAULT Document {
      *  then the term will be removed from the document.
      */
     void remove_posting(std::string_view term,
-			Xapian::termpos term_pos,
-			Xapian::termcount wdf_dec = 1);
+                        Xapian::termpos term_pos,
+                        Xapian::termcount wdf_dec = 1);
 
     /** Remove a range of postings for a term.
      *
@@ -193,9 +193,9 @@ class XAPIAN_VISIBILITY_DEFAULT Document {
      *  @since Added in Xapian 1.4.8.
      */
     Xapian::termpos remove_postings(std::string_view term,
-				    Xapian::termpos term_pos_first,
-				    Xapian::termpos term_pos_last,
-				    Xapian::termcount wdf_dec = 1);
+                                    Xapian::termpos term_pos_first,
+                                    Xapian::termpos term_pos_last,
+                                    Xapian::termcount wdf_dec = 1);
 
     /// Clear all terms from the document.
     void clear_terms();
@@ -217,7 +217,7 @@ class XAPIAN_VISIBILITY_DEFAULT Document {
 
     /// End iterator corresponding to @a termlist_begin().
     TermIterator termlist_end() const noexcept {
-	return TermIterator();
+        return TermIterator();
     }
 
     /** Read a value slot in this document.
@@ -240,7 +240,7 @@ class XAPIAN_VISIBILITY_DEFAULT Document {
      *  @param slot	The slot to remove any value from.
      */
     void remove_value(Xapian::valueno slot) {
-	add_value(slot, {});
+        add_value(slot, {});
     }
 
     /// Clear all value slots in this document.
@@ -257,7 +257,7 @@ class XAPIAN_VISIBILITY_DEFAULT Document {
 
     /// End iterator corresponding to @a values_begin().
     ValueIterator values_end() const noexcept {
-	return ValueIterator();
+        return ValueIterator();
     }
 
     /** Efficiently swap this Document object with another.

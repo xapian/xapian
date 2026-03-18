@@ -41,8 +41,8 @@ BackendManagerHoney::do_get_database_path(const vector<string> & files)
     string dbname = "db";
     vector<string>::const_iterator i;
     for (i = files.begin(); i != files.end(); ++i) {
-	dbname += "__";
-	dbname += *i;
+        dbname += "__";
+        dbname += *i;
     }
     string dbpath = dbdir + "/" + dbname;
 
@@ -58,13 +58,13 @@ BackendManagerHoney::do_get_database_path(const vector<string> & files)
     FileIndexer(get_datadir(), files).index_to(db);
     db.commit();
     db.compact(tmp_path,
-	       Xapian::DB_BACKEND_HONEY | Xapian::DBCOMPACT_NO_RENUMBER);
+               Xapian::DB_BACKEND_HONEY | Xapian::DBCOMPACT_NO_RENUMBER);
     db.close();
 
     rm_rf(db_source);
 
     if (rename(tmp_path.c_str(), dbpath.c_str()) < 0) {
-	throw Xapian::DatabaseError("rename failed", errno);
+        throw Xapian::DatabaseError("rename failed", errno);
     }
 
     return dbpath;
@@ -86,7 +86,7 @@ BackendManagerHoney::finalise_generated_database(const string& name)
 
     // path to the temporary generated db
     string generated_db_path =
-	generated_sub_manager->get_generated_database_path(name);
+        generated_sub_manager->get_generated_database_path(name);
 
     // path to final honey db
     string path = CACHE_DIRECTORY "/" + name;
@@ -96,13 +96,13 @@ BackendManagerHoney::finalise_generated_database(const string& name)
 
     // Convert glass backend to honey.
     {
-	Xapian::Database db(generated_db_path);
-	db.compact(tmp_path,
-		   Xapian::DB_BACKEND_HONEY | Xapian::DBCOMPACT_NO_RENUMBER);
+        Xapian::Database db(generated_db_path);
+        db.compact(tmp_path,
+                   Xapian::DB_BACKEND_HONEY | Xapian::DBCOMPACT_NO_RENUMBER);
     }
 
     if (rename(tmp_path.c_str(), path.c_str()) < 0) {
-	throw Xapian::DatabaseError("rename failed", errno);
+        throw Xapian::DatabaseError("rename failed", errno);
     }
 }
 

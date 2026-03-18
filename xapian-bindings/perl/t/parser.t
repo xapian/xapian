@@ -24,7 +24,7 @@ sub mset_expect_order (\@@) {
     my @m = map { $_->get_docid() } @{$m};
     is( scalar @m, scalar @a );
     for my $j (0 .. (scalar @a - 1)) {
-	is( $m[$j], $a[$j] );
+        is( $m[$j], $a[$j] );
     }
 }
 

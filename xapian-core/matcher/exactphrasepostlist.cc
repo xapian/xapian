@@ -32,10 +32,10 @@
 using namespace std;
 
 ExactPhrasePostList::ExactPhrasePostList(PostList *source_,
-					 EstimateOp* estimate_op_,
-					 const vector<PostList*>::const_iterator &terms_begin,
-					 const vector<PostList*>::const_iterator &terms_end,
-					 PostListTree* pltree_)
+                                         EstimateOp* estimate_op_,
+                                         const vector<PostList*>::const_iterator &terms_begin,
+                                         const vector<PostList*>::const_iterator &terms_end,
+                                         PostListTree* pltree_)
     : SelectPostList(source_, estimate_op_, pltree_),
       terms(terms_begin, terms_end)
 {
@@ -43,10 +43,10 @@ ExactPhrasePostList::ExactPhrasePostList(PostList *source_,
     Assert(n > 1);
     poslists = new PositionList*[n];
     try {
-	order = new unsigned[n];
+        order = new unsigned[n];
     } catch (...) {
-	delete [] poslists;
-	throw;
+        delete [] poslists;
+        throw;
     }
     for (size_t i = 0; i < n; ++i) order[i] = unsigned(i);
 
@@ -80,7 +80,7 @@ class TermCompare {
     explicit TermCompare(vector<PostList *> & terms_) : terms(terms_) { }
 
     bool operator()(unsigned a, unsigned b) const {
-	return terms[a]->get_wdf() < terms[b]->get_wdf();
+        return terms[a]->get_wdf() < terms[b]->get_wdf();
     }
 };
 
@@ -101,8 +101,8 @@ ExactPhrasePostList::test_doc()
     // is at position 0.
     start_position_list(0);
     if (!poslists[0]->skip_to(order[0])) {
-	++rejected;
-	RETURN(false);
+        ++rejected;
+        RETURN(false);
     }
 
     // If we get here, we'll need to read the positionlists for at least two
@@ -110,12 +110,12 @@ ExactPhrasePostList::test_doc()
     // lowest wdf and if necessary swap them so the true shorter one is first.
     start_position_list(1);
     if (poslists[0]->get_approx_size() > poslists[1]->get_approx_size()) {
-	if (!poslists[1]->skip_to(order[1])) {
-	    ++rejected;
-	    RETURN(false);
-	}
-	swap(poslists[0], poslists[1]);
-	swap(order[0], order[1]);
+        if (!poslists[1]->skip_to(order[1])) {
+            ++rejected;
+            RETURN(false);
+        }
+        swap(poslists[0], poslists[1]);
+        swap(order[0], order[1]);
     }
 
     unsigned read_hwm = 1;
@@ -123,29 +123,29 @@ ExactPhrasePostList::test_doc()
     Xapian::termpos base = poslists[0]->get_position() - idx0;
     unsigned i = 1;
     while (true) {
-	if (i > read_hwm) {
-	    read_hwm = i;
-	    start_position_list(i);
-	    // FIXME: consider comparing with poslist[0] and swapping
-	    // if less common.  Should we allow for the number of positions
-	    // we've read from poslist[0] already?
-	}
-	Xapian::termpos idx = order[i];
-	Xapian::termpos required = base + idx;
-	if (!poslists[i]->skip_to(required))
-	    break;
-	Xapian::termpos got = poslists[i]->get_position();
-	if (got == required) {
-	    if (++i == terms.size()) {
-		++accepted;
-		RETURN(true);
-	    }
-	    continue;
-	}
-	if (!poslists[0]->skip_to(got - idx + idx0))
-	    break;
-	base = poslists[0]->get_position() - idx0;
-	i = 1;
+        if (i > read_hwm) {
+            read_hwm = i;
+            start_position_list(i);
+            // FIXME: consider comparing with poslist[0] and swapping
+            // if less common.  Should we allow for the number of positions
+            // we've read from poslist[0] already?
+        }
+        Xapian::termpos idx = order[i];
+        Xapian::termpos required = base + idx;
+        if (!poslists[i]->skip_to(required))
+            break;
+        Xapian::termpos got = poslists[i]->get_position();
+        if (got == required) {
+            if (++i == terms.size()) {
+                ++accepted;
+                RETURN(true);
+            }
+            continue;
+        }
+        if (!poslists[0]->skip_to(got - idx + idx0))
+            break;
+        base = poslists[0]->get_position() - idx0;
+        i = 1;
     }
     ++rejected;
     RETURN(false);
@@ -161,7 +161,7 @@ ExactPhrasePostList::get_wdf() const
     vector<PostList *>::const_iterator i = terms.begin();
     Xapian::termcount wdf = (*i)->get_wdf();
     while (++i != terms.end()) {
-	wdf = min(wdf, (*i)->get_wdf());
+        wdf = min(wdf, (*i)->get_wdf());
     }
     return wdf;
 }

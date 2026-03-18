@@ -61,9 +61,9 @@ void
 DocumentValueList::next()
 {
     if (it == doc->values->end()) {
-	it = doc->values->begin();
+        it = doc->values->begin();
     } else {
-	++it;
+        ++it;
     }
 }
 
@@ -78,13 +78,13 @@ DocumentValueList::get_description() const
 {
     string desc = "DocumentValueList(";
     if (!at_end()) {
-	desc += "slot=";
-	desc += str(get_valueno());
-	desc += ", value=\"";
-	description_append(desc, get_value());
-	desc += "\")";
+        desc += "slot=";
+        desc += str(get_valueno());
+        desc += ", value=\"";
+        description_append(desc, get_value());
+        desc += "\")";
     } else {
-	desc += "atend)";
+        desc += "atend)";
     }
     return desc;
 }

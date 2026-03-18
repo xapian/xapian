@@ -56,18 +56,18 @@ class XAPIAN_VISIBILITY_DEFAULT PostingIterator {
 
     /// Move constructor.
     PostingIterator(PostingIterator && o)
-	: internal(o.internal) {
-	o.internal = nullptr;
+        : internal(o.internal) {
+        o.internal = nullptr;
     }
 
     /// Move assignment operator.
     PostingIterator & operator=(PostingIterator && o) {
-	if (this != &o) {
-	    if (internal) decref();
-	    internal = o.internal;
-	    o.internal = nullptr;
-	}
-	return *this;
+        if (this != &o) {
+            if (internal) decref();
+            internal = o.internal;
+            o.internal = nullptr;
+        }
+        return *this;
     }
 
     /** Default constructor.
@@ -76,11 +76,11 @@ class XAPIAN_VISIBILITY_DEFAULT PostingIterator {
      *  assigned to, but is sometimes syntactically convenient.
      */
     PostingIterator() noexcept
-	: internal() { }
+        : internal() { }
 
     /// Destructor.
     ~PostingIterator() {
-	if (internal) decref();
+        if (internal) decref();
     }
 
     /// Return the document id at the current position.
@@ -108,7 +108,7 @@ class XAPIAN_VISIBILITY_DEFAULT PostingIterator {
 
     /// Return an end PositionIterator for the current document.
     PositionIterator positionlist_end() const noexcept {
-	return PositionIterator();
+        return PositionIterator();
     }
 
     /// Advance the iterator to the next position.
@@ -116,9 +116,9 @@ class XAPIAN_VISIBILITY_DEFAULT PostingIterator {
 
     /// Advance the iterator to the next position (postfix version).
     DerefWrapper_<Xapian::docid> operator++(int) {
-	Xapian::docid did(**this);
-	operator++();
-	return DerefWrapper_<Xapian::docid>(did);
+        Xapian::docid did(**this);
+        operator++();
+        return DerefWrapper_<Xapian::docid>(did);
     }
 
     /** Advance the iterator to document @a did.

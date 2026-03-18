@@ -63,12 +63,12 @@ open LOCK, '>', 'flockme' or die "Couldn't open 'flockme' for writing: $!\n";
 unless (flock LOCK, LOCK_EX|LOCK_NB) {
     # If we're building a tagged release, we want to wait rather than exit.
     unless (scalar @ARGV && $ARGV[0] =~ m!^tags/! && flock LOCK, LOCK_EX) {
-	# Work directory already in use.  Don't print anything unless STDERR
-	# is a tty - the cron job will send it as mail, which we don't really
-	# want.
-	print STDERR "'flockme' is already locked, can't build '$ARGV[0]' right now\n"
-	    if -t STDERR;
-	exit 1;
+        # Work directory already in use.  Don't print anything unless STDERR
+        # is a tty - the cron job will send it as mail, which we don't really
+        # want.
+        print STDERR "'flockme' is already locked, can't build '$ARGV[0]' right now\n"
+            if -t STDERR;
+        exit 1;
     }
 }
 
@@ -79,33 +79,33 @@ my $HOSTNAME = Sys::Hostname::hostname();
 # Check the load average isn't too high.
 if (!$force) {
     if (-e "/var/run/dobackup") {
-	print STDERR "$HOSTNAME: Backup running (/var/run/dobackup exists)\n"
-	    if -t STDERR;
-	exit(1);
+        print STDERR "$HOSTNAME: Backup running (/var/run/dobackup exists)\n"
+            if -t STDERR;
+        exit(1);
     }
     if (((`uptime 2>/dev/null`)[0] =~ /.*: (\d+(?:\.\d+)?),/) &&
-	($1 > $MAXLOADPERCPU)) {
-	my $loadavg = $1;
-	# `getconf _NPROCESSORS_ONLN` on linux gives e.g. 2
-	# `sysctl hw.ncpu` on openbsd (and prob. freebsd & darwin) gives e.g. hw.ncpu=2
-	# `psrinfo|grep -c on-line` on Solaris or OSF/1 gives e.g. 2
-	my $ncpu;
-	# Works on Linux, at least back to kernel 2.2.26.
-	$ncpu ||= run_command("getconf _NPROCESSORS_ONLN 2>/dev/null|grep -v '[^0-9]'");
-	# Works on OpenBSD (and apparently FreeBSD and Darwin).
-	$ncpu ||= run_command("sysctl hw.ncpu 2>/dev/null|sed 's/.*=//'");
-	# Works on Solaris and OSF/1.
-	$ncpu ||= run_command("PATH=/usr/sbin:\$PATH psrinfo 2>/dev/null|grep -c on-line");
-	# Works on Linux, just in case the getconf version doesn't.  Different
-	# architectures have different formats for /proc/cpuinfo so this won't
-	# work as widely as getconf _NPROCESSORS_ONLN will.
-	$ncpu ||= run_command("grep -c processor /proc/cpuinfo 2>/dev/null");
-	$ncpu ||= 1;
-	if ($loadavg > $ncpu * $MAXLOADPERCPU) {
-	    $ncpu ||= "unknown";
-	    print STDERR "$HOSTNAME: High load average: $loadavg ($ncpu CPUs)\n";
-	    exit(1);
-	}
+        ($1 > $MAXLOADPERCPU)) {
+        my $loadavg = $1;
+        # `getconf _NPROCESSORS_ONLN` on linux gives e.g. 2
+        # `sysctl hw.ncpu` on openbsd (and prob. freebsd & darwin) gives e.g. hw.ncpu=2
+        # `psrinfo|grep -c on-line` on Solaris or OSF/1 gives e.g. 2
+        my $ncpu;
+        # Works on Linux, at least back to kernel 2.2.26.
+        $ncpu ||= run_command("getconf _NPROCESSORS_ONLN 2>/dev/null|grep -v '[^0-9]'");
+        # Works on OpenBSD (and apparently FreeBSD and Darwin).
+        $ncpu ||= run_command("sysctl hw.ncpu 2>/dev/null|sed 's/.*=//'");
+        # Works on Solaris and OSF/1.
+        $ncpu ||= run_command("PATH=/usr/sbin:\$PATH psrinfo 2>/dev/null|grep -c on-line");
+        # Works on Linux, just in case the getconf version doesn't.  Different
+        # architectures have different formats for /proc/cpuinfo so this won't
+        # work as widely as getconf _NPROCESSORS_ONLN will.
+        $ncpu ||= run_command("grep -c processor /proc/cpuinfo 2>/dev/null");
+        $ncpu ||= 1;
+        if ($loadavg > $ncpu * $MAXLOADPERCPU) {
+            $ncpu ||= "unknown";
+            print STDERR "$HOSTNAME: High load average: $loadavg ($ncpu CPUs)\n";
+            exit(1);
+        }
     }
 }
 
@@ -113,17 +113,17 @@ if (!$force) {
 # existing directories.
 if (scalar @ARGV == 0) {
     sub find_git_refs {
-	my $ref = $File::Find::name;
-	open CMD, "git -C \Q$repourl\E show --format=oneline --no-patch \Q$ref\E -- 2>/dev/null|" or die $!;
-	my $first_line = <CMD>;
-	close CMD or return;
-	# Valid ref, so don't recurse into it.
-	$File::Find::prune = 1;
-	# Filter out tags - those generally don't change and we only build them
-	# when explicitly listed on the command line.
-	if (substr($first_line, 0, 4) ne 'tag ') {
-	    push @ARGV, $ref;
-	}
+        my $ref = $File::Find::name;
+        open CMD, "git -C \Q$repourl\E show --format=oneline --no-patch \Q$ref\E -- 2>/dev/null|" or die $!;
+        my $first_line = <CMD>;
+        close CMD or return;
+        # Valid ref, so don't recurse into it.
+        $File::Find::prune = 1;
+        # Filter out tags - those generally don't change and we only build them
+        # when explicitly listed on the command line.
+        if (substr($first_line, 0, 4) ne 'tag ') {
+            push @ARGV, $ref;
+        }
     }
     find(\&find_git_refs, glob('[A-Za-z0-9]*'));
 }
@@ -140,22 +140,22 @@ foreach my $ref (@ARGV) {
     # Restrict to sane characters.
     next if $ref !~ /^[-A-Za-z0-9_.\/]+$/;
     if (! -d $ref) {
-	print "*** No directory for '$ref'\n";
-	$status = 1;
-	next;
+        print "*** No directory for '$ref'\n";
+        $status = 1;
+        next;
     }
 
     my $is_tag;
     {
-	open CMD, "git -C \Q$repourl\E show --format=oneline --no-patch \Q$ref\E -- 2>/dev/null|" or die $!;
-	my $first_line = <CMD>;
-	if (!close CMD) {
-	    print "*** Not a valid git ref: $ref\n";
-	    $status = 1;
-	    next;
-	}
+        open CMD, "git -C \Q$repourl\E show --format=oneline --no-patch \Q$ref\E -- 2>/dev/null|" or die $!;
+        my $first_line = <CMD>;
+        if (!close CMD) {
+            print "*** Not a valid git ref: $ref\n";
+            $status = 1;
+            next;
+        }
 
-	$is_tag = (substr($first_line, 0, 4) eq 'tag ');
+        $is_tag = (substr($first_line, 0, 4) eq 'tag ');
     }
 
     my $logfile = "$ref/snapshot.log";
@@ -163,39 +163,39 @@ foreach my $ref (@ARGV) {
     # Check out into a 'xapian' subdirectory of the rev's directory.
     my $co_dir = "$ref/xapian";
     if (! -d "$co_dir/.git") {
-	system "chmod", "-R", "+w", $co_dir if -d $co_dir;
-	system "rm", "-rf", $co_dir;
-	open CMD, "git clone --branch \Q$ref\E \Q$repourl\E \Q$co_dir\E 2>&1|" or die $!;
-	$log = join '', <CMD>;
-	close CMD or do { print $log; die $!; };
-	chdir $co_dir or die $!;
+        system "chmod", "-R", "+w", $co_dir if -d $co_dir;
+        system "rm", "-rf", $co_dir;
+        open CMD, "git clone --branch \Q$ref\E \Q$repourl\E \Q$co_dir\E 2>&1|" or die $!;
+        $log = join '', <CMD>;
+        close CMD or do { print $log; die $!; };
+        chdir $co_dir or die $!;
     } else {
         # Revert any local changes.
-	chdir $co_dir or die $!;
-	$log = "git reset --hard:\n".`git reset --hard 2>&1`."git pull --ff-only:\n";
-	open CMD, "git pull --ff-only 2>&1|" or die $!;
-	my $changed = 1;
-	while (<CMD>) {
-	    $log .= $_;
-	    if ($changed && !$force) {
-		if (/^Already up-to-date/) {
-		    $changed = 0;
-		}
-	    }
-	}
-	close CMD or die $!;
-	if (!$changed) {
-	    $verbose and print "No changes\n";
-	    next;
-	}
+        chdir $co_dir or die $!;
+        $log = "git reset --hard:\n".`git reset --hard 2>&1`."git pull --ff-only:\n";
+        open CMD, "git pull --ff-only 2>&1|" or die $!;
+        my $changed = 1;
+        while (<CMD>) {
+            $log .= $_;
+            if ($changed && !$force) {
+                if (/^Already up-to-date/) {
+                    $changed = 0;
+                }
+            }
+        }
+        close CMD or die $!;
+        if (!$changed) {
+            $verbose and print "No changes\n";
+            next;
+        }
     }
     my ($revision) = `git describe --always`;
     chomp($revision);
     my ($revcount) = ($revision =~ /-([0-9]+)-/);
     if (!defined $revcount) {
-	# Workaround for branches from before the first git tag - count commits since 1.3.1.
-	$revcount = scalar(@{[`git log --format='%H' 1daf0071342d883ca308762f269a63f6ec5df981..`]});
-	$revision = "v1.3.1-$revcount-g$revision";
+        # Workaround for branches from before the first git tag - count commits since 1.3.1.
+        $revcount = scalar(@{[`git log --format='%H' 1daf0071342d883ca308762f269a63f6ec5df981..`]});
+        $revision = "v1.3.1-$revcount-g$revision";
     }
 
     chdir $work or die $!;
@@ -213,64 +213,64 @@ foreach my $ref (@ARGV) {
     $log = undef;
 
     if (!$is_tag) {
-	# Modify configure.ac files to insert $revision into version string.
-	foreach my $configure_ac
-	    (glob("\Q$co_dir\E/xapian*/configure.ac"),
-	     glob("\Q$co_dir\E/xapian*/*/configure.ac")) {
-	    open OUT, ">", "tmp.out" or die $!;
-	    open IN, "<", $configure_ac or die $!;
-	    while (<IN>) {
-		s/(^(?:AC_INIT\([^,]*|m4_define\(\[project_version\]),.*?[0-9])(\s*[),\]])/$1_git$revcount$2/g;
-		print OUT;
-	    }
-	    close IN or die $!;
-	    close OUT or die $!;
-	    rename "tmp.out", $configure_ac or die $!;
-	}
-	if (-f  "$co_dir/search-xapian/Makefile.PL") {
-	    my $snap_version;
-	    my $fnm = "$co_dir/search-xapian/Xapian.pm";
-	    open OUT, ">", "tmp.out" or die $!;
-	    open IN, "<", $fnm or die $!;
-	    while (<IN>) {
-		if (s/^(our \$VERSION = ')(\d+\.\d+\.\d+\.)\d+(.*)/$1$2$revcount$3 # git snapshot/) {
-		    $snap_version = $2 . $revcount;
-		}
-		print OUT;
-	    }
-	    close IN or die $!;
-	    close OUT or die $!;
-	    rename "tmp.out", $fnm or die $!;
+        # Modify configure.ac files to insert $revision into version string.
+        foreach my $configure_ac
+            (glob("\Q$co_dir\E/xapian*/configure.ac"),
+             glob("\Q$co_dir\E/xapian*/*/configure.ac")) {
+            open OUT, ">", "tmp.out" or die $!;
+            open IN, "<", $configure_ac or die $!;
+            while (<IN>) {
+                s/(^(?:AC_INIT\([^,]*|m4_define\(\[project_version\]),.*?[0-9])(\s*[),\]])/$1_git$revcount$2/g;
+                print OUT;
+            }
+            close IN or die $!;
+            close OUT or die $!;
+            rename "tmp.out", $configure_ac or die $!;
+        }
+        if (-f  "$co_dir/search-xapian/Makefile.PL") {
+            my $snap_version;
+            my $fnm = "$co_dir/search-xapian/Xapian.pm";
+            open OUT, ">", "tmp.out" or die $!;
+            open IN, "<", $fnm or die $!;
+            while (<IN>) {
+                if (s/^(our \$VERSION = ')(\d+\.\d+\.\d+\.)\d+(.*)/$1$2$revcount$3 # git snapshot/) {
+                    $snap_version = $2 . $revcount;
+                }
+                print OUT;
+            }
+            close IN or die $!;
+            close OUT or die $!;
+            rename "tmp.out", $fnm or die $!;
 
-	    $fnm = "$co_dir/search-xapian/README";
-	    open OUT, ">", "tmp.out" or die $!;
-	    open IN, "<", $fnm or die $!;
-	    $_ = <IN>;
-	    s/(\d+\.\d+\.\d+\.)\d+/$1$revcount (git snapshot)/;
-	    print OUT;
-	    while (<IN>) {
-		print OUT;
-	    }
-	    close IN or die $!;
-	    close OUT or die $!;
-	    rename "tmp.out", $fnm or die $!;
+            $fnm = "$co_dir/search-xapian/README";
+            open OUT, ">", "tmp.out" or die $!;
+            open IN, "<", $fnm or die $!;
+            $_ = <IN>;
+            s/(\d+\.\d+\.\d+\.)\d+/$1$revcount (git snapshot)/;
+            print OUT;
+            while (<IN>) {
+                print OUT;
+            }
+            close IN or die $!;
+            close OUT or die $!;
+            rename "tmp.out", $fnm or die $!;
 
-	    $fnm = "$co_dir/search-xapian/Changes";
-	    open OUT, ">", "tmp.out" or die $!;
-	    open IN, "<", $fnm or die $!;
-	    while (<IN>) {
-		print OUT;
-		last if /^\s*$/;
-	    }
-	    print OUT $snap_version.strftime("  %a %b %e %H:%M:%S %Z %Y\n",gmtime());
-	    print OUT "\t- git snapshot of revision $revision.\n\n";
-	    while (<IN>) {
-		print OUT;
-	    }
-	    close IN or die $!;
-	    close OUT or die $!;
-	    rename "tmp.out", $fnm or die $!;
-	}
+            $fnm = "$co_dir/search-xapian/Changes";
+            open OUT, ">", "tmp.out" or die $!;
+            open IN, "<", $fnm or die $!;
+            while (<IN>) {
+                print OUT;
+                last if /^\s*$/;
+            }
+            print OUT $snap_version.strftime("  %a %b %e %H:%M:%S %Z %Y\n",gmtime());
+            print OUT "\t- git snapshot of revision $revision.\n\n";
+            while (<IN>) {
+                print OUT;
+            }
+            close IN or die $!;
+            close OUT or die $!;
+            rename "tmp.out", $fnm or die $!;
+        }
     }
 
     system "chmod", "-R", "+w", "$ref/build" if -d "$ref/build";
@@ -291,10 +291,10 @@ foreach my $ref (@ARGV) {
     $log = `../xapian/bootstrap 2>&1`;
     print LOG $log;
     if ($?) {
-	print "*** bootstrap failed for '$ref':";
-	print $log;
-	$status = 1;
-	next;
+        print "*** bootstrap failed for '$ref':";
+        print $log;
+        $status = 1;
+        next;
     }
     $log = undef;
 
@@ -304,55 +304,55 @@ foreach my $ref (@ARGV) {
     $log = `../xapian/configure --enable-quiet --enable-maintainer-mode 2>&1`;
     print LOG $log;
     if ($?) {
-	print "*** configure failed for '$ref':";
-	print $log;
-	$status = 1;
-	next;
+        print "*** configure failed for '$ref':";
+        print $log;
+        $status = 1;
+        next;
     }
     $log = undef;
 
     $log = `make -s 2>&1`;
     print LOG $log;
     if ($?) {
-	print "*** make failed for '$ref':";
-	print $log;
-	$status = 1;
-	next;
+        print "*** make failed for '$ref':";
+        print $log;
+        $status = 1;
+        next;
     }
     $log = undef;
 
     my %unused_files = ();
     sub check_unused_files_from_build {
-	return if $File::Find::name eq '../xapian';
-	my $f = substr($File::Find::name, length('../xapian/'));
-	if ($_ eq 'autom4te.cache' ||
-	    $_ eq 'debian' ||
-	    $f eq 'search-xapian/blib' ||
-	    $f eq 'swig' ||
-	    $f eq 'xapian-applications/omega/common' ||
-	    $f eq 'xapian-data' || # FIXME: make check should use this
-	    $f eq 'xapian-maintainer-tools' ||
-	    $f eq 'BUILD' ||
-	    $f eq 'INST' ||
-	    $f eq '.git' ||
-	    /^Search-Xapian-\d+\.\d+\.\d+\.\d+$/) {
-	    if (-d $File::Find::name) {
-		# Don't descend into these subdirectories.
-		$File::Find::prune = 1;
-		return;
-	    }
-	}
-	return unless -f $File::Find::name and (stat _)[8] < $timestamp;
-	return if $_ eq '.gitignore';
-	return if $_ eq 'config.h.in~';
-	return if $_ eq 'NEWS.SKELETON';
-	return if $f eq 'README';
-	return if $f eq '.appveyor.yml';
-	return if $f eq '.github/workflows/ci.yml';
-	return if $f eq '.clang-format';
-	return if /^Search-Xapian-\d+\.\d+\.\d+\.\d+\.tar\..z$/;
-	++$unused_files{$f};
-	print "Unused during make: $f\n";
+        return if $File::Find::name eq '../xapian';
+        my $f = substr($File::Find::name, length('../xapian/'));
+        if ($_ eq 'autom4te.cache' ||
+            $_ eq 'debian' ||
+            $f eq 'search-xapian/blib' ||
+            $f eq 'swig' ||
+            $f eq 'xapian-applications/omega/common' ||
+            $f eq 'xapian-data' || # FIXME: make check should use this
+            $f eq 'xapian-maintainer-tools' ||
+            $f eq 'BUILD' ||
+            $f eq 'INST' ||
+            $f eq '.git' ||
+            /^Search-Xapian-\d+\.\d+\.\d+\.\d+$/) {
+            if (-d $File::Find::name) {
+                # Don't descend into these subdirectories.
+                $File::Find::prune = 1;
+                return;
+            }
+        }
+        return unless -f $File::Find::name and (stat _)[8] < $timestamp;
+        return if $_ eq '.gitignore';
+        return if $_ eq 'config.h.in~';
+        return if $_ eq 'NEWS.SKELETON';
+        return if $f eq 'README';
+        return if $f eq '.appveyor.yml';
+        return if $f eq '.github/workflows/ci.yml';
+        return if $f eq '.clang-format';
+        return if /^Search-Xapian-\d+\.\d+\.\d+\.\d+\.tar\..z$/;
+        ++$unused_files{$f};
+        print "Unused during make: $f\n";
     }
     find(\&check_unused_files_from_build, '../xapian');
 
@@ -378,10 +378,10 @@ foreach my $ref (@ARGV) {
     $log = `env LD_LIBRARY_PATH="\`pwd\`"/xapian-core/.libs make -s distcheck VALGRIND= 2>&1`;
     print LOG $log;
     if ($?) {
-	print "*** make distcheck failed for '$ref':";
-	print $log;
-	$status = 1;
-	next;
+        print "*** make distcheck failed for '$ref':";
+        print $log;
+        $status = 1;
+        next;
     }
     $log = undef;
 
@@ -390,50 +390,50 @@ foreach my $ref (@ARGV) {
 
     my $d = "$webbase/oligarchy.co.uk/xapian/$ref";
     if ($is_tag && $ref =~ m!^v?([\d.]+)$!) {
-	$d = "$webbase/oligarchy.co.uk/xapian/$1";
+        $d = "$webbase/oligarchy.co.uk/xapian/$1";
     }
     if (! -d $d) {
-	mkpath($d, 0, 0755) or die $!;
-	open HTACCESS, ">", "$d/.htaccess" or die $!;
-	print HTACCESS "IndexOptions NameWidth=*\n";
-	close HTACCESS or die $!;
+        mkpath($d, 0, 0755) or die $!;
+        open HTACCESS, ">", "$d/.htaccess" or die $!;
+        print HTACCESS "IndexOptions NameWidth=*\n";
+        close HTACCESS or die $!;
     } else {
-	if (-d "$d/old") {
-	    # Delete snapshots more than a week old, but leave at least one.
-	    my $num_of_days_to_keep = 7;
-	    my @o = glob "$d/old/*.tar.?z";
-	    my $n = scalar @o;
-	    @o = grep {-M $_ > $num_of_days_to_keep} @o;
-	    $n -= scalar @o;
-	    unlink @o if $n > 0;
-	} else {
-	    mkdir "$d/old", 0755 or die $!;
-	    open HTACCESS, ">", "$d/old/.htaccess" or die $!;
-	    print HTACCESS "IndexOptions NameWidth=*\n";
-	    close HTACCESS or die $!;
-	}
-	for (glob "$d/*.tar.?z") {
-	    my ($leaf) = m!([^/]*)$!;
-	    rename $_, "$d/old/$leaf";
-	}
+        if (-d "$d/old") {
+            # Delete snapshots more than a week old, but leave at least one.
+            my $num_of_days_to_keep = 7;
+            my @o = glob "$d/old/*.tar.?z";
+            my $n = scalar @o;
+            @o = grep {-M $_ > $num_of_days_to_keep} @o;
+            $n -= scalar @o;
+            unlink @o if $n > 0;
+        } else {
+            mkdir "$d/old", 0755 or die $!;
+            open HTACCESS, ">", "$d/old/.htaccess" or die $!;
+            print HTACCESS "IndexOptions NameWidth=*\n";
+            close HTACCESS or die $!;
+        }
+        for (glob "$d/*.tar.?z") {
+            my ($leaf) = m!([^/]*)$!;
+            rename $_, "$d/old/$leaf";
+        }
     }
     for (glob("*/*.tar.?z"), glob("xapian-applications/*/*.tar.?z"), glob("*.tar.?z")) {
-	print LOG "Moving '$_' to '$d'\n";
-	system("mv", $_, $d);
-	if ($?) {
-	    print LOG "Failed with exit code $?\n";
-	} else {
-	    print LOG "OK\n";
-	}
+        print LOG "Moving '$_' to '$d'\n";
+        system("mv", $_, $d);
+        if ($?) {
+            print LOG "Failed with exit code $?\n";
+        } else {
+            print LOG "OK\n";
+        }
     }
     for (glob("search-xapian/*.tar.?z")) {
-	print LOG2 "Moving '$_' to '$d'\n";
-	system("mv", $_, $d);
-	if ($?) {
-	    print LOG2 "Failed with exit code $?\n";
-	} else {
-	    print LOG2 "OK\n";
-	}
+        print LOG2 "Moving '$_' to '$d'\n";
+        system("mv", $_, $d);
+        if ($?) {
+            print LOG2 "Failed with exit code $?\n";
+        } else {
+            print LOG2 "OK\n";
+        }
     }
     chdir("..");
     system("rm -rf xapian/search-xapian/Search-Xapian-*");

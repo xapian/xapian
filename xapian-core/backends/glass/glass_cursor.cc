@@ -41,9 +41,9 @@ hex_display_encode(string_view input)
     const char* table = "0123456789abcdef";
     string result;
     for (unsigned char val : input) {
-	result += "\\x";
-	result += table[val >> 4];
-	result += table[val & 0x0f];
+        result += "\\x";
+        result += table[val >> 4];
+        result += table[val & 0x0f];
     }
     return result;
 }
@@ -52,18 +52,18 @@ hex_display_encode(string_view input)
 #define DIR_START        11
 
 GlassCursor::GlassCursor(const GlassTable *B_, const Glass::Cursor * C_)
-	: is_positioned(false),
-	  is_after_end(false),
-	  tag_status(UNREAD),
-	  B(B_),
-	  version(B_->cursor_version),
-	  level(B_->level)
+        : is_positioned(false),
+          is_after_end(false),
+          tag_status(UNREAD),
+          B(B_),
+          version(B_->cursor_version),
+          level(B_->level)
 {
     B->cursor_created_since_last_modification = true;
     C = new Glass::Cursor[level + 1];
     if (!C_) C_ = B->C;
     for (int j = 0; j <= level; ++j) {
-	C[j].clone(C_[j]);
+        C[j].clone(C_[j]);
     }
 }
 
@@ -72,23 +72,23 @@ GlassCursor::rebuild()
 {
     int new_level = B->level;
     if (new_level <= level) {
-	for (int j = 0; j < new_level; ++j) {
-	    C[j].clone(B->C[j]);
-	}
-	for (int j = new_level; j <= level; ++j) {
-	    C[j].destroy();
-	}
+        for (int j = 0; j < new_level; ++j) {
+            C[j].clone(B->C[j]);
+        }
+        for (int j = new_level; j <= level; ++j) {
+            C[j].destroy();
+        }
     } else {
-	Cursor * old_C = C;
-	C = new Cursor[new_level + 1];
-	for (int i = 0; i < level; ++i) {
-	    C[i].swap(old_C[i]);
-	    C[i].clone(B->C[i]);
-	}
-	delete [] old_C;
-	for (int j = level; j < new_level; ++j) {
-	    C[j].init(B->block_size);
-	}
+        Cursor * old_C = C;
+        C = new Cursor[new_level + 1];
+        for (int i = 0; i < level; ++i) {
+            C[i].swap(old_C[i]);
+            C[i].clone(B->C[i]);
+        }
+        delete [] old_C;
+        for (int j = level; j < new_level; ++j) {
+            C[j].init(B->block_size);
+        }
     }
     level = new_level;
     C[level].clone(B->C[level]);
@@ -108,29 +108,29 @@ GlassCursor::next()
     LOGCALL(DB, bool, "GlassCursor::next", NO_ARGS);
     Assert(!is_after_end);
     if (B->cursor_version != version) {
-	// find_entry() will call rebuild().
-	(void)find_entry(current_key);
-	// If the key was found, we're now pointing to it, otherwise we're
-	// pointing to the entry before.  Either way, we now want to move to
-	// the next key.
+        // find_entry() will call rebuild().
+        (void)find_entry(current_key);
+        // If the key was found, we're now pointing to it, otherwise we're
+        // pointing to the entry before.  Either way, we now want to move to
+        // the next key.
     }
     if (tag_status == UNREAD || tag_status == UNREAD_ON_LAST_CHUNK) {
-	while (true) {
-	    if (!B->next(C, 0)) {
-		is_positioned = false;
-		break;
-	    }
-	    if (tag_status == UNREAD_ON_LAST_CHUNK ||
-		LeafItem(C[0].get_p(), C[0].c).first_component()) {
-		is_positioned = true;
-		break;
-	    }
-	}
+        while (true) {
+            if (!B->next(C, 0)) {
+                is_positioned = false;
+                break;
+            }
+            if (tag_status == UNREAD_ON_LAST_CHUNK ||
+                LeafItem(C[0].get_p(), C[0].c).first_component()) {
+                is_positioned = true;
+                break;
+            }
+        }
     }
 
     if (!is_positioned) {
-	is_after_end = true;
-	RETURN(false);
+        is_after_end = true;
+        RETURN(false);
     }
 
     get_key(&current_key);
@@ -145,7 +145,7 @@ GlassCursor::find_entry(const string &key)
 {
     LOGCALL(DB, bool, "GlassCursor::find_entry", key);
     if (B->cursor_version != version) {
-	rebuild();
+        rebuild();
     }
 
     is_after_end = false;
@@ -154,32 +154,32 @@ GlassCursor::find_entry(const string &key)
 
     is_positioned = true;
     if (key.size() > GLASS_BTREE_MAX_KEY_LEN) {
-	// Can't find key - too long to possibly be present, so find the
-	// truncated form but ignore "found".
-	B->form_key(key.substr(0, GLASS_BTREE_MAX_KEY_LEN));
-	(void)(B->find(C));
-	found = false;
+        // Can't find key - too long to possibly be present, so find the
+        // truncated form but ignore "found".
+        B->form_key(key.substr(0, GLASS_BTREE_MAX_KEY_LEN));
+        (void)(B->find(C));
+        found = false;
     } else {
-	B->form_key(key);
-	found = B->find(C);
+        B->form_key(key);
+        found = B->find(C);
     }
 
     if (found) {
-	tag_status = UNREAD;
-	current_key = key;
+        tag_status = UNREAD;
+        current_key = key;
     } else {
-	// Be lazy about stepping back to the first chunk, as we may never be
-	// asked to read the tag.
-	tag_status = UNREAD_ON_LAST_CHUNK;
-	if (C[0].c < DIR_START) {
-	    // It would be nice to be lazy about this too, but we need to
-	    // be on an actual entry in order to read the key.
-	    C[0].c = DIR_START;
-	    if (!B->prev(C, 0)) {
-		tag_status = UNREAD;
-	    }
-	}
-	get_key(&current_key);
+        // Be lazy about stepping back to the first chunk, as we may never be
+        // asked to read the tag.
+        tag_status = UNREAD_ON_LAST_CHUNK;
+        if (C[0].c < DIR_START) {
+            // It would be nice to be lazy about this too, but we need to
+            // be on an actual entry in order to read the key.
+            C[0].c = DIR_START;
+            if (!B->prev(C, 0)) {
+                tag_status = UNREAD;
+            }
+        }
+        get_key(&current_key);
     }
 
     LOGLINE(DB, "Found entry: key=" << hex_display_encode(current_key));
@@ -191,17 +191,17 @@ GlassCursor::find_entry_lt(const string &key)
 {
     LOGCALL_VOID(DB, "GlassCursor::find_entry_lt", key);
     if (!find_entry(key)) {
-	// The entry wasn't found, so find_entry() left us on the entry before
-	// the one we asked for and we're done.
-	return;
+        // The entry wasn't found, so find_entry() left us on the entry before
+        // the one we asked for and we're done.
+        return;
     }
 
     Assert(!is_after_end);
     Assert(is_positioned);
 
     if (!B->prev(C, 0)) {
-	is_positioned = false;
-	return;
+        is_positioned = false;
+        return;
     }
     tag_status = UNREAD_ON_LAST_CHUNK;
     get_key(&current_key);
@@ -216,17 +216,17 @@ GlassCursor::find_exact(const string &key)
     is_after_end = false;
     is_positioned = false;
     if (rare(key.size() > GLASS_BTREE_MAX_KEY_LEN)) {
-	// There can't be a match
-	RETURN(false);
+        // There can't be a match
+        RETURN(false);
     }
 
     if (B->cursor_version != version) {
-	rebuild();
+        rebuild();
     }
 
     B->form_key(key);
     if (!B->find(C)) {
-	RETURN(false);
+        RETURN(false);
     }
     current_key = key;
     B->read_tag(C, &current_tag, false);
@@ -241,7 +241,7 @@ GlassCursor::find_entry_ge(string_view key)
 {
     LOGCALL(DB, bool, "GlassCursor::find_entry_ge", key);
     if (B->cursor_version != version) {
-	rebuild();
+        rebuild();
     }
 
     is_after_end = false;
@@ -250,26 +250,26 @@ GlassCursor::find_entry_ge(string_view key)
 
     is_positioned = true;
     if (key.size() > GLASS_BTREE_MAX_KEY_LEN) {
-	// Can't find key - too long to possibly be present, so find the
-	// truncated form but ignore "found".
-	B->form_key(key.substr(0, GLASS_BTREE_MAX_KEY_LEN));
-	(void)(B->find(C));
-	found = false;
+        // Can't find key - too long to possibly be present, so find the
+        // truncated form but ignore "found".
+        B->form_key(key.substr(0, GLASS_BTREE_MAX_KEY_LEN));
+        (void)(B->find(C));
+        found = false;
     } else {
-	B->form_key(key);
-	found = B->find(C);
+        B->form_key(key);
+        found = B->find(C);
     }
 
     if (found) {
-	current_key = key;
+        current_key = key;
     } else {
-	if (!B->next(C, 0)) {
-	    is_after_end = true;
-	    is_positioned = false;
-	    RETURN(false);
-	}
-	Assert(LeafItem(C[0].get_p(), C[0].c).first_component());
-	get_key(&current_key);
+        if (!B->next(C, 0)) {
+            is_after_end = true;
+            is_positioned = false;
+            RETURN(false);
+        }
+        Assert(LeafItem(C[0].get_p(), C[0].c).first_component());
+        get_key(&current_key);
     }
     tag_status = UNREAD;
 
@@ -291,30 +291,30 @@ GlassCursor::read_tag(bool keep_compressed)
 {
     LOGCALL(DB, bool, "GlassCursor::read_tag", keep_compressed);
     if (tag_status == UNREAD_ON_LAST_CHUNK) {
-	// Back up to first chunk of this tag.
-	while (!LeafItem(C[0].get_p(), C[0].c).first_component()) {
-	    if (!B->prev(C, 0)) {
-		is_positioned = false;
-		throw Xapian::DatabaseCorruptError("find_entry failed to find any entry at all!");
-	    }
-	}
-	tag_status = UNREAD;
+        // Back up to first chunk of this tag.
+        while (!LeafItem(C[0].get_p(), C[0].c).first_component()) {
+            if (!B->prev(C, 0)) {
+                is_positioned = false;
+                throw Xapian::DatabaseCorruptError("find_entry failed to find any entry at all!");
+            }
+        }
+        tag_status = UNREAD;
     }
     if (tag_status == UNREAD) {
-	Assert(B->level <= level);
-	Assert(is_positioned);
+        Assert(B->level <= level);
+        Assert(is_positioned);
 
-	if (B->read_tag(C, &current_tag, keep_compressed)) {
-	    tag_status = COMPRESSED;
-	} else {
-	    tag_status = UNCOMPRESSED;
-	}
+        if (B->read_tag(C, &current_tag, keep_compressed)) {
+            tag_status = COMPRESSED;
+        } else {
+            tag_status = UNCOMPRESSED;
+        }
 
-	// We need to call B->next(...) after B->read_tag(...) so that the
-	// cursor ends up on the next key.
-	is_positioned = B->next(C, 0);
+        // We need to call B->next(...) after B->read_tag(...) so that the
+        // cursor ends up on the next key.
+        is_positioned = B->next(C, 0);
 
-	LOGLINE(DB, "tag=" << hex_display_encode(current_tag));
+        LOGLINE(DB, "tag=" << hex_display_encode(current_tag));
     }
     RETURN(tag_status == COMPRESSED);
 }

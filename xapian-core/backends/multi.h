@@ -62,8 +62,8 @@ shard_number(Xapian::docid did, Xapian::doccount n_shards) {
  */
 inline Xapian::docid
 unshard(Xapian::docid shard_did,
-	Xapian::doccount shard,
-	Xapian::doccount n_shards) {
+        Xapian::doccount shard,
+        Xapian::doccount n_shards) {
     Assert(shard_did != 0);
     AssertRel(shard,<,n_shards);
     return (shard_did - 1) * n_shards + shard + 1;

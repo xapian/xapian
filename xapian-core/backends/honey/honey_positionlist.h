@@ -118,7 +118,7 @@ class HoneyRePositionList : public HoneyBasePositionList {
     /// Constructor.
     explicit
     HoneyRePositionList(const HoneyTable& table)
-	: cursor(&table) {}
+        : cursor(&table) {}
 
     /** Fill list with data, and move the position to the start. */
     void assign_data(std::string&& data);
@@ -130,10 +130,10 @@ class HoneyRePositionList : public HoneyBasePositionList {
 class HoneyPositionTable : public HoneyLazyTable {
   public:
     static std::string make_key(Xapian::docid did, std::string_view term) {
-	std::string key;
-	pack_string_preserving_sort(key, term);
-	pack_uint_preserving_sort(key, did);
-	return key;
+        std::string key;
+        pack_string_preserving_sort(key, term);
+        pack_uint_preserving_sort(key, did);
+        return key;
     }
 
     /** Create a new HoneyPositionTable object.
@@ -145,18 +145,18 @@ class HoneyPositionTable : public HoneyLazyTable {
      *  @param readonly		true if we're opening read-only, else false.
      */
     HoneyPositionTable(const std::string& dbdir, bool readonly)
-	: HoneyLazyTable("position", dbdir + "/position.", readonly) { }
+        : HoneyLazyTable("position", dbdir + "/position.", readonly) { }
 
     HoneyPositionTable(int fd, off_t offset_, bool readonly_)
-	: HoneyLazyTable("position", fd, offset_, readonly_) { }
+        : HoneyLazyTable("position", fd, offset_, readonly_) { }
 
     HoneyPositionList* open_position_list(Xapian::docid did,
-					  std::string_view term) const {
-	std::string pos_data;
-	if (!get_exact_entry(make_key(did, term), pos_data))
-	    return nullptr;
+                                          std::string_view term) const {
+        std::string pos_data;
+        if (!get_exact_entry(make_key(did, term), pos_data))
+            return nullptr;
 
-	return new HoneyPositionList(std::move(pos_data));
+        return new HoneyPositionList(std::move(pos_data));
     }
 
     /** Pack a position list into a string.
@@ -168,18 +168,18 @@ class HoneyPositionTable : public HoneyLazyTable {
     /** Set the position list for term tname in document did.
      */
     void set_positionlist(Xapian::docid did, std::string_view tname,
-			  std::string_view s) {
-	add(make_key(did, tname), s);
+                          std::string_view s) {
+        add(make_key(did, tname), s);
     }
 
     /// Delete the position list for term tname in document did.
     void delete_positionlist(Xapian::docid did, std::string_view tname) {
-	del(make_key(did, tname));
+        del(make_key(did, tname));
     }
 
     /// Return the number of entries in specified position list.
     Xapian::termcount positionlist_count(Xapian::docid did,
-					 std::string_view term) const;
+                                         std::string_view term) const;
 };
 
 #endif /* XAPIAN_INCLUDED_HONEY_POSITIONLIST_H */

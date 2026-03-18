@@ -35,23 +35,23 @@ TermIterator::decref()
 {
     Assert(internal);
     if (--internal->_refs == 0)
-	delete internal;
+        delete internal;
 }
 
 void
 TermIterator::post_advance(Internal * res)
 {
     if (res) {
-	if (res == internal) {
-	    // No more items.
-	    res = NULL;
-	} else {
-	    // Prune - this can happen with iterating allterms from multiple
-	    // databases.
-	    ++res->_refs;
-	}
-	decref();
-	internal = res;
+        if (res == internal) {
+            // No more items.
+            res = NULL;
+        } else {
+            // Prune - this can happen with iterating allterms from multiple
+            // databases.
+            ++res->_refs;
+        }
+        decref();
+        internal = res;
     }
 }
 
@@ -60,13 +60,13 @@ TermIterator::TermIterator(Internal *internal_) : internal(internal_)
     LOGCALL_CTOR(API, "TermIterator", internal_);
     if (!internal) return;
     try {
-	++internal->_refs;
-	post_advance(internal->next());
+        ++internal->_refs;
+        post_advance(internal->next());
     } catch (...) {
-	// The destructor only runs if the constructor completes, so we have to
-	// take care of cleaning up for ourselves here.
-	decref();
-	throw;
+        // The destructor only runs if the constructor completes, so we have to
+        // take care of cleaning up for ourselves here.
+        decref();
+        throw;
     }
 }
 
@@ -75,7 +75,7 @@ TermIterator::TermIterator(const TermIterator & o)
 {
     LOGCALL_CTOR(API, "TermIterator", o);
     if (internal)
-	++internal->_refs;
+        ++internal->_refs;
 }
 
 TermIterator &
@@ -83,9 +83,9 @@ TermIterator::operator=(const TermIterator & o)
 {
     LOGCALL(API, TermIterator &, "TermIterator::operator=", o);
     if (o.internal)
-	++o.internal->_refs;
+        ++o.internal->_refs;
     if (internal)
-	decref();
+        decref();
     internal = o.internal;
     RETURN(*this);
 }
@@ -144,7 +144,7 @@ TermIterator::skip_to(string_view term)
 {
     LOGCALL_VOID(API, "TermIterator::skip_to", term);
     if (internal)
-	post_advance(internal->skip_to(term));
+        post_advance(internal->skip_to(term));
 }
 
 std::string
@@ -153,7 +153,7 @@ TermIterator::get_description() const
 #if 0 // FIXME: Add TermIterator::Internal::get_description() method.
     string desc = "TermIterator(";
     if (internal)
-	desc += internal->get_description();
+        desc += internal->get_description();
     desc += ')';
     return desc;
 #else

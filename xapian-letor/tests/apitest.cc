@@ -60,9 +60,9 @@ get_database(const string &dbname, const string &dbname2)
 
 Xapian::Database
 get_database(const std::string &dbname,
-	     void (*gen)(Xapian::WritableDatabase&,
-			 const std::string &),
-	     const std::string &arg)
+             void (*gen)(Xapian::WritableDatabase&,
+                         const std::string &),
+             const std::string &arg)
 {
     return backendmanager->get_database(dbname, gen, arg);
 }
@@ -75,9 +75,9 @@ get_database_path(const string &dbname)
 
 string
 get_database_path(const std::string &dbname,
-		  void (*gen)(Xapian::WritableDatabase&,
-			      const std::string &),
-		  const std::string &arg)
+                  void (*gen)(Xapian::WritableDatabase&,
+                              const std::string &),
+                  const std::string &arg)
 {
     return backendmanager->get_database_path(dbname, gen, arg);
 }
@@ -108,8 +108,8 @@ get_compaction_output_path(const std::string& name)
 
 Xapian::Database
 get_remote_database(const string& dbname,
-		    unsigned int timeout,
-		    int* port_ptr)
+                    unsigned int timeout,
+                    int* port_ptr)
 {
     vector<string> dbnames;
     dbnames.push_back(dbname);
@@ -138,7 +138,7 @@ void
 skip_test_unless_backend(const std::string & backend_prefix)
 {
     if (!startswith(get_dbtype(), backend_prefix)) {
-	SKIP_TEST("Test only supported for " << backend_prefix << " backend");
+        SKIP_TEST("Test only supported for " << backend_prefix << " backend");
     }
 }
 
@@ -146,16 +146,16 @@ void
 skip_test_for_backend(const std::string & backend_prefix)
 {
     if (startswith(get_dbtype(), backend_prefix)) {
-	SKIP_TEST("Test not supported for " << backend_prefix << " backend");
+        SKIP_TEST("Test not supported for " << backend_prefix << " backend");
     }
 }
 
 void
 XFAIL_FOR_BACKEND(const std::string& backend_prefix,
-		  const char* msg)
+                  const char* msg)
 {
     if (startswith(get_dbtype(), backend_prefix)) {
-	XFAIL(msg);
+        XFAIL(msg);
     }
 }
 
@@ -163,13 +163,13 @@ class ApiTestRunner : public TestRunner
 {
   public:
     int run() const {
-	int result = 0;
+        int result = 0;
 #include "api_collated.h"
-	test_driver::report(test_driver::subtotal,
-			    "backend " + backendmanager->get_dbtype());
-	test_driver::total += test_driver::subtotal;
-	test_driver::subtotal.reset();
-	return result;
+        test_driver::report(test_driver::subtotal,
+                            "backend " + backendmanager->get_dbtype());
+        test_driver::total += test_driver::subtotal;
+        test_driver::subtotal.reset();
+        return result;
     }
 };
 

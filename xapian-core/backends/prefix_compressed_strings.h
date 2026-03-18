@@ -49,10 +49,10 @@ class PrefixCompressedStringItor {
     int tail = 0;
 
     PrefixCompressedStringItor(PrefixCompressedStringItor& o)
-	: p(o.p), left(o.left), current(o.current), tail(o.tail) {}
+        : p(o.p), left(o.left), current(o.current), tail(o.tail) {}
 
     PrefixCompressedStringItor(PrefixCompressedStringItor&& o)
-	: p(o.p), left(o.left), current(std::move(o.current)), tail(o.tail) {}
+        : p(o.p), left(o.left), current(std::move(o.current)), tail(o.tail) {}
 
   public:
     /** Construct for glass.
@@ -60,13 +60,13 @@ class PrefixCompressedStringItor {
      *  @param s  the encoded data.
      */
     explicit PrefixCompressedStringItor(const std::string& s)
-	: p(reinterpret_cast<const unsigned char *>(s.data())),
-	  left(s.size()) {
-	if (left) {
-	    operator++();
-	} else {
-	    p = NULL;
-	}
+        : p(reinterpret_cast<const unsigned char *>(s.data())),
+          left(s.size()) {
+        if (left) {
+            operator++();
+        } else {
+            p = NULL;
+        }
     }
 
     /** Construct for honey.
@@ -75,67 +75,67 @@ class PrefixCompressedStringItor {
      *  @param key  the key
      */
     PrefixCompressedStringItor(const std::string& s,
-			       const std::string& key)
-	: p(reinterpret_cast<const unsigned char *>(s.data())),
-	  left(s.size()) {
-	Assert(!key.empty());
-	unsigned char first_ch = key[0];
-	AssertRel(first_ch, <, Honey::KEY_PREFIX_WORD);
-	switch (first_ch) {
-	    case Honey::KEY_PREFIX_BOOKEND:
-		tail = -1;
-		break;
-	    case Honey::KEY_PREFIX_HEAD:
-		tail = -2;
-		break;
-	    case Honey::KEY_PREFIX_TAIL:
-		tail = 2;
-		break;
-	}
-	if (tail != 0)
-	    current.assign(key, 1, 2);
-	if (left) {
-	    operator++();
-	} else {
-	    p = NULL;
-	}
+                               const std::string& key)
+        : p(reinterpret_cast<const unsigned char *>(s.data())),
+          left(s.size()) {
+        Assert(!key.empty());
+        unsigned char first_ch = key[0];
+        AssertRel(first_ch, <, Honey::KEY_PREFIX_WORD);
+        switch (first_ch) {
+            case Honey::KEY_PREFIX_BOOKEND:
+                tail = -1;
+                break;
+            case Honey::KEY_PREFIX_HEAD:
+                tail = -2;
+                break;
+            case Honey::KEY_PREFIX_TAIL:
+                tail = 2;
+                break;
+        }
+        if (tail != 0)
+            current.assign(key, 1, 2);
+        if (left) {
+            operator++();
+        } else {
+            p = NULL;
+        }
     }
 
     const std::string & operator*() const {
-	return current;
+        return current;
     }
 
     PrefixCompressedStringItor operator++(int) {
-	PrefixCompressedStringItor old(*this);
-	operator++();
-	return old;
+        PrefixCompressedStringItor old(*this);
+        operator++();
+        return old;
     }
 
     PrefixCompressedStringItor & operator++() {
-	if (left == 0) {
-	    p = NULL;
-	} else {
-	    size_t keep = 0;
-	    if (rare(tail < 0)) {
-		tail += 2;
-		keep = current.size() - tail;
-	    } else if (usual(!current.empty())) {
-		keep = *p++ ^ MAGIC_XOR_VALUE;
-		--left;
-	    }
-	    size_t add;
-	    if (left == 0 || (add = *p ^ MAGIC_XOR_VALUE) >= left)
-		throw Xapian::DatabaseCorruptError("Bad spelling data (too little left)");
-	    current.replace(keep, current.size() - tail - keep,
-			    reinterpret_cast<const char *>(p + 1), add);
-	    p += add + 1;
-	    left -= add + 1;
-	}
-	return *this;
+        if (left == 0) {
+            p = NULL;
+        } else {
+            size_t keep = 0;
+            if (rare(tail < 0)) {
+                tail += 2;
+                keep = current.size() - tail;
+            } else if (usual(!current.empty())) {
+                keep = *p++ ^ MAGIC_XOR_VALUE;
+                --left;
+            }
+            size_t add;
+            if (left == 0 || (add = *p ^ MAGIC_XOR_VALUE) >= left)
+                throw Xapian::DatabaseCorruptError("Bad spelling data (too little left)");
+            current.replace(keep, current.size() - tail - keep,
+                            reinterpret_cast<const char *>(p + 1), add);
+            p += add + 1;
+            left -= add + 1;
+        }
+        return *this;
     }
 
     bool at_end() const {
-	return p == NULL;
+        return p == NULL;
     }
 };
 
@@ -158,72 +158,72 @@ class PrefixCompressedStringWriter {
      *  @param key   the key.
      */
     PrefixCompressedStringWriter(std::string& out_,
-				 const std::string& key)
-	: out(out_) {
-	Assert(!key.empty());
-	unsigned char first_ch = key[0];
-	AssertRel(first_ch, <, Honey::KEY_PREFIX_WORD);
-	switch (first_ch) {
-	    case Honey::KEY_PREFIX_BOOKEND:
-		tail = -1;
-		break;
-	    case Honey::KEY_PREFIX_HEAD:
-		tail = -2;
-		break;
-	    case Honey::KEY_PREFIX_TAIL:
-		tail = 2;
-		break;
-	}
-	if (tail != 0)
-	    current.assign(key, 1, 2);
+                                 const std::string& key)
+        : out(out_) {
+        Assert(!key.empty());
+        unsigned char first_ch = key[0];
+        AssertRel(first_ch, <, Honey::KEY_PREFIX_WORD);
+        switch (first_ch) {
+            case Honey::KEY_PREFIX_BOOKEND:
+                tail = -1;
+                break;
+            case Honey::KEY_PREFIX_HEAD:
+                tail = -2;
+                break;
+            case Honey::KEY_PREFIX_TAIL:
+                tail = 2;
+                break;
+        }
+        if (tail != 0)
+            current.assign(key, 1, 2);
     }
 
     void append(const std::string & word) {
-	// If this isn't the first entry, see how much of the previous one
-	// we can reuse.
-	if (rare(tail < 0)) {
-	    // First entry for BOOKEND or HEAD (tail is -1 or -2).
-	    AssertRel(tail, >=, -2);
-	    AssertEq(current[0], word[0]);
-	    if (tail == -2) {
-		AssertEq(current[1], word[1]);
-	    } else {
-		AssertEq(current.back(), word.back());
-	    }
-	    out += char((word.size() - 2) ^ MAGIC_XOR_VALUE);
-	    out.append(word, -tail, word.size() - 2);
-	    tail += 2;
-	} else if (usual(!current.empty())) {
-	    // Incremental change.
-	    if (tail)
-		AssertEq(current[current.size() - 1], word[word.size() - 1]);
-	    if (tail > 1)
-		AssertEq(current[current.size() - 2], word[word.size() - 2]);
-	    size_t i = common_prefix_length(current, word);
-	    // Don't allow the reused prefix to overlap with tail
-	    i = std::min(i, word.size() - tail);
-	    out += char(i ^ MAGIC_XOR_VALUE);
-	    size_t add = word.size() - i - tail;
-	    out += char(add ^ MAGIC_XOR_VALUE);
-	    out.append(word.data() + i, add);
-	} else {
-	    // First entry for MIDDLE or TAIL (tail is 0 or 2).
-	    if (tail) {
-		AssertEq(current[current.size() - 1], word[word.size() - 1]);
-		AssertEq(current[current.size() - 2], word[word.size() - 2]);
-	    }
-	    out += char((word.size() - tail) ^ MAGIC_XOR_VALUE);
-	    out.append(word, 0, word.size() - tail);
-	}
-	current = word;
+        // If this isn't the first entry, see how much of the previous one
+        // we can reuse.
+        if (rare(tail < 0)) {
+            // First entry for BOOKEND or HEAD (tail is -1 or -2).
+            AssertRel(tail, >=, -2);
+            AssertEq(current[0], word[0]);
+            if (tail == -2) {
+                AssertEq(current[1], word[1]);
+            } else {
+                AssertEq(current.back(), word.back());
+            }
+            out += char((word.size() - 2) ^ MAGIC_XOR_VALUE);
+            out.append(word, -tail, word.size() - 2);
+            tail += 2;
+        } else if (usual(!current.empty())) {
+            // Incremental change.
+            if (tail)
+                AssertEq(current[current.size() - 1], word[word.size() - 1]);
+            if (tail > 1)
+                AssertEq(current[current.size() - 2], word[word.size() - 2]);
+            size_t i = common_prefix_length(current, word);
+            // Don't allow the reused prefix to overlap with tail
+            i = std::min(i, word.size() - tail);
+            out += char(i ^ MAGIC_XOR_VALUE);
+            size_t add = word.size() - i - tail;
+            out += char(add ^ MAGIC_XOR_VALUE);
+            out.append(word.data() + i, add);
+        } else {
+            // First entry for MIDDLE or TAIL (tail is 0 or 2).
+            if (tail) {
+                AssertEq(current[current.size() - 1], word[word.size() - 1]);
+                AssertEq(current[current.size() - 2], word[word.size() - 2]);
+            }
+            out += char((word.size() - tail) ^ MAGIC_XOR_VALUE);
+            out.append(word, 0, word.size() - tail);
+        }
+        current = word;
     }
 };
 
 struct PrefixCompressedStringItorGt {
     /// Return true if and only if a's string is strictly greater than b's.
     bool operator()(const PrefixCompressedStringItor *a,
-		    const PrefixCompressedStringItor *b) const {
-	return (**a > **b);
+                    const PrefixCompressedStringItor *b) const {
+        return (**a > **b);
     }
 };
 

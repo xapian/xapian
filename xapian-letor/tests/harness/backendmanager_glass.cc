@@ -44,23 +44,23 @@ BackendManagerGlass::do_get_database_path(const vector<string> & files)
 {
     string db_path = CACHE_DIRECTORY "/db";
     for (const string& file : files) {
-	db_path += "__";
-	db_path += file;
+        db_path += "__";
+        db_path += file;
     }
 
     if (!dir_exists(db_path)) {
-	// No cached DB exists.  Create at a temporary path and rename
-	// so we don't leave a partial DB in place upon failure.
-	string tmp_path = db_path + ".tmp";
-	// Make sure there's nothing existing at our temporary path.
-	rm_rf(tmp_path);
-	auto flags = Xapian::DB_CREATE|Xapian::DB_BACKEND_GLASS;
-	Xapian::WritableDatabase wdb(tmp_path, flags, BLOCK_SIZE);
-	index_files_to_database(wdb, files);
-	wdb.close();
-	if (rename(tmp_path.c_str(), db_path.c_str()) < 0) {
-	    throw Xapian::DatabaseError("rename failed", errno);
-	}
+        // No cached DB exists.  Create at a temporary path and rename
+        // so we don't leave a partial DB in place upon failure.
+        string tmp_path = db_path + ".tmp";
+        // Make sure there's nothing existing at our temporary path.
+        rm_rf(tmp_path);
+        auto flags = Xapian::DB_CREATE|Xapian::DB_BACKEND_GLASS;
+        Xapian::WritableDatabase wdb(tmp_path, flags, BLOCK_SIZE);
+        index_files_to_database(wdb, files);
+        wdb.close();
+        if (rename(tmp_path.c_str(), db_path.c_str()) < 0) {
+            throw Xapian::DatabaseError("rename failed", errno);
+        }
     }
 
     return db_path;
@@ -68,7 +68,7 @@ BackendManagerGlass::do_get_database_path(const vector<string> & files)
 
 Xapian::WritableDatabase
 BackendManagerGlass::get_writable_database(const string & name,
-					   const string & file)
+                                           const string & file)
 {
     last_wdb_name = name;
     string db_path = CACHE_DIRECTORY "/" + name;
@@ -106,7 +106,7 @@ Xapian::WritableDatabase
 BackendManagerGlass::get_writable_database_again()
 {
     return Xapian::WritableDatabase(CACHE_DIRECTORY "/" + last_wdb_name,
-				    Xapian::DB_OPEN|Xapian::DB_BACKEND_GLASS);
+                                    Xapian::DB_OPEN|Xapian::DB_BACKEND_GLASS);
 }
 
 string

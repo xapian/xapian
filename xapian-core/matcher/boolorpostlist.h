@@ -38,17 +38,17 @@ class BoolOrPostList : public PostList {
     size_t n_kids;
 
     struct PostListAndDocID {
-	PostList* pl;
+        PostList* pl;
 
-	Xapian::docid did = 0;
+        Xapian::docid did = 0;
 
-	PostListAndDocID() : pl(nullptr) { }
+        PostListAndDocID() : pl(nullptr) { }
 
-	PostListAndDocID(PostList* pl_) : pl(pl_) { }
+        PostListAndDocID(PostList* pl_) : pl(pl_) { }
 
-	bool operator>(const PostListAndDocID& o) const {
-	    return did > o.did;
-	}
+        bool operator>(const PostListAndDocID& o) const {
+            return did > o.did;
+        }
     };
 
     /// Array of pointers to sub-postlists.
@@ -93,51 +93,51 @@ class BoolOrPostList : public PostList {
     Xapian::termcount
     for_all_matches(F func) const
     {
-	size_t i = 0;
-	Xapian::termcount result = 0;
-	AssertEq(plist[0].did, did);
-	while (true) {
-	    result += func(plist[i].pl);
-	    // Children of i are (2 * i + 1) and (2 * i + 2).
-	    size_t j = 2 * i + 2;
-	    if (j < n_kids && plist[j].did == did) {
-		// Down right.
-		i = j;
-		continue;
-	    }
-	    --j;
-	    if (j < n_kids && plist[j].did == did) {
-		// Down left.
-		i = j;
-		continue;
-	    }
+        size_t i = 0;
+        Xapian::termcount result = 0;
+        AssertEq(plist[0].did, did);
+        while (true) {
+            result += func(plist[i].pl);
+            // Children of i are (2 * i + 1) and (2 * i + 2).
+            size_t j = 2 * i + 2;
+            if (j < n_kids && plist[j].did == did) {
+                // Down right.
+                i = j;
+                continue;
+            }
+            --j;
+            if (j < n_kids && plist[j].did == did) {
+                // Down left.
+                i = j;
+                continue;
+            }
     try_left:
-	    if (i < 2) break;
-	    if ((i & 1) == 0 && plist[i - 1].did == did) {
-		// Left.
-		--i;
-		continue;
-	    }
-	    // Up.
-	    //
-	    // We can ascend back up to our parent, plus any sequence of
-	    // contiguous left branches up from our parent, with a neat
-	    // bit-twiddling trick if we have __builtin_ffs() available.
+            if (i < 2) break;
+            if ((i & 1) == 0 && plist[i - 1].did == did) {
+                // Left.
+                --i;
+                continue;
+            }
+            // Up.
+            //
+            // We can ascend back up to our parent, plus any sequence of
+            // contiguous left branches up from our parent, with a neat
+            // bit-twiddling trick if we have __builtin_ffs() available.
 #if HAVE_DECL___BUILTIN_FFS
-	    ++i;
-	    i >>= __builtin_ffs(i & ~1) - 1;
-	    --i;
+            ++i;
+            i >>= __builtin_ffs(i & ~1) - 1;
+            --i;
 #else
-	    // Fall-back to just ascending one level at a time, which is
-	    // simple and probably similarly efficient to a portable
-	    // fallback ffs() implementation which doesn't make use of
-	    // specialised machine code instructions, since the distance
-	    // we can ascend will be usually be short.
-	    i = (i - 1) / 2;
+            // Fall-back to just ascending one level at a time, which is
+            // simple and probably similarly efficient to a portable
+            // fallback ffs() implementation which doesn't make use of
+            // specialised machine code instructions, since the distance
+            // we can ascend will be usually be short.
+            i = (i - 1) / 2;
 #endif
-	    goto try_left;
-	}
-	return result;
+            goto try_left;
+        }
+        return result;
     }
 
   public:
@@ -146,27 +146,27 @@ class BoolOrPostList : public PostList {
      */
     template<class RandomItor>
     BoolOrPostList(RandomItor pl_begin, RandomItor pl_end,
-		   Xapian::doccount db_size)
-	: n_kids(pl_end - pl_begin)
+                   Xapian::doccount db_size)
+        : n_kids(pl_end - pl_begin)
     {
-	plist = new PostListAndDocID[n_kids];
-	// This initialises all entries to have did 0, so all entries are
-	// equal, which is a valid heap.
-	std::copy(pl_begin, pl_end, plist);
+        plist = new PostListAndDocID[n_kids];
+        // This initialises all entries to have did 0, so all entries are
+        // equal, which is a valid heap.
+        std::copy(pl_begin, pl_end, plist);
 
-	// We shortcut an empty shard and avoid creating a postlist tree for it.
-	Assert(db_size);
-	Assert(n_kids != 0);
-	// We calculate the estimate assuming independence.  The simplest
-	// way to calculate this seems to be a series of (n_kids - 1) pairwise
-	// calculations, which gives the same answer regardless of the order.
-	double scale = 1.0 / db_size;
-	double P_est = plist[0].pl->get_termfreq() * scale;
-	for (size_t i = 1; i < n_kids; ++i) {
-	    double P_i = plist[i].pl->get_termfreq() * scale;
-	    P_est += P_i - P_est * P_i;
-	}
-	termfreq = static_cast<Xapian::doccount>(P_est * db_size + 0.5);
+        // We shortcut an empty shard and avoid creating a postlist tree for it.
+        Assert(db_size);
+        Assert(n_kids != 0);
+        // We calculate the estimate assuming independence.  The simplest
+        // way to calculate this seems to be a series of (n_kids - 1) pairwise
+        // calculations, which gives the same answer regardless of the order.
+        double scale = 1.0 / db_size;
+        double P_est = plist[0].pl->get_termfreq() * scale;
+        for (size_t i = 1; i < n_kids; ++i) {
+            double P_i = plist[i].pl->get_termfreq() * scale;
+            P_est += P_i - P_est * P_i;
+        }
+        termfreq = static_cast<Xapian::doccount>(P_est * db_size + 0.5);
     }
 
     ~BoolOrPostList();
@@ -174,8 +174,8 @@ class BoolOrPostList : public PostList {
     Xapian::docid get_docid() const;
 
     double get_weight(Xapian::termcount doclen,
-		      Xapian::termcount unique_terms,
-		      Xapian::termcount wdfdocmax) const;
+                      Xapian::termcount unique_terms,
+                      Xapian::termcount wdfdocmax) const;
 
     bool at_end() const;
 

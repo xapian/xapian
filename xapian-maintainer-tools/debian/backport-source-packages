@@ -120,7 +120,7 @@ adjust_changelog() {
       distribution=$CODENAME-backports-sloppy
     fi
     dch --force-bad-version -v "$backport_version" -D "$distribution" \
-	"Rebuild for $CODENAME backports." < /dev/null
+        "Rebuild for $CODENAME backports." < /dev/null
   fi
 }
 
@@ -145,71 +145,71 @@ build_it() {
   # Mainly for Survex.
   case $CODENAME in
       jammy|focal|bionic|bullseye)
-	if grep -q libwxgtk3.2-dev $CONTROL_SOURCE ; then
-	    sed -i 's/libwxgtk3.2-dev/libwxgtk3.0-gtk3-dev/g' $CONTROL_SOURCE
-	    dch -a "$CONTROL_SOURCE: Build with wxWidgets 3.0."
-	fi
-	;;
+        if grep -q libwxgtk3.2-dev $CONTROL_SOURCE ; then
+            sed -i 's/libwxgtk3.2-dev/libwxgtk3.0-gtk3-dev/g' $CONTROL_SOURCE
+            dch -a "$CONTROL_SOURCE: Build with wxWidgets 3.0."
+        fi
+        ;;
       xenial)
-	if grep -q libwxgtk3.2-dev $CONTROL_SOURCE ; then
-	    sed -i 's/libwxgtk3.2-dev/libwxgtk3.0-dev/g' $CONTROL_SOURCE
-	    dch -a "$CONTROL_SOURCE: Build with wxWidgets 3.0."
-	elif grep -q libwxgtk3.0-gtk3-dev $CONTROL_SOURCE ; then
-	    sed -i 's/libwxgtk3.0-gtk3-dev/libwxgtk3.0-dev/g' $CONTROL_SOURCE
-	    dch -a "$CONTROL_SOURCE: Build with GTK2 version of wxWidgets."
-	fi
-	;;
+        if grep -q libwxgtk3.2-dev $CONTROL_SOURCE ; then
+            sed -i 's/libwxgtk3.2-dev/libwxgtk3.0-dev/g' $CONTROL_SOURCE
+            dch -a "$CONTROL_SOURCE: Build with wxWidgets 3.0."
+        elif grep -q libwxgtk3.0-gtk3-dev $CONTROL_SOURCE ; then
+            sed -i 's/libwxgtk3.0-gtk3-dev/libwxgtk3.0-dev/g' $CONTROL_SOURCE
+            dch -a "$CONTROL_SOURCE: Build with GTK2 version of wxWidgets."
+        fi
+        ;;
   esac
 
   case $CODENAME in
       xenial)
-	if [ -f "debian/compat" ] && [ "`cat debian/compat`" -gt 9 ] ; then
-	    echo 9 > debian/compat
-	    sed -i 's/debhelper (>= [^)]*)/debhelper (>= 9)/' $CONTROL_SOURCE
-	    dch -a "$CONTROL_SOURCE: Lower debhelper compat level to 9."
-	    # Compat 9 doesn't default to parallel building.
-	    if grep -q 'dh_auto_test --no-parallel' debian/rules ; then
-		sed -i 's/dh_auto_test --no-parallel/dh_auto_test/' debian/rules
-		dch -a 'debian/rules: Drop --no-parallel from dh_auto_test invocation (debhelper compat level 9 does not default to parallel building).'
-	    fi
-	else
-	    COMPAT=`sed '/@XS_RUBY_VERSIONS@/d' $CONTROL_SOURCE|grep-dctrl -n -sBuild-Depends . -`
-	    case $COMPAT in
-		*debhelper-compat*)
-		    COMPAT=`echo "$COMPAT"|sed 's/.*debhelper-compat *(= *\([0-9]\+\)).*/\1/p;d'`
-		    # Switch to a versioned debhelper dependency and create debian/compat.
-		    if [ "$CONTROL_SOURCE" != debian/control ] ; then
-			# Fix generated debian/control as well to avoid error from `debian/rules clean`
-			# due to having debian/compat and a debhelper-compat dependency.
-			sed -i "s/debhelper-compat *(= *[0-9]\+)/debhelper (>= $COMPAT)/" debian/control
-		    fi
-		    sed -i "s/debhelper-compat *(= *[0-9]\+)/debhelper (>= $COMPAT)/" $CONTROL_SOURCE
-		    echo "$COMPAT" > debian/compat
-		    dch -a "$CONTROL_SOURCE,debian/compat: Use older way to specify debhelper compat level."
-		    cat >> debian/rules <<END
+        if [ -f "debian/compat" ] && [ "`cat debian/compat`" -gt 9 ] ; then
+            echo 9 > debian/compat
+            sed -i 's/debhelper (>= [^)]*)/debhelper (>= 9)/' $CONTROL_SOURCE
+            dch -a "$CONTROL_SOURCE: Lower debhelper compat level to 9."
+            # Compat 9 doesn't default to parallel building.
+            if grep -q 'dh_auto_test --no-parallel' debian/rules ; then
+                sed -i 's/dh_auto_test --no-parallel/dh_auto_test/' debian/rules
+                dch -a 'debian/rules: Drop --no-parallel from dh_auto_test invocation (debhelper compat level 9 does not default to parallel building).'
+            fi
+        else
+            COMPAT=`sed '/@XS_RUBY_VERSIONS@/d' $CONTROL_SOURCE|grep-dctrl -n -sBuild-Depends . -`
+            case $COMPAT in
+                *debhelper-compat*)
+                    COMPAT=`echo "$COMPAT"|sed 's/.*debhelper-compat *(= *\([0-9]\+\)).*/\1/p;d'`
+                    # Switch to a versioned debhelper dependency and create debian/compat.
+                    if [ "$CONTROL_SOURCE" != debian/control ] ; then
+                        # Fix generated debian/control as well to avoid error from `debian/rules clean`
+                        # due to having debian/compat and a debhelper-compat dependency.
+                        sed -i "s/debhelper-compat *(= *[0-9]\+)/debhelper (>= $COMPAT)/" debian/control
+                    fi
+                    sed -i "s/debhelper-compat *(= *[0-9]\+)/debhelper (>= $COMPAT)/" $CONTROL_SOURCE
+                    echo "$COMPAT" > debian/compat
+                    dch -a "$CONTROL_SOURCE,debian/compat: Use older way to specify debhelper compat level."
+                    cat >> debian/rules <<END
 
 override_dh_dwz:
 
 override_dh_builddeb:
-	DH_COMPAT=10 dh_builddeb
+        DH_COMPAT=10 dh_builddeb
 END
-		    dch -a "debian/rules: Disable use of dwz to workaround bug in old dwz version"
-		    dch -a "debian/rules: Force DH_COMPAT=10 for dh_builddeb"
-		    ;;
-	    esac
-	fi
-	;;
+                    dch -a "debian/rules: Disable use of dwz to workaround bug in old dwz version"
+                    dch -a "debian/rules: Force DH_COMPAT=10 for dh_builddeb"
+                    ;;
+            esac
+        fi
+        ;;
   esac
 
   if [ "$PKG" = debhelper ] ; then
       case $CODENAME in
-	  xenial)
-	      sed -i \
-		  -e "s/\(dh-autoreconf (>=\) 17/\1 12/" \
-		  -e "s/\(dh-strip-nondeterminism (>=\) 0.028/\1 0.015/" \
-		  $CONTROL_SOURCE
-	      dch -a "$CONTROL_SOURCE: Relax dependencies on dh-autoreconf and dh-strip-nondeterminism."
-	      ;;
+          xenial)
+              sed -i \
+                  -e "s/\(dh-autoreconf (>=\) 17/\1 12/" \
+                  -e "s/\(dh-strip-nondeterminism (>=\) 0.028/\1 0.015/" \
+                  $CONTROL_SOURCE
+              dch -a "$CONTROL_SOURCE: Relax dependencies on dh-autoreconf and dh-strip-nondeterminism."
+              ;;
       esac
   fi
 
@@ -221,10 +221,10 @@ END
     [01])
       # Run maintclean and maint targets, if they exist.
       if grep -qw maintclean debian/rules ; then
-	fakeroot debian/rules maintclean
+        fakeroot debian/rules maintclean
       fi
       if grep -qw maint debian/rules ; then
-	eval fakeroot debian/rules maint $overrides
+        eval fakeroot debian/rules maint $overrides
       fi
       ;;
     *)

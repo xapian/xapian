@@ -67,19 +67,19 @@ class LazyWeight : public Xapian::Weight {
 
   public:
     LazyWeight(LeafPostList * pl_,
-	       Xapian::Weight * real_wt_,
-	       Xapian::Weight::Internal * stats_,
-	       Xapian::termcount qlen_,
-	       Xapian::termcount wqf__,
-	       double factor_,
-	       const Xapian::Database::Internal* shard_)
-	: pl(pl_),
-	  real_wt(real_wt_),
-	  stats(stats_),
-	  qlen(qlen_),
-	  wqf(wqf__),
-	  factor(factor_),
-	  shard(shard_)
+               Xapian::Weight * real_wt_,
+               Xapian::Weight::Internal * stats_,
+               Xapian::termcount qlen_,
+               Xapian::termcount wqf__,
+               double factor_,
+               const Xapian::Database::Internal* shard_)
+        : pl(pl_),
+          real_wt(real_wt_),
+          stats(stats_),
+          qlen(qlen_),
+          wqf(wqf__),
+          factor(factor_),
+          shard(shard_)
     { }
 
     std::string name() const override;
@@ -88,14 +88,14 @@ class LazyWeight : public Xapian::Weight {
     LazyWeight* unserialise(const std::string& serialised) const override;
 
     double get_sumpart(Xapian::termcount wdf,
-		       Xapian::termcount doclen,
-		       Xapian::termcount uniqterms,
-		       Xapian::termcount wdfdocmax) const override;
+                       Xapian::termcount doclen,
+                       Xapian::termcount uniqterms,
+                       Xapian::termcount wdfdocmax) const override;
     double get_maxpart() const override;
 
     double get_sumextra(Xapian::termcount doclen,
-			Xapian::termcount uniqterms,
-			Xapian::termcount wdfdocmax) const override;
+                        Xapian::termcount uniqterms,
+                        Xapian::termcount wdfdocmax) const override;
     double get_maxextra() const override;
 };
 
@@ -135,9 +135,9 @@ LazyWeight::unserialise(const string &) const
 
 double
 LazyWeight::get_sumpart(Xapian::termcount wdf,
-			Xapian::termcount doclen,
-			Xapian::termcount uniqterms,
-			Xapian::termcount wdfdocmax) const
+                        Xapian::termcount doclen,
+                        Xapian::termcount uniqterms,
+                        Xapian::termcount wdfdocmax) const
 {
     (void)wdf;
     (void)doclen;
@@ -148,8 +148,8 @@ LazyWeight::get_sumpart(Xapian::termcount wdf,
 
 double
 LazyWeight::get_sumextra(Xapian::termcount doclen,
-			 Xapian::termcount uniqterms,
-			 Xapian::termcount wdfdocmax) const
+                         Xapian::termcount uniqterms,
+                         Xapian::termcount wdfdocmax) const
 {
     (void)doclen;
     (void)uniqterms;
@@ -172,34 +172,34 @@ LazyWeight::get_maxextra() const
 
 PostListAndEstimate
 LocalSubMatch::get_postlist(PostListTree * matcher,
-			    Xapian::termcount * total_subqs_ptr)
+                            Xapian::termcount * total_subqs_ptr)
 {
     LOGCALL(MATCH, PostList *, "LocalSubMatch::get_postlist", matcher | total_subqs_ptr);
 
     if (query.empty() || db->get_doccount() == 0)
-	return {nullptr, nullptr}; // MatchNothing
+        return {nullptr, nullptr}; // MatchNothing
 
     // Build the postlist tree for the query.  This calls
     // LocalSubMatch::open_post_list() for each term in the query.
     PostListAndEstimate plest;
     {
-	QueryOptimiser opt(*db, *this, matcher, shard_index);
-	double factor = wt_factory.is_bool_weight_() ? 0.0 : 1.0;
-	plest = query.internal->postlist(&opt, factor, NULL);
-	*total_subqs_ptr = opt.get_total_subqs();
+        QueryOptimiser opt(*db, *this, matcher, shard_index);
+        double factor = wt_factory.is_bool_weight_() ? 0.0 : 1.0;
+        plest = query.internal->postlist(&opt, factor, NULL);
+        *total_subqs_ptr = opt.get_total_subqs();
     }
 
     if (plest.pl) {
-	unique_ptr<Xapian::Weight> extra_wt(wt_factory.clone());
-	// Only uses term-independent stats.
-	extra_wt->init_(*total_stats, qlen, db);
-	if (extra_wt->get_maxextra() != 0.0) {
-	    // There's a term-independent weight contribution, so we combine
-	    // the postlist tree with an ExtraWeightPostList which adds in this
-	    // contribution.
-	    plest.pl = new ExtraWeightPostList(plest.pl, extra_wt.release(),
-					       matcher);
-	}
+        unique_ptr<Xapian::Weight> extra_wt(wt_factory.clone());
+        // Only uses term-independent stats.
+        extra_wt->init_(*total_stats, qlen, db);
+        if (extra_wt->get_maxextra() != 0.0) {
+            // There's a term-independent weight contribution, so we combine
+            // the postlist tree with an ExtraWeightPostList which adds in this
+            // contribution.
+            plest.pl = new ExtraWeightPostList(plest.pl, extra_wt.release(),
+                                               matcher);
+        }
     }
 
     return plest;
@@ -207,22 +207,22 @@ LocalSubMatch::get_postlist(PostListTree * matcher,
 
 PostListAndEstimate
 LocalSubMatch::make_synonym_postlist(PostListTree* pltree,
-				     PostListAndEstimate or_pl,
-				     double factor,
-				     const TermFreqs& termfreqs)
+                                     PostListAndEstimate or_pl,
+                                     double factor,
+                                     const TermFreqs& termfreqs)
 {
     LOGCALL(MATCH, PostListAndEstimate, "LocalSubMatch::make_synonym_postlist", pltree | or_pl | factor | termfreqs);
     bool needs_doclen = wt_factory.get_sumpart_needs_doclength_();
     unique_ptr<SynonymPostList> res(new SynonymPostList(or_pl.pl, pltree,
-							needs_doclen));
+                                                        needs_doclen));
     unique_ptr<Xapian::Weight> wt(wt_factory.clone());
 
     // We shortcut an empty shard and avoid creating a postlist tree for it,
     // and all shards must be empty for collection_size to be zero.
     Assert(total_stats->collection_size);
     wt->init_(*total_stats, qlen, factor,
-	      termfreqs.termfreq, termfreqs.reltermfreq, termfreqs.collfreq,
-	      db);
+              termfreqs.termfreq, termfreqs.reltermfreq, termfreqs.collfreq,
+              db);
 
     res->set_weight(wt.release());
     RETURN({res.release(), std::move(or_pl.est)});
@@ -230,13 +230,13 @@ LocalSubMatch::make_synonym_postlist(PostListTree* pltree,
 
 PostListAndEstimate
 LocalSubMatch::open_post_list(const string& term,
-			      Xapian::termcount wqf,
-			      double factor,
-			      bool need_positions,
-			      bool compound_weight,
-			      QueryOptimiser* qopt,
-			      bool lazy_weight,
-			      TermFreqs* termfreqs)
+                              Xapian::termcount wqf,
+                              double factor,
+                              bool need_positions,
+                              bool compound_weight,
+                              QueryOptimiser* qopt,
+                              bool lazy_weight,
+                              TermFreqs* termfreqs)
 {
     LOGCALL(MATCH, PostListAndEstimate, "LocalSubMatch::open_post_list", term | wqf | factor | need_positions | qopt | lazy_weight | termfreqs);
 
@@ -244,78 +244,78 @@ LocalSubMatch::open_post_list(const string& term,
 
     LeafPostList * pl = NULL;
     if (term.empty()) {
-	Assert(!need_positions);
-	pl = db->open_leaf_post_list(term, false);
+        Assert(!need_positions);
+        pl = db->open_leaf_post_list(term, false);
     } else {
-	weighted = (factor != 0.0);
-	const LeafPostList* hint = qopt->get_hint_postlist();
-	if (!hint || !hint->open_nearby_postlist(term, need_positions, pl)) {
-	    pl = db->open_leaf_post_list(term, need_positions);
-	}
-	if (pl) qopt->set_hint_postlist(pl);
-	if (pl && !need_positions) {
-	    bool need_wdf = (weighted || compound_weight) &&
-			    wt_factory.get_sumpart_needs_wdf_();
-	    if (!need_wdf && pl->get_termfreq() == qopt->db_size) {
-		// If we're not going to use the wdf or term positions, and the
-		// term indexes all documents, we can replace it with the
-		// MatchAll postlist, which is especially efficient if there
-		// are no gaps in the docids.
-		//
-		// We opened the real PostList already as that's more efficient
-		// than asking the Database for the termfreq in the common case
-		// when the term doesn't index all documents, and is similar
-		// work in the case where it does (for glass, there's the extra
-		// overhead of creating a cursor but we still need to read and
-		// decode the same data).
-		//
-		// The real PostList got set as the QueryOptimiser's hint above
-		// so we can just hand ownership of it to the QueryOptimiser.
-		qopt->own_hint_postlist();
-		pl = db->open_leaf_post_list(string(), false);
-		// We shortcut an empty shard and avoid creating a postlist
-		// tree for it, so an alldocs postlist can't be NULL here.
-		Assert(pl);
+        weighted = (factor != 0.0);
+        const LeafPostList* hint = qopt->get_hint_postlist();
+        if (!hint || !hint->open_nearby_postlist(term, need_positions, pl)) {
+            pl = db->open_leaf_post_list(term, need_positions);
+        }
+        if (pl) qopt->set_hint_postlist(pl);
+        if (pl && !need_positions) {
+            bool need_wdf = (weighted || compound_weight) &&
+                            wt_factory.get_sumpart_needs_wdf_();
+            if (!need_wdf && pl->get_termfreq() == qopt->db_size) {
+                // If we're not going to use the wdf or term positions, and the
+                // term indexes all documents, we can replace it with the
+                // MatchAll postlist, which is especially efficient if there
+                // are no gaps in the docids.
+                //
+                // We opened the real PostList already as that's more efficient
+                // than asking the Database for the termfreq in the common case
+                // when the term doesn't index all documents, and is similar
+                // work in the case where it does (for glass, there's the extra
+                // overhead of creating a cursor but we still need to read and
+                // decode the same data).
+                //
+                // The real PostList got set as the QueryOptimiser's hint above
+                // so we can just hand ownership of it to the QueryOptimiser.
+                qopt->own_hint_postlist();
+                pl = db->open_leaf_post_list(string(), false);
+                // We shortcut an empty shard and avoid creating a postlist
+                // tree for it, so an alldocs postlist can't be NULL here.
+                Assert(pl);
 
-		// Set the term name so the postlist looks up the correct term
-		// frequencies - this is necessary if the weighting scheme
-		// needs collection frequency or reltermfreq (termfreq would be
-		// correct anyway since it's just the collection size in this
-		// case).
-		pl->set_term(term);
-	    }
-	}
+                // Set the term name so the postlist looks up the correct term
+                // frequencies - this is necessary if the weighting scheme
+                // needs collection frequency or reltermfreq (termfreq would be
+                // correct anyway since it's just the collection size in this
+                // case).
+                pl->set_term(term);
+            }
+        }
     }
 
     if (pl && weighted) {
-	Xapian::Weight * wt = wt_factory.clone();
-	if (!lazy_weight) {
-	    wt->init_(*total_stats, qlen, term, wqf, factor, db, pl);
-	    if (pl->get_termfreq() > 0)
-		total_stats->set_max_part(term, wt->get_maxpart());
-	} else {
-	    // Delay initialising the actual weight object, so that we can
-	    // gather stats for the terms lazily expanded from a wildcard
-	    // (needed for the remote database case).
-	    wt = new LazyWeight(pl, wt, total_stats, qlen, wqf, factor, db);
-	}
-	pl->set_termweight(wt);
+        Xapian::Weight * wt = wt_factory.clone();
+        if (!lazy_weight) {
+            wt->init_(*total_stats, qlen, term, wqf, factor, db, pl);
+            if (pl->get_termfreq() > 0)
+                total_stats->set_max_part(term, wt->get_maxpart());
+        } else {
+            // Delay initialising the actual weight object, so that we can
+            // gather stats for the terms lazily expanded from a wildcard
+            // (needed for the remote database case).
+            wt = new LazyWeight(pl, wt, total_stats, qlen, wqf, factor, db);
+        }
+        pl->set_termweight(wt);
     }
 
     if (termfreqs) {
-	if (term.empty()) {
-	    *termfreqs = TermFreqs(total_stats->collection_size,
-				   total_stats->rset_size,
-				   total_stats->total_length);
-	} else if (!lazy_weight) {
-	    auto i = total_stats->termfreqs.find(term);
-	    Assert(i != total_stats->termfreqs.end());
-	    *termfreqs = i->second;
-	}
+        if (term.empty()) {
+            *termfreqs = TermFreqs(total_stats->collection_size,
+                                   total_stats->rset_size,
+                                   total_stats->total_length);
+        } else if (!lazy_weight) {
+            auto i = total_stats->termfreqs.find(term);
+            Assert(i != total_stats->termfreqs.end());
+            *termfreqs = i->second;
+        }
     }
 
     if (!pl) {
-	RETURN({nullptr, nullptr});
+        RETURN({nullptr, nullptr});
     }
 
     Xapian::docid first = 1, last = Xapian::docid(-1);
@@ -323,6 +323,6 @@ LocalSubMatch::open_post_list(const string& term,
 
     EstimateOp* est = nullptr;
     if (!qopt->get_no_estimates())
-	est = new EstimateOp(pl->get_termfreq(), first, last);
+        est = new EstimateOp(pl->get_termfreq(), first, last);
     RETURN({pl, est});
 }

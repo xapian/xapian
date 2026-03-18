@@ -36,10 +36,10 @@ class FileIndexer {
 
   public:
     FileIndexer(const std::string & datadir_,
-		const std::vector<std::string> & files)
-	: datadir(datadir_), file(files.begin()), end(files.end())
+                const std::vector<std::string> & files)
+        : datadir(datadir_), file(files.begin()), end(files.end())
     {
-	next_file();
+        next_file();
     }
 
     void index_to(Xapian::WritableDatabase & db);

@@ -58,29 +58,29 @@ TfFeature::get_values() const
 
     Xapian::Query feature_query = internal->get_query();
     for (Xapian::TermIterator qt = feature_query.get_unique_terms_begin();
-	 qt != feature_query.get_terms_end(); ++qt) {
-	if (is_title_term((*qt))) {
-	    double tf = internal->get_termfreq(*qt);
-	    value += log10(1 + tf);
-	}
+         qt != feature_query.get_terms_end(); ++qt) {
+        if (is_title_term((*qt))) {
+            double tf = internal->get_termfreq(*qt);
+            value += log10(1 + tf);
+        }
     }
     values.push_back(value);
     value = 0;
 
     for (Xapian::TermIterator qt = feature_query.get_unique_terms_begin();
-	 qt != feature_query.get_terms_end(); ++qt) {
-	if (!is_title_term((*qt))) {
-	    double tf = internal->get_termfreq(*qt);
-	    value += log10(1 + tf);
-	}
+         qt != feature_query.get_terms_end(); ++qt) {
+        if (!is_title_term((*qt))) {
+            double tf = internal->get_termfreq(*qt);
+            value += log10(1 + tf);
+        }
     }
     values.push_back(value);
     value = 0;
 
     for (Xapian::TermIterator qt = feature_query.get_unique_terms_begin();
-	 qt != feature_query.get_terms_end(); ++qt) {
-	double tf = internal->get_termfreq(*qt);
-	value += log10(1 + tf);
+         qt != feature_query.get_terms_end(); ++qt) {
+        double tf = internal->get_termfreq(*qt);
+        value += log10(1 + tf);
     }
     values.push_back(value);
 

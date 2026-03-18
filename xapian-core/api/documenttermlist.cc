@@ -73,15 +73,15 @@ TermList*
 DocumentTermList::next()
 {
     if (it == doc->terms->end()) {
-	it = doc->terms->begin();
+        it = doc->terms->begin();
     } else {
-	++it;
+        ++it;
     }
     while (it != doc->terms->end() && it->second.is_deleted()) {
-	++it;
+        ++it;
     }
     if (it == doc->terms->end()) {
-	return this;
+        return this;
     }
     current_term = it->first;
     return NULL;
@@ -92,10 +92,10 @@ DocumentTermList::skip_to(string_view term)
 {
     it = doc->terms->lower_bound(term);
     while (it != doc->terms->end() && it->second.is_deleted()) {
-	++it;
+        ++it;
     }
     if (it == doc->terms->end()) {
-	return this;
+        return this;
     }
     current_term = it->first;
     return NULL;

@@ -12,11 +12,11 @@ Extra options to give to configure:
 Note: Non-developer configure options are described in INSTALL
 
 --enable-maintainer-mode
-	This tells configure to enable make dependencies for regenerating build
-	system files (such as configure, Makefile.in, and Makefile), and also
-	enables rules to rebuild the bindings glue code by rerunning SWIG.
-	You'll need to specify this if you're going to modify configure.ac, any
-	Makefile.am, or any .i file.
+        This tells configure to enable make dependencies for regenerating build
+        system files (such as configure, Makefile.in, and Makefile), and also
+        enables rules to rebuild the bindings glue code by rerunning SWIG.
+        You'll need to specify this if you're going to modify configure.ac, any
+        Makefile.am, or any .i file.
 
 Packages to install for each language
 =====================================
@@ -125,20 +125,20 @@ the XS-based `Search::Xapian`, and will eventually be on CPAN.
 These are languages which SWIG supports and which people have done some work
 on producing Xapian bindings for:
 
-Go		There are some basic Go bindings written by Marius Tibeica in
-		the "golang" branch, which is currently based on the
-		RELEASE/1.4 branch.
+Go              There are some basic Go bindings written by Marius Tibeica in
+                the "golang" branch, which is currently based on the
+                RELEASE/1.4 branch.
 
-Ocaml		Dan Colish did some initial work on Ocaml support -
-		see: https://trac.xapian.org/ticket/588
+Ocaml           Dan Colish did some initial work on Ocaml support -
+                see: https://trac.xapian.org/ticket/588
 
-Pike		Bill Welliver has written some Pike bindings for Xapian
-		covering some of the API, which are available from here:
-		http://modules.gotpike.org/module/Public.Xapian?selected=1.10
-		These bindings appear to be hand-coded rather than generated
-		using SWIG.  SWIG 4.0.0 has disabled Pike support due to
-		lack of recent maintenance, so SWIG is probably not a good
-		option here.
+Pike            Bill Welliver has written some Pike bindings for Xapian
+                covering some of the API, which are available from here:
+                http://modules.gotpike.org/module/Public.Xapian?selected=1.10
+                These bindings appear to be hand-coded rather than generated
+                using SWIG.  SWIG 4.0.0 has disabled Pike support due to
+                lack of recent maintenance, so SWIG is probably not a good
+                option here.
 
 There are a number of other languages which SWIG supports, but which nobody has
 yet (to our knowledge!) worked on producing Xapian bindings for - see

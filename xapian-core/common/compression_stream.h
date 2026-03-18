@@ -52,7 +52,7 @@ class CompressionStream {
      *					Z_FILTERED, Z_HUFFMAN_ONLY, or Z_RLE.
      */
     explicit CompressionStream(int compress_strategy_ = Z_DEFAULT_STRATEGY)
-	: compress_strategy(compress_strategy_)
+        : compress_strategy(compress_strategy_)
     { }
 
     ~CompressionStream();

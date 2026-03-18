@@ -45,14 +45,14 @@ try {
     $separator = array_search("--", $args);
 
     if ($separator === FALSE) {
-	$separator = count($args);
+        $separator = count($args);
     }
 
     $query_string = join(" ", array_slice($args, 0, $separator));
 
     $rset = new XapianRSet();
     foreach (array_slice($args, $separator + 1) as $docid) {
-	$rset->add_document(intval($docid));
+        $rset->add_document(intval($docid));
     }
 
     $qp = new XapianQueryParser();
@@ -71,19 +71,19 @@ try {
     print "{$matches->get_matches_estimated()} results found:\n";
 
     foreach ($matches->begin() as $i => $docid) {
-	$n = $i->get_rank() + 1;
-	$data = $i->get_document()->get_data();
-	print "$n: {$i->get_percent()}% docid=$docid [$data]\n\n";
+        $n = $i->get_rank() + 1;
+        $data = $i->get_document()->get_data();
+        print "$n: {$i->get_percent()}% docid=$docid [$data]\n\n";
     }
 
     // If no relevant docids were given, invent an RSet containing the top 5
     // matches (or all the matches if there are less than 5).
     if ($rset->is_empty()) {
-	$c = 5;
-	foreach ($matches->begin() as $docid) {
-	    $rset->add_document($docid);
-	    if (--$c) break;
-	}
+        $c = 5;
+        foreach ($matches->begin() as $docid) {
+            $rset->add_document($docid);
+            if (--$c) break;
+        }
     }
 
     // Generate an ESet containing terms that the user might want to add to
@@ -92,7 +92,7 @@ try {
 
     // List the terms.
     foreach ($eset->begin() as $t => $term) {
-	print "$term: weight = {$t->get_weight()}\n";
+        print "$term: weight = {$t->get_weight()}\n";
     }
 } catch (Exception $e) {
     print $e->getMessage() . "\n";

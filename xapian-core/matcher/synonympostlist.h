@@ -66,11 +66,11 @@ class SynonymPostList : public WrapperPostList {
 
   public:
     SynonymPostList(PostList * subtree,
-		    PostListTree* pltree_,
-		    bool needs_doclen_)
-	: WrapperPostList(subtree),
-	  needs_doclen(needs_doclen_),
-	  pltree(pltree_) { }
+                    PostListTree* pltree_,
+                    bool needs_doclen_)
+        : WrapperPostList(subtree),
+          needs_doclen(needs_doclen_),
+          pltree(pltree_) { }
 
     ~SynonymPostList();
 
@@ -85,8 +85,8 @@ class SynonymPostList : public WrapperPostList {
     PostList *skip_to(Xapian::docid did, double w_min);
 
     double get_weight(Xapian::termcount doclen,
-		      Xapian::termcount unique_terms,
-		      Xapian::termcount wdfdocmax) const;
+                      Xapian::termcount unique_terms,
+                      Xapian::termcount wdfdocmax) const;
     double recalc_maxweight();
 
     Xapian::termcount count_matching_subqs() const;

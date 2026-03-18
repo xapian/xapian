@@ -41,7 +41,7 @@ const std::string & get_tmpdir();
 inline std::string get_tmpfile(const char * leaf) {
     std::string f = get_tmpdir();
     if (!f.empty())
-	f += leaf;
+        f += leaf;
     return f;
 }
 
@@ -55,7 +55,7 @@ inline std::string get_tmpfile(const char * leaf) {
 inline std::string get_tmpfile(const std::string & leaf) {
     std::string f = get_tmpdir();
     if (!f.empty())
-	f += leaf;
+        f += leaf;
     return f;
 }
 

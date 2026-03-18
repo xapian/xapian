@@ -34,9 +34,9 @@ using namespace std;
 
 #define COUNT_EXCEPTION(CODE, EXCEPTION) \
     try { \
-	CODE; \
+        CODE; \
     } catch (const Xapian::EXCEPTION&) { \
-	++exception_count; \
+        ++exception_count; \
     }
 
 #define COUNT_CLOSED(CODE) COUNT_EXCEPTION(CODE, DatabaseClosedError)
@@ -57,115 +57,115 @@ struct closedb1_iterators {
     Xapian::PositionIterator pilend;
 
     void setup(Xapian::Database db_) {
-	db = db_;
+        db = db_;
 
-	// Set up the iterators for the test.
-	pl1 = db.postlist_begin("paragraph");
-	pl2 = db.postlist_begin("this");
-	++pl2;
-	pl1end = db.postlist_end("paragraph");
-	pl2end = db.postlist_end("this");
-	tl1 = db.termlist_begin(1);
-	tlend = db.termlist_end(1);
-	atl1 = db.allterms_begin("t");
-	atlend = db.allterms_end("t");
-	pil1 = db.positionlist_begin(1, "paragraph");
-	pilend = db.positionlist_end(1, "paragraph");
+        // Set up the iterators for the test.
+        pl1 = db.postlist_begin("paragraph");
+        pl2 = db.postlist_begin("this");
+        ++pl2;
+        pl1end = db.postlist_end("paragraph");
+        pl2end = db.postlist_end("this");
+        tl1 = db.termlist_begin(1);
+        tlend = db.termlist_end(1);
+        atl1 = db.allterms_begin("t");
+        atlend = db.allterms_end("t");
+        pil1 = db.positionlist_begin(1, "paragraph");
+        pilend = db.positionlist_end(1, "paragraph");
     }
 
     int perform() {
-	int exception_count = 0;
+        int exception_count = 0;
 
-	// Getting a document may throw.
-	COUNT_CLOSED(
-	    doc1 = db.get_document(1);
-	    // Only do these if get_document() succeeded.
-	    COUNT_CLOSED(TEST_EQUAL(doc1.get_data().substr(0, 33),
-				    "This is a test document used with"));
-	    COUNT_CLOSED(doc1.termlist_begin());
-	);
+        // Getting a document may throw.
+        COUNT_CLOSED(
+            doc1 = db.get_document(1);
+            // Only do these if get_document() succeeded.
+            COUNT_CLOSED(TEST_EQUAL(doc1.get_data().substr(0, 33),
+                                    "This is a test document used with"));
+            COUNT_CLOSED(doc1.termlist_begin());
+        );
 
-	// Causing the database to access its files raises the "database
-	// closed" error.
-	COUNT_CLOSED(db.postlist_begin("paragraph"));
-	COUNT_CLOSED(db.get_document(1).get_value(1));
-	COUNT_CLOSED(db.termlist_begin(1));
-	COUNT_CLOSED(db.positionlist_begin(1, "paragraph"));
-	COUNT_CLOSED(db.allterms_begin());
-	COUNT_CLOSED(db.allterms_begin("p"));
-	COUNT_CLOSED(db.get_termfreq("paragraph"));
-	COUNT_CLOSED(db.get_collection_freq("paragraph"));
-	COUNT_CLOSED(db.term_exists("paragraph"));
-	COUNT_CLOSED(db.get_value_freq(1));
-	COUNT_CLOSED(db.get_value_lower_bound(1));
-	COUNT_CLOSED(db.get_value_upper_bound(1));
-	COUNT_CLOSED(db.valuestream_begin(1));
-	COUNT_CLOSED(db.get_doclength(1));
-	COUNT_CLOSED(db.get_unique_terms(1));
+        // Causing the database to access its files raises the "database
+        // closed" error.
+        COUNT_CLOSED(db.postlist_begin("paragraph"));
+        COUNT_CLOSED(db.get_document(1).get_value(1));
+        COUNT_CLOSED(db.termlist_begin(1));
+        COUNT_CLOSED(db.positionlist_begin(1, "paragraph"));
+        COUNT_CLOSED(db.allterms_begin());
+        COUNT_CLOSED(db.allterms_begin("p"));
+        COUNT_CLOSED(db.get_termfreq("paragraph"));
+        COUNT_CLOSED(db.get_collection_freq("paragraph"));
+        COUNT_CLOSED(db.term_exists("paragraph"));
+        COUNT_CLOSED(db.get_value_freq(1));
+        COUNT_CLOSED(db.get_value_lower_bound(1));
+        COUNT_CLOSED(db.get_value_upper_bound(1));
+        COUNT_CLOSED(db.valuestream_begin(1));
+        COUNT_CLOSED(db.get_doclength(1));
+        COUNT_CLOSED(db.get_unique_terms(1));
 
-	// Reopen raises the "database closed" error.
-	COUNT_CLOSED(db.reopen());
+        // Reopen raises the "database closed" error.
+        COUNT_CLOSED(db.reopen());
 
-	TEST_NOT_EQUAL(pl1, pl1end);
-	TEST_NOT_EQUAL(pl2, pl2end);
-	TEST_NOT_EQUAL(tl1, tlend);
-	TEST_NOT_EQUAL(atl1, atlend);
-	TEST_NOT_EQUAL(pil1, pilend);
+        TEST_NOT_EQUAL(pl1, pl1end);
+        TEST_NOT_EQUAL(pl2, pl2end);
+        TEST_NOT_EQUAL(tl1, tlend);
+        TEST_NOT_EQUAL(atl1, atlend);
+        TEST_NOT_EQUAL(pil1, pilend);
 
-	COUNT_CLOSED(db.postlist_begin("paragraph"));
+        COUNT_CLOSED(db.postlist_begin("paragraph"));
 
-	COUNT_CLOSED(TEST_EQUAL(*pl1, 1));
-	COUNT_CLOSED(TEST_EQUAL(pl1.get_doclength(), 28));
-	COUNT_CLOSED(TEST_EQUAL(pl1.get_unique_terms(), 21));
+        COUNT_CLOSED(TEST_EQUAL(*pl1, 1));
+        COUNT_CLOSED(TEST_EQUAL(pl1.get_doclength(), 28));
+        COUNT_CLOSED(TEST_EQUAL(pl1.get_unique_terms(), 21));
 
-	COUNT_CLOSED(TEST_EQUAL(*pl2, 2));
-	COUNT_CLOSED(TEST_EQUAL(pl2.get_doclength(), 81));
-	COUNT_CLOSED(TEST_EQUAL(pl2.get_unique_terms(), 56));
+        COUNT_CLOSED(TEST_EQUAL(*pl2, 2));
+        COUNT_CLOSED(TEST_EQUAL(pl2.get_doclength(), 81));
+        COUNT_CLOSED(TEST_EQUAL(pl2.get_unique_terms(), 56));
 
-	COUNT_CLOSED(TEST_EQUAL(*tl1, "a"));
-	COUNT_CLOSED(TEST_EQUAL(tl1.get_wdf(), 2));
-	COUNT_CLOSED(TEST_EQUAL(tl1.get_termfreq(), 3));
+        COUNT_CLOSED(TEST_EQUAL(*tl1, "a"));
+        COUNT_CLOSED(TEST_EQUAL(tl1.get_wdf(), 2));
+        COUNT_CLOSED(TEST_EQUAL(tl1.get_termfreq(), 3));
 
-	COUNT_CLOSED(TEST_EQUAL(*atl1, "test"));
-	COUNT_CLOSED(TEST_EQUAL(atl1.get_termfreq(), 1));
+        COUNT_CLOSED(TEST_EQUAL(*atl1, "test"));
+        COUNT_CLOSED(TEST_EQUAL(atl1.get_termfreq(), 1));
 
-	COUNT_CLOSED(TEST_EQUAL(*pil1, 12));
+        COUNT_CLOSED(TEST_EQUAL(*pil1, 12));
 
-	// Advancing the iterator may or may not raise an error, but if it
-	// doesn't it must return the correct answers.
-	COUNT_CLOSED(
-	    ++pl1;
-	    COUNT_CLOSED(TEST_EQUAL(*pl1, 2));
-	    COUNT_CLOSED(TEST_EQUAL(pl1.get_doclength(), 81));
-	    COUNT_CLOSED(TEST_EQUAL(pl1.get_unique_terms(), 56));
-	);
+        // Advancing the iterator may or may not raise an error, but if it
+        // doesn't it must return the correct answers.
+        COUNT_CLOSED(
+            ++pl1;
+            COUNT_CLOSED(TEST_EQUAL(*pl1, 2));
+            COUNT_CLOSED(TEST_EQUAL(pl1.get_doclength(), 81));
+            COUNT_CLOSED(TEST_EQUAL(pl1.get_unique_terms(), 56));
+        );
 
-	COUNT_CLOSED(
-	    ++pl2;
-	    COUNT_CLOSED(TEST_EQUAL(*pl2, 3));
-	    COUNT_CLOSED(TEST_EQUAL(pl2.get_doclength(), 15));
-	    COUNT_CLOSED(TEST_EQUAL(pl2.get_unique_terms(), 14));
-	);
+        COUNT_CLOSED(
+            ++pl2;
+            COUNT_CLOSED(TEST_EQUAL(*pl2, 3));
+            COUNT_CLOSED(TEST_EQUAL(pl2.get_doclength(), 15));
+            COUNT_CLOSED(TEST_EQUAL(pl2.get_unique_terms(), 14));
+        );
 
-	COUNT_CLOSED(
-	    ++tl1;
-	    COUNT_CLOSED(TEST_EQUAL(*tl1, "api"));
-	    COUNT_CLOSED(TEST_EQUAL(tl1.get_wdf(), 1));
-	    COUNT_CLOSED(TEST_EQUAL(tl1.get_termfreq(), 1));
-	);
+        COUNT_CLOSED(
+            ++tl1;
+            COUNT_CLOSED(TEST_EQUAL(*tl1, "api"));
+            COUNT_CLOSED(TEST_EQUAL(tl1.get_wdf(), 1));
+            COUNT_CLOSED(TEST_EQUAL(tl1.get_termfreq(), 1));
+        );
 
-	COUNT_CLOSED(
-	    ++atl1;
-	    COUNT_CLOSED(TEST_EQUAL(*atl1, "that"));
-	    COUNT_CLOSED(TEST_EQUAL(atl1.get_termfreq(), 2));
-	);
+        COUNT_CLOSED(
+            ++atl1;
+            COUNT_CLOSED(TEST_EQUAL(*atl1, "that"));
+            COUNT_CLOSED(TEST_EQUAL(atl1.get_termfreq(), 2));
+        );
 
-	COUNT_CLOSED(
-	    ++pil1;
-	    COUNT_CLOSED(TEST_EQUAL(*pil1, 28));
-	);
+        COUNT_CLOSED(
+            ++pil1;
+            COUNT_CLOSED(TEST_EQUAL(*pil1, 28));
+        );
 
-	return exception_count;
+        return exception_count;
     }
 };
 
@@ -190,7 +190,7 @@ DEFINE_TESTCASE(closedb1, backend) {
     // early development versions of honey).
     vector<int> fds;
     for (int i = 0; i != 6; ++i) {
-	fds.push_back(dup(1));
+        fds.push_back(dup(1));
     }
 
     // Reopening a closed database should always raise DatabaseClosedError.
@@ -209,7 +209,7 @@ DEFINE_TESTCASE(closedb1, backend) {
     db.close();
 
     for (int fd : fds) {
-	close(fd);
+        close(fd);
     }
 }
 
@@ -217,12 +217,12 @@ DEFINE_TESTCASE(closedb1, backend) {
 DEFINE_TESTCASE(closedb2, writable && path) {
     Xapian::WritableDatabase dbw1(get_named_writable_database("apitest_closedb2"));
     TEST_EXCEPTION(Xapian::DatabaseLockError,
-		   Xapian::WritableDatabase db(get_named_writable_database_path("apitest_closedb2"),
-					       Xapian::DB_OPEN));
+                   Xapian::WritableDatabase db(get_named_writable_database_path("apitest_closedb2"),
+                                               Xapian::DB_OPEN));
     dbw1.close();
     Xapian::WritableDatabase dbw2 = get_named_writable_database("apitest_closedb2");
     TEST_EXCEPTION(Xapian::DatabaseClosedError,
-	       dbw1.postlist_begin("paragraph"));
+               dbw1.postlist_begin("paragraph"));
     TEST_EQUAL(dbw2.postlist_begin("paragraph"), dbw2.postlist_end("paragraph"));
 }
 
@@ -232,36 +232,36 @@ DEFINE_TESTCASE(closedb3, backend) {
     const string & uuid = db.get_uuid();
     db.close();
     try {
-	TEST_EQUAL(db.get_uuid(), uuid);
+        TEST_EQUAL(db.get_uuid(), uuid);
     } catch (const Xapian::DatabaseClosedError &) {
     }
     try {
-	TEST(db.has_positions());
+        TEST(db.has_positions());
     } catch (const Xapian::DatabaseClosedError &) {
     }
     try {
-	TEST_EQUAL(db.get_doccount(), 566);
+        TEST_EQUAL(db.get_doccount(), 566);
     } catch (const Xapian::DatabaseClosedError &) {
     }
     try {
-	TEST_EQUAL(db.get_lastdocid(), 566);
+        TEST_EQUAL(db.get_lastdocid(), 566);
     } catch (const Xapian::DatabaseClosedError &) {
     }
     try {
-	TEST_REL(db.get_doclength_lower_bound(), <, db.get_avlength());
+        TEST_REL(db.get_doclength_lower_bound(), <, db.get_avlength());
     } catch (const Xapian::DatabaseClosedError &) {
     }
     try {
-	TEST_REL(db.get_doclength_upper_bound(), >, db.get_avlength());
+        TEST_REL(db.get_doclength_upper_bound(), >, db.get_avlength());
     } catch (const Xapian::DatabaseClosedError &) {
     }
     try {
-	TEST(db.get_wdf_upper_bound("king"));
+        TEST(db.get_wdf_upper_bound("king"));
     } catch (const Xapian::DatabaseClosedError &) {
     }
     try {
-	// For non-remote databases, keep_alive() is a no-op anyway.
-	db.keep_alive();
+        // For non-remote databases, keep_alive() is a no-op anyway.
+        db.keep_alive();
     } catch (const Xapian::DatabaseClosedError &) {
     }
 }
@@ -279,65 +279,65 @@ DEFINE_TESTCASE(closedb4, writable && !inmemory) {
 /// Test the effects of close() on transactions
 DEFINE_TESTCASE(closedb5, transactions) {
     {
-	// If a transaction is active, close() shouldn't implicitly commit().
-	Xapian::WritableDatabase wdb = get_writable_database();
-	wdb.begin_transaction();
-	wdb.add_document(Xapian::Document());
-	TEST_EQUAL(wdb.get_doccount(), 1);
-	wdb.close();
-	Xapian::Database db = get_writable_database_as_database();
-	TEST_EQUAL(db.get_doccount(), 0);
+        // If a transaction is active, close() shouldn't implicitly commit().
+        Xapian::WritableDatabase wdb = get_writable_database();
+        wdb.begin_transaction();
+        wdb.add_document(Xapian::Document());
+        TEST_EQUAL(wdb.get_doccount(), 1);
+        wdb.close();
+        Xapian::Database db = get_writable_database_as_database();
+        TEST_EQUAL(db.get_doccount(), 0);
     }
 
     {
-	// Same test but for an unflushed transaction.
-	Xapian::WritableDatabase wdb = get_writable_database();
-	wdb.begin_transaction(false);
-	wdb.add_document(Xapian::Document());
-	TEST_EQUAL(wdb.get_doccount(), 1);
-	wdb.close();
-	Xapian::Database db = get_writable_database_as_database();
-	TEST_EQUAL(db.get_doccount(), 0);
+        // Same test but for an unflushed transaction.
+        Xapian::WritableDatabase wdb = get_writable_database();
+        wdb.begin_transaction(false);
+        wdb.add_document(Xapian::Document());
+        TEST_EQUAL(wdb.get_doccount(), 1);
+        wdb.close();
+        Xapian::Database db = get_writable_database_as_database();
+        TEST_EQUAL(db.get_doccount(), 0);
     }
 
     {
-	// commit_transaction() throws InvalidOperationError when
-	// not in a transaction.
-	Xapian::WritableDatabase wdb = get_writable_database();
-	wdb.close();
-	TEST_EXCEPTION(Xapian::InvalidOperationError,
-		       wdb.commit_transaction());
+        // commit_transaction() throws InvalidOperationError when
+        // not in a transaction.
+        Xapian::WritableDatabase wdb = get_writable_database();
+        wdb.close();
+        TEST_EXCEPTION(Xapian::InvalidOperationError,
+                       wdb.commit_transaction());
 
-	// begin_transaction() is no-op or throws DatabaseClosedError. We may be
-	// able to call db.begin_transaction(), but we can't make any changes
-	// inside that transaction. If begin_transaction() succeeds, then
-	// commit_transaction() either end the transaction or throw
-	// DatabaseClosedError.
-	try {
-	    wdb.begin_transaction();
-	    try {
-		wdb.commit_transaction();
-	    } catch (const Xapian::DatabaseClosedError &) {
-	    }
-	} catch (const Xapian::DatabaseClosedError &) {
-	}
+        // begin_transaction() is no-op or throws DatabaseClosedError. We may be
+        // able to call db.begin_transaction(), but we can't make any changes
+        // inside that transaction. If begin_transaction() succeeds, then
+        // commit_transaction() either end the transaction or throw
+        // DatabaseClosedError.
+        try {
+            wdb.begin_transaction();
+            try {
+                wdb.commit_transaction();
+            } catch (const Xapian::DatabaseClosedError &) {
+            }
+        } catch (const Xapian::DatabaseClosedError &) {
+        }
     }
 
     {
-	// Same test but for cancel_transaction().
-	Xapian::WritableDatabase wdb = get_writable_database();
-	wdb.close();
-	TEST_EXCEPTION(Xapian::InvalidOperationError,
-		       wdb.cancel_transaction());
+        // Same test but for cancel_transaction().
+        Xapian::WritableDatabase wdb = get_writable_database();
+        wdb.close();
+        TEST_EXCEPTION(Xapian::InvalidOperationError,
+                       wdb.cancel_transaction());
 
-	try {
-	    wdb.begin_transaction();
-	    try {
-		wdb.cancel_transaction();
-	    } catch (const Xapian::DatabaseClosedError &) {
-	    }
-	} catch (const Xapian::DatabaseClosedError &) {
-	}
+        try {
+            wdb.begin_transaction();
+            try {
+                wdb.cancel_transaction();
+            } catch (const Xapian::DatabaseClosedError &) {
+            }
+        } catch (const Xapian::DatabaseClosedError &) {
+        }
     }
 }
 
@@ -347,8 +347,8 @@ DEFINE_TESTCASE(closedb6, remote) {
     db.close();
 
     try {
-	db.keep_alive();
-	FAIL_TEST("Expected DatabaseClosedError wasn't thrown");
+        db.keep_alive();
+        FAIL_TEST("Expected DatabaseClosedError wasn't thrown");
     } catch (const Xapian::DatabaseClosedError &) {
     }
 }
@@ -362,20 +362,20 @@ DEFINE_TESTCASE(closedb7, writable) {
     // Since we can't make any changes which need to be committed,
     // db.commit() is a no-op, and so doesn't have to fail.
     try {
-	db.commit();
+        db.commit();
     } catch (const Xapian::DatabaseClosedError &) {
     }
 
     TEST_EXCEPTION(Xapian::DatabaseClosedError,
-		   db.add_document(Xapian::Document()));
+                   db.add_document(Xapian::Document()));
     TEST_EXCEPTION(Xapian::DatabaseClosedError,
-		   db.delete_document(1));
+                   db.delete_document(1));
     TEST_EXCEPTION(Xapian::DatabaseClosedError,
-		   db.replace_document(1, Xapian::Document()));
+                   db.replace_document(1, Xapian::Document()));
     TEST_EXCEPTION(Xapian::DatabaseClosedError,
-		   db.replace_document(2, Xapian::Document()));
+                   db.replace_document(2, Xapian::Document()));
     TEST_EXCEPTION(Xapian::DatabaseClosedError,
-		   db.replace_document("Qi", Xapian::Document()));
+                   db.replace_document("Qi", Xapian::Document()));
 }
 
 // Test spelling related methods.
@@ -386,13 +386,13 @@ DEFINE_TESTCASE(closedb8, writable && spelling) {
     db.close();
 
     TEST_EXCEPTION(Xapian::DatabaseClosedError,
-		   db.add_spelling("penmanship"));
+                   db.add_spelling("penmanship"));
     TEST_EXCEPTION(Xapian::DatabaseClosedError,
-		   db.remove_spelling("pneumatic"));
+                   db.remove_spelling("pneumatic"));
     TEST_EXCEPTION(Xapian::DatabaseClosedError,
-		   db.get_spelling_suggestion("newmonia"));
+                   db.get_spelling_suggestion("newmonia"));
     TEST_EXCEPTION(Xapian::DatabaseClosedError,
-		   db.spellings_begin());
+                   db.spellings_begin());
 }
 
 // Test synonym related methods.
@@ -403,15 +403,15 @@ DEFINE_TESTCASE(closedb9, writable && synonyms) {
     db.close();
 
     TEST_EXCEPTION(Xapian::DatabaseClosedError,
-		   db.add_synonym("behavior", "behaviour"));
+                   db.add_synonym("behavior", "behaviour"));
     TEST_EXCEPTION(Xapian::DatabaseClosedError,
-		   db.remove_synonym("honor", "honour"));
+                   db.remove_synonym("honor", "honour"));
     TEST_EXCEPTION(Xapian::DatabaseClosedError,
-		   db.clear_synonyms("honor"));
+                   db.clear_synonyms("honor"));
     TEST_EXCEPTION(Xapian::DatabaseClosedError,
-		   db.synonyms_begin("color"));
+                   db.synonyms_begin("color"));
     TEST_EXCEPTION(Xapian::DatabaseClosedError,
-		   db.synonym_keys_begin());
+                   db.synonym_keys_begin());
 }
 
 // Test metadata related methods.
@@ -422,13 +422,13 @@ DEFINE_TESTCASE(closedb10, writable && metadata) {
     db.close();
 
     TEST_EXCEPTION(Xapian::DatabaseClosedError,
-		   db.set_metadata("test", "TEST"));
+                   db.set_metadata("test", "TEST"));
     TEST_EXCEPTION(Xapian::DatabaseClosedError,
-		   db.get_metadata("foo"));
+                   db.get_metadata("foo"));
     TEST_EXCEPTION(Xapian::DatabaseClosedError,
-		   db.get_metadata("bar"));
+                   db.get_metadata("bar"));
     TEST_EXCEPTION(Xapian::DatabaseClosedError,
-		   db.metadata_keys_begin());
+                   db.metadata_keys_begin());
 }
 
 #define COUNT_NETWORK(CODE) COUNT_EXCEPTION(CODE, NetworkError)
@@ -449,114 +449,114 @@ struct remotefailure1_iterators {
     Xapian::PositionIterator pilend;
 
     void setup(Xapian::Database db_) {
-	db = db_;
+        db = db_;
 
-	// Set up the iterators for the test.
-	pl1 = db.postlist_begin("paragraph");
-	pl2 = db.postlist_begin("this");
-	++pl2;
-	pl1end = db.postlist_end("paragraph");
-	pl2end = db.postlist_end("this");
-	tl1 = db.termlist_begin(1);
-	tlend = db.termlist_end(1);
-	atl1 = db.allterms_begin("t");
-	atlend = db.allterms_end("t");
-	pil1 = db.positionlist_begin(1, "paragraph");
-	pilend = db.positionlist_end(1, "paragraph");
+        // Set up the iterators for the test.
+        pl1 = db.postlist_begin("paragraph");
+        pl2 = db.postlist_begin("this");
+        ++pl2;
+        pl1end = db.postlist_end("paragraph");
+        pl2end = db.postlist_end("this");
+        tl1 = db.termlist_begin(1);
+        tlend = db.termlist_end(1);
+        atl1 = db.allterms_begin("t");
+        atlend = db.allterms_end("t");
+        pil1 = db.positionlist_begin(1, "paragraph");
+        pilend = db.positionlist_end(1, "paragraph");
     }
 
     int perform() {
-	int exception_count = 0;
+        int exception_count = 0;
 
-	// Getting a document may throw.
-	COUNT_NETWORK(
-	    doc1 = db.get_document(1);
-	    // Only do these if get_document() succeeded.
-	    COUNT_NETWORK(TEST_EQUAL(doc1.get_data().substr(0, 33),
-				     "This is a test document used with"));
-	    COUNT_NETWORK(doc1.termlist_begin());
-	);
+        // Getting a document may throw.
+        COUNT_NETWORK(
+            doc1 = db.get_document(1);
+            // Only do these if get_document() succeeded.
+            COUNT_NETWORK(TEST_EQUAL(doc1.get_data().substr(0, 33),
+                                     "This is a test document used with"));
+            COUNT_NETWORK(doc1.termlist_begin());
+        );
 
-	// These should always fail.
-	COUNT_NETWORK(db.postlist_begin("paragraph"));
-	COUNT_NETWORK(db.get_document(1).get_value(1));
-	COUNT_NETWORK(db.termlist_begin(1));
-	COUNT_NETWORK(db.positionlist_begin(1, "paragraph"));
-	COUNT_NETWORK(db.allterms_begin());
-	COUNT_NETWORK(db.allterms_begin("p"));
-	COUNT_NETWORK(db.get_termfreq("paragraph"));
-	COUNT_NETWORK(db.get_collection_freq("paragraph"));
-	COUNT_NETWORK(db.term_exists("paragraph"));
-	COUNT_NETWORK(db.get_value_freq(1));
-	COUNT_NETWORK(db.get_value_lower_bound(1));
-	COUNT_NETWORK(db.get_value_upper_bound(1));
-	COUNT_NETWORK(db.valuestream_begin(1));
-	COUNT_NETWORK(db.get_doclength(1));
-	COUNT_NETWORK(db.get_unique_terms(1));
+        // These should always fail.
+        COUNT_NETWORK(db.postlist_begin("paragraph"));
+        COUNT_NETWORK(db.get_document(1).get_value(1));
+        COUNT_NETWORK(db.termlist_begin(1));
+        COUNT_NETWORK(db.positionlist_begin(1, "paragraph"));
+        COUNT_NETWORK(db.allterms_begin());
+        COUNT_NETWORK(db.allterms_begin("p"));
+        COUNT_NETWORK(db.get_termfreq("paragraph"));
+        COUNT_NETWORK(db.get_collection_freq("paragraph"));
+        COUNT_NETWORK(db.term_exists("paragraph"));
+        COUNT_NETWORK(db.get_value_freq(1));
+        COUNT_NETWORK(db.get_value_lower_bound(1));
+        COUNT_NETWORK(db.get_value_upper_bound(1));
+        COUNT_NETWORK(db.valuestream_begin(1));
+        COUNT_NETWORK(db.get_doclength(1));
+        COUNT_NETWORK(db.get_unique_terms(1));
 
-	// Should always fail.
-	COUNT_NETWORK(db.reopen());
+        // Should always fail.
+        COUNT_NETWORK(db.reopen());
 
-	TEST_NOT_EQUAL(pl1, pl1end);
-	TEST_NOT_EQUAL(pl2, pl2end);
-	TEST_NOT_EQUAL(tl1, tlend);
-	TEST_NOT_EQUAL(atl1, atlend);
-	TEST_NOT_EQUAL(pil1, pilend);
+        TEST_NOT_EQUAL(pl1, pl1end);
+        TEST_NOT_EQUAL(pl2, pl2end);
+        TEST_NOT_EQUAL(tl1, tlend);
+        TEST_NOT_EQUAL(atl1, atlend);
+        TEST_NOT_EQUAL(pil1, pilend);
 
-	COUNT_NETWORK(db.postlist_begin("paragraph"));
+        COUNT_NETWORK(db.postlist_begin("paragraph"));
 
-	COUNT_NETWORK(TEST_EQUAL(*pl1, 1));
-	COUNT_NETWORK(TEST_EQUAL(pl1.get_doclength(), 28));
-	COUNT_NETWORK(TEST_EQUAL(pl1.get_unique_terms(), 21));
+        COUNT_NETWORK(TEST_EQUAL(*pl1, 1));
+        COUNT_NETWORK(TEST_EQUAL(pl1.get_doclength(), 28));
+        COUNT_NETWORK(TEST_EQUAL(pl1.get_unique_terms(), 21));
 
-	COUNT_NETWORK(TEST_EQUAL(*pl2, 2));
-	COUNT_NETWORK(TEST_EQUAL(pl2.get_doclength(), 81));
-	COUNT_NETWORK(TEST_EQUAL(pl2.get_unique_terms(), 56));
+        COUNT_NETWORK(TEST_EQUAL(*pl2, 2));
+        COUNT_NETWORK(TEST_EQUAL(pl2.get_doclength(), 81));
+        COUNT_NETWORK(TEST_EQUAL(pl2.get_unique_terms(), 56));
 
-	COUNT_NETWORK(TEST_EQUAL(*tl1, "a"));
-	COUNT_NETWORK(TEST_EQUAL(tl1.get_wdf(), 2));
-	COUNT_NETWORK(TEST_EQUAL(tl1.get_termfreq(), 3));
+        COUNT_NETWORK(TEST_EQUAL(*tl1, "a"));
+        COUNT_NETWORK(TEST_EQUAL(tl1.get_wdf(), 2));
+        COUNT_NETWORK(TEST_EQUAL(tl1.get_termfreq(), 3));
 
-	COUNT_NETWORK(TEST_EQUAL(*atl1, "test"));
-	COUNT_NETWORK(TEST_EQUAL(atl1.get_termfreq(), 1));
+        COUNT_NETWORK(TEST_EQUAL(*atl1, "test"));
+        COUNT_NETWORK(TEST_EQUAL(atl1.get_termfreq(), 1));
 
-	COUNT_NETWORK(TEST_EQUAL(*pil1, 12));
+        COUNT_NETWORK(TEST_EQUAL(*pil1, 12));
 
-	// Advancing the iterator may or may not raise an error, but if it
-	// doesn't it must return the correct answers.
-	COUNT_NETWORK(
-	    ++pl1;
-	    COUNT_NETWORK(TEST_EQUAL(*pl1, 2));
-	    COUNT_NETWORK(TEST_EQUAL(pl1.get_doclength(), 81));
-	    COUNT_NETWORK(TEST_EQUAL(pl1.get_unique_terms(), 56));
-	);
+        // Advancing the iterator may or may not raise an error, but if it
+        // doesn't it must return the correct answers.
+        COUNT_NETWORK(
+            ++pl1;
+            COUNT_NETWORK(TEST_EQUAL(*pl1, 2));
+            COUNT_NETWORK(TEST_EQUAL(pl1.get_doclength(), 81));
+            COUNT_NETWORK(TEST_EQUAL(pl1.get_unique_terms(), 56));
+        );
 
-	COUNT_NETWORK(
-	    ++pl2;
-	    COUNT_NETWORK(TEST_EQUAL(*pl2, 3));
-	    COUNT_NETWORK(TEST_EQUAL(pl2.get_doclength(), 15));
-	    COUNT_NETWORK(TEST_EQUAL(pl2.get_unique_terms(), 14));
-	);
+        COUNT_NETWORK(
+            ++pl2;
+            COUNT_NETWORK(TEST_EQUAL(*pl2, 3));
+            COUNT_NETWORK(TEST_EQUAL(pl2.get_doclength(), 15));
+            COUNT_NETWORK(TEST_EQUAL(pl2.get_unique_terms(), 14));
+        );
 
-	COUNT_NETWORK(
-	    ++tl1;
-	    COUNT_NETWORK(TEST_EQUAL(*tl1, "api"));
-	    COUNT_NETWORK(TEST_EQUAL(tl1.get_wdf(), 1));
-	    COUNT_NETWORK(TEST_EQUAL(tl1.get_termfreq(), 1));
-	);
+        COUNT_NETWORK(
+            ++tl1;
+            COUNT_NETWORK(TEST_EQUAL(*tl1, "api"));
+            COUNT_NETWORK(TEST_EQUAL(tl1.get_wdf(), 1));
+            COUNT_NETWORK(TEST_EQUAL(tl1.get_termfreq(), 1));
+        );
 
-	COUNT_NETWORK(
-	    ++atl1;
-	    COUNT_NETWORK(TEST_EQUAL(*atl1, "that"));
-	    COUNT_NETWORK(TEST_EQUAL(atl1.get_termfreq(), 2));
-	);
+        COUNT_NETWORK(
+            ++atl1;
+            COUNT_NETWORK(TEST_EQUAL(*atl1, "that"));
+            COUNT_NETWORK(TEST_EQUAL(atl1.get_termfreq(), 2));
+        );
 
-	COUNT_NETWORK(
-	    ++pil1;
-	    COUNT_NETWORK(TEST_EQUAL(*pil1, 28));
-	);
+        COUNT_NETWORK(
+            ++pil1;
+            COUNT_NETWORK(TEST_EQUAL(*pil1, 28));
+        );
 
-	return exception_count;
+        return exception_count;
     }
 };
 
@@ -567,7 +567,7 @@ DEFINE_TESTCASE(remotefailure1, remotetcp) {
     // a whole process group fails under Wine with ERROR_INVALID_HANDLE.
     // We haven't managed to reduce a testcase for this.
     if (getenv("XAPIAN_TESTSUITE_RUNNING_UNDER_WINE"))
-	SKIP_TEST("This testcase doesn't work under Wine");
+        SKIP_TEST("This testcase doesn't work under Wine");
 #endif
     Xapian::Database db(get_database("apitest_simpledata"));
     remotefailure1_iterators iters;
@@ -587,7 +587,7 @@ DEFINE_TESTCASE(remotefailure1, remotetcp) {
     // issues with lingering references to closed fds.
     vector<int> fds;
     for (int i = 0; i != 6; ++i) {
-	fds.push_back(dup(1));
+        fds.push_back(dup(1));
     }
 
     // Run the test again, checking that we get some "NetworkError" exceptions.
@@ -600,7 +600,7 @@ DEFINE_TESTCASE(remotefailure1, remotetcp) {
     TEST(!db.get_description().empty());
 
     for (int fd : fds) {
-	close(fd);
+        close(fd);
     }
 }
 
@@ -612,37 +612,37 @@ DEFINE_TESTCASE(remotefailure1, remotetcp) {
 DEFINE_TESTCASE(remotefailure3, remotetcp) {
 #ifdef __WIN32__
     if (getenv("XAPIAN_TESTSUITE_RUNNING_UNDER_WINE"))
-	SKIP_TEST("This testcase doesn't work under Wine");
+        SKIP_TEST("This testcase doesn't work under Wine");
 #endif
     Xapian::Database db(get_database("etext"));
     const string & uuid = db.get_uuid();
     kill_remote(db);
     try {
-	TEST_EQUAL(db.get_uuid(), uuid);
+        TEST_EQUAL(db.get_uuid(), uuid);
     } catch (const Xapian::NetworkError&) {
     }
     try {
-	TEST(db.has_positions());
+        TEST(db.has_positions());
     } catch (const Xapian::NetworkError&) {
     }
     try {
-	TEST_EQUAL(db.get_doccount(), 566);
+        TEST_EQUAL(db.get_doccount(), 566);
     } catch (const Xapian::NetworkError&) {
     }
     try {
-	TEST_EQUAL(db.get_lastdocid(), 566);
+        TEST_EQUAL(db.get_lastdocid(), 566);
     } catch (const Xapian::NetworkError&) {
     }
     try {
-	TEST_REL(db.get_doclength_lower_bound(), <, db.get_avlength());
+        TEST_REL(db.get_doclength_lower_bound(), <, db.get_avlength());
     } catch (const Xapian::NetworkError&) {
     }
     try {
-	TEST_REL(db.get_doclength_upper_bound(), >, db.get_avlength());
+        TEST_REL(db.get_doclength_upper_bound(), >, db.get_avlength());
     } catch (const Xapian::NetworkError&) {
     }
     try {
-	TEST(db.get_wdf_upper_bound("king"));
+        TEST(db.get_wdf_upper_bound("king"));
     } catch (const Xapian::NetworkError&) {
     }
     TEST_EXCEPTION(Xapian::NetworkError, db.keep_alive());
@@ -652,52 +652,52 @@ DEFINE_TESTCASE(remotefailure3, remotetcp) {
 DEFINE_TESTCASE(remotefailure5, remotetcp) {
 #ifdef __WIN32__
     if (getenv("XAPIAN_TESTSUITE_RUNNING_UNDER_WINE"))
-	SKIP_TEST("This testcase doesn't work under Wine");
+        SKIP_TEST("This testcase doesn't work under Wine");
 #endif
     {
-	Xapian::WritableDatabase wdb = get_writable_database();
-	kill_remote(wdb);
+        Xapian::WritableDatabase wdb = get_writable_database();
+        kill_remote(wdb);
 
-	// commit_transaction() and cancel_transaction() should throw
-	// InvalidOperationError because we aren't in a transaction.
-	TEST_EXCEPTION(Xapian::InvalidOperationError,
-		       wdb.commit_transaction());
+        // commit_transaction() and cancel_transaction() should throw
+        // InvalidOperationError because we aren't in a transaction.
+        TEST_EXCEPTION(Xapian::InvalidOperationError,
+                       wdb.commit_transaction());
 
-	TEST_EXCEPTION(Xapian::InvalidOperationError,
-		       wdb.cancel_transaction());
+        TEST_EXCEPTION(Xapian::InvalidOperationError,
+                       wdb.cancel_transaction());
 
-	// begin_transaction() only sets state locally so works.
-	wdb.begin_transaction();
-	// commit_transaction() should only communicate with the server if
-	// there are changes in the transaction.
-	wdb.commit_transaction();
+        // begin_transaction() only sets state locally so works.
+        wdb.begin_transaction();
+        // commit_transaction() should only communicate with the server if
+        // there are changes in the transaction.
+        wdb.commit_transaction();
 
-	wdb.begin_transaction();
-	// cancel_transaction() should only communicate with the server if
-	// there are changes in the transaction.
-	wdb.cancel_transaction();
+        wdb.begin_transaction();
+        // cancel_transaction() should only communicate with the server if
+        // there are changes in the transaction.
+        wdb.cancel_transaction();
     }
 
     {
-	Xapian::WritableDatabase wdb = get_writable_database();
-	wdb.begin_transaction();
-	wdb.add_document(Xapian::Document());
-	kill_remote(wdb);
-	// With a transaction active, commit_transaction() should fail with
-	// NetworkError.
-	TEST_EXCEPTION(Xapian::NetworkError,
-		       wdb.commit_transaction());
+        Xapian::WritableDatabase wdb = get_writable_database();
+        wdb.begin_transaction();
+        wdb.add_document(Xapian::Document());
+        kill_remote(wdb);
+        // With a transaction active, commit_transaction() should fail with
+        // NetworkError.
+        TEST_EXCEPTION(Xapian::NetworkError,
+                       wdb.commit_transaction());
     }
 
     {
-	Xapian::WritableDatabase wdb = get_writable_database();
-	wdb.begin_transaction();
-	wdb.add_document(Xapian::Document());
-	kill_remote(wdb);
-	// With a transaction active, cancel_transaction() should fail with
-	// NetworkError.
-	TEST_EXCEPTION(Xapian::NetworkError,
-		       wdb.cancel_transaction());
+        Xapian::WritableDatabase wdb = get_writable_database();
+        wdb.begin_transaction();
+        wdb.add_document(Xapian::Document());
+        kill_remote(wdb);
+        // With a transaction active, cancel_transaction() should fail with
+        // NetworkError.
+        TEST_EXCEPTION(Xapian::NetworkError,
+                       wdb.cancel_transaction());
     }
 }
 
@@ -705,7 +705,7 @@ DEFINE_TESTCASE(remotefailure5, remotetcp) {
 DEFINE_TESTCASE(remotefailure7, remotetcp) {
 #ifdef __WIN32__
     if (getenv("XAPIAN_TESTSUITE_RUNNING_UNDER_WINE"))
-	SKIP_TEST("This testcase doesn't work under Wine");
+        SKIP_TEST("This testcase doesn't work under Wine");
 #endif
     Xapian::WritableDatabase db(get_writable_database());
     db.add_document(Xapian::Document());
@@ -713,24 +713,24 @@ DEFINE_TESTCASE(remotefailure7, remotetcp) {
 
     // We have a pending change from before the kill so this should fail.
     TEST_EXCEPTION(Xapian::NetworkError,
-		   db.commit());
+                   db.commit());
     TEST_EXCEPTION(Xapian::NetworkError,
-		   db.add_document(Xapian::Document()));
+                   db.add_document(Xapian::Document()));
     TEST_EXCEPTION(Xapian::NetworkError,
-		   db.delete_document(1));
+                   db.delete_document(1));
     TEST_EXCEPTION(Xapian::NetworkError,
-		   db.replace_document(1, Xapian::Document()));
+                   db.replace_document(1, Xapian::Document()));
     TEST_EXCEPTION(Xapian::NetworkError,
-		   db.replace_document(2, Xapian::Document()));
+                   db.replace_document(2, Xapian::Document()));
     TEST_EXCEPTION(Xapian::NetworkError,
-		   db.replace_document("Qi", Xapian::Document()));
+                   db.replace_document("Qi", Xapian::Document()));
 }
 
 // Test spelling related methods.
 DEFINE_TESTCASE(remotefailure8, remotetcp) {
 #ifdef __WIN32__
     if (getenv("XAPIAN_TESTSUITE_RUNNING_UNDER_WINE"))
-	SKIP_TEST("This testcase doesn't work under Wine");
+        SKIP_TEST("This testcase doesn't work under Wine");
 #endif
     Xapian::WritableDatabase db(get_writable_database());
     db.add_spelling("pneumatic");
@@ -738,9 +738,9 @@ DEFINE_TESTCASE(remotefailure8, remotetcp) {
     kill_remote(db);
 
     TEST_EXCEPTION(Xapian::NetworkError,
-		   db.add_spelling("penmanship"));
+                   db.add_spelling("penmanship"));
     TEST_EXCEPTION(Xapian::NetworkError,
-		   db.remove_spelling("pneumatic"));
+                   db.remove_spelling("pneumatic"));
     // These methods aren't implemented for remote databases - they're no-ops
     // which don't fail even when we kill the remote server.  Once remote
     // spelling suggestions are working we can uncomment them.
@@ -754,7 +754,7 @@ DEFINE_TESTCASE(remotefailure8, remotetcp) {
 DEFINE_TESTCASE(remotefailure9, remotetcp) {
 #ifdef __WIN32__
     if (getenv("XAPIAN_TESTSUITE_RUNNING_UNDER_WINE"))
-	SKIP_TEST("This testcase doesn't work under Wine");
+        SKIP_TEST("This testcase doesn't work under Wine");
 #endif
     Xapian::WritableDatabase db(get_writable_database());
     db.add_synonym("color", "colour");
@@ -762,22 +762,22 @@ DEFINE_TESTCASE(remotefailure9, remotetcp) {
     kill_remote(db);
 
     TEST_EXCEPTION(Xapian::NetworkError,
-		   db.add_synonym("behavior", "behaviour"));
+                   db.add_synonym("behavior", "behaviour"));
     TEST_EXCEPTION(Xapian::NetworkError,
-		   db.remove_synonym("honor", "honour"));
+                   db.remove_synonym("honor", "honour"));
     TEST_EXCEPTION(Xapian::NetworkError,
-		   db.clear_synonyms("honor"));
+                   db.clear_synonyms("honor"));
     TEST_EXCEPTION(Xapian::NetworkError,
-		   db.synonyms_begin("color"));
+                   db.synonyms_begin("color"));
     TEST_EXCEPTION(Xapian::NetworkError,
-		   db.synonym_keys_begin());
+                   db.synonym_keys_begin());
 }
 
 // Test metadata related methods.
 DEFINE_TESTCASE(remotefailure10, remotetcp) {
 #ifdef __WIN32__
     if (getenv("XAPIAN_TESTSUITE_RUNNING_UNDER_WINE"))
-	SKIP_TEST("This testcase doesn't work under Wine");
+        SKIP_TEST("This testcase doesn't work under Wine");
 #endif
     Xapian::WritableDatabase db(get_writable_database());
     db.set_metadata("foo", "FOO");
@@ -785,11 +785,11 @@ DEFINE_TESTCASE(remotefailure10, remotetcp) {
     kill_remote(db);
 
     TEST_EXCEPTION(Xapian::NetworkError,
-		   db.set_metadata("test", "TEST"));
+                   db.set_metadata("test", "TEST"));
     TEST_EXCEPTION(Xapian::NetworkError,
-		   db.get_metadata("foo"));
+                   db.get_metadata("foo"));
     TEST_EXCEPTION(Xapian::NetworkError,
-		   db.get_metadata("bar"));
+                   db.get_metadata("bar"));
     TEST_EXCEPTION(Xapian::NetworkError,
-		   db.metadata_keys_begin());
+                   db.metadata_keys_begin());
 }

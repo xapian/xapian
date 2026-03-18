@@ -75,16 +75,16 @@ class WritableDatabase;
 class XAPIAN_VISIBILITY_DEFAULT Database {
     /// @internal Implementation behind check() static methods.
     static size_t check_(const std::string_view* path_ptr,
-			 int fd,
-			 int opts,
-			 std::ostream* out);
+                         int fd,
+                         int opts,
+                         std::ostream* out);
 
     /// @internal Implementation behind public compact() methods.
     void compact_(const std::string_view* output_ptr,
-		  int fd,
-		  unsigned flags,
-		  int block_size,
-		  Xapian::Compactor* compactor) const;
+                  int fd,
+                  unsigned flags,
+                  int block_size,
+                  Xapian::Compactor* compactor) const;
 
   protected:
     /// @private @internal Implementation behind public add_database() methods.
@@ -107,7 +107,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
      *		   as this.
      */
     void add_database(const Database& other) {
-	add_database_(other, true);
+        add_database_(other, true);
     }
 
     /** Return number of shards in this Database object.
@@ -256,7 +256,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 
     /** End iterator corresponding to postlist_begin(). */
     PostingIterator postlist_end(std::string_view) const noexcept {
-	return PostingIterator();
+        return PostingIterator();
     }
 
     /** Start iterating the terms in a document.
@@ -269,7 +269,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 
     /** End iterator corresponding to termlist_begin(). */
     TermIterator termlist_end(Xapian::docid) const noexcept {
-	return TermIterator();
+        return TermIterator();
     }
 
     /** Does this database have any positional information? */
@@ -286,12 +286,12 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
      *			equal to positionlist_end().
      */
     PositionIterator positionlist_begin(Xapian::docid did,
-					std::string_view term) const;
+                                        std::string_view term) const;
 
     /** End iterator corresponding to positionlist_begin(). */
     PositionIterator positionlist_end(Xapian::docid,
-				      std::string_view) const noexcept {
-	return PositionIterator();
+                                      std::string_view) const noexcept {
+        return PositionIterator();
     }
 
     /** Start iterating all terms in the database with a given prefix.
@@ -306,7 +306,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
     /** End iterator corresponding to allterms_begin(prefix). */
     TermIterator allterms_end(std::string_view = {}) const noexcept
     {
-	return TermIterator();
+        return TermIterator();
     }
 
     /// Get the number of documents in the database.
@@ -419,7 +419,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 
     /// Return end iterator corresponding to valuestream_begin().
     ValueIterator valuestream_end(Xapian::valueno) const noexcept {
-	return ValueIterator();
+        return ValueIterator();
     }
 
     /** Get the length of a specified document.
@@ -476,7 +476,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
      *		   is not present in this database.
      */
     Xapian::Document get_document(Xapian::docid did,
-				  unsigned flags = 0) const;
+                                  unsigned flags = 0) const;
 
     /** Suggest a spelling correction.
      *
@@ -489,7 +489,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
      *					characters (default is 2).
      */
     std::string get_spelling_suggestion(std::string_view word,
-					unsigned max_edit_distance = 2) const;
+                                        unsigned max_edit_distance = 2) const;
 
     /** An iterator which returns all the spelling correction targets.
      *
@@ -501,7 +501,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 
     /// End iterator corresponding to spellings_begin().
     Xapian::TermIterator spellings_end() const noexcept {
-	return Xapian::TermIterator();
+        return Xapian::TermIterator();
     }
 
     /** An iterator which returns all the synonyms for a given term.
@@ -512,7 +512,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 
     /// End iterator corresponding to synonyms_begin(term).
     Xapian::TermIterator synonyms_end(std::string_view) const noexcept {
-	return Xapian::TermIterator();
+        return Xapian::TermIterator();
     }
 
     /** An iterator which returns all terms which have synonyms.
@@ -524,7 +524,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
     /// End iterator corresponding to synonym_keys_begin(prefix).
     Xapian::TermIterator
     synonym_keys_end(std::string_view = {}) const noexcept {
-	return Xapian::TermIterator();
+        return Xapian::TermIterator();
     }
 
     /** Get the user-specified metadata associated with a given key.
@@ -569,12 +569,12 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
      *		   backend).
      */
     Xapian::TermIterator
-	metadata_keys_begin(std::string_view prefix = {}) const;
+        metadata_keys_begin(std::string_view prefix = {}) const;
 
     /// End iterator corresponding to metadata_keys_begin().
     Xapian::TermIterator
     metadata_keys_end(std::string_view = {}) const noexcept {
-	return Xapian::TermIterator();
+        return Xapian::TermIterator();
     }
 
     /** Get the UUID for the database.
@@ -667,9 +667,9 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
      *  @param out	std::ostream to write output to (NULL for no output)
      */
     static size_t check(std::string_view path,
-			int opts = 0,
-			std::ostream* out = NULL) {
-	return check_(&path, 0, opts, out);
+                        int opts = 0,
+                        std::ostream* out = NULL) {
+        return check_(&path, 0, opts, out);
     }
 
     /** Check the integrity of a single file database.
@@ -683,7 +683,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
      *  @param out	std::ostream to write output to (NULL for no output)
      */
     static size_t check(int fd, int opts = 0, std::ostream* out = NULL) {
-	return check_(NULL, fd, opts, out);
+        return check_(NULL, fd, opts, out);
     }
 
     /** Produce a compact version of this database.
@@ -736,9 +736,9 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
      *		     Compactor class.
      */
     void compact(std::string_view output,
-		 unsigned flags = 0,
-		 int block_size = 0) {
-	compact_(&output, 0, flags, block_size, NULL);
+                 unsigned flags = 0,
+                 int block_size = 0) {
+        compact_(&output, 0, flags, block_size, NULL);
     }
 
     /** Produce a compact version of this database.
@@ -791,9 +791,9 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
      *		     Compactor class.
      */
     void compact(int fd,
-		 unsigned flags = 0,
-		 int block_size = 0) {
-	compact_(NULL, fd, flags, block_size, NULL);
+                 unsigned flags = 0,
+                 int block_size = 0) {
+        compact_(NULL, fd, flags, block_size, NULL);
     }
 
     /** Produce a compact version of this database.
@@ -847,11 +847,11 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
      *		     Compactor class.
      */
     void compact(std::string_view output,
-		 unsigned flags,
-		 int block_size,
-		 Xapian::Compactor& compactor)
+                 unsigned flags,
+                 int block_size,
+                 Xapian::Compactor& compactor)
     {
-	compact_(&output, 0, flags, block_size, &compactor);
+        compact_(&output, 0, flags, block_size, &compactor);
     }
 
     /** Produce a compact version of this database.
@@ -909,11 +909,11 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
      *		     Compactor class.
      */
     void compact(int fd,
-		 unsigned flags,
-		 int block_size,
-		 Xapian::Compactor& compactor)
+                 unsigned flags,
+                 int block_size,
+                 Xapian::Compactor& compactor)
     {
-	compact_(NULL, fd, flags, block_size, &compactor);
+        compact_(NULL, fd, flags, block_size, &compactor);
     }
 
     /** Reconstruct document text.
@@ -936,10 +936,10 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
      *  @since Added in Xapian 2.0.0.
      */
     std::string reconstruct_text(Xapian::docid did,
-				 size_t length = 0,
-				 std::string_view prefix = {},
-				 Xapian::termpos start_pos = 0,
-				 Xapian::termpos end_pos = 0) const;
+                                 size_t length = 0,
+                                 std::string_view prefix = {},
+                                 Xapian::termpos start_pos = 0,
+                                 Xapian::termpos end_pos = 0) const;
 };
 
 /** This class provides read/write access to a database.
@@ -988,11 +988,11 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
      *		   as this.
      */
     void add_database(const WritableDatabase& other) {
-	// This method is provided mainly so that adding a Database to a
-	// WritableDatabase is a compile-time error - prior to 2.0.0, it
-	// would essentially act as a "black-hole" shard which discarded
-	// any changes made to it.
-	add_database_(other, false);
+        // This method is provided mainly so that adding a Database to a
+        // WritableDatabase is a compile-time error - prior to 2.0.0, it
+        // would essentially act as a "black-hole" shard which discarded
+        // any changes made to it.
+        add_database_(other, false);
     }
 
     /** Create or open a Xapian database for both reading and writing.
@@ -1050,13 +1050,13 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
      *		   a format too old or too new to be supported.
      */
     explicit WritableDatabase(std::string_view path,
-			      int flags = 0,
-			      int block_size = 0);
+                              int flags = 0,
+                              int block_size = 0);
 
     /** @private @internal Create a WritableDatabase given its internals. */
     XAPIAN_VISIBILITY_INTERNAL
     explicit WritableDatabase(Database::Internal* internal_)
-	: Database(internal_) {}
+        : Database(internal_) {}
 
     /** Copy constructor.
      *
@@ -1069,8 +1069,8 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
      *  The internals are reference counted, so assignment is cheap.
      */
     WritableDatabase& operator=(const WritableDatabase& o) {
-	Database::operator=(o);
-	return *this;
+        Database::operator=(o);
+        return *this;
     }
 
     /// Move constructor.
@@ -1078,8 +1078,8 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 
     /// Move assignment operator.
     WritableDatabase& operator=(WritableDatabase&& o) {
-	Database::operator=(std::move(o));
-	return *this;
+        Database::operator=(std::move(o));
+        return *this;
     }
 
     /** Commit pending modifications.
@@ -1309,7 +1309,7 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
      *		     batch.
      */
     Xapian::docid replace_document(std::string_view unique_term,
-				   const Xapian::Document& document);
+                                   const Xapian::Document& document);
 
     /** Add a word to the spelling dictionary.
      *
@@ -1319,7 +1319,7 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
      *  @param freqinc	How much to increase its frequency by (default 1).
      */
     void add_spelling(std::string_view word,
-		      Xapian::termcount freqinc = 1) const;
+                      Xapian::termcount freqinc = 1) const;
 
     /** Remove a word from the spelling dictionary.
      *
@@ -1334,7 +1334,7 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
      *		Prior to 2.0.0 this method had void return type.
      */
     termcount remove_spelling(std::string_view word,
-			      termcount freqdec = 1) const;
+                              termcount freqdec = 1) const;
 
     /** Add a synonym for a term.
      *
@@ -1343,7 +1343,7 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
      *			@a term, then no action is taken.
      */
     void add_synonym(std::string_view term,
-		     std::string_view synonym) const;
+                     std::string_view synonym) const;
 
     /** Remove a synonym for a term.
      *
@@ -1352,7 +1352,7 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
      *			synonym for @a term, then no action is taken.
      */
     void remove_synonym(std::string_view term,
-			std::string_view synonym) const;
+                        std::string_view synonym) const;
 
     /** Remove all synonyms for a term.
      *

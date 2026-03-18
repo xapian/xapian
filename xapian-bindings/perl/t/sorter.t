@@ -24,7 +24,7 @@ sub mset_expect_order (\@@) {
     my @m = map { $_->get_docid() } @{$m};
     is( scalar @m, scalar @a );
     for my $j (0 .. (scalar @a - 1)) {
-	is( $m[$j], $a[$j] );
+        is( $m[$j], $a[$j] );
     }
 }
 
@@ -52,9 +52,9 @@ $enquire->set_query(Xapian::Query->new("foo"));
 
 {
     {
-	my $sorter = Xapian::MultiValueKeyMaker->new();
-	$sorter->add_value(0);
-	$enquire->set_sort_by_key($sorter, 1);
+        my $sorter = Xapian::MultiValueKeyMaker->new();
+        $sorter->add_value(0);
+        $enquire->set_sort_by_key($sorter, 1);
     }
     my @matches = $enquire->matches(0, 10);
     mset_expect_order(@matches, (5, 4, 3, 2, 1));

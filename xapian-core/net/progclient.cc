@@ -50,11 +50,11 @@ using namespace std;
 pair<int, string>
 ProgClient::run_program(string_view progname, string_view args,
 #ifndef __WIN32__
-			pid_t& child
+                        pid_t& child
 #else
-			HANDLE& child
+                        HANDLE& child
 #endif
-			)
+                        )
 {
     LOGCALL_STATIC(DB, RETURN_TYPE(pair<int, string>), "ProgClient::run_program", progname | args | Literal("[&child]"));
 
@@ -72,7 +72,7 @@ ProgClient::run_program(string_view progname, string_view args,
     // in the parent process could fork()+exec() and end up with these fds
     // still open.
     if (socketpair(PF_UNIX, SOCK_STREAM|SOCK_CLOEXEC, 0, fds) < 0) {
-	throw Xapian::NetworkError("socketpair failed", context, errno);
+        throw Xapian::NetworkError("socketpair failed", context, errno);
     }
 
     // We need the program name as a nul-terminated string.
@@ -87,37 +87,37 @@ ProgClient::run_program(string_view progname, string_view args,
     vector<char*> argv;
     argv.push_back(&progname_string[0]);
     if (!args_buf.empty()) {
-	// Split argument list on spaces.
-	argv.push_back(&args_buf[0]);
-	for (char& ch : args_buf) {
-	    if (ch == ' ') {
-		// Drop the previous element if it's empty (either due to leading
-		// spaces or multiple consecutive spaces).
-		if (&ch == argv.back()) argv.pop_back();
-		ch = '\0';
-		argv.push_back(&ch + 1);
-	    }
-	}
-	// Drop final element if it's empty (due to trailing space(s)).
-	if (&args_buf.back() == argv.back()) argv.pop_back();
+        // Split argument list on spaces.
+        argv.push_back(&args_buf[0]);
+        for (char& ch : args_buf) {
+            if (ch == ' ') {
+                // Drop the previous element if it's empty (either due to leading
+                // spaces or multiple consecutive spaces).
+                if (&ch == argv.back()) argv.pop_back();
+                ch = '\0';
+                argv.push_back(&ch + 1);
+            }
+        }
+        // Drop final element if it's empty (due to trailing space(s)).
+        if (&args_buf.back() == argv.back()) argv.pop_back();
     }
     argv.push_back(nullptr);
 
     child = fork();
 
     if (child != 0) {
-	// Not the child process.
+        // Not the child process.
 
-	// Close the child's end of the pipe.
-	::close(fds[1]);
-	if (child < 0) {
-	    // Couldn't fork.
-	    ::close(fds[0]);
-	    throw Xapian::NetworkError("fork failed", context, errno);
-	}
+        // Close the child's end of the pipe.
+        ::close(fds[1]);
+        if (child < 0) {
+            // Couldn't fork.
+            ::close(fds[0]);
+            throw Xapian::NetworkError("fork failed", context, errno);
+        }
 
-	// Parent process.
-	RETURN({fds[0], context});
+        // Parent process.
+        RETURN({fds[0], context});
     }
 
     // Child process.
@@ -131,7 +131,7 @@ ProgClient::run_program(string_view progname, string_view args,
     // can do with a little care here.
     int dup_to_first = 0;
     if (SOCK_CLOEXEC != 0 && fds[1] == 0) {
-	dup_to_first = 1;
+        dup_to_first = 1;
     }
 
     dup2(fds[1], dup_to_first);
@@ -146,13 +146,13 @@ ProgClient::run_program(string_view progname, string_view args,
     // Redirect stderr to /dev/null
     int devnull = open("/dev/null", O_WRONLY);
     if (devnull == -1) {
-	// We can't throw an exception here or usefully flag the failure.
-	// Best option seems to be to continue with stderr closed.
+        // We can't throw an exception here or usefully flag the failure.
+        // Best option seems to be to continue with stderr closed.
     } else if (rare(devnull != 2)) {
-	// We expect to get fd 2 as that's the first free one, but handle
-	// if we don't for some reason.
-	dup2(devnull, 2);
-	::close(devnull);
+        // We expect to get fd 2 as that's the first free one, but handle
+        // if we don't for some reason.
+        dup2(devnull, 2);
+        ::close(devnull);
     }
 
     execvp(progname_string.c_str(), argv.data());
@@ -167,40 +167,40 @@ ProgClient::run_program(string_view progname, string_view args,
     QueryPerformanceCounter(&counter);
     char pipename[256];
     snprintf(pipename, sizeof(pipename),
-	     "\\\\.\\pipe\\xapian-remote-%lx-%lx_%" PRIx64,
-	     static_cast<unsigned long>(GetCurrentProcessId()),
-	     static_cast<unsigned long>(GetCurrentThreadId()),
-	     static_cast<unsigned long long>(counter.QuadPart));
+             "\\\\.\\pipe\\xapian-remote-%lx-%lx_%" PRIx64,
+             static_cast<unsigned long>(GetCurrentProcessId()),
+             static_cast<unsigned long>(GetCurrentThreadId()),
+             static_cast<unsigned long long>(counter.QuadPart));
     pipename[sizeof(pipename) - 1] = '\0';
     // Create a pipe so we can read stdout from the child process.
     HANDLE hPipe = CreateNamedPipe(pipename,
-				   PIPE_ACCESS_DUPLEX|FILE_FLAG_OVERLAPPED,
-				   0,
-				   1, 4096, 4096, NMPWAIT_USE_DEFAULT_WAIT,
-				   NULL);
+                                   PIPE_ACCESS_DUPLEX|FILE_FLAG_OVERLAPPED,
+                                   0,
+                                   1, 4096, 4096, NMPWAIT_USE_DEFAULT_WAIT,
+                                   NULL);
 
     if (hPipe == INVALID_HANDLE_VALUE) {
-	throw Xapian::NetworkError("CreateNamedPipe failed",
-				   context,
-				   -int(GetLastError()));
+        throw Xapian::NetworkError("CreateNamedPipe failed",
+                                   context,
+                                   -int(GetLastError()));
     }
 
     HANDLE hClient = CreateFile(pipename,
-				GENERIC_READ|GENERIC_WRITE, 0, NULL,
-				OPEN_EXISTING,
-				FILE_FLAG_OVERLAPPED, NULL);
+                                GENERIC_READ|GENERIC_WRITE, 0, NULL,
+                                OPEN_EXISTING,
+                                FILE_FLAG_OVERLAPPED, NULL);
 
     if (hClient == INVALID_HANDLE_VALUE) {
-	throw Xapian::NetworkError("CreateFile failed",
-				   context,
-				   -int(GetLastError()));
+        throw Xapian::NetworkError("CreateFile failed",
+                                   context,
+                                   -int(GetLastError()));
     }
 
     if (!ConnectNamedPipe(hPipe, NULL) &&
-	GetLastError() != ERROR_PIPE_CONNECTED) {
-	throw Xapian::NetworkError("ConnectNamedPipe failed",
-				   context,
-				   -int(GetLastError()));
+        GetLastError() != ERROR_PIPE_CONNECTED) {
+        throw Xapian::NetworkError("ConnectNamedPipe failed",
+                                   context,
+                                   -int(GetLastError()));
     }
 
     // Set the appropriate handles to be inherited by the child process.
@@ -227,12 +227,12 @@ ProgClient::run_program(string_view progname, string_view args,
     // For some reason Windows wants a modifiable command line so we
     // pass `&cmdline[0]` rather than `cmdline.c_str()`.
     BOOL ok = CreateProcess(progname_string.c_str(), &cmdline[0],
-			    0, 0, TRUE, 0, 0, 0,
-			    &startupinfo, &procinfo);
+                            0, 0, TRUE, 0, 0, 0,
+                            &startupinfo, &procinfo);
     if (!ok) {
-	throw Xapian::NetworkError("CreateProcess failed",
-				   context,
-				   -int(GetLastError()));
+        throw Xapian::NetworkError("CreateProcess failed",
+                                   context,
+                                   -int(GetLastError()));
     }
 
     CloseHandle(hClient);
@@ -249,7 +249,7 @@ ProgClient::~ProgClient()
 {
     // Close the pipe.
     try {
-	do_close();
+        do_close();
     } catch (...) {
     }
 

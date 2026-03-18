@@ -51,8 +51,8 @@ DEFINE_TESTCASE(poslistupdate1, positional && writable) {
     db.replace_document(1, doc);
     db.commit();
     TEST_EQUAL(docterms_to_string(db, 1),
-	       "Term(pos, wdf=2, pos=[2, 3]), "
-	       "Term(pos2, wdf=1)");
+               "Term(pos, wdf=2, pos=[2, 3]), "
+               "Term(pos2, wdf=1)");
 
     doc = db.get_document(1);
     doc.add_posting("pos3", 1);
@@ -60,17 +60,17 @@ DEFINE_TESTCASE(poslistupdate1, positional && writable) {
     db.replace_document(1, doc);
     db.commit();
     TEST_EQUAL(docterms_to_string(db, 1),
-	       "Term(pos, wdf=2, pos=[2, 3]), "
-	       "Term(pos2, wdf=1), "
-	       "Term(pos3, wdf=2, pos=[1, 5])");
+               "Term(pos, wdf=2, pos=[2, 3]), "
+               "Term(pos2, wdf=1), "
+               "Term(pos3, wdf=2, pos=[1, 5])");
 
     doc = db.get_document(1);
     doc.remove_term("pos");
     db.replace_document(1, doc);
     db.commit();
     TEST_EQUAL(docterms_to_string(db, 1),
-	       "Term(pos2, wdf=1), "
-	       "Term(pos3, wdf=2, pos=[1, 5])");
+               "Term(pos2, wdf=1), "
+               "Term(pos3, wdf=2, pos=[1, 5])");
 
     // Regression test: the old positionlist fragment used to be left lying
     // around here.
@@ -82,7 +82,7 @@ DEFINE_TESTCASE(poslistupdate1, positional && writable) {
     db.replace_document(1, doc);
     db.commit();
     TEST_EQUAL(docterms_to_string(db, 1),
-	       "Term(pos2, wdf=1)");
+               "Term(pos2, wdf=1)");
 
     // Regression test: the old positionlist fragment used to be left lying
     // around here.
@@ -94,8 +94,8 @@ DEFINE_TESTCASE(poslistupdate1, positional && writable) {
     db.replace_document(1, doc);
     db.commit();
     TEST_EQUAL(docterms_to_string(db, 1),
-	       "Term(pos, wdf=1), "
-	       "Term(pos2, wdf=1)");
+               "Term(pos, wdf=1), "
+               "Term(pos2, wdf=1)");
 }
 
 static Xapian::Document

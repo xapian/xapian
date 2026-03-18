@@ -41,8 +41,8 @@ initialise(string& error)
     // We also call Init() before each document but call it here too so we can
     // report failure early.
     if (ocr->Init(nullptr, OCR_LANGUAGE)) {
-	error = "TessBaseAPI::Init() failed";
-	return false;
+        error = "TessBaseAPI::Init() failed";
+        return false;
     }
     return true;
 }
@@ -58,8 +58,8 @@ extract(const string& filename, const string&)
     // here is the same as "eng", but that fails to work on macos (tested
     // with the homebrew tesseract v5.1.0).
     if (ocr->Init(nullptr, OCR_LANGUAGE)) {
-	send_field(FIELD_ERROR, "TessBaseAPI::Init() failed");
-	return;
+        send_field(FIELD_ERROR, "TessBaseAPI::Init() failed");
+        return;
     }
 
     // We need to set this each time as it gets reset by Init().
@@ -68,8 +68,8 @@ extract(const string& filename, const string&)
     // Open Image
     Pix* image = pixRead(filename.c_str());
     if (!image) {
-	send_field(FIELD_ERROR, "pixRead() failed to load image");
-	return;
+        send_field(FIELD_ERROR, "pixRead() failed to load image");
+        return;
     }
 
     ocr->SetImage(image);

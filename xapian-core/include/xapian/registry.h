@@ -122,7 +122,7 @@ class XAPIAN_VISIBILITY_DEFAULT Registry {
      *			deleted by the caller.
      */
     const Xapian::PostingSource*
-	    get_posting_source(std::string_view name) const;
+            get_posting_source(std::string_view name) const;
 
     /** Register a user-defined match spy class.
      *
@@ -150,7 +150,7 @@ class XAPIAN_VISIBILITY_DEFAULT Registry {
      *  Returns NULL if the metric could not be found.
      */
     const Xapian::LatLongMetric*
-	    get_lat_long_metric(std::string_view name) const;
+            get_lat_long_metric(std::string_view name) const;
 
     /** Register a user-defined KeyMaker subclass.
      *

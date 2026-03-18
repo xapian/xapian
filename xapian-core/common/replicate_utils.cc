@@ -41,17 +41,17 @@ using namespace std;
 
 int
 create_changeset_file(const string & changeset_dir,
-		      const string & filename,
-		      string & changes_name)
+                      const string & filename,
+                      string & changes_name)
 {
     changes_name = changeset_dir;
     changes_name += '/';
     changes_name += filename;
     int changes_fd = posixy_open(changes_name.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC, 0666);
     if (changes_fd < 0) {
-	string message("Couldn't open changeset to write: ");
-	message += changes_name;
-	throw Xapian::DatabaseError(message, errno);
+        string message("Couldn't open changeset to write: ");
+        message += changes_name;
+        throw Xapian::DatabaseError(message, errno);
     }
     return changes_fd;
 }
@@ -60,7 +60,7 @@ void
 write_and_clear_changes(int changes_fd, string & buf, size_t bytes)
 {
     if (changes_fd != -1) {
-	io_write(changes_fd, buf.data(), bytes);
+        io_write(changes_fd, buf.data(), bytes);
     }
     buf.erase(0, bytes);
 }

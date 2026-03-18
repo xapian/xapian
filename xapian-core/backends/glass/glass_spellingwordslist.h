@@ -56,11 +56,11 @@ class GlassSpellingWordsList : public AllTermsList {
 
   public:
     GlassSpellingWordsList(Xapian::Internal::intrusive_ptr<const GlassDatabase> database_,
-			   GlassCursor * cursor_)
-	    : database(database_), cursor(cursor_), termfreq(0) {
-	// Seek to the entry before the first key with a "W" prefix, so the
-	// first next() will advance us to the first such entry.
-	cursor->find_entry(std::string("W", 1));
+                           GlassCursor * cursor_)
+            : database(database_), cursor(cursor_), termfreq(0) {
+        // Seek to the entry before the first key with a "W" prefix, so the
+        // first next() will advance us to the first such entry.
+        cursor->find_entry(std::string("W", 1));
     }
 
     /// Destructor.

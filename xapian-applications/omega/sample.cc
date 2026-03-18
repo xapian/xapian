@@ -30,55 +30,55 @@ using namespace std;
 
 string
 generate_sample(const string & input, size_t maxlen,
-		const string & ind, const string & ind2)
+                const string & ind, const string & ind2)
 {
     string output;
 
     // Reserve an appropriate amount of space to repeated reallocation as
     // output grows.
     if (input.size() <= maxlen) {
-	output.reserve(input.size());
+        output.reserve(input.size());
     } else {
-	// Add 3 to allow for a 4 byte utf-8 sequence being appended when
-	// output is maxlen - 1 bytes long.
-	output.reserve(maxlen + 3);
+        // Add 3 to allow for a 4 byte utf-8 sequence being appended when
+        // output is maxlen - 1 bytes long.
+        output.reserve(maxlen + 3);
     }
 
     size_t last_word_end = 0;
     bool in_space = true;
     Xapian::Utf8Iterator i(input);
     for ( ; i != Xapian::Utf8Iterator(); ++i) {
-	if (output.size() >= maxlen) {
-	    // Need to truncate output.
-	    if (last_word_end <= maxlen / 2) {
-		// Fixed when maxlen < ind.size leading to a negative
-		// reference
-		if (maxlen < ind.size()) {
-		    output.resize(0);
-		} else {
-		    // Monster word!  We'll have to just split it.
-		    output.replace(maxlen - ind.size(), string::npos, ind);
-		}
-	    } else {
-		output.replace(last_word_end, string::npos, ind2);
-	    }
-	    break;
-	}
+        if (output.size() >= maxlen) {
+            // Need to truncate output.
+            if (last_word_end <= maxlen / 2) {
+                // Fixed when maxlen < ind.size leading to a negative
+                // reference
+                if (maxlen < ind.size()) {
+                    output.resize(0);
+                } else {
+                    // Monster word!  We'll have to just split it.
+                    output.replace(maxlen - ind.size(), string::npos, ind);
+                }
+            } else {
+                output.replace(last_word_end, string::npos, ind2);
+            }
+            break;
+        }
 
-	unsigned ch = *i;
-	if (ch <= ' ' || ch == 0xa0) {
-	    // FIXME: if all the whitespace characters between two words are
-	    // 0xa0 (non-breaking space) then perhaps we should output 0xa0.
-	    if (!in_space) {
-		in_space = true;
-		last_word_end = output.size();
-		output += ' ';
-	    }
-	    continue;
-	}
+        unsigned ch = *i;
+        if (ch <= ' ' || ch == 0xa0) {
+            // FIXME: if all the whitespace characters between two words are
+            // 0xa0 (non-breaking space) then perhaps we should output 0xa0.
+            if (!in_space) {
+                in_space = true;
+                last_word_end = output.size();
+                output += ' ';
+            }
+            continue;
+        }
 
-	Xapian::Unicode::append_utf8(output, ch);
-	in_space = false;
+        Xapian::Unicode::append_utf8(output, ch);
+        in_space = false;
     }
 
     return output;

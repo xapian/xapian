@@ -47,35 +47,35 @@ print FD <<'EOF';
 
 static int XapianExceptionHandler(string & msg) {
     try {
-	// Rethrow so we can look at the exception if it was a Xapian::Error.
-	throw;
+        // Rethrow so we can look at the exception if it was a Xapian::Error.
+        throw;
     } catch (const Xapian::Error &e) {
-	msg = e.get_description();
-	try {
-	    // Re-rethrow the previous exception so we can handle the type in a
-	    // fine-grained way, but only in one place to avoid bloating the
-	    // file.
-	    throw;
-	} catch (const Xapian::InvalidArgumentError &) {
-	    return SWIG_ValueError;
-	} catch (const Xapian::RangeError &) {
-	    return SWIG_IndexError;
-	} catch (const Xapian::DatabaseError &) {
-	    return SWIG_IOError;
-	} catch (const Xapian::NetworkError &) {
-	    return SWIG_IOError;
-	} catch (const Xapian::InternalError &) {
-	    return SWIG_RuntimeError;
-	} catch (const Xapian::RuntimeError &) {
-	    return SWIG_RuntimeError;
-	} catch (...) {
-	    return SWIG_UnknownError;
-	}
+        msg = e.get_description();
+        try {
+            // Re-rethrow the previous exception so we can handle the type in a
+            // fine-grained way, but only in one place to avoid bloating the
+            // file.
+            throw;
+        } catch (const Xapian::InvalidArgumentError &) {
+            return SWIG_ValueError;
+        } catch (const Xapian::RangeError &) {
+            return SWIG_IndexError;
+        } catch (const Xapian::DatabaseError &) {
+            return SWIG_IOError;
+        } catch (const Xapian::NetworkError &) {
+            return SWIG_IOError;
+        } catch (const Xapian::InternalError &) {
+            return SWIG_RuntimeError;
+        } catch (const Xapian::RuntimeError &) {
+            return SWIG_RuntimeError;
+        } catch (...) {
+            return SWIG_UnknownError;
+        }
     } catch (const std::exception &e) {
-	msg = "std::exception: ";
+        msg = "std::exception: ";
         msg += e.what();
     } catch (...) {
-	msg = "unknown error in Xapian";
+        msg = "unknown error in Xapian";
     }
     return SWIG_UnknownError;
 }
@@ -91,11 +91,11 @@ print FD <<'EOF';
 
 %exception {
     try {
-	$function
+        $function
     } catch (...) {
-	string msg;
-	int code = XapianExceptionHandler(msg);
-	SWIG_exception(code, msg.c_str());
+        string msg;
+        int code = XapianExceptionHandler(msg);
+        SWIG_exception(code, msg.c_str());
     }
 }
 EOF

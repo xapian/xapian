@@ -31,10 +31,10 @@ using namespace std;
 MaxPostList::~MaxPostList()
 {
     if (plist) {
-	for (size_t i = 0; i < n_kids; ++i) {
-	    delete plist[i];
-	}
-	delete [] plist;
+        for (size_t i = 0; i < n_kids; ++i) {
+            delete plist[i];
+        }
+        delete [] plist;
     }
 }
 
@@ -46,16 +46,16 @@ MaxPostList::get_docid() const
 
 double
 MaxPostList::get_weight(Xapian::termcount doclen,
-			Xapian::termcount unique_terms,
-			Xapian::termcount wdfdocmax) const
+                        Xapian::termcount unique_terms,
+                        Xapian::termcount wdfdocmax) const
 {
     Assert(did);
     double res = 0.0;
     for (size_t i = 0; i < n_kids; ++i) {
-	if (plist[i]->get_docid() == did)
-	    res = max(res, plist[i]->get_weight(doclen,
-						unique_terms,
-						wdfdocmax));
+        if (plist[i]->get_docid() == did)
+            res = max(res, plist[i]->get_weight(doclen,
+                                                unique_terms,
+                                                wdfdocmax));
     }
     return res;
 }
@@ -71,7 +71,7 @@ MaxPostList::recalc_maxweight()
 {
     double result = plist[0]->recalc_maxweight();
     for (size_t i = 1; i < n_kids; ++i) {
-	result = max(result, plist[i]->recalc_maxweight());
+        result = max(result, plist[i]->recalc_maxweight());
     }
     return result;
 }
@@ -82,45 +82,45 @@ MaxPostList::next(double w_min)
     Xapian::docid old_did = did;
     did = 0;
     for (size_t i = 0; i < n_kids; UNSIGNED_OVERFLOW_OK(++i)) {
-	Xapian::docid cur_did = 0;
-	if (old_did != 0)
-	    cur_did = plist[i]->get_docid();
-	if (cur_did <= old_did) {
-	    PostList * res;
-	    if (old_did == 0 || cur_did == old_did) {
-		res = plist[i]->next(w_min);
-	    } else {
-		res = plist[i]->skip_to(old_did + 1, w_min);
-	    }
-	    if (res) {
-		delete plist[i];
-		plist[i] = res;
-	    }
+        Xapian::docid cur_did = 0;
+        if (old_did != 0)
+            cur_did = plist[i]->get_docid();
+        if (cur_did <= old_did) {
+            PostList * res;
+            if (old_did == 0 || cur_did == old_did) {
+                res = plist[i]->next(w_min);
+            } else {
+                res = plist[i]->skip_to(old_did + 1, w_min);
+            }
+            if (res) {
+                delete plist[i];
+                plist[i] = res;
+            }
 
-	    if (plist[i]->at_end()) {
-		// erase_sublist(i) shuffles down i+1, etc down one index, so
-		// the next sublist to deal with is also at index i, unless
-		// this was the last index.  We deal with this by decrementing
-		// i here and it'll be incremented by the loop, but this may
-		// underflow (which is OK because i is an unsigned type).
-		erase_sublist(UNSIGNED_OVERFLOW_OK(i--));
-		continue;
-	    }
+            if (plist[i]->at_end()) {
+                // erase_sublist(i) shuffles down i+1, etc down one index, so
+                // the next sublist to deal with is also at index i, unless
+                // this was the last index.  We deal with this by decrementing
+                // i here and it'll be incremented by the loop, but this may
+                // underflow (which is OK because i is an unsigned type).
+                erase_sublist(UNSIGNED_OVERFLOW_OK(i--));
+                continue;
+            }
 
-	    if (res)
-		matcher->force_recalc();
+            if (res)
+                matcher->force_recalc();
 
-	    cur_did = plist[i]->get_docid();
-	}
+            cur_did = plist[i]->get_docid();
+        }
 
-	if (did == 0 || cur_did < did) {
-	    did = cur_did;
-	}
+        if (did == 0 || cur_did < did) {
+            did = cur_did;
+        }
     }
 
     if (n_kids == 1) {
-	n_kids = 0;
-	return plist[0];
+        n_kids = 0;
+        return plist[0];
     }
 
     return NULL;
@@ -132,35 +132,35 @@ MaxPostList::skip_to(Xapian::docid did_min, double w_min)
     Xapian::docid old_did = did;
     did = 0;
     for (size_t i = 0; i < n_kids; ++i) {
-	Xapian::docid cur_did = 0;
-	if (old_did != 0)
-	    cur_did = plist[i]->get_docid();
-	if (cur_did < did_min) {
-	    PostList * res = plist[i]->skip_to(did_min, w_min);
-	    if (res) {
-		delete plist[i];
-		plist[i] = res;
-	    }
+        Xapian::docid cur_did = 0;
+        if (old_did != 0)
+            cur_did = plist[i]->get_docid();
+        if (cur_did < did_min) {
+            PostList * res = plist[i]->skip_to(did_min, w_min);
+            if (res) {
+                delete plist[i];
+                plist[i] = res;
+            }
 
-	    if (plist[i]->at_end()) {
-		erase_sublist(i--);
-		continue;
-	    }
+            if (plist[i]->at_end()) {
+                erase_sublist(i--);
+                continue;
+            }
 
-	    if (res)
-		matcher->force_recalc();
+            if (res)
+                matcher->force_recalc();
 
-	    cur_did = plist[i]->get_docid();
-	}
+            cur_did = plist[i]->get_docid();
+        }
 
-	if (did == 0 || cur_did < did) {
-	    did = cur_did;
-	}
+        if (did == 0 || cur_did < did) {
+            did = cur_did;
+        }
     }
 
     if (n_kids == 1) {
-	n_kids = 0;
-	return plist[0];
+        n_kids = 0;
+        return plist[0];
     }
 
     return NULL;
@@ -171,10 +171,10 @@ MaxPostList::get_docid_range(Xapian::docid& first, Xapian::docid& last) const
 {
     plist[0]->get_docid_range(first, last);
     for (size_t i = 1; i != n_kids; ++i) {
-	Xapian::docid f = 1, l = Xapian::docid(-1);
-	plist[i]->get_docid_range(f, l);
-	first = min(first, f);
-	last = max(last, l);
+        Xapian::docid f = 1, l = Xapian::docid(-1);
+        plist[i]->get_docid_range(f, l);
+        first = min(first, f);
+        last = max(last, l);
     }
 }
 
@@ -184,8 +184,8 @@ MaxPostList::get_description() const
     string desc("(");
     desc += plist[0]->get_description();
     for (size_t i = 1; i < n_kids; ++i) {
-	desc += " MAX ";
-	desc += plist[i]->get_description();
+        desc += " MAX ";
+        desc += plist[i]->get_description();
     }
     desc += ')';
     return desc;
@@ -196,8 +196,8 @@ MaxPostList::get_wdf() const
 {
     Xapian::termcount totwdf = 0;
     for (size_t i = 0; i < n_kids; ++i) {
-	if (plist[i]->get_docid() == did)
-	    totwdf += plist[i]->get_wdf();
+        if (plist[i]->get_docid() == did)
+            totwdf += plist[i]->get_wdf();
     }
     return totwdf;
 }

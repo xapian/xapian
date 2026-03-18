@@ -167,53 +167,53 @@ CGIParameterHandler::operator()(const string& var, const string& val) const
 
 int main() {
     for (enc_testcase * e = urlenc_testcases; e->input; ++e) {
-	string result;
-	url_encode(result, e->input);
-	if (result != e->result) {
-	    cerr << "urlencode of " << e->input << " should be " << e->result
-		 << "\", got \"" << result << "\"" << endl;
-	    exit(1);
-	}
+        string result;
+        url_encode(result, e->input);
+        if (result != e->result) {
+            cerr << "urlencode of " << e->input << " should be " << e->result
+                 << "\", got \"" << result << "\"" << endl;
+            exit(1);
+        }
     }
 
     for (dec_testcase * d = urldec_testcases; d->input; ++d) {
-	params.clear();
-	const char * input = d->input;
-	url_decode(CGIParameterHandler(), CStringItor(input), CStringItor());
-	const char ** p = d->result;
-	bool ok = true;
-	for (multimap<string, string>::const_iterator i = params.begin();
-	     i != params.end(); ++i) {
-	    if (!*p || i->first.compare(*p) != 0 ||
-		i->second.compare(p[1]) != 0) {
-		// Variable and/or value doesn't match.
-		ok = false;
-		break;
-	    }
-	    p += 2;
-	}
-	if (!ok || *p) {
-	    cerr << "Expected these parameters:\n";
-	    for (p = d->result; *p; p += 2) {
-		cerr << "    " << p[0] << " = " << p[1] << endl;
-	    }
-	    cerr << "Got these parameters:\n";
-	    for (multimap<string, string>::const_iterator j = params.begin();
-		 j != params.end(); ++j) {
-		cerr << "    " << j->first << " = " << j->second << endl;
-	    }
-	    exit(1);
-	}
+        params.clear();
+        const char * input = d->input;
+        url_decode(CGIParameterHandler(), CStringItor(input), CStringItor());
+        const char ** p = d->result;
+        bool ok = true;
+        for (multimap<string, string>::const_iterator i = params.begin();
+             i != params.end(); ++i) {
+            if (!*p || i->first.compare(*p) != 0 ||
+                i->second.compare(p[1]) != 0) {
+                // Variable and/or value doesn't match.
+                ok = false;
+                break;
+            }
+            p += 2;
+        }
+        if (!ok || *p) {
+            cerr << "Expected these parameters:\n";
+            for (p = d->result; *p; p += 2) {
+                cerr << "    " << p[0] << " = " << p[1] << endl;
+            }
+            cerr << "Got these parameters:\n";
+            for (multimap<string, string>::const_iterator j = params.begin();
+                 j != params.end(); ++j) {
+                cerr << "    " << j->first << " = " << j->second << endl;
+            }
+            exit(1);
+        }
     }
 
     for (pretty_testcase * e = pretty_testcases; e->input; ++e) {
-	string url = e->input;
-	url_prettify(url);
-	const char * result = (e->result ? e->result : e->input);
-	if (url != result) {
-	    cerr << "url_prettify of " << e->input << " should be " << result
-		 << "\", got \"" << url << "\"" << endl;
-	    exit(1);
-	}
+        string url = e->input;
+        url_prettify(url);
+        const char * result = (e->result ? e->result : e->input);
+        if (url != result) {
+            cerr << "url_prettify of " << e->input << " should be " << result
+                 << "\", got \"" << url << "\"" << endl;
+            exit(1);
+        }
     }
 }

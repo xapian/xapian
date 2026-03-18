@@ -40,10 +40,10 @@ make_valuechunk_key(Xapian::valueno slot, Xapian::docid last_did)
 {
     std::string key(1, '\0');
     if (slot < (Honey::KEY_VALUE_CHUNK_HI - Honey::KEY_VALUE_CHUNK) >> 3) {
-	key += char(Honey::KEY_VALUE_CHUNK + slot);
+        key += char(Honey::KEY_VALUE_CHUNK + slot);
     } else {
-	key += char(Honey::KEY_VALUE_CHUNK_HI);
-	pack_uint_preserving_sort(key, slot);
+        key += char(Honey::KEY_VALUE_CHUNK_HI);
+        pack_uint_preserving_sort(key, slot);
     }
     pack_uint_preserving_sort(key, last_did);
     return key;
@@ -55,27 +55,27 @@ docid_from_key(Xapian::valueno required_slot, const std::string& key)
     const char* p = key.data();
     const char* end = p + key.length();
     if (end - p < 3 || *p++ != '\0') {
-	// Not a value chunk key.
-	return 0;
+        // Not a value chunk key.
+        return 0;
     }
     unsigned char code = *p++;
     if (code < Honey::KEY_VALUE_CHUNK || code > Honey::KEY_VALUE_CHUNK_HI) {
-	// Also not a value chunk key.
-	return 0;
+        // Also not a value chunk key.
+        return 0;
     }
 
     Xapian::valueno slot;
     if (code < Honey::KEY_VALUE_CHUNK_HI) {
-	slot = code - Honey::KEY_VALUE_CHUNK;
+        slot = code - Honey::KEY_VALUE_CHUNK;
     } else {
-	if (!unpack_uint_preserving_sort(&p, end, &slot))
-	    throw Xapian::DatabaseCorruptError("Bad value key");
+        if (!unpack_uint_preserving_sort(&p, end, &slot))
+            throw Xapian::DatabaseCorruptError("Bad value key");
     }
     // Fail if for a different slot.
     if (slot != required_slot) return 0;
     Xapian::docid did;
     if (!unpack_uint_preserving_sort(&p, end, &did))
-	throw Xapian::DatabaseCorruptError("Bad value key");
+        throw Xapian::DatabaseCorruptError("Bad value key");
     return did;
 }
 
@@ -84,18 +84,18 @@ make_valuestats_key(Xapian::valueno slot)
 {
     std::string key(1, '\0');
     if (slot <= 7) {
-	key += char(Honey::KEY_VALUE_STATS + slot);
+        key += char(Honey::KEY_VALUE_STATS + slot);
     } else {
-	key += char(Honey::KEY_VALUE_STATS + 7);
-	pack_uint_preserving_sort(key, slot);
+        key += char(Honey::KEY_VALUE_STATS + 7);
+        pack_uint_preserving_sort(key, slot);
     }
     return key;
 }
 
 inline static std::string
 encode_valuestats(Xapian::doccount freq,
-		  const std::string& lbound,
-		  const std::string& ubound)
+                  const std::string& lbound,
+                  const std::string& ubound)
 {
     std::string value;
     pack_uint(value, freq);
@@ -139,7 +139,7 @@ class HoneyValueManager {
     mutable std::unique_ptr<HoneyCursor> cursor;
 
     void add_value(Xapian::docid did, Xapian::valueno slot,
-		   const std::string& val);
+                   const std::string& val);
 
     void remove_value(Xapian::docid did, Xapian::valueno slot);
 
@@ -148,8 +148,8 @@ class HoneyValueManager {
      *  @return The last docid in the chunk, or 0 if off the end of the stream.
      */
     Xapian::docid get_chunk_containing_did(Xapian::valueno slot,
-					   Xapian::docid did,
-					   std::string& chunk) const;
+                                           Xapian::docid did,
+                                           std::string& chunk) const;
 
     /** Get the statistics for value slot @a slot. */
     void get_value_stats(Xapian::valueno slot) const;
@@ -159,41 +159,41 @@ class HoneyValueManager {
   public:
     /** Create a new HoneyValueManager object. */
     HoneyValueManager(HoneyPostListTable& postlist_table_,
-		      HoneyTermListTable& termlist_table_)
-	: postlist_table(postlist_table_),
-	  termlist_table(termlist_table_) { }
+                      HoneyTermListTable& termlist_table_)
+        : postlist_table(postlist_table_),
+          termlist_table(termlist_table_) { }
 
     // Merge in batched-up changes.
     void merge_changes();
 
     std::string add_document(Xapian::docid did, const Xapian::Document& doc,
-			     std::map<Xapian::valueno, ValueStats>& val_stats);
+                             std::map<Xapian::valueno, ValueStats>& val_stats);
 
     void delete_document(Xapian::docid did,
-			 std::map<Xapian::valueno, ValueStats>& val_stats);
+                         std::map<Xapian::valueno, ValueStats>& val_stats);
 
     std::string replace_document(Xapian::docid did,
-				 const Xapian::Document& doc,
-				 std::map<Xapian::valueno, ValueStats>& val_stats);
+                                 const Xapian::Document& doc,
+                                 std::map<Xapian::valueno, ValueStats>& val_stats);
 
     std::string get_value(Xapian::docid did, Xapian::valueno slot) const;
 
     void get_all_values(std::map<Xapian::valueno, std::string>& values,
-			Xapian::docid did) const;
+                        Xapian::docid did) const;
 
     Xapian::doccount get_value_freq(Xapian::valueno slot) const {
-	if (mru_slot != slot) get_value_stats(slot);
-	return mru_valstats.freq;
+        if (mru_slot != slot) get_value_stats(slot);
+        return mru_valstats.freq;
     }
 
     std::string get_value_lower_bound(Xapian::valueno slot) const {
-	if (mru_slot != slot) get_value_stats(slot);
-	return mru_valstats.lower_bound;
+        if (mru_slot != slot) get_value_stats(slot);
+        return mru_valstats.lower_bound;
     }
 
     std::string get_value_upper_bound(Xapian::valueno slot) const {
-	if (mru_slot != slot) get_value_stats(slot);
-	return mru_valstats.upper_bound;
+        if (mru_slot != slot) get_value_stats(slot);
+        return mru_valstats.upper_bound;
     }
 
     /** Write the updated statistics to the table.
@@ -206,18 +206,18 @@ class HoneyValueManager {
     void set_value_stats(std::map<Xapian::valueno, ValueStats>& val_stats);
 
     void reset() {
-	/// Ignore any old cached valuestats.
-	mru_slot = Xapian::BAD_VALUENO;
+        /// Ignore any old cached valuestats.
+        mru_slot = Xapian::BAD_VALUENO;
     }
 
     bool is_modified() const {
-	return !changes.empty();
+        return !changes.empty();
     }
 
     void cancel() {
-	// Discard batched-up changes.
-	slots.clear();
-	changes.clear();
+        // Discard batched-up changes.
+        slots.clear();
+        changes.clear();
     }
 };
 
@@ -236,7 +236,7 @@ class ValueChunkReader {
     ValueChunkReader() : p(NULL) { }
 
     ValueChunkReader(const char* p_, size_t len, Xapian::docid last_did) {
-	assign(p_, len, last_did);
+        assign(p_, len, last_did);
     }
 
     void assign(const char* p_, size_t len, Xapian::docid last_did);

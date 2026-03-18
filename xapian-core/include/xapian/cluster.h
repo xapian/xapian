@@ -49,7 +49,7 @@ class XAPIAN_VISIBILITY_DEFAULT StemStopper : public Xapian::Stopper {
   public:
     /// Stemming strategies
     typedef enum {
-	STEM_NONE, STEM_SOME, STEM_ALL, STEM_ALL_Z, STEM_SOME_FULL_POS
+        STEM_NONE, STEM_SOME, STEM_ALL, STEM_ALL_Z, STEM_SOME_FULL_POS
     } stem_strategy;
 
     /** Constructor
@@ -62,7 +62,7 @@ class XAPIAN_VISIBILITY_DEFAULT StemStopper : public Xapian::Stopper {
     std::string get_description() const override;
 
     bool operator()(const std::string& term) const override {
-	return stop_words.find(term) != stop_words.end();
+        return stop_words.find(term) != stop_words.end();
     }
 
     /// Add a single stop word and its stemmed equivalent
@@ -164,8 +164,8 @@ class XAPIAN_VISIBILITY_DEFAULT FreqSource
      *  longer required.
      */
     FreqSource * release() {
-	opt_intrusive_base::release();
-	return this;
+        opt_intrusive_base::release();
+        return this;
     }
 
     /** Start reference counting this object.
@@ -176,8 +176,8 @@ class XAPIAN_VISIBILITY_DEFAULT FreqSource
      *  longer required.
      */
     const FreqSource * release() const {
-	opt_intrusive_base::release();
-	return this;
+        opt_intrusive_base::release();
+        return this;
     }
 };
 
@@ -240,7 +240,7 @@ class XAPIAN_VISIBILITY_DEFAULT PointType
      *			term is to be set
      */
     void set_weight(std::string_view term, double weight) {
-	weights[std::string(term)] = weight;
+        weights[std::string(term)] = weight;
     }
 
   public:
@@ -252,7 +252,7 @@ class XAPIAN_VISIBILITY_DEFAULT PointType
 
     /// Return a TermIterator to the end of the termlist
     TermIterator termlist_end() const noexcept {
-	return TermIterator(NULL);
+        return TermIterator(NULL);
     }
 
     /** Validate whether a certain term exists in the termlist
@@ -261,7 +261,7 @@ class XAPIAN_VISIBILITY_DEFAULT PointType
      *  @param term	Term which is to be searched
      */
     bool contains(std::string_view term) const {
-	return weights.find(std::string(term)) != weights.end();
+        return weights.find(std::string(term)) != weights.end();
     }
 
     /** Return the TF-IDF weight associated with a certain term
@@ -269,8 +269,8 @@ class XAPIAN_VISIBILITY_DEFAULT PointType
      *  @param term	Term for which TF-IDF weight is returned
      */
     double get_weight(std::string_view term) const {
-	auto it = weights.find(std::string(term));
-	return (it == weights.end()) ? 0.0 : it->second;
+        auto it = weights.find(std::string(term));
+        return (it == weights.end()) ? 0.0 : it->second;
     }
 
     /** Add the weight 'weight' to the mapping of a term
@@ -280,7 +280,7 @@ class XAPIAN_VISIBILITY_DEFAULT PointType
      *			mapping of the term
      */
     void add_weight(std::string_view term, double weight) {
-	weights[std::string(term)] += weight;
+        weights[std::string(term)] += weight;
     }
 
     /// Return the pre-computed squared magnitude
@@ -297,8 +297,8 @@ class XAPIAN_VISIBILITY_DEFAULT PointType
      *  longer required.
      */
     PointType * release() {
-	opt_intrusive_base::release();
-	return this;
+        opt_intrusive_base::release();
+        return this;
     }
 
     /** Start reference counting this object.
@@ -309,8 +309,8 @@ class XAPIAN_VISIBILITY_DEFAULT PointType
      *  longer required.
      */
     const PointType * release() const {
-	opt_intrusive_base::release();
-	return this;
+        opt_intrusive_base::release();
+        return this;
     }
 };
 
@@ -573,8 +573,8 @@ class XAPIAN_VISIBILITY_DEFAULT Clusterer
      *  longer required.
      */
     Clusterer * release() {
-	opt_intrusive_base::release();
-	return this;
+        opt_intrusive_base::release();
+        return this;
     }
 
     /** Start reference counting this object.
@@ -585,8 +585,8 @@ class XAPIAN_VISIBILITY_DEFAULT Clusterer
      *  longer required.
      */
     const Clusterer * release() const {
-	opt_intrusive_base::release();
-	return this;
+        opt_intrusive_base::release();
+        return this;
     }
 };
 

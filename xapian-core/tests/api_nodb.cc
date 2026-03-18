@@ -46,18 +46,18 @@ DEFINE_TESTCASE(getqterms1, !backend) {
     answers_list.push_back("four");
 
     Xapian::Query myquery(Xapian::Query::OP_OR,
-	    Xapian::Query(Xapian::Query::OP_AND,
-		    Xapian::Query("one", 1, 1),
-		    Xapian::Query("three", 1, 3)),
-	    Xapian::Query(Xapian::Query::OP_OR,
-		    Xapian::Query("four", 1, 4),
-		    Xapian::Query("two", 1, 2)));
+            Xapian::Query(Xapian::Query::OP_AND,
+                    Xapian::Query("one", 1, 1),
+                    Xapian::Query("three", 1, 3)),
+            Xapian::Query(Xapian::Query::OP_OR,
+                    Xapian::Query("four", 1, 4),
+                    Xapian::Query("two", 1, 2)));
 
     list<string> list1;
     {
-	Xapian::TermIterator t;
-	for (t = myquery.get_terms_begin(); t != myquery.get_terms_end(); ++t)
-	    list1.push_back(*t);
+        Xapian::TermIterator t;
+        for (t = myquery.get_terms_begin(); t != myquery.get_terms_end(); ++t)
+            list1.push_back(*t);
     }
     TEST(list1 == answers_list);
     list<string> list2(myquery.get_terms_begin(), myquery.get_terms_end());
@@ -70,7 +70,7 @@ DEFINE_TESTCASE(getqterms2, !backend) {
     Xapian::Query empty_query;
     TEST_EQUAL(empty_query.get_terms_begin(), empty_query.get_terms_end());
     TEST_EQUAL(empty_query.get_unique_terms_begin(),
-	       empty_query.get_unique_terms_end());
+               empty_query.get_unique_terms_end());
 }
 
 // tests that empty queries work correctly
@@ -87,23 +87,23 @@ DEFINE_TESTCASE(emptyquery2, !backend) {
 /// Regression test for behaviour for an empty query with AND_NOT.
 DEFINE_TESTCASE(emptyquery3, !backend) {
     static const Xapian::Query::op ops[] = {
-	Xapian::Query::OP_AND,
-	Xapian::Query::OP_OR,
-	Xapian::Query::OP_XOR,
-	Xapian::Query::OP_AND_MAYBE,
-	Xapian::Query::OP_AND_NOT
+        Xapian::Query::OP_AND,
+        Xapian::Query::OP_OR,
+        Xapian::Query::OP_XOR,
+        Xapian::Query::OP_AND_MAYBE,
+        Xapian::Query::OP_AND_NOT
     };
 
     for (size_t i = 0; i < sizeof(ops) / sizeof(ops[0]); ++i) {
-	tout << "Testing op #" << i << '\n';
-	Xapian::Query empty;
-	Xapian::Query q("test");
-	Xapian::Query qcombine(ops[i], empty, q);
-	tout << qcombine.get_description() << '\n';
-	Xapian::Query qcombine2(ops[i], q, empty);
-	tout << qcombine2.get_description() << '\n';
-	Xapian::Query qcombine3(ops[i], empty, empty);
-	tout << qcombine3.get_description() << '\n';
+        tout << "Testing op #" << i << '\n';
+        Xapian::Query empty;
+        Xapian::Query q("test");
+        Xapian::Query qcombine(ops[i], empty, q);
+        tout << qcombine.get_description() << '\n';
+        Xapian::Query qcombine2(ops[i], q, empty);
+        tout << qcombine2.get_description() << '\n';
+        Xapian::Query qcombine3(ops[i], empty, empty);
+        tout << qcombine3.get_description() << '\n';
     }
 }
 
@@ -112,13 +112,13 @@ DEFINE_TESTCASE(querylen1, !backend) {
     // test that a simple query has the right length
     Xapian::Query myquery;
     myquery = Xapian::Query(Xapian::Query::OP_OR,
-		      Xapian::Query("foo"),
-		      Xapian::Query("bar"));
+                      Xapian::Query("foo"),
+                      Xapian::Query("bar"));
     myquery = Xapian::Query(Xapian::Query::OP_AND,
-		      myquery,
-		      Xapian::Query(Xapian::Query::OP_OR,
-			      Xapian::Query("wibble"),
-			      Xapian::Query("spoon")));
+                      myquery,
+                      Xapian::Query(Xapian::Query::OP_OR,
+                              Xapian::Query("wibble"),
+                              Xapian::Query("spoon")));
 
     TEST_EQUAL(myquery.get_length(), 4);
     TEST(!myquery.empty());
@@ -128,14 +128,14 @@ DEFINE_TESTCASE(querylen1, !backend) {
 DEFINE_TESTCASE(querylen2, !backend) {
     // test with an even bigger and strange query
     string terms[3] = {
-	"foo",
-	"bar",
-	"baz"
+        "foo",
+        "bar",
+        "baz"
     };
     Xapian::Query queries[3] = {
-	Xapian::Query("wibble"),
-	Xapian::Query("wobble"),
-	Xapian::Query(Xapian::Query::OP_OR, string("jelly"), string("belly"))
+        Xapian::Query("wibble"),
+        Xapian::Query("wobble"),
+        Xapian::Query(Xapian::Query::OP_OR, string("jelly"), string("belly"))
     };
 
     Xapian::Query myquery;
@@ -176,26 +176,26 @@ DEFINE_TESTCASE(querylen2, !backend) {
  */
 DEFINE_TESTCASE(dontflattensubqueries1, !backend) {
     Xapian::Query queries1[3] = {
-	Xapian::Query("wibble"),
-	Xapian::Query("wobble"),
-	Xapian::Query(Xapian::Query::OP_OR, string("jelly"), string("belly"))
+        Xapian::Query("wibble"),
+        Xapian::Query("wobble"),
+        Xapian::Query(Xapian::Query::OP_OR, string("jelly"), string("belly"))
     };
 
     Xapian::Query queries2[3] = {
-	Xapian::Query(Xapian::Query::OP_AND, string("jelly"), string("belly")),
-	Xapian::Query("wibble"),
-	Xapian::Query("wobble")
+        Xapian::Query(Xapian::Query::OP_AND, string("jelly"), string("belly")),
+        Xapian::Query("wibble"),
+        Xapian::Query("wobble")
     };
 
     vector<Xapian::Query> vec1(queries1, queries1 + 3);
     Xapian::Query myquery1(Xapian::Query::OP_OR, vec1.begin(), vec1.end());
     TEST_EQUAL(myquery1.get_description(),
-	       "Query((wibble OR wobble OR (jelly OR belly)))");
+               "Query((wibble OR wobble OR (jelly OR belly)))");
 
     vector<Xapian::Query> vec2(queries2, queries2 + 3);
     Xapian::Query myquery2(Xapian::Query::OP_AND, vec2.begin(), vec2.end());
     TEST_EQUAL(myquery2.get_description(),
-	       "Query(((jelly AND belly) AND wibble AND wobble))");
+               "Query(((jelly AND belly) AND wibble AND wobble))");
 }
 
 // test behaviour when creating a query from an empty vector
@@ -215,44 +215,44 @@ DEFINE_TESTCASE(stemlangs1, !backend) {
 
     // Also test the language codes.
     langs += " ar hy eu ca da nl en fi fr de hu id ga it lt ne nb nn no pt ro"
-	     " ru es sv ta tr";
+             " ru es sv ta tr";
 
     string::size_type i = 0;
     while (true) {
-	string::size_type spc = langs.find(' ', i);
-	// The only spaces in langs should be a single one between each pair
-	// of language names.
-	TEST_NOT_EQUAL(i, spc);
+        string::size_type spc = langs.find(' ', i);
+        // The only spaces in langs should be a single one between each pair
+        // of language names.
+        TEST_NOT_EQUAL(i, spc);
 
-	// Try making a stemmer for this language.  We should be able to create
-	// it without an exception being thrown.
-	string language(langs, i, spc - i);
-	tout << "checking language code '" << language << "' works\n";
-	Xapian::Stem stemmer(language);
-	TEST(!stemmer.is_none());
-	if (language.size() > 2) {
-	    string expected("Xapian::Stem(");
-	    expected += language;
-	    expected += ')';
-	    TEST_EQUAL(stemmer.get_description(), expected);
-	}
+        // Try making a stemmer for this language.  We should be able to create
+        // it without an exception being thrown.
+        string language(langs, i, spc - i);
+        tout << "checking language code '" << language << "' works\n";
+        Xapian::Stem stemmer(language);
+        TEST(!stemmer.is_none());
+        if (language.size() > 2) {
+            string expected("Xapian::Stem(");
+            expected += language;
+            expected += ')';
+            TEST_EQUAL(stemmer.get_description(), expected);
+        }
 
-	if (spc == string::npos) break;
-	i = spc + 1;
+        if (spc == string::npos) break;
+        i = spc + 1;
     }
 
     {
-	// Stem("none") should give a no-op stemmer.
-	Xapian::Stem stem_nothing = Xapian::Stem("none");
-	TEST(stem_nothing.is_none());
-	TEST_EQUAL(stem_nothing.get_description(), "Xapian::Stem(none)");
+        // Stem("none") should give a no-op stemmer.
+        Xapian::Stem stem_nothing = Xapian::Stem("none");
+        TEST(stem_nothing.is_none());
+        TEST_EQUAL(stem_nothing.get_description(), "Xapian::Stem(none)");
     }
 
     {
-	// Stem("") should be equivalent.
-	Xapian::Stem stem_nothing = Xapian::Stem("");
-	TEST(stem_nothing.is_none());
-	TEST_EQUAL(stem_nothing.get_description(), "Xapian::Stem(none)");
+        // Stem("") should be equivalent.
+        Xapian::Stem stem_nothing = Xapian::Stem("");
+        TEST(stem_nothing.is_none());
+        TEST_EQUAL(stem_nothing.get_description(), "Xapian::Stem(none)");
     }
 }
 
@@ -260,23 +260,23 @@ DEFINE_TESTCASE(stemlangs1, !backend) {
 DEFINE_TESTCASE(nosuchdb1, !backend) {
     // This is a "nodb" test because it doesn't test a particular backend.
     try {
-	Xapian::Database db("NOsuChdaTabASe");
-	FAIL_TEST("Managed to open 'NOsuChdaTabASe'");
+        Xapian::Database db("NOsuChdaTabASe");
+        FAIL_TEST("Managed to open 'NOsuChdaTabASe'");
     } catch (const Xapian::DatabaseOpeningError & e) {
-	// We don't really require this exact message, but in Xapian <= 1.1.0
-	// this gave "Couldn't detect type of database".
-	TEST_STRINGS_EQUAL(e.get_msg(), "Couldn't stat 'NOsuChdaTabASe'");
+        // We don't really require this exact message, but in Xapian <= 1.1.0
+        // this gave "Couldn't detect type of database".
+        TEST_STRINGS_EQUAL(e.get_msg(), "Couldn't stat 'NOsuChdaTabASe'");
     }
 
     try {
-	Xapian::Database::check("NOsuChdaTabASe");
-	FAIL_TEST("Managed to check 'NOsuChdaTabASe'");
+        Xapian::Database::check("NOsuChdaTabASe");
+        FAIL_TEST("Managed to check 'NOsuChdaTabASe'");
     } catch (const Xapian::DatabaseOpeningError & e) {
-	// In 1.4.3 and earlier, this threw DatabaseError with the message:
-	// "File is not a Xapian database or database table" (confusing as
-	// there is no file).
-	TEST_STRINGS_EQUAL(e.get_msg(),
-			   "Couldn't find Xapian database or table to check");
+        // In 1.4.3 and earlier, this threw DatabaseError with the message:
+        // "File is not a Xapian database or database table" (confusing as
+        // there is no file).
+        TEST_STRINGS_EQUAL(e.get_msg(),
+                           "Couldn't find Xapian database or table to check");
     }
 }
 

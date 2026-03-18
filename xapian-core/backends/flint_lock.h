@@ -46,20 +46,20 @@ class FlintLock {
 
   public:
     typedef enum {
-	SUCCESS, // We got the lock!
-	INUSE, // Already locked by someone else.
-	UNSUPPORTED, // Locking probably not supported (e.g. NFS without lockd).
-	FDLIMIT, // Process hit its file descriptor limit.
-	UNKNOWN // Locking failed for some unspecified reason (keep this last).
+        SUCCESS, // We got the lock!
+        INUSE, // Already locked by someone else.
+        UNSUPPORTED, // Locking probably not supported (e.g. NFS without lockd).
+        FDLIMIT, // Process hit its file descriptor limit.
+        UNKNOWN // Locking failed for some unspecified reason (keep this last).
     } reason;
 
     /** Standard constructor. */
     explicit FlintLock(const std::string &filename_)
-	: filename(filename_) {
-	// Keep the same lockfile name as flint since the locking is compatible
-	// and this avoids the possibility of creating two databases in the
-	// same directory using different backends.
-	filename += "/flintlock";
+        : filename(filename_) {
+        // Keep the same lockfile name as flint since the locking is compatible
+        // and this avoids the possibility of creating two databases in the
+        // same directory using different backends.
+        filename += "/flintlock";
     }
 
     /** Constructor for use in read-only cases (like single-file glass). */
@@ -67,9 +67,9 @@ class FlintLock {
 
     operator bool() const {
 #if defined __CYGWIN__ || defined __WIN32__
-	return hFile != INVALID_HANDLE_VALUE;
+        return hFile != INVALID_HANDLE_VALUE;
 #else
-	return fd != -1;
+        return fd != -1;
 #endif
     }
 
@@ -106,8 +106,8 @@ class FlintLock {
     /// Throw Xapian::DatabaseLockError.
     [[noreturn]]
     void throw_databaselockerror(FlintLock::reason why,
-				 const std::string & db_dir,
-				 const std::string & explanation) const;
+                                 const std::string & db_dir,
+                                 const std::string & explanation) const;
 };
 
 #endif // XAPIAN_INCLUDED_FLINT_LOCK_H

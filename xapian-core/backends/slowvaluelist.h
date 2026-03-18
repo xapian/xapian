@@ -53,7 +53,7 @@ class SlowValueList : public ValueList {
 
   public:
     SlowValueList(const Xapian::Database::Internal * db_, Xapian::valueno slot_)
-	: db(db_), last_docid(db_->get_lastdocid()), slot(slot_)
+        : db(db_), last_docid(db_->get_lastdocid()), slot(slot_)
     { }
 
     Xapian::docid get_docid() const;

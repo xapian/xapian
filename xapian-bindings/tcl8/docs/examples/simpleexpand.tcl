@@ -43,9 +43,9 @@ if {[catch {
     set sep [lsearch -exact $args "--"]
 
     if {$sep == -1} {
-	set sep [llength $args]
+        set sep [llength $args]
     } else {
-	incr sep -1
+        incr sep -1
     }
 
     set query_string [join [lrange $args 0 $sep]]
@@ -53,8 +53,8 @@ if {[catch {
     xapian::RSet rset
     incr sep 2
     foreach docid [lrange $args $sep end] {
-	puts "$sep $docid"
-	rset add_document $docid
+        puts "$sep $docid"
+        rset add_document $docid
     }
 
     xapian::QueryParser qp
@@ -73,22 +73,22 @@ if {[catch {
     puts "[$matches get_matches_estimated] results found:"
 
     for {set i [$matches begin]} {![$i equals [$matches end]]} {$i next} {
-	xapian::Document document [$i get_document]
-	set rank [expr [$i get_rank] + 1]
-	puts [format {%s: %s%% docid=%s [%s]} \
-	    $rank [$i get_percent] [$i get_docid] [document get_data]]
+        xapian::Document document [$i get_document]
+        set rank [expr [$i get_rank] + 1]
+        puts [format {%s: %s%% docid=%s [%s]} \
+            $rank [$i get_percent] [$i get_docid] [document get_data]]
     }
 
     # If no relevant docids were given, invent an RSet containing the top 5
     # matches (or all the matches if there are less than 5).
     if {[rset empty]} {
-	set c 5
-	set i [$matches begin]
-	while {$c > 0 && ![$i equals [$matches end]]} {
-	    rset add_document [$i get_docid]
-	    $i next
-	    incr c -1
-	}
+        set c 5
+        set i [$matches begin]
+        while {$c > 0 && ![$i equals [$matches end]]} {
+            rset add_document [$i get_docid]
+            $i next
+            incr c -1
+        }
     }
 
     # Generate an ESet containing terms that the user might want to add to
@@ -97,7 +97,7 @@ if {[catch {
 
     # List the terms.
     for {set t [eset begin]} {![$t equals [eset end]]} {$t next} {
-	puts [format {%s: weight = %f} [$t get_term] [$t get_weight]]
+        puts [format {%s: weight = %f} [$t get_term] [$t get_weight]]
     }
 } exception]} {
     puts stderr "Exception: $errorCode $exception"

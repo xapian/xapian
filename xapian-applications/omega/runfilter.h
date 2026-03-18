@@ -31,10 +31,10 @@ struct ReadError {
     explicit ReadError(const char * m) : msg(m) { }
     explicit ReadError(int s) : status(s) { }
     std::string str() const {
-	if (msg) return msg;
-	char buf[32];
-	std::snprintf(buf, sizeof(buf), "0x%08x", status);
-	return buf;
+        if (msg) return msg;
+        char buf[32];
+        std::snprintf(buf, sizeof(buf), "0x%08x", status);
+        return buf;
     }
 };
 
@@ -67,9 +67,9 @@ void runfilter_init();
  *  other than 0 or alt_status) then ReadError is thrown.
  */
 void run_filter(int fd_in,
-		const char* const cmd[],
-		std::string* out = nullptr,
-		int alt_status = 0);
+                const char* const cmd[],
+                std::string* out = nullptr,
+                int alt_status = 0);
 
 /** Run command @a cmd, optionally capturing its stdout.
  *
@@ -112,24 +112,24 @@ void run_filter(int fd_in,
  *  other than 0 or alt_status) then ReadError is thrown.
  */
 void run_filter(int fd_in,
-		const std::string& cmd,
-		bool use_shell,
-		std::string* out = nullptr,
-		int alt_status = 0);
+                const std::string& cmd,
+                bool use_shell,
+                std::string* out = nullptr,
+                int alt_status = 0);
 
 static inline void
 run_filter(const char* const cmd[],
-	   std::string* out = nullptr,
-	   int alt_status = 0)
+           std::string* out = nullptr,
+           int alt_status = 0)
 {
     run_filter(-1, cmd, out, alt_status);
 }
 
 static inline void
 run_filter(const std::string& cmd,
-	   bool use_shell,
-	   std::string* out = nullptr,
-	   int alt_status = 0)
+           bool use_shell,
+           std::string* out = nullptr,
+           int alt_status = 0)
 {
     run_filter(-1, cmd, use_shell, out, alt_status);
 }

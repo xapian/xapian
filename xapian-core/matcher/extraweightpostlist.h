@@ -45,20 +45,20 @@ class ExtraWeightPostList : public WrapperPostList {
 
   public:
     ExtraWeightPostList(PostList* pl_,
-			Xapian::Weight* weight_,
-			PostListTree* pltree_)
-	: WrapperPostList(pl_),
-	  weight(weight_),
-	  pltree(pltree_),
-	  max_extra(weight->get_maxextra()) {}
+                        Xapian::Weight* weight_,
+                        PostListTree* pltree_)
+        : WrapperPostList(pl_),
+          weight(weight_),
+          pltree(pltree_),
+          max_extra(weight->get_maxextra()) {}
 
     ~ExtraWeightPostList() {
-	delete weight;
+        delete weight;
     }
 
     double get_weight(Xapian::termcount doclen,
-		      Xapian::termcount unique_terms,
-		      Xapian::termcount wdfdocmax) const;
+                      Xapian::termcount unique_terms,
+                      Xapian::termcount wdfdocmax) const;
 
     double recalc_maxweight();
 

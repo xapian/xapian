@@ -52,7 +52,7 @@ invalid_operation(const char* msg)
 
 void
 BackendManager::index_files_to_database(Xapian::WritableDatabase & database,
-					const vector<string> & files)
+                                        const vector<string> & files)
 {
     FileIndexer(datadir, files).index_to(database);
 }
@@ -65,19 +65,19 @@ bool
 BackendManager::create_dir_if_needed(const string &dirname)
 {
     if (mkdir(dirname.c_str(), 0700) == 0) {
-	return true;
+        return true;
     }
 
     int mkdir_errno = errno;
     if (mkdir_errno == EEXIST) {
-	// Something exists at dirname, but we need to check if it is a directory.
-	if (dir_exists(dirname)) {
-	    return false;
-	}
+        // Something exists at dirname, but we need to check if it is a directory.
+        if (dir_exists(dirname)) {
+            return false;
+        }
     }
 
     throw Xapian::DatabaseOpeningError("Failed to create directory",
-				       mkdir_errno);
+                                       mkdir_errno);
 }
 
 BackendManager::~BackendManager() { }
@@ -108,30 +108,30 @@ BackendManager::get_database(const string & file)
 
 Xapian::Database
 BackendManager::get_database(const std::string &dbname,
-			     void (*gen)(Xapian::WritableDatabase&,
-					 const std::string &),
-			     const std::string &arg)
+                             void (*gen)(Xapian::WritableDatabase&,
+                                         const std::string &),
+                             const std::string &arg)
 {
     string dbleaf = "db__";
     dbleaf += dbname;
     const string& path = get_generated_database_path(dbleaf);
     if (path.empty()) {
-	// InMemory doesn't have a path but we want to support generated
-	// databases for it.
-	Xapian::WritableDatabase wdb = get_writable_database(path, path);
-	gen(wdb, arg);
-	// This cast avoids a -Wreturn-std-move warning from older clang (seen
-	// with clang 8 and 11; not seen with clang 13).  We can't address this
-	// by adding the suggested std::move() because GCC 13 -Wredundant-move
-	// then warns that the std::move() is redundant!
-	return static_cast<Xapian::Database>(wdb);
+        // InMemory doesn't have a path but we want to support generated
+        // databases for it.
+        Xapian::WritableDatabase wdb = get_writable_database(path, path);
+        gen(wdb, arg);
+        // This cast avoids a -Wreturn-std-move warning from older clang (seen
+        // with clang 8 and 11; not seen with clang 13).  We can't address this
+        // by adding the suggested std::move() because GCC 13 -Wredundant-move
+        // then warns that the std::move() is redundant!
+        return static_cast<Xapian::Database>(wdb);
     }
 
     if (path_exists(path)) {
-	try {
-	    return get_database_by_path(path);
-	} catch (const Xapian::DatabaseOpeningError &) {
-	}
+        try {
+            return get_database_by_path(path);
+        } catch (const Xapian::DatabaseOpeningError &) {
+        }
     }
     rm_rf(path);
 
@@ -141,8 +141,8 @@ BackendManager::get_database(const std::string &dbname,
     tmp_path += '~';
 
     {
-	Xapian::WritableDatabase wdb = get_generated_database(tmp_dbleaf);
-	gen(wdb, arg);
+        Xapian::WritableDatabase wdb = get_generated_database(tmp_dbleaf);
+        gen(wdb, arg);
     }
     finalise_generated_database(tmp_dbleaf);
     rename(tmp_path.c_str(), path.c_str());
@@ -154,19 +154,19 @@ BackendManager::get_database(const std::string &dbname,
 
 std::string
 BackendManager::get_database_path(const std::string &dbname,
-				  void (*gen)(Xapian::WritableDatabase&,
-					      const std::string &),
-				  const std::string &arg)
+                                  void (*gen)(Xapian::WritableDatabase&,
+                                              const std::string &),
+                                  const std::string &arg)
 {
     string dbleaf = "db__";
     dbleaf += dbname;
     const string& path = get_generated_database_path(dbleaf);
     if (path_exists(path)) {
-	try {
-	    (void)Xapian::Database(path);
-	    return path;
-	} catch (const Xapian::DatabaseOpeningError &) {
-	}
+        try {
+            (void)Xapian::Database(path);
+            return path;
+        } catch (const Xapian::DatabaseOpeningError &) {
+        }
     }
     rm_rf(path);
 
@@ -176,8 +176,8 @@ BackendManager::get_database_path(const std::string &dbname,
     tmp_path += '~';
 
     {
-	Xapian::WritableDatabase wdb = get_generated_database(tmp_dbleaf);
-	gen(wdb, arg);
+        Xapian::WritableDatabase wdb = get_generated_database(tmp_dbleaf);
+        gen(wdb, arg);
     }
     finalise_generated_database(tmp_dbleaf);
     rename(tmp_path.c_str(), path.c_str());
@@ -213,7 +213,7 @@ Xapian::WritableDatabase
 BackendManager::get_remote_writable_database(string)
 {
     string msg = "BackendManager::get_remote_writable_database() "
-		 "called for non-remote database (type is ";
+                 "called for non-remote database (type is ";
     msg += get_dbtype();
     msg += ')';
     throw Xapian::InvalidOperationError(msg);
@@ -241,7 +241,7 @@ string
 BackendManager::get_generated_database_path(const std::string &)
 {
     invalid_operation("Generated databases aren't supported for this database "
-		      "type");
+                      "type");
 }
 
 void
@@ -250,11 +250,11 @@ BackendManager::finalise_generated_database(const std::string&)
 
 Xapian::Database
 BackendManager::get_remote_database(const vector<string>&,
-				    unsigned int,
-				    int*)
+                                    unsigned int,
+                                    int*)
 {
     string msg = "BackendManager::get_remote_database() called for non-remote "
-		 "database (type is ";
+                 "database (type is ";
     msg += get_dbtype();
     msg += ')';
     throw Xapian::InvalidOperationError(msg);
@@ -262,10 +262,10 @@ BackendManager::get_remote_database(const vector<string>&,
 
 string
 BackendManager::get_writable_database_args(const std::string&,
-					   unsigned int)
+                                           unsigned int)
 {
     string msg = "BackendManager::get_writable_database_args() "
-		 "called for non-remote database (type is ";
+                 "called for non-remote database (type is ";
     msg += get_dbtype();
     msg += ')';
     throw Xapian::InvalidOperationError(msg);
@@ -304,7 +304,7 @@ void
 BackendManager::kill_remote(const Xapian::Database&)
 {
     throw Xapian::InvalidOperationError("kill_remote() only supported for "
-					"remotetcp databases");
+                                        "remotetcp databases");
 }
 
 const char *
@@ -312,7 +312,7 @@ BackendManager::get_xapian_progsrv_command()
 {
 #ifdef HAVE_VALGRIND
     if (RUNNING_ON_VALGRIND) {
-	return "./runsrv " XAPIAN_PROGSRV;
+        return "./runsrv " XAPIAN_PROGSRV;
     }
 #endif
     return XAPIAN_PROGSRV;

@@ -81,8 +81,8 @@ class XAPIAN_VISIBILITY_DEFAULT Stem {
 
     /// Assignment.
     Stem& operator=(const Stem& o) {
-	internal = o.internal;
-	return *this;
+        internal = o.internal;
+        return *this;
     }
 
     /// Move constructor.
@@ -185,8 +185,8 @@ class XAPIAN_VISIBILITY_DEFAULT Stem {
      *  @return		the stem
      */
     std::string operator()(const std::string& word) const {
-	if (!internal || word.empty()) return word;
-	return internal->operator()(word);
+        if (!internal || word.empty()) return word;
+        return internal->operator()(word);
     }
 
     /// Return true if this is a no-op stemmer.
@@ -206,9 +206,9 @@ class XAPIAN_VISIBILITY_DEFAULT Stem {
      *  required for this operation.
      */
     static std::string get_available_languages() {
-	const struct Xapian::Internal::constinfo * info =
-	    Xapian::Internal::get_constinfo_();
-	return std::string(info->stemmer_data, info->stemmer_name_len);
+        const struct Xapian::Internal::constinfo * info =
+            Xapian::Internal::get_constinfo_();
+        return std::string(info->stemmer_data, info->stemmer_name_len);
     }
 };
 

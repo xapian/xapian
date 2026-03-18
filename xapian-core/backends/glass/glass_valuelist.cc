@@ -77,19 +77,19 @@ void
 GlassValueList::next()
 {
     if (!cursor) {
-	cursor = db->get_postlist_cursor();
-	if (!cursor) return;
-	cursor->find_entry_ge(make_valuechunk_key(slot, 1));
+        cursor = db->get_postlist_cursor();
+        if (!cursor) return;
+        cursor->find_entry_ge(make_valuechunk_key(slot, 1));
     } else if (!reader.at_end()) {
-	reader.next();
-	if (!reader.at_end()) return;
-	cursor->next();
+        reader.next();
+        if (!reader.at_end()) return;
+        cursor->next();
     }
 
     if (!cursor->after_end()) {
-	if (update_reader()) {
-	    if (!reader.at_end()) return;
-	}
+        if (update_reader()) {
+            if (!reader.at_end()) return;
+        }
     }
 
     // We've reached the end.
@@ -101,27 +101,27 @@ void
 GlassValueList::skip_to(Xapian::docid did)
 {
     if (!cursor) {
-	cursor = db->get_postlist_cursor();
-	if (!cursor) return;
+        cursor = db->get_postlist_cursor();
+        if (!cursor) return;
     } else if (!reader.at_end()) {
-	reader.skip_to(did);
-	if (!reader.at_end()) return;
+        reader.skip_to(did);
+        if (!reader.at_end()) return;
     }
 
     if (!cursor->find_entry(make_valuechunk_key(slot, did))) {
-	if (update_reader()) {
-	    reader.skip_to(did);
-	    if (!reader.at_end()) return;
-	}
-	// The requested docid is between two chunks.
-	cursor->next();
+        if (update_reader()) {
+            reader.skip_to(did);
+            if (!reader.at_end()) return;
+        }
+        // The requested docid is between two chunks.
+        cursor->next();
     }
 
     // Either an exact match, or in a gap before the start of a chunk.
     if (!cursor->after_end()) {
-	if (update_reader()) {
-	    if (!reader.at_end()) return;
-	}
+        if (update_reader()) {
+            if (!reader.at_end()) return;
+        }
     }
 
     // We've reached the end.
@@ -133,30 +133,30 @@ bool
 GlassValueList::check(Xapian::docid did)
 {
     if (!cursor) {
-	cursor = db->get_postlist_cursor();
-	if (!cursor) return true;
+        cursor = db->get_postlist_cursor();
+        if (!cursor) return true;
     } else if (!reader.at_end()) {
-	// Check for the requested docid in the current block.
-	reader.skip_to(did);
-	if (!reader.at_end()) return true;
+        // Check for the requested docid in the current block.
+        reader.skip_to(did);
+        if (!reader.at_end()) return true;
     }
 
     // Try moving to the appropriate chunk.
     if (!cursor->find_entry(make_valuechunk_key(slot, did))) {
-	// We're in a chunk which might contain the docid.
-	if (update_reader()) {
-	    reader.skip_to(did);
-	    if (!reader.at_end()) return true;
-	}
-	return false;
+        // We're in a chunk which might contain the docid.
+        if (update_reader()) {
+            reader.skip_to(did);
+            if (!reader.at_end()) return true;
+        }
+        return false;
     }
 
     // We had an exact match for a chunk starting with specified docid.
     Assert(!cursor->after_end());
     if (!update_reader()) {
-	// We found the exact key we built, so it must match the slot.
-	// Therefore update_reader() "can't possibly fail".
-	Assert(false);
+        // We found the exact key we built, so it must match the slot.
+        // Therefore update_reader() "can't possibly fail".
+        Assert(false);
     }
 
     return true;

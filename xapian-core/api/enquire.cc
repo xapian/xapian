@@ -112,7 +112,7 @@ void
 Enquire::set_sort_by_key(KeyMaker* sorter, bool reverse)
 {
     if (sorter == NULL) {
-	throw_invalid_arg("Enquire::set_sort_by_key(): sorter cannot be NULL");
+        throw_invalid_arg("Enquire::set_sort_by_key(): sorter cannot be NULL");
     }
     internal->sort_by = Internal::VAL;
     internal->sort_functor = sorter;
@@ -132,8 +132,8 @@ void
 Enquire::set_sort_by_key_then_relevance(KeyMaker* sorter, bool reverse)
 {
     if (sorter == NULL) {
-	throw_invalid_arg("Enquire::set_sort_by_key_then_relevance(): "
-			  "sorter cannot be NULL");
+        throw_invalid_arg("Enquire::set_sort_by_key_then_relevance(): "
+                          "sorter cannot be NULL");
     }
     internal->sort_by = Internal::VAL_REL;
     internal->sort_functor = sorter;
@@ -153,8 +153,8 @@ void
 Enquire::set_sort_by_relevance_then_key(KeyMaker* sorter, bool reverse)
 {
     if (sorter == NULL) {
-	throw_invalid_arg("Enquire::set_sort_by_relevance_then_key(): "
-			  "sorter cannot be NULL");
+        throw_invalid_arg("Enquire::set_sort_by_relevance_then_key(): "
+                          "sorter cannot be NULL");
     }
     internal->sort_by = Internal::REL_VAL;
     internal->sort_functor = sorter;
@@ -180,7 +180,7 @@ Enquire::add_matchspy(MatchSpy* spy)
 {
     using Xapian::Internal::opt_intrusive_ptr;
     if (spy == NULL)
-	throw_invalid_arg("Enquire::add_matchspy(): spy cannot be NULL");
+        throw_invalid_arg("Enquire::add_matchspy(): spy cannot be NULL");
     internal->matchspies.push_back(opt_intrusive_ptr<MatchSpy>(spy));
 }
 
@@ -198,10 +198,10 @@ Enquire::set_time_limit(double time_limit)
 
 MSet
 Enquire::get_mset(doccount first,
-		  doccount maxitems,
-		  doccount checkatleast,
-		  const RSet* rset,
-		  const MatchDecider* mdecider) const
+                  doccount maxitems,
+                  doccount checkatleast,
+                  const RSet* rset,
+                  const MatchDecider* mdecider) const
 {
     return internal->get_mset(first, maxitems, checkatleast, rset, mdecider);
 }
@@ -214,25 +214,25 @@ Enquire::get_matching_terms_begin(docid did) const
 
 void
 Enquire::set_expansion_scheme(std::string_view eweightname,
-			      double expand_k) const
+                              double expand_k) const
 {
     if (eweightname == "bo1") {
-	internal->eweight = Enquire::Internal::EXPAND_BO1;
+        internal->eweight = Enquire::Internal::EXPAND_BO1;
     } else if (eweightname == "prob" || eweightname == "trad") {
-	internal->eweight = Enquire::Internal::EXPAND_PROB;
+        internal->eweight = Enquire::Internal::EXPAND_PROB;
     } else {
-	throw_invalid_arg("Enquire::set_expansion_scheme(): eweightname must "
-			  "be 'bo1', 'prob' or 'trad'");
+        throw_invalid_arg("Enquire::set_expansion_scheme(): eweightname must "
+                          "be 'bo1', 'prob' or 'trad'");
     }
     internal->expand_k = expand_k;
 }
 
 ESet
 Enquire::get_eset(termcount maxitems,
-		  const RSet& rset,
-		  int flags,
-		  const ExpandDecider* edecider,
-		  double min_weight) const
+                  const RSet& rset,
+                  int flags,
+                  const ExpandDecider* edecider,
+                  double min_weight) const
 {
     return internal->get_eset(maxitems, rset, flags, edecider, min_weight);
 }
@@ -243,8 +243,8 @@ Enquire::get_description() const
     string desc = "Enquire(db=";
     desc += internal->db.get_description();
     if (!internal->query.empty()) {
-	desc += ", query=";
-	desc += internal->query.get_description();
+        desc += ", query=";
+        desc += internal->query.get_description();
     }
     desc += ')';
     return desc;
@@ -255,86 +255,86 @@ Enquire::Internal::Internal(const Database& db_)
 
 MSet
 Enquire::Internal::get_mset(doccount first,
-			    doccount maxitems,
-			    doccount checkatleast,
-			    const RSet* rset,
-			    const MatchDecider* mdecider) const
+                            doccount maxitems,
+                            doccount checkatleast,
+                            const RSet* rset,
+                            const MatchDecider* mdecider) const
 {
     if (query.empty()) {
-	MSet mset;
-	mset.internal->set_first(first);
-	return mset;
+        MSet mset;
+        mset.internal->set_first(first);
+        return mset;
     }
 
     if (percent_threshold && (sort_by == VAL || sort_by == VAL_REL)) {
-	throw Xapian::UnimplementedError("Use of a percentage cutoff while "
-					 "sorting primary by value isn't "
-					 "currently supported");
+        throw Xapian::UnimplementedError("Use of a percentage cutoff while "
+                                         "sorting primary by value isn't "
+                                         "currently supported");
     }
 
     // Lazily initialise weight to its default if necessary.
     if (!weight)
-	weight.reset(new BM25Weight);
+        weight.reset(new BM25Weight);
 
     // Lazily initialise query_length if it wasn't explicitly specified.
     if (query_length == 0) {
-	query_length = query.get_length();
+        query_length = query.get_length();
     }
 
     Xapian::doccount first_orig = first;
     {
-	Xapian::doccount docs = db.get_doccount();
-	first = min(first, docs);
-	maxitems = min(maxitems, docs - first);
-	checkatleast = min(checkatleast, docs);
-	checkatleast = max(checkatleast, first + maxitems);
+        Xapian::doccount docs = db.get_doccount();
+        first = min(first, docs);
+        maxitems = min(maxitems, docs - first);
+        checkatleast = min(checkatleast, docs);
+        checkatleast = max(checkatleast, first + maxitems);
     }
 
     unique_ptr<Xapian::Weight::Internal> stats(new Xapian::Weight::Internal);
     ::Matcher match(db,
-		    query,
-		    query_length,
-		    rset,
-		    *stats,
-		    *weight,
-		    (mdecider != NULL),
-		    collapse_key,
-		    collapse_max,
-		    percent_threshold,
-		    weight_threshold,
-		    order,
-		    sort_key,
-		    sort_by,
-		    sort_val_reverse,
-		    time_limit,
-		    matchspies);
+                    query,
+                    query_length,
+                    rset,
+                    *stats,
+                    *weight,
+                    (mdecider != NULL),
+                    collapse_key,
+                    collapse_max,
+                    percent_threshold,
+                    weight_threshold,
+                    order,
+                    sort_key,
+                    sort_by,
+                    sort_val_reverse,
+                    time_limit,
+                    matchspies);
 
     MSet mset = match.get_mset(first,
-			       maxitems,
-			       checkatleast,
-			       *stats,
-			       *weight,
-			       mdecider,
-			       sort_functor.get(),
-			       collapse_key,
-			       collapse_max,
-			       percent_threshold,
-			       weight_threshold,
-			       order,
-			       sort_key,
-			       sort_by,
-			       sort_val_reverse,
-			       time_limit,
-			       matchspies);
+                               maxitems,
+                               checkatleast,
+                               *stats,
+                               *weight,
+                               mdecider,
+                               sort_functor.get(),
+                               collapse_key,
+                               collapse_max,
+                               percent_threshold,
+                               weight_threshold,
+                               order,
+                               sort_key,
+                               sort_by,
+                               sort_val_reverse,
+                               time_limit,
+                               matchspies);
 
     if (first_orig != first) {
-	mset.internal->set_first(first_orig);
+        mset.internal->set_first(first_orig);
     }
 
     mset.internal->set_enquire(this);
 
     if (!mset.internal->get_stats()) {
-	mset.internal->set_stats(stats.release());
+        mset.internal->set_stats(stats.release());
     }
 
     return mset;
@@ -344,31 +344,31 @@ TermIterator
 Enquire::Internal::get_matching_terms_begin(docid did) const
 {
     if (query.empty())
-	return TermIterator();
+        return TermIterator();
 
     struct term_and_pos {
-	string term;
-	Xapian::termpos pos;
+        string term;
+        Xapian::termpos pos;
 
-	term_and_pos(const string& term_, Xapian::termpos pos_)
-	    : term(term_), pos(pos_) {}
+        term_and_pos(const string& term_, Xapian::termpos pos_)
+            : term(term_), pos(pos_) {}
     };
 
     vector<term_and_pos> query_terms;
     Xapian::termpos pos = 1;
     for (auto t = query.get_terms_begin(); t != query.get_terms_end(); ++t) {
-	query_terms.emplace_back(*t, pos++);
+        query_terms.emplace_back(*t, pos++);
     }
 
     if (query_terms.empty())
-	return TermIterator();
+        return TermIterator();
 
     // Reorder by term, secondary sort by position.
     sort(query_terms.begin(), query_terms.end(),
-	 [](const term_and_pos& a, const term_and_pos& b) {
-	     int cmp = a.term.compare(b.term);
-	     return cmp ? cmp < 0 : a.pos < b.pos;
-	 });
+         [](const term_and_pos& a, const term_and_pos& b) {
+             int cmp = a.term.compare(b.term);
+             return cmp ? cmp < 0 : a.pos < b.pos;
+         });
 
     // Loop through the query terms, skipping the document terms for each to
     // see which match, and shuffling down the matching ones.  Also discard
@@ -376,20 +376,20 @@ Enquire::Internal::get_matching_terms_begin(docid did) const
     size_t i = 0, j = 0;
     auto t = db.termlist_begin(did);
     do {
-	const string& term = query_terms[i].term;
-	if (j == 0 || term != query_terms[j - 1].term) {
-	    t.skip_to(term);
-	    if (t == db.termlist_end(did)) {
-		break;
-	    }
+        const string& term = query_terms[i].term;
+        if (j == 0 || term != query_terms[j - 1].term) {
+            t.skip_to(term);
+            if (t == db.termlist_end(did)) {
+                break;
+            }
 
-	    if (*t == term) {
-		// Matched, so move down if necessary.
-		if (i != j)
-		    query_terms[j] = std::move(query_terms[i]);
-		++j;
-	    }
-	}
+            if (*t == term) {
+                // Matched, so move down if necessary.
+                if (i != j)
+                    query_terms[j] = std::move(query_terms[i]);
+                ++j;
+            }
+        }
     } while (++i != query_terms.size());
 
     // Truncate to leave just the matching terms.
@@ -397,45 +397,45 @@ Enquire::Internal::get_matching_terms_begin(docid did) const
 
     // Reorder by ascending query position.
     sort(query_terms.begin(), query_terms.end(),
-	 [](const term_and_pos& a, const term_and_pos& b) {
-	     return a.pos < b.pos;
-	 });
+         [](const term_and_pos& a, const term_and_pos& b) {
+             return a.pos < b.pos;
+         });
 
     // Iterator adaptor to present query_terms as a container of just strings.
     struct Itor {
-	vector<term_and_pos>::const_iterator it;
+        vector<term_and_pos>::const_iterator it;
 
-	explicit
-	Itor(vector<term_and_pos>::const_iterator it_) : it(it_) {}
+        explicit
+        Itor(vector<term_and_pos>::const_iterator it_) : it(it_) {}
 
-	const std::string& operator*() const {
-	    return it->term;
-	}
+        const std::string& operator*() const {
+            return it->term;
+        }
 
-	Itor& operator++() {
-	    ++it;
-	    return *this;
-	}
+        Itor& operator++() {
+            ++it;
+            return *this;
+        }
 
-	Itor operator++(int) {
-	    Itor retval = *this;
-	    ++it;
-	    return retval;
-	}
+        Itor operator++(int) {
+            Itor retval = *this;
+            ++it;
+            return retval;
+        }
 
-	bool operator!=(const Itor& o) { return it != o.it; }
+        bool operator!=(const Itor& o) { return it != o.it; }
     };
 
     return TermIterator(new VectorTermList(Itor(query_terms.cbegin()),
-					   Itor(query_terms.cend())));
+                                           Itor(query_terms.cend())));
 }
 
 ESet
 Enquire::Internal::get_eset(termcount maxitems,
-			    const RSet& rset,
-			    int flags,
-			    const ExpandDecider* edecider_,
-			    double min_weight) const
+                            const RSet& rset,
+                            int flags,
+                            const ExpandDecider* edecider_,
+                            double min_weight) const
 {
     using Xapian::Internal::opt_intrusive_ptr;
     opt_intrusive_ptr<const ExpandDecider> edecider(edecider_);
@@ -443,37 +443,37 @@ Enquire::Internal::get_eset(termcount maxitems,
     Xapian::ESet eset;
 
     if (maxitems == 0 || rset.empty()) {
-	// Either we were asked for no results, or wouldn't produce any
-	// because no documents were marked as relevant.
-	return eset;
+        // Either we were asked for no results, or wouldn't produce any
+        // because no documents were marked as relevant.
+        return eset;
     }
 
     // Excluding query terms is a no-op without a query.
     if ((flags & Enquire::INCLUDE_QUERY_TERMS) == 0 && !query.empty()) {
-	auto edft = new ExpandDeciderFilterTerms(query.get_terms_begin(),
-						 query.get_terms_end());
-	if (!edecider) {
-	    edecider = edft->release();
-	} else {
-	    // Make sure ExpandDeciderFilterTerms doesn't leak if new throws.
-	    opt_intrusive_ptr<const ExpandDecider> ptr(edft->release());
-	    edecider = (new ExpandDeciderAnd(ptr.get(),
-					     edecider.get()))->release();
-	}
+        auto edft = new ExpandDeciderFilterTerms(query.get_terms_begin(),
+                                                 query.get_terms_end());
+        if (!edecider) {
+            edecider = edft->release();
+        } else {
+            // Make sure ExpandDeciderFilterTerms doesn't leak if new throws.
+            opt_intrusive_ptr<const ExpandDecider> ptr(edft->release());
+            edecider = (new ExpandDeciderAnd(ptr.get(),
+                                             edecider.get()))->release();
+        }
     }
 
     bool use_exact_termfreq = flags & Enquire::USE_EXACT_TERMFREQ;
     if (eweight == Enquire::Internal::EXPAND_BO1) {
-	using Xapian::Internal::Bo1EWeight;
-	Bo1EWeight bo1eweight(db, rset.size(), use_exact_termfreq);
-	eset.internal->expand(maxitems, db, rset, edecider.get(), bo1eweight,
-			      min_weight);
+        using Xapian::Internal::Bo1EWeight;
+        Bo1EWeight bo1eweight(db, rset.size(), use_exact_termfreq);
+        eset.internal->expand(maxitems, db, rset, edecider.get(), bo1eweight,
+                              min_weight);
     } else {
-	AssertEq(eweight, Enquire::Internal::EXPAND_PROB);
-	using Xapian::Internal::ProbEWeight;
-	ProbEWeight probeweight(db, rset.size(), use_exact_termfreq, expand_k);
-	eset.internal->expand(maxitems, db, rset, edecider.get(), probeweight,
-			      min_weight);
+        AssertEq(eweight, Enquire::Internal::EXPAND_PROB);
+        using Xapian::Internal::ProbEWeight;
+        ProbEWeight probeweight(db, rset.size(), use_exact_termfreq, expand_k);
+        eset.internal->expand(maxitems, db, rset, edecider.get(), probeweight,
+                              min_weight);
     }
 
     return eset;

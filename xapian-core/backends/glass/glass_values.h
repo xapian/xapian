@@ -55,12 +55,12 @@ docid_from_key(Xapian::valueno required_slot, const std::string & key)
     if (end - p < 2 || *p++ != '\0' || *p++ != '\xd8') return 0;
     Xapian::valueno slot;
     if (!unpack_uint(&p, end, &slot))
-	throw Xapian::DatabaseCorruptError("bad value key");
+        throw Xapian::DatabaseCorruptError("bad value key");
     // Fail if for a different slot.
     if (slot != required_slot) return 0;
     Xapian::docid did;
     if (!unpack_uint_preserving_sort(&p, end, &did))
-	throw Xapian::DatabaseCorruptError("bad value key");
+        throw Xapian::DatabaseCorruptError("bad value key");
     return did;
 }
 
@@ -96,13 +96,13 @@ class GlassValueManager {
     mutable std::unique_ptr<GlassCursor> cursor;
 
     void add_value(Xapian::docid did, Xapian::valueno slot,
-		   const std::string & val);
+                   const std::string & val);
 
     void remove_value(Xapian::docid did, Xapian::valueno slot);
 
     Xapian::docid get_chunk_containing_did(Xapian::valueno slot,
-					   Xapian::docid did,
-					   std::string &chunk) const;
+                                           Xapian::docid did,
+                                           std::string &chunk) const;
 
     /** Get the statistics for value slot @a slot. */
     void get_value_stats(Xapian::valueno slot) const;
@@ -112,41 +112,41 @@ class GlassValueManager {
   public:
     /** Create a new GlassValueManager object. */
     GlassValueManager(GlassPostListTable * postlist_table_,
-		      GlassTermListTable * termlist_table_)
-	: mru_slot(Xapian::BAD_VALUENO),
-	  postlist_table(postlist_table_),
-	  termlist_table(termlist_table_) { }
+                      GlassTermListTable * termlist_table_)
+        : mru_slot(Xapian::BAD_VALUENO),
+          postlist_table(postlist_table_),
+          termlist_table(termlist_table_) { }
 
     // Merge in batched-up changes.
     void merge_changes();
 
     void add_document(Xapian::docid did, const Xapian::Document &doc,
-		      std::map<Xapian::valueno, ValueStats> & value_stats);
+                      std::map<Xapian::valueno, ValueStats> & value_stats);
 
     void delete_document(Xapian::docid did,
-			 std::map<Xapian::valueno, ValueStats> & value_stats);
+                         std::map<Xapian::valueno, ValueStats> & value_stats);
 
     void replace_document(Xapian::docid did, const Xapian::Document &doc,
-			  std::map<Xapian::valueno, ValueStats> & value_stats);
+                          std::map<Xapian::valueno, ValueStats> & value_stats);
 
     std::string get_value(Xapian::docid did, Xapian::valueno slot) const;
 
     void get_all_values(std::map<Xapian::valueno, std::string> & values,
-			Xapian::docid did) const;
+                        Xapian::docid did) const;
 
     Xapian::doccount get_value_freq(Xapian::valueno slot) const {
-	if (mru_slot != slot) get_value_stats(slot);
-	return mru_valstats.freq;
+        if (mru_slot != slot) get_value_stats(slot);
+        return mru_valstats.freq;
     }
 
     std::string get_value_lower_bound(Xapian::valueno slot) const {
-	if (mru_slot != slot) get_value_stats(slot);
-	return mru_valstats.lower_bound;
+        if (mru_slot != slot) get_value_stats(slot);
+        return mru_valstats.lower_bound;
     }
 
     std::string get_value_upper_bound(Xapian::valueno slot) const {
-	if (mru_slot != slot) get_value_stats(slot);
-	return mru_valstats.upper_bound;
+        if (mru_slot != slot) get_value_stats(slot);
+        return mru_valstats.upper_bound;
     }
 
     /** Write the updated statistics to the table.
@@ -159,19 +159,19 @@ class GlassValueManager {
     void set_value_stats(std::map<Xapian::valueno, ValueStats> & value_stats);
 
     void reset() {
-	/// Ignore any old cached valuestats.
-	mru_slot = Xapian::BAD_VALUENO;
+        /// Ignore any old cached valuestats.
+        mru_slot = Xapian::BAD_VALUENO;
     }
 
     bool is_modified() const {
-	return !changes.empty();
+        return !changes.empty();
     }
 
     void cancel() {
-	// Discard batched-up changes.
-	slots.clear();
-	changes.clear();
-	reset();
+        // Discard batched-up changes.
+        slots.clear();
+        changes.clear();
+        reset();
     }
 };
 
@@ -190,7 +190,7 @@ class ValueChunkReader {
     ValueChunkReader() : p(NULL) { }
 
     ValueChunkReader(const char * p_, size_t len, Xapian::docid did_) {
-	assign(p_, len, did_);
+        assign(p_, len, did_);
     }
 
     void assign(const char * p_, size_t len, Xapian::docid did_);

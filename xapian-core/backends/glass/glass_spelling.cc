@@ -46,65 +46,65 @@ void
 GlassSpellingTable::merge_changes()
 {
     for (auto i : termlist_deltas) {
-	const string& key = i.first;
-	const set<string>& changes = i.second;
+        const string& key = i.first;
+        const set<string>& changes = i.second;
 
-	auto d = changes.begin();
-	if (d == changes.end()) continue;
+        auto d = changes.begin();
+        if (d == changes.end()) continue;
 
-	string updated;
-	string current;
-	PrefixCompressedStringWriter out(updated);
-	if (get_exact_entry(key, current)) {
-	    PrefixCompressedStringItor in(current);
-	    updated.reserve(current.size()); // FIXME plus some?
-	    while (!in.at_end() && d != changes.end()) {
-		const string & word = *in;
-		Assert(d != changes.end());
-		int cmp = word.compare(*d);
-		if (cmp < 0) {
-		    out.append(word);
-		    ++in;
-		} else if (cmp > 0) {
-		    out.append(*d);
-		    ++d;
-		} else {
-		    // If an existing entry is in the changes list, that means
-		    // we should remove it.
-		    ++in;
-		    ++d;
-		}
-	    }
-	    if (!in.at_end()) {
-		// FIXME : easy to optimise this to a fix-up and substring copy.
-		while (!in.at_end()) {
-		    out.append(*in++);
-		}
-	    }
-	}
-	while (d != changes.end()) {
-	    out.append(*d++);
-	}
-	if (!updated.empty()) {
-	    add(key, updated);
-	} else {
-	    del(key);
-	}
+        string updated;
+        string current;
+        PrefixCompressedStringWriter out(updated);
+        if (get_exact_entry(key, current)) {
+            PrefixCompressedStringItor in(current);
+            updated.reserve(current.size()); // FIXME plus some?
+            while (!in.at_end() && d != changes.end()) {
+                const string & word = *in;
+                Assert(d != changes.end());
+                int cmp = word.compare(*d);
+                if (cmp < 0) {
+                    out.append(word);
+                    ++in;
+                } else if (cmp > 0) {
+                    out.append(*d);
+                    ++d;
+                } else {
+                    // If an existing entry is in the changes list, that means
+                    // we should remove it.
+                    ++in;
+                    ++d;
+                }
+            }
+            if (!in.at_end()) {
+                // FIXME : easy to optimise this to a fix-up and substring copy.
+                while (!in.at_end()) {
+                    out.append(*in++);
+                }
+            }
+        }
+        while (d != changes.end()) {
+            out.append(*d++);
+        }
+        if (!updated.empty()) {
+            add(key, updated);
+        } else {
+            del(key);
+        }
     }
     termlist_deltas.clear();
 
     for (auto&& j : wordfreq_changes) {
-	string key = "W" + j.first;
-	Xapian::termcount wordfreq = j.second;
-	if (wordfreq) {
-	    string tag;
-	    pack_uint_last(tag, wordfreq);
-	    add(key, tag);
-	    if (wordfreq > wordfreq_upper_bound)
-		wordfreq_upper_bound = wordfreq;
-	} else {
-	    del(key);
-	}
+        string key = "W" + j.first;
+        Xapian::termcount wordfreq = j.second;
+        if (wordfreq) {
+            string tag;
+            pack_uint_last(tag, wordfreq);
+            add(key, tag);
+            if (wordfreq > wordfreq_upper_bound)
+                wordfreq_upper_bound = wordfreq;
+        } else {
+            del(key);
+        }
     }
     wordfreq_changes.clear();
 }
@@ -114,14 +114,14 @@ GlassSpellingTable::toggle_fragment(fragment frag, string_view word)
 {
     auto i = termlist_deltas.find(frag);
     if (i == termlist_deltas.end()) {
-	i = termlist_deltas.insert(make_pair(frag, set<string>())).first;
+        i = termlist_deltas.insert(make_pair(frag, set<string>())).first;
     }
     // The commonest case is that we're adding lots of words, so try insert
     // first and if that reports that the word already exists, remove it.
     auto res = i->second.emplace(word);
     if (!res.second) {
-	// word is already in the set, so remove it.
-	i->second.erase(res.first);
+        // word is already in the set, so remove it.
+        i->second.erase(res.first);
     }
 }
 
@@ -132,28 +132,28 @@ GlassSpellingTable::add_word(string_view word, Xapian::termcount freqinc)
 
     auto i = wordfreq_changes.find(word);
     if (i != wordfreq_changes.end()) {
-	// Word "word" already exists and has been modified.
-	if (i->second) {
-	    i->second += freqinc;
-	    return;
-	}
-	// If "word" is currently modified such that it no longer exists, so
-	// we need to execute the code below to re-add trigrams for it.
-	i->second = freqinc;
+        // Word "word" already exists and has been modified.
+        if (i->second) {
+            i->second += freqinc;
+            return;
+        }
+        // If "word" is currently modified such that it no longer exists, so
+        // we need to execute the code below to re-add trigrams for it.
+        i->second = freqinc;
     } else {
-	string key = "W"s.append(word);
-	string data;
-	if (get_exact_entry(key, data)) {
-	    // Word "word" already exists, so increment its count.
-	    Xapian::termcount freq;
-	    const char * p = data.data();
-	    if (!unpack_uint_last(&p, p + data.size(), &freq) || freq == 0) {
-		throw Xapian::DatabaseCorruptError("Bad spelling word freq");
-	    }
-	    wordfreq_changes.emplace(word, freq + freqinc);
-	    return;
-	}
-	wordfreq_changes.emplace(word, freqinc);
+        string key = "W"s.append(word);
+        string data;
+        if (get_exact_entry(key, data)) {
+            // Word "word" already exists, so increment its count.
+            Xapian::termcount freq;
+            const char * p = data.data();
+            if (!unpack_uint_last(&p, p + data.size(), &freq) || freq == 0) {
+                throw Xapian::DatabaseCorruptError("Bad spelling word freq");
+            }
+            wordfreq_changes.emplace(word, freq + freqinc);
+            return;
+        }
+        wordfreq_changes.emplace(word, freqinc);
     }
 
     // Add trigrams for word.
@@ -167,40 +167,40 @@ GlassSpellingTable::remove_word(string_view word, Xapian::termcount freqdec)
 
     auto i = wordfreq_changes.find(word);
     if (i != wordfreq_changes.end()) {
-	if (i->second == 0) {
-	    // Word has already been deleted.
-	    return freqdec;
-	}
-	// Word "word" exists and has been modified.
-	if (freqdec < i->second) {
-	    i->second -= freqdec;
-	    return 0;
-	}
-	freqdec -= i->second;
+        if (i->second == 0) {
+            // Word has already been deleted.
+            return freqdec;
+        }
+        // Word "word" exists and has been modified.
+        if (freqdec < i->second) {
+            i->second -= freqdec;
+            return 0;
+        }
+        freqdec -= i->second;
 
-	// Mark word as deleted.
-	i->second = 0;
+        // Mark word as deleted.
+        i->second = 0;
     } else {
-	string key = "W"s.append(word);
-	string data;
-	if (!get_exact_entry(key, data)) {
-	    // This word doesn't exist.
-	    return freqdec;
-	}
+        string key = "W"s.append(word);
+        string data;
+        if (!get_exact_entry(key, data)) {
+            // This word doesn't exist.
+            return freqdec;
+        }
 
-	Xapian::termcount freq;
-	const char *p = data.data();
-	if (!unpack_uint_last(&p, p + data.size(), &freq)) {
-	    throw Xapian::DatabaseCorruptError("Bad spelling word freq");
-	}
-	if (freqdec < freq) {
-	    wordfreq_changes.emplace(word, freq - freqdec);
-	    return 0;
-	}
-	freqdec -= freq;
+        Xapian::termcount freq;
+        const char *p = data.data();
+        if (!unpack_uint_last(&p, p + data.size(), &freq)) {
+            throw Xapian::DatabaseCorruptError("Bad spelling word freq");
+        }
+        if (freqdec < freq) {
+            wordfreq_changes.emplace(word, freq - freqdec);
+            return 0;
+        }
+        freqdec -= freq;
 
-	// Mark word as deleted.
-	wordfreq_changes.emplace(word, 0);
+        // Mark word as deleted.
+        wordfreq_changes.emplace(word, 0);
     }
 
     // Remove trigrams for word.
@@ -228,34 +228,34 @@ GlassSpellingTable::toggle_word(string_view word)
     toggle_fragment(buf, word);
 
     if (word.size() <= 4) {
-	// We also generate 'bookends' for two, three, and four character
-	// terms so we can handle transposition of the middle two characters
-	// of a four character word, substitution or deletion of the middle
-	// character of a three character word, or insertion in the middle of a
-	// two character word.
-	// 'Bookends':
-	buf[0] = 'B';
-	buf[1] = word[0];
-	buf[3] = '\0';
-	toggle_fragment(buf, word);
+        // We also generate 'bookends' for two, three, and four character
+        // terms so we can handle transposition of the middle two characters
+        // of a four character word, substitution or deletion of the middle
+        // character of a three character word, or insertion in the middle of a
+        // two character word.
+        // 'Bookends':
+        buf[0] = 'B';
+        buf[1] = word[0];
+        buf[3] = '\0';
+        toggle_fragment(buf, word);
     }
     if (word.size() > 2) {
-	set<fragment> done;
-	// Middles:
-	buf[0] = 'M';
-	for (size_t start = 0; start <= word.size() - 3; ++start) {
-	    memcpy(buf.data + 1, word.data() + start, 3);
-	    // Don't toggle the same fragment twice or it will cancel out.
-	    // Bug fixed in 1.2.6.
-	    if (done.insert(buf).second)
-		toggle_fragment(buf, word);
-	}
+        set<fragment> done;
+        // Middles:
+        buf[0] = 'M';
+        for (size_t start = 0; start <= word.size() - 3; ++start) {
+            memcpy(buf.data + 1, word.data() + start, 3);
+            // Don't toggle the same fragment twice or it will cancel out.
+            // Bug fixed in 1.2.6.
+            if (done.insert(buf).second)
+                toggle_fragment(buf, word);
+        }
     }
 }
 
 struct TermListGreaterApproxSize {
     bool operator()(const TermList *a, const TermList *b) const {
-	return a->get_approx_size() > b->get_approx_size();
+        return a->get_approx_size() > b->get_approx_size();
     }
 };
 
@@ -271,84 +271,84 @@ GlassSpellingTable::open_termlist(string_view word)
 
     vector<TermList*> termlists;
     try {
-	string data;
-	fragment buf;
+        string data;
+        fragment buf;
 
-	// Head:
-	buf[0] = 'H';
-	buf[1] = word[0];
-	buf[2] = word[1];
-	if (get_exact_entry(string(buf), data))
-	    termlists.push_back(new GlassSpellingTermList(data));
+        // Head:
+        buf[0] = 'H';
+        buf[1] = word[0];
+        buf[2] = word[1];
+        if (get_exact_entry(string(buf), data))
+            termlists.push_back(new GlassSpellingTermList(data));
 
-	// Tail:
-	buf[0] = 'T';
-	buf[1] = word[word.size() - 2];
-	buf[2] = word[word.size() - 1];
-	if (get_exact_entry(string(buf), data))
-	    termlists.push_back(new GlassSpellingTermList(data));
+        // Tail:
+        buf[0] = 'T';
+        buf[1] = word[word.size() - 2];
+        buf[2] = word[word.size() - 1];
+        if (get_exact_entry(string(buf), data))
+            termlists.push_back(new GlassSpellingTermList(data));
 
-	if (word.size() <= 4) {
-	    // We also generate 'bookends' for two, three, and four character
-	    // terms so we can handle transposition of the middle two
-	    // characters of a four character word, substitution or deletion of
-	    // the middle character of a three character word, or insertion in
-	    // the middle of a two character word.
-	    buf[0] = 'B';
-	    buf[1] = word[0];
-	    buf[3] = '\0';
-	    if (get_exact_entry(string(buf), data))
-		termlists.push_back(new GlassSpellingTermList(data));
-	}
-	if (word.size() > 2) {
-	    // Middles:
-	    buf[0] = 'M';
-	    for (size_t start = 0; start <= word.size() - 3; ++start) {
-		memcpy(buf.data + 1, word.data() + start, 3);
-		if (get_exact_entry(string(buf), data))
-		    termlists.push_back(new GlassSpellingTermList(data));
-	    }
+        if (word.size() <= 4) {
+            // We also generate 'bookends' for two, three, and four character
+            // terms so we can handle transposition of the middle two
+            // characters of a four character word, substitution or deletion of
+            // the middle character of a three character word, or insertion in
+            // the middle of a two character word.
+            buf[0] = 'B';
+            buf[1] = word[0];
+            buf[3] = '\0';
+            if (get_exact_entry(string(buf), data))
+                termlists.push_back(new GlassSpellingTermList(data));
+        }
+        if (word.size() > 2) {
+            // Middles:
+            buf[0] = 'M';
+            for (size_t start = 0; start <= word.size() - 3; ++start) {
+                memcpy(buf.data + 1, word.data() + start, 3);
+                if (get_exact_entry(string(buf), data))
+                    termlists.push_back(new GlassSpellingTermList(data));
+            }
 
-	    if (word.size() == 3) {
-		// For three letter words, we generate the two "single
-		// transposition" forms too, so that we can produce good
-		// spelling suggestions.
-		// ABC -> BAC
-		buf[1] = word[1];
-		buf[2] = word[0];
-		if (get_exact_entry(string(buf), data))
-		    termlists.push_back(new GlassSpellingTermList(data));
-		// ABC -> ACB
-		buf[1] = word[0];
-		buf[2] = word[2];
-		buf[3] = word[1];
-		if (get_exact_entry(string(buf), data))
-		    termlists.push_back(new GlassSpellingTermList(data));
-	    }
-	} else {
-	    Assert(word.size() == 2);
-	    // For two letter words, we generate H and T terms for the
-	    // transposed form so that we can produce good spelling
-	    // suggestions.
-	    // AB -> BA
-	    buf[0] = 'H';
-	    buf[1] = word[1];
-	    buf[2] = word[0];
-	    if (get_exact_entry(string(buf), data))
-		termlists.push_back(new GlassSpellingTermList(data));
-	    buf[0] = 'T';
-	    if (get_exact_entry(string(buf), data))
-		termlists.push_back(new GlassSpellingTermList(data));
-	}
+            if (word.size() == 3) {
+                // For three letter words, we generate the two "single
+                // transposition" forms too, so that we can produce good
+                // spelling suggestions.
+                // ABC -> BAC
+                buf[1] = word[1];
+                buf[2] = word[0];
+                if (get_exact_entry(string(buf), data))
+                    termlists.push_back(new GlassSpellingTermList(data));
+                // ABC -> ACB
+                buf[1] = word[0];
+                buf[2] = word[2];
+                buf[3] = word[1];
+                if (get_exact_entry(string(buf), data))
+                    termlists.push_back(new GlassSpellingTermList(data));
+            }
+        } else {
+            Assert(word.size() == 2);
+            // For two letter words, we generate H and T terms for the
+            // transposed form so that we can produce good spelling
+            // suggestions.
+            // AB -> BA
+            buf[0] = 'H';
+            buf[1] = word[1];
+            buf[2] = word[0];
+            if (get_exact_entry(string(buf), data))
+                termlists.push_back(new GlassSpellingTermList(data));
+            buf[0] = 'T';
+            if (get_exact_entry(string(buf), data))
+                termlists.push_back(new GlassSpellingTermList(data));
+        }
 
-	return make_termlist_merger(termlists);
+        return make_termlist_merger(termlists);
     } catch (...) {
-	// Make sure we delete all the TermList objects to avoid leaking
-	// memory.
-	for (auto& t : termlists) {
-	    delete t;
-	}
-	throw;
+        // Make sure we delete all the TermList objects to avoid leaking
+        // memory.
+        for (auto& t : termlists) {
+            delete t;
+        }
+        throw;
     }
 }
 
@@ -357,20 +357,20 @@ GlassSpellingTable::get_word_frequency(string_view word) const
 {
     auto i = wordfreq_changes.find(word);
     if (i != wordfreq_changes.end()) {
-	// Modified frequency for word:
-	return i->second;
+        // Modified frequency for word:
+        return i->second;
     }
 
     string key = "W"s.append(word);
     string data;
     if (get_exact_entry(key, data)) {
-	// Word "word" already exists.
-	Xapian::termcount freq;
-	const char *p = data.data();
-	if (!unpack_uint_last(&p, p + data.size(), &freq)) {
-	    throw Xapian::DatabaseCorruptError("Bad spelling word freq");
-	}
-	return freq;
+        // Word "word" already exists.
+        Xapian::termcount freq;
+        const char *p = data.data();
+        if (!unpack_uint_last(&p, p + data.size(), &freq)) {
+            throw Xapian::DatabaseCorruptError("Bad spelling word freq");
+        }
+        return freq;
     }
 
     return 0;
@@ -402,15 +402,15 @@ TermList *
 GlassSpellingTermList::next()
 {
     if (p == data.size()) {
-	return this;
+        return this;
     }
     if (!current_term.empty()) {
-	current_term.resize(uint8_t(data[p++]) ^ MAGIC_XOR_VALUE);
+        current_term.resize(uint8_t(data[p++]) ^ MAGIC_XOR_VALUE);
     }
     size_t add;
     if (p == data.size() ||
-	(add = uint8_t(data[p]) ^ MAGIC_XOR_VALUE) >= data.size() - p)
-	throw Xapian::DatabaseCorruptError("Bad spelling termlist");
+        (add = uint8_t(data[p]) ^ MAGIC_XOR_VALUE) >= data.size() - p)
+        throw Xapian::DatabaseCorruptError("Bad spelling termlist");
     current_term.append(data.data() + p + 1, add);
     p += add + 1;
     return NULL;
@@ -420,8 +420,8 @@ TermList*
 GlassSpellingTermList::skip_to(string_view term)
 {
     while (current_term < term) {
-	if (GlassSpellingTermList::next())
-	    return this;
+        if (GlassSpellingTermList::next())
+            return this;
     }
     return NULL;
 }

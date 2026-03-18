@@ -37,32 +37,32 @@ using namespace std;
 
 HoneyPostList*
 HoneyPostListTable::open_post_list(const HoneyDatabase* db,
-				   std::string_view term,
-				   bool need_read_pos) const
+                                   std::string_view term,
+                                   bool need_read_pos) const
 {
     Assert(!term.empty());
     // Try to position cursor first so we avoid creating HoneyPostList objects
     // for terms which don't exist.
     unique_ptr<HoneyCursor> cursor(cursor_get());
     if (!cursor->find_exact(Honey::make_postingchunk_key(term))) {
-	return nullptr;
+        return nullptr;
     }
 
     if (need_read_pos)
-	return new HoneyPosPostList(db, term, cursor.release());
+        return new HoneyPosPostList(db, term, cursor.release());
     return new HoneyPostList(db, term, cursor.release());
 }
 
 void
 HoneyPostListTable::get_freqs(std::string_view term,
-			      Xapian::doccount* termfreq_ptr,
-			      Xapian::termcount* collfreq_ptr) const
+                              Xapian::doccount* termfreq_ptr,
+                              Xapian::termcount* collfreq_ptr) const
 {
     string chunk;
     if (!get_exact_entry(Honey::make_postingchunk_key(term), chunk)) {
-	if (termfreq_ptr) *termfreq_ptr = 0;
-	if (collfreq_ptr) *collfreq_ptr = 0;
-	return;
+        if (termfreq_ptr) *termfreq_ptr = 0;
+        if (collfreq_ptr) *collfreq_ptr = 0;
+        return;
     }
 
     const char* p = chunk.data();
@@ -70,35 +70,35 @@ HoneyPostListTable::get_freqs(std::string_view term,
     Xapian::doccount tf;
     Xapian::termcount cf;
     if (!decode_initial_chunk_header_freqs(&p, pend, tf, cf))
-	throw Xapian::DatabaseCorruptError("Postlist initial chunk header");
+        throw Xapian::DatabaseCorruptError("Postlist initial chunk header");
     if (termfreq_ptr) *termfreq_ptr = tf;
     if (collfreq_ptr) *collfreq_ptr = cf;
 }
 
 void
 HoneyPostListTable::get_used_docid_range(Xapian::doccount doccount,
-					 Xapian::docid& first,
-					 Xapian::docid& last) const
+                                         Xapian::docid& first,
+                                         Xapian::docid& last) const
 {
     unique_ptr<HoneyCursor> cursor(cursor_get());
     Assert(cursor);
 
     static const char doclen_key_prefix[2] = {
-	0, char(Honey::KEY_DOCLEN_CHUNK)
+        0, char(Honey::KEY_DOCLEN_CHUNK)
     };
     if (cursor->find_entry_ge(string(doclen_key_prefix, 2))) {
-	first = 1;
+        first = 1;
     } else {
-	// doccount == 0 should be handled by our caller.
-	Assert(!cursor->after_end());
-	Xapian::docid last_in_first_chunk = docid_from_key(cursor->current_key);
-	if (last_in_first_chunk == 0) {
-	    // Note that our caller checks for doccount == 0 and handles that.
-	    throw Xapian::DatabaseCorruptError("Bad first doclen chunk key");
-	}
-	cursor->read_tag();
-	unsigned width = cursor->current_tag[0] / 8;
-	first = last_in_first_chunk - (cursor->current_tag.size() - 2) / width;
+        // doccount == 0 should be handled by our caller.
+        Assert(!cursor->after_end());
+        Xapian::docid last_in_first_chunk = docid_from_key(cursor->current_key);
+        if (last_in_first_chunk == 0) {
+            // Note that our caller checks for doccount == 0 and handles that.
+            throw Xapian::DatabaseCorruptError("Bad first doclen chunk key");
+        }
+        cursor->read_tag();
+        unsigned width = cursor->current_tag[0] / 8;
+        first = last_in_first_chunk - (cursor->current_tag.size() - 2) / width;
     }
 
     // We know the last docid is at least first - 1 + doccount, so seek
@@ -107,18 +107,18 @@ HoneyPostListTable::get_used_docid_range(Xapian::doccount doccount,
     // first == 1, but not otherwise).
     last = first - 1 + doccount;
     if (cursor->find_entry_ge(make_doclenchunk_key(last)))
-	return;
+        return;
 
     if (cursor->after_end())
-	throw Xapian::DatabaseCorruptError("Missing doclen chunk");
+        throw Xapian::DatabaseCorruptError("Missing doclen chunk");
 
     do {
-	Xapian::docid new_last = docid_from_key(cursor->current_key);
-	if (new_last == 0) {
-	    // We've hit a non-doclen item.
-	    return;
-	}
-	last = new_last;
+        Xapian::docid new_last = docid_from_key(cursor->current_key);
+        if (new_last == 0) {
+            // We've hit a non-doclen item.
+            return;
+        }
+        last = new_last;
     } while (cursor->next());
 
     // We've reached the end of the table (only possible if there are no terms
@@ -130,8 +130,8 @@ HoneyPostListTable::get_wdf_upper_bound(std::string_view term) const
 {
     string chunk;
     if (!get_exact_entry(Honey::make_postingchunk_key(term), chunk)) {
-	// Term not present.
-	return 0;
+        // Term not present.
+        return 0;
     }
 
     const char* p = chunk.data();
@@ -144,7 +144,7 @@ HoneyPostListTable::get_wdf_upper_bound(std::string_view term) const
     Xapian::termcount first_wdf;
     Xapian::termcount wdf_max;
     if (!decode_initial_chunk_header(&p, pend, tf, cf, first, last, chunk_last,
-				     first_wdf, wdf_max))
-	throw Xapian::DatabaseCorruptError("Postlist initial chunk header");
+                                     first_wdf, wdf_max))
+        throw Xapian::DatabaseCorruptError("Postlist initial chunk header");
     return wdf_max;
 }

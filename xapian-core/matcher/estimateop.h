@@ -41,11 +41,11 @@ struct Estimates {
     Estimates() { }
 
     Estimates(Xapian::doccount min_,
-	      Xapian::doccount est_,
-	      Xapian::doccount max_,
-	      Xapian::doccount first_ = 1,
-	      Xapian::doccount last_ = Xapian::docid(-1))
-	: min(min_), est(est_), max(max_), first(first_), last(last_) { }
+              Xapian::doccount est_,
+              Xapian::doccount max_,
+              Xapian::doccount first_ = 1,
+              Xapian::doccount last_ = Xapian::docid(-1))
+        : min(min_), est(est_), max(max_), first(first_), last(last_) { }
 };
 
 // Clean up Microsoft namespace pollution.
@@ -64,13 +64,13 @@ struct Estimates {
 class EstimateOp {
   public:
     enum op_type {
-	KNOWN,
-	// In the absence of accept/reject counts we just scale the AND by
-	// dividing by these values:
-	DECIDER = 1,
-	NEAR = 2, PHRASE = 3, EXACT_PHRASE = 4,
-	POSTING_SOURCE,
-	AND, AND_NOT, OR, XOR
+        KNOWN,
+        // In the absence of accept/reject counts we just scale the AND by
+        // dividing by these values:
+        DECIDER = 1,
+        NEAR = 2, PHRASE = 3, EXACT_PHRASE = 4,
+        POSTING_SOURCE,
+        AND, AND_NOT, OR, XOR
     };
 
   private:
@@ -93,38 +93,38 @@ class EstimateOp {
   public:
     /// Leaf term.
     EstimateOp(Xapian::doccount tf_,
-	       Xapian::docid first, Xapian::docid last)
-	: type(KNOWN), estimates(tf_, tf_, tf_, first, last) { }
+               Xapian::docid first, Xapian::docid last)
+        : type(KNOWN), estimates(tf_, tf_, tf_, first, last) { }
 
     /// PostingSource
     EstimateOp()
-	: type(POSTING_SOURCE) { }
+        : type(POSTING_SOURCE) { }
 
     /// Value range.
     EstimateOp(Estimates estimates_)
-	: type(KNOWN), estimates(estimates_) { }
+        : type(KNOWN), estimates(estimates_) { }
 
     /// Value range degenerate case.
     EstimateOp(Xapian::doccount tf_)
-	: type(KNOWN), estimates(tf_, tf_, tf_) { }
+        : type(KNOWN), estimates(tf_, tf_, tf_) { }
 
     /// AND, AND_NOT, OR or XOR.
     EstimateOp(op_type type_, Xapian::docid first, Xapian::docid last,
-	       Xapian::VecUniquePtr<EstimateOp>&& sub_estimates_)
-	: type(type_), sub_estimates(std::move(sub_estimates_)) {
-	estimates.first = first;
-	estimates.last = last;
+               Xapian::VecUniquePtr<EstimateOp>&& sub_estimates_)
+        : type(type_), sub_estimates(std::move(sub_estimates_)) {
+        estimates.first = first;
+        estimates.last = last;
     }
 
     /// AND, AND_NOT, OR or XOR (pair-wise).
     EstimateOp(op_type type_, Xapian::docid first, Xapian::docid last,
-	       std::unique_ptr<EstimateOp>&& est1,
-	       std::unique_ptr<EstimateOp>&& est2)
-	: type(type_) {
-	sub_estimates.push_back(est1.release());
-	sub_estimates.push_back(est2.release());
-	estimates.first = first;
-	estimates.last = last;
+               std::unique_ptr<EstimateOp>&& est1,
+               std::unique_ptr<EstimateOp>&& est2)
+        : type(type_) {
+        sub_estimates.push_back(est1.release());
+        sub_estimates.push_back(est2.release());
+        estimates.first = first;
+        estimates.last = last;
     }
 
     /** DECIDER, NEAR, PHRASE or EXACT_PHRASE.
@@ -132,8 +132,8 @@ class EstimateOp {
      *  These operate as filters so have a single subquery.
      */
     EstimateOp(op_type type_, EstimateOp* sub_estimate)
-	: type(type_), estimates(0, 0, 0) {
-	sub_estimates.push_back(sub_estimate);
+        : type(type_), estimates(0, 0, 0) {
+        sub_estimates.push_back(sub_estimate);
     }
 
     /** Report the first docid indexed.
@@ -141,62 +141,62 @@ class EstimateOp {
      *  Called by ValueRangePostList if it starts with next().
      */
     void report_first(Xapian::docid first) {
-	estimates.first = first;
+        estimates.first = first;
     }
 
     void report_ratio(Xapian::doccount accepted, Xapian::doccount rejected) {
-	Assert(type == DECIDER ||
-	       type == NEAR ||
-	       type == PHRASE ||
-	       type == EXACT_PHRASE);
-	// Store ratio to use later.
-	estimates.min = accepted;
-	estimates.max = rejected;
+        Assert(type == DECIDER ||
+               type == NEAR ||
+               type == PHRASE ||
+               type == EXACT_PHRASE);
+        // Store ratio to use later.
+        estimates.min = accepted;
+        estimates.max = rejected;
     }
 
     /** Adjust static estimates for value range. */
     void report_range_ratio(Xapian::doccount accepted,
-			    Xapian::doccount rejected) {
-	AssertEq(type, KNOWN);
+                            Xapian::doccount rejected) {
+        AssertEq(type, KNOWN);
 
-	// Degenerate range case.
-	if (estimates.min == estimates.max) return;
+        // Degenerate range case.
+        if (estimates.min == estimates.max) return;
 
-	// The static min is 0.
-	AssertEq(estimates.min, 0);
-	estimates.min = accepted;
+        // The static min is 0.
+        AssertEq(estimates.min, 0);
+        estimates.min = accepted;
 
-	// Combine the static estimate already in estimate.est with a dynamic
-	// estimate based on accepted/rejected ratio using a weighted average
-	// based on the proportion of value_freq actually looked at.
-	auto est = double(estimates.max - accepted - rejected);
-	est = est / estimates.max * estimates.est;
-	estimates.est = accepted + Xapian::doccount(est + 0.5);
+        // Combine the static estimate already in estimate.est with a dynamic
+        // estimate based on accepted/rejected ratio using a weighted average
+        // based on the proportion of value_freq actually looked at.
+        auto est = double(estimates.max - accepted - rejected);
+        est = est / estimates.max * estimates.est;
+        estimates.est = accepted + Xapian::doccount(est + 0.5);
 
-	// The static max is the value slot frequency, so every reject can
-	// be removed from that.
-	estimates.max -= rejected;
+        // The static max is the value slot frequency, so every reject can
+        // be removed from that.
+        estimates.max -= rejected;
 
-	// We shouldn't need to clamp here to ensure the invariant.
-	AssertRel(estimates.min, <=, estimates.est);
-	AssertRel(estimates.est, <=, estimates.max);
+        // We shouldn't need to clamp here to ensure the invariant.
+        AssertRel(estimates.min, <=, estimates.est);
+        AssertRel(estimates.est, <=, estimates.max);
     }
 
     /** Fill in estimates for POSTING_SOURCE. */
     void report_termfreqs(Xapian::doccount min_,
-			  Xapian::doccount est,
-			  Xapian::doccount max_) {
-	AssertEq(type, POSTING_SOURCE);
-	estimates.min = min_;
-	estimates.est = est;
-	estimates.max = max_;
-	estimates.first = 1;
-	estimates.last = Xapian::docid(-1);
+                          Xapian::doccount est,
+                          Xapian::doccount max_) {
+        AssertEq(type, POSTING_SOURCE);
+        estimates.min = min_;
+        estimates.est = est;
+        estimates.max = max_;
+        estimates.first = 1;
+        estimates.last = Xapian::docid(-1);
     }
 
     Estimates resolve(Xapian::doccount db_size,
-		      Xapian::docid db_first,
-		      Xapian::docid db_last);
+                      Xapian::docid db_first,
+                      Xapian::docid db_last);
 
     unsigned get_subquery_count() const { return sub_estimates.size(); }
 };
@@ -221,10 +221,10 @@ struct PostListAndEstimate {
     PostListAndEstimate() { }
 
     PostListAndEstimate(PostList* pl_, EstimateOp* est_)
-	: pl(pl_), est(est_) { }
+        : pl(pl_), est(est_) { }
 
     PostListAndEstimate(PostList* pl_, std::unique_ptr<EstimateOp>&& est_)
-	: pl(pl_), est(std::move(est_)) { }
+        : pl(pl_), est(std::move(est_)) { }
 };
 
 }

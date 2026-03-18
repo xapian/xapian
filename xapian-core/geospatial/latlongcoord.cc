@@ -35,11 +35,11 @@ using namespace Xapian;
 using namespace std;
 
 LatLongCoord::LatLongCoord(double latitude_, double longitude_)
-	: latitude(latitude_),
-	  longitude(longitude_)
+        : latitude(latitude_),
+          longitude(longitude_)
 {
     if (latitude < -90.0 || latitude > 90.0)
-	throw InvalidArgumentError("Latitude out-of-range");
+        throw InvalidArgumentError("Latitude out-of-range");
     longitude = fmod(longitude_, 360);
     if (longitude < 0) longitude += 360;
 }
@@ -51,8 +51,8 @@ LatLongCoord::unserialise(string_view serialised)
     const char * end = ptr + serialised.size();
     unserialise(&ptr, end);
     if (ptr != end)
-	throw SerialisationError(
-		"Junk found at end of serialised LatLongCoord");
+        throw SerialisationError(
+                "Junk found at end of serialised LatLongCoord");
 }
 
 void
@@ -60,15 +60,15 @@ LatLongCoord::unserialise(const char ** ptr, const char * end)
 {
     size_t len = end - *ptr;
     if (len < 2) {
-	latitude = 0;
-	longitude = 0;
-	return;
+        latitude = 0;
+        longitude = 0;
+        return;
     }
     GeoEncode::decode(*ptr, end - *ptr, latitude, longitude);
     if (len < 6) {
-	*ptr = end;
+        *ptr = end;
     } else {
-	*ptr += 6;
+        *ptr += 6;
     }
 }
 
@@ -98,8 +98,8 @@ LatLongCoords::unserialise(string_view serialised)
     const char * end_ptr = ptr + serialised.size();
     coords.clear();
     while (ptr != end_ptr) {
-	coords.emplace_back();
-	coords.back().unserialise(&ptr, end_ptr);
+        coords.emplace_back();
+        coords.back().unserialise(&ptr, end_ptr);
     }
 }
 
@@ -108,7 +108,7 @@ LatLongCoords::serialise() const
 {
     string result;
     for (auto&& coord : coords) {
-	GeoEncode::encode(coord.latitude, coord.longitude, result);
+        GeoEncode::encode(coord.latitude, coord.longitude, result);
     }
     return result;
 }
@@ -118,14 +118,14 @@ LatLongCoords::get_description() const
 {
     string res("Xapian::LatLongCoords(");
     for (auto coord = coords.begin(); coord != coords.end(); ++coord) {
-	if (coord != coords.begin()) {
-	    res += ", ";
-	}
-	res += "(";
-	res += str(coord->latitude);
-	res += ", ";
-	res += str(coord->longitude);
-	res += ")";
+        if (coord != coords.begin()) {
+            res += ", ";
+        }
+        res += "(";
+        res += str(coord->latitude);
+        res += ", ";
+        res += str(coord->longitude);
+        res += ")";
     }
     res += ")";
     return res;

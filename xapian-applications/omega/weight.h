@@ -26,7 +26,7 @@
 #include <string>
 
 void set_weighting_scheme(Xapian::Enquire & enq,
-			  const std::string & scheme,
-			  bool force_boolean);
+                          const std::string & scheme,
+                          bool force_boolean);
 
 #endif // OMEGA_INCLUDED_WEIGHT_H

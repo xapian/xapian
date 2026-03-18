@@ -39,31 +39,31 @@ DEFINE_TESTCASE(valuerange1, backend) {
     Xapian::Database db(get_database("apitest_phrase"));
     Xapian::Enquire enq(db);
     static const char * const vals[] = {
-	"", " ", "a", "aa", "abcd", "e", "g", "h", "hzz", "i", "l", "z"
+        "", " ", "a", "aa", "abcd", "e", "g", "h", "hzz", "i", "l", "z"
     };
     for (auto start : vals) {
-	for (auto end : vals) {
-	    Xapian::Query query(Xapian::Query::OP_VALUE_RANGE, 1, start, end);
-	    enq.set_query(query);
-	    Xapian::MSet mset = enq.get_mset(0, 20);
-	    // Check that documents in the MSet match the value range filter.
-	    set<Xapian::docid> matched;
-	    Xapian::MSetIterator i;
-	    for (i = mset.begin(); i != mset.end(); ++i) {
-		matched.insert(*i);
-		string value = db.get_document(*i).get_value(1);
-		TEST_REL(value,>=,start);
-		TEST_REL(value,<=,end);
-	    }
-	    // Check that documents not in the MSet don't match the value range filter.
-	    for (Xapian::docid j = db.get_lastdocid(); j != 0; --j) {
-		if (matched.find(j) == matched.end()) {
-		    string value = db.get_document(j).get_value(1);
-		    tout << value << " < '" << start << "' or > '" << end << "'\n";
-		    TEST(value < start || value > end);
-		}
-	    }
-	}
+        for (auto end : vals) {
+            Xapian::Query query(Xapian::Query::OP_VALUE_RANGE, 1, start, end);
+            enq.set_query(query);
+            Xapian::MSet mset = enq.get_mset(0, 20);
+            // Check that documents in the MSet match the value range filter.
+            set<Xapian::docid> matched;
+            Xapian::MSetIterator i;
+            for (i = mset.begin(); i != mset.end(); ++i) {
+                matched.insert(*i);
+                string value = db.get_document(*i).get_value(1);
+                TEST_REL(value,>=,start);
+                TEST_REL(value,<=,end);
+            }
+            // Check that documents not in the MSet don't match the value range filter.
+            for (Xapian::docid j = db.get_lastdocid(); j != 0; --j) {
+                if (matched.find(j) == matched.end()) {
+                    string value = db.get_document(j).get_value(1);
+                    tout << value << " < '" << start << "' or > '" << end << "'\n";
+                    TEST(value < start || value > end);
+                }
+            }
+        }
     }
 }
 
@@ -71,13 +71,13 @@ DEFINE_TESTCASE(valuerange1, backend) {
 // non-existent documents.
 DEFINE_TESTCASE(valuerange2, backend) {
     Xapian::Database db = get_database("valuerange2",
-				       [](Xapian::WritableDatabase& wdb,
-					  const string&) {
-					   Xapian::Document doc;
-					   doc.set_data("5");
-					   doc.add_value(0, "5");
-					   wdb.replace_document(5, doc);
-				       });
+                                       [](Xapian::WritableDatabase& wdb,
+                                          const string&) {
+                                           Xapian::Document doc;
+                                           doc.set_data("5");
+                                           doc.add_value(0, "5");
+                                           wdb.replace_document(5, doc);
+                                       });
     Xapian::Enquire enq(db);
 
     Xapian::Query query(Xapian::Query::OP_VALUE_LE, 0, "6");
@@ -270,15 +270,15 @@ DEFINE_TESTCASE(valuerange7, backend) {
     mset = enq.get_mset(0, 0);
     TEST_EQUAL(mset.get_matches_estimated(), 1);
     if (db.size() > 1) {
-	// The second shard will just have one document with "ZERO" in the slot
-	// so we can tell there's exactly one match there, and the first shard
-	// has one "ZERO\0" and one empty entry, so we can tell that can't
-	// match.
-	TEST_EQUAL(mset.get_matches_lower_bound(), 1);
-	TEST_EQUAL(mset.get_matches_upper_bound(), 1);
+        // The second shard will just have one document with "ZERO" in the slot
+        // so we can tell there's exactly one match there, and the first shard
+        // has one "ZERO\0" and one empty entry, so we can tell that can't
+        // match.
+        TEST_EQUAL(mset.get_matches_lower_bound(), 1);
+        TEST_EQUAL(mset.get_matches_upper_bound(), 1);
     } else {
-	TEST_EQUAL(mset.get_matches_lower_bound(), 0);
-	TEST_EQUAL(mset.get_matches_upper_bound(), 2);
+        TEST_EQUAL(mset.get_matches_lower_bound(), 0);
+        TEST_EQUAL(mset.get_matches_upper_bound(), 2);
     }
 }
 
@@ -287,30 +287,30 @@ DEFINE_TESTCASE(valuege1, backend) {
     Xapian::Database db(get_database("apitest_phrase"));
     Xapian::Enquire enq(db);
     static const char * const vals[] = {
-	"", " ", "a", "aa", "abcd", "e", "g", "h", "hzz", "i", "l", "z"
+        "", " ", "a", "aa", "abcd", "e", "g", "h", "hzz", "i", "l", "z"
     };
     for (auto start : vals) {
-	Xapian::Query query(Xapian::Query::OP_VALUE_GE, 1, start);
-	enq.set_query(query);
-	Xapian::MSet mset = enq.get_mset(0, 20);
-	// Check that documents in the MSet match the value range filter.
-	set<Xapian::docid> matched;
-	Xapian::MSetIterator i;
-	for (i = mset.begin(); i != mset.end(); ++i) {
-	    matched.insert(*i);
-	    string value = db.get_document(*i).get_value(1);
-	    tout << "'" << start << "' <= '" << value << "'\n";
-	    TEST_REL(value,>=,start);
-	}
-	// Check that documents not in the MSet don't match the value range
-	// filter.
-	for (Xapian::docid j = db.get_lastdocid(); j != 0; --j) {
-	    if (matched.find(j) == matched.end()) {
-		string value = db.get_document(j).get_value(1);
-		tout << value << " < '" << start << "'\n";
-		TEST_REL(value,<,start);
-	    }
-	}
+        Xapian::Query query(Xapian::Query::OP_VALUE_GE, 1, start);
+        enq.set_query(query);
+        Xapian::MSet mset = enq.get_mset(0, 20);
+        // Check that documents in the MSet match the value range filter.
+        set<Xapian::docid> matched;
+        Xapian::MSetIterator i;
+        for (i = mset.begin(); i != mset.end(); ++i) {
+            matched.insert(*i);
+            string value = db.get_document(*i).get_value(1);
+            tout << "'" << start << "' <= '" << value << "'\n";
+            TEST_REL(value,>=,start);
+        }
+        // Check that documents not in the MSet don't match the value range
+        // filter.
+        for (Xapian::docid j = db.get_lastdocid(); j != 0; --j) {
+            if (matched.find(j) == matched.end()) {
+                string value = db.get_document(j).get_value(1);
+                tout << value << " < '" << start << "'\n";
+                TEST_REL(value,<,start);
+            }
+        }
     }
 }
 
@@ -320,8 +320,8 @@ DEFINE_TESTCASE(valuege2, backend) {
     Xapian::Database db(get_database("apitest_phrase"));
     Xapian::Enquire enq(db);
     Xapian::Query query(Xapian::Query::OP_AND,
-			Xapian::Query("what"),
-			Xapian::Query(Xapian::Query::OP_VALUE_GE, 1, "aa"));
+                        Xapian::Query("what"),
+                        Xapian::Query(Xapian::Query::OP_VALUE_GE, 1, "aa"));
     enq.set_query(query);
     Xapian::MSet mset = enq.get_mset(0, 20);
 }
@@ -331,28 +331,28 @@ DEFINE_TESTCASE(valuele1, backend) {
     Xapian::Database db(get_database("apitest_phrase"));
     Xapian::Enquire enq(db);
     static const char * const vals[] = {
-	"", " ", "a", "aa", "abcd", "e", "g", "h", "hzz", "i", "l", "z"
+        "", " ", "a", "aa", "abcd", "e", "g", "h", "hzz", "i", "l", "z"
     };
     for (auto end : vals) {
-	Xapian::Query query(Xapian::Query::OP_VALUE_LE, 1, end);
-	enq.set_query(query);
-	Xapian::MSet mset = enq.get_mset(0, 20);
-	// Check that documents in the MSet match the value range filter.
-	set<Xapian::docid> matched;
-	Xapian::MSetIterator i;
-	for (i = mset.begin(); i != mset.end(); ++i) {
-	    matched.insert(*i);
-	    string value = db.get_document(*i).get_value(1);
-	    TEST_REL(value,<=,end);
-	}
-	// Check that documents not in the MSet don't match the value range
-	// filter.
-	for (Xapian::docid j = db.get_lastdocid(); j != 0; --j) {
-	    if (matched.find(j) == matched.end()) {
-		string value = db.get_document(j).get_value(1);
-		TEST_REL(value,>,end);
-	    }
-	}
+        Xapian::Query query(Xapian::Query::OP_VALUE_LE, 1, end);
+        enq.set_query(query);
+        Xapian::MSet mset = enq.get_mset(0, 20);
+        // Check that documents in the MSet match the value range filter.
+        set<Xapian::docid> matched;
+        Xapian::MSetIterator i;
+        for (i = mset.begin(); i != mset.end(); ++i) {
+            matched.insert(*i);
+            string value = db.get_document(*i).get_value(1);
+            TEST_REL(value,<=,end);
+        }
+        // Check that documents not in the MSet don't match the value range
+        // filter.
+        for (Xapian::docid j = db.get_lastdocid(); j != 0; --j) {
+            if (matched.find(j) == matched.end()) {
+                string value = db.get_document(j).get_value(1);
+                TEST_REL(value,>,end);
+            }
+        }
     }
 }
 
@@ -371,8 +371,8 @@ DEFINE_TESTCASE(valuege4, backend) {
     // it has a lower estimated termfreq than the term "fridg".  As a result,
     // the skip_to() method is used to advance the ValueGePostList.
     Xapian::Query query(Xapian::Query::OP_AND,
-			Xapian::Query("fridg"),
-			Xapian::Query(Xapian::Query::OP_VALUE_GE, 1, "aa"));
+                        Xapian::Query("fridg"),
+                        Xapian::Query(Xapian::Query::OP_VALUE_GE, 1, "aa"));
     enq.set_query(query);
     Xapian::MSet mset = enq.get_mset(0, 20);
 }
@@ -382,9 +382,9 @@ DEFINE_TESTCASE(valuerange3, backend) {
     Xapian::Database db(get_database("apitest_phrase"));
     Xapian::Enquire enq(db);
     Xapian::Query query(Xapian::Query::OP_AND,
-			Xapian::Query("what"),
-			Xapian::Query(Xapian::Query::OP_VALUE_RANGE, 1,
-				      "aa", "z"));
+                        Xapian::Query("what"),
+                        Xapian::Query(Xapian::Query::OP_VALUE_RANGE, 1,
+                                      "aa", "z"));
     enq.set_query(query);
     Xapian::MSet mset = enq.get_mset(0, 20);
 }
@@ -394,9 +394,9 @@ DEFINE_TESTCASE(valuerange4, backend) {
     Xapian::Database db(get_database("apitest_phrase"));
     Xapian::Enquire enq(db);
     Xapian::Query query(Xapian::Query::OP_AND,
-			Xapian::Query("fridg"),
-			Xapian::Query(Xapian::Query::OP_VALUE_RANGE, 1,
-				      "aa", "z"));
+                        Xapian::Query("fridg"),
+                        Xapian::Query(Xapian::Query::OP_VALUE_RANGE, 1,
+                                      "aa", "z"));
     enq.set_query(query);
     Xapian::MSet mset = enq.get_mset(0, 20);
 }
@@ -407,7 +407,7 @@ DEFINE_TESTCASE(valuerangematchesub1, backend) {
     Xapian::Enquire enq(db);
     // Values present in slot 10 range from 'e' to 'w'.
     Xapian::Query query(Xapian::Query(Xapian::Query::OP_VALUE_RANGE, 10,
-				      "h", "i"));
+                                      "h", "i"));
     enq.set_query(query);
     Xapian::MSet mset = enq.get_mset(0, 0);
     // The upper bound used to be db.size().

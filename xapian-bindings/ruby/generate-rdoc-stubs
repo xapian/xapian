@@ -13,7 +13,7 @@ open OUT, '>', $out."T" or die $!;
 while (<XAPIAN_RB>) {
     print OUT $_;
     if (m!^\s*class\s+Xapian::(\w+)!) {
-	++$documented{$1};
+        ++$documented{$1};
     }
 }
 close XAPIAN_RB;
@@ -25,20 +25,20 @@ while (<INDEX>) {
     if (m!\bkind="(?:class|struct)".*><name>Xapian::(.+)</name>!) {
        my $class = $1;
        if (exists $documented{$class} ||
-	   $class =~ /^Internal::/ ||
-	   $class =~ /::Internal$/ ||
-	   $class =~ /_$/) {
-	   next;
+           $class =~ /^Internal::/ ||
+           $class =~ /::Internal$/ ||
+           $class =~ /_$/) {
+           next;
        }
        if (m!\brefid="(\w+)"!) {
-	   my $refid = $1;
-	   if ($refid !~ m![/.]!) {
-	       $id{$refid} = $class;
-	   } else {
-	       print STDERR "Bad refid: $refid\n";
-	   }
+           my $refid = $1;
+           if ($refid !~ m![/.]!) {
+               $id{$refid} = $class;
+           } else {
+               print STDERR "Bad refid: $refid\n";
+           }
        } else {
-	   print STDERR "No refid found for $class: $_";
+           print STDERR "No refid found for $class: $_";
        }
     }
 }
@@ -48,22 +48,22 @@ for my $refid (sort keys %id) {
     my $prot;
     open F, '<', "$dir/$refid.xml";
     while (<F>) {
-	if (/<compounddef id="\Q$refid\E" kind="class" prot="(\w+)"/) {
-	    $prot = $1;
-	    last;
-	}
+        if (/<compounddef id="\Q$refid\E" kind="class" prot="(\w+)"/) {
+            $prot = $1;
+            last;
+        }
     }
     close F;
     if ($refid =~ /^struct/ || (defined $prot && $prot eq 'public')) {
-	my $class = $id{$refid};
-	print OUT <<"END";
+        my $class = $id{$refid};
+        print OUT <<"END";
   # Refer to the
   # {Xapian::$class C++ API documentation}[https://xapian.org/docs/apidoc/html/classXapian_1_1$class.html].
   class Xapian::$class
   end
 END
     } elsif (!defined $prot) {
-	print STDERR "No prot found for $refid\n";
+        print STDERR "No prot found for $refid\n";
     }
 }
 close OUT or die $!;

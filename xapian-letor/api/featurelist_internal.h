@@ -36,16 +36,16 @@ class FeatureList::Internal : public Xapian::Internal::intrusive_base {
 
     /// Stats which FeatureList can use to determine the stats needed by a Feature.
     typedef enum {
-	/// Number of documents in the collection.
-	TERM_FREQUENCY = 1,
-	/// Number of documents in the RSet.
-	INVERSE_DOCUMENT_FREQUENCY = 2,
-	/// Average length of documents in the collection.
-	DOCUMENT_LENGTH = 4,
-	/// How many documents the current term is in.
-	COLLECTION_LENGTH = 8,
-	/// How many documents in the RSet the current term is in.
-	COLLECTION_TERM_FREQ = 16,
+        /// Number of documents in the collection.
+        TERM_FREQUENCY = 1,
+        /// Number of documents in the RSet.
+        INVERSE_DOCUMENT_FREQUENCY = 2,
+        /// Average length of documents in the collection.
+        DOCUMENT_LENGTH = 4,
+        /// How many documents the current term is in.
+        COLLECTION_LENGTH = 8,
+        /// How many documents in the RSet the current term is in.
+        COLLECTION_TERM_FREQ = 16,
     } stat_flags;
 
     /// A bitmask of the statistics this FeatureList needs.
@@ -133,14 +133,14 @@ class FeatureList::Internal : public Xapian::Internal::intrusive_base {
      *  @return A map from query terms to their collection term frequencies.
      */
     std::map<std::string, Xapian::termcount> compute_collection_termfreq()
-								const;
+                                                                const;
 
     /** Specify the database to use for feature building.
      *
      *  This will be used by the Internal class.
      */
     void set_database(const Xapian::Database& db) {
-	featurelist_db = db;
+        featurelist_db = db;
     }
 
     /** Specify the query to use for feature building.
@@ -148,7 +148,7 @@ class FeatureList::Internal : public Xapian::Internal::intrusive_base {
      *  This will be used by the Internal class.
      */
     void set_query(const Xapian::Query& query) {
-	featurelist_query = query;
+        featurelist_query = query;
     }
 
     /** Specify the document to use for feature building.
@@ -156,7 +156,7 @@ class FeatureList::Internal : public Xapian::Internal::intrusive_base {
      *  This will be used by the Internal class.
      */
     void set_doc(const Xapian::Document& doc) {
-	featurelist_doc = doc;
+        featurelist_doc = doc;
     }
 
     /// Computes and populates the stats needed by a Feature.
@@ -171,8 +171,8 @@ class FeatureList::Internal : public Xapian::Internal::intrusive_base {
 
     /// This method sets all the data members required for computing stats.
     void set_data(const Xapian::Query& query,
-		  const Xapian::Database& db,
-		  const Xapian::Document& doc);
+                  const Xapian::Database& db,
+                  const Xapian::Document& doc);
 };
 
 }

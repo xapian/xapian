@@ -30,23 +30,23 @@ bool
 SelectPostList::vet(double w_min)
 {
     if (pl->at_end()) {
-	delete pl;
-	pl = NULL;
-	return true;
+        delete pl;
+        pl = NULL;
+        return true;
     }
 
     // We assume that test_doc() is expensive compared to calculating the
     // weight.
     if (w_min <= 0.0) {
-	cached_weight = -HUGE_VAL;
+        cached_weight = -HUGE_VAL;
     } else {
-	Xapian::termcount doclen = 0;
-	Xapian::termcount unique_terms = 0;
-	Xapian::termcount wdfdocmax = 0;
-	pltree->get_doc_stats(pl->get_docid(), doclen, unique_terms, wdfdocmax);
-	cached_weight = pl->get_weight(doclen, unique_terms, wdfdocmax);
-	if (cached_weight < w_min)
-	    return false;
+        Xapian::termcount doclen = 0;
+        Xapian::termcount unique_terms = 0;
+        Xapian::termcount wdfdocmax = 0;
+        pltree->get_doc_stats(pl->get_docid(), doclen, unique_terms, wdfdocmax);
+        cached_weight = pl->get_weight(doclen, unique_terms, wdfdocmax);
+        if (cached_weight < w_min)
+            return false;
     }
     return test_doc();
 }
@@ -54,21 +54,21 @@ SelectPostList::vet(double w_min)
 SelectPostList::~SelectPostList()
 {
     if (estimate_op && (accepted || rejected)) {
-	// Only call report_ratio() if there are counts.  During the building
-	// of the PostList tree we sometimes need to delete PostList objects
-	// and their associated EstimateOp and it's hard to arrange that they
-	// are always deleted in the correct order.
-	estimate_op->report_ratio(accepted, rejected);
+        // Only call report_ratio() if there are counts.  During the building
+        // of the PostList tree we sometimes need to delete PostList objects
+        // and their associated EstimateOp and it's hard to arrange that they
+        // are always deleted in the correct order.
+        estimate_op->report_ratio(accepted, rejected);
     }
 }
 
 double
 SelectPostList::get_weight(Xapian::termcount doclen,
-			   Xapian::termcount unique_terms,
-			   Xapian::termcount wdfdocmax) const
+                           Xapian::termcount unique_terms,
+                           Xapian::termcount wdfdocmax) const
 {
     if (cached_weight >= 0)
-	return cached_weight;
+        return cached_weight;
     return pl->get_weight(doclen, unique_terms, wdfdocmax);
 }
 
@@ -82,11 +82,11 @@ PostList*
 SelectPostList::next(double w_min)
 {
     do {
-	PostList* result = pl->next(w_min);
-	if (result) {
-	    delete pl;
-	    pl = result;
-	}
+        PostList* result = pl->next(w_min);
+        if (result) {
+            delete pl;
+            pl = result;
+        }
     } while (!vet(w_min));
     return NULL;
 }
@@ -95,15 +95,15 @@ PostList*
 SelectPostList::skip_to(Xapian::docid did, double w_min)
 {
     if (did > pl->get_docid()) {
-	PostList* result = pl->skip_to(did, w_min);
-	if (result) {
-	    delete pl;
-	    pl = result;
-	}
-	if (!vet(w_min)) {
-	    // Advance to the next match.
-	    return SelectPostList::next(w_min);
-	}
+        PostList* result = pl->skip_to(did, w_min);
+        if (result) {
+            delete pl;
+            pl = result;
+        }
+        if (!vet(w_min)) {
+            // Advance to the next match.
+            return SelectPostList::next(w_min);
+        }
     }
     return NULL;
 }
@@ -113,12 +113,12 @@ SelectPostList::check(Xapian::docid did, double w_min, bool& valid)
 {
     PostList* result = pl->check(did, w_min, valid);
     if (result) {
-	delete pl;
-	pl = result;
+        delete pl;
+        pl = result;
     }
     if (valid) {
-	// For check() we can simply indicate !valid if the vetting fails.
-	valid = vet(w_min);
+        // For check() we can simply indicate !valid if the vetting fails.
+        valid = vet(w_min);
     }
     return NULL;
 }

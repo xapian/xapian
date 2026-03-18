@@ -37,19 +37,19 @@ BackendManagerRemoteProg::do_get_database(const vector<string> & files)
     // Default to a long (5 minute) timeout so that tests won't fail just
     // because the host is slow or busy.
     return BackendManagerRemoteProg::get_remote_database(files, 300000,
-							 nullptr);
+                                                         nullptr);
 }
 
 Xapian::WritableDatabase
 BackendManagerRemoteProg::get_writable_database(const string & name,
-						const string & file)
+                                                const string & file)
 {
     string args = get_writable_database_args(name, file);
 
 #ifdef HAVE_VALGRIND
     if (RUNNING_ON_VALGRIND) {
-	args.insert(0, XAPIAN_PROGSRV" ");
-	return Xapian::Remote::open_writable("./runsrv", args);
+        args.insert(0, XAPIAN_PROGSRV" ");
+        return Xapian::Remote::open_writable("./runsrv", args);
     }
 #endif
     return Xapian::Remote::open_writable(XAPIAN_PROGSRV, args);
@@ -60,8 +60,8 @@ BackendManagerRemoteProg::get_remote_writable_database(string args)
 {
 #ifdef HAVE_VALGRIND
     if (RUNNING_ON_VALGRIND) {
-	args.insert(0, XAPIAN_PROGSRV" ");
-	return Xapian::Remote::open_writable("./runsrv", args);
+        args.insert(0, XAPIAN_PROGSRV" ");
+        return Xapian::Remote::open_writable("./runsrv", args);
     }
 #endif
     return Xapian::Remote::open_writable(XAPIAN_PROGSRV, args);
@@ -69,8 +69,8 @@ BackendManagerRemoteProg::get_remote_writable_database(string args)
 
 Xapian::Database
 BackendManagerRemoteProg::get_remote_database(const vector<string> & files,
-					      unsigned int timeout,
-					      int* port_ptr)
+                                              unsigned int timeout,
+                                              int* port_ptr)
 {
     string args = get_remote_database_args(files, timeout);
 
@@ -79,8 +79,8 @@ BackendManagerRemoteProg::get_remote_database(const vector<string> & files,
 
 #ifdef HAVE_VALGRIND
     if (RUNNING_ON_VALGRIND) {
-	args.insert(0, XAPIAN_PROGSRV" ");
-	return Xapian::Remote::open("./runsrv", args);
+        args.insert(0, XAPIAN_PROGSRV" ");
+        return Xapian::Remote::open("./runsrv", args);
     }
 #endif
     return Xapian::Remote::open(XAPIAN_PROGSRV, args);
@@ -93,8 +93,8 @@ BackendManagerRemoteProg::get_database_by_path(const string& path)
 
 #ifdef HAVE_VALGRIND
     if (RUNNING_ON_VALGRIND) {
-	args.insert(0, XAPIAN_PROGSRV" ");
-	return Xapian::Remote::open("./runsrv", args);
+        args.insert(0, XAPIAN_PROGSRV" ");
+        return Xapian::Remote::open("./runsrv", args);
     }
 #endif
     return Xapian::Remote::open(XAPIAN_PROGSRV, args);
@@ -107,8 +107,8 @@ BackendManagerRemoteProg::get_writable_database_as_database()
 
 #ifdef HAVE_VALGRIND
     if (RUNNING_ON_VALGRIND) {
-	args.insert(0, XAPIAN_PROGSRV" ");
-	return Xapian::Remote::open("./runsrv", args);
+        args.insert(0, XAPIAN_PROGSRV" ");
+        return Xapian::Remote::open("./runsrv", args);
     }
 #endif
     return Xapian::Remote::open(XAPIAN_PROGSRV, args);
@@ -121,8 +121,8 @@ BackendManagerRemoteProg::get_writable_database_again()
 
 #ifdef HAVE_VALGRIND
     if (RUNNING_ON_VALGRIND) {
-	args.insert(0, XAPIAN_PROGSRV" ");
-	return Xapian::Remote::open_writable("./runsrv", args);
+        args.insert(0, XAPIAN_PROGSRV" ");
+        return Xapian::Remote::open_writable("./runsrv", args);
     }
 #endif
     return Xapian::Remote::open_writable(XAPIAN_PROGSRV, args);

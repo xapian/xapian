@@ -247,47 +247,47 @@ class XapianSWIGQueryItor {
     XapianSWIGQueryItor() { }
 
     void begin(VALUE array_) {
-	array = array_;
-	i = 0;
+        array = array_;
+        i = 0;
     }
 
     void end(int n) {
-	i = n;
+        i = n;
     }
 
     XapianSWIGQueryItor & operator++() {
-	++i;
-	return *this;
+        ++i;
+        return *this;
     }
 
     Xapian::Query operator*() const {
-	VALUE entry = rb_ary_entry(array, i);
-	if (TYPE(entry) == T_STRING) {
-	    return Xapian::Query(string(RSTRING_PTR(entry),
-					RSTRING_LEN(entry)));
-	}
+        VALUE entry = rb_ary_entry(array, i);
+        if (TYPE(entry) == T_STRING) {
+            return Xapian::Query(string(RSTRING_PTR(entry),
+                                        RSTRING_LEN(entry)));
+        }
 
-	// array element may be a Xapian::Query object. Add it if it is,
-	// otherwise error out.
-	Xapian::Query *subq = 0;
-	if (SWIG_ConvertPtr(entry, (void **)&subq,
-			    SWIGTYPE_p_Xapian__Query, 0) < 0 || !subq) {
-	    SWIG_exception(SWIG_ValueError, "Elements of Arrays passed to Query must be either Strings or other Query objects");
-	    return Xapian::Query();
-	}
-	return *subq;
+        // array element may be a Xapian::Query object. Add it if it is,
+        // otherwise error out.
+        Xapian::Query *subq = 0;
+        if (SWIG_ConvertPtr(entry, (void **)&subq,
+                            SWIGTYPE_p_Xapian__Query, 0) < 0 || !subq) {
+            SWIG_exception(SWIG_ValueError, "Elements of Arrays passed to Query must be either Strings or other Query objects");
+            return Xapian::Query();
+        }
+        return *subq;
     }
 
     bool operator==(const XapianSWIGQueryItor & o) {
-	return i == o.i;
+        return i == o.i;
     }
 
     bool operator!=(const XapianSWIGQueryItor & o) {
-	return !(*this == o);
+        return !(*this == o);
     }
 
     difference_type operator-(const XapianSWIGQueryItor &o) const {
-	return i - o.i;
+        return i - o.i;
     }
 };
 
@@ -295,20 +295,20 @@ class XapianSWIGQueryItor {
 
 %typemap(in) (XapianSWIGQueryItor qbegin, XapianSWIGQueryItor qend) {
     if (TYPE($input) == T_ARRAY) {
-	// The typecheck typemap should have ensured this is an array.
-	$1.begin($input);
-	$2.end(RARRAY_LEN($input));
+        // The typecheck typemap should have ensured this is an array.
+        $1.begin($input);
+        $2.end(RARRAY_LEN($input));
     } else {
-	$1.end(0);
-	$2.end(0);
+        $1.end(0);
+        $2.end(0);
     }
 }
 
 %typemap(directorin) (size_t num_tags, const std::string tags[]) {
     $input = rb_ary_new();
     for (size_t i = 0; i != num_tags; ++i) {
-	VALUE str = rb_str_new(tags[i].data(), tags[i].size());
-	rb_ary_push($input, str);
+        VALUE str = rb_str_new(tags[i].data(), tags[i].size());
+        rb_ary_push($input, str);
     }
 }
 

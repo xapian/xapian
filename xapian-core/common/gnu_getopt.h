@@ -44,13 +44,13 @@ gnu_getopt(int argc_, char *const *argv_, const char *shortopts_) {
 
 inline int
 gnu_getopt_long(int argc_, char *const *argv_, const char *shortopts_,
-		const struct option *longopts_, int *optind_) {
+                const struct option *longopts_, int *optind_) {
     return getopt_long(argc_, argv_, shortopts_, longopts_, optind_);
 }
 
 inline int
 gnu_getopt_long_only(int argc_, char *const *argv_, const char *shortopts_,
-		     const struct option *longopts_, int *optind_) {
+                     const struct option *longopts_, int *optind_) {
     return getopt_long_only(argc_, argv_, shortopts_, longopts_, optind_);
 }
 
@@ -83,24 +83,24 @@ struct option {
 // For internal use only.
 int
 gnu_getopt_internal_(int, char *const *, const char *, const struct option *,
-		     int *, int);
+                     int *, int);
 
 inline int
 gnu_getopt(int argc_, char *const *argv_, const char *shortopts_) {
     return gnu_getopt_internal_(argc_, argv_, shortopts_,
-				reinterpret_cast<const struct option *>(0),
-				reinterpret_cast<int *>(0), 0);
+                                reinterpret_cast<const struct option *>(0),
+                                reinterpret_cast<int *>(0), 0);
 }
 
 inline int
 gnu_getopt_long(int argc_, char *const *argv_, const char *shortopts_,
-		const struct option *longopts_, int *optind_) {
+                const struct option *longopts_, int *optind_) {
     return gnu_getopt_internal_(argc_, argv_, shortopts_, longopts_, optind_, 0);
 }
 
 inline int
 gnu_getopt_long_only(int argc_, char *const *argv_, const char *shortopts_,
-		     const struct option *longopts_, int *optind_) {
+                     const struct option *longopts_, int *optind_) {
     return gnu_getopt_internal_(argc_, argv_, shortopts_, longopts_, optind_, 1);
 }
 #endif

@@ -29,8 +29,8 @@
 #include <string>
 
 void url_encode_(std::string & res,
-		 const char * p, size_t len,
-		 const char * safe);
+                 const char * p, size_t len,
+                 const char * safe);
 
 inline void
 url_encode(std::string & res, const std::string &str)

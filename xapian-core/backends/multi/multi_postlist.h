@@ -50,22 +50,22 @@ class MultiPostList : public PostList {
   public:
     /// Constructor.
     MultiPostList(Xapian::doccount n_shards_, PostList** postlists_)
-	: n_shards(n_shards_), postlists(postlists_)
+        : n_shards(n_shards_), postlists(postlists_)
     {
-	try {
-	    docids = new Xapian::docid[n_shards];
-	} catch (...) {
-	    delete [] postlists;
-	    throw;
-	}
-	// MultiPostList is only used by PostingIterator which should never
-	// read the termfreq so leave it uninitialised so that ubsan or
-	// valgrind can at least pick up unintended uses.
+        try {
+            docids = new Xapian::docid[n_shards];
+        } catch (...) {
+            delete [] postlists;
+            throw;
+        }
+        // MultiPostList is only used by PostingIterator which should never
+        // read the termfreq so leave it uninitialised so that ubsan or
+        // valgrind can at least pick up unintended uses.
 #if 0
-	termfreq = 0;
-	for (Xapian::doccount i = 0; i < n_shards_; ++i) {
-	    termfreq += postlists[i]->get_termfreq();
-	}
+        termfreq = 0;
+        for (Xapian::doccount i = 0; i < n_shards_; ++i) {
+            termfreq += postlists[i]->get_termfreq();
+        }
 #endif
     }
 
@@ -80,8 +80,8 @@ class MultiPostList : public PostList {
 
     /// Return the weight contribution for the current position.
     double get_weight(Xapian::termcount doclen,
-		      Xapian::termcount unique_terms,
-		      Xapian::termcount wdfdocmax) const;
+                      Xapian::termcount unique_terms,
+                      Xapian::termcount wdfdocmax) const;
 
     /// Return true if the current position is past the last entry in this list.
     bool at_end() const;

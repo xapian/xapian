@@ -35,11 +35,11 @@ ValueRangePostList::~ValueRangePostList()
 {
     delete valuelist;
     if (estimate_op && (accepted || rejected)) {
-	// Only call report_range_ratio() if there are counts.  During the
-	// building of the PostList tree we sometimes need to delete PostList
-	// objects and their associated EstimateOp and it's hard to arrange
-	// that they are always deleted in the correct order.
-	estimate_op->report_range_ratio(accepted, rejected);
+        // Only call report_range_ratio() if there are counts.  During the
+        // building of the PostList tree we sometimes need to delete PostList
+        // objects and their associated EstimateOp and it's hard to arrange
+        // that they are always deleted in the correct order.
+        estimate_op->report_range_ratio(accepted, rejected);
     }
 }
 
@@ -53,8 +53,8 @@ ValueRangePostList::get_docid() const
 
 double
 ValueRangePostList::get_weight(Xapian::termcount,
-			       Xapian::termcount,
-			       Xapian::termcount) const
+                               Xapian::termcount,
+                               Xapian::termcount) const
 {
     Assert(db);
     return 0;
@@ -86,20 +86,20 @@ ValueRangePostList::next(double)
 {
     Assert(db);
     if (!valuelist) {
-	valuelist = db->open_value_list(slot);
-	valuelist->next();
-	if (estimate_op) estimate_op->report_first(valuelist->get_docid());
+        valuelist = db->open_value_list(slot);
+        valuelist->next();
+        if (estimate_op) estimate_op->report_first(valuelist->get_docid());
     } else {
-	valuelist->next();
+        valuelist->next();
     }
     while (!valuelist->at_end()) {
-	const string & v = valuelist->get_value();
-	if (v >= begin && v <= end) {
-	    ++accepted;
-	    return NULL;
-	}
-	++rejected;
-	valuelist->next();
+        const string & v = valuelist->get_value();
+        if (v >= begin && v <= end) {
+            ++accepted;
+            return NULL;
+        }
+        ++rejected;
+        valuelist->next();
     }
     db = NULL;
     return NULL;
@@ -112,13 +112,13 @@ ValueRangePostList::skip_to(Xapian::docid did, double)
     if (!valuelist) valuelist = db->open_value_list(slot);
     valuelist->skip_to(did);
     while (!valuelist->at_end()) {
-	const string & v = valuelist->get_value();
-	if (v >= begin && v <= end) {
-	    ++accepted;
-	    return NULL;
-	}
-	++rejected;
-	valuelist->next();
+        const string & v = valuelist->get_value();
+        if (v >= begin && v <= end) {
+            ++accepted;
+            return NULL;
+        }
+        ++rejected;
+        valuelist->next();
     }
     db = NULL;
     return NULL;
@@ -132,14 +132,14 @@ ValueRangePostList::check(Xapian::docid did, double, bool &valid)
     if (!valuelist) valuelist = db->open_value_list(slot);
     valid = valuelist->check(did);
     if (!valid) {
-	return NULL;
+        return NULL;
     }
     const string & v = valuelist->get_value();
     valid = (v >= begin && v <= end);
     if (valid)
-	++accepted;
+        ++accepted;
     else
-	++rejected;
+        ++rejected;
     return NULL;
 }
 

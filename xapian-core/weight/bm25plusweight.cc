@@ -41,7 +41,7 @@ BM25PlusWeight *
 BM25PlusWeight::clone() const
 {
     return new BM25PlusWeight(param_k1, param_k2, param_k3, param_b,
-			      param_min_normlen, param_delta);
+                              param_min_normlen, param_delta);
 }
 
 void
@@ -50,28 +50,28 @@ BM25PlusWeight::init(double factor)
     Xapian::doccount tf = get_termfreq();
 
     if (rare(tf == 0)) {
-	termweight = 0;
+        termweight = 0;
     } else {
-	// BM25+ formula uses IDF = log((total_no_of_docs + 1) / tf)
-	termweight = log(double(get_collection_size() + 1) / tf);
-	termweight *= factor;
-	if (param_k3 != 0) {
-	    double wqf_double = get_wqf();
-	    termweight *= (param_k3 + 1) * wqf_double / (param_k3 + wqf_double);
-	}
+        // BM25+ formula uses IDF = log((total_no_of_docs + 1) / tf)
+        termweight = log(double(get_collection_size() + 1) / tf);
+        termweight *= factor;
+        if (param_k3 != 0) {
+            double wqf_double = get_wqf();
+            termweight *= (param_k3 + 1) * wqf_double / (param_k3 + wqf_double);
+        }
     }
 
     LOGVALUE(WTCALC, termweight);
 
     if (param_k2 == 0 && (param_b == 0 || param_k1 == 0)) {
-	// If k2 is 0, and either param_b or param_k1 is 0 then the document
-	// length doesn't affect the weight.
-	len_factor = 0;
+        // If k2 is 0, and either param_b or param_k1 is 0 then the document
+        // length doesn't affect the weight.
+        len_factor = 0;
     } else {
-	len_factor = get_average_length();
-	// len_factor can be zero if all documents are empty (or the database
-	// is empty!)
-	if (len_factor != 0) len_factor = 1 / len_factor;
+        len_factor = get_average_length();
+        // len_factor can be zero if all documents are empty (or the database
+        // is empty!)
+        if (len_factor != 0) len_factor = 1 / len_factor;
     }
 
     LOGVALUE(WTCALC, len_factor);
@@ -107,13 +107,13 @@ BM25PlusWeight::unserialise(const string & s) const
     double min_normlen = unserialise_double(&ptr, end);
     double delta = unserialise_double(&ptr, end);
     if (rare(ptr != end))
-	throw Xapian::SerialisationError("Extra data in BM25PlusWeight::unserialise()");
+        throw Xapian::SerialisationError("Extra data in BM25PlusWeight::unserialise()");
     return new BM25PlusWeight(k1, k2, k3, b, min_normlen, delta);
 }
 
 double
 BM25PlusWeight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len,
-			    Xapian::termcount, Xapian::termcount) const
+                            Xapian::termcount, Xapian::termcount) const
 {
     LOGCALL(WTCALC, double, "BM25PlusWeight::get_sumpart", wdf | len);
     Xapian::doclength normlen = max(len * len_factor, param_min_normlen);
@@ -134,20 +134,20 @@ BM25PlusWeight::get_maxpart() const
     double denom = param_k1;
     Xapian::termcount wdf_max = get_wdf_upper_bound();
     if (param_k1 != 0.0) {
-	if (param_b != 0.0) {
-	    // "Upper-bound Approximations for Dynamic Pruning" Craig
-	    // Macdonald, Nicola Tonellotto and Iadh Ounis. ACM Transactions on
-	    // Information Systems. 29(4), 2011 shows that evaluating at
-	    // doclen=wdf_max is a good bound.
-	    //
-	    // However, we can do better if doclen_min > wdf_max since then a
-	    // better bound can be found by simply evaluating at
-	    // doclen=doclen_min and wdf=wdf_max.
-	    Xapian::doclength normlen_lb =
-		 max(max(wdf_max, get_doclength_lower_bound()) * len_factor,
-		     param_min_normlen);
-	    denom *= (normlen_lb * param_b + (1 - param_b));
-	}
+        if (param_b != 0.0) {
+            // "Upper-bound Approximations for Dynamic Pruning" Craig
+            // Macdonald, Nicola Tonellotto and Iadh Ounis. ACM Transactions on
+            // Information Systems. 29(4), 2011 shows that evaluating at
+            // doclen=wdf_max is a good bound.
+            //
+            // However, we can do better if doclen_min > wdf_max since then a
+            // better bound can be found by simply evaluating at
+            // doclen=doclen_min and wdf=wdf_max.
+            Xapian::doclength normlen_lb =
+                 max(max(wdf_max, get_doclength_lower_bound()) * len_factor,
+                     param_min_normlen);
+            denom *= (normlen_lb * param_b + (1 - param_b));
+        }
     }
     denom += wdf_max;
     AssertRel(denom,>,0);
@@ -168,8 +168,8 @@ BM25PlusWeight::get_maxpart() const
  */
 double
 BM25PlusWeight::get_sumextra(Xapian::termcount len,
-			     Xapian::termcount,
-			     Xapian::termcount) const
+                             Xapian::termcount,
+                             Xapian::termcount) const
 {
     LOGCALL(WTCALC, double, "BM25PlusWeight::get_sumextra", len);
     double num = (2.0 * param_k2 * get_query_length());
@@ -181,10 +181,10 @@ BM25PlusWeight::get_maxextra() const
 {
     LOGCALL(WTCALC, double, "BM25PlusWeight::get_maxextra", NO_ARGS);
     if (param_k2 == 0.0)
-	RETURN(0.0);
+        RETURN(0.0);
     double num = (2.0 * param_k2 * get_query_length());
     RETURN(num / (1.0 + max(get_doclength_lower_bound() * len_factor,
-			    param_min_normlen)));
+                            param_min_normlen)));
 }
 
 [[noreturn]]
@@ -199,7 +199,7 @@ BM25PlusWeight::create_from_parameters(const char* params) const
 {
     const char* p = params;
     if (*p == '\0')
-	return new Xapian::BM25PlusWeight();
+        return new Xapian::BM25PlusWeight();
     double k1 = 1;
     double k2 = 0;
     double k3 = 1;
@@ -207,19 +207,19 @@ BM25PlusWeight::create_from_parameters(const char* params) const
     double min_normlen = 0.5;
     double delta = 1.0;
     if (!Xapian::Weight::Internal::double_param(&p, &k1))
-	parameter_error("Parameter 1 (k1) is invalid", params);
+        parameter_error("Parameter 1 (k1) is invalid", params);
     if (*p && !Xapian::Weight::Internal::double_param(&p, &k2))
-	parameter_error("Parameter 2 (k2) is invalid", params);
+        parameter_error("Parameter 2 (k2) is invalid", params);
     if (*p && !Xapian::Weight::Internal::double_param(&p, &k3))
-	parameter_error("Parameter 3 (k3) is invalid", params);
+        parameter_error("Parameter 3 (k3) is invalid", params);
     if (*p && !Xapian::Weight::Internal::double_param(&p, &b))
-	parameter_error("Parameter 4 (b) is invalid", params);
+        parameter_error("Parameter 4 (b) is invalid", params);
     if (*p && !Xapian::Weight::Internal::double_param(&p, &min_normlen))
-	parameter_error("Parameter 5 (min_normlen) is invalid", params);
+        parameter_error("Parameter 5 (min_normlen) is invalid", params);
     if (*p && !Xapian::Weight::Internal::double_param(&p, &delta))
-	parameter_error("Parameter 6 (delta) is invalid", params);
+        parameter_error("Parameter 6 (delta) is invalid", params);
     if (*p)
-	parameter_error("Extra data after parameter 6", params);
+        parameter_error("Extra data after parameter 6", params);
     return new Xapian::BM25PlusWeight(k1, k2, k3, b, min_normlen, delta);
 }
 

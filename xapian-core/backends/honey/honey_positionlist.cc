@@ -35,7 +35,7 @@ using namespace std;
 
 void
 HoneyPositionTable::pack(string& s,
-			 const Xapian::VecCOW<Xapian::termpos>& vec) const
+                         const Xapian::VecCOW<Xapian::termpos>& vec) const
 {
     LOGCALL_VOID(DB, "HoneyPositionTable::pack", s | vec);
     Assert(!vec.empty());
@@ -43,34 +43,34 @@ HoneyPositionTable::pack(string& s,
     pack_uint(s, vec.back());
 
     if (vec.size() > 1) {
-	BitWriter wr(s);
-	wr.encode(vec[0], vec.back());
-	wr.encode(vec.size() - 2, vec.back() - vec[0]);
-	wr.encode_interpolative(vec, 0, vec.size() - 1);
-	swap(s, wr.freeze());
+        BitWriter wr(s);
+        wr.encode(vec[0], vec.back());
+        wr.encode(vec.size() - 2, vec.back() - vec[0]);
+        wr.encode_interpolative(vec, 0, vec.size() - 1);
+        swap(s, wr.freeze());
     }
 }
 
 Xapian::termcount
 HoneyPositionTable::positionlist_count(Xapian::docid did,
-				       string_view term) const
+                                       string_view term) const
 {
     LOGCALL(DB, Xapian::termcount, "HoneyPositionTable::positionlist_count", did | term);
 
     string data;
     if (!get_exact_entry(make_key(did, term), data)) {
-	RETURN(0);
+        RETURN(0);
     }
 
     const char* pos = data.data();
     const char* end = pos + data.size();
     Xapian::termpos pos_last;
     if (!unpack_uint(&pos, end, &pos_last)) {
-	throw Xapian::DatabaseCorruptError("Position list data corrupt");
+        throw Xapian::DatabaseCorruptError("Position list data corrupt");
     }
     if (pos == end) {
-	// Special case for single entry position list.
-	RETURN(1);
+        // Special case for single entry position list.
+        RETURN(1);
     }
 
     // Skip the header we just read.
@@ -90,25 +90,25 @@ HoneyBasePositionList::set_data(const string& data)
     have_started = false;
 
     if (data.empty()) {
-	// There's no positional information for this term.
-	size = 0;
-	last = 0;
-	current_pos = 1;
-	return;
+        // There's no positional information for this term.
+        size = 0;
+        last = 0;
+        current_pos = 1;
+        return;
     }
 
     const char* pos = data.data();
     const char* end = pos + data.size();
     Xapian::termpos pos_last;
     if (!unpack_uint(&pos, end, &pos_last)) {
-	throw Xapian::DatabaseCorruptError("Position list data corrupt");
+        throw Xapian::DatabaseCorruptError("Position list data corrupt");
     }
 
     if (pos == end) {
-	// Special case for single entry position list.
-	size = 1;
-	current_pos = last = pos_last;
-	return;
+        // Special case for single entry position list.
+        size = 1;
+        current_pos = last = pos_last;
+        return;
     }
 
     rd.init(pos, end);
@@ -147,11 +147,11 @@ HoneyBasePositionList::next()
 {
     LOGCALL(DB, bool, "HoneyBasePositionList::next", NO_ARGS);
     if (rare(!have_started)) {
-	have_started = true;
-	return current_pos <= last;
+        have_started = true;
+        return current_pos <= last;
     }
     if (current_pos == last) {
-	return false;
+        return false;
     }
     current_pos = rd.decode_interpolative_next();
     return true;
@@ -163,17 +163,17 @@ HoneyBasePositionList::skip_to(Xapian::termpos termpos)
     LOGCALL(DB, bool, "HoneyBasePositionList::skip_to", termpos);
     have_started = true;
     if (termpos >= last) {
-	if (termpos == last) {
-	    current_pos = last;
-	    return true;
-	}
-	return false;
+        if (termpos == last) {
+            current_pos = last;
+            return true;
+        }
+        return false;
     }
     while (current_pos < termpos) {
-	if (current_pos == last) {
-	    return false;
-	}
-	current_pos = rd.decode_interpolative_next();
+        if (current_pos == last) {
+            return false;
+        }
+        current_pos = rd.decode_interpolative_next();
     }
     return true;
 }
@@ -202,14 +202,14 @@ HoneyRePositionList::assign_data(string&& data)
 
 void
 HoneyRePositionList::read_data(Xapian::docid did,
-			       const string& term)
+                               const string& term)
 {
     LOGCALL_VOID(DB, "HoneyRePositionList::read_data", did | term);
 
     if (!cursor.find_exact(HoneyPositionTable::make_key(did, term))) {
-	cursor.current_tag.clear();
+        cursor.current_tag.clear();
     } else {
-	cursor.read_tag();
+        cursor.read_tag();
     }
 
     set_data(cursor.current_tag);

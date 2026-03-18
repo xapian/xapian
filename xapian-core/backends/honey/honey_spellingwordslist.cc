@@ -55,13 +55,13 @@ HoneySpellingWordsList::get_termfreq() const
     Assert(!cursor->after_end());
     Assert(!cursor->current_key.empty());
     AssertRel(static_cast<unsigned char>(cursor->current_key[0]), >=,
-	      Honey::KEY_PREFIX_WORD);
+              Honey::KEY_PREFIX_WORD);
     cursor->read_tag();
 
     Xapian::termcount freq;
     const char* p = cursor->current_tag.data();
     if (!unpack_uint_last(&p, p + cursor->current_tag.size(), &freq)) {
-	throw Xapian::DatabaseCorruptError("Bad spelling word freq");
+        throw Xapian::DatabaseCorruptError("Bad spelling word freq");
     }
     RETURN(freq);
 }
@@ -73,22 +73,22 @@ HoneySpellingWordsList::next()
     Assert(cursor);
 
     if (cursor->after_end()) {
-	// This is the first action on a new HoneySpellingWordsList.
-	(void)cursor->find_entry_ge(string(1, char(Honey::KEY_PREFIX_WORD)));
+        // This is the first action on a new HoneySpellingWordsList.
+        (void)cursor->find_entry_ge(string(1, char(Honey::KEY_PREFIX_WORD)));
     } else {
-	cursor->next();
+        cursor->next();
     }
     if (cursor->after_end()) {
-	// We've reached the end of the prefixed terms.
-	RETURN(this);
+        // We've reached the end of the prefixed terms.
+        RETURN(this);
     }
     const string& key = cursor->current_key;
     unsigned char first = key[0];
     AssertRel(first, >=, Honey::KEY_PREFIX_WORD);
     if (first > Honey::KEY_PREFIX_WORD) {
-	current_term = key;
+        current_term = key;
     } else {
-	current_term.assign(key, 1);
+        current_term.assign(key, 1);
     }
     RETURN(NULL);
 }
@@ -100,23 +100,23 @@ HoneySpellingWordsList::skip_to(string_view term)
     Assert(cursor);
 
     if (cursor->find_entry_ge(Honey::make_spelling_wordlist_key(term))) {
-	// Exact match.
-	current_term = term;
+        // Exact match.
+        current_term = term;
     } else {
-	// The exact term we asked for isn't there, so check if the next term
-	// after it also has a W prefix.
-	if (cursor->after_end()) {
-	    // We've reached the end of the prefixed terms.
-	    RETURN(this);
-	}
-	const string& key = cursor->current_key;
-	unsigned char first = key[0];
-	AssertRel(first, >=, Honey::KEY_PREFIX_WORD);
-	if (first > Honey::KEY_PREFIX_WORD) {
-	    current_term = key;
-	} else {
-	    current_term.assign(key, 1);
-	}
+        // The exact term we asked for isn't there, so check if the next term
+        // after it also has a W prefix.
+        if (cursor->after_end()) {
+            // We've reached the end of the prefixed terms.
+            RETURN(this);
+        }
+        const string& key = cursor->current_key;
+        unsigned char first = key[0];
+        AssertRel(first, >=, Honey::KEY_PREFIX_WORD);
+        if (first > Honey::KEY_PREFIX_WORD) {
+            current_term = key;
+        } else {
+            current_term.assign(key, 1);
+        }
     }
     RETURN(NULL);
 }

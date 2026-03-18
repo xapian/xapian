@@ -54,7 +54,7 @@
 // initial byte which indicates the width for the chunk
 // plus an exact number of entries.
 static_assert((HONEY_DOCLEN_CHUNK_MAX - 1) % 12 == 0,
-	      "HONEY_DOCLEN_CHUNK_MAX should be (12 * x + 1)");
+              "HONEY_DOCLEN_CHUNK_MAX should be (12 * x + 1)");
 
 /** The largest docid value supported by honey.
  *
@@ -93,7 +93,7 @@ enum {
 #define KEY_DOCLEN_PREFIX "\0\xf7"
 
 static_assert(((KEY_VALUE_CHUNK_HI - KEY_VALUE_CHUNK) & 0x07) == 0,
-	      "No wasted values");
+              "No wasted values");
 
 }
 

@@ -47,7 +47,7 @@ class BackendManagerGlass : public BackendManager {
 
     /// Create a Glass Xapian::WritableDatabase object indexing a single file.
     Xapian::WritableDatabase get_writable_database(const std::string & name,
-						   const std::string & file);
+                                                   const std::string & file);
 
     /// Get the path of Glass Xapian::WritableDatabase instance.
     std::string get_writable_database_path(const std::string & name);

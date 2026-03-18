@@ -32,16 +32,16 @@ Xapian::Database get_database(const std::string &db);
 Xapian::Database get_database(const std::string &db1, const std::string &db2);
 
 Xapian::Database get_database(const std::string &db,
-			      void (*gen)(Xapian::WritableDatabase&,
-					  const std::string &),
-			      const std::string &arg = std::string());
+                              void (*gen)(Xapian::WritableDatabase&,
+                                          const std::string &),
+                              const std::string &arg = std::string());
 
 std::string get_database_path(const std::string &db);
 
 std::string get_database_path(const std::string &db,
-			      void (*gen)(Xapian::WritableDatabase&,
-					  const std::string &),
-			      const std::string &arg = std::string());
+                              void (*gen)(Xapian::WritableDatabase&,
+                                          const std::string &),
+                              const std::string &arg = std::string());
 
 Xapian::WritableDatabase get_writable_database(const std::string &db = std::string());
 
@@ -52,8 +52,8 @@ std::string get_named_writable_database_path(const std::string &name);
 std::string get_compaction_output_path(const std::string& name);
 
 Xapian::Database get_remote_database(const std::string& db,
-				     unsigned timeout,
-				     int* port_ptr = nullptr);
+                                     unsigned timeout,
+                                     int* port_ptr = nullptr);
 
 /** Kill the server associated with remote database @a db.
  *
@@ -84,6 +84,6 @@ void skip_test_for_backend(const std::string & backend_prefix);
 #define SKIP_TEST_FOR_BACKEND(B) skip_test_for_backend(B)
 
 void XFAIL_FOR_BACKEND(const std::string& backend_prefix,
-		       const char* msg);
+                       const char* msg);
 
 #endif // XAPIAN_INCLUDED_APITEST_H
