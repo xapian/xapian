@@ -86,7 +86,7 @@ Inverter::set_positionlist(const GlassPositionListTable & position_table,
         Xapian::PositionIterator pos = t.positionlist_begin();
         if (pos != t.positionlist_end()) {
             Xapian::VecCOW<Xapian::termpos> posvec;
-            posvec.reserve(t.positionlist_count());
+            posvec.reserve(pos.internal->get_approx_size());
             while (pos != t.positionlist_end()) {
                 posvec.push_back(*pos);
                 ++pos;

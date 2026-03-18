@@ -80,7 +80,7 @@ HoneyInverter::set_positionlist(const HoneyPositionTable& position_table,
         Xapian::PositionIterator pos = term_it.positionlist_begin();
         if (pos != term_it.positionlist_end()) {
             Xapian::VecCOW<Xapian::termpos> posvec;
-            posvec.reserve(term_it.positionlist_count());
+            posvec.reserve(pos.internal->get_approx_size());
             while (pos != term_it.positionlist_end()) {
                 posvec.push_back(*pos);
                 ++pos;
