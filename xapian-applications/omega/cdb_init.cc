@@ -137,10 +137,6 @@ void
 cdb_free(struct cdb *cdbp)
 {
   if (cdbp->cdb_mem) {
-#ifdef _WIN32
-    HANDLE hFile, hMapping;
-#endif
-
 #ifndef HAVE_MMAP
 #ifdef __cplusplus
     void * p = const_cast<void*>((const void*)cdbp->cdb_mem);
