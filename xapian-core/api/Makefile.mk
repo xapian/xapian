@@ -41,6 +41,7 @@ lib_src +=\
 	api/postingsource.cc\
 	api/query.cc\
 	api/queryinternal.cc\
+	api/rangeproc.cc\
 	api/registry.cc\
 	api/rset.cc\
 	api/smallvector.cc\
@@ -49,7 +50,6 @@ lib_src +=\
 	api/termiterator.cc\
 	api/termlist.cc\
 	api/valueiterator.cc\
-	api/valuerangeproc.cc\
 	api/valuesetmatchdecider.cc\
 	api/vectortermlist.cc
 
