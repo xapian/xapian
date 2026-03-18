@@ -1,0 +1,31 @@
+# https://editorconfig.org
+
+# top-most EditorConfig file
+root = true
+
+# Unix-style newlines with a newline ending every file
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+
+# 4 space indentation
+[*.{c,cc,cs,h,java,lemony,lt,m4,py,rst,tcl},NEWS]
+indent_style = space
+indent_size = 4
+
+# 2 space indentation
+[*.{lua,rb,sbl}]
+indent_style = space
+indent_size = 2
+
+# 8-column tab indentation
+[Makefile,Makefile.am,Makefile.mk]
+indent_style = tab
+indent_size = 8
+
+# Maintained elsewhere
+[cdb*.{c,cc,h}]
+indent_style = tab
+indent_size = 2
+tab_width = 8
