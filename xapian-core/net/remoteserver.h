@@ -1,7 +1,7 @@
 /** @file
  *  @brief Xapian remote backend server base class
  */
-/* Copyright (C) 2006-2024 Olly Betts
+/* Copyright (C) 2006-2026 Olly Betts
  * Copyright (C) 2007,2009,2010 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -31,6 +31,7 @@
 #include "remoteconnection.h"
 
 #include <string>
+#include <string_view>
 
 /** Remote backend server base class. */
 class XAPIAN_VISIBILITY_DEFAULT RemoteServer : private RemoteConnection {
@@ -88,155 +89,155 @@ class XAPIAN_VISIBILITY_DEFAULT RemoteServer : private RemoteConnection {
 
     // all terms
     XAPIAN_VISIBILITY_INTERNAL
-    void msg_allterms(const std::string & message);
+    void msg_allterms(std::string_view message);
 
     // get document
     XAPIAN_VISIBILITY_INTERNAL
-    void msg_document(const std::string & message);
+    void msg_document(std::string_view message);
 
     // term exists?
     XAPIAN_VISIBILITY_INTERNAL
-    void msg_termexists(const std::string & message);
+    void msg_termexists(std::string_view message);
 
     // get collection freq
     XAPIAN_VISIBILITY_INTERNAL
-    void msg_collfreq(const std::string & message);
+    void msg_collfreq(std::string_view message);
 
     // get termfreq
     XAPIAN_VISIBILITY_INTERNAL
-    void msg_termfreq(const std::string & message);
+    void msg_termfreq(std::string_view message);
 
     // get termfreq and collection freq
     XAPIAN_VISIBILITY_INTERNAL
-    void msg_freqs(const std::string & message);
+    void msg_freqs(std::string_view message);
 
     // get value statistics
     XAPIAN_VISIBILITY_INTERNAL
-    void msg_valuestats(const std::string & message);
+    void msg_valuestats(std::string_view message);
 
     // keep alive
     XAPIAN_VISIBILITY_INTERNAL
-    void msg_keepalive(const std::string & message);
+    void msg_keepalive(std::string_view message);
 
     // get doclength
     XAPIAN_VISIBILITY_INTERNAL
-    void msg_doclength(const std::string & message);
+    void msg_doclength(std::string_view message);
 
     // set the query; return the mset
     XAPIAN_VISIBILITY_INTERNAL
-    void msg_query(const std::string & message);
+    void msg_query(std::string_view message);
 
     // get termlist
     XAPIAN_VISIBILITY_INTERNAL
-    void msg_termlist(const std::string & message);
+    void msg_termlist(std::string_view message);
 
     // get postlist
     XAPIAN_VISIBILITY_INTERNAL
-    void msg_postlist(const std::string & message);
+    void msg_postlist(std::string_view message);
 
     // get positionlist
     XAPIAN_VISIBILITY_INTERNAL
-    void msg_positionlist(const std::string &message);
+    void msg_positionlist(std::string_view message);
 
     // get positionlist count
     XAPIAN_VISIBILITY_INTERNAL
-    void msg_positionlistcount(const std::string &message);
+    void msg_positionlistcount(std::string_view message);
 
     // get write access
     XAPIAN_VISIBILITY_INTERNAL
-    void msg_writeaccess(const std::string & message);
+    void msg_writeaccess(std::string_view message);
 
     // reopen
     XAPIAN_VISIBILITY_INTERNAL
-    void msg_reopen(const std::string & message);
+    void msg_reopen(std::string_view message);
 
     // get updated doccount and avlength
     XAPIAN_VISIBILITY_INTERNAL
-    void msg_update(const std::string &message);
+    void msg_update(std::string_view message);
 
     // commit
     XAPIAN_VISIBILITY_INTERNAL
-    void msg_commit(const std::string & message);
+    void msg_commit(std::string_view message);
 
     // cancel
     XAPIAN_VISIBILITY_INTERNAL
-    void msg_cancel(const std::string &message);
+    void msg_cancel(std::string_view message);
 
     // add document
     XAPIAN_VISIBILITY_INTERNAL
-    void msg_adddocument(const std::string & message);
+    void msg_adddocument(std::string_view message);
 
     // delete document
     XAPIAN_VISIBILITY_INTERNAL
-    void msg_deletedocument(const std::string & message);
+    void msg_deletedocument(std::string_view message);
 
     // delete document with unique term
     XAPIAN_VISIBILITY_INTERNAL
-    void msg_deletedocumentterm(const std::string & message);
+    void msg_deletedocumentterm(std::string_view message);
 
     // replace document
     XAPIAN_VISIBILITY_INTERNAL
-    void msg_replacedocument(const std::string & message);
+    void msg_replacedocument(std::string_view message);
 
     // replace document with unique term
     XAPIAN_VISIBILITY_INTERNAL
-    void msg_replacedocumentterm(const std::string & message);
+    void msg_replacedocumentterm(std::string_view message);
 
     // get metadata
     XAPIAN_VISIBILITY_INTERNAL
-    void msg_getmetadata(const std::string & message);
+    void msg_getmetadata(std::string_view message);
 
     // read metadata key list
     XAPIAN_VISIBILITY_INTERNAL
-    void msg_metadatakeylist(const std::string & message);
+    void msg_metadatakeylist(std::string_view message);
 
     // set metadata
     XAPIAN_VISIBILITY_INTERNAL
-    void msg_setmetadata(const std::string & message);
+    void msg_setmetadata(std::string_view message);
 
     // request a document (pre-fetch hint)
     XAPIAN_VISIBILITY_INTERNAL
-    void msg_requestdocument(const std::string& message);
+    void msg_requestdocument(std::string_view message);
 
     // add a spelling
     XAPIAN_VISIBILITY_INTERNAL
-    void msg_addspelling(const std::string & message);
+    void msg_addspelling(std::string_view message);
 
     // remove a spelling
     XAPIAN_VISIBILITY_INTERNAL
-    void msg_removespelling(const std::string & message);
+    void msg_removespelling(std::string_view message);
 
     // get number of unique terms
     XAPIAN_VISIBILITY_INTERNAL
-    void msg_uniqueterms(const std::string & message);
+    void msg_uniqueterms(std::string_view message);
 
     // get max_wdf
     XAPIAN_VISIBILITY_INTERNAL
-    void msg_wdfdocmax(const std::string& message);
+    void msg_wdfdocmax(std::string_view message);
 
     // reconstruct document text
     XAPIAN_VISIBILITY_INTERNAL
-    void msg_reconstructtext(const std::string& message);
+    void msg_reconstructtext(std::string_view message);
 
     // get synonyms for a term
     XAPIAN_VISIBILITY_INTERNAL
-    void msg_synonymtermlist(const std::string& message);
+    void msg_synonymtermlist(std::string_view message);
 
     // get terms with an entry in synonym table, starting with a prefix
     XAPIAN_VISIBILITY_INTERNAL
-    void msg_synonymkeylist(const std::string& message);
+    void msg_synonymkeylist(std::string_view message);
 
     // add a synonym
     XAPIAN_VISIBILITY_INTERNAL
-    void msg_addsynonym(const std::string& message);
+    void msg_addsynonym(std::string_view message);
 
     // remove a synonym
     XAPIAN_VISIBILITY_INTERNAL
-    void msg_removesynonym(const std::string& message);
+    void msg_removesynonym(std::string_view message);
 
     // clear synonyms for a term
     XAPIAN_VISIBILITY_INTERNAL
-    void msg_clearsynonyms(const std::string& message);
+    void msg_clearsynonyms(std::string_view message);
 
   public:
     /** Construct a RemoteServer.

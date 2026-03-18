@@ -1,7 +1,7 @@
 /** @file
  *  @brief Xapian remote backend server base class
  */
-/* Copyright (C) 2006-2024 Olly Betts
+/* Copyright (C) 2006-2026 Olly Betts
  * Copyright (C) 2006,2007,2009,2010 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -107,7 +107,7 @@ RemoteServer::RemoteServer(const vector<string>& dbpaths,
 #endif
 
     // Send greeting message.
-    msg_update(string());
+    msg_update(string_view());
 }
 
 RemoteServer::~RemoteServer()
@@ -153,7 +153,7 @@ RemoteServer::send_message(reply_type type, string_view message)
     RemoteConnection::send_message(type_as_char, message, end_time);
 }
 
-typedef void (RemoteServer::* dispatch_func)(const string &);
+typedef void (RemoteServer::* dispatch_func)(string_view);
 
 void
 RemoteServer::run()
@@ -320,11 +320,10 @@ RemoteServer::run()
 }
 
 void
-RemoteServer::msg_allterms(const string& message)
+RemoteServer::msg_allterms(string_view prefix)
 {
     string reply;
-    string prev = message;
-    const string& prefix = message;
+    string prev(prefix);
     for (Xapian::TermIterator t = db->allterms_begin(prefix);
          t != db->allterms_end(prefix);
          ++t) {
@@ -340,7 +339,7 @@ RemoteServer::msg_allterms(const string& message)
 }
 
 void
-RemoteServer::msg_termlist(const string &message)
+RemoteServer::msg_termlist(string_view message)
 {
     const char *p = message.data();
     const char *p_end = p + message.size();
@@ -374,7 +373,7 @@ RemoteServer::msg_termlist(const string &message)
 }
 
 void
-RemoteServer::msg_positionlist(const string &message)
+RemoteServer::msg_positionlist(string_view message)
 {
     const char *p = message.data();
     const char *p_end = p + message.size();
@@ -397,7 +396,7 @@ RemoteServer::msg_positionlist(const string &message)
 }
 
 void
-RemoteServer::msg_positionlistcount(const string &message)
+RemoteServer::msg_positionlistcount(string_view message)
 {
     const char *p = message.data();
     const char *p_end = p + message.size();
@@ -422,10 +421,8 @@ RemoteServer::msg_positionlistcount(const string &message)
 }
 
 void
-RemoteServer::msg_postlist(const string &message)
+RemoteServer::msg_postlist(string_view term)
 {
-    const string & term = message;
-
     Xapian::doccount termfreq = db->get_termfreq(term);
     string reply;
     pack_uint_last(reply, termfreq);
@@ -447,13 +444,13 @@ RemoteServer::msg_postlist(const string &message)
 }
 
 void
-RemoteServer::msg_writeaccess(const string & msg)
+RemoteServer::msg_writeaccess(string_view msg)
 {
     if (!writable)
         throw_read_only();
 
     int flags = 0;
-    const char *p = msg.c_str();
+    const char *p = msg.data();
     const char *p_end = p + msg.size();
     if (p != p_end) {
         unsigned flag_bits;
@@ -470,7 +467,7 @@ RemoteServer::msg_writeaccess(const string & msg)
 }
 
 void
-RemoteServer::msg_reopen(const string & msg)
+RemoteServer::msg_reopen(string_view msg)
 {
     if (!db->reopen()) {
         send_message(REPLY_DONE, {});
@@ -480,7 +477,7 @@ RemoteServer::msg_reopen(const string & msg)
 }
 
 void
-RemoteServer::msg_update(const string &)
+RemoteServer::msg_update(string_view)
 {
     static const char protocol[2] = {
         char(XAPIAN_REMOTE_PROTOCOL_MAJOR_VERSION),
@@ -500,9 +497,9 @@ RemoteServer::msg_update(const string &)
 }
 
 void
-RemoteServer::msg_query(const string &message_in)
+RemoteServer::msg_query(string_view message_in)
 {
-    const char *p = message_in.c_str();
+    const char *p = message_in.data();
     const char *p_end = p + message_in.size();
 
     // Unserialise the Query.
@@ -674,7 +671,7 @@ RemoteServer::msg_query(const string &message_in)
 }
 
 void
-RemoteServer::msg_document(const string &message)
+RemoteServer::msg_document(string_view message)
 {
     const char *p = message.data();
     const char *p_end = p + message.size();
@@ -698,7 +695,7 @@ RemoteServer::msg_document(const string &message)
 }
 
 void
-RemoteServer::msg_keepalive(const string &)
+RemoteServer::msg_keepalive(string_view)
 {
     // Ensure *our* database stays alive, as it may contain remote databases!
     db->keep_alive();
@@ -706,14 +703,14 @@ RemoteServer::msg_keepalive(const string &)
 }
 
 void
-RemoteServer::msg_termexists(const string &term)
+RemoteServer::msg_termexists(string_view term)
 {
     send_message((db->term_exists(term) ? REPLY_TERMEXISTS
                                         : REPLY_TERMDOESNTEXIST), {});
 }
 
 void
-RemoteServer::msg_collfreq(const string &term)
+RemoteServer::msg_collfreq(string_view term)
 {
     string reply;
     pack_uint_last(reply, db->get_collection_freq(term));
@@ -721,7 +718,7 @@ RemoteServer::msg_collfreq(const string &term)
 }
 
 void
-RemoteServer::msg_termfreq(const string &term)
+RemoteServer::msg_termfreq(string_view term)
 {
     string reply;
     pack_uint_last(reply, db->get_termfreq(term));
@@ -729,7 +726,7 @@ RemoteServer::msg_termfreq(const string &term)
 }
 
 void
-RemoteServer::msg_freqs(const string &term)
+RemoteServer::msg_freqs(string_view term)
 {
     string msg;
     pack_uint(msg, db->get_termfreq(term));
@@ -738,7 +735,7 @@ RemoteServer::msg_freqs(const string &term)
 }
 
 void
-RemoteServer::msg_valuestats(const string & message)
+RemoteServer::msg_valuestats(string_view message)
 {
     const char *p = message.data();
     const char *p_end = p + message.size();
@@ -755,7 +752,7 @@ RemoteServer::msg_valuestats(const string & message)
 }
 
 void
-RemoteServer::msg_doclength(const string &message)
+RemoteServer::msg_doclength(string_view message)
 {
     const char *p = message.data();
     const char *p_end = p + message.size();
@@ -769,7 +766,7 @@ RemoteServer::msg_doclength(const string &message)
 }
 
 void
-RemoteServer::msg_uniqueterms(const string &message)
+RemoteServer::msg_uniqueterms(string_view message)
 {
     const char *p = message.data();
     const char *p_end = p + message.size();
@@ -783,7 +780,7 @@ RemoteServer::msg_uniqueterms(const string &message)
 }
 
 void
-RemoteServer::msg_wdfdocmax(const string& message)
+RemoteServer::msg_wdfdocmax(string_view message)
 {
     const char* p = message.data();
     const char* p_end = p + message.size();
@@ -797,7 +794,7 @@ RemoteServer::msg_wdfdocmax(const string& message)
 }
 
 void
-RemoteServer::msg_reconstructtext(const string& message)
+RemoteServer::msg_reconstructtext(string_view message)
 {
     const char* p = message.data();
     const char* p_end = p + message.size();
@@ -816,7 +813,7 @@ RemoteServer::msg_reconstructtext(const string& message)
 }
 
 void
-RemoteServer::msg_commit(const string &)
+RemoteServer::msg_commit(string_view)
 {
     if (!wdb)
         throw_read_only();
@@ -827,7 +824,7 @@ RemoteServer::msg_commit(const string &)
 }
 
 void
-RemoteServer::msg_cancel(const string &)
+RemoteServer::msg_cancel(string_view)
 {
     if (!wdb)
         throw_read_only();
@@ -841,7 +838,7 @@ RemoteServer::msg_cancel(const string &)
 }
 
 void
-RemoteServer::msg_adddocument(const string & message)
+RemoteServer::msg_adddocument(string_view message)
 {
     if (!wdb)
         throw_read_only();
@@ -854,7 +851,7 @@ RemoteServer::msg_adddocument(const string & message)
 }
 
 void
-RemoteServer::msg_deletedocument(const string & message)
+RemoteServer::msg_deletedocument(string_view message)
 {
     if (!wdb)
         throw_read_only();
@@ -872,7 +869,7 @@ RemoteServer::msg_deletedocument(const string & message)
 }
 
 void
-RemoteServer::msg_deletedocumentterm(const string & message)
+RemoteServer::msg_deletedocumentterm(string_view message)
 {
     if (!wdb)
         throw_read_only();
@@ -883,7 +880,7 @@ RemoteServer::msg_deletedocumentterm(const string & message)
 }
 
 void
-RemoteServer::msg_replacedocument(const string & message)
+RemoteServer::msg_replacedocument(string_view message)
 {
     if (!wdb)
         throw_read_only();
@@ -895,13 +892,13 @@ RemoteServer::msg_replacedocument(const string & message)
         throw Xapian::NetworkError("Bad MSG_REPLACEDOCUMENT");
     }
 
-    wdb->replace_document(did, unserialise_document(string(p, p_end)));
+    wdb->replace_document(did, unserialise_document(string_view(p, p_end)));
 
     send_message(REPLY_DONE, {});
 }
 
 void
-RemoteServer::msg_replacedocumentterm(const string & message)
+RemoteServer::msg_replacedocumentterm(string_view message)
 {
     if (!wdb)
         throw_read_only();
@@ -912,25 +909,24 @@ RemoteServer::msg_replacedocumentterm(const string & message)
     if (!unpack_string(&p, p_end, unique_term)) {
         throw Xapian::NetworkError("Bad MSG_REPLACEDOCUMENTTERM");
     }
-    Xapian::docid did = wdb->replace_document(unique_term, unserialise_document(string(p, p_end)));
-
+    string_view s(p, p_end);
+    auto did = wdb->replace_document(unique_term, unserialise_document(s));
     string reply;
     pack_uint_last(reply, did);
     send_message(REPLY_ADDDOCUMENT, reply);
 }
 
 void
-RemoteServer::msg_getmetadata(const string & message)
+RemoteServer::msg_getmetadata(string_view message)
 {
     send_message(REPLY_METADATA, db->get_metadata(message));
 }
 
 void
-RemoteServer::msg_metadatakeylist(const string& message)
+RemoteServer::msg_metadatakeylist(string_view prefix)
 {
     string reply;
-    string prev = message;
-    const string& prefix = message;
+    string prev(prefix);
     for (Xapian::TermIterator t = db->metadata_keys_begin(prefix);
          t != db->metadata_keys_end(prefix);
          ++t) {
@@ -945,7 +941,7 @@ RemoteServer::msg_metadatakeylist(const string& message)
 }
 
 void
-RemoteServer::msg_setmetadata(const string & message)
+RemoteServer::msg_setmetadata(string_view message)
 {
     if (!wdb)
         throw_read_only();
@@ -962,7 +958,7 @@ RemoteServer::msg_setmetadata(const string & message)
 }
 
 void
-RemoteServer::msg_requestdocument(const string& message)
+RemoteServer::msg_requestdocument(string_view message)
 {
     const char* p = message.data();
     const char* p_end = p + message.size();
@@ -972,11 +968,11 @@ RemoteServer::msg_requestdocument(const string& message)
     }
     db->internal->request_document(did);
 
-    send_message(REPLY_DONE, string());
+    send_message(REPLY_DONE, string_view());
 }
 
 void
-RemoteServer::msg_addspelling(const string & message)
+RemoteServer::msg_addspelling(string_view message)
 {
     if (!wdb)
         throw_read_only();
@@ -986,13 +982,13 @@ RemoteServer::msg_addspelling(const string & message)
     if (!unpack_uint(&p, p_end, &freqinc)) {
         throw Xapian::NetworkError("Bad MSG_ADDSPELLING");
     }
-    wdb->add_spelling(string(p, p_end - p), freqinc);
+    wdb->add_spelling(string_view(p, p_end - p), freqinc);
 
     send_message(REPLY_DONE, {});
 }
 
 void
-RemoteServer::msg_removespelling(const string & message)
+RemoteServer::msg_removespelling(string_view message)
 {
     if (!wdb)
         throw_read_only();
@@ -1002,13 +998,14 @@ RemoteServer::msg_removespelling(const string & message)
     if (!unpack_uint(&p, p_end, &freqdec)) {
         throw Xapian::NetworkError("Bad MSG_REMOVESPELLING");
     }
+    auto result = wdb->remove_spelling(string_view(p, p_end - p), freqdec);
     string reply;
-    pack_uint_last(reply, wdb->remove_spelling(string(p, p_end - p), freqdec));
+    pack_uint_last(reply, result);
     send_message(REPLY_REMOVESPELLING, reply);
 }
 
 void
-RemoteServer::msg_synonymtermlist(const string& message)
+RemoteServer::msg_synonymtermlist(string_view message)
 {
     Xapian::TermIterator t = db->synonyms_begin(message);
     string reply, prev;
@@ -1025,7 +1022,7 @@ RemoteServer::msg_synonymtermlist(const string& message)
 }
 
 void
-RemoteServer::msg_synonymkeylist(const string& message)
+RemoteServer::msg_synonymkeylist(string_view message)
 {
     Xapian::TermIterator t = db->synonym_keys_begin(message);
     string reply, prev;
@@ -1042,7 +1039,7 @@ RemoteServer::msg_synonymkeylist(const string& message)
 }
 
 void
-RemoteServer::msg_addsynonym(const string& message)
+RemoteServer::msg_addsynonym(string_view message)
 {
     if (!wdb)
         throw_read_only();
@@ -1053,12 +1050,12 @@ RemoteServer::msg_addsynonym(const string& message)
     if (!unpack_string(&p, p_end, term)) {
         throw Xapian::NetworkError("Bad MSG_ADDSYNONYM");
     }
-    wdb->add_synonym(term, string(p, p_end - p));
+    wdb->add_synonym(term, string_view(p, p_end - p));
     send_message(REPLY_DONE, {});
 }
 
 void
-RemoteServer::msg_removesynonym(const string& message)
+RemoteServer::msg_removesynonym(string_view message)
 {
     if (!wdb)
         throw_read_only();
@@ -1069,12 +1066,12 @@ RemoteServer::msg_removesynonym(const string& message)
     if (!unpack_string(&p, p_end, term)) {
         throw Xapian::NetworkError("Bad MSG_REMOVESYNONYM");
     }
-    wdb->remove_synonym(term, string(p, p_end - p));
+    wdb->remove_synonym(term, string_view(p, p_end - p));
     send_message(REPLY_DONE, {});
 }
 
 void
-RemoteServer::msg_clearsynonyms(const string& message)
+RemoteServer::msg_clearsynonyms(string_view message)
 {
     if (!wdb)
         throw_read_only();
