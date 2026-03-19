@@ -32,7 +32,7 @@ MAINTAINERCLEANFILES = $(RSTHTML) $(GENERATED_RST)
 if DOCUMENTATION_RULES
 overview.html: overview.rst $(GENERATED_RST)
 	## docutils seems to lack any sort of "include path".
-	perl -pe 'if (/^\.\.\s*include::\s*(\S+)/) {local $$/=undef;open I,"<",$$1 or open I,"<","$(srcdir)/$$1";$$_=<I>}' '$(srcdir)/overview.rst' |\
+	perl -pe 'if (/^\.\.\s*include::\s*(\S+)/ && !-f $$1 && -f "$(srcdir)/$$1") {$$_=".. include:: $(srcdir)/$$1\n"}' '$(srcdir)/overview.rst' |\
 	    $(RST2HTML) --exit-status=warning - overview.html
 
 .rst.html:
