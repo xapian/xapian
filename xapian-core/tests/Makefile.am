@@ -33,7 +33,7 @@ up:
 	cd .. && $(MAKE)
 
 check-none: apitest$(EXEEXT) \
-            internaltest$(EXEEXT) \
+	    internaltest$(EXEEXT) \
 	    stemtest$(EXEEXT) \
 	    unittest$(EXEEXT)
 	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b none
