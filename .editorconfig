@@ -31,6 +31,6 @@ indent_size = 2
 tab_width = 8
 
 # Maintained elsewhere
-[mkdtemp.cc]
+[getopt.cc,mkdtemp.cc]
 indent_style = tab
 indent_size = 8
