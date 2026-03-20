@@ -795,13 +795,13 @@ GlassDatabase::compact(Xapian::Compactor * compactor,
     };
 
     static const table_list tables[] = {
-        // name		type			lazy
-        { "postlist",	Glass::POSTLIST,	false },
-        { "docdata",	Glass::DOCDATA,		true },
-        { "termlist",	Glass::TERMLIST,	false },
-        { "position",	Glass::POSITION,	true },
-        { "spelling",	Glass::SPELLING,	true },
-        { "synonym",	Glass::SYNONYM,		true }
+        // name         type                    lazy
+        { "postlist",   Glass::POSTLIST,        false },
+        { "docdata",    Glass::DOCDATA,         true },
+        { "termlist",   Glass::TERMLIST,        false },
+        { "position",   Glass::POSITION,        true },
+        { "spelling",   Glass::SPELLING,        true },
+        { "synonym",    Glass::SYNONYM,         true }
     };
     const table_list* tables_end = std::end(tables);
 

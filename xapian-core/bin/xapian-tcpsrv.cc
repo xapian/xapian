@@ -57,16 +57,16 @@ static void register_user_weighting_schemes(RemoteTcpServer &server) {
 
 static const char * opts = "I:p:a:i:t:oqw";
 static const struct option long_opts[] = {
-    {"interface",	required_argument,	0, 'I'},
-    {"port",		required_argument,	0, 'p'},
-    {"active-timeout",	required_argument,	0, 'a'},
-    {"idle-timeout",	required_argument,	0, 'i'},
-    {"timeout",		required_argument,	0, 't'},
-    {"one-shot",	no_argument,		0, 'o'},
-    {"quiet",		no_argument,		0, 'q'},
-    {"writable",	no_argument,		0, 'w'},
-    {"help",		no_argument,		0, OPT_HELP},
-    {"version",		no_argument,		0, OPT_VERSION},
+    {"interface",       required_argument,  0, 'I'},
+    {"port",            required_argument,  0, 'p'},
+    {"active-timeout",  required_argument,  0, 'a'},
+    {"idle-timeout",    required_argument,  0, 'i'},
+    {"timeout",         required_argument,  0, 't'},
+    {"one-shot",        no_argument,        0, 'o'},
+    {"quiet",           no_argument,        0, 'q'},
+    {"writable",        no_argument,        0, 'w'},
+    {"help",            no_argument,        0, OPT_HELP},
+    {"version",         no_argument,        0, OPT_VERSION},
     {NULL, 0, 0, 0}
 };
 

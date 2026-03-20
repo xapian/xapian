@@ -109,18 +109,18 @@ BitWriter::encode(Xapian::termpos value, Xapian::termpos outof)
          *
          * For example, if outof is 11, the codes emitted are:
          *
-         * value	output
-         * 0		0000
-         * 1		0001
-         * 2		0010
-         * 3		 011
-         * 4		 100
-         * 5		 101
-         * 6		 110
-         * 7		 111
-         * 8		1000
-         * 9		1001
-         * 10		1010
+         * value        output
+         * 0            0000
+         * 1            0001
+         * 2            0010
+         * 3             011
+         * 4             100
+         * 5             101
+         * 6             110
+         * 7             111
+         * 8            1000
+         * 9            1001
+         * 10           1010
          *
          * Note the LSB comes first in the bitstream, so these codes need to be
          * suffix-free to be decoded.

@@ -37,8 +37,8 @@ class RemoteDocument : public Xapian::Document::Internal {
 
     /** Private constructor - only called by RemoteDatabase::open_document().
      *
-     *  @param values_	The values to set - passed by non-const reference, and
-     *			may be modified by the call.
+     *  @param values_  The values to set - passed by non-const reference, and
+     *                  may be modified by the call.
      */
     RemoteDocument(const Xapian::Database::Internal *db, Xapian::docid did_,
                    std::string&& data_,

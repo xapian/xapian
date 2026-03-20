@@ -50,8 +50,8 @@ class RemoteTcpClient : SOCKET_INITIALIZER_MIXIN public RemoteDatabase {
      *  Give up trying to connect after @a timeout_connect seconds.
      *
      *  @return A std::pair containing the file descriptor for the connection
-     *		to the child process and a context string to return with any
-     *		error messages.
+     *          to the child process and a context string to return with any
+     *          error messages.
      *
      *  Note: this method is called early on during class construction before
      *  any member variables or even the base class have been initialised.
@@ -68,11 +68,11 @@ class RemoteTcpClient : SOCKET_INITIALIZER_MIXIN public RemoteDatabase {
      *  Attempts to open a TCP/IP connection to xapian-tcpsrv running on port
      *  @a port of host @a hostname.
      *
-     *  @param timeout_connect	Timeout for trying to connect (in seconds).
-     *  @param timeout		Timeout during communication after successfully
-     *				connecting (in seconds).
-     *	@param writable		Is this a WritableDatabase?
-     *	@param flags		Xapian::DB_RETRY_LOCK or 0.
+     *  @param timeout_connect  Timeout for trying to connect (in seconds).
+     *  @param timeout          Timeout during communication after successfully
+     *                          connecting (in seconds).
+     *  @param writable         Is this a WritableDatabase?
+     *  @param flags            Xapian::DB_RETRY_LOCK or 0.
      */
     RemoteTcpClient(std::string_view hostname, int port,
                     double timeout_, double timeout_connect, bool writable,

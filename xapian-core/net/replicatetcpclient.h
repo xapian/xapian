@@ -67,8 +67,8 @@ class XAPIAN_VISIBILITY_DEFAULT ReplicateTcpClient SOCKET_INITIALIZER_MIXIN {
      *  Connect to replication server running on port @a port of host @a hostname.
      *  Give up trying to connect after @a timeout_connect seconds.
      *
-     *  @param timeout_connect	 Timeout for trying to connect (in seconds).
-     *  @param socket_timeout	 Socket timeout (in seconds); 0 for no timeout.
+     *  @param timeout_connect   Timeout for trying to connect (in seconds).
+     *  @param socket_timeout    Socket timeout (in seconds); 0 for no timeout.
      */
     ReplicateTcpClient(const std::string & hostname, int port,
                        double timeout_connect, double socket_timeout);

@@ -92,13 +92,13 @@ int
 main(int argc, char **argv)
 try {
     static const struct option long_opts[] = {
-        {"doc",		required_argument, 0, 'd'},
-        {"start",	required_argument, 0, 's'},
-        {"end",		required_argument, 0, 'e'},
-        {"reconstruct",	optional_argument, 0, 'r'},
-        {"help",	no_argument, 0, OPT_HELP},
-        {"version",	no_argument, 0, OPT_VERSION},
-        {NULL,		0, 0, 0}
+        {"doc",         required_argument,  0, 'd'},
+        {"start",       required_argument,  0, 's'},
+        {"end",         required_argument,  0, 'e'},
+        {"reconstruct", optional_argument,  0, 'r'},
+        {"help",        no_argument,        0, OPT_HELP},
+        {"version",     no_argument,        0, OPT_VERSION},
+        {NULL,          0, 0, 0}
     };
 
     Xapian::docid did = 0;

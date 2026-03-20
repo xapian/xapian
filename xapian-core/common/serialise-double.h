@@ -29,19 +29,19 @@
 
 /** Serialise a double to a string.
  *
- *  @param v	The double to serialise.
+ *  @param v    The double to serialise.
  *
- *  @return	Serialisation of @a v.
+ *  @return     Serialisation of @a v.
  */
 std::string serialise_double(double v);
 
 /** Unserialise a double serialised by serialise_double.
  *
- *  @param p	Pointer to a pointer to the string, which will be advanced past
- *		the serialised double.
- *  @param end	Pointer to the end of the string.
+ *  @param p    Pointer to a pointer to the string, which will be advanced past
+ *              the serialised double.
+ *  @param end  Pointer to the end of the string.
  *
- *  @return	The unserialised double.
+ *  @return     The unserialised double.
  */
 double unserialise_double(const char ** p, const char *end);
 

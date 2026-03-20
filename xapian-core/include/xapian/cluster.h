@@ -54,8 +54,8 @@ class XAPIAN_VISIBILITY_DEFAULT StemStopper : public Xapian::Stopper {
 
     /** Constructor
      *
-     *  @param stemmer	The Xapian::Stem object to set.
-     *  @param strategy The stemming strategy to be used.
+     *  @param stemmer      The Xapian::Stem object to set.
+     *  @param strategy     The stemming strategy to be used.
      */
     explicit StemStopper(const Xapian::Stem &stemmer, stem_strategy strategy = STEM_SOME);
 
@@ -85,26 +85,26 @@ class XAPIAN_VISIBILITY_DEFAULT DocumentSet {
     /** Copying is allowed.  The internals are reference counted, so
      *  copying is cheap.
      *
-     *  @param other	The object to copy.
+     *  @param other    The object to copy.
      */
     DocumentSet(const DocumentSet &other);
 
     /** Assignment is allowed.  The internals are reference counted,
      *  so assignment is cheap.
      *
-     *  @param other	The object to copy.
+     *  @param other    The object to copy.
      */
     DocumentSet & operator=(const DocumentSet &other);
 
     /** Move constructor.
      *
-     * @param other	The object to move.
+     * @param other     The object to move.
      */
     DocumentSet(DocumentSet && other);
 
     /** Move assignment operator.
      *
-     * @param other	The object to move.
+     * @param other     The object to move.
      */
     DocumentSet & operator=(DocumentSet && other);
 
@@ -122,8 +122,8 @@ class XAPIAN_VISIBILITY_DEFAULT DocumentSet {
 
     /** Add a new Document to the DocumentSet
      *
-     *  @param document		Document object that is to be added to
-     *				the DocumentSet
+     *  @param document     Document object that is to be added to the
+     *                      DocumentSet
      */
     void add_document(const Document &document);
 };
@@ -149,7 +149,7 @@ class XAPIAN_VISIBILITY_DEFAULT FreqSource
 
     /** Return the term frequency of a particular term 'term'
      *
-     *  @param term	The term for which to return the term frequency
+     *  @param term     The term for which to return the term frequency
      */
     virtual doccount get_termfreq(const std::string& term) const = 0;
 
@@ -196,23 +196,23 @@ class XAPIAN_VISIBILITY_DEFAULT TermListGroup : public FreqSource {
 
     /** Add a single document and calculates its corresponding term frequencies
      *
-     *  @param document		Adds a document and updates the TermListGroup
-     *				based on the terms found in the document
-     *  @param stopper		Xapian::Stopper object to identify stopwords
+     *  @param document     Adds a document and updates the TermListGroup
+     *                      based on the terms found in the document
+     *  @param stopper      Xapian::Stopper object to identify stopwords
      */
     void add_document(const Document &document, const Stopper *stopper = NULL);
 
   public:
     /** Constructor
      *
-     *  @param docs	MSet object used to construct the TermListGroup
-     *  @param stopper	Xapian::Stopper object to identify stopwords
+     *  @param docs     MSet object used to construct the TermListGroup
+     *  @param stopper  Xapian::Stopper object to identify stopwords
      */
     explicit TermListGroup(const MSet &docs, const Stopper *stopper = NULL);
 
     /** Return the number of documents that the term 'term' exists in
      *
-     *  @param term	The term for which to return the term frequency
+     *  @param term     The term for which to return the term frequency
      */
     doccount get_termfreq(const std::string& term) const override;
 
@@ -234,10 +234,10 @@ class XAPIAN_VISIBILITY_DEFAULT PointType
 
     /** Set the weight 'weight' to the mapping of a term
      *
-     *  @param term	Term for which the weight is supposed
-     *			to be changed
-     *  @param weight	The weight to which the mapping of the
-     *			term is to be set
+     *  @param term     Term for which the weight is supposed
+     *                  to be changed
+     *  @param weight   The weight to which the mapping of the
+     *                  term is to be set
      */
     void set_weight(std::string_view term, double weight) {
         weights[std::string(term)] = weight;
@@ -258,7 +258,7 @@ class XAPIAN_VISIBILITY_DEFAULT PointType
     /** Validate whether a certain term exists in the termlist
      *  or not by performing a lookup operation in the existing values
      *
-     *  @param term	Term which is to be searched
+     *  @param term     Term which is to be searched
      */
     bool contains(std::string_view term) const {
         return weights.find(std::string(term)) != weights.end();
@@ -266,7 +266,7 @@ class XAPIAN_VISIBILITY_DEFAULT PointType
 
     /** Return the TF-IDF weight associated with a certain term
      *
-     *  @param term	Term for which TF-IDF weight is returned
+     *  @param term     Term for which TF-IDF weight is returned
      */
     double get_weight(std::string_view term) const {
         auto it = weights.find(std::string(term));
@@ -275,9 +275,9 @@ class XAPIAN_VISIBILITY_DEFAULT PointType
 
     /** Add the weight 'weight' to the mapping of a term
      *
-     *  @param term	Term to which the weight is to be added
-     *  @param weight	Weight which has to be added to the existing
-     *			mapping of the term
+     *  @param term     Term to which the weight is to be added
+     *  @param weight   Weight which has to be added to the existing
+     *                  mapping of the term
      */
     void add_weight(std::string_view term, double weight) {
         weights[std::string(term)] += weight;
@@ -325,11 +325,11 @@ class XAPIAN_VISIBILITY_DEFAULT Point : public PointType {
     /** Constructor
      *  Initialise the point with terms and corresponding TF-IDF weights
      *
-     *  @param freqsource	FreqSource object which provides the term
-     *				frequencies.  It is used for TF-IDF weight
-     *				calculations
-     *  @param document		The Document object over which the Point object
-     *				will be initialised
+     *  @param freqsource   FreqSource object which provides the term
+     *                      frequencies.  It is used for TF-IDF weight
+     *                      calculations
+     *  @param document     The Document object over which the Point object
+     *                      will be initialised
      */
     Point(const FreqSource& freqsource, const Document& document);
 
@@ -346,17 +346,17 @@ class XAPIAN_VISIBILITY_DEFAULT Centroid : public PointType {
 
     /** Constructor with Point argument
      *
-     *  @param point	Point object to which Centroid object is
-     *			initialised. The document vector and the
-     *			magnitude are made equal
+     *  @param point    Point object to which Centroid object is
+     *                  initialised. The document vector and the
+     *                  magnitude are made equal
      */
     explicit Centroid(const Point &point);
 
     /** Divide the weight of terms in the centroid by 'size' and
      *  recalculate the magnitude
      *
-     *  @param cluster_size	Value by which Centroid document vector is
-     *				divided
+     *  @param cluster_size     Value by which Centroid document vector is
+     *                          divided
      */
     void divide(double cluster_size);
 
@@ -376,33 +376,33 @@ class XAPIAN_VISIBILITY_DEFAULT Cluster {
     /** Copying is allowed.  The internals are reference counted, so
      *  copying is cheap.
      *
-     *  @param other	The object to copy.
+     *  @param other    The object to copy.
      */
     Cluster(const Cluster &other);
 
     /** Assignment is allowed.  The internals are reference counted,
      *  so assignment is cheap.
      *
-     *  @param other	The object to copy.
+     *  @param other    The object to copy.
      */
     Cluster& operator=(const Cluster &other);
 
     /** Move constructor.
      *
-     * @param other	The object to move.
+     * @param other     The object to move.
      */
     Cluster(Cluster && other);
 
     /** Move assignment operator.
      *
-     * @param other	The object to move.
+     * @param other     The object to move.
      */
     Cluster & operator=(Cluster && other);
 
     /** Constructor
      *
-     *  @param centroid		The centroid of the cluster object is
-     *				assigned to 'centroid'
+     *  @param centroid     The centroid of the cluster object is
+     *                      assigned to 'centroid'
      */
     explicit Cluster(const Centroid &centroid);
 
@@ -417,8 +417,8 @@ class XAPIAN_VISIBILITY_DEFAULT Cluster {
 
     /** Add a document to the Cluster
      *
-     *  @param point	The Point object representing the document which
-     *			needs to be added to the cluster
+     *  @param point    The Point object representing the document which
+     *                  needs to be added to the cluster
      */
     void add_point(const Point &point);
 
@@ -436,7 +436,7 @@ class XAPIAN_VISIBILITY_DEFAULT Cluster {
 
     /** Set the centroid of the Cluster to 'centroid'
      *
-     *  @param centroid		Centroid object for the Cluster
+     *  @param centroid     Centroid object for the Cluster
      */
     void set_centroid(const Centroid &centroid);
 
@@ -458,26 +458,26 @@ class XAPIAN_VISIBILITY_DEFAULT ClusterSet {
     /** Copying is allowed.  The internals are reference counted, so
      *  copying is cheap.
      *
-     *  @param other	The object to copy.
+     *  @param other    The object to copy.
      */
     ClusterSet(const ClusterSet &other);
 
     /** Assignment is allowed.  The internals are reference counted,
      *  so assignment is cheap.
      *
-     *  @param other	The object to copy.
+     *  @param other    The object to copy.
      */
     ClusterSet& operator=(const ClusterSet &other);
 
     /** Move constructor.
      *
-     * @param other	The object to move.
+     * @param other     The object to move.
      */
     ClusterSet(ClusterSet && other);
 
     /** Move assignment operator.
      *
-     * @param other	The object to move.
+     * @param other     The object to move.
      */
     ClusterSet & operator=(ClusterSet && other);
 
@@ -489,16 +489,16 @@ class XAPIAN_VISIBILITY_DEFAULT ClusterSet {
 
     /** Add a cluster to the ClusterSet
      *
-     *  @param cluster	Cluster object which is to be added to the ClusterSet
+     *  @param cluster  Cluster object which is to be added to the ClusterSet
      */
     void add_cluster(const Cluster &cluster);
 
     /** Add the point to the cluster at position 'index'
      *
-     *  @param point	Point object which needs to be added to
-     *			a Cluster within the ClusterSet
-     *  @param index	Index of the Cluster within the ClusterSet to
-     *			which the Point is to be added
+     *  @param point    Point object which needs to be added to
+     *                  a Cluster within the ClusterSet
+     *  @param index    Index of the Cluster within the ClusterSet to
+     *                  which the Point is to be added
      */
     void add_to_cluster(const Point &point, unsigned int index);
 
@@ -524,8 +524,8 @@ class XAPIAN_VISIBILITY_DEFAULT Similarity {
 
     /** Calculates the similarity between the two documents
      *
-     *  @param a	First point object for distance calculation
-     *  @param b	Second point object for distance calculation
+     *  @param a    First point object for distance calculation
+     *  @param b    Second point object for distance calculation
      */
     virtual double similarity(const PointType &a, const PointType &b) const = 0;
 
@@ -557,8 +557,8 @@ class XAPIAN_VISIBILITY_DEFAULT Clusterer
     /** Implement the required clustering algorithm in the subclass and
      *  and return clustered output as ClusterSet
      *
-     *  @param mset	The MSet object which contains the documents to be
-     *			clustered
+     *  @param mset     The MSet object which contains the documents to be
+     *                  clustered
      */
     virtual ClusterSet cluster(const MSet &mset) = 0;
 
@@ -609,9 +609,9 @@ class XAPIAN_VISIBILITY_DEFAULT KMeans : public Clusterer {
     /** Initialise 'k' clusters by selecting 'k' centroids and assigning
      *  them to different clusters
      *
-     *  @param cset		ClusterSet object to be initialised by assigning
-     *				centroids to each cluster
-     *  @param num_of_points	Number of points passed to clusterer
+     *  @param cset             ClusterSet object to be initialised by assigning
+     *                          centroids to each cluster
+     *  @param num_of_points    Number of points passed to clusterer
      */
     void initialise_clusters(ClusterSet &cset, Xapian::doccount num_of_points);
 
@@ -619,18 +619,18 @@ class XAPIAN_VISIBILITY_DEFAULT KMeans : public Clusterer {
      *  'source'. The TF-IDF weights for the documents are calculated and stored
      *  within the Points to be used later during distance calculations
      *
-     *  @param source	MSet object containing the documents which will be
-     *			used to create document vectors that are represented
-     *			as Point objects
+     *  @param source   MSet object containing the documents which will be
+     *                  used to create document vectors that are represented
+     *                  as Point objects
      */
     void initialise_points(const MSet &source);
 
   public:
     /** Constructor specifying number of clusters and maximum iterations
      *
-     *  @param k_		Number of required clusters
-     *  @param max_iters_	The maximum number of iterations for which KMeans
-     *				will run if it doesn't converge
+     *  @param k_               Number of required clusters
+     *  @param max_iters_       The maximum number of iterations for which KMeans
+     *                          will run if it doesn't converge
      */
     explicit KMeans(unsigned int k_, unsigned int max_iters_ = 0);
 
@@ -645,8 +645,8 @@ class XAPIAN_VISIBILITY_DEFAULT KMeans : public Clusterer {
      *
      *  Stopwords are discarded while calculating term frequency for terms.
      *
-     *  @param stop	The Stopper object to set (default NULL, which means no
-     *			stopwords)
+     *  @param stop     The Stopper object to set (default NULL, which means no
+     *                  stopwords)
      */
     void set_stopper(const Xapian::Stopper* stop = NULL) { stopper = stop; }
 
@@ -666,14 +666,14 @@ class XAPIAN_VISIBILITY_DEFAULT LCDClusterer : public Clusterer {
   public:
     /** Constructor specifying number of clusters
      *
-     *  @param k_		Number of required clusters
+     *  @param k_       Number of required clusters
      */
     explicit LCDClusterer(unsigned int k_);
 
     /** Implements the LCD clustering algorithm
      *
-     *  @param mset    MSet object containing the documents that are to
-     *                 be clustered
+     *  @param mset     MSet object containing the documents that are to
+     *                  be clustered
      */
     ClusterSet cluster(const MSet &mset) override;
 

@@ -60,7 +60,7 @@ class XAPIAN_VISIBILITY_DEFAULT Stopper
 
     /** Is term a stop-word?
      *
-     *  @param term	The term to test.
+     *  @param term     The term to test.
      */
     virtual bool operator()(const std::string & term) const = 0;
 
@@ -173,21 +173,21 @@ class XAPIAN_VISIBILITY_DEFAULT RangeProcessor
 
     /** Constructor.
      *
-     *  @param slot_	Which value slot to generate ranges over.
-     *  @param str_	A string to look for to recognise values as belonging
-     *			to this range (as a prefix by default, or as a suffix
-     *			if flags Xapian::RP_SUFFIX is specified).
-     *  @param flags_	Zero or more of the following flags, combined with
-     *			bitwise-or (| in C++):
-     *			 * Xapian::RP_SUFFIX - require @a str_ as a suffix
-     *			   instead of a prefix.
-     *			 * Xapian::RP_REPEATED - optionally allow @a str_
-     *			   on both ends of the range, or only on the non-empty
-     *			   end - e.g. `$1..$10`, `..$10`, `5m..50m`, or `5m..`.
-     *			   By default a prefix is only checked for on
-     *			   the start (e.g. `date:1/1/1980..31/12/1989` or
-     *			   `date:..31/12/1989`), and a suffix only on the end
-     *			   (e.g. `2..12kg` or `2..kg`).
+     *  @param slot_    Which value slot to generate ranges over.
+     *  @param str_     A string to look for to recognise values as belonging
+     *                  to this range (as a prefix by default, or as a suffix
+     *                  if flags Xapian::RP_SUFFIX is specified).
+     *  @param flags_   Zero or more of the following flags, combined with
+     *                  bitwise-or (| in C++):
+     *                   * Xapian::RP_SUFFIX - require @a str_ as a suffix
+     *                     instead of a prefix.
+     *                   * Xapian::RP_REPEATED - optionally allow @a str_
+     *                     on both ends of the range, or only on the non-empty
+     *                     end - e.g. `$1..$10`, `..$10`, `5m..50m`, or `5m..`.
+     *                     By default a prefix is only checked for on
+     *                     the start (e.g. `date:1/1/1980..31/12/1989` or
+     *                     `date:..31/12/1989`), and a suffix only on the end
+     *                     (e.g. `2..12kg` or `2..kg`).
      */
     explicit RangeProcessor(Xapian::valueno slot_,
                             std::string_view str_ = {},
@@ -208,16 +208,16 @@ class XAPIAN_VISIBILITY_DEFAULT RangeProcessor
      *
      *  Override this method to implement your own range handling.
      *
-     *  @param begin	The start of the range as specified in the query string
-     *			by the user.
-     *  @param end	The end of the range as specified in the query string
-     *			by the user (empty string for no upper limit).
+     *  @param begin    The start of the range as specified in the query string
+     *                  by the user.
+     *  @param end      The end of the range as specified in the query string
+     *                  by the user (empty string for no upper limit).
      *
-     *  @return		An OP_VALUE_RANGE Query object (or if end.empty(), an
-     *			OP_VALUE_GE Query object).  Or if the range isn't one
-     *			which this object can handle then
-     *			Xapian::Query(Xapian::Query::OP_INVALID) will be
-     *			returned.
+     *  @return         An OP_VALUE_RANGE Query object (or if end.empty(), an
+     *                  OP_VALUE_GE Query object).  Or if the range isn't one
+     *                  which this object can handle then
+     *                  Xapian::Query(Xapian::Query::OP_INVALID) will be
+     *                  returned.
      */
     virtual Xapian::Query
         operator()(const std::string &begin, const std::string &end);
@@ -257,16 +257,16 @@ class XAPIAN_VISIBILITY_DEFAULT DateRangeProcessor : public RangeProcessor {
   public:
     /** Constructor.
      *
-     *  @param slot_	The value number to return from operator().
+     *  @param slot_    The value number to return from operator().
      *
-     *  @param flags_	Zero or more of the following flags, combined with
-     *			bitwise-or:
-     *			 * Xapian::RP_DATE_PREFER_MDY - interpret ambiguous
-     *			   dates as month/day/year rather than day/month/year.
+     *  @param flags_   Zero or more of the following flags, combined with
+     *                  bitwise-or:
+     *                   * Xapian::RP_DATE_PREFER_MDY - interpret ambiguous
+     *                     dates as month/day/year rather than day/month/year.
      *
      *  @param epoch_year_  Year to use as the epoch for dates with 2 digit
-     *			    years (default: 1970, so 1/1/69 is 2069 while
-     *			    1/1/70 is 1970).
+     *                      years (default: 1970, so 1/1/69 is 2069 while
+     *                      1/1/70 is 1970).
      */
     explicit DateRangeProcessor(Xapian::valueno slot_,
                                 unsigned flags_ = 0,
@@ -276,27 +276,27 @@ class XAPIAN_VISIBILITY_DEFAULT DateRangeProcessor : public RangeProcessor {
 
     /** Constructor.
      *
-     *  @param slot_	The value slot number to query.
+     *  @param slot_    The value slot number to query.
      *
-     *  @param str_	A prefix or suffix string to look for to recognise
-     *			values as belonging to this date range (@a flags_
-     *			determines whether this is a prefix or suffix).
+     *  @param str_     A prefix or suffix string to look for to recognise
+     *                  values as belonging to this date range (@a flags_
+     *                  determines whether this is a prefix or suffix).
      *
-     *  @param flags_	Zero or more of the following flags, combined with
-     *			bitwise-or:
-     *			 * Xapian::RP_SUFFIX - require @a str_ as a suffix
-     *			   instead of a prefix.
-     *			 * Xapian::RP_REPEATED - optionally allow @a str_
-     *			   on both ends of the range - e.g. $1..$10 or
-     *			   5m..50m.  By default a prefix is only checked for on
-     *			   the start (e.g. date:1/1/1980..31/12/1989), and a
-     *			   suffix only on the end (e.g. 2..12kg).
-     *			 * Xapian::RP_DATE_PREFER_MDY - interpret ambiguous
-     *			   dates as month/day/year rather than day/month/year.
+     *  @param flags_   Zero or more of the following flags, combined with
+     *                  bitwise-or:
+     *                   * Xapian::RP_SUFFIX - require @a str_ as a suffix
+     *                     instead of a prefix.
+     *                   * Xapian::RP_REPEATED - optionally allow @a str_
+     *                     on both ends of the range - e.g. $1..$10 or
+     *                     5m..50m.  By default a prefix is only checked for on
+     *                     the start (e.g. date:1/1/1980..31/12/1989), and a
+     *                     suffix only on the end (e.g. 2..12kg).
+     *                   * Xapian::RP_DATE_PREFER_MDY - interpret ambiguous
+     *                     dates as month/day/year rather than day/month/year.
      *
      *  @param epoch_year_  Year to use as the epoch for dates with 2 digit
-     *			    years (default: 1970, so 1/1/69 is 2069 while
-     *			    1/1/70 is 1970).
+     *                      years (default: 1970, so 1/1/69 is 2069 while
+     *                      1/1/70 is 1970).
      *
      *  The string supplied in str_ is used by @a operator() to decide whether
      *  the pair of strings supplied to it constitute a valid range.  If
@@ -316,10 +316,10 @@ class XAPIAN_VISIBILITY_DEFAULT DateRangeProcessor : public RangeProcessor {
 
     /** Check for a valid date range.
      *
-     *  @param begin	The start of the range as specified in the query string
-     *			by the user.
-     *  @param end	The end of the range as specified in the query string
-     *			by the user.
+     *  @param begin    The start of the range as specified in the query string
+     *                  by the user.
+     *  @param end      The end of the range as specified in the query string
+     *                  by the user.
      *
      *  If a prefix or suffix was specified at construction time, that must
      *  be present on @a begin and/or @a end (taking @a Xapian::RP_SUFFIX and
@@ -367,15 +367,15 @@ class XAPIAN_VISIBILITY_DEFAULT NumberRangeProcessor : public RangeProcessor {
      *  @param str_     A string to look for to recognise values as belonging
      *                  to this numeric range.
      *
-     *  @param flags_	Zero or more of the following flags, combined with
-     *			bitwise-or:
-     *			 * Xapian::RP_SUFFIX - require @a str_ as a suffix
-     *			   instead of a prefix.
-     *			 * Xapian::RP_REPEATED - optionally allow @a str_
-     *			   on both ends of the range - e.g. $1..$10 or
-     *			   5m..50m.  By default a prefix is only checked for on
-     *			   the start (e.g. date:1/1/1980..31/12/1989), and a
-     *			   suffix only on the end (e.g. 2..12kg).
+     *  @param flags_   Zero or more of the following flags, combined with
+     *                  bitwise-or:
+     *                   * Xapian::RP_SUFFIX - require @a str_ as a suffix
+     *                     instead of a prefix.
+     *                   * Xapian::RP_REPEATED - optionally allow @a str_
+     *                     on both ends of the range - e.g. $1..$10 or
+     *                     5m..50m.  By default a prefix is only checked for on
+     *                     the start (e.g. date:1/1/1980..31/12/1989), and a
+     *                     suffix only on the end (e.g. 2..12kg).
      *
      *  The string supplied in str_ is used by @a operator() to decide whether
      *  the pair of strings supplied to it constitute a valid range.  If
@@ -410,10 +410,10 @@ class XAPIAN_VISIBILITY_DEFAULT NumberRangeProcessor : public RangeProcessor {
      *  converted to a number, and encoded with Xapian::sortable_serialise(),
      *  and a value range query is built.
      *
-     *  @param begin	The start of the range as specified in the query string
-     *			by the user.
-     *  @param end	The end of the range as specified in the query string
-     *			by the user.
+     *  @param begin    The start of the range as specified in the query string
+     *                  by the user.
+     *  @param end      The end of the range as specified in the query string
+     *                  by the user.
      */
     Xapian::Query operator()(const std::string& begin, const std::string& end);
 };
@@ -461,10 +461,10 @@ class XAPIAN_VISIBILITY_DEFAULT UnitRangeProcessor : public RangeProcessor {
      *  normalized and encoded with Xapian::sortable_serialise(),
      *  and a value range query is built.
      *
-     *  @param begin	The start of the range as specified in the query string
-     *			by the user.
-     *  @param end	The end of the range as specified in the query string
-     *			by the user.
+     *  @param begin    The start of the range as specified in the query string
+     *                  by the user.
+     *  @param end      The end of the range as specified in the query string
+     *                  by the user.
      */
     Xapian::Query operator()(const std::string& begin, const std::string& end);
 };
@@ -488,9 +488,9 @@ class XAPIAN_VISIBILITY_DEFAULT FieldProcessor
 
     /** Convert a field-prefixed string to a Query object.
      *
-     *  @param str	The string to convert.
+     *  @param str      The string to convert.
      *
-     *  @return	Query object corresponding to @a str.
+     *  @return Query object corresponding to @a str.
      */
     virtual Xapian::Query operator()(const std::string &str) = 0;
 
@@ -830,7 +830,7 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      *  a stemming strategy as well as setting a stemmer, otherwise your
      *  stemmer won't actually be used.
      *
-     *  @param stemmer	The Xapian::Stem object to set.
+     *  @param stemmer  The Xapian::Stem object to set.
      */
     void set_stemmer(const Xapian::Stem & stemmer);
 
@@ -840,29 +840,29 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      *  Note that the stemming algorithm is only applied to words in free-text
      *  fields - boolean filter terms are never stemmed.
      *
-     *  @param strategy	The strategy to use - possible values are:
-     *   - STEM_NONE:	Don't perform any stemming.  (default in Xapian <=
-     *			1.3.0)
-     *   - STEM_SOME:	Stem all terms except for those which start with a
-     *			capital letter, or are followed by certain characters
-     *			(currently: <code>(/\@<>=*[{"</code> ), or are used
-     *			with operators which need positional information.
-     *			Stemmed terms are prefixed with 'Z'.  (default in
-     *			Xapian >= 1.3.1)
+     *  @param strategy The strategy to use - possible values are:
+     *   - STEM_NONE:   Don't perform any stemming.  (default in Xapian <=
+     *                  1.3.0)
+     *   - STEM_SOME:   Stem all terms except for those which start with a
+     *                  capital letter, or are followed by certain characters
+     *                  (currently: <code>(/\@<>=*[{"</code> ), or are used
+     *                  with operators which need positional information.
+     *                  Stemmed terms are prefixed with 'Z'.  (default in
+     *                  Xapian >= 1.3.1)
      *   - STEM_SOME_FULL_POS:
-     *			Like STEM_SOME but also stems terms used with operators
-     *			which need positional information.  Added in Xapian
-     *			1.4.8.
-     *   - STEM_ALL:	Stem all terms (note: no 'Z' prefix is added).
-     *   - STEM_ALL_Z:	Stem all terms (note: 'Z' prefix is added).  (new in
-     *			Xapian 1.2.11 and 1.3.1)
+     *                  Like STEM_SOME but also stems terms used with operators
+     *                  which need positional information.  Added in Xapian
+     *                  1.4.8.
+     *   - STEM_ALL:    Stem all terms (note: no 'Z' prefix is added).
+     *   - STEM_ALL_Z:  Stem all terms (note: 'Z' prefix is added).  (new in
+     *                  Xapian 1.2.11 and 1.3.1)
      */
     void set_stemming_strategy(stem_strategy strategy);
 
     /** Set the stopper.
      *
-     *  @param stop	The Stopper object to set (default NULL, which means no
-     *			stopwords).
+     *  @param stop     The Stopper object to set (default NULL, which means no
+     *                  stopwords).
      */
     void set_stopper(const Stopper *stop = NULL);
 
@@ -893,17 +893,17 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
 
     /** Set the default operator.
      *
-     *  @param default_op	The operator to use to combine non-filter
-     *				query items when no explicit operator is used.
+     *  @param default_op   The operator to use to combine non-filter query
+     *                      items when no explicit operator is used.
      *
-     *				So for example, 'weather forecast' is parsed as
-     *				if it were 'weather OR forecast' by default.
+     *                      So for example, 'weather forecast' is parsed as if
+     *                      it were 'weather OR forecast' by default.
      *
-     *				The most useful values for this are OP_OR (the
-     *				default) and OP_AND.  OP_NEAR, OP_PHRASE,
-     *				OP_ELITE_SET, OP_SYNONYM and OP_MAX are also
-     *				permitted.  Passing other values will result in
-     *				InvalidArgumentError being thrown.
+     *                      The most useful values for this are OP_OR (the
+     *                      default) and OP_AND.  OP_NEAR, OP_PHRASE,
+     *                      OP_ELITE_SET, OP_SYNONYM and OP_MAX are also
+     *                      permitted.  Passing other values will result in
+     *                      InvalidArgumentError being thrown.
      */
     void set_default_op(Query::op default_op);
 
@@ -912,9 +912,9 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
 
     /** Specify the database being searched.
      *
-     *  @param db	The database to use for spelling correction
-     *			(FLAG_SPELLING_CORRECTION), and synonyms (FLAG_SYNONYM,
-     *			FLAG_AUTO_SYNONYMS, and FLAG_AUTO_MULTIWORD_SYNONYMS).
+     *  @param db   The database to use for spelling correction
+     *              (FLAG_SPELLING_CORRECTION), and synonyms (FLAG_SYNONYM,
+     *              FLAG_AUTO_SYNONYMS, and FLAG_AUTO_MULTIWORD_SYNONYMS).
      */
     void set_database(const Database &db);
 
@@ -933,15 +933,15 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      *  set_max_expansion(100, Xapian::Query::WILDCARD_LIMIT_MOST_FREQUENT, Xapian::QueryParser::FLAG_PARTIAL);
      *
      *  @param max_expansion  The maximum number of terms each wildcard in the
-     *			query can expand to, or 0 for no limit (which is the
-     *			default).
-     *	@param max_type	@a Xapian::Query::WILDCARD_LIMIT_ERROR,
-     *			@a Xapian::Query::WILDCARD_LIMIT_FIRST or
-     *			@a Xapian::Query::WILDCARD_LIMIT_MOST_FREQUENT
-     *			(default: Xapian::Query::WILDCARD_LIMIT_ERROR).
-     *  @param flags	What to set the limit for (default:
-     *			FLAG_WILDCARD|FLAG_PARTIAL|FLAG_FUZZY, setting the
-     *			limit for all types).
+     *                  query can expand to, or 0 for no limit (which is the
+     *                  default).
+     *  @param max_type @a Xapian::Query::WILDCARD_LIMIT_ERROR,
+     *                  @a Xapian::Query::WILDCARD_LIMIT_FIRST or
+     *                  @a Xapian::Query::WILDCARD_LIMIT_MOST_FREQUENT
+     *                  (default: Xapian::Query::WILDCARD_LIMIT_ERROR).
+     *  @param flags    What to set the limit for (default:
+     *                  FLAG_WILDCARD|FLAG_PARTIAL|FLAG_FUZZY, setting the
+     *                  limit for all types).
      *
      *  @since 1.3.3
      */
@@ -965,12 +965,12 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      *  matching.  The default minimum length for this case is 2 (since
      *  2.0.0 - in earlier versions it was effectively 0).
      *
-     *  @param min_prefix_len	Minimum length of fixed initial portion in
-     *			        Unicode characters.
-     *  @param flags		What to set the minimum length for
-     *				(default: FLAG_WILDCARD|FLAG_PARTIAL, setting
-     *				the limit for both wildcards and partial
-     *				terms).
+     *  @param min_prefix_len   Minimum length of fixed initial portion in
+     *                          Unicode characters.
+     *  @param flags            What to set the minimum length for
+     *                          (default: FLAG_WILDCARD|FLAG_PARTIAL, setting
+     *                          the limit for both wildcards and partial
+     *                          terms).
      *
      *  @since Added in Xapian 2.0.0.
      */
@@ -981,24 +981,24 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      *
      *  @param query_string  A free-text query as entered by a user
      *  @param flags         Zero or more QueryParser::feature_flag specifying
-     *		what features the QueryParser should support.  Combine
-     *		multiple values with bitwise-or (|) (default FLAG_DEFAULT).
-     *	@param default_prefix  The default term prefix to use (default none).
-     *		For example, you can pass "A" when parsing an "Author" field.
+     *          what features the QueryParser should support.  Combine
+     *          multiple values with bitwise-or (|) (default FLAG_DEFAULT).
+     *  @param default_prefix  The default term prefix to use (default none).
+     *          For example, you can pass "A" when parsing an "Author" field.
      *
      *  @exception If the query string can't be parsed, then
-     *		   Xapian::QueryParserError is thrown.  You can get an English
-     *		   error message to report to the user by catching it and
-     *		   calling get_msg() on the caught exception.  The current
-     *		   possible values (in case you want to translate them) are:
+     *             Xapian::QueryParserError is thrown.  You can get an English
+     *             error message to report to the user by catching it and
+     *             calling get_msg() on the caught exception.  The current
+     *             possible values (in case you want to translate them) are:
      *
-     *		   @li Unknown range operation
-     *		   @li parse error
-     *		   @li Syntax: &lt;expression&gt; AND &lt;expression&gt;
-     *		   @li Syntax: &lt;expression&gt; AND NOT &lt;expression&gt;
-     *		   @li Syntax: &lt;expression&gt; NOT &lt;expression&gt;
-     *		   @li Syntax: &lt;expression&gt; OR &lt;expression&gt;
-     *		   @li Syntax: &lt;expression&gt; XOR &lt;expression&gt;
+     *             @li Unknown range operation
+     *             @li parse error
+     *             @li Syntax: &lt;expression&gt; AND &lt;expression&gt;
+     *             @li Syntax: &lt;expression&gt; AND NOT &lt;expression&gt;
+     *             @li Syntax: &lt;expression&gt; NOT &lt;expression&gt;
+     *             @li Syntax: &lt;expression&gt; OR &lt;expression&gt;
+     *             @li Syntax: &lt;expression&gt; XOR &lt;expression&gt;
      */
     Query parse_query(std::string_view query_string,
                       unsigned flags = FLAG_DEFAULT,
@@ -1041,11 +1041,11 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      *  value of @a field had no effect.
      *
      *  @param field   The user visible field name.  Currently this needs to
-     *		       consist of characters for which
-     *		       Xapian::Unicode::is_wordchar() is true (approximately
-     *		       alphanumerics plus connector punctuation such as `_`).
-     *		       Since 1.4.26 it can optionally end in a `:` for
-     *		       consistency with how range prefixes are specified.
+     *                 consist of characters for which
+     *                 Xapian::Unicode::is_wordchar() is true (approximately
+     *                 alphanumerics plus connector punctuation such as `_`).
+     *                 Since 1.4.26 it can optionally end in a `:` for
+     *                 consistency with how range prefixes are specified.
      *  @param prefix  The term prefix to map this to.
      */
     void add_prefix(std::string_view field, std::string_view prefix);
@@ -1097,21 +1097,21 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      *  value of @a field had no effect.
      *
      *  @param field   The user visible field name, which may not be empty
-     *		       for a boolean filter.  Currently this needs to
-     *		       consist of characters for which
-     *		       Xapian::Unicode::is_wordchar() is true (approximately
-     *		       alphanumerics plus connector punctuation such as `_`).
-     *		       Since 1.4.26 it can optionally end in a `:` for
-     *		       consistency with how range prefixes are specified.
+     *                 for a boolean filter.  Currently this needs to
+     *                 consist of characters for which
+     *                 Xapian::Unicode::is_wordchar() is true (approximately
+     *                 alphanumerics plus connector punctuation such as `_`).
+     *                 Since 1.4.26 it can optionally end in a `:` for
+     *                 consistency with how range prefixes are specified.
      *  @param prefix  The term prefix to map this to
-     *  @param grouping	Controls how multiple filters are combined - filters
-     *			with the same grouping value are combined with OP_OR,
-     *			then the resulting queries are combined with OP_AND.
-     *			If NULL, then @a field is used for grouping.  If an
-     *			empty string, then a unique grouping is created for
-     *			each filter (this is sometimes useful when each
-     *			document can have multiple terms with this prefix).
-     *			[default: NULL]
+     *  @param grouping Controls how multiple filters are combined - filters
+     *                  with the same grouping value are combined with OP_OR,
+     *                  then the resulting queries are combined with OP_AND.
+     *                  If NULL, then @a field is used for grouping.  If an
+     *                  empty string, then a unique grouping is created for
+     *                  each filter (this is sometimes useful when each
+     *                  document can have multiple terms with this prefix).
+     *                  [default: NULL]
      */
     void add_boolean_prefix(std::string_view field, std::string_view prefix,
                             const std::string* grouping = NULL);
@@ -1123,20 +1123,20 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      *  the `grouping` parameter in preference to this one.
      *
      *  @param field   The user visible field name, which may not be empty
-     *		       for a boolean filter.  Currently this needs to
-     *		       consist of characters for which
-     *		       Xapian::Unicode::is_wordchar() is true (approximately
-     *		       alphanumerics plus connector punctuation such as `_`).
-     *		       Since 1.4.26 it can optionally end in a `:` for
-     *		       consistency with how range prefixes are specified.
+     *                 for a boolean filter.  Currently this needs to
+     *                 consist of characters for which
+     *                 Xapian::Unicode::is_wordchar() is true (approximately
+     *                 alphanumerics plus connector punctuation such as `_`).
+     *                 Since 1.4.26 it can optionally end in a `:` for
+     *                 consistency with how range prefixes are specified.
      *  @param prefix  The term prefix to map this to
      *  @param exclusive Controls how multiple filters are combined.  If
-     *			true then @a prefix is used as the `grouping` value,
-     *			so terms with the same prefix are combined with OP_OR,
-     *			then the resulting queries are combined with OP_AND.
-     *			If false, then a unique grouping is created for
-     *			each filter (this is sometimes useful when each
-     *			document can have multiple terms with this prefix).
+     *                  true then @a prefix is used as the `grouping` value,
+     *                  so terms with the same prefix are combined with OP_OR,
+     *                  then the resulting queries are combined with OP_AND.
+     *                  If false, then a unique grouping is created for
+     *                  each filter (this is sometimes useful when each
+     *                  document can have multiple terms with this prefix).
      */
     void add_boolean_prefix(std::string_view field, std::string_view prefix,
                             bool exclusive) {
@@ -1231,7 +1231,7 @@ size_t sortable_serialise_(double value, char* buf) noexcept;
  *
  *  Handling of NaN isn't (currently) guaranteed to be sensible.
  *
- *  @param value	The number to serialise.
+ *  @param value        The number to serialise.
  */
 inline std::string sortable_serialise(double value) {
     char buf[9];
@@ -1250,7 +1250,7 @@ inline std::string sortable_serialise(double value) {
  *  which represent doubles with the precisions specified by IEEE_754, but
  *  may be a different (nearby) value on other platforms.
  *
- *  @param serialised	The serialised string to decode.
+ *  @param serialised   The serialised string to decode.
  */
 XAPIAN_VISIBILITY_DEFAULT
 double sortable_unserialise(std::string_view serialised) noexcept;

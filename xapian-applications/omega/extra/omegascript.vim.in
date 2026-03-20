@@ -1,8 +1,8 @@
 " Vim syntax file
-" Language:	OmegaScript
-" Maintainer:	Xapian developers <xapian-discuss@lists.xapian.org>
-" URL:		https://xapian.org/
-" Version:	@VERSION@
+" Language:     OmegaScript
+" Maintainer:   Xapian developers <xapian-discuss@lists.xapian.org>
+" URL:          https://xapian.org/
+" Version:      @VERSION@
 
 " To install: place this file in ~/.vim/syntax/omegascript.vim
 " and then create or add the following lines, without the "'s commenting

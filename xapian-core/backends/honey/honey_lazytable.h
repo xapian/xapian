@@ -27,9 +27,9 @@ class HoneyLazyTable : public HoneyTable {
   public:
     /** Create a new lazy table.
      *
-     *  @param name_		The table's name.
-     *  @param path_		The path for the table.
-     *  @param readonly		true if the table is read-only, else false.
+     *  @param name_            The table's name.
+     *  @param path_            The path for the table.
+     *  @param readonly         true if the table is read-only, else false.
      */
     HoneyLazyTable(const char* name_, const std::string& path_, bool readonly)
         : HoneyTable(name_, path_, readonly, true) { }

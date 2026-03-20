@@ -83,12 +83,12 @@ class GlassTermList : public TermList {
     /** Create a new GlassTermList object for document @a did_ in DB @a db_
      *
      *  @param throw_if_not_present  Specifies behaviour if document @a did_
-     *				     isn't present: if true then throw
-     *				     DocNotFoundError, otherwise the
-     *				     constructed GlassTermList object will
-     *				     signal at_end() before next() is called
-     *				     (normally at_end() isn't meaningful
-     *				     on a freshly constructed TermList).
+     *                               isn't present: if true then throw
+     *                               DocNotFoundError, otherwise the
+     *                               constructed GlassTermList object will
+     *                               signal at_end() before next() is called
+     *                               (normally at_end() isn't meaningful
+     *                               on a freshly constructed TermList).
      */
     GlassTermList(Xapian::Internal::intrusive_ptr<const GlassDatabase> db_,
                   Xapian::docid did_, bool throw_if_not_present = true);

@@ -120,7 +120,7 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource
      *  If you don't call this method, the upper bound will default to 0, for
      *  convenience when implementing "weight-less" PostingSource subclasses.
      *
-     *  @param max_weight	The upper bound to set.
+     *  @param max_weight       The upper bound to set.
      */
     void set_maxweight(double max_weight) {
         max_weight_ = max_weight;
@@ -167,8 +167,8 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource
      *  Xapian will always call reset() on a PostingSource before calling this
      *  for the first time.
      *
-     *  @param min_wt	The minimum weight contribution that is needed (this is
-     *			just a hint which subclasses may ignore).
+     *  @param min_wt   The minimum weight contribution that is needed (this is
+     *                  just a hint which subclasses may ignore).
      */
     virtual void next(double min_wt) = 0;
 
@@ -195,9 +195,9 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource
      *  the docid in the single subdatabase relevant to this posting source.
      *  See the @a reset() method for details.
      *
-     *  @param did	The document id to advance to.
-     *  @param min_wt	The minimum weight contribution that is needed (this is
-     *			just a hint which subclasses may ignore).
+     *  @param did      The document id to advance to.
+     *  @param min_wt   The minimum weight contribution that is needed (this is
+     *                  just a hint which subclasses may ignore).
      */
     virtual void skip_to(Xapian::docid did, double min_wt);
 
@@ -232,9 +232,9 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource
      *  the docid in the single subdatabase relevant to this posting source.
      *  See the @a reset() method for details.
      *
-     *  @param did	The document id to check.
-     *  @param min_wt	The minimum weight contribution that is needed (this is
-     *			just a hint which subclasses may ignore).
+     *  @param did      The document id to check.
+     *  @param min_wt   The minimum weight contribution that is needed (this is
+     *                  just a hint which subclasses may ignore).
      */
     virtual bool check(Xapian::docid did, double min_wt);
 
@@ -345,9 +345,9 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource
      *
      *  @param db The database which the PostingSource should iterate through.
      *  @param shard_index  The 0-based index indicating which shard in a
-     *			    multi-database db is.  This can be useful if you
-     *			    have an external source of postings corresponding
-     *			    to each shard.
+     *                      multi-database db is.  This can be useful if you
+     *                      have an external source of postings corresponding
+     *                      to each shard.
      *
      *  Note: in the case of a multi-database search, a separate PostingSource
      *  will be used for each database (the separate PostingSources will be
@@ -619,9 +619,9 @@ class XAPIAN_VISIBILITY_DEFAULT DecreasingValueWeightPostingSource
      *
      *  @param slot_ The value slot to read values from.
      *  @param range_start_ Start of range of docids for which weights are
-     *			known to be decreasing (default: first docid)
+     *                  known to be decreasing (default: first docid)
      *  @param range_end_ End of range of docids for which weights are
-     *			known to be decreasing (default: last docid)
+     *                  known to be decreasing (default: last docid)
      */
     DecreasingValueWeightPostingSource(Xapian::valueno slot_,
                                        Xapian::docid range_start_ = 0,

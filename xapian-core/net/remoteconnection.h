@@ -98,12 +98,12 @@ class RemoteConnection {
      *  If for some reason this isn't possible, returns false upon EOF and
      *  otherwise throws NetworkError.
      *
-     *  @param min_len	Minimum number of bytes required in buffer.
-     *  @param end_time	If this time is reached, then a timeout
-     *			exception will be thrown.  If (end_time == 0.0),
-     *			then keep trying indefinitely.
+     *  @param min_len  Minimum number of bytes required in buffer.
+     *  @param end_time If this time is reached, then a timeout
+     *                  exception will be thrown.  If (end_time == 0.0),
+     *                  then keep trying indefinitely.
      *
-     *	@return false on EOF, otherwise true.
+     *  @return false on EOF, otherwise true.
      */
     bool read_at_least(size_t min_len, double end_time);
 
@@ -156,24 +156,22 @@ class RemoteConnection {
      *  determine what the next message waiting to be processed is: it will not
      *  affect subsequent calls which read messages.
      *
-     *  @param end_time		If this time is reached, then a timeout
-     *				exception will be thrown.  If
-     *				(end_time == 0.0) then the operation will
-     *				never timeout.
+     *  @param end_time     If this time is reached, then a timeout exception
+     *                      will be thrown.  If (end_time == 0.0) then the
+     *                      operation will never timeout.
      *
-     *  @return			Message type code or -1 for EOF.
+     *  @return             Message type code or -1 for EOF.
      */
     int sniff_next_message_type(double end_time);
 
     /** Read one message from fdin.
      *
-     *  @param[out] result	Message data.
-     *  @param end_time		If this time is reached, then a timeout
-     *				exception will be thrown.  If
-     *				(end_time == 0.0) then the operation will
-     *				never timeout.
+     *  @param[out] result  Message data.
+     *  @param end_time     If this time is reached, then a timeout exception
+     *                      will be thrown.  If (end_time == 0.0) then the
+     *                      operation will never timeout.
      *
-     *  @return			Message type code or -1 for EOF.
+     *  @return             Message type code or -1 for EOF.
      */
     int get_message(std::string &result, double end_time);
 
@@ -186,12 +184,11 @@ class RemoteConnection {
      *  This method doesn't actually return any message data - call
      *  get_message_chunk() to do that.
      *
-     *  @param end_time		If this time is reached, then a timeout
-     *				exception will be thrown.  If
-     *				(end_time == 0.0) then the operation will
-     *				never timeout.
+     *  @param end_time     If this time is reached, then a timeout exception
+     *                      will be thrown.  If (end_time == 0.0) then the
+     *                      operation will never timeout.
      *
-     *  @return			Message type code or -1 for EOF.
+     *  @return             Message type code or -1 for EOF.
      */
     int get_message_chunked(double end_time);
 
@@ -199,57 +196,54 @@ class RemoteConnection {
      *
      *  You must call get_message_chunked() before calling this method.
      *
-     *  @param[in,out] result	Message data.  This is appended to, so if you
-     *				read more than needed the previous time, leave
-     *				the excess in result.
-     *	@param at_least		Return at least this many bytes in result,
-     *				unless there isn't enough data left in the
-     *				message (in which case all remaining data is
-     *				read and 0 is returned).
-     *  @param end_time		If this time is reached, then a timeout
-     *				exception will be thrown.  If
-     *				(end_time == 0.0) then the operation will
-     *				never timeout.
+     *  @param[in,out] result   Message data.  This is appended to, so if you
+     *                          read more than needed the previous time, leave
+     *                          the excess in result.
+     *  @param at_least         Return at least this many bytes in result,
+     *                          unless there isn't enough data left in the
+     *                          message (in which case all remaining data is
+     *                          read and 0 is returned).
+     *  @param end_time         If this time is reached, then a timeout
+     *                          exception will be thrown.  If
+     *                          (end_time == 0.0) then the operation will
+     *                          never timeout.
      *
-     *  @return			1 if at least at_least bytes are now in result;
-     *				-1 on EOF on the connection; 0 for having read
-     *				< at_least bytes, but finished the message.
+     *  @return                 1 if at least at_least bytes are now in result;
+     *                          -1 on EOF on the connection; 0 for having read
+     *                          < at_least bytes, but finished the message.
      */
     int get_message_chunk(std::string &result, size_t at_least,
                           double end_time);
 
     /** Save the contents of a message as a file.
      *
-     *  @param file		Path to file to save the message data into.  If
-     *				the file exists it will be overwritten.
-     *  @param end_time		If this time is reached, then a timeout
-     *				exception will be thrown.  If
-     *				(end_time == 0.0) then the operation will
-     *				never timeout.
+     *  @param file         Path to file to save the message data into.  If the
+     *                      file exists it will be overwritten.
+     *  @param end_time     If this time is reached, then a timeout exception
+     *                      will be thrown.  If (end_time == 0.0) then the
+     *                      operation will never timeout.
      *
-     *  @return			Message type code or -1 for EOF.
+     *  @return             Message type code or -1 for EOF.
      */
     int receive_file(const std::string &file, double end_time);
 
     /** Send a message.
      *
-     *  @param type		Message type code.
-     *  @param s		Message data.
-     *  @param end_time		If this time is reached, then a timeout
-     *				exception will be thrown.  If
-     *				(end_time == 0.0) then the operation will
-     *				never timeout.
+     *  @param type         Message type code.
+     *  @param s            Message data.
+     *  @param end_time     If this time is reached, then a timeout exception
+     *                      will be thrown.  If (end_time == 0.0) then the
+     *                      operation will never timeout.
      */
     void send_message(char type, std::string_view s, double end_time);
 
     /** Send the contents of a file as a message.
      *
-     *  @param type		Message type code.
-     *  @param fd		File containing the message data.
-     *  @param end_time		If this time is reached, then a timeout
-     *				exception will be thrown.  If
-     *				(end_time == 0.0) then the operation will
-     *				never timeout.
+     *  @param type         Message type code.
+     *  @param fd           File containing the message data.
+     *  @param end_time     If this time is reached, then a timeout exception
+     *                      will be thrown.  If (end_time == 0.0) then the
+     *                      operation will never timeout.
      */
     void send_file(char type, int fd, double end_time);
 

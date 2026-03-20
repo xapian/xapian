@@ -23,9 +23,9 @@
 
 // FIXME: DEFINE_TESTCASE is used by apitest but is external and takes a flags
 // argument.
-#define DEFINE_TESTCASE_(T)	static void test_##T()
-#define TESTCASE(T)		{ #T, test_##T }
-#define END_OF_TESTCASES	{ 0, 0 }
+#define DEFINE_TESTCASE_(T)     static void test_##T()
+#define TESTCASE(T)             { #T, test_##T }
+#define END_OF_TESTCASES        { 0, 0 }
 
 /// Test a relation holds,e.g. TEST_REL(a,>,b);
 #define TEST_REL(A,REL,B) \

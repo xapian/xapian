@@ -128,7 +128,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueIterator {
      *  for the same unsigned integer type, so overloading can't distinguish
      *  them.
      *
-     *  @param docid_or_slot	The docid/slot to advance to.
+     *  @param docid_or_slot    The docid/slot to advance to.
      */
     void skip_to(Xapian::docid docid_or_slot);
 
@@ -154,7 +154,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueIterator {
      *  latter way because they don't support streamed values and so skip_to()
      *  must check each document it skips over which is significantly slower.
      *
-     *  @param docid	The document id to check.
+     *  @param docid    The document id to check.
      */
 #ifndef check
     bool check(Xapian::docid docid);

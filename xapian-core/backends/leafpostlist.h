@@ -76,7 +76,7 @@ class LeafPostList : public PostList {
      *
      *  You should not call this more than once on a particular object.
      *
-     *  @param weight_	The weighting object to use.  Must not be NULL.
+     *  @param weight_  The weighting object to use.  Must not be NULL.
      */
     void set_termweight(const Xapian::Weight * weight_) {
         // This method shouldn't be called more than once on the same object.
@@ -117,26 +117,26 @@ class LeafPostList : public PostList {
 
     /** Open another postlist from the same database.
      *
-     *  @param term_	The term to open a postlist for (must not be an empty
-     *			string).  If term_ is near to this postlist's term,
-     *			then this can be a lot more efficient (and if it isn't
-     *			very near, there's not much of a penalty).  Using this
-     *			method can make a wildcard expansion much more memory
-     *			efficient.
+     *  @param term_    The term to open a postlist for (must not be an empty
+     *                  string).  If term_ is near to this postlist's term,
+     *                  then this can be a lot more efficient (and if it isn't
+     *                  very near, there's not much of a penalty).  Using this
+     *                  method can make a wildcard expansion much more memory
+     *                  efficient.
      *
      *  @param need_read_pos
-     *			Does the postlist need to support read_position_list()?
-     *			Note that open_position_list() may still be called even
-     *			if need_read_pos is false.
+     *                  Does the postlist need to support read_position_list()?
+     *                  Note that open_position_list() may still be called even
+     *                  if need_read_pos is false.
      *
      *  @param[out] pl  If true is returned, set to a new LeafPostList object
-     *			(or may be set to NULL if the term doesn't index any
-     *			documents).  The caller takes ownership of the returned
-     *			object.
+     *                  (or may be set to NULL if the term doesn't index any
+     *                  documents).  The caller takes ownership of the returned
+     *                  object.
      *
-     *  @return		true if successful (and pl has been set); false if not
-     *			(in which case the caller should probably open the
-     *			postlist via the database instead).
+     *  @return         true if successful (and pl has been set); false if not
+     *                  (in which case the caller should probably open the
+     *                  postlist via the database instead).
      */
     virtual bool open_nearby_postlist(std::string_view term_,
                                       bool need_read_pos,

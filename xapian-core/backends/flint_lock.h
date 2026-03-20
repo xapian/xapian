@@ -82,9 +82,9 @@ class FlintLock {
      *  try to test taking the lock, if that is possible to do on the current
      *  platform without actually take it (fcntl() locks support this).
      *
-     *	Throws Xapian::UnimplemenetedError if the platform doesn't support
-     *	testing the lock in this way, or Xapian::DatabaseLockError if there's
-     *	an error while trying to perform the test.
+     *  Throws Xapian::UnimplemenetedError if the platform doesn't support
+     *  testing the lock in this way, or Xapian::DatabaseLockError if there's
+     *  an error while trying to perform the test.
      */
     bool test() const;
 
@@ -94,9 +94,9 @@ class FlintLock {
      *  explanation parameter will be set to contain any details available of
      *  the reason for the failure.
      *
-     *	   @param exclusive  Get an exclusive lock?  Value currently ignored,
-     *			     and the lock is always exclusive.
-     *	   @param wait	     Wait until we can get the lock?
+     *     @param exclusive  Get an exclusive lock?  Value currently ignored,
+     *                       and the lock is always exclusive.
+     *     @param wait       Wait until we can get the lock?
      */
     reason lock(bool exclusive, bool wait, std::string & explanation);
 

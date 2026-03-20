@@ -437,7 +437,7 @@ static void test_chartype1()
 }
 
 // ##################################################################
-// # End of actual tests					    #
+// # End of actual tests                                            #
 // ##################################################################
 
 /// The lists of tests to perform

@@ -493,10 +493,10 @@ struct wildcard_testcase {
 static const
 wildcard_testcase wildcard1_testcases[] = {
     // Tries to expand to 7 terms.
-    { "th",	6, 'E', WILDCARD_EXCEPTION },
-    { "thou",	1, 'E', { "though", 0, 0, 0 } },
-    { "s",	2, 'F', { "say", "search", 0, 0 } },
-    { "s",	2, 'M', { "simpl", "so", 0, 0 } }
+    { "th",     6, 'E', WILDCARD_EXCEPTION },
+    { "thou",   1, 'E', { "though", 0, 0, 0 } },
+    { "s",      2, 'F', { "say", "search", 0, 0 } },
+    { "s",      2, 'M', { "simpl", "so", 0, 0 } }
 };
 
 DEFINE_TESTCASE(wildcard1, backend) {
@@ -809,12 +809,12 @@ struct editdist_testcase {
 static const
 editdist_testcase editdist1_testcases[] = {
     // Tries to expand to 9 terms.
-    { "muse",	2, 8, 'E', EDITDIST_EXCEPTION },
-    { "museum",	3, 3, 'E', { "mset", "must", "use", 0 } },
-    { "thou",	0, 9, 'E', { 0, 0, 0, 0 } },
-    { "though",	0, 9, 'E', { "though", 0, 0, 0 } },
-    { "museum",	3, 1, 'F', { "mset", 0, 0, 0 } },
-    { "museum",	3, 1, 'M', { "use", 0, 0, 0 } },
+    { "muse",   2, 8, 'E', EDITDIST_EXCEPTION },
+    { "museum", 3, 3, 'E', { "mset", "must", "use", 0 } },
+    { "thou",   0, 9, 'E', { 0, 0, 0, 0 } },
+    { "though", 0, 9, 'E', { "though", 0, 0, 0 } },
+    { "museum", 3, 1, 'F', { "mset", 0, 0, 0 } },
+    { "museum", 3, 1, 'M', { "use", 0, 0, 0 } },
 };
 
 DEFINE_TESTCASE(editdist1, backend) {
@@ -870,7 +870,7 @@ DEFINE_TESTCASE(editdist1, backend) {
 
 static const
 editdist_testcase editdist2_testcases[] = {
-    { UTF8("\U00010000"),	1, 8, 'E', { UTF8("a\U00010000"), 0, 0, 0 } },
+    { UTF8("\U00010000"), 1, 8, 'E', { UTF8("a\U00010000"), 0, 0, 0 } },
 };
 
 /// Test Unicode edit distance calculations.

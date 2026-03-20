@@ -53,32 +53,32 @@ namespace Xapian {
  *  shown in the last column. The second column is query id and in between
  *  there are 19 feature values.
  *
- *  @param  db_path	Path to Xapian::Database to be used.
- *  @param  query_file	Here you have to give a path to the file
- *			(in free text form) containing training queries
- *			in specified format.
- *  @param  qrel_file	Here supply the path to the qrel file
- *			(in free text form) containing the relevance
- *			judgements for the queries in the training
- *			file. This file should be in standard format
- *			specified.
- *  @param  msetsize	This is the mset size used for the first
- *			retrieval for training queries.
- *			It should be selected depending on the qrel
- *			file and database size.
- *  @param  filename	Filename path where the training file has to
- *			be stored.
- *  @param  flist	Xapian::FeatureList object defining what set
- *			of features to use for preparing the training
- *			file. It is initialised by DEFAULT set of
- *			Features by default. To use a custom set of
- *			features, pass a customised Xapian::FeatureList
- *			object.
+ *  @param  db_path     Path to Xapian::Database to be used.
+ *  @param  query_file  Here you have to give a path to the file
+ *                      (in free text form) containing training queries
+ *                      in specified format.
+ *  @param  qrel_file   Here supply the path to the qrel file
+ *                      (in free text form) containing the relevance
+ *                      judgements for the queries in the training
+ *                      file. This file should be in standard format
+ *                      specified.
+ *  @param  msetsize    This is the mset size used for the first
+ *                      retrieval for training queries.
+ *                      It should be selected depending on the qrel
+ *                      file and database size.
+ *  @param  filename    Filename path where the training file has to
+ *                      be stored.
+ *  @param  flist       Xapian::FeatureList object defining what set
+ *                      of features to use for preparing the training
+ *                      file. It is initialised by DEFAULT set of
+ *                      Features by default. To use a custom set of
+ *                      features, pass a customised Xapian::FeatureList
+ *                      object.
  *
  *  @exception FileNotFoundError will be thrown if file not found at
- *	       supplied path
+ *             supplied path
  *  @exception LetorParseError will be thrown if query file or qrel file
- *	       could not be parsed
+ *             could not be parsed
  */
 XAPIAN_VISIBILITY_DEFAULT
 void
@@ -110,7 +110,7 @@ class XAPIAN_VISIBILITY_DEFAULT Ranker : public Xapian::Internal::intrusive_base
 
     /** Get path to Xapian::Database that has been set for ranking.
      *
-     *  @return	  Path to Xapian::Database that has been set for ranking.
+     *  @return   Path to Xapian::Database that has been set for ranking.
      */
     std::string get_database_path();
 
@@ -126,13 +126,13 @@ class XAPIAN_VISIBILITY_DEFAULT Ranker : public Xapian::Internal::intrusive_base
      *
      *  @param  input_filename   Path to training file.
      *
-     *  @param  model_key	 Metadata key using which the model is to be
-     *				 loaded. If no model_key is supplied, ranker
-     *				 subclass uses its default key
-     *				 e.g. ListNET_default_key.
+     *  @param  model_key        Metadata key using which the model is to be
+     *                           loaded. If no model_key is supplied, ranker
+     *                           subclass uses its default key
+     *                           e.g. ListNET_default_key.
      *
      *  @exception FileNotFoundError will be thrown if file not found at
-     *		   supplied path
+     *             supplied path
      */
     void train_model(const std::string & input_filename,
                      const std::string & model_key = std::string());
@@ -142,17 +142,17 @@ class XAPIAN_VISIBILITY_DEFAULT Ranker : public Xapian::Internal::intrusive_base
      *  Re-ranks the initial mset using trained model.
      *
      *  @param  mset       Xapian::MSet corresponding to Xapian::Query that
-     *			   is to be re-ranked.
+     *                     is to be re-ranked.
      *  @param  model_key  DB metadata key from which the ranking model is to
-     *			   be loaded. If no model_key is provided,
-     *			   ranker subclass uses its default model_key
-     *			   e.g. ListNET_default_key.
+     *                     be loaded. If no model_key is provided,
+     *                     ranker subclass uses its default model_key
+     *                     e.g. ListNET_default_key.
      *  @param flist       Xapian::FeatureList object defining what set of
-     *			   features to use for ranking. It is initialised by
-     *			   DEFAULT set of Features by default.
+     *                     features to use for ranking. It is initialised by
+     *                     DEFAULT set of Features by default.
      *                     Note: Make sure that this FeatureList object is the
-     *			   same as what was used during preparation of the
-     *			   training file.
+     *                     same as what was used during preparation of the
+     *                     training file.
      */
     void rank(Xapian::MSet & mset,
               const std::string & model_key = std::string(),
@@ -161,25 +161,25 @@ class XAPIAN_VISIBILITY_DEFAULT Ranker : public Xapian::Internal::intrusive_base
     /** Method to score the ranking.
      *
      *  @param query_file    Query file containing test queries in letor
-     *			     specified format.
+     *                       specified format.
      *  @param qrel_file     Qrel file containing relevance judgements for the
-     *			     queries in letor specified format.
+     *                       queries in letor specified format.
      *  @param model_key     Model to check for ranking quality.
      *  @param output_file   Output file noting scoring results.
      *  @param msetsize      MSet size of retrieved documents.
      *  @param scorer_type   Scorer algorithm to use. By default, NDCGScore is
-     *			     used.
+     *                       used.
      *                       Available algorithms:
      *                       1. NDCGScore
      *  @param flist         Xapian::FeatureList object defining what set of
-     *			     features to use.
-     *			     Note: Make sure that it is same as what was used
-     *			     while training the model being used.
+     *                       features to use.
+     *                       Note: Make sure that it is same as what was used
+     *                       while training the model being used.
      *
      *  @exception FileNotFoundError will be thrown if file not found at
-     *		   supplied path
+     *             supplied path
      *  @exception LetorParseError will be thrown if query file or qrel file
-     *		   could not be parsed
+     *             could not be parsed
      */
     void score(const std::string & query_file,
                const std::string & qrel_file,
@@ -198,24 +198,24 @@ class XAPIAN_VISIBILITY_DEFAULT Ranker : public Xapian::Internal::intrusive_base
      *
      *  Note: Make sure that there is no active writer on the database.
      *        Since this method writes to database, it may cause database
-     *	      exceptions.
+     *        exceptions.
      *
      *  @param model_key     Key by which model is to be stored.
-     *			     If empty, default key is used by the respective
-     *			     subclass.
+     *                       If empty, default key is used by the respective
+     *                       subclass.
      */
     virtual void save_model_to_metadata(const std::string & model_key) = 0;
 
     /** Method to load model from db metadata. Overridden in ranker subclass.
      *
      *  @param model_key     Key by which model is to be loaded.
-     *			     If empty, default key is used by the respective
-     *			     subclass.
+     *                       If empty, default key is used by the respective
+     *                       subclass.
      */
     virtual void load_model_from_metadata(const std::string & model_key) = 0;
 
     /** Method to re-rank a list of FeatureVectors
-     *	(each representing a Xapian::Document) by using the model.
+     *  (each representing a Xapian::Document) by using the model.
      *
      *  Overridden in ranker subclass.
      */
@@ -260,34 +260,33 @@ class XAPIAN_VISIBILITY_DEFAULT ListNETRanker: public Ranker {
     /** Method to save ListNET model as db metadata.
      *
      *  ListNET model file gets stored with each parameter value in a new line.
-     *	 e.g.
+     *  e.g.
      *
      *  0.000920817564536697
      *  0.000920817564536697
      *  0
      *  -1.66533453693773e-19
      *
-     *  @param model_key	Metadata key using which model is to be stored.
+     *  @param model_key        Metadata key using which model is to be stored.
      */
     void save_model_to_metadata(const std::string & model_key);
 
     /** Method to load model from an external file.
      *
-     *  @param model_key         Metadata key using which model is to be
-     *				 loaded.
+     *  @param model_key     Metadata key using which model is to be loaded.
      *
      *  @exception LetorInternalError will be thrown if no model exists
-     *		   corresponding to the supplied key
+     *             corresponding to the supplied key
      */
     void load_model_from_metadata(const std::string & model_key);
 
     /** Method to re-rank a std::vector<Xapian::FeatureVector> by using the
      *  model.
      *
-     *  @param fvv	vector<FeatureVector> that will be re-ranked.
+     *  @param fvv      vector<FeatureVector> that will be re-ranked.
      *
-     *  @exception	LetorInternalError will be thrown if model file
-     *			is not compatible.
+     *  @exception      LetorInternalError will be thrown if model file
+     *                  is not compatible.
      */
     std::vector<FeatureVector>
     rank_fvv(const std::vector<FeatureVector>& fvv) const;
@@ -324,27 +323,27 @@ class XAPIAN_VISIBILITY_DEFAULT ListMLERanker : public Ranker {
      *
      *  The model is serialised as a binary blob.
      *
-     *  @param model_key	Metadata key using which model is to be stored.
+     *  @param model_key        Metadata key using which model is to be stored.
      */
     void save_model_to_metadata(const std::string& model_key);
 
     /** Load model from db metadata.
      *
      *  @param model_key         Metadata key using which model is to be
-     *				 loaded.
+     *                           loaded.
      *
      *  @exception InvalidArgumentError will be thrown if no model exists
-     *		   corresponding to the supplied key
+     *             corresponding to the supplied key
      */
     void load_model_from_metadata(const std::string& model_key);
 
     /** Re-rank a std::vector<Xapian::FeatureVector> by using the
      *  model.
      *
-     *  @param fvv	vector<FeatureVector> that will be re-ranked.
+     *  @param fvv      vector<FeatureVector> that will be re-ranked.
      *
-     *  @exception	InvalidArgumentError will be thrown if model file
-     *			is not compatible.
+     *  @exception      InvalidArgumentError will be thrown if model file
+     *                  is not compatible.
      */
     std::vector<FeatureVector>
     rank_fvv(const std::vector<FeatureVector>& fvv) const;

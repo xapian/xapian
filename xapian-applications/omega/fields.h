@@ -33,11 +33,11 @@ class Fields {
 
     /** Parse fields.
      *
-     *  @param data	The data to parse.
+     *  @param data     The data to parse.
      *
-     *  @param names	If non-NULL and not pointing to an empty string, then
-     *			specifies the field names for corresponding lines in
-     *			@a data.
+     *  @param names    If non-NULL and not pointing to an empty string, then
+     *                  specifies the field names for corresponding lines in
+     *                  @a data.
      */
     void parse_fields(const std::string& data, const std::string* names);
 

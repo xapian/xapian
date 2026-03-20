@@ -51,13 +51,13 @@ class ProgClient : public RemoteDatabase {
 
     /** Start the child process.
      *
-     *  @param progname	The program used to create the connection.
-     *  @param args	Any arguments to the program.
-     *  @param child	Reference to store the child process pid/HANDLE in.
+     *  @param progname The program used to create the connection.
+     *  @param args     Any arguments to the program.
+     *  @param child    Reference to store the child process pid/HANDLE in.
      *
      *  @return A std::pair containing the file descriptor for the connection
-     *		to the child process and a context string to return with any
-     *		error messages.
+     *          to the child process and a context string to return with any
+     *          error messages.
      *
      *  Note: this method is called early on during class construction before
      *  any member variables or even the base class have been initialised.
@@ -76,11 +76,11 @@ class ProgClient : public RemoteDatabase {
   public:
     /** Constructor.
      *
-     *  @param progname	The program used to create the connection.
-     *  @param args	Any arguments to the program.
-     *  @param timeout_	Timeout for communication (in seconds).
-     *  @param writable	Is this a WritableDatabase?
-     *  @param flags	Xapian::DB_RETRY_LOCK or 0.
+     *  @param progname The program used to create the connection.
+     *  @param args     Any arguments to the program.
+     *  @param timeout_ Timeout for communication (in seconds).
+     *  @param writable Is this a WritableDatabase?
+     *  @param flags    Xapian::DB_RETRY_LOCK or 0.
      */
     ProgClient(std::string_view progname,
                std::string_view args,

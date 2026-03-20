@@ -242,15 +242,15 @@ class XAPIAN_VISIBILITY_DEFAULT RemoteServer : private RemoteConnection {
   public:
     /** Construct a RemoteServer.
      *
-     *  @param dbpaths	The paths to the Xapian databases to use.
-     *  @param fdin	The file descriptor to read from.
-     *  @param fdout	The file descriptor to write to (fdin and fdout may be
-     *			the same).
-     *  @param active_timeout_	Timeout for actions during a conversation
-     *			(specified in seconds).
-     *  @param idle_timeout_	Timeout while waiting for a new action from
-     *			the client (specified in seconds).
-     *  @param writable Should the database be opened for writing?
+     *  @param dbpaths          The paths to the Xapian databases to use.
+     *  @param fdin             The file descriptor to read from.
+     *  @param fdout            The file descriptor to write to (fdin and fdout
+     *                          may be the same).
+     *  @param active_timeout_  Timeout for actions during a conversation
+     *                          (specified in seconds).
+     *  @param idle_timeout_    Timeout while waiting for a new action from
+     *                          the client (specified in seconds).
+     *  @param writable         Should the database be opened for writing?
      */
     RemoteServer(const std::vector<std::string> &dbpaths,
                  int fdin, int fdout,

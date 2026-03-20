@@ -56,9 +56,9 @@ using namespace std;
 # ifdef __linux__
 // Apparently defining _GNU_SOURCE should get us F_OFD_SETLK, etc, but that
 // doesn't actually seem to work, so hard-code the known values.
-#  define F_OFD_GETLK	36
-#  define F_OFD_SETLK	37
-#  define F_OFD_SETLKW	38
+#  define F_OFD_GETLK   36
+#  define F_OFD_SETLK   37
+#  define F_OFD_SETLKW  38
 # endif
 #endif
 

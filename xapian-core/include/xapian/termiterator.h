@@ -125,9 +125,9 @@ class XAPIAN_VISIBILITY_DEFAULT TermIterator {
      *  If the iteration is over an unsorted list of terms, then this method
      *  will throw Xapian::InvalidOperationError.
      *
-     *  @param term	The term to advance to.  If this term isn't in
-     *			the stream being iterated, then the iterator is moved
-     *			to the next term after it which is.
+     *  @param term     The term to advance to.  If this term isn't in
+     *                  the stream being iterated, then the iterator is moved
+     *                  to the next term after it which is.
      */
     void skip_to(std::string_view term);
 

@@ -53,12 +53,12 @@ void runfilter_init();
 
 /** Run command @a cmd, optionally capturing its stdout.
  *
- *  @param fd_in	FD for piped input, or -1 for input from file.
- *  @param cmd		The command to run as a NULL terminated argv array.
- *  @param out		Pointer to std::string to put stdout in or NULL to
- *			discard stdout.  (default: NULL)
- *  @param alt_status	Exit status to treat as success in addition to 0
- *			(default: Only treat exit status 0 as success).
+ *  @param fd_in        FD for piped input, or -1 for input from file.
+ *  @param cmd          The command to run as a NULL terminated argv array.
+ *  @param out          Pointer to std::string to put stdout in or NULL to
+ *                      discard stdout.  (default: NULL)
+ *  @param alt_status   Exit status to treat as success in addition to 0
+ *                      (default: Only treat exit status 0 as success).
  *
  *  If the command isn't installed (detected by exit status 127) then
  *  NoSuchFilter is thrown.
@@ -73,13 +73,13 @@ void run_filter(int fd_in,
 
 /** Run command @a cmd, optionally capturing its stdout.
  *
- *  @param fd_in	FD for piped input, or -1 for input from file.
- *  @param cmd		The command to run.
- *  @param use_shell	If false, try to avoid using a shell to run the command.
- *  @param out		Pointer to std::string to put stdout in or NULL to
- *			discard stdout.  (default: NULL)
- *  @param alt_status	Exit status to treat as success in addition to 0
- *			(default: Only treat exit status 0 as success).
+ *  @param fd_in        FD for piped input, or -1 for input from file.
+ *  @param cmd          The command to run.
+ *  @param use_shell    If false, try to avoid using a shell to run the command.
+ *  @param out          Pointer to std::string to put stdout in or NULL to
+ *                      discard stdout.  (default: NULL)
+ *  @param alt_status   Exit status to treat as success in addition to 0
+ *                      (default: Only treat exit status 0 as success).
  *
  *  This is like the overloaded version taking an argv array except that
  *  it takes the command as a single string, plus a use_shell flag

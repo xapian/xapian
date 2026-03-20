@@ -27,9 +27,9 @@ class GlassLazyTable : public GlassTable {
   public:
     /** Create a new lazy table.
      *
-     *  @param name_		The table's name.
-     *  @param path		The path for the table.
-     *  @param readonly		true if the table is read-only, else false.
+     *  @param name_            The table's name.
+     *  @param path             The path for the table.
+     *  @param readonly         true if the table is read-only, else false.
      */
     GlassLazyTable(const char* name_, std::string_view path, bool readonly)
         : GlassTable(name_, path, readonly, true) { }

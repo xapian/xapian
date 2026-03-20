@@ -93,8 +93,8 @@ class LocalSubMatch {
      *  Before we can calculate term weights we need to fetch statistics from
      *  each database involved and collate them.
      *
-     *  @param rset	The RSet for this shard.
-     *  @param stats	Weight::Internal object to add the statistics to.
+     *  @param rset     The RSet for this shard.
+     *  @param stats    Weight::Internal object to add the statistics to.
      */
     void prepare_match(const Xapian::RSet& rset,
                        Xapian::Weight::Internal& stats)

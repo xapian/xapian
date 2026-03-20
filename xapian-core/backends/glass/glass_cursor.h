@@ -257,11 +257,11 @@ class GlassCursor {
      *  only read it when asked to.
      *
      *  @param keep_compressed  Don't uncompress the tag - e.g. useful
-     *			    if it's just being opaquely copied
-     *			    (default: false).
+     *                      if it's just being opaquely copied
+     *                      (default: false).
      *
-     *  @return	true if current_tag holds compressed data (always
-     *		false if keep_compressed was false).
+     *  @return true if current_tag holds compressed data (always
+     *          false if keep_compressed was false).
      */
     bool read_tag(bool keep_compressed = false);
 
@@ -310,7 +310,8 @@ class GlassCursor {
      *  If key is found, the cursor will be set to it, the tag read.  If
      *  it is not found, the cursor is left unpositioned.
      *
-     *  @param key	The key to search for.
+     *  @param key      The key to search for.
+     *
      *  @return true if the key was found.
      */
     bool find_exact(const string &key);

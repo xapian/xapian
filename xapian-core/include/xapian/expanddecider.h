@@ -48,7 +48,7 @@ class XAPIAN_VISIBILITY_DEFAULT ExpandDecider
 
     /** Do we want this term in the ESet?
      *
-     *  @param term	The term to test.
+     *  @param term     The term to test.
      */
     virtual bool operator()(const std::string &term) const = 0;
 
@@ -92,8 +92,8 @@ class XAPIAN_VISIBILITY_DEFAULT ExpandDeciderAnd : public ExpandDecider {
     /** Terms will be checked with @a first, and if accepted, then checked
      *  with @a second.
      *
-     *  @param first_	First ExpandDecider object to test with.
-     *  @param second_	ExpandDecider object to test with if first_ accepts.
+     *  @param first_   First ExpandDecider object to test with.
+     *  @param second_  ExpandDecider object to test with if first_ accepts.
      */
     ExpandDeciderAnd(const ExpandDecider &first_,
                      const ExpandDecider &second_)
@@ -101,8 +101,8 @@ class XAPIAN_VISIBILITY_DEFAULT ExpandDeciderAnd : public ExpandDecider {
 
     /** Compatibility method.
      *
-     *  @param first_	First ExpandDecider object to test with.
-     *  @param second_	ExpandDecider object to test with if first_ accepts.
+     *  @param first_   First ExpandDecider object to test with.
+     *  @param second_  ExpandDecider object to test with if first_ accepts.
      */
     ExpandDeciderAnd(const ExpandDecider *first_,
                      const ExpandDecider *second_)
@@ -122,11 +122,11 @@ class XAPIAN_VISIBILITY_DEFAULT ExpandDeciderFilterTerms : public ExpandDecider 
   public:
     /** The two iterators specify a list of terms to be rejected.
      *
-     *  @param reject_begin	Begin iterator for the list of terms to
-     *				reject.  It can be any input_iterator type
-     *				which returns std::string or char * (e.g.
-     *				TermIterator or char **).
-     *  @param reject_end	End iterator for the list of terms to reject.
+     *  @param reject_begin     Begin iterator for the list of terms to
+     *                          reject.  It can be any input_iterator type
+     *                          which returns std::string or char * (e.g.
+     *                          TermIterator or char **).
+     *  @param reject_end       End iterator for the list of terms to reject.
      */
     template<class Iterator>
     ExpandDeciderFilterTerms(Iterator reject_begin, Iterator reject_end)

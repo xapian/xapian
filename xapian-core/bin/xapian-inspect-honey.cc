@@ -223,10 +223,10 @@ int
 main(int argc, char** argv)
 {
     static const struct option long_opts[] = {
-        {"table",	required_argument, 0, 't'},
-        {"help",	no_argument, 0, OPT_HELP},
-        {"version",	no_argument, 0, OPT_VERSION},
-        {NULL,		0, 0, 0}
+        {"table",       required_argument, 0, 't'},
+        {"help",        no_argument, 0, OPT_HELP},
+        {"version",     no_argument, 0, OPT_VERSION},
+        {NULL,          0, 0, 0}
     };
 
     string table_name;

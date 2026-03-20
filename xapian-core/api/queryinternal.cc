@@ -2223,21 +2223,21 @@ void
 QueryBranch::serialise_(string & result, Xapian::termcount parameter) const
 {
     static const unsigned char first_byte[] = {
-        MULTIWAY(0),	// OP_AND
-        MULTIWAY(1),	// OP_OR
-        MULTIWAY(2),	// OP_AND_NOT
-        MULTIWAY(3),	// OP_XOR
-        MULTIWAY(4),	// OP_AND_MAYBE
-        MULTIWAY(5),	// OP_FILTER
-        MULTIWAY(14),	// OP_NEAR
-        MULTIWAY(15),	// OP_PHRASE
-        0,		// OP_VALUE_RANGE
-        MISC(3),	// OP_SCALE_WEIGHT
-        MULTIWAY(13),	// OP_ELITE_SET
-        0,		// OP_VALUE_GE
-        0,		// OP_VALUE_LE
-        MULTIWAY(6),	// OP_SYNONYM
-        MULTIWAY(7)	// OP_MAX
+        MULTIWAY(0),    // OP_AND
+        MULTIWAY(1),    // OP_OR
+        MULTIWAY(2),    // OP_AND_NOT
+        MULTIWAY(3),    // OP_XOR
+        MULTIWAY(4),    // OP_AND_MAYBE
+        MULTIWAY(5),    // OP_FILTER
+        MULTIWAY(14),   // OP_NEAR
+        MULTIWAY(15),   // OP_PHRASE
+        0,              // OP_VALUE_RANGE
+        MISC(3),        // OP_SCALE_WEIGHT
+        MULTIWAY(13),   // OP_ELITE_SET
+        0,              // OP_VALUE_GE
+        0,              // OP_VALUE_LE
+        MULTIWAY(6),    // OP_SYNONYM
+        MULTIWAY(7)     // OP_MAX
     };
     Xapian::Query::op op_ = get_op();
     AssertRel(size_t(op_),<,sizeof(first_byte));

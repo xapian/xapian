@@ -99,8 +99,8 @@ class XAPIAN_VISIBILITY_DEFAULT Stem {
 
     /** Construct a Xapian::Stem object for a particular language.
      *
-     *  @param language	Either the English name for the language
-     *			or the two letter ISO639 code.
+     *  @param language Either the English name for the language
+     *                  or the two letter ISO639 code.
      *
      *  The following language names are understood (aliases follow the
      *  name):
@@ -126,8 +126,8 @@ class XAPIAN_VISIBILITY_DEFAULT Stem {
      *    this is based on "english").
      *  - lovins - Lovin's English stemmer
      *  - porter - Porter's English stemmer exactly matching his 1980 paper
-     *	- esperanto (eo) - Since Xapian 2.0.0
-     *	- estonian (et) - Since Xapian 2.0.0
+     *  - esperanto (eo) - Since Xapian 2.0.0
+     *  - estonian (et) - Since Xapian 2.0.0
      *  - finnish (fi)
      *  - french (fr)
      *  - german (de, german2) - Before Xapian 2.0.0, german2 was a separate
@@ -154,12 +154,12 @@ class XAPIAN_VISIBILITY_DEFAULT Stem {
      *  - yiddish (yi) - Since Xapian 2.0.0
      *
      *  @param fallback If true then treat unknown @a language as "none",
-     *			otherwise an exception is thrown (default: false).
-     *			Parameter added in Xapian 1.4.14 - older versions
-     *			always threw an exception.
+     *                  otherwise an exception is thrown (default: false).
+     *                  Parameter added in Xapian 1.4.14 - older versions
+     *                  always threw an exception.
      *
-     *  @exception	Xapian::InvalidArgumentError is thrown if
-     *			@a language isn't recognised and @a fallback is false.
+     *  @exception      Xapian::InvalidArgumentError is thrown if
+     *                  @a language isn't recognised and @a fallback is false.
      */
     Stem(std::string_view language, bool fallback = false);
 
@@ -169,10 +169,10 @@ class XAPIAN_VISIBILITY_DEFAULT Stem {
      *  stemming algorithm (or to wrap a third-party algorithm) and then wrap
      *  your implementation in a Xapian::Stem object to pass to the Xapian API.
      *
-     *  @param p	The user-subclassed StemImplementation object.  This
-     *			is reference counted, and so will be automatically
-     *			deleted by the Xapian::Stem wrapper when no longer
-     *			required.
+     *  @param p        The user-subclassed StemImplementation object.  This
+     *                  is reference counted, and so will be automatically
+     *                  deleted by the Xapian::Stem wrapper when no longer
+     *                  required.
      */
     explicit Stem(StemImplementation* p) : internal(p) { }
 
@@ -181,8 +181,8 @@ class XAPIAN_VISIBILITY_DEFAULT Stem {
 
     /** Stem a word.
      *
-     *  @param word	a word to stem.
-     *  @return		the stem
+     *  @param word     a word to stem.
+     *  @return         the stem
      */
     std::string operator()(const std::string& word) const {
         if (!internal || word.empty()) return word;

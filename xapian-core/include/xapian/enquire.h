@@ -81,7 +81,7 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 
     /** Constructor.
      *
-     *  @param db	The database (or databases) to query.
+     *  @param db       The database (or databases) to query.
      *
      *  @since 2.0.0 If @a db has no subdatabases, it's handled like any other
      *  empty database.  In earlier versions, Xapian::InvalidArgumentError was
@@ -98,9 +98,9 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
      *  If set_query() is not called before calling get_mset(), the default
      *  query used will be Xapian::MatchNothing.
      *
-     *  @param query		The Xapian::Query object
-     *  @param query_length	The query length to use (default:
-     *				query.get_length())
+     *  @param query            The Xapian::Query object
+     *  @param query_length     The query length to use (default:
+     *                          query.get_length())
      */
     void set_query(const Query& query, termcount query_length = 0);
 
@@ -119,7 +119,7 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
      *  If set_weighting_scheme() is not called before calling get_mset(), the
      *  default weighting scheme is Xapian::BM25Weight().
      *
-     *  @param weight	Xapian::Weight object
+     *  @param weight   Xapian::Weight object
      */
     void set_weighting_scheme(const Weight& weight);
 
@@ -237,12 +237,12 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
      * @param sort_key  value number to sort on.
      *
      * @param reverse   If true, reverses the sort order of sort_key.
-     *			Beware that in 1.2.16 and earlier, the sense
-     *			of this parameter was incorrectly inverted
-     *			and inconsistent with the other set_sort_by_...
-     *			methods.  This was fixed in 1.2.17, so make that
-     *			version a minimum requirement if this detail
-     *			matters to your application.
+     *                  Beware that in 1.2.16 and earlier, the sense
+     *                  of this parameter was incorrectly inverted
+     *                  and inconsistent with the other set_sort_by_...
+     *                  methods.  This was fixed in 1.2.17, so make that
+     *                  version a minimum requirement if this detail
+     *                  matters to your application.
      */
     void set_sort_by_relevance_then_value(valueno sort_key, bool reverse);
 
@@ -259,52 +259,52 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
      * @param sorter    The functor to use for generating keys.
      *
      * @param reverse   If true, reverses the sort order of the generated
-     *			keys.  Beware that in 1.2.16 and earlier, the sense
-     *			of this parameter was incorrectly inverted
-     *			and inconsistent with the other set_sort_by_...
-     *			methods.  This was fixed in 1.2.17, so make that
-     *			version a minimum requirement if this detail
-     *			matters to your application.
+     *                  keys.  Beware that in 1.2.16 and earlier, the sense
+     *                  of this parameter was incorrectly inverted
+     *                  and inconsistent with the other set_sort_by_...
+     *                  methods.  This was fixed in 1.2.17, so make that
+     *                  version a minimum requirement if this detail
+     *                  matters to your application.
      */
     void set_sort_by_relevance_then_key(KeyMaker* sorter,
                                         bool reverse) XAPIAN_NONNULL();
 
     /** Control collapsing of results.
      *
-     *	The MSet returned by @a get_mset() will have only the "best" (at most)
-     *	@a collapse_max documents with each particular non-empty value in slot
-     *	@a collapse_key ("best" being highest ranked - i.e. highest weight or
-     *	highest sorting key).
+     *  The MSet returned by @a get_mset() will have only the "best" (at most)
+     *  @a collapse_max documents with each particular non-empty value in slot
+     *  @a collapse_key ("best" being highest ranked - i.e. highest weight or
+     *  highest sorting key).
      *
-     *	An example use might be to create a value for each document
-     *	containing an MD5 hash of the document contents.  Then
-     *	duplicate documents from different sources can be eliminated at
-     *	search time by collapsing with @a collapse_max = 1 (it's better
-     *	to eliminate duplicates at index time, but this may not be
-     *	always be possible - for example the search may be over more
-     *	than one Xapian database).
+     *  An example use might be to create a value for each document
+     *  containing an MD5 hash of the document contents.  Then
+     *  duplicate documents from different sources can be eliminated at
+     *  search time by collapsing with @a collapse_max = 1 (it's better
+     *  to eliminate duplicates at index time, but this may not be
+     *  always be possible - for example the search may be over more
+     *  than one Xapian database).
      *
-     *	Another use is to group matches in a particular category (e.g.
-     *	you might collapse a mailing list search on the Subject: so
-     *	that there's only one result per discussion thread).  In this
-     *	case you can use get_collapse_count() to give the user some
-     *	idea how many other results there are.  And if you index the
-     *	Subject: as a boolean term as well as putting it in a value,
-     *	you can offer a link to a non-collapsed search restricted to
-     *	that thread using a boolean filter.
+     *  Another use is to group matches in a particular category (e.g.
+     *  you might collapse a mailing list search on the Subject: so
+     *  that there's only one result per discussion thread).  In this
+     *  case you can use get_collapse_count() to give the user some
+     *  idea how many other results there are.  And if you index the
+     *  Subject: as a boolean term as well as putting it in a value,
+     *  you can offer a link to a non-collapsed search restricted to
+     *  that thread using a boolean filter.
      *
-     *  @param collapse_key	value slot to collapse on (default is
-     *				Xapian::BAD_VALUENO which means no collapsing).
+     *  @param collapse_key     value slot to collapse on (default is
+     *                          Xapian::BAD_VALUENO which means no collapsing).
      *
-     *  @param collapse_max	Maximum number of documents with the same key
-     *				to allow (default: 1).
+     *  @param collapse_max     Maximum number of documents with the same key
+     *                          to allow (default: 1).
      */
     void set_collapse_key(valueno collapse_key, doccount collapse_max = 1);
 
     /** Set lower bounds on percentage and/or weight.
      *
-     *  @param percent_threshold	Lower bound on percentage score
-     *  @param weight_threshold		Lower bound on weight (default: 0)
+     *  @param percent_threshold        Lower bound on percentage score
+     *  @param weight_threshold         Lower bound on weight (default: 0)
      *
      *  No thresholds are applied by default, and if either threshold is set
      *  to 0, then that threshold is disabled.
@@ -345,8 +345,8 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
      *  will be turned off.
      *
      *  @param time_limit  time in seconds after which to disable
-     *			   check_at_least (default: 0.0 which means no
-     *			   time limit)
+     *                     check_at_least (default: 0.0 which means no
+     *                     time limit)
      *
      *  Limitations:
      *
@@ -362,23 +362,23 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
      *  Run the query using the settings in this Enquire object and those
      *  passed as parameters to the method, and return a Xapian::MSet object.
      *
-     *  @param first		Zero-based index of the first result to return
-     *				(which supports retrieving pages of results).
-     *  @param maxitems		The maximum number of documents to return.
-     *  @param checkatleast	Check at least this many documents.  By default
-     *				Xapian will avoiding considering documents
-     *				which it can prove can't match, which is faster
-     *				but can result in a loose bounds on and a poor
-     *				estimate of the total number of matches -
-     *				setting checkatleast higher allows trading off
-     *				speed for tighter bounds and a more accurate
-     *				estimate.  (default: 0)
-     *  @param rset		Documents marked as relevant (default: no
-     *				documents have been marked as relevant)
-     *  @param mdecider		Xapian::MatchDecider object - this acts as a
-     *				yes/no filter on documents which match the
-     *				query.  See also Xapian::PostingSource.
-     *				(default: no Xapian::MatchDecider)
+     *  @param first            Zero-based index of the first result to return
+     *                          (which supports retrieving pages of results).
+     *  @param maxitems         The maximum number of documents to return.
+     *  @param checkatleast     Check at least this many documents.  By default
+     *                          Xapian will avoiding considering documents
+     *                          which it can prove can't match, which is faster
+     *                          but can result in a loose bounds on and a poor
+     *                          estimate of the total number of matches -
+     *                          setting checkatleast higher allows trading off
+     *                          speed for tighter bounds and a more accurate
+     *                          estimate.  (default: 0)
+     *  @param rset             Documents marked as relevant (default: no
+     *                          documents have been marked as relevant)
+     *  @param mdecider         Xapian::MatchDecider object - this acts as a
+     *                          yes/no filter on documents which match the
+     *                          query.  See also Xapian::PostingSource.
+     *                          (default: no Xapian::MatchDecider)
      */
     MSet get_mset(doccount first,
                   doccount maxitems,
@@ -391,15 +391,15 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
      *  Run the query using the settings in this Enquire object and those
      *  passed as parameters to the method, and return a Xapian::MSet object.
      *
-     *  @param first		Zero-based index of the first result to return
-     *				(which supports retrieving pages of results).
-     *  @param maxitems		The maximum number of documents to return.
-     *  @param rset		Documents marked as relevant (default: no
-     *				documents have been marked as relevant)
-     *  @param mdecider		Xapian::MatchDecider object - this acts as a
-     *				yes/no filter on documents which match the
-     *				query.  See also Xapian::PostingSource.
-     *				(default: no Xapian::MatchDecider)
+     *  @param first            Zero-based index of the first result to return
+     *                          (which supports retrieving pages of results).
+     *  @param maxitems         The maximum number of documents to return.
+     *  @param rset             Documents marked as relevant (default: no
+     *                          documents have been marked as relevant)
+     *  @param mdecider         Xapian::MatchDecider object - this acts as a
+     *                          yes/no filter on documents which match the
+     *                          query.  See also Xapian::PostingSource.
+     *                          (default: no Xapian::MatchDecider)
      */
     MSet get_mset(doccount first,
                   doccount maxitems,
@@ -416,7 +416,7 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
      *  Terms which occur more than once in the query are only returned once,
      *  at the lowest term position they occur at.
      *
-     *  @param did	Document ID in the database set in the constructor
+     *  @param did      Document ID in the database set in the constructor
      */
     TermIterator get_matching_terms_begin(docid did) const;
 
@@ -425,7 +425,7 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
      *  Convenience overloaded form, taking a Xapian::MSetIterator instead
      *  of a Xapian::docid.
      *
-     *  @param it	MSetIterator to return matching terms for
+     *  @param it       MSetIterator to return matching terms for
      */
     TermIterator get_matching_terms_begin(const MSetIterator& it) const {
         return get_matching_terms_begin(*it);
@@ -451,7 +451,7 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
      *                      the scheme to be used. The following schemes
      *                      are currently available:
      *                      * "bo1": Bose-Einstein 1 model from the Divergence
-     *			      From Randomness framework.
+     *                        From Randomness framework.
      *                      * "prob" : Probabilistic model (since 1.4.26).
      *                      * "trad" : Deprecated alias for "prob".
      *  @param expand_k  Parameter k for probabilistic query expansion.
@@ -484,19 +484,19 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
      *  which are relevant (typically based on the user marking results or
      *  similar).
      *
-     *  @param maxitems		The maximum number of terms to return.
-     *  @param rset		Documents marked as relevant.
-     *  @param flags		Bitwise-or combination of @a
-     *				INCLUDE_QUERY_TERMS and @a USE_EXACT_TERMFREQ
-     *				flags (default: 0).
-     *  @param edecider		Xapian::ExpandDecider object - this acts as a
-     *				yes/no filter on terms which are being
-     *				considered.  (default: no
-     *				Xapian::ExpandDecider)
-     *	@param min_weight	Lower bound on weight of acceptable terms
-     *				(default: 0.0)
+     *  @param maxitems         The maximum number of terms to return.
+     *  @param rset             Documents marked as relevant.
+     *  @param flags            Bitwise-or combination of @a
+     *                          INCLUDE_QUERY_TERMS and @a USE_EXACT_TERMFREQ
+     *                          flags (default: 0).
+     *  @param edecider         Xapian::ExpandDecider object - this acts as a
+     *                          yes/no filter on terms which are being
+     *                          considered.  (default: no
+     *                          Xapian::ExpandDecider)
+     *  @param min_weight       Lower bound on weight of acceptable terms
+     *                          (default: 0.0)
      *
-     *	@return	Xapian::ESet object containing a list of terms with weights.
+     *  @return Xapian::ESet object containing a list of terms with weights.
      */
     ESet get_eset(termcount maxitems,
                   const RSet& rset,
@@ -510,13 +510,12 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
      *  which are relevant (typically based on the user marking results or
      *  similar).
      *
-     *  @param maxitems		The maximum number of terms to return.
-     *  @param rset		Documents marked as relevant.
-     *  @param edecider		Xapian::ExpandDecider object - this acts as a
-     *				yes/no filter on terms which are being
-     *				considered.
+     *  @param maxitems     The maximum number of terms to return.
+     *  @param rset         Documents marked as relevant.
+     *  @param edecider     Xapian::ExpandDecider object - this acts as a
+     *                      yes/no filter on terms which are being considered.
      *
-     *	@return	Xapian::ESet object containing a list of terms with weights.
+     *  @return Xapian::ESet object containing a list of terms with weights.
      */
     ESet get_eset(termcount maxitems,
                   const RSet& rset,

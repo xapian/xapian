@@ -36,7 +36,7 @@ const std::string & get_tmpdir();
  *  The filename will be in a securely created temporary directory.
  *
  *  @return If successful, filename with specified leaf; otherwise empty
- *	    string.
+ *          string.
  */
 inline std::string get_tmpfile(const char * leaf) {
     std::string f = get_tmpdir();
@@ -50,7 +50,7 @@ inline std::string get_tmpfile(const char * leaf) {
  *  The filename will be in a securely created temporary directory.
  *
  *  @return If successful, filename with specified leaf; otherwise empty
- *	    string.
+ *          string.
  */
 inline std::string get_tmpfile(const std::string & leaf) {
     std::string f = get_tmpdir();

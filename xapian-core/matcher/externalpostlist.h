@@ -49,9 +49,9 @@ class ExternalPostList : public PostList {
   public:
     /** Constructor.
      *
-     *  @param estimate_op		    Object to report min/est/max to.
+     *  @param estimate_op                  Object to report min/est/max to.
      *  @param max_weight_cached_flag_ptr   Pointer to flag to clear when max
-     *					    weight changes.
+     *                                      weight changes.
      */
     ExternalPostList(const Xapian::Database & db,
                      Xapian::PostingSource *source_,

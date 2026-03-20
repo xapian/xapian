@@ -163,8 +163,8 @@ class test_driver {
 
     /** Parse the command line arguments.
      *
-     *  @param  argc	The argument count passed into ::main()
-     *  @param  argv	The argument list passed into ::main()
+     *  @param  argc    The argument count passed into ::main()
+     *  @param  argv    The argument list passed into ::main()
      */
     static void parse_command_line(int argc, char **argv);
 
@@ -309,8 +309,8 @@ extern bool TEST_EQUAL_DOUBLE_(double a, double b);
 
 /** Mark a testcase as expected to fail.
  *
- *  @param msg	An static string explaining why the testcase is expected to
- *		fail.  Must not be NULL.
+ *  @param msg  An static string explaining why the testcase is expected to
+ *              fail.  Must not be NULL.
  *
  *  This is intended to be used temporarily to mark tests for known bugs before
  *  the bugs are fixed.  If the test fails, the result will be shown as "XFAIL"

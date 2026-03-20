@@ -113,18 +113,18 @@ class RemoteDatabase : public Xapian::Database::Internal {
      *  has code in the constructor to open the socket.
      *
      *  @param fd_and_context
-     *			A std::pair containing the file descriptor for the
-     *			connection to the server and a context string to
-     *			return with any error messages.  (These are passed
-     *			together so the caller can return them from a
-     *			single helper function easily).
+     *                  A std::pair containing the file descriptor for the
+     *                  connection to the server and a context string to
+     *                  return with any error messages.  (These are passed
+     *                  together so the caller can return them from a
+     *                  single helper function easily).
      *  @param timeout_ The timeout used with the network operations.
-     *			Generally a Xapian::NetworkTimeoutError exception will
-     *			be thrown if the remote end doesn't respond for this
-     *			length of time (in seconds).  A timeout of 0 means that
-     *			operations will never timeout.
-     *	@param writable	Is this a WritableDatabase?
-     *	@param flags	Xapian::DB_RETRY_LOCK or 0.
+     *                  Generally a Xapian::NetworkTimeoutError exception will
+     *                  be thrown if the remote end doesn't respond for this
+     *                  length of time (in seconds).  A timeout of 0 means that
+     *                  operations will never timeout.
+     *  @param writable Is this a WritableDatabase?
+     *  @param flags    Xapian::DB_RETRY_LOCK or 0.
      */
     RemoteDatabase(std::pair<int, std::string> fd_and_context,
                    double timeout_,
@@ -172,23 +172,23 @@ class RemoteDatabase : public Xapian::Database::Internal {
 
     /** Set the query
      *
-     * @param query			The query.
-     * @param qlen			The query length.
-     * @param collapse_key		The value number to collapse matches on.
-     * @param collapse_max		Max number of items with the same key
-     *					to leave after collapsing (0 for don't
-     *					collapse).
-     * @param order			Sort order for docids.
-     * @param sort_key			The value number to sort on.
-     * @param sort_by			Which order to apply sorts in.
-     * @param sort_value_forward	Sort order for values.
-     * @param time_limit_		Seconds to reduce check_at_least after
-     *					(or <= 0 for no limit).
-     * @param percent_threshold		Lower bound on percentage score.
-     * @param weight_threshold		Lower bound on weight.
-     * @param wtscheme			Weighting scheme.
-     * @param omrset			The rset.
-     * @param matchspies                The matchspies to use.
+     * @param query                 The query.
+     * @param qlen                  The query length.
+     * @param collapse_key          The value number to collapse matches on.
+     * @param collapse_max          Max number of items with the same key
+     *                              to leave after collapsing (0 for don't
+     *                              collapse).
+     * @param order                 Sort order for docids.
+     * @param sort_key              The value number to sort on.
+     * @param sort_by               Which order to apply sorts in.
+     * @param sort_value_forward    Sort order for values.
+     * @param time_limit_           Seconds to reduce check_at_least after
+     *                              (or <= 0 for no limit).
+     * @param percent_threshold     Lower bound on percentage score.
+     * @param weight_threshold      Lower bound on weight.
+     * @param wtscheme              Weighting scheme.
+     * @param omrset                The rset.
+     * @param matchspies            The matchspies to use.
      */
     void set_query(const Xapian::Query& query,
                    Xapian::termcount qlen,

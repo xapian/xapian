@@ -225,20 +225,20 @@ main(int argc, char **argv)
 try {
     const char * opts = "d:m:c:s:S:p:b:f:o:w:Fhv";
     static const struct option long_opts[] = {
-        { "db",		required_argument, 0, 'd' },
-        { "msize",	required_argument, 0, 'm' },
-        { "check-at-least",	required_argument, 0, 'c' },
-        { "stemmer",	required_argument, 0, 's' },
-        { "stem-strategy",	required_argument, 0, 'S' },
-        { "prefix",	required_argument, 0, 'p' },
-        { "boolean-prefix",	required_argument, 0, 'b' },
-        { "flags",	required_argument, 0, 'f' },
-        { "default-op",	required_argument, 0, 'o' },
-        { "weight",	required_argument, 0, 'w' },
-        { "freqs",	no_argument, 0, 'F' },
-        { "help",	no_argument, 0, 'h' },
-        { "version",	no_argument, 0, 'v' },
-        { NULL,		0, 0, 0}
+        { "db",             required_argument, 0, 'd' },
+        { "msize",          required_argument, 0, 'm' },
+        { "check-at-least", required_argument, 0, 'c' },
+        { "stemmer",        required_argument, 0, 's' },
+        { "stem-strategy",  required_argument, 0, 'S' },
+        { "prefix",         required_argument, 0, 'p' },
+        { "boolean-prefix", required_argument, 0, 'b' },
+        { "flags",          required_argument, 0, 'f' },
+        { "default-op",     required_argument, 0, 'o' },
+        { "weight",         required_argument, 0, 'w' },
+        { "freqs",          no_argument, 0, 'F' },
+        { "help",           no_argument, 0, 'h' },
+        { "version",        no_argument, 0, 'v' },
+        { NULL,             0, 0, 0}
     };
 
     Xapian::SimpleStopper mystopper(begin(sw), end(sw));

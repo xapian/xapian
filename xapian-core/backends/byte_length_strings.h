@@ -46,7 +46,7 @@ class ByteLengthPrefixedStringItor {
     /** Get the current entry.
      *
      *  @return A std::string_view which remains valid while the buffer passed
-     *	        to the constructor does.
+     *          to the constructor does.
      */
     std::string_view operator*() const {
         size_t len = *p ^ MAGIC_XOR_VALUE;

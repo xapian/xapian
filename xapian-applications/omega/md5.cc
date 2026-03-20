@@ -29,13 +29,13 @@
 
 #include <config.h>
 
-#include <cstring>		/* for memcpy() */
+#include <cstring>              /* for memcpy() */
 #include "md5.h"
 
 using namespace std;
 
 #ifndef WORDS_BIGENDIAN
-#define byteReverse(buf, len)	/* Nothing */
+#define byteReverse(buf, len)   /* Nothing */
 #else
 static void byteReverse(uint32_t *buf, unsigned longs);
 
@@ -85,10 +85,10 @@ void MD5Update(struct MD5Context *ctx, unsigned char const *buf, unsigned len)
 
     t = ctx->bits[0];
     if ((ctx->bits[0] = t + (uint32_t(len) << 3)) < t)
-        ctx->bits[1]++;		/* Carry from low to high */
+        ctx->bits[1]++;         /* Carry from low to high */
     ctx->bits[1] += len >> 29;
 
-    t = (t >> 3) & 0x3f;	/* Bytes already in shsInfo->data */
+    t = (t >> 3) & 0x3f;        /* Bytes already in shsInfo->data */
 
     /* Handle any leading odd-sized chunks */
 
@@ -164,7 +164,7 @@ void MD5Final(unsigned char digest[16], struct MD5Context *ctx)
     MD5Transform(ctx->buf, ctx->in);
     byteReverse(ctx->buf, 4);
     memcpy(digest, ctx->buf, 16);
-    memset(ctx, 0, sizeof(*ctx));	/* In case it's sensitive */
+    memset(ctx, 0, sizeof(*ctx));       /* In case it's sensitive */
 }
 
 #ifndef ASM_MD5

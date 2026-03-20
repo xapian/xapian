@@ -182,9 +182,9 @@ test_stemdict()
 
 /// The lists of tests to perform
 static const test_desc tests[] = {
-    {"stemrandom",		test_stemrandom},
-    {"stemjunk",		test_stemjunk},
-    {"stemdict",		test_stemdict},
+    {"stemrandom",              test_stemrandom},
+    {"stemjunk",                test_stemjunk},
+    {"stemdict",                test_stemdict},
     {0, 0}
 };
 

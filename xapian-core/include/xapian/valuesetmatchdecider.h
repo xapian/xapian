@@ -87,9 +87,9 @@ class XAPIAN_VISIBILITY_DEFAULT ValueSetMatchDecider : public MatchDecider {
 
     /** Decide whether we want a particular document to be in the MSet.
      *
-     *  @param doc	The document to test.
-     *  @return		true if the document is acceptable, or false if the
-     *			document should be excluded from the MSet.
+     *  @param doc  The document to test.
+     *  @return     true if the document is acceptable, or false if the
+     *              document should be excluded from the MSet.
      */
     bool operator()(const Xapian::Document& doc) const;
 };

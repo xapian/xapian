@@ -1341,7 +1341,7 @@ DEFINE_TESTCASE(consistency1, backend && !remote) {
                     TEST_EQUAL(start + mset.size(),
                                min(start + size, bigmset.size()));
                 } else if (size) {
-//		tout << start << mset.size() << bigmset.size() << '\n';
+//              tout << start << mset.size() << bigmset.size() << '\n';
                     TEST(start >= bigmset.size());
                 }
                 for (Xapian::doccount i = 0; i < mset.size(); ++i) {

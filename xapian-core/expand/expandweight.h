@@ -62,7 +62,7 @@ class ExpandStats {
 
     /** Constructor.
      *
-     *  @param avlen_	    Average document length
+     *  @param avlen_       Average document length
      *  @param expand_k_    Parameter k used by ProbEWeight (default: 0)
      */
     ExpandStats(Xapian::doclength avlen_, double expand_k_ = 0.0)
@@ -141,15 +141,15 @@ class ExpandWeight {
   public:
     /** Constructor.
      *
-     *  @param db_		    The database
-     *  @param rsize_		    Number of documents in the RSet
+     *  @param db_                  The database
+     *  @param rsize_               Number of documents in the RSet
      *  @param use_exact_termfreq_  When expanding over a combined database,
-     *				    should we use the exact termfreq (if false
-     *				    a cheaper approximation is used)
+     *                              should we use the exact termfreq (if false
+     *                              a cheaper approximation is used)
      *  @param want_collection_freq_
-     *				    Does the expansion scheme use collection
-     *				    frequency?
-     *  @param expand_k_	    Parameter for ProbEWeight (default: 0)
+     *                              Does the expansion scheme use collection
+     *                              frequency?
+     *  @param expand_k_            Parameter for ProbEWeight (default: 0)
      */
     ExpandWeight(const Xapian::Database& db_,
                  Xapian::doccount rsize_,
@@ -201,12 +201,13 @@ class ProbEWeight : public ExpandWeight {
   public:
     /** Constructor.
      *
-     *  @param db_ The database.
-     *  @param rsize_ The number of documents in the RSet.
-     *  @param use_exact_termfreq_ When expanding over a combined database,
-     *				   should we use the exact termfreq (if false
-     *				   a cheaper approximation is used).
-     *  @param expand_k_ The parameter for probabilistic query expansion.
+     *  @param db_                  The database.
+     *  @param rsize_               The number of documents in the RSet.
+     *  @param use_exact_termfreq_  When expanding over a combined database,
+     *                              should we use the exact termfreq (if false
+     *                              a cheaper approximation is used).
+     *  @param expand_k_            The parameter for probabilistic query
+     *                              expansion.
      *
      *  All the parameters are passed to the parent ExpandWeight object.
      */
@@ -234,11 +235,11 @@ class Bo1EWeight : public ExpandWeight {
   public:
     /** Constructor.
      *
-     *  @param db_ The database.
-     *  @param rsize_ The number of documents in the RSet.
-     *  @param use_exact_termfreq_ When expanding over a combined database,
-     *				   should we use the exact termfreq (if false
-     *				   a cheaper approximation is used).
+     *  @param db_                  The database.
+     *  @param rsize_               The number of documents in the RSet.
+     *  @param use_exact_termfreq_  When expanding over a combined database,
+     *                              should we use the exact termfreq (if false
+     *                              a cheaper approximation is used).
      *
      *  All the parameters are passed to the parent ExpandWeight object.
      */

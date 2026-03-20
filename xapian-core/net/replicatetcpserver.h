@@ -32,10 +32,10 @@ class XAPIAN_VISIBILITY_DEFAULT ReplicateTcpServer : public TcpServer {
   public:
     /** Construct a ReplicateTcpServer and start listening for connections.
      *
-     *  @param host	The hostname or address for the interface to listen on
-     *			(or "" to listen on all interfaces).
-     *  @param port	The TCP port number to listen on.
-     *  @param path_	The path to the parent directory of the databases.
+     *  @param host     The hostname or address for the interface to listen on
+     *                  (or "" to listen on all interfaces).
+     *  @param port     The TCP port number to listen on.
+     *  @param path_    The path to the parent directory of the databases.
      */
     ReplicateTcpServer(const std::string & host, int port,
                        const std::string & path_);

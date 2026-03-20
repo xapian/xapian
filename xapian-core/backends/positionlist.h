@@ -60,8 +60,8 @@ class PositionIterator::Internal : public Xapian::Internal::intrusive_base
      *  The list starts before the first entry, so next() or skip_to() must be
      *  called before get_position().
      *
-     *  @return	true if we're on a valid entry; false if we've reached the end
-     *		of the list.
+     *  @return true if we're on a valid entry; false if we've reached the end
+     *          of the list.
      */
     virtual bool next() = 0;
 
@@ -70,8 +70,8 @@ class PositionIterator::Internal : public Xapian::Internal::intrusive_base
      *  If the specified position isn't in the list, position ourselves on the
      *  first entry after it.
      *
-     *  @return	true if we're on a valid entry; false if we've reached the end
-     *		of the list.
+     *  @return true if we're on a valid entry; false if we've reached the end
+     *          of the list.
      */
     virtual bool skip_to(Xapian::termpos termpos) = 0;
 };

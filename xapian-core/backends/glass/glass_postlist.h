@@ -140,7 +140,7 @@ class GlassPostList : public LeafPostList {
      *  to the end.
      *
      *  @return true if we moved to a valid document,
-     *	    false if we reached the end of the chunk.
+     *          false if we reached the end of the chunk.
      */
     bool move_forward_in_chunk_to_at_least(Xapian::docid desired_did);
 
@@ -270,14 +270,14 @@ class GlassPostListTable : public GlassTable {
 
     /** Returns frequencies for a term.
      *
-     *  @param term		The term to get frequencies for
-     *  @param termfreq_ptr	Point to return number of docs indexed by @a
-     *			term (or NULL not to return)
-     *  @param collfreq_ptr	Point to return number of occurrences of @a
-     *			term in the database (or NULL not to return)
-     *  @param wdfub_ptr	Point to return an upper bound on the wdf
-     *			of @a term in the database (or NULL not to
-     *			return)
+     *  @param term             The term to get frequencies for
+     *  @param termfreq_ptr     Point to return number of docs indexed by @a
+     *                          term (or NULL not to return)
+     *  @param collfreq_ptr     Point to return number of occurrences of @a
+     *                          term in the database (or NULL not to return)
+     *  @param wdfub_ptr        Point to return an upper bound on the wdf
+     *                          of @a term in the database (or NULL not to
+     *                          return)
      */
     void get_freqs(std::string_view term,
                    Xapian::doccount* termfreq_ptr,

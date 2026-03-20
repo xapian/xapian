@@ -79,8 +79,8 @@ class XAPIAN_VISIBILITY_DEFAULT TermGenerator {
      *  Stemmed forms of stopwords aren't indexed, but unstemmed forms still
      *  are so that searches for phrases including stop words still work.
      *
-     *  @param stop	The Stopper object to set (default NULL, which means no
-     *			stopwords).
+     *  @param stop     The Stopper object to set (default NULL, which means no
+     *                  stopwords).
      */
     void set_stopper(const Xapian::Stopper *stop = NULL);
 
@@ -164,10 +164,10 @@ class XAPIAN_VISIBILITY_DEFAULT TermGenerator {
      *  To just set the flags, pass the new flags in toggle and the
      *  default value for mask.
      *
-     *  @param toggle	Flags to XOR.
-     *  @param mask	Flags to AND with first.
+     *  @param toggle   Flags to XOR.
+     *  @param mask     Flags to AND with first.
      *
-     *  @return		The old flags setting.
+     *  @return         The old flags setting.
      */
     flags set_flags(flags toggle, flags mask = flags(0));
 
@@ -175,18 +175,18 @@ class XAPIAN_VISIBILITY_DEFAULT TermGenerator {
      *
      *  This method controls how the stemming algorithm is applied.
      *
-     *  @param strategy	The strategy to use - possible values are:
-     *   - STEM_NONE:	Don't perform any stemming - only unstemmed terms
-     *			are generated.
-     *   - STEM_SOME:	Generate both stemmed (with a "Z" prefix) and unstemmed
-     *			terms.  No positional information is stored for
-     *			unstemmed terms.  This is the default strategy.
+     *  @param strategy The strategy to use - possible values are:
+     *   - STEM_NONE:   Don't perform any stemming - only unstemmed terms
+     *                  are generated.
+     *   - STEM_SOME:   Generate both stemmed (with a "Z" prefix) and unstemmed
+     *                  terms.  No positional information is stored for
+     *                  unstemmed terms.  This is the default strategy.
      *   - STEM_SOME_FULL_POS:
-     *			Like STEM_SOME but positional information is stored
-     *			for both stemmed and unstemmed terms.  Added in Xapian
-     *			1.4.8.
-     *   - STEM_ALL:	Generate only stemmed terms (but without a "Z" prefix).
-     *   - STEM_ALL_Z:	Generate only stemmed terms (with a "Z" prefix).
+     *                  Like STEM_SOME but positional information is stored
+     *                  for both stemmed and unstemmed terms.  Added in Xapian
+     *                  1.4.8.
+     *   - STEM_ALL:    Generate only stemmed terms (but without a "Z" prefix).
+     *   - STEM_ALL_Z:  Generate only stemmed terms (with a "Z" prefix).
      *
      *  @since Added in Xapian 1.3.1.
      */
@@ -201,13 +201,13 @@ class XAPIAN_VISIBILITY_DEFAULT TermGenerator {
      *  @param strategy The strategy to use - possible values are:
      *   - STOP_NONE:     Don't use the stopper.
      *   - STOP_ALL:      If a word is identified as a stop word, skip it
-     *			  completely.
+     *                    completely.
      *   - STOP_STEMMED:  If a word is identified as a stop word, index its
-     *			  unstemmed form but skip the stem.  Unstemmed forms
-     *			  are indexed with positional information by default,
-     *			  so this allows searches for phrases containing
-     *			  stopwords to be supported.  (This is the default
-     *			  mode).
+     *                    unstemmed form but skip the stem.  Unstemmed forms
+     *                    are indexed with positional information by default,
+     *                    so this allows searches for phrases containing
+     *                    stopwords to be supported.  (This is the default
+     *                    mode).
      *
      *  @since Added in Xapian 1.4.1.
      */
@@ -223,8 +223,8 @@ class XAPIAN_VISIBILITY_DEFAULT TermGenerator {
      *  help prevent the index being bloated by useless junk terms from trying
      *  to indexing things like binary data, uuencoded data, ASCII art, etc.
      *
-     *  @param max_word_length	The maximum length word to index, in bytes in
-     *				UTF-8 representation.  Default is 64.
+     *  @param max_word_length  The maximum length word to index, in bytes in
+     *                          UTF-8 representation.  Default is 64.
      *
      *  @since Added in Xapian 1.3.1.
      */
@@ -232,9 +232,9 @@ class XAPIAN_VISIBILITY_DEFAULT TermGenerator {
 
     /** Index some text.
      *
-     * @param itor	Utf8Iterator pointing to the text to index.
-     * @param wdf_inc	The wdf increment (default 1).
-     * @param prefix	The term prefix to use (default is no prefix).
+     * @param itor      Utf8Iterator pointing to the text to index.
+     * @param wdf_inc   The wdf increment (default 1).
+     * @param prefix    The term prefix to use (default is no prefix).
      */
     void index_text(const Xapian::Utf8Iterator & itor,
                     Xapian::termcount wdf_inc = 1,
@@ -242,9 +242,9 @@ class XAPIAN_VISIBILITY_DEFAULT TermGenerator {
 
     /** Index some text.
      *
-     * @param text	The text to index.
-     * @param wdf_inc	The wdf increment (default 1).
-     * @param prefix	The term prefix to use (default is no prefix).
+     * @param text      The text to index.
+     * @param wdf_inc   The wdf increment (default 1).
+     * @param prefix    The term prefix to use (default is no prefix).
      */
     void index_text(std::string_view text,
                     Xapian::termcount wdf_inc = 1,
@@ -258,9 +258,9 @@ class XAPIAN_VISIBILITY_DEFAULT TermGenerator {
      * means that the database will be significantly smaller, but that phrase
      * searching and NEAR won't be supported.
      *
-     * @param itor	Utf8Iterator pointing to the text to index.
-     * @param wdf_inc	The wdf increment (default 1).
-     * @param prefix	The term prefix to use (default is no prefix).
+     * @param itor      Utf8Iterator pointing to the text to index.
+     * @param wdf_inc   The wdf increment (default 1).
+     * @param prefix    The term prefix to use (default is no prefix).
      */
     void index_text_without_positions(const Xapian::Utf8Iterator & itor,
                                       Xapian::termcount wdf_inc = 1,
@@ -272,9 +272,9 @@ class XAPIAN_VISIBILITY_DEFAULT TermGenerator {
      * means that the database will be significantly smaller, but that phrase
      * searching and NEAR won't be supported.
      *
-     * @param text	The text to index.
-     * @param wdf_inc	The wdf increment (default 1).
-     * @param prefix	The term prefix to use (default is no prefix).
+     * @param text      The text to index.
+     * @param wdf_inc   The wdf increment (default 1).
+     * @param prefix    The term prefix to use (default is no prefix).
      */
     void index_text_without_positions(std::string_view text,
                                       Xapian::termcount wdf_inc = 1,
@@ -288,7 +288,7 @@ class XAPIAN_VISIBILITY_DEFAULT TermGenerator {
      *  places to prevent phrase searches from spanning between them (e.g.
      *  between the title and body text, or between two chapters in a book).
      *
-     *  @param delta	Amount to increase the term position by (default: 100).
+     *  @param delta    Amount to increase the term position by (default: 100).
      */
     void increase_termpos(Xapian::termpos delta = 100);
 
@@ -297,7 +297,7 @@ class XAPIAN_VISIBILITY_DEFAULT TermGenerator {
 
     /** Set the current term position.
      *
-     *  @param termpos	The new term position to set.
+     *  @param termpos  The new term position to set.
      */
     void set_termpos(Xapian::termpos termpos);
 

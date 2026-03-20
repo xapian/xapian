@@ -79,9 +79,9 @@ MSet::set_item_weight(Xapian::doccount i, double weight)
  *
  *  Evaluate a diversified mset using MPT algorithm
  *
- *  @param dmset	Set of points representing candidate diversifed set of
- *			documents.
- *  @param cset		Set of clusters of given MSet.
+ *  @param dmset        Set of points representing candidate diversifed set of
+ *                      documents.
+ *  @param cset         Set of clusters of given MSet.
  */
 static double
 evaluate_dmset(const vector<Xapian::docid>& dmset,

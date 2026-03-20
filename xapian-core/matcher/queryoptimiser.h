@@ -94,9 +94,9 @@ class QueryOptimiser {
     /** Create a PostList object for @a term.
      *
      *  @param[out] termfreqs If not NULL, the pointed to object is set to the
-     *		TermFreqs for @a term.  If the database is sharded, these will
-     *		be for the whole database not just the current shard.  This
-     *		is used to estimate TermFreqs for an OP_SYNONYM.
+     *          TermFreqs for @a term.  If the database is sharded, these will
+     *          be for the whole database not just the current shard.  This
+     *          is used to estimate TermFreqs for an OP_SYNONYM.
      */
     PostListAndEstimate
     open_post_list(const std::string& term,
@@ -121,9 +121,9 @@ class QueryOptimiser {
      *
      *  @param pl   An object previously returned by open_lazy_post_list().
      *  @param[out] termfreqs If not NULL, the pointed to object is set to the
-     *		TermFreqs for @a term.  If the database is sharded, these will
-     *		be for the whole database not just the current shard.  This
-     *		is used to estimate TermFreqs for an OP_SYNONYM.
+     *          TermFreqs for @a term.  If the database is sharded, these will
+     *          be for the whole database not just the current shard.  This
+     *          is used to estimate TermFreqs for an OP_SYNONYM.
      */
     void register_lazy_postlist_for_stats(LeafPostList* pl,
                                           TermFreqs* termfreqs) {
@@ -132,8 +132,8 @@ class QueryOptimiser {
 
     /** Create a SynonymPostList object.
      *
-     *  @param or_pl	    An unweighted BoolOrPostList or OrPostList of the
-     *			    PostList objects for children of the OP_SYNONYM.
+     *  @param or_pl        An unweighted BoolOrPostList or OrPostList of the
+     *                      PostList objects for children of the OP_SYNONYM.
      *  @param termfreqs    Estimated TermFreqs for @a or_pl.
      */
     PostListAndEstimate make_synonym_postlist(PostListAndEstimate or_pl,

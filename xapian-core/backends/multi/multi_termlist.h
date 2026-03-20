@@ -67,10 +67,10 @@ class MultiTermList : public TermList {
      *  or check() must be called before any methods which need the context of
      *  the current position.
      *
-     *  @return	If a non-NULL pointer is returned, then the caller should
-     *		substitute the returned pointer for its pointer to us, and then
-     *		delete us.  This "pruning" can only happen for a non-leaf
-     *		subclass of this class.
+     *  @return If a non-NULL pointer is returned, then the caller should
+     *          substitute the returned pointer for its pointer to us, and then
+     *          delete us.  This "pruning" can only happen for a non-leaf
+     *          subclass of this class.
      */
     Internal * next();
 

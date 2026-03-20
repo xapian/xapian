@@ -115,26 +115,26 @@ class Matcher {
   public:
     /** Constructor.
      *
-     *  @param db_		Database to search
-     *  @param query		Query object
-     *  @param query_length	Query length
-     *  @param rset		Relevance set (NULL for none)
-     *  @param stats		Object to collate stats into
-     *  @param wtscheme		Weight object to use as factory
-     *  @param have_mdecider	MatchDecider specified?
-     *  @param collapse_key	value slot to collapse on (Xapian::BAD_VALUENO
-     *				which means no collapsing)
-     *  @param collapse_max	Maximum number of documents with the same key
-     *				to allow
+     *  @param db_              Database to search
+     *  @param query            Query object
+     *  @param query_length     Query length
+     *  @param rset             Relevance set (NULL for none)
+     *  @param stats            Object to collate stats into
+     *  @param wtscheme         Weight object to use as factory
+     *  @param have_mdecider    MatchDecider specified?
+     *  @param collapse_key     value slot to collapse on (Xapian::BAD_VALUENO
+     *                          which means no collapsing)
+     *  @param collapse_max     Maximum number of documents with the same key
+     *                          to allow
      *  @param percent_threshold Lower bound on percentage score
-     *  @param weight_threshold	Lower bound on weight
-     *  @param order		Xapian::docid sort order
-     *  @param sort_key		Value slot to sort on
-     *  @param sort_by		What to sort results on
-     *  @param sort_val_reverse	Reverse direction keys sort in?
-     *  @param time_limit	time in seconds after which to disable
-     *				check_at_least (0.0 means don't).
-     *  @param matchspies	MatchSpy objects to use
+     *  @param weight_threshold Lower bound on weight
+     *  @param order            Xapian::docid sort order
+     *  @param sort_key         Value slot to sort on
+     *  @param sort_by          What to sort results on
+     *  @param sort_val_reverse Reverse direction keys sort in?
+     *  @param time_limit       time in seconds after which to disable
+     *                          check_at_least (0.0 means don't).
+     *  @param matchspies       MatchSpy objects to use
      */
     Matcher(const Xapian::Database& db_,
             const Xapian::Query& query,
@@ -156,39 +156,39 @@ class Matcher {
 
     /** Run the match and produce an MSet object.
      *
-     *  @param first		Zero-based index of the first result to return
-     *				(which supports retrieving pages of results).
-     *  @param maxitems		The maximum number of documents to return.
-     *  @param checkatleast	Check at least this many documents.  By default
-     *				Xapian will avoiding considering documents
-     *				which it can prove can't match, which is faster
-     *				but can result in a loose bounds on and a poor
-     *				estimate of the total number of matches -
-     *				setting checkatleast higher allows trading off
-     *				speed for tighter bounds and a more accurate
-     *				estimate.
-     *  @param mset		MSet object to full in
-     *  @param stats		Collated stats
-     *  @param wtscheme		Weight object to use as factory
-     *  @param mdecider		MatchDecider to use (NULL for none)
-     *  @param sorter		KeyMaker for sort keys (NULL for none)
-     *  @param collapse_key	value slot to collapse on (Xapian::BAD_VALUENO
-     *				which means no collapsing)
-     *  @param collapse_max	Maximum number of documents with the same key
-     *				to allow
-     *  @param collapse_key	value slot to collapse on (Xapian::BAD_VALUENO
-     *				which means no collapsing)
-     *  @param collapse_max	Maximum number of documents with the same key
-     *				to allow
+     *  @param first            Zero-based index of the first result to return
+     *                          (which supports retrieving pages of results).
+     *  @param maxitems         The maximum number of documents to return.
+     *  @param checkatleast     Check at least this many documents.  By default
+     *                          Xapian will avoiding considering documents
+     *                          which it can prove can't match, which is faster
+     *                          but can result in a loose bounds on and a poor
+     *                          estimate of the total number of matches -
+     *                          setting checkatleast higher allows trading off
+     *                          speed for tighter bounds and a more accurate
+     *                          estimate.
+     *  @param mset             MSet object to full in
+     *  @param stats            Collated stats
+     *  @param wtscheme         Weight object to use as factory
+     *  @param mdecider         MatchDecider to use (NULL for none)
+     *  @param sorter           KeyMaker for sort keys (NULL for none)
+     *  @param collapse_key     value slot to collapse on (Xapian::BAD_VALUENO
+     *                          which means no collapsing)
+     *  @param collapse_max     Maximum number of documents with the same key
+     *                          to allow
+     *  @param collapse_key     value slot to collapse on (Xapian::BAD_VALUENO
+     *                          which means no collapsing)
+     *  @param collapse_max     Maximum number of documents with the same key
+     *                          to allow
      *  @param percent_threshold Lower bound on percentage score
-     *  @param weight_threshold	Lower bound on weight
-     *  @param order		Xapian::docid sort order
-     *  @param sort_key		Value slot to sort on
-     *  @param sort_by		What to sort results on
-     *  @param sort_val_reverse	Reverse direction keys sort in?
-     *  @param time_limit	time in seconds after which to disable
-     *				check_at_least (0.0 means don't).
-     *  @param matchspies	MatchSpy objects to use
+     *  @param weight_threshold Lower bound on weight
+     *  @param order            Xapian::docid sort order
+     *  @param sort_key         Value slot to sort on
+     *  @param sort_by          What to sort results on
+     *  @param sort_val_reverse Reverse direction keys sort in?
+     *  @param time_limit       time in seconds after which to disable
+     *                          check_at_least (0.0 means don't).
+     *  @param matchspies       MatchSpy objects to use
      */
     Xapian::MSet get_mset(Xapian::doccount first,
                           Xapian::doccount maxitems,

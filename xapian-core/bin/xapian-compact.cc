@@ -113,17 +113,17 @@ main(int argc, char **argv)
 {
     const char * opts = "b:B:nFmqs";
     static const struct option long_opts[] = {
-        {"fuller",	no_argument, 0, 'F'},
-        {"no-full",	no_argument, 0, 'n'},
-        {"multipass",	no_argument, 0, 'm'},
-        {"blocksize",	required_argument, 0, 'b'},
-        {"backend",	required_argument, 0, 'B'},
+        {"fuller",      no_argument, 0, 'F'},
+        {"no-full",     no_argument, 0, 'n'},
+        {"multipass",   no_argument, 0, 'm'},
+        {"blocksize",   required_argument, 0, 'b'},
+        {"backend",     required_argument, 0, 'B'},
         {"no-renumber", no_argument, 0, OPT_NO_RENUMBER},
         {"single-file", no_argument, 0, 's'},
-        {"quiet",	no_argument, 0, 'q'},
-        {"help",	no_argument, 0, OPT_HELP},
-        {"version",	no_argument, 0, OPT_VERSION},
-        {NULL,		0, 0, 0}
+        {"quiet",       no_argument, 0, 'q'},
+        {"help",        no_argument, 0, OPT_HELP},
+        {"version",     no_argument, 0, OPT_VERSION},
+        {NULL,          0, 0, 0}
     };
 
     MyCompactor compactor;

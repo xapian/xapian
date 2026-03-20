@@ -56,20 +56,20 @@ class WritableDatabase;
  *  To perform a search on a Database, you need to use an Enquire object.
  *
  *  @since 2.0.0 This class is a reference counted handle like many other
- *	   Xapian API classes.  In earlier versions, it worked like a typedef
- *	   to std::vector<database_shard>.  The key difference is that
- *	   previously copying or assigning a Xapian::Database made a deep copy,
- *	   whereas now it makes a shallow copy.
+ *         Xapian API classes.  In earlier versions, it worked like a typedef
+ *         to std::vector<database_shard>.  The key difference is that
+ *         previously copying or assigning a Xapian::Database made a deep copy,
+ *         whereas now it makes a shallow copy.
  *
  *  Most methods can throw:
  *
  *  @exception Xapian::DatabaseCorruptError if database corruption is detected
  *  @exception Xapian::DatabaseError in various situation (for example, if
- *	       there's an I/O error).
+ *             there's an I/O error).
  *  @exception Xapian::DatabaseModifiedError if the revision being read has
- *	       been discarded
+ *             been discarded
  *  @exception Xapian::DatabaseClosedError may be thrown by some methods after
- *	       after @a close() has been called
+ *             after @a close() has been called
  *  @exception Xapian::NetworkError when remote databases are in use
  */
 class XAPIAN_VISIBILITY_DEFAULT Database {
@@ -101,10 +101,10 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
      *  Any shards in @a other are appended to the list of shards in this
      *  object.  The shards are reference counted and also remain in @a other.
      *
-     *  @param other	Another Database to add shards from
+     *  @param other    Another Database to add shards from
      *
      *  @exception Xapian::InvalidArgumentError if @a other is the same object
-     *		   as this.
+     *             as this.
      */
     void add_database(const Database& other) {
         add_database_(other, true);
@@ -128,17 +128,17 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 
     /** Open a Database.
      *
-     *  @param path	Filing system path to open database from
-     *  @param flags	Bitwise-or of Xapian::DB_* constants
+     *  @param path     Filing system path to open database from
+     *  @param flags    Bitwise-or of Xapian::DB_* constants
      *
      *  The @a path can be a file (for a stub database or a single-file glass
      *  database) or a directory (for a standard glass database).  If
      *  @a flags includes @a DB_BACKEND_INMEMORY then @a path is ignored.
      *
      *  @exception Xapian::DatabaseOpeningError if the specified database
-     *		   cannot be opened
+     *             cannot be opened
      *  @exception Xapian::DatabaseVersionError if the specified database has
-     *		   a format too old or too new to be supported.
+     *             a format too old or too new to be supported.
      */
     explicit Database(std::string_view path, int flags = 0);
 
@@ -148,14 +148,14 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
      *  on it.  Xapian looks starting at the current file offset, allowing a
      *  single file database to be easily embedded within another file.
      *
-     *  @param fd	File descriptor for the file.  Xapian takes ownership
-     *			of this and will close it when the database is closed.
-     *  @param flags	Bitwise-or of Xapian::DB_* constants.
+     *  @param fd       File descriptor for the file.  Xapian takes ownership
+     *                  of this and will close it when the database is closed.
+     *  @param flags    Bitwise-or of Xapian::DB_* constants.
      *
      *  @exception Xapian::DatabaseOpeningError if the specified database
-     *		   cannot be opened
+     *             cannot be opened
      *  @exception Xapian::DatabaseVersionError if the specified database has
-     *		   a format too old or too new to be supported.
+     *             a format too old or too new to be supported.
      */
     explicit Database(int fd, int flags = 0);
 
@@ -199,13 +199,13 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
      *  reasonable to call reopen() before each search.
      *
      *  @return true if one or more shards have moved to a newer revision
-     *		(if false is returned then it's definitely the case that no
-     *		shards were reopened, which applications may find useful when
-     *		caching results, etc).  In Xapian < 1.3.0, this method did not
-     *		return a value.
+     *          (if false is returned then it's definitely the case that no
+     *          shards were reopened, which applications may find useful when
+     *          caching results, etc).  In Xapian < 1.3.0, this method did not
+     *          return a value.
      *
      *  @exception Xapian::DatabaseError is thrown if close() has been called
-     *		   on any of the shards.
+     *             on any of the shards.
      */
     bool reopen();
 
@@ -248,9 +248,9 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 
     /** Start iterating the postings of a term.
      *
-     *  @param term	The term to iterate the postings of.  An empty string
-     *			acts as a special pseudo-term which indexes all the
-     *			documents in the database with a wdf of 1.
+     *  @param term     The term to iterate the postings of.  An empty string
+     *                  acts as a special pseudo-term which indexes all the
+     *                  documents in the database with a wdf of 1.
      */
     PostingIterator postlist_begin(std::string_view term) const;
 
@@ -261,7 +261,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 
     /** Start iterating the terms in a document.
      *
-     *  @param did	The document id to iterate terms from
+     *  @param did      The document id to iterate terms from
      *
      *  The terms are returned in ascending string order (by byte value).
      */
@@ -277,13 +277,13 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 
     /** Start iterating positions for a term in a document.
      *
-     *  @param did	The document id of the document
-     *  @param term	The term
+     *  @param did      The document id of the document
+     *  @param term     The term
      *
-     *  @since 1.1.0	If the specified document doesn't exist or the
-     *			specified term doesn't exist in the specified document,
-     *			then a valid iterator is still returned, but it will be
-     *			equal to positionlist_end().
+     *  @since 1.1.0    If the specified document doesn't exist or the
+     *                  specified term doesn't exist in the specified document,
+     *                  then a valid iterator is still returned, but it will be
+     *                  equal to positionlist_end().
      */
     PositionIterator positionlist_begin(Xapian::docid did,
                                         std::string_view term) const;
@@ -298,8 +298,8 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
      *
      *  The terms are returned in ascending string order (by byte value).
      *
-     *  @param prefix	The prefix to restrict the returned terms to (default:
-     *			iterate all terms)
+     *  @param prefix   The prefix to restrict the returned terms to (default:
+     *                  iterate all terms)
      */
     TermIterator allterms_begin(std::string_view prefix = {}) const;
 
@@ -329,23 +329,23 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 
     /** Get the number of documents indexed by a specified term.
      *
-     *  @param term	The term to get the frequency of.  An empty string
-     *			acts as a special pseudo-term which indexes all the
-     *			documents in the database, so returns get_doccount().
-     *			If the term isn't present in the database, 0 is
-     *			returned.
+     *  @param term     The term to get the frequency of.  An empty string
+     *                  acts as a special pseudo-term which indexes all the
+     *                  documents in the database, so returns get_doccount().
+     *                  If the term isn't present in the database, 0 is
+     *                  returned.
      */
     Xapian::doccount get_termfreq(std::string_view term) const;
 
     /** Test is a particular term is present in any document.
      *
-     *  @param term	The term to test for.  An empty string acts as a
-     *			special pseudo-term which indexes all the documents in
-     *			the database, so returns true if the database contains
-     *			any documents.
+     *  @param term     The term to test for.  An empty string acts as a
+     *                  special pseudo-term which indexes all the documents in
+     *                  the database, so returns true if the database contains
+     *                  any documents.
      *
-     *	db.term_exists(t) gives the same answer as db.get_termfreq(t) != 0, but
-     *	is typically more efficient.
+     *  db.term_exists(t) gives the same answer as db.get_termfreq(t) != 0, but
+     *  is typically more efficient.
      */
     bool term_exists(std::string_view term) const;
 
@@ -355,11 +355,11 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
      *  times it occurs in the database, which is the sum of its wdf in all the
      *  documents it indexes.
      *
-     *  @param term	The term to get the collection frequency of.  An empty
-     *			string acts as a special pseudo-term which indexes all
-     *			the documents in the database, so returns
-     *			get_doccount().  If the term isn't present in the
-     *			database, 0 is returned.
+     *  @param term     The term to get the collection frequency of.  An empty
+     *                  string acts as a special pseudo-term which indexes all
+     *                  the documents in the database, so returns
+     *                  get_doccount().  If the term isn't present in the
+     *                  database, 0 is returned.
      */
     Xapian::termcount get_collection_freq(std::string_view term) const;
 
@@ -463,30 +463,29 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
      *  The returned object acts as a handle which lazily fetches information
      *  about the specified document from the database.
      *
-     *  @param did	The document ID of the document to be get
-     *  @param flags	Zero or more flags bitwise-or-ed together (currently
-     *			only Xapian::DOC_ASSUME_VALID is supported).
-     *			(default: 0)
+     *  @param did      The document ID of the document to be get
+     *  @param flags    Zero or more flags bitwise-or-ed together (currently
+     *                  only Xapian::DOC_ASSUME_VALID is supported).
+     *                  (default: 0)
      *
      *  @since The @a flags parameter was added in Xapian 2.0.0.
      *
      *  @exception Xapian::InvalidArgumentError is thrown if @a did is 0.
      *
      *  @exception Xapian::DocNotFoundError is thrown if the specified docid
-     *		   is not present in this database.
+     *             is not present in this database.
      */
     Xapian::Document get_document(Xapian::docid did,
                                   unsigned flags = 0) const;
 
     /** Suggest a spelling correction.
      *
-     *  @param word			The potentially misspelled word.
-     *  @param max_edit_distance	Only consider words which are at most
-     *					@a max_edit_distance edits from @a
-     *					word.  An edit is a character
-     *					insertion, deletion, or the
-     *					transposition of two adjacent
-     *					characters (default is 2).
+     *  @param word                 The potentially misspelled word.
+     *  @param max_edit_distance    Only consider words which are at most
+     *                              @a max_edit_distance edits from @a word.
+     *                              An edit is a character insertion, deletion,
+     *                              or the transposition of two adjacent
+     *                              characters (default is 2).
      */
     std::string get_spelling_suggestion(std::string_view word,
                                         unsigned max_edit_distance = 2) const;
@@ -506,7 +505,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 
     /** An iterator which returns all the synonyms for a given term.
      *
-     *  @param term	The term to return synonyms for.
+     *  @param term     The term to return synonyms for.
      */
     Xapian::TermIterator synonyms_begin(std::string_view term) const;
 
@@ -517,7 +516,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 
     /** An iterator which returns all terms which have synonyms.
      *
-     *  @param prefix	If non-empty, only terms with this prefix are returned.
+     *  @param prefix   If non-empty, only terms with this prefix are returned.
      */
     Xapian::TermIterator synonym_keys_begin(std::string_view prefix = {}) const;
 
@@ -548,7 +547,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
      *  @return    The retrieved metadata item's value.
      *
      *  @exception Xapian::InvalidArgumentError will be thrown if the key
-     *		   supplied is empty.
+     *             supplied is empty.
      */
     std::string get_metadata(std::string_view key) const;
 
@@ -564,9 +563,9 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
      *  @param prefix   If non-empty, only keys with this prefix are returned.
      *
      *  @exception Xapian::UnimplementedError will be thrown if the backend
-     *		   implements user-specified metadata, but doesn't implement
-     *		   iterating its keys (currently this happens for the InMemory
-     *		   backend).
+     *             implements user-specified metadata, but doesn't implement
+     *             iterating its keys (currently this happens for the InMemory
+     *             backend).
      */
     Xapian::TermIterator
         metadata_keys_begin(std::string_view prefix = {}) const;
@@ -618,11 +617,11 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
      *  Unlike unlock(), the object this is called on remains open.
      *
      *  @param flags  The flags to use for the writable database.  Flags which
-     *		      specify how to open the database are ignored (e.g.
-     *		      DB_CREATE_OR_OVERWRITE doesn't result in the database
-     *		      being wiped), and flags which specify the backend are
-     *		      also ignored as they are only relevant when creating
-     *		      a new database.
+     *                specify how to open the database are ignored (e.g.
+     *                DB_CREATE_OR_OVERWRITE doesn't result in the database
+     *                being wiped), and flags which specify the backend are
+     *                also ignored as they are only relevant when creating
+     *                a new database.
      *
      *  @return  A WritableDatabase object open on the same database.
      *
@@ -648,12 +647,12 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
      *  The revision is an unsigned integer which increases with each commit.
      *
      *  @exception Xapian::InvalidOperationError If the database consists of
-     *		more than one shard.
+     *          more than one shard.
      *  @exception Xapian::UnimplementedError Currently this is only
-     *		implemented for glass.
+     *          implemented for glass.
      *  @exception In Xapian < 1.4.13, if the database consists of no shards;
-     *		In Xapian >= 1.4.13 this method returns 0 if there are no
-     *		shards.
+     *          In Xapian >= 1.4.13 this method returns 0 if there are no
+     *          shards.
      *
      *  Experimental - see
      *  https://xapian.org/docs/deprecation#experimental-features
@@ -662,9 +661,9 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 
     /** Check the integrity of a database or database table.
      *
-     *  @param path	Path to database or table
-     *  @param opts	Options to use for check
-     *  @param out	std::ostream to write output to (NULL for no output)
+     *  @param path     Path to database or table
+     *  @param opts     Options to use for check
+     *  @param out      std::ostream to write output to (NULL for no output)
      */
     static size_t check(std::string_view path,
                         int opts = 0,
@@ -674,13 +673,13 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 
     /** Check the integrity of a single file database.
      *
-     *  @param fd	file descriptor for the database.  The current file
-     *			offset is used, allowing checking a single file
-     *			database which is embedded within another file.  Xapian
-     *			takes ownership of the file descriptor and will close
-     *			it before returning.
-     *  @param opts	Options to use for check
-     *  @param out	std::ostream to write output to (NULL for no output)
+     *  @param fd       file descriptor for the database.  The current file
+     *                  offset is used, allowing checking a single file
+     *                  database which is embedded within another file.  Xapian
+     *                  takes ownership of the file descriptor and will close
+     *                  it before returning.
+     *  @param opts     Options to use for check
+     *  @param out      std::ostream to write output to (NULL for no output)
      */
     static size_t check(int fd, int opts = 0, std::ostream* out = NULL) {
         return check_(NULL, fd, opts, out);
@@ -688,52 +687,52 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 
     /** Produce a compact version of this database.
      *
-     *  @param output	Path to write the compact version to.  This can be the
-     *			same as an input if that input is a stub database (in
-     *			which case the database(s) listed in the stub will be
-     *			compacted to a new database and then the stub will be
-     *			atomically updated to point to this new database).
+     *  @param output   Path to write the compact version to.  This can be the
+     *                  same as an input if that input is a stub database (in
+     *                  which case the database(s) listed in the stub will be
+     *                  compacted to a new database and then the stub will be
+     *                  atomically updated to point to this new database).
      *
-     *  @param flags	Any of the following combined using bitwise-or (| in
-     *			C++):
+     *  @param flags    Any of the following combined using bitwise-or (| in
+     *                  C++):
      *   - Xapian::DBCOMPACT_NO_RENUMBER By default the document ids will
-     *		be renumbered the output - currently by applying the same
-     *		offset to all the document ids in a particular source database.
-     *		If this flag is specified, then this renumbering doesn't
-     *		happen, but all the document ids must be unique over all source
-     *		databases.  Currently the ranges of document ids in each source
-     *		must not overlap either, though this restriction may be removed
-     *		in the future.
+     *          be renumbered the output - currently by applying the same
+     *          offset to all the document ids in a particular source database.
+     *          If this flag is specified, then this renumbering doesn't
+     *          happen, but all the document ids must be unique over all source
+     *          databases.  Currently the ranges of document ids in each source
+     *          must not overlap either, though this restriction may be removed
+     *          in the future.
      *   - Xapian::DBCOMPACT_MULTIPASS
-     *		If merging more than 3 databases, merge the postlists in
-     *		multiple passes, which is generally faster but requires more
-     *		disk space for temporary files.
+     *          If merging more than 3 databases, merge the postlists in
+     *          multiple passes, which is generally faster but requires more
+     *          disk space for temporary files.
      *   - Xapian::DBCOMPACT_SINGLE_FILE
-     *		Produce a single-file database (only supported for glass
-     *		currently).
+     *          Produce a single-file database (only supported for glass
+     *          currently).
      *   - At most one of:
      *     - Xapian::Compactor::STANDARD - Don't split items unnecessarily.
      *     - Xapian::Compactor::FULL     - Split items whenever it saves space
-     *					   (the default).
+     *                                     (the default).
      *     - Xapian::Compactor::FULLER   - Allow oversize items to save more
-     *					   space (not recommended if you ever
-     *					   plan to update the compacted
-     *					   database).  @since 1.4.31 Has the
-     *					   same effect as FULL.
+     *                                     space (not recommended if you ever
+     *                                     plan to update the compacted
+     *                                     database).  @since 1.4.31 Has the
+     *                                     same effect as FULL.
      *
      *   - At most one of the following to specify the output format (currently
      *     only glass to honey conversion is supported, and all shards of the
      *     input must have the same format):
      *     - Xapian::DB_BACKEND_HONEY
      *
-     *  @param block_size	This specifies the block size (in bytes) for to
-     *				use for the output.  For glass, the block size
-     *				must be a power of 2 between 2048 and 65536
-     *				(inclusive), and the default (also used if an
-     *				invalid value is passed) is 8192 bytes.
+     *  @param block_size       This specifies the block size (in bytes) for to
+     *                          use for the output.  For glass, the block size
+     *                          must be a power of 2 between 2048 and 65536
+     *                          (inclusive), and the default (also used if an
+     *                          invalid value is passed) is 8192 bytes.
      *
      *  @since 1.3.4 This method was added to replace various methods of the
-     *		     Compactor class.
+     *               Compactor class.
      */
     void compact(std::string_view output,
                  unsigned flags = 0,
@@ -747,48 +746,48 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
      *  descriptor.  Only the glass backend supports such databases, so
      *  this form is only supported for this backend.
      *
-     *  @param fd	File descriptor to write the compact version to.  The
-     *			descriptor needs to be readable and writable (open with
-     *			O_RDWR) and seekable.  The current file offset is used,
-     *			allowing compacting to a single file database embedded
-     *			within another file.  Xapian takes ownership of the
-     *			file descriptor and will close it before returning.
+     *  @param fd       File descriptor to write the compact version to.  The
+     *                  descriptor needs to be readable and writable (open with
+     *                  O_RDWR) and seekable.  The current file offset is used,
+     *                  allowing compacting to a single file database embedded
+     *                  within another file.  Xapian takes ownership of the
+     *                  file descriptor and will close it before returning.
      *
-     *  @param flags	Any of the following combined using bitwise-or (| in
-     *			C++):
+     *  @param flags    Any of the following combined using bitwise-or (| in
+     *                  C++):
      *   - Xapian::DBCOMPACT_NO_RENUMBER By default the document ids will
-     *		be renumbered the output - currently by applying the same
-     *		offset to all the document ids in a particular source database.
-     *		If this flag is specified, then this renumbering doesn't
-     *		happen, but all the document ids must be unique over all source
-     *		databases.  Currently the ranges of document ids in each source
-     *		must not overlap either, though this restriction may be removed
-     *		in the future.
+     *          be renumbered the output - currently by applying the same
+     *          offset to all the document ids in a particular source database.
+     *          If this flag is specified, then this renumbering doesn't
+     *          happen, but all the document ids must be unique over all source
+     *          databases.  Currently the ranges of document ids in each source
+     *          must not overlap either, though this restriction may be removed
+     *          in the future.
      *   - Xapian::DBCOMPACT_MULTIPASS
-     *		If merging more than 3 databases, merge the postlists in
-     *		multiple passes, which is generally faster but requires more
-     *		disk space for temporary files.
+     *          If merging more than 3 databases, merge the postlists in
+     *          multiple passes, which is generally faster but requires more
+     *          disk space for temporary files.
      *   - Xapian::DBCOMPACT_SINGLE_FILE
-     *		Produce a single-file database (only supported for glass
-     *		currently).
+     *          Produce a single-file database (only supported for glass
+     *          currently).
      *   - At most one of:
      *     - Xapian::Compactor::STANDARD - Don't split items unnecessarily.
      *     - Xapian::Compactor::FULL     - Split items whenever it saves space
-     *					   (the default).
+     *                                     (the default).
      *     - Xapian::Compactor::FULLER   - Allow oversize items to save more
-     *					   space (not recommended if you ever
-     *					   plan to update the compacted
-     *					   database).  @since 1.4.31 Has the
-     *					   same effect as FULL.
+     *                                     space (not recommended if you ever
+     *                                     plan to update the compacted
+     *                                     database).  @since 1.4.31 Has the
+     *                                     same effect as FULL.
      *
-     *  @param block_size	This specifies the block size (in bytes) for to
-     *				use for the output.  For glass, the block size
-     *				must be a power of 2 between 2048 and 65536
-     *				(inclusive), and the default (also used if an
-     *				invalid value is passed) is 8192 bytes.
+     *  @param block_size       This specifies the block size (in bytes) for to
+     *                          use for the output.  For glass, the block size
+     *                          must be a power of 2 between 2048 and 65536
+     *                          (inclusive), and the default (also used if an
+     *                          invalid value is passed) is 8192 bytes.
      *
      *  @since 1.3.4 This method was added to replace various methods of the
-     *		     Compactor class.
+     *               Compactor class.
      */
     void compact(int fd,
                  unsigned flags = 0,
@@ -802,49 +801,49 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
      *  specifying how user metadata is merged.
      *
      *  @param output Path to write the compact version to.
-     *		  This can be the same as an input if that input is a
-     *		  stub database (in which case the database(s) listed
-     *		  in the stub will be compacted to a new database and
-     *		  then the stub will be atomically updated to point to
-     *		  this new database).
+     *            This can be the same as an input if that input is a
+     *            stub database (in which case the database(s) listed
+     *            in the stub will be compacted to a new database and
+     *            then the stub will be atomically updated to point to
+     *            this new database).
      *
-     *  @param flags	Any of the following combined using bitwise-or (| in
-     *			C++):
+     *  @param flags    Any of the following combined using bitwise-or (| in
+     *                  C++):
      *   - Xapian::DBCOMPACT_NO_RENUMBER By default the document ids will
-     *		be renumbered the output - currently by applying the same
-     *		offset to all the document ids in a particular source database.
-     *		If this flag is specified, then this renumbering doesn't
-     *		happen, but all the document ids must be unique over all source
-     *		databases.  Currently the ranges of document ids in each source
-     *		must not overlap either, though this restriction may be removed
-     *		in the future.
+     *          be renumbered the output - currently by applying the same
+     *          offset to all the document ids in a particular source database.
+     *          If this flag is specified, then this renumbering doesn't
+     *          happen, but all the document ids must be unique over all source
+     *          databases.  Currently the ranges of document ids in each source
+     *          must not overlap either, though this restriction may be removed
+     *          in the future.
      *   - Xapian::DBCOMPACT_MULTIPASS
-     *		If merging more than 3 databases, merge the postlists in
-     *		multiple passes, which is generally faster but requires more
-     *		disk space for temporary files.
+     *          If merging more than 3 databases, merge the postlists in
+     *          multiple passes, which is generally faster but requires more
+     *          disk space for temporary files.
      *   - Xapian::DBCOMPACT_SINGLE_FILE
-     *		Produce a single-file database (only supported for glass
-     *		currently).
+     *          Produce a single-file database (only supported for glass
+     *          currently).
      *   - At most one of:
      *     - Xapian::Compactor::STANDARD - Don't split items unnecessarily.
      *     - Xapian::Compactor::FULL     - Split items whenever it saves space
-     *					   (the default).
+     *                                     (the default).
      *     - Xapian::Compactor::FULLER   - Allow oversize items to save more
-     *					   space (not recommended if you ever
-     *					   plan to update the compacted
-     *					   database).  @since 1.4.31 Has the
-     *					   same effect as FULL.
+     *                                     space (not recommended if you ever
+     *                                     plan to update the compacted
+     *                                     database).  @since 1.4.31 Has the
+     *                                     same effect as FULL.
      *
-     *  @param block_size	This specifies the block size (in bytes) for to
-     *				use for the output.  For glass, the block size
-     *				must be a power of 2 between 2048 and 65536
-     *				(inclusive), and the default (also used if an
-     *				invalid value is passed) is 8192 bytes.
+     *  @param block_size       This specifies the block size (in bytes) for to
+     *                          use for the output.  For glass, the block size
+     *                          must be a power of 2 between 2048 and 65536
+     *                          (inclusive), and the default (also used if an
+     *                          invalid value is passed) is 8192 bytes.
      *
      *  @param compactor Functor
      *
      *  @since 1.3.4 This method was added to replace various methods of the
-     *		     Compactor class.
+     *               Compactor class.
      */
     void compact(std::string_view output,
                  unsigned flags,
@@ -863,50 +862,50 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
      *  descriptor.  Only the glass backend supports such databases, so this
      *  form is only supported for this backend.
      *
-     *  @param fd	File descriptor to write the compact version to.  The
-     *			descriptor needs to be readable and writable (open with
-     *			O_RDWR) and seekable.  The current file offset is used,
-     *			allowing compacting to a single file database embedded
-     *			within another file.  Xapian takes ownership of the
-     *			file descriptor and will close it before returning.
+     *  @param fd       File descriptor to write the compact version to.  The
+     *                  descriptor needs to be readable and writable (open with
+     *                  O_RDWR) and seekable.  The current file offset is used,
+     *                  allowing compacting to a single file database embedded
+     *                  within another file.  Xapian takes ownership of the
+     *                  file descriptor and will close it before returning.
      *
-     *  @param flags	Any of the following combined using bitwise-or (| in
-     *			C++):
+     *  @param flags    Any of the following combined using bitwise-or (| in
+     *                  C++):
      *   - Xapian::DBCOMPACT_NO_RENUMBER By default the document ids will
-     *		be renumbered the output - currently by applying the same
-     *		offset to all the document ids in a particular source database.
-     *		If this flag is specified, then this renumbering doesn't
-     *		happen, but all the document ids must be unique over all source
-     *		databases.  Currently the ranges of document ids in each source
-     *		must not overlap either, though this restriction may be removed
-     *		in the future.
+     *          be renumbered the output - currently by applying the same
+     *          offset to all the document ids in a particular source database.
+     *          If this flag is specified, then this renumbering doesn't
+     *          happen, but all the document ids must be unique over all source
+     *          databases.  Currently the ranges of document ids in each source
+     *          must not overlap either, though this restriction may be removed
+     *          in the future.
      *   - Xapian::DBCOMPACT_MULTIPASS
-     *		If merging more than 3 databases, merge the postlists in
-     *		multiple passes, which is generally faster but requires more
-     *		disk space for temporary files.
+     *          If merging more than 3 databases, merge the postlists in
+     *          multiple passes, which is generally faster but requires more
+     *          disk space for temporary files.
      *   - Xapian::DBCOMPACT_SINGLE_FILE
-     *		Produce a single-file database (only supported for glass
-     *		currently).
+     *          Produce a single-file database (only supported for glass
+     *          currently).
      *   - At most one of:
      *     - Xapian::Compactor::STANDARD - Don't split items unnecessarily.
      *     - Xapian::Compactor::FULL     - Split items whenever it saves space
-     *					   (the default).
+     *                                     (the default).
      *     - Xapian::Compactor::FULLER   - Allow oversize items to save more
-     *					   space (not recommended if you ever
-     *					   plan to update the compacted
-     *					   database).  @since 1.4.31 Has the
-     *					   same effect as FULL.
+     *                                     space (not recommended if you ever
+     *                                     plan to update the compacted
+     *                                     database).  @since 1.4.31 Has the
+     *                                     same effect as FULL.
      *
-     *  @param block_size	This specifies the block size (in bytes) for to
-     *				use for the output.  For glass, the block size
-     *				must be a power of 2 between 2048 and 65536
-     *				(inclusive), and the default (also used if an
-     *				invalid value is passed) is 8192 bytes.
+     *  @param block_size       This specifies the block size (in bytes) for to
+     *                          use for the output.  For glass, the block size
+     *                          must be a power of 2 between 2048 and 65536
+     *                          (inclusive), and the default (also used if an
+     *                          invalid value is passed) is 8192 bytes.
      *
      *  @param compactor Functor
      *
      *  @since 1.3.4 This method was added to replace various methods of the
-     *		     Compactor class.
+     *               Compactor class.
      */
     void compact(int fd,
                  unsigned flags,
@@ -925,11 +924,11 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
      *  The reconstructed text will be missing punctuation and most
      *  capitalisation.
      *
-     *  @param did	  The document id of the document to reconstruct
-     *  @param length	  Number of bytes of text to aim for - note that
-     *			  slightly more may be returned (default: 0 meaning
-     *			  unlimited)
-     *  @param prefix	  Term prefix to reconstruct (default: none)
+     *  @param did        The document id of the document to reconstruct
+     *  @param length     Number of bytes of text to aim for - note that
+     *                    slightly more may be returned (default: 0 meaning
+     *                    unlimited)
+     *  @param prefix     Term prefix to reconstruct (default: none)
      *  @param start_pos  First position to reconstruct (default: 0)
      *  @param end_pos    Last position to reconstruct (default: 0 meaning all)
      *
@@ -949,16 +948,16 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
  *  stored to the shards in a round-robin fashion.
  *
  *  @since 2.0.0 This class is a reference counted handle like many other
- *	   Xapian API classes.  In earlier versions, it worked like a typedef
- *	   to std::vector<database_shard>.  The key difference is that
- *	   previously copying or assigning a Xapian::Database made a deep copy,
- *	   whereas now it makes a shallow copy.
+ *         Xapian API classes.  In earlier versions, it worked like a typedef
+ *         to std::vector<database_shard>.  The key difference is that
+ *         previously copying or assigning a Xapian::Database made a deep copy,
+ *         whereas now it makes a shallow copy.
  *
  *  Most methods can throw:
  *
  *  @exception Xapian::DatabaseCorruptError if database corruption is detected
  *  @exception Xapian::DatabaseError in various situation (for example, calling
- *	       methods after @a close() has been called)
+ *             methods after @a close() has been called)
  *  @exception Xapian::NetworkError when remote databases are in use
  */
 class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
@@ -982,10 +981,10 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
      *  Any shards in @a other are added to the list of shards in this object.
      *  The shards are reference counted and also remain in @a other.
      *
-     *  @param other	Another WritableDatabase to add shards from
+     *  @param other    Another WritableDatabase to add shards from
      *
      *  @exception Xapian::InvalidArgumentError if @a other is the same object
-     *		   as this.
+     *             as this.
      */
     void add_database(const WritableDatabase& other) {
         // This method is provided mainly so that adding a Database to a
@@ -998,32 +997,32 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
     /** Create or open a Xapian database for both reading and writing.
      *
      *  @param path  Filing system path for the database.  If creating a
-     *		     new database with a backend which uses a directory of
-     *		     files (such as glass does by default) then Xapian will
-     *		     create a directory for @a path if necessary (but the
-     *		     parent directory must already exist).
+     *               new database with a backend which uses a directory of
+     *               files (such as glass does by default) then Xapian will
+     *               create a directory for @a path if necessary (but the
+     *               parent directory must already exist).
      *
      *  @param flags  A bitwise-or (| in C++) combination of:
      *
      *  * at most one of the following constants indicating how to handle
-     *	  the database already existing or not (the default action is
-     *	  Xapian::DB_CREATE_OR_OPEN):
+     *    the database already existing or not (the default action is
+     *    Xapian::DB_CREATE_OR_OPEN):
      *
-     *	    Constant                     | DB exists | DB doesn't exist
-     *	  ------------------------------ | --------- | ------------------
-     *	  Xapian::DB_CREATE_OR_OPEN      | open      | create
-     *	  Xapian::DB_CREATE              | fail      | create
-     *	  Xapian::DB_CREATE_OR_OVERWRITE | overwrite | create
-     *	  Xapian::DB_OPEN                | open      | fail
+     *      Constant                     | DB exists | DB doesn't exist
+     *    ------------------------------ | --------- | ------------------
+     *    Xapian::DB_CREATE_OR_OPEN      | open      | create
+     *    Xapian::DB_CREATE              | fail      | create
+     *    Xapian::DB_CREATE_OR_OVERWRITE | overwrite | create
+     *    Xapian::DB_OPEN                | open      | fail
      *
      *  * at most one of the follow constants indicating which backend to
      *    use when creating a new database, ignored when opening or overwriting
      *    an existing database (default: currently Xapian::DB_BACKEND_GLASS):
      *
-     *	    Constant                     | Meaning
-     *	  ------------------------------ | -----------------------
-     *	  Xapian::DB_BACKEND_GLASS	 | Create a glass database
-     *	  Xapian::DB_BACKEND_INMEMORY    | Create inmemory DB (ignores @a path)
+     *      Constant                     | Meaning
+     *    ------------------------------ | -----------------------
+     *    Xapian::DB_BACKEND_GLASS       | Create a glass database
+     *    Xapian::DB_BACKEND_INMEMORY    | Create inmemory DB (ignores @a path)
      *
      *  * any number of the following flags:
      *
@@ -1034,20 +1033,20 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
      *   - Xapian::DB_RETRY_LOCK to wait to get a write lock
      *
      *  @param block_size  The block size in bytes to use when creating a
-     *			   new database.  This is ignored when opening an
-     *			   existing database, and by backends which don't
-     *			   have the concept of a block size.  The glass
-     *			   backend allows block sizes which are a power of
-     *			   2 between 2048 and 65536 (inclusive) and its
-     *			   default (also used instead of an invalid value)
-     *			   is 8192 bytes.
+     *                     new database.  This is ignored when opening an
+     *                     existing database, and by backends which don't
+     *                     have the concept of a block size.  The glass
+     *                     backend allows block sizes which are a power of
+     *                     2 between 2048 and 65536 (inclusive) and its
+     *                     default (also used instead of an invalid value)
+     *                     is 8192 bytes.
      *
      *  @exception Xapian::DatabaseLockError is thrown if the database's
-     *		   write lock could not be acquired.
+     *             write lock could not be acquired.
      *  @exception Xapian::DatabaseOpeningError if the specified database
-     *		   cannot be opened
+     *             cannot be opened
      *  @exception Xapian::DatabaseVersionError if the specified database has
-     *		   a format too old or too new to be supported.
+     *             a format too old or too new to be supported.
      */
     explicit WritableDatabase(std::string_view path,
                               int flags = 0,
@@ -1115,7 +1114,7 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
      *  XAPIAN_FLUSH_THRESHOLD in the environment to a larger value.
      *
      *  @since This method was new in Xapian 1.1.0 - in earlier versions it
-     *	       was called flush().
+     *         was called flush().
      */
     void commit();
 
@@ -1154,17 +1153,17 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
      *  before the WritableDatabase object is destroyed) then any changes which
      *  were pending before the transaction began will also be discarded.
      *
-     *  @param flushed	Is this a flushed transaction?  By default transactions
-     *			are "flushed", which means that committing a
-     *			transaction will ensure those changes are permanently
-     *			written to the database.  By contrast, unflushed
-     *			transactions only ensure that changes within the
-     *			transaction are either all applied or all aren't.
+     *  @param flushed  Is this a flushed transaction?  By default transactions
+     *                  are "flushed", which means that committing a
+     *                  transaction will ensure those changes are permanently
+     *                  written to the database.  By contrast, unflushed
+     *                  transactions only ensure that changes within the
+     *                  transaction are either all applied or all aren't.
      *
      *  @exception Xapian::UnimplementedError is thrown if this is an InMemory
-     *		   database, which don't currently support transactions.
+     *             database, which don't currently support transactions.
      *  @exception Xapian::InvalidOperationError will be thrown if a transaction
-     *		   is already active.
+     *             is already active.
      */
     void begin_transaction(bool flushed = true);
 
@@ -1186,7 +1185,7 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
      *  atomically.
      *
      *  @exception Xapian::UnimplementedError is thrown if this is an InMemory
-     *		   database, which don't currently support transactions.
+     *             database, which don't currently support transactions.
      *  @exception Xapian::InvalidOperationError is thrown if no transaction
      *             was active.
      */
@@ -1199,7 +1198,7 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
      *  but not committed before begin_transaction() will also be discarded).
      *
      *  @exception Xapian::UnimplementedError is thrown if this is an InMemory
-     *		   database, which don't currently support transactions.
+     *             database, which don't currently support transactions.
      *  @exception Xapian::InvalidOperationError is thrown if no transaction
      *             was active.
      */
@@ -1253,8 +1252,8 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
      *  @param unique_term     The term to remove references to.
      *
      *  @since 2.0.0 The changes made by this method are made atomically.
-     *		     Previously automatic commits could happen during the
-     *		     batch.
+     *               Previously automatic commits could happen during the
+     *               batch.
      */
     void delete_document(std::string_view unique_term);
 
@@ -1296,17 +1295,17 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
      *  Note that changes to the database won't be immediately committed to
      *  disk; see commit() for more details.
      *
-     *  @param unique_term	The "unique" term.
-     *  @param document		The new document.
+     *  @param unique_term      The "unique" term.
+     *  @param document         The new document.
      *
      *  @return The document ID used by the new document.  If term existed
-     *		in the database, this will be the first document ID that
-     *		was indexed by that term; otherwise the database allocates
-     *		(get_lastdocid() + 1) as it does for add_document().
+     *          in the database, this will be the first document ID that
+     *          was indexed by that term; otherwise the database allocates
+     *          (get_lastdocid() + 1) as it does for add_document().
      *
      *  @since 2.0.0 The changes made by this method are made atomically.
-     *		     Previously automatic commits could happen during the
-     *		     batch.
+     *               Previously automatic commits could happen during the
+     *               batch.
      */
     Xapian::docid replace_document(std::string_view unique_term,
                                    const Xapian::Document& document);
@@ -1315,8 +1314,8 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
      *
      *  If the word is already present, its frequency is increased.
      *
-     *  @param word	The word to add.
-     *  @param freqinc	How much to increase its frequency by (default 1).
+     *  @param word     The word to add.
+     *  @param freqinc  How much to increase its frequency by (default 1).
      */
     void add_spelling(std::string_view word,
                       Xapian::termcount freqinc = 1) const;
@@ -1326,38 +1325,38 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
      *  The word's frequency is decreased, and if would become zero or less
      *  then the word is removed completely.
      *
-     *  @param word	The word to remove.
-     *  @param freqdec	How much to decrease its frequency by (default 1).
+     *  @param word     The word to remove.
+     *  @param freqdec  How much to decrease its frequency by (default 1).
      *
      *  @return Any "unused" freqdec (if the word's frequency was less than
-     *		freqdec then the difference is returned, else 0 is returned).
-     *		Prior to 2.0.0 this method had void return type.
+     *          freqdec then the difference is returned, else 0 is returned).
+     *          Prior to 2.0.0 this method had void return type.
      */
     termcount remove_spelling(std::string_view word,
                               termcount freqdec = 1) const;
 
     /** Add a synonym for a term.
      *
-     *  @param term	The term to add a synonym for.
-     *  @param synonym	The synonym to add.  If this is already a synonym for
-     *			@a term, then no action is taken.
+     *  @param term     The term to add a synonym for.
+     *  @param synonym  The synonym to add.  If this is already a synonym for
+     *                  @a term, then no action is taken.
      */
     void add_synonym(std::string_view term,
                      std::string_view synonym) const;
 
     /** Remove a synonym for a term.
      *
-     *  @param term	The term to remove a synonym for.
-     *  @param synonym	The synonym to remove.  If this isn't currently a
-     *			synonym for @a term, then no action is taken.
+     *  @param term     The term to remove a synonym for.
+     *  @param synonym  The synonym to remove.  If this isn't currently a
+     *                  synonym for @a term, then no action is taken.
      */
     void remove_synonym(std::string_view term,
                         std::string_view synonym) const;
 
     /** Remove all synonyms for a term.
      *
-     *  @param term	The term to remove all synonyms for.  If the term has
-     *			no synonyms, no action is taken.
+     *  @param term     The term to remove all synonyms for.  If the term has
+     *                  no synonyms, no action is taken.
      */
     void clear_synonyms(std::string_view term) const;
 
@@ -1395,13 +1394,13 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
      *             while writing to the database.
      *
      *  @exception Xapian::DatabaseCorruptError will be thrown if the database
-     *		   is in a corrupt state.
+     *             is in a corrupt state.
      *
      *  @exception Xapian::InvalidArgumentError will be thrown if the key
-     *		   supplied is empty.
+     *             supplied is empty.
      *
      *  @exception Xapian::UnimplementedError will be thrown if the database
-     *		   backend in use doesn't support user-specified metadata.
+     *             backend in use doesn't support user-specified metadata.
      */
     void set_metadata(std::string_view key, std::string_view metadata);
 

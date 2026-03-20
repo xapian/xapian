@@ -144,14 +144,14 @@ class MSet::Internal : public Xapian::Internal::intrusive_base {
 
     /** Serialise this object.
      *
-     *  @return		The serialisation of this object.
+     *  @return         The serialisation of this object.
      */
     std::string serialise() const;
 
     /** Unserialise a serialised Xapian::MSet::Internal object.
      *
-     *  @param p	Pointer to the start of the string to unserialise.
-     *  @param p_end	Pointer to the end of the string to unserialise.
+     *  @param p        Pointer to the start of the string to unserialise.
+     *  @param p_end    Pointer to the end of the string to unserialise.
      *
      *  This object is updated with the unserialised data.
      */

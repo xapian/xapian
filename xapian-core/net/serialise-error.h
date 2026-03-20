@@ -31,9 +31,9 @@ namespace Xapian {
 
 /** Serialise a Xapian::Error object to a string.
  *
- *  @param e	The Xapian::Error object to serialise.
+ *  @param e    The Xapian::Error object to serialise.
  *
- *  @return	Serialisation of @a e.
+ *  @return     Serialisation of @a e.
  */
 std::string serialise_error(const Xapian::Error &e);
 
@@ -41,13 +41,12 @@ std::string serialise_error(const Xapian::Error &e);
  *
  *  Note: does not return!
  *
- *  @param error_string		The string to unserialise.
- *  @param prefix		Optional prefix to prepend to the unserialised
- *				Error's @a msg field.
- *  @param new_context		Optional context to replace the context in
- *				the error.  If this is specified, any existing
- *				context will be noted in the Error's @a msg
- *				field.
+ *  @param error_string     The string to unserialise.
+ *  @param prefix           Optional prefix to prepend to the unserialised
+ *                          Error's @a msg field.
+ *  @param new_context      Optional context to replace the context in the
+ *                          error.  If this is specified, any existing context
+ *                          will be noted in the Error's @a msg field.
  */
 [[noreturn]]
 void unserialise_error(const std::string &error_string,

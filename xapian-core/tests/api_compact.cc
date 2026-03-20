@@ -467,7 +467,7 @@ DEFINE_TESTCASE(compactmissingtables1, compact) {
         TEST_NOT_EQUAL(db.spellings_begin(), db.spellings_end());
         TEST_NOT_EQUAL(db.synonym_keys_begin(), db.synonym_keys_end());
         // FIXME: arrange for input b to not have a termlist table.
-//	TEST_EXCEPTION(Xapian::FeatureUnavailableError, db.termlist_begin(1));
+//      TEST_EXCEPTION(Xapian::FeatureUnavailableError, db.termlist_begin(1));
     }
 }
 

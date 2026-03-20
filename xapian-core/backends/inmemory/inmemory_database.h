@@ -152,7 +152,7 @@ class InMemoryPostList : public LeafPostList {
                      const InMemoryTerm& imterm, std::string_view term_);
   public:
     Xapian::docid get_docid() const;     // Gets current docid
-    Xapian::termcount get_wdf() const;	   // Within Document Frequency
+    Xapian::termcount get_wdf() const;   // Within Document Frequency
     // Max wdf of terms in current document
     Xapian::termcount get_wdfdocmax() const;
     PositionList * read_position_list();

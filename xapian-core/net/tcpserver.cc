@@ -62,10 +62,10 @@ using namespace std;
 
 /** Create a listening socket ready to accept connections.
  *
- *  @param host		hostname or address to listen on or an empty string to
- *			accept connections on any interface.
- *  @param port		TCP port to listen on.
- *  @param tcp_nodelay	If true, enable TCP_NODELAY option.
+ *  @param host         hostname or address to listen on or an empty string to
+ *                      accept connections on any interface.
+ *  @param port         TCP port to listen on.
+ *  @param tcp_nodelay  If true, enable TCP_NODELAY option.
  */
 static int
 create_listener(const std::string& host,

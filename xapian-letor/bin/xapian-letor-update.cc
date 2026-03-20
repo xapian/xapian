@@ -48,10 +48,10 @@ main(int argc, char **argv)
 try {
     const char * opts = "d:hv";
     static const struct option long_opts[] = {
-        { "db",		required_argument, 0, 'd' },
-        { "help",	no_argument, 0, 'h' },
-        { "version",	no_argument, 0, 'v' },
-        { NULL,		0, 0, 0}
+        { "db",         required_argument,  0, 'd' },
+        { "help",       no_argument,        0, 'h' },
+        { "version",    no_argument,        0, 'v' },
+        { NULL,         0, 0, 0}
     };
 
     Xapian::WritableDatabase db;

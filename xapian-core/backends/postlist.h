@@ -114,13 +114,13 @@ class PostList {
      *  skip_to() or check() must be called before any methods which need the
      *  context of the current position.
      *
-     *  @param w_min	The minimum weight contribution that is needed (this is
-     *			just a hint which PostList subclasses may ignore).
+     *  @param w_min    The minimum weight contribution that is needed (this is
+     *                  just a hint which PostList subclasses may ignore).
      *
-     *  @return	If a non-NULL pointer is returned, then the caller should
-     *		substitute the returned pointer for its pointer to us, and then
-     *		delete us.  This "pruning" can only happen for a non-leaf
-     *		subclass of this class.
+     *  @return If a non-NULL pointer is returned, then the caller should
+     *          substitute the returned pointer for its pointer to us, and then
+     *          delete us.  This "pruning" can only happen for a non-leaf
+     *          subclass of this class.
      */
     virtual PostList* next(double w_min) = 0;
 
@@ -129,13 +129,13 @@ class PostList {
      *  If the specified docid isn't in the list, position ourselves on the
      *  first document after it (or at_end() if no greater docids are present).
      *
-     *  @param w_min	The minimum weight contribution that is needed (this is
-     *			just a hint which PostList subclasses may ignore).
+     *  @param w_min    The minimum weight contribution that is needed (this is
+     *                  just a hint which PostList subclasses may ignore).
      *
-     *  @return	If a non-NULL pointer is returned, then the caller should
-     *		substitute the returned pointer for its pointer to us, and then
-     *		delete us.  This "pruning" can only happen for a non-leaf
-     *		subclass of this class.
+     *  @return If a non-NULL pointer is returned, then the caller should
+     *          substitute the returned pointer for its pointer to us, and then
+     *          delete us.  This "pruning" can only happen for a non-leaf
+     *          subclass of this class.
      */
     virtual PostList* skip_to(Xapian::docid did, double w_min) = 0;
 
@@ -182,12 +182,12 @@ class PostList {
     /** Get the bounds on the range of docids this PostList can return.
      *
      *  @param[out] first   Set to a lower bound on the docids that can be
-     *			    returned, or not changed if there's no known
-     *			    lower bound (other than 1).
+     *                      returned, or not changed if there's no known
+     *                      lower bound (other than 1).
      *
      *  @param[out] last    Set to an upper bound on the docids that can be
-     *			    returned, or not changed if there's no known
-     *			    upper bound (other than the highest used docid).
+     *                      returned, or not changed if there's no known
+     *                      upper bound (other than the highest used docid).
      *
      *  The default implementation (PostList::get_docid_range()) does nothing,
      *  which is suitable when there's no known lower or upper bound.

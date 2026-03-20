@@ -57,8 +57,8 @@ class RemoteSubMatch {
      *  Before we can calculate term weights we need to fetch statistics from
      *  each database involved and collate them.
      *
-     *  @param total_stats A stats object to which the statistics should be
-     *			added.
+     *  @param total_stats  A stats object to which the statistics should be
+     *                      added.
      */
     void prepare_match(Xapian::Weight::Internal& total_stats) {
         db->accumulate_remote_stats(total_stats);
@@ -69,7 +69,7 @@ class RemoteSubMatch {
      *  @param first          The first item in the result set to return.
      *  @param maxitems       The maximum number of items to return.
      *  @param check_at_least The minimum number of items to check.
-     *  @param sorter	      KeyMaker for sort keys (NULL for none).
+     *  @param sorter         KeyMaker for sort keys (NULL for none).
      *  @param total_stats    The total statistics for the collection.
      */
     void start_match(Xapian::doccount first,

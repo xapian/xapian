@@ -215,9 +215,9 @@ class QueryBranch : public Query::Internal {
     /** Process OR-like subqueries.
      *
      *  @param keep_zero_weight  By default zero-weight subqueries are kept,
-     *				 but in some situations (such as on the right
-     *				 side of OP_AND_MAYBE when not under
-     *				 OP_SYNONYM) they can be ignored.
+     *                           but in some situations (such as on the right
+     *                           side of OP_AND_MAYBE when not under
+     *                           OP_SYNONYM) they can be ignored.
      */
     void do_or_like(OrContext& ctx, QueryOptimiser* qopt, double factor,
                     TermFreqs* termfreqs,

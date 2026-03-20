@@ -47,18 +47,18 @@ namespace Remote {
  * Access to the remote database is via a TCP connection to the specified
  * host and port.
  *
- * @param host		hostname to connect to.
- * @param port		port number to connect to.
- * @param timeout	timeout in milliseconds.  If this timeout is exceeded
- *			for any individual operation on the remote database
- *			then Xapian::NetworkTimeoutError is thrown.  A timeout
- *			of 0 means don't timeout.  (Default is 10000ms, which
- *			is 10 seconds).
- * @param connect_timeout	timeout to use when connecting to the server.
- *				If this timeout is exceeded then
- *				Xapian::NetworkTimeoutError is thrown.  A
- *				timeout of 0 means don't timeout.  (Default is
- *				10000ms, which is 10 seconds).
+ * @param host          hostname to connect to.
+ * @param port          port number to connect to.
+ * @param timeout       timeout in milliseconds.  If this timeout is exceeded
+ *                      for any individual operation on the remote database
+ *                      then Xapian::NetworkTimeoutError is thrown.  A timeout
+ *                      of 0 means don't timeout.  (Default is 10000ms, which
+ *                      is 10 seconds).
+ * @param connect_timeout       timeout to use when connecting to the server.
+ *                              If this timeout is exceeded then
+ *                              Xapian::NetworkTimeoutError is thrown.  A
+ *                              timeout of 0 means don't timeout.  (Default is
+ *                              10000ms, which is 10 seconds).
  */
 XAPIAN_VISIBILITY_DEFAULT
 Database open(std::string_view host,
@@ -72,18 +72,18 @@ Database open(std::string_view host,
  * Access to the remote database is via a TCP connection to the specified
  * host and port.
  *
- * @param host		hostname to connect to.
- * @param port		port number to connect to.
- * @param timeout	timeout in milliseconds.  If this timeout is exceeded
- *			for any individual operation on the remote database
- *			then Xapian::NetworkTimeoutError is thrown.  (Default
- *			is 0, which means don't timeout).
- * @param connect_timeout	timeout to use when connecting to the server.
- *				If this timeout is exceeded then
- *				Xapian::NetworkTimeoutError is thrown.  A
- *				timeout of 0 means don't timeout.  (Default is
- *				10000ms, which is 10 seconds).
- * @param flags		Xapian::DB_RETRY_LOCK or 0.
+ * @param host          hostname to connect to.
+ * @param port          port number to connect to.
+ * @param timeout       timeout in milliseconds.  If this timeout is exceeded
+ *                      for any individual operation on the remote database
+ *                      then Xapian::NetworkTimeoutError is thrown.  (Default
+ *                      is 0, which means don't timeout).
+ * @param connect_timeout       timeout to use when connecting to the server.
+ *                              If this timeout is exceeded then
+ *                              Xapian::NetworkTimeoutError is thrown.  A
+ *                              timeout of 0 means don't timeout.  (Default is
+ *                              10000ms, which is 10 seconds).
+ * @param flags         Xapian::DB_RETRY_LOCK or 0.
  */
 XAPIAN_VISIBILITY_DEFAULT
 WritableDatabase open_writable(std::string_view host,
@@ -98,13 +98,13 @@ WritableDatabase open_writable(std::string_view host,
  * Access to the remote database is done by running an external program and
  * communicating with it on stdin/stdout.
  *
- * @param program	the external program to run.
- * @param args		space-separated list of arguments to pass to program.
- * @param timeout	timeout in milliseconds.  If this timeout is exceeded
- *			for any individual operation on the remote database
- *			then Xapian::NetworkTimeoutError is thrown.  A timeout
- *			of 0 means don't timeout.  (Default is 10000ms, which
- *			is 10 seconds).
+ * @param program       the external program to run.
+ * @param args          space-separated list of arguments to pass to program.
+ * @param timeout       timeout in milliseconds.  If this timeout is exceeded
+ *                      for any individual operation on the remote database
+ *                      then Xapian::NetworkTimeoutError is thrown.  A timeout
+ *                      of 0 means don't timeout.  (Default is 10000ms, which
+ *                      is 10 seconds).
  */
 XAPIAN_VISIBILITY_DEFAULT
 Database open(std::string_view program,
@@ -117,13 +117,13 @@ Database open(std::string_view program,
  * Access to the remote database is done by running an external program and
  * communicating with it on stdin/stdout.
  *
- * @param program	the external program to run.
- * @param args		space-separated list of arguments to pass to program.
- * @param timeout	timeout in milliseconds.  If this timeout is exceeded
- *			for any individual operation on the remote database
- *			then Xapian::NetworkTimeoutError is thrown.  (Default
- *			is 0, which means don't timeout).
- * @param flags		Xapian::DB_RETRY_LOCK or 0.
+ * @param program       the external program to run.
+ * @param args          space-separated list of arguments to pass to program.
+ * @param timeout       timeout in milliseconds.  If this timeout is exceeded
+ *                      for any individual operation on the remote database
+ *                      then Xapian::NetworkTimeoutError is thrown.  (Default
+ *                      is 0, which means don't timeout).
+ * @param flags         Xapian::DB_RETRY_LOCK or 0.
  */
 XAPIAN_VISIBILITY_DEFAULT
 WritableDatabase open_writable(std::string_view program,

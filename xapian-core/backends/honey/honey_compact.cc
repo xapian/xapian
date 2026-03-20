@@ -1324,13 +1324,13 @@ merge_spellings(HoneyTable* out,
 
         // Glass vs honey spelling key prefix map:
         //
-        //  Type	Glass	    Honey
+        //  Type        Glass       Honey
         //
-        //  bookend	Bbd	    \x00bd
-        //  head	Hhe	    \x01he
-        //  middle	Mddl	    \x02ddl
-        //  tail	Til	    \x03il
-        //  word	Wword	    word
+        //  bookend     Bbd         \x00bd
+        //  head        Hhe         \x01he
+        //  middle      Mddl        \x02ddl
+        //  tail        Til         \x03il
+        //  word        Wword       word
         //
         // In honey, if the word's first byte is <= '\x04', we add a prefix
         // of '\x04' (which is unlikely in real world use but ensures that
@@ -2188,13 +2188,13 @@ HoneyDatabase::compact(Xapian::Compactor* compactor,
     };
 
     static const table_list tables[] = {
-        // name		type			lazy
-        { "postlist",	Honey::POSTLIST,	false },
-        { "docdata",	Honey::DOCDATA,		true },
-        { "termlist",	Honey::TERMLIST,	false },
-        { "position",	Honey::POSITION,	true },
-        { "spelling",	Honey::SPELLING,	true },
-        { "synonym",	Honey::SYNONYM,		true }
+        // name         type                    lazy
+        { "postlist",   Honey::POSTLIST,        false },
+        { "docdata",    Honey::DOCDATA,         true },
+        { "termlist",   Honey::TERMLIST,        false },
+        { "position",   Honey::POSITION,        true },
+        { "spelling",   Honey::SPELLING,        true },
+        { "synonym",    Honey::SYNONYM,         true }
     };
 
     const int FLAGS = Xapian::DB_DANGEROUS;

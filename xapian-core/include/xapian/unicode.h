@@ -88,7 +88,7 @@ class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
      *  while the iteration is in progress.
      *
      *  @param s The string to read.  Must not be modified while the iteration
-     *		 is in progress.
+     *           is in progress.
      */
     void assign(std::string_view s) { assign(s.data(), s.size()); }
 
@@ -111,12 +111,12 @@ class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
      *  remain valid while the iteration is in progress.
      *
      *  @param s The string to read.  Must not be modified while the iteration
-     *		 is in progress.
+     *           is in progress.
      *
-     *		 This parameter is of type std::string_view, so you can pass in
-     *		 types which automatically convert to that such as
-     *		 `std::string`, or a `const char*` pointing to a nul-terminated
-     *		 string.
+     *           This parameter is of type std::string_view, so you can pass in
+     *           types which automatically convert to that such as
+     *           `std::string`, or a `const char*` pointing to a nul-terminated
+     *           string.
      */
     explicit
     Utf8Iterator(std::string_view s) { assign(s.data(), s.size()); }
@@ -191,7 +191,7 @@ class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
 
     /** Test two Utf8Iterators for equality.
      *
-     *  @param other	The Utf8Iterator to compare this one with.
+     *  @param other    The Utf8Iterator to compare this one with.
      *  @return true iff the iterators point to the same position.
      */
     bool operator==(const Utf8Iterator& other) const noexcept {
@@ -200,7 +200,7 @@ class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
 
     /** Test two Utf8Iterators for inequality.
      *
-     *  @param other	The Utf8Iterator to compare this one with.
+     *  @param other    The Utf8Iterator to compare this one with.
      *  @return true iff the iterators do not point to the same position.
      */
     bool operator!=(const Utf8Iterator& other) const noexcept {
@@ -313,22 +313,22 @@ namespace Internal {
  *
  *  This is intended mainly as a helper method for to_utf8().
  *
- *  @param ch	The character (which must be > 128) to write to @a buf.
- *  @param buf	The buffer to write the character to - it must have
- *		space for (at least) 4 bytes.
+ *  @param ch   The character (which must be > 128) to write to @a buf.
+ *  @param buf  The buffer to write the character to - it must have
+ *              space for (at least) 4 bytes.
  *
- *  @return	The length of the resultant UTF-8 character in bytes.
+ *  @return     The length of the resultant UTF-8 character in bytes.
  */
 XAPIAN_VISIBILITY_DEFAULT
 unsigned nonascii_to_utf8(unsigned ch, char* buf);
 
 /** Convert a single Unicode character to UTF-8.
  *
- *  @param ch	The character to write to @a buf.
- *  @param buf	The buffer to write the character to - it must have
- *		space for (at least) 4 bytes.
+ *  @param ch   The character to write to @a buf.
+ *  @param buf  The buffer to write the character to - it must have
+ *              space for (at least) 4 bytes.
  *
- *  @return	The length of the resultant UTF-8 character in bytes.
+ *  @return     The length of the resultant UTF-8 character in bytes.
  */
 inline unsigned to_utf8(unsigned ch, char* buf) {
     if (ch < 128) {

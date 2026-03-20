@@ -898,10 +898,10 @@ test_driver::parse_command_line(int argc, char **argv)
 #endif
 
     static const struct option long_opts[] = {
-        {"verbose",		no_argument, 0, 'v'},
-        {"abort-on-error",	no_argument, 0, 'o'},
-        {"help",		no_argument, 0, 'h'},
-        {NULL,			0, 0, 0}
+        {"verbose",         no_argument, 0, 'v'},
+        {"abort-on-error",  no_argument, 0, 'o'},
+        {"help",            no_argument, 0, 'h'},
+        {NULL,              0, 0, 0}
     };
 
     string short_opts_string = "voh";

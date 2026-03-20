@@ -20,7 +20,7 @@ indent_style = space
 indent_size = 2
 
 # 8-column tab indentation
-[Makefile,Makefile.am,Makefile.mk]
+[Makefile,Makefile.am,Makefile.mk,*.tokens]
 indent_style = tab
 indent_size = 8
 

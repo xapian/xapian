@@ -109,7 +109,7 @@ class EditDistanceCalculator {
   public:
     /** Constructor.
      *
-     *  @param target_	Target string to calculate edit distances to.
+     *  @param target_  Target string to calculate edit distances to.
      */
     explicit
     EditDistanceCalculator(std::string_view target_)
@@ -130,15 +130,15 @@ class EditDistanceCalculator {
 
     /** Calculate edit distance for a sequence.
      *
-     *  @param candidate	String to calculate edit distance for.
-     *  @param max_distance	The greatest edit distance that's interesting
-     *				to us.  If the true edit distance is >
-     *				max_distance, any value > max_distance may be
-     *				returned instead (which allows the edit
-     *				distance algorithm to avoid work for poor
-     *				matches).  The value passed for subsequent
-     *				calls to this method on the same object must be
-     *				the same or less.
+     *  @param candidate        String to calculate edit distance for.
+     *  @param max_distance     The greatest edit distance that's interesting
+     *                          to us.  If the true edit distance is >
+     *                          max_distance, any value > max_distance may be
+     *                          returned instead (which allows the edit
+     *                          distance algorithm to avoid work for poor
+     *                          matches).  The value passed for subsequent
+     *                          calls to this method on the same object must be
+     *                          the same or less.
      *
      *  @return The edit distance between candidate and the target.
      */

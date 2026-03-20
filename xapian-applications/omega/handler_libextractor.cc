@@ -28,13 +28,13 @@ using namespace std;
 
 /** Store metadata in its corresponding variable.
  *
- *  @param cls  		last parameter from EXTRACTOR_extract (unused)
- *  @param plugin_name  	name of the plugin (unused)
- *  @param type  		mime-type of file according to libextractor
- *  @param format		format information about data
- *  @param data_mime_type	mimetype according to libextractor (unused)
- *  @param data 		actual meta-data found
- *  @param data_len		number of bytes in data
+ *  @param cls                  last parameter from EXTRACTOR_extract (unused)
+ *  @param plugin_name          name of the plugin (unused)
+ *  @param type                 mime-type of file according to libextractor
+ *  @param format               format information about data
+ *  @param data_mime_type       mimetype according to libextractor (unused)
+ *  @param data                 actual meta-data found
+ *  @param data_len             number of bytes in data
  */
 static int
 process_metadata(void*,

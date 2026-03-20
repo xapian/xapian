@@ -46,9 +46,9 @@ class HoneyTermListTable : public HoneyTable {
      *  This method does not create or open the table on disk - you
      *  must call the create() or open() methods respectively!
      *
-     *  @param dbdir	    The directory the honey database is stored in.
-     *  @param readonly	    true if we're opening read-only, else false.
-     *  @param lazy_	    Don't create a termlist if there isn't one.
+     *  @param dbdir        The directory the honey database is stored in.
+     *  @param readonly     true if we're opening read-only, else false.
+     *  @param lazy_        Don't create a termlist if there isn't one.
      */
     HoneyTermListTable(const std::string& dbdir, bool readonly, bool lazy_)
         : HoneyTable("termlist", dbdir + "/termlist.", readonly, lazy_) { }
@@ -60,9 +60,9 @@ class HoneyTermListTable : public HoneyTable {
      *
      *  Any existing data is replaced.
      *
-     *  @param did	The docid to set the termlist data for.
-     *  @param doc	The Xapian::Document object to read term data from.
-     *  @param doclen	The document length.
+     *  @param did      The docid to set the termlist data for.
+     *  @param doc      The Xapian::Document object to read term data from.
+     *  @param doclen   The document length.
      */
     void set_termlist(Xapian::docid did, const Xapian::Document& doc,
                       Xapian::termcount doclen);

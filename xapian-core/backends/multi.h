@@ -26,8 +26,8 @@
 
 /** Convert docid in the multi-db to the docid in the shard.
  *
- *  @param did		docid in the multi-db
- *  @param n_shards	number of dbs in the multi-db
+ *  @param did          docid in the multi-db
+ *  @param n_shards     number of dbs in the multi-db
  *
  *  @return docid in the shard
  */
@@ -40,8 +40,8 @@ shard_docid(Xapian::docid did, Xapian::doccount n_shards) {
 
 /** Convert docid in the multi-db to shard number.
  *
- *  @param did		docid in the multi-db
- *  @param n_shards	number of dbs in the multi-db
+ *  @param did          docid in the multi-db
+ *  @param n_shards     number of dbs in the multi-db
  *
  *  @return shard number between 0 and (n_shards - 1) inclusive
  */
@@ -54,9 +54,9 @@ shard_number(Xapian::docid did, Xapian::doccount n_shards) {
 
 /** Convert shard number and shard docid to docid in multi-db.
  *
- *  @param shard_did	docid in the shard
- *  @param shard	shard number between 0 and (n_shards - 1) inclusive
- *  @param n_shards	number of dbs in the multi-db
+ *  @param shard_did    docid in the shard
+ *  @param shard        shard number between 0 and (n_shards - 1) inclusive
+ *  @param n_shards     number of dbs in the multi-db
  *
  *  @return docid in the multi-db.
  */

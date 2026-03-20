@@ -64,8 +64,8 @@ class XAPIAN_VISIBILITY_DEFAULT Compactor {
      *
      *  The default implementation does nothing.
      *
-     *  @param table	The table currently being compacted.
-     *  @param status	A status message.
+     *  @param table    The table currently being compacted.
+     *  @param status   A status message.
      */
     virtual void
     set_status(const std::string & table, const std::string & status);
@@ -87,10 +87,10 @@ class XAPIAN_VISIBILITY_DEFAULT Compactor {
      *  for this user metadata key in the output database.  In older versions,
      *  you should not return an empty string.
      *
-     *  @param key	The metadata key with duplicate entries.
-     *  @param num_tags	How many tags there are.
-     *  @param tags	An array of num_tags strings containing the tags to
-     *			merge.
+     *  @param key      The metadata key with duplicate entries.
+     *  @param num_tags How many tags there are.
+     *  @param tags     An array of num_tags strings containing the tags to
+     *                  merge.
      */
     virtual std::string
     resolve_duplicate_metadata(const std::string & key,

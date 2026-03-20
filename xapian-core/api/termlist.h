@@ -83,10 +83,10 @@ class Xapian::TermIterator::Internal : public Xapian::Internal::intrusive_base {
      *  the current position.
      *
      *  @return Normally returns NULL to indicate success.  If the end has been
-     *		reached, returns this; if another non-NULL pointer is
-     *		returned then the caller should substitute the returned pointer
-     *		for its pointer to us, and then delete us.  This "pruning" can
-     *		only happen for a non-leaf subclass of this class.
+     *          reached, returns this; if another non-NULL pointer is
+     *          returned then the caller should substitute the returned pointer
+     *          for its pointer to us, and then delete us.  This "pruning" can
+     *          only happen for a non-leaf subclass of this class.
      */
     virtual Internal * next() = 0;
 
@@ -96,10 +96,10 @@ class Xapian::TermIterator::Internal : public Xapian::Internal::intrusive_base {
      *  first term after term.
      *
      *  @return Normally returns NULL to indicate success.  If no terms after
-     *		term exist, returns this; if another non-NULL pointer is
-     *		returned then the caller should substitute the returned pointer
-     *		for its pointer to us, and then delete us.  This "pruning" can
-     *		only happen for a non-leaf subclass of this class.
+     *          term exist, returns this; if another non-NULL pointer is
+     *          returned then the caller should substitute the returned pointer
+     *          for its pointer to us, and then delete us.  This "pruning" can
+     *          only happen for a non-leaf subclass of this class.
      */
     virtual Internal* skip_to(std::string_view term) = 0;
 

@@ -39,8 +39,8 @@ initialise(std::string& error);
 /** Extract information from the @a filename and store it in the
  *  corresponding variable.
  *
- *  @param filename	Path to the file.
- *  @param mimetype	Mimetype of the file.
+ *  @param filename     Path to the file.
+ *  @param mimetype     Mimetype of the file.
  *
  * Note: This function should only be used by an assistant process.
  *
@@ -69,8 +69,8 @@ enum Field {
 /** Respond with extracted data.
  *
  *  @param field    FIELD_* code
- *  @param data	    pointer to field content
- *  @param len	    length of field content in bytes
+ *  @param data     pointer to field content
+ *  @param len      length of field content in bytes
  */
 void
 send_field(Field field, const char* data, size_t len);
@@ -78,7 +78,7 @@ send_field(Field field, const char* data, size_t len);
 /** Respond with extracted data.
  *
  *  @param field    FIELD_* code
- *  @param data	    pointer to nul-terminated field content
+ *  @param data     pointer to nul-terminated field content
  */
 inline void
 send_field(Field field, const char* data) {
@@ -88,7 +88,7 @@ send_field(Field field, const char* data) {
 /** Respond with extracted data.
  *
  *  @param field    FIELD_* code
- *  @param data	    field content as std::string
+ *  @param data     field content as std::string
  */
 inline void
 send_field(Field field, const std::string& s) {

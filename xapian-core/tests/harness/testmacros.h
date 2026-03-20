@@ -22,14 +22,14 @@
 #define XAPIAN_INCLUDED_TESTMACROS_H
 
 #ifdef XAPIAN_UNITTEST
-# define DEFINE_TESTCASE(T)	static void test_##T()
+# define DEFINE_TESTCASE(T)     static void test_##T()
 #else
 // We ignore the condition `C` here - it's picked up by the collate-test script
 // which generates code to check the conditions.
-# define DEFINE_TESTCASE(T,C)	void test_##T()
+# define DEFINE_TESTCASE(T,C)   void test_##T()
 #endif
-#define TESTCASE(T)		{ #T, test_##T }
-#define END_OF_TESTCASES	{ 0, 0 }
+#define TESTCASE(T)             { #T, test_##T }
+#define END_OF_TESTCASES        { 0, 0 }
 
 /// Test a relation holds,e.g. TEST_REL(a,>,b);
 #define TEST_REL(A,REL,B) \

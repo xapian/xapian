@@ -35,50 +35,50 @@ namespace Xapian {
 
 /** Serialise a stats object.
  *
- *  @param stats	The stats object to serialise.
+ *  @param stats    The stats object to serialise.
  *
- *  @return	Serialisation of @a stats.
+ *  @return         Serialisation of @a stats.
  */
 std::string serialise_stats(const Xapian::Weight::Internal &stats);
 
 /** Unserialise a serialised stats object.
  *
- *  @param p		Pointer to data to unserialise.
- *  @param p_end	End of data to unserialise.
- *  @param stats	The stats object to unserialise to.
+ *  @param p        Pointer to data to unserialise.
+ *  @param p_end    End of data to unserialise.
+ *  @param stats    The stats object to unserialise to.
  */
 void unserialise_stats(const char* p, const char* p_end,
                        Xapian::Weight::Internal& stats);
 
 /** Serialise a Xapian::RSet object.
  *
- *  @param rset		The object to serialise.
+ *  @param rset     The object to serialise.
  *
- *  @return		The serialisation of the Xapian::RSet object.
+ *  @return         The serialisation of the Xapian::RSet object.
  */
 std::string serialise_rset(const Xapian::RSet &omrset);
 
 /** Unserialise a serialised Xapian::RSet object.
  *
- *  @param s		The serialised object as a string.
+ *  @param s        The serialised object as a string.
  *
- *  @return		The unserialised Xapian::RSet object.
+ *  @return         The unserialised Xapian::RSet object.
  */
 Xapian::RSet unserialise_rset(const std::string &s);
 
 /** Serialise a Xapian::Document object.
  *
- *  @param doc		The object to serialise.
+ *  @param doc      The object to serialise.
  *
- *  @return		The serialisation of the Xapian::Document object.
+ *  @return         The serialisation of the Xapian::Document object.
  */
 std::string serialise_document(const Xapian::Document &doc);
 
 /** Unserialise a serialised Xapian::Document object.
  *
- *  @param s		The serialised object as a string.
+ *  @param s        The serialised object as a string.
  *
- *  @return		The unserialised Xapian::Document object.
+ *  @return         The unserialised Xapian::Document object.
  */
 Xapian::Document unserialise_document(std::string_view s);
 

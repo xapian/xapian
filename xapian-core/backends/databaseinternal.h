@@ -80,9 +80,9 @@ class Database::Internal : public Xapian::Internal::intrusive_base {
     /** Only constructable as a base class for derived classes.
      *
      *  @param transaction_support  One of:
-     *	* TRANSACTION_READONLY - read-only shard
-     *	* TRANSACTION_UNIMPLEMENTED - writable but no transaction support
-     *	* TRANSACTION_NONE - writable with transaction support
+     *  * TRANSACTION_READONLY - read-only shard
+     *  * TRANSACTION_UNIMPLEMENTED - writable but no transaction support
+     *  * TRANSACTION_NONE - writable with transaction support
      */
     Internal(transaction_state transaction_support)
         : state(transaction_support) {}
@@ -155,11 +155,11 @@ class Database::Internal : public Xapian::Internal::intrusive_base {
 
     /** Returns frequencies for a term.
      *
-     *  @param term		The term to get frequencies for
-     *  @param termfreq_ptr	Point to return number of docs indexed by @a
-     *				term (or NULL not to return)
-     *  @param collfreq_ptr	Point to return number of occurrences of @a
-     *				term in the database (or NULL not to return)
+     *  @param term             The term to get frequencies for
+     *  @param termfreq_ptr     Point to return number of docs indexed by @a
+     *                          term (or NULL not to return)
+     *  @param collfreq_ptr     Point to return number of occurrences of @a
+     *                          term in the database (or NULL not to return)
      */
     virtual void get_freqs(std::string_view term,
                            doccount* termfreq_ptr,
@@ -220,13 +220,13 @@ class Database::Internal : public Xapian::Internal::intrusive_base {
 
     /** Create a LeafPostList for use during a match.
      *
-     *  @param term		The term to open a postlist for, or the empty
-     *				string to create an all-docs postlist.
+     *  @param term             The term to open a postlist for, or the empty
+     *                          string to create an all-docs postlist.
      *
-     *  @param need_read_pos	Does the postlist need to support
-     *				read_position_list()?  Note that
-     *				open_position_list() may still be called even
-     *				if need_read_pos is false.
+     *  @param need_read_pos    Does the postlist need to support
+     *                          read_position_list()?  Note that
+     *                          open_position_list() may still be called even
+     *                          if need_read_pos is false.
      */
     virtual LeafPostList* open_leaf_post_list(std::string_view term,
                                               bool need_read_pos) const = 0;
@@ -235,10 +235,10 @@ class Database::Internal : public Xapian::Internal::intrusive_base {
      *
      *  This returns the value in a particular slot for each document.
      *
-     *  @param slot	The value slot.
+     *  @param slot     The value slot.
      *
-     *  @return	Pointer to a new ValueList object which should be deleted by
-     *		the caller once it is no longer needed.
+     *  @return Pointer to a new ValueList object which should be deleted by
+     *          the caller once it is no longer needed.
      */
     virtual ValueList* open_value_list(valueno slot) const;
 
@@ -261,14 +261,14 @@ class Database::Internal : public Xapian::Internal::intrusive_base {
      *  The returned handle provides access to document data and document
      *  values.
      *
-     *  @param did	The document id to open.
+     *  @param did      The document id to open.
      *
-     *  @param lazy	If true, there's no need to check that this document
-     *			actually exists (only a hint - the backend may still
-     *			check).  Used to avoid unnecessary work when we already
-     *			know that the requested document exists.
+     *  @param lazy     If true, there's no need to check that this document
+     *                  actually exists (only a hint - the backend may still
+     *                  check).  Used to avoid unnecessary work when we already
+     *                  know that the requested document exists.
      *
-     *  @return		A new document object, owned by the caller.
+     *  @return         A new document object, owned by the caller.
      */
     virtual Document::Internal* open_document(docid did, bool lazy) const = 0;
 
@@ -294,8 +294,8 @@ class Database::Internal : public Xapian::Internal::intrusive_base {
      *
      *  If the word is already present, its frequency is increased.
      *
-     *  @param word	The word to add.
-     *  @param freqinc	How much to increase its frequency by.
+     *  @param word     The word to add.
+     *  @param freqinc  How much to increase its frequency by.
      */
     virtual void add_spelling(std::string_view word,
                               termcount freqinc) const;
@@ -305,8 +305,8 @@ class Database::Internal : public Xapian::Internal::intrusive_base {
      *  The word's frequency is decreased, and if would become zero or less
      *  then the word is removed completely.
      *
-     *  @param word	The word to remove.
-     *  @param freqdec	How much to decrease its frequency by.
+     *  @param word     The word to remove.
+     *  @param freqdec  How much to decrease its frequency by.
      *
      *  @return Any freqdec not "used up".
      */
@@ -322,7 +322,7 @@ class Database::Internal : public Xapian::Internal::intrusive_base {
     /** Open a termlist returning each term which has synonyms.
      *
      *  @param prefix   If non-empty, only terms with this prefix are
-     *		    returned.
+     *                  returned.
      */
     virtual TermList* open_synonym_keylist(std::string_view prefix) const;
 
@@ -389,8 +389,8 @@ class Database::Internal : public Xapian::Internal::intrusive_base {
 
     /** End transaction.
      *
-     *  @param do_commit	If true, commits the transaction; if false,
-     *				cancels the transaction.
+     *  @param do_commit        If true, commits the transaction; if false,
+     *                          cancels the transaction.
      */
     virtual void end_transaction(bool do_commit);
 
@@ -461,12 +461,12 @@ class Database::Internal : public Xapian::Internal::intrusive_base {
 
     /** Get backend information about this database.
      *
-     *  @param path	If non-NULL, and set the pointed to string to the file
-     *			path of this database (or to some string describing
-     *			the database in a backend-specified format if "path"
-     *			isn't a concept which makes sense).
+     *  @param path     If non-NULL, and set the pointed to string to the file
+     *                  path of this database (or to some string describing
+     *                  the database in a backend-specified format if "path"
+     *                  isn't a concept which makes sense).
      *
-     *  @return	A constant indicating the backend type.
+     *  @return A constant indicating the backend type.
      */
     virtual int get_backend_info(std::string* path) const = 0;
 
@@ -503,11 +503,11 @@ class Database::Internal : public Xapian::Internal::intrusive_base {
      *  locking case, the read-only database is left open.
      *
      *  @param flags  Xapian::DB_READONLY_ to unlock, otherwise the flags
-     *		      to use when opening from writing.
+     *                to use when opening from writing.
      *
      *  @return  The new Database::Internal object (or the current object
-     *		 if no action is required - e.g. unlock on a read-only
-     *		 database).
+     *           if no action is required - e.g. unlock on a read-only
+     *           database).
      */
     virtual Internal* update_lock(int flags);
 

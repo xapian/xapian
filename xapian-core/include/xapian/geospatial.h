@@ -564,11 +564,11 @@ class XAPIAN_VISIBILITY_DEFAULT LatLongDistanceKeyMaker : public KeyMaker {
   public:
     /** Construct a LatLongDistanceKeyMaker.
      *
-     *  @param slot_		Value slot to use.
-     *  @param centre_		List of points to calculate distance from
-     *				(closest distance is used).
-     *  @param metric_		LatLongMetric to use.
-     *  @param defdistance	Distance to use for docs with no value set.
+     *  @param slot_        Value slot to use.
+     *  @param centre_      List of points to calculate distance from
+     *                      (closest distance is used).
+     *  @param metric_      LatLongMetric to use.
+     *  @param defdistance  Distance to use for docs with no value set.
      */
     LatLongDistanceKeyMaker(Xapian::valueno slot_,
                             const LatLongCoords & centre_,
@@ -582,10 +582,10 @@ class XAPIAN_VISIBILITY_DEFAULT LatLongDistanceKeyMaker : public KeyMaker {
 
     /** Construct a LatLongDistanceKeyMaker.
      *
-     *  @param slot_		Value slot to use.
-     *  @param centre_		List of points to calculate distance from
-     *				(closest distance is used).
-     *  @param metric_		LatLongMetric to use.
+     *  @param slot_        Value slot to use.
+     *  @param centre_      List of points to calculate distance from
+     *                      (closest distance is used).
+     *  @param metric_      LatLongMetric to use.
      *
      *  Documents where no value is set are assumed to be a large distance
      *  away.
@@ -601,9 +601,9 @@ class XAPIAN_VISIBILITY_DEFAULT LatLongDistanceKeyMaker : public KeyMaker {
 
     /** Construct a LatLongDistanceKeyMaker.
      *
-     *  @param slot_		Value slot to use.
-     *  @param centre_		List of points to calculate distance from
-     *				(closest distance is used).
+     *  @param slot_        Value slot to use.
+     *  @param centre_      List of points to calculate distance from
+     *                      (closest distance is used).
      *
      *  Xapian::GreatCircleMetric is used as the metric.
      *
@@ -620,10 +620,10 @@ class XAPIAN_VISIBILITY_DEFAULT LatLongDistanceKeyMaker : public KeyMaker {
 
     /** Construct a LatLongDistanceKeyMaker.
      *
-     *  @param slot_		Value slot to use.
-     *  @param centre_		Point to calculate distance from.
-     *  @param metric_		LatLongMetric to use.
-     *  @param defdistance	Distance to use for docs with no value set.
+     *  @param slot_        Value slot to use.
+     *  @param centre_      Point to calculate distance from.
+     *  @param metric_      LatLongMetric to use.
+     *  @param defdistance  Distance to use for docs with no value set.
      */
     LatLongDistanceKeyMaker(Xapian::valueno slot_,
                             const LatLongCoord & centre_,
@@ -639,9 +639,9 @@ class XAPIAN_VISIBILITY_DEFAULT LatLongDistanceKeyMaker : public KeyMaker {
 
     /** Construct a LatLongDistanceKeyMaker.
      *
-     *  @param slot_		Value slot to use.
-     *  @param centre_		Point to calculate distance from.
-     *  @param metric_		LatLongMetric to use.
+     *  @param slot_        Value slot to use.
+     *  @param centre_      Point to calculate distance from.
+     *  @param metric_      LatLongMetric to use.
      *
      *  Documents where no value is set are assumed to be a large distance
      *  away.
@@ -659,8 +659,8 @@ class XAPIAN_VISIBILITY_DEFAULT LatLongDistanceKeyMaker : public KeyMaker {
 
     /** Construct a LatLongDistanceKeyMaker.
      *
-     *  @param slot_		Value slot to use.
-     *  @param centre_		Point to calculate distance from.
+     *  @param slot_        Value slot to use.
+     *  @param centre_      Point to calculate distance from.
      *
      *  Xapian::GreatCircleMetric is used as the metric.
      *

@@ -186,12 +186,12 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
 
     /** Allow the subclass to perform any initialisation it needs to.
      *
-     *  @param factor	  Any scaling factor (e.g. from OP_SCALE_WEIGHT).
-     *			  If the Weight object is for the term-independent
-     *			  weight supplied by get_sumextra()/get_maxextra(),
-     *			  then init(0.0) is called (starting from Xapian
-     *			  1.2.11 and 1.3.1 - earlier versions failed to
-     *			  call init() for such Weight objects).
+     *  @param factor   Any scaling factor (e.g. from OP_SCALE_WEIGHT).
+     *                  If the Weight object is for the term-independent
+     *                  weight supplied by get_sumextra()/get_maxextra(),
+     *                  then init(0.0) is called (starting from Xapian
+     *                  1.2.11 and 1.3.1 - earlier versions failed to
+     *                  call init() for such Weight objects).
      */
     virtual void init(double factor) = 0;
 
@@ -342,7 +342,7 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
      *  method in your subclass as shown here:
      *  https://trac.xapian.org/ticket/554#comment:1
      *
-     *  @param serialised	A string containing the serialised parameters.
+     *  @param serialised       A string containing the serialised parameters.
      */
     virtual Weight * unserialise(const std::string & serialised) const;
 
@@ -352,22 +352,22 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
      *  in the calculations:
      *
      *  @param wdf    The within document frequency of the term in the document.
-     *		      You need to call need_stat(WDF) if you use this value.
+     *                You need to call need_stat(WDF) if you use this value.
      *  @param doclen The document's length (unnormalised).
-     *		      You need to call need_stat(DOC_LENGTH) if you use this
-     *		      value.
+     *                You need to call need_stat(DOC_LENGTH) if you use this
+     *                value.
      *  @param uniqterms
-     *		      Number of unique terms in the document.
-     *		      You need to call need_stat(UNIQUE_TERMS) if you use this
-     *		      value.
+     *                Number of unique terms in the document.
+     *                You need to call need_stat(UNIQUE_TERMS) if you use this
+     *                value.
      *  @param wdfdocmax
-     *		      Maximum wdf value in the document.
-     *		      You need to call need_stat(WDF_DOC_MAX) if you use this
-     *		      value.
+     *                Maximum wdf value in the document.
+     *                You need to call need_stat(WDF_DOC_MAX) if you use this
+     *                value.
      *
-     *	You can rely of wdf <= doclen if you call both need_stat(WDF) and
-     *	need_stat(DOC_LENGTH) - this is trivially true for terms, but Xapian
-     *	also ensure it's true for OP_SYNONYM, where the wdf is approximated.
+     *  You can rely of wdf <= doclen if you call both need_stat(WDF) and
+     *  need_stat(DOC_LENGTH) - this is trivially true for terms, but Xapian
+     *  also ensure it's true for OP_SYNONYM, where the wdf is approximated.
      *
      *  @since The wdfdocmax parameter was added in Xapian 2.0.0.
      */
@@ -392,16 +392,16 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
      *  in the calculations:
      *
      *  @param doclen The document's length (unnormalised).
-     *		      You need to call need_stat(DOC_LENGTH) if you use this
-     *		      value.
+     *                You need to call need_stat(DOC_LENGTH) if you use this
+     *                value.
      *  @param uniqterms
-     *		      Number of unique terms in the document.
-     *		      You need to call need_stat(UNIQUE_TERMS) if you use this
-     *		      value.
+     *                Number of unique terms in the document.
+     *                You need to call need_stat(UNIQUE_TERMS) if you use this
+     *                value.
      *  @param wdfdocmax
-     *		      Maximum wdf value in the document.
-     *		      You need to call need_stat(WDF_DOC_MAX) if you use this
-     *		      value.
+     *                Maximum wdf value in the document.
+     *                You need to call need_stat(WDF_DOC_MAX) if you use this
+     *                value.
      *
      *  @since The wdfdocmax parameter was added in Xapian 2.0.0.
      */
@@ -423,15 +423,15 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
     /** @private @internal Initialise this object to calculate weights for term
      *  @a term.
      *
-     *  @param stats	  Source of statistics.
+     *  @param stats      Source of statistics.
      *  @param query_len_ Query length.
-     *  @param term	  The term for the new object.
-     *  @param wqf_	  The within-query-frequency of @a term.
-     *  @param factor	  Any scaling factor (e.g. from OP_SCALE_WEIGHT).
+     *  @param term       The term for the new object.
+     *  @param wqf_       The within-query-frequency of @a term.
+     *  @param factor     Any scaling factor (e.g. from OP_SCALE_WEIGHT).
      *  @param postlist   Pointer to a LeafPostList for the term (cast to void*
-     *			  to avoid needing to forward declare class
-     *			  LeafPostList in public API headers) which can be used
-     *			  to get wdf upper bound
+     *                    to avoid needing to forward declare class
+     *                    LeafPostList in public API headers) which can be used
+     *                    to get wdf upper bound
      */
     XAPIAN_VISIBILITY_INTERNAL
     void init_(const Internal & stats, Xapian::termcount query_len_,
@@ -443,9 +443,9 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
     /** @private @internal Initialise this object to calculate weights for a
      *  synonym.
      *
-     *  @param stats	   Source of statistics.
+     *  @param stats       Source of statistics.
      *  @param query_len_  Query length.
-     *  @param factor	   Any scaling factor (e.g. from OP_SCALE_WEIGHT).
+     *  @param factor      Any scaling factor (e.g. from OP_SCALE_WEIGHT).
      *  @param termfreq    The termfreq to use.
      *  @param reltermfreq The reltermfreq to use.
      *  @param collection_freq The collection frequency to use.
@@ -459,7 +459,7 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
     /** @private @internal Initialise this object to calculate the extra weight
      *  component.
      *
-     *  @param stats	  Source of statistics.
+     *  @param stats      Source of statistics.
      *  @param query_len_ Query length.
      */
     XAPIAN_VISIBILITY_INTERNAL
@@ -497,11 +497,11 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
 
     /** Return the appropriate weighting scheme object.
      *
-     *  @param scheme	the string containing a weighting scheme name and may
-     *			also contain the parameters required by that weighting
-     *			scheme. E.g. "bm25 1.0 0.8"
-     *  @param reg	Xapian::Registry object to allow users to add their own
-     *			custom weighting schemes (default: standard registry).
+     *  @param scheme   the string containing a weighting scheme name and may
+     *                  also contain the parameters required by that weighting
+     *                  scheme. E.g. "bm25 1.0 0.8"
+     *  @param reg      Xapian::Registry object to allow users to add their own
+     *                  custom weighting schemes (default: standard registry).
      *
      *  @since 2.0.0
      */
@@ -510,7 +510,7 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
 
     /** Create from a human-readable parameter string.
      *
-     * @param params	string containing weighting scheme parameter values.
+     * @param params    string containing weighting scheme parameter values.
      *
      *  @since 2.0.0
      */
@@ -735,14 +735,14 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
         /** Pivoted
          *
          *  wdfn=(1+log(1+log(wdf)))*
-         *	 (1/(1-slope+(slope*doclen/avg_len)))+delta
+         *       (1/(1-slope+(slope*doclen/avg_len)))+delta
          */
         PIVOTED = 5,
 
         /** Log average
          *
          *  wdfn=(1+log(wdf))/
-         *	 (1+log(doclen/unique_terms))
+         *       (1+log(doclen/unique_terms))
          */
         LOG_AVERAGE = 6,
 
@@ -890,9 +890,9 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
   public:
     /** Construct a TfIdfWeight
      *
-     *  @param normalizations	A three character string indicating the
-     *				normalizations to be used for the tf(wdf), idf
-     *				and document weight.  (default: "ntn")
+     *  @param normalizations   A three character string indicating the
+     *                          normalizations to be used for the tf(wdf), idf
+     *                          and document weight.  (default: "ntn")
      *
      * The @a normalizations string works like so:
      *
@@ -905,7 +905,7 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
      *     @li 'l': Logarithmic wdfn=1+log<sub>e</sub>(wdf)
      *     @li 'P': Pivoted     wdfn=(1+log(1+log(wdf)))*(1/(1-slope+(slope*doclen/avg_len)))+delta
      *     @li 'L': Log average wdfn=(1+log(wdf))/(1+log(doclen/unique_terms))
-     *     @li 'm': Max-wdf	wdfn=wdf/wdfdocmax
+     *     @li 'm': Max-wdf     wdfn=wdf/wdfdocmax
      *     @li 'a': Augmented max-wdf  wdfn=0.5+0.5*wdf/wdfdocmax
      *
      *     @since Support for 'P', 'm' and 'a' was added in Xapian 2.0.0.
@@ -938,11 +938,11 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
 
     /** Construct a TfIdfWeight
      *
-     *  @param normalizations	A three character string indicating the
-     *				normalizations to be used for the tf(wdf), idf
-     *				and document weight.  (default: "ntn")
-     *	@param slope		Extra parameter for "Pivoted" tf normalization.  (default: 0.2)
-     *	@param delta		Extra parameter for "Pivoted" tf normalization.  (default: 1.0)
+     *  @param normalizations   A three character string indicating the
+     *                          normalizations to be used for the tf(wdf), idf
+     *                          and document weight.  (default: "ntn")
+     *  @param slope            Extra parameter for "Pivoted" tf normalization.  (default: 0.2)
+     *  @param delta            Extra parameter for "Pivoted" tf normalization.  (default: 1.0)
      *
      * The @a normalizations string works like so:
      *
@@ -954,7 +954,7 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
      *     @li 's': Square     wdfn=wdf*wdf
      *     @li 'l': Logarithmic wdfn=1+log<sub>e</sub>(wdf)
      *     @li 'P': Pivoted     wdfn=(1+log(1+log(wdf)))*(1/(1-slope+(slope*doclen/avg_len)))+delta
-     *     @li 'm': Max-wdf	wdfn=wdf/wdfdocmax
+     *     @li 'm': Max-wdf     wdfn=wdf/wdfdocmax
      *     @li 'a': Augmented max-wdf  wdfn=0.5+0.5*wdf/wdfdocmax
      *
      *     @since Support for 'P', 'm' and 'a' was added in Xapian 2.0.0.
@@ -986,9 +986,9 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
 
     /** Construct a TfIdfWeight
      *
-     *	@param wdf_norm_	The normalization for the wdf.
-     *	@param idf_norm_	The normalization for the idf.
-     *	@param wt_norm_		The normalization for the document weight.
+     *  @param wdf_norm_        The normalization for the wdf.
+     *  @param idf_norm_        The normalization for the idf.
+     *  @param wt_norm_         The normalization for the document weight.
      *
      * Implementing support for more normalizations of each type would require
      * extending the backend to track more statistics.
@@ -1003,13 +1003,13 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
 
     /** Construct a TfIdfWeight
      *
-     *	@param wdf_norm_	The normalization for the wdf.
-     *	@param idf_norm_	The normalization for the idf.
-     *	@param wt_norm_		The normalization for the document weight.
-     *	@param slope		Extra parameter for "Pivoted" tf normalization.
-     *				(default: 0.2)
-     *	@param delta		Extra parameter for "Pivoted" tf normalization.
-     *				(default: 1.0)
+     *  @param wdf_norm_        The normalization for the wdf.
+     *  @param idf_norm_        The normalization for the idf.
+     *  @param wt_norm_         The normalization for the document weight.
+     *  @param slope            Extra parameter for "Pivoted" tf normalization.
+     *                          (default: 0.2)
+     *  @param delta            Extra parameter for "Pivoted" tf normalization.
+     *                          (default: 1.0)
      *
      * Implementing support for more normalizations of each type would require
      * extending the backend to track more statistics.
@@ -1068,29 +1068,29 @@ class XAPIAN_VISIBILITY_DEFAULT BM25Weight : public Weight {
     /** Construct a BM25Weight.
      *
      *  @param k1  A non-negative parameter controlling how influential
-     *		   within-document-frequency (wdf) is.  k1=0 means that
-     *		   wdf doesn't affect the weights.  The larger k1 is, the more
-     *		   wdf influences the weights.  (default 1)
+     *             within-document-frequency (wdf) is.  k1=0 means that
+     *             wdf doesn't affect the weights.  The larger k1 is, the more
+     *             wdf influences the weights.  (default 1)
      *
      *  @param k2  A non-negative parameter which controls the strength of a
-     *		   correction factor which depends upon query length and
-     *		   normalised document length.  k2=0 disable this factor; larger
-     *		   k2 makes it stronger.  (default 0)
+     *             correction factor which depends upon query length and
+     *             normalised document length.  k2=0 disable this factor; larger
+     *             k2 makes it stronger.  (default 0)
      *
      *  @param k3  A non-negative parameter controlling how influential
-     *		   within-query-frequency (wqf) is.  k3=0 means that wqf
-     *		   doesn't affect the weights.  The larger k3 is, the more
-     *		   wqf influences the weights.  (default 1)
+     *             within-query-frequency (wqf) is.  k3=0 means that wqf
+     *             doesn't affect the weights.  The larger k3 is, the more
+     *             wqf influences the weights.  (default 1)
      *
      *  @param b   A parameter between 0 and 1, controlling how strong the
-     *		   document length normalisation of wdf is.  0 means no
-     *		   normalisation; 1 means full normalisation.  (default 0.5)
+     *             document length normalisation of wdf is.  0 means no
+     *             normalisation; 1 means full normalisation.  (default 0.5)
      *
      *  @param min_normlen  A parameter specifying a minimum value for
-     *		   normalised document length.  Normalised document length
-     *		   values less than this will be clamped to this value, helping
-     *		   to prevent very short documents getting large weights.
-     *		   (default 0.5)
+     *             normalised document length.  Normalised document length
+     *             values less than this will be clamped to this value, helping
+     *             to prevent very short documents getting large weights.
+     *             (default 0.5)
      */
     BM25Weight(double k1, double k2, double k3, double b, double min_normlen)
         : param_k1(k1), param_k2(k2), param_k3(k3), param_b(b),
@@ -1182,36 +1182,36 @@ class XAPIAN_VISIBILITY_DEFAULT BM25PlusWeight : public Weight {
     /** Construct a BM25PlusWeight.
      *
      *  @param k1  A non-negative parameter controlling how influential
-     *		   within-document-frequency (wdf) is.  k1=0 means that
-     *		   wdf doesn't affect the weights.  The larger k1 is, the more
-     *		   wdf influences the weights.  (default 1)
+     *             within-document-frequency (wdf) is.  k1=0 means that
+     *             wdf doesn't affect the weights.  The larger k1 is, the more
+     *             wdf influences the weights.  (default 1)
      *
      *  @param k2  A non-negative parameter which controls the strength of a
-     *		   correction factor which depends upon query length and
-     *		   normalised document length.  k2=0 disable this factor; larger
-     *		   k2 makes it stronger.  The paper which describes BM25+
-     *		   ignores BM25's document-independent component (so implicitly
-     *		   k2=0), but we support non-zero k2 too.  (default 0)
+     *             correction factor which depends upon query length and
+     *             normalised document length.  k2=0 disable this factor; larger
+     *             k2 makes it stronger.  The paper which describes BM25+
+     *             ignores BM25's document-independent component (so implicitly
+     *             k2=0), but we support non-zero k2 too.  (default 0)
      *
      *  @param k3  A non-negative parameter controlling how influential
-     *		   within-query-frequency (wqf) is.  k3=0 means that wqf
-     *		   doesn't affect the weights.  The larger k3 is, the more
-     *		   wqf influences the weights.  (default 1)
+     *             within-query-frequency (wqf) is.  k3=0 means that wqf
+     *             doesn't affect the weights.  The larger k3 is, the more
+     *             wqf influences the weights.  (default 1)
      *
      *  @param b   A parameter between 0 and 1, controlling how strong the
-     *		   document length normalisation of wdf is.  0 means no
-     *		   normalisation; 1 means full normalisation.  (default 0.5)
+     *             document length normalisation of wdf is.  0 means no
+     *             normalisation; 1 means full normalisation.  (default 0.5)
      *
      *  @param min_normlen  A parameter specifying a minimum value for
-     *		   normalised document length.  Normalised document length
-     *		   values less than this will be clamped to this value, helping
-     *		   to prevent very short documents getting large weights.
-     *		   (default 0.5)
+     *             normalised document length.  Normalised document length
+     *             values less than this will be clamped to this value, helping
+     *             to prevent very short documents getting large weights.
+     *             (default 0.5)
      *
      *  @param delta  A parameter for pseudo tf value to control the scale
-     *		      of the tf lower bound. Delta(δ) can be tuned for example
-     *		      from 0.0 to 1.5 but BM25+ can still work effectively
-     *		      across collections with a fixed δ = 1.0. (default 1.0)
+     *                of the tf lower bound. Delta(δ) can be tuned for example
+     *                from 0.0 to 1.5 but BM25+ can still work effectively
+     *                across collections with a fixed δ = 1.0. (default 1.0)
      */
     BM25PlusWeight(double k1, double k2, double k3, double b,
                    double min_normlen, double delta)
@@ -1299,9 +1299,9 @@ class XAPIAN_DEPRECATED_CLASS TradWeight : public BM25Weight
     /** Construct a TradWeight.
      *
      *  @param k  A non-negative parameter controlling how influential
-     *		  within-document-frequency (wdf) and document length are.
-     *		  k=0 means that wdf and document length don't affect the
-     *		  weights.  The larger k is, the more they do.  (default 1)
+     *            within-document-frequency (wdf) and document length are.
+     *            k=0 means that wdf and document length don't affect the
+     *            weights.  The larger k is, the more they do.  (default 1)
      */
     explicit TradWeight(double k = 1.0) : BM25Weight(k, 0.0, 0.0, 1.0, 0.0) { }
 };
@@ -1343,10 +1343,10 @@ class XAPIAN_VISIBILITY_DEFAULT InL2Weight : public Weight {
     /** Construct an InL2Weight.
      *
      *  @param c  A strictly positive parameter controlling the extent
-     *		  of the normalization of the wdf to the document length. The
-     *		  default value of 1 is suitable for longer queries but it may
-     *		  need to be changed for shorter queries. For more information,
-     *		  please refer to Gianni Amati's PHD thesis.
+     *            of the normalization of the wdf to the document length. The
+     *            default value of 1 is suitable for longer queries but it may
+     *            need to be changed for shorter queries. For more information,
+     *            please refer to Gianni Amati's PHD thesis.
      */
     explicit InL2Weight(double c);
 
@@ -1414,12 +1414,12 @@ class XAPIAN_VISIBILITY_DEFAULT IfB2Weight : public Weight {
     /** Construct an IfB2Weight.
      *
      *  @param c  A strictly positive parameter controlling the extent
-     *		  of the normalization of the wdf to the document length. The
-     *		  default value of 1 is suitable for longer queries but it may
-     *		  need to be changed for shorter queries. For more information,
-     *		  please refer to Gianni Amati's PHD thesis titled
-     *		  Probabilistic Models for Information Retrieval based on
-     *		  Divergence from Randomness.
+     *            of the normalization of the wdf to the document length. The
+     *            default value of 1 is suitable for longer queries but it may
+     *            need to be changed for shorter queries. For more information,
+     *            please refer to Gianni Amati's PHD thesis titled
+     *            Probabilistic Models for Information Retrieval based on
+     *            Divergence from Randomness.
      */
     explicit IfB2Weight(double c);
 
@@ -1486,10 +1486,10 @@ class XAPIAN_VISIBILITY_DEFAULT IneB2Weight : public Weight {
     /** Construct an IneB2Weight.
      *
      *  @param c  A strictly positive parameter controlling the extent
-     *		  of the normalization of the wdf to the document length. The
-     *		  default value of 1 is suitable for longer queries but it may
-     *		  need to be changed for shorter queries. For more information,
-     *		  please refer to Gianni Amati's PHD thesis.
+     *            of the normalization of the wdf to the document length. The
+     *            default value of 1 is suitable for longer queries but it may
+     *            need to be changed for shorter queries. For more information,
+     *            please refer to Gianni Amati's PHD thesis.
      */
     explicit IneB2Weight(double c);
 
@@ -1559,12 +1559,12 @@ class XAPIAN_VISIBILITY_DEFAULT BB2Weight : public Weight {
     /** Construct a BB2Weight.
      *
      *  @param c  A strictly positive parameter controlling the extent
-     *		  of the normalization of the wdf to the document length. A
-     *		  default value of 1 is suitable for longer queries but it may
-     *		  need to be changed for shorter queries. For more information,
-     *		  please refer to Gianni Amati's PHD thesis titled
-     *		  Probabilistic Models for Information Retrieval based on
-     *		  Divergence from Randomness.
+     *            of the normalization of the wdf to the document length. A
+     *            default value of 1 is suitable for longer queries but it may
+     *            need to be changed for shorter queries. For more information,
+     *            please refer to Gianni Amati's PHD thesis titled
+     *            Probabilistic Models for Information Retrieval based on
+     *            Divergence from Randomness.
      */
     explicit BB2Weight(double c);
 
@@ -1692,12 +1692,12 @@ class XAPIAN_VISIBILITY_DEFAULT PL2Weight : public Weight {
     /** Construct a PL2Weight.
      *
      *  @param c  A strictly positive parameter controlling the extent
-     *		  of the normalization of the wdf to the document length. The
-     *		  default value of 1 is suitable for longer queries but it may
-     *		  need to be changed for shorter queries. For more information,
-     *		  please refer to Gianni Amati's PHD thesis titled
-     *		  Probabilistic Models for Information Retrieval based on
-     *		  Divergence from Randomness.
+     *            of the normalization of the wdf to the document length. The
+     *            default value of 1 is suitable for longer queries but it may
+     *            need to be changed for shorter queries. For more information,
+     *            please refer to Gianni Amati's PHD thesis titled
+     *            Probabilistic Models for Information Retrieval based on
+     *            Divergence from Randomness.
      */
     explicit PL2Weight(double c);
 
@@ -1761,12 +1761,12 @@ class XAPIAN_VISIBILITY_DEFAULT PL2PlusWeight : public Weight {
     /** Construct a PL2PlusWeight.
      *
      *  @param c  A strictly positive parameter controlling the extent
-     *		  of the normalization of the wdf to the document length. The
-     *		  default value of 1 is suitable for longer queries but it may
-     *		  need to be changed for shorter queries. For more information,
-     *		  please refer to Gianni Amati's PHD thesis titled
-     *		  Probabilistic Models for Information Retrieval based on
-     *		  Divergence from Randomness.
+     *            of the normalization of the wdf to the document length. The
+     *            default value of 1 is suitable for longer queries but it may
+     *            need to be changed for shorter queries. For more information,
+     *            please refer to Gianni Amati's PHD thesis titled
+     *            Probabilistic Models for Information Retrieval based on
+     *            Divergence from Randomness.
      *
      *  @param delta  A parameter for pseudo tf value to control the scale
      *                of the tf lower bound. Delta(δ) should be a positive
@@ -1889,21 +1889,21 @@ class XAPIAN_VISIBILITY_DEFAULT LMJMWeight : public Weight {
   public:
     /** Construct a LMJMWeight.
      *
-     *  @param lambda	A parameter strictly between 0 and 1 which linearly
-     *			interpolates between the maximum likelihood model (the
-     *			limit as λ→0) and the collection model (the limit as
-     *			λ→1).
+     *  @param lambda   A parameter strictly between 0 and 1 which linearly
+     *                  interpolates between the maximum likelihood model (the
+     *                  limit as λ→0) and the collection model (the limit as
+     *                  λ→1).
      *
-     *			Values of λ around 0.1 are apparently optimal for short
-     *			queries and around 0.7 for long queries.  If lambda is
-     *			out of range (i.e. <= 0 or >= 1) then the λ value used
-     *			is chosen dynamically based on the query length using
-     *			the formula:
+     *                  Values of λ around 0.1 are apparently optimal for short
+     *                  queries and around 0.7 for long queries.  If lambda is
+     *                  out of range (i.e. <= 0 or >= 1) then the λ value used
+     *                  is chosen dynamically based on the query length using
+     *                  the formula:
      *
-     *			  (query_length - 1) / 10.0
+     *                    (query_length - 1) / 10.0
      *
-     *			The result is clamped to 0.1 for query_length <= 2, and
-     *			to 0.7 for query_length >= 8.
+     *                  The result is clamped to 0.1 for query_length <= 2, and
+     *                  to 0.7 for query_length >= 8.
      */
     explicit LMJMWeight(double lambda = 0.0) : param_lambda(lambda) {
         need_stat(WQF);
@@ -1972,11 +1972,11 @@ class XAPIAN_VISIBILITY_DEFAULT LMDirichletWeight : public Weight {
   public:
     /** Construct a LMDirichletWeight.
      *
-     *  @param mu	A parameter which is > 0.  Default: 2000
-     *  @param delta	A parameter which is >= 0, which is "a pseudo [wdf]
-     *			value to control the scale of the [wdf] lower bound".
-     *			If this parameter is > 0, then the smoothing is Dir+;
-     *			if it's zero, it's Dirichlet.  Default: 0.05
+     *  @param mu       A parameter which is > 0.  Default: 2000
+     *  @param delta    A parameter which is >= 0, which is "a pseudo [wdf]
+     *                  value to control the scale of the [wdf] lower bound".
+     *                  If this parameter is > 0, then the smoothing is Dir+;
+     *                  if it's zero, it's Dirichlet.  Default: 0.05
      */
     explicit LMDirichletWeight(double mu = 2000.0, double delta = 0.05)
         : param_mu(mu), param_delta(delta) {
@@ -2045,7 +2045,7 @@ class XAPIAN_VISIBILITY_DEFAULT LMAbsDiscountWeight : public Weight {
   public:
     /** Construct a LMAbsDiscountWeight.
      *
-     *  @param delta	A parameter between 0 and 1.  Default: 0.7
+     *  @param delta    A parameter between 0 and 1.  Default: 0.7
      */
     explicit LMAbsDiscountWeight(double delta = 0.7) : param_delta(delta) {
         need_stat(WQF);
@@ -2117,10 +2117,10 @@ class XAPIAN_VISIBILITY_DEFAULT LM2StageWeight : public Weight {
   public:
     /** Construct a LM2StageWeight.
      *
-     *  @param lambda	A parameter between 0 and 1 which linearly interpolates
-     *			between the maximum likelihood model (at 0) and the
-     *			collection model (at 1).  Default: 0.7
-     *  @param mu	A parameter which is greater than 0.  Default: 2000
+     *  @param lambda   A parameter between 0 and 1 which linearly interpolates
+     *                  between the maximum likelihood model (at 0) and the
+     *                  collection model (at 1).  Default: 0.7
+     *  @param mu       A parameter which is greater than 0.  Default: 2000
      */
     explicit LM2StageWeight(double lambda = 0.7, double mu = 2000.0)
         : param_lambda(lambda), param_mu(mu)

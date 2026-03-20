@@ -745,9 +745,9 @@ DEFINE_TESTCASE(remotefailure8, remotetcp) {
     // which don't fail even when we kill the remote server.  Once remote
     // spelling suggestions are working we can uncomment them.
     // TEST_EXCEPTION(Xapian::NetworkError,
-    //		   db.get_spelling_suggestion("newmonia"));
+    //               db.get_spelling_suggestion("newmonia"));
     // TEST_EXCEPTION(Xapian::NetworkError,
-    //		   db.spellings_begin());
+    //               db.spellings_begin());
 }
 
 // Test synonym related methods.

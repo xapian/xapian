@@ -70,81 +70,81 @@
  *  in net/remoteserver.cc too.
  */
 enum message_type {
-    MSG_ALLTERMS,		// All Terms
-    MSG_COLLFREQ,		// Get Collection Frequency
-    MSG_DOCUMENT,		// Get Document
-    MSG_TERMEXISTS,		// Term Exists?
-    MSG_TERMFREQ,		// Get Term Frequency
-    MSG_VALUESTATS,		// Get value statistics
-    MSG_KEEPALIVE,		// Keep-alive
-    MSG_DOCLENGTH,		// Get Doc Length
-    MSG_QUERY,			// Run Query
-    MSG_TERMLIST,		// Get TermList
-    MSG_POSITIONLIST,		// Get PositionList
-    MSG_POSTLIST,		// Get PostList
-    MSG_REOPEN,			// Reopen
-    MSG_UPDATE,			// Get Updated DocCount and AvLength
-    MSG_ADDDOCUMENT,		// Add Document
-    MSG_CANCEL,			// Cancel
-    MSG_DELETEDOCUMENTTERM,	// Delete Document by term
-    MSG_COMMIT,			// Commit
-    MSG_REPLACEDOCUMENT,	// Replace Document
-    MSG_REPLACEDOCUMENTTERM,	// Replace Document by term
-    MSG_DELETEDOCUMENT,		// Delete Document
-    MSG_WRITEACCESS,		// Upgrade to WritableDatabase
-    MSG_GETMETADATA,		// Get metadata
-    MSG_SETMETADATA,		// Set metadata
-    MSG_ADDSPELLING,		// Add a spelling
-    MSG_REMOVESPELLING,		// Remove a spelling
-    MSG_GETMSET,		// Get MSet
-    MSG_SHUTDOWN,		// Shutdown
-    MSG_METADATAKEYLIST,	// Iterator for metadata keys
-    MSG_FREQS,			// Get termfreq and collfreq
-    MSG_UNIQUETERMS,		// Get number of unique terms in doc
-    MSG_WDFDOCMAX,		// Get the max_wdf in doc
-    MSG_POSITIONLISTCOUNT,	// Get PositionList length
-    MSG_RECONSTRUCTTEXT,	// Reconstruct document text
-    MSG_SYNONYMTERMLIST,	// Get synonyms for a term
-    MSG_SYNONYMKEYLIST,		// Get terms with an entry in synonym table
-    MSG_ADDSYNONYM,		// Add a synonym
-    MSG_REMOVESYNONYM,		// Remove a synonym
-    MSG_CLEARSYNONYMS,		// Clear synonyms for a term
+    MSG_ALLTERMS,               // All Terms
+    MSG_COLLFREQ,               // Get Collection Frequency
+    MSG_DOCUMENT,               // Get Document
+    MSG_TERMEXISTS,             // Term Exists?
+    MSG_TERMFREQ,               // Get Term Frequency
+    MSG_VALUESTATS,             // Get value statistics
+    MSG_KEEPALIVE,              // Keep-alive
+    MSG_DOCLENGTH,              // Get Doc Length
+    MSG_QUERY,                  // Run Query
+    MSG_TERMLIST,               // Get TermList
+    MSG_POSITIONLIST,           // Get PositionList
+    MSG_POSTLIST,               // Get PostList
+    MSG_REOPEN,                 // Reopen
+    MSG_UPDATE,                 // Get Updated DocCount and AvLength
+    MSG_ADDDOCUMENT,            // Add Document
+    MSG_CANCEL,                 // Cancel
+    MSG_DELETEDOCUMENTTERM,     // Delete Document by term
+    MSG_COMMIT,                 // Commit
+    MSG_REPLACEDOCUMENT,        // Replace Document
+    MSG_REPLACEDOCUMENTTERM,    // Replace Document by term
+    MSG_DELETEDOCUMENT,         // Delete Document
+    MSG_WRITEACCESS,            // Upgrade to WritableDatabase
+    MSG_GETMETADATA,            // Get metadata
+    MSG_SETMETADATA,            // Set metadata
+    MSG_ADDSPELLING,            // Add a spelling
+    MSG_REMOVESPELLING,         // Remove a spelling
+    MSG_GETMSET,                // Get MSet
+    MSG_SHUTDOWN,               // Shutdown
+    MSG_METADATAKEYLIST,        // Iterator for metadata keys
+    MSG_FREQS,                  // Get termfreq and collfreq
+    MSG_UNIQUETERMS,            // Get number of unique terms in doc
+    MSG_WDFDOCMAX,              // Get the max_wdf in doc
+    MSG_POSITIONLISTCOUNT,      // Get PositionList length
+    MSG_RECONSTRUCTTEXT,        // Reconstruct document text
+    MSG_SYNONYMTERMLIST,        // Get synonyms for a term
+    MSG_SYNONYMKEYLIST,         // Get terms with an entry in synonym table
+    MSG_ADDSYNONYM,             // Add a synonym
+    MSG_REMOVESYNONYM,          // Remove a synonym
+    MSG_CLEARSYNONYMS,          // Clear synonyms for a term
     MSG_REQUESTDOCUMENT,        // Request a document (pre-read hint)
     MSG_MAX
 };
 
 /// Reply types (server -> client).
 enum reply_type {
-    REPLY_UPDATE,		// Updated database stats
-    REPLY_EXCEPTION,		// Exception
-    REPLY_DONE,			// Done sending list
-    REPLY_ALLTERMS,		// All Terms
-    REPLY_COLLFREQ,		// Get Collection Frequency
-    REPLY_DOCDATA,		// Get Document
-    REPLY_TERMDOESNTEXIST,	// Term Doesn't Exist
-    REPLY_TERMEXISTS,		// Term Exists
-    REPLY_TERMFREQ,		// Get Term Frequency
-    REPLY_VALUESTATS,		// Value statistics
-    REPLY_DOCLENGTH,		// Get Doc Length
-    REPLY_STATS,		// Stats
-    REPLY_TERMLIST,		// Get Termlist
-    REPLY_POSITIONLIST,		// Get PositionList
-    REPLY_POSTLISTHEADER,	// Header for get postlist
-    REPLY_POSTLIST,		// Get Postlist
-    REPLY_VALUE,		// Document Value
-    REPLY_ADDDOCUMENT,		// Add Document
-    REPLY_RESULTS,		// Results (MSet)
-    REPLY_METADATA,		// Metadata
-    REPLY_METADATAKEYLIST,	// Iterator for metadata keys
-    REPLY_FREQS,		// Get termfreq and collfreq
-    REPLY_UNIQUETERMS,		// Get number of unique terms in doc
-    REPLY_WDFDOCMAX,		// Get the max_wdf in doc
-    REPLY_POSITIONLISTCOUNT,	// Get PositionList length
-    REPLY_REMOVESPELLING,	// Remove a spelling
-    REPLY_TERMLISTHEADER,	// Header for get termlist
-    REPLY_RECONSTRUCTTEXT,	// Reconstruct document text
-    REPLY_SYNONYMTERMLIST,	// Get synonyms for a term
-    REPLY_SYNONYMKEYLIST,	// Get terms with an entry in synonym table
+    REPLY_UPDATE,               // Updated database stats
+    REPLY_EXCEPTION,            // Exception
+    REPLY_DONE,                 // Done sending list
+    REPLY_ALLTERMS,             // All Terms
+    REPLY_COLLFREQ,             // Get Collection Frequency
+    REPLY_DOCDATA,              // Get Document
+    REPLY_TERMDOESNTEXIST,      // Term Doesn't Exist
+    REPLY_TERMEXISTS,           // Term Exists
+    REPLY_TERMFREQ,             // Get Term Frequency
+    REPLY_VALUESTATS,           // Value statistics
+    REPLY_DOCLENGTH,            // Get Doc Length
+    REPLY_STATS,                // Stats
+    REPLY_TERMLIST,             // Get Termlist
+    REPLY_POSITIONLIST,         // Get PositionList
+    REPLY_POSTLISTHEADER,       // Header for get postlist
+    REPLY_POSTLIST,             // Get Postlist
+    REPLY_VALUE,                // Document Value
+    REPLY_ADDDOCUMENT,          // Add Document
+    REPLY_RESULTS,              // Results (MSet)
+    REPLY_METADATA,             // Metadata
+    REPLY_METADATAKEYLIST,      // Iterator for metadata keys
+    REPLY_FREQS,                // Get termfreq and collfreq
+    REPLY_UNIQUETERMS,          // Get number of unique terms in doc
+    REPLY_WDFDOCMAX,            // Get the max_wdf in doc
+    REPLY_POSITIONLISTCOUNT,    // Get PositionList length
+    REPLY_REMOVESPELLING,       // Remove a spelling
+    REPLY_TERMLISTHEADER,       // Header for get termlist
+    REPLY_RECONSTRUCTTEXT,      // Reconstruct document text
+    REPLY_SYNONYMTERMLIST,      // Get synonyms for a term
+    REPLY_SYNONYMKEYLIST,       // Get terms with an entry in synonym table
     REPLY_MAX
 };
 

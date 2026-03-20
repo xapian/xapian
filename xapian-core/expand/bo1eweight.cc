@@ -1,6 +1,6 @@
 /** @file
  * @brief Xapian::Bo1EWeight class - The Bo1 scheme of the DFR framework
- *				     for query expansion.
+ *                                   for query expansion.
  */
 /* Copyright (C) 2013 Aarsh Shah
  *

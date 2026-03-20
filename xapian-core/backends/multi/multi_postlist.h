@@ -98,13 +98,13 @@ class MultiPostList : public PostList {
      *  skip_to() or check() must be called before any methods which need the
      *  context of the current position.
      *
-     *  @param w_min	The minimum weight contribution that is needed (this is
-     *			just a hint which PostList subclasses may ignore).
+     *  @param w_min    The minimum weight contribution that is needed (this is
+     *                  just a hint which PostList subclasses may ignore).
      *
-     *  @return	If a non-NULL pointer is returned, then the caller should
-     *		substitute the returned pointer for its pointer to us, and then
-     *		delete us.  This "pruning" can only happen for a non-leaf
-     *		subclass of this class.
+     *  @return If a non-NULL pointer is returned, then the caller should
+     *          substitute the returned pointer for its pointer to us, and then
+     *          delete us.  This "pruning" can only happen for a non-leaf
+     *          subclass of this class.
      */
     PostList* next(double w_min);
 
@@ -113,13 +113,13 @@ class MultiPostList : public PostList {
      *  If the specified docid isn't in the list, position ourselves on the
      *  first document after it (or at_end() if no greater docids are present).
      *
-     *  @param w_min	The minimum weight contribution that is needed (this is
-     *			just a hint which PostList subclasses may ignore).
+     *  @param w_min    The minimum weight contribution that is needed (this is
+     *                  just a hint which PostList subclasses may ignore).
      *
-     *  @return	If a non-NULL pointer is returned, then the caller should
-     *		substitute the returned pointer for its pointer to us, and then
-     *		delete us.  This "pruning" can only happen for a non-leaf
-     *		subclass of this class.
+     *  @return If a non-NULL pointer is returned, then the caller should
+     *          substitute the returned pointer for its pointer to us, and then
+     *          delete us.  This "pruning" can only happen for a non-leaf
+     *          subclass of this class.
      */
     PostList* skip_to(Xapian::docid, double w_min);
 

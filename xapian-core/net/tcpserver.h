@@ -54,12 +54,12 @@ class XAPIAN_VISIBILITY_DEFAULT TcpServer SOCKET_INITIALIZER_MIXIN {
   public:
     /** Construct a TcpServer and start listening for connections.
      *
-     *  @param host	The hostname or address for the interface to listen on
-     *			(or "" to listen on all interfaces).
-     *  @param port	The TCP port number to listen on.
-     *  @param tcp_nodelay	If true, enable TCP_NODELAY option.
-     *	@param verbose	Should we produce output when connections are
-     *			made or lost?
+     *  @param host         The hostname or address for the interface to listen
+     *                      on (or "" to listen on all interfaces).
+     *  @param port         The TCP port number to listen on.
+     *  @param tcp_nodelay  If true, enable TCP_NODELAY option.
+     *  @param verbose      Should we produce output when connections are made
+     *                      or lost?
      */
     TcpServer(const std::string& host, int port, bool tcp_nodelay,
               bool verbose_);

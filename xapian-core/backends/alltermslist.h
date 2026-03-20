@@ -58,10 +58,10 @@ class AllTermsList : public TermList {
      *  first term after @a term.
      *
      *  @return Normally returns NULL to indicate success.  If the end has been
-     *		reached, returns this; if another non-NULL pointer is
-     *		returned then the caller should substitute the returned pointer
-     *		for its pointer to us, and then delete us.  This "pruning" can
-     *		only happen for a non-leaf subclass of this class.
+     *          reached, returns this; if another non-NULL pointer is
+     *          returned then the caller should substitute the returned pointer
+     *          for its pointer to us, and then delete us.  This "pruning" can
+     *          only happen for a non-leaf subclass of this class.
      */
     virtual TermList* skip_to(std::string_view term) = 0;
 

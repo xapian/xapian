@@ -49,7 +49,7 @@
  *  Currently only supported when types involved are unsigned.
  *
  *  @return true if the result can be represented exactly in @a res, false
- *	    otherwise.
+ *          otherwise.
  */
 template<typename T1, typename T2, typename R>
 typename std::enable_if_t<std::is_unsigned_v<T1> &&
@@ -116,7 +116,7 @@ add_overflows<unsigned __int64,
  *  Currently only supported when types involved are unsigned.
  *
  *  @return true if the result can be represented exactly in @a res, false
- *	    otherwise.
+ *          otherwise.
  */
 template<typename T1, typename T2, typename R>
 typename std::enable_if_t<std::is_unsigned_v<T1> &&
@@ -179,7 +179,7 @@ sub_overflows<unsigned __int64,
  *  Currently only supported when types involved are unsigned.
  *
  *  @return true if the result can be represented exactly in @a res, false
- *	    otherwise.
+ *          otherwise.
  */
 template<typename T1, typename T2, typename R>
 typename std::enable_if_t<std::is_unsigned_v<T1> &&

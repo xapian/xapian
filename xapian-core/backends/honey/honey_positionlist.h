@@ -58,8 +58,8 @@ class HoneyBasePositionList : public PositionList {
 
     /** Set positional data and start to decode it.
      *
-     *  @param data	The positional data.  Must stay valid
-     *			while this object is using it.
+     *  @param data     The positional data.  Must stay valid
+     *                  while this object is using it.
      */
     void set_data(const std::string& data);
 
@@ -141,8 +141,8 @@ class HoneyPositionTable : public HoneyLazyTable {
      *  This method does not create or open the table on disk - you
      *  must call the create() or open() methods respectively!
      *
-     *  @param dbdir		The directory the honey database is stored in.
-     *  @param readonly		true if we're opening read-only, else false.
+     *  @param dbdir       The directory the honey database is stored in.
+     *  @param readonly    true if we're opening read-only, else false.
      */
     HoneyPositionTable(const std::string& dbdir, bool readonly)
         : HoneyLazyTable("position", dbdir + "/position.", readonly) { }

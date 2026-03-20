@@ -123,9 +123,9 @@ class XAPIAN_VISIBILITY_DEFAULT PostingIterator {
 
     /** Advance the iterator to document @a did.
      *
-     *  @param did	The document id to advance to.  If this document id
-     *			isn't in the stream being iterated, then the iterator
-     *			is moved to the next document id after it which is.
+     *  @param did      The document id to advance to.  If this document id
+     *                  isn't in the stream being iterated, then the iterator
+     *                  is moved to the next document id after it which is.
      */
     void skip_to(Xapian::docid did);
 

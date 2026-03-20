@@ -85,7 +85,7 @@ class Worker {
   public:
     /** Construct a Worker.
      *
-     *  @param path	Path to the assistant process.
+     *  @param path     Path to the assistant process.
      *
      *  The assistant will not be started until it is necessary.
      */
@@ -97,27 +97,27 @@ class Worker {
      *  This methods check whether its assistant process is alive and start it
      *  if it is necessary.
      *
-     *  @param filename		Path to the file.
-     *  @param mimetype		Mimetype of the file.
-     *  @param[out] dump	Any body text.
-     *  @param[out] title	The title of the document.
-     *  @param[out] keyword	Any keywords.
-     *  @param[out] author	The author(s).
-     *  @param[out] to		Direct recipients (To: in email).
-     *  @param[out] cc		Additional recipients (Cc: in email).
-     *  @param[out] bcc		Hidden recipients (Bcc: in email).
-     *  @param[out] message_id	Message identifier (Message-Id: in email).
-     *  @param[out] pages	The number of pages (-1 if unknown).
-     *  @param[out] created	Created timestamp as time_t (-1 if unknown).
+     *  @param filename         Path to the file.
+     *  @param mimetype         Mimetype of the file.
+     *  @param[out] dump        Any body text.
+     *  @param[out] title       The title of the document.
+     *  @param[out] keyword     Any keywords.
+     *  @param[out] author      The author(s).
+     *  @param[out] to          Direct recipients (To: in email).
+     *  @param[out] cc          Additional recipients (Cc: in email).
+     *  @param[out] bcc         Hidden recipients (Bcc: in email).
+     *  @param[out] message_id  Message identifier (Message-Id: in email).
+     *  @param[out] pages       The number of pages (-1 if unknown).
+     *  @param[out] created     Created timestamp as time_t (-1 if unknown).
      *
      *  @return 0 on success.
      *
-     *		Negative integer for a hard error (e.g. we fail to find the
-     *		worker binary to run) - there's no point trying the same filter
-     *		again in this run.
+     *          Negative integer for a hard error (e.g. we fail to find the
+     *          worker binary to run) - there's no point trying the same filter
+     *          again in this run.
      *
-     *		Positive integer for a failure which is likely specific to the
-     *		specified input file.
+     *          Positive integer for a failure which is likely specific to the
+     *          specified input file.
      *
      *  Note: If it is not possible to get some information, the corresponding
      *  variable will hold an empty string. This situation is not considered

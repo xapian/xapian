@@ -52,9 +52,9 @@ main(int argc, char **argv)
 {
     const char * opts = "";
     static const struct option long_opts[] = {
-        { "help",	no_argument, 0, OPT_HELP },
-        { "version",	no_argument, 0, OPT_VERSION },
-        { NULL,		0, 0, 0}
+        { "help",       no_argument, 0, OPT_HELP },
+        { "version",    no_argument, 0, OPT_VERSION },
+        { NULL,         0, 0, 0}
     };
 
     int c;

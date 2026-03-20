@@ -56,7 +56,7 @@ class XAPIAN_VISIBILITY_DEFAULT KeyMaker
      *
      *  These keys can be used for sorting or collapsing matching documents.
      *
-     *  @param doc	Document object to build a key for.
+     *  @param doc      Document object to build a key for.
      */
     virtual std::string operator()(const Xapian::Document & doc) const = 0;
 
@@ -105,10 +105,10 @@ class XAPIAN_VISIBILITY_DEFAULT KeyMaker
      *  method in your subclass as shown here:
      *  https://trac.xapian.org/ticket/554#comment:1
      *
-     *  @param serialised	A string containing the serialised results.
-     *  @param context	Registry object to use for unserialisation to permit
-     *			KeyMaker subclasses with sub-KeyMaker objects to be
-     *			implemented.
+     *  @param serialised   A string containing the serialised results.
+     *  @param context      Registry object to use for unserialisation to
+     *                      permit KeyMaker subclasses with sub-KeyMaker
+     *                      objects to be implemented.
      */
     virtual KeyMaker* unserialise(const std::string& serialised,
                                   const Registry& context) const;
@@ -182,15 +182,15 @@ class XAPIAN_VISIBILITY_DEFAULT MultiValueKeyMaker : public KeyMaker {
 
     /** Add a value slot to the list to build a key from.
      *
-     *  @param slot	The value slot to add
-     *  @param reverse	Adjust values from this slot to reverse their sort
-     *			order (default: false)
-     *	@param defvalue Value to use for documents which don't have a value
-     *			set in this slot (default: empty).  This can be used
-     *			to make such documents sort after all others by
-     *			passing <code>get_value_upper_bound(slot) + "x"</code>
-     *			- this is guaranteed to be greater than any value in
-     *			this slot.
+     *  @param slot     The value slot to add
+     *  @param reverse  Adjust values from this slot to reverse their sort
+     *                  order (default: false)
+     *  @param defvalue Value to use for documents which don't have a value
+     *                  set in this slot (default: empty).  This can be used
+     *                  to make such documents sort after all others by
+     *                  passing <code>get_value_upper_bound(slot) + "x"</code>
+     *                  - this is guaranteed to be greater than any value in
+     *                  this slot.
      */
     void add_value(Xapian::valueno slot, bool reverse = false,
                    std::string_view defvalue = {}) {

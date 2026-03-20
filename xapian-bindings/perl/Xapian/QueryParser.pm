@@ -90,8 +90,8 @@ to the same prefix (so you can e.g. make title: and subject: aliases for each
 other).
 
 Parameters:
-field	The user visible field name
-prefix	The term prefix to map this to
+field   The user visible field name
+prefix  The term prefix to map this to
 
 =item add_boolean_prefix <field> prefix
 
@@ -108,8 +108,8 @@ Multiple fields can be mapped to the same prefix (so you can e.g. make site:
 and domain: aliases for each other).
 
 Parameters:
-field	The user visible field name
-prefix	The term prefix to map this to
+field   The user visible field name
+prefix  The term prefix to map this to
 
 =item stoplist_begin
 

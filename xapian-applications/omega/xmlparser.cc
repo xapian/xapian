@@ -139,13 +139,13 @@ XmlParser::get_attribute(const string& name, string& value) const
 // UTF-8 encoded entity is always <= the entity itself in length, even if the
 // trailing ';' is missing - for numeric (decimal and hex) entities:
 //
-// <=		UTF-8	&#<..>	&#x<..>
-// U+007F	1	5	5
-// U+07FF	2	6	6
-// U+FFFF	3	7	7
-// U+1FFFFF	4	9	9
-// U+3FFFFFF	5	10	10
-// U+7FFFFFFF	6	12	11
+// <=           UTF-8   &#<..>  &#x<..>
+// U+007F       1       5       5
+// U+07FF       2       6       6
+// U+FFFF       3       7       7
+// U+1FFFFF     4       9       9
+// U+3FFFFFF    5       10      10
+// U+7FFFFFFF   6       12      11
 //
 // Also true for named entities.  This means we can work in-place within the
 // string.

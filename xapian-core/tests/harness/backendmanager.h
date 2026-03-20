@@ -94,12 +94,12 @@ class BackendManager {
 
     /** Get a database instance of the current type, generated case.
      *
-     * @param dbname	The name of the database (base on your testcase name).
-     * @param gen	Generator function - should index data to the empty
-     *			WritableDatabase provided.
-     * @param arg	String argument to pass to @a gen - it's up to you how
-     *			to make use of this (or just ignore it if you don't need
-     *			it).
+     * @param dbname    The name of the database (base on your testcase name).
+     * @param gen       Generator function - should index data to the empty
+     *                  WritableDatabase provided.
+     * @param arg       String argument to pass to @a gen - it's up to you how
+     *                  to make use of this (or just ignore it if you don't need
+     *                  it).
      */
     Xapian::Database get_database(const std::string &dbname,
                                   void (*gen)(Xapian::WritableDatabase&,

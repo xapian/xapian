@@ -73,11 +73,11 @@ class CollapseData {
      *  the update of the CollapseData (if the result doesn't actually get
      *  added, then it's OK not to follow up with a call to add_item()).
      *
-     *  @param results		The results so far.
-     *  @param result		The new result.
-     *  @param collapse_max	Max no. of items for each collapse key value.
-     *  @param mcmp		Result comparison functor.
-     *  @param[out] old_item	Item to be replaced (when REPLACE is returned).
+     *  @param results          The results so far.
+     *  @param result           The new result.
+     *  @param collapse_max     Max no. of items for each collapse key value.
+     *  @param mcmp             Result comparison functor.
+     *  @param[out] old_item    Item to be replaced (when REPLACE is returned).
      *
      *  @return How to handle @a result: ADD, REJECT or REPLACE.
      */
@@ -89,16 +89,16 @@ class CollapseData {
 
     /** Set item after constructing with a placeholder.
      *
-     *  @param item		The new item (index into results).
+     *  @param item             The new item (index into results).
      */
     void set_item(Xapian::doccount item);
 
     /** Complete update of new result with this collapse key value.
      *
-     *  @param results		The results so far.
-     *  @param item		The new item (index into results).
-     *  @param collapse_max	Max no. of items for each collapse key value.
-     *  @param mcmp		Result comparison functor.
+     *  @param results          The results so far.
+     *  @param item             The new item (index into results).
+     *  @param collapse_max     Max no. of items for each collapse key value.
+     *  @param mcmp             Result comparison functor.
      */
     void add_item(const std::vector<Result>& results,
                   Xapian::doccount item,
@@ -107,8 +107,8 @@ class CollapseData {
 
     /** Process relocation of entry in results.
      *
-     *  @param from	The old item (index into results).
-     *  @param to  	The new item (index into results).
+     *  @param from     The old item (index into results).
+     *  @param to       The new item (index into results).
      */
     void result_has_moved(Xapian::doccount from, Xapian::doccount to) {
         // Yes, this *is* a linear search, but only through up to collapse_max
@@ -200,8 +200,8 @@ class Collapser {
      *  update (if the result doesn't actually get added, then it's OK not
      *  to follow up with a call to process()).
      *
-     *  @param result	The new result.
-     *  @param vsdoc	Document for getting values.
+     *  @param result   The new result.
+     *  @param vsdoc    Document for getting values.
      *
      *  @return How to handle @a result: EMPTY, NEW, ADD, REJECT or REPLACE.
      */
@@ -210,15 +210,15 @@ class Collapser {
 
     /** Handle a new Result.
      *
-     *  @param action	The collapse_result returned by check().
-     *  @param item	The new item (index into results).
+     *  @param action   The collapse_result returned by check().
+     *  @param item     The new item (index into results).
      */
     void process(collapse_result action, Xapian::doccount item);
 
     /** Process relocation of entry in results.
      *
-     *  @param from		The old item (index into results).
-     *  @param to  		The new item (index into results).
+     *  @param from     The old item (index into results).
+     *  @param to       The new item (index into results).
      */
     void result_has_moved(Xapian::doccount from, Xapian::doccount to) {
         const std::string& collapse_key = results[to].get_collapse_key();

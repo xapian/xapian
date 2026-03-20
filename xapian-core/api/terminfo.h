@@ -66,8 +66,8 @@ class TermInfo {
 
     /** Constructor which also adds an initial position.
      *
-     *  @param wdf_   Within-document frequency
-     *  @param termpos	Position to add
+     *  @param wdf_     Within-document frequency
+     *  @param termpos  Position to add
      */
     TermInfo(Xapian::termcount wdf_, Xapian::termpos termpos) : wdf(wdf_) {
         positions.push_back(termpos);
@@ -132,7 +132,7 @@ class TermInfo {
      *  If @a termpos is already present, this is a no-op.
      *
      *  @param wdf_inc  wdf increment
-     *  @param termpos	Position to add
+     *  @param termpos  Position to add
      *
      *  @return true if the term was flagged as deleted before the operation.
      */
@@ -148,7 +148,7 @@ class TermInfo {
 
     /** Remove a position.
      *
-     *  @param termpos	Position to remove
+     *  @param termpos  Position to remove
      *
      *  @return If @a termpos wasn't present, returns false.
      */
@@ -156,8 +156,8 @@ class TermInfo {
 
     /** Remove a range of positions.
      *
-     *  @param termpos_first	First position to remove
-     *  @param termpos_last	Last position to remove
+     *  @param termpos_first    First position to remove
+     *  @param termpos_last     Last position to remove
      *
      *  It's OK if there are no positions in the specified range.
      *

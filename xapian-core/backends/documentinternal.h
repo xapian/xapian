@@ -405,7 +405,7 @@ class Document::Internal : public Xapian::Internal::intrusive_base {
     /** Start iterating the terms in this document.
      *
      *  @return A new TermList object (caller takes ownership) or NULL if
-     *		there are no terms.
+     *          there are no terms.
      */
     TermList* open_term_list() const;
 

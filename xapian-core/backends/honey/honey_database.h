@@ -118,11 +118,11 @@ class HoneyDatabase : public Xapian::Database::Internal {
 
     /** Returns frequencies for a term.
      *
-     *  @param term		The term to get frequencies for
-     *  @param termfreq_ptr	Point to return number of docs indexed by @a
-     *				term (or NULL not to return)
-     *  @param collfreq_ptr	Point to return number of occurrences of @a
-     *				term in the database (or NULL not to return)
+     *  @param term             The term to get frequencies for
+     *  @param termfreq_ptr     Point to return number of docs indexed by @a
+     *                          term (or NULL not to return)
+     *  @param collfreq_ptr     Point to return number of occurrences of @a
+     *                          term in the database (or NULL not to return)
      */
     void get_freqs(std::string_view term,
                    Xapian::doccount* termfreq_ptr,
@@ -187,10 +187,10 @@ class HoneyDatabase : public Xapian::Database::Internal {
      *
      *  This returns the value in a particular slot for each document.
      *
-     *  @param slot	The value slot.
+     *  @param slot     The value slot.
      *
-     *  @return	Pointer to a new ValueList object which should be deleted by
-     *		the caller once it is no longer needed.
+     *  @return Pointer to a new ValueList object which should be deleted by
+     *          the caller once it is no longer needed.
      */
     ValueList* open_value_list(Xapian::valueno slot) const;
 
@@ -213,14 +213,14 @@ class HoneyDatabase : public Xapian::Database::Internal {
      *  The returned handle provides access to document data and document
      *  values.
      *
-     *  @param did	The document id to open.
+     *  @param did      The document id to open.
      *
-     *  @param lazy	If true, there's no need to check that this document
-     *			actually exists (only a hint - the backend may still
-     *			check).  Used to avoid unnecessary work when we already
-     *			know that the requested document exists.
+     *  @param lazy     If true, there's no need to check that this document
+     *                  actually exists (only a hint - the backend may still
+     *                  check).  Used to avoid unnecessary work when we already
+     *                  know that the requested document exists.
      *
-     *  @return		A new document object, owned by the caller.
+     *  @return         A new document object, owned by the caller.
      */
     Xapian::Document::Internal* open_document(Xapian::docid did,
                                               bool lazy) const;
@@ -247,8 +247,8 @@ class HoneyDatabase : public Xapian::Database::Internal {
      *
      *  If the word is already present, its frequency is increased.
      *
-     *  @param word	The word to add.
-     *  @param freqinc	How much to increase its frequency by.
+     *  @param word     The word to add.
+     *  @param freqinc  How much to increase its frequency by.
      */
     void add_spelling(std::string_view word,
                       Xapian::termcount freqinc) const;
@@ -258,8 +258,8 @@ class HoneyDatabase : public Xapian::Database::Internal {
      *  The word's frequency is decreased, and if would become zero or less
      *  then the word is removed completely.
      *
-     *  @param word	The word to remove.
-     *  @param freqdec	How much to decrease its frequency by.
+     *  @param word     The word to remove.
+     *  @param freqdec  How much to decrease its frequency by.
      *
      *  @return Any freqdec not "used up".
      */
@@ -275,7 +275,7 @@ class HoneyDatabase : public Xapian::Database::Internal {
     /** Open a termlist returning each term which has synonyms.
      *
      *  @param prefix   If non-empty, only terms with this prefix are
-     *		    returned.
+     *                  returned.
      */
     TermList* open_synonym_keylist(std::string_view prefix) const;
 
@@ -365,12 +365,12 @@ class HoneyDatabase : public Xapian::Database::Internal {
 
     /** Get backend information about this database.
      *
-     *  @param path	If non-NULL, and set the pointed to string to the file
-     *			path of this database (or to some string describing
-     *			the database in a backend-specified format if "path"
-     *			isn't a concept which makes sense).
+     *  @param path     If non-NULL, and set the pointed to string to the file
+     *                  path of this database (or to some string describing
+     *                  the database in a backend-specified format if "path"
+     *                  isn't a concept which makes sense).
      *
-     *  @return	A constant indicating the backend type.
+     *  @return A constant indicating the backend type.
      */
     int get_backend_info(std::string* path) const;
 

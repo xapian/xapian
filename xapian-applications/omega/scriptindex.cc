@@ -1591,11 +1591,11 @@ try {
     constexpr auto NO_ARG = no_argument;
     constexpr auto REQ_ARG = required_argument;
     static const struct option longopts[] = {
-        { "help",	NO_ARG,		NULL, 'h' },
-        { "version",	NO_ARG,		NULL, 'V' },
-        { "stemmer",	REQ_ARG,	NULL, 's' },
-        { "overwrite",	NO_ARG,		NULL, 'o' },
-        { "verbose",	NO_ARG,		NULL, 'v' },
+        { "help",       NO_ARG,         NULL, 'h' },
+        { "version",    NO_ARG,         NULL, 'V' },
+        { "stemmer",    REQ_ARG,        NULL, 's' },
+        { "overwrite",  NO_ARG,         NULL, 'o' },
+        { "verbose",    NO_ARG,         NULL, 'v' },
         { 0, 0, NULL, 0 }
     };
 

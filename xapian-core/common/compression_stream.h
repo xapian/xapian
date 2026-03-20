@@ -48,8 +48,8 @@ class CompressionStream {
   public:
     /* Create a new CompressionStream object.
      *
-     *  @param compress_strategy_	Z_DEFAULT_STRATEGY,
-     *					Z_FILTERED, Z_HUFFMAN_ONLY, or Z_RLE.
+     *  @param compress_strategy_       Z_DEFAULT_STRATEGY,
+     *                                  Z_FILTERED, Z_HUFFMAN_ONLY, or Z_RLE.
      */
     explicit CompressionStream(int compress_strategy_ = Z_DEFAULT_STRATEGY)
         : compress_strategy(compress_strategy_)

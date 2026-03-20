@@ -178,9 +178,9 @@ class XAPIAN_VISIBILITY_DEFAULT DatabaseReplica {
      *
      *  @param info     If non-NULL, the supplied structure will be updated
      *                  to reflect the changes read from the file descriptor.
-     *  @param reader_close_time	Wait at least this many seconds between
-     *					applying changesets to allow active
-     *					readers to finish.
+     *  @param reader_close_time        Wait at least this many seconds between
+     *                                  applying changesets to allow active
+     *                                  readers to finish.
      *
      *  @return true if there are more changesets to apply on the file
      *  descriptor, false otherwise.

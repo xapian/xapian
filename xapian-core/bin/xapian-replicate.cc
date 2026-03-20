@@ -74,19 +74,19 @@ main(int argc, char **argv)
 {
     const char * opts = "h:p:m:i:r:t:ofqv";
     static const struct option long_opts[] = {
-        {"host",	required_argument,	0, 'h'},
-        {"port",	required_argument,	0, 'p'},
-        {"master",	required_argument,	0, 'm'},
-        {"interval",	required_argument,	0, 'i'},
-        {"reader-time",	required_argument,	0, 'r'},
-        {"timeout",	required_argument,	0, 't'},
-        {"one-shot",	no_argument,		0, 'o'},
-        {"force-copy",	no_argument,		0, 'f'},
-        {"quiet",	no_argument,		0, 'q'},
-        {"verbose",	no_argument,		0, 'v'},
-        {"help",	no_argument, 0, OPT_HELP},
-        {"version",	no_argument, 0, OPT_VERSION},
-        {NULL,		0, 0, 0}
+        {"host",        required_argument,  0, 'h'},
+        {"port",        required_argument,  0, 'p'},
+        {"master",      required_argument,  0, 'm'},
+        {"interval",    required_argument,  0, 'i'},
+        {"reader-time", required_argument,  0, 'r'},
+        {"timeout",     required_argument,  0, 't'},
+        {"one-shot",    no_argument,        0, 'o'},
+        {"force-copy",  no_argument,        0, 'f'},
+        {"quiet",       no_argument,        0, 'q'},
+        {"verbose",     no_argument,        0, 'v'},
+        {"help",        no_argument,        0, OPT_HELP},
+        {"version",     no_argument,        0, OPT_VERSION},
+        {NULL,          0, 0, 0}
     };
 
     string host;
@@ -213,7 +213,7 @@ main(int argc, char **argv)
                      << info.changeset_count << " changesets, "
                      << (info.changed ? "new live database"
                                       : "no changes to live database")
-                     <<	'\n';
+                     << '\n';
             }
             if (verbosity != QUIET) {
                 if (info.fullcopy_count > 0 && !info.changed) {

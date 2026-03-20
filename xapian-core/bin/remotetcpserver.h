@@ -65,16 +65,16 @@ class RemoteTcpServer : public TcpServer {
     /** Construct a RemoteTcpServer for a Database and start listening for
      *  connections.
      *
-     *  @param dbpaths_	The path(s) to the database(s) we should open.
-     *  @param host	The hostname or address for the interface to listen on
-     *			(or "" to listen on all interfaces).
-     *  @param port	The TCP port number to listen on.
-     *  @param active_timeout	Timeout between messages during a single
-     *				operation (in seconds).
-     *  @param idle_timeout	Timeout between operations (in seconds).
-     *	@param writable		Should we open the DB for writing?
-     *	@param verbose		Should we produce output when connections are
-     *				made or lost?
+     *  @param dbpaths_         The path(s) to the database(s) we should open.
+     *  @param host             The hostname or address for the interface to
+     *                          listen on (or "" to listen on all interfaces).
+     *  @param port             The TCP port number to listen on.
+     *  @param active_timeout   Timeout between messages during a single
+     *                          operation (in seconds).
+     *  @param idle_timeout     Timeout between operations (in seconds).
+     *  @param writable         Should we open the DB for writing?
+     *  @param verbose          Should we produce output when connections are
+     *                          made or lost?
      */
     RemoteTcpServer(const std::vector<std::string> &dbpaths_,
                     const std::string &host, int port,

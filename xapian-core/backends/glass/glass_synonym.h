@@ -52,8 +52,8 @@ class GlassSynonymTable : public GlassLazyTable {
      *  This method does not create or open the table on disk - you
      *  must call the create() or open() methods respectively!
      *
-     *  @param dbdir		The directory the glass database is stored in.
-     *  @param readonly		true if we're opening read-only, else false.
+     *  @param dbdir            The directory the glass database is stored in.
+     *  @param readonly         true if we're opening read-only, else false.
      */
     GlassSynonymTable(const std::string & dbdir, bool readonly)
         : GlassLazyTable("synonym", dbdir + "/synonym.", readonly) { }

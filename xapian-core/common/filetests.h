@@ -32,10 +32,10 @@
 
 /** Test if a file exists.
  *
- *  @param path	The path to test
+ *  @param path The path to test
  *
  *  @return true if @a path is a regular file, or a symbolic link which
- *	    resolves to a regular file.
+ *          resolves to a regular file.
  */
 inline bool file_exists(const char * path) {
     struct stat st;
@@ -44,10 +44,10 @@ inline bool file_exists(const char * path) {
 
 /** Test if a file exists.
  *
- *  @param path	The path to test
+ *  @param path The path to test
  *
  *  @return true if @a path is a regular file, or a symbolic link which
- *	    resolves to a regular file.
+ *          resolves to a regular file.
  */
 inline bool file_exists(const std::string & path) {
     return file_exists(path.c_str());
@@ -58,7 +58,7 @@ typedef std::make_unsigned_t<off_t> file_size_type;
 
 /** Returns the size of a file.
  *
- *  @param path	The path to test
+ *  @param path The path to test
  *
  *  errno is set to 0 (upon success), or the error returned by stat(), or
  *  EINVAL (if the path isn't a regular file or a symlink resolving to a
@@ -71,7 +71,7 @@ typedef std::make_unsigned_t<off_t> file_size_type;
  *  doesn't work out how to enable largefile support.
  *
  *  @return The size of the file, or 0 if it doesn't exist or isn't a file.
- *	    The return type is file_size_type.
+ *          The return type is file_size_type.
  */
 inline file_size_type file_size(const char* path) {
     struct stat st;
@@ -87,7 +87,7 @@ inline file_size_type file_size(const char* path) {
 
 /** Returns the size of a file.
  *
- *  @param path	The path to test
+ *  @param path The path to test
  *
  *  errno is set to 0 (upon success), or the error returned by stat(), or
  *  EINVAL (if the path isn't a regular file or a symlink resolving to a
@@ -100,7 +100,7 @@ inline file_size_type file_size(const char* path) {
  *  doesn't work out how to enable largefile support.
  *
  *  @return The size of the file, or 0 if it doesn't exist or isn't a file.
- *	    The return type is file_size_type.
+ *          The return type is file_size_type.
  */
 inline file_size_type file_size(const std::string& path) {
     return file_size(path.c_str());
@@ -108,7 +108,7 @@ inline file_size_type file_size(const std::string& path) {
 
 /** Returns the size of a file.
  *
- *  @param fd	The file descriptor for the file.
+ *  @param fd   The file descriptor for the file.
  *
  *  errno is set to 0 (upon success), or the error returned by fstat(), or
  *  EINVAL (if the fd isn't a regular file or a symlink resolving to a
@@ -121,7 +121,7 @@ inline file_size_type file_size(const std::string& path) {
  *  doesn't work out how to enable largefile support.
  *
  *  @return The size of the file, or 0 if it doesn't exist or isn't a file.
- *	    The return type is file_size_type.
+ *          The return type is file_size_type.
  */
 inline file_size_type file_size(int fd) {
     struct stat st;
@@ -137,10 +137,10 @@ inline file_size_type file_size(int fd) {
 
 /** Test if a directory exists.
  *
- *  @param path	The path to test
+ *  @param path The path to test
  *
  *  @return true if @a path is a directory, or a symbolic link which resolves
- *	    to a directory.
+ *          to a directory.
  */
 inline bool dir_exists(const char * path) {
     struct stat st;
@@ -149,10 +149,10 @@ inline bool dir_exists(const char * path) {
 
 /** Test if a directory exists.
  *
- *  @param path	The path to test
+ *  @param path The path to test
  *
  *  @return true if @a path is a directory, or a symbolic link which resolves
- *	    to a directory.
+ *          to a directory.
  */
 inline bool dir_exists(const std::string & path) {
     return dir_exists(path.c_str());
@@ -160,7 +160,7 @@ inline bool dir_exists(const std::string & path) {
 
 /** Test if a path exists.
  *
- *  @param path	The path to test
+ *  @param path The path to test
  *
  *  @return true if @a path exists (and is not a dangling symlink).
  */
@@ -171,7 +171,7 @@ inline bool path_exists(const char * path) {
 
 /** Test if a path exists.
  *
- *  @param path	The path to test
+ *  @param path The path to test
  *
  *  @return true if @a path exists (and is not a dangling symlink).
  */

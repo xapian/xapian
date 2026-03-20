@@ -57,8 +57,8 @@ void unpack_throw_serialisation_error(const char* p);
 
 /** Append an encoded bool to a string.
  *
- *  @param s		The string to append to.
- *  @param value	The bool to encode.
+ *  @param s        The string to append to.
+ *  @param value    The bool to encode.
  */
 inline void
 pack_bool(std::string& s, bool value)
@@ -68,8 +68,8 @@ pack_bool(std::string& s, bool value)
 
 /** Decode a bool from a string.
  *
- *  @param p	    Pointer to pointer to the current position in the string.
- *  @param end	    Pointer to the end of the string.
+ *  @param p        Pointer to pointer to the current position in the string.
+ *  @param end      Pointer to the end of the string.
  *  @param result   Where to store the result.
  */
 inline bool
@@ -92,8 +92,8 @@ unpack_bool(const char** p, const char* end, bool* result)
  *  This encoding is only suitable when this is the last thing encoded as
  *  the encoding used doesn't contain its own length.
  *
- *  @param s		The string to append to.
- *  @param value	The unsigned integer to encode.
+ *  @param s        The string to append to.
+ *  @param value    The unsigned integer to encode.
  */
 template<class U>
 inline void
@@ -109,8 +109,8 @@ pack_uint_last(std::string& s, U value)
 
 /** Decode an unsigned integer as the last item in a string.
  *
- *  @param p	    Pointer to pointer to the current position in the string.
- *  @param end	    Pointer to the end of the string.
+ *  @param p        Pointer to pointer to the current position in the string.
+ *  @param end      Pointer to the end of the string.
  *  @param result   Where to store the result.
  */
 template<class U>
@@ -196,8 +196,8 @@ do_clz(unsigned long long value) {
  *  safe to store the result of this function immediately after the result of
  *  pack_string_preserving_sort().
  *
- *  @param s		The string to append to.
- *  @param value	The unsigned integer to encode.
+ *  @param s        The string to append to.
+ *  @param value    The unsigned integer to encode.
  */
 template<class U>
 inline void
@@ -242,8 +242,8 @@ pack_uint_preserving_sort(std::string& s, U value)
  *  The unsigned integer must have been encoded with
  *  pack_uint_preserving_sort().
  *
- *  @param p	    Pointer to pointer to the current position in the string.
- *  @param end	    Pointer to the end of the string.
+ *  @param p        Pointer to pointer to the current position in the string.
+ *  @param end      Pointer to the end of the string.
  *  @param result   Where to store the result.
  */
 template<class U>
@@ -307,8 +307,8 @@ unpack_uint_preserving_sort(const char** p, const char* end, U* result)
 
 /** Append an encoded unsigned integer to a string.
  *
- *  @param s		The string to append to.
- *  @param value	The unsigned integer to encode.
+ *  @param s        The string to append to.
+ *  @param value    The unsigned integer to encode.
  */
 template<class U>
 inline void
@@ -325,8 +325,8 @@ pack_uint(std::string& s, U value)
 
 /** Append an encoded unsigned integer (bool type) to a string.
  *
- *  @param s		The string to append to.
- *  @param value	The unsigned integer to encode.
+ *  @param s        The string to append to.
+ *  @param value    The unsigned integer to encode.
  */
 template<>
 inline void
@@ -337,8 +337,8 @@ pack_uint(std::string& s, bool value)
 
 /** Decode an unsigned integer from a string.
  *
- *  @param p	    Pointer to pointer to the current position in the string.
- *  @param end	    Pointer to the end of the string.
+ *  @param p        Pointer to pointer to the current position in the string.
+ *  @param end      Pointer to the end of the string.
  *  @param result   Where to store the result (or NULL to just skip it).
  */
 template<class U>
@@ -403,7 +403,7 @@ unpack_uint(const char** p, const char* end, U* result)
 
 /** Decode an unsigned integer from a string, going backwards.
  *
- *  @param p	    Pointer to pointer just after the position in the string.
+ *  @param p        Pointer to pointer just after the position in the string.
  *  @param start    Pointer to the start of the string.
  *  @param result   Where to store the result (or NULL to just skip it).
  */
@@ -435,8 +435,8 @@ unpack_uint_backwards(const char** p, const char* start, U* result)
 
 /** Append an encoded std::string to a string.
  *
- *  @param s		The string to append to.
- *  @param value	The std::string to encode.
+ *  @param s        The string to append to.
+ *  @param value    The std::string to encode.
  */
 inline void
 pack_string(std::string& s, std::string_view value)
@@ -450,7 +450,7 @@ pack_string(std::string& s, std::string_view value)
  *  This is equivalent to pack_string(s, ""sv) but is probably a bit more
  *  efficient.
  *
- *  @param s		The string to append to.
+ *  @param s        The string to append to.
  */
 inline void
 pack_string_empty(std::string& s)
@@ -460,8 +460,8 @@ pack_string_empty(std::string& s)
 
 /** Decode a std::string from a string.
  *
- *  @param p	    Pointer to pointer to the current position in the string.
- *  @param end	    Pointer to the end of the string.
+ *  @param p        Pointer to pointer to the current position in the string.
+ *  @param end      Pointer to the end of the string.
  *  @param result   Where to store the result.
  */
 inline bool
@@ -485,8 +485,8 @@ unpack_string(const char** p, const char* end, std::string& result)
 
 /** Decode a std::string from a string and append.
  *
- *  @param p	    Pointer to pointer to the current position in the string.
- *  @param end	    Pointer to the end of the string.
+ *  @param p        Pointer to pointer to the current position in the string.
+ *  @param end      Pointer to the end of the string.
  *  @param result   Where to store the result.
  */
 inline bool
@@ -515,10 +515,10 @@ unpack_string_append(const char** p, const char* end, std::string& result)
  *  ensure this.  Note that pack_uint_preserving_sort() can never produce
  *  \xff as its first byte so is safe to use immediately afterwards.
  *
- *  @param s		The string to append to.
- *  @param value	The std::string to encode.
- *  @param last		If true, this is the last thing to be encoded in this
- *			string - see note below (default: false)
+ *  @param s        The string to append to.
+ *  @param value    The std::string to encode.
+ *  @param last     If true, this is the last thing to be encoded in this
+ *                  string - see note below (default: false)
  *
  *  It doesn't make sense to use pack_string_preserving_sort() if nothing can
  *  ever follow, but if optional items can, you can set last=true in cases
@@ -543,8 +543,8 @@ pack_string_preserving_sort(std::string& s, std::string_view value,
  *
  *  The std::string must have been encoded with pack_string_preserving_sort().
  *
- *  @param p	    Pointer to pointer to the current position in the string.
- *  @param end	    Pointer to the end of the string.
+ *  @param p        Pointer to pointer to the current position in the string.
+ *  @param end      Pointer to the end of the string.
  *  @param result   Where to store the result.
  */
 inline bool

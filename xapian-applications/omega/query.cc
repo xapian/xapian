@@ -1105,141 +1105,141 @@ struct func_desc {
 // docs/omegascript.rst
 static const struct func_desc func_tab[] = {
 //name minargs maxargs evalargs ensure
-{"",{CMD_,	   N, N, 0, 0}},// commented out code
-T(add,		   0, N, N, 0), // add a list of numbers
-T(addfilter,	   1, 2, N, 0), // add filter term
-T(allterms,	   0, 1, N, 0), // list of all terms matching document
-T(and,		   1, N, 0, 0), // logical shortcutting and of a list of values
-T(base64,	   1, 1, N, 0), // base64 encode
-T(cgi,		   1, 1, N, 0), // return cgi parameter value
-T(cgilist,	   1, 1, N, 0), // return list of values for cgi parameter
-T(cgiparams,	   0, 0, N, 0), // return list of cgi parameter names
-T(chr,		   1, 1, N, 0), // return UTF-8 for given Unicode codepoint
-T(collapsed,	   0, 0, N, 0), // return number of hits collapsed into this
-T(cond,		   2, N, 0, 0), // cascaded conditionals
-T(contains,	   2, 2, N, 0), // return position of substring, or empty string
-T(csv,		   1, 2, N, 0), // CSV string escaping
-T(date,		   1, 2, N, 0), // convert time_t to strftime format
+{"",{CMD_,         N, N, 0, 0}},// commented out code
+T(add,             0, N, N, 0), // add a list of numbers
+T(addfilter,       1, 2, N, 0), // add filter term
+T(allterms,        0, 1, N, 0), // list of all terms matching document
+T(and,             1, N, 0, 0), // logical shortcutting and of a list of values
+T(base64,          1, 1, N, 0), // base64 encode
+T(cgi,             1, 1, N, 0), // return cgi parameter value
+T(cgilist,         1, 1, N, 0), // return list of values for cgi parameter
+T(cgiparams,       0, 0, N, 0), // return list of cgi parameter names
+T(chr,             1, 1, N, 0), // return UTF-8 for given Unicode codepoint
+T(collapsed,       0, 0, N, 0), // return number of hits collapsed into this
+T(cond,            2, N, 0, 0), // cascaded conditionals
+T(contains,        2, 2, N, 0), // return position of substring, or empty string
+T(csv,             1, 2, N, 0), // CSV string escaping
+T(date,            1, 2, N, 0), // convert time_t to strftime format
                                 // (default: YYYY-MM-DD)
-T(dbname,	   0, 0, N, 0), // database name
-T(dbsize,	   0, 0, N, 0), // database size (# of documents)
-T(def,		   2, 2, 1, 0), // define a macro
-T(defaultop,	   0, 0, N, 0), // default operator: "and" or "or"
-T(div,		   2, 2, N, 0), // integer divide
-T(emptydocs,	   0, 1, N, 0), // list of empty documents
-T(env,		   1, 1, N, 0), // environment variable
-T(eq,		   2, 2, N, 0), // test equality
-T(error,	   0, 0, N, 0), // error message
-T(field,	   1, 2, N, 0), // lookup field in record
-T(filesize,	   1, 1, N, 0), // pretty printed filesize
-T(filters,	   0, 1, N, 0), // serialisation of current filters
-T(filterterms,	   1, 1, N, 0), // list of terms with a given prefix
-T(find,		   2, 2, N, 0), // find entry in list
-T(fmt,		   0, 0, N, 0), // name of current format
-T(foreach,	   2, 2, 1, 0), // evaluate something for every entry in a list
-T(freq,		   1, 1, N, 0), // frequency of a term
-T(ge,		   2, 2, N, 0), // test >=
-T(gt,		   2, 2, N, 0), // test >
-T(hash,		   2, 2, N, 0), // hash a string using the specified hash function
-T(highlight,	   2, 4, N, 0), // html escape and highlight words from list
-T(hit,		   0, 0, N, 0), // hit number of current mset entry (0-based)
-T(hitlist,	   1, 1, 0, M), // display hitlist using format in argument
-T(hitsperpage,	   0, 0, N, 0), // hits per page
-T(hostname,	   1, 1, N, 0), // extract hostname from URL
-T(html,		   1, 1, N, 0), // html escape string (<>&")
-T(htmlstrip,	   1, 1, N, 0), // html strip tags string (s/<[^>]*>?//g)
-T(httpheader,	   2, 2, N, 0), // arbitrary HTTP header
-T(id,		   0, 0, N, 0), // docid of current doc
-T(if,		   1, 3, 1, 0), // conditional
-T(include,	   1, 2, 1, 0), // include another file
-T(json,		   1, 1, N, 0), // JSON string escaping
-T(jsonarray,	   1, 2, 1, 0), // Format list as a JSON array
-T(jsonbool,	   1, 1, 1, 0), // Format list as a JSON bool
-T(jsonobject,	   1, 3, 1, 0), // Format map as JSON object
-T(jsonobject2,	   2, 4, 2, 0), // Format 2 lists as JSON object
-T(keys,		   1, 1, N, 0), // list of keys from a map
-T(last,		   0, 0, N, M), // hit number one beyond end of current page
-T(lastpage,	   0, 0, N, M), // number of last hit page
-T(le,		   2, 2, N, 0), // test <=
-T(length,	   1, 1, N, 0), // length of list
-T(list,		   2, 5, N, 0), // pretty print list
-T(log,		   1, 2, 1, 0), // create a log entry
-T(lookup,	   2, 2, N, 0), // lookup in named cdb file
-T(lower,	   1, 1, N, 0), // convert string to lower case
-T(lt,		   2, 2, N, 0), // test <
-T(map,		   2, 2, 1, 0), // map a list into another list
-T(match,	   2, 3, N, 0), // regex match
-T(max,		   1, N, N, 0), // maximum of a list of values
-T(min,		   1, N, N, 0), // minimum of a list of values
-T(mod,		   2, 2, N, 0), // integer modulus
-T(msize,	   0, 0, N, M), // number of matches (estimated)
-T(msizeexact,	   0, 0, N, M), // is $msize exact?
-T(msizelower,	   0, 0, N, M), // number of matches (lower bound)
-T(msizeupper,	   0, 0, N, M), // number of matches (upper bound)
-T(mul,		   2, N, N, 0), // multiply a list of numbers
-T(muldiv,	   3, 3, N, 0), // calculate A*B/C
-T(ne,		   2, 2, N, 0), // test not equal
-T(nice,		   1, 1, N, 0), // pretty print integer (with thousands sep)
-T(not,		   1, 1, N, 0), // logical not
-T(now,		   0, 0, N, 0), // current date/time as a time_t
-T(opt,		   1, 2, N, 0), // lookup an option value
-T(or,		   1, N, 0, 0), // logical shortcutting or of a list of values
-T(ord,		   1, 1, N, 0), // return codepoint for first character of UTF-8 string
-T(pack,		   1, 1, N, 0), // convert a number to a 4 byte big endian binary string
-T(percentage,	   0, 0, N, 0), // percentage score of current hit
-T(prettyterm,	   1, 1, N, Q), // pretty print term name
-T(prettyurl,	   1, 1, N, 0), // pretty version of URL
-T(query,	   0, 1, N, Q), // query
+T(dbname,          0, 0, N, 0), // database name
+T(dbsize,          0, 0, N, 0), // database size (# of documents)
+T(def,             2, 2, 1, 0), // define a macro
+T(defaultop,       0, 0, N, 0), // default operator: "and" or "or"
+T(div,             2, 2, N, 0), // integer divide
+T(emptydocs,       0, 1, N, 0), // list of empty documents
+T(env,             1, 1, N, 0), // environment variable
+T(eq,              2, 2, N, 0), // test equality
+T(error,           0, 0, N, 0), // error message
+T(field,           1, 2, N, 0), // lookup field in record
+T(filesize,        1, 1, N, 0), // pretty printed filesize
+T(filters,         0, 1, N, 0), // serialisation of current filters
+T(filterterms,     1, 1, N, 0), // list of terms with a given prefix
+T(find,            2, 2, N, 0), // find entry in list
+T(fmt,             0, 0, N, 0), // name of current format
+T(foreach,         2, 2, 1, 0), // evaluate something for every entry in a list
+T(freq,            1, 1, N, 0), // frequency of a term
+T(ge,              2, 2, N, 0), // test >=
+T(gt,              2, 2, N, 0), // test >
+T(hash,            2, 2, N, 0), // hash a string using the specified hash function
+T(highlight,       2, 4, N, 0), // html escape and highlight words from list
+T(hit,             0, 0, N, 0), // hit number of current mset entry (0-based)
+T(hitlist,         1, 1, 0, M), // display hitlist using format in argument
+T(hitsperpage,     0, 0, N, 0), // hits per page
+T(hostname,        1, 1, N, 0), // extract hostname from URL
+T(html,            1, 1, N, 0), // html escape string (<>&")
+T(htmlstrip,       1, 1, N, 0), // html strip tags string (s/<[^>]*>?//g)
+T(httpheader,      2, 2, N, 0), // arbitrary HTTP header
+T(id,              0, 0, N, 0), // docid of current doc
+T(if,              1, 3, 1, 0), // conditional
+T(include,         1, 2, 1, 0), // include another file
+T(json,            1, 1, N, 0), // JSON string escaping
+T(jsonarray,       1, 2, 1, 0), // Format list as a JSON array
+T(jsonbool,        1, 1, 1, 0), // Format list as a JSON bool
+T(jsonobject,      1, 3, 1, 0), // Format map as JSON object
+T(jsonobject2,     2, 4, 2, 0), // Format 2 lists as JSON object
+T(keys,            1, 1, N, 0), // list of keys from a map
+T(last,            0, 0, N, M), // hit number one beyond end of current page
+T(lastpage,        0, 0, N, M), // number of last hit page
+T(le,              2, 2, N, 0), // test <=
+T(length,          1, 1, N, 0), // length of list
+T(list,            2, 5, N, 0), // pretty print list
+T(log,             1, 2, 1, 0), // create a log entry
+T(lookup,          2, 2, N, 0), // lookup in named cdb file
+T(lower,           1, 1, N, 0), // convert string to lower case
+T(lt,              2, 2, N, 0), // test <
+T(map,             2, 2, 1, 0), // map a list into another list
+T(match,           2, 3, N, 0), // regex match
+T(max,             1, N, N, 0), // maximum of a list of values
+T(min,             1, N, N, 0), // minimum of a list of values
+T(mod,             2, 2, N, 0), // integer modulus
+T(msize,           0, 0, N, M), // number of matches (estimated)
+T(msizeexact,      0, 0, N, M), // is $msize exact?
+T(msizelower,      0, 0, N, M), // number of matches (lower bound)
+T(msizeupper,      0, 0, N, M), // number of matches (upper bound)
+T(mul,             2, N, N, 0), // multiply a list of numbers
+T(muldiv,          3, 3, N, 0), // calculate A*B/C
+T(ne,              2, 2, N, 0), // test not equal
+T(nice,            1, 1, N, 0), // pretty print integer (with thousands sep)
+T(not,             1, 1, N, 0), // logical not
+T(now,             0, 0, N, 0), // current date/time as a time_t
+T(opt,             1, 2, N, 0), // lookup an option value
+T(or,              1, N, 0, 0), // logical shortcutting or of a list of values
+T(ord,             1, 1, N, 0), // return codepoint for first character of UTF-8 string
+T(pack,            1, 1, N, 0), // convert a number to a 4 byte big endian binary string
+T(percentage,      0, 0, N, 0), // percentage score of current hit
+T(prettyterm,      1, 1, N, Q), // pretty print term name
+T(prettyurl,       1, 1, N, 0), // pretty version of URL
+T(query,           0, 1, N, Q), // query
 T(querydescription,0, 0, N, M), // query.get_description() (run_query() adds filters so M)
-T(queryterms,	   0, 0, N, Q), // list of query terms
-T(random,	   1, 1, N, 0), // return a random number
-T(range,	   2, 2, N, 0), // return list of values between start and end
-T(record,	   0, 1, N, 0), // record contents of document
-T(relevant,	   0, 1, N, Q), // is document relevant?
-T(relevants,	   0, 0, N, Q), // return list of relevant documents
-T(score,	   0, 0, N, 0), // score (0-10) of current hit
-T(set,		   2, 2, N, 0), // set option value
-T(seterror,	   1, 1, N, 0), // set error_msg, setting it early stops query execution
-T(setmap,	   1, N, N, 0), // set map of option values
-T(setrelevant,	   1, 1, N, Q), // set rset
-T(slice,	   2, 2, N, 0), // slice a list using a second list
-T(snippet,	   1, 6, N, M), // generate snippet from text
-T(sort,		   1, 2, N, 0), // alpha sort a list
+T(queryterms,      0, 0, N, Q), // list of query terms
+T(random,          1, 1, N, 0), // return a random number
+T(range,           2, 2, N, 0), // return list of values between start and end
+T(record,          0, 1, N, 0), // record contents of document
+T(relevant,        0, 1, N, Q), // is document relevant?
+T(relevants,       0, 0, N, Q), // return list of relevant documents
+T(score,           0, 0, N, 0), // score (0-10) of current hit
+T(set,             2, 2, N, 0), // set option value
+T(seterror,        1, 1, N, 0), // set error_msg, setting it early stops query execution
+T(setmap,          1, N, N, 0), // set map of option values
+T(setrelevant,     1, 1, N, Q), // set rset
+T(slice,           2, 2, N, 0), // slice a list using a second list
+T(snippet,         1, 6, N, M), // generate snippet from text
+T(sort,            1, 2, N, 0), // alpha sort a list
 T(sortableunserialise,
                    1, 1, N, 0), // decode with Xapian::sortable_unserialise
-T(split,	   1, 2, N, 0), // split a string to give a list
-T(srandom,	   1, 1, N, 0), // seed for random number
-T(stoplist,	   0, 0, N, Q), // return list of stopped terms
-T(sub,		   2, 2, N, 0), // subtract
-T(subdb,	   0, 1, N, 0), // name of subdb docid is in
-T(subid,	   0, 1, N, 0), // docid in the subdb#
-T(substr,	   2, 3, N, 0), // substring
-T(suggestion,	   0, 0, N, Q), // misspelled word correction suggestion
-T(switch,	   3, N, 1, 0), // return position of substring, or empty string
-T(termprefix,	   1, 1, N, 0), // get any prefix from a term
-T(terms,	   0, 1, N, M), // list of matching terms
-T(thispage,	   0, 0, N, M), // page number of current page
-T(time,		   0, 0, N, M), // how long the match took (in seconds)
-T(topdoc,	   0, 0, N, M), // first document on current page of hit list
+T(split,           1, 2, N, 0), // split a string to give a list
+T(srandom,         1, 1, N, 0), // seed for random number
+T(stoplist,        0, 0, N, Q), // return list of stopped terms
+T(sub,             2, 2, N, 0), // subtract
+T(subdb,           0, 1, N, 0), // name of subdb docid is in
+T(subid,           0, 1, N, 0), // docid in the subdb#
+T(substr,          2, 3, N, 0), // substring
+T(suggestion,      0, 0, N, Q), // misspelled word correction suggestion
+T(switch,          3, N, 1, 0), // return position of substring, or empty string
+T(termprefix,      1, 1, N, 0), // get any prefix from a term
+T(terms,           0, 1, N, M), // list of matching terms
+T(thispage,        0, 0, N, M), // page number of current page
+T(time,            0, 0, N, M), // how long the match took (in seconds)
+T(topdoc,          0, 0, N, M), // first document on current page of hit list
                                 // (counting from 0)
-T(topterms,	   0, 1, N, M), // list of up to N top relevance feedback terms
+T(topterms,        0, 1, N, M), // list of up to N top relevance feedback terms
                                 // (default 16)
-T(transform,	   3, 4, N, 0), // transform with a regexp
-T(truncate,	   2, 4, N, 0), // truncate after a word
-T(uniq,		   1, 1, N, 0), // removed duplicates from a sorted list
-T(unique,	   1, 1, N, 0), // removed duplicates from any list
-T(unpack,	   1, 1, N, 0), // convert 4 byte big endian binary string to a number
-T(unprefix,	   1, 1, N, 0), // remove any prefix from a term
-T(unstem,	   1, 1, N, Q), // return list of terms from the parsed query
+T(transform,       3, 4, N, 0), // transform with a regexp
+T(truncate,        2, 4, N, 0), // truncate after a word
+T(uniq,            1, 1, N, 0), // removed duplicates from a sorted list
+T(unique,          1, 1, N, 0), // removed duplicates from any list
+T(unpack,          1, 1, N, 0), // convert 4 byte big endian binary string to a number
+T(unprefix,        1, 1, N, 0), // remove any prefix from a term
+T(unstem,          1, 1, N, Q), // return list of terms from the parsed query
                                 // which stemmed to this term
-T(upper,	   1, 1, N, 0), // convert string to upper case
-T(url,		   1, 1, N, 0), // url encode argument
-T(value,	   1, 2, N, 0), // return document value
+T(upper,           1, 1, N, 0), // convert string to upper case
+T(url,             1, 1, N, 0), // url encode argument
+T(value,           1, 2, N, 0), // return document value
 T(valuelowerbound, 1, 1, N, 0), // return value slot lower bound
 T(valueupperbound, 1, 1, N, 0), // return value slot upper bound
-T(version,	   0, 0, N, 0), // omega version string
-T(weight,	   0, 0, N, 0), // weight of the current hit
-{ NULL,{0,	   0, 0, 0, 0}}
+T(version,         0, 0, N, 0), // omega version string
+T(weight,          0, 0, N, 0), // weight of the current hit
+{ NULL, {0,        0, 0, 0, 0}}
 };
 
 #undef T // Leaving T defined screws up Sun's C++ compiler!
@@ -2410,7 +2410,7 @@ eval(const string& fmt, vector<string>& param)
                 }
                 break;
             }
-            case CMD_relevants:	{
+            case CMD_relevants: {
                 for (auto i : ticked) {
                     if (i.second) {
                         value += str(i.first);

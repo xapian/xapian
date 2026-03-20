@@ -211,7 +211,7 @@ class GlassDatabase : public Xapian::Database::Internal {
     /** Create and open a glass database.
      *
      *  @exception Xapian::DatabaseCorruptError is thrown if a problem is
-     *	       found with the database's format.
+     *             found with the database's format.
      *
      *  @exception Xapian::DatabaseOpeningError thrown if database can't
      *             be opened.

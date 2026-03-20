@@ -58,8 +58,8 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
      *  the MSet for i = 0 to mset.size() - 1 in ascending order to avoid
      *  miscalculation of max_attained and max_possible.
      *
-     *  @param i	MSet index to update
-     *  @param wt	new weight to assign to the document at index @a i
+     *  @param i    MSet index to update
+     *  @param wt   new weight to assign to the document at index @a i
      *
      *  @since Added in Xapian 2.0.0.
      */
@@ -117,12 +117,12 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
      *  The weights returned by the iterator are assigned to elements of
      *  the MSet in rank order.
      *
-     *  @param begin	Begin iterator.
-     *  @param end	End iterator.
+     *  @param begin    Begin iterator.
+     *  @param end      End iterator.
      *
      *  @exception Xapian::InvalidArgument is thrown if the total number of
-     *		   elements in the input doesn't match the total number of
-     *		   documents in MSet.
+     *             elements in the input doesn't match the total number of
+     *             documents in MSet.
      *
      *  @since Added in Xapian 2.0.0.
      */
@@ -164,19 +164,19 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
      *  The algorithm used is C²GLS-MPT as described in the paper: Scalable and
      *  Efficient Web Search Result Diversification, Naini et al. 2016
      *
-     *  @param  k	The number of MSet entries to make more diverse
-     *  @param  r	Number of documents from each cluster used for
-     *  		building topC
-     *  @param  lambda	Trade-off between relevance of top-k diversified
-     *  		document set and its similarity to the rest of the
-     *  		documents in the document match set.  Must be in
-     *  		the range [0,1] with 0 meaning no weighting to
-     *  		relevance of the diversified document set and 1
-     *  		allowing for full weighting to relevance of the
-     *  		diversified document set.
-     *  @param  b	Parameter for MPT, normally in the range [1,10]
-     *  @param  sigma_sqr	Parameter for MPT, normally in the range
-     *	  			[1e-6,1]
+     *  @param  k       The number of MSet entries to make more diverse
+     *  @param  r       Number of documents from each cluster used for
+     *                  building topC
+     *  @param  lambda  Trade-off between relevance of top-k diversified
+     *                  document set and its similarity to the rest of the
+     *                  documents in the document match set.  Must be in
+     *                  the range [0,1] with 0 meaning no weighting to
+     *                  relevance of the diversified document set and 1
+     *                  allowing for full weighting to relevance of the
+     *                  diversified document set.
+     *  @param  b       Parameter for MPT, normally in the range [1,10]
+     *  @param  sigma_sqr       Parameter for MPT, normally in the range
+     *                          [1e-6,1]
      */
     void diversify(Xapian::doccount k,
                    Xapian::doccount r,
@@ -250,10 +250,10 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
     /** Get the termfreq of a term.
      *
      *  @return The number of documents which @a term occurs in.  This
-     *		considers all documents in the database being searched, so
-     *		gives the same answer as <code>db.get_termfreq(term)</code>
-     *		(but is more efficient for query terms as it returns a
-     *		value cached during the search.)
+     *          considers all documents in the database being searched, so
+     *          gives the same answer as <code>db.get_termfreq(term)</code>
+     *          (but is more efficient for query terms as it returns a
+     *          value cached during the search.)
      *
      *  Since 2.0.0, this method returns 0 if called on an MSet which is
      *  not associated with a database (which is consistent with
@@ -265,8 +265,8 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
 
     /** Get the term weight of a term.
      *
-     *  @return	The maximum weight that @a term could have contributed to a
-     *		document.
+     *  @return The maximum weight that @a term could have contributed to a
+     *          document.
      *
      *  Since 2.0.0, this method returns 0.0 if called on an MSet which is
      *  not associated with a database, or with a term which wasn't present

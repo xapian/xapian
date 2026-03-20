@@ -135,10 +135,10 @@ class XAPIAN_VISIBILITY_DEFAULT MatchSpy
      *  method in your subclass as shown here:
      *  https://trac.xapian.org/ticket/554#comment:1
      *
-     *  @param serialised	A string containing the serialised results.
-     *  @param context	Registry object to use for unserialisation to permit
-     *			MatchSpy subclasses with sub-MatchSpy objects to be
-     *			implemented.
+     *  @param serialised   A string containing the serialised results.
+     *  @param context      Registry object to use for unserialisation to
+     *                      permit MatchSpy subclasses with sub-MatchSpy
+     *                      objects to be implemented.
      */
     virtual MatchSpy * unserialise(const std::string & serialised,
                                    const Registry & context) const;
@@ -161,7 +161,7 @@ class XAPIAN_VISIBILITY_DEFAULT MatchSpy
      *  can use the default implementation which simply throws
      *  Xapian::UnimplementedError.
      *
-     *  @param serialised	A string containing the serialised results.
+     *  @param serialised   A string containing the serialised results.
      */
     virtual void merge_results(const std::string & serialised);
 
@@ -277,8 +277,8 @@ class XAPIAN_VISIBILITY_DEFAULT ValueCountMatchSpy : public MatchSpy {
      *
      *  This implementation tallies values for a matching document.
      *
-     *  @param doc	The document to tally values for.
-     *  @param wt	The weight of the document (ignored by this class).
+     *  @param doc  The document to tally values for.
+     *  @param wt   The weight of the document (ignored by this class).
      */
     void operator()(const Xapian::Document &doc, double wt);
 

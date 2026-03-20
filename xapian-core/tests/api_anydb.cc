@@ -548,9 +548,9 @@ class EvenParityExpandFunctor : public Xapian::ExpandDecider {
         for (unsigned ch : term) {
             sum += ch;
         }
-//	if (verbose) {
-//	    tout << term << "==> " << sum << "\n";
-//	}
+//      if (verbose) {
+//          tout << term << "==> " << sum << "\n";
+//      }
         return (sum % 2) == 0;
     }
 };
@@ -1838,13 +1838,13 @@ DEFINE_TESTCASE(xor1, backend) {
     enquire.set_query(query);
 
     Xapian::MSet mymset = enquire.get_mset(0, 10);
-    //	Docid	this	word	of	Match?
-    //	1	*			*
-    //	2	*	*	*	*
-    //	3	*		*
-    //	4	*	*
-    //	5	*			*
-    //	6	*			*
+    //  Docid   this    word    of      Match?
+    //  1       *                       *
+    //  2       *       *       *       *
+    //  3       *               *
+    //  4       *       *
+    //  5       *                       *
+    //  6       *                       *
     mset_expect_order(mymset, 1, 2, 5, 6);
 }
 
@@ -1862,13 +1862,13 @@ DEFINE_TESTCASE(xor2, backend) {
     enquire.set_query(query);
 
     Xapian::MSet mymset = enquire.get_mset(0, 10);
-    //	Docid	LEN	this	word	of	Match?
-    //	1	28	2			*
-    //	2	81	5	8	1	*
-    //	3	15	1		2
-    //	4	31	1	1
-    //	5	15	1			*
-    //	6	15	1			*
+    //  Docid   LEN     this    word    of      Match?
+    //  1       28      2                       *
+    //  2       81      5       8       1       *
+    //  3       15      1               2
+    //  4       31      1       1
+    //  5       15      1                       *
+    //  6       15      1                       *
     mset_expect_order(mymset, 2, 1, 5, 6);
 }
 

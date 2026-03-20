@@ -137,7 +137,7 @@ class XAPIAN_VISIBILITY_DEFAULT Document {
      *  It is exactly the same as add_term(term, 0) and is provided as a
      *  way to make a common operation more explicit.
      *
-     *  @param term		The term to add.
+     *  @param term             The term to add.
      *
      *  @since This method was added in Xapian 1.0.18.
      *
@@ -222,7 +222,7 @@ class XAPIAN_VISIBILITY_DEFAULT Document {
 
     /** Read a value slot in this document.
      *
-     *  @param slot	The slot to read the value from
+     *  @param slot     The slot to read the value from
      *
      *  @return The value in slot @a slot, or an empty string if not set.
      */
@@ -230,14 +230,14 @@ class XAPIAN_VISIBILITY_DEFAULT Document {
 
     /** Add a value to a slot in this document.
      *
-     *  @param slot	The slot to set
-     *  @param value	The new value
+     *  @param slot     The slot to set
+     *  @param value    The new value
      */
     void add_value(Xapian::valueno slot, std::string_view value);
 
     /** Remove any value from the specified slot.
      *
-     *  @param slot	The slot to remove any value from.
+     *  @param slot     The slot to remove any value from.
      */
     void remove_value(Xapian::valueno slot) {
         add_value(slot, {});

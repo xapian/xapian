@@ -211,69 +211,69 @@ enum {
 
 static const char url_chars[256] = {
     // 0x00-0x07
-    UNSAFE,	UNSAFE,	UNSAFE,	UNSAFE,	UNSAFE,	UNSAFE,	UNSAFE,	UNSAFE,
+    UNSAFE,     UNSAFE, UNSAFE, UNSAFE, UNSAFE, UNSAFE, UNSAFE, UNSAFE,
     // 0x08-0x0f
-    UNSAFE,	UNSAFE,	UNSAFE,	UNSAFE,	UNSAFE,	UNSAFE,	UNSAFE,	UNSAFE,
+    UNSAFE,     UNSAFE, UNSAFE, UNSAFE, UNSAFE, UNSAFE, UNSAFE, UNSAFE,
     // 0x10-0x17
-    UNSAFE,	UNSAFE,	UNSAFE,	UNSAFE,	UNSAFE,	UNSAFE,	UNSAFE,	UNSAFE,
+    UNSAFE,     UNSAFE, UNSAFE, UNSAFE, UNSAFE, UNSAFE, UNSAFE, UNSAFE,
     // 0x18-0x1f
-    UNSAFE,	UNSAFE,	UNSAFE,	UNSAFE,	UNSAFE,	UNSAFE,	UNSAFE,	UNSAFE,
-    // ' '	!	"	#	$	%	&	'
-    OK,		OK,	OK,	UNSAFE,	OK,	UNSAFE,	OK,	OK,
-    // (	)	*	+	,	-	.	/
-    OK,		OK,	OK,	OK,	OK,	OK,	OK,	UNSAFE,
-    // 0	1	2	3	4	5	6	7
-    OK,		OK,	OK,	OK,	OK,	OK,	OK,	OK,
-    // 8	9	:	;	<	=	>	?
-    OK89AB,	OK89AB,	INPATH,	OK,	OK,	OK,	OK,	UNSAFE,
-    // @	A	B	C	D	E	F	G
-    INPATH,	OK89AB,	OK89AB,	OK,	OK,	OK,	OK,	OK,
-    // H	I	J	K	L	M	N	O
-    OK,		OK,	OK,	OK,	OK,	OK,	OK,	OK,
-    // P	Q	R	S	T	U	V	W
-    OK,		OK,	OK,	OK,	OK,	OK,	OK,	OK,
-    // X	Y	Z	[	\	]	^	_
-    OK,		OK,	OK,	INPATH,	OK,	INPATH,	OK,	OK,
-    // `	a	b	c	d	e	f	g
-    OK,		OK89AB,	OK89AB,	OK,	OK,	OK,	OK,	OK,
-    // h	i	j	k	l	m	n	o
-    OK,		OK,	OK,	OK,	OK,	OK,	OK,	OK,
-    // p	q	r	s	t	u	v	w
-    OK,		OK,	OK,	OK,	OK,	OK,	OK,	OK,
-    // x	y	z	{	|	}	~	0x7f
-    OK,		OK,	OK,	OK,	OK,	OK,	OK,	UNSAFE,
-    // 0x80	0x81	0x82	0x83	0x84	0x85	0x86	0x87
-    UNSAFE,	UNSAFE,	UNSAFE,	UNSAFE,	UNSAFE,	UNSAFE,	UNSAFE,	UNSAFE,
-    // 0x88	0x89	0x8a	0x8b	0x8c	0x8d	0x8e	0x8f
-    UNSAFE,	UNSAFE,	UNSAFE,	UNSAFE,	UNSAFE,	UNSAFE,	UNSAFE,	UNSAFE,
-    // 0x90	0x91	0x92	0x93	0x94	0x95	0x96	0x97
-    UNSAFE,	UNSAFE,	UNSAFE,	UNSAFE,	UNSAFE,	UNSAFE,	UNSAFE,	UNSAFE,
-    // 0x98	0x99	0x9a	0x9b	0x9c	0x9d	0x9e	0x9f
-    UNSAFE,	UNSAFE,	UNSAFE,	UNSAFE,	UNSAFE,	UNSAFE,	UNSAFE,	UNSAFE,
-    // 0xa0	0xa1	0xa2	0xa3	0xa4	0xa5	0xa6	0xa7
-    UNSAFE,	UNSAFE,	UNSAFE,	UNSAFE,	UNSAFE,	UNSAFE,	UNSAFE,	UNSAFE,
-    // 0xa8	0xa9	0xaa	0xab	0xac	0xad	0xae	0xaf
-    UNSAFE,	UNSAFE,	UNSAFE,	UNSAFE,	UNSAFE,	UNSAFE,	UNSAFE,	UNSAFE,
-    // 0xb0	0xb1	0xb2	0xb3	0xb4	0xb5	0xb6	0xb7
-    UNSAFE,	UNSAFE,	UNSAFE,	UNSAFE,	UNSAFE,	UNSAFE,	UNSAFE,	UNSAFE,
-    // 0xb8	0xb9	0xba	0xbb	0xbc	0xbd	0xbe	0xbf
-    UNSAFE,	UNSAFE,	UNSAFE,	UNSAFE,	UNSAFE,	UNSAFE,	UNSAFE,	UNSAFE,
-    // 0xc0	0xc1	0xc2	0xc3	0xc4	0xc5	0xc6	0xc7
-    UNSAFE,	UNSAFE,	SEQ2,	SEQ2,	SEQ2,	SEQ2,	SEQ2,	SEQ2,
-    // 0xc8	0xc9	0xca	0xcb	0xcc	0xcd	0xce	0xcf
-    SEQ2,	SEQ2,	SEQ2,	SEQ2,	SEQ2,	SEQ2,	SEQ2,	SEQ2,
-    // 0xd0	0xd1	0xd2	0xd3	0xd4	0xd5	0xd6	0xd7
-    SEQ2,	SEQ2,	SEQ2,	SEQ2,	SEQ2,	SEQ2,	SEQ2,	SEQ2,
-    // 0xd8	0xd9	0xda	0xdb	0xdc	0xdd	0xde	0xdf
-    SEQ2,	SEQ2,	SEQ2,	SEQ2,	SEQ2,	SEQ2,	SEQ2,	SEQ2,
-    // 0xe0	0xe1	0xe2	0xe3	0xe4	0xe5	0xe6	0xe7
-    SEQ3,	SEQ3,	SEQ3,	SEQ3,	SEQ3,	SEQ3,	SEQ3,	SEQ3,
-    // 0xe8	0xe9	0xea	0xeb	0xec	0xed	0xee	0xef
-    SEQ3,	SEQ3,	SEQ3,	SEQ3,	SEQ3,	SEQ3,	SEQ3,	SEQ3,
-    // 0xf0	0xf1	0xf2	0xf3	0xf4	0xf5	0xf6	0xf7
-    SEQ4,	SEQ4,	SEQ4,	SEQ4,	SEQ4,	UNSAFE,	UNSAFE,	UNSAFE,
-    // 0xf8	0xf9	0xfa	0xfb	0xfc	0xfd	0xfe	0xff
-    UNSAFE,	UNSAFE,	UNSAFE,	UNSAFE,	UNSAFE,	UNSAFE,	UNSAFE,	UNSAFE
+    UNSAFE,     UNSAFE, UNSAFE, UNSAFE, UNSAFE, UNSAFE, UNSAFE, UNSAFE,
+    // ' '      !       "       #       $       %       &       '
+    OK,         OK,     OK,     UNSAFE, OK,     UNSAFE, OK,     OK,
+    // (        )       *       +       ,       -       .       /
+    OK,         OK,     OK,     OK,     OK,     OK,     OK,     UNSAFE,
+    // 0        1       2       3       4       5       6       7
+    OK,         OK,     OK,     OK,     OK,     OK,     OK,     OK,
+    // 8        9       :       ;       <       =       >       ?
+    OK89AB,     OK89AB, INPATH, OK,     OK,     OK,     OK,     UNSAFE,
+    // @        A       B       C       D       E       F       G
+    INPATH,     OK89AB, OK89AB, OK,     OK,     OK,     OK,     OK,
+    // H        I       J       K       L       M       N       O
+    OK,         OK,     OK,     OK,     OK,     OK,     OK,     OK,
+    // P        Q       R       S       T       U       V       W
+    OK,         OK,     OK,     OK,     OK,     OK,     OK,     OK,
+    // X        Y       Z       [       \       ]       ^       _
+    OK,         OK,     OK,     INPATH, OK,     INPATH, OK,     OK,
+    // `        a       b       c       d       e       f       g
+    OK,         OK89AB, OK89AB, OK,     OK,     OK,     OK,     OK,
+    // h        i       j       k       l       m       n       o
+    OK,         OK,     OK,     OK,     OK,     OK,     OK,     OK,
+    // p        q       r       s       t       u       v       w
+    OK,         OK,     OK,     OK,     OK,     OK,     OK,     OK,
+    // x        y       z       {       |       }       ~       0x7f
+    OK,         OK,     OK,     OK,     OK,     OK,     OK,     UNSAFE,
+    // 0x80     0x81    0x82    0x83    0x84    0x85    0x86    0x87
+    UNSAFE,     UNSAFE, UNSAFE, UNSAFE, UNSAFE, UNSAFE, UNSAFE, UNSAFE,
+    // 0x88     0x89    0x8a    0x8b    0x8c    0x8d    0x8e    0x8f
+    UNSAFE,     UNSAFE, UNSAFE, UNSAFE, UNSAFE, UNSAFE, UNSAFE, UNSAFE,
+    // 0x90     0x91    0x92    0x93    0x94    0x95    0x96    0x97
+    UNSAFE,     UNSAFE, UNSAFE, UNSAFE, UNSAFE, UNSAFE, UNSAFE, UNSAFE,
+    // 0x98     0x99    0x9a    0x9b    0x9c    0x9d    0x9e    0x9f
+    UNSAFE,     UNSAFE, UNSAFE, UNSAFE, UNSAFE, UNSAFE, UNSAFE, UNSAFE,
+    // 0xa0     0xa1    0xa2    0xa3    0xa4    0xa5    0xa6    0xa7
+    UNSAFE,     UNSAFE, UNSAFE, UNSAFE, UNSAFE, UNSAFE, UNSAFE, UNSAFE,
+    // 0xa8     0xa9    0xaa    0xab    0xac    0xad    0xae    0xaf
+    UNSAFE,     UNSAFE, UNSAFE, UNSAFE, UNSAFE, UNSAFE, UNSAFE, UNSAFE,
+    // 0xb0     0xb1    0xb2    0xb3    0xb4    0xb5    0xb6    0xb7
+    UNSAFE,     UNSAFE, UNSAFE, UNSAFE, UNSAFE, UNSAFE, UNSAFE, UNSAFE,
+    // 0xb8     0xb9    0xba    0xbb    0xbc    0xbd    0xbe    0xbf
+    UNSAFE,     UNSAFE, UNSAFE, UNSAFE, UNSAFE, UNSAFE, UNSAFE, UNSAFE,
+    // 0xc0     0xc1    0xc2    0xc3    0xc4    0xc5    0xc6    0xc7
+    UNSAFE,     UNSAFE, SEQ2,   SEQ2,   SEQ2,   SEQ2,   SEQ2,   SEQ2,
+    // 0xc8     0xc9    0xca    0xcb    0xcc    0xcd    0xce    0xcf
+    SEQ2,       SEQ2,   SEQ2,   SEQ2,   SEQ2,   SEQ2,   SEQ2,   SEQ2,
+    // 0xd0     0xd1    0xd2    0xd3    0xd4    0xd5    0xd6    0xd7
+    SEQ2,       SEQ2,   SEQ2,   SEQ2,   SEQ2,   SEQ2,   SEQ2,   SEQ2,
+    // 0xd8     0xd9    0xda    0xdb    0xdc    0xdd    0xde    0xdf
+    SEQ2,       SEQ2,   SEQ2,   SEQ2,   SEQ2,   SEQ2,   SEQ2,   SEQ2,
+    // 0xe0     0xe1    0xe2    0xe3    0xe4    0xe5    0xe6    0xe7
+    SEQ3,       SEQ3,   SEQ3,   SEQ3,   SEQ3,   SEQ3,   SEQ3,   SEQ3,
+    // 0xe8     0xe9    0xea    0xeb    0xec    0xed    0xee    0xef
+    SEQ3,       SEQ3,   SEQ3,   SEQ3,   SEQ3,   SEQ3,   SEQ3,   SEQ3,
+    // 0xf0     0xf1    0xf2    0xf3    0xf4    0xf5    0xf6    0xf7
+    SEQ4,       SEQ4,   SEQ4,   SEQ4,   SEQ4,   UNSAFE, UNSAFE, UNSAFE,
+    // 0xf8     0xf9    0xfa    0xfb    0xfc    0xfd    0xfe    0xff
+    UNSAFE,     UNSAFE, UNSAFE, UNSAFE, UNSAFE, UNSAFE, UNSAFE, UNSAFE
 };
 
 // Test if the 3 characters of s from offset i are '%', one of [89abAB]

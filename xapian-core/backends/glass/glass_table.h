@@ -461,10 +461,9 @@ class GlassTable {
      *  or open() methods must be called before use is made of the table.
      *
      *  @param tablename_   The name of the table (used in changesets).
-     *  @param path_	Path at which the table is stored.
-     *  @param readonly_	whether to open the table for read only access.
-     *  @param lazy		If true, don't create the table until it's
-     *			needed.
+     *  @param path_        Path at which the table is stored.
+     *  @param readonly_    whether to open the table for read only access.
+     *  @param lazy         If true, don't create the table until it's needed.
      */
     GlassTable(const char* tablename_, std::string_view path_,
                bool readonly_, bool lazy = false);
@@ -494,14 +493,14 @@ class GlassTable {
 
     /** Open the btree.
      *
-     *  @param flags_	flags for opening
-     *  @param root_info	root block info
+     *  @param flags_       flags for opening
+     *  @param root_info    root block info
      *
      *  @exception Xapian::DatabaseCorruptError will be thrown if the table
-     *	is in a corrupt state.
+     *      is in a corrupt state.
      *  @exception Xapian::DatabaseOpeningError will be thrown if the table
-     *	cannot be opened (but is not corrupt - eg, permission problems,
-     *	not present, etc).
+     *      cannot be opened (but is not corrupt - eg, permission problems,
+     *      not present, etc).
      */
     void open(int flags_, const RootInfo & root_info,
               glass_revision_number_t rev);
@@ -584,10 +583,10 @@ class GlassTable {
     /** Read the tag value for the key pointed to by cursor C_.
      *
      *  @param keep_compressed  Don't uncompress the tag - e.g. useful
-     *			    if it's just being opaquely copied.
+     *                          if it's just being opaquely copied.
      *
-     *  @return	true if current_tag holds compressed data (always
-     *		false if keep_compressed was false).
+     *  @return true if current_tag holds compressed data (always
+     *          false if keep_compressed was false).
      */
     bool read_tag(Glass::Cursor* C_,
                   std::string* tag,
@@ -605,9 +604,9 @@ class GlassTable {
      *
      *  @param key   The key to store in the table.
      *  @param tag   The tag to store in the table.
-     *  @param already_compressed	true if tag is already compressed,
-     *		for example because it is being opaquely copied
-     *		(default: false).
+     *  @param already_compressed       true if tag is already compressed,
+     *                                  for example because it is being
+     *                                  opaquely copied (default: false).
      */
     void add(std::string_view key,
              std::string_view tag,
@@ -653,9 +652,9 @@ class GlassTable {
      *  @param root_info     RootInfo object
      *
      *  @exception Xapian::DatabaseCreateError if the table can't be
-     *	created.
+     *      created.
      *  @exception Xapian::InvalidArgumentError if the requested blocksize
-     *	is unsuitable.
+     *      is unsuitable.
      */
     void create_and_open(int flags_, const RootInfo & root_info);
 
