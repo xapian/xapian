@@ -1140,7 +1140,7 @@ T(foreach,         2, 2, 1, 0), // evaluate something for every entry in a list
 T(freq,            1, 1, N, 0), // frequency of a term
 T(ge,              2, 2, N, 0), // test >=
 T(gt,              2, 2, N, 0), // test >
-T(hash,            2, 2, N, 0), // hash a string using the specified hash function
+T(hash,            2, 2, N, 0), // hash string using specified hash function
 T(highlight,       2, 4, N, 0), // html escape and highlight words from list
 T(hit,             0, 0, N, 0), // hit number of current mset entry (0-based)
 T(hitlist,         1, 1, 0, M), // display hitlist using format in argument
@@ -1184,13 +1184,16 @@ T(not,             1, 1, N, 0), // logical not
 T(now,             0, 0, N, 0), // current date/time as a time_t
 T(opt,             1, 2, N, 0), // lookup an option value
 T(or,              1, N, 0, 0), // logical shortcutting or of a list of values
-T(ord,             1, 1, N, 0), // return codepoint for first character of UTF-8 string
-T(pack,            1, 1, N, 0), // convert a number to a 4 byte big endian binary string
+T(ord,             1, 1, N, 0), // return codepoint for first character of
+				// UTF-8 string
+T(pack,            1, 1, N, 0), // convert a number to a 4 byte big endian
+				// binary string
 T(percentage,      0, 0, N, 0), // percentage score of current hit
 T(prettyterm,      1, 1, N, Q), // pretty print term name
 T(prettyurl,       1, 1, N, 0), // pretty version of URL
 T(query,           0, 1, N, Q), // query
-T(querydescription,0, 0, N, M), // query.get_description() (run_query() adds filters so M)
+T(querydescription,0, 0, N, M), // query.get_description() (M so it shows any
+				// filters run_query() adds)
 T(queryterms,      0, 0, N, Q), // list of query terms
 T(random,          1, 1, N, 0), // return a random number
 T(range,           2, 2, N, 0), // return list of values between start and end
@@ -1199,7 +1202,8 @@ T(relevant,        0, 1, N, Q), // is document relevant?
 T(relevants,       0, 0, N, Q), // return list of relevant documents
 T(score,           0, 0, N, 0), // score (0-10) of current hit
 T(set,             2, 2, N, 0), // set option value
-T(seterror,        1, 1, N, 0), // set error_msg, setting it early stops query execution
+T(seterror,        1, 1, N, 0), // set error_msg; prevents the query from being
+				// run if it hasn't already been.
 T(setmap,          1, N, N, 0), // set map of option values
 T(setrelevant,     1, 1, N, Q), // set rset
 T(slice,           2, 2, N, 0), // slice a list using a second list
@@ -1228,7 +1232,8 @@ T(transform,       3, 4, N, 0), // transform with a regexp
 T(truncate,        2, 4, N, 0), // truncate after a word
 T(uniq,            1, 1, N, 0), // removed duplicates from a sorted list
 T(unique,          1, 1, N, 0), // removed duplicates from any list
-T(unpack,          1, 1, N, 0), // convert 4 byte big endian binary string to a number
+T(unpack,          1, 1, N, 0), // convert 4 byte big endian binary string to a
+				// number
 T(unprefix,        1, 1, N, 0), // remove any prefix from a term
 T(unstem,          1, 1, N, Q), // return list of terms from the parsed query
                                 // which stemmed to this term

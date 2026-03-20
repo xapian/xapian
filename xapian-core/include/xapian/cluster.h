@@ -628,16 +628,16 @@ class XAPIAN_VISIBILITY_DEFAULT KMeans : public Clusterer {
   public:
     /** Constructor specifying number of clusters and maximum iterations
      *
-     *  @param k_               Number of required clusters
-     *  @param max_iters_       The maximum number of iterations for which KMeans
-     *                          will run if it doesn't converge
+     *  @param k_           Number of required clusters
+     *  @param max_iters_   The maximum number of iterations for which KMeans
+     *                      will run if it doesn't converge
      */
     explicit KMeans(unsigned int k_, unsigned int max_iters_ = 0);
 
     /** Implements the KMeans clustering algorithm
      *
-     *  @param mset    MSet object containing the documents that are to
-     *                 be clustered
+     *  @param mset     MSet object containing the documents that are to be
+     *                  clustered
      */
     ClusterSet cluster(const MSet &mset) override;
 

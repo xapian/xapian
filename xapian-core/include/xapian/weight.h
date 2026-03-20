@@ -941,8 +941,10 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
      *  @param normalizations   A three character string indicating the
      *                          normalizations to be used for the tf(wdf), idf
      *                          and document weight.  (default: "ntn")
-     *  @param slope            Extra parameter for "Pivoted" tf normalization.  (default: 0.2)
-     *  @param delta            Extra parameter for "Pivoted" tf normalization.  (default: 1.0)
+     *  @param slope            Extra parameter for "Pivoted" tf normalization.
+     *                          (default: 0.2)
+     *  @param delta            Extra parameter for "Pivoted" tf normalization.
+     *                          (default: 1.0)
      *
      * The @a normalizations string works like so:
      *
@@ -953,7 +955,8 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
      *     @li 'b': Boolean    wdfn=1 if term in document else wdfn=0
      *     @li 's': Square     wdfn=wdf*wdf
      *     @li 'l': Logarithmic wdfn=1+log<sub>e</sub>(wdf)
-     *     @li 'P': Pivoted     wdfn=(1+log(1+log(wdf)))*(1/(1-slope+(slope*doclen/avg_len)))+delta
+     *     @li 'P': Pivoted     wdfn=(1+log(1+log(wdf)))*
+     *                               (1/(1-slope+(slope*doclen/avg_len)))+delta
      *     @li 'm': Max-wdf     wdfn=wdf/wdfdocmax
      *     @li 'a': Augmented max-wdf  wdfn=0.5+0.5*wdf/wdfdocmax
      *

@@ -267,9 +267,12 @@ check_db_dir(string_view path, int opts, std::ostream *out)
 
 /** Check a database table.
  *
- *  @param filename     The filename of the table (only used to get the directory and
+ *  @param filename     The filename of the table (only used to get the
+ *                      directory and base leafname of the table so any
+ *                      extension is ignored)
  *  @param opts         Xapian::check() options
- *  @param out          std::ostream to write messages to (or NULL for no messages)
+ *  @param out          std::ostream to write messages to (or NULL for no
+ *                      messages)
  *  @param backend      Backend type (a BACKEND_XXX constant)
  */
 static size_t
