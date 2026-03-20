@@ -12,6 +12,39 @@ Tcl8 bindings based on the simple examples from ``xapian-examples``:
 `simplesearch.tcl <examples/simplesearch.tcl>`_,
 `simpleexpand.tcl <examples/simpleexpand.tcl>`_.
 
+
+package require
+###############
+
+To use Xapian in your Tcl script you need to add this near the top:
+
+::
+
+    package require xapian 2.0.0
+
+Tcl's ``package require`` only allows an exact match on the major version.
+If you want to write a script which can use either Xapian 1.x or 2.x, then you
+can instead use:
+
+::
+
+    if [catch {
+        package require xapian 2.0.0
+    }] {
+        package require xapian 1.0.0
+    }
+
+Or if at least 1.4.x is needed:
+
+::
+
+    if [catch {
+        package require xapian 2.0.0
+    }] {
+        package require xapian 1.4.0
+    }
+
+
 Unicode Support
 ###############
 
