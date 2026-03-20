@@ -20,21 +20,18 @@ To use Xapian in your Tcl script you need to add this near the top:
 
 ::
 
-    package require xapian 2.0.0
+    package require xapian
 
-Tcl's ``package require`` only allows an exact match on the major version.
-If you want to write a script which can use either Xapian 1.x or 2.x, then you
-can instead use:
+You can optionally include a minimum version to require, for example
 
 ::
 
-    if [catch {
-        package require xapian 2.0.0
-    }] {
-        package require xapian 1.0.0
-    }
+    package require xapian 1.4.0
 
-Or if at least 1.4.x is needed:
+However Tcl's ``package require`` only allows an **exact** match on the
+**major** version, so this won't load Xapian 2.x.  If you want to write a
+script which requires at least Xapian 1.4.x but also works with 2.x, you
+can instead use:
 
 ::
 
