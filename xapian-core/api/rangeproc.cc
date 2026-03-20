@@ -320,24 +320,18 @@ not_our_range:
     return Xapian::Query(Xapian::Query::OP_INVALID);
 }
 
-static const char byte_units[4][2] = {
-    "B", "K", "M", "G"
-};
-
-// Return factor for byte unit
-// if string is a valid byte unit
-// else return -1
+// Return factor for byte unit if string is a valid byte unit
+// else return 0.0.
 static double
 check_byte_unit(const string &s) {
-    double factor = 1;
-    for (int i = 0; i < 4; ++i) {
-        if (endswith(s, byte_units[i])) {
-            return factor;
-        }
-        factor *= 1024;
+    switch (s.back()) {
+      case 'B': return 1.0;
+      case 'K': return 1024.0;
+      case 'M': return 1024.0 * 1024.0;
+      case 'G': return 1024.0 * 1024.0 * 1024.0;
+      case 'T': return 1024.0 * 1024.0 * 1024.0 * 1024.0;
     }
-
-    return -1;
+    return 0.0;
 }
 
 Xapian::Query
@@ -374,7 +368,7 @@ UnitRangeProcessor::operator()(const string& b, const string& e)
         // For lower range having a unit, e.g. 100K..
         if (endptr == startptr + b.size() - 1) {
             double factor_b = check_byte_unit(b);
-            if (factor_b == -1) {
+            if (factor_b == 0.0) {
                 // Not a valid byte unit
                 goto not_our_range;
             }
@@ -411,7 +405,7 @@ UnitRangeProcessor::operator()(const string& b, const string& e)
         // For upper range having a unit, e.g. ..100K
         if (endptr == startptr + e.size() - 1) {
             double factor_e = check_byte_unit(e);
-            if (factor_e == -1) {
+            if (factor_e == 0.0) {
                 // Not a valid byte unit
                 goto not_our_range;
             }

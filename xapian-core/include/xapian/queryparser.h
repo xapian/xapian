@@ -425,6 +425,13 @@ class XAPIAN_VISIBILITY_DEFAULT NumberRangeProcessor : public RangeProcessor {
  *  will sort in the same order as the numbers (the same values can be
  *  used to implement a numeric sort).
  *
+ *  Each of the range ends can be specified in:
+ *  * bytes (suffix 'B')
+ *  * KB (suffix 'K')
+ *  * MB (suffix 'M')
+ *  * GB (suffix 'G')
+ *  * TB (suffix 'T') (since 2.0.1)
+ *
  *  @since Added in Xapian 2.0.0.
  */
 class XAPIAN_VISIBILITY_DEFAULT UnitRangeProcessor : public RangeProcessor {
