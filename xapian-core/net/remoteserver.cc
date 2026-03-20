@@ -892,7 +892,8 @@ RemoteServer::msg_replacedocument(string_view message)
         throw Xapian::NetworkError("Bad MSG_REPLACEDOCUMENT");
     }
 
-    wdb->replace_document(did, unserialise_document(string_view(p, p_end)));
+    string_view s(p, p_end - p);
+    wdb->replace_document(did, unserialise_document(s));
 
     send_message(REPLY_DONE, {});
 }
@@ -909,7 +910,7 @@ RemoteServer::msg_replacedocumentterm(string_view message)
     if (!unpack_string(&p, p_end, unique_term)) {
         throw Xapian::NetworkError("Bad MSG_REPLACEDOCUMENTTERM");
     }
-    string_view s(p, p_end);
+    string_view s(p, p_end - p);
     auto did = wdb->replace_document(unique_term, unserialise_document(s));
     string reply;
     pack_uint_last(reply, did);
