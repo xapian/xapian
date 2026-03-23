@@ -22,7 +22,7 @@
 
 set -e
 
-BRANCH=master
+BRANCH=main
 
 RELEASE_WEB_BASE_URL=https://oligarchy.co.uk/xapian
 RELEASE_WEB_BASE_DIR=/srv/www/oligarchy.co.uk/xapian

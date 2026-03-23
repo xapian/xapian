@@ -12,7 +12,7 @@ on:
       - NEWS
       - 'xapian-maintainer-tools/**'
   pull_request:
-    branches: master
+    branches: main
     paths-ignore:
       - '.appveyor.yml'
       - NEWS
@@ -2999,17 +2999,17 @@ jobs:
         show-progress: false
     - name: "Automated run of xapian-check-patch"
       # Run the style checking script, checking changes between the common
-      # ancestor of the target branch of the PR (or master if this isn't a PR)
+      # ancestor of the target branch of the PR (or main if this isn't a PR)
       # and the revision being checked.
       run: |
         case ${GITHUB_BASE_REF:+PR}:`git remote get-url origin` in
           PR:*)
             BASE=origin/$GITHUB_BASE_REF ;;
           :https://github.com/xapian/xapian)
-            BASE=origin/master ;;
+            BASE=origin/main ;;
           *)
             git remote add xapian https://github.com/xapian/xapian.git
-            git fetch --no-tags xapian master
-            BASE=xapian/master ;;
+            git fetch --no-tags xapian main
+            BASE=xapian/main ;;
         esac
         git diff "${BASE}.." --|xapian-maintainer-tools/xapian-check-patch

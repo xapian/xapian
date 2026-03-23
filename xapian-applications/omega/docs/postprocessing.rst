@@ -35,7 +35,7 @@ The two functions defined in ``postprocess`` are:
         - **final_log:** Path to save final.log file.
         - **query_file:** Path to save query.txt file.
 
-.. _documentation: https://github.com/xapian/xapian/blob/master/xapian-letor/docs/letor.rst
+.. _documentation: https://github.com/xapian/xapian/blob/main/xapian-letor/docs/letor.rst
 
 These functions can be used independently as a part of postprocess module.
 For example, if you are interested in just generating the final log file for

@@ -37,7 +37,7 @@ features in other editors.
 
 Example usage:
 
-git diff master.. | xapian-check-patch > tmp.qf
+git diff main.. | xapian-check-patch > tmp.qf
 vim -q tmp.qf
 END
     exit 0;
@@ -1052,9 +1052,9 @@ if (exists $ENV{GITHUB_JOB} || exists $ENV{TRAVIS}) {
 You can run these checks locally before pushing with the xapian-check-patch
 which is in the source tree in the xapian-maintainer-tools directory.
 
-E.g. to check any changes in your working directory which aren't on master:
+E.g. to check any changes in your working directory which aren't on main:
 
-git diff master.. | xapian-maintainer-tools/xapian-check-patch
+git diff main.. | xapian-maintainer-tools/xapian-check-patch
 __END__
 }
 
