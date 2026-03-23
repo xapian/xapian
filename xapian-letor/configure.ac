@@ -509,7 +509,7 @@ if test yes = "$GXX"; then
       dnl robust.  Pass -xc++ to avoid warnings about any command-line options
       dnl included in $CXX which aren't valid for C (such as -std=c++17).
       AC_MSG_CHECKING([for version of $CXX])
-      gxx_version=`echo __GNUC__.__GNUC_MINOR__.__GNUC_PATCHLEVEL__|$CXX -xc++ -E -|sed '/^#/d;s/ //g'`
+      gxx_version=`echo __GNUC__.__GNUC_MINOR__.__GNUC_PATCHLEVEL__|$CXX -xc++ -E -|$SED '/^#/d;s/ //g'`
       AC_MSG_RESULT([GCC $gxx_version])
 
       dnl -Wundef was supported by g++ 3.0.

@@ -34,7 +34,7 @@ dnl 45:0:0 2.0.0 Extensive API changes
 LIBRARY_VERSION_INFO=45:0:0
 AC_SUBST([LIBRARY_VERSION_INFO])
 
-if expr `echo "$LIBRARY_VERSION_INFO"|sed 's/:.*:/ - /'` != 45 >/dev/null ; then
+if expr `echo "$LIBRARY_VERSION_INFO"|$SED 's/:.*:/ - /'` != 45 >/dev/null ; then
   AC_MSG_ERROR([Unexpected SOVERSION change])
 fi
 
@@ -47,7 +47,7 @@ incdir=$includedir
 case $PACKAGE_VERSION in
   [1.[13].*])
     dnl Development release series:
-    [dev_series=`echo "$PACKAGE_VERSION"|sed 's/\.[^.]*$//'`]
+    [dev_series=`echo "$PACKAGE_VERSION"|$SED 's/\.[^.]*$//'`]
 
     dnl Append version installed programs by default.  To specify no suffix,
     dnl configure with: --program-suffix=
@@ -642,7 +642,7 @@ if test x"$enable_documentation" = xyes ; then
   AC_PATH_PROG([DOT], [dot])
   AC_ARG_VAR([DOT], [dot from graphviz])
   test -z "$DOT" && AC_MSG_ERROR([dot (part of the graphviz package) is required to build documentation])
-  DOXYGEN_DOT_PATH=`echo "$DOT" | sed 's!/dot$!!'`
+  DOXYGEN_DOT_PATH=`echo "$DOT" | $SED 's!/dot$!!'`
   AC_SUBST([DOXYGEN_DOT_PATH])
 
   dnl Check for doxygen. (Needed to make some more of the documentation)
@@ -1282,7 +1282,7 @@ if test yes = "$GXX"; then
       dnl robust.  Pass -xc++ to avoid warnings about any command-line options
       dnl included in $CXX which aren't valid for C (such as -std=c++17).
       AC_MSG_CHECKING([for version of $CXX])
-      gxx_version=`echo __GNUC__.__GNUC_MINOR__.__GNUC_PATCHLEVEL__|$CXX -xc++ -E -|sed '/^#/d;s/ //g'`
+      gxx_version=`echo __GNUC__.__GNUC_MINOR__.__GNUC_PATCHLEVEL__|$CXX -xc++ -E -|$SED '/^#/d;s/ //g'`
       AC_MSG_RESULT([GCC $gxx_version])
 
       dnl -Wundef was supported by g++ 3.0.
@@ -1622,12 +1622,12 @@ PERCENT='%'
 AC_SUBST([PERCENT])
 
 dnl Split up the version number into "MAJOR.MINOR.REVISION".
-MAJOR_VERSION=`echo "$VERSION"|sed 's/\..*//'`
-[MINOR_VERSION=`echo "$VERSION"|sed 's/[^.]*\.//;s/\..*//'`]
-[REVISION=`echo "$VERSION"|sed 's/.*\.//;s/_.*$//'`]
+MAJOR_VERSION=`echo "$VERSION"|$SED 's/\..*//'`
+[MINOR_VERSION=`echo "$VERSION"|$SED 's/[^.]*\.//;s/\..*//'`]
+[REVISION=`echo "$VERSION"|$SED 's/.*\.//;s/_.*$//'`]
 
 dnl Convert the libs in $XAPIAN_LIBS to a CMake list.
-XAPIAN_CMAKE_LIBS=`echo " $XAPIAN_LIBS" | sed 's/ -l/;/g;s/ //g'`
+XAPIAN_CMAKE_LIBS=`echo " $XAPIAN_LIBS" | $SED 's/ -l/;/g;s/ //g'`
 AC_SUBST([XAPIAN_CMAKE_LIBS])
 
 XAPIAN_CMAKE_SHARED=
@@ -1697,28 +1697,28 @@ for backend in GLASS HONEY INMEMORY REMOTE ; do
 done
 
 if test yes = "$enable_64bit_docid" ; then
-  cxxcpp_flags="$cxxcpp_flags -DXAPIAN_DOCID_BASE_TYPE="`echo "$INT64_T"|sed 's/ /____/g'`
+  cxxcpp_flags="$cxxcpp_flags -DXAPIAN_DOCID_BASE_TYPE="`echo "$INT64_T"|$SED 's/ /____/g'`
 else
-  cxxcpp_flags="$cxxcpp_flags -DXAPIAN_DOCID_BASE_TYPE="`echo "$INT32_T"|sed 's/ /____/g'`
+  cxxcpp_flags="$cxxcpp_flags -DXAPIAN_DOCID_BASE_TYPE="`echo "$INT32_T"|$SED 's/ /____/g'`
 fi
 
 if test yes = "$enable_64bit_termcount" ; then
-  cxxcpp_flags="$cxxcpp_flags -DXAPIAN_TERMCOUNT_BASE_TYPE="`echo "$INT64_T"|sed 's/ /____/g'`
+  cxxcpp_flags="$cxxcpp_flags -DXAPIAN_TERMCOUNT_BASE_TYPE="`echo "$INT64_T"|$SED 's/ /____/g'`
 else
-  cxxcpp_flags="$cxxcpp_flags -DXAPIAN_TERMCOUNT_BASE_TYPE="`echo "$INT32_T"|sed 's/ /____/g'`
+  cxxcpp_flags="$cxxcpp_flags -DXAPIAN_TERMCOUNT_BASE_TYPE="`echo "$INT32_T"|$SED 's/ /____/g'`
 fi
 
 if test yes = "$enable_64bit_termpos" ; then
-  cxxcpp_flags="$cxxcpp_flags -DXAPIAN_TERMPOS_BASE_TYPE="`echo "$INT64_T"|sed 's/ /____/g'`
+  cxxcpp_flags="$cxxcpp_flags -DXAPIAN_TERMPOS_BASE_TYPE="`echo "$INT64_T"|$SED 's/ /____/g'`
 else
-  cxxcpp_flags="$cxxcpp_flags -DXAPIAN_TERMPOS_BASE_TYPE="`echo "$INT32_T"|sed 's/ /____/g'`
+  cxxcpp_flags="$cxxcpp_flags -DXAPIAN_TERMPOS_BASE_TYPE="`echo "$INT32_T"|$SED 's/ /____/g'`
 fi
 
 dnl Always ought to be 64 bit.
-cxxcpp_flags="$cxxcpp_flags -DXAPIAN_TOTALLENGTH_TYPE="`echo "unsigned $INT64_T"|sed 's/ /____/g'`
+cxxcpp_flags="$cxxcpp_flags -DXAPIAN_TOTALLENGTH_TYPE="`echo "unsigned $INT64_T"|$SED 's/ /____/g'`
 
 dnl Make revision numbers in the API 64 bit for future-proofing.
-cxxcpp_flags="$cxxcpp_flags -DXAPIAN_REVISION_TYPE="`echo "unsigned $INT64_T"|sed 's/ /____/g'`
+cxxcpp_flags="$cxxcpp_flags -DXAPIAN_REVISION_TYPE="`echo "unsigned $INT64_T"|$SED 's/ /____/g'`
 
 dnl For GCC (and compilers which pretend to be GCC) and MSVC, we create checks
 dnl for some ABI-incompatible configurations in the generated version.h.
