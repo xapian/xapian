@@ -128,10 +128,10 @@ if (scalar @ARGV == 0) {
     find(\&find_git_refs, glob('[A-Za-z0-9]*'));
 }
 
-# Or if there are no directories, default to git master.
+# Or if there are no directories, default to git main.
 if (scalar @ARGV == 0) {
-    mkdir 'master';
-    @ARGV = 'master';
+    mkdir 'main';
+    @ARGV = 'main';
 }
 
 my $status = 0;
