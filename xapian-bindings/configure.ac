@@ -93,7 +93,7 @@ darwin*)
       *) INTREE_DYLD_PATH=`pwd`/$INTREE_DYLD_PATH ;;
     esac
     dnl Add .libs or equivalent.
-    INTREE_DYLD_PATH=`echo "$INTREE_DYLD_PATH"|sed 's,\(.*/\).*,\1,'`$_libs
+    INTREE_DYLD_PATH=`echo "$INTREE_DYLD_PATH"|$SED 's,\(.*/\).*,\1,'`$_libs
     AC_SUBST([INTREE_DYLD_PATH])
   fi
   ;;
@@ -109,11 +109,11 @@ CXXFLAGS="$CXXFLAGS $XAPIAN_CXXFLAGS"
 dnl COMPAT_VERSION is the version of xapian-core that "matches" our version.
 dnl We allow for bindings being version 0.8.5.1 while xapian-core is 0.8.5.
 dnl COMPAT_VERSION also ignores any _git123 suffix which snapshots will have.
-COMPAT_VERSION=[`echo "$PACKAGE_VERSION"|sed 's/^\([0-9]*\.[0-9]*\.[0-9]*\).*/\1/'`]
+COMPAT_VERSION=[`echo "$PACKAGE_VERSION"|$SED 's/^\([0-9]*\.[0-9]*\.[0-9]*\).*/\1/'`]
 AC_SUBST(COMPAT_VERSION)
 
 dnl VERSION_NO_SNAPSHOT simply has any _git123 suffix removed.
-VERSION_NO_SNAPSHOT=[`echo "$PACKAGE_VERSION"|sed 's/_.*$//'`]
+VERSION_NO_SNAPSHOT=[`echo "$PACKAGE_VERSION"|$SED 's/_.*$//'`]
 AC_SUBST(VERSION_NO_SNAPSHOT)
 
 dnl We only need to set docdir for compatibility with autoconf < 2.60 - this
@@ -164,7 +164,7 @@ if test x$USE_MAINTAINER_MODE = xyes; then
   dnl Check for new enough SWIG.
   dnl
   dnl 4.1.0 adds support for PHP 8
-  v=`$SWIG -version 2>&1|sed 's/^SWIG Version \([[0-9\.]]*\).*/\1/p;d'`
+  v=`$SWIG -version 2>&1|$SED 's/^SWIG Version \([[0-9\.]]*\).*/\1/p;d'`
   case $v in
     [[0123].*|4.0.*|""])
       msg="SWIG >= 4.1.0 required (you have ${v:-an unknown version})"
@@ -182,7 +182,7 @@ if test x$USE_MAINTAINER_MODE = xyes; then
   for a in $SWIG_FLAGS ; do
     case $a in
     -I*)
-      d=`echo "x$a"|sed 's/^x-I//'`
+      d=`echo "x$a"|$SED 's/^x-I//'`
       dnl Quote each entry in XAPIAN_HEADER_DIRS with "".
       XAPIAN_HEADER_DIRS=$XAPIAN_HEADER_DIRS' "'$d'"'
       for f in "$d/"*.h "$d/xapian/*.h" ; do
@@ -838,7 +838,7 @@ if test no != "$with_java" ; then
 	esac
       done
       dnl Translate ".../bin/javac" to ".../include".
-      [rel_jnidir=`echo "$real_javac"|sed 's!/[^/]*/[^/]*$!/include!'`]
+      [rel_jnidir=`echo "$real_javac"|$SED 's!/[^/]*/[^/]*$!/include!'`]
       dnl Try the location for macOS system Java too, but last.
       for jnidir in \
 	  $JNI_INCLUDE_DIR \
@@ -1010,7 +1010,7 @@ if test no != "$with_ruby" ; then
 	dnl our source tarball.
 	if test -z "$RDOC" ; then
 	  dnl Try replacing the *last* 'ruby' with 'rdoc'.
-	  rdoc_best_guess=`echo "$RUBY"|sed 's,\(.*\)ruby,\1rdoc,'`
+	  rdoc_best_guess=`echo "$RUBY"|$SED 's,\(.*\)ruby,\1rdoc,'`
 	  if test -x "$rdoc_best_guess" ; then
 	    RDOC=$rdoc_best_guess
 	  fi
@@ -1069,7 +1069,7 @@ if test no != "$with_perl" ; then
       dnl snapshot versions look like 1.2.3_git123
       case $PACKAGE_VERSION in
       *_git*)
-	PERL_XAPIAN_VERSION=`echo "$PACKAGE_VERSION"|sed 's/_git/./'` ;;
+	PERL_XAPIAN_VERSION=`echo "$PACKAGE_VERSION"|$SED 's/_git/./'` ;;
       *)
 	PERL_XAPIAN_VERSION=$PACKAGE_VERSION.0 ;;
       esac
@@ -1272,7 +1272,7 @@ else
 fi
 echo ""
 if test "$COMPAT_VERSION" != "$XAPIAN_VERSION" ; then
-  release_series=[`echo "$COMPAT_VERSION"|sed 's/[0-9][0-9]*$//'`]
+  release_series=[`echo "$COMPAT_VERSION"|$SED 's/[0-9][0-9]*$//'`]
   case $XAPIAN_VERSION in
   $release_series*) ;;
   *)
