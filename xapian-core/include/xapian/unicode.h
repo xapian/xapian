@@ -1,7 +1,7 @@
 /** @file
  * @brief Unicode and UTF-8 related classes and functions.
  */
-/* Copyright (C) 2006-2024 Olly Betts
+/* Copyright (C) 2006-2026 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -295,17 +295,17 @@ namespace Internal {
          * Some compilers are smart enough to spot common idioms for sign
          * extension, but not all (e.g. GCC < 7 doesn't spot the one used
          * below), so check what the implementation-defined behaviour is with
-         * a constant conditional which should get optimised away.
-         *
-         * We use the ternary operator here to avoid various compiler
-         * warnings which writing this as an `if` results in.
+         * `if constexpr` and only use the more complex approach when we need
+         * to.
          */
-        return ((-1 >> 1) == -1 ?
-                // Right shift sign-extends.
-                info >> 8 :
-                // Right shift shifts in zeros so bitwise-not before and after
-                // the shift for negative values.
-                (info >= 0) ? (info >> 8) : (~(~info >> 8)));
+        if constexpr ((-1 >> 1) == -1) {
+            // Right shift sign-extends.
+            return info >> 8;
+        } else {
+            // Right shift shifts in zeros so bitwise-not before and after
+            // the shift for negative values.
+            return (info >= 0) ? (info >> 8) : (~(~info >> 8));
+        }
     }
 }
 
