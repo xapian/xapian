@@ -371,12 +371,15 @@ inline bool is_wordchar(unsigned ch) {
 
 /// Test if a given Unicode character is a whitespace character.
 inline bool is_whitespace(unsigned ch) {
-    const unsigned int WHITESPACE_MASK =
-            (1 << Xapian::Unicode::CONTROL) | // For TAB, CR, LF, FF.
-            (1 << Xapian::Unicode::SPACE_SEPARATOR) |
-            (1 << Xapian::Unicode::LINE_SEPARATOR) |
-            (1 << Xapian::Unicode::PARAGRAPH_SEPARATOR);
-    return ((WHITESPACE_MASK >> get_category(ch)) & 1);
+    static_assert((Xapian::Unicode::CONTROL & 0x1c) == 0x0c,
+                  "CONTROL value not suitable"); // For TAB, CR, LF, FF.
+    static_assert((Xapian::Unicode::SPACE_SEPARATOR & 0x1c) == 0x0c,
+                  "SPACE_SEPARATOR value not suitable");
+    static_assert((Xapian::Unicode::LINE_SEPARATOR & 0x1c) == 0x0c,
+                  "LINE_SEPARATOR value not suitable");
+    static_assert((Xapian::Unicode::PARAGRAPH_SEPARATOR & 0x1c) == 0x0c,
+                  "PARAGRAPH_SEPARATOR value not suitable");
+    return (get_category(ch) & 0x1c) == 0x0c;
 }
 
 /// Test if a given Unicode character is a currency symbol.
