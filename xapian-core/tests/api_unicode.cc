@@ -1,7 +1,7 @@
 /** @file
  * @brief Test the Unicode and UTF-8 classes and functions.
  */
-/* Copyright (C) 2006-2025 Olly Betts
+/* Copyright (C) 2006-2026 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,9 +25,12 @@
 #include <xapian.h>
 
 #include "apitest.h"
+#include "stringutils.h"
 #include "testutils.h"
 
 #include <cctype>
+#include <fstream>
+#include <limits>
 #include <string_view>
 
 using namespace std;
@@ -147,223 +150,11 @@ DEFINE_TESTCASE(utf8iterator2, !backend) {
     }
 }
 
-// Test Unicode categorisation.
+// Test we have the Unicode version we expect.
 DEFINE_TESTCASE(unicode1, !backend) {
     using namespace Xapian;
-    TEST_EQUAL(Unicode::get_category('a'), Unicode::LOWERCASE_LETTER);
-    TEST_EQUAL(Unicode::get_category('0'), Unicode::DECIMAL_DIGIT_NUMBER);
-    TEST_EQUAL(Unicode::get_category('$'), Unicode::CURRENCY_SYMBOL);
-    TEST_EQUAL(Unicode::get_category(0xa3), Unicode::CURRENCY_SYMBOL);
-    // U+0242 was added in Unicode 5.0.0.
-    TEST_EQUAL(Unicode::get_category(0x242), Unicode::LOWERCASE_LETTER);
-    // U+0526 was added in Unicode 6.0.0.
-    TEST_EQUAL(Unicode::get_category(0x0526), Unicode::UPPERCASE_LETTER);
-    // U+0527 was added in Unicode 6.0.0.
-    TEST_EQUAL(Unicode::get_category(0x0527), Unicode::LOWERCASE_LETTER);
-    // U+0620 was added in Unicode 6.0.0.
-    TEST_EQUAL(Unicode::get_category(0x0620), Unicode::OTHER_LETTER);
-    // U+065F was added in Unicode 6.0.0.
-    TEST_EQUAL(Unicode::get_category(0x065F), Unicode::NON_SPACING_MARK);
-    // U+06DE changed category in Unicode 6.0.0.
-    TEST_EQUAL(Unicode::get_category(0x06DE), Unicode::OTHER_SYMBOL);
-    // U+0840 was added in Unicode 6.0.0.
-    TEST_EQUAL(Unicode::get_category(0x0840), Unicode::OTHER_LETTER);
-    // U+08BE was added in Unicode 13.0.0.
-    TEST_EQUAL(Unicode::get_category(0x08BE), Unicode::OTHER_LETTER);
-    // U+093A was added in Unicode 6.0.0.
-    TEST_EQUAL(Unicode::get_category(0x093A), Unicode::NON_SPACING_MARK);
-    // U+093B was added in Unicode 6.0.0.
-    TEST_EQUAL(Unicode::get_category(0x093B), Unicode::COMBINING_SPACING_MARK);
-    // U+20C0 was added in Unicode 14.0.0.
-    TEST_EQUAL(Unicode::get_category(0x20C0), Unicode::CURRENCY_SYMBOL);
-    // U+2FFE was added in Unicode 15.1.0.
-    TEST_EQUAL(Unicode::get_category(0x2FFE), Unicode::OTHER_SYMBOL);
-    // Added in Unicode 16.0.0.
-    TEST_EQUAL(Unicode::get_category(0x1C89), Unicode::UPPERCASE_LETTER);
-    // U+0242 was added in Unicode 5.0.0.
-    TEST_EQUAL(Unicode::get_category(0xa3), Unicode::CURRENCY_SYMBOL);
-    // U+0CF1 changed category in Unicode 6.0.0.
-    TEST_EQUAL(Unicode::get_category(0x0CF1), Unicode::OTHER_LETTER);
-    // U+0CF2 changed category in Unicode 6.0.0.
-    TEST_EQUAL(Unicode::get_category(0x0CF2), Unicode::OTHER_LETTER);
-    // U+0CF3 was added in Unicode 15.0.0.
-    TEST_EQUAL(Unicode::get_category(0x0CF3), Unicode::COMBINING_SPACING_MARK);
-    // U+0ECE was added in Unicode 15.0.0.
-    TEST_EQUAL(Unicode::get_category(0x0ECE), Unicode::NON_SPACING_MARK);
-    // U+11A7 was added in Unicode 5.2.0.
-    TEST_EQUAL(Unicode::get_category(0x11A7), Unicode::OTHER_LETTER);
-    // U+2C2F was added in Unicode 14.0.0.
-    TEST_EQUAL(Unicode::get_category(0x2C2F), Unicode::UPPERCASE_LETTER);
-    // U+2C5F was added in Unicode 14.0.0.
-    TEST_EQUAL(Unicode::get_category(0x2C5F), Unicode::LOWERCASE_LETTER);
-    // U+2B97 was added in Unicode 13.0.0.
-    TEST_EQUAL(Unicode::get_category(0x2B97), Unicode::OTHER_SYMBOL);
-    // U+31EF was added in Unicode 15.1.0.
-    TEST_EQUAL(Unicode::get_category(0x31EF), Unicode::OTHER_SYMBOL);
-    // U+9FCB was added in Unicode 5.2.0.
-    TEST_EQUAL(Unicode::get_category(0x9FCB), Unicode::OTHER_LETTER);
-    // U+9FFC was added in Unicode 13.0.0.
-    TEST_EQUAL(Unicode::get_category(0x9FFC), Unicode::OTHER_LETTER);
-    // U+FA6C was added in Unicode 5.2.0.
-    TEST_EQUAL(Unicode::get_category(0xFA6C), Unicode::OTHER_LETTER);
-    TEST_EQUAL(Unicode::get_category(0xFFFF), Unicode::UNASSIGNED);
-    // Test characters outside BMP.
-    TEST_EQUAL(Unicode::get_category(0x10345), Unicode::OTHER_LETTER);
-    TEST_EQUAL(Unicode::get_category(0x10FFFD), Unicode::PRIVATE_USE);
-    TEST_EQUAL(Unicode::get_category(0x10FFFF), Unicode::UNASSIGNED);
-    // U+1109A was added in Unicode 5.2.0.
-    TEST_EQUAL(Unicode::get_category(0x1109a), Unicode::OTHER_LETTER);
-    // U+1F773 was added in Unicode 6.0.0.
-    TEST_EQUAL(Unicode::get_category(0x1F773), Unicode::OTHER_SYMBOL);
-    // U+2B740 was added in Unicode 6.0.0.
-    TEST_EQUAL(Unicode::get_category(0x2B740), Unicode::OTHER_LETTER);
-    // U+2B81D was added in Unicode 6.0.0.
-    TEST_EQUAL(Unicode::get_category(0x2B81D), Unicode::OTHER_LETTER);
-    // U+00A7 changed category in Unicode 6.1.0 (was OTHER_SYMBOL).
-    TEST_EQUAL(Unicode::get_category(0xA7), Unicode::OTHER_PUNCTUATION);
-    // U+00AA changed category in Unicode 6.1.0 (was LOWERCASE_LETTER).
-    TEST_EQUAL(Unicode::get_category(0xAA), Unicode::OTHER_LETTER);
-    // U+00B6 changed category in Unicode 6.1.0 (was OTHER_SYMBOL).
-    TEST_EQUAL(Unicode::get_category(0xB6), Unicode::OTHER_PUNCTUATION);
-    // U+00BA changed category in Unicode 6.1.0 (was LOWERCASE_LETTER).
-    TEST_EQUAL(Unicode::get_category(0xBA), Unicode::OTHER_LETTER);
-    // U+058F was added in Unicode 6.1.0.
-    TEST_EQUAL(Unicode::get_category(0x058F), Unicode::CURRENCY_SYMBOL);
-    // U+0604 was added in Unicode 6.1.0.
-    TEST_EQUAL(Unicode::get_category(0x0604), Unicode::FORMAT);
-    // U+08A0 was added in Unicode 6.1.0.
-    TEST_EQUAL(Unicode::get_category(0x08A0), Unicode::OTHER_LETTER);
-    // U+08E4 was added in Unicode 6.1.0.
-    TEST_EQUAL(Unicode::get_category(0x08E4), Unicode::NON_SPACING_MARK);
-    // U+0AF0 was added in Unicode 6.1.0.
-    TEST_EQUAL(Unicode::get_category(0x0AF0), Unicode::OTHER_PUNCTUATION);
-    // U+9FCC was added in Unicode 6.1.0.
-    TEST_EQUAL(Unicode::get_category(0x9FCC), Unicode::OTHER_LETTER);
-    // U+A7F9 was added in Unicode 6.1.0.
-    TEST_EQUAL(Unicode::get_category(0xA7F9), Unicode::MODIFIER_LETTER);
-    // U+110F0 was added in Unicode 6.1.0.
-    TEST_EQUAL(Unicode::get_category(0x110F0), Unicode::DECIMAL_DIGIT_NUMBER);
-    // U+11100 was added in Unicode 6.1.0.
-    TEST_EQUAL(Unicode::get_category(0x11100), Unicode::NON_SPACING_MARK);
-    // U+1EEF0 was added in Unicode 6.1.0.
-    TEST_EQUAL(Unicode::get_category(0x1EEF0), Unicode::MATH_SYMBOL);
-    // U+1F634 was added in Unicode 6.1.0.
-    TEST_EQUAL(Unicode::get_category(0x1F634), Unicode::OTHER_SYMBOL);
-    // U+20BA was added in Unicode 6.2.0.
-    TEST_EQUAL(Unicode::get_category(0x20BA), Unicode::CURRENCY_SYMBOL);
-    // U+061C was added in Unicode 6.3.0.
-    TEST_EQUAL(Unicode::get_category(0x61C), Unicode::FORMAT);
-    // U+037F "GREEK CAPITAL LETTER YOT" was added in Unicode 7.0.0.
-    TEST_EQUAL(Unicode::get_category(0x37F), Unicode::UPPERCASE_LETTER);
-
-    // Added or changed in Unicode 8.0.0:
-    // U+08B3 "ARABIC LETTER AIN WITH THREE DOTS BELOW".
-    TEST_EQUAL(Unicode::get_category(0x8B3), Unicode::OTHER_LETTER);
-    // U+0AF9 "GUJARATI LETTER ZHA".
-    TEST_EQUAL(Unicode::get_category(0xAF9), Unicode::OTHER_LETTER);
-    // U+0C5A "TELUGU LETTER RRRA".
-    TEST_EQUAL(Unicode::get_category(0xC5A), Unicode::OTHER_LETTER);
-    // U+0D5F "MALAYALAM LETTER ARCHAIC II".
-    TEST_EQUAL(Unicode::get_category(0xD5F), Unicode::OTHER_LETTER);
-    // U+13F5 "CHEROKEE LETTER MV".
-    TEST_EQUAL(Unicode::get_category(0x13F5), Unicode::UPPERCASE_LETTER);
-    // U+13F8 "CHEROKEE SMALL LETTER YE".
-    TEST_EQUAL(Unicode::get_category(0x13F8), Unicode::LOWERCASE_LETTER);
-    // U+19B7 "NEW TAI LUE VOWEL SIGN O" changed to be OTHER_LETTER in 8.0.0.
-    TEST_EQUAL(Unicode::get_category(0x19B7), Unicode::OTHER_LETTER);
-    // U+20BE "LARI SIGN".
-    TEST_EQUAL(Unicode::get_category(0x20BE), Unicode::CURRENCY_SYMBOL);
-    // U+218A "TURNED DIGIT TWO".
-    TEST_EQUAL(Unicode::get_category(0x218A), Unicode::OTHER_SYMBOL);
-    // U+10C9C "OLD HUNGARIAN CAPITAL LETTER OO".
-    TEST_EQUAL(Unicode::get_category(0x10C9C), Unicode::UPPERCASE_LETTER);
-    // U+12399 "CUNEIFORM SIGN U U".
-    TEST_EQUAL(Unicode::get_category(0x12399), Unicode::OTHER_LETTER);
-    // U+1D800 "SIGNWRITING HAND-FIST INDEX".
-    TEST_EQUAL(Unicode::get_category(0x1D800), Unicode::OTHER_SYMBOL);
-
-    // Added or changed in Unicode 9.0.0:
-    // U+08B6 "ARABIC LETTER BEH WITH SMALL MEEM ABOVE"
-    TEST_EQUAL(Unicode::get_category(0x8B6), Unicode::OTHER_LETTER);
-    // U+08E2 "ARABIC DISPUTED END OF AYAH"
-    TEST_EQUAL(Unicode::get_category(0x8E2), Unicode::FORMAT);
-    // U+0C80 "KANNADA SIGN SPACING CANDRABINDU"
-    TEST_EQUAL(Unicode::get_category(0xC80), Unicode::OTHER_LETTER);
-    // U+0D56 "MALAYALAM LETTER CHILLU LLL"
-    TEST_EQUAL(Unicode::get_category(0xD56), Unicode::OTHER_LETTER);
-    // U+0D58 "MALAYALAM FRACTION ONE ONE-HUNDRED-AND-SIXTIETH"
-    TEST_EQUAL(Unicode::get_category(0xD58), Unicode::OTHER_NUMBER);
-    // U+1885 "MONGOLIAN LETTER ALI GALI BALUDA"
-    TEST_EQUAL(Unicode::get_category(0x1885), Unicode::NON_SPACING_MARK);
-    // U+1886 "MONGOLIAN LETTER ALI GALI THREE BALUDA"
-    TEST_EQUAL(Unicode::get_category(0x1886), Unicode::NON_SPACING_MARK);
-    // U+104FB "OSAGE SMALL LETTER ZHA"
-    TEST_EQUAL(Unicode::get_category(0x104FB), Unicode::LOWERCASE_LETTER);
-    // U+1141F "NEWA LETTER TA"
-    TEST_EQUAL(Unicode::get_category(0x1141F), Unicode::OTHER_LETTER);
-    // U+1F989 "OWL"
-    TEST_EQUAL(Unicode::get_category(0x1F989), Unicode::OTHER_SYMBOL);
-
-    // Added in Unicode 10.0.0:
-    // U+20BF "BITCOIN SIGN"
-    TEST_EQUAL(Unicode::get_category(0x20BF), Unicode::CURRENCY_SYMBOL);
-    // U+23FF "OBSERVER EYE SYMBOL"
-    TEST_EQUAL(Unicode::get_category(0x23FF), Unicode::OTHER_SYMBOL);
-    // U+1032D "OLD ITALIC LETTER YE"
-    TEST_EQUAL(Unicode::get_category(0x1032D), Unicode::OTHER_LETTER);
-    // U+11A34 "ZANABAZAR SQUARE SIGN VIRAMA"
-    TEST_EQUAL(Unicode::get_category(0x11A34), Unicode::NON_SPACING_MARK);
-    // U+1F6F8 "FLYING SAUCER"
-    TEST_EQUAL(Unicode::get_category(0x1F6F8), Unicode::OTHER_SYMBOL);
-    // U+1F9E6 "SOCKS"
-    TEST_EQUAL(Unicode::get_category(0x1F9E6), Unicode::OTHER_SYMBOL);
-
-    // Added in Unicode 11.0.0:
-    // U+0560 "ARMENIAN SMALL LETTER TURNED AYB"
-    TEST_EQUAL(Unicode::get_category(0x0560), Unicode::LOWERCASE_LETTER);
-    // U+05EF "HEBREW YOD TRIANGLE"
-    TEST_EQUAL(Unicode::get_category(0x05EF), Unicode::OTHER_LETTER);
-    // U+07FF "NKO TAMAN SIGN"
-    TEST_EQUAL(Unicode::get_category(0x07FF), Unicode::CURRENCY_SYMBOL);
-    // U+08D3 "ARABIC SMALL LOW WAW"
-    TEST_EQUAL(Unicode::get_category(0x08D3), Unicode::NON_SPACING_MARK);
-    // U+1878 "MONGOLIAN LETTER CHA WITH TWO DOTS"
-    TEST_EQUAL(Unicode::get_category(0x1878), Unicode::OTHER_LETTER);
-    // U+1F12F "COPYLEFT SYMBOL"
-    TEST_EQUAL(Unicode::get_category(0x1F12F), Unicode::OTHER_SYMBOL);
-
-    // Changed category in Unicode 11.0.0:
-    // U+10D0 "GEORGIAN LETTER AN"
-    TEST_EQUAL(Unicode::get_category(0x10D0), Unicode::LOWERCASE_LETTER);
-
-    // Added in Unicode 12.0.0:
-    // U+0C77 "TELUGU SIGN SIDDHAM"
-    TEST_EQUAL(Unicode::get_category(0x0C77), Unicode::OTHER_PUNCTUATION);
-    // U+2BC9 "NEPTUNE FORM TWO"
-    TEST_EQUAL(Unicode::get_category(0x2BC9), Unicode::OTHER_SYMBOL);
-    // U+A7C5 "LATIN CAPITAL LETTER S WITH HOOK"
-    TEST_EQUAL(Unicode::get_category(0xA7C5), Unicode::UPPERCASE_LETTER);
-    // U+1FA90 "RINGED PLANET"
-    TEST_EQUAL(Unicode::get_category(0x1FA90), Unicode::OTHER_SYMBOL);
-
-    // Added in Unicode 12.1.0:
-    TEST_EQUAL(Unicode::get_category(0x32ff), Unicode::OTHER_SYMBOL);
-
-    // Added in Unicode 13.0.0:
-    TEST_EQUAL(Unicode::get_category(0x1FBC5), Unicode::OTHER_SYMBOL);
-    TEST_EQUAL(Unicode::get_category(0x2A6DD), Unicode::OTHER_LETTER);
-    TEST_EQUAL(Unicode::get_category(0x30000), Unicode::OTHER_LETTER);
-    TEST_EQUAL(Unicode::get_category(0x30303), Unicode::OTHER_LETTER);
-    TEST_EQUAL(Unicode::get_category(0x3134A), Unicode::OTHER_LETTER);
-
-    // Added in Unicode 15.1.0.
-    TEST_EQUAL(Unicode::get_category(0x2EBF0), Unicode::OTHER_LETTER);
-    TEST_EQUAL(Unicode::get_category(0x2EE5D), Unicode::OTHER_LETTER);
-
-    // Added in Unicode 16.0.0.
-    TEST_EQUAL(Unicode::get_category(0x105C0), Unicode::OTHER_LETTER);
-
-    // Added or changed category in Unicode 17.0.0:
+    // We currently support Unicode 17.0.0 - check some codepoints which
+    // were added or changed category in this version.
     TEST_EQUAL(Unicode::get_category(0x0295), Unicode::OTHER_LETTER);
     TEST_EQUAL(Unicode::get_category(0x088F), Unicode::OTHER_LETTER);
     TEST_EQUAL(Unicode::get_category(0x0C5C), Unicode::OTHER_LETTER);
@@ -384,159 +175,18 @@ DEFINE_TESTCASE(unicode1, !backend) {
     TEST_EQUAL(Unicode::get_category(0x2CEAD), Unicode::OTHER_LETTER);
     TEST_EQUAL(Unicode::get_category(0x323B0), Unicode::OTHER_LETTER);
     TEST_EQUAL(Unicode::get_category(0x33479), Unicode::OTHER_LETTER);
-
-    // Test some invalid Unicode values.
-    TEST_EQUAL(Unicode::get_category(0x110000), Unicode::UNASSIGNED);
-    TEST_EQUAL(Unicode::get_category(0xFFFFFFFF), Unicode::UNASSIGNED);
 }
 
 DEFINE_TESTCASE(caseconvert1, !backend) {
     using namespace Xapian;
+    // Test Unicode case matches ISO C for ASCII subset.
     for (unsigned ch = 0; ch < 128; ++ch) {
         TEST_EQUAL(Unicode::tolower(ch), unsigned(tolower(ch)));
         TEST_EQUAL(Unicode::toupper(ch), unsigned(toupper(ch)));
+        auto category = Unicode::get_category(ch);
+        TEST_EQUAL(category == Unicode::LOWERCASE_LETTER, !!islower(ch));
+        TEST_EQUAL(category == Unicode::UPPERCASE_LETTER, !!isupper(ch));
     }
-
-    // U+0242 was added in Unicode 5.0.0 as a lowercase form of U+0241.
-    TEST_EQUAL(Unicode::tolower(0x242), 0x242);
-    TEST_EQUAL(Unicode::toupper(0x242), 0x241);
-    TEST_EQUAL(Unicode::toupper(0x241), 0x241);
-    TEST_EQUAL(Unicode::tolower(0x241), 0x242);
-
-    // Regression test for bug fixed in 1.2.17.
-    TEST_EQUAL(Unicode::tolower(0x1c5), 0x1c6);
-    TEST_EQUAL(Unicode::tolower(0x1c8), 0x1c9);
-    TEST_EQUAL(Unicode::tolower(0x1cb), 0x1cc);
-    TEST_EQUAL(Unicode::tolower(0x1f2), 0x1f3);
-
-    // Pound currency symbol:
-    TEST_EQUAL(Unicode::tolower(0xa3), 0xa3);
-    TEST_EQUAL(Unicode::toupper(0xa3), 0xa3);
-    // Unassigned:
-    TEST_EQUAL(Unicode::tolower(0xFFFF), 0xFFFF);
-    TEST_EQUAL(Unicode::toupper(0xFFFF), 0xFFFF);
-    // Test characters outside BMP.
-    TEST_EQUAL(Unicode::tolower(0x10345), 0x10345);
-    TEST_EQUAL(Unicode::toupper(0x10345), 0x10345);
-    TEST_EQUAL(Unicode::tolower(0x10FFFD), 0x10FFFD);
-    TEST_EQUAL(Unicode::toupper(0x10FFFD), 0x10FFFD);
-    TEST_EQUAL(Unicode::tolower(0x10FFFF), 0x10FFFF);
-    TEST_EQUAL(Unicode::toupper(0x10FFFF), 0x10FFFF);
-    // Test some invalid Unicode values.
-    TEST_EQUAL(Unicode::tolower(0x110000), 0x110000);
-    TEST_EQUAL(Unicode::toupper(0x110000), 0x110000);
-    TEST_EQUAL(Unicode::tolower(0xFFFFFFFF), 0xFFFFFFFF);
-    TEST_EQUAL(Unicode::toupper(0xFFFFFFFF), 0xFFFFFFFF);
-}
-
-/// Test Unicode 5.1 and later support.
-DEFINE_TESTCASE(caseconvert2, !backend) {
-    using namespace Xapian;
-
-    TEST_EQUAL(Unicode::toupper(0x250), 0x2c6f);
-    TEST_EQUAL(Unicode::toupper(0x251), 0x2c6d);
-    TEST_EQUAL(Unicode::toupper(0x271), 0x2c6e);
-
-    TEST_EQUAL(Unicode::get_category(0x2ec), Unicode::MODIFIER_LETTER);
-    TEST_EQUAL(Unicode::get_category(0x374), Unicode::MODIFIER_LETTER);
-    TEST_EQUAL(Unicode::get_category(0x487), Unicode::NON_SPACING_MARK);
-    TEST_EQUAL(Unicode::get_category(0x5be), Unicode::DASH_PUNCTUATION);
-    TEST_EQUAL(Unicode::get_category(0x1f093), Unicode::OTHER_SYMBOL);
-
-    // U+0526, U+0527 and U+A78D were added in Unicode 6.0.0:
-    TEST_EQUAL(Unicode::toupper(0x265), 0xa78d);
-    TEST_EQUAL(Unicode::tolower(0xa78d), 0x265);
-    TEST_EQUAL(Unicode::tolower(0x526), 0x527);
-    TEST_EQUAL(Unicode::toupper(0x527), 0x526);
-
-    // U+A7AA was added in Unicode 6.1.0:
-    TEST_EQUAL(Unicode::toupper(0x266), 0xa7aa);
-    TEST_EQUAL(Unicode::tolower(0xa7aa), 0x266);
-    TEST_EQUAL(Unicode::tolower(0x526), 0x527);
-    TEST_EQUAL(Unicode::toupper(0x527), 0x526);
-
-    TEST_EQUAL(Unicode::tolower(0x370), 0x371);
-    TEST_EQUAL(Unicode::toupper(0x371), 0x370);
-    TEST_EQUAL(Unicode::tolower(0x372), 0x373);
-    TEST_EQUAL(Unicode::toupper(0x373), 0x372);
-    TEST_EQUAL(Unicode::tolower(0x376), 0x377);
-    TEST_EQUAL(Unicode::toupper(0x377), 0x376);
-    TEST_EQUAL(Unicode::tolower(0x3cf), 0x3d7);
-    TEST_EQUAL(Unicode::toupper(0x3d7), 0x3cf);
-
-    // U+20BA was added in Unicode 6.2.0:
-    TEST_EQUAL(Unicode::toupper(0x20ba), 0x20ba);
-    TEST_EQUAL(Unicode::tolower(0x20ba), 0x20ba);
-
-    // U+061C was added in Unicode 6.3.0:
-    TEST_EQUAL(Unicode::toupper(0x61c), 0x61c);
-    TEST_EQUAL(Unicode::tolower(0x61c), 0x61c);
-
-    unsigned u;
-    for (u = 0x514; u < 0x524; u += 2) {
-        TEST_EQUAL(Unicode::get_category(u), Unicode::UPPERCASE_LETTER);
-        TEST_EQUAL(Unicode::get_category(u + 1), Unicode::LOWERCASE_LETTER);
-        TEST_EQUAL(Unicode::tolower(u), u + 1);
-        TEST_EQUAL(Unicode::toupper(u + 1), u);
-    }
-
-    // U+A7B1 was added in Unicode 8.0.0 as an uppercase form of U+0287.
-    TEST_EQUAL(Unicode::tolower(0xA7B1), 0x0287);
-    TEST_EQUAL(Unicode::toupper(0xA7B1), 0xA7B1);
-    TEST_EQUAL(Unicode::tolower(0x0287), 0x0287);
-    TEST_EQUAL(Unicode::toupper(0x0287), 0xA7B1);
-
-    // U+A7B4 (capital) and U+A7B5 (small) added in Unicode 8.0.0
-    TEST_EQUAL(Unicode::tolower(0xA7B4), 0xA7B5);
-    TEST_EQUAL(Unicode::toupper(0xA7B4), 0xA7B4);
-    TEST_EQUAL(Unicode::tolower(0xA7B5), 0xA7B5);
-    TEST_EQUAL(Unicode::toupper(0xA7B5), 0xA7B4);
-
-    // U+A7AE was added in Unicode 9.0.0 as an uppercase form of U+026A.
-    TEST_EQUAL(Unicode::tolower(0xA7AE), 0x026A);
-    TEST_EQUAL(Unicode::toupper(0xA7AE), 0xA7AE);
-    TEST_EQUAL(Unicode::tolower(0x026A), 0x026A);
-    TEST_EQUAL(Unicode::toupper(0x026A), 0xA7AE);
-
-    // U+A7AE was added in Unicode 9.0.0 as an uppercase form of U+026A.
-    TEST_EQUAL(Unicode::tolower(0xA7AE), 0x026A);
-    TEST_EQUAL(Unicode::toupper(0xA7AE), 0xA7AE);
-    TEST_EQUAL(Unicode::tolower(0x026A), 0x026A);
-    TEST_EQUAL(Unicode::toupper(0x026A), 0xA7AE);
-
-    // U+0560 was added in Unicode 11.0.0 (lowercase, no other forms).
-    TEST_EQUAL(Unicode::tolower(0x0560), 0x0560);
-    TEST_EQUAL(Unicode::toupper(0x0560), 0x0560);
-
-    // U+10D0 changed to be lowercase in Unicode 11.0.0 and U+1C90 was added.
-    TEST_EQUAL(Unicode::tolower(0x10D0), 0x10D0);
-    TEST_EQUAL(Unicode::toupper(0x10D0), 0x1C90);
-    TEST_EQUAL(Unicode::tolower(0x1C90), 0x10D0);
-    TEST_EQUAL(Unicode::toupper(0x1C90), 0x1C90);
-
-    // U+A7C5 was added in Unicode 12.0.0 as an uppercase form of U+0282.
-    TEST_EQUAL(Unicode::tolower(0xA7C5), 0x0282);
-    TEST_EQUAL(Unicode::toupper(0xA7C5), 0xA7C5);
-    TEST_EQUAL(Unicode::tolower(0x0282), 0x0282);
-    TEST_EQUAL(Unicode::toupper(0x0282), 0xA7C5);
-
-    // Added in Unicode 13.0.0.
-    TEST_EQUAL(Unicode::tolower(0xA7C8), 0xA7C8);
-    TEST_EQUAL(Unicode::toupper(0xA7C8), 0xA7C7);
-    TEST_EQUAL(Unicode::toupper(0xA7C7), 0xA7C7);
-    TEST_EQUAL(Unicode::tolower(0xA7C7), 0xA7C8);
-
-    // Added in Unicode 14.0.0.
-    TEST_EQUAL(Unicode::tolower(0x2C5F), 0x2C5F);
-    TEST_EQUAL(Unicode::toupper(0x2C5F), 0x2C2F);
-    TEST_EQUAL(Unicode::toupper(0x2C2F), 0x2C2F);
-    TEST_EQUAL(Unicode::tolower(0x2C2F), 0x2C5F);
-
-    // Uppercase versions and mappings added in Unicode 17.0.0:
-    TEST_EQUAL(Unicode::tolower(0xA7D2), 0xA7D3);
-    TEST_EQUAL(Unicode::toupper(0xA7D3), 0xA7D2);
-    TEST_EQUAL(Unicode::tolower(0xA7D4), 0xA7D5);
-    TEST_EQUAL(Unicode::toupper(0xA7D5), 0xA7D4);
 }
 
 DEFINE_TESTCASE(utf8convert1, !backend) {
@@ -562,144 +212,236 @@ DEFINE_TESTCASE(utf8convert1, !backend) {
                           );
 }
 
-DEFINE_TESTCASE(unicodepredicates1, !backend) {
-    static const unsigned wordchars[] = {
-        // DECIMAL_DIGIT_NUMBER
-        '0', '7', '9',
-        0x10D30, // (added in Unicode 11.0.0)
-        0x11D51, // (added in Unicode 10.0.0)
-        0x11DA9, // (added in Unicode 11.0.0)
-        0x11F50, // (added in Unicode 15.0.0)
-        0x16AC9, // (added in Unicode 14.0.0)
-        // OTHER_NUMBER
-        0x1ECB3, // (added in Unicode 11.0.0)
-        0x1D2D3, // (added in Unicode 15.0.0)
-        // LOWERCASE_LETTER
-        'a', 'z', 0x250, 0x251, 0x271, 0x3d7,
-        0x242, // (added in Unicode 5.0.0)
-        // LOWERCASE_LETTER (added in Unicode 5.1.0)
-        0x371, 0x373, 0x377, 0x514, 0x516, 0x518, 0x51a, 0x51c, 0x51e,
-        0x520, 0x522,
-        0x1C8A, // (added in Unicode 16.0.0)
-        0xA7C1, // (added in Unicode 14.0.0)
-        0x16E78, // (added in Unicode 11.0.0)
-        0x1DF2A, // (added in Unicode 15.0.0)
-        // UPPERCASE_LETTER
-        'A', 'Z', 0x241,
-        // UPPERCASE_LETTER (added in Unicode 5.1.0)
-        0x370, 0x372, 0x376, 0x3cf, 0x515, 0x517, 0x519, 0x51b, 0x51d, 0x51f,
-        0x521, 0x523, 0x2c6d, 0x2c6e, 0x2c6f,
-        0xA7C0, // (added in Unicode 14.0.0)
-        0xA7CB, // (added in Unicode 16.0.0)
-        0x16E45, // (added in Unicode 11.0.0)
-        // OTHER_LETTER
-        0x870, // (added in Unicode 14.0.0)
-        0x8bb, // Added in Unicode 9.0.0
-        0x8c7, // Added in Unicode 13.0.0
-        0xc80, // Added in Unicode 9.0.0
-        0xe86, // Added in Unicode 12.0.0
-        0x312e, // Added in Unicode 10.0.0
-        0x10345,
-        0x18CFF, // Added in Unicode 16.0.0
-        0x1e4d0, // Added in Unicode 15.0.0
-        0x2ee2e, // Added in Unicode 15.1.0
-        // MODIFIER_LETTER
-        0x2ec, // Added in Unicode 5.1.0
-        0x374, // Added in Unicode 5.1.0
-        0x8c9, // Added in Unicode 14.0.0
-        0x10D6F, // Added in Unicode 16.0.0
-        0x16fe1, // Added in Unicode 10.0.0
-        0x16fe3, // Added in Unicode 12.0.0
-        0x1e4eb, // Added in Unicode 15.0.0
-        // NON_SPACING_MARK (added to is_wordchar() in 1.1.0)
-        0x651,
-        0x487, // Added in Unicode 5.1.0
-        0x897, // Added in Unicode 16.0.0
-        0x899, // Added in Unicode 14.0.0
-        0x8d3, // Added in Unicode 11.0.0
-        0x8db, // Added in Unicode 9.0.0
-        0xeba, // Added in Unicode 12.0.0
-        0x11d47, // Added in Unicode 10.0.0
-        0x16fe4, // Added in Unicode 13.0.0
-        0x1e4ee, // Added in Unicode 15.0.0
-        0
-    };
-    static const unsigned currency[] = {
-        // CURRENCY_SYMBOL
-        '$', 0xa3,
-        // CURRENCY_SYMBOL (added in Unicode 6.2.0)
-        0x20ba,
-        // CURRENCY_SYMBOL (added in Unicode 8.0.0)
-        0x20be,
-        // CURRENCY_SYMBOL (added in Unicode 10.0.0)
-        0x20bf,
-        // CURRENCY_SYMBOL (added in Unicode 11.0.0)
-        0x7fe,
-        // CURRENCY_SYMBOL (added in Unicode 12.0.0)
-        0x1e2ff,
-        // CURRENCY_SYMBOL (added in Unicode 14.0.0)
-        0x20c0,
-        // CURRENCY_SYMBOL (added in Unicode 17.0.0)
-        0x20c1,
-        0
-    };
-    static const unsigned whitespace[] = {
-        // CONTROL
-        '\t', '\n', '\f', '\r',
-        // SPACE_SEPARATOR
-        ' ',
-        0
-    };
-    static const unsigned other[] = {
-        // DASH_PUNCTUATION
-        0x5be, // Added in Unicode 5.1.0
-        0x2e5d, // Added in Unicode 14.0.0
-        0x10D6E, // Added in Unicode 16.0.0
-        // OTHER_SYMBOL
-        0xd4f, // Added in Unicode 9.0.0
-        0x2b97, // Added in Unicode 13.0.0
-        0x2ffc, // Added in Unicode 15.1.0
-        0x31ef, // Added in Unicode 15.1.0
-        0x32ff, // Added in Unicode 12.1.0; UNASSIGNED before
-        0xfdcF, // Added in Unicode 14.0.0
-        0x1f093, // Added in Unicode 5.1.0
-        0x1f263, // Added in Unicode 10.0.0
-        0x1fa62, // Added in Unicode 11.0.0
-        0x1f6dc, // Added in Unicode 15.0.0
-        0x1FADC, // Added in Unicode 16.0.0
-        // FORMAT
-        0x61c, // Added in Unicode 6.3.0
-        0x891, // Added in Unicode 14.0.0
-        0x8e2, // Added in Unicode 9.0.0
-        0x1343e, // Added in Unicode 15.0.0
-        // UNASSIGNED
-        0xffff, 0x10ffff, 0x110000, 0xFFFFFFFF,
-        // PRIVATE_USE
-        0x10fffd,
-        0
-    };
+static unsigned
+decode_codepoint(const char** p) {
+    unsigned r = 0;
+    while (**p != ';') {
+        TEST(C_isxdigit(**p));
+        r = (r << 4) | hex_digit(**p);
+        ++*p;
+    }
+    return r;
+}
 
-    for (const unsigned* p = wordchars; *p; ++p) {
-        TEST(Xapian::Unicode::is_wordchar(*p));
-        TEST(!Xapian::Unicode::is_currency(*p));
-        TEST(!Xapian::Unicode::is_whitespace(*p));
+static void
+test_codepoint(unsigned codepoint,
+               unsigned upper,
+               unsigned lower,
+               Xapian::Unicode::category category)
+{
+    using namespace Xapian;
+    TEST_EQUAL(Unicode::get_category(codepoint), category);
+    TEST_EQUAL(Unicode::toupper(codepoint), upper);
+    TEST_EQUAL(Unicode::tolower(codepoint), lower);
+
+    switch (category) {
+      case Unicode::CURRENCY_SYMBOL:
+        TEST(Unicode::is_currency(codepoint));
+        TEST(!Unicode::is_whitespace(codepoint));
+        TEST(!Unicode::is_wordchar(codepoint));
+        break;
+      case Unicode::CONTROL:
+      case Unicode::LINE_SEPARATOR:
+      case Unicode::PARAGRAPH_SEPARATOR:
+      case Unicode::SPACE_SEPARATOR:
+        TEST(!Unicode::is_currency(codepoint));
+        TEST(Unicode::is_whitespace(codepoint));
+        TEST(!Unicode::is_wordchar(codepoint));
+        break;
+      case Unicode::COMBINING_SPACING_MARK:
+      case Unicode::CONNECTOR_PUNCTUATION:
+      case Unicode::DECIMAL_DIGIT_NUMBER:
+      case Unicode::ENCLOSING_MARK:
+      case Unicode::LETTER_NUMBER:
+      case Unicode::LOWERCASE_LETTER:
+      case Unicode::MODIFIER_LETTER:
+      case Unicode::NON_SPACING_MARK:
+      case Unicode::OTHER_LETTER:
+      case Unicode::OTHER_NUMBER:
+      case Unicode::TITLECASE_LETTER:
+      case Unicode::UPPERCASE_LETTER:
+        TEST(!Unicode::is_currency(codepoint));
+        TEST(!Unicode::is_whitespace(codepoint));
+        TEST(Unicode::is_wordchar(codepoint));
+        break;
+      default:
+        TEST(!Unicode::is_currency(codepoint));
+        TEST(!Unicode::is_whitespace(codepoint));
+        TEST(!Unicode::is_wordchar(codepoint));
+        break;
+    }
+}
+
+// Exhaustively test all codepoints in Unicode's assignable range, plus a
+// subset above that range.
+DEFINE_TESTCASE(unicodetables, !backend) {
+    using namespace Xapian;
+    string unicode_data_path =
+        test_driver::get_srcdir() + "/../unicode/UnicodeData.txt";
+    ifstream unicode_data(unicode_data_path, fstream::binary);
+    string line;
+    unsigned next_codepoint = 0;
+    while (getline(unicode_data, line), !unicode_data.eof()) {
+        tout.str(string());
+        const char* p = line.data();
+        unsigned codepoint = decode_codepoint(&p);
+        const char* desc = p + 1;
+        p = strchr(desc, ';');
+        TEST(p != nullptr);
+        bool end_of_range =
+            (*desc == '<' && p - desc > 5 && memcmp(p - 5, "Last>", 5) == 0);
+        ++p;
+        TEST(C_isupper(p[0]));
+        TEST(C_islower(p[1]));
+#define ENCODE(C1, C2) ((C1 - 'A') * 26 + (C2 - 'a'))
+        Xapian::Unicode::category category;
+        switch (ENCODE(p[0], p[1])) {
+          case ENCODE('C', 'c'):
+            category = Unicode::CONTROL;
+            break;
+          case ENCODE('C', 'f'):
+            category = Unicode::FORMAT;
+            break;
+          case ENCODE('C', 'n'):
+            category = Unicode::UNASSIGNED;
+            break;
+          case ENCODE('C', 'o'):
+            category = Unicode::PRIVATE_USE;
+            break;
+          case ENCODE('C', 's'):
+            category = Unicode::SURROGATE;
+            break;
+          case ENCODE('L', 'l'):
+            category = Unicode::LOWERCASE_LETTER;
+            break;
+          case ENCODE('L', 'm'):
+            category = Unicode::MODIFIER_LETTER;
+            break;
+          case ENCODE('L', 'o'):
+            category = Unicode::OTHER_LETTER;
+            break;
+          case ENCODE('L', 't'):
+            category = Unicode::TITLECASE_LETTER;
+            break;
+          case ENCODE('L', 'u'):
+            category = Unicode::UPPERCASE_LETTER;
+            break;
+          case ENCODE('M', 'c'):
+            category = Unicode::COMBINING_SPACING_MARK;
+            break;
+          case ENCODE('M', 'e'):
+            category = Unicode::ENCLOSING_MARK;
+            break;
+          case ENCODE('M', 'n'):
+            category = Unicode::NON_SPACING_MARK;
+            break;
+          case ENCODE('N', 'd'):
+            category = Unicode::DECIMAL_DIGIT_NUMBER;
+            break;
+          case ENCODE('N', 'l'):
+            category = Unicode::LETTER_NUMBER;
+            break;
+          case ENCODE('N', 'o'):
+            category = Unicode::OTHER_NUMBER;
+            break;
+          case ENCODE('P', 'c'):
+            category = Unicode::CONNECTOR_PUNCTUATION;
+            break;
+          case ENCODE('P', 'd'):
+            category = Unicode::DASH_PUNCTUATION;
+            break;
+          case ENCODE('P', 'e'):
+            category = Unicode::CLOSE_PUNCTUATION;
+            break;
+          case ENCODE('P', 'f'):
+            category = Unicode::FINAL_QUOTE_PUNCTUATION;
+            break;
+          case ENCODE('P', 'i'):
+            category = Unicode::INITIAL_QUOTE_PUNCTUATION;
+            break;
+          case ENCODE('P', 'o'):
+            category = Unicode::OTHER_PUNCTUATION;
+            break;
+          case ENCODE('P', 's'):
+            category = Unicode::OPEN_PUNCTUATION;
+            break;
+          case ENCODE('S', 'c'):
+            category = Unicode::CURRENCY_SYMBOL;
+            break;
+          case ENCODE('S', 'k'):
+            category = Unicode::MODIFIER_SYMBOL;
+            break;
+          case ENCODE('S', 'm'):
+            category = Unicode::MATH_SYMBOL;
+            break;
+          case ENCODE('S', 'o'):
+            category = Unicode::OTHER_SYMBOL;
+            break;
+          case ENCODE('Z', 'l'):
+            category = Unicode::LINE_SEPARATOR;
+            break;
+          case ENCODE('Z', 'p'):
+            category = Unicode::PARAGRAPH_SEPARATOR;
+            break;
+          case ENCODE('Z', 's'):
+            category = Unicode::SPACE_SEPARATOR;
+            break;
+          default:
+            FAIL_TEST("Unexpected Unicode category '" << p[0] << p[1] << "'");
+        }
+
+        for (int i = 2; i < 12; ++i) {
+            p = strchr(p + 1, ';');
+            TEST(p != nullptr);
+        }
+        ++p;
+        unsigned upper = (*p != ';') ? decode_codepoint(&p) : codepoint;
+        ++p;
+        unsigned lower = (*p != ';') ? decode_codepoint(&p) : codepoint;
+
+        if (end_of_range) {
+            tout << "[" << next_codepoint << ".." << codepoint
+                 << "] category=" << category << '\n';
+        } else {
+            if (next_codepoint < codepoint) {
+                tout << "[" << next_codepoint << ".." << codepoint - 1 << "] "
+                        "unassigned\n";
+            }
+            tout << codepoint << " category=" << category
+                 << " upper=" << upper
+                 << " lower=" << lower << '\n';
+        }
+
+        while (next_codepoint < codepoint) {
+            if (end_of_range) {
+                test_codepoint(next_codepoint, next_codepoint, next_codepoint,
+                               category);
+            } else {
+                test_codepoint(next_codepoint, next_codepoint, next_codepoint,
+                               Unicode::UNASSIGNED);
+            }
+            ++next_codepoint;
+        }
+
+        test_codepoint(codepoint, upper, lower, category);
+        ++next_codepoint;
     }
 
-    for (const unsigned* p = currency; *p; ++p) {
-        TEST(!Xapian::Unicode::is_wordchar(*p));
-        TEST(Xapian::Unicode::is_currency(*p));
-        TEST(!Xapian::Unicode::is_whitespace(*p));
-    }
+    // Test some invalid Unicode values.
+    TEST_EQUAL(next_codepoint, 0x10FFFE);
 
-    for (const unsigned* p = whitespace; *p; ++p) {
-        TEST(!Xapian::Unicode::is_wordchar(*p));
-        TEST(!Xapian::Unicode::is_currency(*p));
-        TEST(Xapian::Unicode::is_whitespace(*p));
+    unsigned codepoint = next_codepoint - 1;
+    while (++codepoint <= 0x110011) {
+        // Test some values just above the upper end of the valid range.
+        TEST_EQUAL(Unicode::tolower(codepoint), codepoint);
+        TEST_EQUAL(Unicode::toupper(codepoint), codepoint);
+        TEST_EQUAL(Unicode::get_category(codepoint), Unicode::UNASSIGNED);
     }
-
-    for (const unsigned* p = other; *p; ++p) {
-        TEST(!Xapian::Unicode::is_wordchar(*p));
-        TEST(!Xapian::Unicode::is_currency(*p));
-        TEST(!Xapian::Unicode::is_whitespace(*p));
-    }
+    do {
+        // Test "all-F" values up to max of type.
+        codepoint = (codepoint << 1) | 0x0FFFFF;
+        TEST_EQUAL(Unicode::tolower(codepoint), codepoint);
+        TEST_EQUAL(Unicode::toupper(codepoint), codepoint);
+        TEST_EQUAL(Unicode::get_category(codepoint), Unicode::UNASSIGNED);
+    } while (codepoint < numeric_limits<decltype(codepoint)>::max());
 }
