@@ -33,11 +33,11 @@ jobs:
       with:
         show-progress: false
     - name: Install CCache
-      uses: hendrikmuhs/ccache-action@v1
+      uses: hendrikmuhs/ccache-action@v1.2.21
       with:
         key: ${{ github.job }}
     - name: Cache bootstrap tools
-      uses: actions/cache@v4
+      uses: actions/cache@v5
       with:
         path: |
           BUILD
@@ -98,7 +98,7 @@ jobs:
     - name: Create distribution tarball
       run: |
         make dist
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v7
       with:
         path: |
           xapian-core/xapian-core-*.tar.xz
@@ -115,7 +115,7 @@ jobs:
       run: git status --porcelain|grep '^' && { echo "The generated files listed above are not in .gitignore" ; exit 1; }; true
     - name: Save log files
       if: ${{ failure() }}
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: logs-${{ github.job }}-${{ github.sha }}
         overwrite: true
@@ -129,7 +129,7 @@ jobs:
     needs: makedist
     steps:
     - name: Install CCache
-      uses: hendrikmuhs/ccache-action@v1
+      uses: hendrikmuhs/ccache-action@v1.2.21
       with:
         key: ${{ github.job }}
     - name: Fetch distribution
@@ -226,7 +226,7 @@ jobs:
         make -j2 -C xapian-letor check
     - name: Save log files
       if: ${{ failure() }}
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: logs-${{ github.job }}-${{ github.sha }}
         overwrite: true
@@ -240,7 +240,7 @@ jobs:
     needs: makedist
     steps:
     - name: Install CCache
-      uses: hendrikmuhs/ccache-action@v1
+      uses: hendrikmuhs/ccache-action@v1.2.21
       with:
         key: ${{ github.job }}
     - name: Fetch distribution
@@ -328,7 +328,7 @@ jobs:
         make -j2 -C xapian-letor check
     - name: Save log files
       if: ${{ failure() }}
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: logs-${{ github.job }}-${{ github.sha }}
         overwrite: true
@@ -344,7 +344,7 @@ jobs:
     needs: makedist
     steps:
     - name: Install CCache
-      uses: hendrikmuhs/ccache-action@v1
+      uses: hendrikmuhs/ccache-action@v1.2.21
       with:
         key: ${{ github.job }}
     - name: Fetch distribution
@@ -442,7 +442,7 @@ jobs:
         make -j2 -C xapian-letor check
     - name: Save log files
       if: ${{ failure() }}
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: logs-${{ github.job }}-${{ github.sha }}
         overwrite: true
@@ -456,7 +456,7 @@ jobs:
     needs: makedist
     steps:
     - name: Install CCache
-      uses: hendrikmuhs/ccache-action@v1
+      uses: hendrikmuhs/ccache-action@v1.2.21
       with:
         key: ${{ github.job }}
     - name: Fetch distribution
@@ -542,7 +542,7 @@ jobs:
         make -j2 -C xapian-letor check
     - name: Save log files
       if: ${{ failure() }}
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: logs-${{ github.job }}-${{ github.sha }}
         overwrite: true
@@ -556,7 +556,7 @@ jobs:
     needs: makedist
     steps:
     - name: Install CCache
-      uses: hendrikmuhs/ccache-action@v1
+      uses: hendrikmuhs/ccache-action@v1.2.21
       with:
         key: ${{ github.job }}
     - name: Fetch distribution
@@ -641,7 +641,7 @@ jobs:
         make -j2 -C xapian-letor check
     - name: Save log files
       if: ${{ failure() }}
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: logs-${{ github.job }}-${{ github.sha }}
         overwrite: true
@@ -655,7 +655,7 @@ jobs:
     needs: makedist
     steps:
     - name: Install CCache
-      uses: hendrikmuhs/ccache-action@v1
+      uses: hendrikmuhs/ccache-action@v1.2.21
       with:
         key: ${{ github.job }}
     - name: Fetch distribution
@@ -696,7 +696,7 @@ jobs:
         make -j2 -C xapian-core check
     - name: Save log files
       if: ${{ failure() }}
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: logs-${{ github.job }}-${{ github.sha }}
         overwrite: true
@@ -710,7 +710,7 @@ jobs:
     needs: makedist
     steps:
     - name: Install CCache
-      uses: hendrikmuhs/ccache-action@v1
+      uses: hendrikmuhs/ccache-action@v1.2.21
       with:
         key: ${{ github.job }}
     - name: Fetch distribution
@@ -795,7 +795,7 @@ jobs:
         make -j2 -C xapian-letor check
     - name: Save log files
       if: ${{ failure() }}
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: logs-${{ github.job }}-${{ github.sha }}
         overwrite: true
@@ -809,7 +809,7 @@ jobs:
     needs: makedist
     steps:
     - name: Install CCache
-      uses: hendrikmuhs/ccache-action@v1
+      uses: hendrikmuhs/ccache-action@v1.2.21
       with:
         key: ${{ github.job }}
     - name: Fetch distribution
@@ -897,7 +897,7 @@ jobs:
         make -j2 -C xapian-letor check
     - name: Save log files
       if: ${{ failure() }}
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: logs-${{ github.job }}-${{ github.sha }}
         overwrite: true
@@ -912,7 +912,7 @@ jobs:
     needs: makedist
     steps:
     - name: Install CCache
-      uses: hendrikmuhs/ccache-action@v1
+      uses: hendrikmuhs/ccache-action@v1.2.21
       with:
         key: ${{ github.job }}
     - name: Fetch distribution
@@ -995,7 +995,7 @@ jobs:
         make -j2 -C xapian-letor check
     - name: Save log files
       if: ${{ failure() }}
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: logs-${{ github.job }}-${{ github.sha }}
         overwrite: true
@@ -1012,7 +1012,7 @@ jobs:
     needs: makedist
     steps:
     - name: Install CCache
-      uses: hendrikmuhs/ccache-action@v1
+      uses: hendrikmuhs/ccache-action@v1.2.21
       with:
         key: ${{ github.job }}
     - name: Fetch distribution
@@ -1097,7 +1097,7 @@ jobs:
         make -j2 -C xapian-letor check
     - name: Save log files
       if: ${{ failure() }}
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: logs-${{ github.job }}-${{ github.sha }}
         overwrite: true
@@ -1111,7 +1111,7 @@ jobs:
       EM_COMPILER_WRAPPER: ccache
     steps:
     - name: Install CCache
-      uses: hendrikmuhs/ccache-action@v1
+      uses: hendrikmuhs/ccache-action@v1.2.21
       with:
         key: ${{ github.job }}
     - name: Fetch distribution
@@ -1150,7 +1150,7 @@ jobs:
         node xapianjstest.js
     - name: Save log files
       if: ${{ failure() }}
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: logs-${{ github.job }}-${{ github.sha }}
         overwrite: true
@@ -1197,7 +1197,7 @@ jobs:
             libtesseract-dev \
             tesseract-ocr-eng
     - name: Install CCache
-      uses: hendrikmuhs/ccache-action@v1
+      uses: hendrikmuhs/ccache-action@v1.2.21
       with:
         key: ${{ github.job }}
     - name: Fetch distribution
@@ -1251,7 +1251,7 @@ jobs:
         make -j2 -C xapian-letor check
     - name: Save log files
       if: ${{ failure() }}
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: logs-${{ github.job }}-${{ github.sha }}
         overwrite: true
@@ -1263,7 +1263,7 @@ jobs:
     needs: makedist
     steps:
     - name: Install CCache
-      uses: hendrikmuhs/ccache-action@v1
+      uses: hendrikmuhs/ccache-action@v1.2.21
       with:
         key: ${{ github.job }}
     - name: Fetch distribution
@@ -1351,7 +1351,7 @@ jobs:
         make -j3 -C xapian-letor check
     - name: Save log files
       if: ${{ failure() }}
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: logs-${{ github.job }}-${{ github.sha }}
         overwrite: true
@@ -1363,7 +1363,7 @@ jobs:
     needs: makedist
     steps:
     - name: Install CCache
-      uses: hendrikmuhs/ccache-action@v1
+      uses: hendrikmuhs/ccache-action@v1.2.21
       with:
         key: ${{ github.job }}
     - name: Fetch distribution
@@ -1454,7 +1454,7 @@ jobs:
         make -j3 -C xapian-letor check
     - name: Save log files
       if: ${{ failure() }}
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: logs-${{ github.job }}-${{ github.sha }}
         overwrite: true
@@ -1466,7 +1466,7 @@ jobs:
     needs: makedist
     steps:
     - name: Install CCache
-      uses: hendrikmuhs/ccache-action@v1
+      uses: hendrikmuhs/ccache-action@v1.2.21
       with:
         key: ${{ github.job }}
     - name: Fetch distribution
@@ -1559,7 +1559,7 @@ jobs:
         make -j3 -C xapian-letor check
     - name: Save log files
       if: ${{ failure() }}
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: logs-${{ github.job }}-${{ github.sha }}
         overwrite: true
@@ -1571,7 +1571,7 @@ jobs:
     needs: makedist
     steps:
     - name: Install CCache
-      uses: hendrikmuhs/ccache-action@v1
+      uses: hendrikmuhs/ccache-action@v1.2.21
       with:
         key: ${{ github.job }}
     - name: Fetch distribution
@@ -1627,7 +1627,7 @@ jobs:
         make -j2 -C xapian-letor check
     - name: Save log files
       if: ${{ failure() }}
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: logs-${{ github.job }}-${{ github.sha }}
         overwrite: true
@@ -1639,7 +1639,7 @@ jobs:
     needs: makedist
     steps:
     - name: Install CCache
-      uses: hendrikmuhs/ccache-action@v1
+      uses: hendrikmuhs/ccache-action@v1.2.21
       with:
         key: ${{ github.job }}
     - name: Fetch distribution
@@ -1702,7 +1702,7 @@ jobs:
         make -j2 -C xapian-letor check
     - name: Save log files
       if: ${{ failure() }}
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: logs-${{ github.job }}-${{ github.sha }}
         overwrite: true
@@ -1717,7 +1717,7 @@ jobs:
     - name: Install build tools
       run: dnf install -y --nodocs ccache xz
     - name: Install CCache
-      uses: hendrikmuhs/ccache-action@v1
+      uses: hendrikmuhs/ccache-action@v1.2.21
       with:
         key: ${{ github.job }}
     - name: Fetch distribution
@@ -1778,7 +1778,7 @@ jobs:
         make -j2 -C xapian-letor check
     - name: Save log files
       if: ${{ failure() }}
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: logs-${{ github.job }}-${{ github.sha }}
         overwrite: true
@@ -1794,7 +1794,7 @@ jobs:
     needs: makedist
     steps:
     - name: Install CCache
-      uses: hendrikmuhs/ccache-action@v1
+      uses: hendrikmuhs/ccache-action@v1.2.21
       with:
         key: ${{ github.job }}
     - name: Fetch distribution
@@ -1826,7 +1826,7 @@ jobs:
       # FIXME: Run tests under android emulator?
     - name: Save log files
       if: ${{ failure() }}
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: logs-${{ github.job }}-${{ github.sha }}
         overwrite: true
@@ -1849,7 +1849,7 @@ jobs:
       with:
         packages: gcc-g++ make file-devel libpcre2-devel zlib-devel perl
     - name: Install CCache
-      uses: hendrikmuhs/ccache-action@v1
+      uses: hendrikmuhs/ccache-action@v1.2.21
       with:
         key: ${{ github.job }}
     - name: Fetch distribution
@@ -1903,7 +1903,7 @@ jobs:
         make -j2 -C xapian-letor check
     - name: Save log files
       if: ${{ failure() }}
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: logs-${{ github.job }}-${{ github.sha }}
         overwrite: true
@@ -1927,7 +1927,7 @@ jobs:
           pcre2:p
           zlib:p
     - name: Install CCache
-      uses: hendrikmuhs/ccache-action@v1
+      uses: hendrikmuhs/ccache-action@v1.2.21
       with:
         key: ${{ github.job }}
         variant: sccache
@@ -1995,7 +1995,7 @@ jobs:
         make -j2 -C xapian-letor check
     - name: Save log files
       if: ${{ failure() }}
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: logs-${{ github.job }}-${{ github.sha }}
         overwrite: true
@@ -2019,7 +2019,7 @@ jobs:
           pcre2:p
           zlib:p
     - name: Install CCache
-      uses: hendrikmuhs/ccache-action@v1
+      uses: hendrikmuhs/ccache-action@v1.2.21
       with:
         key: ${{ github.job }}
         variant: sccache
@@ -2077,7 +2077,7 @@ jobs:
         make -j2 -C xapian-letor check
     - name: Save log files
       if: ${{ failure() }}
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: logs-${{ github.job }}-${{ github.sha }}
         overwrite: true
@@ -2101,7 +2101,7 @@ jobs:
           pcre2:p
           zlib:p
     - name: Install CCache
-      uses: hendrikmuhs/ccache-action@v1
+      uses: hendrikmuhs/ccache-action@v1.2.21
       with:
         key: ${{ github.job }}
         variant: sccache
@@ -2159,7 +2159,7 @@ jobs:
         make -j2 -C xapian-letor check
     - name: Save log files
       if: ${{ failure() }}
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: logs-${{ github.job }}-${{ github.sha }}
         overwrite: true
@@ -2179,7 +2179,7 @@ jobs:
         path-type: inherit
         install: base-devel
     - name: Install CCache
-      uses: hendrikmuhs/ccache-action@v1
+      uses: hendrikmuhs/ccache-action@v1.2.21
       with:
         key: ${{ github.job }}
         variant: sccache
@@ -2272,7 +2272,7 @@ jobs:
         make -j2 -C xapian-letor check
     - name: Save log files
       if: ${{ failure() }}
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: logs-${{ github.job }}-${{ github.sha }}
         overwrite: true
@@ -2292,7 +2292,7 @@ jobs:
         path-type: inherit
         install: base-devel
     - name: Install CCache
-      uses: hendrikmuhs/ccache-action@v1
+      uses: hendrikmuhs/ccache-action@v1.2.21
       with:
         key: ${{ github.job }}
         variant: sccache
@@ -2382,7 +2382,7 @@ jobs:
         make -j2 -C xapian-letor check
     - name: Save log files
       if: ${{ failure() }}
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: logs-${{ github.job }}-${{ github.sha }}
         overwrite: true
@@ -2402,7 +2402,7 @@ jobs:
         path-type: inherit
         install: base-devel
     - name: Install CCache
-      uses: hendrikmuhs/ccache-action@v1
+      uses: hendrikmuhs/ccache-action@v1.2.21
       with:
         key: ${{ github.job }}
         variant: sccache
@@ -2495,7 +2495,7 @@ jobs:
         make -j2 -C xapian-letor check
     - name: Save log files
       if: ${{ failure() }}
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: logs-${{ github.job }}-${{ github.sha }}
         overwrite: true
@@ -2515,7 +2515,7 @@ jobs:
         path-type: inherit
         install: base-devel
     - name: Install CCache
-      uses: hendrikmuhs/ccache-action@v1
+      uses: hendrikmuhs/ccache-action@v1.2.21
       with:
         key: ${{ github.job }}
         variant: sccache
@@ -2605,7 +2605,7 @@ jobs:
         make -j2 -C xapian-letor check
     - name: Save log files
       if: ${{ failure() }}
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: logs-${{ github.job }}-${{ github.sha }}
         overwrite: true
@@ -2617,7 +2617,7 @@ jobs:
     needs: makedist
     steps:
     - name: Install CCache
-      uses: hendrikmuhs/ccache-action@v1
+      uses: hendrikmuhs/ccache-action@v1.2.21
       with:
         key: ${{ github.job }}
     - name: Fetch distribution
@@ -2680,7 +2680,7 @@ jobs:
           make -j2 -C xapian-letor check V=0
     - name: Save log files
       if: ${{ failure() }}
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: logs-${{ github.job }}-${{ github.sha }}
         overwrite: true
@@ -2692,7 +2692,7 @@ jobs:
     needs: makedist
     steps:
     - name: Install CCache
-      uses: hendrikmuhs/ccache-action@v1
+      uses: hendrikmuhs/ccache-action@v1.2.21
       with:
         key: ${{ github.job }}
     - name: Fetch distribution
@@ -2755,7 +2755,7 @@ jobs:
           make -j2 -C xapian-letor check V=0
     - name: Save log files
       if: ${{ failure() }}
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: logs-${{ github.job }}-${{ github.sha }}
         overwrite: true
@@ -2767,7 +2767,7 @@ jobs:
     needs: makedist
     steps:
     - name: Install CCache
-      uses: hendrikmuhs/ccache-action@v1
+      uses: hendrikmuhs/ccache-action@v1.2.21
       with:
         key: ${{ github.job }}
     - name: Fetch distribution
@@ -2829,7 +2829,7 @@ jobs:
           rm -rf xapian-*
     - name: Save log files
       if: ${{ failure() }}
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: logs-${{ github.job }}-${{ github.sha }}
         overwrite: true
@@ -2841,7 +2841,7 @@ jobs:
     needs: makedist
     steps:
     - name: Install CCache
-      uses: hendrikmuhs/ccache-action@v1
+      uses: hendrikmuhs/ccache-action@v1.2.21
       with:
         key: ${{ github.job }}
     - name: Fetch distribution
@@ -2907,7 +2907,7 @@ jobs:
           rm -rf xapian-*
     - name: Save log files
       if: ${{ failure() }}
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: logs-${{ github.job }}-${{ github.sha }}
         overwrite: true
@@ -2919,7 +2919,7 @@ jobs:
     needs: makedist
     steps:
     - name: Install CCache
-      uses: hendrikmuhs/ccache-action@v1
+      uses: hendrikmuhs/ccache-action@v1.2.21
       with:
         key: ${{ github.job }}
     - name: Fetch distribution
@@ -2981,7 +2981,7 @@ jobs:
           gmake -j2 -C xapian-letor check V=0
     - name: Save log files
       if: ${{ failure() }}
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: logs-${{ github.job }}-${{ github.sha }}
         overwrite: true
