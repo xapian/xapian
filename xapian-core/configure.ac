@@ -34,6 +34,8 @@ dnl 45:0:0 2.0.0 Extensive API changes
 LIBRARY_VERSION_INFO=45:0:0
 AC_SUBST([LIBRARY_VERSION_INFO])
 
+AC_PROG_SED
+
 if expr `echo "$LIBRARY_VERSION_INFO"|$SED 's/:.*:/ - /'` != 45 >/dev/null ; then
   AC_MSG_ERROR([Unexpected SOVERSION change])
 fi
