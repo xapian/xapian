@@ -430,18 +430,18 @@ DEFINE_TESTCASE(unicodetables, !backend) {
     // Test some invalid Unicode values.
     TEST_EQUAL(next_codepoint, 0x10FFFE);
 
+    tout.str(string());
+    tout << "Testing unassigned codepoints just above U+10FFFD\n";
     unsigned codepoint = next_codepoint - 1;
     while (++codepoint <= 0x110011) {
         // Test some values just above the upper end of the valid range.
-        TEST_EQUAL(Unicode::tolower(codepoint), codepoint);
-        TEST_EQUAL(Unicode::toupper(codepoint), codepoint);
-        TEST_EQUAL(Unicode::get_category(codepoint), Unicode::UNASSIGNED);
+        test_codepoint(codepoint, codepoint, codepoint, Unicode::UNASSIGNED);
     }
+    tout.str(string());
+    tout << "Testing unassigned codepoints up to max unsigned int\n";
     do {
         // Test "all-F" values up to max of type.
         codepoint = (codepoint << 1) | 0x0FFFFF;
-        TEST_EQUAL(Unicode::tolower(codepoint), codepoint);
-        TEST_EQUAL(Unicode::toupper(codepoint), codepoint);
-        TEST_EQUAL(Unicode::get_category(codepoint), Unicode::UNASSIGNED);
+        test_codepoint(codepoint, codepoint, codepoint, Unicode::UNASSIGNED);
     } while (codepoint < numeric_limits<decltype(codepoint)>::max());
 }
