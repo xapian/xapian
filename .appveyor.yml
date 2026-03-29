@@ -39,8 +39,6 @@ install:
   - if "%Platform%"=="x64" sed -i 's/-base:0x[0-9A-Fa-f]* //' win32/Makefile.msc
   - nmake -nologo -f win32\Makefile.msc
   - cd ..
-  # Fetch pre-built unicode-data.cc to avoid having to get working tclsh.
-  - curl --retry 5 --retry-connrefused https://oligarchy.co.uk/xapian/patches/unicode-data17.cc > xapian-core\unicode\unicode-data.cc
   - ps: |
       $env:AR="lib"
       $env:CC="cl -nologo"

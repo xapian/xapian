@@ -43,12 +43,11 @@ You will need the following tools installed to build from git:
 * python >= 3.3 (for generating the Python bindings)
 * GNU make (or another make which support VPATH for explicit rules)
 * GNU bison (for building SWIG, used for generating the bindings)
-* Tcl (to generate unicode/unicode-data.cc)
 
 For a recent version of Debian or Ubuntu, this command should ensure you have
 all the necessary tools and libraries::
 
-    apt-get install build-essential m4 perl python3 zlib1g-dev uuid-dev wget bison tcl
+    apt-get install build-essential m4 perl python3 zlib1g-dev uuid-dev wget bison
 
 If you want to build Omega, you'll also need::
 
@@ -234,14 +233,14 @@ https://www.msys2.org/
 For details of how to specify MSVC to ``configure`` see the "INSTALL" document.
 
 When building from git, by default you'll need some extra tools to generate
-Unicode tables (Tcl) and build documentation (doxygen, help2man, sphinx-doc).
-We don't currently have detailed advice on how to do this (if you can provide
-some then please send a patch).
+some source code (Perl) and build documentation (doxygen, help2man,
+sphinx-doc).  We don't currently have detailed advice on how to do this (if you
+can provide some then please send a patch).
 
-You can avoid needing Tcl by copying ``xapian-core/unicode/unicode-data.cc``
-from another platform or a release which uses the same Unicode version.  You
-can avoid needing most of the documentation tools by running configure with
-the ``--disable-documentation`` option.
+You can avoid needing most of the documentation tools by running configure with
+the ``--disable-documentation`` option.  You may be to avoid needing Perl if
+you copy the generated sources from another platform (these generated files
+should be platform-independent).
 
 
 Submitting Patches:
