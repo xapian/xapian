@@ -149,7 +149,8 @@ my @char_info;
 for (my $b = 0; $b < scalar @data; $b += $page_size) {
     my $d = join("\t", @data[$b .. ($b + $page_size - 1)]);
     my $times = $page_size - 1;
-    if ($special_case_all_same && $d =~ /^(([A-Z][a-z]);0;0)(?:\t\1){$times}$/) {
+    if ($special_case_all_same &&
+        $d =~ /^(([A-Z][a-z]);0;0)(?:\t\1){$times}$/) {
         # All codepoints in the page have the same category and no case deltas.
         push @page, "${2}_";
     } else {
@@ -201,11 +202,11 @@ for (sort keys %category_name) {
 print $out "\n";
 
 if (defined $encode_all_same) {
-    # Many pages are comprised entirely of codepoints from a single category with
-    # no upper or lower case version, and we can easily avoid storing a page table
-    # for such pages.  In Unicode 17.0.0, this covers 4195 out of 4352 pages (which
-    # all have one of Cn, Co, Cs, Lo, Sm, So as their category) leaving 156 pages
-    # which we actually need to store.
+    # Many pages are comprised entirely of codepoints from a single category
+    # with no upper or lower case version, and we can easily avoid storing a
+    # page table for such pages.  In Unicode 17.0.0, this covers 4195 out of
+    # 4352 pages (which all have one of Cn, Co, Cs, Lo, Sm, So as their
+    # category) leaving 156 pages which we actually need to store.
     for (sort keys %category_name) {
         print $out "static constexpr $page_type ${_}_ = $encode_all_same$_;\n";
     }
@@ -213,7 +214,8 @@ if (defined $encode_all_same) {
 }
 
 for (qw(TOLOWER TOUPPER)) {
-    print $out "static constexpr auto $_ = Xapian::Unicode::Internal::INFO_${_}_MASK;\n";
+    print $out "static constexpr auto $_ = ",
+               "Xapian::Unicode::Internal::INFO_${_}_MASK;\n";
 }
 print $out "\n";
 
@@ -251,7 +253,8 @@ for my $d (@char_info) {
 print $out "};\n\n";
 print "char_info has ", scalar(@char_info), " entries\n";
 
-print "$min_delta <= delta <= $max_delta (range ", $max_delta - $min_delta, ")\n";
+my $delta_range = $max_delta - $min_delta;
+print "$min_delta <= delta <= $max_delta (range $delta_range)\n";
 
 $min_delta >= -(1<<23) or die "min delta won't fit in 24-bit signed int\n";
 $max_delta < (1<<23) or die "max delta won't fit in 24-bit signed int\n";
@@ -262,7 +265,8 @@ for (my $z = scalar(@page_map) - 1; $z >= 0; --$z) {
         exists $char_info{$d} or die "No %char_info entry for '$d'\n";
         $new .= chr($char_info{$d});
     }
-    (length($new) == $page_size) or die "Page $z not expected size (".length($new)." != $page_size)\n";
+    (length($new) == $page_size) or
+        die "Page $z not expected size (".length($new)." != $page_size)\n";
     $page_map[$z] = $new;
 }
 
@@ -287,18 +291,19 @@ next_page: {
     # always pick one of the remaining pages with the largest overlap then this
     # code might be useful.
     if (0) {
-        # First check for any pages which now have a complete overlap.  Note that
-        # the order we check for these in doesn't make a difference.
+        # First check for any pages which now have a complete overlap.  Note
+        # that the order we check for these in doesn't make a difference.
         complete_overlap: for (my $z = 0; $z < $N; ++$z) {
             my $new = $page_map[$z];
             defined $new or next;
-            # We only need to check for overlaps which include at least some of the
-            # last $msize bytes since overlaps before that would already have been
-            # found on previous passes.
+            # We only need to check for overlaps which include at least some of
+            # the last $msize bytes since overlaps before that would already
+            # have been found on previous passes.
             my $J = $c - $page_size + 1;
             for (my $j = ($J < 0 ? 0 : $J); $j <= $c; ++$j) {
                 if (substr($merged, $j, $page_size) eq $new) {
-                    print "entirely a substring \@", $j - $mlen, "\n" if $DEBUG_OVERLAP;
+                    print "entirely a substring \@", $j - $mlen, "\n"
+                        if $DEBUG_OVERLAP;
                     $to_start[$z] = $j;
                     $is_start{$j} = $z;
                     $page_map[$z] = undef;
@@ -358,8 +363,10 @@ print "page_map has ", scalar(@page_map), " * $page_size entries ($g unique)\n";
 $g < 256 or die "$g unique page_map entries, too many to fit in a byte\n";
 
 print "total table size = ",
-    "$page_type_width * ", scalar(@page), " + ", length($merged), " + 4 * ", scalar(@char_info),
-    " = ", $page_type_width * scalar(@page) + length($merged) + 4 * scalar(@char_info), "\n";
+    "$page_type_width * ", scalar(@page), " + ",
+    length($merged), " + 4 * ", scalar(@char_info), " = ",
+    $page_type_width * scalar(@page) +
+    length($merged) + 4 * scalar(@char_info), "\n";
 
 print $out "static const $page_type page[] = {";
 my $i = 0;
