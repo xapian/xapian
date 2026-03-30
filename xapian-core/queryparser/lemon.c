@@ -1536,7 +1536,7 @@ static void handle_D_option(const char *z_in){
     exit(1);
   }
   paz = &azDefine[nDefine-1];
-  *paz = (char *) malloc( lemonStrlen(z)+1 );
+  *paz = (char *) malloc( lemonStrlen(z_in)+1 );
   if( *paz==0 ){
     fprintf(stderr,"out of memory\n");
     exit(1);
