@@ -217,9 +217,11 @@ for (qw(TOLOWER TOUPPER)) {
 }
 print $out "\n";
 
-print $out "#define U(C,D) C | TOUPPER | (D << 8)\n";
-print $out "#define L(C,D) C | TOLOWER | (D << 8)\n";
-print $out "#define B(C,D) C | TOUPPER | TOLOWER | (D << 8)\n";
+# Use `* 256` instead of `<< 8` to avoid `-Wshift-negative-value` when D is
+# negative (GCC warning active in C++11 to C++17 modes).
+print $out "#define U(C,D) C | TOUPPER | (D * 256)\n";
+print $out "#define L(C,D) C | TOLOWER | (D * 256)\n";
+print $out "#define B(C,D) C | TOUPPER | TOLOWER | (D * 256)\n";
 print $out "\n";
 
 my $min_delta = 0;
