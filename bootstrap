@@ -427,7 +427,7 @@ if [ ! -d "$gitdir" ] ; then
   exit 1
 fi
 
-for emptydir in xapian-applications/omega/m4 xapian-bindings/m4 xapian-letor/m4 ; do
+for emptydir in xapian-omega/m4 xapian-bindings/m4 xapian-letor/m4 ; do
   if test -d "$emptydir" ; then
     :
   else
@@ -439,13 +439,13 @@ for emptydir in xapian-applications/omega/m4 xapian-bindings/m4 xapian-letor/m4 
 done
 
 if [ -f "$gitdir/info/exclude" ] ; then
-  sed '/^\(swig\|xapian-applications\/omega\/common$\)/d' "$gitdir/info/exclude" > "$gitdir/info/exclude~"
+  sed '/^\(swig\|xapian-omega\/common$\)/d' "$gitdir/info/exclude" > "$gitdir/info/exclude~"
 else
   [ -d "$gitdir/info" ] || mkdir "$gitdir/info"
 fi
 cat <<END >> "$gitdir/info/exclude~"
 swig
-xapian-applications/omega/common
+xapian-omega/common
 xapian-letor/common
 END
 if [ -f "$gitdir/info/exclude" ] &&
@@ -707,7 +707,7 @@ esac
 
 intree_swig=no
 modules=
-for module in ${@:-xapian-core xapian-applications/omega swig xapian-bindings} ; do
+for module in ${@:-xapian-core xapian-omega swig xapian-bindings} ; do
   d=$module
   if [ "$d" = swig ] ; then
     if [ -f "xapian-bindings/.nobootstrap" ] ; then
@@ -730,7 +730,7 @@ for module in ${@:-xapian-core xapian-applications/omega swig xapian-bindings} ;
     continue
   fi
   case $d in
-  xapian-applications/omega|xapian-letor)
+  xapian-omega|xapian-letor)
     # If someone's created a directory for common, leave it be.
     if [ -h "$d/common" ] || [ ! -d "$d/common" ] ; then
       # Pick omega_common_commit_hash or letor_common_commit_hash:
@@ -878,9 +878,6 @@ for d in $modules ; do
   fi
   if [ -f "$configure_from_here" ] ; then
     if [ -d "$d" ] ; then : ; else
-      case $d in
-      xapian-applications/*) [ -d xapian-applications ] || mkdir xapian-applications ;;
-      esac
       mkdir "$d"
     fi
     echo "Configuring \`$d'"
@@ -944,7 +941,7 @@ for d in $modules ; do
     xapian-letor)
       cd "$d" && "$configure" --enable-maintainer-mode --disable-option-checking XAPIAN_CONFIG="$XAPIAN_CONFIG" --cache-file="$here/config.cache" ${1+"$@"}
       ;;
-    xapian-applications/omega)
+    xapian-omega)
       cd "$d" && "$configure" --enable-maintainer-mode --disable-option-checking XAPIAN_CONFIG="$XAPIAN_CONFIG" CPPFLAGS="-I$srcdir/INST/include $user_CPPFLAGS" LDFLAGS="-L$srcdir/INST/lib $user_LDFLAGS" ${1+"$@"}
       ;;
     *)

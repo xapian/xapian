@@ -329,7 +329,7 @@ foreach my $ref (@ARGV) {
             $_ eq 'debian' ||
             $f eq 'search-xapian/blib' ||
             $f eq 'swig' ||
-            $f eq 'xapian-applications/omega/common' ||
+            $f eq 'xapian-omega/common' ||
             $f eq 'xapian-data' || # FIXME: make check should use this
             $f eq 'xapian-maintainer-tools' ||
             $f eq 'BUILD' ||
@@ -417,7 +417,7 @@ foreach my $ref (@ARGV) {
             rename $_, "$d/old/$leaf";
         }
     }
-    for (glob("*/*.tar.?z"), glob("xapian-applications/*/*.tar.?z"), glob("*.tar.?z")) {
+    for (glob("*/*.tar.?z"), glob("*.tar.?z")) {
         print LOG "Moving '$_' to '$d'\n";
         system("mv", $_, $d);
         if ($?) {

@@ -161,7 +161,7 @@ while (<>) {
         $check_trailing = 1;
         $doxygen_first_line = 1;
         $check_end_new_line = 1;
-        if ($fnm =~ m!xapian-applications/omega/testfiles!) {
+        if ($fnm =~ m!xapian-omega/testfiles!) {
             $check_space_tab = 0;
             $check_trailing = 0;
             $doxygen_first_line = 0;

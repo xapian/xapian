@@ -44,7 +44,7 @@ For safety reasons, it is not allowed to directly add libraries to omega source 
 
      convert_to_utf8(text, "ISO-8859-1");
 
-2. Once you have the library and the mimetype, it is time to modify the code. We have to create a new handler, which is the process used by omindex to access to the library. In order to do it, we have to create a file ``handler_yourlibrary.cc`` that includes ``handler.h`` and gives a definition to function ``extract`` (there are some examples at xapian-applications/omega such as 'handler_tesseract.cc').
+2. Once you have the library and the mimetype, it is time to modify the code. We have to create a new handler, which is the process used by omindex to access to the library. In order to do it, we have to create a file ``handler_yourlibrary.cc`` that includes ``handler.h`` and gives a definition to function ``extract`` (there are some examples at xapian-omega such as 'handler_tesseract.cc').
    ::
 
      void
@@ -56,7 +56,7 @@ For safety reasons, it is not allowed to directly add libraries to omega source 
 
    If there's an error, call ``fail()`` instead.  If you don't call ``response()`` or ``fail()`` before returning the harness will effectively call ``fail("?")`` for you.
 
-   You can get more information about these functions at 'xapian-applications/omega/handler.h'.
+   You can get more information about these functions at 'xapian-omega/handler.h'.
 
 3. After the handler is implemented, the build system must be updated. In particular, it is necessary to modify 'configure.ac' and 'Makefile.am'.
 

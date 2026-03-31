@@ -88,7 +88,7 @@ jobs:
         touch --no-create INST/*.stamp
         export PATH=/usr/lib/ccache:$PATH
         echo verbose=off > ~/.wgetrc
-        ./bootstrap xapian-core xapian-applications/omega swig xapian-bindings xapian-letor
+        ./bootstrap xapian-core xapian-omega swig xapian-bindings xapian-letor
     - name: configure
       run: ./configure CC='ccache gcc' CXX='ccache g++'
     - name: make
@@ -102,7 +102,7 @@ jobs:
       with:
         path: |
           xapian-core/xapian-core-*.tar.xz
-          xapian-applications/omega/xapian-omega-*.tar.xz
+          xapian-omega/xapian-omega-*.tar.xz
           xapian-bindings/xapian-bindings-*.tar.xz
           xapian-letor/xapian-letor-*.tar.xz
         # Files are already compressed so don't try to compress again.
@@ -141,7 +141,7 @@ jobs:
         pushd xapian-core
         tar --strip-components=1 -xf xapian-core-*.tar.xz
         popd
-        pushd xapian-applications/omega
+        pushd xapian-omega
         tar --strip-components=1 -xf xapian-omega-*.tar.xz
         popd
         # pushd xapian-bindings
@@ -194,7 +194,7 @@ jobs:
         ./configure --enable-werror
         export XAPIAN_CONFIG=$PWD/xapian-config
         popd
-        pushd xapian-applications/omega
+        pushd xapian-omega
         ./configure --enable-werror
         popd
         # pushd xapian-bindings
@@ -213,7 +213,7 @@ jobs:
     - name: make
       run: |
         make -j2 -C xapian-core
-        make -j2 -C xapian-applications/omega
+        make -j2 -C xapian-omega
         # make -j2 -C xapian-bindings MACOS_SIP_HACK_ENV='env LSAN_OPTIONS=leak_check_at_exit=0 LD_PRELOAD=libasan.so.8:libubsan.so.1'
         make -j2 -C xapian-letor
     - name: Run tests
@@ -221,7 +221,7 @@ jobs:
         export AUTOMATED_TESTING=1
         export VERBOSE=1
         make -j2 -C xapian-core check
-        make -j2 -C xapian-applications/omega check
+        make -j2 -C xapian-omega check
         # make -j2 -C xapian-bindings check MACOS_SIP_HACK_ENV='env LSAN_OPTIONS=leak_check_at_exit=0 LD_PRELOAD=libasan.so.8:libubsan.so.1'
         make -j2 -C xapian-letor check
     - name: Save log files
@@ -252,7 +252,7 @@ jobs:
         pushd xapian-core
         tar --strip-components=1 -xf xapian-core-*.tar.xz
         popd
-        pushd xapian-applications/omega
+        pushd xapian-omega
         tar --strip-components=1 -xf xapian-omega-*.tar.xz
         popd
         pushd xapian-bindings
@@ -303,7 +303,7 @@ jobs:
         ./configure --enable-werror
         export XAPIAN_CONFIG=$PWD/xapian-config
         popd
-        pushd xapian-applications/omega
+        pushd xapian-omega
         ./configure --enable-werror
         popd
         pushd xapian-bindings
@@ -315,7 +315,7 @@ jobs:
     - name: make
       run: |
         make -j2 -C xapian-core
-        make -j2 -C xapian-applications/omega
+        make -j2 -C xapian-omega
         make -j2 -C xapian-bindings
         make -j2 -C xapian-letor
     - name: Run tests
@@ -323,7 +323,7 @@ jobs:
         export AUTOMATED_TESTING=1
         export VERBOSE=1
         make -j2 -C xapian-core check
-        make -j2 -C xapian-applications/omega check
+        make -j2 -C xapian-omega check
         make -j2 -C xapian-bindings check
         make -j2 -C xapian-letor check
     - name: Save log files
@@ -356,7 +356,7 @@ jobs:
         pushd xapian-core
         tar --strip-components=1 -xf xapian-core-*.tar.xz
         popd
-        pushd xapian-applications/omega
+        pushd xapian-omega
         tar --strip-components=1 -xf xapian-omega-*.tar.xz
         popd
         pushd xapian-bindings
@@ -405,7 +405,7 @@ jobs:
         # Make this build use builddir != srcdir as we aim to support that and
         # so want to catch regressions in support.  This build seems a good
         # choice for that as it's as full a build as any.
-        mkdir -p _build/xapian-core _build/xapian-applications/omega _build/xapian-bindings _build/xapian-letor
+        mkdir -p _build/xapian-core _build/xapian-omega _build/xapian-bindings _build/xapian-letor
         cd _build
         # Ubuntu's GCC packages define _FORTIFY_SOURCE=2 by default, so we need
         # to undefine it before we define it to avoid a warning (which becomes
@@ -415,8 +415,8 @@ jobs:
         ../../xapian-core/configure --enable-werror
         export XAPIAN_CONFIG=$PWD/xapian-config
         popd
-        pushd xapian-applications/omega
-        ../../../xapian-applications/omega/configure --enable-werror
+        pushd xapian-omega
+        ../../xapian-omega/configure --enable-werror
         popd
         pushd xapian-bindings
         ../../xapian-bindings/configure --enable-werror
@@ -428,7 +428,7 @@ jobs:
       run: |
         cd _build
         make -j2 -C xapian-core
-        make -j2 -C xapian-applications/omega
+        make -j2 -C xapian-omega
         make -j2 -C xapian-bindings
         make -j2 -C xapian-letor
     - name: Run tests
@@ -437,7 +437,7 @@ jobs:
         export VERBOSE=1
         cd _build
         make -j2 -C xapian-core check
-        make -j2 -C xapian-applications/omega check
+        make -j2 -C xapian-omega check
         make -j2 -C xapian-bindings check
         make -j2 -C xapian-letor check
     - name: Save log files
@@ -468,7 +468,7 @@ jobs:
         pushd xapian-core
         tar --strip-components=1 -xf xapian-core-*.tar.xz
         popd
-        pushd xapian-applications/omega
+        pushd xapian-omega
         tar --strip-components=1 -xf xapian-omega-*.tar.xz
         popd
         pushd xapian-bindings
@@ -517,7 +517,7 @@ jobs:
         ./configure --enable-werror
         export XAPIAN_CONFIG=$PWD/xapian-config
         popd
-        pushd xapian-applications/omega
+        pushd xapian-omega
         ./configure --enable-werror
         popd
         pushd xapian-bindings
@@ -529,7 +529,7 @@ jobs:
     - name: make
       run: |
         make -j2 -C xapian-core
-        make -j2 -C xapian-applications/omega
+        make -j2 -C xapian-omega
         make -j2 -C xapian-bindings
         make -j2 -C xapian-letor
     - name: Run tests
@@ -537,7 +537,7 @@ jobs:
         export AUTOMATED_TESTING=1
         export VERBOSE=1
         make -j2 -C xapian-core check
-        make -j2 -C xapian-applications/omega check
+        make -j2 -C xapian-omega check
         make -j2 -C xapian-bindings check
         make -j2 -C xapian-letor check
     - name: Save log files
@@ -568,7 +568,7 @@ jobs:
         pushd xapian-core
         tar --strip-components=1 -xf xapian-core-*.tar.xz
         popd
-        pushd xapian-applications/omega
+        pushd xapian-omega
         tar --strip-components=1 -xf xapian-omega-*.tar.xz
         popd
         pushd xapian-bindings
@@ -616,7 +616,7 @@ jobs:
         ./configure --enable-werror --enable-assertions
         export XAPIAN_CONFIG=$PWD/xapian-config
         popd
-        pushd xapian-applications/omega
+        pushd xapian-omega
         ./configure --enable-werror
         popd
         pushd xapian-bindings
@@ -628,7 +628,7 @@ jobs:
     - name: make
       run: |
         make -j2 -C xapian-core
-        make -j2 -C xapian-applications/omega
+        make -j2 -C xapian-omega
         make -j2 -C xapian-bindings
         make -j2 -C xapian-letor
     - name: Run tests
@@ -636,7 +636,7 @@ jobs:
         export AUTOMATED_TESTING=1
         export VERBOSE=1
         make -j2 -C xapian-core check
-        make -j2 -C xapian-applications/omega check
+        make -j2 -C xapian-omega check
         make -j2 -C xapian-bindings check
         make -j2 -C xapian-letor check
     - name: Save log files
@@ -722,7 +722,7 @@ jobs:
         pushd xapian-core
         tar --strip-components=1 -xf xapian-core-*.tar.xz
         popd
-        pushd xapian-applications/omega
+        pushd xapian-omega
         tar --strip-components=1 -xf xapian-omega-*.tar.xz
         popd
         pushd xapian-bindings
@@ -770,7 +770,7 @@ jobs:
         ./configure --enable-werror --enable-log
         export XAPIAN_CONFIG=$PWD/xapian-config
         popd
-        pushd xapian-applications/omega
+        pushd xapian-omega
         ./configure --enable-werror
         popd
         pushd xapian-bindings
@@ -782,7 +782,7 @@ jobs:
     - name: make
       run: |
         make -j2 -C xapian-core
-        make -j2 -C xapian-applications/omega
+        make -j2 -C xapian-omega
         make -j2 -C xapian-bindings
         make -j2 -C xapian-letor
     - name: Run tests
@@ -790,7 +790,7 @@ jobs:
         export AUTOMATED_TESTING=1
         export VERBOSE=1
         make -j2 -C xapian-core check
-        make -j2 -C xapian-applications/omega check
+        make -j2 -C xapian-omega check
         make -j2 -C xapian-bindings check
         make -j2 -C xapian-letor check
     - name: Save log files
@@ -821,7 +821,7 @@ jobs:
         pushd xapian-core
         tar --strip-components=1 -xf xapian-core-*.tar.xz
         popd
-        pushd xapian-applications/omega
+        pushd xapian-omega
         tar --strip-components=1 -xf xapian-omega-*.tar.xz
         popd
         pushd xapian-bindings
@@ -872,7 +872,7 @@ jobs:
         ./configure --enable-werror
         export XAPIAN_CONFIG=$PWD/xapian-config
         popd
-        pushd xapian-applications/omega
+        pushd xapian-omega
         ./configure --enable-werror
         popd
         pushd xapian-bindings
@@ -884,7 +884,7 @@ jobs:
     - name: make
       run: |
         make -j2 -C xapian-core
-        make -j2 -C xapian-applications/omega
+        make -j2 -C xapian-omega
         make -j2 -C xapian-bindings
         make -j2 -C xapian-letor
     - name: Run tests
@@ -892,7 +892,7 @@ jobs:
         export AUTOMATED_TESTING=1
         export VERBOSE=1
         make -j2 -C xapian-core check
-        make -j2 -C xapian-applications/omega check
+        make -j2 -C xapian-omega check
         make -j2 -C xapian-bindings check
         make -j2 -C xapian-letor check
     - name: Save log files
@@ -924,7 +924,7 @@ jobs:
         pushd xapian-core
         tar --strip-components=1 -xf xapian-core-*.tar.xz
         popd
-        pushd xapian-applications/omega
+        pushd xapian-omega
         tar --strip-components=1 -xf xapian-omega-*.tar.xz
         popd
         pushd xapian-bindings
@@ -970,7 +970,7 @@ jobs:
         ./configure --enable-werror
         export XAPIAN_CONFIG=$PWD/xapian-config
         popd
-        pushd xapian-applications/omega
+        pushd xapian-omega
         ./configure --enable-werror
         popd
         pushd xapian-bindings
@@ -982,7 +982,7 @@ jobs:
     - name: make
       run: |
         make -j2 -C xapian-core
-        make -j2 -C xapian-applications/omega
+        make -j2 -C xapian-omega
         make -j2 -C xapian-bindings
         make -j2 -C xapian-letor
     - name: Run tests
@@ -990,7 +990,7 @@ jobs:
         export AUTOMATED_TESTING=1
         export VERBOSE=1
         make -j2 -C xapian-core check
-        make -j2 -C xapian-applications/omega check
+        make -j2 -C xapian-omega check
         make -j2 -C xapian-bindings check
         make -j2 -C xapian-letor check
     - name: Save log files
@@ -1024,7 +1024,7 @@ jobs:
         pushd xapian-core
         tar --strip-components=1 -xf xapian-core-*.tar.xz
         popd
-        pushd xapian-applications/omega
+        pushd xapian-omega
         tar --strip-components=1 -xf xapian-omega-*.tar.xz
         popd
         pushd xapian-bindings
@@ -1072,7 +1072,7 @@ jobs:
         ./configure --enable-werror
         export XAPIAN_CONFIG=$PWD/xapian-config
         popd
-        pushd xapian-applications/omega
+        pushd xapian-omega
         ./configure --enable-werror
         popd
         pushd xapian-bindings
@@ -1084,7 +1084,7 @@ jobs:
     - name: make
       run: |
         make -j2 -C xapian-core
-        make -j2 -C xapian-applications/omega
+        make -j2 -C xapian-omega
         make -j2 -C xapian-bindings
         make -j2 -C xapian-letor
     - name: Run tests
@@ -1092,7 +1092,7 @@ jobs:
         export AUTOMATED_TESTING=1
         export VERBOSE=1
         make -j2 -C xapian-core check
-        make -j2 -C xapian-applications/omega check
+        make -j2 -C xapian-omega check
         make -j2 -C xapian-bindings check
         make -j2 -C xapian-letor check
     - name: Save log files
@@ -1209,7 +1209,7 @@ jobs:
         pushd xapian-core
         tar --strip-components=1 -xf xapian-core-*.tar.xz
         popd
-        pushd xapian-applications/omega
+        pushd xapian-omega
         tar --strip-components=1 -xf xapian-omega-*.tar.xz
         popd
         pushd xapian-bindings
@@ -1226,7 +1226,7 @@ jobs:
         ./configure --enable-werror
         export XAPIAN_CONFIG=$PWD/xapian-config
         popd
-        pushd xapian-applications/omega
+        pushd xapian-omega
         ./configure --enable-werror
         popd
         pushd xapian-bindings
@@ -1238,7 +1238,7 @@ jobs:
     - name: make
       run: |
         make -j2 -C xapian-core
-        make -j2 -C xapian-applications/omega
+        make -j2 -C xapian-omega
         make -j2 -C xapian-bindings
         make -j2 -C xapian-letor
     - name: Run tests
@@ -1246,7 +1246,7 @@ jobs:
         export AUTOMATED_TESTING=1
         export VERBOSE=1
         make -j2 -C xapian-core check
-        make -j2 -C xapian-applications/omega check
+        make -j2 -C xapian-omega check
         make -j2 -C xapian-bindings check
         make -j2 -C xapian-letor check
     - name: Save log files
@@ -1275,7 +1275,7 @@ jobs:
         pushd xapian-core
         tar --strip-components=1 -xf xapian-core-*.tar.xz
         popd
-        pushd xapian-applications/omega
+        pushd xapian-omega
         tar --strip-components=1 -xf xapian-omega-*.tar.xz
         popd
         pushd xapian-bindings
@@ -1324,7 +1324,7 @@ jobs:
         ./configure --enable-werror --prefix='${{ runner.temp }}/XapianInstall'
         export XAPIAN_CONFIG=$PWD/xapian-config
         popd
-        pushd xapian-applications/omega
+        pushd xapian-omega
         ./configure --enable-werror --with-libiconv-prefix="$(brew --prefix libiconv)" CPPFLAGS="-I${HOMEBREW_PREFIX:-/usr/local}/include"
         popd
         pushd xapian-bindings
@@ -1337,7 +1337,7 @@ jobs:
       run: |
         make -j3 -C xapian-core
         make -j3 -C xapian-core install
-        make -j3 -C xapian-applications/omega
+        make -j3 -C xapian-omega
         make -j3 -C xapian-bindings
         make -j3 -C xapian-letor
     - name: Run tests
@@ -1346,7 +1346,7 @@ jobs:
         export AUTOMATED_TESTING=1
         export VERBOSE=1
         make -j3 -C xapian-core check
-        make -j3 -C xapian-applications/omega check
+        make -j3 -C xapian-omega check
         make -j3 -C xapian-bindings check
         make -j3 -C xapian-letor check
     - name: Save log files
@@ -1375,7 +1375,7 @@ jobs:
         pushd xapian-core
         tar --strip-components=1 -xf xapian-core-*.tar.xz
         popd
-        pushd xapian-applications/omega
+        pushd xapian-omega
         tar --strip-components=1 -xf xapian-omega-*.tar.xz
         popd
         pushd xapian-bindings
@@ -1424,7 +1424,7 @@ jobs:
         ./configure --enable-werror --prefix='${{ runner.temp }}/XapianInstall'
         export XAPIAN_CONFIG=$PWD/xapian-config
         popd
-        pushd xapian-applications/omega
+        pushd xapian-omega
         ./configure --enable-werror --with-libiconv-prefix="$(brew --prefix libiconv)" CPPFLAGS="-I${HOMEBREW_PREFIX:-/usr/local}/include"
         popd
         pushd xapian-bindings
@@ -1440,7 +1440,7 @@ jobs:
       run: |
         make -j3 -C xapian-core
         make -j3 -C xapian-core install
-        make -j3 -C xapian-applications/omega
+        make -j3 -C xapian-omega
         make -j3 -C xapian-bindings
         make -j3 -C xapian-letor
     - name: Run tests
@@ -1449,7 +1449,7 @@ jobs:
         export AUTOMATED_TESTING=1
         export VERBOSE=1
         make -j3 -C xapian-core check
-        make -j3 -C xapian-applications/omega check
+        make -j3 -C xapian-omega check
         make -j3 -C xapian-bindings check
         make -j3 -C xapian-letor check
     - name: Save log files
@@ -1478,7 +1478,7 @@ jobs:
         pushd xapian-core
         tar --strip-components=1 -xf xapian-core-*.tar.xz
         popd
-        pushd xapian-applications/omega
+        pushd xapian-omega
         tar --strip-components=1 -xf xapian-omega-*.tar.xz
         popd
         pushd xapian-bindings
@@ -1529,7 +1529,7 @@ jobs:
         ./configure --enable-werror --prefix='${{ runner.temp }}/XapianInstall'
         export XAPIAN_CONFIG=$PWD/xapian-config
         popd
-        pushd xapian-applications/omega
+        pushd xapian-omega
         ./configure --enable-werror --with-libiconv-prefix="$(brew --prefix libiconv)" CPPFLAGS="-I${HOMEBREW_PREFIX:-/usr/local}/include"
         popd
         pushd xapian-bindings
@@ -1545,7 +1545,7 @@ jobs:
       run: |
         make -j3 -C xapian-core
         make -j3 -C xapian-core install
-        make -j3 -C xapian-applications/omega
+        make -j3 -C xapian-omega
         make -j3 -C xapian-bindings
         make -j3 -C xapian-letor
     - name: Run tests
@@ -1554,7 +1554,7 @@ jobs:
         export AUTOMATED_TESTING=1
         export VERBOSE=1
         make -j3 -C xapian-core check
-        make -j3 -C xapian-applications/omega check
+        make -j3 -C xapian-omega check
         make -j3 -C xapian-bindings check
         make -j3 -C xapian-letor check
     - name: Save log files
@@ -1729,7 +1729,7 @@ jobs:
         pushd xapian-core
         tar --strip-components=1 -xf xapian-core-*.tar.xz
         popd
-        pushd xapian-applications/omega
+        pushd xapian-omega
         tar --strip-components=1 -xf xapian-omega-*.tar.xz
         popd
         pushd xapian-bindings
@@ -1753,7 +1753,7 @@ jobs:
         ./configure --enable-werror
         export XAPIAN_CONFIG=$PWD/xapian-config
         popd
-        pushd xapian-applications/omega
+        pushd xapian-omega
         ./configure --enable-werror
         popd
         pushd xapian-bindings
@@ -1765,7 +1765,7 @@ jobs:
     - name: make
       run: |
         make -j2 -C xapian-core
-        make -j2 -C xapian-applications/omega
+        make -j2 -C xapian-omega
         make -j2 -C xapian-bindings
         make -j2 -C xapian-letor
     - name: Run tests
@@ -1773,7 +1773,7 @@ jobs:
         export AUTOMATED_TESTING=1
         export VERBOSE=1
         make -j2 -C xapian-core check
-        make -j2 -C xapian-applications/omega check
+        make -j2 -C xapian-omega check
         make -j2 -C xapian-bindings check
         make -j2 -C xapian-letor check
     - name: Save log files
@@ -1861,7 +1861,7 @@ jobs:
         pushd xapian-core
         tar --strip-components=1 -xf xapian-core-*.tar.xz
         popd
-        pushd xapian-applications/omega
+        pushd xapian-omega
         tar --strip-components=1 -xf xapian-omega-*.tar.xz
         popd
         pushd xapian-bindings
@@ -1878,7 +1878,7 @@ jobs:
         ./configure --enable-werror
         export XAPIAN_CONFIG=$PWD/xapian-config
         popd
-        pushd xapian-applications/omega
+        pushd xapian-omega
         ./configure --enable-werror
         popd
         # pushd xapian-bindings
@@ -1890,7 +1890,7 @@ jobs:
     - name: make
       run: |
         make -j2 -C xapian-core
-        make -j2 -C xapian-applications/omega
+        make -j2 -C xapian-omega
         # make -j2 -C xapian-bindings
         make -j2 -C xapian-letor
     - name: Run tests
@@ -1898,7 +1898,7 @@ jobs:
         export AUTOMATED_TESTING=1
         export VERBOSE=1
         make -j2 -C xapian-core check
-        make -j2 -C xapian-applications/omega check
+        make -j2 -C xapian-omega check
         # make -j2 -C xapian-bindings check
         make -j2 -C xapian-letor check
     - name: Save log files
@@ -1940,7 +1940,7 @@ jobs:
         pushd xapian-core
         tar --strip-components=1 -xf xapian-core-*.tar.xz
         popd
-        pushd xapian-applications/omega
+        pushd xapian-omega
         tar --strip-components=1 -xf xapian-omega-*.tar.xz
         popd
         # pushd xapian-bindings
@@ -1958,7 +1958,7 @@ jobs:
         ./configure --enable-werror
         export XAPIAN_CONFIG=$PWD/xapian-config
         popd
-        pushd xapian-applications/omega
+        pushd xapian-omega
         ./configure --enable-werror
         popd
         # pushd xapian-bindings
@@ -1971,7 +1971,7 @@ jobs:
       run: |
         PATH=/c/Users/runneradmin/.cargo/bin:$PATH
         make -j2 -C xapian-core
-        make -j2 -C xapian-applications/omega
+        make -j2 -C xapian-omega
         # make -j2 -C xapian-bindings
         make -j2 -C xapian-letor
     - name: Run tests
@@ -1988,9 +1988,9 @@ jobs:
         # bug in xapian-omega.  The 32-bit msys2 environments are deprecated
         # so this doesn't seem worth investing a lot of time into so just
         # replace omindextest with a simple script which skips this test.
-        printf '#!/bin/sh\nexit 77\n' > xapian-applications/omega/omindextest
-        chmod 755 xapian-applications/omega/omindextest
-        make -j2 -C xapian-applications/omega check
+        printf '#!/bin/sh\nexit 77\n' > xapian-omega/omindextest
+        chmod 755 xapian-omega/omindextest
+        make -j2 -C xapian-omega check
         # make -j2 -C xapian-bindings check
         make -j2 -C xapian-letor check
     - name: Save log files
@@ -2032,7 +2032,7 @@ jobs:
         pushd xapian-core
         tar --strip-components=1 -xf xapian-core-*.tar.xz
         popd
-        pushd xapian-applications/omega
+        pushd xapian-omega
         tar --strip-components=1 -xf xapian-omega-*.tar.xz
         popd
         # pushd xapian-bindings
@@ -2050,7 +2050,7 @@ jobs:
         ./configure --enable-werror
         export XAPIAN_CONFIG=$PWD/xapian-config
         popd
-        pushd xapian-applications/omega
+        pushd xapian-omega
         ./configure --enable-werror
         popd
         # pushd xapian-bindings
@@ -2063,7 +2063,7 @@ jobs:
       run: |
         PATH=/c/Users/runneradmin/.cargo/bin:$PATH
         make -j2 -C xapian-core
-        make -j2 -C xapian-applications/omega
+        make -j2 -C xapian-omega
         # make -j2 -C xapian-bindings
         make -j2 -C xapian-letor
     - name: Run tests
@@ -2072,7 +2072,7 @@ jobs:
         export AUTOMATED_TESTING=1
         export VERBOSE=1
         make -j2 -C xapian-core check
-        make -j2 -C xapian-applications/omega check
+        make -j2 -C xapian-omega check
         # make -j2 -C xapian-bindings check
         make -j2 -C xapian-letor check
     - name: Save log files
@@ -2114,7 +2114,7 @@ jobs:
         pushd xapian-core
         tar --strip-components=1 -xf xapian-core-*.tar.xz
         popd
-        pushd xapian-applications/omega
+        pushd xapian-omega
         tar --strip-components=1 -xf xapian-omega-*.tar.xz
         popd
         # pushd xapian-bindings
@@ -2132,7 +2132,7 @@ jobs:
         ./configure --enable-werror
         export XAPIAN_CONFIG=$PWD/xapian-config
         popd
-        pushd xapian-applications/omega
+        pushd xapian-omega
         ./configure --enable-werror
         popd
         # pushd xapian-bindings
@@ -2145,7 +2145,7 @@ jobs:
       run: |
         PATH=/c/Users/runneradmin/.cargo/bin:$PATH
         make -j2 -C xapian-core
-        make -j2 -C xapian-applications/omega
+        make -j2 -C xapian-omega
         # make -j2 -C xapian-bindings
         make -j2 -C xapian-letor
     - name: Run tests
@@ -2154,7 +2154,7 @@ jobs:
         export AUTOMATED_TESTING=1
         export VERBOSE=1
         make -j2 -C xapian-core check
-        make -j2 -C xapian-applications/omega check
+        make -j2 -C xapian-omega check
         # make -j2 -C xapian-bindings check
         make -j2 -C xapian-letor check
     - name: Save log files
@@ -2193,7 +2193,7 @@ jobs:
         tar --strip-components=1 -xf xapian-core-*.tar.xz
         popd
         # Need libmagic for omega
-        # pushd xapian-applications/omega
+        # pushd xapian-omega
         # tar --strip-components=1 -xf xapian-omega-*.tar.xz
         # popd
         # pushd xapian-bindings
@@ -2245,7 +2245,7 @@ jobs:
         ./configure --enable-werror
         export XAPIAN_CONFIG=$PWD/xapian-config
         popd
-        # pushd xapian-applications/omega
+        # pushd xapian-omega
         # ./configure --enable-werror
         # popd
         # pushd xapian-bindings
@@ -2258,7 +2258,7 @@ jobs:
       run: |
         PATH=/c/Users/runneradmin/.cargo/bin:$PATH
         make -j2 -C xapian-core
-        # make -j2 -C xapian-applications/omega
+        # make -j2 -C xapian-omega
         # make -j2 -C xapian-bindings
         make -j2 -C xapian-letor
     - name: Run tests
@@ -2267,7 +2267,7 @@ jobs:
         export AUTOMATED_TESTING=1
         export VERBOSE=1
         make -j2 -C xapian-core check
-        # make -j2 -C xapian-applications/omega check
+        # make -j2 -C xapian-omega check
         # make -j2 -C xapian-bindings check
         make -j2 -C xapian-letor check
     - name: Save log files
@@ -2306,7 +2306,7 @@ jobs:
         tar --strip-components=1 -xf xapian-core-*.tar.xz
         popd
         # Need libmagic for omega
-        # pushd xapian-applications/omega
+        # pushd xapian-omega
         # tar --strip-components=1 -xf xapian-omega-*.tar.xz
         # popd
         # pushd xapian-bindings
@@ -2355,7 +2355,7 @@ jobs:
         ./configure --enable-werror
         export XAPIAN_CONFIG=$PWD/xapian-config
         popd
-        # pushd xapian-applications/omega
+        # pushd xapian-omega
         # ./configure --enable-werror
         # popd
         # pushd xapian-bindings
@@ -2368,7 +2368,7 @@ jobs:
       run: |
         PATH=/c/Users/runneradmin/.cargo/bin:$PATH
         make -j2 -C xapian-core
-        # make -j2 -C xapian-applications/omega
+        # make -j2 -C xapian-omega
         # make -j2 -C xapian-bindings
         make -j2 -C xapian-letor
     - name: Run tests
@@ -2377,7 +2377,7 @@ jobs:
         export AUTOMATED_TESTING=1
         export VERBOSE=1
         make -j2 -C xapian-core check
-        # make -j2 -C xapian-applications/omega check
+        # make -j2 -C xapian-omega check
         # make -j2 -C xapian-bindings check
         make -j2 -C xapian-letor check
     - name: Save log files
@@ -2416,7 +2416,7 @@ jobs:
         tar --strip-components=1 -xf xapian-core-*.tar.xz
         popd
         # Need libmagic for omega
-        # pushd xapian-applications/omega
+        # pushd xapian-omega
         # tar --strip-components=1 -xf xapian-omega-*.tar.xz
         # popd
         # pushd xapian-bindings
@@ -2468,7 +2468,7 @@ jobs:
         ./configure --enable-werror
         export XAPIAN_CONFIG=$PWD/xapian-config
         popd
-        # pushd xapian-applications/omega
+        # pushd xapian-omega
         # ./configure --enable-werror
         # popd
         # pushd xapian-bindings
@@ -2481,7 +2481,7 @@ jobs:
       run: |
         PATH=/c/Users/runneradmin/.cargo/bin:$PATH
         make -j2 -C xapian-core
-        # make -j2 -C xapian-applications/omega
+        # make -j2 -C xapian-omega
         # make -j2 -C xapian-bindings
         make -j2 -C xapian-letor
     - name: Run tests
@@ -2490,7 +2490,7 @@ jobs:
         export AUTOMATED_TESTING=1
         export VERBOSE=1
         make -j2 -C xapian-core check
-        # make -j2 -C xapian-applications/omega check
+        # make -j2 -C xapian-omega check
         # make -j2 -C xapian-bindings check
         make -j2 -C xapian-letor check
     - name: Save log files
@@ -2529,7 +2529,7 @@ jobs:
         tar --strip-components=1 -xf xapian-core-*.tar.xz
         popd
         # Need libmagic for omega
-        # pushd xapian-applications/omega
+        # pushd xapian-omega
         # tar --strip-components=1 -xf xapian-omega-*.tar.xz
         # popd
         # pushd xapian-bindings
@@ -2578,7 +2578,7 @@ jobs:
         ./configure --enable-werror
         export XAPIAN_CONFIG=$PWD/xapian-config
         popd
-        # pushd xapian-applications/omega
+        # pushd xapian-omega
         # ./configure --enable-werror
         # popd
         # pushd xapian-bindings
@@ -2591,7 +2591,7 @@ jobs:
       run: |
         PATH=/c/Users/runneradmin/.cargo/bin:$PATH
         make -j2 -C xapian-core
-        # make -j2 -C xapian-applications/omega
+        # make -j2 -C xapian-omega
         # make -j2 -C xapian-bindings
         make -j2 -C xapian-letor
     - name: Run tests
@@ -2600,7 +2600,7 @@ jobs:
         export AUTOMATED_TESTING=1
         export VERBOSE=1
         make -j2 -C xapian-core check
-        # make -j2 -C xapian-applications/omega check
+        # make -j2 -C xapian-omega check
         # make -j2 -C xapian-bindings check
         make -j2 -C xapian-letor check
     - name: Save log files
@@ -2653,10 +2653,10 @@ jobs:
           ./configure --enable-werror
           export XAPIAN_CONFIG=$PWD/xapian-config
           cd ..
-          cd xapian-applications/omega
+          cd xapian-omega
           tar --strip-components=1 -xf xapian-omega-*.tar.xz
           ./configure --enable-werror
-          cd ../..
+          cd ..
           cd xapian-bindings
           tar --strip-components=1 -xf xapian-bindings-*.tar.xz
           ./configure --enable-werror --with-java --with-lua --with-perl --with-php --with-python3 --with-ruby --with-tcl
@@ -2669,13 +2669,13 @@ jobs:
           # the log, but re-run without V=0 on failure to show the compiler
           # command line.
           make -j2 -C xapian-core V=0 || make -C xapian-core
-          make -j2 -C xapian-applications/omega V=0 || make -C xapian-applications/omega
+          make -j2 -C xapian-omega V=0 || make -C xapian-omega
           make -j2 -C xapian-bindings V=0 || make -C xapian-bindings
           make -j2 -C xapian-letor V=0 || make -C xapian-letor
           export AUTOMATED_TESTING=1
           export VERBOSE=1
           make -j2 -C xapian-core check V=0
-          make -j2 -C xapian-applications/omega check V=0
+          make -j2 -C xapian-omega check V=0
           make -j2 -C xapian-bindings check V=0
           make -j2 -C xapian-letor check V=0
     - name: Save log files
@@ -2728,10 +2728,10 @@ jobs:
           ./configure --enable-werror
           export XAPIAN_CONFIG=$PWD/xapian-config
           cd ..
-          cd xapian-applications/omega
+          cd xapian-omega
           tar --strip-components=1 -xf xapian-omega-*.tar.xz
           ./configure --enable-werror
-          cd ../..
+          cd ..
           cd xapian-bindings
           tar --strip-components=1 -xf xapian-bindings-*.tar.xz
           ./configure --enable-werror --with-java --with-lua --with-perl --with-php --with-python3 --with-ruby --with-tcl
@@ -2744,13 +2744,13 @@ jobs:
           # the log, but re-run without V=0 on failure to show the compiler
           # command line.
           make -j2 -C xapian-core V=0 || make -C xapian-core
-          make -j2 -C xapian-applications/omega V=0 || make -C xapian-applications/omega
+          make -j2 -C xapian-omega V=0 || make -C xapian-omega
           make -j2 -C xapian-bindings V=0 || make -C xapian-bindings
           make -j2 -C xapian-letor V=0 || make -C xapian-letor
           export AUTOMATED_TESTING=1
           export VERBOSE=1
           make -j2 -C xapian-core check V=0
-          make -j2 -C xapian-applications/omega check V=0
+          make -j2 -C xapian-omega check V=0
           make -j2 -C xapian-bindings check V=0
           make -j2 -C xapian-letor check V=0
     - name: Save log files
@@ -2802,10 +2802,10 @@ jobs:
           ./configure --enable-werror
           export XAPIAN_CONFIG=$PWD/xapian-config
           cd ..
-          cd xapian-applications/omega
+          cd xapian-omega
           tar --strip-components=1 -xf xapian-omega-*.tar.xz
           ./configure --enable-werror
-          cd ../..
+          cd ..
           # cd xapian-bindings
           # tar --strip-components=1 -xf xapian-bindings-*.tar.xz
           # ./configure --enable-werror
@@ -2818,12 +2818,12 @@ jobs:
           # the log, but re-run without V=0 on failure to show the compiler
           # command line.
           make -j2 -C xapian-core V=0 || make -C xapian-core
-          make -j2 -C xapian-applications/omega V=0 || make -C xapian-applications/omega
+          make -j2 -C xapian-omega V=0 || make -C xapian-omega
           make -j2 -C xapian-letor V=0 || make -C xapian-letor
           export AUTOMATED_TESTING=1
           export VERBOSE=1
           make -j2 -C xapian-core check V=0
-          make -j2 -C xapian-applications/omega check V=0
+          make -j2 -C xapian-omega check V=0
           make -j2 -C xapian-letor check V=0
           # Avoid bloating output with a huge file tree visualisation.
           rm -rf xapian-*
@@ -2878,10 +2878,10 @@ jobs:
           $XAPIAN_CONFIG --libs || true
           $XAPIAN_CONFIG --cxxflags || true
           cd ..
-          cd xapian-applications/omega
+          cd xapian-omega
           gtar --strip-components=1 -xf xapian-omega-*.tar.xz
           ./configure --enable-werror
-          cd ../..
+          cd ..
           # cd xapian-bindings
           # gtar --strip-components=1 -xf xapian-bindings-*.tar.xz
           # ./configure --enable-werror
@@ -2894,13 +2894,13 @@ jobs:
           # the log, but re-run without V=0 on failure to show the compiler
           # command line.
           make -j2 -C xapian-core V=0 || make -C xapian-core
-          make -j2 -C xapian-applications/omega V=0 || make -C xapian-applications/omega
+          make -j2 -C xapian-omega V=0 || make -C xapian-omega
           # make -j2 -C xapian-bindings V=0 || make -C xapian-bindings
           make -j2 -C xapian-letor V=0 || make -C xapian-letor
           export AUTOMATED_TESTING=1
           export VERBOSE=1
           make -j2 -C xapian-core check V=0
-          make -j2 -C xapian-applications/omega check V=0
+          make -j2 -C xapian-omega check V=0
           # make -j2 -C xapian-bindings check V=0
           make -j2 -C xapian-letor check V=0
           # Avoid bloating output with a huge file tree visualisation.
@@ -2954,10 +2954,10 @@ jobs:
           export XAPIAN_CONFIG=$PWD/xapian-config
           cd ..
           # magic.h not found!?!
-          #cd xapian-applications/omega
+          #cd xapian-omega
           #gtar --strip-components=1 -xf xapian-omega-*.tar.xz
           #./configure --enable-werror
-          #cd ../..
+          #cd ..
           # cd xapian-bindings
           # gtar --strip-components=1 -xf xapian-bindings-*.tar.xz
           # ./configure --enable-werror
@@ -2970,13 +2970,13 @@ jobs:
           # the log, but re-run without V=0 on failure to show the compiler
           # command line.
           gmake -j2 -C xapian-core V=0 || gmake -C xapian-core
-          # gmake -j2 -C xapian-applications/omega V=0 || gmake -C xapian-core
+          # gmake -j2 -C xapian-omega V=0 || gmake -C xapian-omega
           # gmake -j2 -C xapian-bindings V=0 || gmake -C xapian-bindings
           gmake -j2 -C xapian-letor V=0 || gmake -C xapian-letor
           export AUTOMATED_TESTING=1
           export VERBOSE=1
           gmake -j2 -C xapian-core check V=0
-          # gmake -j2 -C xapian-applications/omega check V=0
+          # gmake -j2 -C xapian-omega check V=0
           # gmake -j2 -C xapian-bindings check V=0
           gmake -j2 -C xapian-letor check V=0
     - name: Save log files
