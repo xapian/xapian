@@ -17,9 +17,3 @@ https://xapian.org/
 
 * User guide online: https://getting-started-with-xapian.readthedocs.io/
 * Source on github: https://github.com/xapian/xapian-docsprint
-
-Experimental: we have support for building an Ubuntu VM using Vagrant
-and VirtualBox.  The command ``vagrant up`` will start the process, although
-it can currently take a long time to download and install all the relevant
-packages. See "Using a Vagrant-driven Ubuntu virtual machine" in
-xapian-core/HACKING for details.
