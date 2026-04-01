@@ -24,7 +24,6 @@
 #include "remote-database.h"
 
 #include <signal.h>
-#include "safesyssocket.h" // For MSG_NOSIGNAL.
 
 #include "autoptr.h"
 #include "backends/inmemory/inmemory_positionlist.h"
