@@ -24,7 +24,6 @@
 #include "remote-database.h"
 
 #include <signal.h>
-#include "safesyssocket.h" // For MSG_NOSIGNAL.
 
 #include "api/msetinternal.h"
 #include "api/smallvector.h"
