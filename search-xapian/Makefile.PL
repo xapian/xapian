@@ -168,7 +168,7 @@ push @writemakefile_args, (
          resources => {
              repository => {
                  type => 'git',
-                 web  => 'https://git.xapian.org/?p=xapian;a=tree;f=search-xapian;hb=refs/heads/svn/1.2'
+                 web  => 'https://git.xapian.org/?p=xapian;a=tree;f=search-xapian;hb=refs/heads/RELEASE/1.2'
              },
              bugtracker => {
                  web => 'https://trac.xapian.org/'

@@ -22,7 +22,7 @@
 
 set -e
 
-BRANCH=svn/1.2
+BRANCH=RELEASE/1.2
 
 RELEASE_WEB_BASE_URL=https://oligarchy.co.uk/xapian
 RELEASE_WEB_BASE_DIR=/srv/www/oligarchy.co.uk/xapian
