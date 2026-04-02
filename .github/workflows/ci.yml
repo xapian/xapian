@@ -1790,9 +1790,17 @@ jobs:
     env:
       # Use the default ANDROID_NDK.
       # ANDROID_NDK: '/usr/local/lib/android/sdk/ndk/26.3.11579264'
-      host_triplet: 'armv7a-linux-androideabi35'
+      host_triplet: 'x86_64-linux-android21'
     needs: makedist
     steps:
+    - name: Enable KVM group perms
+      # This enables hardware acceleration.  It's documented as only working on
+      # the large runners but is quick so seems worth trying even if it may have
+      # no effect on the standard runners.
+      run: |
+        echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+        sudo udevadm control --reload-rules
+        sudo udevadm trigger --name-match=kvm
     - name: Install CCache
       uses: hendrikmuhs/ccache-action@v1.2.21
       with:
@@ -1809,21 +1817,42 @@ jobs:
     - name: configure
       run: |
         PATH=$PATH:$ANDROID_NDK/toolchains/llvm/prebuilt/linux-x86_64/bin
+        # Report which toolchains are available.
+        ls -l $ANDROID_NDK/toolchains/llvm/prebuilt/linux-x86_64/bin/*-android*-clang++
         cd xapian-core
-        # Since NDK r27 apparently -static-libstdc++ is required, which in turn
+        # Since NDK r27 -static-libstdc++ is apparently required, which in turn
         # seems to require --disable-shared.
+        #
+        # Force not to use eatmydata even if it's installed, since it won't be
+        # inside the emulator.
         ./configure --enable-werror \
             --host=$host_triplet \
             --disable-shared \
             CC="ccache ${host_triplet}-clang" \
             CXX="ccache ${host_triplet}-clang++" \
             LDFLAGS="-static-libstdc++" \
-            PKG_CONFIG=/bin/false
+            PKG_CONFIG=/bin/false \
+            EATMYDATA=
     - name: make
       run: |
         PATH=$PATH:$ANDROID_NDK/toolchains/llvm/prebuilt/linux-x86_64/bin
         make -j2 -C xapian-core
-      # FIXME: Run tests under android emulator?
+        make -j2 -C xapian-core/tests apitest internaltest stemtest unittest
+    - name: Run tests
+      uses: reactivecircus/android-emulator-runner@v2
+      with:
+        api-level: 33
+        arch: x86_64
+        working-directory: xapian-core
+        script: |
+          adb shell 'mkdir /data/local/tmp/bin /data/local/tmp/tests /data/local/tmp/unicode'
+          adb push bin/xapian-progsrv bin/xapian-tcpsrv /data/local/tmp/bin
+          adb push tests/apitest tests/internaltest tests/stemtest tests/unittest tests/runtest tests/testdata /data/local/tmp/tests
+          adb push unicode/UnicodeData.txt /data/local/tmp/unicode
+          adb shell 'cd /data/local/tmp/tests && AUTOMATED_TESTING=1 sh runtest ./unittest'
+          adb shell 'cd /data/local/tmp/tests && AUTOMATED_TESTING=1 sh runtest ./internaltest'
+          adb shell 'cd /data/local/tmp/tests && AUTOMATED_TESTING=1 sh runtest ./stemtest'
+          adb shell 'cd /data/local/tmp/tests && AUTOMATED_TESTING=1 sh runtest ./apitest'
     - name: Save log files
       if: ${{ failure() }}
       uses: actions/upload-artifact@v7
