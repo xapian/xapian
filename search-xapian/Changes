@@ -8,6 +8,9 @@ Revision history for Perl extension Search::Xapian.
 	- `make clean` now removes the generate source handle_exception.cc
 	  and the `testdb*` databases create by `make test`.  Reported by
 	  Gregor Herrmann.
+	- t/symbol-test.t: Run `make realclean` on the SymbolTest module at
+	  the end of the test to avoid leaving generated files behind.  Patch
+	  from Gregor Herrmann.
 	- README: Improve wording regarding status of these bindings vs the
 	  SWIG-generated ones.
 	- Makefile.PL: Update reference to git branch name (svn/1.2 has been

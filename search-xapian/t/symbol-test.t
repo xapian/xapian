@@ -40,4 +40,7 @@ use Search::Xapian qw( :all );
 eval { SymbolTest::throw_from_libxapian() };
 like( $@, qr/DatabaseOpeningError caught in SymbolTest/, 'Correct exception caught');
 
+# clean up
+system("make realclean 2>&1") == 0 or die $!;
+
 1;
