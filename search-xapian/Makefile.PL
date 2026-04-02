@@ -216,17 +216,33 @@ while (<F>) {
 close F;
 
 my ($BASEVERSION) = $VERSION =~ /^([0-9]+\.[0-9]+\.[0-9]+)/;
+# Check if the Perl module version and xapian-core version exactly match
+# (considering only the first 3 components).  If they do then they should
+# definitely be compatible.  Otherwise we need to consider whether to
+# warn, error, or quietly accept the combination.
 if ($xver !~ /^\Q$BASEVERSION\E(?:_(?:svn|git)[0-9]+)?$/) {
-    # We definitely need Xapian 1.2.x, 1.4.x, 1.5.x or 1.6.x.
-    my $no_chance = ($xver !~ /^1\.[2456]\./);
+    # We officially support Xapian 1.2.x (for x >= 24) or 1.4.y.
+    #
+    # Snapshots from git which identified themselves as 1.5.0 may work (but the
+    # first RC for 2.0.0 which identified as 1.5.0 won't).
+    #
+    # 2.0.0 and later are not supported because Xapian::ValueRangeProcessor has
+    # been removed from the C++ API (use the newer SWIG-generated bindings in
+    # xapian-bindings instead).
+    my $no_chance = ($xver !~ /^(?:1\.[24]\.|1\.5\.0)/);
     my $msg;
     if ($no_chance) {
 	$msg = "Xapian version $xver is incompatible with Search::Xapian $VERSION\n";
-    } elsif ($BASEVERSION =~ /^1\.2\./ && $xver =~ /^1\.4\./) {
-	# Search::Xapian 1.2.x and xapian-core 1.4.y should work together
-	# (for x >= 24).
+	$msg .= "Use the newer Perl bindings in xapian-bindings instead\n"
+	    if $xver !~ /^[01]\./;
+    } elsif ($xver =~ /^1\.4\./) {
+	# xapian-core 1.4.x is supported (since Search::Xapian 1.2.24).
+    } elsif ($xver =~ /^1\.5\.0/) {
+	# Snapshots from git which identified themselves as 1.5.0 may work (but the
+	# first RC for 2.0.0 which identified as 1.5.0 won't).
+	$msg = "Xapian version $xver is not officially supported by Search::Xapian $VERSION\n";
     } else {
-	# We try to keep working with Xapian 1.5.x and up but no promises.
+	# Older xapian-core < 1.2.25 may work but no promises.
 	$msg = "Xapian version $xver may be incompatible with Search::Xapian $VERSION\n";
     }
 
