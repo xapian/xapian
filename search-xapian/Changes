@@ -1,22 +1,21 @@
 Revision history for Perl extension Search::Xapian.
 
-1.2.25.6  
+1.2.25.6  Fri Apr  3 22:40:30 UTC 2026
 	[Changes contributed by Olly Betts]
 	- Trying to build with Xapian 2.x now fails at Makefile.PL time with
 	  a clear error recommending the newer Perl bindings in
 	  xapian-bindings.
-	- `make clean` now removes the generate source handle_exception.cc
-	  and the `testdb*` databases create by `make test`.  Reported by
-	  Gregor Herrmann.
-	- t/symbol-test.t: Run `make realclean` on the SymbolTest module at
-	  the end of the test to avoid leaving generated files behind.  Patch
-	  from Gregor Herrmann.
 	- README: Improve wording regarding status of these bindings vs the
 	  SWIG-generated ones.
 	- Makefile.PL: Update reference to git branch name (svn/1.2 has been
 	  renamed to RELEASE/1.2).
 	- Fix typo which prevented wrapping DatabaseClosedError and
 	  DatabaseNotFoundError even when using xapian-core >= 1.4.10.
+	[Changes contributed by Gregor Herrmann]
+	- `make clean` now removes the generate source handle_exception.cc
+	  and the `testdb*` databases create by `make test`.
+	- t/symbol-test.t: Run `make realclean` on the SymbolTest module at
+	  the end of the test to avoid leaving generated files behind.
 
 1.2.25.5  Sun Feb 27 23:46:46 UTC 2022
 	[Changes contributed by Olly Betts]
