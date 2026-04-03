@@ -1,7 +1,7 @@
 /** @file
  * @brief Wrappers for low-level POSIX I/O routines.
  */
-/* Copyright (C) 2004-2025 Olly Betts
+/* Copyright (C) 2004-2026 Olly Betts
  * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or modify
@@ -323,7 +323,7 @@ io_pread(int fd, char * p, size_t n, off_t o, size_t min)
                                  &c,
                                  TRUE)) {
             throw Xapian::DatabaseError("Error reading database",
-                                        -GetLastError());
+                                        -int(GetLastError()));
         }
     }
     if (c < min) {
@@ -398,7 +398,7 @@ io_pwrite(int fd, const char * p, size_t n, off_t o)
                                  &c,
                                  TRUE)) {
             throw Xapian::DatabaseError("Error writing database",
-                                        -GetLastError());
+                                        -int(GetLastError()));
         }
     }
 #else
@@ -475,7 +475,7 @@ io_read_block(int fd, char * p, size_t n, off_t b, off_t o)
                                  &overlapped,
                                  &c,
                                  TRUE)) {
-            throw_block_error("Error reading block ", b, -GetLastError());
+            throw_block_error("Error reading block ", b, -int(GetLastError()));
         }
     }
     if (c != n) {
@@ -546,7 +546,7 @@ io_write_block(int fd, const char * p, size_t n, off_t b, off_t o)
                                  &overlapped,
                                  &c,
                                  TRUE)) {
-            throw_block_error("Error writing block ", b, -GetLastError());
+            throw_block_error("Error writing block ", b, -int(GetLastError()));
         }
     }
 #else

@@ -1,7 +1,7 @@
 /** @file
  *  @brief Socket handling utilities.
  */
-/* Copyright (C) 2006,2007,2008,2015,2018,2023 Olly Betts
+/* Copyright (C) 2006,2007,2008,2015,2018,2023,2026 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -79,7 +79,7 @@ set_socket_timeouts(int fd, double timeout)
         // Just to be different, it's a DWORD counting in milliseconds.
         DWORD t;
         if (usual(timeout < numeric_limits<DWORD>::max() / 1000))
-            t = timeout * 1000;
+            t = static_cast<DWORD>(timeout * 1000);
         else
             t = numeric_limits<DWORD>::max();
 # endif

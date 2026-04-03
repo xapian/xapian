@@ -1350,6 +1350,9 @@ if test yes = "$GXX"; then
     fi
   fi
 elif test yes = "$msvc"; then
+  dnl -W1 is command-line default, -W3 IDE default, -W4 highest numbered level.
+  AM_CXXFLAGS="$AM_CXXFLAGS -W2"
+
   WERROR=-WX
 fi
 
