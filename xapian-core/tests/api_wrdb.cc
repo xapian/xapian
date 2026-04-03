@@ -1367,7 +1367,7 @@ gen_longpositionlist1_db(Xapian::WritableDatabase& db, const string&)
         // Exercise positions up to 4 billion.
         Xapian::termpos half_cube = n * n / 2 * n;
         doc.add_posting("chopsticks", half_cube);
-        if constexpr(sizeof(Xapian::termpos) >= 8) {
+        if constexpr (sizeof(Xapian::termpos) >= 8) {
             // Exercise 64-bit positions.
             doc.add_posting("spork", half_cube * half_cube);
         }
@@ -1438,7 +1438,7 @@ DEFINE_TESTCASE(longpositionlist1, backend) {
     }
     TEST(p == pend);
 
-    if constexpr(sizeof(Xapian::termpos) >= 8) {
+    if constexpr (sizeof(Xapian::termpos) >= 8) {
         ++t;
         TEST(t != tend);
         TEST_EQUAL(*t, "spork");

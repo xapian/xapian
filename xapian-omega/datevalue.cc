@@ -105,7 +105,7 @@ class DateRangeLimit {
             // the range as having an open start.
             return string();
         }
-        if constexpr(sizeof(time_t) > 4) {
+        if constexpr (sizeof(time_t) > 4) {
             if (s >= 0xffffffff) {
                 // This encoding can't represent dates after 0xffffffff, so
                 // clamp the range end to that and Xapian's matcher will see

@@ -857,7 +857,7 @@ inline static void parseunsigned_helper() {
     TEST(!parse_unsigned("abc", val));
     TEST(!parse_unsigned("0a", val));
     // Only test if we can construct a value one larger easily.
-    if constexpr(max_val + 1ull != 0)
+    if constexpr (max_val + 1ull != 0)
         TEST(!parse_unsigned(str(max_val + 1ull).c_str(), val));
 }
 
@@ -953,7 +953,7 @@ try {
         // has any effect is much harder to do.
         TEST(io_full_sync(fd));
 
-        if constexpr(sizeof(off_t) <= 4) {
+        if constexpr (sizeof(off_t) <= 4) {
             SKIP_TEST("Skipping rest of testcase - no Large File Support");
         }
 

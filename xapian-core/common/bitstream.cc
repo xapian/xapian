@@ -60,7 +60,7 @@ highest_order_bit(T mask)
     };
 
     int result = 0;
-    if constexpr(sizeof(T) > 4) {
+    if constexpr (sizeof(T) > 4) {
         if (mask >= 0x100000000ul) {
             mask >>= 32;
             result += 32;

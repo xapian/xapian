@@ -170,7 +170,7 @@ class Vec {
         // FIXME: This is a bit eager - non-const begin() is often invoked when
         // no modification is needed, but doing it lazily is a bit tricky as
         // the pointer will change when we COW.
-        if constexpr(COW) {
+        if constexpr (COW) {
             if (is_external() && u.p.b[-1] > 0) {
                 do_cow();
             }
@@ -179,7 +179,7 @@ class Vec {
     }
 
     iterator end() {
-        if constexpr(COW) {
+        if constexpr (COW) {
             if (is_external() && u.p.b[-1] > 0) {
                 do_cow();
             }
@@ -193,7 +193,7 @@ class Vec {
             do_reserve(cap * 2);
         }
         if (c >= INTERNAL_CAPACITY) {
-            if constexpr(COW) {
+            if constexpr (COW) {
                 if (u.p.b[-1] > 0)
                     do_cow();
             }
@@ -205,7 +205,7 @@ class Vec {
 
     void pop_back() {
         if (is_external()) {
-            if constexpr(COW) {
+            if constexpr (COW) {
                 if (u.p.b[-1] > 0) {
                     do_cow();
                 }
@@ -217,7 +217,7 @@ class Vec {
     }
 
     void clear() {
-        if constexpr(UNIQUEPTR) {
+        if constexpr (UNIQUEPTR) {
             for (const_iterator i = begin(); i != end(); ++i)
                 delete *i;
         }
@@ -227,14 +227,14 @@ class Vec {
     }
 
     void erase(const_iterator it) {
-        if constexpr(COW) {
+        if constexpr (COW) {
             if (is_external() && u.p.b[-1] > 0) {
                 auto i = it - u.p.b;
                 do_cow();
                 it = u.p.b + i;
             }
         }
-        if constexpr(UNIQUEPTR) {
+        if constexpr (UNIQUEPTR) {
             delete *it;
         }
         T* p = const_cast<T*>(it);
@@ -249,7 +249,7 @@ class Vec {
     void erase(const_iterator b, const_iterator e) {
         auto n_erased = e - b;
         if (n_erased == 0) return;
-        if constexpr(COW) {
+        if constexpr (COW) {
             if (is_external() && u.p.b[-1] > 0) {
                 auto i = b - u.p.b;
                 do_cow();
@@ -257,7 +257,7 @@ class Vec {
                 e = b + n_erased;
             }
         }
-        if constexpr(UNIQUEPTR) {
+        if constexpr (UNIQUEPTR) {
             for (const_iterator i = b; i != e; ++i)
                 delete *i;
         }
@@ -283,7 +283,7 @@ class Vec {
                     throw std::bad_alloc();
             }
             blk = new T[cap + COW];
-            if constexpr(COW)
+            if constexpr (COW)
                 *blk++ = 0;
         }
 
@@ -322,7 +322,7 @@ class Vec {
     }
 
     T& operator[](size_type idx) {
-        if constexpr(COW) {
+        if constexpr (COW) {
             if (is_external() && u.p.b[-1] > 0) {
                 do_cow();
             }
@@ -349,7 +349,7 @@ class Vec {
 
   protected:
     void do_free() {
-        if constexpr(COW) {
+        if constexpr (COW) {
             if (u.p.b[-1] > 0)
                 --u.p.b[-1];
             else
@@ -364,7 +364,7 @@ class Vec {
         if (rare(COW ? n < c : n <= c))
             throw std::bad_alloc();
         T* blk = new T[n + COW];
-        if constexpr(COW)
+        if constexpr (COW)
             *blk++ = 0;
         if (is_external()) {
             u.p.e = std::copy(u.p.b, u.p.e, blk);
@@ -388,7 +388,7 @@ class Vec {
         c = o.c;
         if (!o.is_external()) {
             if (c) u = o.u;
-        } else if constexpr(COW) {
+        } else if constexpr (COW) {
             u = o.u;
             ++u.p.b[-1];
         } else {

@@ -853,7 +853,7 @@ namespace cxx17
     template <bool cond>
     int f ()
     {
-      if constexpr(cond)
+      if constexpr (cond)
       {
         return 13;
       }
