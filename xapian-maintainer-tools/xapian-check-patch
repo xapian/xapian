@@ -537,7 +537,9 @@ QUOTELOOP:  while (1) {
             if (
                 # `delete (*i)->foo();` rather than `delete(*i)->foo()'` - the `(`
                 # isn't around function parameters here.
-                $name !~ /^(case|catch|delete|double|for|if|return|switch|throw|while)$/ &&
+                #
+                # Also `if constexpr (a > b) {` not `if constexpr(a > b) {`.
+                $name !~ /^(case|catch|constexpr|delete|double|for|if|return|switch|throw|while)$/ &&
                 # Function pointer type `int (*)(void)` or parenthesised
                 # function name `int (foo)(`.
                 !($name =~ /^(?:bool|double|float|unsigned|void|[a-z][a-z0-9_]+_t|(?:(?:un)?signed\s+)?(?:char|int|long|short))$/ && length($post))) {
