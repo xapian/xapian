@@ -1,7 +1,7 @@
 /** @file
  * @brief Unit tests of non-Xapian-specific internal code.
  */
-/* Copyright (C) 2006-2025 Olly Betts
+/* Copyright (C) 2006-2026 Olly Betts
  * Copyright (C) 2007 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -857,8 +857,10 @@ inline static void parseunsigned_helper() {
     TEST(!parse_unsigned("abc", val));
     TEST(!parse_unsigned("0a", val));
     // Only test if we can construct a value one larger easily.
-    if constexpr (max_val + 1ull != 0)
+    constexpr auto max_ull = numeric_limits<unsigned long long>::max();
+    if constexpr (max_val != max_ull) {
         TEST(!parse_unsigned(str(max_val + 1ull).c_str(), val));
+    }
 }
 
 static void test_parseunsigned1()
