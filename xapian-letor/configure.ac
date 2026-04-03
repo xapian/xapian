@@ -158,6 +158,12 @@ AC_PREPROC_IFELSE([AC_LANG_SOURCE([[
 #endif
 ]])], [win32=no], [win32=yes])
 
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([], [[
+#ifdef _MSC_VER
+#error MSVC
+#endif
+]])], [msvc=no], [msvc=yes])
+
 xo_fn_unknown_option_check() {
   dnl Some compilers don't error out on unknown options which unhelpfully
   dnl means we would think the option is supported, use it, and end up
