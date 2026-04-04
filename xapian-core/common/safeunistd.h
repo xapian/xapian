@@ -1,5 +1,5 @@
 /** @file
- * @brief <unistd.h>, but with compat. and large file support for MSVC.
+ * @brief <unistd.h>, but with compat. for MSVC.
  */
 /* Copyright (C) 2007,2015 Olly Betts
  *
