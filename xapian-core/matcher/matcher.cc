@@ -422,11 +422,9 @@ Matcher::get_local_mset(Xapian::doccount first,
     }
 
     Xapian::doccount n_shards = postlists.size();
-    pltree.set_postlists(&postlists[0], n_shards);
 
     // The highest weight a document could get in this match.
-    const double max_possible = pltree.recalc_maxweight();
-
+    const double max_possible = pltree.set_postlists(&postlists[0], n_shards);
     if (max_possible == 0.0) {
         // All the weights are zero.
         if (sort_by == REL) {

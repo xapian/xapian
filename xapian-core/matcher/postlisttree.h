@@ -1,7 +1,7 @@
 /** @file
  * @brief Class for managing a tree of PostList objects
  */
-/* Copyright 2017,2019 Olly Betts
+/* Copyright 2017,2019,2026 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -43,11 +43,24 @@ class PostListTree {
 
     /** The postlists for the shards.
      *
-     *  Entries corresponding to remote shards will be NULL - the results from
-     *  remote shards are included by merging MSet objects, rather than via the
-     *  PostList tree.
+     *  Entries corresponding to remote shards will be nullptr - the results
+     *  from remote shards are included by merging MSet objects, rather than
+     *  via the PostList tree.
      */
-    PostList** shard_pls = NULL;
+    PostList** shard_pls = nullptr;
+
+    /** The maximum weight any shards after each index could return.
+     *
+     *  For each shard, this gives the maximum weight out of all the shards
+     *  after the current one.  So for the last shard this will be zero.
+     *
+     *  For each match, this is calculated once early on by set_postlists() and
+     *  then doesn't change.
+     *
+     *  We use this information in recalc_maxweight() to avoid needing to
+     *  iterate over all the remaining shards.
+     */
+    double* max_after = nullptr;
 
     /// The number of shards.
     Xapian::doccount n_shards = 0;
@@ -79,6 +92,8 @@ class PostListTree {
             delete shard_pls[i];
         n_shards = 0;
         shard_pls = nullptr;
+        delete[] max_after;
+        max_after = nullptr;
     }
 
     ~PostListTree() {
@@ -91,7 +106,7 @@ class PostListTree {
      */
     bool* get_max_weight_cached_flag_ptr() { return &use_cached_max_weight; }
 
-    void set_postlists(PostList** pls, Xapian::doccount n_shards_) {
+    double set_postlists(PostList** pls, Xapian::doccount n_shards_) {
         shard_pls = pls;
         n_shards = n_shards_;
         while (shard_pls[current_shard] == NULL) {
@@ -106,18 +121,32 @@ class PostListTree {
         }
         if (current_shard > 0)
             vsdoc.new_shard(current_shard);
+        max_after = new double[n_shards];
+        double m = 0.0;
+        Xapian::doccount i = n_shards;
+        do {
+            --i;
+            max_after[i] = m;
+            if (shard_pls[i])
+                m = std::max(m, shard_pls[i]->recalc_maxweight());
+        } while (i > 0);
+        max_weight = m;
+        use_cached_max_weight = true;
+        return m;
     }
 
     double recalc_maxweight() {
         if (!use_cached_max_weight) {
-            use_cached_max_weight = true;
-            double w = 0.0;
-            // Start at the current shard.
-            for (Xapian::doccount i = current_shard; i != n_shards; ++i) {
-                if (shard_pls[i])
-                   w = std::max(w, shard_pls[i]->recalc_maxweight());
+            double m = max_after[current_shard];
+            if (max_weight > m) {
+                double w = shard_pls[current_shard]->recalc_maxweight();
+                max_weight = std::max(w, m);
+            } else {
+                // The max_weight value is already tight on
+		// max_after[current_shard] so we know that max_weight can't
+                // reduce for this shard.
             }
-            max_weight = w;
+            use_cached_max_weight = true;
         }
         return max_weight;
     }
