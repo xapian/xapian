@@ -1,7 +1,7 @@
 /** @file
  *  @brief RemoteConnection class used by the remote backend.
  */
-/* Copyright (C) 2006-2025 Olly Betts
+/* Copyright (C) 2006-2026 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -54,20 +54,13 @@
 
 using namespace std;
 
-#define CHUNKSIZE 4096
+static constexpr size_t CHUNKSIZE{4096};
 
 [[noreturn]]
 static void
 throw_database_closed()
 {
     throw Xapian::DatabaseClosedError("Database has been closed");
-}
-
-[[noreturn]]
-static void
-throw_network_error_message_too_long_for_off_t()
-{
-    throw Xapian::NetworkError("Message too long for size to fit in off_t");
 }
 
 [[noreturn]]
@@ -643,7 +636,7 @@ RemoteConnection::get_message_chunked(double end_time)
     // handle partial reads.
     uint_least64_t len = static_cast<unsigned char>(buffer[1]);
     if (len < 128) {
-        chunked_data_left = off_t(len);
+        chunked_data_left = len;
         char type = buffer[0];
         buffer.erase(0, 2);
         RETURN(type);
@@ -659,11 +652,7 @@ RemoteConnection::get_message_chunked(double end_time)
     if (!unpack_uint(&p, p_end, &len)) {
         RETURN(-1);
     }
-    chunked_data_left = off_t(len);
-    // Check that the value of len fits in an off_t without loss.
-    if (rare(uint_least64_t(chunked_data_left) != len)) {
-        throw_network_error_message_too_long_for_off_t();
-    }
+    chunked_data_left = len;
     size_t header_len = (p - buffer.data());
     unsigned char type = buffer[0];
     buffer.erase(0, header_len);
@@ -681,13 +670,13 @@ RemoteConnection::get_message_chunk(string &result, size_t at_least,
     if (at_least <= result.size()) RETURN(true);
     at_least -= result.size();
 
-    bool read_enough = (off_t(at_least) <= chunked_data_left);
-    if (!read_enough) at_least = size_t(chunked_data_left);
+    bool read_enough = (at_least <= chunked_data_left);
+    if (!read_enough) at_least = chunked_data_left;
 
     if (!read_at_least(at_least, end_time))
         RETURN(-1);
 
-    size_t retlen = min(off_t(buffer.size()), chunked_data_left);
+    size_t retlen = min(buffer.size(), chunked_data_left);
     result.append(buffer, 0, retlen);
     buffer.erase(0, retlen);
     chunked_data_left -= retlen;
@@ -724,7 +713,7 @@ RemoteConnection::receive_file(const string &file, double end_time)
 
     int type = get_message_chunked(end_time);
     do {
-        off_t min_read = min(chunked_data_left, off_t(CHUNKSIZE));
+        size_t min_read = min(chunked_data_left, CHUNKSIZE);
         if (!read_at_least(min_read, end_time))
             RETURN(-1);
         write_all(fd, buffer.data(), min_read);

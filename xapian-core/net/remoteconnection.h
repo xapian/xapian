@@ -1,7 +1,7 @@
 /** @file
  *  @brief RemoteConnection class used by the remote backend.
  */
-/* Copyright (C) 2006,2007,2008,2010,2011,2014,2015,2019,2024 Olly Betts
+/* Copyright (C) 2006-2026 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -91,7 +91,7 @@ class RemoteConnection {
     std::string buffer;
 
     /// Remaining bytes of message data still to come over fdin for a chunked read.
-    off_t chunked_data_left;
+    size_t chunked_data_left;
 
     /** Read until there are at least min_len bytes in buffer.
      *
