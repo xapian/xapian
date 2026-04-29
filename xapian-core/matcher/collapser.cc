@@ -236,7 +236,7 @@ Collapser::get_matches_lower_bound() const
 void
 Collapser::finalise(double min_weight, int percent_threshold)
 {
-    if (table.empty() || results.empty())
+    if (entry_count == 0 || results.empty())
         return;
 
     // We need to fill in collapse_count values in results using the
