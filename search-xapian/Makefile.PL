@@ -51,7 +51,14 @@ if (!defined $CC && exists $ENV{CXX}) {
     $CC = $ENV{CXX};
     push @ARGV, "CXX=$CC";
 }
-$CC ||= 'g++';
+if (!defined $CC) {
+    # Default to g++ if installed for consistency with older Search::Xapian.
+    if (system("g++ --version >/dev/null 2>&1") == 0) {
+	$CC = 'g++';
+    } else {
+	$CC = 'c++';
+    }
+}
 
 my $LD = '$(CC)';
 if ($^O eq 'cygwin' and $CC eq 'g++') {

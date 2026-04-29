@@ -1,5 +1,12 @@
 Revision history for Perl extension Search::Xapian.
 
+1.2.25.7  UNRELEASED
+	[Changes contributed by Olly Betts]
+	- If the C++ compiler isn't found and g++ isn't installed, look for
+	  c++ - this means the build should work out of the box on systems
+	  such as FreeBSD where the default compiler is clang.  Reported by
+	  eserte12 (fixes #851).
+
 1.2.25.6  Fri Apr  3 22:40:30 UTC 2026
 	[Changes contributed by Olly Betts]
 	- Trying to build with Xapian 2.x now fails at Makefile.PL time with
