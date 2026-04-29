@@ -146,8 +146,7 @@ class ProtoMSet {
               double max_possible_,
               bool stop_once_full_,
               double time_limit)
-        : max_size(first_ + max_items),
-          check_at_least(check_at_least_),
+        : check_at_least(check_at_least_),
           sort_by(sort_by_),
           mcmp(mcmp_),
           first(first_),
@@ -160,6 +159,9 @@ class ProtoMSet {
           stop_once_full(stop_once_full_),
           timeout(time_limit)
     {
+        // Always track at least one result so the matcher can rely on
+        // being able to look at it to see the best match so far.
+        max_size = std::max(first_ + max_items, Xapian::doccount{1});
         results.reserve(max_size);
     }
 
@@ -490,7 +492,8 @@ class ProtoMSet {
     Xapian::MSet
     finalise(const Xapian::MatchDecider* mdecider,
              const std::vector<std::unique_ptr<LocalSubMatch>>& locals,
-             const Xapian::VecUniquePtr<EstimateOp>& estimates) {
+             const Xapian::VecUniquePtr<EstimateOp>& estimates,
+             Xapian::doccount max_items) {
         finalise_percentages();
 
         Xapian::doccount matches_lower_bound;
@@ -682,21 +685,28 @@ class ProtoMSet {
         if (first != 0) {
             if (first > size()) {
                 results.clear();
-            } else {
-                // We perform nth_element() on reverse iterators so that the
-                // unwanted elements end up at the end of items, which means
-                // that the call to erase() to remove them doesn't have to copy
-                // any elements.
-                auto nth = results.rbegin() + first;
-                std::nth_element(results.rbegin(), nth, results.rend(), mcmp);
-                // Discard the unwanted elements.
-                results.erase(results.end() - first, results.end());
+                goto no_results_to_sort;
             }
+            // We perform nth_element() on reverse iterators so that the
+            // unwanted elements end up at the end of items, which means
+            // that the call to erase() to remove them doesn't have to copy
+            // any elements.
+            auto nth = results.rbegin() + first;
+            std::nth_element(results.rbegin(), nth, results.rend(), mcmp);
+            // Discard the unwanted elements.
+            results.erase(results.end() - first, results.end());
+        } else if (max_items == 0) {
+            results.clear();
+            goto no_results_to_sort;
         }
 
         std::sort(results.begin(), results.end(), mcmp);
 
+        // Note: finalise() is a no-op if results.empty() so no_results_to_sort
+        // can safely skip over this too.
         collapser.finalise(min_weight, percent_threshold);
+
+no_results_to_sort:
 
         // The estimates should lie between the bounds.
         AssertRel(matches_lower_bound, <=, matches_estimated);

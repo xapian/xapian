@@ -568,7 +568,8 @@ Matcher::get_local_mset(Xapian::doccount first,
 
     return proto_mset.finalise(mdecider,
                                locals,
-                               estimates);
+                               estimates,
+                               maxitems);
 }
 
 Xapian::MSet

@@ -1,7 +1,7 @@
 /** @file
  * @brief Test collapsing during the match.
  */
-/* Copyright (C) 2009 Olly Betts
+/* Copyright (C) 2009,2026 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -103,4 +103,16 @@ DEFINE_TESTCASE(collapsekey6, backend) {
             }
         }
     }
+}
+
+/// Regression test for bug #852 in Xapian 2.0.0.
+DEFINE_TESTCASE(collapsekey7, backend) {
+    Xapian::Database db(get_database("apitest_simpledata"));
+    Xapian::Enquire enquire(db);
+    // "this" matches all documents.
+    enquire.set_query(Xapian::Query("this"));
+    enquire.set_collapse_key(1);
+    Xapian::MSet mset = enquire.get_mset(0, 0, 1);
+    tout << mset.get_matches_lower_bound() << '\n';
+    TEST_REL(mset.get_matches_lower_bound(), >=, 1);
 }
