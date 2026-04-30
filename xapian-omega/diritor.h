@@ -281,6 +281,9 @@ class DirectoryIterator {
     }
 
     bool md5(std::string& out) {
+        if (get_type() == DIRECTORY) {
+            return true;
+        }
         return md5_fd(get_fd(), out);
     }
 };

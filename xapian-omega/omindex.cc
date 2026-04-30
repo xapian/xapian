@@ -80,6 +80,21 @@ static string url_start_path;
 
 #ifdef HAVE_FNMATCH
 static vector<pair<const char*, const char*>> mime_patterns;
+static vector<pair<const char*, const char*>> mime_patterns_dir;
+
+static const char*
+search_mime_patterns(const vector<pair<const char*, const char*>>& patterns,
+                     const char* leafname,
+                     const char** p_pattern)
+{
+    for (auto&& i : patterns) {
+        if (fnmatch(i.first, leafname, 0) == 0) {
+            *p_pattern = i.first;
+            return i.second;
+        }
+    }
+    return nullptr;
+}
 #endif
 
 static inline bool
@@ -88,36 +103,47 @@ p_notalnum(unsigned int c)
     return !C_isalnum(c);
 }
 
-static void
-index_file(const string &file, const string &url, DirectoryIterator & d,
-           map<string, string>& mime_map)
+static string
+build_urlterm(const string& url)
 {
     string urlterm("U");
     urlterm += url;
 
     if (urlterm.length() > MAX_SAFE_TERM_LENGTH)
         urlterm = hash_long_term(urlterm, MAX_SAFE_TERM_LENGTH);
+    return urlterm;
+}
+
+static void
+index_file(const string& file, const string& url, DirectoryIterator& d,
+           map<string, string>& mime_map)
+{
+    string urlterm = build_urlterm(url);
 
     const char* leafname = d.leafname();
 
     string mimetype;
 #ifdef HAVE_FNMATCH
-    for (auto&& i : mime_patterns) {
-        if (fnmatch(i.first, leafname, 0) == 0) {
-            if (strcmp(i.second, "ignore") == 0)
-                return;
-            if (strcmp(i.second, "skip") == 0) {
-                string m = "Leafname '";
-                m += leafname;
-                m += "' matches pattern: ";
-                m += i.first;
-                skip(urlterm, file.substr(root.size()), m,
-                     d.get_size(), d.get_mtime());
-                return;
-            }
-            mimetype = i.second;
-            break;
+    const char* pattern;
+    const char* r = search_mime_patterns(mime_patterns,
+                                         leafname,
+                                         &pattern);
+    if (r) {
+        if (strcmp(r, "ignore") == 0) {
+            // Remove any existing failed entry for this file.
+            index_remove_failed_entry(urlterm);
+            return;
         }
+        if (strcmp(r, "skip") == 0) {
+            string m = "Leafname '";
+            m += leafname;
+            m += "' matches pattern: ";
+            m += pattern;
+            skip(urlterm, file.substr(root.size()), m,
+                 d.get_size(), d.get_mtime());
+            return;
+        }
+        mimetype = r;
     }
 #endif
 
@@ -170,8 +196,9 @@ index_file(const string &file, const string &url, DirectoryIterator & d,
 }
 
 static void
-index_directory(const string &path, const string &url_, size_t depth_limit,
-                map<string, string>& mime_map)
+index_directory(const string& path, const string& url_, size_t depth_limit,
+                map<string, string>& mime_map,
+                map<string, string>& mime_map_dir)
 {
     if (verbose)
         cout << "[Entering directory \"" << path.substr(root.size()) << "\"]"
@@ -200,7 +227,77 @@ index_directory(const string &path, const string &url_, size_t depth_limit,
                         }
                         url += '/';
                         file += '/';
-                        index_directory(file, url, new_limit, mime_map);
+                        // FIXME: this should probably be on the entry point so
+                        // we check if the start directory is one of these...
+                        const char* leafname = d.leafname();
+                        string mimetype;
+                        string urlterm;
+#ifdef HAVE_FNMATCH
+                        const char* pattern;
+                        const char* r = search_mime_patterns(mime_patterns_dir,
+                                                             leafname,
+                                                             &pattern);
+                        if (r) {
+                            urlterm = build_urlterm(url);
+                            if (strcmp(r, "ignore") == 0) {
+                                // Remove any existing failed entry for
+                                // this directory.
+                                index_remove_failed_entry(urlterm);
+                                continue;
+                            }
+                            if (strcmp(r, "skip") == 0) {
+                                string m = "Directory leafname '";
+                                m += leafname;
+                                m += "' matches pattern: ";
+                                m += pattern;
+                                skip(urlterm, file.substr(root.size()), m,
+                                     d.get_size(), d.get_mtime());
+                                continue;
+                            }
+                            mimetype = r;
+                        }
+#endif
+                        string ext;
+                        const char* dot_ptr = strrchr(leafname, '.');
+                        if (dot_ptr) {
+                            ext.assign(dot_ptr + 1);
+                            if (ext.size() > max_ext_len)
+                                ext.resize(0);
+                        }
+
+                        if (mimetype.empty()) {
+                            mimetype = mimetype_from_ext(mime_map_dir, ext);
+                            if (mimetype.empty()) {
+                                // Not a directory document - recurse into it.
+                                index_directory(file, url, new_limit,
+                                                mime_map, mime_map_dir);
+                                continue;
+                            }
+
+                            urlterm = build_urlterm(url);
+                            if (mimetype == "ignore") {
+                                // Remove any existing failed entry for this
+                                // directory.
+                                index_remove_failed_entry(urlterm);
+                                continue;
+                            } else if (mimetype == "skip") {
+                                // Ignore mimetype, skipped mimetype should not
+                                // be quietly ignored.
+                                string m = "skipping extension '";
+                                m += ext;
+                                m += "'";
+                                skip(urlterm, file.substr(root.size()), m,
+                                     d.get_size(), d.get_mtime());
+                                continue;
+                            }
+                        }
+
+                        string path_term("P");
+                        path_term += url_start_path;
+                        path_term.append(file, root.size(), string::npos);
+
+                        index_mimetype(file, urlterm, url, ext, mimetype, d,
+                                       path_term, string());
                         break;
                     }
                     case DirectoryIterator::REGULAR_FILE:
@@ -411,6 +508,7 @@ main(int argc, char **argv)
     };
 
     map<string, string> mime_map;
+    map<string, string> mime_map_dir;
 
     index_add_default_filters();
     index_add_default_libraries();
@@ -448,13 +546,17 @@ main(int argc, char **argv)
 "  -D, --db=DATABASE         path to database to use\n"
 "  -U, --url=URL             base url BASEDIR corresponds to (default: /)\n"
 "  -M, --mime-type=EXT:TYPE  assume any file with extension EXT has MIME\n"
-"                            Content-Type TYPE, instead of using libmagic\n"
-"                            (empty TYPE removes any existing mapping for EXT;\n"
-"                            other special TYPE values: 'ignore' and 'skip')\n"
+"                            Content-Type TYPE, instead of using libmagic.\n"
+"                            If EXT ends in a '/' then the mapping applies to\n"
+"                            directories rather than files.  Empty TYPE removes\n"
+"                            any existing mapping for EXT.  Other special TYPE\n"
+"                            values: 'ignore' and 'skip'\n"
 "  -G, --mime-type-match=GLOB:TYPE\n"
 "                            assume any file with leaf name matching shell\n"
-"                            wildcard pattern GLOB has MIME Content-Type TYPE\n"
-"                            (special TYPE values: 'ignore' and 'skip')\n"
+"                            wildcard pattern GLOB has MIME Content-Type TYPE.\n"
+"                            If GLOB ends in a '/' then the mapping applies to\n"
+"                            directories rather than files.  Special TYPE\n"
+"                            values: 'ignore' and 'skip'\n"
 "  -F, --filter=M[,[T][,C]]:CMD\n"
 "                            process files with MIME Content-Type M using\n"
 "                            command CMD, which produces output (on stdout or\n"
@@ -563,10 +665,26 @@ main(int argc, char **argv)
                 return 1;
             }
 
+            // An extension which ends with a `/` is OK - it matches a directory
+            // document.
+            char* slash = static_cast<char*>(memchr(optarg, '/', s - optarg));
+            if (slash && slash + 1 < s) {
+                cerr << "--mime-type only matches against the leaf filename "
+                        "so an extension containing '/' can never match."
+                     << endl;
+                return 1;
+            }
+
             // -Mtxt: results in an empty string, which effectively removes the
             // default mapping for .txt files.
             size_t ext_len = s - optarg;
-            mime_map[string(optarg, ext_len)] = string(s + 1);
+            if (slash) {
+                // Don't include the `/` in the key.
+                --ext_len;
+                mime_map_dir[string(optarg, ext_len)] = string(s + 1);
+            } else {
+                mime_map[string(optarg, ext_len)] = string(s + 1);
+            }
             max_ext_len = max(max_ext_len, ext_len);
             break;
         }
@@ -740,7 +858,10 @@ main(int argc, char **argv)
                         "match." << endl;
                 return 1;
             }
-            if (memchr(optarg, '/', s - optarg)) {
+            // A pattern which ends with a `/` is OK - it matches a directory
+            // document.
+            char* slash = static_cast<char*>(memchr(optarg, '/', s - optarg));
+            if (slash && slash + 1 < s) {
                 cerr << "--mime-type-match only matches against the leaf "
                         "filename so a pattern containing '/' can never match."
                      << endl;
@@ -752,8 +873,14 @@ main(int argc, char **argv)
                      << endl;
                 return 1;
             }
-            *s = '\0';
-            mime_patterns.emplace_back(optarg, type);
+            if (slash) {
+                // Don't include the `/` in the key.
+                *slash = '\0';
+                mime_patterns_dir.emplace_back(optarg, type);
+            } else {
+                *s = '\0';
+                mime_patterns.emplace_back(optarg, type);
+            }
             break;
 #endif
         }
@@ -845,7 +972,7 @@ main(int argc, char **argv)
                    overwrite, retry_failed, delete_removed_documents, verbose,
                    use_ctime, spelling, ignore_exclusions,
                    description_as_sample, date_terms);
-        index_directory(root, baseurl, depth_limit, mime_map);
+        index_directory(root, baseurl, depth_limit, mime_map, mime_map_dir);
         index_handle_deletion();
         index_commit();
         exitcode = 0;

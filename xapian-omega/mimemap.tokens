@@ -137,10 +137,14 @@ rtf		text/rtf
 
 # Apple iWork:
 key		application/vnd.apple.keynote
+key/		application/vnd.apple.keynote
 kth		application/vnd.apple.keynote
+kth/		application/vnd.apple.keynote
 apxl		application/vnd.apple.keynote
 pages		application/vnd.apple.pages
+pages/		application/vnd.apple.pages
 numbers		application/vnd.apple.numbers
+numbers/	application/vnd.apple.numbers
 
 # Apple Works / Claris Works:
 cwk		application/clarisworks
