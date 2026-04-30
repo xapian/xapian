@@ -1,3 +1,118 @@
+up to: d4a3815cdac7bbbf32aa535a9e8c41c12a9d8ee0
+
+Xapian-core 2.0.1 (UNRELEASED):
+
+* Switch to using only space to indent most source files.  The old style
+  apparently isn't supported by some editors and proved a repeated pain point
+  with GSoC contributors.  A small number of files which are imported from
+  elsewhere are left with whatever indentation style the original uses in case
+  we want to update them.  Fixes #787, reported by Germán M. Bravo.
+
+API:
+
+* The Unicode table generation script has been rewritten.  We now generate
+  overlapping page tables which allows them to be encoded more compactly (2028
+  bytes smaller, which is a 4.3% size reduction) which should be more cache
+  friendly.  Benchmarking with cachegrind shows a measureable but small speed
+  improvement.  The new generating script is written in Perl, eliminating a
+  dependency on Tcl for bootstrapping xapian-core from git.
+
+* Xapian::Unicode::is_whitespace(): Optimise to use a bitmask and compare
+  with a constant, which speeds up tokenising text by ~1%.
+
+* UnitRangeProcessor: Now supported `T` suffix for terrabytes.
+
+testsuite:
+
+* Add exhaustive Unicode tests which iterate through the whole assignable
+  Unicode codepoint range by reading UnicodeData.txt, and for each codepoint
+  check Xapian::Unicode functions get_category(), is_currency(),
+  is_whitespace(), is_wordchar(), tolower() and toupper() give the expected
+  results.  Even under valgrind this only takes about 2 seconds to run, and it
+  replaces many of our hand-selected testcases but is much more thorough
+  - it should provide almost complete coverage for potential bugs in the
+  Unicode table building and reading code.
+
+matcher:
+
+* Fix segmentation fault when `enquire.get_mset(0,0,x)` is called with a
+  collapse key set.  Bug was introduced in Xapian 2.0.0.  Fixes #852, reported
+  by Antonio Rojas.
+
+* Optimise recalc_maxweight() for a sharded database.  For each shard, we now
+  cache the maximum weight for any shards which follow it.  This means that a
+  forced weight recalculation no longer needs to iterate over the remaining
+  shards to re-request their max weights (which won't have changed).  We also
+  now use this value to detect when the current maximum weight is already tight
+  on the shards which follow and if it is we now skip recalculating the max
+  weight for the current shard.  (This looping over remaning shards likely
+  meant that search on a sharded database was technically O(n²) in the number
+  of shards, though with a small constant and unlikely to dominate the total
+  search time since the number of shards you can have is limited by per-process
+  file descriptor limits.)
+
+glass backend:
+
+* Get size to reserve for positional data from position list (which already
+  has the value in a member variable) instead of asking the database (which
+  needs to do work to get it).
+
+honey backend:
+
+
+remote backend:
+
+* Use `std::string_view` more in remote backend to reduce copying of data.
+
+inmemory backend:
+
+
+build system:
+
+documentation:
+
+* UnitRangeProcessor: The suffixes supported are now listed in the API docs.
+
+* PLATFORMS: Remove out-dated file.  Collated reports of successful builds was
+  moved to the wiki in v1.2.4, but since v1.4.0 we haven't been actively
+  maintaining this information.  CI now tests each push on a lot of different
+  platforms which seems a better approach as we see regressions right away.  If
+  someone wants to ensure Xapian reliably supports a platform we don't have CI
+  coverage for it's better to contribute CI testing rather than results of
+  manual test builds.  Suggested by James Aylett.
+
+tools:
+
+
+examples:
+
+
+portability:
+
+* configure now enables `-W2` for MSVC by default, and existing warnings at
+  this warning level have been fixed.
+
+* Use size_t for chunked_data_left in the network code.  This was off_t, but
+  it's always an unsigned value and only passed to functions which take size_t,
+  so making it size_t is more natural and simplifies the code a bit.
+
+* lemon: Fix bug in -D handling.  We were allocating a buffer based on an
+  unassigned variable.  The Xapian build system doesn't currently use -D so
+  this bug is latent for us but could result in C compiler warnings during the
+  build.
+
+* Make use of `if constexpr` in unicode.h since we require C++17 already for
+  std::string_view.
+
+* configure.ac: Use $SED consistently to improve portability to platforms where
+  the installed sed tool isn't just called `sed`.
+
+packaging:
+
+
+debug code:
+
+
 Xapian-core 2.0.0 (2026-03-16):
 
 API:

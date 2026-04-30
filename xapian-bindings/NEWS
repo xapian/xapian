@@ -1,3 +1,56 @@
+up to: 7a202582b977197bcc39bd318d7c3eeca30fc158
+
+Xapian-bindings 2.0.1 (UNRELEASED):
+
+Documentation:
+
+General:
+
+* Switch to using only space to indent most source files.  The old style
+  apparently isn't supported by some editors and proved a repeated pain point
+  with GSoC contributors.  A small number of files which are imported from
+  elsewhere are left with whatever indentation style the original uses in case
+  we want to update them.  Fixes #787, reported by Germán M. Bravo.
+
+Build System:
+
+Packaging:
+
+Portability:
+
+* configure.ac: Use $SED consistently to improve portability to platforms where
+  the installed sed tool isn't just called `sed`.
+
+CSharp:
+
+Java:
+
+Lua:
+
+* Adjust example Lua code to use a two space indent, which seems to be the
+  common Lua convention.
+
+* Lua: Rework to avoid defining our own function named `luaL_typerror()`.
+  This is a C function Lua < 5.2 used to provide which we were defining when
+  using Lua 5.2 or later, but it seems unclean to be defining functions in
+  Lua's namespace.
+
+Perl:
+
+PHP:
+
+Python:
+
+Python3:
+
+Ruby:
+
+Tcl:
+
+* Document `package require` use, covering versioned vs unversioned `package
+  require`, and recommend a way to specify a requirement for either Xapian 1.x
+  or 2.x.
+
 Xapian-bindings 2.0.0 (2026-03-16):
 
 General:

@@ -1,3 +1,53 @@
+up to: 28f11a3a6eaa998c7e858486b1195cdeae23b25f
+
+Omega 2.0.1 (UNRELEASED):
+
+general:
+
+* Switch to using only space to indent most source files.  The old style
+  apparently isn't supported by some editors and proved a repeated pain point
+  with GSoC contributors.  A small number of files which are imported from
+  elsewhere are left with whatever indentation style the original uses in case
+  we want to update them.  Fixes #787, reported by Germán M. Bravo.
+
+documentation:
+
+indexers:
+
+* omindex:
+
+* scriptindex:
+
+omega:
+
+templates:
+
+testsuite:
+
+build system:
+
+* New cleaner approach to resolving RST includes.  To support out-of-tree
+  builds we effectively want to be able to specify an include path for
+  RST files, but sphinx doesn't seem to support this.  We now address this
+  using a Perl one-liner to rewrite the path on `.. include::` directives
+  on the fly, rather than substituting the included file's contents in place of
+  the directive.
+
+* Remove unused VPATH_BUILD AM_CONDITIONAL.
+
+* Update cdb code to be based on upstream 0.81.  Use wordaccess.h which gives
+  more optimised code for loading an unaligned little-endian 32-bit word
+  on some platforms.
+
+portability:
+
+* Remove some Python2 compatibility code.
+
+* configure.ac: Use $SED consistently to improve portability to platforms where
+  the installed sed tool isn't just called `sed`.
+
+packaging:
+
 Omega 2.0.0 (2026-03-16):
 
 general:
