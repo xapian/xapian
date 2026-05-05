@@ -69,8 +69,7 @@ extract(const string& filename, const string&)
     GError* e = nullptr;
     gchar* uri = convert_to_uri(filename, &e);
     if (!uri) {
-        send_field(FIELD_ERROR, "g_filename_to_uri() failed: ");
-        send_field(FIELD_ERROR, e->message);
+        send_field(FIELD_ERROR, "g_filename_to_uri() failed: "s + e->message);
         g_error_free(e);
         return;
     }
@@ -78,8 +77,8 @@ extract(const string& filename, const string&)
     PopplerDocument* doc = poppler_document_new_from_file(uri, NULL, &e);
     g_free(uri);
     if (!doc) {
-        send_field(FIELD_ERROR, "poppler_document_new_from_file() failed: ");
-        send_field(FIELD_ERROR, e->message);
+        send_field(FIELD_ERROR,
+		   "poppler_document_new_from_file() failed: "s + e->message);
         g_error_free(e);
         return;
     }
