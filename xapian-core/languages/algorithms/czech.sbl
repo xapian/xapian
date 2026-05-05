@@ -1,0 +1,257 @@
+// Alias: cs
+
+routines (
+  R1
+  palatalise_e
+  palatalise_i
+  mark_regions
+  possessive_suffix
+  case_suffix
+)
+
+externals ( stem )
+
+integers ( p1 x )
+
+groupings ( env_ending ev_ending v v_or_syllabic_c )
+
+stringescapes {}
+
+stringdef a' '{U+00E1}' // á
+stringdef cv '{U+010D}' // č
+stringdef dv '{U+010F}' // ď
+stringdef e' '{U+00E9}' // é
+stringdef ev '{U+011B}' // ě
+stringdef i' '{U+00ED}' // í
+stringdef nv '{U+0148}' // ň
+stringdef o' '{U+00F3}' // ó
+stringdef rv '{U+0159}' // ř
+stringdef sv '{U+0161}' // š
+stringdef tv '{U+0165}' // ť
+stringdef u' '{U+00FA}' // ú
+stringdef uo '{U+016F}' // ů
+stringdef y' '{U+00FD}' // ý
+stringdef zv '{U+017E}' // ž
+
+define v 'aeiouy{a'}{ev}{e'}{i'}{o'}{u'}{uo}{y'}'
+
+// Some consonants in Czech can be syllabic - if these occur between two other
+// consonants then they act in a vowel-like way and it is helpful to include
+// them in the definition of R1.
+//
+// Some sources also list 'm' and 'n' as syllabic consonants for Czech but they
+// seem to be much rarer and including them makes no difference to the results
+// of stemming any words in our sample vocabulary list.  Checking on a larger
+// vocabulary list (also from wikipedia but with a lower cut-off frequency)
+// all but one of the affected words don't seem to actually be Czech words.
+define v_or_syllabic_c v + 'lr'
+
+// Letters that can occur before -ev.  Actual known exceptions include
+// 'j' (objev, projev, výjev) and 'ř' (ohřev)
+define ev_ending 'hknrtz'
+
+// Letters that can occur before -eň.  Actual known exceptions include
+// 'g' (Irgeň), 'l' (zeleň), 'm' (kameň) and 'ř' (třeň).
+define env_ending 'bc{cv}dhkprs{sv}tvz{zv}'
+
+define mark_regions as (
+
+    test (hop 3 setmark x) // Signals f if the input < 3 characters.
+
+    $p1 = limit
+    do (
+        // A syllabic consonant must occur between two consonants, or be
+        // preceded by a consonant and at the end of the word.
+        //
+        // Instead of literally testing that, we handle the first character
+        // specially by only checking if it's a vowel; for subsequent
+        // characters we know that the character before is a consonant because
+        // otherwise we'd have stopped already.
+        //
+        // We also don't actually need to check the character after, since
+        // if it's a vowel then that vowel means we'd end up at the same
+        // position after `gopast non-v` anyway, and if it's the end of the
+        // word then there's no non-v after it.
+        (v or (next gopast v_or_syllabic_c)) gopast non-v
+        setmark p1
+        try($p1 < x  $p1 = x)  // at least 3
+    )
+)
+
+backwardmode (
+
+  define R1 as $p1 <= cursor
+
+  define palatalise_e as (
+    [substring] among (
+      // -c -> -k
+      'c'
+        (<- 'k')
+      'nc' // e.g. finance
+      'avc' // e.g. dravce
+      'ovc' // e.g. jalovce
+        ()
+      '{i'}nc' // e.g. podmínce
+        (<- '{i'}nk')
+    )
+  )
+
+  define palatalise_i as (
+    [substring] among (
+      // -c -> -k
+      'c'
+        (<- 'k')
+      'nc' // e.g. financí
+      'avc' // e.g. nástavci
+      'ovc' // e.g. pískovci
+        ()
+      '{i'}nc' // e.g. Gruzínci
+        (<- '{i'}nk')
+
+      '{cv}t' (<- 'ck')
+
+      // -št -> -sk
+      '{sv}t' // e.g. čeština
+        (<-'sk')
+      '{a'}{sv}t' // e.g. plášti
+      'de{sv}t' // e.g. dešti
+      'i{sv}t' // e.g. bojišti
+      '{i'}{sv}t' // e.g. příští
+      'le{sv}t' // e.g. kleští
+      'pou{sv}t' // e.g. poušti, spouští
+        ()
+    )
+  )
+
+  define possessive_suffix as (
+    [substring] R1 among (
+      'ov' '{uo}v'
+      (delete)
+      'in'
+      (
+        delete
+        try palatalise_i
+      )
+    )
+  )
+
+  define case_suffix as (
+    setlimit tomark p1 for ( [substring] ) among (
+      'atech'
+      'at{uo}m'
+      '{a'}ch' '{y'}ch' 'ov{e'}' '{y'}mi'
+      'ata' 'aty' 'ama' 'ami' 'ovi'
+      'at' '{a'}m' 'us' '{uo}m' '{y'}m' 'mi' 'ou'
+      '{e'}ho' '{e'}m' '{e'}mu'
+      'u' 'y' '{uo}' 'a' 'o' '{a'}' '{e'}' '{y'}'
+      (delete)
+      '{ev}' '{ev}tem' '{ev}mi' '{ev}te' '{ev}ti'
+      '{ev}m' // e.g. koněm
+      (
+        delete
+      )
+      'e' 'ech' 'em' 'emi'
+      (
+        delete
+        try palatalise_e
+      )
+      'ete' 'eti' 'etem'
+      (
+        // t-stem neuter nouns
+        among (
+          '{cv}'  // e.g. dvojč-etem
+          'l'     // e.g. batol-ete
+          '{rv}'  // e.g. zvíř-ete
+          's'     // e.g. pras-ete
+          '{zv}'  // e.g. páž-ete
+              (delete)
+          'e{cv}' // e.g. pečet-i
+          'tl'    // e.g. atlet-i
+          'es'    // e.g. deset-i
+          ''
+              (
+                // Remove -e, -i, or -em; stem now ends -et so no palatalise
+                // step is needed.
+                <-'et'
+              )
+        )
+      )
+      'eb'
+      ( // Conflate e.g. skladeb with skladba, skladbě, skladby, etc.
+        test non-v
+        not 't{rv}' // potřeb
+        <-'b'
+      )
+      'ec'
+      ( // Conflate e.g. obec with obce, obcemi, obci, obcí, obcích.
+        test non-v
+        delete attach 'c'
+        try palatalise_e
+      )
+      'ek'
+      ( // Conflate e.g. článek with článkem, článku, článků, článkům, články.
+        test non-v
+        not among (
+          'dot' // dotek
+          'obl' // oblek
+          'sn' // česnek
+        )
+        <-'k'
+      )
+      '{ev}k'
+      ( // Conflate e.g. daněk with daňka, daňkem, daňki, daňkovi, daňků, etc.
+        'n'] <-'{nv}k'
+      )
+      'e{nv}'
+      ( // Conflate e.g. Plzeň with Plzně, Plzni, Plzní.
+        test env_ending
+        <-'n' // -eň -> -n not -ň
+      )
+      // -eš can also lose the -e- but this seems very uncommon - the only
+      // example I've seen is Aleš (a male given name or diminuitive name)
+      // but we require 3 characters before R1 so this won't be considered
+      // for stemming.
+      //
+      // Also this can decline as Alše or Aleše, etc, and these alternative
+      // declensions mean that just removing the -e- from Aleš would not
+      // really help (especially as the forms which keep the -e- seem
+      // more common, at least based on cs.wikipedia.org) so if we did this
+      // we would need to also remove -e- from Aleše, etc, which seems a lot
+      // of complication for a single word.
+      'et'
+      ( // Conflate e.g. počet with počte, počtu, počty, etc.
+        among (
+          'uc' // e.g. tucet but not dvacet.
+          '{cv}'
+          'h'
+          'ok' // e.g. loket but not paket.
+          'kar' // e.g. karet but not cigaret.
+        )
+        <-'t'
+      )
+      'ev'
+      ( // Conflate e.g. církev with církve, církve, církvemu, církví, etc.
+        ev_ending
+        <-'v'
+      )
+      '{tv}' '{tv}mi'
+      ( // Conflate e.g. oběť and oběťmi with obětech; hradišť with hradišti.
+        <-'t'
+      )
+      'i'
+      '{i'}' '{i'}ch' '{i'}ho' '{i'}m' '{i'}mi' '{i'}mu'
+      (
+        delete
+        try palatalise_i
+      )
+    )
+  )
+)
+
+define stem as (
+  mark_regions // Signals f if the input has < 3 characters.
+  backwards (
+    do case_suffix
+    do possessive_suffix
+  )
+)

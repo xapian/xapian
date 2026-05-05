@@ -9,6 +9,7 @@ snowball_algorithms =\
 	languages/algorithms/armenian.sbl\
 	languages/algorithms/basque.sbl\
 	languages/algorithms/catalan.sbl\
+	languages/algorithms/czech.sbl\
 	languages/algorithms/danish.sbl\
 	languages/algorithms/dutch_porter.sbl\
 	languages/algorithms/dutch.sbl\

@@ -110,6 +110,7 @@ class XAPIAN_VISIBILITY_DEFAULT Stem {
      *  - armenian (hy) - Since Xapian 1.3.0
      *  - basque (eu) - Since Xapian 1.3.0
      *  - catalan (ca) - Since Xapian 1.3.0
+     *  - czech (cs) - Since Xapian 2.1.0
      *  - danish (da)
      *  - dutch (nl, kraaij_pohlmann) - Before Xapian 2.0.0, "dutch" was
      *    Martin Porter's Dutch stemmer, and a stemmer which approximately
