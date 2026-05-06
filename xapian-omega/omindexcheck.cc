@@ -94,10 +94,6 @@ index_test()
                   {{"Sdiagram", "Timage/svg+xml", "Zstart"}}});
     tests.insert({"svg/diagram.svgz",
                   {{"Sdiagram", "Timage/svg+xml-compressed", "Zstart"}}});
-    // Same testcase works for ps2pdf+pdftotext and libspectre+poppler.
-    tests.insert({"postscript/small.ps",
-                  {{"ZAolli", "ZFsmall", "ZSdocument", "ZStitl",
-                    "Zdocument", "Zpostscript"}}});
 #ifdef HAVE_GMIME
     tests.insert({"email/html.eml",
                   {{"Aexample", "Ame", "Aorg", "Auser", "Shtml",
@@ -124,6 +120,15 @@ index_test()
 #if defined HAVE_POPPLER
     tests.insert({"pdf/poppler.pdf",
                   {{"ZFpoppler", "Zsub", "Ztext", "Ztitl", "Zpie"}}});
+# if defined HAVE_LIBSPECTRE
+    // Same testcase works for external tools ps2pdf+pdftotext and the
+    // libspectre+poppler worker, but we don't have a good way to handle ps2pdf
+    // not being available so we currently only enable this testcase for the
+    // worker.
+    tests.insert({"postscript/small.ps",
+                  {{"ZAolli", "ZFsmall", "ZSdocument", "ZStitl",
+                    "Zdocument", "Zpostscript"}}});
+# endif
 #endif
 #if defined HAVE_LIBEBOOK
     tests.insert({"fb2/hello.fb2",
