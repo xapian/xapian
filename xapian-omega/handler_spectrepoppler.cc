@@ -33,26 +33,6 @@ using namespace std;
 static string tmp_pdf_file;
 static gchar* tmp_pdf_uri;
 
-static gchar*
-convert_to_uri(const string& filename, GError** e)
-{
-#if GLIB_CHECK_VERSION(2,58,0)
-    gchar* abs_filename = g_canonicalize_filename(filename.c_str(), NULL);
-#else
-    gchar* abs_filename;
-    if (g_path_is_absolute(filename.c_str())) {
-        abs_filename = g_strdup(filename.c_str());
-    } else {
-        gchar* cwd = g_get_current_dir();
-        abs_filename = g_build_filename(cwd, filename.c_str(), NULL);
-        g_free(cwd);
-    }
-#endif
-    gchar* uri = g_filename_to_uri(abs_filename, NULL, e);
-    g_free(abs_filename);
-    return uri;
-}
-
 bool
 initialise(string& error)
 {
@@ -63,7 +43,7 @@ initialise(string& error)
     }
 
     GError* e = nullptr;
-    tmp_pdf_uri = convert_to_uri(tmp_pdf_file, &e);
+    tmp_pdf_uri = g_filename_to_uri(tmp_pdf_file.c_str(), NULL, e);
     if (!tmp_pdf_uri) {
         error = "g_filename_to_uri() failed: "s + e->message;
         g_error_free(e);
