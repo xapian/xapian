@@ -34,7 +34,6 @@ pdf		application/pdf
 # PostScript:
 ps		application/postscript
 eps		application/postscript
-ai		application/postscript
 
 # OpenDocument:
 # FIXME: need to find sample documents to test all of these.
