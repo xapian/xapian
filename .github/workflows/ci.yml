@@ -77,6 +77,7 @@ jobs:
             libextractor-plugins-all \
             libmwaw-dev \
             libreofficekit-dev libreoffice-calc libreoffice-draw libreoffice-impress libreoffice-writer \
+            libspectre-dev \
             libtesseract-dev \
             tesseract-ocr-eng
     - name: bootstrap source tree
@@ -178,6 +179,7 @@ jobs:
             libextractor-dev \
             libmwaw-dev \
             libreofficekit-dev libreoffice-calc libreoffice-draw libreoffice-impress libreoffice-writer \
+            libspectre-dev \
             libtesseract-dev \
             tesseract-ocr-eng
     - name: configure
@@ -289,7 +291,8 @@ jobs:
             libextractor-dev \
             libextractor-plugins-all \
             libmwaw-dev \
-            libreofficekit-dev libreoffice-calc libreoffice-draw libreoffice-impress libreoffice-writer
+            libreofficekit-dev libreoffice-calc libreoffice-draw libreoffice-impress libreoffice-writer \
+            libspectre-dev
       # tesseract's C++ API uses std::vector so would need rebuilding with
       # -D_GLIBCXX_DEBUG too.
       #      libtesseract-dev \
@@ -396,6 +399,7 @@ jobs:
             libextractor-plugins-all \
             libmwaw-dev \
             libreofficekit-dev libreoffice-calc libreoffice-draw libreoffice-impress libreoffice-writer \
+            libspectre-dev \
             libtesseract-dev \
             tesseract-ocr-eng
     - name: configure
@@ -506,6 +510,7 @@ jobs:
             libextractor-plugins-all \
             libmwaw-dev \
             libreofficekit-dev libreoffice-calc libreoffice-draw libreoffice-impress libreoffice-writer \
+            libspectre-dev \
             libtesseract-dev \
             tesseract-ocr-eng \
             valgrind
@@ -606,6 +611,7 @@ jobs:
             libextractor-plugins-all \
             libmwaw-dev \
             libreofficekit-dev libreoffice-calc libreoffice-draw libreoffice-impress libreoffice-writer \
+            libspectre-dev \
             libtesseract-dev \
             tesseract-ocr-eng
     - name: configure
@@ -760,6 +766,7 @@ jobs:
             libextractor-plugins-all \
             libmwaw-dev \
             libreofficekit-dev libreoffice-calc libreoffice-draw libreoffice-impress libreoffice-writer \
+            libspectre-dev \
             libtesseract-dev \
             tesseract-ocr-eng
     - name: configure
@@ -860,6 +867,7 @@ jobs:
             libcdr-dev \
             libextractor-dev \
             libmwaw-dev \
+            libspectre-dev \
             libtesseract-dev \
             tesseract-ocr-eng
             # libreoffice support doesn't work when compiled with clang on Linux
@@ -959,6 +967,7 @@ jobs:
             libcdr-dev \
             libextractor-dev \
             libmwaw-dev \
+            libspectre-dev \
             libtesseract-dev \
             tesseract-ocr-eng
             # libreoffice support doesn't work when compiled with clang on Linux
@@ -1062,6 +1071,7 @@ jobs:
             libextractor-dev \
             libmwaw-dev \
             libreofficekit-dev libreoffice-calc libreoffice-draw libreoffice-impress libreoffice-writer \
+            libspectre-dev \
             libtesseract-dev \
             tesseract-ocr-eng
     - name: configure
@@ -1194,6 +1204,7 @@ jobs:
             libextractor-dev \
             libmwaw-dev \
             libreofficekit-dev libreoffice-calc libreoffice-draw libreoffice-impress libreoffice-writer \
+            libspectre-dev \
             libtesseract-dev \
             tesseract-ocr-eng
     - name: Install CCache
@@ -1298,6 +1309,7 @@ jobs:
             libiconv \
             libmagic \
             libmwaw \
+            libspectre \
             lua \
             pcre2 \
             php \
@@ -1398,6 +1410,7 @@ jobs:
             libiconv \
             libmagic \
             libmwaw \
+            libspectre \
             lua \
             pcre2 \
             php \
@@ -1501,6 +1514,7 @@ jobs:
             libiconv \
             libmagic \
             libmwaw \
+            libspectre \
             lua \
             pcre2 \
             php \

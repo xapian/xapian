@@ -46,6 +46,7 @@ MAINTAINERCLEANFILES = html-tok.h mimemap.h mimemap.stamp namedents.h
 
 EXTRA_PROGRAMS =\
 	omindex_poppler\
+	omindex_spectrepoppler\
 	omindex_libebook\
 	omindex_libetonyek\
 	omindex_tesseract\
@@ -133,6 +134,7 @@ EXTRA_DIST =\
 	testfiles/pdb/PeanutPress-hello.pdb \
 	testfiles/pdb/test.pdb \
 	testfiles/pdf/poppler.pdf \
+	testfiles/postscript/small.ps \
 	testfiles/staroffice/calc.sxc \
 	testfiles/staroffice/calc_template.stc \
 	testfiles/staroffice/presentation.sxi \
@@ -274,6 +276,10 @@ omindex_LDADD = $(MAGIC_LIBS) $(XAPIAN_LIBS) $(ZLIB_LIBS) libutf8convert.la
 omindex_poppler_SOURCES = assistant.cc worker_comms.cc common/str.cc handler_poppler.cc
 omindex_poppler_LDADD = $(POPPLER_LIBS)
 omindex_poppler_CXXFLAGS = $(AM_CXXFLAGS) $(POPPLER_CFLAGS)
+
+omindex_spectrepoppler_SOURCES = assistant.cc tmpdir.cc worker_comms.cc common/str.cc handler_spectrepoppler.cc
+omindex_spectrepoppler_LDADD = $(POPPLER_LIBS) $(LIBSPECTRE_LIBS)
+omindex_spectrepoppler_CXXFLAGS = $(AM_CXXFLAGS) $(POPPLER_CFLAGS) $(LIBSPECTRE_CFLAGS)
 
 omindex_libebook_SOURCES = assistant.cc worker_comms.cc handler_libebook.cc
 omindex_libebook_LDADD = $(LIBEBOOK_LIBS)

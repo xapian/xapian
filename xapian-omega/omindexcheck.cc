@@ -3,7 +3,7 @@
  */
 /* Copyright (C) 2019 Bruno Baruffaldi
  * Copyright (C) 2020 Parth Kapadia
- * Copyright (C) 2021,2022,2023,2025 Olly Betts
+ * Copyright (C) 2021,2022,2023,2025,2026 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -94,6 +94,10 @@ index_test()
                   {{"Sdiagram", "Timage/svg+xml", "Zstart"}}});
     tests.insert({"svg/diagram.svgz",
                   {{"Sdiagram", "Timage/svg+xml-compressed", "Zstart"}}});
+    // Same testcase works for ps2pdf+pdftotext and libspectre+poppler.
+    tests.insert({"postscript/small.ps",
+                  {{"ZAolli", "ZFsmall", "ZSdocument", "ZStitl",
+                    "Zdocument", "Zpostscript"}}});
 #ifdef HAVE_GMIME
     tests.insert({"email/html.eml",
                   {{"Aexample", "Ame", "Aorg", "Auser", "Shtml",

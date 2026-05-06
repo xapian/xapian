@@ -267,7 +267,12 @@ OMINDEX_MODULES=""
 dnl check if poppler is available.
 PKG_CHECK_MODULES([POPPLER], [poppler-glib >= 0.16], [
     AC_DEFINE(HAVE_POPPLER, 1, [Define HAVE_POPPLER if the library is available])
-    OMINDEX_MODULES="$OMINDEX_MODULES omindex_poppler"],[ ])
+    OMINDEX_MODULES="$OMINDEX_MODULES omindex_poppler"
+    dnl check if libspectre is available (only useful if we have poppler).
+    PKG_CHECK_MODULES([LIBSPECTRE], [libspectre], [
+	AC_DEFINE(HAVE_LIBSPECTRE, 1, [Define HAVE_LIBSPECTRE if the library is available])
+	OMINDEX_MODULES="$OMINDEX_MODULES omindex_spectrepoppler"],[ ])
+    ],[ ])
 
 dnl check if libe-book is available.
 PKG_CHECK_MODULES([LIBEBOOK], [libe-book-0.1,librevenge-0.0,librevenge-generators-0.0,librevenge-stream-0.0], [

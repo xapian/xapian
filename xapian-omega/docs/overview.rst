@@ -266,9 +266,9 @@ other filters too - see below):
   (in particular libpoppler-glib-dev) are available
 * PostScript (.ps, .eps) if ps2pdf (from ghostscript) and pdftotext (comes with
   poppler or xpdf) or libpoppler (in particular libpoppler-glib-dev) are
-  available.  Since Omega 2.0.1, .ai files are no longer handled as PostScript
-  by extension - modern .ai files are PDF files so we now let libmagic
-  determine their type.
+  available (or since Omega 2.0.1, libspectre and libpoppler-glib-dev).  Since
+  Omega 2.0.1, .ai files are no longer handled as PostScript by extension -
+  modern .ai files are PDF files so we now let libmagic determine their type.
 * OpenOffice/StarOffice documents (.sxc, .stc, .sxd, .std, .sxi, .sti, .sxm,
   .sxw, .sxg, .stw) if unzip is available
 * OpenDocument format documents (.odt, .ods, .odp, .odg, .odc, .odf, .odb,

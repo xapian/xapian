@@ -4,7 +4,7 @@
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2005 James Aylett
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002-2025 Olly Betts
+ * Copyright 2002-2026 Olly Betts
  * Copyright 2009 Frank J Bruzzaniti
  * Copyright 2012 Mihai Bivol
  * Copyright 2019 Bruno Baruffaldi
@@ -172,6 +172,10 @@ index_add_default_libraries()
 #if defined HAVE_POPPLER
     Worker* omindex_poppler = new Worker("omindex_poppler");
     index_library("application/pdf", omindex_poppler);
+# if defined HAVE_LIBSPECTRE
+    Worker* omindex_spectrepoppler = new Worker("omindex_spectrepoppler");
+    index_library("application/postscript", omindex_spectrepoppler);
+# endif
 #endif
 #if defined HAVE_LIBEBOOK
     Worker* omindex_libebook = new Worker("omindex_libebook");
