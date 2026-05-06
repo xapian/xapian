@@ -43,7 +43,7 @@ initialise(string& error)
     }
 
     GError* e = nullptr;
-    tmp_pdf_uri = g_filename_to_uri(tmp_pdf_file.c_str(), NULL, e);
+    tmp_pdf_uri = g_filename_to_uri(tmp_pdf_file.c_str(), NULL, &e);
     if (!tmp_pdf_uri) {
         error = "g_filename_to_uri() failed: "s + e->message;
         g_error_free(e);
