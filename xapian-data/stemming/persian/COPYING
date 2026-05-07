@@ -1,0 +1,20 @@
+voc.txt was derived in part from a dump of the Persian Wikipedia like so:
+
+  scripts/wikipedia-dump-to-freq fawiki-latest-pages-articles.xml.bz2 20 arabic > voc.freq
+  scripts/freq-to-voc < voc.freq | perl -CS -ne 'print if !/\d/ and /^\p{Letter}.*\p{Letter}/' > voc.txt
+
+The dump used was dated 2026-04-02.
+
+These non-words were removed by hand:
+
+آآ
+
+These words were added to improve code coverage:
+
+دانشگاہ
+
+output.txt was generated from voc.txt by running it through the stemmer:
+
+  stemwords -l persian -c UTF_8 -i persian/voc.txt -o persian/output.txt
+
+Wikipedia is licensed as: https://creativecommons.org/licenses/by-sa/3.0/

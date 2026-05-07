@@ -143,6 +143,7 @@ class XAPIAN_VISIBILITY_DEFAULT Stem {
      *  - lithuanian (lt) - Since Xapian 1.4.7
      *  - nepali (ne) - Since Xapian 1.4.7
      *  - norwegian (nb, nn, no)
+     *  - persian (fa) - Since Xapian 2.0.1
      *  - polish (pl) - Since Xapian 2.0.0
      *  - portuguese (pt)
      *  - romanian (ro)

@@ -30,6 +30,7 @@ snowball_algorithms =\
 	languages/algorithms/lovins.sbl\
 	languages/algorithms/nepali.sbl\
 	languages/algorithms/norwegian.sbl\
+	languages/algorithms/persian.sbl\
 	languages/algorithms/polish.sbl\
 	languages/algorithms/porter.sbl\
 	languages/algorithms/portuguese.sbl\
