@@ -197,8 +197,6 @@ class EstimateOp {
     Estimates resolve(Xapian::doccount db_size,
                       Xapian::docid db_first,
                       Xapian::docid db_last);
-
-    unsigned get_subquery_count() const { return sub_estimates.size(); }
 };
 
 namespace Xapian::Internal {
