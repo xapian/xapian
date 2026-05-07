@@ -339,9 +339,8 @@ jobs:
           **/*.log
 
   FORTIFY_SOURCE_3:
-    # _FORTIFY_SOURCE level 3 requires GCC 12, so currently we need to use
-    # Ubuntu 22.04 and the gcc-12 and g++12 packages.
-    runs-on: 'ubuntu-22.04'
+    # _FORTIFY_SOURCE level 3 requires GCC 12.
+    runs-on: 'ubuntu-24.04'
     env:
       LIBEXTRACTOR_PREFIX: '/usr/lib/x86_64-linux-gnu/libextractor'
     needs: makedist
@@ -372,8 +371,6 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install \
-            gcc-12 \
-            g++-12 \
             python3-sphinx \
             uuid-dev \
             libpcre2-dev \
@@ -390,7 +387,7 @@ jobs:
             libglib2.0-dev \
             libe-book-dev \
             libetonyek-dev \
-            libgepub-0.6-dev \
+            libgepub-0.7-dev \
             libgmime-3.0-dev \
             libarchive-dev \
             libabw-dev \
@@ -404,8 +401,8 @@ jobs:
             tesseract-ocr-eng
     - name: configure
       run: |
-        export CC='ccache gcc-12'
-        export CXX='ccache g++-12'
+        export CC='ccache gcc'
+        export CXX='ccache g++'
         # Make this build use builddir != srcdir as we aim to support that and
         # so want to catch regressions in support.  This build seems a good
         # choice for that as it's as full a build as any.
@@ -555,7 +552,7 @@ jobs:
           **/*.log
 
   assertions:
-    runs-on: 'ubuntu-22.04'
+    runs-on: 'ubuntu-24.04'
     env:
       LIBEXTRACTOR_PREFIX: '/usr/lib/x86_64-linux-gnu/libextractor'
     needs: makedist
@@ -602,7 +599,7 @@ jobs:
             libglib2.0-dev \
             libe-book-dev \
             libetonyek-dev \
-            libgepub-0.6-dev \
+            libgepub-0.7-dev \
             libgmime-3.0-dev \
             libarchive-dev \
             libabw-dev \
@@ -710,7 +707,7 @@ jobs:
           **/*.log
 
   debug-log:
-    runs-on: 'ubuntu-22.04'
+    runs-on: 'ubuntu-24.04'
     env:
       LIBEXTRACTOR_PREFIX: '/usr/lib/x86_64-linux-gnu/libextractor'
     needs: makedist
@@ -757,7 +754,7 @@ jobs:
             libglib2.0-dev \
             libe-book-dev \
             libetonyek-dev \
-            libgepub-0.6-dev \
+            libgepub-0.7-dev \
             libgmime-3.0-dev \
             libarchive-dev \
             libabw-dev \
@@ -810,7 +807,7 @@ jobs:
           **/*.log
 
   clang:
-    runs-on: 'ubuntu-22.04'
+    runs-on: 'ubuntu-24.04'
     env:
       LIBEXTRACTOR_PREFIX: '/usr/lib/x86_64-linux-gnu/libextractor'
     needs: makedist
@@ -860,7 +857,7 @@ jobs:
             libglib2.0-dev \
             libe-book-dev \
             libetonyek-dev \
-            libgepub-0.6-dev \
+            libgepub-0.7-dev \
             libgmime-3.0-dev \
             libarchive-dev \
             libabw-dev \
@@ -967,7 +964,6 @@ jobs:
             libcdr-dev \
             libextractor-dev \
             libmwaw-dev \
-            libspectre-dev \
             libtesseract-dev \
             tesseract-ocr-eng
             # libreoffice support doesn't work when compiled with clang on Linux
@@ -1071,7 +1067,6 @@ jobs:
             libextractor-dev \
             libmwaw-dev \
             libreofficekit-dev libreoffice-calc libreoffice-draw libreoffice-impress libreoffice-writer \
-            libspectre-dev \
             libtesseract-dev \
             tesseract-ocr-eng
     - name: configure
