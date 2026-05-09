@@ -70,7 +70,7 @@ Uuid::generate()
         /*
          * AOSP SELinux policyallows /proc/sys/kernel/random/uuid starting only with Android 9
          */
-        int fd = open("/dev/urandom", O_RDONLY | O_CLOEXEC);
+        fd = open("/dev/urandom", O_RDONLY | O_CLOEXEC);
         if (rare(fd == -1)) {
             throw Xapian::DatabaseCreateError("Opening UUID generator failed", errno);
         }
