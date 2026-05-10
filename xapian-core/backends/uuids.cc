@@ -74,7 +74,7 @@ Uuid::generate()
          * AOSP SELinux policyallows /proc/sys/kernel/random/uuid
          *     starting only with Android 9
          *
-         * but arc4random_buf() is avaliable on all API levels:
+         * but arc4random_buf() is available on all API levels:
          * https://android.googlesource.com/platform/
          *     bionic/%2B/master/libc/include/stdlib.h
          */
