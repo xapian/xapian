@@ -35,6 +35,9 @@
 
 #ifdef USE_PROC_FOR_UUID
 # include "safesysstat.h"
+#ifdef __ANDROID__
+#  include <stdlib.h> // for arc4random_buf()
+#endif // __ANDROID__
 #elif defined HAVE_UUID_UUID_H
 # include <exception>
 # include <uuid/uuid.h>
@@ -66,14 +69,29 @@ Uuid::generate()
     char buf[STRING_SIZE];
     int fd = open("/proc/sys/kernel/random/uuid", O_RDONLY);
     if (rare(fd == -1)) {
+#ifdef __ANDROID__
+        /*
+         * AOSP SELinux policyallows /proc/sys/kernel/random/uuid
+         *     starting only with Android 9
+         *
+         * but arc4random_buf() is available on all API levels:
+         * https://android.googlesource.com/platform/
+         *     bionic/%2B/master/libc/include/stdlib.h
+         */
+        arc4random_buf(uuid_data, BINARY_SIZE);
+        uuid_data[6] = (uuid_data[6] & 0x0f) | 0x40; // version 4
+        uuid_data[8] = (uuid_data[8] & 0x3f) | 0x80; // RFC 4122
+#else
         throw Xapian::DatabaseCreateError("Opening UUID generator failed", errno);
+#endif
+    } else {
+        bool failed = (read(fd, buf, STRING_SIZE) != STRING_SIZE);
+        close(fd);
+        if (failed) {
+            throw Xapian::DatabaseCreateError("Generating UUID failed");
+        }
+        parse(buf);
     }
-    bool failed = (read(fd, buf, STRING_SIZE) != STRING_SIZE);
-    close(fd);
-    if (failed) {
-        throw Xapian::DatabaseCreateError("Generating UUID failed");
-    }
-    parse(buf);
 #elif defined HAVE_UUID_UUID_H
     uuid_t uu;
     uuid_generate(uu);
