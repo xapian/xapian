@@ -47,15 +47,15 @@ You will need the following tools installed to build from git:
 For a recent version of Debian or Ubuntu, this command should ensure you have
 all the necessary tools and libraries::
 
-    apt-get install build-essential m4 perl python3 zlib1g-dev uuid-dev wget bison
+    apt-get install build-essential m4 perl python3 zlib1g-dev wget bison
 
 If you want to build Omega, you'll also need::
 
-    apt-get install libpcre2-dev libmagic-dev
+    apt-get install libmagic-dev libpcre2-dev
 
-On Fedora, the uuid library can be installed by doing::
+Or on Fedora::
 
-    yum install libuuid-devel
+    dnf install file-devel pcre2-devel
 
 On macOS, if you're using macports you'll want the following:
 

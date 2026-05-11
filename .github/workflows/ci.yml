@@ -53,7 +53,6 @@ jobs:
             python3-docutils \
             pngcrush \
             python3-sphinx \
-            uuid-dev \
             libpcre2-dev \
             libmagic-dev \
             lua5.4 \
@@ -156,7 +155,6 @@ jobs:
         sudo apt-get update
         sudo apt-get install \
             python3-sphinx \
-            uuid-dev \
             libpcre2-dev \
             libmagic-dev \
             lua5.4 \
@@ -268,7 +266,6 @@ jobs:
         sudo apt-get update
         sudo apt-get install \
             python3-sphinx \
-            uuid-dev \
             libpcre2-dev \
             libmagic-dev \
             lua5.4 \
@@ -372,7 +369,6 @@ jobs:
         sudo apt-get update
         sudo apt-get install \
             python3-sphinx \
-            uuid-dev \
             libpcre2-dev \
             libmagic-dev \
             lua5.4 \
@@ -483,7 +479,6 @@ jobs:
         sudo apt-get update
         sudo apt-get install \
             python3-sphinx \
-            uuid-dev \
             libpcre2-dev \
             libmagic-dev \
             lua5.4 \
@@ -584,7 +579,6 @@ jobs:
         sudo apt-get update
         sudo apt-get install \
             python3-sphinx \
-            uuid-dev \
             libpcre2-dev \
             libmagic-dev \
             lua5.4 \
@@ -678,7 +672,6 @@ jobs:
         sudo apt-get update
         sudo apt-get install \
             python3-sphinx \
-            uuid-dev \
             libicu-dev \
             pkg-config
     - name: configure
@@ -739,7 +732,6 @@ jobs:
         sudo apt-get update
         sudo apt-get install \
             python3-sphinx \
-            uuid-dev \
             libpcre2-dev \
             libmagic-dev \
             lua5.4 \
@@ -843,7 +835,6 @@ jobs:
             libc++-dev
         sudo apt-get install \
             python3-sphinx \
-            uuid-dev \
             libpcre2-dev \
             libmagic-dev \
             lua5.4 \
@@ -945,7 +936,6 @@ jobs:
             clang-11
         sudo apt-get install \
             python3-sphinx \
-            uuid-dev \
             libpcre2-dev \
             libmagic-dev \
             python3-dev \
@@ -1043,6 +1033,7 @@ jobs:
         sudo apt-get install \
             gcc-9 \
             g++-9
+        # Include uuid-dev for this build so we test that configuration somewhere.
         sudo apt-get install \
             python3-sphinx \
             uuid-dev \
@@ -1174,7 +1165,6 @@ jobs:
         apt-get install -y \
             xz-utils \
             python3-sphinx \
-            uuid-dev \
             libpcre2-dev \
             libmagic-dev \
             lua5.4 \
@@ -1749,7 +1739,7 @@ jobs:
     - name: Install package dependencies
       run: |
         dnf install -y --nodocs \
-        gcc-c++ file-devel libuuid-devel pcre2-devel perl zlib-devel make pkg-config \
+        gcc-c++ file-devel pcre2-devel perl zlib-devel make pkg-config \
         python3-devel python3-setuptools python3-sphinx \
         ruby ruby-devel rubygems rubygem-rdoc rubygem-json rubygem-test-unit \
         tcl-devel

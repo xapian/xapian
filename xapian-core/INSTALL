@@ -36,13 +36,17 @@ have an older version installed), but unless you're using a packaged version
 with backported patches for security fixes and serious bugs, you should
 probably use the latest upstream release.
 
-Xapian also requires a way to generate UUIDs.  On FreeBSD, NetBSD, OpenBSD,
-AIX and Microsoft Windows, Xapian makes use of built-in UUID APIs.  On Linux
-and Android, Xapian 1.4.2 and higher can read UUIDs from a special file under
-/proc.  Otherwise you need to install libuuid which you can find in
-util-linux (https://github.com/karelzak/util-linux).  On Debian and
-Ubuntu, the package to install is uuid-dev, while on Fedora, it is
-libuuid-devel (on older Fedora versions you instead need e2fsprogs-devel).
+Xapian also requires a way to generate UUIDs - each disk-based database has
+its own UUID, which is used by replication and available to user code.  Since
+2.0.1, we now generate our own if the platform provides the POSIX getentropy()
+or BSD arc4random() function.  On AIX, Microsoft Windows and Solaris, Xapian
+generates UUIDs using built-in UUID APIs.  Linux provides getentropy() since
+glibc 2.25, available for example in Debian 10, Ubuntu 18.04 and RHEL 8 - if
+you still need to support older Linux, Xapian can read UUIDs from a special
+file under /proc (supported since Linux 2.3.16) or use libuuid from util-linux
+(https://git.kernel.org/pub/scm/utils/util-linux/util-linux.git/tree/libuuid;
+On Debian and Ubuntu, the package to install is uuid-dev, while on Fedora, it
+is libuuid-devel; on older Fedora versions you instead need e2fsprogs-devel).
 
 Optionally, ICU can be used for finding words boundaries in text for some
 languages which are not written with explicit word breaks.  This support

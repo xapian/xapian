@@ -926,6 +926,9 @@ case $enable_backend_glass$enable_backend_honey in
 
   dnl Find a way to generate UUIDs.
 
+  dnl Sources of cryptographically secure randomness for UUID generation.
+  AC_CHECK_FUNCS([arc4random_buf arc4random getentropy])
+
   case $host_os-$win32 in
     *-yes | cygwin* | msys*) dnl Use built-in win32 API.
       AC_DEFINE([USE_WIN32_UUID_API], [1],
@@ -937,35 +940,39 @@ case $enable_backend_glass$enable_backend_honey in
       fi
       LIBS="$LIBS -lrpcrt4"
       ;;
+    dragonfly* | freebsd* | netbsd* | openbsd*)
+      dnl These have all had arc4random_buf() or arc4random() since the early
+      dnl 2000s or before so we can rely on it being available.  They also all
+      dnl have uuid_create() but we don't aim to support anything old enough to
+      dnl need it.
+      ;;
+    linux-android*)
+      dnl Android also has /proc/sys/kernel/random/uuid but access is blocked
+      dnl by SELinux policy in Android < 9.  All API levels provide
+      dnl arc4random_buf() so we just rely on that instead.
+      ;;
     *)
-      dnl Check for uuid/uuid.h (e2fsprogs/util-linux-ng) or uuid.h
-      dnl (FreeBSD/NetBSD/OpenBSD/AIX).
+      dnl Check for uuid/uuid.h (util-linux and Solaris) or uuid.h (AIX).
       AC_CHECK_HEADERS([uuid/uuid.h], [
-        dnl util-linux-ng's uuid/uuid.h found - check for uuid_generate in
-        dnl -luuid.
+        dnl Header found - check for uuid_generate in -luuid.
         AC_SEARCH_LIBS([uuid_generate], [uuid], [], [
-          AC_MSG_ERROR([uuid_generate() not found in -luuid - required for glass and honey backends (you may need to install the uuid-dev, libuuid-devel or e2fsprogs-devel package)])
+          AC_MSG_ERROR([uuid/uuid.h found, but uuid_generate() not found])
           ])
       ], [
-        dnl Try uuid.h as found on FreeBSD/NetBSD/OpenBSD/AIX, with associated
-        dnl code in libc.
+        dnl The best option for AIX seems to be uuid_create in uuid.h.
         AC_CHECK_HEADERS([uuid.h], [
           dnl Check for uuid_create with no extra libraries required.
           AC_CHECK_FUNC([uuid_create], [], [
-            AC_MSG_ERROR([uuid.h found, but uuid_create() not found.  You probably wants to install libuuid from util-linux-ng or e2fsprogs (you may need to install the uuid-dev, libuuid-devel or e2fsprogs-devel package)])
+            AC_MSG_ERROR([uuid.h found, but uuid_create() not found)])
           ])
         ], [
-          dnl Especially useful for Android.
+          dnl Linux-specific.
           AC_MSG_CHECKING([if host platform supports /proc/sys/kernel/random/uuid])
           case $host_os in
             linux*)
               AC_DEFINE([USE_PROC_FOR_UUID], [1],
                         [Define to 1 to read UUID from '/proc/sys/kernel/random/uuid'])
               AC_MSG_RESULT([yes])
-              ;;
-            *)
-              AC_MSG_RESULT([no])
-              AC_MSG_ERROR([Failed to find a way to generate UUIDs, required for glass and honey backends (you may need to install the uuid-dev, libuuid-devel or e2fsprogs-devel package)])
               ;;
           esac
         ], [ ])
