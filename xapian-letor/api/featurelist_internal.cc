@@ -4,6 +4,7 @@
 /* Copyright (C) 2012 Parth Gupta
  * Copyright (C) 2016 Ayush Tomar
  * Copyright (C) 2019 Vaibhav Kansagara
+ * Copyright (C) 2026 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -30,6 +31,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <limits>
 #include "debuglog.h"
 
 using namespace std;
@@ -122,9 +124,13 @@ FeatureList::Internal::compute_collection_length() const
             title_len += featurelist_db.get_collection_freq(*dt);
         }
         len["title"] = title_len;
-        Xapian::termcount whole_len = featurelist_db.get_avlength() *
-                featurelist_db.get_doccount();
-        len["whole"] = whole_len;
+        Xapian::totallength whole_len = featurelist_db.get_total_length();
+        if (whole_len > std::numeric_limits<Xapian::termcount>::max()) {
+            // FIXME Total length too large to fit in Xapian::termcount -
+            // how best to handle?  We just clamp for now.
+            whole_len = std::numeric_limits<Xapian::termcount>::max();
+        }
+        len["whole"] = Xapian::termcount(whole_len);
         len["body"] = whole_len - title_len;
     }
     return len;
