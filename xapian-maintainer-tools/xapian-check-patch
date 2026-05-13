@@ -218,6 +218,7 @@ while (<>) {
             $check_trailing = 0;
         } elsif ($ext eq 'patch') {
             $check_space_tab = 0;
+            $check_trailing = 0;
         } elsif ($ext eq 'txt') {
             # Imported text file with trailing whitespace.
             if ($fnm =~ m!/testdata/etext\.txt$!) {
