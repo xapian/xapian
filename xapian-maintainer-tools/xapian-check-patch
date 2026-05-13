@@ -213,9 +213,6 @@ while (<>) {
         } elsif ($ext eq 'rb') {
             $lang = 'rb';
             $want_tabs = 0;
-        } elsif ($ext eq 'sbl') {
-            $check_space_tab = 0;
-            $check_trailing = 0;
         } elsif ($ext eq 'patch') {
             $check_space_tab = 0;
             $check_trailing = 0;
