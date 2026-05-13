@@ -1,0 +1,19 @@
+diff --git a/build-aux/ltmain.in b/build-aux/ltmain.in
+index 70d0e111..3c30492b 100644
+--- a/build-aux/ltmain.sh
++++ b/build-aux/ltmain.sh
+@@ -10918,7 +10918,13 @@ func_mode_link ()
+ 	    # compiling, it, like the target executable, must be
+ 	    # executed on the $host or under an emulation environment.
+ 	    $opt_dry_run || {
+-	      $LTCC $LTCFLAGS -o $cwrapper $cwrappersource
++	      func_cc_basename "$LTCC"
++	      case $func_cc_basename_result in
++		cl|cl.exe)
++		  $LTCC $LTCFLAGS -Fe$cwrapper $cwrappersource ;;
++		*)
++		  $LTCC $LTCFLAGS -o $cwrapper $cwrappersource ;;
++	      esac
+ 	      $STRIP $cwrapper
+ 	    }
+ 
