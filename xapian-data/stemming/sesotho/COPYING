@@ -1,0 +1,24 @@
+voc.txt was derived from a dump of the Sesotho wikipedia by the script
+wikipedia-dump-to-freq like so:
+
+    scripts/wikipedia-dump-to-freq stwiki-20260401-pages-articles.xml.bz2 2 latin1 > st.freq
+    # Review and filter st.freq as explained below.
+    scripts/freq-to-voc < st.freq > sesotho/voc.txt
+
+The dump used was dated 2026-04-01.
+
+Sesotho wikipedia is fairly small so we chose a low frequency threshold, but
+that meant the output included a lot of non-Sesotho words, junk words (many
+seem to be from wikipedia macro code), etc, so we performed extensive filtering
+of the resulting list.
+
+Words which contained letters or letter patterns which aren't valid in Sesotho
+were removed, most words which were also in an English word list were removed
+(with a few exceptions, such as "banana" which means "girls" in Sesotho).
+Then manual review removed more.
+
+output.txt was generated from voc.txt by running it through the stemmer:
+
+stemwords -l sesotho -c UTF_8 -i sesotho/voc.txt -o sesotho/output.txt
+
+Wikipedia is licensed as: https://creativecommons.org/licenses/by-sa/3.0/

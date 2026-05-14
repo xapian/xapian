@@ -1,0 +1,115 @@
+/* stringescapes UTF-8 */
+
+/*
+  Sesotho stemmer for the Snowball project
+  ----------------------------------------
+  Author: Kamohelo Lebjane
+  Purpose: To reduce Sesotho words to their morphological stems.
+
+  Language notes:
+  Sesotho (Southern Sotho) is an agglutinative Bantu language.
+  Words often contain prefixes for noun classes and suffixes
+  for tense, aspect, or derivation.
+
+  An agglutinative language is a type of language that primarily forms words
+  by stringing together morphemes (word parts)—each typically representing a single
+  grammatical meaning—without significant modification to their forms (agglutinations).
+  In such languages, affixes (prefixes, suffixes, infixes, or circumfixes)
+  are added to a root word in a linear and systematic way, creating complex
+  words that encode detailed grammatical information.
+
+  Examples:
+    baruti      -> rut (root)
+    moruti      -> rut (root)
+    rutile      -> rut (root)
+
+  The rules below remove common noun class prefixes
+  and common verb suffixes, keeping the main root form.
+*/
+
+/* --- Routine declarations --- */
+routines (
+  mark_regions
+  remove_noun_prefixes
+  remove_verb_suffixes
+  remove_nominal_suffixes
+)
+
+/* --- External declarations --- */
+externals ( stem )
+
+/* --- Groupings --- */
+groupings ( v )
+
+/* --- Character sets --- */
+define v 'aeiou'
+
+/* --- Integer for tracking position --- */
+integers ( pV )
+
+/* --- Mark vowel region --- */
+define mark_regions as (
+  // Set pV after the first vowel and at least 2 characters into the string.
+  // Signals f if the string doesn't contain a vowel or is shorter than 2
+  // characters.
+  test (gopast v  setmark pV)
+  test (hop 2 do ($(cursor > pV) setmark pV))
+)
+
+/* --- Remove noun class prefixes --- */
+define remove_noun_prefixes as (
+  [substring] among(
+    'mo'   'ba'   'me'   'le'
+    'ma'   'se'   'boi'   'li'
+  )
+  /* Require at least two characters remain */
+  test (next not atlimit)
+  /* Only delete if there's a vowel after the cursor position */
+  gopast v delete
+)
+
+backwardmode (
+
+  /* --- Remove verb suffixes (from end of word) --- */
+  define remove_verb_suffixes as (
+    setlimit tomark pV for (
+      [substring] among(
+        'ile'   /* perfect tense */
+        'isa'   /* causative */
+        'etse'  /* applicative */
+        'ela'   /* applicative */
+        'ang'   /* plural imperative */
+        'ong'    /* continuous/derived form */
+        'eng'
+        'wa'    /* passive */
+        'a'     /* infinitive marker */
+        (delete)
+      )
+    )
+  )
+
+  /* --- Remove nominal suffixes --- */
+  define remove_nominal_suffixes as (
+    setlimit tomark pV for (
+      [substring] among(
+        'nyana'   /* diminutive form */
+        'ana'     /* diminutive form */
+        'ano'
+        'oa'
+        'i'
+        (delete)
+      )
+    )
+  )
+
+)
+
+/* --- MAIN STEMMER --- */
+define stem as (
+  mark_regions // Signals f if the string is too short to stem.
+  backwards (
+    do remove_nominal_suffixes
+    do remove_verb_suffixes
+  )
+  do remove_noun_prefixes
+)

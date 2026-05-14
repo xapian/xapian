@@ -149,6 +149,7 @@ class XAPIAN_VISIBILITY_DEFAULT Stem {
      *  - romanian (ro)
      *  - russian (ru)
      *  - serbian (sr) - Since Xapian 2.0.0
+     *  - sesotho (st) - Since Xapian 2.0.1
      *  - spanish (es)
      *  - swedish (sv)
      *  - tamil (ta) - Since Xapian 1.4.7

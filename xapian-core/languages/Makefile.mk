@@ -37,6 +37,7 @@ snowball_algorithms =\
 	languages/algorithms/romanian.sbl\
 	languages/algorithms/russian.sbl\
 	languages/algorithms/serbian.sbl\
+	languages/algorithms/sesotho.sbl\
 	languages/algorithms/spanish.sbl\
 	languages/algorithms/swedish.sbl\
 	languages/algorithms/tamil.sbl\
