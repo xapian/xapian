@@ -2194,7 +2194,7 @@ jobs:
           **/*.log
 
   msvc2022:
-    runs-on: 'windows-2025'
+    runs-on: 'windows-2022'
     needs: makedist
     defaults:
       run:
@@ -2307,7 +2307,7 @@ jobs:
           **/*.log
 
   msvc2022-x86:
-    runs-on: 'windows-2025'
+    runs-on: 'windows-2022'
     needs: makedist
     defaults:
       run:
